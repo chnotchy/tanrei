@@ -1,0 +1,393 @@
+{
+  "tanrei": {
+    "comp": {
+      "tree-view": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows things that hold other things, to any depth, as rows that open and close: the folders and files of a project, the tiers, groups and tokens of a design system, the categories of a catalogue, the parts of a document. Some of these trees are only read and opened; in others one row is chosen, or several; some are a few rows in a page of text and some are hundreds of rows in a tool; some rows carry a glyph, a note after their name or a short value at their end, some are unavailable, and some fetch what they hold when they are first opened.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "selected"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "label.color": "color",
+              "supporting-text.color": "color",
+              "trailing-text.color": "color",
+              "icon.color": "color",
+              "chevron.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            },
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "container.height",
+                "container.padding-block",
+                "container.padding-inline",
+                "container.gap",
+                "level.indent",
+                "label.typescale",
+                "icon.size",
+                "chevron.size"
+              ]
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a tree view reads: per density (regular, compact) a row's least height, paddings, gap, the indent of one level, the label's text style and the sizes of the glyph and the chevron; the text styles of the note after a label and of the value at a row's end; the row's corners; the guide line; the motion of a press and of opening and closing; and for each condition (unselected, selected) the colors of a row's container, label, supporting text, trailing text, icon, chevron and state layer in each state.",
+            "rules": [
+              "A tree view shows a hierarchy whose items open and close, and lets a person choose in it where the product asks. A hierarchy of places to go is a navigation drawer: a drawer navigates, a tree reveals or selects. Content folded under a row is an accordion. Rows of one level are a list.",
+              "One tab stop: the arrow keys move through the rows that are shown, the arrow toward the end of the line opens a parent or steps into it, the arrow toward the start closes it or steps out. Do not add tab stops inside a row.",
+              "The chevron stands at the start of a row and is the only mark of open and closed; a leaf keeps the chevron's room empty, so that names of one level begin on one line.",
+              "An item is chosen by its value. An item without a value cannot be chosen: a press on its row opens or closes it. The chevron always opens and closes and never chooses.",
+              "selection none is the read-only tree: a figure of a file system in a page of text, a structure to look through. Its leaves answer nothing; its parents still open and close.",
+              "The selected fill is the quiet selection (secondary-container), the same in a list and in a drawer. Never use the primary fill or the accent for it: primary is the one chosen now among actions, and the accent is the keyboard focus ring alone.",
+              "A row holds no control: no link, button or field. A word such as a tag or a count is the trailing slot or the trailing text.",
+              "The tree shows what it is given. Filtering, sorting, searching and fetching are the product's: it gives the tree the items that match and opens the parents that hold them.",
+              "compact is for a tool used with a pointer and for a small tree inside text. Touch always gets rows of the touch target.",
+              "Each condition's state-layer.color is the color hover, focus and press mix into the row; it aliases the condition's label color.",
+              "Restyle through these tokens in a layer; never draw nested lists with chevrons by hand."
+            ]
+          }
+        },
+        "container": {
+          "height": {
+            "$type": "dimension",
+            "$description": "A row's least height, per density: the box that carries hover, focus, press and the selected fill. Regular is a navigation drawer's row and the touch target. Compact is a table's compact row, for a tool used with a pointer and for a small tree inside text; for touch a row is never lower than the touch target, whatever this says (TRV-26). A minimum: a row grows with a label that wraps and with enlarged text.",
+            "regular": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
+              }
+            },
+            "compact": {
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            }
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "Above the first line and below the last line of a row's text, per density. With one line of the label it gives the height or leaves room; it holds the room when the label wraps or the text is enlarged.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space75}"
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "Before the chevron's box and after the last part of a row, per density, inside the row's container.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space100}"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Between the chevron's box, the icon, the text, the trailing content and the trailing text of a row, per density. Regular is a navigation drawer row's gap.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space100}"
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.small}",
+            "$description": "The corners of a row's container, which its selected fill, its state layer and its focus indicator follow: a navigation drawer row's and a menu item's."
+          }
+        },
+        "level": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product shows how deep an item lies by how far in its row begins, and a dense tree steps in less than a roomy one. How far one level steps is the tree's own measure: it is not the space inside a row, and a product may step a tree of files in by less than the groups of its drawer.",
+              "since": "0.1.0"
+            }
+          },
+          "indent": {
+            "$type": "dimension",
+            "$description": "How much further from the start edge a row's container begins for each level below the first, per density: the chevron's box and one gap, so that a child's chevron stands under its parent's icon or label.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space400}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space300}"
+            }
+          }
+        },
+        "label": {
+          "typescale": {
+            "$description": "The label's text style, per density. Regular is a list item's headline; compact is one step smaller, a table's compact cell.",
+            "regular": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body}"
+            },
+            "compact": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-small}"
+            }
+          }
+        },
+        "supporting-text": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product says a few words about some items after their names (after \"tokens/\": \"the source of truth, edited by hand\"), quieter than the names, so that the names still read down the tree as one column.",
+              "since": "0.1.0"
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}",
+            "$description": "The note after the label, in both densities: the size of the compact label, at a regular weight."
+          }
+        },
+        "trailing-text": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product puts a count or the present value at the end of some rows (the number of tokens in a group, the size of a file, the value of a token), quieter than the name so that the names still lead the eye.",
+              "since": "0.1.0"
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}",
+            "$description": "The short value at the end of a row, in both densities: a navigation drawer row's trailing text."
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The box of the glyph before the label, per density: no taller than one line of the label, so that it sits on the first line without making the row taller.",
+            "regular": {
+              "$value": "{tanrei.sys.icon.small}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.icon.extra-small}"
+            }
+          }
+        },
+        "chevron": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product draws the mark that says a row opens at a size of its own, so that it reads as a mark and not as a second icon; the accordion and the navigation drawer make the same distinction.",
+              "since": "0.1.0"
+            }
+          },
+          "size": {
+            "$type": "dimension",
+            "$description": "The chevron's box at the start of a row, per density; a leaf keeps the box empty. Regular is the size of a navigation drawer group's chevron.",
+            "regular": {
+              "$value": "{tanrei.sys.icon.small}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.icon.extra-small}"
+            }
+          }
+        },
+        "guide": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product draws a line down from an open parent beside what it holds, in a deep tree where the indent alone no longer shows which rows belong together, and draws none in a shallow one. The line is the tree's own: a system may draw it apart from its dividers.",
+              "since": "0.1.0"
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}",
+            "$description": "The guide line of a tree whose guides is true: the one hairline. Decorative: the hierarchy is told by the indent and, to assistive technology, by the structure."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "unselected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A row that is not selected draws no fill: it is a row on the surface the tree stands on; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The label: the text color of the surface the tree stands on, as a list item's headline."
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "trailing-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "chevron": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The chevron: a mark, quieter than the label, in the color a navigation drawer and an accordion draw theirs in."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.tree-view.unselected.label.color}",
+              "$description": "What hover, focus and press mix into the row: the label's color."
+            }
+          }
+        },
+        "selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "$description": "The quiet selection: the fill of a selected list item and of a selected destination in a navigation drawer."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "On the selected fill every part takes the fill's own content color, which is held to contrast on it; the secondary text color is held only on surfaces."
+            }
+          },
+          "trailing-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}"
+            }
+          },
+          "chevron": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.tree-view.selected.label.color}",
+              "$description": "What hover, focus and press mix into a selected row: its label's color."
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long a state change of a row takes."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "disclosure-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$description": "How long a parent takes to open or close: its rows revealed or hidden, what follows moving, and its chevron turning. The name and the value of a navigation drawer group's and an accordion's.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product opens a level of a tree as a small local change, faster or slower than it answers a press; and it may time a tree in a tool, where a person opens many levels in a row, apart from a group of its drawer.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "disclosure-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "The curve of disclosure-duration.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

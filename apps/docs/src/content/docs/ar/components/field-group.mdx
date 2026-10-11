@@ -1,0 +1,188 @@
+---
+title: مجموعة الحقول
+description: "تسمّي مجموعة من عناصر التحكم تجيب عن سؤال واحد، من خانات اختيار أو مفاتيح تبديل أو حقول ينتمي بعضها إلى بعض: بتسمية تستطيع أن تقول إن المجموعة مطلوبة أو اختيارية، ووصف، وخطأ واحد للمجموعة، وترتّب عناصر التحكم في عمود أو في صف."
+translationOf: components/field-group.mdx
+sourceHash: 0c05f716a744df37389e7c61de7327157afc78c5
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="field-group" />
+
+<DemoFrame label="مجموعة من خانات الاختيار لها اسم ووصف وعلامة المطلوب" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أرسلوا لي الإشعارات عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب">
+    <tanrei-checkbox label="البريد الإلكتروني" checked></tanrei-checkbox>
+    <tanrei-checkbox label="رسالة نصية"></tanrei-checkbox>
+    <tanrei-checkbox label="إشعار فوري"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+بعض الأسئلة يُجاب عنها بعدة عناصر تحكم: أيّ هذه، أو هذه الإعدادات، أو عنوان في خمسة حقول. ومجموعة الحقول تعطي تلك العناصر اسمًا واحدًا، وسطرًا يقول كيف يُجاب، وكلمة تقول هل تجب الإجابة، وسببًا واحدًا حين تُرفض الإجابة. فهي [حقل](/ar/components/field/) عنصر التحكم فيه مجموعة.
+
+المجموعة تؤطّر عناصر التحكم وترتّبها. لا تحدّد شيئًا، ولا تحمل قيمة، ولا تنقل تركيزًا، ولا تعالج مفتاحًا: فكل عنصر تحكم يحتفظ بما له.
+
+على الويب هي `<tanrei-field-group>`. والمنصات الأخرى لم تنفّذها بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field-group label="أرسلوا لي الإشعارات عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب"
+                        error error-text="اختر طريقة واحدة على الأقل للتواصل معك.">
+      <tanrei-checkbox name="notify" value="email" label="البريد الإلكتروني"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="text" label="رسالة نصية"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="push" label="إشعار فوري"></tanrei-checkbox>
+    </tanrei-field-group>
+
+    <!-- حقول ينتمي بعضها إلى بعض. -->
+    <tanrei-field-group label="عنوان الشحن" spacing="fields">
+      <tanrei-text-field label="الشارع" requirement="required" required-text="مطلوب"></tanrei-text-field>
+      <tanrei-text-field label="المدينة" requirement="required" required-text="مطلوب"></tanrei-text-field>
+    </tanrei-field-group>
+
+    <script type="module">
+      import '@tanrei/web/components/field-group';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, FieldGroup } from '@tanrei/react';
+
+    <FieldGroup label="أرسلوا لي الإشعارات عبر" supportingText="اختر كل ما ينطبق." error={none} errorText="اختر طريقة واحدة على الأقل للتواصل معك.">
+      <Checkbox label="البريد الإلكتروني" checked={email} onChange={(event) => setEmail(event.detail.checked)} />
+      <Checkbox label="رسالة نصية" checked={text} onChange={(event) => setText(event.detail.checked)} />
+    </FieldGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="خطأ للمجموعة، وترتيب في صف، ومفاتيح تبديل، وحقول ينتمي بعضها إلى بعض" plain column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أرسلوا لي الإشعارات عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب" error error-text="اختر طريقة واحدة على الأقل للتواصل معك.">
+    <tanrei-checkbox label="البريد الإلكتروني"></tanrei-checkbox>
+    <tanrei-checkbox label="رسالة نصية"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أرسلوا لي الإشعارات عبر" orientation="horizontal">
+    <tanrei-checkbox label="البريد" checked></tanrei-checkbox>
+    <tanrei-checkbox label="رسالة نصية"></tanrei-checkbox>
+    <tanrei-checkbox label="إشعار فوري"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="الخصوصية" supporting-text="تنطبق على هذا الجهاز فقط." requirement="optional" optional-text="اختياري">
+    <tanrei-switch label="مشاركة بيانات الاستخدام" selected></tanrei-switch>
+    <tanrei-switch label="إظهار حالتي"></tanrei-switch>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المدينة والرمز البريدي" spacing="fields" orientation="horizontal">
+    <tanrei-text-field label="المدينة" value="كيوتو"></tanrei-text-field>
+    <tanrei-text-field label="الرمز البريدي" value="604-8571"></tanrei-text-field>
+  </tanrei-field-group>
+</DemoFrame>
+
+<ComponentSpecs name="field-group" />
+
+## الإرشادات
+
+### لأي شيء تُستخدم مجموعة الحقول
+
+| المجموعة | استخدم |
+| --- | --- |
+| خانات اختيار تجيب عن سؤال واحد، أو مفاتيح تبديل هي مجموعة واحدة من الإعدادات | مجموعة حقول. |
+| حقول ينتمي بعضها إلى بعض: عنوان، أو تاريخ في أجزاء | مجموعة حقول مع `spacing="fields"`. |
+| أزرار اختيار | [مجموعة أزرار اختيار](/ar/components/radio-group/)، وهي مجموعة حقول حولها تحمل كذلك قيمتها الواحدة. ومكتوبةً باليد: مجموعة حقول مع `kind="radio-group"` (أدناه). |
+| عنصر تحكم واحد | [حقلًا](/ar/components/field/). |
+
+### مجموعة من أزرار الاختيار: الخاصية `kind`
+
+ليست للمجموعة حالة المطلوب ولا حالة عدم الصلاحية، ولذلك تقول مجموعة الحقول المطلوب بالكلمات وتعلّم خانات الاختيار فيها غير صالحة واحدة واحدة. ومجموعة أزرار الاختيار تختلف: فهي مطلوبة وغير صالحة بكاملها. القيمة `kind="radio-group"` تخبر مجموعة الحقول بأن ما فيها هو أزرار الاختيار لمجموعة واحدة، فتصير عندئذ مجموعة أزرار الاختيار لها عند التقنيات المساعدة: مطلوبة ما دامت `requirement` بالقيمة `required`، وغير صالحة ما دامت `error` بالقيمة true، وتقول اتجاهها. ولا يبقى `requiredText` جزءًا من وصفها، لأن الحالة تقوله.
+
+```html
+<tanrei-field-group kind="radio-group" label="التوصيل" requirement="required" required-text="مطلوب">
+  <tanrei-radio-button name="delivery" value="standard" label="عادي، من 3 إلى 5 أيام" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="مجموعة حقول نوعها radio-group، حول أزرار اختيار لها اسم واحد" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="التوصيل" requirement="required" required-text="مطلوب">
+    <tanrei-radio-button name="delivery-kind" value="standard" label="عادي، من 3 إلى 5 أيام" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-kind" value="express" label="سريع، في اليوم التالي"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+الخاصية `kind` تغيّر ما يُعرض للتقنيات المساعدة ولا تغيّر شيئًا مما يُرسم، وتبقى مجموعة الحقول بلا قيمة، لا تنقل تركيزًا ولا تعالج مفتاحًا: فأزرار الاختيار تحتفظ بتحديدها ومفاتيح الأسهم وموضع توقفها الواحد بحسب `name`. وهذه هي [مجموعة أزرار الاختيار](/ar/components/radio-group/) في المستوى الأدنى. استخدم مجموعة أزرار الاختيار إلا إذا احتجت إلى ترتيب للمجموعة لا تقدّمه: فهي تضيف القيمة الواحدة، وحدث `change` واحدًا، ومكانًا في النموذج بصفتها عنصر تحكم واحدًا.
+
+في هذا النوع تحمل المجموعة أزرار الاختيار لمجموعة واحدة ولا شيء غيرها مما يمكن تشغيله، وتبقى `spacing` بالقيمة `controls`. وبنية التنقيح (debug) تبلّغ عن عنصر تحكم آخر، وعن أزرار اختيار باسمين، وعن تباعد آخر.
+
+### بماذا تختلف عن الحقل
+
+المجموعة طويلة وتُقرأ من أعلاها، ولذلك يقف شيئان في غير موضعهما من الحقل:
+
+- الوصف تحت التسمية، قبل عناصر التحكم، ويبقى ما دامت المجموعة في حالة خطأ. فالعبارة «اختر كل ما ينطبق» يجب أن تُقرأ قبل الخيارات، وهي ما يحتاج إليه الشخص من جديد حين تُرفض الإجابة.
+- نص الخطأ صف قائم بذاته، تحت آخر عنصر تحكم.
+
+أما التسمية ووسم المطلوب أو الاختياري والنجمة فهي ما للحقل.
+
+### التخطيط
+
+- القيمة `orientation="vertical"` (الافتراضية) ترصّ عناصر التحكم في عمود واحد. فضِّلها: كل تسمية تبدأ من حافة واحدة وتُقرأ نزولًا.
+- القيمة `orientation="horizontal"` ترتّبها في صف يلتفّ. خُصَّها بخيارين قصيرين أو ثلاثة، أو بحقول تُقرأ سطرًا واحدًا، كمدينة ورمزها البريدي. فالصف الملتفّ يُخفي أيّ تسمية تتبع أيّ علامة.
+- الخاصية `spacing` تقول ما الذي تحمله المجموعة. القيمة `controls` تجعل بين خانات الاختيار ومفاتيح التبديل بُعد هدف لمس واحد؛ والقيمة `fields` تجعل بين الحقول المسافة التي يتركها النموذج بين حقلين، وتدع كلًّا منها يملأ العرض. ويستطيع نظام تصميم أن يضيف قيمًا.
+
+علامة خانة الاختيار أو مفتاح التبديل تقف داخل حاويتها، فتبدأ أبعد قليلًا إلى الداخل من تسمية المجموعة. والمجموعة لا تسحبها إلى الخارج: فالحاوية هي حيث يرسم عنصر التحكم تحويمه وحلقة تركيزه.
+
+### الأخطاء
+
+الخاصية `error` تضع المجموعة في حالة الخطأ: يُرسم نص الخطأ، وتُرسم كل خانة اختيار في هيئة الخطأ الخاصة بها وتُعرض على أنها غير صالحة، ويُرسم كل زر اختيار في هيئة الخطأ الخاصة به. وزر الاختيار لا يُعرض على أنه غير صالح: فدوره ليست له هذه الحالة، ومجموعة أزرار الاختيار هي التي تقولها. ومفتاح التبديل ليست له هيئة خطأ ويبقى كما هو مرسوم. والحقل الذي في المجموعة يحتفظ بالخطأ الذي أعطيته إياه: كل حقل يقول خطأه بالكلمات، وخطأ المجموعة هو للمجموعة كلها («اختر واحدًا على الأقل»).
+
+وقد يكون عنصر تحكم واحد من مجموعة صالحة في حالة خطأ بمفرده.
+
+### افعل
+
+- سمِّ المجموعة بالسؤال الذي تجيب عنه عناصر التحكم فيها: «أرسلوا لي الإشعارات عبر».
+- أعطِ كل عنصر تحكم تسميته الخاصة. تسمية المجموعة لا تحلّ محلها.
+- استخدم مجموعة من الحقول للتفريق بين مجموعتين لهما التسميات نفسها: «عنوان الشحن» و«عنوان الفوترة».
+
+### لا تفعل
+
+- لا تضع أزرار اختيار في مجموعة حقول من دون أن تقول ذلك: استخدم [مجموعة أزرار اختيار](/ar/components/radio-group/)، أو عيِّن `kind="radio-group"`. ففي المجموعة العادية ليست لها حالة المطلوب ولا حالة عدم الصلاحية، وبنية التنقيح تبلّغ عن ذلك.
+- لا تستخدم مجموعة الحقول للتخطيط وحده. من دون اسم مشترك رتِّب الحقول بنفسك، برمز التباعد نفسه (`comp.field-group.gap.fields`).
+- لا تجعل المجموعات متداخلة أكثر من مستوى واحد. المجموعة التي داخل مجموعة عضو واحد فيها، وتُقرأ مجموعةً داخل مجموعة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="field-group" />
+
+### ما يتكفل به المكوّن
+
+- على الويب المجموعة عنصر `fieldset` مع عنصر `legend`: مجموعة تحتوي عناصر التحكم التي لها وتسمّيها الخاصية `label`، سواء رُسمت أم أُخفيت بالخاصية `labelHidden`.
+- وصف المجموعة هو `supportingText`، ثم `errorText` ما دامت `error` بالقيمة true، ثم `requiredText` أو `optionalText`. وليست للمجموعة حالة المطلوب ولا حالة عدم الصلاحية، ولهذا يُقال المطلوب بالكلمات.
+- كل خانة اختيار وضعتها المجموعة في حالة خطأ تُعرض على أنها غير صالحة بمفردها، ونص الخطأ وصفها.
+- مع `kind="radio-group"` يكون العنصر نفسه مجموعة أزرار اختيار: يحمل حالة المطلوب وحالة عدم الصلاحية واتجاهه بنفسه، ويُترك `requiredText` خارج وصفه. وعلى الويب هو عنصر `fieldset` نفسه، بدور مجموعة أزرار الاختيار.
+- الخاصية `disabled` تعطّل كل عنصر تحكم وتعرض المجموعة على أنها معطَّلة. والمجموعة غير المعطَّلة لا تفعّل أبدًا عنصر تحكم عطّلته أنت.
+- الخطأ الذي يظهر، أو تتغيّر كلماته، والتركيز داخل المجموعة يُعلَن مرة واحدة، بتهذيب. ولا ينتقل التركيز أبدًا بسبب خطأ.
+- المجموعة ليست موضع توقف في ترتيب التركيز، ولا تأخذ مفتاحًا ولا تستجيب لضغط: المفتاح Tab يبلغ كل عنصر تحكم غير معطَّل بالترتيب المعطى.
+- وسم المطلوب أو الاختياري والنجمة مخفيّان عن التقنيات المساعدة.
+- عند تكبير النص إلى 200% يلتفّ كل نص، ويصير الصف عمودًا، ولا يُقصّ شيء.
+- في الألوان المفروضة (forced colors) يأخذ كل نص لون نص النظام ويكتسب وسم المطلوب أو الاختياري حدًّا.
+- في تخطيط من اليمين إلى اليسار تبدأ الصفوف من اليمين، ويجري صف عناصر التحكم من اليمين، ويحتفظ كل نص باتجاهه.
+- أزرار الاختيار في مجموعة حقول قيمة `kind` فيها `group`، والمجموعة التي بلا عنصر تحكم، والمجموعة التي بلا تسمية يُبلَّغ عنها في بنيات التنقيح (debug).
+
+فجوات معروفة على الويب:
+
+- يُعطى وصف خانة الاختيار بالخاصية `aria-description`، وهي لم تُختبر مع كل قارئ شاشة.
+- قبل أن يُعرَّف العنصر، تكون عناصر التحكم في الصفحة بلا تسمية المجموعة ولا وصفها ولا تخطيطها.
+
+### ما عليك فعله
+
+- أعطِ المجموعة `label`.
+- تحقق من الإجابة بنفسك، وعيِّن `error`، واكتب `errorText` بحيث يقول كيف تُصحَّح الإجابة.
+- أعطِ كلمات المطلوب والاختياري: `required-text` و `optional-text` على المجموعة، أو مرة واحدة للمنتج كله بالاستدعاء `setWords({ requiredText, optionalText })`. فهي تُقرأ جزءًا من وصف المجموعة، وليست للمجموعة حالة المطلوب: من دون `requiredText` لا شيء يخبر التقنيات المساعدة بأن الإجابة مطلوبة. لا يتضمن Tanrei أي كلمة، والكلمة الناقصة يُبلَّغ عنها أثناء التطوير. انظر [كلمات المنتج](/ar/foundations/words/).
+- بعد إرسال أخفق، قل كذلك فوق النموذج ما الذي رُفض واربط بكل عنصر تحكم: [تنويه](/ar/components/callout/) حيّ في حالة الخطأ.

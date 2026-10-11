@@ -1,0 +1,95 @@
+---
+// The same Button under every shipped design system, drawn by the installed web build, each row labelled with what
+// that system chooses for the given tokens. Systems and values are read from the repository. The frame is Tanrei's
+// Figure: the label is its title, and its stage — not padded, so each system's surface reaches the frame — holds the
+// rows.
+import { getSpec } from '../lib/repo';
+import { shippedSystems, systemValue, ns } from '../lib/tokens';
+import { figureId } from '../lib/figure-id';
+
+// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"].
+import.meta.glob('../../../../packages/web/src/generated/systems/*.css', { eager: true });
+
+interface Props {
+  label: string;
+  /** Ids below the namespace whose resolved value labels each row. */
+  tokens: string[];
+}
+const { label, tokens } = Astro.props;
+const tag = getSpec('button').platforms.web?.name;
+const Tag = tag as any;
+const variants = ['filled', 'outlined'].filter((v) => getSpec('button').props.find((p) => p.name === 'variant')?.values?.includes(v));
+const titleId = `${figureId(Astro)}-title`;
+---
+
+<tanrei-figure class="not-content" flush data-tanrei-code="plain">
+  <figure aria-labelledby={titleId}>
+    <div data-part="frame">
+      <header>
+        <p data-part="title" id={titleId}>{label}</p>
+      </header>
+      <div data-part="stage" class="rows">
+        {shippedSystems.map((system) => (
+          <div class="row" data-tanrei-system={system.id}>
+            <p>
+              <code>{system.id}</code>{' '}
+              <span>{tokens.map((id) => systemValue(system, `${ns}.${id}`)).join(' · ')}</span>
+            </p>
+            <div class="buttons" data-pagefind-ignore>
+              {Tag && variants.map((variant) => <Tag variant={variant}>{variant[0].toUpperCase() + variant.slice(1)}</Tag>)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </figure>
+</tanrei-figure>
+
+<script>
+  import '../lib/register-web';
+</script>
+
+<style>
+  /* The frame, its header and the title are the Figure's (`@tanrei/web/figure.css`, which draws them before the
+     element is defined). What follows is the site's own: the rows in the stage, each on its system's surface. */
+  .rows {
+    align-items: stretch;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding: 1rem 1.25rem;
+    background: var(--tanrei-sys-color-surface);
+    color: var(--tanrei-sys-color-on-surface);
+  }
+  .row + .row {
+    border-top: var(--docs-hairline);
+  }
+  .row p {
+    display: grid;
+    gap: 0.125rem;
+    margin: 0;
+  }
+  .row p code {
+    font-size: var(--sl-text-xs);
+    background: none;
+    padding: 0;
+  }
+  .row p span {
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-2xs);
+    letter-spacing: 0.02em;
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .buttons :global(:not(:defined)) {
+    visibility: hidden;
+  }
+</style>

@@ -1,0 +1,334 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "alignItems": "center",
+      "height": 96,
+      "justifyContent": "center",
+      "width": 360
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityLabel": "Formatting",
+        "role": "toolbar",
+        "style": {
+          "alignSelf": "center",
+          "backgroundColor": "rgb(254, 247, 255)",
+          "borderRadius": 9999,
+          "boxShadow": [
+            {
+              "blurRadius": 3,
+              "color": "rgba(0, 0, 0, 0.3)",
+              "offsetX": 0,
+              "offsetY": 1,
+              "spreadDistance": 0
+            },
+            {
+              "blurRadius": 8,
+              "color": "rgba(0, 0, 0, 0.15)",
+              "offsetX": 0,
+              "offsetY": 4,
+              "spreadDistance": 3
+            }
+          ]
+        }
+      },
+      "children": [
+        {
+          "type": "RCTScrollView",
+          "props": {
+            "bounces": false,
+            "contentContainerStyle": {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "flexGrow": 1,
+              "gap": 8,
+              "justifyContent": "center",
+              "minHeight": 48,
+              "paddingEnd": 6,
+              "paddingStart": 6
+            },
+            "horizontal": true,
+            "scrollEventThrottle": 16,
+            "showsHorizontalScrollIndicator": false,
+            "showsVerticalScrollIndicator": false
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {},
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Bold",
+                    "accessibilityRole": "button",
+                    "accessibilityState": {
+                      "disabled": false,
+                      "selected": true
+                    },
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": true,
+                    "hitSlop": {
+                      "bottom": 4,
+                      "left": 4,
+                      "right": 4,
+                      "top": 4
+                    },
+                    "style": {
+                      "alignItems": "center",
+                      "alignSelf": "center",
+                      "borderRadius": 9999,
+                      "height": 40,
+                      "justifyContent": "center",
+                      "opacity": 1,
+                      "width": 40
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "accessibilityElementsHidden": true,
+                        "accessible": false,
+                        "importantForAccessibility": "no-hide-descendants",
+                        "style": {
+                          "alignItems": "center",
+                          "height": 24,
+                          "justifyContent": "center",
+                          "width": 24
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(103, 80, 164)",
+                              "fontFamily": "Material Symbols Outlined",
+                              "fontSize": 24,
+                              "fontWeight": "400",
+                              "lineHeight": 24,
+                              "textAlign": "center"
+                            }
+                          },
+                          "children": [
+                            "format_bold"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Italic",
+                    "accessibilityRole": "button",
+                    "accessibilityState": {
+                      "disabled": false,
+                      "selected": false
+                    },
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": false,
+                    "hitSlop": {
+                      "bottom": 4,
+                      "left": 4,
+                      "right": 4,
+                      "top": 4
+                    },
+                    "style": {
+                      "alignItems": "center",
+                      "alignSelf": "center",
+                      "borderRadius": 9999,
+                      "height": 40,
+                      "justifyContent": "center",
+                      "opacity": 1,
+                      "width": 40
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "accessibilityElementsHidden": true,
+                        "accessible": false,
+                        "importantForAccessibility": "no-hide-descendants",
+                        "style": {
+                          "alignItems": "center",
+                          "height": 24,
+                          "justifyContent": "center",
+                          "width": 24
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(73, 69, 79)",
+                              "fontFamily": "Material Symbols Outlined",
+                              "fontSize": 24,
+                              "fontWeight": "400",
+                              "lineHeight": 24,
+                              "textAlign": "center"
+                            }
+                          },
+                          "children": [
+                            "format_italic"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Underline",
+                    "accessibilityRole": "button",
+                    "accessibilityState": {
+                      "disabled": false,
+                      "selected": false
+                    },
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": false,
+                    "hitSlop": {
+                      "bottom": 4,
+                      "left": 4,
+                      "right": 4,
+                      "top": 4
+                    },
+                    "style": {
+                      "alignItems": "center",
+                      "alignSelf": "center",
+                      "borderRadius": 9999,
+                      "height": 40,
+                      "justifyContent": "center",
+                      "opacity": 1,
+                      "width": 40
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "accessibilityElementsHidden": true,
+                        "accessible": false,
+                        "importantForAccessibility": "no-hide-descendants",
+                        "style": {
+                          "alignItems": "center",
+                          "height": 24,
+                          "justifyContent": "center",
+                          "width": 24
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(73, 69, 79)",
+                              "fontFamily": "Material Symbols Outlined",
+                              "fontSize": 24,
+                              "fontWeight": "400",
+                              "lineHeight": 24,
+                              "textAlign": "center"
+                            }
+                          },
+                          "children": [
+                            "format_underlined"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Insert link",
+                    "accessibilityRole": "button",
+                    "accessibilityState": {
+                      "disabled": false
+                    },
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": false,
+                    "hitSlop": {
+                      "bottom": 4,
+                      "left": 4,
+                      "right": 4,
+                      "top": 4
+                    },
+                    "style": {
+                      "alignItems": "center",
+                      "alignSelf": "center",
+                      "borderRadius": 9999,
+                      "height": 40,
+                      "justifyContent": "center",
+                      "opacity": 1,
+                      "width": 40
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "accessibilityElementsHidden": true,
+                        "accessible": false,
+                        "importantForAccessibility": "no-hide-descendants",
+                        "style": {
+                          "alignItems": "center",
+                          "height": 24,
+                          "justifyContent": "center",
+                          "width": 24
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(73, 69, 79)",
+                              "fontFamily": "Material Symbols Outlined",
+                              "fontSize": 24,
+                              "fontWeight": "400",
+                              "lineHeight": 24,
+                              "textAlign": "center"
+                            }
+                          },
+                          "children": [
+                            "link"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

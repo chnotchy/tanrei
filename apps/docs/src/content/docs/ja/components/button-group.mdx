@@ -1,0 +1,378 @@
+---
+title: ボタングループ
+description: 関連する数個のボタンを 1 行または 1 列に並べます。間隔を空けるか、つなげて 1 つの形にし、完了するアクションと取りやめるアクションを人が期待する位置に置き、グループとして名前を付けます。
+translationOf: components/button-group.mdx
+sourceHash: c06ddd9b183514fe5cde84fd2dfb883e35f2c0ec
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="button-group" />
+
+<DemoFrame label="Standard と Connected">
+  <tanrei-button-group>
+    <tanrei-button variant="outlined">キャンセル</tanrei-button>
+    <tanrei-button variant="tonal">下書きを保存</tanrei-button>
+    <tanrei-button variant="filled">公開</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="文字スタイル">
+    <tanrei-button variant="tonal" toggle selected label="太字"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="下線"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+### 使い方
+
+中に入れるのは、ふだん使っている[ボタン](/ja/components/button/)です。ラベル付きでも、アイコンだけでもかまいません。プロパティもイベントもそのままです。グループがするのは、ボタンを並べること、Connected のときにつなげること、ラベルがあるときに名前を付けることだけです。
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、ボタングループの以前の版を提供しています。そこでは、並べ方は 1 行だけで、`orientation`、`fullWidth`、`separation`、順序のフラグはなく、Connected の項目はいつも狭い隙間を空けて並び、アイコンだけの項目は別のアイコンボタンです。追いつくまで、これらの例はその版のものです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- dismissive は行の先頭へ、confirming は行の末尾へ置かれます。列では位置が入れ替わります。 -->
+    <tanrei-button-group>
+      <tanrei-button variant="outlined" dismissive>キャンセル</tanrei-button>
+      <tanrei-button variant="tonal">下書きを保存</tanrei-button>
+      <tanrei-button variant="filled" confirming>公開</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- コンテナの幅いっぱいの列。「許可」が「後で」の上に描かれます。 -->
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>後で</tanrei-button>
+      <tanrei-button variant="tonal" confirming>許可</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- label でグループに名前を付けます。トグルはそれぞれ自分の selected を持ちます。 -->
+    <tanrei-button-group variant="connected" label="文字スタイル">
+      <tanrei-button variant="tonal" toggle label="太字"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="下線"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-button-group>
+
+    <script type="module">
+      import '@tanrei/web/components/button-group';
+      import '@tanrei/web/components/button';
+      // グループ自身はイベントを発火しません。いつもどおりボタンで受け取ります。
+      document.querySelector('[label="太字"]').addEventListener('change', (e) => setBold(e.detail.selected));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, ButtonGroup } from '@tanrei/react';
+
+    // confirming と dismissive は、グループが子要素から読み取る属性です。
+    <ButtonGroup>
+      <Button variant="outlined" dismissive onClick={cancel}>キャンセル</Button>
+      <Button variant="tonal" onClick={saveDraft}>下書きを保存</Button>
+      <Button variant="filled" confirming onClick={publish}>公開</Button>
+    </ButtonGroup>
+
+    <ButtonGroup orientation="vertical" fullWidth>
+      <Button variant="tonal" dismissive onClick={notNow}>後で</Button>
+      <Button variant="tonal" confirming onClick={allow}>許可</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" label="文字スタイル">
+      <Button variant="tonal" toggle selected={bold} label="太字" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+      <Button variant="tonal" toggle selected={italic} label="斜体" onChange={(e) => setItalic(e.detail.selected)}><span slot="icon">format_italic</span></Button>
+    </ButtonGroup>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButtonGroup {
+        TanreiButton("キャンセル", variant: .outlined) { cancel() }
+        TanreiButton("下書きを保存", variant: .tonal) { saveDraft() }
+        TanreiButton("公開") { publish() }
+    }
+
+    TanreiButtonGroup(variant: .connected, label: "文字スタイル") {
+        TanreiIconButton("太字", isSelected: $bold, variant: .tonal) { Image(systemName: "bold") }
+        TanreiIconButton("斜体", isSelected: $italic, variant: .tonal) { Image(systemName: "italic") }
+        TanreiIconButton("下線", isSelected: $underline, variant: .tonal) { Image(systemName: "underline") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroup
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroupVariant
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiIconButtonVariant
+
+    TanreiButtonGroup {
+        TanreiButton(text = "キャンセル", onClick = ::cancel, variant = TanreiButtonVariant.Outlined)
+        TanreiButton(text = "下書きを保存", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+        TanreiButton(text = "公開", onClick = ::publish)
+    }
+
+    // contentDescription がグループの名前です。Compose にはグループのロールがないため、走査グループになります。
+    TanreiButtonGroup(variant = TanreiButtonGroupVariant.Connected, contentDescription = "文字スタイル") {
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "太字",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = bold,
+            onCheckedChange = { bold = it },
+        ) { TanreiText("format_bold") }
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "斜体",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = italic,
+            onCheckedChange = { italic = it },
+        ) { TanreiText("format_italic") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButtonGroup(
+      children: <Widget>[
+        TanreiButton(variant: TanreiButtonVariant.outlined, onPressed: cancel, child: const Text('キャンセル')),
+        TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('下書きを保存')),
+        TanreiButton(onPressed: publish, child: const Text('公開')),
+      ],
+    );
+
+    TanreiButtonGroup(
+      variant: TanreiButtonGroupVariant.connected,
+      semanticLabel: '文字スタイル',
+      children: <Widget>[
+        TanreiIconButton(
+          isSelected: bold,
+          onPressed: () => setState(() => bold = !bold),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: '太字',
+          icon: const Icon(AppSymbols.formatBold),
+        ),
+        TanreiIconButton(
+          isSelected: italic,
+          onPressed: () => setState(() => italic = !italic),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: '斜体',
+          icon: const Icon(AppSymbols.formatItalic),
+        ),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button, ButtonGroup, IconButton } from '@tanrei/react-native';
+
+    <ButtonGroup>
+      <Button variant="outlined" onPress={cancel}>キャンセル</Button>
+      <Button variant="tonal" onPress={saveDraft}>下書きを保存</Button>
+      <Button onPress={publish}>公開</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" accessibilityLabel="文字スタイル">
+      <IconButton variant="tonal" accessibilityLabel="太字" toggle selected={bold} onSelectedChange={setBold}>
+        format_bold
+      </IconButton>
+      <IconButton variant="tonal" accessibilityLabel="斜体" toggle selected={italic} onSelectedChange={setItalic}>
+        format_italic
+      </IconButton>
+    </ButtonGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+### 行か列か、そしてアクションの順序
+
+`orientation` は、ボタンを 1 行に並べるか（`horizontal`、既定）、1 列に積むか（`vertical`）を決めます。列では、どのボタンも列と同じ幅になります。`fullWidth` を付けると、グループがコンテナの幅いっぱいに広がります。行ではボタンが幅を等分し、列ではどのボタンもその幅になります。シートや幅の狭いパネルの最後に置くアクションに向いた形です。
+
+ボタンに付ける 2 つのフラグが、そのボタンの置き場所をグループに伝えます。これで、2 つの向きの間で順序が食い違いません。
+
+| フラグ | どんなボタンか | 行では | 列では |
+| --- | --- | --- | --- |
+| `confirming` | タスクを完了する：OK、保存、次へ、削除 | 末尾 | いちばん上 |
+| `dismissive` | タスクを取りやめる：キャンセル、戻る、後で | 先頭 | いちばん下 |
+| なし | それ以外 | 2 つの間に、書いた順で | 2 つの間に、書いた順で |
+
+<DemoFrame label="同じ 3 つのボタンを行と列で" plain>
+  <tanrei-button-group>
+    <tanrei-button variant="outlined" dismissive>キャンセル</tanrei-button>
+    <tanrei-button variant="tonal">下書きを保存</tanrei-button>
+    <tanrei-button variant="filled" confirming>公開</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group orientation="vertical">
+    <tanrei-button variant="outlined" dismissive>キャンセル</tanrei-button>
+    <tanrei-button variant="tonal">下書きを保存</tanrei-button>
+    <tanrei-button variant="filled" confirming>公開</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<DemoFrame label="幅いっぱい：幅を分け合う行と、列" plain column>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group full-width>
+      <tanrei-button variant="tonal" dismissive>後で</tanrei-button>
+      <tanrei-button variant="tonal" confirming>許可</tanrei-button>
+    </tanrei-button-group>
+  </div>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>後で</tanrei-button>
+      <tanrei-button variant="tonal" confirming>許可</tanrei-button>
+    </tanrei-button-group>
+  </div>
+</DemoFrame>
+
+キーボードフォーカスとスクリーンリーダーは、置かれた順序に従います。だれもが、描かれている順にアクションに出会います。フラグが表すのはタスクとの関係で、語調ではありません。「キャンセル · 削除」では、削除が confirming です。破壊的なアクションは、置き場所ではなく、それ自身の見た目とラベルで見分けさせます。[ダイアログ](/ja/components/dialog/)と[サイドシート](/ja/components/side-sheet/)も、同じ 2 つのフラグで自分のアクションを置きます。
+
+### 区切り線でつなぐか、隙間でつなぐか
+
+Connected のグループがボタンをつなぐ方法は 2 つあります。**区切り線**（divider）では、ボタンどうしが接し、接する側の角は直角になり、継ぎ目ごとに線が引かれます。**隙間**（gap）では、ボタンどうしが狭い隙間を空けて並び、向かい合う側の角が小さくなります。どちらにするかは、パーツをつなぐすべてのコンポーネントについてデザインシステムが 1 度だけ決めます（既定のシステムは区切り線です）。デザインシステムはボタングループだけを別にでき、`separation`（`auto`、`divider`、`gap`）は 1 つのグループだけを変えます。Standard のグループはこれを無視します。
+
+<DemoFrame label="区切り線と隙間でつないだ Connected（行と列）" plain>
+  <tanrei-button-group variant="connected" separation="divider" label="クリップボード">
+    <tanrei-button variant="outlined">切り取り</tanrei-button>
+    <tanrei-button variant="outlined">コピー</tanrei-button>
+    <tanrei-button variant="outlined">貼り付け</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" separation="gap" label="クリップボード">
+    <tanrei-button variant="outlined">切り取り</tanrei-button>
+    <tanrei-button variant="outlined">コピー</tanrei-button>
+    <tanrei-button variant="outlined">貼り付け</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="divider" label="ズーム">
+    <tanrei-button variant="tonal" label="拡大"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="縮小"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="gap" label="ズーム">
+    <tanrei-button variant="tonal" label="拡大"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="縮小"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+区切り線のとき、継ぎ目に線が引かれるのは、両側のボタンが同じ塗りの上にあるときだけです。選択中のトグルと選択されていないトグルの間や、Filled のボタンと Outlined のボタンの間では、塗りの端がすでに継ぎ目を示しているので、線は引かれません。
+
+<DemoFrame label="区切り線でつないだトグル：選択中の項目の隣には線がありません" plain>
+  <tanrei-button-group variant="connected" label="文字スタイル">
+    <tanrei-button variant="outlined" toggle label="太字"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle selected label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="下線"><span slot="icon">format_underlined</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="取り消し線"><span slot="icon">format_strikethrough</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+## 仕様
+
+<DemoFrame label="Connected：Outlined、large、無効な項目を含むもの" plain>
+  <tanrei-button-group variant="connected" label="クリップボード">
+    <tanrei-button variant="outlined">切り取り</tanrei-button>
+    <tanrei-button variant="outlined">コピー</tanrei-button>
+    <tanrei-button variant="outlined">貼り付け</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="日付">
+    <tanrei-button variant="tonal" size="large">前へ</tanrei-button>
+    <tanrei-button variant="tonal" size="large">今日</tanrei-button>
+    <tanrei-button variant="tonal" size="large">次へ</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="クリップボード">
+    <tanrei-button variant="outlined">切り取り</tanrei-button>
+    <tanrei-button variant="outlined" disabled>コピー</tanrei-button>
+    <tanrei-button variant="outlined">貼り付け</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<ComponentSpecs name="button-group" />
+
+## ガイドライン
+
+### 使う場面
+
+数個のボタンがひとまとまりになるときに使います。フォームの最後の「キャンセル」「下書きを保存」「公開」、エディターの「太字」「斜体」「下線」、カレンダーの「前へ」「今日」「次へ」などです。グループはボタンどうしの間隔を決め、1 組のものならつなげ、役に立つときは名前を付けます。中のボタンはあくまでボタンのままです。
+
+いまの画面や選択に対するアクションを 1 行に並べ、Tab で 1 か所に止まって矢印キーでその中を移るなら、それは[ツールバー](/ja/components/toolbar/)です。主なアクションと、その変化形を並べたメニューをつなげたものは、[メニュー付きボタン](/ja/components/button-with-menu/)です。2 つのボタンをつなげた Connected のグループに見えますが、2 つ目の半分は必ずメニューを開きます。
+
+### セグメントボタン、ボタングループ、チップ、タブの使い分け
+
+この 4 つは、どれも関連するものを数個、横に並べます。見た目が似ているので混同しやすいのですが、押したときに何が起こるか、キーボードでどう移動するかが違います。
+
+| コンポーネント | 何か | 選択 | キーボード | 用途 |
+| --- | --- | --- | --- | --- |
+| [セグメントボタン](/ja/components/segmented-button/)（Material と cupertino のプリセットのみ。Tanrei システムにはありません） | 1 つの問いに答える 2〜5 個の選択肢を、つなげて 1 つにしたコントロール。 | 自分で持ちます（値で）。1 つ、または複数。 | Tab で止まるのは 1 か所。矢印キーで選択肢の間を移動し、単一選択では移動と同時に選びます。 | すぐに反映される、答えの決まった設定。日・週・月、左揃え・中央揃え・右揃えなど。 |
+| [ボタングループ](/ja/components/button-group/) | 独立したボタンを並べた行または列。間隔を空けて並べるか、つなげて 1 つの形にします。 | 持ちません。グループの中のトグルボタンは、それぞれ自分のオン・オフを持ちます。 | ボタンごとに Tab で止まります。 | 関連するアクション。キャンセル・下書きを保存・公開、互いに独立したトグルとしての太字・斜体・下線など。 |
+| [チップ](/ja/components/chip/) | 折り返すかスクロールする 1 行に並ぶ、独立した小さなコントロール。 | 絞り込みチップが、それぞれ単独でオン・オフを持ちます。 | チップごとに Tab で止まります。 | リストの上の絞り込み、返信の候補、ユーザーが入力した項目。 |
+| [タブ](/ja/components/tabs/) | 1 つの主題を分けたビュー。それぞれがパネルを持ちます。 | 1 つ。いま表示しているビューです。 | Tab で止まるのは 1 か所。矢印キーで移動と同時に選びます。 | 表示する内容の切り替え。概要・アクティビティ・設定など。 |
+
+迷ったときの見分け方：押すと何かが実行されるならボタングループです。下の内容が入れ替わるならタブです。値を 1 つ設定するならラジオボタンで、セグメントボタンを提供するシステムならセグメントボタンも使えます。選択肢が多いときや互いに独立しているときはチップです。
+
+### バリアントの選び方
+
+| バリアント | 何をするか | 用途 |
+| --- | --- | --- |
+| Standard（既定） | ボタンどうしを、両隣の間でもそれぞれがタッチターゲット全体を保てるだけ離して並べます。角は各ボタンのままです。 | 一緒に置くが、それぞれ独立しているアクション。フォームの「キャンセル」と「保存」など。 |
+| Connected | 区切り線か狭い隙間でボタンをつなげ、外側の端が丸い 1 つの形にします（[区切り線でつなぐか、隙間でつなぐか](#区切り線でつなぐか隙間でつなぐか)を参照）。どのボタンも幅は最小ターゲット以上になり、いちばん高いボタンに合わせて伸びます。 | 1 つのコントロールとして読める、密接に関連した組。「太字・斜体・下線」「前へ・今日・次へ」など。 |
+
+Connected のグループで変わるのは、隣と接する側の角だけです。区切り線のときは直角に、隙間のときは小さな角になります。塗り、輪郭、ステートレイヤー、リップル、フォーカスリングは、つなげた形に沿って描かれます。つなげた行の丸い外側の端にはパディングが少し加わり、両端のボタンの中身が均等な余白に見えます。つながったボタンは互いの上にヒット領域を広げられないので、小さなアイコンだけのボタンは、アイコンを中央に置いたまま最小ターゲットの幅まで広がります。
+
+### 行か列か
+
+ふつうは行にします。列にするのは、ラベルを省略せずに横に並べると収まらないとき（幅の狭いシートや、スマートフォンの幅のパネルのアクションなど）や、地図のズームのコントロールのように、縦に並ぶ内容の横に置くときです。タスクを完了するボタンと取りやめるボタンに印を付けておけば、レイアウトが行と列の間で変わっても、順序は人が期待するとおりのままです。
+
+### 推奨
+
+- グループ内のボタンは、すべて同じサイズにします。
+- 強調の使い方はふだんと同じです。Filled ボタンは多くても 1 つにし、たいていは末尾に置きます。
+- 一緒に見て初めて意味の通るボタンなら、グループにラベルを付けます。「文字スタイル」などです。それぞれのボタンが何をするかを自分で表しているアクションの並びなら、ラベルは要りません。
+- Connected のグループでは、ボタンのバリアントをそろえます。つなげた形が 1 つのものとして読めるようにするためです。
+- タスクを完了するボタンに `confirming` を、取りやめるボタンに `dismissive` を付け、置き場所はグループに任せます。書く順序は自由です。グループがマークアップの中でボタンを動かすことはありません。
+- `separation` は、1 つのグループだけを変える必要がない限り `auto` のままにします。プロダクトの中の、つなげたコントロールの区切り方がそろいます。
+
+### 非推奨
+
+- 左揃え・中央揃え・右揃えのように互いに排他的な選択に、グループ内のトグルボタンを使わない。グループはトグルを排他的にしません。選択によって下の内容が変わるならタブを、値を設定するならラジオボタンを使います。セグメントボタンを提供するシステムなら、セグメントボタンも使えます。
+- Tanrei のボタン（ラベル付き、またはアイコンだけ）以外のものをグループに入れない。フィールド、チップ、メニューは入れません。それ以外の内容はデバッグビルドで報告されます。
+- フラグを語調のために使わない。タスクを完了する破壊的な「削除」は `confirming` です。両方のフラグを付けたボタンは、どちらも付けていないものとして置かれ、報告されます。
+- 行が折り返すことを当てにしない。収まらない行は、ボタンを狭めてラベルを折り返します。2 行目に送ったり、スクロールしたりすることはありません。
+- 1 つのグループの中でサイズを混ぜない。グループはボタンのサイズを変えません。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="button-group" />
+
+### コンポーネントが担うこと
+
+- どのボタンも、自分のロール、名前、状態、Tab で止まる位置を保ちます。Tab は置かれた順序でボタンをたどります。行では先頭から末尾へ、列では上から下へです。グループ自身はフォーカスを受け取らず、矢印キーも扱わず、選択状態も持ちません。
+- `confirming` と `dismissive` は読み上げられません。ボタンの置き場所を決めるだけで、フォーカスと読み上げはその場所に従います。
+- 区切り線は装飾です。支援技術からは隠され、押しても何も起こりません。つなげた 2 つのボタンを区別させるのは、それぞれが自分の名前を持つ別々のボタンであることです。
+- ラベルがあるとき、グループはそのラベルを名前とし、中のボタンを含むグループとして伝わります。ラベルがなければ、アクセシビリティツリーには何も足しません。
+- Connected のグループでは、どのボタンも幅が最小ターゲット以上になり、ヒット領域は行の上下に最小ターゲットまで広がります。Standard のグループでは、ボタンの見た目の範囲を押せば必ずそのボタンに届き、隙間を押せば近いほうのボタンに届きます。
+- フォーカスインジケーターは、つなげた角も含めて各ボタンの形に沿います。
+- 文字を大きくすると、ボタンはふだんと同じように伸びます。Connected の行はすべてのボタンをいちばん高いものに合わせ、列はすべてのボタンをいちばん幅の広いものに合わせるので、つなげた形がそろったままです。
+- 既定のシステムでは、Outlined のグループの輪郭と区切り線は細い線で、あえて控えめにしてあります。それぞれのボタンを見分けさせるのは輪郭ではなく、ラベルやアイコンです。
+- 項目が 2 個未満の場合、Tanrei のボタン以外の内容がある場合、両方のフラグを付けたボタンがある場合、未知の variant・orientation・separation が指定された場合、幅いっぱいの行でボタンが幅を等分できない場合、ボタンを狭めても行が収まらない場合は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- Web：Connected のアイコンボタンの幅は、マウスのような細かいポインターではポインター用のターゲット、粗いポインターではタッチ用のターゲットになります。項目自体の形がピルのときは、隣に向いた角が、角のスムージングのかかった曲線ではなく円弧で描かれます。ボタンのラベルが折り返すのはグループの中だけで、グループの外では 1 行のままです。行が収まらないことの報告は、グループの大きさや子要素が変わったときに確かめており、項目のラベルが変わったときには確かめていません。
+- SwiftUI にはグループのロールがありません。ラベルのあるグループは、ラベルを名前とし、ボタンを中に含むコンテナになります。タイトルが `LocalizedStringKey` のボタン（文字列リテラルもこれにあたります）は、いちばん長い単語より細く狭められることがあり、そのときは単語の途中で改行されます。行が収まらないことの報告はデバッグビルドではアサーションの失敗になるため、幅がアニメーションするコンテナのように一瞬だけ狭くなるレイアウトでも、デバッグ中のアプリが止まります。
+- Compose にはグループのロールがありません。ラベルのあるグループは、ラベルを contentDescription とする走査グループになり、各ボタンは自分のロールを保ちます。
+- React Native：2 つのボタンの間の隙間を押したとき iOS と Android がどちらに渡すか、文字を大きくしたときに Connected のボタンがそろって伸びるか、フォーカスがグループに入ったときに VoiceOver と TalkBack がグループ名を読み上げるかは、実機でまだ確かめていません。
+- React Native：React Native のレイアウトには文字の最小内容幅がないため、狭められたボタンがいちばん長い単語より細くなり、単語が途中で改行されることがあります。
+- Standard のグループでは、隣り合うヒット領域は隙間の中ほどで接します。既定のシステムの隙間（16）は、小さいアイコンボタンも含めて、どのアイコンボタンも両隣の間で 48 のタッチターゲット全体を保てる幅です。隙間を狭くしたデザインシステムでは、ボタンの間のターゲットも狭くなります。
+
+### 利用者側で行うこと
+
+- アイコンボタンには、それぞれ名前を付けます。グループのラベルは、中のボタンの名前にはなりません。
+- グループは、読み上げの順序の中で、ボタンがあるべき位置に置きます。支援技術は、並んでいる順に 1 つずつボタンをたどります。
+- トグルを互いに排他的にしたいなら、単一選択のコントロールを使います。選択によって下の内容が変わるならタブ、値を設定するならラジオボタン、セグメントボタンを提供するシステムならセグメントボタンです。どれも 1 つを選ぶものとして伝わります。トグルボタンを並べただけでは、そうは伝わりません。

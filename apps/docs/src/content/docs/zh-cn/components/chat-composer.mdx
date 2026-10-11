@@ -1,0 +1,207 @@
+---
+title: "聊天输入栏"
+description: "让用户写一条消息并把它发出去，一切都收在一个胶囊里。随所写内容增高的输入区、附加到消息上的文件、你自己的操作，以及只在消息可以发送时才启用的发送按钮。它只报告消息，自己绝不发送任何东西。"
+translationOf: components/chat-composer.mdx
+sourceHash: 68233132907fd0b94d40dacc7db0d52a3c7fec59
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## 概览
+
+<ComponentAvailability name="chat-composer" />
+
+<DemoFrame label="两种布局的聊天输入栏。写一条消息、附加一个文件，然后发送。不会发送到任何地方。" column>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="消息" placeholder="输入消息" send-label="发送" attachments="own" attach-label="添加附件" remove-label="移除"></tanrei-chat-composer>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="消息" placeholder="输入消息" send-label="发送" attachments="own" attach-label="添加附件" remove-label="移除" max-length="280" counter>
+    <tanrei-button slot="leading" variant="text" label="提及某人"><span slot="icon">alternate_email</span></tanrei-button>
+    <tanrei-button slot="leading" variant="text" label="添加表情"><span slot="icon">mood</span></tanrei-button>
+  </tanrei-chat-composer>
+</DemoFrame>
+
+聊天输入栏是写消息的那一个地方：在一段对话里、在某项工作下方的讨论串里，或者在求助请求里。它画成一个胶囊。胶囊里有输入区、附件、你自己的操作和发送按钮。
+
+**组成部分**是一个[嵌入式文本输入框](/zh-cn/components/embedded-text-input/)、一个[文件选择器](/zh-cn/components/file-picker/)、若干[文件项](/zh-cn/components/file-item/)和若干[按钮](/zh-cn/components/button/)。嵌入式文本输入框是键入的部分。文件选择器打开平台的文件选择器，并判断选中的内容。一个文件项就是一个附件。按钮包括发送按钮、停止按钮、附加按钮和你自己的按钮。聊天输入栏一样都不绘制。它添加的是把它们联系在一起的东西：胶囊、消息能否发送、它保留的文件、计数器、一个实时区域，以及表单的值。
+
+<Callout type="caution" title="它不负责发送">
+聊天输入栏不打开任何连接。用户发送时，它触发带有文本和附件的 `send`，发送由你的产品来做。消息有没有送达，要由你来了解，也由你来说明。
+</Callout>
+
+以下情况请改用别的组件：
+
+- 用户在表单的字段里填写一段长文本。那是带 `multiline` 的[文本字段](/zh-cn/components/text-field/)。
+- 用户只是选择文件。那是[文件上传](/zh-cn/components/file-upload/)。
+- 用户要搜索。那是[搜索](/zh-cn/components/search/)。
+
+在 Web 上它是 `<tanrei-chat-composer>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-chat-composer label="消息" placeholder="输入消息" send-label="发送"
+                          attachments="own" attach-label="添加附件" remove-label="移除">
+    </tanrei-chat-composer>
+    ```
+
+    ```js
+    composer.addEventListener('send', (event) => {
+      const { value, attachments } = event.detail;
+      post(value, attachments);
+    });
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ChatComposer } from '@tanrei/react';
+
+    <ChatComposer
+      label="消息"
+      placeholder="输入消息"
+      sendLabel="发送"
+      attachments="own"
+      attachLabel="添加附件"
+      removeLabel="移除"
+      onSend={(event) => post(event.detail.value, event.detail.attachments)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+除非你设置了 `keepAfterSend`，否则输入栏在交出消息的同时清空自己，焦点回到输入区。
+
+### 自己发送文件
+
+设置 `attachments="given"` 后，文件项由你的产品提供。如果你在文件一附加上就发送它，并且希望每一项都显示自己的状态和进度，就用这种方式。在 `select` 时添加一个 `<tanrei-file-item>` 子元素，在这一项的 `remove` 时把它移除。只要有一项正在上传，或者失败了但可以重试，就什么都不能发送。
+
+```html
+<tanrei-chat-composer label="消息" send-label="发送" attachments="given"
+                      attach-label="添加附件" remove-label="移除" retry-label="重试">
+  <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" progress="0.4"></tanrei-file-item>
+</tanrei-chat-composer>
+```
+
+### 下一层
+
+胶囊是聊天输入栏自己的部件，不能单独拿出来用。在下一层，各个成员由你自己放置，方框也由你来绘制。
+
+```html
+<div class="my-composer" role="group" aria-label="消息">
+  <div class="row">
+    <tanrei-file-picker multiple>
+      <tanrei-button slot="trigger" variant="text" label="添加附件"><span slot="icon">attach_file</span></tanrei-button>
+    </tanrei-file-picker>
+    <tanrei-embedded-text-input label="消息" multiline max-rows="6" enter-key="action"></tanrei-embedded-text-input>
+    <tanrei-button label="发送" disabled><span slot="icon">send</span></tanrei-button>
+  </div>
+</div>
+```
+
+各个成员带来的是：高度会增长的键入部分、按键、每个文件项，以及选择器。聊天输入栏添加的那些事，这时就由你的代码来做：绘制方框并在方框上显示焦点，判断消息能否发送，把文本的长度与上限作比较，接收拖放和粘贴，保留文件，并在发送之后清空一切。
+
+## 规格
+
+### 两种布局
+
+| 情况 | `inline`（默认） | `stacked` |
+| --- | --- | --- |
+| 一行文本 | 一行：附加按钮、前置操作、输入区、计数器、后置操作、发送按钮 | 输入区和发送按钮在同一行。其余的一切都放在下面的一行里 |
+| 多行 | 每个按钮都留在底边 | 发送按钮留在输入区那一行的底边 |
+| 适用于 | 简短的消息、狭窄的面板 | 操作很多、消息分段落来写 |
+
+宽度小于 `comp.chat-composer.layout.inline-min-width` 的胶囊，无论 `layout` 设成什么，都按 stacked 布局。下面那一行没有东西可放的 stacked 输入栏，画成 inline 的样子。行数绝不会改变布局。
+
+### 什么情况下可以发送
+
+只有以下各项全部成立时，发送按钮才启用。每有一项不成立，`sendablechange` 就带上一个以名称表示的原因。
+
+| 原因 | 以下情况下消息不能发送 |
+| --- | --- |
+| `disabled` | `disabled` 为 true |
+| `sending` | `sending` 为 true |
+| `blocked` | `blocked` 为 true |
+| `empty` | 没有任何非空白字符，也没有附件 |
+| `length` | 文本比 `maxLength` 更长 |
+| `uploading` | 有文件项的状态是 `uploading` |
+| `failed` | 有文件项失败了，但可以重试 |
+
+### 按键
+
+Enter 发送，Shift+Enter 另起一行。设置 `sendKey="modifier"` 后，Enter 另起一行。无论 `sendKey` 取哪个值，Ctrl+Enter 和 Command+Enter 都会发送。输入法的 Enter 绝不发送。
+
+### 单独调整某一个聊天输入栏
+
+设计系统为每个成员设置的样式，适用于使用它的每一个地方。要单独调整某一个输入栏，就在那个元素上设置令牌。胶囊读取它自己的令牌，成员的令牌则会传到它里面的那个成员。
+
+```html
+<tanrei-chat-composer style="--tanrei-comp-chat-composer-container-shape: 12px" …></tanrei-chat-composer>
+```
+
+<ComponentSpecs name="chat-composer" />
+
+### Web 上绘制方式的不同之处
+
+- 文本在 `name` 之下提交，保留的每个文件在 `files-name` 之下提交。位于表单里的输入栏在 `send` 之后请求表单提交，并且不清空自己。
+- 屏幕键盘和实体键盘无法区分。在主指针是粗略指针、并且不能悬停的地方，Enter 另起一行，发送要靠发送按钮。
+- 输入栏自己绘制的文件项上，不画文件的大小。
+- 没有脚本时，你写成子元素的 `<textarea>` 和提交用的 `<button>` 就是表单。元素完成定义时，它取走文本，并把两者隐藏起来。
+
+## 指南
+
+### 文字
+
+聊天输入栏没有自己的文字。请给出 `label`、`placeholder`、`sendLabel`，以及用得到时的 `stopLabel`、`attachLabel`、`removeLabel`、`retryLabel` 和文件被拒绝时的三个句子。用 `setWords()` 为整个产品设置一次，或者写在元素上。
+
+### 放在字段里
+
+在[字段](/zh-cn/components/field/)里，输入栏以字段的标签作为名称，以字段的帮助文本或错误文本作为输入区的描述，并采用字段的错误和 `disabled`。
+
+### 推荐
+
+- 用你自己的话说明消息为什么不能发送：写在输入栏旁边，或者使用 `announcement`。
+- 把你自己的操作作为纯图标的 text 按钮，放进 `leading` 和 `trailing` 插槽。
+- 把 `maxFiles` 设成一条消息可以携带的文件数。
+- 回答是逐步到达、并且可以中途打断的地方，使用 `stoppable`。
+- 用平台自己的办法让输入栏保持在屏幕键盘上方。输入栏不会把自己固定在屏幕上。
+
+### 避免
+
+- 不要通过输入栏来改写键入部分、文件项或按钮的样式。请给成员设置样式。
+- 不要把发送按钮或附加按钮换成按钮以外的任何东西。
+- 不要在上限处截断文本。`maxLength` 只标出超长的部分，然后等用户自己处理。
+- 不要让拖放成为附加文件的唯一方式。
+
+## 无障碍
+
+<ComponentAccessibility name="chat-composer" />
+
+### 组件负责的部分
+
+- 它是一个以 `label` 命名的组。输入区是一个同名的多行文本框。
+- 无论输入区是怎样获得焦点的，胶囊的边缘都是它的焦点指示。按钮或文件项的操作显示它自己的焦点环，这时胶囊不画焦点边缘。
+- Tab 按绘制的顺序在其中移动。输入区里没有任何按键会移除附件。
+- 不能发送的发送按钮是一个禁用的按钮。是什么拦住了消息，显示在计数器和文件项上。
+- 计数器是输入区的描述的第一部分。它不是实时区域。
+- 一个礼貌（polite）的实时区域说出你的 `announcement`，以及附件发生的变化。
+- 输入法的 Enter 绝不发送。
+- 文本放大到 200%、宽度为 320 时，它按 stacked 布局。没有任何内容被截断，也没有任何内容横向滚动。
+- 在强制颜色模式下，胶囊会多出一道边线，获得焦点时这道边线采用高亮颜色。
+- 在任何语言里，它都没有自己的文字。
+
+Web 上的已知差距：
+
+- 输入法在 Chromium 中实际操作过，在 Firefox 和 Safari 中则只是用它们的事件模拟的。
+- 屏幕阅读器会说什么，是从各浏览器的无障碍树里读出来的，还没有用屏幕阅读器实际听过。
+
+### 需要你做的事
+
+- 给它一个 `label`，或者把它放进字段。
+- 为它带来的按钮命名：`sendLabel`、`stopLabel`、`attachLabel`、`removeLabel`、`retryLabel`。
+- 说明消息后来怎样了。一句话有帮助的地方，在你的 `send` 处理函数里设置 `announcement`。
+- 给每个失败的文件项一个 `errorText`，说明它为什么失败，以及该怎么办。

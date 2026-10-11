@@ -1,0 +1,204 @@
+{
+  "tanrei": {
+    "comp": {
+      "card": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product groups related content into cards that set a region apart from its background by edge, by tone or by depth — some of them a single action that opens what they show, enabled and disabled.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "elevated",
+              "filled",
+              "outlined"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "container.elevation": "shadow",
+              "outline.color": "color",
+              "content.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a card reads: its corner shape, content padding and outline width, and for each variant (elevated, filled, outlined) the container color and elevation, the outline color and the content color it hands to what it holds, in each state. The state tokens are read only by an interactive card.",
+            "rules": [
+              "A card holds any content; it prescribes no media, headline or action layout. Use the heading-5 text style for a card title.",
+              "An interactive card is one action: never put buttons, links or fields inside it. A card with its own actions stays non-interactive.",
+              "Pick the variant by the background: a filled card disappears on a surface of the same tone, so use outlined or elevated there.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "Each variant's state-layer.color is the color hover, focus and press mix into an interactive card's container; it aliases the variant's content color."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "variant": {
+              "default": "outlined",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.medium}"
+          },
+          "padding": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Inset of the content on every side while inset is true. Content that bleeds to the edges (media) sets inset to false and may read this token to pad its own text."
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "elevated": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-lowest}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$description": "The elevated card's resting depth. Tanrei's level1 is only the hairline ring, which on a white surface draws exactly the outlined card, so it rests at level2; a system whose level1 is a real shadow (m3-like, cupertino) sets level1.",
+              "$value": "{tanrei.sys.elevation.level2}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no border."
+                }
+              }
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.card.elevated.content.color}"
+            }
+          }
+        },
+        "filled": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-highest}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no border."
+                }
+              }
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.card.filled.content.color}"
+            }
+          }
+        },
+        "outlined": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline-variant}"
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.card.outlined.content.color}"
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          }
+        }
+      }
+    }
+  }
+}

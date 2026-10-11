@@ -1,0 +1,203 @@
+---
+title: Radio button
+description: Lets people choose exactly one option from a small group shown all at once.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="radio-button" />
+
+<DemoFrame label="A group">
+  <div role="radiogroup" aria-label="How often" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="overview-frequency" value="daily" label="Daily"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="weekly" checked label="Weekly"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="monthly" label="Monthly"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+### Usage
+
+The revision that gave the radio button Material 3's sizes and a ring that thickens into a fill changed only how it looks and moves, so every sample below is current. The web draws it as the spec says. SwiftUI, Compose, Flutter and React Native are lagging: until they catch up, they still draw the previous radio button, a 16 ring with a hairline stroke and an 8 dot in a 28 state layer, and do not reserve the 48 target height in layout. One refinement since then is on the web only so far: the ring and the fill are drawn as one shape.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- The options with one name form a group. The group's name comes from the element around them. -->
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">How often</span>
+      <tanrei-radio-button name="frequency" value="daily" label="Daily"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="weekly" checked label="Weekly"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="monthly" label="Monthly"></tanrei-radio-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-button';
+      // Only the option that became selected fires change; the one it replaced does not.
+      document.querySelector('[role="radiogroup"]').addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton } from '@tanrei/react';
+
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">How often</span>
+      {options.map(({ value, label }) => (
+        <RadioButton
+          key={value}
+          name="frequency"
+          value={value}
+          label={label}
+          checked={frequency === value}
+          onChange={(e) => setFrequency(e.detail.value)}
+        />
+      ))}
+    </div>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // selection is a Binding<Frequency?>: an option is selected while it equals its value.
+    TanreiRadioGroup("How often") {
+      TanreiRadioButton("Daily", value: Frequency.daily, selection: $frequency)
+      TanreiRadioButton("Weekly", value: Frequency.weekly, selection: $frequency)
+      TanreiRadioButton("Monthly", value: Frequency.monthly, selection: $frequency)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.selection.selectableGroup
+    import io.github.chnotchy.tanrei.components.TanreiRadioButton
+
+    // The parent forms the group; each option's onClick captures its value.
+    Column(Modifier.selectableGroup()) {
+        for ((value, label) in listOf("daily" to "Daily", "weekly" to "Weekly", "monthly" to "Monthly")) {
+            TanreiRadioButton(selected = frequency == value, onClick = { frequency = value }, label = label)
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiRadioGroup<Frequency>(
+      groupValue: frequency,
+      onChanged: (Frequency value) => setState(() => frequency = value),
+      semanticLabel: 'How often',
+      child: Column(
+        children: <Widget>[
+          for (final Frequency option in Frequency.values)
+            TanreiRadioButton<Frequency>(value: option, label: option.label),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react-native';
+
+    <RadioGroup accessibilityLabel="How often">
+      {options.map(({ value, label }) => (
+        <RadioButton key={value} value={value} label={label} selected={frequency === value} onSelect={setFrequency} />
+      ))}
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Selected, unselected and disabled" plain>
+  <div role="radiogroup" aria-label="Enabled" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-enabled" value="unselected" label="Unselected"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-enabled" value="selected" checked label="Selected"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="Disabled" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="Disabled, unselected"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="Disabled, selected"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="Label hidden">
+    <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="Weekly"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+In the default system the radio button takes Material 3's measurements: a 20 ring with a 2 stroke, on a round 40 state layer. A selected option draws no dot. Its ring thickens inward to half the radius, and the disc left inside is filled with the ring's color at half opacity. The ring keeps its outer size in both conditions. The ring and the fill are one shape: nothing behind the radio button shows between them at any zoom or display density, or in any frame of the change. When the selection changes, the stroke thickens or thins while the ring's color changes and the fill fades in or out; the fill never grows from the center. A change that comes before the motion ends turns back from where it is, and where motion is reduced, the new condition shows at once and in full.
+
+Each option takes at least 48 of height in layout, the target's size, with the state layer centered in it. Options stacked with no gap between them therefore never share target area. A product that packs its options tighter lowers `option.min-height` in its own layer and accepts that the targets overlap.
+
+Under `m3-like` the selected option keeps Material's ring, gap and dot, but the dot fades in rather than scaling in from the center. Under `cupertino` the radio button keeps its smaller size and draws Apple's look: a light disc in a thin ring, and a tinted band around a light center when selected.
+
+<ComponentSpecs name="radio-button" />
+
+## Guidelines
+
+### When to use
+
+Use radio buttons when a question has exactly one answer and a small number of options that people should compare side by side, such as a delivery speed or how often to send a summary. Every option is visible at once, so the group takes space. When there are many options, or the space is short, use a list or a menu that shows only the chosen one.
+
+A group can start with one option selected when that option is a safe and likely answer. Leave every option unselected when you need the person to answer deliberately. Once an option is selected, the person cannot return the group to no selection, because a radio button is never cleared by its own activation. If "none" is a valid answer, add it as an option.
+
+### Checkbox, radio button or switch
+
+| Control | Choices | Takes effect | Use for |
+| --- | --- | --- | --- |
+| [Checkbox](/components/checkbox/) | Any number of independent choices, including none | When the person confirms | Options in a form, agreeing to terms, selecting rows |
+| Radio button | Exactly one from a small group, all shown | When the person confirms, usually | One answer to one question |
+| [Switch](/components/switch/) | One setting, on or off | At once | Settings that apply as soon as they change |
+
+### Do
+
+- Give every group a name: the question its options answer, shown as visible text before the group.
+- Stack the options vertically and put them in an order that makes sense for the question, such as from smallest to largest. Each option already reserves its target's height, so a stack needs no extra gap.
+- Keep the labels short and parallel in form, so they are easy to compare.
+- Keep the options of one group together in one container.
+
+### Don't
+
+- Don't use a single radio button on its own. For one yes-or-no choice, use a checkbox or a switch.
+- Don't use radio buttons for choices that do not exclude each other. Use checkboxes.
+- Don't start a heavy action, such as navigating away, the moment an option is selected. The arrow keys select each option they pass, so a keyboard user would trigger it on the way to the one they want.
+- Don't split one group across different parts of the screen.
+
+## Accessibility
+
+<ComponentAccessibility name="radio-button" />
+
+### What the component handles
+
+- Each option exposes the radio role, whether it is selected, its disabled state, and its position in the group with the group's size ("2 of 3"). Apple platforms have no radio role, so there an option is a button with the selected trait and its position is its accessibility value. Flutter's semantics cannot state the position yet.
+- The label is the accessible name, whether it is drawn or hidden with `labelHidden`. The drawn text is hidden from assistive technology, so the name is read once.
+- A group has one tab stop: the selected option, or the first enabled one while none is selected. The arrow keys move to the next or previous enabled option and select it, wrapping at the ends; Left and Right swap in a right-to-left layout.
+- Space selects the focused option. Enter selects it only where the platform activates any focused control with Enter (Android, tvOS); on the web, Enter submits the form.
+- Selecting an option unselects the others. Only the option that became selected reports the change, and activating the selected option does nothing.
+- A click or tap on the label selects the option. The label is part of the hit area, and the hit area meets the minimum target. Each option reserves the target's height in layout, so stacked options keep whole, separate targets.
+- The selection is carried by the ring alone: the selected ring holds 3:1 against every surface in the default system, and it is two and a half times as thick as the unselected one. The translucent fill is decoration and is not counted.
+- It shows the focus indicator for keyboard focus only.
+- Where motion is reduced, the new condition shows at once and in full.
+- A missing label is reported in debug builds.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native still draw the previous radio button, with a dot and at the previous sizes, do not yet draw the ring and the fill as one shape, and do not reserve the target's height in layout, so stacked options with no gap share target area.
+- Under `m3-like`, the selected dot fades in at its full size, where Material scales it in from the center (mimicry gap `radio-dot-scale-in`).
+
+### What you need to do
+
+- Name the group with the question it answers. On the web, wrap the options in an element with `role="radiogroup"` and `aria-labelledby`, or in a `<fieldset>` with a `<legend>`. In Flutter, set `semanticLabel` on `TanreiRadioGroup`; in React Native, set `accessibilityLabel` on `RadioGroup`.
+- Form the group in the platform's way, so the keys and the position work: one `name` on the web, `Modifier.selectableGroup()` on the parent in Compose, `TanreiRadioGroup` in Flutter and `RadioGroup` in React Native.
+- If the question is required and left unanswered, show the message on the group: a [radio group](/components/radio-group/) in error draws its error text and puts every radio button in its error form. For options grouped without one, set `error` on each radio button: the ring and the dot take the error color, as a checkbox's box does. A disabled option shows no error color.
+- A radio button in error is not exposed as invalid, because its role has no such state. The group says it: a radio group is invalid and described by its error text. Where you group the options yourself, say the error in words beside them.
+- If you restyle the ring and the fill in your own layer, keep the ring strong enough to show the selection on its own. The build does not check it.
+- In React Native, pass `positionText` to `RadioGroup` when the product is not in English. By default the position is announced as "2 of 3".

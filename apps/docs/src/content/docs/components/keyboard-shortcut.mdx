@@ -1,0 +1,187 @@
+---
+title: Keyboard shortcut
+description: Shows the keys that perform a command, as keys or as text, in the modifier symbols and names of the keyboard the person is using, and reads them aloud by name.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="keyboard-shortcut" />
+
+A keyboard shortcut shows the keys that perform a command: drawn as keycaps, or as plain text beside a command's name, at a small or medium size. Keys are written in neutral names — `mod`, `shift`, `k` — and drawn in the convention of the keyboard the person is using: Apple's symbols (⇧⌘K) or the standard names (Ctrl+Shift+K). A product can set the convention for a region, or leave it to the platform. A shortcut of several chords in a row (Ctrl+K Ctrl+C) is one sequence.
+
+<DemoFrame label="Keycaps, a sequence of two chords, and the plain form, for the keyboard you are using">
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command or Control, Shift, K"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Command or Control and K, then Command or Control and C"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command or Control, Shift, K" variant="plain"></tanrei-keyboard-shortcut>
+</DemoFrame>
+
+Its keys are drawn for sight only: assistive technology reads the `label` a product gives — the shortcut in your own words — and, without one, the notation of `aria-keyshortcuts` (`Meta+Shift+K`). Tanrei has no names for keys in any language. It shows the keys and nothing more: it takes no focus and no input, and it does not make the keys work. Your product binds them.
+
+Three components draw a shortcut with it, from a `shortcut` prop of their own: the [menu](/components/menu/) at the end of an item's row, a plain [tooltip](/components/tooltip/) after its text, and the [search](/components/search/) as a hint in its bar or trigger. Use those props there, not an element of your own: the host draws the keys in its own text style and exposes them as the control's keyboard shortcut.
+
+### Usage
+
+`keys` holds one chord per string, pressed in order. A chord is key names joined by `+`, and names ignore case.
+
+- **Modifiers:** `mod` (Command on Apple platforms, Control elsewhere), `ctrl`, `alt`, `shift`.
+- **Named keys:** `enter`, `escape`, `tab`, `backspace`, `delete`, `space`, `arrow-up`, `arrow-down`, `arrow-left`, `arrow-right`, `home`, `end`, `page-up`, `page-down`, `caps-lock`, `f1` to `f24`, and `plus` for the + key.
+- **Any other single character** is that character's key: `k`, `/`, `,`.
+
+On the web the `keys` attribute holds the chords separated by spaces (`keys="mod+k mod+c"`), and the property is an array. SwiftUI, Compose, Flutter and React Native have not implemented the component yet. Until they do, their menus write a shortcut in the item's trailing text, as the [menu](/components/menu/) page shows.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Small sits in a line of body text without making it taller. -->
+    <p>Search with <tanrei-keyboard-shortcut keys="mod+k" label="Command or Control and K" size="small"></tanrei-keyboard-shortcut>.</p>
+
+    <!-- Two chords pressed one after the other. -->
+    <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Command or Control and K, then Command or Control and C"></tanrei-keyboard-shortcut>
+
+    <!-- Plain text, read in your product's language. -->
+    <tanrei-keyboard-shortcut keys="mod+shift+k" variant="plain" label="Befehl Umschalt K"></tanrei-keyboard-shortcut>
+
+    <!-- A region written for one keyboard, whatever the person's platform. -->
+    <section data-tanrei-keyboard-convention="standard">
+      <tanrei-keyboard-shortcut keys="mod+s" label="Control S"></tanrei-keyboard-shortcut>
+    </section>
+
+    <script type="module">
+      import '@tanrei/web/components/keyboard-shortcut';
+      // The element only shows the keys. Bind them yourself, and say so on the control they belong to.
+      const shown = document.querySelector('tanrei-keyboard-shortcut');
+      searchButton.setAttribute('aria-keyshortcuts', shown.ariaKeyShortcuts); // "Meta+K" or "Control+K"
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { KeyboardShortcut } from '@tanrei/react';
+
+    <p>Search with <KeyboardShortcut keys={['mod+k']} label="Command or Control and K" size="small" />.</p>
+
+    <KeyboardShortcut keys={['mod+k', 'mod+c']} label="Command or Control and K, then Command or Control and C" />
+
+    <KeyboardShortcut keys={['mod+shift+k']} variant="plain" label="Befehl Umschalt K" />
+
+    // A region written for one keyboard, whatever the person's platform.
+    <section data-tanrei-keyboard-convention="standard">
+      <KeyboardShortcut keys={['mod+s']} label="Control S" />
+    </section>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="The same keys for an Apple keyboard and for a standard one; small in a sentence; named keys; disabled" plain column>
+  <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+mod+escape" label="Option Command Escape" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <div data-tanrei-keyboard-convention="standard" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control Shift K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control Shift K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control Shift K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="ctrl+alt+delete" label="Control Alt Delete" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <p style="font: var(--tanrei-sys-typescale-body-font); margin: 0">Press <tanrei-keyboard-shortcut keys="mod+k" label="Command or Control and K" size="small"></tanrei-keyboard-shortcut> to search, or <tanrei-keyboard-shortcut keys="/" label="Slash" size="small"></tanrei-keyboard-shortcut> from anywhere on the page.</p>
+  <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="shift+enter" label="Shift Enter"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+arrow-up" label="Option or Alt, Up Arrow"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+plus" label="Command or Control, Plus"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="f2" label="F2"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="Command or Control, Z" disabled></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="Command or Control, Z" variant="plain" disabled></tanrei-keyboard-shortcut>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="keyboard-shortcut" />
+
+## Guidelines
+
+### When to use
+
+Use a keyboard shortcut wherever your product tells a person which keys perform a command: in a sentence of help, in a list of shortcuts, in an empty state, beside a command's name in a palette.
+
+In a menu item, a plain tooltip or a search, give that component its `shortcut` prop instead. Don't use the keycap for text a person types, such as a command or a file name: a cap means a key to press.
+
+### Keycap or plain, small or medium
+
+| Choice | What it draws | Use for |
+| --- | --- | --- |
+| `keycap` (default) | Each key in its own cap, with a + between the caps in the standard convention. | Help and documentation, where the keys are the subject. |
+| `plain` | The shortcut as one run of text: ⌥⌘⎋, or Ctrl+Alt+Delete. No cap, fill or edge. | Beside a command's name, where a row of caps would compete with it: the way a menu writes it. |
+| `medium` (default) | Caps of 24 with text of 14. | On its own, or beside larger text. |
+| `small` | Caps of 20 with text of 12. | In a line of body text or a dense row, without making the line taller. |
+
+In the default system a cap is a faint fill with no edge, and its legend is the quiet text color. A design system can give the caps an edge, with a heavier bottom, and can add variants and sizes.
+
+### Writing the keys
+
+- **Write `mod` for the main modifier,** not `ctrl`: it is Command on an Apple keyboard and Control elsewhere. Write `ctrl` only for a shortcut that is Control on every keyboard.
+- **Any order.** The component writes modifiers in the keyboard's own order: ⌃ ⌥ ⇧ ⌘ for Apple, and Ctrl, Alt, Shift for the standard names.
+- **A letter is drawn as its capital,** and adds no Shift: `mod+k` and `mod+K` both draw ⌘K. Shift is drawn only where you name it.
+- **One key per chord,** besides its modifiers. A chord with no key, or with two, is drawn as it can be, and debug builds report it.
+- **A sequence is several chords:** `mod+k` then `mod+c`. They are drawn a gap apart, with nothing between them.
+- **Named keys follow the keyboard too.** `enter` is ↩ on an Apple keyboard and Enter on a standard one; `escape` is ⎋ or Esc; `backspace` is ⌫ or Backspace; `page-down` is ⇟ or PgDn. The arrows are ↑ ↓ ← → in both.
+
+### The convention
+
+`convention` says whose keyboard the keys are written for. Leave it at `auto`: the component then uses the convention an ancestor sets, and without one the platform's — Apple's on macOS, iOS, iPadOS and visionOS, the standard names everywhere else.
+
+Set it for a region when your product knows better than the platform: a setting that lets a person choose, documentation that shows both keyboards side by side, a remote session to another system. On the web that is the `data-tanrei-keyboard-convention` attribute (`apple` or `standard`) on any ancestor; menus, tooltips and searches inside it follow it too. Set `convention` on one shortcut only for an exception.
+
+The convention never comes from the design system. The keys follow the keyboard a person presses, not the look of the product.
+
+### Do
+
+- Show the shortcut that really works. Bind the keys in your product, and keep the two in step.
+- Give every shortcut that is read aloud a `label`: the shortcut in your product's words ("Shift Command K"). Without it, a screen reader reads the notation `Meta+Shift+K`.
+- Under `convention="auto"` the drawn keys follow the person's keyboard, and a `label` you wrote cannot. Write one that is true on both keyboards ("Command or Control, Shift, K"), as the samples on this page do, or set the label once you know the keyboard.
+- Use `disabled` for the shortcut of a command that is unavailable now, beside that command. The keys still show, faded.
+- Keep a shortcut on one line. A chord never breaks; a sequence may wrap between chords.
+
+### Don't
+
+- Don't write the symbols yourself (⌘K in text). They would be wrong on another keyboard, and a screen reader may read a symbol by its character name.
+- Don't make a shortcut the only way to a command. It is an accelerator for something a person can also reach by pointer and by focus.
+- Don't place your own keyboard shortcut element inside a menu item or a tooltip. Use the host's `shortcut` prop.
+- Don't choose the convention by brand or by theme.
+
+## Accessibility
+
+<ComponentAccessibility name="keyboard-shortcut" />
+
+### What the component handles
+
+- The caps, legends and separators are hidden from assistive technology. One text is read in their place, where the shortcut sits: `label`, so that ⇧⌘K reads "Shift Command K" and never the symbols' character names. Without a `label` it is the shortcut in the notation of `aria-keyshortcuts` — `Meta+Shift+K`, or `Control+K Control+C` for a sequence — which is a standard's and the same in every language, and the component reports it once in development.
+- The component has no names for keys: it does not spell out a modifier, an arrow or a punctuation key in any language. A screen reader may skip a bare character such as a comma, which is one more reason to write the `label`.
+- It has no role, takes no focus and no input, and is not a target: it is text.
+- Inside a host (a menu item, a plain tooltip, a search) it exposes nothing itself. The host exposes the shortcut as its control's keyboard shortcut: `aria-keyshortcuts` on the web.
+- `disabled` fades the legends and exposes no state. The command the shortcut belongs to says whether it is available.
+- The keys stay in left-to-right order in a right-to-left layout, isolated from the text around them, as keyboards and the platforms' own menus write them.
+- It sits on the baseline of the text around it and grows with enlarged text; the cap's height is a minimum.
+- A symbol the product's typeface lacks (⌘, ⎋) is drawn from a system font at the same size, never as a missing-glyph box.
+- In the default system the legend on the cap meets the contrast for text. The cap's fill is decorative: the legend alone carries the meaning.
+- Debug builds report an empty chord, a chord of modifiers only, a chord with two keys, a key named twice once written (`ctrl+mod` in the standard convention), an unknown key name and an unknown convention.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native have not implemented the keyboard shortcut.
+- Web: a disabled shortcut that stands alone, outside a command that is itself exposed as disabled, is likely to be reported by an automated contrast check: its legend is faded, and the element exposes no disabled state of its own.
+
+### What you need to do
+
+- Make the keys work: the component only shows them.
+- On the control the keys belong to, expose them as its keyboard shortcut. On the web, set `aria-keyshortcuts` from the element's read-only `ariaKeyShortcuts` property, which gives the form that attribute takes.
+- Pass `label`, the shortcut in your product's words, wherever the shortcut is read aloud. Tanrei ships no words and no names for keys.
+- Keep every command reachable without its shortcut.

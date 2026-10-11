@@ -1,0 +1,144 @@
+---
+title: "设计系统与定制"
+description: "一套词汇，多个设计系统。改一个调节量、声明一个调色板、重新指向一个令牌——所有平台在同一次提交中跟着变化。"
+translationOf: foundations/design-systems.mdx
+sourceHash: 9108b285653d179e971cfa0d3452b18a2832f187
+---
+
+import Callout from '../../../../components/Callout.astro';
+import SystemGallery from '../../../../components/SystemGallery.astro';
+
+Tanrei 的设计目标是能够重现任何设计系统——精确地，而不是近似地——同时让自己的词汇保持精简。这靠两条规则实现：**设计系统之间首先是取值不同**，以及**取值表达不了的，由层来添加。**
+
+## 什么是核心令牌，什么不是
+
+Tanrei 的核心词汇，是**一个设计系统在一个产品之内可能呈现的**全部状态。由此可以得到一条检验每个令牌提案的标准，即 **“单一产品”检验**：
+
+- **它是令牌**，如果单个产品可能需要这种区分——按含义区分，或按位置区分。`focus-ring` 与 `primary` 分开，是因为产品可能想要一个饱和的品牌色和一个沉稳的焦点环。默认系统给了它们相关的取值，那只是巧合，不是合并它们的理由。Button 有多种尺寸，是因为一个产品会用到好几种。
+- **它不是令牌**，如果只有某一个设计系统、或某一个不寻常的产品才有它。Material Design 3 的 `tertiary` 在重现它的预设里是一个声明出来的调色板，它的 `primary-fixed` 角色则是那个预设的扩展——而不是人人都要带着的空位。为某个特殊产品准备的二十种按钮尺寸同样不是核心词汇；那个产品把它们加到自己的层里。
+
+如果即便如此，设计系统的某个特征仍然无法重现——一种背景材质、一张它自己的文字大小表——那就是 Tanrei 的缺陷，记入模仿差距登记表（仓库中的 `docs/governance/mimicry-gaps.json`）。
+
+## 调节量：改一处，处处生效
+
+设计系统应当默认就让人觉得恰当，并在你改动一处时跟着你变化。一切之下是七个数值型的**调节量**：
+
+| 调节量 | 默认值 | 带动 |
+|---|---|---|
+| `dial.type.base` | 16px | 所有文字大小 |
+| `dial.type.contrast` | 1 | 标题与正文拉开多大的差距 |
+| `dial.space.unit` | 8px | 所有间距 |
+| `dial.size.unit` | 4px | 控件高度、图标尺寸、点击目标 |
+| `dial.shape.unit` | 2px | 所有圆角 |
+| `dial.stroke.unit` | 1px | 边框、圆环、焦点指示 |
+| `dial.motion.unit` | 50ms | 所有时长 |
+
+每个令牌属于以下三种之一：
+
+- **推导值**——一条小规则，通常是某个调节量乘以一个系数：`display` 是 `type.base × 3`，`space175` 是 `space.unit × 1.75`。真实的字阶并不是等比的，所以每个令牌都有**自己的**系数；
+- **固定值**——一个写明理由的字面量，不受调节量影响（`corner.full`、一条缓动曲线、法律规定的脚注字号）；
+- **别名**——一个可以重新指向的引用（`button.container.gap` → `space100`）。
+
+在 Web 上，调节量还可以实时生效：推导出的令牌以 `calc()` 表达式输出，所以在任意元素上设置 `--tanrei-dial-type-base`，就会重新缩放其中的一切。有一项测试会在真实浏览器中、在多组调节量设置下对每个推导令牌求值，并要求结果与构建的结果相等。
+
+## 设计系统是一个层
+
+设计系统是一个**扩展**另一个系统的小 JSON 文件。它主要是改取值；确有必要时，也会[扩充词汇](#扩充词汇)。
+
+```json
+{
+  "id": "acme",
+  "extends": "tanrei",
+  "palettes": {
+    "brand":   { "description": "Acme 红由品牌规范规定。", "source": { "seed": "#e60012" }, "roles": "intent" },
+    "correct": { "description": "测验要标出答对的题——既不是 success，也不是 primary。", "source": { "seed": "#0f766e" }, "roles": "intent" }
+  },
+  "tokens": {
+    "tanrei.dial.type.base": { "$value": { "value": 17, "unit": "px" }, "reason": "我们的用户在一臂之外阅读。" },
+    "tanrei.comp.button.container.padding-inline-start.medium": { "scale": 2 },
+    "tanrei.comp.button.container.gap.medium": { "$value": "{tanrei.sys.space.space50}" },
+    "tanrei.sys.typescale.label-small": { "$value": { "fontSize": { "value": 11, "unit": "px" } }, "reason": "法律脚注的字号由合同规定。" }
+  }
+}
+```
+
+| 你想要 | 你写 |
+|---|---|
+| 一切都稍大一点 | 设置一个调节量 |
+| 按钮内边距是默认值的两倍，并且仍然跟随间距调节量 | `"scale": 2` |
+| 让这个令牌使用另一个级别 | 重新指向别名 |
+| 无论调节量怎么变，这一个值都保持不动 | 用带 `reason` 的 `$value` 固定它 |
+| 一种品牌色或领域色，带有自己的 `on-` 和 `-container` 角色，并经过对比度检查 | 用 `"roles": "intent"` 声明一个调色板 |
+
+每个平台的代码都由同一个解析后的系统生成，所以一个拉取请求（Pull Request）就能同时改变 Web、SwiftUI、Compose、Flutter 和 React Native。
+
+## 扩充词汇
+
+光有取值并不总是够用。某个参照系统有核心所没有的按钮尺寸；你的产品有自己的评分组件。所以层也可以**扩展**词汇——写在 `vocabulary` 下，必须附上 `rationale`，并且只能添加：
+
+```json
+"vocabulary": {
+  "tanrei.sys.space.space1200":        { "$type": "dimension", "rationale": "首屏区块需要 96px 的节奏级别。",
+                                          "derive": { "fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 12 } },
+  "tanrei.comp.button.size.3x":        { "from": "large", "scale": 1.5, "rationale": "落地页上的首屏行动号召按钮。" },
+  "tanrei.comp.button.variant.danger": { "from": "filled", "rationale": "在这里，破坏性操作的确认是一种独立的强调。" },
+  "acme.comp.rating.star.size":        { "$type": "dimension", "rationale": "评分组件的星星。",
+                                          "derive": { "fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 5 } }
+}
+```
+
+| 你添加 | 结果 |
+|---|---|
+| **序列中的一个级别**——一个间距级别、一个圆角、一个文本角色、一个带有其上所绘角色（`onRole`）的颜色角色 | 它与相邻的级别并列，跟随同一个调节量，并像核心的颜色对一样接受对比度检查 |
+| **组件某个轴上的一个取值**——Button 的一种尺寸或变体 | 一行就够。尺寸会从另一种尺寸克隆该轴的全部成员（高度、内边距、标签样式、图标）并加以缩放，仍然跟随调节量。变体克隆的是静止状态的颜色；**悬停、聚焦、按下和禁用的令牌，由系统的模式规则替你赋值** |
+| **你自己的令牌**，位于你的层的命名空间内（`acme.…`） | 供你自己的组件使用。它们可以引用任何 `tanrei.*` 令牌，跟随调节量和配色方案，在 Web 上成为 `--acme-…`，在其他各平台上成为一个有类型的对象 |
+
+`vocabulary` 说的是某个东西**存在**；`tokens` 和 `rules` 给它一个**取值**，与核心令牌完全一样——所以子层可以像改其他任何东西一样改一个扩展。扩展会被继承，从不删除核心或改变核心的类型，也不能添加交互状态（那属于平台）。每个生成的包都会列出这些扩展，以及由谁声明、为什么声明。
+
+组件接受你添加的东西。`<tanrei-button size="3x" variant="danger">` 在 Web 上可以直接使用，原生软件包也接受同样的键；当前启用的设计系统没有的取值，会按默认值渲染。**什么都不添加的系统，不付任何代价**：它生成的代码里完全不会提到扩展。
+
+两个理想就是这样同时成立的：Tanrei 自己的词汇保持精简、命名直白，**同时**任何设计系统都能被精确地匹配——因为不必为了别人而往核心里加任何东西。
+
+## 状态的样子也是取值
+
+组件从不计算悬停或按下时的外观。每个状态都有自己的令牌（`button.filled.hovered.container.color`……），由系统的**模式规则**为它们赋值：
+
+```json
+{ "match": "tanrei.comp.*.*.hovered.container.color",
+  "derive": { "fn": "mix", "base": "{tanrei.comp.$1.$2.container.color}", "with": "{tanrei.comp.$1.$2.label.color}", "amount": "{tanrei.sys.state.hover-state-layer-opacity}" } }
+```
+
+这就是 Tanrei 的状态层。为每个状态明确指定颜色的系统，写的是别名；没有悬停效果的系统，把该状态指向静止状态的取值；按下时变暗的系统，设置 `pressed.opacity`。词汇相同，取值不同。
+
+## 种类选择
+
+少数区别根本不是量：按下时是用涟漪回应还是把控件变暗，键盘焦点是显示为圆环还是光晕。它们是 `sys.behavior` 下的两个令牌（`pressed-feedback`、`focus-style`），各有一份简短而封闭的名称清单，层像选其他取值一样从中选一个。圆角如何弯曲是一个量，而不是选择：见[形状](/zh-cn/foundations/shape/#圆角平滑)页面上的 `sys.shape.corner-smoothing`。[行为](/zh-cn/foundations/behaviour/)页面对它们作了说明。图标集和字体同样可以由层来更换：参见[图标](/zh-cn/foundations/icons/#每个设计系统一套图标集)和[字体排印](/zh-cn/foundations/typography/#每个设计系统的字体)。
+
+## 内置的系统
+
+同一个 `<tanrei-button>`，同样的标记。`m3-like` 和 `cupertino` 的存在，是为了用两个性格相反的系统来验证这套机制，也可以作为你自己的层的起点。
+
+**精确是测量出来的，不是声称出来的。** `m3-like` 带有一份保真度对照表，对照的是 material-web 已发布的令牌（Apache-2.0）：参照对象的每个颜色角色、每种文本样式和每个 Button 令牌，都必须相等、被另一个令牌覆盖，或者连同解释它的模仿差距一并列出。这个数字与预设一起显示在下方——在未被其他令牌覆盖的令牌当中有多少相等，读取自 `tokens/generated/<id>/fidelity.json`。之所以叫“-like”，是出于商标方面的考虑——并不是因为它只是近似。
+
+<SystemGallery />
+
+在 Web 上，预设只是多一张样式表，作用域限定在一个属性上，所以多个系统甚至可以并排出现：
+
+```js
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/cupertino.css';
+```
+
+```html
+<body data-tanrei-system="cupertino">
+```
+
+取值和种类选择目前都还表达不了的东西——背景材质、作为风格的全大写标签——会作为 Tanrei 的缺陷列在 `docs/governance/mimicry-gaps.json` 中，而不是藏起来。
+
+## 共享一个系统
+
+构建一个系统会产出一个自包含的 **DTCG 2025.10 包**——朴素的、全部已赋值的令牌文件，外加一个标准的解析器——所以任何能读取设计令牌的工具，不需要 Tanrei 就能使用它。产出它的层文件也随包一起分发，所以 Tanrei（或 AI 代理）可以重新构建或修改它。
+
+<Callout type="caution" title="无障碍">
+  对比度阈值是谁也不能更改的常量。在默认系统中，违反它会导致构建失败。在产品层中，违反它是一条**警告**——在构建时打印出来，并写入生成的产物，绝不悄无声息。模仿其他系统的预设则改以对那个系统的保真度来衡量：无论在标准、中还是高对比度下，Tanrei 的无障碍准则都不适用于它，构建在那里测得的对比度记录为参考信息，而不是警告。功能性故障——无法操作的控件、缺失的名称或状态——在任何系统中都是缺陷，模仿预设也不例外。
+</Callout>

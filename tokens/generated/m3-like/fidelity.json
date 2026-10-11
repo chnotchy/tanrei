@@ -1,0 +1,24 @@
+{
+  "system": "m3-like",
+  "reference": {
+    "name": "material-web",
+    "source": "https://github.com/material-components/material-web/tree/main/tokens/versions",
+    "version": "v0_192",
+    "license": "Apache-2.0",
+    "description": "Google Material 3, audience 3P, platform Web, dynamic scheme with the baseline palette."
+  },
+  "scope": "Every color role and every text style the reference publishes, and Button (five variants) at the reference's single size (40px = Tanrei's medium).",
+  "total": 288,
+  "equal": 273,
+  "covered": 14,
+  "different": [],
+  "unmapped": [
+    {
+      "ref": "scrim",
+      "gap": "scrim-color-and-opacity",
+      "note": "m3-like draws black at 32%, the reference's rendered result; the reference token itself is opaque black."
+    }
+  ],
+  "unaccounted": [],
+  "fidelity": 0.996
+}

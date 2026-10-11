@@ -1,0 +1,21 @@
+---
+// The product of the List page's reordering demos. A reorderable list changes nothing itself (LST-36): it fires `move`
+// and draws the order the product then gives. On a documentation page the page is the product, so this is its answer —
+// for every `<tanrei-list data-demo-product>` — and the removal behind every `[data-demo-remove]` button in one.
+// It is what the page's own code sample shows a product writing.
+---
+
+<script>
+  document.addEventListener('move', (event) => {
+    const list = event.target instanceof Element ? event.target.closest('tanrei-list[data-demo-product]') : null;
+    if (!list || event.target !== list) return;
+    const { from, to } = (event as CustomEvent<{ from: number; to: number }>).detail;
+    const items = [...list.children];
+    list.insertBefore(items[from], items[to > from ? to + 1 : to] ?? null);
+  });
+  document.addEventListener('click', (event) => {
+    const button = event.target instanceof Element ? event.target.closest('[data-demo-remove]') : null;
+    const item = button?.closest('tanrei-list-item');
+    if (item?.closest('tanrei-list[data-demo-product]')) item.remove();
+  });
+</script>

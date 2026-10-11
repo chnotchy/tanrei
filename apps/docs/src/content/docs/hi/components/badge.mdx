@@ -1,0 +1,216 @@
+---
+title: बैज
+description: किसी आइकन, नेविगेशन आइटम या अवतार पर एक बिंदु या छोटी गिनती लगाता है, यह दिखाने के लिए कि कुछ इंतज़ार कर रहा है।
+translationOf: components/badge.mdx
+sourceHash: a4ece32edcc7d1571544b3c3cbf6afac6aa68eff
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="badge" />
+
+<DemoFrame label="एक बिंदु और एक गिनती">
+  <tanrei-badge label="नए संदेश">
+    <tanrei-button variant="text" label="चैट"><span slot="icon">chat</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="3" label="3 अपठित">
+    <tanrei-button variant="text" label="इनबॉक्स"><span slot="icon">inbox</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 सूचनाएँ">
+    <tanrei-button variant="text" label="सूचनाएँ"><span slot="icon">notifications</span></tanrei-button>
+  </tanrei-badge>
+</DemoFrame>
+
+### इस्तेमाल
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- कोई गिनती नहीं: बिंदु। बिंदु को लेबल चाहिए। -->
+    <tanrei-badge label="नए संदेश">
+      <tanrei-button variant="text" label="चैट"><span slot="icon">chat</span></tanrei-button>
+    </tanrei-badge>
+
+    <!-- 0 कुछ नहीं बनाता; max (999) से ऊपर की गिनती 999+ के रूप में दिखती है। -->
+    <tanrei-badge count="3" label="3 अपठित">
+      <tanrei-button variant="text" label="इनबॉक्स"><span slot="icon">inbox</span></tanrei-button>
+    </tanrei-badge>
+
+    <script type="module">
+      import '@tanrei/web/components/badge';
+      import '@tanrei/web/components/button';
+      const badge = document.querySelector('tanrei-badge[count]');
+      badge.count = unread;
+      badge.label = `${unread} अपठित`;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Badge, Button } from '@tanrei/react';
+
+    <Badge label="नए संदेश">
+      <Button variant="text" label="चैट" onClick={openChat}><span slot="icon">chat</span></Button>
+    </Badge>
+    <Badge count={unread} label={`${unread} अपठित`}>
+      <Button variant="text" label="इनबॉक्स" onClick={openInbox}><span slot="icon">inbox</span></Button>
+    </Badge>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // nil का मतलब बिंदु है।
+    TanreiBadge(count: nil, label: "नए संदेश") {
+      TanreiIconButton("चैट", action: openChat) { Image(systemName: "bubble.left") }
+    }
+    TanreiBadge(count: unread, label: "\(unread) अपठित") {
+      TanreiIconButton("इनबॉक्स", action: openInbox) { Image(systemName: "tray") }
+    }
+
+    // यही चीज़ किसी भी व्यू पर मॉडिफ़ायर के रूप में।
+    Image(systemName: "bell").accessibilityLabel("सूचनाएँ").tanreiBadge(1200, label: "999 से ज़्यादा अपठित")
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiBadge
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // null का मतलब बिंदु है।
+    TanreiBadge(count = null, contentDescription = "नए संदेश") {
+        TanreiIconButton(onClick = ::openChat, contentDescription = "चैट") { TanreiText("chat") }
+    }
+    TanreiBadge(count = unread, contentDescription = "$unread अपठित") {
+        TanreiIconButton(onClick = ::openInbox, contentDescription = "इनबॉक्स") { TanreiText("inbox") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // कोई गिनती नहीं: बिंदु।
+    TanreiBadge(
+      semanticLabel: 'नए संदेश',
+      child: TanreiIconButton(onPressed: openChat, semanticLabel: 'चैट', icon: const Icon(AppSymbols.chat)),
+    );
+    TanreiBadge(
+      count: unread,
+      semanticLabel: '$unread अपठित',
+      child: TanreiIconButton(onPressed: openInbox, semanticLabel: 'इनबॉक्स', icon: const Icon(AppSymbols.inbox)),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Badge, IconButton } from '@tanrei/react-native';
+
+    <Badge label="नए संदेश">
+      <IconButton accessibilityLabel="चैट" onPress={openChat}>chat</IconButton>
+    </Badge>
+    <Badge count={unread} label={`${unread} अपठित`}>
+      <IconButton accessibilityLabel="इनबॉक्स" onPress={openInbox}>inbox</IconButton>
+    </Badge>
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="गिनतियाँ और ऊपरी सीमा" plain>
+  <tanrei-badge count="3" label="3 अपठित">
+    <span class="tanrei-icon" role="img" aria-label="सूचनाएँ">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 अपठित">
+    <span class="tanrei-icon" role="img" aria-label="सूचनाएँ">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="1200" label="999 से ज़्यादा अपठित">
+    <span class="tanrei-icon" role="img" aria-label="सूचनाएँ">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="120" max="99" label="99 से ज़्यादा अपठित">
+    <span class="tanrei-icon" role="img" aria-label="सूचनाएँ">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge label="नए संदेश">
+    <span class="tanrei-icon" role="img" aria-label="सूचनाएँ">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="0" label="कोई अपठित संदेश नहीं">
+    <span class="tanrei-icon" role="img" aria-label="सूचनाएँ">notifications</span>
+  </tanrei-badge>
+</DemoFrame>
+
+<ComponentSpecs name="badge" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+बैज का इस्तेमाल यह दिखाने के लिए करें कि किसी आइकन, नेविगेशन आइटम या अवतार के पीछे कुछ इंतज़ार कर रहा है: अपठित संदेश, नई गतिविधि, इंस्टॉल करने लायक़ अपडेट। यह नज़र को वहाँ खींचता है जहाँ व्यक्ति उस पर कुछ कर सकता है। बैज के पास न कोई शब्द है, न लेआउट में अपनी कोई जगह, इसलिए यह स्थिति का लेबल नहीं है। किसी स्थिति या श्रेणी का नाम बताने वाले शब्द के लिए, जैसे "New", "Beta" या "Pro", [टैग](/hi/components/tag/) इस्तेमाल करें।
+
+### बैज, चिप या टैग
+
+तीनों में फ़र्क़ इस आधार पर किया जाता है कि वे क्या करते हैं:
+
+| कंपोनेंट | यह क्या है | कहाँ रहता है | इनपुट लेता है |
+| --- | --- | --- | --- |
+| बैज | किसी दूसरे एलिमेंट से जुड़ा एक बिंदु या गिनती। | अपने ऐंकर के कोने पर, लेआउट के बाहर। | नहीं। इनपुट ऐंकर तक पहुँचता है। |
+| [चिप](/hi/components/chip/) | एक कंट्रोल। | लेआउट में। | हाँ: इसे दबाया, चालू-बंद किया या हटाया जाता है, और इसके पास फ़ोकस और स्टेट हैं। |
+| [टैग](/hi/components/tag/) | एक स्थिर लेबल। | लेआउट में, इनलाइन। | कभी नहीं। |
+
+1. अगर वह किसी दूसरी चीज़ के ऊपर रखी संख्या या बिंदु है, तो वह बैज है।
+2. अगर उसे दबाया, चुना या हटाया जाता है, तो वह चिप है। अगर वह कहीं ले जाता है, तो वह लिंक है।
+3. अगर वह एक शब्द है जो सिर्फ़ यह बताता है कि कोई चीज़ क्या है या किस स्थिति में है, तो वह टैग है।
+
+जो गिनती किसी पंक्ति में अकेली खड़ी है, जैसे हेडिंग के बग़ल में नतीजों की संख्या, वह भी बैज नहीं है: बैज का हमेशा एक ऐंकर होता है। उसे टेक्स्ट के रूप में लिखें, या जहाँ वह किसी स्थिति का नाम बताए वहाँ टैग के रूप में।
+
+### रूप चुनना
+
+रूप `count` के अनुसार तय होता है, इसलिए चुनने के लिए कोई वेरिएंट नहीं है।
+
+| रूप | `count` | किसके लिए |
+| --- | --- | --- |
+| बिंदु | कोई नहीं (null) | कुछ नया है, और संख्या या तो पता नहीं है या मायने नहीं रखती। |
+| गिनती | 0 से ऊपर | संख्या व्यक्ति को यह तय करने में मदद करती है कि अभी देखना है या नहीं: अपठित संदेश, लंबित अनुरोध। |
+| कुछ नहीं | 0 | कुछ भी इंतज़ार नहीं कर रहा। बैज को सीधे गिनती से बाँधें; उसके चारों ओर किसी शर्त की ज़रूरत नहीं है। |
+
+`max` से ऊपर की गिनती `max+` के रूप में दिखती है (डिफ़ॉल्ट रूप से 999+), इसलिए बैज कभी चार कैरेक्टर से आगे नहीं बढ़ता। जहाँ ऐंकर छोटा हो या सटीक संख्या जल्दी ही मायने खो दे, वहाँ `max` घटा दें (उदाहरण के लिए 99 पर)।
+
+### करें
+
+- हर बैज को ऐसा लेबल दें जो ऐंकर के नाम के बाद ठीक से पढ़ा जाए: "इनबॉक्स" के बाद "3 अपठित"। बिंदु को इसकी सबसे ज़्यादा ज़रूरत है, क्योंकि इसके बिना बिंदु स्क्रीन रीडर को कुछ नहीं बताता।
+- ऐंकर के आसपास जगह छोड़ें। बैज उसके ऊपरी-अंतिम कोने पर बैठता है और उसकी सीमा से बाहर निकल सकता है; वह ऐंकर को कभी खिसकाता या उसका साइज़ नहीं बदलता।
+- जब व्यक्ति वह देख ले जिसकी ओर बैज इशारा करता है, तो बैज हटा दें, ताकि उसका कोई मतलब बना रहे।
+
+### न करें
+
+- हर आइटम पर बैज न लगाएँ। जब सब कुछ चिह्नित हो, तो कुछ भी अलग नहीं दिखता।
+- बटन के लेबल पर या चलते टेक्स्ट में बैज न रखें। उसकी जगह आइकन, नेविगेशन आइटम या अवतार पर है। लेबल के बग़ल का या टेक्स्ट की पंक्ति के भीतर का शब्द टैग है।
+- यह बताने के लिए कि किस तरह की चीज़ इंतज़ार कर रही है या वह कितनी ज़रूरी है, बैज के रंग का इस्तेमाल न करें। उसे लेबल में कहें, या उस कॉन्टेंट में जिसकी ओर वह इशारा करता है।
+- बैज को इंटरैक्टिव न बनाएँ। उस पर किए गए टैप और क्लिक ऐंकर तक पहुँचते हैं, और क्रिया वहीं है।
+
+## सुलभता
+
+<ComponentAccessibility name="badge" />
+
+### कंपोनेंट क्या सँभालता है
+
+- दिखने वाला बिंदु और संख्या सहायक तकनीक से छिपे रहते हैं, इसलिए गिनती कभी दो बार नहीं पढ़ी जाती।
+- लेबल (या, उसके बिना, दिखाई गई गिनती, जैसे "999+") ऐंकर का हिस्सा बन जाता है, इसलिए ऐंकर एक ही बार दोनों के साथ पढ़कर सुनाया जाता है: "इनबॉक्स, बटन, 3 अपठित"। हर प्लैटफ़ॉर्म अपना तरीक़ा इस्तेमाल करता है: वेब पर ऐंकर पर `aria-description`, Apple के प्लैटफ़ॉर्म, Flutter और React Native पर एक्सेसिबिलिटी वैल्यू, और Compose पर स्टेट डिस्क्रिप्शन।
+- 0 की गिनती कुछ नहीं जोड़ती: ऐंकर वैसे ही पढ़कर सुनाया जाता है जैसे बैज के बिना सुनाया जाता।
+- गिनती या लेबल बदलने पर ऐंकर जो कहता है वह अपडेट हो जाता है, बिना ऐसी घोषणा के जो व्यक्ति को बीच में टोके।
+- यह न इनपुट लेता है, न जगह, इसलिए ऐंकर का हिट एरिया पूरा बना रहता है।
+- बिना लेबल का बिंदु, ऋणात्मक गिनती और 1 से कम का `max` डीबग बिल्ड में रिपोर्ट किए जाते हैं।
+
+### आपको क्या करना है
+
+- ऐसा लेबल लिखें जो ऐंकर के नाम को दोहराने के बजाय उसे पूरा करे: "3 अपठित", न कि "इनबॉक्स में 3 अपठित संदेश हैं"।
+- ऐंकर को अपने नाम वाला एक ही एलिमेंट बनाएँ, जैसे लेबल वाला आइकन बटन। Compose पर, जो सादा आइकन किसी ऐसे एलिमेंट के भीतर नहीं है जो अपने वंशजों को मर्ज करता है, उसके चारों ओर ऐसा एक एलिमेंट चाहिए, ताकि नाम और लेबल साथ पढ़े जाएँ।
+- अगर किसी बदलाव को होते ही पढ़कर सुनाना ज़रूरी हो, जैसे लाइव चैट में, तो उसे अपने प्रॉडक्ट से लाइव रीजन के ज़रिए सुनाएँ। बैज ख़ुद कुछ पढ़कर नहीं सुनाता।

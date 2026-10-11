@@ -1,0 +1,171 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "height": 640,
+      "width": 480
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "alignItems": "center",
+          "bottom": 0,
+          "justifyContent": "center",
+          "left": 0,
+          "paddingBottom": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "collapsable": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "backgroundColor": "rgba(0, 0, 0, 0.4)",
+              "bottom": 0,
+              "left": 0,
+              "opacity": 1,
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityState": {},
+                "accessibilityValue": {},
+                "accessible": false,
+                "collapsable": false,
+                "focusable": false,
+                "style": {
+                  "flex": 1
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "accessibilityHint": "The message you were writing will be deleted from this device.",
+            "accessibilityLabel": "Discard draft?",
+            "aria-modal": true,
+            "collapsable": false,
+            "role": "dialog",
+            "style": {
+              "backgroundColor": "rgb(234, 231, 233)",
+              "borderCurve": "continuous",
+              "borderRadius": 14,
+              "boxShadow": [
+                {
+                  "blurRadius": 16,
+                  "color": "rgba(0, 0, 0, 0.12)",
+                  "offsetX": 0,
+                  "offsetY": 4,
+                  "spreadDistance": 0
+                }
+              ],
+              "maxWidth": 270,
+              "minWidth": 270,
+              "opacity": 1,
+              "padding": 24,
+              "transform": [
+                {
+                  "scale": 1
+                }
+              ]
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignItems": "stretch",
+                  "gap": 16
+                }
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "role": "heading",
+                    "style": {
+                      "color": "rgb(0, 0, 0)",
+                      "fontSize": 16,
+                      "fontWeight": "600",
+                      "letterSpacing": 0,
+                      "lineHeight": 21
+                    }
+                  },
+                  "children": [
+                    "Discard draft?"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "RCTScrollView",
+              "props": {
+                "bounces": false,
+                "scrollEventThrottle": 16,
+                "style": {
+                  "flexGrow": 0,
+                  "flexShrink": 1,
+                  "marginTop": 16
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {},
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "gap": 16
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": true,
+                            "style": {
+                              "color": "rgb(0, 0, 0)",
+                              "fontSize": 15,
+                              "fontWeight": "400",
+                              "letterSpacing": 0,
+                              "lineHeight": 20
+                            }
+                          },
+                          "children": [
+                            "The message you were writing will be deleted from this device."
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

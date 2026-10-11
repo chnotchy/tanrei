@@ -1,0 +1,464 @@
+---
+title: फ़ाइल अपलोड
+description: लोगों को फ़ाइल पिकर से फ़ाइलें चुनने देता है और जो चुना गया उसे फ़ाइल आइटम के रूप में दिखाता है, पंक्तियों के कॉलम में या टाइल की क़तार में। फ़ॉर्म में रखने पर वह चुनी गई फ़ाइलें अपने पास रखता है और बिना किसी कोड के उन्हें सबमिट करता है; जो प्रॉडक्ट फ़ाइलें ख़ुद भेजता है, वह फ़ाइल आइटम ख़ुद देता है। वह ख़ुद कभी कुछ अपलोड नहीं करता।
+translationOf: components/file-upload.mdx
+sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## अवलोकन
+
+<ComponentAvailability name="file-upload" />
+
+<DemoFrame label="दोनों लेआउट में एक-एक फ़ाइल अपलोड। कोई फ़ाइल चुनें: वह लिस्ट में आती है, और हटाई जा सकती है। कुछ भी भेजा नहीं जाता।" column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="अटैचमेंट" accept=".pdf" constraints-text="PDF, 10 MB तक" max-size="10000000" empty-text="कोई फ़ाइल नहीं चुनी गई" remove-label="हटाएँ" type-error-text="सिर्फ़ PDF फ़ाइलें जोड़ी जा सकती हैं।" size-error-text="10 MB से बड़ी है।">
+    <tanrei-button slot="trigger" variant="outlined">फ़ाइल चुनें</tanrei-button>
+  </tanrei-file-upload>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="अटैचमेंट" accept=".pdf,image/png" max-size="10000000" drop-text="फ़ाइलें यहाँ खींचकर छोड़ें, या चुनें" constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक" remove-label="हटाएँ" type-error-text="सिर्फ़ PDF और PNG फ़ाइलें जोड़ी जा सकती हैं।" size-error-text="10 MB से बड़ी है।">
+    <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+फ़ाइल अपलोड एक ही जगह पर दो चीज़ें है: फ़ाइलें चुनने का तरीक़ा, और जो चुना गया उसकी लिस्ट। यह आम स्थिति के लिए है, और फ़ॉर्म में इस्तेमाल के लिए तैयार है।
+
+**किनसे बना है:** एक [फ़ाइल पिकर](/hi/components/file-picker/) और [फ़ाइल आइटम](/hi/components/file-item/) से। फ़ाइल पिकर चुनने का तरीक़ा है: आपका अपना [बटन](/hi/components/button/), जो प्लैटफ़ॉर्म का फ़ाइल पिकर खोलता है, उसके चारों ओर का ड्रॉप एरिया, शब्दों में लिखी सीमाएँ, और जो चुना गया उसका परखा जाना। फ़ाइल आइटम एक चुनी गई फ़ाइल है: उसका ग्लिफ़ या उसकी तस्वीर, उसका नाम, उसका साइज़, उसकी स्थिति, और उसे हटाने और फिर कोशिश करने की क्रियाएँ। फ़ाइल अपलोड इन दोनों में से कुछ भी ख़ुद नहीं बनाता। वह वही जोड़ता है जो इन्हें आपस में बाँधता है: कौन-सी फ़ाइलें रखी जाती हैं, और कितनी फ़ाइलें आ सकती हैं, हर फ़ाइल के लिए एक ही रूप (पंक्ति या टाइल), कई बदलावों के लिए एक ही संदेश, हटाने के बाद फ़ोकस कहाँ जाता है, और फ़ॉर्म का मान।
+
+पंक्तियाँ किसके पास रहती हैं, यह `rows` प्रॉपर्टी बताती है:
+
+- `own`, जो डिफ़ॉल्ट है। फ़ाइल अपलोड चुनी गई फ़ाइलें अपने पास रखता है और उनकी पंक्तियाँ ख़ुद बनाता है। उसे फ़ॉर्म में रखें और वह काम करता है: लोग चुनते हैं, लिस्ट देखते हैं, हटाते हैं और सबमिट करते हैं। आप कोई कोड नहीं लिखते।
+- `given`। पंक्तियाँ आपका प्रॉडक्ट देता है। इसे तब इस्तेमाल करें जब आप हर फ़ाइल चुने जाते ही भेजते हैं और चाहते हैं कि हर पंक्ति अपनी स्थिति, अपनी प्रगति और फिर कोशिश करने की क्रिया दिखाए।
+
+<Callout type="caution" title="यह अपलोड नहीं करता">
+फ़ाइल अपलोड कोई कनेक्शन नहीं खोलता और किसी फ़ाइल का एक बाइट भी नहीं पढ़ता। `rows="own"` के साथ वह हर चुनी गई फ़ाइल का ब्राउज़र वाला हैंडल अपने पास रखता है, और जब फ़ॉर्म सबमिट होता है, तब फ़ाइलें फ़ॉर्म भेजता है। `rows="given"` के साथ वह कुछ नहीं रखता। फ़ाइलें कहाँ जाती हैं, किन क्रेडेंशियल के साथ, किन टुकड़ों में और कितनी बार दोबारा कोशिश के साथ, यह आपके फ़ॉर्म का या आपके प्रॉडक्ट का कोड तय करता है। इस पेज के उदाहरण कुछ नहीं भेजते।
+</Callout>
+
+इन स्थितियों में कुछ और इस्तेमाल करें:
+
+- फ़ाइलें पहले से स्टोर हैं, और लोग उन्हें खोलते या चुनते हैं। वह [लिस्ट](/hi/components/list/) है।
+- लोग मान दर्ज करते हैं, जैसे पाने वाले या लेबल। वे [टैग ग्रुप](/hi/components/tag-group/) के इनपुट चिप हैं।
+- आप सिर्फ़ यह दिखाते हैं कि कोई एक काम कितना आगे बढ़ा है। वह [प्रोग्रेस इंडिकेटर](/hi/components/progress-indicator/) है।
+- फ़ाइलें ऐसी जगह जाती हैं जो पिकर के नीचे की लिस्ट नहीं है: लिखे जा रहे संदेश के भीतर, किसी कैनवस पर, या वे तुरंत पढ़ी जाती हैं और रखी नहीं जातीं। वह अकेला [फ़ाइल पिकर](/hi/components/file-picker/) है, और जहाँ भी आप फ़ाइलें दिखाते हैं वहाँ [फ़ाइल आइटम](/hi/components/file-item/); देखें [एक स्तर नीचे](#एक-स्तर-नीचे)।
+- पेज को वहाँ भी फ़ाइलें लेनी हैं जहाँ स्क्रिप्ट नहीं चलती। अपने फ़ॉर्म में नेटिव `<input type="file">` लिखें। कस्टम एलिमेंट स्क्रिप्ट के बिना न पिकर खोल सकता है, न फ़ाइल ले जा सकता है।
+
+वेब पर यह `<tanrei-file-upload>` है। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
+
+### इस्तेमाल
+
+एलिमेंट को अपने फ़ॉर्म में रखें और उसे एक `name` और एक ट्रिगर दें। बस इतना ही। चुनी गई फ़ाइलें लिस्ट में आती हैं, हर पंक्ति में हटाने की क्रिया होती है, और फ़ॉर्म वे फ़ाइलें सबमिट करता है जो रखी गई हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form method="post" enctype="multipart/form-data" action="/requests">
+      <tanrei-file-upload name="attachments" multiple
+                          accept=".pdf,image/png" max-size="10000000"
+                          label="अटैचमेंट"
+                          constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक"
+                          remove-label="हटाएँ"
+                          type-error-text="सिर्फ़ PDF और PNG फ़ाइलें जोड़ी जा सकती हैं।"
+                          size-error-text="10 MB से बड़ी है।">
+        <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
+      </tanrei-file-upload>
+      <button type="submit">भेजें</button>
+    </form>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload } from '@tanrei/react';
+
+    <form method="post" encType="multipart/form-data" action="/requests">
+      <FileUpload
+        name="attachments"
+        multiple
+        accept={['.pdf', 'image/png']}
+        maxSize={10_000_000}
+        label="अटैचमेंट"
+        constraintsText="PDF या PNG, हर फ़ाइल 10 MB तक"
+        removeLabel="हटाएँ"
+        typeErrorText="सिर्फ़ PDF और PNG फ़ाइलें जोड़ी जा सकती हैं।"
+        sizeErrorText="10 MB से बड़ी है।"
+      >
+        <Button slot="trigger" variant="outlined">फ़ाइलें चुनें</Button>
+      </FileUpload>
+      <button type="submit">भेजें</button>
+    </form>
+    ```
+  </TabItem>
+</Tabs>
+
+कुछ भी लिखे बिना क्या होता है:
+
+- `multiple` के साथ दूसरा चुनाव पहले में जुड़ता है। `maxFiles` रखी गई हर फ़ाइल को गिनता है। `multiple` के बिना नई फ़ाइल रखी गई फ़ाइल की जगह ले लेती है।
+- एक ही फ़ाइल दो बार चुनी जाए तो एक बार रखी जाती है।
+- जो फ़ाइल कोई सीमा तोड़ती है, वह रखी नहीं जाती। वह विफल पंक्ति के रूप में दिखाई जाती है, कारण के लिए आपके दिए वाक्य के साथ, और तब हटती है जब व्यक्ति उसे हटाता है या दोबारा चुनता है।
+- हटाने की क्रिया पंक्ति हटाती है। फ़ोकस अगली पंक्ति पर जाता है।
+- फ़ॉर्म रखी गई फ़ाइलों को `name` के तहत सबमिट करता है। रीसेट लिस्ट को ख़ाली कर देता है।
+
+कोड की तीन वैकल्पिक पंक्तियाँ वह जोड़ती हैं जो मार्कअप नहीं कह सकता:
+
+```js
+const upload = document.querySelector('tanrei-file-upload');
+
+// फ़ाइल का साइज़, आपके प्रॉडक्ट के शब्दों में। इसके बिना कोई साइज़ नहीं दिखता।
+const megabytes = new Intl.NumberFormat('hi', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+upload.formatSize = (bytes) => megabytes.format(bytes / 1e6);
+
+// रखी गई फ़ाइलें व्यक्ति के किसी काम से बदलीं।
+upload.addEventListener('change', ({ detail }) => console.log(detail.files));
+
+// अपने कोड से: रखी गई फ़ाइलें पढ़ें, फ़ाइलें सौंपें, और ख़ाली करें।
+upload.files;          // File[], हर बार पढ़ने पर एक नया ऐरे
+upload.add(files);     // वैसे ही परखी जाती हैं जैसे कोई चुनाव; अस्वीकार की गई फ़ाइलें उनके कारणों के साथ लौटाता है
+upload.clear();
+```
+
+React में यही तीनों ref पर मिलते हैं: `ref.current.files`, `ref.current.add(files)` और `ref.current.clear()`, और `formatSize` और `onChange` प्रॉपर्टी हैं।
+
+### फ़ाइलें ख़ुद भेजना
+
+जब आपका प्रॉडक्ट हर फ़ाइल ख़ुद भेजता है और उसके बारे में बताता है, तब `rows="given"` लिखें। `select` पर आप हर उस फ़ाइल के लिए एक [फ़ाइल आइटम](/hi/components/file-item/) जोड़ते हैं जिसे आप रखते हैं। किसी फ़ाइल आइटम के `remove` पर आप उसे निकाल देते हैं। तब कंपोनेंट ख़ुद न कुछ जोड़ता है, न हटाता है, और कोई फ़ाइल अपने पास नहीं रखता।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-file-upload id="attachments" rows="given" layout="drop-area" multiple
+                        accept=".pdf,image/png" max-size="10000000"
+                        label="अटैचमेंट"
+                        drop-text="फ़ाइलें यहाँ खींचकर छोड़ें, या चुनें"
+                        constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक"
+                        remove-label="हटाएँ" retry-label="फिर कोशिश करें">
+      <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
+    </tanrei-file-upload>
+
+    <script type="module">
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const upload = document.querySelector('#attachments');
+      const size = new Intl.NumberFormat('hi', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+
+      upload.addEventListener('select', ({ detail }) => {
+        for (const file of detail.files) {
+          const row = document.createElement('tanrei-file-item');
+          Object.assign(row, { value: crypto.randomUUID(), name: file.name, sizeText: size.format(file.size / 1e6), status: 'uploading', statusText: 'अपलोड हो रही है', progress: 0 });
+          upload.append(row);
+          // आपका कोड फ़ाइल भेजता है और नतीजा बताता है। कंपोनेंट सिर्फ़ वही दिखाता है जो आप सेट करते हैं।
+          send(file, {
+            onProgress: (share) => (row.progress = share),
+            onDone: () => Object.assign(row, { status: 'done', statusText: 'अपलोड हो गई' }),
+            onError: () => Object.assign(row, { status: 'error', errorText: 'कनेक्शन टूट गया।', retryable: true }),
+          });
+        }
+      });
+
+      // अस्वीकार की गई फ़ाइल का कारण एक नाम है, वाक्य नहीं। उसे अपने शब्दों में कहें।
+      upload.addEventListener('reject', ({ detail }) => {
+        const tooLarge = detail.files.filter((refused) => refused.reason === 'size').length;
+        if (tooLarge) upload.announcement = `${tooLarge} फ़ाइलें 10 MB से बड़ी थीं।`;
+      });
+
+      // पंक्ति ख़ुद को कभी नहीं हटाती। आप उसे निकालते हैं, और फ़ोकस अगली पंक्ति पर चला जाता है।
+      upload.addEventListener('remove', (event) => event.target.remove());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload, FileItem } from '@tanrei/react';
+
+    <FileUpload
+      rows="given"
+      layout="drop-area"
+      multiple
+      accept={['.pdf', 'image/png']}
+      maxSize={10_000_000}
+      label="अटैचमेंट"
+      dropText="फ़ाइलें यहाँ खींचकर छोड़ें, या चुनें"
+      constraintsText="PDF या PNG, हर फ़ाइल 10 MB तक"
+      removeLabel="हटाएँ"
+      retryLabel="फिर कोशिश करें"
+      onSelect={(event) => start(event.detail.files)}
+      onReject={(event) => explain(event.detail.files)}
+    >
+      <Button slot="trigger" variant="outlined">फ़ाइलें चुनें</Button>
+      {rows.map((row) => (
+        <FileItem key={row.id} value={row.id} name={row.name} sizeText={row.sizeText} status={row.status} statusText={row.statusText} progress={row.progress} errorText={row.errorText} retryable={row.retryable} onRemove={() => remove(row.id)} onRetry={() => retry(row.id)} />
+      ))}
+    </FileUpload>
+    ```
+  </TabItem>
+</Tabs>
+
+<Callout type="caution" title="आपकी लिखी पंक्तियाँ सिर्फ़ given के साथ दिखती हैं">
+फ़ाइल अपलोड के भीतर आपका लिखा `<tanrei-file-item>` सिर्फ़ `rows="given"` के साथ दिखाया जाता है। इस ऐट्रिब्यूट के बिना फ़ाइल अपलोड अपनी फ़ाइलें ख़ुद रखता है, आपकी पंक्तियाँ नहीं दिखाई जातीं, और डीबग बिल्ड यह बताता है।
+</Callout>
+
+### एक स्तर नीचे
+
+वही चीज़, उसके दोनों सदस्यों से हाथ से लिखी जाए, तो वैसी ही दिखती है, उन्हीं नामों, विवरणों और स्टेट के साथ:
+
+```html
+<!-- फ़ाइल अपलोड -->
+<tanrei-field label="अटैचमेंट">
+  <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
+      constraints-text="PDF, ज़्यादा से ज़्यादा 5 फ़ाइलें" empty-text="कोई फ़ाइल नहीं चुनी गई" remove-label="हटाएँ" retry-label="फिर कोशिश करें">
+    <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="अपलोड हो रही है" progress="0.4"></tanrei-file-item>
+  </tanrei-file-upload>
+</tanrei-field>
+
+<!-- एक स्तर नीचे: दोनों सदस्य, जिन्हें प्रॉडक्ट ख़ुद व्यवस्थित करता है -->
+<tanrei-field label="अटैचमेंट">
+  <tanrei-file-picker multiple accept=".pdf" max-files="5"
+      constraints-text="PDF, ज़्यादा से ज़्यादा 5 फ़ाइलें" selection-text="कोई फ़ाइल नहीं चुनी गई">
+    <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+<ul class="my-files" aria-label="अटैचमेंट">
+  <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="अपलोड हो रही है" progress="0.4"
+        remove-label="हटाएँ" retry-label="फिर कोशिश करें"></tanrei-file-item></li>
+</ul>
+```
+
+<DemoFrame label="वही चीज़ हाथ से लिखी हुई: एक फ़ाइल पिकर, और पेज की अपनी लिस्ट जिसमें एक फ़ाइल आइटम है" column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="अटैचमेंट" multiple accept=".pdf" max-files="5" constraints-text="PDF, ज़्यादा से ज़्यादा 5 फ़ाइलें">
+    <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
+  </tanrei-file-picker>
+  <ul class="not-content" aria-label="अटैचमेंट" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="अपलोड हो रही है" progress="0.4" remove-label="हटाएँ" retry-label="फिर कोशिश करें"></tanrei-file-item></li>
+  </ul>
+</DemoFrame>
+
+फ़ाइल की पंक्ति अकेले में और फ़ाइल अपलोड के भीतर एक ही एलिमेंट है। हाथ से लिखी गई चीज़ को जो नहीं मिलता, वह वह स्टेट है जिसे फ़ाइल अपलोड सँभालता है:
+
+- कई बदलावों के लिए बिना टोके (polite) दिया गया एक संदेश।
+- वह फ़ोकस जो हटाने के बाद अगली फ़ाइल पर चला जाता है।
+- फ़ॉर्म का मान, उसका रीसेट और उसका वैलिडेशन।
+- दो बार चुनी गई फ़ाइल को छोड़ देना, और यह परखना कि और कितनी फ़ाइलें आ सकती हैं।
+- हर फ़ाइल के लिए एक ही रूप (पंक्ति या टाइल), एक ही फ़िट (`cover` या `contain`) और क्रियाओं के वही दो नाम।
+- आइटम के चारों ओर की लिस्ट, और पूरे कंपोनेंट के चारों ओर का ग्रुप।
+
+एक स्तर नीचे तब जाएँ जब आपको ऐसी व्यवस्था चाहिए जो फ़ाइल अपलोड नहीं देता:
+
+| आपको चाहिए | इस्तेमाल करें |
+| --- | --- |
+| चुनने का तरीक़ा, उसके नीचे लिस्ट, और फ़ॉर्म का मान | फ़ाइल अपलोड |
+| चुनी गई फ़ाइलें पिकर के नीचे नहीं, कहीं और: किसी संदेश के भीतर, किसी प्रीव्यू के बग़ल में, किसी टेबल में | एक [फ़ाइल पिकर](/hi/components/file-picker/), और जहाँ आप फ़ाइलें दिखाते हैं वहाँ [फ़ाइल आइटम](/hi/components/file-item/) |
+| एक फ़ाइल जो तुरंत पढ़ी जाती है और रखी नहीं जाती | अकेला [फ़ाइल पिकर](/hi/components/file-picker/) |
+| वे फ़ाइलें जो आपके प्रॉडक्ट के पास पहले से हैं, और चुनने को कुछ नहीं है | अकेले [फ़ाइल आइटम](/hi/components/file-item/) |
+| वे फ़ाइलें जिनका क्रम लोग बदलते हैं | ऐसी [लिस्ट](/hi/components/list/) जिसकी पंक्तियाँ फ़ाइलें दिखाती हैं; देखें [फ़ाइल आइटम का पेज](/hi/components/file-item/#वे-फ़ाइलें-जिनका-क्रम-लोग-बदलते-हैं) |
+
+## स्पेक
+
+<DemoFrame label="प्रॉडक्ट की दी हुई पंक्तियाँ, हर स्थिति की एक: इंतज़ार में, 40% तक भेजी गई, भेजी जा रही, पूरी हुई, विफल और फिर कोशिश करने लायक़, हमेशा के लिए विफल" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="अटैचमेंट" constraints-text="PDF या PNG, हर फ़ाइल 10 MB तक" remove-label="हटाएँ" retry-label="फिर कोशिश करें">
+    <tanrei-button slot="trigger" variant="outlined">फ़ाइलें चुनें</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="इंतज़ार में"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="अपलोड हो रही है" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="अपलोड हो रही है"></tanrei-file-item>
+    <tanrei-file-item value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="अपलोड हो गई"></tanrei-file-item>
+    <tanrei-file-item value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="कनेक्शन टूट गया।" retryable></tanrei-file-item>
+    <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 MB" status="error" error-text="10 MB से बड़ी है।"></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+<DemoFrame label="वही फ़ाइल अपलोड, टाइल के साथ: हर फ़ाइल अपनी तस्वीर वाला एक बॉक्स है, और नाम उसके नीचे" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="फ़ोटो" constraints-text="तस्वीरें, हर फ़ाइल 5 MB तक" remove-label="हटाएँ" retry-label="फिर कोशिश करें">
+    <tanrei-button slot="trigger" variant="outlined">फ़ोटो चुनें</tanrei-button>
+    <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+### हर सदस्य क्या देता है
+
+| पहलू | फ़ाइल पिकर से | फ़ाइल आइटम से | फ़ाइल अपलोड का अपना |
+| --- | --- | --- | --- |
+| प्रॉपर्टी | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight` (आइटम के `form`, `preview`, `fit`, `nameHidden`, `width`, `height`), `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
+| इवेंट | — | आपके दिए फ़ाइल आइटम के `click`, `remove`, `retry` | `select`, `reject`, `change` |
+| स्लॉट | `trigger`, `icon` | — | डिफ़ॉल्ट स्लॉट: `rows="given"` के साथ आपके फ़ाइल आइटम |
+| टोकन | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.file-upload.list.item-gap` |
+
+फ़ाइल पिकर के अपने `label`, `maxFiles` और `selectionText` होते हैं। वे आगे नहीं भेजे जाते: फ़ाइल अपलोड का `label` पिकर और लिस्ट दोनों को एक साथ नाम देता है, उसका `maxFiles` लिस्ट की हर फ़ाइल को गिनता है, और जब तक लिस्ट ख़ाली है, वह पिकर का `selectionText` `emptyText` से लिखता है।
+
+फ़ाइल आइटम से आई आठों प्रॉपर्टी फ़ाइल अपलोड के हर फ़ाइल आइटम को दी जाती हैं, ताकि हर फ़ाइल एक ही तरह से दिखाई जाए। आपका जो फ़ाइल आइटम इनमें से किसी को अलग ढंग से कहता है, उसकी बात नहीं मानी जाती, और डीबग बिल्ड इसकी रिपोर्ट करता है। `disabled` भी हर फ़ाइल आइटम को दिया जाता है।
+
+चुनने में क्या-क्या होता है, यानी ट्रिगर, ड्रॉप एरिया, `accept` और सीमाएँ, यह [फ़ाइल पिकर के पेज](/hi/components/file-picker/) पर है। फ़ाइल की पंक्ति या टाइल क्या दिखाती है, यानी फ़ॉर्मैट के हिसाब से ग्लिफ़, तस्वीर, स्थितियाँ, दबाने लायक़ बॉडी, यह [फ़ाइल आइटम के पेज](/hi/components/file-item/) पर है।
+
+### किसी एक फ़ाइल अपलोड को अलग करना
+
+फ़ाइल अपलोड के अपने दो टोकन हैं, उसकी लिस्ट की दो दूरियाँ। बाक़ी जो कुछ वह बनाता है, वह फ़ाइल पिकर और फ़ाइल आइटम के टोकन पढ़ता है, वे जहाँ भी सेट हों। किसी एक इंस्टेंस को बदलने के लिए, उस पर सदस्य का टोकन सेट करें:
+
+```html
+<tanrei-file-upload label="अटैचमेंट" style="--tanrei-comp-file-item-row-container-gap: 16px">…</tanrei-file-upload>
+```
+
+<ComponentSpecs name="file-upload" />
+
+### वेब क्या अलग ढंग से बनाता है
+
+- एलिमेंट के शैडो रूट में एक `<tanrei-file-picker>`, लिस्ट और एक लाइव रीजन रहता है। `rows="own"` के साथ लिस्ट में वे `<tanrei-file-item>` रहते हैं जिन्हें फ़ाइल अपलोड बनाता है; `rows="given"` के साथ आपके फ़ाइल आइटम आपके DOM में, डिफ़ॉल्ट स्लॉट में रहते हैं। एलिमेंट को इंपोर्ट करने से दोनों सदस्य डिफ़ाइन हो जाते हैं।
+- जो ट्रिगर और ग्लिफ़ आप स्लॉट में रखते हैं, वे फ़ाइल पिकर को आगे दिए जाते हैं और आपके DOM में रहते हैं। ट्रिगर तब भी आपका अपना बटन है, और जहाँ है वहीं फ़ोकस लेता है।
+- एलिमेंट फ़ॉर्म से जुड़ा एलिमेंट है, और उसके दोनों सदस्य नहीं हैं: वे फ़ॉर्म में कोई एंट्री नहीं जोड़ते।
+- `select`, `reject` और `change` फ़ाइल अपलोड के अपने CustomEvent हैं। फ़ाइल पिकर के `select` और `reject` उससे बाहर नहीं जाते। आपके दिए फ़ाइल आइटम के `click`, `remove` और `retry` बबल होकर आपके लिसनर तक पहुँचते हैं; फ़ाइल अपलोड के बनाए आइटम के इन इवेंट का जवाब भीतर ही दिया जाता है।
+- भाग: `file-picker`, `list`, और फ़ाइल अपलोड के बनाए हर आइटम के लिए `file-item`; फ़ाइल पिकर के `container`, `icon`, `label`, `supporting-text` और `selection-text`, अपने ही नामों से; और फ़ाइल अपलोड के बनाए आइटम के भाग `item-` प्रीफ़िक्स के साथ: `item-container`, `item-media`, `item-icon`, `item-preview`, `item-headline`, `item-supporting-text`, `item-status-icon`, `item-progress`, `item-action`। आपके दिए फ़ाइल आइटम को सीधे उसी पर स्टाइल किया जाता है: `tanrei-file-item::part(icon)`।
+- `item-preview` और `rows="own"` के साथ हर फ़ाइल आइटम अपनी तस्वीर का पता ख़ुद बनाता है और उसे छोड़ता है। फ़ाइल अपलोड कोई पता नहीं बनाता।
+- एलिमेंट पर ख़ुद फ़ोकस नहीं जा सकता: हर पड़ाव या तो आपका ट्रिगर है या किसी फ़ाइल आइटम के भीतर है।
+
+## दिशानिर्देश
+
+### चुनना, और सीमाएँ
+
+चुनने का तरीक़ा [फ़ाइल पिकर](/hi/components/file-picker/) का है: दो लेआउट `button` और `drop-area`, `trigger` स्लॉट में आपका अपना बटन, `icon` स्लॉट में एक ग्लिफ़, और सीमाएँ `accept`, `maxSize` और `multiple`, जिन्हें शब्दों में बताने के लिए `constraintsText` है। उसके पेज पर ये पूरे विस्तार से हैं। फ़ाइल अपलोड पर ये उन्हीं नामों की प्रॉपर्टी हैं।
+
+फ़ाइल अपलोड सीमाओं में क्या जोड़ता है:
+
+- `maxFiles` पूरी लिस्ट की ज़्यादा से ज़्यादा फ़ाइलें है, एक चुनाव की नहीं। `rows="own"` के साथ वह रखी गई फ़ाइलें गिनता है; `rows="given"` के साथ आपके दिए फ़ाइल आइटम। चुनाव इस हिसाब से परखा जाता है कि और कितनी फ़ाइलें आ सकती हैं।
+- `rows="own"` के साथ, एक ही फ़ाइल दो बार चुनी जाए तो एक बार रखी जाती है।
+- `rows="own"` के साथ हर अस्वीकार की गई फ़ाइल विफल पंक्ति के रूप में दिखाई जाती है, उसके कारण के लिए आपके दिए वाक्य के साथ: `typeErrorText`, `sizeErrorText` या `countErrorText`। इन्हें एलिमेंट पर दें, या `setWords()` से पूरे प्रॉडक्ट के लिए एक बार।
+- `rows="given"` के साथ अस्वीकार होने पर कुछ नहीं दिखाया जाता। `reject` आपको हर अस्वीकार की गई फ़ाइल एक कारण के साथ देता है: `type`, `size` या `count`। क्या हुआ, यह अपने शब्दों में बताएँ: फ़ील्ड के त्रुटि टेक्स्ट से, विफल पंक्ति से, या `announcement` से।
+- `emptyText` वह है जो बटन वाले लेआउट में ट्रिगर के बग़ल में तब तक रहता है जब तक कोई फ़ाइल नहीं चुनी गई।
+
+### पंक्तियाँ किसके पास रहती हैं
+
+| क्या | `rows="own"` (डिफ़ॉल्ट) | `rows="given"` |
+| --- | --- | --- |
+| किसके लिए | वह फ़ॉर्म जो एक साथ सबमिट होता है। | वह प्रॉडक्ट जो हर फ़ाइल ख़ुद भेजता है। |
+| पंक्तियाँ | फ़ाइल अपलोड के बनाए फ़ाइल आइटम, हर रखी गई और हर अस्वीकार की गई फ़ाइल के लिए एक। | `<tanrei-file-item>` चाइल्ड, जिन्हें आप जोड़ते और हटाते हैं। |
+| दूसरा चुनाव | `multiple` के साथ जुड़ता है; उसके बिना जगह ले लेता है। एक ही फ़ाइल एक बार रखी जाती है। | आप तय करते हैं। |
+| अस्वीकार की गई फ़ाइल | आपके वाक्य के साथ एक विफल पंक्ति। | सिर्फ़ `reject`। |
+| पंक्ति क्या दिखाती है | नाम, साइज़, हटाने की क्रिया। न स्थिति, न प्रगति: कुछ भेजा नहीं जा रहा। | नाम, साइज़, स्थिति, प्रगति, त्रुटि, फिर कोशिश करने और हटाने की क्रियाएँ। |
+| हटाना | पंक्ति हटाता है और `change` एमिट करता है। | पंक्ति का `remove` एमिट करता है। हटाते आप हैं। |
+| फ़ॉर्म का मान | रखी गई फ़ाइलें। | हर उस पंक्ति का `file` जिसे आपने वह दिया है। |
+| फ़ॉर्म का रीसेट | लिस्ट को ख़ाली कर देता है। | कुछ नहीं बदलता। |
+
+फ़ाइल अपलोड अपने चाइल्ड देखकर मोड का अंदाज़ा कभी नहीं लगाता। जो प्रॉडक्ट अपनी पंक्तियाँ ख़ुद रखता है, उसके पास पहले चुनाव से पहले कोई पंक्ति नहीं होती, इसलिए वह `rows="given"` लिखता है।
+
+फ़ाइल अपलोड के दिखते रहने के दौरान `rows` बदलने पर हर रखी गई फ़ाइल बिना किसी इवेंट के छोड़ दी जाती है। अगर आपको वे चाहिए, तो पहले `files` पढ़ लें।
+
+### पंक्तियाँ या टाइल
+
+`itemForm` हर फ़ाइल का रूप चुनता है: `row`, जो डिफ़ॉल्ट है, पंक्तियों का कॉलम; या `tile`, बॉक्स की क़तार जो रैप होती है। एक फ़ाइल अपलोड की हर फ़ाइल एक ही रूप में दिखाई जाती है।
+
+| प्रॉपर्टी | हर फ़ाइल आइटम की | क्या करती है |
+| --- | --- | --- |
+| `itemForm` | `form` | `row` या `tile`। |
+| `itemPreview` | `preview` | ग्लिफ़ की जगह पर एक तस्वीर बनाती है: आइटम के `previewSrc` वाले पते से, या ख़ुद फ़ाइल से जहाँ वह एक इमेज है। |
+| `itemFit` | `fit` | `cover` या `contain`। |
+| `itemNameHidden` | `nameHidden` | जो टाइल तस्वीर बनाती है, उसमें नाम नहीं दिखाया जाता। |
+| `itemWidth`, `itemHeight` | `width`, `height` | टाइल का बॉक्स। |
+
+`rows="own"` और `itemPreview` के साथ, जो रखी गई फ़ाइल एक इमेज है, वह अपनी तस्वीर दिखाती है। हर तस्वीर की एक क़ीमत होती है, जो फ़ाइल आइटम की है और [उसके पेज](/hi/components/file-item/#प्रीव्यू-और-उसकी-क़ीमत) पर बताई गई है। `itemPreview` के बिना, जो डिफ़ॉल्ट है, सौ रखी गई फ़ाइलों की क़ीमत सौ हैंडल है, और कुछ नहीं।
+
+फ़ाइल अपलोड की फ़ाइलों का ऐसा कोई क्रम नहीं होता जिसे व्यक्ति बदल सके। उसके लिए [वे फ़ाइलें जिनका क्रम लोग बदलते हैं](/hi/components/file-item/#वे-फ़ाइलें-जिनका-क्रम-लोग-बदलते-हैं) देखें।
+
+### आपकी दी हुई पंक्तियाँ
+
+`rows="given"` के साथ हर पंक्ति आपका लिखा एक [फ़ाइल आइटम](/hi/components/file-item/) है, अपनी प्रॉपर्टी के साथ: `value`, `name`, `mediaType`, `formatText`, `sizeText`, `status`, `statusText`, `progress`, `errorText`, `retryable`, `previewSrc`, `interactive`, `href` और `readOnly`। हर प्रॉपर्टी क्या दिखाती है, यह उसके पेज पर है। जो पंक्ति फ़ाइल अपलोड ख़ुद बनाता है, वह रखी गई फ़ाइल के लिए `pending` फ़ाइल आइटम है, और अस्वीकार की गई फ़ाइल के लिए `error` फ़ाइल आइटम, जिसमें फिर कोशिश करने की क्रिया नहीं होती।
+
+| `status` | नाम से पहले | दूसरी लाइन | पट्टी | क्रियाएँ |
+| --- | --- | --- | --- | --- |
+| `pending` | फ़ॉर्मैट का ग्लिफ़ | साइज़, फिर `statusText` | नहीं | हटाना |
+| `uploading` | फ़ॉर्मैट का ग्लिफ़ | साइज़, फिर `statusText` | `progress` तक भरी हुई, या जब तक `progress` सेट नहीं है तब तक अनिश्चित | हटाना |
+| `done` | फ़ॉर्मैट का ग्लिफ़ | साइज़, फिर चेक और `statusText` | नहीं | हटाना |
+| `error` | फ़ॉर्मैट का ग्लिफ़ | साइज़, फिर त्रुटि का निशान और `errorText` | नहीं | जहाँ `retryable` है वहाँ फिर कोशिश करना, फिर हटाना |
+
+- साइज़ ख़ुद फ़ॉर्मैट करें और उसे `sizeText` के रूप में दें, या `rows="own"` के साथ `formatSize` फ़ंक्शन के रूप में। एक मेगाबाइट 1000 किलोबाइट है या 1024, यह आपके प्रॉडक्ट का फ़ैसला है।
+- `progress` आपके अपने भेजने के बारे में आपकी दी हुई जानकारी है। कंपोनेंट पट्टी को ख़ुद कभी आगे नहीं बढ़ाता।
+- जो चीज़ें फ़ाइल अपलोड हर पंक्ति को देता है, उन्हें किसी पंक्ति पर सेट न करें: उसका रूप, उसका प्रीव्यू, क्रियाओं के दो नाम, `disabled`।
+
+### फ़ील्ड में
+
+जब फ़ॉर्म लेबल, सहायता, त्रुटि या ज़रूरी का निशान दिखाता है, तब फ़ाइल अपलोड को किसी [फ़ील्ड](/hi/components/field/) में रखें। फ़ील्ड उन्हें दिखाता है और फ़ाइल अपलोड को देता है।
+
+```html
+<tanrei-field label="अटैचमेंट" requirement="required" required-text="ज़रूरी"
+              error error-text="10 MB या उससे छोटी PDF चुनें।">
+  <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
+                      constraints-text="PDF, 10 MB तक" remove-label="हटाएँ">
+    <tanrei-button slot="trigger" variant="outlined">फ़ाइल चुनें</tanrei-button>
+  </tanrei-file-upload>
+</tanrei-field>
+```
+
+- `name` के साथ फ़ाइल अपलोड हर रखी गई फ़ाइल को क्रम से सबमिट करता है। अस्वीकार की गई फ़ाइल कभी सबमिट नहीं होती। जब तक कोई फ़ाइल नहीं रखी गई है, वह कोई एंट्री सबमिट नहीं करता; नेटिव फ़ाइल इनपुट एक ख़ाली एंट्री सबमिट करता है, इसलिए जो सर्वर यह फ़ील्ड पढ़ता है, वह दोनों की जाँच करता है।
+- जब तक कोई फ़ाइल नहीं रखी गई है, `required` फ़ॉर्म को बताता है कि मान नहीं है। वह संदेश ब्राउज़र का अपना होता है। व्यक्ति जो वाक्य पढ़ता है, वह फ़ील्ड का `errorText` है। बटन में ज़रूरी स्टेट नहीं होता, इसलिए ज़रूरी फ़ाइल अपलोड को फ़ील्ड में रखें: फ़ील्ड यह फ़ॉर्म सबमिट होने से पहले बता देता है।
+- फ़ॉर्म का रीसेट लिस्ट को ख़ाली कर देता है। सबमिट होने के बाद फ़ाइलें और पंक्तियाँ बनी रहती हैं; फ़ॉर्म रीसेट करें या `clear()` कॉल करें।
+- जब कोई पेज हिस्ट्री से होकर लौटता है, तो कुछ भी वापस नहीं लाया जाता। फ़ाइल अपलोड ख़ाली शुरू होता है।
+- `name` के बिना फ़ाइल अपलोड कुछ सबमिट नहीं करता, पर अपनी फ़ाइलें फिर भी रखता और लिस्ट में दिखाता है। उन्हें ख़ुद भेजने के लिए अपने submit हैंडलर में `files` पढ़ें।
+- `rows="given"` के साथ मान हर उस पंक्ति का `file` है जिसके पास वह है: `row.file = file`। वहाँ रीसेट कुछ नहीं बदलता, क्योंकि पंक्तियाँ आपकी हैं।
+- फ़ाइल अपलोड ख़ुद कभी `error` सेट नहीं करता। उसे आप सेट करते हैं, फ़ील्ड पर, उन शब्दों के साथ जो बताते हैं कि क्या ग़लत है।
+
+### शब्द
+
+फ़ाइल अपलोड के अपने कोई शब्द नहीं हैं। छह शब्द `setWords()` से पूरे प्रॉडक्ट के लिए एक बार दिए जा सकते हैं; बाक़ी सब इंस्टेंस की प्रॉपर्टी हैं।
+
+| प्रॉपर्टी | प्रॉडक्ट के शब्दों की कुंजी | इसके बिना |
+| --- | --- | --- |
+| `emptyText` | `noFileText` | ट्रिगर के बग़ल में कुछ नहीं दिखता। |
+| `removeLabel` | `removeLabel` | हटाने की क्रिया दिखती है और उसका कोई नाम नहीं होता। डीबग बिल्ड इसकी रिपोर्ट करता है। |
+| `retryLabel` | `retryLabel` | फिर कोशिश करने की क्रिया दिखती है और उसका कोई नाम नहीं होता। डीबग बिल्ड इसकी रिपोर्ट करता है। यह क्रिया सिर्फ़ आपकी दी हुई पंक्तियों में होती है। |
+| `typeErrorText` | `fileTypeErrorText` | अपने प्रकार के कारण अस्वीकार की गई फ़ाइल बिना किसी वाक्य के विफल पंक्ति के रूप में दिखती है। डीबग बिल्ड इसकी रिपोर्ट करता है। |
+| `sizeErrorText` | `fileSizeErrorText` | वही, उस फ़ाइल के लिए जो बहुत बड़ी है। |
+| `countErrorText` | `fileCountErrorText` | वही, उस फ़ाइल के लिए जिसके लिए अब जगह नहीं है। |
+
+तीनों वाक्य सिर्फ़ `rows="own"` के साथ पढ़े जाते हैं, और तभी जब कोई फ़ाइल उस कारण से अस्वीकार हुई हो। फ़ाइल का साइज़ शब्दों की कुंजी नहीं है: वह `formatSize` फ़ंक्शन है, जो इंस्टेंस की प्रॉपर्टी है।
+
+हर क्रिया का विवरण उसकी फ़ाइल का नाम है। एक शब्द, "हटाएँ", हर पंक्ति के लिए काफ़ी है: व्यक्ति "हटाएँ, बटन, brief.pdf" सुनता है।
+
+### दाएँ से बाएँ
+
+दाएँ से बाएँ वाले लेआउट में ट्रिगर और पंक्तियों के ग्लिफ़ दाईं ओर रहते हैं, पंक्तियों की क्रियाएँ बाईं ओर, जिनमें हटाने की क्रिया सबसे बाहर होती है, और पट्टी दाईं ओर से भरती है; टाइल की क़तार दाईं ओर से शुरू होती है। लैटिन अक्षरों वाला फ़ाइल का नाम अपना क्रम बनाए रखता है, अपने बिंदु और एक्सटेंशन के साथ। ग्लिफ़ सिर्फ़ वहाँ मिरर होता है जहाँ आइकन सेट उसे चिह्नित करता है, और तस्वीर कभी मिरर नहीं होती।
+
+### करें
+
+- फ़ाइल अपलोड को फ़ॉर्म में रखें और फ़ाइलें उसी को रखने दें, जब तक आपका प्रॉडक्ट हर फ़ाइल ख़ुद न भेजता हो।
+- पंक्तियों की लिस्ट छोटी रखें, और उसी क्रम में जिसमें लोगों ने फ़ाइलें चुनीं।
+- अस्वीकार होने की बात वहाँ बताएँ जहाँ व्यक्ति देख रहा है: फ़ील्ड के त्रुटि टेक्स्ट में, या विफल पंक्ति में।
+- कई बदलावों को `announcement` से एक वाक्य में समेटें: "40 फ़ाइलें जोड़ी गईं"।
+
+### न करें
+
+- ड्रॉप एरिया को चुनने का अकेला तरीक़ा न बनाएँ। उसमें हमेशा ट्रिगर रहता है।
+- उसके भीतर ट्रिगर, एक आइकन और फ़ाइल आइटम के अलावा कुछ न रखें। बाक़ी कॉन्टेंट नहीं दिखाया जाता, और डीबग बिल्ड इसकी रिपोर्ट करता है।
+- `rows="given"` के बिना पंक्तियाँ न लिखें। वे नहीं दिखाई जातीं।
+- अपलोड की प्रगति दिखाने के लिए `rows="own"` इस्तेमाल न करें। रखी गई फ़ाइल की पंक्ति में कोई स्थिति नहीं होती, क्योंकि फ़ाइल अपलोड कुछ नहीं भेजता।
+- उसके भीतर गिनती, कुल साइज़ या सबकी मिली-जुली पट्टी न दिखाएँ। उन्हें उसके बग़ल में, अपने शब्दों में दिखाएँ।
+
+## सुलभता
+
+<ComponentAccessibility name="file-upload" />
+
+### कंपोनेंट क्या सँभालता है
+
+- पूरा कंपोनेंट एक ग्रुप है, जिसका नाम `label` से या उसके चारों ओर के फ़ील्ड से आता है। ट्रिगर आपका बटन है। उसका विवरण सीमाओं से, उस टेक्स्ट से जो बताता है कि कुछ नहीं चुना गया, और फ़ील्ड की सहायता या त्रुटि से बनता है।
+- ड्रॉप एरिया उसी बटन का एक बड़ा पॉइंटर टार्गेट है। उसका न कोई रोल है, न नाम, न फ़ोकस के क्रम में कोई पड़ाव, न कोई कुंजी।
+- पंक्तियाँ एक लिस्ट हैं, और हर फ़ाइल आइटम उसका एक आइटम है। हर आइटम में नाम, फ़ॉर्मैट, साइज़ और स्थिति या त्रुटि पढ़ी जाती है। जो फ़ाइल भेजी जा रही है, उसमें एक प्रोग्रेस बार होता है, जिसका नाम उसकी फ़ाइल से आता है।
+- Tab ट्रिगर पर पहुँचती है, फिर क्रम से हर फ़ाइल पर: उसकी बॉडी पर, जहाँ आपने उसे दबाने लायक़ बनाया है, उसके बाद फिर कोशिश करने की क्रिया पर, और अंत में हटाने की क्रिया पर।
+- एक लाइव रीजन बिना टोके (polite) बताता है कि कौन-सी पंक्ति जोड़ी गई, कौन-सी पूरी हुई और कौन-सी विफल हुई, आपके शब्दों में। जो बदलाव साथ आते हैं, वे एक ही संदेश होते हैं। प्रगति कभी पढ़कर नहीं सुनाई जाती।
+- `rows="own"` के साथ एक चुनाव एक संदेश है: रखी गई हर फ़ाइल का नाम, फिर हर अस्वीकार की गई फ़ाइल का नाम आपके वाक्य के साथ। फ़ाइल अपलोड न कोई शब्द जोड़ता है, न कोई गिनती। इसकी जगह अपना एक वाक्य कहने के लिए अपने `change` लिसनर में `announcement` सेट करें।
+- हटाना पढ़कर नहीं सुनाया जाता। पंक्ति हटने के बाद फ़ोकस अगली पंक्ति की हटाने की क्रिया पर जाता है, उसके बाद कोई पंक्ति न हो तो पिछली पंक्ति की उसी क्रिया पर, और कोई पंक्ति न बचे तो ट्रिगर पर। `rows="own"` के साथ फ़ाइल अपलोड यह ख़ुद करता है।
+- 200% टेक्स्ट पर हर टेक्स्ट रैप होता है और कुछ नहीं कटता। फ़ोर्स्ड कलर्स में एरिया का किनारा बना रहता है, फ़ाइलें ले रहे एरिया का किनारा ज़्यादा मोटा होता है, और पंक्ति की पट्टी दिखती रहती है।
+
+वेब पर यह कैसे बना है: फ़ाइल पिकर फ़ाइल अपलोड का सदस्य है, उसके शैडो रूट में, और उसके भीतर का पिकर एक असली `<input type="file">` है, जो नज़र से, फ़ोकस के क्रम से और सहायक तकनीक से दूर रखा गया है। ट्रिगर आपके DOM में रहता है, और आपके दिए फ़ाइल आइटम भी। ग्रुप, लिस्ट, लाइव रीजन और वे फ़ाइल आइटम जो फ़ाइल अपलोड ख़ुद बनाता है, शैडो रूट में हैं।
+
+वेब पर ज्ञात कमियाँ इसके सदस्यों की हैं: बटन में ज़रूरी स्टेट नहीं होता, जो एरिया ड्रैग को अस्वीकार कर देता है उसे ब्राउज़र कोई ड्रॉप नहीं देता, Safari क्लिक किए गए बटन को फ़ोकस नहीं देता, और डैश वाला किनारा स्मूद किए गए कोनों के साथ नहीं चल सकता ([फ़ाइल पिकर का पेज](/hi/components/file-picker/#सुलभता)); जो तस्वीर चलती है उसे ब्राउज़र चलाता है ([फ़ाइल आइटम का पेज](/hi/components/file-item/#सुलभता))। जब सिर्फ़ `required` हो और फ़ाइल अपलोड के चारों ओर कोई फ़ील्ड न हो, तब सिर्फ़ फ़ॉर्म का वैलिडेशन बताता है कि फ़ाइल छूटी है।
+
+### आपको क्या करना है
+
+- `trigger` स्लॉट में एक बटन रखें, ऐसे लेबल के साथ जो बताए कि वह क्या करता है।
+- ग्रुप को `label` दें, या फ़ाइल अपलोड को किसी फ़ील्ड में रखें।
+- जब भी आप `accept`, `maxSize` या `maxFiles` सेट करें, `constraintsText` दें।
+- `removeLabel` दें, एलिमेंट पर या `setWords()` से एक बार। जब आप ऐसी पंक्तियाँ देते हैं जिन पर फिर कोशिश की जा सकती है, तब `retryLabel` भी दें।
+- `rows="own"` के साथ अस्वीकार की गई फ़ाइल के तीनों वाक्य दें: `typeErrorText`, `sizeErrorText` और `countErrorText`, उन सीमाओं के लिए जो आपने सेट की हैं।
+- हर अस्वीकृति और हर विफलता शब्दों में बताएँ।
+- जब कई पंक्तियाँ एक साथ बदलती हैं, और जब आप पंक्तियाँ इस तरह हटाते हैं कि व्यक्ति को वह सुनना ज़रूरी है, तब `announcement` सेट करें।

@@ -1,0 +1,205 @@
+---
+title: Botón de opción
+description: Permite elegir exactamente una opción de un grupo pequeño que se muestra entero a la vez.
+translationOf: components/radio-button.mdx
+sourceHash: daa79188285bc262a23e0fbc7f5abe067c3f98c3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="radio-button" />
+
+<DemoFrame label="Un grupo">
+  <div role="radiogroup" aria-label="Frecuencia" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="overview-frequency" value="daily" label="Cada día"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="weekly" checked label="Cada semana"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="monthly" label="Cada mes"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+### Uso
+
+La revisión que dio al botón de opción los tamaños de Material 3 y un anillo que se engrosa hasta convertirse en un relleno solo cambió su aspecto y su movimiento, así que todos los ejemplos siguientes están al día. La web lo dibuja como dice la especificación. SwiftUI, Compose, Flutter y React Native van rezagados: hasta que se pongan al día siguen dibujando el botón de opción anterior, un anillo de 16 con un trazo de línea fina y un punto de 8 en una capa de estado de 28, y no reservan en el diseño los 48 de altura del objetivo. Desde entonces hay un ajuste que, por ahora, solo está en la web: el anillo y el relleno se dibujan como una sola forma.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Las opciones con un mismo name forman un grupo. El nombre del grupo viene del elemento que las rodea. -->
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">Frecuencia</span>
+      <tanrei-radio-button name="frequency" value="daily" label="Cada día"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="weekly" checked label="Cada semana"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="monthly" label="Cada mes"></tanrei-radio-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-button';
+      // Solo la opción que pasa a estar seleccionada emite change; la que sustituye, no.
+      document.querySelector('[role="radiogroup"]').addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton } from '@tanrei/react';
+
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">Frecuencia</span>
+      {options.map(({ value, label }) => (
+        <RadioButton
+          key={value}
+          name="frequency"
+          value={value}
+          label={label}
+          checked={frequency === value}
+          onChange={(e) => setFrequency(e.detail.value)}
+        />
+      ))}
+    </div>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // selection es un Binding<Frequency?>: una opción está seleccionada mientras este sea igual a su valor.
+    TanreiRadioGroup("Frecuencia") {
+      TanreiRadioButton("Cada día", value: Frequency.daily, selection: $frequency)
+      TanreiRadioButton("Cada semana", value: Frequency.weekly, selection: $frequency)
+      TanreiRadioButton("Cada mes", value: Frequency.monthly, selection: $frequency)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.selection.selectableGroup
+    import io.github.chnotchy.tanrei.components.TanreiRadioButton
+
+    // El elemento padre forma el grupo; el onClick de cada opción captura su valor.
+    Column(Modifier.selectableGroup()) {
+        for ((value, label) in listOf("daily" to "Cada día", "weekly" to "Cada semana", "monthly" to "Cada mes")) {
+            TanreiRadioButton(selected = frequency == value, onClick = { frequency = value }, label = label)
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiRadioGroup<Frequency>(
+      groupValue: frequency,
+      onChanged: (Frequency value) => setState(() => frequency = value),
+      semanticLabel: 'Frecuencia',
+      child: Column(
+        children: <Widget>[
+          for (final Frequency option in Frequency.values)
+            TanreiRadioButton<Frequency>(value: option, label: option.label),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react-native';
+
+    <RadioGroup accessibilityLabel="Frecuencia">
+      {options.map(({ value, label }) => (
+        <RadioButton key={value} value={value} label={label} selected={frequency === value} onSelect={setFrequency} />
+      ))}
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Seleccionado, sin seleccionar y deshabilitado" plain>
+  <div role="radiogroup" aria-label="Habilitado" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-enabled" value="unselected" label="Sin seleccionar"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-enabled" value="selected" checked label="Seleccionado"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="Deshabilitado" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="Deshabilitado, sin seleccionar"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="Deshabilitado, seleccionado"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="Etiqueta oculta">
+    <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="Cada semana"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+En el sistema predeterminado, el botón de opción toma las medidas de Material 3: un anillo de 20 con un trazo de 2, sobre una capa de estado redonda de 40. Una opción seleccionada no dibuja ningún punto. Su anillo se engrosa hacia dentro hasta la mitad del radio, y el disco que queda en el interior se rellena con el color del anillo a la mitad de opacidad. El anillo conserva su tamaño exterior en las dos condiciones. El anillo y el relleno son una sola forma: nada de lo que hay detrás del botón de opción se ve entre ellos, con ningún nivel de zoom ni densidad de pantalla, ni en ningún fotograma del cambio. Cuando la selección cambia, el trazo se engrosa o se afina mientras el color del anillo cambia y el relleno aparece o desaparece con un fundido; el relleno nunca crece desde el centro. Un cambio que llega antes de que termine el movimiento da la vuelta desde donde está y, donde el movimiento está reducido, la nueva condición se muestra de inmediato y por completo.
+
+Cada opción ocupa en el diseño al menos 48 de alto, el tamaño del objetivo, con la capa de estado centrada en él. Por eso, las opciones apiladas sin separación entre ellas nunca comparten área de objetivo. Un producto que quiera colocar sus opciones más juntas reduce `option.min-height` en su propia capa y acepta que los objetivos se solapen.
+
+Con `m3-like`, la opción seleccionada conserva el anillo, la separación y el punto de Material, pero el punto aparece con un fundido en lugar de crecer desde el centro. Con `cupertino`, el botón de opción conserva su tamaño más pequeño y dibuja el aspecto de Apple: un disco claro en un anillo fino y, cuando está seleccionado, una banda teñida alrededor de un centro claro.
+
+<ComponentSpecs name="radio-button" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa botones de opción cuando una pregunta tenga exactamente una respuesta y un número reducido de opciones que conviene comparar una al lado de otra, como la velocidad de una entrega o la frecuencia con la que se envía un resumen. Todas las opciones se ven a la vez, así que el grupo ocupa espacio. Cuando haya muchas opciones, o el espacio sea escaso, usa una lista o un menú que muestre solo la elegida.
+
+Un grupo puede empezar con una opción seleccionada cuando esa opción sea una respuesta segura y probable. Deja todas las opciones sin seleccionar cuando necesites que la persona responda de forma deliberada. Una vez seleccionada una opción, la persona no puede devolver el grupo al estado sin selección, porque un botón de opción nunca se desmarca al activarlo. Si «ninguna» es una respuesta válida, añádela como opción.
+
+### Casilla de verificación, botón de opción o interruptor
+
+| Control | Elecciones | Surte efecto | Úsalo para |
+| --- | --- | --- | --- |
+| [Casilla de verificación](/es/components/checkbox/) | Cualquier número de elecciones independientes, incluida ninguna | Cuando la persona confirma | Opciones de un formulario, aceptar unas condiciones, seleccionar filas |
+| Botón de opción | Exactamente una de un grupo pequeño, todas a la vista | Cuando la persona confirma, por lo general | Una sola respuesta a una sola pregunta |
+| [Interruptor](/es/components/switch/) | Un solo ajuste, activado o desactivado | De inmediato | Ajustes que se aplican en cuanto cambian |
+
+### Recomendado
+
+- Da un nombre a cada grupo: la pregunta a la que responden sus opciones, mostrada como texto visible antes del grupo.
+- Apila las opciones en vertical y ponlas en un orden que tenga sentido para la pregunta, por ejemplo de menor a mayor. Cada opción ya reserva la altura de su objetivo, así que una pila no necesita separación adicional.
+- Escribe etiquetas cortas y con la misma forma gramatical, para que sean fáciles de comparar.
+- Mantén juntas las opciones de un grupo, en un mismo contenedor.
+
+### Evita
+
+- No uses un único botón de opción aislado. Para una sola elección de sí o no, usa una casilla de verificación o un interruptor.
+- No uses botones de opción para elecciones que no se excluyen entre sí. Usa casillas de verificación.
+- No inicies una acción de peso, como salir de la página, en el momento en que se selecciona una opción. Las teclas de flecha seleccionan cada opción por la que pasan, así que quien usa el teclado la desencadenaría de camino a la que quiere.
+- No repartas un mismo grupo por distintas partes de la pantalla.
+
+## Accesibilidad
+
+<ComponentAccessibility name="radio-button" />
+
+### De qué se encarga el componente
+
+- Cada opción expone el rol de botón de opción (radio), si está seleccionada, su estado deshabilitado y su posición en el grupo junto con el tamaño del grupo («2 de 3»). Las plataformas de Apple no tienen ese rol, así que ahí una opción es un botón con el rasgo de seleccionado, y su posición es su valor de accesibilidad. La semántica de Flutter todavía no puede indicar la posición.
+- La etiqueta es el nombre accesible, tanto si se dibuja como si se oculta con `labelHidden`. El texto dibujado queda oculto para la tecnología de apoyo, de modo que el nombre se lee una sola vez.
+- Un grupo tiene una sola parada de tabulación: la opción seleccionada o, mientras no haya ninguna, la primera habilitada. Las teclas de flecha pasan a la opción habilitada siguiente o anterior y la seleccionan, y dan la vuelta en los extremos; Flecha izquierda y Flecha derecha se intercambian en un diseño de derecha a izquierda.
+- Espacio selecciona la opción que tiene el foco. Enter la selecciona solo donde la plataforma activa con Enter cualquier control con foco (Android, tvOS); en la web, Enter envía el formulario.
+- Seleccionar una opción deja las demás sin seleccionar. Solo la opción que pasa a estar seleccionada notifica el cambio, y activar la opción seleccionada no hace nada.
+- Un clic o un toque en la etiqueta selecciona la opción. La etiqueta forma parte del área de pulsación, y el área de pulsación cumple el objetivo mínimo. Cada opción reserva en el diseño la altura del objetivo, de modo que las opciones apiladas conservan objetivos completos y separados.
+- La selección la transmite el anillo por sí solo: el anillo seleccionado mantiene un contraste de 3:1 frente a todas las superficies del sistema predeterminado, y es dos veces y media más grueso que el no seleccionado. El relleno translúcido es decoración y no se tiene en cuenta.
+- Muestra el indicador de foco solo para el foco del teclado.
+- Donde el movimiento está reducido, la nueva condición se muestra de inmediato y por completo.
+- Las compilaciones de depuración notifican la falta de etiqueta.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native siguen dibujando el botón de opción anterior, con un punto y con los tamaños anteriores, todavía no dibujan el anillo y el relleno como una sola forma y no reservan en el diseño la altura del objetivo, de modo que las opciones apiladas sin separación comparten área de objetivo.
+- Con `m3-like`, el punto de la opción seleccionada aparece con un fundido a su tamaño completo, mientras que Material lo hace crecer desde el centro (laguna de imitación `radio-dot-scale-in`).
+
+### Qué debes hacer tú
+
+- Da al grupo como nombre la pregunta a la que responde. En la web, envuelve las opciones en un elemento con `role="radiogroup"` y `aria-labelledby`, o en un `<fieldset>` con un `<legend>`. En Flutter, define `semanticLabel` en `TanreiRadioGroup`; en React Native, define `accessibilityLabel` en `RadioGroup`.
+- Forma el grupo como lo hace cada plataforma, para que las teclas y la posición funcionen: un mismo `name` en la web, `Modifier.selectableGroup()` en el elemento padre en Compose, `TanreiRadioGroup` en Flutter y `RadioGroup` en React Native.
+- Si la pregunta es obligatoria y queda sin responder, muestra el mensaje en el grupo: un [grupo de botones de opción](/es/components/radio-group/) en error dibuja su texto de error y pone todos los botones de opción en su forma de error. Para opciones agrupadas sin uno, define `error` en cada botón de opción: el anillo y el punto toman el color de error, como el recuadro de una casilla de verificación. Una opción deshabilitada no muestra el color de error.
+- Un botón de opción en error no se expone como no válido, porque su rol no tiene ese estado. Lo dice el grupo: un grupo de botones de opción es no válido y su texto de error lo describe. Donde agrupes tú las opciones, di el error con palabras junto a ellas.
+- Si cambias el estilo del anillo y del relleno en tu propia capa, mantén el anillo lo bastante marcado para que muestre la selección por sí solo. La compilación no lo comprueba.
+- En React Native, pasa `positionText` a `RadioGroup` cuando el producto no esté en inglés. De forma predeterminada, la posición se anuncia como «2 of 3».

@@ -1,0 +1,115 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "height": 320,
+      "width": 320
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "bottom": 16,
+          "end": 16,
+          "position": "absolute"
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "style": {
+              "alignItems": "flex-end"
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityLabel": "Create",
+                "accessibilityRole": "button",
+                "accessibilityState": {
+                  "disabled": true,
+                  "expanded": false
+                },
+                "accessibilityValue": {},
+                "accessible": true,
+                "collapsable": false,
+                "focusable": false,
+                "hitSlop": {
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "top": 0
+                },
+                "style": {
+                  "alignItems": "center",
+                  "alignSelf": "flex-end",
+                  "backgroundColor": "rgba(27, 27, 27, 0.12)",
+                  "borderRadius": 12,
+                  "height": 48,
+                  "justifyContent": "center",
+                  "opacity": 1,
+                  "width": 48
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "height": 24,
+                      "width": 24
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "collapsable": false,
+                        "style": {
+                          "alignItems": "center",
+                          "bottom": 0,
+                          "justifyContent": "center",
+                          "left": 0,
+                          "position": "absolute",
+                          "right": 0,
+                          "top": 0
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgba(27, 27, 27, 0.38)",
+                              "fontFamily": "Material Symbols Rounded",
+                              "fontSize": 24,
+                              "fontWeight": "300",
+                              "lineHeight": 24,
+                              "textAlign": "center"
+                            }
+                          },
+                          "children": [
+                            "add"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

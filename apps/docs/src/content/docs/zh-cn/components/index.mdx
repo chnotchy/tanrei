@@ -1,0 +1,20 @@
+---
+title: "组件"
+description: "按类别分组的完整组件清单，以及目前已有文档的组件。"
+translationOf: components/index.mdx
+sourceHash: 1c7d450f3a7110054b173eb27a441d938ae9ecf7
+---
+
+import { inventory } from '../../../../lib/repo';
+import ComponentIndex from '../../../../components/ComponentIndex.astro';
+
+Tanrei 的清单涵盖 {inventory.length} 个组件家族；各平台提供了哪些，请见[状态页面](/zh-cn/status/)。组件一有规格，就会在这里有一个页面。标为“计划中”的条目还没有规格，也不是链接。每个条目上的数字是已有实现的平台数。
+
+每个组件页面都有同样的四个部分：
+
+1. **概览**——组件的用途，以及在哪些平台上可用。
+2. **规格**——构成、属性、状态、行为、令牌以及各平台的名称对应，由组件的规格文件渲染而来。
+3. **指南**——何时使用、如何使用。
+4. **无障碍**——角色、键盘交互和标签。
+
+<ComponentIndex headingLevel={2} />

@@ -1,0 +1,211 @@
+---
+title: "进度指示器"
+description: "以条形或圆环显示任务已经进行到哪里；进度未知时，则表示任务正在进行。"
+translationOf: components/progress-indicator.mdx
+sourceHash: 4c913cc78754e128adde1441de5e69fac8eff4f8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="progress-indicator" />
+
+<DemoFrame label="线性和环形">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator value="0.4" label="正在上传 report.pdf"></tanrei-progress-indicator>
+    <tanrei-progress-indicator label="正在准备导出"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" value="0.4" label="正在同步照片"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" label="正在同步"></tanrei-progress-indicator>
+</DemoFrame>
+
+### 用法
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们还没有 `separation`，示例展示的是它们实际提供的内容。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-progress-indicator value="0.4" label="正在上传 report.pdf"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="第 3 个文件，共 10 个" label="正在上传"></tanrei-progress-indicator>
+
+    <!-- 没有 value：不确定，与没有 value 的 <progress> 一样。 -->
+    <tanrei-progress-indicator variant="circular" size="small" label="正在同步"></tanrei-progress-indicator>
+
+    <!-- 指示器与轨道其余部分之间留一段间隙，不管设计系统选择的是什么。 -->
+    <tanrei-progress-indicator separation="gap" value="0.4" label="正在上传 report.pdf"></tanrei-progress-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/progress-indicator';
+      const bar = document.querySelector('tanrei-progress-indicator');
+      bar.value = sent / total;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react';
+
+    <ProgressIndicator value={sent / total} label="正在上传 report.pdf" />
+    <ProgressIndicator value={files} max={10} valueText={`第 ${files} 个文件，共 10 个`} label="正在上传" />
+    <ProgressIndicator variant="circular" size="small" value={null} label="正在同步" />
+    <ProgressIndicator separation="gap" value={sent / total} label="正在上传 report.pdf" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiProgressIndicator("正在上传 report.pdf", value: sent / total)
+    TanreiProgressIndicator("正在上传", value: Double(files), in: 0...10, currentValueLabel: "第 \(files) 个文件，共 10 个")
+
+    // 没有 value（默认）就是不确定。
+    TanreiProgressIndicator("正在同步", variant: .circular, size: .small)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicator
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicatorVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiProgressIndicatorSize
+
+    // progress 是一个 lambda：新的值只触发重绘，不触发重组。
+    TanreiProgressIndicator(progress = { sent / total }, contentDescription = "正在上传 report.pdf")
+    TanreiProgressIndicator(
+        progress = { files.toFloat() },
+        contentDescription = "正在上传",
+        valueRange = 0f..10f,
+        stateDescription = "第 $files 个文件，共 10 个",
+    )
+
+    // 不带 progress 的重载是不确定的。
+    TanreiProgressIndicator(
+        contentDescription = "正在同步",
+        variant = TanreiProgressIndicatorVariant.Circular,
+        size = TanreiProgressIndicatorSize.Small,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiProgressIndicator(value: sent / total, semanticsLabel: '正在上传 report.pdf');
+    TanreiProgressIndicator(
+      value: files.toDouble(),
+      max: 10,
+      semanticsValue: '第 $files 个文件，共 10 个',
+      semanticsLabel: '正在上传',
+    );
+
+    // value: null（默认）就是不确定。
+    const TanreiProgressIndicator(
+      variant: TanreiProgressIndicatorVariant.circular,
+      size: TanreiProgressIndicatorSize.small,
+      semanticsLabel: '正在同步',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react-native';
+
+    <ProgressIndicator accessibilityLabel="正在上传 report.pdf" value={sent / total} />
+    <ProgressIndicator accessibilityLabel="正在上传" value={files} max={10} valueText={`第 ${files} 个文件，共 10 个`} />
+    <ProgressIndicator accessibilityLabel="正在同步" variant="circular" size="small" />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="各种尺寸、范围的两端，以及自定义范围" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="0" label="未开始"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="1" label="已完成"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="第 3 个文件，共 10 个" label="正在上传"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+</DemoFrame>
+
+<DemoFrame label="分隔方式：divider（默认系统的选择）和 gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" size="large" value="0.4" label="Gap，large"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="progress-indicator" />
+
+## 指南
+
+### 何时使用
+
+进度指示器用于耗时长到会被注意到的任务：上传、导入、部署、耗时较长的保存。只要你能测量进度，哪怕只是粗略地测量，就显示任务已经进行到哪里；面对一个会前进的进度条，人们等得更有耐心。暂时无法测量时，把它显示为不确定的形式，一旦有了数值就切换为显示数值。
+
+对于时长无法测量的短暂等待，例如列表正在获取下一页，请改用[加载指示器](/zh-cn/components/loading-indicator/)。它没有轨道，因为它从不承诺一个数值。
+
+### 如何选择变体
+
+| 变体 | 用途 |
+| --- | --- |
+| 线性 | 属于某个页面或某个区域的任务：页面顶部、卡片内部、上传列表中某个文件的下方。进度条会占满布局分配给它的宽度。 |
+| 环形 | 空间紧凑的地方，以及文本旁边的进度：按钮里、列表行里、小面板里。圆环的尺寸是固定的。 |
+
+### 如何选择尺寸
+
+| 尺寸 | 默认系统中的进度条粗细 / 圆环尺寸 | 用途 |
+| --- | --- | --- |
+| Small | 2 / 16 | 紧凑的行、控件内部、小号文本旁边。 |
+| Medium | 4 / 24 | 大多数地方。这是默认尺寸。 |
+| Large | 8 / 40 | 整个视图所围绕的那一项任务，或者等待内容的空白区域。 |
+
+### 分隔线还是间隙
+
+确定形式的指示器与轨道的其余部分有两种区分方式。使用 `divider` 时，指示器直接画在轨道上，两者之间没有空隙。使用 `gap` 时，指示器之后会留出一小段空白——圆环上是在圆弧的两端——进度条还会用一个圆点标出轨道的终点。不确定形式的指示器在两种方式下外观相同。
+
+设计系统为所有具有这项选择的组件统一选择一次，默认系统选择的是 divider。让 `separation` 保持 `auto` 就会遵循这一选择，这样指示器与周围的按钮组和菜单保持一致。只有当某一个指示器有理由与众不同时，才在它上面设置 `divider` 或 `gap`。
+
+### 推荐
+
+- 给它一个说明正在进行什么的标签：写“正在上传 report.pdf”，不写“进度”。如果它旁边显示了说明文字，请使用同样的措辞。
+- 百分比读起来不自然时，使用数值文本：“第 3 个文件，共 10 个”“第 2 步，共 4 步”。
+- 任务结束时，用文字告诉用户：一条说明任务已完成的消息，或者说明出了什么问题以及接下来该怎么做。
+
+### 避免
+
+- 不要用颜色来报告失败。对看不到颜色的人来说，红色的进度条什么也没说；应当停止指示器，并在它旁边显示一条消息。
+- 不要把它当作显示某个水平的量表，例如已用存储空间或密码强度。那是计量条（meter），是另一个组件。
+- 不要让数值倒退，也不要在任务完成之前跳到终点。进度条是对剩余等待时间的承诺。
+- 不要为同一项任务显示多个指示器。为整体显示一个，或者为用户关心的每一项各显示一个。
+
+## 无障碍
+
+<ComponentAccessibility name="progress-indicator" />
+
+### 组件负责的部分
+
+- 它提供进度条角色，以标签作为名称。确定形式下，它提供范围、当前值（限制在范围之内），以及数值文本（如果有的话）；不确定形式下，它不提供数值，而提供平台的“忙碌”状态。Flutter 目前还没有进度条角色和忙碌状态，所以在那里它提供标签和数值。
+- 它从不可聚焦，也不会朗读自己的变化。用户到达它时，辅助技术会读出当前值。
+- 用户要求减弱动态效果时，数值的变化会立即显示；不确定的形式停止运动，改为轻缓地改变不透明度，每秒至多一次。
+- 在看不见它的时候，它的循环动画会停止——在所有平台上，应用处于后台时都是如此；在平台能够判断的情况下，它被滚出视野或位于隐藏的屏幕上时也是如此——看得见时再恢复。
+- 空的标签、超出范围的数值和未知的 `separation` 会在调试构建中报告。
+
+### 需要你做的事
+
+- 任务的结束要由你自己来朗读：在实时区域（live region）里放一条消息，或者把焦点移到结果上。指示器不会说明任务已经完成或已经失败。
+- 如果你更改了颜色，请让指示器的颜色相对于轨道和它背后的表面至少保持 3:1 的对比度，使用分隔线和使用间隙时都是如此。数值是从指示器与轨道相接的位置读出来的。
+- 如果任务会阻塞页面的某个区域，请在任务运行期间把这个区域标记为忙碌（在 Web 上是 `aria-busy`）。

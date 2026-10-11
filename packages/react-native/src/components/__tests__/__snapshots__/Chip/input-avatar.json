@@ -1,0 +1,192 @@
+{
+  "type": "View",
+  "props": {
+    "collapsable": false,
+    "style": {
+      "alignSelf": "flex-start",
+      "borderRadius": 6,
+      "flexDirection": "row",
+      "minHeight": 32,
+      "opacity": 1,
+      "paddingEnd": 8
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessible": false,
+        "importantForAccessibility": "no",
+        "style": {
+          "borderColor": "rgb(132, 132, 132)",
+          "borderRadius": 6,
+          "borderWidth": 1,
+          "bottom": 0,
+          "left": 0,
+          "pointerEvents": "none",
+          "position": "absolute",
+          "right": 0,
+          "top": 0
+        }
+      },
+      "children": []
+    },
+    {
+      "type": "View",
+      "props": {
+        "accessibilityLabel": "Ada Lovelace",
+        "accessibilityRole": "button",
+        "accessibilityState": {
+          "disabled": false
+        },
+        "accessibilityValue": {},
+        "accessible": true,
+        "collapsable": false,
+        "focusable": true,
+        "hitSlop": {
+          "bottom": 8,
+          "left": 8,
+          "right": 8,
+          "top": 8
+        },
+        "style": {
+          "alignItems": "center",
+          "flexDirection": "row",
+          "flexShrink": 1,
+          "paddingEnd": 8,
+          "paddingStart": 4,
+          "paddingVertical": 4
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "marginEnd": 8
+            }
+          },
+          "children": [
+            {
+              "type": "Image",
+              "props": {
+                "accessible": false,
+                "source": {
+                  "uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOYN28eAAO4AdvqohIbAAAAAElFTkSuQmCC"
+                },
+                "style": {
+                  "borderRadius": 9999,
+                  "height": 24,
+                  "overflow": "hidden",
+                  "width": 24
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "props": {
+            "allowFontScaling": true,
+            "collapsable": false,
+            "numberOfLines": 1,
+            "style": {
+              "color": "rgb(27, 27, 27)",
+              "flexShrink": 1,
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500",
+              "letterSpacing": 0,
+              "lineHeight": 20
+            }
+          },
+          "children": [
+            "Ada Lovelace"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "View",
+      "props": {
+        "accessibilityLabel": "Remove Ada Lovelace",
+        "accessibilityRole": "button",
+        "accessibilityState": {
+          "disabled": false
+        },
+        "accessibilityValue": {},
+        "accessible": true,
+        "collapsable": false,
+        "focusable": true,
+        "hitSlop": {
+          "bottom": 16,
+          "left": 8,
+          "right": 24,
+          "top": 16
+        },
+        "style": {
+          "alignSelf": "center",
+          "height": 16,
+          "opacity": 1,
+          "width": 16
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "collapsable": false,
+            "style": {
+              "borderRadius": 9999,
+              "height": 24,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "start": -4,
+              "top": -4,
+              "width": 24
+            }
+          },
+          "children": []
+        },
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "alignItems": "center",
+              "height": 16,
+              "justifyContent": "center",
+              "width": 16
+            }
+          },
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "allowFontScaling": false,
+                "collapsable": false,
+                "style": {
+                  "color": "rgb(75, 75, 75)",
+                  "fontFamily": "Material Symbols Rounded",
+                  "fontSize": 16,
+                  "fontWeight": "300",
+                  "lineHeight": 16,
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                "close"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

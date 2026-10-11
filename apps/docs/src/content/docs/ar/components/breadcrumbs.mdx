@@ -1,0 +1,196 @@
+---
+title: مسار التنقل
+description: موضع الصفحة في تسلسل هرمي من الصفحات، وطريق العودة صعودًا فيه. المستويات التي فوقها روابط، مرتبةً من الأعلى، والصفحة نفسها في الآخر.
+translationOf: components/breadcrumbs.mdx
+sourceHash: 05f7e32b5c5664f5cdf25c871df7f7a46deee3f0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="breadcrumbs" />
+
+<DemoFrame label="مسار من ثلاثة مستويات" column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مسار التنقل في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية">
+    <a href="#نظرة-عامة">الرئيسية</a>
+    <a href="#نظرة-عامة">المكوّنات</a>
+    <span aria-current="page">مسار التنقل</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+مسار التنقل (breadcrumbs) يبيّن أين تقع الصفحة في التسلسل الهرمي، لا الطريق الذي جاء منه الشخص إليها. استخدمه حيث تقع صفحات داخل صفحات أخرى، على عمق ثلاثة مستويات أو أكثر.
+
+### الاستخدام
+
+على الويب، مسار التنقل عنصر حول عناصر anchor التي تكتبها أنت. وعناصر anchor تبقى في المستند، فهي روابط قبل أن يعمل أي سكربت، ويجدها الزاحف، والموجِّه الذي يعمل على عناصر anchor في الصفحة، ومكوّن الرابط الخاص بالموجِّه.
+
+المستوى الذي له وجهة عنصر `<a href>`. والمستوى الذي بلا وجهة عنصر `<span>`: الصفحة الحالية، أو مستوى ليست له صفحة خاصة به.
+
+أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: الأسماء التي بجانب كل منصة في أعلى هذه الصفحة هي ما تعطيها إياه المواصفة، ولا شيء منها متاح هناك بعد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/breadcrumbs.css" />
+
+    <tanrei-breadcrumbs label="مسار التنقل" overflow-label="إظهار المستويات المخفية">
+      <a href="/">الرئيسية</a>
+      <a href="/components/">المكوّنات</a>
+      <span aria-current="page">الزر</span>
+    </tanrei-breadcrumbs>
+
+    <!-- رسم قبل التسمية الأولى، أو وحده. ويبقى النص اسم المستوى. -->
+    <tanrei-breadcrumbs label="مسار التنقل" overflow-label="إظهار المستويات المخفية">
+      <a href="/" data-icon="home" data-icon-only>الرئيسية</a>
+      <a href="/components/">المكوّنات</a>
+      <span aria-current="page">الزر</span>
+    </tanrei-breadcrumbs>
+
+    <script type="module">
+      import '@tanrei/web';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Breadcrumbs } from '@tanrei/react';
+    import '@tanrei/web/breadcrumbs.css';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <Breadcrumbs label="مسار التنقل" overflowLabel="إظهار المستويات المخفية">
+      {/* رابط الموجِّه يرسم عنصر anchor خاصًّا به، ويتولى التنقل من حدث click فيه. */}
+      <RouterLink to="/">الرئيسية</RouterLink>
+      <RouterLink to="/components/">المكوّنات</RouterLink>
+      <span aria-current="page">الزر</span>
+    </Breadcrumbs>
+    ```
+  </TabItem>
+</Tabs>
+
+| الخاصية | على الويب |
+| --- | --- |
+| `label` | خاصية HTML (attribute) المسماة `label`: اسم مَعلم التنقل (navigation landmark) |
+| `overflow` | القيمة `overflow="collapse"` (الافتراضية) أو `overflow="wrap"` |
+| `overflowLabel` | الخاصية `overflow-label`: اسم زر الفائض (overflow) |
+| `underline` | القيمة `underline="always"` أو `"hover"` أو `"never"`. ومن دونها يتبع المسار نظام التصميم |
+| مستوى | ابن هو عنصر `<a href>`، أو ابن هو عنصر `<span>` لمستوى بلا وجهة |
+| التسمية `label` للمستوى | نصه |
+| `current` | القيمة `aria-current="page"` على الابن الأخير |
+| `icon` | القيمة `data-icon="home"` |
+| `iconOnly` | الخاصية `data-icon-only` |
+| `click` | الحدث `click` الخاص بعنصر anchor نفسه |
+
+## المواصفات
+
+<DemoFrame label="مستوى بلا صفحة؛ والصفحة الحالية رابطًا؛ ومسار ينتهي عند المستوى الأب" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مستوى بلا صفحة، في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية">
+    <a href="#المواصفات">الرئيسية</a>
+    <span>الأسس</span>
+    <span aria-current="page">الطباعة</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="الصفحة الحالية رابطًا، في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية">
+    <a href="#المواصفات">الرئيسية</a>
+    <a href="#المواصفات">المكوّنات</a>
+    <a href="#المواصفات" aria-current="page">الزر</a>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مسار ينتهي عند المستوى الأب، في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية">
+    <a href="#المواصفات" data-icon="home" data-icon-only>الرئيسية</a>
+    <a href="#المواصفات">المكوّنات</a>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+<DemoFrame label="التسطير عند التحويم أو التركيز أو الضغط؛ وبلا تسطير أبدًا" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مسطَّر في حالة، في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية" underline="hover">
+    <a href="#المواصفات">الرئيسية</a>
+    <a href="#المواصفات">المكوّنات</a>
+    <span aria-current="page">مسار التنقل</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="بلا تسطير أبدًا، في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية" underline="never">
+    <a href="#المواصفات">الرئيسية</a>
+    <a href="#المواصفات">المكوّنات</a>
+    <span aria-current="page">مسار التنقل</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+<DemoFrame label="مسار طويل في عمود ضيق: مطويًّا، وملتفًّا" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مسار مطوي، في هذا العرض التوضيحي" overflow-label="إظهار المستويات المخفية" style="inline-size: 24rem; max-inline-size: 100%">
+    <a href="#المواصفات">الرئيسية</a>
+    <a href="#المواصفات">التوثيق</a>
+    <a href="#المواصفات">الأسس</a>
+    <a href="#المواصفات">رموز التصميم</a>
+    <a href="#المواصفات">رموز المكوّن</a>
+    <span aria-current="page">كيف يُشتق لون الحاوية المعطَّلة</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="مسار ملتفّ، في هذا العرض التوضيحي" overflow="wrap" style="inline-size: 24rem; max-inline-size: 100%">
+    <a href="#المواصفات">الرئيسية</a>
+    <a href="#المواصفات">التوثيق</a>
+    <a href="#المواصفات">الأسس</a>
+    <a href="#المواصفات">رموز التصميم</a>
+    <a href="#المواصفات">رموز المكوّن</a>
+    <span aria-current="page">كيف يُشتق لون الحاوية المعطَّلة</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+- **المستوى الذي يقود إلى مكان مسطَّر** في النظام الافتراضي. فالتسطير هناك، لا اللون، هو ما يقول إن المستوى رابط، كما يقوله للرابط الذي في جملة. والمستوى الذي بلا وجهة نص ثانوي. والصفحة الحالية أثقل وزنًا، بلون النص، وغير مسطَّرة أبدًا.
+- **متى يُرسم التسطير اختيار.** القيمة `underline="hover"` ترسمه فقط ما دام على المستوى تحويم أو تركيز من لوحة المفاتيح أو ضغط. والقيمة `underline="never"` لا ترسمه. ومن دون خاصية HTML هذه يتبع المسار الرمز `comp.breadcrumbs.underline.visibility`، وهو يتبع اختيار نظام التصميم لكل رابط نصي. لا تختر `hover` أو `never` إلا حيث يتميّز لون الرابط من لون النص. والألوان المفروضة (forced colors) ترسم الخط دائمًا.
+- **الصفحة الحالية نص.** الرابط إلى الصفحة التي فيها الشخص لا يقود إلى مكان، ويضيف موضع توقف للمفتاح Tab في كل صفحة. لا تعطِها `href` إلا حيث تتغيّر عروض الصفحة تحت عنوان واحد. فتكون عندئذ رابطًا له المظهر نفسه. وحيث يقف عنوان الصفحة تحت المسار مباشرة، يجوز أن تحذف الصفحة الحالية.
+- **الفواصل ملك للمكوّن**: رسم الأيقونة (glyph) المسمّى `chevron_right` بين كل متجاورين. لا تكتب فاصلًا في تسمية أبدًا.
+- **المسار الطويل يطوي وسطه.** مع القيمة `collapse` يبقى المسار على سطر واحد. تذهب المستويات خلف زر الفائض بدءًا من الذي يلي الأول، بقدر ما يطلبه العرض فقط، ثم الأول. والمستوى الأخير لا يُخرَج من المسار أبدًا. ولا تُقصّ تسميته إلا حين لا يتّسع المكان للزر وله وحدهما.
+- **زر الفائض يفتح قائمة خيارات** فيها المستويات التي أُخرجت من المسار، بترتيبها فيه. والمستوى الذي له وجهة رابط هناك أيضًا. والصف في قائمة الخيارات لا يُسطَّر أبدًا.
+- **القيمة `wrap` تُبقي كل مستوى** وتترك المسار يجري على عدة أسطر. لا يبدأ سطر بفاصل أبدًا، ولا تُقصّ أي تسمية.
+- **يُطوى بحسب عرضه هو**، لا عرض النافذة، ويقرّر من جديد حين يتغيّر عرضه أو تسمية أو حجم النص.
+- **من اليمين إلى اليسار**، يجري المسار من اليمين وتشير الفواصل إلى اليسار. والاسم المكتوب من اليسار إلى اليمين يحتفظ بترتيبه.
+
+<ComponentSpecs name="breadcrumbs" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- قبل أن يُعرَّف العنصر، ومع تعطيل السكربتات، ترسم ورقة الأنماط هيئة الالتفاف: كل مستوى، مع فواصله. والمسار الذي يتّسع له عرضه لا يتحرك حين يُعرَّف العنصر. أما المَعلم والقائمة والطيّ فتأتي مع العنصر.
+- المستوى المختار من قائمة الخيارات حدث `click` واحد على عنصر anchor الذي كتبته أنت، ثم يتبع المتصفح ذلك العنصر ما لم تلغِ النقرة. ومكوّن الرابط الخاص بالموجِّه يتولى التنقل هناك تمامًا كما يفعل في المسار.
+- التسمية التي تلتفّ صندوق واحد: تُرسم حلقة التركيز حول الصندوق، لا حول جزئها من كل سطر.
+- المستوى الذي له رسم يُخطَّط باتجاه التخطيط، فالتسمية المكتوبة من اليسار إلى اليمين ومعها رسم في مسار من اليمين إلى اليسار لا تأخذ اتجاهها هي.
+- رسم المستوى والفواصل التي ترسمها ورقة الأنماط تحتاج إلى `icons.css`. ومن دونه يُحفظ مكانها ولا يُرسم فيه شيء.
+- أبقِ مسار التنقل خارج `.tanrei-prose`، أو علِّمه بالصنف `tanrei-not-prose`: النص المتصل يرسم عناصر anchor التي فيه روابط نصية.
+
+## الإرشادات
+
+### افعل
+
+- ضع المسار فوق عنوان الصفحة، مرة واحدة في الصفحة.
+- اسرد المستويات من أعلى التسلسل الهرمي إلى الصفحة، بالأسماء التي تحملها الصفحات نفسها.
+- اترك المستوى الذي ليست له صفحة خاصة به نصًّا.
+
+### لا تفعل
+
+- لا تستخدم المسار لإظهار الخطوات التي سلكها الشخص. هو يبيّن أين تقع الصفحة.
+- لا تعلّم أي مستوى غير الأخير بأنه الصفحة الحالية.
+- لا تفتح مستوى في تبويب جديد. مستويات التسلسل الهرمي الواحد تحلّ محل الصفحة التي فيها الشخص.
+- لا تُخفِ المستويات بيدك. استخدم `overflow="wrap"` حيث يجب أن يظهر كل مستوى دائمًا.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="breadcrumbs" />
+
+### ما يتكفل به المكوّن
+
+- المسار مَعلم تنقل واحد يحمل قائمة مرتبة واحدة. كل مستوى عنصر قائمة، وكل رابط هو رابط المتصفح نفسه.
+- الصفحة الحالية تحمل `aria-current="page"` كما كتبتها. ولا يُضاف شيء إلى اسمها.
+- الفواصل والرسوم مخفية عن التقنيات المساعدة.
+- المستوى الذي أُخرج من المسار لا يُقرأ وليس في ترتيب التركيز. هو في قائمة الخيارات، على بعد ضغطة واحدة، وعنصر anchor الخاص به ما زال في المستند.
+- زر الفائض يقول إنه يفتح قائمة خيارات وهل هي مفتوحة.
+- مساحة لمس الرابط تبلغ الحد الأدنى للهدف من دون أن تغيّر ما يُرسم.
+- حين يُخرَج من المسار مستوى عليه التركيز، ينتقل التركيز إلى زر الفائض. وحين يزول الزر، ينتقل التركيز إلى أول مستوى عاد.
+
+### ما عليك فعله
+
+- سمِّ المَعلم بالخاصية `label`، بلغة منتجك. ففي الصفحة وسائل تنقل أخرى، والاسم يميّز هذا المَعلم منها. ولا يقدّم Tanrei كلمات من عنده.
+- سمِّ زر الفائض بالخاصية `overflow-label` ما دامت قيمة `overflow` هي `collapse`، أو سمِّه مرة واحدة للمنتج كله بالاستدعاء `setWords({ breadcrumbsOverflowLabel })`.
+- علِّم الصفحة الحالية بالقيمة `aria-current="page"`، على المستوى الأخير فقط.
+- أعطِ المستوى المعروض رسمًا وحده نصَّه. النص هو اسمه.

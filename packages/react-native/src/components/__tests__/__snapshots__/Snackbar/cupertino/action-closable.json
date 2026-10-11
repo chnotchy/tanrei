@@ -1,0 +1,195 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "width": 400
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "alignSelf": "center",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderCurve": "continuous",
+          "borderRadius": 10,
+          "boxShadow": [
+            {
+              "blurRadius": 16,
+              "color": "rgba(0, 0, 0, 0.12)",
+              "offsetX": 0,
+              "offsetY": 4,
+              "spreadDistance": 0
+            }
+          ],
+          "justifyContent": "center",
+          "maxWidth": 560,
+          "minHeight": 48,
+          "minWidth": 288,
+          "paddingEnd": 8,
+          "paddingStart": 16
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "style": {
+              "alignItems": "flex-start",
+              "flexDirection": "row",
+              "gap": 8
+            }
+          },
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "allowFontScaling": true,
+                "collapsable": false,
+                "style": {
+                  "color": "rgb(0, 0, 0)",
+                  "flexGrow": 1,
+                  "flexShrink": 1,
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "letterSpacing": 0,
+                  "lineHeight": 20,
+                  "paddingBottom": 12,
+                  "paddingTop": 12
+                }
+              },
+              "children": [
+                "Conversation archived"
+              ]
+            },
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "gap": 4,
+                  "marginTop": 4
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Undo",
+                    "accessibilityState": {},
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": true,
+                    "hitSlop": {
+                      "bottom": 6,
+                      "left": 6,
+                      "right": 6,
+                      "top": 6
+                    },
+                    "role": "button",
+                    "style": {
+                      "alignItems": "center",
+                      "borderCurve": "continuous",
+                      "borderRadius": 8,
+                      "justifyContent": "center",
+                      "minHeight": 36,
+                      "opacity": 1,
+                      "paddingEnd": 12,
+                      "paddingStart": 12
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(8, 122, 255)",
+                          "fontSize": 17,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 22
+                        }
+                      },
+                      "children": [
+                        "Undo"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Close",
+                    "accessibilityState": {},
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": true,
+                    "hitSlop": {
+                      "bottom": 6,
+                      "left": 6,
+                      "right": 6,
+                      "top": 6
+                    },
+                    "role": "button",
+                    "style": {
+                      "alignItems": "center",
+                      "borderCurve": "continuous",
+                      "borderRadius": 8,
+                      "height": 36,
+                      "justifyContent": "center",
+                      "minHeight": 36,
+                      "opacity": 1,
+                      "width": 36
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "accessibilityElementsHidden": true,
+                        "accessible": false,
+                        "importantForAccessibility": "no-hide-descendants",
+                        "style": {
+                          "alignItems": "center",
+                          "height": 20,
+                          "justifyContent": "center",
+                          "width": 20
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(107, 106, 108)",
+                              "fontFamily": "Material Symbols Rounded",
+                              "fontSize": 20,
+                              "fontWeight": "300",
+                              "lineHeight": 20,
+                              "textAlign": "center"
+                            }
+                          },
+                          "children": [
+                            "close"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

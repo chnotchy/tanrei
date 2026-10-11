@@ -1,0 +1,232 @@
+{
+  "tanrei": {
+    "comp": {
+      "one-time-code-input": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product sends a person a short code — to sign in, to confirm an address or a telephone number, to approve a payment — and asks for it back. The code arrives in a message as a few characters, often in two groups; a row of cells, one per character, says how long it is and how much of it has been entered. It is one text value, and the cells are how that value is drawn.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "standard"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "outline.color": "color",
+              "input.color": "color",
+              "caret.color": "color",
+              "separator.color": "color",
+              "state-layer.color": "color",
+              "error.container.color": "color",
+              "error.outline.color": "color",
+              "error.input.color": "color",
+              "error.caret.color": "color",
+              "error.separator.color": "color",
+              "error.state-layer.color": "color"
+            },
+            "perComponent": {
+              "outline.width": "dimension"
+            }
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "standard",
+              "from": "states"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a one-time-code input reads: a cell’s height, width, least padding and corners, and the distance between cells; the text style of a character; the length and thickness of the mark between two groups; the width of the line inside a cell’s edge, at rest and focused; the duration and curve of a change of state; and the colors of a cell, its inner line, its character, the caret and the group mark, plain and under the error condition (error.), at rest, hovered, focused and disabled.",
+            "rules": [
+              "A one-time-code input is one text field drawn as cells: one value, one stop in the focus order, one text box to assistive technology. Never build a code entry from several inputs.",
+              "It has no label, help or error text of its own. Put it in a Field, which names it, describes it and puts it in its error condition; where the visible label is elsewhere (a dialog’s headline), give label, which is never drawn.",
+              "For a short code sent to the person and typed back once. A password, a PIN the person chose, a recovery key, a licence key and a card number are text fields.",
+              "The focused tokens are read by the active cell alone — the cell the next character goes to — so the focused line is also what shows where typing goes. A system must keep the focused outline visible: it is this component’s focus indicator and its place marker.",
+              "The cells are a left-to-right run in every layout direction; only the row’s place follows the layout.",
+              "container.width is a cell’s widest: cells share the row’s width and become narrower before the row wraps, and the row wraps between groups before anywhere else.",
+              "state-layer.color (and its error. twin) is the color the hover state layer mixes into a cell; it aliases the character’s color. A focused cell draws no state layer.",
+              "Restyle through these tokens in a layer; never draw cells by hand over a hidden input."
+            ]
+          }
+        },
+        "container": {
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 56,
+              "unit": "px"
+            },
+            "$description": "Minimum height of a cell (48): the text field’s medium height and the touch target, so that a code input and a text field in one form are equally tall.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14
+              }
+            }
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space500}",
+            "$description": "The widest a cell is drawn (40 in the default system). Cells share the row and become narrower than this where the row has less room (OTC-23)."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "The least room between a cell’s edge and its character on each side: what a cell keeps when it becomes narrow."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space75}",
+            "$description": "Distance between two cells, between a cell and the group mark, and between two rows of a wrapped code."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.extra-small}",
+            "$description": "The corners of a cell: the text field’s.",
+            "$extensions": {}
+          }
+        },
+        "input": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-large}",
+            "$description": "A character in a cell: the text field’s input style, drawn with tabular figures. 16 px in the default system, below which a touch browser zooms the page into a focused input."
+          }
+        },
+        "separator": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Length of the mark drawn between two groups of cells."
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "Thickness of the group mark. A system that wants a wider gap and no mark sets this to nothing."
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "Width of the line inside a cell’s edge at rest, where it is drawn at all: the error line. The focused width is the focused state’s token."
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long a change of a cell’s colors and line takes when the state, the active cell, error or disabled changes: the text field’s state duration."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$description": "The curve of that change."
+          }
+        },
+        "standard": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-highest}",
+              "$description": "The fill of a cell, empty or filled: the stacked text field’s container."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "At rest a cell has no edge; the active cell draws a line inside its edge while the field is focused (OTC-7)."
+                }
+              }
+            }
+          },
+          "input": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "A character, and the mark that stands for it while mask is true."
+            }
+          },
+          "caret": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$description": "The caret in an empty active cell."
+            }
+          },
+          "separator": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The mark between two groups: quieter than the characters it stands between, as a prefix is beside a value."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.one-time-code-input.standard.input.color}"
+            }
+          },
+          "error": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-container-highest}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}",
+                "$description": "The line inside every cell’s edge while the field is in error, so that the field itself is marked and not only its text."
+              }
+            },
+            "input": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$description": "The characters keep their color in error: the code is still what the person typed."
+              }
+            },
+            "caret": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "separator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.one-time-code-input.standard.error.input.color}"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

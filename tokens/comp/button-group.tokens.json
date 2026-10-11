@@ -1,0 +1,118 @@
+{
+  "tanrei": {
+    "comp": {
+      "button-group": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product places a few related actions side by side or stacked, spaced apart in one place and joined into one shape in another (a formatting set, a date stepper, a dialog's actions).",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a button group reads: the space between standard items; and for connected items whether they are joined by a divider or by a gap, the divider's color (and its color between two emphasis fills), thickness and inset, the gap, the inner corners, the outer corners of a row and of a column, and the padding added at a row's rounded outer ends. The Buttons inside keep their own tokens.",
+            "rules": [
+              "A button group lays out actions; each Button is its own Tab stop. Use a segmented button for one choice among options and a toolbar for a row with one Tab stop.",
+              "Give every Button of a group the same size.",
+              "Mark the completing action confirming and the backing-out action dismissive instead of ordering them by hand; the group places them for the orientation and the reading direction.",
+              "Restyle through these tokens in a layer; never restyle the Buttons from the group.",
+              "connected.separation follows sys.behavior.separation; set it here only to join button groups differently from the rest of the system, and use the separation prop for one group.",
+              "Under divider the items touch and the inner corners are square; connected.gap and connected.inner-shape are read under gap only.",
+              "connected.divider.color is the hairline of the default system, the color of an outlined Button's outline and of the divider component: change it only to draw the rules of a group apart from them.",
+              "A seam between two items whose fills differ carries no line (BGR-24); connected.divider.on-fill.color is read only between two items that both rest on an emphasis fill, where the hairline cannot be seen."
+            ]
+          }
+        },
+        "standard": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Space between the visible bounds of two items of a standard group, side by side or one above the other. Neighbouring hit areas meet at the middle of it (BGR-4), so it is what keeps each item's target whole: at sys.target.touch minus an item's width (in a row) or height (in a column) or more, the item keeps its full target between neighbours. The default system's 16 is 48 minus its narrowest and lowest item (a small icon-only Button, 32)."
+          }
+        },
+        "connected": {
+          "separation": {
+            "$type": "number",
+            "$value": "{tanrei.sys.behavior.separation}",
+            "$description": "How the items of a connected group are joined. divider: they touch, with a line on each seam and square inner corners. gap: they stand connected.gap apart, with connected.inner-shape where they face each other and nothing drawn between them. Follows the system's choice; a group's separation prop overrides it (BGR-21). The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product joins its button groups by a gap while its menus keep their dividers, or the reverse: the system-wide choice gives the common answer, and a component whose parts read better the other way must be able to leave it.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "divider",
+                  "gap"
+                ]
+              }
+            }
+          },
+          "divider": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline-variant}",
+              "$description": "The line on a seam under divider, between two items that rest on the same fill and are not both emphasis fills (BGR-24): outlined, text, tonal and elevated Buttons, and unselected toggles. In the default system it is the hairline role, the color the divider draws its line in and the color of an outlined Button's outline, so an outlined group reads as one outline with rules in it. It keeps its own token so that a system can draw the rules apart from its dividers."
+            },
+            "on-fill": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.outline}",
+                "$description": "The line on a seam between two items that both rest on an emphasis fill: two filled Buttons, or two selected toggles (BGR-24). The hairline is a faint darkening of a light ground or a faint lightening of a dark one and cannot be seen on these fills (1.0–1.1:1), so the line there takes the functional outline role, which is told from them.",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product joins filled Buttons in one place and outlined ones in another, and keeps toggles that are on side by side. A line that can be seen on a surface and a line that can be seen on a strong fill are two colors once the first is a hairline; one token cannot be both.",
+                    "since": "0.1.0"
+                  }
+                }
+              }
+            },
+            "thickness": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.hairline}",
+              "$description": "The thickness of the line on a seam."
+            },
+            "inset": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space100}",
+              "$description": "How far the line stops short of each end of the seam: from the top and the bottom of a row, from the start and the end of a column. 0 draws it across the whole seam. Above 0 the group reads as one shape with rules in it rather than as shapes cut apart, which is what tells divider from a narrow gap."
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space25}",
+            "$description": "Space between two joined items, in a row or a column, under gap. Unused under divider, where the items touch."
+          },
+          "inner-shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.small}",
+            "$description": "The radius of the corners where two joined items face each other, in a row or a column, under gap. Under divider those corners are square."
+          },
+          "horizontal": {
+            "outer-shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "The radius of the outer ends of a joined row: the start corners of the first item and the end corners of the last, capped at half the item's height (BGR-2). Full, so the row reads as one pill with seams."
+            },
+            "outer-inset": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space50}",
+              "$description": "Padding added to the first item at its start and to the last item at its end in a joined row (BGR-23). A full outer end takes more of the container away beside the content than the tighter inner corner does, so equal paddings look unequal; this evens them. A system whose outer ends are no rounder than its inner corners sets 0.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product joins buttons under full outer ends in one place and under squarer ends in another (a preset's rows, a dense tool strip): how much the rounded end must be compensated is a value of the shape, and a product that changes the shape has to be able to change it.",
+                  "since": "0.1.0"
+                }
+              }
+            }
+          },
+          "vertical": {
+            "outer-shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.large}",
+              "$description": "The radius of the outer ends of a joined column: the top corners of the first item and the bottom corners of the last (BGR-16). Two steps above the inner corner and short of full, so the column reads as one rounded panel with seams rather than a capsule."
+            }
+          }
+        }
+      }
+    }
+  }
+}

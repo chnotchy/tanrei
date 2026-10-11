@@ -1,0 +1,337 @@
+/*
+ * Description list (specs/description-list.spec.json, DSL-1 to DSL-23): what is known about one
+ * thing as named facts — a quiet term and the value that answers it — with the terms in one column beside their
+ * values, above them, or under a large figure. It is laid out by its own width and takes no input.
+ *
+ * `<tanrei-description-list>` is an element with no shadow root around the product's own native `dl`, which stays in
+ * the document: `dl`, `dt` and `dd` are never given a role, so the description list a screen reader, a crawler and a
+ * page without script meet is the browser's own (DSL-17).
+ *
+ *   <tanrei-description-list layout="stacked" columns="3" density="compact" separation="gap">
+ *     <dl>
+ *       <div><dt>Category</dt><dd>Actions</dd></div>
+ *       <div><dt>Owners</dt><dd>Aiko Tanaka</dd><dd>Samir Haddad</dd></div>
+ *     </dl>
+ *   </tanrei-description-list>
+ *
+ * Attributes of the wrapper: `layout` (inline | stacked | stat), `columns` (a whole number), `density`
+ * (regular | compact), `separation` (auto | divider | gap). A fact is a `<div>` around one `<dt>` and its `<dd>`s. A
+ * `dl` without groups — `dt` and `dd` as its children — is drawn in one column, inline or stacked; `columns` and
+ * `stat` need the groups.
+ *
+ * This stylesheet draws everything, before and without script (an element that is not yet defined is still an
+ * element). The element (src/components/description-list/description-list.ts) adds the one thing a stylesheet cannot
+ * say: DSL-4 compares the widest term with the list's own width. It measures the terms and writes the width under
+ * which the list stacks as a container query of that list (`data-stacks-below`, and one rule in a sheet it adds), so
+ * the browser itself draws the other form as the list is resized. Without the script a list that is too narrow wraps
+ * its terms instead of stacking: nothing is cut. It also writes
+ *
+ *   data-measuring (on the wrapper)   while it reads the widest term, within one task: never painted
+ *   data-separation (on the `dl`)     the separation the tokens name, where the browser has no style queries (DSL-13)
+ *
+ * Every value is a `--tanrei-comp-description-list-*` token.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name and has no specificity (`:where()`; a rule on `::after` has a
+ *   pseudo-element's), so one class of the product's wins, and the ORDER of the rules decides between two of them.
+ *   The one declaration of `data-measuring` is `!important`: it must win over the rule the element writes, which is
+ *   in no layer so that it wins over a copy of this sheet a page loads into a layer of its own.
+ * - A rule reaches the list's own groups, terms and values by child combinators only: a list inside a value is the
+ *   product's.
+ * - The space between two facts is the lower fact's: a margin, a line (its border) and a padding that together are
+ *   twice `fact.gap` with the line in the middle (DSL-12), or one `fact.gap` of margin (DSL-14). A list of one column
+ *   gives it to every fact but the first. A list in columns cannot know which facts are in its first row, so every
+ *   fact has it and the list is moved up by as much; what the first row would draw above the list is clipped there —
+ *   the line, never a focus ring of the product's, which half of the gap is kept for.
+ * - Names that begin `--_dl-` are private.
+ */
+@layer tanrei.components {
+  /* ── The box (DSL-1): as wide as its layout, as tall as its facts, no look and no outer space of its own ─────── */
+  :where(tanrei-description-list) {
+    /* DSL-2, DSL-3, DSL-12: the density's gaps and text styles (DSL-23: any other density is the default's). */
+    --_dl-fact-gap: var(--tanrei-comp-description-list-fact-gap-regular);
+    --_dl-term-gap: var(--tanrei-comp-description-list-term-gap-regular);
+    --_dl-term-font: var(--tanrei-comp-description-list-term-typescale-regular-font);
+    --_dl-term-tracking: var(--tanrei-comp-description-list-term-typescale-regular-letter-spacing);
+    --_dl-value-font: var(--tanrei-comp-description-list-value-typescale-regular-font);
+    --_dl-value-tracking: var(--tanrei-comp-description-list-value-typescale-regular-letter-spacing);
+    --_dl-stat-font: var(--tanrei-comp-description-list-stat-value-typescale-regular-font);
+    --_dl-stat-tracking: var(--tanrei-comp-description-list-stat-value-typescale-regular-letter-spacing);
+    /* DSL-13: the separation this list draws — its attribute's, else comp.description-list.separation's. */
+    --_dl-separation: var(--tanrei-comp-description-list-separation);
+    --_dl-line: var(--tanrei-comp-description-list-divider-thickness);
+    --_dl-line-color: var(--tanrei-comp-description-list-divider-color);
+    /* DSL-12, DSL-14: what a fact keeps above itself — a margin, a line and a padding (divider), or a margin (gap). */
+    --_dl-above-margin: calc(var(--_dl-fact-gap) - var(--_dl-line) / 2);
+    --_dl-above-line: var(--_dl-line);
+    --_dl-above-padding: calc(var(--_dl-fact-gap) - var(--_dl-line) / 2);
+    /* DSL-7: the most columns of facts; one unless `columns` names more. */
+    --_dl-columns: 1;
+    /* DSL-19, DSL-20: start as a side, by the layout direction — not by a term's or a value's own text. */
+    --_dl-start: left;
+
+    /* No margin is written: an element has none of its own, and the space around a list is its container's (PRS-15). */
+    display: block;
+    box-sizing: border-box;
+    /* DSL-4, DSL-7: the list decides its layout from its own width. */
+    container-type: inline-size;
+    /* What a list's text must not take from where it is used. */
+    text-indent: 0;
+  }
+  :where(tanrei-description-list[hidden]) {
+    display: none;
+  }
+  :where(tanrei-description-list):dir(rtl) {
+    --_dl-start: right;
+  }
+  :where(tanrei-description-list[density='compact']) {
+    --_dl-fact-gap: var(--tanrei-comp-description-list-fact-gap-compact);
+    --_dl-term-gap: var(--tanrei-comp-description-list-term-gap-compact);
+    --_dl-term-font: var(--tanrei-comp-description-list-term-typescale-compact-font);
+    --_dl-term-tracking: var(--tanrei-comp-description-list-term-typescale-compact-letter-spacing);
+    --_dl-value-font: var(--tanrei-comp-description-list-value-typescale-compact-font);
+    --_dl-value-tracking: var(--tanrei-comp-description-list-value-typescale-compact-letter-spacing);
+    --_dl-stat-font: var(--tanrei-comp-description-list-stat-value-typescale-compact-font);
+    --_dl-stat-tracking: var(--tanrei-comp-description-list-stat-value-typescale-compact-letter-spacing);
+  }
+  :where(tanrei-description-list[separation='divider']) {
+    --_dl-separation: divider;
+  }
+  :where(tanrei-description-list[separation='gap']) {
+    --_dl-separation: gap;
+  }
+  /* DSL-7: `columns`, as far as an attribute can be read here; the element writes the rule of a larger number. */
+  :where(tanrei-description-list[columns='2']) {
+    --_dl-columns: 2;
+  }
+  :where(tanrei-description-list[columns='3']) {
+    --_dl-columns: 3;
+  }
+  :where(tanrei-description-list[columns='4']) {
+    --_dl-columns: 4;
+  }
+  :where(tanrei-description-list[columns='5']) {
+    --_dl-columns: 5;
+  }
+  :where(tanrei-description-list[columns='6']) {
+    --_dl-columns: 6;
+  }
+
+  /* ── The list: inline (DSL-3) — one term column as wide as the widest term, the values in the rest ─────────────── */
+  :where(tanrei-description-list) > :where(dl) {
+    display: grid;
+    /* The widest term on one line, for as long as the values keep column.min-width; under that the element stacks
+       the list (DSL-4), and a page without script wraps its terms. */
+    grid-template-columns: fit-content(calc(100% - var(--_dl-term-gap) - var(--tanrei-comp-description-list-column-min-width))) minmax(0, 1fr);
+    column-gap: var(--_dl-term-gap);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    /* What the element reads the least width from, as a length: a list does not scroll, so it places nothing. */
+    scroll-padding-block-start: var(--tanrei-comp-description-list-column-min-width);
+    /* What a list in columns clips above its first row: the line a fact keeps above itself, not the half of the
+       padding under it, which is left for a focus ring of the product's. Where no line is drawn nothing is clipped. */
+    --_dl-clip: inset(calc(var(--_dl-above-margin) + var(--_dl-above-line) + var(--_dl-above-padding) / 2) -100vmax -100vmax -100vmax);
+
+    /* DSL-11: a list with no facts draws nothing and is not exposed. */
+    &:where(:empty) {
+      display: none;
+    }
+
+    /* A fact: its term and its values on the list's two columns, the first lines on one baseline. */
+    & > :where(div) {
+      display: grid;
+      grid-column: 1 / -1;
+      grid-template-columns: subgrid;
+      align-items: first baseline;
+      row-gap: var(--tanrei-comp-description-list-stack-gap);
+      box-sizing: border-box;
+      min-inline-size: 0;
+      margin: 0;
+      padding: 0;
+      border: 0 solid var(--_dl-line-color);
+    }
+    /* DSL-12, DSL-14: what parts a fact from the fact above it. */
+    & > :where(div + div) {
+      margin-block-start: var(--_dl-above-margin);
+      border-block-start-width: var(--_dl-above-line);
+      padding-block-start: var(--_dl-above-padding);
+    }
+
+    /* DSL-2: a term — a label in a quieter color. */
+    & > :where(div) > :where(dt),
+    & > :where(dt) {
+      grid-column: 1;
+      box-sizing: border-box;
+      min-inline-size: 0;
+      margin: 0;
+      padding: 0;
+      font: var(--_dl-term-font);
+      letter-spacing: var(--_dl-term-tracking);
+      color: var(--tanrei-comp-description-list-term-color);
+      /* DSL-19, DSL-20: placed by the layout direction; the text itself is of its own direction. */
+      text-align: var(--_dl-start);
+      unicode-bidi: plaintext;
+      /* DSL-8: never cut, and broken at the column's edge where nothing else can break. */
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    /* DSL-2: a value — the running text, its digits of equal width (after `font`, which resets it). */
+    & > :where(div) > :where(dd),
+    & > :where(dd) {
+      grid-column: 2;
+      box-sizing: border-box;
+      min-inline-size: 0;
+      /* DSL-11: an empty value keeps its place and one line of its height. */
+      min-block-size: 1lh;
+      margin: 0;
+      padding: 0;
+      font: var(--_dl-value-font);
+      letter-spacing: var(--_dl-value-tracking);
+      font-variant-numeric: tabular-nums;
+      color: var(--tanrei-comp-description-list-value-color);
+      text-align: var(--_dl-start);
+      unicode-bidi: plaintext;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    /* DSL-11: an empty value still has a line, so that its term stands on the baseline the other terms stand on — an
+       empty box on that line, never a mark. */
+    & > :where(div) > :where(dd:empty)::before,
+    & > :where(dd:empty)::before {
+      content: '';
+      display: inline-block;
+    }
+    /* DSL-11: a fact with a term and no value keeps the value's place too — a line with nothing to read on it. */
+    & > :where(div:not(:has(> dd)))::after {
+      content: '\200b';
+      content: '\200b' / '';
+      grid-column: 2;
+      min-block-size: 1lh;
+      font: var(--_dl-value-font);
+    }
+    /* DSL-8: Japanese and Chinese lines break by their own rules. */
+    & > :where(div) > :where(:lang(ja), :lang(zh)),
+    & > :where(:lang(ja), :lang(zh)) {
+      line-break: strict;
+    }
+
+    /* A list without groups: one line above each term that follows a value, across both columns — so the space
+       between the columns is the value's own. */
+    &:where(:not(:has(> div))) {
+      column-gap: 0;
+      row-gap: var(--tanrei-comp-description-list-stack-gap);
+      align-items: first baseline;
+    }
+    & > :where(dt, dd) {
+      border: 0 solid var(--_dl-line-color);
+    }
+    & > :where(dd) {
+      padding-inline-start: var(--_dl-term-gap);
+    }
+    & > :where(dd + dt, dd + dt + dd) {
+      margin-block-start: calc(var(--_dl-above-margin) - var(--tanrei-comp-description-list-stack-gap));
+      border-block-start-width: var(--_dl-above-line);
+      padding-block-start: var(--_dl-above-padding);
+    }
+  }
+
+  /* ── Stacked and stat (DSL-5 to DSL-7): the term above its value, the facts in equal columns ───────────────────── */
+  :where(tanrei-description-list:is([layout='stacked'], [layout='stat'])) > :where(dl) {
+    /* As many columns as `columns`, the facts and the width allow, each at least column.min-width wide. */
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(
+        min(100%, max(var(--tanrei-comp-description-list-column-min-width), (100% - (var(--_dl-columns) - 1) * var(--tanrei-comp-description-list-column-gap)) / var(--_dl-columns))),
+        1fr
+      )
+    );
+    column-gap: var(--tanrei-comp-description-list-column-gap);
+    align-items: start;
+    /* Every fact keeps its space above (see the head of this file); the list gives the first row's back. */
+    margin-block-start: calc((var(--_dl-above-margin) + var(--_dl-above-line) + var(--_dl-above-padding)) * -1);
+    clip-path: var(--_dl-clip);
+
+    & > :where(div) {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      grid-column: auto;
+      margin-block-start: var(--_dl-above-margin);
+      border-block-start-width: var(--_dl-above-line);
+      padding-block-start: var(--_dl-above-padding);
+    }
+    /* A list without groups is one column; its values stand under their terms. */
+    &:where(:not(:has(> div))) {
+      grid-template-columns: minmax(0, 1fr);
+      margin-block-start: 0;
+      clip-path: none;
+    }
+    & > :where(dt, dd) {
+      grid-column: 1;
+    }
+    & > :where(dd) {
+      padding-inline-start: 0;
+    }
+    & > :where(dd + dt + dd) {
+      margin-block-start: 0;
+      border-block-start-width: 0;
+      padding-block-start: 0;
+    }
+  }
+  /* One column by the product's own word: nothing is clipped, and the first fact has nothing above it. */
+  :where(tanrei-description-list:is([layout='stacked'], [layout='stat']):not([columns])) > :where(dl),
+  :where(tanrei-description-list:is([layout='stacked'], [layout='stat'])[columns='1']) > :where(dl) {
+    grid-template-columns: minmax(0, 1fr);
+    margin-block-start: 0;
+    clip-path: none;
+
+    & > :where(div:first-child) {
+      margin-block-start: 0;
+      border-block-start-width: 0;
+      padding-block-start: 0;
+    }
+  }
+
+  /* DSL-6: stat — the first value first, as a figure; the term under it as its label; the other values under that.
+     The document's order is unchanged: the term is still read before its value (DSL-17). */
+  :where(tanrei-description-list[layout='stat']) > :where(dl) > :where(div) > :where(dd:first-of-type) {
+    order: -1;
+    font: var(--_dl-stat-font);
+    letter-spacing: var(--_dl-stat-tracking);
+    font-variant-numeric: tabular-nums;
+    /* DSL-6: a figure in Chinese, Japanese or Korean takes no negative letter-spacing. */
+    &:where(:lang(ja), :lang(zh), :lang(ko)) {
+      letter-spacing: max(0em, var(--_dl-stat-tracking));
+    }
+  }
+
+  /* ── Separation: gap (DSL-13, DSL-14) — by a style query, and by the element where the browser has none ───────── */
+  @container style(--_dl-separation: gap) {
+    :where(tanrei-description-list) > :where(dl) {
+      --_dl-above-margin: var(--_dl-fact-gap);
+      --_dl-above-line: 0px;
+      --_dl-above-padding: 0px;
+      --_dl-clip: none;
+    }
+  }
+  :where(tanrei-description-list) > :where(dl[data-separation='gap']) {
+    --_dl-above-margin: var(--_dl-fact-gap);
+    --_dl-above-line: 0px;
+    --_dl-above-padding: 0px;
+    --_dl-clip: none;
+  }
+
+  /* ── While the element reads the widest term (DSL-3, DSL-4): the two columns, no term wrapped; never painted ──── */
+  :where(tanrei-description-list[data-measuring]) > :where(dl) {
+    grid-template-columns: max-content minmax(0, 1fr) !important;
+  }
+
+  /* ── Forced colors (DSL-22): the lines in the text color; the text is the platform's already ───────────────────── */
+  @media (forced-colors: active) {
+    :where(tanrei-description-list) {
+      --_dl-line-color: CanvasText;
+    }
+  }
+}

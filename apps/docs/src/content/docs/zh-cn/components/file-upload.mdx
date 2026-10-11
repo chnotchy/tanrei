@@ -1,0 +1,464 @@
+---
+title: "文件上传"
+description: "让用户通过文件选择器选择文件，并把选中的文件显示为文件项：以行排成一列，或以图块排成一排。放进表单时，它保留已选的文件，无需代码即可提交；自己发送文件的产品则自己给出文件项。它自己绝不上传任何东西。"
+translationOf: components/file-upload.mdx
+sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## 概览
+
+<ComponentAvailability name="file-upload" />
+
+<DemoFrame label="两种布局的文件上传。选一个文件：它会被列出来，也可以移除。不会发送任何东西。" column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="附件" accept=".pdf" constraints-text="PDF，不超过 10 MB" max-size="10000000" empty-text="未选择文件" remove-label="移除" type-error-text="只能添加 PDF 文件。" size-error-text="超过 10 MB。">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-upload>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="附件" accept=".pdf,image/png" max-size="10000000" drop-text="将文件拖到此处，或选择文件" constraints-text="PDF 或 PNG，每个不超过 10 MB" remove-label="移除" type-error-text="只能添加 PDF 和 PNG 文件。" size-error-text="超过 10 MB。">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+文件上传把两样东西放在一处：选择文件的途径，以及已选文件的列表。它对应的是最常见的情况，可以直接用在表单里。
+
+**组成部分**是一个[文件选择器](/zh-cn/components/file-picker/)和若干[文件项](/zh-cn/components/file-item/)。文件选择器是选择的途径：你自己的[按钮](/zh-cn/components/button/)（它打开平台的文件选择器）、按钮周围的拖放区域、用文字写出的限制，以及对选中内容的判定。文件项是一个已选的文件：它的字形或图片、名称、大小、状态，以及移除和重试两个操作。这两样都不是文件上传自己绘制的。它添加的是把两者联系起来的东西：保留哪些文件、还能再放多少个文件、所有文件相同的形式（行或图块）、把许多变化合成一条的消息、移除之后焦点去哪里，以及表单的值。
+
+行由谁持有，由 `rows` 属性决定：
+
+- `own`，默认值。文件上传保留已选的文件，并自己绘制它们的行。把它放进表单就能用：用户选择文件、查看列表、移除、提交。你不用写任何代码。
+- `given`。由你的产品给出各行。如果你在文件选定后立即发送它，并且希望每一行都显示状态、进度和重试操作，就用它。
+
+<Callout type="caution" title="它不上传">
+文件上传不打开任何连接，也不读取文件的任何一个字节。`rows="own"` 时，它保留浏览器为每个已选文件提供的句柄，表单在提交时发送这些文件。`rows="given"` 时，它什么都不保留。文件发往哪里、用什么凭据、分成几块、重试几次，都是你的表单或你的产品的代码要管的事。本页的示例不发送任何东西。
+</Callout>
+
+以下情况请使用别的组件：
+
+- 文件已经存储好，用户只是打开或选中它们。那是[列表](/zh-cn/components/list/)。
+- 用户输入的是值，例如收件人或标签。那是[标签组](/zh-cn/components/tag-group/)里的输入纸片。
+- 你只是显示一项任务进行到了哪里。那是[进度指示器](/zh-cn/components/progress-indicator/)。
+- 文件的去处不是选择器下方的列表：放进正在撰写的消息里、放到画布上，或者当场读取、不予保留。那是单独使用的[文件选择器](/zh-cn/components/file-picker/)，再在你要显示文件的地方放上[文件项](/zh-cn/components/file-item/)；参见[下一层](#下一层)。
+- 页面必须在不运行脚本的地方接收文件。请在你自己的表单里写一个原生的 `<input type="file">`。没有脚本，自定义元素既打不开选择器，也无法携带文件。
+
+在 Web 上它是 `<tanrei-file-upload>`。其他平台尚未实现。
+
+### 用法
+
+把这个元素放进你的表单，给它一个 `name` 和一个触发器。这就够了。已选的文件会被列出来，每一行都有移除操作，表单提交的是保留下来的文件。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form method="post" enctype="multipart/form-data" action="/requests">
+      <tanrei-file-upload name="attachments" multiple
+                          accept=".pdf,image/png" max-size="10000000"
+                          label="附件"
+                          constraints-text="PDF 或 PNG，每个不超过 10 MB"
+                          remove-label="移除"
+                          type-error-text="只能添加 PDF 和 PNG 文件。"
+                          size-error-text="超过 10 MB。">
+        <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+      </tanrei-file-upload>
+      <button type="submit">发送</button>
+    </form>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload } from '@tanrei/react';
+
+    <form method="post" encType="multipart/form-data" action="/requests">
+      <FileUpload
+        name="attachments"
+        multiple
+        accept={['.pdf', 'image/png']}
+        maxSize={10_000_000}
+        label="附件"
+        constraintsText="PDF 或 PNG，每个不超过 10 MB"
+        removeLabel="移除"
+        typeErrorText="只能添加 PDF 和 PNG 文件。"
+        sizeErrorText="超过 10 MB。"
+      >
+        <Button slot="trigger" variant="outlined">选择文件</Button>
+      </FileUpload>
+      <button type="submit">发送</button>
+    </form>
+    ```
+  </TabItem>
+</Tabs>
+
+什么都不写时会发生的事：
+
+- 设置 `multiple` 时，第二次选择的文件加在第一次的后面。`maxFiles` 计入每一个保留的文件。没有 `multiple` 时，新文件取代原先保留的那一个。
+- 同一个文件选了两次，只保留一份。
+- 超出限制的文件不会保留。它被绘制成一个失败的行，带有你为这个原因写的句子，并在用户移除它或重新选择时消失。
+- 移除操作会移除这一行。焦点移到下一行。
+- 表单以 `name` 为名提交保留的文件。重置表单会清空列表。
+
+另有三行可选的代码，用来补上标记表达不了的东西：
+
+```js
+const upload = document.querySelector('tanrei-file-upload');
+
+// 文件的大小，用你的产品的写法。没有它，就不绘制大小。
+const megabytes = new Intl.NumberFormat('zh-CN', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+upload.formatSize = (bytes) => megabytes.format(bytes / 1e6);
+
+// 保留的文件因用户的操作而改变了。
+upload.addEventListener('change', ({ detail }) => console.log(detail.files));
+
+// 在你的代码里：读取保留的文件、交给它文件，以及清空。
+upload.files;          // File[]，每次读取都是一个新数组
+upload.add(files);     // 与用户的一次选择一样判定；返回被拒绝的文件及其原因
+upload.clear();
+```
+
+在 React 中，这三者通过 ref 使用：`ref.current.files`、`ref.current.add(files)` 和 `ref.current.clear()`；`formatSize` 和 `onChange` 则是属性。
+
+### 自己发送文件
+
+如果你的产品自己发送每个文件并报告它的情况，就写 `rows="given"`。在 `select` 时，你为每个要保留的文件添加一个[文件项](/zh-cn/components/file-item/)。在某个文件项的 `remove` 时，你把它拿掉。这样，组件自己既不添加也不移除任何东西，也不保留任何文件。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-file-upload id="attachments" rows="given" layout="drop-area" multiple
+                        accept=".pdf,image/png" max-size="10000000"
+                        label="附件"
+                        drop-text="将文件拖到此处，或选择文件"
+                        constraints-text="PDF 或 PNG，每个不超过 10 MB"
+                        remove-label="移除" retry-label="重试">
+      <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+    </tanrei-file-upload>
+
+    <script type="module">
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const upload = document.querySelector('#attachments');
+      const size = new Intl.NumberFormat('zh-CN', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+
+      upload.addEventListener('select', ({ detail }) => {
+        for (const file of detail.files) {
+          const row = document.createElement('tanrei-file-item');
+          Object.assign(row, { value: crypto.randomUUID(), name: file.name, sizeText: size.format(file.size / 1e6), status: 'uploading', statusText: '正在上传', progress: 0 });
+          upload.append(row);
+          // 由你的代码发送文件并回报情况。组件只绘制你设置的内容。
+          send(file, {
+            onProgress: (share) => (row.progress = share),
+            onDone: () => Object.assign(row, { status: 'done', statusText: '已上传' }),
+            onError: () => Object.assign(row, { status: 'error', errorText: '连接已断开。', retryable: true }),
+          });
+        }
+      });
+
+      // 被拒绝的文件带有一个原因，它是一个名称，而不是一句话。请用你自己的话来说。
+      upload.addEventListener('reject', ({ detail }) => {
+        const tooLarge = detail.files.filter((refused) => refused.reason === 'size').length;
+        if (tooLarge) upload.announcement = `${tooLarge} 个文件超过了 10 MB。`;
+      });
+
+      // 行绝不会自己移除自己。由你把它拿掉，焦点随后移到下一行。
+      upload.addEventListener('remove', (event) => event.target.remove());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload, FileItem } from '@tanrei/react';
+
+    <FileUpload
+      rows="given"
+      layout="drop-area"
+      multiple
+      accept={['.pdf', 'image/png']}
+      maxSize={10_000_000}
+      label="附件"
+      dropText="将文件拖到此处，或选择文件"
+      constraintsText="PDF 或 PNG，每个不超过 10 MB"
+      removeLabel="移除"
+      retryLabel="重试"
+      onSelect={(event) => start(event.detail.files)}
+      onReject={(event) => explain(event.detail.files)}
+    >
+      <Button slot="trigger" variant="outlined">选择文件</Button>
+      {rows.map((row) => (
+        <FileItem key={row.id} value={row.id} name={row.name} sizeText={row.sizeText} status={row.status} statusText={row.statusText} progress={row.progress} errorText={row.errorText} retryable={row.retryable} onRemove={() => remove(row.id)} onRetry={() => retry(row.id)} />
+      ))}
+    </FileUpload>
+    ```
+  </TabItem>
+</Tabs>
+
+<Callout type="caution" title="只有由你给出行时，才绘制你写的行">
+你写在文件上传里的 `<tanrei-file-item>` 只有在 `rows="given"` 时才会绘制。没有这个属性时，文件上传保留它自己的文件，不绘制你的行，调试构建会报告这一点。
+</Callout>
+
+### 下一层
+
+用它的两个成员手写出来的同一个东西，画面是一样的，名称、描述和状态也都一样：
+
+```html
+<!-- 文件上传 -->
+<tanrei-field label="附件">
+  <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
+      constraints-text="PDF，最多 5 个文件" empty-text="未选择文件" remove-label="移除" retry-label="重试">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="正在上传" progress="0.4"></tanrei-file-item>
+  </tanrei-file-upload>
+</tanrei-field>
+
+<!-- 下一层：两个成员，由产品来排布 -->
+<tanrei-field label="附件">
+  <tanrei-file-picker multiple accept=".pdf" max-files="5"
+      constraints-text="PDF，最多 5 个文件" selection-text="未选择文件">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+<ul class="my-files" aria-label="附件">
+  <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="正在上传" progress="0.4"
+        remove-label="移除" retry-label="重试"></tanrei-file-item></li>
+</ul>
+```
+
+<DemoFrame label="手写出来的同一个东西：一个文件选择器，以及页面自己的一个列表，里面有一个文件项" column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="附件" multiple accept=".pdf" max-files="5" constraints-text="PDF，最多 5 个文件">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-picker>
+  <ul class="not-content" aria-label="附件" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="正在上传" progress="0.4" remove-label="移除" retry-label="重试"></tanrei-file-item></li>
+  </ul>
+</DemoFrame>
+
+文件的行，无论单独使用还是放在文件上传里，都是同一个元素。手写的版本得不到的，是文件上传所持有的状态：
+
+- 把许多变化合成一条、以礼貌（polite）的方式朗读的消息。
+- 移除之后移到下一个文件的焦点。
+- 表单的值、重置和校验。
+- 跳过选了两次的文件，并判定还能再放多少个文件。
+- 所有文件采用相同的形式（行或图块）、相同的填充方式（`cover` 或 `contain`）和相同的两个操作名称。
+- 包着各个文件项的列表，以及包着整体的组。
+
+当你需要文件上传没有提供的排布方式时，就往下走一层：
+
+| 你需要 | 使用 |
+| --- | --- |
+| 选择的途径、它下方的列表，以及表单的值 | 文件上传 |
+| 已选的文件不在选择器下方，而在别处：消息里、预览旁边、表格里 | 一个[文件选择器](/zh-cn/components/file-picker/)，再在你要显示文件的地方放上[文件项](/zh-cn/components/file-item/) |
+| 一个当场读取、不予保留的文件 | 单独使用的[文件选择器](/zh-cn/components/file-picker/) |
+| 你的产品已经持有、无需选择的文件 | 单独使用的[文件项](/zh-cn/components/file-item/) |
+| 顺序可由用户调整的文件 | 各行显示文件的[列表](/zh-cn/components/list/)；参见[文件项的页面](/zh-cn/components/file-item/#顺序可由用户调整的文件) |
+
+## 规格
+
+<DemoFrame label="由产品给出的行，每种状态一行：等待中、已发送 40%、进行中、已完成、失败但可重试、彻底失败" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="附件" constraints-text="PDF 或 PNG，每个不超过 10 MB" remove-label="移除" retry-label="重试">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="等待中"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="正在上传" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="正在上传"></tanrei-file-item>
+    <tanrei-file-item value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="已上传"></tanrei-file-item>
+    <tanrei-file-item value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="连接已断开。" retryable></tanrei-file-item>
+    <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 MB" status="error" error-text="超过 10 MB。"></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+<DemoFrame label="同一个文件上传，改用图块：每个文件是一个带有图片的方框，名称在下方" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="照片" constraints-text="图片，每张不超过 5 MB" remove-label="移除" retry-label="重试">
+    <tanrei-button slot="trigger" variant="outlined">选择照片</tanrei-button>
+    <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+### 各个成员提供什么
+
+| 方面 | 来自文件选择器 | 来自文件项 | 文件上传自己的 |
+| --- | --- | --- | --- |
+| 属性 | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight`（对应文件项的 `form`, `preview`, `fit`, `nameHidden`, `width`, `height`）, `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
+| 事件 | — | 你给出的文件项的 `click`, `remove`, `retry` | `select`, `reject`, `change` |
+| 插槽 | `trigger`, `icon` | — | 默认插槽：`rows="given"` 时放你的文件项 |
+| 令牌 | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.file-upload.list.item-gap` |
+
+文件选择器有它自己的 `label`、`maxFiles` 和 `selectionText`。这三项不会原样转交：文件上传的 `label` 同时为选择器和列表命名，它的 `maxFiles` 计入列表里的每一个文件，而选择器的 `selectionText` 则在列表为空时由文件上传根据 `emptyText` 写入。
+
+来自文件项的八个属性会交给文件上传里的每一个文件项，这样所有文件都以同样的方式绘制。你的某个文件项如果对其中某一项另有设置，会被覆盖，调试构建会报告这一点。`disabled` 也会交给每一个文件项。
+
+选择的过程，也就是触发器、拖放区域、`accept` 和各项限制，写在[文件选择器的页面](/zh-cn/components/file-picker/)上。文件的行或图块显示什么，也就是按格式选定的字形、图片、各种状态、可按下的主体，写在[文件项的页面](/zh-cn/components/file-item/)上。
+
+### 单独调整某一个文件上传
+
+文件上传有两个自己的令牌，即它的列表的两个间距。它绘制的其余一切，读取的都是文件选择器和文件项的令牌，无论这些令牌设置在哪里。要改动某一个实例，就在它上面设置成员的令牌：
+
+```html
+<tanrei-file-upload label="附件" style="--tanrei-comp-file-item-row-container-gap: 16px">…</tanrei-file-upload>
+```
+
+<ComponentSpecs name="file-upload" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素的 shadow root 里有一个 `<tanrei-file-picker>`、列表和一个实时区域。`rows="own"` 时，列表里是文件上传创建的 `<tanrei-file-item>`；`rows="given"` 时，你的文件项留在你的 DOM 里，位于默认插槽。导入这个元素，两个成员也随之完成定义。
+- 你放进插槽的触发器和字形会转交给文件选择器，并留在你的 DOM 里。触发器仍然是你自己的按钮，在它原来的位置上就可以获得焦点。
+- 这个元素是与表单关联的元素，它的两个成员则不是：它们不向表单添加任何条目。
+- `select`、`reject` 和 `change` 是文件上传自己的 CustomEvent。文件选择器的 `select` 和 `reject` 不会离开文件上传。你给出的文件项的 `click`、`remove` 和 `retry` 会冒泡到你的监听器；文件上传创建的文件项的这些事件则在内部处理。
+- 部件：`file-picker`、`list`，以及文件上传创建的每个文件项对应的 `file-item`；文件选择器的 `container`、`icon`、`label`、`supporting-text` 和 `selection-text` 沿用各自的名称；文件上传创建的文件项的部件则加上前缀 `item-`：`item-container`、`item-media`、`item-icon`、`item-preview`、`item-headline`、`item-supporting-text`、`item-status-icon`、`item-progress`、`item-action`。你给出的文件项按它自己来设置样式：`tanrei-file-item::part(icon)`。
+- 设置 `item-preview` 且 `rows="own"` 时，每个文件项为自己的图片生成地址，并负责释放它。文件上传不生成任何地址。
+- 这个元素本身不能获得焦点：每个焦点停靠点要么是你的触发器，要么在某个文件项里面。
+
+## 指南
+
+### 选择与限制
+
+选择的途径就是[文件选择器](/zh-cn/components/file-picker/)的那一套：`button` 和 `drop-area` 两种布局、`trigger` 插槽里你自己的按钮、`icon` 插槽里的字形，以及 `accept`、`maxSize` 和 `multiple` 这几项限制，外加用来说明限制的 `constraintsText`。它的页面有完整的说明。它们在文件上传上是同名的属性。
+
+文件上传在限制上添加的内容：
+
+- `maxFiles` 是整个列表最多容纳的文件数，而不是一次选择的上限。`rows="own"` 时，它计入保留的文件；`rows="given"` 时，它计入你给出的文件项。一次选择按还能再放的文件数来判定。
+- `rows="own"` 时，同一个文件选了两次，只保留一份。
+- `rows="own"` 时，每个被拒绝的文件都绘制成一个失败的行，带有你为它的原因写的句子：`typeErrorText`、`sizeErrorText` 或 `countErrorText`。把它们写在元素上，或者用 `setWords()` 为整个产品只给一次。
+- `rows="given"` 时，拒绝不会绘制任何东西。`reject` 会把每个被拒绝的文件连同原因交给你：`type`、`size` 或 `count`。请用你自己的话说明发生了什么：用字段的错误文本、一个失败的行，或者 `announcement`。
+- `emptyText` 是按钮布局中尚未选择任何文件时，显示在触发器旁边的文本。
+
+### 行由谁持有
+
+| 方面 | `rows="own"`（默认） | `rows="given"` |
+| --- | --- | --- |
+| 用在哪里 | 整体一次提交的表单。 | 自己发送每个文件的产品。 |
+| 行 | 文件上传创建的文件项，每个保留的文件和每个被拒绝的文件各一个。 | 由你添加和移除的 `<tanrei-file-item>` 子元素。 |
+| 第二次选择 | 有 `multiple` 时追加；没有时替换。同一个文件只保留一份。 | 由你决定。 |
+| 被拒绝的文件 | 一个失败的行，带有你写的句子。 | 只有 `reject`。 |
+| 一行显示什么 | 文件名、大小、移除。没有状态，也没有进度：没有任何东西在发送。 | 文件名、大小、状态、进度、错误、重试、移除。 |
+| 移除 | 移除这一行，并触发 `change`。 | 触发这一行的 `remove`。由你来移除它。 |
+| 表单的值 | 保留的文件。 | 你给了 `file` 的每一行的 `file`。 |
+| 重置表单 | 清空列表。 | 什么都不改变。 |
+
+文件上传绝不根据子元素来猜测模式。自己持有行的产品在第一次选择之前一行也没有，所以它要写明 `rows="given"`。
+
+在文件上传显示期间更改 `rows`，会释放所有保留的文件，并且不触发任何事件。如果你需要这些文件，请先读取 `files`。
+
+### 行还是图块
+
+`itemForm` 决定所有文件的形式：默认的 `row` 是一列行；`tile` 是一排会换行的方框。同一个文件上传里的每个文件，都以同一种形式绘制。
+
+| 属性 | 对应每个文件项的 | 作用 |
+| --- | --- | --- |
+| `itemForm` | `form` | `row` 或 `tile`。 |
+| `itemPreview` | `preview` | 在字形的位置绘制一张图片：文件项的 `previewSrc` 这个地址上的图片；文件是图片时，则是文件本身。 |
+| `itemFit` | `fit` | `cover` 或 `contain`。 |
+| `itemNameHidden` | `nameHidden` | 在绘制了图片的图块里，不绘制名称。 |
+| `itemWidth`, `itemHeight` | `width`, `height` | 图块的方框。 |
+
+`rows="own"` 且设置了 `itemPreview` 时，保留的文件如果是图片，就显示它自己的图片。每张图片都有代价，这个代价是文件项的，写在[它的页面](/zh-cn/components/file-item/#预览及其代价)上。不设置 `itemPreview`（默认）时，一百个保留的文件的开销就是一百个句柄，仅此而已。
+
+文件上传里的文件没有可供用户调整的顺序。这方面请参见[顺序可由用户调整的文件](/zh-cn/components/file-item/#顺序可由用户调整的文件)。
+
+### 你给出的行
+
+`rows="given"` 时，每一行都是你写的一个[文件项](/zh-cn/components/file-item/)，带有它自己的属性：`value`、`name`、`mediaType`、`formatText`、`sizeText`、`status`、`statusText`、`progress`、`errorText`、`retryable`、`previewSrc`、`interactive`、`href` 和 `readOnly`。每个属性绘制什么，写在它的页面上。文件上传自己创建的行，对保留的文件是一个 `pending` 的文件项，对被拒绝的文件是一个不带重试的 `error` 文件项。
+
+| `status` | 名称前面 | 第二行 | 进度条 | 操作 |
+| --- | --- | --- | --- | --- |
+| `pending` | 表示格式的字形 | 大小，然后是 `statusText` | 无 | 移除 |
+| `uploading` | 表示格式的字形 | 大小，然后是 `statusText` | 填充到 `progress`；未设置 `progress` 时是不确定的形式 | 移除 |
+| `done` | 表示格式的字形 | 大小，然后是对勾和 `statusText` | 无 | 移除 |
+| `error` | 表示格式的字形 | 大小，然后是错误标记和 `errorText` | 无 | `retryable` 时是重试，然后是移除 |
+
+- 大小由你自己格式化，再作为 `sizeText` 给出；`rows="own"` 时，则通过 `formatSize` 函数给出。1 MB 是 1000 KB 还是 1024 KB，由你的产品决定。
+- `progress` 是你对自己的发送所做的报告。组件绝不会自己移动进度条。
+- 文件上传交给每一行的东西，不要在某一行上单独设置：形式、预览、两个操作的名称、`disabled`。
+
+### 在字段里
+
+表单要显示标签、帮助文本、错误或必填标记时，把文件上传放进[字段](/zh-cn/components/field/)。字段绘制它们，并把它们交给文件上传。
+
+```html
+<tanrei-field label="附件" requirement="required" required-text="必填"
+              error error-text="请选择不超过 10 MB 的 PDF。">
+  <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
+                      constraints-text="PDF，不超过 10 MB" remove-label="移除">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-upload>
+</tanrei-field>
+```
+
+- 有 `name` 时，文件上传按顺序提交每个保留的文件。被拒绝的文件绝不会提交。没有保留任何文件时，它根本不提交任何条目；而原生的文件输入框会提交一个空条目，所以读取这个字段的服务器要同时检查这两种情况。
+- 没有保留任何文件时，`required` 会向表单报告缺少值。这条消息是浏览器自己的。用户读到的句子是字段的 `errorText`。按钮没有必填状态，所以必填的文件上传要放进字段：字段在表单提交之前就会说明这一点。
+- 重置表单会清空列表。提交之后，文件和行都会留着；请重置表单，或者调用 `clear()`。
+- 通过历史记录回到页面时，什么都不会恢复。文件上传从空的状态开始。
+- 没有 `name` 时，文件上传不提交任何东西，但仍然保留并列出它的文件。要自己发送它们，请在你自己的提交处理函数里读取 `files`。
+- `rows="given"` 时，值是每一个带有 `file` 的行的 `file`：`row.file = file`。这时重置什么都不改变，因为行是你的。
+- 文件上传绝不会自己设置 `error`。由你在字段上设置它，并用文字说明哪里不对。
+
+### 文字
+
+文件上传没有自己的文字。其中六项可以用 `setWords()` 为整个产品只给一次；其余的都是实例的属性。
+
+| 属性 | 产品文字的键 | 没有它时 |
+| --- | --- | --- |
+| `emptyText` | `noFileText` | 触发器旁边什么都不绘制。 |
+| `removeLabel` | `removeLabel` | 移除操作照样绘制，但没有名称。调试构建会报告这一点。 |
+| `retryLabel` | `retryLabel` | 重试操作照样绘制，但没有名称。调试构建会报告这一点。只有你给出的行才有重试操作。 |
+| `typeErrorText` | `fileTypeErrorText` | 因种类被拒绝的文件绘制成一个没有句子的失败行。调试构建会报告这一点。 |
+| `sizeErrorText` | `fileSizeErrorText` | 同上，针对过大的文件。 |
+| `countErrorText` | `fileCountErrorText` | 同上，针对数量已满、放不进去的文件。 |
+
+这三个句子只在 `rows="own"` 时读取，并且只有在某个文件因相应的原因被拒绝之后才会读取。文件的大小不是文字的键：它是 `formatSize` 函数，是实例的一个属性。
+
+每个操作都由它的文件名来描述。“移除”这一个词对每一行都够用：用户听到的是“移除，按钮，brief.pdf”。
+
+### 从右到左
+
+在从右到左的布局中，触发器和行的字形位于右侧，行的操作位于左侧，其中移除在最外侧，进度条从右侧开始填充；一排图块从右侧开始排。用拉丁字母写的文件名保持自己的顺序，连同它的点和扩展名。字形只在图标集有相应标记时才镜像，图片则绝不镜像。
+
+### 推荐
+
+- 把文件上传放进表单，让它来保留文件，除非你的产品自己发送每个文件。
+- 让行的列表保持简短，并按用户选择文件的顺序排列。
+- 在用户正看着的地方说明拒绝：字段的错误文本，或者一个失败的行。
+- 用 `announcement` 把许多变化概括成一句话：“已添加 40 个文件”。
+
+### 避免
+
+- 不要把拖放区域当作选择文件的唯一途径。它里面始终有触发器。
+- 不要在它里面放触发器、图标和文件项以外的任何东西。其他内容不会绘制，调试构建会报告这一点。
+- 不要在没有 `rows="given"` 的情况下写行。它们不会绘制。
+- 不要用 `rows="own"` 来显示上传的进度。保留的文件的行没有状态，因为文件上传什么都不发送。
+- 不要在它里面显示数量、总大小或总进度条。请把这些绘制在它旁边，用你自己的话来写。
+
+## 无障碍
+
+<ComponentAccessibility name="file-upload" />
+
+### 组件负责的部分
+
+- 整体是一个组，由 `label` 命名，或者由包着它的字段命名。触发器是你的按钮。它的描述来自限制、说明尚未选择任何文件的文本，以及字段的帮助文本或错误文本。
+- 拖放区域是同一个按钮的一个大的指针目标。它没有角色，没有名称，在焦点顺序中没有停靠点，也不响应任何按键。
+- 各行是一个列表，每个文件项是其中的一项。每一项读出文件名、格式、大小，以及状态或错误。正在发送的文件有一个进度条，由它的文件命名。
+- Tab 先到触发器，然后依次到每个文件：先是它的主体（如果你把它设成了可按下的），再是重试，然后是移除。
+- 一个礼貌（polite）的实时区域用你的文字说出添加的行、完成的行和失败的行。同时到来的变化合成一条消息。进度绝不朗读。
+- `rows="own"` 时，一次选择就是一条消息：先是每个保留下来的文件的名称，然后是每个被拒绝的文件的名称，加上你写的句子。文件上传不添加任何文字，也不添加数量。如果想改说你自己的一句话，请在 `change` 监听器里设置 `announcement`。
+- 移除不会朗读。一行被移除后，焦点移到下一行的移除操作；后面没有行时，移到上一行的移除操作；一行都不剩时，移到触发器。`rows="own"` 时，文件上传自己完成这件事。
+- 文本放大到 200% 时，所有文本都会换行，没有任何内容被截断。在强制颜色模式下，区域保留一道边线，正在接收拖动的区域边线更粗，行的进度条仍然可见。
+
+它在 Web 上的构造方式：文件选择器是文件上传的成员，位于它的 shadow root 里；文件选择器内部的选择器是一个真正的 `<input type="file">`，它看不见，不在焦点顺序中，也对辅助技术隐藏。触发器留在你的 DOM 里，你给出的文件项也是。组、列表、实时区域，以及文件上传自己创建的文件项，都在 shadow root 里。
+
+Web 上的已知差距都是它的成员的差距：按钮没有必填状态，区域拒绝拖动时浏览器不会把放下的内容交给它，Safari 不会让被点击的按钮获得焦点，虚线边线无法贴合平滑过的圆角（见[文件选择器的页面](/zh-cn/components/file-picker/#无障碍)）；会动的图片由浏览器播放（见[文件项的页面](/zh-cn/components/file-item/#无障碍)）。只有 `required` 而文件上传外面没有字段时，只有表单的校验会说明缺少文件。
+
+### 需要你做的事
+
+- 在 `trigger` 插槽里放一个按钮，它的标签要说明它做什么。
+- 给这个组一个 `label`，或者把文件上传放进字段。
+- 只要设置了 `accept`、`maxSize` 或 `maxFiles`，就要给出 `constraintsText`。
+- 给出 `removeLabel`：写在元素上，或者用 `setWords()` 只给一次。如果你给出的行可以重试，还要给出 `retryLabel`。
+- `rows="own"` 时，针对你设置的限制，给出被拒绝文件的三个句子：`typeErrorText`、`sizeErrorText` 和 `countErrorText`。
+- 每一次拒绝、每一次失败，都要用文字说明。
+- 许多行同时变化时，以及你移除行的方式必须让用户听到时，设置 `announcement`。

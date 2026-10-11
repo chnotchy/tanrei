@@ -1,0 +1,190 @@
+---
+title: ワンタイムコードフィールド
+description: ユーザーへ送った短いコードを、完成した 1 つのフィールドとして受け取ります。ラベルの下にマス目があり、補足の 1 行と、コードが違うときの言葉が付きます。支援技術に対して 1 つに結び付けられ、フォームには 1 つのコントロールとして加わります。
+translationOf: components/one-time-code-field.mdx
+sourceHash: 4952bfb2574339fb8c70f1d9523c3cbe0359963a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="one-time-code-field" />
+
+<DemoFrame label="ワンタイムコードフィールドと、プロダクトがコードを受け付けなかったもの" column>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="確認コード" supporting-text="携帯電話に送った 6 桁のコードを入力してください。" group-size="3" value="123"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="確認コード" supporting-text="携帯電話に送った 6 桁のコードを入力してください。" error error-text="コードが正しくありません。メッセージを確かめて、もう一度入力してください。" group-size="3" value="123456"></tanrei-one-time-code-field>
+</DemoFrame>
+
+ワンタイムコードフィールドは、プロダクトが送った短いコードを入力してもらう場面で使います。サインイン、メールアドレスや電話番号の確認、支払いの承認などです。ラベル、マス目、コードの送り先を伝える 1 行、コードが違うときの言葉という、いつもの組み合わせが、そのまま使える形でそろっています。
+
+**構成要素**は、[フィールド](/ja/components/field/)と[ワンタイムコード入力欄](/ja/components/one-time-code-input/)です。フィールドは枠で、ラベル、必須または任意の印、補足、エラーを受け持ちます。ワンタイムコード入力欄はコントロールで、マス目と、その中でユーザーが行うすべてを受け持ちます。ワンタイムコードフィールドが自分で描くものはなく、トークンもありません。プロパティはどれも 2 つのどちらかのもので、そのまま渡されます。
+
+幅は置かれた場所に合わせて広がり、マス目は先頭の端から並びます。
+
+Web では `<tanrei-one-time-code-field>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+`value` は、そこまでに入力されたコードです。グループをどう描いていても、区切りは含みません。4 つのイベントはワンタイムコード入力欄のもので、どれが届いた時点でも、フィールドの `value` はすでに新しい値になっています。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-one-time-code-field name="code" label="確認コード"
+        supporting-text="携帯電話に送った 6 桁のコードを入力してください。"
+        error-text="コードが正しくありません。メッセージを確かめて、もう一度入力してください。"
+        requirement="required" required-text="必須"
+        group-size="3"></tanrei-one-time-code-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/one-time-code-field';
+
+      const code = document.querySelector('tanrei-one-time-code-field');
+      // ユーザーが値を変えました。値はすでに新しいものです。
+      code.addEventListener('input', () => (code.error = false));
+      // 最後のマスが埋まったか、コード全体が貼り付けられた、または自動入力されました。ほかには何も起きません。
+      code.addEventListener('complete', async (e) => {
+        code.readOnly = true;
+        const right = await verify(e.detail.value);
+        code.readOnly = false;
+        code.error = !right;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { OneTimeCodeField } from '@tanrei/react';
+
+    <OneTimeCodeField name="code" label="確認コード" error={wrong}
+      supportingText="携帯電話に送った 6 桁のコードを入力してください。"
+      errorText="コードが正しくありません。メッセージを確かめて、もう一度入力してください。"
+      groupSize={3} value={code}
+      onInput={(event) => setCode(event.currentTarget.value)}
+      onComplete={(event) => verify(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### 1 つ下の階層
+
+同じフィールドを 2 つの構成要素から自分で書いても、見た目は同じで、支援技術にとっても同じテキストボックスになります。
+
+```html
+<tanrei-field label="確認コード"
+  supporting-text="携帯電話に送った 6 桁のコードを入力してください。"
+  error-text="コードが正しくありません。メッセージを確かめて、もう一度入力してください。">
+  <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
+</tanrei-field>
+```
+
+<DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中にワンタイムコード入力欄があります" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="確認コード" supporting-text="携帯電話に送った 6 桁のコードを入力してください。">
+    <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
+  </tanrei-field>
+</DemoFrame>
+
+ワンタイムコードフィールドにない並べ方が必要なときに、1 つ下の階層で書きます。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| ラベル、マス目、補足、エラー | ワンタイムコードフィールド |
+| 枠の中、マス目の隣に置く自分の要素（コードを送り直すコントロール、残り時間の表示など） | [フィールド](/ja/components/field/)に、[ワンタイムコード入力欄](/ja/components/one-time-code-input/)と自分の要素を入れる |
+| マス目だけ。ラベルは別の場所（ダイアログの見出し、ステップのタイトルなど）に描かれている | [ワンタイムコード入力欄](/ja/components/one-time-code-input/)を単独で使い、入力欄の `label` で名前を付ける |
+| マス目のない 1 つの入力欄。コードの長さがわからない | `autocomplete="one-time-code"` を付けた[テキストフィールド](/ja/components/text-field/) |
+
+1 つ下の階層で変わるのは、何をどこに指定するかです。`name` と `value` はワンタイムコード入力欄に指定し、フォームに加わるコントロールもイベントが届く先も入力欄になります。`label`、`error`、`disabled` はフィールドに指定したままにします。フィールドがコントロールに伝えるので、入力欄の側には指定しません。
+
+## 仕様
+
+<DemoFrame label="プロダクトの言葉で示した必須、任意、無効、4 桁の隠したコード" plain column>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="確認コード" requirement="required" required-text="必須" supporting-text="携帯電話に送った 6 桁のコードを入力してください。" group-size="3"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="バックアップコード" requirement="optional" optional-text="任意" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="確認コード" disabled supporting-text="携帯電話に送った 6 桁のコードを入力してください。" group-size="3" value="123456"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="書面に記載の暗証番号" length="4" mask value="4821"></tanrei-one-time-code-field>
+</DemoFrame>
+
+### それぞれの構成要素が受け持つもの
+
+| 観点 | フィールドから | ワンタイムコード入力欄から |
+| --- | --- | --- |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | `value`、`length`、`type`、`groupSize`、`mask`、`readOnly` |
+| イベント | — | `input`、`change`、`complete`、`action` |
+| スロット | `label-icon` | — |
+| トークン | `comp.field.*` | `comp.one-time-code-input.*` |
+
+ワンタイムコード入力欄は、自分の `label`、`error`、`disabled` を持っています。これらはワンタイムコードフィールドのプロパティではありません。フィールドの `label` がコントロールに名前を付け、`error` がマス目をエラーの状態にし、`disabled` がマス目を無効にします。そのため、どれもワンタイムコードフィールドに 1 回指定すればよく、ラベルもコントロールと一緒に変わります。
+
+マス目の動き（入力、貼り付け、矢印キー、グループ）は[ワンタイムコード入力欄のページ](/ja/components/one-time-code-input/)に、枠の動き（必須の印、補足、エラーとその読み上げ）は[フィールドのページ](/ja/components/field/)にあります。
+
+### 1 つのフィールドだけを変える
+
+ワンタイムコードフィールドに自分のトークンはありません。枠はフィールドのトークンを、マス目はワンタイムコード入力欄のトークンを、どこで設定されていても読みます。1 つだけ変えるには、構成要素のトークンをその要素に設定します。
+
+```html
+<tanrei-one-time-code-field label="確認コード"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-one-time-code-field>
+```
+
+<ComponentSpecs name="one-time-code-field" />
+
+### Web での描き方の違い
+
+- 要素のシャドウルートにあるのは、`<tanrei-one-time-code-input>` を入れた `<tanrei-field>` だけです。要素をインポートすると、2 つとも定義されます。
+- 要素はフォームに関連付けられます。`name` と `form` を受け取り、コードだけを送信します（無効の間は何も送信しません）。リセットすると `value` 属性の値に戻り、無効な `<fieldset>` に従い、`requirement` が `required` で値が空の間は、値がないことを報告します。2 つの構成要素がフォームに項目を加えることはありません。マス目で Enter を押すと、要素のフォームの既定のボタンが押されます。`action` をキャンセルすると押されません。
+- `input`、`change`、`complete`、`action` は、`detail.value` を持つ、ワンタイムコード入力欄の CustomEvent です。イベントのターゲットはこの要素で、どのリスナーでも `event.target.value` がコードです。
+- パーツ: `field` と `one-time-code-input` が 2 つの構成要素です。構成要素のパーツは、1 つ下の階層と同じ名前です。`label`、`label-icon`、`requirement-label`、`supporting-text` と、`input`、`cell`、`character`、`caret`、`separator` です。
+- 要素そのものはフォーカスを受け取りません。`focus()` はマス目に移り、ページの `<label for>` もフォーカスをマス目に移します。要素に `autofocus` を付けると、ほかにフォーカスがなければ、最初に描かれたときにマス目がフォーカスを受け取ります。
+- 要素にロールはありません。名前は `label` で付けます。ラベルが別の場所に描かれているときは `label-hidden` を併せて指定します。`aria-label` はここでは何にも名前を付けないので、使いません。
+- 属性は構成要素のものと同じです。`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`group-size`、`readonly` です。
+- スロットは `label-icon` の 1 つです。中に 2 つ目のコントロールを置いても、描かれません。
+- 要素が定義されるまでは大きさがなく、`label-icon` の子だけが表示されます。`tanrei-one-time-code-field:not(:defined) > *` で隠し、高さを確保してください。スクリプトなしで動く必要があるページでは、素の `<input autocomplete="one-time-code" inputmode="numeric">` を `<label>` で囲み、補足を隣に置きます。
+
+## ガイドライン
+
+### 推奨
+
+- `supportingText` で、何文字のコードか、どこに送ったかを伝えます。
+- グループは、メッセージに書いたとおりに描きます。「123 456」と送ったコードなら `groupSize="3"` です。
+- コードが違うことは、`error` と `errorText` を使って言葉で伝えます。違っていたコードを消すかどうかは、利用者側で決めます。違うのは 1 桁だけ、ということがよくあります。
+- 入力し終えたコードを確かめている間は、`disabled` ではなく `readOnly` を使います。無効にするとフォーカスが外れ、コードを直すことになったユーザーが、どこにいたかを見失います。
+- コードを送り直す手段と、時間の制限は、フィールドの隣に置きます。枠の中に置きたいときは、1 つ下の階層でフィールドを自分で書きます。
+
+### 非推奨
+
+- ワンタイムコードフィールドをフィールドの中に入れないでください。すでにフィールドです。デバッグビルドがそう知らせます。
+- `aria-label` で名前を付けないでください。ラベルを描きたくないときは、`label` と `labelHidden` を指定します。
+- 隠しているかどうかにかかわらず、貼り付けを妨げないでください。前もって伝えずにフォーカスを移したり、フォームを送信したりしないでください。
+- 習慣で `mask` を使わないでください。1 回使えば失効するコードを隠す必要はほとんどなく、隠すと間違いに気付きにくくなります。
+- このフィールドのためだけに、マス目を写して作り直さないでください。構成要素のトークンをフィールドに設定します。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="one-time-code-field" />
+
+### コンポーネントが担うこと
+
+- ワンタイムコード入力欄の、1 つのテキストボックスです。名前は `label` で、描かれていてもいなくても変わりません。説明は、表示されている補足またはエラーのテキストで、フィールドが任意の間は任意のテキストが加わります。
+- `error` が true の間は不正として、`requirement` が `required` の間は必須として、`disabled` が true の間は無効として、`readOnly` が true の間は読み取り専用として、`mask` が true の間はパスワードの入力欄として伝わります。
+- 名前、説明、状態は、フィールドが自分の囲むコントロールに結び付けるのとまったく同じ方法で結び付けられます。1 つ下の階層で自分で書いたフィールドも、同じテキストボックスになります。
+- 描かれたラベル、必須や任意の印、マス目、キャレット、グループの印が、もう一度伝わることはありません。
+- Tab で止まる位置は 1 つです。ラベルを押すとフォーカスがマス目に移り、何も操作されません。補足を押しても何も起きません。
+- フォーカスがワンタイムコードフィールドの中にある間に現れたエラーは、構成要素のフィールドが 1 回だけ、控えめに読み上げます。
+- 書字方向、文字の拡大、強制カラーには、構成要素がそれぞれ応えます。右から左へのレイアウトでは、枠は左右が入れ替わり、マス目は左から右への並びのまま先頭の端に置かれます。文字を 200% にしても、切れるものはなく、横にスクロールすることもありません。
+- 自分の言葉は持ちません。`requiredText` と `optionalText` を空にすると、フィールドがプロダクトの言葉から読みます。
+
+Web での既知の不足は、構成要素のものです。コードを入力している間にスクリーンリーダーが何を読むかは、ブラウザーのアクセシビリティツリーから読んだもので、スクリーンリーダーで聞いて確かめてはいません。要素が定義されるまでは、何も描かれません。
+
+### 利用者側で行うこと
+
+- `label` を必ず指定します。ユーザーがそのコードを呼ぶときの言葉にします。
+- 何を入力するのかを言葉で伝えます。何文字か、どこに送ったかです。マス目が長さを示せるのは、見えているユーザーに対してだけです。
+- コードが違う、失効した、必須である、といったことは、`errorText`、`supportingText`、`requirement` で伝えます。色だけを手がかりにしません。
+- コードを入力できる時間に制限があるときは、それを伝え、時間の延長や新しいコードを求められるようにします。

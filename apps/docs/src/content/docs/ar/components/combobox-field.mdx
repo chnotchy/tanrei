@@ -1,0 +1,299 @@
+---
+title: حقل التحرير والسرد
+description: يتيح للأشخاص العثور على قيمة واحدة بالكتابة، حقلًا من حقول النموذج، وهو مربع تحرير وسرد معه قائمة خيارات تضيق كلما كتبوا فيختارون منها، أو يُدخلون قيمة من عندهم حيث يسمح المنتج بذلك، تحت تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، ومعه سطر مساعدة وسبب رفض القيمة.
+translationOf: components/combobox-field.mdx
+sourceHash: bbeaab2ab8acefab4401f11d94edd44c2a8dfcdf
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="combobox-field" />
+
+<DemoFrame label="حقل تحرير وسرد يقبل أحد خياراته، وآخر يقبل كذلك قيمة من عند الشخص" column>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" value="tokyo" clearable clear-label="مسح المدينة" placeholder="اكتب للعثور على مدينة" supporting-text="المدينة التي يُرسل إليها الطلب." empty-text="لا توجد نتائج مطابقة">
+    <tanrei-option value="kyoto">كيوتو</tanrei-option>
+    <tanrei-option value="lisbon">لشبونة</tanrei-option>
+    <tanrei-option value="nairobi">نيروبي</tanrei-option>
+    <tanrei-option value="tokyo">طوكيو</tanrei-option>
+    <tanrei-option value="toronto">تورنتو</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="عائلة الخط" value="Recursive" allow-custom-value>
+    <tanrei-option value="Inter">Inter</tanrei-option>
+    <tanrei-option value="Noto Sans JP">Noto Sans JP</tanrei-option>
+    <tanrei-option value="Roboto Mono">Roboto Mono</tanrei-option>
+    <tanrei-option value="Source Serif 4">Source Serif 4</tanrei-option>
+  </tanrei-combobox-field>
+</DemoFrame>
+
+استخدم حقل التحرير والسرد (combobox field) حيثما يطلب النموذج قيمة واحدة يفضّل الناس أن يكتبوها على أن يمرّروا إليها: مدينة من بين مئات، أو شخص، أو رمز تصميم. ويصلح كذلك لحقل يقترح قيمًا ويقبل قيمة من عند الشخص، كعائلة الخط. وهو الحالة المعتادة، جاهزًا للاستخدام: تسمية، وصندوق معه قائمته، وسطر مساعدة، والكلمات التي تقول إن القيمة خاطئة. يُرسم الصندوق ويُقاس كما يُرسم ويُقاس صندوق حقل النص الذي له الطراز نفسه والحجم نفسه، وتُرسم القائمة كما تُرسم قائمة عنصر الاختيار.
+
+**يُبنى من** [حقل](/ar/components/field/) و [مربع تحرير وسرد](/ar/components/combobox/). الحقل هو الإطار: التسمية، وعلامة المطلوب أو الاختياري، والمساعدة، والخطأ. ومربع التحرير والسرد هو عنصر التحكم: الصندوق، والنص المكتوب فيه، والقائمة وخياراتها. وحقل التحرير والسرد لا يرسم شيئًا من عنده وليس له أي رمز تصميم (token): فكل خاصية له هي خاصية لأحد الاثنين، تُعطى له كما هي، والخيارات التي تعطيه إياها هي خيارات مربع التحرير والسرد فيه.
+
+هو كتلة بعرض المكان الذي يوضع فيه، وصندوقه يملؤه. وليس له عرض من عنده: فلحقل أضيق أعطِه مكانًا أضيق. ولا يتبع عرضه خياراته ولا قيمته أبدًا، لأن الشخص يكتب فيه قبل أن يُعرف أي خيار.
+
+على الويب هو `<tanrei-combobox-field>` وفروعه عناصر `<tanrei-option>`، وهي العناصر التي يحملها [عنصر الاختيار](/ar/components/select/). والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+يحمل حقل التحرير والسرد ما يحمله مربع التحرير والسرد فيه، وهو شيئان. الخاصية `value` هي الاختيار المعتمَد: قيمة الخيار المختار، أو نص من عند الشخص. والخاصية `inputValue` هي النص الذي في حقل الإدخال. لا تتغيّر القيمة إلا حين يختار الشخص خيارًا، أو يعتمد النص (بالمفتاح Enter ولا خيار نشط، أو بمغادرة الحقل)، أو يضغط زر المسح. أما الكتابة والتنقل في القائمة فلا يغيّرانها أبدًا.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-combobox-field name="city" label="المدينة" value="tokyo" requirement="required" required-text="مطلوب"
+        clearable clear-label="مسح المدينة" empty-text="لا توجد نتائج مطابقة">
+        <tanrei-option value="kyoto">كيوتو</tanrei-option>
+        <tanrei-option value="tokyo">طوكيو</tanrei-option>
+      </tanrei-combobox-field>
+    </form>
+
+    <!-- الصندوق وحده، حيث تقف التسمية في مكان آخر: مربع تحرير وسرد، وتسمّيه label الخاصة به. واستيراد حقل التحرير والسرد يعرّفه. -->
+    <tanrei-combobox label="الرمز" placeholder="ابحث عن رمز" no-chevron style="inline-size: 16rem">
+      <tanrei-option value="primary">primary</tanrei-option>
+    </tanrei-combobox>
+
+    <!-- الخيارات اقتراحات: النص الذي لا يسمّي أيًّا منها يصير هو القيمة. -->
+    <tanrei-combobox-field label="عائلة الخط" value="Recursive" allow-custom-value>
+      <tanrei-option value="Inter">Inter</tanrei-option>
+    </tanrei-combobox-field>
+
+    <!-- التصفية عليك: عند الحدث input، من خادم. أما صف الحالة فيقول ما يفعله مصدرك. -->
+    <tanrei-combobox-field id="assignee" label="المكلَّف" filter="none" no-chevron placeholder="ابحث عن شخص">
+      <span slot="leading-icon">person_search</span>
+    </tanrei-combobox-field>
+
+    <script type="module">
+      import '@tanrei/web/components/combobox-field';
+
+      const assignee = document.querySelector('#assignee');
+      // غيّر الشخص النص. مربع التحرير والسرد لا يؤخّر هذا الحدث ولا يُسقطه: أخِّره بنفسك (debounce).
+      assignee.addEventListener('input', async () => {
+        assignee.status = 'loading';
+        assignee.statusText = 'جارٍ تحميل الأشخاص';
+        const people = await find(assignee.inputValue);
+        assignee.replaceChildren(...people.map(option));
+        assignee.status = 'idle';
+        assignee.statusText = `الأشخاص المعروضون: ${people.length} من أصل ${total}`;
+      });
+      // تغيّرت القيمة المعتمَدة. والقيمة صارت الجديدة سلفًا.
+      assignee.addEventListener('change', (e) => save(e.detail.value));
+      // فتحها الشخص أو أغلقها؛ والإغلاق يقول السبب. والحدث لا يتصاعد: استمع إليه على الحقل نفسه.
+      assignee.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ComboboxField, Option } from '@tanrei/react';
+
+    <ComboboxField label="المدينة" value={city} clearable clearLabel="مسح المدينة" emptyText="لا توجد نتائج مطابقة" onChange={(event) => setCity(event.detail.value)}>
+      <Option value="kyoto">كيوتو</Option>
+      <Option value="tokyo">طوكيو</Option>
+    </ComboboxField>
+    ```
+  </TabItem>
+</Tabs>
+
+### مستوى واحد إلى الأسفل
+
+حقل التحرير والسرد هو [حقل](/ar/components/field/) بداخله [مربع تحرير وسرد](/ar/components/combobox/). اكتب الاثنين بنفسك حيث تحتاج إلى شيء لا يقدّمه الحقل، كشيء من عندك بين التسمية والصندوق، أو تحت المساعدة. والصورة والاسم والوصف والحالات هي نفسها.
+
+```html
+<!-- حقل التحرير والسرد -->
+<tanrei-combobox-field name="city" label="المدينة" requirement="required" required-text="مطلوب"
+  supporting-text="المدينة التي يُرسل إليها الطلب." value="tokyo">
+  <tanrei-option value="kyoto">كيوتو</tanrei-option>
+  <tanrei-option value="tokyo">طوكيو</tanrei-option>
+</tanrei-combobox-field>
+
+<!-- هو نفسه، باليد: خصائص الإطار على الحقل، وكل ما عداها، ومعه الخيارات، على مربع التحرير والسرد -->
+<tanrei-field label="المدينة" requirement="required" required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
+  <tanrei-combobox name="city" value="tokyo">
+    <tanrei-option value="kyoto">كيوتو</tanrei-option>
+    <tanrei-option value="tokyo">طوكيو</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+```
+
+<DemoFrame label="حقل فيه مربع تحرير وسرد: الصورة نفسها التي لحقل التحرير والسرد" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" requirement="required" required-text="مطلوب" supporting-text="المدينة التي يُرسل إليها الطلب.">
+    <tanrei-combobox value="tokyo" empty-text="لا توجد نتائج مطابقة">
+      <tanrei-option value="kyoto">كيوتو</tanrei-option>
+      <tanrei-option value="tokyo">طوكيو</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</DemoFrame>
+
+ما يختلف هو موضع عنصر التحكم الذي يلقاه النموذج: باليد هو مربع التحرير والسرد، وهو الذي يأخذ `name`؛ وفي حقل التحرير والسرد هو الحقل.
+
+## المواصفات
+
+<DemoFrame label="مجموعات، ونص مساعد مع خيار معطَّل، وخطأ، وحقل تحرير وسرد للقراءة فقط وآخر معطَّل" plain column>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المنطقة الزمنية" value="Europe/Lisbon" empty-text="لا توجد نتائج مطابقة">
+    <tanrei-option-group label="آسيا"><tanrei-option value="Asia/Tokyo">طوكيو</tanrei-option><tanrei-option value="Asia/Seoul">سول</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="أوروبا"><tanrei-option value="Europe/Lisbon">لشبونة</tanrei-option><tanrei-option value="Europe/Berlin">برلين</tanrei-option></tanrei-option-group>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الخطة" value="team" empty-text="لا توجد نتائج مطابقة">
+    <tanrei-option value="free" supporting-text="مشروع واحد ومساعدة من المجتمع">المجانية</tanrei-option>
+    <tanrei-option value="team" supporting-text="مشاريع بلا حد وأدوار مشتركة">الفرق</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="تسجيل دخول موحَّد وسجل تدقيق" disabled>المؤسسات</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" value="nairobi" error error-text="لا نوصّل إلى نيروبي بعد. اختر مدينة أخرى." empty-text="لا توجد نتائج مطابقة">
+    <tanrei-option value="nairobi">نيروبي</tanrei-option><tanrei-option value="tokyo">طوكيو</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" value="tokyo" readonly>
+    <tanrei-option value="nairobi">نيروبي</tanrei-option><tanrei-option value="tokyo">طوكيو</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="المدينة" value="tokyo" disabled>
+    <tanrei-option value="nairobi">نيروبي</tanrei-option><tanrei-option value="tokyo">طوكيو</tanrei-option>
+  </tanrei-combobox-field>
+</DemoFrame>
+
+### الحقل
+
+| الجزء | ما هو |
+| --- | --- |
+| التسمية | صف الحقل فوق الحاوية (في الطراز `stacked`)، أو تسمية مربع التحرير والسرد نفسه عائمة داخلها (في الطرازين `filled` و `outlined`). وهي الاسم المتاح للتقنيات المساعدة، مرسومةً كانت أو مخفيّة بالخاصية `labelHidden` |
+| علامة المطلوب أو الاختياري | بعد التسمية: وسم المطلوب أو نجمة أو لا شيء مع `requirement="required"`، ووسم الاختياري مع القيمة `optional`. والتسمية العائمة تأخذ النجمة |
+| حقل الإدخال | النص: ما يكتبه الشخص ليعثر على خيار، وما دام لا يكتب فهو تسمية الخيار المختار أو القيمة التي من عنده. سطر واحد، يُمرَّر |
+| النص النائب | تلميح يظهر ما دام حقل الإدخال فارغًا. وليس تسمية أبدًا، وليس قيمة أبدًا |
+| أيقونة البداية | رسم الأيقونة (glyph) الذي في المنفذ `leading-icon`، وإلا فرسم الخيار المختار نفسه |
+| زر المسح | مع `clearable`، ما دام النص غير فارغ: يفرغ النص والقيمة |
+| السهم الصغير (chevron) | يقول إن للحقل قائمة يُنظر فيها، ويفتحها ويغلقها. ولا يدور. احذفه (بجعل `chevron` بالقيمة false) حيث لا توجد اقتراحات إلا لما كُتب |
+| النص المساعد | صف الحقل: سطر من المساعدة. ويبقى ما دامت `error` بالقيمة true، و `errorText` تحته. وكلاهما يبدأ حيث يبدأ نص حقل الإدخال |
+
+صف التسمية والعلامة وصف النص المساعد هي [للحقل](/ar/components/field/)، مرسومة من رموز تصميم الحقل؛ وكل ما عداها [لمربع التحرير والسرد](/ar/components/combobox/). والطُرُز الثلاثة والحجمان `medium` (48) و `large` (56) هي ما لحقل النص. والنظام الافتراضي يتضمن الطراز `stacked` وحده.
+
+ما دامت القائمة مفتوحة تُرسم التسمية والمساعدة في حالة التركيز مع الصندوق، سواء أكان التركيز على حقل الإدخال أم لا.
+
+### القائمة
+
+تُفتح القائمة تحت الحاوية على مسافة `comp.combobox.list.offset`، بعرضها تمامًا، وفوقها حيث لا متّسع تحتها. وارتفاعها ارتفاع صفوفها إلى حدّ `list.max-height` (320)، وما زاد على ذلك يُمرَّر.
+
+| الجزء | ما هو |
+| --- | --- |
+| الخيار | صف فيه تسمية، وسطر مساعد ورسم أيقونة إن شئت. وللخيار المختار تعبئة هادئة وعلامة صح |
+| المطابقة | مع `filter="contains"` يُرسم بوزن أثقل الجزء الذي طابق النص من كل تسمية |
+| المجموعة | سلسلة من الخيارات تحت عنوان اختياري. والمجموعة التي لا تُبقي التصفية فيها شيئًا لا تُرسم |
+| صف الحالة | بعد الخيارات: `statusText`، ومؤشر تحميل ما دامت `status` بالقيمة `loading`، والإخفاق ما دامت بالقيمة `error`، أو `emptyText` حيث لم يطابق شيء |
+
+مع `filter="contains"` تظهر الخيارات التي تحوي تسميتها النص، أيًّا كانت حالة الأحرف أو عرض المحرف أو العلامات التي على الحرف. ومع `filter="none"` يعرض مربع التحرير والسرد كل خيار تعطيه إياه، والتصفية عليك عند الحدث `input`. ومربع التحرير والسرد لا يجلب ولا ينتظر ولا يفرز ولا يفاضل بين الخيارات أبدًا.
+
+### الكتابة والتنقل والاختيار
+
+| الإدخال | ما يحدث |
+| --- | --- |
+| الكتابة | تعدّل النص وتفتح القائمة مصفّاةً. وأول مطابقة هي الخيار النشط؛ ومع `allowCustomValue` لا خيار نشطًا |
+| مفتاح السهم للأسفل أو السهم للأعلى والقائمة مغلقة؛ أو السهم الصغير | تُفتح القائمة بكل الخيارات. والخيار النشط هو الخيار المختار، وإلا فأول خيار مفعَّل |
+| مفتاح السهم للأسفل أو السهم للأعلى والقائمة مفتوحة | الخيار التالي أو السابق، عبر المجموعات، مع التوقف عند الطرفين |
+| المفتاحان Page Down و Page Up | عشرة خيارات نزولًا أو صعودًا |
+| المفتاحان Home و End، ومفتاحا السهم لليسار والسهم لليمين | تحرّك مؤشر الكتابة (caret) في النص |
+| المفتاح Enter وخيارٌ نشط؛ أو ضغط على خيار | يُختار الخيار وتُغلق القائمة. ولا يُرسل النموذج |
+| المفتاح Enter ولا خيار نشطًا | يُعتمد النص، ويُصدَر الحدث `action`، ويُرسل النموذج ما لم يُلغَ `action` |
+| المفتاح Escape | يغلق القائمة المفتوحة ويُبقي النص. وإن ضُغط مرة أخرى أعاد نص القيمة المعتمَدة. ولا يمسح قيمة أبدًا |
+| المفتاح Tab؛ أو ضغط في الخارج | يُغادَر الحقل: يُحسم النص وتُغلق القائمة. ولا يُختار الخيار النشط |
+| ضغط على التسمية | ينقل التركيز إلى حقل الإدخال ولا يفتح شيئًا. وما دامت القائمة مفتوحة فهو ضغط خارج مربع التحرير والسرد: تُغلق القائمة، ويبقى التركيز في حقل الإدخال |
+
+مغادرة الحقل تحسم النص: يقرّر مربع التحرير والسرد أيَّ قيمة يمثّلها النص. النص الفارغ يفرغ القيمة. والنص الذي هو تسمية خيار بتمامها يختار ذلك الخيار. وأي نص آخر يصير هو القيمة مع `allowCustomValue`، ويُتخلّى عنه من دونها.
+
+لا تُفتح القائمة عند التركيز. عيِّن `open` بنفسك إن أردت ذلك.
+
+ما دام أسلوب الإدخال يركّب نصًّا (input-method composition)، فكل مفتاح له. والمفتاح Enter الذي يؤكّد تحويلًا لا يختار شيئًا ولا يرسل شيئًا.
+
+يحمل الحدث `toggle` سبب الإغلاق: `select` أو `commit` أو `escape` أو `outside` أو `press` أو `tab` أو `focus-out` أو `anchor-hidden` أو `empty`.
+
+<ComponentSpecs name="combobox-field" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- العنصران `<tanrei-option>` و `<tanrei-option-group>` بيانات: لا يرسمان شيئًا. وهما العنصران اللذان يحملهما عنصر الاختيار. والخيار الذي قيمته السلسلة الفارغة يُرسم ولا يمكن اختياره، لأن القيمة الفارغة تعني أن لا شيء مختار.
+- جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` حول عنصر `<tanrei-combobox>`. وفروعك من عناصر `<tanrei-option>` تبقى فروعه هو وتبلغ مربع التحرير والسرد عبر منفذ؛ فلا يُنقل شيء ولا يُنسخ.
+- حقل التحرير والسرد عنصر مرتبط بالنماذج (form-associated): هو عنصر التحكم الوحيد الذي يراه النموذج. يأخذ `name`، ويرسل `value` ولا يرسل أبدًا نص تعديل لم يُعتمد، ويعود عند إعادة الضبط إلى قيمة خاصية HTML `value`، ويبلّغ النموذج بأن القيمة ناقصة ما دامت `requirement="required"` و `value` فارغة. والمفتاح Enter ولا خيار نشط يرسل نموذجه.
+- الخصائص `value` و `inputValue` و `open` هي خصائص مربع التحرير والسرد في كل لحظة: فكل منها صارت الجديدة سلفًا في كل مستمع.
+- الخاصية `chevron` هي خاصية HTML المعكوسة `no-chevron`، والخاصية `readOnly` هي `readonly`.
+- الحدث `input` هو الحدث الأصلي لعنصر النص. والحدثان `change` و `action` يحملان `detail.value` و `detail.inputValue`. والأحداث الأربعة هي أحداث مربع التحرير والسرد نفسه، وهدفها حقل التحرير والسرد؛ والحدث `toggle` لا يتصاعد.
+- الدالة `focus()` تذهب إلى حقل الإدخال. والعنصر نفسه غير قابل للتركيز وليس له دور: سمِّه بالخاصية `label`، ولا تسمِّه أبدًا بالخاصية `aria-label`.
+- الأجزاء: `field` و `combobox` هما العضوان؛ وأجزاء كل عضو مصدَّرة بأسمائها، والجزءان `label` و `requirement-label` مصدَّران كذلك بالأسماء `field-label` و `combobox-label` و `field-requirement-label` و `combobox-requirement-label`.
+- يُخصَّص حقل واحد دون غيره بخاصية مخصصة (custom property) عليه: `--tanrei-comp-field-*` للصفوف، و `--tanrei-comp-input-box-*` للصندوق، و `--tanrei-comp-combobox-*` للقائمة.
+- القائمة عنصر له `popover="manual"` في الطبقة العليا (top layer). والضغط في الخارج يغلقها ويصل أيضًا إلى العنصر الذي تحته.
+- صف الحالة يقف تحت الخيارات ولا يُمرَّر معها، فيبقى العدد أو الإخفاق في مجال الرؤية.
+- قبل أن يُعرَّف العنصر، تكون خياراته نصًّا جاريًا في الصفحة. أخفِ `tanrei-combobox-field:not(:defined) > *` واحجز الارتفاع.
+- ليس للويب إيماءة رجوع خاصة به، فلا يحمل الحدث `toggle` السبب `back` أبدًا.
+
+## الإرشادات
+
+### حقل تحرير وسرد أم عنصر اختيار أم بحث أم حقل نص
+
+| الجانب | حقل التحرير والسرد | عنصر الاختيار | البحث | حقل النص |
+| --- | --- | --- | --- | --- |
+| ما يحمله | قيمة واحدة يُعثر عليها بالكتابة | قيمة واحدة من قائمة مغلقة | استعلام | أي نص |
+| متى يعرض الخيارات | في أثناء كتابة الشخص | بعد ضغط | اقتراحات ونتائج | لا يعرضها |
+| هل يقبل قيمة ليست في القائمة | مع `allowCustomValue` | لا | نعم | نعم |
+| هل هو جزء من نموذج | نعم | نعم | لا | نعم |
+
+1. حين لا تزيد الخيارات على خمسة تقريبًا وهي قصيرة، اعرضها كلها: أزرار اختيار.
+2. إن كانت القائمة قصيرة بحيث تُمسح بالنظر، ومغلقة، فذاك عنصر اختيار.
+3. إن كان الناس يفضّلون الكتابة على التمرير، أو كان الحقل يقبل قيمة ليست في القائمة، فذاك حقل تحرير وسرد.
+4. إن كانت الكتابة تقود إلى أماكن يُذهب إليها لا إلى قيمة، فذاك بحث.
+5. القيم المتعددة مكوّن آخر: مربع التحرير والسرد يحمل قيمة واحدة.
+6. إن كانت التسمية تقف في مكان آخر، كعامل تصفية في شريط أدوات أو خلية في جدول، فذاك [مربع التحرير والسرد](/ar/components/combobox/) مجرَّدًا، وتسمّيه `label` الخاصة به.
+
+### افعل
+
+- اكتب تسمية تسمّي ما يُختار، وأبقِها مرئية في النموذج.
+- استخدم `allowCustomValue` فقط حيث تكون القيمة التي ليست في القائمة جوابًا حقيقيًّا.
+- أعطِ `clearable` لحقل تحرير وسرد يجوز أن تكون قيمته لا شيء، وسمِّ الزر بالخاصية `clearLabel`.
+- حين تحمّل الخيارات، عيِّن `status` و `statusText` لتقول القائمة إنها تنتظر، أو كم خيارًا تعرض، أو إنها أخفقت.
+- أعطِ `emptyText`، على حقل التحرير والسرد أو مرة واحدة للمنتج كله بالاستدعاء `setWords({ emptyText })`. لا يتضمن Tanrei أي كلمة: من دونها لا يرسم النص الذي لا يطابق شيئًا أي صف، ولا يكون في القائمة ما تعرضه.
+
+### لا تفعل
+
+- لا تستخدم النص النائب تسميةً. فهو يختفي ما إن يكتب الشخص.
+- لا تحفظ ولا تنقل إلى صفحة أخرى ولا ترسل عند الحدث `input`. فهو يصدر عند كل ضغطة مفتاح؛ والحدث `change` هو القيمة المعتمَدة.
+- لا تعامل النص الذي لا يسمّي خيارًا على أنه خطأ في الحقل. فهو يُتخلّى عنه حين يغادر الشخص. وإن أردت أن تقول «اختر واحدًا من القائمة»، فعيِّن `error` و `errorText` بنفسك.
+- لا تضع حقل تحرير وسرد داخل حقل. فهو حقل أصلًا؛ وعنصر التحكم الذي يؤطّره الحقل هو [مربع التحرير والسرد](/ar/components/combobox/).
+- لا تفتح القائمة عند التركيز في نموذج كثير الحقول: فهي تغطي الحقول التي تحتها عند كل موضع توقف.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="combobox-field" />
+
+### ما يتكفل به المكوّن
+
+- حقل الإدخال مربع تحرير وسرد قابل للتحرير له مربع قائمة (listbox). اسمه قيمة `label`، مرسومةً كانت أو مخفيّة، وليس النص النائب أبدًا. يعطيه الحقل لمربع التحرير والسرد، وهذا يحمله على حقل الإدخال الخاص به.
+- النص المساعد أو نص الخطأ المعروض هو وصفه، ويُضاف إليه `optionalText` ما دام الحقل اختياريًّا.
+- الخطأ الذي يظهر والتركيز داخل الحقل يُعلَن مرة واحدة، بتهذيب.
+- يُعرَض للتقنيات المساعدة على أنه غير صالح ما دامت `error` بالقيمة true، وعلى أنه مطلوب ما دامت `requirement` بالقيمة `required`، وعلى أنه للقراءة فقط، وعلى أنه موسَّع ما دامت قائمته مفتوحة.
+- يبقى التركيز في حقل الإدخال ما دامت القائمة مفتوحة. والخيار النشط هو فرعه النشط (active descendant)، فلا تقطع الكتابة تحرير النص أبدًا.
+- القائمة مربع قائمة تسمّيه التسمية. ولكل خيار اسمه ووصفه، وهل هو المختار، وهل هو معطَّل، وموضعه بين الخيارات المعروضة. والمجموعة يسمّيها عنوانها.
+- المطابقة تُعلَّم بالوزن، لا باللون وحده أبدًا. والتسمية تُقرأ نصًّا واحدًا.
+- صف الحالة منطقة حيّة (live region): يُقرأ نصه بتهذيب حين يتغيّر، وفورًا حين يخفق المصدر. وفي أثناء التحميل تُعلَّم القائمة مشغولة ولا يُعلَن شيء.
+- ما دام أسلوب الإدخال يركّب نصًّا، لا يعالج مربع التحرير والسرد أي مفتاح.
+- السهم الصغير زر لمؤشر الإدخال (pointer) وللاستكشاف باللمس، خارج ترتيب التركيز. ولوحة المفاتيح تفتح القائمة بمفتاح السهم للأسفل.
+- زر المسح زر تسمّيه `clearLabel`، وهو موضع توقف التركيز التالي بعد حقل الإدخال.
+- المفتاح Escape يغلق القائمة ولا يذهب أبعد من ذلك، فيبقى مربع الحوار المحيط بمربع التحرير والسرد مفتوحًا.
+- مساحة لمس الحقل تستوفي الحد الأدنى للهدف، وارتفاع الخيارات لا يقل عن الحد الأدنى للهدف.
+- عند تكبير النص إلى 200% تلتفّ التسمية والمساعدة والخيارات والعناوين، وكذلك صف الحالة. والنص الذي في حقل الإدخال وحده يبقى في سطر واحد، ويُمرَّر.
+- في الألوان المفروضة (forced colors) يكتسب الحقل والقائمة حدًّا، ويأخذ الخيار النشط ألوان التمييز، ويُعرف الخيار المختار بعلامة الصح.
+- في تخطيط من اليمين إلى اليسار ينعكس الحقل وكل صف، ويحتفظ كل نص باتجاهه. والسهم الصغير ورسم زر المسح وعلامة الصح لا تنعكس.
+
+فجوات معروفة على الويب:
+
+- الفاصل بين مجموعتين لا يُعرض فاصلًا (separator): فمربع القائمة لا يحمل إلا خيارات ومجموعات.
+- التصفية تسوّي حالة الأحرف والعرض والعلامات في كل الكتابات على السواء. ولا تطابق كتابة Hangul بالحرف الساكن الأول ولا حروف kana بقراءتها.
+- قبل أن يُعرَّف العنصر، تكون الخيارات نصًّا في الصفحة بلا عنصر تحكم.
+
+### ما عليك فعله
+
+- أعطِ كل حقل تحرير وسرد `label`، وكل خيار تسمية وقيمة غير فارغة.
+- أعطِ حقل التحرير والسرد القابل للمسح `clearLabel`.
+- اكتب `statusText` على حقل التحرير والسرد. وأعطِ `emptyText` و `requiredText` و `optionalText` و `clearLabel` على حقل التحرير والسرد، أو مرة واحدة للمنتج كله بالدالة `setWords()`. لا يتضمن Tanrei أي كلمة، والكلمة الناقصة يُبلَّغ عنها أثناء التطوير. انظر [كلمات المنتج](/ar/foundations/words/).
+- تحقق من القيمة بنفسك، وعيِّن `error`، واكتب `errorText` بحيث يقول كيف تُصحَّح الإجابة.
+- أبقِ قيم الخيارات فريدة داخل حقل التحرير والسرد الواحد.

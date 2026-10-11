@@ -1,0 +1,1189 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "file-item",
+  "title": "File item",
+  "summary": "Shows one file — a glyph that says its format or a small picture of it, its name, and what the product says of it: its format, its size, where its sending stands, what went wrong — with the actions to take it back and to try it again, as a row of a column of files or as a tile of a strip of pictures; it can be pressed as a whole to open the file; and it never reads, keeps or sends the file itself.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "progress-indicator"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The body: the glyph or the picture, and the texts. One part, and the one that is pressed where the file item is pressable. The actions stand beside it, never inside it."
+    },
+    {
+      "id": "media",
+      "description": "The box of the glyph or the picture: the leading box of a row, the whole box of a tile."
+    },
+    {
+      "id": "icon",
+      "description": "The glyph of the file's format, by its name in the system's icon set; or the product's own glyph. Hidden from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "preview",
+      "description": "The picture of an image file, in the glyph's place.",
+      "optional": true
+    },
+    {
+      "id": "headline",
+      "description": "The file's name.",
+      "optional": true
+    },
+    {
+      "id": "supporting-text",
+      "description": "The second line: the format, the size and the status in words, or the error text in the status's place.",
+      "optional": true
+    },
+    {
+      "id": "status-icon",
+      "description": "The mark before the words of a file that is done or failed.",
+      "optional": true
+    },
+    {
+      "id": "progress",
+      "description": "A thin bar while the file is being sent: how far it has come, or that it is under way.",
+      "optional": true
+    },
+    {
+      "id": "action",
+      "description": "The actions: retry (while it failed and can be tried again) and remove. Icon-only, each with its own state layer and focus ring.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The system's focus indicator around the body or an action that has keyboard focus."
+    }
+  ],
+  "props": [
+    {
+      "name": "form",
+      "type": "enum",
+      "values": [
+        "row",
+        "tile"
+      ],
+      "axis": "tanrei.comp.file-item.form",
+      "default": "row",
+      "description": "How the file is shown. row: one line across the width the layout gives — the glyph or a small picture, the name, the second line, the bar, the actions at the end — for a column of files. tile: a box of a width and a height, holding the picture or the glyph, with the texts beneath it and the actions at its corner — for a strip of attached pictures. The product chooses by where the file stands. A design system may add values."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "What identifies the file to the product: given back by click, remove and retry."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "default": "",
+      "description": "The file's name as the person knows it (\"report-2026.pdf\"). The file item's name for assistive technology in every form, also where it is not drawn."
+    },
+    {
+      "name": "mediaType",
+      "type": "string",
+      "default": "",
+      "description": "The file's kind as the platform reports it (\"image/png\"), from which the glyph is chosen. Empty, the kind is read from the end of name."
+    },
+    {
+      "name": "glyph",
+      "type": "string",
+      "default": "",
+      "description": "The name of a glyph of the system's icon set, drawn in place of the one the file's format would choose. Empty lets the format choose."
+    },
+    {
+      "name": "formatText",
+      "type": "string",
+      "default": "",
+      "description": "The file's format in the product's words (\"PDF\", \"Spreadsheet\"), drawn first on the second line. Empty draws none: the file item has no word for a format."
+    },
+    {
+      "name": "sizeText",
+      "type": "string",
+      "default": "",
+      "description": "The file's size as text, formatted by the product for the reader's locale (\"1.2 MB\"). Empty draws none."
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "values": [
+        "pending",
+        "uploading",
+        "done",
+        "error"
+      ],
+      "default": "pending",
+      "description": "Where the file stands. pending: chosen or kept, and nothing is happening to it — the whole life of a file in a form that is submitted as one, and of a file that is only shown. uploading: the product is sending it; the bar is drawn. done: the product has it. error: it failed or was refused; errorText says why."
+    },
+    {
+      "name": "statusText",
+      "type": "string",
+      "default": "",
+      "description": "The status in the product's words (\"Waiting\", \"Uploading\", \"Uploaded\"), drawn last on the second line and read with the file. The mark and its color are never the only sign of a status."
+    },
+    {
+      "name": "progress",
+      "type": "number",
+      "default": null,
+      "description": "How far the sending has come, from 0 to 1, while status is uploading. Null draws the bar as under way without saying how far. Ignored in every other status."
+    },
+    {
+      "name": "errorText",
+      "type": "string",
+      "default": "",
+      "description": "Why the file failed and what to do, in the product's words (\"Larger than 10 MB\", \"The connection was lost\"). Drawn in the status's place while status is error, in every form, and never cut."
+    },
+    {
+      "name": "retryable",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether a failed file offers the retry action. True for a failure that trying again may cure (a lost connection); false for one it cannot (a file that is too large)."
+    },
+    {
+      "name": "preview",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether a picture of the file is drawn in the glyph's place, where the file is an image and the product gave an address (previewSrc) or the file itself in the platform's idiom. False draws the glyph, also for an image. The picture is drawn by the platform; the file item reads no file."
+    },
+    {
+      "name": "previewSrc",
+      "type": "string",
+      "default": "",
+      "description": "The address of a picture of the file, as the platform's images take one: a small rendition the product's server made of a file it already has. With preview it is drawn for a file of any format. Empty, the picture comes from the file itself where the product gave it."
+    },
+    {
+      "name": "fit",
+      "type": "enum",
+      "values": [
+        "cover",
+        "contain"
+      ],
+      "default": "cover",
+      "description": "How the picture fills its box. cover: it fills the box and what does not fit is cut at the edges, for photographs in a strip. contain: the whole picture is drawn inside the box, on the box's ground, for a picture whose edges matter — a scan, a signature, a diagram."
+    },
+    {
+      "name": "nameHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "In the tile form: the name is not drawn beneath a tile that draws a picture, for a dense strip of pictures. The name stays the file item's name for assistive technology, and is drawn all the same wherever no picture is (FIT-8). Not read in the row form."
+    },
+    {
+      "name": "width",
+      "type": "number",
+      "default": null,
+      "description": "In the tile form: the width of the box, in the platform's layout unit. Null makes it as wide as it is high."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "default": null,
+      "description": "In the tile form: the height of the box, in the platform's layout unit. Null reads comp.file-item.tile.media.height."
+    },
+    {
+      "name": "interactive",
+      "type": "boolean",
+      "default": false,
+      "description": "Makes the body — the glyph or the picture, and the texts — one pressable action that emits click, for a product that opens the file where it is: an image in an Image preview, a document in a viewer. The actions stay their own. A file item whose action is to go to the file takes href instead and is a link."
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "default": "",
+      "description": "The destination: the address of the file, as the platform's links take one. Not empty, it makes the body a link — to a file the product already has, to open or to download — whether interactive is set or not."
+    },
+    {
+      "name": "target",
+      "type": "enum",
+      "values": [
+        "same",
+        "new"
+      ],
+      "default": "same",
+      "description": "Where the destination opens. same: where the person is. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which a row marks and targetLabel says. Ignored without href."
+    },
+    {
+      "name": "targetLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads after the link's name while target is new (\"opens in a new tab\"). The product's words."
+    },
+    {
+      "name": "removeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the remove action (\"Remove\"). The file's name is given as the action's description, so the product writes one word and not one per file. Empty reads the product's words.",
+      "words": "removeLabel"
+    },
+    {
+      "name": "retryLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the retry action (\"Try again\"), described by the file's name as removeLabel is. Empty reads the product's words.",
+      "words": "retryLabel"
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "The actions are disabled and the body cannot be pressed. What the file item shows of the file stays as it is and stays readable."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "The file is shown and cannot be taken back: no remove action and no retry action is drawn. For a file of a record that is only read. The body can still be pressed where interactive or href says so."
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "description": "A glyph of the product's own in place of the format's glyph, where a name in the system's icon set (glyph) is not enough. Decorative.",
+      "fixture": "glyph"
+    }
+  ],
+  "events": [
+    {
+      "name": "click",
+      "description": "The body of a pressable file item was activated by pointer, touch, keyboard or assistive technology. Carries value. A link emits it before its destination opens; a product that takes the navigation itself cancels it."
+    },
+    {
+      "name": "remove",
+      "description": "The person asked to take this file back, by its remove action. Carries value. The file item removes nothing: whoever holds it removes it — and stops sending the file, if it was — and moves focus."
+    },
+    {
+      "name": "retry",
+      "description": "The person asked to try a failed file again, by its retry action. Carries value. The product sends the file again and sets status."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "error",
+    "loading"
+  ],
+  "behavior": [
+    {
+      "id": "FIT-1",
+      "text": "THE file item SHALL show one file in the form that form names: a row (FIT-2) or a tile (FIT-3). In both it SHALL draw the same parts from the same props — the glyph of the file's format or a picture of the file (FIT-5, FIT-6), its name, a second line (FIT-4), a bar while it is sent (FIT-10) and its actions (FIT-11) — so that a form changes where the parts stand and how large they are, never what is known of the file. THE file item SHALL draw no container, fill or edge around the whole, SHALL hold one file and never a list of files, and SHALL NOT sort, group, number or count itself among others: how file items are arranged is the layout's, or the component's that holds them."
+    },
+    {
+      "id": "FIT-2",
+      "text": "WHILE form is row THE file item SHALL be as wide as its layout gives it and as tall as its parts, and SHALL lay out from its start edge: the glyph in a box of comp.file-item.row.icon.size — or, WHILE preview is true, a square of comp.file-item.row.media.height with corners of comp.file-item.row.media.shape and the ground comp.file-item.media.color, holding the picture, or the glyph centred where no picture is drawn (FIT-6); comp.file-item.row.container.gap after it the texts, taking the room that is left; and comp.file-item.row.container.gap after them the actions (FIT-11), with the glyph or the square and the actions centred on the row's first two lines. The first line SHALL be name in comp.file-item.headline.typescale and comp.file-item.headline.color, drawn whole: it SHALL wrap, breaking inside a word where it must, and SHALL never be cut with an ellipsis, because the end of a file's name says what kind of file it is and a row has the room. WHILE form is row THE file item SHALL NOT read width, height or nameHidden, and in debug builds SHALL report nameHidden."
+    },
+    {
+      "id": "FIT-3",
+      "text": "WHILE form is tile THE file item SHALL draw a box height high — comp.file-item.tile.media.height WHILE height is null — and width wide, as wide as it is high WHILE width is null, with corners of comp.file-item.tile.container.shape and the ground comp.file-item.media.color, holding the picture clipped to those corners (FIT-6) or, where no picture is drawn, the glyph centred at comp.file-item.tile.icon.size; and beneath the box, comp.file-item.tile.container.gap from it and as wide as it, the name on one line (FIT-9) and the second line (FIT-4). The file item SHALL be exactly as wide as the box. It SHALL draw the actions inside the box at its top end corner, comp.file-item.tile.action.inset from the top and from the end edge, the retry action before the remove action (FIT-11), each on a disc of the tile's action container color so that it is read over any picture; and SHALL draw the box no narrower than both actions, the space between them and the inset on each side need, and no lower than one action and the inset above and below it, in debug builds reporting a width or a height that is less. WHERE its layout gives the tile less room than width THE file item SHALL draw the box as wide as that room and as high as keeps the proportion of width to height, and SHALL never be wider than its layout."
+    },
+    {
+      "id": "FIT-4",
+      "text": "THE file item SHALL draw below the name one line in comp.file-item.supporting-text.typescale that wraps and is never cut: formatText, sizeText and statusText, each WHILE it is not empty, in that order, with a middle dot and a space on each side between two that are drawn, in comp.file-item.supporting-text.color; and WHILE status is error and errorText is not empty, errorText in statusText's place, in comp.file-item.error.supporting-text.color. WHILE status is done or error THE file item SHALL draw before the words of the status or the error, comp.file-item.status.icon.gap from them, a mark at comp.file-item.status.icon.size by its name in the system's icon set and through the platform's icon helper — the checked-circle glyph in comp.file-item.done.icon.color WHILE status is done, the error glyph in comp.file-item.error.icon.color WHILE status is error — and SHALL keep the mark from assistive technology, which is told the status by the words. WHILE the line would hold nothing THE file item SHALL draw none and keep no room for it. A status SHALL never be told by the mark or its color alone: WHILE status is done or error and the product gives no words for it (statusText, errorText) THE file item SHALL still render, with the mark alone on the line, and in debug builds report it. THE file item SHALL draw the second line in every form and whatever nameHidden says: what went wrong is never hidden."
+    },
+    {
+      "id": "FIT-5",
+      "text": "THE file item SHALL choose the glyph from the file's format, in one of ten kinds, by mediaType — read without regard to case, without anything after a semicolon and without the white space around it — and, WHERE mediaType is empty, is application/octet-stream or is on no list below, by the end of name after its last dot, without regard to case, the first kind that matches in this order, each kind by a closed list of media types and a closed list of endings: pdf (application/pdf; pdf); spreadsheet (text/csv, text/tab-separated-values, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.oasis.opendocument.spreadsheet, application/vnd.apple.numbers, application/x-iwork-numbers-sffnumbers; xls, xlsx, ods, numbers, csv, tsv); presentation (application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.oasis.opendocument.presentation, application/vnd.apple.keynote, application/x-iwork-keynote-sffkey; ppt, pptx, odp, key); archive (application/zip, application/x-zip-compressed, application/x-tar, application/gzip, application/x-gzip, application/x-bzip2, application/x-xz, application/x-7z-compressed, application/vnd.rar, application/x-rar-compressed; zip, tar, gz, tgz, bz2, xz, 7z, rar); code (text/html, text/css, text/javascript, application/javascript, application/x-javascript, text/typescript, application/typescript, text/jsx, text/tsx, application/json, application/xml, text/xml, text/yaml, text/x-yaml, application/yaml, application/x-yaml, application/x-sh, text/x-sh, text/x-shellscript, text/x-python, text/x-script.python, text/x-ruby, application/x-ruby, text/x-go, text/x-rust, text/x-java, text/x-java-source, text/x-kotlin, text/x-swift, text/x-c, text/x-chdr, text/x-csrc, text/x-c++, text/x-c++src, text/x-csharp, text/x-php, application/x-php, application/x-httpd-php, application/sql, text/x-sql; html, css, js, mjs, ts, tsx, jsx, json, xml, yaml, yml, sh, py, rb, go, rs, java, kt, swift, c, h, cpp, cs, php, sql); image (every media type that begins with image/; png, jpg, jpeg, gif, webp, avif, svg, bmp, tif, tiff, heic, heif, ico); video (every media type that begins with video/; mp4, mov, m4v, webm, mkv, avi); audio (every media type that begins with audio/; mp3, wav, m4a, aac, ogg, oga, flac, opus); document (every media type that begins with text/ and is on no list above, application/rtf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.oasis.opendocument.text, application/vnd.apple.pages, application/x-iwork-pages-sffpages; txt, md, rtf, doc, docx, odt, pages); and other for everything else, a name without a dot among them. A media type that is on no list SHALL choose nothing by itself: the ending decides, and then other. The lists are the whole of the rule on every platform, so that one file draws one glyph wherever it is shown; a platform SHALL add no media type and no ending of its own. It SHALL draw, by its name in the system's icon set and through the platform's icon helper: picture_as_pdf, table, slideshow, folder_zip, code, image, movie, music_note, description and draft, in the order of the kinds. WHILE glyph is not empty THE file item SHALL draw that glyph in the format's place, and WHILE the icon slot holds a glyph SHALL draw the slot's in the place of both. THE file item SHALL draw every such glyph in comp.file-item.icon.color, whatever the format — a format has no color of its own, because a color says one thing wherever it is used and a format is not a status — and SHALL keep it from assistive technology: the name says which file it is, and formatText says its format in words where the product has them. THE file item SHALL NOT open the file to learn its format, and SHALL NOT change the glyph because of status.",
+      "verify": "The ten fixtures kind-* draw the ten glyphs. By the ending, with no mediaType: `IMG_0412.HEIC` is image; `archive.tar.gz` is archive; `README` and `.gitignore` are other; `notes.txt` is document. By the media type, one line per kind, each on a file named `export` (no ending): `application/pdf` is pdf; `text/csv` and `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` are spreadsheet; `application/vnd.ms-powerpoint` is presentation; `application/gzip` and `application/x-tar` are archive; `text/html`, `application/json` and `application/x-sh` are code; `image/heic` is image; `video/quicktime` is video; `audio/mpeg` is audio; `text/plain`, `text/markdown` and `application/rtf` are document; `application/x-unknown` is other. The media type wins over the ending: `notes.txt` with mediaType `application/pdf` is pdf. A media type on no list leaves the ending to decide: `budget.xlsx` with `application/x-unknown`, with `application/octet-stream` and with none is spreadsheet. Case, a parameter and white space are not read: ` Text/CSV; charset=utf-8 ` is spreadsheet."
+    },
+    {
+      "id": "FIT-6",
+      "text": "WHILE preview is true THE file item SHALL draw a picture of the file in the glyph's place: the picture at previewSrc WHILE previewSrc is not empty, whatever the file's format; otherwise, WHILE the file's kind is image (FIT-5) and the product gave the file item the file itself in the platform's idiom, the platform's own drawing of that file (FIT-7). It SHALL fill the box as fit names — cover: scaled to fill the box and centred, what does not fit cut at the box's edges; contain: scaled to stand whole inside the box, centred on the box's ground — never stretched out of its proportion and never drawn larger than the box. Until the picture can be drawn, and IF it cannot be drawn — an address that does not answer, a format the platform does not draw, a file that is not a picture after all — THE file item SHALL draw the glyph of the file's format in its place, SHALL draw no sign of loading and no sign of the failure, SHALL NOT set status and SHALL emit nothing for it, and in debug builds SHALL report a previewSrc that could not be drawn. WHEN the picture can be drawn THE file item SHALL draw it at once in the glyph's place, without a motion and without changing the size of anything. THE file item SHALL keep the picture from assistive technology: it stands where the glyph stood, and the file is named by name. WHILE preview is false, WHILE preview is true and neither an address nor a file was given, and for a file that is not an image and has no previewSrc, THE file item SHALL draw the glyph. THE file item SHALL draw no picture of a video, of a page of a document or of anything else it would have to open and read to draw."
+    },
+    {
+      "id": "FIT-7",
+      "text": "THE file item SHALL NOT read a file: it SHALL open no connection for a file, SHALL NOT read a file's bytes into memory of its own, SHALL NOT copy, store, resize or encode a file, and SHALL make of the file the product gave it nothing but what the platform needs to draw the picture of FIT-6. WHERE the platform draws a picture of a file from an address it makes for the file's handle (the web's object URL) THE file item SHALL make that address itself, at most one per file item; SHALL make it only WHILE FIT-6 has it draw the picture from the file — preview is true, previewSrc is empty, the kind is image — and only once the file item is in or near what is in view; SHALL give it to nothing but its own picture; and SHALL release it WHEN the file item is taken out of the page or the screen, WHEN the product gives it another file or none, and WHEN preview becomes false, previewSrc is given or the kind is no longer image. WHERE the platform makes a small picture of a file itself (a thumbnail the system gives for a handle) THE file item SHALL ask for one no larger than its box and SHALL cancel the request on the same occasions. A file item whose preview is false SHALL cost what its texts cost: no address, no picture and no request is made for it, however many there are.",
+      "verify": "On the web: with `preview` absent, or with `preview-src` set, giving `file` a `File` calls no `URL.createObjectURL`; with `preview` and an image `File`, exactly one object URL exists while the element is connected and in view, and `URL.revokeObjectURL` is called for it on disconnect, on a new `file` and on `preview` removed; no `FileReader`, `arrayBuffer()`, `text()`, `stream()`, `slice()` or `createImageBitmap()` is called and no request leaves for a file."
+    },
+    {
+      "id": "FIT-8",
+      "text": "WHILE form is tile and nameHidden is true and the box draws a picture THE file item SHALL NOT draw the name beneath the box and SHALL keep no room for it. WHILE the box draws no picture — preview is false, the picture is not drawn yet or cannot be drawn — THE file item SHALL draw the name whatever nameHidden says, because a glyph of a format does not tell two files of that format apart. In every case name SHALL stay the file item's name for assistive technology (FIT-19), and the second line SHALL be drawn (FIT-4). IF name is empty THE file item SHALL still render and in debug builds report that the file has no name."
+    },
+    {
+      "id": "FIT-9",
+      "text": "WHILE form is tile THE file item SHALL draw the name on one line in comp.file-item.headline.typescale and comp.file-item.headline.color, no wider than the box. WHERE the name does not fit THE file item SHALL cut it in the middle and never at its end: the ending of the name — from its last dot, WHERE that dot is not the name's first character and is among its last eight — SHALL stay drawn, the start of the name SHALL be drawn as far as the room that is left allows, and an ellipsis SHALL stand between the two, so that two pictures from one camera are still told from a document of the same name; a name with no such ending SHALL be cut at its end, with an ellipsis. The ellipsis is a mark of the platform's text layout and not a word. The whole name SHALL reach assistive technology, and the cut SHALL be made in the drawing alone: THE file item SHALL NOT change name. The second line of a tile SHALL wrap inside the box's width and SHALL never be cut (FIT-4)."
+    },
+    {
+      "id": "FIT-10",
+      "text": "WHILE status is uploading THE file item SHALL draw a bar comp.file-item.progress.thickness high: a track in comp.file-item.progress.track.color and over it, from the track's start, an indicator in comp.file-item.progress.indicator.color across the fraction progress gives, clamped to 0 and 1, moving to a new value over comp.file-item.motion.progress-duration with comp.file-item.motion.progress-easing. WHILE form is row the bar SHALL stand comp.file-item.progress.gap below the texts and as wide as them, with ends rounded by comp.file-item.progress.shape; WHILE form is tile it SHALL lie along the bottom edge of the box, inside it and as wide as it, clipped by the box's corners, over the picture or the ground. WHILE progress is null THE file item SHALL draw the bar as a linear progress indicator draws its indeterminate form (PRG-2), once per comp.file-item.motion.cycle-duration with comp.file-item.motion.cycle-easing, and SHALL NOT run it while the file item is not visible. WHERE reduced motion is requested THE file item SHALL show a new value at once and draw the indeterminate bar as PRG-7 says. In every other status THE file item SHALL draw no bar and, in a row, keep no room for one. THE file item SHALL never move the bar by itself: progress is the product's report of its own sending."
+    },
+    {
+      "id": "FIT-11",
+      "text": "WHILE readOnly is false THE file item SHALL draw a remove action, and before it, comp.file-item.action.gap from it, a retry action WHILE status is error and retryable is true: each an icon-only button, a square of comp.file-item.action.size with corners of comp.file-item.action.shape, filled with the action container color of its form, holding the icon set's close glyph (remove) or refresh glyph (retry) at comp.file-item.action.icon.size in the action icon color of its form — at the end of a row (FIT-2), at the top end corner of a tile (FIT-3). WHEN the person activates one by pointer, touch, Enter or Space THE file item SHALL emit remove or retry exactly once with value and do nothing else: it SHALL NOT take itself away, change its status or move focus because of the activation. The actions SHALL NOT be inside the body (FIT-12) and SHALL NOT activate it. Each SHALL be a stop in the focus order after the body, retry before remove; THE file item SHALL handle no arrow key, Delete or Backspace, SHALL hold no selected state and draw no handle, and SHALL NOT be moved by dragging: an order that people change is the List's, in whose rows a file item is content."
+    },
+    {
+      "id": "FIT-12",
+      "text": "WHILE interactive is true and href is empty THE file item SHALL make its body — the glyph or the picture, and the texts — exactly one focusable element with the button role, before the actions in the focus order, and WHEN the person activates it by pointer, touch, Enter or Space SHALL emit click exactly once with value. It SHALL open nothing itself: the product opens the file where it means to. WHILE interactive is false and href is empty THE file item's body SHALL NOT be focusable, SHALL NOT emit click, and SHALL draw no hover, focus or press answer. In a tile the body is the box and the texts beneath it; a press on an action's visible bounds SHALL go to that action and never to the body under it (FIT-18)."
+    },
+    {
+      "id": "FIT-13",
+      "text": "WHILE href is not empty THE file item SHALL make its body a link, whether interactive is true or false, as every control with a destination is: the platform's own link to href, with the link role and not the button role; activated by pointer, touch or Enter and not by Space; emitting click exactly once with value and then opening href where target names, unless the product cancelled that click, and never holding the navigation back for sys.motion.duration.press-hold; drawn from the same tokens in every state as a pressable body. WHILE target is new THE file item SHALL open href in a new context, SHALL expose targetLabel as the link's description after its name and role — in debug builds reporting an empty one — and WHILE form is row SHALL draw, comp.file-item.row.container.gap after the texts and before the actions, the glyph open_in_new of the system's icon set through the icon helper at comp.file-item.action.icon.size in comp.file-item.icon.color, hidden from assistive technology; a tile has no such place and draws none. WHILE disabled is true THE file item's link SHALL NOT be followed by any means the platform gives a link, SHALL keep the link role with the disabled state and no destination, and SHALL NOT be focusable. IF href is only white space, names a script to run, or cannot be read as an address THE file item SHALL be what interactive makes it, without a destination, and in the last two cases report it in debug builds. THE file item SHALL load nothing from href and SHALL NOT learn the file's name, size or format from it."
+    },
+    {
+      "id": "FIT-14",
+      "text": "WHILE the body of a pressable file item is hovered, keyboard-focused or pressed THE file item SHALL render the body's container color from the component tokens of its form in the highest-precedence active state, with precedence pressed over focused over hovered, as a layer over the glyph or the picture and the texts — in a row over the body's bounds grown by comp.file-item.row.container.outset on every side, with corners of comp.file-item.row.container.shape, taking no room; in a tile over the box, with the box's corners. WHILE an action is hovered, keyboard-focused or pressed THE file item SHALL render that action's container, glyph and opacity from the action parts of the same tokens, with the same precedence. Focus gained by pointer or touch SHALL NOT select the focused state. The name, the second line, the glyph, the picture, the bar and the part that is not under the pointer, the press or the focus SHALL NOT change. WHEN the body or an action receives keyboard focus THE file item SHALL show the focus ring around it without animation — the system's focus indicator, sys.focus.offset from the part and following its corners, sys.focus.outer-width wide in the color role focus-ring, with the inner stroke of sys.focus.inner-width where the system has one; focus gained by pointer or touch SHALL NOT show it.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "FIT-15",
+      "text": "WHEN the body of a pressable file item or one of its actions is pressed by pointer, touch, Enter or Space THE file item SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner. A body that is a link is not pressed by Space (FIT-13)."
+    },
+    {
+      "id": "FIT-16",
+      "text": "WHILE the body of a pressable file item or one of its actions is pressed THE file item SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole part and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; glyph, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.file-item.motion.feedback-duration with comp.file-item.motion.state-easing, fades over comp.file-item.motion.state-duration with comp.file-item.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "FIT-17",
+      "text": "THE file item SHALL ease the corners of a tile's box, of a row's picture, of the body's state layer and of its actions by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show the keyboard focus of its body and of an action as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "FIT-18",
+      "text": "WHERE the visual size of an action, or of the body of a pressable file item, is below the minimum target THE file item SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. WHILE the extended hit areas of two parts overlap — the retry and the remove action, an action and the body, or the actions of two file items — THE file item SHALL give a press on a part's visible bounds to that part, a press on an action's visible bounds to the action even where it lies over the body, and a press between two actions to the nearer one."
+    },
+    {
+      "id": "FIT-19",
+      "text": "THE file item SHALL expose itself to assistive technology as a group named by name, in every form and whatever nameHidden says, read in this order: name; formatText, sizeText, then statusText or — WHILE status is error — errorText; then, WHILE status is uploading, the bar as a progress bar named by name whose value is progress as a share of 0 to 1, or busy WHILE progress is null; then the retry action WHERE it is drawn, as a button named retryLabel, and the remove action WHERE it is drawn, as a button named removeLabel, each described by name so that \"Remove\" is heard with the file it removes. WHILE the body is pressable it SHALL be a button, or a link (FIT-13), named by name and described by the second line's texts. WHILE a component holds the file item as one of the items of a list of its own THE file item SHALL be exposed as an item of that list in the group's place, by the word of that component and through no prop of its own. The glyph, the picture, the status mark and the mark of a new context SHALL be kept from assistive technology. THE file item SHALL have no live region and SHALL announce nothing — not that it appeared, not a change of status or of progress: what is said of many files is said once, by whoever holds them."
+    },
+    {
+      "id": "FIT-20",
+      "text": "THE file item SHALL have no words of its own: it SHALL take removeLabel and retryLabel from the instance's prop and, WHILE that is empty, from the product's words of the keys removeLabel and retryLabel, and name, formatText, sizeText, statusText, errorText and targetLabel from the product alone, and from nowhere else. IF neither gives removeLabel or retryLabel THE file item SHALL still draw the action, expose it without a name, described by the file's name, and in debug builds report the missing word once per page or screen, naming the prop. THE file item SHALL build no word from mediaType, from the end of name or from a number: it SHALL NOT write a format, a size or a share of progress in words."
+    },
+    {
+      "id": "FIT-21",
+      "text": "WHILE disabled is true THE file item SHALL render each action from the disabled tokens of its form and disable it, so that it leaves the focus order; SHALL make the body not pressable and not focusable, drawing no hover, focus or press answer on it; and SHALL emit neither click, remove nor retry. The name, the second line, the glyph, the picture, the status mark and the bar SHALL stay drawn as they are and readable by assistive technology: what was chosen is still what was chosen."
+    },
+    {
+      "id": "FIT-22",
+      "text": "WHILE readOnly is true THE file item SHALL draw neither the remove action nor the retry action, SHALL keep no room for them — a row's texts reach its end edge — and SHALL emit neither remove nor retry. Everything else SHALL hold as without it: the status, the bar and the error are drawn, and the body is pressable WHERE interactive or href makes it so."
+    },
+    {
+      "id": "FIT-23",
+      "text": "WHEN the colors of the body or of an action change between states THE file item SHALL animate the change over comp.file-item.motion.state-duration with comp.file-item.motion.state-easing, and SHALL change them at once where motion is reduced. A change of form, of status, of a text, of the glyph or of the picture SHALL be drawn at once, without a motion of the file item's own. THE file item SHALL NOT run a picture that moves: WHERE the platform can hold a moving picture still it SHALL draw its first frame, and where it cannot (the web's image element) it SHALL leave the picture to the platform and state that in its README."
+    },
+    {
+      "id": "FIT-24",
+      "text": "WHILE the text size is enlarged THE file item SHALL grow with its texts: a row's lines wrap and are never cut, its glyph keeps its box, its picture comp.file-item.row.media.height and its actions comp.file-item.action.size; a tile's box keeps the size the product or the token gives, its name stays one line and grows in height, and its second line wraps beneath it. At 200 % in a width of 320 no text SHALL be lost or lie over another part, a row's actions SHALL stay at its end beside its first lines, a tile SHALL be no wider than its layout (FIT-3), and nothing SHALL need scrolling in two directions."
+    },
+    {
+      "id": "FIT-25",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE file item SHALL draw its texts and glyphs in the platform's text color, a link's name in the platform's link color; SHALL draw the bar with its indicator in the platform's highlight color on a track edged in the text color; SHALL draw a tile's box and a row's picture box with an edge in the text color, since their ground is gone; SHALL draw each action of a tile on the platform's surface color with an edge in the text color; SHALL draw disabled actions in the platform's disabled text color; SHALL leave a picture as it is; and SHALL rely on no color of its own to tell a failed file from another: its words and its mark's shape do.",
+      "verify": "On the web, with forced colors emulated: the bar's indicator is Highlight; a tile's box has a CanvasText edge."
+    },
+    {
+      "id": "FIT-26",
+      "text": "WHERE the layout direction is right-to-left THE file item SHALL mirror its layout: a row's glyph or picture at the right, its texts after it toward the left, the mark of a new context and the actions at the left with remove outermost; a tile's actions at the top left corner of its box with remove outermost; the status mark at the right of its words; and the bar filling — and its indeterminate segment moving — from right to left. A picture SHALL never be mirrored, and a ripple SHALL still grow from the point of contact."
+    },
+    {
+      "id": "FIT-27",
+      "text": "THE file item SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the file item is shown THE file item SHALL draw itself for the new direction at once, without a motion of its own, keeping its focus."
+    },
+    {
+      "id": "FIT-28",
+      "text": "THE file item SHALL lay out each text it draws — the name, the format, the size, the status and the error — as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a file name in Latin letters keeps its order, its dot and its extension in a right-to-left row, and the cut of FIT-9 keeps the name's own ending wherever that is drawn. WHERE the layout direction is right-to-left a glyph SHALL be mirrored exactly when the system's icon set marks its name as mirrored or the product forces it, by the icon helper and inside its own box; THE file item SHALL mirror no glyph itself.",
+      "verify": "With the Material Symbols set, of the glyphs FIT-4, FIT-5, FIT-11 and FIT-13 name only draft (the kind other) and open_in_new are mirrored."
+    },
+    {
+      "id": "FIT-29",
+      "text": "WHEN form, status, fit or target names a value the file item does not know THE file item SHALL behave as row, pending, cover and same; IF width or height is given and is not a number above zero THE file item SHALL behave as if it were null; IF glyph names a glyph the icon set does not have THE file item SHALL draw nothing in its box and keep the box; and in each case debug builds SHALL report it. IF preview is true WHILE previewSrc is empty and the product gave no file THE file item SHALL draw the glyph and report nothing: a product may give the file later."
+    },
+    {
+      "id": "FIT-30",
+      "text": "WHEN a prop changes while the file item is shown THE file item SHALL draw and expose the new value at once, keeping its focus, and SHALL announce nothing (FIT-19). WHEN the retry action leaves — status is no longer error, retryable or readOnly changed — while focus is on it THE file item SHALL move focus to its remove action, or to its body WHERE that is pressable and no remove action is drawn. THE file item SHALL NOT move focus otherwise, and where focus goes when a file item itself is taken away is its holder's to say."
+    },
+    {
+      "id": "FIT-31",
+      "text": "WHILE the system's icon set cannot yet draw a glyph (its font is still loading) THE file item SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can; removeLabel and retryLabel SHALL still reach assistive technology."
+    },
+    {
+      "id": "FIT-32",
+      "text": "IF the file item holds a child that is not the glyph of its icon slot THE file item SHALL NOT draw it and in debug builds report it: the file item has no place for content of the product's — a menu of further actions, a caption, a checkbox — and a product that needs one puts it beside the file item, in its own layout or in the trailing place of a List's row. A platform that cannot inspect its content SHALL state the rule in its README and docs page."
+    },
+    {
+      "id": "FIT-33",
+      "text": "THE file item SHALL NOT upload and SHALL NOT know more of a file than its props say: it SHALL send no file or part of one to anyone, SHALL keep no file beyond the handle the product gave it for FIT-6, SHALL set neither status nor progress itself, SHALL take name and mediaType, WHERE the product left them empty and gave the file itself, from what the platform reports of that file without opening it, and nothing else from it, and SHALL load nothing about a destination. This holds on every platform.",
+      "verify": "On the web, with the network observed: showing, pressing, removing and retrying a file item makes no request other than the browser's own for `preview-src`, and following `href` is the browser's navigation."
+    }
+  ],
+  "accessibility": {
+    "role": "group",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the body, where the file item is pressable, then to its retry action where it has one, then to its remove action. A file item that is not pressable and is read-only is no stop at all."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "On a pressable body: emits click, for the product to open the file. On an action: asks whoever holds the file item to retry or to remove the file."
+      },
+      {
+        "keys": "Enter",
+        "action": "On a body that is a link: follows it. Space does what it does on any link (FIT-13)."
+      }
+    ],
+    "labeling": "A group named by the file's name — also in a tile that does not draw it — reading the name, the format, the size and the status or the error in words, a progress bar named by the file while it is sent, and its actions: buttons named retryLabel and removeLabel, each described by the file's name. A pressable body is a button, or a link, named by the file's name and described by the second line. Inside a File upload the file item is an item of the upload's list in the group's place (FUP-25).",
+    "minimumTarget": true,
+    "notes": [
+      "The name is the name in every form (FIT-8, FIT-19): hiding it in a strip of pictures hides it from sight alone, and only behind a picture that is drawn. A picture is no text alternative for a name, and the file item asks for no description of the picture: the picture stands for the file, which has a name. A product that shows the picture as content — to be looked at — shows it in an Image preview, whose images have their own alternative text.",
+      "Status is never color alone (WCAG 1.4.1): a done or failed file has words, and its mark has a shape of its own. The glyph before the name says the format and never the status, so that a person learns one place for each.",
+      "A failure is never hidden (WCAG 3.3.1): errorText is drawn in every form, wraps and is never cut, also beneath a tile whose name is hidden.",
+      "A format has no color. Ten colors for ten kinds would be ten meanings a person must learn, would compete with the two status colors on the same line, and would say nothing to a person who does not tell them apart; the glyph's shape and, where the product has them, the format's words carry it.",
+      "The remove and retry actions are named once and described by the file's name, so a person tabbing through a list hears \"Remove, button, brief.pdf\" without the product writing a sentence per file.",
+      "Nothing is announced by a file item (FIT-19). A component that holds file items — a File upload, a chat composer — has one live region for all of them and says what was added, finished and failed there; a product that arranges file items itself does the same with a region of its own.",
+      "A cut name (FIT-9) is cut for sight alone and keeps its ending. The whole name is the accessible name; on the web it is also the body's or the name's `title` only where the product asks for one, because a tooltip is not reachable by touch and is no substitute for the row form, which never cuts.",
+      "A picture that moves (an animated image) is the platform's to hold still or not (FIT-23). On the web an image element plays it; a product whose strip must not move gives a still `previewSrc`.",
+      "Without script, and until the component is defined, on the web: nothing is drawn, because the name is an attribute. A page that must list files where script does not run writes its own links to them, as it would without Tanrei.",
+      "Compose and React Native: the group is a node with the name as its content description (Compose) or a labelled container (React Native), and the actions keep their own nodes."
+    ]
+  },
+  "tokens": "comp.file-item",
+  "fixtures": [
+    {
+      "id": "row",
+      "props": {
+        "value": "a",
+        "name": "brief.pdf",
+        "sizeText": "820 KB",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-format",
+      "props": {
+        "value": "a",
+        "name": "brief.pdf",
+        "formatText": "PDF",
+        "sizeText": "820 KB",
+        "status": "pending",
+        "statusText": "Waiting",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-uploading",
+      "props": {
+        "value": "b",
+        "name": "floor-plan.png",
+        "sizeText": "3.4 MB",
+        "status": "uploading",
+        "statusText": "Uploading",
+        "progress": 0.4,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-uploading-indeterminate",
+      "props": {
+        "value": "c",
+        "name": "survey.pdf",
+        "sizeText": "1.1 MB",
+        "status": "uploading",
+        "statusText": "Uploading",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-done",
+      "props": {
+        "value": "d",
+        "name": "contract.pdf",
+        "sizeText": "2.0 MB",
+        "status": "done",
+        "statusText": "Uploaded",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-error-retryable",
+      "props": {
+        "value": "e",
+        "name": "site-photo.png",
+        "sizeText": "6.8 MB",
+        "status": "error",
+        "errorText": "The connection was lost.",
+        "retryable": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-error",
+      "props": {
+        "value": "f",
+        "name": "scan-archive.pdf",
+        "sizeText": "48 MB",
+        "status": "error",
+        "errorText": "Larger than 10 MB.",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-image",
+      "props": {
+        "value": "image",
+        "name": "floor-plan.png",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-video",
+      "props": {
+        "value": "video",
+        "name": "walkthrough.mp4",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-audio",
+      "props": {
+        "value": "audio",
+        "name": "interview.m4a",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-pdf",
+      "props": {
+        "value": "pdf",
+        "name": "brief.pdf",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-spreadsheet",
+      "props": {
+        "value": "spreadsheet",
+        "name": "budget.xlsx",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-presentation",
+      "props": {
+        "value": "presentation",
+        "name": "kickoff.pptx",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-archive",
+      "props": {
+        "value": "archive",
+        "name": "site-photos.zip",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-code",
+      "props": {
+        "value": "code",
+        "name": "config.json",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-document",
+      "props": {
+        "value": "document",
+        "name": "minutes.docx",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "kind-other",
+      "props": {
+        "value": "other",
+        "name": "README",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-media-type",
+      "props": {
+        "value": "a",
+        "name": "export",
+        "mediaType": "text/csv",
+        "sizeText": "12 KB",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-glyph",
+      "props": {
+        "value": "a",
+        "name": "keys.pem",
+        "glyph": "key",
+        "sizeText": "2 KB",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-icon-slot",
+      "props": {
+        "value": "a",
+        "name": "model.glb",
+        "sizeText": "14 MB",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      },
+      "slots": {
+        "icon": "deployed_code"
+      }
+    },
+    {
+      "id": "row-preview",
+      "props": {
+        "value": "b",
+        "name": "floor-plan.png",
+        "sizeText": "3.4 MB",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-preview-glyph",
+      "props": {
+        "value": "a",
+        "name": "brief.pdf",
+        "sizeText": "820 KB",
+        "preview": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-interactive",
+      "props": {
+        "value": "b",
+        "name": "floor-plan.png",
+        "sizeText": "3.4 MB",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "interactive": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-link",
+      "props": {
+        "value": "d",
+        "name": "contract.pdf",
+        "formatText": "PDF",
+        "sizeText": "2.0 MB",
+        "href": "/files/contract.pdf",
+        "readOnly": true
+      }
+    },
+    {
+      "id": "row-link-new",
+      "props": {
+        "value": "d",
+        "name": "contract.pdf",
+        "sizeText": "2.0 MB",
+        "href": "/files/contract.pdf",
+        "target": "new",
+        "targetLabel": "opens in a new tab",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-disabled",
+      "props": {
+        "value": "e",
+        "name": "site-photo.png",
+        "sizeText": "6.8 MB",
+        "status": "error",
+        "errorText": "The connection was lost.",
+        "retryable": true,
+        "disabled": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-read-only",
+      "props": {
+        "value": "d",
+        "name": "contract.pdf",
+        "sizeText": "2.0 MB",
+        "status": "done",
+        "statusText": "Uploaded",
+        "readOnly": true
+      }
+    },
+    {
+      "id": "row-without-words",
+      "props": {
+        "value": "e",
+        "name": "site-photo.png",
+        "status": "error",
+        "retryable": true
+      }
+    },
+    {
+      "id": "row-long-text",
+      "props": {
+        "value": "a",
+        "name": "municipal-planning-application-supporting-statement-revision-14-final-signed-by-all-parties.pdf",
+        "formatText": "PDF",
+        "sizeText": "9.6 MB",
+        "status": "error",
+        "errorText": "This file is larger than 10 MB. Export it at a lower quality and choose it again.",
+        "retryable": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "row-rtl",
+      "props": {
+        "value": "b",
+        "name": "floor-plan.png",
+        "sizeText": "3.4 MB",
+        "status": "uploading",
+        "statusText": "Uploading",
+        "progress": 0.4,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "row-rtl-error",
+      "props": {
+        "value": "e",
+        "name": "site-photo.png",
+        "sizeText": "6.8 MB",
+        "status": "error",
+        "errorText": "The connection was lost.",
+        "retryable": true,
+        "href": "/files/site-photo.png",
+        "target": "new",
+        "targetLabel": "opens in a new tab",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "tile",
+      "props": {
+        "form": "tile",
+        "value": "a",
+        "name": "brief.pdf",
+        "sizeText": "820 KB",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-preview",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "floor-plan.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-preview-pending",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "floor-plan.png",
+        "preview": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-size-cover",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "floor-plan.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "width": 160,
+        "height": 90,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-size-contain",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "floor-plan.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "fit": "contain",
+        "width": 160,
+        "height": 90,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-name-hidden",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "floor-plan.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "nameHidden": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-name-hidden-glyph",
+      "props": {
+        "form": "tile",
+        "value": "a",
+        "name": "brief.pdf",
+        "nameHidden": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-uploading",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "floor-plan.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "status": "uploading",
+        "statusText": "Uploading",
+        "progress": 0.4,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-done",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "floor-plan.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "status": "done",
+        "statusText": "Uploaded",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-error-retryable",
+      "props": {
+        "form": "tile",
+        "value": "e",
+        "name": "site-photo.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "nameHidden": true,
+        "status": "error",
+        "errorText": "The connection was lost.",
+        "retryable": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-interactive",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "floor-plan.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "interactive": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-disabled",
+      "props": {
+        "form": "tile",
+        "value": "e",
+        "name": "site-photo.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "status": "error",
+        "errorText": "The connection was lost.",
+        "retryable": true,
+        "disabled": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-read-only",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "floor-plan.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "href": "/files/floor-plan.png",
+        "readOnly": true
+      }
+    },
+    {
+      "id": "tile-long-name",
+      "props": {
+        "form": "tile",
+        "value": "b",
+        "name": "IMG_20260914_103322_HDR_edited_copy_2.jpeg",
+        "sizeText": "12.4 MB",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      }
+    },
+    {
+      "id": "tile-rtl",
+      "props": {
+        "form": "tile",
+        "value": "e",
+        "name": "site-photo.png",
+        "preview": true,
+        "previewSrc": "fixtures/avatar.png",
+        "status": "error",
+        "errorText": "The connection was lost.",
+        "retryable": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      },
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-file-item",
+      "props": {
+        "form": "form",
+        "value": "value",
+        "name": "name",
+        "mediaType": "mediaType",
+        "glyph": "glyph",
+        "formatText": "formatText",
+        "sizeText": "sizeText",
+        "status": "status",
+        "statusText": "statusText",
+        "progress": "progress",
+        "errorText": "errorText",
+        "retryable": "retryable",
+        "preview": "preview",
+        "previewSrc": "previewSrc",
+        "fit": "fit",
+        "nameHidden": "nameHidden",
+        "width": "width",
+        "height": "height",
+        "interactive": "interactive",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "removeLabel": "removeLabel",
+        "retryLabel": "retryLabel",
+        "disabled": "disabled",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "click": "click",
+        "remove": "remove",
+        "retry": "retry"
+      },
+      "notes": "The shadow-root form: a part with states and actions of its own. Class `TanreiFileItem`; React `FileItem`. `<tanrei-file-item name=\"brief.pdf\" size-text=\"820 KB\" remove-label=\"Remove\"></tanrei-file-item>`; a tile: `<tanrei-file-item form=\"tile\" preview width=\"160\" height=\"90\" name=\"floor-plan.png\"></tanrei-file-item>`. Attributes `media-type`, `format-text`, `size-text`, `status-text`, `error-text`, `preview-src`, `name-hidden`, `target-label`, `remove-label`, `retry-label`, `readonly`; `progress` absent for null; `width` and `height` are numbers of CSS pixels, as an image's, and are the box of the tile alone. **The file**: the property `file` (a `File` or null, never an attribute) is the platform's handle. With `preview` and an image kind and no `preview-src`, the element creates one object URL for it when it first comes near the viewport (an `IntersectionObserver`), gives it to its own `<img part=\"preview\" alt=\"\" decoding=\"async\">` and to nothing else, and revokes it in `disconnectedCallback`, when `file` is set again and when `preview`, `preview-src` or the kind stops asking for it (FIT-7); reconnected, it makes a new one when it is next in view. `name` and `media-type` left empty are read from `file.name` and `file.type` (FIT-33). `file` is also what a File upload submits for the item (FUP-31). **The body** is `<div part=\"container\">`, or `<button part=\"container\">` with `interactive`, or `<a part=\"container\" href>` with `href` (the shared link primitive; web-only `rel` and `download` are forwarded to the anchor, and `download` is how a link saves the file in place of opening it); the two actions are native buttons beside it in the shadow root, with `aria-label` and `aria-description`, never inside it. In a tile the actions are placed over the box and come after the body in the DOM, so the order of focus is the order read. `click`, `remove` and `retry` are CustomEvents that bubble and are composed, with `detail.value`; `click` is cancelable for a link. The host has `role=\"group\"` and `aria-label` from `name`; a File upload that holds it sets `role=\"listitem\"` on it through an internal channel that is not part of its public surface (FIT-19). The cut of a tile's name (FIT-9) is two spans — the start, which shrinks with an ellipsis, and the ending, which does not — inside one `<bdi>`. Parts: `container`, `media`, `icon`, `preview`, `headline`, `supporting-text`, `status-icon`, `progress`, `action`. The bar is `<tanrei-progress-indicator>` (the small linear one), drawn from this component's own bar tokens. No form participation: a file item submits nothing; what holds it does."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiFileItem",
+      "props": {
+        "form": "form",
+        "value": "id",
+        "name": "name",
+        "mediaType": "mediaType",
+        "glyph": "glyph",
+        "formatText": "formatText",
+        "sizeText": "sizeText",
+        "status": "status",
+        "statusText": "statusText",
+        "progress": "progress",
+        "errorText": "errorText",
+        "retryable": "isRetryable",
+        "preview": "showsPreview",
+        "previewSrc": "previewURL",
+        "fit": "contentMode",
+        "nameHidden": "isNameHidden",
+        "width": "width",
+        "height": "height",
+        "interactive": "action",
+        "href": "destination",
+        "target": "opens",
+        "targetLabel": "targetLabel",
+        "removeLabel": "removeLabel",
+        "retryLabel": "retryLabel",
+        "disabled": "disabled",
+        "readOnly": "isReadOnly"
+      },
+      "events": {
+        "click": "action",
+        "remove": "onRemove",
+        "retry": "onRetry"
+      },
+      "notes": "`TanreiFileItem(name: \"brief.pdf\", sizeText: \"820 KB\", onRemove: { })`; a tile: `TanreiFileItem(name:, form: .tile, width: 160, height: 90, showsPreview: true, file: url)`. `interactive` is whether `action` is given (a nil action is not pressable); `destination` makes it a `Link`. The file is a `URL`: the picture is `QLThumbnailGenerator`'s thumbnail for the box's size at the display's scale, asked for when the view appears and cancelled when it disappears (FIT-7); `previewURL` goes through `AsyncImage`. `contentMode` is `.fill` for cover and `.fit` for contain. `disabled` follows `.disabled(_:)`. The middle cut is `.truncationMode(.middle)`, which keeps the ending."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiFileItem",
+      "props": {
+        "form": "form",
+        "value": "key",
+        "name": "name",
+        "mediaType": "mediaType",
+        "glyph": "glyph",
+        "formatText": "formatText",
+        "sizeText": "sizeText",
+        "status": "status",
+        "statusText": "statusText",
+        "progress": "progress",
+        "errorText": "errorText",
+        "retryable": "retryable",
+        "preview": "showPreview",
+        "previewSrc": "previewModel",
+        "fit": "contentScale",
+        "nameHidden": "nameHidden",
+        "width": "width",
+        "height": "height",
+        "interactive": "onClick",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "removeLabel": "removeContentDescription",
+        "retryLabel": "retryContentDescription",
+        "disabled": "enabled",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "click": "onClick",
+        "remove": "onRemove",
+        "retry": "onRetry"
+      },
+      "notes": "`TanreiFileItem(name = \"brief.pdf\", sizeText = \"820 KB\", onRemove = { })`. `interactive` is whether `onClick` is given; `disabled` is the inverse flag `enabled`. The file is a content `Uri`: the picture is `ContentResolver.loadThumbnail(uri, size, signal)` for the box's size, started in a `LaunchedEffect` keyed by the `Uri` and cancelled when the item leaves composition (FIT-7); `previewModel` is whatever the product's image loader takes, drawn through a `painter` slot so that the package depends on no loader. `contentScale` is `Crop` for cover and `Fit` for contain. The middle cut is `TextOverflow.MiddleEllipsis`. A link has no link role: Compose has none for a clickable element."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiFileItem",
+      "props": {
+        "form": "form",
+        "value": "key",
+        "name": "name",
+        "mediaType": "mediaType",
+        "glyph": "glyph",
+        "formatText": "formatText",
+        "sizeText": "sizeText",
+        "status": "status",
+        "statusText": "statusText",
+        "progress": "progress",
+        "errorText": "errorText",
+        "retryable": "retryable",
+        "preview": "showPreview",
+        "previewSrc": "previewImage",
+        "fit": "fit",
+        "nameHidden": "nameHidden",
+        "width": "width",
+        "height": "height",
+        "interactive": "onPressed",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "removeLabel": "removeSemanticLabel",
+        "retryLabel": "retrySemanticLabel",
+        "disabled": "enabled",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "click": "onPressed",
+        "remove": "onRemove",
+        "retry": "onRetry"
+      },
+      "notes": "`TanreiFileItem(name: 'brief.pdf', sizeText: '820 KB', onRemove: () {})`. `interactive` is whether `onPressed` is given; `disabled` is the inverse flag `enabled`. The framework has no thumbnail of a file by its handle: `previewImage` is an `ImageProvider` the product gives (a `FileImage` with `ResizeImage` for a local picture, a `NetworkImage` for one its server made), and the file item makes none itself — FIT-7's address is the product's on this platform, and the README says so. `fit` is `BoxFit.cover` or `BoxFit.contain`. The middle cut is drawn by measuring with a `TextPainter`. A link opens through the opener the app provides."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "FileItem",
+      "props": {
+        "form": "form",
+        "value": "value",
+        "name": "name",
+        "mediaType": "mediaType",
+        "glyph": "glyph",
+        "formatText": "formatText",
+        "sizeText": "sizeText",
+        "status": "status",
+        "statusText": "statusText",
+        "progress": "progress",
+        "errorText": "errorText",
+        "retryable": "retryable",
+        "preview": "preview",
+        "previewSrc": "previewSource",
+        "fit": "resizeMode",
+        "nameHidden": "nameHidden",
+        "width": "width",
+        "height": "height",
+        "interactive": "onPress",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "removeLabel": "removeAccessibilityLabel",
+        "retryLabel": "retryAccessibilityLabel",
+        "disabled": "disabled",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "click": "onPress",
+        "remove": "onRemove",
+        "retry": "onRetry"
+      },
+      "notes": "`<FileItem name=\"brief.pdf\" sizeText=\"820 KB\" onRemove={…} />`. `interactive` is whether `onPress` is given. `previewSource` is an `Image` source (`{ uri }`): for a picked file the product passes the picker's `uri`, which the platform's image view draws scaled down without the file item reading it; no address is made (FIT-7). `resizeMode` is `cover` or `contain`. The middle cut is `ellipsizeMode=\"middle\"`. A link opens through `Linking`."
+    }
+  }
+}

@@ -1,0 +1,46 @@
+---
+title: Diseño de página
+description: Las clases de tamaño de ventana, la escala de espaciado y cómo se adaptan los diseños entre ellas.
+translationOf: foundations/layout.mdx
+sourceHash: 09fafa0c5b9676b6ae66b331939c23d13a8cb7d9
+---
+
+import DimensionScale from '../../../../components/tokens/DimensionScale.astro';
+
+## Clases de tamaño de ventana
+
+Tanrei describe la anchura disponible con cinco clases. Se refieren a la ventana o al contenedor en el que vive un diseño, no a un tipo de dispositivo: una tableta en vista dividida es compacta, y un teléfono desplegado no lo es.
+
+| Clase | Anchura | Diseño habitual |
+| --- | --- | --- |
+| Compacta | menos de 600 | Una columna. La navegación va en una barra en la parte inferior o detrás de un menú. |
+| Media | 600–839 | Una columna con márgenes más amplios, o dos si el contenido lo permite. Se hace posible un panel de navegación contraído (una columna de iconos). |
+| Expandida | 840–1199 | Dos paneles, como lista y detalle. Navegación persistente. |
+| Grande | 1200–1599 | Dos o tres paneles. Es la longitud de línea, no la ventana, lo que limita la anchura del texto. |
+| Extragrande | 1600 o más | Como la grande, con márgenes generosos; no estires el contenido para llenar el espacio. |
+
+Las anchuras se expresan en unidades independientes de la densidad: píxeles CSS en la web, puntos en las plataformas de Apple, dp en Android y píxeles lógicos en Flutter.
+
+## Adaptación entre clases
+
+Cuando un diseño cruza un límite, cámbialo de alguna de estas pocas maneras predecibles:
+
+- **Revelar** un panel que estaba detrás de un toque, como una vista de detalle junto a su lista.
+- **Dividir** una columna en dos.
+- **Redimensionar** los paneles y los márgenes de forma proporcional.
+- **Recolocar** un elemento; por ejemplo, una barra de navegación inferior que pasa a ser un panel de navegación contraído en un lateral.
+- **Sustituir** un componente por su equivalente para pantallas más grandes, como una hoja inferior que se convierte en una hoja lateral.
+
+Tres disposiciones cubren la mayoría de las pantallas: un **feed** de tarjetas en una cuadrícula adaptable, **lista y detalle**, y contenido con un **panel de apoyo**.
+
+## Espaciado
+
+Los tokens de espaciado son múltiplos y fracciones de una base de 8 unidades. El número que aparece en el nombre de un token es un porcentaje de esa base, de modo que `space100` es 8, `space50` es 4 y `space200` es 16.
+
+<DimensionScale group="space" source="tokens/sys/space.tokens.json" />
+
+Usa los pasos pequeños dentro de los componentes, la parte media de la escala entre componentes y los pasos grandes entre secciones. El espaciado entre objetivos táctiles nunca es inferior a `space100`.
+
+## Anchura del texto
+
+Mantén el texto corrido entre unos 45 y 80 caracteres por línea. En las ventanas grandes y extragrandes, limita la columna de texto y deja que los márgenes o un panel de apoyo absorban el resto.

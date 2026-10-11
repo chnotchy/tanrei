@@ -1,0 +1,132 @@
+---
+title: نظام التصميم الخاص بك
+description: احتفظ بملف طبقة واحد في منتجك. أمر واحد يكتب الرموز والشيفرة لكل منصة تصدر عليها، في طلب سحب واحد.
+translationOf: getting-started/your-design-system.mdx
+sourceHash: ca7d8543d03438d79076685ff1ecb02f31b87cfb
+---
+
+import Steps from '../../../../components/Steps.astro';
+import Callout from '../../../../components/Callout.astro';
+
+لا تتغير مكوّنات Tanrei أبدًا حين يتغير مظهر منتجك. الذي يتغير هو **الطبقة**: ملف JSON صغير يعيّن قيمًا من المفردات المشتركة ويعلن لوحات ألوانك. وتحوّل الأداة `@tanrei/cli` هذا الملف الواحد إلى كل ما تحتاج إليه كل منصة.
+
+<Callout type="caution" title="قبل الإصدار الأول">
+  الحزمتان `@tanrei/cli` و `@tanrei/mcp` ليستا على npm بعد. وإلى أن تكونا عليه، ابنهما من الشيفرة المصدرية وثبِّت الملفين المحزومين في منتجك اعتماديتَي تطوير (development dependencies)؛ فيشغّل كل أمر `npx tanrei …` في هذه الصفحة النسخة المثبَّتة.
+
+  ```sh
+  git clone https://github.com/chnotchy/tanrei.git
+  cd tanrei
+  pnpm install
+  pnpm --filter @tanrei/studio build:app   # Theme Studio، الذي يقدّمه الأمر `tanrei studio`
+  pnpm --filter @tanrei/cli --filter @tanrei/mcp build
+  pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
+  ```
+
+  ```sh
+  # في منتجك: المسار إلى المجلد الذي كُتبت فيه الحزم
+  npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
+  ```
+
+  ولخادم MCP، سجِّل النسخة المثبَّتة: `claude mcp add tanrei -- npx tanrei-mcp`، وشغِّله في مجلد منتجك.
+</Callout>
+
+<Steps>
+
+1. **ابدأ طبقة**، من النظام الافتراضي أو من إعداد جاهز.
+
+   ```bash
+   npx tanrei init acme --extends tanrei
+   ```
+
+   يكتب هذا الأمر الملفين `design/acme.system.json` و `tanrei.json`. تفضّل أشرطة التمرير؟ شكِّل الطبقة في [Theme Studio](/ar/foundations/theme-studio/) ثم نزِّلها.
+
+2. **حدِّد وجهة كل مُخرَج** في `tanrei.json`. اذكر ما تصدره فقط.
+
+   ```json
+   {
+     "system": "design/acme.system.json",
+     "kotlinPackage": "com.acme.design",
+     "outputs": {
+       "tokens": "design/tokens/acme",
+       "web": "apps/web/src/styles",
+       "swiftui": "apps/ios/Acme/Design",
+       "compose": "apps/android/app/src/main/kotlin/com/acme/design",
+       "flutter": "apps/flutter/lib/design",
+       "react-native": "apps/mobile/src/design"
+     }
+   }
+   ```
+
+3. **ابنِ.**
+
+   ```bash
+   npx tanrei build
+   ```
+
+   أودِع النتيجة في المستودع. وأضف `npx tanrei build --check` إلى CI: لا يكتب هذا الأمر شيئًا، ويفشل إذا كان أحد المخرجات المودَعة قديمًا.
+
+4. **استخدمه.** تحتوي الملفات المولَّدة على **قيم** نظامك؛ أما الأنواع فتأتي من المكتبة، ولذلك فإن أي تغيير في المفردات يكسر البناء بدل أن ينحرف بصمت.
+
+   | المنصة | ما تحصل عليه | ما تكتبه |
+   |---|---|---|
+   | Web | `acme.css` | `<html data-tanrei-system="acme">` |
+   | SwiftUI | `TanreiSystem+Acme.swift` | `.tanreiTheme(TanreiTheme(system: .acme))` |
+   | Compose | `TanreiSystemAcme.kt` | `TanreiTheme(system = TanreiSystem.Acme) { … }` |
+   | Flutter | `acme_system.g.dart` | `TanreiTheme(data: TanreiThemeData.platform(context, system: acmeSystem), …)` |
+   | React Native | `acme.ts` | `<TanreiProvider system={acme}>` |
+
+</Steps>
+
+## تغيير واحد، طلب سحب واحد
+
+عدِّل قيمة في الطبقة وشغِّل `tanrei build`، فيتغير ملف كل منصة في الإيداع نفسه. تكبير النص كله قليلًا سطر واحد:
+
+```json
+"tanrei.dial.type.base": { "$value": { "value": 17, "unit": "px" }, "reason": "يُقرأ على بُعد ذراع." }
+```
+
+انظر [أنظمة التصميم والتخصيص](/ar/foundations/design-systems/) لمعرفة الأمور الأربعة التي تستطيع الطبقة أن تفعلها بقيمة ما (ضبط قرص، أو تكبير رمز أو تصغيره بنسبة، أو إعادة توجيه اسم بديل، أو تثبيت قيمة مع ذكر السبب)، ولإعلان لوحات ألوان مثل لون العلامة التجارية أو لونَي «صحيح» و«خاطئ» في اختبار، و[لإضافة رموز](/ar/foundations/design-systems/#الإضافة-إلى-المفردات) حين لا تكفي القيم.
+
+## من التحكم ما تشاء، والملف هو نفسه دائمًا
+
+التخصيص درجات، وكل درجة تعدّل الملف الواحد `<id>.system.json`:
+
+| ما تريده | ما تستخدمه |
+|---|---|
+| إعداد سريع | **Theme Studio → Essentials**: نظام أساس، ولون علامتك التجارية، وأربعة أشرطة تمرير (حجم النص، والتباعد، والاستدارة، وتباين العناوين) |
+| ضبط المجموعات | **Studio → Groups**: الأقراص السبعة كلها، ولوحات الألوان، وملخّص لكل مكوّن |
+| تعديل رمز واحد في كل مرة، في واجهة رسومية | **Studio → Every token**: ابحث في المفردات كلها؛ يعرض كل رمز التعديلات المسموح بها له فقط، ويبيّن ما يتبعه |
+| تحرير المصدر | **Studio → Source**، أو محرّرك: ملف JSON، يُتحقَّق منه وفق المخطط (schema) وبالمحرّك |
+| رمز غير موجود | [أضفه](/ar/foundations/design-systems/#الإضافة-إلى-المفردات): درجة في سلسلة، أو حجم أو طراز (variant) للمكوّن Button في سطر واحد، أو رموز خاصة بك |
+
+```bash
+npx tanrei studio
+```
+
+يفتح هذا الأمر Theme Studio **على ملف طبقتك**: تُحفظ التعديلات فيه فور إجرائها (راجعها بـ git كأي تغيير)، ولا يُكتب أبدًا فوق تعديل أجريته في محرّرك في الوقت نفسه، والزر «Build» يشغّل `tanrei build`. يستمع الخادم على `127.0.0.1` فقط، ويحمل الرابط المطبوع مفتاحًا يُستخدم مرة واحدة. و Studio الموجود في هذا الموقع هو الأداة نفسها، بالاستيراد والتصدير بدل الملف.
+
+## مع Tailwind CSS و shadcn/ui
+
+أضف `"tailwind"` أو `"shadcn"` إلى `outputs`. كلا الملفين **يربط أسماء** بخصائص Tanrei المخصصة لا غير، فتظل السمات ومستويات التباين والأقراص الحيّة تعمل من تحتها.
+
+```css
+@import "tailwindcss";
+@import "@tanrei/web/tokens.css";
+@import "./styles/acme.css";
+@import "./styles/acme.tailwind.css"; /* bg-primary · text-on-primary · rounded-medium · p-200 · text-heading-4 */
+```
+
+## مشاركة النظام: مع الناس والأدوات ووكلاء الذكاء الاصطناعي
+
+- المُخرَج `tokens` حزمة **DTCG 2025.10** مكتفية بذاتها مع محلِّل (resolver) قياسي. تستطيع أي أداة لرموز التصميم قراءتها؛ وملفات الطبقات التي أنتجتها محمولة بداخلها، وتحمل كل مجموعة إرشادات استخدام للوكلاء في `$extensions["dev.tanrei.llm"]`.
+- الحزمة `@tanrei/mcp` خادم [Model Context Protocol](https://modelcontextprotocol.io). يستطيع وكيل يعمل في مستودعك أن يبحث في المفردات، وأن يرى مصدر قيمة ما، وأن يقارن بين الأنظمة، وأن **يقترح امتدادًا** (حجمًا جديدًا للمكوّن Button، أو درجة، أو رمزًا خاصًّا بك) مع القيم الناتجة عنه، وأن **يتحقق من تعديل على الطبقة قبل أن يكتبه**. ويُبلَّغ الوكيل بالقواعد: غيِّر القيم عبر طبقة، ووسِّع المفردات بالإضافة فقط ومع مسوِّغ، واذكر سببًا لكل قيمة مثبَّتة، ولا تمسّ عتبة أبدًا.
+
+  بعد الإصدار الأول سجِّله من npm (وإلى ذلك الحين، انظر «قبل الإصدار الأول» في أعلى هذه الصفحة):
+
+  ```bash
+  claude mcp add tanrei -- npx -y @tanrei/mcp
+  ```
+
+<Callout type="caution" title="إمكانية الوصول">
+  عتبات التباين والفحوص البنيوية ثوابت. في طبقتك تكون المخالفة تحذيرًا، ولا تمرّ بصمت أبدًا: يطبعها `tanrei build`، وتُكتب في `a11y-report.json`، وتُختم في ترويسة كل ملف مولَّد. عند التباين المتوسط والعالي اجعل هدفك صفرًا: فهذان المخططان اللونيان موجودان لأن شخصًا طلب التباين. والإعدادات الجاهزة المضمَّنة نفسها يُحكَم عليها بمطابقتها للأنظمة التي تحاكيها، لا بمعايير إمكانية الوصول في Tanrei، في كل مخطط لوني، وقياساتها معلومات. أما الطبقة التي تبنيها فوق إعداد جاهز فتبقى منتجك، وتُحذَّر مما ترثه أيضًا.
+</Callout>

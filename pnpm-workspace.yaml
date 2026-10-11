@@ -1,0 +1,19 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+# Dependency install scripts are opt-in. esbuild's only verifies its platform binary.
+allowBuilds:
+  esbuild: true
+  lefthook: false # its postinstall would only run `lefthook install`; the root "prepare" script does that
+  rs-module-lexer: false
+  workerd: false # wrangler's local runtime; `pages deploy` of a static site never starts it
+minimumReleaseAgeExclude:
+  - '@turbo/darwin-64@2.11.2'
+  - '@turbo/darwin-arm64@2.11.2'
+  - '@turbo/linux-64@2.11.2'
+  - '@turbo/linux-arm64@2.11.2'
+  - '@turbo/windows-64@2.11.2'
+  - '@turbo/windows-arm64@2.11.2'
+  - turbo@2.11.2
+patchedDependencies:
+  '@terrazzo/parser@2.7.1': patches/@terrazzo__parser@2.7.1.patch

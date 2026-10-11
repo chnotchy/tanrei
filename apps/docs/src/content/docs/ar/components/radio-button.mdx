@@ -1,0 +1,205 @@
+---
+title: زر الاختيار
+description: يتيح للأشخاص اختيار خيار واحد بالضبط من مجموعة صغيرة معروضة كلها دفعة واحدة.
+translationOf: components/radio-button.mdx
+sourceHash: daa79188285bc262a23e0fbc7f5abe067c3f98c3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="radio-button" />
+
+<DemoFrame label="مجموعة">
+  <div role="radiogroup" aria-label="كم مرة" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="overview-frequency" value="daily" label="يوميًّا"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="weekly" checked label="أسبوعيًّا"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="monthly" label="شهريًّا"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+### الاستخدام
+
+المراجعة التي أعطت زر الاختيار مقاسات Material 3 وحلقة تثخن حتى تصير تعبئة لم تغيّر إلا مظهره وحركته، فكل العيّنات أدناه سارية. يرسمه الويب كما تقول المواصفة. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: إلى أن تلحق، ما زالت ترسم زر الاختيار السابق، وهو حلقة بمقاس 16 بخط رفيع ونقطة بمقاس 8 داخل طبقة حالة بمقاس 28، ولا تحجز في التخطيط ارتفاع الهدف البالغ 48. وهناك تحسين لاحق واحد موجود على الويب وحده حتى الآن: الحلقة والتعبئة تُرسمان شكلًا واحدًا.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- الخيارات التي لها name واحد تكوّن مجموعة. واسم المجموعة يأتي من العنصر المحيط بها. -->
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">كم مرة</span>
+      <tanrei-radio-button name="frequency" value="daily" label="يوميًّا"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="weekly" checked label="أسبوعيًّا"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="monthly" label="شهريًّا"></tanrei-radio-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-button';
+      // الخيار الذي صار محدَّدًا وحده يُصدر change؛ والذي حلّ محله لا يُصدره.
+      document.querySelector('[role="radiogroup"]').addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton } from '@tanrei/react';
+
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">كم مرة</span>
+      {options.map(({ value, label }) => (
+        <RadioButton
+          key={value}
+          name="frequency"
+          value={value}
+          label={label}
+          checked={frequency === value}
+          onChange={(e) => setFrequency(e.detail.value)}
+        />
+      ))}
+    </div>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // selection من النوع Binding<Frequency?>: يكون الخيار محدَّدًا ما دامت تساوي قيمته.
+    TanreiRadioGroup("كم مرة") {
+      TanreiRadioButton("يوميًّا", value: Frequency.daily, selection: $frequency)
+      TanreiRadioButton("أسبوعيًّا", value: Frequency.weekly, selection: $frequency)
+      TanreiRadioButton("شهريًّا", value: Frequency.monthly, selection: $frequency)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.selection.selectableGroup
+    import io.github.chnotchy.tanrei.components.TanreiRadioButton
+
+    // الأب يكوّن المجموعة؛ و onClick لكل خيار يلتقط قيمته.
+    Column(Modifier.selectableGroup()) {
+        for ((value, label) in listOf("daily" to "يوميًّا", "weekly" to "أسبوعيًّا", "monthly" to "شهريًّا")) {
+            TanreiRadioButton(selected = frequency == value, onClick = { frequency = value }, label = label)
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiRadioGroup<Frequency>(
+      groupValue: frequency,
+      onChanged: (Frequency value) => setState(() => frequency = value),
+      semanticLabel: 'كم مرة',
+      child: Column(
+        children: <Widget>[
+          for (final Frequency option in Frequency.values)
+            TanreiRadioButton<Frequency>(value: option, label: option.label),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react-native';
+
+    <RadioGroup accessibilityLabel="كم مرة">
+      {options.map(({ value, label }) => (
+        <RadioButton key={value} value={value} label={label} selected={frequency === value} onSelect={setFrequency} />
+      ))}
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="محدَّد وغير محدَّد ومعطَّل" plain>
+  <div role="radiogroup" aria-label="مفعَّل" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-enabled" value="unselected" label="غير محدَّد"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-enabled" value="selected" checked label="محدَّد"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="معطَّل" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="معطَّل، غير محدَّد"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="معطَّل، محدَّد"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="التسمية مخفيّة">
+    <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="أسبوعيًّا"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+في النظام الافتراضي يأخذ زر الاختيار مقاسات Material 3: حلقة بمقاس 20 بخط عرضه 2، على طبقة حالة دائرية بمقاس 40. الخيار المحدَّد لا يرسم نقطة. تثخن حلقته نحو الداخل حتى نصف نصف القطر، والقرص الباقي في الداخل يُعبَّأ بلون الحلقة بنصف العتامة. وتحتفظ الحلقة بمقاسها الخارجي في الوضعين. والحلقة والتعبئة شكل واحد: لا يظهر بينهما شيء مما خلف زر الاختيار عند أي تكبير أو أي كثافة عرض، ولا في أي إطار من التغيّر. حين يتغير التحديد يثخن الخط أو يرقّ فيما يتغير لون الحلقة وتتدرّج التعبئة في الظهور أو الاختفاء؛ ولا تكبر التعبئة من المركز أبدًا. والتغيّر الذي يأتي قبل انتهاء الحركة يرتدّ من حيث هو، وحيث تكون الحركة مقلَّلة يظهر الوضع الجديد فورًا وكاملًا.
+
+يأخذ كل خيار في التخطيط ارتفاعًا لا يقل عن 48، وهو مقاس الهدف، وطبقة الحالة في وسطه. ولذلك فالخيارات المرصوصة بلا فجوة بينها لا تتشارك مساحة الهدف أبدًا. والمنتج الذي يرصّ خياراته أكثر يخفض `option.min-height` في طبقته هو ويقبل بأن تتداخل الأهداف.
+
+تحت `m3-like` يحتفظ الخيار المحدَّد بحلقة Material وفجوته ونقطته، لكن النقطة تتدرّج في الظهور بدل أن تكبر من المركز. وتحت `cupertino` يحتفظ زر الاختيار بمقاسه الأصغر ويرسم مظهر Apple: قرص فاتح في حلقة رقيقة، وشريط ملوَّن حول مركز فاتح حين يكون محدَّدًا.
+
+<ComponentSpecs name="radio-button" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم أزرار الاختيار حين يكون للسؤال جواب واحد بالضبط وعدد قليل من الخيارات يحسن أن يقارن الأشخاص بينها جنبًا إلى جنب، كسرعة التوصيل أو عدد مرات إرسال الملخّص. كل خيار ظاهر في الوقت نفسه، فالمجموعة تأخذ حيّزًا. وحين تكثر الخيارات أو يضيق الحيّز، استخدم قائمة (list) أو قائمة خيارات لا تعرض إلا الخيار المنتقى.
+
+يجوز أن تبدأ المجموعة وأحد خياراتها محدَّد حين يكون ذلك الخيار جوابًا آمنًا ومرجَّحًا. واترك كل الخيارات غير محدَّدة حين تحتاج إلى أن يجيب الشخص عن قصد. وبعد أن يُحدَّد خيار لا يستطيع الشخص أن يعيد المجموعة إلى حالة اللاتحديد، لأن زر الاختيار لا يُمسح بتفعيله هو أبدًا. فإن كان «لا شيء» جوابًا صالحًا فأضِفه خيارًا.
+
+### خانة اختيار أم زر اختيار أم مفتاح تبديل
+
+| عنصر التحكم | الخيارات | متى يسري | يُستخدم لـ |
+| --- | --- | --- | --- |
+| [خانة الاختيار](/ar/components/checkbox/) | أي عدد من الاختيارات المستقلة، ومنه لا شيء | حين يؤكد الشخص | خيارات في نموذج، الموافقة على الشروط، تحديد الصفوف |
+| زر الاختيار | واحد بالضبط من مجموعة صغيرة كلها معروضة | حين يؤكد الشخص، في الغالب | جواب واحد عن سؤال واحد |
+| [مفتاح التبديل](/ar/components/switch/) | إعداد واحد، مفعَّل أو موقوف | فورًا | الإعدادات التي تُطبَّق فور تغيّرها |
+
+### افعل
+
+- أعطِ كل مجموعة اسمًا: السؤال الذي تجيب عنه خياراتها، معروضًا نصًّا مرئيًّا قبل المجموعة.
+- رُصَّ الخيارات عموديًّا ورتّبها ترتيبًا له معنى للسؤال، من الأصغر إلى الأكبر مثلًا. كل خيار يحجز أصلًا ارتفاع هدفه، فلا يحتاج الرصّ إلى فجوة إضافية.
+- أبقِ التسميات قصيرة ومتوازية في صيغتها، لتسهل المقارنة بينها.
+- أبقِ خيارات المجموعة الواحدة معًا في حاوية واحدة.
+
+### لا تفعل
+
+- لا تستخدم زر اختيار واحدًا وحده. لاختيار واحد جوابه نعم أو لا، استخدم خانة اختيار أو مفتاح تبديل.
+- لا تستخدم أزرار الاختيار لخيارات لا يستبعد بعضها بعضًا. استخدم خانات الاختيار.
+- لا تبدأ إجراء ثقيلًا، كالانتقال إلى مكان آخر، لحظة تحديد خيار. مفاتيح الأسهم تحدّد كل خيار تمرّ به، فمستخدم لوحة المفاتيح سيُطلقه في طريقه إلى الخيار الذي يريده.
+- لا توزّع مجموعة واحدة على أجزاء مختلفة من الشاشة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="radio-button" />
+
+### ما يتكفل به المكوّن
+
+- يعرض كل خيار دور زر الاختيار (radio)، وهل هو محدَّد، وحالة تعطيله، وموضعه في المجموعة مع حجم المجموعة («2 من 3»). ليس في منصات Apple دور radio، فالخيار هناك زر له صفة التحديد (selected trait) وموضعه هو قيمة إمكانية الوصول له. ودلالات Flutter لا تستطيع ذكر الموضع بعد.
+- التسمية هي الاسم المتاح للتقنيات المساعدة، سواء رُسمت أم أُخفيت بالخاصية `labelHidden`. والنص المرسوم مخفيّ عن التقنيات المساعدة، فيُقرأ الاسم مرة واحدة.
+- للمجموعة موضع توقف واحد للمفتاح Tab: الخيار المحدَّد، أو أول خيار مفعَّل ما دام لا شيء محدَّدًا. مفاتيح الأسهم تنتقل إلى الخيار المفعَّل التالي أو السابق وتحدّده، وتلتفّ عند الطرفين؛ ويتبادل مفتاحا السهم لليسار والسهم لليمين في التخطيط من اليمين إلى اليسار.
+- المفتاح Space يحدّد الخيار الذي عليه التركيز. والمفتاح Enter لا يحدّده إلا حيث تفعّل المنصة أي عنصر تحكم عليه التركيز بالمفتاح Enter (Android و tvOS)؛ أما على الويب فالمفتاح Enter يرسل النموذج.
+- تحديد خيار يلغي تحديد الخيارات الأخرى. والخيار الذي صار محدَّدًا وحده يبلّغ عن التغيّر، وتفعيل الخيار المحدَّد لا يفعل شيئًا.
+- النقر أو اللمس على التسمية يحدّد الخيار. التسمية جزء من مساحة اللمس، ومساحة اللمس تستوفي الحد الأدنى للهدف. ويحجز كل خيار ارتفاع الهدف في التخطيط، فتحتفظ الخيارات المرصوصة بأهداف كاملة ومنفصلة.
+- التحديد تحمله الحلقة وحدها: الحلقة المحدَّدة تحافظ على تباين 3:1 مقابل كل سطح في النظام الافتراضي، وثخانتها مرتان ونصف ثخانة غير المحدَّدة. أما التعبئة شبه الشفافة فزينة ولا تُحتسب.
+- يعرض مؤشر التركيز لتركيز لوحة المفاتيح فقط.
+- حيث تكون الحركة مقلَّلة يظهر الوضع الجديد فورًا وكاملًا.
+- التسمية الناقصة يُبلَّغ عنها في بنيات التنقيح (debug).
+
+فجوات معروفة في المنصات:
+
+- ما زالت SwiftUI و Compose و Flutter و React Native ترسم زر الاختيار السابق، بنقطة وبالمقاسات السابقة، ولا ترسم بعد الحلقة والتعبئة شكلًا واحدًا، ولا تحجز ارتفاع الهدف في التخطيط، فالخيارات المرصوصة بلا فجوة تتشارك مساحة الهدف.
+- تحت `m3-like` تتدرّج النقطة المحدَّدة في الظهور بمقاسها الكامل، حيث يكبّرها Material من المركز (فجوة المحاكاة `radio-dot-scale-in`).
+
+### ما عليك فعله
+
+- سمِّ المجموعة بالسؤال الذي تجيب عنه. على الويب، أحِط الخيارات بعنصر له `role="radiogroup"` و `aria-labelledby`، أو بعنصر `<fieldset>` مع `<legend>`. في Flutter عيِّن `semanticLabel` على `TanreiRadioGroup`؛ وفي React Native عيِّن `accessibilityLabel` على `RadioGroup`.
+- كوِّن المجموعة بأسلوب المنصة، لتعمل المفاتيح والموضع: `name` واحد على الويب، و `Modifier.selectableGroup()` على الأب في Compose، و `TanreiRadioGroup` في Flutter، و `RadioGroup` في React Native.
+- إن كان السؤال مطلوبًا وتُرك بلا جواب، فاعرض الرسالة على المجموعة: [مجموعة أزرار الاختيار](/ar/components/radio-group/) التي في حالة الخطأ ترسم نص الخطأ وتضع كل زر اختيار في هيئة الخطأ الخاصة به. وللخيارات المجموعة من دونها عيِّن `error` على كل زر اختيار: تأخذ الحلقة والنقطة لون الخطأ، كما يأخذه صندوق خانة الاختيار. والخيار المعطَّل لا يُظهر لون الخطأ.
+- زر الاختيار الذي في حالة الخطأ لا يُعرض على أنه غير صالح، لأن دوره ليست له هذه الحالة. والمجموعة هي التي تقولها: مجموعة أزرار الاختيار غير صالحة ونص الخطأ يصفها. وحيث تجمع الخيارات بنفسك، قل الخطأ بالكلمات بجانبها.
+- إن أعدت تنسيق الحلقة والتعبئة في طبقتك، فأبقِ الحلقة قوية بما يكفي لتُظهر التحديد وحدها. البناء لا يفحص ذلك.
+- في React Native مرِّر `positionText` إلى `RadioGroup` حين لا يكون المنتج بالإنجليزية. افتراضيًّا يُعلَن الموضع «`2 of 3`».

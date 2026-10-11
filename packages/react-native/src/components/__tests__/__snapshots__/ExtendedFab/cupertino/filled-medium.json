@@ -1,0 +1,99 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Compose",
+    "accessibilityRole": "button",
+    "accessibilityState": {
+      "disabled": false
+    },
+    "accessibilityValue": {},
+    "accessible": true,
+    "collapsable": false,
+    "focusable": true,
+    "hitSlop": {
+      "bottom": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0
+    },
+    "style": {
+      "alignItems": "center",
+      "alignSelf": "flex-start",
+      "backgroundColor": "rgb(8, 122, 255)",
+      "borderCurve": "continuous",
+      "borderRadius": 9999,
+      "boxShadow": [
+        {
+          "blurRadius": 16,
+          "color": "rgba(0, 0, 0, 0.12)",
+          "offsetX": 0,
+          "offsetY": 4,
+          "spreadDistance": 0
+        }
+      ],
+      "flexDirection": "row",
+      "gap": 8,
+      "justifyContent": "center",
+      "minHeight": 48,
+      "opacity": 1,
+      "paddingEnd": 20,
+      "paddingStart": 16,
+      "paddingVertical": 6
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityElementsHidden": true,
+        "accessible": false,
+        "importantForAccessibility": "no-hide-descendants",
+        "style": {
+          "alignItems": "center",
+          "height": 24,
+          "justifyContent": "center",
+          "width": 24
+        }
+      },
+      "children": [
+        {
+          "type": "Text",
+          "props": {
+            "allowFontScaling": false,
+            "collapsable": false,
+            "style": {
+              "color": "rgb(255, 255, 255)",
+              "fontFamily": "Material Symbols Rounded",
+              "fontSize": 24,
+              "fontWeight": "300",
+              "lineHeight": 24,
+              "textAlign": "center"
+            }
+          },
+          "children": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Text",
+      "props": {
+        "allowFontScaling": true,
+        "collapsable": false,
+        "style": {
+          "color": "rgb(255, 255, 255)",
+          "flexShrink": 1,
+          "fontSize": 17,
+          "fontWeight": "400",
+          "letterSpacing": 0,
+          "lineHeight": 22,
+          "textAlign": "center"
+        }
+      },
+      "children": [
+        "Compose"
+      ]
+    }
+  ]
+}

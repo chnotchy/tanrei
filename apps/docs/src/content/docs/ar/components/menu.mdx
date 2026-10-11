@@ -1,0 +1,494 @@
+---
+title: قائمة الخيارات
+description: مجموعة قصيرة من الإجراءات أو الاختيارات على سطح مؤقت يُفتح من العنصر الذي طلبه.
+translationOf: components/menu.mdx
+sourceHash: 740ced78f44526a9b305909b0ad3023504f4cc05
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="menu" />
+
+<DemoFrame label="إجراءات، وعنصر خانة اختيار، ومجموعة أزرار اختيار، وإجراء لا رجعة فيه">
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="نسخ" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+    <tanrei-menu-item label="لصق" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
+    <tanrei-menu-group label="العرض">
+      <tanrei-menu-checkbox-item label="إظهار الشبكة" checked></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="ترتيب حسب" value="name">
+      <tanrei-menu-radio-item label="الاسم" value="name"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="تاريخ التعديل" value="date"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+    <tanrei-menu-item label="حذف" leading-icon="delete" destructive></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="قائمة فرعية: عنصر يفتح مستوى آخر بجانبه" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="ملف جديد" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
+    <tanrei-submenu label="فتح الأخيرة" leading-icon="history" open>
+      <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+      <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      <tanrei-menu-item label="Budget.xlsx"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-submenu label="مشاركة" leading-icon="share">
+      <tanrei-menu-item label="نسخ الرابط" leading-icon="link"></tanrei-menu-item>
+      <tanrei-menu-item label="إرسال بالبريد" leading-icon="mail"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-menu-item label="طباعة" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="قائمة خيارات من الروابط: كل صف يذهب إلى مكان، وواحد منها يفتح تبويبًا جديدًا" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="الزر" href="/ar/components/button/"></tanrei-menu-item>
+    <tanrei-menu-item label="القائمة" href="/ar/components/list/"></tanrei-menu-item>
+    <tanrei-menu-item label="موقع تجريبي" href="https://example.com/" target="new" target-label="يُفتح في تبويب جديد"></tanrei-menu-item>
+    <tanrei-menu-item label="الأرشيف" href="/archive/" disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+### الاستخدام
+
+عنصر الارتكاز هو زرك أنت، أو زر أيقونة أو حقل من عندك. قائمة الخيارات لا ترسمه: تقرأ موضعه، وتضع سطحها بمحاذاته، وتعيد التركيز إليه. أنت تفتح قائمة الخيارات من عنصر الارتكاز وتغلقها حين تطلب هي ذلك.
+
+لقائمة الخيارات خمسة أنواع من العناصر: `item` (إجراء)، و `checkbox-item`، و `radio-item`، و `submenu` (عنصر يفتح مستوى آخر من قائمة الخيارات بجانبه)، و `group` التي تحمل عناصر من الأنواع الأخرى. تأخذها كل منصة بالطريقة التي تأخذ بها أي عناصر فرعية متكررة: عناصر فرعية على الويب، وعروض (views) في view builder على SwiftUI، واستدعاءات في lambda المحتوى على Compose، وعناصر widget في `menuChildren` على Flutter، ومصفوفة `items` من كائنات بسيطة على React Native يُفرَّق بينها بالخاصية `kind`. قيمة `checked` لعنصر خانة الاختيار ملك له. أما أي عناصر أزرار الاختيار هو المحدَّد فملك لمجموعته، بالقيمة.
+
+اختصار لوحة المفاتيح للعنصر هو خاصيته `shortcut`، ويُكتب بأسماء المفاتيح المحايدة التي يستخدمها [اختصار لوحة المفاتيح](/ar/components/keyboard-shortcut/) (`mod+c`). ترسمه قائمة الخيارات في نهاية الصف بمكوّن اختصار لوحة المفاتيح، في الصورة `⌘C` على لوحات مفاتيح Apple و Ctrl+C في غيرها، وتعرضه للتقنيات المساعدة على أنه اختصار لوحة المفاتيح للعنصر. وهي لا تجعل المفاتيح تعمل: منتجك هو الذي يربطها. أما `trailingText` فلكل ما ليس اختصارًا، كعدد أو «تجريبي». الويب يرسم هذا كله، ويرسم المظهر الحالي. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: إلى أن تلحق بالبقية، ليست فيها خاصية `shortcut` وتكتب الاختصار في `trailingText`، كما تفعل عيّناتها أدناه. وليست فيها قوائم فرعية ولا `separation` ولا `markIcon` كذلك، وما زالت ترسم علامة الصح علامةً خاصة بها في مربع بمقاس 16، ولا تعبّئ أي صف محدَّد، وتبدأ عنوان المجموعة حيث تبدأ التسميات.
+
+العنصر الذي له `href` عنصر رابط: هو رابط المنصة نفسه، يُرسم كما يُرسم الإجراء تمامًا ويُنتقل إليه بالمفاتيح نفسها. التفعيل العادي يُصدر الحدث `click` الخاص بالعنصر، ثم يغلق قائمة الخيارات، ثم يفتح الوجهة. والخاصيتان `target` و `targetLabel` هما خاصيتا [الزر](/ar/components/button/). الويب ينفّذ عناصر الروابط؛ أما SwiftUI و Compose و Flutter و React Native فليست فيها بعد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="more" label="المزيد"><span slot="icon">more_vert</span></tanrei-button>
+
+    <!-- anchor هو id العنصر الذي تُفتح منه قائمة الخيارات. -->
+    <tanrei-menu anchor="more">
+      <!-- shortcut بأسماء المفاتيح المحايدة: يُرسم ⌘C أو Ctrl+C بحسب لوحة مفاتيح الشخص. -->
+      <tanrei-menu-item label="نسخ" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+      <!-- عنوان المجموعة هو خاصيتها label، كما في <optgroup label>. -->
+      <tanrei-menu-group label="العرض">
+        <tanrei-menu-checkbox-item label="إظهار الشبكة" checked></tanrei-menu-checkbox-item>
+      </tanrei-menu-group>
+      <!-- mark-icon="check" على مجموعة، أو على عنصر واحد، يميّز العناصر المحدَّدة بعلامة صح بسيطة. -->
+      <tanrei-menu-group label="ترتيب حسب" value="name" mark-icon="check">
+        <tanrei-menu-radio-item label="الاسم" value="name"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="تاريخ التعديل" value="date"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+      <!-- قائمة فرعية: عناصرها الفرعية هي المستوى التالي. تُصدر toggle، ولا تُصدر close أبدًا. -->
+      <tanrei-submenu label="فتح الأخيرة" leading-icon="history">
+        <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+        <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-item label="حذف" leading-icon="delete" destructive></tanrei-menu-item>
+      <!-- مع href يصير العنصر رابطًا: حدث click الخاص به، ثم الإغلاق، ثم يتبعه المتصفح. -->
+      <tanrei-menu-item label="اختصارات لوحة المفاتيح" href="/help/shortcuts/"></tanrei-menu-item>
+      <tanrei-menu-item label="المصدر" href="https://example.com/tanrei" target="new" target-label="يُفتح في تبويب جديد"></tanrei-menu-item>
+    </tanrei-menu>
+
+    <!-- separation="gap" يفصل المجموعات بفراغ في هذه القائمة وقوائمها الفرعية، أيًّا كان اختيار نظام التصميم. -->
+    <tanrei-menu anchor="more" separation="gap">…</tanrei-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/menu';
+      const menu = document.querySelector('tanrei-menu');
+      // الضغط على عنصر الارتكاز شأن عنصر الارتكاز: لا يغلق قائمة الخيارات، فبدّلها هنا.
+      document.querySelector('#more').addEventListener('click', () => (menu.open = !menu.open));
+      // close يحمل سببه: escape أو outside أو tab أو focus-out أو item.
+      menu.addEventListener('close', () => (menu.open = false));
+      // click و change و toggle تصدر على العنصر أو المجموعة وتصعد، فيكفي مستمع واحد على القائمة لالتقاطها كلها.
+      menu.querySelector('[label="نسخ"]').addEventListener('click', copy);
+      menu.querySelector('[label="إظهار الشبكة"]').addEventListener('change', (e) => setGrid(e.detail.checked));
+      menu.querySelector('[label="ترتيب حسب"]').addEventListener('change', (e) => sortBy(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioItem, Submenu } from '@tanrei/react';
+
+    <Button variant="text" id="more" label="المزيد" onClick={() => setOpen(!open)}><span slot="icon">more_vert</span></Button>
+    <Menu anchor="more" open={open} onClose={() => setOpen(false)}>
+      <MenuItem label="نسخ" leadingIcon="content_copy" shortcut={['mod+c']} onClick={copy} />
+      <MenuGroup label="العرض">
+        <MenuCheckboxItem label="إظهار الشبكة" checked={grid} onChange={(e) => setGrid(e.detail.checked)} />
+      </MenuGroup>
+      <MenuGroup label="ترتيب حسب" value={sort} onChange={(e) => setSort(e.detail.value)}>
+        <MenuRadioItem label="الاسم" value="name" />
+        <MenuRadioItem label="تاريخ التعديل" value="date" />
+      </MenuGroup>
+      <Submenu label="فتح الأخيرة" leadingIcon="history">
+        <MenuItem label="Report.pdf" onClick={() => openFile('Report.pdf')} />
+        <MenuItem label="Notes.txt" onClick={() => openFile('Notes.txt')} />
+      </Submenu>
+      <MenuItem label="حذف" leadingIcon="delete" destructive onClick={remove} />
+      {/* عنصر رابط. الموجِّه يلغي حدث click ويذهب إلى الوجهة بنفسه؛ وقائمة الخيارات تُغلق مع ذلك. */}
+      <MenuItem label="اختصارات لوحة المفاتيح" href="/help/shortcuts/" onClick={(e) => { e.preventDefault(); navigate('/help/shortcuts/'); }} />
+    </Menu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // مُعدِّل على عنصر الارتكاز، مثل .popover. الإغلاق يكتب false في isPresented.
+    TanreiIconButton("المزيد", action: { showMenu = true }) { Image(systemName: "ellipsis") }
+        .tanreiMenu(isPresented: $showMenu, placement: .bottomStart) {
+            TanreiMenuItem("نسخ", action: copy)
+            TanreiMenuSection("العرض") {
+                TanreiMenuToggle("إظهار الشبكة", isOn: $showGrid)
+            }
+            TanreiMenuSection("ترتيب حسب", selection: $sort) {
+                // طبّق .tag(_:) على TanreiMenuOption نفسه.
+                TanreiMenuOption("الاسم").tag("name")
+                TanreiMenuOption("تاريخ التعديل").tag("date")
+            }
+            TanreiMenuItem("حذف", role: .destructive, action: delete)
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiCheckboxMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiMenu
+    import io.github.chnotchy.tanrei.components.TanreiMenuGroup
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiRadioMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // مثل DropdownMenu: استدعِ القائمة داخل Box الخاص بعنصر الارتكاز. أنت من يغلقها: onDismissRequest يحمل السبب.
+    Box {
+        TanreiIconButton(onClick = { expanded = true }, contentDescription = "المزيد") { TanreiText("more_vert") }
+        TanreiMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            TanreiMenuItem(text = "نسخ", onClick = ::copy, trailingText = "⌘C", leadingIcon = { TanreiText("content_copy") })
+            TanreiMenuGroup(title = "العرض") {
+                TanreiCheckboxMenuItem(text = "إظهار الشبكة", checked = showGrid, onCheckedChange = { showGrid = it })
+            }
+            TanreiMenuGroup(title = "ترتيب حسب", selectedValue = sort, onSelectedValueChange = { sort = it }) {
+                TanreiRadioMenuItem(text = "الاسم", value = "name")
+                TanreiRadioMenuItem(text = "تاريخ التعديل", value = "date")
+            }
+            TanreiMenuItem(text = "حذف", onClick = ::delete, destructive = true, leadingIcon = { TanreiText("delete") })
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // مثل MenuAnchor: يفتحها متحكِّم (controller). حين تطلب القائمة الإغلاق تستدعي onClose مع السبب وتغلق نفسها.
+    final TanreiMenuController menu = TanreiMenuController();
+
+    TanreiMenuAnchor(
+      controller: menu,
+      onClose: (TanreiMenuCloseReason reason) {},
+      menuChildren: <Widget>[
+        TanreiMenuItem(
+          onPressed: copy,
+          leadingIcon: const Icon(AppSymbols.contentCopy),
+          trailingText: '⌘C',
+          child: const Text('نسخ'),
+        ),
+        TanreiMenuGroup<String>(
+          title: 'العرض',
+          children: <Widget>[
+            TanreiCheckboxMenuItem(
+              value: showGrid,
+              onChanged: (bool value) => setState(() => showGrid = value),
+              child: const Text('إظهار الشبكة'),
+            ),
+          ],
+        ),
+        TanreiMenuGroup<String>(
+          title: 'ترتيب حسب',
+          groupValue: sort,
+          onChanged: (String value) => setState(() => sort = value),
+          children: const <Widget>[
+            TanreiRadioMenuItem<String>(value: 'name', child: Text('الاسم')),
+            TanreiRadioMenuItem<String>(value: 'date', child: Text('تاريخ التعديل')),
+          ],
+        ),
+        // قيمة onPressed الفارغة (null) تعطّل العنصر.
+        TanreiMenuItem(onPressed: delete, destructive: true, child: const Text('حذف')),
+      ],
+      builder: (BuildContext context, TanreiMenuController controller, Widget? child) =>
+          TanreiIconButton(onPressed: controller.open, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'المزيد'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { IconButton, Menu } from '@tanrei/react-native';
+
+    const more = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // أخبر التقنيات المساعدة هل قائمة عنصر الارتكاز مفتوحة: القائمة لا تستطيع ضبط ذلك هنا.
+    <IconButton ref={more} accessibilityLabel="المزيد" accessibilityState={{ expanded: open }} onPress={() => setOpen(true)}>
+      more_vert
+    </IconButton>
+    // مُتحكَّم بها: اضبط visible على false من onDismiss الذي يستقبل السبب.
+    <Menu
+      visible={open}
+      anchorRef={more}
+      accessibilityLabel="المزيد"
+      onDismiss={() => setOpen(false)}
+      items={[
+        { label: 'نسخ', leadingIcon: 'content_copy', trailingText: '⌘C', onPress: copy },
+        { kind: 'group', title: 'العرض', items: [{ kind: 'checkbox-item', label: 'إظهار الشبكة', checked: grid, onCheckedChange: setGrid }] },
+        { kind: 'group', title: 'ترتيب حسب', value: sort, onValueChange: setSort, items: [
+          { kind: 'radio-item', label: 'الاسم', value: 'name' },
+          { kind: 'radio-item', label: 'تاريخ التعديل', value: 'date' },
+        ] },
+        { label: 'حذف', leadingIcon: 'delete', destructive: true, onPress: remove },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="النص المساعد، وأيقونة النهاية، والعناصر المعطَّلة" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="مشاركة" supporting-text="إرسال رابط إلى هذا الملف" leading-icon="share"></tanrei-menu-item>
+    <tanrei-menu-item label="متاح بلا اتصال" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
+    <tanrei-menu-item label="إعادة التسمية" leading-icon="edit" disabled></tanrei-menu-item>
+    <tanrei-menu-item label="حذف" leading-icon="delete" destructive disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="عناوين المجموعات فوق عمودي علامة الصح والأيقونة" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="نمط النص">
+      <tanrei-menu-checkbox-item label="غامق" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="مائل" leading-icon="format_italic"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="المحاذاة" value="start">
+      <tanrei-menu-radio-item label="البداية" value="start" leading-icon="format_align_left"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="الوسط" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="العلامات: مربع النظام الافتراضي وحلقته، وعلامة صح بسيطة تسمّيها mark-icon" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="إظهار">
+      <tanrei-menu-checkbox-item label="المساطر" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="الخطوط الإرشادية"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="التكبير" value="fit">
+      <tanrei-menu-radio-item label="ملاءمة النافذة" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="الحجم الفعلي" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="إظهار" mark-icon="check">
+      <tanrei-menu-checkbox-item label="المساطر" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="الخطوط الإرشادية"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="التكبير" value="fit" mark-icon="check">
+      <tanrei-menu-radio-item label="ملاءمة النافذة" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="الحجم الفعلي" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="الفصل: فاصل بين المجموعات، وفجوة" plain>
+  <tanrei-menu inline open separation="divider">
+    <tanrei-menu-item label="تراجع" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="إعادة" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="قص" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="نسخ" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="بحث">
+      <tanrei-menu-item label="بحث في الصفحة" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open separation="gap">
+    <tanrei-menu-item label="تراجع" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="إعادة" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="قص" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="نسخ" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="بحث">
+      <tanrei-menu-item label="بحث في الصفحة" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+في النظام الافتراضي يُميَّز عنصر خانة الاختيار بخانة اختيار وعنصر زر الاختيار بزر اختيار، ويُرسمان سواء أكان العنصر محدَّدًا أم لا: مربع فارغ ومربع معبّأ فيه علامة صح، وحلقة رفيعة وحلقة ثخينة مع تعبئتها. فيبقى الخيار غير المفعَّل ظاهرًا على أنه خيار. وهذه رسوم في عمود العلامات، لا عناصر تحكم: الصف هو الشيء الوحيد الذي يُضغط ويأخذ التركيز. وعلامة الصح في المربع تُرسم بالوزن الأثقل الذي لعلامة عنصر التحكم نفسه، كما في [خانة الاختيار](/ar/components/checkbox/).
+
+الخاصية `markIcon`، على عنصر واحد أو على مجموعة لكل عناصرها، تسمّي رسمًا (glyph) من مجموعة الأيقونات يُميَّز به العنصر المحدَّد بدلًا من ذلك. القيمة `check` ترسم علامة صح بسيطة بحجم أيقونة البداية المجاورة لها (24 في النظام الافتراضي)، ولا ترسم شيئًا ما دام العنصر غير محدَّد. يختار نظام التصميم علاماته: النظامان `m3-like` و `cupertino` يستخدمان علامة الصح البسيطة. وعلامة الصح لا تُعكس في التخطيط من اليمين إلى اليسار (RTL). حين تتغيّر حالة تحديد عنصر وقائمة الخيارات مفتوحة تتغيّر العلامة من دون أن تتحرك، وفورًا حيث الحركة مقلَّلة.
+
+الصف المحدَّد يُعبَّأ أيضًا. في النظام الافتراضي التعبئة طبقة من لون محتوى الصف نفسه فوق سطح قائمة الخيارات، أقوى بدرجة واحدة من الصف الذي عليه التحويم في السمة الفاتحة وفي الداكنة، فيُفرَّق على السطح المرتفع بين الصف المحدَّد والصف الذي عليه التحويم والصف الساكن. والعنصر الذي قائمته الفرعية مفتوحة يحتفظ بتعبئة التحويم ما دامت مفتوحة، وهذا يبيّن المسار إلى المستوى المستخدَم، ولا يبدو أبدًا صفًّا محدَّدًا.
+
+يبدأ عنوان المجموعة حيث يبدأ محتوى الصفوف: فوق علامة الصح أو أيقونة البداية حين ترسم قائمة الخيارات هذين العمودين، وفوق التسميات حين لا ترسم أيًّا منهما. وينتهي على المسافة نفسها من الحافة الأخرى، ويلتف، ويكبر مع النص الأكبر، وينعكس في التخطيط من اليمين إلى اليسار.
+
+<ComponentSpecs name="menu" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم قائمة الخيارات للإجراءات الثانوية والإعدادات التي لا تحتاج إلى مكان على الشاشة: «المزيد» على صف، والقائمة الإضافية (overflow) لشريط أدوات، وترتيب الفرز، وخيارات عرض. يفتحها الأشخاص، ويختارون شيئًا واحدًا، ويعودون إلى ما كانوا يفعلونه.
+
+استخدم الأزرار للإجراءات الرئيسية في الشاشة، لأن قائمة الخيارات تخفيها. استخدم قائمة (list) أو أزرار اختيار أو عنصر اختيار (select) حين يكون الاختيار هو المهمة الرئيسية في الشاشة. استخدم مربع حوار حين يجب أن يجيب الأشخاص قبل أن يتابعوا. قائمة الخيارات لا تحمل إلا عناصرها: لا حقول ولا أشرطة تمرير ولا مفاتيح تبديل، فهذه تأخذ المفاتيح التي تحتاج إليها قائمة الخيارات.
+
+الصف الذي يذهب إلى مكان عنصر رابط: أعطِ العنصر `href`. استخدمه لمجموعة قصيرة من الأماكن تبقى غير ظاهرة إلى أن تُطلب، كالمستويات المطوية في مسار التنقل (breadcrumbs)، أو اختيار اللغة، أو «المزيد». أما الصفحات الرئيسية للموقع، وهي ظاهرة دائمًا، فهي تنقّل: ضعها في [شريط تنقل](/ar/components/navigation-bar/) أو [درج تنقل](/ar/components/navigation-drawer/) أو [قائمة (list)](/ar/components/list/) من الروابط.
+
+### اختيار نوع العنصر
+
+| النوع | ما هو | بعد تفعيله | يُستخدم لـ |
+| --- | --- | --- | --- |
+| عنصر | إجراء، أو رابط حين يكون له `href` | يُصدر حدث click الخاص به، ثم تُغلق قائمة الخيارات. ووجهة عنصر الرابط تُفتح بعد ذلك. | «نسخ»، «إعادة التسمية»، «مشاركة». اضبط `destructive` للإجراء «حذف» أو «تجاهل»: يُرسم بلون الخطأ. وأعطِه `href` لمكان يُذهب إليه. |
+| عنصر خانة اختيار | خيار مفعَّل أو غير مفعَّل بمفرده | يبدّل قيمة `checked` الخاصة به ويُصدر حدث change الخاص به. | «إظهار الشبكة»، «إظهار المساطر»: إعدادات لا يؤثر بعضها في بعض. |
+| عنصر زر اختيار | اختيار واحد من عدة اختيارات في مجموعته | يضبط قيمة `value` في مجموعته وتُصدر المجموعة حدث change الخاص بها. عنصر زر الاختيار المحدَّد لا يُصدر شيئًا. | «الترتيب حسب الاسم»، «الترتيب حسب التاريخ»: جواب واحد عن سؤال واحد. |
+| قائمة فرعية | عنصر يفتح مستوى آخر بجانبه | يفتح قائمته الفرعية ويُصدر حدث toggle الخاص به. وتبقى قائمة الخيارات مفتوحة. | «فتح الأخيرة»، «مشاركة»، «نقل إلى»: مجموعة ثانية من العناصر كانت ستجعل قائمة الخيارات أطول مما ينبغي. |
+| مجموعة | سلسلة من عناصر مترابطة، ولها عنوان إن شئت | لا شيء: لا تأخذ التركيز. | فصل العناصر المترابطة عن غيرها، وحمل عناصر أزرار الاختيار لسؤال واحد. |
+
+عنصر خانة الاختيار أو زر الاختيار الذي يُفعَّل بلمسة أو نقرة أو بالمفتاح Enter يغلق قائمة الخيارات، كالإجراء. وإن فُعِّل بالمفتاح Space ترك قائمة الخيارات مفتوحة، فيستطيع مستخدم لوحة المفاتيح أن يغيّر عدة إعدادات دفعة واحدة.
+
+### المجموعات والعناوين والفصل
+
+- تفصل قائمة الخيارات المجموعة عمّا يجاورها أيًّا كان، ولا تفصل أبدًا عند الأعلى أو الأسفل: بفاصل، أو بفجوة من الفراغ. لا تضع الفواصل بنفسك.
+- أي الاثنين يُستخدم اختيار لنظام التصميم، اختيار واحد لكل مكوّن يفصل بين أجزائه: فاصل في النظام الافتراضي. والخاصية `separation` تقرر لقائمة خيارات واحدة وقوائمها الفرعية: القيمة `auto` (الافتراضية) تتبع نظام التصميم، والقيمة `divider` أو `gap` تسمّي واحدًا منهما أيًّا كان اختيار النظام. مع الفجوة لا يُعرَض للتقنيات المساعدة أي فاصل، وتبقى المجموعات معروضة لها مجموعاتٍ.
+- المجموعة التي لها `title` ترسمه عنوانًا هادئًا فوق عناصرها، يبدأ حيث يبدأ محتوى الصفوف، ويكون اسمًا لها. أعطِ مجموعة عناصر أزرار الاختيار عنوانًا يطرح السؤال، مثل «ترتيب حسب».
+- مكان عناصر أزرار الاختيار داخل مجموعة. عنصر زر الاختيار خارج المجموعة لا يكون محدَّدًا أبدًا، وتبلّغ عنه بنيات التنقيح (debug).
+- لا تحمل المجموعة مجموعة أخرى. عناصر المجموعة الداخلية تُرسم كأنها عناصر المجموعة الخارجية.
+
+### الروابط
+
+عنصر الرابط هو رابط المنصة نفسه، فتعمل معه قائمة السياق في المتصفح، والفتح في تبويب جديد، والعنوان الذي يظهر عند التحويم. وليس له مظهر خاص به: يُرسم كالإجراء الذي في الصف المجاور، في كل حالة.
+
+- **التفعيل.** النقرة، أو اللمسة، أو المفتاح Enter أو Space تُصدر الحدث `click` الخاص بالعنصر، ثم تُغلق قائمة الخيارات، ثم تُفتح الوجهة. والمفتاح Space يفعّل عنصر الرابط كما يفعّل كل صف آخر في قائمة الخيارات. أما في غيرها فلا يفعّل المفتاح Space رابطًا.
+- **الموجِّه.** ألغِ الحدث `click` الخاص بالعنصر لتتولى التنقل بنفسك. وتُغلق قائمة الخيارات مع ذلك، ولا يُفتح شيء آخر.
+- **التبويبات الأخرى.** النقرة أو المفتاح Enter مع مفتاح تعديل، والنقرة بالزر الأوسط، من شأن المتصفح. لا تُصدر قائمة الخيارات الحدث `close` وتبقى مفتوحة، فيمكن فتح عدة روابط منها واحدًا بعد آخر.
+- **سياق جديد.** القيمة `target: new` تفتح تبويبًا جديدًا أو نافذة جديدة. وينتهي العنصر بالرسم `open_in_new` من مجموعة الأيقونات في عمود أيقونة النهاية، ما لم تسمِّ الخاصية `trailingIcon` رسمًا من عندك، وتقول الخاصية `targetLabel` ذلك للتقنيات المساعدة. والاختصار أو نص النهاية يحتفظ بعموده قبل العلامة.
+- **التعطيل.** عنصر الرابط المعطَّل لا يمكن اتباعه بأي وسيلة. ويبقى الوصول إليه بمفاتيح الأسهم ممكنًا، كأي عنصر معطَّل.
+- **النوع `item` وحده.** عنصر خانة الاختيار وعنصر زر الاختيار وعنصر القائمة الفرعية لا تأخذ وجهة: فهي تحمل حالة أو تفتح مستوى آخر.
+
+### القوائم الفرعية
+
+عنصر القائمة الفرعية صف ينتهي بالأيقونة `chevron_right` من مجموعة الأيقونات، وعناصره الفرعية هي المستوى التالي: عناصر من أي نوع، ومنها المجموعات. ليس إجراءً وليس له اختصار.
+
+- **الفتح.** الضغط، أو اللمسة، أو المفتاح Enter أو Space، أو مفتاح السهم الذي يشير إلى نهاية السطر يفتح القائمة الفرعية فورًا وينقل التركيز إلى أول عنصر مفعَّل فيها. والمؤشر الذي يستقر على العنصر يفتحها بعد مهلة قصيرة ويترك التركيز على العنصر.
+- **في الطريق إليها.** ما دام المؤشر يتحرك من العنصر نحو قائمته الفرعية المفتوحة، فالعناصر التي يعبرها لا تأخذ تحويمًا ولا تركيزًا، فلا يغلق المسار المائل القائمة الفرعية.
+- **إغلاق مستوى واحد.** مفتاح السهم الذي يشير إلى بداية السطر، أو المفتاح Escape، يغلق المستوى الذي فيه التركيز ويعيد التركيز إلى عنصره. ولا يغلق المفتاح Escape قائمة الخيارات كلها إلا حين لا تكون أي قائمة فرعية مفتوحة. والانتقال إلى عنصر آخر في المستوى الأب يغلق القائمة الفرعية أيضًا. ولا تُفتح في السطح الواحد أكثر من قائمة فرعية واحدة.
+- **إغلاق كل شيء.** إجراء في أي مستوى، والمفتاح Tab، وضغط خارج كل الأسطح، وخروج التركيز منها جميعًا، كلها تغلق قائمة الخيارات كلها بحدث `close` واحد.
+- **أين توضع.** بجانب السطح الذي يحمل عنصرها، من جهة النهاية، والصف الأول منها بمستوى صف العنصر؛ ومن الجهة الأخرى حيث لا تتّسع تلك الجهة. وفي نافذة أضيق من أن تتّسع لأي منهما توضع فوق سطحها الأب وتترك شريطًا منه مكشوفًا: الضغط على الشريط يغلق القائمة الفرعية. ولا تضع قائمة الخيارات أبدًا محتوى القائمة الفرعية مكان محتواها.
+- **الخاصية `open` والحدث `toggle`.** قيمة `open` لعنصر القائمة الفرعية ملك له. تضبطها قائمة الخيارات ويُصدر العنصر `toggle` حين يفتح الشخص القائمة الفرعية أو يغلقها. أما تغييرك أنت لقيمة `open`، وإغلاق قائمة الخيارات كلها، فلا يُصدران `toggle`.
+- **العمق.** التزم مستويين من القوائم الفرعية تحت قائمة الخيارات. المستوى الثالث يُرسم مع ذلك، وتبلّغ عنه بنيات التنقيح، كما تبلّغ عن قائمة فرعية بلا عناصر.
+- قيمة `value` في المجموعة لا تصل إلا إلى عناصر أزرار الاختيار في سطحها هي، وكل سطح يرسم عمودي العلامات والأيقونات الخاصين به.
+
+### الفتح والتركيز والإغلاق
+
+قائمة الخيارات تراكب مُشغَّل (operated overlay) غير نمطي. يعمل الأشخاص داخلها، فتأخذ التركيز وتعيده. ولا يُحجب أي شيء آخر على الشاشة.
+
+- **الفتح.** أنت تضبط `open` حين يُفعَّل عنصر الارتكاز. يظهر السطح في طبقة التراكب في المنصة، موضوعًا بمحاذاة عنصر الارتكاز كما تقول الخاصية `placement`: تحته افتراضيًّا، مع محاذاة حافتي البداية. ينقلب إلى الجهة الأخرى حين لا تتّسع تلك الجهة، وينزاح ليبقى داخل الشاشة، ويقبل التمرير حين يزيد طوله، ويتبع عنصر الارتكاز ما دام يتحرك.
+- **دخول التركيز.** ينتقل التركيز إلى أول عنصر مفعَّل. ثم تتنقل مفاتيح الأسهم و Home و End والبحث بالكتابة (typeahead) بين العناصر، مع الدوران عند الطرفين والمرور عبر المجموعات. والمؤشر الذي يتحرك إلى عنصر ينقل التركيز إليه أيضًا، فتتابع المفاتيح من حيث كان المؤشر.
+- **غير نمطية.** قائمة الخيارات لا تحصر التركيز، ولا تجعل بقية الشاشة خاملة (inert)، ولا ترسم حجابًا (scrim). المفتاح Tab يغادر قائمة الخيارات ويغلقها.
+- **الإغلاق.** تطلب قائمة الخيارات أن تُغلق وتقول لماذا. للأسباب الأسماء نفسها على كل المنصات، بحالة الأحرف التي تتبعها المنصة:
+
+| السبب | متى |
+| --- | --- |
+| `escape` | ضُغط المفتاح Escape. |
+| `back` | الرجوع في المنصة، كزر الرجوع أو إيماءة الرجوع في Android. |
+| `outside` | وقع ضغط خارج السطح وعنصر الارتكاز. |
+| `tab` | ضُغط المفتاح Tab أو Shift+Tab. ثم يتابع التركيز من عنصر الارتكاز، كما كان سيفعل منه. |
+| `focus-out` | خرج التركيز من قائمة الخيارات بطريقة أخرى. |
+| `item` | فُعِّل عنصر. |
+
+- **عودة التركيز.** حين تُغلق قائمة الخيارات والتركيز كان داخلها، يعود التركيز إلى عنصر الارتكاز.
+
+من يغلق قائمة الخيارات يتبع المنصة. على الويب و React Native تعيد أنت `open` (`visible`) إلى false من حدث الإغلاق. على Compose تضبط `expanded` على false من `onDismissRequest` الذي يحمل قيمة من النوع `TanreiMenuCloseReason`. على Flutter تستدعي قائمة الخيارات `onClose` مع السبب وتغلق نفسها عبر متحكِّمها. على SwiftUI تكتب قائمة الخيارات `false` في `isPresented`، فلا يُنقل السبب.
+
+وهل يصل الضغط في الخارج إلى ما تحته أيضًا؟ هذا يتبع المنصة كذلك. على الويب و Flutter يصل. على SwiftUI و Compose و React Native يغلق الضغط قائمة الخيارات فقط.
+
+### افعل
+
+- أبقِ التسميات قصيرة وابدأها في الإجراءات بما يدل على الفعل: «نسخ الرابط»، «حذف الملف».
+- ضع اختصار لوحة المفاتيح للإجراء في `shortcut`، بأسماء المفاتيح المحايدة (`mod+c`)، واربط المفاتيح في منتجك. أبقِ `trailingText` لكل ما سوى ذلك: نص النهاية لا يُعرَض للتقنيات المساعدة اختصارًا أبدًا.
+- ضع الإجراء الذي لا رجعة فيه أخيرًا، مفصولًا في مجموعة خاصة به أو بعد مجموعة.
+- أبقِ العنصر المعطَّل في مكانه حين يكون متاحًا أحيانًا، فلا يتغيّر شكل قائمة الخيارات. ويبقى الوصول إليه بمفاتيح الأسهم ممكنًا.
+
+### لا تفعل
+
+- لا تضع الإجراء الرئيسي للشاشة في قائمة خيارات.
+- لا تستخدم عناصر خانات الاختيار لاختيارات يستبعد بعضها بعضًا. استخدم عناصر أزرار الاختيار في مجموعة.
+- لا تصنع قائمة خيارات من عنصر واحد. اعرض الإجراء زرًّا.
+- لا تضع إجراء يستخدمه الأشخاص كثيرًا في قائمة فرعية، ولا تتجاوز مستويين من القوائم الفرعية.
+- لا تستخدم `chevron_right` في نهاية إجراء. فهي علامة عنصر القائمة الفرعية.
+- لا تبنِ التنقل الرئيسي لموقع قائمةَ خيارات من الروابط. قائمة الخيارات تُطلب ثم تذهب.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="menu" />
+
+### ما يتكفل به المكوّن
+
+- السطح يُعرَض للتقنيات المساعدة قائمةَ خيارات (menu). الإجراءات عناصر قائمة خيارات (menu items)، وعناصر خانات الاختيار عناصر من نوع خانة الاختيار (menu item checkboxes)، وعناصر أزرار الاختيار عناصر من نوع زر الاختيار (menu item radios)، ولكل منها حالة تحديده وموضعه وحجم قائمة الخيارات.
+- اسم كل عنصر تسميته، ووصفه نصه المساعد. الخاصية `shortcut` للعنصر تُعرَض على أنها اختصار لوحة المفاتيح له حيث تملك المنصة تلك الخاصية (`aria-keyshortcuts` على الويب)، وإلا كانت مفاتيحه مكتوبةً بأسمائها جزءًا من وصفه. أما نص النهاية فلا يكون إلا جزءًا من الوصف. والأيقونات والعلامات مخفيّة: المربع والحلقة وعلامة الصح رسوم، وحالة التحديد ملك للعنصر.
+- عنصر الرابط يُعرَض عنصرَ قائمة خيارات، لا رابطًا: قائمة الخيارات تُقرأ بعناصرها وعددها ومفاتيح الأسهم، ولا يصح ذلك إلا ما دام كل صف عنصر قائمة خيارات. وهو مع ذلك رابط المنصة في الأساس. وما دام يفتح سياقًا جديدًا، ينتهي وصفه بنص `targetLabel` الخاص به، وتكون علامته مخفية.
+- المجموعة تُعرَض مجموعةً اسمها عنوانها. والفواصل فواصل (separators) لا تأخذ التركيز؛ وحيث تُفصل المجموعات بفجوة فلا فاصل. والعناوين لا تأخذ التركيز ولا تُقرأ على أنها عناصر.
+- عنصر القائمة الفرعية يُعرَض عنصرًا يفتح قائمة خيارات، مع حالة توسّعه، حتى وهو معطَّل. وسطحه قائمة خيارات قائمة بذاتها، اسمها تسمية العنصر، وكل سطح يعدّ مواضعه هو.
+- يُخبَر عنصر الارتكاز بأنه يفتح قائمة خيارات وبحالتها، مفتوحةً أو مغلقة، حيث تملك المنصة تلك الخاصية (على الويب: `aria-haspopup` و `aria-controls` و `aria-expanded`).
+- الفتح ينقل التركيز إلى أول عنصر مفعَّل. والإغلاق يعيد التركيز إلى عنصر الارتكاز حين كان داخل قائمة الخيارات. مفتاحا السهم للأعلى والسهم للأسفل يدوران عند الطرفين، والمفتاحان Home و End يذهبان إلى الطرفين، والكتابة تنقل إلى العنصر التالي الذي تبدأ تسميته بالأحرف المكتوبة. المفتاح Enter يفعّل ويغلق. والمفتاح Space على عنصر خانة اختيار أو زر اختيار يترك قائمة الخيارات مفتوحة. المفتاح Escape يغلق ويعيد التركيز. والمفتاح Tab يغلق ويتابع من عنصر الارتكاز. في القائمة الفرعية، مفتاح السهم نحو بداية السطر والمفتاح Escape يغلقان ذلك المستوى وحده ويعيدان التركيز إلى عنصره؛ ومفاتيح الأسهم على امتداد السطر التي لا تفعل شيئًا لا تصل أبدًا إلى الصفحة خلف قائمة الخيارات.
+- العناصر المعطَّلة يبقى الوصول إليها بمفاتيح الأسهم ممكنًا، لكنها لا تُفعَّل.
+- حلقة التركيز تُرسم داخل العنصر، فلا يستطيع السطح أن يقصّها. وتظهر لتركيز لوحة المفاتيح فقط. والمؤشر الذي يتحرك إلى عنصر يُظهره في حالة التحويم، لا التركيز.
+- ارتفاع كل عنصر لا يقل عن الحد الأدنى للهدف، والصف كله مساحة لمسه.
+- تكبر العناصر مع النص الأكبر، ويقبل السطح التمرير حين لا تعود الشاشة تتّسع له.
+- ما دام خط الأيقونات لا يستطيع بعد أن يرسم علامة هي رسم (glyph)، كعلامة الصح، لا ترسم قائمة الخيارات شيئًا مكانها، ولا ترسم الكلمة «check» أبدًا. تحتفظ بعرض العمود وتبقى تعرض حالة التحديد، وتُظهر العلامة حين يكتمل تحميل الخط.
+- بنيات التنقيح (debug) تبلّغ عن عنصر بلا تسمية، وعنصر زر اختيار خارج مجموعة، وقيمة مجموعة لا تسمّي أيًّا من عناصر أزرار الاختيار فيها، وعنصري زر اختيار لهما القيمة نفسها، ومجموعة داخل مجموعة، وعنصر له اختصار ونص نهاية معًا، وقيمة `separation` لا تعرّفها قائمة الخيارات، ومستوى ثالث من القوائم الفرعية، وقائمة فرعية بلا عناصر. وتبلّغ أيضًا عن عنصر رابط يفتح سياقًا جديدًا بلا `targetLabel`، وعن `href` على عنصر خانة اختيار أو عنصر زر اختيار أو عنصر قائمة فرعية، وعن `href` تسمّي سكربتًا أو تتعذّر قراءتها، وعن قيمة `target` لا تعرّفها قائمة الخيارات.
+
+فجوات معروفة في المنصات:
+
+- ليس في SwiftUI و Compose و Flutter و React Native عناصر روابط: العنصر لا يأخذ `href` هناك بعد.
+- ليس في SwiftUI و Compose و Flutter و React Native قوائم فرعية، ولا `separation`، ولا `markIcon`، ولا تعبئة على الصف المحدَّد. وما زالت ترسم علامة الصح علامةً خاصة بها في مربع بمقاس 16، وتبدأ عنوان المجموعة حيث تبدأ التسميات.
+- موضع بداية العنوان مع `m3-like` و `cupertino` يتبع قاعدة Tanrei ولم يُقَس على الأصلين.
+- الويب: قائمة الخيارات لا تستمع إلى طلب الإغلاق من المنصة، كإيماءة الرجوع في Android، فلا يُرسَل السبب `back` أبدًا.
+- الويب: تُضبط `aria-haspopup` و `aria-expanded` على عنصر الارتكاز. وإن كان عنصر الارتكاز عنصرًا مخصصًا (custom element)، مثل `<tanrei-button>` بأيقونة فقط، وُضعتا على الزر داخل shadow root الخاص به. أما `aria-controls` واسم قائمة الخيارات، وهو يأتي من عنصر الارتكاز، فلا يستطيعان عبور shadow root.
+- الويب: يوضع السطح بسكربت، لا بخاصية CSS anchor positioning.
+- الويب: لا يستطيع عنصر القائمة الفرعية أن يشير إلى سطحه بالخاصية `aria-controls`، فهي لا تصل إلى داخل shadow root. وبدلًا من ذلك يكون السطح فرعًا للعنصر في شجرة إمكانية الوصول.
+- الويب، WebKit على macOS: عنصر القائمة الفرعية المفتوحة يحتفظ بلون التحويم تحت الضغط بدل أن يأخذ لون الضغط.
+- ليس في SwiftUI دور قائمة خيارات ولا دور عنصر قائمة خيارات ولا دور فاصل، ولا خاصية للاختصار، ولا سبيل إلى القول إن عنصر الارتكاز يفتح قائمة خيارات أو إن قائمة الخيارات مفتوحة. كل عنصر زر وموضعه قيمة له («`2 of 3`»، بالإنجليزية فقط)، وعنصر خانة الاختيار زر تبديل (toggle)، وعنصر زر الاختيار محدَّد (selected) ما دام مختارًا.
+- لا يعطي SwiftUI تركيز لوحة المفاتيح لزر معطَّل أبدًا، فتتخطى مفاتيح الأسهم العنصر المعطَّل بدل أن تصل إليه.
+- يعرض SwiftUI قائمة الخيارات في عنصر `popover` الخاص بالمنصة، وهو يضع نفسه بنفسه. الرموز (tokens) تختار الجهة فقط: عنصر `popover` يحتفظ بمسافته هو عن عنصر الارتكاز وعن حواف النافذة، ويحاذي نفسه، ويُغلق بحركته هو. على iOS 26 يقصّ السطح إلى زواياه الأكبر ويرسم ظله هو. وكيف يبدو هذا على جهاز لم يُفحص بعد.
+- في SwiftUI: المفتاح Tab يغلق قائمة الخيارات ويعيد التركيز إلى عنصر الارتكاز، لكن التركيز لا يستطيع أن يتابع منه في ضغطة المفتاح نفسها.
+- لا يقرأ SwiftUI قيمة عنصر زر الاختيار إلا من `.tag(_:)` مطبَّق على `TanreiMenuOption` نفسه.
+- في SwiftUI: مفاتيح الأسهم، و Home، و End، والبحث بالكتابة، و Escape، و Tab مختبَرة في صورة قواعد، لا بلوحة مفاتيح حقيقية بعد.
+- يرسم React Native قائمة الخيارات في طبقة التراكب التابعة للمكوّن `TanreiProvider`، فلا بد من `TanreiProvider` فوقها. المفتاح Tab يغلق قائمة الخيارات ويعيد التركيز إلى عنصر الارتكاز، لكنه لا يستطيع أن يتابع منه في ضغطة المفتاح نفسها. ضغطة Tab التالية تتابع.
+- في React Native: ما يفعله قارئ الشاشة بعنصر خلف قائمة الخيارات المفتوحة، وخروج التركيز من قائمة الخيارات، لم يُفحصا بعد على جهاز.
+- ليس في React Native دور لعنصر من نوع خانة الاختيار ولا لعنصر من نوع زر الاختيار، ولا خاصية للاختصار. كل عنصر عنصر قائمة خيارات، وعناصر خانات الاختيار وأزرار الاختيار تحمل حالة تحديد، ونص النهاية يُقرأ جزءًا من الوصف.
+- لا يستطيع React Native أن يضبط خصائص على عنصر الارتكاز الخاص بك. أعطه `accessibilityState={{ expanded: open }}` بنفسك.
+- لا يتبع React Native عنصر ارتكاز يتحرك وقائمة الخيارات مفتوحة. يقيس عنصر الارتكاز حين تُفتح قائمة الخيارات وحين يتغيّر حجم النافذة.
+- في React Native: مفاتيح الأسهم، والبحث بالكتابة، و Escape، و Tab، و Space مقابل Enter لم تُفحص بعد على جهاز له لوحة مفاتيح فعلية.
+- ليس في Compose دور قائمة خيارات ولا دور عنصر قائمة خيارات ولا دور فاصل، ولا خاصية للاختصار. السطح مجموعة (collection)، والإجراء بلا دور، وعنصر خانة الاختيار خانة اختيار وعنصر زر الاختيار زر اختيار، ونص النهاية يُقرأ جزءًا من الوصف. ولا تستطيع قائمة الخيارات أن تضبط حالة التوسّع لعنصر الارتكاز.
+- في Compose: الضغط على عنصر الارتكاز وقائمة الخيارات مفتوحة يُعدّ ضغطًا في الخارج. يغلق قائمة الخيارات بالسبب `outside` ولا يصل إلى عنصر الارتكاز.
+- في Compose: تركيز نافذة العنصر المنبثق (popup)، والضغط الحقيقي في الخارج، وزر الرجوع، وعودة التركيز إلى عنصر الارتكاز، ومتابعة Tab منه، و TalkBack على قائمة الخيارات مختبَرة تحت Robolectric فقط، لا على جهاز بعد.
+- ليس في Flutter دور مجموعة ولا دور فاصل، ولا يستطيع أن يسمّي قائمة الخيارات بعنصر ارتكازها ولا أن يقول إن عنصر الارتكاز يفتح قائمة خيارات، ولا يعطي العناصر موضعًا ولا حجم مجموعة. المجموعة حاوية اسمها عنوانها. لكن عنصر الارتكاز يحصل فعلًا على حالة التوسّع.
+- في Flutter: ما يعلنه TalkBack و VoiceOver وقارئ شاشة على الويب عن قائمة الخيارات، وإيماءة الرجوع في Android على قائمة خيارات مفتوحة، لم تُفحص بعد على جهاز.
+
+### ما عليك فعله
+
+- سمِّ قائمة الخيارات بعنصر ارتكازها. أعطِ عنصر الارتكاز الذي هو زر أيقونة تسمية مثل «المزيد» أو «ترتيب». على React Native، مرِّر الاسم نفسه في الخاصية `accessibilityLabel` لقائمة الخيارات.
+- على Compose و React Native، اعرض على عنصر الارتكاز حالة قائمة الخيارات، مفتوحةً أو مغلقة. قائمة الخيارات لا تستطيع ضبط ذلك هناك.
+- أغلق قائمة الخيارات حين تطلب ذلك، ولا تنقل التركيز بنفسك حين تُغلق. قائمة الخيارات تعيد التركيز إلى عنصر الارتكاز.
+- أعطِ كل عنصر تسمية، ومنها العناصر التي تعرض أيقونة. التسمية هي الاسم وهي ما يطابقه البحث بالكتابة.
+- أعطِ مجموعة عناصر أزرار الاختيار عنوانًا يقول ما موضوع الاختيار.
+- أعطِ كل عنصر قائمة فرعية تسمية: فهي تسمّي العنصر والقائمة الفرعية التي يفتحها.
+- أعطِ عنصر الرابط الذي يفتح تبويبًا جديدًا `targetLabel` بلغة منتجك، مثل «يُفتح في تبويب جديد». ولا يقدّم Tanrei كلمات من عنده.

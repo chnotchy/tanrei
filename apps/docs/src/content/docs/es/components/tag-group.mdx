@@ -1,0 +1,215 @@
+---
+title: Grupo de tags
+description: Dispone un conjunto de tags o de chips en una o en varias líneas, con la separación que corresponde a lo que contiene, y expone el conjunto como una sola lista con nombre. Los miembros siguen siendo lo que son, y cuando se quita un chip el foco pasa al siguiente.
+translationOf: components/tag-group.mdx
+sourceHash: 8d6af56bf72c101aa98470342704cf2202d0d379
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="tag-group" />
+
+<DemoFrame label="Un conjunto de tags y una fila de filtros" column>
+  <tanrei-tag-group class="not-content" label="Etiquetas">
+    <tanrei-tag label="Tokens de diseño"></tanrei-tag>
+    <tanrei-tag label="Accesibilidad"></tanrei-tag>
+    <tanrei-tag label="De derecha a izquierda"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="Filtros">
+    <tanrei-chip kind="filter" label="Abiertas" selected></tanrei-chip>
+    <tanrei-chip kind="filter" label="Asignadas a mí"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Pendientes de revisión"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Bloqueadas"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+Un [tag](/es/components/tag/) y un [chip](/es/components/chip/) son cada uno una sola cosa. Un grupo de tags es lo que contiene varios: los tags de un artículo, los filtros encima de una lista, unas pocas sugerencias bajo un campo. Los coloca en líneas, de modo que el que no cabe en una pasa a la siguiente, mantiene entre ellos la distancia adecuada e indica a la tecnología de apoyo que forman una sola lista.
+
+El grupo no dibuja nada por sí mismo. No tiene contenedor, ni borde, ni margen interior, ni etiqueta visible. Cada miembro se dibuja, recibe el foco y se pulsa exactamente igual que en cualquier otro lugar.
+
+En la web es `<tanrei-tag-group>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag-group label="Etiquetas">
+      <tanrei-tag label="Tokens de diseño"></tanrei-tag>
+      <tanrei-tag label="Accesibilidad"></tanrei-tag>
+    </tanrei-tag-group>
+
+    <!-- Un conjunto de chips lo dice: sus líneas quedan más separadas. -->
+    <tanrei-tag-group id="recipients" spacing="chips" label="Destinatarios">
+      <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace"></tanrei-chip>
+      <tanrei-chip kind="input" label="Grace Hopper" remove-label="Quitar a Grace Hopper"></tanrei-chip>
+    </tanrei-tag-group>
+
+    <script type="module">
+      import '@tanrei/web/components/tag-group';
+      import '@tanrei/web/components/tag';
+      import '@tanrei/web/components/chip';
+
+      const recipients = document.querySelector('#recipients');
+      // Un chip nunca se quita a sí mismo. Lo quitas tú, y el grupo mueve el foco al chip siguiente.
+      recipients.addEventListener('remove', (event) => {
+        event.target.remove();
+        // Cuando se ha ido el último, el grupo no tiene dónde poner el foco. Ponlo en el control al que pertenece el conjunto.
+        if (!recipients.children.length) document.querySelector('#add-recipient').focus();
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip, TagGroup } from '@tanrei/react';
+
+    <TagGroup spacing="chips" label="Destinatarios">
+      {recipients.map((person) => (
+        <Chip key={person.id} kind="input" label={person.name} removeLabel={`Quitar a ${person.name}`} onRemove={() => remove(person.id)} />
+      ))}
+    </TagGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Tags que saltan de línea, tags de estado, enlaces a la página de cada tag y elementos introducidos" plain column>
+  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="Etiquetas">
+    <tanrei-tag label="Tokens de diseño"></tanrei-tag>
+    <tanrei-tag label="Accesibilidad"></tanrei-tag>
+    <tanrei-tag label="De derecha a izquierda"></tanrei-tag>
+    <tanrei-tag label="Tipografía"></tanrei-tag>
+    <tanrei-tag label="Color"></tanrei-tag>
+    <tanrei-tag label="Movimiento"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" label="Plataformas">
+    <tanrei-tag label="Web: Stable" status="success" size="small"></tanrei-tag>
+    <tanrei-tag label="SwiftUI: Beta" size="small"></tanrei-tag>
+    <tanrei-tag label="Flutter: Rezagado" status="warning" variant="outlined" size="small"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="Etiquetas">
+    <tanrei-chip label="Tokens de diseño" href="#especificaciones"></tanrei-chip>
+    <tanrei-chip label="Accesibilidad" href="#especificaciones"></tanrei-chip>
+    <tanrei-chip label="De derecha a izquierda" href="#especificaciones"></tanrei-chip>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="Destinatarios">
+    <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace"></tanrei-chip>
+    <tanrei-chip kind="input" label="Grace Hopper" remove-label="Quitar a Grace Hopper"></tanrei-chip>
+    <tanrei-chip kind="input" label="Katherine Johnson" remove-label="Quitar a Katherine Johnson"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+<ComponentSpecs name="tag-group" />
+
+## Pautas
+
+### Para qué sirve un grupo de tags
+
+| El conjunto | Usa |
+| --- | --- |
+| Tags estáticos: las categorías de un artículo, los valores que puede tomar un ajuste, una fila de estados | Un grupo de tags. |
+| Tags que llevan a la página de cada tag | Un grupo de tags con `spacing="chips"`, formado por chips con `href`. Un tag es texto y no puede ser un enlace. |
+| Filtros encima de una lista, sugerencias bajo un campo, elementos que la persona introdujo | Un grupo de tags con `spacing="chips"`. |
+| De dos a cuatro acciones distintas | Un [grupo de botones](/es/components/button-group/). |
+| Una elección entre varias | Un [grupo de botones de opción](/es/components/radio-group/), unas [pestañas](/es/components/tabs/) o un [botón segmentado](/es/components/segmented-button/). |
+| Controles que necesitan una etiqueta visible, una marca de obligatoriedad y un error | Un [grupo de campos](/es/components/field-group/). |
+| Valores introducidos dentro de un campo | La disposición del propio campo. Un [cuadro combinado](/es/components/combobox/) dispone sus chips él mismo. |
+
+### Separación
+
+`spacing` dice qué contiene el conjunto y decide dos distancias: la que hay entre dos miembros de una línea y la que hay entre dos líneas.
+
+- `tags` (el valor predeterminado) es para tags estáticos. Las líneas quedan tan cerca una de otra como los tags a lo largo de una línea, así que un conjunto que ocupa varias líneas se lee como un solo bloque.
+- `chips` es para chips. Un chip recibe una pulsación más allá de su borde visible, hasta completar un objetivo táctil. Las líneas quedan lo bastante separadas para que cada chip mediano conserve entero ese objetivo, y donde las áreas de dos chips se solaparían, se encuentran en la mitad de la separación.
+
+Un conjunto de chips que se deja en `tags` sigue funcionando. Sus líneas quedan más cerca que la altura de un objetivo táctil, y una compilación de depuración lo notifica.
+
+Los chips pequeños son para un lugar denso en el que el conjunto ocupa una sola línea. En varias líneas, sus objetivos táctiles se encuentran entre las líneas antes de alcanzar su tamaño completo. Usa chips medianos para un conjunto que salta de línea en una pantalla táctil.
+
+Un sistema de diseño puede añadir valores de `spacing`.
+
+### Disposición
+
+- Los miembros quedan en el orden en que los das. El grupo nunca los ordena y nunca adelanta un chip seleccionado.
+- Un miembro que no cabe pasa entero a la línea siguiente. Nada se corta, se encoge, se oculta ni se desplaza, y no hay ningún «+3 más». Para mostrar menos, da menos miembros al grupo y haz que el último sea un chip de acción que muestre el resto.
+- Un miembro más ancho que el grupo recibe el ancho del grupo y corta su propia etiqueta con puntos suspensivos.
+- El conjunto empieza en el borde de inicio. Para colocarlo al final o en el centro de una fila, coloca el grupo con el diseño que lo rodea.
+- Da a todos los miembros el mismo tamaño. Los miembros de tamaños distintos se centran en su línea.
+- Un grupo sin ningún miembro no dibuja nada y no ocupa espacio. Una publicación sin tags no necesita ningún caso especial.
+
+### La etiqueta
+
+`label` da nombre al conjunto para la tecnología de apoyo: «Etiquetas», «Filtros». No se dibuja. Donde el conjunto necesite un nombre visible, escribe antes de él tu propio encabezado o texto, y da `label` de todos modos.
+
+### Selección
+
+El grupo no guarda ningún valor. Cada chip de filtro guarda su propio `selected`, y puede haber varios activados a la vez. Para un solo filtro a la vez, desactiva tú los demás cuando se active uno.
+
+### Quitar un chip
+
+Un chip pide que lo quiten y tú lo quitas. Si el foco estaba en ese chip o en su acción de quitar, el grupo pone el foco en el chip que lo seguía, o en el anterior cuando no lo sigue ninguno. Una persona que quita varios elementos seguidos continúa desde donde estaba.
+
+Dos cosas siguen siendo tuyas:
+
+- Cuando no queda ningún chip que reciba el foco, mueve el foco al control al que pertenece el conjunto: el campo que añade elementos o el botón que abre los filtros. De lo contrario, el navegador lo pierde.
+- El grupo no anuncia nada. Donde haya que oír que se ha quitado algo, como un filtro que se quita lejos de la lista que cambia, comunícalo en una región activa (live region) o con un [snackbar](/es/components/snackbar/).
+
+### Recomendado
+
+- Define `spacing="chips"` para un conjunto de chips.
+- Da al conjunto un `label`, en el idioma de la página.
+- Mantén un solo tipo de miembro en un conjunto. La excepción son los elementos introducidos seguidos de un único chip «Añadir».
+
+### Evita
+
+- No uses un grupo de tags para las acciones de un diálogo o de un formulario. Usa un grupo de botones.
+- No pongas en él nada que no sean tags y chips. Cualquier otro contenido se dispone igualmente, y las compilaciones de depuración lo notifican.
+- No cambies el estilo de los miembros desde el grupo. Cambia en su lugar los tokens del grupo en una capa.
+
+## Accesibilidad
+
+<ComponentAccessibility name="tag-group" />
+
+### De qué se encarga el componente
+
+- El conjunto se expone como una sola lista, que recibe su nombre de `label`. Cada miembro es un elemento de ella: un tag se lee como su texto, un chip como su botón o su enlace con su estado, y un chip de entrada con su acción de quitar al lado.
+- Una lista dice a la persona cuántos miembros hay y en cuál de ellos está: «lista, 4 elementos».
+- Los miembros se leen y reciben el foco en el orden dado, también en un diseño de derecha a izquierda.
+- Cada chip es una parada propia en el orden del foco, y un chip de entrada son dos: el chip y después su acción de quitar. El grupo no recibe el foco ni gestiona ninguna tecla.
+- Después de quitar un chip que tenía el foco, el foco pasa al chip siguiente, nunca a una acción de quitar.
+- Un grupo vacío no expone nada: ni una lista vacía ni un nombre.
+- Con el texto al 200%, los miembros crecen y ocupan más líneas. Nada se corta y nada se desplaza hacia los lados.
+- Con colores forzados, el grupo sigue sin dibujar nada. Los miembros dibujan sus propios bordes.
+- En un diseño de derecha a izquierda, todas las líneas empiezan por la derecha.
+
+Cómo está construido en la web: la lista es un solo elemento en el shadow root del grupo, alrededor del slot. El grupo escribe `role="listitem"` en cada miembro mientras está en el grupo, y lo retira cuando el miembro sale. Un miembro que tiene un `role` propio, o que es un elemento nativo con un significado propio (un enlace, un botón), lo conserva y no es un elemento de la lista. Envuelve un elemento así en un `span`.
+
+Carencias conocidas en la web:
+
+- Antes de que el elemento esté definido, los miembros están en la página en su orden, separados por el espacio en blanco que hay entre ellos, sin las separaciones y sin la lista. Una página que quiera la disposición desde el primer pintado añade:
+
+  ```css
+  tanrei-tag-group:not(:defined) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+  }
+  ```
+
+- No se ofrecen teclas de flecha entre los chips de un conjunto. Una fila larga de filtros que deba ser una sola parada es una [barra de herramientas](/es/components/toolbar/) de chips.
+
+### Qué debes hacer tú
+
+- Da al grupo un `label`. El componente no aporta textos propios.
+- Da a cada chip de entrada un `removeLabel` que nombre el elemento.
+- Quita un chip cuando emita `remove`, y mueve tú el foco cuando se haya ido el último.
+- Di un estado con las palabras de cada tag. El color por sí solo nunca lo dice.

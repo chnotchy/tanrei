@@ -1,0 +1,188 @@
+---
+title: "字段组"
+description: "为回答同一个问题的一组控件——复选框、开关，或者相互关联的字段——命名：一个可以说明这一组必填或选填的标签、一段描述，以及针对整组的一条错误；并把这些控件排成一列或一行。"
+translationOf: components/field-group.mdx
+sourceHash: 0c05f716a744df37389e7c61de7327157afc78c5
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="field-group" />
+
+<DemoFrame label="一组复选框，带有名称、描述和必填标记" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填">
+    <tanrei-checkbox label="邮件" checked></tanrei-checkbox>
+    <tanrei-checkbox label="短信"></tanrei-checkbox>
+    <tanrei-checkbox label="推送通知"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+有些问题要用几个控件来回答：选其中哪几项、这几项设置、分成五个字段的地址。字段组给这一组控件一个名称、一行说明该怎么回答的文字、一个说明是否必须回答的词，以及回答被拒绝时的一条原因。它是一个以一组控件为控件的[字段](/zh-cn/components/field/)。
+
+字段组框住这一组控件并为它们布局。它不选择任何东西，不保存值，不移动焦点，也不处理任何按键：这些都由每个控件自己负责。
+
+在 Web 上它是 `<tanrei-field-group>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field-group label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填"
+                        error error-text="请至少选择一种通知方式。">
+      <tanrei-checkbox name="notify" value="email" label="邮件"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="text" label="短信"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="push" label="推送通知"></tanrei-checkbox>
+    </tanrei-field-group>
+
+    <!-- 相互关联的字段。 -->
+    <tanrei-field-group label="收货地址" spacing="fields">
+      <tanrei-text-field label="街道地址" requirement="required" required-text="必填"></tanrei-text-field>
+      <tanrei-text-field label="城市" requirement="required" required-text="必填"></tanrei-text-field>
+    </tanrei-field-group>
+
+    <script type="module">
+      import '@tanrei/web/components/field-group';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, FieldGroup } from '@tanrei/react';
+
+    <FieldGroup label="通知方式" supportingText="可多选。" error={none} errorText="请至少选择一种通知方式。">
+      <Checkbox label="邮件" checked={email} onChange={(event) => setEmail(event.detail.checked)} />
+      <Checkbox label="短信" checked={text} onChange={(event) => setText(event.detail.checked)} />
+    </FieldGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="针对整组的错误、排成一行、开关，以及相互关联的字段" plain column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填" error error-text="请至少选择一种通知方式。">
+    <tanrei-checkbox label="邮件"></tanrei-checkbox>
+    <tanrei-checkbox label="短信"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" orientation="horizontal">
+    <tanrei-checkbox label="邮件" checked></tanrei-checkbox>
+    <tanrei-checkbox label="短信"></tanrei-checkbox>
+    <tanrei-checkbox label="推送"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="隐私" supporting-text="仅适用于此设备。" requirement="optional" optional-text="选填">
+    <tanrei-switch label="共享使用情况数据" selected></tanrei-switch>
+    <tanrei-switch label="显示我的状态"></tanrei-switch>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="城市和邮政编码" spacing="fields" orientation="horizontal">
+    <tanrei-text-field label="城市" value="京都市"></tanrei-text-field>
+    <tanrei-text-field label="邮政编码" value="604-8571"></tanrei-text-field>
+  </tanrei-field-group>
+</DemoFrame>
+
+<ComponentSpecs name="field-group" />
+
+## 指南
+
+### 字段组的用途
+
+| 这一组控件 | 使用 |
+| --- | --- |
+| 回答同一个问题的复选框，或者同属一组设置的开关 | 字段组。 |
+| 相互关联的字段：地址、分成几部分的日期 | 带 `spacing="fields"` 的字段组。 |
+| 单选按钮 | [单选组](/zh-cn/components/radio-group/)，它就是包住这些单选按钮、同时保存它们那一个值的字段组。手写时，用 `kind="radio-group"` 的字段组（见下文）。 |
+| 单个控件 | [字段](/zh-cn/components/field/)。 |
+
+### 一组单选按钮：`kind`
+
+组既没有必填状态，也没有无效状态，所以字段组用文字说明必填与否，并把它的复选框逐个标记为无效。一组单选按钮则不同：它是作为一个整体必填、作为一个整体无效的。`kind="radio-group"` 告诉字段组，它的这一组是同一个组的单选按钮；这时对辅助技术来说，它就是这些单选按钮的单选组——`requirement` 为 `required` 时必填，`error` 为 true 时无效，并说出自己的方向——而 `requiredText` 不再是它描述的一部分，因为状态已经说明了这一点。
+
+```html
+<tanrei-field-group kind="radio-group" label="配送方式" requirement="required" required-text="必填">
+  <tanrei-radio-button name="delivery" value="standard" label="标准配送（3–5 天）" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="加急配送（次日达）"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="种类为 radio-group 的字段组，包着同一个 name 的单选按钮" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方式" requirement="required" required-text="必填">
+    <tanrei-radio-button name="delivery-kind" value="standard" label="标准配送（3–5 天）" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-kind" value="express" label="加急配送（次日达）"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+`kind` 改变的是暴露出来的内容，画出来的东西一点不变；字段组仍然不保存值，不移动焦点，也不处理任何按键：单选按钮凭它们的 `name` 保持自己的选择、自己的方向键和自己的那一个停靠点。这就是下一层的[单选组](/zh-cn/components/radio-group/)。除非你需要以单选组没有的方式排布这一组，否则请使用单选组：它加上了那一个值、一个 `change`，以及作为一个控件在表单中的位置。
+
+在这个种类下，组里放的是同一个组的单选按钮，没有其他可以操作的东西，`spacing` 保持为 `controls`。有别的控件、单选按钮用了两个 name，或者用了别的 spacing，调试构建都会报告。
+
+### 它与字段的区别
+
+一组控件比较高，要从上往下读，所以有两样东西的位置与字段不同：
+
+- 描述位于标签下方、控件之前，并且在字段组处于错误状态时仍然保留。“可多选”必须在选项之前读到，回答被拒绝时，用户需要再看一遍的也正是它。
+- 错误文本单独占一行，位于最后一个控件下方。
+
+标签、必填和选填小标签，以及星号，都与字段的相同。
+
+### 布局
+
+- `orientation="vertical"`（默认）把控件叠成一列。优先使用它：每个标签都从同一条边开始，从上往下读。
+- `orientation="horizontal"` 把控件排成一行，放不下时换行。只把它用于两三个简短的选项，或者要作为一行来读的字段，例如城市和它的邮政编码。换了行之后，就看不出哪个标签属于哪个标记了。
+- `spacing` 说明这一组里放的是什么。`controls` 让复选框和开关之间相隔一个触摸目标的距离；`fields` 让字段之间相隔表单中两个字段之间的距离，并让每个字段占满宽度。设计系统可以添加其他取值。
+
+复选框或开关的标记位于它自己的容器里面，所以它的起点比字段组的标签略微靠里。字段组不会把它往外拉：控件正是在这个容器上绘制悬停和焦点环的。
+
+### 错误
+
+`error` 让这一组进入错误状态：绘制错误文本，每个复选框以自己的错误形态绘制，并暴露为无效，每个单选按钮也以它的错误形态绘制。单选按钮不会暴露为无效：它的角色没有这种状态，这一点由单选组来说明。开关没有错误形态，保持原样。字段组里的字段保留你给它的错误：每个字段用文字说明自己的错误，而字段组的错误针对的是整组（“请至少选择一项”）。
+
+字段组有效时，其中的某一个控件仍然可以单独处于错误状态。
+
+### 推荐
+
+- 用这些控件所回答的问题来为这一组命名：“通知方式”。
+- 给每个控件它自己的标签。字段组的标签不能代替它们。
+- 用字段组来区分标签相同的两组字段：“收货地址”和“账单地址”。
+
+### 避免
+
+- 不要不加说明就把单选按钮放进字段组：请使用[单选组](/zh-cn/components/radio-group/)，或者设置 `kind="radio-group"`。在普通的组里，它们没有必填状态，也没有无效状态，调试构建会报告这一点。
+- 不要只为了布局而使用字段组。没有共同的名称时，请自己为这些字段布局，并使用同一个间距令牌（`comp.field-group.gap.fields`）。
+- 字段组的嵌套不要超过一层。组里的组是它的一个成员，会被读作组中之组。
+
+## 无障碍
+
+<ComponentAccessibility name="field-group" />
+
+### 组件负责的部分
+
+- 在 Web 上，字段组是一个带 `legend` 的 `fieldset`：一个包含其控件的组，由 `label` 命名，无论它是画出来的，还是用 `labelHidden` 隐藏的。
+- 字段组的描述是 `supportingText`；`error` 为 true 时，后面接 `errorText`；再后面是 `requiredText` 或 `optionalText`。组没有必填状态，也没有无效状态，所以必填和选填要用文字说明。
+- 被字段组置于错误状态的每个复选框，各自暴露为无效，并以错误文本作为描述。
+- 设置 `kind="radio-group"` 后，同一个元素就是一个单选组：必填状态、无效状态和方向都由它自己带着，`requiredText` 不进入它的描述。在 Web 上它仍是同一个 `fieldset`，带着单选组的角色。
+- `disabled` 会禁用每一个控件，并把字段组暴露为禁用。启用的字段组绝不会启用你自己禁用的控件。
+- 焦点位于字段组内时出现或改了措辞的错误，会以礼貌（polite）的方式朗读一次。焦点绝不会因为错误而移动。
+- 字段组不是焦点顺序中的停靠点，不接收任何按键，也不响应按下：Tab 按给定的顺序到达每一个启用的控件。
+- 必填和选填小标签以及星号对辅助技术隐藏。
+- 文本放大到 200% 时，所有文本都会换行，排成一行的控件变成一列，不会有任何内容被截断。
+- 在强制颜色模式下，所有文本都采用系统的文本颜色，必填和选填小标签会多出一道边线。
+- 在从右到左的布局中，各行从右侧开始，排成一行的控件从右侧排起，每段文本保持自己的方向。
+- `kind` 为 `group` 的字段组里有单选按钮、字段组里没有控件，以及字段组没有标签，都会在调试构建中报告。
+
+Web 上的已知差距：
+
+- 复选框的描述是用 `aria-description` 提供的，它还没有在每一种屏幕阅读器上验证过。
+- 在元素定义之前，控件出现在页面上时没有字段组的标签、描述和布局。
+
+### 需要你做的事
+
+- 为字段组提供 `label`。
+- 自己校验回答，设置 `error`，并编写说明如何改正的 `errorText`。
+- 给出必填和选填的文字：把 `required-text` 和 `optional-text` 写在字段组上，或者用 `setWords({ requiredText, optionalText })` 为整个产品只给一次。它们会作为字段组描述的一部分被朗读，而组没有必填状态：没有 `requiredText`，就没有任何东西告诉辅助技术这里必须回答。Tanrei 不自带任何文字；缺少的文字会在开发时报告。参见[产品的文字](/zh-cn/foundations/words/)。
+- 提交失败之后，还要在表单上方说明哪些内容被拒绝，并逐一链接到各个控件：使用一个带 `live`、处于错误语义状态的[提示块](/zh-cn/components/callout/)。

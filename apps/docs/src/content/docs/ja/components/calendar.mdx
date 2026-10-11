@@ -1,0 +1,240 @@
+---
+title: カレンダー
+description: 1 か月を日のグリッドで表示し、そこから日付を 1 つ、または日付の期間を 1 つ選べるようにします。ページの中にもピッカーの中にも置け、月は週が 1 列に連なったものとして、スクロールやドラッグに追従して動きます。
+translationOf: components/calendar.mdx
+sourceHash: c095f989d07f9cab3c2978b4e5df0acdf942d89e
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import ProductWords from '../../../../components/ProductWords.astro';
+
+export const words = {
+  previousMonthLabel: '前の月',
+  nextMonthLabel: '次の月',
+  yearViewLabel: '年を選ぶ',
+  todayLabel: '今日',
+  startLabel: '開始日',
+  endLabel: '終了日',
+};
+
+## 概要
+
+<ComponentAvailability name="calendar" />
+
+カレンダーは、ページの中に置く月のグリッドです。自前のサーフェス、パディング、エレベーションを持たないので、予約フォームやレポートの絞り込みのように、ほかの内容と並べてページに置けます。[DateTimePicker](/ja/components/date-time-picker/) の中でも、そのまま使われます。日付を 1 つ選ぶ（`mode` が `single`）か、連続した日付の期間を 1 つ選びます（`mode` が `range`）。
+
+:::note[現在は Web のみ、ほかは予定]
+Web コンポーネントは、このページの説明どおりにカレンダーを実装しています。月は週が 1 列に連なったものとして、スクロールやドラッグに追従します。デモはそのコンポーネントです。SwiftUI、Compose、Flutter、React Native はまだ作っていません。これらのパッケージには廃止した日付ピッカーのコードが残っていますが、このページでは説明しません。
+:::
+
+<DemoFrame label="日付を 1 つ。日をスクロールするかドラッグするか、ボタンを使うと月が変わります">
+  <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+</DemoFrame>
+
+### 使い方
+
+利用者が日を選ぶと、カレンダーは自分で `value`（または `start` と `end`）を設定し、そのあとで `change` を発火します。プロダクト側から設定することもできます。表示中の月の外の日付を設定すると、その月が表示されます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-calendar id="check-in" label="チェックイン日" value="2026-09-17" min="2026-09-01"></tanrei-calendar>
+
+    <!-- 期間。空いたマスに前後の月の日も表示します。 -->
+    <tanrei-calendar id="stay" mode="range" label="宿泊" show-adjacent-days
+      disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
+
+    <script type="module">
+      import '@tanrei/web/components/calendar';
+      const checkIn = document.querySelector('#check-in');
+      // リストでは書けない規則はプロパティで渡します。ISO の日付を受け取り、真偽値を返す関数です。
+      checkIn.isDateDisabled = (iso) => bookedDays.has(iso);
+      // change が発火した時点で、要素はすでに新しい日付を持っています。
+      checkIn.addEventListener('change', (e) => save(e.detail.value));
+
+      // 期間では選ぶたびに change が発火します。開始日だけのとき、end は "" です。
+      document.querySelector('#stay').addEventListener('change', (e) => show(e.detail.start, e.detail.end));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Calendar } from '@tanrei/react';
+
+    <Calendar
+      label="チェックイン日"
+      value={checkIn}
+      min="2026-09-01"
+      isDateDisabled={(iso) => bookedDays.has(iso)}
+      onChange={(e) => setCheckIn(e.detail.value)}
+    />
+
+    <Calendar
+      mode="range"
+      label="宿泊"
+      start={stay.start}
+      end={stay.end}
+      showAdjacentDays
+      disabledDates={['2026-09-21', '2026-09-22']}
+      onChange={(e) => setStay({ start: e.detail.start, end: e.detail.end })}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+SwiftUI、Compose、Flutter、React Native の例はありません。これらのプラットフォームは、まだカレンダーを作っていないからです。各プラットフォームでの名前は、[仕様](#仕様)のプラットフォーム対応表にあります。
+
+### 日付ピッカーの移り先
+
+日付と時刻は 2 つのコンポーネントで選びます。このカレンダーと、それを収める [DateTimePicker](/ja/components/date-time-picker/) です。
+
+| 以前 | 現在 |
+| --- | --- |
+| 日付ピッカー（モーダル、ドック） | `date` モードの DateTimePicker（`modal` または `docked`） |
+| ページに置く月のグリッド | カレンダー |
+| 期間を選ぶ日付ピッカー | `mode` を `range` にしたカレンダー、または `range` を付けた DateTimePicker |
+| 日付ピッカーの文字入力フォーム | `type` を `date` にした[テキストフィールド](/ja/components/text-field/)。そのピッカーボタンから DateTimePicker を開きます |
+| 日付ピッカーのトークン | グリッドは `comp.calendar.*`、サーフェス・ヘッダー・アクションは `comp.date-time-picker.*` |
+
+Web では、日付を選ぶ以前の要素はなくなりました。そのグリッドをページに描いていた箇所は、`<tanrei-calendar>` に置き換えます。`value`、`min`、`max`、`disabled-dates`、`today`、`locale`、`first-day-of-week` はそのまま使えます。ピッカーとして開いていた箇所は、`<tanrei-date-time-picker>` に置き換えます。
+
+### Material 3 と Apple の名前との対応
+
+- Material 3 のドック型とモーダルの date picker は、`date` モードの DateTimePicker です。date range picker は、それに `range` を付けたものです。m3-like プリセットは、Material のコンテナと角丸で描き、月を横にめくり、アクションを末尾寄せのテキストボタンにします。
+- ページに置くカレンダーは、Flutter の `CalendarDatePicker` や、SwiftUI の graphical スタイルの日付ピッカーにあたります。SwiftUI、Compose、Flutter では `TanreiCalendar`、React Native では `Calendar` です。
+- Material の、文字入力に切り替える鉛筆とキーボードのボタンに相当するものはありません。日付はテキストフィールドで入力します。
+- Apple の graphical な日付ピッカーは、軸を横にしたカレンダーです。cupertino プリセットがそう設定しています。
+
+## 仕様
+
+<ComponentSpecs name="calendar" />
+
+## ガイドライン
+
+### 使う場面
+
+選ぶ日付の前後が意味を持つときに使います。宿泊、予約、レポートの期間、曜日が大事な日付などです。選ぶことがそのページの作業なら、カレンダーをページに置きます。日付がほかの項目と並ぶ 1 項目にすぎないなら、`type` を `date` にした[テキストフィールド](/ja/components/text-field/)を使い、そのピッカーボタンから [DateTimePicker](/ja/components/date-time-picker/) を開きます。日付がわかっている人には、探すより入力するほうが速いからです。
+
+### 選び方
+
+- **日付を 1 つ。** `single` モードでは、選べる日を押すか Enter で `value` になり、`change` を発火します。
+- **期間。** `range` モードでは、最初に選んだ日が開始日、次に選んだ日が終了日です。開始日より前の日を選ぶか、両端が決まったあとに選ぶと、選び直しになります。`change` は選ぶたびに発火し、開始日だけのときは `end` が空です。そのため、選びかけの期間もプロダクト側で表示できます。開始日と終了日が同じなら 1 日の期間です。
+- **値** は ISO 8601 の暦日（`2026-09-17`）で、時刻もタイムゾーンも持ちません。`today` は、設定しなければ端末の今日の日付です。会場のタイムゾーンやテストのために設定できます。
+
+<DemoFrame label="期間。開始日、終了日の順に選びます。3 回目に選ぶと選び直しです" plain>
+  <tanrei-calendar mode="range" label="宿泊" locale="ja-JP" today="2026-09-24" start="2026-09-10" end="2026-09-16"></tanrei-calendar>
+</DemoFrame>
+
+期間は、開始日から終了日までの 1 本の帯です。週の行の端で切れ、次の行に続きます。
+
+### 選べない日
+
+選べない日は、`min`、`max`、`disabledDates` と、各プラットフォームの `isDateDisabled` 述語で決まります。述語は、毎週末のようにリストでは書けない規則のためのものです。選べない日は控えめに描かれ、選べませんが、矢印キーではたどれるので、その日付が存在することは伝わります。前後のボタンは `min` の月と `max` の月で止まり、スクロールとドラッグもそこで止まります。
+
+選べない日をまたぐ期間は、その日を含んだままです。プロダクトがそれを受け付けられない場合は、`change` のあとでそう伝えます。
+
+<DemoFrame label="9 月 7 日から 10 月 20 日まで。9 月 21 日と 22 日は埋まっています" plain>
+  <tanrei-calendar label="予約日" locale="ja-JP" today="2026-09-24" value="2026-09-17" min="2026-09-07" max="2026-10-20" disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
+</DemoFrame>
+
+### 月の移動
+
+ナビゲーションの行には、先頭にビューの切り替え（「2026年9月」とシェブロン）、末尾に前後のボタンがあります。月を動かす手段は 4 つあり、どれも同じものを動かします。そのため、ある手段の途中で別の手段に移っても、表示が飛ぶことはありません。
+
+- **ボタン** と **キー**（Page Up と Page Down、または月の外に出る矢印キー）は、短いモーションで月を切り替えます。
+- トラックパッドやホイールで日の上を **スクロール** すると、スクロールした分だけ日が動き、続けているあいだ何か月でも進みます。止まると、カレンダーはどちらかの月に落ち着きます。隣の月まで 4 分の 1 以上進んでいれば隣の月、そうでなければ元の月です。段階で報告されるホイールは、1 段で 1 か月動きます。
+- 指、ペン、マウスで日を **ドラッグ** しても同じです。離すと同じ 4 分の 1 で落ち着き、フリングしたときはその向きの月になります。動かさずに離した押下は、これまでどおりその日を選びます。
+
+既定のシステムでは、月は縦の軸に沿って並び、週が途切れずに連なった 1 本の列になっています。1 か月は、その列に開いた 6 行の窓です。2 つの月にまたがる週は 1 つの行で、一方の月での位置からもう一方での位置へ移動します。見えてくる日はフェードインし、隣の月の日は、週が動くにつれてその月の日の色に変わります。月のグリッドを 2 つ別々に描くことはなく、どの月でもカレンダーの高さは変わりません。
+
+動きを減らす設定では、ボタンやキーは月をすぐに切り替えます。スクロールとドラッグは利用者自身の手が動かすものなので、その場合も日は追従し、終わった時点ですぐに月の位置に収まります。
+
+軸はプロパティではなく、プロダクトの設定 `comp.calendar.navigation.axis` です。そのため、プロダクトの中のどのカレンダーも同じ向きに動きます。
+
+| 軸 | ボタン | 月 | スクロールとドラッグ |
+| --- | --- | --- | --- |
+| `vertical`（既定） | 上下の矢印 | 週が連なった 1 列 | 縦の操作で日が動き、横の操作はページに渡ります |
+| `horizontal` | 前後の矢印 | 横に並ぶ 2 ページ。あとの月が末尾側 | 横の操作で日が動き、縦の操作はページに渡ります |
+
+キー操作は軸によって変わりません。
+
+<DemoFrame label="横の軸：月はページになります" system="m3-like" plain>
+  <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+</DemoFrame>
+
+ポインターが日の上にあるあいだ、軸に沿ったスクロールはカレンダーのものです。日が止まる最初の月と最後の月でも同じです。同じ向きにスクロールするページでは、そこからはページがスクロールしません。長いページでは、カレンダーの横やまわりに、スクロールがページに届く場所を残してください。曜日の行、ナビゲーションの行、カレンダーのまわりでは、いつもどおりページがスクロールします。
+
+### 年のビュー
+
+ビューの切り替えを押すと、年のビューになります。`min` の年から `max` の年まで（どちらもなければ 1900 年から 2100 年まで）の、スクロールするリストです。年を選ぶと、その年の同じ月を表示し、選択は変わりません。誕生日のように今日から遠い日付には、`startView` を `year` にして年のビューから始めます。
+
+<DemoFrame label="誕生日のために、年から始める" plain>
+  <tanrei-calendar label="生年月日" locale="ja-JP" today="2026-09-24" start-view="year" max="2026-09-24"></tanrei-calendar>
+</DemoFrame>
+
+### 前後の月の日
+
+`showAdjacentDays` を付けると、グリッドの空いたマスに前後の月の日を控えめに表示します。選べる日ならそのまま選べ、期間の端にもできます。ポインターで選ぶと、その日を選んだうえでその月を表示し、そこではその月の日として描かれます。付けなければ、それらのマスは空で、押しても何も起こりません。
+
+<DemoFrame label="前後の月の日を表示：10 月 1 日を選ぶと 10 月になります" plain>
+  <tanrei-calendar label="配達日" locale="ja-JP" today="2026-09-24" value="2026-09-29" show-adjacent-days></tanrei-calendar>
+</DemoFrame>
+
+### ロケール
+
+曜日名、月の見出し、数字はロケール（`locale`、または各プラットフォームのロケール）に従います。`firstDayOfWeek` は、曜日を指定しなければロケールに従います。暦はどのロケールでもグレゴリオ暦です。ロケールのデータではない言葉（ナビゲーションボタンの名前、表示切り替えの説明、期間の開始と終了）は、プロダクトのものです。Tanrei は言葉を同梱しません。カレンダーに書くか、このページがしているように、プロダクト全体に、言語ごとに一度だけ渡します。
+
+<ProductWords words={words} label="プロダクト全体に一度だけ渡す、カレンダーの言葉" />
+
+この呼び出しは、このページが実際に実行しているものです。ページ上のカレンダーはすべてこの言葉で名前が付き、サンプルにはどの言葉も書いていません。ほかと違う言葉を使うカレンダーは、自分の属性で渡します。下の英語のカレンダーは、4 つの言葉を属性で渡しています。属性は常に優先されます。どれも渡さなくても、ナビゲーションボタンは動作しますが名前を持たず、デバッグビルドが足りない言葉をそれぞれ報告します。渡さないときにブラウザーのロケールデータから取るのは、今日を表す言葉だけです。
+
+<DemoFrame label="月曜始まりの週と、英語のロケール" plain>
+  <tanrei-calendar label="チェックイン日" locale="ja-JP" first-day-of-week="monday" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+  <tanrei-calendar label="Check-in date" locale="en-US" today="2026-09-24" value="2026-09-17" previous-month-label="Previous month" next-month-label="Next month" year-view-label="Choose a year" today-label="Today"></tanrei-calendar>
+</DemoFrame>
+
+### 推奨
+
+- ページに複数のカレンダーがあるときや、近くに何の日付かを示すものがないときは、`label` を付けます（「チェックイン日」など）。
+- `min` と `max` は、実際に選べる日付に合わせます。そうすれば、選べる範囲の端でナビゲーションも止まります。
+- わかっている日付のために、カレンダーの横や代わりにテキストフィールドを用意します。
+- ボタンをいつでも使えるようにしておきます。スクロールとドラッグは近道で、だれもが使えるわけではありません。
+
+### 非推奨
+
+- 軸を画面ごとに変えない。プロダクト全体で 1 つに決めるものです。
+- 選べない日を隠さない。選べないものとして表示すれば、グリッドが欠けずに保たれます。
+- 縦の軸のカレンダーを、縦にスクロールするページの幅いっぱいに置かない。日の上で始めたスクロールが、ページに届かなくなります。
+- 月が見えてきたことを、選択として扱わない。スクロールとドラッグが変えるのは表示だけで、`value` は変わらず、イベントも発火しません。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="calendar" />
+
+### コンポーネントが担うこと
+
+- カレンダーは `label` を名前とするグループです。グリッドは表示中の月を名前とし、列見出しは曜日の正式な名前です。各日はその日付を省略せずに名前とし、選択中か、選べないか、今日かを伝えます。期間の両端は `startLabel` と `endLabel` で説明します。
+- タブ順には、アクティブな日が 1 つだけ入ります。矢印キーで 1 日または 1 週、Home と End で週の端、Page Up と Page Down で 1 か月、Shift を併用すると 1 年動き、必要なら月も変わります。Enter か Space で選びます。
+- ビューの切り替えは、表示中の月と年を名前とするボタンで、`yearViewLabel` で説明され、年のビューが開いているかどうかを伝えます。年のリストもタブ順に 1 つだけ入り、矢印キーで 1 年または 1 行、Home と End で両端に動きます。
+- 月が変わると、一度だけ控えめに読み上げます。スクロールが何か月も進むあいだ、見出しは通った月を順に示しますが、読み上げるのは止まった月だけです。元の月に戻ったスクロールやドラッグは、何も読み上げません。
+- ドラッグで日が 2 つの月のあいだにあるとき、カレンダーが伝える内容は何も変わりません。見出し、アクティブな日、フォーカスはそのままで、見えてくる日は、その月が表示中の月になるまでフォーカスも押下も受けません。
+- スクロールとドラッグは近道です。ボタンと Page Up・Page Down でも同じことができるので、ジェスチャーに頼る操作はありません。
+- どのマスも最小ターゲット以上で、文字を大きくしてもそれを保ちます。ターゲット 7 つ分より狭い場所では、マスが等しく狭まり、数字の大きさは変わりません。そのため、カレンダーが与えられた幅より広くなることはありません。ナビゲーションボタンは Tanrei のボタンです。
+- 右から左のレイアウトでは、グリッド、ナビゲーション、左右の矢印、次のページがある側が反転します。週の縦のスクロールは反転せず、ドラッグでは、日は常にポインターの動く向きに動きます。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native は、まだカレンダーを作っていません。各プラットフォームは、追従するときにこの仕様から作ります。
+- Web：年の選択状態は、ボタンの `aria-current` で伝えます。ボタンには選択状態そのものがないためです。
+- Web：ブラウザーはスクロールの終わりも慣性も知らせないので、カレンダーは、スクロールが短いあいだ途切れたことか減速から、終わりを判断します。ブラウザーが数ピクセルずつ報告するホイールマウスをゆっくり回すと、1 段ごとに元の月へ戻ります。
+- Web：指でのドラッグは、まだ実機で確認していません。また、Firefox と WebKit で失敗するテストがあります。
+
+### 利用者側で行うこと
+
+- `label` を設定し、カレンダーが使う言葉（`previousMonthLabel`、`nextMonthLabel`、`yearViewLabel`、`todayLabel`、`startLabel`、`endLabel`）を渡します。カレンダーに書くか、`setWords()` でプロダクト全体に一度だけ渡します。Tanrei は言葉を同梱しません。これらがなければ、ナビゲーションボタンは動作しますが名前を持たず、期間の両端には説明が付かず、それぞれ開発時に報告されます。ブラウザーのロケールデータから取るのは、今日を表す言葉だけです。[プロダクトの言葉](/ja/foundations/words/)を参照してください。
+- `type` を `date` にしたテキストフィールドのように、日付を入力する手段を用意します。多くの人にとって、それがいちばん直接的な方法です。
+- 選べない日をまたぐ期間を受け付けられない場合は、`change` のあとでそう伝えます。

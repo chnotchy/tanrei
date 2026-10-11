@@ -1,0 +1,240 @@
+---
+title: Calendario
+description: Muestra un mes como una cuadrícula de días, en la página o dentro de un selector, permite elegir en ella una fecha o un intervalo de fechas, y pasa de un mes a otro como una sola columna de semanas que sigue al desplazamiento y al arrastre.
+translationOf: components/calendar.mdx
+sourceHash: c095f989d07f9cab3c2978b4e5df0acdf942d89e
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import ProductWords from '../../../../components/ProductWords.astro';
+
+export const words = {
+  previousMonthLabel: 'Mes anterior',
+  nextMonthLabel: 'Mes siguiente',
+  yearViewLabel: 'Elegir año',
+  todayLabel: 'Hoy',
+  startLabel: 'Fecha de inicio',
+  endLabel: 'Fecha de fin',
+};
+
+## Descripción general
+
+<ComponentAvailability name="calendar" />
+
+Un calendario es una cuadrícula de mes que se coloca en línea. No tiene superficie, margen interior ni elevación propios, así que se sitúa en una página junto a otro contenido, como un formulario de reserva o el filtro de un informe, o dentro de un [DateTimePicker](/es/components/date-time-picker/), que lo compone sin cambios. Elige una fecha (`mode` `single`) o un intervalo continuo de fechas (`mode` `range`).
+
+:::note[Hoy en la web; planificado en las demás plataformas]
+El componente web implementa el calendario tal como lo describe esta página: los meses son una sola columna de semanas que sigue al desplazamiento y al arrastre. Las demostraciones son ese componente. SwiftUI, Compose, Flutter y React Native todavía no lo han construido. Sus paquetes conservan el código del selector de fecha retirado, que esta página no documenta.
+:::
+
+<DemoFrame label="Una fecha. Desplaza o arrastra los días, o usa los botones, para cambiar de mes">
+  <tanrei-calendar label="Fecha de entrada" locale="es" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+</DemoFrame>
+
+### Uso
+
+El calendario define su propio `value` (o `start` y `end`) cuando una persona elige un día, y después emite `change`. También puedes definirlos tú: una fecha fuera del mes que está en pantalla trae su mes a la vista.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-calendar id="check-in" label="Fecha de entrada" value="2026-09-17" min="2026-09-01"></tanrei-calendar>
+
+    <!-- Un intervalo, con los días de los meses vecinos en las celdas sobrantes. -->
+    <tanrei-calendar id="stay" mode="range" label="Estancia" show-adjacent-days
+      disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
+
+    <script type="module">
+      import '@tanrei/web/components/calendar';
+      const checkIn = document.querySelector('#check-in');
+      // Una regla que ninguna lista puede contener es una propiedad: una función que recibe una fecha ISO y devuelve un booleano.
+      checkIn.isDateDisabled = (iso) => bookedDays.has(iso);
+      // El elemento ya contiene la nueva fecha cuando se emite change.
+      checkIn.addEventListener('change', (e) => save(e.detail.value));
+
+      // Un intervalo emite change después de cada elección; end es "" cuando solo hay inicio.
+      document.querySelector('#stay').addEventListener('change', (e) => show(e.detail.start, e.detail.end));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Calendar } from '@tanrei/react';
+
+    <Calendar
+      label="Fecha de entrada"
+      value={checkIn}
+      min="2026-09-01"
+      isDateDisabled={(iso) => bookedDays.has(iso)}
+      onChange={(e) => setCheckIn(e.detail.value)}
+    />
+
+    <Calendar
+      mode="range"
+      label="Estancia"
+      start={stay.start}
+      end={stay.end}
+      showAdjacentDays
+      disabledDates={['2026-09-21', '2026-09-22']}
+      onChange={(e) => setStay({ start: e.detail.start, end: e.detail.end })}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+No hay ejemplos de SwiftUI, Compose, Flutter ni React Native, porque esas plataformas no han construido el calendario. Los nombres que tendrá en ellas están en la correspondencia entre plataformas, en [Especificaciones](#especificaciones).
+
+### Adónde fue a parar el selector de fecha
+
+Las fechas y las horas se eligen con dos componentes: este calendario y el [DateTimePicker](/es/components/date-time-picker/) que lo contiene.
+
+| Antes | Ahora |
+| --- | --- |
+| Selector de fecha, modal o acoplado | Un DateTimePicker en modo `date`, `modal` o `docked` |
+| Una cuadrícula de mes colocada en la página | Un calendario |
+| Selector de fecha con un intervalo | Un calendario con `mode` `range`, o un DateTimePicker con `range` |
+| La forma de introducción de texto del selector de fecha | Un [campo de texto](/es/components/text-field/) de `type` `date`, cuyo botón de selector abre un DateTimePicker |
+| Los tokens del selector de fecha | `comp.calendar.*` para la cuadrícula, `comp.date-time-picker.*` para la superficie, la cabecera y las acciones |
+
+En la web, el elemento anterior que elegía una fecha ya no existe. Una página que dibujaba su cuadrícula en la propia página usa `<tanrei-calendar>` con los mismos `value`, `min`, `max`, `disabled-dates`, `today`, `locale` y `first-day-of-week`; una página que lo abría usa `<tanrei-date-time-picker>`.
+
+### Los nombres de Material 3 y de Apple
+
+- Los selectores de fecha acoplado y modal de Material 3 son un DateTimePicker en modo `date`. Su selector de intervalo de fechas es lo mismo con `range`. El preajuste m3-like los dibuja con los contenedores y las esquinas de Material, pasa los meses hacia los lados como páginas y pone acciones de texto al final.
+- Un calendario colocado en una página es el `CalendarDatePicker` de Flutter y el estilo gráfico del selector de fecha de SwiftUI: `TanreiCalendar` en SwiftUI, Compose y Flutter, y `Calendar` en React Native.
+- Los conmutadores de lápiz y de teclado de Material para pasar a la introducción de texto no tienen equivalente: una fecha se escribe en el campo de texto.
+- El selector de fecha gráfico de Apple es un calendario con un eje horizontal, que es lo que define el preajuste cupertino.
+
+## Especificaciones
+
+<ComponentSpecs name="calendar" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un calendario cuando importan las fechas que rodean a la que se elige: una estancia, una reserva, un intervalo para un informe, una fecha cuyo día de la semana cuenta. Colócalo en la página cuando la elección forma parte de la tarea de la página. Cuando una fecha es un campo entre otros, usa un [campo de texto](/es/components/text-field/) de `type` `date` y abre un [DateTimePicker](/es/components/date-time-picker/) desde su botón de selector. Quien conoce la fecha la escribe antes de lo que tarda en encontrarla.
+
+### Cómo se elige
+
+- **Una fecha.** En el modo `single`, una pulsación o Enter sobre un día disponible lo convierte en `value` y emite `change`.
+- **Un intervalo.** En el modo `range`, la primera elección es el inicio y la segunda, el fin. Un día anterior al inicio, o una elección cuando ya están definidos los dos extremos, empieza de nuevo. `change` se emite después de cada elección, con `end` vacío cuando solo hay inicio, para que el producto pueda mostrar el intervalo a medio elegir. Un inicio y un fin en el mismo día forman un intervalo de un día.
+- **Los valores** son fechas de calendario ISO 8601 (`2026-09-17`), sin hora y sin zona horaria. `today` es la fecha actual del dispositivo salvo que la definas tú, para la zona horaria de un recinto o para las pruebas.
+
+<DemoFrame label="Un intervalo. Elige un inicio y después un fin; una tercera elección empieza de nuevo" plain>
+  <tanrei-calendar mode="range" label="Estancia" locale="es" today="2026-09-24" start="2026-09-10" end="2026-09-16"></tanrei-calendar>
+</DemoFrame>
+
+El intervalo es una sola banda que va del inicio al fin. Se interrumpe al final de la fila de una semana y continúa en la siguiente.
+
+### Días no disponibles
+
+Los días no disponibles salen de `min`, `max`, `disabledDates` y del predicado `isDateDisabled` de la plataforma, pensado para una regla que ninguna lista puede contener, como todos los fines de semana. Se dibujan más discretos, no se pueden elegir y siguen siendo accesibles con las teclas de flecha, para que la persona sepa que la fecha existe. Los botones de mes anterior y siguiente se detienen en los meses de `min` y de `max`, y lo mismo hacen el desplazamiento y el arrastre.
+
+Un intervalo que abarca un día no disponible lo conserva dentro; si tu producto no puede aceptarlo, dilo después de `change`.
+
+<DemoFrame label="Del 7 de septiembre al 20 de octubre, con el 21 y el 22 de septiembre ocupados" plain>
+  <tanrei-calendar label="Cita" locale="es" today="2026-09-24" value="2026-09-17" min="2026-09-07" max="2026-10-20" disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
+</DemoFrame>
+
+### Moverse entre meses
+
+La fila de navegación contiene el conmutador de vista («septiembre de 2026» y un chevron) al inicio y los botones de mes anterior y siguiente al final. Cuatro cosas mueven el mes, y todas mueven lo mismo, de modo que cualquiera puede tomar el relevo de otra sin saltos:
+
+- **Los botones** y **las teclas** (Re Pág y Av Pág, o una tecla de flecha que sale del mes) reproducen el cambio como un movimiento breve.
+- **Un desplazamiento** con un panel táctil o una rueda sobre los días los mueve tanto como se desplace, mes tras mes mientras dure. Cuando se detiene, el calendario se asienta en un mes: el vecino si los días ya han recorrido una cuarta parte del camino, y si no, el mes del que salió. Una rueda que informa de pasos enteros mueve un mes por paso.
+- **Un arrastre** de los días con un dedo, un lápiz o un ratón hace lo mismo. Al soltar, se asienta según esa misma cuarta parte, o hacia el lado de un lanzamiento. Una pulsación que no se mueve sigue eligiendo el día que tiene debajo.
+
+En el sistema predeterminado, los meses se disponen a lo largo de un eje vertical y son una sola columna ininterrumpida de semanas. Un mes es una ventana de seis filas sobre esa columna. Una semana que comparten dos meses es una única fila que viaja de su lugar en uno a su lugar en el otro, los días que entran en la vista aparecen con un fundido y un día de un mes vecino se convierte en uno de los propios del mes a medida que las semanas se mueven. Nunca se dibujan dos cuadrículas de mes separadas, y el calendario conserva su altura sea cual sea el mes.
+
+Cuando el movimiento está reducido, un botón o una tecla cambian el mes de inmediato. Los días siguen acompañando al desplazamiento y al arrastre, que mueve la propia mano de la persona, y se colocan de inmediato cuando terminan.
+
+El eje es un ajuste del producto, `comp.calendar.navigation.axis`, no una propiedad, de modo que todos los calendarios de un producto se mueven igual:
+
+| Eje | Botones | Meses | Desplazamiento y arrastre |
+| --- | --- | --- | --- |
+| `vertical` (el predeterminado) | Flechas hacia arriba y hacia abajo | Una sola columna de semanas | Los verticales mueven los días; los horizontales pasan a la página |
+| `horizontal` | Flechas hacia atrás y hacia delante | Dos páginas una junto a otra, con el mes posterior hacia el fin | Los horizontales mueven los días; los verticales pasan a la página |
+
+Las teclas nunca cambian con el eje.
+
+<DemoFrame label="Un eje horizontal: los meses son páginas" system="m3-like" plain>
+  <tanrei-calendar label="Fecha de entrada" locale="es" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+</DemoFrame>
+
+Un desplazamiento a lo largo del eje pertenece al calendario mientras el puntero esté sobre los días, también en el primer mes y en el último, donde los días se detienen. En una página que se desplaza en la misma dirección, la página no se desplaza desde ahí: en una página larga, deja espacio junto al calendario o a su alrededor, donde un desplazamiento llegue a la página. La fila de los días de la semana, la fila de navegación y todo lo que rodea al calendario desplazan la página como de costumbre.
+
+### La vista de años
+
+El conmutador de vista cambia a la vista de años, una lista desplazable que va del año de `min` al de `max` (de 1900 a 2100 sin ellos). Al elegir un año se muestra el mismo mes de ese año y no cambia ninguna elección. `startView` `year` abre primero ahí, para una fecha lejana de hoy, como una fecha de nacimiento.
+
+<DemoFrame label="Abrir por los años, para una fecha de nacimiento" plain>
+  <tanrei-calendar label="Fecha de nacimiento" locale="es" today="2026-09-24" start-view="year" max="2026-09-24"></tanrei-calendar>
+</DemoFrame>
+
+### Días de los meses vecinos
+
+`showAdjacentDays` llena las celdas sobrantes de la cuadrícula con los días de los meses vecinos, dibujados más discretos. Se pueden elegir cuando están disponibles, y un intervalo puede empezar o terminar en uno de ellos. Al elegir uno con un puntero, se elige y después se muestra su mes, donde es uno de los días propios del mes. Sin esta propiedad, esas celdas quedan vacías y no admiten pulsaciones.
+
+<DemoFrame label="Con los días de los meses vecinos: al elegir el 1 de octubre se muestra octubre" plain>
+  <tanrei-calendar label="Fecha de entrega" locale="es" today="2026-09-24" value="2026-09-29" show-adjacent-days></tanrei-calendar>
+</DemoFrame>
+
+### Configuración regional
+
+Los nombres de los días de la semana, el título del mes y las cifras son los de la configuración regional (`locale`, o la de la plataforma). `firstDayOfWeek` es el de la configuración regional salvo que indiques un día de la semana. El calendario es gregoriano en todas las configuraciones regionales. Las palabras que no son datos de la configuración regional (los nombres de los botones de navegación, la descripción del conmutador de vista, el inicio y el fin del intervalo) son tuyas: Tanrei no incluye textos propios. Dalas en el calendario, o una sola vez para todo el producto, por idioma, como hace esta página:
+
+<ProductWords words={words} label="Las palabras del calendario, dadas una sola vez para el producto" />
+
+Esa llamada es la que ejecuta esta página: todos los calendarios que hay en ella reciben su nombre de esas palabras, y los ejemplos no llevan ninguna. Un calendario dice las suyas donde son distintas: el japonés de abajo da sus cuatro como atributos, y un atributo siempre tiene prioridad. Sin ninguna de ellas, los botones de navegación siguen funcionando y no tienen nombre, y una compilación de depuración notifica cada palabra que falta. Solo la palabra para el día de hoy procede de los datos de configuración regional del navegador cuando no das ninguna.
+
+<DemoFrame label="Una semana que empieza en lunes, y la configuración regional japonesa" plain>
+  <tanrei-calendar label="Fecha de entrada" locale="es-US" first-day-of-week="monday" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+  <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17" previous-month-label="前の月" next-month-label="次の月" year-view-label="年を選ぶ" today-label="今日"></tanrei-calendar>
+</DemoFrame>
+
+### Recomendado
+
+- Dale al calendario un `label` cuando una página tenga más de uno, o cuando nada cerca de él diga para qué es la fecha («Fecha de entrada»).
+- Limita `min` y `max` a las fechas que de verdad se pueden elegir, para que la navegación se detenga donde lo hace la elección.
+- Ofrece un campo de texto junto al calendario, o en su lugar, para las fechas que la persona ya conoce.
+- Mantén los botones al alcance: el desplazamiento y el arrastre son atajos, y no todo el mundo puede usarlos.
+
+### Evita
+
+- No definas el eje por pantalla. Es una sola decisión para todo el producto.
+- No ocultes los días no disponibles. Muéstralos como no disponibles, para que la cuadrícula del calendario siga entera.
+- No pongas un calendario de eje vertical de borde a borde en una página que se desplaza en vertical. Un desplazamiento que empiece sobre sus días nunca llegaría a la página.
+- No trates como una elección el hecho de que un mes entre en la vista. El desplazamiento y el arrastre cambian lo que se muestra, nunca `value`, y no emiten nada.
+
+## Accesibilidad
+
+<ComponentAccessibility name="calendar" />
+
+### De qué se encarga el componente
+
+- El calendario es un grupo que recibe su nombre de `label`. La cuadrícula recibe su nombre del mes que muestra, los encabezados de sus columnas son los nombres completos de los días de la semana, y cada día recibe su nombre de su fecha completa y expone si está seleccionado, no disponible o si es hoy. Los extremos de un intervalo se describen con `startLabel` y `endLabel`.
+- Un solo día es el día activo en el orden de tabulación. Las teclas de flecha lo mueven un día o una semana; Inicio y Fin, a los extremos de la semana; Re Pág y Av Pág, un mes, y con Mayús, un año, cambiando de mes cuando hace falta. Enter o Espacio lo eligen.
+- El conmutador de vista es un botón que recibe su nombre del mes y el año que muestra, que se describe con `yearViewLabel` y que dice si la vista de años está abierta. La lista de años también es una sola parada de tabulación: las teclas de flecha mueven un año o una fila, y Inicio y Fin van a sus extremos.
+- El mes se anuncia una vez, de forma no intrusiva, cuando cambia. Mientras un desplazamiento recorre varios meses, el título sigue a cada uno, pero solo se anuncia el mes en el que termina, y un desplazamiento o un arrastre que vuelve al punto de partida no anuncia nada.
+- Mientras un arrastre mantiene los días entre dos meses, nada de lo que expone el calendario cambia: el título, el día activo y el foco permanecen, y los días que entran en la vista no reciben el foco ni pulsaciones hasta que su mes es el que se muestra.
+- El desplazamiento y el arrastre son atajos: los botones y Re Pág y Av Pág hacen lo mismo, así que nada depende de un gesto.
+- Cada celda mide al menos el objetivo mínimo, y lo sigue midiendo con el texto ampliado. En un espacio más estrecho que siete objetivos, las celdas se estrechan por igual y los números conservan su tamaño, de modo que el calendario nunca es más ancho que el espacio que se le da. Los botones de navegación son Buttons de Tanrei.
+- Los diseños de derecha a izquierda reflejan la cuadrícula, la navegación, las flechas horizontales y el lado en el que queda la página siguiente. Un desplazamiento vertical de las semanas no se refleja, y un arrastre siempre mueve los días hacia donde va el puntero.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native no han construido el calendario: cada una lo construirá a partir de esta especificación cuando se ponga al día.
+- Web: el estado seleccionado de un año es `aria-current` en su botón, que no tiene un estado seleccionado propio.
+- Web: el navegador no informa del final de un desplazamiento ni de su inercia, así que el calendario deduce el final de un silencio breve o de una desaceleración. Un ratón de rueda del que el navegador informa unos pocos píxeles cada vez, girado despacio, vuelve al mes del que salió después de cada muesca.
+- Web: el arrastre todavía no se ha comprobado con un dedo en un dispositivo, y algunas pruebas fallan en Firefox y WebKit.
+
+### Qué debes hacer tú
+
+- Define `label` y da las palabras que usa el calendario (`previousMonthLabel`, `nextMonthLabel`, `yearViewLabel`, `todayLabel`, `startLabel`, `endLabel`): en el calendario, o una sola vez para todo el producto con `setWords()`. Tanrei no incluye ninguna. Sin ellas, los botones de navegación funcionan y no tienen nombre, los extremos de un intervalo no tienen descripción, y cada una se notifica en desarrollo; solo la palabra para el día de hoy procede de los datos de configuración regional del navegador. Consulta [Los textos del producto](/es/foundations/words/).
+- Ofrece una forma de escribir la fecha, como un campo de texto de `type` `date`. Para muchas personas es el camino más directo.
+- Si tu producto no puede aceptar un intervalo que abarque un día no disponible, dilo después de `change`.

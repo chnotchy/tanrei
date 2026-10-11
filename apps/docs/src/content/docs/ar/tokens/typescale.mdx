@@ -1,0 +1,21 @@
+---
+title: رموز السلّم الطباعي
+description: كل نمط نص بحسب المستوى مع عيّنة حيّة، ومقاييسه المحلولة، والوزن الذي يأخذه عند التوكيد.
+translationOf: tokens/typescale.mdx
+sourceHash: 04f324a84d7ee88a6b98405c30b1b79539c95a7d
+---
+
+import Typescale from '../../../../components/tokens/Typescale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+العيّنات مكتوبة بخصائص CSS المخصصة المولَّدة، فما تراه هو ما تصدر به `@tanrei/web`. يتيح كل دور أجزاءه خصائص منفصلة: `-font-family` و `-font-size` و `-line-height` و `-font-weight` و `-letter-spacing` و `-font-weight-emphasized`، ومعها الصيغة المختصرة `-font`. للإرشادات (أيّ دور هو `h2` أو `p`، ولماذا كان التوكيد وزنًا لا دورًا) اقرأ [الطباعة](/ar/foundations/typography/).
+
+## الأدوار الستة عشر
+
+<Typescale />
+
+## درجات التوكيد
+
+النص المؤكَّد هو الدور بوزنه مضافًا إليه درجة فئته. فئة الدور هي المقطع الأول من اسمه؛ وتأخذ `caption` و `code` و `code-small` و `eyebrow` درجة التسميات. الدرجات الأربع لكل نظام مضمَّن:
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />

@@ -1,0 +1,88 @@
+---
+title: React Native
+description: किसी React Native ऐप में Tanrei जोड़ें।
+translationOf: getting-started/react-native.mdx
+sourceHash: 79720aca2100185d961719b9ede0569a4ec3ab34
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`@tanrei/react-native` TypeScript में लिखा है और इसमें कोई नेटिव मॉड्यूल नहीं है, इसलिए लिंक करने के लिए कुछ नहीं है और यह Expo के साथ चलता है। यह New Architecture के लिए बना है और इसके लिए React 19 और React Native 0.78 या उसके बाद का वर्शन ज़रूरी है।
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+
+## इंस्टॉल करें
+
+### सोर्स से
+
+<Callout type="caution" title="आज बिल्ड नहीं होता">
+  React Native पैकेज अभी मौजूदा स्पेक और टोकन तक नहीं पहुँचा है: उसका सोर्स जनरेट किए गए टोकन कोड के एक पुराने वर्ज़न के हिसाब से लिखा गया था, और आज के कोड के साथ उसका बिल्ड टाइप एरर पर रुक जाता है। जब तक वह बराबरी पर नहीं आता, उसका CI रुका हुआ है, और [स्थिति पेज](/hi/status/) उसके कंपोनेंट को *पीछे* के रूप में दिखाता है। नीचे के चरण बताते हैं कि उसे किसी ऐप में कैसे जोड़ा जाता है; पैकेज के बराबरी पर आने के बाद ये काम करेंगे।
+</Callout>
+
+[Web पैकेज](/hi/getting-started/web/) की तरह (Git, Node 22.12 या उसके बाद का वर्शन, pnpm 12): रिपॉज़िटरी के क्लोन में पैकेज बिल्ड करें और उसे पैक करें,
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/react-native build
+pnpm --filter @tanrei/react-native pack --pack-destination ../tanrei-packages
+```
+
+फिर पैक की गई फ़ाइल अपने ऐप में इंस्टॉल करें:
+
+```sh
+npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
+```
+
+### पहली रिलीज़ के बाद
+
+```sh
+npm install @tanrei/react-native
+```
+
+## इस्तेमाल
+
+```tsx
+import { Button, TanreiProvider } from '@tanrei/react-native';
+
+export function App() {
+  return (
+    <TanreiProvider>
+      <Button variant="filled" onPress={deploy}>
+        डिप्लॉय करें
+      </Button>
+      <Button variant="outlined" size="small" disabled>
+        रद्द करें
+      </Button>
+    </TanreiProvider>
+  );
+}
+```
+
+कंपोनेंट का नाम बिना किसी प्रीफ़िक्स के `Button` है, क्योंकि JavaScript मॉड्यूल पहले से ही उसे नेमस्पेस दे देते हैं। ऐक्टिवेशन की सूचना `onPress` से मिलती है, जो स्पेक के `click` इवेंट के लिए React Native का अपना तरीक़ा है।
+
+## थीम और कंट्रास्ट
+
+`TanreiProvider` डिफ़ॉल्ट रूप से सिस्टम की कलर स्कीम के अनुसार चलता है। इन्हें तय करने के लिए `theme` को `"light"` या `"dark"` पर, और `contrast` को `"standard"`, `"medium"` या `"high"` पर सेट करें:
+
+```tsx
+<TanreiProvider theme="dark" contrast="high">
+  <App />
+</TanreiProvider>
+```
+
+ट्री के भीतर `useTanrei()` आपके अपने व्यू के लिए रिज़ॉल्व किए गए रंग और टेक्स्ट स्टाइल लौटाता है:
+
+```tsx
+const theme = useTanrei();
+<Text style={[theme.text('body'), { color: theme.color('onSurfaceVariant') }]}>पिछला डिप्लॉय 2 मिनट पहले</Text>;
+<Text style={theme.text('heading2', { emphasized: true })}>डिप्लॉयमेंट</Text>;
+```
+
+इस प्लैटफ़ॉर्म पर टेक्स्ट स्टाइल और कलर रोल की कुंजियाँ camelCase में हैं: `heading1` से `heading6` तक `h1` से `h6` हैं, `body` एक पैराग्राफ़ है, और `label` किसी कंट्रोल पर लिखा टेक्स्ट; टोकन `sys.color.on-surface-variant` यहाँ `onSurfaceVariant` है। `emphasized` वेट में फ़ैमिली का एम्फ़ेसिस स्टेप जोड़ता है; यह कोई अलग रोल नहीं है।
+
+## फ़ॉन्ट
+
+Inter (और Noto Sans JP, Roboto Mono) को अपने सामान्य फ़ॉन्ट सेटअप से लोड करें (उदाहरण के लिए `expo-font`)। React Native हर वेट के लिए अलग फ़ॉन्ट फ़ाइल चुनता है, इसलिए `TanreiProvider` को एक `resolveFont` फ़ंक्शन दें, जो फ़ैमिली और वेट को आपके रजिस्टर किए हुए फ़ॉन्ट नामों से मैप करे।

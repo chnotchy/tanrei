@@ -1,0 +1,68 @@
+---
+// One choice of kind: its description, verbatim from tokens/sys/behavior.tokens.json, and the names it may
+// take, read from the token's `dev.tanrei.enum`. The first name is the default.
+import { enumValues, sourceDescription, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import SourceNote from '../SourceNote.astro';
+import NameTag from '../NameTag.astro';
+
+interface Props {
+  /** Token name under `<ns>.sys.behavior`, e.g. `pressed-feedback`. */
+  choice: string;
+}
+const id = `${ns}.sys.behavior.${Astro.props.choice}`;
+const values = enumValues(id);
+if (!values) throw new Error(`${id} has no dev.tanrei.enum values in tokens/sys/behavior.tokens.json.`);
+const t = strings(contentLang(Astro));
+---
+
+<div class="not-content choice" data-tanrei-code="plain">
+  <p class="id"><code>{id}</code></p>
+  <p class="description" lang="en">{sourceDescription(id)}</p>
+  <div class="values">
+    {/* A space between the two (a flex row draws none): the search index reads each as a word. */}
+    <span class="docs-eyebrow" aria-hidden="true">{t.choiceValues}</span>{' '}
+    <tanrei-tag-group class="docs-name-tags" label={t.choiceValues}>
+      {values.map((name, index) => <><NameTag label={name} variant={index === 0 ? 'tonal' : 'outlined'} />{' '}</>)}
+    </tanrei-tag-group>
+  </div>
+  <p class="hint"><NameTag label={values[0]} variant="tonal" /> — {t.choiceDefault}</p>
+</div>
+<SourceNote files={['tokens/sys/behavior.tokens.json']} />
+
+<style>
+  /* The names are Tanrei's tags in a Tag group (NameTag.astro). The box is still the site's own: drawn as Tanrei's Card
+     it hid every text in it from the contrast check, and a check that passes by seeing nothing is worse than a
+     box drawn by hand. */
+  .choice {
+    display: grid;
+    gap: 0.625rem;
+    margin-top: 1.25rem;
+    padding: 1rem 1.125rem;
+    border: var(--docs-hairline);
+    border-radius: var(--tanrei-sys-shape-corner-medium);
+  }
+  p {
+    margin: 0;
+  }
+  .id code {
+    font-size: var(--sl-text-xs);
+    color: var(--tanrei-sys-color-on-surface);
+    overflow-wrap: anywhere;
+  }
+  .description {
+    font-size: var(--sl-text-sm);
+    line-height: 1.6;
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+  .values {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem 0.5rem;
+  }
+  .hint {
+    font-size: var(--sl-text-xs);
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+</style>

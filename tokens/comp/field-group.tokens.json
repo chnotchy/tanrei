@@ -1,0 +1,191 @@
+{
+  "tanrei": {
+    "comp": {
+      "field-group": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product asks questions that are answered with several controls: which of these, one of these, these settings; an address in five fields. The set needs one name, a word that says whether it must be answered, a line that says how, and one reason when the answer as a whole is refused; and its members need one distance between them, stacked or in a row, that is the same in every form.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "standard"
+            ],
+            "states": [
+              "disabled"
+            ],
+            "perVariant": {
+              "label.color": "color",
+              "supporting-text.color": "color",
+              "required-asterisk.color": "color",
+              "error-text.color": "color",
+              "error.label.color": "color",
+              "error.supporting-text.color": "color",
+              "error.required-asterisk.color": "color"
+            }
+          },
+          "dev.tanrei.axes": {
+            "spacing": {
+              "default": "controls",
+              "values": [
+                "controls",
+                "fields"
+              ],
+              "members": [
+                "gap"
+              ]
+            },
+            "condition": {
+              "default": "standard",
+              "from": "states"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything the frame around a set of controls reads: the label's text style and the distance from the label and its description to the first control; the requirement tag's distance from the label, the asterisk's gap, and which mark a required set gets where the group does not say; the text style of the description and of the error text and their gaps; for each spacing (controls, fields) the distance between two members stacked; the distance between two members in a row; and the colors of the label, the description, the error text and the asterisk, plain and under the error condition (error.), at rest and while the group is disabled.",
+            "rules": [
+              "A field group names a set of controls and lays them out: checkboxes or switches (spacing controls), or fields that belong together, such as an address (spacing fields). One control with a label above it is a field; a set of radio buttons is a radio group, which draws this frame from these tokens.",
+              "The label, the asterisk and the supporting text have the values of the field's tokens of the same names. Change them together in a layer.",
+              "The requirement tag is a small Tag — filled for required, tonal for optional — and nothing of it is here: it is styled by comp.tag.*, with every other small tag, and is drawn the same while the group is in error or disabled. requirement.mark follows sys.behavior.requirement-mark, as the field's does: set the sys token to change every form at once, requirement.mark only to mark sets differently from single fields, and requiredMark for one set.",
+              "The description sits under the label, before the controls, and stays while the group is in error; the error text sits below the controls, where a field's error text sits.",
+              "gap.fields and gap-inline are also the distances between two fields of a form that are in no group: a form's own stack reads them.",
+              "The group never selects, moves focus or holds a value, and each control keeps its own tokens.",
+              "The error color is for the error text alone. The controls show the error with their own error condition where they have one.",
+              "The group draws no container, no hover and no press answer, so it has no state layer: there is nothing for one to mix into.",
+              "Restyle through these tokens in a layer; never draw a legend and a column of controls by hand."
+            ]
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label}",
+            "$description": "The group's label: the style of a field's label, because it does the same work for a set."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Distance between the label's last line, or the description's where there is one, and the first control: a field's distance between its label and its control."
+          }
+        },
+        "requirement": {
+          "mark": {
+            "$type": "number",
+            "$value": "{tanrei.sys.behavior.requirement-mark}",
+            "$description": "How a required set is marked beside its label when the set does not say (FGR-6). tag: a small filled Tag holding requiredText. asterisk: \"*\" after the label. none: no mark; the requirement is still exposed. Follows the system's choice, as the Field's comp.field.requirement.mark does; a set's requiredMark prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product marks the required answers of all its forms in one manner, and the system-wide choice gives it; the field group must be able to leave it, because a mark above a set speaks for several controls: a product whose single fields carry an asterisk may still say \"Required\" in words above a set of checkboxes or radio buttons, or mark no set at all where each set shows that one of its options must be chosen.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "tag",
+                  "asterisk",
+                  "none"
+                ]
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Distance between the label's text and the requirement tag: where the tag stands is the frame's; what the tag looks like is the Tag's (comp.tag.*)."
+          },
+          "asterisk-gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space25}",
+            "$description": "Distance between the label's text and the asterisk: it belongs to the word it follows, closer than a tag stands."
+          }
+        },
+        "supporting-text": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label-small}",
+            "$description": "The description and the error text."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Distance between the label's last line and the description: the two are read as one heading for the set."
+          }
+        },
+        "error-text": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Distance between the last control and the error text: a field's distance between its control and its supporting row."
+          }
+        },
+        "gap": {
+          "$type": "dimension",
+          "$description": "Distance between two members that follow each other down the group, and between two lines of a row that wrapped; per spacing.",
+          "controls": {
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between two selection controls: with their 40 containers it puts their marks 48 apart, so that each keeps a whole touch target of its own."
+          },
+          "fields": {
+            "$value": "{tanrei.sys.space.space300}",
+            "$description": "Between two fields: wider than any distance inside one field (8 under the label, 4 above the help), so that each field's label, control and help read as one block. Also the distance between two fields of a form outside any group."
+          }
+        },
+        "gap-inline": {
+          "$type": "dimension",
+          "$value": "{tanrei.sys.space.space200}",
+          "$description": "Distance between two members that stand side by side in a horizontal group: from the end of one control's label to the next control, wide enough that a label is read with its own mark and not with the next one; and between two fields in one row (a city and its postal code)."
+        },
+        "standard": {
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The label: the surface's text color, stronger than the supporting text, because it names the set."
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The description under the label: secondary text."
+            }
+          },
+          "required-asterisk": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$description": "The asterisk of a required mark drawn as an asterisk: primary, the role a filled tag is drawn in, never the error color, because nothing is wrong yet."
+            }
+          },
+          "error-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}",
+              "$description": "The group's error text, below its controls: the error role, used for errors and nothing else."
+            }
+          },
+          "error": {
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$description": "The label keeps naming the set while it is in error; the error text and the controls themselves show the error."
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$description": "The description stays as it is in error: it says how to answer, which is what the person needs now."
+              }
+            },
+            "required-asterisk": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.primary}"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

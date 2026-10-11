@@ -1,0 +1,421 @@
+---
+title: कैरसेल
+description: दृश्य आइटम की एक पंक्ति, जो एक मुख्य आइटम के इर्द-गिर्द आड़ी स्क्रॉल होती है और जिसका हर आइटम वह चीज़ खोलता है जो वह दिखाता है। फ़ीचर्ड पंक्ति लूप कर सकती है, बिंदुओं से अपनी जगह दिखा सकती है और अपने आप आगे बढ़ सकती है।
+translationOf: components/carousel.mdx
+sourceHash: 2d83688f39ecd8ebca3c92ae6620428c4fb0310d
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="carousel" />
+
+:::note[संशोधित स्पेक, जो अभी हर प्लैटफ़ॉर्म पर नहीं है]
+यह पेज कैरसेल को वैसा बताता है जैसा स्पेक में वह अभी है। `layout` प्रॉपर्टी की जगह अब स्वतंत्र चुनाव हैं (हीरो कहाँ रहता है, फ़्लुइड या तय चौड़ाइयाँ, स्केल, स्नैप, लूप), और फ़ीचर्ड पंक्ति बिंदु दिखा सकती है और अपने आप आगे बढ़ सकती है। हीरो अब डिफ़ॉल्ट रूप से बीच में रहता है, और पड़ोसी आइटम स्क्रॉल की हर स्थिति में एक-दूसरे से एक गैप की दूरी पर रहते हैं। वेब कंपोनेंट यह सब पहले से करता है, और डेमो भी। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला संशोधन देते हैं, जिसमें `layout` है और लूप, बिंदु या ऑटोप्ले नहीं हैं। [हीरो डिफ़ॉल्ट रूप से बीच में होता है](#हीरो-डिफ़ॉल्ट-रूप-से-बीच-में-होता-है) और [`layout` से आगे बढ़ना](#layout-से-आगे-बढ़ना) देखें।
+:::
+
+<DemoFrame label="डिफ़ॉल्ट: हीरो बीच में, उसके बग़ल में एक छोटा आइटम">
+  <tanrei-carousel label="आपके पास की सैर" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="नदी किनारे की सैर, 14 फ़ोटो"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+  </tanrei-carousel>
+</DemoFrame>
+
+### इस्तेमाल
+
+कैरसेल में एक ही तरह का आइटम होता है, `item`। हर प्लैटफ़ॉर्म आइटम उसी तरह लेता है जैसे वह दोहराए जाने वाले किसी भी चाइल्ड को लेता है: वेब पर `<tanrei-carousel-item>` चाइल्ड, SwiftUI पर व्यू बिल्डर में `TanreiCarouselItem` व्यू, Compose पर आइटम लैम्ब्डा से `TanreiCarouselItem` के कॉल, Flutter पर `children` में `TanreiCarouselItem` विजेट, और React Native पर `CarouselItem` चाइल्ड।
+
+हर आइटम एक क्रिया है। उसमें आपका कॉन्टेंट रहता है, आम तौर पर एक इमेज, और जब व्यक्ति उसे सक्रिय करता है तो वह `click` एमिट करता है (प्लैटफ़ॉर्म के अनुसार `action`, `onClick`, `onTap` या `onPress`)। उसका `label` उसका एक्सेसिबल नाम है: बताएँ कि कॉन्टेंट क्या दिखाता है, जैसे "तटीय पगडंडी, 12 फ़ोटो"। कॉन्टेंट ख़ुद सहायक तकनीक से छिपा रहता है, और उसमें अपना कोई कंट्रोल नहीं होना चाहिए।
+
+पंक्ति एक मुख्य आइटम के इर्द-गिर्द सजती है, जिसे हीरो कहते हैं। कैसे, यह कुछ स्वतंत्र प्रॉपर्टी बताती हैं, और हर एक का डिफ़ॉल्ट ऐसी पंक्ति के अनुकूल है जिसे ब्राउज़ किया जाता है: हीरो बीच में, उसके बग़ल के आइटम सँकरे, और ऐसी पंक्ति जो पूरे आइटम पर ठहरती है। `itemWidth` हीरो की चौड़ाई है; डिज़ाइन सिस्टम का डिफ़ॉल्ट लेने के लिए इसे सेट न करें। फ़ीचर्ड पंक्ति में `loop`, बिंदु (`indicator`) और `autoplay` जोड़े जा सकते हैं। `autoplay` के बिना कैरसेल का कोई मान नहीं होता जिसे कंट्रोल किया जाए: वह तब स्क्रॉल होता है जब व्यक्ति उसे स्क्रॉल करता है या फ़ोकस ले जाता है।
+
+Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं। SwiftUI, Compose, Flutter और React Native के उदाहरण पिछला संशोधन दिखाते हैं, जो वे प्लैटफ़ॉर्म आज देते हैं: `layout` (डिफ़ॉल्ट रूप से एक पंक्ति में कई आइटम, `hero` या `uncontained`) और `itemWidth`, बिना लूप, बिंदु या ऑटोप्ले के।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-carousel label="आपके पास की सैर">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><img src="coast.jpg" alt="" /></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><img src="town.jpg" alt="" /></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><img src="forest.jpg" alt="" /></tanrei-carousel-item>
+    </tanrei-carousel>
+
+    <!-- फ़ीचर्ड पंक्ति: अंतहीन, बिंदुओं के साथ, अपने आप आगे बढ़ती हुई। हीरो डिफ़ॉल्ट रूप से बीच में होता है। -->
+    <tanrei-carousel label="चुनिंदा सैर" loop indicator autoplay
+                     play-label="स्लाइड शो चलाएँ" pause-label="स्लाइड शो रोकें">…</tanrei-carousel>
+
+    <!-- शुरुआती किनारे से चलने वाली सादी पंक्ति: हर आइटम 120 चौड़ा (CSS पिक्सल की संख्या), और स्क्रॉल जहाँ
+         ख़त्म हो वहीं ठहरती है। fixed-width और free-scroll, fluidWidth और snap के उलटे हैं, जिनका डिफ़ॉल्ट true है। -->
+    <tanrei-carousel label="हाल में देखे गए" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
+
+    <script type="module">
+      import '@tanrei/web/components/carousel';
+      for (const item of document.querySelectorAll('tanrei-carousel-item')) {
+        item.addEventListener('click', () => openWalk(item.label));
+      }
+      // इसे सिर्फ़ प्लेबैक कंट्रोल एमिट करता है, ठहराव नहीं, और तब भी नहीं जब आप paused सेट करते हैं।
+      document.querySelector('[label="चुनिंदा सैर"]').addEventListener('pausedchange', (e) => savePaused(e.detail.paused));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Carousel, CarouselItem } from '@tanrei/react';
+
+    <Carousel label="हाल में देखे गए" itemWidth={120} fluidWidth={false} snap={false}>
+      {walks.map((walk) => (
+        <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}>
+          <img src={walk.image} alt="" />
+        </CarouselItem>
+      ))}
+    </Carousel>
+
+    <Carousel label="चुनिंदा सैर" loop indicator autoplay paused={paused}
+      onPausedchange={(e) => setPaused(e.detail.paused)}
+      playLabel="स्लाइड शो चलाएँ" pauseLabel="स्लाइड शो रोकें">
+      {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}
+    </Carousel>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // पिछला संशोधन: layout तय करता है कि पंक्ति कैसे सजे। .hero एक बार में एक फ़ीचर्ड आइटम है।
+    TanreiCarousel("चुनिंदा सैर", layout: .hero) {
+        ForEach(walks) { walk in
+            TanreiCarouselItem(walk.label, action: { open(walk) }) {
+                WalkImage(walk)
+            }
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.ui.unit.dp
+    import io.github.chnotchy.tanrei.components.TanreiCarousel
+    import io.github.chnotchy.tanrei.components.TanreiCarouselItem
+    import io.github.chnotchy.tanrei.components.TanreiCarouselLayout
+
+    // पिछला संशोधन। एक आइटम लैम्ब्डा, जैसा Material के कैरसेल लेते हैं। itemWidth एक Dp है, या टोकन के लिए null।
+    // Uncontained एक सादी पंक्ति है: हर आइटम बराबर चौड़ा, किनारे पर कटा हुआ।
+    TanreiCarousel(
+        itemCount = walks.size,
+        contentDescription = "हाल में देखे गए",
+        layout = TanreiCarouselLayout.Uncontained,
+        itemWidth = 120.dp,
+    ) { index ->
+        val walk = walks[index]
+        TanreiCarouselItem(label = walk.label, onClick = { open(walk) }) {
+            WalkImage(walk)
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // पिछला संशोधन: layout तय करता है कि पंक्ति कैसे सजे।
+    TanreiCarousel(
+      semanticLabel: 'चुनिंदा सैर',
+      layout: TanreiCarouselLayout.hero,
+      children: [
+        for (final Walk walk in walks)
+          TanreiCarouselItem(label: walk.label, onTap: () => open(walk), child: WalkImage(walk)),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Image } from 'react-native';
+    import { Carousel, CarouselItem } from '@tanrei/react-native';
+
+    // पिछले संशोधन का डिफ़ॉल्ट लेआउट: एक पंक्ति में कई आइटम।
+    <Carousel accessibilityLabel="आपके पास की सैर">
+      {walks.map((walk) => (
+        <CarouselItem key={walk.id} label={walk.label} onPress={() => openWalk(walk)}>
+          <Image source={walk.image} style={{ flex: 1 }} />
+        </CarouselItem>
+      ))}
+    </Carousel>
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="जितना हो सके उतना चौड़ा हीरो, और तय चौड़ाइयाँ जो शुरुआती किनारे से खुलकर स्क्रॉल होती हैं" plain column>
+  <tanrei-carousel item-width="400" label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+  </tanrei-carousel>
+  <tanrei-carousel hero-alignment="start" fixed-width free-scroll label="आपके पास की सैर" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+  </tanrei-carousel>
+</DemoFrame>
+
+<DemoFrame label="पंक्ति को सजाना: तय चौड़ाइयाँ, स्केल, लूप, हीरो की ओर का कॉन्टेंट" plain column>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">तय चौड़ाइयाँ, स्क्रॉल जहाँ ख़त्म हो वहीं ठहरती हुई: <code>fixed-width free-scroll</code></div>
+    <tanrei-carousel fixed-width free-scroll label="आपके पास की सैर" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">बाक़ी आइटम छोटे बने हुए, अंतहीन: <code>fixed-width scale-others loop</code></div>
+    <tanrei-carousel fixed-width scale-others loop label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">अंतहीन, दोनों ओर हमेशा भरी हुई: <code>loop</code></div>
+    <tanrei-carousel loop label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">सँकरे आइटम अपना वह हिस्सा दिखाते हैं जो हीरो के सबसे पास है: <code>item-width="120" content-alignment="toward-hero" loop</code></div>
+    <tanrei-carousel item-width="120" content-alignment="toward-hero" loop label="आपके पास की सैर" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="नदी किनारे की सैर, 14 फ़ोटो"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="बिंदु, ऑटोप्ले, प्रगति, रुका हुआ, और अकेला प्लेबैक कंट्रोल" plain column>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">बिंदु: <code>indicator</code></div>
+    <tanrei-carousel indicator label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="नदी किनारे की सैर, 14 फ़ोटो"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">बिंदुओं और प्लेबैक कंट्रोल के साथ ऑटोप्ले: <code>indicator autoplay</code></div>
+    <tanrei-carousel indicator autoplay play-label="स्लाइड शो चलाएँ" pause-label="स्लाइड शो रोकें" label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="नदी किनारे की सैर, 14 फ़ोटो"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">मौजूदा बिंदु अगले आइटम तक भरता जाता है: <code>autoplay-progress</code></div>
+    <tanrei-carousel indicator autoplay autoplay-progress play-label="स्लाइड शो चलाएँ" pause-label="स्लाइड शो रोकें" label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="नदी किनारे की सैर, 14 फ़ोटो"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">रुका हुआ, व्यक्ति के या प्रॉडक्ट के रोकने से: <code>paused</code></div>
+    <tanrei-carousel indicator autoplay paused autoplay-progress play-label="स्लाइड शो चलाएँ" pause-label="स्लाइड शो रोकें" label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पहाड़ी क़िला, 9 फ़ोटो"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="नदी किनारे की सैर, 14 फ़ोटो"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">बिंदुओं के बिना ऑटोप्ले: अकेला प्लेबैक कंट्रोल</div>
+    <tanrei-carousel autoplay play-label="स्लाइड शो चलाएँ" pause-label="स्लाइड शो रोकें" label="चुनिंदा सैर" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="तटीय पगडंडी, 12 फ़ोटो"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="पुराना शहर, 8 फ़ोटो"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="जंगल का चक्कर, 20 फ़ोटो"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="झील का किनारा, 5 फ़ोटो"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+</DemoFrame>
+
+जहाँ "मोशन कम करें" सेटिंग चालू है, वहाँ ऑटोप्ले कभी नहीं चलता: वहाँ ऑटोप्ले के डेमो स्थिर रहते हैं, और उनमें प्लेबैक कंट्रोल और प्रगति नहीं होते।
+
+<ComponentSpecs name="carousel" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+कैरसेल दृश्य आइटम की ऐसी पंक्ति के लिए इस्तेमाल करें जिसे लोग ब्राउज़ करते हैं और जिसके आइटम एक-एक करके खोलते हैं: एल्बम, जगहें, प्रॉडक्ट, एपिसोड। वह ग्रिड जितनी ऊँचाई लिए बिना दिखाता है कि आगे और आइटम हैं, और जो आइटम दिख रहे हैं उन्हें आने वाले आइटम से ज़्यादा जगह देता है।
+
+जब आइटम ज़्यादातर टेक्स्ट हों, या जब लोग उनकी तुलना करते हों या उनमें से चुनते हों, तब [लिस्ट](/hi/components/list/) इस्तेमाल करें। जब हर आइटम को अपना टेक्स्ट और अपनी क्रियाएँ चाहिए, तब ग्रिड में [कार्ड](/hi/components/card/) इस्तेमाल करें। कैरसेल को सिर्फ़ छोटी फ़ीचर्ड पंक्ति के लिए अपने आप आगे बढ़ने दें, और उसका प्लेबैक कंट्रोल बनाए रखें।
+
+### पंक्ति को सजाना
+
+हर प्रॉपर्टी एक सवाल का जवाब देती है, और वे आपस में खुलकर जोड़ी जा सकती हैं।
+
+| प्रॉपर्टी | डिफ़ॉल्ट | यह क्या तय करती है |
+| --- | --- | --- |
+| `heroAlignment` | `center` | मुख्य आइटम कहाँ रहता है: बीच में (`center`), जहाँ दोनों ओर आइटम होते हैं, या भीतरी शुरुआती किनारे (`start`) पर, जहाँ आइटम सिर्फ़ उसके बाद होते हैं। |
+| `itemWidth` | डिज़ाइन सिस्टम का | हीरो की चौड़ाई। तय चौड़ाइयों के साथ, हर आइटम की चौड़ाई। |
+| `fluidWidth` | `true` | true हीरो के बग़ल के आइटम को एक मध्यम और एक छोटी चौड़ाई तक सँकरा करता है, और हर चौड़ाई स्क्रॉल के साथ चलती है। false हर आइटम को हीरो जितना चौड़ा बनाता है, और दिखने वाला आख़िरी आइटम किनारे पर कट जाता है। |
+| `contentAlignment` | `center` | फ़्लुइड चौड़ाइयों के साथ, सँकरे आइटम के कॉन्टेंट का कौन-सा हिस्सा दिखता है: उसका बीच का हिस्सा, या हीरो के सबसे पास वाला हिस्सा (`toward-hero`)। |
+| `scaleOthers` | `false` | हीरो के अलावा बाक़ी आइटम को स्क्रॉल के साथ छोटा बनाता है, फ़्लुइड या तय चौड़ाइयों के साथ। आइटम के बीच का गैप वही रहता है: तय चौड़ाइयों के साथ छोटे आइटम अपने पड़ोसियों के पास खिसक आते हैं। |
+| `snap` | `true` | स्क्रॉल ख़त्म होने पर पंक्ति पूरे आइटम पर ठहरती है, या जहाँ स्क्रॉल ख़त्म हो वहीं रहती है। |
+| `loop` | `false` | पंक्ति को अंतहीन बनाता है: आख़िरी आइटम के बाद पहला आता है। सिर्फ़ दो या ज़्यादा आइटम के साथ। |
+
+वेब पर `fluidWidth` का नाम `fixed-width` है और `snap` का `free-scroll`, क्योंकि ये उन प्रॉपर्टी के उलटे हैं जिनका डिफ़ॉल्ट true है।
+
+कुछ आम पंक्तियाँ:
+
+| किसके लिए | क्या सेट करें |
+| --- | --- |
+| कई आइटम ब्राउज़ करना: एल्बम, जगहें | कुछ नहीं: डिफ़ॉल्ट ही। |
+| एक बार में एक फ़ीचर्ड आइटम, अगले की झलक के साथ | ऐसा `itemWidth` जो कम से कम कैरसेल जितना चौड़ा हो। हीरो उतना चौड़ा हो जाता है जितना वह हो सकता है। |
+| फ़ीचर्ड पंक्ति, जिसके दोनों ओर आइटम हों | और कुछ नहीं: हीरो डिफ़ॉल्ट रूप से बीच में होता है। अक्सर `loop` के साथ, ताकि दोनों ओर हमेशा भरी रहें। |
+| किनारे से शुरू होने वाली पंक्ति, जिसमें हीरो सबसे पहले हो | `heroAlignment` start। |
+| सादी स्क्रॉल होने वाली पंक्ति, जैसे हाल में देखे गए आइटम | `heroAlignment` start, `fluidWidth` false और `snap` false। |
+
+`itemWidth` अपने कॉन्टेंट के आकार के हिसाब से चुनें: चौकोर कवर, लंबे पोस्टर और चौड़े थंबनेल को अलग-अलग चौड़ाइयाँ चाहिए, एक ही प्रॉडक्ट में भी। फ़्लुइड चौड़ाइयों के साथ हीरो बाक़ी आइटम के लिए जगह छोड़ता है: जहाँ आगे आइटम हैं, वहाँ वह कभी उस चौड़ाई से ज़्यादा नहीं बढ़ता जो हर ओर एक छोटा आइटम छोड़ती है, और कभी उस चौड़ाई से कम नहीं सिकुड़ता जो अगले आइटम को उससे ज़्यादा चौड़ा न होने दे। जो पंक्ति इसके लिए बहुत सँकरी हो, उसमें कैरसेल एक बार में एक आइटम दिखाता है, पंक्ति जितना चौड़ा।
+
+### हीरो डिफ़ॉल्ट रूप से बीच में होता है
+
+दो चीज़ें पिछले संशोधन से अलग हैं। जब तक बाक़ी प्लैटफ़ॉर्म बराबरी पर नहीं आते, यह वेब का व्यवहार है।
+
+- **`heroAlignment` का डिफ़ॉल्ट अब `center` है।** पहले यह `start` था। दोनों मान बने हुए हैं।
+- **पड़ोसी आइटम स्क्रॉल की हर स्थिति में एक गैप की दूरी पर रहते हैं**, सिर्फ़ ठहरी हुई अवस्था में नहीं। पहले, जब कोई आइटम पंक्ति के किनारे से गुज़रता था तो गैप बढ़ जाता था, और स्केल किया हुआ आइटम अपने चारों ओर अतिरिक्त जगह छोड़ता था।
+
+| आपके पास यह था | अब |
+| --- | --- |
+| कोई `heroAlignment` नहीं | हीरो बीच में है, और हर ओर एक सँकरा आइटम है। पंक्ति को पहले जैसा रखने के लिए `heroAlignment` को `start` सेट करें (वेब पर `hero-alignment="start"`)। |
+| `heroAlignment` start | कुछ बदलना नहीं है। |
+| `heroAlignment` center | कुछ बदलना नहीं है। आप प्रॉपर्टी हटा सकते हैं। |
+| तय चौड़ाइयों के साथ `scaleOthers` | छोटे आइटम अब अपने पड़ोसियों से एक गैप की दूरी पर रहते हैं, पहले से ज़्यादा पास। कुछ बदलना नहीं है। |
+| पंक्ति से ज़्यादा चौड़ा `itemWidth`, कोई `heroAlignment` नहीं | हीरो पहले से सँकरा है, क्योंकि हर ओर एक छोटा आइटम रहता है। सबसे चौड़े हीरो के लिए `heroAlignment` को `start` सेट करें। |
+
+फ़्लुइड चौड़ाइयों के साथ आइटम अब किनारे पर शून्य से पंक्ति में प्रवेश करता है और भीतर आते-आते बढ़ता है, पूरी चौड़ाई के साथ सरककर नहीं आता। ठहरी हुई अवस्था में पंक्ति पहले जैसी दिखती है।
+
+### `layout` से आगे बढ़ना
+
+पिछले संशोधन की `layout` प्रॉपर्टी हटा दी गई है। उसका हर मान अब ऊपर की प्रॉपर्टी का एक मेल है:
+
+| पिछला `layout` | अब |
+| --- | --- |
+| डिफ़ॉल्ट पर छोड़ा हुआ | `heroAlignment` start। जो पंक्ति फ़ोन से ज़्यादा चौड़ी नहीं है, उसमें तस्वीर वही रहती है। ज़्यादा चौड़ी पंक्ति में हीरो अपनी सीमा तक बढ़ता है। |
+| `hero` | `heroAlignment` start और ऐसा `itemWidth` जो कम से कम कैरसेल जितना चौड़ा हो, ताकि हीरो उतना चौड़ा हो जाए जितना वह हो सकता है। तस्वीर वही रहती है। |
+| `uncontained` | `heroAlignment` start, `fluidWidth` false और `snap` false (वेब पर `hero-alignment="start" fixed-width free-scroll`)। तस्वीर वही रहती है। |
+
+### बिंदु, ऑटोप्ले और प्लेबैक कंट्रोल
+
+- **बिंदु।** `indicator` आइटम के नीचे की एक पंक्ति में, कैरसेल के बीच में, ठहरने की हर जगह के लिए एक बिंदु बनाता है। मौजूदा बिंदु खिंचा हुआ होता है, और पंक्ति के स्क्रॉल होने के साथ यह खिंचाव एक बिंदु से अगले पर चला जाता है। सारे बिंदु मिलकर एक कंट्रोल हैं: पंक्ति को चलाने के लिए उन पर कहीं भी दबाएँ या ड्रैग करें। इन्हें छोटी फ़ीचर्ड पंक्ति के लिए इस्तेमाल करें। अगर बिंदु इतने ज़्यादा हों कि प्लेबैक कंट्रोल के बग़ल में न समाएँ, तो वे नहीं दिखाए जाते, और डीबग बिल्ड यह बताते हैं।
+- **ऑटोप्ले।** `autoplay` पंक्ति को हर `autoplayInterval` मिलीसेकंड पर (डिफ़ॉल्ट सिस्टम में 5 सेकंड) एक आइटम आगे बढ़ाता है। ज़्यादा टेक्स्ट वाले आइटम को इमेज से ज़्यादा समय दें। `loop` के बिना, वह आख़िरी आइटम के बाद पहले आइटम पर लौट जाता है। वह कभी फ़ोकस नहीं ले जाता और कुछ पढ़कर नहीं सुनाता।
+- **ठहराव।** ऑटोप्ले तब तक ठहरा रहता है जब तक पॉइंटर कैरसेल के ऊपर है, जब तक फ़ोकस उसमें कहीं भी है, जब तक वह दबाया या ड्रैग किया जा रहा है, और जब तक विंडो छिपी हुई है। आख़िरी ठहराव ख़त्म होने पर वह वहीं से आगे चलता है जहाँ रुका था; जब व्यक्ति पंक्ति को ख़ुद चलाता है, तो उसके बाद अंतराल फिर से शुरू होता है।
+- **कम मोशन।** जहाँ प्लैटफ़ॉर्म की "मोशन कम करें" सेटिंग चालू है, वहाँ ऑटोप्ले कभी नहीं चलता, और प्लेबैक कंट्रोल और प्रगति नहीं दिखाए जाते। चौड़ाइयाँ, स्केल और बिंदु तब भी व्यक्ति के अपने स्क्रॉल के साथ चलते हैं।
+- **प्लेबैक कंट्रोल।** जब तक ऑटोप्ले चालू है, बिंदुओं की पंक्ति के अंत में एक गोल बटन उसे रोकता और चलाता है, और `pause` या `play_arrow` दिखाता है। उसका नाम `pauseLabel` या `playLabel` से आता है, इस हिसाब से कि वह क्या करने वाला है। वह `paused` बदलता है और `pausedChange` एमिट करता है (वेब पर `pausedchange`); आपका कोड भी `paused` सेट कर सकता है, जिससे कुछ एमिट नहीं होता।
+- **प्रगति।** `autoplayProgress` के साथ, मौजूदा बिंदु अगले आइटम तक का समय बीतने के साथ भरता जाता है।
+
+**प्लेबैक को कंट्रोल करने लायक़ रखें।** प्रॉडक्ट `playbackControl` को false करके प्लेबैक कंट्रोल छिपा सकता है, पर जहाँ भी हो सके उसे बनाए रखना चाहिए। ठहराव मोशन रोकने का तरीक़ा नहीं हैं: टच में होवर नहीं होता, उँगली पंक्ति को तभी तक थामती है जब तक वह वहाँ टिकी है, और जो स्क्रीन रीडर फ़ोकस ले जाए बिना पढ़ता है वह उसे बिल्कुल नहीं थामता। कंट्रोल के बिना, फ़ोन पर कोई व्यक्ति ऑटोप्ले वाले कैरसेल को सिर्फ़ सिस्टम की "मोशन कम करें" सेटिंग से रोक सकता है। इसे सिर्फ़ वहाँ छिपाएँ जहाँ आपका प्रॉडक्ट मोशन रोकने का कोई और तरीक़ा देता है, जैसे पेज के सारे चलते कॉन्टेंट के लिए एक पॉज़ (WCAG 2.2.2)।
+
+### आइटम और उनका कॉन्टेंट
+
+- **कॉन्टेंट हीरो की चौड़ाई पर लेआउट होता है।** हर आइटम अपना कॉन्टेंट हीरो की चौड़ाई पर लेआउट करता है, इसलिए सँकरा आइटम अपनी इमेज का बीच का हिस्सा दिखाता है, या `contentAlignment` toward-hero के साथ हीरो के सबसे पास वाला हिस्सा, और आइटम के बढ़ने-सिकुड़ने के साथ इमेज उसके भीतर सरकती है। ऐसी इमेज दें जो दिखने वाले हिस्से से भी ठीक समझ आए।
+- **आइटम पर कोई टेक्स्ट नहीं।** आइटम कोई कैप्शन नहीं बनाता, क्योंकि इमेज के ऊपर के टेक्स्ट के लिए किसी कंट्रास्ट की गारंटी नहीं दी जा सकती। कैप्शन अपने कॉन्टेंट में अपने ही स्क्रिम के ऊपर रखें, या उसे कैरसेल के बाहर दिखाएँ।
+- **हर आइटम में एक क्रिया।** आइटम वह चीज़ खोलता है जो वह दिखाता है। बटन, लिंक और दूसरे कंट्रोल उसके कॉन्टेंट से बाहर रखें।
+- **कोई अक्षम आइटम नहीं।** ब्राउज़ की जाने वाली पंक्ति में ऐसा कुछ नहीं होता जो दिखे पर उपलब्ध न हो। ऐसे आइटम को छोड़ दें।
+- **ख़ाली आइटम भी दिखते हैं।** आइटम का कंटेनर अपने कॉन्टेंट के नीचे अपनी सामान्य अवस्था के रंग से भरा रहता है, आइटम का स्टेट चाहे जो हो, इसलिए जिस आइटम की इमेज अभी लोड नहीं हुई है वह भी दिखता है।
+- **स्टेट कॉन्टेंट के ऊपर दिखते हैं।** होवर, फ़ोकस और दबाना कॉन्टेंट के ऊपर एक लेयर के रूप में बनते हैं, और रिपल उसी लेयर में होता है, इसलिए वे किसी भी इमेज पर दिखते हैं।
+
+### स्क्रॉल होना और ठहरना
+
+लोग पंक्ति को टच, पेन, ट्रैकपैड, आड़े व्हील, या Shift के साथ खड़े व्हील से स्क्रॉल करते हैं। `snap` के साथ, स्क्रॉल ख़त्म होने पर पंक्ति पूरे आइटम पर ठहरती है: फ़्लिंग अपनी दिशा के अगले आइटम पर ले जाता है, और धीरे छोड़ने पर पंक्ति सबसे पास वाले आइटम पर जाती है। फ़्लिंग वह छोड़ना है जो प्लैटफ़ॉर्म के न्यूनतम फ़्लिंग वेग से तेज़ हो, या जहाँ प्लैटफ़ॉर्म कोई वेग नहीं बताता वहाँ 0.5 पॉइंट प्रति मिलीसेकंड से। `loop` के बिना, सीमा के अंत पर आख़िरी आइटम हीरो होता है, और उसके बाद की जगहें ख़ाली रहती हैं। `loop` के साथ, हर आइटम एक बार बनता है, हीरो के इर्द-गिर्द जिस जगह वह पड़े वहाँ, और पंक्ति बिना अंत के घूमती रहती है। जहाँ मोशन कम किया गया है, वहाँ कैरसेल की अपनी शुरू की हुई हर गति तुरंत हो जाती है।
+
+जब कैरसेल की चौड़ाई या उसके आइटम बदलते हैं, तो वह अपनी जगहें फिर से सजाता है और जो आइटम मुख्य था उसे बिना मोशन के वहीं रखता है जहाँ वह था।
+
+### करें
+
+- हर आइटम को ऐसा लेबल दें जो बताए कि उसका कॉन्टेंट क्या दिखाता है, अपने प्रॉडक्ट की भाषा में।
+- `itemWidth` कॉन्टेंट के आकार के अनुसार चुनें।
+- कैरसेल को ऐसा `label` दें जो पंक्ति का नाम बताए, जैसे "हाल में चलाए गए"।
+- जब भी कैरसेल अपने आप आगे बढ़ता हो, प्लेबैक कंट्रोल बनाए रखें, और उसे `playLabel` और `pauseLabel` दें।
+
+### न करें
+
+- आइटम के कॉन्टेंट के भीतर कंट्रोल न रखें। आइटम पहले से एक बटन है।
+- कैरसेल को ऐसे कॉन्टेंट के लिए इस्तेमाल न करें जिसे लोगों को पूरा देखना ज़रूरी हो, जैसे चरण या शर्तें। जो आइटम नहीं दिख रहे, वे आसानी से छूट जाते हैं।
+- ब्राउज़ की जाने वाली लंबी पंक्ति के लिए ऑटोप्ले चालू न करें। वह बिंदुओं वाली छोटी फ़ीचर्ड पंक्ति के अनुकूल है।
+- प्लेबैक कंट्रोल तब तक न छिपाएँ जब तक आपका प्रॉडक्ट मोशन रोकने का कोई और तरीक़ा न देता हो।
+
+## सुलभता
+
+<ComponentAccessibility name="carousel" />
+
+### कंपोनेंट क्या सँभालता है
+
+- कैरसेल एक लिस्ट है जिसका नाम `label` से आता है। हर आइटम एक बटन है जिसका नाम उसके लेबल से आता है, आइटम के बीच उसकी जगह और उनकी संख्या के साथ। उसका कॉन्टेंट सहायक तकनीक से छिपा रहता है।
+- जो आइटम नहीं दिख रहे, वे भी क्रम से उपलब्ध रहते हैं, इसलिए स्क्रीन रीडर हर एक तक पहुँचता है। स्क्रीन रीडर का फ़ोकस किसी आइटम पर ले जाने से वह स्क्रॉल होकर अपनी जगह आ जाता है।
+- **Tab स्टॉप।** कैरसेल में ज़्यादा से ज़्यादा तीन होते हैं: प्लेबैक कंट्रोल, जब तक वह बना हुआ है; आइटम, एक स्टॉप के रूप में; और बिंदु, जब तक वे बने हुए हैं। प्लेबैक कंट्रोल सबसे पहले आता है, आइटम से पहले, ताकि कीबोर्ड इस्तेमाल करने वाला व्यक्ति किसी और चीज़ तक पहुँचने से पहले मोशन रोक सके। आइटम में प्रवेश उस आइटम पर होता है जिस पर पिछली बार कीबोर्ड फ़ोकस था, नहीं तो उस आइटम पर जो हीरो की जगह ठहरा हुआ है।
+- Right Arrow और Left Arrow फ़ोकस को अगले और पिछले आइटम पर ले जाती हैं। वे सिरों पर रुक जाती हैं, और सिर्फ़ तब घूमकर दूसरे सिरे पर पहुँचती हैं जब कैरसेल लूप करता है। Home और End पहले और आख़िरी आइटम पर ले जाती हैं, लूप करने वाली पंक्ति में भी। दाएँ से बाएँ वाले लेआउट में Left Arrow अगले आइटम पर ले जाती है।
+- फ़ोकस ले जाने से फ़ोकस वाला आइटम हीरो की जगह आ जाता है, उतना पास जितना सीमा का अंत आने दे, और लूप करने वाली पंक्ति में छोटे रास्ते से। जिस पंक्ति में तय चौड़ाइयाँ हैं और जो शुरुआती किनारे से खुलकर स्क्रॉल होती है, उसमें वह आइटम को बस पूरा दिखने लायक़ ले आता है।
+- Enter और Space फ़ोकस वाले आइटम को सक्रिय करती हैं। दबाने की जो क्रिया स्क्रॉल में बदल जाए, वह उस आइटम को सक्रिय नहीं करती जिस पर वह शुरू हुई थी।
+- बिंदु मिलकर एक स्लाइडर हैं जिसका नाम `label` से आता है और जिसका मान मौजूदा आइटम का लेबल है। ऐरो कुंजियाँ, Home और End, और प्लैटफ़ॉर्म की बढ़ाने और घटाने की क्रियाएँ पंक्ति को एक जगह आगे-पीछे करती हैं। मौजूदा बिंदु अपने खिंचे हुए शेप से पहचाना जाता है, सिर्फ़ रंग से नहीं।
+- प्लेबैक कंट्रोल एक बटन है जिसका नाम चलते समय `pauseLabel` और रुके होने पर `playLabel` से आता है। उसका कोई दबाया हुआ स्टेट नहीं है, इसलिए वह कभी "रोकें, दबाया हुआ" नहीं पढ़ा जाता। उसे सक्रिय करने पर फ़ोकस उसी पर रहता है। उसके रोकने और चलाने के ग्लिफ़ मिरर नहीं होते, और आइकन फ़ॉन्ट के लोड होने से पहले किसी ग्लिफ़ का नाम टेक्स्ट के रूप में नहीं बनता।
+- ऑटोप्ले तब तक ठहरा रहता है जब तक फ़ोकस कैरसेल में कहीं भी है, वह कभी फ़ोकस नहीं ले जाता और कुछ पढ़कर नहीं सुनाता, और जहाँ मोशन कम किया गया है वहाँ कभी नहीं चलता।
+- फ़ोकस रिंग आइटम के भीतर बनती है, जहाँ पंक्ति उसे काट नहीं सकती, और बिंदुओं और प्लेबैक कंट्रोल के चारों ओर। वह सिर्फ़ कीबोर्ड फ़ोकस के लिए दिखती है।
+- हर आइटम का हिट एरिया उसका कंटेनर और हर ओर का आधा गैप है, और कभी न्यूनतम टार्गेट से कम नहीं होता, छोटे आइटम के लिए भी। जो आइटम किनारे पर अभी प्रवेश कर रहा है या निकल रहा है, वह उससे सँकरा होता है, और उसका हिट एरिया कभी अपने पड़ोसी के हिट एरिया को नहीं ढकता। प्लेबैक कंट्रोल का हिट एरिया टच टार्गेट है, और बिंदुओं का हिट एरिया उनका पूरा कंटेनर और पंक्ति की ऊँचाई है।
+- स्क्रॉल करना कभी किसी आइटम तक पहुँचने का अकेला तरीक़ा नहीं होता: ऐरो कुंजियाँ, बिंदु और स्क्रीन रीडर का फ़ोकस हर एक तक पहुँचते हैं।
+- बड़े टेक्स्ट साइज़ पर कैरसेल अपनी ऊँचाई और अपने आइटम बनाए रखता है। उसमें अपना कोई टेक्स्ट नहीं होता, और आपका कॉन्टेंट टेक्स्ट साइज़ के साथ ख़ुद चलता है।
+- डीबग बिल्ड इनकी रिपोर्ट करते हैं: बिना लेबल का आइटम, बिना `label` का कैरसेल, बिना `playLabel` या `pauseLabel` का प्लेबैक कंट्रोल, बिंदु जो समाते नहीं, अनजान `heroAlignment` या `contentAlignment`, और ऐसा `itemWidth` या `autoplayInterval` जो धनात्मक संख्या नहीं है। वेब आइटम के कॉन्टेंट के भीतर के इंटरैक्टिव एलिमेंट की भी रिपोर्ट करता है।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- SwiftUI और React Native में कस्टम कंटेनर के लिए सेट के भीतर की जगह बताने वाली कोई प्रॉपर्टी नहीं है, इसलिए हर आइटम की जगह और आइटम की संख्या के बदले स्क्रीन रीडर की अपनी गिनती काम आती है। SwiftUI में लिस्ट का रोल भी नहीं है: कैरसेल एक कंटेनर है जिसका नाम `label` से आता है।
+- Compose में लिस्ट का रोल नहीं है। पंक्ति अपने कलेक्शन का साइज़ देती है और हर आइटम अपनी जगह, बटन के रोल के साथ, इसलिए TalkBack लिस्ट की जगह कलेक्शन पढ़कर सुनाता है।
+- आइटम के कॉन्टेंट को सिर्फ़ वेब जाँच सकता है, इसलिए उसके भीतर के कंट्रोल की रिपोर्ट सिर्फ़ वेब करता है। बाक़ी प्लैटफ़ॉर्म पर यह नियम निभाना आपका काम है।
+- Web: Tab स्टॉप हर उस आइटम पर चला जाता है जो फ़ोकस लेता है, क्लिक से मिला फ़ोकस भी, जबकि स्पेक के अनुसार यह वह आइटम है जिस पर पिछली बार कीबोर्ड फ़ोकस था। पेन का फ़्लिक सबसे पास वाले आइटम पर ठहरता है, अगले पर नहीं। स्क्रीन रीडर का जो वर्चुअल कर्सर फ़ोकस नहीं ले जाता, वह पंक्ति को वैसे स्क्रॉल करता है जैसे ब्राउज़र करता है, और आइटम को हीरो की जगह नहीं लाता।
+- SwiftUI: कैरसेल हमेशा अपने हाइट टोकन जितना ऊँचा होता है, क्योंकि SwiftUI किसी फ़्रेम को स्टैक के प्रस्ताव से अलग नहीं पहचान सकता। उसका साइज़ किसी लेयर के टोकन से तय करें। ठहरने की गति स्क्रॉल व्यू के अपने धीमे पड़ने के साथ चलती है, कैरसेल के स्क्रॉल मोशन के साथ नहीं, और जहाँ मोशन कम किया गया है वहाँ तुरंत नहीं होती। वह हर आइटम बनाता है और स्क्रॉल के हर फ़्रेम पर हर एक को फिर से रखता है। ऐरो कुंजियाँ, Tab स्टॉप और VoiceOver का फ़ोकस नियमों के रूप में जाँचे गए हैं, किसी डिवाइस पर कीबोर्ड या VoiceOver के साथ नहीं।
+- Compose हर आइटम को कंपोज़ और लेआउट करता है, उन्हें भी जो नहीं दिख रहे। व्हील, जो फ़्लिंग नहीं करता, सबसे पास वाले आइटम पर ठहरता है। स्क्रॉल सिर्फ़ Robolectric में जाँचा गया है, किसी डिवाइस पर नहीं।
+- Flutter स्नैप करने वाले कैरसेल को माउस व्हील के हर इवेंट के बाद ठहराता है, व्हील का जेस्चर ख़त्म होने पर नहीं। इसे अभी किसी डिवाइस पर TalkBack और VoiceOver के साथ नहीं जाँचा गया है।
+- React Native स्क्रॉल के हर फ़्रेम पर हर आइटम को JavaScript थ्रेड पर फिर से लेआउट करता है, और हर आइटम रेंडर करता है। ऐरो कुंजियाँ सिर्फ़ वहाँ काम करती हैं जहाँ हार्डवेयर कीबोर्ड के इवेंट ऐप तक पहुँचते हैं। स्क्रॉल के अनुसार आइटम का रखा जाना, ठहरना, दाएँ से बाएँ और स्क्रीन रीडर का फ़ोकस सिर्फ़ Jest में जाँचे गए हैं, किसी डिवाइस पर कभी नहीं।
+- `m3-like` में आइटम जान-बूझकर डिफ़ॉल्ट फ़िल रखते हैं, जहाँ Material का कैरसेल सरफ़ेस का रंग इस्तेमाल करता है, ताकि जिस आइटम की इमेज लोड नहीं हुई है वह भी दिखे।
+
+### आपको क्या करना है
+
+- कैरसेल को `label` दें, और हर आइटम को ऐसा लेबल जो बताए कि उसका कॉन्टेंट क्या दिखाता है। कॉन्टेंट पढ़ा नहीं जाता।
+- ऑटोप्ले के साथ, प्लेबैक कंट्रोल को ऐसे `playLabel` और `pauseLabel` दें जो बताएँ कि वह क्या करता है, और उसे बना रहने दें।
+- कंट्रोल आइटम के कॉन्टेंट से बाहर रखें।
+- अगर कॉन्टेंट में ऐसा अर्थ है जो उसके लेबल में नहीं है, जैसे किसी पोस्टर पर क़ीमत, तो उसे लेबल में रखें।
+- SwiftUI, Compose और React Native पर आइटम की संख्या सीमित रखें: वहाँ कैरसेल हर आइटम बनाता है, उन्हें भी जो नहीं दिख रहे।

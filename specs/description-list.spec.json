@@ -1,0 +1,1414 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "description-list",
+  "title": "Description list",
+  "summary": "Presents what is known about one thing as named facts — a quiet term and the value that answers it — with the terms in one column beside their values, above them, or under a large figure; laid out by its own width and never a control.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "tag"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The list's box: as wide as its layout gives it, as tall as its facts. It has no fill, edge, corner or outer space of its own, and carries no state: nothing about it answers a pointer, a press or focus."
+    },
+    {
+      "id": "fact",
+      "description": "One term with the value or values that answer it. Facts are drawn in the order given: one under another, or in equal columns."
+    },
+    {
+      "id": "term",
+      "description": "The name of a fact, in a label style and a quieter color than its value: beside the value in a column all terms share, above it, or — in the stat layout — under it as the figure's label. Text, or a component of the product's (a tag that is explained by the value)."
+    },
+    {
+      "id": "value",
+      "description": "What answers the term: text that wraps inside its column, or a component of the product's (a tag, a link, inline code, a button). A fact may have several, each on a line of its own. In the stat layout the first value is the figure, in a heading style."
+    },
+    {
+      "id": "divider",
+      "description": "The one hairline between a fact and the fact below it, where facts are told apart by a line.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "layout",
+      "type": "enum",
+      "values": [
+        "inline",
+        "stacked",
+        "stat"
+      ],
+      "default": "inline",
+      "description": "How a fact is drawn. inline: the term beside its value, every term in one column as wide as the widest term; the list draws its terms above their values by itself while it is too narrow for that (DSL-4). stacked: the term above its value, for long values or long terms, and for facts in several columns. stat: the value first, as a large figure, with the term under it as its label — the few numbers a screen opens with."
+    },
+    {
+      "name": "columns",
+      "type": "number",
+      "default": 1,
+      "description": "The most columns of facts the list draws in the stacked and stat layouts; it draws fewer while it is too narrow for that many (DSL-7), and never more than it has facts. An inline list is one column whatever this says."
+    },
+    {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How close the facts are and how large their text is. Regular is for facts a person reads: a page, a card, a dialog. Compact (smaller text, half the space) is for facts a person scans: a side panel, an inspector, a card of many figures. A design system may add values.",
+      "axis": "tanrei.comp.description-list.density"
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How a fact is told from the fact below it. divider: one hairline between them. gap: empty space and no line. Auto takes comp.description-list.separation, the design system's answer (divider in the default system)."
+    }
+  ],
+  "items": [
+    {
+      "name": "fact",
+      "summary": "One fact: a term, and the value or values that answer it.",
+      "container": true,
+      "props": [
+        {
+          "name": "term",
+          "type": "string",
+          "default": "",
+          "description": "The fact's name, as short as it can be and without a colon (\"Ships to\"). In the stat layout it is the label under the figure (\"orders this week\")."
+        }
+      ],
+      "slots": [
+        {
+          "name": "term",
+          "description": "What the term holds in place of plain text: a tag that the value explains (a legend), inline code, text with a glyph. The list places it and styles nothing inside it (DSL-10)."
+        }
+      ]
+    },
+    {
+      "name": "value",
+      "summary": "One value of a fact: plain text, a component of the product's, or nothing.",
+      "container": true,
+      "props": [],
+      "slots": [
+        {
+          "name": "content",
+          "description": "What the value holds in place of plain text: a tag, a link, inline code, a button, a short list, any view of the product's. The list places it and styles nothing inside it (DSL-10)."
+        }
+      ]
+    },
+    {
+      "name": "tag",
+      "summary": "A tag placed in a value: the Tag component, as it is drawn anywhere else.",
+      "component": "tag",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The tag's text."
+        },
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "tonal",
+            "outlined",
+            "filled"
+          ],
+          "default": "tonal",
+          "description": "The tag's look."
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "values": [
+            "default",
+            "info",
+            "warning",
+            "error",
+            "success"
+          ],
+          "default": "default",
+          "description": "What the tag reports."
+        },
+        {
+          "name": "size",
+          "type": "enum",
+          "values": [
+            "small",
+            "medium"
+          ],
+          "default": "medium",
+          "description": "The tag's size; small in a value, so that it does not make its line taller."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "DSL-1",
+      "text": "THE description list SHALL draw its facts in the order given, each fact a term and the value or values that answer it, as a block as wide as the layout gives it and as tall as its facts; it SHALL draw no fill, no edge, no corner and no elevation of its own, and SHALL bring no outer space of its own — no space above its first fact and none below its last — so that it is spaced by what holds it."
+    },
+    {
+      "id": "DSL-2",
+      "text": "THE description list SHALL set every term in comp.description-list.term.typescale.regular while density is regular and in comp.description-list.term.typescale.compact while density is compact, in comp.description-list.term.color, and every value in comp.description-list.value.typescale.regular or comp.description-list.value.typescale.compact by density, in comp.description-list.value.color, with digits in figures of equal width so that the numbers of a column of values line up; it SHALL NOT add a colon or any other mark of its own after a term, and SHALL NOT change the weight, the case or the family of what the product wrote.",
+      "verify": "Under the default system a regular term is 14 on a 20 line at weight 500 in on-surface-variant and a regular value 14 on a 22 line in on-surface; compact, 12 on 16 and 13 on 20."
+    },
+    {
+      "id": "DSL-3",
+      "text": "WHILE layout is inline THE description list SHALL draw one column of facts, and in each fact the term at the start and its values after it: every term in one term column, as wide as the widest term of the list set on one line, with no term wrapped or cut; every value in one value column that takes the rest of the list's width; and the two columns comp.description-list.term.gap.regular apart while density is regular and comp.description-list.term.gap.compact apart while density is compact. The first line of a term SHALL share its baseline with the first line of its first value.",
+      "verify": "Under the default system the fixture inline has its four values beginning at one edge, 16 after the end of the widest term (\"Platforms\"); the fixture inline-compact, 8."
+    },
+    {
+      "id": "DSL-4",
+      "text": "WHILE layout is inline and the value column of DSL-3 would be narrower than comp.description-list.column.min-width THE description list SHALL draw every fact as layout stacked draws it (DSL-5) — all of its facts together, never some of them — and SHALL return to the two columns when the room is there again; it SHALL decide this from its own width, not from the window's, SHALL change at once and without a motion, and SHALL change nothing that is exposed (DSL-17).",
+      "verify": "A test sets the list's width. Under the default system a list whose widest term is 96 wide is in two columns at 256 (96 + 16 + 144) and stacked at 255. The fixture inline-falls-back holds a term wider than any harness's stage and is drawn stacked."
+    },
+    {
+      "id": "DSL-5",
+      "text": "WHILE layout is stacked THE description list SHALL draw in each fact the term on a line or lines of its own and its values below it after comp.description-list.stack.gap, both beginning at the start edge of the fact's column and no wider than it."
+    },
+    {
+      "id": "DSL-6",
+      "text": "WHILE layout is stat THE description list SHALL draw in each fact the first value first, as a figure: in comp.description-list.stat.value.typescale.regular while density is regular and comp.description-list.stat.value.typescale.compact while density is compact, in comp.description-list.value.color, with digits in figures of equal width, on one line wherever the fact's column holds it; and the term below the figure after comp.description-list.stack.gap, in the term's own style and color (DSL-2), both beginning at the start edge of the fact's column. WHERE the language of the figure is Chinese, Japanese or Korean it SHALL NOT apply a negative letter-spacing of that text style. THE description list SHALL still expose the term before its value (DSL-17): the order it draws changes nothing that is read.",
+      "verify": "Under the default system the fixture stat draws each figure 32 on a 40 line, its label 4 below it in the term's style; the accessibility tree of each fact has the term first."
+    },
+    {
+      "id": "DSL-7",
+      "text": "WHILE layout is stacked or stat THE description list SHALL lay its facts out in columns of equal width, comp.description-list.column.gap apart, filled row by row in reading order from the start edge, the facts of a row beginning at one top edge: as many columns as the least of columns, the number of its facts, and the number of columns at least comp.description-list.column.min-width wide that its own width holds, and never fewer than one; WHEN its width changes it SHALL lay its facts out again at once, without a motion. WHILE layout is inline and columns is greater than 1 THE description list SHALL draw one column and in debug builds report that an inline list has one. IF columns is less than 1 or not a whole number THE description list SHALL draw one column and in debug builds report the value.",
+      "verify": "A test sets the list's width. Under the default system four facts with columns 4 are in four columns at 672 (4 × 144 + 3 × 32), in three at 671, in two at 495 and in one at 319. Two facts with columns 4 are in two columns, each half of the width less the gap."
+    },
+    {
+      "id": "DSL-8",
+      "text": "THE description list SHALL wrap the text of a value inside its column, and of a term wherever DSL-5 or DSL-6 places it, breaking lines by the rules of the text's language, and SHALL never cut it or end it with an ellipsis; a run with no break opportunity that is wider than its column (an identifier, an address) SHALL be broken where it meets the column's edge rather than be cut or reach outside the list.",
+      "verify": "The fixture unbreakable holds an identifier wider than any harness's stage: it is broken at the stage's edge, whole, and the list does not scroll sideways."
+    },
+    {
+      "id": "DSL-9",
+      "text": "WHERE a fact has more than one value THE description list SHALL draw each value on a line or lines of its own below the one before it, comp.description-list.stack.gap apart, in the order given, where the layout places a value: in the value column while the term sits beside it, under the term while it is stacked. WHILE layout is stat only the first value SHALL be the figure of DSL-6; those after it SHALL be drawn below the term, after comp.description-list.stack.gap, in the value's own style (DSL-2)."
+    },
+    {
+      "id": "DSL-10",
+      "text": "WHERE a term or a value holds a component or any content of the product's that is not plain text — a tag, a link, inline code, a button, a short list — THE description list SHALL place it where the text would begin, on the first line, SHALL add nothing to it and style nothing inside it, and SHALL let pointer, touch and keyboard input reach it as it would outside the list, in the reading order of the facts.",
+      "verify": "The fixture tags holds small tags in three values: each is drawn as the tag's own spec says, on the first line of its value, and adds no height to its fact."
+    },
+    {
+      "id": "DSL-11",
+      "text": "WHERE a fact has a term and no value, or a value with no content, THE description list SHALL draw the term, keep the value's place and one line of its height so that the fact stays in step with the others, expose the fact with an empty value, and SHALL NOT put a dash, a word or any other mark of its own in it. IF a fact has no term THE description list SHALL draw its values where they would be and in debug builds report that a value has no term. IF the list has no facts THE description list SHALL draw nothing, take no space and expose nothing."
+    },
+    {
+      "id": "DSL-12",
+      "text": "WHILE the list's separation is divider (DSL-13) THE description list SHALL draw one line of comp.description-list.divider.thickness in comp.description-list.divider.color above every fact that is not in its first row, as wide as that fact's column — the whole width of the list where it draws one column, a term and its value under one line — and SHALL leave comp.description-list.fact.gap.regular between the line and the content on each side of it while density is regular, and comp.description-list.fact.gap.compact while density is compact, the line taking no room of its own; it SHALL draw no line above the first row or below the last, and none between two columns or between a term and its value.",
+      "verify": "Under the default system the fixture separation-divider has 24 between the last line of a fact and the first of the next, with a 1 line of outline-variant in the middle; the fixture inline-compact, 12."
+    },
+    {
+      "id": "DSL-13",
+      "text": "THE description list SHALL tell a fact from the fact below it as its separation names: WHILE separation is auto, as comp.description-list.separation names, which follows sys.behavior.separation unless a design system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say; divider draws the lines of DSL-12 and gap leaves the space of DSL-14. WHEN separation, or the token it follows, changes THE description list SHALL draw the other form at once, without animation; WHEN separation names a value the description list does not define THE description list SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, divider, and state that in its README.",
+      "verify": "The fixtures separation-divider, separation-gap, separation-divider-columns and separation-gap-stat draw the same under every design system; every other fixture is auto and follows the system (lines in the default system, none in a system whose separation is gap)."
+    },
+    {
+      "id": "DSL-14",
+      "text": "WHILE the list's separation is gap (DSL-13) THE description list SHALL leave comp.description-list.fact.gap.regular of empty space while density is regular, and comp.description-list.fact.gap.compact while density is compact, between every fact and the fact below it, SHALL draw none of the lines of DSL-12, and SHALL leave no such space above the first row or below the last; the facts SHALL stay exposed as facts (DSL-17)."
+    },
+    {
+      "id": "DSL-15",
+      "text": "THE description list, its facts, its terms and its values SHALL NOT take pointer, touch or keyboard input of their own, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything they draw under a pointer, a press or focus: a fact has no hovered, focused, pressed, selected or disabled state, draws no state layer and no focus indicator, and the list emits no event."
+    },
+    {
+      "id": "DSL-16",
+      "text": "WHEN the facts, a term or a value change THE description list SHALL draw the new content at once, without a motion, lay itself out again where a width changed with it (DSL-3, DSL-4, DSL-7), and SHALL NOT announce the change by itself."
+    },
+    {
+      "id": "DSL-17",
+      "text": "THE description list SHALL be exposed to assistive technology as terms each followed by the value or values that answer it, every value associated with its term, in the order given: on a platform that has the semantics of a description list, as that structure; on a platform that has none, each fact as one element whose text is the term followed by its values, set apart so that they are read as separate phrases (\"Category, Actions\"), with whatever inside the fact takes input still reached as an element of its own. The layout, the number of columns, the density, the separation and the order DSL-6 draws SHALL change nothing that is exposed; THE description list SHALL give a term no heading role and itself no name.",
+      "verify": "On the web: the accessibility tree of every fixture has the description list with its terms and their definitions, term first, also while the list is stacked by DSL-4, in columns, or drawn as stat."
+    },
+    {
+      "id": "DSL-18",
+      "text": "THE description list SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the description list is shown THE description list SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "DSL-19",
+      "text": "WHERE the layout direction is right-to-left THE description list SHALL place the term column at the right and the value column at its left, begin every term and every value at the right edge of its column, fill its columns of facts from the right, and apply every gap by logical start and end. It draws no glyph of its own, so nothing in it is mirrored but its order."
+    },
+    {
+      "id": "DSL-20",
+      "text": "THE description list SHALL lay out the text of each term and of each value as text of its own direction, isolated from the text beside it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name, an identifier, a number with its sign, unit or currency, a version, an address and a date keep their own order in a right-to-left layout and reorder nothing beside them; THE description list SHALL place that text and align its lines by the layout direction, not by the text's own, and SHALL NOT reverse the digits of a number.",
+      "verify": "The fixture ltr-values-rtl holds a version, an address and an amount in a right-to-left layout: each keeps its order and begins at the right edge of the value column. The fixture rtl-stat draws 1,284 and 98.6 %, not their mirror images."
+    },
+    {
+      "id": "DSL-21",
+      "text": "WHILE the text size is enlarged THE description list SHALL grow every text style with it, keep its gaps and its lines, take comp.description-list.column.min-width as grown by the same factor, and lay itself out again by DSL-3, DSL-4 and DSL-7, so that an inline list draws its terms above their values and a list in columns draws fewer of them where the larger text no longer fits; it SHALL cut no content, SHALL set no fixed height on a fact, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no sideways scrolling at a width of 320 points with text at 200 %.",
+      "verify": "On the web at 200 % text and at a 320 wide window: every fixture's text is whole and nothing scrolls sideways; the fixture stat is in one or two columns."
+    },
+    {
+      "id": "DSL-22",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE description list SHALL draw the lines of DSL-12 in the platform's text color and its terms and values in that color, a term still told from its value by its text style and its place; it draws no fill, so nothing else changes.",
+      "verify": "On the web, with forced colors emulated: the fixture separation-divider draws CanvasText lines and no fixture relies on a background color."
+    },
+    {
+      "id": "DSL-23",
+      "text": "WHEN density names a value that the active design system does not have, or layout names a value this spec does not have, THE description list SHALL render with the default value (the default density's tokens, layout inline), and in debug builds report the unknown value."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [],
+    "labeling": "WAI-ARIA has no role for a description list as a whole, only for its parts (term, definition), so the component names none: on the web the product's own dl, dt and dd stay in the document and carry the structure; elsewhere each fact is one element read \"term, value\" (DSL-17). The list has no accessible name of its own: the heading above it says what the facts are about, as it does for a person who sees them.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the list, its facts, its terms and its values take no input and no focus (DSL-15), so there is no target to size. minimumTarget holds trivially. What is pressable inside a value — a link, a button, a copy button — meets the minimum target by its own spec and keeps its place in the focus order.",
+      "A description list is for the facts of one thing (WCAG 1.3.1): each term names what its value is. Several things that share the same names are a table, whose headers name columns; text that is read in order, with a term now and then, is prose, which sets a bare description list as running text (PRS-13). Do not use this component to place unrelated things side by side.",
+      "Every value has a term, and a term is a name, not a heading: it takes no heading role (DSL-17), so a screen reader's list of headings is not filled with \"Size\", \"Owner\" and \"Date\". A block of facts that needs a title gets a heading above it, which the product writes.",
+      "What is drawn first is not always what is read first: the stat layout draws the figure above its label and still exposes \"orders this week, 1,284\" (DSL-6). Both orders are a meaningful sequence (WCAG 1.3.2); the exposed one is the same in every layout, so that a person hears a list the same way wherever it is drawn.",
+      "An empty value is exposed as empty (DSL-11). Where the absence itself is information (\"None\", \"Not set\", \"Unlimited\"), write it as the value, in words: a dash is read as punctuation or not at all.",
+      "Meaning never rests on color. A figure is the surface's text color whatever it says; a change (up, down, better, worse) is a tag or text in the value whose words say the direction (\"up 12 % since last week\"), with a glyph if the product wants one, never a color alone (WCAG 1.4.1).",
+      "Reflow (WCAG 1.4.10) and enlarged text (1.4.4, 1.4.12): the list decides its layout from its own width, so the same rules that stack it in a narrow panel stack it at 200 % text and in a 320 wide window (DSL-4, DSL-7, DSL-21). Nothing is cut and nothing scrolls sideways; an unbreakable value is broken at the edge (DSL-8).",
+      "Contrast in the default system: a value is on-surface and a term on-surface-variant, each held to 4.5:1 on every surface and container step by the token invariants. The line between facts is decorative: facts are exposed without it.",
+      "A list does not announce a change of its facts (DSL-16). Where a change must be heard (a figure that updates while the person watches), the product puts the list, or the one fact, in a live region and decides how often it speaks."
+    ]
+  },
+  "tokens": "comp.description-list",
+  "fixtures": [
+    {
+      "id": "inline",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Category"
+          },
+          "content": "Actions"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Wave"
+          },
+          "content": "1"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Tokens"
+          },
+          "content": "comp.button"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Platforms"
+          },
+          "content": "Web, SwiftUI, Compose, Flutter, React Native"
+        }
+      ]
+    },
+    {
+      "id": "inline-long-values",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Role"
+          },
+          "content": "button"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Name"
+          },
+          "content": "The label, or the accessible label of a button that shows only a glyph. A button with neither is reported in debug builds and is read as \"button\" alone, which tells a person nothing about what it does."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Minimum target"
+          },
+          "content": "48 by 48 for touch, 44 by 44 for a pointer"
+        }
+      ]
+    },
+    {
+      "id": "inline-compact",
+      "props": {
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Value"
+          },
+          "items": [
+            {
+              "kind": "value",
+              "props": {},
+              "content": "#1b1c1e"
+            },
+            {
+              "kind": "value",
+              "props": {},
+              "content": "→ ref.palette.neutral.10"
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Kind"
+          },
+          "content": "alias · color"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Set by"
+          },
+          "content": "tanrei · the role's own declaration"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Description"
+          },
+          "content": "Text and glyphs on any surface or surface container: the color most of an interface is read in."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Followers (12)"
+          },
+          "content": "comp.button.text.label.color comp.card.headline.color comp.list.item.label.color +9"
+        }
+      ]
+    },
+    {
+      "id": "inline-falls-back",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "The address that receipts, renewal notices and every other message about this subscription are sent to when the person who pays for it is not the person who uses it"
+          },
+          "content": "billing@example.com"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Plan"
+          },
+          "content": "Team, yearly"
+        }
+      ]
+    },
+    {
+      "id": "stacked",
+      "props": {
+        "layout": "stacked"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "sys.color.outline-variant"
+          },
+          "content": "The one hairline: dividers, the edge of an outlined container, the line between rows. Decorative, so it is not held to 3:1."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "sys.color.outline"
+          },
+          "content": "The edge of something a person operates, where the edge is the only thing that bounds it: an outlined text field, an unselected checkbox. Held to 3:1 against every surface."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "sys.color.focus-ring"
+          },
+          "content": "The keyboard focus indicator, and nothing else."
+        }
+      ]
+    },
+    {
+      "id": "stacked-compact",
+      "props": {
+        "layout": "stacked",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "sys.color.outline-variant"
+          },
+          "content": "The one hairline: dividers, the edge of an outlined container, the line between rows. Decorative, so it is not held to 3:1."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "sys.color.outline"
+          },
+          "content": "The edge of something a person operates, where the edge is the only thing that bounds it: an outlined text field, an unselected checkbox. Held to 3:1 against every surface."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "sys.color.focus-ring"
+          },
+          "content": "The keyboard focus indicator, and nothing else."
+        }
+      ]
+    },
+    {
+      "id": "several-values",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Owners"
+          },
+          "items": [
+            {
+              "kind": "value",
+              "props": {},
+              "content": "Aiko Tanaka"
+            },
+            {
+              "kind": "value",
+              "props": {},
+              "content": "Samir Haddad"
+            },
+            {
+              "kind": "value",
+              "props": {},
+              "content": "Lena Vogel"
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Created"
+          },
+          "content": "2 March 2026"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Formats"
+          },
+          "items": [
+            {
+              "kind": "value",
+              "props": {},
+              "content": "PDF"
+            },
+            {
+              "kind": "value",
+              "props": {},
+              "content": "Plain text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tags",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Status"
+          },
+          "items": [
+            {
+              "kind": "value",
+              "props": {},
+              "items": [
+                {
+                  "kind": "tag",
+                  "props": {
+                    "size": "small",
+                    "label": "Stable",
+                    "status": "success"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Extends"
+          },
+          "content": "tanrei"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Palettes"
+          },
+          "items": [
+            {
+              "kind": "value",
+              "props": {},
+              "items": [
+                {
+                  "kind": "tag",
+                  "props": {
+                    "size": "small",
+                    "label": "brand",
+                    "variant": "outlined"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "value",
+              "props": {},
+              "items": [
+                {
+                  "kind": "tag",
+                  "props": {
+                    "size": "small",
+                    "label": "accent",
+                    "variant": "outlined"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Contrast"
+          },
+          "items": [
+            {
+              "kind": "value",
+              "props": {},
+              "items": [
+                {
+                  "kind": "tag",
+                  "props": {
+                    "size": "small",
+                    "label": "103 warnings",
+                    "status": "warning"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "empty-value",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Order"
+          },
+          "content": "A-20418"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Coupon"
+          },
+          "content": ""
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Note"
+          },
+          "content": ""
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Total"
+          },
+          "content": "¥ 12,800"
+        }
+      ]
+    },
+    {
+      "id": "unbreakable",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Token"
+          },
+          "content": "tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color.tanrei.comp.navigation-drawer.item.selected.focused.state-layer.color.tanrei.comp.navigation-drawer.item.selected.pressed.state-layer.color"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Type"
+          },
+          "content": "color"
+        }
+      ]
+    },
+    {
+      "id": "columns",
+      "props": {
+        "layout": "stacked",
+        "columns": 3
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Category"
+          },
+          "content": "Actions"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Wave"
+          },
+          "content": "1"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Tokens"
+          },
+          "content": "comp.button"
+        }
+      ]
+    },
+    {
+      "id": "columns-legend",
+      "props": {
+        "layout": "stacked",
+        "columns": 3
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Planned"
+          },
+          "content": "Specified, not yet implemented on this platform."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Lagging"
+          },
+          "content": "Implemented, but behind the current spec; a ledger entry says what is owed."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Alpha"
+          },
+          "content": "Implemented and tested; the API may still change."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Beta"
+          },
+          "content": "The API is settled; reports from real use are wanted."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Stable"
+          },
+          "content": "Covered by the versioning promise."
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Deprecated"
+          },
+          "content": "Still shipped; a replacement is named."
+        }
+      ]
+    },
+    {
+      "id": "columns-compact",
+      "props": {
+        "layout": "stacked",
+        "columns": 4,
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Order"
+          },
+          "content": "A-20418"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Placed"
+          },
+          "content": "6 October 2026"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Ships to"
+          },
+          "content": "4-2-8 Shibakoen, Minato, Tokyo"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Total"
+          },
+          "content": "¥ 12,800"
+        }
+      ]
+    },
+    {
+      "id": "stat",
+      "props": {
+        "layout": "stat",
+        "columns": 4
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "platforms"
+          },
+          "content": "5"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "components planned"
+          },
+          "content": "37"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "specified"
+          },
+          "content": "36"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "theme × contrast contexts"
+          },
+          "content": "6"
+        }
+      ]
+    },
+    {
+      "id": "stat-compact",
+      "props": {
+        "layout": "stat",
+        "columns": 3,
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Specified"
+          },
+          "content": "36 / 37"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Implemented"
+          },
+          "content": "171 / 185"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Stable"
+          },
+          "content": "0 / 185"
+        }
+      ]
+    },
+    {
+      "id": "stat-single",
+      "props": {
+        "layout": "stat"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "orders this week"
+          },
+          "content": "1,284"
+        }
+      ]
+    },
+    {
+      "id": "stat-note",
+      "props": {
+        "layout": "stat",
+        "columns": 2
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "orders this week"
+          },
+          "items": [
+            {
+              "kind": "value",
+              "props": {},
+              "content": "1,284"
+            },
+            {
+              "kind": "value",
+              "props": {},
+              "content": "up 12 % since last week"
+            }
+          ]
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "median build time"
+          },
+          "items": [
+            {
+              "kind": "value",
+              "props": {},
+              "content": "4 min 12 s"
+            },
+            {
+              "kind": "value",
+              "props": {},
+              "content": "down 30 s since last week"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "separation-divider",
+      "props": {
+        "separation": "divider"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Order"
+          },
+          "content": "A-20418"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Placed"
+          },
+          "content": "6 October 2026"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Ships to"
+          },
+          "content": "4-2-8 Shibakoen, Minato, Tokyo"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Total"
+          },
+          "content": "¥ 12,800"
+        }
+      ]
+    },
+    {
+      "id": "separation-gap",
+      "props": {
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Order"
+          },
+          "content": "A-20418"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Placed"
+          },
+          "content": "6 October 2026"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Ships to"
+          },
+          "content": "4-2-8 Shibakoen, Minato, Tokyo"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Total"
+          },
+          "content": "¥ 12,800"
+        }
+      ]
+    },
+    {
+      "id": "separation-divider-columns",
+      "props": {
+        "layout": "stacked",
+        "columns": 2,
+        "separation": "divider"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Order"
+          },
+          "content": "A-20418"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Placed"
+          },
+          "content": "6 October 2026"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Ships to"
+          },
+          "content": "4-2-8 Shibakoen, Minato, Tokyo"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "Total"
+          },
+          "content": "¥ 12,800"
+        }
+      ]
+    },
+    {
+      "id": "separation-gap-stat",
+      "props": {
+        "layout": "stat",
+        "columns": 4,
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "platforms"
+          },
+          "content": "5"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "components planned"
+          },
+          "content": "37"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "specified"
+          },
+          "content": "36"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "theme × contrast contexts"
+          },
+          "content": "6"
+        }
+      ]
+    },
+    {
+      "id": "japanese",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "注文番号"
+          },
+          "content": "A-20418"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "注文日"
+          },
+          "content": "2026年10月6日"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "お届け先"
+          },
+          "content": "東京都港区芝公園4丁目2番8号 芝公園ビルディング 12階 受付気付。不在の場合は1階の宅配ボックスに入れてください。"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "合計"
+          },
+          "content": "12,800円（税込）"
+        }
+      ]
+    },
+    {
+      "id": "japanese-stat",
+      "props": {
+        "layout": "stat",
+        "columns": 4
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "プラットフォーム"
+          },
+          "content": "5"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "コンポーネント（計画）"
+          },
+          "content": "37"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "仕様作成済み"
+          },
+          "content": "36"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "テーマ × コントラスト"
+          },
+          "content": "6"
+        }
+      ]
+    },
+    {
+      "id": "rtl",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "رقم الطلب"
+          },
+          "content": "A-20418"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "تاريخ الطلب"
+          },
+          "content": "6 أكتوبر 2026"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "عنوان الشحن"
+          },
+          "content": "شارع الملك فهد، حي العليا، الرياض"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "المجموع"
+          },
+          "content": "320.00 ر.س"
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-stat",
+      "props": {
+        "layout": "stat",
+        "columns": 3
+      },
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "الطلبات هذا الأسبوع"
+          },
+          "content": "1,284"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "نسبة التسليم في الموعد"
+          },
+          "content": "98.6 %"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "المنصات"
+          },
+          "content": "5"
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-values-rtl",
+      "props": {},
+      "items": [
+        {
+          "kind": "fact",
+          "props": {
+            "term": "الإصدار"
+          },
+          "content": "v2.1 beta"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "البريد"
+          },
+          "content": "billing@example.com"
+        },
+        {
+          "kind": "fact",
+          "props": {
+            "term": "المبلغ"
+          },
+          "content": "-12.50 USD"
+        }
+      ],
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-description-list",
+      "props": {
+        "layout": "layout",
+        "columns": "columns",
+        "density": "density",
+        "separation": "separation"
+      },
+      "items": {
+        "fact": {
+          "name": "div",
+          "props": {
+            "term": "dt"
+          },
+          "notes": "A `<div>` inside the `<dl>` that groups one `<dt>` (its children are the term: text, or the term slot's content) with its `<dd>`s. A second `<dt>` in one group keeps working as HTML and is drawn under the first."
+        },
+        "value": {
+          "name": "dd",
+          "props": {},
+          "notes": "A `<dd>`; its children are the content."
+        },
+        "tag": {
+          "name": "tanrei-tag",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "status": "status",
+            "size": "size"
+          }
+        }
+      },
+      "notes": "It is the form the table takes. `<tanrei-description-list>` is a custom element with **no shadow root**, wrapped around the product's native `<dl>`, which stays in the light DOM — `<tanrei-description-list layout=\"stacked\" columns=\"3\"><dl><div><dt>Category</dt><dd>Actions</dd></div>…</dl></tanrei-description-list>`. The `dl`, `dt` and `dd` are never given a role, so the description-list semantics are the browser's own, for a screen reader, a crawler and a page without script alike (DSL-17). Everything drawn comes from one stylesheet, `@tanrei/web/description-list.css`, whose selectors start at `tanrei-description-list` and are wrapped in `:where()`; it styles the page before and without script (an element that is not yet defined is still an element), and the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Props are attributes of the wrapper: `layout`, `columns`, `density`, `separation`. The wrapper is `display: block; container-type: inline-size` with no margin; the `dl` has its browser margins removed and every `dd` its inset. inline (DSL-3): the `dl` is a grid of `max-content minmax(0, 1fr)` and each group a subgrid row spanning both tracks, `align-items: first baseline`. DSL-4 needs the widest term's width, which CSS cannot compare with the container's: the element watches its own box and its terms with a `ResizeObserver` and sets `data-stacked` while the value column would be under the least width; without script the term track is `fit-content(50%)`, so a list that is too narrow wraps its terms instead of stacking — nothing is cut. stacked and stat columns (DSL-7) are pure CSS: `grid-template-columns: repeat(auto-fit, minmax(min(100%, max(<least width>, (100% - (n - 1) * <gap>) / n)), 1fr))`, `n` coming from attribute selectors for `columns` 2 to 6 and from a custom property the element sets for larger numbers; `auto-fit` already draws no more columns than facts. The least width is the token multiplied by the reader's text scale (the root font size over 16), so that it grows with enlarged text (DSL-21). stat (DSL-6): each group is a column-direction flex box with `order` on the `dd:first-of-type`, so the `dt` stays before its `dd` in the document while the figure is drawn first. Lines (DSL-12) are `border-block-start` on each group with the same negative margin and `overflow: clip` on the `dl`, so the first row's lines are not drawn and no script counts rows. `font-variant-numeric: tabular-nums` and `overflow-wrap: anywhere` on `dd` (DSL-2, DSL-8); `unicode-bidi: plaintext` on `dt` and `dd` (DSL-20); under `:lang(ja, zh, ko)` a stat figure's `letter-spacing` is 0 and `line-break: strict` applies. Under `forced-colors: active` the lines are `CanvasText` (DSL-22). A `dl` without groups — bare `dt` and `dd` children, as some Markdown extensions emit — is drawn in one column, inline or stacked, with the line above each `dt` that follows a `dd`; `columns` and `stat` need the groups, and debug builds say so. Tanrei does not transform content: nothing wraps a bare `dl` by itself. Inside `.tanrei-prose` the element is an island by its tag name (PRS-16): prose spaces it and styles nothing inside it, while a bare `dl` beside it stays prose's (PRS-13)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiDescriptionList",
+      "props": {
+        "layout": "layout",
+        "columns": "columns",
+        "density": "density",
+        "separation": "separation"
+      },
+      "items": {
+        "fact": {
+          "name": "TanreiFact",
+          "props": {
+            "term": "term"
+          },
+          "notes": "`TanreiFact(\"Category\", value: \"Actions\")`, or with view builders for the term and the values."
+        },
+        "value": {
+          "name": "TanreiFactValue",
+          "props": {},
+          "notes": "A string or a view builder; several in one fact's builder are several values."
+        },
+        "tag": {
+          "name": "TanreiTag",
+          "props": {
+            "label": "title",
+            "variant": "variant",
+            "status": "status",
+            "size": "size"
+          }
+        }
+      },
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiDescriptionList(layout: .stacked, columns: 3, density:, separation:) { TanreiFact(\"Category\", value: \"Actions\"); TanreiFact(\"Status\") { TanreiTag(\"Stable\", status: .success, size: .small) } }`. A custom `Layout` measures the terms once (DSL-3), compares what is left with the least width (DSL-4) and places the facts in equal columns (DSL-7); it is proposed its own width, so the decision is the container's. The least width is a `@ScaledMetric`. Not a `Form`, a `LabeledContent` or a `List`: each brings a look, insets or a row behaviour of its own. Accessibility: SwiftUI has no description-list container, so DSL-17's fallback applies — each fact is `accessibilityElement(children: .combine)` with the term's text before the values', a control inside a value stays an element of its own, and the stat layout sorts the term first with `accessibilitySortPriority`."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiDescriptionList",
+      "props": {
+        "layout": "layout",
+        "columns": "columns",
+        "density": "density",
+        "separation": "separation"
+      },
+      "items": {
+        "fact": {
+          "name": "fact",
+          "props": {
+            "term": "term"
+          },
+          "notes": "A call in the list's scope: `fact(\"Category\", \"Actions\")`, or `fact(term = { … }) { value { … } }`."
+        },
+        "value": {
+          "name": "value",
+          "props": {},
+          "notes": "`value(text)` or `value { content }` in a fact's scope."
+        },
+        "tag": {
+          "name": "TanreiTag",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "status": "status",
+            "size": "size"
+          }
+        }
+      },
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiDescriptionList(layout = Stacked, columns = 3) { fact(\"Category\", \"Actions\"); fact(\"Status\") { value { TanreiTag(\"Stable\", status = Success, size = Small) } } }`. A custom `Layout` (or `SubcomposeLayout`) measures the terms' intrinsic widths, decides DSL-4 and DSL-7 from its own constraints, and aligns the first baselines; the least width is converted with the font scale. No `ListItem`: it is a pressable row with a look of its own. Semantics: each fact is `semantics(mergeDescendants = true)` with a `contentDescription` of the term and its values joined by commas, the term first in every layout; a clickable inside a value is not merged."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiDescriptionList",
+      "props": {
+        "layout": "layout",
+        "columns": "columns",
+        "density": "density",
+        "separation": "separation"
+      },
+      "items": {
+        "fact": {
+          "name": "TanreiFact",
+          "props": {
+            "term": "term"
+          },
+          "notes": "`TanreiFact(term: \"Category\", value: \"Actions\")`; `termChild:` and `values:` take widgets."
+        },
+        "value": {
+          "name": "TanreiFactValue",
+          "props": {},
+          "notes": "`TanreiFactValue.text(\"…\")` or `TanreiFactValue(child: …)`."
+        },
+        "tag": {
+          "name": "TanreiTag",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "status": "status",
+            "size": "size"
+          }
+        }
+      },
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiDescriptionList(layout: TanreiDescriptionListLayout.stacked, columns: 3, facts: [TanreiFact(term: \"Category\", value: \"Actions\")])`. A `LayoutBuilder` gives the list its own width; the term column is measured with a `TextPainter` over the terms (or a custom `RenderBox` with intrinsic widths where a term holds a widget), and the least width is multiplied by the `TextScaler`. Not a `Table`, a `ListTile` or a `DataTable`. Semantics: one `MergeSemantics` per fact with a label of the term and its values joined by commas and `sortKey`s that put the term first in the stat layout; a control inside a value keeps its own node."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "DescriptionList",
+      "props": {
+        "layout": "layout",
+        "columns": "columns",
+        "density": "density",
+        "separation": "separation"
+      },
+      "items": {
+        "fact": {
+          "name": "DescriptionList.Fact",
+          "props": {
+            "term": "term"
+          },
+          "notes": "`term` takes a string or an element; the children are the values."
+        },
+        "value": {
+          "name": "DescriptionList.Value",
+          "props": {},
+          "notes": "Its children are a string or elements. A fact whose children are a string has that one value."
+        },
+        "tag": {
+          "name": "Tag",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "status": "status",
+            "size": "size"
+          }
+        }
+      },
+      "notes": "Proposed spelling, for the platform's agent to settle. `<DescriptionList layout=\"stacked\" columns={3}><DescriptionList.Fact term=\"Category\">Actions</DescriptionList.Fact></DescriptionList>`. The list's own width comes from `onLayout`, and the widest term from a first measuring pass, so the first frame of an inline list is drawn after measuring; columns are `flexBasis` percentages computed from that width, and the least width is multiplied by the font scale. Each fact is one `accessible` view with `accessibilityRole=\"text\"` and an `accessibilityLabel` of the term and its values joined by commas, the term first in every layout; a pressable inside a value stays its own element. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

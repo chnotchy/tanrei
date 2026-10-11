@@ -1,0 +1,211 @@
+---
+title: प्रोग्रेस इंडिकेटर
+description: एक बार या रिंग के रूप में दिखाता है कि कोई काम कितना आगे बढ़ा है, या जब यह पता न हो, तो यह कि वह चल रहा है।
+translationOf: components/progress-indicator.mdx
+sourceHash: 4c913cc78754e128adde1441de5e69fac8eff4f8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="progress-indicator" />
+
+<DemoFrame label="Linear और circular">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator value="0.4" label="report.pdf अपलोड हो रही है"></tanrei-progress-indicator>
+    <tanrei-progress-indicator label="एक्सपोर्ट तैयार हो रहा है"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" value="0.4" label="फ़ोटो सिंक हो रही हैं"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" label="सिंक हो रहा है"></tanrei-progress-indicator>
+</DemoFrame>
+
+### इस्तेमाल
+
+Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं। SwiftUI, Compose, Flutter और React Native पीछे हैं: उनमें अभी `separation` नहीं है, और उनके उदाहरण वही दिखाते हैं जो वे आज देते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-progress-indicator value="0.4" label="report.pdf अपलोड हो रही है"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="10 में से 3 फ़ाइलें" label="अपलोड हो रहा है"></tanrei-progress-indicator>
+
+    <!-- कोई मान नहीं: अनिश्चित, जैसे बिना मान का <progress>। -->
+    <tanrei-progress-indicator variant="circular" size="small" label="सिंक हो रहा है"></tanrei-progress-indicator>
+
+    <!-- इंडिकेटर और बाक़ी ट्रैक के बीच एक गैप, डिज़ाइन सिस्टम ने जो भी चुना हो। -->
+    <tanrei-progress-indicator separation="gap" value="0.4" label="report.pdf अपलोड हो रही है"></tanrei-progress-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/progress-indicator';
+      const bar = document.querySelector('tanrei-progress-indicator');
+      bar.value = sent / total;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react';
+
+    <ProgressIndicator value={sent / total} label="report.pdf अपलोड हो रही है" />
+    <ProgressIndicator value={files} max={10} valueText={`10 में से ${files} फ़ाइलें`} label="अपलोड हो रहा है" />
+    <ProgressIndicator variant="circular" size="small" value={null} label="सिंक हो रहा है" />
+    <ProgressIndicator separation="gap" value={sent / total} label="report.pdf अपलोड हो रही है" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiProgressIndicator("report.pdf अपलोड हो रही है", value: sent / total)
+    TanreiProgressIndicator("अपलोड हो रहा है", value: Double(files), in: 0...10, currentValueLabel: "10 में से \(files) फ़ाइलें")
+
+    // कोई मान न होना (डिफ़ॉल्ट) अनिश्चित है।
+    TanreiProgressIndicator("सिंक हो रहा है", variant: .circular, size: .small)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicator
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicatorVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiProgressIndicatorSize
+
+    // progress एक लैम्ब्डा है: नया मान रीकंपोज़ किए बिना दोबारा बनता है।
+    TanreiProgressIndicator(progress = { sent / total }, contentDescription = "report.pdf अपलोड हो रही है")
+    TanreiProgressIndicator(
+        progress = { files.toFloat() },
+        contentDescription = "अपलोड हो रहा है",
+        valueRange = 0f..10f,
+        stateDescription = "10 में से $files फ़ाइलें",
+    )
+
+    // progress के बिना वाला ओवरलोड अनिश्चित है।
+    TanreiProgressIndicator(
+        contentDescription = "सिंक हो रहा है",
+        variant = TanreiProgressIndicatorVariant.Circular,
+        size = TanreiProgressIndicatorSize.Small,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiProgressIndicator(value: sent / total, semanticsLabel: 'report.pdf अपलोड हो रही है');
+    TanreiProgressIndicator(
+      value: files.toDouble(),
+      max: 10,
+      semanticsValue: '10 में से $files फ़ाइलें',
+      semanticsLabel: 'अपलोड हो रहा है',
+    );
+
+    // value: null (डिफ़ॉल्ट) अनिश्चित है।
+    const TanreiProgressIndicator(
+      variant: TanreiProgressIndicatorVariant.circular,
+      size: TanreiProgressIndicatorSize.small,
+      semanticsLabel: 'सिंक हो रहा है',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react-native';
+
+    <ProgressIndicator accessibilityLabel="report.pdf अपलोड हो रही है" value={sent / total} />
+    <ProgressIndicator accessibilityLabel="अपलोड हो रहा है" value={files} max={10} valueText={`10 में से ${files} फ़ाइलें`} />
+    <ProgressIndicator accessibilityLabel="सिंक हो रहा है" variant="circular" size="small" />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="साइज़, रेंज के दोनों सिरे और एक कस्टम रेंज" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="0" label="शुरू नहीं हुआ"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="1" label="हो गया"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="10 में से 3 फ़ाइलें" label="अपलोड हो रहा है"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+</DemoFrame>
+
+<DemoFrame label="अलगाव: divider (डिफ़ॉल्ट सिस्टम का चुनाव) और gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" size="large" value="0.4" label="Gap, large"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="progress-indicator" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+प्रोग्रेस इंडिकेटर उस काम के लिए इस्तेमाल करें जो इतना लंबा चलता है कि महसूस हो: अपलोड, इंपोर्ट, डिप्लॉय, लंबा सेव। जब आप नाप सकते हों, मोटे तौर पर ही सही, तो दिखाएँ कि काम कितना आगे बढ़ा है; चलते हुए बार के लिए लोग ज़्यादा धैर्य से इंतज़ार करते हैं। जब आप अभी नाप नहीं सकते, तो उसे अनिश्चित दिखाएँ, और जैसे ही मान मिले, मान पर आ जाएँ।
+
+जिस छोटे इंतज़ार की अवधि आप नाप नहीं सकते, जैसे अगला पेज ला रही लिस्ट, उसके लिए इसकी जगह [लोडिंग इंडिकेटर](/hi/components/loading-indicator/) इस्तेमाल करें। उसमें ट्रैक नहीं होता, क्योंकि वह कभी किसी मान का वादा नहीं करता।
+
+### वेरिएंट चुनना
+
+| वेरिएंट | किसके लिए |
+| --- | --- |
+| Linear | वे काम जो किसी पेज या सेक्शन के हैं: पेज के ऊपर, कार्ड के भीतर, अपलोड लिस्ट में किसी फ़ाइल के नीचे। बार उतनी चौड़ाई भरता है जितनी उसका लेआउट उसे देता है। |
+| Circular | तंग जगहें और टेक्स्ट के बग़ल की प्रगति: बटन में, लिस्ट की पंक्ति में, छोटे पैनल में। रिंग का साइज़ तय होता है। |
+
+### साइज़ चुनना
+
+| साइज़ | डिफ़ॉल्ट सिस्टम में बार की मोटाई / रिंग का साइज़ | किसके लिए |
+| --- | --- | --- |
+| Small | 2 / 16 | घनी पंक्तियाँ, कंट्रोल के भीतर, छोटे टेक्स्ट के बग़ल में। |
+| Medium | 4 / 24 | ज़्यादातर जगहें। यही डिफ़ॉल्ट है। |
+| Large | 8 / 40 | वह एक काम जिसके बारे में पूरा व्यू है, या अपने कॉन्टेंट का इंतज़ार कर रहा ख़ाली सेक्शन। |
+
+### डिवाइडर या गैप
+
+निश्चित इंडिकेटर को उसके बाक़ी ट्रैक से दो में से एक तरीक़े से अलग पहचाना जाता है। `divider` में वह ट्रैक पर बनता है और दोनों के बीच कोई जगह नहीं होती। `gap` में उसके बाद थोड़ी ख़ाली जगह छोड़ी जाती है, रिंग पर उसके चाप के दोनों सिरों पर, और बार अपने ट्रैक के अंत को एक बिंदु से चिह्नित करता है। अनिश्चित इंडिकेटर दोनों में एक जैसा दिखता है।
+
+डिज़ाइन सिस्टम यह चुनाव उन सभी कंपोनेंट के लिए एक ही बार करता है जिनके पास यह चुनाव है, और डिफ़ॉल्ट सिस्टम divider चुनता है। उस चुनाव के साथ चलने के लिए `separation` को `auto` पर रहने दें, ताकि इंडिकेटर अपने आसपास के बटन ग्रुप और मेन्यू से मेल खाए। किसी एक इंडिकेटर पर `divider` या `gap` तभी सेट करें जब उसी के पास अलग होने का कोई कारण हो।
+
+### करें
+
+- उसे ऐसा लेबल दें जो बताए कि क्या चल रहा है: "report.pdf अपलोड हो रही है", न कि "प्रगति"। अगर उसके बग़ल में कोई कैप्शन दिखता है, तो वही शब्द इस्तेमाल करें।
+- जब प्रतिशत में बताना स्वाभाविक न हो, तो मान टेक्स्ट इस्तेमाल करें: "10 में से 3 फ़ाइलें", "4 में से चरण 2"।
+- काम ख़त्म होने पर लोगों को शब्दों में बताएँ: यह संदेश कि काम हो गया, या क्या ग़लत हुआ और आगे क्या करना है।
+
+### न करें
+
+- विफलता बताने के लिए रंग का इस्तेमाल न करें। लाल बार उस व्यक्ति को कुछ नहीं बताता जो रंग नहीं देख सकता; इंडिकेटर को रोकें और उसके बग़ल में एक संदेश दिखाएँ।
+- इसे किसी स्तर के गेज के रूप में इस्तेमाल न करें, जैसे इस्तेमाल हुआ स्टोरेज या पासवर्ड की मज़बूती। वह मीटर है, जो एक अलग कंपोनेंट है।
+- मान को पीछे न जाने दें और काम पूरा होने से पहले अंत तक न कुदाएँ। बार बचे हुए इंतज़ार के बारे में एक वादा है।
+- एक काम के लिए कई इंडिकेटर न दिखाएँ। पूरे काम के लिए एक दिखाएँ, या हर उस आइटम के लिए एक जिसकी व्यक्ति को परवाह है।
+
+## सुलभता
+
+<ComponentAccessibility name="progress-indicator" />
+
+### कंपोनेंट क्या सँभालता है
+
+- यह प्रोग्रेस बार का रोल देता है, जिसका नाम लेबल है। निश्चित होने पर यह रेंज, मौजूदा मान (रेंज के भीतर सीमित किया हुआ) और मान टेक्स्ट, अगर हो, देता है; अनिश्चित होने पर यह कोई मान नहीं देता और प्लैटफ़ॉर्म का व्यस्त स्टेट देता है। Flutter में अभी प्रोग्रेस बार का रोल या व्यस्त स्टेट नहीं है, इसलिए वहाँ यह लेबल और मान देता है।
+- इस पर कभी फ़ोकस नहीं जा सकता, और यह अपने बदलाव पढ़कर नहीं सुनाता। जब व्यक्ति इस तक पहुँचता है, तो सहायक तकनीक मौजूदा मान पढ़ती है।
+- जब मोशन कम करने का अनुरोध हो, तो मान का बदलाव तुरंत दिखता है, और अनिश्चित रूप चलना बंद करके अपनी ओपैसिटी को धीरे-धीरे घटाता-बढ़ाता है, ज़्यादा से ज़्यादा एक सेकंड में एक बार।
+- जब तक इसे देखा नहीं जा सकता, इसका लूप वाला ऐनिमेशन रुका रहता है — बैकग्राउंड में गए ऐप में हर जगह, और स्क्रॉल होकर नज़र से बाहर जाने पर या छिपी हुई स्क्रीन पर वहाँ, जहाँ प्लैटफ़ॉर्म यह जान सकता है — और देखे जा सकने पर फिर चल पड़ता है।
+- ख़ाली लेबल, रेंज से बाहर का मान और अनजान `separation` डीबग बिल्ड में रिपोर्ट किए जाते हैं।
+
+### आपको क्या करना है
+
+- काम के अंत की सूचना ख़ुद दें: लाइव रीजन में एक संदेश, या नतीजे पर फ़ोकस ले जाना। इंडिकेटर यह नहीं बताएगा कि काम पूरा हो गया या विफल हुआ।
+- अगर आप रंग बदलते हैं, तो इंडिकेटर के रंग को ट्रैक और उसके पीछे की सरफ़ेस के मुक़ाबले कम से कम 3:1 पर रखें, डिवाइडर के साथ भी और गैप के साथ भी। मान वहीं से पढ़ा जाता है जहाँ इंडिकेटर ट्रैक से मिलता है।
+- अगर काम पेज के किसी हिस्से को रोके रखता है, तो उसके चलने तक उस हिस्से को व्यस्त के रूप में चिह्नित करें (वेब पर `aria-busy`)।

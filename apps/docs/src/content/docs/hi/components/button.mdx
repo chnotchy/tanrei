@@ -1,0 +1,377 @@
+---
+title: बटन
+description: एक टैप या क्लिक से लोगों को कोई क्रिया करने, किसी चीज़ को चालू-बंद करने या किसी गंतव्य पर जाने देता है।
+translationOf: components/button.mdx
+sourceHash: d3c82e9e9c52acaafaa279ddf1b5083da7264b09
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="button" />
+
+<DemoFrame label="वेरिएंट">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+### इस्तेमाल
+
+Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं। SwiftUI, Compose, Flutter और React Native पीछे हैं: वे अभी बटन का पिछला संशोधन देते हैं, जिसमें सिर्फ़ आइकन वाला रूप और टॉगल एक अलग आइकन बटन हैं, और जिसमें न सिर्फ़ आइकन वाले बटन की चौड़ाइयाँ हैं, न लिंक वाला रूप। जब तक वे बराबरी पर नहीं आते, उनके उदाहरण वही संशोधन दिखाते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="filled">डिप्लॉय करें</tanrei-button>
+    <tanrei-button variant="outlined" size="small">रद्द करें</tanrei-button>
+    <tanrei-button disabled>डिप्लॉय हो रहा है…</tanrei-button>
+
+    <!-- href के साथ यह एक लिंक है, जो उसी बटन के रूप में बनता है। -->
+    <tanrei-button variant="tonal" href="/pricing/">क़ीमतें देखें</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      document.querySelector('tanrei-button').addEventListener('click', deploy);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button variant="filled" onClick={deploy}>डिप्लॉय करें</Button>
+    <Button variant="outlined" size="small" onClick={cancel}>रद्द करें</Button>
+    <Button disabled>डिप्लॉय हो रहा है…</Button>
+
+    // href के साथ यह एक लिंक है, जो उसी बटन के रूप में बनता है।
+    <Button variant="tonal" href="/pricing/">क़ीमतें देखें</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButton("डिप्लॉय करें", variant: .filled) { deploy() }
+    TanreiButton("रद्द करें", variant: .outlined, size: .small) { cancel() }
+
+    // अक्षम स्टेट SwiftUI के एनवायरनमेंट से आता है।
+    TanreiButton("डिप्लॉय हो रहा है…") {}
+      .disabled(true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.*
+
+    TanreiButton(text = "डिप्लॉय करें", onClick = ::deploy, variant = TanreiButtonVariant.Filled)
+    TanreiButton(text = "रद्द करें", onClick = ::cancel, variant = TanreiButtonVariant.Outlined, size = TanreiButtonSize.Small)
+
+    // Compose उलटा फ़्लैग इस्तेमाल करता है।
+    TanreiButton(text = "डिप्लॉय हो रहा है…", onClick = {}, enabled = false)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButton(variant: TanreiButtonVariant.filled, onPressed: deploy, child: const Text('डिप्लॉय करें'));
+    TanreiButton(variant: TanreiButtonVariant.outlined, size: TanreiButtonSize.small, onPressed: cancel, child: const Text('रद्द करें'));
+
+    // onPressed का null होना बटन को अक्षम कर देता है।
+    TanreiButton(onPressed: null, child: const Text('डिप्लॉय हो रहा है…'));
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button } from '@tanrei/react-native';
+
+    <Button variant="filled" onPress={deploy}>डिप्लॉय करें</Button>
+    <Button variant="outlined" size="small" onPress={cancel}>रद्द करें</Button>
+    <Button disabled>डिप्लॉय हो रहा है…</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+### आइकन, सिर्फ़ आइकन, और टॉगल
+
+बटन अपने लेबल के साथ एक आइकन रख सकता है: शुरू में, या `iconPosition` को `trailing` करने पर अंत में। आइकन की ओर की पैडिंग लेबल की ओर की पैडिंग से एक स्टेप कम होती है, ताकि दोनों ओर की जगह बराबर दिखे। लेबल के बिना यह सिर्फ़ आइकन वाला बटन है: उतना ही चौड़ा गोला जितनी बटन की ऊँचाई है, जिसका नाम `label` से आता है, और तब `label` ज़रूरी है। `toggle` सेट होने पर यह हर बार दबाने पर अपना `selected` बदलता है, स्टेट को अपने रंगों और ग्लिफ़ के फ़िल से दिखाता है, और उसे दबाए हुए स्टेट के रूप में पढ़कर सुनाता है।
+
+<DemoFrame label="सिर्फ़ आइकन वाले बटन और एक टॉगल">
+  <tanrei-button variant="text" label="खोजें"><span slot="icon">search</span></tanrei-button>
+  <tanrei-button variant="tonal" label="संपादित करें"><span slot="icon">edit</span></tanrei-button>
+  <tanrei-button variant="outlined" toggle selected label="पसंदीदा"><span slot="icon">favorite</span></tanrei-button>
+  <tanrei-button variant="filled" icon-position="trailing">आगे<span slot="icon">arrow_forward</span></tanrei-button>
+</DemoFrame>
+
+Tanrei में आइकन बटन कोई अलग कंपोनेंट नहीं है। अगर आप Material के नाम जानते हैं, तो वे यहाँ इस तरह मिलते हैं:
+
+| Material | Tanrei |
+| --- | --- |
+| Icon button | आइकन वाला और बिना लेबल का बटन |
+| Standard icon button | `text` वेरिएंट |
+| Filled, tonal और outlined icon button | `filled`, `tonal` और `outlined` वेरिएंट |
+| Icon toggle button | `toggle` और `selected` |
+
+Text टॉगल को एक आइकन दें। कंटेनर के बिना, सिर्फ़ लेबल वाला Text टॉगल अपना स्टेट सिर्फ़ टेक्स्ट के रंग के बदलाव से दिखाता है; ग्लिफ़ के फ़िल से स्टेट साफ़ दिखता है।
+
+### सिर्फ़ आइकन वाले बटन की चौड़ाइयाँ
+
+सिर्फ़ आइकन वाले बटन की तीन चौड़ाइयाँ हैं। इनसे उसकी ऊँचाई कभी नहीं बदलती, और लेबल वाला बटन `width` को अनदेखा करता है।
+
+| `width` | डिफ़ॉल्ट सिस्टम में (small / medium / large) | किसके लिए |
+| --- | --- | --- |
+| `default` | जितनी ऊँचाई, उतनी चौड़ाई: 32 / 40 / 56, एक गोला | आइकन वाली ज़्यादातर क्रियाएँ। |
+| `narrow` | ग्लिफ़ और हर ओर एक छोटा इनसेट: 28 / 32 / 32, एक कैप्सूल | आइकन वाली क्रियाओं की सटी हुई पंक्ति, जैसे किसी फ़ील्ड के अंत के टूल या घनी टेबल की पंक्ति। |
+| `wide` | 40 / 52 / 72, एक कैप्सूल | पंक्ति की वह एक क्रिया जिसका वज़न अपने पड़ोसियों से ज़्यादा होना चाहिए। |
+
+<DemoFrame label="सिर्फ़ आइकन वाली चौड़ाइयाँ: default, narrow और wide" plain>
+  <tanrei-button variant="tonal" label="जोड़ें"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="narrow" label="जोड़ें"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="wide" label="जोड़ें"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="outlined" size="small" width="narrow" label="और विकल्प"><span slot="icon">more_vert</span></tanrei-button>
+  <tanrei-button variant="filled" size="large" width="wide" label="चलाएँ"><span slot="icon">play_arrow</span></tanrei-button>
+</DemoFrame>
+
+narrow बटन ठीक अपने ग्लिफ़ और हर ओर के इनसेट जितना होता है, इसलिए ग्लिफ़ हमेशा कैप्सूल के किनारे से दूर रहता है, और डिज़ाइन सिस्टम ग्लिफ़ का साइज़ जहाँ भी बदले, बटन उसके साथ चलता है। यह न्यूनतम टार्गेट से सँकरा बनता है, पर इसका हिट एरिया सँकरा नहीं होता: टार्गेट इसके दिखने वाले किनारों से आगे तक पहुँचता है। बटन के बग़ल में उसके लिए जगह छोड़ें, या narrow बटनों को [टूलबार](/hi/components/toolbar/) या [बटन ग्रुप](/hi/components/button-group/) में रखें, जो अपने आइटम के बीच जगह ख़ुद रखते हैं।
+
+### गंतव्य वाला बटन एक लिंक है
+
+बटन को `href` दें, तो वह बटन नहीं, लिंक है: वही कंट्रोल, हर स्टेट में उन्हीं टोकन से बना हुआ, पर लिंक के रोल के साथ और उस सब के साथ जो प्लैटफ़ॉर्म किसी लिंक को देता है। वेब पर यह एक असली ऐंकर है, इसलिए लोग इसे नए टैब में खोल सकते हैं, इसका पता कॉपी कर सकते हैं, और जाने से पहले देख सकते हैं कि यह कहाँ ले जाता है। जब भी कंट्रोल को सक्रिय करने से व्यक्ति सिर्फ़ कहीं और पहुँचता हो, यही रूप इस्तेमाल करें। सादे बटन के click हैंडलर से नेविगेट न करें।
+
+<DemoFrame label="लिंक: वही जगह, नया टैब, सिर्फ़ आइकन और अक्षम" plain>
+  <tanrei-button href="/hi/components/button-group/">बटन ग्रुप</tanrei-button>
+  <tanrei-button variant="outlined" href="/hi/components/toolbar/" target="new" target-label="नए टैब में खुलता है">टूलबार</tanrei-button>
+  <tanrei-button variant="text" href="/hi/components/" label="सभी कंपोनेंट"><span slot="icon">apps</span></tanrei-button>
+  <tanrei-button variant="tonal" href="/hi/components/button-group/" disabled>बटन ग्रुप</tanrei-button>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button href="/getting-started/">शुरुआत करें</tanrei-button>
+
+    <!-- नया टैब: लेबल के बाद का निशान अपने आप बनता है; target-label वह है जो स्क्रीन रीडर सुनाता है। -->
+    <tanrei-button variant="outlined" href="https://example.com/source" target="new" target-label="नए टैब में खुलता है">
+      सोर्स देखें
+    </tanrei-button>
+
+    <!-- सिर्फ़ वेब पर: rel और download ऐंकर को दिए जाते हैं। -->
+    <tanrei-button variant="tonal" href="/report.pdf" download="report.pdf"><span slot="icon">download</span>रिपोर्ट डाउनलोड करें</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      // click पहले फ़ायर होता है। क्लाइंट-साइड राउटर उसे रद्द करके नेविगेशन ख़ुद सँभालता है।
+      document.querySelector('[href="/getting-started/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button href="/getting-started/">शुरुआत करें</Button>
+
+    <Button variant="outlined" href="https://example.com/source" target="new" targetLabel="नए टैब में खुलता है">
+      सोर्स देखें
+    </Button>
+
+    // click पहले फ़ायर होता है। क्लाइंट-साइड राउटर उसे रद्द करके नेविगेशन ख़ुद सँभालता है।
+    <Button
+      href="/getting-started/"
+      onClick={(event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      }}
+    >
+      शुरुआत करें
+    </Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **कुंजियाँ।** Enter लिंक खोलती है। Space वही करती है जो वह किसी भी लिंक पर करती है (वेब पर पेज स्क्रॉल करती है), वह नहीं जो बटन पर करती है।
+- **`target`।** `same` (डिफ़ॉल्ट) गंतव्य को वहीं खोलता है जहाँ व्यक्ति है। `new` एक नया टैब या विंडो खोलता है। तब लेबल वाला बटन अपने लेबल के बाद `open_in_new` ग्लिफ़ दिखाता है, बशर्ते वहाँ आपका अपना अंतिम आइकन न हो। साथ ही `targetLabel` ज़रूरी हो जाता है: Tanrei अपना कोई शब्द साथ नहीं देता, इसलिए "नए टैब में खुलता है" आप अपने प्रॉडक्ट की भाषा में कहते हैं।
+- **अक्षम।** अक्षम लिंक बटन का लिंक न खोला जा सकता है, न कॉपी या ड्रैग किया जा सकता है, और वह सहायक तकनीक को अक्षम लिंक के रूप में मिलता है।
+- **टॉगल।** टॉगल एक स्टेट रखता है, इसलिए वह कोई गंतव्य नहीं लेता: `toggle` सेट रहते हुए `href` को अनदेखा किया जाता है।
+- **सिर्फ़ वेब पर** `rel` और `download` ऐंकर को दिए जाते हैं। `target` को `new` करने पर `rel` में हमेशा `noopener` जुड़ता है।
+- "देखा जा चुका" वाला कोई रूप नहीं है। लिंक बटन का रंग उसका एम्फ़ेसिस और उसका स्टेट बताता है, जैसे किसी भी बटन का।
+
+### फ़ॉर्म में
+
+वेब पर बटन अपने फ़ॉर्म के कंट्रोल में से एक है, और `type` बताता है कि दबाने पर फ़ॉर्म के साथ क्या होता है। बाक़ी प्लैटफ़ॉर्म में फ़ॉर्म का कोई एलिमेंट नहीं है: वहाँ आप बटन के दबाए जाने पर और फ़ील्ड के `action` से एक ही फ़ंक्शन कॉल करते हैं।
+
+| `type` | दबाने पर |
+| --- | --- |
+| `button` (डिफ़ॉल्ट) | फ़ॉर्म के साथ कुछ नहीं करता। फ़ॉर्म के भीतर का बटन कुछ भेजे बिना कोई पिकर खोल सकता है या एक पंक्ति जोड़ सकता है। |
+| `submit` | फ़ॉर्म से सबमिट होने को कहता है, जैसे ब्राउज़र का अपना सबमिट बटन कहता है: पहले `click`, फिर फ़ॉर्म का वैलिडेशन, फिर उसका `submit` इवेंट। |
+| `reset` | `click` और फ़ॉर्म के `reset` इवेंट के बाद फ़ॉर्म के हर कंट्रोल को उसके शुरुआती मान पर लौटा देता है। |
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form id="profile">
+      <tanrei-text-field label="नाम" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-button type="reset" variant="text">मिटाएँ</tanrei-button>
+      <tanrei-button type="submit" variant="outlined" name="intent" value="draft">ड्राफ़्ट सेव करें</tanrei-button>
+      <tanrei-button type="submit" name="intent" value="publish">प्रकाशित करें</tanrei-button>
+    </form>
+
+    <!-- फ़ॉर्म के बाहर: form ऐट्रिब्यूट उसे id से बताता है। -->
+    <tanrei-button type="submit" form="profile" name="intent" value="publish">प्रकाशित करें</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/text-field';
+      document.querySelector('#profile').addEventListener('submit', (event) => {
+        event.preventDefault();
+        // दबाए गए बटन का name और value डेटा में हैं: "draft" या "publish"।
+        const data = new FormData(event.target, event.submitter);
+        save(data.get('name'), data.get('intent'));
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, TextField } from '@tanrei/react';
+
+    <form
+      id="profile"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget, (event.nativeEvent as SubmitEvent).submitter);
+        save(data.get('name'), data.get('intent'));
+      }}
+    >
+      <TextField label="नाम" name="name" requirement="required" />
+      <Button type="reset" variant="text">मिटाएँ</Button>
+      <Button type="submit" variant="outlined" name="intent" value="draft">ड्राफ़्ट सेव करें</Button>
+      <Button type="submit" name="intent" value="publish">प्रकाशित करें</Button>
+    </form>
+
+    // फ़ॉर्म के बाहर: form फ़ॉर्म का id है।
+    <Button type="submit" form="profile" name="intent" value="publish">प्रकाशित करें</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **कौन-सा फ़ॉर्म।** बटन के चारों ओर का फ़ॉर्म, या वह फ़ॉर्म जिसे `form` ऐट्रिब्यूट id से बताता है। इसी तरह डायलॉग की क्रियाओं का या पेज हेडर का कोई बटन उस फ़ॉर्म को भेजता है जिसके भीतर वह ख़ुद नहीं है। एलिमेंट की `form` प्रॉपर्टी वही फ़ॉर्म लौटाती है और उसे सेट नहीं किया जा सकता।
+- **फ़ील्ड में Enter।** फ़ॉर्म का पहला सबमिट बटन उसका डिफ़ॉल्ट बटन है, चाहे वह Tanrei का बटन हो या ब्राउज़र का अपना। फ़ॉर्म के किसी फ़ील्ड में Enter उसे दबाती है: Tanrei के टेक्स्ट फ़ील्ड, नंबर फ़ील्ड, कलर फ़ील्ड, कॉम्बोबॉक्स, वन-टाइम कोड इनपुट या खोज में, Tanrei के चेकबॉक्स, रेडियो बटन या स्विच पर, और ब्राउज़र के अपने एक पंक्ति वाले इनपुट में। बटन `click` वैसे ही फ़ायर करता है जैसे किसी भी बार दबाए जाने पर, और उस `click` को रद्द करने से फ़ॉर्म का सबमिट होना भी रद्द हो जाता है।
+- **अक्षम।** अक्षम सबमिट बटन कुछ नहीं भेजता, और जब तक वह फ़ॉर्म का डिफ़ॉल्ट बटन है, वह Enter को भी रोकता है, ताकि जो फ़ॉर्म तैयार नहीं है वह अपने बटन को लाँघकर न भेजा जाए। `<fieldset disabled>` के भीतर का बटन उसके साथ अक्षम होता है, उसका `type` चाहे जो हो। `<fieldset disabled>` के भीतर का लिंक बटन अक्षम नहीं होता।
+- **कौन-सा बटन दबाया गया।** `name` और `value` तभी भेजे जाते हैं जब फ़ॉर्म उसी बटन ने भेजा हो। उन्हें अपने `submit` लिसनर में `event.submitter.value` से या `new FormData(form, event.submitter)` से पढ़ें। `event.submitter` Tanrei का एलिमेंट नहीं है। वह एक नेटिव `<button>` है, जिसे एलिमेंट `submit` इवेंट के डिस्पैच होने के दौरान अपनी जगह पर रखता है, इसलिए `event.submitter` की तुलना एलिमेंट से न करें।
+- **फ़ॉर्म कैसे भेजा जाता है**, यह सिर्फ़ फ़ॉर्म तय करता है। `formaction`, `formmethod`, `formenctype`, `formtarget` और `formnovalidate` नहीं पढ़े जाते। वैलिडेशन के बिना ड्राफ़्ट सेव करने के लिए उस बटन के `click` लिसनर में फ़ॉर्म का `noValidate` सेट करें: वह लिसनर वैलिडेशन से पहले चलता है।
+- **दो बार भेजना।** बटन दूसरी बार दबाए जाने से बचाव नहीं करता। जब तक आपका अनुरोध चल रहा है, बटन को अक्षम रखें, या दूसरे `submit` को अनदेखा करें।
+- **टॉगल और लिंक** `type` को अनदेखा करते हैं: जो दबाना कोई स्टेट बदलता है या कहीं ले जाता है, वह फ़ॉर्म नहीं भेजता। जो `type` इन तीनों में से कोई नहीं है, वह `button` की तरह काम करता है।
+
+### लेबल से लंबा नाम
+
+जब एक ही शब्द कई बटनों पर दिखता है, जैसे किसी लिस्ट की हर पंक्ति में "हटाएँ", तो अकेला शब्द स्क्रीन रीडर इस्तेमाल करने वाले व्यक्ति को यह नहीं बताता कि कौन-सा बटन किस पंक्ति का है। हर बटन को एक `label` दें: तब दिखने वाले टेक्स्ट की जगह वही बटन का पूरा एक्सेसिबल नाम होता है, और बटन ठीक पहले जैसा बनता है।
+
+<DemoFrame label="हर पंक्ति में वही शब्द, और हर बटन का नाम उसकी पंक्ति के अनुसार" plain>
+  <tanrei-button variant="text" size="small" label="हटाएँ: Inter">हटाएँ</tanrei-button>
+  <tanrei-button variant="text" size="small" label="हटाएँ: Noto Sans JP">हटाएँ</tanrei-button>
+  <tanrei-button variant="text" size="small" label="हटाएँ: Roboto Mono">हटाएँ</tanrei-button>
+</DemoFrame>
+
+| `label` | दिखने वाला लेबल | एक्सेसिबल नाम |
+| --- | --- | --- |
+| दिया गया | कोई नहीं (सिर्फ़ आइकन) | `label` |
+| ख़ाली | दिखता है | दिखने वाला टेक्स्ट |
+| दिया गया | दिखता है | `label`, पूरा और अकेला |
+
+- **नाम में दिखने वाला टेक्स्ट ज़रूर हो।** बोलकर इनपुट देने वाला व्यक्ति वही शब्द बोलता है जो उसे बटन पर दिखता है। जहाँ आपकी भाषा में हो सके, नाम उसी शब्द से शुरू करें: "हटाएँ" दिखाने वाले बटन के लिए "हटाएँ: Inter"। अक्षरों के बड़े या छोटे होने और अतिरिक्त स्पेस से फ़र्क़ नहीं पड़ता।
+- **डीबग बिल्ड उस `label` की रिपोर्ट करता है** जिसमें दिखने वाला टेक्स्ट नहीं है। बटन फिर भी आपका दिया हुआ नाम ही इस्तेमाल करता है। वह कभी दिखने वाले टेक्स्ट पर नहीं लौटता और कभी दोनों को जोड़ता नहीं, क्योंकि किसी वाक्यांश में शब्दों का क्रम आपकी भाषा का है।
+- **विवरण नाम नहीं है।** जो बात किसी बटन को उसके पड़ोसियों से अलग पहचान देती है, वह उसका नाम है। दबाने पर क्या होता है, जैसे "नए टैब में खुलता है", यह एक विवरण है, जो नाम और रोल के बाद पढ़ा जाता है।
+
+## स्पेक
+
+<DemoFrame label="साइज़ और अक्षम" plain>
+  <tanrei-button size="small">Small</tanrei-button>
+  <tanrei-button size="medium">Medium</tanrei-button>
+  <tanrei-button size="large">Large</tanrei-button>
+  <tanrei-button disabled>Disabled</tanrei-button>
+  <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
+</DemoFrame>
+
+<ComponentSpecs name="button" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+बटन उस क्रिया के लिए इस्तेमाल करें जो वहीं होती है जहाँ व्यक्ति है: फ़ॉर्म सबमिट करना, सेव करना, कोई प्रक्रिया शुरू करना, डायलॉग की पुष्टि करना। वेब पर, जो बटन अपना फ़ॉर्म भेजता है, वह यह बात `type` से कहता है ([फ़ॉर्म में](#फ़ॉर्म-में) देखें)।
+
+अगर उसे सक्रिय करने से व्यक्ति सिर्फ़ कहीं और पहुँचता है, तो वह लिंक है। जब वह गंतव्य बटन के एम्फ़ेसिस के लायक़ हो, जैसे लैंडिंग पेज पर "शुरुआत करें" या किसी लिस्ट के अंत में "सभी देखें", तो बटन ही रखें और उसे `href` दें: तब वह लिंक है, लिंक के रोल, कुंजियों और ब्राउज़र के व्यवहार के साथ ([गंतव्य वाला बटन एक लिंक है](#गंतव्य-वाला-बटन-एक-लिंक-है) देखें)। वाक्य के भीतर का गंतव्य एक साधारण टेक्स्ट लिंक ही रहता है।
+
+### वेरिएंट चुनना
+
+वेरिएंट एम्फ़ेसिस बताते हैं, और एम्फ़ेसिस एक बजट है। उसे हर व्यू में एक बार ख़र्च करें।
+
+| वेरिएंट | एम्फ़ेसिस | किसके लिए |
+| --- | --- | --- |
+| Filled | सबसे ज़्यादा | किसी व्यू या डायलॉग की अकेली सबसे महत्वपूर्ण क्रिया। |
+| Tonal | ज़्यादा | वह महत्वपूर्ण क्रिया जिसे filled बटन से होड़ नहीं करनी चाहिए, या किसी कम अहम हिस्से की मुख्य क्रिया। |
+| Elevated | मध्यम | वह क्रिया जिसे व्यस्त या पैटर्न वाले बैकग्राउंड से अलग दिखना है। |
+| Outlined | मध्यम | filled बटन के बग़ल की बराबर वज़न वाली क्रियाएँ, जैसे "रद्द करें"। |
+| Text | कम | सबसे कम ज़रूरी क्रियाएँ, और कार्ड, डायलॉग और टूलबार की इनलाइन क्रियाएँ। |
+
+`variant` के बिना बटन filled होता है, एक अपवाद के साथ: किसी [डायलॉग](/hi/components/dialog/) या [साइड शीट](/hi/components/side-sheet/) की क्रिया के रूप में रखे जाने पर वह उस होस्ट का वेरिएंट लेता है, जो डिफ़ॉल्ट सिस्टम में tonal है, इसलिए आप वेरिएंट सिर्फ़ उस क्रिया पर सेट करते हैं जिसे अलग दिखना चाहिए। साइड शीट का बंद करने वाला बटन इसी तरह शीट के बंद करने वाले बटन के लिए तय वेरिएंट लेता है।
+
+### करें
+
+- लेबल एक क्रिया-शब्द के रूप में लिखें, या क्रिया-शब्द और संज्ञा के रूप में, जो बताए कि क्या होगा: **डिप्लॉय करें**, **ड्राफ़्ट सेव करें**, **सदस्य जोड़ें**।
+- हर व्यू में एक ही filled बटन रखें। अगर दो क्रियाएँ बराबर मुख्य लगती हैं, तो शायद व्यू दो काम कर रहा है।
+- मुख्य क्रिया को वहाँ रखें जहाँ उस प्लैटफ़ॉर्म पर लोग उसकी उम्मीद करते हैं, और पूरे प्रॉडक्ट में वही क्रम बनाए रखें।
+- घने टूलबार और टेबल में `small` (32), डिफ़ॉल्ट रूप से `medium` (40), और टच-प्रधान या हीरो वाली जगहों पर `large` (56) इस्तेमाल करें। हिट एरिया हर साइज़ पर सुरक्षित है।
+- आइकन स्लॉट का इस्तेमाल लेबल को मज़बूत करने के लिए करें। लेबल सिर्फ़ वहाँ छोड़ें जहाँ ग्लिफ़ को ज़्यादातर लोग समझते हैं (खोज, बंद करना, और विकल्प), और बटन को `label` से नाम दें।
+
+### न करें
+
+- बटन के click हैंडलर से नेविगेट न करें। गंतव्य वाला कंट्रोल एक लिंक है: `href` सेट करें, ताकि उसे नए टैब में खोला जा सके, कॉपी किया जा सके और लिंक के रूप में पढ़कर सुनाया जा सके।
+- जो चीज़ पेज पर कुछ करती है, जैसे "सेव करें" या "हटाएँ", उसे `href` न दें, और `targetLabel` में बताए बिना नया टैब न खोलें।
+- लिस्ट की हर पंक्ति में filled बटन न रखें। Text बटन को तरजीह दें, या ऊपर एक ऐसी क्रिया रखें जो चयन पर लागू हो।
+- वैलिडेशन की समस्या बताने के अकेले तरीक़े के रूप में बटन को अक्षम न करें। उसे सक्षम रखें और दबाए जाने पर बताएँ कि क्या कमी है।
+- लेबल को काटकर छोटा न करें। बटन को बढ़ने दें, या छोटा लेबल लिखें।
+- सिर्फ़ आइकन वाले बटन को `label` के बिना न छोड़ें: ग्लिफ़ कोई नाम नहीं है।
+- सँकरे, सिर्फ़ आइकन वाले बटनों को हाथ से किनारे-से-किनारा सटाकर न रखें। उनके टार्गेट उनके किनारों से आगे तक पहुँचते हैं और एक-दूसरे पर चढ़ जाएँगे।
+
+### कॉन्टेंट
+
+लेबल के अंत में कोई विराम चिह्न नहीं होता। एक या दो शब्दों का लक्ष्य रखें। लेबल वैसे लिखें जैसे आपके प्रॉडक्ट की हर भाषा लेबल लिखती है: अंग्रेज़ी में सेंटेंस केस; जापानी में विनम्र वाक्यांत की जगह संज्ञा या क्रियावाचक संज्ञा वाला रूप, जैसे 保存 या デプロイ।
+
+## सुलभता
+
+<ComponentAccessibility name="button" />
+
+### कंपोनेंट क्या सँभालता है
+
+- यह हर प्लैटफ़ॉर्म पर सहायक तकनीक को बटन का रोल और उसका अक्षम स्टेट देता है। `href` के साथ यह उसकी जगह लिंक का रोल देता है, और उसे सिर्फ़ Enter सक्रिय करती है।
+- टॉगल दबाए हुए स्टेट वाला एक बटन है, चेकबॉक्स या स्विच नहीं, और उसका नाम उसके स्टेट के साथ नहीं बदलता।
+- नया संदर्भ खोलने वाला लिंक यह बात दो बार कहता है: देखने वालों के लिए `open_in_new` का निशान, और न देखने वालों के लिए लिंक के विवरण के रूप में `targetLabel`। निशान ख़ुद सहायक तकनीक से छिपा रहता है।
+- दिखने वाले लेबल के साथ `label` होने पर यह एक ही कंट्रोल पर एक ही नाम देता है: `label`। दिखने वाला टेक्स्ट दोबारा नहीं पढ़ा जाता।
+- वेब पर किसी फ़ील्ड में Enter फ़ॉर्म के डिफ़ॉल्ट बटन को दबाती है, अक्षम डिफ़ॉल्ट बटन उस कुंजी को रोकता है, और अक्षम fieldset के भीतर का बटन उसके साथ अक्षम होता है।
+- इसका हिट एरिया small साइज़ और narrow चौड़ाई पर भी न्यूनतम टार्गेट पूरा करता है, और इसके लिए बटन को बड़ा नहीं बनाया जाता।
+- कीबोर्ड फ़ोकस के लिए यह "पहले ख़ाली जगह, फिर रिंग" वाला फ़ोकस इंडिकेटर दिखाता है, बिना ऐनिमेशन के।
+- इसके रंग उन रोल जोड़ियों से आते हैं जिनका कंट्रास्ट हर कंट्रास्ट स्तर पर जाँचा गया है। outlined बटन की आउटलाइन डिफ़ॉल्ट सिस्टम की बारीक रेखा है, जो जान-बूझकर हल्की रखी गई है: कंट्रोल की पहचान लेबल और आइकन से होती है, उसके किनारे से नहीं। जिस प्रॉडक्ट को ज़्यादा मज़बूत किनारा चाहिए, वह एक लेयर में `comp.button.outlined.outline.color` को `sys.color.outline` पर सेट करता है।
+- बड़े टेक्स्ट साइज़ पर कंटेनर बढ़ता है और लेबल कभी कटता नहीं।
+
+### आपको क्या करना है
+
+- ऐसा लेबल लिखें जो संदर्भ के बिना भी समझ आए। प्रोजेक्ट के नाम के बग़ल में "हटाएँ" से "प्रोजेक्ट हटाएँ" बेहतर है, क्योंकि स्क्रीन रीडर इस्तेमाल करने वाला व्यक्ति बटन को अकेले सुन सकता है।
+- अगर कोई क्रिया लंबी प्रक्रिया शुरू करती है, तो फ़ोकस ले जाएँ या प्रगति पढ़कर सुनाएँ। सिर्फ़ बटन को अक्षम कर देना स्क्रीन रीडर इस्तेमाल करने वाले व्यक्ति को कुछ नहीं बताता।
+- कोई अर्थ बताने के लिए, जैसे विनाशकारी इरादा, वेरिएंट के रंग पर निर्भर न रहें। उसे लेबल में कहें।
+- लिंक बटन को उस जगह के नाम से नाम दें जहाँ वह ले जाता है: "इनवॉइस देखें", न कि "यहाँ क्लिक करें"। जब `target` का मान `new` हो, तो `targetLabel` लिखें।
+- जहाँ कई बटन एक ही शब्द दिखाते हैं, वहाँ हर एक को ऐसा `label` दें जिसमें वह शब्द हो और जो बताए कि बटन किस पर काम करता है ([लेबल से लंबा नाम](#लेबल-से-लंबा-नाम) देखें)।
+- जब फ़ॉर्म का सबमिट बटन अक्षम हो, तो पेज पर बताएँ कि अभी क्या बाक़ी है। अक्षम बटन Enter को भी रोकता है, और अपने आप कुछ नहीं समझाता।
+- सिर्फ़ आइकन वाले हर बटन को `label` से नाम दें। [टूलटिप](/hi/components/tooltip/) पॉइंटर इस्तेमाल करने वालों को वही टेक्स्ट दिखा सकता है, पर वह कभी `label` की जगह नहीं लेता।

@@ -1,0 +1,172 @@
+---
+title: टैग
+description: एक छोटे स्थिर लेबल से किसी श्रेणी या स्थिति का नाम बताता है — हल्के, outlined या filled रूप में, और जहाँ कोई स्थिति हो वहाँ उस स्थिति के रंगों में। यह टेक्स्ट है, कंट्रोल कभी नहीं।
+translationOf: components/tag.mdx
+sourceHash: fe967cfb476e3d4571ebf0fdbe8939c0c7803905
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="tag" />
+
+<DemoFrame label="तीन रूप, स्थिति के साथ और उसके बिना">
+  <tanrei-tag label="ड्राफ़्ट"></tanrei-tag>
+  <tanrei-tag variant="outlined" label="ड्राफ़्ट"></tanrei-tag>
+  <tanrei-tag variant="filled" label="डिफ़ॉल्ट"></tanrei-tag>
+  <tanrei-tag status="success" label="पास"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="समाप्त होने वाला"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="विफल"></tanrei-tag>
+</DemoFrame>
+
+टैग एक शब्द या छोटा वाक्यांश है जो बताता है कि कोई चीज़ क्या है या किस स्थिति में है: किसी लेख की श्रेणी, किसी बिल्ड का नतीजा, किसी रिलीज़ का चरण, कई मानों में से डिफ़ॉल्ट। यह लेआउट में रहता है, अपने बग़ल के टेक्स्ट के साथ इनलाइन, और पॉइंटर, कुंजी या फ़ोकस का कभी जवाब नहीं देता।
+
+वेब पर यह `<tanrei-tag>` है। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
+
+### इस्तेमाल
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag label="Beta"></tanrei-tag>
+    <tanrei-tag variant="outlined" label="डिज़ाइन"><span slot="icon">sell</span></tanrei-tag>
+
+    <!-- लेबल ख़ुद स्थिति बताता है। -->
+    <tanrei-tag status="error" label="विफल"></tanrei-tag>
+
+    <!-- लेबल स्थिति नहीं बताता: status-label उससे पहले पढ़ा जाता है ("त्रुटि, 3 बिल्ड") और दिखाया नहीं जाता। -->
+    <tanrei-tag status="error" status-label="त्रुटि" label="3 बिल्ड"></tanrei-tag>
+
+    <script type="module">
+      import '@tanrei/web/components/tag';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tag } from '@tanrei/react';
+
+    <Tag label="Beta" />
+    <Tag variant="outlined" label="डिज़ाइन"><span slot="icon">sell</span></Tag>
+    <Tag status="error" statusLabel="त्रुटि" label={`${failed} बिल्ड`} />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="हर स्थिति में हर रूप" plain>
+  <tanrei-tag status="info" label="समीक्षा में"></tanrei-tag>
+  <tanrei-tag status="warning" label="समाप्त होने वाला"></tanrei-tag>
+  <tanrei-tag status="error" label="विफल"></tanrei-tag>
+  <tanrei-tag status="success" label="पास"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="info" label="समीक्षा में"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="समाप्त होने वाला"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="error" label="विफल"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="success" label="पास"></tanrei-tag>
+  <tanrei-tag variant="filled" status="info" label="समीक्षा में"></tanrei-tag>
+  <tanrei-tag variant="filled" status="warning" label="समाप्त होने वाला"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="विफल"></tanrei-tag>
+  <tanrei-tag variant="filled" status="success" label="पास"></tanrei-tag>
+</DemoFrame>
+
+<DemoFrame label="दो साइज़, एक ग्लिफ़, एक बिंदु" plain>
+  <tanrei-tag size="small" label="वैकल्पिक"></tanrei-tag>
+  <tanrei-tag size="small" variant="filled" label="ज़रूरी"></tanrei-tag>
+  <tanrei-tag label="डिज़ाइन"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag size="small" label="डिज़ाइन"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag dot label="आर्काइव किया गया"></tanrei-tag>
+  <tanrei-tag dot status="success" label="ऑनलाइन"></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="धीमा"></tanrei-tag>
+</DemoFrame>
+
+<ComponentSpecs name="tag" />
+
+## दिशानिर्देश
+
+### बैज, चिप या टैग
+
+तीनों में फ़र्क़ एक ही बार, इस आधार पर किया जाता है कि वे क्या करते हैं:
+
+| कंपोनेंट | यह क्या है | कहाँ रहता है | इनपुट लेता है |
+| --- | --- | --- | --- |
+| [बैज](/hi/components/badge/) | किसी दूसरे एलिमेंट से जुड़ा एक बिंदु या गिनती। | अपने ऐंकर के कोने पर, लेआउट के बाहर। | नहीं। इनपुट ऐंकर तक पहुँचता है। |
+| [चिप](/hi/components/chip/) | एक कंट्रोल। | लेआउट में। | हाँ: इसे दबाया, चालू-बंद किया या हटाया जाता है, और इसके पास फ़ोकस और स्टेट हैं। |
+| टैग | एक स्थिर लेबल। | लेआउट में, इनलाइन। | कभी नहीं। |
+
+1. अगर उसे दबाया, चुना या हटाया जाता है, तो वह चिप है। अगर वह कहीं ले जाता है, तो वह लिंक है।
+2. अगर वह किसी दूसरी चीज़ के ऊपर रखी संख्या या बिंदु है, तो वह बैज है।
+3. अगर वह एक शब्द है जो सिर्फ़ यह बताता है कि कोई चीज़ क्या है या किस स्थिति में है, तो वह टैग है।
+
+हैंडलर जोड़ देने से टैग कभी कंट्रोल नहीं बनता। किसी लिंक, बटन, लिस्ट आइटम या ऐसी पंक्ति के भीतर, जिसे पूरा दबाया जाता है, वह उसी एलिमेंट का टेक्स्ट रहता है: उसके ऊपर का इनपुट उस एलिमेंट तक पहुँचता है, और होवर, फ़ोकस और दबाने का रूप वही एलिमेंट बनाता है।
+
+### रूप चुनना
+
+| `variant` | क्या बनता है | किसके लिए |
+| --- | --- | --- |
+| `tonal` (डिफ़ॉल्ट) | एक हल्का फ़िल। | ज़्यादातर टैग। |
+| `outlined` | कोई फ़िल नहीं और एक बारीक रेखा। | पास-पास रखे कई टैग: टेबल का कॉलम, श्रेणियों की सूची। |
+| `filled` | पूरा फ़िल। | अपने पड़ोसियों में से चुना हुआ: मानों में डिफ़ॉल्ट, फ़ील्ड में ज़रूरी। और वह एक स्थिति भी, जो नज़र से चूकनी नहीं चाहिए। |
+
+### स्थितियाँ
+
+`status` का मान `default`, `info`, `warning`, `error` या `success` होता है। यह सिर्फ़ रंग बदलता है। outlined टैग हर स्थिति में सरफ़ेस के टेक्स्ट का रंग और अपनी बारीक रेखा बनाए रखता है, इसलिए वह हमेशा स्थिति के रंग में एक बिंदु (या आपका ग्लिफ़) बनाता है: स्थिति सिर्फ़ उसी निशान में दिखती है।
+
+टैग अपने आप कोई स्थिति ग्लिफ़ नहीं बनाता। जहाँ उससे मदद मिले, वहाँ ग्लिफ़ का नाम दें, जैसे यह साइट अपनी स्थिति टेबल की छह स्थितियों के लिए करती है:
+
+<DemoFrame label="इस साइट की छह स्थितियाँ" plain>
+  <tanrei-tag size="small" variant="outlined" label="नियोजित"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="पीछे"><span slot="icon">schedule</span></tanrei-tag>
+  <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
+  <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
+  <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
+  <tanrei-tag size="small" status="error" label="अप्रचलित"><span slot="icon">block</span></tanrei-tag>
+</DemoFrame>
+
+### साइज़
+
+| `size` | ऊँचाई | टेक्स्ट | किसके लिए |
+| --- | --- | --- | --- |
+| `small` | 20 | 12 | फ़ील्ड के लेबल के बग़ल में, टेबल के सेल में, बॉडी टेक्स्ट की पंक्ति में। इससे पंक्ति ऊँची नहीं होती। |
+| `medium` (डिफ़ॉल्ट) | 24 | 14 | हेडिंग के बग़ल में, या अकेले। |
+
+[फ़ील्ड](/hi/components/field/) और [फ़ील्ड ग्रुप](/hi/components/field-group/) के ज़रूरी और वैकल्पिक के टैग यही कंपोनेंट हैं, अपने छोटे साइज़ में: ज़रूरी के लिए filled, वैकल्पिक के लिए tonal। वे टैग के टोकन पढ़ते हैं और उनका अपना कोई टोकन नहीं है, इसलिए जो डिज़ाइन सिस्टम अपने छोटे टैग की स्टाइल बदलता है, वह इनकी स्टाइल भी बदल देता है।
+
+### करें
+
+- स्थिति शब्दों में कहें। "विफल" को और कुछ नहीं चाहिए; त्रुटि के रंगों में "3 बिल्ड" लिखे टैग को `statusLabel` चाहिए।
+- टैग को उसके लेबल के लिए जगह दें। जो लेबल नहीं समाता, वह एलिप्सिस के साथ काट दिया जाता है, और बाक़ी हिस्सा दिखाने के लिए टैग के पास न होवर है, न फ़ोकस।
+- जहाँ टैग एक ही समूह हों, जैसे किसी लेख की श्रेणियाँ, वहाँ उन्हें एक लिस्ट में रखें (वेब पर `<ul>` और `<li>`) और लिस्ट को नाम दें।
+
+### न करें
+
+- टैग को दबाने लायक़ न बनाएँ। जो लेबल दबाया, चालू-बंद किया या हटाया जाता है, वह चिप है; जो कहीं ले जाता है, वह लिंक है।
+- बिना लेबल का टैग इस्तेमाल न करें। अकेला बिंदु या ग्लिफ़ टैग नहीं है, और तब कुछ नहीं बनता।
+- स्थिति बताने के लिए रंग पर निर्भर न रहें। फ़ोर्स्ड कलर्स में हर टैग एक जैसा दिखता है: टेक्स्ट के रंग में एक किनारा और एक लेबल।
+- किसी आइकन पर गिनती के लिए टैग इस्तेमाल न करें। वह बैज है।
+
+## सुलभता
+
+<ComponentAccessibility name="tag" />
+
+### कंपोनेंट क्या सँभालता है
+
+- इसका न कोई रोल है, न कोई नाम: इसका लेबल वहीं टेक्स्ट के रूप में पढ़ा जाता है जहाँ टैग रखा है। किसी लिंक, बटन या टेबल के सेल के भीतर यह उस एलिमेंट के कॉन्टेंट का हिस्सा है।
+- `statusLabel` लेबल से पहले एक दूसरे वाक्यांश के रूप में पढ़ा जाता है ("त्रुटि, 3 बिल्ड") और कभी दिखाया नहीं जाता। जब तक `status` का मान `default` है, इसे अनदेखा किया जाता है।
+- ग्लिफ़ और बिंदु सहायक तकनीक से छिपे रहते हैं।
+- यह न इनपुट लेता है, न फ़ोकस, इसलिए यह फ़ोकस के क्रम में कोई पड़ाव नहीं जोड़ता और पंक्ति में कोई टार्गेट नहीं जोड़ता।
+- कटा हुआ लेबल फिर भी पूरा पढ़ा जाता है।
+- फ़ोर्स्ड कलर्स में हर रूप को टेक्स्ट के रंग का एक किनारा मिलता है, और लेबल, ग्लिफ़ और बिंदु वही रंग लेते हैं।
+- दाएँ से बाएँ वाले लेआउट में ग्लिफ़ या बिंदु लेबल के दाईं ओर चला जाता है, जिस ग्लिफ़ को आइकन सेट चिह्नित करता है वह मिरर होता है, और बाएँ से दाएँ वाला लेबल अपना क्रम बनाए रखता है और अपने ही अंत पर कटता है।
+- अनजान वेरिएंट, साइज़ या स्थिति, ख़ाली लेबल, और बिना स्थिति का `statusLabel` डीबग बिल्ड में रिपोर्ट किए जाते हैं।
+
+### आपको क्या करना है
+
+- जाँचें कि हर टैग के शब्द उसकी स्थिति बताते हैं। कंपोनेंट यह नहीं जान सकता कि "3 बिल्ड" अच्छी ख़बर है या बुरी।
+- `statusLabel` पेज की भाषा में लिखें।
+- अगर किसी बदलाव को होते ही पढ़कर सुनाना ज़रूरी हो (ऐसा बिल्ड जो व्यक्ति के देखते-देखते पूरा होता है), तो टैग को लाइव रीजन में रखें या बदलाव की सूचना स्नैकबार से दें। टैग ख़ुद कुछ पढ़कर नहीं सुनाता।

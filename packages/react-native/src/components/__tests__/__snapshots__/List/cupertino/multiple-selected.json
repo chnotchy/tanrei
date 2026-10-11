@@ -1,0 +1,558 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "width": 360
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityLabel": "Labels",
+        "accessibilityRole": "list"
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {},
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityHint": "12 open issues",
+                "accessibilityLabel": "Bug",
+                "accessibilityState": {
+                  "disabled": false,
+                  "selected": true
+                },
+                "accessibilityValue": {
+                  "text": "1 of 3"
+                },
+                "accessible": true,
+                "collapsable": false,
+                "focusable": true,
+                "hitSlop": {
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "top": 0
+                },
+                "role": "option",
+                "style": {
+                  "alignItems": "center",
+                  "borderCurve": "continuous",
+                  "borderRadius": 0,
+                  "flexDirection": "row",
+                  "gap": 12,
+                  "minHeight": 64,
+                  "opacity": 1,
+                  "paddingEnd": 16,
+                  "paddingStart": 16,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "alignItems": "center",
+                      "height": 20,
+                      "justifyContent": "center",
+                      "width": 20
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": false,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(8, 122, 255)",
+                          "fontFamily": "Material Symbols Rounded",
+                          "fontSize": 20,
+                          "fontWeight": "300",
+                          "lineHeight": 20,
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        "label"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flex": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(8, 122, 255)",
+                          "fontSize": 17,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 22
+                        }
+                      },
+                      "children": [
+                        "Bug"
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(107, 106, 108)",
+                          "fontSize": 13,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 18
+                        }
+                      },
+                      "children": [
+                        "12 open issues"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "height": 20,
+                      "width": 20
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "bottom": 0,
+                          "direction": "ltr",
+                          "left": 0,
+                          "pointerEvents": "none",
+                          "position": "absolute",
+                          "right": 0,
+                          "top": 0
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "View",
+                          "props": {
+                            "collapsable": false,
+                            "style": {
+                              "backgroundColor": "rgb(8, 122, 255)",
+                              "height": 2,
+                              "left": 3.2929,
+                              "position": "absolute",
+                              "top": 8.2929,
+                              "transform": [
+                                {
+                                  "rotate": "45deg"
+                                }
+                              ],
+                              "transformOrigin": [
+                                0,
+                                1,
+                                0
+                              ],
+                              "width": 7.6569
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "type": "View",
+                          "props": {
+                            "collapsable": false,
+                            "style": {
+                              "backgroundColor": "rgb(8, 122, 255)",
+                              "height": 2,
+                              "left": 7.2929,
+                              "position": "absolute",
+                              "top": 13.7071,
+                              "transform": [
+                                {
+                                  "rotate": "-45deg"
+                                }
+                              ],
+                              "transformOrigin": [
+                                0,
+                                1,
+                                0
+                              ],
+                              "width": 13.3137
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {},
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityHint": "4 open issues",
+                "accessibilityLabel": "Feature",
+                "accessibilityState": {
+                  "disabled": false,
+                  "selected": false
+                },
+                "accessibilityValue": {
+                  "text": "2 of 3"
+                },
+                "accessible": true,
+                "collapsable": false,
+                "focusable": false,
+                "hitSlop": {
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "top": 0
+                },
+                "role": "option",
+                "style": {
+                  "alignItems": "center",
+                  "borderCurve": "continuous",
+                  "borderRadius": 0,
+                  "flexDirection": "row",
+                  "gap": 12,
+                  "minHeight": 64,
+                  "opacity": 1,
+                  "paddingEnd": 16,
+                  "paddingStart": 16,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "alignItems": "center",
+                      "height": 20,
+                      "justifyContent": "center",
+                      "width": 20
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": false,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(107, 106, 108)",
+                          "fontFamily": "Material Symbols Rounded",
+                          "fontSize": 20,
+                          "fontWeight": "300",
+                          "lineHeight": 20,
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        "label"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flex": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(0, 0, 0)",
+                          "fontSize": 17,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 22
+                        }
+                      },
+                      "children": [
+                        "Feature"
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(107, 106, 108)",
+                          "fontSize": 13,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 18
+                        }
+                      },
+                      "children": [
+                        "4 open issues"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "height": 20,
+                      "width": 20
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {},
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityHint": "7 open issues",
+                "accessibilityLabel": "Docs",
+                "accessibilityState": {
+                  "disabled": false,
+                  "selected": true
+                },
+                "accessibilityValue": {
+                  "text": "3 of 3"
+                },
+                "accessible": true,
+                "collapsable": false,
+                "focusable": false,
+                "hitSlop": {
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "top": 0
+                },
+                "role": "option",
+                "style": {
+                  "alignItems": "center",
+                  "borderCurve": "continuous",
+                  "borderRadius": 0,
+                  "flexDirection": "row",
+                  "gap": 12,
+                  "minHeight": 64,
+                  "opacity": 1,
+                  "paddingEnd": 16,
+                  "paddingStart": 16,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "alignItems": "center",
+                      "height": 20,
+                      "justifyContent": "center",
+                      "width": 20
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": false,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(8, 122, 255)",
+                          "fontFamily": "Material Symbols Rounded",
+                          "fontSize": 20,
+                          "fontWeight": "300",
+                          "lineHeight": 20,
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        "label"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flex": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(8, 122, 255)",
+                          "fontSize": 17,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 22
+                        }
+                      },
+                      "children": [
+                        "Docs"
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(107, 106, 108)",
+                          "fontSize": 13,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 18
+                        }
+                      },
+                      "children": [
+                        "7 open issues"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "height": 20,
+                      "width": 20
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "bottom": 0,
+                          "direction": "ltr",
+                          "left": 0,
+                          "pointerEvents": "none",
+                          "position": "absolute",
+                          "right": 0,
+                          "top": 0
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "View",
+                          "props": {
+                            "collapsable": false,
+                            "style": {
+                              "backgroundColor": "rgb(8, 122, 255)",
+                              "height": 2,
+                              "left": 3.2929,
+                              "position": "absolute",
+                              "top": 8.2929,
+                              "transform": [
+                                {
+                                  "rotate": "45deg"
+                                }
+                              ],
+                              "transformOrigin": [
+                                0,
+                                1,
+                                0
+                              ],
+                              "width": 7.6569
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "type": "View",
+                          "props": {
+                            "collapsable": false,
+                            "style": {
+                              "backgroundColor": "rgb(8, 122, 255)",
+                              "height": 2,
+                              "left": 7.2929,
+                              "position": "absolute",
+                              "top": 13.7071,
+                              "transform": [
+                                {
+                                  "rotate": "-45deg"
+                                }
+                              ],
+                              "transformOrigin": [
+                                0,
+                                1,
+                                0
+                              ],
+                              "width": 13.3137
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

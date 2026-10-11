@@ -1,0 +1,1135 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "radio-group",
+  "title": "Radio group",
+  "summary": "Asks one question that has exactly one answer among a few options shown all at once: a set of radio buttons that holds the chosen value, in the field group's frame: under a label that can say the answer is required or optional, with a description and one error for the set.",
+  "category": "selection",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "field-group",
+    "radio-button"
+  ],
+  "fills": [
+    "field-group.kind",
+    "radio-button.selected",
+    "radio-button.name"
+  ],
+  "anatomy": [
+    {
+      "id": "field-group",
+      "description": "The field group, in its radio-group kind: the label with its requirement mark, the description under it, the column or the row the options stand in, and the error text below the last option — and the one radio group that assistive technology is told of. The field group itself, with its own tokens, not a drawing of it."
+    },
+    {
+      "id": "radio-button",
+      "description": "The radio buttons of the set, in the order given: the product's own, each the Radio button component with its own label, drawn from its own tokens. Which of them is selected is the group's value."
+    }
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The value of the selected radio button; the empty string while none is selected. The radio group sets it when a person selects an option, and emits change; the product may also set it."
+    },
+    {
+      "name": "label",
+      "from": "field-group.label"
+    },
+    {
+      "name": "labelHidden",
+      "from": "field-group.labelHidden"
+    },
+    {
+      "name": "supportingText",
+      "from": "field-group.supportingText"
+    },
+    {
+      "name": "errorText",
+      "from": "field-group.errorText",
+      "note": "On the web it is also what the form's own validation says of a required group left unanswered, where the browser has no sentence of its own for it (RGP-9)."
+    },
+    {
+      "name": "error",
+      "from": "field-group.error",
+      "note": "The radio group is exposed as invalid, and its radio buttons are drawn as they are: a radio button has no error condition (RGP-8)."
+    },
+    {
+      "name": "disabled",
+      "from": "field-group.disabled",
+      "note": "The value is kept, and on the web it is not submitted (RGP-7, RGP-9)."
+    },
+    {
+      "name": "requirement",
+      "from": "field-group.requirement",
+      "note": "required exposes the radio group as required, and on the web an empty value is reported to the form's own validation (RGP-9, RGP-10)."
+    },
+    {
+      "name": "requiredMark",
+      "from": "field-group.requiredMark"
+    },
+    {
+      "name": "requiredText",
+      "from": "field-group.requiredText",
+      "note": "Not part of the radio group's description: its required state carries it (RGP-10)."
+    },
+    {
+      "name": "optionalText",
+      "from": "field-group.optionalText"
+    },
+    {
+      "name": "orientation",
+      "from": "field-group.orientation",
+      "note": "The arrow keys are the same in both (RGP-5)."
+    }
+  ],
+  "items": [
+    {
+      "name": "radio-button",
+      "summary": "An option of the set: the radio button component with its own label, selected by the group's value, placed, spaced and disabled by the group, otherwise drawn and pressed as it is anywhere.",
+      "component": "radio-button",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What the option stands for, as the Radio button's value: the group's value while this option is the selected one. Unique in the group and not empty."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its own label, as the Radio button's label."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Radio button's disabled: one option of an enabled group may be disabled by itself, and is then skipped by the arrow keys."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The person selected another option; carries the new value, which the group already holds. Emitted once per selection, by the group and not by its radio buttons. Not emitted when the product sets value, or when the selected option is activated again."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "RGP-1",
+      "text": "THE radio group SHALL be a field group whose kind is radio-group and whose spacing is controls, around its radio buttons: the field group itself, with the field group's own tokens, measures and sentences, and no copy of it — its rows, their order and their gaps (FGR-1), the label above the options (FGR-2), the requirement and its mark (FGR-4, FGR-5, FGR-6), the description under the label, which stays while the group is in error (FGR-7), the error text below the last option (FGR-8) and the disabled frame (FGR-14), each from the prop of the same name, which is the field group's. It SHALL have no look and no token of its own: it SHALL draw no container, edge, fill or elevation, SHALL add no padding around its rows and no distance between its radio buttons but the field group's, and SHALL leave each radio button drawn from the radio button's own tokens, at the radio button's own size.",
+      "verify": "Each fixture laid over its twin — the field group's fixture it names: the same label, requirement, description and error, kind radio-group, around radio buttons of one name with the same labels, the chosen one selected by hand — is the same picture, pixel for pixel, and reads as the same radio group, with the same names, descriptions, states and positions; a difference is a finding. Under the default system: a one-line label (20), 4, one line of description (16), 8, the options, 4, one line of error text (16)."
+    },
+    {
+      "id": "RGP-2",
+      "text": "THE radio group SHALL lay out its radio buttons as the field group lays out its controls: WHILE orientation is vertical in one column in the order given (FGR-3), and WHILE orientation is horizontal in a row from the start edge that wraps onto further lines and never cuts, scrolls or narrows an option below what its content needs (FGR-13). The order given is the order of reading, of the arrow keys (RGP-5) and of each option's position (RGP-10) in both orientations.",
+      "verify": "Under the default system the containers of two options are 8 apart in a column, which puts their rings 48 apart. Fixture horizontal-many wraps in every harness's stage."
+    },
+    {
+      "id": "RGP-3",
+      "text": "THE radio group SHALL hold one value and show as selected the radio button whose value equals it, and no other; WHILE value is the empty string none SHALL be selected. WHEN the product sets value THE radio group SHALL select the radio button of that value and unselect the others (RAD-3), over the radio button's own selection motion (RAD-15), without emitting change and without moving focus. WHEN the product sets selected on one of the group's radio buttons THE radio group SHALL take that radio button's value as its value, likewise without emitting change, so that the two never disagree; WHEN the product takes selected off the radio button that value selects THE radio group SHALL keep value and show that radio button selected again at once, because the empty string is the one way to say that none is selected. A radio button that comes to the group marked selected — with the group or after it — SHALL give the group its value only WHILE value is the empty string, the last of several such; WHILE value is not empty, value SHALL decide and the mark SHALL be overruled. IF value equals no radio button's value THEN THE radio group SHALL show none selected, SHALL keep value as it was given, and in debug builds SHALL report it; IF two radio buttons carry one value THEN the first in the order given SHALL be the one value selects; IF a radio button carries the empty string THEN it SHALL never be shown selected, and a person's activation of it SHALL change nothing and emit nothing, because its selection would say that none is selected; in debug builds THE radio group SHALL report either.",
+      "verify": "Unit: set value from the product and count change (none); set selected on an option and read the group's value; take selected off the chosen option (it is shown selected again, value kept); draw with value \"express\" and the first option marked selected (express is shown); add an option marked selected to a group with no value (the group takes its value) and to one with a value (the mark is overruled); activate an option without a value (nothing changes, no change)."
+    },
+    {
+      "id": "RGP-4",
+      "text": "WHEN the person selects a radio button of the group that was not selected — by pointer, touch, Space, a click on its label, an arrow key (RGP-5) or assistive technology, as RAD-1 says of the radio button — THE radio group SHALL set value to that radio button's value and emit change exactly once, carrying the new value, with value already set when the event is received; the radio button that was selected before SHALL become unselected and emit nothing (RAD-3), and nothing the selected radio button emits SHALL reach a listener on the group as a second change. WHEN the person activates the radio button that is already selected THE radio group SHALL keep value and emit nothing (RAD-2): a person cannot clear a radio group, and a question that may go unanswered has an option that says so.",
+      "verify": "Unit: one listener on the group counts one change per selection, by a click, by Space and by each arrow key, and reads the new value from the event and from the group alike."
+    },
+    {
+      "id": "RGP-5",
+      "text": "WHEN one of the group's radio buttons has keyboard focus and the person presses Down Arrow or Right Arrow THE radio group SHALL move focus to the next enabled radio button in the order given, wrapping from the last to the first, and select it as RGP-4 says; Up Arrow and Left Arrow SHALL do the same towards the previous one, wrapping from the first to the last; in a right-to-left layout Right Arrow SHALL move to the previous and Left Arrow to the next, and Up Arrow and Down Arrow SHALL stay as they are. The four keys SHALL do this in both orientations, and by the order given, not by the place a wrapped row gave an option. THE radio group SHALL skip a disabled radio button, SHALL do nothing WHILE the focused one is the only enabled one, and SHALL leave a key pressed with Alt, Control or Meta to the platform. This is RAD-4, kept by the group for its radio buttons.",
+      "verify": "Unit, in both orientations and both directions: from the last option Down Arrow selects the first; a disabled option in the middle is passed over; in a right-to-left layout Left Arrow selects the next option and Down Arrow still does."
+    },
+    {
+      "id": "RGP-6",
+      "text": "THE radio group SHALL keep exactly one of its radio buttons in the focus order: the selected one WHILE it is enabled, otherwise the first enabled one in the order given; Tab and Shift+Tab SHALL enter the group at that radio button from either side and SHALL leave the group from whichever radio button has focus, never moving within it (RAD-5). THE radio group SHALL NOT be a stop itself, and a press on its label, its requirement mark, its description or its error text SHALL select nothing and move no focus into the group (FGR-12). WHEN the radio button that is the stop changes while focus is inside the group THE radio group SHALL leave focus where it is. WHILE no radio button is enabled the group SHALL have no stop. WHEN the product asks the group itself for focus, where the platform has such a call, THE radio group SHALL give focus to the radio button that is the stop.",
+      "verify": "Unit: with none selected Tab lands on the first enabled option and Shift+Tab from after the group lands on the same one; with the third selected both land on the third; with the selected option disabled both land on the first enabled one."
+    },
+    {
+      "id": "RGP-7",
+      "text": "WHILE disabled is true THE radio group SHALL draw its frame from the field group's disabled tokens (FGR-14), SHALL make every radio button it holds disabled as the radio button's own disabled does (RAD-6, RAD-10) — not focusable, not operable, drawn disabled, the selected one still shown selected — SHALL emit no change, SHALL keep value, and SHALL be exposed as disabled, its texts still readable by assistive technology. WHILE disabled is false THE radio group SHALL NOT enable a radio button the product disabled itself: that one stays out of the focus order and of the arrow keys (RGP-5, RGP-6) and is still shown selected WHILE value is its value. THE radio group SHALL have no read-only state, because a radio button has none and a composed component adds no state its members have not."
+    },
+    {
+      "id": "RGP-8",
+      "text": "THE radio group SHALL take from requirement what the form asks of the set, as a field group does (FGR-4), and SHALL NOT set the error condition itself because an answer is missing or for any other reason: error and errorText are the product's to set. WHILE error is true THE radio group SHALL draw errorText and the error parts of its frame (FGR-8), SHALL be exposed as invalid (RGP-10), and SHALL have every radio button it holds, selected or not, drawn in the radio button's own error form (RAD-26), as a field group in error marks each control that has an error condition (FGR-8): the refusal is the set's, said by the words below it and by the group's invalid state, and shown on every option, because any of them may be the answer that puts it right. A disabled radio button SHALL be drawn as disabled, without the error color (RAD-26), and THE radio group SHALL NOT expose a radio button as invalid or describe it by errorText: the group says both once (RGP-10). WHEN error becomes true, or errorText changes while error is true, and focus is on one of the group's radio buttons THE radio group SHALL have assistive technology announce errorText once, politely, and SHALL NOT move focus (FGR-9). A change of value SHALL NOT clear error.",
+      "verify": "Fixtures required-error (no option selected, every ring in the error color), error-selected (the selected ring and its fill in the error color too, the description still there) and error-one-disabled (the disabled option drawn as any disabled option). Under the default system the error text and the options' rings and fills take the error role; the label, the description and the options' labels keep their resting colors."
+    },
+    {
+      "id": "RGP-9",
+      "text": "WHERE the platform has forms that submit named values (the web) THE radio group SHALL take part in its form as one control: it SHALL submit value under its own name WHILE value is not the empty string and the group is not disabled, and nothing otherwise — also WHILE the radio button of that value is one the product disabled by itself, because the value is the group's and a radio button's disabled says who may change it; SHALL return to the value it was first given WHEN the form is reset, without emitting change; SHALL be disabled WHILE the form disables the set it is in; SHALL report a missing value to the form's own validation WHILE requirement is required and value is the empty string, in the platform's own words for an unanswered set of radio buttons where it has them, and otherwise in errorText, else requiredText, else label — never in words of Tanrei's; and its radio buttons SHALL submit nothing of their own. Enter on a focused radio button SHALL be left to the form (RAD-1). WHERE the platform has no such forms value and change are the whole of it.",
+      "verify": "Web: FormData of a form holding the group has one entry under the group's name and none under an option's; reset restores the first value; a required, empty group makes the form's checkValidity false."
+    },
+    {
+      "id": "RGP-10",
+      "text": "THE radio group SHALL be exposed to assistive technology as the field group it is, in its radio-group kind, and SHALL add no group to it (FGR-25): one radio group that contains its radio buttons — named by label, whether or not the label is drawn; required WHILE requirement is required; invalid WHILE error is true; disabled WHILE disabled is true; saying its orientation where the platform's radio group has one; and described by, in this order, supportingText, errorText WHILE error is true, and optionalText WHILE requirement is optional, each new text exposed at once WHEN it changes (FGR-11). requiredText SHALL NOT be part of the description, because the required state carries it, and the requirement tag and the asterisk SHALL be kept from assistive technology as drawn parts. Each radio button SHALL expose its role, its checked state, its position in the group and the group's size as RAD-16 says, counted in the order given with disabled options included. WHERE the platform forms a radio group with a container of its own THE radio group SHALL be that container and SHALL NOT expose a second group around it. WHILE label is empty THE radio group SHALL still render and in debug builds report that the set has no accessible name (FGR-10).",
+      "verify": "Unit: exactly one radio group and no other group in the accessibility tree, named by label with labelHidden false and true; requirement required and error true expose both states on it; three radios say 1, 2 and 3 of 3. The same reading of each fixture's twin gives the same tree."
+    },
+    {
+      "id": "RGP-11",
+      "text": "WHEN a radio button is added to the group, removed from it or moved, or its value or its disabled changes, while the group is shown THE radio group SHALL lay out its radio buttons again at once, without a motion; SHALL select by value again (RGP-3), so that a radio button that arrives with the group's value is shown selected and value is kept WHEN the selected one leaves; SHALL give the disabled state it holds (RGP-7) to one that came and take it back from one that left; SHALL set the tab stop (RGP-6) and each position (RGP-10) again; SHALL emit no change; and SHALL leave focus on the radio button that has it."
+    },
+    {
+      "id": "RGP-12",
+      "text": "THE radio group SHALL hold radio buttons and nothing else that can be operated. IF it holds no radio button THEN THE radio group SHALL draw its rows without one and in debug builds report it; IF it holds another control, or a radio button that names a group of its own (RAD-25), THEN in debug builds THE radio group SHALL report it. THE radio group SHALL NOT restyle a radio button or change how it answers hover, focus or a press: those stay the radio button's (RAD-7, RAD-8, RAD-11 to RAD-13)."
+    },
+    {
+      "id": "RGP-13",
+      "text": "WHILE the text size is enlarged THE radio group SHALL grow with its texts as a field group does (FGR-16): the label, the description, the error text and each option's label wrap and never clip, the requirement tag grows with its text, a horizontal row wraps and at 200% becomes a column where one line no longer holds two options (RGP-2), and no text SHALL be lost, lie over another part or need scrolling in two directions.",
+      "verify": "At 200% text in a stage 320 wide, fixtures horizontal-many and long-label lose no text, lay nothing over another part and scroll in one direction only; horizontal-many is a column there."
+    },
+    {
+      "id": "RGP-14",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE radio group SHALL draw its frame as a field group does there (FGR-17) — its texts in the platform's text color, its requirement tag with an edge — and SHALL rely on no color of its own to show an error: the error is carried by the words of errorText and by the invalid state (RGP-10), and its radio buttons are drawn there as out of error (RAD-27)."
+    },
+    {
+      "id": "RGP-15",
+      "text": "WHERE the layout direction is right-to-left THE radio group SHALL mirror its layout as a field group does (FGR-18): the label row, the description, the options and the error text start at the right edge, the requirement mark stands at the left of the label, and a horizontal row runs from right to left, the first option at the right; a column keeps its order from top to bottom. Each radio button mirrors itself (RAD-17), and Left Arrow and Right Arrow exchange what they do (RGP-5).",
+      "verify": "Fixtures rtl and horizontal-rtl."
+    },
+    {
+      "id": "RGP-16",
+      "text": "THE radio group SHALL take its layout direction from where it is used and SHALL have no direction setting of its own, as the field group (FGR-19) and each radio button (RAD-22) do; WHEN that direction changes while the radio group is shown THE radio group SHALL be drawn for the new direction at once, without a motion of its own, keeping its value, its selection and its focus, and the arrow keys SHALL follow the new direction at the next key (RGP-5).",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render; the arrow keys follow the new direction at the next key."
+    },
+    {
+      "id": "RGP-17",
+      "text": "THE radio group SHALL lay out its label, its description, its error text and the text of its requirement tag as the field group does (FGR-21): each as text of its own direction, isolated from the text around it, and placed and aligned by the layout direction, not by the text's own. Each option's label is the radio button's (RAD-23).",
+      "verify": "Fixture ltr-label-rtl."
+    },
+    {
+      "id": "RGP-18",
+      "text": "WHEN requirement, requiredMark or orientation names a value the radio group does not know THE radio group SHALL do with it what the field group does (FGR-22) — behave as none for requirement, and render with the prop's default (auto, vertical) for the two others — and in debug builds the unknown value SHALL be reported once."
+    },
+    {
+      "id": "RGP-19",
+      "text": "THE radio group SHALL have no words of its own: requiredText and optionalText are the field group's, read as FGR-24 says — from the instance's prop and, WHILE that is empty, from the product's words of the same name, and from nowhere else. IF neither gives requiredText WHILE requirement is required and the required mark is tag THEN THE radio group SHALL show the asterisk of FGR-6 in the tag's place, as the field group does, and SHALL keep its required state (RGP-10), which needs no word. IF neither gives optionalText WHILE requirement is optional THEN THE radio group SHALL show no tag and SHALL add nothing to the description for it. In debug builds the missing words SHALL be reported once.",
+      "verify": "Unit, with no product's words set: requirement required and no requiredText draws the asterisk and no tag, and the report names requiredText; requirement optional and no optionalText draws no tag and adds nothing to the description. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
+    }
+  ],
+  "accessibility": {
+    "role": "radiogroup",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus into the group — to the selected option, or to the first enabled one while none is selected — and out of it. The group has one stop and is not a stop itself (RGP-6)."
+      },
+      {
+        "keys": "Down Arrow / Right Arrow",
+        "action": "Moves to the next enabled option and selects it, wrapping from the last to the first; in a right-to-left layout Left Arrow does what Right Arrow does here (RGP-5)."
+      },
+      {
+        "keys": "Up Arrow / Left Arrow",
+        "action": "Moves to the previous enabled option and selects it, wrapping from the first to the last; in a right-to-left layout Right Arrow does what Left Arrow does here."
+      },
+      {
+        "keys": "Space",
+        "action": "Selects the focused option if it is not selected (after Tab into a group with nothing selected); does nothing on the selected one."
+      },
+      {
+        "keys": "Enter",
+        "action": "Nothing on the web, where it submits the form; selects where the platform activates any focused control with Enter (Android, tvOS), as RAD-1 says."
+      }
+    ],
+    "labeling": "label names the radio group, drawn or not (labelHidden). Each option keeps its own name, its own label beside it, and says its position in the set. The group's description is supportingText, then errorText while error is true, then optionalText while it is optional; a required group carries the required state, and a group in error the invalid state, so neither is said in words a second time. The requirement tag and the asterisk are hidden.",
+    "minimumTarget": true,
+    "notes": [
+      "Not a target itself: the group takes no press and is not a focus stop (RGP-6), so minimumTarget holds through its radio buttons, each of which keeps a whole touch target of its own at the distance the group puts between them (RAD-9, RAD-21, RGP-2).",
+      "The radio group is a field group that owns a value: its frame is the field group itself, in its radio-group kind (RGP-1, FGR-25), and it adds what a frame cannot have — one value, one change, the arrow keys and the one tab stop kept for the set, and a place in a form as one control. It has no tokens of its own. One level down is the same field group written by hand around radio buttons of one name: the same picture and the same radio group, without the value. A set of checkboxes that is one answer is a checkbox group, which holds a list of values where this holds one; a set of switches, and checkboxes that each have a name of their own, need none of that and stay a field group.",
+      "Selection follows focus: an arrow key selects as it moves, as every platform's own radio buttons do, so the arrow keys never leave focus on an option that is not the answer. A product in which a selection has an expensive or a visible effect at once (it saves, it loads) should take the answer from a button that confirms it, not from change.",
+      "A person cannot return a radio group to \"nothing selected\". Where no answer is a real answer, add an option that says so (\"None\", \"No preference\"), or let the form start with one option selected. The product can still set value to the empty string.",
+      "A group in error is told by its error text, which is words (WCAG 3.3.1), and by the invalid state; the error color its radio buttons take (RAD-26) is one more sign and never the only one (WCAG 1.4.1), and no radio button is exposed as invalid by itself. The error text is announced when it appears under the person's focus and is otherwise read with the group's description (RGP-8, RGP-10); it never takes focus away.",
+      "When a radio group, and when something else. One value from a few options that are all worth seeing at once, in a form or a setting: a radio group, of up to about five options. A choice that changes the content shown below it — which view, which sample, which period: tabs. One value from many options, or where there is little room: a select. Several of several: a checkbox group. On or off, taking effect at once: a switch. Buttons side by side that each toggle on their own: a button group. A segmented button exists only in a design system that ships one.",
+      "Prefer a column. A row is for two or three short options; once it wraps, which label belongs to which ring is harder to see.",
+      "On the web the radio group that assistive technology is told of is the field group's own element inside the component's shadow root, which carries the radiogroup role in its radio-group kind, around the slot that holds the radio buttons; the role's required and invalid states are why a set of radio buttons is not a plain group. iOS has no radio group trait: the container is an accessibility container whose label is the group's, and each option says its position through its value, as the radio button's spec notes.",
+      "Heights are the texts' and the options': at 200% text size every text wraps, a row becomes a column, and nothing is cut (WCAG 1.4.4, 1.4.10).",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "A radio button the product disabled by itself keeps its place in the count, is passed over by the arrow keys and Tab, and stays selected while value is its value; its value is still submitted, because the value is the group's (RGP-7, RGP-9). There is no read-only state: a set that is shown and cannot be changed is a group whose radio buttons are each disabled, or the answer written as text."
+    ]
+  },
+  "tokens": "comp.field-group",
+  "fixtures": [
+    {
+      "id": "default",
+      "props": {
+        "label": "Delivery",
+        "value": "standard"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-default"
+    },
+    {
+      "id": "none-selected",
+      "props": {
+        "label": "Delivery"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-none-selected"
+    },
+    {
+      "id": "supporting",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "value": "express"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-supporting"
+    },
+    {
+      "id": "label-hidden",
+      "props": {
+        "label": "Delivery",
+        "labelHidden": true,
+        "supportingText": "You can change this until the order ships.",
+        "value": "standard"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-label-hidden"
+    },
+    {
+      "id": "required",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "requirement": "required",
+        "value": "standard",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-required"
+    },
+    {
+      "id": "optional",
+      "props": {
+        "label": "Delivery",
+        "requirement": "optional",
+        "optionalText": "Optional"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-optional"
+    },
+    {
+      "id": "required-asterisk",
+      "props": {
+        "label": "Delivery",
+        "requirement": "required",
+        "requiredMark": "asterisk",
+        "value": "standard"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-required-asterisk"
+    },
+    {
+      "id": "required-error",
+      "props": {
+        "label": "Delivery",
+        "requirement": "required",
+        "error": true,
+        "errorText": "Choose how the order reaches you.",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-required-error"
+    },
+    {
+      "id": "error-selected",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "requirement": "required",
+        "value": "express",
+        "error": true,
+        "errorText": "Express delivery does not reach this address. Choose another way.",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-error-selected"
+    },
+    {
+      "id": "error-one-disabled",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "requirement": "required",
+        "requiredText": "Required",
+        "error": true,
+        "errorText": "Express delivery does not reach this address. Choose another way.",
+        "value": "express"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store",
+            "disabled": true
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-error-one-disabled"
+    },
+    {
+      "id": "horizontal",
+      "props": {
+        "label": "Size",
+        "orientation": "horizontal",
+        "value": "m"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "s",
+            "label": "Small"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "m",
+            "label": "Medium"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "l",
+            "label": "Large"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-horizontal"
+    },
+    {
+      "id": "horizontal-many",
+      "props": {
+        "label": "Send the report",
+        "supportingText": "One report, on the day you choose.",
+        "orientation": "horizontal",
+        "value": "fri"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "mon",
+            "label": "Monday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "tue",
+            "label": "Tuesday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "wed",
+            "label": "Wednesday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "thu",
+            "label": "Thursday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "fri",
+            "label": "Friday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "sat",
+            "label": "Saturday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "sun",
+            "label": "Sunday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "month-end",
+            "label": "The last working day of the month"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "release",
+            "label": "The first working day after a release"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-horizontal-many"
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "requirement": "required",
+        "disabled": true,
+        "value": "standard",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-disabled"
+    },
+    {
+      "id": "one-disabled",
+      "props": {
+        "label": "Delivery",
+        "value": "standard"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "Express, next day",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-one-disabled"
+    },
+    {
+      "id": "long-label",
+      "props": {
+        "label": "How should we deliver the parts of this order that are in stock today, given that the rest will follow when they arrive from the supplier",
+        "requirement": "required",
+        "supportingText": "You can change this until the first parcel ships. After that the choice holds for every parcel of the order, whatever is in it.",
+        "error": true,
+        "errorText": "Choose how the order reaches you, or go back one step and remove the parts that are not in stock yet.",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "split",
+            "label": "Send what is in stock now and the rest later, in as many parcels as it takes"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "together",
+            "label": "Wait and send everything together"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "Hold everything at the store nearest to the delivery address until I collect it"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-long-label"
+    },
+    {
+      "id": "required-ja",
+      "props": {
+        "label": "配送方法",
+        "supportingText": "発送されるまで変更できます。",
+        "requirement": "required",
+        "requiredText": "必須",
+        "value": "standard"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "通常配送（3〜5日）"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "お急ぎ便（翌日）"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "店舗で受け取る"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-required-ja"
+    },
+    {
+      "id": "error-ja",
+      "props": {
+        "label": "配送方法",
+        "requirement": "required",
+        "requiredText": "必須",
+        "error": true,
+        "errorText": "配送方法を選んでください。"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "通常配送（3〜5日）"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "お急ぎ便（翌日）"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "店舗で受け取る"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-error-ja"
+    },
+    {
+      "id": "rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "طريقة التوصيل",
+        "supportingText": "يمكنك تغيير هذا حتى يُشحن الطلب.",
+        "requirement": "required",
+        "requiredText": "مطلوب",
+        "value": "express"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "standard",
+            "label": "عادي، من 3 إلى 5 أيام"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "express",
+            "label": "سريع، في اليوم التالي"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "pickup",
+            "label": "الاستلام من المتجر"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-rtl"
+    },
+    {
+      "id": "horizontal-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "גודל",
+        "orientation": "horizontal",
+        "requirement": "required",
+        "requiredText": "חובה",
+        "error": true,
+        "errorText": "יש לבחור גודל."
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "s",
+            "label": "קטן"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "m",
+            "label": "בינוני"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "l",
+            "label": "גדול"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-horizontal-rtl"
+    },
+    {
+      "id": "ltr-label-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "Wi-Fi 6E",
+        "supportingText": "2.4 GHz, 5 GHz, 6 GHz",
+        "value": "5"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "2.4",
+            "label": "2.4 GHz"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "5",
+            "label": "5 GHz"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "value": "6",
+            "label": "6 GHz"
+          }
+        }
+      ],
+      "twin": "field-group.radio-buttons-ltr-label-rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-radio-group",
+      "props": {
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation"
+      },
+      "events": {
+        "change": "change"
+      },
+      "items": {
+        "radio-button": {
+          "name": "tanrei-radio-button",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "disabled": "disabled"
+          },
+          "notes": "A `tanrei-radio-button` child without a `name`: inside a `tanrei-radio-group` it takes its group, its `checked`, its tab stop and its position from the group and submits nothing itself (RAD-25)."
+        }
+      },
+      "notes": "`<tanrei-radio-group label=\"Delivery\" name=\"delivery\" value=\"express\"><tanrei-radio-button value=\"standard\" label=\"Standard\"></tanrei-radio-button>…</tanrei-radio-group>`; class `TanreiRadioGroup`; in `@tanrei/react`, `RadioGroup` with `value` and `onChange`. Composed in the construction the checkbox group has: the members that hold the value are the product's own children. The shadow root holds one `<tanrei-field-group part=\"field-group\" kind=\"radio-group\" spacing=\"controls\">` — the member's own element, not drawing code shared with it — around a `<slot>`; the radio buttons stay in the product's light DOM and are assigned through the group's slot into the field group's. The eleven props that are the field group's are set on that element as they are given, and its documented parts — `label`, `requirement-label`, `supporting-text`, `error-text` — are exported under its own names (`exportparts`); the group writes none of its custom properties, so `--tanrei-comp-field-group-*` set on the host is inherited by the field group inside. The radio group that assistive technology is told of is the field group's own element in its radio-group kind — name, description, required, invalid, disabled and orientation, once (FGR-25): the host has no role, and nothing is tied across a shadow root. The field group gives `disabled` to each radio button by the `tanrei-field-connect` event it already answers — a slotted radio button's event passes the field group on its composed path before it reaches the host — and writes the announcement of RGP-8. The host takes `disabled` from outside by itself — from a field group around it (FGR-15) and from `<fieldset disabled>` — and gives the field group inside the three together; the inner field group's own question to a group around it is stopped at the host, so that an outer field group counts one member, the radio group (a frame's question, by contrast, leaves). What the host keeps is what a frame cannot do. A form-associated custom element (`static formAssociated = true`): `name` is a web attribute, not a spec prop; the `value` attribute is the first value and what a reset returns to, the `value` property is the live one; it submits `value`, restores it on navigation (`formStateRestoreCallback`), follows `<fieldset disabled>` and reports `valueMissing` while `requirement=\"required\"` and `value` is empty, anchored on the radio button that is the tab stop, with the browser's own message for an unanswered set of radio buttons, in the browser's language — a required native radio button is asked once — and, where a browser gives none, `errorText`, else the required text, else `label`. A radio button finds its group with `closest('tanrei-radio-group')` when it connects; the group's radio buttons are those among its descendants whose nearest radio group it is — direct children or deeper, inside the product's own elements — found again when its child list changes (a `MutationObserver`: `slotchange` does not fire for a change below a slotted element); a radio button inside a shadow root of the product's own is found by neither side and groups by its `name` there. The group sets each option's `checked`, and its radio buttons take their tab stop, `aria-posinset` and `aria-setsize` from it again whenever its options change (RGP-11); it handles the arrow keys on the host. A radio button's own `disabled` attribute is never written, so an enabled group cannot enable what the product disabled. A radio button inside a group fires no `input` and no `change` at all — stopped at the group they would still pass a capture listener on an ancestor — it tells its group, which sets `value` and fires `input` and one `change`, a bubbling `CustomEvent` whose `detail.value` is the value; a listener set on a radio button inside a group hears nothing. A press on the frame's texts selects nothing and moves no focus into the group (RGP-6); the browser's own answer to a press on plain text — focus leaves what had it — is not prevented, because preventing it would prevent selecting the text. The host is not focusable and does not delegate focus, because its controls are light-DOM children; `focus()` moves to the radio button that is the stop. Radio buttons with one `name` and no `tanrei-radio-group` still form a group by themselves (RAD-25); inside a `<tanrei-field-group kind=\"radio-group\">` they are this component one level down. Attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`. The host is `display: block`. Without script the element is not defined and draws nothing of its own, as every Tanrei element with a shadow root; a page that must work without script writes a native `fieldset` of native radio buttons of one `name`, which submits the same entry. Words: the element has no words of its own; `required-text` and `optional-text` left empty read the product's words through the field group. Its field group gives each radio button the error condition, and the radio button draws its error form (RGP-8, FGR-8, RAD-26)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiRadioGroup",
+      "props": {
+        "value": "selection",
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation"
+      },
+      "events": {
+        "change": "selection"
+      },
+      "items": {
+        "radio-button": {
+          "name": "TanreiRadioButton",
+          "props": {
+            "value": "value",
+            "label": "title",
+            "disabled": "disabled"
+          }
+        }
+      },
+      "notes": "`TanreiRadioGroup(\"Delivery\", selection: $delivery, supportingText:, errorText:, error:, requirement:, orientation:) { TanreiRadioButton(\"Standard\", value: Delivery.standard) … }`, generic over a `Hashable` value: `selection` is a `Binding<V?>`, nil for none, and writing it is the change event. This is the container the radio button already uses to form a group on this platform (its `name`), which so far drew nothing; it gains the frame, which is the platform's field group itself in its radio-group kind (FGR-25), and the radio buttons inside read the selection from it. `labelHidden` follows `.labelsHidden()` and `disabled` follows `.disabled(_:)`. The options are laid out by the field group's `Layout` (a column, or a row that wraps). iOS has no radio group trait: the container is `.accessibilityElement(children: .contain)` with the label and the description as its label and hint, and required and invalid are added to the hint in words. No forms: RGP-9 does not apply. The product's words are read from the `\\.tanreiWords` environment value. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiRadioGroup",
+      "props": {
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation"
+      },
+      "events": {
+        "change": "onValueChange"
+      },
+      "items": {
+        "radio-button": {
+          "name": "TanreiRadioButton",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "disabled": "enabled"
+          }
+        }
+      },
+      "notes": "`TanreiRadioGroup(label = \"Delivery\", value = delivery, onValueChange = { delivery = it }, supportingText = …, isError = …, requirement = …, orientation = …) { TanreiRadioButton(value = \"standard\", label = \"Standard\") … }`: controlled, as Compose is — the group calls `onValueChange` and the caller moves `value`. The content runs in a `TanreiRadioGroupScope` whose `TanreiRadioButton(value, label)` takes `selected` and its click from the group; the group is built around `TanreiFieldGroup` in its radio-group kind (FGR-25), which applies `Modifier.selectableGroup()` itself, so the product does not, and has the name, the description and the error in its semantics. `enabled` is the inverse flag. A `Column` or a `FlowRow`. The bare `TanreiRadioButton(selected, onClick)` inside a `selectableGroup()` stays for options that are not laid out by a group (RAD-25). No forms: RGP-9 does not apply. The product's words are read from `LocalTanreiWords`. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiRadioGroup",
+      "props": {
+        "value": "groupValue",
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "supportingText": "helperText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation"
+      },
+      "events": {
+        "change": "onChanged"
+      },
+      "items": {
+        "radio-button": {
+          "name": "TanreiRadioButton",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "disabled": "enabled"
+          }
+        }
+      },
+      "notes": "`TanreiRadioGroup<T>(groupValue:, onChanged:, labelText: 'Delivery', helperText: …, errorText: …, isError: …, requirement: …, orientation: …, children: [TanreiRadioButton<T>(value:, label:), …])`. This is the `TanreiRadioGroup<T>` the radio button already stands in on this platform, which so far drew nothing and took a `semanticLabel`; it gains the frame, which is the platform's field group itself in its radio-group kind (FGR-25), and `labelText` with `labelHidden` replaces `semanticLabel`. `groupValue` is nullable for none; `enabled` is the inverse flag. A `Column` or a `Wrap`; the radio-group semantics, the arrow keys and the single tab stop stay where they are. `FormField` integration is the product's: RGP-9 does not apply. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "RadioGroup",
+      "props": {
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation"
+      },
+      "events": {
+        "change": "onValueChange"
+      },
+      "items": {
+        "radio-button": {
+          "name": "RadioButton",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "disabled": "disabled"
+          }
+        }
+      },
+      "notes": "`<RadioGroup label=\"Delivery\" value={delivery} onValueChange={setDelivery} supportingText=\"…\"><RadioButton value=\"standard\" label=\"Standard\" />…</RadioGroup>`: controlled. This is the `RadioGroup` parent the radio button already uses on this platform, which so far drew nothing; it gains the frame, which is the platform's field group itself in its radio-group kind (FGR-25), and takes `selected` and `onSelect` off its children: an option inside reads both from the group's context. `accessibilityRole=\"radiogroup\"` with `accessibilityLabel` and `accessibilityHint`; required and invalid are said in the hint, because React Native has neither state for a group. A column, or a row with `flexWrap`. Follows the app's direction where an ancestor's is not known. No forms: RGP-9 does not apply. The product's words are read from the `TanreiWordsProvider` context. Not built on this platform yet: in error every option is drawn in its error form (RGP-8, RAD-26)."
+    }
+  }
+}

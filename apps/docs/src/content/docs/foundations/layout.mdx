@@ -1,0 +1,44 @@
+---
+title: Layout
+description: Window size classes, the spacing scale and how layouts adapt between them.
+---
+
+import DimensionScale from '../../../components/tokens/DimensionScale.astro';
+
+## Window size classes
+
+Tanrei describes available width with five classes. They refer to the window or the container a layout lives in, not to a kind of device: a tablet in split view is compact, and a phone unfolded is not.
+
+| Class | Width | Typical layout |
+| --- | --- | --- |
+| Compact | below 600 | One column. Navigation in a bar at the bottom or behind a menu. |
+| Medium | 600–839 | One column with wider margins, or two where content allows. A collapsed navigation drawer (a column of icons) becomes possible. |
+| Expanded | 840–1199 | Two panes, such as list and detail. Persistent navigation. |
+| Large | 1200–1599 | Two or three panes. Line length, not the window, limits text width. |
+| Extra-large | 1600 and above | As large, with generous margins; do not stretch content to fill. |
+
+Widths are in density-independent units: CSS pixels on the web, points on Apple platforms, dp on Android, logical pixels in Flutter.
+
+## Adapting between classes
+
+When a layout crosses a boundary, change it in one of a few predictable ways:
+
+- **Reveal** a pane that was behind a tap, such as a detail view beside its list.
+- **Divide** one column into two.
+- **Resize** panes and margins proportionally.
+- **Reposition** an element, for example a navigation bar at the bottom moving to a collapsed navigation drawer at the side.
+- **Swap** a component for its larger-screen counterpart, such as a bottom sheet becoming a side sheet.
+
+Three arrangements cover most screens: a **feed** of cards in a responsive grid, **list–detail**, and content with a **supporting pane**.
+
+## Spacing
+
+Spacing tokens are multiples and fractions of an 8-unit base. The number in a token's name is a percentage of that base, so `space100` is 8, `space50` is 4 and `space200` is 16.
+
+<DimensionScale group="space" source="tokens/sys/space.tokens.json" />
+
+Use the small steps inside components, the middle of the scale between components, and the large steps between sections. Spacing between touch targets is never less than `space100`.
+
+## Text width
+
+Keep running text between roughly 45 and 80 characters per line. On large and extra-large windows, cap the text column and let margins or a supporting pane absorb the rest.

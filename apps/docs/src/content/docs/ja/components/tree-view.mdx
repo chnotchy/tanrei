@@ -1,0 +1,263 @@
+---
+title: ツリービュー
+description: 開閉できる項目の階層です。行は段が深くなるごとに内側から始まり、ほかの項目を持つ行の先頭にはシェブロンが付きます。読んで開くだけのツリーにも、1 つまたは複数の項目を選ぶツリーにもなり、フォーカスが止まる位置は全体で 1 つです。
+translationOf: components/tree-view.mdx
+sourceHash: c1e2abc869592d34f3b6d9e017aefafd026c21e3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="tree-view" />
+
+<DemoFrame label="ファイルツリー：フォルダーは、行を押すか矢印キーで開く" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="トークンの置き場所" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>手で編集する、信頼できる情報源</small></bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>ref/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>sys/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>comp/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>tanrei.resolver.json</bdi></span></li>
+        </ul>
+      </li>
+      <li>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>packages/</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>web/src/generated/tokens.css</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>react-native/src/generated/tokens.ts</bdi></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+ツリービューは、人が見て回る構造や、その中から選ぶ構造を示します。プロジェクトのファイル、デザインシステムのトークン、プロダクトのフォルダーなどです。ほかの項目を持つ行にはシェブロンが付き、開閉できます。`selection` を設定すると 1 つまたは複数の項目を選べ、どれが選ばれたかをツリーが知らせます。
+
+ナビゲーションではありません。プロダクトの中の場所はナビゲーションドロワー、ページの見出しは目次、折りたたむコンテンツはアコーディオンです。これらはリンクやボタンを並べ、その 1 つずつにフォーカスが止まります。ツリーは数千行になることがあるので、フォーカスが止まる位置は全体で 1 つにし、中は矢印キーで移動します。
+
+Web では、プロダクト側の入れ子のリストを `<tanrei-tree-view>` で囲みます。リストは文書の中に残るので、スクリプトが動かないところでは、階層全体が入れ子のリストとして表示されます。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/tree-view.css" />
+
+    <tanrei-tree-view label="プロジェクトのファイル" selection="single" value="src/index.ts">
+      <ul>
+        <li data-value="src" data-open>
+          <span>
+            <span class="tanrei-icon" aria-hidden="true">folder</span>
+            <bdi>src<small data-supporting-text>公開されるもの</small></bdi>
+            <span data-trailing-text>12 個のファイル</span>
+          </span>
+          <ul>
+            <li data-value="src/index.ts"><span><bdi>index.ts</bdi></span></li>
+          </ul>
+        </li>
+        <li data-value="node_modules" data-expandable><span><bdi>node_modules</bdi></span></li>
+      </ul>
+    </tanrei-tree-view>
+
+    <script type="module">
+      import '@tanrei/web/components/tree-view';
+
+      const tree = document.querySelector('tanrei-tree-view');
+      tree.addEventListener('change', (event) => showFile(event.detail.value));
+      tree.addEventListener('toggle', (event) => {
+        if (event.detail.open && event.target.dataset.expandable !== undefined) loadItemsInto(event.target);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TreeView } from '@tanrei/react';
+    import '@tanrei/web/tree-view.css';
+
+    <TreeView label="プロジェクトのファイル" selection="single" value={path} onChange={(event) => setPath(event.detail.value)}>
+      <ul>
+        {folders.map((folder) => (
+          <li key={folder.path} data-value={folder.path} data-open={folder.open ? '' : undefined}>
+            <span><bdi>{folder.name}</bdi></span>
+            <ul>
+              {folder.files.map((file) => (
+                <li key={file.path} data-value={file.path}><span><bdi>{file.name}</bdi></span></li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </TreeView>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/tree-view.css` は、スクリプトが動く前にツリーを描きます。スクリプトが読み込まれても何も動きません。シェブロンはアイコンセットのグリフなので、アイコンフォントが必要です。
+
+### 書くもの
+
+| パーツ | Web での書き方 |
+| --- | --- |
+| ツリーの名前 | `label` 属性。プロダクトの言語で書きます。 |
+| 項目 | `<li>`。最初の子要素がその行です。`<span>` か `<div>` を使います。 |
+| ラベル | 行のテキスト。1 つの要素 `<bdi>` に入れます。コードなどのインラインのコンテンツも入れられます。 |
+| 補足テキスト | `data-supporting-text` を付けた要素。ラベルの要素の中、ラベルの後ろに置きます。 |
+| アイコン | 行の中の `.tanrei-icon`。グリフの名前を入れます。フォルダーやファイルのグリフをツリーは持ちません。 |
+| 末尾のコンテンツ | 行の中の、`data-trailing` を付けた要素。タグや色見本など。配置するだけで、スタイルは付けません。 |
+| 末尾テキスト | 行の中の、`data-trailing-text` を付けた要素。件数、サイズ、値など。1 行です。 |
+| 項目の下位の項目 | 同じ `<li>` の中、行の後ろに置く `<ul>`。 |
+
+ラベルは、`<bdi>` で囲まず、行にそのままテキストとして書くこともできます。行に補足テキストがあるときと、名前の書字方向がページと違うことがあるとき（アラビア語のページにあるファイル名など）は、`<bdi>` を使います。
+
+| `<li>` に書くもの | 意味 |
+| --- | --- |
+| `data-value` | 項目を識別する値。これがない項目は選べません。ツリーの中で重複させません。 |
+| `data-open` | 親が下位の項目を表示します。ユーザーが親を開閉すると、ツリーがこの属性を付け外しします。 |
+| `data-expandable` | まだ渡していない項目を、あとで持つ項目です。シェブロンが付きます。`toggle` で開いたと分かったときに、項目を渡します。 |
+| `data-loading` | 利用者側で項目を取得している最中です。開いている間、その下に読み込み中の行を、ツリーの `loading-label` とともに描きます。 |
+| `data-disabled` | ユーザーは選ぶことも開閉することもできません。矢印キーでは届きます。 |
+
+| イベント | 発火するとき | `detail` |
+| --- | --- | --- |
+| `change` | ユーザーが選択を変えたとき。ツリーで発火します。 | 変更後の `value`（single）または `values`（multiple） |
+| `toggle` | ユーザー、またはブラウザーのページ内検索が、親を開閉したとき。`<li>` で発火し、バブリングします。 | `open` |
+
+どちらのイベントも、利用者側のコードによる変更では発火しません。
+
+## 仕様
+
+<DemoFrame label="1 つの項目を選ぶ：行で選び、シェブロンで開く" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="すべてのトークン" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li><span><bdi>リファレンス</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
+      <li data-open>
+        <span><bdi>システム</bdi><span data-trailing-text>388</span></span>
+        <ul>
+          <li data-open>
+            <span><bdi>color</bdi><span data-trailing-text>64</span></span>
+            <ul>
+              <li data-value="sys.color.primary"><span><bdi>primary</bdi><span data-trailing-text>#1f1f1f</span></span></li>
+              <li data-value="sys.color.on-primary"><span><bdi>on-primary</bdi><span data-trailing-text>#ffffff</span></span></li>
+              <li data-value="sys.color.outline-variant"><span><bdi>outline-variant</bdi><span data-trailing-text>#d4d4d4</span></span></li>
+            </ul>
+          </li>
+          <li data-expandable><span><bdi>space</bdi><span data-trailing-text>19</span></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+<ComponentSpecs name="tree-view" />
+
+## ガイドライン
+
+### ツリービューを使う場面か
+
+| あるもの | 使うもの |
+| --- | --- |
+| 見て回る構造、その中から選ぶ構造 | ツリービュー |
+| プロダクトの中の場所（リンク） | ナビゲーションドロワー |
+| 1 つのページの見出し | 目次 |
+| いくつかのヘッダーの下に折りたたむコンテンツ | アコーディオン |
+| 1 段だけの項目 | リスト |
+
+### 押したときに起こること
+
+| 項目 | 行を押す | シェブロンを押す |
+| --- | --- | --- |
+| 選べる親 | 選びます | 開閉します |
+| 選べる末端の項目 | 選びます | — |
+| 選べない親 | 開閉します | 開閉します |
+| 選べない末端の項目 | 何も起こりません | — |
+
+1 回の押下で 2 つのことは起こりません。フォルダーを選んだだけで閉じてしまい、見ていた場所を失うことはありません。
+
+項目を選べるのは、`selection` が `single` か `multiple` で、項目に `data-value` があり、無効でないときです。single では、選ばれている項目をもう一度押しても何も変わりません。multiple では項目を 1 つずつ選びます。親を選んでも、その下位の項目は選ばれません。
+
+選んだあとに何をするかは、利用者側で決めます。`change` を受けて、選ばれたファイルや、選ばれたトークンのエディターを、ツリーの横のペインに表示します。行にコントロールは置けません。アクションはツリーの横に置きます。
+
+### 選択と、閉じている親
+
+選択の塗りは、選ばれた項目自身の行に描きます。下位の項目が選ばれていても親に印は付けず、選択を見せるために閉じている親を開くこともしません。選ばれた項目を見える状態にしたいときは、その上の親に `data-open` を設定します。そこまでの経路を知っているのは利用者側です。
+
+### 密度
+
+| `density` | テキストが 1 行の行の高さ | 用途 |
+| --- | --- | --- |
+| `regular`（既定） | 48 | ポインターだけでなくタッチでも使うプロダクト。 |
+| `compact` | 32 | ポインターで見て回るツール、ページの文章の中に置く小さなツリー。 |
+
+compact の行は、ポインターのターゲットより低くなります。名前を指定して選ぶもので、既定にはならないため、これを認めています。タッチでは、どちらの密度でも行はタッチターゲットの高さになります。
+
+### ガイド
+
+`guides` を設定すると、開いている親から、その下位の行の横に細い線を下へ引きます。インデントだけではどの行がまとまりなのか分かりにくい、深いツリーで使います。場所は取りません。
+
+### 大きなツリー
+
+ツリーは渡されたものを表示します。自分ではスクロールせず、見えている行だけを描くこともしません。利用者側で用意した、スクロールするボックスの中に置きます。
+
+- 大きな親の項目は、開いたときに渡します。親に `data-expandable` を付け、`toggle` で開いたと分かったときに `<ul>` を追加します。取得している間は `data-loading` を設定します。
+- コストがかかるのは、表示している行だけです。閉じている親の項目は、開くまでスタイルもレイアウトも計算せず、読み取りもしません。
+- 1 行の変化で再計算されるスタイルは、ツリーの大きさにかかわらず、その行だけです。
+
+絞り込みも利用者側で行います。一致した項目をツリーに渡し、それを持つ親に `data-open` を設定し、何件一致したかはプロダクト側のステータスで伝えます。
+
+### 深いツリーと狭いウィンドウ
+
+行は、段が 1 つ深くなるごとにインデント 1 つ分内側から始まります。ある段のインデントがツリーの幅の半分を超えるときは、収まるいちばん深い段と同じ位置から行が始まります。名前のために幅の半分が残ります。支援技術には、本当の段が伝わります。
+
+### サーバーで描画するとき
+
+スクリプトが読み込まれる前にすべてが描かれますが、選択の塗りだけは、要素が定義されたときに現れます。最初のフレームから描きたいときは、選ばれた項目の行に `aria-selected="true"` を利用者側で書きます。
+
+### 推奨
+
+- `label` と、項目が読み込み中になりうるときの `loading-label` を、プロダクトの言語で書きます。`loading-label` は、`setWords({ loadingLabel })` でプロダクト全体に一度だけ渡すこともできます。
+- グリフの名前は利用者側で指定します。フォルダーやファイルはプロダクトの持つ種類で、ツリーの持つ種類ではありません。
+- 名前は全体を見せます。ラベルは折り返し、途中で切れることはありません。
+
+### 非推奨
+
+- 行にリンク、ボタン、フィールドを置かない。ツリーのどのキーでも届きません。
+- サイトのページの一覧にツリーを使わない。リンクは、ブラウザーやスクリーンリーダーがリンクを一覧する方法で見つけられます。
+- フォーカスの移動で選択しない。矢印キーは移動し、Enter と Space が選びます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="tree-view" />
+
+### コンポーネントが担うこと
+
+- 要素は `label` を名前とする `tree` です。それぞれの行は `treeitem`、入れ子のリストは `group` なので、段は入れ子から決まります。
+- 親の行は `aria-expanded` を持ちます。選べる行は `aria-selected` を true または false で持ちます。無効な行は `aria-disabled`、読み込み中の親は `aria-busy` を持ちます。
+- ラベルが行の名前です。補足テキスト、末尾のコンテンツのテキスト、末尾テキストが、この順で行の説明になります。
+- ツリーは、フォーカスが止まる位置として 1 つです。Tab で入ると、最後にフォーカスのあった行、なければ表示されている最初の選択行、それもなければ最初の行にフォーカスが移ります。
+- 下矢印と上矢印は、表示されている行を順に移動します。右矢印は親を開き、開いていれば中に入ります。左矢印は親を閉じ、そうでなければ親の行に出ます。右から左のレイアウトでは左右が入れ替わります。
+- Home と End は最初と最後の行に移動します。文字を入力すると、その文字で始まるラベルの次の行に移動します。`*` は、フォーカスのある行と同じ段にある閉じた親をすべて開きます。
+- Enter と Space は、行を押したときと同じことをします。選択がフォーカスに付いて動くことはありません。
+- 開く、閉じる、選ぶことは、行自身の状態で伝わります。何も読み上げず、フォーカスも動かしません。
+- フォーカスのある行を持つ親が閉じると、フォーカスはその親に移ります。フォーカスのある行が取り除かれると、次の行に移ります。
+- フォーカスリングは行の内側に描くので、スクロールするボックスに切られません。
+- シェブロン、アイコン、ガイドは支援技術から隠します。読み込み中の行も隠します。親が、読み込み中であることを伝えます。
+- 文字サイズ 200% では、ラベルが折り返し、行が高くなります。切り詰められるのは末尾テキストだけです。
+- 強制カラーモードでは、選ばれた行はシステムの選択色になり、縁が付きます。
+- 空の `label`、ラベルのない項目、行の中のコントロール、どの項目の値でもない選択、同じ値を持つ 2 つの項目、未知の `density` や `selection` は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- 選べる項目には、ツリーの中で重複しない `data-value` を付けます。
+- 取得に失敗したことは、ツリーの横で、またはそれを伝えるラベルの項目で、利用者側で伝えます。項目が届いても、ツリーは何も読み上げません。
+- 複数選択で、選ばれた項目を塗り以外でも見分ける必要があるときは、末尾のコンテンツにプロダクト側の印を置きます。
+- 長いツリーは、名前か見出しのあるスクロールするボックスに置き、ボックスの中身が何かを伝えます。

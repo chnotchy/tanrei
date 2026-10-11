@@ -1,0 +1,568 @@
+---
+title: الجدول
+description: يعرض بيانات لها صفوف وأعمدة، بأعمدة مسمّاة، ومعه اختياريًّا ترويسات صفوف وشرح وصفوف تذييل. يُمرَّر داخل صندوقه حين لا يتسع له المكان. تستطيع ترويسة العمود أن تطلب الصفوف بترتيبه، ويمكن اختيار الصفوف؛ أما الجدول نفسه فلا يفرز أبدًا.
+translationOf: components/table.mdx
+sourceHash: ad48baa8f17b9aee7128ff50a80331d6af74aaaa
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import SortedByThePage from '../../../../components/SortedByThePage.astro';
+import CountedByThePage from '../../../../components/CountedByThePage.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="table" />
+
+<DemoFrame label="ترويسات صفوف، وأرقام في النهاية، ثم صف تذييل">
+  <tanrei-table class="tanrei-not-prose" row-headers>
+    <table>
+      <caption>المكوّنات بحسب الحالة والمنصة</caption>
+      <thead>
+        <tr><th scope="col">الحالة</th><th scope="col" data-align="end" data-wrap="false">Web</th><th scope="col" data-align="end" data-wrap="false">SwiftUI</th><th scope="col" data-align="end" data-wrap="false">Compose</th><th scope="col" data-align="end" data-wrap="false">Flutter</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">مخطَّط</th><td data-align="end">2</td><td data-align="end">6</td><td data-align="end">6</td><td data-align="end">6</td></tr>
+        <tr><th scope="row">Alpha</th><td data-align="end">31</td><td data-align="end">30</td><td data-align="end">30</td><td data-align="end">29</td></tr>
+        <tr><th scope="row">Beta</th><td data-align="end">4</td><td data-align="end">1</td><td data-align="end">1</td><td data-align="end">2</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><th scope="row">الإجمالي</th><td data-align="end">37</td><td data-align="end">37</td><td data-align="end">37</td><td data-align="end">37</td></tr>
+      </tfoot>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+الجدول لبيانات لها بُعدان: قائمة أسعار، أو مقارنة بين خطط، أو قائمة إعدادات مع أنواعها وقيمها الافتراضية، أو حالة عدة أشياء على عدة منصات، أو السجلات التي يعمل عليها الشخص. تستطيع ترويسة العمود أن تطلب الصفوف بترتيبه، والجدول الذي بلا صفوف يعرض حالتك الفارغة، وسطر حالة تحت الصفوف يحمل جملتك ومكوّن التنقل بين الصفحات الخاص بك. ويمكن اختيار الصفوف، ولكل صف خانة اختيار، والجدول الذي ينتظر صفوفه يقول إنه مشغول. أما الجدول نفسه فلا يفرز ولا يصفّي ولا يجلب ولا يقسّم إلى صفحات أبدًا: يرسم الصفوف التي تُعطى له، بالترتيب الذي تُعطى به. ولا يغيّر عرض الأعمدة.
+
+على الويب هو `<tanrei-table>` حول عنصر `<table>` الأصلي الذي تكتبه أنت. ليس للعنصر جذر ظل (shadow root)، والجدول لا يُعطى قيمة `display` أخرى أبدًا، فالزاحف، والنسخ واللصق في جدول بيانات، وتنقّل قارئ الشاشة في الجدول، كلها تلقى جدول HTML عاديًّا. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/table.css" />
+
+    <tanrei-table row-headers>
+      <table>
+        <caption>الزيارات بحسب المنطقة</caption>
+        <thead>
+          <tr>
+            <th scope="col">المنطقة</th>
+            <th scope="col" data-align="end" data-wrap="false">يناير</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">الجزر</th><td data-align="end">212</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><th scope="row">كل المناطق</th><td data-align="end">6,846</td></tr>
+        </tfoot>
+      </table>
+    </tanrei-table>
+
+    <script type="module">
+      import '@tanrei/web/components/table';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Table } from '@tanrei/react';
+    import '@tanrei/web/table.css';
+
+    <Table density="compact" striped label="رموز الجدول">
+      <table>
+        <thead>
+          <tr><th scope="col">الرمز</th><th scope="col">النوع</th></tr>
+        </thead>
+        <tbody>
+          {tokens.map((token) => (
+            <tr key={token.name}><td data-wrap="false">{token.name}</td><td>{token.type}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </Table>
+    ```
+  </TabItem>
+</Tabs>
+
+الملف `@tanrei/web/table.css` يرسم الجدول كله قبل أن يعمل أي سكربت. والعنصر يضيف ورقة الأنماط نفسها إلى الصفحة من تلقاء نفسه، فالصفحة التي تحمّل السكربت وحده تحصل هي أيضًا على جدول مرسوم، بعد لحظة.
+
+### ما تكتبه
+
+| الجزء | على الويب |
+| --- | --- |
+| عمود | عنصر `<th scope="col">` في الصف الوحيد من `<thead>`. ونصه هو الترويسة. |
+| محاذاة عمود | القيمة `data-align="start"` أو `"center"` أو `"end"` على خلية الترويسة. والقيمة `end` للأرقام التي تُقارَن. |
+| عمود لا يلتفّ نصه | الخاصية `data-wrap="false"` على خلية الترويسة، للمعرّفات والتواريخ والأرقام. |
+| صف | عنصر `<tr>` في `<tbody>`. أما صف التذييل فعنصر `<tr>` في `<tfoot>`. |
+| خلية | عنصر `<td>`. تحمل نصًّا، أو مكوّنًا، أو لا شيء. |
+| ترويسة صف | عنصر `<th scope="row">` خليةً أولى، مع `row-headers` على العنصر. |
+| الاسم | عنصر `<caption>`، أو `label` على العنصر حيث يسمّيه أصلًا عنوان فوق الجدول. |
+| عمود قابل للفرز | القيمة `aria-sort="none"` أو `"ascending"` أو `"descending"` على خلية الترويسة، وعنصر `<button type="button">` حول نصها. والخاصية `data-value` على الخلية هي الاسم الذي يحمله الحدث `sort`. |
+| بلا صفوف | عنصر `<tr data-part="empty">` فيه عنصر `<td colspan>` واحد داخل `<tbody>`، يحمل حالتك الفارغة. |
+| سطر الحالة | عنصر `<div data-part="status">` بعد الجدول، يحمل عنصر `<p role="status">` ومكوّن التنقل بين الصفحات الخاص بك. والخاصية `status` على العنصر تكتب الفقرة حيث لا تكتب أنت فقرة. |
+| صفوف يمكن اختيارها | القيمة `selection="multiple"` على العنصر، وخلية أولى `<td data-part="selection">` في كل صف. |
+| صف يمكن اختياره | الخاصية `data-value` على العنصر `<tr>`، وعنصر `<tanrei-checkbox label-hidden>` في خلية الاختيار الخاصة به. والخاصية `data-selected` على العنصر `<tr>` تقول إنه مختار. |
+| خانة الاختيار لكل الصفوف | عنصر `<tanrei-checkbox label-hidden>` في خلية الاختيار من صف الترويسة. والخاصية `select-all-label` على العنصر تسمّيها. |
+| جدول يُحمَّل | الخاصية `loading` على العنصر. |
+| صف نائب، لصف لم يصل بعد | عنصر `<tr data-placeholder aria-hidden="true">`، خلاياه فارغة أو فيها عنصر نائب من هيكل التحميل. |
+
+ينقل العنصر محاذاة العمود والتفافه من خلية ترويسته إلى كل خلايا العمود. ولتُرسما قبل أن يعمل السكربت، كرِّر `data-align` و `data-wrap` على كل خلية، كما تفعل العروض التوضيحية في هذه الصفحة.
+
+### الفرز
+
+<SortedByThePage />
+
+<DemoFrame label="اضغط ترويسة: الجدول يطلب، وهذه الصفحة ترتّب الصفوف" plain>
+  <tanrei-table class="tanrei-not-prose" data-docs-sorts>
+    <table>
+      <caption>المنتجات</caption>
+      <thead>
+        <tr><th scope="col" aria-sort="ascending" data-value="name"><button type="button">الاسم</button></th><th scope="col" aria-sort="none" data-value="stock" data-align="end" data-wrap="false"><button type="button">المخزون</button></th><th scope="col" aria-sort="none" data-value="price" data-align="end" data-wrap="false"><button type="button">السعر</button></th><th scope="col">ملاحظة</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>غلاية</td><td data-align="end" data-wrap="false">15</td><td data-align="end" data-wrap="false">38.00</td><td>للمواقد الحثّية والغازية</td></tr>
+        <tr><td>مطحنة يدوية</td><td data-align="end" data-wrap="false">8</td><td data-align="end" data-wrap="false">64.00</td><td></td></tr>
+        <tr><td>ميزان</td><td data-align="end" data-wrap="false">0</td><td data-align="end" data-wrap="false">29.50</td><td></td></tr>
+        <tr><td>ورق ترشيح</td><td data-align="end" data-wrap="false">120</td><td data-align="end" data-wrap="false">4.50</td><td>يُباع في عبوات من مئة ورقة</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+العمود القابل للفرز خلية ترويسة تقول الترتيب الذي عليه الصفوف، وحول نصها زر من عندك:
+
+```html
+<th scope="col" aria-sort="ascending" data-value="name"><button type="button">الاسم</button></th>
+<th scope="col" aria-sort="none" data-value="price" data-align="end"><button type="button">السعر</button></th>
+```
+
+ورقة الأنماط تجعل خلية الترويسة كلها هي الزر وترسم العلامة من `aria-sort`: سهمًا باتجاهين ما دامت الصفوف ليست بترتيب العمود، وسهمًا للأعلى ما دامت تتصاعد به، وسهمًا للأسفل ما دامت تتنازل به. لا تكتب أنت أيقونة. حمِّل `@tanrei/web/icons.css` وخط الأيقونات، لأن العلامات رسوم من مجموعة الأيقونات.
+
+الجدول لا يفرز أبدًا. عند الضغط يصدر الحدث `sort` ولا يتغيّر شيء على الشاشة؛ أنت ترتّب صفوفك وتكتب قيمة `aria-sort` الجديدة:
+
+```js
+table.addEventListener('sort', (event) => {
+  const { column, index, direction } = event.detail; // 'price', 2, 'ascending' | 'descending'
+  showRows(sortedBy(column, direction));              // بياناتك، ومقارنتك، أو خادمك
+  for (const th of headerCells) th.setAttribute('aria-sort', th.dataset.value === column ? direction : 'none');
+});
+```
+
+الخاصية `direction` هي ما طلبه الشخص: القيمة `ascending`، أو `descending` حيث تتصاعد الصفوف أصلًا بذلك العمود. ليست هناك ضغطة ثالثة تمحو الترتيب. ولست ملزمًا بالترتيب المطلوب: لك أن تضع الصفوف بترتيب آخر، أو أن تتركها بلا ترتيب.
+
+لجدول يرتّبه الخادم، ضع رابطًا مكان الزر: `<a href="?sort=price&order=asc">السعر</a>`، إلى الجدول نفسه بالترتيب الآخر. يعمل من دون سكربت. وعندئذ يصدر الحدث `sort` قبل أن يتبع المتصفح الرابط، واستدعاء `event.preventDefault()` يُبقي الصفحة.
+
+### بلا صفوف
+
+<DemoFrame label="بلا صفوف: حالتك الفارغة تحت صف الترويسة" plain>
+  <tanrei-table class="tanrei-not-prose">
+    <table>
+      <caption>المنتجات المطابقة</caption>
+      <thead>
+        <tr><th scope="col">الاسم</th><th scope="col" data-align="end" data-wrap="false">المخزون</th><th scope="col" data-align="end" data-wrap="false">السعر</th></tr>
+      </thead>
+      <tbody>
+        <tr data-part="empty"><td colspan="3"><tanrei-empty-state headline="لا توجد منتجات تطابق عوامل التصفية هذه"><span slot="media">search_off</span>أزِل أحد عوامل التصفية، أو ابحث بكلمة أقصر.</tanrei-empty-state></td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+اكتب صفًّا واحدًا من خلية واحدة تمتد على الأعمدة، وضع فيه حالتك الفارغة:
+
+```html
+<tbody>
+  <tr data-part="empty">
+    <td colspan="3"><tanrei-empty-state headline="لا توجد منتجات تطابق عوامل التصفية هذه">…</tanrei-empty-state></td>
+  </tr>
+</tbody>
+```
+
+يعطيها الجدول حيّزًا فوقها وتحتها وعرض صندوقه، ويُبقيها ظاهرة ما دامت الأعمدة تُمرَّر أفقيًّا. لا يضيف كلمة من عنده. ومن دون صف كهذا، يكون الجدول الذي بلا صفوف ترويسته وحدها.
+
+### سطر الحالة
+
+<DemoFrame label="جملتك ومكوّن التنقل بين الصفحات الخاص بك، تحت الصفوف" plain>
+  <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
+    <table>
+      <caption>الإصدارات، الأحدث أولًا</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">الإصدار</th><th scope="col" data-wrap="false">تاريخ الإصدار</th><th scope="col">التغييرات</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">2.4.0</td><td data-wrap="false">12 مايو</td><td>الجداول تُبقي ترويستها ظاهرة.</td></tr>
+        <tr><td data-wrap="false">2.3.2</td><td data-wrap="false">28 أبريل</td><td>إصلاح للتواريخ المكتوبة بسنة من رقمين.</td></tr>
+        <tr><td data-wrap="false">2.3.1</td><td data-wrap="false">20 أبريل</td><td>إصلاح لقائمة خيارات كانت تُفتح خارج الشاشة.</td></tr>
+        <tr><td data-wrap="false">2.3.0</td><td data-wrap="false">2 أبريل</td><td>اللوحات الجانبية، وحلقة تركيز أهدأ.</td></tr>
+        <tr><td data-wrap="false">2.2.1</td><td data-wrap="false">18 مارس</td><td>إصلاح لتلميح كان يبقى مفتوحًا.</td></tr>
+        <tr><td data-wrap="false">2.2.0</td><td data-wrap="false">4 مارس</td><td>التخطيطات من اليمين إلى اليسار.</td></tr>
+      </tbody>
+    </table>
+    <div data-part="status">
+      <p role="status">الإصدارات 1 إلى 6 من 42</p>
+      <nav class="tanrei-pagination" aria-label="صفحات الإصدارات">
+        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#سطر-الحالة">
+          <span class="tanrei-pagination-label">التالي</span>
+          <span class="tanrei-pagination-title">الإصدارات 7 إلى 12</span>
+        </a>
+      </nav>
+    </div>
+  </tanrei-table>
+</DemoFrame>
+
+بعد الجدول، داخل العنصر، اكتب سطر الحالة: جملتك في فقرة هي حالة (status)، ومكوّن التنقل بين الصفحات الخاص بك.
+
+```html
+<tanrei-table>
+  <table>…</table>
+  <div data-part="status">
+    <p role="status">1 إلى 20 من 132</p>
+    <nav class="tanrei-pagination" aria-label="صفحات المنتجات">…</nav>
+  </div>
+</tanrei-table>
+```
+
+تقف الجملة عند حافة البداية والتنقل بين الصفحات عند حافة النهاية؛ وحيث لا يتسع المكان لهما جنبًا إلى جنب، ينزل التنقل بين الصفحات تحت الجملة. لا يُمرَّر سطر الحالة أفقيًّا مع الأعمدة، ويبقى في أسفل الجدول الذي تُمرَّر صفوفه داخل صندوقه. الجدول لا يعدّ شيئًا ولا يكتب كلمة: «1 إلى 20 من 132» لك أنت، بلغتك. وحين تغيّر نص الفقرة، تُخبَر التقنيات المساعدة بتهذيب. والخاصية `status` على العنصر تكتب تلك الفقرة عنك حيث لا فقرة في ترميزك. أما الفقرة التي كتبتها بنفسك فهي التي تُقرأ، ولا تغيّر الخاصية عندئذ شيئًا.
+
+### اختيار الصفوف
+
+<CountedByThePage />
+
+<DemoFrame label="اختر صفوفًا: الجدول يحتفظ بالاختيار، وهذه الصفحة تعدّه" plain>
+  <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="تحديد كل المنتجات" data-docs-counts="تم تحديد {count} من 4">
+    <table>
+      <caption>منتجات يُعاد طلبها</caption>
+      <thead>
+        <tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">الاسم</th><th scope="col" data-align="end" data-wrap="false">المخزون</th><th scope="col" data-align="end" data-wrap="false">السعر</th></tr>
+      </thead>
+      <tbody>
+        <tr data-value="paper"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="row">ورق ترشيح</th><td data-align="end" data-wrap="false">120</td><td data-align="end" data-wrap="false">4.50</td></tr>
+        <tr data-value="grinder" data-selected><td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope="row">مطحنة يدوية</th><td data-align="end" data-wrap="false">8</td><td data-align="end" data-wrap="false">64.00</td></tr>
+        <tr data-value="kettle"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="row">غلاية</th><td data-align="end" data-wrap="false">15</td><td data-align="end" data-wrap="false">38.00</td></tr>
+        <tr data-value="scale" data-selected><td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope="row">ميزان</th><td data-align="end" data-wrap="false">0</td><td data-align="end" data-wrap="false">29.50</td></tr>
+      </tbody>
+    </table>
+    <div data-part="status"><p role="status">تم تحديد 2 من 4</p></div>
+  </tanrei-table>
+</DemoFrame>
+
+عيِّن `selection="multiple"` على العنصر، وابدأ كل صف بخلية اختيار. في صف الترويسة تحمل هذه الخلية خانة الاختيار لكل الصفوف. وفي صف من المتن تحمل خانة اختيار ذلك الصف، ويحمل الصف في `data-value` الاسم الذي تعرف به السجل:
+
+```html
+<tanrei-table selection="multiple" row-headers select-all-label="تحديد كل المنتجات">
+  <table>
+    <caption>منتجات يُعاد طلبها</caption>
+    <thead>
+      <tr>
+        <td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td>
+        <th scope="col">الاسم</th>
+        <th scope="col" data-align="end">السعر</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-value="grinder" data-selected>
+        <td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td>
+        <th scope="row">مطحنة يدوية</th>
+        <td data-align="end">64.00</td>
+      </tr>
+    </tbody>
+  </table>
+  <div data-part="status"><p role="status">تم تحديد 1 من 4</p></div>
+</tanrei-table>
+```
+
+الجدول هو من يحتفظ بالاختيار. حين يغيّر الشخص خانة اختيار، يكتب العنصر `data-selected` على ذلك الصف، ويُبقي خانة الاختيار في صف الترويسة مطابقة، ويصدر عنه الحدث `selectionchange` مرة واحدة ومعه قيم كل الصفوف المختارة، بترتيب الصفوف:
+
+```js
+table.addEventListener('selectionchange', (event) => {
+  if (!(event instanceof CustomEvent)) return;       // انظر الملاحظة أدناه
+  const { values } = event.detail;                   // ['grinder', 'scale']
+  // جملتك، بلغتك، في الفقرة التي كتبتها
+  table.querySelector('[role="status"]').textContent = `تم تحديد ${values.length} من ${total}`;
+});
+```
+
+- لتختار صفًّا بنفسك، اكتب `data-selected` على عنصر `<tr>` الخاص به؛ وأزِل الخاصية فلا يبقى الصف مختارًا. العنصر يحدّد خانة اختيار الصف أو يلغي تحديدها ولا يصدر عنه شيء.
+- كون الصف مختارًا أو غير مختار مكتوب على الصف نفسه (`data-selected`). الصفوف التي تعطيها من جديد بترتيب آخر تبقى مختارة أو غير مختارة، والصف الذي يُعطى للجدول أول مرة لا يكون مختارًا إلا حيث يقول هو ذلك عن نفسه.
+- الصف الذي بلا `data-value` لا يمكن اختياره. اترك خلية الاختيار فيه فارغة، كما في صف تذييل.
+- خانة الاختيار في صف الترويسة محدَّدة ما دامت كل الصفوف مختارة، وفي حالة غير محسومة ما دام بعضها مختارًا، ومعطَّلة ما دام لا صف يمكن اختياره. وهي تمثّل الصفوف التي أُعطيت للجدول، لا صفوف الصفحات الأخرى أبدًا.
+- عمود الاختيار ليس عمود بيانات. الخاصيتان `row-headers` و `sticky-first-column` تعنيان العمود الذي بعده، وقيمة `index` في الحدث `sort` لا تعدّه.
+- الضغط على صف خارج خلية الاختيار فيه لا يختار شيئًا.
+
+للمتصفح حدث خاص به اسمه `selectionchange`، لتغيّر تحديد النص، وحقل النص الذي في خلية يرسله عبر الجدول. حدث الجدول من النوع `CustomEvent` ويحمل `detail.values`؛ وحدث المتصفح ليس كذلك. افحص ذلك، كما يفعل المثال.
+
+لصفحة يجب أن تعمل من دون سكربت، استخدم خانات اختيار أصلية. الصف الذي خانة اختياره `checked` ترسمه ورقة الأنماط وحدها مختارًا، وتُرسَل خانات الاختيار مع نموذجك:
+
+```html
+<tr data-value="grinder">
+  <td data-part="selection"><input type="checkbox" name="product" value="grinder" checked aria-label="تحديد مطحنة يدوية" /></td>
+  <th scope="row">مطحنة يدوية</th>
+</tr>
+```
+
+### التحميل
+
+<DemoFrame label="التحميل: صفوف نائبة، وسطر الحالة يقول ذلك" plain>
+  <tanrei-table class="tanrei-not-prose" loading>
+    <table>
+      <caption>طلبات هذا الأسبوع</caption>
+      <thead>
+        <tr><th scope="col">العميل</th><th scope="col" data-wrap="false">تاريخ الطلب</th><th scope="col" data-align="end" data-wrap="false">الإجمالي</th></tr>
+      </thead>
+      <tbody>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 9rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 12rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 7rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+      </tbody>
+    </table>
+    <div data-part="status"><p role="status">جارٍ التحميل</p></div>
+  </tanrei-table>
+</DemoFrame>
+
+عيِّن `loading` ما دمت تجلب الصفوف. يُعرَض الجدول للتقنيات المساعدة مشغولًا ويرسم ما تعطيه إياه في أثناء ذلك. لا يجلب شيئًا ولا ينتظر شيئًا: هو في حالة تحميل ما دمت أنت تقول ذلك.
+
+```html
+<tanrei-table loading>
+  <table>
+    <thead>…</thead>
+    <tbody>
+      <tr data-placeholder aria-hidden="true">
+        <td><span class="tanrei-skeleton-placeholder"></span></td>
+        <td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div data-part="status"><p role="status">جارٍ التحميل</p></div>
+</tanrei-table>
+```
+
+- للتحميل الأول، أعطِ صفوفًا نائبة: `<tr data-placeholder aria-hidden="true">`. ارتفاع الصف النائب لا يقل عن سطر واحد من النص، وليس فيه خانة اختيار، وهو مخفي عن التقنيات المساعدة.
+- اترك خلايا الصف النائب فارغة، أو ضع في كل منها عنصرًا نائبًا من هيكل التحميل (`class="tanrei-skeleton-placeholder"`، من `@tanrei/web/skeleton.css`). ارتفاع العنصر النائب ارتفاع سطر واحد من نص الخلية، فيكون الصف بارتفاع الصف الذي يحل محله. والصنف وحده يكفي هنا: الجدول يقول أصلًا إنه مشغول.
+- لصفحة أخرى أو ترتيب آخر، أبقِ الصفوف التي كانت في الجدول وعيِّن `loading`. الصفوف التي كان الشخص يقرؤها تبقى قابلة للقراءة.
+- لا يُخفَّت شيء ولا يُعطَّل شيء. الترويسات وخانات الاختيار تعمل والجدول يُحمَّل.
+- ما دامت `loading` معيَّنة، لا يُرسم الصف الذي فيه الحالة الفارغة، حتى إن لم يكن هناك صف آخر.
+
+### Markdown
+
+محوِّل Markdown يكتب عنصر `<table>` مجرَّدًا. غلِّفه وقت البناء؛ لا ينقل Tanrei محتواك وقت التشغيل. ومع rehype هي خطوة واحدة صغيرة:
+
+```js
+import { visit, SKIP } from 'unist-util-visit';
+
+/** يغلّف كل جدول في المستند بالعنصر <tanrei-table>. */
+export function rehypeTanreiTable() {
+  return (tree) =>
+    visit(tree, 'element', (node, index, parent) => {
+      if (node.tagName !== 'table' || parent?.tagName === 'tanrei-table') return;
+      parent.children[index] = { type: 'element', tagName: 'tanrei-table', properties: {}, children: [node] };
+      return SKIP;
+    });
+}
+```
+
+القيمة `align="right"` التي يكتبها المحوِّل نفسه على خلية تُقرأ `end`، والقيمة `align="left"` تُقرأ `start`، فتصير «الأرقام إلى اليمين» «الأرقام إلى النهاية» في صفحة من اليمين إلى اليسار.
+
+## المواصفات
+
+<DemoFrame label="مضغوط وبصفوف مظلَّلة بالتناوب، لجدول يمسحه الشخص بنظره" plain>
+  <tanrei-table class="tanrei-not-prose" density="compact" striped label="رموز الجدول">
+    <table>
+      <thead>
+        <tr><th scope="col" data-wrap="false">الرمز</th><th scope="col" data-wrap="false">يشير إلى</th><th scope="col" data-wrap="false">النوع</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">comp.table.separation</td><td data-wrap="false">sys.behavior.separation</td><td data-wrap="false">number</td></tr>
+        <tr><td data-wrap="false">comp.table.divider.color</td><td data-wrap="false">sys.color.outline-variant</td><td data-wrap="false">color</td></tr>
+        <tr><td data-wrap="false">comp.table.divider.thickness</td><td data-wrap="false">sys.border.hairline</td><td data-wrap="false">dimension</td></tr>
+        <tr><td data-wrap="false">comp.table.row.gap</td><td data-wrap="false">sys.space.space50</td><td data-wrap="false">dimension</td></tr>
+        <tr><td data-wrap="false">comp.table.stripe.container.color</td><td data-wrap="false">sys.color.surface-container-low</td><td data-wrap="false">color</td></tr>
+        <tr><td data-wrap="false">comp.table.caption.gap</td><td data-wrap="false">sys.space.space100</td><td data-wrap="false">dimension</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<DemoFrame label="أعرض من صندوقه: يُمرَّر هناك، ويبقى العمود الأول" plain>
+  <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
+    <table>
+      <caption>الزيارات بحسب المنطقة</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">المنطقة</th><th scope="col" data-align="end" data-wrap="false">يناير</th><th scope="col" data-align="end" data-wrap="false">فبراير</th><th scope="col" data-align="end" data-wrap="false">مارس</th><th scope="col" data-align="end" data-wrap="false">أبريل</th><th scope="col" data-align="end" data-wrap="false">مايو</th><th scope="col" data-align="end" data-wrap="false">يونيو</th><th scope="col" data-align="end" data-wrap="false">يوليو</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row" data-wrap="false">المنطقة الشمالية</th><td data-align="end">1,204</td><td data-align="end">1,310</td><td data-align="end">1,288</td><td data-align="end">1,402</td><td data-align="end">1,396</td><td data-align="end">1,450</td><td data-align="end">1,512</td></tr>
+        <tr><th scope="row" data-wrap="false">المنطقة الوسطى</th><td data-align="end">3,020</td><td data-align="end">2,985</td><td data-align="end">3,110</td><td data-align="end">3,204</td><td data-align="end">3,190</td><td data-align="end">3,275</td><td data-align="end">3,301</td></tr>
+        <tr><th scope="row" data-wrap="false">المنطقة الجنوبية</th><td data-align="end">870</td><td data-align="end">902</td><td data-align="end">915</td><td data-align="end">899</td><td data-align="end">940</td><td data-align="end">968</td><td data-align="end">1,002</td></tr>
+        <tr><th scope="row" data-wrap="false">الجزر</th><td data-align="end">212</td><td data-align="end">220</td><td data-align="end">198</td><td data-align="end">240</td><td data-align="end">251</td><td data-align="end">263</td><td data-align="end">270</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<DemoFrame label="ارتفاع يحدّده التخطيط: تُمرَّر الصفوف، وتبقى الترويسة" plain>
+  <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
+    <table>
+      <caption>الإصدارات</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">الإصدار</th><th scope="col" data-wrap="false">تاريخ الإصدار</th><th scope="col">التغييرات</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">2.4.0</td><td data-wrap="false">12 مايو</td><td>الجداول تُبقي ترويستها ظاهرة.</td></tr>
+        <tr><td data-wrap="false">2.3.2</td><td data-wrap="false">28 أبريل</td><td>إصلاح للتواريخ المكتوبة بسنة من رقمين.</td></tr>
+        <tr><td data-wrap="false">2.3.1</td><td data-wrap="false">20 أبريل</td><td>إصلاح لقائمة خيارات كانت تُفتح خارج الشاشة.</td></tr>
+        <tr><td data-wrap="false">2.3.0</td><td data-wrap="false">2 أبريل</td><td>اللوحات الجانبية، وحلقة تركيز أهدأ.</td></tr>
+        <tr><td data-wrap="false">2.2.1</td><td data-wrap="false">18 مارس</td><td>إصلاح لتلميح كان يبقى مفتوحًا.</td></tr>
+        <tr><td data-wrap="false">2.2.0</td><td data-wrap="false">4 مارس</td><td>التخطيطات من اليمين إلى اليسار.</td></tr>
+        <tr><td data-wrap="false">2.1.0</td><td data-wrap="false">11 فبراير</td><td>منتقي التاريخ والوقت.</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<ComponentSpecs name="table" />
+
+## الإرشادات
+
+### هل هو جدول
+
+استخدم الجدول لبيانات لها صفوف وأعمدة. ولا تستخدمه لوضع أشياء جنبًا إلى جنب: التقنيات المساعدة تُعلن الصفوف والأعمدة والترويسات لكل خلية، وهذا ضجيج حول محتوى ليس جدوليًّا. استخدم التخطيط لذلك.
+
+وقائمة المفاتيح والقيم التي ليس لها بُعد ثانٍ أقرب إلى قائمة الوصف (description list) منها إلى جدول.
+
+### الكثافة
+
+| `density` | ارتفاع الصف ذي السطر الواحد من النص | يُستخدم لـ |
+| --- | --- | --- |
+| `regular` (الافتراضي) | 46 | جدول يقرؤه الشخص: صفوف قليلة، وخلايا يلتفّ نصها. |
+| `compact` | 32 | جدول يمسحه الشخص بنظره: مئات الصفوف، ومعرّفات وقيم. |
+
+ليس للصف ارتفاع خاص به. ارتفاعه ارتفاع أطول خلاياه.
+
+### التفريق بين الصفوف
+
+| `separation` | ما يرسمه |
+| --- | --- |
+| `auto` (الافتراضي) | ما اختاره نظام التصميم: خط رفيع في النظام الافتراضي. |
+| `divider` | خط رفيع واحد بين الصفوف، وتحت صف الترويسة، وفوق صفوف التذييل. |
+| `gap` | فراغ بلا خط. |
+
+الخاصية `striped` تظلّل الصفوف بالتناوب: تملأ كل صف ثانٍ من صفوف المتن بلون هادئ. استخدمها لجدول عريض فيه صفوف كثيرة متشابهة، حيث تضيّع العين صفها وهي تعبره. ويمكن جمعها مع أي من طريقتي الفصل.
+
+### الأعمدة
+
+- تأخذ الأعمدة عرضها من محتواها. لا يكون العمود أضيق أبدًا مما لا ينقسم فيه، وعمود النص الطويل يأخذ ما تتركه الأعمدة القصيرة.
+- النص يلتفّ ولا يُقصّ أبدًا. والمعرّف لا ينقسم من داخله؛ بل يوسّع عموده.
+- حاذِ عمود الأرقام إلى النهاية، لتصطفّ منازلها. واترك النص في البداية. ولا توسّط إلا علامة أو كلمة واحدة هي النوع نفسه من الجواب في كل صف.
+- لا تعطِ العمود عرضًا بنفسك إلا حيث لا بدّ (`style="width: …"` على خلية ترويسته). هو يحلّ محل ما كان المحتوى سيعطيه.
+
+### حين لا يتسع المكان
+
+- يُمرَّر الجدول داخل صندوقه، ولا تُمرَّر الصفحة أبدًا. وخط رفيع على حافة من الصندوق يقول إن وراءها أعمدة.
+- الخاصية `sticky-first-column` تُبقي العمود الأول ظاهرًا ما دامت الأعمدة الأخرى تُمرَّر تحته. ويفلت من تلقاء نفسه حيث كان سيأخذ أكثر من نصف الصندوق، فلا يملأ العمودُ الباقي شاشةَ هاتف أبدًا.
+- الخاصية `sticky-header` تُبقي صف الترويسة ظاهرًا ما دامت الصفوف تُمرَّر. وتعمل حيث يحدّ تخطيطك ارتفاع الجدول (`max-block-size` على العنصر)؛ ولا تتبع الصفحة.
+- الجدول الذي على سطح غير سطح الصفحة (بطاقة، أو مربع حوار) يضبط `--tanrei-comp-table-sticky-container-color` على لون ذلك السطح حيث يُبقي صف ترويسته أو عموده الأول ظاهرًا، أو حيث يكون له سطر حالة. تُملأ هذه الأجزاء بذلك اللون، فلا تظهر من خلالها الصفوف والأعمدة التي تمرّ تحتها.
+
+### إرشادات الفرز
+
+- اجعل العمود قابلًا للفرز حيث كان الشخص سيبحث عن صف به: اسم، أو تاريخ، أو مبلغ، أو فئة. وعمود الملاحظات ليس منها.
+- تُرسم العلامة على كل عمود قابل للفرز، وفي السكون أيضًا، لتبيّن شاشة اللمس أي الترويسات يمكن ضغطها.
+- يُفرز بعمود واحد في المرة. ومفتاح فرز ثانٍ عنصر تحكم من عندك.
+- قل الترتيب الجديد في سطر الحالة حيث تريده أن يُنطق («مرتَّبة بحسب السعر، الأعلى أولًا»). الجدول لا يُعلن شيئًا بنفسه.
+- ارتفاع صف الترويسة في جدول فيه عمود قابل للفرز لا يقل عن 44 في الكثافة regular، وعن 48 للمس في الكثافتين.
+
+### إرشادات اختيار الصفوف
+
+- أتِح للأشخاص اختيار الصفوف حيث يعملون على عدة سجلات دفعة واحدة: حذف، أو تصدير، أو نقل. ولسجل واحد، ضع الإجراء في صفه.
+- قل في سطر الحالة كم صفًّا اختير («تم تحديد 3 من 132»). الجدول لا يعدّ شيئًا.
+- ضع الأزرار التي تعمل على الصفوف المختارة فوق الجدول. هي لك أنت؛ والجدول يخبرك بما اختير.
+- قدِّم «الكل (132)» بعنصر تحكم من عندك. خانة الاختيار في صف الترويسة تختار الصفوف التي أُعطيت للجدول، لا صفوف الصفحات الأخرى أبدًا.
+- كل خانة اختيار موضع توقف في ترتيب التركيز. اجعل صفوف الصفحة الواحدة عددًا يستطيع الشخص عبوره بالمفتاح Tab، ووزِّع الباقي على صفحات.
+- ارتفاع الصف الذي فيه خانة اختيار لا يقل عن 44 في الكثافة regular، وعن 48 للمس في الكثافتين. والصف المضغوط يبقى مضغوطًا لمؤشر الإدخال.
+- [الوسم](/ar/components/tag/) و[الشيفرة المضمَّنة](/ar/components/inline-code/) يكونان بالطراز tonal ما لم تختر طرازًا آخر، وتعبئة الطراز tonal تكاد تكون في النظام الافتراضي تعبئة الصف المختار، فيضيع شكلهما على الصف المختار. ويبقى نصهما مقروءًا. استخدم الوسم بالطراز outlined في جدول تُختار صفوفه.
+
+### إرشادات التحميل
+
+- استخدم صفوفًا نائبة للتحميل الأول، بعدد يقارب الصفوف التي تتوقعها.
+- أبقِ الصفوف عند تغيير الترتيب أو الصفحة. لا تضع صفوفًا نائبة أو [مؤشر تحميل](/ar/components/loading-indicator/) مكان صفوف يقرؤها الشخص.
+- قل «جارٍ التحميل» في سطر الحالة، وقل ما وصل حين ينتهي التحميل («1 إلى 20 من 132»).
+- أزِل الصفوف النائبة حين تزيل `loading`. الصف الذي يُترك يبقى مرسومًا، ويُبلَّغ عنه في بنيات التنقيح.
+
+### بلا صفوف وسطر الحالة
+
+- استخدم الحالة الفارغة لجدول بلا صفوف، وقل لماذا لا صفوف فيه وما العمل بعد ذلك. والحالة الفارغة التي تجيب عن بحث أو تصفية تأخذ `live`، لتُعلَن النتيجة.
+- أبقِ سطر الحالة لما يعرضه الجدول الآن: كم صفًّا فيه وأيها معروض. والأزرار التي تعمل على الصفوف مكانها فوق الجدول.
+
+### افعل
+
+- أعطِ كل جدول اسمًا: شرحًا (caption) يراه الجميع، أو `label` حيث يقول العنوان الذي فوقه ما هو أصلًا.
+- اكتب العمود الأول ترويسات صفوف (`<th scope="row">` و `row-headers`) كلما كان يقول ما هو كل صف.
+- اترك الخلية فارغة حيث لا شيء يقال. وحيث يكون الغياب نفسه معلومة («غير متاح») فاكتبه.
+
+### لا تفعل
+
+- لا تستخدم جدولًا لتخطيط شاشة.
+- لا تعتمد على تظليل الصفوف ولا على اللون لحمل المعنى. الحالة في خلية كلمة، أو وسم تقولها تسميته.
+- لا تضع شرطة في خلية فارغة لتملأها.
+- لا تجعل صفًّا قابلًا للضغط، ولا تكتب في ترويسة علامة فرز أو ترتيبًا من عندك. تصير الترويسة قابلة للضغط بالترميز المذكور أعلاه ولا بشيء غيره. يُختار الصف بخانة اختياره، والصفوف التي تُفتح ليست جزءًا من الجدول.
+- لا تخفِّت الجدول ولا تعطِّله وهو يُحمَّل.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="table" />
+
+### ما يتكفل به المكوّن
+
+- الجدول الأصلي يبقى جدولًا: الصفوف وترويسات الأعمدة وترويسات الصفوف والخلايا هي ما يعرّفه المتصفح نفسه، بتظليل الصفوف أو من دونه، بأي من الكثافتين، وهو يُمرَّر، وحين يُبقى عمود أو تُبقى الترويسة ظاهرة.
+- الشرح يسمّي الجدول. ومن دونه تصير `label` قيمة `aria-label` للجدول ولا تُرسم. ومع الاثنين يكون الشرح هو الاسم.
+- ما دام الجدول يُمرَّر داخل صندوقه، فذلك الصندوق موضع توقف واحد في ترتيب التركيز، قبل أي شيء في خلاياه، ومنطقة (region) باسم الجدول. تمرّره مفاتيح الأسهم والمفاتيح Page Up و Page Down و Home و End. والجدول الذي لا يُمرَّر لا يضيف موضع توقف.
+- حلقة التركيز تُرسم داخل حافة الصندوق، فلا يقصّها شيء.
+- حيث تكون الخلايا الأولى في الجدول عناصر `<td>` عادية (كما في ما يُولَّد من Markdown) و `row-headers` معيَّنة، يعطيها العنصر دور ترويسة الصف.
+- في التخطيط من اليمين إلى اليسار تجري الأعمدة من اليمين، ويبدأ التمرير من اليمين، والعمود الأول الباقي يكون في اليمين، ويحتفظ نص كل خلية باتجاهه: الرقم لا يُعكس أبدًا.
+- عند تكبير النص إلى 200% يُحسب عرض الأعمدة من جديد، ويُمرَّر الجدول داخل صندوقه حيث لم تعد تتسع.
+- في الألوان المفروضة (forced colors) كل خط بلون النص، والجدول ذو الصفوف المظلَّلة يرسم خطوط صفوفه أيًّا كانت طريقة فصله، لأن هذا الوضع يزيل التعبئات.
+- خلية ترويسة العمود القابل للفرز ترويسة عمود تحمل الترتيب (`aria-sort`)، وزرك الذي فيها اسمه نص الترويسة. والعلامة مخفيّة عن التقنيات المساعدة.
+- زر الفرز موضع توقف واحد في ترتيب التركيز. يضغطه المفتاحان Enter و Space؛ وحيث يكون رابطًا فالمفتاح Enter وحده. ويظل التركيز عليه بعد الضغط. وحيث تضع صف ترويسة جديدًا مع الصفوف، ينتقل التركيز إلى الزر الجديد للعمود نفسه.
+- مؤشر التركيز لزر الفرز يُرسم داخل خلية ترويسته، والزر الذي يأخذ التركيز بلوحة المفاتيح يُخرَج من تحت عمود أول أو سطر حالة يبقى ظاهرًا.
+- الصف الذي فيه الحالة الفارغة صف واحد من خلية واحدة. لا يضيف إليه الجدول دورًا ولا كلمة.
+- فقرة سطر الحالة حالة (status): تغيّر نصها يُعلَن بتهذيب، من دون نقل التركيز، ولا يُعلَن شيء حين يُرسم أول مرة.
+- في الألوان المفروضة تأخذ تسمية زر الفرز وعلامته لون نص الأزرار، والعمود المفروز به يدل عليه سهمه وحده.
+- من دون سكربت تُرسم أزرار الفرز وعلاماتها، والصف الذي فيه الحالة الفارغة، وسطر الحالة كما هي، ويعمل رابط الفرز. أما الحدث `sort` فيحتاج إلى سكربت.
+- الجدول الذي يمكن اختيار صفوفه يبقى جدولًا. لا يأخذ دور الشبكة (grid)، ولا يأخذ الصف حالة التحديد (selected)، ولا مفتاح ينقل التركيز من خلية إلى خلية. وكون خانة اختيار الصف محدَّدة (checked) هو ما يقول إن الصف مختار.
+- خانة الاختيار في صف الترويسة تقول إنها محدَّدة، أو غير محدَّدة، أو مختلطة ما دامت غير محسومة، وتكون معطَّلة ما دام لا صف يمكن اختياره.
+- كل خانة اختيار موضع توقف خاص بها في ترتيب التركيز: خانة الاختيار وأزرار الفرز في صف الترويسة أولًا، ثم خانة اختيار كل صف. والمفتاح Space يحدّدها أو يلغي تحديدها.
+- خانة اختيار الصف التي ليس لها اسم خاص بها تسمّيها خلية ترويسة الصف.
+- الضغط في أي موضع من خلية اختيار يضغط خانة الاختيار التي فيها. وحين تضع صفوفًا جديدة أو تعيد ترتيب الصفوف والتركيز على خانة اختيار، ينتقل التركيز إلى خانة اختيار الصف الذي له قيمة `data-value` نفسها.
+- في الألوان المفروضة تزول تعبئة الصف المختار، وتبقى خانة الاختيار تقول إن الصف مختار.
+- ما دامت `loading` معيَّنة، يُعرَض الجدول للتقنيات المساعدة مشغولًا (`aria-busy`). والصفوف النائبة مخفيّة عن التقنيات المساعدة، فيسمع الشخص أن الجدول مشغول ولا يسمع صفوفًا من لا شيء. الجدول لا يُعلن شيئًا بنفسه حين يبدأ التحميل أو ينتهي.
+- من دون سكربت يُرسم عمود الاختيار، والصف المختار (بالخاصية `data-selected`، أو بخانة اختيار أصلية محدَّدة)، والصفوف النائبة كما هي، وتعمل خانات الاختيار الأصلية في نموذجك. أما مطابقة خانة الاختيار في صف الترويسة والحدث `selectionchange` فتحتاجان إلى سكربت.
+- يُبلَّغ في بنيات التنقيح عن جدول بلا اسم، وعن كثافة أو طريقة فصل أو قيمة `selection` غير معروفة، وعن صف تذييل معطى قبل المتن، وعن صف فيه خلايا أكثر أو أقل من الأعمدة، وعن عمود قابل للفرز بلا ترويسة، وعن عمودين مفروز بهما في آن واحد، وعن خانة اختيار صف بلا اسم، وعن صف نائب في جدول لا يُحمَّل.
+
+### ما عليك فعله
+
+- سمِّ الجدول. الجدول الذي يُمرَّر وليس له اسم موضع توقف للتركيز لا يستطيع الشخص تمييزه من أي موضع آخر.
+- أعطِ كل عمود خلية ترويسة، وعلِّم ترويسات الصفوف بأنها ترويسات صفوف. الترويسات بنية، لا تنسيق.
+- أبقِ الجدول الذي يحتاج إلى مستويين من ترويسات الأعمدة، أو إلى خلايا ممتدة، أبسط ما تستطيع. هي تعمل كما تعمل في HTML، لكن لا جزء من هذا المكوّن مصمَّم حولها؛ وتقسيم الجدول أوضح في العادة.
+- ما يُضغط داخل خلية (رابط، أو زر) يحتفظ باسمه وتركيزه وحجم هدفه. أعطِه حيّزًا.
+- بعد أن ترتّب الصفوف، اكتب قيمة `aria-sort` الجديدة على خلايا الترويسة: القيمة `ascending` أو `descending` على واحدة، و `none` على سائر الخلايا القابلة للفرز. ولا تترك الخاصية على ترويسة ليس فيها زر.
+- أبقِ فقرة سطر الحالة في الصفحة ما دامت بلا نص، ليُعلَن النص التالي الذي تعطيها إياه.
+- سمِّ خانة الاختيار في صف الترويسة بالخاصية `select-all-label`، وسمِّ خانة اختيار كل صف بالخاصية `label` الخاصة بها حيث ليس للجدول ترويسات صفوف.
+- قل في سطر الحالة متى يبدأ التحميل ومتى ينتهي. هو الموضع الوحيد الذي يُعلَن فيه التغيّر.
+
+### الكلمات
+
+لا يأتي Tanrei بكلمات من عنده. الجدول يطلب منك كلمة واحدة، هي اسم خانة الاختيار في صف الترويسة: الخاصية `select-all-label` على العنصر، أو `selectAllLabel` بالاستدعاء `setWords()`. والكلمتان الأخريان تكتبهما في ترميزك.
+
+| الكلمة | أين تعطيها |
+| --- | --- |
+| اسم خانة الاختيار في صف الترويسة («تحديد كل المنتجات») | الخاصية `select-all-label` على العنصر، أو مرة واحدة لكل الجداول بالاستدعاء `setWords({ selectAllLabel: 'تحديد كل الصفوف' })`. |
+| اسم خانة اختيار الصف («تحديد مطحنة يدوية») | الخاصية `label` على عنصر `<tanrei-checkbox>` في الصف، أو `aria-label` على خانة اختيار أصلية. ومع ترويسات الصفوف لك أن تتركه: ترويسة الصف تسمّي خانة الاختيار. |
+| جملة سطر الحالة («تم تحديد 2 من 4»، «جارٍ التحميل») | فقرة سطر الحالة، أو `status` على العنصر حيث لا تكتب فقرة. |
+
+من دون اسم لخانة الاختيار في صف الترويسة، تُرسم خانة الاختيار مع ذلك وتعمل، وليس لها اسم يُتاح للتقنيات المساعدة، وبنية التنقيح تبلّغ عن الكلمة الناقصة.

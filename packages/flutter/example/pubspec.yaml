@@ -1,0 +1,28 @@
+name: tanrei_example
+description: >-
+  A gallery of every fixture of every Tanrei component implemented on Flutter,
+  under every design system the package ships, with theme and contrast switches.
+publish_to: none
+version: 0.0.0
+
+environment:
+  sdk: ^3.8.0
+  flutter: ">=3.32.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  tanrei:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  assets:
+    # Filled by `dart run tool/copy_specs.dart` (gitignored copies; the directory itself is kept by
+    # a .gitkeep so a build without them still works). Never point an asset path outside this
+    # package: Flutter writes `../` keys outside its build directory and deletes them there again.
+    - assets/specs/

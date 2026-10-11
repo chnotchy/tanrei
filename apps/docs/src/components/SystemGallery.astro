@@ -1,0 +1,135 @@
+---
+// Every design system in tokens/systems/, live, with the same markup — and its accessibility report.
+// Nothing here is hand-maintained: layers and reports are read from the repository. Each system is Tanrei's Figure:
+// its id and name are the title (the heading the page's outline needs), the three schemes stand in the stage — not
+// padded, so the system's own surface reaches the frame — its facts are Tanrei's description list, joined under the
+// stage, and what the system is, with its disclaimer, is the caption (the layer's own words, in English: `lang="en"`). An imitation preset's report holds
+// measurements that do not apply to it; the default system's violations fail its build.
+import { getSpec } from '../lib/repo';
+import { fill, strings } from '../lib/i18n';
+
+type Json = Record<string, any>;
+// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]. Products import the one they use.
+import.meta.glob('../../../../packages/web/src/generated/systems/*.css', { eager: true });
+const layers = import.meta.glob<Json>('../../../../tokens/systems/*.system.json', { eager: true, import: 'default' });
+const reports = import.meta.glob<Json>('../../../../tokens/generated/*/a11y-report.json', { eager: true, import: 'default' });
+const fidelities = import.meta.glob<Json>('../../../../tokens/generated/*/fidelity.json', { eager: true, import: 'default' });
+
+// The words of the locale the page is served in, as before: the gallery has no content of its own to fall back with.
+const all = strings(Astro.currentLocale);
+const t = { light: all.light, dark: all.dark, ...all.gallery };
+
+const variants = getSpec('button').props.find((prop) => prop.name === 'variant')!.values!;
+const systems = Object.values(layers)
+  .sort((a, b) => Number(Boolean(a.extends)) - Number(Boolean(b.extends)) || a.id.localeCompare(b.id))
+  .map((layer) => {
+    const report = Object.values(reports).find((r) => r.system === layer.id);
+    const fidelity = Object.values(fidelities).find((f) => f.system === layer.id);
+    return {
+      layer,
+      fidelity,
+      extensions: Object.keys(layer.vocabulary ?? {}).length,
+      count: report?.count ?? 0,
+      raised: (report?.measurements ?? []).filter((w: string) => /^\[\w+-(medium|high)\]/.test(w)).length,
+      declared: Object.entries(layer.palettes ?? {}).filter(([, palette]) => (palette as Json | null)?.roles === 'intent').map(([name]) => name),
+    };
+  });
+const rows = [
+  { theme: 'light', contrast: undefined, label: t.light },
+  { theme: 'dark', contrast: undefined, label: t.dark },
+  { theme: 'dark', contrast: 'high', label: `${t.dark} · ${t.high}` },
+];
+---
+
+{
+  systems.map(({ layer, count, raised, declared, fidelity, extensions }) => (
+    <tanrei-figure class="system not-content" flush data-tanrei-code="plain">
+      <figure aria-labelledby={`system-${layer.id}`} aria-describedby={`system-${layer.id}-caption`}>
+        <div data-part="frame">
+          <header>
+            <h3 data-part="title" id={`system-${layer.id}`}><code>{layer.id}</code> <span>{layer.name}</span></h3>
+          </header>
+          <div data-part="stage" class="stages" data-tanrei-system={layer.id} data-pagefind-ignore>
+            {rows.map((row) => (
+              <div class="row" data-tanrei-theme={row.theme} data-tanrei-contrast={row.contrast}>
+                <span class="docs-eyebrow">{row.label}</span>
+                {variants.map((variant) => <tanrei-button variant={variant}>{variant[0].toUpperCase() + variant.slice(1)}</tanrei-button>)}
+                <tanrei-button disabled>Disabled</tanrei-button>
+              </div>
+            ))}
+          </div>
+          <div data-part="attachment" class="facts">
+            <tanrei-description-list layout="inline" density="compact" separation="gap">
+              <dl>
+                {layer.extends && (<div><dt>{t.extends}</dt><dd><code>{layer.extends}</code></dd></div>)}
+                <div><dt>{t.palettes}</dt>{declared.length ? declared.map((name) => <dd><code>{name}</code></dd>) : <dd>{all.noPalettes}</dd>}</div>
+                <div><dt>{t.changes}</dt><dd>{Object.keys(layer.tokens ?? {}).length}</dd></div>
+                <div><dt>{t.rules}</dt><dd>{(layer.rules ?? []).length}</dd></div>
+                {extensions > 0 && (<div><dt>{t.extensions}</dt><dd>{extensions}</dd></div>)}
+                {layer.extends && (
+                  <div>
+                    <dt>{t.fidelity}</dt>
+                    <dd>
+                      {fidelity
+                        ? <Fragment><strong>{fidelity.equal} / {fidelity.total - fidelity.covered}</strong> {t.equal} · {fidelity.different.length}{' '}{t.different} · {fidelity.unmapped.length}{' '}{t.unmappedGap} — {fidelity.reference.name} {fidelity.reference.version} ({fidelity.reference.license})</Fragment>
+                        : t.unmeasured}
+                    </dd>
+                  </div>
+                )}
+                <div>
+                  <dt>WCAG</dt>
+                  <dd>
+                    {count === 0
+                      ? `${t.passes} ${layer.extends ? t.notApplied : t.failsBuild}`
+                      : <Fragment><strong>{count}</strong> {count === 1 ? t.measuredOne : t.measured}{raised ? fill(t.raised, { count: String(raised) }) : count === 1 ? t.standardOnlyOne : t.standardOnly}{' '}{t.notApplied}</Fragment>}
+                  </dd>
+                </div>
+              </dl>
+            </tanrei-description-list>
+          </div>
+        </div>
+        <figcaption id={`system-${layer.id}-caption`} lang="en">
+          <p>{layer.description}</p>
+          {layer.attribution?.disclaimer && <p>{layer.attribution.disclaimer}</p>}
+        </figcaption>
+      </figure>
+    </tanrei-figure>
+  ))
+}
+
+<script>
+  import '../lib/register-web';
+</script>
+
+<style>
+  /* The frame, the header, the title's style, the line between the stage and the facts, and the caption are the
+     Figure's; the facts are the description list's (both stylesheets draw them before the elements are defined).
+     What follows is the site's own: the space between two systems, the name beside the id, the three rows of the
+     stage — each on its scheme's surface — and the room around the facts. */
+  .system {
+    /* Read here, outside the system's scope, so that every system's rows and facts stand in line with its title. */
+    --docs-system-inset: var(--tanrei-comp-figure-header-padding-inline);
+  }
+  .system + .system {
+    margin-block-start: var(--tanrei-sys-space-space400);
+  }
+  h3 span { font-weight: 400; color: var(--tanrei-sys-color-on-surface-variant); margin-inline-start: 0.5rem; }
+  .stages {
+    align-items: stretch;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem var(--docs-system-inset);
+    background: var(--tanrei-sys-color-surface);
+    color: var(--tanrei-sys-color-on-surface);
+  }
+  .row .docs-eyebrow { inline-size: 9rem; color: var(--tanrei-sys-color-on-surface-variant); }
+  .facts {
+    padding: var(--tanrei-sys-space-space150) var(--docs-system-inset);
+  }
+  figcaption p { margin: 0; }
+  figcaption p + p { margin-block-start: var(--tanrei-sys-space-space50); }
+</style>

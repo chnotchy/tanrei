@@ -1,0 +1,517 @@
+---
+title: Panel de navegación
+description: Muestra los destinos de un producto en un panel situado en el borde de inicio, organizados en secciones y grupos, junto al contenido en una pantalla grande o sobre él en una compacta, y puede contraerse hasta quedar en una columna de iconos.
+translationOf: components/navigation-drawer.mdx
+sourceHash: 99562d926c109200b21007f7db10ca4597cbb7da
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="navigation-drawer" />
+
+:::note[Una especificación revisada que aún no está en todas las plataformas]
+Esta página describe el panel de navegación tal como lo define ahora la especificación. Un panel `collapsible` se estrecha hasta quedar en una columna de iconos, que sustituye al carril de navegación: el panel contraído es el expandido sin sus etiquetas, con cada fila cortada después de su icono, y su botón de menú lo vuelve a ensanchar con todos los iconos en su sitio. El texto `badge` de un destino pasa a ser `trailingText`, dibujado de forma más discreta, y un slot `trailing` contiene un glifo o un Badge; `badge` es ahora una insignia sobre el icono. Los elementos `group` abren y cierran destinos anidados. Las filas miden 48 de alto, la altura de un elemento de menú. `responsive` deja que el ancho de la ventana elija cómo se presenta el panel. Un destino con `href` es un enlace, y `revealSelected` y `scrollOffset` convierten el panel en la barra lateral de un sitio. El componente web ya hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior, con filas de 44, `badge` como texto al final de la fila, sin forma contraída, grupos, destinos de enlace ni presentación adaptable, y con un carril de navegación aparte, y sus ejemplos muestran esa revisión.
+:::
+
+<DemoFrame label="Un panel estándar con dos secciones">
+  <tanrei-navigation-drawer open value="inbox" label="Correo" style="block-size: 26rem">
+    <tanrei-navigation-drawer-section heading="Correo">
+      <tanrei-navigation-drawer-item value="inbox" label="Bandeja de entrada" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="sent" label="Enviados" icon="send"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="drafts" label="Borradores" icon="draft"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-section heading="Etiquetas" divider>
+      <tanrei-navigation-drawer-item value="work" label="Trabajo" icon="label" trailing-text="Nuevo"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="family" label="Familia" icon="label"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="Un panel que se puede contraer: su botón de menú lo contrae hasta la columna de iconos, donde cada celda muestra su nombre en un tooltip" plain>
+  <tanrei-navigation-drawer open collapsible value="home" label="Espacio de trabajo" style="block-size: 30rem">
+    <tanrei-button slot="header-button" variant="text" label="Menú"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-main-action-button slot="main-action" label="Nuevo proyecto"><span slot="icon">add</span></tanrei-main-action-button>
+    <tanrei-navigation-drawer-item value="home" label="Inicio" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="inbox" label="Bandeja de entrada" icon="inbox" badge badge-count="3" badge-label="3 sin leer"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="Proyectos" icon="folder" open>
+      <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="beacon" label="Beacon" icon="deployed_code"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item value="settings" label="Configuración" icon="settings" trailing-text="Nuevo"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="Destinos que son enlaces: el valor del panel indica la página actual, y reveal-selected abre el grupo que la contiene" plain>
+  <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="Documentación" style="block-size: 24rem">
+    <tanrei-navigation-drawer-item label="Primeros pasos" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="Fundamentos">
+      <tanrei-navigation-drawer-item label="Color" href="#sidebar-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Tipografía" href="#sidebar-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Componentes">
+      <tanrei-navigation-drawer-item label="Botón" href="#sidebar-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Pestañas" href="#sidebar-demo-tabs" trailing-text="Nuevo"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item label="Código fuente" href="#sidebar-demo-source" target="new" target-label="se abre en una pestaña nueva"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+### Uso
+
+Un panel de navegación tiene cinco tipos de elemento. Un `destination` es una fila con un icono opcional, una etiqueta y, al final, un contenido final opcional; con `href` es un enlace. Un `group` es una fila que abre y cierra los destinos y grupos que contiene. Una `section` agrupa destinos y grupos bajo un `heading` opcional, con un `divider` opcional delante; las secciones no se anidan, y los grupos no contienen secciones. Un `header-button` (el primero es el botón de menú) y una `main-action` se sitúan en la cabecera. En la web son elementos hijos `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` y `<tanrei-navigation-drawer-section>`, y elementos `<tanrei-button>` de solo icono y un `<tanrei-main-action-button>` en los slots `header-button` y `main-action`. Las plataformas rezagadas reciben los destinos y las secciones según su estilo propio: vistas `TanreiNavigationDrawerItem` y `TanreiNavigationDrawerSection` en SwiftUI y llamadas con esos nombres en Compose, objetos `TanreiNavigationDrawerDestination` y `TanreiNavigationDrawerSection` dentro de `children:` en Flutter, y entradas de destino y de sección de un array `items` en React Native, donde una sección se distingue por tener sus propios `items`.
+
+La selección pertenece al panel y se expresa con el valor de un destino, esté donde esté ese destino. `change` y `reselect` funcionan como en la barra de navegación. Compose no tiene un valor a nivel de panel: marcas el elemento actual con `selected`, y su `onClick` hace tanto de change como de reselect. Flutter selecciona por índice, contado a través de las secciones en el orden de lectura.
+
+Un destino con `href` es un enlace y no un botón. El navegador lo sigue como sigue cualquier enlace, y el panel no lo selecciona con una pulsación: la página que llega dice qué destino es el actual, al definir el `value` del panel como el valor de ese destino o, si no tiene valor, como su `href` tal como está escrito. `change` y `reselect` se siguen emitiendo cuando un enlace se activa de la forma habitual. Llevan su `href` y se pueden cancelar, y así es como un enrutador del lado del cliente se hace cargo de la navegación. Los destinos de enlace están hoy en la web.
+
+El panel tiene dos variantes, y un mismo producto suele usar las dos: estándar donde la ventana es lo bastante ancha y modal donde no lo es.
+
+- **Estándar** es una región del diseño, no una superposición. Mientras está abierto ocupa su ancho junto al contenido, y mientras está cerrado no ocupa nada. No dibuja velo y nunca retiene el foco.
+- **Modal** es una superposición que la persona maneja, y además modal. Se desliza sobre el contenido con un velo, mantiene el foco dentro hasta que se cierra y se cierra solo cuando la persona elige un destino.
+
+Con `responsive`, el panel toma esa decisión por sí mismo a partir del ancho de la ventana (consulta «Seguir el ancho de la ventana» más abajo).
+
+`open` muestra u oculta cualquiera de las dos variantes. Un panel modal también se cierra cuando la persona pulsa el velo o Escape, usa la acción de retroceso de la plataforma o lo arrastra hacia su borde, y entonces emite `close`. En la web, el propio panel vuelve a poner `open` en false, como hace un diálogo. En las demás plataformas eres tú quien lo mantiene sincronizado a partir del cierre: `onClose` en Flutter y React Native, el binding `isPresented` en SwiftUI y el estado del panel en Compose, cuyo `confirmValueChange` recibe cada cierre.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="menu" label="Menú"><span slot="icon">menu</span></tanrei-button>
+
+    <!-- Modal: un <dialog> en el shadow root, abierto con showModal(). Standard es un <nav> que recibe su nombre de label. -->
+    <tanrei-navigation-drawer variant="modal" label="Correo" value="inbox">
+      <tanrei-navigation-drawer-section heading="Correo">
+        <tanrei-navigation-drawer-item value="inbox" label="Bandeja de entrada" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item value="sent" label="Enviados" icon="send"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+      <tanrei-navigation-drawer-section heading="Etiquetas" divider>
+        <tanrei-navigation-drawer-item value="work" label="Trabajo" icon="label" trailing-text="Nuevo"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+    </tanrei-navigation-drawer>
+
+    <!-- Collapsible: el primer botón de la cabecera es el botón de menú. El panel le responde por sí mismo y emite expandedchange. -->
+    <tanrei-navigation-drawer collapsible open label="Espacio de trabajo" value="home">
+      <tanrei-button slot="header-button" variant="text" label="Menú"><span slot="icon">menu</span></tanrei-button>
+      <tanrei-main-action-button slot="main-action" label="Nuevo proyecto"><span slot="icon">add</span></tanrei-main-action-button>
+      <span slot="header">Espacio de trabajo</span>
+      <tanrei-navigation-drawer-item value="home" label="Inicio" icon="home"></tanrei-navigation-drawer-item>
+      <!-- Un grupo: su fila lo abre y lo cierra, y emite toggle. -->
+      <tanrei-navigation-drawer-group label="Proyectos" icon="folder">
+        <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+      <!-- Una insignia sobre el icono, en las dos formas; el contenido final, solo mientras está expandido. -->
+      <tanrei-navigation-drawer-item value="inbox" label="Bandeja de entrada" icon="inbox" badge badge-count="3" badge-label="3 sin leer"></tanrei-navigation-drawer-item>
+      <!-- Un enlace que abre una pestaña nueva: la fila expandida termina con open_in_new, y target-label se lee después de su nombre. -->
+      <tanrei-navigation-drawer-item label="Centro de ayuda" icon="help" href="/help" target="new" target-label="se abre en una pestaña nueva"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer>
+
+    <!-- La barra lateral de un sitio: todos los destinos son enlaces, y cada página da al panel su propia dirección como value.
+         responsive deja que el ancho de la ventana elija la presentación; reveal-selected abre los grupos que contienen la página. -->
+    <tanrei-navigation-drawer id="sidebar" label="Documentación" value="/components/tabs/" reveal-selected responsive open>
+      <tanrei-navigation-drawer-item label="Primeros pasos" href="/getting-started/"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-group label="Componentes">
+        <tanrei-navigation-drawer-item label="Botón" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="Pestañas" href="/components/tabs/" trailing-text="Nuevo"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-drawer';
+      import '@tanrei/web/components/button';
+      const drawer = document.querySelector('tanrei-navigation-drawer');
+      document.querySelector('#menu').addEventListener('click', () => (drawer.open = true));
+      // El panel define su propio value antes de emitir change. Un panel modal se cierra solo a continuación.
+      drawer.addEventListener('change', (e) => showFolder(e.detail.value));
+      // close sigue a cada cierre de un panel modal: el velo, Escape, un arrastre o un destino.
+      drawer.addEventListener('close', onDrawerClosed);
+      // Un panel collapsible ya ha tomado la forma que pidió su botón de menú.
+      document.querySelector('[collapsible]').addEventListener('expandedchange', (e) => savePreference(e.detail.expanded));
+
+      const sidebar = document.querySelector('#sidebar');
+      // El change de un enlace se puede cancelar y lleva su href: aquí un enrutador del lado del cliente se hace cargo de la navegación.
+      // Un sitio de documentos separados no escucha nada, y la página siguiente dice el value.
+      sidebar.addEventListener('change', (e) => {
+        e.preventDefault();
+        router.navigate(e.detail.href);
+      });
+      // Un panel responsive dice en qué lo convirtió el ancho de la ventana: standard, column o modal.
+      sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import {
+      NavigationDrawer,
+      NavigationDrawerGroup,
+      NavigationDrawerItem,
+      NavigationDrawerSection,
+    } from '@tanrei/react';
+
+    // Un panel modal se cierra solo (onClose): mantén open sincronizado ahí.
+    <NavigationDrawer
+      variant="modal"
+      label="Correo"
+      open={open}
+      value={folder}
+      onChange={(e) => setFolder(e.detail.value)}
+      onClose={() => setOpen(false)}
+    >
+      <NavigationDrawerSection heading="Correo">
+        <NavigationDrawerItem value="inbox" label="Bandeja de entrada" icon="inbox" trailingText="24" />
+        <NavigationDrawerItem value="sent" label="Enviados" icon="send" />
+      </NavigationDrawerSection>
+    </NavigationDrawer>
+
+    // La barra lateral de un sitio: los destinos son enlaces, y la página dice cuál es el actual.
+    <NavigationDrawer
+      label="Documentación"
+      open
+      responsive
+      revealSelected
+      value={pathname}
+      onChange={(e) => {
+        e.preventDefault(); // un enrutador del lado del cliente se hace cargo de la navegación
+        navigate(e.detail.href);
+      }}
+      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+    >
+      <NavigationDrawerGroup label="Componentes">
+        <NavigationDrawerItem label="Botón" href="/components/button/" />
+        <NavigationDrawerItem label="Pestañas" href="/components/tabs/" trailingText="Nuevo" />
+      </NavigationDrawerGroup>
+      <NavigationDrawerItem label="Código fuente" href="https://example.com/tanrei" target="new" targetLabel="se abre en una pestaña nueva" />
+    </NavigationDrawer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Estándar: junto al contenido. isPresented lo muestra y lo oculta; elegir un destino escribe en selection.
+    HStack(spacing: 0) {
+        TanreiNavigationDrawer(variant: .standard, isPresented: $sidebarShown, selection: $folder,
+                               accessibilityLabel: "Correo", onReselect: { _ in scrollToTop() }) {
+            TanreiNavigationDrawerSection("Correo") {
+                TanreiNavigationDrawerItem("Bandeja de entrada", icon: "inbox", value: "inbox", badge: "24")
+                TanreiNavigationDrawerItem("Enviados", icon: "send", value: "sent")
+            }
+            TanreiNavigationDrawerSection("Etiquetas", divider: true) {
+                TanreiNavigationDrawerItem("Trabajo", icon: "label", value: "work")
+            }
+        } header: {
+            Text("Correo")
+        }
+        FolderView(folder)
+    }
+
+    // Modal: un modificador sobre el contenido que cubre. Al cerrarse escribe false en el binding.
+    FolderView(folder)
+        .tanreiNavigationDrawer(isPresented: $menuShown, selection: $folder, accessibilityLabel: "Correo") { … }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawer
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerItem
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerSection
+    import io.github.chnotchy.tanrei.components.rememberTanreiDrawerState
+    import io.github.chnotchy.tanrei.tokens.TanreiNavigationDrawerVariant
+
+    // El panel envuelve la pantalla. drawerState es el open de la especificación; confirmValueChange recibe el close de la especificación.
+    val drawerState = rememberTanreiDrawerState()
+    TanreiNavigationDrawer(
+        variant = if (wide) TanreiNavigationDrawerVariant.Standard else TanreiNavigationDrawerVariant.Modal,
+        drawerState = drawerState,
+        contentDescription = "Correo",
+        drawerContent = {
+            // Tú marcas el elemento actual como selected. Un panel modal se cierra solo después de onClick.
+            TanreiNavigationDrawerSection(heading = "Correo") {
+                TanreiNavigationDrawerItem(selected = folder == "inbox", onClick = { folder = "inbox" }, label = "Bandeja de entrada", icon = "inbox", badge = "24")
+                TanreiNavigationDrawerItem(selected = folder == "sent", onClick = { folder = "sent" }, label = "Enviados", icon = "send")
+            }
+            TanreiNavigationDrawerSection(heading = "Etiquetas", divider = true) {
+                TanreiNavigationDrawerItem(selected = folder == "work", onClick = { folder = "work" }, label = "Trabajo", icon = "label", badge = "Nuevo")
+            }
+        },
+    ) {
+        FolderScreen(folder, onMenu = { drawerState.open() })
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Estándar: una región del diseño, la primera de un Row junto al contenido.
+    Row(
+      children: <Widget>[
+        TanreiNavigationDrawer(
+          open: sidebarOpen,
+          selectedIndex: current, // contado a través de las secciones en el orden de lectura
+          onDestinationSelected: (int index) => setState(() => current = index), // change y reselect
+          semanticLabel: 'Correo',
+          children: const <TanreiNavigationDrawerChild>[
+            TanreiNavigationDrawerSection(
+              heading: 'Correo',
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'inbox', label: 'Bandeja de entrada', badge: '24'),
+                TanreiNavigationDrawerDestination(icon: 'send', label: 'Enviados'),
+              ],
+            ),
+            TanreiNavigationDrawerSection(
+              heading: 'Etiquetas',
+              divider: true,
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'label', label: 'Trabajo', badge: 'Nuevo'),
+              ],
+            ),
+          ],
+        ),
+        const Expanded(child: Page()),
+      ],
+    ),
+
+    // Modal: el último hijo de un Stack que llena la ventana. Pon open en false desde onClose.
+    Stack(
+      children: <Widget>[
+        const Positioned.fill(child: Page()),
+        TanreiNavigationDrawer(
+          variant: TanreiNavigationDrawerVariant.modal,
+          open: menuOpen,
+          onClose: () => setState(() => menuOpen = false),
+          selectedIndex: current,
+          onDestinationSelected: (int index) => setState(() => current = index),
+          semanticLabel: 'Correo',
+          children: destinations,
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationDrawer } from '@tanrei/react-native';
+
+    const [open, setOpen] = useState(false);
+    const [folder, setFolder] = useState('inbox');
+
+    // Controlado: pon open en false desde onClose. Un panel modal se presenta en un Modal transparente.
+    <NavigationDrawer
+      variant={wide ? 'standard' : 'modal'}
+      open={open}
+      onClose={() => setOpen(false)}
+      accessibilityLabel="Correo"
+      value={folder}
+      onValueChange={setFolder}
+      items={[
+        { heading: 'Correo', items: [
+          { value: 'inbox', label: 'Bandeja de entrada', icon: 'inbox', badge: '24' },
+          { value: 'sent', label: 'Enviados', icon: 'send' },
+        ] },
+        { heading: 'Etiquetas', divider: true, items: [{ value: 'work', label: 'Trabajo', icon: 'label', badge: 'Nuevo' }] },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Destinos sin iconos, fuera de cualquier sección" plain>
+  <tanrei-navigation-drawer open value="deployments" label="Proyecto" style="block-size: 20rem">
+    <tanrei-navigation-drawer-item value="overview" label="Resumen"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="deployments" label="Despliegues" trailing-text="3"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="settings" label="Configuración"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-drawer" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un panel de navegación cuando un producto tenga más destinos de los que caben en una barra de navegación, o cuando sus destinos se repartan en grupos: las carpetas y etiquetas de una aplicación de correo, las secciones de un proyecto, un área de administración. En una ventana grande, un panel estándar se sitúa junto al contenido como barra lateral. En una ventana compacta, un panel modal se desliza sobre el contenido desde un botón de menú y desaparece en cuanto se elige un destino.
+
+### Cómo elegir entre la barra y el panel
+
+| Aspecto | [Barra de navegación](/es/components/navigation-bar/) | [Panel de navegación](/es/components/navigation-drawer/), contraído | [Panel de navegación](/es/components/navigation-drawer/), expandido |
+| --- | --- | --- | --- |
+| Dónde se sitúa | A lo largo del borde inferior | Una columna de iconos a lo largo del borde de inicio | En un panel en el borde de inicio |
+| Ventana | Compacta | Media y más anchas | Expandida y más anchas (estándar), o compacta (modal) |
+| Destinos | De tres a cinco | Sus destinos y grupos de nivel superior, una celda cada uno | Tantos como tenga el producto, en secciones y grupos |
+| Un destino | Un icono sobre una etiqueta de una línea, con una insignia sobre el icono | La fila cortada después de su icono: el icono solo, con una insignia encima y su nombre en un tooltip | Una fila: un icono opcional, una etiqueta que salta de línea y, al final, texto o contenido final |
+| También contiene | Nada más | Una cabecera: el botón de menú y la acción principal, contraída a su icono | Una cabecera: el botón de menú, un título o un selector de cuentas, y la acción principal |
+| En las plataformas nativas, un destino es | Una pestaña de una barra de pestañas | Un botón con un estado seleccionado | Un botón con un estado seleccionado |
+| Qué es | Una región del diseño | Una región del diseño, o una columna del diseño desde la que se ensancha un panel modal | Estándar: una región del diseño. Modal: una superposición modal |
+
+- **El panel contraído es el carril de navegación.** Un panel que se puede contraer se estrecha hasta una columna de iconos allí donde el contenido necesita el ancho, y su botón de menú lo vuelve a ensanchar; todos los iconos se quedan donde están. El carril de navegación que Tanrei tenía aparte queda retirado e integrado en esta forma.
+- **La barra y el panel son un mismo conjunto de destinos en dos lugares.** Reciben los mismos destinos y la misma selección, así que un producto que se adapta a la ventana cambia la barra por el panel en un punto de ruptura sin tocar sus destinos. Muestra uno de los dos cada vez, nunca ambos.
+- **En el panel cabe más.** Úsalo expandido cuando el producto tenga más destinos de los que caben en una barra, o cuando se repartan en grupos, como las carpetas y etiquetas de una aplicación de correo. En una ventana grande, un panel estándar se sitúa junto al contenido. En una compacta, un panel modal se desliza sobre él desde un botón de menú.
+- **Un panel modal que se puede contraer** mantiene su columna de iconos en el diseño y se ensancha sobre el contenido, por encima de un velo, cuando su botón de menú lo abre.
+- En todas las plataformas, ambos seleccionan por el valor de un destino (Compose con un parámetro en cada elemento, Flutter por índice) y emiten `change` y `reselect`.
+
+### Adónde fue a parar el carril de navegación
+
+Tanrei no tiene un carril de navegación propio: el carril es un panel que se puede contraer, contraído.
+
+| Antes | Ahora |
+| --- | --- |
+| Carril de navegación | Un panel de navegación con `collapsible` y con `expanded` en false |
+| El destino del carril, un icono sobre su etiqueta | Un destino que, contraído, se dibuja como su fila cortada después de su icono: el icono solo, con su nombre en un tooltip |
+| La visibilidad de las etiquetas del carril | `collapsedLabels`: `never` (el valor predeterminado), `selected` o `always`. Los dos últimos dibujan el `shortLabel` debajo del icono |
+| La insignia del carril sobre el icono | `badge`, `badgeCount` y `badgeLabel` de un destino, dibujados en las dos formas |
+| El botón de menú y el FAB del carril | El primer `header-button` del panel, que es su botón de menú, y su `main-action`, contraída a su icono |
+| El texto `badge` del panel al final de la fila | `trailingText`, o el slot `trailing` |
+| Los tokens del carril | `comp.navigation-drawer.collapsed.*` y las condiciones de la forma contraída |
+
+La web lo implementa; SwiftUI, Compose, Flutter y React Native siguen ofreciendo su carril de navegación aparte, que estas páginas ya no documentan, hasta que se pongan al día.
+
+### Los nombres de Material 3
+
+| Material 3 | Tanrei |
+| --- | --- |
+| Navigation rail | Un panel de navegación que se puede contraer, contraído |
+| Expanded navigation rail | Un panel de navegación que se puede contraer, expandido |
+| Modal expanded navigation rail | Un panel de navegación modal que se puede contraer |
+| Navigation drawer | Un panel de navegación que no se puede contraer |
+
+### Cómo elegir una variante
+
+| Variante | Qué es | Úsala para |
+| --- | --- | --- |
+| Standard (predeterminada) | Un panel en el diseño, con una línea fina en su borde de fin. El contenido que tiene al lado cambia de tamaño cuando se abre y se cierra. No dibuja velo y permanece abierto mientras la persona trabaja en el contenido. | Ventanas anchas, donde el panel puede quedarse abierto como barra lateral. |
+| Modal | Un panel elevado, con las esquinas del lado de fin redondeadas, que se desliza sobre el contenido por encima de un velo. Mantiene el foco hasta que se cierra, y se cierra solo cuando se elige un destino. | Ventanas compactas, abierto desde un botón de menú situado en la barra de la aplicación o en la cabecera de un panel contraído. |
+
+Un sistema de diseño puede añadir variantes. Una variante que añada se comporta como la estándar.
+
+### Apertura, foco y cierre
+
+- **Abrir un panel estándar.** Entra deslizándose mientras el contenido que tiene al lado le hace sitio. Cuando lo abres en respuesta a la persona, por ejemplo desde un botón de menú, el foco pasa al destino actual o, si no lo hay, al primer elemento del panel que puede recibir el foco. Un panel que está abierto desde el principio no mueve el foco.
+- **Trabajar junto a un panel estándar.** Tab pasa del panel al contenido, y el panel sigue abierto. Si se cierra mientras el foco está dentro, el foco vuelve a donde estaba antes de abrirlo.
+- **Abrir un panel modal.** Entra deslizándose desde el borde de inicio mientras el velo aparece con un fundido sobre el resto de la ventana. El foco pasa al destino actual o, si no lo hay, al primer elemento que puede recibir el foco, y se queda en el panel. Todo lo que hay detrás queda inerte para el puntero, los toques, el teclado y la tecnología de apoyo.
+- **Cerrar un panel modal.** Una pulsación en el velo, Escape, la acción de retroceso de la plataforma, un arrastre hacia el borde de inicio que supere la mitad de su ancho o un lanzamiento en esa dirección, y la elección de un destino: cada una de estas acciones lo cierra una sola vez. El panel sale deslizándose, el velo se desvanece y el foco vuelve al elemento que lo tenía.
+- **No se abre deslizando desde el borde.** En iOS, el borde de inicio de la pantalla es el gesto de retroceso, así que un panel nunca se abre desde ahí. Ábrelo desde un botón de menú visible.
+- Donde el movimiento está reducido, el panel se abre y se cierra al instante.
+
+### Contraer el panel
+
+- **`collapsible`** da al panel su forma contraída, de 72 de ancho: el panel expandido sin sus etiquetas. Cada destino y cada grupo de nivel superior es su fila cortada después de su icono, de 48 por 48 y con las esquinas de la fila, y el seleccionado se rellena exactamente igual que su fila. Los botones de la cabecera se apilan en la columna y la acción principal se contrae a su icono. Los títulos de sección conservan sus filas sin texto, y el slot de la cabecera y el contenido final no se dibujan.
+- **Una celda contraída muestra su nombre en un tooltip**, hacia el lado del contenido: tras el retardo del tooltip mientras un puntero se detiene sobre la celda, de inmediato con el foco del teclado y nunca con una pantalla táctil. La etiqueta ya es el nombre accesible de la celda, así que el tooltip no añade nada a lo que se lee.
+- **`expanded`** elige la forma de un panel estándar que se puede contraer. Un panel modal que se puede contraer mantiene su columna en el diseño mientras está cerrado, y `open` lo ensancha sobre el contenido, por encima de un velo.
+- **El botón de menú** es el primer `header-button`. Mientras el panel se puede contraer, se expone como expandido o contraído y como el control que gobierna el panel, y al activarlo emite `expandedChange` con la forma solicitada. La web la aplica por sí misma; en las demás plataformas defines `expanded` u `open` a partir de ese evento. Tú eliges su glifo y su nombre.
+- **`collapsedLabels`** elige qué celdas dibujan una etiqueta corta debajo del icono: `never`, que es el valor predeterminado, la `selected` o `always`. Una columna con etiquetas es para un producto o un sistema de diseño que la quiera. En ese caso, una celda dibuja su `shortLabel`, o su etiqueta si no le das ninguno, y no muestra tooltip. En ambos casos la etiqueta sigue siendo el nombre accesible.
+- **Todos los iconos se quedan en su sitio.** Los iconos están en una misma columna y en una misma línea en las dos formas, y cada celda conserva su altura, de modo que el cambio de forma solo mueve el borde de fin: las etiquetas se desvanecen cuando el borde pasa por ellas y, en una columna con etiquetas, las etiquetas cortas aparecen con un fundido. Un grupo abierto es la única excepción: el panel contraído no dibuja sus elementos, así que las celdas de debajo suben.
+- **La selección cambia de color en su sitio.** Una nueva selección cambia el color de las filas allí donde están, expandidas o contraídas. Nada crece, se encoge ni se desliza para mostrarla.
+
+### Seguir el ancho de la ventana
+
+`responsive` deja que el ancho de la ventana elija cómo se presenta el panel, a partir de los dos puntos de ruptura de su sistema de diseño (1024 y 600 en el sistema predeterminado). En ese caso, `variant` se ignora.
+
+| Ventana | Presentación | Qué es el panel |
+| --- | --- | --- |
+| Como mínimo, el punto de ruptura más ancho | `standard` | Un panel estándar junto al contenido, que se muestra diga lo que diga `open` y que se puede contraer en la forma que elija `expanded` |
+| Como mínimo, el más estrecho, mientras sea `collapsible` | `column` | Un panel modal que se puede contraer: su columna de iconos en el diseño, que se ensancha sobre el contenido mientras `open` está activado |
+| Más estrecha que eso | `modal` | Un panel modal que no se puede contraer |
+
+- **La presentación se deriva, nunca se guarda.** Depende únicamente del ancho: el panel no la escribe en `variant`, `open` ni `expanded`. `presentationChange` dice cuál es, la primera vez y cada vez que el ancho la cambia.
+- **Se entra cerrado en una presentación nueva.** Se dibuja de inmediato, sin movimiento. Una superposición que estaba abierta se retira y `close` se emite una vez. `expanded`, `value` y el `open` de cada grupo se conservan, de modo que la presentación `standard` vuelve en la forma en que se dejó.
+- **En la presentación `modal`, el botón de menú es cosa tuya.** Muestra un botón de menú propio, por ejemplo en la barra de la aplicación, mientras la presentación sea `modal`, y define `open` desde él. Ahí, el botón de menú del propio panel solo lo cierra.
+- **El panel no recuerda nada entre visitas.** Para conservar la forma que eligió una persona, guarda lo que lleva `expandedChange` y define `expanded` a partir de ello.
+
+### Como barra lateral de un sitio
+
+Da un `href` a cada destino y, al panel, la dirección de la propia página como `value`, y el panel será la barra lateral de un sitio de documentos.
+
+- **La página dice dónde está.** Una pulsación nunca selecciona un enlace. Cada página define `value` como su propio destino: como el `value` de ese destino o, si no tiene, como su `href` tal como está escrito.
+- **`revealSelected`** abre los grupos que contienen el destino seleccionado cuando el panel aparece por primera vez, en su primer fotograma y sin movimiento, y de nuevo cada vez que `value` cambia. Un grupo que la persona cierre después permanece cerrado hasta que `value` cambie.
+- **La selección está a la vista al llegar.** Cuando el panel aparece, y cada vez que `value` cambia, la fila que muestra la selección se lleva al centro de las filas desplazables si no estaba completamente a la vista, y no se mueve en absoluto si lo estaba. Así, una barra lateral cuya página actual ya está a la vista se queda donde está de una página a otra. El foco no se mueve.
+- **`scrollOffset`** lee y define cuánto se han desplazado las filas. El panel no guarda nada. Un sitio que quiera que un árbol largo se quede donde lo dejó quien lo lee guarda por su cuenta el desplazamiento y el `open` de cada grupo, por ejemplo en el almacenamiento de la sesión, y los devuelve antes del primer fotograma. Un grupo que contiene la página actual se abre de todos modos, y la selección prevalece sobre un desplazamiento que la dejaría fuera de la vista.
+- **Un enlace que sale del sitio** lleva `target` en `new`. Se abre en una pestaña nueva, su fila expandida termina con el `open_in_new` del conjunto de iconos salvo que pongas ahí contenido final, y `targetLabel` se lee después de su nombre. El texto es tuyo («se abre en una pestaña nueva»): Tanrei no incluye ninguno.
+- **Un enrutador escucha `change`.** Se emite antes de que el navegador siga un enlace, y solo para una activación corriente: el botón principal sin tecla modificadora, un toque o Enter, en un enlace cuyo `target` es `same`. Cancélalo y ve al `href` que lleva. Un enlace abierto en otra pestaña no emite nada y deja abierto un panel modal.
+
+### Filas, grupos y secciones
+
+- La etiqueta de una fila salta de línea en lugar de cortarse, y la fila crece con ella. Las filas miden al menos 48 de alto, la altura de un elemento de [menú](/es/components/menu/), y tienen sus mismas esquinas.
+- Da un icono a todos los destinos o a ninguno, para que las etiquetas queden alineadas. Un panel que se puede contraer dibuja cada destino y cada grupo de nivel superior por su icono mientras está contraído, así que da un icono a cada uno.
+- `trailingText` es un texto corto al final de la fila, más discreto que la etiqueta: un recuento («24») o una palabra («Nuevo»). El slot `trailing` contiene cualquier otra cosa, como un glifo o un Badge; prevalece sobre `trailingText` y nunca es interactivo. Un enlace con `target` en `new` termina su fila con `open_in_new` por sí solo, así que no tienes que colocar ese glifo. El contenido final se lee después de la etiqueta y no se dibuja mientras el panel está contraído.
+- `badge` dibuja un Badge sobre el icono, en las dos formas: un punto, o `badgeCount`, con el nombre que le da `badgeLabel`.
+- La fila de un grupo abre y cierra los destinos y grupos que contiene, con el `expand_more` del conjunto de iconos girado media vuelta mientras está abierto. Cada nivel empieza una sangría más adentro en su totalidad: su relleno, su capa de estado y su anillo de foco, no solo su texto. Un grupo cerrado que contiene el destino seleccionado se dibuja seleccionado, y lo mismo ocurre con un grupo de nivel superior mientras el panel está contraído; activar un grupo con el panel contraído expande el panel y abre el grupo. No pases de tres niveles.
+- El título de una sección da nombre a los destinos que tiene debajo. Es un encabezado, no un control. Una sección puede no tener título, como un grupo separado por un divisor y sin nombre.
+- El `divider` de una sección dibuja un divisor delante de ella, para separarla de lo que tiene encima. Nunca colocas un divisor por tu cuenta.
+- La cabecera contiene los botones de la cabecera, apilados en la columna de iconos, y la acción principal debajo de ellos. El slot de la cabecera se sitúa junto al botón de menú mientras el panel está expandido, para un título o un selector de cuentas, y no se dibuja mientras está contraído. El panel no cambia su estilo.
+- Cuando las filas ocupan más alto que el espacio que queda bajo la cabecera, se desplazan y la cabecera se queda en su sitio. Un desplazamiento que llega a cualquiera de los dos extremos no continúa desplazando la página que hay detrás del panel.
+
+### Recomendado
+
+- Pon primero los destinos más usados, fuera de las secciones o en la primera.
+- Da un `href` a un destino cuando tenga una dirección propia, para que sea un enlace real: se puede abrir en una pestaña nueva, copiar y ser seguido por un rastreador.
+- Da a las secciones un nombre que diga qué tienen en común sus destinos: «Etiquetas», «Administración».
+- Usa los mismos destinos y valores en las formas modal y estándar, para que un producto cambie de una a otra solo con el ancho de la ventana.
+
+### Evita
+
+- No uses el panel para acciones como «Cerrar sesión» o «Redactar». Sus filas son lugares.
+- No anides una sección dentro de otra ni pongas una sección dentro de un grupo. Las compilaciones de depuración lo notifican y dibujan en su lugar los destinos de la sección interior.
+- No uses la fila de un grupo como destino. Solo abre y cierra.
+- No uses un panel modal en una ventana lo bastante ancha para uno estándar.
+
+## Accesibilidad
+
+<ComponentAccessibility name="navigation-drawer" />
+
+### De qué se encarga el componente
+
+- En la web, el panel es una región de referencia (landmark) de navegación que recibe su nombre de `label`. Cada destino es un enlace (con `href`) o un botón, y el actual lleva `aria-current="page"`. Un panel modal es además un `<dialog>` modal que recibe su nombre de `label`.
+- En iOS, Android, Flutter y React Native, cada destino es un botón con su estado seleccionado y su posición entre los destinos, tal como se leen en esas plataformas las barras laterales y los elementos de un panel. Un panel modal es un contenedor modal que recibe su nombre de `label`: el rasgo modal, o un título de panel.
+- Un destino es un único elemento que recibe su nombre de su etiqueta, en las dos formas. Su icono queda oculto; la descripción de la insignia de su icono y, después, su contenido final se leen tras su nombre y su estado.
+- Un destino de enlace se dibuja exactamente igual que un destino de botón, en todos los estados, sin aspecto de enlace visitado. Conserva todo lo que un navegador da a un enlace: su menú contextual, la apertura en una pestaña nueva, el arrastre y la dirección al pasar el cursor. Uno que abre una pestaña nueva lee su `targetLabel` al final de su descripción.
+- El tooltip de una celda contraída es para las personas que ven la pantalla y usan un puntero o el teclado. Queda oculto para la tecnología de apoyo, que ya lee la etiqueta como nombre de la celda.
+- La fila de un grupo es un botón con un estado expandido que controla su lista anidada. Flecha derecha (en un diseño de izquierda a derecha) abre un grupo cerrado, Flecha izquierda cierra uno abierto, y Flecha izquierda dentro de un grupo lleva a su fila. Tab recorre todas las filas que se muestran.
+- Mientras el panel se puede contraer, su botón de menú se expone como expandido o contraído y como el control que gobierna el panel. Cuando la forma cambia, el foco se queda en la celda en la que estaba.
+- El título de una sección se expone como encabezado y no puede recibir el foco.
+- Tab recorre el contenido de la cabecera y todos los destinos que no están deshabilitados. Enter y Espacio activan el destino que tiene el foco (solo Enter, en el caso de un enlace en la web). Los destinos deshabilitados no reciben el foco y se anuncian como deshabilitados.
+- En un panel estándar, el foco entra cuando lo abres y vuelve cuando lo cierras, y Tab continúa hacia el contenido sin cerrarlo. En un panel modal, Tab y Mayús+Tab dan la vuelta dentro del panel, y Escape y la acción de retroceso de la plataforma lo cierran y devuelven el foco.
+- El anillo de foco se dibuja alrededor de la fila, solo para el foco del teclado. El foco del teclado en una fila que no está completamente a la vista la desplaza hasta dejarla a la vista con el menor recorrido posible.
+- El área de pulsación es la celda entera, en las dos formas, y nunca es menor que el objetivo mínimo.
+- Un texto más grande conserva el ancho de las dos formas y hace más altas las filas y los títulos. Las etiquetas saltan de línea; las etiquetas cortas se cortan. Los iconos no se escalan.
+- Las compilaciones de depuración notifican un destino sin etiqueta, un panel modal sin `label`, un valor que no corresponde a ningún destino, un valor usado dos veces, una sección anidada, una sección dentro de un grupo, un anidamiento de más de tres niveles, una variante que el sistema de diseño no tiene, un panel que se puede contraer sin botón de menú, un elemento que puede recibir el foco en el slot `trailing`, un `href` que es una dirección `javascript:` o que no se puede leer, un `target` desconocido y un enlace con `target` en `new` y sin `targetLabel`.
+
+Carencias conocidas por plataforma:
+
+- Web: Firefox no puede animar un elemento que sale de la capa superior, así que ahí un panel modal desaparece de golpe en lugar de salir deslizándose.
+- Web: todos los tamaños siguen a `rem`, así que un tamaño de texto mayor en el navegador también agranda los iconos, aunque nunca el ancho del panel. Agrandar solo la tipografía de Tanrei no lo hace.
+- Web: está probado que Tab sale de un panel estándar abierto, pero todavía no dónde va a parar en el contenido, algo que resultó inestable bajo carga.
+- SwiftUI no puede saber qué vista tenía el foco, así que al cerrar un panel el foco del teclado no vuelve a ningún elemento: la plataforma lo pone donde lo pone de forma predeterminada. Al abrir uno, el foco va al destino actual o, si no lo hay, al primer destino habilitado, nunca a un control de la cabecera. En un Mac, un panel modal cubre y deshabilita solo la vista a la que está asociado, así que asócialo a la raíz de la ventana.
+- SwiftUI: Escape, el gesto de escape de accesibilidad y la entrada del foco al abrir aún no se han probado de extremo a extremo. Un destino lleva su posición como texto de su valor («2 of 6»), solo en inglés.
+- Compose presenta el panel modal en una ventana `Dialog` propia, como `TanreiDialog`, en lugar de hacerlo dentro de la ventana de la aplicación, como el panel de Material. Se ve igual, y la ventana mantiene el foco dentro, responde a la acción de retroceso y oculta lo que hay detrás.
+- Compose no tiene un valor a nivel de panel, así que no hay nada que notificar cuando un valor no corresponde a ningún destino.
+- El panel modal de Flutter no es un `Scaffold.drawer`. Lo colocas como último hijo de un `Stack` que llena la ventana y lo controlas con `open`. Sus destinos no llevan su posición dentro del conjunto.
+- Flutter: donde una fila y su separación son más bajas que el objetivo táctil, como en un sistema de diseño con filas bajas, las filas se separan en lugar de que crezca solo el área de pulsación.
+- React Native no puede saber qué elemento tenía el foco, así que al cerrar el panel el foco no vuelve al elemento que lo abrió. Un panel modal deja el foco donde lo pone la plataforma, y un panel estándar no hace nada.
+- El panel de React Native todavía no tiene una propiedad `insets` propia: solo lee los de `TanreiProvider`. Un destino lleva su posición como texto de su valor, en inglés salvo que pases `positionText`.
+- React Native: el arrastre y el lanzamiento del panel modal, su movimiento del foco y el gesto de escape aún no se han comprobado en un dispositivo.
+- SwiftUI, Compose, Flutter y React Native, que ofrecen la revisión anterior: la primera fila queda media separación por debajo del margen interior del panel, y una fila cuya etiqueta ocupa varias líneas no crece igual en todas (SwiftUI y Compose mantienen la altura mínima de la fila hasta que el texto deja de caber en ella). Cada una medirá el margen interior hasta la primera celda y tratará la altura de la fila como un mínimo cuando se ponga al día.
+- Web: un panel modal que se puede contraer devuelve el foco solo cuando ha vuelto a estrecharse hasta su columna, un arrastre mueve el panel entero, y su diálogo se coloca sobre la caja de la columna tal como se midió al abrirse.
+
+### Qué debes hacer tú
+
+- Da una etiqueta a cada destino. Donde la columna contraída dibuje etiquetas (`collapsedLabels`), da un `shortLabel` cuando la etiqueta sea demasiado larga para ella.
+- Da a un enlace con `target` en `new` un `targetLabel` en el idioma de tu producto.
+- En un sitio, define `value` en cada página como el destino de esa misma página.
+- Mientras la presentación de un panel responsive sea `modal`, muestra un botón de menú propio que lo abra.
+- Da un nombre al botón de menú, como «Menú», y en las plataformas distintas de la web, define `expanded` u `open` a partir de `expandedChange`.
+- Da al panel un `label`, como «Correo». Un panel modal es un diálogo, y la etiqueta es su nombre.
+- Abre un panel modal desde un botón de menú visible con su propia etiqueta, como «Menú».
+- Mantén `open` sincronizado: ponlo en false cuando un panel modal se cierre (desde `onClose`, el binding o el estado del panel, según la plataforma).
+- En SwiftUI, devuelve tú el foco del teclado al botón de menú después de que el panel se cierre.
+- En React Native, devuelve tú el foco al botón de menú después de que el panel se cierre, pasa `positionText` en el idioma de tu producto y da a `TanreiProvider` los márgenes interiores de la ventana.
+- Mantén el valor de cada destino único y estable entre las formas estándar y modal.

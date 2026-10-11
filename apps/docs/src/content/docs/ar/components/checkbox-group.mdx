@@ -1,0 +1,252 @@
+---
+title: مجموعة خانات الاختيار
+description: تطرح سؤالًا واحدًا قد تكون له عدة أجوبة من بين خيارات قليلة معروضة كلها دفعة واحدة، وهي مجموعة من خانات الاختيار تحت تسمية واحدة، مع وصف وخطأ واحد، تحمل قائمة القيم المحدَّدة تحت اسم واحد وتستطيع أن تأتي بخانة اختيار تحدّدها كلها.
+translationOf: components/checkbox-group.mdx
+sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="checkbox-group" />
+
+<DemoFrame label="مجموعة خانات اختيار، وأخرى فيها خانة اختيار تحدّدها كلها" column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب">
+    <tanrei-checkbox value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="رسالة نصية"></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="إشعار فوري"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="إرسال التقرير يوم" select-all-label="كل أيام العمل">
+    <tanrei-checkbox value="mon" label="الاثنين" checked></tanrei-checkbox>
+    <tanrei-checkbox value="tue" label="الثلاثاء"></tanrei-checkbox>
+    <tanrei-checkbox value="wed" label="الأربعاء" checked></tanrei-checkbox>
+    <tanrei-checkbox value="thu" label="الخميس"></tanrei-checkbox>
+    <tanrei-checkbox value="fri" label="الجمعة"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+استخدم مجموعة خانات الاختيار (checkbox group) حيث يكون جواب السؤال الواحد قائمة، والخيارات قليلة بحيث تُعرض كلها دفعة واحدة، حتى سبعة تقريبًا: طرق الإبلاغ، أو الأيام التي يُرسل فيها تقرير، أو الأصناف التي تُصفّى بها قائمة. والجواب قيمة واحدة، هي قائمة القيم المحدَّدة، والنموذج يرسلها تحت اسم واحد.
+
+**تُبنى من** [مجموعة حقول](/ar/components/field-group/) و[خانات اختيار](/ar/components/checkbox/). مجموعة الحقول هي الإطار: التسمية، وعلامة المطلوب أو الاختياري، والوصف، والخطأ، والتخطيط في عمود أو صف. وخانات الاختيار تحمل القيمة: كل خانة منها خيار له تسميته، والمحدَّد منها هو القائمة. ومجموعة خانات الاختيار لا ترسم شيئًا من عندها وليس لها أي رمز تصميم (token). وما تضيفه إلى الاثنين هو الحالة التي يكتبها كل منتج لولاها: القائمة وحدث `change` واحد لها، واسم واحد في النموذج مع إعادة الضبط وتحقق النموذج نفسه من أن المجموعة المطلوبة ليست فارغة، والحالات الثلاث لخانة تحديد الكل.
+
+وعرضها عرض المكان الذي توضع فيه.
+
+على الويب هي `<tanrei-checkbox-group>`. والمنصات الأخرى لم تنفّذها بعد.
+
+### الاستخدام
+
+كل خانة اختيار هي الخيار الذي تسمّيه قيمتها `value`. والخاصية `value` في المجموعة هي قائمة القيم المحدَّدة، بترتيب خانات الاختيار. والقيمة التي في القائمة وليست لأي خانة اختيار تُحفظ: فالخيارات التي أخرجها بحث من مجال الرؤية تبقى مختارة.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-checkbox-group name="notify" label="أبلِغني عبر"
+        supporting-text="اختر كل ما ينطبق."
+        requirement="required" required-text="مطلوب"
+        error-text="اختر طريقة واحدة على الأقل للتواصل معك.">
+        <tanrei-checkbox value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
+        <tanrei-checkbox value="text" label="رسالة نصية"></tanrei-checkbox>
+        <tanrei-checkbox value="push" label="إشعار فوري"></tanrei-checkbox>
+      </tanrei-checkbox-group>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox-group';
+
+      const group = document.querySelector('tanrei-checkbox-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value هي القائمة الجديدة؛ و group.value تحملها سلفًا.
+        group.error = event.detail.value.length === 0;
+      });
+      // المنتج يعيّن الجواب قائمةً. وهي خاصية للعنصر: ليست هناك خاصية HTML باسم value.
+      group.value = ['email', 'push'];
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, CheckboxGroup } from '@tanrei/react';
+
+    const [channels, setChannels] = useState(['email']);
+
+    <CheckboxGroup name="notify" label="أبلِغني عبر" supportingText="اختر كل ما ينطبق."
+                   value={channels} onChange={(event) => setChannels(event.detail.value)}
+                   error={channels.length === 0} errorText="اختر طريقة واحدة على الأقل للتواصل معك.">
+      <Checkbox value="email" label="البريد الإلكتروني" />
+      <Checkbox value="text" label="رسالة نصية" />
+      <Checkbox value="push" label="إشعار فوري" />
+    </CheckboxGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+في الترميز تُكتب القيمة الأولى حيث يكتبها HTML: بالخاصية `checked` على خانات الاختيار. ومتى عيّن المنتج `value`، صارت `value` هي التي تقرّر أيّ خانات الاختيار محدَّدة.
+
+### خانة اختيار تحدّدها كلها
+
+أعطِ `selectAllLabel` فتأتي المجموعة بخانة اختيار إضافية قبل الأولى، يسمّيها ذلك النص. وهي محدَّدة ما دامت كل خانة اختيار يستطيع الشخص تبديلها محدَّدة، وغير محسومة ما دام بعضها محدَّدًا، وغير محدَّدة ما دامت كلها غير محدَّدة. والضغط عليها وهي غير محدَّدة أو غير محسومة يحدّدها كلها؛ والضغط عليها وهي محدَّدة يلغي تحديدها كلها. وليست مُدخلة في القائمة ولا ترسل شيئًا.
+
+```html
+<tanrei-checkbox-group name="days" label="إرسال التقرير يوم" select-all-label="كل أيام العمل">
+  <tanrei-checkbox value="mon" label="الاثنين"></tanrei-checkbox>
+  <tanrei-checkbox value="tue" label="الثلاثاء"></tanrei-checkbox>
+  …
+</tanrei-checkbox-group>
+```
+
+خانة الاختيار التي عطّلتها أنت بنفسك تُترك كما هي، محدَّدة أو غير محدَّدة، ولا تُحسب: فخانة تحديد الكل لا تحسب إلا الخيارات التي يستطيع الشخص تبديلها. واكتب التسمية لهذه المجموعة بعينها، مثل «كل هذه» أو «كل أيام العمل»، بكلمات السؤال؛ فهي لا تُقرأ أبدًا من كلمات المنتج.
+
+### مستوى واحد إلى الأسفل
+
+المجموعة نفسها مكتوبةً باليد من عضويها هي الصورة نفسها، والمجموعة نفسها عند التقنيات المساعدة:
+
+```html
+<tanrei-field-group label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق."
+                    requirement="required" required-text="مطلوب">
+  <tanrei-checkbox name="notify" value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="text" label="رسالة نصية"></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="push" label="إشعار فوري"></tanrei-checkbox>
+</tanrei-field-group>
+```
+
+<DemoFrame label="المجموعة نفسها مكتوبةً باليد: مجموعة حقول بداخلها خانات اختيار" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب">
+    <tanrei-checkbox name="notify" value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="text" label="رسالة نصية"></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="push" label="إشعار فوري"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+ما لا تفعله مجموعة الحقول وخانات الاختيار المكتوبة باليد هو حمل الجواب:
+
+| الجانب | الكتابة باليد | مجموعة خانات الاختيار |
+| --- | --- | --- |
+| القائمة | يقرؤها المنتج من كل خانة اختيار | الخاصية `value`، وحدث `change` واحد |
+| تعيين الجواب | الخاصية `checked` على كل خانة اختيار | `value = […]` |
+| إعادة الضبط والاستعادة | كل خانة اختيار بمفردها | عنصر تحكم واحد |
+| مجموعة مطلوبة تُركت فارغة | المنتج يتحقق | يرفضها تحقق النموذج نفسه |
+| قيمة لا تُعرض خانة اختيارها | تضيع | تُحفظ |
+| خانة اختيار تحدّدها كلها | يكتبها المنتج، بالخاصية `indeterminate` | الخاصية `selectAllLabel` |
+| ما يرسله النموذج | المُدخلات نفسها | المُدخلات نفسها |
+
+انزل إلى هذا المستوى حين لا تكون المجموعة جوابًا واحدًا:
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| عدة خيارات من بضعة، جوابًا واحدًا تحت اسم واحد | مجموعة خانات الاختيار |
+| خانات اختيار لكلٍّ منها اسم خاص بها في النموذج، أو مجموعة تحمل شيئًا ليس خانة اختيار | [مجموعة حقول](/ar/components/field-group/) بداخلها [خانات اختيار](/ar/components/checkbox/) |
+| قاعدة من عندك لمعنى «الكل»، ككل عنصر في صفحة أو كل عنصر مطابق | [مجموعة حقول](/ar/components/field-group/) فيها خانة اختيار تعيّن عليها `indeterminate` بنفسك |
+| واحد من بضعة | [مجموعة أزرار الاختيار](/ar/components/radio-group/) |
+| شيء واحد مفعَّل أو موقوف | [خانة اختيار](/ar/components/checkbox/)، أو [مفتاح تبديل](/ar/components/switch/) حيث يسري فورًا |
+| عدة خيارات من كثير، أو مكان ضيق | [عنصر اختيار](/ar/components/select/) أو قائمة بتحديد متعدد |
+
+## المواصفات
+
+<DemoFrame label="صف، وجواب مرفوض، وخيار مفعَّل دائمًا، ومجموعة معطَّلة" plain column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المقاسات" orientation="horizontal">
+    <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
+    <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
+    <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" supporting-text="اختر كل ما ينطبق." requirement="required" required-text="مطلوب" error error-text="هذا الرقم لا يستقبل الرسائل النصية. اختر طريقة أخرى، أو غيّر الرقم.">
+    <tanrei-checkbox value="email" label="البريد الإلكتروني"></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="رسالة نصية" checked></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="إشعار فوري"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أرسِل إليّ">
+    <tanrei-checkbox value="account" label="رسائل عن حسابي" checked disabled></tanrei-checkbox>
+    <tanrei-checkbox value="news" label="الأخبار"></tanrei-checkbox>
+    <tanrei-checkbox value="offers" label="العروض"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="أبلِغني عبر" disabled>
+    <tanrei-checkbox value="email" label="البريد الإلكتروني" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="رسالة نصية"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+### ما يعطيه كل عضو
+
+| الجانب | من مجموعة الحقول | من خانات الاختيار | ما للمجموعة نفسها |
+| --- | --- | --- | --- |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText`، `orientation` | الخصائص `value` و `label` و `disabled` لكل خانة اختيار، على الخانة نفسها | `value`، `selectAllLabel` |
+| الأحداث | — | لا شيء: خانة الاختيار التي في مجموعة لا تصدر حدثًا من عندها | `change` |
+| رموز التصميم | `comp.field-group.*` | `comp.checkbox.*` | لا شيء |
+
+- **المطلوب** يعني واحدة على الأقل. والعدد الأدنى أو الأقصى («اختر حتى ثلاثة») قاعدتك أنت: اقرأ طول القائمة في الحدث `change`، وعيِّن `error`، واكتب `errorText` وفيه العدد بكلماتك.
+- **الخطأ** خطأ المجموعة. الخاصية `error` ترسم `errorText` تحت خانة الاختيار الأخيرة وتضع كل خانة اختيار في حالة الخطأ الخاصة بها. والمجموعة لا تعيّنها أبدًا، وتغيّر القيمة لا يزيلها. أما خانة اختيار واحدة في حالة الخطأ داخل مجموعة ليست في حالة الخطأ، فذلك `error` الخاصة بتلك الخانة نفسها.
+- **التعطيل.** المجموعة المعطَّلة تحتفظ بقيمتها ولا ترسل شيئًا. وخانة الاختيار المعطَّلة بمفردها في مجموعة غير معطَّلة تحتفظ بمُدخلتها في القائمة، وتُرسل هذه المُدخلة مع القائمة: فالخيار المفعَّل دائمًا خانة اختيار واحدة معطَّلة ومحدَّدة، بلا حقل مخفيّ بجانبها.
+- ليست هناك حالة للقراءة فقط، لأن خانة الاختيار ليست لها هذه الحالة.
+
+ما يفعله الإطار، أي علامة المطلوب والوصف والخطأ وكيف يُعلَن والعمود والصف الذي يلتفّ، في [صفحة مجموعة الحقول](/ar/components/field-group/). وما تفعله خانة الاختيار في [صفحة خانة الاختيار](/ar/components/checkbox/).
+
+### تخصيص مجموعة واحدة دون غيرها
+
+ليس لمجموعة خانات الاختيار رمز تصميم خاص بها. إطارها يقرأ رموز تصميم مجموعة الحقول، وخانات الاختيار فيها تقرأ رموز تصميم خانة الاختيار، أينما عُيِّنت. ولتغيير مثيل واحد، عيِّن رمز تصميم العضو عليه:
+
+```html
+<tanrei-checkbox-group label="أبلِغني عبر"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-checkbox-group>
+```
+
+<ComponentSpecs name="checkbox-group" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field-group>` حول خانة تحديد الكل، ما دامت `select-all-label` معطاة، وحول منفذ. وخانات الاختيار تبقى عناصرك الفرعية أنت. واستيراد العنصر يعرّف العضوين كليهما.
+- الخاصية `value` خاصية للعنصر فقط: مصفوفة، تُنسخ عند الدخول وعند الخروج. وليست هناك خاصية HTML (attribute) باسم `value`، لأن القائمة في خاصية HTML تحتاج إلى فاصل قد تحويه قيمة، ولأن في HTML هيئة لذلك سلفًا: الخاصية `checked` على كل عنصر فرعي.
+- خانة الاختيار التي ليست لها خاصية HTML `value` ولا قيمة معيَّنة لا قيمة لها: فالقيمة «`on`» التي ترسلها خانة اختيار مجرَّدة لا تُقرأ في مجموعة. تُرسم غير محدَّدة، وتبلّغ بنيات التنقيح (debug) عنها.
+- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل مُدخلة واحدة تحت `name` لكل قيمة، وهو ما ترسله خانات اختيار أصلية لها اسم واحد. وخانات الاختيار فيه لا ترسل شيئًا، أيًّا كان `name` الذي تحمله. ويعود عند إعادة الضبط إلى قيمته الأولى، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `requirement` بالقيمة `required` والقائمة فارغة. والرسالة هي `error-text`، وإلا فنص المطلوب، وإلا فقيمة `label`: أعطِ `error-text` من البداية، لا حين تُعيَّن `error` فقط.
+- الحدث `change` من النوع CustomEvent، و `detail.value` فيه نسخة من القائمة؛ ويصدر الحدث `input` قبله. والمستمع الموضوع على خانة اختيار داخل المجموعة لا يسمع أيًّا منهما.
+- الأجزاء: `field-group` هو الإطار، ولأجزائه هنا الأسماء نفسها التي لها في المستوى الأدنى: `label`، `requirement-label`، `supporting-text`، `error-text`. والجزء `select-all` هو خانة تحديد الكل، وأجزاؤها `select-all-container` و `select-all-box` و `select-all-mark` و `select-all-label`. وخانات الاختيار التي من عندك تُنسَّق كما تُنسَّق في أي مكان، بالمحدِّد `tanrei-checkbox::part(…)`.
+- العنصر نفسه غير قابل للتركيز. فالدالة `focus()` تذهب إلى أول خانة اختيار غير معطَّلة، وعنصر `<label for>` من عند الصفحة ينقل التركيز إليها.
+- ليس للعنصر دور. سمِّه بالخاصية `label`، ومعها `label-hidden` حيث تُرسم التسمية في مكان آخر، ولا تسمِّه أبدًا بالخاصية `aria-label`، فهي لا تسمّي شيئًا هنا.
+- خصائص HTML تُكتب بصيغة kebab-case: `label-hidden`، `supporting-text`، `error-text`، `required-mark`، `required-text`، `optional-text`، `select-all-label`.
+- قبل أن يُعرَّف العنصر، ومن دون سكربت، لا يُرسم شيء من عنده: تظهر خانات الاختيار محتوى عاديًّا. والصفحة التي يجب أن تعمل بلا سكربت تكتب عنصر `<fieldset>` أصليًّا فيه خانات اختيار أصلية لها `name` واحد، وهو يرسل المُدخلات نفسها.
+
+## الإرشادات
+
+### افعل
+
+- اكتب التسمية على أنها السؤال، وتسمية كل خانة اختيار على أنها جواب واحد عنه.
+- قل كيف يُجاب في `supportingText`: «اختر كل ما ينطبق.»
+- فضِّل العمود. ولا تستخدم الصف إلا لبضع تسميات قصيرة.
+- أعطِ `errorText` حين تجعل المجموعة مطلوبة، ليقول تحقق النموذج نفسه ذلك بكلماتك.
+- استخدم خانة تحديد الكل لمجموعة من ستة خيارات أو أكثر، ولعوامل التصفية، ولمجموعات الأذونات.
+
+### لا تفعل
+
+- لا تستخدم مجموعة خانات الاختيار لجواب واحد من بضعة: فتلك [مجموعة أزرار الاختيار](/ar/components/radio-group/).
+- لا تعطِ خانات الاختيار `name` لترسلها: فالمجموعة ترسل القائمة تحت اسمها هي.
+- لا تضع فيها أي شيء يمكن تشغيله وليس خانة اختيار. فبنيات التنقيح تبلّغ عنه، ولا يصنع مُدخلة في القيمة.
+- لا تُزِح المجموعة تحت خانة تحديد الكل بمسافة بادئة لتُظهر تسلسلًا هرميًّا. فالخيارات داخل الخيارات شجرة.
+- لا تسمِّ المجموعة بالخاصية `aria-label`. وحيث يجب ألا تُرسم تسمية، أعطِ `label` و `labelHidden`.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="checkbox-group" />
+
+### ما يتكفل به المكوّن
+
+- هي مجموعة واحدة، هي مجموعة الحقول، تحتوي خانات الاختيار التي لها. اسمها `label`، مرسومةً كانت أو غير مرسومة؛ ووصفها النص المساعد، ونص الخطأ ما دامت في حالة الخطأ، والمطلوب أو الاختياري بكلمات المنتج.
+- ليست للمجموعة حالة للمطلوب ولا حالة لعدم الصلاحية. فالمطلوب أو الاختياري يُقال بالكلمات، وكل خانة اختيار في مجموعة في حالة الخطأ تُعرَض للتقنيات المساعدة على أنها غير صالحة ويصفها نص الخطأ.
+- كل خانة اختيار تحتفظ بدورها واسمها وحالة تحديدها. وخانة تحديد الكل تقول إنها مختلطة ما دام بعضها محدَّدًا. وليس لأي خانة اختيار موضع في مجموعة، ولا يُقال كم خانة محدَّدة.
+- كل خانة اختيار غير معطَّلة موضع توقف مستقل للمفتاح Tab، وخانة تحديد الكل أولًا. والمفتاح Space يبدّل الخانة التي عليها التركيز. وليست هناك مفاتيح أسهم، والمفتاح Enter متروك للنموذج.
+- الضغط على التسمية أو علامة المطلوب أو الاختياري أو الوصف أو نص الخطأ لا يحدّد شيئًا ولا ينقل التركيز.
+- الخطأ الذي يظهر والتركيز على إحدى خانات الاختيار تُعلِنه مجموعة الحقول مرة واحدة، بتهذيب.
+- الاتجاه والنص المكبَّر والألوان المفروضة (forced colors) يستجيب لكل منها كل عضو بطريقته: في تخطيط من اليمين إلى اليسار ينعكس الإطار وكل خانة اختيار؛ وعند تكبير النص إلى 200% يلتفّ كل نص، ويصير الصف عمودًا، ولا يُمرَّر شيء جانبيًّا.
+- ليست لها كلمات من عندها. والخاصيتان `requiredText` و `optionalText` إذا تُركتا فارغتين قرأتهما مجموعة الحقول من كلمات المنتج.
+
+فجوات معروفة على الويب: ما تقوله قارئات الشاشة عن المجموعة قُرئ من أشجار إمكانية الوصول في المتصفحات، ولم يُسمع بقارئ شاشة. ويعطي Chromium العنصر عقدة خاصة به في شجرة إمكانية الوصول، لأن النموذج يتحقق منه: عقدة بلا دور ولا اسم، حول المجموعة.
+
+### ما عليك فعله
+
+- أعطِ `label` دائمًا، وأعطِ كل خانة اختيار `label`.
+- أعطِ `requiredText` و `optionalText`، على المجموعة أو مرة واحدة للمنتج كله، حيث تكون المجموعة مطلوبة أو اختيارية: فليست للمجموعة حالة للمطلوب، والكلمات هي التي تقوله.
+- قل ما الخطأ في `errorText`، وكيف يُصحَّح. واللون ليس الدليل الوحيد أبدًا.
+- حيث يهمّ عدد الاختيارات («اختير 2 من 5»)، اكتبه في `supportingText`: فهو لا يُعلَن بغير ذلك.

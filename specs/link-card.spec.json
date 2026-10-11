@@ -1,0 +1,715 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "link-card",
+  "title": "Link card",
+  "summary": "One link drawn as a block: the destination's title, a sentence about it, its picture and the site it is on, from values the card is given and never loads.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The shape that holds everything, clips it to its corners and carries hover, focus and press. It is the link: one element, pressed as a whole."
+    },
+    {
+      "id": "outline",
+      "description": "The edge of the outlined look, drawn above the picture.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "The destination's title, at a heading's weight, on a few lines at most. The card's accessible name. Where there is none, the address stands in its place."
+    },
+    {
+      "id": "description",
+      "description": "A sentence or two about the destination, quieter than the title, on a few lines at most.",
+      "optional": true
+    },
+    {
+      "id": "site",
+      "description": "The line that says where the card leads: the site's icon, its name, the host and the mark, in that order. The host is computed from the destination's address and is never cut.",
+      "optional": true
+    },
+    {
+      "id": "site-icon",
+      "description": "The site's small icon, a picture the card is given. Decorative.",
+      "optional": true
+    },
+    {
+      "id": "host",
+      "description": "The host of the destination's address, as the card reads it from href: the one part of the card that no given value can change.",
+      "optional": true
+    },
+    {
+      "id": "mark",
+      "description": "The one glyph at the end of the site line that says where following the card takes the person: open_in_new for a destination that opens a new context, arrow_outward for one that leaves the site and opens where the person is. Never both. Decorative; what it means is said in words.",
+      "optional": true
+    },
+    {
+      "id": "media",
+      "description": "The box of the destination's picture: beside the text at the end edge of a wide card, above the text in a narrow one. The picture covers it and is cropped by it. Decorative unless the product says what it shows.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The indicator shown for keyboard focus, around the whole card."
+    }
+  ],
+  "props": [
+    {
+      "name": "href",
+      "type": "string",
+      "default": "",
+      "description": "The destination: an address as the platform's links take one (a URL; on the web a path or a fragment as well). It is also the one thing the card reads the host from (LKC-8). A link card without a destination is not a link and is not drawn as a card (LKC-27)."
+    },
+    {
+      "name": "target",
+      "type": "enum",
+      "values": [
+        "same",
+        "new"
+      ],
+      "default": "same",
+      "description": "Where the destination opens. same: where the person is — the same tab on the web, the app's own handling of the address elsewhere. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which the card marks with the glyph open_in_new at the end of its site line and says through targetLabel (LKC-23)."
+    },
+    {
+      "name": "targetLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads at the end of the card's description while target is new (\"opens in a new tab\"). Tanrei ships no words of its own, so the product gives them in its language. Required while target is new; ignored otherwise.",
+      "words": "targetLabel"
+    },
+    {
+      "name": "external",
+      "type": "enum",
+      "values": [
+        "auto",
+        "on",
+        "off"
+      ],
+      "default": "auto",
+      "description": "Whether the destination is on another site than the one the person is on: the same prop, with the same values and the same rule, as the Link's (LNK-30). auto: the card decides as the Link does, where the platform can tell. on: it is external, whatever the address. off: it is not. An external card that opens where the person is draws the arrow at the end of its site line and says so through externalLabel (LKC-24). It changes nothing else: the host is drawn whether the destination is external or not."
+    },
+    {
+      "name": "externalLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads at the end of the card's description while the destination is external and target is same (\"external link\"), in the product's language. Empty, the words the product has set once for every external link are read, as for the Link (LNK-34). Ignored while target is new.",
+      "words": "externalLabel"
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "default": "",
+      "description": "The destination's title: what the page calls itself. Plain text; it is the card's accessible name. Drawn on at most two lines by default. Empty, the address is drawn in its place (LKC-5)."
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "default": "",
+      "description": "A sentence or two about the destination. Plain text; it is the first part of the card's description for assistive technology. Drawn on at most two lines by default; empty, nothing is drawn for it."
+    },
+    {
+      "name": "image",
+      "type": "string",
+      "default": "",
+      "description": "The address of a picture that stands for the destination. It is drawn beside the text in a wide card and above it in a narrow one, cropped to its box. The card asks for this address and for nothing else about the destination (LKC-14); a site should keep the picture among its own files rather than name the destination's. Empty, or failing to load, the card is drawn without a picture."
+    },
+    {
+      "name": "imageAlt",
+      "type": "string",
+      "default": "",
+      "description": "What the picture shows, in the product's language, where that is worth saying. Empty — the usual case — the picture is decoration: the title and the description already say where the card leads. Never drawn; read as part of the description (LKC-25)."
+    },
+    {
+      "name": "siteName",
+      "type": "string",
+      "default": "",
+      "description": "What the destination's site calls itself (\"Example Journal\"). Plain text, drawn before the host on the site line and cut first when the line is short. It never replaces the host, and it is not drawn where it only repeats it (LKC-7)."
+    },
+    {
+      "name": "siteIcon",
+      "type": "string",
+      "default": "",
+      "description": "The address of the destination site's small icon, given to the card and never looked up by it: the same value, resolved the same way, as the Link's site icon. Drawn at the start of the site line; empty or failing to load, nothing is drawn in its place."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "outlined",
+        "filled"
+      ],
+      "axis": "tanrei.comp.link-card.variant",
+      "default": "outlined",
+      "description": "How the card is set apart. outlined: the surface inside one hairline, for running text and the page's own surface. filled: a tone of the surface and no edge, where one more line would crowd. It changes colors and the edge only. A design system may add values."
+    }
+  ],
+  "events": [
+    {
+      "name": "click",
+      "description": "The card was activated by pointer, touch, Enter or assistive technology. It is emitted before the destination opens; a product that takes the navigation itself (a client-side router) cancels it (LKC-22)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "LKC-1",
+      "text": "WHILE href is a destination THE link card SHALL be the platform's own link to it (the web's anchor element in the document itself, not in a shadow root; SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), so that whatever the platform gives a link — on the web its context menu, opening in a new tab or window, copying and dragging its address, the address shown before it is followed, a crawler and a search index that read it, and a link that works before any script has run — is the platform's, and not the link card's to draw or to take over; it SHALL be exactly one focusable element with the link role, and everything it draws SHALL be the presentational content of that one element.",
+      "verify": "On the web: with scripting turned off the page holds an a element with the href around the card's text, it is followed by a click and by Enter, and document.links lists it. Tab reaches the card once."
+    },
+    {
+      "id": "LKC-2",
+      "text": "THE link card SHALL lay itself out as a block in the flow of its container: it SHALL take the whole inline size the container gives it, with its start edge on the start edge of the text around it, SHALL bring no outer space of its own (PRS-15: the space between it and its neighbours is its container's), SHALL never be wider than its container, and SHALL be exactly as tall as what it holds, with no height of its own. It SHALL draw a container with corners comp.link-card.container.shape, filled with the container color of its variant (comp.link-card.outlined.container.color for outlined, comp.link-card.filled.container.color for filled), SHALL clip everything it draws to that shape, SHALL draw the outline of its variant (comp.link-card.outlined.outline.color, comp.link-card.filled.outline.color) comp.link-card.outline.width wide inside the container's size and above the picture, and SHALL draw no elevation.",
+      "verify": "Under the default system an outlined link card in a column 720 wide is 720 wide, has corners of 8 and one hairline; placed in prose it is one gap from the paragraph above and below and adds none of its own."
+    },
+    {
+      "id": "LKC-3",
+      "text": "THE link card SHALL draw its text in a body padded by comp.link-card.container.padding on every side: from top to bottom the title (LKC-4, LKC-5); the description where there is one (LKC-6), comp.link-card.title.gap below the title; and the site line where there is one (LKC-7), comp.link-card.site.gap below the text above it. A part that is not drawn SHALL take no room and leave no gap, and the body SHALL place its text at the start edge in every layout."
+    },
+    {
+      "id": "LKC-4",
+      "text": "THE link card SHALL draw title in comp.link-card.title.typescale and in the title color of its variant and state (comp.link-card.outlined.title.color for outlined, comp.link-card.filled.title.color for filled), on at most comp.link-card.title.max-lines lines: a longer title SHALL be cut at the end of its last drawn line, where its own direction ends, with an ellipsis, and a run with no place to break that is longer than the line SHALL break inside the run rather than overflow. THE link card SHALL draw no underline under the title, SHALL expose the whole title to assistive technology whatever part of it is drawn, and SHALL NOT expose it as a heading.",
+      "verify": "The fixture long-text draws two lines of title ending in an ellipsis; the accessible name is the whole title."
+    },
+    {
+      "id": "LKC-5",
+      "text": "WHILE title is empty or only white space THE link card SHALL draw the address of href, as it was given, in the title's place and style — as one left-to-right run that may break anywhere, held to the same number of lines — SHALL be named by that address, and in debug builds SHALL report that a link card has no title.",
+      "verify": "The fixture address-only."
+    },
+    {
+      "id": "LKC-6",
+      "text": "WHILE description is not empty THE link card SHALL draw it in comp.link-card.description.typescale and in the description color of its variant and state (comp.link-card.outlined.description.color for outlined, comp.link-card.filled.description.color for filled), on at most comp.link-card.description.max-lines lines, cut as LKC-4 cuts the title, and SHALL expose the whole of it; WHILE description is empty or only white space it SHALL draw nothing for it."
+    },
+    {
+      "id": "LKC-7",
+      "text": "WHERE the link card has a host (LKC-8), a site name or a mark (LKC-23, LKC-24) THE link card SHALL draw a site line in comp.link-card.site.typescale and in the site color of its variant and state (comp.link-card.outlined.site.color for outlined, comp.link-card.filled.site.color for filled), holding in reading order the site icon (LKC-10), the site's name, the host and the mark, comp.link-card.site.item-gap apart and each centred on the height of the line's first row; WHERE both the site's name and the host are drawn it SHALL draw a middle dot between them, kept from assistive technology. THE link card SHALL draw siteName as the site's name, on one line, and SHALL NOT draw it WHILE it is empty or says only what the host says (the same characters without regard to case, with or without a leading \"www.\"). WHERE the line is too narrow THE site's name SHALL give way first — cut at its own end with an ellipsis, and left out together with the dot where not even its first character and an ellipsis fit — and THE host SHALL never be cut, shortened or ended with an ellipsis: a host longer than the line SHALL run onto further lines, breaking after a dot and, where one label is longer than the line, inside it, with the mark after its last character.",
+      "verify": "The fixture long-text cuts the site's name and shows the whole host; the fixture long-host wraps the host over two lines of a stage 320 wide and hides none of it."
+    },
+    {
+      "id": "LKC-8",
+      "text": "THE link card SHALL compute the host it draws from href and from nothing else: the host name the platform's address parser reads from href, in lower case, followed by a colon and the port where href names a port that is not its scheme's own; never a user name or a password written before the host, never a path, a query or a fragment; and never anything taken from title, description, siteName or any other value it is given. No prop SHALL set, replace or hide the host. WHILE href has no host of its own — a path, a fragment, an address relative to the page, a scheme that has none — THE link card SHALL draw no host.",
+      "verify": "href \"https://example.com@other.example/a?b=example.org\" draws \"other.example\"; href \"https://EXAMPLE.com:8443/\" draws \"example.com:8443\"; the fixture internal draws no site line. On the web, a host written in the document that differs from the computed one is replaced when the element is defined, and reported."
+    },
+    {
+      "id": "LKC-9",
+      "text": "WHERE a label of the host is the ASCII form of an internationalised name (it begins with \"xn--\") THE link card SHALL draw the whole host in its Unicode form only WHILE every such label of it (a) decodes, and encodes back to exactly the label it was; (b) holds nothing but letters, combining marks, the digits 0 to 9 and the hyphen; (c) has all of its letters in one script, or in one of the sets a single writing system uses together — Latin with Han, Hiragana and Katakana; Latin with Han and Hangul; Latin with Han and Bopomofo; and (d) is not written wholly in Cyrillic or wholly in Greek under a last label that is ASCII. In every other case THE link card SHALL draw the whole host in the ASCII form the address parser gives, never a part of it in each form. THE link card SHALL draw the host as one left-to-right run, isolated from the text beside it, with its labels in the address's own order, in every layout direction. A platform that cannot decode a label or cannot tell the script of a character SHALL draw the ASCII form always, and state that in its README.",
+      "verify": "The fixture idn-unicode draws the host in Japanese script; idn-ascii-mixed (one Cyrillic letter among Latin ones) and idn-ascii-whole-script (a Cyrillic word under .com) draw the xn-- form."
+    },
+    {
+      "id": "LKC-10",
+      "text": "WHILE siteIcon is not empty and its picture has not failed THE link card SHALL keep, at the start of the site line, a square box comp.link-card.site.icon.size a side, and once the picture has loaded SHALL draw it there, scaled to fit inside the box with its proportions kept, clipped to corners comp.link-card.site.icon.shape, and kept from assistive technology. WHILE siteIcon is empty, or IF its picture cannot be loaded, THE link card SHALL draw no icon, no glyph in its place and no box, SHALL NOT ask for it again by itself, and for a failure SHALL report the address in debug builds."
+    },
+    {
+      "id": "LKC-11",
+      "text": "WHILE image is not empty and its picture has not failed THE link card SHALL draw a picture box (LKC-12 says where and how large) filled with comp.link-card.media.container.color, and once the picture has loaded SHALL draw it over the whole box, scaled so that it covers the box with its proportions kept and its centre on the box's centre, clipped by the box and by the card's corners where the box meets them. THE link card SHALL NOT mirror, tint or otherwise change the picture in any layout direction, scheme or state. WHILE image is empty THE link card SHALL draw no picture box and ask for nothing."
+    },
+    {
+      "id": "LKC-12",
+      "text": "WHILE the link card has a picture box and its own inline size is at least comp.link-card.layout.beside-min-width multiplied by the scale of the text THE link card SHALL draw the box beside the body, at the card's end edge, comp.link-card.media.width wide and as tall as the card, whose height is the body's; WHILE it is narrower THE link card SHALL draw the box above the body, across the card's whole inline size, as tall as that size divided by comp.link-card.media.aspect-ratio. THE link card SHALL choose between the two from its own inline size alone, never from the window's, and WHEN that size crosses the boundary SHALL draw the other layout at once, without a motion, keeping its focus and its state.",
+      "verify": "Under the default system the fixture full on a stage 720 wide draws the picture 192 wide at the right, and on a stage 320 wide draws it above the text, 320 wide and 168 high; with the text size doubled the stage 720 wide draws it above. Two cards of different widths on one page take different layouts."
+    },
+    {
+      "id": "LKC-13",
+      "text": "WHILE image is not empty and its picture has not yet loaded THE link card SHALL draw the picture box at its final size, so that nothing changes place when the picture arrives; WHEN the picture has loaded THE link card SHALL draw it at once, without a motion; IF the picture cannot be loaded THE link card SHALL be drawn as a link card without a picture, SHALL draw no broken-picture mark, no alternative text and no address in the picture's place, SHALL NOT ask for the picture again by itself, and in debug builds SHALL report the address that failed. WHEN image changes THE link card SHALL draw the box of LKC-11 until the new picture has loaded.",
+      "verify": "The fixture image-failed is drawn exactly as the fixture no-picture with the same text."
+    },
+    {
+      "id": "LKC-14",
+      "text": "THE link card SHALL NOT ask the network, a cache, a proxy or any service for href, for the page at href, or for anything it could learn from that page — its title, its description, its picture, its icon — at any time: until a person activates it, nothing it does reaches the destination, and it SHALL draw only what it was given. The only addresses THE link card SHALL ask for are image and siteIcon, each as a picture: WHERE the platform lets a request withhold the page it comes from THE link card SHALL withhold it (the web: no referrer); WHERE the platform can put a request off THE link card SHALL ask only once the card is near what is shown; and it SHALL draw what arrives as a picture and nothing else — never as a document, a frame, markup, or anything that can run or lay out content of its own. IF image or siteIcon names a script to run, or something the platform cannot read as the address of a picture, THE link card SHALL treat that value as empty and in debug builds report it; and in debug builds it SHALL report an image or a siteIcon that is asked of another party than the one the page or the app itself comes from, because every reader would then tell that party what they are reading (LNK-35).",
+      "verify": "On the web: a page of link cards with no image and no siteIcon makes no request beyond the page's own; with them, the only requests are for those two addresses, they carry no Referer header, and a card below the fold has asked for nothing. An image address that answers with a document of markup draws nothing of it and is treated as a failure (LKC-13)."
+    },
+    {
+      "id": "LKC-15",
+      "text": "THE link card SHALL draw and expose title, description, siteName and imageAlt as plain text: a character that would begin markup elsewhere is drawn as the character it is, and nothing in them is parsed, linked, styled or run. Before drawing and exposing each of them THE link card SHALL read a line break or a tab as one space, SHALL drop every other control character, and SHALL drop the characters that embed, override or isolate the direction of text (U+202A to U+202E and U+2066 to U+2069), so that no value can reorder itself or the text beside it; it SHALL keep every other character, the marks that only state a direction and the joiners a script needs included.",
+      "verify": "The fixture untrusted-text draws the angle brackets and the tag's name as characters, in the title's own style, and the letters after the dropped override in the order they were written."
+    },
+    {
+      "id": "LKC-16",
+      "text": "WHILE hovered, keyboard-focused or pressed THE link card SHALL render its container, outline, title, description, site line and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. THE link card SHALL draw the answer to a state behind its text and SHALL NOT draw it over the picture or the site icon, which take the card's opacity and are otherwise drawn as at rest.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "LKC-17",
+      "text": "WHEN the link card receives keyboard focus THE link card SHALL show the focus ring without animation — the system's focus indicator around the whole card, sys.focus.offset from the container and following its corners, sys.focus.outer-width wide in the color role focus-ring, with the inner stroke of sys.focus.inner-width where the system has one; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "LKC-18",
+      "text": "WHEN the link card is pressed by pointer, touch or Enter THE link card SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "LKC-19",
+      "text": "WHILE pressed THE link card SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; title, description, site line, outline, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.link-card.motion.feedback-duration with comp.link-card.motion.state-easing, fades over comp.link-card.motion.state-duration with comp.link-card.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "LKC-20",
+      "text": "THE link card SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "LKC-21",
+      "text": "WHERE the visual size of the link card is below the minimum target THE link card SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch.",
+      "verify": "Under the default system the smallest link card — a title on one line and nothing else — is 56 high, so the rule is met by its drawn size; it binds under a system with a smaller padding or text."
+    },
+    {
+      "id": "LKC-22",
+      "text": "WHEN the user activates the link card by pointer, touch or Enter THE link card SHALL emit click exactly once and then open href where target names, unless the product cancelled that click, in which case it SHALL open nothing: the product's own router has taken the navigation. It SHALL NOT hold the navigation back for sys.motion.duration.press-hold. THE link card SHALL NOT be activated by Space, which on the web scrolls the page as it does on any link, and SHALL NOT show the pressed state for it; WHERE the platform gives its links other keys or gestures (on the web a modified or a middle click that opens a new tab, on Apple platforms a long press that previews) THE link card SHALL leave them to the platform.",
+      "verify": "On the web: Enter follows the link and fires click once; Space fires no click and leaves the page to scroll; a click listener that calls preventDefault() keeps the page where it is; a click with the platform's new-tab modifier is not cancelled by the link card."
+    },
+    {
+      "id": "LKC-23",
+      "text": "WHILE target is new THE link card SHALL open href in a new context — on the web a new tab or window that is given no handle to the page that opened it; on the other platforms outside the screen the person is on, as the platform's opener decides — and SHALL draw the glyph open_in_new of the system's icon set at the end of the site line (LKC-7), in a box as large as the font size of that line's text, in the site color of its variant and state, through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name, and hidden from assistive technology; a link card with neither a host nor a site name draws a site line that holds the mark alone. No prop SHALL hide the mark or force it. THE link card SHALL expose targetLabel as part of its description (LKC-25), and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE link card SHALL draw no such mark and SHALL ignore targetLabel.",
+      "verify": "Fixtures new-tab and new-tab-rtl (the mark at the left end of the site line, mirrored)."
+    },
+    {
+      "id": "LKC-24",
+      "text": "THE link card SHALL treat its destination as external exactly as the Link does (LNK-30) and SHALL have no rule of its own for it: as its external prop names — on, off, or under auto exactly when the platform can tell that href is on another site than the one the person is on, from the same declaration of the product's own site that the Link reads. WHILE the destination is external and target is same THE link card SHALL draw the glyph arrow_outward of the system's icon set in the place and manner of LKC-23's mark, kept from assistive technology, and SHALL expose externalLabel — or, WHILE externalLabel is empty, the words the product has set once for every external link (LNK-34) — as the last part of its description (LKC-25); WHILE target is new THE link card SHALL draw LKC-23's mark alone, never two, and expose targetLabel and not externalLabel. Being external SHALL change nothing else: not the host, which is drawn for a destination on the product's own site as well, not where the destination opens, and nothing about how any address is requested.",
+      "verify": "Fixtures external (the arrow at the end of the site line) and external-off (the same destination, no arrow, the host still drawn). On the web, on a page of another origin with no value given, the card of the fixture full shows the arrow as a text link to the same address does."
+    },
+    {
+      "id": "LKC-25",
+      "text": "THE link card SHALL expose the title — or, WHILE title is empty, the address (LKC-5) — as its accessible name and add nothing to it. THE link card SHALL expose as its description, in this order and leaving out what it does not have: the description, the alternative text of the picture (imageAlt), the site's name where it is drawn, the host as it is drawn, and last targetLabel WHILE target is new, or the words of LKC-24 WHILE the destination is external and target is same. THE picture SHALL be kept from assistive technology as a picture in every case — imageAlt, where the product gives it, is read as part of the description — and the site icon, the middle dot and every mark SHALL be kept from it.",
+      "verify": "The fixture full is announced as the link \"Designing with tokens\", described \"How a handful of dials becomes a whole system. Example Journal, example.com\"; the fixture image-alt adds the alternative text after the description."
+    },
+    {
+      "id": "LKC-26",
+      "text": "THE link card SHALL draw no state for a destination already visited: its colors say what it is and what state it is in, and are the same before and after it has been followed."
+    },
+    {
+      "id": "LKC-27",
+      "text": "IF href is empty or only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE link card SHALL NOT be a link and SHALL NOT be drawn as a card: it SHALL draw its title, where it has one, as plain text in the style of the text around it and nothing else — no container, no description, no picture, no site line, no state — SHALL expose no role, SHALL NOT be focusable, SHALL emit nothing and ask for nothing, and in debug builds report it. WHEN target names a value the link card does not define THE link card SHALL behave as same, WHEN external names one it SHALL treat it as auto, and WHEN variant names a value the active design system does not have it SHALL render with the default variant's tokens; in debug builds it SHALL report the unknown value.",
+      "verify": "href \"javascript:alert(1)\" with a title draws the title as text; nothing can be focused or pressed."
+    },
+    {
+      "id": "LKC-28",
+      "text": "WHEN the colors of the link card change between states THE link card SHALL animate the change over comp.link-card.motion.state-duration with comp.link-card.motion.state-easing, and SHALL change them at once where motion is reduced."
+    },
+    {
+      "id": "LKC-29",
+      "text": "WHILE the text size is enlarged THE link card SHALL grow its title, its description, its site line and the mark with it, SHALL keep its paddings, gaps, edge, the site icon's box and comp.link-card.media.width, SHALL keep counting lines by comp.link-card.title.max-lines and comp.link-card.description.max-lines, and SHALL grow in height; it SHALL set no fixed height, SHALL draw the picture above the text sooner (LKC-12), and SHALL need no sideways scrolling of what holds it at a width of 320 points with text at 200 %."
+    },
+    {
+      "id": "LKC-30",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE link card SHALL draw an edge comp.link-card.outline.width wide in the platform's text color in both looks, so that a look whose fill the mode removes is still a bounded block; SHALL draw its title in the platform's link color and its description and site line in the platform's text color; SHALL draw its focus ring in the platform's highlight color; SHALL draw no fill in the picture box; and SHALL leave the picture and the site icon as they are.",
+      "verify": "On the web, with forced colors emulated: the title is LinkText, the edge CanvasText, and the filled look has an edge."
+    },
+    {
+      "id": "LKC-31",
+      "text": "THE link card SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the link card is shown THE link card SHALL draw itself for the new direction at once, without a motion of its own, keeping its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "LKC-32",
+      "text": "WHERE the layout direction is right-to-left THE link card SHALL apply its paddings by logical start and end and mirror its layout: the picture beside the text stands at the left, the text begins at the right, and the site line runs from the right — icon, site's name, host, mark. Top and bottom SHALL NOT change. THE link card SHALL NOT mirror the picture or the site icon, SHALL NOT mirror a glyph itself (the icon helper mirrors a mark whose name the icon set marks, inside its own box), SHALL keep the host a left-to-right run (LKC-9), and SHALL grow a ripple from the point of contact as in left-to-right.",
+      "verify": "Fixtures full-rtl and new-tab-rtl."
+    },
+    {
+      "id": "LKC-33",
+      "text": "THE link card SHALL lay out its title, its description and its site's name as text of their own direction, each isolated from the others and from the text around the card: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name, a number with its unit and a version keep their own order in a right-to-left layout and reorder nothing beside them; THE link card SHALL still place each and align its lines by the layout direction, not by the text's own, and SHALL cut each where its own direction ends (LKC-4).",
+      "verify": "The fixture ltr-title-rtl draws an English title in a right-to-left stage: it reads in its own order, begins at the right edge, and loses its right end where it is cut."
+    },
+    {
+      "id": "LKC-34",
+      "text": "WHEN href, title, description, image, imageAlt, siteName, siteIcon, target, targetLabel, external, externalLabel or variant changes while the link card is shown THE link card SHALL draw and expose the new value at once, without a motion, keeping its focus, and SHALL NOT announce the change by itself."
+    },
+    {
+      "id": "LKC-35",
+      "text": "THE link card SHALL hold no interactive element — no button, no second link, no field, nothing else that takes focus — and SHALL offer no place to put one: its parts are the values it is given. A platform whose link card is drawn on the product's own elements (the web) SHALL report in debug builds an interactive element found inside it, and SHALL keep the card one link."
+    },
+    {
+      "id": "LKC-36",
+      "text": "WHERE the platform shows a page before its script has run, or without it (the web), THE link card SHALL already be drawn whole and at rest from what is in the document — its container, its text, its site line, its picture box and the layout of LKC-12 — SHALL be a link that can be followed, and SHALL move nothing when its script arrives. Script SHALL add only what the document cannot hold: the answer to a press beyond a plain state change, the host computed anew from href (LKC-8, LKC-9), the cleaning of LKC-15 for values given by script, the name and the description as LKC-25 divides them, the failures of LKC-10 and LKC-13, and every debug report.",
+      "verify": "On the web with scripting turned off: the fixtures are drawn as their baselines at rest, and the card is followed by a click."
+    }
+  ],
+  "accessibility": {
+    "role": "link",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the card: one stop, whatever it shows."
+      },
+      {
+        "keys": "Enter",
+        "action": "Follows the link. Space does what it does on any link (on the web it scrolls the page)."
+      }
+    ],
+    "labeling": "The card is one link. Its name is the title (the address where there is none), and nothing is added to the name. Its description is, in order, the description, the picture's alternative text where the product gives one, the site's name, the host and last — while target is new — targetLabel, or — while the destination is external and target is same — externalLabel or the product's words for every external link. The picture, the site icon, the dot and the marks are decorative. A title that is cut on the screen is exposed whole.",
+    "minimumTarget": true,
+    "notes": [
+      "A link card is told as a link by being one bounded block that answers the pointer and the keyboard as a whole, not by an underline or a color: it is not a phrase inside a sentence, where WCAG 1.4.1 asks for more than color. In forced colors the title takes the platform's link color and both looks have an edge (LKC-30).",
+      "The host is for everyone. A reader who cannot see the site line hears the host in the description, computed from the address exactly as the drawn one is (LKC-8, LKC-25); a destination cannot hide where it leads from either.",
+      "Text that is cut (LKC-4, LKC-6) is a preview of a page, not content of this one: all of it reaches assistive technology, and the whole of it is one press away. Do not put text a reader must have into a link card.",
+      "The picture is decoration by default, because the title already names the destination; give imageAlt only where the picture says something the text does not. A picture that fails or has not arrived exposes nothing.",
+      "Nothing inside a link card is a control. A preview with its own buttons (save, share, dismiss) is a Card that holds a Link and those buttons, not a link card.",
+      "The card keeps its focus ring clear of the picture: the ring is drawn outside the container, so a picture of any color cannot hide it.",
+      "Text must remain readable at 200% text size: the card has no fixed height, counts lines rather than points, and moves its picture above the text when the text needs the room (LKC-29).",
+      "Contrast in the default system: the title is the surface's text color and the description and the site line the secondary text color, on fills of the surface ladder — pairs the token invariants hold at 4.5:1 (7:1 in the high-contrast schemes). The outlined look's edge is decorative: the card is found by its text.",
+      "No visited state (LKC-26).",
+      "How a state looks is a value decision of the active design system (a state-layer mix in Tanrei, a dim or no hover at all elsewhere). The link card reads the state's tokens and never computes the effect itself.",
+      "Web: the card is the product's own anchor in the document, wrapped by an element with no shadow root, so it is a link before any script runs and for whatever reads the page as built. Once defined, the element names the anchor by the title's element and describes it by the others (aria-labelledby, aria-describedby with ids it writes); before that the anchor is named by all of its text in reading order, which says the same things in one breath."
+    ]
+  },
+  "tokens": "comp.link-card",
+  "fixtures": [
+    {
+      "id": "full",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "image": "fixtures/link-card.png",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png"
+      }
+    },
+    {
+      "id": "full-filled",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "image": "fixtures/link-card.png",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png",
+        "variant": "filled"
+      }
+    },
+    {
+      "id": "no-picture",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png"
+      }
+    },
+    {
+      "id": "no-picture-filled",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png",
+        "variant": "filled"
+      }
+    },
+    {
+      "id": "no-description",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "image": "fixtures/link-card.png",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png"
+      }
+    },
+    {
+      "id": "title-only",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens"
+      }
+    },
+    {
+      "id": "no-site-name",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "siteIcon": "fixtures/site-icon.png"
+      }
+    },
+    {
+      "id": "site-name-repeats-host",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "siteName": "Example.com"
+      }
+    },
+    {
+      "id": "internal",
+      "props": {
+        "href": "/foundations/tokens/",
+        "title": "Tokens",
+        "description": "The dials, the system roles and the component bindings."
+      }
+    },
+    {
+      "id": "address-only",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens"
+      }
+    },
+    {
+      "id": "long-text",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens: how a handful of dials becomes a whole system of colors, shapes, type and motion, and how a product changes one of them without touching the rest of what it has already built",
+        "description": "A long read on deriving every value of a design system from a few numbers: what is decided once, what is computed, what a product may change, and why the names of things matter more than the values they carry today or will carry next year.",
+        "image": "fixtures/link-card.png",
+        "siteName": "The Example Journal of Design Systems, Tokens and Everything Built From Them",
+        "siteIcon": "fixtures/site-icon.png"
+      }
+    },
+    {
+      "id": "long-host",
+      "props": {
+        "href": "https://documentation.design-systems.engineering.research.example.org/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "siteName": "Example Research"
+      }
+    },
+    {
+      "id": "idn-unicode",
+      "props": {
+        "href": "https://xn--r8jz45g.jp/",
+        "title": "トークンで設計する",
+        "description": "いくつかの数値から、システム全体を導く。"
+      }
+    },
+    {
+      "id": "idn-ascii-mixed",
+      "props": {
+        "href": "https://xn--exmple-4nf.com/",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system."
+      }
+    },
+    {
+      "id": "idn-ascii-whole-script",
+      "props": {
+        "href": "https://xn--80ak6aa92e.com/",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system."
+      }
+    },
+    {
+      "id": "new-tab",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "image": "fixtures/link-card.png",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      }
+    },
+    {
+      "id": "external",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "image": "fixtures/link-card.png",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png",
+        "external": "on",
+        "externalLabel": "external link"
+      }
+    },
+    {
+      "id": "external-off",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "image": "fixtures/link-card.png",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png",
+        "external": "off"
+      }
+    },
+    {
+      "id": "image-alt",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "image": "fixtures/link-card.png",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png",
+        "imageAlt": "A wall of color swatches arranged from light to dark"
+      }
+    },
+    {
+      "id": "image-failed",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens",
+        "description": "How a handful of dials becomes a whole system.",
+        "image": "fixtures/missing.png",
+        "siteName": "Example Journal",
+        "siteIcon": "fixtures/site-icon.png"
+      }
+    },
+    {
+      "id": "untrusted-text",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "<b>Designing</b> with tokens \u202esnekot<script>",
+        "description": "A value is drawn as the characters it holds: <img src=x onerror=alert(1)> is text here.",
+        "siteName": "Example <i>Journal</i>"
+      }
+    },
+    {
+      "id": "full-rtl",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "التصميم بالرموز",
+        "description": "كيف تصبح بضعة أرقام نظامًا كاملًا.",
+        "image": "fixtures/link-card.png",
+        "siteName": "مجلة المثال",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "new-tab-rtl",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "التصميم بالرموز",
+        "description": "كيف تصبح بضعة أرقام نظامًا كاملًا.",
+        "siteName": "مجلة المثال",
+        "target": "new",
+        "targetLabel": "يفتح في علامة تبويب جديدة"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-title-rtl",
+      "props": {
+        "href": "https://example.com/articles/designing-with-tokens",
+        "title": "Designing with tokens: how a handful of dials becomes a whole system of colors, shapes, type and motion, and how a product changes one of them without touching the rest of what it has already built",
+        "description": "كيف تصبح بضعة أرقام نظامًا كاملًا.",
+        "siteName": "Example Journal"
+      },
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-link-card",
+      "props": {
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "external": "external",
+        "externalLabel": "externalLabel",
+        "title": "headline",
+        "description": "description",
+        "image": "image",
+        "imageAlt": "imageAlt",
+        "siteName": "siteName",
+        "siteIcon": "siteIcon",
+        "variant": "variant"
+      },
+      "events": {
+        "click": "click"
+      },
+      "notes": "The light-DOM form with an element: `<tanrei-link-card>` is a custom element with **no shadow root** around the product's own anchor, which stays in the document: `<tanrei-link-card variant=\"outlined\"><a href=\"…\"><span data-part=\"body\"><span data-part=\"title\">…</span><span data-part=\"description\">…</span><span data-part=\"site\"><img data-part=\"site-icon\" src=\"…\" alt=\"\" width=\"16\" height=\"16\"><span data-part=\"site-name\">…</span><bdi data-part=\"host\" dir=\"ltr\">…</bdi></span></span><img data-part=\"media\" src=\"…\" alt=\"\" width=\"…\" height=\"…\"></a></tanrei-link-card>`; every part but the title is optional. That markup is what a site's build step writes (the package's `linkCardToNodes` gives it as plain node descriptions, as `highlightToNodes` does for code), and one stylesheet, `@tanrei/web/link-card.css`, whose selectors start at `tanrei-link-card` inside `:where()`, draws all of it before the element is defined and with scripting off (LKC-36): the layout of LKC-12 is a container query on the element (`container-type: inline-size`, the boundary written in `rem` so it follows the text size), the line counts are `-webkit-line-clamp`/`line-clamp`, the mark is the anchor's site line's `::after` in the icon font (mirrored under `:dir(rtl)`), and the press-hold is a delayed transition back from `:active`, as the link's stylesheet has it. For a page built by script, or the React wrapper, the element takes the same values as attributes — `href`, `target` (HTML's `_blank` is read as `new`), `target-label`, `external`, `external-label`, `headline` (HTML's global `title` would show a tooltip over the card), `description`, `image`, `image-alt`, `site-name`, `site-icon`, `variant` — and writes the anchor and its parts itself, as text nodes, never as markup (LKC-15). Once defined the element: computes the host from the anchor's `href` with `URL` and the rule of LKC-9 and writes it into the host part, replacing and reporting one that differs; writes `data-external` on the anchor as the Link's script does, from the same `setSiteOrigins()` (the build step's `markExternalLinks()` writes it where the page is made, and only a value the script wrote is ever changed by it); gives the title, description, site and a visually hidden part for the target or external words ids and sets `aria-labelledby` and `aria-describedby`; adds `noopener` to `rel` for a new context; sets `referrerpolicy=\"no-referrer\"`, `loading=\"lazy\"` and `decoding=\"async\"` on both pictures where the markup has not (the build step writes them, so the first request already carries them); removes the media or the icon on its `error` event; hands presses to the shared press primitive (ripple and dim); and makes the debug reports. `rel` and `download` are the anchor's own. `click` is the anchor's native event; cancelling it cancels the navigation. Pictures are `<img>` elements and nothing else, so a picture file that holds markup cannot run. React: `LinkCard` renders the same element and anchor and takes a `render` prop for a router's link."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiLinkCard",
+      "props": {
+        "href": "destination",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "external": "external",
+        "externalLabel": "externalLabel",
+        "title": "title",
+        "description": "description",
+        "image": "image",
+        "imageAlt": "imageDescription",
+        "siteName": "siteName",
+        "siteIcon": "siteIcon",
+        "variant": "variant"
+      },
+      "events": {
+        "click": "action"
+      },
+      "notes": "`TanreiLinkCard(destination: URL, title:, description:, image:, imageDescription:, siteName:, siteIcon:, target:, targetLabel:, external:, externalLabel:, variant:, action:)`, built on SwiftUI's `Link`, so the address is opened by the environment's `openURL` and an app that routes addresses itself provides an `OpenURLAction`. `image` and `siteIcon` are `URL?` drawn with `AsyncImage` (a picture decoder only; a request without a referrer by nature), the fallback of LKC-13 on its failure phase; an app that already holds the pictures passes `Image` values through a second initializer. The host comes from `URLComponents(url:).host` (the encoded form) and the rule of LKC-9 applied with `Unicode.Scalar.Properties`; the layout of LKC-12 from the card's proposed width (`ViewThatFits` or a `Layout`), scaled by the dynamic type size. The `isLink` trait; the description is the accessibility value, `targetLabel` the hint. `action` runs before the address opens and returns whether the link should still open it. Not built on this platform yet."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiLinkCard",
+      "props": {
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "external": "external",
+        "externalLabel": "externalLabel",
+        "title": "title",
+        "description": "description",
+        "image": "image",
+        "imageAlt": "imageDescription",
+        "siteName": "siteName",
+        "siteIcon": "siteIcon",
+        "variant": "variant"
+      },
+      "events": {
+        "click": "onClick"
+      },
+      "notes": "`TanreiLinkCard(href, title, description, image, imageDescription, siteName, siteIcon, target, targetLabel, external, externalLabel, variant, onClick = null)`. The package keeps no image-loading dependency: `image` and `siteIcon` are models handed to the painter the app provides through the composition local the avatar uses, and a painter that reports failure draws the card without the picture; the app's loader is what must withhold the referrer and defer the request (LKC-14), and the README says so. The host is `java.net.URI(href).host` with `java.net.IDN` and `Character.UnicodeScript` for LKC-9. The layout of LKC-12 is `BoxWithConstraints` on the card's own max width, the boundary multiplied by `LocalDensity.current.fontScale`. The address is opened through `LocalUriHandler.current` after `onClick`, which returns false to keep it closed. Compose has no link role for a clickable element: the node drops `Role.Button`, carries none, and the README says so. Not built on this platform yet."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiLinkCard",
+      "props": {
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetSemanticLabel",
+        "external": "external",
+        "externalLabel": "externalSemanticLabel",
+        "title": "title",
+        "description": "description",
+        "image": "image",
+        "imageAlt": "imageSemanticLabel",
+        "siteName": "siteName",
+        "siteIcon": "siteIcon",
+        "variant": "variant"
+      },
+      "events": {
+        "click": "onPressed"
+      },
+      "notes": "`TanreiLinkCard(href: Uri, title:, description:, image:, imageSemanticLabel:, siteName:, siteIcon:, target:, targetSemanticLabel:, external:, externalSemanticLabel:, variant:, onPressed:)`. `image` and `siteIcon` are `ImageProvider?` values the app builds (a `NetworkImage` sends no referrer; `errorBuilder` gives LKC-13's fallback), so the package fetches through nothing of its own. `Semantics(link: true)` with `linkUrl` where the engine has it. The host is `href.host`; Dart's `Uri` does not decode an internationalised label, so the package carries the small decoder LKC-9 needs and tells scripts with `RegExp(unicode: true)` property escapes. The layout of LKC-12 is a `LayoutBuilder` on the card's own constraints, the boundary scaled by `MediaQuery.textScalerOf`. The address is opened by the opener the app provides, after `onPressed`, which returns false to keep it closed. Not built on this platform yet."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "LinkCard",
+      "props": {
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "external": "external",
+        "externalLabel": "externalLabel",
+        "title": "title",
+        "description": "description",
+        "image": "image",
+        "imageAlt": "imageAccessibilityLabel",
+        "siteName": "siteName",
+        "siteIcon": "siteIcon",
+        "variant": "variant"
+      },
+      "events": {
+        "click": "onPress"
+      },
+      "notes": "`<LinkCard href title description image imageAccessibilityLabel siteName siteIcon target targetLabel external externalLabel variant onPress />`: an accessible `Pressable` with `accessibilityRole=\"link\"`, the description and the host in `accessibilityValue`, `targetLabel` as the `accessibilityHint`. `image` and `siteIcon` are `ImageSourcePropType` values drawn by `Image` (its `onError` gives LKC-13's fallback). `onPress` receives an event whose `preventDefault()` keeps the address closed; otherwise `Linking.openURL(href)`. The host is read with the runtime's `URL`; where the runtime cannot tell scripts (no Unicode property escapes) the ASCII form is drawn always and the README says so (LKC-9). The layout of LKC-12 comes from the card's own `onLayout` width, the boundary multiplied by `PixelRatio.getFontScale()`. Follows the app's direction where an ancestor's is not known. Not built on this platform yet."
+    }
+  }
+}

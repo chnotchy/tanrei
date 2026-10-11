@@ -1,0 +1,33 @@
+---
+// A procedure in the content column, drawn by Tanrei's steps (specs/steps.spec.json): the ordered list
+// an author writes in Markdown between `<Steps>` and `</Steps>` takes the class, and nothing else about it changes —
+//
+//   <Steps>
+//
+//   1. **Propose.** Write or change the spec.
+//   2. **Validate.** …
+//
+//   </Steps>
+//
+// — becomes `<ol class="tanrei-steps" role="list" data-size="large">`, the size of the prose it sits in. The steps are
+// a class on the list, not an element: prose's rules keep reaching the paragraphs, links and code of each step, and
+// the stylesheet that draws them is the one the content column already loads (`@tanrei/web/prose.css` carries the
+// steps' rules). `start` on the list is kept; `label` names the procedure where no heading before it does.
+//
+// The content is rewritten as text because it arrives rendered.
+interface Props {
+  /** The list's accessible name, where the heading or the sentence before it does not already say what the procedure is. */
+  label?: string;
+  /** The size of the steps' text: the content column's by default. */
+  size?: 'medium' | 'large';
+}
+const { label, size = 'large' } = Astro.props;
+const html = (await Astro.slots.render('default')).trim();
+const opening = /^<ol\b([^>]*)>/.exec(html);
+if (!opening || !html.endsWith('</ol>')) throw new Error('<Steps> holds one ordered list and nothing else: write a numbered Markdown list between its tags.');
+const escape = (text: string) => text.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
+const attributes = [`class="tanrei-steps"`, `role="list"`, size === 'large' ? 'data-size="large"' : '', label ? `aria-label="${escape(label)}"` : ''].filter(Boolean).join(' ');
+const content = `<ol ${attributes}${opening[1]}>${html.slice(opening[0].length)}`;
+---
+
+<Fragment set:html={content} />

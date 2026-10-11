@@ -1,0 +1,250 @@
+---
+title: カラーフィールド
+description: フォームのフィールドとして、1 つの色を設定できるようにします。読んで、入力して、貼り付けられるテキストの値と、その横の色見本と、ピッカーを求めるボタンがあり、テキストフィールドと同じ見た目と寸法です。
+translationOf: components/color-field.mdx
+sourceHash: 22658491c949ac04b45125142818656c61cfd393
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="color-field" />
+
+<DemoFrame label="ピッカーのボタンがあるカラーフィールドと、プロダクトが色を受け付けなかったカラーフィールド" column>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" supporting-text="6 桁の 16 進数で入力します。例：#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選ぶ"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#fde047" error error-text="白い文字には明るすぎます。もっと暗い色を選んでください。"></tanrei-color-field>
+</DemoFrame>
+
+カラーフィールドは、ユーザーが色を値として設定する場所に使います。テーマのブランドカラーや、ラベルやカテゴリーの色などです。ユーザーは値を読み、入力し、ほかのツールから貼り付け、テキストの横の色見本で確かめます。フィールドは、同じバリアントとサイズのテキストフィールドと同じ見た目と寸法です。
+
+**構成要素**は、[フィールド](/ja/components/field/)と[カラー入力欄](/ja/components/color-input/)です。フィールドは枠で、ラベル、必須または任意の印、補足、エラーを受け持ちます。カラー入力欄はコントロールで、ボックス、色見本、テキストとしての値、ピッカーのボタンを受け持ちます。カラーフィールドは自分では何も描かず、自分のトークンも持ちません。プロパティはすべて、2 つのどちらかのプロパティで、そのまま渡されます。
+
+置かれた場所の幅いっぱいに広がるブロックで、ボックスもその幅いっぱいに広がります。自分の幅は持ちません。フィールドを狭くするには、置く場所を狭くします。すでにフィールドなので、[フィールド](/ja/components/field/)の中には入れません。
+
+ピッカーは自分では描きません。`picker` を付けると、末尾側のボタンがピッカーを求めます。ブラウザーのピッカーか、プロダクトが表示するサーフェスです。
+
+Web では `<tanrei-color-field>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+`value` は、番号記号と小文字の 16 進数 6 桁（`#0f766e`）か、色がないことを表す空文字列です。入力途中のテキストになることはありません。入力欄にあるものが色でない間、`value` は空です。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-color-field name="brand" label="ブランドカラー" value="#0f766e"
+        requirement="required" required-text="必須"
+        supporting-text="6 桁の 16 進数で入力します。例：#0f766e"
+        invalid-text="6 桁の 16 進数で入力してください。例：#0f766e"
+        picker picker-label="色を選ぶ"></tanrei-color-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/color-field';
+
+      const brand = document.querySelector('tanrei-color-field');
+      // 値が変わりました。色か空文字列で、value はすでに新しい値です。
+      brand.addEventListener('input', () => preview(brand.value));
+      // ユーザーが変わった値を確定しました。フォーカスが離れたとき、Enter、ピッカーが閉じたときです。
+      brand.addEventListener('change', () => save(brand.value));
+      // 色ではないテキストが確定されました。フィールドはテキストを残し、invalidText を表示します。
+      // detail.message が伝えるのも、この invalidText です。
+      brand.addEventListener('entryerror', (e) => console.log(e.detail.text, e.detail.message));
+      // プロダクト側のピッカーを表示するには、要求をキャンセルして開き、選ばれた色を value に設定します。
+      brand.addEventListener('pickerrequest', (e) => {
+        e.preventDefault();
+        openMyPicker(e.detail.value).then((color) => (brand.value = color));
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ColorField } from '@tanrei/react';
+
+    <ColorField label="ブランドカラー" value={brand} picker pickerLabel="色を選ぶ"
+      invalidText="6 桁の 16 進数で入力してください。例：#0f766e"
+      onChange={(event) => setBrand(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### 1 つ下の階層
+
+同じフィールドを 2 つの構成要素から自分で書いても、見た目は同じで、支援技術にとっても、同じ名前、説明、状態を持つ同じテキストボックスになります。
+
+```html
+<tanrei-field label="ブランドカラー" requirement="required" required-text="必須"
+  supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
+  <tanrei-color-input name="brand" value="#0f766e"
+    invalid-text="6 桁の 16 進数で入力してください。例：#0f766e"
+    picker picker-label="色を選ぶ"></tanrei-color-input>
+</tanrei-field>
+```
+
+<DemoFrame label="同じフィールドを自分で書いたもの：フィールドの中のカラー入力欄" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" requirement="required" required-text="必須" supporting-text="6 桁の 16 進数で入力します。例：#0f766e">
+    <tanrei-color-input value="#0f766e" invalid-text="6 桁の 16 進数で入力してください。例：#0f766e" picker picker-label="色を選ぶ"></tanrei-color-input>
+  </tanrei-field>
+</DemoFrame>
+
+カラーフィールドにない並べ方が必要なときに、1 つ下の階層で書きます。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| ラベル、ボックス、補足、エラー | カラーフィールド |
+| 枠の中、ボックスの横か下に置く自分の要素 | [フィールド](/ja/components/field/)に、[カラー入力欄](/ja/components/color-input/)と自分の要素を入れる |
+| ボックスだけ。行や列がすでに色の名前を示している（パレットのトーン、テーブルのセル） | [カラー入力欄](/ja/components/color-input/)を単独で使い、入力欄の `label` で名前を付ける |
+
+1 つ下の階層で変わるのは、何をどこに指定するかです。`name` と `value` はカラー入力欄に指定し、フォームに加わるコントロールもイベントが届く先も入力欄になります。`label`、`error`、`disabled`、必須の指定はフィールドに残り、フィールドがコントロールに渡します。入力欄自身のものは指定しません。カラーフィールドが行い、フィールドとカラー入力欄を自分で書いたものが行わないことは、ありません。
+
+## 仕様
+
+<DemoFrame label="空のカラーフィールド、白、黒、大きいサイズ、無効。最後は、行が色の名前を示している場所に置いた、ボックスだけのカラー入力欄" plain column>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="アクセントカラー" requirement="optional" optional-text="任意"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ページの背景" value="#ffffff"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="テキスト" value="#000000"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" size="large" picker picker-label="色を選ぶ"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="ブランドカラー" value="#0f766e" disabled picker picker-label="色を選ぶ"></tanrei-color-field>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="プライマリ、トーン 40" value="#0f766e"></tanrei-color-input>
+</DemoFrame>
+
+### フィールド
+
+| パーツ | 内容 |
+| --- | --- |
+| ラベル | コンテナの上（`stacked`）ではフィールドが描き、コンテナの中で浮く（`filled`、`outlined`）ときはカラー入力欄が描きます。描いても `labelHidden` で隠しても、アクセシブルネームになります |
+| 必須・任意の印 | ラベルの後ろ。`requirement="required"` では必須のタグ、アスタリスク、または印なし。`optional` では任意のタグ |
+| 色見本 | コンテナの先頭側にある、値の見本。値の色そのもので塗った小さな正方形で、細い線で囲まれます。空のときは、その線だけです。コントロールではありません |
+| 入力欄 | テキストとしての値。1 行で、収まらない分はスクロールします |
+| ピッカーのボタン | `picker` を付けたとき。末尾側にあるアイコンだけのテキストボタンで、名前は `pickerLabel` です |
+| 補足テキスト | 補足の 1 行。色見本を越えた、値のテキストが始まる位置から始まります。フィールドがエラーの間も残り、その下にエラーテキストが描かれます。`error` が true の間は `errorText`、確定したテキストが色でない間は `invalidText` で、`invalidText` が空のときは `errorText` です |
+
+3 つのバリアントと、2 つのサイズ `medium`（48）と `large`（56）は、テキストフィールドのものです。既定のシステムが提供するのは `stacked` だけです。色見本は、テキストフィールドの先頭のアイコンと同じ場所に、同じ大きさで置かれます。そのため、先頭にアイコンのあるテキストフィールドの下にカラーフィールドを置くと、先頭側の端がそろいます。
+
+色見本には何も混ぜません。ホバーの色も、エラーの色も、影もありません。ポインターの下で変わる見本は、間違った見本です。無効のときは、塗りを薄く描き、縁はそのままにします。
+
+### 値とテキスト
+
+| いつ | 起きること |
+| --- | --- |
+| ユーザーが入力、貼り付け、音声入力をする | 拒否も書き直しもしません。テキスト全体を読みます。色であれば `value` はその色に、そうでなければ空になります。`value` が変わると `input` が発火します |
+| フォーカスが離れる、または Enter | テキストを確定します。色は、値の書き方に書き直します。最後に確定した値と違っていれば `change` が発火します |
+| 確定したテキストが色ではない | テキストは残ります。フィールドはエラーになって `invalidText` を表示し、`entryerror` が発火します。エラーは次の編集で終わります |
+| テキストが空 | `value` は空になります。フィールドがそれをエラーにすることはありません |
+| プロダクトが `value` を設定する | 入力されていた内容にかかわらず、その色を表示します。イベントは発火しません |
+
+テキストは、前後の空白を除いて、ちょうど 6 桁の 16 進数であれば色として読みます。大文字でも小文字でも、番号記号があってもなくてもかまいません。`0F766E`、`#0f766e`、<code> #0F766E </code> は、どれも `#0f766e` です。
+
+それ以外はすべて、色ではありません。3 桁（`#0f7`）、8 桁（`#0f766e80`）、色の名前（`teal`）、関数の書き方（`rgb(15, 118, 110)`）などです。3 桁を読まないのは、6 桁を入力する途中でテキストが 3 桁を通るためです。アルファも、広色域の色もありません。
+
+ユーザーが入力している間は、何も報告しません。入力のエラーになるのは、確定したときだけです。
+
+### ピッカー
+
+`picker` を付けると、フィールドの末尾側にボタンが出ます。ボタンを押すと、値を伝える `pickerrequest` が発火します。
+
+| プロダクト | 起きること |
+| --- | --- |
+| 何もしない | フィールドが、ブラウザーのカラーピッカーを表示します。選ぶたびに、ユーザーによる編集として扱います。テキスト、色見本、`input` です。ピッカーが閉じると `change` が発火し、フォーカスはピッカーのボタンにあります |
+| 要求をキャンセルする | フィールドは何も表示しません。プロダクトが、フィールドをアンカーにしたプロダクト側のサーフェスを開き、選ばれた色を `value` に設定します。そのサーフェスは、閉じるときにフォーカスをピッカーのボタンに戻します |
+
+色見本を押しても、ピッカーは開きません。フィールドのほかの場所を押したときと同じく、入力欄にフォーカスが移ります。
+
+### それぞれの構成要素が受け持つもの
+
+- **フィールドから**：プロパティの `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText`。スロットの `label-icon`。トークンの `comp.field.*`。
+- **カラー入力欄から**：プロパティの `variant`、`size`、`value`、`invalidText`、`picker`、`pickerLabel`。イベントの `input`、`change`、`pickerRequest`、`entryError`。トークンは、ボックスが `comp.input-box.*`（すべての入力ボックスが読みます）、スウォッチが `comp.color-input.*`。
+
+カラー入力欄は、自身の `label`、`labelHidden`、`error`、`disabled` を持っています。カラーフィールドが設定するのは、これらではありません。カラーフィールドの `label` はフィールドのもので、入力欄に名前を与え、Filled と Outlined のフィールドではボックスの中で浮き上がります。
+
+### トークン
+
+カラーフィールドに自分のトークンはありません。ボックスは[カラー入力欄のトークン](/ja/components/color-input/#仕様)を、行（ラベル、印、補足、エラー）は[フィールドのトークン](/ja/components/field/#仕様)を、設定されている場所から読みます。下の表は、フィールドのトークンです。1 つのカラーフィールドだけを変えるには、構成要素のトークンをその要素に設定します。
+
+```html
+<tanrei-color-field label="ブランドカラー"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-color-field>
+```
+
+<ComponentSpecs name="color-field" />
+
+### Web での描き方の違い
+
+- 要素のシャドウルートにあるのは、`<tanrei-color-input>` を入れた `<tanrei-field>` だけです。要素をインポートすると、両方が定義されます。
+- カラーフィールドは、フォームに関連付けられる要素です。`name` を受け取り、`value` を送信します。色か、空文字列です。リセットでは `value` 属性に戻ります。`requirement="required"` で `value` が空の間は値の欠落を、入力のエラーが続く間は不正な入力を、フォームに報告します。2 つの構成要素がフォームに項目を加えることはありません。
+- `value` は、いつでもカラー入力欄のものです。`0F766E` と設定した値は `#0f766e` として、色ではない値は空文字列として読み返されます。
+- `input` と `change` は `detail` のないイベントなので、`value` は要素から読みます。`pickerrequest` と `entryerror` は CustomEvent で、前者は `detail.value` を、後者は `detail.text` と `detail.message` を持ちます。どれもカラー入力欄自身のイベントで、ターゲットはこの要素です。`detail.message` は `invalidText` で、指定していなければ空です。フィールドが代わりに `errorText` を表示している間も空です。
+- パーツ: `field` と `color-input` が 2 つの構成要素です。構成要素のパーツは、1 つ下の階層と同じ名前です。`label-icon`、`supporting-text` と、`container`、`outline`、`active-indicator`、`swatch`、`input`、`picker-button` です。`label` と `requirement-label` は、どちらの構成要素が描いていても、描かれているものを指します。`field-label`、`color-input-label`、`field-requirement-label`、`color-input-requirement-label` は、片方の構成要素のものを指します。
+- 要素自体にはフォーカスが移らず、ロールもありません。`focus()` は入力欄に移り、ピッカーのボタンには移りません。ラベルの行、ボックス、色見本、浮き上がるラベルを押すと、入力欄にフォーカスが移ります。補足やエラーテキストを押しても、何も起きません。
+- ラベルと補足は、ピッカーのボタンを含め、フィールドの中のどこかにフォーカスがある間、フォーカス時の色になります。ボックスがフォーカス時の見た目になるのは、入力欄にフォーカスがある間だけです。
+- 名前は `label` で付けます。ラベルを描かないときは `label-hidden` を付けます。`aria-label` は使いません。この要素では何の名前にもなりません。
+- 要素は文言を持ちません。`requiredText` と `optionalText` は、指定するまで空です。`requiredText` のない必須のフィールドは、タグが置かれる場所にアスタリスクを表示します。
+- ブラウザーのピッカーは、ブラウザーによって違います。Chromium ではページのポップアップ、Firefox と Safari ではシステムの色のウィンドウです。見た目、位置、キーは、ブラウザーのものです。
+- 全角の文字で書いたテキスト（`＃０ｆ７６６ｅ`）は、色として読みません。
+- 要素が定義されるまでは、大きさがありません。高さを確保してください。
+
+## ガイドライン
+
+### カラーフィールドとテキストフィールド
+
+| 観点 | カラーフィールド | テキストフィールド |
+| --- | --- | --- |
+| 持つもの | 1 つの色。`#` と 6 桁 | 任意のテキスト |
+| 見せるもの | テキストの横の色見本 | テキスト |
+| 確かめること | テキストが色であること | なし |
+
+表示するだけで編集しない色には、色見本を描き、その横に値か名前をテキストで添えます。カラーフィールドは、ユーザーが設定する色のためのものです。
+
+### 推奨
+
+- その色が何のためのものかが分かるラベルを書き、フォームでは見えるようにしておきます。
+- 値の書き方は `supportingText` に書きます。補足はフィールドがエラーの間も残るので、`invalidText` で繰り返す必要はありません。
+- 必要な場合は、色の名前を `supportingText` に言葉で書きます（「ティール」）。16 進数の値からは、色の見た目はほとんど分かりません。
+- `picker` を付けるときは、必ず `pickerLabel` を指定します。
+- 色の持つ意味は、利用者側で検証します。背景とのコントラストや、すでに使われている色かどうかなどです。結果は `error` と `errorText` で伝えます。
+- パレットのトーンのように、行がそれぞれの色の名前をすでに示している場所では、[カラー入力欄](/ja/components/color-input/)を使います。ボックスだけの部品で、自身の `label` で名前を付けます。
+
+### 非推奨
+
+- 色を色見本だけで伝えない。値はテキストです。2 つの見本を見分けられないユーザーも、2 つの違う値を読めます。
+- 空の `value` を、それだけでエラーとして扱わない。`requirement` は検証しません。
+- ユーザーが入力している間に、`aria-invalid` や `error` を設定しない。`change` か `entryerror` を待ちます。
+- カラーフィールドをフィールドの中に入れない。すでにフィールドです。フィールドが囲むコントロールは、[カラー入力欄](/ja/components/color-input/)です。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="color-field" />
+
+### コンポーネントが担うこと
+
+- 入力欄はテキストフィールドです。名前は `label` で、描いても隠しても同じです。値は、表示しているテキストです。
+- 表示している補足テキストまたはエラーテキストが説明になります。フィールドが任意の間は `optionalText` も加わります。
+- `error` が true の間と入力のエラーが続く間は invalid として、`requirement` が `required` の間は必須として伝えます。
+- フィールドにフォーカスがある間に現れたエラーは、1 回、控えめに読み上げます。フォーカスを奪うことはありません。
+- 色見本は装飾で、支援技術からは隠します。色は、値のテキストが伝えます。
+- ピッカーのボタンは、`pickerLabel` を名前とする別のボタンで、ダイアログを開くものとして伝えます。入力欄の次の、フォーカスが止まる位置です。フィールド自体に渡したフォーカスは、必ず入力欄に移ります。
+- 値が変わっても何も読み上げず、フィールドが色の名前を加えることもありません。
+- 入力メソッドが変換している間、フィールドは何も読まず、どのキーも扱いません。
+- フィールドのヒット領域は最小ターゲットを満たし、ピッカーのボタンもターゲットを満たします。
+- テキストを 200% にすると、ラベルと補足は折り返します。値は 1 行のままで、スクロールします。色見本の大きさは変わりません。
+- 強制カラーモードでは、フィールドに縁が付き、ユーザーの色で描きます。色見本だけは値の色のままです。その色を見せることが、色見本の役目だからです。縁はテキストの色になります。
+- 右から左のレイアウトでは、フィールドが反転します。色見本は右に、ピッカーのボタンは左に来ます。値そのものは左から右のままです。
+
+Web での既知の制約：
+
+- ブラウザーのピッカーは、Tanrei のものではありません。アクセシビリティは、ブラウザーのものです。
+- 要素が定義されるまでは、何も描かれません。
+
+### 利用者側で行うこと
+
+- すべてのカラーフィールドに `label` を指定します。
+- `invalidText` と `pickerLabel` は、ページの言語でフィールドに書きます。`requiredText` と `optionalText` は、フィールドに書くか、`setWords({ requiredText, optionalText })` でプロダクト全体に一度だけ渡します。[プロダクトの言葉](/ja/foundations/words/)を参照してください。
+- 色は利用者側で検証して `error` を設定し、`errorText` には色の直し方を書きます。
+- プロダクト側のピッカーを表示する場合は、ピッカーのボタンから開き、名前を付け、閉じるときにフォーカスをボタンに戻します。

@@ -1,0 +1,207 @@
+---
+title: Cuadro de redacción de chat
+description: Permite escribir un mensaje y enviarlo, en una sola cápsula que lo contiene todo. Un área de escritura que crece con lo que se escribe, los archivos adjuntos al mensaje, tus propias acciones y un botón de enviar que solo está habilitado mientras el mensaje se puede enviar. Notifica el mensaje y nunca envía nada por sí mismo.
+translationOf: components/chat-composer.mdx
+sourceHash: 68233132907fd0b94d40dacc7db0d52a3c7fec59
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## Descripción general
+
+<ComponentAvailability name="chat-composer" />
+
+<DemoFrame label="Un cuadro de redacción de chat en cada disposición. Escribe un mensaje, adjunta un archivo y envía. No se envía nada a ninguna parte." column>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="Mensaje" placeholder="Escribe un mensaje" send-label="Enviar" attachments="own" attach-label="Adjuntar archivos" remove-label="Quitar"></tanrei-chat-composer>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="Mensaje" placeholder="Escribe un mensaje" send-label="Enviar" attachments="own" attach-label="Adjuntar archivos" remove-label="Quitar" max-length="280" counter>
+    <tanrei-button slot="leading" variant="text" label="Mencionar a alguien"><span slot="icon">alternate_email</span></tanrei-button>
+    <tanrei-button slot="leading" variant="text" label="Añadir un emoji"><span slot="icon">mood</span></tanrei-button>
+  </tanrei-chat-composer>
+</DemoFrame>
+
+Un cuadro de redacción de chat es el único lugar donde se escribe un mensaje: en una conversación, en un hilo bajo un elemento de trabajo o en una petición de ayuda. Se dibuja como una sola cápsula. La cápsula contiene el área de escritura, los archivos adjuntos, tus propias acciones y el botón de enviar.
+
+**Se compone de** una [entrada de texto incrustada](/es/components/embedded-text-input/), un [selector de archivos](/es/components/file-picker/), [elementos de archivo](/es/components/file-item/) y [botones](/es/components/button/). La entrada de texto incrustada es la escritura. El selector de archivos abre el selector de la plataforma y juzga lo que se eligió. Un elemento de archivo es un archivo adjunto. Los botones son el botón de enviar, el de detener, el de adjuntar y los tuyos. El cuadro de redacción no dibuja ninguno de ellos. Añade lo que los une: la cápsula, si el mensaje se puede enviar, los archivos que conserva, el contador, una región activa y el valor del formulario.
+
+<Callout type="caution" title="No envía">
+El cuadro de redacción de chat no abre ninguna conexión. Cuando la persona envía, emite `send` con el texto y los archivos adjuntos, y tu producto se encarga del envío. Saber si el mensaje llegó, y decirlo, te corresponde a ti.
+</Callout>
+
+Usa otra cosa cuando:
+
+- Se rellena un campo de formulario con un texto largo. Eso es un [campo de texto](/es/components/text-field/) con `multiline`.
+- Solo se eligen archivos. Eso es un [control de subida de archivos](/es/components/file-upload/).
+- Se busca. Eso es una [búsqueda](/es/components/search/).
+
+En la web es `<tanrei-chat-composer>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-chat-composer label="Mensaje" placeholder="Escribe un mensaje" send-label="Enviar"
+                          attachments="own" attach-label="Adjuntar archivos" remove-label="Quitar">
+    </tanrei-chat-composer>
+    ```
+
+    ```js
+    composer.addEventListener('send', (event) => {
+      const { value, attachments } = event.detail;
+      post(value, attachments);
+    });
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ChatComposer } from '@tanrei/react';
+
+    <ChatComposer
+      label="Mensaje"
+      placeholder="Escribe un mensaje"
+      sendLabel="Enviar"
+      attachments="own"
+      attachLabel="Adjuntar archivos"
+      removeLabel="Quitar"
+      onSend={(event) => post(event.detail.value, event.detail.attachments)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+A menos que definas `keepAfterSend`, el cuadro de redacción se vacía al entregar el mensaje, y el foco vuelve al área de escritura.
+
+### Enviar tú los archivos
+
+Con `attachments="given"`, tu producto da los elementos de archivo. Úsalo cuando envías cada archivo en cuanto se adjunta y quieres que cada elemento muestre su estado y su progreso. Añade un hijo `<tanrei-file-item>` en `select`, y quítalo en el `remove` del elemento. No se puede enviar nada mientras un elemento se está subiendo, o ha fallado y se puede reintentar.
+
+```html
+<tanrei-chat-composer label="Mensaje" send-label="Enviar" attachments="given"
+                      attach-label="Adjuntar archivos" remove-label="Quitar" retry-label="Reintentar">
+  <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" progress="0.4"></tanrei-file-item>
+</tanrei-chat-composer>
+```
+
+### Un nivel más abajo
+
+La cápsula es la parte propia del cuadro de redacción de chat y no se puede tomar por separado. Un nivel más abajo colocas tú los miembros y dibujas la caja.
+
+```html
+<div class="my-composer" role="group" aria-label="Mensaje">
+  <div class="row">
+    <tanrei-file-picker multiple>
+      <tanrei-button slot="trigger" variant="text" label="Adjuntar archivos"><span slot="icon">attach_file</span></tanrei-button>
+    </tanrei-file-picker>
+    <tanrei-embedded-text-input label="Mensaje" multiline max-rows="6" enter-key="action"></tanrei-embedded-text-input>
+    <tanrei-button label="Enviar" disabled><span slot="icon">send</span></tanrei-button>
+  </div>
+</div>
+```
+
+Los miembros aportan la escritura con su altura que crece, las teclas, cada elemento de archivo y el selector. Tu código hace entonces lo que añade el cuadro de redacción de chat: dibuja la caja y muestra el foco en ella, decide si el mensaje se puede enviar, compara la longitud del texto con un límite, recibe lo que se suelta y lo que se pega, conserva los archivos y lo vacía todo después de enviar.
+
+## Especificaciones
+
+### Las dos disposiciones
+
+| Situación | `inline` (la predeterminada) | `stacked` |
+| --- | --- | --- |
+| Una línea de texto | Una sola fila: el botón de adjuntar, las acciones iniciales, el área de escritura, el contador, las acciones finales, el botón de enviar | El área de escritura y el botón de enviar en una línea. Una fila debajo contiene todo lo demás |
+| Varias líneas | Todos los botones se quedan en el borde inferior | El botón de enviar se queda en el borde inferior de la línea de escritura |
+| Para | Mensajes cortos, un panel estrecho | Muchas acciones, mensajes escritos en párrafos |
+
+Una cápsula más estrecha que `comp.chat-composer.layout.inline-min-width` se dispone como stacked, diga lo que diga `layout`. Un cuadro de redacción stacked que no tiene nada para la fila de debajo se dibuja como uno inline. El número de líneas nunca cambia la disposición.
+
+### Qué se puede enviar
+
+El botón de enviar solo está habilitado mientras se cumple todo lo siguiente. Por cada condición que no se cumple, `sendablechange` lleva un motivo por su nombre.
+
+| Motivo | El mensaje no se puede enviar mientras |
+| --- | --- |
+| `disabled` | `disabled` es true |
+| `sending` | `sending` es true |
+| `blocked` | `blocked` es true |
+| `empty` | No hay ningún carácter que no sea un espacio en blanco, ni ningún archivo adjunto |
+| `length` | El texto es más largo que `maxLength` |
+| `uploading` | El estado de un elemento de archivo es `uploading` |
+| `failed` | Un elemento de archivo ha fallado y se puede reintentar |
+
+### Las teclas
+
+Enter envía y Mayús+Enter empieza una línea nueva. Con `sendKey="modifier"`, Enter empieza una línea nueva. Ctrl+Enter y Comando+Enter envían con cualquiera de los dos valores de `sendKey`. El Enter de un método de entrada nunca envía.
+
+### Diferenciar un solo cuadro de redacción de chat
+
+Un sistema de diseño da estilo a cada miembro para todos los lugares donde se usa. Para diferenciar un solo cuadro de redacción, define un token en ese elemento. La cápsula lee sus propios tokens, y el token de un miembro llega al miembro que está dentro.
+
+```html
+<tanrei-chat-composer style="--tanrei-comp-chat-composer-container-shape: 12px" …></tanrei-chat-composer>
+```
+
+<ComponentSpecs name="chat-composer" />
+
+### Qué dibuja la web de otra manera
+
+- El texto se envía con `name`, y cada archivo conservado con `files-name`. Después de `send`, un cuadro de redacción que está en un formulario pide al formulario que se envíe y no se vacía.
+- Un teclado en pantalla no se puede distinguir de uno físico. Donde el puntero principal es impreciso y no admite el paso del cursor, Enter empieza una línea nueva y el botón de enviar envía.
+- El tamaño de un archivo no se dibuja en un elemento de archivo que dibuja el propio cuadro de redacción.
+- Sin script, el formulario son un `<textarea>` y un `<button>` de envío que escribes como hijos. Cuando el elemento queda definido, toma el texto y oculta los dos.
+
+## Pautas
+
+### Textos
+
+El cuadro de redacción de chat no tiene textos propios. Da `label`, `placeholder`, `sendLabel` y, donde se usen, `stopLabel`, `attachLabel`, `removeLabel`, `retryLabel` y las tres frases para un archivo rechazado. Defínelos una sola vez para el producto con `setWords()`, o en el elemento.
+
+### En un campo
+
+Dentro de un [campo](/es/components/field/), el cuadro de redacción toma la etiqueta del campo como su nombre, la ayuda o el texto de error del campo como descripción del área de escritura, y el error y el `disabled` del campo.
+
+### Recomendado
+
+- Di con tus propias palabras por qué un mensaje no se puede enviar, junto al cuadro de redacción o con `announcement`.
+- Pon tus propias acciones en los slots `leading` y `trailing`, como botones de texto de solo icono.
+- Define en `maxFiles` el número de archivos que puede llevar un mensaje.
+- Usa `stoppable` donde una respuesta llega poco a poco y se puede interrumpir.
+- Mantén el cuadro de redacción por encima de un teclado en pantalla con los medios propios de la plataforma. El cuadro de redacción no se fija a la pantalla.
+
+### Evita
+
+- No cambies el estilo de la escritura, de los elementos de archivo ni de los botones a través del cuadro de redacción. Da estilo al miembro.
+- No sustituyas el botón de enviar ni el de adjuntar por nada que no sea un botón.
+- No cortes el texto en un límite. `maxLength` marca lo que sobra y espera a la persona.
+- No hagas que arrastrar sea la única forma de adjuntar un archivo.
+
+## Accesibilidad
+
+<ComponentAccessibility name="chat-composer" />
+
+### De qué se encarga el componente
+
+- Es un grupo que recibe su nombre de `label`. El área de escritura es un cuadro de texto de varias líneas con el mismo nombre.
+- El borde de la cápsula es la indicación de foco del área de escritura, reciba el foco como lo reciba. Un botón o la acción de un elemento de archivo muestra su propio anillo de foco, y la cápsula no dibuja entonces ningún borde de foco.
+- Tab lo recorre en el orden en que se dibuja. Ninguna tecla en el área de escritura quita un archivo adjunto.
+- Un botón de enviar que no puede enviar es un botón deshabilitado. Lo que retiene el mensaje se muestra en el contador y en el elemento de archivo.
+- El contador es la primera parte de la descripción del área de escritura. No es una región activa.
+- Una sola región activa cortés dice tu `announcement` y lo que cambió entre los archivos adjuntos.
+- El Enter de un método de entrada nunca envía.
+- Con el texto al 200% en un ancho de 320 se dispone como stacked. Nada se corta y nada se desplaza hacia los lados.
+- Con colores forzados, la cápsula gana un borde, y su borde con foco es del color de resaltado.
+- No incluye textos propios, en ningún idioma.
+
+Carencias conocidas en la web:
+
+- Los métodos de entrada se han accionado de verdad en Chromium; en Firefox y Safari, solo a través de sus eventos.
+- Lo que dicen los lectores de pantalla se ha leído en los árboles de accesibilidad de los navegadores, no se ha oído con un lector de pantalla.
+
+### Qué debes hacer tú
+
+- Dale un `label`, o ponlo en un campo.
+- Da nombre a los botones que trae: `sendLabel`, `stopLabel`, `attachLabel`, `removeLabel`, `retryLabel`.
+- Di qué fue de un mensaje. Define `announcement` en tu controlador de `send` donde una frase ayude.
+- Da a cada elemento de archivo fallido un `errorText` que diga por qué falló y qué hacer.

@@ -1,0 +1,267 @@
+---
+title: Menú FAB
+description: Abre una lista breve de acciones relacionadas desde un conmutador dibujado como un botón de acción principal contraído, que se convierte en el botón de cierre de la lista mientras se muestran.
+translationOf: components/fab-menu.mdx
+sourceHash: 58f96ca923cd7e3ad7e31daa132c68b5a1f378d2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="fab-menu" />
+
+:::note[No está en el sistema Tanrei]
+El sistema Tanrei predeterminado no incluye el menú FAB, y cupertino tampoco, porque Apple no tiene botón de acción flotante; los preajustes de Material sí lo incluyen. En Tanrei, usa un [botón de acción principal](/es/components/main-action-button/) que abra una [hoja inferior](/es/components/bottom-sheet/) de acciones. El componente sigue funcionando con todos los sistemas, con una advertencia en desarrollo donde el sistema lo deja fuera. Las demostraciones de esta página se dibujan con el preajuste `m3-like`, un sistema que lo incluye.
+:::
+
+<DemoFrame label="Cerrado y abierto" system="m3-like">
+  {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}
+  <div style="display: flex; align-items: end; gap: var(--tanrei-sys-space-space300); padding-block-start: calc(3 * max(var(--tanrei-comp-fab-menu-item-height), var(--tanrei-sys-target-touch)) + 2 * var(--tanrei-comp-fab-menu-list-gap) + var(--tanrei-comp-fab-menu-list-offset))">
+    <tanrei-fab-menu label="Crear">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="Documento" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Carpeta" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Subir" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+    <tanrei-fab-menu inline open label="Crear">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="Documento" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Carpeta" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Subir" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+  </div>
+</DemoFrame>
+
+### Uso
+
+El conmutador se dibuja como un [botón de acción principal](/es/components/main-action-button/) contraído, con una etiqueta y un icono. Los elementos son acciones, cada una con un icono y una etiqueta, que se pasan como cada plataforma pasa los hijos repetidos. Igual que el botón de acción principal, el menú FAB no se coloca solo: tu diseño sitúa el conmutador, normalmente en la esquina inferior del lado de fin. Los elementos aparecen encima de él, en la capa de superposición de la plataforma.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-fab-menu class="primary-action" label="Crear">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="Documento" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Carpeta" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Subir" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+
+    <style>
+      /* El elemento no coloca nada: la página pone el conmutador en la esquina inferior del lado de fin. */
+      tanrei-fab-menu.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/fab-menu';
+      const fabMenu = document.querySelector('tanrei-fab-menu');
+      // El conmutador pide abrir o cerrar; tú defines open.
+      fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));
+      // close lleva el motivo: escape, outside, tab, focus-out o item. La web nunca envía back.
+      fabMenu.addEventListener('close', () => (fabMenu.open = false));
+      // El clic de un elemento se propaga hacia arriba y llega antes que close.
+      fabMenu.querySelector('[label="Subir"]').addEventListener('click', upload);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FabMenu, FabMenuItem } from '@tanrei/react';
+
+    <FabMenu
+      className="primary-action"
+      label="Crear"
+      open={open}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <span slot="icon">add</span>
+      <FabMenuItem label="Documento" icon="description" onClick={newDocument} />
+      <FabMenuItem label="Carpeta" icon="create_new_folder" onClick={newFolder} />
+      <FabMenuItem label="Subir" icon="upload" onClick={upload} />
+    </FabMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Se coloca como el FAB. Tanto el conmutador como los elementos escriben en el binding.
+    DocumentList()
+        .overlay(alignment: .bottomTrailing) {
+            TanreiFabMenu("Crear", icon: "add", isPresented: $showsCreate) {
+                TanreiFabMenuItem("Documento", icon: "description", action: newDocument)
+                TanreiFabMenuItem("Carpeta", icon: "create_new_folder", action: newFolder)
+                TanreiFabMenuItem("Subir", icon: "upload", action: upload)
+            }
+            .padding()
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiFabMenu
+    import io.github.chnotchy.tanrei.components.TanreiFabMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // Elevación de estado: expanded lo guardas tú. Ponlo en el slot floatingActionButton de un scaffold, o colócalo tú.
+    TanreiFabMenu(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        onDismissRequest = { expanded = false },
+        contentDescription = "Crear",
+        icon = { TanreiText("add") },
+    ) {
+        TanreiFabMenuItem(text = "Documento", icon = "description", onClick = ::newDocument)
+        TanreiFabMenuItem(text = "Carpeta", icon = "create_new_folder", onClick = ::newFolder)
+        TanreiFabMenuItem(text = "Subir", icon = "upload", onClick = ::upload)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // El menú FAB se abre y se cierra solo mediante el controlador; onToggle y onClose lo notifican.
+    Scaffold(
+      body: const DocumentList(),
+      floatingActionButton: TanreiFabMenu(
+        controller: createMenu,
+        semanticLabel: 'Crear',
+        icon: const Icon(AppSymbols.add),
+        items: <TanreiFabMenuItem>[
+          TanreiFabMenuItem(label: 'Documento', icon: const Icon(AppSymbols.description), onPressed: newDocument),
+          TanreiFabMenuItem(label: 'Carpeta', icon: const Icon(AppSymbols.createNewFolder), onPressed: newFolder),
+          TanreiFabMenuItem(label: 'Subir', icon: const Icon(AppSymbols.upload), onPressed: upload),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { View } from 'react-native';
+    import { FabMenu } from '@tanrei/react-native';
+
+    // Controlado: define visible desde onToggle, y ponlo en false desde onDismiss, que recibe el motivo.
+    // El conmutador nunca se posiciona solo: lo coloca style.
+    <View style={{ flex: 1 }}>
+      <DocumentList />
+      <FabMenu
+        icon="add"
+        accessibilityLabel="Crear"
+        visible={open}
+        onToggle={setOpen}
+        onDismiss={() => setOpen(false)}
+        items={[
+          { label: 'Documento', icon: 'description', onPress: newDocument },
+          { label: 'Carpeta', icon: 'create_new_folder', onPress: newFolder },
+          { label: 'Subir', icon: 'upload', onPress: upload },
+        ]}
+        style={styles.primaryAction}
+      />
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Variantes, tamaños y estado deshabilitado" system="m3-like" plain>
+  <tanrei-fab-menu variant="tonal" label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu variant="surface" label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="small" label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="large" label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu disabled label="Crear"><span slot="icon">add</span></tanrei-fab-menu>
+</DemoFrame>
+
+<ComponentSpecs name="fab-menu" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un menú FAB cuando la acción principal de una pantalla se presenta en unas pocas formas relacionadas: un documento nuevo, una carpeta o una subida; una foto o una nota. El conmutador mantiene al alcance la única acción flotante de la pantalla, y al pulsarlo muestra esas formas como acciones con etiqueta justo encima de él.
+
+Cuando solo hay una acción, usa un [botón de acción principal](/es/components/main-action-button/). Cuando las opciones son muchas, o necesitan descripciones, usa un [menú](/es/components/menu/) abierto desde un botón, o una hoja. Cuando una acción pertenece a un elemento y no a toda la pantalla, pon un botón junto a ese elemento.
+
+### Cómo elegir una variante
+
+| Variante | Énfasis | Úsala para |
+| --- | --- | --- |
+| Filled (predeterminada) | El más alto | Las acciones principales de la pantalla con toda su fuerza. |
+| Tonal | Alto | Una pantalla en la que el contenido debe llevar la delantera. |
+| Surface | Neutro | Un menú FAB sobre un contenido que ya tiene color, como un mapa o una foto. |
+
+La variante da color por igual al conmutador y a los elementos. Mientras está abierto, el conmutador toma el otro aspecto de la variante, se redondea hasta ser un círculo y muestra un glifo de cierre, de modo que abierto nunca se parece a cerrado. El tamaño solo afecta al conmutador (40, 48 o 64): los elementos tienen un único tamaño.
+
+### Abrir y cerrar
+
+El menú FAB es una superposición sobre la que se actúa y que no es modal, como el menú. Las personas actúan dentro de él, así que recibe el foco y lo devuelve, pero no se bloquea nada más de la pantalla: no hay velo ni retención del foco.
+
+- **Apertura.** El conmutador pide abrir con `toggle`. Los elementos aparecen encima de él, alineados con su lado de fin, uno tras otro empezando por el más cercano, y el foco pasa al primer elemento, arriba. Si se abre con Flecha arriba, el foco va en cambio al último elemento, el que está junto al conmutador.
+- **Cierre.** Escape, la acción de retroceso de la plataforma, una pulsación fuera de los elementos y del conmutador, Tab o la salida del foco piden cerrar con `close` y el motivo. Activar un elemento emite primero su clic y después `close` con el motivo `item`. Una pulsación en el conmutador mientras está abierto es una conmutación, no una pulsación fuera.
+- **Devolución del foco.** Cuando los elementos se cierran y el foco estaba entre ellos, el foco vuelve al conmutador. Tab desde un elemento los cierra y avanza a partir del conmutador, como habría hecho desde él.
+- **Quién cierra.** En la web, Compose y React Native defines `open` (`expanded`, `visible`) desde `toggle` y lo vuelves a poner en false desde `close`. En SwiftUI y Flutter el menú FAB se abre y se cierra solo mediante su binding o su controlador.
+
+### Recomendado
+
+- Da al conmutador una etiqueta que nombre lo que sus acciones tienen en común, como «Crear». Conserva ese nombre mientras está abierto. Su estado expandido le dice a un lector de pantalla que ahora cierra la lista.
+- Da a cada elemento una etiqueta corta y un icono. La etiqueta es lo que las personas leen; el icono solo las ayuda a encontrarla.
+- Limítate a entre dos y seis elementos. Ordénalos como los recorre la vista: el primero se dibuja arriba, y el último queda justo encima del conmutador.
+- Deja espacio al final del contenido que se desplaza, para que el conmutador nunca tape de forma permanente el último elemento.
+
+### Evita
+
+- No deshabilites un elemento. Deja fuera de la lista una acción que no esté disponible. No existe el elemento deshabilitado.
+- No cambies el nombre del conmutador a «Cerrar» mientras está abierto, ni cambies tú su icono. El componente se encarga de ambas cosas.
+- No pongas un menú FAB y un botón de acción principal del mismo tamaño en una misma pantalla. Una pantalla tiene una sola acción flotante.
+- No uses un menú FAB para acciones menores, destructivas o de configuración.
+
+## Accesibilidad
+
+<ComponentAccessibility name="fab-menu" />
+
+### De qué se encarga el componente
+
+- El conmutador es un botón cuyo nombre es la etiqueta. Expone que abre un menú y si el menú está abierto, donde la plataforma tiene esas propiedades, y conserva su nombre mientras está abierto.
+- Mientras está abierto, los elementos son un menú con esa misma etiqueta como nombre, y cada uno es un elemento de menú con su propia etiqueta como nombre, con su posición y el número de elementos. Los iconos quedan ocultos.
+- Enter, Espacio o Flecha abajo en el conmutador abren el menú y llevan el foco al primer elemento. Flecha arriba lo abre y lleva el foco al último elemento. Flecha abajo y Flecha arriba se mueven entre los elementos y dan la vuelta, y Inicio y Fin llegan a los extremos. Enter o Espacio en un elemento lo activan y cierran el menú. Escape cierra el menú y devuelve el foco al conmutador.
+- El menú no es modal: no retiene el foco, no vuelve inerte el resto de la pantalla y no dibuja ningún velo. Tab desde un elemento lo cierra.
+- El área de pulsación del conmutador alcanza el objetivo mínimo en todos los tamaños. Cada elemento tiene al menos la altura de un objetivo, y todo su contenedor es su área de pulsación.
+- El conmutador no crece con el tamaño del texto, porque un icono no es texto. Los elementos crecen y ajustan sus etiquetas en varias líneas.
+- Donde el movimiento está reducido, el conmutador cambia y los elementos aparecen y desaparecen de inmediato.
+- Las compilaciones de depuración notifican la falta de la etiqueta del conmutador, un elemento sin etiqueta o sin icono, y menos de dos o más de seis elementos.
+
+Carencias conocidas por plataforma:
+
+- Web: la web nunca envía `back`. Escape es su petición de cierre.
+- Web: los elementos se colocan mediante un script respecto al conmutador, no con el posicionamiento por anclas de CSS como dice la nota para la web de la especificación, igual que ocurre con el menú.
+- Una pulsación fuera cierra los elementos en todas partes. En la web y Flutter llega además a lo que hay debajo. En SwiftUI, Compose y React Native no.
+- SwiftUI no tiene rol de menú ni de elemento de menú, ni forma de decir que el conmutador abre un menú o que el menú está abierto. Los elementos son botones en un contenedor cuyo nombre es la etiqueta, cada uno con su posición («2 of 3», solo en inglés) como valor.
+- SwiftUI presenta los elementos en un popover, que se coloca solo. Dibuja su propia burbuja y su propia flecha detrás de los elementos, centra la columna en la esquina del conmutador en lugar de alinearla con el borde de fin del conmutador, y la recorta en el sistema predeterminado; `list.offset` no define la distancia. El popover se sustituirá por la capa de superposición de Tanrei.
+- SwiftUI: Tab cierra los elementos y devuelve el foco al conmutador, pero el foco no puede avanzar desde él en la misma pulsación de tecla.
+- SwiftUI: el marco de accesibilidad de un elemento incluye su sombra dibujada, así que los marcos de los elementos vecinos se solapan unos pocos puntos.
+- SwiftUI: un SF Symbol más ancho que alto, como `folder.badge.plus`, sobresale de la caja de icono del elemento.
+- SwiftUI: las teclas del conmutador y de los elementos, y la entrada y la devolución del foco, se prueban como reglas, todavía no con un teclado real.
+- Compose no tiene rol de menú ni ninguna propiedad que diga que un botón abre un menú. Los elementos son botones en un grupo de recorrido cuyo nombre es la etiqueta, con su posición en su información de colección, y las acciones de expandir y contraer del conmutador dicen si los abre o los cierra.
+- Flutter no expone en el conmutador que tiene un elemento emergente (has-popup), ni la posición en el menú ni el número de elementos.
+- React Native no tiene ninguna propiedad que diga que un botón abre un menú. El conmutador solo expone si el menú está abierto.
+- React Native dibuja los elementos en la capa de superposición de `TanreiProvider`, así que debe haber un `TanreiProvider` por encima. Tab cierra los elementos y devuelve el foco al conmutador, y el siguiente Tab avanza desde él.
+- React Native: la colocación de los elementos, su entrada escalonada, la entrada y la salida del foco, y la pulsación fuera todavía no se han comprobado en un dispositivo.
+
+### Qué debes hacer tú
+
+- Escribe una etiqueta para el conmutador y para cada elemento. Un icono solo no es un nombre.
+- Pon el menú FAB en el árbol de elementos en el lugar al que pertenecen sus acciones. La tecnología de apoyo lee el conmutador en el orden del árbol, no donde se dibuja.
+- En la web, Compose y React Native, define `open` desde `toggle` y ponlo en false desde `close`. El menú FAB solo pide.
+- No muevas tú el foco cuando se cierra. El menú FAB devuelve el foco al conmutador.
+- Mantén el conmutador apartado de la barra de navegación y deja espacio encima de él para los elementos.

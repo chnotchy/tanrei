@@ -1,0 +1,464 @@
+---
+title: Subida de archivos
+description: Permite elegir archivos con un selector de archivos y muestra lo elegido como elementos de archivo, en una columna de filas o en una tira de mosaicos. Colocado en un formulario, conserva los archivos elegidos y los envía sin código; un producto que envía los archivos por su cuenta da los elementos de archivo. Nunca sube nada por sí mismo.
+translationOf: components/file-upload.mdx
+sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## Descripción general
+
+<ComponentAvailability name="file-upload" />
+
+<DemoFrame label="Un control de subida de archivos en cada disposición. Elige un archivo: aparece en la lista y se puede quitar. No se envía nada." column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Archivo adjunto" accept=".pdf" constraints-text="PDF, hasta 10 MB" max-size="10000000" empty-text="Ningún archivo elegido" remove-label="Quitar" type-error-text="Solo se pueden añadir archivos PDF." size-error-text="Supera los 10 MB.">
+    <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
+  </tanrei-file-upload>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Archivos adjuntos" accept=".pdf,image/png" max-size="10000000" drop-text="Arrastra archivos aquí o elígelos" constraints-text="PDF o PNG, hasta 10 MB cada uno" remove-label="Quitar" type-error-text="Solo se pueden añadir archivos PDF y PNG." size-error-text="Supera los 10 MB.">
+    <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+Un control de subida de archivos es dos cosas en un mismo lugar: la forma de elegir archivos y la lista de lo que se eligió. Es el caso corriente, listo para usarse en un formulario.
+
+**Se compone de** un [selector de archivos](/es/components/file-picker/) y [elementos de archivo](/es/components/file-item/). El selector de archivos es la forma de elegir: tu propio [botón](/es/components/button/), que abre el selector de archivos de la plataforma, la zona para soltar que lo rodea, los límites dichos con palabras y el juicio de lo elegido. Un elemento de archivo es un archivo elegido: su glifo o su imagen, su nombre, su tamaño, su estado y las acciones para quitarlo y para volver a intentarlo. El control de subida no dibuja ni lo uno ni lo otro. Añade lo que los une: qué archivos se conservan, cuántos archivos más caben, la misma forma (fila o mosaico) para todos los archivos, un solo mensaje para muchos cambios, adónde va el foco después de quitar un archivo y el valor del formulario.
+
+Quién tiene las filas lo dice la propiedad `rows`:
+
+- `own`, el valor predeterminado. El control de subida conserva los archivos elegidos y dibuja él mismo sus filas. Colócalo en un formulario y funciona: las personas eligen, ven la lista, quitan y envían. No escribes código.
+- `given`. Tu producto da las filas. Úsalo cuando envías cada archivo en cuanto se elige y quieres que cada fila muestre su estado, su progreso y una acción de reintentar.
+
+<Callout type="caution" title="No sube nada">
+El control de subida no abre ninguna conexión ni lee un solo byte de un archivo. Con `rows="own"` conserva la referencia del navegador a cada archivo elegido, y el formulario envía los archivos cuando se envía. Con `rows="given"` no conserva nada. Adónde van los archivos, con qué credenciales, en qué fragmentos y con qué reintentos es cosa del código de tu formulario o de tu producto. Los ejemplos de esta página no envían nada.
+</Callout>
+
+Usa otra cosa cuando:
+
+- Los archivos ya están almacenados y las personas los abren o los seleccionan. Eso es una [lista](/es/components/list/).
+- Las personas introducen valores, como destinatarios o etiquetas. Esos son chips de entrada en un [grupo de tags](/es/components/tag-group/).
+- Solo muestras cuánto ha avanzado una tarea. Eso es un [indicador de progreso](/es/components/progress-indicator/).
+- Los archivos van a un lugar que no es una lista debajo del selector: dentro de un mensaje que se está escribiendo, a un lienzo, o se leen en el momento y no se conservan. Eso es un [selector de archivos](/es/components/file-picker/) solo, con [elementos de archivo](/es/components/file-item/) allí donde los muestres; consulta [Un nivel más abajo](#un-nivel-más-abajo).
+- La página debe recibir archivos donde no se ejecutan scripts. Escribe un `<input type="file">` nativo en tu propio formulario. Un elemento personalizado no puede abrir el selector ni llevar un archivo sin scripts.
+
+En la web es `<tanrei-file-upload>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+Coloca el elemento en tu formulario y dale un `name` y un activador. Eso es todo. Los archivos elegidos aparecen en la lista, cada fila tiene una acción de quitar y el formulario envía los archivos que se conservan.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form method="post" enctype="multipart/form-data" action="/requests">
+      <tanrei-file-upload name="attachments" multiple
+                          accept=".pdf,image/png" max-size="10000000"
+                          label="Archivos adjuntos"
+                          constraints-text="PDF o PNG, hasta 10 MB cada uno"
+                          remove-label="Quitar"
+                          type-error-text="Solo se pueden añadir archivos PDF y PNG."
+                          size-error-text="Supera los 10 MB.">
+        <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+      </tanrei-file-upload>
+      <button type="submit">Enviar</button>
+    </form>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload } from '@tanrei/react';
+
+    <form method="post" encType="multipart/form-data" action="/requests">
+      <FileUpload
+        name="attachments"
+        multiple
+        accept={['.pdf', 'image/png']}
+        maxSize={10_000_000}
+        label="Archivos adjuntos"
+        constraintsText="PDF o PNG, hasta 10 MB cada uno"
+        removeLabel="Quitar"
+        typeErrorText="Solo se pueden añadir archivos PDF y PNG."
+        sizeErrorText="Supera los 10 MB."
+      >
+        <Button slot="trigger" variant="outlined">Elegir archivos</Button>
+      </FileUpload>
+      <button type="submit">Enviar</button>
+    </form>
+    ```
+  </TabItem>
+</Tabs>
+
+Qué ocurre sin escribir nada:
+
+- Con `multiple`, una segunda elección se suma a la primera. `maxFiles` cuenta todos los archivos que se conservan. Sin `multiple`, un archivo nuevo ocupa el lugar del que se conservaba.
+- El mismo archivo elegido dos veces se conserva una sola vez.
+- Un archivo que incumple un límite no se conserva. Se dibuja como una fila fallida con tu frase para el motivo, y desaparece cuando la persona lo quita o vuelve a elegir.
+- La acción de quitar quita la fila. El foco pasa a la fila siguiente.
+- El formulario envía los archivos conservados con el nombre `name`. Un restablecimiento vacía la lista.
+
+Tres líneas de código opcionales añaden lo que el marcado no puede decir:
+
+```js
+const upload = document.querySelector('tanrei-file-upload');
+
+// El tamaño de un archivo, con las palabras de tu producto. Sin esto no se dibuja ningún tamaño.
+const megabytes = new Intl.NumberFormat('es', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+upload.formatSize = (bytes) => megabytes.format(bytes / 1e6);
+
+// Los archivos conservados cambiaron por algo que hizo una persona.
+upload.addEventListener('change', ({ detail }) => console.log(detail.files));
+
+// Desde tu código: lee los archivos conservados, entrega archivos y vacía la lista.
+upload.files;          // File[], una matriz nueva en cada lectura
+upload.add(files);     // se juzgan como una elección; devuelve los archivos rechazados con sus motivos
+upload.clear();
+```
+
+En React, esas mismas tres cosas son una ref: `ref.current.files`, `ref.current.add(files)` y `ref.current.clear()`, con `formatSize` y `onChange` como propiedades.
+
+### Enviar los archivos por tu cuenta
+
+Di `rows="given"` cuando tu producto envía cada archivo por su cuenta e informa sobre él. En `select` añades un [elemento de archivo](/es/components/file-item/) por cada archivo que conservas. En el `remove` de un elemento de archivo, lo retiras. El componente entonces no añade ni quita nada por sí mismo, y no conserva ningún archivo.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-file-upload id="attachments" rows="given" layout="drop-area" multiple
+                        accept=".pdf,image/png" max-size="10000000"
+                        label="Archivos adjuntos"
+                        drop-text="Arrastra archivos aquí o elígelos"
+                        constraints-text="PDF o PNG, hasta 10 MB cada uno"
+                        remove-label="Quitar" retry-label="Reintentar">
+      <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+    </tanrei-file-upload>
+
+    <script type="module">
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const upload = document.querySelector('#attachments');
+      const size = new Intl.NumberFormat('es', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+
+      upload.addEventListener('select', ({ detail }) => {
+        for (const file of detail.files) {
+          const row = document.createElement('tanrei-file-item');
+          Object.assign(row, { value: crypto.randomUUID(), name: file.name, sizeText: size.format(file.size / 1e6), status: 'uploading', statusText: 'Subiendo', progress: 0 });
+          upload.append(row);
+          // Tu código envía el archivo e informa del resultado. El componente solo dibuja lo que tú defines.
+          send(file, {
+            onProgress: (share) => (row.progress = share),
+            onDone: () => Object.assign(row, { status: 'done', statusText: 'Subido' }),
+            onError: () => Object.assign(row, { status: 'error', errorText: 'Se perdió la conexión.', retryable: true }),
+          });
+        }
+      });
+
+      // Un archivo rechazado tiene un motivo que es un nombre, no una frase. Dilo con tus propias palabras.
+      upload.addEventListener('reject', ({ detail }) => {
+        const tooLarge = detail.files.filter((refused) => refused.reason === 'size').length;
+        if (tooLarge) upload.announcement = `${tooLarge} archivos superaban los 10 MB.`;
+      });
+
+      // Una fila nunca se quita a sí misma. La retiras tú, y el foco pasa a la fila siguiente.
+      upload.addEventListener('remove', (event) => event.target.remove());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload, FileItem } from '@tanrei/react';
+
+    <FileUpload
+      rows="given"
+      layout="drop-area"
+      multiple
+      accept={['.pdf', 'image/png']}
+      maxSize={10_000_000}
+      label="Archivos adjuntos"
+      dropText="Arrastra archivos aquí o elígelos"
+      constraintsText="PDF o PNG, hasta 10 MB cada uno"
+      removeLabel="Quitar"
+      retryLabel="Reintentar"
+      onSelect={(event) => start(event.detail.files)}
+      onReject={(event) => explain(event.detail.files)}
+    >
+      <Button slot="trigger" variant="outlined">Elegir archivos</Button>
+      {rows.map((row) => (
+        <FileItem key={row.id} value={row.id} name={row.name} sizeText={row.sizeText} status={row.status} statusText={row.statusText} progress={row.progress} errorText={row.errorText} retryable={row.retryable} onRemove={() => remove(row.id)} onRetry={() => retry(row.id)} />
+      ))}
+    </FileUpload>
+    ```
+  </TabItem>
+</Tabs>
+
+<Callout type="caution" title="Las filas solo se dibujan cuando las das tú">
+Un `<tanrei-file-item>` que escribes dentro de un control de subida solo se dibuja con `rows="given"`. Sin el atributo, el control de subida conserva sus propios archivos, tus filas no se dibujan y una compilación de depuración lo notifica.
+</Callout>
+
+### Un nivel más abajo
+
+Lo mismo, escrito a mano a partir de sus dos miembros, da la misma imagen, con los mismos nombres, descripciones y estados:
+
+```html
+<!-- el control de subida de archivos -->
+<tanrei-field label="Archivos adjuntos">
+  <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
+      constraints-text="PDF, 5 archivos como máximo" empty-text="Ningún archivo elegido" remove-label="Quitar" retry-label="Reintentar">
+    <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Subiendo" progress="0.4"></tanrei-file-item>
+  </tanrei-file-upload>
+</tanrei-field>
+
+<!-- un nivel más abajo: los dos miembros, dispuestos por el producto -->
+<tanrei-field label="Archivos adjuntos">
+  <tanrei-file-picker multiple accept=".pdf" max-files="5"
+      constraints-text="PDF, 5 archivos como máximo" selection-text="Ningún archivo elegido">
+    <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+<ul class="my-files" aria-label="Archivos adjuntos">
+  <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Subiendo" progress="0.4"
+        remove-label="Quitar" retry-label="Reintentar"></tanrei-file-item></li>
+</ul>
+```
+
+<DemoFrame label="Lo mismo escrito a mano: un selector de archivos y una lista propia de la página con un elemento de archivo" column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Archivos adjuntos" multiple accept=".pdf" max-files="5" constraints-text="PDF, 5 archivos como máximo">
+    <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+  </tanrei-file-picker>
+  <ul class="not-content" aria-label="Archivos adjuntos" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Subiendo" progress="0.4" remove-label="Quitar" retry-label="Reintentar"></tanrei-file-item></li>
+  </ul>
+</DemoFrame>
+
+La fila de un archivo es el mismo elemento por separado y dentro de un control de subida. Lo que la versión hecha a mano no recibe es el estado que mantiene el control de subida:
+
+- Un solo mensaje cortés para muchos cambios.
+- El foco que pasa al archivo siguiente después de quitar uno.
+- El valor del formulario, su restablecimiento y su validación.
+- Pasar por alto un archivo que se eligió dos veces, y juzgar cuántos archivos más caben.
+- La misma forma (fila o mosaico), el mismo encaje (`cover` o `contain`) y los mismos dos nombres de acción para todos los archivos.
+- La lista que rodea los elementos, y el grupo que rodea el conjunto.
+
+Baja a ese nivel cuando necesites una organización que el control de subida no ofrece:
+
+| Necesitas | Usa |
+| --- | --- |
+| Una forma de elegir, una lista debajo y el valor de un formulario | El control de subida de archivos |
+| Los archivos elegidos en un lugar que no es debajo del selector: dentro de un mensaje, junto a una vista previa, en una tabla | Un [selector de archivos](/es/components/file-picker/), y [elementos de archivo](/es/components/file-item/) donde los muestres |
+| Un archivo que se lee en el momento y no se conserva | Un [selector de archivos](/es/components/file-picker/) solo |
+| Archivos que tu producto ya tiene, sin nada que elegir | [Elementos de archivo](/es/components/file-item/) solos |
+| Archivos en un orden que las personas cambian | Una [lista](/es/components/list/) cuyas filas muestran los archivos; consulta la [página del elemento de archivo](/es/components/file-item/#archivos-en-un-orden-que-las-personas-cambian) |
+
+## Especificaciones
+
+<DemoFrame label="Filas que da el producto, una de cada estado: en espera, enviada al 40%, en curso, completada, fallida y reintentable, fallida definitivamente" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="Archivos adjuntos" constraints-text="PDF o PNG, hasta 10 MB cada uno" remove-label="Quitar" retry-label="Reintentar">
+    <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="En espera"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3,4 MB" status="uploading" status-text="Subiendo" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1,1 MB" status="uploading" status-text="Subiendo"></tanrei-file-item>
+    <tanrei-file-item value="d" name="contract.pdf" size-text="2,0 MB" status="done" status-text="Subido"></tanrei-file-item>
+    <tanrei-file-item value="e" name="site-photo.png" size-text="6,8 MB" status="error" error-text="Se perdió la conexión." retryable></tanrei-file-item>
+    <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 MB" status="error" error-text="Supera los 10 MB."></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+<DemoFrame label="El mismo control de subida con mosaicos: cada archivo es un recuadro con su imagen y el nombre debajo" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="Fotos" constraints-text="Imágenes, hasta 5 MB cada una" remove-label="Quitar" retry-label="Reintentar">
+    <tanrei-button slot="trigger" variant="outlined">Elegir fotos</tanrei-button>
+    <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+### Qué aporta cada miembro
+
+| Aspecto | Del selector de archivos | Del elemento de archivo | Propio del control de subida |
+| --- | --- | --- | --- |
+| Propiedades | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight` (los `form`, `preview`, `fit`, `nameHidden`, `width`, `height` del elemento), `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
+| Eventos | — | `click`, `remove`, `retry`, de los elementos de archivo que das tú | `select`, `reject`, `change` |
+| Slots | `trigger`, `icon` | — | El slot predeterminado: tus elementos de archivo, con `rows="given"` |
+| Tokens | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.file-upload.list.item-gap` |
+
+El selector de archivos tiene un `label`, un `maxFiles` y un `selectionText` propios. No se le reenvían: el `label` del control de subida nombra el selector y la lista juntos, su `maxFiles` cuenta todos los archivos de la lista, y es él quien escribe el `selectionText` del selector a partir de `emptyText` mientras la lista está vacía.
+
+Las ocho propiedades que vienen del elemento de archivo se dan a todos los elementos de archivo del control de subida, para que todos los archivos se dibujen de la misma manera. Si un elemento de archivo tuyo dice otra cosa en alguna de ellas, se impone el valor del control, y una compilación de depuración lo notifica. `disabled` también se da a todos los elementos de archivo.
+
+Lo que hace la elección —el activador, la zona para soltar, `accept` y los límites— está en la [página del selector de archivos](/es/components/file-picker/). Lo que muestra la fila o el mosaico de un archivo —el glifo según el formato, la imagen, los estados, un cuerpo pulsable— está en la [página del elemento de archivo](/es/components/file-item/).
+
+### Diferenciar un solo control de subida
+
+El control de subida tiene dos tokens propios, las dos distancias de su lista. Todo lo demás que dibuja lee los tokens del selector de archivos y los del elemento de archivo, allí donde estén definidos. Para cambiar una sola instancia, define en ella el token del miembro:
+
+```html
+<tanrei-file-upload label="Archivos adjuntos" style="--tanrei-comp-file-item-row-container-gap: 16px">…</tanrei-file-upload>
+```
+
+<ComponentSpecs name="file-upload" />
+
+### Qué dibuja la web de otra manera
+
+- El shadow root del elemento contiene un `<tanrei-file-picker>`, la lista y una región activa. Con `rows="own"`, la lista contiene los `<tanrei-file-item>` que crea el control de subida; con `rows="given"`, tus elementos de archivo se quedan en tu DOM, en el slot predeterminado. Importar el elemento define los dos miembros.
+- El activador y el glifo que pones en sus slots se pasan al selector de archivos y se quedan en tu DOM. El activador sigue siendo tu propio botón, y recibe el foco allí donde está.
+- El elemento está asociado a formularios, y sus dos miembros no: no añaden ninguna entrada al formulario.
+- `select`, `reject` y `change` son CustomEvents propios del control de subida. Los `select` y `reject` del selector de archivos no salen de él. Los `click`, `remove` y `retry` de los elementos de archivo que das tú se propagan hasta tus listeners; los de los elementos que crea el control de subida se responden dentro.
+- Partes: `file-picker`, `list`, y `file-item` por cada elemento que crea el control de subida; las partes `container`, `icon`, `label`, `supporting-text` y `selection-text` del selector de archivos, con sus propios nombres; y las partes de un elemento que crea el control de subida, con el prefijo `item-`: `item-container`, `item-media`, `item-icon`, `item-preview`, `item-headline`, `item-supporting-text`, `item-status-icon`, `item-progress`, `item-action`. Un elemento de archivo que das tú recibe estilo directamente, como el elemento que es: `tanrei-file-item::part(icon)`.
+- Con `item-preview` y `rows="own"`, cada elemento de archivo crea la dirección de su propia imagen y la libera. El control de subida no crea ninguna.
+- El elemento no puede recibir el foco por sí mismo: cada parada es tu activador o está dentro de un elemento de archivo.
+
+## Pautas
+
+### La elección y los límites
+
+La forma de elegir es la del [selector de archivos](/es/components/file-picker/): las dos disposiciones `button` y `drop-area`, tu propio botón en el slot `trigger`, un glifo en el slot `icon` y los límites `accept`, `maxSize` y `multiple`, con `constraintsText` para decirlos. Su página los explica por completo. Son propiedades del control de subida con los mismos nombres.
+
+Lo que el control de subida añade a los límites:
+
+- `maxFiles` es el máximo de archivos de toda la lista, no de una elección. Con `rows="own"` cuenta los archivos que se conservan; con `rows="given"`, los elementos de archivo que diste. Una elección se juzga según el número de archivos que aún caben.
+- El mismo archivo elegido dos veces se conserva una sola vez, con `rows="own"`.
+- Con `rows="own"`, cada archivo rechazado se dibuja como una fila fallida con tu frase para su motivo: `typeErrorText`, `sizeErrorText` o `countErrorText`. Dalas en el elemento, o una sola vez para todo el producto con `setWords()`.
+- Con `rows="given"` no se dibuja nada por un rechazo. `reject` te da cada archivo rechazado con un motivo: `type`, `size` o `count`. Di qué ocurrió con tus propias palabras, con el texto de error del campo, con una fila fallida o con `announcement`.
+- `emptyText` es lo que aparece junto al activador, en la disposición de botón, mientras no hay ningún archivo elegido.
+
+### Quién tiene las filas
+
+| Qué | `rows="own"` (el valor predeterminado) | `rows="given"` |
+| --- | --- | --- |
+| Úsalo para | Un formulario que se envía de una vez. | Un producto que envía cada archivo por su cuenta. |
+| Las filas | Elementos de archivo que crea el control de subida, uno por cada archivo conservado y por cada archivo rechazado. | Hijos `<tanrei-file-item>` que añades y quitas tú. |
+| Una segunda elección | Se suma con `multiple`; sustituye sin él. El mismo archivo se conserva una sola vez. | Lo decides tú. |
+| Un archivo rechazado | Una fila fallida con tu frase. | Solo `reject`. |
+| Una fila muestra | Nombre, tamaño, quitar. Ni estado ni progreso: no se está enviando nada. | Nombre, tamaño, estado, progreso, error, reintentar, quitar. |
+| Quitar | Quita la fila y emite `change`. | Emite el `remove` de la fila. La quitas tú. |
+| El valor del formulario | Los archivos conservados. | El `file` de cada fila a la que diste uno. |
+| Un restablecimiento del formulario | Vacía la lista. | No cambia nada. |
+
+El control de subida nunca deduce el modo a partir de sus hijos. Un producto que es dueño de sus filas no tiene ninguna antes de la primera elección, así que dice `rows="given"`.
+
+Cambiar `rows` mientras el control de subida se muestra descarta todos los archivos conservados sin emitir ningún evento. Lee antes `files` si los necesitas.
+
+### Filas o mosaicos
+
+`itemForm` elige la forma de todos los archivos: `row`, la predeterminada, una columna de filas; o `tile`, una tira de recuadros que salta de línea. Todos los archivos de un control de subida se dibujan con la misma forma.
+
+| Propiedad | En cada elemento de archivo | Qué hace |
+| --- | --- | --- |
+| `itemForm` | `form` | `row` o `tile`. |
+| `itemPreview` | `preview` | Dibuja una imagen en el lugar del glifo: la de la dirección `previewSrc` del elemento, o la del propio archivo cuando es una imagen. |
+| `itemFit` | `fit` | `cover` o `contain`. |
+| `itemNameHidden` | `nameHidden` | En un mosaico que dibuja una imagen, el nombre no se dibuja. |
+| `itemWidth`, `itemHeight` | `width`, `height` | El recuadro de un mosaico. |
+
+Con `rows="own"` e `itemPreview`, un archivo conservado que es una imagen muestra su propia imagen. Cada imagen tiene un coste, que es el del elemento de archivo y se explica en [su página](/es/components/file-item/#la-vista-previa-y-lo-que-cuesta). Sin `itemPreview`, el valor predeterminado, cien archivos conservados cuestan cien referencias y nada más.
+
+Los archivos de un control de subida no tienen un orden que una persona pueda cambiar. Para eso, consulta [Archivos en un orden que las personas cambian](/es/components/file-item/#archivos-en-un-orden-que-las-personas-cambian).
+
+### Las filas que das tú
+
+Con `rows="given"`, cada fila es un [elemento de archivo](/es/components/file-item/) que escribes tú, con sus propias propiedades: `value`, `name`, `mediaType`, `formatText`, `sizeText`, `status`, `statusText`, `progress`, `errorText`, `retryable`, `previewSrc`, `interactive`, `href` y `readOnly`. Su página dice qué dibuja cada una. Una fila que el control de subida crea él mismo es un elemento de archivo `pending` para un archivo conservado, y uno `error` sin reintento para un archivo rechazado.
+
+| `status` | Antes del nombre | Segunda línea | Barra | Acciones |
+| --- | --- | --- | --- | --- |
+| `pending` | El glifo del formato | El tamaño y después `statusText` | Ninguna | Quitar |
+| `uploading` | El glifo del formato | El tamaño y después `statusText` | Llena hasta `progress`, o indeterminada mientras `progress` no está definido | Quitar |
+| `done` | El glifo del formato | El tamaño y después una marca de verificación y `statusText` | Ninguna | Quitar |
+| `error` | El glifo del formato | El tamaño y después una marca de error y `errorText` | Ninguna | Reintentar donde `retryable`, y después quitar |
+
+- Da tú formato al tamaño y dalo como `sizeText`, o como la función `formatSize` con `rows="own"`. Si un megabyte son 1000 o 1024 kilobytes es decisión de tu producto.
+- `progress` es tu informe de tu propio envío. El componente nunca mueve la barra por sí mismo.
+- No definas en una fila lo que el control de subida da a todas las filas: su forma, su vista previa, los dos nombres de acción, `disabled`.
+
+### En un campo
+
+Pon el control de subida en un [campo](/es/components/field/) cuando el formulario muestre una etiqueta, una ayuda, un error o una marca de obligatorio. El campo los dibuja y se los da al control de subida.
+
+```html
+<tanrei-field label="Archivo adjunto" requirement="required" required-text="Obligatorio"
+              error error-text="Elige un PDF de 10 MB como máximo.">
+  <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
+                      constraints-text="PDF, hasta 10 MB" remove-label="Quitar">
+    <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
+  </tanrei-file-upload>
+</tanrei-field>
+```
+
+- Con un `name`, el control de subida envía todos los archivos conservados, en orden. Un archivo rechazado nunca se envía. Mientras no se conserva ningún archivo no envía ninguna entrada; un campo de entrada de archivos nativo envía una entrada vacía, así que un servidor que lee el campo comprueba ambos casos.
+- `required` notifica al formulario que falta un valor mientras no se conserva ningún archivo. El mensaje es el del propio navegador. La frase que lee una persona es el `errorText` del campo. Un botón no tiene estado obligatorio, así que pon un control de subida obligatorio en un campo: el campo lo dice antes de que el formulario se envíe.
+- Un restablecimiento del formulario vacía la lista. Después de un envío, los archivos y las filas se quedan; restablece el formulario o llama a `clear()`.
+- No se restaura nada cuando se vuelve a una página por el historial. El control de subida empieza vacío.
+- Sin un `name`, el control de subida no envía nada y, aun así, conserva sus archivos y los muestra en la lista. Lee `files` en tu propio controlador de envío para enviarlos por tu cuenta.
+- Con `rows="given"`, el valor es el `file` de cada fila que tiene uno: `row.file = file`. Un restablecimiento no cambia nada ahí, porque las filas son tuyas.
+- El control de subida nunca define `error` por sí mismo. Lo defines tú, en el campo, con las palabras que dicen qué está mal.
+
+### Textos
+
+El control de subida no incluye textos propios. Seis se pueden dar una sola vez para todo el producto con `setWords()`; todo lo demás es una propiedad de la instancia.
+
+| Propiedad | Clave de los textos del producto | Sin ella |
+| --- | --- | --- |
+| `emptyText` | `noFileText` | No se dibuja nada junto al activador. |
+| `removeLabel` | `removeLabel` | La acción de quitar se dibuja y no tiene nombre. Una compilación de depuración lo notifica. |
+| `retryLabel` | `retryLabel` | La acción de reintentar se dibuja y no tiene nombre. Una compilación de depuración lo notifica. Solo la tienen las filas que das tú. |
+| `typeErrorText` | `fileTypeErrorText` | Un archivo rechazado por su tipo se dibuja como una fila fallida sin frase. Una compilación de depuración lo notifica. |
+| `sizeErrorText` | `fileSizeErrorText` | Lo mismo, para un archivo demasiado grande. |
+| `countErrorText` | `fileCountErrorText` | Lo mismo, para un archivo que ya no cabe. |
+
+Las tres frases solo se leen con `rows="own"`, y solo una vez que se ha rechazado un archivo por ese motivo. El tamaño de un archivo no es una clave de texto: es la función `formatSize`, una propiedad de la instancia.
+
+Cada acción se describe con el nombre de su archivo. Una sola palabra, «Quitar», basta para todas las filas: una persona oye «Quitar, botón, brief.pdf».
+
+### De derecha a izquierda
+
+En un diseño de derecha a izquierda, el activador y los glifos de las filas están a la derecha, las acciones de las filas a la izquierda, con la de quitar en el extremo, y una barra se llena desde la derecha; una tira de mosaicos empieza por la derecha. Un nombre de archivo en letras latinas conserva su propio orden, con su punto y su extensión. Un glifo solo se refleja donde el conjunto de iconos lo marca, y una imagen nunca se refleja.
+
+### Recomendado
+
+- Coloca el control de subida en el formulario y deja que conserve los archivos, salvo que tu producto envíe cada archivo por su cuenta.
+- Mantén la lista de filas corta y en el orden en que las personas eligieron los archivos.
+- Di un rechazo donde la persona está mirando: en el texto de error del campo o en una fila fallida.
+- Resume muchos cambios en una sola frase con `announcement`: «Se añadieron 40 archivos».
+
+### Evita
+
+- No uses la zona para soltar como la única forma de elegir. Siempre contiene el activador.
+- No pongas dentro nada que no sea el activador, un icono y elementos de archivo. Cualquier otro contenido no se dibuja, y una compilación de depuración lo notifica.
+- No escribas filas sin `rows="given"`. No se dibujan.
+- No uses `rows="own"` para mostrar el progreso de una subida. La fila de un archivo conservado no tiene estado, porque el control de subida no envía nada.
+- No muestres dentro un recuento, un tamaño total ni una barra global. Dibújalos al lado, con tus propias palabras.
+
+## Accesibilidad
+
+<ComponentAccessibility name="file-upload" />
+
+### De qué se encarga el componente
+
+- El conjunto es un grupo que recibe su nombre de `label`, o del campo que lo rodea. El activador es tu botón. Lo describen los límites, el texto que dice que no hay nada elegido y la ayuda o el error del campo.
+- La zona para soltar es un único objetivo del puntero, grande, para ese mismo botón. No tiene rol, ni nombre, ni parada en el orden del foco, ni tecla.
+- Las filas son una lista, y cada elemento de archivo es un elemento de ella. De cada uno se leen el nombre, el formato, el tamaño y el estado o el error. Un archivo que se está enviando tiene una barra de progreso que recibe su nombre de su archivo.
+- Tab llega al activador y después a cada archivo, en orden: su cuerpo donde lo hiciste pulsable, después reintentar y después quitar.
+- Una única región activa dice, de forma cortés y con tus palabras, una fila que se añadió, una fila que terminó y una fila que falló. Los cambios que llegan juntos son un solo mensaje. El progreso nunca se anuncia.
+- Con `rows="own"`, una elección es un mensaje: el nombre de cada archivo que se conservó y después el nombre de cada archivo rechazado con tu frase. El control de subida no añade ninguna palabra ni ningún recuento. Define `announcement` en tu listener de `change` para decir en su lugar una frase tuya.
+- Una fila que se quita no se anuncia. Después de quitar una fila, el foco va a la acción de quitar de la fila siguiente, a la de la anterior donde no sigue ninguna, o al activador cuando no queda ninguna fila. Con `rows="own"`, el control de subida lo hace él mismo.
+- Con el texto al 200%, todos los textos saltan de línea y nada se corta. En colores forzados, la zona conserva un borde, una zona que está recibiendo un arrastre tiene uno más grueso y la barra de una fila sigue siendo visible.
+
+Cómo está construido en la web: el selector de archivos es un miembro del control de subida, en su shadow root, y el selector que hay dentro de él es un `<input type="file">` real, apartado de la vista, del orden del foco y de la tecnología de apoyo. El activador se queda en tu DOM, y también los elementos de archivo que das tú. El grupo, la lista, la región activa y los elementos de archivo que el control de subida crea él mismo están en el shadow root.
+
+Las carencias conocidas en la web son las de sus miembros: un botón no tiene estado obligatorio, un navegador no entrega lo que se suelta en una zona que rechaza el arrastre, Safari no da el foco a un botón en el que se hace clic, y un borde discontinuo no puede seguir unas esquinas suavizadas (la [página del selector de archivos](/es/components/file-picker/#accesibilidad)); una imagen que se mueve la reproduce el navegador (la [página del elemento de archivo](/es/components/file-item/#accesibilidad)). Con `required` solo y sin un campo alrededor del control de subida, únicamente la validación del formulario dice que falta un archivo.
+
+### Qué debes hacer tú
+
+- Pon un botón en el slot `trigger`, con una etiqueta que diga qué hace.
+- Da al grupo un `label`, o pon el control de subida en un campo.
+- Da `constraintsText` siempre que definas `accept`, `maxSize` o `maxFiles`.
+- Da `removeLabel`, en el elemento o una sola vez con `setWords()`. Da también `retryLabel` cuando des filas que se puedan reintentar.
+- Con `rows="own"`, da las tres frases para un archivo rechazado: `typeErrorText`, `sizeErrorText` y `countErrorText`, para los límites que definas.
+- Di con palabras cada rechazo y cada fallo.
+- Define `announcement` cuando muchas filas cambien a la vez, y cuando quites filas de una manera que una persona deba oír.

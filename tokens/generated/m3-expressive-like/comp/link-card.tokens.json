@@ -1,0 +1,301 @@
+{
+  "tanrei": {
+    "comp": {
+      "link-card": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product points to other pages from its own — an article that cites a source, a help page that sends the reader on, a message that carries an address, a list of further reading — and shows some of those places as more than a phrase: the page's title, a sentence about it, a picture where it has one, and the site it is on, in one block that is pressed as a whole. It draws that block set apart by an edge in running text and by tone where one more line would crowd, and lays it out by the room it is given.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "outlined",
+              "filled"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "outline.color": "color",
+              "title.color": "color",
+              "description.color": "color",
+              "site.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.axes": {
+            "variant": {
+              "default": "outlined",
+              "from": "states"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a link card reads: its corners, the room around its text and its edge's width; for each look (outlined, filled) the fill, the edge, the colors of the title, the description and the site line, and the color hover, focus and press mix in, in each state; the text style and the most lines of the title and of the description; the site line's text style, the size and corners of the site's icon and the gaps of that line; the picture's width beside the text, its proportion above the text and the fill shown while it loads; the card width from which the picture stands beside the text; and the timing of a state change.",
+            "rules": [
+              "A link card is one link drawn as a block: the destination's title, a sentence about it, its picture and its site. A phrase that leads somewhere is a Link; a group of the product's own content that leads somewhere is a Card with a destination.",
+              "The card never loads anything about the destination. The product gives title, description, image, siteName and siteIcon; where the pages are built, the package's helper reads them once and the site keeps what it read.",
+              "The host under the text is always computed from href and cannot be set. Never put a host, an address or the words of the destination's site name into the title to stand in for it.",
+              "Nothing inside a link card is pressed by itself: no button, no second link. The whole card is the destination.",
+              "The picture is decoration unless imageAlt says what it shows. Do not give a picture that carries text the title does not.",
+              "Use outlined in running text and on the page's surface. Use filled where the page already has many lines, on a surface whose tone differs from the fill's.",
+              "Give targetLabel whenever target is new; the mark alone is not read.",
+              "State tokens are valued by the design system's pattern rules; each look's state-layer.color is its title color.",
+              "Restyle through these tokens in a layer; never draw a linked preview by hand."
+            ]
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.medium}",
+            "$description": "The card's corners: the step a card, a figure and a callout have, so a link card reads as one of the page's blocks. The picture is clipped to them."
+          },
+          "padding": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "The room between the card's edge and its text, on every side of the text. The picture has none: it reaches the card's edges."
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The width of the outlined look's edge, drawn inside the card's size and above the picture."
+          }
+        },
+        "outlined": {
+          "$type": "color",
+          "container": {
+            "color": {
+              "$value": "{tanrei.sys.color.surface}",
+              "$description": "The fill of the outlined look: the surface itself, inside the one hairline."
+            }
+          },
+          "outline": {
+            "color": {
+              "$value": "{tanrei.sys.color.outline-variant}",
+              "$description": "The edge of the outlined look: the one hairline, the color a divider and an outlined card draw theirs in."
+            }
+          },
+          "title": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The title: the surface's text color, the one part of the card at full strength. Not the link color: the card's shape, not a color, says it is pressed as a whole."
+            }
+          },
+          "description": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The description: secondary content, quieter than the title."
+            }
+          },
+          "site": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The site line — the site's name, the host and the mark of a new context: secondary content. It keeps its own token so that a product can draw where a card leads at full strength."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$value": "{tanrei.comp.link-card.outlined.title.color}",
+              "$description": "The color hover, focus and press mix into the container: the title's color."
+            }
+          }
+        },
+        "filled": {
+          "$type": "color",
+          "container": {
+            "color": {
+              "$value": "{tanrei.sys.color.surface-container-highest}",
+              "$description": "The fill of the filled look: a tone of the surface ladder, which sets the card apart without an edge."
+            }
+          },
+          "outline": {
+            "color": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This look has no edge."
+                }
+              }
+            }
+          },
+          "title": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "description": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "site": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$value": "{tanrei.comp.link-card.filled.title.color}",
+              "$description": "The color hover, focus and press mix into the container: the title's color."
+            }
+          }
+        },
+        "title": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.heading-5}",
+            "$description": "The title's text style: the size of text that is read, at a heading's weight, so the title is told from the description by weight and not by a larger size. It is never exposed as a heading."
+          },
+          "max-lines": {
+            "$type": "number",
+            "$value": 2,
+            "$description": "The most lines of the title that are drawn; a longer title ends with an ellipsis. All of it still reaches assistive technology.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A count of lines, not a size; no dial scales it."
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "The space between the title and the description."
+          }
+        },
+        "description": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body}",
+            "$description": "The description's text style: the interface's running text."
+          },
+          "max-lines": {
+            "$type": "number",
+            "$value": 2,
+            "$description": "The most lines of the description that are drawn; a longer one ends with an ellipsis. All of it still reaches assistive technology.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A count of lines, not a size; no dial scales it."
+              }
+            }
+          }
+        },
+        "site": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}",
+            "$description": "The text style of the site line: the smallest size of text that is read, because the host is what tells a reader where the card leads."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "The space between the site line and the text above it."
+          },
+          "item-gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space75}",
+            "$description": "The space between the parts of the site line: the icon, the site's name, the host and the mark."
+          },
+          "icon": {
+            "size": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "$description": "The side of the site icon's square box: the smallest step of the icon scale, beside one line of small text."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.extra-small}",
+              "$description": "The corners the site icon is clipped to. A site's icon is a picture with its own outline; a small corner keeps a square one from looking cut out of the card."
+            }
+          }
+        },
+        "media": {
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 192,
+              "unit": "px"
+            },
+            "$description": "The inline size of the picture's box while it stands beside the text; the box is as tall as the card. It does not grow with enlarged text: a picture is not read.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 48
+              }
+            }
+          },
+          "aspect-ratio": {
+            "$type": "number",
+            "$value": 1.9,
+            "$description": "The proportion, width to height, of the picture's box while it stands above the text and takes the card's whole width: the wide proportion pictures made to stand for a page are usually drawn in, so most are shown whole.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A proportion, not a size; no dial scales it."
+              }
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-high}",
+              "$description": "The fill of the picture's box while the picture is loading, and behind its transparent parts: a quiet tone, so the box is seen and nothing moves when the picture arrives."
+            }
+          }
+        },
+        "layout": {
+          "beside-min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 480,
+              "unit": "px"
+            },
+            "$description": "The card's own inline size from which the picture stands beside the text; a narrower card draws it above. A width of the card, not of the window, and not a size of anything drawn. It grows with enlarged text, so a card whose text has doubled stacks sooner.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product places the same link card in a wide article, in a side panel and on a phone, and decides once how narrow the text beside a picture may become before the picture moves above it.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 120
+              }
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
+          }
+        }
+      }
+    }
+  }
+}

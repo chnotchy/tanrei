@@ -1,0 +1,43 @@
+---
+// Any group of dimension tokens (space, target, icon, border, focus) as a table with a bar preview.
+import { tokensIn, dimension, sourceDescription, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import SourceNote from '../SourceNote.astro';
+import Table from '../Table.astro';
+
+interface Props {
+  /** Group under `<ns>.sys`, e.g. `space` or `target`. */
+  group: string;
+  source: string;
+}
+const { group, source } = Astro.props;
+const t = strings(contentLang(Astro));
+const tokens = tokensIn(`${ns}.sys.${group}`).filter((tk) => tk.type === 'dimension');
+const groupNote = sourceDescription(`${ns}.sys.${group}`);
+---
+
+{groupNote && <p class="docs-muted">{groupNote}</p>}
+<Table label={`${ns}.sys.${group}`}><table>
+  <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">{t.value}</th><th scope="col" data-wrap="false">{t.preview}</th></tr></thead>
+  <tbody>
+    {tokens.map((tk) => (
+      <tr>
+        <td data-wrap="false"><code>{tk.cssVar}</code></td>
+        <td class="docs-mono" data-wrap="false">{dimension(tk.value)}</td>
+        <td><span class="bar" style={`inline-size: var(${tk.cssVar})`} /></td>
+      </tr>
+    ))}
+  </tbody>
+</table></Table>
+<SourceNote files={[`design/tokens/${ns}.light.tokens.json`, source]} />
+
+<style>
+  /* The bar is centred on its cell's one line. */
+  .bar {
+    display: block;
+    block-size: 0.75rem;
+    margin-block: calc((1lh - 0.75rem) / 2);
+    border-radius: 2px;
+    background: var(--tanrei-sys-color-on-surface);
+  }
+</style>

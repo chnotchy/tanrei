@@ -1,0 +1,189 @@
+---
+title: "键盘快捷键"
+description: "以键帽或文本的形式显示执行某个命令的按键，使用用户所用键盘的修饰键符号和名称，朗读时则读出按键的名称。"
+translationOf: components/keyboard-shortcut.mdx
+sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="keyboard-shortcut" />
+
+键盘快捷键显示执行某个命令的按键：可以画成键帽，也可以画成命令名称旁边的纯文本，有 small 和 medium 两种尺寸。按键用中立的名称书写，例如 `mod`、`shift`、`k`，并按用户所用键盘的惯例绘制：Apple 的符号（⇧⌘K），或标准名称（Ctrl+Shift+K）。产品可以为某个区域指定惯例，也可以交给平台决定。由连续几个组合键构成的快捷键（Ctrl+K Ctrl+C）是一个序列。
+
+<DemoFrame label="键帽、由两个组合键构成的序列，以及纯文本形式，按你正在使用的键盘显示">
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command 或 Control，Shift，K"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Command 或 Control 加 K，然后 Command 或 Control 加 C"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command 或 Control，Shift，K" variant="plain"></tanrei-keyboard-shortcut>
+</DemoFrame>
+
+它画出的按键只供眼睛看：辅助技术读到的是产品提供的 `label`，也就是用你自己的话说出的快捷键；没有 `label` 时，读到的是 `aria-keyshortcuts` 的写法（`Meta+Shift+K`）。Tanrei 没有任何语言的按键名称。它只显示按键，别无其他：它不接受焦点和输入，也不会让这些按键生效。按键由你的产品来绑定。
+
+有三个组件通过各自的 `shortcut` 属性用它来绘制快捷键：[菜单](/zh-cn/components/menu/)把它画在菜单项所在行的末尾，plain [工具提示](/zh-cn/components/tooltip/)把它画在文本之后，[搜索](/zh-cn/components/search/)把它作为搜索栏或触发器里的提示。在这些地方请使用这些属性，而不要放置你自己的元素：宿主组件会用自己的文本样式绘制按键，并把它们作为该控件的键盘快捷键提供给辅助技术。
+
+### 用法
+
+`keys` 中每个字符串是一个组合键，按顺序依次按下。组合键是用 `+` 连接起来的按键名称，名称不区分大小写。
+
+- **修饰键**：`mod`（在 Apple 平台上是 Command，在其他平台上是 Control）、`ctrl`、`alt`、`shift`。
+- **有名称的按键**：`enter`、`escape`、`tab`、`backspace`、`delete`、`space`、`arrow-up`、`arrow-down`、`arrow-left`、`arrow-right`、`home`、`end`、`page-up`、`page-down`、`caps-lock`、`f1` 到 `f24`，以及表示 + 键的 `plus`。
+- **其他任何单个字符**就是该字符对应的按键：`k`、`/`、`,`。
+
+在 Web 上，`keys` 属性（attribute）中的组合键用空格分隔（`keys="mod+k mod+c"`），而 JavaScript 属性（property）是一个数组。SwiftUI、Compose、Flutter 和 React Native 尚未实现这个组件。在实现之前，这些平台的菜单把快捷键写在菜单项的后置文本里，如[菜单](/zh-cn/components/menu/)页面所示。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- small 可以放在一行正文里，而不会把这一行撑高。 -->
+    <p>按 <tanrei-keyboard-shortcut keys="mod+k" label="Command 或 Control 加 K" size="small"></tanrei-keyboard-shortcut> 搜索。</p>
+
+    <!-- 先后按下的两个组合键。 -->
+    <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Command 或 Control 加 K，然后 Command 或 Control 加 C"></tanrei-keyboard-shortcut>
+
+    <!-- 纯文本形式，用你的产品的语言朗读。 -->
+    <tanrei-keyboard-shortcut keys="mod+shift+k" variant="plain" label="Befehl Umschalt K"></tanrei-keyboard-shortcut>
+
+    <!-- 为某一种键盘书写的区域，与用户的平台无关。 -->
+    <section data-tanrei-keyboard-convention="standard">
+      <tanrei-keyboard-shortcut keys="mod+s" label="Control S"></tanrei-keyboard-shortcut>
+    </section>
+
+    <script type="module">
+      import '@tanrei/web/components/keyboard-shortcut';
+      // 这个元素只显示按键。按键要由你自己绑定，并在它们所属的控件上声明。
+      const shown = document.querySelector('tanrei-keyboard-shortcut');
+      searchButton.setAttribute('aria-keyshortcuts', shown.ariaKeyShortcuts); // "Meta+K" 或 "Control+K"
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { KeyboardShortcut } from '@tanrei/react';
+
+    <p>按 <KeyboardShortcut keys={['mod+k']} label="Command 或 Control 加 K" size="small" /> 搜索。</p>
+
+    <KeyboardShortcut keys={['mod+k', 'mod+c']} label="Command 或 Control 加 K，然后 Command 或 Control 加 C" />
+
+    <KeyboardShortcut keys={['mod+shift+k']} variant="plain" label="Befehl Umschalt K" />
+
+    // 为某一种键盘书写的区域，与用户的平台无关。
+    <section data-tanrei-keyboard-convention="standard">
+      <KeyboardShortcut keys={['mod+s']} label="Control S" />
+    </section>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="同样的按键，分别按 Apple 键盘和标准键盘显示；句子中的 small；有名称的按键；禁用" plain column>
+  <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift Command K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+mod+escape" label="Option Command Escape" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <div data-tanrei-keyboard-convention="standard" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control Shift K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control Shift K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control Shift K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="ctrl+alt+delete" label="Control Alt Delete" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <p style="font: var(--tanrei-sys-typescale-body-font); margin: 0">按 <tanrei-keyboard-shortcut keys="mod+k" label="Command 或 Control 加 K" size="small"></tanrei-keyboard-shortcut> 进行搜索，或者在页面的任何位置按 <tanrei-keyboard-shortcut keys="/" label="斜杠" size="small"></tanrei-keyboard-shortcut>。</p>
+  <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="shift+enter" label="Shift 回车"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+arrow-up" label="Option 或 Alt，上箭头"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+plus" label="Command 或 Control，加号"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="f2" label="F2"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="Command 或 Control，Z" disabled></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="Command 或 Control，Z" variant="plain" disabled></tanrei-keyboard-shortcut>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="keyboard-shortcut" />
+
+## 指南
+
+### 何时使用
+
+凡是你的产品要告诉用户哪些按键执行某个命令的地方，都使用键盘快捷键：帮助文字的句子里、快捷键列表里、空状态里、命令面板中命令名称的旁边。
+
+在菜单项、plain 工具提示或搜索中，则改为设置该组件的 `shortcut` 属性。不要把键帽用于用户要输入的文本，例如一条命令或一个文件名：键帽表示要按下的一个键。
+
+### 键帽还是纯文本，small 还是 medium
+
+| 选项 | 绘制的内容 | 用途 |
+| --- | --- | --- |
+| `keycap`（默认） | 每个按键各有一个键帽；在标准惯例下，键帽之间有一个 +。 | 帮助和文档，按键本身就是主题的地方。 |
+| `plain` | 把快捷键写成一段连续的文本：⌥⌘⎋，或 Ctrl+Alt+Delete。没有键帽、填充和边线。 | 命令名称旁边，一排键帽会与名称争抢注意力的地方：这也是菜单的写法。 |
+| `medium`（默认） | 24 的键帽，14 的文字。 | 单独使用，或放在较大的文字旁边。 |
+| `small` | 20 的键帽，12 的文字。 | 一行正文或紧凑的行里，不会把这一行撑高。 |
+
+在默认系统中，键帽是一块淡淡的填充，没有边线，键帽上的字符使用不显眼的文本颜色。设计系统可以给键帽加上边线（底边更粗），也可以添加变体和尺寸。
+
+### 按键的写法
+
+- **主修饰键写 `mod`**，不要写 `ctrl`：它在 Apple 键盘上是 Command，在其他键盘上是 Control。只有在每种键盘上都是 Control 的快捷键，才写 `ctrl`。
+- **顺序任意。** 组件按键盘自身的顺序书写修饰键：Apple 是 ⌃ ⌥ ⇧ ⌘，标准名称是 Ctrl、Alt、Shift。
+- **字母画成大写**，并且不会添加 Shift：`mod+k` 和 `mod+K` 都画成 ⌘K。只有在你写明时才绘制 Shift。
+- **每个组合键只有一个按键**，修饰键除外。没有按键或有两个按键的组合键会尽量画出来，并会在调试构建中报告。
+- **序列是若干个组合键**：先 `mod+k`，再 `mod+c`。它们之间隔开一段间距，中间不画任何东西。
+- **有名称的按键也随键盘变化。** `enter` 在 Apple 键盘上是 ↩，在标准键盘上是 Enter；`escape` 是 ⎋ 或 Esc；`backspace` 是 ⌫ 或 Backspace；`page-down` 是 ⇟ 或 PgDn。方向键在两种键盘上都是 ↑ ↓ ← →。
+
+### 惯例
+
+`convention` 说明按键是按谁的键盘书写的。让它保持 `auto`：组件会使用祖先元素设置的惯例；没有设置时，使用平台的惯例——在 macOS、iOS、iPadOS 和 visionOS 上是 Apple 的符号，在其他所有地方是标准名称。
+
+当你的产品比平台更了解情况时，为某个区域设置惯例：让用户自行选择的设置项、并排展示两种键盘的文档、连接到另一个系统的远程会话。在 Web 上，这就是任意祖先元素上的 `data-tanrei-keyboard-convention` 属性（`apple` 或 `standard`）；其中的菜单、工具提示和搜索也会遵循它。只有在例外情况下，才在单个快捷键上设置 `convention`。
+
+惯例从不来自设计系统。按键遵循的是用户按下的键盘，而不是产品的外观。
+
+### 推荐
+
+- 显示真正有效的快捷键。在你的产品里绑定这些按键，并让两者保持一致。
+- 给每个会被朗读的快捷键一个 `label`：用你的产品的话说出的快捷键（“Shift Command K”）。没有它，屏幕阅读器读到的是 `Meta+Shift+K` 这种写法。
+- 在 `convention="auto"` 下，画出的按键跟随用户的键盘，而你写下的 `label` 做不到。请像本页的示例那样，写一个在两种键盘上都成立的标签（“Command 或 Control，Shift，K”），或者在知道是哪种键盘之后再设置标签。
+- 对当前不可用的命令，在该命令旁边给它的快捷键设置 `disabled`。按键仍然显示，只是变淡。
+- 让快捷键保持在一行之内。组合键从不断开；序列可以在组合键之间换行。
+
+### 避免
+
+- 不要自己书写这些符号（在文本里写 ⌘K）。它们在另一种键盘上是错的，而且屏幕阅读器可能会按字符名称来读一个符号。
+- 不要让快捷键成为通向某个命令的唯一途径。它是一条捷径，对应的命令用指针和焦点也应当能到达。
+- 不要在菜单项或工具提示里放置你自己的键盘快捷键元素。请使用宿主组件的 `shortcut` 属性。
+- 不要按品牌或主题来选择惯例。
+
+## 无障碍
+
+<ComponentAccessibility name="keyboard-shortcut" />
+
+### 组件负责的部分
+
+- 键帽、键帽上的字符和分隔符对辅助技术隐藏。在快捷键所在的位置，代替它们被读出的是一段文本：`label`。这样 ⇧⌘K 读作“Shift Command K”，而从不读出符号的字符名称。没有 `label` 时，读出的是用 `aria-keyshortcuts` 的写法表示的快捷键——`Meta+Shift+K`，序列则是 `Control+K Control+C`——这种写法出自标准，在每种语言里都一样；组件会在开发时报告一次。
+- 组件没有按键的名称：它不会用任何语言拼写出修饰键、方向键或标点符号键。屏幕阅读器可能会跳过逗号这样单独的一个字符，这是要写 `label` 的又一个理由。
+- 它没有角色，不接受焦点和输入，也不是一个目标：它是文本。
+- 在宿主组件（菜单项、plain 工具提示、搜索）之内，它自己不提供任何语义。宿主组件把快捷键作为其控件的键盘快捷键提供给辅助技术：在 Web 上是 `aria-keyshortcuts`。
+- `disabled` 让键帽上的字符变淡，但不提供任何状态。快捷键所属的命令会说明它是否可用。
+- 在从右到左的布局中，按键保持从左到右的顺序，并与周围的文本在方向上隔离，这与键盘和各平台自己的菜单的写法一致。
+- 它位于周围文本的基线上，并随文本放大而变大；键帽的高度是一个最小值。
+- 产品字体中缺少的符号（⌘、⎋）会用同样大小的系统字体绘制，从不显示为表示缺字的方框。
+- 在默认系统中，键帽上的字符满足文本的对比度要求。键帽的填充是装饰：含义只由字符承载。
+- 调试构建会报告：空的组合键、只有修饰键的组合键、有两个按键的组合键、书写出来后同一个按键出现两次的情况（标准惯例下的 `ctrl+mod`）、未知的按键名称，以及未知的惯例。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 尚未实现键盘快捷键。
+- Web：如果一个禁用的快捷键单独放置，不在本身已表明为禁用的命令之内，自动化的对比度检查很可能会报告它：它的字符是变淡的，而这个元素自己不提供禁用状态。
+
+### 需要你做的事
+
+- 让按键生效：组件只负责显示它们。
+- 在按键所属的控件上，把它们声明为该控件的键盘快捷键。在 Web 上，用这个元素的只读属性 `ariaKeyShortcuts` 来设置 `aria-keyshortcuts`，前者给出的正是后者所需的格式。
+- 凡是快捷键会被朗读的地方，都传入 `label`，也就是用你的产品的话说出的快捷键。Tanrei 不自带任何文字，也没有按键的名称。
+- 让每个命令不用快捷键也能到达。

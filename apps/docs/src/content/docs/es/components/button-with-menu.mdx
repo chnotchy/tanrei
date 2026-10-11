@@ -1,0 +1,408 @@
+---
+title: Botón con menú
+description: Realiza una acción principal con una sola pulsación y ofrece acciones relacionadas en un menú desde un segundo botón unido a su lado.
+translationOf: components/button-with-menu.mdx
+sourceHash: da09049dfc3d610609f88d3630ba5407eb6f36c2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="button-with-menu" />
+
+:::note[Adónde fue a parar el split button]
+Este componente no se llama split button. «Split button» dice qué aspecto tiene, un botón partido en dos, y lo mismo vale para un [grupo de botones](/es/components/button-group/) connected; lo que distingue a este componente es el menú que revela su segunda mitad. Sus identificadores de comportamiento llevan el prefijo `SPB` de ese nombre.
+
+| Antes | Ahora |
+| --- | --- |
+| Split button (`split-button`) | Botón con menú (`button-with-menu`) |
+| `comp.split-button.*`, `--tanrei-comp-split-button-*` | `comp.button-with-menu.*`, `--tanrei-comp-button-with-menu-*` |
+| `<tanrei-split-button>`, `TanreiSplitButton` (clase web) | `<tanrei-button-with-menu>`, `TanreiButtonWithMenu` |
+| `SplitButton` (React, React Native) | `ButtonWithMenu` |
+| `TanreiSplitButton` (SwiftUI, Compose, Flutter) | `TanreiButtonWithMenu` |
+
+Material 3 llama split button a su equivalente; en los preajustes m3-like, el botón con menú es ese componente.
+:::
+
+:::caution[Las plataformas nativas todavía no le han cambiado el nombre]
+La especificación, los tokens, el elemento web (`<tanrei-button-with-menu>`) y el envoltorio de React (`ButtonWithMenu`) llevan el nombre button with menu, y la web dibuja esta revisión. SwiftUI, Compose, Flutter y React Native todavía ofrecen la revisión anterior con el nombre split button, así que su código en esta página usa `TanreiSplitButton` y `SplitButton`; cambiará cuando cada plataforma renombre el componente.
+
+Esta revisión trae lo siguiente, que por ahora solo dibuja la web:
+
+- Las dos mitades se unen con una línea divisora o con una separación. El sistema de diseño elige una vez para todos los componentes, un sistema de diseño puede tratar aparte este componente, y `separation` (`auto`, `divider`, `gap`) define una instancia concreta. El sistema predeterminado dibuja un divisor.
+- El relleno del lado del icono de la mitad inicial es un paso más ajustado, y los dos extremos exteriores redondeados reciben un poco más de relleno.
+- La mitad final conserva su forma mientras el menú está abierto; solo el chevron muestra el estado abierto.
+- `trailingWidth` (`default`, `narrow`) dibuja una mitad final más esbelta: tan ancha como un [Button](/es/components/button/) estrecho de solo icono del mismo tamaño, con el chevron y un pequeño margen interior a cada lado.
+:::
+
+<DemoFrame label="Variantes">
+  <tanrei-button-with-menu label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+</DemoFrame>
+
+<DemoFrame label="Con su menú: pulsa la mitad final" plain>
+  <tanrei-button-with-menu label="Guardar" menu-label="Más opciones de guardado" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    <span slot="icon">save</span>
+    <tanrei-menu-item slot="menu" label="Guardar como…"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="Guardar una copia"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="Guardar como plantilla"></tanrei-menu-item>
+  </tanrei-button-with-menu>
+</DemoFrame>
+
+### Uso
+
+Un botón con menú son dos botones unidos en una sola forma. La mitad inicial realiza la acción principal. La mitad final, con el chevron, abre un [menú](/es/components/menu/) de acciones relacionadas. El contenido del menú son los tipos de elemento propios del menú (acciones, elementos de casilla de verificación, elementos de opción y grupos), que se pasan como cada plataforma pasa los elementos de un menú.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button-with-menu label="Guardar" menu-label="Más opciones de guardado">
+      <span slot="icon">save</span>
+      <tanrei-menu-item slot="menu" label="Guardar como…"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="Guardar una copia"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/button-with-menu';
+      import '@tanrei/web/components/menu';
+      const split = document.querySelector('tanrei-button-with-menu');
+      // Solo el clic de la mitad inicial llega al elemento.
+      split.addEventListener('click', save);
+      // La mitad final pide abrir o cerrar; tú defines open.
+      split.addEventListener('toggle', (e) => (split.open = e.detail.open));
+      // close lleva el motivo del menú: escape, outside, tab, focus-out o item (la web no tiene back).
+      split.addEventListener('close', () => (split.open = false));
+      // El clic de un elemento se detiene en el botón con menú: escucha en el propio elemento.
+      split.querySelector('[label="Guardar como…"]').addEventListener('click', saveAs);
+    </script>
+
+    <!-- Una instancia unida por una separación, con una mitad final esbelta. Omite separation para seguir al sistema de diseño. -->
+    <tanrei-button-with-menu variant="tonal" separation="gap" trailing-width="narrow" label="Fusionar" menu-label="Más opciones de fusión">
+      <tanrei-menu-item slot="menu" label="Combinar y fusionar"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="Cambiar de base y fusionar"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <!-- Se abre al pasar el cursor tras 400 ms, además de con una pulsación; su propio glifo, cerrado y abierto. -->
+    <tanrei-button-with-menu label="Compartir" menu-label="Más opciones para compartir" hover-open hover-delay="400">
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <tanrei-menu-item slot="menu" label="Copiar enlace"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="Correo electrónico"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ButtonWithMenu, MenuItem } from '@tanrei/react';
+
+    // onClick es el de la mitad inicial. El onClick de un MenuItem es un listener en el propio elemento del menú,
+    // así que se emite dentro de un ButtonWithMenu; recibe el MouseEvent nativo.
+    <ButtonWithMenu
+      label="Guardar"
+      menuLabel="Más opciones de guardado"
+      open={open}
+      onClick={save}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <MenuItem slot="menu" label="Guardar como…" onClick={saveAs} />
+      <MenuItem slot="menu" label="Guardar una copia" onClick={saveCopy} />
+    </ButtonWithMenu>
+
+    // Una instancia unida por una separación, con una mitad final esbelta.
+    <ButtonWithMenu variant="tonal" separation="gap" trailingWidth="narrow" label="Fusionar" menuLabel="Más opciones de fusión"
+      open={mergeOpen} onClick={merge} onToggle={(e) => setMergeOpen(e.detail.open)} onClose={() => setMergeOpen(false)}>
+      <MenuItem slot="menu" label="Combinar y fusionar" onClick={squash} />
+      <MenuItem slot="menu" label="Cambiar de base y fusionar" onClick={rebase} />
+    </ButtonWithMenu>
+
+    // También se abre al pasar el cursor; un hoverDelay nulo toma el retardo del sistema.
+    <ButtonWithMenu label="Compartir" menuLabel="Más opciones para compartir" hoverOpen hoverDelay={400} open={shareOpen}
+      onToggle={(e) => setShareOpen(e.detail.open)} onClose={() => setShareOpen(false)}>
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <MenuItem slot="menu" label="Copiar enlace" onClick={copyLink} />
+    </ButtonWithMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Primero el título, como en Button. Tanto la mitad final como el menú escriben en el binding.
+    TanreiSplitButton("Guardar", menuLabel: "Más opciones de guardado", isMenuPresented: $showsSaveOptions, action: save) {
+        TanreiMenuItem("Guardar como…", action: saveAs)
+        TanreiMenuItem("Guardar una copia", action: saveCopy)
+    }
+
+    // También se abre al pasar el cursor (macOS, y iPadOS con un puntero); un hoverDelay nil toma el retardo del sistema.
+    // chevron: y openChevron: reciben cada uno un constructor de glifo, para los slots chevron y chevron-open.
+    TanreiSplitButton("Compartir", menuLabel: "Más opciones para compartir", isMenuPresented: $showsShareOptions,
+                      opensOnHover: true, hoverDelay: .milliseconds(400), action: share) {
+        TanreiMenuItem("Copiar enlace", action: copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiSplitButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSplitButtonVariant
+
+    // Elevación de estado, como en el menú: tú guardas menuExpanded.
+    TanreiSplitButton(
+        text = "Guardar",
+        onClick = ::save,
+        menuContentDescription = "Más opciones de guardado",
+        menuExpanded = expanded,
+        onMenuExpandedChange = { expanded = it },
+        onMenuDismissRequest = { expanded = false }, // recibe un TanreiMenuCloseReason
+        variant = TanreiSplitButtonVariant.Tonal,
+        icon = { TanreiText("save") },
+    ) {
+        TanreiMenuItem(text = "Guardar como…", onClick = ::saveAs)
+        TanreiMenuItem(text = "Guardar una copia", onClick = ::saveCopy)
+    }
+
+    // También se abre al pasar el cursor, con un ratón o un lápiz; un hoverDelayMillis nulo toma el retardo del sistema.
+    TanreiSplitButton(
+        text = "Compartir",
+        onClick = ::share,
+        menuContentDescription = "Más opciones para compartir",
+        menuExpanded = shareExpanded,
+        onMenuExpandedChange = { shareExpanded = it }, // una pulsación, una tecla o el paso del cursor
+        onMenuDismissRequest = { shareExpanded = false },
+        chevron = { TanreiText("more_vert") },
+        openChevron = { TanreiText("close") },
+        openOnHover = true,
+        hoverDelayMillis = 400,
+    ) {
+        TanreiMenuItem(text = "Copiar enlace", onClick = ::copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // El botón con menú abre y cierra el menú a través del controlador; onMenuToggle y onMenuClose lo notifican.
+    TanreiSplitButton(
+      label: 'Guardar',
+      menuSemanticLabel: 'Más opciones de guardado',
+      onPressed: save, // un onPressed nulo deshabilita las dos mitades
+      menuController: saveOptions,
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: saveAs, child: const Text('Guardar como…')),
+        TanreiMenuItem(onPressed: saveCopy, child: const Text('Guardar una copia')),
+      ],
+    );
+
+    // También se abre al pasar el cursor, nunca con el tacto; chevron y openChevron reciben cada uno un widget de glifo.
+    TanreiSplitButton(
+      label: 'Compartir',
+      menuSemanticLabel: 'Más opciones para compartir',
+      onPressed: share,
+      openOnHover: true,
+      hoverDelay: const Duration(milliseconds: 400), // null toma el retardo del sistema
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: copyLink, child: const Text('Copiar enlace')),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SplitButton } from '@tanrei/react-native';
+
+    // Controlado: define menuVisible desde onMenuToggle, y ponlo en false desde onMenuDismiss, que recibe el motivo.
+    <SplitButton
+      label="Guardar"
+      icon="save"
+      menuAccessibilityLabel="Más opciones de guardado"
+      menuVisible={open}
+      onPress={save}
+      onMenuToggle={setOpen}
+      onMenuDismiss={() => setOpen(false)}
+      menuItems={[
+        { label: 'Guardar como…', onPress: saveAs },
+        { label: 'Guardar una copia', onPress: saveCopy },
+      ]}
+    />
+
+    // También se abre al pasar el cursor, solo con un puntero; chevron y openChevron son nombres de glifos.
+    <SplitButton
+      label="Compartir"
+      menuAccessibilityLabel="Más opciones para compartir"
+      chevron="more_vert"
+      openChevron="close"
+      hoverOpen
+      hoverDelay={400}
+      menuVisible={shareOpen}
+      onPress={share}
+      onMenuToggle={setShareOpen}
+      onMenuDismiss={() => setShareOpen(false)}
+      menuItems={[{ label: 'Copiar enlace', onPress: copyLink }]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+### Unidas por un divisor o por una separación
+
+Las dos mitades se unen de una de dos maneras. Con un **divisor**, se tocan, las esquinas donde se encuentran son rectas y una línea marca la unión. Con una **separación**, quedan a una distancia estrecha, con esquinas más cerradas donde se miran. El sistema de diseño elige una vez para todos los componentes que unen partes (el sistema predeterminado dibuja un divisor), un sistema de diseño puede tratar aparte este componente, y `separation` (`auto`, `divider`, `gap`) define una instancia concreta. Las mitades siempre están una al lado de la otra: no hay forma vertical.
+
+<DemoFrame label="Unidas por un divisor y por una separación" plain>
+  <tanrei-button-with-menu separation="divider" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="divider" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="gap" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="divider" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+</DemoFrame>
+
+### Una mitad final estrecha
+
+De forma predeterminada, la mitad final contiene el chevron en un cuadrado de la altura del botón, con un poco más de margen interior en su extremo exterior redondeado. Con `trailingWidth` en `narrow` es un asidero esbelto de la acción principal: exactamente tan ancha como un [Button](/es/components/button/) estrecho de solo icono del mismo tamaño (28 / 32 / 32 en el sistema predeterminado), con el chevron centrado, un pequeño margen interior a cada lado y sin margen exterior. La mitad inicial es la misma con cualquiera de los dos anchos.
+
+<DemoFrame label="Ancho de la mitad final: default y narrow, en cada tamaño" plain>
+  <tanrei-button-with-menu size="small" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="small" trailing-width="narrow" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu trailing-width="narrow" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" trailing-width="narrow" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+</DemoFrame>
+
+Una mitad final estrecha se dibuja más estrecha que el objetivo mínimo, pero su área de pulsación no lo es: el objetivo se extiende hacia fuera, más allá del borde de fin. Déjale espacio ahí, como junto a un Button estrecho de solo icono.
+
+## Especificaciones
+
+<DemoFrame label="Tamaños, un icono, abierto y deshabilitado" plain>
+  <tanrei-button-with-menu size="small" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="Guardar" menu-label="Más opciones de guardado"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu disabled label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" disabled label="Guardar" menu-label="Más opciones de guardado"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="Compartir" menu-label="Más opciones para compartir"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="Compartir" menu-label="Más opciones para compartir"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+</DemoFrame>
+
+<ComponentSpecs name="button-with-menu" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un botón con menú para una acción que tiene una forma habitual y unas pocas variaciones: Guardar y «Guardar como…», Fusionar y «Combinar y fusionar», Enviar y «Programar envío». La forma habitual requiere una sola pulsación, y las variaciones quedan a una pulsación más de distancia.
+
+Si ninguna de las opciones es claramente la habitual, usa un botón o un botón de icono que abra un menú. Si no hay variaciones, usa un [botón](/es/components/button/) normal. Para un conjunto de acciones independientes una al lado de la otra, usa un [grupo de botones](/es/components/button-group/).
+
+### Cómo elegir una variante
+
+Las variantes tienen el mismo énfasis que las de Button, y se aplica el mismo presupuesto: una sola acción fuerte por vista.
+
+| Variante | Énfasis | Úsala para |
+| --- | --- | --- |
+| Filled (predeterminada) | El más alto | La acción principal de una vista. |
+| Tonal | Alto | Una acción importante que no debe competir con un botón filled. |
+| Elevated | Medio | Un botón con menú sobre un fondo recargado o con motivos. |
+| Outlined | Medio | Una acción secundaria junto a un botón filled. |
+
+No hay variante text. Sin un relleno o un borde, nada mostraría dónde se encuentran las dos mitades, y la división desaparecería.
+
+Los tamaños tienen las alturas de Button, de modo que un botón con menú puede compartir fila con botones del mismo tamaño. Los extremos exteriores son totalmente redondos en el sistema predeterminado. El punto donde se encuentran las mitades depende de la separación: con un divisor se tocan en esquinas rectas con una línea en la unión, y ninguna de las mitades dibuja su contorno a lo largo de ella, así que el contorno de un botón con menú outlined es una sola línea todo alrededor; con una separación, cada mitad dibuja su contorno, y el anillo que tiene una superficie elevada, dentro de su propio borde, de modo que las dos nunca se tocan.
+
+### El chevron
+
+La mitad final dibuja `expand_more` del conjunto de iconos y lo gira media vuelta mientras el menú está abierto. En el sistema predeterminado, la mitad final conserva su forma mientras está abierta, así que solo el chevron muestra el estado abierto. Un sistema de diseño puede dar a la mitad abierta sus propias esquinas interiores: los preajustes m3-like la redondean hasta formar un círculo mientras está abierta.
+
+Dos slots cambian el glifo. Cada uno recibe un glifo del conjunto de iconos:
+
+| Slots que rellenas | Cerrado | Abierto |
+| --- | --- | --- |
+| Ninguno | `expand_more` | `expand_more`, girado |
+| Solo `chevron` | Tu glifo | Tu glifo, girado |
+| `chevron-open` (con o sin `chevron`) | El glifo de `chevron`, o `expand_more` | El glifo de `chevron-open`; los dos hacen un fundido cruzado en lugar de girar |
+
+Un glifo sin dirección, como `more_vert`, no debería girar: acompáñalo de un glifo en `chevron-open`, o pon el mismo glifo en los dos slots.
+
+### Apertura al pasar el cursor
+
+Con `hoverOpen`, el menú también se abre cuando un ratón, un panel táctil o un lápiz que se mantiene sobre la pantalla sin tocarla se detiene en la mitad final durante `hoverDelay` milisegundos. Deja `hoverDelay` sin definir para tomar el retardo del sistema, 300 ms en el sistema predeterminado. Una pulsación y el teclado siguen abriendo el menú como antes, y el tacto nunca lo abre al pasar por encima.
+
+- Un menú abierto al pasar el cursor no recibe el foco: el foco se queda donde estaba la persona, por ejemplo en un campo de texto. Los elementos siguen mostrando el estado de cursor encima, y un clic en uno de ellos sigue activándolo.
+- Se cierra cuando el puntero lleva un breve margen de tiempo fuera tanto de la mitad final como del menú, de modo que el puntero puede cruzar hasta el menú, o salirse por un borde y volver. Un menú abierto de cualquier otra manera nunca se cierra cuando el puntero sale.
+- Una pulsación o una tecla en la mitad final mientras se muestra un menú abierto al pasar el cursor lo mantiene abierto y lleva el foco a su interior. A partir de ahí es un menú abierto con una pulsación: la siguiente pulsación lo cierra.
+- Escape cierra un menú abierto al pasar el cursor esté donde esté el foco.
+- El paso del cursor pide la apertura mediante el mismo evento toggle que una pulsación, así que el código que define `open` no necesita ningún cambio.
+
+Usa la apertura al pasar el cursor donde un puntero sea habitual y un menú que aparece por sí solo sea bienvenido, como en una barra de herramientas de un editor de escritorio. Nunca sustituye a la pulsación.
+
+### El menú
+
+- El menú es un Menu de Tanrei, con todo lo que ofrece el menú: el foco pasa a su interior, las teclas de flecha y la escritura anticipada lo recorren, y se voltea y se desplaza para mantenerse en pantalla. Se abre debajo de todo el botón con menú, alineado con su borde de fin.
+- Mientras el menú está abierto, el chevron muestra su forma abierta (consulta [El chevron](#el-chevron)).
+- Cuando el menú se cierra y el foco estaba dentro de él, el foco vuelve a la mitad final, el botón que lo abrió.
+- Una pulsación en la mitad final mientras el menú está abierto es una conmutación, no una pulsación fuera: pide cerrar con `toggle` y no envía ningún `close`. Cuando un elemento de acción cierra el menú, primero llega el clic del elemento y después `close` con el motivo `item`.
+- Quién cierra el menú depende de la plataforma. En la web, Compose y React Native defines `open` (`menuExpanded`, `menuVisible`) desde el evento toggle y lo devuelves a false desde el evento close. En SwiftUI y Flutter, el botón con menú abre y cierra el menú por sí mismo a través de su binding o de su controlador.
+
+### Recomendado
+
+- Etiqueta la mitad inicial con la acción habitual, en forma de verbo: «Guardar», «Fusionar», «Enviar».
+- Dale a la mitad final una etiqueta que diga qué ofrece el menú: «Más opciones de guardado», no «Más» ni «Menú».
+- Llena el menú con variaciones de la acción principal. La acción principal en sí no necesita repetirse ahí.
+- Procura que el menú sea corto. Le van bien unos pocos elementos; una lista larga sugiere que las opciones no son variaciones de una misma acción.
+- Deja `separation` en `auto` salvo que una instancia deba ser distinta, para que todos los controles unidos del producto se distingan de la misma manera.
+- Usa la mitad final estrecha donde el menú sea secundario y el ancho escasee, como en una fila de tabla o una cabecera densa.
+
+### Evita
+
+- No pongas en el menú acciones sin relación, como Configuración o Ayuda. Para esas, usa un botón de icono con su propio menú.
+- No uses un botón con menú cuyo menú tenga un solo elemento. Muestra las dos acciones como botones.
+- No intentes deshabilitar una sola mitad. `disabled` se aplica a las dos. Si las variaciones no están disponibles, deshabilita esos elementos del menú.
+- No uses un botón con menú cuando la mitad final haga algo distinto de abrir su menú. Su semántica siempre dice que abre un menú.
+
+## Accesibilidad
+
+<ComponentAccessibility name="button-with-menu" />
+
+### De qué se encarga el componente
+
+- El botón con menú son dos botones en el orden de lectura, cada uno con su propia parada de tabulación. La mitad inicial recibe su nombre de su etiqueta. La mitad final recibe su nombre de su etiqueta de menú y expone que abre un menú y si el menú está abierto, donde la plataforma tiene esas propiedades. Ningún elemento envuelve a los dos, así que un lector de pantalla oye dos botones y nada más.
+- El icono y el chevron, incluido un glifo en el slot `chevron` o `chevron-open`, quedan ocultos para la tecnología de apoyo. La mitad final expone si el menú está abierto sea cual sea la forma en que se abrió: con una pulsación, con una tecla o al pasar el cursor.
+- Enter y Espacio en la mitad inicial realizan la acción principal. Enter, Espacio o Flecha abajo en la mitad final abren el menú y llevan el foco a su primer elemento habilitado. A partir de ahí el menú funciona como en cualquier otro lugar, y Escape lo cierra y devuelve el foco a la mitad final.
+- Un menú abierto al pasar el cursor deja el foco donde estaba, y Escape lo cierra esté donde esté el foco, sin que el puntero se mueva, de modo que lo que mostró el paso del cursor siempre se puede descartar (WCAG 1.4.13). Ese Escape no va más allá; el siguiente llega a la página como de costumbre.
+- Cada mitad responde por su cuenta al paso del cursor, a la pulsación y al foco. La otra mitad nunca muestra un estado que no es el suyo.
+- El área de pulsación de cada mitad se extiende hacia fuera, y por encima y por debajo, hasta el objetivo mínimo. Hacia la otra mitad se detiene en la unión, o en el centro de la separación, de modo que las dos nunca se solapan. Lo que una mitad final estrecha no puede alcanzar hacia la mitad inicial lo alcanza hacia fuera, así que tiene su objetivo completo sin dibujarse más ancha.
+- El divisor es decoración: queda oculto para la tecnología de apoyo y no recibe pulsaciones. Las dos mitades son dos botones tanto si entre ellas hay una línea como si hay una separación.
+- En el sistema predeterminado, el contorno de la variante outlined y el divisor de las variantes outlined, tonal y elevated son la línea fina, que es discreta a propósito: la mitad inicial se identifica por su etiqueta y la mitad final, por su chevron. El divisor de la variante filled es más marcado, porque una línea fina no se ve sobre ese relleno.
+- La etiqueta nunca se trunca. Con tamaños de texto mayores salta de línea, y las dos mitades crecen juntas en altura.
+- Un botón con menú deshabilitado expone las dos mitades como deshabilitadas, las saca del orden del foco, no presenta ningún menú y dibuja su forma cerrada, diga lo que diga `open`.
+- Las compilaciones de depuración avisan de una etiqueta o una etiqueta de menú ausentes, y de un menú sin elementos.
+
+Carencias conocidas por plataforma:
+
+- Web: solo el clic de la mitad inicial llega a los listeners del botón con menú. El clic de un elemento del menú se detiene en el botón con menú, así que un listener en un ancestro nunca lo oye: escucha en el elemento. Por este motivo, los envoltorios de React de los elementos del menú asocian `onClick` al elemento.
+- SwiftUI no tiene ninguna propiedad que diga que un botón abre un menú, ni un estado expandido. El popover del menú está anclado a la mitad final; como las mitades comparten una misma altura y la mitad final cierra la fila, su extremo inferior es el de todo el botón con menú. El binding es a la vez la conmutación y el cierre, así que el motivo del cierre no se transmite. Un slot de menú que está vacío aunque sea un momento, como un `ForEach` sobre elementos que se cargan más tarde, es un fallo de aserción en las compilaciones de depuración y detiene una aplicación de depuración. Enter, Espacio y Flecha abajo en las mitades, la vuelta del foco a la mitad final y un clic en la mitad final en macOS mientras el menú está abierto no se han probado de extremo a extremo.
+- Flutter no tiene ninguna propiedad que diga que un botón abre un menú. La mitad final expone si el menú está abierto, pero no que abre uno.
+- Compose no tiene ninguna propiedad que diga que un botón abre un menú. La mitad final es un botón con acciones de expandir y contraer para su estado. El menú en sí arrastra las carencias de Compose que se enumeran en la página del [menú](/es/components/menu/).
+- React Native tampoco tiene ninguna propiedad que diga que un botón abre un menú. La mitad final expone si el menú está abierto, pero no que abre uno.
+- React Native: una pulsación en la mitad final mientras el menú está abierto, la vuelta del foco a ella y el giro del chevron solo se han probado sin un dispositivo.
+
+### Qué debes hacer tú
+
+- Escribe las dos etiquetas. Un chevron por sí solo no es un nombre, y «Más» junto a «Guardar» no dice qué contiene el menú.
+- En la web, Compose y React Native, define `open` desde el evento toggle y ponlo en false desde el evento close. El botón con menú solo pide. Con `hoverOpen`, el paso del cursor pide mediante el mismo evento toggle.
+- No muevas el foco tú cuando el menú se cierre. El botón con menú lo devuelve a la mitad final.
+- Dale una etiqueta a cada elemento del menú, incluidos los que muestran un icono.
+- Deja espacio más allá del borde de fin de una mitad final estrecha, para que su objetivo no se solape con el siguiente control.

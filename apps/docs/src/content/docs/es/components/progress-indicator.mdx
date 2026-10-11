@@ -1,0 +1,211 @@
+---
+title: Indicador de progreso
+description: Muestra cuánto ha avanzado una tarea, o que está en curso cuando no se sabe cuánto, en forma de barra o de anillo.
+translationOf: components/progress-indicator.mdx
+sourceHash: 4c913cc78754e128adde1441de5e69fac8eff4f8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="progress-indicator" />
+
+<DemoFrame label="Lineal y circular">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator value="0.4" label="Subiendo report.pdf"></tanrei-progress-indicator>
+    <tanrei-progress-indicator label="Preparando la exportación"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" value="0.4" label="Sincronizando fotos"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" label="Sincronizando"></tanrei-progress-indicator>
+</DemoFrame>
+
+### Uso
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native van rezagados: todavía no tienen `separation`, y sus ejemplos muestran lo que ofrecen.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-progress-indicator value="0.4" label="Subiendo report.pdf"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="3 de 10 archivos" label="Subiendo"></tanrei-progress-indicator>
+
+    <!-- Sin value: indeterminado, como un <progress> sin él. -->
+    <tanrei-progress-indicator variant="circular" size="small" label="Sincronizando"></tanrei-progress-indicator>
+
+    <!-- Una separación entre el indicador y el resto de la pista, elija lo que elija el sistema de diseño. -->
+    <tanrei-progress-indicator separation="gap" value="0.4" label="Subiendo report.pdf"></tanrei-progress-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/progress-indicator';
+      const bar = document.querySelector('tanrei-progress-indicator');
+      bar.value = sent / total;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react';
+
+    <ProgressIndicator value={sent / total} label="Subiendo report.pdf" />
+    <ProgressIndicator value={files} max={10} valueText={`${files} de 10 archivos`} label="Subiendo" />
+    <ProgressIndicator variant="circular" size="small" value={null} label="Sincronizando" />
+    <ProgressIndicator separation="gap" value={sent / total} label="Subiendo report.pdf" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiProgressIndicator("Subiendo report.pdf", value: sent / total)
+    TanreiProgressIndicator("Subiendo", value: Double(files), in: 0...10, currentValueLabel: "\(files) de 10 archivos")
+
+    // Sin valor (el caso predeterminado) es indeterminado.
+    TanreiProgressIndicator("Sincronizando", variant: .circular, size: .small)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicator
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicatorVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiProgressIndicatorSize
+
+    // progress es una lambda: un valor nuevo se redibuja sin recomponer.
+    TanreiProgressIndicator(progress = { sent / total }, contentDescription = "Subiendo report.pdf")
+    TanreiProgressIndicator(
+        progress = { files.toFloat() },
+        contentDescription = "Subiendo",
+        valueRange = 0f..10f,
+        stateDescription = "$files de 10 archivos",
+    )
+
+    // La sobrecarga sin progress es indeterminada.
+    TanreiProgressIndicator(
+        contentDescription = "Sincronizando",
+        variant = TanreiProgressIndicatorVariant.Circular,
+        size = TanreiProgressIndicatorSize.Small,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiProgressIndicator(value: sent / total, semanticsLabel: 'Subiendo report.pdf');
+    TanreiProgressIndicator(
+      value: files.toDouble(),
+      max: 10,
+      semanticsValue: '$files de 10 archivos',
+      semanticsLabel: 'Subiendo',
+    );
+
+    // value: null (el valor predeterminado) es indeterminado.
+    const TanreiProgressIndicator(
+      variant: TanreiProgressIndicatorVariant.circular,
+      size: TanreiProgressIndicatorSize.small,
+      semanticsLabel: 'Sincronizando',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react-native';
+
+    <ProgressIndicator accessibilityLabel="Subiendo report.pdf" value={sent / total} />
+    <ProgressIndicator accessibilityLabel="Subiendo" value={files} max={10} valueText={`${files} de 10 archivos`} />
+    <ProgressIndicator accessibilityLabel="Sincronizando" variant="circular" size="small" />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Tamaños, extremos del intervalo y un intervalo propio" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="0" label="Sin empezar"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="1" label="Terminado"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="3 de 10 archivos" label="Subiendo"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+</DemoFrame>
+
+<DemoFrame label="Separación: divider (la elección del sistema predeterminado) y gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" size="large" value="0.4" label="Gap, large"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="progress-indicator" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un indicador de progreso para una tarea que dura lo suficiente como para notarse: una subida, una importación, un despliegue, un guardado largo. Muestra cuánto ha avanzado cuando puedas medirlo, aunque sea de forma aproximada; las personas esperan con más paciencia ante una barra que se mueve. Cuando todavía no puedas medirlo, muéstralo indeterminado y pasa a un valor en cuanto tengas uno.
+
+Para una espera corta cuya duración no puedes medir, como una lista que carga su página siguiente, usa en su lugar un [indicador de carga](/es/components/loading-indicator/). No tiene pista, porque nunca promete un valor.
+
+### Cómo elegir una variante
+
+| Variante | Úsala para |
+| --- | --- |
+| Linear | Tareas que pertenecen a una página o a una sección: en la parte superior de una página, dentro de una tarjeta, bajo un archivo en una lista de subidas. La barra ocupa el ancho que le da su diseño. |
+| Circular | Lugares estrechos y progreso junto a un texto: en un botón, en una fila de lista, en un panel pequeño. El anillo tiene un tamaño fijo. |
+
+### Cómo elegir un tamaño
+
+| Tamaño | Grosor de la barra / tamaño del anillo en el sistema predeterminado | Úsalo para |
+| --- | --- | --- |
+| Small | 2 / 16 | Filas densas, dentro de controles, junto a texto pequeño. |
+| Medium | 4 / 24 | La mayoría de los lugares. Es el predeterminado. |
+| Large | 8 / 40 | La única tarea de la que trata una vista, o una sección vacía que espera su contenido. |
+
+### Divisor o separación
+
+Un indicador determinado se distingue del resto de su pista de una de dos maneras. Con `divider` se dibuja sobre la pista sin espacio entre ambos. Con `gap` se deja un pequeño espacio vacío después de él (en un anillo, en los dos extremos de su arco), y una barra marca el final de su pista con un punto. Un indicador indeterminado se ve igual con las dos.
+
+El sistema de diseño elige una vez para todos los componentes que tienen esta elección, y el sistema predeterminado elige divider. Deja `separation` en `auto` para seguir esa elección, de modo que el indicador concuerde con los grupos de botones y los menús que lo rodean. Define `divider` o `gap` en un indicador solo cuando ese tenga un motivo para ser distinto.
+
+### Recomendado
+
+- Dale una etiqueta que diga qué está en curso: «Subiendo report.pdf», no «Progreso». Si junto a él se muestra una leyenda, usa las mismas palabras.
+- Usa un texto de valor cuando un porcentaje no sea la lectura natural: «3 de 10 archivos», «Paso 2 de 4».
+- Di a las personas cuándo termina la tarea, con palabras: un mensaje de que ha terminado, o de qué ha fallado y qué hacer a continuación.
+
+### Evita
+
+- No uses el color para informar de un fallo. Una barra roja no le dice nada a quien no puede ver el color; detén el indicador y muestra un mensaje junto a él.
+- No lo uses como medidor de un nivel, como el almacenamiento usado o la seguridad de una contraseña. Eso es un medidor (meter), que es un componente distinto.
+- No dejes que el valor retroceda ni que salte al final antes de que la tarea haya terminado. La barra es una promesa sobre la espera que queda.
+- No muestres varios indicadores para una sola tarea. Muestra uno para el conjunto, o uno por cada elemento que le importe a la persona.
+
+## Accesibilidad
+
+<ComponentAccessibility name="progress-indicator" />
+
+### De qué se encarga el componente
+
+- Expone el rol de barra de progreso con la etiqueta como nombre. Determinado, expone el intervalo, el valor actual (limitado al intervalo) y el texto de valor cuando lo hay; indeterminado, no expone ningún valor y expone el estado ocupado de la plataforma. Flutter todavía no tiene rol de barra de progreso ni estado ocupado, así que ahí expone la etiqueta y el valor.
+- Nunca recibe el foco y no anuncia sus cambios. La tecnología de apoyo lee el valor actual cuando la persona llega a él.
+- Cuando se pide reducir movimiento, un cambio de valor se muestra de inmediato, y la forma indeterminada deja de moverse y, en su lugar, hace pulsar suavemente su opacidad, como máximo una vez por segundo.
+- Su animación en bucle se detiene mientras no se puede ver (en todas partes cuando la aplicación está en segundo plano, y cuando queda desplazado fuera de la vista o en una pantalla oculta donde la plataforma puede saberlo) y se reanuda cuando se puede ver.
+- Las compilaciones de depuración notifican una etiqueta vacía, un valor fuera del intervalo y un `separation` desconocido.
+
+### Qué debes hacer tú
+
+- Anuncia tú el final de la tarea: un mensaje en una región activa (live region), o el foco movido al resultado. El indicador no dirá que la tarea ha terminado o ha fallado.
+- Si los cambias, mantén el color del indicador con un contraste de al menos 3:1 frente a la pista y a la superficie que tiene detrás, tanto con un divisor como con una separación. El valor se lee allí donde el indicador se encuentra con la pista.
+- Si la tarea bloquea una región de la página, marca esa región como ocupada mientras se ejecuta (`aria-busy` en la web).

@@ -1,0 +1,191 @@
+---
+title: Estructura de la aplicación
+description: Enmarca una página o una aplicación. Coloca una cabecera, la navegación, el contenido principal, un contenido complementario y un pie, decide según el ancho de la ventana cómo se muestra cada uno y permite que el teclado llegue al contenido en un solo paso.
+translationOf: components/app-shell.mdx
+sourceHash: 2edf8f86601639e5c955456b820082161532f975
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+
+## Descripción general
+
+<ComponentAvailability name="app-shell" />
+
+Una estructura de la aplicación es el marco de una ventana. Coloca regiones y no dibuja el contenido de ninguna: la cabecera es tu barra de la aplicación, la navegación es tu panel de navegación, el pie es un diseño tuyo. Lo que la estructura añade es lo que un marco hecho a mano olvida: las regiones de referencia (landmarks), un único conjunto de anchos de ventana, el espacio que una cabecera fija le quita al destino de un enlace y una forma de que el teclado pase de largo el marco.
+
+Un marco es una ventana entera, así que esta página no tiene ningún ejemplo en vivo: una estructura dibujada dentro de una página tomaría la clase de ventana de esa página. Los fixtures de [Especificaciones](#especificaciones) aparecen con sus propiedades; en las pruebas, cada uno se dibuja solo en una ventana propia.
+
+En la web es `<tanrei-app-shell>` alrededor de tus propias regiones. El elemento no tiene shadow root, así que un `<header>` es el banner de la página y el único `<main>` es su región de referencia principal, que se leen sin script y que también lee un rastreador. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/app-shell.css" />
+
+    <tanrei-app-shell aside-order="before" aside-label="En esta página">
+      <a class="tanrei-link" data-standalone slot="skip-link" href="#main">Saltar al contenido</a>
+      <header slot="header">
+        <tanrei-app-bar headline="Tanrei">
+          <tanrei-button slot="navigation" data-app-shell-menu variant="text" label="Menú">
+            <span slot="icon">menu</span>
+          </tanrei-button>
+        </tanrei-app-bar>
+      </header>
+      <tanrei-navigation-drawer slot="navigation" responsive collapsible label="Documentación">
+        …
+      </tanrei-navigation-drawer>
+      <aside slot="aside">…</aside>
+      <main id="main" tabindex="-1">…</main>
+      <footer slot="footer">…</footer>
+    </tanrei-app-shell>
+
+    <script type="module">
+      import '@tanrei/web/components/app-shell';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { AppBar, AppShell, Button, NavigationDrawer } from '@tanrei/react';
+    import '@tanrei/web/app-shell.css';
+
+    <AppShell asideLabel="En esta página" onWindowclasschange={(event) => setWindowClass(event.detail.windowClass)}>
+      <a className="tanrei-link" data-standalone slot="skip-link" href="#main">Saltar al contenido</a>
+      <header slot="header">
+        <AppBar headline="Tanrei">
+          <Button slot="navigation" data-app-shell-menu variant="text" label="Menú"><span slot="icon">menu</span></Button>
+        </AppBar>
+      </header>
+      <NavigationDrawer slot="navigation" responsive collapsible label="Documentación">…</NavigationDrawer>
+      <main id="main" tabIndex={-1}>{children}</main>
+      <aside slot="aside">…</aside>
+      <footer slot="footer">…</footer>
+    </AppShell>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/app-shell.css` dispone el marco entero antes de que se ejecute ningún script, así que una página generada en un servidor no se mueve cuando llega el script, y el enlace de salto funciona con los scripts desactivados. El elemento añade por sí mismo esa misma hoja de estilos a la página.
+
+### Qué escribes tú
+
+Una región es un hijo con un atributo `slot`. La región principal es el único `<main>`, que no lo lleva.
+
+| Región | En la web | Qué le da la estructura |
+| --- | --- | --- |
+| Enlace de salto | `<a class="tanrei-link" data-standalone slot="skip-link" href="#main">` | La primera parada del teclado. Solo se dibuja mientras tiene el foco del teclado. |
+| Anuncio | `<div slot="announcement">` alrededor de un callout | Todo el ancho del marco, encima de la cabecera. |
+| Cabecera | `<header slot="header">` alrededor de tu barra de la aplicación | Todo el ancho. Se queda arriba mientras la página se desplaza. |
+| Navegación | `<tanrei-navigation-drawer slot="navigation" responsive>` | El borde de inicio, en una de tres presentaciones. |
+| Contenido principal | `<main id="main" tabindex="-1">` | Márgenes laterales, un límite de ancho y el destino del enlace de salto. |
+| Contenido complementario | `<aside slot="aside">`, o una hoja lateral | El borde de fin en una ventana ancha. En las demás, encima o debajo del contenido principal. |
+| Pie | `<footer slot="footer">` | El final de la página, márgenes laterales y espacio. |
+| Barra de navegación | `<tanrei-navigation-bar slot="navigation-bar">` | El borde inferior, solo en una ventana estrecha. |
+
+Escribe las regiones en el orden en que las recorre el teclado: enlace de salto, anuncio, cabecera, navegación, el contenido complementario cuando va antes del contenido principal, el contenido principal, el contenido complementario cuando va después, pie y barra de navegación. La hoja de estilos las coloca por su nombre y nunca cambia el orden del foco. Una región que omites no ocupa espacio ni añade ninguna región de referencia.
+
+## Especificaciones
+
+<ComponentSpecs name="app-shell" />
+
+## Pautas
+
+### Tres clases de ventana
+
+La estructura da a la ventana una de tres clases, solo por su ancho.
+
+| Clase | Ancho | Navegación | Contenido complementario | Botón de menú | Barra de navegación | Margen lateral |
+| --- | --- | --- | --- | --- | --- | --- |
+| `compact` | Menos de 600 | Sobre el contenido, cuando se abre | Encima o debajo del contenido principal | Se muestra | Se muestra | 16 |
+| `medium` | De 600 a 1023 | La columna de iconos del panel donde es `collapsible`. Si no, como en la compacta | Encima o debajo | Se muestra, salvo que se muestre la columna | No se muestra | 24 |
+| `expanded` | 1024 o más | Junto al contenido | Junto al contenido, en el borde de fin | No se muestra | No se muestra | 32 |
+
+- Los anchos son los tokens `sys.breakpoint.medium` y `sys.breakpoint.expanded`. Un panel de navegación con `responsive` lee esos mismos dos, de modo que el marco y el panel cambian a la vez.
+- En la web, los anchos se comparan en `rem`. Quien amplía la página recibe la disposición más estrecha antes de que las columnas se vuelvan demasiado estrechas para leer.
+- `windowclasschange` te dice la clase, y `windowClass` la guarda. Cambia a partir de ella lo que la estructura no cambia: la presentación de una búsqueda, la variante de una hoja lateral, la forma de un esquema de la página.
+- En la web, todo lo que hay en el marco hereda además `--tanrei-app-shell-window-class`, así que una hoja de estilos puede seguir la clase con una consulta de contenedor de estilo y sin ningún script.
+
+### El botón de menú
+
+Pon en la cabecera un Button de solo icono y márcalo con `data-app-shell-menu`. La estructura lo muestra solo mientras la navegación no tiene sitio en el diseño. Al pulsarlo, el panel se abre sobre el contenido y el foco pasa a él. Al cerrar el panel, el foco vuelve al botón. El botón dice si la navegación está expandida.
+
+`navigationOpen` (`navigation-open`) guarda ese estado, y `navigationopenchange` te avisa cuando una persona lo ha cambiado. Un cambio de la clase de la ventana cierra la navegación.
+
+### Qué se desplaza
+
+| `scroll` | Qué se desplaza | Úsalo para |
+| --- | --- | --- |
+| `page` (predeterminado) | La ventana desplaza la página. La cabecera se queda fija arriba, y la navegación y el contenido complementario se mantienen a la vista junto al contenido. | Páginas que se leen: documentación, artículos, configuración. |
+| `main` | El marco es exactamente la ventana y solo se desplaza la región principal. | Una aplicación cuyos paneles se desplazan por separado: un cliente de correo, un editor. |
+
+- Da preferencia a `page`. La búsqueda en la página, los enlaces a un encabezado, la vuelta al punto en que estaba quien leía y las barras que el navegador de un teléfono contrae funcionan como en una página que no tiene estructura de la aplicación.
+- `headerPosition: static` deja que la cabecera se vaya con la página al desplazarse.
+- Con `scroll: main` en la web, indica el id del elemento principal en el `scroll-target` de la barra de la aplicación.
+- En la web, la propiedad de JavaScript es `scrolls`, porque todos los elementos tienen ya un método `scroll()`. El atributo es `scroll`.
+
+### Los enlaces a un encabezado se detienen debajo de la cabecera
+
+La estructura mide la cabecera fija y da ese mismo margen interior a la vista de desplazamiento de la página. Un enlace a un encabezado, y un elemento que recibe el foco del teclado, se detienen debajo de la cabecera y nunca quedan tapados por ella. En la web, esa misma distancia es `--tanrei-app-shell-scroll-offset` en la raíz, para tus propias partes fijas, como la fila de encabezado de una tabla. Dentro de una estructura, deja `--tanrei-prose-scroll-offset` en 0.
+
+### El ancho de la región principal
+
+- `mainWidth: contained` (predeterminado) mantiene el contenido con un ancho máximo de 768 y lo centra en el espacio que tiene. Úsalo para páginas que se leen.
+- `mainWidth: full` ocupa todo el espacio entre los márgenes laterales. Úsalo para una tabla, un tablero o un editor.
+- El contenido que no puede encogerse, como una tabla ancha o una línea de código, se desplaza dentro de su propia caja. Nunca ensancha el marco.
+
+### El contenido complementario
+
+- En una ventana expandida, el contenido complementario queda junto al contenido principal, con 240 de ancho, y se mantiene a la vista mientras la página se desplaza.
+- En una ventana más estrecha se suma a la columna del contenido principal. `asideOrder: before` lo dibuja encima del contenido principal, lo que conviene a un esquema de la página. `after` (predeterminado) lo dibuja debajo, lo que conviene a unos enlaces relacionados.
+- `asideOrder` es también el orden de lectura. En la web, escribe el `<aside>` en ese lado del `<main>` en el marcado.
+- Da nombre al contenido complementario con `asideLabel`, en tu idioma.
+- Una hoja lateral puesta en el contenido complementario conserva su propio ancho y su borde. Define su variante a partir de `windowclasschange`.
+
+### Líneas entre regiones
+
+| `separation` | Qué dibuja |
+| --- | --- |
+| `auto` (predeterminado) | Lo que eligió el sistema de diseño: líneas en el sistema predeterminado. |
+| `divider` | Una línea fina encima del pie, en el borde de inicio de un contenido complementario que está junto al contenido, y entre el contenido principal y un contenido complementario apilado. |
+| `gap` | Ninguna línea. Los mismos espacios. |
+
+Las líneas no ocupan sitio. La estructura no dibuja ninguna alrededor de la cabecera, la navegación, el anuncio ni la barra de navegación: esos componentes dibujan sus propios bordes.
+
+### Recomendado
+
+- Da a cada página un solo `<main>`, y dale el id que nombra el enlace de salto.
+- Escribe el texto del enlace de salto en tu idioma. Tanrei no incluye textos propios.
+- Usa un panel de navegación con `responsive` en la región de navegación.
+
+### Evita
+
+- No pongas en la estructura el título, la descripción ni las acciones de la página. Son una [cabecera de página](/es/components/page-header/), lo primero de la región principal.
+- No pongas el pie de un artículo (anterior y siguiente, un enlace para editar) en la región de pie. Con él termina el contenido principal. La región de pie es para lo que pertenece al sitio entero.
+- No cambies el orden de las regiones con CSS. El orden del marcado es el orden del foco.
+
+## Accesibilidad
+
+<ComponentAccessibility name="app-shell" />
+
+### De qué se encarga el componente
+
+- Cada región con contenido es su región de referencia: banner, navegación, principal, complementaria e información de contenido. A una región cuyo elemento no da por sí mismo la región de referencia se le da el rol.
+- El enlace de salto es la primera parada del teclado. Al seguirlo, el foco pasa a la propia región principal, con su parte superior a la vista debajo de la cabecera. El siguiente Tab llega al primer control del contenido.
+- Tab recorre las regiones en el orden de lectura, el mismo en todas las clases de ventana y en las dos direcciones del diseño, de izquierda a derecha y de derecha a izquierda. Una región que no se muestra no tiene ninguna parada.
+- El destino de un enlace y un elemento con el foco nunca quedan debajo de la cabecera fija ni de la barra de navegación.
+- Cuando la clase de la ventana cambia y el foco estaba en algo que ya no se muestra, como el botón de menú, el foco pasa a la región principal.
+- Con el texto al 200% en una ventana de 320 de ancho, el marco es una sola columna y nada se desplaza hacia los lados.
+- Con colores forzados, las líneas y la caja del enlace de salto se dibujan con el color de texto del sistema.
+- En un diseño de derecha a izquierda, la navegación queda a la derecha y el contenido complementario a la izquierda. El orden del foco no cambia.
+
+### Qué debes hacer tú
+
+- Exactamente un `<main>` por página. Una compilación de depuración avisa si no hay ninguno o si hay más de uno.
+- Un nombre para el contenido complementario (`asideLabel`), y un `label` en el panel de navegación y en la barra de navegación. Dos regiones de referencia de navegación en una página necesitan dos nombres.
+- El texto del enlace de salto y la etiqueta del botón de menú.
+- Un solo encabezado de nivel 1 por página, en la región principal: el título de la [cabecera de página](/es/components/page-header/).

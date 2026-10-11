@@ -1,0 +1,360 @@
+{
+  "tanrei": {
+    "comp": {
+      "segmented-button": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets people pick one or several of a few related options (a range, a view, days of the week) from a joined row of segments, at the heights of its buttons, some segments with icons or icon-only, some disabled.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "selected"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "container.elevation": "shadow",
+              "label.color": "color",
+              "icon.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "container.shape": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a segmented button reads: the set (fill, outline, outer corners, inner padding), the dividers between segments, per size a segment's height, paddings, gap, label style, icon and check sizes, the corners where segments meet, the motion, and for each condition (unselected, selected) the colors and elevation of a segment in each state.",
+            "rules": [
+              "Use a segmented button to choose among two to five options of one setting; use a button group for actions and tabs for views.",
+              "Selected must differ from unselected by more than color: the default shows a check; a system that sets check.size to 0 must raise or fill the selected segment so that it stands apart.",
+              "The set's outline and dividers keep their colors in every state, so a disabled segment keeps a visible boundary.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "Each condition's state-layer.color is the color hover, focus and press mix into a segment; it aliases that condition's label color.",
+              "Heights are minimums: a height must hold 2 × padding-block + one label line, and the build reports it when it does not."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "members": [
+                "container.height",
+                "container.padding-inline",
+                "container.padding-block",
+                "container.gap",
+                "label.typescale",
+                "icon.size",
+                "check.size"
+              ]
+            },
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            }
+          }
+        },
+        "set": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "hex": "#000000"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "The default set has no fill of its own; the surface behind it shows through. A system with a track (a filled set with the selection floating in it) values it."
+              }
+            },
+            "$description": "The fill behind the segments."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.small}",
+            "$description": "The set's outer corners, and so the first and last segments' outer corners."
+          },
+          "padding": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "The inset of the segments from the set's edge: 0 joins them to the outline; a system whose selection floats inside a track insets them."
+          }
+        },
+        "outline": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline}",
+            "$description": "The border around the set: a functional 3:1 boundary, as an outlined button's."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline}",
+            "$description": "The line between two segments, the same as the outline by default so the set reads as one outlined shape cut into segments."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.none}",
+            "$description": "The corners where a segment meets its neighbours (the outer corners of the end segments follow set.shape)."
+          },
+          "height": {
+            "$type": "dimension",
+            "$description": "Minimum height of the set and of every segment, per size.",
+            "small": {
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 36,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 9
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "Space between a segment's content and its sides, per size.",
+            "small": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space175}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space200}"
+            }
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "Vertical padding, per size. Heights are minimums, so this shows only when a label wraps or text is enlarged.",
+            "small": {
+              "$value": "{tanrei.sys.space.space75}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space75}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space75}"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Space between the leading glyph and the label, per size.",
+            "small": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space100}"
+            }
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The label's text style, per size.",
+            "small": {
+              "$value": "{tanrei.sys.typescale.label}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.typescale.label}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.label}"
+            }
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The icon box, per size.",
+            "small": {
+              "$value": "{tanrei.sys.icon.extra-small}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.icon.extra-small}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.icon.extra-small}"
+            }
+          }
+        },
+        "check": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The check's box, per size. 0 draws no check and reserves no room for it (a system whose selected segment is told apart by its fill and elevation).",
+            "small": {
+              "$value": "{tanrei.sys.icon.extra-small}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.icon.extra-small}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.icon.extra-small}"
+            }
+          }
+        },
+        "unselected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "An unselected segment has no fill; the set shows through."
+                }
+              }
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The icon, and the check of a selected segment."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.segmented-button.unselected.label.color}",
+              "$description": "The color hover, focus and press mix into the segment: its label color."
+            }
+          }
+        },
+        "selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.secondary-container}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "The icon, and the check of a selected segment."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.segmented-button.selected.label.color}",
+              "$description": "The color hover, focus and press mix into the segment: its label color."
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the ripple takes to spread."
+          },
+          "selection-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.duration}",
+            "$description": "The check appearing or leaving and the segment changing to or from the selected colors."
+          },
+          "selection-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.easing}"
+          }
+        }
+      }
+    }
+  }
+}

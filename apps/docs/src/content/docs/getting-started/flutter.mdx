@@ -1,0 +1,78 @@
+---
+title: Flutter
+description: Add Tanrei to a Flutter app.
+---
+
+import Callout from '../../../components/Callout.astro';
+import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+
+The `tanrei` package is pure Dart. It provides widgets, an inherited `TanreiTheme` and generated token constants, and it does not depend on `MaterialApp` or `CupertinoApp`; it works inside either, or in a plain `WidgetsApp`.
+
+<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+
+## Install
+
+### From source
+
+<Callout type="caution" title="Does not build today">
+  The Flutter package has not caught up with the current specs and tokens: its sources were written against an earlier version of the generated token code and do not compile against today's. Its CI is paused until it catches up, and the [status page](/status/) marks its components *lagging*. The steps below are how it is added to an app; they work once the package has caught up.
+</Callout>
+
+Clone the repository next to your app and depend on the package by its path:
+
+```sh
+flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
+```
+
+`flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"` follows the repository instead of a local clone.
+
+### After the first release
+
+```sh
+flutter pub add tanrei
+```
+
+## Use
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:tanrei/tanrei.dart';
+
+class DeployButton extends StatelessWidget {
+  const DeployButton({super.key, required this.isDeploying, required this.onDeploy});
+
+  final bool isDeploying;
+  final VoidCallback onDeploy;
+
+  @override
+  Widget build(BuildContext context) {
+    return TanreiTheme(
+      data: TanreiThemeData.platform(context),
+      child: TanreiButton(
+        variant: TanreiButtonVariant.filled,
+        onPressed: isDeploying ? null : onDeploy,
+        child: const Text('Deploy'),
+      ),
+    );
+  }
+}
+```
+
+There is no `disabled` flag. As with Flutter's own buttons, passing `null` for `onPressed` disables the button.
+
+## Theme and contrast
+
+`TanreiThemeData.platform(context)` reads brightness and the high-contrast flag from `MediaQuery`. To fix them, start from a constant and copy:
+
+```dart
+TanreiTheme(
+  data: TanreiThemeData.dark.copyWith(contrast: TanreiContrast.high),
+  child: const App(),
+)
+```
+
+Put `TanreiTheme` above your navigator so that every route sees it.
+
+## Text styles
+
+`TanreiTheme.of(context).system.typescale` holds the sixteen text styles by level — `heading2` for a section title, `body` for running text, `label` for a control — as `TanreiTextStyle` tokens; `theme.textStyle(system.typescale.heading2)` (or `token.toTextStyle()`) turns one into a Flutter `TextStyle`. `theme.textStyle(token, emphasized: true)` — by hand, `token.emphasized(system.typescale.emphasis)` — is the same style at its weight plus the family's emphasis step (`typescale.emphasis`); emphasis is a weight, not another role. See [Typography](/foundations/typography/) for the roles and the element mapping.

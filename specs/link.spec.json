@@ -1,0 +1,1002 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "link",
+  "title": "Link",
+  "summary": "Text that leads somewhere: a phrase inside a sentence, a line by itself, or a glyph alone; in the text style of where it sits, underlined as the design system chooses (at rest, in the default system), marked where it leaves the site, and the platform's own link.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The shape behind the link's text, on each line the link runs over. It has no fill at rest and takes no room in the layout: it is where hover, focus and press are drawn."
+    },
+    {
+      "id": "label",
+      "description": "The link's text, in the text style of the text it sits in. It wraps with that text and is never cut.",
+      "optional": true
+    },
+    {
+      "id": "underline",
+      "description": "The line under the label, in the label's color. When it is drawn is a choice (LNK-27): at rest and in every state, only while the link is pointed at, focused from the keyboard or pressed, or never. In the default system it is drawn at rest, where it is what tells a link from the text beside it. The current link and a link that is a glyph alone have none."
+    },
+    {
+      "id": "icon",
+      "description": "A glyph of the system's icon set that the product names, before or after the label, or alone (a heading's anchor). Decorative beside a label; alone, the link is named by label.",
+      "optional": true
+    },
+    {
+      "id": "site-icon",
+      "description": "A small picture of the site an external link leads to, before the label. The product gives it; the link never fetches one by itself (LNK-32, LNK-35). Decoration: the label names the link.",
+      "optional": true
+    },
+    {
+      "id": "mark",
+      "description": "The one glyph after the label that says where following the link takes the person: open_in_new for a link that opens a new context, arrow_outward for a link that leaves the site and opens where the person is (LNK-31). Never both. Drawn by the link where the product has put no glyph of its own there.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The indicator shown for keyboard focus, around the link's part of each line it runs over."
+    }
+  ],
+  "props": [
+    {
+      "name": "href",
+      "type": "string",
+      "default": "",
+      "description": "The destination: an address as the platform's links take one (a URL; on the web a path or a fragment as well). A link without a destination is not a link: it is drawn as the text around it and reported (LNK-21)."
+    },
+    {
+      "name": "target",
+      "type": "enum",
+      "values": [
+        "same",
+        "new"
+      ],
+      "default": "same",
+      "description": "Where the destination opens. same: where the person is — the same tab on the web, the app's own handling of the address elsewhere. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which a link with a label marks with the glyph open_in_new after it and says through targetLabel (LNK-13). Whether the destination is another site is a second fact, external's (LNK-30): a link may leave the site without opening a new context, and open one without leaving."
+    },
+    {
+      "name": "targetLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads after the link's name while target is new (\"opens in a new tab\"). Tanrei ships no words of its own, so the product gives them in its language. Required while target is new; ignored otherwise.",
+      "words": "targetLabel"
+    },
+    {
+      "name": "external",
+      "type": "enum",
+      "values": [
+        "auto",
+        "on",
+        "off"
+      ],
+      "default": "auto",
+      "description": "Whether the destination is on another site than the one the person is on. auto: the link decides, where the platform can tell (LNK-30) — on the web an address of another origin than the page's and the product's declared own; elsewhere an address outside the hosts the product has declared. on: it is external, whatever the address. off: it is not, and the link shows and says nothing of it. An external link with a label shows an arrow after it and, where siteIcon is given, that site's picture before it (LNK-31, LNK-32); a design system or a product turns either off for every link with comp.link.external.marks. It changes nothing about where or how the destination opens."
+    },
+    {
+      "name": "externalLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads after the link's name while the link is external and target is same (\"external link\"), in the product's language. Empty, the words the product has set once for every external link are read (LNK-34). Ignored while target is new: targetLabel is then the link's one description.",
+      "words": "externalLabel"
+    },
+    {
+      "name": "siteIcon",
+      "type": "string",
+      "default": "",
+      "description": "The picture of the site an external link leads to: the address of an image as the platform's images take one (on the web a URL the page may load — of the product's own origin, or a data URL), or the platform's own image value. Drawn before the label while the link is external (LNK-32); ignored otherwise. The link never derives it from href and never asks the destination or anyone else for it (LNK-35): the product gives a picture it has, made where the product is built. Empty, the link shows the arrow alone."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "standard",
+        "inverse"
+      ],
+      "default": "standard",
+      "description": "Which surface the link is drawn for. standard: the product's ordinary surfaces and its quiet containers. inverse: a surface of the opposite theme (a snackbar's, a tooltip's, a dark band on a light page), where the standard link color is not readable. It changes colors only. A design system may add values.",
+      "axis": "tanrei.comp.link.variant"
+    },
+    {
+      "name": "underline",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "hover",
+        "never"
+      ],
+      "default": "auto",
+      "description": "When the label is underlined. always: at rest and in every state. hover: while the link is hovered, focused from the keyboard or pressed, and not at rest. never: in no state. Auto takes comp.link.underline.visibility, the design system's answer (always in the default system). hover and never are for a link that stands by itself among other links — a list of navigation, a footer — where its place says what it is; inside running text use them only where the link color stands 3:1 apart from the text's (LNK-29)."
+    },
+    {
+      "name": "standalone",
+      "type": "boolean",
+      "default": false,
+      "description": "False: the link is part of a sentence or a line of text, and its target is its own text (LNK-17). True: the link stands by itself — under a paragraph, in a table cell, in a row of links — and its hit area is extended to the minimum target without changing how it is drawn or laid out. It changes nothing a person sees."
+    },
+    {
+      "name": "iconPosition",
+      "type": "enum",
+      "values": [
+        "leading",
+        "trailing"
+      ],
+      "default": "leading",
+      "description": "Which side of the label the glyph sits on, in the reading direction. Ignored when the link has no label or no glyph."
+    },
+    {
+      "name": "current",
+      "type": "boolean",
+      "default": false,
+      "description": "The link names the place the person is already at, in a set of navigation: the current page in a row of site links or a trail of pages, the current section in a table of contents. It is exposed as the current item, drawn without an underline, whatever underline says, at the emphasized weight, and stays a link (LNK-18). At most one link of a set is current; the set, not the link, decides which."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "The link cannot be followed now (the previous page of the first page): it keeps the link role with the disabled state and no destination, leaves the focus order and opens nothing (LNK-19)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of a link that is a glyph alone (\"Link to Installation\"), in the product's language. Ignored while the link has a label of text, which names it."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The label: the text that says where the link goes. Leave it empty for a link that is a glyph alone."
+    },
+    {
+      "name": "icon",
+      "description": "The glyph: a glyph of the system's icon set, drawn through the platform's icon helper at the size of the link's text. With a label it sits at the side iconPosition names; without one it is the link's only content. At the leading side it stands where an external link would show the site's picture, and at the trailing side where it would show its arrow or the mark of a new context: the product's glyph stands and the link draws nothing of its own there.",
+      "fixture": "glyph"
+    }
+  ],
+  "events": [
+    {
+      "name": "click",
+      "description": "The link was activated by pointer, touch, Enter or assistive technology. It is emitted before the destination opens; a product that takes the navigation itself (a client-side router) cancels it (LNK-12)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "LNK-1",
+      "text": "WHILE href is a destination THE link SHALL be the platform's own link to it (the web's anchor element in the document itself, not in a shadow root; SwiftUI's Link; on Compose, Flutter and React Native an element or a run of text with the platform's link semantics whose address is opened by the platform's opener), so that whatever the platform gives a link — on the web its context menu, opening in a new tab or window, copying and dragging its address, the address shown before it is followed, a crawler and a search index that read it, and a link that works before any script has run — is the platform's, and not the link's to draw or to take over; and SHALL expose the link role.",
+      "verify": "On the web: with scripting turned off the page holds an a element with the href, it is followed by a click and by Enter, and document.links lists it."
+    },
+    {
+      "id": "LNK-2",
+      "text": "THE link SHALL draw its label in the text style of the text it sits in — that text's family, size, weight, line height and letter spacing — bringing no text style of its own, in the label color of its variant (comp.link.standard.label.color for standard, comp.link.inverse.label.color for inverse), on the baseline of the text beside it, and SHALL NOT make its line taller than that text makes it.",
+      "verify": "Place the same link in a body paragraph, in a heading 2 and in a caption: its computed font equals its parent's in each, and the line boxes have the height they have without the link."
+    },
+    {
+      "id": "LNK-3",
+      "text": "WHILE its underline is shown (LNK-27, LNK-28) THE link SHALL draw it comp.link.underline.width thick, comp.link.underline.offset below the text's baseline, in the label's color of that state, under the text only and not under a glyph, the site icon or the mark. WHILE its underline is always — the default system's choice — THE link SHALL draw it at rest and in every state, so that a link is told from the text around it without relying on color. A current link (LNK-18) and a link that is a glyph alone (LNK-16) draw none, whatever the choice.",
+      "verify": "Under the default system the underline is 1 thick and 2 below the baseline. Convert a screenshot of the fixture in-text to greys: the link is still told from a word beside it."
+    },
+    {
+      "id": "LNK-4",
+      "text": "THE link SHALL wrap its label with the text it sits in, breaking where that text's language allows a break and, for a run with no such place that is longer than the line (an address), inside the run rather than overflowing; it SHALL NOT cut its label, draw an ellipsis or scroll; and on every line it runs over it SHALL draw its underline, its container and its focus ring for its own part of that line.",
+      "verify": "The fixtures in-text-wrapping and long-address run over several lines of the stage; nothing extends past the stage's edge and no text is hidden."
+    },
+    {
+      "id": "LNK-5",
+      "text": "THE link SHALL draw its container as the box of its content on each line it runs over — as wide as its part of the line and as high as the text's own box, never the line's whole height where that would touch a neighbouring line's text — filled with the container color of its variant and state, with corners comp.link.container.shape, and SHALL NOT let the container take room, move the text beside it or change a line's height.",
+      "verify": "Hover a link in the middle of a paragraph: no character of the paragraph moves."
+    },
+    {
+      "id": "LNK-6",
+      "text": "WHILE hovered, keyboard-focused or pressed THE link SHALL render its container, label, icon and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state."
+    },
+    {
+      "id": "LNK-7",
+      "text": "WHEN the link receives keyboard focus THE link SHALL show the focus ring without animation — the system's focus indicator, sys.focus.offset from the container, sys.focus.outer-width wide in the focus-ring color, with the inner stroke of sys.focus.inner-width where the system has one — around its part of each line it runs over, never as one box around the lines between its first word and its last; focus gained by pointer or touch SHALL NOT show it.",
+      "verify": "Focus the fixture in-text-wrapping by Tab: one ring per line, each around the link's text on that line."
+    },
+    {
+      "id": "LNK-8",
+      "text": "WHEN the link is pressed by pointer, touch or Enter THE link SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "LNK-9",
+      "text": "WHILE pressed THE link SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, icon, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.link.motion.feedback-duration with motion.state-easing, fades over motion.state-duration with motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay. A platform whose links inside a run of text cannot draw a ripple or a dim on a part of that text falls back to overlay there and says so in its README."
+    },
+    {
+      "id": "LNK-10",
+      "text": "THE link SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "LNK-11",
+      "text": "THE link SHALL change between its states over comp.link.motion.state-duration with comp.link.motion.state-easing, and at once where motion is reduced."
+    },
+    {
+      "id": "LNK-12",
+      "text": "WHEN the user activates the link by pointer, touch or Enter THE link SHALL emit click exactly once and then open href where target names, unless the product cancelled that click, in which case it SHALL open nothing: the product's own router has taken the navigation. It SHALL NOT hold the navigation back for sys.motion.duration.press-hold. THE link SHALL NOT be activated by Space, which on the web scrolls the page as it does on any link, and SHALL NOT show the pressed state for it; WHERE the platform gives its links other keys or gestures (on the web a modified or a middle click that opens a new tab, on Apple platforms a long press that previews) THE link SHALL leave them to the platform.",
+      "verify": "On the web: Enter follows the link and fires click once; Space fires no click and leaves the page to scroll; a click listener that calls preventDefault() keeps the page where it is; a click with the platform's new-tab modifier is not cancelled by the link."
+    },
+    {
+      "id": "LNK-13",
+      "text": "WHILE target is new THE link SHALL open href in a new context — on the web a new tab or window that is given no handle to the page that opened it; on the other platforms outside the screen the person is on, as the platform's opener decides — and, WHILE it has a label and no glyph of the product's after it, SHALL draw the glyph open_in_new of the system's icon set after the label as LNK-14 draws a trailing glyph, in the label color of its variant and state, through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name, and hidden from assistive technology. It SHALL draw that glyph whether or not the link is external, and then no arrow (LNK-31): the place after the label holds one glyph. WHILE the link holds the product's own glyph at its trailing side, or has no label, THE link SHALL draw no mark of its own: the product has chosen what that place shows. Whether a mark is drawn or not THE link SHALL expose targetLabel as its description, read after its name and role — its one description, so externalLabel is not read with it (LNK-34) — and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE link SHALL draw no open_in_new and SHALL ignore targetLabel.",
+      "verify": "Fixtures in-text-new and standalone-new (the mark after the label), standalone-new-leading-icon (a glyph before the label and the mark after it), standalone-new-trailing-icon (the product's glyph and no mark), in-text-new-rtl (the mark at the left of the label, mirrored), icon-only-new (no mark, the description still exposed) and external-new (an external link that opens a new context: the site's picture, open_in_new and no arrow; targetLabel alone is its description)."
+    },
+    {
+      "id": "LNK-14",
+      "text": "WHILE the link has both a label and a glyph THE link SHALL draw the glyph at the side iconPosition names in the reading direction (leading at the start, trailing at the end, both mirrored in right-to-left layouts) in a box as large as the font size of the link's text, comp.link.container.gap from the label, centred on the line of the word beside it, in the label color of its variant and state, with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, hidden from assistive technology; and SHALL keep the glyph on the line of the word next to it, so that a leading glyph never ends a line and a trailing glyph or the mark never begins one.",
+      "verify": "The fixture standalone-wrapping wraps on the stage: its trailing glyph is on the last line, after the last word. Under the default system the glyph is 4 from the label."
+    },
+    {
+      "id": "LNK-15",
+      "text": "WHILE the link has a label THE link SHALL expose the label's text as its accessible name and ignore the label prop; WHILE it has a glyph and no label THE link SHALL expose the label prop as its accessible name and keep the glyph from assistive technology; WHILE it has a glyph, no label and an empty label prop THE link SHALL still render, and in debug builds report that it has no accessible name. THE link SHALL add nothing to its name: neither its address, nor that it opens a new context (LNK-13), nor that it leaves the site (LNK-34), nor that it is current (LNK-18); the site icon and the arrow are kept from assistive technology and name nothing."
+    },
+    {
+      "id": "LNK-16",
+      "text": "WHILE the link has a glyph and no label THE link SHALL draw the glyph alone, in a box as large as the font size of the text it sits in, in the icon color of its variant and state (comp.link.standard.icon.color for standard, comp.link.inverse.icon.color for inverse), with its container a square one line of that text high around it, and SHALL draw no underline and no mark; it SHALL answer hover, focus and press and extend its hit area as LNK-6 to LNK-10 and LNK-17 say. Where it stands and when it is seen are the layout's that places it: a heading's anchor is placed and revealed by prose and is this link showing the glyph link.",
+      "verify": "The fixture icon-only draws the glyph link alone. Placed after a heading 2's text, it does not make the heading's line taller."
+    },
+    {
+      "id": "LNK-17",
+      "text": "WHILE standalone is false and the link has a label THE link SHALL take input on its own text and container and nowhere else: its hit area is its part of each line and SHALL NOT reach over the text of a neighbouring line or of the same line. WHILE standalone is true, or the link is a glyph alone, and its visual size is below the minimum target THE link SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size or the room it takes in the layout; a platform that cannot tell the input type SHALL use sys.target.touch.",
+      "verify": "Two links on neighbouring lines of one paragraph: a press on the lower half of the upper line reaches the upper link. A standalone link in body text is 22 high and takes presses 48 high."
+    },
+    {
+      "id": "LNK-18",
+      "text": "WHILE current is true THE link SHALL expose itself as the current item of its set (on the web the current page; a platform without that state, the selected state) and stay a link that can be focused and followed; it SHALL draw its container, label and glyph from the parts of its variant prefixed with current (comp.link.standard.current.label.color, comp.link.standard.current.icon.color, and inverse's tokens of the same names), SHALL draw no underline, and SHALL draw its label at the emphasized weight of the text style it sits in — that style's weight plus sys.typescale.emphasis.body in running text and a label, plus sys.typescale.emphasis.heading in a heading — so that it is told from the links beside it by more than its color.",
+      "verify": "The fixture current beside the fixture standalone: no underline, a heavier weight. On the web the anchor carries aria-current."
+    },
+    {
+      "id": "LNK-19",
+      "text": "WHILE disabled is true THE link SHALL NOT be a link that can be followed: it SHALL render its container, label, icon and opacity from the disabled component tokens of its variant, its underline, where its choice draws one at rest (a disabled link is neither hovered nor focused, so under hover it has none), the mark of LNK-13 and the arrow of LNK-31 in the disabled label color, the site icon at comp.link.site-icon.disabled-opacity, SHALL expose the link role with the disabled state and no destination, SHALL NOT be focusable, SHALL NOT emit click, and SHALL open nothing by any means the platform gives a link (on the web the anchor carries no href, so there is no context menu entry, no drag and no new tab for it).",
+      "verify": "Fixtures disabled, disabled-new, inverse-disabled and external-disabled. On the web the anchor has no href attribute, role link and aria-disabled true; Tab passes it."
+    },
+    {
+      "id": "LNK-20",
+      "text": "THE link SHALL draw no state for a destination already visited: its colors say what it is and what state it is in, and are the same before and after it has been followed."
+    },
+    {
+      "id": "LNK-21",
+      "text": "IF href is empty or only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE link SHALL NOT be a link: it SHALL draw its content as the text around it, with no underline, no state, no mark, no arrow and no site icon, SHALL expose no role, SHALL NOT be focusable and SHALL emit nothing, and in debug builds report it — a link without a destination has nothing else to be, and a press that does something on the page is a button's. WHEN target or variant names a value the link or the active design system does not have THE link SHALL behave as same and render with the default variant's tokens, WHEN underline or external names a value the link does not define THE link SHALL treat it as auto, and in each case in debug builds report the unknown value."
+    },
+    {
+      "id": "LNK-22",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE link SHALL draw its label, its glyph, its mark or arrow and its underline in the platform's link color and, WHILE disabled, in its disabled text color; SHALL draw the underline at rest whatever underline and the tokens it follows say, except on a current link and a glyph alone — the colors are then the person's and not the design system's, so nothing any longer holds the link's color apart from the text's (LNK-29), and the line is what the platform itself gives a link; SHALL draw the site icon as the picture it is, unchanged; and SHALL draw its focus ring in the platform's highlight color.",
+      "verify": "On the web, with forced colors emulated: the label is LinkText, a disabled one GrayText, and the fixtures underline-hover and underline-never are underlined at rest."
+    },
+    {
+      "id": "LNK-23",
+      "text": "WHILE the text size is enlarged THE link SHALL grow with the text it sits in — its label, its glyph box, the box of its site icon, its container and its hit area — and SHALL keep comp.link.underline.width, comp.link.underline.offset, comp.link.container.gap and comp.link.site-icon.shape."
+    },
+    {
+      "id": "LNK-24",
+      "text": "THE link SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the link is shown THE link SHALL draw itself for the new direction at once, without a motion of its own, keeping its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "LNK-25",
+      "text": "WHERE the layout direction is right-to-left THE link SHALL draw the glyph of its icon slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order LNK-14 gives. THE link SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name — the site icon among it (LNK-32).",
+      "verify": "arrow_forward, open_in_new and arrow_outward are marked by the default icon set; link and download are not. The fixture standalone-trailing-icon-rtl draws arrow_forward mirrored, at the left of the label; the fixture external-rtl draws arrow_outward mirrored, pointing up and to the left, at the left of the label, and the site's picture unmirrored at its right."
+    },
+    {
+      "id": "LNK-26",
+      "text": "WHILE standalone is true THE link SHALL lay out its label as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE link SHALL still place the label and align its lines by the layout direction, not by the text's own. WHILE standalone is false THE link SHALL lay out its label as part of the sentence it is in, in that sentence's direction, isolated only so that it reorders nothing beside it: a phrase of a sentence is that sentence's text, and what direction a block of text has is that block's to say.",
+      "verify": "The fixture ltr-label-rtl draws a left-to-right address as a standalone link in a right-to-left stage: the address reads in its own order."
+    },
+    {
+      "id": "LNK-27",
+      "text": "THE link SHALL show its underline as its underline prop names: WHILE underline is auto, as comp.link.underline.visibility names, which follows sys.behavior.link-underline unless a design system sets the link apart; WHILE underline is always, hover or never, as that value names, whatever the tokens say. WHEN underline, or the token it follows, changes THE link SHALL draw the other form at once, moving no text and keeping its focus. A platform that cannot draw a choice SHALL fall back to the first value, always, and state that in its README.",
+      "verify": "The fixtures underline-always, underline-hover and underline-never draw the same under every design system; the fixture in-text follows the system, and is underlined at rest under the default one. Under a layer that sets sys.behavior.link-underline to never, in-text has no underline and underline-always keeps its own."
+    },
+    {
+      "id": "LNK-28",
+      "text": "WHILE its underline is hover THE link SHALL draw no underline at rest and SHALL draw it, as LNK-3 says, WHILE the link is hovered, keyboard-focused or pressed, the line arriving and leaving with that state as LNK-11 times it and moving no text; the focus ring of LNK-7 is drawn as under every choice, so keyboard focus shows the ring and the line together. WHERE the input has no hover (touch) the line is therefore seen for the length of a press and no longer, and THE link SHALL put nothing in its place at rest: a link under hover has to be told from the text beside it as a link that is never underlined has to be (LNK-29). WHILE its underline is never THE link SHALL draw no underline in any state, and SHALL still show hover, focus and press by its container, its label color and its focus ring (LNK-6, LNK-7).",
+      "verify": "Hover the fixture underline-hover: the line appears and no character of the stage moves. Focus it by Tab: the ring and the line. Focus it by a pointer press: neither stays after the press. On a touch device at rest it is drawn as underline-never is."
+    },
+    {
+      "id": "LNK-29",
+      "text": "WHILE its underline is not always, standalone is false, current is false and it has a label THE link SHALL, in debug builds on a platform that can read both colors, report a label color whose contrast against the color of the text the link sits in is under 3:1, and SHALL still render: a phrase in running text that is not underlined at rest is told from the words beside it by color alone, which people who do not see that difference cannot do (WCAG 1.4.1). THE link SHALL report nothing for a standalone link, a current link or a glyph alone, which are not phrases among other words. The same ratio is held for the design system's own choice by the build, not by the link: where sys.behavior.link-underline or comp.link.underline.visibility is not always, the link color is held 3:1 apart from the text color in every scheme.",
+      "verify": "On the web, in a debug build under the default system: the fixture underline-never placed in a body paragraph is reported once (its color is the text's: 1.00:1); the fixture standalone-underline-never is not."
+    },
+    {
+      "id": "LNK-30",
+      "text": "THE link SHALL treat its destination as external as its external prop names: WHILE external is on, as external, whatever href is; WHILE it is off, as not external; WHILE it is auto, as external exactly when the platform can tell that the destination is on another site than the one the person is on. On the web that is: href, read against the document's address, has the scheme http or https, its origin is neither the document's nor one the product has declared as part of its own site, and the anchor does not ask for a download. A path, a fragment, an address of any other scheme (a mail address, a telephone number) and a download are never external under auto. On the other platforms, where a screen has no address of its own, that is: the product has declared the hosts that are its own, and href is an http or https address outside them; WHILE it has declared none, nothing is external under auto. THE link SHALL change nothing but what it shows and says for being external (LNK-31 to LNK-34): where the destination opens is target's alone, and nothing is added to how the address is requested.",
+      "verify": "On the web, on a page of https://docs.example with https://example.com declared as its own: /guides/, #install, https://docs.example/guides/, https://example.com/about, mailto:hello@example.org, tel:+15550100 and an anchor with download are not external; https://example.org/ and http://docs.example/ (another scheme, so another origin) are. The fixtures external-forced and external-suppressed draw the same on every platform; external-mail has no mark on any."
+    },
+    {
+      "id": "LNK-31",
+      "text": "WHILE the link is external, has a label, holds no glyph of the product's after it, target is same and comp.link.external.marks is not none THE link SHALL draw the glyph arrow_outward of the system's icon set after the label as LNK-14 draws a trailing glyph — in a box as large as the font size of its text, comp.link.container.gap from the label, on the line of the last word and never beginning a line, not underlined — in the label color of its variant and state, through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name, and hidden from assistive technology. WHILE target is new THE link SHALL draw the mark of LNK-13 in that place and no arrow: the place holds one glyph, and that the page the person is on stays open is what they need to know first. WHILE the link holds the product's own glyph at its trailing side, or has no label, THE link SHALL draw no arrow.",
+      "verify": "Fixtures external (a phrase in a sentence: the arrow after its last word), external-standalone, external-wrapping (the arrow stays with the last word), external-trailing-icon (the product's glyph and no arrow), external-new (open_in_new and no arrow) and external-rtl."
+    },
+    {
+      "id": "LNK-32",
+      "text": "WHILE the link is external, has a label, siteIcon names a picture, the link holds no glyph of the product's before its label and comp.link.external.marks is all THE link SHALL draw that picture before the label as LNK-14 places a leading glyph: in a square box as large as the font size of the link's text, comp.link.container.gap from the label, centred on the line of the first word and never ending a line, the whole picture scaled to fit the box with its proportions kept, its corners comp.link.site-icon.shape eased as LNK-10 eases the container's, not underlined, never mirrored, in every state as it is at rest, and hidden from assistive technology with no text alternative: it is decoration, and the label names the link. THE link SHALL keep the box's room from the first frame, so that nothing moves when the picture arrives, and IF the picture cannot be loaded or decoded SHALL draw nothing in the box — no broken-picture mark, no alternative text, no glyph in its place — and in debug builds report it. WHILE siteIcon is empty THE link SHALL draw no picture and keep no room for one: an external link without a picture shows the arrow alone. WHILE the link holds the product's own glyph before its label THE link SHALL draw that glyph and no picture. THE link SHALL draw the picture as a picture only: whatever the file holds, nothing in it is run, laid out as markup or opened as a document.",
+      "verify": "Fixtures external-site-icon, external-standalone-site-icon, external-wrapping (the picture stays with the first word), external-leading-icon (the product's glyph and no picture), external-site-icon-failed (the room and nothing in it) and external-rtl (the picture at the right, unmirrored). In a heading 2 the picture is as large as the heading's font size and does not make the line taller."
+    },
+    {
+      "id": "LNK-33",
+      "text": "THE link SHALL draw the marks of an external link as comp.link.external.marks names: all, the site icon where one is given (LNK-32) and the arrow (LNK-31); arrow, the arrow alone, with no picture drawn and no room kept for one; none, neither, and the link then exposes nothing of being external (LNK-34). The choice is the design system's or the product's layer's and holds for every link; one link is set apart by external (off shows and says nothing) and by leaving siteIcon empty. It SHALL change nothing about the mark of a new context (LNK-13). WHEN the choice changes THE link SHALL draw the other form at once. A platform that cannot read the choice SHALL fall back to the first value, all, and state that in its README.",
+      "verify": "Under a layer that sets comp.link.external.marks to arrow, the fixture external-site-icon is drawn as the fixture external; under none, as the fixture in-text, and external-new keeps its open_in_new."
+    },
+    {
+      "id": "LNK-34",
+      "text": "WHILE the link is external, has a label, target is same and comp.link.external.marks is not none THE link SHALL expose as its description, read after its name and role, externalLabel or, WHILE externalLabel is empty, the words the product has set once for every external link (on the web where the page is made or through the package's script; a setting of the package elsewhere), whether the arrow is drawn or the product's own trailing glyph stands in its place; WHILE both are empty THE link SHALL still render and in debug builds report, once for the page or the screen and not once for each link, that external links do not say so. WHILE target is new THE link SHALL expose targetLabel alone (LNK-13): a link has one description, and the product words it for both facts where both should be said (\"opens example.com in a new tab\"). WHILE the link has no label it SHALL expose nothing of being external. Tanrei ships no words of its own.",
+      "verify": "On the web the anchor of the fixture external carries aria-description \"external link\" and its name is its text alone; the anchor of external-new carries \"opens in a new tab\" and nothing else."
+    },
+    {
+      "id": "LNK-35",
+      "text": "THE link SHALL request nothing by itself for what it draws: it SHALL NOT derive a picture's address from href, SHALL NOT ask the destination or any other party for an icon, a title or a preview, and SHALL NOT reach the destination in any way before the person follows the link. The one address it loads is siteIcon, exactly as the product gave it; on the web it loads that picture without sending the page's address with the request, and in debug builds reports a siteIcon whose origin is not the document's — every reader's browser would then tell that other party which page is being read.",
+      "verify": "On the web: draw every external-* fixture with the network recorded. The only requests are for the page's own files and the fixture's picture, and none goes to example.com."
+    }
+  ],
+  "accessibility": {
+    "role": "link",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the link. A disabled link is passed."
+      },
+      {
+        "keys": "Enter",
+        "action": "Follows the link. Space does what it does on any link (on the web it scrolls the page)."
+      }
+    ],
+    "labeling": "A link with a label is named by the label's text, which should say where it goes without the sentence around it (\"the installation guide\", not \"here\"). A link that is a glyph alone is named by label, which is required; its glyph is decorative to assistive technology. A link has at most one description: while target is new it is targetLabel (\"opens in a new tab\"); otherwise, while the link is external and marked, it is externalLabel or the product's words for every external link (\"external link\"). The mark, the arrow and the site icon are decorative. A current link carries the current state; nothing is added to its name.",
+    "minimumTarget": true,
+    "notes": [
+      "A link in running text is told from the words beside it by more than color (WCAG 1.4.1). In the default system the link color is the primary's, which is the color of the text itself — 1.00:1 against sys.color.on-surface in all six schemes — so the underline is the only thing that says \"link\": the default system's choice is always, and the build fails if it is changed while the colors stand as they are.",
+      "When the underline may be left out at rest. A design system or a product may choose hover or never where its link color stands 3:1 or more apart from its text color in every scheme and still keeps its own contrast on the surfaces; a cue then remains for the pointer and the keyboard — the line itself under hover, the state layer and the focus ring under never. The build checks the ratio for the system-wide choice and for the component's own (an error in the default system, a warning in a product's layer). It cannot check one link set apart by the underline prop: that is the product's to judge, and a debug build reports an in-text link that fails it (LNK-29). hover is not a weaker never on a touch screen: there is no pointer to bring the line back, so the two are held to the same ratio.",
+      "Links that stand by themselves — a list of navigation, a footer, a row of related pages — are what hover and never are for: their place in a list says what they are, and no word beside them competes. Set underline on those links, or give the region its own value of the component token, and leave the links of sentences underlined.",
+      "Forced colors draw the underline whatever was chosen (LNK-22): the link color is then the platform's, and nothing the design system measured still holds.",
+      "An external link says so twice, once for the eye and once in words: the arrow after the label, and a description read after the name (LNK-34). The arrow is not the mark of a new context: a link that leaves the site and opens where the person is shows arrow_outward; one that opens a new tab or window shows open_in_new, external or not, and its description is targetLabel. A link never shows both, and is never described twice.",
+      "The site's picture is decoration: it has no text alternative and no role, it is never the only thing that marks a link as external (the arrow is always there with it), and a link without one loses nothing a person needs. It is a picture someone else drew, so its contrast against the surface is not the design system's to hold; a picture that cannot be seen on a dark or a light surface is given a ground where it is made, not by the link.",
+      "A link calls no one. It draws only what the product gave it and reaches no other site before the person follows it (LNK-35): reading a page that links to a site tells that site nothing.",
+      "The target. A link inside a sentence or a line of text takes WCAG 2.5.8's exception for inline targets: its hit area is its text, and extending it would take presses meant for the lines above and below. A link that stands by itself (standalone) and a link that is a glyph alone are not in a sentence, so their hit area is extended to sys.target without changing what is drawn (LNK-17); the product leaves sys.target.spacing between two of them, or lets their rows be a target high.",
+      "A link is not a button. What leads nowhere and does something on the page is a Button — the text variant where it should read as quietly as text — and it is activated by Space as well as Enter. A link is never given a press handler in place of a destination (LNK-21).",
+      "No visited state (LNK-20). A product whose content is a list of places people work through (search results, a reading list) marks what was opened from its own data, with a Tag or a glyph, which every platform can draw and assistive technology can read.",
+      "The current link stays a link: it can be focused and followed, and leads to the top of the page the person is on. It is told from its neighbours by having no underline and a heavier weight, and by its state for assistive technology. A set that should not let its current item be followed (the last item of a trail) draws it as text, not as a link.",
+      "A disabled link is not in the focus order, as a disabled Button is not. Where people must learn why a place cannot be reached, say so in text beside it.",
+      "A link does not hold another link, a button or any other control, and is not placed inside one. Inside an element that is pressed as a whole (a link card, a list item with a destination) the text is that element's, not a second link.",
+      "Text must remain readable at 200% text size: the link is text and grows and wraps with it; nothing about it has a fixed size (LNK-23).",
+      "Contrast in the default system: sys.color.link on every surface role is held to 4.5:1 (7:1 in the high-contrast schemes) by the token invariants, and sys.color.inverse-link on sys.color.inverse-surface likewise. On the quiet containers (secondary-container and the four status containers) the link color measures 4.6:1 or more in every scheme today; that pair is not yet an invariant. The focus ring is held to 3:1 against every surface.",
+      "How a state looks is a value decision of the active design system (a state-layer mix in Tanrei, a dim or no hover at all elsewhere). The link reads the state's tokens and never computes the effect itself."
+    ]
+  },
+  "tokens": "comp.link",
+  "fixtures": [
+    {
+      "id": "in-text",
+      "props": {
+        "href": "/components/button/"
+      },
+      "content": "the Button's page"
+    },
+    {
+      "id": "in-text-wrapping",
+      "props": {
+        "href": "/guides/accessibility/"
+      },
+      "content": "the accessibility guide, which explains how every component is named, how it is reached and operated from the keyboard, and what each platform announces when its state changes"
+    },
+    {
+      "id": "in-text-wrapping-rtl",
+      "props": {
+        "href": "/guides/accessibility/"
+      },
+      "content": "دليل إمكانية الوصول الذي يشرح كيف يُسمّى كل مكوّن وكيف يُستخدم من لوحة المفاتيح وما الذي تعلنه كل منصة عند تغيّر حالته",
+      "direction": "rtl"
+    },
+    {
+      "id": "in-text-new",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "the source code"
+    },
+    {
+      "id": "in-text-new-rtl",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "target": "new",
+        "targetLabel": "يفتح في علامة تبويب جديدة"
+      },
+      "content": "الشيفرة المصدرية",
+      "direction": "rtl"
+    },
+    {
+      "id": "long-address",
+      "props": {
+        "href": "https://example.com/tanrei/design-system/components/navigation/link/behaviour/wrapping-and-breaking-inside-a-long-address-without-any-space",
+        "external": "off"
+      },
+      "content": "https://example.com/tanrei/design-system/components/navigation/link/behaviour/wrapping-and-breaking-inside-a-long-address-without-any-space"
+    },
+    {
+      "id": "standalone",
+      "props": {
+        "href": "/getting-started/",
+        "standalone": true
+      },
+      "content": "Getting started"
+    },
+    {
+      "id": "standalone-leading-icon",
+      "props": {
+        "href": "/tokens.zip",
+        "standalone": true
+      },
+      "content": "Download the tokens",
+      "slots": {
+        "icon": "download"
+      }
+    },
+    {
+      "id": "standalone-trailing-icon",
+      "props": {
+        "href": "/foundations/tokens/",
+        "standalone": true,
+        "iconPosition": "trailing"
+      },
+      "content": "Next: Tokens",
+      "slots": {
+        "icon": "arrow_forward"
+      }
+    },
+    {
+      "id": "standalone-trailing-icon-rtl",
+      "props": {
+        "href": "/foundations/tokens/",
+        "standalone": true,
+        "iconPosition": "trailing"
+      },
+      "content": "التالي: الرموز",
+      "slots": {
+        "icon": "arrow_forward"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "standalone-wrapping",
+      "props": {
+        "href": "/foundations/tokens/",
+        "standalone": true,
+        "iconPosition": "trailing"
+      },
+      "content": "Next: how the tokens of a design system are derived from a handful of dials, and how a product's layer changes one of them without touching the rest",
+      "slots": {
+        "icon": "arrow_forward"
+      }
+    },
+    {
+      "id": "standalone-new",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "View source"
+    },
+    {
+      "id": "standalone-new-leading-icon",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "View source",
+      "slots": {
+        "icon": "code"
+      }
+    },
+    {
+      "id": "standalone-new-trailing-icon",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "iconPosition": "trailing",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "View source",
+      "slots": {
+        "icon": "code"
+      }
+    },
+    {
+      "id": "icon-only",
+      "props": {
+        "href": "#installation",
+        "label": "Link to Installation"
+      },
+      "slots": {
+        "icon": "link"
+      }
+    },
+    {
+      "id": "icon-only-new",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "label": "Source code",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "slots": {
+        "icon": "code"
+      }
+    },
+    {
+      "id": "icon-only-rtl",
+      "props": {
+        "href": "#installation",
+        "label": "رابط إلى التثبيت"
+      },
+      "slots": {
+        "icon": "link"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "current",
+      "props": {
+        "href": "/components/",
+        "standalone": true,
+        "current": true
+      },
+      "content": "Components"
+    },
+    {
+      "id": "current-leading-icon",
+      "props": {
+        "href": "/components/",
+        "standalone": true,
+        "current": true
+      },
+      "content": "Components",
+      "slots": {
+        "icon": "widgets"
+      }
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "href": "/page/0/",
+        "standalone": true,
+        "disabled": true
+      },
+      "content": "Previous page"
+    },
+    {
+      "id": "disabled-new",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "disabled": true,
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "the source code"
+    },
+    {
+      "id": "disabled-icon-only",
+      "props": {
+        "href": "#installation",
+        "label": "Link to Installation",
+        "disabled": true
+      },
+      "slots": {
+        "icon": "link"
+      }
+    },
+    {
+      "id": "inverse",
+      "props": {
+        "variant": "inverse",
+        "href": "/changes/"
+      },
+      "content": "what changed"
+    },
+    {
+      "id": "inverse-new",
+      "props": {
+        "variant": "inverse",
+        "href": "https://example.com/tanrei",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "the source code"
+    },
+    {
+      "id": "inverse-current",
+      "props": {
+        "variant": "inverse",
+        "href": "/components/",
+        "standalone": true,
+        "current": true
+      },
+      "content": "Components"
+    },
+    {
+      "id": "inverse-disabled",
+      "props": {
+        "variant": "inverse",
+        "href": "/page/0/",
+        "standalone": true,
+        "disabled": true
+      },
+      "content": "Previous page"
+    },
+    {
+      "id": "inverse-icon-only",
+      "props": {
+        "variant": "inverse",
+        "href": "#installation",
+        "label": "Link to Installation"
+      },
+      "slots": {
+        "icon": "link"
+      }
+    },
+    {
+      "id": "ltr-label-rtl",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "external": "off"
+      },
+      "content": "example.com/tanrei",
+      "direction": "rtl"
+    },
+    {
+      "id": "underline-always",
+      "props": {
+        "href": "/components/button/",
+        "underline": "always"
+      },
+      "content": "the Button's page"
+    },
+    {
+      "id": "underline-hover",
+      "props": {
+        "href": "/components/button/",
+        "underline": "hover"
+      },
+      "content": "the Button's page"
+    },
+    {
+      "id": "underline-never",
+      "props": {
+        "href": "/components/button/",
+        "underline": "never"
+      },
+      "content": "the Button's page"
+    },
+    {
+      "id": "standalone-underline-hover",
+      "props": {
+        "href": "/getting-started/",
+        "standalone": true,
+        "underline": "hover"
+      },
+      "content": "Getting started"
+    },
+    {
+      "id": "standalone-underline-never",
+      "props": {
+        "href": "/getting-started/",
+        "standalone": true,
+        "underline": "never"
+      },
+      "content": "Getting started"
+    },
+    {
+      "id": "inverse-underline-never",
+      "props": {
+        "variant": "inverse",
+        "href": "/changes/",
+        "underline": "never"
+      },
+      "content": "what changed"
+    },
+    {
+      "id": "external",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "external": "on",
+        "externalLabel": "external link"
+      },
+      "content": "the specification"
+    },
+    {
+      "id": "external-site-icon",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "external": "on",
+        "externalLabel": "external link",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "content": "the specification"
+    },
+    {
+      "id": "external-standalone",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "external": "on",
+        "externalLabel": "external link"
+      },
+      "content": "Specification"
+    },
+    {
+      "id": "external-standalone-site-icon",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "external": "on",
+        "externalLabel": "external link",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "content": "Specification"
+    },
+    {
+      "id": "external-standalone-underline-never",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "underline": "never",
+        "external": "on",
+        "externalLabel": "external link",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "content": "Specification"
+    },
+    {
+      "id": "external-wrapping",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "external": "on",
+        "externalLabel": "external link",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "content": "the specification that says how a link is exposed, what a browser must do when it is followed, and which of its attributes a page may rely on in every engine"
+    },
+    {
+      "id": "external-new",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "external": "on",
+        "siteIcon": "fixtures/site-icon.png",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "the specification"
+    },
+    {
+      "id": "external-forced",
+      "props": {
+        "href": "/partners/",
+        "external": "on",
+        "externalLabel": "external link"
+      },
+      "content": "our partner's catalogue"
+    },
+    {
+      "id": "external-suppressed",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "external": "off",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "content": "the specification"
+    },
+    {
+      "id": "external-mail",
+      "props": {
+        "href": "mailto:hello@example.com"
+      },
+      "content": "hello@example.com"
+    },
+    {
+      "id": "external-leading-icon",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "external": "on",
+        "externalLabel": "external link",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "content": "View source",
+      "slots": {
+        "icon": "code"
+      }
+    },
+    {
+      "id": "external-trailing-icon",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "iconPosition": "trailing",
+        "external": "on",
+        "externalLabel": "external link",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "content": "View source",
+      "slots": {
+        "icon": "code"
+      }
+    },
+    {
+      "id": "external-site-icon-failed",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "external": "on",
+        "externalLabel": "external link",
+        "siteIcon": "fixtures/missing.png"
+      },
+      "content": "the specification"
+    },
+    {
+      "id": "external-disabled",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "standalone": true,
+        "external": "on",
+        "siteIcon": "fixtures/site-icon.png",
+        "disabled": true
+      },
+      "content": "Specification"
+    },
+    {
+      "id": "external-inverse",
+      "props": {
+        "variant": "inverse",
+        "href": "https://example.com/tanrei",
+        "external": "on",
+        "externalLabel": "external link",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "content": "the specification"
+    },
+    {
+      "id": "external-rtl",
+      "props": {
+        "href": "https://example.com/tanrei",
+        "external": "on",
+        "externalLabel": "رابط خارجي",
+        "siteIcon": "fixtures/site-icon.png"
+      },
+      "content": "المواصفة",
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-link",
+      "props": {
+        "href": "href",
+        "target": "target",
+        "targetLabel": "aria-description",
+        "variant": "data-variant",
+        "standalone": "data-standalone",
+        "iconPosition": "data-icon-position",
+        "current": "aria-current",
+        "disabled": "aria-disabled",
+        "label": "aria-label",
+        "underline": "data-underline",
+        "external": "data-external",
+        "externalLabel": "aria-description",
+        "siteIcon": "img.tanrei-link-site-icon"
+      },
+      "events": {
+        "click": "click"
+      },
+      "notes": "A class on the product's own anchor, not an element with an anchor in its shadow root: `<a class=\"tanrei-link\" href=\"…\">…</a>`, styled by a stylesheet of the package (LNK-1). The anchor is in the document, so it is a link before any script runs and for whatever reads the page as built: a crawler, a search index, a framework that prefetches or routes the anchors it finds, and a router's own link component, which takes the class. The props are the anchor's own attributes: `href`; `target` in HTML's spelling (`_blank` is `new`; `target=\"new\"` would name a window, so it is not used here); `aria-description` for `targetLabel`; `aria-current=\"page\"` (or another of its values) for `current`; `aria-label` for `label`; and a disabled link is written `<a class=\"tanrei-link\" role=\"link\" aria-disabled=\"true\">` with no `href`. `data-variant=\"inverse\"`, `data-standalone` and `data-icon-position=\"trailing\"` are the three that HTML has no attribute for. The glyph is a `.tanrei-icon` element inside the anchor, before or after the text; the mark is the anchor's `::after` (the icon font's `open_in_new`, mirrored under `:dir(rtl)`), not drawn while `data-icon-position` is `trailing` or the anchor has no text (`aria-label` present). The container and the ring follow wrapped lines through `box-decoration-break: clone` and `outline`; the extended hit area of LNK-17 is a pseudo-element that takes no room. The stylesheet alone gives the default system's whole look and every state, including the press-hold (a delayed transition back from `:active`). The package's script, where it is loaded, adds through one listener on the document what a stylesheet cannot: the shared press primitive (ripple and dim, LNK-9), `noopener` on a new context, the refusals of LNK-21 and every debug report. The same rules apply to every anchor of a `.tanrei-prose` that is prose's own (PRS-16), so rendered Markdown needs no class, and a heading's anchor (`.tanrei-prose-anchor`) is the icon-only form. `rel` and `download` are the anchor's own. React: `Link` renders the same anchor and takes a `render` prop for a router's link. `data-underline=\"always | hover | never\"` sets one link apart; without it the anchor follows `--tanrei-comp-link-underline-visibility`, which the stylesheet reads by a container style query and, where the browser has none, from `data-underline-system` written on the document's root by the package's script; with neither it is `always`, the first value. The custom property can be set on any element, so a region (a footer, a navigation list) takes its own choice without an attribute on each link. `hover` is `:hover` under `(hover: hover)`, `:focus-visible` and the pressed state; the line is the text decoration's color, so nothing moves. External: the stylesheet computes nothing about addresses. It draws the marks for `data-external` that is not `false`, and that attribute is written by whoever knows the page's address — where the page is made, by `markExternalLinks()` of `@tanrei/web/links` (Node; it takes the tree the product's own renderer already has, and parses nothing) or by React's `Link`, both from the product's `site` origins; and, for an anchor that carries no `data-external`, by the package's script, which compares `new URL(a.href).origin` with `location.origin` and with `setSiteOrigins([…])` and writes `data-external=\"detected\"` (re-read when `href` changes; only a value it wrote is ever changed by it). A page with neither shows no external mark: a missing mark, never a wrong one. Marks written by the script arrive after the first paint and take room; marks written where the page is made are in the first paint. The arrow is the same `::after` as the mark of a new context, whose content is `open_in_new` while `target=\"_blank\"` and `arrow_outward` otherwise, so the two cannot both be drawn. The site icon is the product's `<img class=\"tanrei-link-site-icon\" src=\"…\" alt=\"\" width=\"…\" height=\"…\" loading=\"lazy\" decoding=\"async\" referrerpolicy=\"no-referrer\">`, the anchor's first child, placed as a leading glyph is; `alt=\"\"` and no role keep it from assistive technology; it is an `img`, never an inline `svg`, an `object` or an `iframe`, so a vector file is drawn and not run (LNK-32). A broken picture keeps its room and draws nothing. `externalLabel` is `aria-description` on the anchor, written by the same step that writes `data-external` where the product set words for every external link (`externalLabel` of `markExternalLinks()`, `setExternalLabel()` of the script). `comp.link.external.marks` is read as the underline choice is. `resolveSiteIcons()` of `@tanrei/web/links` is the build-time helper that turns the external origins of a site into pictures the site serves itself; the component never calls it and nothing of it runs in a browser. Words: the words set once for every external link are the key `externalLabel` of the product's words, and `targetLabel` is read the same way; the script's `setExternalLabel(text)` is `setWords({ externalLabel: text })` before it is released."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiLink",
+      "props": {
+        "href": "destination",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "variant": "variant",
+        "standalone": "TanreiLink",
+        "iconPosition": "iconPosition",
+        "current": "isCurrent",
+        "disabled": "disabled",
+        "label": "label",
+        "underline": "underline",
+        "external": "external",
+        "externalLabel": "externalLabel",
+        "siteIcon": "siteIcon"
+      },
+      "events": {
+        "click": "action"
+      },
+      "notes": "Two spellings for the two places a link stands. Standalone: the view `TanreiLink(_ title: String, destination: URL, target:, targetLabel:, variant:, icon:, iconPosition:, isCurrent:, action:)`, built on SwiftUI's `Link`, taking its font from the environment and disabled by `.disabled(_:)`; `TanreiLink(label:icon:destination:)` is the glyph alone. In text: `Text(tanreiLink:)` helpers that build an `AttributedString` run with the `link` attribute, the underline and the variant's color, for use inside a `Text`. `action` runs before the address opens and returns whether the link should still open it (the environment's `OpenURLAction` does the opening, so an app that routes addresses itself handles it there). The `isLink` trait; `isSelected` for current. SwiftUI draws no hover, focus or press on a run inside a `Text`: an in-text link there has its resting look and the system's own focus and press, and the README says so. Not built on this platform yet: `underline: TanreiLinkUnderline? = nil` (nil is auto; `.always`, `.hover`, `.never`), read from the generated choice otherwise; hover is the pointer's on iPadOS, macOS and visionOS, and focus from a keyboard. `external: Bool? = nil` (nil is auto): auto reads the hosts the app declares once in the environment (`.tanreiSiteHosts([…])`), and with none declared nothing is external. `siteIcon: Image? = nil` is an image the app already has (an asset, or one it loaded itself); the view loads nothing. `externalLabel` is the accessibility hint; the words for every external link are an environment value. In a `Text` run the arrow and the picture are attachments of the attributed string."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiLink",
+      "props": {
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "variant": "variant",
+        "standalone": "TanreiLink",
+        "iconPosition": "iconPosition",
+        "current": "current",
+        "disabled": "enabled",
+        "label": "contentDescription",
+        "underline": "underline",
+        "external": "external",
+        "externalLabel": "externalLabel",
+        "siteIcon": "siteIcon"
+      },
+      "events": {
+        "click": "onClick"
+      },
+      "notes": "Standalone: `TanreiLink(text, href, onClick = null, target, targetLabel, variant, icon, iconPosition, current, enabled, contentDescription)`, drawn with `LocalTextStyle`. In text: `tanreiLinkAnnotation(href, variant, onClick)` returns a `LinkAnnotation.Url` whose `TextLinkStyles` carry the resting, hovered, focused and pressed tokens, for `AnnotatedString.Builder.withLink`; a link annotation has the link semantics Compose lacks for a clickable element (the standalone form, a clickable element, still has no link role). `enabled` is the inverse flag. The address is opened through `LocalUriHandler.current` after `onClick`, which returns false to keep it closed. Current is `selected` semantics. A run of text draws no ripple: LNK-9's fallback. Not built on this platform yet: `underline: TanreiLinkUnderline? = null` (null is auto). `external: Boolean? = null` (null is auto), decided against `LocalTanreiSiteHosts`; with none provided nothing is external. `siteIcon: Painter? = null` is the app's own painter; the composable loads nothing. `externalLabel` joins the state description; the words for every external link are a composition local. In an annotated string the arrow and the picture are inline content."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiLink",
+      "props": {
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetSemanticLabel",
+        "variant": "variant",
+        "standalone": "TanreiLink",
+        "iconPosition": "iconAlignment",
+        "current": "isCurrent",
+        "disabled": "enabled",
+        "label": "semanticLabel",
+        "underline": "underline",
+        "external": "external",
+        "externalLabel": "externalSemanticLabel",
+        "siteIcon": "siteIcon"
+      },
+      "events": {
+        "click": "onPressed"
+      },
+      "notes": "Standalone: `TanreiLink(label: …, href: …, onPressed:, target:, targetSemanticLabel:, variant:, icon:, iconAlignment:, isCurrent:, enabled:)`, in `DefaultTextStyle`. In text: `TanreiLinkSpan(text: …, href: …)`, an `InlineSpan` for `Text.rich` that carries its recognizer and its states. `Semantics(link: true)`, `linkUrl` where the engine has it; `selected` for current. The address is opened by the opener the app provides, after `onPressed`, which returns false to keep it closed. `enabled` is the inverse flag. Not built on this platform yet: `underline: TanreiLinkUnderline?` (null is auto). `external: bool?` (null is auto), decided against the hosts of `TanreiLinkScope`; with none nothing is external. `siteIcon: ImageProvider?` is the app's own provider — an asset or a memory image; the widget never builds a network provider from `href`. `externalSemanticLabel` is the semantics hint; the words for every external link come from `TanreiLinkScope`. In a `TanreiLinkSpan` the arrow and the picture are widget spans."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Link",
+      "props": {
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "variant": "variant",
+        "standalone": "standalone",
+        "iconPosition": "iconPosition",
+        "current": "current",
+        "disabled": "disabled",
+        "label": "accessibilityLabel",
+        "underline": "underline",
+        "external": "external",
+        "externalLabel": "externalLabel",
+        "siteIcon": "siteIcon"
+      },
+      "events": {
+        "click": "onPress"
+      },
+      "notes": "`<Link href=\"…\">text</Link>` is a `Text` with `accessibilityRole=\"link\"`: nested in a `Text` it is in that text and inherits its style; by itself it takes a `style` (a text style of the typescale) and `standalone` extends its `hitSlop`. `onPress` receives an event whose `preventDefault()` keeps the address closed; otherwise `Linking.openURL(href)`. `accessibilityHint` carries `targetLabel`; `accessibilityState` carries `disabled` and, for current, `selected`. A nested `Text` draws no ripple and no hover: LNK-9's fallback. Follows the app's direction where an ancestor's is not known. Not built on this platform yet: `underline?: 'always' | 'hover' | 'never'` (undefined is auto); hover exists only where the platform reports a pointer. `external?: boolean` (undefined is auto), decided against the hosts given to the provider; with none nothing is external. `siteIcon?: ImageSourcePropType` is a source the app already has (a `require`d asset); the component never builds a `{ uri }` from `href`. `externalLabel` is `accessibilityHint`. Nested in a `Text`, the picture is an inline `Image` and the arrow a glyph of the icon font."
+    }
+  }
+}

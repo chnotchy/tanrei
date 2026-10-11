@@ -1,0 +1,550 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "slider",
+  "title": "Slider",
+  "summary": "Lets people choose a value, or a range of values, from a continuous or stepped scale by dragging a handle along a track.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "track",
+      "description": "The line the handle travels along: the whole range from min to max. Drawn in the track color where it is not active."
+    },
+    {
+      "id": "active-track",
+      "description": "The part of the track from the origin to the value, or between the two handles of a range, drawn over the track."
+    },
+    {
+      "id": "handle",
+      "description": "The part the person drags, one per value: in Tanrei a circle (its width along the track equals its height across it) with a fill and an outline of its own, a narrow upright bar where a system says so."
+    },
+    {
+      "id": "handle-outline",
+      "description": "The ring drawn over the handle's fill, inside its edge, so the handle keeps its size however wide the ring is: a wider ring leaves a smaller disc of fill. None where its width is 0.",
+      "optional": true
+    },
+    {
+      "id": "container",
+      "description": "The round state layer centered on a handle, moving with it. It carries hover, focus and press and is invisible at rest."
+    },
+    {
+      "id": "stop-indicator",
+      "description": "A dot on the track's midline, half the track's thickness across in Tanrei: at an end of the handle's travel that lies on the track, and at every step while stops is true.",
+      "optional": true
+    },
+    {
+      "id": "value-indicator",
+      "description": "A small label beside a handle that shows its value while the handle is pressed or focused, or always.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator around the handle that has keyboard focus."
+    }
+  ],
+  "props": [
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "small",
+      "description": "The track's weight and the stop dots' size (and, where a system says so, the handle's height). Small is the everyday slider; medium and large give a prominent control (a volume or brightness slider) more weight. The hit area always meets the minimum target. A design system may add values.",
+      "axis": "tanrei.comp.slider.size"
+    },
+    {
+      "name": "orientation",
+      "type": "enum",
+      "values": [
+        "horizontal",
+        "vertical"
+      ],
+      "default": "horizontal",
+      "description": "Horizontal runs from the inline start (min) to the inline end (max); vertical runs from the bottom (min) to the top (max)."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "default": 0,
+      "description": "The value of the only handle, or of a range's end handle."
+    },
+    {
+      "name": "startValue",
+      "type": "number",
+      "default": 0,
+      "description": "The value of a range's start handle. Ignored while range is false."
+    },
+    {
+      "name": "range",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws two handles, choosing the range from startValue to value (a price filter)."
+    },
+    {
+      "name": "min",
+      "type": "number",
+      "default": 0,
+      "description": "The lowest value, at the track's start."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 100,
+      "description": "The highest value, at the track's end."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 0,
+      "description": "0 is continuous. Above 0 the slider is discrete: its values are min plus whole multiples of step, up to max."
+    },
+    {
+      "name": "origin",
+      "type": "number",
+      "default": null,
+      "description": "Where the active track starts. Null starts it at min. A value inside the range makes a centered slider (a balance control) whose active track grows toward either side. Ignored while range is true."
+    },
+    {
+      "name": "stops",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws a stop dot at every value a discrete slider can take. Meant for a few steps; ignored while step is 0."
+    },
+    {
+      "name": "valueIndicator",
+      "type": "enum",
+      "values": [
+        "none",
+        "active",
+        "always"
+      ],
+      "default": "none",
+      "description": "Whether a handle shows its value beside it: never, while it is pressed or has keyboard focus, or all the time."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents interaction and removes the handles from the focus order."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the slider (a range's end handle) for assistive technology. Never drawn: a visible label is the product's text next to the slider, in the same words. Required."
+    },
+    {
+      "name": "startLabel",
+      "type": "string",
+      "default": "",
+      "description": "Names a range's start handle (\"Minimum price\"). Required while range is true."
+    },
+    {
+      "name": "valueText",
+      "type": "string",
+      "default": "",
+      "description": "The value as words (\"40 %\", \"3 stars\"), spoken and shown by the value indicator in place of the number. For a range, the end handle's."
+    },
+    {
+      "name": "startValueText",
+      "type": "string",
+      "default": "",
+      "description": "The start handle's valueText, for a range."
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "description": "The person changed a value; carries value and, for a range, startValue. Emitted for every change during a drag, not when the product sets a value."
+    },
+    {
+      "name": "change",
+      "description": "The person finished changing a value (the press ended, or a key or assistive-technology adjustment was made); carries value and, for a range, startValue. Always after the input it follows."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "SLD-1",
+      "text": "THE slider SHALL keep value (and, while range is true, startValue) between min and max; WHILE step is greater than 0 it SHALL take only min plus whole multiples of step that do not exceed max, snapping to the nearest, and WHILE step is 0 any value between min and max."
+    },
+    {
+      "id": "SLD-2",
+      "text": "WHEN the person presses the slider by pointer or touch — the track, a handle, or the space around them — THE slider SHALL move the handle nearer the press (for a range whose handles meet, the one that can move toward the press) to the value under it and, WHILE the press moves, SHALL make the handle follow it along the track, clamped to the handle's range and snapped to step; it SHALL emit input once for each value change and, WHEN the press ends with a value other than the one it started with, change once after the last input. On touch the handle SHALL move once the press has travelled along the track by the platform's touch slop, or when a press that did not move ends; a press that first travels across the track by the slop SHALL be left to an enclosing scroll view and SHALL change nothing."
+    },
+    {
+      "id": "SLD-3",
+      "text": "WHILE a handle has keyboard focus THE slider SHALL increase its value by one keyboard step with Right Arrow or Up Arrow and decrease it with Left Arrow or Down Arrow (Right and Left swapped in a right-to-left horizontal slider), by ten keyboard steps with Page Up and Page Down, and set it to the lowest and highest value it can take with Home and End; the keyboard step is step, or one hundredth of max − min while step is 0. Each key press that changes the value SHALL emit input and then change once; a key press that changes nothing SHALL emit nothing."
+    },
+    {
+      "id": "SLD-4",
+      "text": "WHEN assistive technology increments or decrements a handle (a vertical swipe on an adjustable element, the platform's increment and decrement actions) THE slider SHALL change its value by one keyboard step, and WHEN it sets a value directly where the platform allows that THE slider SHALL clamp and snap it; either SHALL emit input and then change once."
+    },
+    {
+      "id": "SLD-5",
+      "text": "WHILE range is true THE slider SHALL draw a start handle at startValue and an end handle at value, SHALL stop each handle at the other's value so that the two may meet but never cross, and SHALL make each handle its own Tab stop, the start handle first, and its own element for assistive technology."
+    },
+    {
+      "id": "SLD-6",
+      "text": "WHILE range is false THE slider SHALL draw the active track between origin (min while origin is null, and origin clamped to the range) and value, on whichever side of origin value lies; WHILE range is true it SHALL draw the active track between startValue and value."
+    },
+    {
+      "id": "SLD-7",
+      "text": "THE slider SHALL be as long along its axis as its layout gives it and, across it, as thick as the larger of comp.slider.container.size and comp.slider.handle.height.small for size small (and so on for each size); it SHALL extend its hit area across its axis to sys.target.touch for touch input and sys.target.pointer for fine pointers without changing that size (a platform that cannot tell the input type SHALL use sys.target.touch), the whole slider being the hit area, and a handle drawn smaller than the target SHALL NOT make the hit area smaller. It SHALL draw the track comp.slider.track.thickness.small thick for size small (and so on), centered across the axis and inset from each end of the slider by half of comp.slider.container.size, so that a handle and its state layer stay inside the slider at min and max; a handle's center SHALL travel between the two points half the track's thickness in from the track's ends, concentric with its rounded ends.",
+      "verify": "Horizontal fixtures are drawn 320 long, centered in a 320 × 96 stage, which leaves room above the handle for a value indicator; the vertical fixture is drawn 240 long, centered in a 96 × 240 stage."
+    },
+    {
+      "id": "SLD-8",
+      "text": "THE slider SHALL draw the track in comp.slider.standard.track.color and the active track over it in comp.slider.standard.active-track.color. WHILE comp.slider.track.gap is 0 the track and the active track SHALL run under each handle and meet at its center, so that nothing lies between the active track and the handle; WHILE it is above 0 they SHALL stop that far from each side of each handle, measured from the handle's edge. The pieces SHALL be rounded by comp.slider.track.shape.small for size small (and so on), clamped to half the thickness, at the track's two ends and, WHILE comp.slider.track.gap is above 0, beside a handle; they SHALL be square where two pieces meet (under a handle while the gap is 0, and at an origin inside the travel). It SHALL draw each handle centered on the track's midline, comp.slider.standard.handle.width along the axis and comp.slider.handle.height.small across it for size small (and so on), rounded by comp.slider.handle.shape clamped to half its smaller side, painted as SLD-24 says, above the tracks — each part from the tokens of the state SLD-11 names.",
+      "verify": "In the continuous fixture the active track meets the handle's outline with no track color and no background between them, and the track, seen past the handle, starts at its outline. A system with track.gap above 0 draws the pieces short of the handle and rounded there; that is a preset's look, not a default fixture's."
+    },
+    {
+      "id": "SLD-9",
+      "text": "THE slider SHALL draw a dot of comp.slider.stop-indicator.size.small for size small (and so on) centered on the track's midline at each end of the handles' travel that lies on the track rather than on the active track, and WHILE stops is true and step is greater than 0 also at every value the slider can take; a dot SHALL be drawn in comp.slider.standard.stop-indicator.color where it lies on the track and in comp.slider.standard.active-stop-indicator.color where it lies on the active track, SHALL NOT be drawn where a handle or its track gap covers it, and a size of 0 SHALL draw none.",
+      "verify": "In the default system a dot is half the track's thickness: 2 at small (discrete-stops, disabled-stops), 3 at medium and 4 at large (the dot at the end of the travel in the medium and large fixtures)."
+    },
+    {
+      "id": "SLD-10",
+      "text": "THE slider SHALL draw each handle's container, a shape of comp.slider.container.size on each side with corners comp.slider.container.shape, centered on the handle and moving with it, filled with comp.slider.standard.container.color from the handle's state, behind the handle and above the tracks; it may extend beyond the track without affecting layout, and a size of 0 SHALL draw none."
+    },
+    {
+      "id": "SLD-11",
+      "text": "WHILE a handle is hovered, keyboard-focused or pressed THE slider SHALL render that handle and its container from the component tokens of that handle's highest-precedence active state, with precedence pressed over focused over hovered, and the tracks, stop dots and opacity from the highest-precedence state of any of its handles; a handle is hovered while a fine pointer is over the slider and that handle is the one a press there would move; focus gained by pointer or touch SHALL NOT select the focused state. WHEN the colors change between states THE slider SHALL animate them over comp.slider.motion.state-duration with comp.slider.motion.state-easing, and at once where motion is reduced.",
+      "verify": "The default system gives the pressed and the focused state layer the same opacity, so precedence cannot be seen with it. Test under the `acme` fixture system, as BTN-3 is."
+    },
+    {
+      "id": "SLD-12",
+      "text": "WHEN a handle receives keyboard focus THE slider SHALL show the focus ring around that handle without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "SLD-13",
+      "text": "WHEN the slider is pressed by pointer or touch THE slider SHALL show the pressed state of the handle the press moves without delay, SHALL keep it for as long as the press lasts, and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "SLD-14",
+      "text": "WHILE pressed THE slider SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; handle, tracks, stop dots, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.slider.motion.feedback-duration with comp.slider.motion.state-easing, fades over comp.slider.motion.state-duration with comp.slider.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced. The slider's point of contact is the pressed handle's center, because the handle moves to the press."
+    },
+    {
+      "id": "SLD-15",
+      "text": "THE slider SHALL ease its container, handle and track corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "SLD-16",
+      "text": "WHEN a value changes by a key, by assistive technology, by a press on the track that did not drag, or because the product set it, THE slider SHALL move the handle and the active track to it over comp.slider.motion.value-duration with comp.slider.motion.value-easing; WHILE a press drags a handle, the handle SHALL follow the press without delay; WHERE motion is reduced every change SHALL be shown at once. WHEN the product sets value or startValue THE slider SHALL NOT emit input or change."
+    },
+    {
+      "id": "SLD-17",
+      "text": "WHILE valueIndicator is always, or valueIndicator is active and a handle is pressed or has keyboard focus, THE slider SHALL draw that handle's value indicator comp.slider.value-indicator.offset beyond the handle's outer edge across the axis — above the handle in a horizontal slider, at its inline start in a vertical one; for a round handle beyond the top of its circle, outline included, which lies half of comp.slider.handle.height.small from the track's midline for size small (and so on) — with its center on the handle's center along the axis, shifted along the axis only as far as it must to stay inside the window: the handle's value text on one line in comp.slider.value-indicator.label.typescale and comp.slider.value-indicator.label.color, centered in a container of comp.slider.value-indicator.container.color at least comp.slider.value-indicator.container.height high and as wide as the text plus comp.slider.value-indicator.container.padding-inline on each side but never narrower than it is high, rounded by comp.slider.value-indicator.container.shape. The value indicator SHALL be drawn above neighbouring content and above the handle and its container, without affecting layout or being clipped by the slider, SHALL take no focus and no input (a read overlay), SHALL be hidden from assistive technology, and SHALL fade in and out over comp.slider.motion.state-duration with comp.slider.motion.state-easing, at once where motion is reduced.",
+      "verify": "In the value-indicator fixture (default system, size small) the indicator's lower edge is 18 above the track's midline (the handle's radius, 10, plus the offset, 8), which also clears the 16 radius of the state layer, and its center is on the handle's center."
+    },
+    {
+      "id": "SLD-18",
+      "text": "THE slider SHALL give each handle a value text: valueText for the only handle and a range's end handle, startValueText for a range's start handle; or, while that is empty, what the product's own function writes for that handle's value, WHERE the product gave the slider such a function in the platform's idiom; or, with neither, the value formatted as a number in the platform's locale with as many fraction digits as the keyboard step has, at most two; the value indicator SHALL show it and assistive technology SHALL read it as the handle's value. THE slider SHALL ask the function again at every change of a value and WHEN the function itself changes, SHALL take an empty answer as no answer, and SHALL announce nothing for a change of the words alone."
+    },
+    {
+      "id": "SLD-19",
+      "text": "THE slider SHALL expose each handle as a slider (the adjustable trait on Apple platforms) named by label, or by startLabel for a range's start handle, with its value, its value text, the lowest and highest value it can take (for a range, bounded by the other handle), its orientation and its disabled state; the tracks, stop dots, container and value indicator SHALL be hidden from assistive technology. WHILE label is empty, or range is true and startLabel is empty, THE slider SHALL still render, and in debug builds report that a handle has no accessible name."
+    },
+    {
+      "id": "SLD-20",
+      "text": "WHILE disabled is true THE slider SHALL NOT change a value or emit input or change, SHALL NOT be focusable, SHALL show no value indicator, SHALL expose the disabled state to assistive technology, and SHALL render its container, handles, tracks, stop dots and opacity from the disabled component tokens."
+    },
+    {
+      "id": "SLD-21",
+      "text": "WHILE orientation is vertical THE slider SHALL run its track from the bottom (min) to the top (max), be as tall as its layout gives it, and lay out every part SLD-7 to SLD-17 name turned a quarter turn; WHEN the layout direction is right-to-left THE slider SHALL run a horizontal track from the right (min) to the left (max), mirroring the active track, the stop dots and the arrow keys (SLD-3), and SHALL NOT mirror a vertical slider. WHILE a value indicator is drawn in a right-to-left layout THE slider SHALL keep it centred on its handle and shift it along the axis only as far as it must to stay inside the window, away from whichever edge of the window it would cross, as in left-to-right (SLD-17): the shift is physical and is not mirrored."
+    },
+    {
+      "id": "SLD-22",
+      "text": "IF value, startValue or origin lies outside min and max, or off a step, THE slider SHALL draw and expose it clamped and snapped without emitting input or change; IF startValue is greater than value while range is true THE slider SHALL draw both handles at value; IF max is not greater than min THE slider SHALL draw its handles at the track's start and take no input; IF step is below 0 THE slider SHALL treat it as 0. In debug builds it SHALL report each of these."
+    },
+    {
+      "id": "SLD-23",
+      "text": "WHEN size names a value that the active design system does not have, or orientation or valueIndicator a value the component does not define, THE slider SHALL render with the default value (small, horizontal, none), and in debug builds report the unknown value."
+    },
+    {
+      "id": "SLD-24",
+      "text": "THE slider SHALL fill the whole shape of each handle with comp.slider.standard.handle.color and draw the handle's outline over the fill, comp.slider.handle-outline.width wide inside the handle's edge, in comp.slider.standard.handle-outline.color, so that the outline never changes the handle's width or height and a width of 0 draws none; it SHALL raise the handle by comp.slider.standard.handle.elevation. The parts under a handle (the tracks where they meet, a stop dot, the container) SHALL show through it only as far as its fill is translucent.",
+      "verify": "In the default system every fixture's handle is a 20 circle whose outline, in the active track's color, is 3 wide inside that 20, leaving a 14 disc of the surface color; disabled, the fill stays the surface color and the outline fades with the active track (disabled, disabled-stops)."
+    },
+    {
+      "id": "SLD-25",
+      "text": "THE slider SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the slider is shown THE slider SHALL draw itself for the new direction at once, without a motion of its own, keeping its values and its focus, each value indicator placed again by the new direction.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "SLD-26",
+      "text": "THE slider SHALL lay out a handle's value text in its value indicator as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE slider SHALL still place the indicator and align its lines by the layout direction, not by the text's own."
+    }
+  ],
+  "accessibility": {
+    "role": "slider",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the handle, and for a range to the start handle, then the end handle."
+      },
+      {
+        "keys": "Right Arrow / Up Arrow",
+        "action": "Increases the focused handle's value by one keyboard step (Right Arrow decreases it in a right-to-left horizontal slider)."
+      },
+      {
+        "keys": "Left Arrow / Down Arrow",
+        "action": "Decreases the value by one keyboard step (Left Arrow increases it in a right-to-left horizontal slider)."
+      },
+      {
+        "keys": "Page Up / Page Down",
+        "action": "Increases or decreases the value by ten keyboard steps."
+      },
+      {
+        "keys": "Home / End",
+        "action": "Sets the value to the lowest or highest the handle can take."
+      }
+    ],
+    "labeling": "label names the slider, or a range's end handle; startLabel names a range's start handle. Neither is drawn: a visible label is the product's text beside the slider, in the same words. valueText replaces the spoken number (\"40 %\", \"3 stars\"). The tracks, stop dots, state layer and value indicator are decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "Each handle is one slider for assistive technology: role slider with aria-valuemin, aria-valuemax, aria-valuenow, aria-valuetext and aria-orientation on the web; the adjustable trait with an accessibility value on Apple platforms (a vertical swipe increments and decrements); a range with a current value and the set-progress action on Android; a slider semantics node with increase and decrease actions in Flutter; role adjustable with accessibilityValue and increment and decrement actions in React Native.",
+      "A range is two sliders, the WAI-ARIA multi-thumb pattern: each handle's lowest and highest value is bounded by the other handle, so a screen reader announces the range each can still reach.",
+      "The value is read from the handle and the active track. The handle must be told apart from each thing it lies on — the track, the active track and the surface behind the slider — by its outline (comp.slider.standard.handle-outline.color, where comp.slider.handle-outline.width is above 0) or by its fill (comp.slider.standard.handle.color), at 3:1 or more; comp.slider.standard.active-track.color must stay at least 3:1 against the track and the surface. In the default system the outline carries it against the track and the surface, and the fill against the active track. A faint track keeps its end visible by the stop dot at the end of the travel (SLD-9).",
+      "The handle may be drawn smaller than the minimum target (20 against 48 in the default system): the whole slider takes the press across its axis at the target's size (SLD-7), so every handle keeps its whole target, a range's two handles included, and no target is reported larger than the area that takes the press.",
+      "Text size does not change the slider: it has no text of its own except the value indicator, which grows with the text.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.slider",
+  "fixtures": [
+    {
+      "id": "continuous",
+      "props": {
+        "value": 40,
+        "label": "Volume"
+      }
+    },
+    {
+      "id": "discrete-stops",
+      "props": {
+        "value": 30,
+        "step": 10,
+        "stops": true,
+        "label": "Brightness"
+      }
+    },
+    {
+      "id": "range",
+      "props": {
+        "range": true,
+        "startValue": 20,
+        "value": 60,
+        "label": "Maximum price",
+        "startLabel": "Minimum price"
+      }
+    },
+    {
+      "id": "centered",
+      "props": {
+        "min": -50,
+        "max": 50,
+        "origin": 0,
+        "value": 20,
+        "label": "Balance"
+      }
+    },
+    {
+      "id": "value-indicator",
+      "props": {
+        "value": 40,
+        "valueIndicator": "always",
+        "label": "Volume"
+      }
+    },
+    {
+      "id": "medium",
+      "props": {
+        "size": "medium",
+        "value": 40,
+        "label": "Volume"
+      }
+    },
+    {
+      "id": "large",
+      "props": {
+        "size": "large",
+        "value": 40,
+        "label": "Volume"
+      }
+    },
+    {
+      "id": "vertical",
+      "props": {
+        "orientation": "vertical",
+        "value": 60,
+        "label": "Volume"
+      }
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "value": 40,
+        "disabled": true,
+        "label": "Volume"
+      }
+    },
+    {
+      "id": "disabled-stops",
+      "props": {
+        "value": 60,
+        "step": 20,
+        "stops": true,
+        "disabled": true,
+        "label": "Brightness"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-slider",
+      "props": {
+        "size": "size",
+        "orientation": "orientation",
+        "value": "value",
+        "startValue": "startValue",
+        "range": "range",
+        "min": "min",
+        "max": "max",
+        "step": "step",
+        "origin": "origin",
+        "stops": "stops",
+        "valueIndicator": "valueIndicator",
+        "disabled": "disabled",
+        "label": "label",
+        "startLabel": "startLabel",
+        "valueText": "valueText",
+        "startValueText": "startValueText"
+      },
+      "events": {
+        "input": "input",
+        "change": "change"
+      },
+      "notes": "Attributes are kebab-case (`start-value`, `value-indicator`, `start-label`, `value-text`, `start-value-text`). Each handle is an element with `role=\"slider\"` and its aria-value attributes, `aria-orientation` and `aria-label` in the shadow root (not `ElementInternals`, which axe cannot see). Not `<input type=\"range\">`: it has one handle, no gap, no stop dots, and its parts cannot be styled alike in every engine. The handle's outline is its box's border with `box-sizing: border-box`, over its background (the fill), so it keeps its width and height (SLD-24); while track.gap is 0 the two pieces of the tracks meet at the handle's center under it (SLD-8). Form-associated: it takes `name` and submits value (a range submits startValue, then value, under the same name), and it sets its own `value` and `startValue` before firing `input` and `change`, as a native control does. Snapshot harness: the stages of SLD-7. The product's function for a value's words (SLD-18) is `formatValue`, a property and never an attribute: `((value: number) => string) | null`, null by default; it is asked for each handle at every change of a value and when the property itself is set."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiSlider",
+      "props": {
+        "size": "size",
+        "orientation": "orientation",
+        "value": "value",
+        "startValue": "value",
+        "range": "value",
+        "min": "bounds",
+        "max": "bounds",
+        "step": "step",
+        "origin": "origin",
+        "stops": "showsStops",
+        "valueIndicator": "valueIndicator",
+        "disabled": "disabled",
+        "label": "label",
+        "startLabel": "startLabel",
+        "valueText": "valueText",
+        "startValueText": "startValueText"
+      },
+      "events": {
+        "input": "value",
+        "change": "onCommit"
+      },
+      "notes": "`Slider` idiom: `TanreiSlider(_ label:, value: Binding<Double>, in bounds: ClosedRange<Double> = 0...100, step:)`; a range is the initializer whose `value` is a `Binding<ClosedRange<Double>>` (lower bound startValue, upper bound value) and which also takes `startLabel`. Every change writes the binding, which is the input event. `onCommit` is Tanrei's own parameter, called when a change is finished (SLD-2, SLD-3, SLD-4), as the text field's is; SwiftUI's `onEditingChanged` reports a drag's start and end, not a change. SwiftUI's own `Slider` is not used: its track and handle cannot take the tokens. Each handle is an adjustable element (`.accessibilityAdjustableAction`, `.accessibilityValue`); `disabled` follows `.disabled(_:)`. Lagging: ships an earlier form of the slider — a solid round handle, tracks cut at the handle's edge (square there while track.gap is 0), one stop-dot size for every size. It does not draw yet: the handle's fill and outline (SLD-24), the tracks meeting under the handle while track.gap is 0 (SLD-8), the stop dot per size (SLD-9) and the value indicator's placement over a round handle (SLD-17). Not built on this platform yet: the product's function for a value's words (SLD-18) is a `format: ((Double) -> String)? = nil` parameter."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiSlider",
+      "props": {
+        "size": "size",
+        "orientation": "orientation",
+        "value": "value",
+        "startValue": "value",
+        "range": "value",
+        "min": "valueRange",
+        "max": "valueRange",
+        "step": "step",
+        "origin": "origin",
+        "stops": "showStops",
+        "valueIndicator": "valueIndicator",
+        "disabled": "enabled",
+        "label": "contentDescription",
+        "startLabel": "startContentDescription",
+        "valueText": "stateDescription",
+        "startValueText": "startStateDescription"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onValueChangeFinished"
+      },
+      "notes": "Compose idiom (as `Slider` and `RangeSlider`): `TanreiSlider(value: Float, onValueChange, modifier, enabled, valueRange: ClosedFloatingPointRange<Float> = 0f..100f, step: Float = 0f, onValueChangeFinished, …)`; a range is the overload whose `value` is a `ClosedFloatingPointRange<Float>` (start and end) and which also takes `startContentDescription` and `startStateDescription`. `step` is a size, not Material's count of `steps`. State hoisting: the caller moves `value` from `onValueChange`. `enabled` is the inverse flag. Each handle has Compose's slider semantics (`progressBarRangeInfo` and `setProgress`), with `stateDescription` as its value text. Lagging: ships an earlier form of the slider — a solid round handle with its shape clipped out of the tracks, one stop-dot size for every size. It does not draw yet: the handle's fill and outline (SLD-24), the tracks meeting under the handle while track.gap is 0 (SLD-8), the stop dot per size (SLD-9) and the value indicator's placement over a round handle (SLD-17). Not built on this platform yet: the product's function for a value's words (SLD-18) is a `format: ((Float) -> String)? = null` parameter."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiSlider",
+      "props": {
+        "size": "size",
+        "orientation": "orientation",
+        "value": "value",
+        "startValue": "start",
+        "range": "range",
+        "min": "min",
+        "max": "max",
+        "step": "step",
+        "origin": "origin",
+        "stops": "showStops",
+        "valueIndicator": "valueIndicator",
+        "disabled": "onChanged",
+        "label": "semanticLabel",
+        "startLabel": "startSemanticLabel",
+        "valueText": "semanticValue",
+        "startValueText": "startSemanticValue"
+      },
+      "events": {
+        "input": "onChanged",
+        "change": "onChangeEnd"
+      },
+      "notes": "Flutter idiom (as `Slider`): `TanreiSlider(value:, onChanged:, onChangeEnd:, min: 0, max: 100, step: 0, …)`, with `step` a size rather than Material's `divisions`; a range is the named constructor `TanreiSlider.range(start:, end:, onChanged: (start, end) {…}, …)`, since Flutter's `RangeValues` belongs to Material. A null `onChanged` disables it. `orientation` is Flutter's `Axis`. Each handle is a `Semantics(slider: true, value:, increasedValue:, decreasedValue:, onIncrease:, onDecrease:)` node; the widgets library draws everything else. Lagging: ships an earlier form of the slider — a solid round handle, tracks cut at the handle's edge and rounded there (a notch between the round end and the handle), one stop-dot size for every size. It does not draw yet: the handle's fill and outline (SLD-24), the tracks meeting under the handle while track.gap is 0 (SLD-8), the stop dot per size (SLD-9) and the value indicator's placement over a round handle (SLD-17). Not built on this platform yet: the product's function for a value's words (SLD-18) is `format: String Function(double)?`."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Slider",
+      "props": {
+        "size": "size",
+        "orientation": "orientation",
+        "value": "value",
+        "startValue": "startValue",
+        "range": "range",
+        "min": "minimumValue",
+        "max": "maximumValue",
+        "step": "step",
+        "origin": "origin",
+        "stops": "stops",
+        "valueIndicator": "valueIndicator",
+        "disabled": "disabled",
+        "label": "accessibilityLabel",
+        "startLabel": "startAccessibilityLabel",
+        "valueText": "valueText",
+        "startValueText": "startValueText"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onSlidingComplete"
+      },
+      "notes": "Controlled, in the community slider's idiom (`value`, `minimumValue`, `maximumValue`, `step`, `onValueChange`, `onSlidingComplete`), without depending on it: React Native has no slider in its core. A range adds `range` and `startValue`, and both callbacks receive `(value, startValue)`. Each handle is a view with `accessibilityRole=\"adjustable\"`, `accessibilityValue` (`{ min, max, now, text }`) and the increment and decrement accessibility actions; the drag is a `the touch responder props (onStartShouldSetResponder and the rest)` that yields to an enclosing `ScrollView` as SLD-2 says. The arrow keys work where a hardware keyboard is attached, as the tabs row's do. Lagging: ships an earlier form of the slider — a solid round handle, tracks cut at the handle's edge and rounded there (a notch between the round end and the handle), one stop-dot size for every size. It does not draw yet: the handle's fill and outline (SLD-24), the tracks meeting under the handle while track.gap is 0 (SLD-8), the stop dot per size (SLD-9) and the value indicator's placement over a round handle (SLD-17). Not built on this platform yet: the product's function for a value's words (SLD-18) is a `formatValue` prop, `(value: number) => string`."
+    }
+  }
+}

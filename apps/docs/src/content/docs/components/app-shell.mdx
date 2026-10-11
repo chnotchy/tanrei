@@ -1,0 +1,189 @@
+---
+title: App shell
+description: Frames a page or an app. It places a header, the navigation, the main content, an aside and a footer, decides from the window's width how each is shown, and lets a keyboard reach the content in one step.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+
+## Overview
+
+<ComponentAvailability name="app-shell" />
+
+An app shell is the frame of a window. It places regions and draws none of their content: the header is your app bar, the navigation your navigation drawer, the footer your own layout. What the shell adds is what a hand-made frame forgets: the landmarks, one set of window widths, the space a sticky header takes from a link's target, and a way past the frame for the keyboard.
+
+A frame is a whole window, so this page has no live example of it: a shell drawn inside a page would take that page's window class. The fixtures under [Specs](#specs) are listed with their props; each is drawn alone in a window of its own in the tests.
+
+On the web it is `<tanrei-app-shell>` around your own regions. The element has no shadow root, so a `<header>` is the page's banner and the one `<main>` its main landmark, read without script and by a crawler. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/app-shell.css" />
+
+    <tanrei-app-shell aside-order="before" aside-label="On this page">
+      <a class="tanrei-link" data-standalone slot="skip-link" href="#main">Skip to content</a>
+      <header slot="header">
+        <tanrei-app-bar headline="Tanrei">
+          <tanrei-button slot="navigation" data-app-shell-menu variant="text" label="Menu">
+            <span slot="icon">menu</span>
+          </tanrei-button>
+        </tanrei-app-bar>
+      </header>
+      <tanrei-navigation-drawer slot="navigation" responsive collapsible label="Documentation">
+        …
+      </tanrei-navigation-drawer>
+      <aside slot="aside">…</aside>
+      <main id="main" tabindex="-1">…</main>
+      <footer slot="footer">…</footer>
+    </tanrei-app-shell>
+
+    <script type="module">
+      import '@tanrei/web/components/app-shell';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { AppBar, AppShell, Button, NavigationDrawer } from '@tanrei/react';
+    import '@tanrei/web/app-shell.css';
+
+    <AppShell asideLabel="On this page" onWindowclasschange={(event) => setWindowClass(event.detail.windowClass)}>
+      <a className="tanrei-link" data-standalone slot="skip-link" href="#main">Skip to content</a>
+      <header slot="header">
+        <AppBar headline="Tanrei">
+          <Button slot="navigation" data-app-shell-menu variant="text" label="Menu"><span slot="icon">menu</span></Button>
+        </AppBar>
+      </header>
+      <NavigationDrawer slot="navigation" responsive collapsible label="Documentation">…</NavigationDrawer>
+      <main id="main" tabIndex={-1}>{children}</main>
+      <aside slot="aside">…</aside>
+      <footer slot="footer">…</footer>
+    </AppShell>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/app-shell.css` lays the whole frame out before any script runs, so a page rendered on a server does not move when the script arrives, and the skip link works with scripting off. The element adds the same stylesheet to the page by itself.
+
+### What you write
+
+A region is a child with a `slot` attribute. The main region is the one `<main>` without one.
+
+| Region | On the web | The shell gives it |
+| --- | --- | --- |
+| Skip link | `<a class="tanrei-link" data-standalone slot="skip-link" href="#main">` | The first stop of the keyboard. It is drawn only while it has keyboard focus. |
+| Announcement | `<div slot="announcement">` around a callout | The frame's whole width above the header. |
+| Header | `<header slot="header">` around your app bar | The whole width. It stays at the top while the page scrolls. |
+| Navigation | `<tanrei-navigation-drawer slot="navigation" responsive>` | The start edge, in one of three presentations. |
+| Main | `<main id="main" tabindex="-1">` | Gutters, a width limit, and the skip link's destination. |
+| Aside | `<aside slot="aside">`, or a side sheet | The end edge in a wide window. Above or below the main content otherwise. |
+| Footer | `<footer slot="footer">` | The end of the page, gutters and space. |
+| Navigation bar | `<tanrei-navigation-bar slot="navigation-bar">` | The bottom edge, in a narrow window only. |
+
+Write the regions in the order a keyboard walks them: skip link, announcement, header, navigation, the aside when it comes before the main content, main, the aside when it comes after, footer, navigation bar. The stylesheet places them by name and never reorders focus. A region you leave out takes no space and adds no landmark.
+
+## Specs
+
+<ComponentSpecs name="app-shell" />
+
+## Guidelines
+
+### Three window classes
+
+The shell gives the window one of three classes by its width alone.
+
+| Class | Width | Navigation | Aside | Menu button | Navigation bar | Gutter |
+| --- | --- | --- | --- | --- | --- | --- |
+| `compact` | Under 600 | Over the content, when opened | Above or below the main content | Shown | Shown | 16 |
+| `medium` | 600 to 1023 | The drawer's column of icons where it is `collapsible`. Otherwise as compact | Above or below | Shown unless the column is | Not shown | 24 |
+| `expanded` | 1024 and wider | Beside the content | Beside the content, at the end edge | Not shown | Not shown | 32 |
+
+- The widths are the tokens `sys.breakpoint.medium` and `sys.breakpoint.expanded`. A navigation drawer with `responsive` reads the same two, so the frame and the drawer change together.
+- On the web the widths are compared in `rem`. A reader who zooms in gets the narrower arrangement before the columns become too narrow to read.
+- `windowclasschange` tells you the class, and `windowClass` holds it. Switch from it what the shell does not: a search's presentation, a side sheet's variant, the form of an outline.
+- On the web everything in the frame also inherits `--tanrei-app-shell-window-class`, so a stylesheet can follow the class with a style container query and no script.
+
+### The menu button
+
+Put one icon-only Button in the header and mark it with `data-app-shell-menu`. The shell shows it only while the navigation has no place in the layout. Pressing it opens the drawer over the content and moves focus into it. Closing the drawer puts focus back on the button. The button says whether the navigation is expanded.
+
+`navigationOpen` (`navigation-open`) holds that state, and `navigationopenchange` tells you when a person changed it. A change of the window's class closes the navigation.
+
+### What scrolls
+
+| `scroll` | What scrolls | Use for |
+| --- | --- | --- |
+| `page` (default) | The window scrolls the page. The header is sticky, and the navigation and the aside stay in view beside the content. | Pages that are read: documentation, articles, settings. |
+| `main` | The frame is exactly the window and only the main region scrolls. | An app whose panes scroll apart: a mail client, an editor. |
+
+- Prefer `page`. Find-in-page, links to a heading, the return to where a reader was and a phone browser's collapsing bars all work as on a page without a shell.
+- `headerPosition: static` lets the header scroll away with the page.
+- With `scroll: main` on the web, name the main element's id in the app bar's `scroll-target`.
+- On the web the JavaScript property is `scrolls`, because every element already has a `scroll()` method. The attribute is `scroll`.
+
+### Links to a heading rest below the header
+
+The shell measures the sticky header and gives the page's scrolling view that much padding. A link to a heading, and an element that takes keyboard focus, come to rest below the header, never under it. On the web the same distance is `--tanrei-app-shell-scroll-offset` on the root, for your own sticky parts such as a table's header row. Inside a shell, leave `--tanrei-prose-scroll-offset` at 0.
+
+### The main region's width
+
+- `mainWidth: contained` (default) keeps the content no wider than 768 and centres it in its room. Use it for pages that are read.
+- `mainWidth: full` takes all the room inside the gutters. Use it for a table, a board or an editor.
+- Content that cannot shrink, such as a wide table or a line of code, scrolls inside its own box. It never widens the frame.
+
+### The aside
+
+- In an expanded window the aside stands beside the main content, 240 wide, and stays in view while the page scrolls.
+- In a narrower window it joins the main content's column. `asideOrder: before` draws it above the main content, which suits an outline of the page. `after` (default) draws it below, which suits related links.
+- `asideOrder` is also the reading order. On the web, write the `<aside>` on that side of the `<main>` in the markup.
+- Name the aside with `asideLabel`, in your language.
+- A side sheet in the aside keeps its own width and edge. Set its variant from `windowclasschange`.
+
+### Lines between regions
+
+| `separation` | Draws |
+| --- | --- |
+| `auto` (default) | What the design system chose: lines in the default system. |
+| `divider` | A hairline above the footer, at the start edge of an aside beside the content, and between the main content and a stacked aside. |
+| `gap` | No line. The same spaces. |
+
+The lines take no room. The shell draws none around the header, the navigation, the announcement or the navigation bar: those components draw their own edges.
+
+### Do
+
+- Give every page one `<main>`, and give it the id the skip link names.
+- Write the skip link's words in your language. Tanrei ships no words.
+- Use a navigation drawer with `responsive` in the navigation region.
+
+### Don't
+
+- Don't put the page's title, description or actions in the shell. They are a [page header](/components/page-header/), first in the main region.
+- Don't put the footer of an article (previous and next, an edit link) in the footer region. It ends the main content. The footer region is for what belongs to the whole site.
+- Don't reorder regions with CSS. The order of the markup is the order of focus.
+
+## Accessibility
+
+<ComponentAccessibility name="app-shell" />
+
+### What the component handles
+
+- Each filled region is its landmark: banner, navigation, main, complementary and content information. A region whose element does not give the landmark is given the role.
+- The skip link is the first stop of the keyboard. Following it moves focus to the main region itself, with its top in view below the header. The next Tab reaches the first control of the content.
+- Tab walks the regions in reading order, the same in every window class and in either layout direction, left-to-right or right-to-left. A region that is not shown has no stop.
+- A link's target and a focused element are never left under the sticky header or the navigation bar.
+- When the window's class changes and focus was on something that is no longer shown, such as the menu button, focus moves to the main region.
+- With text at 200% in a window 320 wide the frame is one column and nothing scrolls sideways.
+- In forced colors the lines and the skip link's box are drawn in the system's text color.
+- In a right-to-left layout the navigation stands at the right and the aside at the left. The order of focus does not change.
+
+### What you need to do
+
+- Exactly one `<main>` per page. A debug build reports none, or more than one.
+- A name for the aside (`asideLabel`), and a `label` on the navigation drawer and on the navigation bar. Two navigation landmarks on a page need two names.
+- The words of the skip link and the label of the menu button.
+- One heading of level 1 per page, in the main region: the [page header](/components/page-header/)'s title.

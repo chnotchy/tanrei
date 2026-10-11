@@ -1,0 +1,236 @@
+---
+title: حقل إدخال العدد
+description: صندوق العدد، يُكتب فيه بالصورة التي تكتبه بها الإعدادات المحلية أو يُغيَّر خطوةً خطوةً بمفتاح أو بزر، ويبقى ضمن حدوده، ووحدته بجانبه، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لعدد تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
+translationOf: components/number-input.mdx
+sourceHash: 2f83ccdb5c9255643d9504cf32fb46892ae8e5c2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="number-input" />
+
+<DemoFrame label="مجرَّدًا: عدد بجانب شريط تمريره تحت عنوان صف واحد، وكمية في صف تقف تسميته بجانبها" column>
+  <div class="not-content" style="display: grid; grid-template-columns: minmax(0, 1fr) 6rem; align-items: center; gap: 0.75rem; inline-size: 22rem; max-inline-size: 100%">
+    <tanrei-slider label="التكبير" min="0.25" max="4" step="0.05" value="1.5"></tanrei-slider>
+    <tanrei-number-input label="التكبير" min="0.25" max="4" step="0.05" value="1.5" suffix-text="×" value-text="1.5 مرة" align="end" no-steppers locale="ar-u-nu-latn"></tanrei-number-input>
+  </div>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 10rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>مكتب من خشب البلوط</span>
+    <tanrei-number-input label="الكمية، مكتب من خشب البلوط" value="2" min="1" max="99" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
+  </div>
+</DemoFrame>
+
+حقل إدخال العدد (number input) هو صندوق [حقل العدد](/ar/components/number-field/) وحده: الحاوية، والعدد، وبادئته ولاحقته، وزرّا التدرّج (steppers). ليس فوقه صف تسمية، وليس تحته مساعدة ولا نص خطأ.
+
+استخدمه مجرَّدًا حيث تقف التسمية التي يقرؤها الشخص في مكان آخر:
+
+| أين | التسمية التي يقرؤها الشخص | الخاصية `label` في حقل الإدخال |
+| --- | --- | --- |
+| بجانب شريط تمرير، تحت عنوان صف واحد | عنوان الصف | كلمات شريط التمرير نفسها: «التكبير» |
+| خلية في جدول | ترويسة العمود | العمود والصف: «الكمية، مكتب من خشب البلوط» |
+| مقاس في شريط أدوات | رسم الأيقونة (glyph) أو النص الذي بجانبه | ما يعيّنه: «حجم الخط» |
+
+حقل الإدخال المجرَّد يحتاج إلى `label` خاصة به. وهي الاسم المتاح للتقنيات المساعدة. حقل الإدخال من الطراز stacked لا يرسمها أبدًا؛ ومن الطراز filled أو outlined يرسمها تسميةً تعوم في الصندوق.
+
+هو مكوّن **متقدم**: عنصر التحكم مجرَّدًا، لمنتج يركّب حقله بنفسه. ومعظم النماذج تريد [حقل العدد](/ar/components/number-field/)، وهو حقل الإدخال هذا داخل حقل، جاهزًا للاستخدام.
+
+**يُستخدم في** [حقل العدد](/ar/components/number-field/). ولتؤطّره بنفسك ضعه داخل [حقل](/ar/components/field/)، فهو الذي يسمّيه ويصفه ويعلّمه مطلوبًا ويضعه في حالة الخطأ.
+
+هو كتلة بعرض المكان الذي يوضع فيه، مجرَّدًا كان أو مؤطَّرًا. وليس له عرض من عنده: لصندوق أضيق، أعطِه مكانًا أضيق.
+
+على الويب هو `<tanrei-number-input>`. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+الخاصية `value` عدد، أو `null` ما دام حقل الإدخال لا يحمل عددًا. وتتغيّر حين **يعتمد** الشخص ما أدخله، أي حين يغادر التركيز أو يُضغط المفتاح Enter أو يُغيَّر العدد خطوة، لا عند كل ضغطة مفتاح. وفي أثناء ذلك يحمل الحدث `input` العدد الذي يُقرأ به النص.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- بجانب شريط تمرير، تحت عنوان صف يرسمه المنتج. ولكلٍّ منهما اسم بالكلمات. -->
+    <div class="row">
+      <tanrei-slider id="scale" label="التكبير" min="0.25" max="4" step="0.05" value="1.5"></tanrei-slider>
+      <tanrei-number-input id="scale-number" label="التكبير" min="0.25" max="4" step="0.05" value="1.5"
+        suffix-text="×" value-text="1.5 مرة" align="end" no-steppers></tanrei-number-input>
+    </div>
+
+    <!-- خلية في جدول: ترويسة العمود هي التسمية المرئية. -->
+    <td><tanrei-number-input name="quantity-oak-desk" label="الكمية، مكتب من خشب البلوط" value="2" min="1" max="99"
+      increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></td>
+
+    <script type="module">
+      import '@tanrei/web/components/number-input';
+      import '@tanrei/web/components/slider';
+
+      const slider = document.querySelector('#scale');
+      const number = document.querySelector('#scale-number');
+      // قيمة واحدة في عنصري تحكم: ما يحمله input في كلٍّ منهما يُكتب في value للآخر.
+      slider.addEventListener('input', () => (number.value = slider.value));
+      number.addEventListener('input', (event) => {
+        if (event.detail.value !== null) slider.value = event.detail.value;
+      });
+      // اعتمادٌ غيّر القيمة. وهي الآن القيمة الجديدة: عدد، أو null.
+      number.addEventListener('change', () => save(number.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberInput } from '@tanrei/react';
+
+    <NumberInput label="التكبير" value={scale} min={0.25} max={4} step={0.05} suffixText="×"
+      align="end" noSteppers onChange={(event) => setScale(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### مع شريط التمرير
+
+شريط التمرير لقيمة تُختار بالإحساس، وحقل إدخال العدد لقيمة معروفة. ضعهما في صف تحت عنوان من عندك، وأعطِهما الاسم نفسه والحدود نفسها والخطوة نفسها، واكتب ما يحمله الحدث `input` في كلٍّ منهما في الخاصية `value` للآخر، كما يفعل المثال أعلاه. وأعطِ `valueText` حيث تُقرأ اللاحقة قراءة سيئة: «1.5 مرة» للعلامة `×`. وخاصية HTML `no-steppers` تحذف الزرّين اللذين يغني عنهما شريط التمرير؛ ومفاتيح الأسهم تظل تغيّر العدد خطوةً خطوةً.
+
+### داخل حقل، باليد
+
+الحقل الذي يحيط بحقل إدخال العدد هو حقل عدد مكتوب بالتفصيل. اترك `label` الخاصة بحقل الإدخال فارغة: فالحقل هو الذي يسمّيه. تُقال `label` و `error` و `disabled` والمطلوب أو الاختياري على الحقل؛ وتُقال `name` و `value` والحدود والوحدة على حقل الإدخال.
+
+```html
+<tanrei-field label="الكمية" requirement="required" required-text="مطلوب"
+  supporting-text="حتى 99 في الطلب الواحد.">
+  <tanrei-number-input name="quantity" min="1" max="99" invalid-text="أدخِل رقمًا."
+    increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
+</tanrei-field>
+```
+
+<DemoFrame label="حقل فيه حقل إدخال العدد: الصورة نفسها التي لحقل العدد" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" requirement="required" required-text="مطلوب" supporting-text="حتى 99 في الطلب الواحد.">
+    <tanrei-number-input min="1" max="99" invalid-text="أدخِل رقمًا." locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
+  </tanrei-field>
+</DemoFrame>
+
+حقل الإدخال يخبر حقله بما لا يعرفه غيره. فمساعدة الحقل تحاذي النص في الصندوق: تبدأ وتنتهي عند حشو النص في الصندوق، سواء رُسم زرّا التدرّج أم لم يُرسما. وحقل الإدخال من الطراز filled أو outlined يرسم تسمية الحقل بنفسه، عائمةً في الصندوق، فلا يرسم الحقل صف تسمية. والنص الذي ليس عددًا يضع الحقل في حالة الخطأ بنص `invalidText` الذي لحقل الإدخال، أو بنص `errorText` الذي للحقل نفسه حيث لا يكون لحقل الإدخال نص.
+
+ولا شيء عليك أن تبقيه متزامنًا باليد: فحقل إدخال العدد لا يحتفظ بعدد للأحرف.
+
+## المواصفات
+
+<DemoFrame label="حقول إدخال مجرَّدة: زر تدرّج معطَّل عند الحد، وأرقام عند حافة النهاية، وبلا زرّي التدرّج، وفي حالة الخطأ، وللقراءة فقط، ومعطَّل" plain column>
+  <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" value="99" min="1" max="99" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
+  <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الدرجة اللونية" value="40" min="0" max="100" align="end" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
+  <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="تباعد الأحرف" value="-0.25" step="0.01" suffix-text="px" no-steppers locale="ar-u-nu-latn"></tanrei-number-input>
+  <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" value="0" error locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
+  <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" value="12" readonly locale="ar-u-nu-latn"></tanrei-number-input>
+  <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الكمية" value="12" disabled locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
+</DemoFrame>
+
+<DemoFrame label="الطرازان filled و outlined مجرَّدين: تسمية حقل الإدخال نفسه تعوم في الصندوق" system="m3-like" plain column>
+  <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="الكمية" value="12" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
+  <tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="الكمية" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input>
+</DemoFrame>
+
+<DemoFrame label="في تخطيط من اليمين إلى اليسار: الوحدة المكتوبة بأحرف لاتينية بعد العدد، من اليسار إلى اليمين، والوحدة المكتوبة بنظام كتابة الصفحة نفسه عن يسار العدد" plain column>
+  <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
+  <div dir="rtl" lang="ar"><tanrei-number-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-input></div>
+</DemoFrame>
+
+العدد ووحدته مقطع واحد من الكتابة. تُكتب البادئة قبل العدد واللاحقة بعده في اتجاه نظام كتابة الوحدة نفسه، أيًّا كان اتجاه الصفحة. ولذلك تُقرأ «`44 px`» و «`$ 120 USD`» و «`40 %`» في صفحة عربية أو عبرية كما تُقرأ في صفحة إنجليزية، والوحدة المكتوبة بأحرف عربية أو عبرية تقف عن يسار العدد. وزرّا التدرّج والتسمية يتبعان الصفحة. والقيمة `align="end"` تضع العدد لصق وحدته: عند اليمين مع وحدة مكتوبة بأحرف أو علامات لاتينية، في الاتجاهين كليهما. ولاختصار عملة بأحرف لاتينية عن يسار العدد، ابدأ اللاحقة بعلامة الاتجاه من اليمين إلى اليسار (U+200F).
+
+### ما هو لحقل الإدخال، وما هو للحقل
+
+| الجانب | حقل إدخال العدد | الحقل المحيط به |
+| --- | --- | --- |
+| يرسم | الصندوق، والعدد، والنص النائب، والبادئة واللاحقة، وزرّي التدرّج، والتسمية التي تعوم في صندوق من الطراز filled أو outlined | صف التسمية فوق حقل إدخال من الطراز stacked، وعلامة المطلوب أو الاختياري، والمساعدة، ونص الخطأ |
+| يحمل | القيمة، والحدود والخطوة، ومكانها في النموذج، والأحداث | لا شيء |
+| يقول للتقنيات المساعدة | زرًّا دوّارًا (spin button): قيمته، وحدوده، ونص قيمته | الاسم، والمساعدة أو نص الخطأ، وأنه مطلوب، وغير صالح، ومعطَّل |
+
+الطُرُز الثلاثة والحجمان، `medium` (48) و `large` (56)، هي نفسها التي لحقل إدخال النص، والصندوق يُرسم ويُقاس كما يُرسم ويُقاس [حقل إدخال النص](/ar/components/text-input/) الذي له الطراز نفسه والحجم نفسه. والنظام الافتراضي يتضمن الطراز `stacked` وحده.
+
+زرّا التدرّج زرّان من الطراز text بالحجم medium، متجاوران. في النظام الافتراضي يأخذان 88 من عرض الصندوق، وكلٌّ منهما هدف لمس كامل. ولا يُرسمان أصغر من ذلك أبدًا ولا يُرصّ أحدهما فوق الآخر: فحيث لا يتسع الصف لهما أوقفهما. والمفاتيح تظل تغيّر العدد خطوةً خطوةً. وهما يُرسمان من رموز التصميم الخاصة بالزر، ولا يكونان في حالة الخطأ أبدًا.
+
+ما يحدث في الصندوق، أي [القيمة والنص](/ar/components/number-field/#القيمة-والنص) وكيف يُقرأ النص في إعدادات محلية و[التدرّج](/ar/components/number-field/#التدرّج)، واحد، مجرَّدًا كان حقل الإدخال أو مؤطَّرًا أو داخل حقل عدد، وهو موصوف مرة واحدة، في صفحة حقل العدد.
+
+### مجرَّدًا، بلا حقل
+
+- **الاسم** هو `label`. والخاصية `labelHidden` تمنع حقل الإدخال من الطراز filled أو outlined من رسمها.
+- **الخطأ** هو `error`، وأنت تعيّنها: يُرسم الصندوق في حالة الخطأ ويُعرَض للتقنيات المساعدة على أنه غير صالح. وليس لحقل الإدخال نص خطأ. قل ما الخطأ بكلمات بجانبه، أو أطِّره.
+- **النص الذي ليس عددًا** يبقى، ويفرّغ القيمة، ويرسم الصندوق في حالة الخطأ، ويصدر `entryError` مع `invalidText`. ويُضاف نص `invalidText` إلى وصف حقل الإدخال؛ ولا شيء يرسمه.
+- **المطلوب** يقوله الحقل. وليس لحقل الإدخال المجرَّد إعداد للمطلوب أو الاختياري: حيث يحتاج النموذج إلى جواب، تحقق منه بنفسك.
+
+<ComponentSpecs name="number-input" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- العنصر مرتبط بالنماذج (form-associated). مع `name` يرسل قيمته عددًا عشريًّا عاديًّا (`12.5`) أيًّا كان ما تعرضه الإعدادات المحلية، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويُستعاد عند التنقل، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دام حقله يقول إنه مطلوب، وبأن الإدخال غير صالح ما دام نصه ليس عددًا.
+- يُحرَّر العدد في عنصر `<input type="text">` أصلي في جذر الظل (shadow root)، وهو الذي يحمل دور الزر الدوّار وقيمه. وليس هو حقل إدخال الأعداد الخاص بالمتصفح.
+- العنصر كتلة. والدالة `focus()` تذهب إلى العنصر الأصلي، والضغطة في أي مكان من الصندوق خارج زر تدرّج تنقل التركيز إليه.
+- الخاصية `steppers` هي خاصية HTML المعكوسة `no-steppers`، والخاصية `readOnly` هي `readonly`.
+- الحدث `input` من النوع CustomEvent ومعه `detail.value`. والحدثان `change` و `action` حدثان عاديان: اقرأ `value` من العنصر. وما لم يُلغَ الحدث `action` يُطلب من النموذج بعده أن يُرسل. والحدث `entryerror` من النوع CustomEvent، وفي `detail` له `{ reason, text }`: والقيمة `text` هي `invalidText` الذي لحقل الإدخال، وتكون فارغة حيث لم يُعطَ. والنوعان هما `TanreiNumberInputInputDetail` و `TanreiNumberInputEntryErrorDetail`.
+- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `prefix`، `suffix`، `stepper`. وليس له منفذ.
+- من دون `locale` يقرأ حقل الإدخال أقرب خاصية HTML `lang`، ثم لغة المتصفح.
+- إلى جانب فاصلة الإعدادات المحلية، تُقرأ النقطة فاصلةً عشرية حيثما لا تكون النقطة فاصل المجموعات في الإعدادات المحلية.
+- مفتاحا الصفحة يخطوان على شبكة خاصة بهما من عشر خطوات: فبخطوة مقدارها 2 يعطي المفتاح Page Up من العدد 42 العدد 60.
+- على iOS و iPadOS يطلب حقل الإدخال لوحة المفاتيح الكاملة ما دام يمكن أن يُكتب عدد سالب، لأن لوحة الأرقام العشرية هناك ليست فيها علامة الناقص.
+- الخاصيتان `increment-label` و `decrement-label` تُقرآن من كلمات المنتج (`setWords()`) حين تُتركان فارغتين.
+- قبل أن يُعرَّف العنصر لا يكون له حجم. احجز ارتفاع الصندوق.
+
+## الإرشادات
+
+### حقل إدخال العدد، أم حقل العدد، أم حقل باليد
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| تسمية، والصندوق، ومساعدة، وخطأ | [حقل العدد](/ar/components/number-field/) |
+| الصندوق وحده، وتسميته تقف في مكان آخر: بجانب شريط تمرير، خلية في جدول، شريط أدوات | حقل إدخال العدد، يسمّيه `label` الخاصة به |
+| شيء من عندك داخل الإطار، بجانب الصندوق أو تحته | [حقل](/ar/components/field/) فيه حقل إدخال العدد وعنصرك |
+| أرقام ليست كمية: رمز بريدي، رقم بطاقة | [حقل النص](/ar/components/text-field/) |
+| قيمة تُختار بالإحساس ضمن مدى | [شريط التمرير](/ar/components/slider/) |
+
+### افعل
+
+- أعطِ حقل الإدخال المجرَّد `label` بكلمات التسمية المرئية، أو بكلمات تقول ما تقوله التسمية المرئية وموضعها معًا: «الكمية، مكتب من خشب البلوط».
+- أعطِ حقل الإدخال المجرَّد عرضه من مكانه: عمود في شبكة، خلية، عنصر له عرض في شريط أدوات.
+- ضع الوحدة في `suffixText`، وأعطِ `valueText` حيث تُقرأ اللاحقة قراءة سيئة.
+- أعطِ `incrementLabel` و `decrementLabel`، على حقل الإدخال أو مرة واحدة للمنتج كله بالدالة `setWords()`.
+- استخدم حقل العدد حيث يكون ما تحتاج إليه تسمية فوق الصندوق ومساعدة وخطأ.
+
+### لا تفعل
+
+- لا تستخدم حقل إدخال مجرَّدًا في نموذج لتوفّر مكان التسمية. فحقل الإدخال الذي لا تسمية مرئية له في أي مكان تخمين لكل من يراه.
+- لا تستخدم النص النائب تسميةً. فهو يختفي ما إن يكتب أحد، وليس هو الاسم أبدًا.
+- لا تعيّن `label` أو `error` أو `disabled` على حقل إدخال داخل حقل. قلها على الحقل، لتتبعها التسمية والمساعدة.
+- لا تضع حقل عدد داخل حقل. فهو حقل أصلًا؛ وعنصر التحكم الذي يؤطّره الحقل هو حقل إدخال العدد.
+- لا تحفظ عند الحدث `input`. فهو يصدر عند كل ضغطة مفتاح؛ والحدث `change` هو الذي يحمل القيمة المعتمَدة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="number-input" />
+
+### ما يتكفل به المكوّن
+
+- هو زر دوّار (spin button). اسمه `label` الخاصة به، أو تسمية الحقل المحيط به حيث لا تكون له. والنص النائب ليس الاسم أبدًا.
+- قيمته هي العدد المعتمَد، وحدّاه هما `min` و `max`، ونص قيمته هو `valueText` أو العدد مع بادئته ولاحقته.
+- وصفه ما يعطيه حقله: المساعدة أو نص الخطأ. ومجرَّدًا وفيه خطأ إدخال، وصفه هو `invalidText`.
+- يُعرَض للتقنيات المساعدة على أنه غير صالح ما دام في حالة الخطأ أو ما دام نصه ليس عددًا، وعلى أنه مطلوب ما دام حقله يقول ذلك، وعلى أنه للقراءة فقط وعلى أنه معطَّل.
+- زرّا التدرّج زرّان تسمّيهما `decrementLabel` و `incrementLabel`؛ والزر الذي لم يسمِّه أحد مخفيّ عن التقنيات المساعدة. وهما خارج ترتيب التركيز، لأن مفاتيح الأسهم تغيّر العدد من حقل الإدخال؛ ومن يستكشف باللمس يجدهما مع ذلك.
+- الضغط على زر تدرّج لا ينقل التركيز، فلا يُظهر لوحة المفاتيح التي على الشاشة.
+- ما دام أسلوب الإدخال يركّب نصًّا، لا يقرأ حقل الإدخال شيئًا ولا يعالج أي مفتاح. وعجلة الفأرة لا تغيّر العدد أبدًا.
+- يُعرض التركيز بحافة الصندوق نفسها، سواء جاء من لوحة المفاتيح أو من مؤشر. ومساحة اللمس تستوفي الحد الأدنى للهدف، وكل زر تدرّج هدف كامل.
+- النجمة التي بعد التسمية العائمة مخفيّة عن التقنيات المساعدة: فحالة المطلوب تقول ذلك سلفًا.
+- عند تكبير النص إلى 200% تلتفّ التسمية العائمة، والعدد يبقى في سطر واحد ويُمرَّر. وفي الألوان المفروضة (forced colors) يكتسب الصندوق حافة. وفي تخطيط من اليمين إلى اليسار ينعكس زرّا التدرّج والتسمية: يقف زرّا التدرّج عند الطرف الأيسر. والعدد ووحدته يُكتبان كما يكتبهما نظام كتابة الوحدة نفسه: الوحدة المكتوبة بأحرف أو علامات لاتينية بعد العدد، من اليسار إلى اليمين، والوحدة المكتوبة بنظام كتابة الصفحة عن يسار العدد. وما يُقرأ بصوت مسموع لا يتغيّر.
+- غياب الاسم يُبلَّغ عنه في بنيات التنقيح (debug).
+
+فجوات معروفة على الويب:
+
+- يقرأ Chromium العدد بلا وحدته: فهو يأخذ نص القيمة من النص الذي في حقل الإدخال، ويتجاوز النص الذي يسمّيه حقل الإدخال. اذكر الوحدة في التسمية حيث تهمّ.
+- عند تكبير النص إلى 200% في نافذة عرضها 320، يكون حقل الإدخال الذي فيه زرّا التدرّج وبادئة ولاحقة طويلة أعرض من النافذة، لأنه لا يكون أبدًا أضيق مما يحمله. أوقف زرّي التدرّج هناك.
+
+### ما عليك فعله
+
+- سمِّ كل حقل إدخال مجرَّد بالخاصية `label`. فالنص المرئي الذي بجانبه لا يسمّيه.
+- حيث يمكن أن يكون حقل الإدخال المجرَّد خاطئًا، قل ما الخطأ بكلمات تصل إلى التقنيات المساعدة: رسالة من عندك مرتبطة بالصفحة، أو حقل يحيط بحقل الإدخال.
+- اكتب `invalidText` حتى حيث لا يعرضه حقل: فهو يُقرأ مع حقل الإدخال.
+- أعطِ شريط التمرير وحقل إدخال العدد الذي بجانبه الاسم نفسه.

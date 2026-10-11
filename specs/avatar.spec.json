@@ -1,0 +1,838 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "avatar",
+  "title": "Avatar",
+  "summary": "Stands for a person, or for a team or a project, by a small picture, by initials or a glyph where there is no picture, in a round or a square box of three sizes; several are shown as one overlapping group that counts the ones it does not draw. A picture, never a control.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The square box of the avatar's size, clipped to a circle or to a rounded square, with a quiet fill that shows behind the initials, the glyph, a picture that is still loading and the transparent parts of a picture. It carries no state: nothing about it answers a pointer, a press or focus."
+    },
+    {
+      "id": "image",
+      "description": "The picture the product names by its address, filling the box and clipped to its shape. Drawn once it has loaded.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The initials the product gives, drawn at the centre of the box where there is no picture to show. A picture of a name, not text to be read: the name is the avatar's label.",
+      "optional": true
+    },
+    {
+      "id": "icon",
+      "description": "The fallback glyph, at the centre of the box, where there is neither a picture nor initials: the glyph the product names, or the system's own (a person for a circle, a neutral mark for a square).",
+      "optional": true
+    },
+    {
+      "id": "group",
+      "description": "Several avatars drawn as one row in which each lies a little over the one before it, with a gap around each so that two pictures are read as two. The group gives its avatars their size and shape.",
+      "optional": true
+    },
+    {
+      "id": "overflow",
+      "description": "The last box of a group that does not draw all its members: an avatar-sized box in the fallback's colors holding a plus sign and the number of members not drawn.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "default": "",
+      "description": "The address of the picture. Empty, or a picture that has not loaded or cannot be loaded, draws the fallback: initials where the product gave some, otherwise a glyph."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The name of the person or the thing the avatar stands for, in full (\"Ada Lovelace\", \"Design team\"). Not drawn: it is the avatar's accessible name while decorative is false. In the group form it is the group's name (\"Reviewers\")."
+    },
+    {
+      "name": "initials",
+      "type": "string",
+      "default": "",
+      "description": "The one or two characters drawn where there is no picture (\"AL\", \"山\"). The product makes them: which characters stand for a name depends on its writing system and its order, which the avatar cannot know. Never read by assistive technology."
+    },
+    {
+      "name": "decorative",
+      "type": "boolean",
+      "default": false,
+      "description": "True hides the avatar from assistive technology, for an avatar that stands beside the same name in visible text (a byline, a list row, a comment's header), so the name is read once. False, for an avatar that stands alone, exposes it as an image named by label. Ignored for the members of a group."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "Small (24) stands beside one line of text: a byline, a table cell, a mention. Medium (40) is a list row's or a comment's avatar. Large (56) heads a person's own page or card. A group gives its size to every member. A design system may add values.",
+      "axis": "tanrei.comp.avatar.size"
+    },
+    {
+      "name": "shape",
+      "type": "enum",
+      "values": [
+        "circle",
+        "square"
+      ],
+      "default": "circle",
+      "description": "Circle is a person. Square, a rounded square, is something that is not one person: a team, a project, an organisation, a bot. A group gives its shape to every member. A design system may add values.",
+      "axis": "tanrei.comp.avatar.shape"
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 0,
+      "description": "Group form only. The most boxes the group draws, the overflow box included; 0 draws every member. A whole number of 2 or more: with more members than this, the group draws one fewer member than max and then the overflow box."
+    },
+    {
+      "name": "total",
+      "type": "number",
+      "default": null,
+      "description": "Group form only. How many members there are, where the product gives the group fewer than exist (the first five of a team of two hundred). Null counts the members given."
+    },
+    {
+      "name": "overflowLabel",
+      "type": "string",
+      "default": "",
+      "description": "Group form only. What assistive technology reads for the overflow box, in the product's language and with the number in it (\"and 12 more\"). Empty reads the drawn text (\"+12\")."
+    }
+  ],
+  "items": [
+    {
+      "name": "member",
+      "summary": "One avatar of a group: an avatar with its own picture, name, initials and glyph, drawn at the group's size and shape.",
+      "component": "avatar",
+      "props": [
+        {
+          "name": "src",
+          "type": "string",
+          "default": "",
+          "description": "The address of the member's picture."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The member's name. Always exposed in a group: the names are what the group says."
+        },
+        {
+          "name": "initials",
+          "type": "string",
+          "default": "",
+          "description": "The member's initials, drawn where there is no picture."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "description": "The fallback glyph: a glyph of the system's icon set, by name, drawn through the platform's icon helper where there is neither a picture nor initials. Empty draws the system's own fallback glyph.",
+      "fixture": "glyph"
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "AVT-1",
+      "text": "THE avatar SHALL draw a square box whose side is the container size of its size (comp.avatar.container.size.small for small, comp.avatar.container.size.medium for medium, comp.avatar.container.size.large for large), with the corners of its shape (comp.avatar.container.shape.circle for circle, comp.avatar.container.shape.square for square), never larger than half the box's side (a circle where the value is sys.shape.corner.full) and eased by sys.shape.corner-smoothing, filled with comp.avatar.container.color, and SHALL clip everything it draws to that shape. THE avatar SHALL lay itself out inline with the text or the row it is placed in, as one unbreakable box that the layout neither stretches nor shrinks, and SHALL draw no edge and no elevation.",
+      "verify": "Under the default system a medium avatar is 40 by 40 and a circle; a small one 24 and a large one 56; a square one has corners of 6. In a flex row narrower than its content the avatar keeps its side."
+    },
+    {
+      "id": "AVT-2",
+      "text": "THE avatar SHALL draw exactly one of three things at the centre of its box, the first of these that it has: the picture src names, once that picture has loaded (AVT-3, AVT-4); else initials, where initials is not empty (AVT-5); else a glyph (AVT-6). THE avatar SHALL never draw an empty box, a broken-picture mark or the picture's address, and SHALL NOT make initials out of label."
+    },
+    {
+      "id": "AVT-3",
+      "text": "WHILE the picture of src has loaded THE avatar SHALL draw it over the whole box, scaled so that it covers the box with its proportions kept and its centre on the box's centre, clipped to the box's shape, over comp.avatar.container.color (which shows through the picture's transparent parts), and SHALL draw neither initials nor a glyph. THE avatar SHALL NOT mirror, tint or otherwise change the picture in any layout direction or scheme.",
+      "verify": "A picture twice as wide as it is high shows its middle square; a picture with a transparent background shows the container color behind it."
+    },
+    {
+      "id": "AVT-4",
+      "text": "WHILE src is not empty and its picture has not yet loaded THE avatar SHALL draw its fallback (AVT-2) in the box, at the avatar's full size, so that nothing changes place when the picture arrives; WHEN the picture has loaded THE avatar SHALL draw it in the fallback's place at once, without a motion; IF the picture cannot be loaded THE avatar SHALL keep the fallback, SHALL NOT ask for the picture again by itself, and in debug builds SHALL report the address that failed. WHEN src changes THE avatar SHALL draw the fallback until the new picture has loaded. WHILE src is empty THE avatar SHALL ask for nothing.",
+      "verify": "The fixture image-failed names a picture that does not exist and draws its initials. A test delays a picture's response and reads the initials before it arrives and the picture after, with the box's place and size unchanged."
+    },
+    {
+      "id": "AVT-5",
+      "text": "WHERE the avatar draws initials THE avatar SHALL set them on one line at the centre of the box, in the text style of its size (comp.avatar.label.typescale.small for small, comp.avatar.label.typescale.medium for medium, comp.avatar.label.typescale.large for large) and in comp.avatar.label.color, as the product wrote them: it SHALL NOT change their case, and SHALL draw no more than the first two characters as a reader counts them (grapheme clusters), reporting in debug builds a value that is longer. THE avatar SHALL lay the initials out as text of their own direction, isolated from the text around the avatar, and SHALL keep them from assistive technology.",
+      "verify": "The fixture initials draws AL; initials-cjk draws one character; a test gives initials of four letters and reads two in the box and one debug report."
+    },
+    {
+      "id": "AVT-6",
+      "text": "WHERE the avatar draws a glyph THE avatar SHALL draw the glyph of its icon slot, or, where the slot is empty, the system's fallback glyph for its shape (person for circle, category for square), in a box of the icon size of its size (comp.avatar.icon.size.small for small, comp.avatar.icon.size.medium for medium, comp.avatar.icon.size.large for large) at the centre of the avatar, in comp.avatar.icon.color, with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL keep it from assistive technology."
+    },
+    {
+      "id": "AVT-7",
+      "text": "THE avatar SHALL NOT take pointer, touch or keyboard input, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything it draws under a pointer, a press or focus: it has no hovered, focused, pressed, selected or disabled state, draws no state layer, no ripple and no focus indicator, and emits no event."
+    },
+    {
+      "id": "AVT-8",
+      "text": "WHERE the avatar is placed inside an element that takes input (a link, a Button, a list item, a chip, a card that is pressed as a whole) THE avatar SHALL let input over it reach that element, SHALL stay as it is drawn while that element is hovered, focused or pressed (the state and the focus indicator are drawn by that element, on its own container), and SHALL NOT become a second target inside it; WHILE decorative is false THE avatar SHALL add its label to that element's content in reading order, so that a link or a Button that holds an avatar and nothing else is named by the avatar's label. An avatar that leads somewhere or opens something is that composition: the avatar has no destination and no action of its own.",
+      "verify": "A test wraps an avatar labelled Ada Lovelace in a link with no other content: the link's accessible name is Ada Lovelace, a click on the avatar follows the link, and the avatar's pixels do not change on hover."
+    },
+    {
+      "id": "AVT-9",
+      "text": "WHILE decorative is false and label is not empty THE avatar SHALL be exposed to assistive technology as one image named by label, whether it draws a picture, initials or a glyph, and SHALL expose nothing else: not the initials, not the glyph's name, not the picture's address, and not its size or shape. WHILE decorative is true THE avatar SHALL expose nothing. IF decorative is false and label is empty THE avatar SHALL expose nothing and in debug builds report that an avatar has no name."
+    },
+    {
+      "id": "AVT-10",
+      "text": "WHEN label, initials, the icon slot's glyph, size or shape changes THE avatar SHALL draw and expose the new value at once, without a motion, and SHALL NOT announce the change by itself."
+    },
+    {
+      "id": "AVT-11",
+      "text": "WHILE the text size is enlarged THE avatar SHALL keep its box at the container size of its size, and its initials and its glyph at the sizes of AVT-5 and AVT-6: an avatar is a picture and is enlarged with the page, not with the text, as a glyph's box is."
+    },
+    {
+      "id": "AVT-12",
+      "text": "WHERE the avatar is the anchor of a badge THE avatar SHALL be drawn exactly as it is without one: its square box is the anchor's bounds, the badge is placed by that box's top-end corner and drawn outside the avatar's clip (BDG-1, BDG-3, BDG-7), and the badge's label is added to the avatar's description after its name (BDG-8). THE avatar SHALL have no dot, count or status of its own.",
+      "verify": "A test wraps a medium avatar in a badge with no count: the dot's centre is where BDG-1 places it for a 40 by 40 anchor, the dot is whole, and the accessibility tree reads the avatar's label and then the badge's."
+    },
+    {
+      "id": "AVT-13",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE avatar SHALL draw an edge sys.border.hairline wide in the platform's text color inside its box, following its shape, and its initials or its glyph in that text color, so that a fallback whose fill the mode removes is still a bounded mark; THE avatar SHALL leave a picture's own colors as they are.",
+      "verify": "On the web, with forced colors emulated: the fixtures initials and icon have a CanvasText edge and CanvasText content; the fixture image keeps its picture's colors."
+    },
+    {
+      "id": "AVT-14",
+      "text": "THE avatar SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the avatar is shown THE avatar SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows. A single avatar is the same in both directions but for its glyph (AVT-15): its picture is never mirrored and its initials keep their own order (AVT-5).",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "AVT-15",
+      "text": "WHERE the layout direction is right-to-left THE avatar SHALL draw the glyph of its icon slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place nor its size, color and fill. THE avatar SHALL NOT mirror a glyph itself, and SHALL NOT mirror its picture or its initials."
+    },
+    {
+      "id": "AVT-16",
+      "text": "WHERE the avatar is given members THE avatar SHALL be a group: it SHALL draw its members in one row that does not wrap, in the order they are given from the start edge, each as an avatar of the group's size and shape with that member's own picture, initials or glyph (AVT-2 to AVT-6), and SHALL ignore its own src, initials, icon slot and decorative. Each box after the first SHALL lie over the end of the one before it by the overlap of the group's size (comp.avatar.group.overlap.small for small, comp.avatar.group.overlap.medium for medium, comp.avatar.group.overlap.large for large) and be drawn above it, and every box SHALL be surrounded, outside its own edge and following its shape, by a gap comp.avatar.group.outline.width wide in comp.avatar.group.outline.color that takes no room in the layout. THE group SHALL be as wide as its boxes less their overlaps, and as high as one box.",
+      "verify": "Under the default system three medium members are 40 + 30 + 30 = 100 wide; the second member covers the last 10 of the first, with 2 of the surface's color between the two pictures."
+    },
+    {
+      "id": "AVT-17",
+      "text": "WHILE the group has more members than max and max is 2 or more THE group SHALL draw the first max less one members and then, as its last box, an overflow box: a box of the group's size and shape filled with comp.avatar.container.color, placed and surrounded as a member is (AVT-16), holding on one line, in the label style of the group's size (AVT-5) and comp.avatar.label.color, a plus sign followed by the number of members not drawn. WHILE max is 0, or the group has no more members than max, THE group SHALL draw every member and no overflow box, unless total says more exist (AVT-18). THE overflow box SHALL take no input and SHALL NOT be a control: showing the members it counts is the product's, beside the group.",
+      "verify": "The fixture group-max gives six members and max 4: three members and a box reading +3. A group of four members with max 4 draws four members and no box."
+    },
+    {
+      "id": "AVT-18",
+      "text": "WHILE total is greater than the number of members the group is given THE group SHALL count as not drawn every member up to total, and SHALL draw the overflow box with that number after the members it draws: where the members given fit within max less one, or max is 0, all of them are drawn before it. THE group SHALL write the number in the current locale's digits with no grouping separator, SHALL draw 999 followed by a plus sign in place of a number above 999, and SHALL lay the sign and the number out as one left-to-right run isolated from the text around it, so that the plus sign stays before the digits in a right-to-left layout.",
+      "verify": "The fixture group-total gives three members, max 4 and total 240: three members and a box reading +237."
+    },
+    {
+      "id": "AVT-19",
+      "text": "THE group SHALL be exposed to assistive technology as one group named by its label, holding in order one image for each member it draws, each named by that member's label whatever decorative says, and then, where it draws an overflow box, one text: overflowLabel where it is not empty, else the drawn text. THE gaps SHALL be kept from assistive technology. IF the group's label is empty THE group SHALL expose its members without a group's name and in debug builds report that a group has no name; IF a member's label is empty THE group SHALL expose nothing for that member and in debug builds report it.",
+      "verify": "The fixture group-max is read as: group Reviewers; image Ada Lovelace; image Grace Hopper; image Katherine Johnson; and 3 more."
+    },
+    {
+      "id": "AVT-20",
+      "text": "WHERE the layout direction is right-to-left THE group SHALL lay its row out from the right: the first member is at the right, each following box lies over the left end of the one before it and above it, and the overflow box is the leftmost; the order assistive technology reads SHALL stay the order given.",
+      "verify": "The fixture group-max-rtl draws the first member at the right and +3 at the left."
+    },
+    {
+      "id": "AVT-21",
+      "text": "WHEN the group's members, max, total, size or shape change THE group SHALL draw and expose the new row at once, without a motion, and SHALL NOT announce the change by itself."
+    },
+    {
+      "id": "AVT-22",
+      "text": "WHEN size or shape names a value that the active design system does not have THE avatar SHALL render with the default value's tokens, and in debug builds report the unknown value. IF max is 1, negative or not a whole number THE group SHALL draw as for 0 and in debug builds report it; IF total is not null and is less than the number of members given, negative or not a whole number THE group SHALL count the members given and in debug builds report it."
+    },
+    {
+      "id": "AVT-23",
+      "text": "IF the avatar is a group and every member has been removed THE group SHALL draw nothing, take no space and expose nothing. IF max, total or overflowLabel is set on an avatar that has no members THE avatar SHALL ignore it and in debug builds report it."
+    }
+  ],
+  "accessibility": {
+    "role": "img",
+    "keyboard": [],
+    "labeling": "An avatar that stands alone is an image named by label, the full name of the person or the thing, whatever it draws; the initials, the glyph and the picture's address are never read. An avatar beside the same name in visible text is decorative and hidden. A group is a group named by its label, holding one named image for each member it draws and, last, the overflow's text (overflowLabel, or the drawn count). Inside a link or a Button, the avatar's label is part of that element's name.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the avatar takes no input and no focus (AVT-7), so there is no target to size and minimumTarget holds trivially. An avatar that is pressed is inside a link or a Button, and that element meets the minimum target by its own spec; a small (24) avatar alone in a link needs the link's target, not its own box, to be large enough.",
+      "Decorative or named is the product's decision and cannot be seen from the avatar: beside \"Ada Lovelace\" in text a named avatar would be read as \"Ada Lovelace, image, Ada Lovelace\". The rule the docs page gives: if deleting the avatar loses a name, it is named; otherwise it is decorative.",
+      "The name is the name, not a description of the picture: \"Ada Lovelace\", never \"Photo of Ada Lovelace\" and never the initials.",
+      "Contrast in the default system: the initials, the count and the glyph are on-surface-variant on surface-container-highest, a pair the token invariants hold to 4.5:1 for secondary content on every surface tone. The fill against the surface around it is not held to a ratio: the avatar is not a control, and what it says is its name.",
+      "A picture brings its own colors, which the avatar does not check. A picture with a pale edge on a pale surface loses its outline; the avatar draws no ring around a picture, so a product whose pictures are often pale chooses the square or gives the surface behind them a tone.",
+      "A badge on an avatar (AVT-12) says that something is waiting, in the badge's one color and with the badge's label in words. Presence (online, away, busy) is a status that a color alone would carry; say it in words beside the name, with a tag where it needs a mark.",
+      "Forced colors (AVT-13): every fallback gains an edge in the text color; pictures are left alone.",
+      "A group's overflow box is text, not a control. Where the people it counts matter (who else can see this), the product lists them: a link or a Button beside the group that opens the full list."
+    ]
+  },
+  "tokens": "comp.avatar",
+  "fixtures": [
+    {
+      "id": "initials",
+      "props": {
+        "label": "Ada Lovelace",
+        "initials": "AL"
+      }
+    },
+    {
+      "id": "initials-small",
+      "props": {
+        "label": "Ada Lovelace",
+        "initials": "AL",
+        "size": "small"
+      }
+    },
+    {
+      "id": "initials-large",
+      "props": {
+        "label": "Ada Lovelace",
+        "initials": "AL",
+        "size": "large"
+      }
+    },
+    {
+      "id": "initials-cjk",
+      "props": {
+        "label": "山田 花子",
+        "initials": "山"
+      }
+    },
+    {
+      "id": "glyph",
+      "props": {
+        "label": "Someone without a picture"
+      }
+    },
+    {
+      "id": "glyph-small",
+      "props": {
+        "label": "Someone without a picture",
+        "size": "small"
+      }
+    },
+    {
+      "id": "glyph-large",
+      "props": {
+        "label": "Someone without a picture",
+        "size": "large"
+      }
+    },
+    {
+      "id": "icon",
+      "props": {
+        "label": "Build service"
+      },
+      "slots": {
+        "icon": "smart_toy"
+      }
+    },
+    {
+      "id": "square",
+      "props": {
+        "label": "Design team",
+        "initials": "DT",
+        "shape": "square"
+      }
+    },
+    {
+      "id": "square-glyph",
+      "props": {
+        "label": "A project",
+        "shape": "square"
+      }
+    },
+    {
+      "id": "square-small",
+      "props": {
+        "label": "Design team",
+        "initials": "DT",
+        "shape": "square",
+        "size": "small"
+      }
+    },
+    {
+      "id": "square-large",
+      "props": {
+        "label": "Design team",
+        "initials": "DT",
+        "shape": "square",
+        "size": "large"
+      }
+    },
+    {
+      "id": "image",
+      "props": {
+        "label": "Ada Lovelace",
+        "initials": "AL",
+        "src": "fixtures/avatar.png"
+      }
+    },
+    {
+      "id": "image-square",
+      "props": {
+        "label": "Design team",
+        "initials": "DT",
+        "shape": "square",
+        "src": "fixtures/avatar.png"
+      }
+    },
+    {
+      "id": "image-failed",
+      "props": {
+        "label": "Ada Lovelace",
+        "initials": "AL",
+        "src": "fixtures/missing.png"
+      }
+    },
+    {
+      "id": "decorative",
+      "props": {
+        "label": "Ada Lovelace",
+        "initials": "AL",
+        "decorative": true,
+        "size": "small"
+      }
+    },
+    {
+      "id": "icon-rtl",
+      "props": {
+        "label": "خدمة المساعدة"
+      },
+      "slots": {
+        "icon": "help"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "initials-rtl",
+      "props": {
+        "label": "ليلى حسن",
+        "initials": "لح"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "group",
+      "props": {
+        "label": "Authors"
+      },
+      "items": [
+        {
+          "kind": "member",
+          "props": {
+            "label": "Ada Lovelace",
+            "initials": "AL"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Grace Hopper",
+            "initials": "GH"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Katherine Johnson",
+            "initials": "KJ"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-max",
+      "props": {
+        "label": "Reviewers",
+        "max": 4,
+        "overflowLabel": "and 3 more"
+      },
+      "items": [
+        {
+          "kind": "member",
+          "props": {
+            "label": "Ada Lovelace",
+            "initials": "AL"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Grace Hopper",
+            "initials": "GH"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Katherine Johnson",
+            "initials": "KJ"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Hedy Lamarr",
+            "initials": "HL"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Annie Easley",
+            "initials": "AE"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Mary Jackson",
+            "initials": "MJ"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-total",
+      "props": {
+        "label": "Members",
+        "max": 4,
+        "total": 240,
+        "overflowLabel": "and 237 more"
+      },
+      "items": [
+        {
+          "kind": "member",
+          "props": {
+            "label": "Ada Lovelace",
+            "initials": "AL"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Grace Hopper"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Katherine Johnson",
+            "initials": "KJ"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-small",
+      "props": {
+        "label": "Authors",
+        "size": "small"
+      },
+      "items": [
+        {
+          "kind": "member",
+          "props": {
+            "label": "Ada Lovelace",
+            "initials": "AL"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Grace Hopper",
+            "initials": "GH"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-large",
+      "props": {
+        "label": "Authors",
+        "size": "large",
+        "max": 3,
+        "overflowLabel": "and 2 more"
+      },
+      "items": [
+        {
+          "kind": "member",
+          "props": {
+            "label": "Ada Lovelace",
+            "initials": "AL"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Grace Hopper",
+            "initials": "GH"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Katherine Johnson",
+            "initials": "KJ"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Hedy Lamarr",
+            "initials": "HL"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-square",
+      "props": {
+        "label": "Teams",
+        "shape": "square"
+      },
+      "items": [
+        {
+          "kind": "member",
+          "props": {
+            "label": "Design team",
+            "initials": "DT"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Platform team",
+            "initials": "PT"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Docs team"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-image",
+      "props": {
+        "label": "Authors"
+      },
+      "items": [
+        {
+          "kind": "member",
+          "props": {
+            "label": "Ada Lovelace",
+            "initials": "AL",
+            "src": "fixtures/avatar.png"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Grace Hopper",
+            "initials": "GH",
+            "src": "fixtures/avatar.png"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Katherine Johnson",
+            "initials": "KJ"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-max-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "المراجعون",
+        "max": 4,
+        "overflowLabel": "و٣ آخرون"
+      },
+      "items": [
+        {
+          "kind": "member",
+          "props": {
+            "label": "ليلى حسن",
+            "initials": "لح"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Ada Lovelace",
+            "initials": "AL"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "عمر خالد",
+            "initials": "عخ"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Grace Hopper",
+            "initials": "GH"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Katherine Johnson",
+            "initials": "KJ"
+          }
+        },
+        {
+          "kind": "member",
+          "props": {
+            "label": "Hedy Lamarr",
+            "initials": "HL"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-avatar",
+      "props": {
+        "src": "src",
+        "label": "label",
+        "initials": "initials",
+        "decorative": "decorative",
+        "size": "size",
+        "shape": "shape",
+        "max": "max",
+        "total": "total",
+        "overflowLabel": "overflowLabel"
+      },
+      "items": {
+        "member": {
+          "name": "tanrei-avatar",
+          "props": {
+            "src": "src",
+            "label": "label",
+            "initials": "initials"
+          },
+          "notes": "A `<tanrei-avatar>` child of `<tanrei-avatar-group>`, with all of an avatar's own attributes and its `icon` slot. The group sets the member's size and shape and makes it named."
+        }
+      },
+      "notes": "Two elements: `<tanrei-avatar src label initials size shape decorative>` with the fallback glyph in its `icon` slot, and the group form as `<tanrei-avatar-group label max total overflow-label size shape>` whose light-DOM children are the `<tanrei-avatar>` members (the spec's group props are the group element's attributes; `overflowLabel` is reflected as `overflow-label`). The avatar's host is `display: inline-block`, `flex: none`, `vertical-align: middle`, with `role=\"img\"` and `aria-label` while it is named and `aria-hidden=\"true\"` while decorative, set through ElementInternals where axe can see it and as attributes otherwise; no `tabindex`, no listeners, and `pointer-events` left as they are, so a press over an avatar inside a link or a Button reaches that element (AVT-8). The picture is an `<img alt=\"\" decoding=\"async\">` in the shadow root with `object-fit: cover`, kept `hidden` until its `load` and removed on `error` (AVT-4); `loading`, `referrerpolicy` and `crossorigin` are forwarded to it and mean nothing off the web. Initials are one `dir=\"auto\"` run cut to two grapheme clusters with `Intl.Segmenter` (AVT-5). **Before the element is defined** the stylesheet of `@tanrei/web` gives `tanrei-avatar:not(:defined)` the box of its `size` and `shape` attributes in the container color and hides its children, so a page of avatars does not move when the script arrives; no picture, initials or name show until then, which is why a byline writes the name as text beside a decorative avatar. `tanrei-avatar-group:not(:defined)` is an inline flex row of those boxes. The group is `role=\"group\"` with `aria-label`; it sets `size`, `shape` and the named state on its members, hides the members past the limit with `hidden` (they stay in the document), and draws the overflow box in its own shadow root as `aria-hidden` text beside a visually hidden run that carries `overflow-label` (AVT-19). The gap of AVT-16 is an `outline` (or a `box-shadow` spread) in `--tanrei-comp-avatar-group-outline-color`, never a border, so it takes no room; later members are above earlier ones by document order, which needs no `z-index`. Under `forced-colors: active` the box takes a `CanvasText` border and the `<img>` keeps `forced-color-adjust: none` (AVT-13). A badge on an avatar is `<tanrei-badge label=\"3 unread\"><tanrei-avatar …></tanrei-avatar></tanrei-badge>`; a link is `<tanrei-link href=\"…\"><tanrei-avatar label=\"Ada Lovelace\" …></tanrei-avatar></tanrei-link>` or a plain anchor."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiAvatar",
+      "props": {
+        "src": "url",
+        "label": "name",
+        "initials": "initials",
+        "decorative": "isDecorative",
+        "size": "size",
+        "shape": "shape",
+        "max": "max",
+        "total": "total",
+        "overflowLabel": "overflowLabel"
+      },
+      "items": {
+        "member": {
+          "name": "TanreiAvatar",
+          "props": {
+            "src": "url",
+            "label": "name",
+            "initials": "initials"
+          },
+          "notes": "A `TanreiAvatar` in the group's builder."
+        }
+      },
+      "notes": "`TanreiAvatar(_ name: String, url: URL?, initials:, icon:, size:, shape:, isDecorative:)`, the fallback glyph given by name through `icon:`; the picture through `AsyncImage`, whose placeholder and failure phases both draw the fallback. The group form is `TanreiAvatarGroup(_ name: String, max:, total:, overflowLabel:, size:, shape:) { TanreiAvatar(…) … }`, which carries the spec's group props. Not a `Button`; `allowsHitTesting(false)` so a press reaches a `Link`, a `Button` or a row that holds it. One accessibility element with the image trait and the name as its label, or hidden while decorative; the group is `accessibilityElement(children: .contain)` with the group's label."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiAvatar",
+      "props": {
+        "src": "model",
+        "label": "name",
+        "initials": "initials",
+        "decorative": "decorative",
+        "size": "size",
+        "shape": "shape",
+        "max": "max",
+        "total": "total",
+        "overflowLabel": "overflowDescription"
+      },
+      "items": {
+        "member": {
+          "name": "TanreiAvatar",
+          "props": {
+            "src": "model",
+            "label": "name",
+            "initials": "initials"
+          },
+          "notes": "A `TanreiAvatar` call in the group's content."
+        }
+      },
+      "notes": "`TanreiAvatar(name, model, initials, icon, size, shape, decorative)`, the fallback glyph given by name through `icon`. The package keeps no image-loading dependency: `model` is handed to a painter the app provides through a composition local, and a painter that reports loading or failure draws the fallback (the same arrangement the chip's avatar needs; the platform's agent settles it). The group form is `TanreiAvatarGroup(name, max, total, overflowDescription, size, shape) { TanreiAvatar(…) … }`. No `clickable` and no `focusable` modifier; semantics are `Role.Image` with the name as `contentDescription`, cleared while decorative; the group is a semantics node with the group's name that contains its members."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiAvatar",
+      "props": {
+        "src": "image",
+        "label": "name",
+        "initials": "initials",
+        "decorative": "decorative",
+        "size": "size",
+        "shape": "shape",
+        "max": "max",
+        "total": "total",
+        "overflowLabel": "overflowSemanticLabel"
+      },
+      "items": {
+        "member": {
+          "name": "TanreiAvatar",
+          "props": {
+            "src": "image",
+            "label": "name",
+            "initials": "initials"
+          },
+          "notes": "A `TanreiAvatar` in the group's `children`."
+        }
+      },
+      "notes": "`TanreiAvatar(name: …, image: ImageProvider?, initials:, icon:, size:, shape:, decorative:)`, the fallback glyph given by name through `icon`; the picture through `Image(image:, frameBuilder:, errorBuilder:)`, both builders drawing the fallback. The group form is `TanreiAvatarGroup(name: …, max:, total:, overflowSemanticLabel:, size:, shape:, children: [TanreiAvatar(…), …])`. Wrapped in `IgnorePointer`, with no `Focus`. `Semantics(image: true, label: name)` over the drawn parts, which are excluded, or `ExcludeSemantics` while decorative; the group is `Semantics(container: true, label: name)`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Avatar",
+      "props": {
+        "src": "source",
+        "label": "name",
+        "initials": "initials",
+        "decorative": "decorative",
+        "size": "size",
+        "shape": "shape",
+        "max": "max",
+        "total": "total",
+        "overflowLabel": "overflowAccessibilityLabel"
+      },
+      "items": {
+        "member": {
+          "name": "Avatar",
+          "props": {
+            "src": "source",
+            "label": "name",
+            "initials": "initials"
+          },
+          "notes": "An `<Avatar>` child of `<AvatarGroup>`."
+        }
+      },
+      "notes": "`<Avatar name=\"Ada Lovelace\" source={{ uri }} initials=\"AL\" />`; the fallback glyph is the `icon` prop (a glyph name). The picture is an `Image` whose `onLoad` shows it and whose `onError` keeps the fallback. The group form is `<AvatarGroup name=\"Reviewers\" max={4} total={…} overflowAccessibilityLabel=\"…\">` with `<Avatar>` children. `pointerEvents=\"none\"` and not `focusable`. One accessible element with `accessibilityRole=\"image\"` and the name as `accessibilityLabel`, or `accessible={false}` with `importantForAccessibility=\"no-hide-descendants\"` while decorative. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

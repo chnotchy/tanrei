@@ -1,0 +1,174 @@
+---
+title: Pasos
+description: Un procedimiento presentado como pasos numerados, cada uno con un anillo que lleva su número, un título opcional y un cuerpo con tu contenido, unido al siguiente por una línea fina. Es una lista ordenada para leer, nunca un control ni un registro del progreso.
+translationOf: components/steps.mdx
+sourceHash: c8264baa77c44eb546180291656f27740ecb7537
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="steps" />
+
+<DemoFrame label="Títulos y cuerpos" column>
+  <ol class="tanrei-steps" role="list" aria-label="El flujo de trabajo" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><p class="tanrei-steps-title">Proponer</p><p>Escribe o cambia la especificación, y los tokens donde el cambio los necesite.</p></li>
+    <li><p class="tanrei-steps-title">Validar</p><p>Comprueba los esquemas, las reglas de los tokens y el contraste de todos los esquemas de color.</p></li>
+    <li><p class="tanrei-steps-title">Generar</p><p>Regenera las salidas de los tokens, los andamiajes de código y la matriz de estado.</p></li>
+  </ol>
+</DemoFrame>
+
+Hay tres cosas que se parecen y no son lo mismo:
+
+| Tipo | Qué es | Tiene estados | Qué dice |
+| --- | --- | --- | --- |
+| **Una lista ordenada** (prosa) | Elementos en un orden, cada uno una expresión o una frase | No | «Estos, en este orden» |
+| **Unos pasos** | Un procedimiento que se lee y se lleva a cabo en otro lugar | No | «Haz esto y luego esto» |
+| **Un indicador de pasos** (stepper) | En qué punto está una persona de un flujo que dirige el producto | Sí | «Estás aquí» |
+
+Los pasos no tienen un paso actual, completado ni fallido, y un marcador no es un control. Un proceso de compra o un asistente de configuración necesitan un indicador de pasos, que Tanrei todavía no tiene.
+
+### Uso
+
+En la web los pasos son una clase en tu propia lista ordenada, no un elemento. La lista es la del documento antes de que se ejecute ningún script, al `<ol>` de un renderizador de Markdown le basta una clase y no necesita envoltorio, y sin la hoja de estilos es la lista numerada del navegador.
+
+SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos. React tampoco tiene aún un componente `Steps`, así que usa la lista con la clase.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/steps.css" />
+
+    <!-- Entre controles: un panel, un diálogo, una tarjeta. -->
+    <ol class="tanrei-steps" role="list">
+      <li>Guarda el archivo en la carpeta que contiene los ajustes del proyecto.</li>
+      <li>Indica el nombre del archivo en los ajustes.</li>
+      <li>Ejecuta la compilación y confirma lo que escribe.</li>
+    </ol>
+
+    <!-- En una página de lectura, con títulos, como continuación de un conjunto anterior. -->
+    <ol class="tanrei-steps" role="list" data-size="large" start="4" aria-label="El flujo de trabajo, continuación">
+      <li>
+        <p class="tanrei-steps-title">Implementar</p>
+        <p>Construye el cambio en cada plataforma que enumera la especificación.</p>
+      </li>
+      <li>
+        <!-- Un título que es un encabezado de la página: conserva su rol y su nivel. -->
+        <h3 id="check">Comprobar</h3>
+        <p>Ejecuta todas las comprobaciones en orden.</p>
+        <pre><code>pnpm check</code></pre>
+      </li>
+    </ol>
+
+    <script type="module">
+      // Opcional: la columna de un conjunto con números de tres cifras, la renumeración cuando `start` cambia
+      // en tiempo de ejecución y los informes de depuración. `@tanrei/web` también lo carga.
+      import '@tanrei/web/steps';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/steps.css';
+
+    <ol className="tanrei-steps" role="list" data-size="large">
+      <li>
+        <p className="tanrei-steps-title">Instalar</p>
+        <p>Añade el paquete al proyecto.</p>
+      </li>
+    </ol>
+    ```
+  </TabItem>
+</Tabs>
+
+| Propiedad | En la web |
+| --- | --- |
+| `label` | `aria-label` (o `aria-labelledby` con el encabezado que precede a la lista) |
+| `start` | el `start` de la propia lista |
+| `size: large` | `data-size="large"` |
+| un paso | `<li>` |
+| el `title` de un paso | el primer hijo del elemento de lista con `class="tanrei-steps-title"` (un `<p>`) |
+| el slot del título | un encabezado (de `h2` a `h6`) como primer hijo del elemento de lista |
+
+Escribe `role="list"` en la lista: un motor de navegador retira la semántica de lista de una lista a la que se le quitan los marcadores.
+
+## Especificaciones
+
+<DemoFrame label="Una línea cada uno, y un conjunto que continúa" plain column>
+  <ol class="tanrei-steps" role="list" aria-label="Qué hacer a continuación" style="inline-size: 100%; max-inline-size: 28rem">
+    <li>Guarda el archivo en la carpeta que contiene los ajustes del proyecto.</li>
+    <li>Indica el nombre del archivo en los ajustes, en la clave de la capa de diseño.</li>
+    <li>Ejecuta la compilación y confirma lo que escribe.</li>
+  </ol>
+  <ol class="tanrei-steps" role="list" start="9" aria-label="Continuación" style="inline-size: 100%; max-inline-size: 28rem">
+    <li>El nueve conserva el círculo.</li>
+    <li>El diez también.</li>
+    <li>Y el once: los tres empiezan en el mismo borde.</li>
+  </ol>
+</DemoFrame>
+
+<DemoFrame label="Large, con un bloque en un cuerpo" plain column>
+  <ol class="tanrei-steps" role="list" data-size="large" aria-label="Uso" style="inline-size: 100%; max-inline-size: 32rem">
+    <li><p>Añade el paquete al proyecto.</p><tanrei-code-block label="Comando de instalación"><pre><code>npm install @tanrei/web</code></pre></tanrei-code-block></li>
+    <li><p>Carga la hoja de estilos una sola vez, antes que cualquier otro estilo de la página.</p></li>
+  </ol>
+</DemoFrame>
+
+- **El marcador** es un anillo dibujado con la línea fina del sistema que lleva el número del paso; mide 24 de lado a lado en medium y 28 en large. Con una o dos cifras sigue siendo un círculo; un número más largo lo ensancha hasta convertirlo en una píldora, y el contenido de todos los pasos sigue empezando en el mismo borde.
+- **El conector** va de cada anillo al siguiente y se detiene antes de tocar ninguno de los dos. El último paso no tiene.
+- **El título** es opcional. Es texto de su paso y no un encabezado, salvo que des un encabezado como primer hijo del elemento de lista: entonces se dibuja como cualquier título y conserva su rol y su nivel, de modo que el paso figura en el esquema de la página.
+- **El cuerpo** es tu contenido. Dos bloques quedan a 8 uno de otro, y dos pasos a 16. Un bloque que no es texto (un bloque de código, una tabla, unas pestañas, un callout) ocupa toda la anchura del cuerpo.
+- **Los tamaños** son los dos de la prosa: medium entre controles, large en una página cuya finalidad es el texto. Los pasos que están dentro de una prosa reciben el tamaño de esa prosa.
+- **Los colores**: el número, el título y el cuerpo toman el color de contenido de la superficie sobre la que están los pasos. El anillo y el conector se dibujan los dos en el color de la única línea fina del sistema. Nada tiene relleno.
+
+<ComponentSpecs name="steps" />
+
+### En la prosa
+
+Dentro de `.tanrei-prose` los pasos no son una isla: los párrafos, las listas, los enlaces y el código en línea de cada paso siguen siendo los de la prosa. Los pasos ocupan toda la anchura de la prosa, así que un bloque de código dentro de un paso ocupa la columna, y los párrafos de un paso siguen deteniéndose en la medida. Una lista dentro de un paso se marca con letras (si es ordenada) o con anillos (si no lo es), de modo que los subpasos nunca repiten los números de los pasos. `@tanrei/web/prose.css` incluye las reglas de los pasos, así que una página de prosa no necesita una segunda hoja de estilos.
+
+### Qué dibuja la web de otra manera
+
+- Con un título, escribe el cuerpo en elementos (`<p>`): al texto escrito directamente después de un título no se le puede dar la separación que va debajo de este.
+- En una prosa que mantiene una medida, un paso que es solo texto se limita a la medida. El texto escrito directamente en un paso que además contiene bloques no: escríbelo en un `<p>`.
+- Un paso que empieza con un bloque de código o una imagen tiene la parte superior de su marcador a la altura de la parte superior de ese bloque. La hoja de estilos no ve el texto escrito directamente antes de un bloque así (un elemento compacto de Markdown): escríbelo en un `<p>`.
+- Un número de tres cifras o más ensancha su marcador hasta convertirlo en una píldora. La columna de marcadores de todo el conjunto solo lo acompaña con el script del paquete, que la mide; sin el script, un marcador así invade la separación que tiene al lado.
+- Sin el script del paquete, dos motores de navegador no vuelven a dibujar un cambio de `start` en tiempo de ejecución.
+
+## Pautas
+
+### Recomendado
+
+- Di qué procedimiento es en un encabezado o en una frase que lo preceda. Donde nada lo diga, da a la lista un `label`.
+- Limita cada paso a una acción y a lo que quien lee necesita para llevarla a cabo.
+- Usa `start` para continuar un procedimiento que una nota o una elección entre pestañas interrumpe.
+- Usa una lista ordenada de la prosa, sin la clase, para elementos que son una expresión cada uno y no un procedimiento.
+
+### Evita
+
+- No uses los pasos para mostrar el progreso por un flujo. Ningún paso es el actual ni está hecho.
+- No anides pasos dentro de pasos. Los subpasos son una lista ordenada en el cuerpo.
+- No conviertas todos los títulos en encabezados: una página cuyo esquema enumera todos los pasos de todos los procedimientos es más difícil de recorrer.
+
+## Accesibilidad
+
+<ComponentAccessibility name="steps" />
+
+### De qué se encarga el componente
+
+- Sigue siendo la lista ordenada del documento: una lista con tantos elementos como pasos, cada uno leído como su número, su título y su cuerpo.
+- El número que una persona oye es el número que una persona ve, también en un conjunto que continúa otro con `start`.
+- El anillo y el conector son decorativos y están ocultos. El orden lo transmite la lista, así que no se pierde nada con colores forzados ni sin la hoja de estilos.
+- El texto crece con los ajustes de quien lee y salta de línea. Solo un bloque que se desplaza dentro de su propia caja, como un bloque de código, se desplaza hacia los lados.
+
+### Qué debes hacer tú
+
+- Escribe `role="list"` en la lista.
+- Da nombre al procedimiento con un encabezado que lo preceda, o con `aria-label`.
+- Da un título como encabezado solo donde los pasos sean secciones de la página.

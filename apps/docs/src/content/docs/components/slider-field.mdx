@@ -1,0 +1,220 @@
+---
+title: Slider field
+description: Lets people choose a value, or a range of values, on a scale as one complete field — the track under a label, with the value in words at the end of the label row, a line of help and the reason a value was refused.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="slider-field" />
+
+<DemoFrame label="A slider field, a stepped one, and a range" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Text size" min="50" max="200" step="10" value="120"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Price" supporting-text="Per night, before taxes." range min="0" max="500" step="10" start-value="100" value="300" start-label="Minimum price" end-label="Maximum price"></tanrei-slider-field>
+</DemoFrame>
+
+Use a slider field for a value that is chosen by feel and read back in words: a text size of 120 %, a distance of 5 km, a price from $100 to $300. A slider alone has no label that is drawn, and its track does not say what it is set to. The slider field is the ordinary case, ready to use: a label, the value in words, the track, a line of help and an error.
+
+**Built from** a [field](/components/field/) and a [slider](/components/slider/). The field is the frame: the label, the required or optional mark, the value text at the end of the label row, the help and the error. The slider is the control: the track, the handles and everything a person does with them. The slider field draws nothing of its own and has no token: every property it has is a property of one of the two, given to it unchanged, except `valueHidden`, which is its own.
+
+It is as wide as the place it is put in, and its track fills it.
+
+On the web it is `<tanrei-slider-field>`. The other platforms have not implemented it yet.
+
+### Usage
+
+`value` is the value of the handle, and of a range's end handle; `startValue` is the range's start handle. The two events are the slider's own: `input` at every change while the person drags, `change` once when the change is finished. When either is heard the field's `value` and `startValue` are already the new ones.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-slider-field name="text-size" label="Text size"
+        supporting-text="Applies to every page."
+        min="50" max="200" step="10" value="120"></tanrei-slider-field>
+
+      <!-- A range submits start-value, then value, under the one name. Name each handle. -->
+      <tanrei-slider-field name="price" label="Price" range
+        min="0" max="500" step="10" start-value="100" value="300"
+        start-label="Minimum price" end-label="Maximum price"></tanrei-slider-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/slider-field';
+
+      // The words for a value, given once: a property, never an attribute.
+      const percent = new Intl.NumberFormat(document.documentElement.lang, { style: 'percent' });
+      const size = document.querySelector('[name="text-size"]');
+      size.formatValue = (value) => percent.format(value / 100);
+      size.addEventListener('input', () => applyTextSize(size.value));
+
+      const dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+      document.querySelector('[name="price"]').formatValue = (value) => dollars.format(value);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SliderField } from '@tanrei/react';
+
+    <SliderField name="text-size" label="Text size" supportingText="Applies to every page."
+      min={50} max={200} step={10} value={size}
+      formatValue={(value) => percent.format(value / 100)}
+      onInput={(event) => setSize(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### The value in words
+
+The value is drawn at the end of the label row, in the words the slider gives its handle — the same words a screen reader hears and the value indicator shows. They are, in this order:
+
+| The words | When |
+| --- | --- |
+| `valueText`, and `startValueText` for a range's start handle | You write the words yourself, and write them again at every `input`. |
+| What `formatValue` writes | You give one function from a value to its words, once. The slider asks it for each handle at every change. |
+| The number in the page's locale | Neither is given. |
+
+A range's two values are joined by an en dash, in reading order: in a right-to-left layout the start's words stand at the right, where the start handle is. The slider field writes no number, unit or word itself.
+
+<DemoFrame label="A value text that shares the label's line, one that takes a line of its own, and a field that hides it" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" value="40" value-indicator="active"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Yearly income before tax" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="Lowest yearly income" end-label="Highest yearly income"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Brightness" value="70" value-hidden></tanrei-slider-field>
+</DemoFrame>
+
+The value text stands on the baseline of the label's first line and the label wraps in the room that is left. Where that would leave the label less than half of the row, the value text takes a line of its own after the label, and wraps there if it must. `valueHidden` leaves it out, for a slider whose number means nothing to the person: a volume, a brightness. The handle still says its value to assistive technology.
+
+### One level down
+
+The same field, written by hand from its two members, is the same picture and the same slider to assistive technology:
+
+```html
+<tanrei-field label="Text size" supporting-text="Applies to every page." value-text="120 %">
+  <tanrei-slider name="text-size" min="50" max="200" step="10" value="120"></tanrei-slider>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const slider = field.querySelector('tanrei-slider');
+  slider.formatValue = (value) => percent.format(value / 100);
+  // What the slider field does by itself: the field's value text is the slider's, at every change.
+  slider.addEventListener('input', () => (field.valueText = slider.shownValueText));
+</script>
+```
+
+<DemoFrame label="The same field written by hand: a field with a slider in it, given the value text once — without the listener above it is not kept in step" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Text size" supporting-text="Applies to every page." value-text="120">
+    <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
+  </tanrei-field>
+</DemoFrame>
+
+Go one level down when you need an arrangement the slider field does not offer:
+
+| You need | Use |
+| --- | --- |
+| A label, the value in words, the track, help and an error | The slider field |
+| A value text the slider does not say — a sentence, "Any price" — or something of your own in the frame | A [field](/components/field/) with a [slider](/components/slider/) in it, and your own `value-text` |
+| The track alone, named by something drawn elsewhere — a table's column, a toolbar's glyph, a player's volume control | The [slider](/components/slider/) alone, named by its own `label` |
+| A vertical slider | The [slider](/components/slider/) alone: the slider field has no orientation |
+| A value that is known and typed | A [number field](/components/number-field/), alone or beside a slider |
+
+What changes one level down is where things are said. `name`, `value` and `startValue` are on the slider, which is then the control the form meets, and its events are heard on it. `label` and `disabled` stay on the field, which passes them to the slider. The end handle of a range is named by the slider's own `label`, which the slider field calls `endLabel`.
+
+## Specs
+
+<DemoFrame label="Required with the product's word, optional, in error and disabled" plain column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-text="Required" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="optional" optional-text="Optional" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." error error-text="Choose a level above 0." value="0"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." disabled value="40"></tanrei-slider-field>
+</DemoFrame>
+
+### What each member gives
+
+| Aspect | From the field | From the slider |
+| --- | --- | --- |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel`, and `endLabel`, which is the slider's `label` |
+| Events | — | `input`, `change` |
+| Slots | `label-icon` | — |
+| Tokens | `comp.field.*` | `comp.slider.*` |
+
+One property is the slider field's own: `valueHidden`. And one property of the field is filled by the slider field itself and is not yours to set: the field's `valueText`, from the slider's words.
+
+The slider has a `disabled` and an `orientation` of its own. Neither is a property of the slider field: the field's `disabled` disables the slider, so that the label and the value text follow, and the track always runs in the inline direction: a slider field has no vertical orientation.
+
+A slider always has a value, so `requirement` does not mean "not empty" here. A form that marks every control as required or optional marks this one too; what it refuses — a level of 0, a range too narrow — is yours to say with `error` and `errorText`. An error changes nothing of the track: the words and the invalid state carry it.
+
+What the handles do — dragging, the keys, the steps, the value indicator — is on the [slider's page](/components/slider/). What the frame does — the required mark, the value text, the help, the error and how it is announced — is on the [field's page](/components/field/).
+
+### Setting one field apart
+
+The slider field has no token of its own. Its frame reads the field's tokens and its track the slider's, wherever they are set. To change one instance, set the member's token on it:
+
+```html
+<tanrei-slider-field label="Volume" value="40"
+  style="--tanrei-comp-field-standard-value-text-color: var(--tanrei-sys-color-on-surface)"></tanrei-slider-field>
+```
+
+<ComponentSpecs name="slider-field" />
+
+### What the web draws differently
+
+- The element's shadow root holds a `<tanrei-field>` with a `<tanrei-slider>` in it, and nothing else. Importing the element defines both.
+- The element is form-associated. It takes `name` and `form`, submits the value — a range the start value and then the value, under the one name; nothing while disabled —, resets to the `value` and `start-value` attributes and follows a disabled `<fieldset>`. Its two members add no entry to the form.
+- `input` and `change` are the slider's CustomEvents with `detail.value` (and `detail.startValue` for a range). Their target is the element, and `event.target.value` is the new value in every listener.
+- `formatValue` is a property and never an attribute: `(value: number) => string`, or `null`.
+- A range's two value texts are written into the one text of the field's `value-text`, with an en dash between them. Each is a run of its own direction — wrapped in a first-strong isolate, U+2068 and U+2069 — unless it is a plain number such as "$100" or "3,400,000", which is one left-to-right run in either direction already and is written as it is.
+- Parts: `field` and `slider` are the two members. Their own parts have the same names here as one level down: `label`, `label-icon`, `requirement-label`, `value-text`, `supporting-text`; `track`, `active-track`, `stop-indicator`, `container`, `handle`, `value-indicator`.
+- The element is not focusable itself: `focus()` goes to the handle, a range's start handle, and a page's own `<label for>` moves focus there.
+- The element has no role. Name it with `label` — with `label-hidden` where the label is drawn elsewhere — and never with `aria-label`, which names nothing here.
+- The attributes are the members' own: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `start-value`, `value-indicator`, `value-text`, `start-value-text`, `start-label`; and `end-label`, `value-hidden`.
+- Before the element is defined it has no size and shows only a `label-icon` child. A page that must work without script uses a `<label>` around a plain `<input type="range">`.
+
+## Guidelines
+
+### Do
+
+- Give the words for a value with `formatValue` when the bare number would be unclear: a percentage, a currency, a unit.
+- Name both handles of a range, with `startLabel` and `endLabel`, in words that hold the words of `label`: "Minimum price", "Maximum price" under "Price".
+- Say in `supportingText` what the value changes, where the label does not.
+- Say what is refused in words, with `error` and `errorText`.
+- Use `valueHidden` for a value set by feel whose number tells the person nothing.
+
+### Don't
+
+- Don't write `valueText` once in markup for a slider a person can move: the words would be wrong after the first drag. Give `formatValue`, or write `valueText` again at every `input`.
+- Don't put a slider field inside a field. It is a field already; a debug build says so.
+- Don't name it with `aria-label`. Where no label should be drawn, give `label` and `labelHidden`.
+- Don't use `valueIndicator="always"` to show the value: the value text does that, and the indicator would lie over the label row.
+- Don't use a slider field for a value that must be exact. Use a [number field](/components/number-field/), alone or beside it.
+
+## Accessibility
+
+<ComponentAccessibility name="slider-field" />
+
+### What the component handles
+
+- Each handle is a slider. One handle is named by `label`, drawn or not; a range's two by `startLabel` and `endLabel`, and by `label` where one is missing, which a debug build reports.
+- Each handle is described by the shown supporting or error text, with the optional text while the field is optional, and is exposed as invalid while `error` is true and as disabled while `disabled` is true. The web's slider role has no required state, so a required slider field says `requiredText` in the description.
+- Each handle says its value in words. The same words are drawn at the end of the label row, where they are kept from assistive technology, so a value is read once.
+- The drawn label, the requirement mark and the value text are not exposed a second time, and a change of the value text is not announced: the handle says its own value.
+- Its focus stops are the slider's handles — one, or a range's two — and every key is the slider's. A press on the label row moves focus to the handle and changes nothing; a press on the help does nothing.
+- While disabled, the value text stays drawn: what a disabled control is set to is still read.
+- Direction, enlarged text and forced colors are each member's own answer: in a right-to-left layout the frame and the track mirror together and the words of a value keep their own order; at 200% text nothing is cut and nothing scrolls sideways.
+- It has no words of its own. `requiredText` and `optionalText` left empty are read from the product's words by the field.
+
+Known gaps on the web: before the element is defined nothing is drawn, and a range's two handles are not exposed as one group named by `label`.
+
+### What you need to do
+
+- Give `label`, always, and for a range `startLabel` and `endLabel` too.
+- Give the value's words when a number alone would not be understood, and keep them true while the value changes.
+- Say what is refused with `errorText`. Color is never the only sign.
+- Offer a number field beside the slider where a person must enter an exact value: dragging is never the only way to move a handle, and it is still not a way to type one.

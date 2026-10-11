@@ -1,0 +1,185 @@
+---
+title: लोडिंग इंडिकेटर
+description: दिखाता है कि अनजान अवधि का एक छोटा इंतज़ार चल रहा है — इनलाइन, या कॉन्टेंट के ऊपर।
+translationOf: components/loading-indicator.mdx
+sourceHash: 9ce360324a5fe7d64d8c45600b454acdad42f463
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="loading-indicator" />
+
+:::note[संशोधित स्पेक, जो अभी हर प्लैटफ़ॉर्म पर नहीं है]
+यह पेज लोडिंग इंडिकेटर को वैसा बताता है जैसा स्पेक में वह अभी है: वह दिखने से पहले रुकता है, फिर प्रवेश करता है। वेब कंपोनेंट पहले से ऐसा करता है, और डेमो भी, जो देरी के बाद दिखते हैं। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे इंडिकेटर को डाले जाते ही बना देते हैं और सहायक तकनीक को दे देते हैं, और तीन नई प्रॉपर्टी नहीं लेते, इसलिए नीचे उनके उदाहरण सिर्फ़ वही दिखाते हैं जो वे आज देते हैं।
+:::
+
+<DemoFrame label="इनलाइन और contained">
+  <tanrei-loading-indicator label="संदेश लोड हो रहे हैं"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="गैलरी लोड हो रही है"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained label="रीफ़्रेश हो रहा है"></tanrei-loading-indicator>
+</DemoFrame>
+
+### इस्तेमाल
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <section aria-busy="true">
+      <tanrei-loading-indicator label="संदेश लोड हो रहे हैं"></tanrei-loading-indicator>
+    </section>
+
+    <!-- contained: अपने ही उठे हुए गोले पर, कॉन्टेंट के ऊपर। -->
+    <tanrei-loading-indicator contained size="large" label="रीफ़्रेश हो रहा है"></tanrei-loading-indicator>
+
+    <!-- व्यस्त बटन दबाने का जवाब तुरंत देता है: कोई देरी नहीं। -->
+    <tanrei-loading-indicator size="small" show-delay="0" label="सेव हो रहा है"></tanrei-loading-indicator>
+
+    <!-- किसी एक इंडिकेटर के लिए दूसरी रफ़्तार: ज़्यादा देर रुकें, फिर बढ़ते हुए आएँ। -->
+    <tanrei-loading-indicator show-delay="600" entrance="grow" label="रिपोर्ट लोड हो रही है"></tanrei-loading-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/loading-indicator';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react';
+
+    <section aria-busy={loading}>
+      {loading ? <LoadingIndicator label="संदेश लोड हो रहे हैं" /> : <MessageList />}
+    </section>
+    <LoadingIndicator contained size="large" label="रीफ़्रेश हो रहा है" />
+    <LoadingIndicator size="small" showDelay={0} label="सेव हो रहा है" />
+    <LoadingIndicator showDelay={600} entrance="grow" label="रिपोर्ट लोड हो रही है" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiLoadingIndicator("संदेश लोड हो रहे हैं")
+
+    // कॉन्टेंट के ऊपर, अपने ही उठे हुए कंटेनर पर।
+    TanreiLoadingIndicator("रीफ़्रेश हो रहा है", size: .large, contained: true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiContainedLoadingIndicator
+    import io.github.chnotchy.tanrei.components.TanreiLoadingIndicator
+    import io.github.chnotchy.tanrei.tokens.TanreiLoadingIndicatorSize
+
+    TanreiLoadingIndicator(contentDescription = "संदेश लोड हो रहे हैं")
+
+    // contained उन्हीं पैरामीटर वाला एक दूसरा composable है।
+    TanreiContainedLoadingIndicator(contentDescription = "रीफ़्रेश हो रहा है", size = TanreiLoadingIndicatorSize.Large)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    const TanreiLoadingIndicator(semanticsLabel: 'संदेश लोड हो रहे हैं');
+    const TanreiLoadingIndicator(
+      semanticsLabel: 'रीफ़्रेश हो रहा है',
+      size: TanreiLoadingIndicatorSize.large,
+      contained: true,
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react-native';
+
+    <LoadingIndicator accessibilityLabel="संदेश लोड हो रहे हैं" />
+    <LoadingIndicator accessibilityLabel="रीफ़्रेश हो रहा है" size="large" contained />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="साइज़, इनलाइन और contained" plain>
+  <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="small" label="Small, contained"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="medium" label="Medium, contained"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="large" label="Large, contained"></tanrei-loading-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="loading-indicator" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+लोडिंग इंडिकेटर उस छोटे इंतज़ार के लिए इस्तेमाल करें जिसकी अवधि आप नहीं बता सकते: अगला पेज ला रही लिस्ट, सेव कर रहा कंट्रोल, रेंडर हो रहा प्रीव्यू। यह बताता है कि कुछ हो रहा है, और यह नहीं बताता कि उसमें कितना समय लगेगा।
+
+जब इंतज़ार कुछ सेकंड से ज़्यादा चल सकता हो, या जब आप नाप सकते हों कि वह कितना आगे बढ़ा है, तो इसकी जगह [प्रोग्रेस इंडिकेटर](/hi/components/progress-indicator/) इस्तेमाल करें। एक मान, मोटा-मोटा ही सही, लंबे इंतज़ार को सहना आसान बनाता है।
+
+### साइज़ चुनना
+
+| साइज़ | डिफ़ॉल्ट सिस्टम में इंडिकेटर / कंटेनर | किसके लिए |
+| --- | --- | --- |
+| Small | 16 / 24 | किसी कंट्रोल में आइकन की जगह, जैसे सेव कर रहा बटन। |
+| Medium | 24 / 32 | टेक्स्ट की एक पंक्ति के बग़ल में। यही डिफ़ॉल्ट है। |
+| Large | 40 / 48 | अपने कॉन्टेंट का इंतज़ार कर रहा ख़ाली सेक्शन या पूरा व्यू। |
+
+### Contained
+
+contained रूप इंडिकेटर को उसके अपने उठे हुए गोले पर बनाता है। इसे वहाँ इस्तेमाल करें जहाँ इंडिकेटर कॉन्टेंट के ऊपर तैरता है, जैसे खींचकर रीफ़्रेश करने में या किसी इमेज या लिस्ट के ऊपर, ताकि उसके पीछे जो भी हो, वह दिखता रहे। जहाँ वह सादी सरफ़ेस पर हो, वहाँ उसे इनलाइन रहने दें।
+
+### दिखने की देरी और प्रवेश
+
+जो इंतज़ार पल भर में ख़त्म हो जाए, उसे कुछ नहीं दिखाना चाहिए। इसलिए इंडिकेटर दिखने से पहले रुकता है: डिफ़ॉल्ट सिस्टम में 300 ms, उस पल से गिने हुए जब उसे डाला जाता है। फिर वह फ़ेड होकर आता है। देरी से छोटा इंतज़ार कभी ऐसा निशान नहीं दिखाता जो झपककर आए और चला जाए। देरी के दौरान ही इंडिकेटर अपना पूरा साइज़ ले लेता है, इसलिए उसके दिखने पर उसके बग़ल का कुछ नहीं खिसकता।
+
+इंतज़ार शुरू होने पर इंडिकेटर डालें और ख़त्म होने पर उसे हटा दें। देरी डाले जाने से गिनी जाती है: जो इंडिकेटर हटाए बिना छिपाया और फिर दिखाया जाता है, वह दोबारा नहीं रुकता, और जो दोबारा डाला जाता है, वह फिर पूरी देरी रुकता है।
+
+हर इंडिकेटर की देरी और प्रवेश सिस्टम तय करता है। किसी एक इंडिकेटर पर इन्हें तभी सेट करें जब उसे अलग रफ़्तार चाहिए:
+
+- `showDelay` मिलीसेकंड में इंतज़ार है। `0` इंडिकेटर को डाले जाते ही दिखा देता है; यह उस व्यस्त बटन के लिए है जिसे दबाने का जवाब तुरंत देना चाहिए।
+- `entrance` का मान `fade` या `grow` होता है। grow में इंडिकेटर अपने केंद्र से बढ़ते हुए फ़ेड होकर आता है। `auto`, जो डिफ़ॉल्ट है, सिस्टम का चुनाव लेता है।
+- `enterDuration` मिलीसेकंड में प्रवेश की अवधि है। `0` इंडिकेटर को एक ही बार में पूरा दिखा देता है।
+
+आप जो मान सेट करते हैं, वह जैसा है वैसा इस्तेमाल होता है: मोशन डायल उसे स्केल नहीं करता। सिस्टम का मान लेने के लिए प्रॉपर्टी को सेट न करें।
+
+### करें
+
+- उसे ऐसा लेबल दें जो बताए कि क्या लोड हो रहा है: "संदेश लोड हो रहे हैं", न कि "लोड हो रहा है"। अगर उसके बग़ल में कोई कैप्शन दिखता है, तो वही शब्द इस्तेमाल करें।
+- उसे वहाँ रखें जहाँ कॉन्टेंट आएगा, ताकि कॉन्टेंट आने पर व्यक्ति सही जगह देख रहा हो।
+- जब वह किसी कंट्रोल में आइकन की जगह ले, तो कंट्रोल का साइज़ वही रखें, ताकि उसके आसपास कुछ न खिसके।
+- देरी सिस्टम पर छोड़ दें, जब तक किसी एक इंडिकेटर को दूसरी रफ़्तार न चाहिए।
+
+### न करें
+
+- इसे उस इंतज़ार के लिए इस्तेमाल न करें जिसे आप नाप सकते हैं, या जो लंबा चल सकता है। प्रोग्रेस इंडिकेटर इस्तेमाल करें।
+- एक इंतज़ार के लिए कई इंडिकेटर न दिखाएँ। लोड हो रहे हर हिस्से के लिए एक काफ़ी है।
+- जब स्क्रीन का सिर्फ़ एक हिस्सा लोड हो रहा हो, तो इसे पूरी स्क्रीन के ऊपर न रखें। बाक़ी हिस्से को इस्तेमाल लायक़ रहने दें।
+- यह बताने के लिए कि कुछ ग़लत हुआ, इसका रंग न बदलें। इसे रोकें और उसकी जगह एक संदेश दिखाएँ।
+- इंडिकेटर को अपनी जगह रखकर इंतज़ारों के बीच छिपाएँ नहीं। उसे हटा दें, ताकि अगला इंतज़ार नई देरी शुरू करे।
+
+## सुलभता
+
+<ComponentAccessibility name="loading-indicator" />
+
+### कंपोनेंट क्या सँभालता है
+
+- दिखने के बाद यह प्लैटफ़ॉर्म के व्यस्त स्टेट में प्रोग्रेस बार का रोल देता है, जिसका नाम लेबल है और जिसका कोई मान नहीं है। Flutter में अभी प्रोग्रेस बार का रोल या व्यस्त स्टेट नहीं है, इसलिए वहाँ यह लेबल देता है।
+- दिखने की देरी के दौरान यह एक्सेसिबिलिटी ट्री में होता ही नहीं: न रोल, न नाम, न व्यस्त स्टेट। जो इंतज़ार दिखने के लिए बहुत छोटा है, वह सुनाई भी नहीं देता।
+- इस पर कभी फ़ोकस नहीं जा सकता, और दिखने या चले जाने पर यह अपने बारे में कुछ पढ़कर नहीं सुनाता।
+- जब मोशन कम करने का अनुरोध हो, तो चाप घूमना बंद कर देता है और उसकी जगह एक पूरा गोला अपनी ओपैसिटी को धीरे-धीरे घटाता-बढ़ाता है, ज़्यादा से ज़्यादा एक सेकंड में एक बार; कंटेनर स्थिर रहता है। grow वाला प्रवेश फ़ेड बन जाता है। दिखने की देरी बनी रहती है: वह इंतज़ार है, मोशन नहीं।
+- जब तक इसे देखा नहीं जा सकता, इसका ऐनिमेशन रुका रहता है — बैकग्राउंड में गए ऐप में हर जगह, और स्क्रॉल होकर नज़र से बाहर जाने पर या छिपी हुई स्क्रीन पर वहाँ, जहाँ प्लैटफ़ॉर्म यह जान सकता है — और देखे जा सकने पर फिर चल पड़ता है।
+- ख़ाली लेबल डीबग बिल्ड में रिपोर्ट किया जाता है।
+
+### आपको क्या करना है
+
+- जो हिस्सा लोड हो रहा है, उसे लोड होने के दौरान व्यस्त के रूप में चिह्नित करें (वेब पर `aria-busy`), इंतज़ार की शुरुआत से ही, इंडिकेटर की देरी का इंतज़ार किए बिना, और बताएँ कि कॉन्टेंट कब आ गया: लाइव रीजन में एक संदेश, या जब व्यक्ति ने ख़ुद उसे माँगा हो तो नए कॉन्टेंट पर फ़ोकस ले जाना।
+- अगर आप रंग बदलते हैं, तो इंडिकेटर के रंग को उसके पीछे की सरफ़ेस के मुक़ाबले, और contained इंडिकेटर के रंग को उसके कंटेनर के मुक़ाबले, कम से कम 3:1 पर रखें। चलता हुआ निशान ही इस बात का अकेला संकेत है कि कुछ हो रहा है।

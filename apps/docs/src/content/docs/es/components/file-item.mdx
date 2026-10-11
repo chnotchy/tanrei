@@ -1,0 +1,339 @@
+---
+title: Elemento de archivo
+description: Muestra un archivo —un glifo que dice su formato o una imagen pequeña del archivo, su nombre y lo que el producto dice de él— con las acciones para quitarlo y para volver a intentarlo, como fila de una columna de archivos o como mosaico de una tira de imágenes. Se puede pulsar para abrir el archivo. Nunca lee, conserva ni envía el archivo por sí mismo.
+translationOf: components/file-item.mdx
+sourceHash: 7d87ffe88f4c926c993c8b2d399a647f70ab8368
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## Descripción general
+
+<ComponentAvailability name="file-item" />
+
+<DemoFrame label="Un archivo como fila y archivos como mosaicos" column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="Quitar"></tanrei-file-item>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="Quitar"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="Quitar"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+Un elemento de archivo es un archivo, mostrado. Antes de su nombre hay un glifo que dice el formato del archivo, o una imagen pequeña del archivo. Debajo del nombre hay una línea con lo que tu producto dice de él: su formato, su tamaño, en qué punto está su envío o qué ha fallado. Al final están las dos acciones que tiene un archivo: quitarlo y volver a intentarlo.
+
+Tiene dos formas:
+
+- `row`, la predeterminada: una línea que ocupa la anchura que le da su lugar. Para una columna de archivos.
+- `tile`: un recuadro con la anchura y la altura que tú das, con el nombre debajo. Para una tira de imágenes.
+
+<Callout type="caution" title="Muestra, y no hace nada más">
+Un elemento de archivo no lee un solo byte de un archivo, no conserva ningún archivo y no envía nada. Tampoco quita nada: su acción de quitar te dice que la persona lo pidió, y eres tú quien retira el elemento. Lo que muestra es lo que dicen sus propiedades.
+</Callout>
+
+**Se usa en** el [control de subida de archivos](/es/components/file-upload/), donde cada archivo elegido es un elemento de archivo. Úsalo por separado allí donde tu producto muestre archivos que ya tiene: los adjuntos de un mensaje, los documentos de un expediente, los archivos de una solicitud que ya se envió.
+
+Usa otra cosa cuando:
+
+- Las personas eligen archivos y tú los enumeras. Eso es un [control de subida de archivos](/es/components/file-upload/), que contiene los elementos de archivo por ti.
+- Las personas ponen los archivos en un orden. Eso es una [lista](/es/components/list/) cuyas filas muestran los archivos; consulta [Archivos en un orden que las personas cambian](#archivos-en-un-orden-que-las-personas-cambian).
+- Las personas seleccionan entre archivos. Eso es una [lista](/es/components/list/) con selección. Un elemento de archivo no tiene estado seleccionado.
+- La imagen es el contenido, lo que se va a mirar. La imagen de un elemento de archivo ocupa el lugar de un glifo y no tiene texto alternativo.
+
+En la web es `<tanrei-file-item>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+Da `name` y los textos que tengas. `value` es lo que `click`, `remove` y `retry` te devuelven.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <ul class="attachments" aria-label="Archivos adjuntos">
+      <li>
+        <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 KB"
+                          href="/files/brief.pdf" remove-label="Quitar"></tanrei-file-item>
+      </li>
+      <li>
+        <tanrei-file-item value="b" name="floor-plan.png" size-text="3,4 MB"
+                          status="uploading" status-text="Subiendo" progress="0.4"
+                          remove-label="Quitar" retry-label="Reintentar"></tanrei-file-item>
+      </li>
+    </ul>
+
+    <script type="module">
+      import '@tanrei/web/components/file-item';
+
+      const list = document.querySelector('.attachments');
+      // Un elemento de archivo nunca se quita a sí mismo. Lo retiras tú, dejas de enviar el archivo y mueves el foco.
+      list.addEventListener('remove', (event) => {
+        cancel(event.detail.value);
+        event.target.closest('li').remove();
+      });
+      list.addEventListener('retry', (event) => send(event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FileItem } from '@tanrei/react';
+
+    <ul aria-label="Archivos adjuntos">
+      {files.map((file) => (
+        <li key={file.id}>
+          <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
+            status={file.status} statusText={file.statusText} progress={file.progress}
+            errorText={file.errorText} retryable={file.retryable}
+            removeLabel="Quitar" retryLabel="Reintentar"
+            onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
+        </li>
+      ))}
+    </ul>
+    ```
+  </TabItem>
+</Tabs>
+
+`removeLabel` y `retryLabel` se pueden dar una sola vez para todo el producto con `setWords()`. Todos los demás textos son de la instancia.
+
+## Especificaciones
+
+<DemoFrame label="Una fila en cada estado: en espera, enviada al 40%, en curso, completada, fallida y reintentable, fallida definitivamente" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="En espera" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3,4 MB" status="uploading" status-text="Subiendo" progress="0.4" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1,1 MB" status="uploading" status-text="Subiendo" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2,0 MB" status="done" status-text="Subido" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6,8 MB" status="error" error-text="Se perdió la conexión." retryable remove-label="Quitar" retry-label="Reintentar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="Supera los 10 MB." remove-label="Quitar"></tanrei-file-item>
+</DemoFrame>
+
+<ComponentSpecs name="file-item" />
+
+## Pautas
+
+### Dos formas
+
+<DemoFrame label="Los mismos tres archivos como filas y como mosaicos" plain column>
+  <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2,1 MB" preview preview-src={demoPicture} remove-label="Quitar"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3,4 MB" preview preview-src={demoPicture} remove-label="Quitar"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1,1 MB" preview remove-label="Quitar"></tanrei-file-item>
+  </div>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="Quitar"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="Quitar"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="Quitar"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| Aspecto | `row` (la predeterminada) | `tile` |
+| --- | --- | --- |
+| Úsala para | Una columna de archivos de cualquier categoría. | Una tira de imágenes. |
+| Anchura | La que le da su lugar. | La del recuadro: `width`, nunca más ancho que su lugar. |
+| El glifo o la imagen | Antes del nombre. Con `preview`, un cuadrado pequeño. | Todo el recuadro, de `width` por `height`. |
+| El nombre | Salta de línea y nunca se corta. | Una línea debajo del recuadro, cortada por el medio para que se conserve su terminación. |
+| La segunda línea | Debajo del nombre. | Debajo del recuadro, y salta de línea dentro de su anchura. |
+| La barra | Debajo de los textos. | A lo largo del borde inferior del recuadro. |
+| Las acciones | Al final: reintentar y después quitar. | En el recuadro, en su esquina superior del lado final. |
+
+`width` y `height` son números, y solo se leen en la forma de mosaico. Sin `height`, el recuadro tiene la altura que dice el token `comp.file-item.tile.media.height`; sin `width`, es cuadrado. Elige la proporción de las imágenes que tienes: `width="160" height="90"` para capturas de pantalla, un cuadrado para retratos de personas. Un recuadro nunca es más estrecho de lo que necesitan sus dos acciones.
+
+No hay una tercera forma, compacta. Un archivo en una sola línea es una fila sin nada en su segunda línea.
+
+### Qué se muestra
+
+Cada parte se muestra cuando la das. Dos propiedades que se activan o no, `preview` y `nameHidden`, cambian lo que se muestra. Ninguna propiedad enumera las partes que se muestran.
+
+| Parte | Se muestra cuando |
+| --- | --- |
+| El glifo | Siempre, donde no se dibuja ninguna imagen. |
+| La imagen | `preview` está definido y hay una imagen que dibujar. |
+| El nombre | Siempre en una fila. En un mosaico, salvo que `nameHidden` esté definido y se dibuje una imagen. |
+| El formato con palabras | Das `formatText`. Tanrei no tiene ninguna palabra para un formato. |
+| El tamaño | Das `sizeText`, con el formato del idioma de quien lo lee. |
+| El estado con palabras | Das `statusText`. |
+| El error | `status` es `error` y das `errorText`. Ocupa el lugar del estado, en todas las formas, y nunca se corta. |
+| La barra | `status` es `uploading`. Llena hasta `progress`, o indeterminada mientras `progress` no está definido. |
+
+Un archivo completado y un archivo fallido llevan una marca antes de las palabras de su estado: una marca de verificación y una marca de error. El glifo que precede al nombre no cambia con el estado. Así la persona aprende un lugar para cada cosa: antes del nombre, qué es el archivo; antes del estado, cómo va.
+
+`nameHidden` es para una tira densa de imágenes. Solo oculta el nombre cuando hay una imagen dibujada. Un mosaico que muestra un glifo conserva su nombre, porque el glifo de un formato no distingue dos archivos del mismo formato. En todos los casos, el nombre sigue siendo el nombre del elemento para la tecnología de apoyo.
+
+### El glifo dice el formato
+
+Hay diez categorías de glifo. Cada categoría tiene una lista de tipos de medio y una lista de extensiones de archivo. El glifo se elige a partir de `mediaType`. Cuando el tipo de medio está vacío, es `application/octet-stream` o no figura en ninguna de estas listas, se elige a partir de la extensión de `name`. Las categorías se comprueban en este orden. Las listas son fijas y las mismas en todas las plataformas, de modo que un mismo archivo dibuja el mismo glifo dondequiera que se muestre.
+
+<DemoFrame label="Las diez categorías" plain column>
+  <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
+    <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
+    <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
+    <tanrei-file-item name="kickoff.pptx" readonly></tanrei-file-item>
+    <tanrei-file-item name="photos.zip" readonly></tanrei-file-item>
+    <tanrei-file-item name="tokens.json" readonly></tanrei-file-item>
+    <tanrei-file-item name="entrance.jpeg" readonly></tanrei-file-item>
+    <tanrei-file-item name="walkthrough.mp4" readonly></tanrei-file-item>
+    <tanrei-file-item name="interview.mp3" readonly></tanrei-file-item>
+    <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
+    <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| Categoría | Glifo | Tipos de medio | Terminaciones |
+| --- | --- | --- | --- |
+| pdf | `picture_as_pdf` | `application/pdf` | pdf |
+| spreadsheet | `table` | `text/csv`, `text/tab-separated-values`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `application/vnd.oasis.opendocument.spreadsheet`, `application/vnd.apple.numbers`, `application/x-iwork-numbers-sffnumbers` | xls, xlsx, ods, numbers, csv, tsv |
+| presentation | `slideshow` | `application/vnd.ms-powerpoint`, `application/vnd.openxmlformats-officedocument.presentationml.presentation`, `application/vnd.oasis.opendocument.presentation`, `application/vnd.apple.keynote`, `application/x-iwork-keynote-sffkey` | ppt, pptx, odp, key |
+| archive | `folder_zip` | `application/zip`, `application/x-zip-compressed`, `application/x-tar`, `application/gzip`, `application/x-gzip`, `application/x-bzip2`, `application/x-xz`, `application/x-7z-compressed`, `application/vnd.rar`, `application/x-rar-compressed` | zip, tar, gz, tgz, bz2, xz, 7z, rar |
+| code | `code` | `text/html`, `text/css`, `text/javascript`, `application/javascript`, `application/x-javascript`, `text/typescript`, `application/typescript`, `text/jsx`, `text/tsx`, `application/json`, `application/xml`, `text/xml`, `text/yaml`, `text/x-yaml`, `application/yaml`, `application/x-yaml`, `application/x-sh`, `text/x-sh`, `text/x-shellscript`, `text/x-python`, `text/x-script.python`, `text/x-ruby`, `application/x-ruby`, `text/x-go`, `text/x-rust`, `text/x-java`, `text/x-java-source`, `text/x-kotlin`, `text/x-swift`, `text/x-c`, `text/x-chdr`, `text/x-csrc`, `text/x-c++`, `text/x-c++src`, `text/x-csharp`, `text/x-php`, `application/x-php`, `application/x-httpd-php`, `application/sql`, `text/x-sql` | html, css, js, mjs, ts, tsx, jsx, json, xml, yaml, yml, sh, py, rb, go, rs, java, kt, swift, c, h, cpp, cs, php, sql |
+| image | `image` | Todos los tipos que empiezan por `image/` | png, jpg, jpeg, gif, webp, avif, svg, bmp, tif, tiff, heic, heif, ico |
+| video | `movie` | Todos los tipos que empiezan por `video/` | mp4, mov, m4v, webm, mkv, avi |
+| audio | `music_note` | Todos los tipos que empiezan por `audio/` | mp3, wav, m4a, aac, ogg, oga, flac, opus |
+| document | `description` | Todos los demás tipos que empiezan por `text/`, y `application/rtf`, `application/msword`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `application/vnd.oasis.opendocument.text`, `application/vnd.apple.pages`, `application/x-iwork-pages-sffpages` | txt, md, rtf, doc, docx, odt, pages |
+| other | `draft` | — | Todo lo demás, y un nombre sin punto |
+
+- El tipo de medio decide antes que la terminación. Un archivo cuyo tipo de medio figura en una lista es de esa categoría, termine como termine su nombre.
+- El archivo nunca se abre para averiguar su formato.
+- Para un formato propio, indica un glifo del conjunto de iconos con `glyph`, o pon el tuyo en el slot `icon`.
+- Todos los glifos tienen un solo color. Un formato no tiene color propio: un color significa lo mismo dondequiera que se use, y un formato no es un estado.
+- Di el formato con palabras mediante `formatText` donde importe. El glifo está oculto para la tecnología de apoyo.
+
+### La vista previa y lo que cuesta
+
+`preview` dibuja una imagen del archivo en el lugar del glifo. Tiene dos orígenes:
+
+- `previewSrc`: la dirección de una versión pequeña del archivo que generó tu servidor. Se dibuja para un archivo de cualquier formato.
+- El propio archivo, cuando `previewSrc` está vacío y el archivo es una imagen. En la web, asignas el `File` a la propiedad `file`.
+
+`fit` dice cómo llena la imagen su recuadro. `cover`, el valor predeterminado, llena el recuadro y recorta lo que no cabe; úsalo para fotografías. `contain` muestra la imagen entera sobre el fondo del recuadro; úsalo para documentos escaneados, firmas y diagramas, donde los bordes importan.
+
+<DemoFrame label="Un recuadro de 160 por 90: cover, contain y el nombre oculto" plain>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="Quitar"></tanrei-file-item>
+</DemoFrame>
+
+Lo que cuesta una vista previa:
+
+| La imagen procede de | Lo que cuesta |
+| --- | --- |
+| Con `preview` desactivado, el valor predeterminado | Nada. Cien elementos de archivo cuestan lo que cuestan sus textos. |
+| Con `previewSrc` | Una solicitud de imagen por cada elemento, que hace la carga de imágenes propia de la plataforma. |
+| Con el propio archivo | Una dirección para el archivo, que el elemento crea cuando entra por primera vez en la vista o se acerca a ella, y que libera cuando el elemento sale de la página, cuando le das otro archivo o ninguno, y cuando ya no se pide la vista previa. El decodificador de imágenes de la plataforma lee el archivo para dibujarlo. El elemento no lee nada por sí mismo. |
+
+- Solo se dibujan a partir del archivo las imágenes. Un fotograma de un vídeo o una página de un documento exigirían abrir y leer el archivo, cosa que ningún componente de Tanrei hace. Para esos casos, da `previewSrc`.
+- Hasta que la imagen se puede dibujar, y si no se puede, se dibuja el glifo del formato. No hay indicador giratorio ni marca de imagen rota, y `status` no se toca: una miniatura que no se cargó no es un fallo del archivo.
+- La imagen no tiene texto alternativo. Ocupa el lugar que ocupaba el glifo, y el archivo recibe su nombre de `name`.
+
+### Pulsable, un enlace o de solo lectura
+
+De forma predeterminada, el cuerpo de un elemento de archivo no recibe el foco y no responde a nada. El elemento solo contiene sus acciones.
+
+<DemoFrame label="Un cuerpo que es un botón, un enlace que se abre en una pestaña nueva y un archivo de solo lectura" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3,4 MB" interactive remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2,0 MB" href="#pulsable-un-enlace-o-de-solo-lectura" target="new" target-label="se abre en una pestaña nueva" remove-label="Quitar"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="Enviado el 4 de diciembre" readonly></tanrei-file-item>
+</DemoFrame>
+
+| Propiedad | El cuerpo es | Úsala para |
+| --- | --- | --- |
+| `interactive` | Un botón. Emite `click` con `value`. | Abrir el archivo allí donde está la persona: una imagen en un visor propio, un documento en un panel. |
+| `href` | Un enlace al archivo. Primero emite `click`; cancélalo para encargarte tú de la navegación. | Un archivo que tu servidor ya tiene. Con `target="new"`, da `targetLabel`. |
+| Ninguna de las dos | No se puede pulsar. | Un archivo que solo aparece en una lista. |
+
+El cuerpo es el glifo o la imagen, y los textos. Las acciones están a su lado y nunca dentro de él, así que un elemento de archivo pulsable tiene tres paradas como máximo: el cuerpo, reintentar y quitar.
+
+`readOnly` no dibuja ninguna de las dos acciones ni les reserva sitio. Úsalo para los archivos de un expediente que solo se lee. El cuerpo se puede seguir pulsando.
+
+`disabled` deshabilita las acciones y el cuerpo. Lo que el elemento muestra se queda como está y sigue siendo legible.
+
+### Archivos en un orden que las personas cambian
+
+Un elemento de archivo no tiene tirador, ni botones para mover, ni orden. Reordenar es cosa de la [lista](/es/components/list/). Muestra cada archivo como una fila de una lista reordenable: el nombre como titular, el tamaño como texto de apoyo, un glifo o una imagen en el lugar inicial y, en el lugar final, un botón tuyo para quitarlo.
+
+<ListReorderProduct />
+
+<DemoFrame label="Archivos en un orden que las personas cambian: una lista reordenable cuyas filas muestran los archivos" plain>
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="Mover hacia arriba" move-down-label="Mover hacia abajo" moved-text="{headline}, ahora en la posición {position} de {count}" style="inline-size: 26rem">
+    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="Quitar cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="resume.docx" supporting-text="Documento · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="Quitar resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="portfolio.zip" supporting-text="Archivo comprimido · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="Quitar portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+```html
+<tanrei-list reorder="buttons" move-up-label="Mover hacia arriba" move-down-label="Mover hacia abajo"
+             moved-text="{headline}, ahora en la posición {position} de {count}">
+  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
+    <tanrei-button slot="trailing" variant="text" label="Quitar cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
+  </tanrei-list-item>
+  …
+</tanrei-list>
+```
+
+Esto dibuja la fila de la lista y no el elemento de archivo: el glifo lo indicas tú, y una fila no tiene barra ni marca de estado. La lista mueve las filas, anuncia cada movimiento y conserva el foco; consulta [Reordenar](/es/components/list/#reordenar) en la página de la lista. Un elemento de archivo como contenido de la fila de una lista, y una tira de mosaicos en un orden que las personas cambian, no están construidos.
+
+### Textos
+
+El elemento de archivo no incluye textos propios. Dos se pueden dar una sola vez para todo el producto con `setWords()`; todos los demás textos son propiedades de la instancia.
+
+| Propiedad | Clave de los textos del producto | Sin ella |
+| --- | --- | --- |
+| `removeLabel` | `removeLabel` | La acción de quitar se dibuja y no tiene nombre. Una compilación de depuración lo notifica. |
+| `retryLabel` | `retryLabel` | La acción de reintentar se dibuja y no tiene nombre. Una compilación de depuración lo notifica. |
+
+Cada acción se describe con el nombre de su archivo. Una sola palabra, «Quitar», basta para todos los archivos: una persona oye «Quitar, botón, brief.pdf».
+
+### De derecha a izquierda
+
+En un diseño de derecha a izquierda, el glifo o la imagen están a la derecha y las acciones a la izquierda, con la de quitar en el extremo; una barra se llena desde la derecha, y las acciones de un mosaico están en su esquina superior izquierda. Una imagen nunca se refleja. Un nombre de archivo en letras latinas conserva su propio orden, con su punto y su extensión. De los diez glifos de formato solo se refleja el de `other`, porque el conjunto de iconos lo marca así.
+
+### Recomendado
+
+- Da `statusText` a un archivo completado y `errorText` a uno fallido. Un estado nunca se dice solo con una marca o un color.
+- Define `retryable` solo para un fallo que un nuevo intento pueda remediar. Un archivo demasiado grande volverá a ser demasiado grande.
+- Da tú formato al tamaño. Si un megabyte son 1000 o 1024 kilobytes es decisión de tu producto.
+- Pon los elementos de archivo que van juntos en una lista tuya, un `<ul>` con nombre, o en un control de subida de archivos.
+- Mueve tú el foco después de quitar un elemento. Por sí solo, un elemento de archivo no puede saber qué tiene al lado.
+
+### Evita
+
+- No esperes que el elemento se quite a sí mismo, cambie su estado o mueva su barra. Dibuja lo que tú defines.
+- No uses `nameHidden` para archivos que no son imágenes. Sus mosaicos conservan el nombre de todos modos.
+- No pongas dentro un menú, una casilla de verificación ni una leyenda. Su único slot es el del glifo. Las demás acciones sobre un archivo van al lado del elemento.
+- No lo uses como la fila de una lista en la que las personas seleccionan o reordenan. Esa es la fila de la lista.
+
+## Accesibilidad
+
+<ComponentAccessibility name="file-item" />
+
+### De qué se encarga el componente
+
+- Por sí solo, un elemento de archivo es un grupo que recibe su nombre del nombre del archivo. En un control de subida de archivos es un elemento de la lista del control.
+- Un cuerpo pulsable es un solo botón o un solo enlace, que recibe su nombre del nombre del archivo y su descripción de la segunda línea. Va antes que las acciones en el orden del foco. Un enlace se activa con Enter y no con Espacio, y un enlace que se abre en una pestaña nueva dice `targetLabel` después de su nombre.
+- Las acciones son botones que reciben su nombre de `removeLabel` y `retryLabel` y su descripción del nombre del archivo. Reintentar va antes que quitar.
+- La barra es una barra de progreso que recibe su nombre del archivo. Un error es el texto de la segunda línea, y se lee en el lugar del estado.
+- El glifo, la imagen y la marca de estado están ocultos para la tecnología de apoyo. Las palabras dicen lo que muestran.
+- Un elemento de archivo no anuncia nada. Quien tiene muchos tiene una única región activa para todos ellos, como la tiene el control de subida de archivos.
+- El nombre completo siempre llega a la tecnología de apoyo, también donde un mosaico lo corta y donde `nameHidden` lo oculta.
+- Con el texto al 200%, una fila salta de línea y no pierde nada. El recuadro de un mosaico conserva su tamaño y sus textos crecen debajo de él.
+- En colores forzados, el recuadro y los discos de las acciones de un mosaico conservan un borde, y la barra sigue siendo visible. Una imagen se deja como está.
+- Los cambios de color entre estados se animan durante un tiempo breve, y son inmediatos donde el movimiento está reducido.
+
+Carencias conocidas en la web:
+
+- Una imagen que se mueve, como un GIF animado, la reproduce el elemento de imagen del navegador. El elemento de archivo no puede dejarla quieta. Donde eso importe, da una versión fija de la imagen como `previewSrc`.
+- Antes de que el elemento esté definido no se dibuja nada, porque el nombre es un atributo y no texto del documento. Una página que debe enumerar archivos donde no se ejecutan scripts escribe sus propios enlaces.
+
+### Qué debes hacer tú
+
+- Da `name`, siempre.
+- Da `removeLabel` y `retryLabel`, en el elemento o una sola vez con `setWords()`.
+- Di con palabras cada estado y cada fallo: `statusText` y `errorText`.
+- Con `target="new"`, da `targetLabel`.
+- Da a un grupo de elementos de archivo una lista y un nombre tuyos, y anuncia lo que se añadió, terminó o falló en una única región activa tuya. Un control de subida de archivos hace ambas cosas por ti.
+- Después de quitar un elemento, mueve el foco a la acción de quitar del archivo siguiente, o a lo que añadió los archivos.

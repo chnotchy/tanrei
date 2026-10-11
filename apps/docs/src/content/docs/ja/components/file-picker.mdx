@@ -1,0 +1,228 @@
+---
+title: ファイルピッカー
+description: プラットフォーム自身のピッカーでファイルを選ばせます。ボタンから開き、余裕のある場所では、ファイルをドラッグできる領域からも受け取ります。選ぶ前に制限を言葉で伝え、選ばれたファイルを判定し、通ったファイルと断ったファイルをプロダクトに渡します。何も保持せず、何も一覧にせず、フォームにも加わりません。
+translationOf: components/file-picker.mdx
+sourceHash: 14fb2e7bfc0977e6a6a7e2555e9e35a3a2843c1a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## 概要
+
+<ComponentAvailability name="file-picker" />
+
+<DemoFrame label="2 つのレイアウトのファイルピッカー。ファイルを選んでも、ここでは何も変わりません。このページはファイルを保持しないためです。" column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="レイヤファイル" accept=".json" constraints-text="JSON ファイル 1 つ" selection-text="ファイルが選ばれていません">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="写真" accept="image/*" max-size="5000000" drop-text="ここに写真をドラッグするか、選んでください" constraints-text="画像、1 枚につき 5 MB まで">
+    <tanrei-button slot="trigger" variant="outlined">写真を選ぶ</tanrei-button>
+    <span slot="icon">image</span>
+  </tanrei-file-picker>
+</DemoFrame>
+
+ファイルピッカーは、ファイルを選ぶ手段で、それ以上のものではありません。利用者側の[ボタン](/ja/components/button/)が、プラットフォームのファイルピッカーを開きます。ボタンのまわりにはドロップ領域を置くことができ、そこへドラッグしたファイルも受け取ります。制限は、利用者側の言葉でその横に並びます。選ばれたファイルは、制限に照らして判定され、利用者側に渡されます。通ったファイルは `select` で、断られたファイルは `reject` で届きます。
+
+これは**上級者向け**のコンポーネントです。ファイルを自分で保持するプロダクトのための、コントロールだけの部品です。ファイルを保持せず、一覧を描かず、フォームと一緒に何かを送信することもありません。ほとんどのプロダクトに合うのは[ファイルアップロード](/ja/components/file-upload/)です。このピッカーの下に[ファイル項目](/ja/components/file-item/)の一覧を付け、フォームでそのまま使える形にしたものです。
+
+**使われている場所**は、[ファイルアップロード](/ja/components/file-upload/)です。ファイルの行き先がファイルアップロードの一覧ではないときに、単独で使います。
+
+- 1 つのファイルをその場で読み、保持しない場合。設定ファイル、行の入ったスプレッドシート、切り抜く画像を取り込むときなどです。
+- ファイルをほかの場所で見せる場合。書いている途中のメッセージの中の添付ファイル、キャンバスの上、自身のテーブルの中などです。
+- ツールバーに置く、領域もテキストもない添付ボタン。
+
+<Callout type="caution" title="何も保持しません">
+`select` の後、ファイルピッカーはファイルのことを覚えていません。2 回目の選択は、1 回目であるかのように判定されます。`select` が渡すものをプロダクトが保持しなければ、どこにも残りません。
+</Callout>
+
+Web では `<tanrei-file-picker>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+`trigger` スロットにボタンを 1 つ入れ、`select` を受け取ります。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field label="レイヤファイル" supporting-text="編集中のレイヤが、このレイヤに置き換わります。">
+      <tanrei-file-picker id="layer" accept=".json" constraints-text="JSON ファイル 1 つ"
+                          selection-text="ファイルが選ばれていません">
+        <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+      </tanrei-file-picker>
+    </tanrei-field>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+      import '@tanrei/web/components/file-picker';
+      import '@tanrei/web/components/button';
+
+      const picker = document.querySelector('#layer');
+      picker.addEventListener('select', async ({ detail }) => {
+        const [file] = detail.files;
+        // ピッカーは何も保持しません。何が選ばれたかは利用者側が伝え、ファイルは目的のとおりに扱います。
+        picker.selectionText = file.name;
+        importLayer(JSON.parse(await file.text()));
+      });
+      // 断られたファイルの理由は名前であって、文ではありません。利用者側の言葉で伝えます。
+      picker.addEventListener('reject', ({ detail }) => {
+        const field = picker.closest('tanrei-field');
+        field.errorText = detail.files[0].reason === 'type' ? 'JSON ファイルを選んでください。' : 'ファイルを 1 つ選んでください。';
+        field.error = true;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Field, FilePicker } from '@tanrei/react';
+
+    <Field label="レイヤファイル" error={!!problem} errorText={problem}>
+      <FilePicker accept={['.json']} constraintsText="JSON ファイル 1 つ"
+        selectionText={chosen?.name ?? 'ファイルが選ばれていません'}
+        onSelect={(event) => importLayer(event.detail.files[0])}
+        onReject={(event) => explain(event.detail.files)}>
+        <Button slot="trigger" variant="outlined">ファイルを選ぶ</Button>
+      </FilePicker>
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+貼り付けられたファイルや、ページのほかの場所にドロップされたファイルのように、別の経路でプロダクトに届いたファイルは、`judge()` を使って同じ規則で判定します。`judge()` は結果を返すだけで、何も発火しません。
+
+```js
+const { accepted, refused } = picker.judge(event.clipboardData.files);
+```
+
+React では、`judge()` は ref から使います。`ref.current.judge(files)` です。
+
+## 仕様
+
+<DemoFrame label="トリガーだけのもの、選ばれたものと制限を添えたもの、エラーの状態のドロップ領域、無効のもの" plain column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添付">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを添付</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添付ファイル" constraints-text="PDF、10 MB まで" selection-text="brief.pdf">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple error label="添付ファイル" drop-text="ここにファイルをドラッグするか、選んでください" constraints-text="PDF または PNG、1 つにつき 10 MB まで">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="添付ファイル" drop-text="ここにファイルをドラッグするか、選んでください" constraints-text="PDF または PNG、1 つにつき 10 MB まで">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-picker>
+</DemoFrame>
+
+<ComponentSpecs name="file-picker" />
+
+## ガイドライン
+
+### 2 つのレイアウト
+
+| レイアウト | 使う場面 | 描くもの |
+| --- | --- | --- |
+| `button`（既定） | ほかのフィールドと並ぶフォーム、狭い場所、スマートフォン、ツールバー。 | トリガー、その横で何が選ばれているかを伝えるテキスト、その下の制限。ドロップは受け取りません。 |
+| `drop-area` | ファイルを渡すことが主な作業で、ポインターが使われそうな画面。 | 同じトリガーを囲む、境界のある領域。グリフと案内文があります。ドラッグされたファイルを受け取り、領域のどこを押してもピッカーが開きます。 |
+
+どちらも、同じボタンから同じピッカーを開きます。ドラッグは追加の手段であって、唯一の手段にはなりません。キーボード、タッチ、支援技術でファイルを選ぶ手段は、トリガーです。
+
+### トリガー
+
+トリガーは利用者側のボタンで、ラベル、バリアント、サイズも利用者側が決めます。`trigger` スロットには、ちょうど 1 つ入れます。ファイルピッカーはボタンに振る舞いを与えるだけで、見た目を変えることはありません。
+
+- トリガーのないファイルピッカーも、ドロップ領域のレイアウトではドロップを受け取りますが、デバッグビルドは不具合として報告します。
+- トリガーと、`icon` スロットのグリフのほかに中に入れたものは、描かれません。デバッグビルドが報告します。
+- `icon` スロットは、ドロップ領域の上部にあるアップロードのグリフを置き換えます。写真には画像のグリフ、スプレッドシートには表のグリフ、という使い方です。装飾であり、ボタンのレイアウトでは無視されます。
+
+### 選ばれたもの
+
+`selectionText` は、ボタンのレイアウトでトリガーの横に置かれるテキストです。「ファイルが選ばれていません」、次に「brief.pdf」、その次に「3 個のファイル」のように変わります。ファイルピッカーはファイルを保持しないため、このテキストを書くことができません。書くのは、ファイルを保持する側です。利用者側か、利用者側に代わってこれを埋めるファイルアップロードです。
+
+空のままにすると、そこには何も描かれません。ファイルがほかの場所に現れる添付ボタンに向いています。
+
+### 制限を伝える
+
+`accept`、`maxSize`、`maxFiles`、`multiple` は、制限を守らせます。`constraintsText` は、制限を伝えます。両方を指定します。
+
+| プロパティ | 制限 | 制限に合わないファイル |
+| --- | --- | --- |
+| `accept` | 受け取る種類。ドットを付けたファイルの拡張子（`.pdf`）とメディアタイプで指定し、`image/*` のように系統をまとめて指定できます。 | `type` という理由で断られます。フォルダーも `type` で断られます。 |
+| `maxSize` | 1 つのファイルの最大サイズ。バイトで指定します。 | `size` という理由で断られます。 |
+| `multiple` | 1 回の選択で、2 つ以上のファイルを受け取るかどうか。 | 指定がなければ、同時に届いた複数のファイルは、`count` という理由ですべて断られます。その人の代わりに 1 つを選ぶことはありません。 |
+| `maxFiles` | `multiple` があるときに、1 回の選択または 1 回のドロップで受け取るファイルの最大数。 | それを超えた分のファイルが、`count` という理由で断られます。0 にすると、すべてのファイルが断られます。 |
+
+- 制限は、人が読む言葉で書きます。「PDF または PNG、1 つにつき 10 MB まで」のように書きます。Tanrei は言葉を持たないため、`accept` やバイト数から文を組み立てません。
+- 制限は、フィールドの補足テキストではなく、ファイルピッカーの中に描かれます。フィールドの補足テキストは、エラーテキストに場所を譲ります。それは、制限をもう一度読みたいまさにその場面です。
+- `select` は、1 回の選択につき 1 回、通ったファイルとともに発火されます。続いて `reject` が 1 回、断られたファイルとその理由を 1 つずつ伝えます。ファイルピッカーは、断ったことについて何も描かず、何も伝えません。何が起きたかは、フィールドのエラーテキスト、利用者側の一覧の行、利用者側が読み上げさせるメッセージを使って、利用者側の言葉で伝えます。
+- 制限は、1 回の選択に対するものです。ファイルピッカーは、利用者側がそれまでに何を保持したかを知りません。`maxFiles` を、まだ入るファイルの数に設定するか、合計を利用者側で判定します。ファイルアップロードは、これを行います。
+- 領域の上に何かがドラッグされている間、ブラウザーが伝えるのは種類と個数だけで、名前やサイズは伝えません。そのため、大きすぎるファイルは、ドラッグ中ではなく、ドロップしたときに断られます。
+
+### フィールドの中で
+
+フォームがラベル、補足テキスト、エラー、必須の印を見せる場合は、ファイルピッカーを[フィールド](/ja/components/field/)の中に置きます。フィールドがそれらを描き、ファイルピッカーに渡します。トリガーは、それらによって名前が付き、説明されます。
+
+```html
+<tanrei-field label="添付ファイル" requirement="required" required-text="必須"
+              error error-text="10 MB 以下の PDF を選んでください。">
+  <tanrei-file-picker accept=".pdf" max-size="10000000"
+                      constraints-text="PDF、10 MB まで" selection-text="ファイルが選ばれていません">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+```
+
+ファイルピッカーは、何も送信しません。`name` も値もなく、`required` は支援技術に伝えるだけです。ファイルが足りないかどうかを伝えるのは、ファイルを保持するコンポーネントです。利用者側のコードか、フォームコントロールである[ファイルアップロード](/ja/components/file-upload/)です。
+
+### 右から左
+
+右から左のレイアウトでは、トリガーが右に、選ばれたものを伝えるテキストがその左に並び、制限は右の端から始まります。ドロップ領域の縦の並びは、中央のままです。`selectionText` として渡したファイルの名前は、ドットと拡張子を含めて、自身の並びを保ちます。グリフが反転するのは、アイコンセットがそう指定している場合だけです。
+
+### 推奨
+
+- `select` が渡すものを、すぐに保持します。
+- 何が選ばれているかを伝えます。`selectionText` か、プロダクトがファイルを見せる場所です。
+- 断ったことは、必ず言葉で、利用者が見ている場所で伝えます。
+- ファイルをピッカーの下に一覧にし、フォームと一緒に送る場合は、[ファイルアップロード](/ja/components/file-upload/)を使います。
+
+### 非推奨
+
+- ドロップ領域を、選ぶための唯一の手段にしない。領域には、必ずトリガーを入れます。
+- 選ばれたファイルをフォームが送信することを期待しない。ファイルピッカーは、フォームに加わりません。
+- この場所のためだけに、トリガーの内側に手を入れて見た目を変えない。トリガーは利用者側のボタンです。バリアントとサイズを選びます。
+- ファイルの一覧を中に作らない。[ファイル項目](/ja/components/file-item/)を下に置くか、ファイルアップロードを使います。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="file-picker" />
+
+### コンポーネントが担うこと
+
+- トリガーは利用者側のボタンです。制限と、何が選ばれているかを伝えるテキストが、その説明になります。フィールドの中では、フィールドの補足テキストまたはエラーも説明になります。
+- `label` があるか、フィールドの中にあるとき、ファイルピッカーはその名前の付いたグループです。名前がなければ、グループとしては伝わりません。ツールバーの添付ボタンは、ただのボタンです。
+- ドロップ領域は、同じボタンのための、ポインター用の大きなターゲットです。ロールも、名前も、フォーカス順の停止位置も、キーもありません。
+- `error` は、トリガーを不正として伝え、領域の縁をエラーの色で描きます。`disabled` はトリガーを無効にし、領域は何にも応えなくなります。
+- ファイルピッカーは、何も読み上げません。ライブリージョンを持ちません。何が選ばれ、何が断られたかは、ファイルを保持する側が伝えます。
+- テキストが 200% のときも、すべてのテキストが折り返され、何も切り詰められません。強制カラーモードでは、領域は縁を保ち、ドラッグを受け取っている領域は縁が太くなります。
+
+Web での構成は次のとおりです。ピッカーは、シャドウルートの中の本物の `<input type="file">` で、見た目、フォーカス順、支援技術のいずれからも隠されています。トリガーとグリフは、利用者側の DOM にそのまま残ります。`select` と `reject` はバブリングします。`detail.files` は `File[]` で、`reject` では `{ file, reason }` のリストです。
+
+Web での既知の不足は次のとおりです。
+
+- ボタンには、必須という状態がありません。フィールドの中では、フィールドの必須テキストがトリガーの説明に加わります。
+- ブラウザーは、ドラッグを断っている領域にドロップを届けません。その場合、`reject` が発火されるのは、大きすぎるファイルのように、ドロップの前には分からなかった理由で断るときだけです。
+- Safari では、クリックしてもボタンにフォーカスが移りません。Safari でポインターを使ってファイルを選んだ後、フォーカスは元の場所にあります。
+- 破線の縁は、スムージングをかけた角に沿うことができません。角のスムージングを設定するデザインシステムでは、ブラウザーがその曲線を描く場合、縁は実線になります。
+- スクリプトがないときと、要素が定義されるまでの間、トリガーは何も開かないボタンです。スクリプトが動かない場所でファイルを受け取る必要があるページは、ネイティブの `<input type="file">` を書きます。
+
+### 利用者側で行うこと
+
+- `trigger` スロットに、何をするかが分かるラベルの付いたボタンを 1 つ入れます。
+- ファイルピッカーが単独のボタン以上のものである場所では、`label` を付けるか、フィールドの中に置きます。
+- `accept`、`maxSize`、`maxFiles` を指定するときは、必ず `constraintsText` も指定します。
+- 何が選ばれているかと、断ったことのすべてを、言葉で伝えます。
+- 利用者が見ていない場所にファイルが現れるときは、追加されたものを利用者側のライブリージョンで読み上げさせます。

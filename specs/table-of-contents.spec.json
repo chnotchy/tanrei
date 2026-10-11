@@ -1,0 +1,1723 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "table-of-contents",
+  "title": "Table of contents",
+  "summary": "Lists the headings of the page the person is reading as links to them, sub-headings set in under their heading, and marks the one whose section is being read; where there is no room beside the text, one row that names the current section and opens the same list.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "title",
+      "description": "What the list is, in the product's words (\"On this page\"). Text above the list, and the label of the compact form's row. It names the navigation landmark. Not a heading unless the product gives one of its own.",
+      "optional": true
+    },
+    {
+      "id": "list",
+      "description": "The items in the page's order, one column as wide as the layout gives. It has no fill and no edge of its own in the list presentation."
+    },
+    {
+      "id": "container",
+      "description": "One item's row: the part that shows hover, focus and press. It runs from the rail to the list's end edge at every level of nesting, and has no fill at rest."
+    },
+    {
+      "id": "label",
+      "description": "An item's text: the heading it leads to, set in further for each level of nesting. It wraps and is never cut."
+    },
+    {
+      "id": "rail",
+      "description": "One hairline along the list's start edge, as long as the list. The track the marker sits on. Decorative."
+    },
+    {
+      "id": "marker",
+      "description": "A heavier stroke on the rail beside the current item's row, as high as that row. With the label's heavier weight it is what tells the current item from the others. Decorative: the current state is exposed by the item."
+    },
+    {
+      "id": "disclosure-row",
+      "description": "The compact presentation's row: the title, the name of the current section and a chevron. A button that shows and hides the list below it.",
+      "optional": true
+    },
+    {
+      "id": "supporting-text",
+      "description": "The name of the current section in the disclosure row, on one line, cut where it does not fit. Empty while no item is current.",
+      "optional": true
+    },
+    {
+      "id": "icon",
+      "description": "The disclosure row's chevron (expand_more), turned half a turn while the list is shown. Decorative.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The indicator shown for keyboard focus, inside the focused row's container."
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The title, in the product's language (\"On this page\"): drawn above the list and in the compact form's row, and the accessible name of the navigation landmark. Tanrei ships no words of its own. Required; a table of contents without one still renders and is reported (TOC-40)."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "True draws no title above the list and keeps label as the landmark's name: for a layout whose own heading already says what the list is. The compact form's row always shows the title, which is that row's label."
+    },
+    {
+      "name": "presentation",
+      "type": "enum",
+      "values": [
+        "list",
+        "compact"
+      ],
+      "default": "list",
+      "description": "How the table of contents stands. list: the title and the whole list, for a column beside the text. compact: one row that shows the title and the name of the current section, and opens the same list below it; for a window with no room beside the text. Which one a window width gets is decided by the layout that places it (an app shell, the product), which also decides where it stands and whether it stays in view."
+    },
+    {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How tall a row of the list is, in a table's, an accordion's and a tree view's words; it is not the compact presentation, and applies to the list of either presentation. regular (a 44 row in the default system) holds the pointer target, as every control of the default look does. compact (a 32 row) is for a long list of headings beside the text of a product read with a pointer: it is lower than the pointer target, which is acceptable because it is asked for by name and is never what a product gets by default. For touch a row is never lower than the touch target in either. The label's text style, the indent and the inline padding are the same in both. A design system may add values.",
+      "axis": "tanrei.comp.table-of-contents.density"
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "In the compact presentation, whether the list is shown below the row. The web sets it itself when the user opens, closes or chooses; a controlled platform leaves it to the caller. Ignored in the list presentation, where the list is always shown."
+    },
+    {
+      "name": "current",
+      "type": "string",
+      "default": "",
+      "description": "The href of the item whose section the person is in; empty while none is. While tracking is auto the table of contents sets it by the rule of TOC-9 and tells the product with currentChange; while tracking is manual it is the product's to set."
+    },
+    {
+      "name": "tracking",
+      "type": "enum",
+      "values": [
+        "auto",
+        "manual"
+      ],
+      "default": "auto",
+      "description": "Who decides which item is current. auto: the table of contents, from where the items' targets are in the view that scrolls them (TOC-9 to TOC-16). manual: the product, through current — for a page whose sections are not places in one scrolling view (steps shown one at a time, a virtual list), or a product that already knows where its reader is."
+    }
+  ],
+  "items": [
+    {
+      "name": "item",
+      "summary": "One heading of the page: a link to it. An item may hold items, the sub-headings of its section, which are drawn one level further in.",
+      "container": true,
+      "props": [
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The destination: the heading's place on the page. On the web a fragment of the page's address (\"#installation\"); on the other platforms the identifier the product registered that section's heading under. An item whose destination is the top of the page (on the web the fragment the platform reads as the top) is the item for what comes before the first heading (TOC-10). Required and unique within the table of contents."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The heading's text, as plain text: what the item shows and its accessible name. A heading that holds inline code, a tag or a link is given as its text alone. Required."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "title",
+      "description": "The product's own title content in place of the label prop's text above the list: a heading of the level the page's outline needs. Drawn in the title's text style whatever its level; its role and level are kept. label still names the landmark and is still the compact form's row label. No control."
+    }
+  ],
+  "events": [
+    {
+      "name": "currentChange",
+      "description": "The current item changed while tracking is auto: by the person's scrolling, by an item being chosen, or by the address naming a target. Carries the new item's href, or an empty string when no item is current. Emitted exactly once per change, never for a value the product set, and never while tracking is manual."
+    },
+    {
+      "name": "select",
+      "description": "An item was activated by pointer, touch, Enter or assistive technology; carries its href. Emitted before the platform follows the link. A product that moves the view itself (a router, a scroll view the platform's links do not reach) cancels it and moves."
+    },
+    {
+      "name": "toggle",
+      "description": "The compact presentation's list was shown or hidden: by the user from the row, by an item being chosen, or by Escape; carries the new open. Emitted exactly once per change, when the change begins."
+    }
+  ],
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "TOC-1",
+      "text": "THE table of contents SHALL lay out, in the list presentation, its title and below it, comp.table-of-contents.container.gap away, its items in one column in the order given, each item's own items directly after it and before the item that follows it, the whole as wide as the layout it is placed in; it SHALL draw no fill, no edge and no padding of its own around them, SHALL NOT place itself, keep itself in view or limit its own width, and SHALL NOT decide its presentation from the window: where it stands, that it stays while the page scrolls, and which presentation a width gets are the layout's that places it.",
+      "verify": "Place the fixture nested in a 240 wide column and in a 400 wide one: the list fills each. The spec has no prop for a position or a breakpoint."
+    },
+    {
+      "id": "TOC-2",
+      "text": "WHILE labelHidden is false THE table of contents SHALL draw its title above the list in comp.table-of-contents.title.typescale and comp.table-of-contents.title.color: the label's text, or the content of the title slot where the product filled it, drawn in the same style whatever its level and keeping its role and level. WHILE labelHidden is true THE table of contents SHALL draw no title in the list presentation and SHALL still name its landmark by label (TOC-31)."
+    },
+    {
+      "id": "TOC-3",
+      "text": "THE table of contents SHALL draw each item as a row whose container runs from the rail to the list's end edge at every level of nesting, at least as high as its density gives (comp.table-of-contents.row.height.regular for regular and comp.table-of-contents.row.height.compact for compact) and as high as its label needs, with corners comp.table-of-contents.row.shape, holding its label in comp.table-of-contents.label.typescale with the padding of its density above and below it (comp.table-of-contents.row.padding-block.regular for regular and comp.table-of-contents.row.padding-block.compact for compact), comp.table-of-contents.row.padding-inline after it, and before it comp.table-of-contents.row.padding-inline plus comp.table-of-contents.row.indent for each level of nesting; only the label is set in, so that every row's state layer, focus ring and marker start at the same edge and the marker of a nested item sits on the one rail. Rows follow one another with no space between them, so that no place between two rows takes no press. Density changes a row's height and nothing else: the label's text style, where it starts and the rail are the same in both.",
+      "verify": "In the fixture three-levels the labels of the three levels start 12, 24 and 36 from the rail under the default system, every row of one line is 44 high, and every hovered row's state layer starts at the rail. In density-compact-three-levels the labels start at the same three places and every row of one line is 32 high."
+    },
+    {
+      "id": "TOC-4",
+      "text": "THE table of contents SHALL wrap a label that is wider than its row onto further lines that start where its first line starts, breaking where the label's language allows a break and, for a run with no such place that is longer than the line (a long identifier, an address), inside the run; in the list it SHALL NOT cut a label, draw an ellipsis or scroll sideways, and the row SHALL grow by the lines it holds.",
+      "verify": "Fixture long-labels: nothing extends past the stage's edge, no text is hidden, and the row after a three-line label starts below it."
+    },
+    {
+      "id": "TOC-5",
+      "text": "THE table of contents SHALL draw the rail along the list's start edge, from the top of the first row to the bottom of the last, comp.table-of-contents.rail.width wide in comp.table-of-contents.rail.color, once for the whole list and not once per level, and SHALL hide it from assistive technology."
+    },
+    {
+      "id": "TOC-6",
+      "text": "THE table of contents SHALL make each item the platform's own link to its href (on the web an anchor element in the document itself, kept there and not copied into a shadow root; on the other platforms an element with the platform's link semantics), exposing the link role, so that whatever the platform gives a link — on the web its context menu, copying its address, opening it in a new tab, a crawler that reads it, and a list of links that works before any script has run — is the platform's; it SHALL draw an item's label without an underline, because an item is a row of a list in a navigation landmark and is not told from text beside it, and SHALL NOT draw a visited state.",
+      "verify": "On the web: with scripting turned off the page holds a list of a elements with the items' hrefs, and each is followed by a click and by Enter."
+    },
+    {
+      "id": "TOC-7",
+      "text": "WHILE an item is current THE table of contents SHALL draw that item's row from the tokens of the current part in place of the item part's, its label at the weight of comp.table-of-contents.label.typescale plus sys.typescale.emphasis.body, and the marker on the rail beside that row, as high as the row, comp.table-of-contents.marker.width wide in comp.table-of-contents.marker.color, covering the rail there; at most one item SHALL be drawn as current, an item that holds the current item SHALL be drawn as any other item, and no row's lines SHALL break at another place and no row SHALL change its height because an item became or stopped being current, so that the list does not move while the page scrolls. WHEN the current item changes THE table of contents SHALL change the two rows over comp.table-of-contents.motion.state-duration with comp.table-of-contents.motion.state-easing, and at once where motion is reduced; the marker SHALL NOT travel between rows.",
+      "verify": "Fixtures current-top-level, current-nested and current-third-level; in a 180 wide column, set current to each item of long-labels in turn and compare the list's height and every row's line count: both stay the same. The marker measures 3:1 or more against every surface role in every scheme of the default system and of the three presets."
+    },
+    {
+      "id": "TOC-8",
+      "text": "THE table of contents SHALL expose the current item as the current location within its set (on the web aria-current with the value location; a platform without that state, the selected state) and every other item without it; WHEN the current item changes THE table of contents SHALL announce nothing, so that scrolling a page is not narrated."
+    },
+    {
+      "id": "TOC-9",
+      "text": "WHILE tracking is auto THE table of contents SHALL take as current the last item, in the page's order, whose target has reached the line, where an item's target is the place its href leads to in the view that scrolls it, the line is where that target comes to rest when a link moves the view to it — the view's start edge, below whatever the product keeps fixed there, plus the space the target keeps before itself (PRS-23) — and a target has reached the line when its start edge is at the line or before it, within one unit of the platform's layout; WHILE no target has reached the line THE table of contents SHALL have no current item. It SHALL NOT take an item as current because its target is merely in view.",
+      "verify": "On a page with headings 600 apart and a 64 high bar fixed at the top: scrolling so that the second heading is 1 below its resting place leaves the first item current; one further unit makes the second current. Scrolling back up by 2 makes the first current again."
+    },
+    {
+      "id": "TOC-10",
+      "text": "WHERE an item's destination is the top of the page (on the web a fragment the platform reads as the top of the document; elsewhere the identifier the product registered for the start of the content) THE table of contents SHALL treat its target as having always reached the line, so that it is current from the start of the page until the first heading reaches the line and the part before the first heading has a name."
+    },
+    {
+      "id": "TOC-11",
+      "text": "WHILE tracking is auto, the view has room to scroll and is at the end of its range THE table of contents SHALL take the last item as current, whether or not its target has reached the line, because a last section shorter than the view never can; WHEN the view leaves the end of its range THE rule of TOC-9 SHALL apply again. A view with no room to scroll SHALL follow TOC-9 and TOC-10 alone.",
+      "verify": "On a page whose last section is 200 high in a 800 high view, scroll to the end: the last item is current. A page shorter than the view shows no current item, or the item for the top where it has one."
+    },
+    {
+      "id": "TOC-12",
+      "text": "WHEN the user activates an item by pointer, touch, Enter or assistive technology THE table of contents SHALL emit select exactly once with that item's href and then, unless the product cancelled it, let the platform follow the link as it follows any link (on the web the browser moves the view and the address; the table of contents SHALL NOT scroll the view itself and SHALL NOT hold the navigation back for sys.motion.duration.press-hold); WHILE tracking is auto it SHALL make that item current at once and keep it current while the view moves to the target and after it has arrived — also where the target cannot reach the line — until the view next moves by the person's own scrolling (a wheel, a drag, a key, the scroll bar), from which TOC-9 to TOC-11 apply again. While the view moves to the target THE table of contents SHALL NOT mark the items it passes.",
+      "verify": "With smooth scrolling on, choose the eighth item from the top of the page: the marker goes from the first item to the eighth at once and currentChange is emitted once. Choose the item before the last on a page whose last two sections are shorter than the view: it stays current after the view has stopped at the end, and one notch of the wheel makes the rule apply again."
+    },
+    {
+      "id": "TOC-13",
+      "text": "WHEN the table of contents first appears while the page's address names the target of one of its items, or the address comes to name one while it is shown (a link elsewhere on the page, a heading's own anchor, a step back or forward in the history), THE table of contents SHALL, WHILE tracking is auto, make that item current and keep it as TOC-12 keeps a chosen item; it SHALL draw that item as current in its first drawing where the platform knows the address then, and SHALL NOT show another item as current first.",
+      "verify": "Load the page at the fragment of its fifth heading: the fifth item is current in the first frame the list is drawn in after its script runs, and no other row is drawn as current before it."
+    },
+    {
+      "id": "TOC-14",
+      "text": "THE table of contents SHALL add no motion of the view of its own: whether the view glides or jumps to a target is the platform's and the product's (on the web the page's own scroll behaviour, which the product turns off where motion is reduced), and TOC-12 holds for either. It SHALL NOT write the address, add an entry to the history or move the view because the person scrolled."
+    },
+    {
+      "id": "TOC-15",
+      "text": "WHILE tracking is manual THE table of contents SHALL draw and expose as current the item whose href equals current, and none WHILE current is empty; it SHALL NOT observe the view, SHALL NOT change current and SHALL NOT emit currentChange, and SHALL still emit select and follow links as TOC-12 says. WHILE tracking is auto and the product sets current THE table of contents SHALL draw that item as current until the rule next gives another."
+    },
+    {
+      "id": "TOC-16",
+      "text": "WHEN the place of a target changes without the person scrolling — content above it loads or is folded away, the window is resized, the text size changes, an item is added or removed — THE table of contents SHALL, WHILE tracking is auto, decide the current item again by TOC-9 to TOC-11, keeping an item that TOC-12 or TOC-13 is holding. IF an item's href leads to no place on the page THE table of contents SHALL still draw it as a link, SHALL never take it as current by the rule, and in debug builds report it.",
+      "verify": "Open a folded section above the current heading so that the heading moves down past the line: the item before it becomes current without a scroll event from the person."
+    },
+    {
+      "id": "TOC-17",
+      "text": "WHEN the current item changes while its row is not wholly inside the visible part of a scrolling region that holds the list — the table of contents' own in the compact presentation (TOC-27), or the layout's — THE table of contents SHALL scroll that region, and no other, by the least distance that shows the row whole, at once where motion is reduced; it SHALL NOT scroll the view that holds the targets, and SHALL NOT scroll the list WHILE the pointer is over it or keyboard focus is inside it, so that a row is not moved from under a hand.",
+      "verify": "In a 300 high scrolling column holding a list of forty items, scroll the page to its last section: the column scrolls until the last row is in view, and the page's own scroll position is not changed by it."
+    },
+    {
+      "id": "TOC-18",
+      "text": "WHILE an item's row or the disclosure row is hovered, keyboard-focused or pressed THE table of contents SHALL render that row's container, label and opacity from the component tokens of the highest-precedence active state of its part (item, current or disclosure), with precedence pressed over focused over hovered; hover and press anywhere on a row SHALL answer on that row's container; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "The default system gives the pressed and the focused state layer the same opacity; test precedence under the `acme` fixture system."
+    },
+    {
+      "id": "TOC-19",
+      "text": "WHEN a row receives keyboard focus THE table of contents SHALL show the focus ring without animation inside that row's container, following comp.table-of-contents.row.shape, sys.focus.outer-width wide with the inner stroke of sys.focus.inner-width where the system has one, so that the ring is not cut by the neighbouring rows or by the edge of a scrolling region; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "TOC-20",
+      "text": "WHEN an item's row is pressed by pointer, touch or Enter, or the disclosure row by pointer, touch, Enter or Space, THE table of contents SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner. Space on an item does what it does on any link (on the web it scrolls the page) and SHALL NOT show the pressed state."
+    },
+    {
+      "id": "TOC-21",
+      "text": "WHILE pressed THE table of contents SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.table-of-contents.motion.feedback-duration with motion.state-easing, fades over motion.state-duration with motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "TOC-22",
+      "text": "THE table of contents SHALL ease its rows' container corners and the compact form's corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "TOC-23",
+      "text": "THE table of contents SHALL change a row between its states over comp.table-of-contents.motion.state-duration with comp.table-of-contents.motion.state-easing, and at once where motion is reduced."
+    },
+    {
+      "id": "TOC-24",
+      "text": "THE table of contents SHALL make each row its hit area across the list's whole width, whatever the level of its label, with no gap between the hit areas of two rows; WHERE input is touch, or the platform cannot tell the input type, a row SHALL be at least sys.target.touch high, drawn so, in both densities, because rows that touch cannot extend a hit area over each other; for a fine pointer a row SHALL be at least sys.target.pointer high WHILE density is regular, and WHILE density is compact as high as its density gives (comp.table-of-contents.row.height.compact), the one place where a row of the list is lower than the pointer target: the density is asked for by name and is never the default; the disclosure row SHALL be at least comp.table-of-contents.compact.row.height high and never lower than sys.target.touch for touch or sys.target.pointer for a fine pointer.",
+      "verify": "Under the default system the fixture nested draws rows 48 high with a touch input and 44 high with a mouse; density-compact-nested draws them 48 high with a touch input and 32 high with a mouse. In every shipped system the regular row is as high as sys.target.pointer. A press on the indent before a nested label follows that item."
+    },
+    {
+      "id": "TOC-25",
+      "text": "WHILE presentation is compact THE table of contents SHALL draw one block as wide as its layout, filled with comp.table-of-contents.compact.container.color with corners comp.table-of-contents.compact.container.shape, holding first the disclosure row: at least comp.table-of-contents.compact.row.height high, comp.table-of-contents.compact.row.padding-inline at its start and end, and in reading order, comp.table-of-contents.compact.row.gap apart, the title in comp.table-of-contents.title.typescale in the disclosure part's label color, the current item's label in comp.table-of-contents.compact.supporting-text.typescale and comp.table-of-contents.compact.supporting-text.color taking the room that is left, on one line and cut with an ellipsis at the end of its own direction where it does not fit, and at the row's end the icon set's expand_more in a box of comp.table-of-contents.compact.icon.size in comp.table-of-contents.compact.icon.color, turned half a turn WHILE open is true. WHILE no item is current the row SHALL show the title and the chevron alone. The title SHALL NOT be cut before the current item's label has been cut to nothing.",
+      "verify": "Fixtures compact-closed, compact-closed-no-current and compact-long-current."
+    },
+    {
+      "id": "TOC-26",
+      "text": "WHEN the user activates the disclosure row by pointer, touch, Enter or Space THE table of contents SHALL emit toggle exactly once with the new open and, where it owns open, show or hide the list: WHILE open is true the list of TOC-3 to TOC-7 is drawn below the row inside the block, comp.table-of-contents.compact.list.padding-inline from the block's start and end edges and with comp.table-of-contents.compact.list.padding-block below it, the block growing and what follows it in the layout moving; WHILE open is false the list is not drawn, not exposed to assistive technology and not focusable. The change SHALL take comp.table-of-contents.motion.disclosure-duration with comp.table-of-contents.motion.disclosure-easing, the chevron turning with it, and happen at once where motion is reduced. The table of contents SHALL NOT draw a scrim, SHALL NOT keep focus inside itself and SHALL NOT close because a press landed outside it: whether an open list that the layout keeps over the text closes on such a press is that layout's, through open.",
+      "verify": "Fixtures compact-closed and compact-open. With the list closed, Tab from the row reaches the first focusable element after the table of contents."
+    },
+    {
+      "id": "TOC-27",
+      "text": "WHILE presentation is compact and open is true THE table of contents SHALL NOT let its block be taller than the room its layout gives it: where the list needs more, the list SHALL scroll inside the block while the disclosure row stays in place, and WHEN the list is shown THE table of contents SHALL bring the current item's row into its visible part without a motion (TOC-17)."
+    },
+    {
+      "id": "TOC-28",
+      "text": "WHEN the user activates an item WHILE presentation is compact THE table of contents SHALL hide the list (emitting toggle with false) and follow the link as TOC-12 says, and SHALL NOT move keyboard focus to the disclosure row: the next move of focus continues from the section that was chosen, as it does after any link to a place on the page.",
+      "verify": "Open the compact form by keyboard, choose the third item with Enter, press Tab: focus is on the first focusable element after the third heading, not on the disclosure row or on the first element of the page."
+    },
+    {
+      "id": "TOC-29",
+      "text": "WHEN the user presses Escape WHILE presentation is compact, open is true and keyboard focus is on the disclosure row or inside the list THE table of contents SHALL hide the list, emit toggle with false, and move focus to the disclosure row where it was inside the list. Moving focus out of the table of contents by Tab SHALL NOT hide the list."
+    },
+    {
+      "id": "TOC-30",
+      "text": "WHEN presentation changes while the table of contents is shown THE table of contents SHALL keep its current item, draw the new presentation at once without a motion of its own, set open to false without emitting toggle, and keep keyboard focus on the item it was on where that item is still shown, moving it to the disclosure row where it is not."
+    },
+    {
+      "id": "TOC-31",
+      "text": "THE table of contents SHALL expose itself as a navigation landmark named by label, holding its items as a list in which an item's own items are a list inside that item, each item one link named by its label with its position in its list; the rail, the marker and the chevron SHALL be hidden from assistive technology. WHILE presentation is compact THE table of contents SHALL expose the disclosure row as one button named by label, described by the current item's label, with its expanded or collapsed state, controlling the list. The title SHALL be exposed once: as the landmark's name, and as a heading only where the product gave a heading in the title slot.",
+      "verify": "On the web: a nav element (or the navigation role) with the accessible name of label; nested ul elements; the row a button with aria-expanded and aria-controls."
+    },
+    {
+      "id": "TOC-32",
+      "text": "IF the table of contents has no items THE table of contents SHALL draw nothing, take no space and expose nothing, in either presentation — no title, no landmark and no disclosure row — so that a page without headings has no empty list. IF it has one item THE table of contents SHALL render as it does for several."
+    },
+    {
+      "id": "TOC-33",
+      "text": "WHILE the text size is enlarged THE table of contents SHALL grow its title, its labels and the disclosure row's texts with it, keep its paddings, comp.table-of-contents.row.indent, comp.table-of-contents.rail.width and comp.table-of-contents.marker.width, wrap its labels as TOC-4 says and let its rows and the disclosure row grow in height; nothing SHALL be cut in the list, and at twice the text size every label SHALL still be readable in a column that held it at the ordinary size.",
+      "verify": "At 200% text size in a 240 wide column, the fixture three-levels shows every word of every label."
+    },
+    {
+      "id": "TOC-34",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE table of contents SHALL draw its items' labels in the platform's link color, the current item's label, the title and the disclosure row's texts in the platform's text color, the rail and the marker in the platform's text color with the marker kept comp.table-of-contents.marker.width wide and drawn as a stroke the mode does not remove, the compact form with an edge in the platform's text color in place of its fill, and its focus ring in the platform's highlight color."
+    },
+    {
+      "id": "TOC-35",
+      "text": "WHERE the layout direction is right-to-left THE table of contents SHALL mirror its layout and apply its paddings by logical start and end: the rail and the marker at the right edge, each level's label set in further from the right, lines aligned to the right, and in the disclosure row the title at the right, the current item's label after it and the chevron at the left. The chevron SHALL NOT be mirrored: it turns, and shows no direction along the line.",
+      "verify": "Fixtures rtl, rtl-compact-closed and rtl-compact-open."
+    },
+    {
+      "id": "TOC-36",
+      "text": "THE table of contents SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the table of contents is shown THE table of contents SHALL draw itself for the new direction at once, without a motion of its own, keeping its current item, its open and its focus."
+    },
+    {
+      "id": "TOC-37",
+      "text": "THE table of contents SHALL lay out its title, each item's label and the current item's label in the disclosure row each as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name, a version or a number keeps its own order in a right-to-left layout and reorders nothing beside it; THE table of contents SHALL still place each text and align its lines by the layout direction, so that the labels of one level start at one edge whatever language each is in.",
+      "verify": "Fixture rtl-ltr-labels: the labels `tanrei.config.json` and `2.0` read left to right and start at the right edge with their level."
+    },
+    {
+      "id": "TOC-38",
+      "text": "WHILE the system's icon set cannot yet draw the chevron (its font is still loading) THE table of contents SHALL draw nothing in its place, never the glyph's name as text, and SHALL keep its box, so that the disclosure row's texts do not move when the glyph appears."
+    },
+    {
+      "id": "TOC-39",
+      "text": "WHEN presentation or tracking names a value the table of contents does not have THE table of contents SHALL behave as the default value (list, auto), and WHEN density names a value that the active design system does not have it SHALL render with the default density's tokens; in debug builds it SHALL report the unknown value. WHEN density changes while the table of contents is shown THE table of contents SHALL draw the new heights at once, keeping its current item, its open state and its focus. IF current names no item's href WHILE tracking is manual THE table of contents SHALL draw no item as current and in debug builds report it. IF two items have the same href THE table of contents SHALL render both, take the first as the one that can be current, and in debug builds report it. IF items nest more than three levels deep THE table of contents SHALL still render them, setting each level's label in by comp.table-of-contents.row.indent, and in debug builds report the depth."
+    },
+    {
+      "id": "TOC-40",
+      "text": "IF label is empty THE table of contents SHALL still render, drawing no title and, in the compact presentation, a disclosure row that shows the current item's label alone, and in debug builds report that the landmark and the row have no name. IF an item's label is empty THE table of contents SHALL NOT draw that item or its items, and in debug builds report it."
+    }
+  ],
+  "accessibility": {
+    "role": "navigation",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus through the items in order, each one a stop, as through any list of links; in the compact presentation to the disclosure row, and through the items only while the list is shown."
+      },
+      {
+        "keys": "Enter",
+        "action": "On an item: follows the link to its heading. On the disclosure row: shows or hides the list."
+      },
+      {
+        "keys": "Space",
+        "action": "On the disclosure row: shows or hides the list. On an item it does what it does on any link (on the web it scrolls the page)."
+      },
+      {
+        "keys": "Escape",
+        "action": "In the compact presentation, while the list is shown and focus is on the row or in the list: hides the list and returns focus to the row."
+      }
+    ],
+    "labeling": "A navigation landmark named by label (\"On this page\"), in the product's language; a page with a second table of contents gives each another name. Inside it a list of links, each named by its item's label, sub-headings as a list inside their heading's item. The current item carries the current-location state and nothing is added to its name. In the compact presentation the disclosure row is a button named by label, described by the current item's label, with its expanded state. The title is drawn text and the landmark's name; it is a heading only where the product gave one.",
+    "minimumTarget": true,
+    "notes": [
+      "The current item is exposed as a location, not as a page. Every item of a table of contents leads to the page the person is already on, so the state that says \"the current page\" would be true of all of them and is the one the product's navigation uses for the page itself; the state for the current location within a context says what is meant: this part, of this page. The bare true value says less than either. A screen reader that does not know the value announces the item as current, which is still right.",
+      "A change of the current item is not announced (TOC-8). It follows from the person's own scrolling or from the link they chose, and a live region would narrate every heading a reader scrolls past. The state is there when they move to the list.",
+      "The items are plain links in the focus order, one stop each, with no arrow-key movement of their own: a table of contents is a list of links in a landmark, which assistive technology already lets people list, skip and move through, and a composite widget would take those keys away. A product places a skip link before a long one, or places the table of contents after the content in the reading order.",
+      "Current is never told by color alone (TOC-7): the marker is a stroke heavier than the rail in primary, which the token invariants hold to 4.5:1 on every surface role of the default system (13.3:1 at the least today; 3.1:1 at the least in the shipped presets), and the label is heavier by the system's emphasis. The rail is decorative and is not held to 3:1, as a divider's line is not. Item labels are secondary text on a surface and the current label primary text, both held to 4.5:1 by the token invariants.",
+      "The target (TOC-24), WCAG 2.5.8. A row's hit area is the list's whole width and the row's height, with no space between rows. For touch a row is drawn at least the touch target high in both densities. For a fine pointer a regular row, the default, is the pointer target high (44 in the default system). The compact density is lower than the pointer target (32), by design: it is the density a product asks for by name where a long list of headings must fit beside the text, it stays above the 24 by 24 the criterion asks, and its rows reach across the list's whole width. A product that cannot accept that uses regular.",
+      "The items are not underlined (TOC-6). An underline is what tells a link from the text beside it in a sentence (WCAG 1.4.1); a row of a list inside a navigation landmark has no text beside it to be told from, as a navigation drawer's destination has not.",
+      "Keyboard focus after choosing an item goes with the page (TOC-28): the next Tab starts from the chosen section. The table of contents never pulls focus back to itself and never moves it into the content.",
+      "Text must remain readable at 200% text size: labels wrap and rows grow (TOC-33); only the current section's name in the compact row is ever cut, and it is whole in the list below it.",
+      "Motion: the table of contents moves nothing but its own compact list and its state changes, each at once where motion is reduced (TOC-7, TOC-23, TOC-26). Whether the page glides to a heading is the product's setting, not this component's (TOC-14).",
+      "A page with no headings has no table of contents: no empty landmark is left for assistive technology to find (TOC-32).",
+      "How a state looks is a value decision of the active design system (a state-layer mix in Tanrei, a dim or no hover at all elsewhere). The table of contents reads the state's tokens and never computes the effect itself."
+    ]
+  },
+  "tokens": "comp.table-of-contents",
+  "fixtures": [
+    {
+      "id": "flat",
+      "props": {
+        "label": "On this page"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#install",
+            "label": "Install"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#configure",
+            "label": "Configure"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#build",
+            "label": "Build"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#check",
+            "label": "Check"
+          }
+        }
+      ]
+    },
+    {
+      "id": "single",
+      "props": {
+        "label": "On this page"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#usage",
+            "label": "Usage"
+          }
+        }
+      ]
+    },
+    {
+      "id": "nested",
+      "props": {
+        "label": "On this page"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "When to use"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "Anatomy"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "Container"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "Label"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#behaviour",
+            "label": "Behaviour"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#states",
+                "label": "States"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#keyboard",
+                "label": "Keyboard"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "Accessibility"
+          }
+        }
+      ]
+    },
+    {
+      "id": "current-top-level",
+      "props": {
+        "label": "On this page",
+        "tracking": "manual",
+        "current": "#anatomy"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "When to use"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "Anatomy"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "Container"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "Label"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "Accessibility"
+          }
+        }
+      ]
+    },
+    {
+      "id": "current-nested",
+      "props": {
+        "label": "On this page",
+        "tracking": "manual",
+        "current": "#label"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "When to use"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "Anatomy"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "Container"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "Label"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "Accessibility"
+          }
+        }
+      ]
+    },
+    {
+      "id": "three-levels",
+      "props": {
+        "label": "On this page"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#tokens",
+            "label": "Tokens"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#color",
+                "label": "Color"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "href": "#roles",
+                    "label": "Roles"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "href": "#schemes",
+                    "label": "Schemes"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#space",
+                "label": "Space"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#components",
+            "label": "Components"
+          }
+        }
+      ]
+    },
+    {
+      "id": "current-third-level",
+      "props": {
+        "label": "On this page",
+        "tracking": "manual",
+        "current": "#schemes"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#tokens",
+            "label": "Tokens"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#color",
+                "label": "Color"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "href": "#roles",
+                    "label": "Roles"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "href": "#schemes",
+                    "label": "Schemes"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#space",
+                "label": "Space"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#components",
+            "label": "Components"
+          }
+        }
+      ]
+    },
+    {
+      "id": "top-item",
+      "props": {
+        "label": "On this page",
+        "tracking": "manual",
+        "current": "#top"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#top",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#install",
+            "label": "Install"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#configure",
+            "label": "Configure"
+          }
+        }
+      ]
+    },
+    {
+      "id": "current-last",
+      "props": {
+        "label": "On this page",
+        "tracking": "manual",
+        "current": "#check"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#install",
+            "label": "Install"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#configure",
+            "label": "Configure"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#build",
+            "label": "Build"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#check",
+            "label": "Check"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-labels",
+      "props": {
+        "label": "On this page",
+        "tracking": "manual",
+        "current": "#derived"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#why",
+            "label": "Why a design system has two sources of truth and everything else is derived from them"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#derived",
+            "label": "What is derived: token outputs, platform implementations, the status matrix and the roadmap"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#generated",
+                "label": "Files under a generated directory are never edited by hand, on any platform"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#identifier",
+                "label": "tanrei.comp.navigation-drawer.collapsed-selected.item.icon-indicator.color"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#short",
+            "label": "Next"
+          }
+        }
+      ]
+    },
+    {
+      "id": "label-hidden",
+      "props": {
+        "label": "On this page",
+        "labelHidden": true,
+        "tracking": "manual",
+        "current": "#configure"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#install",
+            "label": "Install"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#configure",
+            "label": "Configure"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#build",
+            "label": "Build"
+          }
+        }
+      ]
+    },
+    {
+      "id": "density-compact-nested",
+      "props": {
+        "label": "On this page",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "When to use"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "Anatomy"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "Container"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "Label"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#behaviour",
+            "label": "Behaviour"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#states",
+                "label": "States"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#keyboard",
+                "label": "Keyboard"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "Accessibility"
+          }
+        }
+      ]
+    },
+    {
+      "id": "density-compact-three-levels",
+      "props": {
+        "label": "On this page",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#tokens",
+            "label": "Tokens"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#color",
+                "label": "Color"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "href": "#roles",
+                    "label": "Roles"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "href": "#schemes",
+                    "label": "Schemes"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#space",
+                "label": "Space"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#components",
+            "label": "Components"
+          }
+        }
+      ]
+    },
+    {
+      "id": "density-compact-current",
+      "props": {
+        "label": "On this page",
+        "density": "compact",
+        "tracking": "manual",
+        "current": "#label"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "When to use"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "Anatomy"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "Container"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "Label"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "Accessibility"
+          }
+        }
+      ]
+    },
+    {
+      "id": "density-compact-long-labels",
+      "props": {
+        "label": "On this page",
+        "density": "compact",
+        "tracking": "manual",
+        "current": "#derived"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#why",
+            "label": "Why a design system has two sources of truth and everything else is derived from them"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#derived",
+            "label": "What is derived: token outputs, platform implementations, the status matrix and the roadmap"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#generated",
+                "label": "Files under a generated directory are never edited by hand, on any platform"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#identifier",
+                "label": "tanrei.comp.navigation-drawer.collapsed-selected.item.icon-indicator.color"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#short",
+            "label": "Next"
+          }
+        }
+      ]
+    },
+    {
+      "id": "density-compact-open",
+      "props": {
+        "label": "On this page",
+        "presentation": "compact",
+        "density": "compact",
+        "open": true,
+        "tracking": "manual",
+        "current": "#label"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "When to use"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "Anatomy"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "Container"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "Label"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "Accessibility"
+          }
+        }
+      ]
+    },
+    {
+      "id": "density-compact-rtl",
+      "props": {
+        "label": "في هذه الصفحة",
+        "density": "compact",
+        "tracking": "manual",
+        "current": "#label"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "متى يُستخدم"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "البنية"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "الحاوية"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "التسمية التي تظهر بجانب الأيقونة وتلتف على أكثر من سطر عندما لا يكفي العرض"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "إمكانية الوصول"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact-closed",
+      "props": {
+        "label": "On this page",
+        "presentation": "compact",
+        "tracking": "manual",
+        "current": "#label"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "When to use"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "Anatomy"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "Container"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "Label"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "Accessibility"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact-closed-no-current",
+      "props": {
+        "label": "On this page",
+        "presentation": "compact",
+        "tracking": "manual"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#install",
+            "label": "Install"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#configure",
+            "label": "Configure"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact-long-current",
+      "props": {
+        "label": "On this page",
+        "presentation": "compact",
+        "tracking": "manual",
+        "current": "#derived"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#why",
+            "label": "Why a design system has two sources of truth"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#derived",
+            "label": "What is derived: token outputs, platform implementations, the status matrix, the roadmap, the documentation tables and every file under a generated directory on each of the five platforms"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact-open",
+      "props": {
+        "label": "On this page",
+        "presentation": "compact",
+        "open": true,
+        "tracking": "manual",
+        "current": "#label"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "When to use"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "Anatomy"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "Container"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "Label"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "Accessibility"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact-open-long-labels",
+      "props": {
+        "label": "On this page",
+        "presentation": "compact",
+        "open": true,
+        "tracking": "manual",
+        "current": "#generated"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#why",
+            "label": "Why a design system has two sources of truth and everything else is derived from them"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#derived",
+            "label": "What is derived"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#generated",
+                "label": "Files under a generated directory are never edited by hand, on any platform"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "label": "في هذه الصفحة",
+        "tracking": "manual",
+        "current": "#label"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "متى يُستخدم"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "البنية"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "الحاوية"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#label",
+                "label": "التسمية التي تظهر بجانب الأيقونة وتلتف على أكثر من سطر عندما لا يكفي العرض"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "إمكانية الوصول"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rtl-ltr-labels",
+      "props": {
+        "label": "في هذه الصفحة",
+        "tracking": "manual",
+        "current": "#config"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#setup",
+            "label": "الإعداد"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#config",
+            "label": "tanrei.config.json"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#v2",
+                "label": "2.0"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#cli",
+                "label": "pnpm generate"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rtl-compact-closed",
+      "props": {
+        "label": "في هذه الصفحة",
+        "presentation": "compact",
+        "tracking": "manual",
+        "current": "#anatomy"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "متى يُستخدم"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "البنية"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rtl-compact-open",
+      "props": {
+        "label": "في هذه الصفحة",
+        "presentation": "compact",
+        "open": true,
+        "tracking": "manual",
+        "current": "#container"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "متى يُستخدم"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#anatomy",
+            "label": "البنية"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#container",
+                "label": "الحاوية"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "japanese",
+      "props": {
+        "label": "このページの内容",
+        "tracking": "manual",
+        "current": "#states"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "使いどころ"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#behaviour",
+            "label": "ふるまい"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "href": "#states",
+                "label": "状態の優先順位とキーボードフォーカスの扱い、押下の応答について"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "href": "#keyboard",
+                "label": "キーボード操作"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#accessibility",
+            "label": "アクセシビリティ"
+          }
+        }
+      ]
+    },
+    {
+      "id": "japanese-compact-closed",
+      "props": {
+        "label": "このページの内容",
+        "presentation": "compact",
+        "tracking": "manual",
+        "current": "#states"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "href": "#when-to-use",
+            "label": "使いどころ"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "href": "#states",
+            "label": "状態の優先順位とキーボードフォーカスの扱い、押下の応答について"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-table-of-contents",
+      "props": {
+        "label": "label",
+        "labelHidden": "label-hidden",
+        "presentation": "presentation",
+        "density": "density",
+        "open": "open",
+        "current": "current",
+        "tracking": "tracking"
+      },
+      "events": {
+        "currentChange": "currentchange",
+        "select": "select",
+        "toggle": "toggle"
+      },
+      "items": {
+        "item": {
+          "name": "li",
+          "props": {
+            "href": "href",
+            "label": "a"
+          },
+          "notes": "An `<li>` of the product's list whose first child is its anchor, `<a href=\"#installation\">Installation</a>`: `href` is the anchor's own attribute and the label its text. The item's own items are a `<ul>` after the anchor, inside the same `<li>`. The element writes `aria-current=\"location\"` on the current item's anchor and removes it from the others; a product that sets `tracking=\"manual\"` writes it itself or sets the element's `current`."
+        }
+      },
+      "notes": "Form: `<tanrei-table-of-contents label=\"On this page\">` around the product's own list in the light DOM — `<tanrei-table-of-contents label=\"On this page\"><ul><li><a href=\"#install\">Install</a><ul><li><a href=\"#npm\">npm</a></li></ul></li></ul></tanrei-table-of-contents>`. The anchors stay in the document (TOC-6): before the element is defined, and with scripting off, the page holds a plain nested list of links that work, which a crawler, a search index and a static site generator's own heading list all read and write as they are; nothing is copied, and a framework that renders the list keeps owning it. The element has a small shadow root that holds only what the product did not write — a `<nav>` named by `label` around the title, the disclosure row (a `<button>` with `aria-expanded` and `aria-controls`) and one `<slot>` for the list — so the landmark, the title and the compact form need no markup from the product; the `title` slot takes the product's heading. Everything drawn on the list comes from one stylesheet of the package, `@tanrei/web/table-of-contents.css`, whose selectors start at `tanrei-table-of-contents` and are wrapped in `:where()`: it styles the list before definition too, so the list presentation does not change place when the script loads. Before definition the compact presentation shows its whole list (there is no row yet); a layout that must not show that for a moment hides `tanrei-table-of-contents[presentation=\"compact\"]:not(:defined)` itself. Level is the nesting of the `<ul>`s; the label's inset is `padding-inline-start` computed from a depth custom property the stylesheet sets per nested list. The marker is the anchor's `::before` on the rail (a `border-inline-start`, so forced colors keep it, TOC-34); the heavier weight of the current label must not reflow the list (TOC-7) — reserve the heavier text's width with a hidden copy of the label (`::after` with `content: attr(data-label)`, written by the element) or an equivalent the three engines agree on. Tracking (TOC-9 to TOC-16): the element resolves each anchor's fragment with `document.getElementById`, finds the nearest scrolling ancestor of the targets (else the viewport), and reads the line from each target's own computed `scroll-margin-block-start` plus the view's `scroll-padding-block-start`, which is where the browser itself rests a target — so prose's heading margin (PRS-23) and the product's fixed header are declared once, in CSS, and never passed to the element. It decides on `scroll` through one passive listener coalesced to a frame (or an `IntersectionObserver` per target; no frame is asked for at rest), on `resize`, and through a `ResizeObserver` on the scrolled content (TOC-16). TOC-12's hold begins on the anchor's `click` and on `hashchange`/`popstate`, and ends at the first `wheel`, `touchmove`, scrolling key or scroll-bar press after `scrollend` (a timer where `scrollend` is missing). The element never calls `scrollIntoView` on a target and never writes `location.hash`; TOC-17 uses `scrollTo` on the list's own scroll container only. TOC-28: the element blurs nothing and focuses nothing; it closes the list after the browser has taken the fragment navigation, which sets the sequential focus starting point at the target. `select` is dispatched from the anchor's `click` and is cancelable, cancelling the click with it. `toggle` carries `detail.open`; `currentchange` carries `detail.href`. A list that the product builds from a container's headings is the product's (or its site generator's) to build; the package may export a function that returns the nested items of a container's `h2` to `h4`, and the element does not read headings itself. React: `TableOfContents` takes `items` (`{ href, label, items? }[]`) and renders the same element and list, or children."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiTableOfContents",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "presentation": "presentation",
+        "density": "density",
+        "open": "isOpen",
+        "current": "current",
+        "tracking": "tracking"
+      },
+      "events": {
+        "currentChange": "current",
+        "select": "onSelect",
+        "toggle": "isOpen"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiTableOfContentsItem",
+          "props": {
+            "href": "id",
+            "label": "label"
+          },
+          "notes": "`TanreiTableOfContentsItem(id:, label:, items: [])`, a value. `id` is what the product's headings are registered under."
+        }
+      },
+      "notes": "`TanreiTableOfContents(label:, items:, current: Binding<String>, presentation:, isOpen: Binding<Bool>, tracking:, onSelect:)`. Targets are registered by a modifier on the product's heading views, `.tanreiTableOfContentsTarget(id)`, inside a scroll view marked `.tanreiTableOfContentsView(line:)`, which reports each target's place in the scroll view's coordinate space through a preference; the table of contents applies TOC-9 to TOC-16 to those places and writes `current`. `onSelect` is given the id and the product scrolls (a `ScrollViewReader` proxy or `scrollPosition(id:)`); TOC-12's hold ends at the next drag of the scroll view. An accessibility container with the navigation role where the platform has one, the items as links (`isLink`) with `isSelected` for current; the row is a button whose value is expanded or collapsed."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiTableOfContents",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "presentation": "presentation",
+        "density": "density",
+        "open": "open",
+        "current": "current",
+        "tracking": "tracking"
+      },
+      "events": {
+        "currentChange": "onCurrentChange",
+        "select": "onSelect",
+        "toggle": "onOpenChange"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiTableOfContentsItem",
+          "props": {
+            "href": "id",
+            "label": "label"
+          },
+          "notes": "`TanreiTableOfContentsItem(id, label, items = emptyList())`, a data class."
+        }
+      },
+      "notes": "`TanreiTableOfContents(label, items, current, onCurrentChange, presentation, open, onOpenChange, tracking, onSelect, state)`. `rememberTanreiTableOfContentsState()` holds the targets' places: headings register with `Modifier.tanreiTableOfContentsTarget(state, id)` (`onGloballyPositioned`), a lazy list registers the indices of its headings, and the state applies TOC-9 to TOC-16 from the scroll state it is given. `onSelect` is given the id and the product scrolls (`animateScrollToItem`, `bringIntoView`). Items have the link semantics a link annotation has (Compose has no link role for a clickable node) and `selected` for current; the row has the expanded state with the expand and collapse actions."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiTableOfContents",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "presentation": "presentation",
+        "density": "density",
+        "open": "open",
+        "current": "current",
+        "tracking": "tracking"
+      },
+      "events": {
+        "currentChange": "onCurrentChanged",
+        "select": "onSelected",
+        "toggle": "onOpenChanged"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiTableOfContentsItem",
+          "props": {
+            "href": "id",
+            "label": "label"
+          },
+          "notes": "`TanreiTableOfContentsItem(id: …, label: …, items: const [])`, a value."
+        }
+      },
+      "notes": "`TanreiTableOfContents(label: …, items: …, current:, onCurrentChanged:, presentation:, open:, onOpenChanged:, tracking:, onSelected:, controller:)`. A `TanreiTableOfContentsController` is given the page's `ScrollController`; headings are wrapped in `TanreiTableOfContentsTarget(id: …)`, whose render object's offset in the scrollable is read after layout, and the controller applies TOC-9 to TOC-16. `onSelected` is given the id and the product scrolls (`Scrollable.ensureVisible`). `Semantics(link: true, selected: …)` for items, `expanded` for the row; on the web target of Flutter the address is the product's router's."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "TableOfContents",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "presentation": "presentation",
+        "density": "density",
+        "open": "open",
+        "current": "current",
+        "tracking": "tracking"
+      },
+      "events": {
+        "currentChange": "onCurrentChange",
+        "select": "onSelect",
+        "toggle": "onOpenChange"
+      },
+      "items": {
+        "item": {
+          "name": "TableOfContentsItem",
+          "props": {
+            "href": "id",
+            "label": "label"
+          },
+          "notes": "An object of the `items` prop: `{ id, label, items? }`."
+        }
+      },
+      "notes": "`<TableOfContents label=\"…\" items={…} current={…} onCurrentChange={…} />`. `useTableOfContents()` returns what the page's `ScrollView` and its headings need — an `onScroll` handler, an `onLayout` per heading id, and the line — and applies TOC-9 to TOC-16 to them; `onSelect` is given the id and the product scrolls (`scrollTo`). `accessibilityRole=\"link\"` with `accessibilityState.selected` for items, `accessibilityState.expanded` for the row. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

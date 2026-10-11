@@ -1,0 +1,823 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "page-header",
+  "title": "Page header",
+  "summary": "The head of a page's content: the page's title as its heading, with a sentence that says what the page is, a line of facts about it, the actions for the whole page and the way back up above it — in the content, scrolling with it, laid out by its own width, and never a control.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "breadcrumbs",
+    "link",
+    "button",
+    "tag",
+    "avatar"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The block that holds the head, as wide as its place in the layout and as tall as its parts, with no fill, no edge and no shape of its own: it is drawn on the surface the page is drawn on. It carries no state: nothing about it answers a pointer, a press or focus."
+    },
+    {
+      "id": "breadcrumbs",
+      "description": "What stands above the title and leads back up: the product's Breadcrumbs, or one Link to the level above. It keeps its own look, its own landmark and its own behaviour; the page header only gives it a place.",
+      "optional": true
+    },
+    {
+      "id": "eyebrow",
+      "description": "A few words directly above the title that say what the page belongs to — a category, a product, a version — small, tracked wide and in capitals where the script has them. Text, not a heading and not a link.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "The page's title, and the heading of its level in the page's outline: level 1 for a page, level 2 for a part of one. It wraps onto as many lines as it needs and is never cut, hidden or drawn twice."
+    },
+    {
+      "id": "description",
+      "description": "One or two sentences under the title that say what the page is: a lead, quieter than the title and no longer than a line of reading text. A paragraph, with the inline content the product gives it.",
+      "optional": true
+    },
+    {
+      "id": "meta",
+      "description": "A line of short facts about the page under the description — a date, an author's avatar and name, a reading time, a state, tags — each one item the product gives, in a row that wraps.",
+      "optional": true
+    },
+    {
+      "id": "separator",
+      "description": "The small dot the page header draws between two items that share a row of the meta line. Decorative, never at the start or the end of a row.",
+      "optional": true
+    },
+    {
+      "id": "actions",
+      "description": "The product's own Buttons and Links for the whole page: beside the title at the end edge while the head is wide, below the text while it is narrow or where the product asks.",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "One hairline under the head, across its width, where the product asks for it: for a head above content that is not text (a table, a list of records, a set of tabs).",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "title",
+      "type": "string",
+      "default": "",
+      "description": "The page's title, as plain text. The page header draws it as a heading (PGH-2). The title slot takes its place where the product gives its own heading: on the web that is the page's own heading element, which is how a content page should give it."
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "default": "",
+      "description": "One or two sentences under the title that say what the page is. Empty draws none. The description slot takes its place where the sentence holds a link, inline code or other inline content."
+    },
+    {
+      "name": "eyebrow",
+      "type": "string",
+      "default": "",
+      "description": "A few words above the title that say what the page belongs to (\"Announcements\", \"Design system\"). Plain text; empty draws none. Written as ordinary words: the page header draws the capitals."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "What the head opens. medium: a page. small: a part of a page (a section of a settings page, one record in a list of records). large: a landing page, whose title is a statement. A size sets the title's and the description's text styles and the spaces that go with them, and the heading's level where level is 0; it changes no part's place. A design system may add values.",
+      "axis": "tanrei.comp.page-header.size"
+    },
+    {
+      "name": "level",
+      "type": "number",
+      "default": 0,
+      "description": "The level of the heading the title is exposed as, 1 to 6, where the page header makes the heading itself. 0, the default, takes it from the size: 1 for medium and large, 2 for small. Ignored where the product gives its own heading in the title slot, whose level is the product's."
+    },
+    {
+      "name": "actionsPlacement",
+      "type": "enum",
+      "values": [
+        "end",
+        "below"
+      ],
+      "default": "end",
+      "description": "Where the actions stand. end: beside the title at the end edge while the head is at least comp.page-header.wide.container-width wide, and below the text while it is narrower. below: under the text at every width, for an article's head and a landing page's, whose actions follow the sentence that leads to them."
+    },
+    {
+      "name": "divider",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws one hairline under the head. For a head above content that is not text — a table, a list of records, tabs — where the eye needs an edge to start from; above an article it is not needed."
+    }
+  ],
+  "items": [
+    {
+      "name": "meta-item",
+      "summary": "One fact of the meta line: a few words of text (a date, a reading time, a count), or the product's own content in its place — a Link, a Tag, an Avatar or a glyph followed by a name, a group of tags. The page header places it, gives its text the meta line's style and draws the dot between it and its neighbour; it has no props, no role and no states of its own.",
+      "props": []
+    }
+  ],
+  "slots": [
+    {
+      "name": "breadcrumbs",
+      "description": "What stands above the title: the product's Breadcrumbs, or one standalone Link back to the level above. The page header places it and does nothing else to it. A fixture's string is drawn as plain text in its place.",
+      "fixture": "text"
+    },
+    {
+      "name": "title",
+      "description": "The product's own heading in place of the title prop: the page's heading element with its text and any inline content (inline code, a word in another language). The page header draws it in the title's style and changes neither its role nor its level.",
+      "fixture": "text"
+    },
+    {
+      "name": "description",
+      "description": "The product's own description in place of the description prop: a paragraph with links, inline code or a keyboard shortcut.",
+      "fixture": "text"
+    },
+    {
+      "name": "actions",
+      "description": "The actions for the whole page: the product's own Buttons and Links. The page header lays them out and does nothing else to them.",
+      "fixture": "button"
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "PGH-1",
+      "text": "THE page header SHALL lay out its parts from the top in this order, each at the start edge and each taking no room and no space while it is absent: what the breadcrumbs slot holds (PGH-5), with comp.page-header.breadcrumbs.gap below it; the eyebrow (PGH-6), with comp.page-header.eyebrow.gap below it; the title (PGH-2); the description (PGH-7), comp.page-header.description.gap.small, comp.page-header.description.gap.medium or comp.page-header.description.gap.large below the title by size; the meta line (PGH-8), comp.page-header.meta.gap below the part above it; and the actions (PGH-10, PGH-11). THE page header SHALL bring no space above its first part, and below its last part SHALL keep, inside its own box, comp.page-header.container.padding-block-end.small, comp.page-header.container.padding-block-end.medium or comp.page-header.container.padding-block-end.large by size. It SHALL draw no fill, no edge, no corner shape and no elevation: it stands on the surface its container is drawn on.",
+      "verify": "Under the default system the fixture docs-page is, from the top: the breadcrumbs slot, 12, the title on a 40 line, 8, the description on 26 lines, 16 of space below. The fixture title-only is 40 + 16 high."
+    },
+    {
+      "id": "PGH-2",
+      "text": "THE page header SHALL draw its title in the text style of its size — comp.page-header.title.typescale.small, comp.page-header.title.typescale.medium or comp.page-header.title.typescale.large — and in comp.page-header.title.color, and SHALL expose it as a heading: of the level the level prop gives, or WHILE level is 0 of level 1 for medium and large and of level 2 for small, on a platform whose headings have levels, and with the platform's heading trait on one whose headings have none. WHERE the title slot holds the product's own heading THE page header SHALL draw that heading in the title's place, style and color instead of the title prop and SHALL change neither its role nor its level. THE page header SHALL expose the title exactly once and as text: it SHALL NOT hide the title from sight or from assistive technology, SHALL NOT repeat it in another part, and SHALL NOT replace it with a picture.",
+      "verify": "On the web the title is the page's own heading element among the element's children: test that the document holds one h1 with the title's text with script disabled, before the element is defined and after; and that a title slot holding a heading of level 3 is drawn in the title's style and keeps level 3."
+    },
+    {
+      "id": "PGH-3",
+      "text": "THE page header SHALL wrap its title onto as many lines as it needs and SHALL never cut it, limit it to a number of lines or shrink its text to make it fit: lines break by the rules of the title's language (PRS-19: a line of Japanese or Chinese neither begins with closing punctuation or a small kana nor ends with opening punctuation), a string with no break opportunity that is longer than its line breaks anywhere rather than overflow, and the lines align to the start edge, never justified and never hyphenated unless the product asks. WHERE the platform can balance the lengths of a heading's lines THE page header SHALL ask it to, so that a title of two lines does not end in a single word. THE title SHALL take the whole width the head gives its text and SHALL NOT be limited by comp.page-header.description.measure.",
+      "verify": "The fixtures long-title, long-title-actions, unbroken-title and japanese: every character of every title is drawn, and nothing is wider than the head."
+    },
+    {
+      "id": "PGH-4",
+      "text": "WHERE the language of the title is Chinese, Japanese or Korean, or its script joins its letters or stacks marks on them (Arabic, Devanagari), THE page header SHALL draw the title at a letter-spacing of zero and SHALL NOT apply the negative letter-spacing of the title's text style (PRS-20, extended to the scripts a tracked word falls apart in); and WHERE the language of the eyebrow is one of those THE page header SHALL draw the eyebrow at a letter-spacing of zero too. No design system chooses this: it is not a token.",
+      "verify": "The fixtures japanese and rtl: the computed letter-spacing of the title and of the eyebrow is zero; in the fixture medium the title has the letter-spacing of sys.typescale.heading-1."
+    },
+    {
+      "id": "PGH-5",
+      "text": "WHERE the breadcrumbs slot holds content THE page header SHALL place it first, at the start edge, across the head's whole width — above the actions too, which never stand beside it — and SHALL NOT restyle it, cut it, answer its presses or give it a role: Breadcrumbs keeps its own landmark, its own overflow and its own states, and a Link its own. It SHALL come first in the reading order and in the focus order of the head."
+    },
+    {
+      "id": "PGH-6",
+      "text": "WHILE eyebrow is not empty THE page header SHALL draw it directly above the title in comp.page-header.eyebrow.typescale and comp.page-header.eyebrow.color, in capitals where its script has them, by the casing rules of its language, and unchanged where the script has none; the capitals SHALL be drawn only: assistive technology, a search of the page, a copy and a translation SHALL get the text as the product wrote it. THE eyebrow SHALL wrap and SHALL never be cut. It SHALL be exposed as text read before the title, SHALL NOT be a heading and SHALL NOT be part of the heading's text or of its accessible name.",
+      "verify": "The fixture eyebrow: the eyebrow is drawn \"ANNOUNCEMENTS\" and its text content is \"Announcements\"; the heading's accessible name is the title alone."
+    },
+    {
+      "id": "PGH-7",
+      "text": "WHILE description is not empty, or the description slot holds content, THE page header SHALL draw it below the title as a paragraph in the text style of its size — comp.page-header.description.typescale.small, comp.page-header.description.typescale.medium or comp.page-header.description.typescale.large — and in comp.page-header.description.color, no wider than comp.page-header.description.measure times its own font size, at the start edge and never centred; the slot's content SHALL take the description's place, style and color instead of the prop. THE description SHALL wrap by the rules of its language (PRS-19) and SHALL never be cut or limited to a number of lines. A link in it SHALL be underlined at rest (PRS-17), and an inline component in it (inline code, a keyboard shortcut) SHALL sit on its baseline without making its line taller. THE description SHALL be exposed as a paragraph that follows the heading: it is not a heading and not part of the heading's name.",
+      "verify": "Under the default system the description of the fixture medium, in a head 768 wide, is no wider than 576 (36 × 16)."
+    },
+    {
+      "id": "PGH-8",
+      "text": "WHERE the page header has meta items THE page header SHALL lay them out in the order given as a row that starts at the start edge and wraps, with comp.page-header.meta.item-gap between two items on one row and comp.page-header.meta.row-gap between two rows, the items of a row centred on that row's line of text. Text in an item SHALL take comp.page-header.meta.typescale and comp.page-header.meta.color where nothing inside sets another; WHERE an item holds a glyph or an Avatar followed by text THE page header SHALL centre the two on one line with comp.page-header.meta.icon.gap between them. THE page header SHALL keep an item whole on one row while the item is no wider than the head, SHALL let an item that is wider wrap inside itself, and SHALL cut nothing. It SHALL add no style to anything inside a component placed as an item — a Tag, a Link and an Avatar keep their own colors, sizes and states — SHALL give no item a role, and SHALL NOT reorder, sort or hide items.",
+      "verify": "The fixture blog-post draws four items on one row in a head 768 wide; test the same head 288 wide: the items wrap onto rows 4 apart and every item is whole."
+    },
+    {
+      "id": "PGH-9",
+      "text": "THE page header SHALL draw, between two items that follow each other on one row of the meta line, a filled circle of comp.page-header.meta.separator.size in comp.page-header.meta.separator.color, centred in the space between them and on the row's line of text; it SHALL draw none before the first item of a row or after the last, whichever items a wrap puts there, and none where the meta line has one item. THE separator SHALL be kept from assistive technology, SHALL NOT be part of the text a person selects or copies, and SHALL NOT be mirrored. WHERE the product writes a separator of its own between items THE page header SHALL NOT remove it.",
+      "verify": "The fixture meta draws two dots between three items; test the same items in a head narrow enough to put each on its own row: no dot is drawn."
+    },
+    {
+      "id": "PGH-10",
+      "text": "WHERE the actions slot holds content, WHILE actionsPlacement is end and the head is at least comp.page-header.wide.container-width wide, THE page header SHALL place the actions beside its text at the end edge: the eyebrow, the title, the description and the meta line form one column that takes the remaining width, and the actions stand comp.page-header.container.gap after that column, centred on the title's first line, however many lines the title has; the column SHALL keep at least half of the head's width, and actions that need more SHALL wrap inside their own box (PGH-11). WHILE actionsPlacement is below, or the head is narrower than that width, THE page header SHALL place the actions below the last part of the text, comp.page-header.actions.gap under it, starting at the start edge. THE width that decides is the head's own — the room its container gives it — never the window's, so a head in a pane beside a list and a head in a full page each lay themselves out for the room they have.",
+      "verify": "The fixture actions in a stage 768 wide has its two Buttons at the end edge, centred on the 40 line of the title; test the same fixture in a stage 400 wide: the Buttons are under the description, 16 below it, at the start edge. The fixture actions-below has them under the text at 768."
+    },
+    {
+      "id": "PGH-11",
+      "text": "THE page header SHALL lay its actions out as a row in the order given, with comp.page-header.actions.item-gap between two actions along the row and between rows where they wrap; beside the text the row SHALL end at the head's end edge, and below the text it SHALL start at the start edge. An action's label SHALL NOT be cut to make the row fit. The actions are the product's own Buttons and Links: THE page header SHALL NOT restyle them, resize them or answer their presses. In the reading order and in the focus order they SHALL come after the meta line in both placements: the order — breadcrumbs, eyebrow, title, description, meta, actions — SHALL NOT change with the head's width.",
+      "verify": "Test the fixture everything at 768 and at 320: the order of the accessibility tree and of Tab is the same in both."
+    },
+    {
+      "id": "PGH-12",
+      "text": "WHILE size is large and the head is narrower than comp.page-header.wide.container-width THE page header SHALL draw its title in comp.page-header.title.typescale.medium and the space under it as comp.page-header.description.gap.medium, and everything else as a large head: a statement set for a wide page does not leave a narrow one two words a line. THE change SHALL be one step at that width, not a size that follows the width continuously, and SHALL change neither the heading's level nor the order of the parts.",
+      "verify": "Test the fixture large in a stage 400 wide: the title has the font size of sys.typescale.heading-1; at 768 it has that of sys.typescale.display."
+    },
+    {
+      "id": "PGH-13",
+      "text": "WHILE divider is true THE page header SHALL draw one line comp.page-header.divider.thickness thick in comp.page-header.divider.color along the bottom edge of its box, across its whole width, below the space of PGH-1, without changing the head's height by more than the line or the place of any part; WHILE divider is false it SHALL draw none. THE line is decorative: it SHALL NOT be exposed as a separator, because the heading already says where the content begins.",
+      "verify": "The fixture divider is the fixture medium plus one line of 1 at its bottom edge."
+    },
+    {
+      "id": "PGH-14",
+      "text": "THE page header SHALL lay itself out as a block in the flow of its container: it SHALL take the whole inline size the container gives it — the main region of an app shell inside its gutters (APS-8), a pane, a card, a dialog — with its start edge on the start edge of the content below it; it SHALL bring no outer space of its own (PRS-15), SHALL never be wider than its container, SHALL have no minimum width and no maximum width, and SHALL NOT scroll. THE page header SHALL scroll with the content it heads: it SHALL NOT stick to an edge, float over the content, collapse or change its size as the content scrolls. A title that stays at the top of the window is the app bar's."
+    },
+    {
+      "id": "PGH-15",
+      "text": "THE page header SHALL have no state: it SHALL NOT answer a pointer, a press, a key or focus, SHALL draw no state layer, ripple or focus indicator of its own, SHALL take no place in the focus order and SHALL emit no event. Its text SHALL stay selectable where the platform lets text be selected. Input over a Button, a Link, a Tag or Breadcrumbs inside it reaches that component, which answers it by its own spec."
+    },
+    {
+      "id": "PGH-16",
+      "text": "THE page header SHALL add no landmark, no region and no name of its own: it is not the page's banner, which is the frame's header (APS-21), and it is exposed as its parts in their order — what the breadcrumbs slot holds, the eyebrow's text, the heading, the description's paragraph, the meta items, the actions. THE heading SHALL be found by a person who moves by headings and by a machine that reads the document without running script, with the title's text and nothing else as its name.",
+      "verify": "On the web: axe finds no banner and no region added by the element; the accessibility tree of the fixture everything lists the parts in the order of PGH-11."
+    },
+    {
+      "id": "PGH-17",
+      "text": "WHEN the title, the description, the eyebrow, the size or what a slot holds changes while the page header is shown THE page header SHALL draw the new content at once, with no motion of its own, and SHALL NOT announce it or move focus: a page whose title changes without a navigation (a record renamed in place) is the product's to announce."
+    },
+    {
+      "id": "PGH-18",
+      "text": "WHILE the text size is enlarged THE page header SHALL grow every text style and the description's measure with it, keep its gaps, wrap, and grow in height; the width of PGH-10 and PGH-12 SHALL grow with the text, so that a head whose text has doubled is one column up to twice that width; it SHALL set no fixed height on any part, SHALL cut nothing, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %.",
+      "verify": "Test the fixtures everything and long-title-actions at 200 % text in a stage 320 wide: every word, every meta item and every action is visible, the actions are below the text, and the page does not scroll sideways."
+    },
+    {
+      "id": "PGH-19",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE page header SHALL draw the eyebrow, the title, the description and the text of the meta line in the platform's text color, links in the platform's link color and still underlined, and the separator and the line of PGH-13 in the platform's text color; it SHALL rely on no fill of its own, having none.",
+      "verify": "On the web, with forced colors emulated: the fixture everything draws its dots and its line in CanvasText."
+    },
+    {
+      "id": "PGH-20",
+      "text": "WHERE the layout direction is right-to-left THE page header SHALL mirror its layout and apply every space by logical start and end: every part starts at the right edge, the meta line runs from the right and wraps to the right edge, and actions beside the text stand at the left edge, their row ending there. THE separator is the same dot in the same place between two items. THE page header SHALL mirror nothing it holds: Breadcrumbs, a Button's glyph and a meta item's glyph are mirrored by their own components and by the icon helper.",
+      "verify": "The fixture rtl-everything: the title begins at the right edge, the first meta item is the rightmost, and the Buttons are at the left edge, centred on the title's first line."
+    },
+    {
+      "id": "PGH-21",
+      "text": "THE page header SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the page header is shown THE page header SHALL draw itself for the new direction at once, without a motion of its own, keeping its content and the focus of anything inside it.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "PGH-22",
+      "text": "THE page header SHALL lay out the title, the eyebrow and the description, each given as text, as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right product name, a version or a token's id keeps its own order in a right-to-left layout and reorders nothing beside it; THE page header SHALL still place each part and align its lines by the layout direction, not by the text's own. Each item of the meta line SHALL be a run of its own in the same way: the digits of a date, a time or a count SHALL NOT be reversed, and the order of the items is the layout's.",
+      "verify": "The fixture ltr-title-rtl draws a left-to-right title in a right-to-left stage: it begins at the right edge and reads left to right; its meta item \"v2.1 beta\" keeps its order."
+    },
+    {
+      "id": "PGH-23",
+      "text": "WHEN size names a value that the active design system does not have, or actionsPlacement names a value this spec does not have, THE page header SHALL render with the default value (the default size's tokens; end), and in debug builds report the unknown value; WHEN level is not 0 and not a whole number from 1 to 6 THE page header SHALL take the level of its size (PGH-2) and in debug builds report it."
+    },
+    {
+      "id": "PGH-24",
+      "text": "IF the title is empty and the title slot holds nothing THE page header SHALL still draw the parts it has, SHALL expose no empty heading, and in debug builds SHALL report that a page header has no title: a head without a title names nothing. IF every part is empty THE page header SHALL draw nothing, take no space and expose nothing. WHERE the title slot holds content that is not a heading on a platform whose headings are elements of the content (the web) THE page header SHALL still draw it as the title and in debug builds report that the title is not a heading."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Reaches, at the head's place in the page, the links of the breadcrumbs, then any link in the description, then the links and controls among the meta items, then the actions, in that order at every width (PGH-11). The page header itself is not a stop."
+      }
+    ],
+    "labeling": "The page header has no role and no name of its own. Its title is a heading — of level 1 for a page (medium, large), of level 2 for a part of a page (small), or of the level the product gives — whose name is the title's text alone. The eyebrow is text read before it, the description a paragraph read after it; neither is part of the heading. Meta items are read in order as the product wrote them; the dots between them are hidden. Breadcrumbs keeps its own navigation landmark and name; actions are the product's own controls with their own names.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the page header takes no input and no focus (PGH-15), so it has no target to size and minimumTarget holds trivially. The Buttons, Links and Breadcrumbs inside it are other components, each with its own target.",
+      "One heading of level 1 per page or screen, and it is this title (WCAG 1.3.1, 2.4.6). The component cannot see the rest of the page, so that is the product's to keep: a page draws one medium or large page header; the heads of its parts are small, or headings of the content. The title should also be, or begin, the document's title, so that the tab, the history and the heading agree (WCAG 2.4.2).",
+      "Do not show the same title twice. On a screen whose app bar already shows the page's title as its headline — a phone's screen, where the platform's own large title lives in the bar — the app bar's headline is the heading and the screen needs no page header; in a wide window, where the app bar holds the product's name and its search, the page header carries the page's title. Choose one per window class; never give both the heading role for the same words.",
+      "No landmark (PGH-16). A head inside the main region is not a banner, and a region for every page head would be noise in the list of landmarks. People who use a screen reader reach it as the first heading of the main region; the skip link of the frame lands just before it (APS-19, APS-20).",
+      "The eyebrow's capitals are drawn, not written (PGH-6): text written in capitals is spelled letter by letter by some screen readers and loses its meaning in translation. Write \"Announcements\".",
+      "A date in the meta line is the product's text, formatted for the reader's language; on the web it is a time element with a machine-readable datetime. An author is a name in words; the avatar beside it is decorative, because the name is next to it (the avatar's decorative prop). A state is a Tag whose label says it in words (TAG-11): a status is never told by color alone (WCAG 1.4.1).",
+      "Where the meta items are a set a person counts (three tags), the product groups them in its platform's list semantics as one item; the page header gives items no role (PGH-8).",
+      "Reading order is fixed while the layout is not (PGH-11): in a wide head the actions are drawn level with the title and still come last. A person who tabs through a head with links in its meta line goes down the text and then to the actions at the far edge; that is the same order a narrow head has, which is what WCAG 2.4.3 asks when a layout changes with width.",
+      "WCAG 1.4.3 (contrast) in the default system: the title is on-surface and the eyebrow, the description and the meta text are on-surface-variant, each held to 4.5:1 on every surface role by the token invariants. The page header brings no fill, so on a tinted band the product sets the four color tokens for that band and owns the contrast there. The dot and the line are decorative.",
+      "WCAG 1.4.4, 1.4.10 and 1.4.12 (resize, reflow, text spacing): PGH-18. The title is never cut at any size (PGH-3), so a long title in a narrow window costs height, not words.",
+      "Web: the title, the description, the eyebrow, the meta items and the actions are the page's own elements, children of `<tanrei-page-header>` in the document, and there is no shadow root: the heading is an `h1` a crawler, a reader mode, a page without script and a screen reader all find, and the head is drawn by a stylesheet before any script runs. Nothing is shown differently before the element is defined.",
+      "The page header has no states, so no design system decides how one looks."
+    ]
+  },
+  "tokens": "comp.page-header",
+  "fixtures": [
+    {
+      "id": "medium",
+      "props": {
+        "title": "Typography",
+        "description": "Text styles are named by level, never by size: a heading of level 2 is one style in every product."
+      }
+    },
+    {
+      "id": "title-only",
+      "props": {
+        "title": "Typography"
+      }
+    },
+    {
+      "id": "small",
+      "props": {
+        "size": "small",
+        "title": "Members",
+        "description": "People who can open this project."
+      }
+    },
+    {
+      "id": "large",
+      "props": {
+        "size": "large",
+        "title": "One system. Five platforms.",
+        "description": "The same tokens, the same components and the same accessibility contract on the web, iOS, Android, Flutter and React Native, each in its own idiom."
+      }
+    },
+    {
+      "id": "eyebrow",
+      "props": {
+        "eyebrow": "Announcements",
+        "title": "Tokens are derived, and design systems are layers"
+      }
+    },
+    {
+      "id": "breadcrumbs",
+      "props": {
+        "title": "Button"
+      },
+      "slots": {
+        "breadcrumbs": "Components"
+      }
+    },
+    {
+      "id": "meta",
+      "props": {
+        "title": "Tokens are derived, and design systems are layers"
+      },
+      "items": [
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "20 September 2026"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "The Tanrei team"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "4 min read"
+        }
+      ]
+    },
+    {
+      "id": "meta-one",
+      "props": {
+        "title": "Roadmap"
+      },
+      "items": [
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "Updated 7 October 2026"
+        }
+      ]
+    },
+    {
+      "id": "actions",
+      "props": {
+        "title": "Members",
+        "description": "People who can open this project."
+      },
+      "slots": {
+        "actions": [
+          "Export",
+          "Invite"
+        ]
+      }
+    },
+    {
+      "id": "actions-below",
+      "props": {
+        "title": "Members",
+        "description": "People who can open this project.",
+        "actionsPlacement": "below"
+      },
+      "slots": {
+        "actions": [
+          "Export",
+          "Invite"
+        ]
+      }
+    },
+    {
+      "id": "divider",
+      "props": {
+        "title": "Typography",
+        "description": "Text styles are named by level, never by size: a heading of level 2 is one style in every product.",
+        "divider": true
+      }
+    },
+    {
+      "id": "small-actions",
+      "props": {
+        "size": "small",
+        "title": "Access tokens"
+      },
+      "slots": {
+        "actions": "New token"
+      }
+    },
+    {
+      "id": "small-divider",
+      "props": {
+        "size": "small",
+        "title": "Access tokens",
+        "description": "Tokens let scripts act for you. Treat them like passwords.",
+        "divider": true
+      },
+      "slots": {
+        "actions": "New token"
+      }
+    },
+    {
+      "id": "large-landing",
+      "props": {
+        "size": "large",
+        "eyebrow": "Design system",
+        "title": "One system. Five platforms.",
+        "description": "The same tokens, the same components and the same accessibility contract on the web, iOS, Android, Flutter and React Native, each in its own idiom.",
+        "actionsPlacement": "below"
+      },
+      "slots": {
+        "actions": [
+          "Get started",
+          "Components",
+          "Status"
+        ]
+      }
+    },
+    {
+      "id": "level",
+      "props": {
+        "size": "small",
+        "level": 3,
+        "title": "Danger zone",
+        "description": "Deleting a project cannot be undone."
+      }
+    },
+    {
+      "id": "title-slot",
+      "props": {
+        "description": "Every value a button reads, and what each one is for."
+      },
+      "slots": {
+        "title": "comp.button"
+      }
+    },
+    {
+      "id": "description-slot",
+      "props": {
+        "title": "Status"
+      },
+      "slots": {
+        "description": "Which component exists on which platform, generated from the repository."
+      }
+    },
+    {
+      "id": "docs-page",
+      "props": {
+        "title": "Typography",
+        "description": "Text styles are named by level, never by size: a heading of level 2 is one style in every product."
+      },
+      "slots": {
+        "breadcrumbs": "Foundations"
+      }
+    },
+    {
+      "id": "docs-component",
+      "props": {
+        "title": "Button",
+        "description": "Starts an action or leads to a destination with one press: the most important one filled, the others quieter."
+      },
+      "slots": {
+        "breadcrumbs": "Components"
+      },
+      "items": [
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "Actions"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "Wave 0"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "comp.button"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "Stable on the web"
+        }
+      ]
+    },
+    {
+      "id": "blog-post",
+      "props": {
+        "eyebrow": "Announcements",
+        "title": "Default typefaces and icons, choices of kind, and a ledger of what is not done",
+        "description": "Inter, Noto Sans JP, Roboto Mono and Material Symbols by default; three behaviour tokens; an icon set and typefaces per design system; and a backlog that reports are printed from."
+      },
+      "items": [
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "21 September 2026"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "The Tanrei team"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "6 min read"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "Tokens"
+        }
+      ]
+    },
+    {
+      "id": "long-title",
+      "props": {
+        "title": "Text styles by level, corner smoothing as an amount, and four color roles fewer than the system had a week ago"
+      }
+    },
+    {
+      "id": "long-title-actions",
+      "props": {
+        "title": "Text styles by level, corner smoothing as an amount, and four color roles fewer than the system had a week ago",
+        "description": "Text styles are named by level, never by size: a heading of level 2 is one style in every product."
+      },
+      "slots": {
+        "actions": [
+          "Edit",
+          "Share"
+        ]
+      }
+    },
+    {
+      "id": "unbroken-title",
+      "props": {
+        "title": "packages/web/src/components/navigation-drawer/navigation-drawer.styles.ts"
+      }
+    },
+    {
+      "id": "everything",
+      "props": {
+        "eyebrow": "Guides",
+        "title": "Add a design system as a layer",
+        "description": "A layer changes values and may extend the vocabulary; it never forks a component.",
+        "divider": true
+      },
+      "slots": {
+        "breadcrumbs": "Foundations",
+        "actions": [
+          "Edit",
+          "Share"
+        ]
+      },
+      "items": [
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "7 October 2026"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "The Tanrei team"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "8 min read"
+        }
+      ]
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "eyebrow": "الإعلانات",
+        "title": "الرموز مشتقة وأنظمة التصميم طبقات",
+        "description": "قيمة واحدة تتغير في مكان واحد ويتبعها كل ما بُني عليها."
+      },
+      "items": [
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "٢٠ سبتمبر ٢٠٢٦"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "فريق تانري"
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-everything",
+      "props": {
+        "eyebrow": "الأدلة",
+        "title": "أضف نظام تصميم كطبقة",
+        "description": "الطبقة تغيّر القيم وقد توسّع المفردات، ولا تنسخ أي مكوّن.",
+        "divider": true
+      },
+      "slots": {
+        "breadcrumbs": "الأسس",
+        "actions": [
+          "تعديل",
+          "مشاركة"
+        ]
+      },
+      "items": [
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "٧ أكتوبر ٢٠٢٦"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "فريق تانري"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "٨ دقائق للقراءة"
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-title-rtl",
+      "props": {
+        "title": "Tanrei 0.2",
+        "description": "ملاحظات هذا الإصدار."
+      },
+      "items": [
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "v2.1 beta"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "٧ أكتوبر ٢٠٢٦"
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "japanese",
+      "props": {
+        "eyebrow": "お知らせ",
+        "title": "階層で名付けたテキストスタイル、量としての角のスムージング、そして 4 つ減ったカラーロール",
+        "description": "テキストスタイルは大きさではなく階層で名付けます。「見出し 2」はどのプロダクトでも同じスタイルです。"
+      },
+      "items": [
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "2026年9月22日"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "Tanrei チーム"
+        },
+        {
+          "kind": "meta-item",
+          "props": {},
+          "content": "読了 5 分"
+        }
+      ]
+    },
+    {
+      "id": "japanese-actions",
+      "props": {
+        "title": "メンバー",
+        "description": "このプロジェクトを開ける人。"
+      },
+      "slots": {
+        "actions": [
+          "書き出す",
+          "招待する"
+        ]
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-page-header",
+      "props": {
+        "title": "headline",
+        "description": "description",
+        "eyebrow": "eyebrow",
+        "size": "size",
+        "level": "level",
+        "actionsPlacement": "actionsPlacement",
+        "divider": "divider"
+      },
+      "items": {
+        "meta-item": {
+          "name": "[data-part=\"meta\"] > *",
+          "props": {},
+          "notes": "Not an element of its own: every element child of the meta part is one item, whatever it is (a `time`, a `span`, an `a`, a `tanrei-tag`, a `ul` of tags)."
+        }
+      },
+      "notes": "It is the form the figure and the description list take. `<tanrei-page-header>` is a custom element with **no shadow root**, wrapped around the page's own elements, which stay in the document: `<tanrei-page-header><tanrei-breadcrumbs>…</tanrei-breadcrumbs><p data-part=\"eyebrow\">Announcements</p><h1>Title</h1><p>Description</p><div data-part=\"meta\"><time datetime=\"2026-09-21\">21 September 2026</time><span><tanrei-avatar size=\"small\" decorative …></tanrei-avatar> Name</span><tanrei-tag label=\"Tokens\"></tanrei-tag></div><div data-part=\"actions\"><tanrei-button>…</tanrei-button></div></tanrei-page-header>`. Parts are found by what they are: the title is the first heading element among the children (`h1` to `h6`; PGH-2: its level is the page's, never rewritten), the description the first `p` without a `data-part`, `tanrei-breadcrumbs` or `[data-part=\"breadcrumbs\"]` the breadcrumbs slot, `[data-part=\"eyebrow\"]`, `[data-part=\"meta\"]` (whose element children are the items) and `[data-part=\"actions\"]` the rest; the spec's slots are these parts, and the element's children are written in the order of PGH-11, which is then the document's order and the focus order with no reordering in script. Everything drawn comes from one stylesheet, `@tanrei/web/page-header.css`, whose selectors start at `tanrei-page-header` and are wrapped in `:where()`; it styles the page before the element is defined and without script, so the title a crawler reads, the title a reader sees before the bundle arrives and the title afterwards are the same element in the same place, and nothing moves when the element is defined. Props are attributes of the wrapper: `size`, `actions-placement`, `divider`. `headline` (HTML's global `title` would show a tooltip over the whole head), `description`, `eyebrow` and `level` are conveniences for a head built by script or by the React wrapper: where a part is given as an attribute and no element for it is among the children, the element writes that element itself (an `h1` to `h6` by `level` and size); a content page writes the elements, and should. The host is `display: block` and a size container (`container-type: inline-size`), with no role; the wide layout of PGH-10 and PGH-12 is a container query at `comp.page-header.wide.container-width` expressed in rem, so it follows the head's own width and the reader's text size (PGH-18); beside the text the actions are placed by grid lines, not by `order`, and are centred on the title's first line by aligning to a first row as tall as that line (`1lh` of the title's style). The separator is a pseudo-element of each item but the first, drawn inside the gap, and the row's own start is clipped by one gap so the dot of an item that begins a row is not seen (PGH-9); it is not text, so it is neither read nor copied. The title takes `text-wrap: balance` and `overflow-wrap: anywhere`, `line-break: strict` under `:lang(ja, zh)`, and `letter-spacing: 0` under `:lang(ja, zh, ko, ar, fa, ur, hi, mr, ne, bn, th)` and the like (PGH-4), where the eyebrow also drops its tracking; the eyebrow's capitals are `text-transform: uppercase` (PGH-6). Text parts take `unicode-bidi: plaintext` with alignment by `:dir()` as `productText()` does (PGH-22). Under `forced-colors: active` the dot and the line are `CanvasText`. What the element adds once defined: the convenience parts above and the debug reports of PGH-23 and PGH-24 — nothing a reader sees. Inside prose the head is an island (`tanrei-page-header` is in the registry's tag names, PRS-16), so prose's heading and paragraph rules do not reach its `h1` and `p`. The alternative form — a shadow root with a `title` slot — is still open."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiPageHeader",
+      "props": {
+        "title": "title",
+        "description": "description",
+        "eyebrow": "eyebrow",
+        "size": "size",
+        "level": "headingLevel",
+        "actionsPlacement": "actionsPlacement",
+        "divider": "showsDivider"
+      },
+      "items": {
+        "meta-item": {
+          "name": "meta",
+          "props": {},
+          "notes": "Each top-level view of the `meta:` view builder is one item (the layout's subviews)."
+        }
+      },
+      "notes": "`TanreiPageHeader(_ title: String, description:, eyebrow:, size:, headingLevel:, actionsPlacement:, showsDivider:) { actions } meta: { … } breadcrumbs: { … }`, each slot a `@ViewBuilder`, with second initializers whose title and description are views (the title and description slots). The title carries `.accessibilityAddTraits(.isHeader)` and `.accessibilityHeading(.h1 … .h6)` by level. The width that decides the layout is the view's own, through `ViewThatFits` or a layout that measures its proposal, never the scene's size class. The platform's own large title is the navigation bar's (`.navigationTitle` with a large display mode): on a compact screen that shows it, the screen does not also draw a page header (the spec's accessibility notes). The meta line is a flow layout (`Layout`) that knows which item begins a row."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiPageHeader",
+      "props": {
+        "title": "title",
+        "description": "description",
+        "eyebrow": "eyebrow",
+        "size": "size",
+        "level": "headingLevel",
+        "actionsPlacement": "actionsPlacement",
+        "divider": "divider"
+      },
+      "items": {
+        "meta-item": {
+          "name": "meta",
+          "props": {},
+          "notes": "Each composable emitted at the top level of the `meta` lambda is one item (the layout's measurables)."
+        }
+      },
+      "notes": "`TanreiPageHeader(title, description, eyebrow, size, headingLevel, actionsPlacement, divider, breadcrumbs, titleContent, descriptionContent, meta, actions)`, the slots as composable lambdas. The title has `semantics { heading() }`; Compose's semantics have no heading level, so `headingLevel` is honoured where the platform gains one and is otherwise the trait alone. The layout reads its own constraints (`BoxWithConstraints` or a custom `Layout`), not the window size class. The meta line is a `FlowRow` with the dots drawn by the layout, which knows each row's first item. A screen whose top app bar is the platform's large, collapsing one shows the title there and draws no page header."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiPageHeader",
+      "props": {
+        "title": "title",
+        "description": "description",
+        "eyebrow": "eyebrow",
+        "size": "size",
+        "level": "headingLevel",
+        "actionsPlacement": "actionsPlacement",
+        "divider": "divider"
+      },
+      "items": {
+        "meta-item": {
+          "name": "meta",
+          "props": {},
+          "notes": "Each widget of the `meta` list is one item."
+        }
+      },
+      "notes": "`TanreiPageHeader(title: …, description:, eyebrow:, size:, headingLevel:, actionsPlacement:, divider:, breadcrumbs:, titleWidget:, descriptionWidget:, meta:, actions:)`, `meta` and `actions` as lists of widgets. The title is wrapped in `Semantics(header: true, headingLevel:)`. The layout is a `LayoutBuilder` over the widget's own constraints; the meta line a custom multi-child layout that draws the dots between the items of one run. Text scaling is the framework's `TextScaler`; the width of PGH-10 is scaled by it."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "PageHeader",
+      "props": {
+        "title": "title",
+        "description": "description",
+        "eyebrow": "eyebrow",
+        "size": "size",
+        "level": "headingLevel",
+        "actionsPlacement": "actionsPlacement",
+        "divider": "divider"
+      },
+      "items": {
+        "meta-item": {
+          "name": "meta",
+          "props": {},
+          "notes": "Each element of the `meta` array is one item; a string is drawn as text in the meta line's style."
+        }
+      },
+      "notes": "`<PageHeader title=\"…\" description=\"…\" eyebrow=\"…\" size=\"medium\" actions={…} meta={[…]} breadcrumbs={…} />`; the title and description slots are the `titleContent` and `descriptionContent` props. The title has `role=\"heading\"` (`accessibilityRole=\"header\"`); a level is exposed where the platform has one (`aria-level` on the web target). The layout follows the view's own width from `onLayout`, with the narrow layout drawn first so nothing overlaps before the width is known. The eyebrow's capitals are `textTransform: 'uppercase'`. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "type": "View",
+  "props": {
+    "collapsable": false,
+    "style": {
+      "alignSelf": "flex-start",
+      "borderRadius": 6,
+      "flexDirection": "row",
+      "minHeight": 32,
+      "opacity": 1
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessible": false,
+        "importantForAccessibility": "no",
+        "style": {
+          "borderColor": "rgb(132, 132, 132)",
+          "borderRadius": 6,
+          "borderWidth": 1,
+          "bottom": 0,
+          "left": 0,
+          "pointerEvents": "none",
+          "position": "absolute",
+          "right": 0,
+          "top": 0
+        }
+      },
+      "children": []
+    },
+    {
+      "type": "View",
+      "props": {
+        "accessibilityLabel": "Sounds good",
+        "accessibilityRole": "button",
+        "accessibilityState": {
+          "disabled": false
+        },
+        "accessibilityValue": {},
+        "accessible": true,
+        "collapsable": false,
+        "focusable": true,
+        "hitSlop": {
+          "bottom": 8,
+          "left": 8,
+          "right": 8,
+          "top": 8
+        },
+        "style": {
+          "alignItems": "center",
+          "flexDirection": "row",
+          "flexShrink": 1,
+          "paddingEnd": 12,
+          "paddingStart": 12,
+          "paddingVertical": 4
+        }
+      },
+      "children": [
+        {
+          "type": "Text",
+          "props": {
+            "allowFontScaling": true,
+            "collapsable": false,
+            "numberOfLines": 1,
+            "style": {
+              "color": "rgb(27, 27, 27)",
+              "flexShrink": 1,
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500",
+              "letterSpacing": 0,
+              "lineHeight": 20
+            }
+          },
+          "children": [
+            "Sounds good"
+          ]
+        }
+      ]
+    }
+  ]
+}

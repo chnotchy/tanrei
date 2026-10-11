@@ -1,0 +1,77 @@
+---
+title: Behaviour
+description: Two choices of kind — how a press is answered and how keyboard focus looks — that a design system sets like any other token.
+---
+
+import Callout from '../../../components/Callout.astro';
+import BehaviorChoice from '../../../components/tokens/BehaviorChoice.astro';
+import SystemValues from '../../../components/tokens/SystemValues.astro';
+import SystemButtons from '../../../components/SystemButtons.astro';
+
+Almost everything that separates one design system from another is an *amount*: a radius, a tone, a duration. Amounts are values, and a [layer](/foundations/design-systems/) changes them.
+
+A few differences are not amounts. One system answers a press with a ripple and another dims the control; one draws a hard ring around the focused control and another a soft glow. No number on an existing token turns one into the other. Tanrei calls these **choices of kind** and keeps them as two tokens under `sys.behavior`. Each one names a short, closed list of ways to behave, and a design system picks one.
+
+<SystemValues tokens={['sys.behavior.pressed-feedback', 'sys.behavior.focus-style']} />
+
+Components read these tokens. They never look at which design system is active.
+
+## Pressed feedback
+
+<BehaviorChoice choice="pressed-feedback" />
+
+| Value | What a component draws while pressed |
+|---|---|
+| `overlay` | The pressed tokens apply to the whole container at once. |
+| `ripple` | The pressed state layer grows from the point of contact — from the center when the press comes from the keyboard — and is clipped to the container's shape. |
+| `dim` | The component's pressed opacity applies to the whole control. No state layer is drawn. |
+| `none` | Nothing. Hover and focus still show. |
+
+The choice decides only *how* the pressed layer appears. Its color and opacity still come from the component's per-state tokens, which a layer values as before.
+
+Whatever the choice, a pressed state appears without delay and stays visible for at least `sys.motion.duration.press-hold` (100ms by default, following the motion dial). A tap or a key press is over within a frame; without that floor the answer could not be seen. Button states this as requirements BTN-8 and BTN-9.
+
+## What is not a choice: how a corner curves
+
+How a corner eases into the straight edge looks like a choice of kind — circular or continuous — but it is an **amount**: Figma's corner smoothing, 0 to 1, where 0.6 is the iOS corner. It lives with the radii it shapes, as `sys.shape.corner-smoothing`, and is described on the [Shape](/foundations/shape/#corner-smoothing) page.
+
+## Focus style
+
+<BehaviorChoice choice="focus-style" />
+
+`glow` is drawn with the same two focus colors, offset and width as the ring, so the [focus contrast invariants](/foundations/accessibility/) apply to it unchanged. It changes the edge of the indicator, not whether there is one.
+
+## The shipped systems
+
+The same Button under each system, drawn by the installed web build. Press each one, then reach it with <kbd>Tab</kbd>.
+
+<SystemButtons label="Press, then tab" tokens={['sys.behavior.pressed-feedback', 'sys.behavior.focus-style']} />
+
+## Setting a choice in a layer
+
+A choice is changed like any value: under `tokens`, with a `reason`.
+
+```json
+{
+  "id": "acme",
+  "extends": "tanrei",
+  "tokens": {
+    "tanrei.sys.behavior.pressed-feedback": { "$value": 1, "reason": "Acme answers a press with a ripple." },
+    "tanrei.sys.behavior.focus-style":      { "$value": 1, "reason": "Acme shows keyboard focus as a glow." }
+  }
+}
+```
+
+The `$value` is a **number**: the position of the name in the token's list, counted from 0. For `pressed-feedback` the list is `overlay`, `ripple`, `dim`, `none`, so `1` is `ripple`. The format Tanrei's token files use (DTCG 2025.10) has no string type, which is why the file holds an index. The build refuses an index that is outside the list.
+
+The number stays in the layer file. The generated CSS carries the name (`--tanrei-sys-behavior-pressed-feedback: ripple`), and SwiftUI, Compose, Flutter and React Native receive a typed enumeration on the system instance.
+
+The lists themselves are part of the core vocabulary. A layer chooses among the names; it cannot add one. A new way of behaving has to be drawn by every platform, so it is proposed against the core like any other vocabulary change.
+
+## When a platform cannot draw a choice
+
+The first name in each list is the default, and it is also the fallback. A platform that cannot draw a choice draws the first value instead and says so in its package README.
+
+<Callout>
+  The index is awkward to write by hand, so Theme Studio (the Behaviour group), `tanrei explain` and the MCP server show and accept the names.
+</Callout>

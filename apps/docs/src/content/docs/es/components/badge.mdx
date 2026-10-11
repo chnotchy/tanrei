@@ -1,0 +1,216 @@
+---
+title: Insignia
+description: Marca un icono, un elemento de navegación o un avatar con un punto o un número pequeño para indicar que hay algo pendiente.
+translationOf: components/badge.mdx
+sourceHash: a4ece32edcc7d1571544b3c3cbf6afac6aa68eff
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="badge" />
+
+<DemoFrame label="Un punto y un número">
+  <tanrei-badge label="Mensajes nuevos">
+    <tanrei-button variant="text" label="Chat"><span slot="icon">chat</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="3" label="3 sin leer">
+    <tanrei-button variant="text" label="Bandeja de entrada"><span slot="icon">inbox</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 notificaciones">
+    <tanrei-button variant="text" label="Notificaciones"><span slot="icon">notifications</span></tanrei-button>
+  </tanrei-badge>
+</DemoFrame>
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Sin count: el punto. Un punto necesita una etiqueta. -->
+    <tanrei-badge label="Mensajes nuevos">
+      <tanrei-button variant="text" label="Chat"><span slot="icon">chat</span></tanrei-button>
+    </tanrei-badge>
+
+    <!-- 0 no dibuja nada; un número por encima de max (999) se muestra como 999+. -->
+    <tanrei-badge count="3" label="3 sin leer">
+      <tanrei-button variant="text" label="Bandeja de entrada"><span slot="icon">inbox</span></tanrei-button>
+    </tanrei-badge>
+
+    <script type="module">
+      import '@tanrei/web/components/badge';
+      import '@tanrei/web/components/button';
+      const badge = document.querySelector('tanrei-badge[count]');
+      badge.count = unread;
+      badge.label = `${unread} sin leer`;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Badge, Button } from '@tanrei/react';
+
+    <Badge label="Mensajes nuevos">
+      <Button variant="text" label="Chat" onClick={openChat}><span slot="icon">chat</span></Button>
+    </Badge>
+    <Badge count={unread} label={`${unread} sin leer`}>
+      <Button variant="text" label="Bandeja de entrada" onClick={openInbox}><span slot="icon">inbox</span></Button>
+    </Badge>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // nil es el punto.
+    TanreiBadge(count: nil, label: "Mensajes nuevos") {
+      TanreiIconButton("Chat", action: openChat) { Image(systemName: "bubble.left") }
+    }
+    TanreiBadge(count: unread, label: "\(unread) sin leer") {
+      TanreiIconButton("Bandeja de entrada", action: openInbox) { Image(systemName: "tray") }
+    }
+
+    // Lo mismo como modificador de cualquier vista.
+    Image(systemName: "bell").accessibilityLabel("Notificaciones").tanreiBadge(1200, label: "Más de 999 sin leer")
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiBadge
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // null es el punto.
+    TanreiBadge(count = null, contentDescription = "Mensajes nuevos") {
+        TanreiIconButton(onClick = ::openChat, contentDescription = "Chat") { TanreiText("chat") }
+    }
+    TanreiBadge(count = unread, contentDescription = "$unread sin leer") {
+        TanreiIconButton(onClick = ::openInbox, contentDescription = "Bandeja de entrada") { TanreiText("inbox") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Sin count: el punto.
+    TanreiBadge(
+      semanticLabel: 'Mensajes nuevos',
+      child: TanreiIconButton(onPressed: openChat, semanticLabel: 'Chat', icon: const Icon(AppSymbols.chat)),
+    );
+    TanreiBadge(
+      count: unread,
+      semanticLabel: '$unread sin leer',
+      child: TanreiIconButton(onPressed: openInbox, semanticLabel: 'Bandeja de entrada', icon: const Icon(AppSymbols.inbox)),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Badge, IconButton } from '@tanrei/react-native';
+
+    <Badge label="Mensajes nuevos">
+      <IconButton accessibilityLabel="Chat" onPress={openChat}>chat</IconButton>
+    </Badge>
+    <Badge count={unread} label={`${unread} sin leer`}>
+      <IconButton accessibilityLabel="Bandeja de entrada" onPress={openInbox}>inbox</IconButton>
+    </Badge>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Números y el tope" plain>
+  <tanrei-badge count="3" label="3 sin leer">
+    <span class="tanrei-icon" role="img" aria-label="Notificaciones">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 sin leer">
+    <span class="tanrei-icon" role="img" aria-label="Notificaciones">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="1200" label="Más de 999 sin leer">
+    <span class="tanrei-icon" role="img" aria-label="Notificaciones">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="120" max="99" label="Más de 99 sin leer">
+    <span class="tanrei-icon" role="img" aria-label="Notificaciones">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge label="Mensajes nuevos">
+    <span class="tanrei-icon" role="img" aria-label="Notificaciones">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="0" label="Ningún mensaje sin leer">
+    <span class="tanrei-icon" role="img" aria-label="Notificaciones">notifications</span>
+  </tanrei-badge>
+</DemoFrame>
+
+<ComponentSpecs name="badge" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa una insignia para indicar que hay algo pendiente detrás de un icono, un elemento de navegación o un avatar: mensajes sin leer, actividad nueva, actualizaciones por instalar. Dirige la mirada hacia el lugar donde la persona puede actuar. Una insignia no tiene texto ni un lugar propio en el diseño de página, así que no es una etiqueta de estado. Para una palabra que nombra un estado o una categoría, como «Nuevo», «Beta» o «Pro», usa un [tag](/es/components/tag/).
+
+### Insignia, chip o tag
+
+Los tres se distinguen por lo que hacen:
+
+| Tipo | Qué es | Dónde está | Recibe entrada |
+| --- | --- | --- | --- |
+| Insignia | Un punto o un número unido a otro elemento. | En la esquina de su ancla, fuera del diseño de página. | No. La entrada llega al ancla. |
+| [Chip](/es/components/chip/) | Un control. | En el diseño de página. | Sí: se pulsa, se conmuta o se quita, y tiene foco y estados. |
+| [Tag](/es/components/tag/) | Un rótulo estático. | En el diseño de página, en línea. | Nunca. |
+
+1. Si es un número o un punto encima de otra cosa, es una insignia.
+2. Si se pulsa, se selecciona o se quita, es un chip. Si lleva a algún sitio, es un enlace.
+3. Si es una palabra que solo dice qué es una cosa o en qué estado está, es un tag.
+
+Un número que aparece por sí solo en una fila, como la cantidad de resultados junto a un encabezado, tampoco es una insignia: una insignia siempre tiene un ancla. Escríbelo como texto, o como un tag cuando nombre un estado.
+
+### Cómo elegir una forma
+
+La forma depende de `count`, así que no hay ninguna variante que elegir.
+
+| Forma | `count` | Úsala para |
+| --- | --- | --- |
+| Punto | ninguno (null) | Hay algo nuevo, y la cantidad se desconoce o no importa. |
+| Número | mayor que 0 | La cantidad ayuda a la persona a decidir si mirar ahora: mensajes sin leer, solicitudes pendientes. |
+| Nada | 0 | No hay nada pendiente. Vincula la insignia directamente al número; no necesitas rodearla de una condición. |
+
+Un número por encima de `max` se muestra como `max+` (999+ de forma predeterminada), de modo que la insignia nunca pasa de cuatro caracteres. Reduce `max` (a 99, por ejemplo) cuando el ancla sea pequeña o la cantidad exacta deje de importar antes.
+
+### Recomendado
+
+- Dale a cada insignia una etiqueta que se lea bien después del nombre del ancla: «3 sin leer» después de «Bandeja de entrada». Un punto la necesita más que ninguna otra forma, porque sin ella el punto no le dice nada a un lector de pantalla.
+- Deja espacio alrededor del ancla. La insignia se sitúa en su esquina superior del lado de fin y puede sobresalir de sus límites; nunca mueve el ancla ni le cambia el tamaño.
+- Quita la insignia cuando la persona haya visto aquello a lo que apunta, para que siga significando algo.
+
+### Evita
+
+- No pongas una insignia en cada elemento. Cuando todo está marcado, nada destaca.
+- No pongas una insignia sobre la etiqueta de un botón ni dentro de un texto corrido. Su lugar es un icono, un elemento de navegación o un avatar. Una palabra junto a una etiqueta o en una línea de texto es un tag.
+- No uses el color de la insignia para decir qué tipo de cosa está pendiente ni lo urgente que es. Dilo en la etiqueta, o en el contenido al que apunta.
+- No hagas interactiva la insignia. Los toques y los clics sobre ella llegan al ancla, que es donde está la acción.
+
+## Accesibilidad
+
+<ComponentAccessibility name="badge" />
+
+### De qué se encarga el componente
+
+- El punto y el número dibujados quedan ocultos para la tecnología de apoyo, de modo que el número nunca se lee dos veces.
+- La etiqueta (o, si no la hay, el número mostrado, como «999+») pasa a formar parte del ancla, de modo que el ancla se anuncia una sola vez con ambos: «Bandeja de entrada, botón, 3 sin leer». Cada plataforma usa su estilo propio: un `aria-description` en el ancla en la web, el valor de accesibilidad en las plataformas de Apple, Flutter y React Native, y una descripción de estado en Compose.
+- Un número igual a 0 no añade nada: el ancla se anuncia como se anunciaría sin insignia.
+- Un cambio de número o de etiqueta actualiza lo que dice el ancla, sin un anuncio que interrumpa a la persona.
+- No recibe entrada ni ocupa espacio, así que el área de pulsación del ancla queda intacta.
+- Un punto sin etiqueta, un número negativo y un `max` inferior a 1 se notifican en las compilaciones de depuración.
+
+### Qué debes hacer tú
+
+- Escribe una etiqueta que complete el nombre del ancla en lugar de repetirlo: «3 sin leer», no «La bandeja de entrada tiene 3 mensajes sin leer».
+- Haz que el ancla sea un solo elemento con nombre propio, como un botón de icono con etiqueta. En Compose, un icono simple que no está dentro de un elemento que fusiona a sus descendientes necesita uno a su alrededor para que el nombre y la etiqueta se lean juntos.
+- Si un cambio debe anunciarse en el momento en que ocurre, como en un chat en vivo, anúncialo desde tu producto con una región activa (live region). La insignia no anuncia.

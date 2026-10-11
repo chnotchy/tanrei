@@ -1,0 +1,736 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tanrei.chnotchy.com/schemas/component.schema.json",
+  "title": "Tanrei component spec",
+  "description": "Platform-neutral contract for one component. Platform packages implement it; docs, the status matrix and scaffolds are generated from it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "title",
+    "summary",
+    "category",
+    "level",
+    "listing",
+    "anatomy",
+    "props",
+    "states",
+    "behavior",
+    "accessibility",
+    "tokens",
+    "fixtures",
+    "platforms"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "Kebab-case id. Must equal the file name."
+    },
+    "title": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string",
+      "description": "One sentence: what the component is for."
+    },
+    "category": {
+      "enum": [
+        "actions",
+        "communication",
+        "containment",
+        "navigation",
+        "selection",
+        "text-inputs",
+        "foundations"
+      ]
+    },
+    "level": {
+      "enum": [
+        "base",
+        "composed",
+        "feature"
+      ],
+      "description": "Which of the three levels the component is of. The first value: a single part with one job — no other component holds its value, does its job or frames it, so it has no `builtFrom`. The second: components put together to complete one value or one job — at least one member, named in `builtFrom`. The third: several controls, each with a value or an action of its own, coordinated by state the component itself holds. A component of any level may have parts of its own. The same value stands in specs/inventory.json. The three names are written here and in one constant of the tools (packages/tools/src/levels.js), and nowhere else by hand."
+    },
+    "listing": {
+      "enum": [
+        "default",
+        "advanced"
+      ],
+      "description": "Whether the component is shown where components are listed. The first value: it is listed by default — what a product places. The second: it is listed only when the reader asks for everything — a bare control that most products meet inside a higher level, kept for those who compose their own. The same value stands in specs/inventory.json. `validate` holds that a component of the second value is of the first level and is a member (`builtFrom`) of at least one component of the first value, so that its page is one link away from a listed one. It changes what is listed and nothing else: the search finds every component and the status matrix shows every one. The two names are written here and in one constant of the tools (packages/tools/src/levels.js), and nowhere else by hand."
+    },
+    "builtFrom": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+      },
+      "description": "The members of this component, by name: each component that holds its value (a text field's text input, a radio group's radio buttons), does the one job it exists for where it has no value (a copy button's Button, a menubar's Menu), or frames it (a Field, a field group). A member is in this list whether the component brings it or the product places it. Left out at the first level, required at the second, and given at the third where a control of it is another component. `validate` holds that each name is in the inventory, that the component does not name itself, and that this list and `uses` together make no cycle."
+    },
+    "uses": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+      },
+      "description": "The other components this one is built with, by name, none of which changes its level: a component it brings for a small part — one that acts on, or says something about, a value or a view that a part of its own holds (a number field's steppers and a calendar's month navigation are Buttons, a requirement mark is a Tag, a row's count is a Badge) — and a component the product places in it that it lays out and does not make its value from (each `items[].component` that is not a member, and each component a slot is for: a dialog's actions, a Field's control). Left out where there is none. A name is in `builtFrom` or here, never both; `validate` holds that every `items[].component` but the component's own name is in one of the two."
+    },
+    "fills": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*\\.[a-z][a-zA-Z0-9]*$"
+      },
+      "description": "Props of a member that this component sets itself, from state it coordinates, each as \"<member>.<prop>\": a frame's text that it keeps equal to what its control shows. Such a prop is not a prop of the component — it is never forwarded (`from`) — and a product that writes the same thing one level down sets it by hand, so a fixture's `twin` may set it where the composed fixture cannot. `validate` holds that each names a prop of a member that no entry forwards; a twin that sets any other prop its composed fixture does not set is a problem. Left out where the component fills none."
+    },
+    "anatomy": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "optional": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "props": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "allOf": [
+              {
+                "$ref": "#/$defs/forwarded"
+              },
+              {
+                "properties": {
+                  "name": {
+                    "pattern": "^[a-z][a-zA-Z0-9]*$"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "$ref": "#/$defs/prop"
+          }
+        ]
+      }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Item kinds: what a component made of repeated items (tabs, list items, menu items, destinations) repeats. Selection is the component's, by an item's `value` where the kind has one, else by index; per-item state that belongs to the item (disabled, a badge) is an item prop.",
+      "items": {
+        "oneOf": [
+          {
+            "allOf": [
+              {
+                "$ref": "#/$defs/forwarded"
+              },
+              {
+                "properties": {
+                  "name": {
+                    "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+                  }
+                }
+              }
+            ],
+            "description": "An item kind that is a member's: `from` is \"<member>.<kind>\". The kind takes its summary, its props, `container`, its slots and its events from there, and is read resolved by everything that reads a spec. Each platform still maps it, to the member's own names."
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "summary",
+              "props"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+                "description": "Kebab-case id of the kind, unique within the spec (`tab`, `checkbox-item`, `group`)."
+              },
+              "summary": {
+                "type": "string",
+                "description": "One sentence: what an item of this kind is."
+              },
+              "props": {
+                "type": "array",
+                "description": "The kind's own props, the same shape as a component's. An item prop never selects a token axis: a variant of the whole component is the component's prop.",
+                "items": {
+                  "$ref": "#/$defs/prop",
+                  "properties": {
+                    "axis": false
+                  }
+                }
+              },
+              "component": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+                "description": "This kind IS another Tanrei component placed in a slot (an app bar's action is an icon-only button). Its props are a subset of that component's, plus props the host reads from the item to place it; each platform maps it to that component's own platform name, and the parity check does not look for it in the host's implementation."
+              },
+              "container": {
+                "type": "boolean",
+                "default": false,
+                "description": "True for a group kind (a titled or divided group, a drawer section): a fixture item of this kind holds its own `items`. Only a container kind may hold items."
+              },
+              "slots": {
+                "$ref": "#/$defs/named"
+              },
+              "events": {
+                "$ref": "#/$defs/named"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "slots": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/forwarded"
+          },
+          {
+            "$ref": "#/$defs/slot/items"
+          }
+        ]
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/forwarded"
+          },
+          {
+            "$ref": "#/$defs/named/items"
+          }
+        ]
+      }
+    },
+    "states": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "enabled",
+          "disabled",
+          "hovered",
+          "focused",
+          "pressed",
+          "dragged",
+          "selected",
+          "activated",
+          "error",
+          "loading"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "behavior": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Requirements in EARS form. Each id is referenced by tests.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "text"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z]+-[0-9]+$"
+          },
+          "text": {
+            "type": "string",
+            "pattern": "^(WHEN|WHILE|IF|WHERE|THE) .+ SHALL .+"
+          },
+          "verify": {
+            "type": "string",
+            "description": "How a test can observe the requirement when the default system cannot show it (for example, which fixture system to use)."
+          }
+        }
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "keyboard",
+        "labeling",
+        "minimumTarget"
+      ],
+      "properties": {
+        "role": {
+          "type": "string",
+          "description": "WAI-ARIA role; platforms map it to their native trait."
+        },
+        "keyboard": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "keys",
+              "action"
+            ],
+            "properties": {
+              "keys": {
+                "type": "string"
+              },
+              "action": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "labeling": {
+          "type": "string"
+        },
+        "minimumTarget": {
+          "const": true,
+          "description": "The hit area meets sys.target even when the visual size is smaller."
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "tokens": {
+      "type": "string",
+      "pattern": "^comp\\.[a-z-]+$",
+      "description": "Component token group; must exist in tokens/comp/."
+    },
+    "fixtures": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Canonical renderings. Every implemented platform snapshots every fixture under the same id; the parity report compares them.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "props"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "props": {
+            "type": "object"
+          },
+          "content": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "description": "The fixture's items, in order. Each names a kind of the spec's `items`.",
+            "items": {
+              "$ref": "#/$defs/fixtureItem"
+            }
+          },
+          "slots": {
+            "type": "object",
+            "description": "Named slots the fixture fills: a string, or a list of strings for several elements; the slot's `fixture` says what each becomes.",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "twin": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*\\.[a-z0-9]+(-[a-z0-9]+)*$",
+            "description": "The fixture of a member that is this fixture made by hand, one level down: \"<member>.<fixture id>\". The two set the same values — `validate` holds that through `from`, allowing the twin only what the spec's `fills` names beyond it — and every platform that draws both holds that they are the same picture and the same names, descriptions and states. Required on every fixture of a composed component that forwards props and has no part of its own (every part of its `anatomy` is named for a member)."
+          },
+          "direction": {
+            "enum": [
+              "ltr",
+              "rtl"
+            ],
+            "default": "ltr",
+            "description": "The layout direction the fixture is drawn in. Every harness, baseline and gallery sets it on the fixture's stage — an ancestor of the component, never a prop of the component, which has none. Omitted means left-to-right. A fixture sets `rtl` to show what a right-to-left layout changes; its content stays as written."
+          }
+        }
+      }
+    },
+    "platforms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "web",
+        "swiftui",
+        "compose",
+        "flutter",
+        "react-native"
+      ],
+      "properties": {
+        "web": {
+          "$ref": "#/$defs/platform"
+        },
+        "swiftui": {
+          "$ref": "#/$defs/platform"
+        },
+        "compose": {
+          "$ref": "#/$defs/platform"
+        },
+        "flutter": {
+          "$ref": "#/$defs/platform"
+        },
+        "react-native": {
+          "$ref": "#/$defs/platform"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "forwarded": {
+      "type": "object",
+      "description": "A prop, an event or a slot that is a member's: written once, in the member's spec, and named here. `from` is \"<component>.<name>\": a component of `builtFrom` and a prop, an event or a slot of its spec, whichever list this entry stands in. The entry takes its type, values, axis, default, description, places, words key and `fixture` from there — everything that reads a spec's props, events or slots reads it resolved (packages/tools/src/from.js) — and may be given another `name` here. `note` is one sentence on what this composition does with it, where that differs from the member's own description (which control a label names here, a case of the member's description that cannot arise); it never restates the member. An item kind as a whole may be a member's too: the entry then stands in `items` and takes the member's kind — its summary, props, `container`, slots and events. Inside an item kind that is written here, the props, slots and events are written in full.",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "from"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*\\.[a-z][a-zA-Z0-9-]*$"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "prop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type",
+        "default",
+        "description"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$"
+        },
+        "type": {
+          "enum": [
+            "enum",
+            "boolean",
+            "string",
+            "number",
+            "strings"
+          ],
+          "description": "`strings` is a list of strings (the values selected in a multiple-select list); its default is an array."
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "description": "For an enum. When `axis` is set these are the CORE values; a design system may add more."
+        },
+        "axis": {
+          "type": "string",
+          "pattern": "^[a-z]+\\.comp\\.[a-z0-9-]+\\.[a-z0-9-]+$",
+          "description": "The token axis this prop selects, e.g. tanrei.comp.button.size. Its core values must equal `values`; platforms take them from the generated tokens and accept values a design system added as open keys."
+        },
+        "default": {
+          "type": [
+            "string",
+            "boolean",
+            "number",
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "places": {
+          "type": "array",
+          "minItems": 1,
+          "description": "For a string prop whose value is a word of the product's with places a component fills: the places, in the order the description names them. The product writes the whole sentence and marks a place as its name between braces (`{count}`); the component puts a value there and does nothing else to the sentence. Only the places listed here are filled: any other text between braces is drawn as it is written and reported in debug builds, and a brace written twice is one literal brace. A prop without this field is not read for places at all. A prop that reads the product's words (`words`) has the same places as every other prop of that key, and the generated list of keys carries them. `validate` holds the rules of places (`packages/tools/src/places.js`).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "kind",
+              "description"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z][a-zA-Z0-9]*$",
+                "description": "What the product writes between braces. A name means one thing in every spec: `count` is how many there are, `position` a place in an order counted from 1."
+              },
+              "kind": {
+                "enum": [
+                  "number",
+                  "text"
+                ],
+                "description": "`number`: a whole number the component counts, written as the platform writes a whole number in the language of the element. `text`: a text the component holds and the product gave it, put in as plain text and, wherever the sentence is laid out as text, isolated in its own direction. There is no other kind: a date, a size, a number with a unit is the product's finished string, in a prop of its own."
+              },
+              "description": {
+                "type": "string",
+                "description": "What the place is filled with, in one sentence."
+              },
+              "required": {
+                "const": true,
+                "description": "Written only where a sentence without the place breaks something the component must hold (two actions with one name): the sentence is still used as written, and that is reported in debug builds. Left out everywhere else: a product may leave a place out."
+              }
+            }
+          }
+        },
+        "words": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$",
+          "description": "For a string prop whose value is words a person reads or hears and that a product says the same way wherever the part is drawn: the key under which the product's words hold it. Such a prop has the default \"\"; left empty, it reads the product's words, and a component has none of its own. Props of several components that mean the same words share one key; each platform's type of the product's words is generated from these keys."
+        }
+      },
+      "if": {
+        "properties": {
+          "type": {
+            "const": "enum"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "values"
+        ]
+      }
+    },
+    "named": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "description"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "fixtureItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "props"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+          "description": "The name of one of the spec's item kinds."
+        },
+        "props": {
+          "type": "object",
+          "description": "Checked against the kind's props, as a fixture's props are against the component's."
+        },
+        "content": {
+          "type": "string",
+          "description": "The item's text or glyph, as a fixture's `content` is for a component."
+        },
+        "items": {
+          "type": "array",
+          "description": "On an item of a `container` kind: the group's own items, in order, each of a kind of this spec. On an item of a kind that is another component (`component`) which has item kinds of its own: that component's items, in order, checked against that component's kinds — a Field's select holds its options.",
+          "items": {
+            "$ref": "#/$defs/fixtureItem"
+          }
+        },
+        "slots": {
+          "type": "object",
+          "description": "Only on an item of a kind that is another component: the named slots of that component which the fixture fills, as a fixture's own `slots` are for its component. Checked against that component's slots.",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "name",
+        "props"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "planned",
+            "lagging",
+            "alpha",
+            "beta",
+            "stable",
+            "deprecated"
+          ],
+          "description": "`lagging`: an implementation exists but has not caught up with the current spec; the parity check then compares only that the implementation and its docs page are there."
+        },
+        "name": {
+          "type": "string",
+          "description": "Idiomatic symbol on this platform (tag name, type name, composable, widget)."
+        },
+        "props": {
+          "type": "object",
+          "description": "spec prop name → idiomatic name on this platform. Every spec prop must be mapped.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "events": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "items": {
+          "type": "object",
+          "description": "item kind → how this platform spells it. Every kind of the spec, and every prop and event of it, must be mapped.",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "props"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Idiomatic symbol of the item on this platform (a child element, a data class, a builder call)."
+              },
+              "props": {
+                "type": "object",
+                "description": "item prop name → idiomatic name.",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "events": {
+                "type": "object",
+                "description": "item event name → idiomatic name.",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "notes": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "slot": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "description"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "fixture": {
+            "enum": [
+              "glyph",
+              "icon-only-button",
+              "button",
+              "text"
+            ],
+            "description": "What a fixture's string in this slot becomes: a glyph, an icon-only Button of the text variant showing that glyph and named by the glyph's name, a text Button with that label, or plain text. Without it, fixtures cannot fill the slot."
+          }
+        }
+      }
+    }
+  }
+}

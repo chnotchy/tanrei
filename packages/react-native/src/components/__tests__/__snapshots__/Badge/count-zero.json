@@ -1,0 +1,29 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "alignSelf": "flex-start",
+      "flexDirection": "row"
+    }
+  },
+  "children": [
+    {
+      "type": "Text",
+      "props": {
+        "accessibilityLabel": "notifications",
+        "accessible": true,
+        "allowFontScaling": false,
+        "style": {
+          "color": "rgb(75, 75, 75)",
+          "fontFamily": "Material Symbols Rounded",
+          "fontSize": 24,
+          "fontWeight": "300",
+          "lineHeight": 24
+        }
+      },
+      "children": [
+        "notifications"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "name": "@tanrei/web",
+  "version": "0.0.0",
+  "description": "Tanrei design system — CSS tokens and Web Components.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chnotchy/tanrei.git",
+    "directory": "packages/web"
+  },
+  "sideEffects": [
+    "./dist/index.js",
+    "./dist/icons.js",
+    "./dist/link.js",
+    "./dist/steps.js",
+    "./dist/timeline.js",
+    "./dist/pagination.js",
+    "./dist/components/**/*.js",
+    "./dist/tanrei.bundle.js",
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "default": "./dist/registry.js"
+    },
+    "./icons": {
+      "types": "./dist/icons.d.ts",
+      "default": "./dist/icons.js"
+    },
+    "./link": {
+      "types": "./dist/link.d.ts",
+      "default": "./dist/link.js"
+    },
+    "./steps": {
+      "types": "./dist/steps.d.ts",
+      "default": "./dist/steps.js"
+    },
+    "./timeline": {
+      "types": "./dist/timeline.d.ts",
+      "default": "./dist/timeline.js"
+    },
+    "./words": {
+      "types": "./dist/words.d.ts",
+      "default": "./dist/words.js"
+    },
+    "./highlight": {
+      "types": "./dist/highlight/index.d.ts",
+      "default": "./dist/highlight/index.js"
+    },
+    "./pagination": {
+      "types": "./dist/pagination.d.ts",
+      "default": "./dist/pagination.js"
+    },
+    "./links": {
+      "types": "./dist/links/index.d.ts",
+      "default": "./dist/links/index.js"
+    },
+    "./links/node": {
+      "types": "./dist/links/node/index.d.ts",
+      "node": "./dist/links/node/index.js"
+    },
+    "./tokens.css": "./dist/tokens.css",
+    "./icons.css": "./dist/icons.css",
+    "./text.css": "./dist/text.css",
+    "./prose.css": "./dist/prose.css",
+    "./link.css": "./dist/link.css",
+    "./steps.css": "./dist/steps.css",
+    "./timeline.css": "./dist/timeline.css",
+    "./pagination.css": "./dist/pagination.css",
+    "./table.css": "./dist/table.css",
+    "./description-list.css": "./dist/description-list.css",
+    "./figure.css": "./dist/figure.css",
+    "./app-shell.css": "./dist/app-shell.css",
+    "./page-header.css": "./dist/page-header.css",
+    "./link-card.css": "./dist/link-card.css",
+    "./breadcrumbs.css": "./dist/breadcrumbs.css",
+    "./tree-view.css": "./dist/tree-view.css",
+    "./skeleton.css": "./dist/skeleton.css",
+    "./accordion.css": "./dist/accordion.css",
+    "./table-of-contents.css": "./dist/table-of-contents.css",
+    "./code.css": "./dist/code.css",
+    "./shape.css": "./dist/shape.css",
+    "./callout.css": "./dist/callout.css",
+    "./avatar.css": "./dist/avatar.css",
+    "./empty-state.css": "./dist/empty-state.css",
+    "./menu.css": "./dist/menu.css",
+    "./menubar.css": "./dist/menubar.css",
+    "./systems/*.css": "./dist/systems/*.css",
+    "./components/*": {
+      "types": "./dist/components/*/*.d.ts",
+      "default": "./dist/components/*/*.js"
+    },
+    "./custom-elements.json": "./custom-elements.json"
+  },
+  "customElements": "custom-elements.json",
+  "bin": {
+    "tanrei-links": "./dist/links/node/cli.js"
+  },
+  "files": [
+    "dist",
+    "custom-elements.json",
+    "README.md"
+  ],
+  "scripts": {
+    "generate": "cem analyze",
+    "build": "tsc -p tsconfig.json && node scripts/build.js",
+    "test": "playwright test",
+    "test:node": "node --test \"src/links/node/test/*.test.mjs\" \"test/*.test.mjs\"",
+    "test:update": "playwright test --update-snapshots"
+  },
+  "dependencies": {
+    "lit": "^3.3.3"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@custom-elements-manifest/analyzer": "^0.11.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/material-symbols-outlined": "^5.3.7",
+    "@fontsource-variable/material-symbols-rounded": "^5.3.7",
+    "@fontsource-variable/roboto": "^5.3.0",
+    "@fontsource-variable/roboto-mono": "^5.3.0",
+    "@playwright/test": "^1.63.0",
+    "@tanrei/token-engine": "workspace:*",
+    "@tanrei/tokens-build": "workspace:*",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}

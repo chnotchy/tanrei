@@ -1,0 +1,316 @@
+---
+title: サイドシート
+description: 補足のコンテンツや副次的な作業を、末尾側の端のパネルに見出し、閉じるボタン（省略可）、アクション（省略可）とともに表示します。幅の広いウィンドウではコンテンツの横に、コンパクトなウィンドウではコンテンツの上に重ねて表示します。
+translationOf: components/side-sheet.mdx
+sourceHash: 5882e5c9679bb13517baa13179ee2fb6e066f749
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="side-sheet" />
+
+:::note[仕様は改訂済み、各プラットフォームは追従待ち]
+このページは、サイドシートのアクションと閉じるボタンを仕様の現在の形で説明しています。ダイアログと同じ形です。アクションは、役割に応じて置かれる全幅の Tonal ボタンの行です。それぞれに `confirming` か `dismissive` の印を付け、モーダルのシートには少なくとも 1 つ必要です。閉じるボタンは Tonal です。コンテンツをスクロールしている間はヘッダーの下に区切り線が現れ、アクションはオンスクリーンキーボードの上に留まります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。上の表で Web が「追従待ち」のままなのは、改訂の確認が済んでいないためです。SwiftUI、Compose、Flutter、React Native も「追従待ち」です。追従するまでは以前の版（閉じるボタンは standard のアイコンボタン、アクションは渡した順に先頭側の端から 1 行に並び、どちらの形でも省略でき、間隔は 8）を提供しています。
+:::
+
+<DemoFrame label="行の終わりに置いたスタンダードのシート">
+  <div style="display: flex; inline-size: 40rem; max-inline-size: 100%; block-size: 22rem; overflow-x: auto">
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100); padding: 1rem">
+      <p style="margin: 0">検索結果</p>
+      <tanrei-button variant="outlined" onclick="const sheet = document.getElementById('side-sheet-demo-standard'); sheet.open = !sheet.open">絞り込み</tanrei-button>
+    </div>
+    <tanrei-side-sheet id="side-sheet-demo-standard" open headline="絞り込み" closable close-label="絞り込みを閉じる" onclose="this.open = false">
+      <p>選んだラベルがすべて付いた、過去 30 日間の結果を表示します。</p>
+      <tanrei-button slot="actions">リセット</tanrei-button>
+      <tanrei-button slot="actions" confirming>適用</tanrei-button>
+    </tanrei-side-sheet>
+  </div>
+</DemoFrame>
+
+### 使い方
+
+サイドシートは制御コンポーネントで、自分で閉じることはありません。`open` を設定して表示します。人が閉じようとすると、シートはその理由を添えて `close` を発火するので、それを受けて利用者側で `open` を false に戻します。`open` がバインディングである SwiftUI では、シートが自分で false を書き込み、そのあとで `onClose` を呼びます。ドラッグのあとに `open` を true のままにしておくと、シートは元の位置へ滑って戻ります。
+
+`close` が伝える理由は次の 5 つです（表記はプラットフォームの流儀に従います）。
+
+| 理由 | 人がしたこと | 対象 |
+| --- | --- | --- |
+| `close` | 閉じるボタンを押した | スタンダードとモーダル |
+| `scrim` | モーダルのシートの横の暗い部分を押した | モーダル |
+| `escape` | Escape を押した | モーダル |
+| `back` | プラットフォームの「戻る」を使った（Android の戻るボタンやジェスチャー、iOS のアクセシビリティの「戻る」ジェスチャー） | モーダル |
+| `drag` | シートを端の方へ幅の半分を超えてドラッグした、またはその向きにフリングした | モーダル |
+
+スタンダードのシートは Escape、「戻る」、ドラッグを無視します。利用者側のコントロールで閉じるのでない限り、人が閉じる手段は閉じるボタンだけです。
+
+シートには `variant` で選ぶ 2 つの形があり、1 つのプロダクトでたいてい両方を使います。ウィンドウの幅が足りればスタンダード、足りなければモーダルです。
+
+- 既定の**スタンダード**はレイアウト領域で、オーバーレイではありません。開いている間は、置いた行の終わりに自分の幅を取り、横のコンテンツの幅が変わります。スクリムを描かず、フォーカスを中にとどめることもありません。
+- **モーダル**はモーダルなオーバーレイです。スクリムとともに末尾側の端からコンテンツの上に滑り込み、フォーカスを中にとどめ、閉じたら返します。
+
+シートは、`headline` と、`closable` が true の間は `closeLabel` を名前とする閉じるボタンを並べたヘッダーを描きます。コンテンツはヘッダーの下に、actions スロットに入れた Tanrei のボタンは下端に並びます。ボタンにはそれぞれ、作業を完了するもの（適用、保存）なら `confirming`、作業から抜けるもの（キャンセル）なら `dismissive` の印を付けます。シートはこの印で置き場所を決めるので、渡す順番は問いません。`variant` を設定していないアクションは Tonal で描きます。モーダルのシートには少なくとも 1 つのアクションが必要で、スタンダードのシートにはなくても構いません。アクションが自分でシートを閉じることはないので、アクションのハンドラーから閉じます。
+
+開いたときにフォーカスを受け取る要素は、プラットフォームの印で指定します。Web では `autofocus`、SwiftUI では `.defaultFocus` か `@AccessibilityFocusState`、Compose では `initialFocus` に渡す `FocusRequester`、Flutter では `autofocus: true`、React Native では `initialFocusRef` です。SwiftUI では、`.defaultFocus` がキーボードのフォーカスを、`initialFocus` に渡す `@AccessibilityFocusState` のバインディングが VoiceOver のフォーカスを移します。指定しなければフォーカスはシートそのものへ移り、見出しが最初に読み上げられます。
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、以前の版のサイドシートをまだ提供しています。その版には `confirming` と `dismissive` の印も、Tonal の既定もないので、これらの例では各アクションに text のバリアントを指定し、主となるアクションを最初に置いています。追従するまで、例はその版のものです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="filters" variant="outlined">絞り込み</tanrei-button>
+
+    <!-- スタンダード：flex の行の最後の要素として置きます。見出しを名前とする <aside> です。 -->
+    <div style="display: flex">
+      <main style="flex: 1">…</main>
+      <tanrei-side-sheet headline="絞り込み" closable close-label="絞り込みを閉じる">
+        <p>選んだラベルがすべて付いた、過去 30 日間の結果を表示します。</p>
+        <!-- confirming は行の終わりに置かれます。variant がなければどちらも Tonal です。 -->
+        <tanrei-button slot="actions">リセット</tanrei-button>
+        <tanrei-button slot="actions" confirming>適用</tanrei-button>
+      </tanrei-side-sheet>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/side-sheet';
+      const sheet = document.querySelector('tanrei-side-sheet');
+      document.querySelector('#filters').addEventListener('click', () => (sheet.open = true));
+      // シートは自分では閉じません。detail.reason は close、scrim、escape、back、drag のどれかです。
+      sheet.addEventListener('close', (e) => (sheet.open = false));
+      // 幅が 840px より狭いウィンドウでは、同じシートをスクリムの上のモーダルな <dialog> にします。
+      matchMedia('(width < 840px)').addEventListener('change', (e) => (sheet.variant = e.matches ? 'modal' : 'standard'));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, SideSheet } from '@tanrei/react';
+
+    <SideSheet
+      variant={wide ? 'standard' : 'modal'}
+      open={open}
+      headline="絞り込み"
+      closable
+      closeLabel="絞り込みを閉じる"
+      onClose={() => setOpen(false)}
+    >
+      <p>選んだラベルがすべて付いた、過去 30 日間の結果を表示します。</p>
+      <Button slot="actions" onClick={reset}>リセット</Button>
+      <Button slot="actions" confirming onClick={apply}>適用</Button>
+    </SideSheet>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // スタンダード：HStack の最後に置くビューです。閉じるとバインディングに false が書き込まれ、そのあとで onClose が呼ばれます。
+    HStack(spacing: 0) {
+        ResultsView()
+        TanreiSideSheet("絞り込み", isPresented: $filtersShown, closable: true, closeLabel: "絞り込みを閉じる") {
+            FilterForm()
+        } actions: {
+            TanreiButton("適用", variant: .text) { apply() }
+            TanreiButton("リセット", variant: .text) { reset() }
+        }
+    }
+
+    // モーダル：覆うビューに付けるモディファイアーで、tanreiDialog と同じように表示します。
+    ResultsView()
+        .tanreiSideSheet("絞り込み", isPresented: $filtersShown, closable: true, closeLabel: "絞り込みを閉じる") { … }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiSideSheet
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiSideSheetVariant
+
+    // スタンダードは Row の最後の子です。モーダルは専用の Dialog ウィンドウに描きます。
+    // 理由を受け取る onClose で visible を false にします。
+    Row {
+        ResultsScreen(Modifier.weight(1f))
+        TanreiSideSheet(
+            visible = filtersShown,
+            onClose = { filtersShown = false },
+            headline = "絞り込み",
+            variant = if (wide) TanreiSideSheetVariant.Standard else TanreiSideSheetVariant.Modal,
+            closable = true,
+            closeLabel = "絞り込みを閉じる",
+            actions = {
+                TanreiButton(text = "適用", onClick = apply, variant = TanreiButtonVariant.Text)
+                TanreiButton(text = "リセット", onClick = reset, variant = TanreiButtonVariant.Text)
+            },
+        ) {
+            FilterForm()
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // スタンダード：Row の最後に置きます。モーダルのシートは代わりにページを覆う Stack に置きます。
+    Row(
+      children: <Widget>[
+        const Expanded(child: ResultsPage()),
+        TanreiSideSheet(
+          open: filtersShown,
+          onClose: (TanreiSheetCloseReason reason) => setState(() => filtersShown = false),
+          headline: '絞り込み',
+          showCloseButton: true,
+          closeButtonSemanticLabel: '絞り込みを閉じる',
+          actions: <Widget>[
+            TanreiButton(variant: TanreiButtonVariant.text, onPressed: apply, child: const Text('適用')),
+            TanreiButton(variant: TanreiButtonVariant.text, onPressed: reset, child: const Text('リセット')),
+          ],
+          child: const FilterForm(),
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { View } from 'react-native';
+    import { Button, SideSheet } from '@tanrei/react-native';
+
+    // スタンダード：行の最後に置きます。モーダルのシートは透明な Modal で表示します。
+    <View style={{ flex: 1, flexDirection: 'row' }}>
+      <Results style={{ flex: 1 }} />
+      <SideSheet
+        variant={wide ? 'standard' : 'modal'}
+        open={open}
+        onClose={(reason) => setOpen(false)}
+        headline="絞り込み"
+        closable
+        closeLabel="絞り込みを閉じる"
+        actions={
+          <>
+            <Button variant="text" onPress={apply}>適用</Button>
+            <Button variant="text" onPress={reset}>リセット</Button>
+          </>
+        }
+      >
+        <FilterForm />
+      </SideSheet>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="モーダルのシート：ボタンで開きます" plain>
+  <tanrei-button variant="outlined" onclick="document.getElementById('side-sheet-demo-modal').open = true">絞り込み</tanrei-button>
+  <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="絞り込み" closable close-label="絞り込みを閉じる" onclose="this.open = false">
+    <p>選んだラベルがすべて付いた、過去 30 日間の結果を表示します。</p>
+    <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-side-sheet').open = false">キャンセル</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-side-sheet').open = false">適用</tanrei-button>
+  </tanrei-side-sheet>
+</DemoFrame>
+
+<ComponentSpecs name="side-sheet" />
+
+## ガイドライン
+
+### 使う場面
+
+人が取り組んでいるものを置き換えずに、それを支えるコンテンツに使います。リストの絞り込み、選んだ行の詳細、選んだオブジェクトのプロパティなどです。幅の広いウィンドウではコンテンツの横に置くので、絞り込みを変えながら結果が変わる様子を見られます。コンパクトなウィンドウでは同じシートがコンテンツの上に滑り込み、人はそれを終えるか閉じるかしてから元の画面に戻ります。
+
+スマートフォンでは、親指の届く下端からせり上がる[ボトムシート](/ja/components/bottom-sheet/)のほうが合うこともよくあります。答えがないと作業を先に進められない判断には[ダイアログ](/ja/components/dialog/)を、プロダクトの行き先には先頭側の端に置く[ナビゲーションドロワー](/ja/components/navigation-drawer/)を使います。
+
+### スタンダードかモーダルか
+
+| バリアント | どういうものか | 用途 |
+| --- | --- | --- |
+| スタンダード（既定） | レイアウト領域です。行の終わりに置くパネルで、先頭側の端の細い線でコンテンツと区切ります。開閉に合わせて横のコンテンツの幅が変わります。スクリムを描かず、人がコンテンツで作業している間も開いたままです。 | シートをコンテンツの横に開いたままにできる、幅の広いウィンドウ。 |
+| モーダル | モーダルなオーバーレイです。コンテンツ側の角が丸い浮き上がったパネルで、スクリムの上に末尾側の端から滑り込みます。背後はすべて操作不能になり、閉じるまでフォーカスは中にとどまります。 | コンパクトなウィンドウ。先に進む前に終えるか閉じるかしてほしい作業。 |
+
+スタンダードのシートは、スタンダードのナビゲーションドロワーやアプリバーと同じくレイアウトの一部です。Tab で先へ進むたびにパネルが閉じてしまってはキーボードで使えないので、フォーカスが出ても閉じません。モーダルの形はオーバーレイで、モーダルなオーバーレイに求められることがすべて当てはまります。
+
+モーダルのシートは、狭いウィンドウでもウィンドウいっぱいにはなりません。少なくともタッチターゲット 1 つ分は狭くして、押せるスクリムを必ず帯状に残します。デザインシステムはバリアントを追加できます。
+
+### 構成要素
+
+| 要素 | 設定 | 補足 |
+| --- | --- | --- |
+| 見出し | `headline` | 必須です。「絞り込み」のように、シートが何についてのものかを書きます。シートのアクセシブルネームであり見出しでもあります。切らずに折り返します。 |
+| 閉じるボタン | `closable`、`closeLabel` | ヘッダーの終わりに置く、`close` グリフの medium のアイコンだけのボタンで、既定のシステムでは Tonal です。シートが描いて `close` につなぐので、利用者側ではラベルを付けるだけです。 |
+| コンテンツ | 既定のスロット | シートで見せるもの。シートは余白を付け、コンテンツの色を渡し、ヘッダーとアクションの間でスクロールさせます。 |
+| アクション | actions スロット | それぞれ `confirming` か `dismissive` の印を付けた Tanrei のボタンで、区切り線の下に並べます。モーダルのシートでは必須、スタンダードのシートでは省略できます。シートが置き場所を決め、variant のないものは Tonal で描きますが、それ以外に見た目を変えることはありません。 |
+
+アクションはシートの内側の幅を等分し、間は 16 です。1 行に並ぶときは、dismissive が先頭側、confirming が末尾側に置かれ、印のないアクションは渡した順にその間に並びます。ラベルが自分の幅で折り返しそうになると縦に積み、confirming がいちばん上に来ます。フォーカスとスクリーンリーダーは、置かれた順番に従います。1 つのアクションだけ見た目を変えたいときは、そのボタンの `variant` を設定します。すべてのシートの見た目を変えたいプロダクトは、レイヤで一度だけ設定します（`actions.variant`、先頭側に寄せたコンパクトな行なら `actions.arrangement`、閉じるボタンなら `close-button.variant`）。
+
+コンテンツがスクロールしても、ヘッダーとアクションは動きません。アクションの上の区切り線はいつも描き、コンテンツが先頭からスクロールしている間は、ヘッダーの下にも同じ区切り線が現れます。オンスクリーンキーボードがシートの下を覆っている間は、アクションはそのすぐ上まで上がり、コンテンツは残った場所でスクロールします。シートの色は末尾側、上、下のシステムインセットの下まで届き、ヘッダー、コンテンツ、アクションはその内側に収まります。右から左のレイアウトでは、左右を反転して左端に置きます。
+
+### 開く、フォーカス、閉じる
+
+- **スタンダードを開く。** シートが末尾側の端から滑り込み、横のコンテンツが場所を空けます。フォーカスは指定した要素へ、なければシートへ移り、見出しが最初に読み上げられます。最初から開いた状態で表示したシートは、フォーカスを動かしません。
+- **スタンダードの横で作業する。** Tab でシートからコンテンツへ進んでも、シートは開いたままです。Escape、「戻る」、ドラッグでは何も起きません。
+- **モーダルを開く。** シートが末尾側の端から滑り込み、ウィンドウの残りの部分にスクリムがフェードインします。フォーカスはスタンダードと同じように中へ移り、そのままとどまります。最後のフォーカスできる要素で Tab を押すと最初へ、最初の要素で Shift+Tab を押すと最後へ移ります。背後のものはすべて操作不能になります。最初から開いた状態で表示したモーダルのシートも、フォーカスを中へ移します。背後の要素はもうフォーカスを受け取れないからです。
+- **閉じる。** シートは末尾側の端へ滑り出て、モーダルならスクリムが消えます。フォーカスが中にあったなら、開いたときにフォーカスを持っていた要素へ戻ります。
+- **モーダルをドラッグする。** 指がプラットフォームのタッチスロップを超えるとシートが追従します。末尾側の端の方へ幅の半分を超えて離すか、その向きにフリングすると、理由 `drag` で閉じるよう求めます。それより短く、ゆっくりしたドラッグなら元の位置へ滑って戻ります。フリングとタッチスロップの基準は[ボトムシート](/ja/components/bottom-sheet/)と同じです。
+- **重ねる。** モーダルのサイドシートから開いたダイアログ、メニュー、別のモーダルのシートは、その上に重なります。Escape で閉じるのは一番上のものだけです。
+- **端からのスワイプでは開かない。** シートはボタンから開き、画面の端からのスワイプで開くことはありません。
+- 動きを減らす設定では、スタンダードのシートは瞬時に開閉し、モーダルのシートは滑らせずにフェードします。
+
+### 推奨
+
+- 「絞り込み」「詳細」「プロパティ」のように、中身を表す短い見出しを付けます。
+- 絞り込みボタンの切り替えなど、利用者側のコントロールで閉じるのでない限り、スタンダードのシートには閉じるボタンを付けます。
+- スタンダードとモーダルで同じコンテンツを使い、ウィンドウの幅だけで切り替えられるようにします。
+- すべてのアクションに `confirming` か `dismissive` の印を付け、置き場所はシートに任せます。
+- モーダルのシートには、閉じる手段だけでなく、適用のように作業を終えるアクションを用意します。
+
+### 非推奨
+
+- スタンダードが収まる幅のウィンドウでモーダルのサイドシートを使わない。
+- プロダクトのナビゲーションをサイドシートに置かない。[ナビゲーションドロワー](/ja/components/navigation-drawer/)を使います。
+- 閉じるボタンや actions スロットのボタンの見た目を `variant` 以上に変えない。アクションを手で並べ替えない。
+- 人が求めていないのにサイドシートを開かない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="side-sheet" />
+
+### コンポーネントが担うこと
+
+- モーダルのシートは、見出しを名前とするモーダルなダイアログとして伝えます。スタンダードのシートは、見出しを名前とする補足の領域（Web では aside のランドマーク）です。
+- 見出しは見出しとして伝えます。区切り線は支援技術から隠します。
+- 開くと、指定した要素かシートへフォーカスを移します。閉じると、開いたときにフォーカスを持っていた要素へ戻します。どちらの形でも同じです。
+- モーダルのシートでは、Tab と Shift+Tab は中で折り返し、背後のものはすべて操作不能にして支援技術から隠します。Escape、「戻る」、スクリムの押下で閉じるよう求めます。オーバーレイが重なっているときは、一番上のものだけです。
+- スタンダードのシートからは Tab でコンテンツへ進み、シートは開いたままです。Escape と「戻る」は無視します。
+- 閉じるボタンは `closeLabel` を名前とする Tanrei のアイコンだけのボタン、アクションは Tanrei のボタンで、それぞれが最小ターゲットを満たします。縦に積んだアクションの間の 16 で、どのターゲットも欠けません。
+- フォーカスとスクリーンリーダーは、目で見るのと同じ、置かれた順番でアクションをたどります。アクションはオンスクリーンキーボードの上に留まるので、シートの中で入力している間も届きます。
+- Enter と Space はフォーカス中の閉じるボタンかアクションを実行します。シートが Enter に既定のアクションを割り当てることはありません。
+- ドラッグだけが閉じる手段になることはありません。閉じるボタン、Escape、「戻る」、スクリムでも閉じられます。
+- 文字を大きくしても、シートの幅は変わりません。ヘッダーは見出しに合わせて高くなり、コンテンツはスクロールします。
+- 見出しのないシート、`closeLabel` のない閉じるボタン、アクションなしで開いたモーダルのシート、デザインシステムにないバリアントは、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- Web：Firefox では、ダイアログと同じく、モーダルのシートは滑り出さずにすぐ消えます。タッチでのドラッグと実際のセーフエリアのインセットは、テストで確かめていません。
+- SwiftUI には、ダイアログのロールも補足領域のロールもありません。シートは見出しを名前とするコンテナで、モーダルの間はモーダルのトレイトを持ちます。SwiftUI はシートそのものにキーボードのフォーカスを渡せないため、印がないときは VoiceOver が見出しへ移り、キーボードのフォーカスは元の場所に残ります。閉じてもキーボードのフォーカスはどこにも戻りません。iOS では、モーダルのカバーが VoiceOver のフォーカスを戻し、スタンダードのシートは手放します。スタンダードのシートは滑る間に切り取られないので、ウィンドウの行の後端に置いてください。macOS では、モーダルのシートはモディファイアーを付けたビューしか覆わないので、ウィンドウのルートに付けてください。
+- SwiftUI：コンテンツの素のテキストは本文のフォントになりますが行の高さは付かないため、ほかのプラットフォームとまったく同じ位置には置かれません。Escape と iOS の「戻る」ジェスチャーはつないでありますが、押して確かめるテストはありません。
+- Compose：モーダルのシートが閉じるとき、そのウィンドウは退場の動きが終わるまでフォーカスを持ったままです。追従するまでは、アクションは `RowScope` の中で呼ばれますが、並べ方はシートが決めるため、`weight` や配置の指定は効きません。ドラッグは Robolectric でだけ確かめており、実機では試していません。
+- Flutter：スタンダードのシートは名前付きのコンテナで、補足領域のランドマークではありません。Flutter 3.32 にそのロールがないためです。実機の TalkBack と VoiceOver では、まだ確かめていません。
+- React Native は、どの要素がフォーカスを持っていたかを知ることができません。そのため、シートが閉じるとフォーカスは開いた要素ではなく、プラットフォームが決める場所へ移ります。Modal、ドラッグ、幅の動き、インセットは Jest でだけ確かめており、実機では試していません。
+- `m3-like` では、シートの幅と、スタンダードの形の細い境界線は既定のシステムの値のままです。Material の値は、忠実度の参照データがサイドシートを扱うようになるまで保留しています。
+
+### 利用者側で行うこと
+
+- すべてのシートに `headline` を付けます。それがシートの名前です。
+- `closable` が true の間は、「絞り込みを閉じる」のように何を閉じるのかが分かる `closeLabel` を閉じるボタンに付けます。
+- シートは利用者側で閉じます。`close` を受けたとき（Web では `close` イベント、Compose、Flutter、React Native では `onClose`）に `open` を false にします。SwiftUI ではシートがバインディングに false を書き込みます。
+- スタンダードのシートには閉じる手段を用意します。閉じるボタンか、ラベルを持つ利用者側のコントロールです。
+- モーダルのシートには少なくとも 1 つのアクションを用意し、それぞれに `confirming` か `dismissive` の印を付け、そのハンドラーからシートを閉じます。
+- シートは、自分のラベルを持つ目に見えるボタンから開きます。
+- 最初の絞り込み条件など、役に立つときは最初のフォーカスを指定します。

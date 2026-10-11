@@ -1,0 +1,218 @@
+---
+title: チェックボックス
+description: 独立した 1 つの選択をオンまたはオフにします。一部だけがオンになった親の選択や、必須なのに選ばれていない選択も示せます。
+translationOf: components/checkbox.mdx
+sourceHash: ca7b2e0456302b1067eb231313b74e6591fc6fad
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="checkbox" />
+
+<DemoFrame label="未チェック、チェック、中間状態">
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox indeterminate label="すべての通知"></tanrei-checkbox>
+    <tanrei-checkbox checked label="メッセージ"></tanrei-checkbox>
+    <tanrei-checkbox label="メンション"></tanrei-checkbox>
+    <tanrei-checkbox checked label="リマインダー"></tanrei-checkbox>
+  </div>
+</DemoFrame>
+
+### 使い方
+
+チェックボックスに Material 3 の寸法とアイコンセットのグリフを取り入れた改訂で変わったのは見た目と動きだけなので、以下の例はどれも現在の仕様に沿っています。Web は仕様どおりに描き、動かします。SwiftUI、Compose、Flutter、React Native は追従待ちで、新しい寸法にはすでに従っていますが、追従するまではチェックと横線を独自の印で描き、独自の動きで切り替えます。その後の 2 つの調整は、いまのところ Web だけにあります。チェックと横線が印専用の太さで、ほかのアイコンより太く描かれること、ボックスの輪郭線と塗りが 1 つの形として描かれることです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-checkbox label="更新情報をメールで受け取る"></tanrei-checkbox>
+    <tanrei-checkbox checked label="更新情報をメールで受け取る"></tanrei-checkbox>
+
+    <!-- 子のチェックが混在している親です。操作するとチェックが入り、indeterminate は解除されます。 -->
+    <tanrei-checkbox indeterminate label="すべて選択"></tanrei-checkbox>
+
+    <!-- フォームの中では、チェックが入っている間 name で value（既定値は "on"）を送信し、required にも従います。 -->
+    <form>
+      <tanrei-checkbox name="terms" required label="利用規約に同意する"></tanrei-checkbox>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox';
+      // 要素は change を発火する前に、自分の checked を切り替えます。
+      document.querySelector('tanrei-checkbox').addEventListener('change', (e) => save(e.detail.checked));
+      const terms = document.querySelector('[name="terms"]');
+      terms.error = submitted && !terms.checked;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox } from '@tanrei/react';
+
+    <Checkbox checked={updates} label="更新情報をメールで受け取る" onChange={(e) => setUpdates(e.detail.checked)} />
+    <Checkbox checked={all} indeterminate={some && !all} label="すべて選択" onChange={(e) => selectAll(e.detail.checked)} />
+    <Checkbox checked={terms} error={submitted && !terms} label="利用規約に同意する" onChange={(e) => setTerms(e.detail.checked)} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCheckbox("更新情報をメールで受け取る", isOn: $updates)
+
+    // isIndeterminate はデータから導きます。操作すると isOn が true になり、その後データの側で解除します。
+    TanreiCheckbox("すべて選択", isOn: $allSelected, isIndeterminate: someSelected)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.ui.state.ToggleableState
+    import io.github.chnotchy.tanrei.components.TanreiCheckbox
+
+    TanreiCheckbox(checked = updates, onCheckedChange = { updates = it }, label = "更新情報をメールで受け取る")
+
+    // 一部だけオンになりうる親は ToggleableState を受け取ります。次の状態は呼び出し側が決めます。
+    // 中間状態のチェックボックスを操作したら On にします。
+    TanreiCheckbox(
+        state = allState,
+        onClick = { selectAll(allState != ToggleableState.On) },
+        label = "すべて選択",
+    )
+
+    TanreiCheckbox(
+        checked = terms,
+        onCheckedChange = { terms = it },
+        label = "利用規約に同意する",
+        isError = submitted && !terms,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCheckbox(
+      value: updates,
+      onChanged: (bool value) => setState(() => updates = value), // null で無効になります
+      label: '更新情報をメールで受け取る',
+    );
+
+    // tristate では、value が null のとき中間状態です。操作すると onChanged(true) が呼ばれます。
+    TanreiCheckbox(
+      value: allSelected, // bool?：一部だけが選ばれている間は null
+      tristate: true,
+      onChanged: (bool value) => setState(() => selectAll(value)),
+      label: 'すべて選択',
+    );
+
+    TanreiCheckbox(
+      value: terms,
+      onChanged: (bool value) => setState(() => terms = value),
+      isError: submitted && !terms,
+      label: '利用規約に同意する',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Checkbox } from '@tanrei/react-native';
+
+    <Checkbox value={updates} onValueChange={setUpdates} label="更新情報をメールで受け取る" />
+    <Checkbox value={all} indeterminate={some && !all} onValueChange={selectAll} label="すべて選択" />
+    <Checkbox value={terms} onValueChange={setTerms} error={submitted && !terms} label="利用規約に同意する" />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="状態、エラー、無効状態" plain>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox label="未チェック"></tanrei-checkbox>
+    <tanrei-checkbox checked label="チェック"></tanrei-checkbox>
+    <tanrei-checkbox indeterminate label="中間状態"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox error label="エラー、未チェック"></tanrei-checkbox>
+    <tanrei-checkbox error checked label="エラー、チェック"></tanrei-checkbox>
+    <tanrei-checkbox error indeterminate label="エラー、中間状態"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox disabled label="無効、未チェック"></tanrei-checkbox>
+    <tanrei-checkbox disabled checked label="無効、チェック"></tanrei-checkbox>
+    <tanrei-checkbox disabled indeterminate label="無効、中間状態"></tanrei-checkbox>
+  </div>
+  <tanrei-checkbox checked label-hidden label="行を選択"></tanrei-checkbox>
+</DemoFrame>
+
+既定のシステムでは、チェックボックスは Material 3 の寸法に従います。ボックスは 18 で、輪郭線は 2、角の丸みは 2、その後ろに直径 40 の丸いステートレイヤーがあり、ターゲットは 48 です。ラベル付きの高さは 40 になります。チェックと横線は、システムのアイコンセットの `check` と `remove` のグリフで、ボックスの上に 20 の大きさで描きます。太さは印専用のもので、システムのほかのアイコンより太くなります（既定のシステムでは、アイコンの 300 に対して 500）。この大きさでは、アイコンの太さのままだと線の幅が 1 ピクセルほどしかなく見えにくいため、大きさは変えずに太くしています。プリセットは自分のアイコンの太さを保ちます。チェックボックスは独自の印を描かないので、アイコンセットを変えたデザインシステムでは、ほかのグリフと一緒にこれらも変わります。ボックスの輪郭線と塗りは 1 つの形です。どの拡大率や画面密度でも、両者の間から背後が透けることはなく、チェックありのボックスは端から印まで均一な 1 色になります。`cupertino` では、チェックボックスは小さめのボックスと 16 のグリフのままです。
+
+状態が変わると、ボックス、輪郭線、グリフの色が変わります。現れるグリフは、フェードインしながら半分の大きさから大きくなり、わずかに行き過ぎてから落ち着きます。消えるグリフは同じようにフェードアウトしながら縮み、チェックありと中間状態の間では、チェックが消えるのと同時に横線が現れます。動くのはグリフだけで、ボックスの大きさや位置は変わりません。初めて描かれたチェックボックスは、状態をすぐに示します。そのため、チェック済みのボックスがあるページを読み込んでも、アニメーションは起きません。動きを減らす設定では、新しい状態を次のフレームで完全に描きます。
+
+<ComponentSpecs name="checkbox" />
+
+## ガイドライン
+
+### 使う場面
+
+ほかの選択に左右されない選択に使います。いくつ選んでもよい（1 つも選ばなくてもよい）選択肢の一覧や、利用規約への同意のような「はい」か「いいえ」かの 1 つの選択です。選択が反映されるのは、フォームの送信や保存のように、利用者が確定したときです。表の行やリストの項目を選ぶのにも使います。
+
+中間状態は、子の一部だけにチェックが入っている親のチェックボックス（リストの上の「すべて選択」など）のためのものです。利用者が選べる 3 つ目の答えではありません。
+
+### チェックボックス、ラジオボタン、スイッチの使い分け
+
+| コントロール | 選択 | 反映されるとき | 用途 |
+| --- | --- | --- | --- |
+| チェックボックス | 独立した選択をいくつでも（0 個も可） | 利用者が確定したとき | フォームの選択肢、規約への同意、行の選択 |
+| [ラジオボタン](/ja/components/radio-button/) | すべて見えている少数の選択肢から 1 つだけ | 多くは、利用者が確定したとき | 1 つの問いへの 1 つの答え |
+| [スイッチ](/ja/components/switch/) | 1 つの設定のオンかオフ | すぐに | 切り替えた時点で反映される設定 |
+
+### 推奨
+
+- ラベルには選択の内容を肯定の形で書きます。「メールを送らない」ではなく「更新情報をメールで受け取る」です。
+- チェックボックスの一覧は 1 行に 1 つずつ縦に並べ、ラベルの書き出しをそろえます。
+- 中間状態は子の状態から導きます。親が操作されたら、すべての子にチェックを入れます。
+- 必須のチェックボックスにチェックが入っていないときは `error` を設定し、理由をフォームのメッセージで伝えます。
+
+### 非推奨
+
+- 操作した時点で反映される変更にチェックボックスを使わない。スイッチを使います。
+- 互いに排他的な選択にチェックボックスを使わない。ラジオボタンを使います。
+- ラベルの中にリンクやほかのコントロールを置かない。ラベルをクリックするとチェックボックスが切り替わります。
+- 何を選ぶチェックボックスなのかが周りの行から分からない場合は、ラベルを隠さない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="checkbox" />
+
+### コンポーネントが担うこと
+
+- チェックボックスのロールと、その状態（チェックあり、なし、中間状態では mixed）、無効状態、`error` が設定されている間は invalid の状態を伝えます。React Native には invalid の状態がないため、エラーは描かれますが読み上げられません。
+- ラベルは、描かれていても `labelHidden` で隠されていても、アクセシブルネームになります。描かれたテキストは支援技術から隠すので、名前が読まれるのは 1 度だけです。
+- ラベルをクリックまたはタップするとチェックボックスが切り替わります。ラベルもヒット領域に含まれ、ヒット領域は最小ターゲットを満たします。
+- Space で切り替わります。Enter で切り替わるのは、フォーカスのあるコントロールを Enter で操作するのが慣習のプラットフォーム（Android、tvOS）だけです。Web では Enter はフォームを送信します。
+- フォーカスインジケーターは、キーボードフォーカスのときだけ、ボックスの周りに表示します。
+- チェックと横線は支援技術から隠します。チェックありと mixed は状態として読み上げ、グリフの名前から読み上げることはありません。
+- 動きを減らす設定では、新しい状態を変化の直後のフレームで完全に描き、遅らせたり途中の姿を見せたりしません。変化の途中で再び変わったときは、その時点で描かれている姿から続けます。
+- アイコンフォントがまだグリフを描けない間は、グリフの場所に何も描かず、「check」という文字を出すこともありません。塗られたボックスは描き、状態も伝えます。フォントが読み込まれると、グリフが現れます。
+- Web では、ネイティブのチェックボックスと同じようにフォームに参加します。`name`、`value`、`required`、リセットに対応します。
+- ラベルがない場合は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native は、まだチェックと横線を独自の印で描き、独自の動きで切り替えます。印専用の太さと、1 つの形として描くボックスにも、まだ対応していません。
+- `m3-like` では、チェックはアイコンセットのグリフで、フェードインしながら大きくなります。Material はチェックを独自に描き、線をなぞるように描き入れ、横線へと曲げて変えます（mimicry-gaps 台帳 `checkbox-mark-drawn-on`）。
+
+### 利用者側で行うこと
+
+- アイコンフォントを読み込みます。読み込まれるまでは、チェックありと中間状態のチェックボックスは、どちらもグリフのない塗られたボックスで、見た目では区別できません。状態は読み上げられます。
+- デザインシステムで印の太さ（`comp.checkbox.mark.weight`）を細くする場合は、横線を確かめてください。横線は 1 本の線で、中間状態とチェックありを見た目で区別する唯一の手がかりです。
+- 選択の内容を表すラベルを書き、チェックの有無にかかわらず同じにします。状態はプラットフォームが読み上げます。
+- `error` を設定したら、理由をチェックボックスの隣かフォームのまとめにテキストで示し、チェックボックスと関連付けます。チェックボックスが伝えるのは invalid であることだけで、理由は伝えません。React Native では、そのメッセージがエラーを耳で知る唯一の手段です。
+- 1 つの問いに答えるチェックボックスのまとまりには名前を付けます。Web では `<fieldset>` と `<legend>` を使います。

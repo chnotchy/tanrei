@@ -1,0 +1,29 @@
+{
+  "type": "View",
+  "props": {
+    "accessible": true,
+    "focusable": false,
+    "role": "separator",
+    "style": {
+      "alignSelf": "stretch",
+      "height": 1
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "backgroundColor": "rgba(0, 0, 0, 0.08)",
+          "bottom": 0,
+          "end": 0,
+          "pointerEvents": "none",
+          "position": "absolute",
+          "start": 0,
+          "top": 0
+        }
+      },
+      "children": []
+    }
+  ]
+}

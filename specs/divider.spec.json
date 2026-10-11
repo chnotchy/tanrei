@@ -1,0 +1,420 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "divider",
+  "title": "Divider",
+  "summary": "Separates groups of content in a list, a layout or a toolbar with a thin line.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "line",
+      "description": "The one line, horizontal or vertical: solid, dotted, dashed or wavy. Its thickness is the system's, or the one given for this divider. It is the whole component: there is no container, and no space around it."
+    }
+  ],
+  "props": [
+    {
+      "name": "orientation",
+      "type": "enum",
+      "values": [
+        "horizontal",
+        "vertical"
+      ],
+      "default": "horizontal",
+      "description": "Horizontal separates stacked content and spans the container's width; vertical separates content in a row and spans its height."
+    },
+    {
+      "name": "inset",
+      "type": "enum",
+      "values": [
+        "none",
+        "start",
+        "both"
+      ],
+      "default": "none",
+      "description": "Shortens the line to align with content: none spans the full length, start leaves the inset at the start (to line up with an inset list's text), both leaves it at both ends (a middle divider)."
+    },
+    {
+      "name": "insetLength",
+      "type": "number",
+      "default": null,
+      "description": "The length of the inset for this divider, in the platform's unit (CSS px, pt, dp, logical pixels); null takes comp.divider.line.inset. Used only while inset is start or both: set it to line the divider up with content whose inset differs from the rest of the product's lists."
+    },
+    {
+      "name": "thickness",
+      "type": "number",
+      "default": null,
+      "description": "How thick this divider's line is, in the platform's unit (CSS px, pt, dp, logical pixels); null takes comp.divider.line.thickness. Set it where one divider of a product carries more weight than the rest (the line under a page's header, a break between two sections of a long form); a product whose every divider is heavier changes the token in its layer instead."
+    },
+    {
+      "name": "lineStyle",
+      "type": "enum",
+      "values": [
+        "solid",
+        "dotted",
+        "dashed",
+        "wavy"
+      ],
+      "default": "solid",
+      "description": "How the line is drawn: solid, a row of dots, a row of dashes, or a wave. Most dividers are solid; the others mark a different kind of boundary in the same product (a tear line, the edge of something provisional, a light section break)."
+    },
+    {
+      "name": "lineCap",
+      "type": "enum",
+      "values": [
+        "butt",
+        "round"
+      ],
+      "default": "butt",
+      "description": "How the line's ends, and every dot's and dash's ends, are drawn: butt ends square at the length, round ends in a half-disc inside it (round dots, rounded dashes). The difference shows only on a line thicker than a hairline."
+    },
+    {
+      "name": "dashLength",
+      "type": "number",
+      "default": null,
+      "description": "The length of one dash of a dashed line, in the platform's unit; null takes comp.divider.line.dash.length. Ignored by the other styles."
+    },
+    {
+      "name": "gap",
+      "type": "number",
+      "default": null,
+      "description": "The least space between two dots of a dotted line or two dashes of a dashed line, in the platform's unit; null takes comp.divider.line.dot.gap or comp.divider.line.dash.gap. Ignored by solid and wavy."
+    },
+    {
+      "name": "amplitude",
+      "type": "number",
+      "default": null,
+      "description": "How far a wavy line's crests lie from its midline, in the platform's unit; null takes comp.divider.line.wave.amplitude. Ignored by the other styles."
+    },
+    {
+      "name": "wavelength",
+      "type": "number",
+      "default": null,
+      "description": "The length of one wave of a wavy line, a crest and a trough, in the platform's unit; null takes comp.divider.line.wave.wavelength. Ignored by the other styles."
+    },
+    {
+      "name": "decorative",
+      "type": "boolean",
+      "default": true,
+      "description": "Hides the divider from assistive technology. Set it to false only when the grouping is meaningful (a toolbar's or a menu's groups): the divider is then exposed as a separator."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "DIV-1",
+      "text": "THE divider SHALL draw one line of comp.divider.line.thickness, or of thickness while that is not null (DIV-16), in comp.divider.line.color, in the style lineStyle names (DIV-9 to DIV-12), along the full inline size of its container when orientation is horizontal, and along the full block size of its container when orientation is vertical."
+    },
+    {
+      "id": "DIV-2",
+      "text": "THE divider SHALL take exactly comp.divider.line.thickness on its cross axis, or, WHERE lineStyle is wavy, twice its amplitude (DIV-12) plus comp.divider.line.thickness, whatever its length; it SHALL add no margin or padding of its own, and the space on either side of the line belongs to the layout that places it."
+    },
+    {
+      "id": "DIV-3",
+      "text": "WHERE inset is start THE divider SHALL shorten the line by insetLength, or by comp.divider.line.inset while insetLength is null, at its start (the inline-start of a horizontal divider, the top of a vertical one), and WHERE inset is both it SHALL shorten the line by that length at each end; the inset stretch SHALL draw nothing, the style of DIV-9 to DIV-12 SHALL be laid out over the stretch that remains, and where the insets leave no length the divider SHALL draw nothing."
+    },
+    {
+      "id": "DIV-4",
+      "text": "WHERE the layout direction is right-to-left THE divider SHALL apply the start inset of a horizontal divider at its right end and SHALL start a horizontal wavy line at its right end, mirroring it; a vertical divider's inset and wave SHALL NOT change with the direction."
+    },
+    {
+      "id": "DIV-5",
+      "text": "WHILE decorative is true THE divider SHALL be hidden from assistive technology and SHALL NOT be focusable."
+    },
+    {
+      "id": "DIV-6",
+      "text": "WHILE decorative is false THE divider SHALL expose the separator role and its orientation to assistive technology, SHALL have no accessible name of its own, and SHALL NOT be focusable."
+    },
+    {
+      "id": "DIV-7",
+      "text": "WHEN orientation, inset, lineStyle or lineCap names a value that the divider does not define THE divider SHALL render with the default value, and in debug builds report the unknown value."
+    },
+    {
+      "id": "DIV-8",
+      "text": "THE divider SHALL draw its line at least one device pixel thick; WHERE lineStyle is solid, dotted or dashed it SHALL align the line's two edges across its axis to the device pixel grid, so that the line is never spread over two partial rows or columns of pixels, and WHERE lineStyle is wavy it SHALL draw the curve antialiased."
+    },
+    {
+      "id": "DIV-9",
+      "text": "WHERE lineStyle is solid THE divider SHALL draw the line as one unbroken stroke over the whole drawn stretch."
+    },
+    {
+      "id": "DIV-10",
+      "text": "WHERE lineStyle is dotted THE divider SHALL draw a row of dots, each comp.divider.line.thickness long and comp.divider.line.thickness across, separated by at least gap, or comp.divider.line.dot.gap while gap is null; it SHALL draw as many dots as fit the drawn stretch with that gap between them, the first at the stretch's start and the last at its end, and SHALL widen every gap by the same amount to make them meet those ends; WHERE only one dot fits it SHALL draw that dot at the stretch's center."
+    },
+    {
+      "id": "DIV-11",
+      "text": "WHERE lineStyle is dashed THE divider SHALL draw a row of dashes, each dashLength long (comp.divider.line.dash.length while dashLength is null, and never shorter than comp.divider.line.thickness) and comp.divider.line.thickness across, separated by at least gap, or comp.divider.line.dash.gap while gap is null; it SHALL draw as many dashes as fit the drawn stretch with that gap between them, the first at the stretch's start and the last at its end, and SHALL widen every gap by the same amount to make them meet those ends; WHERE only one dash fits it SHALL draw one dash, no longer than the stretch, at the stretch's center."
+    },
+    {
+      "id": "DIV-12",
+      "text": "WHERE lineStyle is wavy THE divider SHALL stroke a wave about the midline of its cross axis at comp.divider.line.thickness, made of circular arcs that each span half a wavelength and alternate from one side of the midline to the other, meeting on the midline without a corner; the wavelength is wavelength, or comp.divider.line.wave.wavelength while wavelength is null, stretched or shrunk so that a whole number of waves (at least one, the nearest number) fills the drawn stretch; each arc's crest SHALL lie amplitude, or comp.divider.line.wave.amplitude while amplitude is null, from the midline to the stroke's center, but never more than a quarter of the stretched wavelength (a half circle); the wave SHALL start and end on the midline, and its first arc SHALL rise toward the top of a horizontal divider and toward the left of a vertical one."
+    },
+    {
+      "id": "DIV-13",
+      "text": "WHERE lineCap is round THE divider SHALL end the solid line, every dot, every dash and the wave in half-discs of diameter comp.divider.line.thickness that lie inside the lengths DIV-9 to DIV-12 give them, so that a dot is a disc and no rounded end reaches into an inset or past the container; the wave's rounded ends SHALL be drawn at its first and last points, laid out over the drawn stretch shortened by half comp.divider.line.thickness at each end. WHERE lineCap is butt every end SHALL be square and flush with those lengths.",
+      "verify": "The default system's hairline is too thin to show a cap. Draw the round-cap fixtures, and the same fixtures with lineCap butt, under a fixture layer whose comp.divider.line.thickness is 4, and compare the ends."
+    },
+    {
+      "id": "DIV-14",
+      "text": "WHEN thickness, insetLength, dashLength, gap, amplitude or wavelength is null THE divider SHALL use the token that prop names; IF one of them is not a finite number, or is negative, or thickness, dashLength or wavelength is 0, THE divider SHALL use that token instead and in debug builds report the value; a value it uses SHALL be used as given, in the platform's unit, and not scaled by any dial; a prop the current lineStyle does not draw SHALL be ignored and not reported."
+    },
+    {
+      "id": "DIV-15",
+      "text": "THE divider SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the divider is shown THE divider SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows and its state.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "DIV-16",
+      "text": "WHILE thickness is not null THE divider SHALL use it wherever DIV-1, DIV-2 and DIV-10 to DIV-13 name comp.divider.line.thickness — the line's extent across its axis, the side of a dot, the width of a dash and its least length, the wave's stroke, the diameter of a round cap and the divider's own size across its axis — and SHALL scale each pattern length it takes from a token rather than from a prop (comp.divider.line.dot.gap, comp.divider.line.dash.length, comp.divider.line.dash.gap, comp.divider.line.wave.amplitude and comp.divider.line.wave.wavelength) by thickness divided by comp.divider.line.thickness, so that a thicker divider keeps the pattern's proportions, as a layer that thickens the line keeps them; a pattern length given by a prop SHALL be used as given. DIV-8 holds for it: a thickness below one device pixel is drawn one device pixel thick. The thickness changes nothing that assistive technology is told, and comp.divider.line.inset and insetLength are not scaled.",
+      "verify": "Under the default system, whose comp.divider.line.thickness is 1: `horizontal-thick` is a solid line 2 thick and the divider is 2 tall; `vertical-thick` is 2 wide; `horizontal-dotted-round-thick` draws discs 4 across, at least 8 apart edge to edge (the token's 2, scaled by 4), the first and the last at the line's ends, and is the fixture in which a round cap shows without a fixture layer. A test sets thickness to 0, to a negative number and to a value that is not a number and sees the token's line and a report in a debug build (DIV-14)."
+    }
+  ],
+  "accessibility": {
+    "role": "separator",
+    "keyboard": [],
+    "labeling": "A divider has no accessible name. Decorative (the default), it is not in the accessibility tree; otherwise it is a separator whose orientation is exposed, and the groups on either side carry their own names.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: a divider has no hit area, so the minimum target holds without extending anything. It never receives focus, even when it is exposed as a separator (a focusable separator is a splitter, which is a different component).",
+      "The line is decorative for contrast purposes: comp.divider.line.color is not held to 3:1, because the content it separates must be understandable without it. A dotted or dashed line covers less of its length and reads fainter than a solid one in the same color; that is accepted for the same reason. In the default system the line is sys.color.outline-variant, the one hairline color every line of the system shares, between 1.19:1 and 3.83:1 against the surface roles depending on the scheme: visible, and never the only thing that tells two groups apart.",
+      "The line's style carries nothing to assistive technology: a dotted, dashed or wavy divider that is not decorative is the same separator as a solid one. A product that gives a style a meaning (a tear line, a provisional section) states that meaning in text.",
+      "Text size does not change the line: it is not text."
+    ]
+  },
+  "tokens": "comp.divider",
+  "fixtures": [
+    {
+      "id": "horizontal",
+      "props": {}
+    },
+    {
+      "id": "horizontal-inset-start",
+      "props": {
+        "inset": "start"
+      }
+    },
+    {
+      "id": "horizontal-inset-both",
+      "props": {
+        "inset": "both"
+      }
+    },
+    {
+      "id": "horizontal-inset-start-length",
+      "props": {
+        "inset": "start",
+        "insetLength": 72
+      }
+    },
+    {
+      "id": "vertical",
+      "props": {
+        "orientation": "vertical"
+      }
+    },
+    {
+      "id": "vertical-inset-start",
+      "props": {
+        "orientation": "vertical",
+        "inset": "start"
+      }
+    },
+    {
+      "id": "vertical-inset-both",
+      "props": {
+        "orientation": "vertical",
+        "inset": "both"
+      }
+    },
+    {
+      "id": "horizontal-separator",
+      "props": {
+        "decorative": false
+      }
+    },
+    {
+      "id": "horizontal-dotted",
+      "props": {
+        "lineStyle": "dotted"
+      }
+    },
+    {
+      "id": "horizontal-dotted-round",
+      "props": {
+        "lineStyle": "dotted",
+        "lineCap": "round"
+      }
+    },
+    {
+      "id": "horizontal-dashed",
+      "props": {
+        "lineStyle": "dashed"
+      }
+    },
+    {
+      "id": "horizontal-dashed-round",
+      "props": {
+        "lineStyle": "dashed",
+        "lineCap": "round"
+      }
+    },
+    {
+      "id": "horizontal-dashed-custom",
+      "props": {
+        "lineStyle": "dashed",
+        "dashLength": 12,
+        "gap": 6
+      }
+    },
+    {
+      "id": "horizontal-inset-both-dashed",
+      "props": {
+        "lineStyle": "dashed",
+        "inset": "both"
+      }
+    },
+    {
+      "id": "horizontal-wavy",
+      "props": {
+        "lineStyle": "wavy"
+      }
+    },
+    {
+      "id": "horizontal-wavy-custom",
+      "props": {
+        "lineStyle": "wavy",
+        "amplitude": 4,
+        "wavelength": 24
+      }
+    },
+    {
+      "id": "vertical-dotted",
+      "props": {
+        "orientation": "vertical",
+        "lineStyle": "dotted"
+      }
+    },
+    {
+      "id": "vertical-wavy",
+      "props": {
+        "orientation": "vertical",
+        "lineStyle": "wavy"
+      }
+    },
+    {
+      "id": "horizontal-thick",
+      "props": {
+        "thickness": 2
+      }
+    },
+    {
+      "id": "vertical-thick",
+      "props": {
+        "orientation": "vertical",
+        "thickness": 2
+      }
+    },
+    {
+      "id": "horizontal-dotted-round-thick",
+      "props": {
+        "lineStyle": "dotted",
+        "lineCap": "round",
+        "thickness": 4
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-divider",
+      "props": {
+        "orientation": "orientation",
+        "inset": "inset",
+        "insetLength": "insetLength",
+        "thickness": "thickness",
+        "lineStyle": "lineStyle",
+        "lineCap": "lineCap",
+        "dashLength": "dashLength",
+        "gap": "gap",
+        "amplitude": "amplitude",
+        "wavelength": "wavelength",
+        "decorative": "decorative"
+      },
+      "notes": "Not an `<hr>`: an hr is horizontal only and always a separator. The host takes `role=\"separator\"` and `aria-orientation` when `decorative` is false (set to false by `decorative=\"false\"` or the property), and `aria-hidden=\"true\"` otherwise. Attributes are `line-style`, `line-cap`, `inset-length`, `dash-length`, `gap`, `amplitude` and `wavelength`; the lengths are numbers of CSS px. A solid line stays a border (DIV-8). A dotted or dashed line is not `border-style: dotted | dashed`, whose dash lengths and spacing each engine chooses and which has no round cap: it is drawn from the tokens (for example a mask repeated with `mask-repeat: space` over a box one gap longer than the line, which places whole dashes at both ends and widens the gaps as DIV-10 and DIV-11 say). A wavy line cannot be a border at all: it is an SVG path of arcs in the shadow root, measured on resize (DIV-12). In forced-colors mode every style is drawn in the system's text color, as the border is."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiDivider",
+      "props": {
+        "orientation": "axis",
+        "inset": "inset",
+        "insetLength": "insetLength",
+        "thickness": "thickness",
+        "lineStyle": "lineStyle",
+        "lineCap": "lineCap",
+        "dashLength": "dashLength",
+        "gap": "gap",
+        "amplitude": "amplitude",
+        "wavelength": "wavelength",
+        "decorative": "isDecorative"
+      },
+      "notes": "SwiftUI's own `Divider` takes its axis from the enclosing stack; `TanreiDivider(axis: .horizontal)` states it (default `.horizontal`) so a divider looks the same wherever it is placed and its snapshot is deterministic. `isDecorative: false` adds the separator semantics SwiftUI's `Divider` does not have. Ships the previous revision (solid only). Owes DIV-1 to DIV-4, DIV-7 and DIV-8 as revised, and DIV-9 to DIV-14: `lineStyle`, `lineCap: CGLineCap` (`.butt`, `.round`) and the lengths as `CGFloat?`, drawn as a `Path` stroked with `StrokeStyle(lineWidth:lineCap:dash:)` (arcs with `addArc`)."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiDivider",
+      "props": {
+        "orientation": "orientation",
+        "inset": "inset",
+        "insetLength": "insetLength",
+        "thickness": "thickness",
+        "lineStyle": "lineStyle",
+        "lineCap": "cap",
+        "dashLength": "dashLength",
+        "gap": "gap",
+        "amplitude": "amplitude",
+        "wavelength": "wavelength",
+        "decorative": "decorative"
+      },
+      "notes": "One composable with `orientation: Orientation` (foundation's `Orientation.Horizontal` / `.Vertical`, as `Modifier.scrollable` takes it) instead of Material's two composables `HorizontalDivider` and `VerticalDivider`. Ships the previous revision (solid only). Owes DIV-1 to DIV-4, DIV-7 and DIV-8 as revised, and DIV-9 to DIV-14: `lineStyle`, `cap: StrokeCap` (`StrokeCap.Butt`, `StrokeCap.Round`, as `Stroke` names it) and the lengths as `Dp?`, drawn on a `Canvas` with `PathEffect.dashPathEffect` for dots and dashes and `Path.arcTo` for the wave."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiDivider",
+      "props": {
+        "orientation": "axis",
+        "inset": "inset",
+        "insetLength": "insetLength",
+        "thickness": "thickness",
+        "lineStyle": "lineStyle",
+        "lineCap": "strokeCap",
+        "dashLength": "dashLength",
+        "gap": "gap",
+        "amplitude": "amplitude",
+        "wavelength": "wavelength",
+        "decorative": "excludeFromSemantics"
+      },
+      "notes": "One widget with `axis: Axis` instead of Flutter's `Divider` and `VerticalDivider`. `inset` is an enum resolved from comp.divider.line.inset, not Flutter's `indent` / `endIndent` lengths; `insetLength` replaces that length for one divider at both ends it applies to. `excludeFromSemantics` (as `Image` and `GestureDetector` name it) has the same polarity as `decorative` and defaults to true. Ships the previous revision (solid only). Owes DIV-1 to DIV-4, DIV-7 and DIV-8 as revised, and DIV-9 to DIV-14: `lineStyle`, `strokeCap: StrokeCap` (`StrokeCap.butt`, `StrokeCap.round`, as `Paint` names it) and the lengths as `double?`, drawn by a `CustomPainter`; `dart:ui` has no dash effect, so each dot and dash is its own segment, and the wave is `Path.arcToPoint`."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Divider",
+      "props": {
+        "orientation": "orientation",
+        "inset": "inset",
+        "insetLength": "insetLength",
+        "thickness": "thickness",
+        "lineStyle": "lineStyle",
+        "lineCap": "lineCap",
+        "dashLength": "dashLength",
+        "gap": "gap",
+        "amplitude": "amplitude",
+        "wavelength": "wavelength",
+        "decorative": "decorative"
+      },
+      "notes": "Decorative: `accessible={false}` and `importantForAccessibility=\"no-hide-descendants\"`. Not decorative: `role=\"separator\"`; how far iOS and Android announce it (neither has a native separator trait) is for the package's README to state. Ships the previous revision (solid only). Owes DIV-1 to DIV-4, DIV-7 and DIV-8 as revised, and DIV-9 to DIV-14, drawn with views only (the package takes no SVG): not `borderStyle: 'dotted' | 'dashed'`, whose spacing is the OS's and which has no length or cap; each dot and dash is a view (a round cap is its corner radius), and the wave is the package's `Arc` primitive, one arc per half wave, which is why DIV-12 builds the wave from circular arcs."
+    }
+  }
+}

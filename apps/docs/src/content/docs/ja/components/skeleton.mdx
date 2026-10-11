@@ -1,0 +1,228 @@
+---
+title: スケルトン
+description: 読み込みのあいだ、コンテンツが入る場所に置くものです。これから来るものの形をした控えめなプレースホルダー（テキストの行、ブロック、円）が、コンテンツの入るボックスを確保するので、届いたときに何も動きません。
+translationOf: components/skeleton.mdx
+sourceHash: fd87c49099a85cb9c01317779b10a50e0116860c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="skeleton" />
+
+<DemoFrame label="読み込み中の人物の情報とカード" column>
+  <tanrei-skeleton label="著者の情報を読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
+  <tanrei-skeleton label="プロジェクトを読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+ビューは、コンテンツより先に表示されることがよくあります。スケルトンは、これから来るものの形を、それが入る場所に確保します。テキストの行、画像やコントロールのためのブロック、人物の画像のための円です。コンテンツが届くと、確保してあったボックスにそのまま入るので、見ていたものも、押そうとしていたものも動きません。
+
+スケルトンは、領域とその中のプレースホルダーでできています。支援技術には領域が 1 回だけ伝わります（「プロジェクトを読み込み中」、ビジー状態）。プレースホルダーそのものは何も伝えません。表示までに少し待つので、短い待ち時間では形がちらつかず、正しい大きさの空白だけが見えます。
+
+Web では `<tanrei-skeleton>` で、その中に `class="tanrei-skeleton-placeholder"` を付けた利用者側の要素を置きます。ほかのプラットフォームはまだ実装していません。
+
+### スケルトン、ローディングインジケーター、プログレスインジケーター、空の状態
+
+「ここにはまだ何もない」に答えるコンポーネントは 4 つあります。どれを使うかは、待ち時間と、これから来るものについて何が分かっているかで決まります。
+
+| 状況 | 使うもの | 理由 |
+| --- | --- | --- |
+| 形の分かっているコンテンツがビューの一部を埋める予定で、待ち時間が目に見えるほど長い。 | スケルトン | レイアウトを確保するので、届いたときに何も動きません。どこに何が来るかも示します。 |
+| 長さの分からない短い待ち時間で、結果に確保すべき形がないか、小さい。ボタン、行、フィールド、ステータス行の中。保存や送信など、進行中の操作。 | [ローディングインジケーター](/ja/components/loading-indicator/) | 印が 1 つあれば足ります。1 行や 1 つのアイコンのための形は雑音です。 |
+| 進み具合を測れるタスク、または何秒もかかるタスク。 | [プログレスインジケーター](/ja/components/progress-indicator/) | スケルトンは、どこまで進んだかを伝えません。数秒たつと、人はそれを知りたくなります。 |
+| 何も来ない。リストが空、検索結果がない。 | [空の状態](/ja/components/empty-state/) | スケルトンは、コンテンツが来ることを約束します。 |
+| 読み込みに失敗した。 | その場所に、エラーのステータスの[コールアウト](/ja/components/callout/)。 | 終わらないスケルトンは嘘になります。 |
+| コンテンツはすでにあり、スクリプト、画像、フォントだけが遅れている。 | 4 つのどれでもありません。そのコンポーネントが自分のボックスを確保します。 | スケルトンはほかのコンポーネントの大きさを知りません。知っているのはそのコンポーネントです。 |
+
+### 使い方
+
+待ち時間が始まったら、コンテンツが入る場所にスケルトンを置き、終わったらコンテンツに置き換えます。何を読み込んでいるかを `label` で渡します。プレースホルダーは、このクラスを付けた利用者側の空の要素です。`<span>` はどこにでも置けます。別の `<div>` のようなブロックの子として置くときは、`<div>` でもかまいません。見出しや段落の中では `<span>` にします。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/skeleton.css" />
+
+    <!-- スケルトンの直接の子であるプレースホルダーは、間隔をあけて縦に並びます。 -->
+    <tanrei-skeleton label="プロジェクトを読み込み中">
+      <span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span>
+      <span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span>
+      <span class="tanrei-skeleton-placeholder" data-lines="3"></span>
+    </tanrei-skeleton>
+
+    <!-- それ以上のものは利用者側のレイアウトです。プレースホルダーは、コンテンツが入る場所に置きます。 -->
+    <tanrei-skeleton label="著者の情報を読み込み中">
+      <div class="byline">
+        <span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span>
+        <div>
+          <h3><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span></h3>
+          <p><span class="tanrei-skeleton-placeholder" data-lines="2"></span></p>
+        </div>
+      </div>
+    </tanrei-skeleton>
+
+    <!-- ページの最初の表示の一部で、サーバーが書き出すもの。すぐに表示され、スクリプトの前から正しく伝わります。 -->
+    <tanrei-skeleton show-delay="0" role="progressbar" aria-busy="true" aria-label="ダッシュボードを読み込み中">
+      …
+    </tanrei-skeleton>
+    <noscript>ダッシュボードの表示には JavaScript が必要です。</noscript>
+
+    <script type="module">
+      import '@tanrei/web/components/skeleton';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Skeleton } from '@tanrei/react';
+    import '@tanrei/web/skeleton.css';
+
+    {project ? (
+      <ProjectCard project={project} />
+    ) : (
+      <Skeleton label="プロジェクトを読み込み中">
+        <span className="tanrei-skeleton-placeholder" data-shape="block" style={{ blockSize: 160 }} />
+        <span className="tanrei-skeleton-placeholder" style={{ inlineSize: '12.5rem' }} />
+        <span className="tanrei-skeleton-placeholder" data-lines={3} />
+      </Skeleton>
+    )}
+    ```
+  </TabItem>
+</Tabs>
+
+Web では、スクリプトが動く前はスタイルシートがコンポーネントのすべてです。形、表示までの待ち時間、パルス、動きを減らす設定での静止、強制カラーモードの輪郭を描きます。要素は、スタイルシートにはできないことを加えます。支援技術に伝えるロールと名前、スケルトンの中のものをフォーカス順から外すこと、見えないあいだの一時停止です。
+
+## 仕様
+
+<DemoFrame label="3 つの形: テキスト、ブロック、円" plain column>
+  <tanrei-skeleton label="テキストを読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
+  <tanrei-skeleton label="画像を読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
+  <tanrei-skeleton label="人物の情報を読み込み中" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+<DemoFrame label="テキストのプレースホルダーは、置かれた場所のテキストスタイルに従います。見出しの中、段落の中" plain column>
+  <tanrei-skeleton label="記事を読み込み中" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
+</DemoFrame>
+
+<ComponentSpecs name="skeleton" />
+
+## ガイドライン
+
+### ボックスを確保する
+
+スケルトンの要点は、何も動かないことです。スケルトンのボックスも、各プレースホルダーのボックスも、挿入されてから取り除かれるまで変わりません。表示を待つあいだも、現れるときも、動いているあいだも同じです。
+
+スケルトンは何も推測しません。渡されたプレースホルダーを、渡された大きさで描きます。プレースホルダーが確保したボックスにコンテンツが収まるようにするのは、利用者側の役目です。各プレースホルダーを、そのコンテンツが入る場所に、コンテンツと同じ置き方で置きます。
+
+- テキストのプレースホルダーは、テキストが入る見出し、段落、セルの中に置きます。そのテキストスタイルに従い、その行数ぶんの高さにちょうどなります。読む人が文字を拡大しても同じです。
+- テキストが何行になるかは `data-lines` で渡します。コンテンツの形がそろっているほど、当たります。スケルトンが 1 行足りなければページは 1 行ぶん動きますが、空白のままにしておくよりは小さな動きです。
+- ブロックには、画像やコントロールの大きさを渡します。数値、比率、またはレイアウトが与える大きさです。円には、一辺の数値を 1 つ渡します。
+
+<DemoFrame label="「読み込む」を押すと、スケルトンが 2.5 秒のあいだ場所を確保し、コンテンツがそのボックスに入ります" plain column>
+  <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">読み込む</tanrei-button>
+  <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">3 層のトークン</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">リファレンストークンは生の値を持ちます。システムトークンは値の用途に名前を付けます。コンポーネントトークンは 1 つの部品をそれに結び付けます。</p></div>
+  <template><tanrei-skeleton label="記事を読み込み中"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
+  <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">3 層のトークン</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">リファレンストークンは生の値を持ちます。システムトークンは値の用途に名前を付けます。コンポーネントトークンは 1 つの部品をそれに結び付けます。</p></template>
+  <p style="margin: 0">この行は記事の下にあり、動きません。</p>
+</DemoFrame>
+
+### 形
+
+| `data-shape` | 何の代わりか | 大きさ |
+| --- | --- | --- |
+| `text`（既定） | 1 行以上のテキスト。 | 置かれた場所のテキストスタイルで、`data-lines` 行ぶんの高さ。各行は、フォントサイズと同じ高さのバーです。複数行のときは、最後の行が短くなります。段落が端で終わることはまれだからです。`inline-size` でバーの長さを決めます。 |
+| `block` | 画像、カード、コントロール、行。 | `inline-size` と `block-size`、またはレイアウトが与える大きさ（引き伸ばされたセル、`aspect-ratio`）。大きさを渡さなければ、幅は置かれた場所いっぱい、高さは 1 行ぶんです。 |
+| `circle` | 人物の画像、丸い印。 | 一辺を 1 つ。`block-size` か `inline-size` で渡します。渡さなければ 1 行ぶんの高さです。 |
+
+スケルトンの直接の子であるプレースホルダーは、8 の間隔で縦に並びます。それ以外（2 行の横に円を置く、カードをグリッドに並べるなど）は、スケルトンの中に置く利用者側のレイアウトです。出来合いのカードやリストのスケルトンはありません。画面は利用者のもので、それを知っているのは利用者だけです。
+
+利用者側の行の中では、テキストのプレースホルダーやブロックに、その行から幅を与える必要があります。コンテンツと同じです。`flex: 1`、グリッドのトラック、または `inline-size` を使います。
+
+### 1 つの待ち時間に、1 つの知らせ
+
+1 つの領域のプレースホルダーは、すべて 1 つのスケルトンに入れ、`label` を 1 つ付けます。スケルトンの中のスケルトンは何も伝えません。
+
+同じ待ち時間をすでにほかのものが伝えているとき（ステータス行のローディングインジケーター、ステータスの文言、利用者側でビジー状態にして名前を付けた領域など）は、`decorative` を設定します。スケルトンは同じように描かれ、支援技術からは隠されるので、同じ待ち時間が 2 回読まれません。
+
+<DemoFrame label="ステータス行がすでに待ち時間を伝えているので、その下のプレースホルダーは装飾です" plain column>
+  <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="検索中" show-delay="0"></tanrei-loading-indicator>検索中…</span>
+  <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
+</DemoFrame>
+
+### 表示までに待つ
+
+スケルトンは、挿入されてから 300 ms 待ってから描かれ、支援技術に伝わります。そのあいだもボックスは確保されています。それより早く終わる待ち時間では、はじめから正しい大きさだった空白だけが見えます。
+
+- 待ち時間が始まったらスケルトンを挿入し、コンテンツが届いたら取り除きます。待ちは挿入から数えます。スケルトンを隠しても、数え直しにはなりません。
+- スケルトンがページやビューの最初の表示の一部で、ほかに見せるものがないときは、`show-delay="0"` を設定します。
+- この待ちは時間であって、モーションではありません。動きを減らす設定でも保たれます。
+
+### 必ず何かで終わる
+
+スケルトンは、コンテンツに置き換えます。何も来なかったときは[空の状態](/ja/components/empty-state/)に、読み込みに失敗したときはエラーのステータスの[コールアウト](/ja/components/callout/)に置き換えます。スケルトンが自分で時間切れになることはありません。いつ諦めるかを知っているのは利用者側です。
+
+スケルトンは、コンテンツが届いたことを読み上げません。届いたことを伝えるべき場面（検索に応えた結果、求められたリストなど）では、利用者側のライブリージョンか、求めた側のコンポーネントのステータスの文言で伝えます。コンテンツとともに開くだけのビューに、読み上げは要りません。
+
+### モーション
+
+既定では、プレースホルダーはパルスします。塗りが半分まで薄くなって戻る動きを、すべてのプレースホルダーがそろって、2 秒に 1 回くり返します。変わるのは不透明度だけです。何も動かず、静止時の塗りより明るいものは描かれません。
+
+デザインシステムは、トークン `comp.skeleton.motion.animation` で、すべてのスケルトンの動き方を選べます。`pulse`、`wave`（同じ薄まりが 1 本の帯として、スケルトン全体を先頭側の端から末尾側の端へ進みます）、`none` のいずれかです。インスタンスごとの設定はありません。
+
+動きを減らす設定では、プレースホルダーは静止します。その場所が待っていることは、形、ラベル、ビジー状態がすでに伝えています。スケルトンが見えないあいだ、アニメーションは動きません。
+
+### Web で、スクリプトの前に
+
+スケルトンは、ページのスクリプトが動く前に見せるものです。そのため `@tanrei/web/skeleton.css` は、要素なしでスケルトンの全体を描きます。要素が必要なものがいくつかあり、要素が定義されるまで、またはスクリプトが動かない場所では、次のように異なります。
+
+- ロールと名前。スクリプトの前から正しくなければならないページは、要素に `role="progressbar"`、`aria-busy="true"`、`aria-label` を自分で書きます。要素は、書かれているものをそのままにします。
+- `0` 以外の `show-delay`。スタイルシートは、デザインシステムの待ち時間だけ待ちます。
+- 1 つのテキストのプレースホルダーでの 24 行を超える行数。
+- `wave` の動き方。パルスとして描かれます。
+- 表示されていないビューの中のスケルトンは、ビューが表示されたときに待ちを始めます。
+
+スクリプトが動かない場所では、サーバーが置き換えないかぎり、スケルトンは終わりません。スクリプトでしか届かないコンテンツには、スケルトンの横に `<noscript>` が必要です。
+
+### 推奨
+
+- プレースホルダーには、これから来るものの形と大きさを与えます。
+- テキストのプレースホルダーは、テキストが入る要素の中に置きます。
+- 1 つの待ち時間には、ラベルを 1 つ付けたスケルトンを 1 つ使います。
+- 待ち時間がどう終わっても、終わったら置き換えます。
+
+### 非推奨
+
+- 読んだり使ったりするものを、スケルトンの中に置かないでください。中のものは入力を受けず、支援技術からも隠されます。すでに分かっている見出しや、すでに使えるボタンは、スケルトンの外に置きます。
+- コントロールや行の中の短い待ち時間、進行中の操作には使わないでください。それはローディングインジケーターの役目です。
+- すでにあるコンテンツを、スケルトンで覆わないでください。
+- 灰色の箱を手で描かないでください。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="skeleton" />
+
+### コンポーネントが担うこと
+
+- 表示されたスケルトンは、支援技術にとって 1 つの要素です。値のないプログレスバーで、ビジー状態にあり、`label` が名前になります。ローディングインジケーターと同じ伝え方です。伝える内容が同じだからです。
+- プレースホルダー、その数、行数は伝わりません。スケルトンの中に置いたレイアウトも伝わりません。
+- 表示を待つあいだは、まったく伝わりません。待ちより短い待ち時間で、現れてすぐ消えるプログレスバーが伝わることはありません。
+- `decorative` を設定したとき、またはほかのスケルトンの中にあるときは、支援技術から隠されます。
+- フォーカスを受けず、フォーカス順にも入りません。中のものも同じです。自分を読み上げず、フォーカスも動かしません。
+- 動きを減らす設定では静止します。待ちは保たれます。
+- 強制カラーモードでは、各プレースホルダーとテキストの各行を、その形の輪郭として文字色で描きます。このモードでは塗りが描かれないので、プレースホルダーが消えると空白しか残らないからです。
+- 文字を拡大すると、テキストのプレースホルダーはテキストスタイルとともに大きくなるので、拡大したコンテンツのボックスを確保し続けます。数値で渡した大きさは変わりません。置かれた場所より幅が広くなるものはなく、幅 320 で文字を 200% にしても横スクロールは生じません。
+- 右から左（RTL）のレイアウトでは、プレースホルダーは右に置かれ、短い最後の行は右から始まり、ウェーブは右から左へ進みます。
+- 未知の形、使えない行数や大きさ、プレースホルダーのないスケルトン、ラベルのないスケルトンは、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- 何を読み込んでいるかを伝える `label` を、ページの言語で渡します（「プロジェクトを読み込み中」）。または `setWords({ loadingLabel: … })` で、すべてのスケルトンの文言を一度に渡します。コンポーネントは文言を持ちません。
+- 同じ待ち時間をほかのものが伝えているときは、`decorative` を設定します。
+- コンテンツが届いたことが知らせになる場面では、それを伝えます。
+- スケルトンをいつまでも残さないでください。コンテンツ、空の状態、エラーのいずれかに置き換えます。
+- 塗りは装飾で、コントラスト比の基準は課されません。最も高いコンテナのトーンの面の上では見えにくくなります。その場所が待っていることを、塗りだけで伝えないでください。

@@ -1,0 +1,234 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "backgroundColor": "rgb(255, 255, 255)",
+      "height": 720,
+      "width": 400
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "pointerEvents": "box-none",
+        "style": {
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "collapsable": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "backgroundColor": "rgba(0, 0, 0, 0.4)",
+              "bottom": 0,
+              "left": 0,
+              "opacity": 1,
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityState": {},
+                "accessibilityValue": {},
+                "accessible": false,
+                "collapsable": false,
+                "focusable": false,
+                "style": {
+                  "flex": 1
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "pointerEvents": "box-none",
+            "style": {
+              "alignItems": "center",
+              "bottom": 0,
+              "justifyContent": "flex-end",
+              "left": 0,
+              "paddingTop": 0,
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityLabel": "Save photo",
+                "accessibilityViewIsModal": true,
+                "aria-modal": true,
+                "collapsable": false,
+                "role": "dialog",
+                "style": {
+                  "backgroundColor": "rgb(255, 255, 255)",
+                  "borderCurve": "continuous",
+                  "borderTopEndRadius": 10,
+                  "borderTopStartRadius": 10,
+                  "boxShadow": [
+                    {
+                      "blurRadius": 8,
+                      "color": "rgba(0, 0, 0, 0.12)",
+                      "offsetX": 0,
+                      "offsetY": 2,
+                      "spreadDistance": 0
+                    }
+                  ],
+                  "flexShrink": 1,
+                  "maxHeight": "50%",
+                  "maxWidth": 640,
+                  "width": "100%"
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flexShrink": 1,
+                      "paddingBottom": 0
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "alignSelf": "center",
+                          "marginVertical": 0
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "View",
+                          "props": {
+                            "accessibilityElementsHidden": true,
+                            "accessibilityState": {
+                              "disabled": true
+                            },
+                            "accessibilityValue": {},
+                            "accessible": false,
+                            "collapsable": false,
+                            "focusable": false,
+                            "hitSlop": {
+                              "bottom": 16,
+                              "left": 0,
+                              "right": 0,
+                              "top": 16
+                            },
+                            "importantForAccessibility": "no-hide-descendants",
+                            "style": {
+                              "alignItems": "center",
+                              "borderCurve": "continuous",
+                              "borderRadius": 9999,
+                              "height": 16,
+                              "justifyContent": "center",
+                              "opacity": 1,
+                              "width": 48
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "View",
+                              "props": {
+                                "accessibilityElementsHidden": true,
+                                "accessible": false,
+                                "collapsable": false,
+                                "importantForAccessibility": "no-hide-descendants",
+                                "pointerEvents": "none",
+                                "style": {
+                                  "backgroundColor": "rgb(195, 192, 194)",
+                                  "borderRadius": 9999,
+                                  "height": 5,
+                                  "width": 36
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "borderTopEndRadius": 0,
+                          "borderTopStartRadius": 0,
+                          "flexShrink": 1,
+                          "overflow": "hidden"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "RCTScrollView",
+                          "props": {
+                            "bounces": false,
+                            "contentContainerStyle": {
+                              "paddingBottom": 16,
+                              "paddingEnd": 16,
+                              "paddingStart": 16,
+                              "paddingTop": 0
+                            },
+                            "scrollEventThrottle": 16,
+                            "style": {
+                              "flexGrow": 0,
+                              "flexShrink": 1
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "View",
+                              "props": {},
+                              "children": [
+                                {
+                                  "type": "Text",
+                                  "props": {
+                                    "allowFontScaling": true,
+                                    "style": {
+                                      "color": "rgb(0, 0, 0)",
+                                      "fontSize": 15,
+                                      "fontWeight": "400",
+                                      "letterSpacing": 0,
+                                      "lineHeight": 20
+                                    }
+                                  },
+                                  "children": [
+                                    "Choose where to save the photo. You can change this later in Settings."
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

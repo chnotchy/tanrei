@@ -1,0 +1,190 @@
+---
+title: Campo de código de un solo uso
+description: Pide un código corto enviado a la persona como un único campo completo —las celdas bajo una etiqueta, con una línea de ayuda y las palabras para un código incorrecto—, unido para la tecnología de apoyo y que participa en un formulario como un solo control.
+translationOf: components/one-time-code-field.mdx
+sourceHash: 4952bfb2574339fb8c70f1d9523c3cbe0359963a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="one-time-code-field" />
+
+<DemoFrame label="Un campo de código de un solo uso, y otro cuyo código rechazó el producto" column>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." group-size="3" value="123"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." error error-text="El código no es correcto. Revisa el mensaje e inténtalo de nuevo." group-size="3" value="123456"></tanrei-one-time-code-field>
+</DemoFrame>
+
+Usa un campo de código de un solo uso allí donde un producto pide de vuelta un código corto que envió: para iniciar sesión, para confirmar una dirección o un número de teléfono, para aprobar un pago. Es el caso corriente, listo para usarse: una etiqueta, las celdas, una línea que dice adónde se envió el código y las palabras para un código incorrecto.
+
+**Se compone de** un [campo](/es/components/field/) y una [entrada de código de un solo uso](/es/components/one-time-code-input/). El campo es el marco: la etiqueta, la marca de obligatorio o de opcional, la ayuda y el error. La entrada de código de un solo uso es el control: las celdas y todo lo que una persona hace en ellas. El campo de código de un solo uso no dibuja nada propio y no tiene ningún token: cada propiedad que tiene es una propiedad de uno de los dos, que se le da sin cambios.
+
+Es tan ancho como el lugar en el que se pone, y las celdas empiezan en su borde de inicio.
+
+En la web es `<tanrei-one-time-code-field>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+`value` es el código introducido hasta el momento, sin separador, sean cuales sean los grupos dibujados. Los cuatro eventos son los de la propia entrada de código de un solo uso, y cuando se oye cualquiera de ellos el `value` del campo ya es el nuevo.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-one-time-code-field name="code" label="Código de verificación"
+        supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono."
+        error-text="El código no es correcto. Revisa el mensaje e inténtalo de nuevo."
+        requirement="required" required-text="Obligatorio"
+        group-size="3"></tanrei-one-time-code-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/one-time-code-field';
+
+      const code = document.querySelector('tanrei-one-time-code-field');
+      // La persona cambió el valor. Ya es el nuevo.
+      code.addEventListener('input', () => (code.error = false));
+      // Se rellenó la última celda, o se pegó o se rellenó un código entero. Nada más ocurre por sí solo.
+      code.addEventListener('complete', async (e) => {
+        code.readOnly = true;
+        const right = await verify(e.detail.value);
+        code.readOnly = false;
+        code.error = !right;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { OneTimeCodeField } from '@tanrei/react';
+
+    <OneTimeCodeField name="code" label="Código de verificación" error={wrong}
+      supportingText="Introduce el código de 6 dígitos que enviamos a tu teléfono."
+      errorText="El código no es correcto. Revisa el mensaje e inténtalo de nuevo."
+      groupSize={3} value={code}
+      onInput={(event) => setCode(event.currentTarget.value)}
+      onComplete={(event) => verify(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### Un nivel más abajo
+
+El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen y es el mismo cuadro de texto para la tecnología de apoyo:
+
+```html
+<tanrei-field label="Código de verificación"
+  supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono."
+  error-text="El código no es correcto. Revisa el mensaje e inténtalo de nuevo.">
+  <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
+</tanrei-field>
+```
+
+<DemoFrame label="El mismo campo escrito a mano: un campo con una entrada de código de un solo uso dentro" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono.">
+    <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
+  </tanrei-field>
+</DemoFrame>
+
+Baja a ese nivel cuando necesites una organización que el campo de código de un solo uso no ofrece:
+
+| Necesitas | Usa |
+| --- | --- |
+| Una etiqueta, las celdas, una ayuda y un error | El campo de código de un solo uso |
+| Algo tuyo dentro del marco, junto a las celdas: un control para volver a enviar el código, una cuenta atrás | Un [campo](/es/components/field/) con una [entrada de código de un solo uso](/es/components/one-time-code-input/) y tu propio elemento dentro |
+| Las celdas solas, bajo una etiqueta que se dibuja en otro lugar: el título de un diálogo, el título de un paso | La [entrada de código de un solo uso](/es/components/one-time-code-input/) sola, que recibe su nombre de su propio `label` |
+| Una sola caja sin celdas, para un código cuya longitud no se conoce | Un [campo de texto](/es/components/text-field/) con `autocomplete="one-time-code"` |
+
+Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name` y `value` están en la entrada de código de un solo uso, que es entonces el control con el que trata el formulario, y sus eventos se oyen en ella. `label`, `error` y `disabled` se quedan en el campo, que se los pasa al control: no definas los de la propia entrada.
+
+## Especificaciones
+
+<DemoFrame label="Obligatorio con la palabra del producto, opcional, deshabilitado y un código oculto de cuatro" plain column>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" requirement="required" required-text="Obligatorio" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." group-size="3"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de respaldo" requirement="optional" optional-text="Opcional" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" disabled supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." group-size="3" value="123456"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="PIN de la carta" length="4" mask value="4821"></tanrei-one-time-code-field>
+</DemoFrame>
+
+### Qué aporta cada miembro
+
+| Aspecto | Del campo | De la entrada de código de un solo uso |
+| --- | --- | --- |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `length`, `type`, `groupSize`, `mask`, `readOnly` |
+| Eventos | — | `input`, `change`, `complete`, `action` |
+| Slots | `label-icon` | — |
+| Tokens | `comp.field.*` | `comp.one-time-code-input.*` |
+
+La entrada de código de un solo uso tiene un `label`, un `error` y un `disabled` propios. No son propiedades del campo de código de un solo uso: el `label` del campo da nombre al control, su `error` pone las celdas en su estado de error y su `disabled` las deshabilita. Así, defines cada uno una sola vez, en el campo de código de un solo uso, y su etiqueta cambia con el control.
+
+Lo que hacen las celdas —escribir, pegar, las teclas de flecha, los grupos— está en la [página de la entrada de código de un solo uso](/es/components/one-time-code-input/). Lo que hace el marco —la marca de obligatorio, la ayuda, el error y cómo se anuncia— está en la [página del campo](/es/components/field/).
+
+### Diferenciar un solo campo
+
+El campo de código de un solo uso no tiene ningún token propio. Su marco lee los tokens del campo, y sus celdas los de la entrada de código de un solo uso, allí donde estén definidos. Para cambiar una sola instancia, define en ella el token del miembro:
+
+```html
+<tanrei-one-time-code-field label="Código de verificación"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-one-time-code-field>
+```
+
+<ComponentSpecs name="one-time-code-field" />
+
+### Qué dibuja la web de otra manera
+
+- El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-one-time-code-input>` dentro, y nada más. Importar el elemento define ambos.
+- El elemento está asociado a formularios. Recibe `name` y `form`, envía solo el código —nada mientras está deshabilitado—, se restablece al valor del atributo `value`, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `requirement` es `required` y está vacío. Sus dos miembros no añaden ninguna entrada al formulario. Enter en las celdas pulsa el botón predeterminado del formulario del elemento; cancela `action` para impedirlo.
+- `input`, `change`, `complete` y `action` son los CustomEvents de la entrada de código de un solo uso, con `detail.value`. Su destino es el elemento, y `event.target.value` es el código en todos los listeners.
+- Partes: `field` y `one-time-code-input` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label`, `label-icon`, `requirement-label`, `supporting-text`; `input`, `cell`, `character`, `caret`, `separator`.
+- El elemento no puede recibir el foco por sí mismo: `focus()` va a las celdas, y un `<label for>` propio de la página lleva el foco allí. `autofocus` en el elemento da el foco a las celdas cuando se dibuja por primera vez, salvo que otra cosa tenga el foco.
+- El elemento no tiene rol. Dale nombre con `label` —con `label-hidden` donde la etiqueta se dibuja en otro lugar— y nunca con `aria-label`, que aquí no nombra nada.
+- Los atributos son los de los propios miembros: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `group-size`, `readonly`.
+- Tiene un solo slot, `label-icon`. Un segundo control colocado dentro no se dibuja.
+- Antes de que el elemento esté definido no tiene tamaño y solo muestra un hijo `label-icon`. Ocúltalo con `tanrei-one-time-code-field:not(:defined) > *` y reserva la altura. Una página que deba funcionar sin script usa un `<label>` alrededor de un `<input autocomplete="one-time-code" inputmode="numeric">` sencillo, con su ayuda al lado.
+
+## Pautas
+
+### Recomendado
+
+- Di en `supportingText` cuántos caracteres se esperan y adónde se envió el código.
+- Dibuja los grupos como los escribe el mensaje: `groupSize="3"` para un código enviado como «123 456».
+- Di con palabras que un código es incorrecto, con `error` y `errorText`. Decide tú si un código incorrecto se borra: a menudo solo un dígito está mal.
+- Usa `readOnly`, no `disabled`, mientras se comprueba un código completo. Un campo deshabilitado pierde el foco, y una persona que después deba corregir el código pierde su posición.
+- Pon junto al campo la forma de pedir un código nuevo y, si lo hay, el límite de tiempo. Donde deban ir dentro del marco, escribe el campo a mano, un nivel más abajo.
+
+### Evita
+
+- No pongas un campo de código de un solo uso dentro de un campo. Ya es un campo; una compilación de depuración lo notifica.
+- No le des nombre con `aria-label`. Donde no deba dibujarse ninguna etiqueta, da `label` y `labelHidden`.
+- No impidas pegar, esté el código oculto o no, y no muevas el foco a otro lugar ni envíes el formulario sin avisar antes a la persona.
+- No uses `mask` por costumbre. Un código que se usa una vez y caduca rara vez necesita ocultarse, y ocultarlo hace que un error sea más difícil de ver.
+- No cambies el estilo de las celdas solo para este campo copiándolas. Define en el campo el token del miembro.
+
+## Accesibilidad
+
+<ComponentAccessibility name="one-time-code-field" />
+
+### De qué se encarga el componente
+
+- Es un solo cuadro de texto, el de la entrada de código de un solo uso. Su nombre es `label`, se dibuje o no; su descripción es el texto de apoyo o de error que se muestra, junto con el texto de opcional mientras el campo es opcional.
+- Se expone como no válido mientras `error` es true, como obligatorio mientras `requirement` es `required`, como deshabilitado mientras `disabled` es true, como de solo lectura mientras `readOnly` es true y como un campo de contraseña mientras `mask` es true.
+- El nombre, la descripción y los estados se vinculan exactamente como un campo los vincula a cualquier control que enmarca. El campo escrito a mano, un nivel más abajo, es el mismo cuadro de texto.
+- La etiqueta dibujada, la marca de obligatoriedad, las celdas, el cursor de texto y las marcas de grupo no se exponen una segunda vez.
+- Es una sola parada para la tecla Tab. Una pulsación en la etiqueta lleva el foco a las celdas y no acciona nada; una pulsación en la ayuda no hace nada.
+- Un error que aparece mientras el foco está en el campo de código de un solo uso lo anuncia una vez, de forma cortés, su miembro campo.
+- La dirección, el texto ampliado y los colores forzados son la respuesta propia de cada miembro: en un diseño de derecha a izquierda, el marco se refleja y las celdas siguen siendo una serie de izquierda a derecha en el borde de inicio; con el texto al 200%, nada se corta y nada se desplaza hacia los lados.
+- No incluye textos propios. Si `requiredText` y `optionalText` se dejan vacíos, el campo los lee de los textos del producto.
+
+Las carencias conocidas en la web son las de sus miembros: lo que dicen los lectores de pantalla mientras se escribe un código se ha leído en los árboles de accesibilidad de los navegadores, no se ha oído con un lector de pantalla, y antes de que el elemento esté definido no se dibuja nada.
+
+### Qué debes hacer tú
+
+- Da `label`, siempre, con las palabras que una persona usaría para el código.
+- Di con palabras qué se espera: cuántos caracteres, y adónde se envió el código. Las celdas muestran la longitud solo a quienes las ven.
+- Di que un código es incorrecto, que ha caducado o que es obligatorio con `errorText`, `supportingText` y `requirement`. El color nunca es la única señal.
+- Donde el tiempo para introducir un código sea limitado, dilo, y deja que la persona pida más tiempo o un código nuevo.

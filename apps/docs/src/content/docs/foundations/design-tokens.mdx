@@ -1,0 +1,71 @@
+---
+title: Design tokens
+description: Four tiers from a few dials, resolved per context, written once in the DTCG format and generated for every platform.
+---
+
+import FileTree from '../../../components/FileTree.astro';
+import Callout from '../../../components/Callout.astro';
+
+A design token is a named design decision. Tanrei stores every color, size, type style, radius, shadow, duration and opacity as a token in the [Design Tokens Community Group format](https://www.designtokens.org/) (version 2025.10), under `tokens/` in the repository. That directory is one of the project's two sources of truth.
+
+## Tiers
+
+Under the three tiers below sits a fourth, `dial`: the seven numbers every derived value comes from. See [Design systems and customization](/foundations/design-systems/) for dials, layers and how a product customizes Tanrei.
+
+| Tier | Prefix | Holds | Example |
+| --- | --- | --- | --- |
+| Reference | `tanrei.ref.*` | Raw material: tonal palettes, alpha ramps, typefaces and weights. | `tanrei.ref.palette.neutral.10` |
+| System | `tanrei.sys.*` | Decisions with a role: what a color or size is *for*. Themes change this tier. | `tanrei.sys.color.primary` |
+| Component | `tanrei.comp.*` | Bindings from a component's parts to system tokens. | `tanrei.comp.button.filled.container.color` |
+
+Each tier may only point downward: component tokens alias system tokens, and system tokens alias reference tokens.
+
+Two rules keep the tiers useful, and both are enforced by `pnpm validate`:
+
+- **Component tokens contain no literals** for color, type, shape, motion or opacity. A component token is always an alias, so a theme can restyle every component by changing the system tier alone.
+- **Components contain no hardcoded design values.** If a value is missing, the fix is a new token, not a magic number.
+
+## Contexts
+
+A token does not have one value; it has a value per context. Tanrei resolves two context axes today:
+
+- **Theme:** light or dark.
+- **Contrast:** standard, medium or high.
+
+That gives six resolved permutations. They are described by a DTCG resolver file (`tokens/tanrei.resolver.json`) and written to `design/tokens/` as fully resolved files, which is what the [token reference](/tokens/color/) on this site renders.
+
+## Naming
+
+A token's name is its path. Platforms spell the same path in their own convention:
+
+| Platform | `tanrei.sys.color.primary` becomes |
+| --- | --- |
+| CSS | `--tanrei-sys-color-primary` |
+| Swift, Kotlin, Dart, TypeScript | a generated constant under the package's token namespace |
+
+The namespace, CSS prefix and tag prefix come from a single file, `tanrei.config.json`. Nothing else in the repository is allowed to hardcode them.
+
+## From source to platform
+
+<FileTree>
+- tokens/ source of truth, edited by hand
+  - ref/
+  - sys/
+  - comp/
+  - themes/ input to the color scheme generator
+  - generated/ palettes and schemes written by the generator
+  - tanrei.resolver.json
+- design/tokens/ six resolved permutations
+- packages/
+  - web/src/generated/tokens.css
+  - swiftui/…/Generated/TanreiTokens.swift
+  - compose/…/tokens/
+  - flutter/lib/src/generated/tokens.g.dart
+  - react-native/src/generated/tokens.ts
+</FileTree>
+
+`pnpm generate` rebuilds every derived file. CI regenerates and fails on any difference, so a generated file can never be edited by hand and survive.
+
+<Callout>
+  In CSS, color tokens are emitted as `light-dark()` pairs. One stylesheet serves both themes, and a subtree can switch theme simply by changing its `color-scheme`.
+</Callout>

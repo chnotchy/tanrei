@@ -1,0 +1,69 @@
+---
+// Accessibility tab: role, keyboard table, labeling, notes — from the spec's `accessibility` block. The facts are a
+// description list; the keyboard table is a Tanrei Table (Table.astro), named by the heading above it. Its cells
+// wrap: what a spec writes as keys is sometimes a phrase ("Typing, Backspace, Delete, arrows, …"), and a column held
+// on one line would leave the action a word wide.
+import { getSpec } from '../lib/repo';
+import { tokensIn, dimension, ns } from '../lib/tokens';
+import { contentLang, strings } from '../lib/i18n';
+import SourceNote from './SourceNote.astro';
+import Table from './Table.astro';
+
+interface Props {
+  name: string;
+}
+const spec = getSpec(Astro.props.name);
+const a11y = spec.accessibility;
+const t = strings(contentLang(Astro));
+const targets = tokensIn(`${ns}.sys.target`);
+---
+
+<tanrei-description-list>
+  <dl>
+    <div><dt>{t.role}</dt><dd><code class="tanrei-code">{a11y.role}</code></dd></div>
+    <div><dt>{t.labeling}</dt><dd>{a11y.labeling}</dd></div>
+    {a11y.minimumTarget && (
+      <div>
+        <dt>{t.minimumTarget}</dt>
+        <dd>
+          {t.minimumTargetText}{' '}
+          <span class="docs-mono">{targets.map((tk) => `${tk.path.at(-1)} ${dimension(tk.value)}`).join(' · ')}</span>
+        </dd>
+      </div>
+    )}
+  </dl>
+</tanrei-description-list>
+
+<h3>{t.keyboard}</h3>
+<Table label={t.keyboard}><table>
+  <thead><tr><th scope="col">{t.keys}</th><th scope="col">{t.action}</th></tr></thead>
+  <tbody>
+    {a11y.keyboard.map((k) => (
+      <tr>
+        <td>{k.keys.split(/\s+or\s+/).map((key, i) => (<>{i > 0 && ' / '}<kbd>{key}</kbd></>))}</td>
+        <td>{k.action}</td>
+      </tr>
+    ))}
+  </tbody>
+</table></Table>
+
+{a11y.notes && a11y.notes.length > 0 && (
+  <>
+    <h3>{t.notes}</h3>
+    <ul>{a11y.notes.map((note) => <li>{note}</li>)}</ul>
+  </>
+)}
+<SourceNote files={[`specs/${spec.name}.spec.json`, 'tokens/sys/measure.tokens.json']} />
+
+<style>
+  kbd {
+    display: inline-block;
+    padding: 0.05rem 0.4rem;
+    border: var(--docs-hairline);
+    border-bottom-width: 2px;
+    border-radius: var(--tanrei-sys-shape-corner-extra-small);
+    background: var(--tanrei-sys-color-surface-container-low);
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-xs);
+  }
+</style>

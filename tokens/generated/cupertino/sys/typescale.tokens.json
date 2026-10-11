@@ -1,0 +1,747 @@
+{
+  "tanrei": {
+    "sys": {
+      "typescale": {
+        "$type": "typography",
+        "$description": "Text styles by LEVEL: one display, headings 1–6 (= h1–h6), a body family (lead, p, small), labels and a caption for controls, code, and an eyebrow. Every family is monotonic in size; where a heading and a body role share a size, headings weigh 500 or more and body weighs 400. Emphasis is a weight step (`emphasis.*`), not a role.",
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product has a hero, six heading levels, three sizes of running text, text inside controls at two sizes and a caption, code at two sizes, and a kicker — and stresses any of them without changing its size or level.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Text styles by level: display, heading-1…6 (h1…h6), body-large / body / body-small (lead, p, small), label / label-small / caption (controls and helper text), code / code-small, eyebrow. Each is a complete style: family, size, weight, line height, tracking.",
+            "rules": [
+              "Pick the LEVEL the text has in the page, not the size you want: an h2 is heading-2 even when it must look small — re-value the role in your layer instead.",
+              "Use a role as a whole; do not combine one role's size with another's line height.",
+              "To stress text without changing its level, ask the platform for the emphasized weight (the family's `emphasis.*` increment); do not pick a bigger role.",
+              "Sizes follow dial.type.base with a per-role coefficient; pin one role with $value + reason only when a size is externally fixed (legal, contractual)."
+            ]
+          }
+        },
+        "display": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.brand}",
+            "fontSize": {
+              "value": 34,
+              "unit": "px"
+            },
+            "fontWeight": 700,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.2059
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 2.125,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "The one hero size: a landing screen's statement, a splash. Not a heading level."
+        },
+        "heading-1": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.brand}",
+            "fontSize": {
+              "value": 28,
+              "unit": "px"
+            },
+            "fontWeight": 700,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.2143
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 1.75,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "h1: the page's title."
+        },
+        "heading-2": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.brand}",
+            "fontSize": {
+              "value": 22,
+              "unit": "px"
+            },
+            "fontWeight": 700,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.2727
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 1.375,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "h2: a section."
+        },
+        "heading-3": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.brand}",
+            "fontSize": {
+              "value": 20,
+              "unit": "px"
+            },
+            "fontWeight": 600,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.25
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 1.25,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "h3: a subsection."
+        },
+        "heading-4": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 17,
+              "unit": "px"
+            },
+            "fontWeight": 600,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.2941
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 1.0625,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "h4: a group inside a section."
+        },
+        "heading-5": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 16,
+              "unit": "px"
+            },
+            "fontWeight": 600,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.3125
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 1,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "h5, and the title of a card, dialog or list item."
+        },
+        "heading-6": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 15,
+              "unit": "px"
+            },
+            "fontWeight": 600,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.3333
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.9375,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "h6, and a table's or a form section's heading."
+        },
+        "body-large": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 17,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.2941
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 1.0625,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "Lead text and long reading."
+        },
+        "body": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 15,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.3333
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.9375,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "p: the default text of an interface."
+        },
+        "body-small": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 13,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.3846
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.8125,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "small: secondary text, one step down."
+        },
+        "label": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 17,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.2941
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 1.0625,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "Text inside and next to controls: buttons, inputs, navigation."
+        },
+        "label-small": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 13,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.3846
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.8125,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "Chips, badges, dense controls."
+        },
+        "caption": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 12,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.3333
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.75,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              },
+              "pinned": {
+                "fields": [
+                  "lineHeight",
+                  "fontWeight"
+                ],
+                "reason": "Apple's text style of this level (iOS, Large content size): size, line height and weight."
+              }
+            }
+          },
+          "$description": "Helper text, metadata, timestamps."
+        },
+        "code": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.mono}",
+            "fontSize": {
+              "value": 13,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.5385
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.8125,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              }
+            }
+          },
+          "$description": "code and pre."
+        },
+        "code-small": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.mono}",
+            "fontSize": {
+              "value": 12,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.3333
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.75,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              }
+            }
+          },
+          "$description": "Code inside dense UI."
+        },
+        "eyebrow": {
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 12,
+              "unit": "px"
+            },
+            "fontWeight": 500,
+            "letterSpacing": {
+              "value": 0.96,
+              "unit": "px"
+            },
+            "lineHeight": 1.3333
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.75,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0.08
+              }
+            }
+          },
+          "$description": "A section's kicker above a heading: small, tracked wide, uppercase by the component (the token stores no text transform)."
+        },
+        "emphasis": {
+          "$type": "number",
+          "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product stresses a selected tab or a key figure without changing its size or level; how much heavier is a choice per family.",
+              "since": "0.1.0"
+            }
+          },
+          "display": {
+            "$value": 100,
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "Apple's emphasized weight for this family."
+              }
+            }
+          },
+          "heading": {
+            "$value": 200,
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "Apple's emphasized weight for this family."
+              }
+            }
+          },
+          "body": {
+            "$value": 200,
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "Apple's emphasized weight for this family."
+              }
+            }
+          },
+          "label": {
+            "$value": 200,
+            "$description": "How much weight `emphasized` text gains, per family: a platform adds it to the role's weight. Material adds 100 to display and headings and 200 to labels; Tanrei adds 100 everywhere.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "Apple's emphasized weight for this family."
+              }
+            }
+          }
+        },
+        "body-callout": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 16,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.3125
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 1,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              }
+            },
+            "dev.tanrei.vocabulary": {
+              "rationale": "Apple's Callout: between body and subhead.",
+              "declaredBy": "cupertino",
+              "extension": true
+            }
+          }
+        },
+        "body-subhead": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 15,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.3333
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.9375,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              }
+            },
+            "dev.tanrei.vocabulary": {
+              "rationale": "Apple's Subheadline.",
+              "declaredBy": "cupertino",
+              "extension": true
+            }
+          }
+        },
+        "caption-small": {
+          "$type": "typography",
+          "$value": {
+            "fontFamily": "{tanrei.ref.typeface.plain}",
+            "fontSize": {
+              "value": 11,
+              "unit": "px"
+            },
+            "fontWeight": 400,
+            "letterSpacing": {
+              "value": 0,
+              "unit": "px"
+            },
+            "lineHeight": 1.1818
+          },
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fontSize": {
+                "fn": "mul",
+                "of": "{tanrei.dial.type.base}",
+                "by": 0.6875,
+                "exp": "{tanrei.dial.type.contrast}"
+              },
+              "letterSpacing": {
+                "fn": "em",
+                "by": 0
+              }
+            },
+            "dev.tanrei.vocabulary": {
+              "rationale": "Apple's Caption 2.",
+              "declaredBy": "cupertino",
+              "extension": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

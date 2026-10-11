@@ -1,0 +1,415 @@
+---
+title: "标签页"
+description: "用轨道上一行带标签的标签页，在同一主题的多个视图之间切换。其中一个标签页处于选中状态，由指示器标出；指示器在标签页之间滑动，也会跟随在这一行上拖动的手指。"
+translationOf: components/tabs.mdx
+sourceHash: 46bfaf68231605f7875bae06958c990851ac5120
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="tabs" />
+
+:::note[规格已修订，尚未覆盖所有平台]
+本页描述的是标签页现在的规格：标签页位于轨道之上，只有一个指示器，它会滑向选中的标签页，也会跟随在这一行上的拖动；标签页默认贴合自己的内容；标签过长时截断而不换行；多行标签页可以共享同一个选择并记住它（`group` 和 `rememberAs`）。`fullWidth` 取代了 `scrollable`。一行标签页还有三种变体（主要、次要和柔和）、两种尺寸、可以省去的轨道，以及说明指示器是否滑动的 `transition`。Web 组件做到了这一切，演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是较早的一版，有 `scrollable`（在 Flutter 上是默认为 false 的 `isScrollable`）、线形指示器、宽度固定且会换行的标签，没有轨道，也不能拖动。
+:::
+
+<DemoFrame label="主要标签页，以及选中标签页的面板">
+  <tanrei-tabs value="overview" label="项目" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="概览" icon="dashboard"></tanrei-tab>
+    <tanrei-tab value="activity" label="动态" icon="history"></tanrei-tab>
+    <tanrei-tab value="settings" label="设置" icon="settings"></tanrei-tab>
+    <tanrei-tab-panel value="overview">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">三个服务，全部在运行。</p>
+    </tanrei-tab-panel>
+    <tanrei-tab-panel value="activity">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">2 小时前已部署。</p>
+    </tanrei-tab-panel>
+    <tanrei-tab-panel value="settings">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">区域、域名和访问权限。</p>
+    </tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+### 用法
+
+一行标签页只有一种项：`tab`。各平台接收这些标签页的方式，与它接收任何重复子项的方式相同：在 Web 上是 `<tanrei-tab>` 子元素，在 SwiftUI 的视图构建器中是用值做 tag 的 `TanreiTab` 视图，在 Compose 的内容 lambda 中是对 `TanreiTab` 的调用，在 Flutter 的 `tabs:` 列表中是 `TanreiTab` widget，在 React Native 上是由普通对象组成的 `items` 数组。
+
+选择属于这一行，并且按值来记录。`selected` 保存选中标签页的值，`change` 携带新的值。它在 Web、Flutter 和 React Native 上写作 `value`，在 SwiftUI 上写作 `selection`，在 Compose 上写作 `selectedValue`。留空时，选中第一个可用的标签页。标签页的 `disabled` 属于它自己。
+
+标签页不绘制面板，但由它决定显示哪一个。在 Web 上，`<tanrei-tab-panel>` 元素跟在标签页之后，并通过 `value` 与它们对应。在 SwiftUI 上，每个标签页带着自己的面板。在 Flutter 上，`TanreiTabBarView` 显示选中值对应的面板。在 Compose 和 React Native 上，由你自己紧接在这一行之后显示选中的面板。如果面板需要让用户在其间轻扫切换，请改用[标签页视图](/zh-cn/components/tab-view/)：它会绘制自己的一行标签页，或者关联到放在别处（例如应用栏里）的一行标签页。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 这一行选中的标签页就是它的 value，和 <select> 一样。 -->
+    <tanrei-tabs value="overview" label="项目">
+      <tanrei-tab value="overview" label="概览" icon="dashboard"></tanrei-tab>
+      <tanrei-tab value="activity" label="动态" icon="history"></tanrei-tab>
+      <tanrei-tab value="billing" label="账单" icon="payments" disabled></tanrei-tab>
+      <!-- 面板跟在标签页之后，并通过 value 与它们对应。 -->
+      <tanrei-tab-panel value="overview">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="billing">…</tanrei-tab-panel>
+    </tanrei-tabs>
+
+    <!-- 指定同一个 group 的各行显示同一个选择。remember-as 用你自己的键把它保存在设备上。 -->
+    <tanrei-tabs variant="secondary" group="units" remember-as="report-units" label="单位">
+      <tanrei-tab value="metric" label="公制"></tanrei-tab>
+      <tanrei-tab value="imperial" label="英制"></tanrei-tab>
+      <tanrei-tab-panel value="metric">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="imperial">…</tanrei-tab-panel>
+    </tanrei-tabs>
+
+    <script type="module">
+      import '@tanrei/web/components/tabs';
+      // 这一行先设置自己的 value，再触发 change；change 携带这个值。
+      document.querySelector('tanrei-tabs').addEventListener('change', (e) => showView(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tab, TabPanel, Tabs } from '@tanrei/react';
+
+    <Tabs value={view} label="项目" onChange={(e) => setView(e.detail.value)}>
+      <Tab value="overview" label="概览" icon="dashboard" />
+      <Tab value="activity" label="动态" icon="history" />
+      <TabPanel value="overview"><Overview /></TabPanel>
+      <TabPanel value="activity"><Activity /></TabPanel>
+    </Tabs>
+
+    // 指定同一个 group 的各行显示同一个选择；只有用户操作的那一行会触发 onChange。
+    <Tabs variant="secondary" group="units" rememberAs="report-units" label="单位" onChange={(e) => setUnits(e.detail.value)}>
+      <Tab value="metric" label="公制" />
+      <Tab value="imperial" label="英制" />
+      <TabPanel value="metric"><Metric /></TabPanel>
+      <TabPanel value="imperial"><Imperial /></TabPanel>
+    </Tabs>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 和 TabView 带 tag 的标签页一样：每个标签页带着自己的面板，只显示选中的那一个。
+    // 写入绑定就相当于 change。selection 为 nil（Binding<V?>）时，选中第一个可用的标签页。
+    // .tag(_:) 和 .labelStyle(.iconOnly) 要直接加在 TanreiTab 上，先于其他任何修饰符。
+    @State private var view = "overview"
+
+    TanreiTabs(selection: $view, label: "项目") {
+        TanreiTab("概览", icon: "dashboard") { OverviewView() }.tag("overview")
+        TanreiTab("动态", icon: "history") { ActivityView() }.tag("activity")
+        TanreiTab("账单", icon: "payments") { BillingView() }.tag("billing").disabled(true)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiTab
+    import io.github.chnotchy.tanrei.components.TanreiTabs
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // 状态提升：selectedValue 由你保存，并在 onSelectedValueChange 中更新。
+    var view by rememberSaveable { mutableStateOf("overview") }
+    Column {
+        TanreiTabs(selectedValue = view, onSelectedValueChange = { view = it }, contentDescription = "项目") {
+            TanreiTab(value = "overview", label = "概览", icon = { TanreiText("dashboard") })
+            TanreiTab(value = "activity", label = "动态", icon = { TanreiText("history") })
+            // enabled 是规格中 disabled 的反义。
+            TanreiTab(value = "billing", label = "账单", icon = { TanreiText("payments") }, enabled = false)
+        }
+        // Compose 没有标签页面板角色：按阅读顺序，把选中的视图显示在这一行的下方。
+        when (view) {
+            "overview" -> Overview()
+            "activity" -> Activity()
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 和 TabBar 一样，但按值选中，而不是按 TabController 的索引。这个栏自己不保存选择。
+    TanreiTabBar<String>(
+      value: view, // 为 null 时选中第一个可用的标签页
+      onChanged: (String value) => setState(() => view = value),
+      semanticLabel: '项目',
+      tabs: const <TanreiTab<String>>[
+        TanreiTab<String>(value: 'overview', label: '概览', icon: Icon(AppSymbols.dashboard)),
+        TanreiTab<String>(value: 'activity', label: '动态', icon: Icon(AppSymbols.history)),
+        TanreiTab<String>(value: 'billing', label: '账单', icon: Icon(AppSymbols.payments), enabled: false),
+      ],
+    ),
+    // 显示选中值对应的视图，不支持轻扫。每个视图都是一个标签页面板，以对应标签页的标签命名。
+    TanreiTabBarView<String>(
+      value: view,
+      semanticLabels: const <String, String>{'overview': '概览', 'activity': '动态', 'billing': '账单'},
+      children: <String, Widget>{'overview': const OverviewPage(), 'activity': const ActivityPage(), 'billing': const BillingPage()},
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { Tabs } from '@tanrei/react-native';
+
+    const [view, setView] = useState('overview');
+
+    // 受控：在 onValueChange 中更新 value。
+    <Tabs
+      accessibilityLabel="项目"
+      value={view}
+      onValueChange={setView}
+      items={[
+        { value: 'overview', label: '概览', icon: 'dashboard' },
+        { value: 'activity', label: '动态', icon: 'history' },
+        { value: 'billing', label: '账单', icon: 'payments', disabled: true },
+      ]}
+    />
+    // React Native 没有标签页面板角色：紧接在这一行之后渲染选中的面板。
+    {view === 'overview' ? <Overview /> : <Activity />}
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="次要标签页、填满的一行、贴合内容并可滚动的一行，以及纯图标的一行" plain column>
+  <tanrei-tabs variant="secondary" value="overview" label="部署" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="概览" icon="dashboard"></tanrei-tab>
+    <tanrei-tab value="activity" label="动态" icon="history"></tanrei-tab>
+    <tanrei-tab value="billing" label="账单" icon="payments" disabled></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs full-width value="notifications" label="账户" style="inline-size: 22rem">
+    <tanrei-tab value="profile" label="个人资料"></tanrei-tab>
+    <tanrei-tab value="activity" label="最近动态"></tanrei-tab>
+    <tanrei-tab value="notifications" label="通知设置"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs value="analytics" label="服务" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="概览"></tanrei-tab>
+    <tanrei-tab value="deployments" label="部署"></tanrei-tab>
+    <tanrei-tab value="analytics" label="分析"></tanrei-tab>
+    <tanrei-tab value="logs" label="日志"></tanrei-tab>
+    <tanrei-tab value="storage" label="存储"></tanrei-tab>
+    <tanrei-tab value="settings" label="设置"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs value="list" label="布局">
+    <tanrei-tab value="list" label="列表" icon="view_list" label-hidden></tanrei-tab>
+    <tanrei-tab value="grid" label="网格" icon="grid_view" label-hidden></tanrei-tab>
+    <tanrei-tab value="map" label="地图" icon="map" label-hidden></tanrei-tab>
+  </tanrei-tabs>
+</DemoFrame>
+
+<DemoFrame label="柔和变体的标签页：带轨道的、不带轨道的，以及小号、不带轨道且没有过渡的" plain column>
+  <tanrei-tabs variant="tonal" value="week" label="时间段">
+    <tanrei-tab value="day" label="日"></tanrei-tab>
+    <tanrei-tab value="week" label="周"></tanrei-tab>
+    <tanrei-tab value="month" label="月"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs variant="tonal" track="false" value="week" label="时间段，不带轨道">
+    <tanrei-tab value="day" label="日"></tanrei-tab>
+    <tanrei-tab value="week" label="周"></tanrei-tab>
+    <tanrei-tab value="month" label="月"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs variant="tonal" track="false" size="small" transition="none" value="metric" label="单位">
+    <tanrei-tab value="metric" label="公制"></tanrei-tab>
+    <tanrei-tab value="imperial" label="英制"></tanrei-tab>
+  </tanrei-tabs>
+</DemoFrame>
+
+<ComponentSpecs name="tabs" />
+
+## 指南
+
+### 何时使用
+
+用标签页把一个主题拆成多个视图，每次显示其中一个：项目的“概览”“动态”和“设置”，个人主页的“帖子”和“回复”，文件的“预览”和“历史记录”。这些视图是并列的，用户可以按任意顺序在它们之间切换。
+
+要在应用的各个目的地之间移动，请使用导航栏或导航抽屉，因为那些是不同的主题。不要把标签页用于必须按顺序完成的步骤，也不要用它来筛选一个列表：筛选请用纸片（Chip）。标签页只切换视图，从不触发操作。
+
+Tanrei 系统不提供[分段按钮](/zh-cn/components/segmented-button/)，因此当“几项里选一项”会改变下方显示的内容时，标签页也承担它的职责：日历上方的“日”“周”和“月”，或者一个页面的各个示例上方的“标准”“中”和“高”。这样的一行不需要面板。给它一个名称，说明选择的是什么。如果它应该在它所改变的内容旁边保持低调，就使用柔和变体，不带轨道；放在页眉里时，再用小号。设置一个随表单发送的值的选择，或者不改变任何用户看得见的东西的选择，不属于标签页。这类选择请用[单选按钮](/zh-cn/components/radio-button/)。
+
+### 标签页、分段按钮还是按钮组
+
+| 组件 | 它是什么 | 用于 |
+| --- | --- | --- |
+| 标签页 | 同一主题的多个视图，或者一个会改变下方显示内容的选择。其中一个标签页处于选中状态，方向键在移动的同时完成选中。 | 切换下方显示的内容：“概览”“动态”“设置”；“日”“周”“月”。 |
+| [分段按钮](/zh-cn/components/segmented-button/) | 两到五个连在一起的选项，用来设置一个值，可以选一个或多个。默认的 Tanrei 系统不提供它；Material 预设和 cupertino 预设提供。 | 只有几个固定答案的设置，并且产品使用的是上述预设之一。 |
+| [按钮组](/zh-cn/components/button-group/) | 排在一起的几个独立按钮。每个按钮单独按下，按钮组不保存任何选择。 | 相关的操作：“取消”和“保存”；“粗体”“斜体”和“下划线”。 |
+
+一个简单的判断办法：如果选择会改变下方显示的内容，就是标签页，有没有面板都一样。如果它设置一个随表单发送的值，就是单选按钮；在提供分段按钮的系统里，也可以是分段按钮。如果按下去是执行某件事，就是按钮组。
+
+### 如何选择变体、尺寸和布局
+
+| 选择 | 它做什么 | 用于 |
+| --- | --- | --- |
+| 主要（primary） | 图标叠放在标签上方。指示器以主要变体的颜色绘制。 | 一个屏幕的主要视图，位于其内容的顶部。 |
+| 次要（secondary） | 图标排在标签之前，处于同一行。指示器以次要变体的颜色绘制。 | 上述某个视图之内的视图，位于一行主要标签页的下方，或位于面板之内。 |
+| 柔和（tonal） | 指示器是柔和的一层，选中的标签比其他标签颜色更深。图标排在标签之前。 | 不应把视线从它所改变的内容上引开的选择：代码示例的语言、对比度、单位。 |
+| 中号（`size`，默认） | 这一行高 48，指示器高 40。 | 位于屏幕内容顶部的一行。 |
+| 小号（`size`） | 这一行高 32，指示器高 24。标签两侧的内边距和图标都更小，并且在每种变体中，图标都排在标签之前。标签的文字大小不变。 | 页眉或工具栏里、位于小号按钮旁边的一行。 |
+| 贴合内容（`fullWidth` 为 false，默认） | 每个标签页的尺寸取决于它的内容，每个标签都完整地保持在一行里，不管它多长、字号多大。轨道在最后一个标签页处结束；标签页放不下时，在轨道内横向滚动。指示器跟随选中标签页的内容。 | 大多数的行：标签页较多、标签长短不一、标签经过翻译或由用户填写。 |
+| 填满（`fullWidth` 为 true） | 把这一行的宽度等分。标签在自己那一份里放不下时，在末尾以省略号截断。指示器与标签页的那一份同宽。 | 两到五个必须横跨整行的短标签。 |
+
+`fullWidth` 在 Web 上写作 `full-width`，在 SwiftUI、Compose 和 React Native 上写作 `fullWidth`；在 Flutter 上则写作它的反义 `isScrollable`，默认为 true，与 Flutter 自己的 `TabBar` 一样。
+
+在两种布局中，标签都不会折到第二行，也不会在词中间断开；图标也不会为了腾出空间而缩小。在填满的一行里，被截断的标签仍然是该标签页完整的无障碍名称，平台会在能做到的地方把它完整显示出来：在 Web 上是悬停和键盘聚焦时的普通工具提示，在 Compose 上是长按和悬停时的工具提示，在 Flutter 上是 `Tooltip`，在 SwiftUI 上是大内容查看器（在 macOS 上还有 `.help`）。React Native 没有自己的工具提示，所以那里不会完整显示。
+
+三种变体是同一个控件。它们的区别只在于选中状态的视觉分量，别无其他：按键、角色和告知辅助技术的内容都相同。
+
+设计系统可以添加变体和尺寸。它添加的变体按主要标签页的方式布局。
+
+### 尺寸
+
+小号的一行与小号的[按钮](/zh-cn/components/button/)等高，所以两者可以在页眉里共处一行。它比最小目标矮，也不会为此而加高。在这一行的正上方或正下方、与某个标签页对齐的位置按下，仍然会选中那个标签页。位于那里的控件保留它自己的按下：按在这一行下方的按钮上，操作的是那个按钮。文本放大时，小号的一行像中号的一行那样增高，不会有任何内容被截断。
+
+### 轨道与指示器
+
+标签页与[开关](/zh-cn/components/switch/)共用一个模型：轨道上的一个滑块，它会滑向被选中的位置，也可以用手把它滑过去。开关的两个状态并不对等，所以它的整体外观会在两者之间改变。标签页是对等的选项，所以它的轨道从不改变，只有指示器在移动。
+
+- **轨道。** 整行背后的一块柔和的填充，两端是完全的圆角，没有轮廓。它与这一行等高。在贴合内容的一行里，它在最后一个标签页之后留出一小段内缩就结束；在填满的一行里，它与这一行同宽。无论选中哪个标签页、标签页处于什么状态，它都是一样的。标签页放不下时，轨道保持不动，标签页在轨道内滚动，并按轨道的圆角两端裁切。
+- **指示器。** 选中标签页的内容背后是指示器。它的高度等于这一行的高度减去轨道上下的内缩，所以它在每个标签页上高度相同：在默认系统中，48 高的行里是 40；主要标签页把图标叠在标签上方时是 56。在贴合内容的一行里，它的宽度等于标签页的内容加上内边距；如果内容的宽度不超过高度，它就是一个圆：只有一个图标、只有一个字母的标签、一个全角字符。在填满的一行里，它与标签页的那一份同宽。这条规则对主要和次要标签页都一样。
+- **三边的内缩相同。** 在任何行高下，指示器与轨道顶部、与轨道底部，以及（在第一个和最后一个标签页上）与轨道端部之间，都保持同一个内缩。它的圆角端与轨道的圆角端同心。指示器为圆形的标签页与这个圆同宽；最小目标更大时，与最小目标同宽。
+- **悬停、聚焦和按下**画在指示器在该标签页上占据的那个框里（标签页未选中时，则是它选中后会占据的那个框），从不画在标签页的整个矩形上。整个标签页仍然会响应指针。
+- **不带轨道的一行。** 把 `track` 设为 false，这一行背后的填充就不绘制。其他一切都不变：这一行保持原来的尺寸、内缩、每个标签页的位置和每一种颜色，所以带轨道的一行和不带轨道的一行可以对齐。这一行所处的地方本身已经是一个栏时，就这样用：页眉、卡片、代码示例的标题。不设置时，`track` 跟随设计系统（`comp.tabs.track.visible`，默认系统中是开启的）。在 Web 上，这个属性（attribute）写作 `track="false"`。
+- **柔和变体的指示器。** 它是一层半透明的色层，取选中标签的颜色，叠在轨道上，或者叠在这一行所处的任何东西上，所以在每一种表面上，它与底色之间都相差同样的一级。它有意做成一个低调的标记，颜色更深的选中标签是第二个标记。
+- **被覆盖的标签。** 标签和图标只在被指示器盖住的地方，才以“被覆盖”的颜色绘制。指示器滑动或被拖动时，它经过的每个标签只在被盖住的部分发生变化；指示器落定的那一刻，新标签页的标签已被完全覆盖。被覆盖的那一份用系统的颜色绘制，从不用混色，所以它的对比度就是令牌所保证的对比度。
+
+设计系统还可以在这一行的底边、选中标签页的下方画一条线，并沿整行画一条分隔线。这两者在每个系统里都存在，在默认系统中是透明的。Material 预设为它们着色，并把轨道和指示器设为透明，就像 Material 的标签页那样。
+
+### 在这一行上拖动
+
+- **轻点仍然会选中。** 而用触摸、触控笔或鼠标在这一行上拖动，则会让指示器随指针移动。它的位置、宽度，以及它下方标签的被覆盖颜色都连续变化，没有阈值。
+- **松手时做出选择。** 选中的是指示器离得更近的那个标签页，或者快速滑动所朝向的那个。如果那是另一个标签页，这一行就选中它，并触发一次 `change`；指示器途中经过的标签页不会触发事件。如果那就是原本选中的标签页，指示器会回到原位，不触发任何事件。
+- **途中其他一切都不变。** 在松手之前，选择、面板、键盘焦点以及告知辅助技术的内容都保持原样。按 Escape，或平台取消了这次指针操作，都会让指示器回到选中的标签页。
+- **滚动照常工作。** 先向上或向下的拖动会滚动页面。在 Web 上，在标签页可滚动的一行里，只有从选中的标签页开始的拖动才会移动指示器；其他任何横向拖动都是滚动标签页。
+- **减弱动态效果。** 指示器仍然跟随指针，因为那是用户自己的手指在移动；落到标签页上时则立即到位。
+
+### 过渡
+
+`transition` 说明这一行怎样绘制新的选择。
+
+| 值 | 它做什么 |
+| --- | --- |
+| `slide` | 指示器滑向新的标签页并随之改变大小，标签在它之下改变颜色。不在视野内的标签页会以一段动效滚动到视野内。 |
+| `none` | 新的选择在一帧之内完整绘制。没有任何东西位移，也没有任何东西淡入淡出。 |
+| `auto`（默认） | 采用设计系统的答案（`comp.tabs.motion.transition`，默认系统中是 slide）。 |
+
+这一行位于它刚刚改变的内容旁边、滑动的指示器会成为唯一还在动的东西时，请使用 `none`。在 `none` 之下，在这一行上拖动仍然会带着指示器移动，松手时指示器立即落到它的标签页上。无论取哪个值，悬停、聚焦和按下的响应都相同。在减弱动态效果时，无论 `transition` 怎么设置，选择都按 `none` 的方式绘制。
+
+[标签页视图](/zh-cn/components/tab-view/)为它的面板另有一个自己的 `transition`。把它设为 `none`，视图绘制的那一行标签页也不再滑动。
+
+### 选择与面板
+
+- **按值。** 每个标签页都有一个 `value`，在它所在的行内唯一。增加、移除标签页或调整顺序之后，值依然有效；换成索引的话，就会悄悄选中另一个视图。`selected` 的值不对应任何标签页时，不选中任何标签页，也不显示任何面板，调试构建会报告这一点。
+- **自动激活。** 用方向键移动焦点的同时也会选中标签页，面板随即切换。如果面板需要时间加载，请在面板内显示加载状态，而不是推迟切换。
+- **禁用的标签页会被跳过。** 方向键会越过它们，它们也永远不是 Tab 停靠点，因为落在上面就等于选中了一个不能选中的标签页。这一点与列表和菜单不同：那里禁用的项仍然可以到达，因为移到上面并不会选中任何东西。
+- **指示器会滑动。** 选择改变时，指示器从旧标签页滑到新标签页并随之改变大小，途中可能由圆形拉宽成胶囊形。在减弱动态效果时，它立即到位。这一行首次出现时，或者选中的标签页在没有新选择的情况下改变了大小（字体加载完成、文本大小改变），指示器直接就位，不滑动。标签页被选中或获得焦点时，如果它有一部分滚出了视野，就会被滚动到视野内。
+- **这一行绘制自己的轨道。** 把它放在屏幕或应用栏的表面上即可。它不需要自己的容器。
+- **在标签页视图中。** 自己绘制一行标签页的[标签页视图](/zh-cn/components/tab-view/)用的就是这些标签页，令牌和行为都相同。用户轻扫标签页视图时，视图通过 `indicatorOffset` 来移动指示器：在选中的标签页上为 0，在下一个可用的标签页上为 1，在上一个可用的标签页上为 −1，手指移动时取其间的值。指示器逐帧跟随它，自己不做滑动。除非你要自己驱动指示器，否则让它保持为 0。在视图上轻扫与在它那一行上拖动，是同一个手势发生在两个地方：轻扫移动一个面板，面板随之移动；在这一行上拖动可以越过多个标签页，面板则等到松手才切换。
+
+### 共享同一个选择
+
+当同一个问题在许多地方都要回答时——本站每个代码示例的平台、一份报告中每个数字的单位——就给这些行指定同一个 `group`。在其中一行选中某个标签页，其他每一行里值相同的标签页也会被选中；没有这个标签页的行则保持自己的选择。
+
+- **按值对应。** 组跟随的是标签页的 `value`，从不是它的标签，所以标签经过翻译或改写之后，选择仍然保留。
+- **一行移动，一行触发事件。** 用户操作的那一行会滑动，并触发一次 `change`。其他每一行立即采用这个选择，不带动效，不夺取焦点，不滚动，也不触发任何事件。即使它上方的行改变了高度，用户操作的那一行在窗口中的位置也保持不变。
+- **记住选择是另一回事。** `rememberAs` 指定一个键，用户的选择以这个键保存在其设备上，并在这一行首次绘制之前恢复。没有键就什么都不保存。键由你决定，并原样使用；保存的只有标签页的值。在你的产品所面向的地区，记住偏好是否需要征得同意，由你自行判断。
+- **在 Web 上，由标签页来维护组。** `group` 和 `remember-as` 是 HTML 属性，键是 `localStorage` 的一个键。在 SwiftUI、Compose、Flutter 和 React Native 上，传入同一个选择状态的各行本来就共享这个状态，由你的产品来保存和存储它。
+
+<DemoFrame label="同一个组的两行：在任意一行里选一个标签页" plain column>
+  <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="距离单位">
+    <tanrei-tab value="metric" label="公制"></tanrei-tab>
+    <tanrei-tab value="imperial" label="英制"></tanrei-tab>
+    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">马拉松全程 42.195 km。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">马拉松全程 26.2 英里。</p></tanrei-tab-panel>
+  </tanrei-tabs>
+  <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="速度单位">
+    <tanrei-tab value="metric" label="公制"></tanrei-tab>
+    <tanrei-tab value="imperial" label="英制"></tanrei-tab>
+    <tanrei-tab value="nautical" label="航海"></tanrei-tab>
+    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">快走的速度是 6 km/h。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">快走的速度是每小时 3.7 英里。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">快走的速度是 3.2 节。</p></tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+在这个演示中，“航海”只存在于第二行：选中它时，第一行保持自己的选择；一旦选择变回第一行也有的值，第一行又会跟着变化。两行都没有指定键，所以什么都不保存。
+
+本站的标签页就是一个例子：每一组平台示例都是同属一个组的[标签页视图](/zh-cn/components/tab-view/)。
+
+### 图标
+
+- 一行里的标签页要么都带图标，要么都不带。图标在未选中时以轮廓样式绘制，选中时以填充样式绘制。
+- `labelHidden` 只绘制图标。标签仍然必须提供：它仍是该标签页的无障碍名称。设置了 `labelHidden` 却没有图标的标签页照样会绘制标签，调试构建会报告这一点。
+- 标签为空且没有图标的标签页没有内容：它的指示器是一个空的圆，标签页也没有无障碍名称。调试构建会报告空标签；请给这个标签页提供标签。
+- 要在标签页上显示计数，请自己在它的图标上放一个 Tanrei 徽标。标签页没有徽标属性。
+
+### 推荐
+
+- 标签要简短：用一两个词为视图命名，例如“概览”或“账单”。在填满的一行里，长标签会被截断。
+- 标签较长、经过翻译、由用户填写，或会以大号文本阅读时，保持默认的贴合内容。
+- 保持标签页的顺序稳定，让用户能在原来的位置找到视图。
+- 把次要标签页放在主要标签页的某个视图里，而不是反过来。
+- 有时不可用的标签页要留在原位并禁用，这样这一行的形状不会改变。
+
+### 避免
+
+- 不要把标签页用于应用导航。那是导航栏或导航抽屉的职责。
+- 不要让标签页打开对话框、启动操作或离开当前屏幕。标签页没有自己的目标地址：要在页面之间移动，请使用链接、导航栏或导航抽屉。
+- 不要嵌套两行同一变体的标签页。
+- 不要在同一行里混用带图标和不带图标的标签页。
+
+## 无障碍
+
+<ComponentAccessibility name="tabs" />
+
+### 组件负责的部分
+
+- 这一行暴露为一个标签页列表，以它的 `label` 命名。每个标签页都有标签页角色、选中状态、所在位置和标签页的总数，并以它的标签命名，无论标签是否绘制出来。
+- 选中标签页的面板暴露为标签页面板，以它的标签页命名；在平台能够表达的地方，还会与该标签页关联。其他面板既不显示，也对辅助技术隐藏。面板里没有任何可聚焦的元素时，面板自身会变为可聚焦，让 Tab 键能够到达它。
+- 这一行是一个 Tab 停靠点：选中的标签页。右方向键和左方向键移到下一个和上一个可用的标签页并选中它，到两端时循环。在从右到左的布局中，两者对调。Home 和 End 去往第一个和最后一个可用的标签页。Enter 和 Space 选中获得焦点的标签页。Tab 键从选中的标签页移入它的面板。
+- 禁用的标签页会被方向键跳过，永远不是 Tab 停靠点，并被朗读为已禁用。
+- 焦点环沿着指示器在获得焦点的标签页上占据的那个框绘制，形状与之相同，并且保持在轨道之内，所以可滚动的行不会裁切它。它只在键盘聚焦时显示。
+- 标签页与相邻的标签页紧挨着，所以比最小目标窄的标签页会在宽度上变大到最小目标。比最小目标矮的一行（小号）不会加高：它的标签页会响应这一行上方和下方不远处的按下，并让位于那里已有的控件。
+- 没有面板的一行仍然是一个以它的 `label` 命名的标签页列表，它的标签页会说明自己不控制任何东西。告知辅助技术的是标签页的选中状态；这个选择在这一行下方改变了什么，要由你来绘制。Tab 键从选中的标签页移到这一行之后的内容上。
+- 在强制颜色模式下，无论哪种变体、有没有轨道，指示器都是一块填充的高亮色，所以柔和变体的一行与主要变体的一行一样清楚地显示自己的选择。
+- 文本放大绝不会让标签对辅助技术不可见。贴合内容的标签页会变宽，这一行则滚动。等分这一行的标签页会截断自己的标签，但标签仍是它的无障碍名称，并在平台能做到的地方完整显示。
+- 图标、轨道、指示器、下划线和分隔线对辅助技术隐藏。指示器之下每个标签的“被覆盖”副本是装饰性的，所以每个标签只朗读一次。
+- 在这一行上拖动绝不是唯一的方式：每个标签页都可以通过在它上面轻点或点击来选中，也可以用方向键选中。拖动期间，没有任何标签页暴露为选中，面板不变，也不朗读任何内容；松手时才完成选中，按 Escape 则取消拖动。屏幕阅读器运行时，单指拖动属于屏幕阅读器，标签页通过它的激活操作来选中。
+- 在一个组里，跟随的行悄悄地变化。不朗读任何内容，焦点留在用户操作的那个标签页上，那一行在窗口中的位置也保持不变，所以使用放大功能的用户不会找不到原来的位置。用户到达每一行时，这一行会把自己选中的标签页告知辅助技术。
+- 调试构建会报告：没有标签的标签页、为空或重复的值、不对应任何标签页的 `selected` 值、隐藏了标签却没有图标的标签页、设计系统中不存在的变体或尺寸，以及标签页没有定义的 `transition`。
+
+已知的平台差距：
+
+- SwiftUI、Compose 和 React Native 没有标签页面板角色。选中的面板按阅读顺序跟在这一行之后。
+- SwiftUI 也没有标签页列表角色和标签页角色。这一行是一个以 `label` 命名、带标签栏特征的容器，每个标签页是带选中特征的按钮。在 iOS 上，VoiceOver 根据标签栏特征说出标签页的位置；在其他系统上，位置是标签页的值（“2 of 3”），只有英文。
+- SwiftUI 无法把面板与它的标签页关联起来，也无法判断面板里有没有可聚焦的东西，所以没有可聚焦内容的面板不会成为 Tab 停靠点。
+- Compose 没有标签页列表角色。这一行是一个以 `contentDescription` 命名的可选择的组，并把标签页的总数作为集合信息提供。每个标签页都有标签页角色、选中状态和所在位置。
+- Compose 和 React Native 把面板交给你处理。它们不会隐藏其他面板，也不会让空面板可聚焦。
+- Compose：放在标签页图标上的徽标不会被朗读，因为图标插槽是装饰性的。包住整个标签页的徽标会被朗读，但它画在标签页的角上。
+- Compose：经由真实输入管线的方向键和滚动，以及 TalkBack 对每个标签页的角色和位置的朗读，目前只在 Robolectric 上测试过，尚未在真机上测试。
+- Flutter 的语义中没有位置、没有标签页总数，也没有从标签页到其面板的关联。`TanreiTabBarView` 是一个标签页面板，以你传入的 `semanticLabels` 命名。
+- React Native 没有标签页面板角色，也没有从标签页到其面板的关联。标签页把自己的位置作为值文本提供（“2 of 3”），除非你传入 `positionText`，否则是英文。
+- React Native：方向键、把标签页滚动到视野内（及其从右到左时的偏移量）和滑动的指示器，尚未在真机上检查过。
+- Web：用 Tab 键到达一个滚出视野的标签页时，浏览器会立即把它滚动到视野内，而不是按指示器的动效进行。
+- Flutter：可滚动的行如果一开始选中的标签页不在视野内，会先在起始边缘显示一帧，然后才跳到该标签页。
+
+### 需要你做的事
+
+- 为每个标签页提供标签，纯图标的标签页也不例外。
+- 一个屏幕上有不止一行标签页时，用 `label` 为这一行命名。写明这些视图是哪个主题的视图，例如“项目”。
+- 让每个标签页的值在它所在的行内唯一，并且在屏幕显示期间保持稳定。
+- 在 Compose 和 React Native 上，只渲染选中的面板，并紧接在这一行之后。面板里没有任何可聚焦的东西时，让面板可聚焦，并以它的标签页为它命名，让 Tab 键能够到达它。
+- 在 Flutter 上，把每个标签页的标签通过 `semanticLabels` 传给 `TanreiTabBarView`。
+- 在 React Native 上，用你的产品的语言传入 `positionText`。
+- 面板需要时间加载时，在面板内显示加载状态。方向键在移动的同时就会选中。
+- 同一个组里的各行，相同的值要用相同的标签。各行相距较远时，在第一行附近说明这个选择适用于整个页面。
+- `rememberAs` 的键由你自己选定；如果你的产品需要隐私声明，请在其中写明它。没有键就什么都不保存。

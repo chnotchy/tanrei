@@ -1,0 +1,3102 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "combobox",
+  "title": "Combobox",
+  "summary": "Lets people find one value by typing: a box that looks and measures like a text input, with a list of options that narrows as they type and that they choose from, or, where the product allows it, a value of their own. It is the bare control, with no label row and no message: a Field frames it — the combobox field is that pair — or the product names it.",
+  "category": "text-inputs",
+  "level": "base",
+  "listing": "advanced",
+  "uses": [
+    "button",
+    "loading-indicator"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The combobox's box: it holds the leading glyph, the input, the clear button and the chevron on one line. It measures and is drawn as the text input's container of the same variant and size, carries the hover state layer and shows focus by its edge. It is the list's anchor."
+    },
+    {
+      "id": "outline",
+      "description": "The border of an outlined combobox, which opens a gap where the floated label crosses it; in a stacked one, the line drawn inside the container's edge while it is focused or in error, which takes no layout space.",
+      "optional": true
+    },
+    {
+      "id": "active-indicator",
+      "description": "The line along the bottom of a filled combobox; its focused state is thicker and colored.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "In a filled or outlined combobox, its name drawn inside the box: it rests in the input line while the input is empty and not focused, and floats otherwise. A stacked combobox draws none: the label above it is the row of the Field that frames it.",
+      "optional": true
+    },
+    {
+      "id": "required-asterisk",
+      "description": "After the floating label's text, an asterisk, where the Field that frames the combobox says the control is required and marks it (CMB-7). Kept from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "input",
+      "description": "The text, in the platform's native text element: what the person types to find an option, and, when they are not typing, the chosen option's label or the custom value."
+    },
+    {
+      "id": "placeholder",
+      "description": "A hint shown while the input is empty; never a label and never a value.",
+      "optional": true
+    },
+    {
+      "id": "leading-icon",
+      "description": "A glyph at the start of the container: the one the product gives the combobox, or else the chosen option's own.",
+      "optional": true
+    },
+    {
+      "id": "clear-button",
+      "description": "An icon-only Button of the text variant showing close, before the chevron, that empties the text and the value. Drawn while clearable is true and the text is not empty.",
+      "optional": true
+    },
+    {
+      "id": "chevron",
+      "description": "The glyph expand_more at the end of the container: it says that the field has a list that can be looked through, and a press on it opens and closes the list. Drawn from the trailing-icon part of the tokens; it does not turn, is never mirrored and is not a focus stop.",
+      "optional": true
+    },
+    {
+      "id": "list",
+      "description": "The floating surface that holds the options: the sheet a menu and a select's list are drawn on, placed under the container, exactly as wide as it, scrolling when its rows do not fit."
+    },
+    {
+      "id": "option",
+      "description": "One choice: a row of the list. It carries hover, the active highlight and press and, while it is the chosen one, the quiet selection's fill."
+    },
+    {
+      "id": "option-label",
+      "description": "The option's text, its accessible name and what the input shows once the option is chosen. The part of it that matched the typed text is drawn heavier."
+    },
+    {
+      "id": "option-supporting-text",
+      "description": "A line below an option's label that says more about the choice. It is shown in the list only and is not searched.",
+      "optional": true
+    },
+    {
+      "id": "option-leading-icon",
+      "description": "A glyph before an option's label. Its column is kept in every row of a list where any shown option has one.",
+      "optional": true
+    },
+    {
+      "id": "mark",
+      "description": "The glyph check at the end of the chosen option's row, in a box kept at the end of every row. With the row's fill it shows the choice; the fill never shows it alone.",
+      "optional": true
+    },
+    {
+      "id": "group",
+      "description": "A run of related options (an option group), optionally under a title, separated from what is next to it by a divider or by a gap.",
+      "optional": true
+    },
+    {
+      "id": "group-title",
+      "description": "The heading above a group's options. It names the group, takes no focus, is not a choice and is not searched.",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "The hairline between two groups while the separation is divider. Under gap there is none.",
+      "optional": true
+    },
+    {
+      "id": "status",
+      "description": "A row after the options that says what the product's source is doing — a loading indicator, a count, a failure — or, where the component filters, that nothing matched. Not an option.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator inside an option's row while the option is the active one by the keyboard. The container itself draws no ring: its focused edge is its focus indicator."
+    },
+    {
+      "id": "caret",
+      "description": "The text cursor, colored by the caret part of the variant."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "stacked",
+        "filled",
+        "outlined"
+      ],
+      "default": "stacked",
+      "axis": "tanrei.comp.input-box.variant",
+      "description": "The text input's three looks, so that a combobox is drawn as the text inputs beside it: stacked is a filled box that shows focus and error with a line inside its edge and draws no label of its own; filled and outlined float the label inside the box. Use one style per form. A design system may leave some out (the Tanrei system ships stacked only) or add values."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "axis": "tanrei.comp.input-box.size",
+      "description": "Minimum height of the container (48 / 56): the text input's two sizes. The hit area always meets the minimum target. A design system may add values."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The committed choice: the chosen option's value, or, with allowCustomValue, a text the person typed that names no option. Empty while nothing is chosen. It is one string, for ever: several values are another component."
+    },
+    {
+      "name": "inputValue",
+      "type": "string",
+      "default": "",
+      "description": "The text in the input. The combobox writes it as the person types and when a value is chosen or restored; the product may set it, and reads it from input to load options."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the combobox, its list and its chevron's button for assistive technology where no Field frames it; a filled or outlined combobox also draws it, as the label that floats in its box. Inside a Field leave it empty: the Field's label names the combobox, and is what floats."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Does not draw the floating label of a filled or outlined combobox, which stays the accessible name. Inside a Field, hide the label on the Field. A stacked combobox draws no label, so this changes nothing there."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "default": "",
+      "description": "A hint shown while the input is empty and no label is in the input line. Never a replacement for a name."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the combobox in its error condition and exposes it as invalid. A Field sets it from its own error; set it here only where no Field frames the combobox. What a value means is the product's to validate; the combobox never sets this itself, for a missing required value either."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents focus, editing and form submission. Inside a Field, disable the Field, so that its label follows."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "The value is shown, can be focused, selected and copied, and is submitted, but cannot be changed: the list does not open and neither the chevron nor the clear button is drawn."
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the list is shown. The combobox opens and closes itself and emits toggle; the product may also set it (to open on focus, for one). Ignored while the combobox is disabled or read-only or has nothing to show."
+    },
+    {
+      "name": "allowCustomValue",
+      "type": "boolean",
+      "default": false,
+      "description": "False: the value is always one of the options, and a text that names none is given up when the person leaves. True: the options are suggestions, and a text that names none becomes the value as typed (a font family, a tag, an address)."
+    },
+    {
+      "name": "filter",
+      "type": "enum",
+      "values": [
+        "contains",
+        "none"
+      ],
+      "default": "contains",
+      "description": "Who decides which options answer the text. contains: the combobox shows the options whose label contains what was typed, ignoring case, and marks the match. none: the combobox shows every option it is given and the product filters — on input, from its own data or a server — and says what it is doing with status."
+    },
+    {
+      "name": "chevron",
+      "type": "boolean",
+      "default": true,
+      "description": "Draws the chevron that opens the whole list without typing. False for a field whose suggestions exist only for what was typed (a remote search): there is no list to look through."
+    },
+    {
+      "name": "clearable",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws a clear button while the text is not empty, for a combobox whose value may be none. Without it, emptying the text and leaving the field clears the value."
+    },
+    {
+      "name": "clearLabel",
+      "type": "string",
+      "default": "",
+      "description": "The clear button's accessible name, in the product's language (\"Clear\"). Required while clearable is true.",
+      "words": "clearLabel"
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "values": [
+        "idle",
+        "loading",
+        "error"
+      ],
+      "default": "idle",
+      "description": "What the product's source of options is doing, which the product sets: idle (the options given are final), loading (options are on their way: the status row shows a loading indicator), error (the source failed: the status row shows statusText in the error color)."
+    },
+    {
+      "name": "statusText",
+      "type": "string",
+      "default": "",
+      "description": "The status row's text, in the product's language, announced to assistive technology when it changes: a count (\"12 of 340 shown\"), that loading failed, or, while status is loading, the loading indicator's name (\"Loading options\")."
+    },
+    {
+      "name": "emptyText",
+      "type": "string",
+      "default": "",
+      "description": "Shown in the list while the text names nothing the combobox can show, allowCustomValue is false and no status is set, in the product's language (\"No matches\"). The product's: Tanrei has no words for it. Empty reads the product's words; with neither, no such row is drawn and it is reported (CMB-32).",
+      "words": "emptyText"
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How a group of options is told from what is next to it. divider: a line between them. gap: empty space and no line. Auto takes comp.combobox.separation, which follows the design system's choice."
+    }
+  ],
+  "items": [
+    {
+      "name": "option",
+      "summary": "One choice of the combobox: a label, the value it stands for, and optionally a supporting line and a glyph. The same kind a select holds.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The option's text and its accessible name: what the filter searches and what the input shows once the option is chosen. Required."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Identifies the choice: the option is the chosen one while the combobox's value equals it. Unique within the combobox and not empty: the empty value means that nothing is chosen."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A line below the label that says more about the choice. Shown in the list, not in the input; not searched."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon (a glyph of the system's icon set) before the label; the container shows it too while the option is chosen and the combobox has no leading icon of its own."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents the option from being chosen. It stays reachable with the arrow keys."
+        }
+      ]
+    },
+    {
+      "name": "option-group",
+      "summary": "A run of related options, optionally titled. The combobox separates a group from what is next to it by a divider or a gap, and draws neither a group nor its title while the filter leaves it empty.",
+      "container": true,
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "default": "",
+          "description": "A short heading drawn above the group's options, which also names the group; empty draws none and leaves the group unnamed."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading-icon",
+      "description": "A glyph at the start of the container that stands for the combobox whatever is chosen (a magnifier before a field that searches people). It takes the place of the chosen option's own glyph.",
+      "fixture": "glyph"
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "description": "The person changed the text (typing, deleting, pasting, dictating, the clear button, Escape restoring it); carries the new text. Not emitted when the product sets inputValue or value, or when a choice writes its label. It is the product's cue to load options; the combobox does not delay or drop it."
+    },
+    {
+      "name": "change",
+      "description": "The committed value changed by the person: an option was chosen, a custom text was committed, or the value was cleared; carries the new value and the text now shown. Not emitted when the product sets value, when the chosen option is chosen again, or while the person only types or moves through the list."
+    },
+    {
+      "name": "toggle",
+      "description": "The list was opened or closed by the person or by having nothing left to show; carries the new open and, for a close, the reason: select, commit, escape, back, outside, press, tab, focus-out, anchor-hidden or empty (in the platform's casing). After a choice it follows change."
+    },
+    {
+      "name": "action",
+      "description": "The person pressed Enter with no option active and the text was committed; emitted after any change it caused. On the web it is followed by the form's submission unless cancelled."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected",
+    "error",
+    "loading"
+  ],
+  "behavior": [
+    {
+      "id": "CMB-1",
+      "text": "THE combobox SHALL draw its container at least comp.input-box.container.height.medium tall for size medium (and so on for each size), with a stacked or outlined combobox's four corners and a filled one's top corners rounded by comp.input-box.container.shape, a filled one's bottom corners by comp.input-box.container.shape-bottom, all eased by sys.shape.corner-smoothing, and SHALL lay out in it one row, centred vertically: the leading glyph where there is one (CMB-18), the input taking the remaining width (CMB-16, CMB-17), then the clear button WHILE it is shown (CMB-20) and the chevron WHILE it is drawn (CMB-19), comp.combobox.container.action-gap apart, the first of those two comp.input-box.container.gap.medium after the input and the leading glyph that far before it (and so on for each size). Text SHALL be comp.input-box.container.padding-inline.medium from the container's edge and a glyph comp.input-box.container.padding-inline-with-icon.medium, and the input line SHALL have at least comp.input-box.container.padding-block.medium above and below it (and so on for each size)."
+    },
+    {
+      "id": "CMB-2",
+      "text": "THE combobox SHALL measure as the text input of the same variant and size measures (TXI-16): the same container height, paddings and corners, and the same text style and start edge for its input text, so that a combobox and a text input side by side share every horizontal line and a combobox below a text input shares its start edges; framed by a Field each, they share the label row and the supporting row as well, because those rows are the same Field's (FLD-1, FLD-26). THE combobox SHALL be drawn, in every state, plain and in error, with the colors the text input of the same variant has for the parts of the same name. The two are drawn from one set of tokens (CMB-63): what a layer changes of the box, it changes for both.",
+      "verify": "The combobox and the text input read one set of tokens for the box (CMB-63), so no test holds two sets equal. Under the default system the combobox field's fixture stacked-supporting and the text field's overlay line for line at one width."
+    },
+    {
+      "id": "CMB-7",
+      "text": "WHERE variant is filled or outlined, WHILE the floating label is drawn (CMB-8) and the Field that frames the combobox gives it an asterisk as its required mark (FLD-25) THE combobox SHALL draw the character \"*\" after the label's text, comp.input-box.requirement.asterisk-gap from it, in the label's text style and at the label's place, resting and floated with it, in the required-asterisk color of its variant (comp.input-box.outlined.required-asterisk.color for an outlined combobox; comp.input-box.outlined.error.required-asterisk.color WHILE the combobox is in error), and SHALL keep it from assistive technology, because the required state already says it (CMB-12). It SHALL draw no tag and no optional label: which mark a required control gets is the Field's to say (FLD-6), and a tag named there reaches a floating label as the asterisk. WHILE no Field frames it, or the Field gives no mark, or the label is not drawn, THE combobox SHALL draw no mark.",
+      "verify": "The combobox field's fixture outlined-required (twin field.combobox-outlined-required): the asterisk follows the floating label. Unit, a Field around an outlined combobox: requiredMark tag, asterisk and auto under a fixture system that names each mark draw the asterisk in the floating label; none draws nothing and keeps the required state; without a Field no mark is drawn."
+    },
+    {
+      "id": "CMB-8",
+      "text": "WHERE variant is filled or outlined and the label is drawn THE combobox SHALL rest the label in the input line, in comp.input-box.label.typescale.medium for size medium (and so on), WHILE the input is empty and not focused, and otherwise float it as the text input of that variant floats its label (TXI-13): to the top of a filled container, above the input line, or onto an outlined container's top edge with a gap of comp.input-box.outline.notch-padding in the outline on each side of it, in comp.input-box.label.floated-typescale.medium for size medium (and so on); a filled combobox that draws its label SHALL be at least twice comp.input-box.container.padding-block-with-label.medium plus one line of each of those two text styles tall (and so on for each size), so that it does not change height when the label floats. WHEN the label floats or rests THE combobox SHALL move and resize it over comp.input-box.motion.label-duration with comp.input-box.motion.label-easing, and at once where motion is reduced. The label SHALL wrap rather than be cut and SHALL never be drawn over the input text. The label it floats SHALL be its accessible name (CMB-12): the label of the Field that frames it, or its own label where none does. WHILE labelHidden is true — its own, or that Field's (FLD-25) — or it has no name THE combobox SHALL draw no label. WHERE variant is stacked, or a variant laid out as stacked (CMB-56), THE combobox SHALL draw no label at all: the label above it is the Field's row (FLD-2). WHILE the input is empty THE combobox SHALL show placeholder, in the placeholder color of its variant (comp.input-box.stacked.placeholder.color), only while no label is in the input line — the label is floated, is not drawn, or stands above in the Field's row — so that the two never overlap.",
+      "verify": "The filled and outlined variants are not shipped by the default system: the fixtures filled-value and outlined-value are drawn there from their tokens all the same, and the presets that have those looks ship them."
+    },
+    {
+      "id": "CMB-10",
+      "text": "WHILE error is true — set by the product, or by the Field that frames it (FLD-8) — THE combobox SHALL draw every part of its container, in every state, from the error parts of its variant (comp.input-box.stacked.error.outline.color and the other error. parts), so that the box itself is marked and not only a text below it: a stacked combobox draws, at rest, a line of comp.input-box.outline.width in comp.input-box.stacked.error.outline.color inside its container's edge, following its corners and taking no layout space, and a filled or outlined one draws its floating label from its error part as well. It SHALL expose itself as invalid to assistive technology. Its list and its options SHALL stay as they are drawn. THE combobox SHALL never set error itself — what a value means is the product's to validate — and SHALL show no error text of its own: the words that say what is wrong are the errorText of the Field that frames it, which that Field draws and gives the combobox as its description (FLD-7, FLD-11).",
+      "verify": "Fixtures stacked-error and stacked-error-value. Under the default system the inner line takes the error role. The rows' error parts are FLD-8."
+    },
+    {
+      "id": "CMB-12",
+      "text": "THE combobox SHALL take its name, its description and its required state from the Field that frames it, as every control a Field frames does (FLD-10, FLD-11): the Field's label is the accessible name of its input, whether or not any label is drawn, and the Field's supporting text with, in error, the error text after it its description. WHILE label is not empty THE combobox SHALL use it as the accessible name instead, for a combobox no Field frames or one whose visible label is elsewhere. It SHALL never use placeholder as the name, and IF it has neither name it SHALL still render and work, and in debug builds SHALL report that it has no accessible name. The same name SHALL name its list and its chevron's button (CMB-19, CMB-48). WHILE its Field says it is required THE combobox SHALL expose the required state to assistive technology (and, on the web, a missing value to the form's constraint validation, CMB-59), whichever mark is drawn and where none is; it has no requirement setting of its own and SHALL NOT validate because of one.",
+      "verify": "Unit: the accessible name of a combobox in a Field is the Field's label with labelHidden false and true; a bare stacked combobox with label \"City\" is named City, draws no label, and its list is named City."
+    },
+    {
+      "id": "CMB-14",
+      "text": "WHEN the user presses its floating label, a decorative leading glyph or the container's padding THE combobox SHALL move focus to its input and do nothing else: it SHALL NOT open its list or change its value, and SHALL draw no press answer, because a press on a field is not an action; a press on the label row of the Field that frames it does the same by FLD-12. WHERE the container is shorter than the minimum target THE combobox SHALL extend its hit area vertically to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. THE combobox SHALL add one stop to the focus order, its input; the clear button, while it is shown, is a second (CMB-20), and the chevron and the options are none.",
+      "verify": "TXI-8."
+    },
+    {
+      "id": "CMB-15",
+      "text": "WHILE hovered or focused THE combobox SHALL render its container, active indicator, outline, floating label and the asterisk after it, input, placeholder, leading glyph and chevron, caret and opacity, and the widths of its outline and active indicator, from the component tokens of the highest-precedence active state, with precedence focused over hovered (their error parts WHILE error is true); unlike a button, focus gained by pointer or touch SHALL select the focused state, because a field shows where typing will go however it was focused; WHILE its list is open THE combobox SHALL stay in the focused state. THE combobox SHALL show focus by its focused tokens and SHALL NOT draw the focus ring: the focused active indicator or outline is its focus indicator, and a stacked combobox draws it as a line of its focused outline width, in the focused outline color of its variant, inside the container's edge, following its corners and taking no layout space, so that nothing in the container moves as the line appears, thickens or goes; WHERE sys.behavior.focus-style is glow it SHALL also draw the glow around the container while focused. A hovered stacked combobox SHALL show the state layer on its container and draw no edge. Selected text in the input SHALL be highlighted in comp.input-box.selection.color and drawn in comp.input-box.selection.content.color in every variant and state. WHEN its state, error or disabled changes THE combobox SHALL change its colors and widths over comp.input-box.motion.state-duration with comp.input-box.motion.state-easing, and at once WHERE motion is reduced. The rows of the Field that frames it are drawn focused with it — while focus is inside, and for as long as its list is open (FLD-13, CMB-61).",
+      "verify": "TXI-6, TXI-7 and TXI-26. Focused cannot be a snapshot fixture. Unit: focus the input by pointer and by keyboard and read the resolved tokens: under the default system the focused edge takes the focus-ring role at the thick width, as a focused text input's does. A floating label's focused color shows only in a system that ships a look that floats one and whose primary is chromatic: test it with the m3-like preset; with error true the label keeps its error color."
+    },
+    {
+      "id": "CMB-16",
+      "text": "THE combobox SHALL take what the person types in the platform's native text element, on one line, with a general keyboard and without autocorrection, and SHALL follow the text input's rules for it: WHEN the person changes the text — by typing, deleting, pasting, cutting, dictating or an input method committing text — it SHALL emit input once per change with the new text, and none WHEN the product sets inputValue or value or WHEN the combobox itself writes the text of a choice (TXI-1). WHILE an input method is composing THE combobox SHALL leave the composition to the native element (TXI-4): it SHALL NOT write into the element, SHALL NOT choose, commit or clear, and SHALL leave Enter, Escape, the arrow keys and the page keys to the input method, whose own candidates they move through and confirm; it SHALL filter by the text the element reports during a composition (CMB-25) and SHALL make no option active because of it (CMB-26). THE combobox SHALL draw the text in comp.input-box.input.typescale.medium for size medium (and so on) and the input color of its variant (comp.input-box.stacked.input.color), scrolling it sideways inside the input when it is longer, and its caret in the caret color of its variant (comp.input-box.stacked.caret.color).",
+      "verify": "Unit, with a Japanese input method: while \"にほん\" is being composed the list filters and no option is active; Enter confirms the conversion and neither chooses nor submits; the next Enter is the combobox's."
+    },
+    {
+      "id": "CMB-17",
+      "text": "THE combobox SHALL hold two things and never confuse them: value, the committed choice, and inputValue, the text in the input. WHILE the person is not editing — the text was not changed since the last commit — THE combobox SHALL show as its text the label of the option whose value equals value; WHILE value names no option it SHALL show value itself WHERE allowCustomValue is true and an empty input otherwise, in which the placeholder shows as CMB-8 says. An option whose value is the empty string cannot be chosen: the empty value means that nothing is chosen. THE combobox SHALL change value only by a choice (CMB-27), a commit (CMB-28, CMB-29) or the clear button (CMB-20), never while the person only types or moves through the list."
+    },
+    {
+      "id": "CMB-18",
+      "text": "WHILE the leading-icon slot holds a glyph, or WHILE it holds none and the chosen option has a leadingIcon and the person is not editing, THE combobox SHALL draw that glyph at the start of its container at comp.input-box.icon.size.medium for size medium (and so on), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, in the leading-icon color of its variant (comp.input-box.stacked.leading-icon.color), hidden from assistive technology. The slot's glyph stands for the field whatever is chosen and takes the place of an option's own."
+    },
+    {
+      "id": "CMB-19",
+      "text": "WHILE chevron is true and readOnly is false THE combobox SHALL draw the glyph expand_more of the system's icon set at the end of its container, at comp.input-box.icon.size.medium for size medium (and so on), in the trailing-icon color of its variant (comp.input-box.stacked.trailing-icon.color; comp.input-box.stacked.error.trailing-icon.color WHILE error is true): it says that the field has a list that can be looked through without typing. The chevron SHALL NOT turn while the list is open and SHALL never be mirrored. Its hit area SHALL reach from the container's end edge to the input's end and over the container's whole height, and be at least sys.target.touch wide for touch input and sys.target.pointer for fine pointers; WHEN the person presses it THE combobox SHALL open its list WHILE it is closed (CMB-21) and close it WHILE it is open (CMB-30), keep or move focus to the input, and draw no press answer, because the press is answered by what it opens. The chevron SHALL NOT be a focus stop — Down Arrow does its work — and SHALL be exposed to assistive technology as a button named as the combobox is (CMB-12), with its expanded state. WHILE chevron is false THE combobox SHALL draw none and its list SHALL open by typing and by the arrow keys alone: the form for a field whose suggestions exist only for what was typed."
+    },
+    {
+      "id": "CMB-20",
+      "text": "WHILE clearable is true, the input's text is not empty, and the combobox is neither disabled nor read-only THE combobox SHALL draw a clear button before the chevron: an icon-only Tanrei Button of the text variant at Button's small size showing the glyph close of the system's icon set, not mirrored, named by clearLabel, a Button in every respect — its own tokens, its press, focus ring and target (BTN-5, BTN-8, BTN-9, BTN-10) — and a focus stop after the input. WHEN it is activated THE combobox SHALL empty the text and the value, emit input once with the empty text and change once with the empty value WHILE the value was not empty, move focus to the input, and leave its list as it is, open or closed, showing every option WHILE open. WHILE clearable is false THE combobox SHALL draw none: emptying the text and leaving the field clears the value (CMB-29). WHILE clearLabel is empty THE combobox SHALL still draw the button and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "CMB-21",
+      "text": "WHEN the person changes the text, presses Down Arrow or Up Arrow in the input (with or without Alt), or presses the chevron, WHILE the list is closed, the combobox is neither disabled nor read-only and there is something to show — an option after filtering (CMB-25), a status row or the empty text (CMB-32) — THE combobox SHALL set open to true, emit toggle once with open true, and present its list (CMB-22). Opened by an arrow key or the chevron the list SHALL show every option, whatever the input holds, until the person edits the text. THE combobox SHALL NOT open WHEN focus reaches the input by Tab, by a press on the input or on the container, by a press on the label row of the Field that frames it (FLD-12), or returns to it; a press in the input places the caret and nothing else, so that tabbing through a form opens no list over the fields below and a touch raises the keyboard without a list on top of it. A product that wants the list on focus sets open itself. THE combobox SHALL NOT change value by opening.",
+      "verify": "POP-18: the list is opened by a press or a key, never by hover; the input is the anchor and, with the chevron, the opener."
+    },
+    {
+      "id": "CMB-22",
+      "text": "WHILE open is true THE combobox SHALL present its list in the platform's overlay layer as an anchored surface (POP-1), anchored to its container and placed bottom-start: comp.combobox.list.offset below the container with the start edges aligned, flipped above the container where the room below, within comp.combobox.list.viewport-margin of the window's edge and of an on-screen keyboard, is less than the list needs and the room above is more, shifted along the container to stay within that margin, following the container while it moves or changes size, and closed with the reason anchor-hidden WHEN the container goes wholly out of sight (POP-2 to POP-5). It SHALL make the list exactly as wide as the container (POP-7, the anchor width), fill it with comp.combobox.list.color, raise it by comp.combobox.list.elevation, round it by comp.combobox.list.shape eased by sys.shape.corner-smoothing, clip its rows to that shape and inset them by comp.combobox.list.padding-block and comp.combobox.list.padding-inline. The list SHALL have no placement prop: the list of a field has one natural place."
+    },
+    {
+      "id": "CMB-23",
+      "text": "THE combobox SHALL make its list as tall as its rows, no taller than comp.combobox.list.max-height and no taller than the room on the side it is placed (POP-8), and SHALL scroll the rows beyond that, vertically only, the list's paddings scrolling with them. WHEN the list opens showing the chosen option THE combobox SHALL scroll it so that the whole of that option is in view. A label, a supporting text or a title wider than the list SHALL wrap (CMB-34); the list SHALL NOT grow wider than the container for it."
+    },
+    {
+      "id": "CMB-24",
+      "text": "WHILE the list is open THE combobox SHALL keep focus in its input (POP-19, with the anchor as the element that keeps focus), because the list is an operated overlay whose focus is the field it belongs to, as the search's docked view is (SRC-8): it SHALL NOT move focus into the list, trap focus, make anything inert or draw a scrim, and a press on an option, on a group title, on the status row or on the list's surface SHALL NOT take focus from the input, so that typing goes on editing the text. At most one option at a time SHALL be the active option, which Enter chooses and assistive technology is told of (CMB-48)."
+    },
+    {
+      "id": "CMB-25",
+      "text": "WHILE filter is contains THE combobox SHALL show, of the options it was given and in their order, those whose label contains the text the person has typed since the list opened or since the last commit, compared without regard to case, to the width of a character or to the marks on a letter, as the label's language compares; an empty text SHALL show every option, and a group left without an option SHALL be drawn neither with its title nor with its separation (CMB-43, CMB-44). WHILE filter is none THE combobox SHALL show every option it was given, in the order given, and hide none: which options answer the text is then the product's, decided on input (CMB-16) and given back as options and a status (CMB-32). THE combobox SHALL NOT fetch, wait, debounce, cache, sort or rank anything itself, and SHALL NOT filter by an option's supporting text or value.",
+      "verify": "Fixtures open-filtered and open-groups-filtered. Unit: with options Tokyo, Toronto and Kyoto the text \"to\" shows all three; \"TO\" and \"ｔｏ\" show the same; with filter none all options stay whatever is typed."
+    },
+    {
+      "id": "CMB-26",
+      "text": "WHEN the person changes the text WHILE allowCustomValue is false THE combobox SHALL make active the first shown option that is not disabled, so that Enter chooses what the typing found; WHILE allowCustomValue is true, or WHILE an input method is composing, a change of the text SHALL leave no option active, so that Enter keeps what was typed. WHEN the list opens by an arrow key or the chevron THE combobox SHALL make the chosen option active, or the first shown option that is not disabled WHILE none is chosen or shown. WHILE the list is open THE combobox SHALL make active the next shown option with Down Arrow (the first WHILE none is active) and the previous one with Up Arrow (the last WHILE none is active), in order and across groups, stopping at the last and, WHILE allowCustomValue is false, at the first; WHILE allowCustomValue is true Up Arrow on the first SHALL leave none active, which gives Enter back to the text. Page Down and Page Up SHALL move the active option by ten, or to the last or the first where fewer remain. THE combobox SHALL leave Home, End, Left Arrow and Right Arrow to the text, where they move the caret, whether or not the list is open. A disabled option SHALL be reached like any other, so that people learn it exists; a group title, a divider and the status row are never active. WHEN a pointer moves onto an option THE combobox SHALL make it the active one, render it hovered and show no focus ring; WHILE an option is active by the keyboard it SHALL render it in the focused state and show the focus ring inside its row, without animation. Making an option active SHALL change neither value nor the text. WHEN an option becomes active while part of it is scrolled out of view THE combobox SHALL scroll it into view. WHEN the options change while the list is open THE combobox SHALL keep the active option where an option of the same value is still shown and otherwise apply the first sentence of this requirement."
+    },
+    {
+      "id": "CMB-27",
+      "text": "WHEN the person presses an option that is not disabled by pointer or touch, or presses Enter while such an option is active and no input method is composing, THE combobox SHALL, WHEN that option's value differs from value, set value to it and emit change once with the new value; it SHALL write the option's label into the input with the caret at its end, without emitting input, and then close the list, set open to false and emit toggle once with open false and the reason select, so that toggle follows change. Choosing the option that is already chosen SHALL emit no change and still write its label and close the list. An Enter that chooses SHALL do nothing else: it SHALL NOT emit action and SHALL NOT submit a form. THE combobox SHALL NOT emit change when the product sets value."
+    },
+    {
+      "id": "CMB-28",
+      "text": "WHEN the person presses Enter in the input while no option is active and no input method is composing THE combobox SHALL commit its text as CMB-29 says, and WHILE its list is open close it with the reason commit; WHILE allowCustomValue is false and the text was not resolved — it is not empty and names no option — THE combobox SHALL instead keep the text and keep or open its list, which then shows what matches or the empty text (CMB-32), and do nothing more. After an Enter that committed THE combobox SHALL emit action, after any change it caused, and on the web, inside a form, SHALL then request the form's submission as a native input does unless action was cancelled. The submission SHALL be requested through the form's default button (BTN-30): WHILE the form has a submit button — the platform's own or a Button of type submit — the first of them in document order SHALL be pressed, so that its click is emitted and its name and value are sent, and WHILE that button is disabled nothing SHALL be submitted; only a form with no submit button is asked directly.",
+      "verify": "Unit: allowCustomValue true, text \"Recursive\", Enter: value is \"Recursive\", change, toggle with the reason commit, then action. allowCustomValue false, text \"zzz\", Enter: nothing is chosen, no action, the list shows emptyText. On the web, in a form whose first submit button is the platform's own with a name and a value: Enter in the field emits one click on that button and one submit whose data holds the pair; with the button disabled, no submit; in a form with no submit button, one submit as before."
+    },
+    {
+      "id": "CMB-29",
+      "text": "WHEN focus leaves the combobox — the input and, WHILE it is shown, the clear button — by Tab, Shift+Tab, a press elsewhere or the product, or WHEN CMB-28 commits, THE combobox SHALL resolve its text: an empty text makes the value empty; a text equal to the label of an option that is not disabled — the whole label, compared as CMB-25 compares and ignoring spaces around it — chooses the first such option; any other text, WHILE allowCustomValue is true, becomes the value as it was typed, and WHILE allowCustomValue is false is given up: THE combobox SHALL write the text of the committed value back (CMB-17) and keep the value. It SHALL then emit change once WHILE the value differs from the one last committed, and close an open list with the reason tab or focus-out. THE combobox SHALL NOT choose the active option because focus left: an option made active by typing or by a resting pointer was not confirmed, as an open select chooses nothing on Tab.",
+      "verify": "Unit, allowCustomValue false, value \"jp\" (Japan): type \"kyo\", Tab: the text is \"Japan\" again and no change fires. Type \"france\", Tab: value is \"fr\". Select all, delete, Tab: value is empty and change fires."
+    },
+    {
+      "id": "CMB-30",
+      "text": "WHEN the person presses Escape or the platform's back while the list is open THE combobox SHALL close the list, choosing nothing and keeping the text as typed, set open to false and emit toggle once with open false and that reason (escape or back), and the key SHALL go no further, so that a dialog the combobox stands in stays open (POP-23). WHEN the person presses Escape WHILE the list is closed and the text was changed since the last commit THE combobox SHALL write the text of the committed value back, emit input once with it, and stop the key; WHILE the list is closed and the text is the committed value's Escape is not the combobox's and SHALL pass on. Escape SHALL never empty a committed value: a value is an answer, not a query. WHEN the person presses outside the list and the container, or presses the chevron, while the list is open THE combobox SHALL close it with the reason outside or press, choosing nothing; a press outside that also takes focus resolves the text as CMB-29 says. Whether a press outside also reaches the element under it SHALL follow the platform and be stated in its README, as for the menu (MNU-5). WHEN the list closes because nothing is left to show — the filter left no option WHILE allowCustomValue is true, or the product emptied the options and the status — it SHALL close with the reason empty, and SHALL open again by CMB-21 when there is.",
+      "verify": "POP-21 to POP-23, with the combobox's own reasons select, commit, press, tab and empty."
+    },
+    {
+      "id": "CMB-31",
+      "text": "WHEN the product sets value THE combobox SHALL show its text as CMB-17 says and SHALL NOT emit change, input or toggle, and WHILE the list is open SHALL move the fill and the check to the new chosen option. WHEN the product sets inputValue THE combobox SHALL show that text, filter by it as by typed text WHILE the list is open (CMB-25), and SHALL NOT emit input or change value; a text set during an input method's composition SHALL be applied when the composition ends (TXI-4). WHEN the product sets open THE combobox SHALL show or remove its list without emitting toggle. WHEN the options change THE combobox SHALL change neither value nor the text the person is editing: options that arrive while a person types are an answer to the typing, not a new choice. WHEN the combobox becomes disabled or read-only while its list is open THE combobox SHALL close the list without emitting toggle."
+    },
+    {
+      "id": "CMB-32",
+      "text": "WHILE the list is open and statusText is not empty or status is loading THE combobox SHALL draw, after the last option, a status row: inset by comp.combobox.option.padding-inline at the sides and padded by comp.combobox.option.padding-block above and below, taking no input, no state and never the active option. WHILE status is idle it SHALL draw statusText, wrapping, in comp.combobox.status.typescale and comp.combobox.status.color; WHILE status is error it SHALL draw it in comp.combobox.status.error.color; WHILE status is loading it SHALL draw, in the text's place and at the row's start, one Tanrei loading indicator of size small named by statusText, which waits its own show delay and enters as the loading indicator does (LDG-11 to LDG-14), and no text, and the row SHALL keep the height of one line of text whether or not the indicator is shown yet. The options the product leaves in the list WHILE status is loading SHALL stay drawn and usable. WHILE the list would show no option, status is idle, statusText is empty, allowCustomValue is false and the text is not empty THE combobox SHALL draw emptyText in the status row's place and style, so that a person who typed something no option holds is told so instead of facing a list that closed; WHILE emptyText is empty and the product's words give none it SHALL draw no such row and in debug builds report it.",
+      "verify": "Fixtures open-loading, open-status, open-status-error and open-filtered-none."
+    },
+    {
+      "id": "CMB-33",
+      "text": "THE combobox SHALL expose the status row as a live region that is present from the moment the list opens: WHILE status is idle, WHEN statusText changes or emptyText appears THE combobox SHALL have assistive technology read the text politely, after what it is saying (the status role on the web); WHILE status is error it SHALL have it read at once (the alert role); WHILE status is loading it SHALL announce nothing — the loading indicator does not announce itself (LDG-6) — and SHALL mark the list as busy (aria-busy on the web) until status leaves loading. THE combobox SHALL NOT compose, count or translate a text: the number of options is already exposed by the list (CMB-48), and the words are the product's."
+    },
+    {
+      "id": "CMB-34",
+      "text": "THE combobox SHALL lay out an option as one row: comp.combobox.option.padding-inline from each edge, the leading icon column (while any shown option has a leading icon), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.combobox.option.mark.size for the check (CMB-36), each comp.combobox.option.gap from the next; an empty column or box SHALL keep its width in every row so that labels align and wrap alike. It SHALL make the row at least comp.combobox.option.height tall, and at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.combobox.option.padding-block above and below; draw the label in comp.combobox.option.label.typescale and the supporting text in comp.combobox.option.supporting-text.typescale, both wrapping and growing the row rather than being cut; and make the whole row the option's target."
+    },
+    {
+      "id": "CMB-35",
+      "text": "THE combobox SHALL draw an option from the condition it is in — selected-option for the chosen option, option for every other — and from the state it is in, with precedence pressed over focused over hovered: its row filled with the container color of that condition and state within the corners comp.combobox.option.shape gives, eased by sys.shape.corner-smoothing, over comp.combobox.list.color and under the row's content; its label, supporting text and leading icon in that condition's colors (comp.combobox.stacked.option.label.color, comp.combobox.stacked.selected-option.label.color and so on for a stacked combobox). The option parts hold the same values under every variant: a list does not change with the look of its field. WHEN the colors of an option change between states THE combobox SHALL animate them over comp.combobox.motion.state-duration with comp.combobox.motion.state-easing, and SHALL change the active option's focus ring without animation."
+    },
+    {
+      "id": "CMB-36",
+      "text": "WHILE an option is the chosen one — its value equals value — THE combobox SHALL fill its row with the selected-option container color of its state (comp.combobox.stacked.selected-option.container.color at rest for a stacked combobox) and SHALL draw the glyph check of the system's icon set centred in the box at the end of the row, in the mark color of that condition and state (comp.combobox.stacked.selected-option.mark.color at rest), with sys.icon.family.selected, sys.icon.fill.selected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; it SHALL draw nothing in that box for any other option, SHALL NOT mirror the check in a right-to-left layout, and SHALL draw no mark of its own. THE combobox SHALL NOT show the choice by the fill alone: the check is always drawn with it. The chosen option SHALL stay marked while the list is filtered and it is among the options shown.",
+      "verify": "Fixtures stacked-open and open-filtered. The check stands at the end of the row, as a select's and a list's do, so that an option's label stands under the text in the input."
+    },
+    {
+      "id": "CMB-37",
+      "text": "THE combobox SHALL draw an option's leadingIcon at comp.combobox.option.leading-icon.size through the icon helper, with the family and fill of the option's condition (sys.icon.family.selected and sys.icon.fill.selected for the chosen option, otherwise sys.icon.family.unselected and sys.icon.fill.unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, in the leading-icon color of its condition and state, hidden from assistive technology; an empty name SHALL draw nothing."
+    },
+    {
+      "id": "CMB-38",
+      "text": "WHILE filter is contains and the person has typed a text that is not empty THE combobox SHALL draw, in the label of each shown option, the first run of the label that matched the text (CMB-25) with its weight raised by comp.combobox.option.match.emphasis over the weight of comp.combobox.option.label.typescale, in the label's own color and with no fill, so that a row says why it is still there; the run SHALL wrap with the label as one text and move no letter of it. It SHALL expose the label to assistive technology as one text, read without a pause or an announcement at the run. WHILE filter is none THE combobox SHALL mark nothing, because how the product matched is not known to it.",
+      "verify": "Fixture open-filtered. Unit: with the text \"to\", \"Toronto\" draws its first two letters heavier and \"Kyoto\" its last two; the accessible name of each is the whole label."
+    },
+    {
+      "id": "CMB-39",
+      "text": "WHILE an option's disabled is true THE combobox SHALL NOT choose it by any input, on a press or on Enter or when its label is typed in full (CMB-29), SHALL leave the list open when it is pressed or when Enter is pressed on it, SHALL expose its disabled state to assistive technology, and SHALL render its container, label, supporting text, leading icon, mark and opacity from the disabled component tokens of its condition. A disabled option whose value equals value is still the chosen one: the input shows its label, and its row draws the fill and the check from the disabled tokens."
+    },
+    {
+      "id": "CMB-40",
+      "text": "WHEN the option is pressed by pointer, touch or Enter THE option SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner.",
+      "verify": "BTN-8, for the option."
+    },
+    {
+      "id": "CMB-41",
+      "text": "WHILE pressed THE option SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, supporting text, leading icon, mark, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.combobox.motion.feedback-duration with comp.combobox.motion.state-easing, fades over comp.combobox.motion.state-duration with comp.combobox.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "BTN-9, for the option."
+    },
+    {
+      "id": "CMB-42",
+      "text": "THE option SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "BTN-10, for the option."
+    },
+    {
+      "id": "CMB-43",
+      "text": "WHILE a group's title is not empty and the group shows at least one option THE combobox SHALL draw the title above the group's options in comp.combobox.group-title.typescale and comp.combobox.group-title.color, starting comp.combobox.group-title.padding-inline from the rows' start edge and ending comp.combobox.group-title.padding-inline from their end edge, with comp.combobox.option.padding-block above and below, wrapping and growing with enlarged text rather than clipping. The title SHALL take no focus, SHALL never be the active option, SHALL NOT be matched by the filter and SHALL scroll with its options. WHEN a group holds another group THE combobox SHALL draw the inner group's options as the outer group's, with no title or separation of the inner group's own, and in debug builds report it."
+    },
+    {
+      "id": "CMB-44",
+      "text": "THE combobox SHALL separate a shown group from an adjacent shown group or an adjacent shown option outside any group as its separation names: WHILE separation is auto, as comp.combobox.separation names, which follows the design system's choice unless a system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say. Under divider it SHALL draw a line of comp.combobox.divider.thickness in comp.combobox.divider.color across the list's inner width, inside comp.combobox.list.padding-inline on each side, with comp.combobox.divider.space above and below it, exposed as a separator that takes no focus; under gap it SHALL leave comp.combobox.group.gap of empty space, draw no line and expose no separator. It SHALL draw neither before the first nor after the last element of the list, and neither between the options and the status row. WHEN separation names a value the combobox does not define THE combobox SHALL treat it as auto and in debug builds report it.",
+      "verify": "Fixtures open-groups, open-groups-divider and open-groups-gap."
+    },
+    {
+      "id": "CMB-45",
+      "text": "WHEN the list opens THE combobox SHALL fade it in and grow it from the edge that faces the container over comp.combobox.motion.open-duration with comp.combobox.motion.open-easing, and WHEN it closes fade it out over comp.combobox.motion.close-duration with comp.combobox.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once. A motion interrupted SHALL turn round from where it is, and a closing list SHALL take no input (POP-26, POP-27). WHEN the options shown change while the list is open THE combobox SHALL change the list's height at once, without a motion of its own. Focus, the text and the value SHALL change when the list closes, not when its motion ends."
+    },
+    {
+      "id": "CMB-46",
+      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE combobox SHALL NOT be focusable or editable, SHALL NOT open, SHALL NOT emit input, change, action or toggle, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, SHALL draw no clear button, and SHALL render every part of its box, the chevron and a floating label included, from the disabled component tokens of its variant (of its error parts WHILE error is true)."
+    },
+    {
+      "id": "CMB-47",
+      "text": "WHILE readOnly is true and disabled is false THE combobox SHALL stay focusable and show its value, selectable and copyable, SHALL NOT let the person change the text or the value, SHALL NOT open by any input, SHALL draw neither the chevron nor the clear button (CMB-19, CMB-20), SHALL NOT emit input, change or toggle, SHALL expose the read-only state to assistive technology, SHALL be submitted with its form on the web, and SHALL render as an enabled combobox, including its hovered and focused states."
+    },
+    {
+      "id": "CMB-48",
+      "text": "THE combobox SHALL expose its input, on the web, as an editable combobox: named as CMB-12 says, with the text as its value, aria-autocomplete list, aria-haspopup listbox, aria-expanded, aria-controls naming the list while it is open, and aria-activedescendant naming the active option while there is one and absent otherwise; and the list as a listbox of the same name whose options are named by their label and described by their supporting text, each with its selected state — true for the chosen option alone — its disabled state, its position and the number of options shown, and whose groups are groups named by their title. On the other platforms THE combobox SHALL expose the input as the platform's text field that offers a list of choices (a combo box, an editable drop-down) of that name with its text and its expanded state, and the options as selectable items of a list with the same names, states and positions; WHERE a platform's assistive technology cannot follow an active option while focus stays in the text, THE combobox SHALL announce the active option's label, politely, each time it changes, and state that in its README. The leading glyphs, the check and the dividers SHALL be hidden from assistive technology; the chevron is a button (CMB-19) and the clear button a Button (CMB-20).",
+      "verify": "The pattern the search uses for its suggestions (SRC-14, SRC-24) and a select for its options, here with a value. Unit, on the web: typing moves aria-activedescendant to the first match while allowCustomValue is false, and leaves it absent while it is true."
+    },
+    {
+      "id": "CMB-49",
+      "text": "THE combobox SHALL be block-level, framed and bare alike: exactly as wide as the place it stands in — the width its layout gives it, which inside a Field is the Field's whole width (FLD-1), so that the box fills its Field — with no width of its own and never the platform's default width for a text element, as the text input is (TXI-63). Its width SHALL NOT follow its options or its value, because a person types into it before any option is known. A product that wants a narrower box gives it a narrower place."
+    },
+    {
+      "id": "CMB-50",
+      "text": "WHILE the text size is enlarged THE combobox SHALL grow with its texts: the container grows with the input's line and with a floating label that wraps (CMB-8), keeping the height of its size as a minimum; the text stays on one line and scrolls inside its input, the glyphs keep their sizes, the options, their supporting texts, the group titles and the status row wrap rather than cut, and the list scrolls where the taller rows no longer fit. At 200% no text SHALL be lost, lie over another part or need scrolling in two directions.",
+      "verify": "The rows of the Field that frames it grow by FLD-16."
+    },
+    {
+      "id": "CMB-51",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE combobox SHALL draw its floating label and the asterisk after it in the platform's text color, SHALL draw an edge comp.input-box.outline.width wide in the platform's control text color around its container in every variant, and that edge in the platform's highlight color at the focused width while focused, and SHALL rely on no color of its own to show an error: the error is carried by the invalid state (CMB-10) and by the words its Field shows. It SHALL draw an edge in the platform's text color around its list, the active option in the platform's highlight colors, the matched run of a label by its weight alone, and a disabled combobox and a disabled option in the platform's disabled text color; the chosen option SHALL then be shown by its check alone.",
+      "verify": "On the web, with forced colors emulated: the container of every fixture has a visible edge and the list has one. The rows are drawn there by FLD-17."
+    },
+    {
+      "id": "CMB-52",
+      "text": "WHERE the layout direction is right-to-left THE combobox SHALL mirror its layout: the leading glyph at the right of its container, the clear button and the chevron at its left with the chevron nearest the edge, a floating label resting and floated from the right, the list aligned to the container's edges as before, and in each option the leading icon at the right and the check at the left, all paddings applied by logical start and end (POP-34 for the list's placement).",
+      "verify": "Fixtures stacked-required-rtl, open-rtl and outlined-rtl. The rows of the Field that frames it mirror by FLD-18."
+    },
+    {
+      "id": "CMB-53",
+      "text": "THE combobox SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the combobox is shown THE combobox SHALL draw itself for the new direction at once, without a motion of its own, keeping its value, its text, its caret, its open state, its active option and its focus, the list placed again by the new direction (CMB-22).",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "CMB-54",
+      "text": "WHERE the layout direction is right-to-left THE combobox SHALL draw the glyph of its leading-icon slot and an option's leadingIcon mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order CMB-52 gives. THE combobox SHALL NOT mirror a glyph itself. The chevron's expand_more, the clear button's close and the check are not marked and are never mirrored."
+    },
+    {
+      "id": "CMB-55",
+      "text": "THE combobox SHALL lay out its floating label, its placeholder, an option's label and supporting text, a group's title and the status row's text as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE combobox SHALL still place each and align its lines by the layout direction, not by the text's own. It SHALL lay out the text in its input by that text's own direction and, WHILE the input is empty or holds no strong character, by the layout direction, so that the caret of an empty combobox and its placeholder stand at its start edge (TXI-24).",
+      "verify": "Fixture long-value-rtl: a left-to-right value in a right-to-left layout is aligned left and scrolls from its own start. The texts of the Field's rows are FLD-21."
+    },
+    {
+      "id": "CMB-56",
+      "text": "WHEN variant or size names a value that the active design system does not have THE combobox SHALL render with the default value's tokens, and in debug builds report the unknown value; WHEN variant names a value the active system has but the combobox does not know by name (one a layer added) it SHALL draw no label of its own and draw its edge as a stacked combobox does (CMB-8, CMB-15), with that value's own tokens; WHEN filter names a value the combobox does not know it SHALL behave as contains, and WHEN status names one, as idle, each reported in debug builds."
+    },
+    {
+      "id": "CMB-57",
+      "text": "WHILE the combobox holds no option, no status and nothing to say THE combobox SHALL draw its field as it is, SHALL stay focusable and editable, and SHALL NOT open by any input or because open is true: it SHALL draw no empty list. IF two options have the same value THE combobox SHALL treat the first of them, in order, as the one that value names and in debug builds report the repeated value; IF an option's label is empty THE combobox SHALL still render it and in debug builds report that it has no accessible name; IF an option's value is the empty string THE combobox SHALL render it, SHALL NOT choose it (CMB-17), and in debug builds report it."
+    },
+    {
+      "id": "CMB-58",
+      "text": "THE combobox SHALL keep its list an anchored list at every window size (POP-31): in a narrow window the list narrows with its container, shortens to the room it has and scrolls, and SHALL NOT turn into a sheet or a dialog by itself. WHILE an on-screen keyboard is shown THE combobox SHALL count the keyboard's top edge as the window's edge when it places and sizes the list (POP-36), so that the options stay in view above the keyboard or flip above the field."
+    },
+    {
+      "id": "CMB-59",
+      "text": "WHERE the platform has forms (the web) THE combobox SHALL take part in them as a native input does: it takes name, submits value — the chosen option's value, or the custom value — and never the text of an edit that was not committed, restores it on navigation, resets to the value it was first given, and reports to the form's constraint validation a missing value WHILE the Field that frames it says it is required (CMB-12) and value is empty."
+    },
+    {
+      "id": "CMB-60",
+      "text": "THE combobox SHALL have no words of its own: it SHALL take emptyText and clearLabel from the instance's prop and, WHILE that is empty, from the product's words of the same name — the words a product sets once for all its components — and from nowhere else. WHILE neither gives emptyText the row is as CMB-32 says: not drawn, and reported once in debug builds. WHILE neither gives clearLabel the clear button is as CMB-20 says: drawn, working and reported. The words of a requirement are not the combobox's: they are the Field's (FLD-24).",
+      "verify": "Unit, with no product's words set: open-filtered-none without emptyText draws no row for it and the report names emptyText (CMB-32); stacked-clearable without clearLabel draws a clear button that works and the report names clearLabel. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
+    },
+    {
+      "id": "CMB-61",
+      "text": "THE combobox SHALL say to the Field that frames it what only the combobox knows, and SHALL say it again WHEN it changes: that it draws the label itself WHILE its variant floats one (CMB-8), so that the Field draws no label row (FLD-25); and how far its input text stands from its own start edge — its inline padding and, beside a leading glyph, that glyph and its gap (CMB-1, CMB-18) — and the padding it keeps at its end edge (CMB-1), so that the Field's supporting row starts and ends there (FLD-26); and that it is drawn focused, for as long as its list is open, whether or not it has focus (CMB-15), so that the Field's rows are drawn focused with it (FLD-13). It SHALL take from that Field its name, its description and its required, invalid and disabled states (CMB-10, CMB-12, CMB-46), whether the label is hidden (CMB-8) and whether an asterisk follows it (CMB-7), so that a Field and a combobox placed by hand are drawn, named, described and marked exactly as a combobox field is. It keeps no count and reports no refusal of an entry (FLD-27, FLD-28): a text that names no option is given up, not kept as an error (CMB-29).",
+      "verify": "The twin test of the combobox field: each fixture combobox-<id> of the Field — a Field around a combobox, written by hand — is the same picture and the same accessibility tree as the combobox field's fixture <id>. Unit: changing variant from stacked to outlined removes the Field's label row and floats the same text in the combobox; a glyph in the leading-icon slot moves the start of the Field's supporting row to the input text; with open set by the product and focus elsewhere, the Field's label is drawn from its focused tokens."
+    },
+    {
+      "id": "CMB-62",
+      "text": "THE combobox SHALL draw no label row above itself, no requirement tag, no help and no error text: those are the rows of the Field that frames it (FLD-2 to FLD-7). WHILE no Field frames it THE combobox SHALL be complete as a bare control — its box, the label that floats in it where its variant floats one, the text typed in it, its list and its options, its states and its events — named by its own label (CMB-12), as wide as its layout gives it (CMB-49) and exactly as tall as its container.",
+      "verify": "Fixtures stacked-value and outlined-value: nothing is drawn above or below the container. Unit: a bare combobox with label \"City\" in a toolbar is a combobox named City; its height is its container's."
+    },
+    {
+      "id": "CMB-63",
+      "text": "THE combobox SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the typed text and the placeholder, the leading glyph and the chevron, the caret and the highlight of selected text, the paddings, the gaps and the least height of its size, and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group are those of its list, of its status row and of the gap between its clear button and its chevron (CMB-23, CMB-34 to CMB-41). WHEN a design system or a product sets a token of the box THE combobox SHALL follow it, as the text input, the select, the number input and the color input do, which read the same tokens; no token is held equal to another for this. WHERE one combobox is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE combobox SHALL draw itself from the value it finds there.",
+      "verify": "A proof: every value the box of a combobox had is the value of the token it reads now, in every scheme of every shipped system. A build test fails if a token with the name of a token of the box stands in the combobox's own group. Unit, web: with the custom property of comp.input-box.container.shape set on one combobox's element, its corners change and those of a text input and a select beside it do not; set on an ancestor of the three, all three change."
+    }
+  ],
+  "accessibility": {
+    "role": "combobox",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the input and on from it; the clear button, while shown, is the next stop. Leaving resolves the text (a typed label chooses its option, any other text is kept as the value or given up) and closes the list; the active option is not chosen."
+      },
+      {
+        "keys": "Typing",
+        "action": "Edits the text and opens the list, filtered. With allowCustomValue false the first match becomes the active option; with it true none does."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow (also with Alt), list closed",
+        "action": "Opens the list with every option; the chosen option is active, or the first enabled one."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow, list open",
+        "action": "Makes the next or previous option active, across groups, stopping at the ends; with allowCustomValue true, Up Arrow on the first returns to the text with no option active."
+      },
+      {
+        "keys": "Page Down / Page Up, list open",
+        "action": "Moves the active option by ten, stopping at the ends."
+      },
+      {
+        "keys": "Home, End, Left Arrow, Right Arrow",
+        "action": "Move the caret in the text, list open or closed."
+      },
+      {
+        "keys": "Enter, an option active",
+        "action": "Chooses it, emits change if the value changed, and closes the list. On a disabled option, nothing. It does not submit a form."
+      },
+      {
+        "keys": "Enter, no option active",
+        "action": "Commits the text: a typed label chooses its option; with allowCustomValue true any other text becomes the value. Then emits action and submits the enclosing form on the web. With allowCustomValue false a text that names no option is not committed and the list stays."
+      },
+      {
+        "keys": "Escape",
+        "action": "With the list open: closes it, choosing nothing and keeping the text. With the list closed and the text edited: restores the committed value's text. Otherwise the combobox does not act on it. It never clears a committed value."
+      },
+      {
+        "keys": "Enter or Space on the clear button",
+        "action": "Empties the text and the value and returns focus to the input."
+      },
+      {
+        "keys": "Any of these while an input method is composing",
+        "action": "Belongs to the input method (CMB-16)."
+      }
+    ],
+    "labeling": "The accessible name is the label of the Field that frames the combobox, or its own label where no Field does; a filled or outlined combobox draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name. The description is what the Field gives: its supporting text with, in error, the error text after it and its optional text. The combobox is exposed as invalid while error is true or its Field is in error, as required while its Field says so — whichever mark is drawn — and as read-only while readOnly is true. It is expanded while its list is open, and names its active option. Its name also names the list and the chevron's button. An option is named by its label and described by its supporting text, and exposes whether it is the chosen one, whether it is disabled, and its position among the options shown; a group is named by its title. The clear button is named by clearLabel. The status row is a live region. The leading glyphs, the check and the dividers are decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "The pattern is the WAI-ARIA editable combobox with a listbox popup: focus stays in the input and the active option is its active descendant on the web, as the search's suggestions are (SRC-14) and a select's options. The input keeps its name, its description, its invalid and required states and its focused edge while the person reads the options, and typing never stops editing the text.",
+      "Text entry happens in the platform's native text element: on the web an <input type=\"text\" role=\"combobox\"> in the shadow root with the label, the description and the states set on that element — not through ElementInternals, which axe cannot see.",
+      "While an input method composes, every key is the input method's (CMB-16): the Enter that confirms a conversion chooses nothing and submits nothing. A combobox that chose on that Enter cannot be used in Japanese, Chinese or Korean.",
+      "With allowCustomValue false, typing makes the first match active, so that Enter chooses what was found; a screen reader then reads that option after each change of the text. With allowCustomValue true nothing is active until an arrow key is pressed, so that Enter keeps what was typed. One rule in both: Enter commits what the field shows as about to be committed.",
+      "Leaving the field never chooses the active option (CMB-29): a pointer that rested on a row, or the first match of half a word, is not an answer. A whole label typed out is.",
+      "Escape closes, then restores, and never clears (CMB-30). Clearing is emptying the text, or the clear button.",
+      "The list does not open on focus (CMB-21): tabbing through a form would open a list over the next fields at every stop, and on a touch screen a list would rise together with the keyboard.",
+      "Errors are words: a text that names no option is given up, not kept as an error of the combobox's own, and the combobox reports no refusal to its Field (CMB-61); a product that wants to say \"choose one from the list\" sets error and errorText on the Field, or on the combobox field, from its change and input handlers.",
+      "A match is marked by weight (CMB-38), never by color alone and never announced: the label is read whole.",
+      "The chevron is a button for a pointer and for touch exploration, outside the focus order; the keyboard opens the list with Down Arrow.",
+      "Heights are minimums: at 200% text size the field grows, labels, options and titles wrap, and the list scrolls; only the text in the input stays on one line, and scrolls.",
+      "Web: a touch browser zooms the page into an input whose text is smaller than 16 px. Both sizes use 16 px text (comp.input-box.input.typescale.medium).",
+      "The combobox draws no frame: the label row, the requirement, the supporting row and the error are those of the Field that frames it (FLD-2 to FLD-13), and the combobox field is that pair as one component. A bare combobox is for a place whose label stands elsewhere — a toolbar, a table cell, a row of an editor — and is named by its own label. The list is an anchored surface by Popover's rules (POP-2 to POP-8, POP-18 to POP-27, POP-31, POP-34, POP-36) with the menu's look; it is not a Popover element, because its content is rows with one meaning, not content of any kind.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "The box is the combobox's own part, not a Text input placed in it: the native text element is itself the combobox — it carries the role, the expanded state and the relations to the list and to the active option, which must stand in one tree with it — and the keys, the text a choice writes and the commit are the combobox's. Its drawing is the box every input control is drawn on, from the one set of tokens `comp.input-box` that the text input, the select, the number input and the color input read too (CMB-63): the two are one drawing, and neither is built from the other."
+    ]
+  },
+  "tokens": "comp.combobox",
+  "fixtures": [
+    {
+      "id": "stacked-empty",
+      "props": {
+        "variant": "stacked",
+        "label": "City"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-value",
+      "props": {
+        "variant": "stacked",
+        "label": "City",
+        "value": "tokyo"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-open",
+      "props": {
+        "variant": "stacked",
+        "label": "City",
+        "value": "tokyo",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "label": "City",
+        "value": "tokyo"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-error",
+      "props": {
+        "variant": "stacked",
+        "label": "City",
+        "error": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-disabled",
+      "props": {
+        "variant": "stacked",
+        "label": "City",
+        "value": "tokyo",
+        "disabled": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-placeholder",
+      "props": {
+        "label": "City",
+        "placeholder": "Type to find a city"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-error-value",
+      "props": {
+        "label": "City",
+        "value": "nairobi",
+        "error": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-read-only",
+      "props": {
+        "label": "City",
+        "value": "tokyo",
+        "readOnly": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-clearable",
+      "props": {
+        "label": "City",
+        "value": "tokyo",
+        "clearable": true,
+        "clearLabel": "Clear city"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-no-chevron",
+      "props": {
+        "label": "Address",
+        "chevron": false,
+        "filter": "none",
+        "placeholder": "Start typing an address"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "1 Sanjo-dori, Kyoto",
+            "value": "a1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-custom-value",
+      "props": {
+        "label": "Font family",
+        "value": "Recursive",
+        "allowCustomValue": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Inter",
+            "value": "Inter"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Noto Sans JP",
+            "value": "Noto Sans JP"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Roboto Mono",
+            "value": "Roboto Mono"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Source Serif 4",
+            "value": "Source Serif 4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-leading-icon",
+      "props": {
+        "label": "Assignee",
+        "placeholder": "Find a person"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Aiko Tanaka",
+            "value": "aiko"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Bao Nguyen",
+            "value": "bao"
+          }
+        }
+      ],
+      "slots": {
+        "leading-icon": "person_search"
+      }
+    },
+    {
+      "id": "stacked-option-icon",
+      "props": {
+        "label": "Transport",
+        "value": "train"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Bus",
+            "value": "bus",
+            "leadingIcon": "directions_bus"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Train",
+            "value": "train",
+            "leadingIcon": "train"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Ferry",
+            "value": "ferry",
+            "leadingIcon": "directions_boat"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-none-chosen",
+      "props": {
+        "label": "City",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-filtered",
+      "props": {
+        "label": "City",
+        "value": "tokyo",
+        "inputValue": "to",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-filtered-none",
+      "props": {
+        "label": "City",
+        "inputValue": "zz",
+        "open": true,
+        "emptyText": "No matches"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-icons",
+      "props": {
+        "label": "Transport",
+        "value": "train",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Bus",
+            "value": "bus",
+            "leadingIcon": "directions_bus"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Train",
+            "value": "train",
+            "leadingIcon": "train"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "On foot",
+            "value": "walk"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-supporting-text",
+      "props": {
+        "label": "Token",
+        "value": "sys.color.on-primary",
+        "inputValue": "primary",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "sys.color.primary",
+            "value": "sys.color.primary",
+            "supportingText": "#1b1b1f"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "sys.color.on-primary",
+            "value": "sys.color.on-primary",
+            "supportingText": "#ffffff"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "sys.color.primary-container",
+            "value": "sys.color.primary-container",
+            "supportingText": "#e3e2e6"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "sys.color.secondary",
+            "value": "sys.color.secondary",
+            "supportingText": "#5d5e66",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-disabled-chosen",
+      "props": {
+        "label": "Token",
+        "value": "sys.color.secondary",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "sys.color.primary",
+            "value": "sys.color.primary",
+            "supportingText": "#1b1b1f"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "sys.color.on-primary",
+            "value": "sys.color.on-primary",
+            "supportingText": "#ffffff"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "sys.color.primary-container",
+            "value": "sys.color.primary-container",
+            "supportingText": "#e3e2e6"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "sys.color.secondary",
+            "value": "sys.color.secondary",
+            "supportingText": "#5d5e66",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-groups",
+      "props": {
+        "label": "Time zone",
+        "value": "Europe/Lisbon",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-groups-divider",
+      "props": {
+        "label": "Time zone",
+        "value": "Europe/Lisbon",
+        "open": true,
+        "separation": "divider"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-groups-gap",
+      "props": {
+        "label": "Time zone",
+        "value": "Europe/Lisbon",
+        "open": true,
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-groups-filtered",
+      "props": {
+        "label": "Time zone",
+        "inputValue": "in",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-many",
+      "props": {
+        "label": "City",
+        "value": "lisbon",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Amsterdam",
+            "value": "amsterdam"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Athens",
+            "value": "athens"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Bangkok",
+            "value": "bangkok"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Berlin",
+            "value": "berlin"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Bogotá",
+            "value": "bogotá"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Cairo",
+            "value": "cairo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Chicago",
+            "value": "chicago"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dakar",
+            "value": "dakar"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Delhi",
+            "value": "delhi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dublin",
+            "value": "dublin"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Hanoi",
+            "value": "hanoi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Helsinki",
+            "value": "helsinki"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Istanbul",
+            "value": "istanbul"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Jakarta",
+            "value": "jakarta"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lagos",
+            "value": "lagos"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lima",
+            "value": "lima"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Madrid",
+            "value": "madrid"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Manila",
+            "value": "manila"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Osaka",
+            "value": "osaka"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-long-options",
+      "props": {
+        "label": "Licence",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International",
+            "value": "cc-by-nc-sa",
+            "supportingText": "Others may adapt the work for purposes that are not commercial, if they credit you and license what they make under the same terms."
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "MIT",
+            "value": "mit"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-custom-suggestions",
+      "props": {
+        "label": "Font family",
+        "inputValue": "no",
+        "allowCustomValue": true,
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Inter",
+            "value": "Inter"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Noto Sans JP",
+            "value": "Noto Sans JP"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Roboto Mono",
+            "value": "Roboto Mono"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Source Serif 4",
+            "value": "Source Serif 4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-loading",
+      "props": {
+        "label": "Assignee",
+        "inputValue": "ai",
+        "filter": "none",
+        "chevron": false,
+        "status": "loading",
+        "statusText": "Loading people",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Aiko Tanaka",
+            "value": "aiko"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-status",
+      "props": {
+        "label": "Assignee",
+        "inputValue": "a",
+        "filter": "none",
+        "chevron": false,
+        "statusText": "2 of 48 people shown. Keep typing to narrow.",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Aiko Tanaka",
+            "value": "aiko"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Bao Nguyen",
+            "value": "bao"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-status-error",
+      "props": {
+        "label": "Assignee",
+        "inputValue": "ai",
+        "filter": "none",
+        "chevron": false,
+        "status": "error",
+        "statusText": "People could not be loaded. Check your connection.",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Aiko Tanaka",
+            "value": "aiko"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-value",
+      "props": {
+        "label": "Licence",
+        "value": "cc-by-nc-sa"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International",
+            "value": "cc-by-nc-sa"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "MIT",
+            "value": "mit"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-filtered-ja",
+      "props": {
+        "label": "都市",
+        "inputValue": "京",
+        "open": true,
+        "emptyText": "一致する項目がありません"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "京都",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "東京",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "大阪",
+            "value": "osaka"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-required-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "المدينة",
+        "value": "cairo",
+        "clearable": true,
+        "clearLabel": "مسح المدينة"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "القاهرة",
+            "value": "cairo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "الرياض",
+            "value": "riyadh"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "المنطقة الزمنية",
+        "value": "Asia/Riyadh",
+        "inputValue": "ال",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "آسيا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "الرياض",
+                "value": "Asia/Riyadh",
+                "leadingIcon": "arrow_forward"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "الدوحة",
+                "value": "Asia/Qatar"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "أوروبا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon (WET)",
+                "value": "Europe/Lisbon"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "long-value-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "רישיון",
+        "value": "cc-by-nc-sa"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International",
+            "value": "cc-by-nc-sa"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "MIT",
+            "value": "mit"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-empty",
+      "props": {
+        "variant": "filled",
+        "label": "City"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-value",
+      "props": {
+        "variant": "filled",
+        "label": "City",
+        "value": "tokyo"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-open",
+      "props": {
+        "variant": "filled",
+        "label": "City",
+        "value": "tokyo",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "City",
+        "value": "tokyo"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-error",
+      "props": {
+        "variant": "filled",
+        "label": "City",
+        "error": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "label": "City",
+        "value": "tokyo",
+        "disabled": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-empty",
+      "props": {
+        "variant": "outlined",
+        "label": "City"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-value",
+      "props": {
+        "variant": "outlined",
+        "label": "City",
+        "value": "tokyo"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-open",
+      "props": {
+        "variant": "outlined",
+        "label": "City",
+        "value": "tokyo",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-large",
+      "props": {
+        "variant": "outlined",
+        "size": "large",
+        "label": "City",
+        "value": "tokyo"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-error",
+      "props": {
+        "variant": "outlined",
+        "label": "City",
+        "error": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "label": "City",
+        "value": "tokyo",
+        "disabled": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kyoto",
+            "value": "kyoto"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Lisbon",
+            "value": "lisbon"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Nairobi",
+            "value": "nairobi"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Tokyo",
+            "value": "tokyo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Toronto",
+            "value": "toronto"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "outlined",
+        "label": "المدينة",
+        "value": "cairo"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "القاهرة",
+            "value": "cairo"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "الرياض",
+            "value": "riyadh"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-combobox",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "inputValue": "inputValue",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "open": "open",
+        "allowCustomValue": "allowCustomValue",
+        "filter": "filter",
+        "chevron": "noChevron",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText",
+        "separation": "separation"
+      },
+      "events": {
+        "input": "input",
+        "change": "change",
+        "toggle": "toggle",
+        "action": "action"
+      },
+      "items": {
+        "option": {
+          "name": "tanrei-option",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "disabled"
+          },
+          "notes": "`<tanrei-option value=\"tokyo\">Tokyo</tanrei-option>`: the element a select holds, and the same data: the label is the `label` attribute or, without one, the element's text. Attributes `supporting-text`, `leading-icon`, `disabled`. It draws nothing itself. `tanrei-option` and `tanrei-option-group` are one pair of elements for the select and the combobox, defined once; an option with the empty value is refused by the combobox (CMB-17, CMB-57), not by the element, because a select allows it."
+        },
+        "option-group": {
+          "name": "tanrei-option-group",
+          "props": {
+            "title": "label"
+          },
+          "notes": "The title is the `label` attribute, as `<optgroup label>`: a `title` attribute would also draw the browser's tooltip."
+        }
+      },
+      "notes": "Lagging: the element in the repository still draws its own label row, requirement mark and supporting row and has the ten props of a frame; the bare control without them is not built on this platform yet. As specified: `tanrei-combobox`, class `TanreiCombobox`, React `Combobox`. A form-associated custom element (`static formAssociated = true`): it takes `name`, submits `value` (never the uncommitted text), restores it on navigation, resets to the `value` attribute, follows `<fieldset disabled>` and reports `valueMissing` while its Field says it is required (CMB-59); its two calls on `ElementInternals` and its form for Enter go through the shared composing primitives, so that a composed element that holds it can be the form's control in its place. The options are `<tanrei-option>` and `<tanrei-option-group>` children, observed for changes; the combobox reads them and renders the rows itself in its shadow root, so that the `<input role=\"combobox\">`, its `aria-controls` listbox and its `aria-activedescendant` option are in one tree. **Options through a slot**: a `<slot>` element among its children stands for the elements assigned to it, flattened (`assignedElements({ flatten: true })`), in the slot's place among the other children; the combobox reads them as its own options, reads again on that slot's `slotchange`, and observes each assigned element as it observes a child. This is `readOptions()` and `OptionsController` in `primitives/option-list.ts`, shared with the select, and it is how a composed element gives the combobox the product's options without moving or copying an element. The input carries `aria-autocomplete=\"list\"`, `aria-expanded`, `aria-haspopup=\"listbox\"` and `aria-readonly`, with `autocomplete=\"off\"`, `autocapitalize=\"none\"` and `spellcheck=\"false\"`; its name, its description and its invalid and required states are values — its own `label`, or what the Field's connection gives (`packages/web/src/primitives/field.ts`) — written on the input as `aria-label`, `aria-description`, `aria-invalid` and `aria-required`, because an id cannot be referenced across a shadow root. To that connection the combobox says that it draws the label (a filled or outlined variant) and its inset (CMB-61), and takes from it `labelHidden` and the required mark besides. Composition is read from `compositionstart` / `compositionend` and `event.isComposing` (and `keyCode 229`), and keys are ignored while it lasts. The chevron is a `<button tabindex=\"-1\" aria-label aria-expanded>` and the clear button a `<tanrei-button variant=\"text\" size=\"small\">`; `pointerdown` on a row, the chevron or the list calls `preventDefault` so that focus stays in the input. The list is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback, sized to the anchor's width and followed with the `FollowController` the menu uses, with the combobox's own light dismiss so that `toggle` carries a reason; the element itself is the opener, so a press on the label row of a Field around it is a press outside (CMB-30). On a touch device `visualViewport` gives the keyboard's edge. The match is a `<mark>` with `background: none` and a heavier `font-weight`, inside the option's one text node sequence, which assistive technology reads as one label. `input` is the native composed event (the text is `inputValue`); the combobox sets its own `value` before firing `change` (a composed, bubbling CustomEvent whose `detail` holds `value` and `inputValue`) and its own `open` before firing `toggle` (`detail` holds `open` and `reason`), a CustomEvent that is composed and does not bubble, as the platform's own `toggle` does not. The element in the repository fires a `toggle` that is neither yet, and an event that is not composed never leaves the shadow root of an element that holds the combobox. Attributes are kebab-case (`input-value`, `label-hidden`, `allow-custom-value`, `clear-label`, `status-text`, `empty-text`) except `readonly`; a boolean attribute cannot default to true, so the web names the inverse of chevron: `no-chevron`. The `leading-icon` slot is a named slot. The `inline` attribute draws an open list in place under the box, for the fixtures. Parts: `container`, `outline`, `active-indicator`, `label` and `requirement-label` (the floating label and its asterisk), `input`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`. Before the element is defined its options are running text: a page hides them with `tanrei-combobox:not(:defined) > * { display: none }` and gives the tag a block size. A `<datalist>` is not used: its list takes no token, no supporting text, no group and no status, and browsers disagree on how it filters. Words: the element has no words of its own. `empty-text` and `clear-label` left empty read the product's words, set once with `setWords()` from `@tanrei/web`; the element draws again when they change."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiCombobox",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "selection",
+        "inputValue": "text",
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "placeholder": "prompt",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "open": "isPresented",
+        "allowCustomValue": "allowCustomValue",
+        "filter": "filter",
+        "chevron": "chevron",
+        "clearable": "clearable",
+        "clearLabel": "clearLabel",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText",
+        "separation": "separation"
+      },
+      "events": {
+        "input": "text",
+        "change": "selection",
+        "toggle": "isPresented",
+        "action": "onSubmit"
+      },
+      "items": {
+        "option": {
+          "name": "TanreiComboboxOption",
+          "props": {
+            "label": "title",
+            "value": "tag",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "disabled"
+          },
+          "notes": "`TanreiComboboxOption(_ title:, supportingText:, leadingIcon:).tag(value)`; `disabled` follows `.disabled(_:)`."
+        },
+        "option-group": {
+          "name": "TanreiComboboxSection",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`TanreiComboboxSection(_ title:) { … }`, as `Section`."
+        }
+      },
+      "notes": "The bare control: it draws no label row and no message, and `TanreiComboboxField` is the Field around it. `TanreiCombobox(\"City\", selection: $city, text: $query) { TanreiComboboxOption(\"Tokyo\").tag(\"tokyo\") … }`: two bindings, as a text field with suggestions has (`TextField` with `.textInputSuggestions`, `.searchable(text:suggestions:)`, AppKit's combo box); `text` is optional and kept by the component when left out. The first argument is its name, floated in a filled or outlined look; `labelHidden` follows `.labelsHidden()`, `disabled` follows `.disabled(_:)`, `action` is `onSubmit:`. Built on `TextField`; composition is the marked text of the field, during which the component handles no key. The list is Tanrei's, presented as TanreiMenu's surface is, without taking focus. VoiceOver does not follow an active option while focus stays in the text on iOS, so the active option's label is posted as an announcement (CMB-48). The product's words are read from the `\\.tanreiWords` environment value."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiCombobox",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "inputValue": "inputValue",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "open": "expanded",
+        "allowCustomValue": "allowCustomValue",
+        "filter": "filter",
+        "chevron": "chevron",
+        "clearable": "clearable",
+        "clearLabel": "clearContentDescription",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText",
+        "separation": "separation"
+      },
+      "events": {
+        "input": "onInputValueChange",
+        "change": "onValueChange",
+        "toggle": "onExpandedChange",
+        "action": "keyboardActions"
+      },
+      "items": {
+        "option": {
+          "name": "TanreiComboboxOption",
+          "props": {
+            "label": "text",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiComboboxOption(text, value, supportingText, leadingIcon, enabled)`, called in the combobox's content lambda."
+        },
+        "option-group": {
+          "name": "TanreiComboboxGroup",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`TanreiComboboxGroup(title) { … }`."
+        }
+      },
+      "notes": "The bare control: it draws no label row and no message, and `TanreiComboboxField` is the Field around it. Compose idiom, as an exposed dropdown menu with an editable field (`ExposedDropdownMenuBox`): `TanreiCombobox(value, onValueChange, label = \"City\") { TanreiComboboxOption(\"Tokyo\", \"tokyo\") … }`; the caller keeps `value` (state hoisting), and `inputValue` / `onInputValueChange` and `expanded` / `onExpandedChange` are optional pairs the component keeps itself when left out. `enabled` is the inverse flag and `isError` keeps Compose's name. Built on `BasicTextField`; a composition is `TextFieldValue.composition`, during which no key is handled. The list is a non-focusable `Popup`, so focus stays in the field, placed as TanreiMenu places its surface and inset by `WindowInsets.ime`. Semantics: the field has `Role.DropdownList`, its expanded state and a live `stateDescription` that names the active option, because TalkBack does not follow an active descendant. The product's words are read from `LocalTanreiWords`."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiCombobox",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "inputValue": "controller",
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "placeholder": "hintText",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "open": "menuController",
+        "allowCustomValue": "allowCustomValue",
+        "filter": "filter",
+        "chevron": "chevron",
+        "clearable": "clearable",
+        "clearLabel": "clearSemanticLabel",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText",
+        "separation": "separation"
+      },
+      "events": {
+        "input": "onInputChanged",
+        "change": "onChanged",
+        "toggle": "onOpenChanged",
+        "action": "onSubmitted"
+      },
+      "items": {
+        "option": {
+          "name": "TanreiComboboxOption",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiComboboxOption<String>(value:, label:, supportingText:, leadingIcon:, enabled:)`, in the combobox's `options` list, as `DropdownMenuEntry`."
+        },
+        "option-group": {
+          "name": "TanreiComboboxGroup",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`TanreiComboboxGroup(title:, options: […])`, in the same list."
+        }
+      },
+      "notes": "The bare control: it draws no label row and no message, and `TanreiComboboxField` is the Field around it. Flutter idiom, as `Autocomplete` / `RawAutocomplete` and `DropdownMenu` with `enableFilter`: `TanreiCombobox(value:, onChanged:, labelText:, options: […])`, the text in a `TextEditingController` (an internal one when none is given), with `labelText`, `hintText` and `enabled` keeping `InputDecoration`'s names, `enabled` the inverse flag. A composition is `TextEditingValue.composing`, during which no key is handled. The list is shown in the `Overlay` with `OverlayPortal`, linked to the field with a `CompositedTransformFollower` and kept above `MediaQuery.viewInsets`; it takes no focus. The active option is announced with `SemanticsService.announce` where the platform cannot follow it. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Combobox",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "inputValue": "inputValue",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "open": "open",
+        "allowCustomValue": "allowCustomValue",
+        "filter": "filter",
+        "chevron": "chevron",
+        "clearable": "clearable",
+        "clearLabel": "clearAccessibilityLabel",
+        "status": "status",
+        "statusText": "statusText",
+        "emptyText": "emptyText",
+        "separation": "separation"
+      },
+      "events": {
+        "input": "onInputValueChange",
+        "change": "onValueChange",
+        "toggle": "onOpenChange",
+        "action": "onSubmitEditing"
+      },
+      "items": {
+        "option": {
+          "name": "ComboboxOption",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "disabled"
+          },
+          "notes": "`{ label, value, supportingText?, leadingIcon?, disabled? }`: an element of the `options` array."
+        },
+        "option-group": {
+          "name": "ComboboxOptionGroup",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`{ kind: 'group', title?, options: ComboboxOption[] }` in the same array."
+        }
+      },
+      "notes": "The bare control: it draws no label row and no message, and `ComboboxField` is the Field around it. `<Combobox label=\"City\" value={city} onValueChange={setCity} options={[…]} />`: `options` is an array of options and groups, as Select's. `inputValue` / `onInputValueChange` and `open` / `onOpenChange` are optional pairs. React Native has no control of this kind on either platform, so the box is drawn on the platform's `TextInput` and the list is Tanrei's, on the overlay layer that `TanreiProvider` renders, placed by measuring the field and the keyboard (`Keyboard` events), with `keyboardShouldPersistTaps=\"handled\"` so that a press on a row does not dismiss the keyboard first. JavaScript gets no signal that a composition is in progress, so the component never writes the text back while the field is focused and chooses on a row press or the keyboard's action key only (CMB-16). `accessibilityRole=\"combobox\"`, `accessibilityState={{ expanded, disabled }}`; the active option is announced with `AccessibilityInfo.announceForAccessibility`. Follows the app's direction where an ancestor's is not known. The product's words are read from the `TanreiWordsProvider` context."
+    }
+  }
+}

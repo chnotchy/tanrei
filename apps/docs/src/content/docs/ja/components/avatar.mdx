@@ -1,0 +1,223 @@
+---
+title: アバター
+description: 人、チーム、プロジェクトを小さな画像で表します。画像がないときはイニシャルかグリフを描きます。円か角丸の四角で、サイズは 3 つです。複数を重ねて 1 つのグループとして並べ、残りの数を示すこともできます。画像であり、操作できるコントロールではありません。
+translationOf: components/avatar.mdx
+sourceHash: 3fba4dba17faacf3912404f2c65a411b7cfa585a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="avatar" />
+
+<DemoFrame label="イニシャル、グリフ、四角、グループ">
+  <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
+  <tanrei-avatar label="画像のない人"></tanrei-avatar>
+  <tanrei-avatar label="デザインチーム" initials="デ" shape="square"></tanrei-avatar>
+  <tanrei-avatar-group label="レビュアー" max="4" overflow-label="ほか 3 人">
+    <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
+    <tanrei-avatar label="佐藤 健" initials="佐藤"></tanrei-avatar>
+    <tanrei-avatar label="鈴木 一郎" initials="鈴木"></tanrei-avatar>
+    <tanrei-avatar label="高橋 美咲" initials="高橋"></tanrei-avatar>
+    <tanrei-avatar label="田中 翼" initials="田中"></tanrei-avatar>
+    <tanrei-avatar label="伊藤 葵" initials="伊藤"></tanrei-avatar>
+  </tanrei-avatar-group>
+</DemoFrame>
+
+アバターは、それが誰のものかを示します。記事の著者、会話の参加者、タスクの担当者などです。画像を描き、画像がないときも必ず何かを描きます。ポインター、キー、フォーカスのいずれにも反応しません。
+
+Web では `<tanrei-avatar>` で、複数をまとめるものは `<tanrei-avatar-group>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 単独で置く：ラベルが名前になります。 -->
+    <tanrei-avatar label="山田 花子" initials="山田" src="/people/hanako.jpg"></tanrei-avatar>
+
+    <!-- 同じ名前のテキストの隣に置く：decorative を付け、名前が 1 度だけ読まれるようにします。 -->
+    <p>
+      <tanrei-avatar decorative size="small" initials="山田" src="/people/hanako.jpg"></tanrei-avatar>
+      山田 花子
+    </p>
+
+    <!-- 個人ではないもの：四角にし、プロダクト側のグリフを入れます。 -->
+    <tanrei-avatar label="ビルドサービス" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
+
+    <!-- メンバー 6 人、ボックスは最大 4 つ：メンバー 3 人と「+3」になります。 -->
+    <tanrei-avatar-group label="レビュアー" max="4" overflow-label="ほか 3 人">
+      <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
+      <tanrei-avatar label="佐藤 健" initials="佐藤"></tanrei-avatar>
+      <!-- … -->
+    </tanrei-avatar-group>
+
+    <!-- スクリプトが届くまで、このスタイルシートが各アバターの場所を保ちます。 -->
+    <link rel="stylesheet" href="@tanrei/web/avatar.css" />
+    <script type="module">
+      import '@tanrei/web/components/avatar';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Avatar, AvatarGroup } from '@tanrei/react';
+
+    <Avatar label={person.name} initials={person.initials} src={person.picture} />
+
+    <AvatarGroup label="レビュアー" max={4} total={reviewerCount} overflowLabel={`ほか ${reviewerCount - 3} 人`}>
+      {reviewers.slice(0, 3).map((person) => (
+        <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
+      ))}
+    </AvatarGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="3 つのサイズと 2 つの形" plain>
+  <tanrei-avatar size="small" label="山田 花子" initials="山田"></tanrei-avatar>
+  <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
+  <tanrei-avatar size="large" label="山田 花子" initials="山田"></tanrei-avatar>
+  <tanrei-avatar size="small" shape="square" label="デザインチーム" initials="デ"></tanrei-avatar>
+  <tanrei-avatar shape="square" label="デザインチーム" initials="デ"></tanrei-avatar>
+  <tanrei-avatar size="large" shape="square" label="あるプロジェクト"></tanrei-avatar>
+</DemoFrame>
+
+<ComponentSpecs name="avatar" />
+
+## ガイドライン
+
+### 使う場面
+
+名前だけよりも小さな画像のほうが、それが誰のもの、何のものかを早く伝えられる場所で使います。記事の著者名、コメント、人の一覧の行、プロフィールの先頭などです。アバターは画像であり、それ以上のものではありません。ホバーも、フォーカスも、押下も、イベントもありません。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| 人に付けるドットや数（「未読 3 件」） | アバターを囲む[バッジ](/ja/components/badge/)。 |
+| プロフィールへ移動するアバター | アバターを入れた[リンク](/ja/components/link/)。 |
+| メニューを開くアバター | アバターを入れた[ボタン](/ja/components/button/)。 |
+| 選んだり取り除いたりできる人 | [チップ](/ja/components/chip/)。 |
+| 在席の状態（オンライン、離席中） | 名前の隣の言葉。印が必要な場所では[タグ](/ja/components/tag/)を添えます。 |
+
+### 描くもの
+
+アバターは、次のうち最初にあるものを描きます。
+
+1. `src` の画像。読み込みが終わってから描きます。
+2. 指定した `initials`。
+3. `icon` スロットのグリフ。
+4. システムのグリフ。円なら人、四角なら中立的な印です。
+
+ボックスは最初の描画から同じ大きさです。画像を読み込んでいる間は、その場所に代わりのものを描き、画像が届くと入れ替えます。アバターの周りは何も動きません。読み込めなかった画像の場所には、代わりのものが残ります。壊れた画像の印は表示せず、画像を再び要求することもありません。
+
+### イニシャル
+
+アバターは、名前からイニシャルを作りません。どの文字が名前を表すかは、文字体系や、姓と名のどちらが先に来るかによって変わります。それを知っているのはプロダクトです。`initials` で指定します。
+
+| 名前 | `initials` |
+| --- | --- |
+| Ada Lovelace | `AL` |
+| 山田 花子 | `山` または `山田` |
+| 王小明 | `王` |
+| ليلى حسن | `لح` |
+| किरण राव | `किरा` |
+
+描くのは 2 文字までです。文字は読む人が数えるとおりに数えるので、記号の付いた文字や結合した音節が途中で切れることはありません。文字は書かれたとおりに描き、大文字と小文字を変えません。
+
+<DemoFrame label="さまざまな文字体系のイニシャル" plain>
+  <tanrei-avatar label="Ada Lovelace" initials="AL" lang="en"></tanrei-avatar>
+  <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
+  <tanrei-avatar label="王小明" initials="王" lang="zh-Hans"></tanrei-avatar>
+  <tanrei-avatar label="ليلى حسن" initials="لح" lang="ar"></tanrei-avatar>
+  <tanrei-avatar label="किरण राव" initials="किरा" lang="hi"></tanrei-avatar>
+</DemoFrame>
+
+### サイズと形
+
+| `size` | 辺の長さ | 用途 |
+| --- | --- | --- |
+| `small` | 24 | 1 行のテキストの隣。記事の著者名、表のセル、メンションなど。 |
+| `medium`（既定） | 40 | リストの行、コメント。 |
+| `large` | 56 | その人自身のページやカードの先頭。 |
+
+| `shape` | 用途 |
+| --- | --- |
+| `circle`（既定） | 人。 |
+| `square` | 個人ではないもの。チーム、プロジェクト、組織、ボットなど。 |
+
+画像の代わりに描くものは、どれも同じ控えめな塗りです。人ごとの色はありません。意味を持たない色は、このシステムにはありません。
+
+### 画像
+
+- 正方形で、アバターの辺の 2 倍以上の大きさの画像を指定します。画素密度の高い画面でも鮮明に表示されます。縦横比の異なる画像は、中央を中心に切り抜かれます。
+- `loading="lazy"` を付けると、アバターがウィンドウに近づくまで画像を要求しません。長い一覧で使います。
+- `referrerpolicy` と `crossorigin` は、書かれたとおりに画像へ渡します。アバターはどちらも選びません。画像のホストにページの何を伝えるかは、利用者側で決めます。
+
+### グループ
+
+グループは、メンバーを 1 行に並べます。それぞれが前のアバターに辺の 4 分の 1 だけ重なり、周りにはサーフェスの色の隙間が入ります。
+
+<DemoFrame label="渡されていないメンバーも数えるグループ" plain>
+  <tanrei-avatar-group label="メンバー" max="4" total="240" overflow-label="ほか 237 人">
+    <tanrei-avatar label="山田 花子" initials="山田"></tanrei-avatar>
+    <tanrei-avatar label="佐藤 健"></tanrei-avatar>
+    <tanrei-avatar label="鈴木 一郎" initials="鈴木"></tanrei-avatar>
+  </tanrei-avatar-group>
+</DemoFrame>
+
+- `max` は、グループが描くボックスの最大数です。残りの数を示すボックスも含みます。メンバーが 6 人で `max="4"` なら、メンバー 3 人と「+3」になります。「+1」を描くことはありません。1 人を隠すためにボックスを 1 つ使うことになるからです。
+- `total` は、実際の人数です。グループに渡すメンバーが実際より少ないときに指定します。メンバー 3 人、`max="4"`、`total="240"` なら、メンバー 3 人と「+237」になります。
+- グループの `size` と `shape` が、すべてのメンバーに適用されます。
+- ページとは別のサーフェスの上に置くときは、`--tanrei-comp-avatar-group-outline-color` にそのサーフェスの色を指定します。
+- 残りの数を示すボックスはテキストであり、コントロールではありません。ほかに誰がいるかを見せる必要がある場所では、グループの隣にリンクかボタンを置きます。
+
+### スクリプトが届く前
+
+`<tanrei-avatar>` はシャドウルートの中に描くので、サーバーで描画したページでは、スクリプトが実行されるまでその場所に何も表示されません。`@tanrei/web/avatar.css` を読み込むと、各アバターがサイズと形に合ったボックスを保ち、ページが動きません。画像、イニシャル、名前は、それまで表示されません。スクリプトなしで読める必要があるページでは、装飾のアバターの隣に名前をテキストで書きます。
+
+`max` を指定したグループは、スクリプトが数えるまで、渡されたメンバーをすべて表示します。それでページが動いては困る場合は、描くメンバーだけをグループに渡し、残りは `total` で伝えます。
+
+### 推奨
+
+- 単独で置くアバターには、必ず `label` を指定します。省略しない名前です。
+- 同じ名前のテキストの隣に置くアバターには、`decorative` を付けます。
+- どの人にも `initials` を指定します。画像がないときや遅いときにも、誰であるかが分かります。
+- プロダクト全体で、1 種類のものには 1 つの形を使います。
+
+### 非推奨
+
+- アバターにハンドラーを付けない。リンクかボタンの中に入れます。状態とフォーカスインジケーターを持つのはそちらです。
+- ラベルに「〜の写真」と書かない。ラベルは名前です。
+- 状態を示すために、プロダクト側で色、リング、ドットを足さない。数はバッジで、在席の状態は言葉で伝えます。
+- 飾りの画像や見出しのロゴにアバターを使わない。アバターは、人、または人がその名前で行動するものを表します。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="avatar" />
+
+### コンポーネントが担うこと
+
+- 単独では、`label` を名前とする 1 つの画像です。画像、イニシャル、グリフのどれを描いていても変わりません。イニシャル、グリフの名前、画像のアドレスは読まれません。
+- `decorative` を付けると、支援技術からは隠されます。
+- リンクやボタンの中では、ラベルがその要素の名前になり、アバターの上での押下はその要素に届きます。
+- アバターを囲むバッジは、アバターの名前の後に自分のラベルを加えます。
+- グループは、`label` を名前とする 1 つのグループです。描いているメンバーごとに名前の付いた画像を、渡された順に持ち、最後に残りの数のテキストが続きます。描いていないメンバーは、支援技術に伝わりません。
+- 入力もフォーカスも受けないので、フォーカスが止まる位置を増やしません。
+- 文字を拡大しても、アイコンと同じように、ボックスの大きさを保ちます。
+- 強制カラーモードでは、画像の代わりに描くものすべてに文字色の縁が付きます。画像は自身の色のままです。
+- 右から左のレイアウトでは、グループは右から始まります。画像とイニシャルは左右反転せず、「+3」のプラス記号は数字の前のままです。
+- 名前のないアバター、2 文字を超えるイニシャル、読み込めなかった画像、未知のサイズや形は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- アバターごとに、名前を持たせるか装飾にするかを決めます。決め方はこうです。アバターを消すと名前が失われるなら、名前が必要です。そうでなければ装飾です。
+- `overflowLabel` は、数を含めてページの言語で書きます（「ほか 3 人」）。指定しないと、描かれている「+3」がそのまま読まれます。
+- リンクの中の小さなアバターには、押すのに十分な広さを確保します。アバターの幅は 24 です。最小ターゲットを満たすのはリンクの役目です。
+- 画像は自身の色を持っています。縁の淡い画像が多い場所では、その背後のサーフェスにトーンを付けます。

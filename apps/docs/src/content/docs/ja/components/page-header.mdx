@@ -1,0 +1,201 @@
+---
+title: ページヘッダー
+description: ページのコンテンツの先頭に置くヘッダーです。ページのタイトルを見出しとして示し、何のページかを伝える文、ページについての短い情報を並べた行、ページ全体に対するアクションを添え、その上に、上の階層へ戻る経路を置きます。
+translationOf: components/page-header.mdx
+sourceHash: a12c67657bb297bfa5b88a1a2b72e252c99db227
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="page-header" />
+
+<DemoFrame label="すべてのパーツがあるページのヘッダー" plain column>
+  <tanrei-page-header class="not-content" divider style="inline-size: 100%" lang="ja">
+    <div data-part="breadcrumbs"><a class="tanrei-link" data-standalone href="#概要">ガイド</a></div>
+    <p data-part="eyebrow">デザインシステム</p>
+    <h3>デザインシステムをレイヤとして追加する</h3>
+    <p>レイヤは値を変え、語彙を拡張することもあります。コンポーネントをフォークすることはありません。</p>
+    <div data-part="meta">
+      <time datetime="2026-10-07">2026年10月7日</time>
+      <span>Tanrei チーム</span>
+      <span>8 分で読めます</span>
+    </div>
+    <div data-part="actions">
+      <tanrei-button variant="outlined">編集</tanrei-button>
+      <tanrei-button variant="filled">共有</tanrei-button>
+    </div>
+  </tanrei-page-header>
+</DemoFrame>
+
+ページヘッダーは、ページのコンテンツの先頭に置きます。ページのタイトル、何のページかを伝える 1、2 文、短い情報を並べた行、ページ全体に対するアクションを持ち、その上に、上の階層へ戻る経路を置けます。タイトル以外のパーツは、すべて省略できます。
+
+ページヘッダーは、アプリバーではありません。アプリバーはウィンドウのバーで、上端にとどまり、プロダクトの名前とアイコンだけのボタンを置きます。ページヘッダーはコンテンツの中にあり、コンテンツと一緒にスクロールして見えなくなり、ラベルのあるボタンを置きます。
+
+Web では、ページ自身の要素を `<tanrei-page-header>` で囲みます。この要素はシャドウルートを持ちません。タイトルは、利用者側で書いた `h1` そのものです。クローラーにも、リーダーモードでも、スクリプトのないページでも見つけられ、スクリプトが届いてもレイアウトは動きません。ほかのプラットフォームはまだ実装していません。
+
+（このページの例では、レベル 3 の見出しを使っています。このページには、すでにページ自身のタイトルがあるためです。）
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/page-header.css" />
+
+    <tanrei-page-header>
+      <p data-part="eyebrow">お知らせ</p>
+      <h1>トークンは導出され、デザインシステムはレイヤになる</h1>
+      <p>1 つの値を 1 か所で変えれば、その上に作られたものすべてがそれに従います。</p>
+      <div data-part="meta">
+        <time datetime="2026-09-20">2026年9月20日</time>
+        <span>Tanrei チーム</span>
+        <span>4 分で読めます</span>
+      </div>
+      <div data-part="actions">
+        <tanrei-button variant="outlined">編集</tanrei-button>
+        <tanrei-button>共有</tanrei-button>
+      </div>
+    </tanrei-page-header>
+
+    <script type="module">
+      import '@tanrei/web/components/page-header';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, PageHeader } from '@tanrei/react';
+    import '@tanrei/web/page-header.css';
+
+    <PageHeader divider>
+      <h1>{project.name}</h1>
+      <p>{project.summary}</p>
+      <div data-part="actions">
+        <Button onClick={invite}>招待</Button>
+      </div>
+    </PageHeader>
+    ```
+  </TabItem>
+</Tabs>
+
+### 書くもの
+
+パーツは、読む順に書きます。その順序が、どの幅でもフォーカスの順序になります。
+
+| パーツ | Web での書き方 |
+| --- | --- |
+| パンくずリスト | `<tanrei-breadcrumbs>`。または、戻るためのリンク 1 つか、利用者側で作った経路を囲む `<div data-part="breadcrumbs">`。 |
+| アイブロウ | `<p data-part="eyebrow">`。ふつうの表記で書きます。大文字にするのは、描くときです。 |
+| タイトル | 見出し。ページなら `h1`、ページの一部なら `h2`、そのほかアウトラインに必要なレベルにします。 |
+| 説明 | `data-part` を持たない最初の `<p>`。 |
+| メタ | `<div data-part="meta">`。子の要素の 1 つひとつが項目になります。`<time>`、`<span>`、リンク、タグなどです。 |
+| アクション | 利用者側のボタンやリンクを囲む `<div data-part="actions">`。 |
+
+### スクリプトで組み立てるヘッダー
+
+`headline`、`description`、`eyebrow` を指定すると、子の中にそのパーツの要素がないときに、要素が代わりに書き出します。`level` は見出しのレベルです。0（既定）にすると、サイズから決まります。
+
+```html
+<tanrei-page-header headline="メンバー" description="このプロジェクトを開ける人。"></tanrei-page-header>
+```
+
+この形が描かれるのは、スクリプトが動いた後です。コンテンツのページでは、要素を自分で書いてください。
+
+## 仕様
+
+<DemoFrame label="3 つのサイズ" plain column>
+  <div class="not-content" style="display: grid; gap: 1.5rem; inline-size: 100%" lang="ja">
+    <tanrei-page-header size="small"><h4>メンバー</h4><p>このプロジェクトを開ける人。</p></tanrei-page-header>
+    <tanrei-page-header><h3>タイポグラフィ</h3><p>テキストスタイルの名前は、サイズではなくレベルで付けます。</p></tanrei-page-header>
+    <tanrei-page-header size="large"><h3>1 つのシステム。5 つのプラットフォーム。</h3><p>同じトークン、同じコンポーネント、同じアクセシビリティの契約を、それぞれの流儀で。</p></tanrei-page-header>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="page-header" />
+
+## ガイドライン
+
+### 3 つのサイズ
+
+| `size` | タイトル | 説明 | 用途 | 見出しのレベル |
+| --- | --- | --- | --- | --- |
+| `small` | 24 | 14 | ページの一部：設定のセクションや、いくつかあるレコードの 1 つ。 | 2 |
+| `medium`（既定） | 32 | 16 | ページ。 | 1 |
+| `large` | 48 | 16 | ランディングページのメッセージ。 | 1 |
+
+`large` のヘッダーを狭い場所に置くと、タイトルは `medium` の大きさで描かれます。変わるのはこの 1 段階だけで、幅に合わせて大きさが連続して変わるわけではありません。
+
+### タイトル
+
+- タイトルは、ページの見出しです。テキストとして 1 度だけ表示し、途中で切ることも、行数を制限することも、収めるために縮めることもありません。タイトルが長いと高さは増えますが、言葉が失われることはありません。
+- ページのレベル 1 の見出しは 1 つで、それがこのタイトルです。ページの中の各部分には、`small` のヘッダーか、コンテンツの中の見出しを使います。
+- 同じタイトルを、アプリバーとページヘッダーの両方に表示しないでください。ウィンドウクラスごとに、どちらか一方を選びます。
+
+### アイブロウとパンくずリスト
+
+- パンくずリストは、階層を上へたどるためのものです。ヘッダーの幅いっぱいを使って、最初に置かれます。
+- アイブロウは、カテゴリー、プロダクト、バージョンなど、ページが何に属するかを伝えます。テキストであって、リンクでも見出しでもありません。
+- 1 つのヘッダーに、両方を置けます。
+
+### メタの行
+
+- 項目は、名前を付けなくても分かる短い情報です。日付、著者、読むのにかかる時間、状態などです。
+- ページヘッダーは、同じ行に並んだ 2 つの項目の間に、小さな点を描きます。区切りを自分で書かないでください。
+- 1 つの項目が、行をまたいで分かれることはありません。行がいっぱいになると、次の項目から折り返します。
+- 著者は 1 つの項目で、装飾の小さなアバターと名前から成ります。
+- 複数のタグは、ひとまとめにして 1 つの項目にします。こうすると、タグとタグの間に点は描かれません。
+- 名前の付いた情報（「カテゴリー：アクション」など）は、メタの項目ではありません。ヘッダーの下に置く[説明リスト](/ja/components/description-list/)にします。
+
+### アクション
+
+| `actionsPlacement` | ヘッダーの幅が 480 以上のとき | それより狭いとき |
+| --- | --- | --- |
+| `end`（既定） | タイトルの横で、末尾側の端。タイトルの 1 行目に対して上下の中央にそろえます。 | テキストの下で、先頭側の端。 |
+| `below` | テキストの下。 | テキストの下。 |
+
+- これを決めるのは、ウィンドウの幅ではなく、ヘッダー自身の幅です。ペインの中のヘッダーは、そのペインに合わせてレイアウトされます。
+- アクションは、どこに描かれても、読む順序とフォーカスの順序では最後です。
+- アクションは 1 つから 3 つまでにし、主なアクションを Filled にします。
+
+### 下の線
+
+`divider` を付けると、ヘッダーの下に細い線を 1 本描きます。テーブル、レコードのリスト、タブのように、テキストではないコンテンツの上で使います。記事の上では要りません。
+
+### 推奨
+
+- 説明は 1、2 文で書きます。それより長い文章は、コンテンツの側に置きます。
+- 日付には、機械が読み取れる `datetime` を付けた `<time>` 要素を使います。
+- 別の言語のテキストには `lang` を付けます。中国語、日本語、韓国語と、文字をつなげて書いたり文字に記号を重ねたりする文字体系（アラビア文字、デーヴァナーガリー文字）では、タイトルとアイブロウは字間 0 で描かれます。こうした文字では、字間を広げても詰めても語が崩れるからです。
+
+### 非推奨
+
+- ページヘッダーをウィンドウのバーとして使わない。それは[アプリバー](/ja/components/app-bar/)です。
+- アイブロウを大文字で書かない。スクリーンリーダーによっては、大文字を 1 文字ずつ読み上げます。
+- 状態を色だけで伝えない。ラベルで状態が分かるタグを使います。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="page-header" />
+
+### コンポーネントが担うこと
+
+- タイトルは、利用者側で書いた見出しのままで、レベルも変わりません。見出しの名前は、タイトルのテキストだけです。
+- アイブロウは見出しの前に、説明は見出しの後に読み上げられます。どちらも見出しの一部にはなりません。
+- メタの項目の間の点は、読み上げられず、コピーもされません。
+- ページヘッダーは、ランドマークを増やさず、フォーカスが止まる位置にもなりません。
+- 読む順序とフォーカスの順序は、どの幅でも同じです。
+- 幅 320 の場所でテキストを 200% にしても、すべての言葉、項目、アクションが表示され、横にスクロールするものはありません。
+- 強制カラーモードでは、テキスト、点、線を、システムのテキストの色で描きます。
+- 右から左のレイアウトでは、すべてのパーツが右から始まり、テキストの横のアクションは左に置かれます。左から右に書かれたタイトルは、その中の順序を保ちます。
+
+### 利用者側で行うこと
+
+- ページごとに、レベル 1 の見出しを 1 つ置きます。
+- 文書のタイトルは、ページのタイトルと同じにするか、ページのタイトルで始めます。
+- アクションに名前を付け、ヘッダーに置いた画像には代替テキストを付けます。

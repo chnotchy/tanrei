@@ -1,0 +1,227 @@
+---
+title: アコーディオン
+description: 行を押すと、その場でコンテンツを表示したり隠したりします。項目が 1 つなら単独のディスクロージャーで、複数なら、それぞれが独立して開くか、一度に 1 つだけ開くセットです。
+translationOf: components/accordion.mdx
+sourceHash: 010922231eaa1d94bf0862076fd838ff5349dd3f
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="accordion" />
+
+<DemoFrame label="ヘルプページの質問：Outlined で、項目が 1 つ開いた状態" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
+    <details open>
+      <summary>デザイントークンとは何ですか？</summary>
+      名前を付けたデザイン上の決定です。色、サイズ、時間などがあります。コンポーネントはトークンを読み、値を直接書くことはありません。
+    </details>
+    <details>
+      <summary>どのプラットフォームに対応していますか？</summary>
+      Web Components、SwiftUI、Jetpack Compose、Flutter、React Native です。どれも同じ 1 組のトークンと仕様から作られます。
+    </details>
+    <details>
+      <summary>見た目を変えるにはどうすればよいですか？</summary>
+      レイヤを使います。ダイヤルと、プロダクトに必要な場合は個別のトークンを設定するファイルです。
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+アコーディオンは、ページの一部を行の下に折りたたみ、その行で表示したり隠したりします。ヘルプページの回答、設定画面のセクション、フォームの詳細設定などです。項目が 1 つだけならディスクロージャーで、これも同じコンポーネントです。ナビゲーションドロワーの中で開く行き先のグループは、ドロワー自身のグループです。1 つの場所のビューを切り替えるものは、タブです。
+
+Web では、プロダクト側のネイティブの `<details>` 要素を `<tanrei-accordion>` で囲みます。この要素はシャドウルートを持ちません。そのため各項目は、スクリプトが動く前から開閉でき、フォーカスを受け取り、展開状態を伝え、閉じているコンテンツをページの中に保ちます。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/accordion.css" />
+
+    <tanrei-accordion variant="outlined">
+      <details open>
+        <summary>
+          <span class="tanrei-icon" aria-hidden="true">palette</span>
+          色
+          <span data-supporting-text>ロール、パレット、6 つのスキーム</span>
+          <span data-trailing-text>48 ロール</span>
+        </summary>
+        <p>コンポーネントが読む色は、すべてロールです。</p>
+      </details>
+      <details>
+        <summary>書体</summary>
+        <p>スタックは、テキスト用に 1 つ、コード用に 1 つです。</p>
+      </details>
+    </tanrei-accordion>
+
+    <script type="module">
+      import '@tanrei/web/components/accordion';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Accordion } from '@tanrei/react';
+    import '@tanrei/web/icons.css';
+    import '@tanrei/web/accordion.css';
+
+    <Accordion density="compact" exclusive>
+      {sections.map((section) => (
+        <details key={section.id} onToggle={(event) => track(section.id, event.currentTarget.open)}>
+          <summary>
+            {section.name}
+            <span data-trailing-text>{section.count}</span>
+          </summary>
+          {section.content}
+        </details>
+      ))}
+    </Accordion>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/accordion.css` は、スクリプトが動く前に、見た目のすべてとすべての状態を描きます。要素自身も同じスタイルシートをページに加えるので、スクリプトだけを読み込んだページでも、少し遅れてアコーディオンが描かれます。シェブロンと項目のアイコンはアイコンセットのグリフなので、`@tanrei/web/icons.css` とアイコンフォントが必要です。
+
+### 書くもの
+
+| パーツ | Web での書き方 |
+| --- | --- |
+| 項目 | `<details>`。`open` は、この要素自身の属性でありプロパティです。 |
+| ヘッダー | 項目の最初に置く `<summary>`。全体が 1 つのボタンです。 |
+| ラベル | `<summary>` のテキスト。 |
+| 見出しにするラベル、インラインのコンテンツを含むラベル | テキストの代わりに置く 1 つの要素。`<summary><h3>請求</h3></summary>` や `<summary><span><code>tokens.css</code> を使う</span></summary>` のように書きます。 |
+| 補足テキスト | `<summary>` の中の、`data-supporting-text` を付けた要素。 |
+| 末尾のテキスト | `<summary>` の中の、`data-trailing-text` を付けた要素。 |
+| アイコン | `<summary>` の最初に置く `<span class="tanrei-icon" aria-hidden="true">`。中にグリフの名前を書きます。 |
+| コンテンツ | `<summary>` より後ろのすべて。テキスト、利用者側のブロック、任意のコンポーネント、別のアコーディオンを置けます。 |
+| 無効な項目 | `<summary aria-disabled="true" tabindex="-1">`。 |
+| 項目のイベント | 項目自身の `toggle`。バブリングはしません。`event.newState` は `"open"` か `"closed"` です。 |
+
+ブラウザーは、`open` が変わるたびに `toggle` を送ります。利用者側のコードが変えたときも、解析したばかりの `<details open>` をブラウザーが開いたときも同じです。`open` を自分で設定するコードは、設定した状態と照らし合わせて、自分の変更かどうかを見分けます。
+
+### Markdown
+
+Markdown レンダラーは、`<details>` を HTML としてそのまま通します。ソースの中で 1 つまたは複数の `<details>` を `<tanrei-accordion>` で囲むか、[テーブルのページ](../table/#markdown)がテーブルについて示しているように、ビルド時に囲みます。
+
+## 仕様
+
+<DemoFrame label="compact で、2 行目と末尾の値がある場合：パネルの中の折りたたみ" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
+    <details open>
+      <summary>テキスト<span data-supporting-text>本文、ラベル、見出し</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
+      フォントスタックを、優先する順に並べたものです。
+    </details>
+    <details>
+      <summary>コード<span data-supporting-text>コードブロックとインラインコード</span><span data-trailing-text>Roboto Mono</span></summary>
+      フォントスタックを、優先する順に並べたものです。
+    </details>
+    <details>
+      <summary>継承したルール<span data-trailing-text>12</span></summary>
+      12 個のルールを、これより下のレイヤから継承しています。
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+<DemoFrame label="一度に開くのは 1 つだけで、項目ごとに縁がある場合" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
+    <details open>
+      <summary><span class="tanrei-icon" aria-hidden="true">palette</span>色</summary>
+      ロール、パレット、6 つのスキーム。
+    </details>
+    <details>
+      <summary><span class="tanrei-icon" aria-hidden="true">notifications</span>通知</summary>
+      メール、プッシュ通知、週に 1 回のまとめ。
+    </details>
+    <details>
+      <summary aria-disabled="true" tabindex="-1"><span class="tanrei-icon" aria-hidden="true">person</span>アカウント</summary>
+      名前、住所、パスワード。
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+<ComponentSpecs name="accordion" />
+
+## ガイドライン
+
+### アコーディオンにするかどうか
+
+閉じているコンテンツは、読むのに 1 回押す手間がかかり、ひと目では見えません。一部の人にしか必要のないものを折りたたみ、ほとんどの人が目当てにしているものは開いたままにします。フォームの必須のフィールドやエラーを、閉じた項目の中に隠さないでください。
+
+### 2 つの見た目
+
+| `variant` | 描き方 | 用途 |
+| --- | --- | --- |
+| `plain`（既定） | サーフェスの上に行を並べ、周りには何も描きません。 | ページやパネルの流れの中に置くコンテンツ。 |
+| `outlined` | 角を丸めた細い線で囲みます。 | ほかのブロックと並べて、ひとまとまりに見せたいセット。 |
+
+どちらの見た目も、操作していないときは何も塗りません。項目が開いている間も、ヘッダーの色は変わりません。開いていることを示すのは、シェブロンだけです。
+
+### 密度
+
+| `density` | 1 行のヘッダーの高さ | ラベル | 用途 |
+| --- | --- | --- | --- |
+| `regular`（既定） | 56 | 文字サイズ 16 / 行の高さ 24、太さは medium | 利用者が読むページ：質問や、長いフォームのセクション。 |
+| `compact` | 48 | 14 / 20、太さは medium | コントロールの間に置くパネル：設定、インスペクター、カード。 |
+
+ヘッダーはテキストに合わせて高くなります。compact のヘッダーは、ナビゲーションドロワーの行と同じ高さ、同じテキストスタイル、同じシェブロンです。
+
+### 項目の区切り方
+
+| `separation` | `plain` | `outlined` |
+| --- | --- | --- |
+| `auto`（既定） | デザインシステムが選んだもの。既定のシステムでは細い線です。 | 同じです。 |
+| `divider` | 項目の間に細い線を引きます。最初の項目の上と最後の項目の下には引きません。 | セット全体を 1 つの縁で囲み、項目の間に細い線を引きます。 |
+| `gap` | 余白だけで、線は引きません。 | 項目ごとに縁で囲みます。 |
+
+### 一度に 1 つだけ開く
+
+`exclusive` を付けると、ある項目が開いたときに、それまで開いていた項目が閉じます。1 つの選択を進めていく手順のように、互いに両立しない項目に使います。ページを短くするために使うものではありません。2 つの回答を並べて読みたい人が、そうできなくなります。上の項目が閉じる間も、押されたヘッダーは画面の同じ位置にとどまります。
+
+Web では、`exclusive` は `<details>` の `name` 属性にあたり、要素がそれぞれの項目に書き込みます。スクリプトがなくても一度に 1 つだけ開くようにしたいマークアップでは、それぞれの項目に同じ `name` を自分で書きます。
+
+### 推奨
+
+- ラベルはプレーンテキストで書きます。ページのアウトラインのためにその行を見出しにする必要があるときは、適切なレベルの見出しをラベルにします。
+- 補足テキストで、項目の中に何があるかを伝えます。開かなくても、開くかどうかを決められます。
+- 末尾のテキストは、件数や現在の値に使います。1 行に収め、収まらないときはラベルより先に切り詰められます。
+- 項目に属するアクションは、その項目のコンテンツの中に置きます。
+
+### 非推奨
+
+- ヘッダーにリンク、ボタン、スイッチを置かない。ヘッダーは全体が 1 つのボタンです。
+- どの項目が開いているかを、色や太さで示さない。
+- アコーディオンを 3 階層より深く入れ子にしない。
+- 中のフィールドが invalid の状態だからといって、読み手に何も伝えずに項目を開かない。フォームが受け付けられなかったときは、最初のエラーがある項目を開いてから、そのフィールドにフォーカスを移します。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="accordion" />
+
+### コンポーネントが担うこと
+
+- それぞれのヘッダーは、`<details>` 要素の `<summary>` です。展開状態を持つ 1 つのボタンで、フォーカスの順序の中に自分の止まる位置を持ちます。Enter と Space で開閉します。レイアウトの方向に合わせて、行の終わりを向いた矢印キーは閉じている項目を開き、行の始まりを向いた矢印キーは開いている項目を閉じます。上下の矢印キー、Home、End の働きはページのままです。
+- ヘッダーの名前はラベルです。要素は、補足テキスト、末尾のテキストの順に、ヘッダーの説明にします。スクリプトがなければ、3 つともこの順で名前として読み上げられます。
+- アイコンとシェブロンは、支援技術から隠されます。
+- コンテンツはリージョンではなく、開閉のときに何も読み上げません。支援技術に伝わるのは、ボタンの状態が変わったことだけです。
+- 閉じているコンテンツは、描かれず、フォーカスもできず、支援技術にも伝わりませんが、文書の中には残ります。その中のフィールドは値を保ち、フォームと一緒に送信されます。
+- 閉じている項目の中の場所へのリンクをたどると、その項目が開きます。ブラウザーがページ内検索のために `<details>` 要素を開く場合は、ページ内検索でも同じように開きます。
+- 項目が開いても、フォーカスは動きません。フォーカスが中にある項目が閉じたときは、フォーカスはその項目のヘッダーに移ります。
+- フォーカスリングはヘッダーの行の内側に描くので、何にも切り取られません。
+- 高さは、ディスクロージャーのモーションで変わります。動きを減らす設定では、瞬時に切り替わります。
+- どちらの密度でも、高さはタッチターゲット以上です。
+- テキストを 200% にすると、ラベルは折り返し、ヘッダーは高くなり、シェブロンは 1 行目にとどまります。
+- 強制カラーモードでは、縁と線はテキストの色に、無効なヘッダーは無効なテキストの色になります。
+- 名前のないヘッダー、ラベルの中のコントロール、コンテンツのない項目、未知の値、3 階層を超える入れ子は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- ラベルを見出しにするかどうかを決めます。ほとんどのラベルは、パネルの中の折りたたみに付けた名前なので、テキストのままにします。利用者が見出しを頼りにたどるヘルプページの質問は、見出しにします。
+- ラベルにした見出しは、ボタンの中にあります。そのため支援技術によっては、ボタンの名前だけを読み上げ、見出しの一覧には出しません。アウトラインをそれに左右されたくないときは、代わりに、項目が 1 つだけのアコーディオンの前に見出しを置きます。
+- 無効な項目には、`aria-disabled="true"` と `tabindex="-1"` の両方を付けます。`tabindex` がなければ要素が補いますが、それはスクリプトが動いた後です。
+- ラベル、補足テキスト、末尾のテキストが、ページとは逆の方向の文字で書かれることがある場合は、ラベルを `<span>` で囲みます。そうすると、要素で囲んだそれぞれのテキストが自身の方向を保ちます。要素で囲んでいないラベルは、ページの方向で配置されます。

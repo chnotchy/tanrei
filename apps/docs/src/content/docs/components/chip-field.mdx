@@ -1,0 +1,232 @@
+---
+title: Chip field
+description: Collects a list of short texts — e-mail addresses, telephone numbers, keywords — typed one after another in one field. Each text your check accepts becomes a chip that can be removed, or put back into the typing part to be changed, and the list is the field's one value.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="chip-field" />
+
+<DemoFrame label="A chip field with two addresses, and one whose third address was refused" column>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" separators='[",",";"," "]' remove-label="Remove {entry}" added-text="{entry} added" removed-text="{entry} removed" supporting-text="Separate addresses with a comma." value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" separators='[",",";"," "]' remove-label="Remove {entry}" added-text="{entry} added" removed-text="{entry} removed" supporting-text="Separate addresses with a comma." error error-text="Enter a full address, such as name@example.com." value='["ada@example.com","grace.hopper@example.org"]' input-value="alan@"></tanrei-chip-field>
+</DemoFrame>
+
+Use a chip field where a person enters several short texts of one kind: the recipients of a message, the people a document is shared with, the numbers an alert is sent to, the keywords of an article. Each text is checked by itself, so one mistyped address among twelve does not cost the others, and each entry can be removed or changed alone.
+
+**Built from** a [field](/components/field/), a [text input](/components/text-input/) and [chips](/components/chip/). The field is the frame: the label, the required or optional mark, the help and the error. The text input is the box and the place where the next entry is typed. Each entry is a small input chip that stands in the box, before the typed text. The chip field draws nothing of its own and has no token, so it looks like the text fields beside it in every design system.
+
+It is as wide as the place it is put in. The entries and the typed text stand in lines that wrap, and the box grows by whole lines. Every entry is shown: none is hidden, folded into a count such as "+3", or scrolled out of sight.
+
+On the web it is `<tanrei-chip-field>`. The other platforms have not implemented it yet.
+
+### Usage
+
+`value` is the list of entries, an array of texts. `inputValue` is the text that is typed and is not an entry yet.
+
+An entry is made of the typed text:
+
+- by Enter;
+- by a separator you list in `separators`. There is none by default, because a comma ends an e-mail address and is part of "Lovelace, Ada";
+- when focus leaves the field;
+- from pasted text that holds a separator or a line break: each piece is offered in order.
+
+Tanrei does not know what an e-mail address or a telephone number is. `type` chooses the keyboard and checks nothing. Each candidate is offered to you with `check`: refuse it, and it stays in the box as typed text while the field shows its error. The same text twice and a text beyond `maxEntries` are refused without asking you.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-chip-field name="to" label="Recipients" type="email"
+        supporting-text="Separate addresses with a comma."
+        invalid-text="Enter a full address, such as name@example.com."
+        duplicate-text="That one is already in the list."
+        remove-label="Remove {entry}"
+        added-text="{entry} added" added-count-text="{count} added" removed-text="{entry} removed"></tanrei-chip-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/chip-field';
+
+      const to = document.querySelector('tanrei-chip-field');
+      to.separators = [',', ';', ' '];
+      // Your check for one entry, in one line. Answer before the event returns.
+      to.addEventListener('check', (e) => {
+        if (!/^\S+@\S+\.\S+$/.test(e.detail.text)) e.preventDefault();
+      });
+      // The list changed by the person. `value` is already the new list.
+      to.addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ChipField } from '@tanrei/react';
+
+    <ChipField name="to" label="Recipients" type="email" separators={[',', ';', ' ']}
+      supportingText="Separate addresses with a comma."
+      invalidText="Enter a full address, such as name@example.com."
+      removeLabel="Remove {entry}" addedText="{entry} added" removedText="{entry} removed"
+      value={recipients}
+      onCheck={(event) => { if (!isAddress(event.detail.text)) event.preventDefault(); }}
+      onChange={(event) => setRecipients(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+To give the reason in your own words for one refusal, set `event.detail.reason` in the `check` listener. Otherwise the field shows `invalidText`, `duplicateText` or `limitText` by the reason, and `errorText` where that is empty. `reject` tells you each refused text, the reason and the words shown.
+
+An entry you find wrong later — an address a server reports as unknown — is yours to report: set `error` and `errorText`, and name the entry in the words. The person removes it, or puts its text back into the typing part to change it.
+
+### Changing an entry
+
+| To | Do |
+| --- | --- |
+| Reach the entries from the typing part | Backspace, or the arrow that points to the line's start, at the start of the text |
+| Move among the entries | Left and Right Arrow, Home and End |
+| Remove an entry | Backspace or Delete on it, or its remove action |
+| Change an entry | Enter or Space on it, or a press on the chip: its text goes back into the typing part |
+| Return to the typing part | Escape, Tab, or typing a character |
+
+The first Backspace only reaches the last entry. A second press removes it, and a held key is answered once, so erasing typed text never runs on into the list.
+
+### One level down
+
+The same field, written by hand from its members, is the same picture:
+
+```html
+<tanrei-field label="Recipients" supporting-text="Separate addresses with a comma.">
+  <tanrei-text-input type="email">
+    <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com"
+      remove-label="Remove ada@example.com"></tanrei-chip>
+    <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org"
+      remove-label="Remove grace.hopper@example.org"></tanrei-chip>
+  </tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="The same field written by hand: a field, a text input, and two chips in its entries slot" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" supporting-text="Separate addresses with a comma.">
+    <tanrei-text-input type="email">
+      <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="Remove ada@example.com"></tanrei-chip>
+      <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org" remove-label="Remove grace.hopper@example.org"></tanrei-chip>
+    </tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+What the members written by hand do not do is what the chip field adds:
+
+| The chip field adds | By hand |
+| --- | --- |
+| Making an entry: Enter, separators, leaving, pasted lists | You listen to the text input and cut the text |
+| The checks and the entry error | You set `error` and `errorText` on the field |
+| One Tab stop and the keys among the entries | Every chip and every remove action is its own stop; you remove a chip and move focus |
+| The entries exposed as one list, and the three announcements | You write your own |
+| The list as one value in a form | Hidden inputs, or your own submission |
+
+Go one level down for an arrangement the chip field does not offer, such as entries that are not chips, or an icon in the box.
+
+## Specs
+
+<DemoFrame label="Required, read-only, disabled, and keywords that are made by Enter alone" plain column>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" requirement="required" required-text="Required" remove-label="Remove {entry}" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" readonly remove-label="Remove {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Recipients" type="email" disabled remove-label="Remove {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Authors" remove-label="Remove {entry}" supporting-text="Press Enter after each name." value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
+</DemoFrame>
+
+### What each member gives
+
+| Aspect | From the field | From the text input | The chip field's own |
+| --- | --- | --- | --- |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete`, and `inputValue` (the text input's `value`) | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
+| Events | — | `input`, `action` | `change`, `check`, `reject` |
+| Slots | `label-icon` | — | — |
+| Tokens | `comp.field.*` | `comp.input-box.*` for the box; `comp.text-input.*` for the entries place | none; the entries read `comp.chip.*` |
+
+- **The entries are small chips** at both sizes of the box. A long entry has a line to itself and is cut by the chip; its whole text stays its name and its value.
+- **The placeholder** is shown only while the list is empty.
+- **Read-only**: the entries can be reached and read, and are submitted. None can be made, removed or put back into the typing part, and each chip is drawn without its remove action.
+- **Disabled**: the field, the box and every chip are disabled, and nothing is submitted.
+- **`maxEntries`** refuses one entry more, with `limitText`. Nothing is disabled or marked beforehand: say the limit in `supportingText`.
+- **`type`** is `text`, `email`, `tel` or `url`. Any other type behaves as `text`.
+
+### Setting one field apart
+
+The chip field has no token of its own. To change one instance, set a member's token on it:
+
+```html
+<tanrei-chip-field label="Recipients"
+  style="--tanrei-comp-text-input-entries-row-gap: 12px"></tanrei-chip-field>
+```
+
+<ComponentSpecs name="chip-field" />
+
+### What the web draws differently
+
+- The element's shadow root holds a `<tanrei-field>` with a `<tanrei-text-input>` in it, and a `<tanrei-chip>` for each entry in the text input's `entries` slot. Importing the element defines all three.
+- `value` is an array property: assign a new array to change it. The `value` attribute is read once, as a JSON array of strings, and is what a form's reset returns to. `separators` is an array too; its attribute is a JSON array.
+- The element is form-associated. It submits one value for each entry under `name`, in order, and nothing while the list is empty or the field is disabled. The typed text is never submitted. It follows a disabled `<fieldset>`, is restored on navigation, and reports a missing value while `requirement` is `required` and the list is empty.
+- `change`, `check` and `reject` are CustomEvents the element dispatches: `detail` is `{ value, added, removed }`, `{ text, values }` and `{ text, reason, message }`. `check` is cancelable and read when it returns: an answer given later is not read.
+- `input` and `action` are the text input's own. `action` is fired only by Enter on an empty typing part, and then asks for the form's submission. Enter on text makes an entry: the key is stopped before the text input hears it, so a `keydown` listener in the bubbling phase does not hear that press.
+- Parts: `field`, `text-input` and `chip` are the members. The field's and the text input's own parts keep their names (`label`, `supporting-text`, `container`, `input`, `entries`, and so on). A chip's are `entry-container`, `entry-label` and `entry-remove`.
+- The element is not focusable itself and has no role: `focus()` goes to the typing part. Name it with `label`, never with `aria-label`.
+- Text is read for separators when it changes, never by the key that was pressed, so a touch keyboard and dictation end an entry too. While an input method is composing, nothing is made: the key that commits the composition commits it, and only then is the text read.
+- Attributes are kebab-case, such as `input-value`, `max-entries`, `remove-label` and `added-count-text`. `readonly` and `autocomplete` keep HTML's names.
+- Before the element is defined it has no size and shows nothing. Reserve the height of the box. A page that must take a list without script uses a plain `<input>` or `<textarea>` and cuts the text on its server.
+
+## Guidelines
+
+### Chip field, combobox, or tag group
+
+| You need | Use |
+| --- | --- |
+| A list of texts a person types, each checked by itself | The chip field |
+| A choice from options the product has | A [combobox](/components/combobox/). The chip field has no list of suggestions |
+| A set of tags or chips that stands by itself, with no typing and no form value | A [tag group](/components/tag-group/) |
+| A few long entries that each need a label | A [field group](/components/field-group/) of text fields |
+| One text, however long | A [text field](/components/text-field/) |
+
+### Do
+
+- Say in `supportingText` what an entry is and how one is made: "Separate addresses with a comma."
+- List in `separators` only what can never be part of an entry. For names such as "Lovelace, Ada", list none.
+- Write `removeLabel` with the place `{entry}`, so that two remove actions never share a name.
+- Give `invalidText` in words that say what a right entry looks like.
+- Say a limit in `supportingText`, and what happens at it in `limitText`.
+
+### Don't
+
+- Don't put a chip field inside a field. It is a field already.
+- Don't rely on `type="email"` to check an address. It chooses the keyboard and nothing else.
+- Don't answer `check` later. An entry a server refuses is reported with `error` and `errorText`.
+- Don't read typed text as part of the value. It becomes an entry when focus leaves; a product that submits by script while the field has focus reads `inputValue`.
+
+## Accessibility
+
+<ComponentAccessibility name="chip-field" />
+
+### What the component handles
+
+- Assistive technology meets a list named by the label, with an item for each entry: a button named by the entry's whole text, and its remove action, a button named by `removeLabel` with the entry in it. After the list comes the typing part, a text box named by the label and described by the help or the error.
+- The field is one stop for the Tab key, however many entries it holds. The entries are reached with the arrow keys or Backspace, and by pointer, touch and a screen reader's own navigation.
+- A refused entry stays as text in the typing part, where the caret is, and the reason is in words in the field's error, which is announced once. Color never tells a refused entry from an accepted one.
+- An entry made, several made at once, and an entry removed are each said in a polite live region, with your sentences.
+- A removal is deliberate: Backspace takes two presses, and a held key is answered once.
+- Direction follows where the field is used. In a right-to-left layout the lines start at the right and the arrows still move the way they point. An address inside keeps its own direction.
+- At 200% text in a narrow place every entry is still shown, and the typing part takes a line of its own where the last line leaves it too little.
+
+Known gaps on the web: what screen readers say has been read from the browsers' accessibility trees, not heard with a screen reader.
+
+### What you need to do
+
+- Give `label`, always.
+- Give `removeLabel`, `addedText` and `removedText`, on the element or once with the product's words. Without them the remove actions have no name and nothing is announced.
+- Say in `supportingText` how an entry is made. Where people need to know that Enter on an entry changes it, say that too.
+- Say why an entry was refused in words that tell how to mend it.

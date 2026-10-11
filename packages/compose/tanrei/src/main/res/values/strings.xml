@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- What assistive technology says for a control in error (CHK-14): the error semantics of a checkbox whose isError
+         is true. The reason itself is text the form shows. An app overrides it (or translates it) with a string of the
+         same name in its own resources. -->
+    <string name="tanrei_invalid">Invalid</string>
+    <!-- What assistive technology says for a field that must be filled in (TXF-23): the state description of a text
+         field whose required is true. The field draws no mark of its own; the product words its label. -->
+    <string name="tanrei_required">Required</string>
+    <!-- What assistive technology says for a selected navigation drawer destination whose badge text is its state
+         description (NVD-15): the platform says "selected" only while a selectable element has no state description of
+         its own, so the drawer puts it first, then the badge ("Selected, 24"). -->
+    <string name="tanrei_selected">Selected</string>
+</resources>

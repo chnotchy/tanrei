@@ -1,0 +1,116 @@
+{
+  "tanrei": {
+    "ref": {
+      "typeface": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product may set display text, running text and code in different families, draws its icons from one icon font, and uses a few named weights.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "The font stacks and weights the type scale is built from. Components never reference these; they use sys.typescale roles.",
+            "rules": [
+              "Re-point a stack in a layer to change the typeface everywhere.",
+              "Fonts are referenced by name and are not bundled: make sure the product ships or loads them.",
+              "`icon` is the icon font; draw an icon with sys.icon.weight and sys.icon.fill — never with a text weight."
+            ]
+          }
+        },
+        "brand": {
+          "$type": "fontFamily",
+          "$value": [
+            "Inter",
+            "Noto Sans JP",
+            "Noto Sans",
+            "system-ui",
+            "sans-serif"
+          ],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "A font family is a choice, not a quantity."
+            }
+          },
+          "$description": "Display and headline text. Inter for Latin, Noto Sans JP for Japanese, Noto Sans for other scripts; a product adds the Noto family of each further script it ships (Noto Sans KR, SC, TC, Arabic, Devanagari, Thai…)."
+        },
+        "plain": {
+          "$type": "fontFamily",
+          "$value": [
+            "Inter",
+            "Noto Sans JP",
+            "Noto Sans",
+            "system-ui",
+            "sans-serif"
+          ],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "A font family is a choice, not a quantity."
+            }
+          },
+          "$description": "Running text and labels. Inter for Latin, Noto Sans JP for Japanese, Noto Sans for other scripts."
+        },
+        "mono": {
+          "$type": "fontFamily",
+          "$value": [
+            "Roboto Mono",
+            "Noto Sans JP",
+            "ui-monospace",
+            "monospace"
+          ],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "A font family is a choice, not a quantity."
+            }
+          },
+          "$description": "Code. Roboto Mono, with Noto Sans JP for Japanese inside code."
+        },
+        "icon": {
+          "$type": "fontFamily",
+          "$description": "The icon font. Material Symbols Rounded: a variable font whose weight and fill are set from sys.icon.",
+          "$value": [
+            "Material Symbols Rounded"
+          ],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "A font family is a choice, not a quantity."
+            }
+          }
+        },
+        "weight": {
+          "$type": "fontWeight",
+          "regular": {
+            "$value": 400,
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A font weight is a choice, not a quantity."
+              }
+            }
+          },
+          "book": {
+            "$value": 450,
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A font weight is a choice, not a quantity."
+              }
+            }
+          },
+          "medium": {
+            "$value": 500,
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A font weight is a choice, not a quantity."
+              }
+            }
+          },
+          "semibold": {
+            "$value": 600,
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A font weight is a choice, not a quantity."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

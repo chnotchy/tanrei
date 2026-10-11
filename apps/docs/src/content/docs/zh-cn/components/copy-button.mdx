@@ -1,0 +1,142 @@
+---
+title: "复制按钮"
+description: "按一次就复制给定文本并加以确认的按钮；复制不了时也会说明。它由 Button 绘制，绝不会让布局移动。"
+translationOf: components/copy-button.mdx
+sourceHash: 11c3c4ca402e08be52105dad6861f24385f8af29
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="copy-button" />
+
+<DemoFrame label="按下其中一个：字形会暂时变成对勾">
+  <tanrei-copy-button text="npm install @tanrei/web" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
+  <tanrei-copy-button variant="tonal" text="#30a3f0" label="复制颜色" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="复制链接" copied-label="链接已复制" failed-label="无法复制"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="复制密钥" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
+</DemoFrame>
+
+复制按钮放在用户会粘贴到别处的东西旁边：一条命令、一个密钥、一个地址、一个颜色值。它等待浏览器的答复，显示对勾（或错误标记）两秒钟，并用文字告知辅助技术。[代码块](../code-block/)会替你放置一个。
+
+### 用法
+
+复制按钮是一个[按钮](../button/)，变体和尺寸由你指定。它没有自己的颜色和尺寸，所以重新定义 Button 样式的设计系统会连带改变每一个复制按钮。
+
+文字由你提供。`label`、`copied-label` 和 `failed-label` 没有默认值，因为 Tanrei 不自带任何语言的文字。
+
+SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 纯图标（默认）：由 label 命名。 -->
+    <tanrei-copy-button
+      text="npm install @tanrei/web"
+      label="复制"
+      copied-label="已复制"
+      failed-label="无法复制"
+    ></tanrei-copy-button>
+
+    <!-- 带标签：文字随形态变化，宽度始终不变。 -->
+    <tanrei-copy-button
+      icon-only="false"
+      variant="tonal"
+      text="https://example.com/s/4f2a"
+      label="复制链接"
+      copied-label="链接已复制"
+      failed-label="无法复制"
+    ></tanrei-copy-button>
+
+    <script type="module">
+      import '@tanrei/web';
+
+      document.querySelector('tanrei-copy-button').addEventListener('copyfailed', () => {
+        // 按钮已经说明无法复制。接下来还要做什么，由你决定。
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CopyButton } from '@tanrei/react';
+
+    <CopyButton text={command} label="复制" copiedLabel="已复制" failedLabel="无法复制" onCopyfailed={() => showHelp()} />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="尺寸和变体都是 Button 的" plain>
+  <tanrei-copy-button size="small" text="small" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
+  <tanrei-copy-button text="medium" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
+  <tanrei-copy-button size="large" text="large" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
+  <tanrei-copy-button variant="elevated" text="elevated" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
+  <tanrei-copy-button disabled text="disabled" label="复制" copied-label="已复制" failed-label="无法复制"></tanrei-copy-button>
+</DemoFrame>
+
+<DemoFrame label="宽度按三段文字中最长的一段保留" plain>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="复制" copied-label="已复制到剪贴板" failed-label="无法复制"></tanrei-copy-button>
+  <tanrei-button variant="text">不会移动的相邻按钮</tanrei-button>
+</DemoFrame>
+
+按钮有三种形态：静止（字形 `content_copy`）、已复制（`check`）和失败（`error`）。只有在浏览器确认复制完成之后，它才显示已复制形态，并在 `comp.copy-button.confirmation.duration`（2 秒）之后回到静止形态。在它显示确认期间再按一次，会再复制一次、再确认一次。
+
+形态变化时任何东西都不会移动。三个字形画在同一个框里。带标签的形式始终保持最宽那段文字的宽度。
+
+字形立即变化，不带动效。这两秒是留给用户注意到的时间，所以在减弱动态效果时依然保留。
+
+如果按钮显示“已复制”期间文本变了，它会立即回到静止形态：刚才复制的已经不是现在会复制的内容。
+
+事件是 `copied` 和 `copyfailed`。它们不叫 `copy`，因为 `copy` 是文档自己的剪贴板事件。
+
+<ComponentSpecs name="copy-button" />
+
+### Web 上绘制方式的不同之处
+
+- 复制使用 `navigator.clipboard.writeText`。它需要安全的页面（HTTPS 或 localhost），以及用户的一次按下。浏览器没有剪贴板或者拒绝时，按钮进入失败形态。没有后备方案。
+- 这两个事件会冒泡，但不会穿过 shadow root。
+
+## 指南
+
+### 纯图标还是带标签
+
+| 形式 | 显示什么 | 何时使用 |
+| --- | --- | --- |
+| **纯图标** | 只有字形。看得见的用户看到对勾，没有文字 | 在它所复制的东西旁边：一条命令、一个代码块、某一行里的一个值 |
+| **带标签** | 字形和文字，文字随形态变化 | 复制是视图的操作之一，或者这些文字对每个人都重要 |
+
+### 推荐
+
+- 如果从位置上看不出复制的是什么，就在标签里说出来：“复制链接”“复制 JSON”。
+- 如果用户无论如何都得拿到这段文本，请监听 `copyfailed`，并显示一样会留在那里的东西，例如在字段里选中这段文本。
+- 放在内容旁边的复制按钮保持 text 变体。复制是视图的主要操作时，再选别的变体。
+
+### 避免
+
+- 不要只在悬停时显示按钮。那样的话，触摸操作就找不到它。
+- 不要为复制成功打开工具提示或消息条。按钮已经确认过了。
+- 不要用它复制文本以外的任何东西。
+
+## 无障碍
+
+<ComponentAccessibility name="copy-button" />
+
+### 组件负责的部分
+
+- 它是一个按钮，具有 Button 的焦点指示、最小目标和按键（Enter 和空格）。
+- 纯图标的形式在每种形态下都由 `label` 命名。字形变化时名称不变。
+- 结果通过实时区域朗读：`copied-label` 以礼貌（polite）的方式，`failed-label` 以立即打断（assertive）的方式；每次按下都朗读，不移动焦点。
+- 确认靠的是形状和文字，而不是颜色。
+- 在从右到左的布局中，复制字形会按图标集的标记镜像。对勾和错误标记不镜像。
+
+### 需要你做的事
+
+- 用你的产品的语言提供全部三个标签。没有 `label` 的纯图标按钮没有无障碍名称。
+- 如果用户不能丢失这段文本，失败之后请自己跟进处理。

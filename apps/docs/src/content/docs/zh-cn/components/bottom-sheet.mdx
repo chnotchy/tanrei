@@ -1,0 +1,313 @@
+---
+title: "底部面板"
+description: "从底边向上带出补充内容或一项简短的任务：可以盖在屏幕下部而让其余部分照常可用，也可以作为模态的一步，把其他一切变暗并挡住，直到它被关闭。"
+translationOf: components/bottom-sheet.mdx
+sourceHash: d330dd91e18b0b8796aafe0add3470ab96bfc4ad
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="bottom-sheet" />
+
+<DemoFrame label="模态面板：用按钮打开它">
+  <tanrei-button variant="outlined" onclick="document.getElementById('bottom-sheet-demo-modal').open = true">保存照片</tanrei-button>
+  <tanrei-bottom-sheet id="bottom-sheet-demo-modal" label="保存照片" handle-label="调整面板高度" onclose="this.open = false">
+    <p>选择照片的保存位置。之后可以在“设置”中更改。</p>
+    <tanrei-button variant="text" onclick="this.closest('tanrei-bottom-sheet').open = false">完成</tanrei-button>
+  </tanrei-bottom-sheet>
+</DemoFrame>
+
+### 用法
+
+底部面板是受控组件，它从不自行关闭。把 `open` 设为 true 即可打开它。当用户要求它离开时，面板触发 `close` 并带上原因，由你把 `open` 设回 false。SwiftUI 是唯一的例外：在那里 `open` 是一个绑定，面板先把 false 写入绑定，再调用 `onClose`。如果你让 `open` 保持为 true，面板就留在原处；拖动之后，它会回落到最低的高度。在 Web 上这一点与对话框不同：面板会取消原生的 `cancel` 事件，改为触发 `close`，所以在你关闭它之前，Escape 不会把它关闭。
+
+`close` 带有以下四种原因之一，大小写遵循各平台的写法：
+
+| 原因 | 用户做了什么 | 适用的形态 |
+| --- | --- | --- |
+| `drag` | 在低于面板最低高度一半的位置松开拖动，或从那个高度向下快速滑动 | 标准和模态 |
+| `scrim` | 按下了模态面板周围变暗的区域 | 模态 |
+| `escape` | 按下了 Escape | 模态 |
+| `back` | 使用了平台的返回操作：Android 的返回按钮或返回手势、iOS 的无障碍“退出”手势。在 Web 上，不是由按键发出的关闭请求（例如浏览器中的 Android 返回手势）也算作 `back`。 | 模态 |
+
+只有当 `dismissible` 为 true 时，面板才会触发 `close`，并且每次请求恰好触发一次。当它为 false 时，遮罩、Escape 和返回操作都不起作用，向下拖动后面板会停在最低的高度。
+
+面板通过 `variant` 提供两种形态。**模态**是默认形态，是一个模态浮层：它让整个窗口变暗，把焦点留在里面，并在关闭时把焦点交还。**标准**形态是一个布局区域，而不是浮层：它盖住你放置它的父元素的底部，不绘制遮罩，用户可以继续操作它上方的内容。
+
+面板里放什么由你决定。面板按自己的内边距为内容留出边距（如果是行自带内边距的列表，把 `inset` 设为 false），裁剪内容，为它提供内容颜色，并让它滚动。面板自己没有标题，也没有关闭按钮：请把你的标题和“关闭”或“完成”按钮放在内容里。
+
+面板打开时应当获得焦点的元素，用平台自己的方式标记：在 Web 上是 `autofocus`，在 SwiftUI 上是 `.defaultFocus` 或 `@AccessibilityFocusState`，在 Compose 上是作为 `initialFocus` 传入的 `FocusRequester`，在 Flutter 上是 `autofocus: true`，在 React Native 上是 `initialFocusRef`。没有标记时，焦点落在面板本身，因此最先朗读的是它的标签。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="save" variant="outlined">保存照片</tanrei-button>
+
+    <!-- 模态是默认形态。closedby="none" 相当于把 dismissible 设为 false。 -->
+    <tanrei-bottom-sheet id="save-sheet" label="保存照片" handle-label="调整面板高度">
+      <p>选择照片的保存位置。</p>
+      <tanrei-button variant="text" autofocus>完成</tanrei-button>
+    </tanrei-bottom-sheet>
+
+    <!-- 标准形态：盖住其包含块的底部。flush 相当于把 inset 设为 false；no-handle 相当于把 handle 设为 false。 -->
+    <div class="map" style="position: relative">
+      <tanrei-bottom-sheet variant="standard" open label="附近的地点" handle-label="调整面板高度" flush>
+        <tanrei-list>…</tanrei-list>
+      </tanrei-bottom-sheet>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/bottom-sheet';
+      const sheet = document.querySelector('#save-sheet');
+      document.querySelector('#save').addEventListener('click', () => (sheet.open = true));
+      sheet.querySelector('tanrei-button').addEventListener('click', () => (sheet.open = false));
+      // 面板从不自行关闭。detail.reason 是 drag、scrim、escape 或 back。
+      sheet.addEventListener('close', (e) => (sheet.open = false));
+      // 用户把它移到了另一个高度。面板已经设置好 detent。
+      sheet.addEventListener('detentchange', (e) => console.log(e.detail.detent));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { BottomSheet, Button } from '@tanrei/react';
+
+    <BottomSheet
+      open={open}
+      label="保存照片"
+      handleLabel="调整面板高度"
+      onClose={() => setOpen(false)}
+      onDetentchange={(e) => setDetent(e.detail.detent)}
+    >
+      <p>选择照片的保存位置。</p>
+      <Button variant="text" onClick={() => setOpen(false)}>完成</Button>
+    </BottomSheet>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 它是加在被面板覆盖的视图上的修饰符，与 .sheet 一样。关闭时先把 false 写入绑定，
+    // 再带着原因调用 onClose。用户选择的高度会写入 detent。
+    PhotoView(photo)
+        .tanreiBottomSheet(isPresented: $saving, detent: $detent,
+                           handleLabel: "调整面板高度", label: "保存照片") {
+            SaveTargets(photo)
+            TanreiButton("完成", variant: .text) { saving = false }
+        }
+
+    // 标准形态：位于被覆盖视图底部的浮层。
+    MapView()
+        .tanreiBottomSheet(isPresented: $placesShown, variant: .standard,
+                           handleLabel: "调整面板高度", label: "附近的地点") {
+            PlacesList()
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiBottomSheet
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+
+    // 用 visible 控制，而不是只在打开时才调用它，这样退出动效才能播放。
+    // 在 onClose 中把它设为 false；onClose 会收到原因。
+    TanreiBottomSheet(
+        visible = saving,
+        onClose = { saving = false },
+        detent = detent,
+        onDetentChange = { detent = it },
+        handleLabel = "调整面板高度",
+        contentDescription = "保存照片",
+    ) {
+        SaveTargets(photo)
+        TanreiButton(text = "完成", onClick = { saving = false }, variant = TanreiButtonVariant.Text)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 模态面板是覆盖整个页面的 Stack 的最后一个子元素。在 onClose 中把 open 设为 false。
+    Stack(
+      children: <Widget>[
+        const Positioned.fill(child: PhotoPage()),
+        TanreiBottomSheet(
+          open: saving,
+          onClose: (TanreiSheetCloseReason reason) => setState(() => saving = false),
+          detent: detent,
+          onDetentChanged: (value) => setState(() => detent = value),
+          handleSemanticLabel: '调整面板高度',
+          semanticLabel: '保存照片',
+          child: const SaveTargets(),
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { BottomSheet, Button } from '@tanrei/react-native';
+
+    const done = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // 受控：在 onClose 中把 open 设为 false；onClose 会收到原因（'drag'、'scrim'、'escape' 或 'back'）。
+    // 模态面板呈现在一个透明的 Modal 中。面板的 insets 属性会替换 TanreiProvider 的 insets 中它所指定的那几条边。
+    <BottomSheet
+      open={open}
+      onClose={(reason) => setOpen(false)}
+      detent={detent}
+      onDetentChange={setDetent}
+      handleLabel="调整面板高度"
+      accessibilityLabel="保存照片"
+      initialFocusRef={done}
+    >
+      <SaveTargets />
+      <Button ref={done} variant="text" onPress={() => setOpen(false)}>完成</Button>
+    </BottomSheet>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="盖在父元素底部的标准面板：向下拖动即可关闭" plain>
+  <div style="position: relative; inline-size: 22rem; max-inline-size: 100%; block-size: 20rem; overflow: hidden">
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space75); padding: 1rem">
+      <p>地图</p>
+      <tanrei-button variant="outlined" onclick="this.closest('[data-tanrei-demo]').querySelector('tanrei-bottom-sheet').open = true">显示附近的地点</tanrei-button>
+    </div>
+    <tanrei-bottom-sheet variant="standard" open label="附近的地点" handle-label="调整面板高度" onclose="this.open = false">
+      <p>步行十分钟之内，有三家咖啡馆和一家面包店正在营业。</p>
+    </tanrei-bottom-sheet>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="bottom-sheet" />
+
+## 指南
+
+### 何时使用
+
+在 compact 屏幕上，内容旁边没有空间时，用底部面板来放置属于这个屏幕、但不是其主要对象的东西：地图上某一点附近的地点、分享照片的各种方式、一个简短的选择或表单。面板从离拇指最近的那条边升起。
+
+在宽窗口中，同类内容请使用[侧边面板](/zh-cn/components/side-sheet/)，它可以位于内容旁边，而不是盖在内容之上。任务缺了它就无法继续的决定，使用[对话框](/zh-cn/components/dialog/)。产品的各个目的地使用[导航抽屉](/zh-cn/components/navigation-drawer/)，而不是底部面板。
+
+**从主操作引出多个操作。** 当屏幕的主操作有几种相关的形式时（新建文档、文件夹或上传），[主操作按钮](/zh-cn/components/main-action-button/)会打开一个模态底部面板，把它们列出来。在 Tanrei 系统中，它取代了 [FAB 菜单](/zh-cn/components/fab-menu/)；Tanrei 系统不提供 FAB 菜单。
+
+<DemoFrame label="从主操作引出多个操作：用按钮打开面板" plain>
+  <tanrei-main-action-button label="新建" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
+  <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="新建" handle-label="调整面板高度" flush onclose="this.open = false">
+    <tanrei-list>
+      <tanrei-list-item headline="文档" leading-icon="description" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+      <tanrei-list-item headline="文件夹" leading-icon="folder" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+      <tanrei-list-item headline="上传文件" leading-icon="upload" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+    </tanrei-list>
+  </tanrei-bottom-sheet>
+</DemoFrame>
+
+### 模态还是标准
+
+| 形态 | 它是什么 | 用于 |
+| --- | --- | --- |
+| 模态（默认） | 模态浮层。面板向上滑入，下面是一层让整个窗口变暗的遮罩。它之外的一切都是惰性（inert）的，焦点留在里面，直到它关闭。 | 用户完成或关闭之后才回去的一步：分享、一个选择、一个简短的表单。 |
+| 标准 | 布局区域。面板盖住父元素的底部，没有遮罩，它上方的内容照常可用。Tab 在面板和内容之间移动，焦点离开面板从不会把它关闭。 | 用户要与屏幕配合使用的内容，例如盖在地图上的地点列表。 |
+
+两种形态读取相同的令牌：区别只在遮罩和行为，所以设计系统不会给它们不同的外观。
+
+布局区域包括标准导航抽屉（包括它的收起形态）、应用栏和标准侧边面板，它们都位于内容的旁边或上方。标准底部面板则盖住父元素的一部分，但它同样是布局区域，因为起决定作用的是行为：它不是模态的，不绘制遮罩，打开期间内容照常可用。如果面板在焦点离开时就关闭，用户就无法一边用键盘操作它，一边操作它所说明的地图。
+
+标准面板不会移动它所覆盖的内容，也不会为这些内容添加内边距。如果你的滚动内容的末尾必须在面板上方保持可见，请给这些内容加上相当于面板 partial 高度的内边距。
+
+### 高度
+
+`detent` 有两个值。取 `partial` 时，面板占它所覆盖区域的一部分，使用默认令牌时是一半。取 `full` 时，它向上延伸到距区域顶部一小段边距的位置。对模态面板来说，这个区域是窗口顶部边衬区以下的部分；对标准面板来说，是父元素。屏幕键盘显示期间，这个区域到键盘为止，所以面板坐落在键盘之上。
+
+面板的高度不会超过它的内容。如果内容在 partial 高度之内就放得下，面板只有一个高度，`detent` 不起任何作用。当内容更高时，面板有两个高度，用户通过拖动或使用拖动手柄在两者之间切换。每次这样的切换都会触发 `detentChange` 并带上新的高度。在 Web、Compose、Flutter 和 React Native 上，面板保持用户选择的高度，直到你再次设置 `detent`。在 SwiftUI 上，它把高度写入 `detent` 绑定。你自己设置 `detent` 时，面板会移动，但不触发任何事件。
+
+### 拖动手柄与手势
+
+拖动手柄是面板顶部的一根短条，它所在的那一行在内容滚动时留在原位。`handle` 开启时，每个面板上都会绘制它。
+
+- **有地方可去时，它是一个控件。** 当面板有两个高度时，手柄是一个以 `handleLabel` 命名的按钮，在 full 高度时处于展开状态。按下它，或按 Enter 或 Space，面板就移到另一个高度。当面板只有一个高度时，手柄以静止的样子绘制，表示面板可以拖动，但它无法获得焦点，也无法按下，辅助技术看不到它。
+- **它的目标。** 手柄所在的整行都是它的点击区域，在每个方向上都不小于最小目标，尽管短条本身很小。
+- **拖动。** 用户可以抓住手柄所在的行、内容周围的内边距或内容本身，上下拖动面板。手指或指针移动超过平台的触摸容差（touch slop；平台没有规定时为 8 点）之后，面板开始跟随，并且从不升到 full 高度之上。
+- **松开。** 松开时，如果是快速滑动，面板停在滑动方向上的下一个高度；如果松开得较慢，则停在最近的高度。快速滑动指松开时的速度高于平台的最小快速滑动速度；平台没有规定时为每毫秒 0.5 点。
+- **拖动以关闭。** 在低于最低高度一半的位置松开，或从最低高度向下快速滑动，会在 `dismissible` 为 true 时请求面板以原因 `drag` 关闭。面板会在拖动留下的位置停留一帧；如果你把 `open` 设为 false，它就滑出，否则回落到原位。当 `dismissible` 为 false 时，它停在最低的高度。
+- **会滚动的内容。** 在内容上向上拖动，先把面板升到 full 高度，然后滚动内容。向下拖动，先把内容滚回顶部，然后降低面板。如果平台无法把同一个手势从面板交给内容的滚动，后一段就需要第二次拖动（见下文“已知的平台差距”）。无论面板处于哪个高度，键盘和辅助技术都能滚动内容。
+
+拖动从来不是唯一的方式。手柄只需按一次，或通过键盘，就能改变高度；模态面板还可以通过遮罩、Escape 或返回操作关闭。标准面板，以及 `dismissible` 为 false 的模态面板，没有这样的第二种关闭方式，所以请给它一个能把它关闭的按钮。
+
+### 打开、焦点与关闭
+
+- **打开。** 面板从底边之下向上滑入。模态面板同时让覆盖整个窗口的遮罩淡入。如果面板显示时 `open` 已经为 true，它直接出现在原位，不带动效。此时标准面板不移动焦点。模态面板则像刚刚打开一样把焦点移进来，因为它背后的任何东西都已无法获得焦点。
+- **焦点移入。** 两种形态在打开时都把焦点移到你标记的元素上，否则移到面板本身。焦点在面板打开时移动，而不是在动效结束时。
+- **焦点限制在面板之内，仅限模态。** 在模态面板中，在最后一个可聚焦的元素上按 Tab 会回到第一个，在第一个上按 Shift+Tab 会到最后一个。屏幕阅读器的导航留在面板之内，背后的内容不滚动。标准面板什么也不限制：Tab 会继续移到内容上，面板保持打开。
+- **关闭。** 如果面板关闭时焦点在它里面，焦点就交还给面板打开时持有焦点的那个元素。
+- **叠放。** 从模态面板中打开的对话框、菜单或另一个模态面板叠在它上面。Escape 只关闭最上面的那个，该浮层交还的焦点回到面板。
+- **动效。** 在减弱动态效果时，面板在原位淡入淡出，不滑动。Android 的这项设置会移除所有动画，所以在那里它立即出现、立即消失。
+
+### 推荐
+
+- 让面板的任务一目了然：在内容顶部放一个标题；如果面板没有其他关闭方式，再放一个“完成”或“关闭”按钮。
+- 对于行自带内边距的列表，关闭 `inset`，让各行延伸到边缘。
+- 只要面板的内容可能高过 partial 高度，就保留手柄，让使用键盘和开关控制的用户也能改变它的高度。
+- 如果用户在面板打开期间需要用到它上方的内容，使用标准形态。
+
+### 避免
+
+- 不要把 `dismissible` 设为 false，除非用户必须用面板自己的某个控件完成面板的任务。
+- 不要用模态面板来做必须打断用户的决定。请使用[对话框](/zh-cn/components/dialog/)。
+- 不要把产品的导航放进底部面板。请使用[导航抽屉](/zh-cn/components/navigation-drawer/)或导航栏。
+- 不要为分步骤的任务把面板叠在面板上。改为更换同一个面板的内容。
+
+## 无障碍
+
+<ComponentAccessibility name="bottom-sheet" />
+
+### 组件负责的部分
+
+- 模态面板以模态对话框的身份提供给辅助技术，以 `label` 命名。标准面板是一个以 `label` 命名的区域（region），在 Web 上是一个地标。
+- 模态面板打开期间，它之外的一切都是惰性的，并对辅助技术隐藏，焦点和屏幕阅读器的导航都留在它里面。标准面板不让任何东西变为惰性。
+- 打开时，焦点移到你标记的元素上，否则移到面板。关闭时，焦点交还给面板打开时持有焦点的那个元素。两种形态都是如此。
+- 当 `dismissible` 为 true 时，Escape、平台的返回操作以及在遮罩上的按下会请求模态面板关闭。标准面板忽略 Escape 和返回操作。
+- 当面板有两个高度时，拖动手柄是一个可聚焦的按钮，以 `handleLabel` 命名，在 full 高度时为展开状态。Enter 和 Space 把面板移到另一个高度。只有一个高度时，手柄对辅助技术隐藏。短条本身始终隐藏。
+- 手柄的点击区域不小于最小目标，它的焦点环只在键盘聚焦时显示。
+- 内容在面板内滚动，无论面板处于哪个高度，键盘焦点和辅助技术都能滚动它。
+- 文本变大时，面板随内容一起变高，最高到它的 detent 允许的高度，超出的内容可以滚动。手柄不随文本缩放。
+- 面板的颜色延伸到底部的系统边衬区之下，它的内容则保持在该边衬区之上，也保持在屏幕键盘之上。
+- 调试构建会报告没有 `label` 的面板、没有 `handleLabel` 的可交互手柄，以及未知的 `variant` 或 `detent`。
+
+已知的平台差距：
+
+- 用鼠标在内容上拖动，会像触摸一样移动面板，所以只要面板还能移动，就无法通过向下拖动来选中面板中的文本。
+- Web：在触摸时，由浏览器在手势开始时决定谁来接收它，所以面板与内容滚动之间的交接需要第二个手势。鼠标和触控笔在一次拖动之内就能完成交接。触摸拖动尚未被测试覆盖。在 Firefox 中，面板立即离开，而不是滑出，与对话框的情况相同。
+- SwiftUI 既没有对话框角色，也没有区域角色：面板是一个以 `label` 命名的容器，处于模态时带有模态特征。手柄没有展开状态，所以它的值会读作“expanded”或“collapsed”，而且只有英语。没有任何标记时，SwiftUI 无法把焦点移到面板本身；面板关闭时，键盘焦点不会交还给任何元素；在 iOS 上，模态覆盖会把 VoiceOver 焦点交还。在 macOS 上，模态面板只覆盖修饰符所附着的视图，所以请把它附着在窗口的根视图上。
+- iOS 上的 SwiftUI：面板低于 full 高度时，在内容上拖动会升起面板，下一次拖动才滚动内容；在那个高度内容不会滚动，对 VoiceOver 和键盘也是如此。内容中的纯文本采用正文字体，但不带它的行高，所以两行文本高 40 点，而其他平台绘制为 44 点。
+- SwiftUI：底部边衬区和屏幕键盘、硬件键盘、Escape 以及 iOS 的“退出”手势，都还没有在设备上运行过，也没有通过实际按键测试过。
+- Compose：面板自己负责滚动内容，所以请给它一个普通的列（column），而不是懒加载列表（lazy list）。模态面板关闭的过程中，它的窗口一直持有焦点，直到退出动效结束。它的拖动只在 Robolectric 下验证过，没有在设备上验证。
+- Flutter：标准面板是一个有名称的容器，而不是区域地标，因为 Flutter 3.32 没有这样的角色。面板尚未在设备上用 TalkBack 和 VoiceOver 检查过。
+- React Native 无法得知先前是哪个元素持有焦点，所以面板关闭时，焦点落在平台安排的位置，而不是回到打开它的元素，与对话框和导航抽屉的情况相同。没有 `initialFocusRef` 时，打开面板只会移动屏幕阅读器的焦点，移到面板上。
+- React Native 无法在手势中途把它从面板交给内容的滚动，所以那次拖动的剩余部分会丢失，下一次拖动才滚动内容。Modal、拖动、键盘避让和边衬区都只在 Jest 中验证过，从未在设备上验证。
+- 在 `cupertino` 下，短条用 Apple 的浅色轮廓颜色绘制，它相对于面板的对比度在浅色方案中是 1.8:1，在深色方案中是 2.2:1，低于控件边界所需的 3:1。中对比度和高对比度方案把它提高到 4.5:1 或更高。未达标的那两个数值是作为参考信息保留的测量值：Tanrei 的无障碍准则不适用于模仿预设。
+- 在 `m3-like` 下，处于 full 高度的面板保留默认系统的顶部边距：要等保真度参考覆盖到底部面板之后，才会采用 Material 的值。
+
+### 需要你做的事
+
+- 为每个面板提供 `label`，例如“保存照片”。它是对话框或区域的名称。
+- 为手柄提供 `handleLabel`，例如“调整面板高度”，使用你的产品的语言。
+- 自己关闭面板：在响应 `close` 时（Web 上的 `close` 事件，Compose、Flutter 和 React Native 上的 `onClose`）把 `open` 设为 false，并在你自己的“完成”或“关闭”按钮中这样做。在 SwiftUI 上，面板会替你把 false 写入绑定。
+- 为标准面板，以及 `dismissible` 为 false 的模态面板，提供一个看得见的、能把它关闭的按钮。拖动不能是唯一的出路。
+- 在有帮助的地方标记初始焦点，例如简短表单的第一个输入框。
+- 在 React Native 上，传入 `initialFocusRef`；面板关闭后，自己把焦点移回打开它的元素；并把窗口的边衬区传给面板的 `insets` 或 `TanreiProvider`。

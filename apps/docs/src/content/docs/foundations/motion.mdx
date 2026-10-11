@@ -1,0 +1,43 @@
+---
+title: Motion
+description: Spring-based motion tokens, short state transitions, and a hard requirement to respect reduced motion.
+---
+
+import MotionTokens from '../../../components/tokens/MotionTokens.astro';
+
+Motion in Tanrei explains a change and then gets out of the way. Most of it is a state layer fading in over 150 milliseconds.
+
+## Two kinds of movement
+
+Motion tokens are organised as springs along two axes:
+
+- **Spatial** springs move or resize things. They may overshoot slightly, the way a physical object settles.
+- **Effects** springs change color and opacity. They never overshoot, because a color that bounces looks like a glitch.
+
+Each kind comes in **fast**, **default** and **slow**. Platforms with real spring animation use the stiffness and damping values; CSS uses the duration and the cubic-bezier approximation stored alongside them.
+
+There are two schemes. **Standard** is the default and is nearly critically damped. **Expressive** is an additive layer with more bounce for products that want it.
+
+## Durations and easing
+
+Fixed durations and easing curves are provided for transitions that are not springs.
+
+| Kind of change | Guideline |
+| --- | --- |
+| State change (hover, press, selection) | 100–200ms |
+| An element entering | about 300ms |
+| A large reveal | up to 800ms, with items staggered 100ms apart |
+| Anything leaving | faster than it entered |
+
+<MotionTokens part="easing" />
+
+## What does not move
+
+- **The focus ring appears instantly.** Keyboard users need to see where they are without waiting for an animation.
+- **No ripple by default.** Press feedback is the state layer; ripple is a theme-level option, not a baseline.
+
+## Reduced motion
+
+Every implementation must honour the platform's reduced-motion setting. Under it, spatial movement is removed or replaced by a short cross-fade, and nothing loops. This is part of each component's definition of done, not an enhancement.
+
+All values are listed in the [motion token reference](/tokens/motion/).

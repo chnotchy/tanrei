@@ -1,0 +1,197 @@
+---
+title: Entrada de texto incrustada
+description: Solo la escritura, para una caja que dibuja otra cosa. Texto, un marcador de posición, el cursor de texto y la selección, en una línea o en líneas que crecen y se reducen con un movimiento. No dibuja contenedor, borde, etiqueta ni indicación de foco. Lo que la contiene dibuja la caja y muestra el foco.
+translationOf: components/embedded-text-input.mdx
+sourceHash: d4617a2417ef3e2af9c2ed1dcbc0776ac44b4e8a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## Descripción general
+
+<ComponentAvailability name="embedded-text-input" />
+
+<DemoFrame label="Una entrada de texto incrustada dentro de una caja que dibuja la página. Escribe varias líneas: la caja sigue la altura. El borde de la caja muestra el foco." column>
+  <div class="not-content docs-embedded-holder" style="box-sizing: border-box; inline-size: 22.5rem; max-inline-size: 100%; background: var(--tanrei-sys-color-surface-container); border-radius: var(--tanrei-sys-shape-corner-large); padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); cursor: text">
+    <tanrei-embedded-text-input label="Mensaje" placeholder="Escribe un mensaje" multiline max-rows="6"></tanrei-embedded-text-input>
+  </div>
+</DemoFrame>
+
+<style>{`
+  .docs-embedded-holder { outline: var(--tanrei-sys-border-thick) solid transparent; outline-offset: calc(-1 * var(--tanrei-sys-border-thick)); }
+  .docs-embedded-holder:focus-within { outline-color: var(--tanrei-sys-color-focus-ring); }
+  @media (forced-colors: active) {
+    .docs-embedded-holder { outline-color: CanvasText; }
+    .docs-embedded-holder:focus-within { outline-color: Highlight; }
+  }
+`}</style>
+
+Una entrada de texto incrustada es la mitad de un control. Es el lugar donde se escribe, y nada a su alrededor: ni relleno, ni borde, ni margen interior, ni etiqueta, ni mensaje. La otra mitad es el **soporte**: la caja que rodea la escritura. Un componente de Tanrei puede ser el soporte, como lo es el [cuadro de redacción de chat](/es/components/chat-composer/). Tu propio marcado también puede serlo.
+
+La mayoría de los productos nunca la colocan directamente. Úsala cuando la caja contiene algo más que el texto: un mensaje junto a sus acciones, una barra de búsqueda, un título que se edita donde está.
+
+Usa otra cosa cuando:
+
+- La caja es la de un campo de texto. Eso es una [entrada de texto](/es/components/text-input/), o un [campo de texto](/es/components/text-field/) con su etiqueta y sus mensajes.
+- Se escribe un mensaje y se envía. Eso es un [cuadro de redacción de chat](/es/components/chat-composer/), que se compone de este componente.
+- El valor es un código corto que la persona recibe y escribe una sola vez. Eso es una [entrada de código de un solo uso](/es/components/one-time-code-input/).
+
+<Callout type="caution" title="El soporte debe mostrar el foco">
+La entrada de texto incrustada no dibuja ninguna indicación de foco, sea cual sea el estilo de foco del sistema de diseño. Su cursor de texto no lo es: es una línea fina, no se dibuja mientras hay texto seleccionado y no dice en qué caja se está escribiendo. Un soporte que no muestra el foco en su caja incumple el criterio 2.4.7 de WCAG. En la web basta con una regla sobre `:focus-within`.
+</Callout>
+
+En la web es `<tanrei-embedded-text-input>`. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+La caja, su margen interior y su indicación de foco son tuyos. Tres declaraciones los cubren.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="capsule">
+      <tanrei-embedded-text-input label="Mensaje" placeholder="Escribe un mensaje"
+                                  multiline max-rows="6"></tanrei-embedded-text-input>
+    </div>
+    ```
+
+    ```css
+    .capsule {
+      background: var(--tanrei-sys-color-surface-container);
+      border-radius: var(--tanrei-sys-shape-corner-large);
+      padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200);
+      outline: var(--tanrei-sys-border-thick) solid transparent;
+      outline-offset: calc(-1 * var(--tanrei-sys-border-thick));
+      cursor: text;
+    }
+    .capsule:focus-within { outline-color: var(--tanrei-sys-color-focus-ring); }
+    @media (forced-colors: active) {
+      .capsule { outline-color: CanvasText; }
+      .capsule:focus-within { outline-color: Highlight; }
+    }
+    ```
+
+    ```js
+    // Una pulsación en el margen interior es una pulsación en el texto.
+    capsule.addEventListener('mousedown', (event) => {
+      if (event.target !== capsule) return;
+      event.preventDefault();
+      input.focusAt(event.clientX, event.clientY);
+    });
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { EmbeddedTextInput } from '@tanrei/react';
+
+    <div className="capsule">
+      <EmbeddedTextInput label="Mensaje" placeholder="Escribe un mensaje" multiline maxRows={6}
+                         onAction={(event) => send(event.detail.value)} />
+    </div>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+### Lo que debe poner el soporte
+
+| Qué | El soporte da | La entrada da al soporte |
+| --- | --- | --- |
+| La caja | Una caja visible, o un lugar que se lee como una | Nada detrás del texto: se ve el relleno del soporte |
+| El foco | La indicación de foco en la caja, mientras la entrada tenga el foco, lo haya recibido como lo haya recibido | `focusin` y `focusout`, y `:focus-within` en el elemento |
+| Los estados | La marca de un error y el aspecto de una caja deshabilitada | `error` expone el estado no válido y no dibuja nada. `disabled` dibuja el texto como contenido deshabilitado |
+| El margen interior | Un margen interior alrededor del texto, y que una pulsación en ese margen se transmita | Ningún margen interior propio, un área de pulsación del objetivo mínimo, y `focusAt(x, y)` |
+| El nombre | El nombre, y lo que dicen sus mensajes | `label` (obligatorio) y `description`, ambos como texto |
+| La acción | Cuál es la acción: enviar, añadir, buscar, guardar | El evento `action`, y nada que se haga con él |
+| Los colores forzados | Un borde para la caja y la indicación de foco en los colores del sistema | Su propio texto, el marcador de posición, la selección y el cursor de texto en los colores del sistema |
+
+### La altura
+
+Con `multiline`, la entrada es exactamente tan alta como sus líneas, entre `minRows` (1 de forma predeterminada) y `maxRows` (0, sin límite, de forma predeterminada). Más allá de `maxRows`, el texto se desplaza dentro de ella.
+
+- Un cambio del número de líneas que viene del valor se anima durante `comp.embedded-text-input.motion.resize-duration`. Es un solo movimiento, lleguen las líneas que lleguen a la vez.
+- La altura que la entrada ocupa en el diseño de página es, en cada fotograma, la animada. Un soporte que se ajusta a su contenido la sigue sin ningún código.
+- El cambio se hace de inmediato cuando la entrada se dibuja por primera vez, cuando cambió su ancho o el tamaño de su texto, mientras un puntero se mantiene pulsado en el texto, y donde el movimiento está reducido.
+- `rowschange` dice cuántas líneas va a mostrar la entrada, antes de que empiece el movimiento. `rows` lee el número en cualquier momento.
+
+### Enter
+
+| Entrada | Enter | Mayús+Enter | Ctrl+Enter, Comando+Enter |
+| --- | --- | --- | --- |
+| Una línea | `action` | — | `action` |
+| Varias líneas, `enterKey="line-break"` (el valor predeterminado) | Línea nueva | Línea nueva | `action` |
+| Varias líneas, `enterKey="action"` | `action` | Línea nueva | `action` |
+
+El Enter de un método de entrada elige un candidato o confirma el texto. Nunca emite `action`. La tecla de retorno de un teclado en pantalla siempre empieza una línea nueva en una entrada de varias líneas.
+
+`action` lleva el valor, y la entrada no hace nada más. Conserva su valor, su selección y su foco.
+
+<ComponentSpecs name="embedded-text-input" />
+
+### Qué dibuja la web de otra manera
+
+- Un teclado en pantalla no se puede distinguir de uno físico. Donde el puntero principal es impreciso y no admite el paso del cursor, Enter se lee como la tecla de retorno y empieza una línea nueva. Por eso, una tableta con un teclado conectado ejecuta la acción con Ctrl+Enter o Comando+Enter.
+- `focusAt(x, y)` coloca el cursor de texto en el carácter más cercano donde el navegador puede decir qué carácter hay en un punto. Donde no puede, el cursor de texto va al inicio del texto para un punto situado encima o antes de él, y a su final en los demás casos.
+- Puesta directamente en un formulario, es uno de sus controles: envía su valor con `name`. Dentro de un soporte que es un componente de Tanrei no tiene formulario, y el soporte lleva el valor.
+- Sin script, el control es un `<textarea>` o un `<input>` que escribes como hijo suyo. Cuando el elemento queda definido, toma el texto de ese hijo y lo oculta.
+
+## Pautas
+
+### Entrada de texto incrustada o entrada de texto
+
+| Aspecto | Entrada de texto incrustada | Entrada de texto |
+| --- | --- | --- |
+| La caja | La del propio soporte, que no se dibuja en ningún otro lugar | La caja de un campo de texto, en todos los aspectos y tamaños del sistema de diseño |
+| El foco | Lo muestra el soporte | Lo muestra la propia entrada |
+| La etiqueta y los mensajes | Los pasa el soporte como texto | Los suyos, o los de su campo |
+| Los tipos | Texto, búsqueda, correo electrónico, URL, teléfono | Esos, y contraseña, número, fecha, hora y código |
+
+### Recomendado
+
+- Dale un `label`. Nada más le da nombre.
+- Pon en `description`, como texto, lo que dice una línea de ayuda, un texto de error o un recuento.
+- Marca un error en la caja. Pasa también `error` a la entrada, para que se exponga como no válida.
+- Define `maxRows` para un soporte situado en la parte inferior de una pantalla pequeña.
+- Mantén el texto en 16 px o más. Un navegador táctil amplía la página ante un texto más pequeño.
+
+### Evita
+
+- No la uses donde se quiere la caja de un campo de texto. Usa una entrada de texto.
+- No dibujes un segundo anillo de foco en la entrada. La caja muestra el foco una sola vez.
+- No animes tú la altura del soporte. Sigue la de la entrada.
+- No uses el marcador de posición como nombre.
+- No envíes con un Enter que usa un método de entrada. Escucha `action`, que los deja fuera.
+
+## Accesibilidad
+
+<ComponentAccessibility name="embedded-text-input" />
+
+### De qué se encarga el componente
+
+- Es un cuadro de texto, de varias líneas mientras `multiline` es true. Su nombre es `label` y su descripción es `description`.
+- Se expone como no válida, obligatoria, de solo lectura y deshabilitada a partir de las propiedades de esos nombres.
+- El marcador de posición nunca es el nombre.
+- Es una sola parada para la tecla Tab. Tab nunca inserta un carácter, y Escape se deja al soporte.
+- El Enter de un método de entrada nunca emite `action`.
+- El área de pulsación cumple el objetivo mínimo por encima y por debajo de sus líneas, sin cambiar su tamaño.
+- Con el texto al 200%, una entrada de varias líneas salta de línea y muestra todos los caracteres. Nada se desplaza hacia los lados.
+- Con colores forzados, su texto, el marcador de posición, la selección y el cursor de texto toman los colores del sistema.
+- No incluye textos propios, en ningún idioma.
+
+Carencias conocidas en la web:
+
+- Los métodos de entrada se han accionado de verdad en Chromium; en Firefox y Safari, solo a través de sus eventos.
+- Un teclado en pantalla se supone a partir de un puntero principal que es impreciso y no admite el paso del cursor. Esa suposición es errónea para una tableta con un teclado conectado.
+
+### Qué debes hacer tú
+
+- Dibuja una caja, y muestra el foco en ella mientras la entrada tenga el foco. Mantén un contraste de 3:1 o más entre la indicación y aquello sobre lo que se dibuja.
+- Da a la entrada un `label` con las palabras que una persona usaría para la caja.
+- Di un error con palabras junto a la caja, y pasa esas palabras en `description`.
+- Con colores forzados, da a la caja un borde del color de texto del sistema, y a su indicación de foco el color de resaltado.

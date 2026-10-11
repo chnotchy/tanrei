@@ -1,0 +1,78 @@
+---
+title: 开始使用
+description: Tanrei 提供什么、各部分如何组合，以及在你的平台上从哪里入手。
+translationOf: getting-started/index.mdx
+sourceHash: 29f0e96c7f768e4c4fac79e67bd59e1112e73709
+---
+
+import Callout from '../../../../components/Callout.astro';
+import { CardGrid, LinkCard } from '../../../../components/cards';
+import { Tabs, TabItem } from '../../../../components/tabs';
+
+Tanrei 是一个以各平台原生库的形式交付的设计系统。你不需要引入某个运行时或跨平台框架；只要为你正在使用的平台添加对应的包，就能得到与其他所有平台相同的令牌、组件和无障碍行为。
+
+<Callout type="caution" title="预发布">
+  Tanrei 正在积极开发中，**目前还没有发布任何东西**：任何注册表上都还没有它的包。每个平台的指南都说明了现在如何从源码构建它，以及首次发布之后将如何安装。这些指南中展示的 API 反映的是当前的规格和源码，在那之前仍可能变化。[状态页面](/zh-cn/status/)准确地列出了目前已有的内容。Web 和 React 的包可以从源码构建；SwiftUI、Compose、Flutter 和 React Native 尚未跟上当前的规格，目前还无法构建。
+</Callout>
+
+## 选择你的平台
+
+<CardGrid>
+  <LinkCard title="Web" description="CSS 自定义属性和 Web Components。可用于任何框架，也可以不用框架。" href="/zh-cn/getting-started/web/" />
+  <LinkCard title="React" description="由 Web Components 生成的、带类型的 React 组件。" href="/zh-cn/getting-started/react/" />
+  <LinkCard title="SwiftUI" description="面向 iOS 和 macOS 的 Swift 包。" href="/zh-cn/getting-started/swiftui/" />
+  <LinkCard title="Jetpack Compose" description="基于 Compose Foundation 的 Android 库，不依赖 Material。" href="/zh-cn/getting-started/compose/" />
+  <LinkCard title="Flutter" description="纯 Dart 包，用不用 MaterialApp 都可以。" href="/zh-cn/getting-started/flutter/" />
+  <LinkCard title="React Native" description="纯 TypeScript 组件，不含原生模块。" href="/zh-cn/getting-started/react-native/" />
+</CardGrid>
+
+## 同一个按钮，六种写法
+
+每个组件都只在一份与平台无关的规格中定义一次，再按各平台的惯用方式实现。你选择的标签页会在整个站点中被记住。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="tonal">保存草稿</tanrei-button>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    <Button variant="tonal" onClick={saveDraft}>保存草稿</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    TanreiButton("保存草稿", variant: .tonal) { saveDraft() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    TanreiButton(text = "保存草稿", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('保存草稿'))
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    <Button variant="tonal" onPress={saveDraft}>保存草稿</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+## 每个平台上都能得到的东西
+
+- **令牌。** 颜色角色、字阶、形状、层级、动效、状态和间距的值，由同一份 DTCG 源文件生成为 CSS 自定义属性，以及 Swift、Kotlin、Dart 和 TypeScript 常量。
+- **主题。** 浅色和深色，各有标准、中、高三个对比度级别。默认情况下主题跟随操作系统；你也可以为整个应用或某个子树强制指定其中任何一项。
+- **组件。** 对共享规格的实现，在任何地方都有相同的变体、状态和键盘行为。
+- **无障碍默认值。** 最小点击目标、可见的焦点环、放大到 200% 仍然可用的文本，以及对“减弱动态效果”设置的尊重，这些都是内建的，而不是留给每个界面自行处理。
+
+## 如何阅读这份文档
+
+- [基础](/zh-cn/foundations/principles/)解释理念和规则。
+- [令牌参考](/zh-cn/tokens/color/)列出每一个值，直接由令牌文件渲染而来。
+- [组件](/zh-cn/components/)页面遵循同一个模板：概览、规格、指南、无障碍。这些页面上的表格来自组件的规格，因此不会过时。
+- [状态](/zh-cn/status/)由仓库生成。

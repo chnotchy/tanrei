@@ -1,0 +1,912 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  # A draft pull request is held: no job runs on it — the run is skipped whole and costs no minutes — until it is marked
+  # ready for review or carries the label `ci:run` (CONTRIBUTING.md#a-draft-is-held). `ready_for_review` is
+  # listed so that marking it ready starts the full run without a push. The three jobs every other job waits for
+  # (validate, changes, ci-ok) carry the condition; the rest are skipped with them.
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # Started by the record-baselines workflow after it pushes baselines (a push made with GITHUB_TOKEN starts no
+  # push or pull_request run, but it may dispatch one). A dispatched run's checks attach to the branch's head commit, so
+  # they show on the pull request. It runs everything, like a push to main.
+  workflow_dispatch:
+  workflow_call: # release.yml runs these same jobs before it publishes anything
+    outputs:
+      native-paused: # the paused platforms whose jobs were skipped (packages/tools/paused-platforms.json); release.yml publishes none of them
+        value: ${{ jobs.changes.outputs.native-paused }}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # A newer push to a branch cancels the older run; runs on main are never cancelled, so two merges in quick
+  # succession both get their result.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22"
+  XCODE_VERSION: "26.6"
+  # NATIVE CI IS PAUSED — an exception to "no disabling CI jobs" with a limit (CONTRIBUTING.md#native-ci-is-paused).
+  # The platforms listed in packages/tools/paused-platforms.json are behind the web (their specs say `lagging`) and
+  # their jobs are skipped — on a pull request, on main, on a dispatched run and in a release — until each catches up:
+  # swiftui (swiftui, swiftui-dynamic-type, swiftui-gallery), compose (compose, compose-instrumented), flutter,
+  # react-native. The changes job reads that file and answers 'false' for a paused platform's area, so its jobs are
+  # skipped as if nothing of theirs had changed and "CI result" accepts the skip. The root `pnpm build`, `pnpm test`
+  # and `pnpm check` read the same file. While a platform is listed CI does not notice that it is broken, and
+  # release.yml publishes nothing of it. To end the pause for a platform, take its name out of the file, in the commit
+  # that brings the platform up to the current specs. Never remove a job instead.
+
+jobs:
+  # Sources of truth, generators, drift. If this fails nothing else matters: every other job waits for this one (about
+  # 2 minutes) and no longer for the suites below, which run next to the platforms.
+  validate:
+    name: Validate · generate · drift
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft || contains(github.event.pull_request.labels.*.name, 'ci:run')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10 # about 2 minutes
+    permissions:
+      contents: read
+      pull-requests: read # the secret scan lists a pull request's commits
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate tokens (DTCG, aliases, contrast invariants in all six schemes)
+        run: node packages/tokens-build/src/cli.js validate
+      - name: Validate specs (schema, cross-references)
+        run: node packages/tools/src/cli.js validate
+      - name: Drift (spec ↔ implementation parity, generated files up to date)
+        run: node packages/tools/src/cli.js drift
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # What each job builds from, so a pull request and a push to main run only the jobs their changes can affect (a
+  # dispatched run and a release run every job). Every platform reads the tokens, the specs and what the generators write from
+  # them, so a change to those runs everything. One output per area; the jobs below run when theirs is 'true', and
+  # "CI result" accepts a skipped job only when its area is 'false'. A paused platform (packages/tools/paused-platforms.json,
+  # the env block above) answers 'false' whatever changed and whatever started the run.
+  # Paths: `shared` feeds every area. web adds the React bindings (they wrap the elements); docs adds the docs app,
+  # Theme Studio (the docs embed it) and what the site reads (design/, docs/status/); core-tests is one output per
+  # suite, the CLI and Studio suites building the web packages and Studio's app.
+  # The changed files come from `git diff` against the pull request's base (token: ''), not from the REST API, which
+  # lists at most 3,000 files of a pull request.
+  changes:
+    name: What changed
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft || contains(github.event.pull_request.labels.*.name, 'ci:run')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read # the ci:web-only and ci:run labels, and whether the pull request is a draft
+    outputs:
+      web-only: ${{ steps.out.outputs.web-only }}
+      held: ${{ steps.out.outputs.held }}
+      web: ${{ steps.out.outputs.web }}
+      docs: ${{ steps.out.outputs.docs }}
+      apple: ${{ steps.out.outputs.apple }}
+      flutter: ${{ steps.out.outputs.flutter }}
+      compose: ${{ steps.out.outputs.compose }}
+      react-native: ${{ steps.out.outputs.react-native }}
+      core: ${{ steps.out.outputs.core }}
+      core-matrix: ${{ steps.out.outputs.core-matrix }}
+      web-matrix: ${{ steps.out.outputs.web-matrix }}
+      web-grep: ${{ steps.out.outputs.web-grep }}
+      native-paused: ${{ steps.out.outputs.native-paused }}
+    steps:
+      # Every kind of run reads the pause list from the tree; a pull request and a push also compare with their base.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # A pull request is compared with its base; a push to main with the commit main was at before it
+      # (github.event.before), so a merge runs the areas it changed. If that commit cannot be read (a force push that
+      # dropped it), the step fails without failing the job and the push runs every area.
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        continue-on-error: ${{ github.event_name == 'push' }}
+        with:
+          token: ""
+          base: ${{ github.event_name == 'push' && github.event.before || '' }}
+          filters: |
+            shared: &shared
+              - tokens/**
+              - specs/**
+              - tanrei.config.json
+              - packages/token-engine/**
+              - packages/tokens-build/**
+              - packages/tools/**
+              - scripts/**
+              - patches/**
+              - package.json
+              - pnpm-lock.yaml
+              - pnpm-workspace.yaml
+              - turbo.json
+              - .github/workflows/ci.yml
+            web: &web
+              - *shared
+              - packages/web/**
+              - packages/react/**
+            docs:
+              - *web
+              - apps/docs/**
+              - packages/studio/**
+              - design/**
+              - docs/status/**
+            apple:
+              - *shared
+              - packages/swiftui/**
+              - Package.swift
+              - Package.resolved
+            flutter:
+              - *shared
+              - packages/flutter/**
+            compose:
+              - *shared
+              - packages/compose/**
+            react-native:
+              - *shared
+              - packages/react-native/**
+            core-engine-tools: *shared
+            core-pipeline: *shared
+            core-cli:
+              - *web
+              - packages/cli/**
+              - packages/studio/**
+            core-mcp:
+              - *shared
+              - packages/mcp/**
+            core-studio:
+              - *web
+              - packages/studio/**
+      # A pull request and a push to main run the areas their paths changed; a dispatched run and a release run every
+      # area. The core suites' matrix entries are kept here, filtered by their outputs.
+      # `ci:web-only` on a pull request (CONTRIBUTING.md#web-only-iteration): the other platforms' jobs
+      # (Flutter, Compose, React Native, SwiftUI) are skipped while the web is iterated on a preview, and "CI result"
+      # fails on purpose so the pull request cannot merge unverified. The labels are read from the API, not from the
+      # event, so the label also applies to a re-run. It never applies to main, a dispatched run or a release.
+      # Which web tests the change can affect (packages/tools/src/affected.js): the components it touches, those built
+      # from or using them, and every module and test that imports what changed. Node built-ins only, so nothing is
+      # installed first. A change it cannot trace selects every test.
+      - id: select
+        if: steps.filter.outcome == 'success' && steps.filter.outputs.web == 'true'
+        env:
+          BASE: ${{ github.event_name == 'push' && github.event.before || github.event.pull_request.base.sha }}
+        run: |
+          node packages/tools/src/affected.js "$BASE" > "$RUNNER_TEMP/affected.json"
+          jq -r 'if .all then "every web test: \(.reasons | join("; "))" else "components: \(.units | join(", "))\nfiles: \(.files | join(", "))" end' "$RUNNER_TEMP/affected.json"
+          echo "json=$(jq -c . "$RUNNER_TEMP/affected.json")" >> "$GITHUB_OUTPUT"
+      - id: out
+        env:
+          ALL: ${{ (github.event_name != 'pull_request' && github.event_name != 'push') || (github.event_name == 'push' && steps.filter.outcome != 'success') }}
+          FILTER: ${{ toJSON(steps.filter.outputs) }}
+          SELECTION: ${{ steps.select.outputs.json }}
+          PR: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          web_only=false
+          held=false
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            pr=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR")
+            labels=$(echo "$pr" | jq -r '.labels[].name')
+            if echo "$labels" | grep -qx 'ci:web-only'; then
+              web_only=true
+              echo "::warning::ci:web-only — Flutter, Compose, React Native and SwiftUI are not run; CI result fails until the label is removed."
+            fi
+            # A draft is held (this job does not run for one: see its `if`). Kept for a run that reaches here another way: a push to work in progress then costs about two minutes of one
+            # runner and not 22 web shards and seven macOS jobs. `ci:run` on the draft runs it as if it were ready.
+            if [ "$(echo "$pr" | jq -r '.draft')" = true ] && ! echo "$labels" | grep -qx 'ci:run'; then
+              held=true
+              echo "::warning::Draft — held. Mark the pull request ready for review, or add the label ci:run and push or re-run, to run the suites."
+            fi
+          fi
+          echo "web-only=$web_only" >> "$GITHUB_OUTPUT"
+          echo "held=$held" >> "$GITHUB_OUTPUT"
+          on() { if [ "$held" = true ]; then echo false; elif [ "$ALL" = true ]; then echo true; else echo "$FILTER" | jq -r --arg k "$1" '.[$k] // "false"'; fi; }
+          echo "docs=$(on docs)" >> "$GITHUB_OUTPUT"
+          # The web's matrix. Every test in the three engines (22 shards) on a dispatched run, a release and a push whose
+          # base could not be read. Otherwise the selection: on a pull request in Chromium alone (the cheap check that
+          # gates a merge; the other engines run on main and before a release), on a push to main in all three; its shards from its size, about 400 Chromium tests a shard
+          # (a component has about 100). A selection of nothing runs no web job.
+          web=$(on web)
+          full='[{"engine":"chromium","projects":"--project=chromium","n":8},{"engine":"firefox","projects":"--project=firefox --project=firefox-no-style-queries","n":6},{"engine":"webkit","projects":"--project=webkit","n":8}]'
+          grep=""
+          if [ "$web" = true ] && [ "$ALL" != true ]; then
+            if [ -z "$SELECTION" ]; then echo "::error::the web's paths changed but no selection was made"; exit 1; fi
+            if [ "$(echo "$SELECTION" | jq -r .all)" = true ]; then
+              n=8
+            else
+              size=$(echo "$SELECTION" | jq '(.units | length) * 100 + (.files | length) * 50')
+              if [ "$size" -eq 0 ]; then web=false; fi
+              n=$(( (size + 399) / 400 )); [ "$n" -gt 8 ] && n=8; [ "$n" -lt 1 ] && n=1
+              grep=$(echo "$SELECTION" | jq -r .grep)
+            fi
+            if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+              engines=$(echo "$full" | jq -c --argjson n "$n" '[.[0] | .n = $n]')
+            else
+              engines=$(echo "$full" | jq -c --argjson n "$n" 'map(.n = (if $n < .n then $n else .n end))')
+            fi
+          else
+            engines=$full
+          fi
+          {
+            echo "web=$web"
+            echo "web-grep=$grep"
+            echo "web-matrix=$(echo "$engines" | jq -c '{ include: [ .[] | . as $e | range(1; $e.n + 1) | { engine: $e.engine, projects: $e.projects, shard: ., shards: $e.n } ] }')"
+          } >> "$GITHUB_OUTPUT"
+          # The pause: a platform listed in packages/tools/paused-platforms.json is not run, in any kind of run. A name
+          # that is not a platform fails here, so a misspelling can neither pause nor un-pause anything unseen.
+          NATIVE_CI_PAUSED=$(jq -r '.paused | join(" ")' packages/tools/paused-platforms.json)
+          for p in $NATIVE_CI_PAUSED; do
+            case "$p" in
+              swiftui|compose|flutter|react-native) ;;
+              *) echo "::error::packages/tools/paused-platforms.json names '$p' (swiftui, compose, flutter, react-native)"; exit 1 ;;
+            esac
+          done
+          if [ -n "$NATIVE_CI_PAUSED" ]; then
+            echo "::notice::Native CI is paused: $NATIVE_CI_PAUSED — their jobs are skipped, and this run says nothing about whether they build or pass."
+          fi
+          paused() { case " $NATIVE_CI_PAUSED " in *" $1 "*) return 0 ;; esac; return 1; }
+          for area in apple flutter compose react-native; do
+            if [ "$web_only" = true ] || paused "${area/apple/swiftui}"; then echo "$area=false"; else echo "$area=$(on "$area")"; fi
+          done >> "$GITHUB_OUTPUT"
+          echo "native-paused=$NATIVE_CI_PAUSED" >> "$GITHUB_OUTPUT"
+          matrix=$(jq -cn \
+            --arg e "$(on core-engine-tools)" --arg p "$(on core-pipeline)" --arg c "$(on core-cli)" \
+            --arg m "$(on core-mcp)" --arg s "$(on core-studio)" '
+            [ { run: $e, suite: "token engine and repo tools", packages: "--filter @tanrei/token-engine --filter @tanrei/tools" },
+              { run: $p, suite: "pipeline", packages: "--filter @tanrei/tokens-build" },
+              { run: $c, suite: "CLI", packages: "--filter @tanrei/cli" },
+              { run: $m, suite: "MCP server", packages: "--filter @tanrei/mcp" },
+              { run: $s, suite: "Theme Studio", packages: "--filter @tanrei/studio", browser: true } ]
+            | map(select(.run == "true") | del(.run)) | { include: . }')
+          echo "core-matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "core=$(echo "$matrix" | jq -r '.include | length > 0')" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
+  # A pull request that changes a released package carries a changeset (scripts/ci/check-changeset.mjs says which
+  # paths count). Node and git only, nothing installed: a few seconds. On any other event it is skipped, and "CI
+  # result" accepts that skip.
+  changeset:
+    name: Changeset
+    if: github.event_name == 'pull_request' && (!github.event.pull_request.draft || contains(github.event.pull_request.labels.*.name, 'ci:run'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/ci/check-changeset.mjs "$BASE"
+
+  # The token engine, the pipeline, the repo tools, the CLI, the MCP server and Theme Studio. One `pnpm --filter … test`
+  # over all six ran them in dependency order (engine → pipeline → CLI and MCP → Studio), about 25 minutes end to end;
+  # each suite on its own runner takes as long as the slowest one. Together the entries run every package the single
+  # step ran, with the same scripts. The entries (suite, packages, browser) are listed in the changes job, which keeps
+  # those whose paths changed.
+  core-tests:
+    name: Core tests · ${{ matrix.suite }}
+    runs-on: ubuntu-24.04
+    needs: [validate, changes]
+    if: needs.changes.outputs.core == 'true'
+    timeout-minutes: 30 # the slowest suite takes about 11 minutes
+    strategy:
+      fail-fast: false # every suite reports, as the single step did
+      matrix: ${{ fromJSON(needs.changes.outputs.core-matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build Web Components and React bindings (Theme Studio's app and the CLI bundle them)
+        run: pnpm --filter @tanrei/web --filter @tanrei/react build
+      - name: Theme Studio's standalone app builds (~7 s; a bundle that imports Node-only modules fails here)
+        run: pnpm --filter @tanrei/studio build:app
+      - name: A browser for Theme Studio's page tests
+        if: matrix.browser
+        run: pnpm --filter @tanrei/studio exec playwright install --with-deps chromium
+      - name: Tests of the ${{ matrix.suite }}
+        run: pnpm ${{ matrix.packages }} test
+
+  # Visual baselines are recorded and verified on Linux, inside Microsoft's Playwright image pinned to the exact
+  # @playwright/test of the lockfile: the same browsers, system libraries and fallback fonts on every run and in the
+  # record-baselines workflow (the fixtures' own fonts are embedded by test/harness.ts). The image already holds the
+  # browsers, so nothing is installed per run. A lockfile bump of Playwright must bump the image tag here and in
+  # record-baselines.yml — scripts/ci/check-playwright-image.sh fails the run until it does. `--ipc=host`: Chromium
+  # runs out of shared memory in a container without it (Playwright's Docker guide); `--user 1001`: the runner's own
+  # uid, so the checkout stays writable and Firefox does not refuse to start as root.
+  # About 14 hours on one runner (about 21,500 tests in the three engines, one worker on a runner's two cores), so every
+  # Playwright project runs in shards of about 40–45 minutes (`--shard`, test by test: fullyParallel): 8 of Chromium
+  # (which also compares every snapshot), 6 of Firefox, 8 of WebKit: fewer shards were each cut at their 60-minute timeout.
+  # Baselines are found by `snapshotPathTemplate` (`snapshots/{arg}{ext}`), which names neither
+  # the project, the platform nor the shard. `firefox-no-style-queries` rides with `firefox` (same browser; 46 tests).
+  web:
+    name: Web · behavior, a11y, snapshots (${{ matrix.engine }} ${{ matrix.shard }}/${{ matrix.shards }})
+    runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001 --ipc=host
+    # A container's default shell is sh; the steps are written for bash (arrays, pipefail).
+    defaults:
+      run:
+        shell: bash
+    needs: [validate, changes]
+    if: needs.changes.outputs.web == 'true'
+    timeout-minutes: 60 # a shard of every test takes about 40–45 minutes
+    strategy:
+      fail-fast: false # every shard reports, as the single run did
+      # Built by the changes job: every test in 8 Chromium, 6 Firefox and 8 WebKit shards, or a selection in fewer.
+      matrix: ${{ fromJSON(needs.changes.outputs.web-matrix) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: The Playwright image is the lockfile's Playwright
+        run: bash scripts/ci/check-playwright-image.sh
+      - id: build
+        run: pnpm --filter @tanrei/web build
+      # A project added to playwright.config.ts must get shards above, or it would never run in CI.
+      - name: Every Playwright project has shards in this matrix
+        if: matrix.engine == 'chromium' && matrix.shard == 1
+        working-directory: packages/web
+        run: |
+          have=$(pnpm exec playwright test --list --reporter=json | node -e 'let s = ""; process.stdin.on("data", (d) => (s += d)).on("end", () => console.log(JSON.parse(s).config.projects.map((p) => p.name).sort().join(" ")))')
+          want="chromium firefox firefox-no-style-queries webkit"
+          [ "$have" = "$want" ] || { echo "::error::playwright.config.ts has the projects '$have'; ci.yml shards '$want'"; exit 1; }
+      # WEB_GREP is the selection (empty: every test). Playwright matches it against each test's file and titles, and a
+      # project's own grep (firefox-no-style-queries) still applies on top of it.
+      - env:
+          WEB_GREP: ${{ needs.changes.outputs.web-grep }}
+        run: pnpm --filter @tanrei/web exec playwright test ${{ matrix.projects }} --shard=${{ matrix.shard }}/${{ matrix.shards }} ${WEB_GREP:+--grep "$WEB_GREP"}
+      # What needs no browser runs once, on one shard, after the Playwright step and whether it passed or not (so a failure
+      # here never costs a shard its Playwright results): the web package's Node tests — the links build helper and the
+      # manifest against the built elements (`test:node`, about 4 s) — and the React bindings' own tests, which read both
+      # packages' builds. Locally, `pnpm test` runs the same scripts (turbo.json).
+      - name: Node tests of the web package (the links build helper, the manifest against the built elements)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && matrix.engine == 'chromium' && matrix.shard == 1 }}
+        run: pnpm --filter @tanrei/web test:node
+      - name: React bindings (their types compile against the elements; their Node tests)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && matrix.engine == 'chromium' && matrix.shard == 1 }}
+        run: pnpm --filter @tanrei/react build && pnpm --filter @tanrei/react test
+      # The shard's blob report (playwright.config.ts, on CI): every result, with each failure's screenshots, diffs and
+      # trace as attachments — what test-results held — for web-report to merge. Uploaded whether the shard passed or not.
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: blob-report-${{ matrix.engine }}-${{ matrix.shard }}
+          path: packages/web/blob-report
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # Every shard's blob report merged into one HTML report (Playwright's sharding guide), with the same Playwright the
+  # shards ran: the artifact `playwright-report`; open it with `pnpm exec playwright show-report <folder>`.
+  web-report:
+    name: Web · merged Playwright report
+    # On the runner itself, not in the Playwright image: merging runs no browser, and only the runner's disk can be freed.
+    runs-on: ubuntu-24.04
+    needs: web
+    # Also after a failed shard (that is when the report matters); not when web did not run.
+    if: ${{ !cancelled() && needs.web.result != 'skipped' }}
+    timeout-minutes: 15
+    steps:
+      # The shards' blob reports (screenshots, diffs and traces of every failed test) are downloaded and then extracted:
+      # a full run's blobs (about 9 GB) can fill the ~14 GB the image leaves free (ENOSPC while extracting). Drop
+      # toolchains this job never uses.
+      - name: Free disk space for the reports
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /usr/local/share/boost /usr/share/swift
+          df -h /
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: blob-report-*
+          merge-multiple: true
+          path: packages/web/all-blob-reports
+      - name: Merge the shards' reports into one HTML report
+        working-directory: packages/web
+        run: |
+          pnpm exec playwright merge-reports --reporter html ./all-blob-reports
+          df -h /
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-report
+          path: packages/web/playwright-report
+          retention-days: 14
+
+  docs:
+    name: Docs · build
+    runs-on: ubuntu-24.04
+    needs: [validate, changes]
+    if: needs.changes.outputs.docs == 'true'
+    timeout-minutes: 10 # about 1–2 minutes
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - id: web
+        run: pnpm --filter @tanrei/web build
+      - run: pnpm --filter @tanrei/docs build
+      # What needs no build of the site runs after it, whether it passed or not (so a failure here never costs the job
+      # its build result): the docs' Node tests — the Markdown passes through the pipeline astro.config.mjs configures,
+      # and every spec fixture's live markup against the web package's manifest (`test:node`, about 3 s). They read the
+      # web package's build. Locally, `pnpm test` runs the same script before it builds the site (apps/docs/package.json).
+      - name: Node tests of the docs app (the Markdown passes, the live fixtures against the manifest)
+        if: ${{ !cancelled() && steps.web.outcome == 'success' }}
+        run: pnpm --filter @tanrei/docs test:node
+
+  # The Apple platform runs on GitHub-hosted macOS (ten times the Linux price); like every platform it runs only when
+  # something it builds from changed (the changes job's `apple`: the SwiftUI package and its gallery, the Swift package
+  # manifest, and the shared inputs). A release (workflow_call), a push to main and a dispatched run always run it.
+  swiftui:
+    name: SwiftUI · build, tests, snapshots
+    runs-on: macos-26
+    needs: [validate, changes]
+    if: needs.changes.outputs.apple == 'true'
+    timeout-minutes: 30 # about 12 minutes
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The Xcode the Apple baselines and timings were taken with (runner image macos-26-arm64, Xcode 26.6); a runner
+      # image update must not change the toolchain under the tests. Bump XCODE_VERSION on purpose, then re-record.
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: |
+          app=$(ls -d "/Applications/Xcode_${XCODE_VERSION}.app" "/Applications/Xcode_${XCODE_VERSION}".*.app 2>/dev/null | head -n 1)
+          [ -n "$app" ] || { echo "::error::Xcode ${XCODE_VERSION} is not on this runner image:"; ls -d /Applications/Xcode*.app; exit 1; }
+          sudo xcode-select -s "$app/Contents/Developer"
+          xcodebuild -version
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: swift --version
+      - run: swift build --build-tests
+      - name: Emitter check, the acme fixture is what the emitter writes, swift test
+        run: pnpm --filter @tanrei/swiftui test
+      # A snapshot that differs writes its actual image to $TMPDIR/tanrei-snapshot-failures: keep it, so the diff can be
+      # looked at without a Mac. Also when the job passes: the runner-only snapshot differences are marked as known
+      # issues, and their images are what the root cause needs.
+      - if: ${{ !cancelled() }}
+        run: cp -R "$TMPDIR/tanrei-snapshot-failures" swiftui-snapshot-failures || true
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: swiftui-snapshot-failures
+          path: swiftui-snapshot-failures
+          if-no-files-found: ignore
+
+  # Dynamic Type has one scaling (macOS has no Dynamic Type, so this runs on the simulator).
+  swiftui-dynamic-type:
+    name: SwiftUI · Dynamic Type on a simulator
+    runs-on: macos-26
+    needs: [validate, changes]
+    if: needs.changes.outputs.apple == 'true'
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The Xcode the Apple baselines and timings were taken with (runner image macos-26-arm64, Xcode 26.6); a runner
+      # image update must not change the toolchain under the tests. Bump XCODE_VERSION on purpose, then re-record.
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: |
+          app=$(ls -d "/Applications/Xcode_${XCODE_VERSION}.app" "/Applications/Xcode_${XCODE_VERSION}".*.app 2>/dev/null | head -n 1)
+          [ -n "$app" ] || { echo "::error::Xcode ${XCODE_VERSION} is not on this runner image:"; ls -d /Applications/Xcode*.app; exit 1; }
+          sudo xcode-select -s "$app/Contents/Developer"
+          xcodebuild -version
+      # The same device as the gallery shards.
+      - name: Pick the iPhone 17 simulator (or, failing that, any available iPhone)
+        id: sim
+        run: |
+          udid=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)['devices']
+          phones = [x for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone')]
+          if not phones:
+              print('No available iPhone simulator on this runner. Runtimes and their available devices:', file=sys.stderr)
+              for k in sorted(d):
+                  print(f'  {k}: ' + (', '.join(x['name'] for x in d[k]) or '(none)'), file=sys.stderr)
+              sys.exit(1)
+          print(next((x['udid'] for x in phones if x['name'] == 'iPhone 17'), phones[0]['udid']))
+          ")
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+      - name: Dynamic Type has one scaling (macOS has no Dynamic Type, so this runs on the simulator)
+        run: >
+          xcodebuild test
+          -scheme Tanrei
+          -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}"
+          -only-testing:TanreiTests/TanreiDynamicTypeTests
+          -derivedDataPath "$RUNNER_TEMP/tanrei-derived"
+          -resultBundlePath "$RUNNER_TEMP/dynamic-type.xcresult"
+      # The log of a UI test run is longer than what an API client can read back (the tail is kept); the failures are
+      # printed last, from the result bundle, and the bundle is kept.
+      - name: Failed tests
+        if: failure()
+        run: |
+          xcrun xcresulttool get test-results tests --path "$RUNNER_TEMP/dynamic-type.xcresult" --format json 2>/dev/null \
+            | python3 -c "
+          import json, sys
+          def walk(n, path):
+              if n.get('nodeType') == 'Test Case' and n.get('result') == 'Failed':
+                  print('FAILED ' + '/'.join(path + [n['name']]))
+                  for c in n.get('children', []):
+                      if c.get('nodeType') == 'Failure Message':
+                          print('   ' + c['name'][:600])
+              for c in n.get('children', []):
+                  walk(c, path + ([n['name']] if n.get('nodeType') in ('Unit test bundle', 'UI test bundle', 'Test Suite') else []))
+          for n in json.load(sys.stdin).get('testNodes', []):
+              walk(n, [])
+          " || echo "No result bundle (the build or the simulator failed before any test ran)."
+      - if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: swiftui-dynamic-type-xcresult
+          path: ${{ runner.temp }}/dynamic-type.xcresult
+          if-no-files-found: ignore
+
+  # The gallery app under XCUITest: the accessibility audit in light and dark, a tap fires once, disabled never
+  # fires. Keyboard activation cannot be automated on the simulator and skips. The suite took about 2 hours on one runner; it runs in shards, each
+  # on its own simulator. Every shard builds the app itself (a couple of minutes) and runs its share of the test methods
+  # in XCTest's usual order.
+  swiftui-gallery:
+    name: SwiftUI · gallery UI tests and accessibility audit on a simulator (${{ matrix.shard }}/${{ matrix.shards }})
+    runs-on: macos-26
+    needs: [validate, changes]
+    if: needs.changes.outputs.apple == 'true'
+    # A shard takes about 25–35 minutes (the one holding testEveryFixtureOfEveryImplementedSpecIsShown alone, the
+    # longest); a hung simulator run should still fail well before the 6 h
+    # default.
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false # every shard reports, as the single run did
+      matrix:
+        shard: [1, 2, 3, 4, 5]
+        shards: [5]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The Xcode the Apple baselines and timings were taken with (runner image macos-26-arm64, Xcode 26.6); a runner
+      # image update must not change the toolchain under the tests. Bump XCODE_VERSION on purpose, then re-record.
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: |
+          app=$(ls -d "/Applications/Xcode_${XCODE_VERSION}.app" "/Applications/Xcode_${XCODE_VERSION}".*.app 2>/dev/null | head -n 1)
+          [ -n "$app" ] || { echo "::error::Xcode ${XCODE_VERSION} is not on this runner image:"; ls -d /Applications/Xcode*.app; exit 1; }
+          sudo xcode-select -s "$app/Contents/Developer"
+          xcodebuild -version
+      # The device the UI tests were written against; any other available iPhone when the runner does not have it.
+      - name: Pick the iPhone 17 simulator (or, failing that, any available iPhone)
+        id: sim
+        run: |
+          udid=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)['devices']
+          phones = [x for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if x['name'].startswith('iPhone')]
+          if not phones:
+              print('No available iPhone simulator on this runner. Runtimes and their available devices:', file=sys.stderr)
+              for k in sorted(d):
+                  print(f'  {k}: ' + (', '.join(x['name'] for x in d[k]) or '(none)'), file=sys.stderr)
+              sys.exit(1)
+          print(next((x['udid'] for x in phones if x['name'] == 'iPhone 17'), phones[0]['udid']))
+          ")
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+      # Every `func test…()` of the UI test target, read from its sources, is dealt to exactly one shard: heaviest first,
+      # each to the lightest shard (weights are rough minutes from CI runs). Shards 1…n-1 run their own list with
+      # -only-testing; the last shard runs the whole target minus the other shards' tests (-skip-testing), so a test
+      # this parse ever misses still runs — there.
+      - name: This shard's tests
+        id: tests
+        env:
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ matrix.shards }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import os, pathlib, re, sys
+          shard, shards, target = int(os.environ['SHARD']), int(os.environ['SHARDS']), 'TanreiGalleryUITests'
+          tests, cls = set(), None
+          for f in sorted(pathlib.Path('packages/swiftui/Gallery/UITests').rglob('*.swift')):
+              for line in f.read_text().splitlines():
+                  if m := re.match(r'\s*(?:@\w+\s+)*(?:(?:final|public|open)\s+)*(?:class|extension)\s+(\w+)', line):
+                      cls = m.group(1)
+                  if (m := re.match(r'\s*(?:@\w+\s+)*(?:(?:override|public|open|nonisolated)\s+)*func\s+(test\w*)\s*\(\s*\)', line)) and cls:
+                      tests.add(f'{cls}/{m.group(1)}')
+          tests = sorted(tests)
+          if len(tests) < shards:
+              sys.exit(f'found {len(tests)} UI tests for {shards} shards: the parse is wrong')
+          # testEveryFixtureOfEveryImplementedSpecIsShown walks every fixture (25+ min); an audit launches the app in
+          # light and dark and waits for the audit; the rest are shorter.
+          weight = lambda t: 30 if 'EveryFixture' in t else 1 if 'Audit' in t else 0.6
+          load, of = [0.0] * shards, {}
+          for t in sorted(tests, key=lambda t: (-weight(t), t)):
+              s = min(range(shards), key=lambda i: (load[i], i))
+              load[s] += weight(t)
+              of[t] = s + 1
+          mine = [t for t in tests if of[t] == shard]
+          if shard < shards:
+              args = [f'-only-testing:{target}/{t}' for t in mine]
+          else:
+              args = [f'-only-testing:{target}'] + [f'-skip-testing:{target}/{t}' for t in tests if of[t] != shards]
+          print(f'shard {shard}/{shards}: {len(mine)} of {len(tests)} tests (~{load[shard - 1]:.0f} min)', file=sys.stderr)
+          for t in mine:
+              print(f'  {t}', file=sys.stderr)
+          print('args=' + ' '.join(args))
+          PY
+      - run: >
+          xcodebuild test
+          -project packages/swiftui/Gallery/TanreiGallery.xcodeproj
+          -scheme TanreiGallery
+          -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}"
+          -derivedDataPath "$RUNNER_TEMP/gallery-derived"
+          -resultBundlePath "$RUNNER_TEMP/gallery.xcresult"
+          ${{ steps.tests.outputs.args }}
+      # The log of a UI test run is longer than what an API client can read back (the tail is kept); the failures are
+      # printed last, from the result bundle, and the bundle is kept.
+      - name: Failed tests
+        if: failure()
+        run: |
+          xcrun xcresulttool get test-results tests --path "$RUNNER_TEMP/gallery.xcresult" --format json 2>/dev/null \
+            | python3 -c "
+          import json, sys
+          def walk(n, path):
+              if n.get('nodeType') == 'Test Case' and n.get('result') == 'Failed':
+                  print('FAILED ' + '/'.join(path + [n['name']]))
+                  for c in n.get('children', []):
+                      if c.get('nodeType') == 'Failure Message':
+                          print('   ' + c['name'][:600])
+              for c in n.get('children', []):
+                  walk(c, path + ([n['name']] if n.get('nodeType') in ('Unit test bundle', 'UI test bundle', 'Test Suite') else []))
+          for n in json.load(sys.stdin).get('testNodes', []):
+              walk(n, [])
+          " || echo "No result bundle (the build or the simulator failed before any test ran)."
+      - if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: swiftui-gallery-xcresult-${{ matrix.shard }}
+          path: ${{ runner.temp }}/gallery.xcresult
+          if-no-files-found: ignore
+
+  # Goldens are recorded and verified on Linux (ubuntu-24.04), with the Flutter test font, so they do not depend on
+  # installed fonts; the Flutter version is pinned because a new engine may rasterize differently. Record them with
+  # the record-baselines workflow, which runs this same runner and version.
+  flutter:
+    name: Flutter · analyze, tests, goldens
+    runs-on: ubuntu-24.04
+    needs: [validate, changes]
+    if: needs.changes.outputs.flutter == 'true'
+    timeout-minutes: 30 # about 8–12 minutes
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: 3.32.8 # the version the goldens are recorded with (record-baselines.yml)
+          channel: stable
+          cache: true
+      - working-directory: packages/flutter
+        run: |
+          flutter pub get
+          dart format --output=none --set-exit-if-changed lib/tanrei.dart lib/src/theme lib/src/primitives lib/src/components test example/lib example/test
+          flutter analyze
+          flutter test
+      - name: Example gallery (every Button fixture under every shipped system)
+        working-directory: packages/flutter/example
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test
+          flutter build web
+      - if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: flutter-golden-failures
+          path: packages/flutter/test/**/failures
+          if-no-files-found: ignore
+
+  # Roborazzi baselines are recorded and verified on Linux (ubuntu-24.04; Robolectric's native graphics, JDK 17),
+  # with the record-baselines workflow. No Android SDK step: the ubuntu-24.04 image ships the SDK at ANDROID_HOME
+  # (/usr/local/lib/android/sdk) and AGP downloads a platform or build-tools it lacks on its own — the emulator job below
+  # builds the same modules on the same image.
+  compose:
+    name: Compose · build, tests, snapshots
+    runs-on: ubuntu-24.04
+    needs: [validate, changes]
+    if: needs.changes.outputs.compose == 'true'
+    timeout-minutes: 40 # about 5–15 minutes (a cold Gradle cache is the long end)
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+      - working-directory: packages/compose
+        run: ./gradlew :tanrei:assembleDebug :tanrei:testDebugUnitTest :tanrei:verifyRoborazziDebug :gallery:assembleDebug :gallery:assembleDebugAndroidTest
+      - if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: compose-roborazzi-diffs
+          path: packages/compose/tanrei/build/outputs/roborazzi
+          if-no-files-found: ignore
+
+  # What Robolectric cannot do: the Accessibility Test Framework checks run for real, and a hardware keyboard
+  # activates the button, on an emulator.
+  # The Android SDK comes from the ubuntu-24.04 image (ANDROID_HOME=/usr/local/lib/android/sdk); the emulator
+  # runner then installs what it needs with sdkmanager (platform-tools, build-tools, platforms;android-34, the
+  # emulator, the system image). No setup-android step is needed.
+  compose-instrumented:
+    name: Compose · accessibility checks and keyboard on an emulator
+    runs-on: ubuntu-24.04
+    needs: [validate, changes]
+    if: needs.changes.outputs.compose == 'true'
+    timeout-minutes: 60 # about 20–25 minutes
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+      # The emulator's userdata partition needs ~7.2 GB free; the runner image left 7.19 GB and the emulator refused to
+      # boot ("Not enough space to create userdata partition"). Drop toolchains this job never uses (not the tool cache:
+      # setup-java put the JDK there).
+      - name: Free disk space for the emulator
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /usr/share/swift
+          df -h /
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      # The AVD and a booted snapshot of it are cached (the emulator runner's README, "AVD snapshot caching"): on a miss
+      # one step creates the AVD, boots it cold and saves a snapshot; the test step then boots from that snapshot and
+      # saves none. Both steps take the same device and emulator options, which a snapshot must be loaded with.
+      # Change the key with the API level, target or arch.
+      - name: AVD cache
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ runner.os }}-api34-google_apis-x86_64
+      - name: Create the AVD and a snapshot to cache
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+      - uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          disable-animations: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          working-directory: packages/compose
+          # On a failure, print each failing test's message into the log (the HTML report stays on the runner).
+          script: ./gradlew :gallery:connectedDebugAndroidTest || { find gallery/build/outputs/androidTest-results -name '*.xml' -exec grep -h -B 1 -A 25 '<failure' {} + | head -n 400; exit 1; }
+      - if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: compose-instrumented-results
+          path: packages/compose/gallery/build/reports/androidTests
+          if-no-files-found: ignore
+
+  react-native:
+    name: React Native · typecheck, build, tests
+    runs-on: ubuntu-24.04 # render-tree snapshots are platform independent
+    needs: [validate, changes]
+    if: needs.changes.outputs.react-native == 'true'
+    timeout-minutes: 15 # about 5 minutes
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @tanrei/react-native typecheck
+      - run: pnpm --filter @tanrei/react-native build
+      - run: pnpm --filter @tanrei/react-native test
+
+  # One check that stands for the whole workflow: the jobs above are matrices whose check names carry their shard, and a
+  # branch protection rule can require this one name instead. validate and changes must succeed; every other job must
+  # have succeeded unless its area (the changes job) was 'false', in which case it may be skipped — and web-report may
+  # be skipped only when web was, changeset only when the run is not a pull request's. Any other skip fails it: a job
+  # skipped because what it needs failed, or one skipped although its area changed.
+  # A paused platform's area is 'false' (packages/tools/paused-platforms.json), so its skipped jobs pass here; the log
+  # below prints `area native-paused` with the platforms this run did not check.
+  ci-ok:
+    name: CI result
+    runs-on: ubuntu-24.04
+    if: ${{ !cancelled() && (github.event_name != 'pull_request' || !github.event.pull_request.draft || contains(github.event.pull_request.labels.*.name, 'ci:run')) }}
+    timeout-minutes: 5
+    needs:
+      - validate
+      - changes
+      - changeset
+      - core-tests
+      - web
+      - web-report
+      - docs
+      - swiftui
+      - swiftui-dynamic-type
+      - swiftui-gallery
+      - flutter
+      - compose
+      - compose-instrumented
+      - react-native
+    steps:
+      - env:
+          NEEDS: ${{ toJSON(needs) }}
+          AREAS: ${{ toJSON(needs.changes.outputs) }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          echo "$AREAS" | jq -r 'to_entries[] | select(.key != "core-matrix") | "area \(.key): \(.value)"'
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          bad=$(echo "$NEEDS" | jq -r --argjson areas "$AREAS" --arg event "$EVENT" '
+            { "core-tests": "core", "web": "web", "docs": "docs",
+              "swiftui": "apple", "swiftui-dynamic-type": "apple", "swiftui-gallery": "apple",
+              "flutter": "flutter", "compose": "compose", "compose-instrumented": "compose",
+              "react-native": "react-native" } as $area
+            | . as $needs
+            | to_entries[]
+            | select(.value.result != "success")
+            | select((.value.result == "skipped" and (
+                if .key == "web-report" then $needs.web.result == "skipped"
+                elif .key == "changeset" then $event != "pull_request"
+                elif $area[.key] then ($areas[$area[.key]] // "") != "true"
+                else false end)) | not)
+            | "\(.key): \(.value.result)"')
+          if [ -n "$bad" ]; then
+            echo "Not successful:"
+            echo "$bad"
+            echo "::error::CI result: $(echo "$bad" | paste -sd ',' - | sed 's/,/, /g')"
+            exit 1
+          fi
+          # A held draft ran nothing but Validate: it is not verified, and says so here.
+          if [ "$(echo "$AREAS" | jq -r '.held // "false"')" = true ]; then
+            echo "::error::CI result: the pull request is a draft and was held. Mark it ready for review, or add the label ci:run, to run the suites."
+            exit 1
+          fi
+          # ci:web-only skipped the other platforms: what ran may be green, but the pull request is not verified.
+          if [ "$(echo "$AREAS" | jq -r '."web-only" // "false"')" = true ]; then
+            echo "::error::CI result: ci:web-only is set — Flutter, Compose, React Native and SwiftUI were not run. Remove the label (and push or re-run) to verify every platform before merging."
+            exit 1
+          fi

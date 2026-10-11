@@ -1,0 +1,231 @@
+---
+title: Entrada de texto
+description: La caja en la que se escribe, y todo lo que se escribe en ella (una línea o varias, una fecha o una hora, código), sin fila de etiqueta, ayuda ni texto de error propios. Para un lugar cuya etiqueta está en otra parte, o dentro de un campo que el producto compone por su cuenta.
+translationOf: components/text-input.mdx
+sourceHash: f696d67893933cf6b88d1d28aeb4216876f1ec36
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="text-input" />
+
+<DemoFrame label="Sin nada más: un filtro sobre una lista, y una fila cuya etiqueta está junto a su entrada" column>
+  <tanrei-text-input class="not-content" type="search" label="Filtrar tokens" placeholder="Filtrar tokens">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>Nombre visible</span>
+    <tanrei-text-input label="Nombre visible" value="Ada Lovelace"></tanrei-text-input>
+  </div>
+</DemoFrame>
+
+Una entrada de texto es la caja de un [campo de texto](/es/components/text-field/), sola: el contenedor, el texto, los iconos, el prefijo y el sufijo, los segmentos de una fecha, el botón del selector y el tirador de cambio de tamaño. No tiene fila de etiqueta encima, ni ayuda ni texto de error debajo, y no dibuja ningún recuento.
+
+Úsala sin nada más donde la etiqueta que lee la persona está en otro lugar:
+
+| Dónde | La etiqueta que lee la persona | El `label` de la entrada |
+| --- | --- | --- |
+| Un filtro en una barra de herramientas o sobre una lista | El marcador de posición y el glifo dicen qué hace | Qué filtra: «Filtrar tokens» |
+| Una celda de una tabla | El encabezado de la columna | La columna y la fila: «Cantidad, escritorio de roble» |
+| Una fila cuya etiqueta está junto a la entrada | El texto que tiene al lado | Las mismas palabras |
+
+Sin nada más, la entrada necesita un `label` propio. Es el nombre accesible. Una entrada stacked nunca lo dibuja; una filled o una outlined lo dibuja como la etiqueta que flota en la caja.
+
+Es un componente **avanzado**: el control sin nada más, para un producto que compone el suyo. La mayoría de los formularios quieren el [campo de texto](/es/components/text-field/), que es esta entrada dentro de un campo, listo para usarse.
+
+**Se usa en** el [campo de texto](/es/components/text-field/) y el [campo de chips](/es/components/chip-field/). Para enmarcarla tú, ponla dentro de un [campo](/es/components/field/), que le da nombre, la describe, la marca como obligatoria y la pone en su estado de error.
+
+Es un bloque tan ancho como el lugar en el que se pone, tanto sin nada más como enmarcada. No tiene ancho propio: para una caja más estrecha, dale un lugar más estrecho.
+
+En la web es `<tanrei-text-input>`. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Un filtro en una barra de herramientas: la barra le da su ancho. -->
+    <tanrei-text-input name="q" type="search" label="Filtrar tokens" placeholder="Filtrar tokens"
+      style="inline-size: 16rem">
+      <span slot="leading-icon">search</span>
+    </tanrei-text-input>
+
+    <!-- Una celda de una tabla: el encabezado de la columna es la etiqueta visible. -->
+    <td><tanrei-text-input name="quantity-oak-desk" type="number" label="Cantidad, escritorio de roble" value="2"></tanrei-text-input></td>
+
+    <!-- Una fila cuya etiqueta está junto a la entrada. -->
+    <div class="row">
+      <span>Nombre visible</span>
+      <tanrei-text-input name="display-name" label="Nombre visible" autocomplete="nickname"></tanrei-text-input>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/text-input';
+
+      const filter = document.querySelector('[name="q"]');
+      filter.addEventListener('input', () => show(filter.value)); // cada edición
+      filter.addEventListener('change', () => remember(filter.value)); // el foco salió o se pulsó Enter, con un valor distinto
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TextInput } from '@tanrei/react';
+
+    <TextInput name="q" type="search" label="Filtrar tokens" placeholder="Filtrar tokens"
+      value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### En un campo, a mano
+
+Un campo alrededor de una entrada de texto es un campo de texto escrito por extenso. Deja vacío el `label` de la entrada: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se indican en el campo; `name`, `value` y todo lo que tiene que ver con escribir, en la entrada.
+
+```html
+<tanrei-field label="Correo electrónico" requirement="required" required-text="Obligatorio"
+  supporting-text="Solo lo usamos para iniciar tu sesión.">
+  <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="Un campo con una entrada de texto dentro: la misma imagen que un campo de texto" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" requirement="required" required-text="Obligatorio" supporting-text="Solo lo usamos para iniciar tu sesión.">
+    <tanrei-text-input type="email"></tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+La entrada le dice a su campo lo que solo ella sabe. La ayuda empieza donde empieza el texto, después del margen interior y de un icono inicial. Una entrada filled u outlined dibuja ella misma la etiqueta del campo, flotando en la caja, de modo que el campo no dibuja ninguna fila de etiqueta. Una fecha o una hora a medio rellenar pone el campo en error con el `invalidText` o el `unavailableText` de la entrada.
+
+Una cosa te toca a ti, a mano: el recuento. Con `counter`, la entrada lleva el recuento, y un campo dibuja lo que recibe como `count-text`. Dáselo en cada cambio:
+
+```html
+<tanrei-field label="Nombre visible">
+  <tanrei-text-input name="display-name" maxlength="40" counter></tanrei-text-input>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const input = field.querySelector('tanrei-text-input');
+  field.countText = input.countText;
+  input.addEventListener('input', () => (field.countText = input.countText));
+</script>
+```
+
+El campo de texto lo hace por sí mismo. Es lo único que hace el campo de texto y no hacen un campo y una entrada de texto escritos a mano.
+
+## Especificaciones
+
+<DemoFrame label="Entradas sin nada más: en error, deshabilitada, de solo lectura, con un prefijo y un sufijo, y grande" plain column>
+  <tanrei-text-input class="not-content" label="Correo electrónico" value="ada@" error></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="Correo electrónico" value="ada@example.com" disabled></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="Correo electrónico" value="ada@example.com" readonly></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="Importe" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="large" label="Correo electrónico" value="ada@example.com"></tanrei-text-input>
+</DemoFrame>
+
+<DemoFrame label="Filled y outlined, sin nada más: la etiqueta de la propia entrada flota en la caja" system="m3-like" plain column>
+  <tanrei-text-input class="not-content" variant="filled" label="Correo electrónico" type="email" value="ada@example.com"></tanrei-text-input>
+  <tanrei-text-input class="not-content" variant="outlined" label="Correo electrónico" type="email"></tanrei-text-input>
+</DemoFrame>
+
+### Qué es de la entrada y qué es del campo
+
+| Aspecto | La entrada de texto | El campo que la rodea |
+| --- | --- | --- |
+| Dibuja | La caja, el texto, el marcador de posición, el prefijo y el sufijo, los iconos, los segmentos de una fecha o una hora, el botón del selector, el tirador de cambio de tamaño y la etiqueta que flota en una caja filled u outlined | La fila de etiqueta sobre una entrada stacked, la marca de obligatorio o de opcional, la ayuda, el texto de error, el recuento |
+| Contiene | El valor, su lugar en un formulario, los eventos | Nada |
+| Dice a la tecnología de apoyo | Su propia descripción: el prefijo y el sufijo, el recuento | El nombre, la ayuda o el texto de error, obligatorio, no válido, deshabilitado |
+
+Lo que ocurre en la caja es lo mismo sin nada más, enmarcada y en un campo de texto, y se describe una sola vez, en la página del campo de texto: los [tipos de entrada](/es/components/text-field/#tipos-de-entrada), [varias líneas](/es/components/text-field/#varias-líneas) y el tirador de cambio de tamaño, el [código](/es/components/text-field/#código), y las [fechas y horas](/es/components/text-field/#fechas-y-horas) con el botón del selector.
+
+### Sin nada más, sin un campo
+
+- **El nombre** es `label`. `labelHidden` impide que una entrada filled u outlined lo dibuje.
+- **Un error** es `error`, que defines tú: la caja se dibuja en su estado de error y se expone como no válida. La entrada no tiene texto de error. Di con palabras qué está mal junto a ella, o enmárcala.
+- **Una fecha o una hora a medio rellenar**, o con un valor que no está disponible, dibuja la caja en error y emite `entryError`. `invalidText` o `unavailableText` se añade a la descripción de la entrada; nada lo dibuja.
+- **El recuento** se lleva, se describe y se anuncia, y no se dibuja. `countText` es el recuento como texto («12/40»), para que lo dibujes tú.
+- **La obligatoriedad** la dice un campo. Una entrada sin nada más no tiene ningún ajuste de obligatoriedad: donde el formulario necesite una respuesta, valídala tú.
+
+### Lo que ya se introdujo
+
+El slot `entries` es un lugar dentro de la caja, antes del texto que se escribe, para lo que la persona ya introdujo: los chips de una lista de direcciones, por ejemplo. La entrada dispone su contenido y la parte donde se escribe en líneas que saltan, y la caja crece por líneas enteras. Mientras el slot tiene contenido, una etiqueta flotante flota y el marcador de posición no se muestra.
+
+```html
+<tanrei-text-input label="Destinatarios" type="email">
+  <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com"
+    remove-label="Quitar ada@example.com"></tanrei-chip>
+</tanrei-text-input>
+```
+
+La entrada no da a estos elementos ningún rol, ningún lugar en el orden del foco ni ninguna tecla: son tuyos. Una pulsación en la caja fuera de todos los elementos da el foco a la parte donde se escribe. Para una lista de elementos con sus teclas, sus comprobaciones y su valor de formulario, usa el [campo de chips](/es/components/chip-field/), que está construido sobre este lugar.
+
+<ComponentSpecs name="text-input" />
+
+### Qué dibuja la web de otra manera
+
+- El elemento está asociado a formularios. Con un `name` envía `value`, se restablece al valor de su atributo `value`, se restaura al navegar, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras su campo dice que es obligatorio. Una fecha o una hora con un error de entrada también se notifica.
+- El texto se edita en un `<input>` nativo dentro del shadow root, o en un `<textarea>` mientras es `multiline`. Una fecha o una hora es un grupo de botones de número.
+- El elemento es un bloque. `focus()` va al elemento nativo, y una pulsación en cualquier punto de la caja fuera de un botón le da el foco.
+- `input` y `change` son eventos compuestos. `action` es un CustomEvent cancelable: cancélalo para que Enter no envíe el formulario. `pickerrequest` y `entryerror` son CustomEvents cuyo `detail` contiene `{ value, type, min, max }` y `{ reason, text }`. Sus tipos son `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` y `TanreiTextInputEntryErrorDetail`.
+- `countText` es una propiedad de solo lectura, nueva después de cada cambio del valor. No tiene atributo.
+- Los atributos van en kebab-case, como `label-hidden`, `min-rows`, `prefix-text` y `no-wrap`, que es `wrap` puesto en false. `readonly`, `maxlength`, `autocomplete`, `min` y `max` conservan los nombres de HTML.
+- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`.
+- Slots: `leading-icon`, `trailing-icon` y `entries`. Un icono final puede ser tu propio Button de solo icono. La parte `entries` no tiene caja propia: sus elementos están en las propias líneas de la caja.
+- `resize-label` y `segment-empty-text`, si se dejan vacíos, se leen de los textos del producto (`setWords()`).
+- Antes de que el elemento esté definido no tiene tamaño. Reserva la altura de la caja.
+
+## Pautas
+
+### Entrada de texto, campo de texto o un campo a mano
+
+| Necesitas | Usa |
+| --- | --- |
+| Una etiqueta, la caja, ayuda, un error y un recuento | Un [campo de texto](/es/components/text-field/) |
+| La caja sin nada más, bajo una etiqueta que está en otro lugar: el filtro de una barra de herramientas, la celda de una tabla, una fila con su etiqueta al lado | Una entrada de texto, con su propio `label` como nombre |
+| Algo tuyo dentro del marco, junto a la caja o debajo de ella | Un [campo](/es/components/field/) con una entrada de texto y tu propio elemento dentro |
+| Una búsqueda con sugerencias o resultados que se abren desde ella | Una [búsqueda](/es/components/search/) |
+| Un número que se cambia por pasos y se mantiene dentro de unos límites | Un [campo numérico](/es/components/number-field/) |
+
+### Recomendado
+
+- Da a una entrada sin nada más un `label` con las palabras de la etiqueta visible, o con palabras que digan lo que la etiqueta visible y su lugar dicen juntos: «Cantidad, escritorio de roble».
+- Da a una entrada sin nada más su ancho con el lugar que ocupa: una columna de una cuadrícula, una celda, un elemento de una barra de herramientas que tiene un ancho.
+- Mantén la etiqueta visible lo bastante cerca para que quien ve la página lea las dos cosas como una.
+- Usa el campo de texto siempre que lo que necesites sea una etiqueta sobre la caja, ayuda y un error.
+
+### Evita
+
+- No uses una entrada sin nada más en un formulario para ahorrarte el sitio de una etiqueta. Salvo un filtro o una búsqueda marcados por su glifo, una entrada sin etiqueta visible en ninguna parte es una adivinanza para todo el que la ve.
+- No uses el marcador de posición como etiqueta. Desaparece en cuanto alguien escribe, y nunca es el nombre.
+- No definas `label`, `error` ni `disabled` en una entrada que está dentro de un campo. Indícalos en el campo, para que la etiqueta y la ayuda los sigan.
+- No pongas un campo de texto dentro de un campo. Ya es un campo; el control que un campo enmarca es la entrada de texto.
+- No dibujes el recuento, la ayuda ni un error dentro de la caja con un estilo propio. Son filas de un campo.
+
+## Accesibilidad
+
+<ComponentAccessibility name="text-input" />
+
+### De qué se encarga el componente
+
+- Es un solo cuadro de texto, de varias líneas con `multiline`; un cuadro de búsqueda para el `type` search donde la plataforma tiene ese rol; un grupo de botones de número para una fecha o una hora.
+- Su nombre es su propio `label`, o la etiqueta del campo que la rodea donde no tiene ninguno. El marcador de posición nunca es el nombre.
+- Su descripción es el prefijo y el sufijo mientras se muestran, después el recuento y después lo que da su campo: la ayuda o el texto de error.
+- Se expone como no válida mientras está en error, como obligatoria mientras su campo lo dice, y como de solo lectura y deshabilitada.
+- El recuento se anuncia tal como está («12/40») cuando la escritura se detiene durante un segundo, nunca con cada tecla, lo dibuje algo o no.
+- El foco lo muestra el propio borde de la caja, tanto desde el teclado como desde un puntero. El área de pulsación cumple el objetivo mínimo.
+- El asterisco que sigue a una etiqueta flotante queda oculto para la tecnología de apoyo: el estado de obligatorio ya lo dice.
+- Las compilaciones de depuración notifican que falta un nombre.
+
+### Qué debes hacer tú
+
+- Da nombre a toda entrada sin nada más con `label`. Un texto visible a su lado no le da nombre.
+- Donde una entrada sin nada más pueda estar mal, di qué está mal con palabras que lleguen a la tecnología de apoyo: un mensaje tuyo vinculado a la página, o un campo alrededor de la entrada.
+- Para una fecha o una hora, da `segmentEmptyText`, y escribe `invalidText` y `unavailableText` aunque ningún campo los muestre: se leen con la entrada.
+- Da nombre al tirador de cambio de tamaño con `resizeLabel` y al botón del selector con `pickerLabel`.

@@ -1,0 +1,593 @@
+{
+  "$comment": "The full component inventory (the Material Design 3 component families), in delivery order. A component without a spec file is `planned` everywhere. Adding a spec for a name not listed here is an error.",
+  "components": [
+    {
+      "name": "button",
+      "title": "Button",
+      "category": "actions",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "checkbox",
+      "title": "Checkbox",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "radio-button",
+      "title": "Radio button",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "switch",
+      "title": "Switch",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "text-input",
+      "title": "Text input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced"
+    },
+    {
+      "name": "text-field",
+      "title": "Text field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "chip-field",
+      "title": "Chip field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "card",
+      "title": "Card",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "divider",
+      "title": "Divider",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "badge",
+      "title": "Badge",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "progress-indicator",
+      "title": "Progress indicator",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "loading-indicator",
+      "title": "Loading indicator",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "chip",
+      "title": "Chip",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "dialog",
+      "title": "Dialog",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "menu",
+      "title": "Menu",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "list",
+      "title": "List",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "tabs",
+      "title": "Tabs",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "tab-view",
+      "title": "Tab view",
+      "category": "navigation",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "snackbar",
+      "title": "Snackbar",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "tooltip",
+      "title": "Tooltip",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "keyboard-shortcut",
+      "title": "Keyboard shortcut",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "main-action-button",
+      "title": "Main action button",
+      "category": "actions",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "app-bar",
+      "title": "App bar",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "navigation-bar",
+      "title": "Navigation bar",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "navigation-drawer",
+      "title": "Navigation drawer",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "slider",
+      "title": "Slider",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "slider-field",
+      "title": "Slider field",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "search",
+      "title": "Search",
+      "category": "navigation",
+      "level": "feature",
+      "listing": "default"
+    },
+    {
+      "name": "bottom-sheet",
+      "title": "Bottom sheet",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "side-sheet",
+      "title": "Side sheet",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "segmented-button",
+      "title": "Segmented button",
+      "category": "actions",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "button-group",
+      "title": "Button group",
+      "category": "actions",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "button-with-menu",
+      "title": "Button with menu",
+      "category": "actions",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "fab-menu",
+      "title": "FAB menu",
+      "category": "actions",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "toolbar",
+      "title": "Toolbar",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "carousel",
+      "title": "Carousel",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "calendar",
+      "title": "Calendar",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "date-time-picker",
+      "title": "DateTimePicker",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "tag",
+      "title": "Tag",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "prose",
+      "title": "Prose",
+      "category": "foundations",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "link",
+      "title": "Link",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "inline-code",
+      "title": "Inline code",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "code-block",
+      "title": "Code block",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "copy-button",
+      "title": "Copy button",
+      "category": "actions",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "table",
+      "title": "Table",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "callout",
+      "title": "Callout",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "popover",
+      "title": "Popover",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "steps",
+      "title": "Steps",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "accordion",
+      "title": "Accordion",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "description-list",
+      "title": "Description list",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "figure",
+      "title": "Figure",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "pagination",
+      "title": "Pagination",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "breadcrumbs",
+      "title": "Breadcrumbs",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "app-shell",
+      "title": "App shell",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "page-header",
+      "title": "Page header",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "table-of-contents",
+      "title": "Table of contents",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "tree-view",
+      "title": "Tree view",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "avatar",
+      "title": "Avatar",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "timeline",
+      "title": "Timeline",
+      "category": "containment",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "empty-state",
+      "title": "Empty state",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "tag-group",
+      "title": "Tag group",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "field",
+      "title": "Field",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "field-group",
+      "title": "Field group",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "radio-group",
+      "title": "Radio group",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "checkbox-group",
+      "title": "Checkbox group",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "select",
+      "title": "Select",
+      "category": "selection",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "select-field",
+      "title": "Select field",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "combobox",
+      "title": "Combobox",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced"
+    },
+    {
+      "name": "combobox-field",
+      "title": "Combobox field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "number-input",
+      "title": "Number input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced"
+    },
+    {
+      "name": "number-field",
+      "title": "Number field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "color-input",
+      "title": "Color input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced"
+    },
+    {
+      "name": "color-field",
+      "title": "Color field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "link-card",
+      "title": "Link card",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "skeleton",
+      "title": "Skeleton",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "menubar",
+      "title": "Menubar",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "one-time-code-input",
+      "title": "One-time-code input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced"
+    },
+    {
+      "name": "one-time-code-field",
+      "title": "One-time-code field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default"
+    },
+    {
+      "name": "file-upload",
+      "title": "File upload",
+      "category": "selection",
+      "level": "feature",
+      "listing": "default"
+    },
+    {
+      "name": "image-preview",
+      "title": "Image preview",
+      "category": "containment",
+      "level": "feature",
+      "listing": "default"
+    },
+    {
+      "name": "file-picker",
+      "title": "File picker",
+      "category": "selection",
+      "level": "base",
+      "listing": "advanced"
+    },
+    {
+      "name": "file-item",
+      "title": "File item",
+      "category": "communication",
+      "level": "base",
+      "listing": "default"
+    },
+    {
+      "name": "embedded-text-input",
+      "title": "Embedded text input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced"
+    },
+    {
+      "name": "chat-composer",
+      "title": "Chat composer",
+      "category": "text-inputs",
+      "level": "feature",
+      "listing": "default"
+    }
+  ]
+}

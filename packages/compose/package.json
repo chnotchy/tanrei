@@ -1,0 +1,9 @@
+{
+  "name": "@tanrei/compose",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "./gradlew :tanrei:assembleDebug :gallery:assembleDebug :gallery:assembleDebugAndroidTest",
+    "test": "./gradlew :tanrei:testDebugUnitTest :tanrei:verifyRoborazziDebug"
+  }
+}

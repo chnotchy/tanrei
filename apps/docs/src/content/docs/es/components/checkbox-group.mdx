@@ -1,0 +1,252 @@
+---
+title: Grupo de casillas de verificación
+description: Hace una pregunta que puede tener varias respuestas entre unas pocas opciones que se muestran todas a la vez. Es un conjunto de casillas de verificación bajo una sola etiqueta, con una descripción y un solo error, que guarda la lista de los valores marcados con un solo nombre y puede traer una casilla que las marca todas.
+translationOf: components/checkbox-group.mdx
+sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="checkbox-group" />
+
+<DemoFrame label="Un grupo de casillas de verificación, y otro con una casilla que las marca todas" column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio">
+    <tanrei-checkbox value="email" label="Correo electrónico" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="Mensaje de texto"></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="Notificación push"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Enviar el informe los" select-all-label="Todos los días laborables">
+    <tanrei-checkbox value="mon" label="Lunes" checked></tanrei-checkbox>
+    <tanrei-checkbox value="tue" label="Martes"></tanrei-checkbox>
+    <tanrei-checkbox value="wed" label="Miércoles" checked></tanrei-checkbox>
+    <tanrei-checkbox value="thu" label="Jueves"></tanrei-checkbox>
+    <tanrei-checkbox value="fri" label="Viernes"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+Usa un grupo de casillas de verificación donde una pregunta tiene una lista por respuesta y las opciones son lo bastante pocas para mostrarlas todas a la vez, hasta unas siete: las formas de recibir avisos, los días en que se envía un informe, los tipos por los que se filtra una lista. La respuesta es un solo valor (la lista de los valores marcados), y un formulario la envía con un solo nombre.
+
+**Se compone de** un [grupo de campos](/es/components/field-group/) y [casillas de verificación](/es/components/checkbox/). El grupo de campos es el marco: la etiqueta, la marca de obligatorio o de opcional, la descripción, el error y la disposición en una columna o en una fila. Las casillas contienen el valor: cada una es una opción con su propia etiqueta, y cuáles de ellas están marcadas es la lista. El grupo de casillas de verificación no dibuja nada propio y no tiene ningún token. Lo que añade a los dos es el estado que, de otro modo, escribe cada producto: la lista y un solo `change` para ella, un solo nombre en un formulario, con el restablecimiento y la validación propia del formulario de que un conjunto obligatorio no está vacío, y los tres estados de una casilla de seleccionar todo.
+
+Es tan ancho como el lugar en el que se pone.
+
+En la web es `<tanrei-checkbox-group>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+Cada casilla es la opción que nombra su `value`. El `value` del grupo es la lista de los valores marcados, en el orden de las casillas. Un valor que está en la lista y al que no corresponde ninguna casilla se conserva: las opciones que una búsqueda ha dejado fuera de la vista siguen elegidas.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-checkbox-group name="notify" label="Avísame por"
+        supporting-text="Elige todas las opciones que correspondan."
+        requirement="required" required-text="Obligatorio"
+        error-text="Elige al menos una forma de contacto.">
+        <tanrei-checkbox value="email" label="Correo electrónico" checked></tanrei-checkbox>
+        <tanrei-checkbox value="text" label="Mensaje de texto"></tanrei-checkbox>
+        <tanrei-checkbox value="push" label="Notificación push"></tanrei-checkbox>
+      </tanrei-checkbox-group>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox-group';
+
+      const group = document.querySelector('tanrei-checkbox-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value es la lista nueva; group.value ya es la misma.
+        group.error = event.detail.value.length === 0;
+      });
+      // El producto define la respuesta como una lista. Es una propiedad: no hay atributo value.
+      group.value = ['email', 'push'];
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, CheckboxGroup } from '@tanrei/react';
+
+    const [channels, setChannels] = useState(['email']);
+
+    <CheckboxGroup name="notify" label="Avísame por" supportingText="Elige todas las opciones que correspondan."
+                   value={channels} onChange={(event) => setChannels(event.detail.value)}
+                   error={channels.length === 0} errorText="Elige al menos una forma de contacto.">
+      <Checkbox value="email" label="Correo electrónico" />
+      <Checkbox value="text" label="Mensaje de texto" />
+      <Checkbox value="push" label="Notificación push" />
+    </CheckboxGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+En el marcado, el primer valor se escribe donde lo escribe HTML: con `checked` en las casillas. Una vez que el producto ha definido `value`, es `value` el que decide qué casillas están marcadas.
+
+### Una casilla que las marca todas
+
+Da `selectAllLabel`, y el grupo trae una casilla más antes de la primera, que recibe su nombre de ese texto. Está marcada mientras todas las casillas que la persona puede cambiar están marcadas, indeterminada mientras lo están algunas, y sin marcar mientras no lo está ninguna. Si se pulsa mientras está sin marcar o indeterminada, las marca todas; si se pulsa mientras está marcada, las desmarca todas. No es una entrada de la lista y no envía nada.
+
+```html
+<tanrei-checkbox-group name="days" label="Enviar el informe los" select-all-label="Todos los días laborables">
+  <tanrei-checkbox value="mon" label="Lunes"></tanrei-checkbox>
+  <tanrei-checkbox value="tue" label="Martes"></tanrei-checkbox>
+  …
+</tanrei-checkbox-group>
+```
+
+Una casilla que deshabilitaste tú se deja como está, marcada o no, y no se cuenta: la casilla de seleccionar todo solo cuenta las opciones que la persona puede cambiar. Escribe la etiqueta para este conjunto («Todas estas», «Todos los días laborables») con las palabras de la pregunta; nunca se lee de los textos del producto.
+
+### Un nivel más abajo
+
+El mismo conjunto, escrito a mano con sus dos miembros, es la misma imagen y el mismo grupo para la tecnología de apoyo:
+
+```html
+<tanrei-field-group label="Avísame por" supporting-text="Elige todas las opciones que correspondan."
+                    requirement="required" required-text="Obligatorio">
+  <tanrei-checkbox name="notify" value="email" label="Correo electrónico" checked></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="text" label="Mensaje de texto"></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="push" label="Notificación push"></tanrei-checkbox>
+</tanrei-field-group>
+```
+
+<DemoFrame label="El mismo conjunto escrito a mano: un grupo de campos con casillas de verificación dentro" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio">
+    <tanrei-checkbox name="notify" value="email" label="Correo electrónico" checked></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="text" label="Mensaje de texto"></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="push" label="Notificación push"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+Lo que el grupo de campos y las casillas escritos a mano no hacen es guardar la respuesta:
+
+| Aspecto | Escrito a mano | El grupo de casillas de verificación |
+| --- | --- | --- |
+| La lista | El producto la lee de cada casilla | `value`, y un solo `change` |
+| Definir la respuesta | `checked` en cada casilla | `value = […]` |
+| Restablecer y restaurar | Cada casilla por su cuenta | Un solo control |
+| Un conjunto obligatorio que se deja vacío | Lo comprueba el producto | La validación propia del formulario lo rechaza |
+| Un valor cuya casilla no se muestra | Se pierde | Se conserva |
+| Una casilla que las marca todas | La escribe el producto, con `indeterminate` | `selectAllLabel` |
+| Lo que envía un formulario | Las mismas entradas | Las mismas entradas |
+
+Baja a ese nivel cuando el conjunto no es una sola respuesta:
+
+| Necesitas | Usa |
+| --- | --- |
+| Varias de unas pocas opciones como una sola respuesta con un solo nombre | El grupo de casillas de verificación |
+| Casillas que tienen cada una su propio nombre en el formulario, o un conjunto que contiene algo que no es una casilla | Un [grupo de campos](/es/components/field-group/) con [casillas de verificación](/es/components/checkbox/) dentro |
+| Tu propia regla para lo que significa «todo»: todos los elementos de una página, todos los elementos que coinciden | Un [grupo de campos](/es/components/field-group/) con una casilla en la que defines `indeterminate` tú |
+| Una de unas pocas | Un [grupo de botones de opción](/es/components/radio-group/) |
+| Una sola cosa activada o desactivada | Una [casilla de verificación](/es/components/checkbox/), o un [interruptor](/es/components/switch/) donde tiene efecto de inmediato |
+| Varias de muchas, o poco sitio | Un [select](/es/components/select/) o una lista con selección múltiple |
+
+## Especificaciones
+
+<DemoFrame label="Una fila, una respuesta rechazada, una opción que siempre está activada y un grupo deshabilitado" plain column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Tallas" orientation="horizontal">
+    <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
+    <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
+    <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio" error error-text="Este número no puede recibir mensajes de texto. Elige otra forma o cambia el número.">
+    <tanrei-checkbox value="email" label="Correo electrónico"></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="Mensaje de texto" checked></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="Notificación push"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Enviarme">
+    <tanrei-checkbox value="account" label="Mensajes sobre mi cuenta" checked disabled></tanrei-checkbox>
+    <tanrei-checkbox value="news" label="Novedades"></tanrei-checkbox>
+    <tanrei-checkbox value="offers" label="Ofertas"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" disabled>
+    <tanrei-checkbox value="email" label="Correo electrónico" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="Mensaje de texto"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+### Qué aporta cada miembro
+
+| Aspecto | Del grupo de campos | De las casillas de verificación | Propio del grupo |
+| --- | --- | --- | --- |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | El `value`, el `label` y el `disabled` de cada casilla, en la casilla | `value`, `selectAllLabel` |
+| Eventos | — | Ninguno: una casilla dentro de un grupo no emite nada propio | `change` |
+| Tokens | `comp.field-group.*` | `comp.checkbox.*` | Ninguno |
+
+- **Obligatorio** significa al menos una. Un número mínimo o máximo («elige hasta tres») es una regla tuya: lee la longitud de la lista en `change`, activa `error` y escribe `errorText` con el número, con tus propias palabras.
+- **El error** es del conjunto. `error` dibuja `errorText` debajo de la última casilla y pone cada casilla en su propio estado de error. El grupo nunca lo activa, y un cambio de valor no lo borra. Una sola casilla en error dentro de un grupo que no lo está es el `error` de esa casilla.
+- **Deshabilitado.** Un grupo deshabilitado conserva su valor y no envía nada. Una casilla deshabilitada por separado en un grupo habilitado conserva su entrada y se envía con ella: una opción que siempre está activada es una casilla deshabilitada y marcada, sin ningún campo oculto al lado.
+- No hay estado de solo lectura, porque una casilla de verificación no tiene ninguno.
+
+Lo que hace el marco (la marca de obligatorio, la descripción, el error y cómo se anuncia, la columna y la fila que salta de línea) está en la [página del grupo de campos](/es/components/field-group/). Lo que hace una casilla está en la [página de la casilla de verificación](/es/components/checkbox/).
+
+### Diferenciar un solo grupo
+
+El grupo de casillas de verificación no tiene ningún token propio. Su marco lee los tokens del grupo de campos y sus casillas leen los de la casilla de verificación, se definan donde se definan. Para cambiar una sola instancia, define en ella el token del miembro:
+
+```html
+<tanrei-checkbox-group label="Avísame por"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-checkbox-group>
+```
+
+<ComponentSpecs name="checkbox-group" />
+
+### Qué dibuja la web de otra manera
+
+- El shadow root del elemento contiene un `<tanrei-field-group>` alrededor de la casilla de seleccionar todo, mientras se da `select-all-label`, y de un slot. Las casillas siguen siendo tus propios hijos. Importar el elemento define los dos miembros.
+- `value` es solo una propiedad: un array, que se copia al entrar y al salir. No hay atributo `value`, porque una lista en un atributo necesita un separador que un valor puede contener, y HTML ya tiene la forma: `checked` en cada hijo.
+- Una casilla sin atributo `value` y sin un valor definido no tiene ninguno: el «on» que envía una casilla sin nada más no se lee en un grupo. Se dibuja sin marcar, y una compilación de depuración lo notifica.
+- El elemento está asociado a formularios. Recibe `name` y `form`, y envía con el nombre `name` una entrada por cada valor: lo mismo que envían las casillas nativas de un mismo nombre. Sus casillas no envían nada, lleven el `name` que lleven. Se restablece a su primer valor, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `requirement` es `required` y la lista está vacía. El mensaje es `error-text`; si no lo hay, el texto de obligatorio, y si tampoco, `label`: da `error-text` desde el principio, no solo cuando `error` está activado.
+- `change` es un CustomEvent cuyo `detail.value` es una copia de la lista; antes de él se emite `input`. Un listener en una casilla dentro del grupo no oye ninguno de los dos.
+- Partes: `field-group` es el marco, y sus partes tienen aquí los mismos nombres que un nivel más abajo: `label`, `requirement-label`, `supporting-text`, `error-text`. `select-all` es la casilla de seleccionar todo, y sus partes son `select-all-container`, `select-all-box`, `select-all-mark` y `select-all-label`. A tus propias casillas se les da estilo como en cualquier otro lugar, con `tanrei-checkbox::part(…)`.
+- El elemento no puede recibir el foco por sí mismo. `focus()` va a la primera casilla habilitada, y un `<label for>` propio de la página lleva el foco allí.
+- El elemento no tiene rol. Dale nombre con `label` —con `label-hidden` donde la etiqueta se dibuja en otro lugar— y nunca con `aria-label`, que aquí no nombra nada.
+- Los atributos van en kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `select-all-label`.
+- Antes de que el elemento esté definido, y sin script, no se dibuja nada propio: las casillas se muestran como contenido corriente. Una página que deba funcionar sin script escribe un `<fieldset>` nativo con casillas nativas de un mismo `name`, que envía las mismas entradas.
+
+## Pautas
+
+### Recomendado
+
+- Escribe la etiqueta como la pregunta, y la etiqueta de cada casilla como una respuesta a ella.
+- Di cómo responder en `supportingText`: «Elige todas las opciones que correspondan.»
+- Prefiere una columna. Usa una fila solo para unas pocas etiquetas cortas.
+- Da `errorText` siempre que el grupo sea obligatorio, para que la validación propia del formulario lo diga con tus palabras.
+- Usa la casilla de seleccionar todo para un conjunto de seis o más, para filtros y para conjuntos de permisos.
+
+### Evita
+
+- No uses un grupo de casillas de verificación para una sola respuesta entre unas pocas: eso es un [grupo de botones de opción](/es/components/radio-group/).
+- No des un `name` a las casillas para enviarlas: el grupo envía la lista con el suyo.
+- No pongas dentro nada que se pueda accionar y no sea una casilla de verificación. Una compilación de depuración lo notifica, y no crea ninguna entrada del valor.
+- No sangres el conjunto bajo la casilla de seleccionar todo para mostrar una jerarquía. Unas opciones dentro de otras son un árbol.
+- No des nombre al grupo con `aria-label`. Donde no deba dibujarse ninguna etiqueta, da `label` y `labelHidden`.
+
+## Accesibilidad
+
+<ComponentAccessibility name="checkbox-group" />
+
+### De qué se encarga el componente
+
+- Es un solo grupo, el del grupo de campos, que contiene sus casillas. Su nombre es `label`, se dibuje o no; su descripción es el texto de apoyo, el texto de error mientras está en error, y la obligatoriedad con los textos del producto.
+- Un grupo no tiene estado obligatorio ni estado no válido. La obligatoriedad se dice con palabras, y cada casilla de un grupo en error se expone como no válida y tiene el texto de error como descripción.
+- Cada casilla conserva su propio rol, su nombre y su estado de marcada. La casilla de seleccionar todo dice que es indeterminada mientras algunas están marcadas. Ninguna casilla tiene una posición en un conjunto, y no se dice cuántas están marcadas.
+- Cada casilla habilitada es una parada propia para la tecla Tab, y la de seleccionar todo es la primera. Espacio cambia la que tiene el foco. No hay teclas de flecha, y Enter se deja al formulario.
+- Una pulsación en la etiqueta, en la marca de obligatoriedad, en la descripción o en el texto de error no marca nada y no mueve el foco.
+- Un error que aparece mientras el foco está en una de las casillas lo anuncia el grupo de campos una vez, de forma cortés.
+- La dirección, el texto ampliado y los colores forzados los resuelve cada miembro por su cuenta: en un diseño de derecha a izquierda, el marco y cada casilla se reflejan; con el texto al 200%, todos los textos saltan de línea, una fila se convierte en una columna y nada se desplaza hacia los lados.
+- No tiene textos propios. `requiredText` y `optionalText`, si se dejan vacíos, los lee el grupo de campos de los textos del producto.
+
+Carencias conocidas en la web: lo que dicen del grupo los lectores de pantalla se ha leído en los árboles de accesibilidad de los navegadores, no se ha oído con un lector de pantalla. Chromium da al elemento un nodo propio en su árbol de accesibilidad, porque el formulario lo valida: un nodo sin rol y sin nombre, alrededor del grupo.
+
+### Qué debes hacer tú
+
+- Da `label`, siempre, y un `label` en cada casilla.
+- Da `requiredText` y `optionalText` —en el grupo o una sola vez para el producto— donde el grupo sea obligatorio u opcional: un grupo no tiene estado obligatorio, así que son las palabras las que lo dicen.
+- Di en `errorText` qué está mal y cómo corregirlo. El color nunca es la única señal.
+- Donde importe el número de opciones («2 de 5 elegidas»), escríbelo en `supportingText`: de otro modo no se anuncia.

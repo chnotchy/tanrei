@@ -1,0 +1,194 @@
+---
+title: Breadcrumbs
+description: Where a page sits in a hierarchy of pages, and the way back up it. The levels above are links, in order from the top, and the page itself is last.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="breadcrumbs" />
+
+<DemoFrame label="A trail of three levels" column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Breadcrumbs of this demo" overflow-label="Show hidden levels">
+    <a href="#overview">Home</a>
+    <a href="#overview">Components</a>
+    <span aria-current="page">Breadcrumbs</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+A trail shows where a page is in the hierarchy, not the way a person came to it. Use it where pages sit inside other pages, three or more levels deep.
+
+### Usage
+
+On the web the breadcrumbs are an element around your own anchors. The anchors stay in the document, so they are links before any script runs, and a crawler, a router that works on the page's anchors and a router's own link component all find them.
+
+A level with a destination is an `<a href>`. A level without one is a `<span>`: the current page, or a level that has no page of its own.
+
+SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/breadcrumbs.css" />
+
+    <tanrei-breadcrumbs label="Breadcrumbs" overflow-label="Show hidden levels">
+      <a href="/">Home</a>
+      <a href="/components/">Components</a>
+      <span aria-current="page">Button</span>
+    </tanrei-breadcrumbs>
+
+    <!-- A glyph before the first label, or alone. The text is still the level's name. -->
+    <tanrei-breadcrumbs label="Breadcrumbs" overflow-label="Show hidden levels">
+      <a href="/" data-icon="home" data-icon-only>Home</a>
+      <a href="/components/">Components</a>
+      <span aria-current="page">Button</span>
+    </tanrei-breadcrumbs>
+
+    <script type="module">
+      import '@tanrei/web';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Breadcrumbs } from '@tanrei/react';
+    import '@tanrei/web/breadcrumbs.css';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <Breadcrumbs label="Breadcrumbs" overflowLabel="Show hidden levels">
+      {/* A router's link renders its own anchor, and takes the navigation from its click. */}
+      <RouterLink to="/">Home</RouterLink>
+      <RouterLink to="/components/">Components</RouterLink>
+      <span aria-current="page">Button</span>
+    </Breadcrumbs>
+    ```
+  </TabItem>
+</Tabs>
+
+| Prop | On the web |
+| --- | --- |
+| `label` | the `label` attribute: the name of the navigation landmark |
+| `overflow` | `overflow="collapse"` (the default) or `overflow="wrap"` |
+| `overflowLabel` | `overflow-label`: the name of the overflow button |
+| `underline` | `underline="always"`, `"hover"` or `"never"`. Without it the trail follows the design system |
+| a level | an `<a href>` child, or a `<span>` child for a level without a destination |
+| `label` of a level | its text |
+| `current` | `aria-current="page"` on the last child |
+| `icon` | `data-icon="home"` |
+| `iconOnly` | `data-icon-only` |
+| `click` | the anchor's own `click` |
+
+## Specs
+
+<DemoFrame label="A level without a page; the current page as a link; a trail that ends at the parent" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="A level without a page, in this demo" overflow-label="Show hidden levels">
+    <a href="#specs">Home</a>
+    <span>Foundations</span>
+    <span aria-current="page">Typography</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="The current page as a link, in this demo" overflow-label="Show hidden levels">
+    <a href="#specs">Home</a>
+    <a href="#specs">Components</a>
+    <a href="#specs" aria-current="page">Button</a>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="A trail that ends at the parent, in this demo" overflow-label="Show hidden levels">
+    <a href="#specs" data-icon="home" data-icon-only>Home</a>
+    <a href="#specs">Components</a>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+<DemoFrame label="The underline while hovered, focused or pressed; and never" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Underlined in a state, in this demo" overflow-label="Show hidden levels" underline="hover">
+    <a href="#specs">Home</a>
+    <a href="#specs">Components</a>
+    <span aria-current="page">Breadcrumbs</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Never underlined, in this demo" overflow-label="Show hidden levels" underline="never">
+    <a href="#specs">Home</a>
+    <a href="#specs">Components</a>
+    <span aria-current="page">Breadcrumbs</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+<DemoFrame label="A long trail in a narrow column: folded, and wrapped" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="A folded trail, in this demo" overflow-label="Show hidden levels" style="inline-size: 24rem; max-inline-size: 100%">
+    <a href="#specs">Home</a>
+    <a href="#specs">Documentation</a>
+    <a href="#specs">Foundations</a>
+    <a href="#specs">Design tokens</a>
+    <a href="#specs">Component tokens</a>
+    <span aria-current="page">How a disabled container is derived</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="A wrapped trail, in this demo" overflow="wrap" style="inline-size: 24rem; max-inline-size: 100%">
+    <a href="#specs">Home</a>
+    <a href="#specs">Documentation</a>
+    <a href="#specs">Foundations</a>
+    <a href="#specs">Design tokens</a>
+    <a href="#specs">Component tokens</a>
+    <span aria-current="page">How a disabled container is derived</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+- **A level that leads somewhere is underlined** in the default system. There the underline, not the color, says that a level is a link, as it does for a link in a sentence. A level without a destination is secondary text. The current page is heavier, in the text color, and never underlined.
+- **When the underline is drawn is a choice.** `underline="hover"` draws it only while a level is hovered, focused from the keyboard or pressed. `underline="never"` draws none. Without the attribute the trail follows `comp.breadcrumbs.underline.visibility`, which follows the design system's choice for every text link. Choose `hover` or `never` only where the link color stands apart from the text color. Forced colors always draw the line.
+- **The current page is text.** A link to the page a person is on leads nowhere and adds a tab stop to every page. Give it `href` only where the page's views change under one address. It is then a link with the same look. Where the page's heading stands right under the trail, you may leave the current page out.
+- **Separators are the component's**: `chevron_right` between two neighbours. Never write a separator into a label.
+- **A long trail folds its middle.** Under `collapse` the trail stays on one line. Levels go behind the overflow button from the one next to the first, only as many as the width asks for, then the first. The last level is never taken out. Its label is cut only when the button and it alone do not fit.
+- **The overflow button opens a menu** of the levels taken out, in the trail's order. A level with a destination is a link there too. A row of the menu is never underlined.
+- **`wrap` keeps every level** and lets the trail run over several lines. A line never begins with a separator, and no label is cut.
+- **It folds by its own width**, not the window's, and decides again when its width, a label or the text size changes.
+- **Right to left**, the trail runs from the right and the separators point left. A left-to-right name keeps its own order.
+
+<ComponentSpecs name="breadcrumbs" />
+
+### What the web draws differently
+
+- Before the element is defined, and with scripting off, the stylesheet draws the wrap form: every level, with its separators. A trail that fits its width does not move when the element is defined. The landmark, the list and the folding come with the element.
+- A level chosen in the menu is one `click` on your own anchor, and the browser then follows that anchor unless you cancelled the click. A router's link component takes the navigation there exactly as it does in the trail.
+- A label that wraps is one box: the focus ring is drawn around the box, not around its part of each line.
+- A level with a glyph is laid out in the layout's direction, so a left-to-right label with a glyph in a right-to-left trail does not take its own direction.
+- A level's glyph and the separators drawn by the stylesheet need `icons.css`. Without it their room is kept and nothing is drawn in it.
+- Keep the breadcrumbs outside `.tanrei-prose`, or mark them `tanrei-not-prose`: prose draws its own anchors as text links.
+
+## Guidelines
+
+### Do
+
+- Put the trail above the page's heading, once per page.
+- List the levels from the top of the hierarchy to the page, with the names the pages themselves have.
+- Leave a level that has no page of its own as text.
+
+### Don't
+
+- Don't use a trail to show the steps a person took. It shows where the page is.
+- Don't mark any level but the last as the current page.
+- Don't open a level in a new tab. The levels of one hierarchy replace the page a person is on.
+- Don't hide levels by hand. Use `overflow="wrap"` where every level must always be shown.
+
+## Accessibility
+
+<ComponentAccessibility name="breadcrumbs" />
+
+### What the component handles
+
+- The trail is one navigation landmark that holds one ordered list. Each level is a list item, and each link is the browser's own link.
+- The current page carries `aria-current="page"` as you wrote it. Nothing is added to its name.
+- The separators and the glyphs are hidden from assistive technology.
+- A level taken out is not read and not in the focus order. It is in the menu, one press away, and its anchor is still in the document.
+- The overflow button says that it opens a menu and whether the menu is open.
+- A link's hit area reaches the minimum target without changing what is drawn.
+- When a focused level is taken out, focus moves to the overflow button. When the button goes, focus moves to the first level that returned.
+
+### What you need to do
+
+- Name the landmark with `label`, in your product's language. A page has other navigation, and the name tells this one apart. Tanrei ships no words of its own.
+- Name the overflow button with `overflow-label` while `overflow` is `collapse`, or once for the whole product with `setWords({ breadcrumbsOverflowLabel })`.
+- Mark the current page with `aria-current="page"`, on the last level only.
+- Give a level shown as a glyph alone its text. The text is its name.

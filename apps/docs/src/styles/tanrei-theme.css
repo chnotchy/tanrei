@@ -1,0 +1,186 @@
+/*
+ * Starlight, dressed in Tanrei.
+ *
+ * Every color, radius and type value below is a Tanrei token (`--tanrei-*`, from
+ * @tanrei/web/tokens.css). This file is intentionally unlayered so it wins over both
+ * Starlight's `@layer starlight.*` and the token layer without specificity games.
+ */
+
+/* ── Theme + contrast wiring ─────────────────────────────────────────────
+ * Tanrei tokens are `light-dark()` values, so following Starlight's theme switch is
+ * just a matter of setting `color-scheme` from its `data-theme` attribute. */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+:root,
+:root[data-theme='light'],
+:root[data-theme='dark'] {
+  /* Starlight's gray ramp runs from strongest text (white) to the page background (black). */
+  --sl-color-white: var(--tanrei-sys-color-on-surface);
+  --sl-color-gray-1: var(--tanrei-sys-color-on-surface);
+  --sl-color-gray-2: var(--tanrei-sys-color-on-surface);
+  --sl-color-gray-3: var(--tanrei-sys-color-on-surface-variant);
+  --sl-color-gray-4: var(--tanrei-sys-color-outline);
+  --sl-color-gray-5: var(--tanrei-sys-color-surface-container-highest);
+  --sl-color-gray-6: var(--tanrei-sys-color-surface-container);
+  --sl-color-gray-7: var(--tanrei-sys-color-surface-container-low);
+  --sl-color-black: var(--tanrei-sys-color-surface);
+
+  /* The accent is reserved for links, focus and selection. */
+  --sl-color-accent-low: var(--tanrei-sys-color-accent-container);
+  --sl-color-accent: var(--tanrei-sys-color-accent);
+  --sl-color-accent-high: var(--tanrei-sys-color-on-accent-container);
+  --sl-color-text-accent: var(--tanrei-sys-color-accent);
+  --sl-color-text-invert: var(--tanrei-sys-color-on-primary);
+  --sl-color-bg-accent: var(--tanrei-sys-color-primary);
+
+  --sl-color-text: var(--tanrei-sys-color-on-surface);
+  --sl-color-bg: var(--tanrei-sys-color-surface);
+  --sl-color-hairline-light: var(--tanrei-sys-color-outline-variant);
+  --sl-color-hairline: var(--tanrei-sys-color-outline-variant);
+  --sl-color-hairline-shade: var(--tanrei-sys-color-outline-variant);
+  --sl-color-backdrop-overlay: color-mix(in srgb, var(--tanrei-sys-color-scrim) 40%, transparent);
+
+  /* Aside / badge hues stay semantic but borrow the error palette where Tanrei has one. */
+  --sl-color-red: var(--tanrei-sys-color-error);
+  --sl-color-red-low: var(--tanrei-sys-color-error-container);
+  --sl-color-red-high: var(--tanrei-sys-color-on-error-container);
+  --sl-color-blue: var(--tanrei-sys-color-accent);
+  --sl-color-blue-low: var(--tanrei-sys-color-accent-container);
+  --sl-color-blue-high: var(--tanrei-sys-color-on-accent-container);
+
+  --sl-shadow-sm: var(--tanrei-sys-elevation-level1);
+  --sl-shadow-md: var(--tanrei-sys-elevation-level3);
+  --sl-shadow-lg: var(--tanrei-sys-elevation-level4);
+
+  --sl-font: var(--tanrei-ref-typeface-plain), 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
+  --sl-font-mono: var(--tanrei-ref-typeface-mono);
+
+  /* A component of the docs that sizes a head by the framework's names reads
+     these: the roles' values. The content column does not — it is Tanrei's prose (components/MarkdownContent.astro) —
+     and neither does the page frame, which is Tanrei's app shell (components/frame/). */
+  --sl-text-h1: var(--tanrei-sys-typescale-heading-1-font-size);
+  --sl-text-h2: var(--tanrei-sys-typescale-heading-2-font-size);
+  --sl-text-h3: var(--tanrei-sys-typescale-heading-3-font-size);
+  --sl-text-h4: var(--tanrei-sys-typescale-heading-4-font-size);
+  --sl-text-h5: var(--tanrei-sys-typescale-heading-5-font-size);
+  --sl-text-h6: var(--tanrei-sys-typescale-heading-6-font-size);
+  --sl-line-height: var(--tanrei-sys-typescale-body-large-line-height);
+  --sl-line-height-headings: var(--tanrei-sys-typescale-heading-1-line-height);
+
+  --docs-radius-control: var(--tanrei-sys-shape-corner-small);
+  --docs-radius-container: var(--tanrei-sys-shape-corner-medium);
+  --docs-hairline: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  --docs-hairline-dashed: var(--tanrei-sys-border-hairline) dashed var(--tanrei-sys-color-outline-variant);
+}
+
+/* ── Typefaces by script ───────────────────────────────────────────────── */
+/* The default stacks name Inter, then Noto Sans JP (ref.typeface): right for English, Spanish and Japanese. A page in
+   another script must not reach the Japanese face: for Simplified Chinese it would draw the Han characters it has in
+   their Japanese forms and leave the rest to another font, two designs in one line; for Hindi and Arabic it has
+   nothing, and the reader gets whatever comes last. "A product adds the family of each further script it ships"
+   (ref.typeface.brand): the docs do that here, for the page's language, with the faces the reader's system already
+   has — no font is downloaded for them. Inter stays first, for Latin text and Western digits. */
+:root[lang^='zh'] {
+  --docs-script-faces: 'PingFang SC', 'Noto Sans SC', 'Noto Sans CJK SC', 'Source Han Sans SC', 'Microsoft YaHei';
+}
+:root[lang='hi'] {
+  --docs-script-faces: 'Kohinoor Devanagari', 'Noto Sans Devanagari', 'Nirmala UI', 'Devanagari Sangam MN', 'Mangal';
+}
+:root[lang='ar'] {
+  --docs-script-faces: 'SF Arabic', 'Noto Sans Arabic', 'Segoe UI', 'Geeza Pro', 'Noto Naskh Arabic', 'Tahoma';
+}
+:root:is([lang^='zh'], [lang='hi'], [lang='ar']) {
+  --tanrei-ref-typeface-brand: Inter, var(--docs-script-faces), system-ui, sans-serif;
+  --tanrei-ref-typeface-plain: Inter, var(--docs-script-faces), system-ui, sans-serif;
+  --tanrei-ref-typeface-mono: 'Roboto Mono', var(--docs-script-faces), ui-monospace, monospace;
+  --sl-font: var(--tanrei-ref-typeface-plain);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'ss01' off;
+}
+
+/* ── Focus: gap, then ring. Never animated. ────────────────────────────── */
+/* The one rule of this file that is in a layer: the first of the docs' own (styles/prose.css names it), after all of
+   Starlight's and before every component's stylesheet. It is the ring of whatever draws none itself. Unlayered it
+   also won over the components that do — a sortable header of the Table, a row of the Tree view, each of which says
+   `outline: none` and draws its indicator on another box — and they were drawn with two rings; and the main region,
+   which takes focus from the skip link and is no control, was drawn with one. */
+@layer docs.focus {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+    transition: none;
+  }
+}
+::selection {
+  background: var(--tanrei-sys-color-accent-container);
+  color: var(--tanrei-sys-color-on-accent-container);
+}
+
+/* ── Type ──────────────────────────────────────────────────────────────── */
+/* The content column is Tanrei's prose (`.tanrei-prose`, at the reading size): its headings, paragraphs, lists, quotes,
+   rules, rhythm and measure are prose's and none is restated here. This file is unlayered, so a rule on a heading or a
+   paragraph written here would win over prose — the rules below keep to the chrome, or to what prose leaves open. */
+
+/* A page's title is drawn by the page header, tracking and all (PGH-4) — on a page of content by
+   components/frame/PageTitle.astro, on the landing page by components/Hero.astro: nothing here. */
+
+/* A heading's anchor is placed and revealed by prose (PRS-21, PRS-22) and drawn by the Link (LNK-16): nothing here. */
+/* Inline code is Tanrei's inline code, drawn by prose (`@tanrei/web/prose.css`) in the content column and by the class
+   `tanrei-code` outside it: nothing here. Its size follows the text it sits in, a heading's included (ICD-1). */
+
+/* ── Chrome ────────────────────────────────────────────────────────────── */
+/* The page frame is Tanrei's app shell, app bar, navigation drawer, table of contents, page header, breadcrumbs and
+   search (components/frame/, styles/frame.css): the header, the sidebar, the right-hand column, the page's title and
+   the search are drawn by those components and nothing of theirs is restated here. */
+
+/* ── Content blocks ────────────────────────────────────────────────────── */
+/* Tables, notices and code are Tanrei's own (the Table's stylesheet, the Callout's and the code components' are loaded
+   in `prose.css`): nothing of theirs is restated here, and this file is unlayered — a rule on a table, a cell, a
+   callout, a `pre` or a `code` written here would win over the component. */
+
+/* Cards, link cards, tabs, link buttons and tags are Tanrei's own too (components/cards/, components/tabs/, the hero's
+   Buttons, the status tag): the rules that dressed the framework's parts of those names matched nothing and are gone. */
+
+/* ── Shared docs primitives (used by the generated components) ─────────── */
+/* The `eyebrow` role as the token defines it — the plain face (Inter), small and tracked wide; the uppercase is applied here, never stored in the token. */
+.docs-eyebrow {
+  font: var(--tanrei-sys-typescale-eyebrow-font);
+  letter-spacing: var(--tanrei-sys-typescale-eyebrow-letter-spacing);
+  text-transform: uppercase;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.docs-mono {
+  font-family: var(--sl-font-mono);
+  font-size: 0.85em;
+}
+.docs-source {
+  margin-top: 0.75rem;
+  font-family: var(--sl-font-mono);
+  font-size: var(--sl-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.docs-muted {
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    /* Never a duration alone: `transition-property` is `all` until a rule says otherwise, and an element that
+       transitions everything costs Chromium and WebKit 0.7 ms at every restyle on a page with the tokens and one
+       registered custom property — 70 s and 29 s for a change of contrast on the Button page. */
+    transition-property: none !important;
+    scroll-behavior: auto !important;
+  }
+}

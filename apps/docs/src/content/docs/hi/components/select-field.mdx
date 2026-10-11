@@ -1,0 +1,238 @@
+---
+title: सिलेक्ट फ़ील्ड
+description: लोगों को बंद लिस्ट में से एक मान चुनने देता है, फ़ॉर्म के एक पूरे फ़ील्ड के रूप में — एक लेबल जो बता सकता है कि फ़ील्ड ज़रूरी है या वैकल्पिक, एक ट्रिगर जो चुना हुआ विकल्प दिखाता है और विकल्पों की लिस्ट खोलता है, और नीचे सहायता या त्रुटि की एक पंक्ति — जो सहायक तकनीक के लिए आपस में जुड़े हैं और फ़ॉर्म में एक कंट्रोल के रूप में हिस्सा लेते हैं।
+translationOf: components/select-field.mdx
+sourceHash: 5623cc0f00e2618e6c0495cbfb3ff9ec11643515
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="select-field" />
+
+<DemoFrame label="एक ज़रूरी सिलेक्ट फ़ील्ड, और एक जो ग्रुप में बँटा है और जिसमें फ़ील्ड की पहचान के लिए एक ग्लिफ़ है" column>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" requirement="required" required-text="ज़रूरी" placeholder="देश चुनें" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
+    <tanrei-option value="ca">कनाडा</tanrei-option>
+    <tanrei-option value="fr">फ़्रांस</tanrei-option>
+    <tanrei-option value="jp">जापान</tanrei-option>
+    <tanrei-option value="ke">केन्या</tanrei-option>
+    <tanrei-option value="nz">न्यूज़ीलैंड</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टाइम ज़ोन" value="Europe/Lisbon">
+    <span slot="leading-icon">public</span>
+    <tanrei-option-group label="एशिया"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">टोक्यो</tanrei-option><tanrei-option value="Asia/Seoul" supporting-text="UTC+9">सियोल</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="यूरोप"><tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">लिस्बन</tanrei-option><tanrei-option value="Europe/Berlin" supporting-text="UTC+1">बर्लिन</tanrei-option></tanrei-option-group>
+  </tanrei-select-field>
+</DemoFrame>
+
+सिलेक्ट फ़ील्ड फ़ॉर्म में तब इस्तेमाल करें जब किसी ऐसी लिस्ट में से एक मान चुनना हो जो पहले से तय और बंद है: देश, टाइम ज़ोन, प्लान। यह आम स्थिति के लिए है, इस्तेमाल के लिए तैयार: एक लेबल, वह बॉक्स जो चुना हुआ विकल्प दिखाता है और लिस्ट खोलता है, सहायता की एक पंक्ति, और उस मान के लिए शब्द जो माना नहीं गया।
+
+**किनसे बना है:** एक [फ़ील्ड](/hi/components/field/) और एक [सिलेक्ट](/hi/components/select/) से। फ़ील्ड फ़्रेम है: लेबल, ज़रूरी या वैकल्पिक का निशान, सहायता और त्रुटि। सिलेक्ट कंट्रोल है: ट्रिगर, लिस्ट और वह सब जो व्यक्ति उनमें करता है। सिलेक्ट फ़ील्ड अपना कुछ नहीं बनाता और उसका कोई टोकन नहीं है: उसकी हर प्रॉपर्टी इन दोनों में से किसी एक की प्रॉपर्टी है, जो उसी को बिना बदले दे दी जाती है, और जो विकल्प आप उसे देते हैं वे उसके सिलेक्ट के हैं।
+
+यह उतना ही चौड़ा है जितनी वह जगह जिसमें इसे रखा गया है, और इसका बॉक्स उसे पूरा भरता है। बॉक्स सँकरा चाहिए तो उसे सँकरी जगह दें।
+
+वेब पर यह `<tanrei-select-field>` है, जिसके चाइल्ड `<tanrei-option>` हैं। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
+
+### इस्तेमाल
+
+विकल्प सिलेक्ट फ़ील्ड के चाइल्ड हैं: हर एक का एक मान और एक लेबल होता है। `value` बताता है कि कौन-सा विकल्प चुना हुआ है। `change` और `toggle` सिलेक्ट के अपने इवेंट हैं, और जब इनमें से कोई सुना जाता है, तब फ़ील्ड के `value` और `open` में नए मान आ चुके होते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-select-field name="country" label="देश" value="jp" requirement="required" required-text="ज़रूरी"
+        supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
+        <tanrei-option value="ca">कनाडा</tanrei-option>
+        <tanrei-option value="jp">जापान</tanrei-option>
+      </tanrei-select-field>
+    </form>
+
+    <!-- ग्रुप में बँटा हुआ, लेबल के नीचे एक पंक्ति और फ़ील्ड की पहचान के लिए एक ग्लिफ़ के साथ। -->
+    <tanrei-select-field label="टाइम ज़ोन" value="Europe/Lisbon">
+      <span slot="leading-icon">public</span>
+      <tanrei-option-group label="एशिया">
+        <tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">टोक्यो</tanrei-option>
+      </tanrei-option-group>
+      <tanrei-option-group label="यूरोप">
+        <tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">लिस्बन</tanrei-option>
+      </tanrei-option-group>
+    </tanrei-select-field>
+
+    <script type="module">
+      import '@tanrei/web/components/select-field';
+
+      const country = document.querySelector('[name="country"]');
+      // व्यक्ति ने कोई दूसरा विकल्प चुना। value में पहले से नया मान है।
+      country.addEventListener('change', () => save(country.value));
+      // व्यक्ति ने खोला या बंद किया; बंद होने पर कारण भी आता है।
+      country.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+      // वैलिडेशन आपका काम है: सिलेक्ट फ़ील्ड ख़ुद कभी error सेट नहीं करता।
+      country.error = submitted && !ships(country.value);
+      country.errorText = 'हम अभी वहाँ डिलीवरी नहीं करते। कोई दूसरा देश चुनें।';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Option, SelectField } from '@tanrei/react';
+
+    <SelectField label="देश" value={country} requirement="required" requiredText="ज़रूरी" onChange={(event) => setCountry(event.currentTarget.value)}>
+      <Option value="ca">कनाडा</Option>
+      <Option value="jp">जापान</Option>
+    </SelectField>
+    ```
+  </TabItem>
+</Tabs>
+
+### एक स्तर नीचे
+
+वही फ़ील्ड, अपने दोनों सदस्यों से हाथ से लिखा हुआ, वही तस्वीर है और सहायक तकनीक के लिए वही कंट्रोल:
+
+```html
+<tanrei-field label="देश" requirement="required" required-text="ज़रूरी"
+  supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
+  <tanrei-select name="country" placeholder="देश चुनें">
+    <tanrei-option value="jp">जापान</tanrei-option>
+    <tanrei-option value="ke">केन्या</tanrei-option>
+  </tanrei-select>
+</tanrei-field>
+```
+
+<DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक सिलेक्ट है" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" requirement="required" required-text="ज़रूरी" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
+    <tanrei-select placeholder="देश चुनें">
+      <tanrei-option value="jp">जापान</tanrei-option>
+      <tanrei-option value="ke">केन्या</tanrei-option>
+    </tanrei-select>
+  </tanrei-field>
+</DemoFrame>
+
+एक स्तर नीचे तब जाएँ जब आपको ऐसी व्यवस्था चाहिए जो सिलेक्ट फ़ील्ड नहीं देता:
+
+| आपको चाहिए | इस्तेमाल करें |
+| --- | --- |
+| लेबल, बॉक्स, सहायता और त्रुटि | सिलेक्ट फ़ील्ड |
+| फ़्रेम के भीतर, बॉक्स के बग़ल में या उसके नीचे अपनी कोई चीज़ | एक [फ़ील्ड](/hi/components/field/), जिसके भीतर एक [सिलेक्ट](/hi/components/select/) और आपका अपना एलिमेंट है |
+| सिर्फ़ बॉक्स, जहाँ उसका लेबल कहीं और है: किसी बार में थीम, टूलबार में सॉर्ट का क्रम, टेबल का कोई सेल | अकेला [सिलेक्ट](/hi/components/select/), जिसे नाम उसके अपने `label` से मिलता है |
+| इतनी लंबी लिस्ट कि लोग स्क्रॉल करने के बजाय टाइप करना चाहेंगे | [कॉम्बोबॉक्स](/hi/components/combobox/) |
+
+एक स्तर नीचे जो बदलता है, वह यह है कि कौन-सी बात कहाँ कही जाती है। `name`, `value` और विकल्प सिलेक्ट पर होते हैं, जो तब वह कंट्रोल है जो फ़ॉर्म को मिलता है, और उसके इवेंट उसी पर सुने जाते हैं। `label`, `error` और `disabled` फ़ील्ड पर ही रहते हैं, जो उन्हें कंट्रोल तक पहुँचाता है: सिलेक्ट के अपने सेट न करें।
+
+## स्पेक
+
+<DemoFrame label="एक अक्षम विकल्प के साथ सहायक टेक्स्ट, वैकल्पिक, एक त्रुटि, सिर्फ़ पढ़ने के लिए और अक्षम" plain column>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="प्लान" value="team">
+    <tanrei-option value="free" supporting-text="एक प्रोजेक्ट, कम्यूनिटी से सहायता">मुफ़्त</tanrei-option>
+    <tanrei-option value="team" supporting-text="असीमित प्रोजेक्ट, साझा भूमिकाएँ">टीम</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="सिंगल साइन-ऑन और ऑडिट लॉग" disabled>एंटरप्राइज़</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="क्षेत्र" requirement="optional" optional-text="वैकल्पिक" placeholder="कोई भी क्षेत्र">
+    <tanrei-option value="emea">यूरोप, मध्य पूर्व और अफ़्रीका</tanrei-option><tanrei-option value="apac">एशिया और प्रशांत</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" value="ke" error error-text="हम अभी वहाँ डिलीवरी नहीं करते। कोई दूसरा देश चुनें।">
+    <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" value="jp" readonly>
+    <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="देश" value="jp" disabled>
+    <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
+  </tanrei-select-field>
+</DemoFrame>
+
+<DemoFrame label="Filled और outlined: फ़ील्ड का लेबल सिलेक्ट के बॉक्स में फ़्लोट होता है, और ज़रूरी फ़ील्ड के लिए तारांकन आता है" system="m3-like" plain column>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="देश" value="jp" supporting-text="आपके इनवॉइस इसी देश के पते पर भेजे जाते हैं।">
+    <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="देश" requirement="required" required-text="ज़रूरी">
+    <tanrei-option value="jp">जापान</tanrei-option><tanrei-option value="ke">केन्या</tanrei-option>
+  </tanrei-select-field>
+</DemoFrame>
+
+### हर सदस्य क्या देता है
+
+| पहलू | फ़ील्ड से | सिलेक्ट से |
+| --- | --- | --- |
+| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` |
+| इवेंट | — | `change`, `toggle` |
+| स्लॉट | `label-icon` | `leading-icon`, और विकल्प |
+| टोकन | `comp.field.*` | बॉक्स के लिए `comp.input-box.*`, जिन्हें हर इनपुट बॉक्स पढ़ता है; लिस्ट के लिए `comp.select.*` |
+
+सिलेक्ट के अपने `label`, `labelHidden`, `error` और `disabled` होते हैं। वे सिलेक्ट फ़ील्ड की प्रॉपर्टी नहीं हैं: फ़ील्ड का `label` कंट्रोल को नाम देता है, उसका `error` बॉक्स को त्रुटि की अवस्था में लाता है और उसका `disabled` उसे अक्षम करता है। इसलिए आप इनमें से हर एक को एक ही बार सेट करते हैं, सिलेक्ट फ़ील्ड पर, और उसका लेबल कंट्रोल के साथ बदलता है।
+
+`stacked` रूप में लेबल बॉक्स के ऊपर फ़ील्ड की पंक्ति है। `filled` और `outlined` रूप में वही लेबल सिलेक्ट ख़ुद दिखाता है, अपने बॉक्स में फ़्लोट होता हुआ, और फ़ील्ड लेबल की कोई पंक्ति नहीं दिखाता; तब ज़रूरी फ़ील्ड लेबल के बाद तारांकन से चिह्नित होता है, डिज़ाइन सिस्टम चाहे जो निशान तय करे। सहायता वहीं से शुरू होती है जहाँ से मान शुरू होता है, शुरुआती आइकन के बाद। जब तक लिस्ट खुली है, लेबल और सहायता फ़ोकस वाले रूप में दिखाए जाते हैं, जैसे बॉक्स।
+
+ट्रिगर और लिस्ट क्या करते हैं, यानी खुलना, ऐरो कुंजियाँ, टाइप करना, चुनना, ग्रुप, यह [सिलेक्ट के पेज](/hi/components/select/) पर है। फ़्रेम क्या करता है, यानी ज़रूरी का निशान, सहायता, त्रुटि और वह कैसे पढ़कर सुनाई जाती है, यह [फ़ील्ड के पेज](/hi/components/field/) पर है।
+
+### किसी एक फ़ील्ड को अलग करना
+
+सिलेक्ट फ़ील्ड का अपना कोई टोकन नहीं है। उसका फ़्रेम फ़ील्ड के टोकन पढ़ता है, और उसका बॉक्स और उसकी लिस्ट सिलेक्ट के, वे जहाँ भी सेट हों। किसी एक इंस्टेंस को बदलने के लिए, उस पर सदस्य का टोकन सेट करें:
+
+```html
+<tanrei-select-field label="देश"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-select-field>
+```
+
+<ComponentSpecs name="select-field" />
+
+### वेब क्या अलग ढंग से बनाता है
+
+- एलिमेंट के शैडो रूट में एक `<tanrei-field>` रहता है, जिसके भीतर एक `<tanrei-select>` है, और कुछ नहीं। एलिमेंट को इंपोर्ट करने से दोनों डिफ़ाइन हो जाते हैं।
+- विकल्प `<tanrei-select-field>` के चाइल्ड के रूप में आपके ही रहते हैं। वे कभी हटाकर कहीं और नहीं रखे जाते और कॉपी नहीं किए जाते: वे भीतर के सिलेक्ट तक एक स्लॉट से पहुँचते हैं, और जब वे बदलते हैं तो सिलेक्ट उन्हें दोबारा पढ़ता है। उन्हें हाथ से बदलना (`replaceChildren()`) वैसे ही काम करता है जैसे सिलेक्ट पर।
+- यह फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, सिर्फ़ मान सबमिट करता है (अक्षम रहते कुछ नहीं, और सिर्फ़ पढ़ने के लिए होने पर भी सबमिट करता है), रीसेट होने पर `value` ऐट्रिब्यूट पर लौटता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `requirement` का मान `required` है और मान ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। उसके दोनों सदस्य फ़ॉर्म में कोई एंट्री नहीं जोड़ते।
+- `change` सिलेक्ट का composed और बबल होने वाला इवेंट है। `toggle` सिलेक्ट का CustomEvent है, जिसके साथ `detail.open` और `detail.reason` आते हैं: वह composed है और बबल नहीं होता, इसलिए वह एलिमेंट पर सुना जाता है और `<details>` जैसे किसी पूर्वज एलिमेंट पर कभी नहीं। इनका टार्गेट यही एलिमेंट है, और हर लिसनर में `event.target.value` और `event.target.open` में नए मान होते हैं।
+- भाग: `field` और `select` दोनों सदस्य हैं। उनके अपने भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`। `label` और `requirement-label` दोनों में से वह हैं जो दिखाया जाता है, यानी फ़ील्ड की पंक्ति या सिलेक्ट का फ़्लोट होता लेबल, और `field-label`, `select-label`, `field-requirement-label` और `select-requirement-label` सिर्फ़ किसी एक सदस्य के भाग के नाम हैं।
+- एलिमेंट पर ख़ुद फ़ोकस नहीं जा सकता: `focus()` ट्रिगर पर जाता है, और पेज का अपना `<label for>` फ़ोकस वहीं ले जाता है। लेबल की पंक्ति पर दबाने से फ़ोकस ट्रिगर पर आता है और कुछ नहीं खुलता; ट्रिगर पर दबाने से लिस्ट खुलती है; सहायता पर दबाने से कुछ नहीं होता।
+- एलिमेंट का कोई रोल नहीं है। उसे `label` से नाम दें, और जहाँ लेबल कहीं और दिखाया गया है वहाँ साथ में `label-hidden` दें। उसे `aria-label` से कभी नाम न दें, जो यहाँ किसी चीज़ को नाम नहीं देता।
+- ऐट्रिब्यूट सदस्यों के अपने हैं: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `readonly`।
+- जो चाइल्ड न विकल्प है, न विकल्पों का ग्रुप, न `label-icon` या `leading-icon` के लिए ग्लिफ़, वह नहीं दिखाया जाता; डीबग बिल्ड यह बताता है।
+- एलिमेंट के डिफ़ाइन होने से पहले उसके विकल्प चलता टेक्स्ट होते हैं। `tanrei-select-field:not(:defined) > *` को छिपाएँ और ऊँचाई के लिए जगह रखें। जिस पेज को स्क्रिप्ट के बिना काम करना है, वह अपने `<label>` के साथ नेटिव `<select>` इस्तेमाल करता है।
+
+## दिशानिर्देश
+
+### करें
+
+- ऐसा लेबल लिखें जो बताए कि क्या चुना जा रहा है, और फ़ॉर्म में उसे दिखता रहने दें।
+- विकल्पों को उस क्रम में रखें जिसमें लोग उन्हें ढूँढ़ते हैं: वर्णमाला के क्रम में, संख्या के क्रम में, या आम विकल्प पहले।
+- लंबी लिस्ट को ग्रुप में बाँटें और हर ग्रुप को एक छोटा शीर्षक दें।
+- कोई मान पहले से सिर्फ़ वहाँ चुनकर रखें जहाँ ज़्यादातर लोग वही चुनेंगे।
+- फ़ील्ड को चौड़ाई उसकी जगह से दें: फ़ॉर्म का एक कॉलम। बॉक्स उसे पूरा भरता है।
+
+### न करें
+
+- किसी बार या टूलबार में `labelHidden` वाला सिलेक्ट फ़ील्ड इस्तेमाल न करें। वह अकेला [सिलेक्ट](/hi/components/select/) है, जिसे नाम उसके अपने `label` से मिलता है।
+- प्लेसहोल्डर को लेबल की तरह इस्तेमाल न करें। कुछ चुनते ही वह ग़ायब हो जाता है।
+- बिना बताए `change` पर किसी दूसरे पेज पर न ले जाएँ, फ़ॉर्म सबमिट न करें और कुछ न हटाएँ। लोग लिस्ट को पढ़ने के लिए उसमें आगे-पीछे जाते हैं।
+- सिलेक्ट फ़ील्ड को फ़ील्ड के भीतर न रखें। वह पहले से एक फ़ील्ड है; डीबग बिल्ड यह बताता है। फ़ील्ड जिस कंट्रोल को फ़्रेम देता है, वह सिलेक्ट है।
+- उसे `aria-label` से नाम न दें। जहाँ कोई लेबल नहीं दिखाना है, वहाँ `label` और `labelHidden` दें।
+
+## सुलभता
+
+<ComponentAccessibility name="select-field" />
+
+### कंपोनेंट क्या सँभालता है
+
+- यह एक ऐसा कॉम्बोबॉक्स है जिसमें टाइप करके संपादन नहीं किया जा सकता, यानी सिलेक्ट का। उसका नाम `label` है, चाहे वह दिखाया गया हो या नहीं; उसका विवरण दिखाया जा रहा सहायक या त्रुटि टेक्स्ट है, और जब तक फ़ील्ड वैकल्पिक है, उसके साथ वैकल्पिक का टेक्स्ट।
+- जब तक `error` true है, वह अमान्य के रूप में दिया जाता है; जब तक `requirement` का मान `required` है, ज़रूरी के रूप में; जब तक `disabled` true है, अक्षम के रूप में; जब तक `readOnly` true है, सिर्फ़ पढ़ने वाले के रूप में; और जब तक उसकी लिस्ट खुली है, फैले हुए (expanded) के रूप में।
+- नाम, विवरण और स्टेट ठीक वैसे ही जोड़े जाते हैं जैसे फ़ील्ड उन्हें अपने भीतर के किसी भी कंट्रोल से जोड़ता है। एक स्तर नीचे, हाथ से लिखा गया फ़ील्ड वही कंट्रोल है।
+- दिखने वाला लेबल, ज़रूरी या वैकल्पिक का निशान और ग्लिफ़ सहायक तकनीक को दूसरी बार नहीं दिए जाते।
+- यह Tab कुंजी के लिए एक ही पड़ाव है। लेबल पर दबाने से फ़ोकस ट्रिगर पर आता है और कुछ नहीं खुलता; सहायता पर दबाने से कुछ नहीं होता।
+- जो त्रुटि फ़ोकस के सिलेक्ट फ़ील्ड में रहते हुए आती है, उसे उसका फ़ील्ड सदस्य एक बार, बिना टोके (polite), पढ़कर सुनाता है।
+- लिस्ट की हर चीज़, यानी सक्रिय विकल्प, विकल्पों के नाम, विवरण और स्टेट, और ग्रुप, सिलेक्ट की है, जैसा [सिलेक्ट के पेज](/hi/components/select/#सुलभता) पर है।
+- दिशा, बड़ा किया गया टेक्स्ट और फ़ोर्स्ड कलर्स, इन सबको हर सदस्य अपने ढंग से सँभालता है।
+- इसके अपने कोई शब्द नहीं हैं। `requiredText` और `optionalText` ख़ाली छोड़े जाएँ तो फ़ील्ड उन्हें प्रॉडक्ट के शब्दों से पढ़ता है।
+
+वेब पर ज्ञात कमियाँ इसके सदस्यों की हैं: दो ग्रुप के बीच का डिवाइडर सेपरेटर के रूप में नहीं दिया जाता, टाइपिंग लेबल की तुलना उस तरह करती है जैसे JavaScript करता है, और एलिमेंट के डिफ़ाइन होने से पहले टेक्स्ट के रूप में विकल्पों के सिवा कुछ नहीं दिखता।
+
+### आपको क्या करना है
+
+- हर सिलेक्ट फ़ील्ड को `label` दें, और हर विकल्प को एक लेबल।
+- मान को ख़ुद वैलिडेट करें, `error` सेट करें, और `errorText` ऐसा लिखें कि वह बताए कि जवाब कैसे ठीक किया जाए।
+- ज़रूरी या वैकल्पिक होने के शब्द दें: सिलेक्ट फ़ील्ड पर `required-text` और `optional-text`, या `setWords({ requiredText, optionalText })` से पूरे प्रॉडक्ट के लिए एक बार। Tanrei अपना कोई शब्द साथ नहीं देता: `requiredText` के बिना टैग की जगह तारांकन दिखता है, और `optionalText` के बिना न कोई टैग दिखता है, न कुछ कहा जाता है। देखें [प्रॉडक्ट के शब्द](/hi/foundations/words/)।
+- एक सिलेक्ट फ़ील्ड के भीतर विकल्पों के मान अलग-अलग रखें।

@@ -1,0 +1,69 @@
+/*
+ * Menubar before its elements are defined, and where script does not run (specs/menubar.spec.json; MBR-45): a bar's
+ * menus and actions draw nothing there — their words are attributes and their work is the product's script — but a
+ * link item is the product's own anchor in the document, and it is a link that works:
+ *
+ *   <tanrei-menubar label="Application menu">
+ *     <tanrei-menubar-menu label="File">…</tanrei-menubar-menu>
+ *     <tanrei-menubar-item label="Run"></tanrei-menubar-item>
+ *     <tanrei-menubar-item><a href="/docs/">Documentation</a></tanrei-menubar-item>
+ *   </tanrei-menubar>
+ *
+ * - the bar is a row with the bar's paddings, gap and fill, in which only the link items' anchors stand, in the order
+ *   given, on further lines where one line does not hold them;
+ * - each anchor in a title's text style, color, height and paddings, with no underline; it is followed by the browser
+ *   and takes focus with Tab, as any link: there is no menubar, no menu item and no roving focus until the bar runs;
+ * - a disabled link item — an anchor without `href` under `disabled` — is text in the disabled color.
+ *
+ * What it cannot give: the titles and the actions, so the row holds fewer things than it will, and where it holds no
+ * link item it is as tall as its paddings alone. A page that must not move reserves the bar's block size:
+ *
+ *   tanrei-menubar:not(:defined) { min-block-size: calc(var(--tanrei-comp-menubar-container-height) + 2 * var(--tanrei-comp-menubar-bar-padding-block)); }
+ *
+ * Every value is a `--tanrei-comp-menubar-*` token. Every selector has no specificity (`:where()`), and none matches
+ * once the element is defined: the bar then takes the same anchors, where they stand, as its link items.
+ */
+@layer tanrei.components {
+  :where(tanrei-menubar:not(:defined)) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    box-sizing: border-box;
+    gap: var(--tanrei-comp-menubar-bar-gap);
+    padding-block: var(--tanrei-comp-menubar-bar-padding-block);
+    padding-inline: var(--tanrei-comp-menubar-bar-padding-inline);
+    background: var(--tanrei-comp-menubar-bar-color);
+  }
+  :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-menu) {
+    display: none;
+  }
+  :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-item) {
+    display: contents;
+  }
+  :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-item) > :where(a) {
+    display: flex;
+    flex: none;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--tanrei-comp-menubar-container-height);
+    padding-inline: var(--tanrei-comp-menubar-container-padding-inline);
+    border-radius: var(--tanrei-comp-menubar-container-shape);
+    font: var(--tanrei-comp-menubar-label-typescale-font);
+    letter-spacing: var(--tanrei-comp-menubar-label-typescale-letter-spacing);
+    white-space: nowrap;
+    color: var(--tanrei-comp-menubar-unselected-label-color);
+    text-decoration: none;
+  }
+  :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-item) > :where(a[aria-current]:not([aria-current='false'])) {
+    font-weight: var(--tanrei-comp-menubar-label-typescale-font-weight-emphasized);
+  }
+  :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-item[disabled]) > :where(a) {
+    color: var(--tanrei-comp-menubar-unselected-disabled-label-color);
+  }
+  /* Hidden: the rules above name a display, and an author's rule beats the browser's for the attribute. */
+  :where(tanrei-menubar[hidden]:not([hidden='until-found' i]):not(:defined)),
+  :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-item[hidden]:not([hidden='until-found' i])),
+  :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-item) > :where(a[hidden]:not([hidden='until-found' i])) {
+    display: none;
+  }
+}

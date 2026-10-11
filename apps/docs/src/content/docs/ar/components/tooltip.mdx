@@ -1,0 +1,409 @@
+---
+title: التلميح
+description: يصف عنصرًا في بضع كلمات حين يشير إليه الشخص أو يركّز عليه بلوحة المفاتيح أو يضغط عليه ضغطًا مطوَّلًا، من دون أن يأخذ التركيز أو يحجب شيئًا.
+translationOf: components/tooltip.mdx
+sourceHash: 51e462efff5a2291a95f405f23d53506018a5153
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="tooltip" />
+
+<DemoFrame label="أشِر إلى زر أو ركّز عليه: تلميح من الطراز plain وآخر من الطراز rich">
+  <tanrei-tooltip text="نقل إلى المهملات" no-describe>
+    <tanrei-button variant="text" label="نقل إلى المهملات"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="التخزين" text="الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف." placement="bottom">
+    <tanrei-button variant="text" label="عن التخزين"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+### الاستخدام
+
+عنصر الارتكاز عنصر من عندك: زر أيقونة، أو تسمية مقتطعة، أو علامة في مخطط بياني. يضيف التلميح إليه وصفًا ولا يغيّر فيه شيئًا آخر. يحيط التلميح بعنصر الارتكاز على الويب و Compose و Flutter و React Native، وهو مُعدِّل على عنصر الارتكاز في SwiftUI.
+
+يفتح التلميح نفسه ويغلقها، عند التحويم وتركيز لوحة المفاتيح والضغط المطوَّل، ويبلّغ عن ذلك بالحدث `toggle`. ولا تضبط `open` إلا لتعرضه بنفسك، كتلميح أول تشغيل. ضبطها لا يُصدر شيئًا، ويبقى التلميح يفتح نفسه ويغلقها بعد ذلك.
+
+الخاصية `describes` (وقيمتها الافتراضية true) تجعل النص وصفًا لعنصر الارتكاز متاحًا للتقنيات المساعدة. اضبطها على false حين يكرّر النص اسم عنصر الارتكاز نفسه، كما في زر الأيقونة الذي يعرض تلميحه تسميته، حتى لا تقرأ قارئات الشاشة الكلمات مرتين.
+
+تعرض عيّنتا Web و React المواصفة الحالية. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: ما زالت تقدّم المراجعة السابقة من التلميح، وفيها أربعة مواضع موسَّطة وليس فيها مهل ولا إزاحات خاصة بتلميح واحد، ولا سهم، ولا مظهر ثانٍ، ولا اختصار، وتظهر تدريجيًّا من دون أن تكبر. وتعرض عيّناتها تلك المراجعة إلى أن تلحق بالبقية.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- التلميح يحيط بعنصر ارتكازه. no-describe هي describes مضبوطة على false: النص يكرّر التسمية. -->
+    <tanrei-tooltip text="نقل إلى المهملات" no-describe>
+      <tanrei-button variant="text" label="نقل إلى المهملات"><span slot="icon">delete</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- شريط أدوات كثيف يريد أسماءه أبكر. المهل بالميلي ثانية. -->
+    <tanrei-tooltip text="غامق" show-delay="150" no-describe>
+      <tanrei-button variant="text" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- مفاتيح الأمر بعد اسمه. عنصر الارتكاز يحملها للتقنيات المساعدة. -->
+    <tanrei-tooltip text="غامق" shortcut="mod+b" no-describe>
+      <tanrei-button variant="text" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- تحت عنصر التحكم، محاذيًا لحافة بدايته، مع سهم، على سطح بدل المظهر المعكوس. -->
+    <tanrei-tooltip text="التصفية حسب التاريخ أو المالك" placement="bottom-start" arrow inverse="false">
+      <tanrei-button variant="text" label="تصفية"><span slot="icon">filter_list</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <tanrei-tooltip id="storage" variant="rich" title="التخزين" placement="bottom"
+                    text="الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف.">
+      <tanrei-button variant="text" label="عن التخزين"><span slot="icon">info</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <script type="module">
+      import '@tanrei/web/components/tooltip';
+      const storage = document.querySelector('#storage');
+      // تلميح أول تشغيل. ضبط open لا يُصدر شيئًا.
+      storage.open = true;
+      // toggle يبلّغ عمّا فعله التلميح من تلقاء نفسه: التحويم، التركيز، الضغط المطوَّل، Escape، انتهاء المهلة، تلميح آخر.
+      storage.addEventListener('toggle', (e) => console.log(e.detail.open));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Tooltip } from '@tanrei/react';
+
+    <Tooltip text="نقل إلى المهملات" describes={false}>
+      <Button variant="text" label="نقل إلى المهملات" onClick={trash}><span slot="icon">delete</span></Button>
+    </Tooltip>
+    {/* مفاتيح الأمر بعد اسمه: تآلف واحد في كل سلسلة نصية. */}
+    <Tooltip text="غامق" shortcut={['mod+b']} describes={false}>
+      <Button variant="text" label="غامق" onClick={bold}><span slot="icon">format_bold</span></Button>
+    </Tooltip>
+    {/* تحت عنصر التحكم، محاذيًا لحافة بدايته، مع سهم، على سطح بدل المظهر المعكوس. */}
+    <Tooltip text="التصفية حسب التاريخ أو المالك" placement="bottom-start" arrow inverse={false}>
+      <Button variant="text" label="تصفية" onClick={filter}><span slot="icon">filter_list</span></Button>
+    </Tooltip>
+    <Tooltip
+      variant="rich"
+      title="التخزين"
+      text="الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف."
+      placement="bottom"
+      touchTimeout={4000} // بضع جمل تحتاج إلى وقت أطول لتُقرأ بعد ضغط مطوَّل
+      onToggle={(e) => log(e.detail.open)}
+    >
+      <Button variant="text" label="عن التخزين"><span slot="icon">info</span></Button>
+    </Tooltip>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // مُعدِّل على عنصر الارتكاز. والمُعدِّل .tanreiTheme(_:) فوقه يستضيف الطبقة التي يُرسم فيها التلميح.
+    // الوصف يصير accessibilityHint لعنصر الارتكاز.
+    TanreiIconButton("نقل إلى المهملات", action: trash) { Image(systemName: "trash") }
+        .tanreiTooltip("نقل إلى المهملات", describes: false)
+
+    // isPresented هي open؛ يكتبها التلميح حين يفتح أو يغلق من تلقاء نفسه.
+    TanreiIconButton("عن التخزين", action: {}) { Image(systemName: "info.circle") }
+        .tanreiTooltip("الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف.",
+                       title: "التخزين", variant: .rich, placement: .bottom, isPresented: $showHint)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiTooltip
+    import io.github.chnotchy.tanrei.components.TanreiTooltipPlacement
+    import io.github.chnotchy.tanrei.components.TanreiTooltipVariant
+    import io.github.chnotchy.tanrei.components.rememberTanreiTooltipState
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // مثل TooltipBox في Material: التلميح يحيط بعنصر ارتكازه.
+    TanreiTooltip(text = "نقل إلى المهملات", describes = false) {
+        TanreiIconButton(onClick = ::trash, contentDescription = "نقل إلى المهملات") { TanreiText("delete") }
+    }
+
+    // الحالة (state) هي open. يسمع onToggle ما يفعله التلميح من تلقاء نفسه؛ أما show() و dismiss() فلا يُصدران شيئًا.
+    val hint = rememberTanreiTooltipState(onToggle = { open -> log(open) })
+    TanreiTooltip(
+        text = "الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف.",
+        variant = TanreiTooltipVariant.Rich,
+        title = "التخزين",
+        placement = TanreiTooltipPlacement.Bottom,
+        state = hint,
+    ) {
+        TanreiIconButton(onClick = {}, contentDescription = "عن التخزين") { TanreiText("info") }
+    }
+    LaunchedEffect(Unit) { hint.show() } // تلميح أول تشغيل
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // show() و hide() يضبطان open، ولا يُشعران أحدًا. المستمعون يسمعون ما يفعله التلميح من تلقاء نفسه.
+    final TanreiTooltipController hint = TanreiTooltipController();
+    hint.addListener(() => log(hint.isOpen));
+
+    // مثل Tooltip في Flutter: message هو النص، و excludeFromSemantics هو describes معكوسًا.
+    TanreiTooltip(
+      message: 'نقل إلى المهملات',
+      excludeFromSemantics: true, // النص يكرّر اسم الزر نفسه
+      child: TanreiIconButton(onPressed: trash, icon: const Icon(AppSymbols.delete), semanticLabel: 'نقل إلى المهملات'),
+    );
+    TanreiTooltip(
+      variant: TanreiTooltipVariant.rich,
+      title: 'التخزين',
+      message: 'الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف.',
+      placement: TanreiTooltipPlacement.bottom,
+      controller: hint, // hint.show() لتلميح أول تشغيل
+      child: TanreiIconButton(onPressed: info, icon: const Icon(AppSymbols.info), semanticLabel: 'عن التخزين'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { IconButton, Tooltip } from '@tanrei/react-native';
+
+    // عنصر الارتكاز عنصر فرعي واحد يقبل خصائص Pressable. يضيف التلميح معالجاته، ويستدعي معالجات عنصر الارتكاز أولًا.
+    <Tooltip text="نقل إلى المهملات" describes={false}>
+      <IconButton accessibilityLabel="نقل إلى المهملات" onPress={trash}>delete</IconButton>
+    </Tooltip>
+
+    // open تعرضه من شيفرتك ولا تُصدر شيئًا؛ و onOpenChange يسمع ما يفعله من تلقاء نفسه.
+    <Tooltip
+      variant="rich"
+      title="التخزين"
+      text="الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف."
+      placement="bottom"
+      open={showHint}
+      onOpenChange={setShowHint}
+    >
+      <IconButton accessibilityLabel="عن التخزين">info</IconButton>
+    </Tooltip>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="تلميح من الطراز plain تحت عنصر ارتكازه، وتلميح من الطراز rich بلا عنوان" plain>
+  <tanrei-tooltip text="نقل إلى المهملات" placement="bottom" no-describe>
+    <tanrei-button variant="text" label="نقل إلى المهملات"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" text="الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف.">
+    <tanrei-button variant="text" label="عن التخزين"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+<ComponentSpecs name="tooltip" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم التلميح لتسمية إجراء له أيقونة لشخص لا يعرف الرسم، أو لشرح مصطلح أو حدّ أو إعداد في موضعه. هو وصف يُقرأ على عجل.
+
+التلميح غير مرئي لمستخدمي اللمس إلى أن يضغطوا ضغطًا مطوَّلًا، وقارئ الشاشة لا يسمعه إلا وصفًا. لا تضع أبدًا في التلميح وحده شيئًا يحتاج إليه الشخص ليُتم مهمة: اعرضه نصًّا على الشاشة. والملاحظة التي تحتاج إلى رابط أو زر ليست تلميحًا. استخدم مربع حوار، أو نصًّا بجانب ما تشرحه.
+
+### اختيار الطراز
+
+| الطراز (variant) | ما هو | يُستخدم لـ |
+| --- | --- | --- |
+| Plain | عبارة قصيرة واحدة، على السطح المعكوس (inverse) افتراضيًّا. يتجاهل `title`، ويستطيع أن يعرض اختصار لوحة مفاتيح بعد نصه. | تسمية ما تفعله أيقونة: «نقل إلى المهملات»، «مشاركة». |
+| Rich | عنوان اختياري فوق بضع جمل، على سطح مرتفع افتراضيًّا. يتجاهل `shortcut`. | شرح مصطلح أو إعداد: «التخزين» وما يُحسب منه. |
+
+الطراز اختيار بنيوي، لا محور رموز (tokens). يعيد نظام التصميم تنسيق الهيئتين، لكنه لا يستطيع أن يضيف ثالثة بالقيم.
+
+### الموضع
+
+الخاصية `placement` تسمّي جهة عنصر الارتكاز التي يفضّلها التلميح وكيف يُحاذى على امتداد تلك الجهة. القيمة الافتراضية `top`.
+
+<DemoFrame label="أشِر إلى زر أو ركّز عليه: المواضع الثلاثة عشر" plain>
+  <tanrei-tooltip text="فوق، في الوسط" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="فوق، مع تطابق حافتي البداية" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="فوق، مع تطابق حافتي النهاية" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="تحت، في الوسط" placement="bottom"><tanrei-button variant="outlined" size="small">bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="تحت، مع تطابق حافتي البداية" placement="bottom-start"><tanrei-button variant="outlined" size="small">bottom-start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="تحت، مع تطابق حافتي النهاية" placement="bottom-end"><tanrei-button variant="outlined" size="small">bottom-end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="قبل، في الوسط" placement="start"><tanrei-button variant="outlined" size="small">start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="قبل، مع تطابق الحافتين العلويتين" placement="start-top"><tanrei-button variant="outlined" size="small">start-top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="قبل، مع تطابق الحافتين السفليتين" placement="start-bottom"><tanrei-button variant="outlined" size="small">start-bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="بعد، في الوسط" placement="end"><tanrei-button variant="outlined" size="small">end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="بعد، مع تطابق الحافتين العلويتين" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="بعد، مع تطابق الحافتين السفليتين" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="أول جهة فيها متّسع" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
+</DemoFrame>
+
+| الجهة | موسَّط على عنصر الارتكاز | تطابق الحافتين الأوليين | تطابق الحافتين الثانيتين |
+| --- | --- | --- | --- |
+| فوق | `top` | `top-start` | `top-end` |
+| تحت | `bottom` | `bottom-start` | `bottom-end` |
+| قبل عنصر الارتكاز | `start` | `start-top` | `start-bottom` |
+| بعد عنصر الارتكاز | `end` | `end-top` | `end-bottom` |
+
+- **المحاذاة تعني حافة على حافة.** القيمة `top-start` تضع حافة بداية التلميح على حافة بداية عنصر الارتكاز، والقيمة `end-bottom` تضع حافته السفلية على الحافة السفلية لعنصر الارتكاز. استخدم موضعًا محاذيًا لتلميح عريض على عنصر ارتكاز صغير قرب حافة لوحة، أو لمحاذاة تلميح مع سطر من النص.
+- **البداية والنهاية تتبعان اتجاه التخطيط.** في التخطيط من اليمين إلى اليسار (RTL) تكون `start` هي الجهة اليمنى، وتحاذي `top-start` الحافتين اليمنيين. أما الأعلى والأسفل فلا ينعكسان.
+- **القيمة `auto`** تجرّب الأعلى ثم الأسفل ثم النهاية ثم البداية بهذا الترتيب وتأخذ أول جهة فيها متّسع، موسَّطةً. استخدمها لعنصر ارتكاز لا تستطيع أن تعرف ما يحيط به، كعنصر تحكم في لوحة قد تُرسى عند أي حافة.
+- **حين لا يوجد متّسع.** ينقلب التلميح إلى الجهة المقابلة ويحتفظ بمحاذاته، ثم ينزاح على امتداد الجهة ليبقى داخل المنطقة الآمنة للنافذة. في نافذة أصغر من التلميح يبقى داخل النافذة، ولو فوق عنصر الارتكاز إن لزم. وبعد أن ينقلب يحتفظ بتلك الجهة ما دام فيها متّسع، فلا ترميه الصفحة التي تُمرَّر من جهة إلى أخرى.
+- **الخاصيتان `offset` و `crossOffset`.** الخاصية `offset` هي المسافة من حافة عنصر الارتكاز، والقيمة 0 تجعل الاثنين يتلامسان؛ وإن تُركت بلا ضبط كانت مسافة النظام. والخاصية `crossOffset` تحرّك التلميح على امتداد جهته، نحو النهاية حين يكون فوق عنصر الارتكاز أو تحته ونحو الأسفل حين يكون بجانبه، ولا تُخرجه أبدًا عن جهة عنصر الارتكاز. وكلتاهما بوحدات التخطيط في المنصة. اضبطهما فقط حيث لا يكون صندوق عنصر الارتكاز هو ما تعدّه العين حافته، كعنصر تحكم له مساحة لمس كبيرة غير مرئية أو علامة في مخطط بياني.
+- **تغيير أثناء العرض.** قيمة `placement` الجديدة أو الإزاحة الجديدة تحرّك التلميح فورًا، بلا حركة انتقالية.
+
+### السهم
+
+<DemoFrame label="أشِر إلى زر أو ركّز عليه: مع سهم" plain>
+  <tanrei-tooltip text="نقل إلى المهملات" arrow no-describe>
+    <tanrei-button variant="text" label="نقل إلى المهملات"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip text="التصفية حسب التاريخ أو المالك" placement="bottom-start" arrow>
+    <tanrei-button variant="text" label="تصفية"><span slot="icon">filter_list</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="التخزين" text="الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف." placement="end" arrow>
+    <tanrei-button variant="text" label="عن التخزين"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+الخاصية `arrow` ترسم مثلثًا صغيرًا على حافة التلميح يشير إلى عنصر الارتكاز. وهو موقوف في النظام الافتراضي. إن تُركت بلا ضبط أخذت اختيار نظام التصميم؛ والقيمتان `true` و `false` تقررانه لتلميح واحد. على الويب تُكتب خاصية HTML (attribute) في الصورة `arrow` للقيمة true و `arrow="false"` للقيمة false.
+
+السهم والتلميح شكل واحد، باللون نفسه. يشير السهم إلى عنصر الارتكاز، لا إلى وسط التلميح، حتى بعد أن ينقلب التلميح أو ينزاح، ويبتعد عن الزوايا. ويقف التلميح أبعد بمقدار ارتفاع السهم، فتكون الفجوة التي تراها واحدة بسهم أو من دونه.
+
+استخدم السهم حيث لا تكفي الجهة وحدها لتقول أي عنصر تحكم هو المقصود: تلميح تفتحه أنت فوق شريط أدوات مزدحم، مثلًا. والأسماء التي تُعرض عند التحويم قلّما تحتاج إليه.
+
+### مظهران
+
+<DemoFrame label="أشِر إلى زر أو ركّز عليه: كل هيئة معكوسةً وعلى سطح" plain>
+  <tanrei-tooltip text="ألوان المخطط اللوني المقابل" inverse><tanrei-button variant="outlined" size="small">Plain, inverse</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="سطح مرتفع من المخطط اللوني" inverse="false"><tanrei-button variant="outlined" size="small">Plain, surface</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="على سطح" text="سطح مرتفع من المخطط اللوني، مع ارتفاعه." inverse="false"><tanrei-button variant="outlined" size="small">Rich, surface</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="معكوس" text="ألوان المخطط اللوني المقابل، بلا ظل." inverse><tanrei-button variant="outlined" size="small">Rich, inverse</tanrei-button></tanrei-tooltip>
+</DemoFrame>
+
+يمكن أن تُرسم كل من الهيئتين معكوسةً، بألوان المخطط اللوني المقابل، أو على سطح مرتفع من المخطط اللوني.
+
+| `inverse` | Plain | Rich |
+| --- | --- | --- |
+| غير مضبوطة (الافتراضي) | كما يختار نظام التصميم للتلميحات من الطراز plain: معكوس في النظام الافتراضي. | كما يختار نظام التصميم للتلميحات من الطراز rich: سطح في النظام الافتراضي. |
+| `true` | معكوس. | معكوس. |
+| `false` | على سطح. | على سطح. |
+
+على الويب تُكتب خاصية HTML في الصورة `inverse` للقيمة true و `inverse="false"` للقيمة false، كما في [شريط الإشعار](/ar/components/snackbar/).
+
+لا يتغيّر إلا الألوان والارتفاع. الشكل الهندسي والأحجام وأنماط النص والسهم والموضع والحركة واحدة في المظهرين، ولا يقول أي منهما إن التلميح مهم. اضبطه لتلميح واحد لن يتميّز من دونه عمّا حوله: تسمية داكنة فوق عارض صور داكن أو على شريط معكوس، أو ملاحظة أطول فوق سطح مرتفع مزدحم.
+
+### اختصار لوحة المفاتيح
+
+<DemoFrame label="أشِر إلى زر أو ركّز عليه: مفاتيح الأمر بعد اسمه" plain>
+  <tanrei-tooltip text="غامق" shortcut="mod+b" no-describe>
+    <tanrei-button variant="text" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip text="مائل" shortcut="mod+i" no-describe>
+    <tanrei-button variant="text" label="مائل"><span slot="icon">format_italic</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+الخاصية `shortcut` تعرض مفاتيح أمر عنصر الارتكاز بعد نص التلميح من الطراز plain، مكتوبةً للوحة المفاتيح التي يستخدمها الشخص. وتأخذ أسماء المفاتيح التي يستخدمها مكوّن [اختصار لوحة المفاتيح](/ar/components/keyboard-shortcut/)، تآلفًا (chord) واحدًا في كل سلسلة نصية؛ وعلى الويب تحمل خاصية HTML التآلفات مفصولة بمسافات.
+
+التلميح يعرض المفاتيح فقط. لا يجعلها تعمل: منتجك هو الذي يربطها. تبقى المفاتيح كاملة على سطر واحد والنص الطويل يلتف بجانبها. والتلميح من الطراز rich يتجاهل `shortcut` ويبلّغ عنها في بنيات التنقيح (debug).
+
+### الفتح والتركيز والإغلاق
+
+التلميح تراكب قراءة. يأخذ الأشخاص منه معلومة ولا يعملون داخله أبدًا، ولذلك لا يأخذ التركيز أبدًا.
+
+| الإدخال | يُفتح | يُغلق |
+| --- | --- | --- |
+| مؤشر | بعد أن يستقر على عنصر الارتكاز مدة مهلة الإظهار. | بعد أن يبقى خارج عنصر الارتكاز والفجوة والتلميح مدة مهلة الإخفاء. يستطيع المؤشر أن يعبر الفجوة إلى التلميح ليقرأه. |
+| تركيز لوحة المفاتيح | فورًا، حين يأخذ عنصر الارتكاز تركيز لوحة المفاتيح. التركيز الآتي من مؤشر أو لمس لا يفتحه. | حين يغادر التركيز عنصر الارتكاز. |
+| ضغط مطوَّل باللمس | فورًا، من دون تفعيل عنصر الارتكاز. | بعد مهلة اللمس منذ أن يرتفع الإصبع، أو قبل ذلك عند لمسة في أي مكان آخر. |
+
+- **لا حدّ زمنيًّا أثناء الاستخدام.** ما دام المؤشر فوق عنصر الارتكاز أو التلميح أو الفجوة بينهما، أو ما دام لعنصر الارتكاز تركيز لوحة المفاتيح، يبقى مفتوحًا. الفجوة لا تُرسم ولا تأخذ ضغطًا: تُحسب تحويمًا فقط.
+- **المفتاح Escape.** يغلقه المفتاح Escape من دون أن ينقل التركيز، ولا يذهب أبعد من ذلك، فيبقى مربع الحوار المحيط مفتوحًا. ويبقى مغلقًا إلى أن يدخل المؤشر عنصر الارتكاز أو يأخذ العنصر التركيز من جديد.
+- **التفعيل.** تفعيل عنصر الارتكاز (بنقرة أو لمسة أو Enter أو Space) يغلقه، والتحويم نفسه لا يفتحه مرة أخرى.
+- **واحد في كل مرة.** حين يُفتح تلميح يُغلق أي تلميح آخر في النافذة، ويُفتح الجديد بلا مهلة، لأن الشخص يقرأ التلميحات أصلًا.
+- **التنقل بين التلميحات.** التلميح الذي يخلف تلميحًا آخر، أو يُفتح بعد وقت قصير من إغلاق تلميح لأن المؤشر أو التركيز غادر عنصر ارتكازه، يظهر كاملًا فورًا: بلا مهلة وبلا حركة. فالمؤشر الذي يمر على امتداد شريط أدوات يقرأ اسمًا بعد اسم. أما التلميح الذي أُغلق بالمفتاح Escape، أو بتفعيل عنصر ارتكازه، أو بضغط عليه، فلا يبدأ ذلك الوقت.
+- **لا يأخذ التركيز ولا يحجب شيئًا.** لا يحمل شيئًا يقبل التركيز أو الضغط، ولا يجعل شيئًا خاملًا (inert)، ولا يرسم حجابًا (scrim). الضغط على التلميح يغلقه ولا يصل إلى ما تحته.
+- **فوق كل شيء.** يُرسم فوق كل طبقة أخرى في نافذته، ومنها مربع الحوار المفتوح وحجابه، فالتلميح داخل مربع حوار مرئي.
+- **الموضع.** يقف حيث تقول الخاصية `placement`؛ انظر [الموضع](#الموضع). يتبع عنصر الارتكاز وهو يتحرك، ويُغلق حين يُزال عنصر الارتكاز، أو يُخفى، أو يُمرَّر إلى خارج النافذة، أو يُمرَّر إلى خارج النظر داخل منطقة تمرير.
+- **الحركة.** يخرج من جهة عنصر الارتكاز: يظهر تدريجيًّا وهو يكبر قليلًا ويبتعد بضعة بكسلات عن عنصر الارتكاز، ويعود بالطريقة نفسها. الحركة التي تُقاطَع تنعكس من حيث هي. وأثناء إغلاقه لا يأخذ التلميح المؤشر، فلا يقف أبدًا في طريق ما تحته. وحيث الحركة مقلَّلة يظهر ويختفي تدريجيًّا فقط.
+- **الإعلان.** لا يُعلَن شيء حين يظهر التلميح. ما دامت `describes` بالقيمة true، فنصه، بعد العنوان في التلميح من الطراز rich، هو وصف عنصر الارتكاز سواء أكان التلميح مفتوحًا أم لا، ويُمنع التلميح المرسوم من أن يُقرأ مرة ثانية.
+
+### مهل خاصة بتلميح واحد
+
+يضبط نظام التصميم مهلة الإظهار ومهلة الإخفاء ومهلة اللمس لكل التلميحات دفعة واحدة. ويستطيع التلميح الواحد أن يضبط مهله بالخصائص `showDelay` و `hideDelay` و `touchTimeout`، بالميلي ثانية. وإن تُركت إحداها بلا ضبط أخذت قيمة النظام.
+
+- **متى تضبطها.** اضبط مهلة إظهار أقصر في شريط أدوات كثيف يريد أسماءه أبكر، ومهلة أطول فوق مخطط بياني يمر المؤشر على علاماته، حتى لا يومض أي تلميح. اضبط مهلة لمس أطول على تلميح من الطراز rich فيه بضع جمل، ومهلة أقصر على اسم من كلمة واحدة.
+- **القيمة 0 تعني فورًا.** مهلة الإظهار 0 تفتح التلميح لحظة دخول المؤشر عنصر الارتكاز، ومهلة الإخفاء 0 تغلقه لحظة خروج المؤشر من عنصر الارتكاز والفجوة والتلميح. ويبقى التحويم على التلميح ممكنًا حتى عندئذ، لأن الفجوة تُحسب تحويمًا. ومهلة اللمس 0 تغلقه لحظة ارتفاع الإصبع، بعد أن يكون قد ظهر طوال الضغط المطوَّل.
+- **تُستخدم كما كُتبت.** القيمة التي تضبطها لا يغيّر مقاسها قرص ضبط الحركة (dial)، وتقليل الحركة يُبقيها: المهلة انتظار، لا حركة. القيمة السالبة أو غير الرقمية تأخذ قيمة النظام ويُبلَّغ عنها في بنيات التنقيح. وعلى الويب، خاصية HTML الفارغة ليست رقمًا هي الأخرى.
+- **للتحويم واللمس فقط.** تركيز لوحة المفاتيح يبقى يفتح التلميح فورًا، والتلميح الذي يُفتح وتلميح آخر معروض يبقى يتخطى مهلة إظهاره، وضبط `open` يبقى يعرضه أو يخفيه فورًا. والضغط المطوَّل نفسه يأخذ المدة الخاصة بالمنصة.
+- **تغيير أثناء الانتظار.** الانتظار الذي بدأ فعلًا ينتهي كما بدأ. وتسري القيمة الجديدة في المرة التالية.
+
+اليوم لا يقبل هذه الخصائص إلا الويب و React. وحين تلحق المنصات الأخرى، تسمّيها المواصفة بأسلوب كل منصة: `showDelayMillis` و `hideDelayMillis` و `touchTimeoutMillis` على Compose، والخصائص `waitDuration` و `exitDuration` و `showDuration` التي للمكوّن `Tooltip` في Flutter، وأسماء المواصفة نفسها على SwiftUI و React Native.
+
+تستخدم كل منصة عرضًا غير نمطي (non-modal): عنصر `popover="manual"` في الطبقة العليا (top layer) على الويب، وتراكب فوق النافذة على SwiftUI (لا `.popover`، فهو نمطي في العروض من الفئة المضغوطة (Compact))، وعنصر `Popup` لا يستطيع أخذ التركيز على Compose، وعنصر `OverlayPortal` على Flutter، وطبقة التراكب التابعة للمكوّن `TanreiProvider` على React Native (لا `Modal`، فهو يأخذ كل لمسة).
+
+### افعل
+
+- اجعل التلميحات من الطراز plain بضع كلمات، والتلميحات من الطراز rich بضع جمل.
+- أعطِ النوع نفسه من عناصر الارتكاز الموضع نفسه في الشاشة كلها، كأن يكون تحت كل أيقونة في شريط أدوات.
+- اترك `inverse` و `arrow` لنظام التصميم في معظم التلميحات، واضبطهما للتلميح الذي يحتاج إليهما.
+- اعرض مفاتيح الأمر بالخاصية `shortcut`، لا بكتابتها في النص.
+- أعطِ تلميحات المجموعة الواحدة من عناصر الارتكاز المهل نفسها، لتبقى على إيقاع واحد.
+- اضبط `describes` على false حين يعرض التلميح تسمية عنصر الارتكاز نفسها.
+
+### لا تفعل
+
+- لا تستخدم التلميح اسمًا لزر أيقونة. قيمة `label` في الزر هي اسمه.
+- لا تضع تلميحًا على عنصر ارتكاز معطَّل لتشرح لماذا هو معطَّل. عنصر التحكم المعطَّل لا يقبل التركيز وقد لا يستقبل أحداث المؤشر. ضع السبب في نص مرئي.
+- لا تضع روابط أو أزرارًا أو أي شيء تفاعلي آخر في تلميح.
+- لا تكرّر في التلميح ما يقوله عنصر الارتكاز أصلًا في نص مرئي.
+- لا تستخدم المظهر المعكوس أو السهم لتجعل التلميح يبدو أهم.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="tooltip" />
+
+### ما يتكفل به المكوّن
+
+- ما دامت `describes` بالقيمة true، فالنص، بعد العنوان في التلميح من الطراز rich، هو وصف عنصر الارتكاز المتاح للتقنيات المساعدة، سواء أكان التلميح معروضًا أم لا. ويحتفظ عنصر الارتكاز باسمه ودوره. وما دامت `describes` بالقيمة false، لا يضيف التلميح شيئًا إلى عنصر الارتكاز.
+- يُمنع التلميح المرسوم من أن يُقرأ مرتين. ولا يأخذ التركيز أبدًا ولا يحمل شيئًا يقبل التركيز.
+- تركيز لوحة المفاتيح على عنصر الارتكاز يفتحه فورًا، وإبعاد التركيز يغلقه. والتلميح نفسه ليس موضع توقف للمفتاح Tab أبدًا.
+- المفتاح Escape يغلقه من دون أن ينقل التركيز، ولا يغلق معه مربع الحوار المحيط.
+- يستوفي معيار WCAG 1.4.13 (المحتوى عند التحويم أو التركيز): يمكن إغلاقه من دون تحريك المؤشر أو التركيز، ويمكن التحويم عليه مع أي مهلة إخفاء، ومنها 0، لأن الفجوة بين عنصر الارتكاز والتلميح تُحسب تحويمًا، ويبقى إلى أن ينتهي التحويم أو التركيز أو يُغلق.
+- يكبر مع النص الأكبر من دون أن يقصّه، ونصه محاذى إلى بداية اتجاه التخطيط.
+- الاختصار يُعرَض على أنه اختصار لوحة المفاتيح لعنصر الارتكاز (`aria-keyshortcuts` على الويب، على العنصر الذي يأخذ التركيز)، والمفاتيح المرسومة مخفيّة عن التقنيات المساعدة. وحيث يذكر عنصر الارتكاز اختصارًا خاصًّا به أصلًا، تُكتب مفاتيح التلميح بأسمائها في آخر الوصف بدلًا من ذلك، ما دامت `describes` بالقيمة true.
+- السهم زخرفة ومخفي عن التقنيات المساعدة. ويستخدم المظهران أزواجًا من ألوان النص والحاوية يفحص البناء تباينها في كل مخطط لوني.
+- حركته صغيرة: ظهور تدريجي، وتكبّر طفيف، وانتقال ببضعة بكسلات. وحيث الحركة مقلَّلة يظهر ويختفي تدريجيًّا من دون أن يكبر أو ينتقل، إلا على Android، فإعداده يزيل كل حركة. أما المهل، ومهلة اللمس، والوقت الذي يُفتح فيه التلميح التالي فورًا، فانتظار لا حركة، وتبقى في كل مكان.
+- التلميح الذي نصه فارغ لا يُفتح أبدًا ولا يضيف شيئًا. تبلّغ عنه بنيات التنقيح (debug)، وعن العنوان المتجاهَل في التلميح من الطراز plain.
+
+فجوات معروفة في المنصات:
+
+- لا تقبل SwiftUI و Compose و Flutter و React Native بعد `showDelay` ولا `hideDelay` ولا `touchTimeout`، ولا تحسب الفجوة تحويمًا: كل تلميح فيها يأخذ مهل النظام، ويعبر المؤشر الفجوة في حدود مهلة الإخفاء. وليس فيها كذلك إلا المواضع الأربعة الموسَّطة (`top`، `bottom`، `start`، `end`)، ولا `offset` ولا `crossOffset` ولا `arrow` ولا `inverse` ولا `shortcut`؛ وتلميحاتها تظهر وتختفي تدريجيًّا من دون أن تكبر أو تنتقل.
+- الويب: الضغط المطوَّل باللمس لا يفتح التلميح إلا حيث يبلّغ عنه المتصفح على أنه قائمة سياق (context menu). و iOS Safari لا يفعل، فلا يُفتح التلميح هناك باللمس.
+- الويب: العنصر `<tanrei-tooltip>` يقرأ ما في خاصية HTML المسماة `title` فيه ويزيلها، حتى لا يرسم المتصفح تلميحه الأصلي فوق عنصر الارتكاز هو الآخر. وتحتفظ الخاصية `title` بالقيمة.
+- ليس في SwiftUI دور تلميح. الوصف هو تلميح إمكانية الوصول (accessibility hint) لعنصر الارتكاز.
+- في SwiftUI على iOS: المفتاح Return أو Space على عنصر ارتكاز عليه التركيز لا يغلق التلميح، والمفتاح Escape لا يغلقه إلا ما دام التركيز على عنصر الارتكاز. وعنصر الارتكاز الذي يأخذ التركيز من لمسة، كحقل نص، يفتح تلميحه. وعنصر الارتكاز الذي جُعل شفافًا أو غُطّي لا يُكتشف أنه مخفي.
+- يرسم SwiftUI التلميحات في طبقة يوفّرها المُعدِّل `.tanreiTheme(_:)` ومربع حوار Tanrei. والمحتوى الذي يعرضه SwiftUI منفصلًا، كالمُعدِّل `.sheet` أو `.popover` من عندك، يحتاج إلى `.tanreiTooltipLayer()` لتظهر تلميحاته.
+- ليس في Compose خاصية وصف. يصير النص وصف الحالة (state description) لعنصر الارتكاز، ويُقرأ بعد اسمه ودوره. عنصر التحكم من Tanrei يضعه على عقدته هو؛ وأي عنصر ارتكاز آخر لا يوصَف إلا حين يلتقطه سلف يدمج فروعه. وعلى عنصر ارتكاز من نوع التبديل، كزر أيقونة تبديل، يحل محل On أو Off.
+- في Compose: التلميح الذي تعرضه من الشيفرة على عنصر ارتكاز خلف مربع حوار مفتوح يُرسم تحت نافذة مربع الحوار.
+- في Compose: ما دام التركيز في مكان آخر من النافذة وعنصر الارتكاز عليه التحويم فقط، لا يصل المفتاح Escape إلى التلميح إلا على Android 9 (API 28) وما بعده.
+- في Compose: التحويم بفأرة حقيقية، واللمس في الخارج، ومستمع Escape، وقراءة TalkBack وصف الحالة لعنصر الارتكاز مختبَرة على Robolectric فقط، لا على جهاز بعد.
+- في Flutter: التلميح المرسوم مستبعَد من الدلالات (semantics) دائمًا، لأن دور التلميح في Flutter لا يمكن استخدامه بعد. والوصف على عنصر الارتكاز لا يتأثر.
+- في Flutter: لا يُستهلَك المفتاح Escape إلا ما دام التركيز في عنصر الارتكاز، أو من مربع حوار Tanrei. والسلف الآخر الذي يعالج Escape، كمسار مربع حوار Material، يبقى يستقبله ما دام التركيز في مكان آخر.
+- في React Native: الوصف هو `accessibilityHint` لعنصر الارتكاز، بعد التلميح (hint) الخاص بعنصر الارتكاز نفسه.
+- في React Native: اللمسة في مكان آخر لا تغلق أبكر تلميحًا فُتح بضغط مطوَّل. ومهلة اللمس تبقى تغلقه.
+- في React Native: لا يتبع التلميح عنصر ارتكاز يُمرَّر، ولا يُغلق حين يُمرَّر عنصر الارتكاز إلى خارج النظر. ولا يبقى داخل المنطقة الآمنة إلا حين تمرّر هوامش النافذة (insets) إلى `TanreiProvider`.
+- في React Native: التحويم، وتحريك المؤشر إلى التلميح، والضغط المطوَّل، و Escape لم تُفحص بعد على جهاز.
+
+### ما عليك فعله
+
+- أعطِ عنصر الارتكاز اسمه الخاص المتاح للتقنيات المساعدة. التلميح لا يحل محله أبدًا.
+- اضبط `describes` على false حين يكرّر النص ذلك الاسم.
+- اربط بنفسك المفاتيح التي تعرضها بالخاصية `shortcut`، واعرض المفاتيح نفسها حيثما ظهر الأمر في مكان آخر، كما في قائمة خيارات.
+- اجعل عنصر الارتكاز قابلًا للتركيز، ليستطيع مستخدمو لوحة المفاتيح فتح التلميح.
+- إن قصّرت مهلة اللمس فتأكد أن النص ما زال يمكن قراءته في الوقت الباقي. المهلة 0 تعرض التلميح فقط ما دام الإصبع على الشاشة.
+- أبقِ كل ما يحتاج إليه الشخص خارج التلميح. مستخدمو اللمس وقارئات الشاشة قد لا يرونه أبدًا.
+- على React Native، ضع `TanreiProvider` في جذر تطبيقك، مع قيمة `insets` للنافذة: طبقة التراكب فيه ترسم التلميح داخل المنطقة الآمنة. على SwiftUI، طبّق `.tanreiTheme(_:)` فوق عنصر الارتكاز، وطبّق `.tanreiTooltipLayer()` على محتوى ما تعرضه أنت بالمُعدِّل `.sheet` أو `.popover`. على Flutter، يحتاج التلميح إلى `Overlay` فوقه، وهو موجود في كل `WidgetsApp` له `Navigator`.

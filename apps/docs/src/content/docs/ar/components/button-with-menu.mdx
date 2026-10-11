@@ -1,0 +1,408 @@
+---
+title: زر مع قائمة
+description: ينفّذ إجراء رئيسيًّا بضغطة واحدة، ويقدّم إجراءات مرتبطة به في قائمة خيارات من زر ثانٍ موصول بجانبه.
+translationOf: components/button-with-menu.mdx
+sourceHash: da09049dfc3d610609f88d3630ba5407eb6f36c2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="button-with-menu" />
+
+:::note[ما آل إليه split button]
+لا يسمّى هذا المكوّن split button. الاسم «Split button» يقول كيف يبدو، أي زر مقطوع إلى اثنين، وكذلك تبدو [مجموعة الأزرار](/ar/components/button-group/) من الطراز connected؛ وما يميّز هذا المكوّن هو قائمة الخيارات التي يكشفها نصفه الثاني. ومعرّفات سلوكه تحمل البادئة `SPB` من ذلك الاسم.
+
+| قبل | الآن |
+| --- | --- |
+| Split button (`split-button`) | زر مع قائمة (`button-with-menu`) |
+| `comp.split-button.*`، `--tanrei-comp-split-button-*` | `comp.button-with-menu.*`، `--tanrei-comp-button-with-menu-*` |
+| `<tanrei-split-button>`، `TanreiSplitButton` (صنف الويب) | `<tanrei-button-with-menu>`، `TanreiButtonWithMenu` |
+| `SplitButton` (React و React Native) | `ButtonWithMenu` |
+| `TanreiSplitButton` (SwiftUI و Compose و Flutter) | `TanreiButtonWithMenu` |
+
+يسمّي Material 3 نظيره split button؛ وفي الإعدادات الجاهزة m3-like يكون الزر مع قائمة هو ذلك المكوّن.
+:::
+
+:::caution[المنصات الأصلية لم تغيّر اسمه بعد]
+المواصفة والرموز (tokens) وعنصر الويب (`<tanrei-button-with-menu>`) ومغلِّف React (`ButtonWithMenu`) تحمل الاسم button with menu، والويب يرسم هذه المراجعة. أما SwiftUI و Compose و Flutter و React Native فما زالت تقدّم المراجعة السابقة بالاسم split button، ولذلك تستخدم شيفرتها في هذه الصفحة `TanreiSplitButton` و `SplitButton`؛ ويتغيّر ذلك حين تغيّر كل منصة اسم المكوّن.
+
+تأتي هذه المراجعة بما يلي، ولا يرسمه حتى الآن إلا الويب:
+
+- النصفان موصولان بخط فاصل أو بفجوة. يختار نظام التصميم مرة واحدة للمكوّنات كلها، ويستطيع نظام تصميم أن يخص هذا المكوّن باختيار مختلف، والخاصية `separation` (`auto` أو `divider` أو `gap`) تضبط مثيلًا واحدًا. النظام الافتراضي يرسم فاصلًا.
+- الحشو من جهة الأيقونة في نصف البداية أضيق بدرجة، والطرفان الخارجيان المستديران ينالان حشوًا أكثر قليلًا.
+- نصف النهاية يحتفظ بشكله ما دامت القائمة مفتوحة؛ والسهم الصغير (chevron) وحده يُظهر حالة الفتح.
+- الخاصية `trailingWidth` (`default` أو `narrow`) ترسم نصف نهاية أنحف: بعرض [زر](/ar/components/button/) ضيق ذي أيقونة وحدها من الحجم نفسه، وفيه السهم الصغير وهامش داخلي صغير من كل جهة.
+:::
+
+<DemoFrame label="الطُرُز">
+  <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+</DemoFrame>
+
+<DemoFrame label="مع قائمته: اضغط نصف النهاية" plain>
+  <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    <span slot="icon">save</span>
+    <tanrei-menu-item slot="menu" label="حفظ باسم…"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="حفظ نسخة"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="حفظ كقالب"></tanrei-menu-item>
+  </tanrei-button-with-menu>
+</DemoFrame>
+
+### الاستخدام
+
+الزر مع قائمة زران موصولان في شكل واحد. نصف البداية ينفّذ الإجراء الرئيسي. ونصف النهاية، وفيه السهم الصغير، يفتح [قائمة خيارات](/ar/components/menu/) من الإجراءات المرتبطة. محتوى القائمة هو أنواع العناصر الخاصة بقائمة الخيارات نفسها (إجراءات، وعناصر خانة اختيار، وعناصر زر اختيار، ومجموعات)، ويُمرَّر بالطريقة التي تمرّر بها كل منصة عناصر القائمة.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية">
+      <span slot="icon">save</span>
+      <tanrei-menu-item slot="menu" label="حفظ باسم…"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="حفظ نسخة"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/button-with-menu';
+      import '@tanrei/web/components/menu';
+      const split = document.querySelector('tanrei-button-with-menu');
+      // لا يصل إلى العنصر إلا الحدث click من نصف البداية.
+      split.addEventListener('click', save);
+      // نصف النهاية يطلب الفتح أو الإغلاق؛ وأنت تضبط open.
+      split.addEventListener('toggle', (e) => (split.open = e.detail.open));
+      // الحدث close يحمل سبب القائمة: escape أو outside أو tab أو focus-out أو item (ليس في الويب back).
+      split.addEventListener('close', () => (split.open = false));
+      // الحدث click على عنصر يتوقف عند الزر مع قائمة: استمع على العنصر نفسه.
+      split.querySelector('[label="حفظ باسم…"]').addEventListener('click', saveAs);
+    </script>
+
+    <!-- مثيل واحد موصول بفجوة، ونصف نهايته نحيف. احذف separation ليتبع نظام التصميم. -->
+    <tanrei-button-with-menu variant="tonal" separation="gap" trailing-width="narrow" label="دمج" menu-label="خيارات دمج إضافية">
+      <tanrei-menu-item slot="menu" label="ضغط ودمج"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="إعادة تأسيس ودمج"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <!-- يُفتح عند التحويم بعد 400 ms، وكذلك عند الضغط؛ وله رسمه الخاص، مغلقًا ومفتوحًا. -->
+    <tanrei-button-with-menu label="مشاركة" menu-label="خيارات مشاركة إضافية" hover-open hover-delay="400">
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <tanrei-menu-item slot="menu" label="نسخ الرابط"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="بريد إلكتروني"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ButtonWithMenu, MenuItem } from '@tanrei/react';
+
+    // onClick يخص نصف البداية. و onClick في MenuItem مستمع على عنصر القائمة نفسه،
+    // فيُستدعى داخل ButtonWithMenu؛ ويستقبل الحدث الأصلي MouseEvent.
+    <ButtonWithMenu
+      label="حفظ"
+      menuLabel="خيارات حفظ إضافية"
+      open={open}
+      onClick={save}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <MenuItem slot="menu" label="حفظ باسم…" onClick={saveAs} />
+      <MenuItem slot="menu" label="حفظ نسخة" onClick={saveCopy} />
+    </ButtonWithMenu>
+
+    // مثيل واحد موصول بفجوة، ونصف نهايته نحيف.
+    <ButtonWithMenu variant="tonal" separation="gap" trailingWidth="narrow" label="دمج" menuLabel="خيارات دمج إضافية"
+      open={mergeOpen} onClick={merge} onToggle={(e) => setMergeOpen(e.detail.open)} onClose={() => setMergeOpen(false)}>
+      <MenuItem slot="menu" label="ضغط ودمج" onClick={squash} />
+      <MenuItem slot="menu" label="إعادة تأسيس ودمج" onClick={rebase} />
+    </ButtonWithMenu>
+
+    // يُفتح عند التحويم أيضًا؛ والقيمة null في hoverDelay تأخذ مهلة النظام.
+    <ButtonWithMenu label="مشاركة" menuLabel="خيارات مشاركة إضافية" hoverOpen hoverDelay={400} open={shareOpen}
+      onToggle={(e) => setShareOpen(e.detail.open)} onClose={() => setShareOpen(false)}>
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <MenuItem slot="menu" label="نسخ الرابط" onClick={copyLink} />
+    </ButtonWithMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // العنوان أولًا، كما في Button. نصف النهاية والقائمة كلاهما يكتب في الربط (binding).
+    TanreiSplitButton("حفظ", menuLabel: "خيارات حفظ إضافية", isMenuPresented: $showsSaveOptions, action: save) {
+        TanreiMenuItem("حفظ باسم…", action: saveAs)
+        TanreiMenuItem("حفظ نسخة", action: saveCopy)
+    }
+
+    // يُفتح عند التحويم أيضًا (macOS، و iPadOS مع مؤشر)؛ والقيمة nil في hoverDelay تأخذ مهلة النظام.
+    // chevron: و openChevron: يأخذ كل منهما بانيًا للرسم، للمنفذين chevron و chevron-open.
+    TanreiSplitButton("مشاركة", menuLabel: "خيارات مشاركة إضافية", isMenuPresented: $showsShareOptions,
+                      opensOnHover: true, hoverDelay: .milliseconds(400), action: share) {
+        TanreiMenuItem("نسخ الرابط", action: copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiSplitButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSplitButtonVariant
+
+    // رفع الحالة (state hoisting)، كما في القائمة: أنت تحتفظ بالقيمة menuExpanded.
+    TanreiSplitButton(
+        text = "حفظ",
+        onClick = ::save,
+        menuContentDescription = "خيارات حفظ إضافية",
+        menuExpanded = expanded,
+        onMenuExpandedChange = { expanded = it },
+        onMenuDismissRequest = { expanded = false }, // يستقبل TanreiMenuCloseReason
+        variant = TanreiSplitButtonVariant.Tonal,
+        icon = { TanreiText("save") },
+    ) {
+        TanreiMenuItem(text = "حفظ باسم…", onClick = ::saveAs)
+        TanreiMenuItem(text = "حفظ نسخة", onClick = ::saveCopy)
+    }
+
+    // يُفتح عند التحويم أيضًا، للفأرة أو القلم؛ والقيمة null في hoverDelayMillis تأخذ مهلة النظام.
+    TanreiSplitButton(
+        text = "مشاركة",
+        onClick = ::share,
+        menuContentDescription = "خيارات مشاركة إضافية",
+        menuExpanded = shareExpanded,
+        onMenuExpandedChange = { shareExpanded = it }, // ضغطة أو مفتاح أو تحويم
+        onMenuDismissRequest = { shareExpanded = false },
+        chevron = { TanreiText("more_vert") },
+        openChevron = { TanreiText("close") },
+        openOnHover = true,
+        hoverDelayMillis = 400,
+    ) {
+        TanreiMenuItem(text = "نسخ الرابط", onClick = ::copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // الزر مع قائمة يفتح القائمة ويغلقها عبر المتحكم (controller)؛ و onMenuToggle و onMenuClose يبلّغان بذلك.
+    TanreiSplitButton(
+      label: 'حفظ',
+      menuSemanticLabel: 'خيارات حفظ إضافية',
+      onPressed: save, // القيمة null في onPressed تعطّل النصفين
+      menuController: saveOptions,
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: saveAs, child: const Text('حفظ باسم…')),
+        TanreiMenuItem(onPressed: saveCopy, child: const Text('حفظ نسخة')),
+      ],
+    );
+
+    // يُفتح عند التحويم أيضًا، ولا يُفتح باللمس أبدًا؛ و chevron و openChevron يأخذ كل منهما widget للرسم.
+    TanreiSplitButton(
+      label: 'مشاركة',
+      menuSemanticLabel: 'خيارات مشاركة إضافية',
+      onPressed: share,
+      openOnHover: true,
+      hoverDelay: const Duration(milliseconds: 400), // القيمة null تأخذ مهلة النظام
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: copyLink, child: const Text('نسخ الرابط')),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SplitButton } from '@tanrei/react-native';
+
+    // متحكَّم به: اضبط menuVisible من onMenuToggle، وعلى false من onMenuDismiss الذي يستقبل السبب.
+    <SplitButton
+      label="حفظ"
+      icon="save"
+      menuAccessibilityLabel="خيارات حفظ إضافية"
+      menuVisible={open}
+      onPress={save}
+      onMenuToggle={setOpen}
+      onMenuDismiss={() => setOpen(false)}
+      menuItems={[
+        { label: 'حفظ باسم…', onPress: saveAs },
+        { label: 'حفظ نسخة', onPress: saveCopy },
+      ]}
+    />
+
+    // يُفتح عند التحويم أيضًا، للمؤشر فقط؛ و chevron و openChevron اسما رسمين.
+    <SplitButton
+      label="مشاركة"
+      menuAccessibilityLabel="خيارات مشاركة إضافية"
+      chevron="more_vert"
+      openChevron="close"
+      hoverOpen
+      hoverDelay={400}
+      menuVisible={shareOpen}
+      onPress={share}
+      onMenuToggle={setShareOpen}
+      onMenuDismiss={() => setShareOpen(false)}
+      menuItems={[{ label: 'نسخ الرابط', onPress: copyLink }]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+### الوصل بفاصل أو بفجوة
+
+يوصَل النصفان بإحدى طريقتين. مع **الفاصل** يتلامسان، وتكون الزوايا حيث يلتقيان مربّعة، ويحدّد خطٌّ موضع الوصل. ومع **الفجوة** تفصل بينهما فجوة ضيقة، وتكون زواياهما أقل استدارة حيث يواجه أحدهما الآخر. يختار نظام التصميم مرة واحدة لكل المكوّنات التي تصل أجزاء (النظام الافتراضي يرسم فاصلًا)، ويستطيع نظام تصميم أن يخص هذا المكوّن باختيار مختلف، والخاصية `separation` (`auto` أو `divider` أو `gap`) تضبط مثيلًا واحدًا. ويبقى النصفان دائمًا جنبًا إلى جنب: لا توجد هيئة عمودية.
+
+<DemoFrame label="موصول بفاصل وبفجوة" plain>
+  <tanrei-button-with-menu separation="divider" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="divider" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="gap" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="divider" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+</DemoFrame>
+
+### نصف نهاية ضيق
+
+افتراضيًّا يحمل نصف النهاية السهم الصغير في مربع بارتفاع الزر، مع حشو أكثر قليلًا عند طرفه الخارجي المستدير. وحين تُضبط الخاصية `trailingWidth` على القيمة `narrow` يصير مقبضًا نحيفًا على الإجراء الرئيسي: بعرض [زر](/ar/components/button/) ضيق ذي أيقونة وحدها من الحجم نفسه بالضبط (28 و 32 و 32 في النظام الافتراضي)، يتوسطه السهم الصغير مع هامش داخلي صغير من كل جهة وبلا حشو خارجي. ونصف البداية هو نفسه في العرضين.
+
+<DemoFrame label="عرض نصف النهاية: default و narrow، في كل حجم" plain>
+  <tanrei-button-with-menu size="small" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="small" trailing-width="narrow" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu trailing-width="narrow" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" trailing-width="narrow" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+</DemoFrame>
+
+يُرسم نصف النهاية الضيق أضيق من الحد الأدنى للهدف، لكن مساحة لمسه ليست كذلك: فالهدف يمتد نحو الخارج، إلى ما وراء حافة النهاية. اترك له فسحة هناك، كما تترك بجانب زر ضيق ذي أيقونة وحدها.
+
+## المواصفات
+
+<DemoFrame label="الأحجام، وأيقونة، ومفتوح، ومعطَّل" plain>
+  <tanrei-button-with-menu size="small" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="حفظ" menu-label="خيارات حفظ إضافية"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu disabled label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" disabled label="حفظ" menu-label="خيارات حفظ إضافية"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="مشاركة" menu-label="خيارات مشاركة إضافية"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="مشاركة" menu-label="خيارات مشاركة إضافية"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+</DemoFrame>
+
+<ComponentSpecs name="button-with-menu" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم الزر مع قائمة لإجراء له هيئة معتادة وبضع تنويعات: «حفظ» و«حفظ باسم…»، و«دمج» و«ضغط ودمج»، و«إرسال» و«جدولة الإرسال». الهيئة المعتادة تحتاج إلى ضغطة واحدة، والتنويعات تبقى على بعد ضغطة أخرى.
+
+إن لم يكن أي من الخيارات هو المعتاد بوضوح، فاستخدم زرًّا أو زر أيقونة يفتح قائمة خيارات. وإن لم تكن هناك تنويعات، فاستخدم [زرًّا](/ar/components/button/) عاديًّا. ولمجموعة من الإجراءات المنفصلة جنبًا إلى جنب، استخدم [مجموعة أزرار](/ar/components/button-group/).
+
+### اختيار الطراز
+
+تحمل الطُرُز (variants) التوكيد نفسه الذي تحمله طُرُز Button، وتنطبق الميزانية نفسها: إجراء قوي واحد في كل عرض.
+
+| الطراز | التوكيد | يُستخدم لـ |
+| --- | --- | --- |
+| Filled (الافتراضي) | الأعلى | الإجراء الرئيسي في عرض. |
+| Tonal | عالٍ | إجراء مهم لا ينبغي أن ينافس زرًّا من الطراز filled. |
+| Elevated | متوسط | زر مع قائمة فوق خلفية مزدحمة أو منقوشة. |
+| Outlined | متوسط | إجراء ثانوي بجانب زر من الطراز filled. |
+
+لا وجود للطراز text. فمن دون تعبئة أو حدّ لن يدلّ شيء على موضع التقاء النصفين، وسيختفي الانقسام.
+
+للأحجام ارتفاعات Button نفسها، فيستطيع الزر مع قائمة أن يشارك أزرارًا من الحجم نفسه صفًّا واحدًا. الطرفان الخارجيان مستديران تمامًا في النظام الافتراضي. وموضع التقاء النصفين يتوقف على الفصل: مع الفاصل يتلامسان عند زوايا مربّعة وعلى موضع الوصل خط، ولا يرسم أي من النصفين حدّه على امتداده، فيكون حدّ الزر مع قائمة من الطراز outlined خطًّا واحدًا من كل الجهات؛ ومع الفجوة يرسم كل نصف حدّه، والحلقة التي للسطح المرتفع، داخل حافته الخاصة، فلا يتلامس الاثنان أبدًا.
+
+### السهم الصغير
+
+يرسم نصف النهاية الرسم `expand_more` من مجموعة الأيقونات ويديره نصف دورة ما دامت القائمة مفتوحة. في النظام الافتراضي يحتفظ نصف النهاية بشكله وهو مفتوح، فالسهم الصغير وحده يُظهر حالة الفتح. ويستطيع نظام تصميم أن يعطي النصف المفتوح زوايا داخلية خاصة به: الإعدادات الجاهزة m3-like تجعله دائرة وهو مفتوح.
+
+منفذان يغيّران رسم الأيقونة (glyph). كل منهما يأخذ رسمًا واحدًا من مجموعة الأيقونات:
+
+| المنافذ التي تملؤها | مغلقة | مفتوحة |
+| --- | --- | --- |
+| لا هذا ولا ذاك | `expand_more` | `expand_more`، مُدارًا |
+| `chevron` فقط | رسمك | رسمك، مُدارًا |
+| `chevron-open` (مع `chevron` أو من دونه) | رسم المنفذ `chevron`، أو `expand_more` | رسم المنفذ `chevron-open`؛ يتلاشى أحدهما في الآخر بدل الدوران |
+
+الرسم الذي لا اتجاه له، مثل `more_vert`، لا ينبغي أن يدور: أرفِقه برسم في المنفذ `chevron-open`، أو ضع الرسم نفسه في المنفذين.
+
+### الفتح عند التحويم
+
+مع الخاصية `hoverOpen` تُفتح القائمة أيضًا حين تستقر فأرة أو لوحة لمس أو قلم يحوم على نصف النهاية مدةً قدرها `hoverDelay` ميلي ثانية. اترك `hoverDelay` بلا ضبط لتأخذ مهلة النظام، وهي 300 ms في النظام الافتراضي. الضغط ولوحة المفاتيح يفتحان القائمة كما كانا، واللمس لا يفتحها عند التحويم أبدًا.
+
+- القائمة المفتوحة بالتحويم لا تأخذ التركيز: يبقى التركيز حيث كان الشخص، في حقل نص مثلًا. والعناصر تُظهر التحويم مع ذلك، والنقر على أحدها يفعّله.
+- تُغلق حين يكون المؤشر قد ابتعد عن نصف النهاية وعن القائمة معًا مهلة قصيرة، فيستطيع المؤشر أن يعبر إلى القائمة أو أن ينزلق عن حافة ثم يعود. والقائمة المفتوحة بأي طريقة أخرى لا تُغلق أبدًا حين يغادر المؤشر.
+- إذا ضُغط نصف النهاية، أو ضُغط مفتاح عليه، والقائمة المفتوحة بالتحويم ظاهرة، بقيت مفتوحة وانتقل التركيز إليها. ومنذ تلك اللحظة هي قائمة مفتوحة بضغطة: الضغطة التالية تغلقها.
+- المفتاح Escape يغلق القائمة المفتوحة بالتحويم أينما كان التركيز.
+- التحويم يطلب عبر حدث التبديل نفسه الذي تطلب به الضغطة، فالشيفرة التي تضبط `open` لا تحتاج إلى تغيير.
+
+استخدم الفتح عند التحويم حيث يشيع المؤشر وتكون القائمة التي تظهر من تلقاء نفسها مرحَّبًا بها، كشريط أدوات في محرر على سطح المكتب. وهو لا يغني أبدًا عن الضغط.
+
+### قائمة الخيارات
+
+- القائمة هي Menu من Tanrei، بكل ما تمنحه قائمة الخيارات: ينتقل التركيز إليها، ومفاتيح الأسهم والبحث بالكتابة (typeahead) تتنقل خلالها، وتنقلب وتنزاح لتبقى على الشاشة. وتُفتح تحت الزر مع قائمة كله، محاذيةً لحافة نهايته.
+- ما دامت القائمة مفتوحة يعرض السهم الصغير هيئته المفتوحة (انظر [السهم الصغير](#السهم-الصغير)).
+- حين تُغلق القائمة والتركيز كان داخلها، يعود التركيز إلى نصف النهاية، وهو الزر الذي فتحها.
+- الضغط على نصف النهاية والقائمة مفتوحة تبديل، لا ضغط في الخارج: يطلب الإغلاق بالحدث `toggle` ولا يرسل `close`. وحين يغلق عنصر إجراء القائمة، يأتي الحدث click من العنصر أولًا، ثم الحدث `close` بالسبب `item`.
+- من يغلق القائمة أمر يتبع المنصة. على الويب و Compose و React Native تضبط أنت `open` (أو `menuExpanded` أو `menuVisible`) من حدث التبديل، وتعيدها إلى false من حدث الإغلاق. وعلى SwiftUI و Flutter يفتح الزر مع قائمة القائمة ويغلقها بنفسه عبر الربط (binding) أو المتحكم (controller) الخاص به.
+
+### افعل
+
+- سمِّ نصف البداية بالإجراء المعتاد، بالمصدر الدالّ على الفعل: «حفظ» و«دمج» و«إرسال».
+- أعطِ نصف النهاية تسمية تقول ما تقدّمه القائمة: «خيارات حفظ إضافية»، لا «المزيد» ولا «القائمة».
+- املأ القائمة بتنويعات الإجراء الرئيسي. والإجراء الرئيسي نفسه لا يحتاج إلى أن يتكرر هناك.
+- أبقِ القائمة قصيرة. تناسبها بضعة عناصر؛ والقائمة الطويلة توحي بأن الخيارات ليست تنويعات لإجراء واحد.
+- اترك `separation` على القيمة `auto` ما لم يلزم أن يختلف مثيل بعينه، ليُميَّز كل عنصر تحكم موصول في المنتج بالطريقة نفسها.
+- استخدم نصف النهاية الضيق حيث تكون القائمة ثانوية والعرض ضيقًا، كصف في جدول أو ترويسة كثيفة.
+
+### لا تفعل
+
+- لا تضع في القائمة إجراءات لا علاقة لها، مثل «الإعدادات» أو «المساعدة». استخدم لها زر أيقونة له قائمته الخاصة.
+- لا تستخدم زرًّا مع قائمة في قائمته عنصر واحد. اعرض الإجراءين زرَّين.
+- لا تحاول تعطيل نصف واحد. الخاصية `disabled` تنطبق على الاثنين. وإن كانت التنويعات غير متاحة، فعطّل عناصر القائمة تلك.
+- لا تستخدم زرًّا مع قائمة حيث يفعل نصف النهاية شيئًا غير فتح قائمته. دلالاته تقول دائمًا إنه يفتح قائمة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="button-with-menu" />
+
+### ما يتكفل به المكوّن
+
+- الزر مع قائمة زران بترتيب القراءة، وكل منهما موضع توقف مستقل للمفتاح Tab. نصف البداية تسمّيه تسميته. ونصف النهاية تسمّيه تسمية القائمة، ويعرّف التقنيات المساعدة بأنه يفتح قائمة وبحالة القائمة، مفتوحةً أو مغلقة، حيث تملك المنصة هاتين الخاصيتين. لا عنصر يحيط بالاثنين، فيسمع قارئ الشاشة زرين ولا شيء غير ذلك.
+- الأيقونة والسهم الصغير، ومنه الرسم الذي في المنفذ `chevron` أو `chevron-open`، مخفيّان عن التقنيات المساعدة. ونصف النهاية يعرّف بحالة القائمة، مفتوحةً أو مغلقة، أيًّا كانت طريقة فتحها، بضغطة أو مفتاح أو تحويم.
+- المفتاحان Enter و Space على نصف البداية ينفّذان الإجراء الرئيسي. والمفتاح Enter أو Space أو مفتاح السهم للأسفل على نصف النهاية يفتح القائمة وينقل التركيز إلى أول عنصر مفعَّل فيها. ثم تعمل القائمة كما تعمل في أي مكان، والمفتاح Escape يغلقها ويعيد التركيز إلى نصف النهاية.
+- القائمة المفتوحة بالتحويم تترك التركيز حيث كان، والمفتاح Escape يغلقها أينما كان التركيز، من دون أن يتحرك المؤشر، فما أظهره التحويم يمكن إغلاقه دائمًا (WCAG 1.4.13). وضغطة Escape تلك لا تذهب أبعد؛ والتالية تصل إلى الصفحة كالعادة.
+- كل نصف يستجيب للتحويم والضغط والتركيز على حدة. والنصف الآخر لا يُظهر أبدًا حالة ليست حالته.
+- مساحة اللمس لكل نصف تمتد نحو الخارج وفوقه وتحته إلى الحد الأدنى للهدف. ونحو النصف الآخر تتوقف عند موضع الوصل، أو عند منتصف الفجوة، فلا يتداخل الاثنان أبدًا. وما لا يستطيع نصف النهاية الضيق بلوغه نحو نصف البداية يبلغه نحو الخارج بدلًا من ذلك، فيكون له هدفه كاملًا من دون أن يُرسم أعرض.
+- الفاصل زخرفة: هو مخفي عن التقنيات المساعدة ولا يستقبل ضغطًا. والنصفان زران سواء كان بينهما خط أو فجوة.
+- في النظام الافتراضي حدّ الطراز outlined، وفاصل الطُرُز outlined و tonal و elevated، هما الخط الرفيع، وهو هادئ عن قصد: نصف البداية يُعرَف بتسميته ونصف النهاية بسهمه الصغير. أما الفاصل في الطراز filled فأقوى، لأن الخط الرفيع لا يُرى على تلك التعبئة.
+- التسمية لا تُقتطع أبدًا. عند أحجام النص الأكبر تلتف، ويكبر النصفان في الارتفاع معًا.
+- الزر مع قائمة المعطَّل يعرّف بالنصفين معطَّلين، ويُخرجهما من ترتيب التركيز، ولا يعرض قائمة، ويرسم هيئته المغلقة، أيًّا كان ما تقوله `open`.
+- بنيات التنقيح (debug) تبلّغ عن غياب التسمية أو تسمية القائمة، وعن قائمة بلا عناصر.
+
+فجوات معروفة في المنصات:
+
+- الويب: لا يصل إلى المستمعين على الزر مع قائمة إلا الحدث click من نصف البداية. والحدث click على عنصر قائمة يتوقف عند الزر مع قائمة، فالمستمع على سلف لا يسمعه أبدًا: استمع على العنصر. ولهذا السبب تربط مغلِّفات React لعناصر القائمة `onClick` بالعنصر.
+- ليس في SwiftUI خاصية تقول إن زرًّا يفتح قائمة، ولا حالة توسيع. وعنصر `popover` الخاص بالمنصة الذي يعرض القائمة مربوط بنصف النهاية؛ ولأن النصفين يشتركان في ارتفاع واحد ونصف النهاية ينهي الصف، فطرفه السفلي من جهة النهاية هو طرف الزر مع قائمة كله. الربط هو التبديل والإغلاق معًا، فلا يُمرَّر سبب الإغلاق. ومنفذ القائمة الفارغ ولو للحظة، كحلقة `ForEach` على عناصر تُحمَّل لاحقًا، هو فشل تأكيد (assertion failure) في بنيات التنقيح ويوقف تطبيق التنقيح. المفاتيح Enter و Space ومفتاح السهم للأسفل على النصفين، وعودة التركيز إلى نصف النهاية، والنقر على نصف النهاية في macOS والقائمة مفتوحة، غير مختبرة من البداية إلى النهاية.
+- ليس في Flutter خاصية تقول إن زرًّا يفتح قائمة. نصف النهاية يعرّف بحالة القائمة، مفتوحةً أو مغلقة، لكن لا بأنه يفتح قائمة.
+- ليس في Compose خاصية تقول إن زرًّا يفتح قائمة. نصف النهاية زر له إجراءا التوسيع والطيّ لحالته. والقائمة نفسها تحمل فجوات Compose المسرودة في صفحة [قائمة الخيارات](/ar/components/menu/).
+- ليس في React Native أيضًا خاصية تقول إن زرًّا يفتح قائمة. نصف النهاية يعرّف بحالة القائمة، مفتوحةً أو مغلقة، لكن لا بأنه يفتح قائمة.
+- في React Native: الضغط على نصف النهاية والقائمة مفتوحة، وعودة التركيز إليه، ودوران السهم الصغير، اختُبرت من دون جهاز فقط.
+
+### ما عليك فعله
+
+- اكتب التسميتين كلتيهما. السهم الصغير وحده ليس اسمًا، و«المزيد» بجانب «حفظ» لا تقول ما تحمله القائمة.
+- على الويب و Compose و React Native، اضبط `open` من حدث التبديل، وعلى false من حدث الإغلاق. الزر مع قائمة يطلب فقط. ومع الخاصية `hoverOpen` يطلب التحويم عبر حدث التبديل نفسه.
+- لا تنقل التركيز بنفسك حين تُغلق القائمة. الزر مع قائمة يعيده إلى نصف النهاية.
+- أعطِ كل عنصر قائمة تسمية، ومنها العناصر التي تعرض أيقونة.
+- اترك فسحة وراء حافة النهاية في نصف النهاية الضيق، كي لا يتداخل هدفه مع عنصر التحكم التالي.

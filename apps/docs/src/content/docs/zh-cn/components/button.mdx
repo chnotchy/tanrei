@@ -1,0 +1,377 @@
+---
+title: "按钮"
+description: "让用户只需轻点或点击一次，就能执行一项操作、打开或关闭某个功能，或前往某个目标位置。"
+translationOf: components/button.mdx
+sourceHash: d3c82e9e9c52acaafaa279ddf1b5083da7264b09
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="button" />
+
+<DemoFrame label="变体">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+### 用法
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们提供的仍是按钮的上一版，其中纯图标的形态和切换功能属于另一个独立的图标按钮，也没有纯图标按钮的宽度和链接形态。在它们跟上之前，这些平台的示例展示的是那一版。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="filled">部署</tanrei-button>
+    <tanrei-button variant="outlined" size="small">取消</tanrei-button>
+    <tanrei-button disabled>正在部署…</tanrei-button>
+
+    <!-- 有 href 时它是链接，画出来仍是同一个按钮。 -->
+    <tanrei-button variant="tonal" href="/pricing/">查看价格</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      document.querySelector('tanrei-button').addEventListener('click', deploy);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button variant="filled" onClick={deploy}>部署</Button>
+    <Button variant="outlined" size="small" onClick={cancel}>取消</Button>
+    <Button disabled>正在部署…</Button>
+
+    // 有 href 时它是链接，画出来仍是同一个按钮。
+    <Button variant="tonal" href="/pricing/">查看价格</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButton("部署", variant: .filled) { deploy() }
+    TanreiButton("取消", variant: .outlined, size: .small) { cancel() }
+
+    // 禁用状态遵循 SwiftUI 的环境值。
+    TanreiButton("正在部署…") {}
+      .disabled(true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.*
+
+    TanreiButton(text = "部署", onClick = ::deploy, variant = TanreiButtonVariant.Filled)
+    TanreiButton(text = "取消", onClick = ::cancel, variant = TanreiButtonVariant.Outlined, size = TanreiButtonSize.Small)
+
+    // Compose 使用含义相反的标志。
+    TanreiButton(text = "正在部署…", onClick = {}, enabled = false)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButton(variant: TanreiButtonVariant.filled, onPressed: deploy, child: const Text('部署'));
+    TanreiButton(variant: TanreiButtonVariant.outlined, size: TanreiButtonSize.small, onPressed: cancel, child: const Text('取消'));
+
+    // onPressed 为 null 时，按钮被禁用。
+    TanreiButton(onPressed: null, child: const Text('正在部署…'));
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button } from '@tanrei/react-native';
+
+    <Button variant="filled" onPress={deploy}>部署</Button>
+    <Button variant="outlined" size="small" onPress={cancel}>取消</Button>
+    <Button disabled>正在部署…</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+### 图标、纯图标与切换
+
+按钮可以在标签旁边带一个图标：默认放在起始侧，把 `iconPosition` 设为 `trailing` 则放在末尾侧。图标一侧的内边距比标签一侧小一级，这样两侧看起来留白均匀。没有标签时，它就是纯图标按钮：一个宽度等于按钮高度的圆形，由 `label` 命名，此时 `label` 是必填的。设置 `toggle` 后，每按一次它都会切换自身的 `selected`，通过颜色和图标的填充来显示状态，并把这个状态作为“已按下”状态朗读出来。
+
+<DemoFrame label="纯图标按钮和切换按钮">
+  <tanrei-button variant="text" label="搜索"><span slot="icon">search</span></tanrei-button>
+  <tanrei-button variant="tonal" label="编辑"><span slot="icon">edit</span></tanrei-button>
+  <tanrei-button variant="outlined" toggle selected label="收藏"><span slot="icon">favorite</span></tanrei-button>
+  <tanrei-button variant="filled" icon-position="trailing">下一步<span slot="icon">arrow_forward</span></tanrei-button>
+</DemoFrame>
+
+在 Tanrei 中，图标按钮不是一个独立的组件。如果你熟悉 Material 的名称，它们的去向如下：
+
+| Material | Tanrei |
+| --- | --- |
+| Icon button | 有图标、没有标签的按钮 |
+| Standard icon button | `text` 变体 |
+| Filled、tonal 和 outlined icon button | `filled`、`tonal` 和 `outlined` 变体 |
+| Icon toggle button | `toggle` 和 `selected` |
+
+请给 text 变体的切换按钮加上图标。它没有容器，如果只有标签，状态就只能靠文字颜色的变化来体现；有了图标的填充，状态才看得见。
+
+### 纯图标按钮的宽度
+
+纯图标按钮有三种宽度。无论取哪一种，高度都不变；带标签的按钮会忽略 `width`。
+
+| `width` | 默认系统中的宽度（small / medium / large） | 用于 |
+| --- | --- | --- |
+| `default` | 宽度等于高度：32 / 40 / 56，呈圆形 | 大多数图标操作。 |
+| `narrow` | 图标加上两侧各一小段留白：28 / 32 / 32，呈胶囊形 | 紧凑排列的一行图标操作，例如字段末尾的工具，或密集表格中的一行。 |
+| `wide` | 40 / 52 / 72，呈胶囊形 | 一行之中应当比相邻操作更有分量的那一个操作。 |
+
+<DemoFrame label="纯图标按钮的宽度：default、narrow 和 wide" plain>
+  <tanrei-button variant="tonal" label="添加"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="narrow" label="添加"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="wide" label="添加"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="outlined" size="small" width="narrow" label="更多选项"><span slot="icon">more_vert</span></tanrei-button>
+  <tanrei-button variant="filled" size="large" width="wide" label="播放"><span slot="icon">play_arrow</span></tanrei-button>
+</DemoFrame>
+
+narrow 按钮的宽度恰好等于图标加上两侧的留白，所以图标始终不会贴到胶囊的边缘；设计系统改变图标的尺寸时，按钮也随之变化。它画出来比最小目标窄，但点击区域并不窄：目标会延伸到可见边缘之外。请在按钮旁边为它留出空间，或者把 narrow 按钮放进[工具栏](/zh-cn/components/toolbar/)或[按钮组](/zh-cn/components/button-group/)，它们会为其中的项安排间距。
+
+### 有目标地址的按钮是链接
+
+给按钮指定 `href`，它就是链接，而不是按钮：控件还是同一个，在每种状态下都用同样的令牌绘制，但角色是链接，并且拥有平台赋予链接的一切。在 Web 上它是真正的锚元素，所以用户可以在新标签页中打开它、复制它的地址，并在跟随之前看到它通向哪里。只要激活控件的结果仅仅是把用户带到别处，就使用这种形态。不要在普通按钮的点击处理函数里进行导航。
+
+<DemoFrame label="链接：当前位置、新标签页、纯图标和禁用" plain>
+  <tanrei-button href="/zh-cn/components/button-group/">按钮组</tanrei-button>
+  <tanrei-button variant="outlined" href="/zh-cn/components/toolbar/" target="new" target-label="在新标签页中打开">工具栏</tanrei-button>
+  <tanrei-button variant="text" href="/zh-cn/components/" label="所有组件"><span slot="icon">apps</span></tanrei-button>
+  <tanrei-button variant="tonal" href="/zh-cn/components/button-group/" disabled>按钮组</tanrei-button>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button href="/getting-started/">开始使用</tanrei-button>
+
+    <!-- 新标签页：标签后面的标记会自动绘制；target-label 是屏幕阅读器读出的内容。 -->
+    <tanrei-button variant="outlined" href="https://example.com/source" target="new" target-label="在新标签页中打开">
+      查看源代码
+    </tanrei-button>
+
+    <!-- 仅限 Web：rel 和 download 会传给锚元素。 -->
+    <tanrei-button variant="tonal" href="/report.pdf" download="report.pdf"><span slot="icon">download</span>下载报告</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      // click 先触发。客户端路由可以取消它，自己接管导航。
+      document.querySelector('[href="/getting-started/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button href="/getting-started/">开始使用</Button>
+
+    <Button variant="outlined" href="https://example.com/source" target="new" targetLabel="在新标签页中打开">
+      查看源代码
+    </Button>
+
+    // click 先触发。客户端路由可以取消它，自己接管导航。
+    <Button
+      href="/getting-started/"
+      onClick={(event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      }}
+    >
+      开始使用
+    </Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **按键。** Enter 跟随链接。Space 的作用与它在任何链接上的作用相同（在 Web 上是滚动页面），而不是它在按钮上的作用。
+- **`target`。** `same`（默认）在用户当前所在的位置打开目标。`new` 打开新的标签页或窗口。这时带标签的按钮会在标签后面显示 `open_in_new` 图标，除非那里已有你自己放置的后置图标；同时 `targetLabel` 成为必填项：Tanrei 不自带任何文字，所以要由你用产品的语言写出“在新标签页中打开”。
+- **禁用。** 禁用的链接按钮不能被跟随、复制或拖动，并作为禁用的链接暴露给辅助技术。
+- **切换。** 切换按钮保存的是一个状态，所以不能有目标地址：设置了 `toggle` 时，`href` 会被忽略。
+- **仅在 Web 上**，`rel` 和 `download` 会传给锚元素。`target` 设为 `new` 时，`rel` 中总会加上 `noopener`。
+- 没有“已访问”的外观。链接按钮的颜色与任何按钮一样，表达的是它的强调程度和状态。
+
+### 在表单中
+
+在 Web 上，按钮是它所属表单的控件之一，`type` 说明按下它会对表单做什么。其他平台没有表单元素：在那些平台上，你在按钮的按下和字段的 `action` 中调用同一个函数。
+
+| `type` | 按下时 |
+| --- | --- |
+| `button`（默认） | 对表单什么也不做。表单里的按钮可以打开选择器或添加一行，而不提交任何内容。 |
+| `submit` | 请求表单提交，与浏览器自己的提交按钮一样：先是 `click`，然后是表单的校验，最后是表单的 `submit` 事件。 |
+| `reset` | 在 `click` 和表单的 `reset` 事件之后，把表单的每个控件恢复为初始值。 |
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form id="profile">
+      <tanrei-text-field label="姓名" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-button type="reset" variant="text">清除</tanrei-button>
+      <tanrei-button type="submit" variant="outlined" name="intent" value="draft">保存草稿</tanrei-button>
+      <tanrei-button type="submit" name="intent" value="publish">发布</tanrei-button>
+    </form>
+
+    <!-- 在表单之外：form 属性通过 id 指明表单。 -->
+    <tanrei-button type="submit" form="profile" name="intent" value="publish">发布</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/text-field';
+      document.querySelector('#profile').addEventListener('submit', (event) => {
+        event.preventDefault();
+        // 被按下的按钮的 name 和 value 就在数据里："draft" 或 "publish"。
+        const data = new FormData(event.target, event.submitter);
+        save(data.get('name'), data.get('intent'));
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, TextField } from '@tanrei/react';
+
+    <form
+      id="profile"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget, (event.nativeEvent as SubmitEvent).submitter);
+        save(data.get('name'), data.get('intent'));
+      }}
+    >
+      <TextField label="姓名" name="name" requirement="required" />
+      <Button type="reset" variant="text">清除</Button>
+      <Button type="submit" variant="outlined" name="intent" value="draft">保存草稿</Button>
+      <Button type="submit" name="intent" value="publish">发布</Button>
+    </form>
+
+    // 在表单之外：form 是表单的 id。
+    <Button type="submit" form="profile" name="intent" value="publish">发布</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **哪个表单。** 包着按钮的那个表单，或者 `form` 属性通过 id 指明的那个表单；对话框的操作区或页头里的按钮，就是这样提交一个自己并不在其中的表单的。元素的 `form` 属性（property）返回这个表单，不能被设置。
+- **在字段中按 Enter。** 表单的第一个提交按钮就是它的默认按钮，无论它是 Tanrei 的按钮还是浏览器自己的按钮。在表单的字段中按 Enter 就会按下它：在 Tanrei 的文本字段、数字字段、颜色字段、组合框、一次性验证码输入框或搜索中，在 Tanrei 的复选框、单选按钮或开关上，以及在浏览器自己的单行输入框中，都是如此。按钮会像任何一次按下那样触发 `click`，取消这个 `click` 就取消了提交。
+- **禁用。** 禁用的提交按钮什么也不提交；当它是表单的默认按钮时，它还会拦住 Enter，所以尚未就绪的表单不会绕过它的按钮被提交。位于 `<fieldset disabled>` 之内的按钮随之禁用，无论它的 `type` 是什么。位于 `<fieldset disabled>` 之内的链接按钮则不会被禁用。
+- **按下的是哪个按钮。** 只有当表单是由这个按钮提交时，才会发送它的 `name` 和 `value`。请在你的 `submit` 监听器里，从 `event.submitter.value` 或 `new FormData(form, event.submitter)` 读取它们。`event.submitter` 不是 Tanrei 元素，而是这个元素在 `submit` 事件派发期间放在自己位置上的一个原生 `<button>`，所以不要拿 `event.submitter` 与这个元素比较。
+- **表单如何提交**完全由表单自己决定。`formaction`、`formmethod`、`formenctype`、`formtarget` 和 `formnovalidate` 不会被读取。要不经校验就保存草稿，请在那个按钮的 `click` 监听器里设置表单的 `noValidate`，这个监听器在校验之前运行。
+- **重复提交。** 按钮不防范第二次按下。请在你的请求进行期间禁用它，或者忽略第二次 `submit`。
+- **切换按钮和链接**会忽略 `type`：切换状态或前往别处的一次按下，不会提交表单。不属于这三者的 `type`，行为与 `button` 相同。
+
+### 比标签更长的名称
+
+当几个按钮上画的是同一个词时，例如列表每一行里的“移除”，仅凭这个词，屏幕阅读器用户无从知道某个按钮属于哪一行。给每个按钮一个 `label`：这时它就是按钮完整的无障碍名称，取代画出的文字，而按钮画出来的样子与原先完全相同。
+
+<DemoFrame label="每一行都是同一个词，每个按钮按所在的行命名" plain>
+  <tanrei-button variant="text" size="small" label="移除 Inter">移除</tanrei-button>
+  <tanrei-button variant="text" size="small" label="移除 Noto Sans JP">移除</tanrei-button>
+  <tanrei-button variant="text" size="small" label="移除 Roboto Mono">移除</tanrei-button>
+</DemoFrame>
+
+| `label` | 画出的标签 | 无障碍名称 |
+| --- | --- | --- |
+| 已给出 | 无（纯图标） | `label` |
+| 为空 | 有 | 画出的文字 |
+| 已给出 | 有 | 完整的 `label`，而且只有它 |
+
+- **名称必须包含画出的文字。** 使用语音输入的用户会说出他们在按钮上看到的那个词。只要你的语言允许，就让名称以这个词开头：画着“移除”的按钮，名称写“移除 Inter”。字母大小写和多余的空格不影响。
+- **调试构建会报告**不包含所画文字的 `label`。按钮仍然使用你给的名称。它绝不退回到画出的文字，也绝不把两者拼接起来，因为短语的语序属于你的语言。
+- **描述不是名称。** 把一个按钮与相邻按钮区分开的，是它的名称。按下后会发生什么，例如“在新标签页中打开”，属于描述，在名称和角色之后朗读。
+
+## 规格
+
+<DemoFrame label="尺寸与禁用" plain>
+  <tanrei-button size="small">Small</tanrei-button>
+  <tanrei-button size="medium">Medium</tanrei-button>
+  <tanrei-button size="large">Large</tanrei-button>
+  <tanrei-button disabled>Disabled</tanrei-button>
+  <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
+</DemoFrame>
+
+<ComponentSpecs name="button" />
+
+## 指南
+
+### 何时使用
+
+按钮用于在用户当前所在位置发生的操作：提交表单、保存、启动一个流程、确认对话框。在 Web 上，会提交所在表单的按钮用 `type` 说明这一点（参见[在表单中](#在表单中)）。
+
+如果激活它只是把用户带到别处，那它就是链接。当这个目标值得用按钮来强调时，例如落地页上的“开始使用”或列表末尾的“查看全部”，就保留按钮并给它指定 `href`：这样它就是链接，拥有链接的角色、按键和浏览器行为（参见[有目标地址的按钮是链接](#有目标地址的按钮是链接)）。句子里的目标仍然用普通的文本链接。
+
+### 如何选择变体
+
+变体表达强调程度，而强调是有限的预算。每个视图只花一次。
+
+| 变体 | 强调程度 | 用于 |
+| --- | --- | --- |
+| Filled | 最高 | 视图或对话框中最重要的那一个操作。 |
+| Tonal | 高 | 重要但不应与 filled 按钮争抢注意力的操作，或次要区域中的主操作。 |
+| Elevated | 中 | 必须从杂乱或带图案的背景中凸显出来的操作。 |
+| Outlined | 中 | 放在 filled 按钮旁边、分量相当的操作，例如“取消”。 |
+| Text | 低 | 最不紧迫的操作，以及卡片、对话框和工具栏中的行内操作。 |
+
+没有 `variant` 的按钮是 filled，只有一个例外：作为[对话框](/zh-cn/components/dialog/)或[侧边面板](/zh-cn/components/side-sheet/)的操作放置时，它采用宿主的变体，在默认系统中是 tonal。因此只需要给外观应当不同的那个操作设置变体。侧边面板的关闭按钮也以同样的方式采用面板为关闭按钮规定的变体。
+
+### 推荐
+
+- 标签写成一个动词，或动词加名词，说明将会发生什么：**部署**、**保存草稿**、**添加成员**。
+- 每个视图只保留一个 filled 按钮。如果两个操作看起来同样重要，这个视图很可能在同时做两件事。
+- 把主操作放在该平台的用户预期的位置，并在整个产品中保持这一顺序。
+- 在密集的工具栏和表格中使用 `small`（32），默认使用 `medium`（40），在以触摸为主的界面或首屏主视觉区域使用 `large`（56）。每种尺寸的点击区域都有保证。
+- 用图标插槽来强化标签。只有在图标的含义广为人知时（搜索、关闭、更多）才省略标签，并用 `label` 为按钮命名。
+
+### 避免
+
+- 不要在按钮的点击处理函数里进行导航。有目标地址的控件是链接：设置 `href`，它才能在新标签页中打开、被复制，并作为链接被朗读。
+- 不要给作用于当前页面的操作（例如“保存”或“删除”）指定 `href`，也不要不在 `targetLabel` 中说明就打开新标签页。
+- 不要在列表的每一行都放一个 filled 按钮。优先使用 text 按钮，或者在顶部放一个作用于所选项的操作。
+- 不要把禁用按钮当作传达校验问题的唯一手段。让它保持可用，并在被按下时说明还缺少什么。
+- 不要截断标签。让按钮变宽，或者把标签写短。
+- 不要让纯图标按钮缺少 `label`：图标不是名称。
+- 不要手动把 narrow 的纯图标按钮一个紧挨一个地排列。它们的目标会延伸到边缘之外，彼此重叠。
+
+### 文案
+
+标签末尾不加标点。以一到两个词为宜。按你的产品所用的每种语言书写标签的习惯来写：英语采用句首大写的写法（sentence case）；日语使用 保存、デプロイ 这样的名词或动名词形式，而不是敬体的句尾。
+
+## 无障碍
+
+<ComponentAccessibility name="button" />
+
+### 组件负责的部分
+
+- 在每个平台上，它都向辅助技术暴露按钮角色和禁用状态。有 `href` 时，它暴露的是链接角色，并且只有 Enter 能激活它。
+- 切换按钮是带有“已按下”状态的按钮，不是复选框，也不是开关；它的名称不随状态改变。
+- 会打开新上下文的链接用两种方式说明这一点：对看得见的用户是 `open_in_new` 标记，对看不见的用户是作为链接描述的 `targetLabel`。标记本身对辅助技术隐藏。
+- 在画出的标签之外还给了 `label` 时，它在一个控件上只暴露一个名称，也就是 `label`。画出的文字不会被再读一遍。
+- 在 Web 上，在字段中按 Enter 会按下表单的默认按钮，禁用的默认按钮会拦住这个按键，位于禁用的 fieldset 之内的按钮也随之禁用。
+- 即使是 small 尺寸和 narrow 宽度，它的点击区域也达到最小目标，而按钮不必画得更大。
+- 获得键盘焦点时，它显示“先留间隙、再画圆环”的焦点指示，不带动画。
+- 它的颜色来自成对的角色，这些角色对的对比度在每个对比度级别下都经过校验。outlined 按钮的轮廓是默认系统的细线，有意画得很淡：让人认出这个控件的是标签和图标，而不是它的边线。需要更醒目边线的产品，可以在层中把 `comp.button.outlined.outline.color` 设为 `sys.color.outline`。
+- 文本放大时，容器随之变大，标签绝不截断。
+
+### 需要你做的事
+
+- 写出脱离上下文也能看懂的标签。在项目名称旁边，“删除项目”比“删除”更好，因为屏幕阅读器用户可能只听到这个按钮。
+- 如果操作会启动一个耗时较长的流程，请移动焦点或朗读进度。仅仅禁用按钮，对屏幕阅读器用户来说什么也没有传达。
+- 不要依靠变体的颜色来传达含义，例如破坏性的意图。请在标签里说出来。
+- 按链接的去向为链接按钮命名：写“查看发票”，不要写“点击这里”。`target` 为 `new` 时，写上 `targetLabel`。
+- 几个按钮画着同一个词时，给每个按钮一个 `label`，它包含这个词，并说明按钮作用于什么（参见[比标签更长的名称](#比标签更长的名称)）。
+- 表单的提交按钮被禁用时，请在页面上说明还缺少什么。禁用的按钮也会拦住 Enter，而它本身什么也没有解释。
+- 用 `label` 为每个纯图标按钮命名。[工具提示](/zh-cn/components/tooltip/)可以向使用指针的用户显示同样的文字，但它永远不能代替 `label`。

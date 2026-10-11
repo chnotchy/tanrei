@@ -1,0 +1,34 @@
+{
+  "name": "@tanrei/cli",
+  "version": "0.0.0",
+  "description": "Build your own design system on Tanrei: one layer file in, tokens and code for every platform out.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chnotchy/tanrei.git",
+    "directory": "packages/cli"
+  },
+  "bin": {
+    "tanrei": "./bin/tanrei.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@material/material-color-utilities": "^0.4.0",
+    "@terrazzo/parser": "^2.0.0",
+    "ajv": "^8.20.0"
+  },
+  "devDependencies": {
+    "@tanrei/token-engine": "workspace:*",
+    "@tanrei/tokens-build": "workspace:*",
+    "esbuild": "^0.28.2"
+  }
+}

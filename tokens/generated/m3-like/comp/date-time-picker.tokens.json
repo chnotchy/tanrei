@@ -1,0 +1,797 @@
+{
+  "tanrei": {
+    "comp": {
+      "date-time-picker": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product asks for a date (a due date), a time (an alarm), or both (a meeting's start) — and for a span of any of them (a stay, opening hours, a booking) — in a dialog on a phone and in a surface that drops down from a form field on a desktop, with the time set on wheels or on a clock dial in a 12-hour or a 24-hour clock, to the minute or to a coarser step.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "selected"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed"
+            ],
+            "perVariant": {
+              "selector.container.color": "color",
+              "selector.label.color": "color",
+              "selector.outline.color": "color",
+              "selector.outline.width": "dimension",
+              "selector.state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a date-time picker reads besides the Calendar, Tabs and Buttons it shows: the modal surface and its scrim, and the docked surface with its offset from the anchor; the padding and the gap between its sections; the header (the picker's label and the chosen value in large type) and its divider; which time entry modes a product offers; the time wheels (size, rows, text, the selection containers and whether they are one band); the range fields that show the two ends of a span of times; the dial mode's hour and minute selectors and separator; the period of a 12-hour time (its width, its text and its distance from the hour and the minute); the clock dial (size, face, numbers, the handle, the track and the centre); the range error line; the actions (their default Button variant, arrangement and spacing); the motion of each presentation, of the dial, of a wheel settling and of a state change; and, for each condition of a selector (unselected, selected), its container, label, outline and state-layer colors in each state.",
+            "rules": [
+              "The calendar is a Tanrei Calendar, the entry-mode tabs are Tanrei Tabs of the secondary variant, Cancel and OK are Tanrei Buttons: restyle them through their own tokens. The entry-mode tabs draw glyphs alone (keyboard for the wheels, schedule for the dial).",
+              "The two ends of a range are never tabs and never carry the words start and end: they are two range fields joined by an en dash, and the one being set is selected.",
+              "AM and PM are a part of the time, never tabs and never a control as wide as the time section: a short third wheel in the wheels mode, a narrow selector beside the minute in the dial mode. The period is drawn from the unselected selector's tokens (the wheels' own in the wheels mode) and is never selected: it is the quiet part of the time, and primary stays with what is being set. Size it with comp.date-time-picker.period.*, smaller than the hour and the minute.",
+              "The range display fills the width of the time section: it is the first branch of a range's time, and everything below it sets the end it names.",
+              "Cancel and OK are placed as a full-width Button group places a dismissive and a confirming item, and are given the variant comp.date-time-picker.actions.variant names (tonal in the default system). Choose another look for every picker of a product by re-valuing it in its layer.",
+              "comp.date-time-picker.time.entry-modes says which of wheels and dial a product offers; with one of them, the entry-mode tabs are not drawn.",
+              "The selector conditions mark what is being set, at every level: selected is the hour or minute selector whose unit the dial shows, the range field whose end the time section sets, and the wheel a number is being typed into; everything else of those is unselected (a wheel at rest draws its own wheel.selection container). Never pick a look by hand. A selected selector must differ from an unselected one at rest by more than its text: an edge, a fill, or both.",
+              "comp.date-time-picker.wheel.selection.span says whether each wheel has a selection container of its own (each, the default: the hour and the minute read as two fields) or the wheels share one band (joined, as a native drum picker).",
+              "The dial's handle and the number under it are a contrast pair (dial.handle.color and dial.selected-label.color), and so are a wheel's selection container and its selected label.",
+              "Each condition's selector.state-layer.color is the color hover, focus and press mix into that container; each aliases its label color.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          }
+        },
+        "modal": {
+          "scrim": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.scrim}",
+              "$description": "The dim over everything behind a modal picker, alpha included, as a dialog's."
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-high}",
+              "$extensions": {}
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level3}"
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.extra-large}",
+              "$extensions": {}
+            },
+            "margin": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space200}",
+              "$description": "The least distance between a modal picker and the edges of the window's safe area and the on-screen keyboard."
+            }
+          },
+          "motion": {
+            "open-duration": {
+              "$type": "duration",
+              "$value": "{tanrei.sys.motion.duration.medium2}"
+            },
+            "open-easing": {
+              "$type": "cubicBezier",
+              "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            },
+            "close-duration": {
+              "$type": "duration",
+              "$value": "{tanrei.sys.motion.duration.short4}"
+            },
+            "close-easing": {
+              "$type": "cubicBezier",
+              "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            },
+            "enter-scale": {
+              "$type": "number",
+              "$value": 0.95,
+              "$description": "The size a modal picker grows from, as a fraction of its own, while it fades in. 1 fades without growing.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A proportion of the picker's own size; no dial scales it."
+                }
+              }
+            }
+          }
+        },
+        "docked": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-high}",
+              "$extensions": {}
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level3}",
+              "$extensions": {}
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.large}",
+              "$extensions": {}
+            }
+          },
+          "offset": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "The gap between the anchor and a docked picker."
+          },
+          "viewport-margin": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "How close a docked picker may come to the edges of the viewport before it flips or shifts."
+          },
+          "motion": {
+            "open-duration": {
+              "$type": "duration",
+              "$value": "{tanrei.sys.motion.duration.short4}"
+            },
+            "open-easing": {
+              "$type": "cubicBezier",
+              "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+            },
+            "close-duration": {
+              "$type": "duration",
+              "$value": "{tanrei.sys.motion.duration.short2}"
+            },
+            "close-easing": {
+              "$type": "cubicBezier",
+              "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+            }
+          }
+        },
+        "container": {
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "The inset of the calendar, the time section, the error line and the actions from the surface's sides."
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Above the first section and below the last (above the actions when there are actions)."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Between the calendar and the time section, stacked or side by side, and between the rows of the time section (its tabs, the time display, the wheels or the dial)."
+          }
+        },
+        "header": {
+          "padding-inline-start": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space300}"
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Smaller than the start, because the entry-mode tabs carry their own padding at the end of the title row."
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}"
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Between the title row and the chosen value below it."
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.label}"
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "value": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.heading-1}",
+              "$description": "The chosen date, date and time, or range, in the header of a modal picker.",
+              "$extensions": {}
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$extensions": {}
+            }
+          },
+          "placeholder": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The part of the header's value that is not chosen yet (\"Date\", \"End date\")."
+            }
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}"
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "time": {
+          "entry-modes": {
+            "$type": "number",
+            "$value": 2,
+            "$description": "Which ways of setting a time the picker offers. both: wheels and dial, chosen by two icon-only tabs; wheels: wheels only; dial: dial only. With one, no entry-mode tabs are drawn and entryMode is ignored. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once whether its people set a time on wheels, on a clock dial, or on either by their own choice. A product built for quick keyboard and screen-reader entry may offer wheels only; a product whose times are glanceable on a clock face may offer the dial only."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "both",
+                  "wheels",
+                  "dial"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "Material 3's time picker is a clock dial."
+              }
+            }
+          }
+        },
+        "wheel": {
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 80,
+              "unit": "px"
+            },
+            "$description": "The width of the hour wheel and of the minute wheel.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 20
+              }
+            }
+          },
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 240,
+              "unit": "px"
+            },
+            "$description": "The height of the wheels: five rows at the default row height, and the dial's diameter, so that switching between wheels and dial does not move the actions.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 60
+              }
+            }
+          },
+          "row": {
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$description": "The height of one value on a wheel. At least the minimum target: a press on a row above or below the middle moves it to the middle.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Between a wheel and the separator: the space that parts the two selection containers from the separator between them."
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.heading-3}",
+              "$description": "The values on the wheels."
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The values above and below the selection band."
+            }
+          },
+          "selected-label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The value on the selection band: the chosen one."
+            }
+          },
+          "selection": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-dim}",
+                "$description": "The ground behind a wheel's chosen value: one container for each wheel, or one band across both wheels and the separator where wheel.selection.span is joined. surface-dim recedes from the surface in every scheme, as the dial's face and the selectors do."
+              },
+              "shape": {
+                "$type": "dimension",
+                "$value": "{tanrei.sys.shape.corner.medium}"
+              }
+            },
+            "span": {
+              "$type": "number",
+              "$value": 0,
+              "$description": "Whether the wheels' chosen values stand on grounds of their own. each: one selection container behind each wheel's middle row, with the separator between the two, so that the hour and the minute read as two fields, as the dial mode's selectors do. joined: one container behind the middle row of both wheels and the separator, as a drum picker's band. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product decides once whether its time wheels read as two fields, each a box whose number can also be typed, or as one drum with a single band across the chosen row, as the platform its people know draws wheels. A person never switches it, so it is the product's value, not a prop."
+                },
+                "dev.tanrei.enum": {
+                  "values": [
+                    "each",
+                    "joined"
+                  ]
+                },
+                "dev.tanrei.derive": {
+                  "fixed": "A choice of kind; no dial scales it."
+                }
+              }
+            }
+          }
+        },
+        "selector": {
+          "container": {
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 96,
+                "unit": "px"
+              },
+              "$description": "The width of the hour and the minute selector in the dial mode.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 24
+                }
+              }
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 80,
+                "unit": "px"
+              },
+              "$description": "The least height of the hour and minute selectors.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 20
+                }
+              }
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "$description": "The corners of the hour and minute selectors, and of the range fields, which are selectors of an end.",
+              "$extensions": {}
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.display-large}",
+              "$description": "The hour and the minute in the selectors.",
+              "$extensions": {}
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Between a selector and the separator."
+          }
+        },
+        "range-field": {
+          "container": {
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$description": "The least height of a range field, one end of a span of times in the range display. The touch target, because a press on it chooses which end the wheels or the dial set.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
+              }
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space200}",
+              "$description": "Between a range field's edge and its time, at each end."
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.heading-5}",
+              "$description": "The time in a range field, and the dash between the two. Two steps below the wheels' values: the range display says what is being set, the wheels or the dial set it."
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between a range field and the dash."
+          }
+        },
+        "period": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product that writes its times with AM and PM decides how much room and weight the period takes beside the hour and the minute: a narrow, quiet part of the time, wide enough for the names its languages use (\"AM\", \"午前\", \"a. m.\") and set smaller than the digits, at a distance that keeps it part of the time without making it a third number. A product whose times are set large, or whose period names are long, moves these without moving the hour's and the minute's boxes.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 52,
+                "unit": "px"
+              },
+              "$description": "The least width of the period: the period wheel in the wheels mode and the period selector in the dial mode. Narrower than the hour's and the minute's boxes, and wider than the touch target, because it takes a press; it grows for a longer name. Its height is the selectors' in the dial mode and a wheel row's in the wheels mode.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 13
+                }
+              }
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.heading-5}",
+              "$description": "The name of the period (AM, PM) in the period wheel and the period selector. The range fields' step: well below the selectors' and the wheels' digits, so that the period reads as a qualifier of the time."
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Between the period and the hour and minute it qualifies: after the minute, or before the hour where the locale writes the period first. Wider than the gap around the separator, so that the hour and the minute read as one number pair and the period as its suffix.",
+            "$extensions": {}
+          }
+        },
+        "separator": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.display-large}",
+            "$description": "The separator between the selectors. Between the wheels it takes the wheels' text style, and the dash between the range fields takes theirs.",
+            "$extensions": {}
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface}",
+            "$description": "The separator between the hour and the minute, and the dash between the two range fields: the marks that join two values."
+          }
+        },
+        "dial": {
+          "container": {
+            "size": {
+              "$type": "dimension",
+              "$value": {
+                "value": 256,
+                "unit": "px"
+              },
+              "$description": "The diameter of the clock dial.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 64
+                }
+              }
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-highest}",
+              "$description": "The dial's face. surface-dim recedes from the surface in every scheme, where the tonal containers are within a step or two of surface-bright in the dark default.",
+              "$extensions": {}
+            }
+          },
+          "padding": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between the dial's edge and the handle at the outer ring."
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-large}"
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "selected-label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-primary}",
+              "$description": "The number under the handle, and the dot the handle holds between two numbers."
+            }
+          },
+          "handle": {
+            "size": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$description": "The diameter of the handle over the chosen value.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
+              }
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "track": {
+            "width": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.thick}"
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$description": "The line from the centre to the handle, and the centre dot."
+            }
+          },
+          "center": {
+            "size": {
+              "$type": "dimension",
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$description": "The diameter of the dot at the dial's centre.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 2
+                }
+              }
+            }
+          }
+        },
+        "error": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}",
+            "$description": "The line that says a range's end is before its start."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.error}"
+          }
+        },
+        "actions": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between Cancel and OK, in a row or stacked. At sys.target.touch minus the lowest Button (small, 32) or more, each keeps its whole target in a column, as the dialog's actions do.",
+            "$extensions": {}
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Above and below the actions."
+          },
+          "arrangement": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "How Cancel and OK sit. fill: a full-width Button group, the two sharing the container's inner width equally. end: at their own widths, aligned to the end. Either stacks into a column when the row does not fit. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once how the answers at the foot of its pickers sit: as equal, full-width targets, or as a compact row at the end, as it decides for its dialogs; it may decide the two apart."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "fill",
+                  "end"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "Material 3 aligns its picker actions to the end, at their own widths."
+              }
+            }
+          },
+          "variant": {
+            "$type": "number",
+            "$value": 4,
+            "$description": "The Button variant of Cancel and OK. The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product chooses the emphasis of its pickers' answers once, for every picker: tonal where the answers are part of the task, text where the calendar and the wheels should lead. It may choose apart from its dialogs, whose answers are the dialog's whole point."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "filled",
+                  "tonal",
+                  "elevated",
+                  "outlined",
+                  "text"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "Material 3's picker actions are text buttons."
+              }
+            }
+          }
+        },
+        "motion": {
+          "dial-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium1}",
+            "$description": "How long the dial takes to change from hours to minutes (and back), and the handle to travel to a value set from a selector."
+          },
+          "dial-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "wheel-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium1}",
+            "$description": "How long a wheel takes to settle on a value after a drag, a press on a row or a key, when it is not already moving with a fling."
+          },
+          "wheel-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard-decelerate}"
+          },
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          }
+        },
+        "unselected": {
+          "selector": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-container-highest}",
+                "$extensions": {}
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A selector whose unit the dial does not show draws no edge."
+                  }
+                }
+              },
+              "width": {
+                "$type": "dimension",
+                "$value": "{tanrei.sys.border.hairline}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.date-time-picker.unselected.selector.label.color}"
+              }
+            }
+          }
+        },
+        "selected": {
+          "selector": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.primary-container}",
+                "$extensions": {}
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-primary-container}",
+                "$extensions": {}
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The edge of the selector whose unit the dial shows: the selector being set is marked as a focused field is, by its edge.",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Material marks the selected selector by its fill, with no edge."
+                  }
+                }
+              },
+              "width": {
+                "$type": "dimension",
+                "$value": "{tanrei.sys.border.hairline}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.date-time-picker.selected.selector.label.color}"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

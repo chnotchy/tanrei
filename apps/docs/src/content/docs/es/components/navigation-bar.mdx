@@ -1,0 +1,339 @@
+---
+title: Barra de navegación
+description: Permite moverse entre tres y cinco destinos de nivel superior desde el borde inferior de una pantalla compacta, y muestra cuál es el actual.
+translationOf: components/navigation-bar.mdx
+sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="navigation-bar" />
+
+:::note[Una especificación revisada que aún no está en todas las plataformas]
+Esta página describe la barra de navegación tal como la define ahora la especificación, tomando como modelo las [pestañas](/es/components/tabs/). El indicador activo es toda la parte igual de la barra que corresponde al destino actual, retirada de los bordes de la barra, no una píldora que se ciñe al icono y a la etiqueta. Cuando la selección cambia, se desliza hasta el nuevo destino con su tamaño completo, y un arrastre a lo largo de la barra lo lleva con el puntero. El paso del cursor, la pulsación y el foco se dibujan en ese mismo recuadro. `variant` elige entre tonal (el valor predeterminado) y filled. Todas las demás propiedades y eventos son iguales en ambas revisiones. Las plataformas marcadas arriba como rezagadas ofrecen la primera revisión hasta que se pongan al día: sin `variant`, sin arrastre y con un indicador solo detrás del icono que crece desde su centro, y sus ejemplos muestran esa revisión. Las demostraciones de esta página son el componente web tal como se distribuye hoy.
+:::
+
+<DemoFrame label="Cuatro destinos, uno de ellos con un recuento">
+  <tanrei-navigation-bar value="inbox" label="Principal" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="Recibidos" icon="inbox" badge badge-count="3" badge-label="3 sin leer"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="Destacados" icon="star"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="settings" label="Configuración" icon="settings"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="La variante filled: pulsa y arrastra a lo largo de la barra para llevar el indicador" plain>
+  <tanrei-navigation-bar variant="filled" value="chat" label="Multimedia" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="home" label="Inicio" icon="home"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat" badge badge-label="Mensajes nuevos"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="Destacados" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="Una barra de enlaces: la página nombra el actual por su dirección, y «Ayuda» abre una pestaña nueva" plain>
+  <tanrei-navigation-bar value="/es/components/navigation-bar/" label="Componentes" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item href="/es/components/button/" label="Botón" icon="smart_button"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/es/components/navigation-bar/" label="Barra" icon="bottom_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/es/components/navigation-drawer/" label="Panel" icon="side_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="https://example.com/" label="Ayuda" icon="help" target="new" target-label="se abre en una pestaña nueva"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+### Uso
+
+Una barra de navegación tiene un solo tipo de elemento, `destination`: un icono, una etiqueta debajo y una insignia opcional sobre el icono. Cada plataforma recibe los destinos como recibe cualquier conjunto de hijos repetidos: elementos hijos `<tanrei-navigation-bar-item>` en la web, vistas `TanreiNavigationBarItem` en el view builder de SwiftUI, llamadas a `TanreiNavigationBarItem` en la lambda de contenido de Compose, objetos `TanreiNavigationDestination` en la lista `destinations:` de Flutter y un array `destinations` de objetos planos en React Native.
+
+La selección pertenece a la barra, por el valor de un destino. `value` nombra el destino actual, `change` lleva el que eligió la persona y `reselect` se emite cuando elige de nuevo el actual, para que puedas desplazar esa pantalla de vuelta al principio. Un valor vacío no selecciona ninguno, para una pantalla que no es uno de los destinos de la barra. SwiftUI escribe el nuevo valor en el binding `selection`. Dos plataformas conservan su estilo propio, como hacen sus propias barras de navegación. Compose no tiene un valor en la barra: marcas el elemento actual con `selected`, y su `onClick` sirve a la vez de change y de reselect. Flutter selecciona por índice: `selectedIndex` y `onDestinationSelected`, al que también llama para el destino actual.
+
+`variant` define con cuánta fuerza se marca el destino actual: `tonal` (el valor predeterminado) rellena su indicador con suavidad, y `filled` lo rellena con fuerza, con el icono y la etiqueta invertidos sobre él. Hoy está en la web.
+
+Un destino con un `href` es un enlace: el enlace propio de la plataforma, que se dibuja exactamente igual que un destino de botón. Enter lo activa y Espacio no. La barra no selecciona un enlace con una pulsación: emite `change` con el valor del destino y su `href`, y después se sigue el enlace. La página que llega nombra el destino actual mediante `value`, como en el [panel de navegación](/es/components/navigation-drawer/), y un enlace sin `value` toma su `href` como valor. `target` y `targetLabel` son los del [botón](/es/components/button/). La web incluye los destinos de enlace; SwiftUI, Compose, Flutter y React Native todavía no los tienen.
+
+El `icon` de un destino es el nombre de un glifo de la fuente de iconos del sistema de diseño. La barra lo dibuja con contorno mientras no está seleccionado y relleno mientras lo está. `badge`, `badgeCount` y `badgeLabel` dibujan una insignia de Tanrei sobre el icono: un punto cuando no hay recuento y, si lo hay, el número. SwiftUI, Compose y Flutter los reciben como un único valor `TanreiNavigationBadge`, y React Native, como un objeto `badge`.
+
+La barra es una región del diseño, no una superposición. Su color llega hasta debajo del indicador de inicio o de la barra de gestos que tiene debajo, y sus destinos se sitúan por encima de ellos y dentro de los márgenes interiores laterales. En React Native, los márgenes interiores proceden solo de las propiedades, sin ninguna dependencia de área segura: los `insets` de `TanreiProvider`, o los `insets` de la propia barra, cuyos lados sustituyen a los del proveedor.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- El host es una región de referencia (landmark) de navegación que recibe su nombre de label. -->
+    <!-- variant="filled" invierte el destino actual, para una barra sobre una pantalla recargada. Tonal es el valor predeterminado. -->
+    <tanrei-navigation-bar label="Principal" value="inbox">
+      <tanrei-navigation-bar-item value="inbox" label="Recibidos" icon="inbox"
+                                  badge badge-count="3" badge-label="3 sin leer"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"
+                                  badge badge-label="Mensajes nuevos"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="starred" label="Destacados" icon="star"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="settings" label="Configuración" icon="settings" disabled></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-bar';
+      const bar = document.querySelector('tanrei-navigation-bar');
+      // La barra define su propio value antes de emitir change, que lo lleva consigo.
+      bar.addEventListener('change', (e) => showScreen(e.detail.value));
+      bar.addEventListener('reselect', () => scrollTo({ top: 0 }));
+    </script>
+
+    <!-- Una barra de enlaces: cada página define value como su propia dirección. Un enlace sin value toma su href. -->
+    <tanrei-navigation-bar label="Principal" value="/search/">
+      <tanrei-navigation-bar-item href="/" label="Inicio" icon="home"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/search/" label="Buscar" icon="search"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/library/" label="Biblioteca" icon="video_library"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="https://example.com/help" label="Ayuda" icon="help"
+                                  target="new" target-label="se abre en una pestaña nueva"></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      // Un enrutador se hace cargo de la navegación: cancela change, ve a detail.href y di dónde está ahora el producto.
+      bar.addEventListener('change', (e) => {
+        if (!e.detail.href) return;
+        e.preventDefault();
+        router.push(e.detail.href);
+        bar.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NavigationBar, NavigationBarItem } from '@tanrei/react';
+
+    // variant="filled" para una barra sobre una pantalla recargada; tonal es el valor predeterminado.
+    <NavigationBar label="Principal" value={screen} onChange={(e) => setScreen(e.detail.value)} onReselect={scrollToTop}>
+      <NavigationBarItem value="inbox" label="Recibidos" icon="inbox" badge badgeCount={3} badgeLabel="3 sin leer" />
+      <NavigationBarItem value="chat" label="Chat" icon="chat" />
+      <NavigationBarItem value="starred" label="Destacados" icon="star" />
+    </NavigationBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Una barra propia en el margen inferior del área segura. Al elegir un destino se escribe el binding (change).
+    ScreenView(screen)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TanreiNavigationBar(selection: $screen, accessibilityLabel: "Principal", onReselect: { _ in scrollToTop() }) {
+                TanreiNavigationBarItem("Recibidos", icon: "inbox", value: "inbox",
+                                        badge: TanreiNavigationBadge(count: 3, label: "3 sin leer"))
+                TanreiNavigationBarItem("Chat", icon: "chat", value: "chat")
+                TanreiNavigationBarItem("Destacados", icon: "star", value: "starred")
+                // disabled es el modificador propio de SwiftUI.
+                TanreiNavigationBarItem("Configuración", icon: "settings", value: "settings").disabled(true)
+            }
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBadge
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBar
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBarItem
+
+    // Como el NavigationBar de Material: no hay un valor en la barra. Marcas el elemento actual con selected,
+    // y un solo onClick es a la vez change y reselect.
+    var screen by rememberSaveable { mutableStateOf("inbox") }
+    TanreiNavigationBar(contentDescription = "Principal") {
+        TanreiNavigationBarItem(
+            selected = screen == "inbox",
+            onClick = { if (screen == "inbox") { scrollToTop() } else { screen = "inbox" } },
+            icon = "inbox",
+            label = "Recibidos",
+            badge = TanreiNavigationBadge(count = 3, contentDescription = "3 sin leer"),
+        )
+        TanreiNavigationBarItem(selected = screen == "chat", onClick = { screen = "chat" }, icon = "chat", label = "Chat")
+        // enabled es el inverso del disabled de la especificación.
+        TanreiNavigationBarItem(selected = screen == "settings", onClick = { screen = "settings" }, icon = "settings", label = "Configuración", enabled = false)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Como NavigationBar: el valor de un destino es su índice. La barra no guarda ninguna selección propia.
+    TanreiNavigationBar(
+      selectedIndex: current, // null no selecciona ninguno
+      onDestinationSelected: (int index) {
+        if (index == current) {
+          scrollToTop(); // reselect
+        } else {
+          setState(() => current = index); // change
+        }
+      },
+      semanticLabel: 'Principal',
+      destinations: const <TanreiNavigationDestination>[
+        TanreiNavigationDestination(icon: 'inbox', label: 'Recibidos', badge: TanreiNavigationBadge(count: 3, semanticLabel: '3 sin leer')),
+        TanreiNavigationDestination(icon: 'chat', label: 'Chat'),
+        TanreiNavigationDestination(icon: 'settings', label: 'Configuración', enabled: false),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationBar } from '@tanrei/react-native';
+
+    const [screen, setScreen] = useState('inbox');
+
+    // Controlada: cambia value desde onValueChange.
+    <NavigationBar
+      accessibilityLabel="Principal"
+      value={screen}
+      onValueChange={setScreen}
+      onReselect={scrollToTop}
+      destinations={[
+        { value: 'inbox', label: 'Recibidos', icon: 'inbox', badge: { count: 3, label: '3 sin leer' } },
+        { value: 'chat', label: 'Chat', icon: 'chat', badge: { label: 'Mensajes nuevos' } },
+        { value: 'settings', label: 'Configuración', icon: 'settings', disabled: true },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Solo la etiqueta seleccionada, y sin etiquetas" plain column>
+  <tanrei-navigation-bar value="chat" label-visibility="selected" label="Principal" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="Recibidos" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="Destacados" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+  <tanrei-navigation-bar value="inbox" label-visibility="never" label="Secundaria" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="Recibidos" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat" badge badge-label="Mensajes nuevos"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="Destacados" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-bar" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa una barra de navegación en una pantalla compacta, como un teléfono en vertical, para moverse entre tres y cinco destinos de nivel superior: los lugares a los que una persona vuelve a lo largo de todo el día, como Recibidos, Buscar y Perfil. La barra permanece en todas las pantallas de nivel superior y muestra dónde está la persona.
+
+Usa pestañas para cambiar entre vistas de un mismo tema dentro de una pantalla. Usa el botón de retroceso de una barra de la aplicación para salir de una pantalla a la que una persona llegó desde otra: las pantallas de detalle suelen ocultar la barra de navegación.
+
+### Cómo elegir entre la barra y el panel
+
+| Aspecto | [Barra de navegación](/es/components/navigation-bar/) | [Panel de navegación](/es/components/navigation-drawer/), contraído | [Panel de navegación](/es/components/navigation-drawer/), expandido |
+| --- | --- | --- | --- |
+| Dónde se sitúa | A lo largo del borde inferior | Una columna de iconos a lo largo del borde de inicio | En un panel en el borde de inicio |
+| Ventana | Compacta | Media y más anchas | Expandida y más anchas (estándar), o compacta (modal) |
+| Destinos | De tres a cinco | Sus destinos y grupos de nivel superior, una celda cada uno | Tantos como tenga el producto, en secciones y grupos |
+| Un destino | Un icono sobre una etiqueta de una línea, con una insignia sobre el icono | La fila cortada después de su icono: el icono solo, con una insignia encima y su nombre en un tooltip | Una fila: un icono opcional, una etiqueta que salta de línea y, al final, texto o contenido final |
+| También contiene | Nada más | Una cabecera: el botón de menú y la acción principal, contraída a su icono | Una cabecera: el botón de menú, un título o un selector de cuentas, y la acción principal |
+| En las plataformas nativas, un destino es | Una pestaña de una barra de pestañas | Un botón con un estado seleccionado | Un botón con un estado seleccionado |
+| Qué es | Una región del diseño | Una región del diseño, o una columna del diseño desde la que se ensancha un panel modal | Estándar: una región del diseño. Modal: una superposición modal |
+
+- **El panel contraído es el carril de navegación.** Un panel que se puede contraer se estrecha hasta una columna de iconos allí donde el contenido necesita el ancho, y su botón de menú lo vuelve a ensanchar; todos los iconos se quedan donde están. El carril de navegación que Tanrei tenía aparte queda retirado e integrado en esta forma.
+- **La barra y el panel son un mismo conjunto de destinos en dos lugares.** Reciben los mismos destinos y la misma selección, así que un producto que se adapta a la ventana cambia la barra por el panel en un punto de ruptura sin tocar sus destinos. Muestra uno de los dos cada vez, nunca ambos.
+- **En el panel cabe más.** Úsalo expandido cuando el producto tenga más destinos de los que caben en una barra, o cuando se repartan en grupos, como las carpetas y etiquetas de una aplicación de correo. En una ventana grande, un panel estándar se sitúa junto al contenido. En una compacta, un panel modal se desliza sobre él desde un botón de menú.
+- **Un panel modal que se puede contraer** mantiene su columna de iconos en el diseño y se ensancha sobre el contenido, por encima de un velo, cuando su botón de menú lo abre.
+- En todas las plataformas, ambos seleccionan por el valor de un destino (Compose con un parámetro en cada elemento, Flutter por índice) y emiten `change` y `reselect`.
+
+### Etiquetas
+
+| `labelVisibility` | Qué hace | Úsalo para |
+| --- | --- | --- |
+| `always` (predeterminado) | Todos los destinos dibujan su etiqueta. | La mayoría de las barras. Las etiquetas hacen que los destinos se reconozcan de un vistazo. |
+| `selected` | Solo el destino actual dibuja su etiqueta. Un icono sin etiqueta se sitúa en el centro de su destino. Ningún destino cambia de tamaño ni de lugar con la selección. | Barras en las que el espacio es escaso y los iconos son muy conocidos. |
+| `never` | Ningún destino dibuja su etiqueta. | Productos multimedia y sociales cuyos cuatro o cinco iconos conoce todo el mundo. |
+
+Una etiqueta que no se dibuja sigue siendo el nombre accesible del destino, así que todos los destinos necesitan una.
+
+### Selección e insignias
+
+- **El indicador activo.** Cada destino tiene un recuadro: su parte igual del ancho de la barra, retirada de los bordes de la barra, por arriba, por abajo y en los dos extremos, con un mismo margen interior (4 en el sistema predeterminado). Cuatro destinos en una barra de 360 de ancho y 64 de alto tienen cada uno un recuadro de 88 × 56, una cápsula en el sistema predeterminado. El recuadro es el mismo para todos los destinos de una barra, contenga lo que contenga, y nunca se ajusta al tamaño de su icono y su etiqueta. El recuadro del destino actual está relleno, lo que lo convierte en el indicador activo, y su icono también está relleno. El paso del cursor, el foco y la pulsación se dibujan en ese mismo recuadro para todos los destinos.
+- **El deslizamiento.** Cuando la selección cambia, el indicador se desliza del destino anterior al nuevo con su tamaño completo. Los iconos y las etiquetas se invierten solo donde el indicador los cubre, así que un destino por el que pasa cambia de colores bajo él por un momento, y el nuevo destino queda invertido por completo cuando el indicador llega. Desde una selección vacía, el indicador aparece con un fundido sobre el nuevo destino; hacia una selección vacía, desaparece con un fundido. Nunca crece ni se encoge. Cuando la barra aparece por primera vez, o el destino actual cambia de tamaño sin una nueva selección (llega una fuente, cambia el tamaño del texto), el indicador se coloca en su sitio de inmediato. Donde el movimiento está reducido, el cambio ocurre de inmediato.
+- **El arrastre.** Una pulsación sobre la barra que se mueve hacia un lado, con el dedo, un lápiz o un ratón, mientras hay un destino seleccionado, lleva el indicador con el puntero. No se elige nada hasta soltar: `value`, el foco, el relleno de cada icono y lo que se anuncia siguen en el destino actual. Al soltar se elige el más cercano de los dos destinos entre los que se encuentra el indicador, o aquel hacia el que apunta un lanzamiento, y se emite `change` una vez. Si se suelta de vuelta sobre el destino actual, no se emite nada, tampoco `reselect`. Escape cancela el arrastre. Un arrastre nunca es la única forma: un toque, un clic, Enter y Espacio eligen como antes.
+- **Volver a seleccionar.** Elegir de nuevo el destino actual emite `reselect`, no `change`. La respuesta habitual es desplazar esa pantalla hasta el principio o volver a su primera página.
+- **Insignias.** Una insignia con recuento muestra el número (999+ por encima de 999), y una sin recuento muestra un punto. `badgeLabel` es lo que dice un lector de pantalla después del nombre del destino, como «3 sin leer». Un punto no tiene número que leer, así que siempre necesita uno. Una insignia se mantiene mientras su destino está deshabilitado.
+
+### Enlaces
+
+En un sitio de páginas separadas, da a cada destino un `href` y define el `value` de la barra como la dirección de la propia página. El destino actual y la página actual son entonces una sola cosa, con una sola marca.
+
+- **Se sigue, no se selecciona.** Una activación corriente de un enlace emite `change`, o `reselect` si es el actual, con el valor del destino y su `href`, y después se sigue el enlace. La barra no escribe `value`: el indicador activo se queda en el destino que `value` nombra y se mueve cuando `value` cambia.
+- **Un enrutador.** Cancela el evento para hacerte cargo tú de la navegación, ve a `detail.href` y define `value`. El indicador se desliza entonces hasta el nuevo destino.
+- **Otras pestañas.** Un clic o Enter con una tecla modificadora, un clic con el botón central, un enlace cuyo `target` es `new` y una descarga son cosa del navegador. La barra no emite nada y no selecciona nada.
+- **Un contexto nuevo.** `target: new` abre una pestaña o una ventana nueva. Un destino es un icono sobre una etiqueta, sin sitio para una marca, así que no se dibuja ninguna: `targetLabel` se lo dice a la tecnología de apoyo, después de la descripción de la insignia.
+- **El arrastre.** Un arrastre hacia un lado que empieza sobre un enlace mueve el indicador activo y no arrastra la dirección del enlace. Si se suelta sobre un enlace, es una pulsación corriente en ese enlace: el indicador vuelve al destino actual hasta que `value` cambia.
+- **Deshabilitado.** Un enlace deshabilitado no se puede seguir de ninguna manera y sale del orden del foco.
+
+### Tonal y filled
+
+| `variant` | El destino actual | Úsala para |
+| --- | --- | --- |
+| `tonal` (predeterminada) | Un indicador suave en el color del contenedor secundario, con su icono y su etiqueta en el color de contenido de ese contenedor. | La mayoría de las barras. |
+| `filled` | Un indicador fuerte en el color primario, con su icono y su etiqueta invertidos sobre él. | Una barra que debe destacar sobre una pantalla recargada: un mapa, una cuadrícula de fotos, un reproductor. |
+
+Los destinos que el indicador no cubre se ven igual en las dos. La variante cambia con cuánta fuerza se dibuja la selección, no lo que se anuncia: una barra tonal y una filled exponen los mismos nombres, roles y estados. Un destino actual deshabilitado conserva su indicador tonal con contenido deshabilitado sobre él; un indicador filled se atenúa como lo hace un botón filled deshabilitado, porque el contenido deshabilitado sobre el color primario sería difícil de leer.
+
+Los preajustes `m3-like` y `cupertino` omiten `filled`, ya que la barra de navegación de Material y la barra de pestañas de Apple tienen un solo estilo. `m3-like` conserva el recuadro de Material solo detrás del icono, con la etiqueta debajo y sin recuadro alrededor del destino, y `cupertino` marca la pestaña actual únicamente con su tinte. Con ambos, un arrastre no muestra nada que se mueva, y al soltar se sigue eligiendo.
+
+### Recomendado
+
+- Limita las etiquetas a una palabra corta: «Recibidos», «Buscar», «Perfil». Una etiqueta que no cabe en su destino se corta al final con puntos suspensivos, y nada salta de línea.
+- Usa `filled` solo donde el indicador tonal se perdería contra la pantalla que hay detrás de la barra.
+- Mantén los mismos destinos y el mismo orden en todas las pantallas de nivel superior.
+- Usa el mismo estilo de icono para todos los destinos y deja que la barra dibuje la forma rellena para el actual.
+
+### Evita
+
+- No uses la barra para acciones como «Crear» o «Compartir». Usa un botón de acción principal o la barra de la aplicación.
+- No pongas en ella menos de tres destinos ni más de cinco. Las compilaciones de depuración notifican el número. Lleva el resto a un panel de navegación.
+- No ocultes un destino que a veces no está disponible. Deshabilítalo, para que la barra conserve su forma.
+- No muestres una insignia en todos los destinos a la vez.
+
+## Accesibilidad
+
+<ComponentAccessibility name="navigation-bar" />
+
+### De qué se encarga el componente
+
+- En la web, la barra es una región de referencia (landmark) de navegación que recibe su nombre de `label`. Cada destino es un enlace (con `href`) o un botón, y el actual lleva `aria-current="page"`, tanto en un enlace como en un botón: no hay un segundo estado para una página actual. No es una lista de pestañas: un cambio entre pantallas completas no tiene paneles de pestaña ni movimiento con las teclas de flecha.
+- En iOS, Android, Flutter y React Native, la barra es la barra de pestañas de la plataforma, como lo son sus propias barras inferiores. Cada destino es un solo elemento con el rol de pestaña (en SwiftUI, un botón con el rasgo de seleccionado), su estado seleccionado y su posición, que recibe su nombre de su etiqueta tanto si la etiqueta se dibuja como si no. Un lector de pantalla dice, por ejemplo, «Recibidos, pestaña, 1 de 4, seleccionado, 3 sin leer».
+- El icono queda oculto para la tecnología de apoyo. Una insignia añade su descripción (`badgeLabel`, o el número que muestra) después del nombre y del estado, y un enlace que abre un contexto nuevo añade su `targetLabel` después de ella.
+- Cada destino que no está deshabilitado es su propia parada de tabulación, como lo son los enlaces de una región de navegación. Enter y Espacio activan el destino que tiene el foco (solo Enter, en el caso de un enlace en la web). Los destinos deshabilitados no reciben el foco y se anuncian como deshabilitados.
+- El anillo de foco se dibuja alrededor del recuadro del destino y se mantiene dentro de la barra, solo para el foco del teclado.
+- Un arrastre del indicador no cambia nada de lo que se anuncia hasta que se suelta, y nunca mueve el foco.
+- La copia invertida de cada icono y de cada etiqueta que el indicador cubre es decorativa: la tecnología de apoyo encuentra cada destino una sola vez, y `variant` no cambia lo que se anuncia.
+- Toda la celda es el área de pulsación: la altura completa de la barra y una parte igual de su ancho, como mínimo el objetivo mínimo. Una barra demasiado estrecha para sus destinos sigue repartiendo su ancho a partes iguales: las celdas se estrechan por debajo del objetivo en lugar de hacer la barra más ancha que su espacio.
+- Un texto más grande hace crecer la barra, y con ella el recuadro de cada destino, para que las etiquetas sigan cabiendo en una línea. Los iconos no se escalan. Una etiqueta truncada se conserva entera como nombre del destino. Donde iOS ofrece el visor de contenido grande, una pulsación larga muestra ampliados el icono y la etiqueta del destino.
+- Las compilaciones de depuración notifican menos de tres o más de cinco destinos, un destino sin etiqueta, un valor que no nombra ningún destino y un valor usado dos veces. También notifican un enlace que abre un contexto nuevo sin `targetLabel`, un `href` que nombra un script o que no se puede leer, y un `target` que la barra no define.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native no tienen destinos de enlace: ahí un destino todavía no admite `href`.
+- Web: todos los tamaños siguen `rem`, así que un tamaño de texto mayor en el navegador también hace crecer los contenedores de los elementos y los iconos. Ampliar solo la tipografía de Tanrei no lo hace.
+- SwiftUI: el mínimo de las celdas es el objetivo propio de la plataforma, 44 puntos en macOS, donde la especificación indica el objetivo táctil de 48 puntos.
+- SwiftUI: fuera de iOS, un destino lleva su posición como texto de valor («2 of 4»), solo en inglés. Un icono que es una imagen, como un SF Symbol, no sigue la selección: pasa tú el símbolo relleno para el destino seleccionado. El visor de contenido grande está integrado, pero ninguna prueba lo ejercita todavía.
+- Compose no tiene un valor en la barra, así que, ante un valor que no nombra ningún destino, no hay nada que notificar: no marques ningún elemento como seleccionado para no seleccionar ninguno.
+- La semántica de Flutter no tiene posición en el conjunto, así que «1 de 4» no se anuncia.
+- SwiftUI, Flutter y React Native cambian la familia y el relleno del icono de inmediato en lugar de hacerlo a lo largo del movimiento de selección.
+- React Native no tiene visor de contenido grande. Un destino lleva su posición como texto de valor («1 of 4»), en inglés salvo que pases `positionText`.
+- React Native: el movimiento de selección, los márgenes interiores y lo que anuncian TalkBack y VoiceOver aún no se han comprobado en un dispositivo.
+- Todas las plataformas, sistema predeterminado: el indicador tonal tiene un contraste de aproximadamente 1.15:1 frente a la barra, y la auditoría de accesibilidad de iOS lo señala. El icono relleno y el color de la etiqueta también marcan la selección, y `filled` da un indicador de al menos 3:1 donde eso importa.
+
+### Qué debes hacer tú
+
+- Da una etiqueta a todos los destinos, también en una barra que no dibuja ninguna.
+- Da nombre a la barra con `label`, como «Principal», sobre todo cuando la pantalla tiene otra región de navegación.
+- Da a cada insignia un `badgeLabel` que diga qué cuenta, y siempre uno a un punto.
+- Mantén el valor de cada destino único y estable.
+- En un sitio de páginas separadas, define `value` en cada página como el destino de esa página. La barra no selecciona un enlace por sí sola.
+- Da a un enlace que abre una pestaña nueva un `targetLabel`, en el idioma de tu producto, como «se abre en una pestaña nueva». Tanrei no incluye textos propios.
+- En Compose, marca exactamente un elemento como `selected`, o ninguno. En Flutter, compara el índice que recibes con `selectedIndex` para distinguir un reselect de un change.
+- En React Native, pasa `positionText` en el idioma de tu producto y da a `TanreiProvider` los márgenes interiores de la ventana.

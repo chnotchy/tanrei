@@ -1,0 +1,189 @@
+---
+title: कीबोर्ड शॉर्टकट
+description: किसी कमांड को चलाने वाली कुंजियाँ दिखाता है — कीकैप के रूप में या टेक्स्ट के रूप में, उस कीबोर्ड के मॉडिफ़ायर चिह्नों और नामों में जिसे व्यक्ति इस्तेमाल कर रहा है — और उन्हें नाम से पढ़कर सुनाता है।
+translationOf: components/keyboard-shortcut.mdx
+sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="keyboard-shortcut" />
+
+कीबोर्ड शॉर्टकट किसी कमांड को चलाने वाली कुंजियाँ दिखाता है: कीकैप के रूप में बनी हुई, या कमांड के नाम के बग़ल में सादे टेक्स्ट के रूप में, small या medium साइज़ पर। कुंजियाँ तटस्थ नामों में लिखी जाती हैं — `mod`, `shift`, `k` — और उस कीबोर्ड की परिपाटी में बनती हैं जिसे व्यक्ति इस्तेमाल कर रहा है: Apple के चिह्न (⇧⌘K) या मानक नाम (Ctrl+Shift+K)। प्रॉडक्ट किसी हिस्से के लिए परिपाटी सेट कर सकता है, या उसे प्लैटफ़ॉर्म पर छोड़ सकता है। एक के बाद एक कई कॉर्ड वाला शॉर्टकट (Ctrl+K Ctrl+C) एक ही सीक्वेंस है।
+
+<DemoFrame label="कीकैप, दो कॉर्ड का सीक्वेंस, और सादा रूप, उस कीबोर्ड के लिए जो आप इस्तेमाल कर रहे हैं">
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="कमांड या कंट्रोल, शिफ़्ट, K"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+k mod+c" label="कमांड या कंट्रोल और K, फिर कमांड या कंट्रोल और C"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="कमांड या कंट्रोल, शिफ़्ट, K" variant="plain"></tanrei-keyboard-shortcut>
+</DemoFrame>
+
+इसकी कुंजियाँ सिर्फ़ देखने के लिए बनाई जाती हैं: सहायक तकनीक वह `label` पढ़ती है जो प्रॉडक्ट देता है, यानी आपके अपने शब्दों में शॉर्टकट, और उसके बिना `aria-keyshortcuts` का नोटेशन (`Meta+Shift+K`)। Tanrei के पास किसी भी भाषा में कुंजियों के नाम नहीं हैं। यह कुंजियाँ दिखाता है और कुछ नहीं: यह न फ़ोकस लेता है, न इनपुट, और इससे कुंजियाँ काम नहीं करने लगतीं। उन्हें आपका प्रॉडक्ट बाइंड करता है।
+
+तीन कंपोनेंट अपनी `shortcut` प्रॉपर्टी से इसी के ज़रिए शॉर्टकट बनाते हैं: [मेन्यू](/hi/components/menu/) आइटम की पंक्ति के अंत में, सादा [टूलटिप](/hi/components/tooltip/) अपने टेक्स्ट के बाद, और [खोज](/hi/components/search/) अपने बार या ट्रिगर में संकेत के रूप में। वहाँ वही प्रॉपर्टी इस्तेमाल करें, अपना एलिमेंट नहीं: होस्ट कुंजियों को अपने टेक्स्ट स्टाइल में बनाता है और उन्हें कंट्रोल के कीबोर्ड शॉर्टकट के रूप में सहायक तकनीक को देता है।
+
+### इस्तेमाल
+
+`keys` में हर स्ट्रिंग एक कॉर्ड है, और कॉर्ड क्रम से दबाए जाते हैं। कॉर्ड `+` से जुड़े कुंजी-नाम हैं, और नामों में बड़े-छोटे अक्षर का फ़र्क़ नहीं पड़ता।
+
+- **मॉडिफ़ायर:** `mod` (Apple के प्लैटफ़ॉर्म पर Command, बाक़ी जगह Control), `ctrl`, `alt`, `shift`।
+- **नाम वाली कुंजियाँ:** `enter`, `escape`, `tab`, `backspace`, `delete`, `space`, `arrow-up`, `arrow-down`, `arrow-left`, `arrow-right`, `home`, `end`, `page-up`, `page-down`, `caps-lock`, `f1` से `f24` तक, और + कुंजी के लिए `plus`।
+- **कोई भी दूसरा अकेला अक्षर** उसी अक्षर की कुंजी है: `k`, `/`, `,`।
+
+वेब पर `keys` ऐट्रिब्यूट में कॉर्ड स्पेस से अलग किए जाते हैं (`keys="mod+k mod+c"`), और प्रॉपर्टी एक ऐरे है। SwiftUI, Compose, Flutter और React Native ने यह कंपोनेंट अभी इम्प्लीमेंट नहीं किया है। जब तक वे नहीं करते, उनके मेन्यू शॉर्टकट को आइटम के अंतिम टेक्स्ट में लिखते हैं, जैसा [मेन्यू](/hi/components/menu/) का पेज दिखाता है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- small बॉडी टेक्स्ट की पंक्ति में उसे ऊँचा किए बिना बैठता है। -->
+    <p><tanrei-keyboard-shortcut keys="mod+k" label="कमांड या कंट्रोल और K" size="small"></tanrei-keyboard-shortcut> से खोजें।</p>
+
+    <!-- एक के बाद एक दबाए जाने वाले दो कॉर्ड। -->
+    <tanrei-keyboard-shortcut keys="mod+k mod+c" label="कमांड या कंट्रोल और K, फिर कमांड या कंट्रोल और C"></tanrei-keyboard-shortcut>
+
+    <!-- सादा टेक्स्ट, जो आपके प्रॉडक्ट की भाषा में पढ़ा जाता है। -->
+    <tanrei-keyboard-shortcut keys="mod+shift+k" variant="plain" label="कमांड शिफ़्ट K"></tanrei-keyboard-shortcut>
+
+    <!-- एक कीबोर्ड के लिए लिखा गया हिस्सा, व्यक्ति का प्लैटफ़ॉर्म जो भी हो। -->
+    <section data-tanrei-keyboard-convention="standard">
+      <tanrei-keyboard-shortcut keys="mod+s" label="कंट्रोल S"></tanrei-keyboard-shortcut>
+    </section>
+
+    <script type="module">
+      import '@tanrei/web/components/keyboard-shortcut';
+      // एलिमेंट सिर्फ़ कुंजियाँ दिखाता है। उन्हें ख़ुद बाइंड करें, और यह बात उस कंट्रोल पर बताएँ जिसकी वे हैं।
+      const shown = document.querySelector('tanrei-keyboard-shortcut');
+      searchButton.setAttribute('aria-keyshortcuts', shown.ariaKeyShortcuts); // "Meta+K" या "Control+K"
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { KeyboardShortcut } from '@tanrei/react';
+
+    <p><KeyboardShortcut keys={['mod+k']} label="कमांड या कंट्रोल और K" size="small" /> से खोजें।</p>
+
+    <KeyboardShortcut keys={['mod+k', 'mod+c']} label="कमांड या कंट्रोल और K, फिर कमांड या कंट्रोल और C" />
+
+    <KeyboardShortcut keys={['mod+shift+k']} variant="plain" label="कमांड शिफ़्ट K" />
+
+    // एक कीबोर्ड के लिए लिखा गया हिस्सा, व्यक्ति का प्लैटफ़ॉर्म जो भी हो।
+    <section data-tanrei-keyboard-convention="standard">
+      <KeyboardShortcut keys={['mod+s']} label="कंट्रोल S" />
+    </section>
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="वही कुंजियाँ Apple के कीबोर्ड के लिए और मानक कीबोर्ड के लिए; वाक्य में small; नाम वाली कुंजियाँ; अक्षम" plain column>
+  <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="शिफ़्ट कमांड K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="शिफ़्ट कमांड K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="शिफ़्ट कमांड K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+mod+escape" label="ऑप्शन कमांड एस्केप" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <div data-tanrei-keyboard-convention="standard" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="कंट्रोल शिफ़्ट K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="कंट्रोल शिफ़्ट K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="कंट्रोल शिफ़्ट K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="ctrl+alt+delete" label="कंट्रोल ऑल्ट डिलीट" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <p style="font: var(--tanrei-sys-typescale-body-font); margin: 0">खोजने के लिए <tanrei-keyboard-shortcut keys="mod+k" label="कमांड या कंट्रोल और K" size="small"></tanrei-keyboard-shortcut> दबाएँ, या पेज पर कहीं से भी <tanrei-keyboard-shortcut keys="/" label="स्लैश" size="small"></tanrei-keyboard-shortcut> दबाएँ।</p>
+  <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="shift+enter" label="शिफ़्ट एंटर"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+arrow-up" label="ऑप्शन या ऑल्ट, ऊपर ऐरो"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+plus" label="कमांड या कंट्रोल, प्लस"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="f2" label="F2"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="कमांड या कंट्रोल, Z" disabled></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="कमांड या कंट्रोल, Z" variant="plain" disabled></tanrei-keyboard-shortcut>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="keyboard-shortcut" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+कीबोर्ड शॉर्टकट वहाँ इस्तेमाल करें जहाँ भी आपका प्रॉडक्ट व्यक्ति को बताता है कि कौन-सी कुंजियाँ कोई कमांड चलाती हैं: मदद के किसी वाक्य में, शॉर्टकट की सूची में, ख़ाली स्टेट में, पैलेट में कमांड के नाम के बग़ल में।
+
+मेन्यू आइटम, सादे टूलटिप या खोज में इसकी जगह उस कंपोनेंट को उसकी `shortcut` प्रॉपर्टी दें। कीकैप को उस टेक्स्ट के लिए इस्तेमाल न करें जो व्यक्ति टाइप करता है, जैसे कोई कमांड या फ़ाइल का नाम: कैप का मतलब है दबाने वाली कुंजी।
+
+### कीकैप या सादा, small या medium
+
+| चुनाव | क्या बनता है | किसके लिए |
+| --- | --- | --- |
+| `keycap` (डिफ़ॉल्ट) | हर कुंजी अपने कैप में, और मानक परिपाटी में कैप के बीच एक +। | मदद और दस्तावेज़, जहाँ कुंजियाँ ही विषय हैं। |
+| `plain` | शॉर्टकट टेक्स्ट के एक ही टुकड़े के रूप में: ⌥⌘⎋, या Ctrl+Alt+Delete। न कैप, न फ़िल, न किनारा। | कमांड के नाम के बग़ल में, जहाँ कैप की पंक्ति उससे होड़ करती: जिस तरह मेन्यू इसे लिखता है। |
+| `medium` (डिफ़ॉल्ट) | 14 के टेक्स्ट वाले 24 के कैप। | अकेले, या बड़े टेक्स्ट के बग़ल में। |
+| `small` | 12 के टेक्स्ट वाले 20 के कैप। | बॉडी टेक्स्ट की पंक्ति या घनी पंक्ति में, पंक्ति को ऊँचा किए बिना। |
+
+डिफ़ॉल्ट सिस्टम में कैप बिना किनारे का एक हल्का फ़िल है, और उस पर लिखा अक्षर हल्के टेक्स्ट रंग में है। डिज़ाइन सिस्टम कैप को किनारा दे सकता है, जिसका निचला हिस्सा भारी हो, और वेरिएंट और साइज़ जोड़ सकता है।
+
+### कुंजियाँ लिखना
+
+- **मुख्य मॉडिफ़ायर के लिए `mod` लिखें,** `ctrl` नहीं: यह Apple के कीबोर्ड पर Command है और बाक़ी जगह Control। `ctrl` सिर्फ़ उस शॉर्टकट के लिए लिखें जो हर कीबोर्ड पर Control है।
+- **कोई भी क्रम।** कंपोनेंट मॉडिफ़ायर को कीबोर्ड के अपने क्रम में लिखता है: Apple के लिए ⌃ ⌥ ⇧ ⌘, और मानक नामों के लिए Ctrl, Alt, Shift।
+- **अक्षर अपने बड़े रूप में बनता है,** और कोई Shift नहीं जोड़ता: `mod+k` और `mod+K` दोनों ⌘K बनाते हैं। Shift सिर्फ़ वहीं दिखता है जहाँ आप उसका नाम देते हैं।
+- **हर कॉर्ड में एक कुंजी,** उसके मॉडिफ़ायर के अलावा। बिना कुंजी का या दो कुंजियों वाला कॉर्ड जैसा बन सकता है वैसा बनाया जाता है, और डीबग बिल्ड उसे रिपोर्ट करते हैं।
+- **सीक्वेंस कई कॉर्ड हैं:** `mod+k` और फिर `mod+c`। वे एक गैप की दूरी पर बनते हैं, और उनके बीच कुछ नहीं होता।
+- **नाम वाली कुंजियाँ भी कीबोर्ड के अनुसार चलती हैं।** `enter` Apple के कीबोर्ड पर ↩ है और मानक कीबोर्ड पर Enter; `escape` ⎋ या Esc है; `backspace` ⌫ या Backspace है; `page-down` ⇟ या PgDn है। ऐरो दोनों में ↑ ↓ ← → हैं।
+
+### परिपाटी
+
+`convention` बताता है कि कुंजियाँ किसके कीबोर्ड के लिए लिखी गई हैं। इसे `auto` पर रहने दें: तब कंपोनेंट वह परिपाटी इस्तेमाल करता है जो कोई पूर्वज एलिमेंट सेट करता है, और उसके बिना प्लैटफ़ॉर्म की परिपाटी — macOS, iOS, iPadOS और visionOS पर Apple की, बाक़ी हर जगह मानक नाम।
+
+इसे किसी हिस्से के लिए तब सेट करें जब आपका प्रॉडक्ट प्लैटफ़ॉर्म से बेहतर जानता हो: ऐसी सेटिंग जो व्यक्ति को चुनने देती है, ऐसा दस्तावेज़ जो दोनों कीबोर्ड साथ-साथ दिखाता है, किसी दूसरे सिस्टम का रिमोट सेशन। वेब पर यह किसी भी पूर्वज एलिमेंट पर `data-tanrei-keyboard-convention` ऐट्रिब्यूट (`apple` या `standard`) है; उसके भीतर के मेन्यू, टूलटिप और खोज भी उसी के अनुसार चलते हैं। किसी एक शॉर्टकट पर `convention` सिर्फ़ अपवाद के लिए सेट करें।
+
+परिपाटी कभी डिज़ाइन सिस्टम से नहीं आती। कुंजियाँ उस कीबोर्ड के अनुसार चलती हैं जिसे व्यक्ति दबाता है, प्रॉडक्ट के रूप के अनुसार नहीं।
+
+### करें
+
+- वही शॉर्टकट दिखाएँ जो सचमुच काम करता है। कुंजियों को अपने प्रॉडक्ट में बाइंड करें, और दोनों में मेल बनाए रखें।
+- पढ़कर सुनाए जाने वाले हर शॉर्टकट को `label` दें: आपके प्रॉडक्ट के शब्दों में शॉर्टकट ("शिफ़्ट कमांड K")। इसके बिना स्क्रीन रीडर नोटेशन `Meta+Shift+K` पढ़ता है।
+- `convention="auto"` में दिखने वाली कुंजियाँ व्यक्ति के कीबोर्ड के अनुसार चलती हैं, पर आपका लिखा `label` ऐसा नहीं कर सकता। ऐसा लेबल लिखें जो दोनों कीबोर्ड पर सही हो ("कमांड या कंट्रोल, शिफ़्ट, K"), जैसा इस पेज के उदाहरण करते हैं, या लेबल तब सेट करें जब आपको कीबोर्ड पता चल जाए।
+- जो कमांड अभी उपलब्ध नहीं है, उसके शॉर्टकट के लिए, उसी कमांड के बग़ल में, `disabled` इस्तेमाल करें। कुंजियाँ तब भी दिखती हैं, फीकी होकर।
+- शॉर्टकट को एक ही पंक्ति में रखें। कॉर्ड कभी नहीं टूटता; सीक्वेंस कॉर्ड के बीच से अगली पंक्ति में जा सकता है।
+
+### न करें
+
+- चिह्न ख़ुद न लिखें (टेक्स्ट में ⌘K)। वे दूसरे कीबोर्ड पर ग़लत होंगे, और स्क्रीन रीडर चिह्न को उसके कैरेक्टर के नाम से पढ़ सकता है।
+- शॉर्टकट को किसी कमांड तक पहुँचने का अकेला रास्ता न बनाएँ। वह उस चीज़ का ऐक्सेलरेटर है जिस तक व्यक्ति पॉइंटर और फ़ोकस से भी पहुँच सकता है।
+- मेन्यू आइटम या टूलटिप के भीतर अपना कीबोर्ड शॉर्टकट एलिमेंट न रखें। होस्ट की `shortcut` प्रॉपर्टी इस्तेमाल करें।
+- परिपाटी को ब्रांड या थीम के आधार पर न चुनें।
+
+## सुलभता
+
+<ComponentAccessibility name="keyboard-shortcut" />
+
+### कंपोनेंट क्या सँभालता है
+
+- कैप, उन पर लिखे अक्षर और सेपरेटर सहायक तकनीक से छिपे रहते हैं। उनकी जगह, जहाँ शॉर्टकट रखा है वहीं, एक टेक्स्ट पढ़ा जाता है: `label`, ताकि ⇧⌘K "शिफ़्ट कमांड K" पढ़ा जाए, चिह्नों के कैरेक्टर नाम कभी नहीं। `label` के बिना वह टेक्स्ट `aria-keyshortcuts` के नोटेशन में लिखा शॉर्टकट होता है: `Meta+Shift+K`, या सीक्वेंस के लिए `Control+K Control+C`। यह नोटेशन एक मानक का है और हर भाषा में एक जैसा है, और कंपोनेंट डेवलपमेंट में इसकी एक बार रिपोर्ट करता है।
+- कंपोनेंट के पास कुंजियों के नाम नहीं हैं: वह किसी भी भाषा में मॉडिफ़ायर, ऐरो या विराम चिह्न वाली कुंजी का नाम पूरा नहीं लिखता। स्क्रीन रीडर कॉमा जैसे अकेले कैरेक्टर को छोड़ सकता है, जो `label` लिखने का एक और कारण है।
+- इसका कोई रोल नहीं है, यह न फ़ोकस लेता है, न इनपुट, और यह टार्गेट नहीं है: यह टेक्स्ट है।
+- किसी होस्ट (मेन्यू आइटम, सादा टूलटिप, खोज) के भीतर यह सहायक तकनीक को ख़ुद कुछ नहीं देता। होस्ट शॉर्टकट को अपने कंट्रोल के कीबोर्ड शॉर्टकट के रूप में देता है: वेब पर `aria-keyshortcuts`।
+- `disabled` अक्षरों को फीका करता है और कोई स्टेट नहीं देता। शॉर्टकट जिस कमांड का है, वही बताता है कि वह उपलब्ध है या नहीं।
+- दाएँ से बाएँ वाले लेआउट में कुंजियाँ बाएँ से दाएँ के क्रम में रहती हैं, अपने आसपास के टेक्स्ट से अलग, जैसा कीबोर्ड और प्लैटफ़ॉर्म के अपने मेन्यू उन्हें लिखते हैं।
+- यह अपने आसपास के टेक्स्ट की बेसलाइन पर बैठता है और बड़े किए गए टेक्स्ट के साथ बढ़ता है; कैप की ऊँचाई एक न्यूनतम है।
+- जो चिह्न प्रॉडक्ट के टाइपफ़ेस में नहीं है (⌘, ⎋), वह उसी साइज़ पर सिस्टम फ़ॉन्ट से बनता है, ग़ायब ग्लिफ़ वाले बॉक्स के रूप में कभी नहीं।
+- डिफ़ॉल्ट सिस्टम में कैप पर लिखा अक्षर टेक्स्ट के लिए ज़रूरी कंट्रास्ट पूरा करता है। कैप का फ़िल सजावट है: अर्थ अकेला अक्षर ही बताता है।
+- डीबग बिल्ड ख़ाली कॉर्ड, सिर्फ़ मॉडिफ़ायर वाला कॉर्ड, दो कुंजियों वाला कॉर्ड, लिखे जाने पर दो बार आने वाली कुंजी (मानक परिपाटी में `ctrl+mod`), अनजान कुंजी-नाम और अनजान परिपाटी रिपोर्ट करते हैं।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- SwiftUI, Compose, Flutter और React Native ने कीबोर्ड शॉर्टकट इम्प्लीमेंट नहीं किया है।
+- Web: जो अक्षम शॉर्टकट अकेला खड़ा है, यानी किसी ऐसे कमांड के बाहर जो ख़ुद सहायक तकनीक को अक्षम के रूप में मिलता हो, उसे कंट्रास्ट की ऑटोमेटेड जाँच रिपोर्ट कर सकती है: उसका अक्षर फीका है, और एलिमेंट अपना कोई अक्षम स्टेट नहीं देता।
+
+### आपको क्या करना है
+
+- कुंजियों से काम करवाएँ: कंपोनेंट उन्हें सिर्फ़ दिखाता है।
+- जिस कंट्रोल की ये कुंजियाँ हैं, उस पर इन्हें उसके कीबोर्ड शॉर्टकट के रूप में दें। वेब पर `aria-keyshortcuts` को एलिमेंट की रीड-ओनली `ariaKeyShortcuts` प्रॉपर्टी से सेट करें, जो वही रूप देती है जो यह ऐट्रिब्यूट लेता है।
+- जहाँ भी शॉर्टकट पढ़कर सुनाया जाता है, वहाँ `label` दें: आपके प्रॉडक्ट के शब्दों में शॉर्टकट। Tanrei न कोई शब्द साथ देता है, न कुंजियों के नाम।
+- हर कमांड को उसके शॉर्टकट के बिना भी पहुँचने लायक़ रखें।

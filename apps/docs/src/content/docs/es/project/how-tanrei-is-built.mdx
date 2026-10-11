@@ -1,0 +1,75 @@
+---
+title: Cómo se construye Tanrei
+description: Dos fuentes de verdad, un flujo de trabajo con la especificación primero y comprobaciones de desviaciones que mantienen de acuerdo cinco plataformas, la documentación y la matriz de estado.
+translationOf: project/how-tanrei-is-built.mdx
+sourceHash: 3547dbe4350a1a06ebf6d102e3f0b187fd2b011e
+---
+
+import Steps from '../../../../components/Steps.astro';
+import Callout from '../../../../components/Callout.astro';
+
+Tanrei distribuye un sistema de diseño a cinco plataformas desde un solo repositorio. Eso solo funciona si el propio repositorio hace difícil equivocarse: un cambio hecho en un lugar debe propagarse a todas partes o fallar de forma ruidosa. Esta página describe la maquinaria que lo consigue.
+
+## Dos fuentes de verdad
+
+Solo dos directorios contienen decisiones:
+
+| Directorio | Contiene | Formato |
+| --- | --- | --- |
+| `tokens/` | Todos los valores de diseño | Formato del Design Tokens Community Group, 2025.10 |
+| `specs/` | El contrato de cada componente | JSON, validado con `specs/component.schema.json` |
+
+Todo lo demás es derivado: los archivos de tokens generados para cada plataforma, las implementaciones de las plataformas, las tablas de esta documentación y la matriz de estado. Cuando algo derivado no coincide con una fuente de verdad, lo derivado está mal por definición.
+
+## Qué contiene una especificación
+
+La especificación de un componente es independiente de la plataforma. Recoge la anatomía, las propiedades, los slots, los eventos y los estados del componente; su comportamiento, como requisitos numerados; su contrato de accesibilidad, que incluye el rol, una tabla de teclado y el etiquetado; el grupo de tokens al que se vincula; un conjunto de **fixtures**, que son representaciones canónicas de las que cada plataforma toma una instantánea con el mismo id; y un bloque **platforms** que hace corresponder los nombres neutros con el estilo propio de cada plataforma.
+
+El comportamiento se escribe en forma EARS, un patrón de frase restringido contra el que es fácil escribir pruebas:
+
+```text
+WHEN the user activates the button by pointer, touch, Enter or Space
+THE button SHALL emit click exactly once.
+```
+
+Cada requisito tiene un id como `BTN-1`, y las pruebas de todas las plataformas hacen referencia a esos ids.
+
+## El flujo de trabajo
+
+<Steps>
+
+1. **Proponer.** Escribe o cambia la especificación, y los tokens si hace falta. Los componentes nuevos y los cambios incompatibles empiezan como una incidencia, y deciden los mantenedores.
+2. **Validar.** `pnpm validate` comprueba los esquemas, analiza los tokens y verifica los invariantes de contraste para cada tema y cada nivel de contraste.
+3. **Generar.** `pnpm generate` reconstruye las salidas de tokens, los andamiajes de código y la matriz de estado.
+4. **Implementar** en cada plataforma que enumera la especificación, con pruebas unitarias, de instantáneas y de accesibilidad.
+5. **Comprobar.** `pnpm check` lo ejecuta todo en orden, incluida la comprobación de desviaciones, y debe quedar en verde.
+6. **Registrar.** Añade un changeset. Todos los paquetes se versionan a la par, porque la paridad es el producto.
+
+</Steps>
+
+La superficie pública de una plataforma nunca puede cambiar sin el mismo cambio en la especificación, en el mismo commit.
+
+## Una desviación es un fallo de compilación
+
+- **Diferencia de regeneración.** La CI regenera todos los archivos derivados y falla si el resultado difiere de lo que está confirmado. Una edición a mano de un archivo generado no puede sobrevivir.
+- **Comprobación de paridad.** Para cada plataforma que declara una especificación, el comprobador exige una implementación, una prueba, una instantánea por cada fixture y la página de documentación del componente en inglés y en japonés. Qué páginas debe tener cada uno de los demás idiomas del sitio es una comprobación aparte, propia del sitio de documentación. La matriz de estado se calcula a partir de los mismos hechos, así que no puede afirmar más de lo que existe.
+- **Invariantes de contraste.** Un esquema que no cumple el contraste nunca se emite.
+- **Disciplina de instantáneas.** Una diferencia en una instantánea es un hallazgo. Las imágenes de referencia solo cambian cuando el cambio visual es el resultado buscado de un cambio en una especificación o en un token.
+
+## Definición de paridad
+
+Paridad significa los **mismos tokens**, un **resultado visual equivalente**, los **mismos estados** y la **misma semántica de accesibilidad**. No significa una API idéntica. Compose recibe `enabled`, Flutter deshabilita un botón con un `onPressed` nulo, SwiftUI usa `.disabled(_:)`. Cada correspondencia queda escrita en el bloque platforms de la especificación y se muestra en la página de cada componente.
+
+## Un flujo de trabajo seguro para los agentes
+
+Las mismas reglas obligan a las personas y a los agentes de IA, y cuantas más sea posible las imponen las herramientas, no la confianza.
+
+- **Reglas por capas.** Un `AGENTS.md` breve en la raíz establece la constitución del proyecto; los archivos anidados añaden reglas locales para los tokens, las especificaciones y cada paquete. Las reglas anidadas pueden sumar a las de la raíz, pero nunca debilitarlas.
+- **Carriles.** El trabajo de una plataforma se limita al paquete de esa plataforma. Un agente que implementa SwiftUI no tiene motivo para tocar Compose.
+- **Hooks.** Las ediciones en directorios generados, `--no-verify` y las actualizaciones de las imágenes de referencia de las instantáneas se bloquean en las propias herramientas, y la comprobación de desviaciones se ejecuta cuando termina una sesión.
+- **Skills.** Los procedimientos recurrentes, como añadir un componente o un token, están escritos como skills paso a paso, para que se realicen igual cada vez.
+- **Sin publicación.** Publicar en un registro de paquetes es una decisión de los mantenedores. Ningún actor automatizado puede hacerlo.
+
+<Callout>
+  Esta documentación sigue las mismas reglas. El estado, las referencias de tokens y las tablas de especificaciones de los componentes se representan a partir de los datos del repositorio durante la compilación. Solo la prosa se escribe a mano.
+</Callout>

@@ -1,0 +1,383 @@
+/*
+ * Timeline (specs/timeline.spec.json, TML-1 to TML-22): events in the order of time — each a marker at
+ * the start edge, its time, a title and a body of the product's content, joined to the next by a hairline — and, where
+ * the events have one, a status told by the marker's shape and in words. A class on the product's own ordered list,
+ * not an element: the list is the document's list, with its `<time>` elements, before any script runs, and without
+ * this stylesheet it is the browser's numbered list of dated paragraphs.
+ *
+ *   <ol class="tanrei-timeline" role="list" aria-label="Release history">            medium: among controls
+ *     <li>
+ *       <time class="tanrei-timeline-time" datetime="2026-09-19">19 September 2026</time>
+ *       <p class="tanrei-timeline-title">Development begins</p>
+ *       <p>The token pipeline, the spec schema and the first spec exist.</p>
+ *     </li>
+ *     <li><p class="tanrei-timeline-time">Wave 1</p><h3>The controls of day one</h3><p>…</p></li>
+ *   </ol>
+ *   <ol class="tanrei-timeline" role="list" data-size="large" data-density="compact">
+ *     <li data-status="done" data-status-label="Done">…</li>                           a check in a ring
+ *     <li data-status="current" data-status-label="In progress">…</li>                 a filled circle with a dot
+ *     <li data-status="upcoming" data-status-label="Not started">…</li>                an empty ring
+ *     <li><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">flag</span>…</li>   the product's glyph
+ *   </ol>
+ *
+ * `role="list"` is written by the product: a list without list markers loses its list semantics in one engine. The
+ * time is the element with `tanrei-timeline-time` — a `<time datetime>`, or a `<p>` where it is not a moment; nothing
+ * formats it. The title is the element with `tanrei-timeline-title`, or a heading (`h2` to `h6`) that begins the event
+ * or follows its time. Everything else in the item is the body.
+ *
+ * Every value is a `--tanrei-comp-timeline-*` token. The timeline brings one text color, the time's (TML-3): a title
+ * and a body take the content color of the surface they sit on (TML-4, TML-5).
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector has no specificity (`:where()`; a rule on `::before` or `::after` has a pseudo-element's), so one
+ *   class of the product's wins. The one exception is the product's glyph (`.tanrei-timeline-marker`), whose rule
+ *   must win over the icon helper's own box and selection whichever of the two stylesheets is loaded last.
+ * - An event is a block in the flow, as a step is: the item keeps room at its start for the marker column and the
+ *   gap; the marker is the item's `::before` and the connector its `::after`, both out of the flow, placed against
+ *   the item. Where the item holds a `.tanrei-timeline-marker`, that element is the marker and `::before` draws
+ *   nothing.
+ * - THE STATUS IN WORDS (TML-12) is the alternative text of the marker's generated content,
+ *   `content: … / attr(data-status-label) ', '`: the marker stands before the event's time, so the words are read
+ *   first, as a phrase of their own, and nothing is drawn. An engine exposes that text only for content that is not
+ *   empty, so a marker that draws no glyph holds a zero-width space. Where an engine does not take the syntax, the
+ *   package's script (src/timeline.ts) writes the same words as a `.tanrei-timeline-status` element, which a product
+ *   may also write itself in place of `data-status-label`; it is drawn nowhere.
+ * - The mark inside the marker of the event under way is a gradient with one hard stop: the marker has one generated
+ *   box, and a circle of the dot's size in a box of any corners cannot be made of that box's own edges.
+ * - The check of a done event is the icon set's `check`, by name, with the icon helper's declarations; it is drawn
+ *   only where icons.css is loaded (`--tanrei-icons`), as prose's task marks are.
+ * - Inside a `.tanrei-prose` the list is not an island: prose's own rules reach the paragraphs, lists, links and code
+ *   of each body. What a timeline draws itself — its inset, markers, gaps, the measure on the list, the time's and
+ *   the title's text styles — is said here, and the build (scripts/build.js) writes these rules a second time in
+ *   dist/prose.css after prose's own, so that whichever of the two stylesheets a page loads last says the same.
+ * - Names that begin `--_timeline-` are private.
+ */
+/* timeline:rules */
+@layer tanrei.components {
+  /* ── The list: the text styles and the measures of its size and density (TML-1, TML-2, TML-5, TML-10; TML-21: any
+        other size or density is the default) ─────────────────────────────────────────────────────────────────────── */
+  :where(.tanrei-timeline) {
+    --_timeline-body-font: var(--tanrei-comp-timeline-body-typescale-medium-font);
+    --_timeline-body-tracking: var(--tanrei-comp-timeline-body-typescale-medium-letter-spacing);
+    --_timeline-body-emphasized: var(--tanrei-comp-timeline-body-typescale-medium-font-weight-emphasized);
+    --_timeline-body-line: calc(var(--tanrei-comp-timeline-body-typescale-medium-font-size) * var(--tanrei-comp-timeline-body-typescale-medium-line-height));
+    --_timeline-title-font: var(--tanrei-comp-timeline-title-typescale-medium-font);
+    --_timeline-title-tracking: var(--tanrei-comp-timeline-title-typescale-medium-letter-spacing);
+    --_timeline-title-emphasized: var(--tanrei-comp-timeline-title-typescale-medium-font-weight-emphasized);
+    --_timeline-title-line: calc(var(--tanrei-comp-timeline-title-typescale-medium-font-size) * var(--tanrei-comp-timeline-title-typescale-medium-line-height));
+    --_timeline-time-font: var(--tanrei-comp-timeline-time-typescale-medium-font);
+    --_timeline-time-tracking: var(--tanrei-comp-timeline-time-typescale-medium-letter-spacing);
+    --_timeline-time-emphasized: var(--tanrei-comp-timeline-time-typescale-medium-font-weight-emphasized);
+    --_timeline-time-line: calc(var(--tanrei-comp-timeline-time-typescale-medium-font-size) * var(--tanrei-comp-timeline-time-typescale-medium-line-height));
+    /* TML-1, TML-6: the marker's box, which is also the marker column. */
+    --_timeline-marker: var(--tanrei-comp-timeline-marker-height-medium);
+    /* TML-2: the space between two events. */
+    --_timeline-gap: var(--tanrei-comp-timeline-item-gap-regular);
+    --tanrei-text-emphasized-weight: var(--_timeline-body-emphasized);
+    display: block;
+    /* TML-10: a block in the flow, as wide as its container, with no inset and no space after it. */
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: none;
+    margin-block-end: 0;
+    margin-inline: 0;
+    padding: 0;
+    list-style: none;
+    font: var(--_timeline-body-font);
+    letter-spacing: var(--_timeline-body-tracking);
+    /* TML-14: a string with no break opportunity breaks rather than overflow. */
+    overflow-wrap: break-word;
+  }
+  :where(.tanrei-timeline[data-size='large']) {
+    --_timeline-body-font: var(--tanrei-comp-timeline-body-typescale-large-font);
+    --_timeline-body-tracking: var(--tanrei-comp-timeline-body-typescale-large-letter-spacing);
+    --_timeline-body-emphasized: var(--tanrei-comp-timeline-body-typescale-large-font-weight-emphasized);
+    --_timeline-body-line: calc(var(--tanrei-comp-timeline-body-typescale-large-font-size) * var(--tanrei-comp-timeline-body-typescale-large-line-height));
+    --_timeline-title-font: var(--tanrei-comp-timeline-title-typescale-large-font);
+    --_timeline-title-tracking: var(--tanrei-comp-timeline-title-typescale-large-letter-spacing);
+    --_timeline-title-emphasized: var(--tanrei-comp-timeline-title-typescale-large-font-weight-emphasized);
+    --_timeline-title-line: calc(var(--tanrei-comp-timeline-title-typescale-large-font-size) * var(--tanrei-comp-timeline-title-typescale-large-line-height));
+    --_timeline-time-font: var(--tanrei-comp-timeline-time-typescale-large-font);
+    --_timeline-time-tracking: var(--tanrei-comp-timeline-time-typescale-large-letter-spacing);
+    --_timeline-time-emphasized: var(--tanrei-comp-timeline-time-typescale-large-font-weight-emphasized);
+    --_timeline-time-line: calc(var(--tanrei-comp-timeline-time-typescale-large-font-size) * var(--tanrei-comp-timeline-time-typescale-large-line-height));
+    --_timeline-marker: var(--tanrei-comp-timeline-marker-height-large);
+  }
+  :where(.tanrei-timeline[data-density='compact']) {
+    --_timeline-gap: var(--tanrei-comp-timeline-item-gap-compact);
+  }
+  /* TML-10: the space before it is its container's (PRS-15) — prose's rhythm inside a prose, none of its own elsewhere. */
+  :where(.tanrei-timeline:not(.tanrei-prose *)) {
+    margin-block-start: 0;
+  }
+  /* TML-22: a timeline with no event draws nothing and takes no room. */
+  :where(.tanrei-timeline:not(:has(> li))) {
+    display: none;
+  }
+
+  /* ── An event (TML-1, TML-2, TML-6) ────────────────────────────────────────────────────────────────────────────── */
+  :where(.tanrei-timeline) > :where(li) {
+    /* The height of the event's first line of text: the time's where it has one, else the title's, else the body's. */
+    --_timeline-first-line: var(--_timeline-body-line);
+    /* Where the marker's box begins, from the event's top: lower than it only where the first line is the taller. */
+    --_timeline-marker-top: max(0px, calc((var(--_timeline-first-line) - var(--_timeline-marker)) / 2));
+    position: relative;
+    box-sizing: border-box;
+    /* At least its marker: an event of one short line, and an event that holds nothing (TML-22). */
+    min-block-size: calc(var(--_timeline-marker-top) + var(--_timeline-marker));
+    min-inline-size: 0;
+    margin: 0;
+    /* TML-6: where the marker's box is taller than the first line, the content is lowered by half the difference.
+       TML-1: the content begins the marker gap after the marker column and runs to the end edge. */
+    padding-block: max(0px, calc((var(--_timeline-marker) - var(--_timeline-first-line)) / 2)) 0;
+    padding-inline: calc(var(--_timeline-marker) + var(--tanrei-comp-timeline-marker-gap)) 0;
+    list-style: none;
+  }
+  :where(.tanrei-timeline) > :where(li + li) {
+    margin-block-start: var(--_timeline-gap);
+  }
+  :where(.tanrei-timeline) > :where(li:has(> :is(.tanrei-timeline-title, :is(h2, h3, h4, h5, h6):is(:first-child, :is(.tanrei-timeline-marker, .tanrei-timeline-status) + *)))) {
+    --_timeline-first-line: var(--_timeline-title-line);
+  }
+  :where(.tanrei-timeline) > :where(li:has(> .tanrei-timeline-time)) {
+    --_timeline-first-line: var(--_timeline-time-line);
+  }
+
+  /* ── The body (TML-5): the gap between two of its blocks, none before the first or after the last ──────────────── */
+  :where(.tanrei-timeline) > :where(li) > :where(*) {
+    margin-block: 0;
+  }
+  :where(.tanrei-timeline) > :where(li) > :where(* + *) {
+    margin-block-start: var(--tanrei-comp-timeline-body-gap);
+  }
+  /* What stands out of the flow at the event's start — the product's glyph, the status in words — is no neighbour. */
+  :where(.tanrei-timeline) > :where(li) > :where(:is(.tanrei-timeline-marker, .tanrei-timeline-status) + *) {
+    margin-block-start: 0;
+  }
+
+  /* ── The time (TML-3, TML-20): first in the event, as the product wrote it ─────────────────────────────────────── */
+  :where(.tanrei-timeline) > :where(li) > :where(.tanrei-timeline-time) {
+    --tanrei-text-emphasized-weight: var(--_timeline-time-emphasized);
+    display: block;
+    color: var(--tanrei-comp-timeline-time-color);
+    font: var(--_timeline-time-font);
+    letter-spacing: var(--_timeline-time-tracking);
+    /* Text of its own direction, by its first strong character; placed and aligned by the layout's. */
+    unicode-bidi: plaintext;
+    text-align: left;
+  }
+  :where(.tanrei-timeline) > :where(li) > :where(.tanrei-timeline-time:dir(rtl)) {
+    text-align: right;
+  }
+  :where(.tanrei-timeline) > :where(li) > :where(.tanrei-timeline-time + *) {
+    margin-block-start: var(--tanrei-comp-timeline-time-gap);
+  }
+
+  /* ── The title (TML-4, TML-20): after the time, in the title's text style whatever its level ───────────────────── */
+  :where(.tanrei-timeline) > :where(li) > :where(.tanrei-timeline-title, :is(h2, h3, h4, h5, h6):is(:first-child, :is(.tanrei-timeline-marker, .tanrei-timeline-status, .tanrei-timeline-time) + *)) {
+    --tanrei-text-emphasized-weight: var(--_timeline-title-emphasized);
+    font: var(--_timeline-title-font);
+    letter-spacing: var(--_timeline-title-tracking);
+    unicode-bidi: plaintext;
+    text-align: left;
+  }
+  :where(.tanrei-timeline) > :where(li) > :where(.tanrei-timeline-title, :is(h2, h3, h4, h5, h6):is(:first-child, :is(.tanrei-timeline-marker, .tanrei-timeline-status, .tanrei-timeline-time) + *)):where(:dir(rtl)) {
+    text-align: right;
+  }
+  :where(.tanrei-timeline) > :where(li) > :where(:is(.tanrei-timeline-title, :is(h2, h3, h4, h5, h6):is(:first-child, :is(.tanrei-timeline-marker, .tanrei-timeline-status, .tanrei-timeline-time) + *)) + *) {
+    margin-block-start: var(--tanrei-comp-timeline-title-gap);
+  }
+
+  /* ── The marker (TML-6, TML-7, TML-8) ──────────────────────────────────────────────────────────────────────────── */
+  /* timeline:shape */
+  /* An event with no status and no glyph: a dot, a circle whatever corners a ring has. */
+  :where(.tanrei-timeline) > :where(li)::before {
+    --_timeline-mark: var(--tanrei-comp-timeline-marker-dot-size);
+    --tanrei-corner-radius: 50%;
+    --tanrei-corner-pill: 1;
+    content: '';
+    position: absolute;
+    /* TML-6: centred in the marker's box, which is at the top of the event, centred on its first line, and is the
+       marker column (TML-1). */
+    inset-block-start: calc(var(--_timeline-marker-top) + (var(--_timeline-marker) - var(--_timeline-mark)) / 2);
+    inset-inline: 0 calc(100% - var(--_timeline-marker));
+    display: block;
+    box-sizing: border-box;
+    overflow: hidden;
+    inline-size: var(--_timeline-mark);
+    block-size: var(--_timeline-mark);
+    margin-inline: auto;
+    background-color: var(--tanrei-comp-timeline-marker-dot-color);
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* TML-7: a status makes the marker the whole box, with the ring's corners. The words (TML-12) are its alternative
+     text, where the product gives them: read before the time, drawn nowhere. */
+  :where(.tanrei-timeline) > :where(li:is([data-status='done'], [data-status='current'], [data-status='upcoming']))::before {
+    --_timeline-mark: var(--_timeline-marker);
+    --tanrei-corner-radius: var(--tanrei-comp-timeline-marker-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-timeline-marker-shape-pill, 0);
+    content: '\200B';
+    content: '\200B' / '';
+    background-color: transparent;
+    /* The glyph's box, for the mark that is one: one line as high as the marker is inside its ring. */
+    font-size: calc(var(--tanrei-comp-timeline-marker-icon-size) * var(--tanrei-icons, 0));
+    line-height: calc(var(--_timeline-marker) - 2 * var(--tanrei-comp-timeline-marker-outline-width));
+    text-align: center;
+    white-space: nowrap;
+  }
+  :where(.tanrei-timeline) > :where(li:is([data-status='done'], [data-status='current'], [data-status='upcoming'])[data-status-label]:not([data-status-label='']))::before {
+    content: '\200B' / attr(data-status-label) ', ';
+  }
+  /* Done and upcoming: the hairline ring, inside the box. */
+  :where(.tanrei-timeline) > :where(li:is([data-status='done'], [data-status='upcoming']))::before {
+    border: var(--tanrei-comp-timeline-marker-outline-width) solid var(--tanrei-comp-timeline-marker-outline-color);
+  }
+  /* Done: the icon set's check in the ring (the glyph's declarations are icons.css's; TML-8). */
+  :where(.tanrei-timeline) > :where(li[data-status='done'])::before {
+    content: 'check';
+    content: 'check' / '';
+    color: var(--tanrei-comp-timeline-marker-icon-color);
+    font-family: var(--tanrei-sys-icon-family-unselected);
+    font-style: normal;
+    font-weight: normal;
+    letter-spacing: normal;
+    text-transform: none;
+    word-wrap: normal;
+    /* (No direction of its own, as the helper's box has: the generated box is placed by the item's.) */
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    font-optical-sizing: auto;
+    font-variation-settings:
+      'FILL' var(--tanrei-sys-icon-fill-unselected),
+      'wght' var(--tanrei-sys-icon-weight),
+      'GRAD' 0;
+  }
+  /* The optical size is the box's, written by hand where the engine can turn the box's size into a number: the
+     arithmetic and the condition are src/styles/icons.ts's, written in place by the build (writeGlyphAxes). */
+  @supports glyph-optical-size {
+    :where(.tanrei-timeline) > :where(li[data-status='done'])::before {
+      font-variation-settings: glyph-axes(var(--tanrei-comp-timeline-marker-icon-size));
+    }
+  }
+  :where(.tanrei-timeline) > :where(li[data-status='done'][data-status-label]:not([data-status-label='']))::before {
+    content: 'check' / attr(data-status-label) ', ';
+  }
+  /* Current: the whole box filled, no edge, holding a dot. */
+  :where(.tanrei-timeline) > :where(li[data-status='current'])::before {
+    background-image: radial-gradient(circle closest-side, var(--tanrei-comp-timeline-marker-current-icon-color) calc(var(--tanrei-comp-timeline-marker-dot-size) / 2), var(--tanrei-comp-timeline-marker-current-container-color) 0);
+  }
+  /* The product's glyph is the marker: the generated box draws nothing, and still holds the status in words. */
+  :where(.tanrei-timeline) > :where(li:has(> .tanrei-timeline-marker))::before {
+    content: none;
+  }
+  :where(.tanrei-timeline) > :where(li:is([data-status='done'], [data-status='current'], [data-status='upcoming']):has(> .tanrei-timeline-marker))::before {
+    --_timeline-mark: 0px;
+    content: '\200B';
+    content: '\200B' / '';
+    border: 0;
+    background-image: none;
+    font-size: 0;
+    clip-path: inset(50%);
+  }
+  :where(.tanrei-timeline) > :where(li:is([data-status='done'], [data-status='current'], [data-status='upcoming'])[data-status-label]:not([data-status-label='']):has(> .tanrei-timeline-marker))::before {
+    content: '\200B' / attr(data-status-label) ', ';
+  }
+  /* A glyph the product names (TML-6, TML-8): the ring — the whole box — holding the glyph at its centre, in the
+     unselected family and fill whatever the event is. */
+  :where(.tanrei-timeline) > :where(li) > :is(.tanrei-timeline-marker, .tanrei-timeline-marker.tanrei-icon) {
+    --tanrei-corner-radius: var(--tanrei-comp-timeline-marker-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-timeline-marker-shape-pill, 0);
+    --tanrei-icon-size: var(--tanrei-comp-timeline-marker-icon-size);
+    --_fill: var(--tanrei-sys-icon-fill-unselected);
+    --_family: var(--tanrei-sys-icon-family-unselected);
+    position: absolute;
+    inset-block-start: var(--_timeline-marker-top);
+    /* (Physical, by the layout's direction: the glyph's own direction is always left to right.) */
+    left: 0;
+    right: auto;
+    display: block;
+    box-sizing: border-box;
+    overflow: hidden;
+    inline-size: var(--_timeline-marker);
+    block-size: var(--_timeline-marker);
+    margin: 0;
+    border: var(--tanrei-comp-timeline-marker-outline-width) solid var(--tanrei-comp-timeline-marker-outline-color);
+    color: var(--tanrei-comp-timeline-marker-icon-color);
+    line-height: calc(var(--_timeline-marker) - 2 * var(--tanrei-comp-timeline-marker-outline-width));
+    text-align: center;
+    pointer-events: none;
+    /* TML-13: a change is drawn at once (the helper's glyph moves between its fills; this one has one fill). */
+    transition: none;
+  }
+  :where(.tanrei-timeline) > :where(li) > :is(.tanrei-timeline-marker, .tanrei-timeline-marker.tanrei-icon):dir(rtl) {
+    left: auto;
+    right: 0;
+  }
+  :where(.tanrei-timeline) > :where(li[data-status='current']) > :is(.tanrei-timeline-marker, .tanrei-timeline-marker.tanrei-icon) {
+    border-color: transparent;
+    background-color: var(--tanrei-comp-timeline-marker-current-container-color);
+    color: var(--tanrei-comp-timeline-marker-current-icon-color);
+  }
+
+  /* ── The status in words, as an element (TML-12): written by the package's script where generated content cannot
+        hold them, or by the product in place of `data-status-label`. Read, and drawn nowhere. ─────────────────────── */
+  :where(.tanrei-timeline) > :where(li) > :where(.tanrei-timeline-status) {
+    position: absolute;
+    overflow: hidden;
+    inline-size: 1px;
+    block-size: 1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ── The connector (TML-9): from under a marker's box to above the next, on the column's centre line ───────────── */
+  :where(.tanrei-timeline) > :where(li:not(:last-child))::after {
+    content: '';
+    position: absolute;
+    inset-block: calc(var(--_timeline-marker-top) + var(--_timeline-marker) + var(--tanrei-comp-timeline-connector-gap)) calc(var(--tanrei-comp-timeline-connector-gap) - var(--_timeline-gap));
+    inset-inline-start: calc((var(--_timeline-marker) - var(--tanrei-comp-timeline-connector-thickness)) / 2);
+    inline-size: 0;
+    border-inline-start: var(--tanrei-comp-timeline-connector-thickness) solid var(--tanrei-comp-timeline-connector-color);
+    pointer-events: none;
+  }
+
+  /* ── Forced colors (TML-16): every mark in the platform's text color; the event under way a disc of that color
+        whose mark is the background's ─────────────────────────────────────────────────────────────────────────────── */
+  @media (forced-colors: active) {
+    :where(.tanrei-timeline) > :where(li)::before {
+      background-color: CanvasText;
+    }
+    :where(.tanrei-timeline) > :where(li:is([data-status='done'], [data-status='current'], [data-status='upcoming']))::before {
+      border-color: CanvasText;
+      background-color: Canvas;
+      color: CanvasText;
+    }
+    /* (A gradient is taken away by the mode: this one names the platform's own two colors, and is kept.) */
+    :where(.tanrei-timeline) > :where(li[data-status='current'])::before {
+      forced-color-adjust: none;
+      background-image: radial-gradient(circle closest-side, Canvas calc(var(--tanrei-comp-timeline-marker-dot-size) / 2), CanvasText 0);
+    }
+    :where(.tanrei-timeline) > :where(li[data-status='current']:has(> .tanrei-timeline-marker))::before {
+      background-image: none;
+    }
+    :where(.tanrei-timeline) > :where(li:not(:last-child))::after {
+      border-color: CanvasText;
+    }
+    :where(.tanrei-timeline) > :where(li) > :is(.tanrei-timeline-marker, .tanrei-timeline-marker.tanrei-icon) {
+      border-color: CanvasText;
+      color: CanvasText;
+    }
+    /* (The mode paints the background's color behind text, which here would cover the disc under the glyph: this
+       box names the platform's own two colors, and is left as it names them.) */
+    :where(.tanrei-timeline) > :where(li[data-status='current']) > :is(.tanrei-timeline-marker, .tanrei-timeline-marker.tanrei-icon) {
+      forced-color-adjust: none;
+      border-color: CanvasText;
+      background-color: CanvasText;
+      color: Canvas;
+    }
+  }
+}
+/* timeline:rules:end */

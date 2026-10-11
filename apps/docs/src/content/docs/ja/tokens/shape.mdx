@@ -1,0 +1,19 @@
+---
+title: 形状トークン
+description: 角丸の半径のスケールと、角の曲がり方を決める 1 つの数値。
+translationOf: tokens/shape.mdx
+sourceHash: 17940569b85fa7a8afc9a514a82b9a0400042b33
+---
+
+import ShapeScale from '../../../../components/tokens/ShapeScale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+`tanrei.sys.shape.corner` 以下にある角丸の半径です。使い方の指針は、[形状](/ja/foundations/shape/)を参照してください。
+
+<ShapeScale />
+
+## 角のスムージング
+
+`tanrei.sys.shape.corner-smoothing` は 0 から 1 の量で、意味は Figma と同じです。0 は四分円、0.6 は Figma が「iOS の角」と呼ぶ値、1 は最もなだらかな角です。この値で半径が変わることはありません。この量の意味は Figma の作図そのものです。Compose と Flutter はその作図を描き、Web は最も近いスーパー楕円を、SwiftUI と iOS の React Native は OS の曲線を描きます（それぞれの差は[形状](/ja/foundations/shape/#角のスムージング)にあります）。同梱システムごとの値は次のとおりです。
+
+<SystemValues tokens={['sys.shape.corner-smoothing']} />

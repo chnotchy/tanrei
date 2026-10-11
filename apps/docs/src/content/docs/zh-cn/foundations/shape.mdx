@@ -1,0 +1,53 @@
+---
+title: "形状"
+description: "一套小半径的圆角级差，控件默认 6px；另有一个数值，决定圆角的曲线如何弯曲。"
+translationOf: foundations/shape.mdx
+sourceHash: 6d0deb5bb38aea8a6c9070ec3a2a764fa7025f9e
+---
+
+import ShapeScale from '../../../../components/tokens/ShapeScale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+形状令牌定义圆角半径。这套级差沿用大家熟悉的级名：`none`、`extra-small`、`small`、`medium`、`large`、`extra-large` 和 `full`，并有意给它们较小的取值，因为 Tanrei 的布局紧凑，边框也细。大圆角挨着细线，显得松软而不精确；小圆角则像机械加工出来的一样利落。
+
+<ShapeScale />
+
+## 如何应用形状
+
+- **控件使用 `small`（6px）：** 按钮、文本字段、菜单项、工具提示。
+- **容器随尺寸逐级增大：** 卡片和菜单用 `medium`，对话框和面板用 `large` 及以上。
+- **`full` 需要主动选用。** 胶囊形和圆形只留给天生就是圆的、或者需要与众不同的东西：头像、徽标、分段控件。
+- **带 `-increased` 的级别**属于 expressive 层。它们加大圆角，而不改动默认的级差。
+
+## 嵌套的圆角
+
+圆角元素放在圆角容器里时，内层半径应当等于外层半径减去两者之间的内边距。两条同心曲线如果半径相同，看起来并不协调；减去间隙之后，它们才是平行的。结果为零或负数时，使用 `none`。
+
+## 圆角平滑
+
+半径说的是圆角有多大。另一个令牌 `sys.shape.corner-smoothing` 说的是它的曲线怎样**缓缓过渡**到直边：一个 0 到 1 之间的数，含义与 Figma 的 corner smoothing 滑块相同。取 0 时，圆角是四分之一圆。取 **0.6 时，就是 Figma 所说的 iOS 圆角**——接近 Apple 在每个圆角矩形上画的连续圆角，但并不是同一条曲线（见下文）。取 1 时，圆弧几乎完全消失，化成两段长长的缓和曲线。半径不变，变的只是曲线的质感；在大半径和胶囊形上，这种差别最容易看出来。
+
+<SystemValues tokens={['sys.shape.corner-smoothing']} />
+
+整个系统只有这一个数——品牌的气质既在圆角的大小，也在圆角如何过渡——没有任何调节量会缩放它。`cupertino` 把它设为 0.6；默认系统保持 0。层设置它的方式和任何固定取值一样：
+
+```json
+"tokens": {
+  "tanrei.sys.shape.corner-smoothing": { "$value": 0.6, "reason": "我们的原生应用绘制连续圆角。" }
+}
+```
+
+在 Theme Studio 中，它是 Groups → Shape 下的滑块。在 Figma 中，同一个数会应用到每个节点的 corner smoothing 上，所以文件里看到的就是预设画出来的样子。
+
+### 各平台画出的结果
+
+| 平台 | 取 0 时 | 大于 0 时 |
+|---|---|---|
+| Jetpack Compose、Flutter | 四分之一圆 | Figma 的 corner smoothing 构造法，也就是这个量本身的含义：每个圆角由三段三次贝塞尔曲线组成，量越大，圆弧越短，缓和段越长。设计师在 Figma 文件里看到的，就是这两个平台画出的。Apple 的连续圆角是**另一条**曲线：取 0.6 时，在半径为 20 的 180×80 矩形上，两者相差 5.1 px²——占面积的 0.035%，肉眼看不出，却是各光栅化器彼此之间差异的三倍，而且无论取什么量，两者都不会重合。测试固定的是这个构造法，而不是 Apple 的曲线。 |
+| Web | 四分之一圆 | 盒子能取得的最接近的超椭圆：`corner-shape: superellipse(2 + s)`，半径再乘以 (1 + 0.4 s)——在同一个矩形上取 0.6 时，与 Figma 的构造法相差 9.5 px²，与 Apple 的曲线相差 5.7 px²。不支持 `corner-shape` 的浏览器绘制圆形圆角。 |
+| SwiftUI | `.circular` | `.continuous`：只要量大于 0，就是操作系统自己的曲线。这个量被归并为操作系统的取值，软件包的 README 对此有说明；取 0.6 时，它与 Figma 的构造法相差上文所说的约 5 px²，在对等所容许的范围内。 |
+| React Native | `borderCurve: "circular"` | iOS 上是 `borderCurve: "continuous"`，同样是只要量大于 0 就用操作系统的曲线。Android 没有这样的曲线，保持圆形。 |
+
+组件凡是给自己画圆角的地方，都会读取这个量：容器、焦点环、层级的圆环、涟漪的裁剪区域。Button 把它写成了需求 BTN-10。
+
+圆角平滑是一个数，而不是 `circular` 或 `continuous` 这样的种类选择，一是因为设计师每天设置它的地方——Figma——用的就是滑块，二是因为同一个名字下有三条不同的曲线，就算不上对等。

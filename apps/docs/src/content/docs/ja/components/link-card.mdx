@@ -1,0 +1,229 @@
+---
+title: リンクカード
+description: 1 つのリンクをブロックとして描きます。リンク先のタイトル、それを説明する文、画像、掲載サイトを、渡された値から描き、自分では何も読み込みません。
+translationOf: components/link-card.mdx
+sourceHash: 738b60d2538bbae63a50025bd28392c0e3895efd
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import picture from '../../../../../../../packages/web/test/fixtures/link-card.png?inline';
+import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?inline';
+
+## 概要
+
+<ComponentAvailability name="link-card" />
+
+<DemoFrame label="すべてのパーツを備えたリンクカード" plain column>
+  <tanrei-link-card class="not-content" style="inline-size: 100%" href="https://example.com/articles/designing-with-tokens" headline="トークンで設計する" description="わずかなダイヤルから、システム全体ができるまで。" site-name="Example Journal" image={picture} site-icon={icon} external="on" external-label="外部リンク"></tanrei-link-card>
+</DemoFrame>
+
+リンクカードは、リンク先をそれ自体ひとまとまりのものとして見せます。タイトル、それを説明する文、あれば画像、そして掲載サイトです。全体で 1 つのリンクです。ブロック全体を押すことができ、中の一部だけを押すことはできません。
+
+- 文の中でどこかへ導く語句は[リンク](/ja/components/link/)です。
+- プロダクト側のコンテンツをまとめ、全体でどこかへ導くものは、リンク先を持つ[カード](/ja/components/card/)です。
+- 独自のボタン（保存、共有、閉じる）を持つプレビューは、リンクとそれらのボタンを収めたカードです。
+
+**このコンポーネントは何も取得しません。** 渡された値を描くだけで、`href` について、リンク先にも、プロキシにも、どのサービスにも問い合わせません。行うリクエストは、渡された画像とサイトのアイコンに対するものだけです。サイトが値を得る方法は[値の用意](#値の用意)で説明します。
+
+Web では、プロダクト側の `<a>` を囲む `<tanrei-link-card>` です。この要素はシャドウルートを持たないので、カードはスクリプトが動く前からリンクとして働きます。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link-card.css" />
+
+    <tanrei-link-card>
+      <a href="https://example.com/articles/designing-with-tokens" data-external="true">
+        <span data-part="body">
+          <span data-part="title" dir="auto">トークンで設計する</span>
+          <span data-part="description" dir="auto">わずかなダイヤルから、システム全体ができるまで。</span>
+          <span data-part="site">
+            <img data-part="site-icon" src="/link-pictures/icon.png" alt=""
+                 loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+            <span data-part="site-name"><span dir="auto">Example Journal</span></span>
+            <span data-part="address"><bdi data-part="host" dir="ltr"><span>example.</span><span>com</span></bdi></span>
+          </span>
+          <span data-part="words">外部リンク</span>
+        </span>
+        <img data-part="media" src="/link-pictures/picture.png" alt="" width="1200" height="630"
+             loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+      </a>
+    </tanrei-link-card>
+
+    <script type="module">
+      import '@tanrei/web/components/link-card';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LinkCard } from '@tanrei/react';
+    import '@tanrei/web/icons.css';
+    import '@tanrei/web/link-card.css';
+
+    <LinkCard
+      href={link.href}
+      headline={link.title}
+      description={link.description}
+      siteName={link.siteName}
+      image={link.image?.src}
+      siteIcon={link.siteIcon?.src}
+      external="on"
+      externalLabel="外部リンク"
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+このマークアップを手で書く必要はありません。`@tanrei/web/links` の `linkCardToHtml()` と `linkCardToNodes()` が値から書き出すので、カードは最初の描画の時点で、スクリプトが無効でも、完全な形で表示されます。
+
+### スクリプトで組み立てるカード
+
+`<a>` を含まない `<tanrei-link-card>` は、属性から `<a>` を組み立てます。値はどれもテキストとして書き込まれ、マークアップとして解釈されることはありません。
+
+```html
+<tanrei-link-card
+  href="https://example.com/articles/designing-with-tokens"
+  headline="トークンで設計する"
+  description="わずかなダイヤルから、システム全体ができるまで。"
+  site-name="Example Journal"
+></tanrei-link-card>
+```
+
+タイトルの属性は `headline` です。HTML の `title` を使うと、カード全体にツールチップが出てしまうためです。この形はスクリプトが動いてから描かれます。コンテンツのページでは、ビルド時にマークアップを書き出してください。
+
+## 仕様
+
+<DemoFrame label="2 つの外観" plain column>
+  <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
+    <tanrei-link-card href="/ja/components/link/" headline="リンク" description="どこかへ導くテキスト。文の中の語句、単独の 1 行、グリフだけ。"></tanrei-link-card>
+    <tanrei-link-card variant="filled" href="/ja/components/card/" headline="カード" description="1 つの主題について、関連するコンテンツとアクションをまとめるサーフェス。"></tanrei-link-card>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="link-card" />
+
+## ガイドライン
+
+### 渡すもの
+
+| 値 | 属性 | 描かれ方 |
+| --- | --- | --- |
+| `href` | `href` | リンク先。テキストの下のホストは、これだけから読み取ります。 |
+| `title` | `headline` | タイトル。最大 2 行。カードのアクセシブルネームです。 |
+| `description` | `description` | 1、2 文の説明。最大 2 行。 |
+| `image`、`imageAlt` | `image`、`image-alt` | 枠いっぱいに、中央を基準に切り抜いて描く画像。`imageAlt` は読み上げられますが、描かれません。 |
+| `siteName` | `site-name` | サイトが名乗る名前。ホストの前に描きます。 |
+| `siteIcon` | `site-icon` | サイトの小さなアイコン。サイトの行の先頭に描きます。 |
+| `target`、`targetLabel` | `target`、`target-label` | `new` は新しいタブで開き、その印を描きます。言葉も渡してください。 |
+| `external`、`externalLabel` | `external`、`external-label` | `auto`（既定）、`on`、`off`。リンクと同じです。 |
+| `variant` | `variant` | `outlined`（既定）または `filled`。 |
+
+### どこへ導くか
+
+カードのほかの部分はすべて、リンク先が自分について述べた内容です。リンク先は何とでも名乗れます。そこで、1 つのパーツだけはリンク先に決めさせません。
+
+- ホストは `href` から計算します。どの値でも、設定することも、置き換えることも、隠すこともできません。マークアップに書かれたホストが違っていれば、要素が定義された時点で置き換えられ、デバッグビルドがそれを報告します。
+- サイト名はホストの前に置かれ、ホストの代わりにはなりません。ホストを繰り返すだけの名前は描かれません。
+- ホストは切り詰められません。行が短いときは、まずサイト名が譲ります。行より長いホストは折り返します。
+- 国際化ドメイン名のホストは、安全なときだけ本来の文字で表示します。該当するラベルがそれぞれ 1 つの文字体系、または日本語・韓国語・中国語が一緒に使う文字体系だけで書かれている場合です。借りてきた 1 文字が混ざったラテン文字の名前や、ASCII の末尾を持つキリル文字・ギリシャ文字だけの語は、`xn--` の形のままです。
+- ホストは、カードの説明の一部として支援技術にも読み上げられます。
+
+カードはリンク先の真偽を判定しません。それでも、ページは自分を偽って説明できます。説明の横のホストが、読み手にとっての確認手段です。同じ文字体系の中のよく似た文字は検出しません。
+
+### パーツが欠けているとき
+
+<DemoFrame label="タイトルだけのカードと、自分のサイトのパスへのカード" plain column>
+  <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
+    <tanrei-link-card href="https://example.com/articles/designing-with-tokens" headline="トークンで設計する" external="off"></tanrei-link-card>
+    <tanrei-link-card href="/ja/foundations/design-tokens/" headline="トークン" description="ダイヤル、システムのロール、コンポーネントへの割り当て。"></tanrei-link-card>
+  </div>
+</DemoFrame>
+
+| 渡されたもの | 描かれるもの |
+| --- | --- |
+| 画像なし、または読み込めない画像 | 画像の枠のない同じカード。代わりのものは何も描きません。 |
+| 説明なし | タイトルとサイトの行。 |
+| タイトルだけ | タイトルと、アドレスから得たホスト。 |
+| アドレスだけ | タイトルの位置にアドレス。タイトルを渡してください。ない場合はデバッグビルドが報告します。 |
+| 自分のサイトのパス（`/guides/`） | ホストがないので、サイトの行もありません。タイトルと 1 文です。 |
+| リンク先なし、またはリンク先がスクリプト | リンクではなく、カードとしても描かれません。タイトルをただのテキストとして描きます。 |
+
+### レイアウト
+
+- カードはブロックです。コンテナが与える幅いっぱいに広がり、高さは中身で決まります。周囲に自分の余白を持ちません。
+- 幅が 480 以上なら、画像はテキストの横、末尾側の端に置かれます。それより狭ければ、テキストの上に置かれます。カードはウィンドウの幅ではなく自分の幅で判断し、この境界は文字サイズに合わせて大きくなります。
+- 要素はサイズコンテナなので、レイアウトから幅を受け取る必要があります。フレックスの行やグリッドのセルの中では、幅を指定してください。
+- 長文の中では、図と同じくブロックです。文の中に置くことはありません。
+
+### 新しいタブと別のサイト
+
+- `target="new"` は、サイトの行の末尾に `open_in_new` を描きます。`target-label`（「新しいタブで開きます」）を渡してください。印だけでは読み上げられません。
+- 別のサイトへ、いまいる場所で開くリンク先には `arrow_outward` を描きます。外部かどうかはリンクの規則で決まります。`external="auto"` は、アドレスをページのオリジンと `setSiteOrigins()` に照らして判断します。言葉は `external-label`、または `setExternalLabel()` で一度だけ設定したものです。
+- 印が 2 つ並ぶことはありません。新しいタブが優先されます。
+
+Tanrei は言葉を同梱しません。プロダクトの言語で渡してください。
+
+### 値の用意
+
+カードは渡されたものを描きます。リンク先を読むのは、ページが読まれているときではなく、**サイトをビルドするとき**にしてください。
+
+そのための Node モジュールが `@tanrei/web/links/node` です。`resolveLinkData()` は、サイトをビルドするマシンでページを 1 度だけ読み、カードが受け取る形で値を返します。
+
+```js
+import { linkCardToHtml, resolveLinkData } from '@tanrei/web/links/node';
+
+const result = await resolveLinkData(href, { site: ['docs.example.com'], lock: 'link-data.lock.json', pictureDirectory: 'public/link-pictures' });
+const html = result.ok ? linkCardToHtml(result.data) : `<a href="${href}">${href}</a>`;
+```
+
+- 読み取った内容は、コミットするファイル `link-data.lock.json` に保存されます。ビルドはこのファイルを読み、ネットワークには触れません。`tanrei-links update` で更新すると、変更は人がレビューできる差分になります。
+- 画像は、自分の画像処理で改めてエンコードしたうえで、サイト自身のファイルとして保存されます。読み手のブラウザーは、いま見ているサイトにしか問い合わせません。
+- このヘルパーは公開された `https` のアドレスだけを読み、リダイレクトのたびに確認し、時間とサイズに上限を設け、どのフィールドもテキストとして扱います。
+- 読み取りに失敗したアドレスからはカードを作れません。通常のリンクを描いてください。
+
+詳しくは、パッケージの README の「Reading a destination where the site is built」にあります。
+
+利用中にリンク先を調べるプロダクト（アドレスを含むメッセージなど）は、それを自前のサービスで行い、同じ値をカードに渡してください。そのサービスは、公開されていないアドレスをすべて拒否し、リダイレクトのたびに、また接続の瞬間にも確認し直し、応答の時間とサイズに上限を設け、マークアップではなくテキストを返し、画像を自分のオリジンから配信し、ホストは決して返さないようにする必要があります。ホストはカードが計算します。Tanrei はそのようなサービスを提供しません。
+
+### 推奨
+
+- リンク先の本当のタイトルを渡します。ホストやアドレスをタイトルに入れてはいけません。
+- 画像は自分のサイトのファイルとして持ちます。別のサイトから読み込む画像は、誰が読んでいるかをそのサイトに伝えてしまいます。
+- 本文の中では `outlined` を使います。すでに線の多いページでは `filled` を使います。
+
+### 非推奨
+
+- リンクカードの中にボタンや 2 つ目のリンクを入れない。入れたものは操作不能にされ、報告されます。
+- 読み手に必ず伝えたいテキストをリンクカードに入れない。カードのテキストはプレビューで、切り詰められることがあります。
+- 画像がタイトルにない内容を伝えるのでなければ、`image-alt` を渡さない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="link-card" />
+
+### コンポーネントが担うこと
+
+- カードは 1 つのリンクで、フォーカスが止まる位置も 1 つです。Enter でリンク先へ進みます。Space は、ほかのリンクと同じくページをスクロールします。
+- 名前はタイトルです。タイトルがなければアドレスです。名前には何も付け加えません。
+- 説明は順に、説明文、画像の代替テキスト、サイト名、ホスト、最後に新しいタブまたは別のサイトを伝える言葉です。
+- 画面上で切り詰められたタイトルや説明も、全文が支援技術に伝わります。
+- 画像、サイトのアイコン、中黒、印は装飾で、読み上げられません。
+- フォーカスリングはカードの外側に描かれるので、画像に隠れることはありません。
+- 幅 320 の場所で文字を 200% にすると、画像はテキストの上に移り、ホストは全体が表示され、横スクロールは生じません。
+- 強制カラーモードでは、どちらの外観にも縁が付き、タイトルはシステムのリンク色になります。
+- 右から左（RTL）のレイアウトでは、画像は左に置かれ、テキストは右から始まります。左から右のタイトルは自分の並び順を保ちます。ホストは常に左から右です。
+- 渡されたテキストはただのテキストとして描かれます。テキストの並び順を反転させる文字は取り除かれます。
+
+### 利用者側で行うこと
+
+- `target` が `new` のときは必ず `target-label` を渡し、外部リンクにも言葉を渡します。
+- タイトルを渡します。アドレスは名前として不十分です。
+- レイアウトからカードに幅を与えます。

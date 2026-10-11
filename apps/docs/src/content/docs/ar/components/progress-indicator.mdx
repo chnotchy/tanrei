@@ -1,0 +1,211 @@
+---
+title: مؤشر التقدم
+description: يبيّن إلى أين وصلت مهمة، أو أنها جارية حين يكون مقدار ما أُنجز مجهولًا، في صورة شريط أو حلقة.
+translationOf: components/progress-indicator.mdx
+sourceHash: 4c913cc78754e128adde1441de5e69fac8eff4f8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="progress-indicator" />
+
+<DemoFrame label="خطي ودائري">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator value="0.4" label="جارٍ رفع report.pdf"></tanrei-progress-indicator>
+    <tanrei-progress-indicator label="جارٍ تحضير التصدير"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" value="0.4" label="جارٍ مزامنة الصور"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" label="جارٍ المزامنة"></tanrei-progress-indicator>
+</DemoFrame>
+
+### الاستخدام
+
+عيّنتا Web و React تعرضان المواصفة الحالية. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: ليس فيها `separation` بعد، وعيّناتها تعرض ما تقدّمه فعلًا.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-progress-indicator value="0.4" label="جارٍ رفع report.pdf"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="3 من 10 ملفات" label="جارٍ الرفع"></tanrei-progress-indicator>
+
+    <!-- بلا value: غير محدَّد المقدار، مثل <progress> بلا قيمة. -->
+    <tanrei-progress-indicator variant="circular" size="small" label="جارٍ المزامنة"></tanrei-progress-indicator>
+
+    <!-- فجوة بين المؤشر وبقية المسار، أيًّا كان ما اختاره نظام التصميم. -->
+    <tanrei-progress-indicator separation="gap" value="0.4" label="جارٍ رفع report.pdf"></tanrei-progress-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/progress-indicator';
+      const bar = document.querySelector('tanrei-progress-indicator');
+      bar.value = sent / total;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react';
+
+    <ProgressIndicator value={sent / total} label="جارٍ رفع report.pdf" />
+    <ProgressIndicator value={files} max={10} valueText={`${files} من 10 ملفات`} label="جارٍ الرفع" />
+    <ProgressIndicator variant="circular" size="small" value={null} label="جارٍ المزامنة" />
+    <ProgressIndicator separation="gap" value={sent / total} label="جارٍ رفع report.pdf" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiProgressIndicator("جارٍ رفع report.pdf", value: sent / total)
+    TanreiProgressIndicator("جارٍ الرفع", value: Double(files), in: 0...10, currentValueLabel: "\(files) من 10 ملفات")
+
+    // بلا قيمة (الافتراضي): غير محدَّد المقدار.
+    TanreiProgressIndicator("جارٍ المزامنة", variant: .circular, size: .small)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicator
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicatorVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiProgressIndicatorSize
+
+    // progress دالة lambda: القيمة الجديدة تعيد الرسم من دون إعادة التركيب.
+    TanreiProgressIndicator(progress = { sent / total }, contentDescription = "جارٍ رفع report.pdf")
+    TanreiProgressIndicator(
+        progress = { files.toFloat() },
+        contentDescription = "جارٍ الرفع",
+        valueRange = 0f..10f,
+        stateDescription = "$files من 10 ملفات",
+    )
+
+    // الصيغة التي بلا progress غير محدَّدة المقدار.
+    TanreiProgressIndicator(
+        contentDescription = "جارٍ المزامنة",
+        variant = TanreiProgressIndicatorVariant.Circular,
+        size = TanreiProgressIndicatorSize.Small,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiProgressIndicator(value: sent / total, semanticsLabel: 'جارٍ رفع report.pdf');
+    TanreiProgressIndicator(
+      value: files.toDouble(),
+      max: 10,
+      semanticsValue: '$files من 10 ملفات',
+      semanticsLabel: 'جارٍ الرفع',
+    );
+
+    // value: null (الافتراضي) غير محدَّد المقدار.
+    const TanreiProgressIndicator(
+      variant: TanreiProgressIndicatorVariant.circular,
+      size: TanreiProgressIndicatorSize.small,
+      semanticsLabel: 'جارٍ المزامنة',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react-native';
+
+    <ProgressIndicator accessibilityLabel="جارٍ رفع report.pdf" value={sent / total} />
+    <ProgressIndicator accessibilityLabel="جارٍ الرفع" value={files} max={10} valueText={`${files} من 10 ملفات`} />
+    <ProgressIndicator accessibilityLabel="جارٍ المزامنة" variant="circular" size="small" />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الأحجام وطرفا المدى ومدى مخصص" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="0" label="لم يبدأ"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="1" label="تم"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="3 من 10 ملفات" label="جارٍ الرفع"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+</DemoFrame>
+
+<DemoFrame label="الفصل: فاصل (اختيار النظام الافتراضي) وفجوة" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" size="large" value="0.4" label="Gap, large"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="progress-indicator" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم مؤشر التقدم لمهمة تطول حتى تُلحَظ: رفع، أو استيراد، أو نشر، أو حفظ طويل. بيِّن إلى أين وصلت متى استطعت قياس ذلك ولو تقريبًا؛ فالناس ينتظرون بصبر أكبر أمام شريط يتحرك. وحين لا تستطيع قياسه بعد، اعرضه غير محدَّد المقدار، وانتقل إلى قيمة فور أن تتوفر لك.
+
+للانتظار القصير الذي لا تستطيع قياس طوله، كقائمة تجلب صفحتها التالية، استخدم [مؤشر التحميل](/ar/components/loading-indicator/) بدلًا منه. ليس له مسار، لأنه لا يَعِد بقيمة أبدًا.
+
+### اختيار الطراز
+
+| الطراز (variant) | يُستخدم لـ |
+| --- | --- |
+| خطي (linear) | المهام التي تخص صفحة أو قسمًا: في أعلى الصفحة، داخل بطاقة، تحت ملف في قائمة رفع. يملأ الشريط العرض الذي يعطيه إياه تخطيطه. |
+| دائري (circular) | المواضع الضيقة والتقدم بجانب النص: في زر، في صف قائمة، في لوحة صغيرة. للحلقة مقاس ثابت. |
+
+### اختيار الحجم
+
+| الحجم | ثخانة الشريط / مقاس الحلقة في النظام الافتراضي | يُستخدم لـ |
+| --- | --- | --- |
+| صغير (small) | 2 / 16 | الصفوف الكثيفة، داخل عناصر التحكم، بجانب النص الصغير. |
+| متوسط (medium) | 4 / 24 | معظم المواضع. وهو الافتراضي. |
+| كبير (large) | 8 / 40 | المهمة الوحيدة التي يدور حولها العرض، أو قسم فارغ ينتظر محتواه. |
+
+### فاصل أم فجوة
+
+يُفرَّق المؤشر المحدَّد المقدار عن بقية مساره بإحدى طريقتين. مع `divider` يُرسم على المسار بلا مسافة بينهما. ومع `gap` تُترك بعده مسافة فارغة صغيرة، وفي الحلقة عند طرفي قوسه كليهما، ويعلّم الشريط نهاية مساره بنقطة. والمؤشر غير المحدَّد المقدار يبدو واحدًا في الحالتين.
+
+يختار نظام التصميم مرة واحدة لكل مكوّن له هذا الاختيار، والنظام الافتراضي يختار الفاصل. اترك `separation` على `auto` لتتبع ذلك الاختيار، فيتوافق المؤشر مع مجموعات الأزرار وقوائم الخيارات من حوله. ولا تعيِّن `divider` أو `gap` على مؤشر واحد إلا حين يكون لذلك المؤشر سبب ليختلف.
+
+### افعل
+
+- أعطِه تسمية تقول ما الذي يجري: «جارٍ رفع report.pdf»، لا «التقدم». وإن عُرض بجانبه شرح فاستخدم الكلمات نفسها.
+- استخدم نص القيمة حين لا تكون النسبة المئوية هي القراءة الطبيعية: «3 من 10 ملفات»، «الخطوة 2 من 4».
+- أخبر الناس متى تنتهي المهمة، بالكلمات: رسالة بأنها تمّت، أو بما الخطأ الذي وقع وما الذي يُفعل بعده.
+
+### لا تفعل
+
+- لا تستخدم اللون للتبليغ عن فشل. الشريط الأحمر لا يقول شيئًا لمن لا يرى اللون؛ أوقف المؤشر واعرض رسالة بجانبه.
+- لا تستخدمه مقياسًا لمستوى، كمساحة التخزين المستخدمة أو قوة كلمة المرور. ذاك عدّاد (meter)، وهو مكوّن آخر.
+- لا تدع القيمة ترجع إلى الوراء ولا تقفز إلى النهاية قبل أن تتم المهمة. الشريط وعد بما بقي من الانتظار.
+- لا تعرض عدة مؤشرات لمهمة واحدة. اعرض واحدًا للكل، أو واحدًا لكل عنصر يهم الشخص.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="progress-indicator" />
+
+### ما يتكفل به المكوّن
+
+- يعرض دور شريط التقدم (progress bar) والتسمية اسمًا له. وهو محدَّد المقدار يعرض المدى والقيمة الحالية (محصورة في المدى) ونص القيمة إن وُجد؛ وهو غير محدَّد المقدار لا يعرض قيمة ويعرض حالة الانشغال (busy) في المنصة. ليس في Flutter دور شريط تقدم ولا حالة انشغال بعد، فيعرض هناك التسمية والقيمة.
+- لا يقبل التركيز أبدًا، ولا يُعلِن تغيّراته. تقرأ التقنيات المساعدة القيمة الحالية حين يصل الشخص إليه.
+- حين يُطلب تقليل الحركة يظهر تغيّر القيمة فورًا، وتتوقف الهيئة غير المحدَّدة المقدار عن الحركة وتنبض عتامتها برفق بدلًا من ذلك، مرة في الثانية على الأكثر.
+- تتوقف حركته المتكررة ما دام لا يُرى، وتُستأنف حين يُرى: في تطبيق في الخلفية في كل مكان، وحين يُمرَّر خارج مجال الرؤية أو يكون على شاشة مخفيّة حيث تستطيع المنصة أن تعرف ذلك.
+- التسمية الفارغة، والقيمة الخارجة عن المدى، وقيمة `separation` غير المعروفة يُبلَّغ عنها في بنيات التنقيح (debug).
+
+### ما عليك فعله
+
+- أعلِن نهاية المهمة بنفسك: رسالة في منطقة حيّة (live region)، أو نقل التركيز إلى النتيجة. المؤشر لن يقول إن المهمة تمّت أو فشلت.
+- أبقِ لون المؤشر بتباين 3:1 على الأقل مقابل المسار والسطح الذي خلفه إن غيّرتهما، مع الفاصل ومع الفجوة على السواء. تُقرأ القيمة من حيث يلتقي المؤشر بالمسار.
+- إن كانت المهمة تعطّل منطقة من الصفحة، فعلِّم تلك المنطقة بأنها مشغولة ما دامت المهمة جارية (`aria-busy` على الويب).

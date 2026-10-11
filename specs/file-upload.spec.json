@@ -1,0 +1,1744 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "file-upload",
+  "title": "File upload",
+  "summary": "Lets people choose files through a file picker and shows what was chosen as file items — each file with its name, its size, its progress and its error and the actions to retry and remove it, in a column of rows or a strip of tiles; it keeps the chosen files and lists them itself, so that a plain form works with nothing written, or hands the files to a product that gives the file items and draws the state that product gives back; and it never uploads anything itself.",
+  "category": "selection",
+  "level": "feature",
+  "listing": "default",
+  "builtFrom": [
+    "file-picker",
+    "file-item"
+  ],
+  "uses": [
+    "button"
+  ],
+  "fills": [
+    "file-picker.selectionText"
+  ],
+  "anatomy": [
+    {
+      "id": "group",
+      "description": "The whole component: the file picker and, below it, the list. Exposed as one named group; it draws nothing of its own."
+    },
+    {
+      "id": "picker",
+      "description": "The file picker, its member: the trigger with its texts, or the drop area. Its parts — container, outline, icon, label, supporting-text, selection-text — are the file picker's and are drawn from the file picker's tokens."
+    },
+    {
+      "id": "list",
+      "description": "The chosen files, one file item each, in the order they were kept, or in the order the product gives them: a column of rows, or a strip of tiles that wraps. Exposed as a list. The arrangement is the file upload's own part; what it arranges is not.",
+      "optional": true
+    },
+    {
+      "id": "item",
+      "description": "One file: a file item, its member, drawn from the file item's tokens. The product's own while rows is given; made by the file upload for a file it keeps or refused while rows is own.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "layout",
+      "from": "file-picker.layout"
+    },
+    {
+      "name": "rows",
+      "type": "enum",
+      "values": [
+        "own",
+        "given"
+      ],
+      "default": "own",
+      "description": "Who holds the rows. own: the file upload keeps the files a person chose and draws a row for each itself — choose, see the list, remove, submit, with nothing written by the product; it shows no progress and no result of a sending, because it sends nothing. given: the product gives the rows and the file upload draws them and keeps no file — for a product that sends files itself and reports each one's status and progress. The product says which; the file upload never guesses it from what the list holds."
+    },
+    {
+      "name": "itemForm",
+      "from": "file-item.form"
+    },
+    {
+      "name": "itemPreview",
+      "from": "file-item.preview"
+    },
+    {
+      "name": "itemFit",
+      "from": "file-item.fit"
+    },
+    {
+      "name": "itemNameHidden",
+      "from": "file-item.nameHidden"
+    },
+    {
+      "name": "itemWidth",
+      "from": "file-item.width"
+    },
+    {
+      "name": "itemHeight",
+      "from": "file-item.height"
+    },
+    {
+      "name": "multiple",
+      "from": "file-picker.multiple"
+    },
+    {
+      "name": "accept",
+      "from": "file-picker.accept"
+    },
+    {
+      "name": "maxSize",
+      "from": "file-picker.maxSize"
+    },
+    {
+      "name": "maxFiles",
+      "type": "number",
+      "default": null,
+      "description": "The most files while multiple is true: the files the file upload keeps while rows is own, the rows the list holds while rows is given. Files chosen beyond the room that is left are refused (reject, reason count). Null sets no limit; ignored while multiple is false. It is the file upload's own and is not given to the file picker, which counts within one choice only: the room is measured against what the file upload holds."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the group (\"Attachments\"): the file picker and the list together. It is not drawn. Leave it empty inside a Field, whose label names the group and is drawn; give it where the file upload stands without one. It is the file upload's own: the file picker inside it is given no name and adds no group."
+    },
+    {
+      "name": "constraintsText",
+      "from": "file-picker.constraintsText"
+    },
+    {
+      "name": "dropText",
+      "from": "file-picker.dropText"
+    },
+    {
+      "name": "emptyText",
+      "type": "string",
+      "default": "",
+      "description": "What is shown beside the trigger while no file is chosen, in the button layout (\"No file chosen\"), and read with the trigger. Empty reads the product's words; with neither, nothing is drawn. The file upload knows whether a file is chosen and gives this text to its file picker as selectionText while the list holds no row, and nothing while it holds one.",
+      "words": "noFileText"
+    },
+    {
+      "name": "removeLabel",
+      "from": "file-item.removeLabel"
+    },
+    {
+      "name": "retryLabel",
+      "from": "file-item.retryLabel"
+    },
+    {
+      "name": "typeErrorText",
+      "type": "string",
+      "default": "",
+      "description": "While rows is own: the sentence drawn on the row of a file that was refused with the reason type — its kind is not among accept, or it is a folder — in the product's words (\"This kind of file cannot be added.\"). Empty reads the product's words; with neither, the row is drawn without a sentence and that is reported. Not read while rows is given: there the product writes each row's errorText.",
+      "words": "fileTypeErrorText"
+    },
+    {
+      "name": "sizeErrorText",
+      "type": "string",
+      "default": "",
+      "description": "While rows is own: the sentence drawn on the row of a file that was refused with the reason size — it is larger than maxSize — in the product's words (\"This file is too large.\"). Empty reads the product's words; with neither, the row is drawn without a sentence and that is reported. Not read while rows is given: there the product writes each row's errorText.",
+      "words": "fileSizeErrorText"
+    },
+    {
+      "name": "countErrorText",
+      "type": "string",
+      "default": "",
+      "description": "While rows is own: the sentence drawn on the row of a file that was refused with the reason count — more files were chosen than multiple or maxFiles leaves room for — in the product's words (\"No more files can be added.\"). Empty reads the product's words; with neither, the row is drawn without a sentence and that is reported. Not read while rows is given: there the product writes each row's errorText.",
+      "words": "fileCountErrorText"
+    },
+    {
+      "name": "announcement",
+      "type": "string",
+      "default": "",
+      "description": "A message the product has assistive technology hear through the file upload's one live region, when it sets or changes it (\"3 files added\", \"2 files were too large\"). It is not drawn. Set in the same turn as rows change, it is said in place of what those rows would have said one by one."
+    },
+    {
+      "name": "disabled",
+      "from": "file-picker.disabled"
+    },
+    {
+      "name": "error",
+      "from": "file-picker.error"
+    },
+    {
+      "name": "required",
+      "from": "file-picker.required"
+    }
+  ],
+  "items": [
+    {
+      "name": "file",
+      "component": "file-item",
+      "summary": "One chosen file as a row of the list: a File item, with the props a row sets for itself. Its form, whether it draws a picture and how, the two action names and whether it is disabled are the file upload's, given to every row (FUP-58). While rows is given the product adds it, changes it and removes it, and the file upload only arranges it; while rows is own the file upload makes one itself for each file it keeps and for each file it refused, and the product gives none.",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What identifies the row to the product: given back by click, remove and retry. Unique within one file upload."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "default": "",
+          "description": "The file's name as the person knows it (\"report-2026.pdf\"). The file item's name for assistive technology in every form, also where it is not drawn."
+        },
+        {
+          "name": "mediaType",
+          "type": "string",
+          "default": "",
+          "description": "The file's kind as the platform reports it (\"image/png\"), from which the glyph is chosen. Empty, the kind is read from the end of name."
+        },
+        {
+          "name": "glyph",
+          "type": "string",
+          "default": "",
+          "description": "The name of a glyph of the system's icon set, drawn in place of the one the file's format would choose. Empty lets the format choose."
+        },
+        {
+          "name": "formatText",
+          "type": "string",
+          "default": "",
+          "description": "The file's format in the product's words (\"PDF\", \"Spreadsheet\"), drawn first on the second line. Empty draws none: the file item has no word for a format."
+        },
+        {
+          "name": "sizeText",
+          "type": "string",
+          "default": "",
+          "description": "The file's size as text, formatted by the product for the reader's locale (\"1.2 MB\"). Empty draws none."
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "values": [
+            "pending",
+            "uploading",
+            "done",
+            "error"
+          ],
+          "default": "pending",
+          "description": "Where the file stands. pending: chosen or kept, and nothing is happening to it — the whole life of a file in a form that is submitted as one, and of a file that is only shown. uploading: the product is sending it; the bar is drawn. done: the product has it. error: it failed or was refused; errorText says why."
+        },
+        {
+          "name": "statusText",
+          "type": "string",
+          "default": "",
+          "description": "The status in the product's words (\"Waiting\", \"Uploading\", \"Uploaded\"), drawn last on the second line and read with the file. The mark and its color are never the only sign of a status."
+        },
+        {
+          "name": "progress",
+          "type": "number",
+          "default": null,
+          "description": "How far the sending has come, from 0 to 1, while status is uploading. Null draws the bar as under way without saying how far. Ignored in every other status."
+        },
+        {
+          "name": "errorText",
+          "type": "string",
+          "default": "",
+          "description": "Why the file failed and what to do, in the product's words (\"Larger than 10 MB\", \"The connection was lost\"). Drawn in the status's place while status is error, in every form, and never cut."
+        },
+        {
+          "name": "retryable",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether a failed file offers the retry action. True for a failure that trying again may cure (a lost connection); false for one it cannot (a file that is too large)."
+        },
+        {
+          "name": "previewSrc",
+          "type": "string",
+          "default": "",
+          "description": "The address of a picture of the file, as the platform's images take one: a small rendition the product's server made of a file it already has. With preview it is drawn for a file of any format. Empty, the picture comes from the file itself where the product gave it."
+        },
+        {
+          "name": "interactive",
+          "type": "boolean",
+          "default": false,
+          "description": "Makes the body — the glyph or the picture, and the texts — one pressable action that emits click, for a product that opens the file where it is: an image in an Image preview, a document in a viewer. The actions stay their own. A file item whose action is to go to the file takes href instead and is a link."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The destination: the address of the file, as the platform's links take one. Not empty, it makes the body a link — to a file the product already has, to open or to download — whether interactive is set or not."
+        },
+        {
+          "name": "target",
+          "type": "enum",
+          "values": [
+            "same",
+            "new"
+          ],
+          "default": "same",
+          "description": "Where the destination opens. same: where the person is. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which a row marks and targetLabel says. Ignored without href."
+        },
+        {
+          "name": "targetLabel",
+          "type": "string",
+          "default": "",
+          "description": "What assistive technology reads after the link's name while target is new (\"opens in a new tab\"). The product's words."
+        },
+        {
+          "name": "readOnly",
+          "type": "boolean",
+          "default": false,
+          "description": "The file is shown and cannot be taken back: no remove action and no retry action is drawn. For a file of a record that is only read. The body can still be pressed where interactive or href says so."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The File item's click: the person activated the body of a row that is pressable or a link. Carries the row's value. The file upload opens nothing. Emitted only while rows is given: a row the file upload made itself is never pressable."
+        },
+        {
+          "name": "remove",
+          "description": "The File item's remove: the person asked to remove this row, by its remove action. Carries the row's value. The product removes the row — and stops sending the file, if it was — and the file upload then moves focus (FUP-30). The file upload removes nothing itself. Emitted only while rows is given: a row the file upload made for a file it keeps is removed by the file upload, which emits change."
+        },
+        {
+          "name": "retry",
+          "description": "The File item's retry: the person asked to try a failed row again, by its retry action. Carries the row's value. The product sends the file again and sets the row's status. Emitted only while rows is given: a row the file upload made itself has no retry action."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "trigger",
+      "from": "file-picker.trigger"
+    },
+    {
+      "name": "icon",
+      "from": "file-picker.icon"
+    }
+  ],
+  "events": [
+    {
+      "name": "select",
+      "description": "Files were chosen in the picker or dropped on the area, were passed by the file picker (its select, FPK-9) and found room. Emitted once per choice by the file upload itself — the file picker's own event does not leave it (FUP-57) — with those files as the platform's own handles, in the order the platform gave them. While rows is given the product adds a row for each and does with the files what it means to, and the file upload keeps none of them. While rows is own the file upload has already kept them and drawn their rows, the event carries the files it newly kept — never one it already had — and the product need not listen. It reads none of them in either case."
+    },
+    {
+      "name": "reject",
+      "description": "Files of one choice or one drop were refused, by the file picker (its reject, FPK-9) or by the file upload for want of room. Emitted once, after select where both happen, with each refused file and its reason: type (not among accept, or a folder), size (larger than maxSize) or count (more than one while multiple is false, or more than maxFiles leaves room for). The reasons are names for the product's code, not words: while rows is given the product says what happened, with a Field's errorText, a failed row or announcement; while rows is own the file upload has already drawn a row for each refused file, with the product's sentence for its reason."
+    },
+    {
+      "name": "change",
+      "description": "The files the file upload keeps changed by what a person did: a choice or a drop that kept at least one file or replaced the one kept, or a kept file removed by its row's remove action. Emitted once, after select and reject where they happen, with the files now kept, in order, as the platform's own handles. Emitted only while rows is own, and never for what the product did itself (a file handed over, the kept files cleared, a form reset, a change of rows)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "error",
+    "loading"
+  ],
+  "behavior": [
+    {
+      "id": "FUP-1",
+      "text": "THE file upload SHALL lay out, from top to bottom and from its start edge: its file picker, laid out and drawn as the file picker's own sentences say (FPK-1 to FPK-4), and, WHILE it holds at least one row, the list of rows comp.file-upload.list.gap below it (FUP-17). It SHALL be as wide as its layout gives it and as tall as its parts, SHALL draw no container, fill or edge around the whole, and SHALL draw no label, no help, no error text and no requirement mark of its own: those are the Field's (FUP-32)."
+    },
+    {
+      "id": "FUP-2",
+      "text": "WHILE the list holds no row THE file upload SHALL give its file picker emptyText as the text that stands beside the trigger (selectionText, FPK-2), and WHILE the list holds a row SHALL give it none: the rows say what is chosen. Whether nothing is chosen is the file upload's to know; where that text stands, how it is drawn, how it wraps and that the drop-area layout draws none are the file picker's (FPK-2, FPK-3)."
+    },
+    {
+      "id": "FUP-7",
+      "text": "THE file upload SHALL NOT upload, as its file picker does not (FPK-7) and its file items do not (FIT-33): it SHALL open no connection and send no file or part of one to anyone, SHALL NOT read a file's bytes — not to check its kind, not to measure it, not to draw a picture of it — and SHALL NOT copy or store a file. The picture of an image is drawn only WHILE itemPreview is true, by the file item and the platform and as FIT-6 and FIT-7 say; the file upload makes no address and no picture itself. WHILE rows is given it SHALL NOT keep a file beyond handing it to the product, and SHALL draw of a file only what the product gives back as a file item (FUP-17); WHILE rows is own it SHALL keep of a file only the platform's own handle of it, for as long as FUP-51 says, and SHALL draw of it only what FUP-44 and FUP-45 name. This holds on every platform, as a component that draws a destination loads nothing about it.",
+      "verify": "On the web, under each value of rows: with the network observed, choosing, dropping, removing and retrying files makes no request; no FileReader or stream is created; the element itself creates no object URL, and its file items create none while `item-preview` is absent (FIT-7)."
+    },
+    {
+      "id": "FUP-9",
+      "text": "WHEN its file picker reports a choice or a drop — select with the files that passed accept, maxSize and the rule of one file, reject with those it refused (FPK-9) — WHILE rows is given THE file upload SHALL keep none of them and SHALL judge what the file picker cannot know, the room that is left: WHILE multiple is true and maxFiles is a number, it SHALL refuse with the reason count each file that passed beyond maxFiles less the rows the list already holds. It SHALL then emit select once with the files that found room, WHERE there are any, and reject once, WHERE there are any refused, with the files the file picker refused in the order it refused them, then the files refused for want of room in the order the platform gave them, each with its reason; in that order (FUP-57). THE file upload SHALL add no row, replace no row, draw no error and say no word because of a choice: the product adds a row for each file it keeps, and WHILE multiple is false replaces the row it had. WHILE rows is own the file upload keeps what found room (FUP-43)."
+    },
+    {
+      "id": "FUP-16",
+      "text": "WHILE error is true THE file upload SHALL give error to its file picker, which draws the drop area's edge for it and exposes the trigger as invalid (FPK-16), and SHALL draw nothing else for it: no file item changes under the error condition. THE file upload SHALL never set error itself: not for a refused file, not for a failed row, not for a missing value."
+    },
+    {
+      "id": "FUP-17",
+      "text": "WHILE the file upload holds at least one row THE file upload SHALL draw each row as one file item (FUP-58) — a row of this spec is one file item, whatever its form — in the order the product gave them WHILE rows is given and in the order of FUP-44 and FUP-45 WHILE rows is own: WHILE itemForm is row as one column, comp.file-upload.list.item-gap apart, each as wide as the file upload; WHILE itemForm is tile as a strip from the start edge that wraps onto a further line where the width ends, comp.file-upload.list.item-gap apart along both directions, the tiles of one line aligned at their tops, each of the size itemWidth and itemHeight give (FIT-3). How a file item is laid out and drawn, and that the name of a row is never cut, are the file item's (FIT-2 to FIT-10). THE file upload SHALL NOT sort, group, number or count the rows, WHILE rows is given SHALL NOT add or remove one itself, SHALL draw no line and no fill between or behind them, and SHALL give them no order that a person can change: files in an order people change are file items in the rows of a List, one level down. WHILE it holds no row THE file upload SHALL draw no list, keep no room for one and expose none. WHEN itemForm names a value the file upload does not know THE file upload SHALL arrange the rows as a column and in debug builds report it."
+    },
+    {
+      "id": "FUP-21",
+      "text": "WHEN a file item of the file upload emits click, remove or retry (FIT-11 to FIT-13) WHILE rows is given THE file upload SHALL let the event reach the product as the row's own, with the row's value, and SHALL do nothing else: it SHALL NOT open a file, remove the row, change its status or move focus because of the activation. WHILE rows is own it answers a row's remove itself (FUP-46), and no row is pressable or has a retry action (FUP-44). The stops of the rows SHALL follow the trigger in the focus order, in the order of the rows, each row's stops in the order the file item gives them — its body where it is pressable, retry, remove; the file upload SHALL add no stop of its own, and SHALL handle no arrow key, Delete or Backspace."
+    },
+    {
+      "id": "FUP-24",
+      "text": "THE file upload SHALL expose itself to assistive technology as a group named by label — or, inside a Field, by the Field's label WHILE label is empty (FUP-32) — holding what its file picker exposes and, WHILE there are rows, a list of them. It SHALL give its file picker no name, so that the file picker exposes no second group inside this one (FPK-17), and SHALL give it what a Field gives the file upload (FUP-32) as the last part of the trigger's description; the rest of that description — constraintsText, then emptyText WHILE it is drawn (FUP-2) — and the trigger's required and invalid states are exposed by the file picker (FPK-17). WHILE label is empty and no Field names it THE file upload SHALL still render and in debug builds report that the group has no accessible name."
+    },
+    {
+      "id": "FUP-25",
+      "text": "THE file upload SHALL expose its rows as one list that takes the group's name, and each file item as one item of that list, in the place of the group a file item is when it stands alone (FIT-19). What an item reads — the name, the format, the size, the status or the error, the progress bar while it is sent, and the actions named removeLabel and retryLabel and described by the file's name — is the file item's (FIT-19). A platform without a list role SHALL expose a container that holds the rows in order and state that in its README."
+    },
+    {
+      "id": "FUP-26",
+      "text": "THE file upload SHALL have exactly one live region, polite and never assertive, for everything it announces, and SHALL announce through it, once each and in the product's words alone: WHEN a row is added after the file upload was first presented, the row's name and its statusText; WHEN a row's status becomes done, its name and its statusText; WHEN a row's status becomes error, or its errorText changes while it is error, its name and its errorText; and WHEN the product sets announcement to a text that is not empty, or changes it, that text. Changes that arrive in one turn of the platform's rendering SHALL be said as one message, in the order of the rows; WHERE announcement is set or changed in that same turn THE file upload SHALL say announcement alone, so that forty files added are said in one sentence of the product's and not forty times. THE file upload SHALL NOT announce a change of progress, a removal, a drag over the area or, WHILE rows is given, a refused file by itself — the product says those with announcement where they must be said, and FUP-50 says what is announced WHILE rows is own — SHALL NOT announce rows that are present when it is first presented, and SHALL NOT move keyboard or screen-reader focus to announce.",
+      "verify": "On the web: one element with aria-live=\"polite\" in the shadow root; adding three rows in one task writes one text; setting announcement in the same task writes only it."
+    },
+    {
+      "id": "FUP-27",
+      "text": "THE file upload SHALL have no words of its own, as its file picker and its file items have none (FPK-18, FIT-20): it SHALL take emptyText from the instance's prop and, WHILE that is empty, from the product's words of the key noFileText; SHALL give removeLabel and retryLabel to every file item as they are given to it, where an empty one reads the product's words of the keys removeLabel and retryLabel and a missing one is reported by the file item (FIT-20); and SHALL take every other word — label, announcement, each row's texts, and the texts it passes to its file picker — from the product alone, and from nowhere else. IF emptyText is not given THE file upload SHALL give its file picker nothing in its place. IF maxFiles is a number WHILE constraintsText is empty THE file upload SHALL still render and in debug builds report that a limit is enforced and not said, as its file picker reports for accept and maxSize (FPK-18). THE file upload SHALL build no sentence from accept, maxSize, maxFiles, a count of rows or a size in bytes."
+    },
+    {
+      "id": "FUP-28",
+      "text": "WHILE disabled is true THE file upload SHALL give disabled to its file picker, which disables the trigger, draws its own parts from their disabled tokens and answers neither a press nor a drag (FPK-19); SHALL give disabled to every file item, which disables its actions and its body and keeps what it shows of the file drawn as it is and readable by assistive technology (FIT-21): what was chosen is still what was chosen; and SHALL emit neither select nor reject, and no row's click, remove or retry."
+    },
+    {
+      "id": "FUP-29",
+      "text": "WHEN a row is added, is removed or changes its status THE file upload SHALL draw that at once, without a motion of the file upload's own, and the rows after it SHALL take their new places at once — in a strip of tiles also where that moves a tile to another line. The changes of the drop area between states are the file picker's (FPK-20), and those of a row's body and actions the file item's (FIT-23)."
+    },
+    {
+      "id": "FUP-30",
+      "text": "WHEN a row leaves the list while focus is on one of its stops THE file upload SHALL move focus to the remove action of the row that followed it, or of the row before it WHERE none follows, or to the trigger WHERE no row is left, so that a person who removes several files in a row goes on from where they were; WHERE the row it would go to has no remove action (a read-only file item), to that row's body WHERE it is pressable, and otherwise on to the next such row or the trigger. Focus within a row that stays — a retry action that leaves — is the file item's (FIT-30). THE file upload SHALL NOT move focus because a row was added or changed otherwise."
+    },
+    {
+      "id": "FUP-31",
+      "text": "WHERE the platform has forms that submit named values (the web) WHILE rows is given THE file upload SHALL take part in its form as one control: it SHALL submit under its own name, in the order of the rows, the file of every row the product gave a file to — as the platform's own handle of that file, the one select carried, given to the row in the platform's idiom and not as a prop of this spec, since a handle is no value a fixture or an attribute can hold — WHILE the file upload is not disabled, and nothing otherwise; SHALL be disabled WHILE the form disables the set it is in; SHALL report a missing value to the form's own validation, with the platform's own message, WHILE required is true and no row carries a file; and SHALL change nothing WHEN the form is reset, because the rows are the product's to clear. It SHALL submit a file whatever the row's status: a product that sends files itself gives the file upload no name. WHILE rows is own the form is given the files the file upload keeps (FUP-49)."
+    },
+    {
+      "id": "FUP-32",
+      "text": "WHILE the file upload is the control of a Field THE file upload SHALL take from it what a Field gives its control (FLD-8, FLD-10, FLD-11, FLD-14): the Field's label as the group's name WHILE its own label is empty; the Field's supporting text with, in error, the error text after it and optional text, which it SHALL pass to its file picker as the last part of the trigger's description (FUP-24); the invalid state as its own error condition (FUP-16); the required state as required; and the disabled state as disabled. It SHALL pass the three states on to its file picker by the exchange a Field has with a control (FPK-21); the Field's one control SHALL be the file upload, and the file picker inside it SHALL take nothing from the Field directly. WHEN the label of the Field is pressed THE file upload SHALL move focus to the trigger and open nothing."
+    },
+    {
+      "id": "FUP-33",
+      "text": "WHILE the text size is enlarged THE file upload SHALL grow with its parts: its file items as FIT-24 says and its file picker as FPK-22 says, a strip of tiles wrapping sooner and never running past the file upload's width. At 200 % in a width of 320 no text SHALL be lost or lie over another part, and nothing SHALL need scrolling in two directions."
+    },
+    {
+      "id": "FUP-34",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE file upload SHALL draw nothing of its own that rests on a color: its rows are drawn as FIT-25 says and its drop area as FPK-23 says."
+    },
+    {
+      "id": "FUP-35",
+      "text": "WHERE the layout direction is right-to-left THE file upload SHALL mirror its arrangement: a strip of tiles begins at the right and runs to the left on every line, and each row is mirrored inside as FIT-26 says; its file picker mirrors as FPK-24 says."
+    },
+    {
+      "id": "FUP-36",
+      "text": "THE file upload SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the file upload is shown THE file upload SHALL draw itself for the new direction at once, without a motion of its own, keeping its rows and its focus."
+    },
+    {
+      "id": "FUP-37",
+      "text": "THE file upload SHALL leave the direction of each row's texts and the mirroring of each row's glyphs to the file item (FIT-28), and those of its file picker's texts, emptyText among them, to the file picker (FPK-26); THE file upload SHALL mirror no glyph itself."
+    },
+    {
+      "id": "FUP-38",
+      "text": "IF maxFiles is not a number above zero THE file upload SHALL set no such limit; IF two rows have the same value THE file upload SHALL still draw both; and in each case debug builds SHALL report it. A status, a fit or a size that a row does not know is answered by the file item (FIT-29); a layout it does not know, a maxSize that is no number above zero and an entry of accept that cannot be read are answered by the file picker (FPK-27)."
+    },
+    {
+      "id": "FUP-39",
+      "text": "WHEN a prop of the file upload or of a row changes while it is shown THE file upload SHALL draw and expose the new value at once, keeping its focus, SHALL give a prop that is its file picker's to the file picker and a prop that is its file items' to every file item in the same turn (FPK-28, FIT-30), and SHALL announce only what FUP-26 names. WHEN accept, maxSize, maxFiles or multiple changes THE file upload SHALL judge the room by the new value from the next choice on and SHALL NOT judge again, mark or remove the rows it already holds."
+    },
+    {
+      "id": "FUP-40",
+      "text": "WHILE the system's icon set cannot yet draw a glyph (its font is still loading) THE file upload SHALL draw nothing of its own in a glyph's place: the glyphs of a row are the file item's (FIT-31) and the glyph of the drop area the file picker's (FPK-29)."
+    },
+    {
+      "id": "FUP-41",
+      "text": "IF the file upload holds a child that is neither its trigger, its glyph nor a file item THE file upload SHALL NOT draw it and in debug builds report it; a trigger that is not a Button is answered by the file picker (FPK-30). A platform that cannot inspect its content SHALL state the rule in its README and docs page."
+    },
+    {
+      "id": "FUP-42",
+      "text": "THE file upload SHALL hold its rows in one of two ways, as rows names. own, the default: it keeps the files a person chose and draws a row for each itself (FUP-43 to FUP-51), so that a form works with the file upload placed in it and nothing written. given: the product gives the rows, and the file upload draws them and keeps no file, as FUP-9, FUP-17, FUP-21 and FUP-31 say. The product gives rows by saying so in the platform's idiom — on the web by the value given of rows; where rows are a list the product passes (SwiftUI, Compose, Flutter, React Native) by passing that list, an empty one included, and by leaving it out for own — and never by what the list happens to hold: a product that owns its rows owns them while it has none. WHILE rows is own THE file upload SHALL NOT draw a row the product gives and in debug builds SHALL report it, naming rows; WHILE rows is given it SHALL keep no file, SHALL give nothing to read and take nothing by FUP-48, and in debug builds SHALL report a file handed to it that way. WHEN rows names a value the file upload does not know THE file upload SHALL behave as own and in debug builds report it."
+    },
+    {
+      "id": "FUP-43",
+      "text": "WHEN files arrive — chosen in the picker or dropped on the area, and judged by its file picker (FPK-9), or handed over by the product and judged by the same rule (FUP-48, FPK-31) — WHILE rows is own THE file upload SHALL first remove the rows of the files an earlier arrival refused (FUP-45); SHALL pass over, as if it had not arrived, a file that passed and that it already keeps, and a second copy of a file within the same arrival — the same file being one with the same name, size and time of last change as the platform reports them, or the same location where the platform hands over locations — so that no file is kept twice and none is refused for being chosen again; and, WHILE multiple is true and maxFiles is a number, SHALL refuse with the reason count each remaining file beyond maxFiles less the files it keeps, in the order the platform gave them. WHILE multiple is true it SHALL keep each file that passed after the files it already keeps, in the order the platform gave them: a second choice adds to the first and replaces nothing. WHILE multiple is false and a file passed, it SHALL let go of every file it keeps and keep the new one in their place; a choice that is refused SHALL replace nothing. It SHALL then draw a row for each file it keeps (FUP-44) and for each file it refused (FUP-45) and emit as FUP-47 says. It SHALL NOT move focus because files arrived, except as FUP-30 says where a row that held focus left.",
+      "verify": "On the web: choose a.pdf, then b.pdf with multiple — two rows, a then b; choose a.pdf again — still two rows, and no event; with maxFiles 2 choose c.pdf — two kept rows and one refused row for c.pdf, reject with the reason count; choose again — the refused row is gone before the new ones are drawn. Without multiple: choose a.pdf, then b.pdf — one row, b."
+    },
+    {
+      "id": "FUP-44",
+      "text": "WHILE rows is own THE file upload SHALL draw each file it keeps as a row, in the order it keeps them: a file item (FIT-1 to FIT-33), in the form the file upload gives every row (FUP-58), that is given the platform's handle of the file, whose name and mediaType are the file's as the platform reports them, whose status is pending, and whose formatText, statusText, errorText, progress and previewSrc are not given — the glyph of the file's format, or its picture WHILE itemPreview is true and the file is an image (FIT-6), the name, no status in words, no bar, and the remove action alone: never a retry action, because the file upload sends nothing that could be tried again, and never a pressable body or a link, because the file upload opens nothing and has no address of the file. As that row's sizeText it SHALL draw what the product's own function writes for the file's size in bytes, WHERE the product gave the file upload such a function in the platform's idiom, and nothing WHERE it gave none: THE file upload SHALL NOT write a size itself, because a number with a unit is words, and whether a megabyte is 1000 kilobytes or 1024 is the product's to say. A function that was not given SHALL NOT be reported: a row is whole with its name. THE file upload SHALL draw no status, no progress and no result of a sending on a row of a file it keeps, whatever the product does with the file afterwards."
+    },
+    {
+      "id": "FUP-45",
+      "text": "WHILE rows is own THE file upload SHALL draw each file the last arrival refused as a row after the rows of the files it keeps — first the files its file picker refused, in the order it refused them, then the files refused for want of room, in the order the platform gave them — as a file item whose status is error, which is not retryable, and which is given no handle of the file and so draws no picture: the glyph of the file's format, the file's name, its size as FUP-44 says, the remove action, and the error mark before its errorText, which is the product's sentence for the reason — typeErrorText for type, sizeErrorText for size, countErrorText for count (FUP-53). A refused file SHALL NOT be kept: it is not among the files the product reads (FUP-48), is not submitted (FUP-49), does not count toward maxFiles and does not satisfy required. Its row SHALL stay until the person removes it (FUP-46), until files next arrive (FUP-43), or until the kept files are cleared (FUP-48, FUP-49), and THE file upload SHALL NOT set its own error condition for it (FUP-16). WHERE the platform delivers no drop over an area that refuses (the web, once the file picker has told it that letting go there does nothing, FPK-13) no file arrived: THE file upload SHALL draw no row and say nothing for it, and the area's refusing look is what the person was told. IF neither the instance nor the product's words give the sentence for a reason THE file upload SHALL still draw the row, with its name and the error mark, and in debug builds SHALL report the missing word once per page or screen, naming the prop."
+    },
+    {
+      "id": "FUP-46",
+      "text": "WHEN the person activates the remove action of a row by pointer, touch, Enter or Space WHILE rows is own THE file upload SHALL remove that row itself, at once and without asking again; WHERE the row was a file it keeps, SHALL let go of the file and emit change exactly once (FUP-47); WHERE it was a refused file, SHALL emit nothing, because the files it keeps did not change; and SHALL move focus as FUP-30 says: to the remove action of the row that followed, or of the row before WHERE none follows, or to the trigger WHERE no row is left. It SHALL emit neither remove nor retry: those are events of the product's rows, and here there are none."
+    },
+    {
+      "id": "FUP-47",
+      "text": "WHILE rows is own THE file upload SHALL emit for one choice or one drop, once the files it keeps and the rows are as FUP-43 leaves them, and in this order: select once with the files it newly kept, WHERE there are any; reject once with the refused files and their reasons, WHERE there are any, as FUP-9 says; and change once, WHERE the files it keeps are not the same as before. WHEN the person removes a file it keeps (FUP-46) it SHALL emit change and nothing else. change SHALL carry the files now kept, in order, as the platform's own handles. THE file upload SHALL emit none of the three for what the product did itself — files handed over or the kept files cleared (FUP-48), a form reset (FUP-49), a change of rows (FUP-52) — as a control's events tell what a person did."
+    },
+    {
+      "id": "FUP-48",
+      "text": "WHILE rows is own THE file upload SHALL offer the product, in the platform's idiom: the files it keeps, to read at any time, in order and as the platform's own handles — the product may send them itself, then or later, and the file upload draws nothing of that (FUP-44); a way to hand it files, which it SHALL have its file picker judge (FPK-31) and SHALL then treat as an arrival (FUP-43) — kept or refused, drawn and announced (FUP-50) as a choice is, and without an event (FUP-47) — answering with the refused files and their reasons; and a way to clear, which SHALL let go of every file it keeps and remove every row, kept and refused, SHALL announce nothing, and SHALL move focus by FUP-30 WHERE a row held it. What it gives to read SHALL be a copy of its list: changing the copy SHALL change nothing that is kept. All three SHALL work WHILE disabled is true: disabled stops the person, not the product.",
+      "verify": "On the web: `files` is a new array on each read; `add()` returns `{ file, reason }[]` and dispatches no event; `clear()` leaves no row, an empty form value and, with required, a missing value."
+    },
+    {
+      "id": "FUP-49",
+      "text": "WHERE the platform has forms that submit named values (the web) WHILE rows is own THE file upload SHALL take part in its form as one control: it SHALL submit under its own name every file it keeps, in the order it keeps them and as the platform's own handles, WHILE the file upload is not disabled, and nothing otherwise — never a refused file, and no empty entry while it keeps none; SHALL be disabled WHILE the form disables the set it is in; and SHALL report a missing value to the form's own validation, with the platform's own message, WHILE required is true and it keeps no file, and no longer once it keeps one. WHEN the form is reset THE file upload SHALL do what clearing does (FUP-48). WHEN the form is submitted THE file upload SHALL keep its files and its rows: what follows a submission is the product's. THE file upload SHALL give the platform nothing to restore: WHEN a page is restored — a return through history, a session brought back — it SHALL begin with no file and no row and say nothing of the files it had, because a handle does not outlast the page and a row for a file that can no longer be sent would be untrue. WHILE it has no name THE file upload SHALL submit nothing and still keep and draw its files, for a product that reads them (FUP-48) and sends them itself.",
+      "verify": "On the web: FormData of the form holds one entry per kept file under the name, in order, and none for a refused row; `form.reset()` empties the list and dispatches no change; after submit the rows are still drawn."
+    },
+    {
+      "id": "FUP-50",
+      "text": "WHILE rows is own THE file upload SHALL announce through the one live region of FUP-26, politely and once for each arrival: the name of each file it newly kept and, for each refused file, its name and its sentence (FUP-45), as one message in the order of the rows. The names are the files' own and the sentences the product's, so that the file upload still says no word of its own. WHERE the product sets or changes announcement in the same turn — in its answer to select, reject or change — THE file upload SHALL say announcement alone. THE file upload SHALL NOT announce a removal, a clearing or a reset: after a removal focus rests on the next row's remove action, which is described by that file's name, or on the trigger, whose description holds emptyText once no row is left (FUP-24, FUP-30). It SHALL NOT announce a file it passed over (FUP-43), and SHALL build no count of files.",
+      "verify": "On the web: choosing two files writes one text holding both names; a refused file adds its name and its sentence to that text; removing a row writes nothing."
+    },
+    {
+      "id": "FUP-51",
+      "text": "THE file upload SHALL hold a file it keeps as the platform's own handle and nothing more: it SHALL NOT read it, copy it, make an address or a picture for it, or measure it beyond the size the platform reports (FUP-7). It SHALL give the handle to the file item that draws the file, which makes nothing of it WHILE itemPreview is false, so that a hundred files kept cost a hundred handles; WHILE itemPreview is true the file item of an image makes what the platform needs to draw its picture and releases it as FIT-7 says — only once that row is in or near what is in view, at most one for a row, and never beyond the life of the row. It SHALL let go of a handle, and take it from the row's file item, WHEN its row is removed (FUP-46), WHEN another file takes its place (FUP-43), WHEN the kept files are cleared or the form is reset (FUP-48, FUP-49) and WHEN rows becomes given (FUP-52); and SHALL keep its files WHILE it is taken out of the page or the screen and put back, as a control keeps its value.",
+      "verify": "On the web: with rows own and `item-preview` absent, no FileReader, `arrayBuffer()`, `text()`, `stream()`, `slice()` or `URL.createObjectURL()` is called for a kept file. With `item-preview`, the only call is one `URL.createObjectURL()` for each image row that has come into view, made by its `tanrei-file-item`, and each is revoked when its row leaves."
+    },
+    {
+      "id": "FUP-52",
+      "text": "WHEN rows changes from own to given while the file upload is shown THE file upload SHALL let go of every file it keeps, remove every row it drew itself, and draw the rows the product gives from then on; WHEN it changes from given to own THE file upload SHALL begin with no kept file and stop drawing the product's rows (FUP-42). In both directions it SHALL emit nothing and announce nothing, SHALL move focus to the trigger WHERE a row that leaves held it, and SHALL carry no file across by itself: a product that changes its mind reads the kept files first and gives them to rows of its own, or hands the files of its rows over (FUP-48)."
+    },
+    {
+      "id": "FUP-53",
+      "text": "THE file upload SHALL take typeErrorText, sizeErrorText and countErrorText from the instance's prop and, WHILE that is empty, from the product's words of the keys fileTypeErrorText, fileSizeErrorText and fileCountErrorText, and from nowhere else (FUP-27); SHALL read them only WHILE rows is own, and need one only once a file was refused for its reason; and SHALL build no sentence for a refusal out of accept, maxSize, maxFiles or a file's kind or size."
+    },
+    {
+      "id": "FUP-54",
+      "text": "WHILE rows is own everything this spec and the file item's say of a row, of the list and of what stands around them SHALL hold for the rows the file upload makes itself as for the product's: the arrangement (FUP-17); the file item's layout, its name that a row never cuts, the states of its actions, their focus ring and their target (FIT-2, FIT-3, FIT-14, FIT-18); emptyText while the list holds no row (FUP-2); disabled — the rows stay readable, the remove actions are disabled and leave the focus order, and the person chooses, drops and removes nothing (FUP-28); rows that appear and leave at once, without a motion (FUP-29); enlarged text (FUP-33); forced colors (FUP-34); and direction, with each file's name laid out in its own (FUP-35 to FUP-37). WHILE disabled is true THE file upload SHALL emit no change."
+    },
+    {
+      "id": "FUP-55",
+      "text": "WHEN accept, maxSize, maxFiles or multiple changes WHILE rows is own THE file upload SHALL judge by the new value from the next arrival on and SHALL NOT judge again, mark or let go of a file it keeps (FUP-39): files kept under multiple stay WHEN multiple becomes false, and the next file that passes takes the place of them all (FUP-43). WHEN the product's function for sizes or one of the three sentences changes THE file upload SHALL draw the rows it holds with the new text at once and announce nothing."
+    },
+    {
+      "id": "FUP-56",
+      "text": "THE file upload SHALL hold exactly one file picker, as its member, and SHALL build no choosing of its own: the Button and the glyph the product places in the file upload's trigger and icon slots SHALL be the file picker's trigger and glyph (FPK-5, FPK-4), and layout, multiple, accept, maxSize, constraintsText, dropText, disabled, error and required SHALL be given to the file picker as they are given to the file upload. THE file upload SHALL give its file picker no maxFiles, because the room that is left is measured against what the file upload holds (FUP-9, FUP-43), and no label (FUP-24). THE file upload SHALL draw the file picker from the file picker's own tokens and SHALL give it no look, no state and no size that a file picker standing alone does not have. Everything the file picker's sentences say (FPK-1 to FPK-31) SHALL hold for it inside the file upload, with two differences: it is named, described and put in its states by the file upload (FUP-24, FUP-32), and its two events are answered by the file upload (FUP-57).",
+      "verify": "On the web: the shadow root holds one `tanrei-file-picker`; the twin of each fixture — a `tanrei-file-picker` written by hand with the same forwarded attributes, the same children in its slots and, where the fixture has no row, `selection-text` set to the fixture's `emptyText` — draws the same picture as the file upload's part above its list."
+    },
+    {
+      "id": "FUP-57",
+      "text": "WHEN its file picker emits select or reject THE file upload SHALL answer them itself and SHALL NOT let them reach the product as they are: the product SHALL hear the file upload's own select, reject and change (FUP-9, FUP-47), which tell what the file upload did with the choice — the files that also found room and, WHILE rows is own, the files it newly kept — so that one choice is told once.",
+      "verify": "On the web: a listener on the `tanrei-file-upload` element hears one `select` for one choice, whose target is that element."
+    },
+    {
+      "id": "FUP-58",
+      "text": "THE file upload SHALL draw every row as a file item, its member, and SHALL build no row of its own: WHILE rows is given the file items are the product's own, placed in the file upload in the platform's idiom, and WHILE rows is own the file upload makes one for each file it keeps and for each file it refused (FUP-44, FUP-45). It SHALL give every file item it holds, the product's included, form as itemForm, preview as itemPreview, fit as itemFit, nameHidden as itemNameHidden, width as itemWidth, height as itemHeight, removeLabel and retryLabel as its own, and disabled WHILE it is disabled itself, so that the rows of one file upload are of one form; a file item of the product's that sets one of these otherwise SHALL be drawn as the file upload says, and in debug builds reported. Everything else of a file item — its name, its format and its glyph, its texts, its status, the address of its picture, whether it is pressable or a link, whether it is read-only — SHALL stay the row's own. THE file upload SHALL draw a file item from the file item's own tokens and SHALL give it no look, no state and no size that a file item standing alone does not have. Everything the file item's sentences say (FIT-1 to FIT-33) SHALL hold for it inside the file upload, with three differences: it is an item of the file upload's list (FUP-25); what is said of it is said through the file upload's one live region (FUP-26, FUP-50); and WHILE rows is own its remove is answered by the file upload (FUP-46).",
+      "verify": "On the web: every row is a `tanrei-file-item`, in the light DOM while `rows` is `given` and in the shadow root while it is `own`. The twin of each fixture's list — the same `tanrei-file-item` elements written by hand with the same attributes, as a column or as a wrapping strip, comp.file-upload.list.item-gap apart — draws the same picture as the file upload's part below its file picker."
+    }
+  ],
+  "accessibility": {
+    "role": "group",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the trigger, then to each row's stops in the order of the rows — the body of a row that is pressable or a link, retry where a row has it, then remove. The drop area is not a stop, and a row that cannot be pressed is none."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "On the trigger: opens the platform's file picker, as the Button's own activation. On a row's action: removes that file, where the file upload keeps its own; asks the product to retry or to remove it, where the product gives the rows. On a row's body that is pressable: the product opens the file (the file item's click)."
+      },
+      {
+        "keys": "The picker's own keys",
+        "action": "Inside the platform's picker everything is the platform's; leaving it without choosing returns focus to the trigger and changes nothing."
+      }
+    ],
+    "labeling": "A group named by label, or by the label of the Field around it, holding the file picker and the list. The file picker is given no name and adds no group; its trigger is a button named by its own label and described by constraintsText, by emptyText while nothing is chosen, and by the Field's help and, in error, its error text, and is exposed as required, invalid and disabled as the props say (FPK-17). The rows are a list, and each file item an item of it: it reads the file's name, its format, its size, its status or its error in words, a progress bar named by the file while it is sent, and its actions — buttons named retryLabel and removeLabel, each described by the file's name (FIT-19).",
+    "minimumTarget": true,
+    "notes": [
+      "Choosing is the file picker's, and so is everything a person meets while choosing: that dragging is never the only way, that the limits are words before the choice, that a drag over the area is not announced and is told without color (the file picker's notes; FPK-5, FPK-12, FPK-13, FPK-18, FPK-23). A file is shown by a file item, and everything a person meets on one file is the file item's: that its status is never color alone, that its name is its name in every form, that a failure is never hidden, how it is named and described (the file item's notes; FIT-4, FIT-8, FIT-19). This spec says what the file upload adds: the arrangement, which files there are, the one live region, where focus goes, the form.",
+      "Without script, and until the component is defined, on the web: the trigger is a button that opens nothing, no row is drawn and no file is submitted. A custom element cannot open the platform's picker or carry a file by markup alone, and the file upload does not pretend to: a page that must take files where script does not run writes a native file input in its own form, as it would without Tanrei, and loses only the drawing.",
+      "One live region, polite (FUP-26). A row says its own name and status when it is added, finishes or fails, in the product's words; many changes in one turn are one message, and the product can replace them with one sentence of its own (announcement). Progress is never announced: a person reads it on the row's progress bar when they go there.",
+      "A refused file must be said (WCAG 3.3.1), and only the product has the words. While rows is given, on reject it sets the Field's error text, adds a failed row with errorText, or sets announcement, and the file upload draws and says nothing for a refusal by itself, because it has no sentence for it. While rows is own the file upload draws a row for each refused file, with the error glyph, the file's name and the product's sentence for the reason (typeErrorText, sizeErrorText, countErrorText, or the product's words), and announces the name and the sentence (FUP-45, FUP-50); a product that gave no sentence is told so in debug builds.",
+      "Status is never color alone (WCAG 1.4.1): a done or failed row has words and a mark with a shape of its own, before those words (FIT-4). The glyph before the name says the file's format in every status.",
+      "Focus is never lost on removal (FUP-30): it goes to the next row's remove action, the previous one's, or the trigger.",
+      "The remove and retry actions are named once for the whole list and described by each file's name, so a person tabbing through them hears \"Remove, button, brief.pdf\" without the product writing a sentence per row.",
+      "A file's name is never cut in a column of rows (FIT-2): two names that differ only at the end must be told apart, and the extension is at the end. In a strip of tiles it is one line, cut in the middle so that its ending stays (FIT-9), and whole for assistive technology.",
+      "Compose and React Native have no list role for an arbitrary layout: the rows are a container with collection information (Compose) or a labelled container (React Native), and each row keeps its parts.",
+      "While the file upload keeps its own files (rows own, FUP-42 to FUP-55) a person hears what was added — each file's name, once, politely, in one message for one choice — and nothing of the file upload's own invention: no count and no word such as \"added\", which Tanrei does not have. A product that wants a sentence sets announcement in its answer to change, and that sentence is said alone.",
+      "A removal is told by where focus goes, not by a message (FUP-46, FUP-50): the next row's remove action is described by that file's name, and once the last row is gone focus is on the trigger, whose description holds emptyText (\"No file chosen\"). A form reset and a clearing by the product move focus the same way and announce nothing; a product that clears the list for a reason a person must hear says it with announcement.",
+      "A plain form's missing file is the form's own validation (FUP-49): the message is the platform's own, as for every Tanrei control, and stands at the trigger, which takes focus as an invalid control does; the product's own sentence is the errorText of the Field around the file upload, which is what is drawn and described there. The file upload sets no error condition itself, for a missing value or for a refused file (FUP-16). Before a submission, that a file is required is said only inside a Field, whose required text joins the trigger's description: where the trigger is a button the platform gives it no required state (the web), and the file upload has no word for it. A form that must say it frames the file upload in a Field; placed alone, with required, it works and reports the missing file only when the form validates.",
+      "The Field's fixture file-upload-required-error (the Field's spec) holds a file upload with no rows prop, so it is one that keeps its own files, with none kept: the trigger and the line of limits, no list and no emptyText, since none is given; the label, the required mark and the error text are the Field's, and the trigger is exposed as invalid and described by that error text (FUP-32). It is drawn as it was before rows existed. A missing file would be a missing value there (FUP-49), and what a person reads for it is the Field's errorText.",
+      "A fixture whose rows is own and that holds file items cannot be drawn from props alone, because a file is no value a fixture holds: each file item stands for one file the stage hands over, in order, by the platform's way of FUP-48, before anything is recorded — its name is the file's name, and its sizeText is what the stage's size function answers for that file; no other prop of the item is read, and whether the file is kept or refused is the component's own judging of the fixture's accept, multiple and maxFiles (FUP-43). That is the mark, and the only one: the fixture format has no field for a step after the component exists, so every harness, gallery and documentation renderer reads rows and the items. A fixture whose rows is given draws its items as the product's file items, as before. A file the stage hands over is empty, so no picture of it can be drawn: a staged row of an image shows the image glyph also where itemPreview is true (FIT-6), and a picture in a fixture comes from a row's previewSrc, which only a fixture whose rows is given has.",
+      "One level down: a file picker, and file items the product arranges. The product hears the file picker's select and reject, keeps the files, places a file item for each — in a column, in a strip, or each as the content of a List's row where people change their order — judges the room itself or sets the file picker's maxFiles to it, says what was added and refused through a live region of its own, moves focus when it removes one, and sends the files or gives them to a form control of its own. What it does not get by hand, because it is the state the file upload holds: the one message for many changes (FUP-26); the focus that goes on after a removal (FUP-30); the form's value (FUP-31, FUP-49); and that no file is kept twice (FUP-43). The picture is the same: a file item is the same element alone and inside a file upload.",
+      "A strip of tiles (itemForm tile) is still one list of items in the order of the files, read and tabbed through line by line in the reading direction; wrapping changes no order. A tile whose name is hidden is named by that name (FIT-8), and its error text is drawn beneath it."
+    ]
+  },
+  "tokens": "comp.file-upload",
+  "fixtures": [
+    {
+      "id": "button",
+      "props": {
+        "label": "Attachment",
+        "constraintsText": "PDF, up to 10 MB",
+        "emptyText": "No file chosen",
+        "accept": [
+          ".pdf"
+        ],
+        "maxSize": 10000000
+      },
+      "slots": {
+        "trigger": "Choose a file"
+      }
+    },
+    {
+      "id": "button-chosen",
+      "props": {
+        "label": "Attachment",
+        "constraintsText": "PDF, up to 10 MB",
+        "emptyText": "No file chosen",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again",
+        "rows": "given"
+      },
+      "slots": {
+        "trigger": "Choose a file"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "button-multiple",
+      "props": {
+        "label": "Attachments",
+        "multiple": true,
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again",
+        "rows": "given"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "c",
+            "name": "survey.pdf",
+            "sizeText": "1.1 MB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "button-disabled",
+      "props": {
+        "label": "Attachment",
+        "disabled": true,
+        "constraintsText": "PDF, up to 10 MB",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again",
+        "rows": "given"
+      },
+      "slots": {
+        "trigger": "Choose a file"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "drop-area",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "accept": [
+          ".pdf",
+          "image/png"
+        ],
+        "maxSize": 10000000
+      },
+      "slots": {
+        "trigger": "Choose files"
+      }
+    },
+    {
+      "id": "drop-area-statuses",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again",
+        "rows": "given"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "pending",
+            "statusText": "Waiting"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB",
+            "status": "uploading",
+            "statusText": "Uploading",
+            "progress": 0.4
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "c",
+            "name": "survey.pdf",
+            "sizeText": "1.1 MB",
+            "status": "uploading",
+            "statusText": "Uploading"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "d",
+            "name": "contract.pdf",
+            "sizeText": "2.0 MB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "sizeText": "6.8 MB",
+            "status": "error",
+            "errorText": "The connection was lost.",
+            "retryable": true
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "f",
+            "name": "scan-archive.pdf",
+            "sizeText": "48 MB",
+            "status": "error",
+            "errorText": "Larger than 10 MB."
+          }
+        }
+      ]
+    },
+    {
+      "id": "drop-area-error",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "error": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      }
+    },
+    {
+      "id": "drop-area-disabled",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "disabled": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again",
+        "rows": "given"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "d",
+            "name": "contract.pdf",
+            "sizeText": "2.0 MB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "sizeText": "6.8 MB",
+            "status": "error",
+            "errorText": "The connection was lost.",
+            "retryable": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-text",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "dropText": "Drag the signed forms and every supporting document here, or choose them from this device",
+        "constraintsText": "PDF, PNG, JPEG, TIFF or a spreadsheet, up to 10 MB each and no more than twenty files in all",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again",
+        "rows": "given"
+      },
+      "slots": {
+        "trigger": "Choose files from this device"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "municipal-planning-application-supporting-statement-revision-14-final-signed-by-all-parties.pdf",
+            "sizeText": "9.6 MB",
+            "status": "uploading",
+            "statusText": "Uploading, about two minutes left",
+            "progress": 0.72
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "IMG_20260914_103322_HDR_edited_copy_2.jpeg",
+            "sizeText": "12.4 MB",
+            "status": "error",
+            "errorText": "This file is larger than 10 MB. Export it at a lower quality and choose it again.",
+            "retryable": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "without-words",
+      "props": {
+        "label": "Attachments",
+        "multiple": true,
+        "rows": "given"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "status": "error",
+            "retryable": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "button-rtl",
+      "props": {
+        "label": "Attachments",
+        "multiple": true,
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again",
+        "rows": "given"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB",
+            "status": "uploading",
+            "statusText": "Uploading",
+            "progress": 0.4
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "sizeText": "6.8 MB",
+            "status": "error",
+            "errorText": "The connection was lost.",
+            "retryable": true
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "drop-area-rtl",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again",
+        "rows": "given"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "d",
+            "name": "contract.pdf",
+            "sizeText": "2.0 MB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "own-one",
+      "props": {
+        "label": "Attachment",
+        "rows": "own",
+        "constraintsText": "PDF, up to 10 MB",
+        "emptyText": "No file chosen",
+        "removeLabel": "Remove",
+        "accept": [
+          ".pdf"
+        ],
+        "maxSize": 10000000
+      },
+      "slots": {
+        "trigger": "Choose a file"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "own-many",
+      "props": {
+        "label": "Attachments",
+        "rows": "own",
+        "layout": "drop-area",
+        "multiple": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "removeLabel": "Remove"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "survey.pdf",
+            "sizeText": "1.1 MB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "own-refused",
+      "props": {
+        "label": "Attachments",
+        "rows": "own",
+        "multiple": true,
+        "accept": [
+          ".pdf"
+        ],
+        "maxFiles": 2,
+        "constraintsText": "PDF, 2 files at most",
+        "removeLabel": "Remove",
+        "typeErrorText": "Only PDF files can be added.",
+        "countErrorText": "No more than 2 files can be added."
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "holiday.mov",
+            "sizeText": "48 MB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "survey.pdf",
+            "sizeText": "1.1 MB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "notes.pdf",
+            "sizeText": "96 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "own-disabled",
+      "props": {
+        "label": "Attachment",
+        "rows": "own",
+        "disabled": true,
+        "constraintsText": "PDF, up to 10 MB",
+        "removeLabel": "Remove"
+      },
+      "slots": {
+        "trigger": "Choose a file"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "own-without-words",
+      "props": {
+        "label": "Attachments",
+        "rows": "own",
+        "multiple": true,
+        "accept": [
+          ".pdf"
+        ]
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "holiday.mov"
+          }
+        }
+      ]
+    },
+    {
+      "id": "own-rtl",
+      "props": {
+        "label": "Attachments",
+        "rows": "own",
+        "multiple": true,
+        "accept": [
+          ".pdf",
+          ".png"
+        ],
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "removeLabel": "Remove",
+        "typeErrorText": "Only PDF and PNG files can be added."
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "holiday.mov",
+            "sizeText": "48 MB"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "rows-preview",
+      "props": {
+        "label": "Attachments",
+        "multiple": true,
+        "rows": "given",
+        "itemPreview": true,
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "formatText": "PDF",
+            "sizeText": "820 KB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "formatText": "PNG",
+            "sizeText": "3.4 MB",
+            "previewSrc": "fixtures/avatar.png",
+            "status": "uploading",
+            "statusText": "Uploading",
+            "progress": 0.4
+          }
+        }
+      ]
+    },
+    {
+      "id": "rows-uploaded-links",
+      "props": {
+        "label": "Attachments",
+        "multiple": true,
+        "rows": "given",
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "d",
+            "name": "contract.pdf",
+            "sizeText": "2.0 MB",
+            "href": "/files/contract.pdf",
+            "readOnly": true
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "pending",
+            "statusText": "Waiting"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tiles",
+      "props": {
+        "label": "Photos",
+        "layout": "drop-area",
+        "multiple": true,
+        "rows": "given",
+        "itemForm": "tile",
+        "itemPreview": true,
+        "dropText": "Drag photos here, or choose them",
+        "constraintsText": "PNG or JPEG, up to 10 MB each",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      },
+      "slots": {
+        "trigger": "Choose photos"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "entrance.jpeg",
+            "previewSrc": "fixtures/avatar.png",
+            "status": "done",
+            "statusText": "Uploaded",
+            "interactive": true
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "previewSrc": "fixtures/avatar.png",
+            "status": "uploading",
+            "statusText": "Uploading",
+            "progress": 0.4
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "previewSrc": "fixtures/avatar.png",
+            "status": "error",
+            "errorText": "The connection was lost.",
+            "retryable": true
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "g",
+            "name": "IMG_20260914_103322_HDR_edited_copy_2.jpeg",
+            "status": "pending",
+            "statusText": "Waiting"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tiles-sized",
+      "props": {
+        "label": "Photos",
+        "multiple": true,
+        "rows": "given",
+        "itemForm": "tile",
+        "itemPreview": true,
+        "itemFit": "contain",
+        "itemNameHidden": true,
+        "itemWidth": 160,
+        "itemHeight": 90,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      },
+      "slots": {
+        "trigger": "Choose photos"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "entrance.jpeg",
+            "previewSrc": "fixtures/avatar.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "previewSrc": "fixtures/avatar.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "c",
+            "name": "survey.pdf"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tiles-own",
+      "props": {
+        "label": "Photos",
+        "rows": "own",
+        "multiple": true,
+        "itemForm": "tile",
+        "itemPreview": true,
+        "accept": [
+          "image/*"
+        ],
+        "removeLabel": "Remove",
+        "typeErrorText": "Only pictures can be added."
+      },
+      "slots": {
+        "trigger": "Choose photos"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "entrance.jpeg"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "floor-plan.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tiles-rtl",
+      "props": {
+        "label": "Photos",
+        "multiple": true,
+        "rows": "given",
+        "itemForm": "tile",
+        "itemPreview": true,
+        "removeLabel": "Remove",
+        "retryLabel": "Try again"
+      },
+      "slots": {
+        "trigger": "Choose photos"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "entrance.jpeg",
+            "previewSrc": "fixtures/avatar.png",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "previewSrc": "fixtures/avatar.png",
+            "status": "error",
+            "errorText": "The connection was lost.",
+            "retryable": true
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-file-upload",
+      "props": {
+        "layout": "layout",
+        "rows": "rows",
+        "itemForm": "itemForm",
+        "itemPreview": "itemPreview",
+        "itemFit": "itemFit",
+        "itemNameHidden": "itemNameHidden",
+        "itemWidth": "itemWidth",
+        "itemHeight": "itemHeight",
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "label",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "emptyText": "emptyText",
+        "removeLabel": "removeLabel",
+        "retryLabel": "retryLabel",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement",
+        "disabled": "disabled",
+        "error": "error",
+        "required": "required"
+      },
+      "events": {
+        "select": "select",
+        "reject": "reject",
+        "change": "change"
+      },
+      "items": {
+        "file": {
+          "name": "tanrei-file-item",
+          "props": {
+            "value": "value",
+            "name": "name",
+            "mediaType": "mediaType",
+            "glyph": "glyph",
+            "formatText": "formatText",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "retryable",
+            "previewSrc": "previewSrc",
+            "interactive": "interactive",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "readOnly": "readOnly"
+          },
+          "events": {
+            "click": "click",
+            "remove": "remove",
+            "retry": "retry"
+          },
+          "notes": "A `tanrei-file-item` child in the default slot, in the order of the rows, with the attributes of its own spec. Its `file` property (a `File`, never an attribute) is what a form submits for it. `click`, `remove` and `retry` bubble, with `detail.value`. Written by the product only while `rows=\"given\"`; while `rows` is `own` the element renders the same element in its shadow root for each file it keeps."
+        }
+      },
+      "notes": "A row is a File item: **every row is a `tanrei-file-item`** — the product's own child in the default slot while `rows=\"given\"`, and one the element makes in its shadow root for each file it keeps or refused while `rows` is `own`. The six forwarded attributes `item-form`, `item-preview`, `item-fit`, `item-name-hidden`, `item-width`, `item-height`, with `remove-label`, `retry-label` and `disabled`, are given to every file item through an internal channel that is not part of the file item's public surface, and win over what a product's item says of them (FUP-58); through the same channel each item is told that it is an item of a list (`role=\"listitem\"`, FUP-25). The list is `<div part=\"list\" role=\"list\">` around the default slot (given) or around the made items (own): a column, or with `item-form=\"tile\"` a wrapping flex row. While `rows` is `own` each made item is given its `File` as its `file` property, and the item, not this element, makes and revokes the object URL of a picture (FIT-7, FUP-51); `item-preview` absent, none is ever made. A product's `click`, `remove` and `retry` listeners hear the items' own events, which bubble out of the light DOM; those of made items are handled inside and do not leave the shadow root. The parts of a made item leave the file upload under the prefix `item-` (`exportparts=\"container: item-container, media: item-media, icon: item-icon, preview: item-preview, headline: item-headline, supporting-text: item-supporting-text, status-icon: item-status-icon, progress: item-progress, action: item-action\"`), since three of them would collide with the file picker's; a product's own item is styled as itself. A custom element with a shadow root that holds **its member's own element**. An instance: `<tanrei-file-upload layout=\"drop-area\" multiple accept=\".pdf,image/png\" max-size=\"10000000\" drop-text=\"…\" constraints-text=\"…\" remove-label=\"…\" name=\"attachments\"><tanrei-button slot=\"trigger\" variant=\"outlined\">Choose files</tanrei-button></tanrei-file-upload>`. The shadow root is `<tanrei-file-picker exportparts=\"container, icon, label, supporting-text, selection-text\"><slot name=\"trigger\" slot=\"trigger\"></slot><slot name=\"icon\" slot=\"icon\"></slot></tanrei-file-picker>`, then the list and the live region. **Children passed on**: the product's trigger and glyph stay in the product's light DOM and reach the file picker through the two forwarding slots, so the trigger is still the product's own `tanrei-button`, focusable where it stands; the default slot is the file upload's own and holds the product's rows. **Props**: the nine forwarded attributes are reflected onto the file picker as they change; `max-files` and `label` are not set on it, and `selection-text` is set to `empty-text` (or the product's `noFileText`) while the list holds no row. **Events**: the file picker's `select` and `reject` are heard on the member and stopped there; the file upload dispatches its own `select`, `reject` and `change` from its host (FUP-57). **Focus**: no `delegatesFocus` — the one stop the file picker has is the slotted trigger, which is outside every shadow root; a press on the Field's label calls `focus()` on it (FUP-32). **The Field's connection**: the file upload is the Field's control and asks for the connection; the file picker inside asks too, and the file upload answers it in the Field's place with the description and the three states and with no name (FUP-24, FPK-21). **Parts**: the file picker's parts leave under the file picker's names; `list` is the file upload's own. **Tokens**: nothing is written on the member — `--<namespace>-comp-file-picker-…` set on the file upload or above it is inherited into the file picker. The validation message is anchored on the slotted trigger, a descendant of the host. Form-associated (`static formAssociated = true`): `ElementInternals.setFormValue` receives a `FormData` with one entry per row that has a `file`, under the `name` attribute; `setValidity({ valueMissing })` carries FUP-31 with the message of a native required file input. The live region is one visually hidden `aria-live=\"polite\"` element; row changes are collected until the task that made them is over, and then written once. The file upload keeps its own files: the attribute `rows` is `own` (the default, also when absent or unknown) or `given`; the product's rows are drawn only with `rows=\"given\"`, and a `tanrei-file-item` child while `rows` is `own` is not drawn and is reported. `<form><tanrei-file-upload name=\"attachments\" multiple remove-label=\"…\"><tanrei-button slot=\"trigger\" variant=\"outlined\">Choose files</tanrei-button></tanrei-file-upload></form>` is the whole of a plain form's markup. While `rows` is `own`: the element keeps `File` objects in a private list and renders one `tanrei-file-item` for each, and for each refused file, in its own shadow root (the same row element, so a row is built once, in the file item; their `remove` is handled inside and does not leave the shadow root); the same file is one with equal `name`, `size` and `lastModified`. `files` is a read-only property returning a new `File[]` on each read; `add(files: Iterable<File>): { file: File, reason: 'type' | 'size' | 'count' }[]` hands files over and returns the refused; `clear(): void` empties; `formatSize` is a property, never an attribute, `((bytes: number) => string) | null`, null by default — `upload.formatSize = (bytes) => megabytes.format(bytes / 1e6)`. `change` is a CustomEvent that bubbles, `detail.files` a `File[]`; `select` and `reject` keep their details. Attributes `type-error-text`, `size-error-text`, `count-error-text`; left empty they read `setWords({ fileTypeErrorText, fileSizeErrorText, fileCountErrorText })`. The form: `setFormValue(formData, null)` with one entry per kept file under `name` — the second argument null, so that the browser has no state to restore, and `formStateRestoreCallback` restores nothing; `formResetCallback` does what `clear()` does; `setValidity({ valueMissing })` while `required` and `files` is empty, anchored on the trigger, with the message of a native required file input. A native file input with no file submits one empty entry and this element submits none (FUP-49): a server that reads the field checks for both. A product that sends the files itself gives no `name`, reads `files` in its own `submit` handler, and — for a status and a bar on each row — uses `rows=\"given\"`. A drop over an area that refuses delivers no `drop` event in a browser (the file picker has set `dropEffect` to `none`), so nothing arrives and no refused row is drawn for it (FUP-45): a refused row comes from a choice in the picker, from a drop the area could not judge beforehand (a size, an extension, the room that is left) and from `add()`, which calls the file picker's `judge()` (FUP-48). A fixture whose `rows` is `own` and that holds `file` items cannot be markup alone, since a file is no attribute, and the fixture format has no field that asks for a step in script: the harness, the gallery and the documentation's live samples read `rows` and the items, and after the element is defined set `formatSize` and then call `add()` once with one `File` per `file` item, in order — named by the item's `name`, holding as many zero bytes as its place among the items (1, 2, 3 …), so that no two are the same file (FUP-43), and with one fixed `lastModified`. `formatSize` answers each of those sizes with its item's `sizeText`, and is left null where no item has one. The six `own-*` fixtures are the ones staged so; nothing is recorded before `add()` has returned and the rows are rendered. React: `FileUpload` takes `FileItem` children while the product gives the rows, and gains `rows`, `onChange`, `formatSize`, the three texts, and a ref with `files`, `add()` and `clear()`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiFileUpload",
+      "props": {
+        "layout": "layout",
+        "rows": "items",
+        "itemForm": "itemForm",
+        "itemPreview": "itemPreview",
+        "itemFit": "itemFit",
+        "itemNameHidden": "itemNameHidden",
+        "itemWidth": "itemWidth",
+        "itemHeight": "itemHeight",
+        "multiple": "allowsMultipleSelection",
+        "accept": "allowedContentTypes",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "label",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "emptyText": "emptyText",
+        "removeLabel": "removeLabel",
+        "retryLabel": "retryLabel",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement",
+        "disabled": "disabled",
+        "error": "isError",
+        "required": "isRequired"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject",
+        "change": "onChange"
+      },
+      "items": {
+        "file": {
+          "name": "TanreiFileItem",
+          "props": {
+            "value": "id",
+            "name": "name",
+            "mediaType": "mediaType",
+            "glyph": "glyph",
+            "formatText": "formatText",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "isRetryable",
+            "previewSrc": "previewURL",
+            "interactive": "action",
+            "href": "destination",
+            "target": "opens",
+            "targetLabel": "targetLabel",
+            "readOnly": "isReadOnly"
+          },
+          "events": {
+            "click": "action",
+            "remove": "onRemove",
+            "retry": "onRetry"
+          },
+          "notes": "A value in the `items` array, identified by `id`. The product keeps the `URL` it was handed beside it. Passed only while the product gives the rows; left out, the file upload keeps its own files and draws their rows."
+        }
+      },
+      "notes": "Each row is a `TanreiFileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `TanreiFilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. `TanreiFileUpload(items: [TanreiFileItem], layout: .dropArea, onSelect: { urls in … }) { TanreiButton(\"Choose files\") { } }`. The picker is `fileImporter(isPresented:allowedContentTypes:allowsMultipleSelection:)`; `accept` is a list of `UTType` (an extension or a media type is resolved to one), and the files are security-scoped `URL`s the product opens and releases. The drop area is `dropDestination(for: URL.self)` with its `isTargeted` binding for the receiving condition; SwiftUI tells the kinds before the drop, not sizes. With VoiceOver the area is a drop point named by dropText. `disabled` follows `.disabled(_:)` and the environment; the Field's name, description and states arrive through the environment. The announcement is `AccessibilityNotification.Announcement`, one per turn of the run loop. No form submission (FUP-31 does not apply). `rows` is which initialiser is used — `TanreiFileUpload(items:)` is given, also with an empty array; without `items` the view keeps its own files. `TanreiFileUpload(files: $urls) { TanreiButton(\"Choose files\") { } }` binds the kept files to the product's `[URL]` (reading them is reading the binding; handing over and clearing are writing it, judged by FUP-43), and without the binding the view keeps them in its own state for `onChange` to report. The view starts and stops security-scoped access for a URL it keeps and releases it when it lets go (FUP-51). `formatSize: ((Int64) -> String)?`; the same file is the same standardised URL. No form: FUP-49 does not apply, and a product reads the binding when it sends."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiFileUpload",
+      "props": {
+        "layout": "layout",
+        "rows": "items",
+        "itemForm": "itemForm",
+        "itemPreview": "itemPreview",
+        "itemFit": "itemFit",
+        "itemNameHidden": "itemNameHidden",
+        "itemWidth": "itemWidth",
+        "itemHeight": "itemHeight",
+        "multiple": "multiple",
+        "accept": "mimeTypes",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "contentDescription",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "emptyText": "emptyText",
+        "removeLabel": "removeContentDescription",
+        "retryLabel": "retryContentDescription",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement",
+        "disabled": "enabled",
+        "error": "isError",
+        "required": "required"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject",
+        "change": "onChange"
+      },
+      "items": {
+        "file": {
+          "name": "TanreiFileItem",
+          "props": {
+            "value": "key",
+            "name": "name",
+            "mediaType": "mediaType",
+            "glyph": "glyph",
+            "formatText": "formatText",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "retryable",
+            "previewSrc": "previewModel",
+            "interactive": "onClick",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "readOnly": "readOnly"
+          },
+          "events": {
+            "click": "onClick",
+            "remove": "onRemove",
+            "retry": "onRetry"
+          },
+          "notes": "A value in the `items` list, identified by `key`. The product keeps the `Uri` beside it. Passed only while the product gives the rows; left out, the file upload keeps its own files and draws their rows."
+        }
+      },
+      "notes": "Each row is a `TanreiFileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `TanreiFilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. `TanreiFileUpload(items = …, onSelect = { uris -> … }, trigger = { TanreiButton(onClick = {}) { Text(\"Choose files\") } })`. The picker is `rememberLauncherForActivityResult` with `OpenDocument` or `OpenMultipleDocuments`; `accept` is given as MIME types (an extension is resolved through `MimeTypeMap`), and the files are content `Uri`s whose name and size come from the resolver's metadata, not from reading them. The drop area is `Modifier.dragAndDropTarget`, which is meaningful on large screens and with a pointer; on a phone the drop-area layout is still drawn and still pressed. `disabled` is the inverse flag `enabled`. The group is `semantics(mergeDescendants = false) { contentDescription }`; rows carry `CollectionItemInfo`; the announcement is a `liveRegion = Polite` node. No form submission. `rows` is whether `items` is passed — `items = null` (the default) is own, a list, also an empty one, is given. `TanreiFileUpload(state = rememberTanreiFileUploadState(), trigger = { … })`: the state holder has `files: List<Uri>` (a snapshot), `add(uris)` and `clear()`, and survives recomposition, not process death (FUP-49's restoration: it begins empty). `formatSize: ((Long) -> String)? = null`; the same file is the same `Uri`. A kept `Uri` is held with the read permission the picker granted, and nothing is opened. No form."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiFileUpload",
+      "props": {
+        "layout": "layout",
+        "rows": "items",
+        "itemForm": "itemForm",
+        "itemPreview": "itemPreview",
+        "itemFit": "itemFit",
+        "itemNameHidden": "itemNameHidden",
+        "itemWidth": "itemWidth",
+        "itemHeight": "itemHeight",
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "semanticLabel",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "emptyText": "emptyText",
+        "removeLabel": "removeSemanticLabel",
+        "retryLabel": "retrySemanticLabel",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement",
+        "disabled": "enabled",
+        "error": "isError",
+        "required": "required"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject",
+        "change": "onChanged"
+      },
+      "items": {
+        "file": {
+          "name": "TanreiFileItem",
+          "props": {
+            "value": "key",
+            "name": "name",
+            "mediaType": "mediaType",
+            "glyph": "glyph",
+            "formatText": "formatText",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "retryable",
+            "previewSrc": "previewImage",
+            "interactive": "onPressed",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "readOnly": "readOnly"
+          },
+          "events": {
+            "click": "onPressed",
+            "remove": "onRemove",
+            "retry": "onRetry"
+          },
+          "notes": "A value in the `items` list, identified by `key`. Passed only while the product gives the rows; left out, the file upload keeps its own files and draws their rows."
+        }
+      },
+      "notes": "Each row is a `TanreiFileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `TanreiFilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. The framework has no file picker and no drop target for files; both are plugins, and the package depends on none. `TanreiFileUpload(items: …, trigger: TanreiButton(…), onPick: (request) async => …, onSelect: …)`: `onPick` is the product's function that opens whatever picker it uses with the request's `multiple` and `accept` and returns the files as `TanreiPickedFile(name, size, mimeType, handle)`; the file upload judges them by FUP-9 and emits. Drops arrive the same way: the product's drop plugin calls `TanreiFileUploadController.dragEntered / dragExited / dropped(files)`, and without it the drop-area layout is drawn and pressed and takes no drop — the README says so. `disabled` is the inverse flag `enabled`. The announcement is `SemanticsService.announce`. No form submission. Whether the package should depend on a picker plugin instead is not settled. `rows` is whether `items` is passed — null (the default) is own, a list, also an empty one, is given. The `TanreiFileUploadController` that already takes drops gains `files` (an unmodifiable view), `add(files)` and `clear()`; without a controller the widget makes its own. `formatSize: String Function(int bytes)?`; the same file is the same handle, or the same name, size and time of last change where the product's picker gives no location. No form submission: inside a `Form` it is a `FormField` whose value is the kept files, so that `reset()` clears and a validator of the product's can ask for one."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "FileUpload",
+      "props": {
+        "layout": "layout",
+        "rows": "items",
+        "itemForm": "itemForm",
+        "itemPreview": "itemPreview",
+        "itemFit": "itemFit",
+        "itemNameHidden": "itemNameHidden",
+        "itemWidth": "itemWidth",
+        "itemHeight": "itemHeight",
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "accessibilityLabel",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "emptyText": "emptyText",
+        "removeLabel": "removeAccessibilityLabel",
+        "retryLabel": "retryAccessibilityLabel",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement",
+        "disabled": "disabled",
+        "error": "error",
+        "required": "required"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject",
+        "change": "onChange"
+      },
+      "items": {
+        "file": {
+          "name": "FileItem",
+          "props": {
+            "value": "value",
+            "name": "name",
+            "mediaType": "mediaType",
+            "glyph": "glyph",
+            "formatText": "formatText",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "retryable",
+            "previewSrc": "previewSource",
+            "interactive": "onPress",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "readOnly": "readOnly"
+          },
+          "events": {
+            "click": "onPress",
+            "remove": "onRemove",
+            "retry": "onRetry"
+          },
+          "notes": "An object in the `items` array, identified by `value`. Passed only while the product gives the rows; left out, the file upload keeps its own files and draws their rows."
+        }
+      },
+      "notes": "Each row is a `FileItem` (FIT-1 to FIT-33), the same view a product places alone, given the six item props, the two action names and the disabled state by this view; the `items` the product passes are values of that view's props. The view is also built from `FilePicker` (FPK-1 to FPK-31) and passes its trigger, its glyph and the nine forwarded props on to it; what this note says of the picker, of `accept` and of the drop target is that component's, and stays here until this platform is built. React Native has no file picker of its own; the package depends on no picker library. `<FileUpload items={…} trigger={<Button label=\"Choose files\" />} onPick={async ({ multiple, accept }) => files} onSelect={…} />`: `onPick` is the product's function that opens its picker and returns `{ name, size, type, uri }[]`; the file upload judges them by FUP-9 and emits. No drop of files on phones: the drop-area layout is drawn and pressed and takes no drop, and the README says so. The announcement is `AccessibilityInfo.announceForAccessibility`. No form submission. Whether the package should depend on a picker plugin instead is not settled. `rows` is whether `items` is passed — undefined is own, an array, also an empty one, is given. Own is the uncontrolled form: `<FileUpload ref={upload} trigger={…} onPick={…} onChange={(files) => …} />`, the ref holding `files`, `add(files)` and `clear()`. `formatSize?: (bytes: number) => string`; the same file is the same `uri`. No form."
+    }
+  }
+}

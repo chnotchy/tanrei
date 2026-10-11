@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "docs",
+      "runtimeExecutable": "apps/docs/node_modules/.bin/astro",
+      "runtimeArgs": [
+        "preview",
+        "--root",
+        "apps/docs",
+        "--port",
+        "4321"
+      ],
+      "port": 4321
+    }
+  ]
+}

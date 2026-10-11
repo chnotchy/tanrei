@@ -1,0 +1,17 @@
+---
+title: Shape tokens
+description: The corner radius scale, and the one number that says how a corner curves.
+---
+
+import ShapeScale from '../../../components/tokens/ShapeScale.astro';
+import SystemValues from '../../../components/tokens/SystemValues.astro';
+
+Corner radii under `tanrei.sys.shape.corner`. For guidance, read [Shape](/foundations/shape/).
+
+<ShapeScale />
+
+## Corner smoothing
+
+`tanrei.sys.shape.corner-smoothing` is an amount from 0 to 1 with Figma's meaning: 0 a quarter circle, 0.6 what Figma calls the iOS corner, 1 the most eased. The radius does not change with it. Figma's construction is what the amount means; Compose and Flutter draw it, the web draws the nearest superellipse, SwiftUI and iOS React Native the OS's curve (the distances are on [Shape](/foundations/shape/#corner-smoothing)). Per shipped system:
+
+<SystemValues tokens={['sys.shape.corner-smoothing']} />

@@ -1,0 +1,245 @@
+---
+title: "单选组"
+description: "提出一个在同时全部显示出来的少量选项中恰好只有一个答案的问题——一组单选按钮，由它保存选中的值；它带有可以说明必填或选填的标签、一段描述，以及针对整组的一条错误。"
+translationOf: components/radio-group.mdx
+sourceHash: a3b0be7452dc859db3012eadbd2af528ebb21eed
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="radio-group" />
+
+<DemoFrame label="一组单选按钮，带有名称、描述和必填标记" column>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方式" supporting-text="订单发货前可以更改。" requirement="required" required-text="必填" value="standard">
+    <tanrei-radio-button value="standard" label="标准配送（3–5 天）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="加急配送（次日达）"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="到店自提"></tanrei-radio-button>
+  </tanrei-radio-group>
+</DemoFrame>
+
+[单选按钮](/zh-cn/components/radio-button/)从不单独使用。单选组把几个单选按钮变成一个问题：它给这一组一个名称、一行说明该怎么回答的文字、一个说明是否必须回答的词，以及回答被拒绝时的一条原因，并把答案作为一个值来保存。
+
+**组成部分**是一个[字段组](/zh-cn/components/field-group/)和若干[单选按钮](/zh-cn/components/radio-button/)。字段组是框架，用的是它的 radio-group 种类：标签、必填或选填标记、描述、错误、排成一列或一行的布局——以及告知辅助技术的那一个单选组。单选按钮保存值：每一个都是带有自己标签的选项，选中的是哪一个，答案就是哪一个。单选组自己什么都不绘制，也没有令牌。它在这两者之上加的，是否则每个产品都得自己写的状态：一个可读可写的值和与它对应的一个 `change`、方向键和为这一组保留的焦点顺序中的一个停靠点，以及作为一个控件在表单中的位置。
+
+它放在哪里，就和那里一样宽。
+
+在 Web 上它是 `<tanrei-radio-group>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-radio-group label="配送方式" name="delivery" value="standard" requirement="required" required-text="必填"
+                        supporting-text="订单发货前可以更改。">
+      <tanrei-radio-button value="standard" label="标准配送（3–5 天）"></tanrei-radio-button>
+      <tanrei-radio-button value="express" label="加急配送（次日达）"></tanrei-radio-button>
+      <tanrei-radio-button value="pickup" label="到店自提"></tanrei-radio-button>
+    </tanrei-radio-group>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-group';
+
+      const group = document.querySelector('tanrei-radio-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value 是新的值；group.value 已经是这个值了。
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react';
+
+    <RadioGroup label="配送方式" value={delivery} onChange={(event) => setDelivery(event.detail.value)}
+                error={refused} errorText="此地址不支持加急配送，请选择其他配送方式。">
+      <RadioButton value="standard" label="标准配送（3–5 天）" />
+      <RadioButton value="express" label="加急配送（次日达）" />
+      <RadioButton value="pickup" label="到店自提" />
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+在单选组里，单选按钮不需要 `name`，也不需要 `checked`：哪一个被选中，由组的 `value` 说了算。
+
+### 下一层
+
+用它的两个成员手写出来的同一组，画面是一样的，对辅助技术来说也是同一个单选组。用 `kind="radio-group"` 告诉字段组它的这一组是什么，各个单选按钮带同一个 `name`：
+
+```html
+<tanrei-field-group kind="radio-group" label="配送方式"
+                    supporting-text="订单发货前可以更改。"
+                    requirement="required" required-text="必填">
+  <tanrei-radio-button name="delivery" value="standard" label="标准配送（3–5 天）" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="加急配送（次日达）"></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="pickup" label="到店自提"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="手写出来的同一组：种类为 radio-group 的字段组，里面是同一个 name 的单选按钮" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方式" supporting-text="订单发货前可以更改。" requirement="required" required-text="必填">
+    <tanrei-radio-button name="delivery-by-hand" value="standard" label="标准配送（3–5 天）" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-by-hand" value="express" label="加急配送（次日达）"></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-by-hand" value="pickup" label="到店自提"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+手写的字段组和单选按钮不做的事，是保存答案。画出来的和说出来的，没有任何不同。
+
+| 方面 | 手写 | 单选组 |
+| --- | --- | --- |
+| 答案 | 由产品从单选按钮上读取 | `value`，以及一个元素上的一个 `change` |
+| 设置答案 | 在某个单选按钮上设置 `checked` | `value = "express"` |
+| 表单提交什么 | 同一个条目，由选中的单选按钮提交 | 同一个条目，由组提交 |
+| 必填的一组没有回答 | 画出来和说出来都是必填；表单不会拒绝它 | 表单自己的校验会拒绝它 |
+| 选中的选项被移除，或者还没有显示 | 答案丢失 | `value` 保留 |
+| 选中的选项被你单独禁用 | 什么都不提交 | 提交它的值 |
+| 方向键、Tab 键的一个停靠点、每个单选按钮在这一组里的位置 | 相同，由同一个 name 的单选按钮负责 | 相同，由组负责 |
+
+这一组要在选项之间放单选组不负责排布的东西时——比如每个选项下面一行你自己的内容——或者选项必须以插槽不允许的方式放在你自己的元素里时，就手写字段组和单选按钮。
+
+## 规格
+
+<DemoFrame label="必填却未回答而处于错误状态的一组、被拒绝的回答、排成一行，以及有一个选项被禁用的一组" plain column>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方式" requirement="required" required-text="必填" error error-text="请选择配送方式。">
+    <tanrei-radio-button value="standard" label="标准配送（3–5 天）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="加急配送（次日达）"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="到店自提"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方式" supporting-text="订单发货前可以更改。" requirement="required" required-text="必填" value="express" error error-text="此地址不支持加急配送，请选择其他配送方式。">
+    <tanrei-radio-button value="standard" label="标准配送（3–5 天）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="加急配送（次日达）"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="到店自提"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="尺码" orientation="horizontal" value="m">
+    <tanrei-radio-button value="s" label="小号"></tanrei-radio-button>
+    <tanrei-radio-button value="m" label="中号"></tanrei-radio-button>
+    <tanrei-radio-button value="l" label="大号"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方式" requirement="optional" optional-text="选填" value="standard">
+    <tanrei-radio-button value="standard" label="标准配送（3–5 天）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="加急配送（次日达）" disabled></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="到店自提"></tanrei-radio-button>
+  </tanrei-radio-group>
+</DemoFrame>
+
+<ComponentSpecs name="radio-group" />
+
+单选组没有自己的令牌。上表列出的是字段组的令牌，单选组的框架就是用它们绘制的：重新设定字段组样式的设计系统，也就同时重新设定了每一个单选组的样式。每个单选按钮则用单选按钮自己的令牌绘制。
+
+### 各个成员提供什么
+
+| 绘制的内容 | 属于谁 |
+| --- | --- |
+| 标签、必填和选填标记、描述、错误文本、各行之间以及单选按钮之间的距离 | [字段组](/zh-cn/components/field-group/)，来自 `comp.field-group.*` |
+| 每个单选按钮：圆环、填充、标签、状态层、焦点环、禁用时的样子 | [单选按钮](/zh-cn/components/radio-button/)，来自 `comp.radio-button.*` |
+| 其余的一切 | 没有：单选组什么都不绘制 |
+
+### 单独调整某一个组
+
+设计系统为框架设定一次样式，每一个字段组、单选组和复选框组都随之生效。要单独调整某一个实例，就在这个实例上设置：在 Web 上，设置在单选组上的字段组令牌会传到它里面的框架。
+
+```html
+<tanrei-radio-group label="配送方式"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-radio-group>
+```
+
+### Web 上绘制方式的不同之处
+
+- 这个元素的 shadow root 里有一个包着插槽的 `<tanrei-field-group kind="radio-group">`。单选按钮仍然是你自己的子元素。导入这个元素，两个成员也随之完成定义。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`，并以 `name` 为名提交 `value`——选中的单选按钮被你单独禁用时也一样。它的单选按钮无论带什么 `name`，都不提交任何内容。它重置为 `value` 属性（attribute）的值，跟随被禁用的 `<fieldset>`；`requirement` 为 `required` 而 `value` 为空时，它用浏览器对没有回答的一组单选按钮自己的说法报告缺少值。
+- `change` 是 CustomEvent，它的 `detail.value` 是新的值；在它之前会触发 `input`。组内单选按钮上的监听器两者都收不到。
+- 部件：`field-group` 是框架，它的部件在这里的名称与下一层相同：`label`、`requirement-label`、`supporting-text`、`error-text`。你自己的单选按钮像在任何地方一样设定样式，用 `tanrei-radio-button::part(…)`。
+- 这个元素自己不能获得焦点。`focus()` 会把焦点交给作为停靠点的那个单选按钮，页面自己的 `<label for>` 也会把焦点移到那里。
+- 这个元素没有角色：单选组是它里面的字段组。用 `label` 为它命名——标签绘制在别处时再加上 `label-hidden`——绝不要用 `aria-label`，它在这里不为任何东西命名。
+- 属性（attribute）用 kebab-case 书写：`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`。
+- 在元素完成定义之前，以及没有脚本时，它自己什么都不绘制：单选按钮显示为普通内容。必须在没有脚本时也能工作的页面，请写一个原生的 `<fieldset>`，里面放同一个 `name` 的原生单选按钮，它提交的是同一个条目。
+
+## 指南
+
+### 何时用单选组，何时用别的
+
+| 用户要做的事 | 使用 |
+| --- | --- |
+| 在表单或设置里，从少量选项中给出一个值，而这些选项都值得同时看到——最多五个左右 | 单选组。 |
+| 改变下方显示的内容：哪个视图、哪个示例、哪个时间段 | [标签页](/zh-cn/components/tabs/)。 |
+| 从很多选项中给出一个值，或者空间不够 | [下拉选择框](/zh-cn/components/select/)。 |
+| 把多个值作为一个答案给出 | [复选框组](/zh-cn/components/checkbox-group/)。 |
+| 手写同一组，以单选组没有的方式来排布它 | `kind` 为 `radio-group` 的[字段组](/zh-cn/components/field-group/)，里面是同一个 name 的单选按钮（[下一层](#下一层)）。 |
+| 打开或关闭一样东西，并立即生效 | [开关](/zh-cn/components/switch/)。 |
+| 按下并排放着、各自独立切换的按钮 | [按钮组](/zh-cn/components/button-group/)。 |
+
+区分单选组和标签页，看的是这次选择做了什么，而不是它的外观：被保存或被提交的值是单选组；选择要看什么，是标签页。
+
+### 值
+
+- `value` 是选中的单选按钮的值；没有选中任何一个时，是空字符串。设置它就是选中；监听 `change` 可以得知用户的选择。
+- 每选择一次，组触发一次 `change`，带有组此时已经保存的值。你设置 `value` 时不触发，再次激活已选中的选项时也不触发。
+- 用户无法让单选组回到“什么都没选”。如果不作答也是一个真正的答案，就加一个这样说的选项（“无”“无偏好”），或者一开始就选中一个选项。
+- 选择跟随焦点：方向键一边移动一边选中。如果一次选择会立即产生代价高昂或看得见的效果，就从一个用来确认的按钮那里取得答案，而不是从 `change`。
+- 没有任何单选按钮与之对应的值，会显示为什么都没选，并且保留下来：对应的选项可能稍后才出现。
+
+### 布局
+
+- `orientation="vertical"`（默认）把选项叠成一列。优先使用它。
+- `orientation="horizontal"` 把选项排成一行，放不下时换行。只把它用于两三个简短的选项：一行一旦换了行，就不容易看出哪个标签属于哪个圆环。
+
+两种布局下方向键的行为相同，都按给定的顺序移动，而不是按换行后选项落在哪里。
+
+### 错误
+
+`error` 和 `errorText` 由你来设置：组绝不会让自己进入错误状态，即使它必填却没有回答。处于错误状态的组在选项下方绘制错误文本，暴露为无效，并让每个单选按钮都以错误形态绘制：圆环和圆点采用错误颜色，与复选框组里的方框一样。禁用的选项不显示错误颜色，因为它不可能是纠正这个错误的答案。单选按钮自己不会暴露为无效；这一点由组说一次。
+
+值的变化不会清除错误。答案可以接受时，由你清除它。
+
+### 推荐
+
+- 用这些选项所回答的问题来为这一组命名：“配送方式”。
+- 给每个单选按钮一个在组内唯一的 `value`，以及它自己的标签。
+- 选项要少。只有一个选项时该用复选框；选项很多时该用下拉选择框。
+
+### 避免
+
+- 不要在单选组里放其他任何可以操作的东西：不放复选框，不放按钮，不放字段。
+- 不要给单选组里的单选按钮设置 `name`。设置了也会被忽略：这个组就是它们的组。
+- 不要为了给单选组加标签而把它包在字段或字段组里。它有自己的标签。单选组可以是字段组的一个成员，由那个字段组为更大的一组命名（“配送信息”）。
+- 不要用禁用整个组的办法让一组变成只读：禁用的组什么都不提交。单选组没有只读状态；不能更改的答案，请显示为文本，或者逐个禁用单选按钮，这样值会保留。
+
+## 无障碍
+
+<ComponentAccessibility name="radio-group" />
+
+### 组件负责的部分
+
+- 一个包含其单选按钮的单选组，由 `label` 命名，无论它是画出来的，还是用 `labelHidden` 隐藏的。
+- `requirement` 为 `required` 时的必填状态、`error` 为 true 时的无效状态、`disabled` 为 true 时的禁用状态，以及它的方向。
+- 组的描述是 `supportingText`；`error` 为 true 时，后面接 `errorText`；组为选填时，再接 `optionalText`。`requiredText` 不在其中：必填状态已经说明了这一点。
+- 每个单选按钮都说明它在这一组中的位置和这一组的大小，禁用的选项也计算在内。
+- 焦点顺序中只有一个停靠点：选中的单选按钮，或者第一个可用的单选按钮。Tab 从这里进入组，也从这里离开；方向键在组内移动，跳过禁用的选项，到两端时循环。在从右到左的布局中，左方向键和右方向键互换。
+- `disabled` 会禁用每一个单选按钮。启用的组绝不会启用你自己禁用的单选按钮：方向键和 Tab 会跳过它，它在计数中保留自己的位置，并且只要 `value` 是它的值，它就保持选中。
+- 焦点位于某个单选按钮上时出现或改了措辞的错误，会以礼貌（polite）的方式朗读一次。焦点绝不会因为错误而移动。
+- 必填和选填小标签以及星号对辅助技术隐藏。
+- 文本放大到 200% 时，所有文本都会换行，排成一行的选项变成一列，不会有任何内容被截断。
+- 在强制颜色模式下，所有文本都采用系统的文本颜色，必填和选填小标签会多出一道边线。
+- 在从右到左的布局中，各行从右侧开始，排成一行的选项从右侧排起，每段文本保持自己的方向。
+- 在 Web 上，它是所在表单的一个控件：以 `name` 为名提交 `value`，重置时回到最初的值，跟随被禁用的 `fieldset`，并在必填却没有回答时向表单自己的校验报告缺少值。
+- 组里没有单选按钮、组里有其他控件、组没有标签、两个选项的值相同，或者值没有对应的选项，都会在调试构建中报告。
+
+Web 上的已知差距：
+
+- 对于没有回答的一组单选按钮，表单自己的校验显示的是浏览器的消息，而不是 `errorText`。
+- 在元素定义之前，单选按钮出现在页面上时没有组的标签、描述、布局和选择。
+
+### 需要你做的事
+
+- 为组提供 `label`。
+- 自己校验回答，设置 `error`，并编写说明如何改正的 `errorText`。
+- 给出必填和选填的文字：把 `required-text` 和 `optional-text` 写在组上，或者用 `setWords({ requiredText, optionalText })` 为整个产品只给一次。Tanrei 不自带任何文字：没有 `requiredText` 时，小标签的位置上是一个星号；没有 `optionalText` 时，不绘制小标签，也不朗读任何内容。参见[产品的文字](/zh-cn/foundations/words/)。
+- 提交失败之后，还要在表单上方说明哪些内容被拒绝，并链接到这个组：使用一个带 `live`、处于错误语义状态的[提示块](/zh-cn/components/callout/)。

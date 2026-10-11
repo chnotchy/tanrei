@@ -1,0 +1,591 @@
+{
+  "tanrei": {
+    "comp": {
+      "checkbox": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product asks for independent yes/no choices, a parent choice that is only partly true (select all), and a required choice left unmade, enabled and disabled.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "selected",
+              "indeterminate",
+              "error-unselected",
+              "error-selected",
+              "error-indeterminate"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "box.color": "color",
+              "mark.color": "color",
+              "outline.color": "color",
+              "label.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "container.shape": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a checkbox reads: the round state layer (container) and the box inside it, the box's corner and outline width, the size and the weight of the glyph it shows, the label style and gap, the selection motion (colors, and the glyph's fade and scale), and for each condition (unselected, selected, indeterminate and their error- forms) the container / box / mark / outline / label colors in each state.",
+            "rules": [
+              "The condition is chosen by the props: indeterminate wins over checked, and error prefixes the condition. Never pick a condition by hand.",
+              "Hover, focus and press show on the container (the round layer behind the box), never on the box.",
+              "An unchecked box must keep a visible outline (sys.color.outline is at least 3:1): it is the only thing that shows a checkbox is there.",
+              "The mark is a glyph of the system's icon set: check while selected, remove while indeterminate, drawn with the icon set's selected family and fill, at mark.size with its optical size and at mark.weight. Never draw a path of your own; a system that wants another mark chooses another icon set.",
+              "mark.weight is the mark's own weight, not sys.icon.weight: the mark is a thin stroke on a small filled box, so the default draws it heavier than its icons (sys.icon.mark.weight). To make the mark easier or harder to see, change mark.weight; never change mark.size or the box for that, and never give the mark a text style's weight.",
+              "A change of condition fades and scales the glyph and recolors the box; under reduced motion the new condition is drawn whole in the next frame.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "Each condition's state-layer.color is the color hover, focus and press mix into its container; it aliases that condition's outline color, which carries the condition's color."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}"
+          },
+          "size": {
+            "$type": "dimension",
+            "$description": "The round state layer behind the box, Material Design 3's 40. With the label gap it ends where the 48 touch target does, so the label starts at the target's edge.",
+            "$value": {
+              "value": 40,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              }
+            }
+          }
+        },
+        "box": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The side of the visible box, Material Design 3's 18.",
+            "$value": {
+              "value": 18,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 4.5
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$description": "The corner of the box, Material Design 3's 2: one unit of the roundness dial, below the corner scale's first step (extra-small, 3), which on an 18 box reads rounder than Material's.",
+            "$value": {
+              "value": 2,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 1
+              }
+            }
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$description": "The border of the box, drawn inside its edge; the fill sits inside the border and never under it. Material Design 3's 2.",
+            "$value": "{tanrei.sys.border.thick}"
+          }
+        },
+        "mark": {
+          "width": {
+            "$type": "dimension",
+            "$description": "The stroke of the check and the dash drawn as paths. No behaviour of the current spec reads it: the mark is a glyph of the icon set (CHK-12). It stays only so that the platforms that still draw them as paths keep building; remove it in the commit that brings the last of them up to date.",
+            "$value": "{tanrei.sys.border.thick}"
+          },
+          "size": {
+            "$type": "dimension",
+            "$description": "The glyph box of the check and the dash (the icon set's check and remove), centered on the box. 20 on an 18 box: a glyph's box is larger than its ink, and Material Symbols' check drawn at 20 covers about as much of the box as Material Design 3's own check; the ink stays inside the box.",
+            "$value": "{tanrei.sys.icon.small}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product that changes its icon set needs to resize the check without resizing the box: icon sets fill their glyph box differently, and a check that is too small or touches the edges reads badly in a box this size.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "weight": {
+            "$type": "number",
+            "$description": "The weight the check and the dash are drawn at (the `wght` axis of the icon font): the system's weight for a control's own mark, heavier than its icons in the default system. The glyph box (mark.size) does not change with it; only the stroke does.",
+            "$value": "{tanrei.sys.icon.mark.weight}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product draws its icons light and still needs the check in its checkboxes to be seen at a glance: the mark is about a pixel of stroke on a filled box 18 across, the one thing that tells checked from indeterminate, and a product that finds it too faint, or too heavy beside its text, sets it without touching its icons or the marks of its other controls.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The visible label.",
+            "$value": "{tanrei.sys.typescale.body}"
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "From the container to the label.",
+            "$value": "{tanrei.sys.space.space50}"
+          }
+        },
+        "unselected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The state layer is invisible at rest; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "box": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "An unchecked box is drawn by its outline alone; it has no fill."
+                }
+              }
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "An unchecked box shows no mark."
+                }
+              }
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.checkbox.unselected.outline.color}"
+            }
+          }
+        },
+        "selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The state layer is invisible at rest; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "box": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-primary}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.checkbox.selected.outline.color}"
+            }
+          }
+        },
+        "indeterminate": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The state layer is invisible at rest; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "box": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-primary}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.checkbox.indeterminate.outline.color}"
+            }
+          }
+        },
+        "error-unselected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The state layer is invisible at rest; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "box": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "An unchecked box is drawn by its outline alone; it has no fill."
+                }
+              }
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "An unchecked box shows no mark."
+                }
+              }
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.checkbox.error-unselected.outline.color}"
+            }
+          }
+        },
+        "error-selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The state layer is invisible at rest; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "box": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}"
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-error}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.checkbox.error-selected.outline.color}"
+            }
+          }
+        },
+        "error-indeterminate": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The state layer is invisible at rest; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "box": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}"
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-error}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.checkbox.error-indeterminate.outline.color}"
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "selection-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.duration}",
+            "$description": "How long the box, outline and glyph take to change color, and the glyph to fade in or out, when the condition changes."
+          },
+          "selection-easing": {
+            "$type": "cubicBezier",
+            "$description": "The curve of the colors and the glyph's opacity. An opacity or a color cannot overshoot, so this is an effects curve.",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-effects.easing}"
+          },
+          "mark-scale-duration": {
+            "$type": "duration",
+            "$description": "How long the glyph takes to grow in from, or shrink out to, mark-enter-scale when the condition changes.",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets its controls' marks settle with a small overshoot (an expressive motion scheme) while their colors must not overshoot at all; the glyph's scale therefore has its own duration and curve, apart from the colors and the opacity.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "mark-scale-easing": {
+            "$type": "cubicBezier",
+            "$description": "The curve of the glyph's scale. A size may overshoot and settle; this is a spatial curve.",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets its controls' marks settle with a small overshoot (an expressive motion scheme) while their colors must not overshoot at all; the glyph's scale therefore has its own duration and curve, apart from the colors and the opacity.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "mark-enter-scale": {
+            "$type": "number",
+            "$description": "The size the glyph grows from when it appears, and shrinks to when it goes, as a fraction of mark.size, about the box's center. 1 fades without growing.",
+            "$value": 0.5,
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A proportion of the glyph's own size; no dial scales it."
+              },
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product wants a mark that pops in from small, another one that only fades (1): how far the glyph grows is a decision of feel, taken once for every checkbox.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

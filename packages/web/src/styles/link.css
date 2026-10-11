@@ -1,0 +1,711 @@
+/*
+ * Link (specs/link.spec.json, LNK-1 to LNK-35): text that leads somewhere — a phrase in a
+ * sentence, a line by itself, a glyph alone — in the text style of where it sits, underlined as the design system
+ * chooses (at rest, in the default system) and marked where it leaves the site. A class on the product's own anchor,
+ * not an element: the anchor is in the document, so it is a link before any script runs (LNK-1).
+ *
+ *   <a class="tanrei-link" href="/guides/">the guides</a>                                         in a sentence
+ *   <a class="tanrei-link" href="/start/" data-standalone>Getting started</a>                     by itself: a target-size hit area
+ *   <a class="tanrei-link" href="…" target="_blank" aria-description="opens in a new tab">…</a>   a new context: the mark open_in_new
+ *   <a class="tanrei-link" href="…" data-standalone><span class="tanrei-icon" aria-hidden="true">download</span>Download</a>
+ *   <a class="tanrei-link" href="…" data-standalone data-icon-position="trailing">Next<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+ *   <a class="tanrei-link" href="#install" aria-label="Link to Installation"><span class="tanrei-icon" aria-hidden="true">link</span></a>   a glyph alone
+ *   <a class="tanrei-link" href="/components/" aria-current="page" data-standalone>Components</a> the current link
+ *   <a class="tanrei-link" role="link" aria-disabled="true">Previous page</a>                     disabled: no href
+ *   <a class="tanrei-link" href="…" data-variant="inverse">…</a>                                  on sys.color.inverse-surface
+ *   <a class="tanrei-link" href="…" data-underline="hover">…</a>                                  one link set apart: always | hover | never
+ *   <a class="tanrei-link" href="https://…" data-external="true" aria-description="external link">…</a>   another site: the arrow
+ *   <a class="tanrei-link" href="https://…" data-external="true" aria-description="external link"><img class="tanrei-link-site-icon"
+ *      src="/icons/….png" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer">…</a>   and that site's picture
+ *
+ * When the underline is drawn is a choice (LNK-27): `--tanrei-comp-link-underline-visibility` (always | hover | never),
+ * read from the link's PARENT by a style query — so a region (a footer, a list of navigation) may carry its own value —
+ * and `data-underline` on one anchor. What an external link shows is another, `--tanrei-comp-link-external-marks`
+ * (all | arrow | none), read the same way. Where the browser has no style queries the package's script writes the two
+ * names on the document's root (`data-underline-system`, `data-external-marks-system`); with neither, each is its
+ * first value. The stylesheet computes nothing about an address: `data-external` is written where the page is made, or
+ * by the script (LNK-30), and the picture is the product's own `<img>`, the anchor's first child (LNK-32, LNK-35).
+ *
+ * The glyph is a `.tanrei-icon` (icons.css) written against the label's text, with no white space between them. The
+ * mark and a glyph need icons.css; without it the mark is not drawn and takes no room.
+ *
+ * Every value is a `--tanrei-comp-link-*` token, or the system's focus, target, icon and motion tokens.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every rule is nested under ONE parent selector, `:where(.tanrei-link)`. The build (scripts/build.js) writes the
+ *   rules between the two `link:rules` marks a second time into dist/prose.css, under prose's own anchors (PRS-16,
+ *   PRS-17), so rendered Markdown needs no class; and writes the corner-smoothing rule (src/styles/shape.ts)
+ *   in place of the `link:shape` mark, so the curve has one source.
+ * - Every selector has no specificity (`:where()`), except the two that must win over icons.css's own class.
+ * - The anchor stays `display: inline`: its background, its corners and its outline are drawn for its part of each
+ *   line it runs over (LNK-4, LNK-5, LNK-7), and it takes no room of its own.
+ * - A glyph beside the label, the site's picture and the mark take no part in the line: each is placed where it would have stood, in
+ *   room the anchor keeps at that end (padding, which no line break can part from the word beside it — LNK-14). A
+ *   link that keeps such room is drawn as one box cut at the line ends; one that keeps none has every corner on
+ *   every line.
+ * - The state rules, the focus indicator and the minimum target say what `stateRules()`, `focusRing()` and
+ *   `minimumTarget()` (src/primitives) say for a shadow root; they are restated here for an inline box in the
+ *   document.
+ * - Pressed: with the package's script it is `data-pressed` (the shared press primitive: overlay, ripple, dim, none,
+ *   and the hold). Without it, `:active` is the overlay, held for press-hold by a delayed step of `--_link-held-image`
+ *   and `--_link-held-clip` (below: "The hold of a press that no script answers").
+ * - NOTHING IS REGISTERED: no `@property` rule. One registered custom property in a document makes every element on
+ *   which a transition starts cost Chromium 0.7 ms a restyle on a page of the tokens (src/styles/registered-properties.ts).
+ *   A state's color changes by the background's own transition; a part with a font of its own reads the line of the
+ *   link's text as `1lh` in its own `line-height`, where that unit means the parent's line.
+ * - The underline is never taken away where a choice hides it: its color is transparent, so the line takes part in
+ *   the state's transition and nothing is laid out again (LNK-27, LNK-28). `--_link-rule-rest` is its color at rest
+ *   and `--_link-rule-active` while the link is hovered, focused from the keyboard or pressed.
+ * - What one element finds out for another passes as an inherited value, never as a `:has()` asked for the other's
+ *   sake (has.test.ts): `--_link-site-icon` is the picture's `display`, said by the anchor.
+ * - Names that begin `--_link-` are private.
+ */
+
+@layer tanrei.components {
+  :where(.tanrei-link) {
+    /* link:rules */
+    /* ── The tokens of the look: standard, inverse, and each as the current link (LNK-2, LNK-6, LNK-18, LNK-19) ──── */
+    --_link-container: var(--tanrei-comp-link-standard-container-color);
+    --_link-label: var(--tanrei-comp-link-standard-label-color);
+    --_link-icon: var(--tanrei-comp-link-standard-icon-color);
+    --_link-hovered-container: var(--tanrei-comp-link-standard-hovered-container-color);
+    --_link-hovered-label: var(--tanrei-comp-link-standard-hovered-label-color);
+    --_link-hovered-icon: var(--tanrei-comp-link-standard-hovered-icon-color);
+    --_link-focused-container: var(--tanrei-comp-link-standard-focused-container-color);
+    --_link-focused-label: var(--tanrei-comp-link-standard-focused-label-color);
+    --_link-focused-icon: var(--tanrei-comp-link-standard-focused-icon-color);
+    --_link-pressed-container: var(--tanrei-comp-link-standard-pressed-container-color);
+    --_link-pressed-label: var(--tanrei-comp-link-standard-pressed-label-color);
+    --_link-pressed-icon: var(--tanrei-comp-link-standard-pressed-icon-color);
+    --_link-disabled-container: var(--tanrei-comp-link-standard-disabled-container-color);
+    --_link-disabled-label: var(--tanrei-comp-link-standard-disabled-label-color);
+    --_link-disabled-icon: var(--tanrei-comp-link-standard-disabled-icon-color);
+    &:where([data-variant='inverse']) {
+      --_link-container: var(--tanrei-comp-link-inverse-container-color);
+      --_link-label: var(--tanrei-comp-link-inverse-label-color);
+      --_link-icon: var(--tanrei-comp-link-inverse-icon-color);
+      --_link-hovered-container: var(--tanrei-comp-link-inverse-hovered-container-color);
+      --_link-hovered-label: var(--tanrei-comp-link-inverse-hovered-label-color);
+      --_link-hovered-icon: var(--tanrei-comp-link-inverse-hovered-icon-color);
+      --_link-focused-container: var(--tanrei-comp-link-inverse-focused-container-color);
+      --_link-focused-label: var(--tanrei-comp-link-inverse-focused-label-color);
+      --_link-focused-icon: var(--tanrei-comp-link-inverse-focused-icon-color);
+      --_link-pressed-container: var(--tanrei-comp-link-inverse-pressed-container-color);
+      --_link-pressed-label: var(--tanrei-comp-link-inverse-pressed-label-color);
+      --_link-pressed-icon: var(--tanrei-comp-link-inverse-pressed-icon-color);
+      --_link-disabled-container: var(--tanrei-comp-link-inverse-disabled-container-color);
+      --_link-disabled-label: var(--tanrei-comp-link-inverse-disabled-label-color);
+      --_link-disabled-icon: var(--tanrei-comp-link-inverse-disabled-icon-color);
+    }
+    &:where([aria-current]:not([aria-current='false'])) {
+      --_link-container: var(--tanrei-comp-link-standard-current-container-color);
+      --_link-label: var(--tanrei-comp-link-standard-current-label-color);
+      --_link-icon: var(--tanrei-comp-link-standard-current-icon-color);
+      --_link-hovered-container: var(--tanrei-comp-link-standard-hovered-current-container-color);
+      --_link-hovered-label: var(--tanrei-comp-link-standard-hovered-current-label-color);
+      --_link-hovered-icon: var(--tanrei-comp-link-standard-hovered-current-icon-color);
+      --_link-focused-container: var(--tanrei-comp-link-standard-focused-current-container-color);
+      --_link-focused-label: var(--tanrei-comp-link-standard-focused-current-label-color);
+      --_link-focused-icon: var(--tanrei-comp-link-standard-focused-current-icon-color);
+      --_link-pressed-container: var(--tanrei-comp-link-standard-pressed-current-container-color);
+      --_link-pressed-label: var(--tanrei-comp-link-standard-pressed-current-label-color);
+      --_link-pressed-icon: var(--tanrei-comp-link-standard-pressed-current-icon-color);
+      --_link-disabled-container: var(--tanrei-comp-link-standard-disabled-current-container-color);
+      --_link-disabled-label: var(--tanrei-comp-link-standard-disabled-current-label-color);
+      --_link-disabled-icon: var(--tanrei-comp-link-standard-disabled-current-icon-color);
+    }
+    &:where([data-variant='inverse'][aria-current]:not([aria-current='false'])) {
+      --_link-container: var(--tanrei-comp-link-inverse-current-container-color);
+      --_link-label: var(--tanrei-comp-link-inverse-current-label-color);
+      --_link-icon: var(--tanrei-comp-link-inverse-current-icon-color);
+      --_link-hovered-container: var(--tanrei-comp-link-inverse-hovered-current-container-color);
+      --_link-hovered-label: var(--tanrei-comp-link-inverse-hovered-current-label-color);
+      --_link-hovered-icon: var(--tanrei-comp-link-inverse-hovered-current-icon-color);
+      --_link-focused-container: var(--tanrei-comp-link-inverse-focused-current-container-color);
+      --_link-focused-label: var(--tanrei-comp-link-inverse-focused-current-label-color);
+      --_link-focused-icon: var(--tanrei-comp-link-inverse-focused-current-icon-color);
+      --_link-pressed-container: var(--tanrei-comp-link-inverse-pressed-current-container-color);
+      --_link-pressed-label: var(--tanrei-comp-link-inverse-pressed-current-label-color);
+      --_link-pressed-icon: var(--tanrei-comp-link-inverse-pressed-current-icon-color);
+      --_link-disabled-container: var(--tanrei-comp-link-inverse-disabled-current-container-color);
+      --_link-disabled-label: var(--tanrei-comp-link-inverse-disabled-current-label-color);
+      --_link-disabled-icon: var(--tanrei-comp-link-inverse-disabled-current-icon-color);
+    }
+    /* A variant the system does not have is the default one (LNK-21): no rule above names it. */
+
+    /* ── The link (LNK-2 to LNK-5) ───────────────────────────────────────────────────────────────────────────────── */
+    --_link-now-container: var(--_link-container);
+    --_link-now-label: var(--_link-label);
+    --_link-shape: var(--tanrei-comp-link-container-shape);
+    --_link-gap: var(--tanrei-comp-link-container-gap);
+    --_link-target: var(--tanrei-sys-target-pointer);
+    /* The room a glyph or the mark stands in: the size of the text and the gap — none where icons.css is not loaded. */
+    --_link-room: calc((1em + var(--_link-gap)) * var(--tanrei-icons, 0));
+    --tanrei-corner-radius: var(--_link-shape);
+    --tanrei-corner-pill: 0;
+    position: relative;
+    isolation: isolate;
+    /* LNK-2: no text style of its own — family, size, weight, line height and letter spacing are the text's. */
+    color: var(--_link-now-label);
+    /* LNK-5: the box of its text on each line, behind it; it takes no room. Its color is the present state's, which
+       changes over the state motion (LNK-11) by the background's own transition. */
+    background-color: var(--_link-now-container);
+    /* The hold of a press that no script answers (LNK-8). While the anchor is held down, and for press-hold after, the
+       pressed container is drawn as a layer of its own — an image of that one color — and the state's color under it
+       is not drawn: the pressed color stands in the state's place, as it does with the script, and is not laid over
+       it. Both are said by two names that only a press changes and that no one registers; each steps back after
+       press-hold (`transition-behavior: allow-discrete`), and the two properties that read them have no transition,
+       so they follow the names frame by frame. The background's COLOR is never part of the hold: a property that
+       transitions starts its transition when the press ends — toward the value it has without the hold, which a
+       transition's start does not count — and would fade the pressed color while it is being held. The second layer is there for its clip alone:
+       a background's color is clipped as its last layer is, and `text` leaves it behind the label's own glyphs. */
+    --_link-held-image: none;
+    --_link-held-clip: border-box;
+    background-image: var(--_link-held-image);
+    background-clip: var(--_link-held-clip);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    /* LNK-3: underlined by the underline tokens, in the label's color, under the text only. LNK-27: the line is
+       always there and its color is the choice — the label's at rest and in every state under `always`, the first
+       value and what stands where nothing below names another. */
+    --_link-rule-rest: var(--_link-system-rest, currentcolor);
+    --_link-rule-active: var(--_link-system-active, currentcolor);
+    --_link-rule: var(--_link-rule-rest);
+    text-decoration-line: underline;
+    text-decoration-color: var(--_link-rule);
+    text-decoration-thickness: var(--tanrei-comp-link-underline-width);
+    text-underline-offset: var(--tanrei-comp-link-underline-offset);
+    /* LNK-32: the site's picture is drawn for an external link alone (below). */
+    --_link-site-icon: none;
+    /* LNK-33: the arrow of an external link is drawn unless the marks are turned off (below). (In the line, as the
+       mark of a new context is: a block's place out of the line would be the start of the next one.) */
+    --_link-arrow: var(--_link-system-arrow, inline-flex);
+    /* The room the picture stands in: the size of the text and the gap. (It needs no icon font.) */
+    --_link-picture-room: calc((1em + var(--_link-gap)) * var(--_link-system-pictures, 1));
+    /* LNK-4: an address longer than the line breaks inside itself. */
+    overflow-wrap: break-word;
+    /* LNK-26: a phrase of its sentence, in that sentence's direction, reordering nothing beside it. */
+    unicode-bidi: isolate;
+    -webkit-tap-highlight-color: transparent;
+    /* LNK-11; and the hold of a press that no script answers: it stands for press-hold, then gives way to the state
+       under it at once (a step: the two names are no numbers to move through). */
+    /* (The hold stands first: its delay is where the script reads sys.motion.duration.press-hold as a time.) */
+    transition:
+      --_link-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+      --_link-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold),
+      background-color var(--tanrei-comp-link-motion-state-duration) var(--tanrei-comp-link-motion-state-easing),
+      color var(--tanrei-comp-link-motion-state-duration) var(--tanrei-comp-link-motion-state-easing),
+      text-decoration-color var(--tanrei-comp-link-motion-state-duration) var(--tanrei-comp-link-motion-state-easing),
+      opacity var(--tanrei-comp-link-motion-state-duration) var(--tanrei-comp-link-motion-state-easing);
+    transition-behavior: allow-discrete;
+    @media (prefers-reduced-motion: reduce) {
+      transition:
+        --_link-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+        --_link-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold);
+      transition-behavior: allow-discrete;
+    }
+    @media (pointer: coarse) {
+      --_link-target: var(--tanrei-sys-target-touch);
+    }
+    /* LNK-10: the corners, eased by sys.shape.corner-smoothing. */
+    /* link:shape */
+
+    /* LNK-26: a link that stands by itself is text of its own direction, by its first strong character. (Not one
+       with a glyph, the mark or the marks of an external link: each is placed from where the text's own order puts
+       it, which must be the layout's — README, "Link".) */
+    &:where([data-standalone]:not([data-standalone='false'], :has(> .tanrei-icon), [target='_blank' i], [data-external]:not([data-external='false']))) {
+      unicode-bidi: plaintext;
+    }
+
+    /* ── When the underline is drawn (LNK-27, LNK-28) ────────────────────────────────────────────────────────────── */
+    /* The design system's choice, or a region's: the component token, as the link's parent holds it… (One question
+       for every link, and the second only where the first is answered yes: each is asked of every anchor of a page,
+       and a long page of prose pays for each — prose.perf.test.ts.) */
+    @container style(--tanrei-comp-link-underline-visibility: hover) or style(--tanrei-comp-link-underline-visibility: never) {
+      --_link-rule-rest: transparent;
+      @container style(--tanrei-comp-link-underline-visibility: never) {
+        --_link-rule-active: transparent;
+      }
+    }
+    /* (For a browser without style queries the name the script wrote on the document's root has already answered:
+       `--_link-system-rest` and `--_link-system-active`, at the end of this file.) */
+    /* One link set apart, whatever the tokens say. A value that is none of the three is auto: no rule names it. */
+    &:where([data-underline='always']) {
+      --_link-rule-rest: currentcolor;
+      --_link-rule-active: currentcolor;
+    }
+    &:where([data-underline='hover']) {
+      --_link-rule-rest: transparent;
+      --_link-rule-active: currentcolor;
+    }
+    &:where([data-underline='never']) {
+      --_link-rule-rest: transparent;
+      --_link-rule-active: transparent;
+    }
+
+    /* ── A glyph beside the label, the mark, and the marks of an external link (LNK-13, LNK-14, LNK-31, LNK-32) ──── */
+    /* A leading glyph: room at the start. */
+    &:where(:has(> .tanrei-icon)) {
+      padding-inline-start: var(--_link-room);
+      -webkit-box-decoration-break: slice;
+      box-decoration-break: slice;
+    }
+    /* A trailing glyph: room at the end, and no mark — the product has chosen what that place shows. */
+    &:where([data-icon-position='trailing']:has(> .tanrei-icon)) {
+      padding-inline: 0 var(--_link-room);
+    }
+    /* A new context, or another site: room after the label for the one glyph that says so (LNK-13, LNK-31). */
+    &:where(:is([target='_blank' i], [data-external]:not([data-external='false'])):not([data-icon-position='trailing']:has(> .tanrei-icon))) {
+      padding-inline-end: var(--_link-room);
+      -webkit-box-decoration-break: slice;
+      box-decoration-break: slice;
+    }
+    /* Another site, with its picture (LNK-32): the picture is drawn, and has its room before the label from the
+       first frame — whether or not it ever arrives. The product's own leading glyph stands in that place instead. */
+    &:where([data-external]:not([data-external='false'])) {
+      /* In the line, as a glyph is: the place it would have had is then beside the label, not at the line's start. */
+      --_link-site-icon: var(--_link-system-site-icon, inline-block);
+    }
+    &:where([data-external]:not([data-external='false']):not([target='_blank' i], [data-icon-position='trailing']:has(> .tanrei-icon))) {
+      padding-inline-end: calc(var(--_link-room) * var(--_link-system-arrows, 1));
+    }
+    &:where([data-external]:not([data-external='false']):has(> img.tanrei-link-site-icon)) {
+      padding-inline-start: var(--_link-picture-room);
+      -webkit-box-decoration-break: slice;
+      box-decoration-break: slice;
+    }
+    &:where(:not([data-icon-position='trailing']):has(> .tanrei-icon)) {
+      --_link-site-icon: none;
+      padding-inline-start: var(--_link-room);
+    }
+    /* The glyph: a box as large as the text's font size, centred on its line, in the label's color, outlined
+       (sys.icon.family.unselected and fill.unselected, whatever the link's state says of a selection). It is out of
+       the line — at the place it would have had, moved into its room — so no line break comes between it and the
+       word beside it, and no underline is drawn under it. */
+    & > .tanrei-icon.tanrei-icon {
+      --_size: 1em;
+      --_fill: var(--tanrei-sys-icon-fill-unselected);
+      --_family: var(--tanrei-sys-icon-family-unselected);
+      position: absolute;
+      /* Centred on the line of the link's text. That line is the anchor's, and the glyph's own is its box: `1lh` said
+         in `line-height` is the PARENT's line, as a length, and from there on it is this box's `1lh`. The glyph's one
+         line of text is then taller than its box, and is centred on it — where a line as tall as the box put it. */
+      display: inline-flex;
+      align-items: center;
+      line-height: 1lh;
+      margin-block-start: calc((1lh - 1em) / 2);
+      margin-inline: calc(-1 * var(--_link-room)) 0;
+      vertical-align: baseline;
+    }
+    &:where([data-icon-position='trailing']) > .tanrei-icon.tanrei-icon {
+      margin-inline: var(--_link-gap) 0;
+    }
+    /* The site's picture (LNK-32): the product's own `<img>`, the anchor's first child, placed as a leading glyph is —
+       a square box as large as the text's font size, centred on its line, the whole picture inside it. Decoration:
+       `alt=""` is the product's to write. It is a picture in every state and every direction: nothing here recolors
+       or mirrors it. Its corners are comp.link.site-icon.shape, eased as the anchor's are (the curve is inherited). */
+    & > :where(img.tanrei-link-site-icon) {
+      display: var(--_link-site-icon);
+      position: absolute;
+      inline-size: 1em;
+      block-size: 1em;
+      max-inline-size: none;
+      /* The line of the link's text (see the glyph, above): a picture has no line of its own to lose. */
+      line-height: 1lh;
+      margin-block-start: calc((1lh - 1em) / 2);
+      margin-inline: calc(-1 * var(--_link-picture-room)) 0;
+      border-radius: calc(var(--tanrei-comp-link-site-icon-shape) * var(--_corner-scale, 1));
+      corner-shape: inherit;
+      object-fit: contain;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    /* A picture that could not be loaded keeps its room and draws nothing: the script marks it. (No selector names a
+       broken picture. Without the script Chromium draws nothing for one whose alternative is empty; Firefox and
+       WebKit draw their own outline of it — README, "Link".) */
+    & > :where(img.tanrei-link-site-icon[data-failed]) {
+      visibility: hidden;
+    }
+    /* Right to left: the browsers do not agree on the place an element out of the line would have had inside an
+       inline box, so the glyph stands at the edge of the link itself — the right edge of its first part when it
+       leads, the left edge of its last part when it trails — where its room is. (The leading edge is where every
+       engine says it is. The trailing one is not, for a link that runs over several lines: see "The end of a
+       right-to-left link", below the mark.) */
+    &:where(:dir(rtl)) > .tanrei-icon.tanrei-icon {
+      right: 0;
+      margin-inline: 0;
+    }
+    &:where(:dir(rtl)) > :where(img.tanrei-link-site-icon) {
+      right: 0;
+      margin-inline: 0;
+    }
+    &:where([data-icon-position='trailing']:dir(rtl)) > .tanrei-icon.tanrei-icon {
+      right: auto;
+      left: 0;
+    }
+    /* The mark: ONE glyph after the label, drawn as the trailing glyph is and mirrored in a
+       right-to-left layout, as the icon set says of both names — arrow_outward for a link that leaves the site and
+       opens where the person is (LNK-31), open_in_new for one that opens a new context, external or not (LNK-13).
+       One pseudo-element, so the two are never both drawn. Decorative: aria-description says it. (The glyph's
+       declarations are icons.css's.) */
+    &:where(:is([target='_blank' i], [data-external]:not([data-external='false'])):not([data-icon-position='trailing']:has(> .tanrei-icon)))::after {
+      content: 'arrow_outward';
+      content: 'arrow_outward' / '';
+      /* (A flex box whose one line is the anchor's line high, centred on a box the size of the text: see the glyph.) */
+      display: inline-flex;
+      align-items: center;
+      position: absolute;
+      overflow: hidden;
+      inline-size: 1em;
+      block-size: 1em;
+      margin-block-start: calc((1lh - 1em) / 2);
+      margin-inline: var(--_link-gap) 0;
+      font-family: var(--tanrei-sys-icon-family-unselected);
+      font-style: normal;
+      font-weight: normal;
+      line-height: 1lh;
+      letter-spacing: normal;
+      text-transform: none;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-user-select: none;
+      user-select: none;
+      pointer-events: none;
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      font-optical-sizing: auto;
+      font-variation-settings:
+        'FILL' var(--tanrei-sys-icon-fill-unselected),
+        'wght' var(--tanrei-sys-icon-weight),
+        'GRAD' 0;
+      opacity: var(--tanrei-icons, 0);
+    }
+    /* The optical size is the box's, written by hand where the engine can turn the box's size into a number (not
+       every engine draws font-optical-sizing: auto): the arithmetic and the condition are src/styles/icons.ts's,
+       written in place by the build (writeGlyphAxes). */
+    @supports glyph-optical-size {
+      &:where(:is([target='_blank' i], [data-external]:not([data-external='false'])):not([data-icon-position='trailing']:has(> .tanrei-icon)))::after {
+        font-variation-settings: glyph-axes(1em);
+      }
+    }
+    &:where([target='_blank' i]:not([data-icon-position='trailing']:has(> .tanrei-icon)))::after {
+      content: 'open_in_new';
+      content: 'open_in_new' / '';
+    }
+    /* The arrow is drawn while comp.link.external.marks is not none (below). The anchor says so and its own box reads
+       it: a style query asked for a pseudo-element is not answered alike by every engine. */
+    &:where([data-external]:not([data-external='false']):not([target='_blank' i]))::after {
+      display: var(--_link-arrow);
+    }
+    &:where(:is([target='_blank' i], [data-external]:not([data-external='false'])):dir(rtl))::after {
+      left: 0;
+      margin-inline: 0;
+      transform: scaleX(-1);
+    }
+
+    /* ── The end of a right-to-left link: a trailing glyph and the mark, placed as each engine can (LNK-14) ──────── */
+    /* `left: 0` above is the left edge of the link's LAST part — of the box CSS defines for an inline box that runs
+       over several lines, from the right edge of its first part to the left edge of its last. That box has a width
+       below nothing when the last line of the link ends before the place its first line began (a link that begins
+       late on a line and ends early on a later one: any link in a narrow paragraph, at one width in four). WebKit
+       keeps the box as defined, and the rule above is right there at every width. Blink and Gecko give it no width,
+       at the right edge of the FIRST part, and the glyph was drawn there — on the last line, far from the label and
+       over the words that follow. Neither has one rule in common with WebKit that is right:
+         - Blink places an element out of the line where it would have stood (as every engine does left to right),
+           and WebKit and Gecko do not, right to left;
+         - Gecko places it rightly only IN the line, where it breaks no line before a box that follows a word
+           without a space, and Blink and WebKit do break there (the glyph would begin a line).
+       So each engine is named by a property only it has, and given the one way that is right in it; a browser
+       named by neither has the rule above, which is CSS's own. The three are measured against one another at every
+       width, in each direction and with labels of each direction, by link.test.ts ("never apart from it"). */
+    @supports (-webkit-app-region: none) {
+      /* Blink: where it would have stood — after the label's last character, which right to left is its left —
+         the gap from it. */
+      &:where([data-icon-position='trailing']:dir(rtl)) > .tanrei-icon.tanrei-icon,
+      &:where(:is([target='_blank' i], [data-external]:not([data-external='false'])):dir(rtl))::after {
+        left: auto;
+        margin-right: var(--_link-gap);
+      }
+    }
+    @supports (-moz-appearance: none) {
+      /* Gecko: in the line, after the label's last character, taking no room of its own — drawn in the room the
+         anchor keeps after it, on the middle of the line and no taller than the text's own box. */
+      &:where([data-icon-position='trailing']:dir(rtl)) > .tanrei-icon.tanrei-icon,
+      &:where(:is([target='_blank' i], [data-external]:not([data-external='false'])):dir(rtl))::after {
+        position: relative;
+        top: calc((1lh - 1em) / 2);
+        left: auto;
+        margin-block-start: 0;
+        margin-right: var(--_link-gap);
+        margin-left: calc(-1em - var(--_link-gap));
+        vertical-align: top;
+      }
+    }
+
+    /* ── Which marks an external link shows (LNK-33): comp.link.external.marks — all, arrow, none ────────────────── */
+    /* arrow: no picture, and no room for one. none: neither mark — the link is drawn as one that stays on the site
+       (the mark of a new context is not touched: `--_link-arrow` is read by the arrow alone). Read as the underline
+       choice is: from the link's parent — and every rule here names an external link, so the question is asked of
+       those alone. (Without style queries the name on the document's root has already answered, through the
+       `--_link-system-*` values at the end of this file: the picture, the arrow and their rooms.) */
+    @container style(--tanrei-comp-link-external-marks: arrow) or style(--tanrei-comp-link-external-marks: none) {
+      &:where([data-external]:not([data-external='false'])) {
+        --_link-site-icon: none;
+      }
+      &:where([data-external]:not([data-external='false']):has(> img.tanrei-link-site-icon):not(:has(> .tanrei-icon))) {
+        padding-inline-start: 0;
+      }
+      &:where([data-external]:not([data-external='false']):has(> img.tanrei-link-site-icon)[data-icon-position='trailing']) {
+        padding-inline-start: 0;
+      }
+    }
+    @container style(--tanrei-comp-link-external-marks: none) {
+      &:where([data-external]:not([data-external='false'])) {
+        --_link-arrow: none;
+      }
+      &:where([data-external]:not([data-external='false']):not([target='_blank' i], [data-icon-position='trailing']:has(> .tanrei-icon))) {
+        padding-inline-end: 0;
+      }
+      &:where([data-external]:not([data-external='false']):not([target='_blank' i], :has(> .tanrei-icon))) {
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+      }
+      &:where([data-external]:not([data-external='false'])[data-standalone]:not([data-standalone='false'], [target='_blank' i], :has(> .tanrei-icon))) {
+        unicode-bidi: plaintext;
+      }
+    }
+
+    /* ── The current link (LNK-18): no underline, the emphasized weight of the text style it sits in ─────────────── */
+    &:where([aria-current]:not([aria-current='false'])) {
+      font-weight: var(--tanrei-text-emphasized-weight, bolder);
+      text-decoration-line: none;
+    }
+
+    /* ── A glyph alone (LNK-16): a square one line of its text high, no underline, no mark, no picture ───────────── */
+    &:where([aria-label]:has(> .tanrei-icon), .tanrei-prose-anchor) {
+      --_link-site-icon: none;
+      --_link-label: var(--_link-icon);
+      --_link-hovered-label: var(--_link-hovered-icon);
+      --_link-focused-label: var(--_link-focused-icon);
+      --_link-pressed-label: var(--_link-pressed-icon);
+      --_link-disabled-label: var(--_link-disabled-icon);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      inline-size: 1lh;
+      block-size: 1lh;
+      padding: 0;
+      vertical-align: top;
+      text-decoration-line: none;
+    }
+    &:where([aria-label]:has(> .tanrei-icon), .tanrei-prose-anchor) > .tanrei-icon.tanrei-icon {
+      position: static;
+      margin: 0;
+    }
+    &:where([aria-label]:has(> .tanrei-icon), .tanrei-prose-anchor)::after {
+      content: none;
+    }
+
+    /* ── The hit area (LNK-17) ───────────────────────────────────────────────────────────────────────────────────── */
+    /* In a sentence it is the link's own text. By itself, or a glyph alone, it reaches the minimum target on both
+       axes around the link, and takes no room. */
+    &:where([data-standalone]:not([data-standalone='false']), [aria-label]:has(> .tanrei-icon), .tanrei-prose-anchor):where(:any-link)::before {
+      content: '';
+      position: absolute;
+      inset-block: min(0px, calc((100% - var(--_link-target)) / 2));
+      inset-inline: min(0px, calc((100% - var(--_link-target)) / 2));
+    }
+
+    /* ── States (LNK-6 to LNK-9): pressed over focused over hovered, each from its own tokens ────────────────────── */
+    @media (hover: hover) {
+      &:where(:any-link:hover) {
+        --_link-rule: var(--_link-rule-active);
+        --_link-now-container: var(--_link-hovered-container);
+        --_link-now-label: var(--_link-hovered-label);
+        --_link-shape: var(--tanrei-comp-link-hovered-container-shape);
+        opacity: var(--tanrei-comp-link-hovered-opacity);
+      }
+    }
+    /* LNK-7: the focus indicator, around the link's part of each line; never animated, never for a pointer. */
+    &:where(:any-link:focus-visible) {
+      --_link-rule: var(--_link-rule-active);
+      --_link-now-container: var(--_link-focused-container);
+      --_link-now-label: var(--_link-focused-label);
+      --_link-shape: var(--tanrei-comp-link-focused-container-shape);
+      --_link-focus-inner-edge: calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width));
+      opacity: var(--tanrei-comp-link-focused-opacity);
+      outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+      outline-offset: var(--_link-focus-inner-edge);
+      /* The inner stroke, where the system has one: from the container to the outer stroke (an inline box has no
+         second ring to draw it with). The second term is 0 where the inner width is. */
+      box-shadow: 0 0 0 min(var(--_link-focus-inner-edge), calc(var(--tanrei-sys-focus-inner-width) * 1000)) var(--tanrei-sys-color-focus-ring-inner);
+    }
+    /* LNK-10, focus-style: glow — the same two colors as a halo; read by a style query, and from data-focus-style
+       (written by the script when focus arrives) where there are none. */
+    @container style(--tanrei-sys-behavior-focus-style: glow) {
+      &:where(:any-link:focus-visible) {
+        outline-color: transparent;
+        box-shadow:
+          0 0 var(--tanrei-sys-focus-inner-width) calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width)) var(--tanrei-sys-color-focus-ring-inner),
+          0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+      }
+    }
+    &:where(:any-link[data-focus-style='glow']:focus-visible) {
+      outline-color: transparent;
+      box-shadow:
+        0 0 var(--tanrei-sys-focus-inner-width) calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width)) var(--tanrei-sys-color-focus-ring-inner),
+        0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+    }
+    /* LNK-8, without script: the overlay at once, and the two names keep the container for press-hold after. */
+    &:where(:any-link:active:not([data-pressed])) {
+      --_link-rule: var(--_link-rule-active);
+      --_link-held-image: linear-gradient(var(--_link-pressed-container), var(--_link-pressed-container)), none;
+      --_link-held-clip: border-box, text;
+      --_link-now-label: var(--_link-pressed-label);
+      --_link-shape: var(--tanrei-comp-link-pressed-container-shape);
+      opacity: var(--tanrei-comp-link-pressed-opacity);
+      transition-duration: 0s;
+      transition-delay: 0s;
+    }
+    /* LNK-8, LNK-9, with the script: `data-pressed` names the feedback. `none` changes nothing at all. */
+    &:where([data-pressed]:not([data-pressed='none'])) {
+      transition-duration: 0s;
+    }
+    &:where([data-pressed='overlay']) {
+      --_link-rule: var(--_link-rule-active);
+      --_link-now-container: var(--_link-pressed-container);
+      --_link-now-label: var(--_link-pressed-label);
+      --_link-shape: var(--tanrei-comp-link-pressed-container-shape);
+      opacity: var(--tanrei-comp-link-pressed-opacity);
+    }
+    /* ripple, dim: everything but the container color, which stays with the state under the press. */
+    &:where([data-pressed='ripple'], [data-pressed='dim']) {
+      --_link-rule: var(--_link-rule-active);
+      --_link-now-label: var(--_link-pressed-label);
+      --_link-shape: var(--tanrei-comp-link-pressed-container-shape);
+      opacity: var(--tanrei-comp-link-pressed-opacity);
+    }
+    /* The ripple's layer (src/primitives/ripple.ts adds it and sets --_x, --_y, --_r): the pressed container color,
+       clipped to the container and to a circle around the point of contact, under the text. */
+    & > :where(.ripple) {
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      border-radius: inherit;
+      corner-shape: inherit;
+      background: var(--_link-pressed-container);
+      pointer-events: none;
+      clip-path: circle(var(--_r) at var(--_x) var(--_y));
+      animation: tanrei-link-ripple var(--tanrei-comp-link-motion-feedback-duration) var(--tanrei-comp-link-motion-state-easing) both;
+      transition: opacity var(--tanrei-comp-link-motion-state-duration) var(--tanrei-comp-link-motion-state-easing);
+    }
+    & > :where(.ripple.leaving) {
+      opacity: 0;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      & > :where(.ripple) {
+        animation: none;
+        transition: none;
+      }
+    }
+
+    /* ── Disabled (LNK-19): the anchor without href, with role="link" and aria-disabled="true" ───────────────────── */
+    &:where([aria-disabled='true']) {
+      --_link-now-container: var(--_link-disabled-container);
+      --_link-now-label: var(--_link-disabled-label);
+      --_link-shape: var(--tanrei-comp-link-disabled-container-shape);
+      opacity: var(--tanrei-comp-link-disabled-opacity);
+      cursor: default;
+    }
+    /* A picture has no color to change: it recedes with the label by opacity. */
+    &:where([aria-disabled='true']) > :where(img.tanrei-link-site-icon) {
+      opacity: var(--tanrei-comp-link-site-icon-disabled-opacity);
+    }
+
+    /* ── Forced colors (LNK-22): the platform's link color, its disabled text color, its highlight for focus ─────── */
+    @media (forced-colors: active) {
+      /* The container is the platform's, and so is a press: no layer of the link's own. */
+      background-image: none;
+      background-clip: border-box;
+      --_link-now-label: LinkText;
+      /* The underline is drawn at rest whatever was chosen: the colors are the person's, and nothing any longer
+         holds the link's apart from the text's (LNK-29). The current link and a glyph alone still have no line. */
+      --_link-rule: currentcolor;
+      &:where([aria-disabled='true']) {
+        --_link-now-label: GrayText;
+      }
+      &:where(:any-link:focus-visible) {
+        outline-color: Highlight;
+      }
+    }
+
+    /* ── Not a link (LNK-21): no destination — or an empty one, or a script — is drawn as the text around it ─────── */
+    &:where(:not(:any-link, [aria-disabled='true']), [href=''], [href^='javascript:' i]) {
+      --_link-site-icon: none;
+      display: inline;
+      inline-size: auto;
+      block-size: auto;
+      padding: 0;
+      background-color: transparent;
+      color: inherit;
+      font-weight: inherit;
+      text-decoration-line: none;
+      opacity: unset;
+      outline: none;
+      box-shadow: none;
+      cursor: inherit;
+      transition: none;
+    }
+    &:where(:not(:any-link, [aria-disabled='true']), [href=''], [href^='javascript:' i]) > .tanrei-icon.tanrei-icon {
+      /* In the line, as icons.css draws a glyph: its own box and its own line. */
+      display: inline-block;
+      position: static;
+      margin: 0;
+      line-height: 1;
+      vertical-align: baseline;
+    }
+    &:where(:not(:any-link, [aria-disabled='true']), [href=''], [href^='javascript:' i])::before,
+    &:where(:not(:any-link, [aria-disabled='true']), [href=''], [href^='javascript:' i])::after {
+      content: none;
+    }
+
+    /* ── Hidden: the rules above that name a display (a glyph alone, what is not a link) are an author's, and beat the
+       browser's own for the attribute — said last, so that the attribute still means no box ───────────────────────── */
+    &:where([hidden]:not([hidden='until-found' i])) {
+      display: none;
+    }
+    /* link:rules:end */
+  }
+
+  /* link:keyframes */
+  @keyframes tanrei-link-ripple {
+    from {
+      clip-path: circle(0 at var(--_x) var(--_y));
+    }
+  }
+  /* LNK-27, LNK-33, for a browser without style container queries: the package's script writes the design system's
+     two choices, by name, on the document's root, and these rules — tried on the element that carries the attribute
+     and on no other — hand each answer down as a value every link inherits. (Said from the link's side instead,
+     `[data-underline-system] .tanrei-link`, each would be a walk to the root for every anchor of the page.) A link
+     under `none` keeps the box of a link with room, cut at the line ends, which has no room left to show it. Each
+     selector is one name: a list inside one `:where()` is filed under no name and tried on every element. */
+  :where([data-underline-system='hover']),
+  :where([data-underline-system='never']) {
+    --_link-system-rest: transparent;
+  }
+  :where([data-underline-system='never']) {
+    --_link-system-active: transparent;
+  }
+  :where([data-external-marks-system='arrow']),
+  :where([data-external-marks-system='none']) {
+    --_link-system-site-icon: none;
+    --_link-system-pictures: 0;
+  }
+  :where([data-external-marks-system='none']) {
+    --_link-system-arrow: none;
+    --_link-system-arrows: 0;
+  }
+  /* link:keyframes:end */
+}

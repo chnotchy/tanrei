@@ -1,0 +1,250 @@
+---
+title: "颜色字段"
+description: "让用户把一种颜色作为表单的一个字段来设置——一个可以阅读、键入和粘贴的文本值，文本旁边的颜色样本，以及一个用来唤出选择器的按钮——外观和尺寸与文本字段相同。"
+translationOf: components/color-field.mdx
+sourceHash: 22658491c949ac04b45125142818656c61cfd393
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="color-field" />
+
+<DemoFrame label="一个带选择器按钮的颜色字段，以及一个颜色被产品拒绝的颜色字段" column>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#0f766e" supporting-text="六位十六进制数字，例如 #0f766e。" invalid-text="请输入六位十六进制数字，例如 #0f766e。" picker picker-label="选择颜色"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#fde047" error error-text="配白色文字太浅了。请选择更深的颜色。"></tanrei-color-field>
+</DemoFrame>
+
+在用户把颜色作为一个值来设置的地方使用颜色字段：主题里的品牌色、标签或类别的颜色。用户阅读它、键入它，或者从别的工具里粘贴过来，并在文本旁边看到它的样本。这个字段的绘制方式和尺寸，与相同变体、相同尺寸的文本字段一致。
+
+**组成部分**是一个[字段](/zh-cn/components/field/)和一个[颜色输入框](/zh-cn/components/color-input/)。字段是框架：标签、必填或选填标记、帮助文本和错误。颜色输入框是控件：方框、色块、以文本形式呈现的值，以及选择器按钮。颜色字段自己什么都不绘制，也没有令牌：它的每个属性都是这两者之一的属性，原样交给它们。
+
+它是一个块，放在哪里就和那里一样宽，它的方框会把它填满。它没有自己的宽度：想要窄一些的字段，就把它放进窄一些的地方。它已经是一个字段，所以绝不放进[字段](/zh-cn/components/field/)里。
+
+它不绘制自己的选择器。设置 `picker` 后，末尾的一个按钮会请求一个选择器：浏览器的，或者由产品呈现的一个表面。
+
+在 Web 上它是 `<tanrei-color-field>`。其他平台尚未实现。
+
+### 用法
+
+`value` 是一个井号加六位小写的十六进制数字（`#0f766e`），或者用空字符串表示没有颜色。它绝不会是键入到一半的文本：输入框里的内容不是颜色时，`value` 为空。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-color-field name="brand" label="品牌色" value="#0f766e"
+        requirement="required" required-text="必填"
+        supporting-text="六位十六进制数字，例如 #0f766e。"
+        invalid-text="请输入六位十六进制数字，例如 #0f766e。"
+        picker picker-label="选择颜色"></tanrei-color-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/color-field';
+
+      const brand = document.querySelector('tanrei-color-field');
+      // 值变了：一种颜色，或者空字符串。读到的已经是新值。
+      brand.addEventListener('input', () => preview(brand.value));
+      // 用户确认了一个有变化的值：焦点离开、按下 Enter，或者选择器关闭。
+      brand.addEventListener('change', () => save(brand.value));
+      // 确认的文本不是颜色。字段保留这段文本，并显示 invalidText，
+      // detail.message 带的也是它。
+      brand.addEventListener('entryerror', (e) => console.log(e.detail.text, e.detail.message));
+      // 要呈现你自己的选择器：取消这个请求，打开选择器，再把 value 设为选出的颜色。
+      brand.addEventListener('pickerrequest', (e) => {
+        e.preventDefault();
+        openMyPicker(e.detail.value).then((color) => (brand.value = color));
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ColorField } from '@tanrei/react';
+
+    <ColorField label="品牌色" value={brand} picker pickerLabel="选择颜色"
+      invalidText="请输入六位十六进制数字，例如 #0f766e。"
+      onChange={(event) => setBrand(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### 下一层
+
+用它的两个成员手写出来的同一个字段，画面是一样的，对辅助技术来说也是同一个文本框，名称、描述和状态都相同：
+
+```html
+<tanrei-field label="品牌色" requirement="required" required-text="必填"
+  supporting-text="六位十六进制数字，例如 #0f766e。">
+  <tanrei-color-input name="brand" value="#0f766e"
+    invalid-text="请输入六位十六进制数字，例如 #0f766e。"
+    picker picker-label="选择颜色"></tanrei-color-input>
+</tanrei-field>
+```
+
+<DemoFrame label="手写出来的同一个字段：里面放着一个颜色输入框的字段" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" requirement="required" required-text="必填" supporting-text="六位十六进制数字，例如 #0f766e。">
+    <tanrei-color-input value="#0f766e" invalid-text="请输入六位十六进制数字，例如 #0f766e。" picker picker-label="选择颜色"></tanrei-color-input>
+  </tanrei-field>
+</DemoFrame>
+
+需要颜色字段没有提供的排布方式时，就往下走一层：
+
+| 你需要 | 使用 |
+| --- | --- |
+| 标签、方框、帮助文本和错误 | 颜色字段 |
+| 在框架里面、方框的旁边或下方放你自己的东西 | 一个[字段](/zh-cn/components/field/)，里面放一个[颜色输入框](/zh-cn/components/color-input/)和你自己的元素 |
+| 只要方框，放在已经为颜色命名的行或列里：调色板的各个色调、表格的一个单元格 | 单独的[颜色输入框](/zh-cn/components/color-input/)，由它自己的 `label` 命名 |
+
+到了下一层，变的是各样东西写在哪里。`name` 和 `value` 写在颜色输入框上，这时它就是表单遇到的那个控件，它的事件也在它上面监听。`label`、`error`、`disabled` 和必填与否仍然写在字段上，由字段传给控件：不要设置输入框自己的那几个。颜色字段做的事，没有一件是手写的字段和颜色输入框做不到的。
+
+## 规格
+
+<DemoFrame label="空的颜色字段、白色、黑色、大号的、禁用的——以及只有方框的颜色输入框，放在为它的颜色命名的一行里" plain column>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="强调色" requirement="optional" optional-text="选填"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="页面背景" value="#ffffff"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="文本" value="#000000"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#0f766e" size="large" picker picker-label="选择颜色"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="品牌色" value="#0f766e" disabled picker picker-label="选择颜色"></tanrei-color-field>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="主色，色调 40" value="#0f766e"></tanrei-color-input>
+</DemoFrame>
+
+### 字段
+
+| 部件 | 它是什么 |
+| --- | --- |
+| 标签 | 位于容器上方（`stacked`），这时由字段绘制；或者浮在容器里面（`filled`、`outlined`），这时由颜色输入框绘制。它就是无障碍名称，无论它是画出来的，还是用 `labelHidden` 隐藏的 |
+| 必填和选填标记 | 位于标签之后：`requirement="required"` 时是“必填”小标签、星号，或者什么都不画；`optional` 时是“选填”小标签 |
+| 色块 | 位于容器起始处的值的样本：一个小方块，用的正是值的颜色，外面有一圈细线。为空时，只有这圈细线。它不是控件 |
+| 输入框 | 以文本形式呈现的值。只有一行，放不下时滚动 |
+| 选择器按钮 | 设置 `picker` 时：末尾的一个纯图标 text 按钮，由 `pickerLabel` 命名 |
+| 辅助文本 | 一行帮助文本，从色块之后、值的文本开始的位置起笔。字段处于错误状态时它保留，错误文本绘制在它的下方：`error` 为 true 时是 `errorText`；已确认的文本不是颜色时是 `invalidText`，`invalidText` 为空时是 `errorText` |
+
+三种变体，以及 `medium`（48）和 `large`（56）两种尺寸，都是文本字段的。默认系统只提供 `stacked`。色块位于文本字段前置图标所在的位置，大小也与那个图标相同，所以放在带前置图标的文本字段下方的颜色字段，起始边与它对齐。
+
+色块里不会混入任何东西：没有悬停，没有错误状态的着色，没有阴影。在指针下会变化的样本是不正确的样本。禁用时，它的填充画得更淡，边线保留。
+
+### 值和文本
+
+| 何时 | 发生什么 |
+| --- | --- |
+| 用户键入、粘贴或听写 | 什么都不拒绝，什么都不改写。整段文本都会被解读：如果它是颜色，`value` 就是那种颜色，否则为空。`value` 有变化时触发 `input` |
+| 焦点离开，或者按下 Enter | 文本被确认。颜色会按值自己的写法改写。值与上一次确认的值不同时触发 `change` |
+| 已确认的文本不是颜色 | 文本保留。字段进入错误状态并显示 `invalidText`，同时触发 `entryerror`。下一次编辑时错误结束 |
+| 文本为空 | `value` 为空。这绝不是字段自己的错误 |
+| 产品设置 `value` | 无论之前键入了什么，都显示这种颜色。不触发任何事件 |
+
+去掉两侧的空格之后，文本恰好是六位十六进制数字时，它就读作颜色——大小写均可，带不带井号都行：`0F766E`、`#0f766e` 和 <code> #0F766E </code> 都是 `#0f766e`。
+
+其余的都不是颜色：三位数字（`#0f7`）、八位数字（`#0f766e80`）、名称（`teal`）、函数写法（`rgb(15, 118, 110)`）。不解读三位数字，是因为键入六位的途中文本会经过三位。没有 alpha，也没有广色域颜色。
+
+用户还在键入时，什么都不会报告。只有在用户确认时，才会报出输入错误。
+
+### 选择器
+
+设置 `picker` 后，字段在末尾显示一个按钮。激活它会触发 `pickerrequest`，事件带有当前的值。
+
+| 产品 | 发生什么 |
+| --- | --- |
+| 什么也不做 | 字段呈现浏览器自己的颜色选择器。每一次选取都算用户的一次编辑：文本、色块、`input`。选择器关闭时触发 `change`，焦点位于选择器按钮上 |
+| 取消这个请求 | 字段什么也不呈现。产品打开自己的表面，锚定在字段上，并把 `value` 设为选出的颜色。那个表面关闭时把焦点交还给选择器按钮 |
+
+按色块不会打开选择器。它会让输入框获得焦点，与按字段上其他任何地方一样。
+
+### 各个成员提供什么
+
+- **来自字段**：属性 `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText` 和 `optionalText`；插槽 `label-icon`；令牌 `comp.field.*`。
+- **来自颜色输入框**：属性 `variant`、`size`、`value`、`invalidText`、`picker` 和 `pickerLabel`；事件 `input`、`change`、`pickerRequest` 和 `entryError`；令牌方面，方框用 `comp.input-box.*`（每一种输入方框都读取它），色块用 `comp.color-input.*`。
+
+颜色输入框有自己的 `label`、`labelHidden`、`error` 和 `disabled`。颜色字段设置的不是它们：颜色字段的 `label` 是字段的 `label`，它为输入框命名，在 filled 或 outlined 的字段里，浮在方框中的也是它。
+
+### 令牌
+
+颜色字段没有自己的令牌。它的方框读取[颜色输入框的令牌](/zh-cn/components/color-input/#规格)，它的各行——标签、标记、帮助文本和错误——读取[字段的令牌](/zh-cn/components/field/#规格)，无论这些令牌设置在哪里。下面的表格列出的是字段的令牌。要改动某一个实例，就在它上面设置成员的令牌：
+
+```html
+<tanrei-color-field label="品牌色"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-color-field>
+```
+
+<ComponentSpecs name="color-field" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-color-input>`，此外什么都没有。导入这个元素，两个成员也随之完成定义。
+- 颜色字段是与表单关联的元素。它接受 `name`，并提交 `value`：颜色，或者空字符串。重置时回到 `value` 属性（attribute）的值；在 `requirement="required"` 且 `value` 为空时报告缺少值，在输入错误持续期间报告输入有误。它的两个成员不向表单添加任何条目。
+- `value` 始终是颜色输入框的值：设为 `0F766E` 的值读回来是 `#0f766e`，不是颜色的值读回来是空字符串。
+- `input` 和 `change` 是普通事件：从元素上读取 `value`。`pickerrequest` 和 `entryerror` 是 CustomEvent，前者带有 `detail.value`，后者带有 `detail.text` 和 `detail.message`。它们是颜色输入框自己的事件，以这个元素为目标。`detail.message` 是 `invalidText`，你没有提供时为空——字段在它的位置显示 `errorText` 时也是如此。
+- 部件：`field` 和 `color-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`；`container`、`outline`、`active-indicator`、`swatch`、`input`、`picker-button`。`label` 和 `requirement-label` 是画出来的那一个，无论由哪个成员绘制；`field-label`、`color-input-label`、`field-requirement-label` 和 `color-input-requirement-label` 指的是某一个成员的。
+- 这个元素自己不能获得焦点，也没有角色：`focus()` 会把焦点交给输入框，绝不交给选择器按钮。按标签行、方框、色块或浮动标签，都会让输入框获得焦点。按帮助文本或错误文本，什么都不会发生。
+- 只要焦点在字段里的任何位置，包括选择器按钮，标签和帮助文本就采用聚焦时的颜色。方框只在它的输入框获得焦点时才采用自己的聚焦颜色。
+- 用 `label` 为它命名——不该绘制标签的地方再加上 `label-hidden`——绝不要用 `aria-label`，它在这里不为任何东西命名。
+- 元素自己不带任何文字。`requiredText` 和 `optionalText` 在你提供之前是空的。没有 `requiredText` 的必填字段，会在小标签本该在的位置显示星号。
+- 浏览器的选择器因浏览器而异：在 Chromium 中是页面的一个弹出层，在 Firefox 和 Safari 中是系统的颜色窗口。它的外观、位置和按键都由浏览器决定。
+- 用全角字符写的文本（`＃０ｆ７６６ｅ`）不会读作颜色。
+- 在元素定义之前，它没有尺寸。请预留高度。
+
+## 指南
+
+### 颜色字段还是文本字段
+
+| 方面 | 颜色字段 | 文本字段 |
+| --- | --- | --- |
+| 里面是什么 | 一种颜色，写成 `#` 加六位数字 | 任意文本 |
+| 显示什么 | 文本旁边的颜色样本 | 文本 |
+| 检查什么 | 文本是不是颜色 | 什么也不检查 |
+
+只显示而不编辑的颜色，请画一个样本，并在旁边用文本写出它的值或名称。颜色字段用于由用户设置的颜色。
+
+### 推荐
+
+- 写一个标签，说明这种颜色用在哪里，并让它在表单中保持可见。
+- 在 `supportingText` 里说明值的写法。字段处于错误状态时它仍然保留，所以 `invalidText` 不必再说一遍。
+- 在要紧的地方，在 `supportingText` 里用文字说出颜色的名称（“青绿色”）。十六进制的值很难让人知道颜色看起来是什么样。
+- 只要设置了 `picker`，就要提供 `pickerLabel`。
+- 颜色的含义由你自己校验——它与背景的对比度、已经被占用的颜色——并用 `error` 和 `errorText` 说明。
+- 在已经为每种颜色命名的一行里（例如调色板的各个色调），使用[颜色输入框](/zh-cn/components/color-input/)：它只有方框，由自己的 `label` 命名。
+
+### 避免
+
+- 不要只靠色块来说明颜色。值是文本；分辨不出两个样本的用户，读到的是两个不同的值。
+- 不要把空的 `value` 本身当作错误。`requirement` 从不做校验。
+- 不要在用户键入时设置 `aria-invalid` 或 `error`。请等到 `change` 或 `entryerror`。
+- 不要把颜色字段放进字段。它已经是一个字段；字段框住的控件是[颜色输入框](/zh-cn/components/color-input/)。
+
+## 无障碍
+
+<ComponentAccessibility name="color-field" />
+
+### 组件负责的部分
+
+- 输入框是一个文本框。它的名称是 `label`，无论是画出来的还是隐藏的；它的值是它显示的文本。
+- 显示出来的辅助文本或错误文本是它的描述；字段为选填时，还会加上 `optionalText`。
+- `error` 为 true 或输入错误持续期间，它暴露为无效；`requirement` 为 `required` 时，暴露为必填。
+- 字段获得焦点期间出现的错误，会以礼貌（polite）的方式朗读一次。它绝不会把焦点夺走。
+- 色块是装饰性的，并且对辅助技术隐藏：说明颜色的是值的文本。
+- 选择器按钮是一个独立的按钮，由 `pickerLabel` 命名，暴露为会打开一个对话框。它是输入框之后的一个焦点停靠点。交给字段本身的焦点，总是落到输入框上。
+- 值变化时不会朗读任何内容，字段也不会给颜色加上名称。
+- 输入法正在组合输入时，字段不解读任何内容，也不处理任何按键。
+- 字段的点击区域满足最小目标，选择器按钮是完整的目标。
+- 文本放大到 200% 时，标签和帮助文本会换行。值保持在一行里，并且可以滚动；色块保持自己的大小。
+- 在强制颜色模式下，字段会多出一道边线，并采用用户的颜色。只有色块保留值的颜色，因为显示这种颜色正是它的用途；它的边线用文本颜色。
+- 在从右到左的布局中，字段会镜像：色块在右端，选择器按钮在左端。值本身仍然从左到右书写。
+
+Web 上的已知差距：
+
+- 浏览器的选择器不是 Tanrei 的：它的无障碍由浏览器自己负责。
+- 在元素定义之前，什么都不绘制。
+
+### 需要你做的事
+
+- 为每个颜色字段提供 `label`。
+- 用页面所用的语言，在字段上编写 `invalidText` 和 `pickerLabel`。`requiredText` 和 `optionalText` 可以写在字段上，也可以用 `setWords({ requiredText, optionalText })` 为整个产品只给一次。参见[产品的文字](/zh-cn/foundations/words/)。
+- 自己校验颜色，设置 `error`，并编写说明如何改正这种颜色的 `errorText`。
+- 如果你呈现自己的选择器，请从选择器按钮打开它，给它一个名称，并在它关闭时把焦点交还给这个按钮。

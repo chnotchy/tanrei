@@ -1,0 +1,36 @@
+{
+  "name": "@tanrei/docs",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Tanrei documentation site (Astro Starlight; English, Japanese, Simplified Chinese, Hindi, Spanish, Arabic).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css && astro dev",
+    "validate": "node scripts/i18n-check.mjs && astro check --minimumFailingSeverity warning",
+    "i18n": "node scripts/i18n-check.mjs",
+    "build": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --check-systems && astro check --minimumFailingSeverity warning && astro build",
+    "preview": "astro preview",
+    "test:node": "node --test \"test/*.test.mjs\"",
+    "test": "pnpm test:node && node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css --check-systems && astro build",
+    "fonts": "node ../../packages/tools/src/font-faces.js src/styles/fonts.generated.css"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.42.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/material-symbols-outlined": "^5.3.7",
+    "@fontsource-variable/material-symbols-rounded": "^5.3.7",
+    "@fontsource-variable/noto-sans-jp": "^5.3.0",
+    "@fontsource-variable/roboto": "^5.3.0",
+    "@fontsource-variable/roboto-mono": "^5.3.0",
+    "@tanrei/studio": "workspace:*",
+    "@tanrei/web": "workspace:*",
+    "astro": "^7.3.0",
+    "sharp": "^0.35.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3",
+    "wrangler": "4.131.2"
+  }
+}

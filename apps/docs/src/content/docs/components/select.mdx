@@ -1,0 +1,281 @@
+---
+title: Select
+description: Lets people choose one value from a closed list — a trigger that looks and measures like a text input's box and shows the chosen option, and a list of options, optionally grouped, that opens from it — without a label row, help or error text of its own. For a bar, a toolbar or a table, or inside a field a product composes itself.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="select" />
+
+<DemoFrame label="Bare: a theme select for a bar, and a sort order over a list" column>
+  <tanrei-select class="not-content" size="small" label="Theme" value="auto">
+    <tanrei-option value="light" leading-icon="light_mode">Light</tanrei-option>
+    <tanrei-option value="dark" leading-icon="dark_mode">Dark</tanrei-option>
+    <tanrei-option value="auto" leading-icon="computer">Follow the device</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" size="small" label="Sort by" value="updated">
+    <tanrei-option value="updated">Last updated</tanrei-option>
+    <tanrei-option value="name">Name</tanrei-option>
+    <tanrei-option value="size">Size</tanrei-option>
+  </tanrei-select>
+</DemoFrame>
+
+A select is the box of a [select field](/components/select-field/), alone: the trigger with the value it shows, its leading icon and its chevron, and the list of options that opens from it. It has no label row above it, no requirement mark, no help and no error text below it.
+
+Use it bare where the label a person reads stands somewhere else, or is plain from where the select stands and what it shows:
+
+| Where | What tells a person what it sets | The select's `label` |
+| --- | --- | --- |
+| A theme or a language in an app bar | Its place, its glyph and the value it shows | "Theme", "Language" |
+| A sort order or a filter in a toolbar | The list it stands over | "Sort by" |
+| A cell in a column of a table; the rows-per-page select under a table | The column's header; the text beside the select | The column and the row: "Role, Ada Lovelace" |
+
+Bare, the select needs a `label` of its own. It is the accessible name. A stacked select never draws it; a filled or an outlined one draws it as the label that floats in the box.
+
+In a form, use the [select field](/components/select-field/): this select inside a [field](/components/field/), with a label above it, a requirement mark, help and an error.
+
+**Used in** the [select field](/components/select-field/). To frame it yourself, put it in a [field](/components/field/), which names it, describes it, marks it required and puts it in its error condition.
+
+Where you set no width, a bare select is as wide as its widest option needs, so choosing never changes its width. In a field it fills the field.
+
+On the web it is `<tanrei-select>` with `<tanrei-option>` children. The other platforms have not implemented it yet.
+
+### Usage
+
+The options are children of the select: each has a value and a label. `value` names the chosen one. The select emits `change` when the person chooses another option, and `toggle` when the person opens or closes the list. Neither is emitted when you set `value` or `open` yourself.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- In an app bar: small, named by its own label, which is not drawn. -->
+    <tanrei-select size="small" label="Theme" value="dark">
+      <tanrei-option value="light" leading-icon="light_mode">Light</tanrei-option>
+      <tanrei-option value="dark" leading-icon="dark_mode">Dark</tanrei-option>
+    </tanrei-select>
+
+    <!-- A cell of a table: the column's header is the visible label. -->
+    <td>
+      <tanrei-select name="role-ada" size="small" label="Role, Ada Lovelace" value="editor">
+        <tanrei-option value="viewer">Viewer</tanrei-option>
+        <tanrei-option value="editor">Editor</tanrei-option>
+      </tanrei-select>
+    </td>
+
+    <script type="module">
+      import '@tanrei/web/components/select';
+
+      const theme = document.querySelector('tanrei-select');
+      // The person chose another option. The value is already the new one.
+      theme.addEventListener('change', () => apply(theme.value));
+      // Opened or closed by the person; a close says why.
+      theme.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Option, Select } from '@tanrei/react';
+
+    <Select size="small" label="Theme" value={theme} onChange={(event) => setTheme(event.currentTarget.value)}>
+      <Option value="light" leadingIcon="light_mode">Light</Option>
+      <Option value="dark" leadingIcon="dark_mode">Dark</Option>
+    </Select>
+    ```
+  </TabItem>
+</Tabs>
+
+### In a field, by hand
+
+A field around a select is a select field written out. Leave the select's own `label` empty: the field names it. `label`, `error`, `disabled` and the requirement are said on the field; `name`, `value`, the options and everything about choosing on the select.
+
+```html
+<tanrei-field label="Country" requirement="required" required-text="Required"
+  supporting-text="Where your invoices are addressed.">
+  <tanrei-select name="country" placeholder="Choose a country">
+    <tanrei-option value="jp">Japan</tanrei-option>
+    <tanrei-option value="ke">Kenya</tanrei-option>
+  </tanrei-select>
+</tanrei-field>
+```
+
+<DemoFrame label="A field with a select in it: the same picture as a select field" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Country" requirement="required" required-text="Required" supporting-text="Where your invoices are addressed.">
+    <tanrei-select placeholder="Choose a country">
+      <tanrei-option value="jp">Japan</tanrei-option>
+      <tanrei-option value="ke">Kenya</tanrei-option>
+    </tanrei-select>
+  </tanrei-field>
+</DemoFrame>
+
+The select tells its field what only it knows. Its help starts where the value starts, past the padding and a leading icon. A filled or an outlined select draws the field's label itself, floating in the box, so the field draws no label row. And while its list is open the select is drawn focused, whether or not it has focus, so the field draws its label and its help focused for as long.
+
+## Specs
+
+<DemoFrame label="Bare selects: groups, supporting text with a disabled option, in error, read-only and disabled" plain column>
+  <tanrei-select class="not-content" label="Time zone" value="Europe/Lisbon">
+    <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo">Tokyo</tanrei-option><tanrei-option value="Asia/Seoul">Seoul</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="Europe"><tanrei-option value="Europe/Lisbon">Lisbon</tanrei-option><tanrei-option value="Europe/Berlin">Berlin</tanrei-option></tanrei-option-group>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="Plan" value="team">
+    <tanrei-option value="free" supporting-text="One project, community help">Free</tanrei-option>
+    <tanrei-option value="team" supporting-text="Unlimited projects, shared roles">Team</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="Single sign-on and an audit log" disabled>Enterprise</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="Country" value="ke" error>
+    <tanrei-option value="jp">Japan</tanrei-option><tanrei-option value="ke">Kenya</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="Country" value="jp" readonly>
+    <tanrei-option value="jp">Japan</tanrei-option><tanrei-option value="ke">Kenya</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="Country" value="jp" disabled>
+    <tanrei-option value="jp">Japan</tanrei-option><tanrei-option value="ke">Kenya</tanrei-option>
+  </tanrei-select>
+</DemoFrame>
+
+### The trigger
+
+| Part | What it is |
+| --- | --- |
+| Value | The chosen option's label, on one line, cut with an ellipsis where it does not fit |
+| Placeholder | A hint shown while nothing is chosen. Never a label, and never a choice |
+| Leading icon | The glyph in the `leading-icon` slot, or else the chosen option's own |
+| Chevron | Says that the box opens a list. It does not turn. A read-only select draws none |
+| Floating label | In a `filled` or an `outlined` select only: its name, resting in the line while nothing is chosen and floating above the value otherwise. An asterisk follows it where the field around the select says it is required |
+
+The three variants are the text input's. The default system ships `stacked` only; `filled` and `outlined` are for systems that draw their text inputs that way. Use one style per form.
+
+`medium` (48) and `large` (56) are the text input's heights. `small` (40) is for a bar, a toolbar or a dense row of controls.
+
+### What is the select's, and what is the field's
+
+- **The select draws** the box, the value, the placeholder, the icons, the list and its options, and the label that floats in a filled or an outlined box. It holds the value, its place in a form and the events. It says to assistive technology the chosen option, whether the list is open, the active option, and that it is read-only.
+- **The field around it draws** the label row above a stacked select, the required or optional mark, the help and the error text. It holds nothing. It gives the select its name, the help or the error text as its description, and that it is required, invalid or disabled.
+
+Bare, without a field:
+
+- **The name** is `label`. `labelHidden` stops a filled or an outlined select from drawing it; it changes nothing on a stacked one.
+- **An error** is `error`, which you set: the box is drawn in its error condition and exposed as invalid. The select has no error text. Say what is wrong in words beside it, or frame it.
+- **Required** is a field's to say. A bare select has no requirement setting: where the form needs an answer, validate it yourself.
+
+### The list
+
+The list opens `comp.select.list.offset` below the container with the start edges together, and above it where there is no room below. It is as wide as the container and at least `list.min-width` (160). It is as tall as its options up to `list.max-height` (320), and scrolls beyond that. When it opens, the chosen option is in view.
+
+| Part | What it is |
+| --- | --- |
+| Option | A row with a label, and optionally a supporting line and a glyph. The chosen one has a quiet fill and a check |
+| Group | A run of options under an optional title. Groups are parted by a line or by space, as the design system or `separation` says |
+| Disabled option | Reachable with the arrow keys, so people learn it exists, and never chosen |
+
+An option whose value is the empty string is a choice like any other, for "None" or "Any". The select has no way of its own back to nothing chosen: where no choice is allowed, give an option that says so.
+
+### Opening, moving and choosing
+
+| Input | What happens |
+| --- | --- |
+| A press on the container; Enter, Space, Down Arrow or Up Arrow | Opens the list. The chosen option is the active one, or the first enabled one |
+| A printable character | Opens the list and makes active the next option that begins with what was typed |
+| Down Arrow, Up Arrow | The next or previous option, across groups, stopping at the ends |
+| Home, End; Page Down, Page Up | The first or last option; ten options down or up |
+| Enter or Space; a press on an option | Chooses the active option and closes the list |
+| Escape; Tab; a press outside; a press on the container | Closes the list and chooses nothing |
+
+The value changes only when the person confirms an option in the open list: a press, Enter or Space. Arrow keys and typing on a closed select open the list instead of changing the value unseen, because a `change` may save, navigate or rebuild a page.
+
+`toggle` carries the reason for a close: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` or `tab`.
+
+<ComponentSpecs name="select" />
+
+### What the web draws differently
+
+- `<tanrei-option>` and `<tanrei-option-group>` are data: they draw nothing. The label is the `label` attribute or, without one, the element's text. A group's title is its `label` attribute.
+- The options are the select's children. A `<slot>` among its children stands for the elements assigned to it, so an element of your own can pass options on: `<tanrei-select label="Plan"><slot></slot></tanrei-select>` in its shadow root. The select field does exactly this.
+- The select is a form-associated element. It takes `name`, submits `value`, resets to the `value` attribute, and reports a missing value to the form while the field around it says it is required and `value` is empty.
+- A bare select is an inline box; in a field it is a block that fills the field.
+- `change` is a composed, bubbling event. `toggle` is composed and does not bubble: it is heard on the select, and on a select field around it, and never by an ancestor such as a `<details>`.
+- The list is a `popover="manual"` element in the top layer. A press outside closes it and also reaches the element under it.
+- A floating label (`filled`, `outlined`) lies inside the container, so a press on it opens the list.
+- `supporting-text`, `error-text`, `requirement`, `required-mark`, `required-text` and `optional-text`, and a child for a `label-icon` slot, are the select field's and the field's. On a select they draw nothing; a debug build says so once and names `<tanrei-select-field>`.
+- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`.
+- Before the element is defined, its options are running text. Hide `tanrei-select:not(:defined) > *` and reserve the height.
+- The web has no back gesture of its own, so `toggle` never carries the reason `back`.
+- `readOnly` is the `readonly` attribute.
+
+## Guidelines
+
+### Select, select field, or a field by hand
+
+| You need | Use |
+| --- | --- |
+| A label, the box, help and an error | A [select field](/components/select-field/) |
+| The box alone, where its label stands elsewhere: a bar, a toolbar, a cell of a table | A select, named by its own `label` |
+| Something of your own inside the frame, beside or below the box | A [field](/components/field/) with a select and your own element in it |
+
+### Select, radio buttons, a menu or a combobox
+
+| Aspect | Select | Radio buttons | Menu | Combobox |
+| --- | --- | --- | --- | --- |
+| Holds | One value of a closed list | One value of a few | Actions | One value found by typing |
+| Shows the choices | After a press | Always | After a press | After a press, filtered |
+| Part of a form | Yes | Yes | No | Yes |
+
+1. With up to about five short options and room for them, show them all: radio buttons, or tabs for a view.
+2. If the items do something rather than stand for a value, it is a menu. An option is a value, never a place to go: a list of destinations is a menu or links.
+3. If the list is long enough that people would rather type than scroll, or takes a value that is not in it, it is a combobox.
+4. Several values are checkboxes, or a list with multiple selection.
+
+### Do
+
+- Give a bare select a `label` that names what is chosen, in the words of the visible label where there is one.
+- Use a bare select only where a person who sees the page can tell what it sets: by its place, its glyph, or the value it shows.
+- Order options the way people look for them: alphabetically, by number, or the common ones first.
+- Group a long list and give each group a short title.
+- Use `supportingText` on an option for what its label cannot say in a few words.
+
+### Don't
+
+- Don't use a bare select in a form to save the room of a label. Use the select field.
+- Don't write `label` on a select and expect it above the box. A stacked select draws no label: that is the select field's row.
+- Don't use the placeholder as the label. It goes away once something is chosen.
+- Don't navigate, submit or delete on `change` without saying so. People move through a list to read it.
+- Don't set `label`, `error` or `disabled` on a select inside a field. Say them on the field, so that the label and the help follow.
+- Don't disable an option without a way to learn why. Say it in its supporting text.
+
+## Accessibility
+
+<ComponentAccessibility name="select" />
+
+### What the component handles
+
+- The trigger is a combobox that is not editable. Its name is its own `label`, or the label of the field around it where it has none, and never the placeholder. Its value is the chosen option's label.
+- Its description is what its field gives: the help or the error text, and the optional text.
+- It is exposed as invalid while in error, as required while its field says so, as read-only, as disabled, and as expanded while its list is open.
+- Focus stays on the trigger while the list is open. The active option is its active descendant, so the box keeps its name and its states while the person reads the options.
+- The list is a list box named as the select is. Each option has its name, its description, whether it is the chosen one, whether it is disabled, and its position among the options. A group is named by its title.
+- The chosen option is told from the others by its check, never by its fill alone.
+- The glyphs, the chevron, the check, the divider and the asterisk after a floating label are hidden from assistive technology.
+- The select is one stop in the focus order. Tab closes an open list and moves on.
+- Escape closes the list and goes no further, so a dialog around the select stays open.
+- The trigger's hit area meets the minimum target although a small select is 40 high, and options are at least the minimum target tall.
+- At 200% text the options and the titles wrap. Only the value in the container stays on one line, and the list and assistive technology still give it in full.
+- In forced colors the trigger and the list gain an edge, the active option takes the highlight colors, and the chosen option is shown by its check.
+- In a right-to-left layout the trigger and each row are mirrored, and each text keeps its own direction. The chevron and the check are not mirrored.
+- It has no words of its own and reads none.
+
+Known gaps on the web:
+
+- The divider between two groups is not exposed as a separator: a list box holds options and groups only.
+- Typing compares labels without regard to case in the way JavaScript does, not by the rules of the label's language.
+- Before the element is defined, the options are text on the page without a control.
+
+### What you need to do
+
+- Name every bare select with `label`, and give every option a label. A visible text beside the select does not name it.
+- Where a bare select can be wrong, say what is wrong in words that reach assistive technology: a message of your own tied to the page, or a field around the select.
+- Keep option values unique within a select.

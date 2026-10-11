@@ -1,0 +1,199 @@
+---
+title: Page header
+description: The head of a page's content. The page's title as its heading, with a sentence that says what the page is, a line of facts about it, the actions for the whole page and the way back up above it.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="page-header" />
+
+<DemoFrame label="A page's head, with every part" plain column>
+  <tanrei-page-header class="not-content" divider style="inline-size: 100%">
+    <div data-part="breadcrumbs"><a class="tanrei-link" data-standalone href="#overview">Guides</a></div>
+    <p data-part="eyebrow">Design systems</p>
+    <h3>Add a design system as a layer</h3>
+    <p>A layer changes values and may extend the vocabulary. It never forks a component.</p>
+    <div data-part="meta">
+      <time datetime="2026-10-07">7 October 2026</time>
+      <span>The Tanrei team</span>
+      <span>8 min read</span>
+    </div>
+    <div data-part="actions">
+      <tanrei-button variant="outlined">Edit</tanrei-button>
+      <tanrei-button variant="filled">Share</tanrei-button>
+    </div>
+  </tanrei-page-header>
+</DemoFrame>
+
+A page header opens a page's content. It holds the page's title, one or two sentences that say what the page is, a line of short facts, the actions for the whole page, and the way back up above it. Every part but the title is optional.
+
+It is not an app bar. An app bar is the window's bar: it stays at the top edge and holds the product's name and icon buttons. A page header is in the content, scrolls away with it, and holds labelled Buttons.
+
+On the web it is `<tanrei-page-header>` around the page's own elements. The element has no shadow root. The title is your own `h1`: a crawler, a reader mode and a page without script all find it, and nothing moves when the script arrives. The other platforms have not implemented it yet.
+
+(The examples on this page use a heading of level 3, because this page already has its own title.)
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/page-header.css" />
+
+    <tanrei-page-header>
+      <p data-part="eyebrow">Announcements</p>
+      <h1>Tokens are derived, and design systems are layers</h1>
+      <p>One value changes in one place, and everything built on it follows.</p>
+      <div data-part="meta">
+        <time datetime="2026-09-20">20 September 2026</time>
+        <span>The Tanrei team</span>
+        <span>4 min read</span>
+      </div>
+      <div data-part="actions">
+        <tanrei-button variant="outlined">Edit</tanrei-button>
+        <tanrei-button>Share</tanrei-button>
+      </div>
+    </tanrei-page-header>
+
+    <script type="module">
+      import '@tanrei/web/components/page-header';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, PageHeader } from '@tanrei/react';
+    import '@tanrei/web/page-header.css';
+
+    <PageHeader divider>
+      <h1>{project.name}</h1>
+      <p>{project.summary}</p>
+      <div data-part="actions">
+        <Button onClick={invite}>Invite</Button>
+      </div>
+    </PageHeader>
+    ```
+  </TabItem>
+</Tabs>
+
+### What you write
+
+Write the parts in the order they are read. That order is also the focus order, at every width.
+
+| Part | On the web |
+| --- | --- |
+| Breadcrumbs | `<tanrei-breadcrumbs>`, or `<div data-part="breadcrumbs">` around one Link back or your own trail. |
+| Eyebrow | `<p data-part="eyebrow">`. Write ordinary words; the capitals are drawn. |
+| Title | The heading: `h1` for a page, `h2` for a part of one, or the level your outline needs. |
+| Description | The first `<p>` without a `data-part`. |
+| Meta | `<div data-part="meta">`. Each element child is one item: a `<time>`, a `<span>`, a Link, a Tag. |
+| Actions | `<div data-part="actions">` around your Buttons and Links. |
+
+### A head built by script
+
+`headline`, `description` and `eyebrow` write their elements for you, where the children have none. `level` sets the heading's level; 0 (default) takes it from the size.
+
+```html
+<tanrei-page-header headline="Members" description="People who can open this project."></tanrei-page-header>
+```
+
+This form is drawn only once the script has run. Write the elements yourself on a content page.
+
+## Specs
+
+<DemoFrame label="Three sizes" plain column>
+  <div class="not-content" style="display: grid; gap: 1.5rem; inline-size: 100%">
+    <tanrei-page-header size="small"><h4>Members</h4><p>People who can open this project.</p></tanrei-page-header>
+    <tanrei-page-header><h3>Typography</h3><p>Text styles are named by level, never by size.</p></tanrei-page-header>
+    <tanrei-page-header size="large"><h3>One system. Five platforms.</h3><p>The same tokens, the same components and the same accessibility contract, each in its own idiom.</p></tanrei-page-header>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="page-header" />
+
+## Guidelines
+
+### Three sizes
+
+| `size` | Title | Description | Use for | Heading level |
+| --- | --- | --- | --- | --- |
+| `small` | 24 | 14 | A part of a page: a section of settings, one record among several. | 2 |
+| `medium` (default) | 32 | 16 | A page. | 1 |
+| `large` | 48 | 16 | A landing page's statement. | 1 |
+
+A large head in a narrow place draws the medium title. The change is one step, not a size that follows the width.
+
+### The title
+
+- The title is the page's heading. It is shown once, as text, and is never cut, shortened to a number of lines or shrunk to fit. A long title costs height, not words.
+- A page has one heading of level 1, and it is this title. Use `small` heads, or headings in the content, for the parts of the page.
+- Do not show the same title in the app bar and in the page header. Choose one per window class.
+
+### Eyebrow and breadcrumbs
+
+- Breadcrumbs lead back up through a hierarchy. They take the first place, across the head's whole width.
+- The eyebrow says what the page belongs to: a category, a product, a version. It is text, not a link and not a heading.
+- A head may have both.
+
+### The meta line
+
+- An item is a short fact that needs no name: a date, an author, a reading time, a state.
+- The page header draws a small dot between two items on one row. Do not write a separator yourself.
+- An item stays whole on its row. A row that is full wraps.
+- An author is one item: a small decorative avatar and the name.
+- Several tags are one item that holds the group, so no dot is drawn between two tags.
+- Facts with names ("Category: Actions") are a [description list](/components/description-list/) under the head, not meta items.
+
+### Actions
+
+| `actionsPlacement` | While the head is at least 480 wide | While it is narrower |
+| --- | --- | --- |
+| `end` (default) | Beside the title at the end edge, centred on the title's first line. | Below the text, at the start edge. |
+| `below` | Below the text. | Below the text. |
+
+- The width that decides is the head's own, not the window's. A head in a pane lays itself out for the pane.
+- The actions always come last in reading and focus order, wherever they are drawn.
+- Use one to three actions, the main one filled.
+
+### The line under it
+
+`divider` draws one hairline under the head. Use it above content that is not text, such as a table, a list of records or tabs. Above an article it is not needed.
+
+### Do
+
+- Write the description as one or two sentences. Longer text belongs to the content.
+- Give a date a `<time>` element with a machine-readable `datetime`.
+- Set `lang` on text in another language. The title and the eyebrow are drawn with a letter-spacing of zero in Chinese, Japanese and Korean, and in scripts that join their letters or stack marks on them (Arabic, Devanagari): a word falls apart there when its letters are moved apart or together.
+
+### Don't
+
+- Don't use a page header as the window's bar. That is an [app bar](/components/app-bar/).
+- Don't write the eyebrow in capitals. Some screen readers spell capitals letter by letter.
+- Don't tell a state by color alone. Use a tag whose label says it.
+
+## Accessibility
+
+<ComponentAccessibility name="page-header" />
+
+### What the component handles
+
+- The title stays the heading you wrote, at its level. Its name is the title's text alone.
+- The eyebrow is read before the heading and the description after it. Neither is part of the heading.
+- The dots between meta items are not read and not copied.
+- The page header adds no landmark and is not a stop of the keyboard.
+- The order of reading and of focus is the same at every width.
+- With text at 200% in a place 320 wide every word, item and action is shown, and nothing scrolls sideways.
+- In forced colors the text, the dots and the line are drawn in the system's text color.
+- In a right-to-left layout every part starts at the right and actions beside the text stand at the left. A left-to-right title keeps its own order.
+
+### What you need to do
+
+- One heading of level 1 per page.
+- The document's title should be, or begin with, the page's title.
+- Names for your actions, and a text alternative for any picture you place in the head.

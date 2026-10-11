@@ -1,0 +1,225 @@
+---
+title: Accordion
+description: Content that a row shows and hides in place. One item is a single disclosure; several are a set whose items open by themselves or one at a time.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="accordion" />
+
+<DemoFrame label="A help page's questions: the outlined look, one item open" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
+    <details open>
+      <summary>What is a design token?</summary>
+      A named design decision: a color, a size, a duration. Components read tokens and never a literal value.
+    </details>
+    <details>
+      <summary>Which platforms are covered?</summary>
+      Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs.
+    </details>
+    <details>
+      <summary>How do I change the look?</summary>
+      With a layer: a file that sets the dials and, where a product needs it, single tokens.
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+An accordion folds parts of a page under rows that show and hide them: the answers of a help page, the sections of a settings screen, the advanced part of a form. One item alone is a disclosure, and it is the same component. A group of destinations that opens inside a navigation drawer is the drawer's own group; a choice among views of one place is tabs.
+
+On the web it is `<tanrei-accordion>` around your own native `<details>` elements. The element has no shadow root, so each item opens and closes, takes focus, carries its expanded state and keeps its closed content in the page before any script runs. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/accordion.css" />
+
+    <tanrei-accordion variant="outlined">
+      <details open>
+        <summary>
+          <span class="tanrei-icon" aria-hidden="true">palette</span>
+          Colors
+          <span data-supporting-text>Roles, palettes and the six schemes</span>
+          <span data-trailing-text>48 roles</span>
+        </summary>
+        <p>Every color a component reads is a role.</p>
+      </details>
+      <details>
+        <summary>Typefaces</summary>
+        <p>One stack for text, one for code.</p>
+      </details>
+    </tanrei-accordion>
+
+    <script type="module">
+      import '@tanrei/web/components/accordion';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Accordion } from '@tanrei/react';
+    import '@tanrei/web/icons.css';
+    import '@tanrei/web/accordion.css';
+
+    <Accordion density="compact" exclusive>
+      {sections.map((section) => (
+        <details key={section.id} onToggle={(event) => track(section.id, event.currentTarget.open)}>
+          <summary>
+            {section.name}
+            <span data-trailing-text>{section.count}</span>
+          </summary>
+          {section.content}
+        </details>
+      ))}
+    </Accordion>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/accordion.css` draws the whole look and every state before any script runs. The element adds the same stylesheet to the page by itself, so a page that loads only the script still gets a drawn accordion, a moment later. The chevron and an item's icon are glyphs of the icon set: they need `@tanrei/web/icons.css` and the icon font.
+
+### What you write
+
+| Part | On the web |
+| --- | --- |
+| An item | A `<details>`. `open` is its own attribute and property. |
+| The header | Its `<summary>`, first in the item. It is one button. |
+| The label | The summary's text. |
+| A label that is a heading, or holds inline content | One element in the text's place: `<summary><h3>Billing</h3></summary>`, or `<summary><span>Use <code>tokens.css</code></span></summary>`. |
+| The supporting text | An element with `data-supporting-text` inside the summary. |
+| The trailing text | An element with `data-trailing-text` inside the summary. |
+| The icon | A `<span class="tanrei-icon" aria-hidden="true">` first in the summary, holding the glyph's name. |
+| The content | Everything after the summary: text, your own blocks, any component, another accordion. |
+| A disabled item | `<summary aria-disabled="true" tabindex="-1">`. |
+| An item's event | The item's own `toggle`. It does not bubble; `event.newState` is `"open"` or `"closed"`. |
+
+The browser sends `toggle` for every change of `open`, including the ones your own code makes and the one it makes for a `<details open>` it has just parsed. Code that sets `open` itself knows its own changes by the state it set.
+
+### Markdown
+
+A Markdown renderer passes `<details>` through as HTML. Wrap one or several in `<tanrei-accordion>` in the source, or at build time as the [Table page](../table/#markdown) shows for tables.
+
+## Specs
+
+<DemoFrame label="Compact, with a second line and a value at the end: folds in a panel" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
+    <details open>
+      <summary>Text<span data-supporting-text>Body, labels and headings</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
+      The font stack, in order.
+    </details>
+    <details>
+      <summary>Code<span data-supporting-text>Code blocks and inline code</span><span data-trailing-text>Roboto Mono</span></summary>
+      The font stack, in order.
+    </details>
+    <details>
+      <summary>Inherited rules<span data-trailing-text>12</span></summary>
+      Twelve rules come from the layers below this one.
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+<DemoFrame label="One open at a time, each item in an edge of its own" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
+    <details open>
+      <summary><span class="tanrei-icon" aria-hidden="true">palette</span>Colors</summary>
+      Roles, palettes and the six schemes.
+    </details>
+    <details>
+      <summary><span class="tanrei-icon" aria-hidden="true">notifications</span>Notifications</summary>
+      Email, push and the weekly digest.
+    </details>
+    <details>
+      <summary aria-disabled="true" tabindex="-1"><span class="tanrei-icon" aria-hidden="true">person</span>Account</summary>
+      Your name, your address and your password.
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+<ComponentSpecs name="accordion" />
+
+## Guidelines
+
+### Is it an accordion
+
+Closed content costs a press to read and cannot be seen at a glance. Fold what only some people need, and leave open what most people came for. Do not hide a form's required fields or its errors in a closed item.
+
+### The two looks
+
+| `variant` | Draws | Use for |
+| --- | --- | --- |
+| `plain` (default) | Rows on the surface, with nothing around them. | Content in the flow of a page or a panel. |
+| `outlined` | One hairline with rounded corners. | A set that should read as one block among others. |
+
+Neither look fills anything at rest, and a header keeps its colors while its item is open. Open is shown by the chevron alone.
+
+### Density
+
+| `density` | A header of one line | Label | Use for |
+| --- | --- | --- | --- |
+| `regular` (default) | 56 | 16 on a line height of 24, medium | A page a person reads: questions, the sections of a long form. |
+| `compact` | 48 | 14 on 20, medium | A panel among controls: settings, an inspector, a card. |
+
+A header grows with its text. A compact header is a navigation drawer's row: the same height, text style and chevron.
+
+### Telling items apart
+
+| `separation` | `plain` | `outlined` |
+| --- | --- | --- |
+| `auto` (default) | What the design system chose: a hairline in the default system. | The same. |
+| `divider` | A hairline between items, none above the first or below the last. | One edge around the whole set, hairlines between items. |
+| `gap` | Empty space and no line. | Each item in an edge of its own. |
+
+### One open at a time
+
+`exclusive` closes the open item when another opens. Use it for items that exclude each other, such as the steps of one choice, not to keep a page short: a reader who wants two answers side by side cannot have them. The header that was pressed stays where it is in the view while the item above it closes.
+
+On the web `exclusive` is the `name` attribute of `<details>`, which the element writes on its items. Markup that must be exclusive without script writes the same `name` on each item itself.
+
+### Do
+
+- Write the label as plain text. Where the page's outline needs the row as a heading, give a heading of the right level as the label.
+- Use the supporting text to say what an item holds, so that a person can decide without opening it.
+- Use the trailing text for a count or the present value. It is one line, and it is cut before the label is.
+- Put an action that belongs to an item into its content.
+
+### Don't
+
+- Don't put a link, a button or a switch in a header. A header is one button.
+- Don't use color or weight to show which item is open.
+- Don't nest accordions more than three deep.
+- Don't open an item because something in it is invalid without telling the reader: when a form is refused, open the item that holds the first error, then move focus to the field.
+
+## Accessibility
+
+<ComponentAccessibility name="accordion" />
+
+### What the component handles
+
+- Each header is the summary of a details element: one button with the expanded state, a stop of its own in the focus order. Enter and Space toggle it. The arrow toward the end of the line opens a closed item and the arrow toward the start closes an open one, following the layout direction. Up, Down, Home and End stay the page's.
+- The header is named by its label. The element makes the supporting text and then the trailing text its description. Without the script all three are read as its name, in that order.
+- The icon and the chevron are hidden from assistive technology.
+- The content is not a region and nothing is announced: the button's changed state is all assistive technology is told.
+- Closed content is not drawn, not focusable and not exposed, and it stays in the document: a field in it keeps its value and is sent with its form.
+- A link to a place inside a closed item opens the item, and so does the browser's own search of the page where the browser reveals a details element for it.
+- Focus never moves when an item opens. If an item closes around the focus, focus goes to its header.
+- The focus ring is drawn inside the header's row, so nothing clips it.
+- The height moves over the disclosure motion and is drawn at once where motion is reduced.
+- Both densities are at least the touch target high.
+- At 200% text labels wrap, headers grow and the chevron stays on the first line.
+- In forced colors the edge and the lines are the text color, and a disabled header is the disabled text's color.
+- A header with no name, a control in a label, an item with no content, an unknown value and more than three levels of nesting are reported in debug builds.
+
+### What you need to do
+
+- Decide whether a label is a heading. Most labels name a fold in a panel and stay text. The questions of a help page that people navigate by heading are headings.
+- A heading given as a label is inside the button. Some assistive technology then reads the button's name and does not list the heading. Where the outline must not depend on that, put the heading before a single item instead.
+- Give a disabled item both `aria-disabled="true"` and `tabindex="-1"`. The element adds the second where it is missing, but only once the script has run.
+- Where a label, a supporting text or a trailing text may be written in the other direction of the page, wrap the label in a `<span>`: each marked element then keeps its own direction. A label of bare text is laid out in the page's direction.

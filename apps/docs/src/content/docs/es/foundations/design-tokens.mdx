@@ -1,0 +1,73 @@
+---
+title: Tokens de diseño
+description: Cuatro niveles a partir de unos pocos diales, resueltos por contexto, escritos una sola vez en el formato DTCG y generados para cada plataforma.
+translationOf: foundations/design-tokens.mdx
+sourceHash: 556e1a52c075e10f7e3d783fcb96a5377bb4a3a4
+---
+
+import FileTree from '../../../../components/FileTree.astro';
+import Callout from '../../../../components/Callout.astro';
+
+Un token de diseño es una decisión de diseño con nombre. Tanrei guarda cada color, tamaño, estilo de texto, radio, sombra, duración y opacidad como un token en el [formato del Design Tokens Community Group](https://www.designtokens.org/) (versión 2025.10), en el directorio `tokens/` del repositorio. Ese directorio es una de las dos fuentes de verdad del proyecto.
+
+## Niveles
+
+Por debajo de los tres niveles siguientes hay un cuarto, `dial`: los siete números de los que procede todo valor derivado. Consulta [Sistemas de diseño y personalización](/es/foundations/design-systems/) para conocer los diales, las capas y cómo un producto personaliza Tanrei.
+
+| Nivel | Prefijo | Contiene | Ejemplo |
+| --- | --- | --- | --- |
+| Referencia | `tanrei.ref.*` | La materia prima: paletas tonales, rampas de alfa, tipos de letra y pesos. | `tanrei.ref.palette.neutral.10` |
+| Sistema | `tanrei.sys.*` | Decisiones con un rol: *para qué* sirve un color o un tamaño. Los temas cambian este nivel. | `tanrei.sys.color.primary` |
+| Componente | `tanrei.comp.*` | Vinculaciones entre las partes de un componente y los tokens de sistema. | `tanrei.comp.button.filled.container.color` |
+
+Cada nivel solo puede apuntar hacia abajo: los tokens de componente son alias de tokens de sistema, y los tokens de sistema son alias de tokens de referencia.
+
+Dos reglas mantienen útiles los niveles, y `pnpm validate` impone ambas:
+
+- **Los tokens de componente no contienen literales** de color, tipografía, forma, movimiento ni opacidad. Un token de componente es siempre un alias, de modo que un tema puede cambiar el estilo de todos los componentes modificando únicamente el nivel de sistema.
+- **Los componentes no contienen valores de diseño escritos a mano.** Si falta un valor, la solución es un token nuevo, no un número mágico.
+
+## Contextos
+
+Un token no tiene un único valor: tiene un valor por contexto. Hoy Tanrei resuelve dos ejes de contexto:
+
+- **Tema:** claro u oscuro.
+- **Contraste:** estándar, medio o alto.
+
+Eso da seis combinaciones resueltas. Las describe un archivo resolver de DTCG (`tokens/tanrei.resolver.json`) y se escriben en `design/tokens/` como archivos completamente resueltos, que son los que representa la [referencia de tokens](/es/tokens/color/) de este sitio.
+
+## Nombres
+
+El nombre de un token es su ruta. Cada plataforma escribe la misma ruta según su propia convención:
+
+| Plataforma | `tanrei.sys.color.primary` se convierte en |
+| --- | --- |
+| CSS | `--tanrei-sys-color-primary` |
+| Swift, Kotlin, Dart, TypeScript | una constante generada bajo el espacio de nombres de tokens del paquete |
+
+El espacio de nombres, el prefijo de CSS y el prefijo de las etiquetas salen de un único archivo, `tanrei.config.json`. Ningún otro lugar del repositorio puede escribirlos a mano.
+
+## De la fuente a la plataforma
+
+<FileTree>
+- tokens/ fuente de verdad, editada a mano
+  - ref/
+  - sys/
+  - comp/
+  - themes/ entrada del generador de esquemas de color
+  - generated/ paletas y esquemas escritos por el generador
+  - tanrei.resolver.json
+- design/tokens/ seis combinaciones resueltas
+- packages/
+  - web/src/generated/tokens.css
+  - swiftui/…/Generated/TanreiTokens.swift
+  - compose/…/tokens/
+  - flutter/lib/src/generated/tokens.g.dart
+  - react-native/src/generated/tokens.ts
+</FileTree>
+
+`pnpm generate` reconstruye todos los archivos derivados. La CI los regenera y falla ante cualquier diferencia, de modo que una edición a mano de un archivo generado nunca sobrevive.
+
+<Callout>
+  En CSS, los tokens de color se emiten como pares `light-dark()`. Una sola hoja de estilos sirve a ambos temas, y un subárbol puede cambiar de tema con solo cambiar su `color-scheme`.
+</Callout>

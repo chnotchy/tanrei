@@ -1,0 +1,80 @@
+---
+title: Flutter
+description: किसी Flutter ऐप में Tanrei जोड़ें।
+translationOf: getting-started/flutter.mdx
+sourceHash: 6acea5bb31fd86ae29f31dcab38bc245008b152b
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`tanrei` पैकेज पूरी तरह Dart में लिखा है। इसमें विजेट, एक इनहेरिटेड `TanreiTheme` और जनरेट किए गए टोकन कॉन्स्टेंट मिलते हैं, और यह `MaterialApp` या `CupertinoApp` पर निर्भर नहीं है; यह दोनों के भीतर चलता है, और सादे `WidgetsApp` में भी।
+
+<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+
+## इंस्टॉल करें
+
+### सोर्स से
+
+<Callout type="caution" title="आज बिल्ड नहीं होता">
+  Flutter पैकेज अभी मौजूदा स्पेक और टोकन तक नहीं पहुँचा है: उसका सोर्स जनरेट किए गए टोकन कोड के एक पुराने वर्ज़न के हिसाब से लिखा गया था, और आज के कोड के साथ कंपाइल नहीं होता। जब तक वह बराबरी पर नहीं आता, उसका CI रुका हुआ है, और [स्थिति पेज](/hi/status/) उसके कंपोनेंट को *पीछे* के रूप में दिखाता है। नीचे के चरण बताते हैं कि उसे किसी ऐप में कैसे जोड़ा जाता है; पैकेज के बराबरी पर आने के बाद ये काम करेंगे।
+</Callout>
+
+रिपॉज़िटरी को अपने ऐप के बग़ल में क्लोन करें और पैकेज को उसके पाथ से डिपेंडेंसी के रूप में जोड़ें:
+
+```sh
+flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
+```
+
+`flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"` लोकल क्लोन की जगह सीधे रिपॉज़िटरी से जुड़ता है और उसके साथ अपडेट होता है।
+
+### पहली रिलीज़ के बाद
+
+```sh
+flutter pub add tanrei
+```
+
+## इस्तेमाल
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:tanrei/tanrei.dart';
+
+class DeployButton extends StatelessWidget {
+  const DeployButton({super.key, required this.isDeploying, required this.onDeploy});
+
+  final bool isDeploying;
+  final VoidCallback onDeploy;
+
+  @override
+  Widget build(BuildContext context) {
+    return TanreiTheme(
+      data: TanreiThemeData.platform(context),
+      child: TanreiButton(
+        variant: TanreiButtonVariant.filled,
+        onPressed: isDeploying ? null : onDeploy,
+        child: const Text('डिप्लॉय करें'),
+      ),
+    );
+  }
+}
+```
+
+`disabled` नाम का कोई फ़्लैग नहीं है। Flutter के अपने बटनों की तरह, `onPressed` में `null` देने से बटन अक्षम हो जाता है।
+
+## थीम और कंट्रास्ट
+
+`TanreiThemeData.platform(context)` ब्राइटनेस और उच्च कंट्रास्ट का फ़्लैग `MediaQuery` से पढ़ता है। इन्हें तय करने के लिए किसी कॉन्स्टेंट से शुरू करें और कॉपी करें:
+
+```dart
+TanreiTheme(
+  data: TanreiThemeData.dark.copyWith(contrast: TanreiContrast.high),
+  child: const App(),
+)
+```
+
+`TanreiTheme` को अपने नेविगेटर के ऊपर रखें, ताकि हर रूट को वह मिले।
+
+## टेक्स्ट स्टाइल
+
+`TanreiTheme.of(context).system.typescale` में स्तर के अनुसार सोलह टेक्स्ट स्टाइल हैं — सेक्शन के शीर्षक के लिए `heading2`, चलते टेक्स्ट के लिए `body`, किसी कंट्रोल के लिए `label` — जो `TanreiTextStyle` टोकन के रूप में हैं; `theme.textStyle(system.typescale.heading2)` (या `token.toTextStyle()`) इनमें से किसी को Flutter के `TextStyle` में बदल देता है। `theme.textStyle(token, emphasized: true)` — या हाथ से, `token.emphasized(system.typescale.emphasis)` — वही स्टाइल है जिसके वेट में फ़ैमिली का एम्फ़ेसिस स्टेप (`typescale.emphasis`) जुड़ा है; एम्फ़ेसिस एक वेट है, कोई अलग रोल नहीं। रोल और एलिमेंट से उनके मिलान के लिए [टाइपोग्राफ़ी](/hi/foundations/typography/) देखें।

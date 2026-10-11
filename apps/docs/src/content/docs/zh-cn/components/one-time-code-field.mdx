@@ -1,0 +1,190 @@
+---
+title: "一次性验证码字段"
+description: "以一个完整字段的形式，向用户索取发送给他的简短验证码：标签下方是格子，带有一行帮助文本和验证码错误时的文字；它们为辅助技术关联在一起，并作为一个控件参与表单。"
+translationOf: components/one-time-code-field.mdx
+sourceHash: 4952bfb2574339fb8c70f1d9523c3cbe0359963a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="one-time-code-field" />
+
+<DemoFrame label="一次性验证码字段，以及一个验证码被产品拒绝的字段" column>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" supporting-text="请输入发送到手机的 6 位验证码。" group-size="3" value="123"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" supporting-text="请输入发送到手机的 6 位验证码。" error error-text="验证码不正确。请核对短信后重试。" group-size="3" value="123456"></tanrei-one-time-code-field>
+</DemoFrame>
+
+只要产品要求用户回填它发出的简短验证码，就使用一次性验证码字段：登录、确认某个地址或电话号码、批准一笔付款。它对应的是最常见的情况，可以直接使用：一个标签、一排格子、一行说明验证码发到了哪里的文字，以及验证码错误时的文字。
+
+**组成部分**是一个[字段](/zh-cn/components/field/)和一个[一次性验证码输入框](/zh-cn/components/one-time-code-input/)。字段是框架：标签、必填或选填标记、帮助文本和错误。一次性验证码输入框是控件：格子，以及用户在格子里做的一切。一次性验证码字段自己什么都不绘制，也没有令牌：它的每个属性都是这两者之一的属性，原样交给它们。
+
+它的宽度与所在的位置相同，格子从它的起始边开始排。
+
+在 Web 上它是 `<tanrei-one-time-code-field>`。其他平台尚未实现。
+
+### 用法
+
+`value` 是到目前为止已输入的验证码；无论画出怎样的分组，其中都没有分隔符。四个事件是一次性验证码输入框自己的事件；监听到其中任何一个时，字段的 `value` 都已经是新的值。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-one-time-code-field name="code" label="验证码"
+        supporting-text="请输入发送到手机的 6 位验证码。"
+        error-text="验证码不正确。请核对短信后重试。"
+        requirement="required" required-text="必填"
+        group-size="3"></tanrei-one-time-code-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/one-time-code-field';
+
+      const code = document.querySelector('tanrei-one-time-code-field');
+      // 用户改变了值。这时它已经是新的值。
+      code.addEventListener('input', () => (code.error = false));
+      // 最后一个格子填上了，或者粘贴、自动填充了完整的验证码。除此之外，不会自动发生任何事。
+      code.addEventListener('complete', async (e) => {
+        code.readOnly = true;
+        const right = await verify(e.detail.value);
+        code.readOnly = false;
+        code.error = !right;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { OneTimeCodeField } from '@tanrei/react';
+
+    <OneTimeCodeField name="code" label="验证码" error={wrong}
+      supportingText="请输入发送到手机的 6 位验证码。"
+      errorText="验证码不正确。请核对短信后重试。"
+      groupSize={3} value={code}
+      onInput={(event) => setCode(event.currentTarget.value)}
+      onComplete={(event) => verify(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### 下一层
+
+用它的两个成员手写出来的同一个字段，画面是一样的，对辅助技术来说也是同一个文本框：
+
+```html
+<tanrei-field label="验证码"
+  supporting-text="请输入发送到手机的 6 位验证码。"
+  error-text="验证码不正确。请核对短信后重试。">
+  <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
+</tanrei-field>
+```
+
+<DemoFrame label="手写出来的同一个字段：一个字段，里面有一个一次性验证码输入框" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" supporting-text="请输入发送到手机的 6 位验证码。">
+    <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
+  </tanrei-field>
+</DemoFrame>
+
+当你需要一次性验证码字段没有提供的排布方式时，就往下走一层：
+
+| 你需要 | 使用 |
+| --- | --- |
+| 标签、格子、帮助文本和错误 | 一次性验证码字段 |
+| 在框架里面、格子旁边放你自己的东西：重新发送验证码的控件、倒计时 | 一个[字段](/zh-cn/components/field/)，里面放一个[一次性验证码输入框](/zh-cn/components/one-time-code-input/)和你自己的元素 |
+| 只要格子，标签绘制在别处：对话框的标题、某个步骤的标题 | 单独使用的[一次性验证码输入框](/zh-cn/components/one-time-code-input/)，由它自己的 `label` 命名 |
+| 一个没有格子的输入框，用于长度未知的验证码 | 带 `autocomplete="one-time-code"` 的[文本字段](/zh-cn/components/text-field/) |
+
+下到这一层之后，变的是各样东西写在哪里。`name` 和 `value` 写在一次性验证码输入框上，这时它就是表单面对的控件，它的事件也在它上面监听。`label`、`error` 和 `disabled` 仍然写在字段上，由字段转交给控件：不要设置输入框自己的这几项。
+
+## 规格
+
+<DemoFrame label="带产品文字的必填、选填、禁用，以及遮蔽的 4 位验证码" plain column>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" requirement="required" required-text="必填" supporting-text="请输入发送到手机的 6 位验证码。" group-size="3"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="备用验证码" requirement="optional" optional-text="选填" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="验证码" disabled supporting-text="请输入发送到手机的 6 位验证码。" group-size="3" value="123456"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="信函中的 PIN 码" length="4" mask value="4821"></tanrei-one-time-code-field>
+</DemoFrame>
+
+### 各个成员提供什么
+
+| 方面 | 来自字段 | 来自一次性验证码输入框 |
+| --- | --- | --- |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `length`, `type`, `groupSize`, `mask`, `readOnly` |
+| 事件 | — | `input`, `change`, `complete`, `action` |
+| 插槽 | `label-icon` | — |
+| 令牌 | `comp.field.*` | `comp.one-time-code-input.*` |
+
+一次性验证码输入框有它自己的 `label`、`error` 和 `disabled`。它们不是一次性验证码字段的属性：字段的 `label` 为控件命名，字段的 `error` 让格子进入错误状态，字段的 `disabled` 禁用格子。所以每一项你都只设置一次，设置在一次性验证码字段上，它的标签也随控件一起变化。
+
+格子做什么，也就是键入、粘贴、方向键和分组，写在[一次性验证码输入框的页面](/zh-cn/components/one-time-code-input/)上。框架做什么，也就是必填标记、帮助文本、错误以及错误怎样朗读，写在[字段的页面](/zh-cn/components/field/)上。
+
+### 单独调整某一个字段
+
+一次性验证码字段没有自己的令牌。它的框架读取字段的令牌，它的格子读取一次性验证码输入框的令牌，无论这些令牌设置在哪里。要改动某一个实例，就在它上面设置成员的令牌：
+
+```html
+<tanrei-one-time-code-field label="验证码"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-one-time-code-field>
+```
+
+<ComponentSpecs name="one-time-code-field" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-one-time-code-input>`，此外什么都没有。导入这个元素，两个成员也随之完成定义。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`；提交的只有验证码，禁用时什么都不提交；重置为 `value` 属性（attribute）的值；跟随被禁用的 `<fieldset>`；`requirement` 为 `required` 而它为空时，报告缺少值。它的两个成员不向表单添加任何条目。在格子里按 Enter 会按下元素所在表单的默认按钮；取消 `action` 可以阻止这一点。
+- `input`、`change`、`complete` 和 `action` 是一次性验证码输入框的 CustomEvent，带有 `detail.value`。它们的 target 是这个元素，在每个监听器里，`event.target.value` 都是验证码。
+- 部件：`field` 和 `one-time-code-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label`、`label-icon`、`requirement-label`、`supporting-text`；`input`、`cell`、`character`、`caret`、`separator`。
+- 这个元素本身不能获得焦点：`focus()` 会把焦点交给格子，页面自己的 `<label for>` 也会把焦点移到那里。元素上的 `autofocus` 会在它第一次绘制时让格子获得焦点，除非焦点已经在别的东西上。
+- 这个元素没有角色。用 `label` 为它命名，标签绘制在别处时再加上 `label-hidden`；绝不要用 `aria-label`，它在这里不为任何东西命名。
+- 属性（attribute）就是成员自己的那些：`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`group-size`、`readonly`。
+- 它只有一个插槽 `label-icon`。放在它里面的第二个控件不会绘制。
+- 在元素完成定义之前，它没有尺寸，只显示作为子元素的 `label-icon`。用 `tanrei-one-time-code-field:not(:defined) > *` 把它隐藏起来，并预留高度。必须在没有脚本时也能工作的页面，用一个 `<label>` 包住一个普通的 `<input autocomplete="one-time-code" inputmode="numeric">`，并把帮助文本放在旁边。
+
+## 指南
+
+### 推荐
+
+- 在 `supportingText` 里说明应该有几个字符，以及验证码发到了哪里。
+- 按消息里的写法画出分组：以“123 456”的形式发送的验证码，用 `groupSize="3"`。
+- 用文字说明验证码不正确，使用 `error` 和 `errorText`。错误的验证码要不要清空，由你自己决定：很多时候只是错了一位数字。
+- 校验已填完的验证码期间，使用 `readOnly`，而不是 `disabled`。禁用的字段会失去焦点，随后需要改正验证码的用户就找不到原来的位置了。
+- 把重新获取验证码的途径，以及任何时间限制，放在字段旁边。如果它们应该放在框架里面，就在下一层手写这个字段。
+
+### 避免
+
+- 不要把一次性验证码字段放进字段。它本身已经是字段；调试构建会报告这一点。
+- 不要用 `aria-label` 为它命名。不该绘制标签的地方，给出 `label` 和 `labelHidden`。
+- 不要阻止粘贴，无论是否遮蔽；也不要在没有事先告知用户的情况下移走焦点或提交表单。
+- 不要习惯性地使用 `mask`。只用一次、过后就失效的验证码很少需要隐藏，而隐藏会让错误更难发现。
+- 不要为了单独改动这一个字段的格子样式而把格子照抄一份。请在字段上设置成员的令牌。
+
+## 无障碍
+
+<ComponentAccessibility name="one-time-code-field" />
+
+### 组件负责的部分
+
+- 它是一个文本框，也就是一次性验证码输入框的那一个。它的名称是 `label`，无论标签是否绘制；它的描述是显示出来的辅助文本或错误文本，字段为选填时还加上选填文字。
+- `error` 为 true 时，它暴露为无效；`requirement` 为 `required` 时，暴露为必填；`disabled` 为 true 时，暴露为禁用；`readOnly` 为 true 时，暴露为只读；`mask` 为 true 时，暴露为密码框。
+- 名称、描述和状态的关联方式，与字段把它们关联到它框住的任何控件时完全一样。在下一层手写的字段，是同一个文本框。
+- 画出来的标签、必填和选填标记、格子、插入点和分组标记，不会再暴露第二次。
+- 它只是一个 Tab 停靠点。按下标签会把焦点移到格子上，不操作任何东西；按下帮助文本什么都不会发生。
+- 焦点在一次性验证码字段里时出现的错误，由它的字段成员以礼貌（polite）的方式朗读一次。
+- 方向、放大的文本和强制颜色模式，由各个成员各自应对：在从右到左的布局中，框架会镜像，格子仍然从左到右排列，位于起始边；文本放大到 200% 时，没有任何内容被截断，也没有任何内容横向滚动。
+- 它没有自己的文字。`requiredText` 和 `optionalText` 留空时，由字段从产品的文字里读取。
+
+Web 上的已知差距都是它的成员的差距：键入验证码时屏幕阅读器会说什么，是从各浏览器的无障碍树里读出来的，还没有用屏幕阅读器实际听过；在元素完成定义之前，什么都不绘制。
+
+### 需要你做的事
+
+- 始终给出 `label`，用的是用户自己称呼这个验证码时会说的词。
+- 用文字说明期望的内容：有几个字符，验证码发到了哪里。格子只向看得见的人显示长度。
+- 用 `errorText`、`supportingText` 和 `requirement` 说明验证码不正确、已过期或必填。颜色绝不是唯一的提示。
+- 输入验证码的时间有限时，要说明这一点，并让用户可以申请更多时间或新的验证码。

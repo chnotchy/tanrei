@@ -1,0 +1,92 @@
+---
+title: Iconos
+description: "Un conjunto de iconos por sistema de diseño, un peso y una regla: con contorno cuando no está seleccionado, con relleno cuando lo está."
+translationOf: foundations/icons.mdx
+sourceHash: 6905ea230fdb3955442d8050cf3af2f3fe852839
+---
+
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Los iconos predeterminados de Tanrei son [Material Symbols](https://fonts.google.com/icons), **Rounded**, con **peso 300**. Igual que los tipos de letra del texto, la fuente se referencia por su nombre y no se incluye: la carga el producto.
+
+La manera de dibujar un icono es un pequeño grupo de tokens. La caja del icono tiene tres tamaños, `sys.icon.small`, `medium` y `large` (16, 20 y 24px de forma predeterminada), y el tamaño óptico de la fuente sigue a la caja.
+
+<TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
+
+## La regla del relleno
+
+**Sin seleccionar, con contorno. Seleccionado, con relleno. Siempre.** Un elemento de navegación, una pestaña, un conmutador, un chip, un favorito: el icono sigue siendo el mismo glifo y solo su relleno cambia con el estado. Los iconos con relleno y con contorno nunca se mezclan para decorar ni se eligen a mano: en la web, el relleno sigue el estado del control en el que se encuentra el icono.
+
+<DemoFrame label="El relleno sigue a la selección">
+  <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> Favorito</button>
+  <span class="icon-demo" role="tablist">
+    <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> Inicio</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">search</span> Buscar</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> Configuración</button>
+  </span>
+  <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>Añadir</tanrei-button>
+</DemoFrame>
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> Favorito</button>
+```
+
+`.tanrei-icon` lee `aria-pressed`, `aria-selected`, `aria-checked` y `aria-current` en cualquier ancestro, o `data-selected` en el icono o en un ancestro (`data-selected="false"` excluye un icono concreto). Dale a un icono `aria-hidden="true"` cuando el texto que tiene al lado dice lo mismo, y dale al control un nombre accesible cuando no es así.
+
+En las plataformas nativas, los mismos valores llegan con el sistema de diseño (`system.icon`), junto con una pequeña utilidad que convierte *seleccionado* y un tamaño en lo que necesita la fuente. Tanrei todavía no incluye un componente de icono.
+
+## Un conjunto de iconos por sistema de diseño
+
+El conjunto de iconos pertenece al sistema de diseño, así que una [capa](/es/foundations/design-systems/) puede cambiarlo. Esto es lo que resuelven los sistemas incluidos:
+
+<SystemValues tokens={['sys.icon.family.unselected', 'sys.icon.family.selected', 'sys.icon.weight', 'sys.icon.fill.unselected', 'sys.icon.fill.selected']} />
+
+Una fuente de iconos distingue un icono seleccionado de uno sin seleccionar de una de dos maneras, y los tokens cubren ambas. Un icono seleccionado toma siempre `family.selected` **y** `fill.selected`; cuál de los dos cambia de verdad lo que se dibuja depende del conjunto.
+
+### Una familia variable
+
+Una fuente de iconos variable, como Material Symbols, es una sola familia con un eje `FILL`. De forma predeterminada, los dos tokens de familia apuntan a `ref.typeface.icon`, así que reorientar ese único token cambia el conjunto, y `fill.unselected` / `fill.selected` distinguen los estados. Esto es todo lo que escribe `m3-like`:
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.icon": { "$value": ["Material Symbols Outlined"], "reason": "Material Design 3 dibuja Material Symbols en el estilo Outlined." },
+  "tanrei.sys.icon.weight":   { "$value": 400, "reason": "El peso predeterminado de Material Symbols en Material Design 3." }
+}
+```
+
+### Dos familias estáticas
+
+Una fuente de iconos estática no tiene ejes. Distribuye los dibujos con contorno y con relleno como dos familias separadas, así que la capa nombra una para cada estado:
+
+```json
+"tokens": {
+  "tanrei.sys.icon.family.unselected": { "$value": ["Material Icons Outlined"], "reason": "Acme usa el conjunto estático Material Icons: con contorno cuando no está seleccionado." },
+  "tanrei.sys.icon.family.selected":   { "$value": ["Material Icons"], "reason": "Acme usa el conjunto estático Material Icons: con relleno cuando está seleccionado." },
+  "tanrei.sys.icon.weight":            { "$value": 400, "reason": "Una fuente de iconos estática tiene un solo peso; Material Icons está dibujado a 400." }
+}
+```
+
+Los tokens de relleno y de peso se quedan como están. Una fuente estática ignora los ejes, así que no hacen ningún daño, y un componente no necesita saber qué tipo de conjunto está activo. Esta capa es el fixture de pruebas del propio repositorio (`packages/tokens-build/test/fixtures/acme.system.json`).
+
+### Los nombres de los iconos son asunto del producto
+
+Tanrei decide cómo se dibuja un icono, no qué iconos existen. Cada conjunto nombra sus glifos de forma distinta, y a un conjunto le puede faltar un glifo que otro sí tiene. Un producto que cambia de conjunto de iconos comprueba los nombres que usa. Un conjunto de símbolos que no es una fuente, como SF Symbols, no se puede nombrar con un token de familia; eso está anotado en el registro de lagunas de imitación como `platform-symbol-sets`.
+
+### React Native
+
+El `<Text>` de React Native no puede definir los ejes de variación de una fuente, así que con una fuente de iconos variable `FILL` nunca llega al glifo, y un icono se ve igual en los dos estados. Para mantener allí la regla, usa dos familias estáticas como se indica arriba, o dibuja los iconos como SVG.
+
+Las utilidades de iconos de los cuatro paquetes nativos se están pasando ahora al modelo de una familia por estado; hasta que el README de un paquete lo describa, cuenta con que ese paquete lea una sola familia.
+
+<style>{`
+  .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }
+  .icon-demo[role='tablist'] { gap: 1rem; cursor: default; }
+  .icon-demo [role='tab'] { display: inline-flex; align-items: center; gap: 0.35rem; font: inherit; color: var(--tanrei-sys-color-on-surface-variant); background: none; border: 0; padding: 0.25rem; }
+  .icon-demo [aria-selected='true'] { color: var(--tanrei-sys-color-on-surface); }
+`}</style>

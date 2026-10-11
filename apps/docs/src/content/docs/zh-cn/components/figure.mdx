@@ -1,0 +1,249 @@
+---
+title: "图示"
+description: "把一样供人观看的东西——图片、图表、样张或实时示例——放在它自己的展示区里，可以带外框，也可以不带；配一段说明文字说出它展示的是什么，还可以在上方加标题和你自己的控件，在下方接一个相连的块。"
+translationOf: components/figure.mdx
+sourceHash: 73569d4fce0f2d7484ec464c4bd25f4c23fa4f05
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="figure" />
+
+<DemoFrame label="Outlined、filled 和 plain" column>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
+    <tanrei-figure>
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>Outlined：一道细线围住的表面。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure variant="filled">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>Filled：一层柔和的色调，没有边线。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure variant="plain">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>Plain：展示的东西就是它自己的外框。</figcaption>
+      </figure>
+    </tanrei-figure>
+  </div>
+</DemoFrame>
+
+图示展示一样供人观看而不是阅读的东西：文章里的图片、报告里的图表、某项设置将产生的效果的预览、一份样张。它把这样东西与周围区分开，并说明它是什么。本站实时示例外面的框就是图示。
+
+它不是卡片。卡片把关于同一个主题的内容和操作组织在一起，并且可以整体被按下。图示只展示一样东西，从不能被按下，说明文字放在外框之外。
+
+在 Web 上，它是包在原生 `<figure>` 外面的 `<tanrei-figure>`。这个元素没有 shadow root，所以图示和它的 `<figcaption>` 都是文档自己的：不运行脚本时、爬虫和阅读模式都能读到它们，并且由浏览器为图示命名。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/figure.css" />
+
+    <tanrei-figure>
+      <figure>
+        <div data-part="frame">
+          <header>
+            <p data-part="title">各季度收入</p>
+            <div data-part="actions">
+              <tanrei-button variant="text" label="在新标签页中打开"><span slot="icon">open_in_new</span></tanrei-button>
+            </div>
+          </header>
+          <div data-part="stage">
+            <img src="revenue.svg" alt="柱状图：收入在每个季度都有增长。" />
+          </div>
+        </div>
+        <figcaption>每个地区都有增长，北部增长最快。</figcaption>
+      </figure>
+    </tanrei-figure>
+
+    <script type="module">
+      import '@tanrei/web/components/figure';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Figure } from '@tanrei/react';
+    import '@tanrei/web/figure.css';
+
+    <Figure variant="plain">
+      <figure>
+        <img src={photo.src} alt={photo.alt} />
+        <figcaption>{photo.caption}</figcaption>
+      </figure>
+    </Figure>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/figure.css` 在任何脚本运行之前就画出整个图示，所以满是图示的页面在脚本到达时不会发生位移。元素自己也会把同一份样式表加进页面。
+
+### 你要写的内容
+
+| 部件 | 在 Web 上 |
+| --- | --- |
+| 外框 | `<div data-part="frame">`，`<figure>` 的第一个子元素。里面是页眉、展示区和附加块。 |
+| 标题 | 外框的 `<header>` 里带 `data-part="title"` 的元素：一个 `<p>`，或者页面大纲所需要的标题元素。 |
+| 操作 | `<header>` 里的 `<div data-part="actions">`，包住你自己的控件。 |
+| 展示区 | `<div data-part="stage">`，包住要展示的东西。 |
+| 附加块 | 展示区之后任何带 `data-part="attachment"` 的元素：代码块、表格、描述列表。 |
+| 说明文字 | `<figcaption>`，写在外框之后。 |
+
+除展示区以外，每个部件都是可选的。单独一个 `<img>`、`<picture>`、`<video>`、`<svg>` 或 `<canvas>` 可以代替展示区元素；完全没有外框元素的图示，也就是 Markdown 渲染器输出的 `<figure><img …><figcaption>…</figcaption></figure>`，同样会被绘制：这时图片就是它自己的外框。
+
+### 由元素搭建的图示
+
+如果 `<tanrei-figure>` 里没有 `<figure>`，元素在定义时会给它加上一个。它的子元素成为展示区，用 `slot` 指明部件（`title`、`actions`、`caption`、`attachment`）的子元素除外。`headline` 和 `caption` 属性会被写成标题和说明文字。
+
+```html
+<tanrei-figure headline="变体" caption="一个 filled 按钮。">
+  <tanrei-button variant="filled">保存</tanrei-button>
+</tanrei-figure>
+```
+
+这种写法更短，但要等脚本运行之后才会绘制。在页面不能发生位移的地方，以及使用自己掌管元素子节点的框架（React）时，请自己写出各个部件，因为元素会移动这些子节点。
+
+## 规格
+
+<DemoFrame label="标题、控件、相连的块和说明文字" plain column>
+  <tanrei-figure style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <header>
+          <p data-part="title">变体</p>
+          <div data-part="actions">
+            <tanrei-button variant="text" label="在新标签页中打开"><span slot="icon">open_in_new</span></tanrei-button>
+          </div>
+        </header>
+        <div data-part="stage">
+          <tanrei-button variant="filled">Filled</tanrei-button>
+        </div>
+        <tanrei-code-block data-part="attachment" label="标记"><pre><code>&lt;tanrei-button variant="filled"&gt;Filled&lt;/tanrei-button&gt;</code></pre></tanrei-code-block>
+      </div>
+      <figcaption>一个 filled 按钮和它的标记。</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="不内缩：展示的东西一直延伸到外框的边缘" plain column>
+  <tanrei-figure flush style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="inline-size: 100%; block-size: 9rem; background: linear-gradient(135deg, var(--tanrei-sys-color-primary-container), var(--tanrei-sys-color-tertiary-container))"></div>
+        </div>
+      </div>
+      <figcaption>外框按自己的圆角裁剪其中的内容。</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="比展示区更宽：在展示区内滚动，展示区成为一个焦点停靠点" plain column>
+  <tanrei-figure style="inline-size: min(100%, 24rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="display: flex; flex: none; gap: 0.75rem">
+            <tanrei-button variant="filled">Filled</tanrei-button>
+            <tanrei-button variant="tonal">Tonal</tanrei-button>
+            <tanrei-button variant="elevated">Elevated</tanrei-button>
+            <tanrei-button variant="outlined">Outlined</tanrei-button>
+            <tanrei-button variant="text">Text</tanrei-button>
+          </div>
+        </div>
+      </div>
+      <figcaption>排成一行、不换行的五个按钮。</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<ComponentSpecs name="figure" />
+
+## 指南
+
+### 三种外观
+
+| `variant` | 绘制什么 | 用于 |
+| --- | --- | --- |
+| `outlined`（默认） | 一道细线围住的表面。 | 样张、实时示例、示意图。 |
+| `filled` | 一层柔和的色调，没有边线。 | 线条已经很多的页面；带阴影的东西的底面。 |
+| `plain` | 没有填充，没有边线，没有内边距，没有线。 | 自身就是外框的图片；网格里的样张。 |
+
+outlined 外观用表面颜色填充，而不是留空。无论图示放在什么面板里，你自己的组件都保有它们的令牌所保证的对比度。
+
+### 标题在上，说明文字在下
+
+- `title`（在 Web 上是 `headline` 属性）是外框内页眉里的一行短文字。它说出展示的是什么。
+- `caption` 位于外框下方，靠起始边，用次要文本的样式。它会换行，绝不截断。
+- 没有位置设置。展示区上方的文字就是标题。说明文字只有一个位置。
+- 标题是纯文本，不是标题元素。如果页面大纲在那里需要一个标题元素，就写一个带 `data-part="title"` 的标题元素：图示按标题的样式绘制它，并保留它的角色和级别。
+
+### 控件和相连的块
+
+- 操作是你自己的控件，位于页眉的末尾：选哪个变体、哪个主题，或者在别处打开。图示把它们排成一行，除此之外什么都不做。这一行太窄时，它们会移到标题下方。
+- 附加块是你自己的块，位于展示区下方、外框之内：生成示例所用的代码、图表的数据。
+
+| `separation` | 绘制什么 |
+| --- | --- |
+| `auto`（默认） | 设计系统选定的方式：在默认系统中是线。 |
+| `divider` | 页眉下方和附加块上方各一道线，附加块与外框贴齐。 |
+| `gap` | 不画线。附加块位于外框之内，向内缩进 8，保有自己的形状。 |
+
+### 展示区
+
+- `inset`（默认为 true）给展示区加上内边距：上下各 32，两侧各 24。在 Web 上，`flush` 去掉内边距，于是图片、图表或地图一直延伸到外框的边缘，并被外框的圆角裁剪。
+- 图片按原有比例缩小，绝不放大。
+- 无法收缩的内容在展示区内横向滚动。图示绝不会比它的容器更宽。
+- 比带外框的展示区更窄的内容会居中。在 plain 外观下，它从文本的边缘开始。
+- 展示区与其中的内容一样高。几个示例在里面怎样排列，是你的布局的事。
+
+### 在页面中
+
+- 图示占满得到的宽度，不带任何外部间距。在长文排版中，它按块来留间距，并占满长文排版的整个宽度，而它的说明文字像文本块一样受行长限制。
+- 并排的几个图示是你自己的网格。图示占满它所在的格子。
+
+### 推荐
+
+- 写一段说明图示用意的说明文字：写“每个地区的收入都有增长”，而不是“图表”。
+- 给图片提供它自己的替代文本。说明文字不能代替它。
+- 应该效仿或应该避免的示例，在说明文字的开头用一个小号 Tag 标出来，并写上相应的词：“推荐”“避免”。
+
+### 避免
+
+- 不要用图示把相关的内容和操作组织在一起。那是[卡片](/zh-cn/components/card/)。
+- 不要让图示可以被按下。点了会打开别的东西的图片，应该是包住图片的链接。
+- 不要用外框的颜色来表示一个示例是对还是错。图示没有语义状态。
+
+## 无障碍
+
+<ComponentAccessibility name="figure" />
+
+### 组件负责的部分
+
+- 原生的 figure 始终是 figure。它以标题命名；没有标题时以说明文字命名。两者都有时，标题是名称，说明文字是描述，而且说明文字仍然会在它所在的位置被读到。
+- `label` 为既不画标题也不画说明文字的图示命名。它从不绘制；已经给出标题或说明文字时，它会被忽略。
+- 展示区横向滚动时，它是焦点顺序中的一个停靠点，排在其中的任何东西之前，同时也是一个以图示名称命名的组。方向键可以滚动它，Home 和 End 让它滚到两端。不滚动的展示区不增加停靠点。
+- 焦点环画在展示区的边缘以内，所以不会被裁掉。
+- 页眉、展示区、附加块和说明文字里的一切都仍然可以操作，并保持各自的焦点顺序。
+- 文本放大到 200% 时，标题和说明文字会变大并换行，操作会移到标题下方。
+- 在从右到左的布局中，页眉会镜像，说明文字从右侧开始。展示区里展示的东西绝不镜像。
+- 在强制颜色模式下，outlined 和 filled 外观都有一道文本颜色的边线。plain 外观没有。
+- 没有名称的图示、展示区为空的图示，以及未知的变体或分隔方式，会在调试构建中报告。
+
+### 需要你做的事
+
+- 给每个图示一个标题、一段说明文字或一个 `label`。
+- 给展示区里的图片提供它自己的 `alt`。如果说明文字已经说出了图片表达的全部内容，就把图片标记为装饰性的（`alt=""`）。
+- 让实时示例保持可以操作。图示不会隐藏它的内容，也不会把它变成一张图片。

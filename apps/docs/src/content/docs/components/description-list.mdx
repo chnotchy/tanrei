@@ -1,0 +1,200 @@
+---
+title: Description list
+description: Presents what is known about one thing as named facts, a quiet term and the value that answers it, with the terms beside their values, above them, or under a large figure. It is laid out by its own width and is never a control.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="description-list" />
+
+<DemoFrame label="The facts of an order" column>
+  <tanrei-description-list style="inline-size: min(100%, 30rem)">
+    <dl>
+      <div><dt>Order</dt><dd>A-20418</dd></div>
+      <div><dt>Placed</dt><dd>6 October 2026</dd></div>
+      <div><dt>Ships to</dt><dd>4-2-8 Shibakoen, Minato, Tokyo</dd></div>
+      <div><dt>Status</dt><dd><tanrei-tag size="small" status="success" label="Shipped"></tanrei-tag></dd></div>
+      <div><dt>Total</dt><dd>¥ 12,800</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+A description list shows the facts of one thing: an order, a file, an account, a component. Each fact is a term and the value that answers it. The term is a quiet label; the value is what a person came for.
+
+Three layouts draw the same facts:
+
+| `layout` | Draws | Use for |
+| --- | --- | --- |
+| `inline` (default) | The term beside its value. Every term is in one column, as wide as the widest term. | A block of facts a person looks things up in. |
+| `stacked` | The term above its value. | Long values or long terms, and facts in several columns. |
+| `stat` | The value first, as a large figure, with the term under it as its label. | The few numbers a screen opens with. |
+
+On the web it is `<tanrei-description-list>` around your own native `<dl>`. The element has no shadow root and gives the list no role, so a screen reader, a crawler and a page without script all meet an ordinary HTML description list. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/description-list.css" />
+
+    <tanrei-description-list>
+      <dl>
+        <div><dt>Order</dt><dd>A-20418</dd></div>
+        <div><dt>Owners</dt><dd>Aiko Tanaka</dd><dd>Samir Haddad</dd></div>
+        <div>
+          <dt>Status</dt>
+          <dd><tanrei-tag size="small" status="success" label="Shipped"></tanrei-tag></dd>
+        </div>
+      </dl>
+    </tanrei-description-list>
+
+    <script type="module">
+      import '@tanrei/web/components/description-list';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { DescriptionList } from '@tanrei/react';
+    import '@tanrei/web/description-list.css';
+
+    <DescriptionList layout="stat" columns={3}>
+      <dl>
+        {figures.map((figure) => (
+          <div key={figure.label}>
+            <dt>{figure.label}</dt>
+            <dd>{figure.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </DescriptionList>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/description-list.css` draws the whole list before any script runs. The element adds the same stylesheet to the page by itself, so a page that loads only the script still gets a drawn list, a moment later.
+
+### What you write
+
+| Part | On the web |
+| --- | --- |
+| A fact | A `<div>` inside the `<dl>`, around one `<dt>` and its `<dd>`s. |
+| A term | The `<dt>`. Text, or a component that the value explains (a tag in a legend). Write no colon. |
+| A value | A `<dd>`. Text, a component, or nothing. |
+| Several values | Several `<dd>` in one fact. Each is drawn on a line of its own. |
+
+A `<dl>` without the `<div>` groups, as some Markdown renderers write it, is still drawn in one column, inline or stacked. `columns` and the stat layout need the groups.
+
+## Specs
+
+<DemoFrame label="Stat: the numbers a screen opens with" plain column>
+  <tanrei-description-list layout="stat" columns="3" separation="gap" style="inline-size: 100%">
+    <dl>
+      <div><dt>orders this week</dt><dd>1,284</dd><dd>up 12% since last week</dd></div>
+      <div><dt>delivered on time</dt><dd>98.6%</dd></div>
+      <div><dt>median build time</dt><dd>4 min 12 s</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<DemoFrame label="Stacked in columns: fewer of them when the list is narrow" plain column>
+  <tanrei-description-list layout="stacked" columns="3" style="inline-size: 100%">
+    <dl>
+      <div><dt>Planned</dt><dd>Specified, not yet implemented on this platform.</dd></div>
+      <div><dt>Lagging</dt><dd>Implemented, but behind the current spec.</dd></div>
+      <div><dt>Alpha</dt><dd>Implemented and tested; the API may still change.</dd></div>
+      <div><dt>Beta</dt><dd>The API is settled; reports from real use are wanted.</dd></div>
+      <div><dt>Stable</dt><dd>Covered by the versioning promise.</dd></div>
+      <div><dt>Deprecated</dt><dd>Still shipped; a replacement is named.</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<DemoFrame label="Compact, parted by space: facts a person scans" plain column>
+  <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
+    <dl>
+      <div><dt>Value</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
+      <div><dt>Kind</dt><dd>alias · color</dd></div>
+      <div><dt>Description</dt><dd>Text and glyphs on any surface or surface container.</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<ComponentSpecs name="description-list" />
+
+## Guidelines
+
+### Is it a description list
+
+- Use it for the facts of **one** thing. Several things that share the same names are a [table](/components/table/), whose headers name columns.
+- Text that explains words, read in order among paragraphs, is prose: leave it a bare `<dl>` in your content. Prose sets it as running text, with the term standing out. This component is the laid-out form of the same list, with the value standing out.
+- A list a person picks from or presses is a [list](/components/list/).
+
+### How it fits
+
+The list decides everything from its own width, never the window's. The same list is right in a page, a card, a side panel and a dialog.
+
+- **Inline stacks by itself.** When the values would be left less than 144 beside the widest term, every fact is drawn with its term above its value, all of them together, and returns to two columns when there is room. Do not switch the layout for a small window yourself.
+- **Columns reduce by themselves.** `columns` is the most columns the stacked and stat layouts draw. Each column is at least 144 wide, so four figures are four columns in a wide page, two and two in a narrow one and one column on a phone. A list never draws more columns than it has facts.
+- **An inline list is one column.** `columns` has no effect on it.
+- **Nothing is cut.** Values wrap. An identifier or an address that cannot break is broken at the column's edge. The list never scrolls sideways.
+
+### Density
+
+| `density` | Term and value | Between facts | Use for |
+| --- | --- | --- | --- |
+| `regular` (default) | 14 on a line height of 20, and 14 on 22 | 12; with a line, 12 on each side of it | Facts a person reads: a page, a card, a dialog. |
+| `compact` | 12 on 16, and 13 on 20 | 6; with a line, 6 on each side of it | Facts a person scans: a side panel, an inspector. |
+
+The stat figure is 32 on 40 at `regular` and 20 on 28 at `compact`.
+
+### Telling facts apart
+
+| `separation` | Draws |
+| --- | --- |
+| `auto` (default) | What the design system chose: a hairline in the default system. |
+| `divider` | One hairline between a fact and the fact below it. |
+| `gap` | Empty space and no line. |
+
+There is no line above the first row, below the last, between two columns or between a term and its value. A framed list is a list in an outlined [card](/components/card/).
+
+### Do
+
+- Keep a term as short as it can be: "Ships to", not "The address this order ships to".
+- Write an absence in words where it is information: "None", "Not set", "Unlimited".
+- Say a change in words: "up 12% since last week" as a second value under a figure.
+- Use a small tag (`size="small"`) for a status in a value, so that it does not make its line taller.
+
+### Don't
+
+- Don't put a colon after a term. Punctuation belongs to the language, and the term is already told from its value by style and place.
+- Don't put a dash in an empty value. Leave it empty, or write the absence.
+- Don't color a figure to say that it is good or bad. A direction is a word, or a tag whose label says it.
+- Don't use the list to place unrelated things side by side. That is a layout.
+
+## Accessibility
+
+<ComponentAccessibility name="description-list" />
+
+### What the component handles
+
+- The native list stays a description list: terms and their definitions are the browser's own, in every layout, at either density, with or without lines.
+- The order that is read never changes. The stat layout draws the figure above its label and still exposes the term first.
+- Nothing in the list takes focus or input. A link or a button inside a value keeps its own target and its place in the focus order.
+- At 200% text and in a 320 wide window the same width rules stack the list and reduce its columns. The least width grows with the text.
+- In a right-to-left layout the term column is at the right and columns fill from the right. Each term and value keeps its own direction, so a version, an address and an amount are never reversed.
+- In forced colors the lines and the text are the text color. The list has no fill to lose.
+- A value with no term, `columns` on an inline list, a number of columns that is not whole, the stat layout or columns on a list without groups, and an unknown layout, density or separation are reported in debug builds.
+
+### What you need to do
+
+- Put a heading above the list that says what the facts are about. The list has no name of its own, and a term is never a heading.
+- Give every value a term.
+- Where a figure changes while a person watches and the change must be heard, put the list or the one fact in a live region of your own. The list does not announce changes.

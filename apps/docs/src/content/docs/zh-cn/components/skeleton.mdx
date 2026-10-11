@@ -1,0 +1,228 @@
+---
+title: "骨架屏"
+description: "在内容加载期间，站在内容将要出现的位置上：用低调的占位符画出即将到来的内容的形状——几行文本、一个块、一个圆——并保住内容将要占据的框，所以内容到达时什么都不会移动。"
+translationOf: components/skeleton.mdx
+sourceHash: fd87c49099a85cb9c01317779b10a50e0116860c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="skeleton" />
+
+<DemoFrame label="加载中的人物信息和卡片" column>
+  <tanrei-skeleton label="正在加载作者信息" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
+  <tanrei-skeleton label="正在加载项目" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+视图常常比它的内容先到。骨架屏在内容将要出现的位置上，保住即将到来的内容的形状：几行文本、代表图片或控件的块、代表人物图片的圆。内容到达时，就住进为它保留的框里，用户正在看的、正要按下的东西都不会移动。
+
+它由一个区域和其中的占位符组成。区域只向辅助技术说明一次——“正在加载项目”，忙碌——占位符本身什么也不说。它要等一小会儿才显示，所以短暂的等待中看到的是一块大小合适的空白，而不是一闪而过的形状。
+
+在 Web 上，它是 `<tanrei-skeleton>`，里面是你自己的、带有 `class="tanrei-skeleton-placeholder"` 的元素。其他平台尚未实现。
+
+### 骨架屏、加载指示器、进度指示器、空状态
+
+有四个组件回答“这里还什么都没有”。用哪一个，取决于对这次等待、对将要到来的内容知道些什么。
+
+| 情况 | 使用 | 原因 |
+| --- | --- | --- |
+| 形状已知的内容将填满视图的某个区域，而且等待长到看得见。 | 骨架屏 | 它保住布局，所以内容到达时什么都不会移动，还能看出各样东西将在哪里。 |
+| 时长未知的短暂等待，结果没有可以保留的形状，或者很小：在按钮、行、字段、状态行里。正在进行的操作，例如保存或发送。 | [加载指示器](/zh-cn/components/loading-indicator/) | 一个标记就够了。为一行或一个图标画形状只是噪音。 |
+| 进度可以测量的任务，或者要花好几秒的任务。 | [进度指示器](/zh-cn/components/progress-indicator/) | 骨架屏不说明进行到了哪里，而几秒之后用户就需要知道。 |
+| 什么都不会来：列表是空的，搜索没有找到任何结果。 | [空状态](/zh-cn/components/empty-state/) | 骨架屏承诺会有内容。 |
+| 加载失败。 | 在原处放一个错误状态的[提示块](/zh-cn/components/callout/)。 | 永远不结束的骨架屏是在说谎。 |
+| 内容已经在那里，只是它的脚本、图片或字体来得晚。 | 四者都不用。组件自己保住自己的框。 | 骨架屏不知道另一个组件的大小，那个组件自己知道。 |
+
+### 用法
+
+等待开始时，把骨架屏放在内容将要出现的位置；等待结束时，用内容替换它。给它一个说明正在加载什么的 `label`。占位符是你自己的、带有这个类的空元素：一个 `<span>`，可以放在任何位置；或者一个 `<div>`，用在它是某个块（例如另一个 `<div>`）的子元素的地方。在标题或段落里，它是 `<span>`。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/skeleton.css" />
+
+    <!-- 作为骨架屏直接子元素的占位符会上下堆叠，中间留有间隙。 -->
+    <tanrei-skeleton label="正在加载项目">
+      <span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span>
+      <span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span>
+      <span class="tanrei-skeleton-placeholder" data-lines="3"></span>
+    </tanrei-skeleton>
+
+    <!-- 除此之外的一切都是你自己的布局，占位符放在其中内容将要出现的位置。 -->
+    <tanrei-skeleton label="正在加载作者信息">
+      <div class="byline">
+        <span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span>
+        <div>
+          <h3><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span></h3>
+          <p><span class="tanrei-skeleton-placeholder" data-lines="2"></span></p>
+        </div>
+      </div>
+    </tanrei-skeleton>
+
+    <!-- 页面首次呈现的一部分，由服务器写出：立即显示，在任何脚本运行之前就是正确的。 -->
+    <tanrei-skeleton show-delay="0" role="progressbar" aria-busy="true" aria-label="正在加载仪表盘">
+      …
+    </tanrei-skeleton>
+    <noscript>仪表盘需要 JavaScript 才能显示。</noscript>
+
+    <script type="module">
+      import '@tanrei/web/components/skeleton';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Skeleton } from '@tanrei/react';
+    import '@tanrei/web/skeleton.css';
+
+    {project ? (
+      <ProjectCard project={project} />
+    ) : (
+      <Skeleton label="正在加载项目">
+        <span className="tanrei-skeleton-placeholder" data-shape="block" style={{ blockSize: 160 }} />
+        <span className="tanrei-skeleton-placeholder" style={{ inlineSize: '12.5rem' }} />
+        <span className="tanrei-skeleton-placeholder" data-lines={3} />
+      </Skeleton>
+    )}
+    ```
+  </TabItem>
+</Tabs>
+
+在 Web 上，脚本运行之前，样式表就是整个组件：形状、显示之前的等待、脉冲、减弱动态效果时的静止，以及强制颜色模式下的边线。元素补上样式表做不到的事：提供给辅助技术的角色和名称、把骨架屏里的东西排除在焦点顺序之外，以及在看不见它的时候暂停。
+
+## 规格
+
+<DemoFrame label="三种形状：文本、块、圆" plain column>
+  <tanrei-skeleton label="正在加载文本" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
+  <tanrei-skeleton label="正在加载图片" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
+  <tanrei-skeleton label="正在加载人物信息" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+<DemoFrame label="文本占位符采用它所在位置的文本样式：在标题里、在段落里" plain column>
+  <tanrei-skeleton label="正在加载文章" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
+</DemoFrame>
+
+<ComponentSpecs name="skeleton" />
+
+## 指南
+
+### 它保住框
+
+骨架屏的意义在于什么都不移动。从插入的那一刻到移除的那一刻，它的框和每个占位符的框始终不变：等待显示时、出现时、动起来时都一样。
+
+骨架屏什么也不猜。它按你给的尺寸，画出你给的占位符。让内容正好住进占位符保留的框，要由你来安排：把每个占位符放在它的内容将要出现的位置，摆放方式也与那份内容相同。
+
+- 文本占位符放在文本将要所在的标题、段落或单元格里面。它采用那里的文本样式，高度恰好等于那么多行文本的高度，读者放大文本时也是如此。
+- 用 `data-lines` 说明文本将占几行。你的内容越规整，就猜得越准。少了一行的骨架屏会让页面移动一行，这仍然比一块空白造成的移动要小。
+- 把块的尺寸设为图片或控件的尺寸：一个数值、一个比例，或者布局给它的尺寸。圆只需要一个数值，即它的边长。
+
+<DemoFrame label="按下“加载”：骨架屏把位置保住两秒半，然后内容住进它的框" plain column>
+  <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">加载</tanrei-button>
+  <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">三层令牌</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">参考令牌保存原始值。系统令牌为值的用途命名。组件令牌把一个部件绑定到其中之一。</p></div>
+  <template><tanrei-skeleton label="正在加载文章"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
+  <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">三层令牌</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">参考令牌保存原始值。系统令牌为值的用途命名。组件令牌把一个部件绑定到其中之一。</p></template>
+  <p style="margin: 0">这一行位于文章下方，不会移动。</p>
+</DemoFrame>
+
+### 形状
+
+| `data-shape` | 代表什么 | 它的尺寸 |
+| --- | --- | --- |
+| `text`（默认） | 一行或多行文本。 | 它所在位置的文本样式的 `data-lines` 个行框。每一行是一根与字号等高的条。有多行时，最后一行较短，因为段落很少正好在边缘结束。`inline-size` 设置条的长度。 |
+| `block` | 图片、卡片、控件、行。 | `inline-size` 和 `block-size`，或者布局给它的尺寸：被拉伸的单元格、`aspect-ratio`。不给尺寸时，它与所在位置等宽，高一行。 |
+| `circle` | 人物图片、圆形标记。 | 一条边长：`block-size` 或 `inline-size`。不给尺寸时，它高一行。 |
+
+作为骨架屏直接子元素的占位符上下堆叠，间隙为 8。其他任何排法——两行文本旁边放一个圆、由卡片组成的网格——都是你在骨架屏里自己做的布局。没有现成的卡片骨架屏或列表骨架屏：屏幕是你的，只有你了解它们。
+
+在你自己的行里，文本占位符或块需要从这一行得到宽度，就像内容将来那样：`flex: 1`、网格的一条轨道，或者一个 `inline-size`。
+
+### 一次等待，一个信号
+
+把一个区域的所有占位符放进同一个骨架屏，配一个 `label`。骨架屏里面的骨架屏不出声。
+
+如果已经有别的东西在说明同一次等待——状态行里的加载指示器、一段状态文本、一个由你自己标记为忙碌并命名的区域——就设置 `decorative`。这时骨架屏的画法不变，但不提供给辅助技术，这样同一次等待不会被读两遍。
+
+<DemoFrame label="状态行已经说明了这次等待，所以它下面的占位符是装饰性的" plain column>
+  <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="正在搜索" show-delay="0"></tanrei-loading-indicator>正在搜索…</span>
+  <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
+</DemoFrame>
+
+### 它先等待再显示
+
+从插入的那一刻算起，骨架屏等待 300 毫秒之后才被绘制并暴露给辅助技术，在此期间它的框已经保住。更早结束的等待，显示的是一块自始至终大小合适的空白。
+
+- 在等待开始时插入骨架屏，在内容到达时移除它。延迟从插入时算起。隐藏骨架屏不会让延迟重新开始。
+- 如果骨架屏是页面或视图首次呈现的一部分，而那里没有别的东西可以显示，就设置 `show-delay="0"`。
+- 延迟是等待，不是动效：减弱动态效果时它保持不变。
+
+### 它总会以某种结果结束
+
+用内容替换骨架屏；什么都没有来时，用[空状态](/zh-cn/components/empty-state/)替换；加载失败时，用错误状态的[提示块](/zh-cn/components/callout/)替换。它自己从不超时：什么时候放弃，只有你知道。
+
+骨架屏不会朗读内容的到达。在到达应当被听到的地方——回应一次搜索的结果、用户请求的列表——请通过你自己的实时区域（live region），或者发出请求的那个组件的状态文本来说明。只是带着内容打开的视图，不需要朗读。
+
+### 动效
+
+默认情况下，占位符以脉冲的方式变化：填充变淡到一半再恢复，所有占位符一起，每两秒一次。变化的只有不透明度。什么都不移动，也没有任何东西画得比静止时的填充更亮。
+
+设计系统可以用令牌 `comp.skeleton.motion.animation` 为它所有的骨架屏另选一种方式：`pulse`、`wave`（同样的变淡，作为一条带子从起始边缘到末尾边缘穿过整个骨架屏）或 `none`。没有针对单个实例的设置。
+
+减弱动态效果时，占位符静止不动。形状、标签和忙碌状态已经说明这个位置正在等待。看不见骨架屏的时候，它的动画不运行。
+
+### 在 Web 上，脚本运行之前
+
+骨架屏是页面在脚本运行之前显示的东西，所以 `@tanrei/web/skeleton.css` 不靠元素就能把它完整画出来。有几件事需要元素，在元素定义之前，或者在脚本永远不运行的地方，它们会有所不同：
+
+- 角色和名称。必须在脚本运行之前就正确的页面，自己在元素上写 `role="progressbar"`、`aria-busy="true"` 和 `aria-label`，元素会原样保留已经写在那里的这些属性。
+- 不是 `0` 的 `show-delay`。样式表按设计系统的延迟等待。
+- 一个文本占位符里超过 24 行。
+- `wave` 方式，它会被画成脉冲。
+- 位于未显示的视图里的骨架屏，在视图显示时才开始等待。
+
+在脚本永远不运行的地方，除非服务器替换它，否则骨架屏永远不会结束。只能靠脚本到达的内容，需要在它的骨架屏旁边放一个 `<noscript>`。
+
+### 推荐
+
+- 让占位符具有即将到来的内容的形状和尺寸。
+- 把文本占位符放在文本将要所在的元素里面。
+- 一次等待用一个骨架屏，配一个标签。
+- 等待结束时替换它，无论等待以什么结果结束。
+
+### 避免
+
+- 不要把用户应当阅读或使用的任何东西放进骨架屏。它里面的东西不接受输入，并且对辅助技术隐藏。已经知道的标题、已经可用的按钮，要放在它的外面。
+- 不要把它用于控件或行里的短暂等待，也不要用于正在进行的操作。那是加载指示器的事。
+- 不要用它盖住已经在那里的内容。
+- 不要手工画灰色方块。
+
+## 无障碍
+
+<ComponentAccessibility name="skeleton" />
+
+### 组件负责的部分
+
+- 显示之后，骨架屏对辅助技术来说是一个元素：一个没有数值的进度条，处于忙碌状态，以 `label` 命名。它的暴露方式与加载指示器相同，因为它说的是同一件事。
+- 它的占位符、占位符的数量和行数都不暴露，你放在其中的布局也不暴露。
+- 等待显示期间，它完全不暴露。比延迟更短的等待，不会出现一个刚出现就消失的进度条。
+- 设置了 `decorative`，或者位于另一个骨架屏里面时，它不提供给辅助技术。
+- 它不可聚焦，也不是焦点顺序中的停靠点，它里面的任何东西同样如此。它不朗读自己，也从不移动焦点。
+- 减弱动态效果时，它静止不动。延迟保持不变。
+- 在强制颜色模式下，每个占位符以及文本的每一行，都用文本颜色画成其形状的边线。这个模式下不绘制填充，而消失的占位符会留下一块空白。
+- 文本放大时，文本占位符随它的文本样式一起变大，所以骨架屏保住的仍是放大后的内容所占的框。以数值给出的尺寸保持不变。没有任何东西比它所在的位置更宽；在宽度为 320、文本放大到 200% 时，不会出现横向滚动。
+- 在从右到左的布局中，占位符靠右，较短的最后一行从右侧开始，波浪从右向左行进。
+- 未知的形状、无法使用的行数或尺寸、没有占位符的骨架屏，以及没有标签的骨架屏，会在调试构建中报告。
+
+### 需要你做的事
+
+- 用页面的语言给出一个说明正在加载什么的 `label`（“正在加载项目”），或者用 `setWords({ loadingLabel: … })` 为所有骨架屏只给一次这段文字。组件不提供任何文字。
+- 已经有别的东西在说明这次等待时，设置 `decorative`。
+- 在内容到达算得上是消息的地方，说明内容已经到达。
+- 绝不要让骨架屏一直留着。用内容、空状态或错误来替换它。
+- 填充是装饰，不受任何对比度要求的约束。在最高容器色调的表面上，它很难看清。不要只靠它来说明某个位置正在等待。

@@ -1,0 +1,263 @@
+---
+title: العرض الشجري
+description: تسلسل هرمي من عناصر تُفتح وتُغلق. تبدأ الصفوف أبعد إلى الداخل مع كل مستوى، وفي بداية كل صف يحمل غيره سهم صغير. يُقرأ ويُفتح فقط، أو يُختار فيه عنصر واحد أو عدة عناصر، وهو موضع توقف واحد في ترتيب التركيز.
+translationOf: components/tree-view.mdx
+sourceHash: c1e2abc869592d34f3b6d9e017aefafd026c21e3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="tree-view" />
+
+<DemoFrame label="شجرة ملفات: افتح مجلدًا من صفه، أو بمفاتيح الأسهم" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="أين توجد الرموز" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>مصدر الحقيقة، يُعدَّل يدويًّا</small></bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>ref/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>sys/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>comp/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>tanrei.resolver.json</bdi></span></li>
+        </ul>
+      </li>
+      <li>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>packages/</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>web/src/generated/tokens.css</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>react-native/src/generated/tokens.ts</bdi></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+العرض الشجري (tree view) يعرض بنية يتصفحها الشخص أو يختار فيها: ملفات مشروع، أو رموز نظام تصميم، أو مجلدات منتج. الصف الذي يحمل غيره له سهم صغير (chevron) ويُفتح ويُغلق. ومع `selection` يُختار عنصر واحد أو عدة عناصر، وتخبرك الشجرة أيها اختير.
+
+وليس تنقلًا. أماكن المنتج درج تنقل، وعناوين أقسام الصفحة جدول محتويات، والمحتوى المطوي أكورديون. وتلك تحتفظ بروابط وأزرار، كل منها موضع توقف خاص به في ترتيب التركيز. أما الشجرة فموضع توقف واحد، يُتنقَّل فيه بمفاتيح الأسهم، لأنها قد تحمل آلاف الصفوف.
+
+على الويب هو `<tanrei-tree-view>` حول القوائم المتداخلة التي تكتبها أنت. والقوائم تبقى في المستند، فحيث لا يعمل سكربت تعرض الصفحة التسلسل الهرمي كله قائمة متداخلة. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/tree-view.css" />
+
+    <tanrei-tree-view label="ملفات المشروع" selection="single" value="src/index.ts">
+      <ul>
+        <li data-value="src" data-open>
+          <span>
+            <span class="tanrei-icon" aria-hidden="true">folder</span>
+            <bdi>src<small data-supporting-text>ما يُنشر</small></bdi>
+            <span data-trailing-text>12 ملفًا</span>
+          </span>
+          <ul>
+            <li data-value="src/index.ts"><span><bdi>index.ts</bdi></span></li>
+          </ul>
+        </li>
+        <li data-value="node_modules" data-expandable><span><bdi>node_modules</bdi></span></li>
+      </ul>
+    </tanrei-tree-view>
+
+    <script type="module">
+      import '@tanrei/web/components/tree-view';
+
+      const tree = document.querySelector('tanrei-tree-view');
+      tree.addEventListener('change', (event) => showFile(event.detail.value));
+      tree.addEventListener('toggle', (event) => {
+        if (event.detail.open && event.target.dataset.expandable !== undefined) loadItemsInto(event.target);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TreeView } from '@tanrei/react';
+    import '@tanrei/web/tree-view.css';
+
+    <TreeView label="ملفات المشروع" selection="single" value={path} onChange={(event) => setPath(event.detail.value)}>
+      <ul>
+        {folders.map((folder) => (
+          <li key={folder.path} data-value={folder.path} data-open={folder.open ? '' : undefined}>
+            <span><bdi>{folder.name}</bdi></span>
+            <ul>
+              {folder.files.map((file) => (
+                <li key={file.path} data-value={file.path}><span><bdi>{file.name}</bdi></span></li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </TreeView>
+    ```
+  </TabItem>
+</Tabs>
+
+الملف `@tanrei/web/tree-view.css` يرسم الشجرة قبل أن يعمل أي سكربت، ولا يتحرك شيء حين يُحمَّل السكربت. والسهم الصغير رسم (glyph) من مجموعة الأيقونات ويحتاج إلى خط الأيقونات.
+
+### ما تكتبه
+
+| الجزء | على الويب |
+| --- | --- |
+| اسم الشجرة | خاصية HTML (attribute) المسماة `label`، بلغة منتجك. |
+| عنصر | عنصر `<li>`. وأول ابن له هو صفه: عنصر `<span>` أو `<div>`. |
+| التسمية | نص الصف، في عنصر واحد: `<bdi>`. ويجوز أن تحمل محتوى مضمَّنًا كمقطع شيفرة. |
+| النص المساعد | عنصر له `data-supporting-text`، داخل عنصر التسمية، بعد التسمية. |
+| الأيقونة | عنصر له الصنف `.tanrei-icon` في الصف، يحمل اسم الرسم. وليس للشجرة رسم من عندها لمجلد أو ملف. |
+| محتوى النهاية | عنصر له `data-trailing` في الصف: وسم، أو عيّنة لون. يوضع في مكانه ولا يُنسَّق. |
+| نص النهاية | عنصر له `data-trailing-text` في الصف: عدد، أو حجم، أو قيمة. سطر واحد. |
+| عناصر العنصر نفسه | عنصر `<ul>` بعد الصف، داخل عنصر `<li>` نفسه. |
+
+يجوز أن يحمل الصف تسميته نصًّا عاديًّا أيضًا، بلا عنصر `<bdi>` حولها. استخدم عنصر `<bdi>` حيث يكون للصف نص مساعد، وحيث قد يختلف اتجاه الاسم عن اتجاه الصفحة، كاسم ملف في صفحة عربية.
+
+| على عنصر `<li>` | المعنى |
+| --- | --- |
+| `data-value` | ما يعرّف العنصر. ومن دونها لا يمكن اختياره. وهي فريدة داخل الشجرة. |
+| `data-open` | العنصر الأب يعرض عناصره. تضعها الشجرة وتزيلها حين يفتح المستخدم العنصر الأب أو يغلقه. |
+| `data-expandable` | العنصر سيحمل عناصر لم تعطِها بعد. يأخذ سهمًا صغيرًا؛ أعطِ عناصره حين يقول `toggle` إنه فُتح. |
+| `data-loading` | أنت تجلب عناصره. ما دام مفتوحًا يُرسم تحته صف تحميل، بنص `loading-label` الخاص بالشجرة. |
+| `data-disabled` | لا يستطيع المستخدم اختياره ولا فتحه ولا إغلاقه. ومفاتيح الأسهم تبقى تبلغه. |
+
+| الحدث | متى | `detail` |
+| --- | --- | --- |
+| `change` | غيّر المستخدم التحديد. يصدر على الشجرة. | `value` (للتحديد المفرد) أو `values` (للمتعدد)، بعد التغيير |
+| `toggle` | فتح المستخدم، أو البحث في الصفحة الخاص بالمتصفح، عنصرًا أبًا أو أغلقه. يصدر على عنصر `<li>`، ويصعد. | `open` |
+
+لا يصدر أي من الحدثين لتغيير تجريه أنت.
+
+## المواصفات
+
+<DemoFrame label="عنصر واحد مختار: الصف يختار، والسهم الصغير يفتح" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="كل الرموز" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li><span><bdi>المرجع</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
+      <li data-open>
+        <span><bdi>النظام</bdi><span data-trailing-text>388</span></span>
+        <ul>
+          <li data-open>
+            <span><bdi>color</bdi><span data-trailing-text>64</span></span>
+            <ul>
+              <li data-value="sys.color.primary"><span><bdi>primary</bdi><span data-trailing-text>#1f1f1f</span></span></li>
+              <li data-value="sys.color.on-primary"><span><bdi>on-primary</bdi><span data-trailing-text>#ffffff</span></span></li>
+              <li data-value="sys.color.outline-variant"><span><bdi>outline-variant</bdi><span data-trailing-text>#d4d4d4</span></span></li>
+            </ul>
+          </li>
+          <li data-expandable><span><bdi>space</bdi><span data-trailing-text>19</span></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+<ComponentSpecs name="tree-view" />
+
+## الإرشادات
+
+### هل هو عرض شجري
+
+| عندك | استخدم |
+| --- | --- |
+| بنية تُتصفَّح أو يُختار فيها | العرض الشجري |
+| أماكن المنتج، روابطَ | درج التنقل |
+| عناوين أقسام صفحة واحدة | جدول المحتويات |
+| محتوى مطوي تحت ترويسات قليلة | الأكورديون |
+| عناصر من مستوى واحد | القائمة (list) |
+
+### ما تفعله الضغطة
+
+| العنصر | ضغطة على صفه | ضغطة على سهمه الصغير |
+| --- | --- | --- |
+| يمكن اختياره، وهو أب | تختاره | تفتحه أو تغلقه |
+| يمكن اختياره، وهو عنصر طرفي (leaf) | تختاره | — |
+| لا يمكن اختياره، وهو أب | تفتحه أو تغلقه | تفتحه أو تغلقه |
+| لا يمكن اختياره، وهو عنصر طرفي | لا شيء | — |
+
+الضغطة الواحدة لا تفعل شيئين أبدًا. من يختار مجلدًا لا يضيّع موضعه لأن المجلد أُغلق أيضًا.
+
+يمكن اختيار العنصر حين تكون قيمة `selection` هي `single` أو `multiple`، وله `data-value`، وليس معطَّلًا. في التحديد المفرد، الضغط على العنصر المختار مرة أخرى لا يغيّر شيئًا. وفي التحديد المتعدد يُختار كل عنصر بمفرده: اختيار عنصر أب لا يختار ما يحمله.
+
+ما يفعله الاختيار شأنك أنت. استجب للحدث `change` لتعرض الملف المختار أو محرِّر الرمز المختار في لوحة بجانب الشجرة. والصف لا يحمل عنصر تحكم: ضع الإجراء بجانب الشجرة.
+
+### التحديد والعناصر الآباء المغلقة
+
+ترسم الشجرة تعبئة التحديد على صف العنصر نفسه. لا تعلّم عنصرًا أبًا لأن عنصرًا تحته محدَّد، ولا تفتح عنصرًا أبًا مغلقًا لتُظهر تحديدًا. وإن وجب أن يكون العنصر المختار ظاهرًا، فضع `data-open` على العناصر الآباء التي فوقه: أنت تعرف المسار.
+
+### الكثافة
+
+| `density` | الصف ذو السطر الواحد | يُستخدم لـ |
+| --- | --- | --- |
+| `regular` (الافتراضي) | 48 | منتج يُستخدم باللمس كما يُستخدم بمؤشر الإدخال. |
+| `compact` | 32 | أداة تُتصفَّح بمؤشر الإدخال، وشجرة صغيرة داخل صفحة نصية. |
+
+الصف بالكثافة compact أقصر من هدف مؤشر الإدخال. وهذا مقبول لأنه يُطلب بالاسم وليس الافتراضي أبدًا. أما للّمس فالصف بارتفاع هدف اللمس في الكثافتين.
+
+### خطوط الإرشاد
+
+الخاصية `guides` ترسم خطًّا رفيعًا ينزل من كل عنصر أب مفتوح بجانب الصفوف التي يحملها. استخدمها في شجرة عميقة، حيث لم تعد الإزاحة وحدها تبيّن أي الصفوف ينتمي بعضها إلى بعض. ولا تأخذ حيّزًا.
+
+### الأشجار الكبيرة
+
+تعرض الشجرة ما تُعطاه، ولا تُمرَّر، ولا تقتصر على رسم الصفوف الظاهرة. ضعها في صندوق تمرير من عندك.
+
+- أعطِ عناصر العنصر الأب الكبير حين يُفتح: علِّمه بالخاصية `data-expandable`، وأضف عنصر `<ul>` الخاص به حين يقول `toggle` إنه فُتح. وضع `data-loading` ما دمت تجلبها.
+- الصفوف المعروضة وحدها لها كلفة. عناصر العنصر الأب المغلق لا تُنسَّق ولا تُخطَّط ولا تُقرأ حتى يُفتح.
+- تغيير صف واحد يعيد تنسيق ذلك الصف وحده، أيًّا كان حجم الشجرة.
+
+والتصفية شأنك أيضًا. أعطِ الشجرة العناصر المطابقة، وضع `data-open` على العناصر الآباء التي تحملها، وقل كم عنصرًا طابق في نص حالة من عندك.
+
+### الأشجار العميقة والنوافذ الضيقة
+
+يبدأ كل مستوى أبعد إلى الداخل بإزاحة واحدة. وحيث كانت إزاحة مستوى ستأخذ أكثر من نصف عرض الشجرة، تبدأ صفوفه حيث يبدأ أعمق مستوى يتّسع له المكان، فتحتفظ الأسماء بنصف العرض. والتقنيات المساعدة تبقى تُخبَر بالمستوى الحقيقي.
+
+### الرسم على خادم
+
+يُرسم كل شيء قبل أن يُحمَّل السكربت إلا تعبئة التحديد، فهي تظهر حين يُعرَّف العنصر. ولتكون في الإطار الأول، اكتب `aria-selected="true"` على صف العنصر المحدَّد بنفسك.
+
+### افعل
+
+- اكتب `label`، واكتب `loading-label` حيث قد يكون أي عنصر في حالة تحميل، بلغة منتجك. ويمكن أيضًا إعطاء `loading-label` مرة واحدة للمنتج كله، بالاستدعاء `setWords({ loadingLabel })`.
+- سمِّ الرسوم بنفسك: المجلد والملف نوعان من منتجك، لا من الشجرة.
+- أبقِ الأسماء كاملة. التسمية تلتفّ ولا تُقصّ أبدًا.
+
+### لا تفعل
+
+- لا تضع رابطًا أو زرًّا أو حقلًا في صف. لا يبلغه أي مفتاح من مفاتيح الشجرة.
+- لا تستخدم شجرة لصفحات موقع. الروابط تُوجَد بالطرق التي يسرد بها المتصفح وقارئ الشاشة الروابط.
+- لا تحدِّد بنقل التركيز. مفاتيح الأسهم تنقل؛ والمفتاحان Enter و Space يختاران.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="tree-view" />
+
+### ما يتكفل به المكوّن
+
+- العنصر له الدور `tree` وتسمّيه `label`. وكل صف له الدور `treeitem` وكل قائمة متداخلة لها الدور `group`، فيأتي المستوى من التداخل.
+- صف العنصر الأب يحمل `aria-expanded`. والصف الذي يمكن اختياره يحمل `aria-selected`، بالقيمة true أو false. والصف المعطَّل يحمل `aria-disabled`، والعنصر الأب الذي في حالة تحميل يحمل `aria-busy`.
+- التسمية اسم الصف. والنص المساعد ونص محتوى النهاية ونص النهاية وصفه، بهذا الترتيب.
+- الشجرة موضع توقف واحد. يدخلها المفتاح Tab عند الصف الذي كان عليه التركيز آخر مرة، وإلا فعند أول صف محدَّد معروض، وإلا فعند الصف الأول.
+- مفتاحا السهم للأسفل والسهم للأعلى ينقلان بين الصفوف المعروضة. ومفتاح السهم لليمين يفتح العنصر الأب، ثم يدخل فيه. ومفتاح السهم لليسار يغلقه، ثم يخرج منه. وفي التخطيط من اليمين إلى اليسار يتبادل مفتاحا اليسار واليمين.
+- المفتاحان Home و End يذهبان إلى الصف الأول والصف الأخير. وكتابة أحرف تنقل إلى الصف التالي الذي تبدأ تسميته بها. والمفتاح `*` يفتح كل عنصر أب مغلق في مستوى الصف الذي عليه التركيز.
+- المفتاحان Enter و Space يفعلان ما تفعله الضغطة على الصف. والتحديد لا يتبع التركيز أبدًا.
+- الفتح والإغلاق والاختيار تقولها حالة الصف نفسه. لا يُعلَن شيء ولا ينتقل التركيز.
+- العنصر الأب الذي يُغلق حول الصف الذي عليه التركيز يأخذ التركيز. والصف الذي عليه التركيز ويُزال يعطي التركيز للصف الذي بعده.
+- حلقة التركيز تُرسم داخل الصف، فلا يقصّها صندوق تمرير.
+- السهم الصغير والأيقونات وخطوط الإرشاد مخفية عن التقنيات المساعدة. والصف الذي يُرسم في أثناء التحميل مخفي أيضًا: العنصر الأب يقول إنه مشغول.
+- عند تكبير النص إلى 200% تلتفّ التسميات وتكبر الصفوف. ونص النهاية وحده يُقصّ.
+- في الألوان المفروضة (forced colors) يأخذ الصف المحدَّد ألوان التحديد في النظام وحافة.
+- يُبلَّغ في بنيات التنقيح عن `label` فارغة، وعن عنصر بلا تسمية، وعن عنصر تحكم في صف، وعن قيمة لا تسمّي أي عنصر، وعن عنصرين لهما قيمة واحدة، وعن قيمة غير معروفة للخاصية `density` أو `selection`.
+
+### ما عليك فعله
+
+- أعطِ كل عنصر يمكن اختياره `data-value` فريدة في الشجرة.
+- قل بنفسك ما الجلب الذي أخفق، بجانب الشجرة أو عنصرًا تقول تسميته ذلك. الشجرة لا تعلن شيئًا حين تصل العناصر.
+- أعطِ علامة من عندك في محتوى النهاية حيث يجب أن يتميّز كل عنصر مختار في تحديد متعدد بأكثر من تعبئته.
+- ضع الشجرة الطويلة في صندوق تمرير له اسم أو عنوان، ليعرف الناس ما يحمله الصندوق.

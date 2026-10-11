@@ -1,0 +1,80 @@
+/*
+ * Avatar before its element is defined (specs/avatar.spec.json; AVT-1, AVT-16): `<tanrei-avatar>` draws everything in
+ * its shadow root, so a page that is rendered on a server shows nothing in its place until the script runs — and would
+ * move when it does. This stylesheet gives that first paint the box the element will have:
+ *
+ *   <tanrei-avatar decorative size="small" initials="AL" src="/people/ada.jpg"></tanrei-avatar> Ada Lovelace
+ *
+ * - an inline box of the side of its `size`, with the corners of its `shape`, in the container color;
+ * - nothing inside it: no picture, no initials, no glyph (the name of a glyph in the `icon` slot is not shown as text)
+ *   and no name — which is why a byline writes the name as text beside a decorative avatar;
+ * - a `<tanrei-avatar-group>` as a row of those boxes, each over the one before it by the overlap of the group's size,
+ *   with the gap around each.
+ *
+ * What it cannot give: the corner smoothing (a square is drawn with circular corners until the element is defined;
+ * nothing moves), a size or a shape a design system added (drawn as the default), and a group's `max` — every member
+ * given is a box until the element counts them, so a group that will draw an overflow box is wider before than after.
+ * A page that must not move gives a group the members it will draw, and the rest as `total`.
+ *
+ * Every value is a `--tanrei-comp-avatar-*` token. Every selector has no specificity (`:where()`), and none matches
+ * once the element is defined.
+ */
+@layer tanrei.components {
+  :where(tanrei-avatar:not(:defined)) {
+    display: inline-block;
+    flex: none;
+    box-sizing: border-box;
+    vertical-align: middle;
+    inline-size: var(--tanrei-comp-avatar-container-size-medium);
+    block-size: var(--tanrei-comp-avatar-container-size-medium);
+    border-radius: var(--tanrei-comp-avatar-container-shape-circle);
+    background: var(--tanrei-comp-avatar-container-color);
+    overflow: hidden;
+  }
+  :where(tanrei-avatar[size='small']:not(:defined), tanrei-avatar-group[size='small']:not(:defined) > tanrei-avatar) {
+    inline-size: var(--tanrei-comp-avatar-container-size-small);
+    block-size: var(--tanrei-comp-avatar-container-size-small);
+  }
+  :where(tanrei-avatar[size='large']:not(:defined), tanrei-avatar-group[size='large']:not(:defined) > tanrei-avatar) {
+    inline-size: var(--tanrei-comp-avatar-container-size-large);
+    block-size: var(--tanrei-comp-avatar-container-size-large);
+  }
+  :where(tanrei-avatar[shape='square']:not(:defined), tanrei-avatar-group[shape='square']:not(:defined) > tanrei-avatar) {
+    border-radius: var(--tanrei-comp-avatar-container-shape-square);
+  }
+  :where(tanrei-avatar[hidden]:not(:defined), tanrei-avatar-group[hidden]:not(:defined)) {
+    display: none;
+  }
+  /* A glyph is a name until its element draws it: the name is not shown. */
+  :where(tanrei-avatar:not(:defined)) > :where(*) {
+    display: none;
+  }
+
+  /* The group: one row that does not wrap. Every box is drawn back by the overlap and the row starts that far in. */
+  :where(tanrei-avatar-group:not(:defined)) {
+    display: inline-flex;
+    flex: none;
+    vertical-align: middle;
+    padding-inline-start: var(--tanrei-comp-avatar-group-overlap-medium);
+  }
+  :where(tanrei-avatar-group:not(:defined)) > :where(tanrei-avatar) {
+    margin-inline-start: calc(-1 * var(--tanrei-comp-avatar-group-overlap-medium));
+    box-shadow: 0 0 0 var(--tanrei-comp-avatar-group-outline-width) var(--tanrei-comp-avatar-group-outline-color);
+  }
+  :where(tanrei-avatar-group[size='small']:not(:defined)) {
+    padding-inline-start: var(--tanrei-comp-avatar-group-overlap-small);
+  }
+  :where(tanrei-avatar-group[size='small']:not(:defined)) > :where(tanrei-avatar) {
+    margin-inline-start: calc(-1 * var(--tanrei-comp-avatar-group-overlap-small));
+  }
+  :where(tanrei-avatar-group[size='large']:not(:defined)) {
+    padding-inline-start: var(--tanrei-comp-avatar-group-overlap-large);
+  }
+  :where(tanrei-avatar-group[size='large']:not(:defined)) > :where(tanrei-avatar) {
+    margin-inline-start: calc(-1 * var(--tanrei-comp-avatar-group-overlap-large));
+  }
+  /* What is not a member is not drawn by the group. */
+  :where(tanrei-avatar-group:not(:defined)) > :where(:not(tanrei-avatar)) {
+    display: none;
+  }
+}

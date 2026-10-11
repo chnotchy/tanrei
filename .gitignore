@@ -1,0 +1,73 @@
+# ── Never public: local agent/tool settings ─────────────────────────────
+.claude/settings.local.json
+.claude/**/*.local.*
+.mcp.local.json
+**/*.local.*
+.tool-versions.local
+
+# ── Never public: secrets & signing material ────────────────────────────
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+secring.gpg
+*.gpg
+local.properties
+
+# ── Local files ─────────────────────────────────────────────────────────
+# Personal git hooks, merged into lefthook.yml by lefthook (CLAUDE.local.md is matched by **/*.local.* above).
+lefthook-local.yml
+# Worktrees that agents make inside the checkout.
+.claude/worktrees/
+# Personal notes and scratch files.
+notes/
+scratch/
+
+# ── Build outputs (derived; regenerate, never commit) ───────────────────
+node_modules/
+dist/
+.turbo/
+.astro/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# Swift
+.build/
+.swiftpm/
+*.xcodeproj/xcuserdata/
+DerivedData/
+
+# Gradle / Android
+.gradle/
+build/
+.kotlin/
+*.iml
+.idea/
+captures/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec_overrides.yaml
+
+# React Native
+.expo/
+ios/Pods/
+*.hbc
+
+# OS / editors
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+dist-app/
+*.generated.css

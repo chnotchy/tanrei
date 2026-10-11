@@ -1,0 +1,19 @@
+---
+title: رموز الشكل
+description: سلّم أنصاف أقطار الزوايا، والرقم الواحد الذي يحدد كيف تنحني الزاوية.
+translationOf: tokens/shape.mdx
+sourceHash: 17940569b85fa7a8afc9a514a82b9a0400042b33
+---
+
+import ShapeScale from '../../../../components/tokens/ShapeScale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+أنصاف أقطار الزوايا تحت `tanrei.sys.shape.corner`. للإرشادات، اقرأ [الشكل](/ar/foundations/shape/).
+
+<ShapeScale />
+
+## تنعيم الزوايا
+
+الرمز (token) `tanrei.sys.shape.corner-smoothing` مقدار من 0 إلى 1 بالمعنى الذي في Figma: 0 ربع دائرة، و 0.6 ما يسميه Figma زاوية iOS، و 1 أقصى انسياب. ولا يتغير نصف القطر معه. معنى المقدار هو الإنشاء الهندسي في Figma؛ ترسمه Compose و Flutter، ويرسم الويب أقرب قطع ناقص فائق (superellipse)، وترسم SwiftUI و React Native على iOS منحنى نظام التشغيل (والفروق مذكورة في صفحة [الشكل](/ar/foundations/shape/#تنعيم-الزوايا)). القيمة لكل نظام مضمَّن:
+
+<SystemValues tokens={['sys.shape.corner-smoothing']} />

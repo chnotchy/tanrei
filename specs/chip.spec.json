@@ -1,0 +1,693 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "chip",
+  "title": "Chip",
+  "summary": "Shows a compact choice, a suggested action or an item the user entered as a small labelled control.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The shape that holds the chip's content and carries hover, focus and press of the chip itself."
+    },
+    {
+      "id": "outline",
+      "description": "The border, drawn inside the container's edge. Transparent where the look has none (elevated, selected).",
+      "optional": true
+    },
+    {
+      "id": "icon",
+      "description": "Leading glyph of the system's icon set. A selected filter chip shows the glyph `check` in its place.",
+      "optional": true
+    },
+    {
+      "id": "avatar",
+      "description": "Leading image of an input chip (a person, a file), in place of the icon.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "Text that names the choice, action or item."
+    },
+    {
+      "id": "remove",
+      "description": "An input chip's trailing remove action: the glyph `cancel` of the system's icon set, drawn filled, on a round container that carries its own hover, focus and press and sits concentric with the chip's round end: as far from the end as from the top and the bottom. A separate button for assistive technology. By default it reads as destructive: it takes the error color while it is hovered, focused or pressed (destructiveRemove).",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus, around the chip or around the remove action, whichever has focus."
+    }
+  ],
+  "props": [
+    {
+      "name": "kind",
+      "type": "enum",
+      "values": [
+        "action",
+        "filter",
+        "input"
+      ],
+      "default": "action",
+      "description": "What the chip does. action: a button that performs or suggests something, or with href a link to it. filter: a two-state control, on or off. input: an item the user entered, which the user can remove. Kind decides the role and the parts, not the look."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "outlined",
+        "elevated"
+      ],
+      "default": "outlined",
+      "description": "Look. Outlined sits flat on a plain surface; elevated is raised for chips over media or a busy background. A design system may add values.",
+      "axis": "tanrei.comp.chip.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium"
+      ],
+      "default": "medium",
+      "description": "Visual height (24 / 32). Small is for dense places, such as entered items inside a field or tags in a table row. The hit area always meets the minimum target. A design system may add values.",
+      "axis": "tanrei.comp.chip.size"
+    },
+    {
+      "name": "selected",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether a filter chip is on. Ignored unless kind is filter."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents interaction and removes the chip, and its remove action, from the focus order."
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "default": "",
+      "description": "The destination of an action chip: an address as the platform's links take one (a URL; on the web a path or a fragment as well). Not empty, it makes the chip a link and not a button: the link role, activated by pointer, touch or Enter and not by Space, opened by the platform as its own links are, and drawn exactly as the action chip it would otherwise be (CHP-33, CHP-34). Ignored unless kind is action: a filter chip holds a state and an input chip a second action (CHP-37)."
+    },
+    {
+      "name": "target",
+      "type": "enum",
+      "values": [
+        "same",
+        "new"
+      ],
+      "default": "same",
+      "description": "Where the destination opens. same: where the person is — the same tab on the web, the app's own handling of the address elsewhere. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which the chip marks with the glyph open_in_new after its label and says through targetLabel (CHP-35). Ignored without href."
+    },
+    {
+      "name": "targetLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads after the link's name while target is new (\"opens in a new tab\"). Tanrei ships no words of its own, so the product gives them in its own language, as it gives a chip its removeLabel. Required while target is new; ignored otherwise.",
+      "words": "targetLabel"
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The visible text and the accessible name."
+    },
+    {
+      "name": "removeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of an input chip's remove action. It should name the item (\"Remove Ada Lovelace\"), because the remove action is a separate element. Required when kind is input; ignored otherwise."
+    },
+    {
+      "name": "destructiveRemove",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether an input chip's remove action reads as destructive: at rest it looks as it does without the flag; while it is hovered, keyboard-focused or pressed its glyph and state layer take the error color. Set it to false where removing an item loses nothing (a filter the user can add back in one step). It changes color only: the remove action's name, glyph, size and behaviour are the same either way. Ignored unless kind is input."
+    },
+    {
+      "name": "removable",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether an input chip draws its remove action. False for an entry that cannot be taken away now (a read-only field's): no remove action is drawn, so none stands there doing nothing. Ignored unless kind is input."
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "description": "Leading icon (a glyph of the system's icon set)."
+    },
+    {
+      "name": "avatar",
+      "description": "Leading image of an input chip. Ignored for other kinds."
+    }
+  ],
+  "events": [
+    {
+      "name": "click",
+      "description": "The chip itself was activated by pointer, touch, keyboard or assistive technology. Not emitted by the remove action. A link chip emits it before its destination opens; a product that takes the navigation itself (a client-side router) cancels it (CHP-34)."
+    },
+    {
+      "name": "change",
+      "description": "A filter chip was activated; carries the new value of selected."
+    },
+    {
+      "name": "remove",
+      "description": "The user asked to remove an input chip, with its remove action or with Backspace or Delete. The chip does not remove itself."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected"
+  ],
+  "behavior": [
+    {
+      "id": "CHP-1",
+      "text": "WHEN the user activates the chip by pointer, touch, Enter or Space — a link chip (CHP-33) by pointer, touch or Enter — THE chip SHALL emit click exactly once."
+    },
+    {
+      "id": "CHP-2",
+      "text": "WHILE disabled is true THE chip SHALL NOT emit click, change or remove, SHALL NOT be focusable, nor its remove action, and SHALL expose the disabled state to assistive technology."
+    },
+    {
+      "id": "CHP-3",
+      "text": "WHILE hovered, keyboard-focused or pressed THE chip SHALL render its container, outline, label, icon, elevation and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "CHP-4",
+      "text": "WHEN the chip receives keyboard focus THE chip SHALL show the focus ring without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "CHP-5",
+      "text": "WHERE the visual size is below the minimum target THE chip SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "CHP-6",
+      "text": "WHILE disabled is true THE chip SHALL render its container, outline, label, icon, remove action, elevation and opacity from the disabled component tokens of its variant and, for a filter chip, of its selection, and SHALL draw an avatar at sys.state.disabled-content-opacity."
+    },
+    {
+      "id": "CHP-7",
+      "text": "WHEN variant or size names a value that the active design system does not have, or kind names a value this spec does not have, THE chip SHALL render and behave with the default value (kind action, and the default variant's or size's tokens), and in debug builds report the unknown value."
+    },
+    {
+      "id": "CHP-8",
+      "text": "WHEN the chip is pressed by pointer, touch, Enter or Space THE chip SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "CHP-9",
+      "text": "WHILE pressed THE chip SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; outline, label, icon, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.chip.motion.feedback-duration with comp.chip.motion.state-easing, fades over comp.chip.motion.state-duration with comp.chip.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "CHP-10",
+      "text": "THE chip SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "CHP-11",
+      "text": "WHEN kind is filter and the user activates the chip THE chip SHALL emit click and then change with the opposite of selected, in that order (as a native checkbox does), and SHALL expose selected to assistive technology as pressed or not pressed; WHILE kind is not filter THE chip SHALL ignore selected and SHALL NOT expose a pressed state."
+    },
+    {
+      "id": "CHP-12",
+      "text": "WHILE kind is filter and selected is true THE chip SHALL render its container, outline, label and icon from the selected parts of its variant (comp.chip.outlined.selected.container.color for outlined at rest, and so on); otherwise it SHALL render them from the variant's own parts (comp.chip.outlined.container.color, and so on)."
+    },
+    {
+      "id": "CHP-13",
+      "text": "WHILE kind is filter and selected is true THE chip SHALL show the glyph check of the system's icon set in the leading position, in place of its icon when it has one, and SHALL draw no mark of its own; WHEN selected changes THE chip SHALL show or hide the check, change its width with it, and change to or from the selected colors over comp.chip.motion.selection-duration with comp.chip.motion.selection-easing, and SHALL show the new condition at once where motion is reduced."
+    },
+    {
+      "id": "CHP-14",
+      "text": "THE chip SHALL draw its icon, its check and its remove glyph at the icon size of its size (comp.chip.icon.size.medium for medium, and so on) with sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; the icon and the check SHALL take the family and fill of its selection (sys.icon.family.selected and sys.icon.fill.selected only while kind is filter and selected is true; otherwise sys.icon.family.unselected and sys.icon.fill.unselected) and the icon color of its look (comp.chip.outlined.icon.color, comp.chip.outlined.selected.icon.color, and so on); the remove glyph SHALL always be drawn filled, with sys.icon.family.selected and sys.icon.fill.selected, in the glyph color of the parts CHP-20 and CHP-27 name (comp.chip.outlined.destructive-remove.icon.color or comp.chip.outlined.remove.icon.color, and so on)."
+    },
+    {
+      "id": "CHP-15",
+      "text": "WHERE kind is input and an avatar is given THE chip SHALL draw it in the leading position, in place of an icon, as an image of the avatar size of its size (comp.chip.avatar.size.medium for medium, and so on) clipped to comp.chip.avatar.shape and hidden from assistive technology; WHERE kind is not input THE chip SHALL ignore an avatar and report it in debug builds."
+    },
+    {
+      "id": "CHP-16",
+      "text": "THE chip SHALL draw a container at least the height of its size (comp.chip.container.height.medium for medium, and so on) with corners comp.chip.container.shape, never larger than half the container's height (a pill where the value is sys.shape.corner.full, at any height the chip grows to), and an outline comp.chip.outline.width wide inside its edge, and lay out in one row its leading icon, check or avatar, its label and its remove glyph, separated by comp.chip.container.gap.medium (and so on); each end SHALL be padded by comp.chip.container.padding-inline-with-icon.medium where it holds an icon or the check, by comp.chip.container.padding-inline-with-avatar.medium where it holds an avatar, by comp.chip.container.padding-inline-with-remove.medium where it holds the remove glyph, and by comp.chip.container.padding-inline.medium where the label meets it, and the row's tallest item (the label's line, a glyph's box or the avatar) SHALL be padded at the top and bottom by at least comp.chip.container.padding-block.medium (and so on for each size). The remove action's round container takes no part in this layout (CHP-18); where it lies follows from it (CHP-32)."
+    },
+    {
+      "id": "CHP-17",
+      "text": "THE chip SHALL set its label on one line in the text style of its size (comp.chip.label.typescale.medium, and so on) and the label color of its look, truncating it with an ellipsis only when the layout gives the chip less width than the label needs, and SHALL grow in height with larger text; the full label SHALL remain the accessible name."
+    },
+    {
+      "id": "CHP-18",
+      "text": "WHERE kind is input THE chip SHALL draw a remove action at its inline end: the glyph cancel of the system's icon set, centred on a round container of the remove size of its size (comp.chip.remove.container.size.medium, and so on) with corners comp.chip.remove.container.shape. The round container is larger than the glyph and SHALL NOT take part in the layout of CHP-16: it reaches into the gap before the glyph and the padding after it, as far as CHP-32 says, without changing the chip's size. THE chip SHALL draw no mark of its own for it, and SHALL expose it as a separate element with the button role, named by removeLabel and reached by Tab after the chip itself; WHEN the remove action is activated by pointer, touch, Enter or Space THE chip SHALL emit remove exactly once and SHALL NOT emit click."
+    },
+    {
+      "id": "CHP-19",
+      "text": "WHEN kind is input and the chip itself has keyboard focus and the user presses Backspace or Delete THE chip SHALL emit remove exactly once."
+    },
+    {
+      "id": "CHP-20",
+      "text": "WHILE the remove action is hovered, keyboard-focused or pressed THE chip SHALL render the remove action's container and glyph from the remove parts of the remove action's own highest-precedence state (comp.chip.outlined.remove.container.color at rest, and so on; the destructive-remove parts instead while destructiveRemove is true, CHP-27), with the precedence of CHP-3, SHALL keep the chip's container, outline, label and icon at the chip's own state (the chip is not hovered or pressed while the pointer or press is on the remove action), SHALL show the focus ring around the remove action's round container rather than around the chip, and SHALL answer a press of it as CHP-8 and CHP-9 name, within that round container."
+    },
+    {
+      "id": "CHP-21",
+      "text": "WHERE kind is input THE chip SHALL give the remove action a hit area of at least sys.target.touch for touch input and sys.target.pointer for fine pointers on both axes, around its glyph, reaching toward the label no further than the gap before the glyph and extending outward, beyond the chip's visual bounds, as far as it needs — never over the label; the rest of the chip's hit area SHALL activate the chip."
+    },
+    {
+      "id": "CHP-22",
+      "text": "WHEN the chip emits remove THE chip SHALL NOT remove itself or move focus: the owner removes it and moves focus to a neighbouring chip, or to the field the chips belong to."
+    },
+    {
+      "id": "CHP-23",
+      "text": "THE chip SHALL be one tab stop (an input chip two: the chip, then its remove action) — unless the component that holds it gives its set one stop and the keys to reach each chip (the chip field, CHF-11) — and SHALL NOT handle arrow keys; moving between chips with arrow keys, choosing one or several filter chips of a set, and wrapping or scrolling a row belong to the layout that holds the chips."
+    },
+    {
+      "id": "CHP-24",
+      "text": "WHEN the elevation or the colors of the chip change between states THE chip SHALL animate the change over comp.chip.motion.state-duration with comp.chip.motion.state-easing, and SHALL change them at once where motion is reduced."
+    },
+    {
+      "id": "CHP-25",
+      "text": "WHEN the layout direction is right-to-left THE chip SHALL mirror the order of its content and apply its paddings by logical start and end, so that the remove action sits at the left, and SHALL grow a ripple from the point of contact as in left-to-right."
+    },
+    {
+      "id": "CHP-26",
+      "text": "WHILE label is empty THE chip SHALL still render, and in debug builds report that it has no accessible name; WHILE kind is input and removeLabel is empty THE chip SHALL report the same of its remove action."
+    },
+    {
+      "id": "CHP-27",
+      "text": "WHILE kind is input and destructiveRemove is true THE chip SHALL render the remove action's round container and glyph from the destructive-remove parts of its variant in the remove action's own state (comp.chip.outlined.destructive-remove.container.color and comp.chip.outlined.destructive-remove.icon.color at rest, and so on), whose hovered, focused and pressed container mixes comp.chip.outlined.destructive-remove.state-layer.color and whose hovered, focused and pressed glyph takes the error color (in the default system both are the error role); at rest and while disabled the remove action SHALL look as it does with destructiveRemove false. WHILE destructiveRemove is false THE chip SHALL render the remove action from the remove parts (CHP-20). WHERE kind is not input THE chip SHALL ignore destructiveRemove.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently, with destructiveRemove true and false: at rest the two render alike; hovered, focused and pressed they differ."
+    },
+    {
+      "id": "CHP-28",
+      "text": "THE chip SHALL NOT make color the only sign that removing is destructive: whatever destructiveRemove is, the remove action SHALL keep the button role, its accessible name removeLabel (\"Remove Ada Lovelace\"), the glyph cancel, its size and its hit area, and SHALL announce nothing more and nothing less to assistive technology."
+    },
+    {
+      "id": "CHP-29",
+      "text": "THE chip SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the chip is shown THE chip SHALL draw itself for the new direction at once, without a motion of its own, keeping its selection and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "CHP-30",
+      "text": "WHERE the layout direction is right-to-left THE chip SHALL draw the glyph of its icon slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order CHP-25 gives. THE chip SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The check, remove and cancel glyphs the chip draws itself are not marked and are never mirrored.",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "CHP-31",
+      "text": "THE chip SHALL lay out its label as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE chip SHALL still place the label and align its lines by the layout direction, not by the text's own, and SHALL cut a label that does not fit (CHP-17) at the end of its own direction, so that a left-to-right label in a right-to-left layout loses its right end and never its beginning."
+    },
+    {
+      "id": "CHP-32",
+      "text": "WHERE kind is input THE chip SHALL center the remove action's round container on the remove glyph, on the chip's midline, so that it lies from the chip's inline end comp.chip.container.padding-inline-with-remove.medium less half of what comp.chip.remove.container.size.medium exceeds comp.chip.icon.size.medium by (and so on for each size), and never less than nothing; the default system's values SHALL make that distance the same as the round container's distance from the chip's top and from its bottom at the height of its size, so that the round container is inset equally on three sides, its center is the center of the chip's round end, and the two curves are concentric, as an avatar's and the round end's are at the other end. The hover, focus and press of the remove action (CHP-20) and its focus ring SHALL be drawn in that same place.",
+      "verify": "Under the default system: a medium chip is 32 tall and its end a half circle of radius 16; the round container is 28 across, 2 from the top, 2 from the bottom and 2 from the end, and its center is 16 from the end on the midline (`input`, `input-avatar`, `input-disabled`, `input-destructive-remove`, `input-plain-remove`). A small chip is 24 tall and its round container 24 across: it coincides with the round end, 0 from the top, the bottom and the end, its center 12 from the end (`input-small`). A test measures the three distances in each of these fixtures, hovering the remove action so that its container shows, and requires them equal within half a device pixel, in left-to-right and in right-to-left. Under `m3-like` and `cupertino`, which pin the padding they had, the remove glyph is where it was."
+    },
+    {
+      "id": "CHP-33",
+      "text": "WHILE kind is action and href is not empty THE chip SHALL be a link and not a button: it SHALL expose the link role, named by label, with no pressed state; SHALL be the platform's own link to href (the web's anchor element; SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), so that whatever the platform gives a link — on the web its context menu, opening in a new tab or window, copying and dragging its address, and the address shown before it is followed — is the platform's, and not the chip's to draw or to take over; and SHALL draw its container, outline, label, icon, elevation and opacity in every state from the same tokens as an action chip of its variant and size that has no destination, with no look of its own for a link and none for a destination already visited.",
+      "verify": "Fixture action-link is drawn exactly as an outlined action chip with the same label and icon and no destination. On the web the shadow root holds an anchor with the href; assert the role link and the accessible name."
+    },
+    {
+      "id": "CHP-34",
+      "text": "WHEN the user activates a link chip by pointer, touch or Enter THE chip SHALL emit click exactly once and then open href where target names, unless the product cancelled that click, in which case it SHALL open nothing: the product's own router has taken the navigation. It SHALL show the pressed state as CHP-8 and CHP-9 say and SHALL NOT hold the navigation back for sys.motion.duration.press-hold. THE chip SHALL NOT activate a link chip on Space, which on the web scrolls the page as it does on any link, and SHALL NOT show the pressed state for it; WHERE the platform gives its links other keys or gestures (on the web a modified or a middle click that opens a new tab, on Apple platforms a long press that previews) THE chip SHALL leave them to the platform.",
+      "verify": "On the web: Enter follows the link and fires click once; Space fires no click and leaves the page to scroll; a click listener that calls preventDefault() keeps the page where it is."
+    },
+    {
+      "id": "CHP-35",
+      "text": "WHILE the chip is a link and target is new THE chip SHALL open href in a new context — on the web a new tab or window that is given no handle to the page that opened it; on the other platforms outside the screen the person is on, as the platform's opener decides — and SHALL draw the glyph open_in_new of the system's icon set at its inline end, after the label, where CHP-16 lays out an input chip's remove glyph: comp.chip.container.gap.medium from the label, at comp.chip.icon.size.medium, with that end padded by comp.chip.container.padding-inline-with-icon.medium at the medium size (and each of its own size otherwise); in the icon color of its look and state (comp.chip.outlined.icon.color for outlined at rest, and so on); through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name; and hidden from assistive technology. WHILE target is new THE chip SHALL expose targetLabel as its description, read after its name and role, and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE chip SHALL draw no mark and SHALL ignore targetLabel.",
+      "verify": "Fixtures action-link-new (under the default system at the medium size the mark is 24 large, 8 from the label and 8 from the end edge), action-link-new-small and action-link-new-rtl (the mark at the left, mirrored)."
+    },
+    {
+      "id": "CHP-36",
+      "text": "WHILE kind is action and href is not empty and disabled is true THE chip SHALL NOT be a link that can be followed: it SHALL render as CHP-6 says, the mark of CHP-35 in the disabled icon color, SHALL expose the link role with the disabled state and no destination, SHALL NOT be focusable, SHALL NOT emit click, and SHALL open nothing by any means the platform gives a link (on the web the anchor carries no href, so there is no context menu entry, no drag and no new tab for it).",
+      "verify": "Fixture action-link-new-disabled. On the web the anchor has no href attribute, role link and aria-disabled true; Tab passes it."
+    },
+    {
+      "id": "CHP-37",
+      "text": "WHILE kind is filter or input THE chip SHALL ignore href, target and targetLabel and stay the chip its kind makes it, and in debug builds SHALL report that only an action chip can be a link: a control that holds a state, or that carries a second action, is not a destination. WHEN target names a value the chip does not define THE chip SHALL behave as same, and in debug builds report the unknown value. IF href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE chip SHALL be an action chip without a destination, and in the last two cases report it in debug builds."
+    },
+    {
+      "id": "CHP-38",
+      "text": "WHILE kind is input and removable is false THE chip SHALL draw no remove action, SHALL have no stop for one and SHALL emit no remove, and SHALL keep the padding of a chip without one. WHILE kind is not input THE chip SHALL ignore removable."
+    }
+  ],
+  "accessibility": {
+    "role": "button (link while an action chip has href)",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the chip; on an input chip, the next Tab moves to its remove action."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activates the chip (a filter chip switches selected); on the remove action, removes the input chip. A link chip is activated by Enter alone: Space does what it does on any link (on the web it scrolls the page)."
+      },
+      {
+        "keys": "Backspace or Delete",
+        "action": "On a focused input chip, removes it."
+      }
+    ],
+    "labeling": "label is the chip's accessible name. An input chip's remove action is a separate button named by removeLabel, which names the item and the action (\"Remove Ada Lovelace\"), with or without destructiveRemove. The icon, the check, the cancel glyph and the avatar are decorative: a filter chip's state is announced from its pressed state, never from the check.",
+    "minimumTarget": true,
+    "notes": [
+      "A filter chip is a button with a pressed state (aria-pressed on the web, the selected trait on Apple platforms, a toggleable state on Android), as a toggle Button is, not a checkbox.",
+      "An input chip is two elements on every platform: the chip (role button) and its remove action (role button, named by removeLabel). On the web the remove action is a second `<button>` in the shadow root; on the other platforms it is its own accessibility element with its own hit area.",
+      "The chip does not group itself. A row of chips is laid out, and its keyboard model (one tab stop with arrow keys, single or multiple selection among filter chips, focus after a removal) is provided, by the layout that holds the chips; Tanrei has no chip group.",
+      "destructiveRemove adds a color, never a meaning: the name removeLabel, the cancel glyph and the button role already say what the action does, so a person who cannot tell the error color from the resting one loses nothing (WCAG 1.4.1). The error glyph is a graphical object and keeps at least 3:1 against the chip's container in every scheme of the default system: the error role is held to 4.5:1 on every surface role by the token invariants, and the outlined chip shows a surface through its clear container while the elevated one is surface-container-lowest; under the state layer the lowest ratio is 3.98:1 (light scheme, on surface-container-highest, at the focus and pressed opacity).",
+      "The label does not wrap; at 200% text size the chip grows in height and the layout that holds a row lets it wrap to the next line or scroll.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "In the default system the outline of an outlined chip is the hairline (the divider's color), far below 3:1 against the surface. That is within WCAG 1.4.11: the edge is not what identifies the chip. Its label is text held to 4.5:1, a selected filter chip is shown by its fill and its check, and focus by the focus ring. A product whose chips must show a 3:1 edge sets comp.chip.outlined.outline.color to sys.color.outline in a layer.",
+      "An action chip with a destination is a link: the link role, the platform's own link, Enter and not Space. A filter chip and an input chip take no destination. No visited state is drawn.",
+      "A link chip that opens a new context shows the open_in_new mark after its label and says so through targetLabel; the words are the product's."
+    ]
+  },
+  "tokens": "comp.chip",
+  "fixtures": [
+    {
+      "id": "action-outlined",
+      "props": {
+        "kind": "action",
+        "variant": "outlined",
+        "label": "Add to calendar"
+      },
+      "content": "event"
+    },
+    {
+      "id": "action-elevated",
+      "props": {
+        "kind": "action",
+        "variant": "elevated",
+        "label": "Add to calendar"
+      },
+      "content": "event"
+    },
+    {
+      "id": "action-small",
+      "props": {
+        "kind": "action",
+        "size": "small",
+        "label": "Add to calendar"
+      },
+      "content": "event"
+    },
+    {
+      "id": "action-no-icon",
+      "props": {
+        "kind": "action",
+        "label": "Sounds good"
+      }
+    },
+    {
+      "id": "action-disabled",
+      "props": {
+        "kind": "action",
+        "disabled": true,
+        "label": "Add to calendar"
+      },
+      "content": "event"
+    },
+    {
+      "id": "filter-unselected",
+      "props": {
+        "kind": "filter",
+        "selected": false,
+        "label": "Vegetarian"
+      }
+    },
+    {
+      "id": "filter-selected",
+      "props": {
+        "kind": "filter",
+        "selected": true,
+        "label": "Vegetarian"
+      }
+    },
+    {
+      "id": "filter-elevated-unselected",
+      "props": {
+        "kind": "filter",
+        "variant": "elevated",
+        "selected": false,
+        "label": "Vegetarian"
+      }
+    },
+    {
+      "id": "filter-elevated-selected",
+      "props": {
+        "kind": "filter",
+        "variant": "elevated",
+        "selected": true,
+        "label": "Vegetarian"
+      }
+    },
+    {
+      "id": "filter-selected-small",
+      "props": {
+        "kind": "filter",
+        "size": "small",
+        "selected": true,
+        "label": "Vegetarian"
+      }
+    },
+    {
+      "id": "filter-selected-disabled",
+      "props": {
+        "kind": "filter",
+        "selected": true,
+        "disabled": true,
+        "label": "Vegetarian"
+      }
+    },
+    {
+      "id": "input",
+      "props": {
+        "kind": "input",
+        "label": "Ada Lovelace",
+        "removeLabel": "Remove Ada Lovelace"
+      }
+    },
+    {
+      "id": "input-avatar",
+      "props": {
+        "kind": "input",
+        "label": "Ada Lovelace",
+        "removeLabel": "Remove Ada Lovelace"
+      },
+      "content": "avatar"
+    },
+    {
+      "id": "input-small",
+      "props": {
+        "kind": "input",
+        "size": "small",
+        "label": "Ada Lovelace",
+        "removeLabel": "Remove Ada Lovelace"
+      }
+    },
+    {
+      "id": "input-disabled",
+      "props": {
+        "kind": "input",
+        "disabled": true,
+        "label": "Ada Lovelace",
+        "removeLabel": "Remove Ada Lovelace"
+      }
+    },
+    {
+      "id": "input-destructive-remove",
+      "props": {
+        "kind": "input",
+        "destructiveRemove": true,
+        "label": "Ada Lovelace",
+        "removeLabel": "Remove Ada Lovelace"
+      }
+    },
+    {
+      "id": "input-plain-remove",
+      "props": {
+        "kind": "input",
+        "destructiveRemove": false,
+        "label": "Ada Lovelace",
+        "removeLabel": "Remove Ada Lovelace"
+      }
+    },
+    {
+      "id": "action-link",
+      "props": {
+        "kind": "action",
+        "label": "Open in calendar",
+        "href": "/calendar/"
+      },
+      "content": "event"
+    },
+    {
+      "id": "action-link-new",
+      "props": {
+        "kind": "action",
+        "label": "Open in calendar",
+        "href": "https://example.com/tanrei",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "event"
+    },
+    {
+      "id": "action-link-new-small",
+      "props": {
+        "kind": "action",
+        "label": "Open in calendar",
+        "size": "small",
+        "href": "https://example.com/tanrei",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "event"
+    },
+    {
+      "id": "action-link-new-rtl",
+      "props": {
+        "kind": "action",
+        "label": "Open in calendar",
+        "href": "https://example.com/tanrei",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "event",
+      "direction": "rtl"
+    },
+    {
+      "id": "action-link-new-disabled",
+      "props": {
+        "kind": "action",
+        "label": "Open in calendar",
+        "href": "https://example.com/tanrei",
+        "disabled": true,
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "event"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-chip",
+      "props": {
+        "kind": "kind",
+        "variant": "variant",
+        "size": "size",
+        "selected": "selected",
+        "disabled": "disabled",
+        "label": "label",
+        "removeLabel": "removeLabel",
+        "destructiveRemove": "destructiveRemove",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "removable": "removable"
+      },
+      "events": {
+        "click": "click",
+        "change": "change",
+        "remove": "remove"
+      },
+      "notes": "`removeLabel` is reflected as the `remove-label` attribute. `destructiveRemove` is a boolean property that defaults to true; its attribute is the inverse `no-destructive-remove`, because an HTML boolean attribute cannot default to true. The icon is the `icon` slot and the avatar the `avatar` slot. A filter chip switches its own `selected` and fires `change`, as a toggle Button does; `remove` is a custom event and the element stays in the DOM until the page removes it. With `href` an action chip's shadow root holds an `<a>` in place of its `<button>`, with the same classes, parts and listeners. The link form: `href` is the `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link. `removable` is a boolean property that defaults to true; its attribute is the inverse, `not-removable`, as `destructiveRemove`'s is `no-destructive-remove`. A component that holds chips as a set and gives the set one stop (CHP-23, the chip field) takes each chip and its remove action out of the Tab order in the way the toolbar holds its Buttons."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiChip",
+      "props": {
+        "kind": "isSelected / onRemove",
+        "variant": "variant",
+        "size": "size",
+        "selected": "isSelected",
+        "disabled": "disabled",
+        "label": "title",
+        "removeLabel": "removeLabel",
+        "destructiveRemove": "destructiveRemove",
+        "href": "destination",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "removable": "removable"
+      },
+      "events": {
+        "click": "action",
+        "change": "isSelected",
+        "remove": "onRemove"
+      },
+      "notes": "Kind is chosen by initializer: `init(_:action:)` is an action chip, `init(_:isSelected:)` (a `Binding<Bool>`) a filter chip, `init(_:removeLabel:destructiveRemove:action:onRemove:)` an input chip, with `destructiveRemove` defaulting to true. The remove action is a second `Button` placed beside the chip's own, never inside it, so VoiceOver reaches it as its own element. `disabled` follows `.disabled(_:)`. The link form, not built on this platform yet: the initializer `init(_:destination:)`, which takes a `URL` in place of `action:` (the filter and input initializers take none) draws the same control as a SwiftUI `Link`, so the address is opened by the environment's `openURL` — an app that routes addresses itself provides an `OpenURLAction`, which is how the navigation is cancelled — and VoiceOver reads the link trait. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint) are parameters of that initializer alone. Not built on this platform yet: `removable`, default true — an input chip that draws no remove action while it is false (CHP-38); and a holder that gives a set of chips one stop takes each chip's own stops away (CHP-23)."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiChip",
+      "props": {
+        "kind": "onSelectedChange / onRemove",
+        "variant": "variant",
+        "size": "size",
+        "selected": "selected",
+        "disabled": "enabled",
+        "label": "label",
+        "removeLabel": "removeContentDescription",
+        "destructiveRemove": "destructiveRemove",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "removable": "removable"
+      },
+      "events": {
+        "click": "onClick",
+        "change": "onSelectedChange",
+        "remove": "onRemove"
+      },
+      "notes": "Kind is chosen by overload: `onClick` alone is an action chip, `selected` + `onSelectedChange` a filter chip, `onClick` + `onRemove` an input chip. `enabled` is the inverse flag. The remove action is its own semantics node with `Role.Button`. The link form, not built on this platform yet: the action overload with `href: String` (the filter and input overloads take none) opens the address through `LocalUriHandler.current` after `onClick`; an app that routes addresses itself provides its own `UriHandler`. Compose has no link role for a clickable element (only link annotations inside text), so the node drops `Role.Button` and carries no role, and the README says so. `target: TanreiLinkTarget = TanreiLinkTarget.Same`; `targetLabel` is appended to the node's state description. Not built on this platform yet: `removable`, default true — an input chip that draws no remove action while it is false (CHP-38); and a holder that gives a set of chips one stop takes each chip's own stops away (CHP-23)."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiChip",
+      "props": {
+        "kind": "TanreiChip / TanreiChip.filter / TanreiChip.input",
+        "variant": "variant",
+        "size": "size",
+        "selected": "selected",
+        "disabled": "isEnabled",
+        "label": "label",
+        "removeLabel": "removeSemanticLabel",
+        "destructiveRemove": "destructiveRemove",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetSemanticLabel",
+        "removable": "removable"
+      },
+      "events": {
+        "click": "onPressed",
+        "change": "onSelected",
+        "remove": "onDeleted"
+      },
+      "notes": "Kind is chosen by constructor: the default constructor is an action chip, `.filter` a filter chip, `.input` an input chip (Flutter's own `FilterChip` and `InputChip` names for the callbacks). `isEnabled: false` disables it, as Flutter's chips do. The remove action is its own `Semantics` node with the button flag. The link form, not built on this platform yet: the `TanreiChip.link` constructor (`href` is a `Uri`) has `Semantics(link: true)` with the address as its `linkUrl`. The package has no plugin dependency, so the address is opened by the nearest `TanreiLinkOpener`, an inherited widget the app provides once (calling `url_launcher`, or its own router); without one the control opens nothing and reports it in debug builds. `target` is a `TanreiLinkTarget`; `targetSemanticLabel` is the semantics hint. Not built on this platform yet: `removable`, default true — an input chip that draws no remove action while it is false (CHP-38); and a holder that gives a set of chips one stop takes each chip's own stops away (CHP-23)."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Chip",
+      "props": {
+        "kind": "kind",
+        "variant": "variant",
+        "size": "size",
+        "selected": "selected",
+        "disabled": "disabled",
+        "label": "label",
+        "removeLabel": "removeAccessibilityLabel",
+        "destructiveRemove": "destructiveRemove",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel",
+        "removable": "removable"
+      },
+      "events": {
+        "click": "onPress",
+        "change": "onSelectedChange",
+        "remove": "onRemove"
+      },
+      "notes": "The icon is the `icon` prop (a glyph name) and the avatar the `avatar` prop (an image source). The remove action is a second accessible `Pressable` with the button role, placed beside the chip's own rather than inside it, so a screen reader reaches it as its own element. The link form, not built on this platform yet: an action Chip with `href` has `accessibilityRole=\"link\"` and opens the address with `Linking.openURL` after `onPress`, unless `onPress` called `event.preventDefault()`. `target` is `\"same\" | \"new\"`; `targetLabel` is the `accessibilityHint`. Not built on this platform yet: `removable`, default true — an input chip that draws no remove action while it is false (CHP-38); and a holder that gives a set of chips one stop takes each chip's own stops away (CHP-23)."
+    }
+  }
+}

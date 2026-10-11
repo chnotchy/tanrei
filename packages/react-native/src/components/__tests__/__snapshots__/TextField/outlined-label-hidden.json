@@ -1,0 +1,123 @@
+{
+  "type": "View",
+  "props": {},
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityState": {
+          "disabled": false
+        },
+        "accessibilityValue": {},
+        "accessible": false,
+        "collapsable": false,
+        "focusable": false,
+        "hitSlop": {
+          "bottom": 6,
+          "left": 0,
+          "right": 0,
+          "top": 6
+        },
+        "style": {
+          "alignItems": "center",
+          "borderBottomEndRadius": 6,
+          "borderBottomStartRadius": 6,
+          "borderTopEndRadius": 6,
+          "borderTopStartRadius": 6,
+          "flexDirection": "row",
+          "gap": 8,
+          "minHeight": 36,
+          "opacity": 1,
+          "paddingEnd": 12,
+          "paddingStart": 12,
+          "paddingVertical": 6
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessible": false,
+            "importantForAccessibility": "no",
+            "style": {
+              "borderColor": "rgb(132, 132, 132)",
+              "borderRadius": 6,
+              "borderWidth": 1,
+              "bottom": 0,
+              "left": 0,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": []
+        },
+        {
+          "type": "View",
+          "props": {
+            "style": {
+              "flex": 1,
+              "flexShrink": 1
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "gap": 2
+                }
+              },
+              "children": [
+                {
+                  "type": "TextInput",
+                  "props": {
+                    "accessibilityLabel": "Search",
+                    "accessibilityRole": "search",
+                    "accessibilityState": {
+                      "disabled": false
+                    },
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "cursorColor": "rgb(27, 27, 27)",
+                    "focusable": true,
+                    "inputMode": "search",
+                    "keyboardType": "default",
+                    "multiline": false,
+                    "placeholder": "Search components",
+                    "placeholderTextColor": "rgb(75, 75, 75)",
+                    "readOnly": false,
+                    "returnKeyType": "search",
+                    "selectionColor": "rgb(27, 27, 27)",
+                    "style": {
+                      "color": "rgb(27, 27, 27)",
+                      "flex": 1,
+                      "flexShrink": 1,
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "400",
+                      "letterSpacing": 0,
+                      "lineHeight": 22,
+                      "margin": 0,
+                      "minHeight": 22,
+                      "paddingBottom": 0,
+                      "paddingEnd": 0,
+                      "paddingStart": 0,
+                      "paddingTop": 0
+                    },
+                    "submitBehavior": "blurAndSubmit",
+                    "value": ""
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

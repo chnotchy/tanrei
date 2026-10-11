@@ -1,0 +1,1587 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "date-time-picker",
+  "title": "DateTimePicker",
+  "summary": "Lets a person choose a date, a time, or a date and time — or a span of any of them — from a Calendar and time wheels or a clock dial, in a dialog or in a surface that drops down from a field.",
+  "category": "selection",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "calendar"
+  ],
+  "uses": [
+    "tabs",
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "scrim",
+      "description": "The dim over everything behind a modal picker. It blocks presses, and a press on it dismisses the picker.",
+      "optional": true
+    },
+    {
+      "id": "container",
+      "description": "The raised surface that holds everything else: centred in the window (modal) or below its anchor (docked)."
+    },
+    {
+      "id": "header",
+      "description": "The title row — the picker's label at the start and, when the picker sets a time, the entry-mode tabs at the end — and, in a modal picker that sets a date, the chosen value in large type below it.",
+      "optional": true
+    },
+    {
+      "id": "entry-mode-tabs",
+      "description": "Tanrei Tabs of the secondary variant, each drawing a glyph alone: the keyboard glyph for the wheels at the start and the schedule glyph for the dial at the end. They choose how the time is set, and their words are their accessible names only. Drawn only while the system offers both (comp.date-time-picker.time.entry-modes).",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "The hairline below the header of a modal picker that shows the chosen value.",
+      "optional": true
+    },
+    {
+      "id": "calendar",
+      "description": "A Tanrei Calendar, for the date or the range of dates. Present while mode is date or date-time.",
+      "optional": true
+    },
+    {
+      "id": "time-section",
+      "description": "Everything that sets a time, top to bottom: the range display across its whole width, then the time display (dial mode) and the wheels or the dial. The period of a 12-hour time is a part of the wheels and of the time display, not a row of its own. Present while mode is time or date-time.",
+      "optional": true
+    },
+    {
+      "id": "range-display",
+      "description": "The two ends of a range that has a time: the start's range field, an en dash and the end's range field, in reading order, filling the width of the time section because everything below it sets the end it names. No word says which end is which; the order and the dash do. Present in a range that has a time.",
+      "optional": true
+    },
+    {
+      "id": "range-field",
+      "description": "One end of the range in the range display: its time on a container that the person presses to make the wheels or the dial set that end. The one being set is drawn as selected, with the mark the dial mode gives the unit it sets.",
+      "optional": true
+    },
+    {
+      "id": "range-separator",
+      "description": "The en dash between the two range fields.",
+      "optional": true
+    },
+    {
+      "id": "wheels",
+      "description": "The hour wheel and the minute wheel with the separator between them and, with a 12-hour clock, the period wheel beside them. The chosen value of each stands on that wheel's own selection container (on one band across all of them in a system that joins them), and a press on the hour's or the minute's lets the person type the number. Each wheel is a spin button for assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "time-display",
+      "description": "Dial mode: the hour and the minute, each in a selector box that the person presses or focuses to set that unit on the dial, and that the arrow keys adjust; the one whose unit the dial shows is selected. With a 12-hour clock the period selector stands in the same row. It is the row next to the dial, with nothing between them.",
+      "optional": true
+    },
+    {
+      "id": "period",
+      "description": "Before or after noon (AM, PM), drawn as the last part of the time — or its first, where the locale writes the period before the hour — and never as tabs: in the wheels mode a short wheel of the two names beside the minute wheel, in the dial mode a narrow selector beside the minute selector that shows the pending period and changes to the other when pressed. It is smaller and quieter than the hour and the minute and never carries the mark of the unit being set. Present with a 12-hour clock.",
+      "optional": true
+    },
+    {
+      "id": "separator",
+      "description": "The locale's separator between the hour and the minute (\":\" in most locales), between the wheels and in the time display.",
+      "optional": true
+    },
+    {
+      "id": "dial",
+      "description": "Dial mode: a round clock face with the hours (two rings for a 24-hour clock) or the minutes, which the person presses or drags to set the selected unit.",
+      "optional": true
+    },
+    {
+      "id": "handle",
+      "description": "The circle over the chosen value on the dial, joined to the dial's centre by the track; the number under it is drawn in the handle's content color.",
+      "optional": true
+    },
+    {
+      "id": "error",
+      "description": "The line that says a range's end is before its start (date-time ranges).",
+      "optional": true
+    },
+    {
+      "id": "actions",
+      "description": "Cancel and OK: Tanrei Buttons that the picker places as a full-width Button group places a dismissive and a confirming item, in the variant comp.date-time-picker.actions.variant names. Absent from a docked picker that sets a date only.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator around the selector, period selector, range field or wheel that has keyboard focus. The calendar, the tabs and the Buttons draw their own."
+    }
+  ],
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the picker is shown. The product opens it (from a Text field's trailing button, or from any button). Where open is a plain value (web, Compose, React Native) the product closes it by setting open to false when the picker emits close; where it is a binding or a controller (SwiftUI, Flutter) the picker closes itself through it (DTM-5)."
+    },
+    {
+      "name": "presentation",
+      "type": "enum",
+      "values": [
+        "modal",
+        "docked"
+      ],
+      "default": "modal",
+      "description": "modal: a dialog over a scrim, with a header and Cancel and OK; the choice is committed by OK. docked: a surface below an anchor (the product's field or button) that the rest of the page stays usable around; a date alone is committed by choosing it, and anything with a time by OK."
+    },
+    {
+      "name": "mode",
+      "type": "enum",
+      "values": [
+        "date",
+        "time",
+        "date-time"
+      ],
+      "default": "date",
+      "description": "What is chosen: a calendar date, a time of day, or a date with a time of day."
+    },
+    {
+      "name": "range",
+      "type": "boolean",
+      "default": false,
+      "description": "Chooses a span, from start to end, instead of one value: a span of dates, of times (opening hours; the end may fall on the next day) or of dates with times (a booking)."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The chosen value when range is false; empty when none is chosen. An ISO 8601 calendar date in mode date (\"2026-09-17\"), 24-hour hours and minutes in mode time (\"19:30\", as an HTML time input holds it), and a local date and time joined by T in mode date-time (\"2026-09-17T19:30\", as an HTML datetime-local input holds it). No value has seconds or a time zone."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "default": "",
+      "description": "The first value of the chosen span when range is true, in the mode's form (as value); empty when none is chosen."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "default": "",
+      "description": "The last value of the chosen span when range is true, in the mode's form; empty while only start is chosen. Never before start, except in mode time, where an end at or before start falls on the next day."
+    },
+    {
+      "name": "min",
+      "type": "string",
+      "default": "",
+      "description": "The earliest date that can be chosen, as an ISO 8601 calendar date; empty for no limit. It bounds the calendar only: times are not bounded."
+    },
+    {
+      "name": "max",
+      "type": "string",
+      "default": "",
+      "description": "The latest date that can be chosen, as an ISO 8601 calendar date; empty for no limit."
+    },
+    {
+      "name": "disabledDates",
+      "type": "strings",
+      "default": [],
+      "description": "Dates inside min and max that cannot be chosen, as ISO 8601 calendar dates; with the platform's isDateDisabled predicate, passed to the calendar (CAL-16)."
+    },
+    {
+      "name": "today",
+      "type": "string",
+      "default": "",
+      "description": "The date the calendar draws as today, as an ISO 8601 calendar date; empty uses the device's current date. Set it in tests."
+    },
+    {
+      "name": "firstDayOfWeek",
+      "type": "enum",
+      "values": [
+        "locale",
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday"
+      ],
+      "default": "locale",
+      "description": "The weekday in the calendar's first column, passed to it."
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "default": "",
+      "description": "A BCP 47 language tag (\"en-US\", \"ja-JP\") for month, weekday and period names, digits, date and time forms, the separator between hours and minutes, the first day of the week and the preferred clock. Empty uses the platform's current locale."
+    },
+    {
+      "name": "startView",
+      "type": "enum",
+      "values": [
+        "day",
+        "year"
+      ],
+      "default": "day",
+      "description": "Whether the calendar opens on the days of a month or on the list of years, passed to it."
+    },
+    {
+      "name": "showAdjacentDays",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the calendar shows the days of the previous and next month in its spare cells, passed to it (CAL-15)."
+    },
+    {
+      "name": "hourCycle",
+      "type": "enum",
+      "values": [
+        "locale",
+        "h12",
+        "h23"
+      ],
+      "default": "locale",
+      "description": "h12: hours 1 to 12 with a period (AM, PM). h23: hours 00 to 23. locale takes the locale's preferred clock. Values are 24-hour in every cycle."
+    },
+    {
+      "name": "minuteStep",
+      "type": "number",
+      "default": 1,
+      "description": "The minutes a person can choose: every minute (1), or every 5, 10, 15 or 30 minutes. The minute wheel lists only those minutes, the dial snaps to them, and a typed minute is rounded down to one."
+    },
+    {
+      "name": "entryMode",
+      "type": "enum",
+      "values": [
+        "wheels",
+        "dial"
+      ],
+      "default": "wheels",
+      "description": "How the time is set when the picker opens: on wheels, which also take a typed number, or on a clock dial. The person can switch with the entry-mode tabs while it is open. Ignored when the system offers one mode only (comp.date-time-picker.time.entry-modes)."
+    },
+    {
+      "name": "unit",
+      "type": "enum",
+      "values": [
+        "hour",
+        "minute"
+      ],
+      "default": "hour",
+      "description": "Dial mode: the unit the dial shows, and the selector that takes focus, when the picker opens. minute suits a product that mostly adjusts minutes."
+    },
+    {
+      "name": "layout",
+      "type": "enum",
+      "values": [
+        "auto",
+        "vertical",
+        "horizontal"
+      ],
+      "default": "auto",
+      "description": "vertical: the calendar above the time section (and, in the dial mode, the time display above the dial). horizontal: side by side, for a short window or a wide one (in the dial mode, the time display beside the dial, with the range display across both). auto chooses horizontal only when the window is too short for vertical and wide enough for horizontal."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the picker, in the product's language (\"Select date\", \"Check-in\"): the accessible name of its surface and the start of its title row. Required, and this instance's alone: the picker has no words for it and the product's words have none, because what is being chosen differs from one picker to the next. Empty, the title row draws no words, the surface has no name, and it is reported."
+    },
+    {
+      "name": "dateLabel",
+      "type": "string",
+      "default": "",
+      "description": "What the header shows for a date that is not chosen yet: the date of a single value, and either end of a range, in the product's language (\"Date\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "dateLabel"
+    },
+    {
+      "name": "startLabel",
+      "type": "string",
+      "default": "",
+      "description": "Range: the accessible name of the start's range field and the description of the calendar's start day. It is never drawn, in the product's language (\"Start\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "startLabel"
+    },
+    {
+      "name": "endLabel",
+      "type": "string",
+      "default": "",
+      "description": "Range: the accessible name of the end's range field and the description of the calendar's end day. It is never drawn, in the product's language (\"End\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "endLabel"
+    },
+    {
+      "name": "confirmLabel",
+      "type": "string",
+      "default": "",
+      "description": "The label of the button that commits the choice, in the product's language (\"OK\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "confirmLabel"
+    },
+    {
+      "name": "cancelLabel",
+      "type": "string",
+      "default": "",
+      "description": "The label of the button that closes the picker without committing, in the product's language (\"Cancel\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "cancelLabel"
+    },
+    {
+      "name": "previousMonthLabel",
+      "type": "string",
+      "default": "",
+      "description": "Passed to the calendar, in the product's language (\"Previous month\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "previousMonthLabel"
+    },
+    {
+      "name": "nextMonthLabel",
+      "type": "string",
+      "default": "",
+      "description": "Passed to the calendar, in the product's language (\"Next month\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "nextMonthLabel"
+    },
+    {
+      "name": "yearViewLabel",
+      "type": "string",
+      "default": "",
+      "description": "Passed to the calendar, in the product's language (\"Choose a year\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "yearViewLabel"
+    },
+    {
+      "name": "todayLabel",
+      "type": "string",
+      "default": "",
+      "description": "Passed to the calendar, in the product's language (\"Today\"). The product's: Tanrei has no words for it. Empty reads the product's words. With neither, the platform's own word in the locale, where it has one.",
+      "words": "todayLabel"
+    },
+    {
+      "name": "hourLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the hour wheel and the hour selector, in the product's language (\"Hour\"). The product's: Tanrei has no words for it. Empty reads the product's words. With neither, the platform's own word in the locale, where it has one.",
+      "words": "hourLabel"
+    },
+    {
+      "name": "minuteLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the minute wheel and the minute selector, in the product's language (\"Minute\"). The product's: Tanrei has no words for it. Empty reads the product's words. With neither, the platform's own word in the locale, where it has one.",
+      "words": "minuteLabel"
+    },
+    {
+      "name": "wheelsLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the entry-mode tab that shows the wheels; the tab draws the keyboard glyph alone, in the product's language (\"Wheels\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "wheelsLabel"
+    },
+    {
+      "name": "dialLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the entry-mode tab that shows the dial; the tab draws the schedule glyph alone, in the product's language (\"Dial\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "dialLabel"
+    },
+    {
+      "name": "entryModeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the row of entry-mode tabs, in the product's language (\"Time input\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "entryModeLabel"
+    },
+    {
+      "name": "periodLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the period (AM or PM): the period wheel in the wheels mode and the period selector in the dial mode, in the product's language (\"Period\"). The product's: Tanrei has no words for it. Empty reads the product's words. With neither, the platform's own word in the locale, where it has one.",
+      "words": "periodLabel"
+    },
+    {
+      "name": "rangeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the range display, the group of the two range fields, in the product's language (\"Range\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "rangeLabel"
+    },
+    {
+      "name": "nextDayLabel",
+      "type": "string",
+      "default": "",
+      "description": "Mode time with a range: added after the end's time, in its range field and its accessible name, while the end falls on the next day (\"6:00 AM next day\"), in the product's language. The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "nextDayLabel"
+    },
+    {
+      "name": "rangeErrorText",
+      "type": "string",
+      "default": "",
+      "description": "Mode date-time with a range: the error line shown while the end is before the start, in the product's language (\"End must be after start\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "rangeErrorText"
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The person committed a choice that differs from value (or from start and end): by OK, or by choosing a date in a docked picker that sets a date only. Carries the new value, or the new start and end, in the mode's form. Emitted before the close it causes."
+    },
+    {
+      "name": "close",
+      "description": "The picker asks to be closed. Carries the reason, named escape, back, outside, tab, focus-out, cancel, confirm or select (in the platform's casing). Emitted after change when both are emitted."
+    }
+  ],
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected"
+  ],
+  "behavior": [
+    {
+      "id": "DTM-1",
+      "text": "WHEN open becomes true WHILE presentation is modal THE date-time picker SHALL present its container as a modal overlay in the platform's own modal presentation (named in the platform notes): centred in the window's safe area, at least comp.date-time-picker.modal.container.margin from every edge and from the on-screen keyboard, above everything in its window with a scrim of comp.date-time-picker.modal.scrim.color over the whole window behind it; it SHALL make everything outside it inert (not focusable, not pressable, hidden from assistive technology), keep the content behind it from scrolling, keep focus inside it (Tab from the last focusable element moves to the first and Shift+Tab from the first to the last) and draw the container in comp.date-time-picker.modal.container.color with comp.date-time-picker.modal.container.elevation and comp.date-time-picker.modal.container.shape corners eased by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0).",
+      "verify": "Fixtures draw the open picker in place. A modal fixture renders the surface centred on a stage with the scrim over a plain surface background (on the web the viewport, elsewhere the test-only surface view each README names); a docked fixture renders the surface at its natural size centred on a stage of the surface color, with its elevation and without an anchor, placement or open motion (on the web the `inline` test attribute). The stage is 480 × 720, or 800 × 640 for a fixture whose layout is horizontal. Every fixture sets locale and value (or start and end), and every fixture with a date sets today, so month names, digits, period names, the first day of the week and today's ring are the same on every platform."
+    },
+    {
+      "id": "DTM-2",
+      "text": "WHEN open becomes true WHILE presentation is docked THE date-time picker SHALL present its container in the platform's overlay layer (the web's top layer through the popover API, an overlay SwiftUI draws above its anchor, Compose's Popup, Flutter's Overlay, React Native's overlay layer that TanreiProvider renders), comp.date-time-picker.docked.offset below its anchor with the start edges aligned; WHERE the space below has less room than the surface needs within comp.date-time-picker.docked.viewport-margin of the viewport's edge and the space above has more it SHALL flip above the anchor, it SHALL shift along the anchor to stay within that margin, and SHALL keep following the anchor while it moves. It SHALL draw the container in comp.date-time-picker.docked.container.color with comp.date-time-picker.docked.container.elevation and comp.date-time-picker.docked.container.shape corners eased by sys.shape.corner-smoothing, and SHALL NOT trap focus, make the rest of the screen inert or draw a scrim: it is an operated overlay that is not modal. WHEN the layout direction is right-to-left start and end SHALL mirror."
+    },
+    {
+      "id": "DTM-3",
+      "text": "WHEN the date-time picker opens THE date-time picker SHALL move focus into it, because it is an operated overlay in both presentations: to the calendar's active day (CAL-10) while mode is date or date-time, or to its displayed year in the year view; in mode time to the hour wheel in the wheels mode, or to the selector of unit in the dial mode. Focus SHALL move when it opens, not when its motion ends."
+    },
+    {
+      "id": "DTM-4",
+      "text": "WHEN the date-time picker closes THE date-time picker SHALL return focus to the element that had it when the picker opened (the anchor or the opener, for a docked picker) or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay, and SHALL restore the content behind a modal picker to what it was before; focus SHALL move when it closes, not when its motion ends."
+    },
+    {
+      "id": "DTM-5",
+      "text": "WHEN the user presses Escape or the platform's back (Android's back gesture or button, the iOS accessibility escape gesture), presses the scrim of a modal picker or outside a docked picker and its anchor, presses Tab or Shift+Tab out of a docked picker or moves focus out of it, activates Cancel or OK, or completes a choice in a docked picker that sets a date only (DTM-7) THE date-time picker SHALL emit close once with that reason (escape, back, outside, tab, focus-out, cancel, confirm or select) and SHALL be closed: through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open to false where open is a plain value (web, Compose, React Native). A close for any reason but confirm and select SHALL commit nothing, and Tab or Shift+Tab SHALL then move focus on from the anchor as they would have from it. Whether a press outside a docked picker also reaches the element under it SHALL follow the platform and be stated in its README, as for the menu."
+    },
+    {
+      "id": "DTM-6",
+      "text": "WHILE presentation is modal, or mode is time or date-time, THE date-time picker SHALL hold the person's choice as a pending choice that starts, when it opens, as value (or as start and end) — a value the product sets while it is open SHALL NOT change it — SHALL show it in the header, the calendar, the range display, the wheels, the time display, the period and the dial, and SHALL commit it only WHEN OK is activated: it SHALL then emit change once with the pending choice in the mode's form if it differs from the one the picker opened with, and after that emit close with confirm. OK SHALL be disabled while the pending choice is incomplete (no date; no start or no end in a range) or a date-time range's end is before its start (DTM-33)."
+    },
+    {
+      "id": "DTM-7",
+      "text": "WHILE presentation is docked and mode is date, WHEN the user chooses a day that completes a choice (any available day; the end of a range) THE date-time picker SHALL emit change once with the new choice if it differs from value (or from start and end), and then emit close with select; choosing a range's start SHALL emit nothing and keep the picker open. Such a picker SHALL draw no actions."
+    },
+    {
+      "id": "DTM-8",
+      "text": "THE date-time picker SHALL read and write value, start and end in the mode's form: \"YYYY-MM-DD\" in mode date, 24-hour \"HH:MM\" in mode time, \"YYYY-MM-DDTHH:MM\" in mode date-time. WHEN it opens with a time part empty (value, start or end empty, in mode time or date-time) it SHALL start that pending time at the device's current local time; WHEN a pending time's minute, from value or the device, is not a multiple of minuteStep it SHALL round it down to the step, so that the minute wheel and the dial can show it, and OK SHALL then commit the rounded time. In mode date-time a date chosen before its time keeps the pending time, and a date not yet chosen leaves the choice incomplete (DTM-6)."
+    },
+    {
+      "id": "DTM-9",
+      "text": "THE date-time picker SHALL lay out, from top to bottom, the header (DTM-10), the body and the actions (DTM-34), and between the body and the actions the error line while it is shown (DTM-33); it SHALL inset the body, the error line and the actions by comp.date-time-picker.container.padding-inline on both sides, and the body by comp.date-time-picker.container.padding-block above and below. The body SHALL hold the calendar while mode is date or date-time and the time section while mode is time or date-time: WHILE the vertical layout is used the calendar above the time section, and WHILE the horizontal layout is used side by side, the calendar at the start, comp.date-time-picker.container.gap apart; in mode time the horizontal layout SHALL keep the range display across the whole time section (DTM-12) and SHALL put, below it, the time display in a start column and the dial in an end column, each centred on the other, so that the time display stands beside the dial; in the wheels mode, which has one row below the range display, the horizontal layout SHALL draw the time section as the vertical one does. layout vertical and horizontal SHALL choose that layout; layout auto SHALL choose horizontal only WHEN the window's height less the margins is smaller than the vertical layout needs and its width less the margins can hold the horizontal layout, and otherwise vertical, deciding again when the window changes."
+    },
+    {
+      "id": "DTM-10",
+      "text": "THE date-time picker SHALL draw a title row — label at the start in comp.date-time-picker.header.label.typescale and comp.date-time-picker.header.label.color, and the entry-mode tabs (DTM-13) at the end while they are drawn — in a modal picker always, and in a docked one only while the entry-mode tabs are drawn. WHILE presentation is modal and mode is date or date-time it SHALL draw below the title row, comp.date-time-picker.header.gap apart, the pending choice in comp.date-time-picker.header.value.typescale and comp.date-time-picker.header.value.color — a date in the locale's form with the abbreviated weekday, month and day (\"Thu, Sep 17\", \"9月17日(木)\"), with the time as the locale writes it in the clock in use in mode date-time (\"Thu, Sep 17, 7:30 PM\"), and a range as its start and end joined by an en dash (\"Sep 10 – Sep 16\"), each of the two an isolated run written as the locale writes it and the two in reading order, so that in a right-to-left layout the start stands at the right of the dash and the end at its left, with the year added to each date not in the current year — a date not chosen yet, the single value's or either end's of a range, written as dateLabel in comp.date-time-picker.header.placeholder.color, and never as a word for start or end, which the order and the dash already say; and below the header a divider of comp.date-time-picker.divider.width in comp.date-time-picker.divider.color across the container. THE date-time picker SHALL inset the header by comp.date-time-picker.header.padding-inline-start at the start, comp.date-time-picker.header.padding-inline-end at the end and comp.date-time-picker.header.padding-block above and below; the header SHALL grow with enlarged text, and its value SHALL wrap rather than be cut."
+    },
+    {
+      "id": "DTM-11",
+      "text": "WHILE mode is date or date-time THE date-time picker SHALL show a Tanrei Calendar in single mode, or in range mode while range is true, giving it the pending dates and min, max, disabledDates and the isDateDisabled predicate, today, firstDayOfWeek, locale, startView, showAdjacentDays, startLabel, endLabel, previousMonthLabel, nextMonthLabel, yearViewLabel and todayLabel, and no label of its own (the picker's surface names it); a choice in the calendar SHALL change the pending dates and nothing else. It SHALL NOT change the calendar's tokens. WHILE range is true and mode is date-time, WHEN a start is chosen in the calendar the start's range field SHALL be selected, and WHEN an end is chosen the end's (DTM-15)."
+    },
+    {
+      "id": "DTM-12",
+      "text": "WHILE mode is time or date-time THE date-time picker SHALL draw the time section as rows, top to bottom and comp.date-time-picker.container.gap apart: the range display while range is true (DTM-15); the time display in the dial mode (DTM-21); and the wheels (DTM-18) or the dial (DTM-23). The time section SHALL be as wide as its widest row needs, never narrower than comp.date-time-picker.dial.container.size where the space it is given allows, and, WHILE the system offers both entry modes (DTM-13), as wide in the one as in the other — the wider of what the two need — so that switching the mode does not change the picker's width. The range display SHALL span the whole width of the time section in every layout — both columns in the horizontal layout of mode time (DTM-9) — because it is the first branch: which end everything below it shows and sets; every other row SHALL be centred. The time display SHALL be the row next to the dial in every layout — above it in the vertical layout, beside it in the horizontal one — with nothing between the two. The period of a 12-hour time SHALL be a part of the time display and of the wheels (DTM-14) and SHALL have no row of its own: THE date-time picker SHALL draw no row of tabs in the time section, and the entry-mode tabs of the title row (DTM-13) SHALL be its only tabs, Tanrei Tabs of the secondary variant whose variant and tokens the picker SHALL NOT change."
+    },
+    {
+      "id": "DTM-13",
+      "text": "WHILE mode is time or date-time and comp.date-time-picker.time.entry-modes is both THE date-time picker SHALL draw the entry-mode tabs at the end of the title row: two tabs that hug their content, each an icon-only tab that draws a glyph of the system's icon set and keeps its word as its accessible name — the keyboard glyph named wheelsLabel first (at the start), because the wheels are where a number is typed (DTM-43), and the schedule glyph named dialLabel second — in a row named entryModeLabel whose panel is the time section, with the tab of the mode shown selected. THE date-time picker SHALL draw no word in these tabs; the glyphs' size, family and mirroring are the Tabs' own, and the icon set marks neither as mirrored. entryMode SHALL choose the mode shown WHEN the picker opens, and WHEN the other tab is selected THE date-time picker SHALL show that mode and keep the pending time, ending a typed entry first (DTM-45). WHILE comp.date-time-picker.time.entry-modes is wheels or dial THE date-time picker SHALL draw no entry-mode tabs and show that mode whatever entryMode says.",
+      "verify": "The default system offers both. wheels and dial alone are observed under a fixture system that sets comp.date-time-picker.time.entry-modes to 1 and to 2. A unit test reads each tab's glyph name and its accessible name."
+    },
+    {
+      "id": "DTM-14",
+      "text": "WHILE the 12-hour clock is used THE date-time picker SHALL draw the period — before or after noon — as a part of the time, and never as tabs, as a switch that spans the time section or as anything that reads as a choice above the time: in the wheels mode as the period wheel (DTM-46) and in the dial mode as the period selector, in the row of the hour and the minute. The period SHALL stand comp.date-time-picker.period.gap after the minute, or, WHERE the locale writes the period before the hour (\"午前7:30\"), the same gap before the hour. The period selector SHALL be a container at least comp.date-time-picker.period.container.width wide and as tall as the hour and minute selectors, with comp.date-time-picker.selector.container.shape corners eased by sys.shape.corner-smoothing, holding the name of the pending period as the locale writes it (\"AM\" or \"PM\"; \"午前\" or \"午後\") centred in comp.date-time-picker.period.label.typescale, and growing wider rather than cutting a longer name. It SHALL be drawn from the unselected selector's tokens in every state (comp.date-time-picker.unselected.selector.container.color, comp.date-time-picker.unselected.selector.label.color, comp.date-time-picker.unselected.selector.outline.color and comp.date-time-picker.unselected.selector.outline.width) and SHALL never be drawn from the selected condition: selected marks the unit the dial sets, and the period is not one, so the mark stays with the hour or the minute and the period stays the quiet part of the time. DTM-27 to DTM-32 SHALL hold for the period selector as for a selector of the unselected condition. WHEN the user activates the period selector by pointer, touch, Enter or Space THE date-time picker SHALL make the other period the pending period and keep the hour's number (7 before noon becomes 7 after noon, 19:00), show the new name at once, and SHALL NOT change the unit the dial shows, which selector is selected or where focus is. WHILE the 24-hour clock is used THE date-time picker SHALL draw no period.",
+      "verify": "The period's place and look are fixtures (a 12-hour time in each mode and layout, ja-JP for the period first, a right-to-left one). A unit test presses the period selector of 07:30 and reads the pending time 19:30, the name PM, the hour selector still selected and the dial still showing hours; it reads the period selector's resolved tokens at rest and pressed under the `acme` fixture system and finds the unselected selector's."
+    },
+    {
+      "id": "DTM-15",
+      "text": "WHILE range is true and mode is time or date-time THE date-time picker SHALL draw the range display: the start's range field, an en dash and the end's range field, in reading order and comp.date-time-picker.range-field.gap apart, in a group named rangeLabel, as the first row of the time section and across its whole width (DTM-12). Each range field SHALL be a container at least comp.date-time-picker.range-field.container.height tall with comp.date-time-picker.selector.container.shape corners eased by sys.shape.corner-smoothing, padded by comp.date-time-picker.range-field.container.padding-inline at each end, holding its end's pending time as the locale writes a time in the clock in use (\"9:00 AM\", \"17:30\"), centred, in comp.date-time-picker.range-field.label.typescale, with nextDayLabel added after the end's time while it falls on the next day (DTM-33); the two SHALL be equally wide and SHALL together fill the width of the time section less the dash and its gaps — never less than the wider one needs — so that the dash stands at the middle of the section and the range display is as wide as everything it governs. THE date-time picker SHALL draw each range field's container, label and outline from the selector tokens of its condition (comp.date-time-picker.unselected.selector.container.color, comp.date-time-picker.unselected.selector.label.color, comp.date-time-picker.unselected.selector.outline.color and comp.date-time-picker.unselected.selector.outline.width, and the same parts of selected): selected for the end the time section sets and unselected for the other, so that the end being set carries the mark the dial mode gives the unit being set. The dash SHALL be drawn in comp.date-time-picker.range-field.label.typescale and comp.date-time-picker.separator.color and be hidden from assistive technology. THE date-time picker SHALL draw no word for start or for end. The start's range field SHALL be selected when the picker opens, and the wheels, the time display, the period and the dial SHALL show and set the pending time of the end whose range field is selected.",
+      "verify": "Which range field is selected is not a prop: the fixtures show the start's selected, and a unit test selects the end's and reads the two conditions' resolved tokens under the `acme` fixture system. A unit test reads the range display's width and the time section's in mode time (vertical and horizontal, wheels and dial) and in mode date-time, and finds them equal, the two fields equally wide."
+    },
+    {
+      "id": "DTM-16",
+      "text": "THE date-time picker SHALL use the clock that hourCycle names: WHILE it is h12 hours SHALL run from 1 to 12 with a period; WHILE it is h23 hours SHALL run from 00 to 23 with no period; WHILE it is locale THE date-time picker SHALL use the locale's preferred clock, taking a locale that counts 0 to 11 as h12 and one that counts 1 to 24 as h23. WHERE the platform reports that the person chose 12- or 24-hour time for the whole device, that choice SHALL win over the locale's while hourCycle is locale; a platform that does not report it uses the locale alone. Values SHALL be 24-hour in every cycle."
+    },
+    {
+      "id": "DTM-17",
+      "text": "THE date-time picker SHALL offer as minutes only the multiples of minuteStep from 00 up to 59: every minute for 1, and 00, 05 … 55 for 5, 00 … 50 for 10, 00, 15, 30, 45 for 15, and 00 and 30 for 30. WHEN minuteStep is not one of 1, 5, 10, 15 and 30 THE date-time picker SHALL behave as for 1 and in debug builds report the value."
+    },
+    {
+      "id": "DTM-18",
+      "text": "WHILE the wheels mode is shown THE date-time picker SHALL draw the hour wheel, the separator and the minute wheel, always in that order from left to right, comp.date-time-picker.wheel.gap apart: each wheel comp.date-time-picker.wheel.width wide and comp.date-time-picker.wheel.height tall, a column of rows comp.date-time-picker.wheel.row.height tall holding its values in order (the hours of the clock in use, written as the locale writes an hour of it; the minutes of DTM-17 with two digits; both in the locale's digits) centred in comp.date-time-picker.wheel.label.typescale, running on past its ends from the first value again, so that the pending value sits in the middle row. Behind the middle row of each wheel THE date-time picker SHALL draw that wheel's selection container, as wide as the wheel and one row tall, in comp.date-time-picker.wheel.selection.container.color with comp.date-time-picker.wheel.selection.container.shape corners eased by sys.shape.corner-smoothing, so that the hour and the minute each stand on a ground of their own with the separator between the two grounds, as the selectors of the dial mode's time display do (DTM-21); WHILE comp.date-time-picker.wheel.selection.span is joined it SHALL instead draw one such container behind the middle row of both wheels and the separator. The values on a selection container SHALL be drawn in comp.date-time-picker.wheel.selected-label.color and the others in comp.date-time-picker.wheel.label.color. With the 12-hour clock the period wheel stands beside them (DTM-46), with its own selection container or, WHILE the span is joined, on the same band, which then runs behind all three. The separator SHALL be the locale's, level with the middle row, in comp.date-time-picker.wheel.label.typescale and comp.date-time-picker.separator.color.",
+      "verify": "The default system is each. joined is observed under a fixture system that sets comp.date-time-picker.wheel.selection.span to 1; cupertino sets it."
+    },
+    {
+      "id": "DTM-19",
+      "text": "WHEN the user drags or scrolls a wheel THE date-time picker SHALL move its rows with the pointer, and WHEN the drag ends SHALL let a fling carry on and slow down, then settle the nearest row on the selection container — over comp.date-time-picker.motion.wheel-duration with comp.date-time-picker.motion.wheel-easing when the wheel is not already moving — and make that row's value the pending hour or minute once it has settled; WHEN the user presses a row above or below the selection container THE date-time picker SHALL settle that row on it the same way, and a press on the middle row that ends without a drag SHALL begin a typed entry (DTM-43). Moving a wheel SHALL NOT change the other wheel or the period, wrapping included (12 to 1 and 23 to 00 for hours, the last minute to 00). WHERE motion is reduced a wheel SHALL settle at once and a fling SHALL stop where the drag ends."
+    },
+    {
+      "id": "DTM-20",
+      "text": "THE date-time picker SHALL make the hour wheel and the minute wheel each one focusable adjustable control (a spin button) named hourLabel or minuteLabel (the period wheel's name and keys are DTM-47's), whose value is its value as drawn, with the period's name added to the hour's value while the 12-hour clock is used (\"7 AM\"): Up Arrow SHALL make its value the next one and Down Arrow the previous one, wrapping from the last value to the first and back without changing the other unit or the period, each moving the rows over comp.date-time-picker.motion.wheel-duration (at once where motion is reduced); WHILE minuteStep is 1 Page Up and Page Down SHALL move the minute by five; Home and End SHALL set the first and the last value; assistive technology's increment and decrement actions SHALL do what Up Arrow and Down Arrow do. The rows off the selection container SHALL be hidden from assistive technology. WHEN a wheel receives keyboard focus THE date-time picker SHALL show the focus ring around the wheel's selection container (around the wheel's part of it while the containers are joined), without animation; focus gained by pointer or touch SHALL NOT show it. Focus that a typed entry moves to the minute wheel (DTM-44) is keyboard focus, and a wheel that has focus becomes keyboard-focused WHEN a key or typed text works it — a digit, a key that moves it, a key that ends its entry — however focus first reached it. A digit typed while a wheel has focus SHALL begin a typed entry (DTM-43). A wheel SHALL draw no hover or press state: pressing a wheel starts a drag or, on its middle row, a typed entry."
+    },
+    {
+      "id": "DTM-21",
+      "text": "WHILE the dial mode is shown THE date-time picker SHALL draw the time display as the hour selector, the separator and the minute selector, comp.date-time-picker.selector.gap apart, always in that order from left to right: each selector a container at least comp.date-time-picker.selector.container.width wide and comp.date-time-picker.selector.container.height tall with comp.date-time-picker.selector.container.shape corners eased by sys.shape.corner-smoothing, in the container color of its condition with an outline of its condition's width and color (comp.date-time-picker.unselected.selector.container.color, comp.date-time-picker.unselected.selector.outline.width and comp.date-time-picker.unselected.selector.outline.color, and so on), holding its value centred in comp.date-time-picker.selector.label.typescale and its condition's label color; the hour SHALL be written as the locale writes an hour of the clock in use (\"7\" in en-US with h12, \"07\" with h23) and the minute with two digits, both in the locale's digits; the separator SHALL be the locale's, in comp.date-time-picker.separator.typescale and comp.date-time-picker.separator.color. The selector whose unit the dial shows SHALL be drawn from the selected condition and the other from unselected. With the 12-hour clock the period selector stands in the same row, after the minute or before the hour (DTM-14)."
+    },
+    {
+      "id": "DTM-22",
+      "text": "THE date-time picker SHALL make each selector a focusable adjustable control (a spin button) named hourLabel or minuteLabel, whose value is its text as drawn with the period's name added to the hour's in the 12-hour clock: Up Arrow and Right Arrow SHALL make its value the next one and Down Arrow and Left Arrow the previous one (the next and previous minute of DTM-17 for minutes), wrapping without changing the other unit or the period; WHILE minuteStep is 1 Page Up and Page Down SHALL move the minute by five; Home and End SHALL set the first and the last value; assistive technology's increment and decrement actions SHALL do what Up Arrow and Down Arrow do. WHEN a selector receives focus or is pressed THE date-time picker SHALL show its unit on the dial and draw it as selected. A digit typed on a keyboard while a selector has focus SHALL be read as a wheel's typed entry is (DTM-44, DTM-45) — the same values, the same rounding to minuteStep, the hour's entry moving focus to the minute selector — with what has been typed shown as the selector's text; the dial mode SHALL NOT raise an on-screen keyboard."
+    },
+    {
+      "id": "DTM-23",
+      "text": "WHILE the dial mode is shown THE date-time picker SHALL draw the dial as a circle of diameter comp.date-time-picker.dial.container.size in comp.date-time-picker.dial.container.color holding numbers at equal angles clockwise from the top: for hours with the 12-hour clock 12 at the top and 1 to 11; for hours with the 24-hour clock 00 at the top and 01 to 11 on the outer ring, and 12 at the top and 13 to 23 on an inner ring; for minutes 00 at the top and then every five minutes (05 to 55) while minuteStep is 1 or 5, and every step (10 to 50, 15 to 45, or 30) while it is larger; in the locale's digits, in comp.date-time-picker.dial.label.typescale and comp.date-time-picker.dial.label.color. The outer ring's numbers SHALL be centred on a circle whose radius is half comp.date-time-picker.dial.container.size less comp.date-time-picker.dial.padding less half comp.date-time-picker.dial.handle.size, and the inner ring's on a circle smaller by comp.date-time-picker.dial.handle.size. The dial SHALL run clockwise in every layout direction."
+    },
+    {
+      "id": "DTM-24",
+      "text": "THE date-time picker SHALL draw the handle as a circle of diameter comp.date-time-picker.dial.handle.size in comp.date-time-picker.dial.handle.color centred where the pending value lies on the dial (an hour at its number, on the inner ring for 12 to 23 in 24-hour; a minute on the outer ring at six degrees a minute), a line of comp.date-time-picker.dial.track.width in comp.date-time-picker.dial.track.color from the dial's centre to the handle's centre, and a dot of diameter comp.date-time-picker.dial.center.size in comp.date-time-picker.dial.track.color at the centre; the part of a number that lies under the handle SHALL be drawn in comp.date-time-picker.dial.selected-label.color, and WHILE the minute dial shows a minute that is not a multiple of five the handle SHALL hold a dot of diameter comp.date-time-picker.dial.center.size in comp.date-time-picker.dial.selected-label.color at its centre."
+    },
+    {
+      "id": "DTM-25",
+      "text": "WHEN the user presses or drags on the dial THE date-time picker SHALL move the handle, without animation, to the value whose angle from the dial's centre is nearest the pointer's (on the hour dial of the 24-hour clock, on the ring whose radius is nearer the pointer's distance from the centre; on the minute dial, to the nearest minute of DTM-17) and make it the pending hour or minute as it moves; WHEN a press or drag on the hour dial ends THE date-time picker SHALL show the minute dial, draw the minute selector as selected, and move focus to the minute selector if focus was on the hour selector. The dial SHALL be hidden from assistive technology, whose controls are the selectors (DTM-22)."
+    },
+    {
+      "id": "DTM-26",
+      "text": "WHEN the dial changes between hours and minutes THE date-time picker SHALL cross-fade its numbers and move the handle to the new unit's value over comp.date-time-picker.motion.dial-duration with comp.date-time-picker.motion.dial-easing, and WHEN the pending hour or minute changes by a key, a typed entry, an action of assistive technology or a range field it SHALL move the handle along the shorter arc over the same duration and easing; WHEN the entry-mode tabs switch between wheels and dial it SHALL cross-fade the two over the same duration and easing; WHERE motion is reduced it SHALL make these changes at once."
+    },
+    {
+      "id": "DTM-27",
+      "text": "WHILE a selector or a range field is hovered, keyboard-focused or pressed THE date-time picker SHALL render its container, label, outline and opacity from the selector tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. WHEN these colors change between states or conditions THE date-time picker SHALL animate them over comp.date-time-picker.motion.state-duration with comp.date-time-picker.motion.state-easing, and SHALL change them at once where motion is reduced.",
+      "verify": "Hovered, focused and pressed cannot be fixtures. Unit tests read the resolved tokens under the `acme` fixture system, which values the three states differently."
+    },
+    {
+      "id": "DTM-28",
+      "text": "WHEN a selector or a range field receives keyboard focus THE date-time picker SHALL show the focus ring around its container without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "DTM-29",
+      "text": "WHEN the date-time picker's selector or range field is pressed by pointer, touch, Enter or Space THE date-time picker SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "DTM-30",
+      "text": "WHILE pressed THE date-time picker's selector or range field SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, outline, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.date-time-picker.motion.feedback-duration with comp.date-time-picker.motion.state-easing, fades over comp.date-time-picker.motion.state-duration with comp.date-time-picker.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "DTM-31",
+      "text": "THE date-time picker's selector and range field and the wheels' selection containers SHALL ease their corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0), and its selector, range field and wheels SHALL show their keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "DTM-32",
+      "text": "WHERE a selector or a range field would be smaller than the minimum target THE date-time picker SHALL make it at least sys.target.touch in each dimension for touch input and sys.target.pointer for fine pointers, because the selectors, and the range fields, sit side by side and cannot extend their hit areas over each other; a platform that cannot tell the input type SHALL use sys.target.touch. A wheel's rows SHALL each be at least the same target tall."
+    },
+    {
+      "id": "DTM-33",
+      "text": "WHILE range is true and mode is time, WHEN the pending end is at or before the pending start THE date-time picker SHALL keep it as a time on the next day, add nextDayLabel after it in the end's range field (DTM-15) and commit it as it is. WHILE range is true, mode is date-time and the pending end is before the pending start THE date-time picker SHALL show rangeErrorText as the error line, in comp.date-time-picker.error.typescale and comp.date-time-picker.error.color, announce it once, politely, WHEN it appears, expose it as the description of the end's range field, and that field as invalid where the platform has that state for a button, and keep OK disabled; WHEN the end is no longer before the start it SHALL remove the line.",
+      "verify": "A pending choice cannot be a fixture: a unit test chooses 2026-09-10 as start and end, sets the start to 17:00 and the end to 09:00 (by the wheels, and again by typed entries), and reads the line, the announcement, the end's range field's description and OK."
+    },
+    {
+      "id": "DTM-34",
+      "text": "WHILE presentation is modal, or mode is time or date-time, THE date-time picker SHALL draw Cancel and OK as Tanrei Buttons of the medium size labelled cancelLabel and confirmLabel, in the variant comp.date-time-picker.actions.variant names, placed as a standard Button group places a dismissive and a confirming item (BGR-13 to BGR-19): Cancel at the start and OK at the end of a row, OK on top of a column, with focus and reading order following that order, comp.date-time-picker.actions.gap apart, with comp.date-time-picker.actions.padding-block above and below. WHILE comp.date-time-picker.actions.arrangement is fill they SHALL share the container's inner width equally, and WHILE it is end they SHALL keep their own widths, aligned to the end; either SHALL stack into a column WHEN a label does not fit its place on one line, deciding again when the width or the text size changes. THE date-time picker SHALL NOT change the Buttons' size or tokens; WHEN Cancel is activated it SHALL emit close with cancel.",
+      "verify": "The default system is fill and tonal. end and text are observed under a fixture system that sets comp.date-time-picker.actions.arrangement to 1 and comp.date-time-picker.actions.variant to 4; m3-like sets both."
+    },
+    {
+      "id": "DTM-35",
+      "text": "WHEN a modal picker opens THE date-time picker SHALL fade its scrim in and fade its container in while growing it about its centre from comp.date-time-picker.modal.motion.enter-scale of its size to its full size, over comp.date-time-picker.modal.motion.open-duration with comp.date-time-picker.modal.motion.open-easing, and WHEN it closes fade both out over comp.date-time-picker.modal.motion.close-duration with comp.date-time-picker.modal.motion.close-easing; WHEN a docked picker opens it SHALL fade its container in and grow it from the edge that faces the anchor over comp.date-time-picker.docked.motion.open-duration with comp.date-time-picker.docked.motion.open-easing, and WHEN it closes fade it out over comp.date-time-picker.docked.motion.close-duration with comp.date-time-picker.docked.motion.close-easing. WHERE motion is reduced a modal picker SHALL fade without growing and a docked one SHALL appear and disappear at once, and both SHALL appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's)."
+    },
+    {
+      "id": "DTM-36",
+      "text": "WHEN the parts of a modal picker do not fit in the window's height less the margins THE date-time picker SHALL keep the header and the actions in place and scroll the body and the error line between them, and WHEN the header and the actions alone leave no room it SHALL scroll all of its parts together; WHEN a docked picker is taller than the room left beside its anchor it SHALL limit its height to that room and scroll. WHERE the window is narrower than the picker's parts THE date-time picker SHALL be as wide as the window less the margins, let the calendar narrow as CAL-25 says, the entry-mode tabs scroll or truncate as tabs do and the range fields narrow equally, wrapping their text rather than cutting it, and never be wider than the window. Its wheels, selectors, period, range fields and dial numbers SHALL grow with enlarged text rather than clip it."
+    },
+    {
+      "id": "DTM-37",
+      "text": "THE date-time picker SHALL expose its surface as a dialog named by label — a modal dialog WHILE presentation is modal — its entry-mode tabs as a tab list with its panel (DTM-13), the period as a spin button of two values (DTM-47), the range display as a group named rangeLabel that holds its two range fields as buttons (DTM-42), each wheel and each selector as a spin button (DTM-20, DTM-22) that stays one while a number is typed into it (DTM-43), the error line as the description of the end's range field while it is shown, and Cancel and OK by their labels; the dial, its numbers and the handle SHALL be hidden from assistive technology. A docked picker SHALL expose, on the element a person presses to open it, that it opens a dialog and whether it is open, where the platform has that property: that element is its anchor unless the platform takes a separate opener, as a Text field anchors the picker and its trailing button opens it."
+    },
+    {
+      "id": "DTM-38",
+      "text": "THE date-time picker SHALL take month, weekday and period names, digits, date and time forms, the separator between hours and minutes, the first day of the week and the preferred clock from locale, or from the platform's current locale while locale is empty. Every date SHALL be a Gregorian calendar date and every time a time of day, without a time zone."
+    },
+    {
+      "id": "DTM-39",
+      "text": "WHEN the layout direction is right-to-left THE date-time picker SHALL mirror its layout — the title row (the label at the right, the entry-mode tabs at the left, the wheels' tab still first), the columns of the horizontal layout, the side of the time the period stands on (after the minute is at the left of the time, before the hour at its right, DTM-14), the range display (the start's range field at the right of the dash and the end's at its left, each time an isolated run written as the locale writes it, as the header's range is, DTM-10) and the actions — and SHALL NOT mirror the order of the hour, the separator and the minute in the wheels and the time display, which is written left to right as a time is, nor the dial, which runs clockwise, nor the arrow keys of an hour or minute selector (DTM-22), where Right Arrow is the next value in every layout direction, nor those of the period (DTM-47), nor the period wheel, whose two names are one above the other, nor the order in which typed digits are read (DTM-44)."
+    },
+    {
+      "id": "DTM-40",
+      "text": "WHEN presentation, mode, hourCycle, entryMode, unit, layout, startView or firstDayOfWeek names a value the date-time picker does not define THE date-time picker SHALL behave as its default value and in debug builds report the unknown value; WHEN value, start or end is not empty and not in the mode's form, value is set while range is true or start or end while it is false, a date-time end is before its start, or min, max, today or an entry of disabledDates is not an ISO 8601 calendar date THE date-time picker SHALL ignore it and in debug builds report it; WHEN min is later than max THE date-time picker SHALL ignore both and report it in debug builds."
+    },
+    {
+      "id": "DTM-41",
+      "text": "THE date-time picker SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the date-time picker is shown THE date-time picker SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state, the pending choice and its focus, a docked container placed again by the new direction (DTM-2).",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "DTM-42",
+      "text": "WHEN the user activates a range field that is not selected by pointer, touch, Enter or Space THE date-time picker SHALL make it the selected one, show its end's pending time in the wheels, the time display, the period and the dial (moving them as DTM-26 says, the dial keeping the unit it shows), end a typed entry first (DTM-45) and keep focus where it is; WHEN the selected range field is activated THE date-time picker SHALL change nothing. Each range field SHALL be a Tab stop of its own, the start's before the end's, and focus alone SHALL NOT select one, so that Tab passes the end's range field on its way to the wheels without changing which end they set. THE date-time picker SHALL expose each range field as a button named startLabel or endLabel followed by its time as drawn (\"Start, 9:00 AM\"; \"End, 6:00 AM next day\"), with its selected state (the pressed state of a toggle button where a button has no selected state, as on the web). Selecting a range field SHALL change no pending time and emit nothing.",
+      "verify": "A unit test opens a time range, activates the end's range field by pointer and by Enter, and reads the wheels' values, the two fields' selected states and their accessible names; it tabs from the start's field to the hour wheel and finds the start still selected."
+    },
+    {
+      "id": "DTM-43",
+      "text": "WHILE the wheels mode is shown, WHEN the user presses the middle row of the hour wheel or the minute wheel and releases without dragging past the platform's touch slop (8 points where the platform names none), or types a digit while that wheel has focus, THE date-time picker SHALL begin a typed entry on that wheel: it SHALL give the wheel focus, ask the platform for its number keyboard where an on-screen keyboard is in use, keep the wheel a spin button for assistive technology, and for as long as the entry lasts draw the wheel's selection container, the value on it and its outline from the selected selector's tokens (comp.date-time-picker.selected.selector.container.color, comp.date-time-picker.selected.selector.label.color, comp.date-time-picker.selected.selector.outline.color and comp.date-time-picker.selected.selector.outline.width) — on the wheel's own part of the container while comp.date-time-picker.wheel.selection.span is joined — so that the unit being typed carries the mark the dial mode gives the unit being set, changing between the two looks as DTM-27 says. A press that begins an entry SHALL leave the wheel's value shown, as the text the first digit replaces; the rows above and below SHALL stay, and a press on one of them SHALL still settle it (DTM-19). Focus that reaches a wheel by Tab, or WHEN the picker opens (DTM-3), SHALL NOT begin an entry or raise the on-screen keyboard, and a modal picker SHALL stay clear of the on-screen keyboard as DTM-1 says.",
+      "verify": "A typed entry cannot be a fixture. Unit tests press the hour wheel's middle row and read the focused element, its input mode and its role; they drag from the middle row and find no entry begun."
+    },
+    {
+      "id": "DTM-44",
+      "text": "WHILE a wheel takes a typed entry THE date-time picker SHALL read digits, ASCII or the locale's, and show what has been typed on the wheel's middle row in place of its value. The first digit SHALL replace the value. A second digit SHALL join the first WHERE the two make a value of the unit — an hour of the clock in use (1 to 12 with the 12-hour clock, 0 to 23 with the 24-hour clock), or a minute from 0 to 59 — and WHERE they do not, which only an hour can meet, the hour's entry SHALL end with the first digit and the second SHALL begin the minute's, so that 1 3 0 types half past one in the 12-hour clock. THE date-time picker SHALL end an entry, keeping what it read (DTM-45), WHEN it has two digits or one digit that no second digit could join (2 to 9 for the 12-hour hour, 3 to 9 for the 24-hour hour, 6 to 9 for the minute); an hour's entry that ends by its digits SHALL move focus to the minute wheel, where the next digit begins an entry, so that 7 3 0 and 0 7 3 0 both type half past seven. WHEN the locale's separator between hours and minutes, a colon, a full stop or a space is typed on the hour wheel THE date-time picker SHALL end the hour's entry and move focus to the minute wheel the same way. Backspace SHALL remove the last digit typed. Every other character SHALL be ignored, text that is pasted SHALL be read as its characters typed in order, and a typed entry SHALL never change the period (DTM-14).",
+      "verify": "Unit tests type 7 3 0, 0 7 3 0, 1 3 0 and 1 2 : 0 5 on the hour wheel with the 12-hour clock, and 1 3 0, 2 3 5 9 and 9 4 5 with the 24-hour clock, and read the pending time after each; they type Arabic-Indic digits under locale ar-EG."
+    },
+    {
+      "id": "DTM-45",
+      "text": "WHEN a typed entry ends — by its digits (DTM-44), by Enter or the keyboard's action key, by Tab or focus leaving the wheel, by the on-screen keyboard being dismissed, by a press elsewhere in the picker, or by the wheel being dragged or scrolled — THE date-time picker SHALL make what it read the wheel's pending value WHERE it is a value of the unit, rounding a minute down to a multiple of minuteStep as DTM-8 does (a typed 50 is 45 with a step of 15) and taking an hour of the 12-hour clock in the pending period, and SHALL keep the value the wheel had WHERE nothing was typed or what was typed is not a value of the unit (0 alone for the 12-hour hour). It SHALL then show the pending value on the middle row, moving the rows to it over comp.date-time-picker.motion.wheel-duration with comp.date-time-picker.motion.wheel-easing (at once where motion is reduced), draw the selection container as it was before the entry, and expose the spin button's new value to assistive technology. WHEN Escape is pressed during a typed entry THE date-time picker SHALL end it, keep the value the wheel had and stay open, the press closing nothing (DTM-5); Enter SHALL end the entry without activating OK. WHILE an entry lasts Up Arrow, Down Arrow, Page Up, Page Down, Home and End SHALL first end it, keeping what it read, and then act as DTM-20 says. A typed entry SHALL be checked against nothing else: min and max bound dates and never times; a range's end at or before its start is answered as DTM-33 says, whichever way it was set; and the time is committed by OK alone (DTM-6), so that a typed entry emits nothing.",
+      "verify": "Unit tests type 5 0 on the minute wheel with minuteStep 15 and read 45; type 0 and Enter on the 12-hour hour and read the hour unchanged and the picker open; press Escape during an entry and read the value before it and no close; press Escape again and read close with escape."
+    },
+    {
+      "id": "DTM-46",
+      "text": "WHILE the wheels mode is shown and the 12-hour clock is used THE date-time picker SHALL draw the period wheel beside the hour and minute wheels, at the side DTM-14 names and comp.date-time-picker.period.gap from them: a wheel at least comp.date-time-picker.period.container.width wide and as tall as the others, with rows of comp.date-time-picker.wheel.row.height holding the two names of the period as the locale writes them, the one before noon above the one after, centred in comp.date-time-picker.period.label.typescale, and not running on past its ends, so that the pending period sits in the middle row and the other in the row above or below it. It SHALL draw its selection container behind its middle row as the other wheels do (DTM-18), its own or its part of the joined band, with the name on it in comp.date-time-picker.wheel.selected-label.color and the other in comp.date-time-picker.wheel.label.color. THE period wheel SHALL be dragged, scrolled and settled as a wheel is (DTM-19), stopping at its first and its last name: WHEN it settles on the other name THE date-time picker SHALL make that period the pending period and keep the hour's number; a press on the other name's row SHALL settle it; and a press on the middle row that ends without a drag SHALL settle the other name too, because a period is not typed and begins no typed entry (DTM-43). It SHALL draw no hover or press state, as a wheel draws none (DTM-20).",
+      "verify": "Unit tests press the row above the period wheel's middle row at 19:30 and read 07:30; drag it past its last name and find it stopped there; press its middle row and read the other period; read that no input mode is asked for and no entry begins. cupertino's joined band is read behind all three wheels."
+    },
+    {
+      "id": "DTM-47",
+      "text": "THE date-time picker SHALL make the period — the period wheel or the period selector — one focusable adjustable control (a spin button) named periodLabel, whose value is the name of the pending period as drawn and which has two values, the one before noon first: Up Arrow and Down Arrow, and on the period selector Right Arrow and Left Arrow too, SHALL make the other period the pending period, in every layout direction; Home SHALL set the period before noon and End the one after; Enter and Space SHALL do what Up Arrow does; assistive technology's increment and decrement actions SHALL do what Up Arrow and Down Arrow do. The period SHALL be one Tab stop, where it is drawn: after the minute's, or before the hour's where it stands before the hour. WHEN it receives keyboard focus THE date-time picker SHALL show the focus ring around the period selector (DTM-28) or around the period wheel's selection container (DTM-20); taking focus SHALL change neither the period, the unit the dial shows nor which selector is selected, and WHEN the picker opens focus SHALL still go to the hour (DTM-3), wherever the period stands. A change of the period, however it is made, SHALL keep the hour's number and the minute, leave the dial's handle where it is, change the value the hour's spin button exposes (\"7 PM\"), set the end whose range field is selected in a range (DTM-15), and commit nothing by itself (DTM-6). A digit or a letter typed while the period has focus SHALL be ignored.",
+      "verify": "Unit tests focus the period in each mode and read its role, name and value; press Down Arrow, Home and End and read the pending time and the hour's exposed value after each; tab from the hour through the minute to the period, and under locale ja-JP from the period to the hour; open a 12-hour picker in mode time and find focus on the hour."
+    },
+    {
+      "id": "DTM-48",
+      "text": "THE date-time picker SHALL have no words of its own: it SHALL take dateLabel, startLabel, endLabel, confirmLabel, cancelLabel, previousMonthLabel, nextMonthLabel, yearViewLabel, todayLabel, hourLabel, minuteLabel, wheelsLabel, dialLabel, entryModeLabel, periodLabel, rangeLabel, nextDayLabel and rangeErrorText from the instance's prop and, WHILE that is empty, from the product's words of the same name; WHILE neither gives hourLabel, minuteLabel, periodLabel or todayLabel it SHALL take that word from the platform's locale data WHERE the platform has the locale's own name for the hour, the minute, the day period or the present day; label SHALL be the instance's alone; and it SHALL take no other word from anywhere. IF a word that is drawn is given by none of them THE date-time picker SHALL draw in its place a mark without words where one says the same — the glyph close for cancelLabel and the glyph check for confirmLabel, each in an icon-only Button of the same variant and size in the same place, and +1 in the locale's digits for nextDayLabel — and otherwise SHALL draw nothing and keep the place's height: the header's place for a date not chosen, the error line of DTM-33, whose other answers stand, and the title's words WHILE label is empty. IF a control or a group has no accessible name THE date-time picker SHALL still draw it and keep it working. In debug builds it SHALL report each missing word once, naming the prop.",
+      "verify": "Unit, with no product's words set: a modal time picker without the props draws two icon-only Buttons (close, check) that cancel and confirm, an overnight range draws \"+1\" after the end's time, and the reports name each prop once. With the product's words set every word is drawn and exposed; an instance's own prop wins. No test finds an English word the test did not give, except the locale's own names under an English locale."
+    }
+  ],
+  "accessibility": {
+    "role": "dialog",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Modal: moves through the entry-mode tabs, the calendar (its view toggle, its navigation buttons and its active day), the two range fields, the hour, the minute and the period (the period first where the locale writes it first), and Cancel and OK, in reading order, wrapping; focus never leaves. Docked: the same without wrapping; leaving the picker closes it (reason tab)."
+      },
+      {
+        "keys": "Arrow keys in the calendar",
+        "action": "As the calendar: by day or week, changing the month as needed (CAL-11)."
+      },
+      {
+        "keys": "Left / Right Arrow on the entry-mode tabs",
+        "action": "Select the other tab: the other entry mode."
+      },
+      {
+        "keys": "Enter or Space on a range field",
+        "action": "Makes the wheels or the dial set that end of the range. Focus alone does not."
+      },
+      {
+        "keys": "Up / Down Arrow on a wheel or a selector",
+        "action": "The next or previous value, wrapping without changing the other unit or the period."
+      },
+      {
+        "keys": "Up / Down Arrow, Enter or Space on the period",
+        "action": "The other period (AM or PM), keeping the hour's number. Home is before noon, End after noon; on the dial mode's period selector Left and Right Arrow do the same as Up and Down."
+      },
+      {
+        "keys": "Digits on a wheel or a selector",
+        "action": "Type the hour or the minute; a finished hour moves on to the minute, and the hour-and-minute separator does too. Backspace removes the last digit."
+      },
+      {
+        "keys": "Page Up / Page Down on the minute wheel or selector",
+        "action": "Five minutes later or earlier, while minuteStep is 1."
+      },
+      {
+        "keys": "Home / End on a wheel or a selector",
+        "action": "The first or last value of its unit."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Choose the active day; activate the focused button or tab; change the period on the period; end a typed entry, keeping it."
+      },
+      {
+        "keys": "Escape",
+        "action": "During a typed entry, ends it and keeps the value before it. Otherwise closes the picker without committing (reason escape) and returns focus to where it was."
+      }
+    ],
+    "labeling": "The surface is a dialog named by label. The calendar, the tabs and the Buttons label themselves from the words the picker gives them: the calendar's days by their full dates, the entry-mode tabs by wheelsLabel and dialLabel, which are their names though they draw glyphs alone, in a row named entryModeLabel. The range display is a group named rangeLabel whose two range fields are buttons named startLabel and endLabel with their times, each exposing whether it is the one being set; no word for start or end is drawn, so these names are what tells assistive technology which is which. The hour and minute wheels and selectors are spin buttons named by hourLabel and minuteLabel, whose values are read as drawn (the hour with its period in a 12-hour clock), and they stay spin buttons while a number is typed into them. The period is a third spin button beside them, named periodLabel, whose value is the locale's name for before or after noon. The dial is a pointer surface hidden from assistive technology: everything it does, the selectors do too.",
+    "minimumTarget": true,
+    "notes": [
+      "The selectors, the period selector and the range fields are at least the minimum target in both dimensions and a wheel's rows at least the target's height (DTM-32); the dial is larger than the target. The calendar's cells, the tabs and the Buttons meet the target themselves (CAL-1, TAB-5, BTN-5).",
+      "Focus: a modal picker is a modal overlay — it keeps focus in and draws a scrim. A docked picker is an operated overlay that is not modal: it takes focus and returns it to its anchor, but Tab leaves it and closes it.",
+      "Typing a whole date or time is still the Text field's job (a trailing icon-only Button opens this picker), with its own reading rules for a date in the locale's order. Here a wheel takes only its own number: a press on its chosen value, or a digit on a keyboard, types the hour or the minute (DTM-43 to DTM-45), so a person who types reaches a time in three or four keys, and a person who does not still reaches every value by the arrow keys, by dragging and by assistive technology's increment and decrement.",
+      "The two ends of a range are not tabs: tabs say one of several views, and the two ends are two values that are both always shown. They are two buttons in a named group, each read with its name, its time and whether it is the one being set (\"Start, 9:00 AM, selected\"). The dash between them is decoration and is hidden; the names carry what the dash and the order show.",
+      "The entry-mode tabs draw glyphs alone. Their accessible names are wheelsLabel and dialLabel, so a screen reader reads \"Wheels, tab, 1 of 2\"; both words are the product's.",
+      "Escape ends a typed entry before it closes the picker, as it ends any edit inside a dialog first: one press never both discards a number and dismisses the surface.",
+      "The period is not tabs: tabs say that what is below them is one of several views, and AM or PM is a part of one value. It is exposed as the third field of a time, as the AM/PM field of a native time input is: a spin button of two values named periodLabel (\"Period, PM\"), which Up and Down Arrow, a press, and assistive technology's increment and decrement change. The hour's own value repeats the period (\"7 PM\"), so a person who never reaches the period control still hears which half of the day is set.",
+      "The dial mode's period selector shows the pending period alone and changes to the other when pressed. It is one target the height of the selectors: two names stacked in that height would be two targets shorter than the minimum, each over the other's edge (DTM-32). In the wheels mode both names are in view, as every value of a wheel's neighbourhood is.",
+      "The picker has no words of its own. Month, weekday and period names, digits and date and time forms are the platform's locale data, in the locale the picker was given. Every other word it shows or announces is the product's: a prop of this instance, or the product's words set once. Its name, label, is this instance's alone.",
+      "The web exposes each wheel and selector with role spinbutton, aria-valuenow, aria-valuemin, aria-valuemax and aria-valuetext, a wheel on an input whose inputmode is numeric so that a touch keyboard is the number pad, and each range field as a button with aria-pressed in a role group; SwiftUI with the adjustable trait (accessibilityAdjustableAction) and a number-pad text field for an entry; Compose with progressBarRangeInfo and setProgress semantics and KeyboardType.Number; Flutter with Semantics increasedValue, decreasedValue, onIncrease and onDecrease and TextInputType.number; React Native with the adjustable role, the increment and decrement actions and a number-pad TextInput.",
+      "Text size: at 200% the wheels, the selectors and the dial's numbers grow; a modal picker scrolls between its header and its actions when the window is short (DTM-36), and the horizontal layout keeps a phone held sideways usable.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.date-time-picker",
+  "fixtures": [
+    {
+      "id": "modal-date",
+      "props": {
+        "open": true,
+        "mode": "date",
+        "value": "2026-09-17",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "label": "Select date",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-date-empty",
+      "props": {
+        "open": true,
+        "mode": "date",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "label": "Select date",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-date-range",
+      "props": {
+        "open": true,
+        "mode": "date",
+        "range": true,
+        "start": "2026-09-10",
+        "end": "2026-09-16",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "label": "Select dates",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-date-range-start",
+      "props": {
+        "open": true,
+        "mode": "date",
+        "range": true,
+        "start": "2026-09-10",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "label": "Select dates",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-date-year",
+      "props": {
+        "open": true,
+        "mode": "date",
+        "startView": "year",
+        "value": "2026-09-17",
+        "today": "2027-01-15",
+        "locale": "en-US",
+        "label": "Select date",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "value": "07:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-24h",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "value": "19:30",
+        "hourCycle": "h23",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-ja",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "value": "07:30",
+        "hourCycle": "h12",
+        "locale": "ja-JP",
+        "label": "時刻を選択",
+        "hourLabel": "時",
+        "minuteLabel": "分",
+        "periodLabel": "午前/午後",
+        "wheelsLabel": "ホイール",
+        "dialLabel": "ダイヤル",
+        "entryModeLabel": "時刻の入力方法",
+        "confirmLabel": "OK",
+        "cancelLabel": "キャンセル"
+      }
+    },
+    {
+      "id": "modal-time-step",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "value": "07:45",
+        "hourCycle": "h12",
+        "minuteStep": 15,
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-dial",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "entryMode": "dial",
+        "value": "07:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-dial-minute",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "entryMode": "dial",
+        "unit": "minute",
+        "value": "19:45",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-dial-minute-between",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "entryMode": "dial",
+        "unit": "minute",
+        "value": "07:32",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-dial-step",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "entryMode": "dial",
+        "unit": "minute",
+        "value": "07:20",
+        "hourCycle": "h12",
+        "minuteStep": 10,
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-dial-24h",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "entryMode": "dial",
+        "value": "19:30",
+        "hourCycle": "h23",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-dial-ja",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "entryMode": "dial",
+        "value": "19:30",
+        "hourCycle": "h12",
+        "locale": "ja-JP",
+        "label": "時刻を選択",
+        "hourLabel": "時",
+        "minuteLabel": "分",
+        "periodLabel": "午前/午後",
+        "wheelsLabel": "ホイール",
+        "dialLabel": "ダイヤル",
+        "entryModeLabel": "時刻の入力方法",
+        "confirmLabel": "OK",
+        "cancelLabel": "キャンセル"
+      }
+    },
+    {
+      "id": "modal-time-dial-rtl",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "entryMode": "dial",
+        "value": "19:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "modal-time-range",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "range": true,
+        "start": "09:00",
+        "end": "17:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select times",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "rangeLabel": "Range",
+        "nextDayLabel": "next day",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-range-overnight",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "range": true,
+        "start": "22:00",
+        "end": "06:00",
+        "hourCycle": "h23",
+        "locale": "en-US",
+        "label": "Select times",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "rangeLabel": "Range",
+        "nextDayLabel": "next day",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-range-dial",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "range": true,
+        "entryMode": "dial",
+        "start": "09:00",
+        "end": "17:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select times",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "rangeLabel": "Range",
+        "nextDayLabel": "next day",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-range-dial-horizontal",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "range": true,
+        "entryMode": "dial",
+        "layout": "horizontal",
+        "start": "09:00",
+        "end": "17:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select times",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "rangeLabel": "Range",
+        "nextDayLabel": "next day",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-range-rtl",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "range": true,
+        "start": "09:00",
+        "end": "17:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select times",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "rangeLabel": "Range",
+        "nextDayLabel": "next day",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "modal-time-horizontal",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "entryMode": "dial",
+        "layout": "horizontal",
+        "value": "07:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-time-wheels-horizontal",
+      "props": {
+        "open": true,
+        "mode": "time",
+        "layout": "horizontal",
+        "value": "07:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-date-time",
+      "props": {
+        "open": true,
+        "mode": "date-time",
+        "layout": "horizontal",
+        "value": "2026-09-17T19:30",
+        "hourCycle": "h12",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "label": "Select date and time",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "modal-date-time-range",
+      "props": {
+        "open": true,
+        "mode": "date-time",
+        "range": true,
+        "layout": "horizontal",
+        "start": "2026-09-10T09:00",
+        "end": "2026-09-16T17:00",
+        "hourCycle": "h12",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "label": "Select dates and times",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "rangeLabel": "Range",
+        "rangeErrorText": "End must be after start",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "docked-date",
+      "props": {
+        "open": true,
+        "presentation": "docked",
+        "mode": "date",
+        "value": "2026-09-17",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "label": "Select date",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today"
+      }
+    },
+    {
+      "id": "docked-date-range",
+      "props": {
+        "open": true,
+        "presentation": "docked",
+        "mode": "date",
+        "range": true,
+        "start": "2026-09-10",
+        "end": "2026-09-16",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "label": "Select dates",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "startLabel": "Start",
+        "endLabel": "End"
+      }
+    },
+    {
+      "id": "docked-time",
+      "props": {
+        "open": true,
+        "presentation": "docked",
+        "mode": "time",
+        "value": "07:30",
+        "hourCycle": "h12",
+        "locale": "en-US",
+        "label": "Select time",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    },
+    {
+      "id": "docked-date-time",
+      "props": {
+        "open": true,
+        "presentation": "docked",
+        "mode": "date-time",
+        "layout": "horizontal",
+        "value": "2026-09-17T19:30",
+        "hourCycle": "h12",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "label": "Select date and time",
+        "dateLabel": "Date",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "hourLabel": "Hour",
+        "minuteLabel": "Minute",
+        "periodLabel": "Period",
+        "wheelsLabel": "Wheels",
+        "dialLabel": "Dial",
+        "entryModeLabel": "Time input",
+        "confirmLabel": "OK",
+        "cancelLabel": "Cancel"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-date-time-picker",
+      "props": {
+        "open": "open",
+        "presentation": "presentation",
+        "mode": "mode",
+        "range": "range",
+        "value": "value",
+        "start": "start",
+        "end": "end",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "today": "today",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showAdjacentDays",
+        "hourCycle": "hourCycle",
+        "minuteStep": "minuteStep",
+        "entryMode": "entryMode",
+        "unit": "unit",
+        "layout": "layout",
+        "label": "label",
+        "dateLabel": "dateLabel",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "confirmLabel": "confirmLabel",
+        "cancelLabel": "cancelLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel",
+        "hourLabel": "hourLabel",
+        "minuteLabel": "minuteLabel",
+        "wheelsLabel": "wheelsLabel",
+        "dialLabel": "dialLabel",
+        "entryModeLabel": "entryModeLabel",
+        "periodLabel": "periodLabel",
+        "rangeLabel": "rangeLabel",
+        "nextDayLabel": "nextDayLabel",
+        "rangeErrorText": "rangeErrorText"
+      },
+      "events": {
+        "change": "change",
+        "close": "close"
+      },
+      "notes": "Attributes are kebab-case (`disabled-dates` is a space-separated list of ISO dates, `first-day-of-week`, `start-view`, `show-adjacent-days`, `hour-cycle`, `minute-step`, `entry-mode`, `wheels-label`, …); `isDateDisabled` is a property only. `entryMode` is not HTML's global `inputmode`. `value`, `start` and `end` are the strings of `<input type=date>`, `type=time` and `type=datetime-local`, set before `change` fires; `close` is a CustomEvent whose `detail.reason` is the reason. A modal picker is a native `<dialog>` opened with `showModal()` in the shadow root, with `::backdrop` as the scrim; its `cancel` becomes close with `escape` when an Escape key caused it, and with `back` otherwise. A docked picker takes `anchor` and `opener` (element ids), sets `aria-haspopup=\"dialog\"`, `aria-controls` and `aria-expanded` on the opener, and is a manual popover in the top layer with its own light dismiss so that close carries its reason. Inside the shadow root: a `<tanrei-calendar>`; one `<tanrei-tabs variant=\"secondary\">` row, the entry-mode tabs, which hugs and whose two `<tanrei-tab>`s are `label-hidden` with `icon=\"keyboard\"` and `icon=\"schedule\"`, and whose panel is the time section; the period as an element with role spinbutton (`aria-valuemin=\"1\"`, `aria-valuemax=\"2\"`, `aria-valuenow` and the period's name as `aria-valuetext`), `part=\"period\"` — a third wheel of two rows that does not loop in the wheels mode, a button-like cell in the time display in the dial mode — placed before the hour when `formatToParts` gives the `dayPeriod` part before the `hour` part; the range display as a `role=\"group\"` with two `<button part=\"range-field\" aria-pressed>` and an `aria-hidden` dash, in a grid with two equal columns that fills the time section's inline size (and both columns of the horizontal layout of mode time); wheels and selectors as elements with role spinbutton, a wheel's middle row being an `<input inputmode=\"numeric\" role=\"spinbutton\">` that is read-only until a typed entry begins (a tap that ends without a drag, or a digit key), so that a drag raises no keyboard; the dial drawn with pointer events and `aria-hidden`; Cancel and OK as `<tanrei-button>`s placed by the button group's placement code, with the variant read from the resolved comp.date-time-picker.actions.variant. The entry modes offered are read from the resolved comp.date-time-picker.time.entry-modes once per system. Locale data from `Intl.DateTimeFormat` (`formatToParts` with `hour12` for the period names and the separator; `resolvedOptions().hourCycle` for the preferred clock); without `locale` it reads the nearest `lang` attribute, then `navigator.language`. It uses the package's locale helpers, overlay placement and dial (`clock.ts`). The `inline` attribute, for tests, draws the open surface in place (DTM-1's verify). Words: the element has no words of its own. A words attribute (`confirm-label`, `cancel-label`, `hour-label` and the others) left empty read the product's words, set once with `setWords()` from `@tanrei/web`; the element draws again when they change. Where neither the instance nor the product gives them, the hour's, the minute's and the period's names are `Intl.DisplayNames(locale, { type: 'dateTimeField' })` (`hour`, `minute`, `dayPeriod`) and the present day's word is `Intl.RelativeTimeFormat`'s for day 0."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "tanreiDateTimePicker",
+      "props": {
+        "open": "isPresented",
+        "presentation": "presentation",
+        "mode": "mode",
+        "range": "range",
+        "value": "selection",
+        "start": "range",
+        "end": "range",
+        "min": "minDate",
+        "max": "maxDate",
+        "disabledDates": "disabledDates",
+        "today": "today",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showsAdjacentDays",
+        "hourCycle": "hourCycle",
+        "minuteStep": "minuteStep",
+        "entryMode": "entryMode",
+        "unit": "unit",
+        "layout": "layout",
+        "label": "label",
+        "dateLabel": "dateLabel",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "confirmLabel": "confirmLabel",
+        "cancelLabel": "cancelLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel",
+        "hourLabel": "hourLabel",
+        "minuteLabel": "minuteLabel",
+        "wheelsLabel": "wheelsLabel",
+        "dialLabel": "dialLabel",
+        "entryModeLabel": "entryModeLabel",
+        "periodLabel": "periodLabel",
+        "rangeLabel": "rangeLabel",
+        "nextDayLabel": "nextDayLabel",
+        "rangeErrorText": "rangeErrorText"
+      },
+      "events": {
+        "change": "selection",
+        "close": "onClose"
+      },
+      "notes": "Planned. A view modifier, as `.sheet` and `.popover` are: `.tanreiDateTimePicker(isPresented:, selection: Binding<DateComponents?>, mode:, presentation:, …)` for one value and `.tanreiDateTimePicker(isPresented:, range: Binding<TanreiDateTimeRange>, mode:, …)` for a span, where `TanreiDateTimeRange` holds `start` and `end` as `DateComponents?`; the overload is range, and `mode` chooses which components are read and written (year, month and day; hour and minute; or both), so no time zone enters. Writing the binding is change; the picker writes false to `isPresented` itself and calls `onClose` with the reason. The words are fields of a `TanreiDateTimePickerLabels` passed as `labels:`, whose field names are the spec's. `locale` defaults to the `\\.locale` environment; the preferred clock comes from `DateFormatter.dateFormat(fromTemplate: \"j\", …)`. Modal: `.fullScreenCover` with a clear background and the system transition off, as the dialog. Docked: drawn in its anchor's overlay and placed by Tanrei. The calendar is `TanreiCalendar`, the entry-mode tabs `TanreiTabs` (each with a glyph and `labelStyle: .iconOnly`), the period one view with `.accessibilityAdjustableAction` and `.accessibilityValue` (a third wheel in the wheels mode, a pressable cell in the dial mode), the range fields two `Button`s with the `.isSelected` trait in an accessibility container, a typed entry a hidden `TextField` with `.keyboardType(.numberPad)` on iOS and `.onKeyPress` for digits elsewhere, the actions `TanreiButton`s; the wheels are Tanrei's own (a scroll view with `.scrollTargetBehavior(.viewAligned)` per wheel) with `.accessibilityAdjustableAction`, not the system's wheel picker, whose look no token reaches. Snapshot harness: `TanreiDateTimePickerSurface` drawn in place on the fixture's stage. The product's words are read from the `\\.tanreiWords` environment value."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiDateTimePicker",
+      "props": {
+        "open": "visible",
+        "presentation": "presentation",
+        "mode": "mode",
+        "range": "range",
+        "value": "value",
+        "start": "start",
+        "end": "end",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "today": "today",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showAdjacentDays",
+        "hourCycle": "hourCycle",
+        "minuteStep": "minuteStep",
+        "entryMode": "entryMode",
+        "unit": "unit",
+        "layout": "layout",
+        "label": "label",
+        "dateLabel": "dateLabel",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "confirmLabel": "confirmLabel",
+        "cancelLabel": "cancelLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel",
+        "hourLabel": "hourLabel",
+        "minuteLabel": "minuteLabel",
+        "wheelsLabel": "wheelsLabel",
+        "dialLabel": "dialLabel",
+        "entryModeLabel": "entryModeLabel",
+        "periodLabel": "periodLabel",
+        "rangeLabel": "rangeLabel",
+        "nextDayLabel": "nextDayLabel",
+        "rangeErrorText": "rangeErrorText"
+      },
+      "events": {
+        "change": "onChange",
+        "close": "onClose"
+      },
+      "notes": "Planned. `TanreiDateTimePicker(visible, onClose, presentation, mode, range, value, start, end, onChange, min, max, disabledDates, isDateDisabled, today, firstDayOfWeek, locale, startView, showAdjacentDays, hourCycle, minuteStep, entryMode, unit, layout, labels)`. Values are `TanreiDateTime(date: TanreiDate?, time: TanreiTime?)`, of which `mode` says which half is read (API 23 has no `java.time`); `onChange` receives a `TanreiDateTimeSelection(value, start, end)`; the caller keeps the state (hoisting) and sets `visible` to false from `onClose`, which carries the reason. The words, `label` among them, are fields of a `TanreiDateTimePickerLabels`. Modal: a `Dialog` window with the platform width and dim off, as `TanreiDialog`. Docked: a `Popup` inside the anchor's `Box`, as `TanreiMenu`. The calendar is `TanreiCalendar`, the entry-mode tabs `TanreiTabs` (icon-only), the period one node with `progressBarRangeInfo` over two steps, `stateDescription` for its name and `setProgress` (a third wheel in the wheels mode, a clickable cell in the dial mode), the range fields two boxes with `Role.Button` and `selected` semantics, a typed entry a `BasicTextField` with `KeyboardType.Number` behind the wheel's middle row and `onPreviewKeyEvent` for digits, the actions `TanreiButton`s; each wheel is a `LazyColumn` with snapping fling and `progressBarRangeInfo` / `setProgress` semantics; the dial is `pointerInput` with `clearAndSetSemantics {}`. Snapshot harness: `TanreiDateTimePickerContent` drawn in place on the fixture's stage. The product's words are read from `LocalTanreiWords`."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiDateTimePicker",
+      "props": {
+        "open": "showTanreiDateTimePicker",
+        "presentation": "TanreiDateTimePickerAnchor",
+        "mode": "mode",
+        "range": "range",
+        "value": "value",
+        "start": "start",
+        "end": "end",
+        "min": "firstDate",
+        "max": "lastDate",
+        "disabledDates": "disabledDates",
+        "today": "currentDate",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showAdjacentDays",
+        "hourCycle": "hourCycle",
+        "minuteStep": "minuteStep",
+        "entryMode": "entryMode",
+        "unit": "unit",
+        "layout": "layout",
+        "label": "label",
+        "dateLabel": "dateLabel",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "confirmLabel": "confirmLabel",
+        "cancelLabel": "cancelLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel",
+        "hourLabel": "hourLabel",
+        "minuteLabel": "minuteLabel",
+        "wheelsLabel": "wheelsLabel",
+        "dialLabel": "dialLabel",
+        "entryModeLabel": "entryModeLabel",
+        "periodLabel": "periodLabel",
+        "rangeLabel": "rangeLabel",
+        "nextDayLabel": "nextDayLabel",
+        "rangeErrorText": "rangeErrorText"
+      },
+      "events": {
+        "change": "onChanged",
+        "close": "onClose"
+      },
+      "notes": "Planned. Flutter's idiom, as its own date and time pickers: a modal picker is `showTanreiDateTimePicker(context:, mode:, range:, value:, start:, end:, firstDate:, lastDate:, …)`, which pushes a modal route that draws the scrim as its barrier and returns a `Future<TanreiDateTimeSelection?>`, completed with the committed choice on OK and with null otherwise; `onChanged` and `onClose` are also called, in that order. A docked picker is `TanreiDateTimePickerAnchor(controller:, builder:, …)`, shaped like the menu's anchor and shown in the `Overlay`. `firstDate`, `lastDate` and `currentDate` keep Flutter's names. Values are `DateTime`s of which only the parts `mode` names are read. Month, weekday and period names, date forms, the separator and the preferred clock come from `TanreiDateLocalizations` (English built in, no `intl` dependency), and `MediaQuery.alwaysUse24HourFormatOf` wins for hourCycle locale. The calendar is `TanreiCalendar`, the entry-mode tabs `TanreiTabBar` (icon-only), the period one widget under `Semantics` with `value`, `increasedValue`, `decreasedValue`, `onIncrease` and `onDecrease` (a third wheel that does not loop in the wheels mode, a pressable cell in the dial mode), the range fields two widgets under `Semantics(button: true, selected:)`, a typed entry an `EditableText` with `TextInputType.number` behind the wheel's middle row and a `Focus` `onKeyEvent` for digits, the actions `TanreiButton`s; each wheel is a `ListWheelScrollView.useDelegate` with a looping child delegate and a `FixedExtentScrollPhysics`, under `Semantics` with `increasedValue`, `decreasedValue`, `onIncrease` and `onDecrease`. Snapshot harness: a golden of the whole stage after `showTanreiDateTimePicker` (modal), or of `TanreiDateTimePicker` drawn in place (docked). The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "DateTimePicker",
+      "props": {
+        "open": "visible",
+        "presentation": "presentation",
+        "mode": "mode",
+        "range": "range",
+        "value": "value",
+        "start": "start",
+        "end": "end",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "today": "today",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showAdjacentDays",
+        "hourCycle": "hourCycle",
+        "minuteStep": "minuteStep",
+        "entryMode": "entryMode",
+        "unit": "unit",
+        "layout": "layout",
+        "label": "label",
+        "dateLabel": "dateLabel",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "confirmLabel": "confirmLabel",
+        "cancelLabel": "cancelLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel",
+        "hourLabel": "hourLabel",
+        "minuteLabel": "minuteLabel",
+        "wheelsLabel": "wheelsLabel",
+        "dialLabel": "dialLabel",
+        "entryModeLabel": "entryModeLabel",
+        "periodLabel": "periodLabel",
+        "rangeLabel": "rangeLabel",
+        "nextDayLabel": "nextDayLabel",
+        "rangeErrorText": "rangeErrorText"
+      },
+      "events": {
+        "change": "onChange",
+        "close": "onClose"
+      },
+      "notes": "Planned. Controlled: `visible`, `onClose({ reason })` and `onChange({ value, start, end })`, the values being the mode's ISO strings, never `Date` objects; the caller moves them and sets `visible` to false. A product that also uses the community package of the same name imports this one under another name. A modal picker is presented in a transparent `Modal` with `animationType=\"none\"`, `statusBarTranslucent` and `navigationBarTranslucent`, as the dialog; a docked picker takes `anchorRef` and is drawn on the overlay layer that `TanreiProvider` renders, placed by measuring the anchor, with Android's back (`BackHandler`) as close. The calendar is the package's `Calendar`, the entry-mode tabs its `Tabs` (icon-only), the period one view with the adjustable role, `accessibilityValue.text` and the increment and decrement actions (a third wheel in the wheels mode, a `Pressable` cell in the dial mode), the range fields two `Pressable`s with the `button` role and `accessibilityState.selected`, a typed entry a `TextInput` with `keyboardType=\"number-pad\"` behind the wheel's middle row, the actions its `Button`s; each wheel is a `FlatList` with `snapToInterval` and the adjustable role with the increment and decrement actions; the dial uses the responder system and is hidden from accessibility. Locale data from Hermes's `Intl.DateTimeFormat`. Snapshot harness: `DateTimePickerSurface` drawn in place on the fixture's stage. The product's words are read from the `TanreiWordsProvider` context."
+    }
+  }
+}

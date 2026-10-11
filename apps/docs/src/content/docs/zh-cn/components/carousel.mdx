@@ -1,0 +1,421 @@
+---
+title: "轮播"
+description: "一行视觉内容项，围绕一个突出展示的项横向滚动，每一项都会打开它所展示的内容。精选行可以循环、用圆点显示位置，并自动前进。"
+translationOf: components/carousel.mdx
+sourceHash: 2d83688f39ecd8ebca3c92ae6620428c4fb0310d
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="carousel" />
+
+:::note[规格已修订，尚未覆盖所有平台]
+本页描述的是规格当前所定的轮播。`layout` 属性被几项相互独立的选择取代（主项的位置、流动宽度还是固定宽度、缩小、停靠、循环），精选行还可以显示圆点并自动前进。主项（hero）现在默认居中，相邻的项在任何滚动位置都相隔一个间距。Web 组件已经做到了这一切，演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版，有 `layout`，没有循环、圆点和自动播放。参见[主项默认居中](#主项默认居中)和[从 `layout` 迁移](#从-layout-迁移)。
+:::
+
+<DemoFrame label="默认：主项居中，旁边是一个小项">
+  <tanrei-carousel label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="河畔步道，14 张照片"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+  </tanrei-carousel>
+</DemoFrame>
+
+### 用法
+
+轮播只有一种项：`item`。各平台接收这些项的方式，与它接收任何重复子元素的方式相同：在 Web 上是 `<tanrei-carousel-item>` 子元素，在 SwiftUI 上是视图构建器中的 `TanreiCarouselItem` 视图，在 Compose 上是在项 lambda 中调用 `TanreiCarouselItem`，在 Flutter 上是 `children` 中的 `TanreiCarouselItem` 组件，在 React Native 上是 `CarouselItem` 子元素。
+
+每一项是一个操作。它容纳你的内容（通常是一张图片），并在用户激活它时触发 `click`（因平台而异，是 `action`、`onClick`、`onTap` 或 `onPress`）。它的 `label` 就是它的无障碍名称：写明内容展示的是什么，例如“海岸步道，12 张照片”。内容本身对辅助技术隐藏，其中不得再放自己的控件。
+
+整行围绕一个突出展示的项来排列，这一项称为主项。怎么排由几个相互独立的属性决定，每个属性的默认值都适合一个供人浏览的行：主项居中，它旁边的项较窄，滚动结束时整行停靠在完整的一项上。`itemWidth` 是主项的宽度；不设置时采用设计系统的默认值。精选行可以加上 `loop`、圆点（`indicator`）和 `autoplay`。没有 `autoplay` 时，轮播没有需要受控的值：只有用户滚动它或移动焦点时，它才会滚动。
+
+Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter 和 React Native 的示例展示的是上一版，也就是这些平台目前提供的版本：有 `layout`（默认是一行并排多个项，另有 `hero` 和 `uncontained`）和 `itemWidth`，没有循环、圆点和自动播放。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-carousel label="附近的步行路线">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><img src="coast.jpg" alt="" /></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><img src="town.jpg" alt="" /></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><img src="forest.jpg" alt="" /></tanrei-carousel-item>
+    </tanrei-carousel>
+
+    <!-- 精选行：无限循环，带圆点，自动前进。主项默认居中。 -->
+    <tanrei-carousel label="精选步行路线" loop indicator autoplay
+                     play-label="播放幻灯片" pause-label="暂停幻灯片">…</tanrei-carousel>
+
+    <!-- 从起始边缘排起的普通行：每一项宽 120（CSS 像素数），滚动在哪里结束就停在哪里。
+         fixed-width 和 free-scroll 分别是默认为 true 的 fluidWidth 和 snap 的反义。 -->
+    <tanrei-carousel label="最近浏览" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
+
+    <script type="module">
+      import '@tanrei/web/components/carousel';
+      for (const item of document.querySelectorAll('tanrei-carousel-item')) {
+        item.addEventListener('click', () => openWalk(item.label));
+      }
+      // 只有播放控件会触发它；暂缓不会，你设置 paused 时也不会。
+      document.querySelector('[label="精选步行路线"]').addEventListener('pausedchange', (e) => savePaused(e.detail.paused));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Carousel, CarouselItem } from '@tanrei/react';
+
+    <Carousel label="最近浏览" itemWidth={120} fluidWidth={false} snap={false}>
+      {walks.map((walk) => (
+        <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}>
+          <img src={walk.image} alt="" />
+        </CarouselItem>
+      ))}
+    </Carousel>
+
+    <Carousel label="精选步行路线" loop indicator autoplay paused={paused}
+      onPausedchange={(e) => setPaused(e.detail.paused)}
+      playLabel="播放幻灯片" pauseLabel="暂停幻灯片">
+      {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}
+    </Carousel>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 上一版：由 layout 选择排列方式。.hero 每次突出展示一项。
+    TanreiCarousel("精选步行路线", layout: .hero) {
+        ForEach(walks) { walk in
+            TanreiCarouselItem(walk.label, action: { open(walk) }) {
+                WalkImage(walk)
+            }
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.ui.unit.dp
+    import io.github.chnotchy.tanrei.components.TanreiCarousel
+    import io.github.chnotchy.tanrei.components.TanreiCarouselItem
+    import io.github.chnotchy.tanrei.components.TanreiCarouselLayout
+
+    // 上一版。和 Material 的轮播一样接收一个项 lambda。itemWidth 是 Dp，为 null 时取令牌的值。
+    // Uncontained 是普通的一行：每一项宽度相同，在边缘处被裁切。
+    TanreiCarousel(
+        itemCount = walks.size,
+        contentDescription = "最近浏览",
+        layout = TanreiCarouselLayout.Uncontained,
+        itemWidth = 120.dp,
+    ) { index ->
+        val walk = walks[index]
+        TanreiCarouselItem(label = walk.label, onClick = { open(walk) }) {
+            WalkImage(walk)
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 上一版：由 layout 选择排列方式。
+    TanreiCarousel(
+      semanticLabel: '精选步行路线',
+      layout: TanreiCarouselLayout.hero,
+      children: [
+        for (final Walk walk in walks)
+          TanreiCarouselItem(label: walk.label, onTap: () => open(walk), child: WalkImage(walk)),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Image } from 'react-native';
+    import { Carousel, CarouselItem } from '@tanrei/react-native';
+
+    // 上一版的默认布局：一行并排多个项。
+    <Carousel accessibilityLabel="附近的步行路线">
+      {walks.map((walk) => (
+        <CarouselItem key={walk.id} label={walk.label} onPress={() => openWalk(walk)}>
+          <Image source={walk.image} style={{ flex: 1 }} />
+        </CarouselItem>
+      ))}
+    </Carousel>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="宽到上限的主项，以及从起始边缘自由滚动的固定宽度" plain column>
+  <tanrei-carousel item-width="400" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+  </tanrei-carousel>
+  <tanrei-carousel hero-alignment="start" fixed-width free-scroll label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+  </tanrei-carousel>
+</DemoFrame>
+
+<DemoFrame label="排列这一行：固定宽度、缩小、循环、内容靠向主项" plain column>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">固定宽度，滚动在哪里结束就停在哪里：<code>fixed-width free-scroll</code></div>
+    <tanrei-carousel fixed-width free-scroll label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">其他项画得更小，无限循环：<code>fixed-width scale-others loop</code></div>
+    <tanrei-carousel fixed-width scale-others loop label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">无限循环，两侧始终填满：<code>loop</code></div>
+    <tanrei-carousel loop label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">变窄的项显示最靠近主项的一侧：<code>item-width="120" content-alignment="toward-hero" loop</code></div>
+    <tanrei-carousel item-width="120" content-alignment="toward-hero" loop label="附近的步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="河畔步道，14 张照片"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="圆点、自动播放、进度、已暂停，以及单独的播放控件" plain column>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">圆点：<code>indicator</code></div>
+    <tanrei-carousel indicator label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="河畔步道，14 张照片"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">带圆点和播放控件的自动播放：<code>indicator autoplay</code></div>
+    <tanrei-carousel indicator autoplay play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="河畔步道，14 张照片"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">当前圆点逐渐填满，直到切换到下一项：<code>autoplay-progress</code></div>
+    <tanrei-carousel indicator autoplay autoplay-progress play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="河畔步道，14 张照片"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">已暂停，由用户或由产品暂停：<code>paused</code></div>
+    <tanrei-carousel indicator autoplay paused autoplay-progress play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="山丘古堡，9 张照片"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="河畔步道，14 张照片"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">不带圆点的自动播放：只有播放控件</div>
+    <tanrei-carousel autoplay play-label="播放幻灯片" pause-label="暂停幻灯片" label="精选步行路线" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="海岸步道，12 张照片"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="老城区，8 张照片"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="森林环线，20 张照片"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="湖畔，5 张照片"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+</DemoFrame>
+
+在开启了“减弱动态效果”设置的环境中，自动播放从不运行：这时自动播放的演示静止不动，不显示播放控件，也不显示进度。
+
+<ComponentSpecs name="carousel" />
+
+## 指南
+
+### 何时使用
+
+轮播用于一行视觉内容项，供人浏览并逐个打开：专辑、地点、商品、剧集。它不必占用网格那样的高度，就能表明后面还有更多项；它给视野内的项留出的空间，也比即将进入的项更多。
+
+如果项以文本为主，或者用户要在它们之间比较或挑选，请使用[列表](/zh-cn/components/list/)。如果每一项都需要自己的文本和操作，请把[卡片](/zh-cn/components/card/)排成网格。只有简短的精选行才让轮播自动前进，并且要保留它的播放控件。
+
+### 排列这一行
+
+每个属性回答一个问题，它们可以自由组合。
+
+| 属性 | 默认值 | 它决定什么 |
+| --- | --- | --- |
+| `heroAlignment` | `center` | 突出展示的项位于哪里：居中（`center`），两侧都有项；或位于内侧的起始边缘（`start`），只有后面有项。 |
+| `itemWidth` | 设计系统的值 | 主项的宽度。固定宽度时，是每一项的宽度。 |
+| `fluidWidth` | `true` | 为 true 时，主项旁边的项收窄为中等宽度和小宽度，各自的宽度随滚动变化。为 false 时，每一项都与主项同宽，视野内的最后一项被边缘裁切。 |
+| `contentAlignment` | `center` | 流动宽度时，变窄的项显示其内容的哪一部分：中间，或最靠近主项的一侧（`toward-hero`）。 |
+| `scaleOthers` | `false` | 把主项以外的项画得更小，大小随滚动变化，流动宽度和固定宽度下都可以用。项与项的间距保持不变：固定宽度时，变小的项会向相邻的项靠拢。 |
+| `snap` | `true` | 滚动结束时，是停靠在完整的一项上，还是在哪里结束就停在哪里。 |
+| `loop` | `false` | 让这一行没有尽头：最后一项之后是第一项。只在有两项或更多项时生效。 |
+
+在 Web 上，`fluidWidth` 写作 `fixed-width`，`snap` 写作 `free-scroll`，即这两个默认为 true 的属性的反义。
+
+几种常见的行：
+
+| 用途 | 设置 |
+| --- | --- |
+| 浏览许多项：专辑、地点 | 什么都不用设：用默认值。 |
+| 每次突出展示一项，并露出下一项的一角 | 不小于轮播宽度的 `itemWidth`。主项会取它所能达到的最大宽度。 |
+| 两侧都有项的精选行 | 不需要更多设置：主项默认居中。常与 `loop` 搭配，让两侧始终填满。 |
+| 从边缘开始、主项排在最前的行 | `heroAlignment` 设为 start。 |
+| 普通的滚动行，例如最近浏览的项 | `heroAlignment` 设为 start，`fluidWidth` 和 `snap` 设为 false。 |
+
+根据内容的形状选择 `itemWidth`：方形封面、竖长的海报和横宽的缩略图需要不同的宽度，即使在同一个产品里也是如此。流动宽度时，主项会给其他项留出空间：凡是后面还有项的一侧，它都会留下一个小项的位置，宽度不会超过这个限度；它也不会窄到让下一项比自己还宽。如果这一行窄得连这也做不到，轮播就每次显示一项，与行同宽。
+
+### 主项默认居中
+
+与上一版相比，有两点不同。在其他平台跟上之前，这是 Web 上的行为。
+
+- **现在 `heroAlignment` 默认为 `center`。** 以前是 `start`。两个值都保留。
+- **相邻的项在任何滚动位置都相隔一个间距**，而不只是在静止时。以前，项经过行的边缘时间距会变大，缩小的项周围也会多出空隙。
+
+| 你原来的写法 | 现在 |
+| --- | --- |
+| 没有设置 `heroAlignment` | 主项居中，两侧各有一个较窄的项。要让这一行保持原样，把 `heroAlignment` 设为 `start`（在 Web 上是 `hero-alignment="start"`）。 |
+| `heroAlignment` 为 start | 无需改动。 |
+| `heroAlignment` 为 center | 无需改动。可以去掉这个属性。 |
+| 固定宽度下使用 `scaleOthers` | 变小的项现在与相邻的项相隔一个间距，比以前更近。无需改动。 |
+| `itemWidth` 比行更宽，且没有设置 `heroAlignment` | 主项比以前窄，因为两侧各留有一个小项。要得到最宽的主项，把 `heroAlignment` 设为 `start`。 |
+
+流动宽度时，项现在从边缘处以零宽度进入这一行，并在进入的过程中逐渐变宽，而不是以完整宽度滑入。静止时，这一行看起来和以前一样。
+
+### 从 `layout` 迁移
+
+上一版的 `layout` 属性已被移除。它的每个值现在都是上述属性的一种组合：
+
+| 以前的 `layout` | 现在 |
+| --- | --- |
+| 保持默认值 | `heroAlignment` 设为 start。在不比手机更宽的行上，画面相同。在更宽的行上，主项会变宽，直到它的上限。 |
+| `hero` | `heroAlignment` 设为 start，并把 `itemWidth` 设为不小于轮播的宽度，这样主项就取它所能达到的最大宽度。画面相同。 |
+| `uncontained` | `heroAlignment` 设为 start，`fluidWidth` 和 `snap` 设为 false（在 Web 上是 `hero-alignment="start" fixed-width free-scroll`）。画面相同。 |
+
+### 圆点、自动播放与播放控件
+
+- **圆点。** `indicator` 会在各项下方画一行圆点，每个停靠位置对应一个，整行相对于轮播居中。当前圆点被拉长，随着这一行滚动，这段拉长会从一个圆点过渡到下一个。所有圆点是一个控件：在它们上面的任何位置按下或拖动，都可以移动这一行。请把圆点用于简短的精选行。如果圆点太多，在播放控件旁边放不下，就不会绘制，调试构建会报告这一点。
+- **自动播放。** `autoplay` 每隔 `autoplayInterval` 毫秒（默认系统中为 5 秒）让这一行前进一项。文字多的项要比图片多留一些时间。没有 `loop` 时，到最后一项之后会回到第一项。它从不移动焦点，也不朗读任何内容。
+- **暂缓。** 指针位于轮播之上时、焦点在轮播内任何位置时、轮播被按下或拖动时，以及窗口被隐藏时，自动播放都会暂缓。最后一个暂缓条件解除后，它从停下的地方继续；如果用户移动过这一行，间隔会重新开始计时。
+- **减弱动态效果。** 在平台开启了“减弱动态效果”设置的环境中，自动播放从不运行，播放控件和进度也不绘制。宽度、缩小和圆点仍然跟随用户自己的滚动。
+- **播放控件。** 自动播放开启期间，圆点那一行的末尾有一个圆形按钮，用来暂停和播放，显示 `pause` 或 `play_arrow`。它以 `pauseLabel` 或 `playLabel` 命名，取决于按下它会执行哪个操作。它会改变 `paused` 并触发 `pausedChange`（在 Web 上是 `pausedchange`）；你的代码也可以设置 `paused`，这时不触发任何事件。
+- **进度。** 设置 `autoplayProgress` 后，当前圆点会随着距离下一项的时间流逝而逐渐填满。
+
+**让播放始终可控。** 产品可以把 `playbackControl` 设为 false 来隐藏播放控件，但只要有可能就应该保留它。暂缓不是停止动效的办法：触摸没有悬停；手指只有停在上面时才能让这一行暂缓；不移动焦点就能阅读的屏幕阅读器则完全不会让它暂缓。没有这个控件，手机上的用户要停下自动播放的轮播，就只能靠系统的“减弱动态效果”设置。只有当你的产品提供了另一种停止动效的办法时才隐藏它，例如一个能暂停页面上所有动态内容的开关（WCAG 2.2.2）。
+
+### 项及其内容
+
+- **内容按主项的宽度布局。** 每一项都按主项的宽度来布局内容，因此变窄的项显示的是图片的中间部分；`contentAlignment` 为 toward-hero 时，显示的是最靠近主项的一侧。项变宽、变窄时，图片在项内平滑移动。请提供只看露出的那一部分也能看懂的图片。
+- **项上没有文字。** 项不绘制说明文字，因为图片上的文字无法保证任何对比度。请在你的内容里把说明文字放在自己的遮罩之上，或者显示在轮播之外。
+- **每项一个操作。** 项会打开它所展示的内容。按钮、链接和其他控件不要放进它的内容里。
+- **没有禁用的项。** 供人浏览的行里，不存在“显示出来却不可用”的东西。这样的项请直接去掉。
+- **空的项也看得见。** 无论项处于什么状态，它的容器都会在内容之下以静止时的颜色填充，所以图片尚未加载出来的项仍然可见。
+- **状态显示在内容之上。** 悬停、聚焦和按下画成盖在内容上的一层，涟漪也在同一层里，所以它们在任何图片上都看得见。
+
+### 滚动与停靠
+
+用户可以用触摸、触控笔、触控板、横向滚轮，或按住 Shift 滚动纵向滚轮来滚动这一行。开启 `snap` 时，滚动结束后这一行会停靠在完整的一项上：快速滑动（fling）会前进到该方向上的下一项，较慢的松手则去往最近的一项。快速滑动是指松手时的速度超过平台的最小快速滑动速度；平台没有给出这个值时，取每毫秒 0.5 点。没有 `loop` 时，在范围的末端，最后一项成为主项，它之后的槽位保持空着。开启 `loop` 时，每一项只绘制一次，落在主项周围的哪个位置就画在哪里，整行首尾相接、没有尽头。在减弱动态效果的环境中，轮播自己发起的每一次移动都立即完成。
+
+轮播的宽度或它的项发生变化时，它会重新排列槽位，并让原先突出展示的项留在原处，不带动效。
+
+### 推荐
+
+- 为每一项加上标签，说明它的内容展示的是什么，使用你的产品的语言。
+- 根据内容的形状选择 `itemWidth`。
+- 为轮播提供一个为这一行命名的 `label`，例如“最近播放”。
+- 只要轮播会自动前进，就保留播放控件，并为它提供 `playLabel` 和 `pauseLabel`。
+
+### 避免
+
+- 不要在项的内容里放控件。项本身已经是一个按钮。
+- 不要把轮播用于用户必须全部看到的内容，例如步骤或条款。视野之外的项很容易被错过。
+- 不要为供人浏览的长行开启自动播放。它适合带圆点的简短精选行。
+- 不要隐藏播放控件，除非你的产品提供了另一种停止动效的办法。
+
+## 无障碍
+
+<ComponentAccessibility name="carousel" />
+
+### 组件负责的部分
+
+- 轮播是一个以 `label` 命名的列表。每一项是一个以其标签命名的按钮，并带有它在各项中的位置和项的总数。它的内容对辅助技术隐藏。
+- 视野之外的项仍然按顺序暴露给辅助技术，因此屏幕阅读器能到达每一项。把屏幕阅读器的焦点移到某一项上，会把它滚动到位。
+- **Tab 停靠点。** 轮播最多有三个：播放控件（绘制时）、所有项（合为一个停靠点）和圆点（绘制时）。播放控件排在最前，在各项之前，这样键盘用户可以在到达其他任何东西之前先停下动效。进入各项时，焦点落在上一次拥有键盘焦点的那一项上；没有这样的项时，落在停靠于主项位置的那一项上。
+- 向右方向键和向左方向键把焦点移到下一项和上一项。它们在两端停住，只有轮播循环时才会绕回。Home 和 End 移到第一项和最后一项，在循环的行里也是如此。在从右到左的布局中，向左方向键移到下一项。
+- 移动焦点会把获得焦点的项带到主项的位置，范围末端不允许时则尽量靠近；在循环的行里走较短的那一边。在主项位于起始边缘、宽度固定且自由滚动的行里，只是把这一项完整地带入视野。
+- Enter 和 Space激活获得焦点的项。按下后变成了滚动的操作，不会激活它起始时所在的项。
+- 圆点是一个以 `label` 命名的滑块，它的值是当前项的标签。方向键、Home 和 End，以及平台的递增和递减操作，都会让这一行移动一个位置。当前圆点靠拉长的形状来区分，而不只靠颜色。
+- 播放控件是一个按钮，播放时以 `pauseLabel` 命名，暂停时以 `playLabel` 命名。它没有按下状态，所以绝不会被读成“暂停，已按下”。激活它之后，焦点仍留在它上面。它的暂停和播放图标不会镜像；在图标字体加载完成之前，也不会把图标的名称当作文字画出来。
+- 焦点在轮播内任何位置时，自动播放都会暂缓；它从不移动焦点，不朗读任何内容，在减弱动态效果的环境中从不运行。
+- 焦点环画在项的内侧，这样不会被这一行裁切；圆点和播放控件的焦点环则画在它们的外围。它只在键盘聚焦时显示。
+- 每一项的点击区域是它的容器加上两侧各半个间距，并且绝不小于最小目标，即使是小项也一样。仍在边缘处进入或离开的项比这更窄，它的点击区域绝不会盖住相邻项的点击区域。播放控件的点击区域是触摸目标的大小，圆点的点击区域是它们的整个容器加上那一行的高度。
+- 滚动绝不是到达某一项的唯一方式：方向键、圆点和屏幕阅读器的焦点都能到达每一项。
+- 文本放大时，轮播的高度和项保持不变。它自己不含任何文字，你的内容自行跟随文本大小。
+- 调试构建会报告：没有标签的项、没有 `label` 的轮播、没有 `playLabel` 或 `pauseLabel` 的播放控件、放不下的圆点、未知的 `heroAlignment` 或 `contentAlignment`，以及不是正数的 `itemWidth` 或 `autoplayInterval`。Web 还会报告项的内容里的可交互元素。
+
+已知的平台差距：
+
+- SwiftUI 和 React Native 没有可用于自定义容器的“在集合中的位置”属性，因此由屏幕阅读器自己对项的计数，来代替每一项的位置和项的总数。SwiftUI 也没有列表角色：轮播是一个以 `label` 命名的容器。
+- Compose 没有列表角色。这一行提供它的集合大小，每一项提供自己的位置，并带有按钮角色，因此 TalkBack 朗读的是一个集合，而不是列表。
+- 只有 Web 能检查项的内容，所以只有 Web 会报告其中的控件。在其他平台上，这条规则要靠你来遵守。
+- Web：按照规格，Tab 停靠点应是上一次拥有键盘焦点的那一项，而 Web 上它会移到任何获得焦点的项，包括因点击而获得焦点的项。触控笔的快速滑动会停靠在最近的一项，而不是下一项。屏幕阅读器的虚拟光标如果不移动焦点，就只是像浏览器那样滚动这一行，不会把该项带到主项的位置。
+- SwiftUI：轮播的高度始终等于它的高度令牌，因为 SwiftUI 无法区分 frame 与栈给出的尺寸提议。请通过层的令牌来调整它的尺寸。停靠时的移动遵循滚动视图自身的减速，而不是轮播的滚动动效，在减弱动态效果的环境中也不会立即完成。它会构建每一项，并在每个滚动帧重新放置每一项。方向键、Tab 停靠点和 VoiceOver 焦点是作为规则来测试的，没有在真机上用键盘或 VoiceOver 测试。
+- Compose 会组合并布局每一项，包括视野之外的项。滚轮不会产生快速滑动，因此会停靠在最近的一项。滚动只在 Robolectric 下验证过，没有在真机上验证。
+- Flutter 会在每一次鼠标滚轮事件之后让开启停靠的轮播停靠一次，而不是等滚轮手势结束。它尚未在真机上用 TalkBack 和 VoiceOver 检查过。
+- React Native 在每个滚动帧都在 JavaScript 线程上重新布局每一项，并且渲染每一项。方向键只在硬件键盘的事件能到达应用的环境中有效。由滚动驱动的放置、停靠、从右到左和屏幕阅读器焦点只在 Jest 中验证过，从未在真机上验证。
+- 在 `m3-like` 下，Material 的轮播使用表面颜色的地方，这里的项有意保留默认的填充，这样图片尚未加载出来的项仍然看得见。
+
+### 需要你做的事
+
+- 为轮播提供 `label`，并为每一项提供说明其内容展示了什么的标签。内容不会被朗读。
+- 使用自动播放时，为播放控件提供说明其作用的 `playLabel` 和 `pauseLabel`，并让它保持显示。
+- 项的内容里不要放控件。
+- 如果内容带有标签没有表达的含义，例如海报上的价格，就把它写进标签。
+- 在 SwiftUI、Compose 和 React Native 上，项的数量要适中：这些平台上的轮播会构建每一项，包括视野之外的项。

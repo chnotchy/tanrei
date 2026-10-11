@@ -1,0 +1,136 @@
+---
+// The page that was not found, drawn by Tanrei's Empty state at the large size (specs/empty-state.spec.json; proposal
+// 0106): a view that is empty as a whole. It stands in the main region of the page frame (pages/404.astro, and one
+// page for each language), in place of the framework's own not-found page:
+//
+//   the media     the glyph `explore_off`. Decorative;
+//   the title     the page's heading, an `h1` in the title slot: this page has no page header (frame/PageTitle.astro
+//                 draws none here), so the empty state's title is the one heading of the main region (EMP-4);
+//   the sentence  why the reader may be here, as the description;
+//   the actions   two (EMP-6). A Button with a destination — a link — to the first page of the language of
+//                 the address, and a text Button that opens the search in the header. The search needs script: where
+//                 none runs the second action is not shown (it is written `hidden`; an inline script shows it).
+//
+// Not live (EMP-8): the place is empty when the page is presented, so it is read where it stands and nothing is
+// announced. Every word is the site's (lib/i18n.ts, `notFound`), in the language of the address: Tanrei ships none.
+//
+// `@tanrei/web/empty-state.css` gives the block its paddings and its text styles before the element is defined; the
+// rules below add what that stylesheet says it cannot — the glyph's box, the measure of the text, the row of the
+// actions and a Button's room — so that nothing moves when the elements are defined. Where no script runs the page
+// stays as that first paint draws it: the heading, the sentence and a plain link.
+import { strings } from '../lib/i18n';
+import { linkAttribute } from '../lib/link';
+import { homeHref } from './frame/frame';
+
+const route = Astro.locals.starlightRoute;
+const words = strings(route.lang).notFound;
+const fallback = { [linkAttribute]: '' };
+const home = homeHref(route);
+---
+
+<tanrei-empty-state class="docs-not-found not-content" size="large">
+  <span slot="media" data-pagefind-ignore>explore_off</span>
+  <h1 slot="title" id="_top">{words.title}</h1>
+  <p>{words.text}</p>
+  <tanrei-button slot="actions" href={home}>
+    <a class="tanrei-link" data-standalone href={home} {...fallback}>{words.home}</a>
+  </tanrei-button>
+  <tanrei-button slot="actions" class="docs-not-found-search" variant="text" hidden>{words.search}</tanrei-button>
+</tanrei-empty-state>
+{/* The search cannot open where no script runs: the second action is written hidden, and shown here, before the first
+    paint, where one does. */}
+<script is:inline>
+  document.querySelector('.docs-not-found-search').hidden = false;
+</script>
+
+<script>
+  // The plain anchor is the link until the Button is defined (lib/link-fallback.ts): it goes first.
+  import '../lib/link-fallback';
+  import '@tanrei/web/components/empty-state';
+  import '@tanrei/web/components/button';
+
+  // The second action opens the header's search (frame/Search.astro). After this press has been answered everywhere: a
+  // search closes at a press outside it, and would take this one for that.
+  //
+  // The view is a modal one, opened from here and not from its own trigger: when the reader leaves it without going
+  // anywhere (Escape, the back button, a press outside) focus comes back to the action that opened it, not to the
+  // trigger in the bar, which the search itself returns to. Opened from outside the search fires no `toggle`, so the
+  // first one it fires is this view closing.
+  const action = document.querySelector<HTMLElement>('.docs-not-found-search');
+  action?.addEventListener('click', () => {
+    setTimeout(() => {
+      const search = document.querySelector<HTMLElement & { expanded: boolean; updateComplete: Promise<unknown> }>('tanrei-search.docs-search');
+      if (!search || search.expanded) return;
+      search.expanded = true;
+      search.addEventListener(
+        'toggle',
+        (event: Event) => {
+          const { expanded, reason } = (event as CustomEvent<{ expanded: boolean; reason: string | null }>).detail;
+          if (expanded || !['escape', 'back', 'outside'].includes(reason ?? '')) return;
+          // After the search has put focus on its own trigger (it does when its view is withdrawn), and only then.
+          void search.updateComplete.then(() =>
+            requestAnimationFrame(() => {
+              const active = document.activeElement;
+              // Escape is a key: the indicator is drawn where focus lands, also in a browser that would not draw it
+              // for a focus moved by script.
+              if (active === search || active === document.body || !active) action.focus(reason === 'escape' ? { focusVisible: true } : undefined);
+            }),
+          );
+        },
+        { once: true },
+      );
+    });
+  });
+</script>
+
+<style is:global>
+  /* The block before its element is defined, in a layer of the docs' own (styles/prose.css says why). */
+  @import '@tanrei/web/empty-state.css' layer(docs.empty-state);
+
+  /* The description is a paragraph of the page's own: its margins are not the empty state's. */
+  .docs-not-found > p {
+    margin: 0;
+  }
+  /* The second action where no script runs (it is written `hidden`, and no rule below shows it). */
+  .docs-not-found > [hidden] {
+    display: none;
+  }
+
+  /* Until the element is defined: its one column, each part where the element will draw it.
+     - the glyph's box, with nothing in it (EMP-3: the media size of the large size, and its gap);
+     - the title and the sentence no wider than the measure, which counts in the description's font size (EMP-2);
+     - the actions in one centred row, their gap between them and the actions' gap above (EMP-6);
+     - a Button's room around its label, from its own tokens. */
+  .docs-not-found:not(:defined) {
+    --docs-not-found-measure: calc(var(--tanrei-comp-empty-state-content-measure) * var(--tanrei-comp-empty-state-description-typescale-large-font-size));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: var(--tanrei-comp-empty-state-actions-item-gap);
+    row-gap: 0;
+  }
+  .docs-not-found:not(:defined) > [slot='media'] {
+    display: block;
+    visibility: hidden;
+    flex: 0 0 100%;
+    block-size: var(--tanrei-comp-empty-state-media-size-large);
+    margin-block-end: var(--tanrei-comp-empty-state-media-gap);
+    overflow: hidden;
+  }
+  .docs-not-found:not(:defined) > :is([slot='title'], p) {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    padding-inline: max(0px, calc((100% - var(--docs-not-found-measure)) / 2));
+  }
+  .docs-not-found:not(:defined) > [slot='actions']:not([hidden]) {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--tanrei-comp-button-container-height-medium);
+    margin-block-start: var(--tanrei-comp-empty-state-actions-gap);
+    padding-inline: var(--tanrei-comp-button-container-padding-inline-start-medium) var(--tanrei-comp-button-container-padding-inline-end-medium);
+    font: var(--tanrei-comp-button-label-typescale-medium-font);
+    letter-spacing: var(--tanrei-comp-button-label-typescale-medium-letter-spacing);
+  }
+</style>

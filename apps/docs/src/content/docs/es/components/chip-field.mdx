@@ -1,0 +1,234 @@
+---
+title: Campo de chips
+description: Recoge una lista de textos cortos (direcciones de correo electrónico, números de teléfono, palabras clave) que se escriben uno tras otro en un solo campo. Cada texto que tu comprobación acepta se convierte en un chip que se puede quitar, o devolver a la parte donde se escribe para cambiarlo, y la lista es el único valor del campo.
+translationOf: components/chip-field.mdx
+sourceHash: 8a2a4fc47c38f0ca955bd6a42eb7db404d9675df
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="chip-field" />
+
+<DemoFrame label="Un campo de chips con dos direcciones, y otro cuya tercera dirección fue rechazada" column>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" separators='[",",";"," "]' remove-label="Quitar {entry}" added-text="Se añadió {entry}" removed-text="Se quitó {entry}" supporting-text="Separa las direcciones con una coma." value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" separators='[",",";"," "]' remove-label="Quitar {entry}" added-text="Se añadió {entry}" removed-text="Se quitó {entry}" supporting-text="Separa las direcciones con una coma." error error-text="Introduce una dirección completa, como nombre@example.com." value='["ada@example.com","grace.hopper@example.org"]' input-value="alan@"></tanrei-chip-field>
+</DemoFrame>
+
+Usa un campo de chips donde una persona introduce varios textos cortos de un mismo tipo: los destinatarios de un mensaje, las personas con las que se comparte un documento, los números a los que se envía una alerta, las palabras clave de un artículo. Cada texto se comprueba por separado, de modo que una dirección mal escrita entre doce no echa a perder las demás, y cada elemento se puede quitar o cambiar por sí solo.
+
+**Se compone de** un [campo](/es/components/field/), una [entrada de texto](/es/components/text-input/) y [chips](/es/components/chip/). El campo es el marco: la etiqueta, la marca de obligatorio o de opcional, la ayuda y el error. La entrada de texto es la caja y el lugar donde se escribe el siguiente elemento. Cada elemento es un chip de entrada pequeño situado en la caja, antes del texto que se escribe. El campo de chips no dibuja nada propio y no tiene ningún token, así que en todos los sistemas de diseño tiene el mismo aspecto que los campos de texto que lo acompañan.
+
+Es tan ancho como el lugar en el que se pone. Los elementos y el texto que se escribe están en líneas que saltan, y la caja crece por líneas enteras. Se muestran todos los elementos: ninguno se oculta, se resume en un número como «+3» ni queda fuera de la vista por un desplazamiento.
+
+En la web es `<tanrei-chip-field>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+`value` es la lista de elementos, un array de textos. `inputValue` es el texto que se está escribiendo y todavía no es un elemento.
+
+Un elemento se crea con el texto escrito:
+
+- con Enter;
+- con un separador que indiques en `separators`. De forma predeterminada no hay ninguno, porque una coma termina una dirección de correo electrónico y forma parte de «Lovelace, Ada»;
+- cuando el foco sale del campo;
+- a partir de un texto pegado que contiene un separador o un salto de línea: cada trozo se propone en orden.
+
+Tanrei no sabe qué es una dirección de correo electrónico ni un número de teléfono. `type` elige el teclado y no comprueba nada. Cada candidato se te propone con `check`: si lo rechazas, se queda en la caja como texto escrito mientras el campo muestra su error. Un texto repetido y un texto que supera `maxEntries` se rechazan sin preguntarte.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-chip-field name="to" label="Destinatarios" type="email"
+        supporting-text="Separa las direcciones con una coma."
+        invalid-text="Introduce una dirección completa, como nombre@example.com."
+        duplicate-text="Esa ya está en la lista."
+        remove-label="Quitar {entry}"
+        added-text="Se añadió {entry}" added-count-text="Se añadieron {count}" removed-text="Se quitó {entry}"></tanrei-chip-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/chip-field';
+
+      const to = document.querySelector('tanrei-chip-field');
+      to.separators = [',', ';', ' '];
+      // Tu comprobación de un elemento, en una línea. Responde antes de que el evento vuelva.
+      to.addEventListener('check', (e) => {
+        if (!/^\S+@\S+\.\S+$/.test(e.detail.text)) e.preventDefault();
+      });
+      // La persona cambió la lista. `value` ya es la lista nueva.
+      to.addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ChipField } from '@tanrei/react';
+
+    <ChipField name="to" label="Destinatarios" type="email" separators={[',', ';', ' ']}
+      supportingText="Separa las direcciones con una coma."
+      invalidText="Introduce una dirección completa, como nombre@example.com."
+      removeLabel="Quitar {entry}" addedText="Se añadió {entry}" removedText="Se quitó {entry}"
+      value={recipients}
+      onCheck={(event) => { if (!isAddress(event.detail.text)) event.preventDefault(); }}
+      onChange={(event) => setRecipients(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+Para dar el motivo de un rechazo concreto con tus propias palabras, define `event.detail.reason` en el listener de `check`. De lo contrario, el campo muestra `invalidText`, `duplicateText` o `limitText` según el motivo, y `errorText` donde ese texto está vacío. `reject` te dice cada texto rechazado, el motivo y las palabras que se muestran.
+
+Un elemento que más tarde resulta incorrecto (una dirección que un servidor notifica como desconocida) te corresponde notificarlo a ti: activa `error`, escribe `errorText` y nombra el elemento en esas palabras. La persona lo quita, o devuelve su texto a la parte donde se escribe para cambiarlo.
+
+### Cambiar un elemento
+
+| Para | Haz |
+| --- | --- |
+| Llegar a los elementos desde la parte donde se escribe | Retroceso, o la flecha que apunta al inicio de la línea, con el cursor de texto al inicio del texto |
+| Moverse entre los elementos | Flecha izquierda y Flecha derecha, Inicio y Fin |
+| Quitar un elemento | Retroceso o Supr sobre él, o su acción de quitar |
+| Cambiar un elemento | Enter o Espacio sobre él, o una pulsación en el chip: su texto vuelve a la parte donde se escribe |
+| Volver a la parte donde se escribe | Escape, Tab, o escribir un carácter |
+
+El primer Retroceso solo llega al último elemento. Una segunda pulsación lo quita, y una tecla que se mantiene pulsada se atiende una sola vez, de modo que borrar el texto escrito nunca sigue adelante hasta la lista.
+
+### Un nivel más abajo
+
+El mismo campo, escrito a mano con sus miembros, es la misma imagen:
+
+```html
+<tanrei-field label="Destinatarios" supporting-text="Separa las direcciones con una coma.">
+  <tanrei-text-input type="email">
+    <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com"
+      remove-label="Quitar ada@example.com"></tanrei-chip>
+    <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org"
+      remove-label="Quitar grace.hopper@example.org"></tanrei-chip>
+  </tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="El mismo campo escrito a mano: un campo, una entrada de texto y dos chips en su slot entries" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" supporting-text="Separa las direcciones con una coma.">
+    <tanrei-text-input type="email">
+      <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="Quitar ada@example.com"></tanrei-chip>
+      <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org" remove-label="Quitar grace.hopper@example.org"></tanrei-chip>
+    </tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+Lo que los miembros escritos a mano no hacen es lo que añade el campo de chips:
+
+| El campo de chips añade | A mano |
+| --- | --- |
+| Crear un elemento: Enter, los separadores, la salida del foco, las listas pegadas | Escuchas la entrada de texto y cortas el texto |
+| Las comprobaciones y el error de entrada | Activas `error` y escribes `errorText` en el campo |
+| Una sola parada de tabulación y las teclas entre los elementos | Cada chip y cada acción de quitar es una parada propia; quitas un chip y mueves el foco tú |
+| Los elementos expuestos como una sola lista, y los tres anuncios | Escribes los tuyos |
+| La lista como un solo valor en un formulario | Campos de entrada ocultos, o tu propio envío |
+
+Baja a ese nivel para una organización que el campo de chips no ofrezca, como elementos que no son chips o un icono en la caja.
+
+## Especificaciones
+
+<DemoFrame label="Obligatorio, de solo lectura, deshabilitado, y palabras clave que solo se crean con Enter" plain column>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" requirement="required" required-text="Obligatorio" remove-label="Quitar {entry}" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" readonly remove-label="Quitar {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Destinatarios" type="email" disabled remove-label="Quitar {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Autores" remove-label="Quitar {entry}" supporting-text="Pulsa Enter después de cada nombre." value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
+</DemoFrame>
+
+### Qué aporta cada miembro
+
+| Aspecto | Del campo | De la entrada de texto | Propio del campo de chips |
+| --- | --- | --- | --- |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete` e `inputValue` (el `value` de la entrada de texto) | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
+| Eventos | — | `input`, `action` | `change`, `check`, `reject` |
+| Slots | `label-icon` | — | — |
+| Tokens | `comp.field.*` | `comp.input-box.*` para la caja; `comp.text-input.*` para el lugar de los elementos | Ninguno; los elementos leen `comp.chip.*` |
+
+- **Los elementos son chips pequeños** en los dos tamaños de la caja. Un elemento largo ocupa una línea él solo y el chip lo corta; su texto entero sigue siendo su nombre y su valor.
+- **El marcador de posición** solo se muestra mientras la lista está vacía.
+- **De solo lectura**: se puede llegar a los elementos y leerlos, y se envían. No se puede crear ni quitar ninguno, ni devolverlo a la parte donde se escribe, y cada chip se dibuja sin su acción de quitar.
+- **Deshabilitado**: el campo, la caja y todos los chips están deshabilitados, y no se envía nada.
+- **`maxEntries`** rechaza un elemento más, con `limitText`. Nada se deshabilita ni se marca de antemano: di el límite en `supportingText`.
+- **`type`** es `text`, `email`, `tel` o `url`. Cualquier otro tipo se comporta como `text`.
+
+### Diferenciar un solo campo
+
+El campo de chips no tiene ningún token propio. Para cambiar una sola instancia, define en ella el token de un miembro:
+
+```html
+<tanrei-chip-field label="Destinatarios"
+  style="--tanrei-comp-text-input-entries-row-gap: 12px"></tanrei-chip-field>
+```
+
+<ComponentSpecs name="chip-field" />
+
+### Qué dibuja la web de otra manera
+
+- El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-text-input>` dentro, y un `<tanrei-chip>` por cada elemento de la lista en el slot `entries` de la entrada de texto. Importar el elemento define los tres.
+- `value` es una propiedad de tipo array: asigna un array nuevo para cambiarla. El atributo `value` se lee una sola vez, como un array JSON de cadenas, y es a lo que vuelve el restablecimiento de un formulario. `separators` también es un array; su atributo es un array JSON.
+- El elemento está asociado a formularios. Envía con `name` un valor por cada elemento de la lista, en orden, y nada mientras la lista está vacía o el campo está deshabilitado. El texto que se está escribiendo nunca se envía. Sigue a un `<fieldset>` deshabilitado, se restaura al navegar y notifica que falta un valor mientras `requirement` es `required` y la lista está vacía.
+- `change`, `check` y `reject` son CustomEvents que emite el elemento: su `detail` es `{ value, added, removed }`, `{ text, values }` y `{ text, reason, message }`. `check` es cancelable y se lee cuando vuelve: una respuesta dada más tarde no se lee.
+- `input` y `action` son los de la propia entrada de texto. `action` solo se emite con Enter cuando la parte donde se escribe está vacía, y entonces pide el envío del formulario. Enter sobre un texto crea un elemento: la tecla se detiene antes de que la entrada de texto la oiga, de modo que un listener de `keydown` en la fase de propagación no oye esa pulsación.
+- Partes: `field`, `text-input` y `chip` son los miembros. Las partes propias del campo y de la entrada de texto conservan sus nombres (`label`, `supporting-text`, `container`, `input`, `entries`, etcétera). Las de un chip son `entry-container`, `entry-label` y `entry-remove`.
+- El elemento no puede recibir el foco por sí mismo y no tiene rol: `focus()` va a la parte donde se escribe. Dale nombre con `label`, nunca con `aria-label`.
+- Los separadores se buscan en el texto cuando este cambia, nunca según la tecla que se pulsó, de modo que un teclado táctil y el dictado también terminan un elemento. Mientras un método de entrada está componiendo, no se crea nada: la tecla que confirma la composición la confirma, y solo entonces se lee el texto.
+- Los atributos van en kebab-case, como `input-value`, `max-entries`, `remove-label` y `added-count-text`. `readonly` y `autocomplete` conservan los nombres de HTML.
+- Antes de que el elemento esté definido no tiene tamaño y no muestra nada. Reserva la altura de la caja. Una página que deba recibir una lista sin script usa un `<input>` o un `<textarea>` sencillo y corta el texto en su servidor.
+
+## Pautas
+
+### Campo de chips, cuadro combinado o grupo de tags
+
+| Necesitas | Usa |
+| --- | --- |
+| Una lista de textos que escribe una persona, cada uno comprobado por separado | El campo de chips |
+| Una elección entre opciones que tiene el producto | Un [cuadro combinado](/es/components/combobox/). El campo de chips no tiene lista de sugerencias |
+| Un conjunto de tags o de chips que está por sí solo, sin escritura y sin valor de formulario | Un [grupo de tags](/es/components/tag-group/) |
+| Unos pocos elementos largos que necesitan cada uno una etiqueta | Un [grupo de campos](/es/components/field-group/) de campos de texto |
+| Un solo texto, por largo que sea | Un [campo de texto](/es/components/text-field/) |
+
+### Recomendado
+
+- Di en `supportingText` qué es un elemento y cómo se crea: «Separa las direcciones con una coma.»
+- Indica en `separators` solo lo que nunca puede formar parte de un elemento. Para nombres como «Lovelace, Ada», no indiques ninguno.
+- Escribe `removeLabel` con el hueco `{entry}`, para que dos acciones de quitar nunca compartan un nombre.
+- Da `invalidText` con palabras que digan cómo es un elemento correcto.
+- Di un límite en `supportingText`, y qué ocurre al alcanzarlo en `limitText`.
+
+### Evita
+
+- No pongas un campo de chips dentro de un campo. Ya es un campo.
+- No confíes en `type="email"` para comprobar una dirección. Elige el teclado y nada más.
+- No respondas a `check` más tarde. Un elemento que un servidor rechaza se notifica con `error` y `errorText`.
+- No leas el texto que se está escribiendo como parte del valor. Se convierte en un elemento cuando el foco sale; un producto que envía por script mientras el campo tiene el foco lee `inputValue`.
+
+## Accesibilidad
+
+<ComponentAccessibility name="chip-field" />
+
+### De qué se encarga el componente
+
+- La tecnología de apoyo encuentra una lista que recibe su nombre de la etiqueta, con un elemento de lista por cada elemento introducido: un botón cuyo nombre es el texto entero del elemento, y su acción de quitar, un botón cuyo nombre es `removeLabel` con el elemento dentro. Después de la lista viene la parte donde se escribe, un cuadro de texto que recibe su nombre de la etiqueta y su descripción de la ayuda o del error.
+- El campo es una sola parada para la tecla Tab, contenga los elementos que contenga. A los elementos se llega con las teclas de flecha o con Retroceso, y con el puntero, el tacto y la navegación propia de un lector de pantalla.
+- Un elemento rechazado sigue como texto en la parte donde se escribe, donde está el cursor de texto, y el motivo está con palabras en el error del campo, que se anuncia una vez. El color nunca distingue un elemento rechazado de uno aceptado.
+- Un elemento creado, varios creados a la vez y un elemento quitado se dicen cada uno en una región activa cortés, con tus frases.
+- Quitar es un acto deliberado: Retroceso necesita dos pulsaciones, y una tecla que se mantiene pulsada se atiende una sola vez.
+- La dirección sigue la del lugar donde se usa el campo. En un diseño de derecha a izquierda, las líneas empiezan por la derecha y las flechas siguen moviendo hacia donde apuntan. Una dirección de correo que esté dentro conserva su propia dirección de escritura.
+- Con el texto al 200% en un lugar estrecho se siguen mostrando todos los elementos, y la parte donde se escribe ocupa una línea propia donde la última línea le deja demasiado poco sitio.
+
+Carencias conocidas en la web: lo que dicen los lectores de pantalla se ha leído en los árboles de accesibilidad de los navegadores, no se ha oído con un lector de pantalla.
+
+### Qué debes hacer tú
+
+- Da `label`, siempre.
+- Da `removeLabel`, `addedText` y `removedText`, en el propio campo o una sola vez con los textos del producto. Sin ellos, las acciones de quitar no tienen nombre y no se anuncia nada.
+- Di en `supportingText` cómo se crea un elemento. Donde las personas necesiten saber que Enter sobre un elemento lo cambia, dilo también.
+- Di por qué se rechazó un elemento con palabras que indiquen cómo corregirlo.

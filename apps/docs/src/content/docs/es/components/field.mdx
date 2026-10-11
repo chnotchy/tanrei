@@ -1,0 +1,208 @@
+---
+title: Campo
+description: Enmarca un control con lo que un formulario da a cada campo (una etiqueta que puede decir si el control es obligatorio u opcional, una línea de ayuda y el motivo por el que se rechazó un valor), cada cosa vinculada al control para la tecnología de apoyo. Es un marco, nunca un control.
+translationOf: components/field.mdx
+sourceHash: 1988f960c4e1a43fbe309826a40223811eca68ee
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="field" />
+
+<DemoFrame label="Un control deslizante y un interruptor, cada uno con el nombre, la ayuda y la marca que le da un campo" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-text="Obligatorio" supporting-text="Se aplica a las alertas y al contenido multimedia."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notificaciones" requirement="optional" optional-text="Opcional" supporting-text="Se envían cuando tienes una revisión pendiente."><tanrei-switch selected></tanrei-switch></tanrei-field>
+</DemoFrame>
+
+Un campo de texto puede decir qué es, si hay que responderlo, cómo responderlo y por qué se rechazó una respuesta. Un campo da esas mismas cuatro cosas a un control que no puede darlas: un control deslizante, un interruptor, una [entrada de texto](/es/components/text-input/), una [entrada de color](/es/components/color-input/), una [entrada de código de un solo uso](/es/components/one-time-code-input/), un control que ha construido tu producto. Un campo de texto es, a su vez, un campo alrededor de una entrada de texto. La etiqueta va encima del control y la ayuda debajo. Mientras el campo está en error, la ayuda se queda y el texto de error se añade debajo de ella.
+
+El campo dibuja el marco y nada más. No tiene contenedor, ni valor, ni eventos; el control conserva su aspecto, sus teclas, sus eventos y su lugar en un formulario.
+
+En la web es `<tanrei-field>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." requirement="optional" optional-text="Opcional">
+      <tanrei-slider name="volume" value="40"></tanrei-slider>
+    </tanrei-field>
+
+    <!-- El producto valida; el campo muestra el motivo y marca el control como no válido. -->
+    <tanrei-field label="Volumen" requirement="required" required-text="Obligatorio" error error-text="Elige un nivel superior a 0.">
+      <tanrei-slider name="volume" value="0"></tanrei-slider>
+    </tanrei-field>
+
+    <!-- Una entrada de texto: el campo le da nombre, su ayuda empieza donde empieza el texto y dibuja el recuento que recibe. -->
+    <tanrei-field label="Nombre visible" supporting-text="Se muestra junto a tus comentarios." count-text="12/40">
+      <tanrei-text-input name="display-name" value="Ada Lovelace" maxlength="40" counter></tanrei-text-input>
+    </tanrei-field>
+
+    <!-- Un control que se nombra a sí mismo: deja vacía la etiqueta del campo. -->
+    <tanrei-field supporting-text="Puedes retirar tu consentimiento en cualquier momento.">
+      <tanrei-checkbox label="Acepto las condiciones de uso"></tanrei-checkbox>
+    </tanrei-field>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Field, Slider } from '@tanrei/react';
+
+    <Field label="Volumen" supportingText="Se aplica a las alertas y al contenido multimedia." error={tooQuiet} errorText="Elige un nivel superior a 0.">
+      <Slider value={volume} onChange={(event) => setVolume(event.detail.value)} />
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Las tres marcas de obligatoriedad, un error, un campo deshabilitado y un glifo en la etiqueta" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-text="Obligatorio"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="optional" optional-text="Opcional"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-text="Obligatorio" error error-text="Elige un nivel superior a 0."><tanrei-slider value="0"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+</DemoFrame>
+
+<DemoFrame label="Ayuda y error a la vez: la ayuda se queda y el texto de error se añade debajo de ella" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Contraseña" supporting-text="Al menos 8 caracteres, con un número."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Contraseña" supporting-text="Al menos 8 caracteres, con un número." error error-text="Esta contraseña es demasiado corta."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
+</DemoFrame>
+
+<DemoFrame label="Una entrada de texto en un campo: con ayuda y un recuento, y en error" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Nombre visible" supporting-text="Se muestra junto a tus comentarios." count-text="12/40"><tanrei-text-input value="Ada Lovelace" maxlength="40" counter></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" requirement="required" required-text="Obligatorio" error error-text="Introduce una dirección de correo completa."><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
+</DemoFrame>
+
+### Alrededor de una entrada de texto
+
+Un campo alrededor de una [entrada de texto](/es/components/text-input/) es un [campo de texto](/es/components/text-field/) escrito a mano: la misma imagen, el mismo nombre, la misma descripción y los mismos estados. La entrada le dice a su campo lo que solo ella sabe, y el campo lo sigue:
+
+| La entrada dice | El campo |
+| --- | --- |
+| A qué distancia de sus bordes queda su texto: su margen interior y un icono inicial | Empieza y termina ahí la fila de apoyo, de modo que la ayuda empieza donde empieza el texto |
+| Que dibuja ella misma la etiqueta, flotando en una caja filled u outlined | No dibuja fila de etiqueta ni tag de obligatoriedad, y sigue dando nombre a la entrada. Una entrada obligatoria recibe un asterisco después de su etiqueta flotante |
+| Que ha rechazado una fecha o una hora: a medio rellenar o no disponible | Está en error, como mientras `error` es true, y muestra las palabras con que la entrada lo dice |
+
+`countText` es un recuento sobre el valor del control, tal como debe dibujarse («12/40»). El campo lo dibuja al final de la fila de apoyo y no hace nada más con él: no cuenta, y oculta el recuento dibujado a la tecnología de apoyo, porque el control dice el suyo. Escríbelo a partir del `countText` de la entrada en cada `input`. El campo de texto lo hace por sí mismo.
+
+`valueText` es el valor actual del control dicho con palabras («40 %», «$100 – $300»), para un control cuyo valor no se puede leer en el propio control: un control deslizante. El campo lo dibuja al final de la fila de la etiqueta, en la primera línea de la etiqueta, y no hace nada más con él: nunca lee ni da formato a un valor, y oculta el texto dibujado a la tecnología de apoyo, porque el control dice su propio valor. Donde dejaría a la etiqueta menos de la mitad de la fila, ocupa una línea propia después de la etiqueta. No se dibuja mientras no se dibuja la etiqueta. Escríbelo a partir del `shownValueText` del control deslizante en cada `input`; el [campo de control deslizante](/es/components/slider-field/) lo hace por sí solo, y es el campo ya hecho para un control deslizante.
+
+<DemoFrame label="Un campo con un control deslizante dentro y el valor con palabras al final de la fila de la etiqueta" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Tamaño del texto" supporting-text="Se aplica a todas las páginas." value-text="120 %"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120 %"></tanrei-slider></tanrei-field>
+</DemoFrame>
+
+### Alrededor de un select
+
+Un campo alrededor de un [select](/es/components/select/) es un [campo de selección](/es/components/select-field/) escrito a mano: la misma imagen, el mismo nombre, la misma descripción y los mismos estados. Las opciones del select son sus propios hijos. El select le dice a su campo lo que solo él sabe, y el campo lo sigue:
+
+| El select dice | El campo |
+| --- | --- |
+| A qué distancia de sus bordes queda su valor: su margen interior y un icono inicial | Empieza y termina ahí la fila de apoyo, de modo que la ayuda empieza donde empieza el valor |
+| Que dibuja él mismo la etiqueta, flotando en una caja filled u outlined | No dibuja fila de etiqueta ni tag de obligatoriedad, y sigue dando nombre al select. Un select obligatorio recibe un asterisco después de su etiqueta flotante |
+| Que se dibuja con foco mientras su lista está abierta | Dibuja su etiqueta y su ayuda con sus colores de foco durante ese tiempo, esté o no el foco dentro del campo |
+
+<ComponentSpecs name="field" />
+
+## Pautas
+
+### Un campo, o un control que ya es un campo
+
+| El control | Usa |
+| --- | --- |
+| No tiene etiqueta, ayuda ni error propios: un control deslizante, un interruptor, un control que has construido tú | Un campo a su alrededor; o, para un control deslizante, el campo que es los dos como un solo componente: un [campo de control deslizante](/es/components/slider-field/). |
+| Es un control para escribir sin nada más: una [entrada de texto](/es/components/text-input/), una [entrada de color](/es/components/color-input/), una [entrada de código de un solo uso](/es/components/one-time-code-input/) | Un campo a su alrededor; o el campo que es los dos como un solo componente: un [campo de texto](/es/components/text-field/), un [campo de color](/es/components/color-field/), un [campo de código de un solo uso](/es/components/one-time-code-field/). |
+| Es un [select](/es/components/select/) sin nada más | Un campo a su alrededor; o los dos como un solo componente: un [campo de selección](/es/components/select-field/). |
+| Ya es un campo: un campo de texto, un campo de código de un solo uso, un campo de control deslizante, un campo de selección y cualquier control que tenga un `supportingText` propio | El control solo. Nunca lo pongas dentro de un campo. |
+| Se nombra a sí mismo con una etiqueta a su lado: una [casilla de verificación](/es/components/checkbox/), un interruptor con etiqueta propia | Un campo con el `label` vacío, cuando necesite ayuda o un error. |
+| Es un conjunto de controles que responden a una misma pregunta | Un [grupo de campos](/es/components/field-group/). |
+
+La regla práctica: si el control tiene una propiedad `supportingText`, no necesita un campo.
+
+### Obligatorio y opcional
+
+`requirement` es `none`, `required` u `optional`: un solo ajuste, porque un control nunca es las dos cosas.
+
+- `required` expone el control como obligatorio y dibuja la marca de obligatorio junto a la etiqueta.
+- `optional` dibuja un tag discreto y añade su texto a la descripción del control.
+- Ninguno de los dos valida. Notificar que falta una respuesta te corresponde a ti, con `error` y `errorText`.
+
+Cómo se marca un control obligatorio es una sola decisión del sistema de diseño, para todos los campos y todos los conjuntos de controles: el token `sys.behavior.requirement-mark`, cuyos valores son `tag` (un tag pequeño con relleno que dice «Obligatorio»), `asterisk` y `none`. El sistema predeterminado marca con el tag. Un sistema de diseño define ese único token para cambiar todos los formularios a la vez. El campo lo lee a través de su propio token, `comp.field.requirement.mark`, que lo sigue; un sistema de diseño define ese token solo para marcar los campos sueltos de otra manera que los conjuntos de controles. `requiredMark` sustituye a ambos para un solo campo (`tag`, `asterisk` o `none`).
+
+El tag de obligatoriedad es un [tag](/es/components/tag/) pequeño, con relleno para lo obligatorio y tonal para lo opcional, y nada más: el campo no tiene tokens para él. Un sistema de diseño que cambia el estilo de sus tags pequeños cambia con ellos el del tag de obligatoriedad, que se ve igual mientras el campo tiene el foco, está en error o está deshabilitado. Las palabras del tag son tuyas: `requiredText` y `optionalText` en el campo, o una sola vez para todo el producto con `setWords()`. Tanrei no incluye textos propios: sin `requiredText`, un asterisco ocupa el lugar del tag, y sin `optionalText` no se dibuja ningún tag.
+
+Marca el conjunto más pequeño. En un formulario donde hay que responder casi todo, marca lo opcional; donde hay que responder poco, marca lo obligatorio.
+
+### Ayuda y errores
+
+- `supportingText` dice cómo responder: un formato, un intervalo, para qué se usa el valor.
+- `errorText` dice, con palabras, qué está mal en esta respuesta y cómo corregirlo. Mientras `error` es true se dibuja debajo de la ayuda, que se queda. Así que no repitas la ayuda en él.
+- Un campo con ayuda es más alto mientras está en error: lo que ocupan el texto de error y una pequeña separación (`comp.field.error-text.gap`). Nada de lo que hay encima del texto de error se mueve, y no se reserva sitio para un error antes de que lo haya. Un campo sin ayuda muestra su texto de error donde estaría la ayuda.
+- Un recuento se queda al final de la primera línea, junto a la ayuda, cuando el texto de error aparece o desaparece.
+- Activa `error` cuando hayas validado, no mientras la persona todavía está respondiendo. El campo nunca lo activa.
+
+### Un solo control
+
+Un campo enmarca exactamente un control: el único elemento de su slot predeterminado. Si hay varios, solo nombra y describe el primero, y las compilaciones de depuración lo notifican: un conjunto de controles es un grupo de campos.
+
+Deshabilita un control enmarcado en el campo, no en el control, para que la etiqueta y la ayuda lo acompañen.
+
+### Recomendado
+
+- Escribe una etiqueta que nombre, en pocas palabras, lo que se pide, y mantenla visible. Usa `labelHidden` solo donde haya en otra parte una etiqueta visible para el mismo control, como el encabezado de columna de una tabla.
+- Da el mismo ancho a los campos de una misma columna, para que sus etiquetas y sus controles queden alineados.
+
+### Evita
+
+- No pongas dentro de un campo un campo de texto ni ningún control que dibuje su propia etiqueta y su ayuda. Tendrías dos etiquetas, y una compilación de depuración lo dice. El control que un campo enmarca es el que no lleva nada más: la entrada de texto.
+- No uses la etiqueta para dar instrucciones. Para eso está el texto de apoyo.
+- No dependas del color de error. Escribe el error.
+
+## Accesibilidad
+
+<ComponentAccessibility name="field" />
+
+### De qué se encarga el componente
+
+- La etiqueta es el nombre accesible del control, tanto si se dibuja como si se oculta con `labelHidden`. Un control que tiene un nombre propio lo conserva.
+- La descripción del control es la ayuda, después el texto de error mientras el campo está en error y después `optionalText` mientras el control es opcional. Van detrás de la descripción que el control ya tenga.
+- El control se expone como no válido mientras `error` es true, como obligatorio mientras `requirement` es `required` y como deshabilitado mientras `disabled` es true. Un control cuyo rol no tiene estado obligatorio, como un control deslizante, dice en su lugar `requiredText` en su descripción.
+- Un control que tiene un estado de error propio, como una casilla de verificación o un botón de opción, se dibuja en ese estado.
+- Un error que aparece, o cuyas palabras cambian, mientras el foco está dentro del campo se anuncia una vez, de forma cortés: solo el texto de error, sin repetir la ayuda. El foco nunca se mueve por un error.
+- Una pulsación en la etiqueta lleva el foco al control y no lo acciona.
+- El campo no añade ninguna parada al orden del foco ni gestiona ninguna tecla.
+- El tag de obligatoriedad, el asterisco y el glifo de la etiqueta quedan ocultos para la tecnología de apoyo: el estado y la descripción ya dicen lo que muestran. También lo está un recuento dibujado: el control describe y anuncia el suyo.
+- Con el texto al 200%, la etiqueta y el texto de apoyo saltan de línea y nada se corta.
+- Con colores forzados, todos los textos toman el color de texto del sistema y el tag de obligatoriedad gana un borde. El texto de error y la ayuda se ven entonces iguales y se distinguen por sus palabras y por su orden, la ayuda primero. Por eso el error debe decirse con palabras.
+- En un diseño de derecha a izquierda, las filas empiezan por la derecha, el glifo pasa a la derecha de la etiqueta y la marca a su izquierda, y cada texto conserva su propia dirección.
+
+En la web los atributos van en kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `count-text`. Las partes son `label`, `label-icon`, `requirement-label`, `value-text`, `supporting-text` (la ayuda), `error-text` y `counter`.
+
+Cómo vincula la web el control: no se puede hacer referencia a un id a través de un shadow root, así que el campo da sus textos como valores. Un control de Tanrei se los pide a su campo y los escribe en su propio elemento interno. Cualquier otro elemento recibe `aria-label` (solo si no tiene un nombre propio), `aria-description`, `aria-invalid`, `aria-required` y `disabled`, y recupera exactamente lo que tenía cuando sale del campo.
+
+Carencias conocidas en la web:
+
+- La descripción se da con `aria-description`, que no se ha comprobado con todos los lectores de pantalla, y un elemento que ya tiene un `aria-describedby` propio no recibe el texto del campo.
+- Antes de que el elemento esté definido, el control está en la página sin su etiqueta ni su ayuda.
+
+### Qué debes hacer tú
+
+- Da un `label` a cada campo, salvo que el control se nombre a sí mismo.
+- Valida tú el valor, activa `error` y escribe `errorText` de modo que diga cómo corregir la respuesta.
+- Después de un envío fallido, di además, encima del formulario, cuántas respuestas se rechazaron y enlaza a cada una: un [callout](/es/components/callout/) activo con el estado de error. El campo no puede construirlo, porque solo el formulario conoce todos sus errores.
+- Da los textos de la obligatoriedad: `required-text` y `optional-text` en el campo, o una sola vez para todo el producto con `setWords({ requiredText, optionalText })`. Tanrei no incluye ninguno; si falta uno, se notifica en desarrollo. Consulta [Los textos del producto](/es/foundations/words/).
+- Si marcas los controles obligatorios con un asterisco, di una vez, cerca del principio del formulario, qué significa el asterisco.
+- Si el control lo has construido tú, asegúrate de que recibe el nombre y los estados allí donde está su semántica: o bien lleva su rol en su propio elemento, de modo que los atributos que escribe el campo surtan efecto, o bien los escucha (consulta el README del paquete web, «Field»).

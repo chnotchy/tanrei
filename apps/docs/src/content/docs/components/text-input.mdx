@@ -1,0 +1,229 @@
+---
+title: Text input
+description: The box people type in, and everything typed in it — one line or several, a date or a time, code — without a label row, help or error text of its own. For a place whose label stands elsewhere, or inside a field a product composes itself.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="text-input" />
+
+<DemoFrame label="Bare: a filter over a list, and a row whose label stands beside its input" column>
+  <tanrei-text-input class="not-content" type="search" label="Filter tokens" placeholder="Filter tokens">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>Display name</span>
+    <tanrei-text-input label="Display name" value="Ada Lovelace"></tanrei-text-input>
+  </div>
+</DemoFrame>
+
+A text input is the box of a [text field](/components/text-field/), alone: the container, the text, the icons, the prefix and the suffix, the segments of a date, the picker button and the resize grip. It has no label row above it, no help and no error text below it, and it draws no count.
+
+Use it bare where the label a person reads stands somewhere else:
+
+| Where | The label a person reads | The input's `label` |
+| --- | --- | --- |
+| A filter in a toolbar or over a list | The placeholder and the glyph say what it does | What it filters: "Filter tokens" |
+| A cell of a table | The column's header | The column and the row: "Quantity, oak desk" |
+| A row whose label stands beside the input | The text beside it | The same words |
+
+Bare, the input needs a `label` of its own. It is the accessible name. A stacked input never draws it; a filled or an outlined one draws it as the label that floats in the box.
+
+It is an **advanced** component: the bare control, for a product that composes its own. Most forms want the [text field](/components/text-field/), which is this input inside a field, ready to use.
+
+**Used in** the [text field](/components/text-field/) and the [chip field](/components/chip-field/). To frame it yourself, put it in a [field](/components/field/), which names it, describes it, marks it required and puts it in its error condition.
+
+It is a block as wide as the place it is put in, bare and framed alike. It has no width of its own: for a narrower box, give it a narrower place.
+
+On the web it is `<tanrei-text-input>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- A filter in a toolbar: the toolbar gives it its width. -->
+    <tanrei-text-input name="q" type="search" label="Filter tokens" placeholder="Filter tokens"
+      style="inline-size: 16rem">
+      <span slot="leading-icon">search</span>
+    </tanrei-text-input>
+
+    <!-- A cell of a table: the column's header is the visible label. -->
+    <td><tanrei-text-input name="quantity-oak-desk" type="number" label="Quantity, oak desk" value="2"></tanrei-text-input></td>
+
+    <!-- A row whose label stands beside the input. -->
+    <div class="row">
+      <span>Display name</span>
+      <tanrei-text-input name="display-name" label="Display name" autocomplete="nickname"></tanrei-text-input>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/text-input';
+
+      const filter = document.querySelector('[name="q"]');
+      filter.addEventListener('input', () => show(filter.value)); // every edit
+      filter.addEventListener('change', () => remember(filter.value)); // focus left or Enter, with a changed value
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TextInput } from '@tanrei/react';
+
+    <TextInput name="q" type="search" label="Filter tokens" placeholder="Filter tokens"
+      value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### In a field, by hand
+
+A field around a text input is a text field written out. Leave the input's own `label` empty: the field names it. `label`, `error`, `disabled` and the requirement are said on the field; `name`, `value` and everything about typing on the input.
+
+```html
+<tanrei-field label="Email" requirement="required" required-text="Required"
+  supporting-text="We only use it to sign you in.">
+  <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="A field with a text input in it: the same picture as a text field" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" requirement="required" required-text="Required" supporting-text="We only use it to sign you in.">
+    <tanrei-text-input type="email"></tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+The input tells its field what only it knows. Its help starts where the text starts, past the padding and a leading icon. A filled or an outlined input draws the field's label itself, floating in the box, so the field draws no label row. A date or a time left half-filled puts the field in error with the input's `invalidText` or `unavailableText`.
+
+One thing is yours by hand: the count. With `counter` the input keeps the count, and a field draws what it is given as `count-text`. Give it at every change:
+
+```html
+<tanrei-field label="Display name">
+  <tanrei-text-input name="display-name" maxlength="40" counter></tanrei-text-input>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const input = field.querySelector('tanrei-text-input');
+  field.countText = input.countText;
+  input.addEventListener('input', () => (field.countText = input.countText));
+</script>
+```
+
+The text field does this itself. It is the only thing the text field does that a field and a text input written by hand do not do.
+
+## Specs
+
+<DemoFrame label="Bare inputs: in error, disabled, read-only, with a prefix and a suffix, and large" plain column>
+  <tanrei-text-input class="not-content" label="Email" value="ada@" error></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="Email" value="ada@example.com" disabled></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="Email" value="ada@example.com" readonly></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="Amount" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="large" label="Email" value="ada@example.com"></tanrei-text-input>
+</DemoFrame>
+
+<DemoFrame label="Filled and outlined bare: the input's own label floats in the box" system="m3-like" plain column>
+  <tanrei-text-input class="not-content" variant="filled" label="Email" type="email" value="ada@example.com"></tanrei-text-input>
+  <tanrei-text-input class="not-content" variant="outlined" label="Email" type="email"></tanrei-text-input>
+</DemoFrame>
+
+### What is the input's, and what is the field's
+
+| Aspect | The text input | The field around it |
+| --- | --- | --- |
+| Draws | The box, the text, the placeholder, the prefix and the suffix, the icons, the segments of a date or a time, the picker button, the resize grip, and the label that floats in a filled or an outlined box | The label row above a stacked input, the required or optional mark, the help, the error text, the count |
+| Holds | The value, its place in a form, the events | Nothing |
+| Says to assistive technology | Its own description: the prefix and the suffix, the count | The name, the help or the error text, required, invalid, disabled |
+
+What happens in the box is the same bare, framed and in a text field, and is described once, on the text field's page: the [input types](/components/text-field/#input-types), [several lines](/components/text-field/#several-lines) and the resize grip, [code](/components/text-field/#code), and [dates and times](/components/text-field/#dates-and-times) with the picker button.
+
+### Bare, without a field
+
+- **The name** is `label`. `labelHidden` stops a filled or an outlined input from drawing it.
+- **An error** is `error`, which you set: the box is drawn in its error condition and exposed as invalid. The input has no error text. Say what is wrong in words beside it, or frame it.
+- **A date or a time left half-filled**, or with a value that is not available, draws the box in error and emits `entryError`. `invalidText` or `unavailableText` is added to the input's description; nothing draws it.
+- **The count** is kept, described and announced, and not drawn. `countText` is the count as text ("12/40"), for you to draw.
+- **Required** is a field's to say. A bare input has no requirement setting: where the form needs an answer, validate it yourself.
+
+### What was entered already
+
+The `entries` slot is a place inside the box, before the typed text, for what a person entered already: the chips of a list of addresses, for example. The input lays its content and the typing part out in lines that wrap, and the box grows by whole lines. While the slot holds content, a floating label floats and the placeholder is not shown.
+
+```html
+<tanrei-text-input label="Recipients" type="email">
+  <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com"
+    remove-label="Remove ada@example.com"></tanrei-chip>
+</tanrei-text-input>
+```
+
+The input gives these items no role, no place in the focus order and no key: they are yours. A press in the box outside every item focuses the typing part. For a list of entries with its keys, its checks and its form value, use the [chip field](/components/chip-field/), which is built on this place.
+
+<ComponentSpecs name="text-input" />
+
+### What the web draws differently
+
+- The element is form-associated. With a `name` it submits `value`, resets to its `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while its field says it is required. A date or a time in an entry error is reported as well.
+- The text is edited in a native `<input>` in the shadow root, or a `<textarea>` while `multiline`. A date or a time is a group of spin buttons.
+- The element is a block. `focus()` goes to the native element, and a press anywhere on the box outside a button focuses it.
+- `input` and `change` are composed events. `action` is a cancelable CustomEvent: cancel it to keep Enter from submitting the form. `pickerrequest` and `entryerror` are CustomEvents whose `detail` holds `{ value, type, min, max }` and `{ reason, text }`. Their types are `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` and `TanreiTextInputEntryErrorDetail`.
+- `countText` is a read-only property, new after each change of the value. It has no attribute.
+- Attributes are kebab-case, such as `label-hidden`, `min-rows`, `prefix-text` and `no-wrap`, which is `wrap` set to false. `readonly`, `maxlength`, `autocomplete`, `min` and `max` keep HTML's names.
+- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `entries`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`.
+- Slots: `leading-icon`, `trailing-icon` and `entries`. A trailing icon may be your own icon-only Button. The `entries` part has no box of its own: its items stand in the box's own lines.
+- `resize-label` and `segment-empty-text` left empty are read from the product's words (`setWords()`).
+- Before the element is defined it has no size. Reserve the height of the box.
+
+## Guidelines
+
+### Text input, text field, or a field by hand
+
+| You need | Use |
+| --- | --- |
+| A label, the box, help, an error and a count | A [text field](/components/text-field/) |
+| The box alone, under a label that stands elsewhere: a toolbar's filter, a table's cell, a row with its label beside it | A text input, named by its own `label` |
+| Something of your own inside the frame, beside or below the box | A [field](/components/field/) with a text input and your own element in it |
+| A search with suggestions or results that open from it | A [search](/components/search/) |
+| A number that is stepped and kept within limits | A [number field](/components/number-field/) |
+
+### Do
+
+- Give a bare input a `label` in the words of the visible label, or in words that say what the visible label and its place say together: "Quantity, oak desk".
+- Give a bare input its width by its place: a column of a grid, a cell, a toolbar's item with a width.
+- Keep the visible label close enough that a person who sees the page reads the two as one.
+- Use the text field wherever a label above the box, help and an error are what you need.
+
+### Don't
+
+- Don't use a bare input in a form to save the room of a label. Apart from a filter or a search marked by its glyph, an input with no visible label anywhere is a guess for everyone who sees it.
+- Don't use the placeholder as the label. It goes as soon as someone types, and it is never the name.
+- Don't set `label`, `error` or `disabled` on an input inside a field. Say them on the field, so that the label and the help follow.
+- Don't put a text field inside a field. It is a field already; the control a field frames is the text input.
+- Don't draw the count, the help or an error inside the box with a style of your own. They are a field's rows.
+
+## Accessibility
+
+<ComponentAccessibility name="text-input" />
+
+### What the component handles
+
+- It is one text box, a multi-line one with `multiline`; a search box for `type` search where the platform has that role; a group of spin buttons for a date or a time.
+- Its name is its own `label`, or the label of the field around it where it has none. The placeholder is never the name.
+- Its description is the prefix and the suffix while they are shown, then the count, then what its field gives: the help or the error text.
+- It is exposed as invalid while in error, as required while its field says so, and as read-only and disabled.
+- The count is announced as it stands ("12/40") once typing pauses for a second, never on every keystroke, whether or not anything draws it.
+- Focus is shown by the box's own edge, from the keyboard and from a pointer alike. The hit area meets the minimum target.
+- The asterisk after a floating label is hidden from assistive technology: the required state already says it.
+- A missing name is reported in debug builds.
+
+### What you need to do
+
+- Name every bare input with `label`. A visible text beside it does not name it.
+- Where a bare input can be wrong, say what is wrong in words that reach assistive technology: a message of your own tied to the page, or a field around the input.
+- For a date or a time, give `segmentEmptyText`, and write `invalidText` and `unavailableText` even where no field shows them: they are read with the input.
+- Name the resize grip with `resizeLabel` and the picker button with `pickerLabel`.

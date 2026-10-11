@@ -1,0 +1,71 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "alignSelf": "flex-start",
+      "flexDirection": "row"
+    }
+  },
+  "children": [
+    {
+      "type": "Text",
+      "props": {
+        "accessibilityLabel": "notifications",
+        "accessibilityValue": {
+          "text": "New messages"
+        },
+        "accessible": true,
+        "allowFontScaling": false,
+        "style": {
+          "color": "rgb(75, 75, 75)",
+          "fontFamily": "Material Symbols Rounded",
+          "fontSize": 24,
+          "fontWeight": "300",
+          "lineHeight": 24
+        }
+      },
+      "children": [
+        "notifications"
+      ]
+    },
+    {
+      "type": "View",
+      "props": {
+        "accessibilityElementsHidden": true,
+        "accessible": false,
+        "importantForAccessibility": "no-hide-descendants",
+        "style": {
+          "backgroundColor": "rgb(27, 27, 27)",
+          "borderRadius": 3,
+          "end": -1,
+          "height": 6,
+          "pointerEvents": "none",
+          "position": "absolute",
+          "top": -1,
+          "width": 6
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessible": false,
+            "importantForAccessibility": "no",
+            "style": {
+              "borderColor": "rgb(255, 255, 255)",
+              "borderRadius": 5,
+              "borderWidth": 2,
+              "bottom": -2,
+              "left": -2,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "right": -2,
+              "top": -2
+            }
+          },
+          "children": []
+        }
+      ]
+    }
+  ]
+}

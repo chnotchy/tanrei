@@ -1,0 +1,1535 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "tag-group",
+  "title": "Tag group",
+  "summary": "Lays out a set of tags or chips in lines that wrap, spaced for what it holds, and exposes the set as one named list; the members stay what they are, and after a chip is removed focus goes on to the next.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "tag",
+    "chip"
+  ],
+  "anatomy": [
+    {
+      "id": "group",
+      "description": "The set: lines of members that start at the start edge and wrap. It draws nothing of its own — no container, no fill, no edge, no padding and no label — and is exposed as one list."
+    },
+    {
+      "id": "member",
+      "description": "A tag or a chip of the set: placed and spaced by the group, exposed as an item of its list, and otherwise drawn and behaving as it does anywhere."
+    }
+  ],
+  "props": [
+    {
+      "name": "spacing",
+      "type": "enum",
+      "values": [
+        "tags",
+        "chips"
+      ],
+      "default": "tags",
+      "description": "What the set holds, which decides the distances between its members. tags: static tags, as close as words of one group. chips: chips, which take input, with lines far enough apart that each chip keeps its whole touch target.",
+      "axis": "tanrei.comp.tag-group.spacing"
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the set (\"Tags\", \"Filters\", \"Suggested fonts\"). It is not drawn: a set that needs a visible name stands under the product's own heading or text, and still takes this. Optional where the set is plain from what surrounds it, recommended for a set of chips."
+    }
+  ],
+  "items": [
+    {
+      "name": "tag",
+      "summary": "A Tag of the set: the tag component, placed and spaced by the group and exposed as an item of its list, otherwise drawn and read as it is anywhere.",
+      "component": "tag",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its text, as the Tag's label."
+        },
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "tonal",
+            "outlined",
+            "filled"
+          ],
+          "default": "tonal",
+          "description": "Its look, as the Tag's variant."
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "values": [
+            "default",
+            "info",
+            "warning",
+            "error",
+            "success"
+          ],
+          "default": "default",
+          "description": "What it reports, as the Tag's status."
+        },
+        {
+          "name": "size",
+          "type": "enum",
+          "values": [
+            "small",
+            "medium"
+          ],
+          "default": "medium",
+          "description": "Its height, as the Tag's size. Give every member of a group the same size."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The glyph in the Tag's icon slot, by its name in the system's icon set. Empty for none. It is how a fixture fills that slot; in an application the slot is filled as the Tag's own spec says."
+        }
+      ]
+    },
+    {
+      "name": "chip",
+      "summary": "A Chip of the set: the chip component, placed and spaced by the group and exposed as an item of its list, otherwise drawn and behaving as it does anywhere, with its own state, events and Tab stop.",
+      "component": "chip",
+      "props": [
+        {
+          "name": "kind",
+          "type": "enum",
+          "values": [
+            "action",
+            "filter",
+            "input"
+          ],
+          "default": "action",
+          "description": "What it does, as the Chip's kind."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its text and accessible name, as the Chip's label."
+        },
+        {
+          "name": "size",
+          "type": "enum",
+          "values": [
+            "small",
+            "medium"
+          ],
+          "default": "medium",
+          "description": "Its height, as the Chip's size. Give every member of a group the same size."
+        },
+        {
+          "name": "selected",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether a filter chip is on, as the Chip's selected. The chip holds it; the group does not."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Chip's disabled: one chip of a set may be disabled by itself."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The destination of an action chip, as the Chip's href: it makes the chip a link."
+        },
+        {
+          "name": "removeLabel",
+          "type": "string",
+          "default": "",
+          "description": "The accessible name of an input chip's remove action, as the Chip's removeLabel."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The glyph in the Chip's icon slot, by its name in the system's icon set. Empty for none. It is how a fixture fills that slot; in an application the slot is filled as the Chip's own spec says."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The chip was activated, as the Chip's click."
+        },
+        {
+          "name": "change",
+          "description": "A filter chip was switched, as the Chip's change."
+        },
+        {
+          "name": "remove",
+          "description": "The person asked to remove an input chip, as the Chip's remove. The product removes it; the group then places the rest and moves focus (TGR-9)."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "TGR-1",
+      "text": "THE tag group SHALL lay out its members in lines: from its start edge, in the order they were given, comp.tag-group.gap.tags apart along a line WHILE spacing is tags and comp.tag-group.gap.chips apart WHILE spacing is chips, each member at its own size and centred on the middle of its line. It SHALL be as wide as its layout gives it and as tall as its lines, SHALL draw no container, fill, edge or elevation of its own, SHALL add no padding around its members, and SHALL NOT draw its label.",
+      "verify": "Under the default system three medium tags stand 8 apart on one line 24 high; three medium chips stand 8 apart on one line 32 high."
+    },
+    {
+      "id": "TGR-2",
+      "text": "WHEN a member does not fit in what is left of a line THE tag group SHALL put it, whole, at the start of a new line below, comp.tag-group.row-gap.tags below the line above WHILE spacing is tags and comp.tag-group.row-gap.chips WHILE spacing is chips, measured between the visible bounds of the tallest members of the two lines; it SHALL NOT cut, shrink or split a member to keep it on a line, SHALL NOT scroll its lines, and SHALL NOT hide a member or stand a count in its place: every member it is given is shown. WHERE one member alone is wider than the group THE tag group SHALL give it the group's width on a line of its own, and the member SHALL then cut its own label as its own spec says (TAG-5, CHP-17).",
+      "verify": "Under the default system two lines of medium tags are 8 apart and two lines of medium chips 16. Fixtures tags-wrap and chips-filters-wrap hold more members than any stage is wide. Unit: in a group 120 wide a tag with a long label is 120 wide, on its own line, with an ellipsis."
+    },
+    {
+      "id": "TGR-3",
+      "text": "THE tag group SHALL keep its members in the order they were given: it SHALL NOT sort them, move a selected chip forward or group them by kind, and the order in which focus moves through its chips and in which assistive technology reads its members SHALL be that order — along each line from its start, and line after line from the top."
+    },
+    {
+      "id": "TGR-4",
+      "text": "THE tag group SHALL take from spacing only the distances of TGR-1 and TGR-2: spacing SHALL NOT change what a member is, how it is drawn or what the group exposes. WHERE the platform can tell what its members are, WHILE spacing is tags and a member takes input (a chip) THE tag group SHALL still render and in debug builds report that a set of chips wants spacing chips, because the lines of tags stand closer than a chip's touch target is high."
+    },
+    {
+      "id": "TGR-5",
+      "text": "WHILE the hit areas that two neighbouring chips extend beyond their visible bounds (CHP-5, CHP-21) overlap THE tag group SHALL give every press on a chip's visible bounds to that chip, and a press in the gap between two chips — along a line or between two lines — to the nearer one, so that neighbouring hit areas meet at the middle of the gap. comp.tag-group.row-gap.chips is what keeps each chip's target whole between two lines: at sys.target.touch minus a chip's height or more, no hit areas overlap, as under the default system's value for a medium chip; a small chip on wrapped lines, and a layer that narrows the gap, have targets that meet between the lines.",
+      "verify": "Under the default system two wrapped lines of medium chips give every chip 48 of height to a touch: 32 and half of 16 on each side."
+    },
+    {
+      "id": "TGR-6",
+      "text": "THE tag group SHALL NOT restyle its members: each SHALL render from its own tokens at its own size, answer hover, focus and press itself, hold its own state (a filter chip its selected), emit its own events and keep its own role and name inside the item the group exposes it as (TGR-7). Each chip SHALL be its own Tab stop — an input chip two, the chip and then its remove action (CHP-23) — in the order of TGR-3; the tag group itself SHALL NOT take focus, SHALL NOT handle arrow keys, Home or End, SHALL keep no selection of its own, SHALL NOT make its filter chips exclusive, and SHALL emit no event. The tag group has no size of its own: members of different sizes on one line are centred on it (TGR-1)."
+    },
+    {
+      "id": "TGR-7",
+      "text": "WHILE the tag group holds at least one member THE tag group SHALL expose itself to assistive technology as a list, named by label WHILE label is not empty, and each member as one item of that list, in the order of TGR-3, holding the member as the member exposes itself: a tag as its text (TAG-11), a chip as its button or its link with its state, an input chip with its remove action beside it. WHEN label changes THE tag group SHALL expose the new name at once. WHILE label is empty THE tag group SHALL still expose the list, unnamed. A platform that has no list role SHALL expose a container named by label that holds the members in order, and state that in its README.",
+      "verify": "On the web: the accessibility tree has a list with the label as its name and one listitem per member; a filter chip inside its listitem is a button with its pressed state."
+    },
+    {
+      "id": "TGR-8",
+      "text": "WHILE the tag group holds no member THE tag group SHALL draw nothing, take no space and expose nothing — no empty list and no name — and SHALL report nothing: a set that has no tags yet, or whose last filter was removed, is not a mistake. WHILE it holds one member THE tag group SHALL lay it out and expose it as a list of one."
+    },
+    {
+      "id": "TGR-9",
+      "text": "WHEN a member leaves the tag group while focus is on it — on a chip or on its remove action — THE tag group SHALL move focus to the chip that follows it in the order of TGR-3, or to the chip before it WHERE none follows, on the chip itself and never on its remove action, so that a person who removes several entered items in a row goes on from where they were; it SHALL skip a member that takes no focus (a tag, a disabled chip). WHERE no member that takes focus is left THE tag group SHALL NOT move focus, having nowhere of its own to put it: the product moves it to the control that the set belongs to (CHP-22). THE tag group SHALL NOT remove a member itself and SHALL announce nothing.",
+      "verify": "Unit: of five input chips, removing the focused third puts focus on the former fourth; removing the focused last puts it on the new last; pressing the remove action of a chip puts focus on the next chip, not on that chip's remove action."
+    },
+    {
+      "id": "TGR-10",
+      "text": "WHEN a member is added, is removed or changes its size THE tag group SHALL place its members again by TGR-1 and TGR-2 at once, without a motion of its own; a member that has focus while it moves to another line SHALL keep it, and THE tag group SHALL NOT move focus because a member was added."
+    },
+    {
+      "id": "TGR-11",
+      "text": "WHILE the tag group holds content that is not a Tanrei tag or chip THE tag group SHALL still lay it out and expose it as a member, and in debug builds report it; a platform that cannot inspect its content SHALL state the rule in its README and docs page."
+    },
+    {
+      "id": "TGR-12",
+      "text": "WHILE the text size is enlarged THE tag group SHALL keep its gaps and let its members grow as their own specs say (TAG-13, CHP-17), wrapping onto as many lines as they then need; at 200% no member SHALL be lost, lie over another or be cut by the group, and the group SHALL need scrolling in no direction of its own."
+    },
+    {
+      "id": "TGR-13",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE tag group SHALL draw nothing of its own there either: its members draw themselves as their own specs say (TAG-14), and the distances of TGR-1 and TGR-2 stay what tells them apart."
+    },
+    {
+      "id": "TGR-14",
+      "text": "WHERE the layout direction is right-to-left THE tag group SHALL start every line at the right edge and place its members from right to left, in the order they were given, wrapping to a new line below as TGR-2 says; the order of focus and of reading SHALL stay the order of TGR-3. Each member's own content SHALL follow the layout direction as the member's spec says (TAG-15, CHP-25).",
+      "verify": "Fixture chips-filters-rtl: the first chip is at the top right, and the second line starts at the right."
+    },
+    {
+      "id": "TGR-15",
+      "text": "THE tag group SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the tag group is shown THE tag group SHALL draw itself for the new direction at once, without a motion of its own, keeping its members, their state and their focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "TGR-16",
+      "text": "WHEN spacing names a value that the active design system does not have THE tag group SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    }
+  ],
+  "accessibility": {
+    "role": "list",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to each chip of the set in turn, in the order given; on an input chip, the next Tab moves to its remove action. A set of tags has no stop."
+      },
+      {
+        "keys": "Enter, Space, Backspace or Delete",
+        "action": "The focused chip's own keys, as the Chip says. After a removal, focus is on the chip that followed (TGR-9)."
+      }
+    ],
+    "labeling": "label names the list (\"Tags\", \"Filters\"); it is not drawn. Each member is one list item and keeps its own name inside it: a tag its text, a chip its label, an input chip's remove action its removeLabel. A filter chip's state is its own pressed state. An empty group exposes nothing.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive by itself: the tag group takes no focus and handles no key (TGR-6), so it has no target of its own to size and minimumTarget holds through its chips, each of which extends its own hit area (CHP-5). What the group owes them is room: gap and row-gap decide how much of each extended hit area a chip keeps beside and between its neighbours (TGR-5).",
+      "Why a list, for tags and for chips alike: a list tells a person how many members there are and where they are among them, which is what a set of like things needs — four tags on an article, the third of nine filters. It holds static text, links and buttons equally, so one component needs no setting for its semantics.",
+      "Why not a group: a group says that controls belong together and nothing more. It is what a button group is, whose two to four members are different actions; a tag group's members are of one kind and any number.",
+      "Why not a list box: a list box is one control that holds a selection, with options that are not buttons. An input chip's remove action cannot live inside an option, and a set of filters would lose each chip's own pressed state. One choice among several is a radio group, tabs or a segmented button; a choice from a list is a select.",
+      "Why not a toolbar: a toolbar is one Tab stop with arrow keys. The chip is a Tab stop of its own today (CHP-23) and so is every Button of a button group; a set of filters that should be one stop is placed in a Toolbar, which gives its members those keys.",
+      "The tag group does not make filter chips exclusive and holds no value. A product that wants one filter on at a time switches the others off when one is switched on; assistive technology then hears toggle buttons, which is true of them.",
+      "After the last member is removed the group is gone and cannot hold focus. The product moves focus to what the set belonged to (the field that adds items, the button that opens the filters); otherwise the platform drops it. The docs page says so with an example.",
+      "A removal is not announced by the group. Where it must be (a filter removed far from the list it changes), the product reports it in a live region or with a snackbar.",
+      "A status among a set of tags never rests on color alone: each tag says it in words (TAG-11).",
+      "A small chip is for dense places where a set stands on one line. On wrapped lines small chips are 24 high and 16 apart under the default system, so their touch targets meet between the lines at 40; a set of small chips that wraps on a touch screen wants medium chips.",
+      "Text size: at 200% members grow and the set wraps onto more lines; nothing is cut by the group (TGR-12).",
+      "Compose and React Native have no list role for an arbitrary layout: the group is a traversal group whose content description is label and whose collection information gives the count (Compose), or a labelled container (React Native), and each member keeps its own role."
+    ]
+  },
+  "tokens": "comp.tag-group",
+  "fixtures": [
+    {
+      "id": "tags",
+      "props": {
+        "label": "Tags"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Design tokens"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Accessibility"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Right-to-left"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-outlined",
+      "props": {
+        "label": "Tags"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Design tokens",
+            "variant": "outlined"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Accessibility",
+            "variant": "outlined"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Right-to-left",
+            "variant": "outlined"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Typography",
+            "variant": "outlined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-small",
+      "props": {
+        "label": "Sizes"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "small",
+            "size": "small",
+            "variant": "outlined"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "medium",
+            "size": "small",
+            "variant": "outlined"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "large",
+            "size": "small",
+            "variant": "outlined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-status",
+      "props": {
+        "label": "Platforms"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Web: stable",
+            "status": "success",
+            "size": "small",
+            "icon": "check_circle"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "SwiftUI: beta",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Compose: beta",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Flutter: lagging",
+            "status": "warning",
+            "size": "small",
+            "variant": "outlined"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "React Native: planned",
+            "size": "small",
+            "variant": "outlined"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-current",
+      "props": {
+        "label": "Choices"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "divider",
+            "variant": "filled",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "gap",
+            "size": "small"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-icons",
+      "props": {
+        "label": "Tags"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Design tokens",
+            "icon": "sell"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Accessibility",
+            "icon": "sell"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Right-to-left",
+            "icon": "sell"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-single",
+      "props": {
+        "label": "Tags"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Design tokens"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-wrap",
+      "props": {
+        "label": "Tags"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Design tokens"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Accessibility"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Right-to-left"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Typography"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Color"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Motion"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Theming"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Web Components"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "SwiftUI"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Jetpack Compose"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Flutter"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "React Native"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Release notes"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Migration"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-small-wrap",
+      "props": {
+        "label": "Tags"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Design tokens",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Accessibility",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Right-to-left",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Typography",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Color",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Motion",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Theming",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Web Components",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "SwiftUI",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Jetpack Compose",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Flutter",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "React Native",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Release notes",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Migration",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Design tokens",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Accessibility",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Right-to-left",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Typography",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Color",
+            "size": "small"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Motion",
+            "size": "small"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-long-member",
+      "props": {
+        "label": "Tags"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Design tokens"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "A note on why the documentation of a design system should be built from the components it documents, and what that taught us"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "Color"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chips-links",
+      "props": {
+        "spacing": "chips",
+        "label": "Tags"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Design tokens",
+            "href": "https://example.com/tanrei"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Accessibility",
+            "href": "https://example.com/tanrei"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Right-to-left",
+            "href": "https://example.com/tanrei"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Typography",
+            "href": "https://example.com/tanrei"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chips-filters",
+      "props": {
+        "spacing": "chips",
+        "label": "Filters"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Open",
+            "kind": "filter",
+            "selected": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Assigned to me",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Needs review",
+            "kind": "filter",
+            "selected": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Blocked",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Has a design",
+            "kind": "filter",
+            "selected": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "chips-filters-wrap",
+      "props": {
+        "spacing": "chips",
+        "label": "Filters"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Open",
+            "kind": "filter",
+            "selected": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Assigned to me",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Needs review",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Blocked",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Has a design",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Web",
+            "kind": "filter",
+            "selected": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "iOS",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Android",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "This week",
+            "kind": "filter",
+            "selected": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Overdue",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "No owner",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Archived",
+            "kind": "filter",
+            "selected": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "chips-filters-small",
+      "props": {
+        "spacing": "chips",
+        "label": "Filters"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Open",
+            "kind": "filter",
+            "size": "small",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Assigned to me",
+            "kind": "filter",
+            "size": "small",
+            "selected": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Needs review",
+            "kind": "filter",
+            "size": "small",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Blocked",
+            "kind": "filter",
+            "size": "small",
+            "selected": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "chips-filters-disabled-member",
+      "props": {
+        "spacing": "chips",
+        "label": "Filters"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Open",
+            "kind": "filter",
+            "selected": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Archived",
+            "kind": "filter",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Blocked",
+            "kind": "filter"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chips-suggestions",
+      "props": {
+        "spacing": "chips",
+        "label": "Suggested fonts"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Inter",
+            "icon": "add"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Noto Sans JP",
+            "icon": "add"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Roboto",
+            "icon": "add"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Source Sans 3",
+            "icon": "add"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "IBM Plex Sans",
+            "icon": "add"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chips-input",
+      "props": {
+        "spacing": "chips",
+        "label": "Recipients"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Ada Lovelace",
+            "kind": "input",
+            "removeLabel": "Remove Ada Lovelace"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Grace Hopper",
+            "kind": "input",
+            "removeLabel": "Remove Grace Hopper"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Katherine Johnson",
+            "kind": "input",
+            "removeLabel": "Remove Katherine Johnson"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chips-input-add",
+      "props": {
+        "spacing": "chips",
+        "label": "Recipients"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Ada Lovelace",
+            "kind": "input",
+            "removeLabel": "Remove Ada Lovelace"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Grace Hopper",
+            "kind": "input",
+            "removeLabel": "Remove Grace Hopper"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Katherine Johnson",
+            "kind": "input",
+            "removeLabel": "Remove Katherine Johnson"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Add",
+            "icon": "add"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-ja",
+      "props": {
+        "label": "タグ"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "デザイントークン"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "アクセシビリティ"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "タイポグラフィ"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "配色"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tags-rtl",
+      "props": {
+        "label": "الوسوم"
+      },
+      "items": [
+        {
+          "kind": "tag",
+          "props": {
+            "label": "رموز التصميم"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "إمكانية الوصول"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "الطباعة"
+          }
+        },
+        {
+          "kind": "tag",
+          "props": {
+            "label": "الألوان"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "chips-filters-rtl",
+      "props": {
+        "spacing": "chips",
+        "label": "عوامل التصفية"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "مفتوح",
+            "kind": "filter",
+            "selected": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "مسند إليّ",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "بحاجة إلى مراجعة",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "محظور",
+            "kind": "filter",
+            "selected": true
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "له تصميم",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "الويب",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "هذا الأسبوع",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "متأخر",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "بلا مالك",
+            "kind": "filter",
+            "selected": false
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "مؤرشف",
+            "kind": "filter",
+            "selected": false
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-members-rtl",
+      "props": {
+        "spacing": "chips",
+        "label": "Tags"
+      },
+      "items": [
+        {
+          "kind": "chip",
+          "props": {
+            "label": "v2.1 beta",
+            "href": "https://example.com/tanrei"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "Web Components",
+            "href": "https://example.com/tanrei"
+          }
+        },
+        {
+          "kind": "chip",
+          "props": {
+            "label": "RTL",
+            "href": "https://example.com/tanrei"
+          }
+        }
+      ],
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-tag-group",
+      "props": {
+        "spacing": "spacing",
+        "label": "label"
+      },
+      "items": {
+        "tag": {
+          "name": "tanrei-tag",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "status": "status",
+            "size": "size",
+            "icon": "slot=\"icon\""
+          },
+          "notes": "A `tanrei-tag` child, as anywhere."
+        },
+        "chip": {
+          "name": "tanrei-chip",
+          "props": {
+            "kind": "kind",
+            "label": "label",
+            "size": "size",
+            "selected": "selected",
+            "disabled": "disabled",
+            "href": "href",
+            "removeLabel": "removeLabel",
+            "icon": "slot=\"icon\""
+          },
+          "events": {
+            "click": "click",
+            "change": "change",
+            "remove": "remove"
+          },
+          "notes": "A `tanrei-chip` child, as anywhere; `remove-label` is its attribute. The page removes the element on `remove`; the group sees it leave and moves focus (TGR-9)."
+        }
+      },
+      "notes": "`<tanrei-tag-group label=\"Filters\" spacing=\"chips\">` holds `tanrei-tag` and `tanrei-chip` children. The members stay in the product's light DOM, in the default slot: they keep their attributes, events, styles and place in the document, and the group moves none of them. The shadow root holds one element with `role=\"list\"` and `aria-label`, a flex container that wraps (`flex-wrap: wrap; align-items: center; column-gap; row-gap` from the tokens of `spacing`), around the slot; the host has no role, and the group gives each slotted member `role=\"listitem\"` where it has no role of its own and takes it back when the member leaves (`slotchange`), as the carousel exposes its items. A `tanrei-chip` host carries no role itself — its button or link is in its shadow root — so the item holds that control. While the slot is empty the host is `display: none` and the list is not rendered (TGR-8). Removal: a `MutationObserver` and `slotchange` find a member that left while `:focus-within` held on it, and the group calls `focus()` on the next chip (TGR-9). The debug report of TGR-4 looks for a `tanrei-chip` among the slotted elements. Before the element is defined its children are already shown, as the inline elements they are, in source order and separated by the white space between them: a set of tags is readable and a set of chips is operable once the chips themselves are defined; a page that wants the final layout from the first paint adds `tanrei-tag-group:not(:defined) { display: flex; flex-wrap: wrap; gap: … }` with the token's custom properties. The host is `display: block`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiTagGroup",
+      "props": {
+        "spacing": "spacing",
+        "label": "label"
+      },
+      "items": {
+        "tag": {
+          "name": "TanreiTag",
+          "props": {
+            "label": "title",
+            "variant": "variant",
+            "status": "status",
+            "size": "size",
+            "icon": "icon"
+          },
+          "notes": "A `TanreiTag` child, as anywhere."
+        },
+        "chip": {
+          "name": "TanreiChip",
+          "props": {
+            "kind": "isSelected / onRemove",
+            "label": "title",
+            "size": "size",
+            "selected": "isSelected",
+            "disabled": "disabled",
+            "href": "destination",
+            "removeLabel": "removeLabel",
+            "icon": "icon"
+          },
+          "events": {
+            "click": "action",
+            "change": "isSelected",
+            "remove": "onRemove"
+          },
+          "notes": "A `TanreiChip` child, as anywhere."
+        }
+      },
+      "notes": "`TanreiTagGroup(_ label: String = \"\", spacing: .chips) { TanreiChip(…) … }`: a custom `Layout` that flows its subviews into lines by TGR-1 and TGR-2 and follows `layoutDirection`. The container is `.accessibilityElement(children: .contain)` with the label; SwiftUI has no list trait for an arbitrary layout, so VoiceOver reads the label and then each member (TGR-7's fallback). Focus after a removal uses `@AccessibilityFocusState` and `@FocusState` keyed by the members' identities, which the caller gives with `.id(_:)` as in a `ForEach`."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiTagGroup",
+      "props": {
+        "spacing": "spacing",
+        "label": "contentDescription"
+      },
+      "items": {
+        "tag": {
+          "name": "TanreiTag",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "status": "status",
+            "size": "size",
+            "icon": "icon"
+          },
+          "notes": "A `TanreiTag` call in the group's content, as anywhere."
+        },
+        "chip": {
+          "name": "TanreiChip",
+          "props": {
+            "kind": "onSelectedChange / onRemove",
+            "label": "label",
+            "size": "size",
+            "selected": "selected",
+            "disabled": "enabled",
+            "href": "href",
+            "removeLabel": "removeContentDescription",
+            "icon": "icon"
+          },
+          "events": {
+            "click": "onClick",
+            "change": "onSelectedChange",
+            "remove": "onRemove"
+          },
+          "notes": "A `TanreiChip` call in the group's content, as anywhere; `enabled` is disabled's inverse."
+        }
+      },
+      "notes": "`TanreiTagGroup(spacing = TanreiTagGroupSpacing.Chips, contentDescription = \"Filters\") { … }`, built on `FlowRow` with the tokens' horizontal and vertical arrangements. Semantics: a traversal group with `contentDescription` and `collectionInfo` (one row, as many columns as members), each member given `collectionItemInfo`; TalkBack then reads the count. Focus after a removal: the group keeps a `FocusRequester` per member key and requests the next one when a focused member leaves the composition."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiTagGroup",
+      "props": {
+        "spacing": "spacing",
+        "label": "semanticLabel"
+      },
+      "items": {
+        "tag": {
+          "name": "TanreiTag",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "status": "status",
+            "size": "size",
+            "icon": "icon"
+          },
+          "notes": "A `TanreiTag` in `children`, as anywhere."
+        },
+        "chip": {
+          "name": "TanreiChip",
+          "props": {
+            "kind": "TanreiChip / TanreiChip.filter / TanreiChip.input",
+            "label": "label",
+            "size": "size",
+            "selected": "selected",
+            "disabled": "isEnabled",
+            "href": "href",
+            "removeLabel": "removeSemanticLabel",
+            "icon": "icon"
+          },
+          "events": {
+            "click": "onPressed",
+            "change": "onSelected",
+            "remove": "onDeleted"
+          },
+          "notes": "A `TanreiChip` in `children`, as anywhere. Give each a `Key`, so that the group can tell which one left."
+        }
+      },
+      "notes": "`TanreiTagGroup(spacing: TanreiTagGroupSpacing.chips, semanticLabel: 'Filters', children: […])`, built on `Wrap` with `spacing`, `runSpacing` and `crossAxisAlignment: WrapCrossAlignment.center`; `Wrap` follows `Directionality`. `Semantics(container: true, label:)` around it; Flutter has no list role for a `Wrap`, so the members are read in order after the label. Focus after a removal: the group compares its children's keys between builds and requests focus on the next chip's `FocusNode`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "TagGroup",
+      "props": {
+        "spacing": "spacing",
+        "label": "accessibilityLabel"
+      },
+      "items": {
+        "tag": {
+          "name": "Tag",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "status": "status",
+            "size": "size",
+            "icon": "icon"
+          },
+          "notes": "A `Tag` child, as anywhere."
+        },
+        "chip": {
+          "name": "Chip",
+          "props": {
+            "kind": "kind",
+            "label": "label",
+            "size": "size",
+            "selected": "selected",
+            "disabled": "disabled",
+            "href": "href",
+            "removeLabel": "removeAccessibilityLabel",
+            "icon": "icon"
+          },
+          "events": {
+            "click": "onPress",
+            "change": "onSelectedChange",
+            "remove": "onRemove"
+          },
+          "notes": "A `Chip` child, as anywhere. Give each a `key`, so that the group can tell which one left."
+        }
+      },
+      "notes": "`<TagGroup spacing=\"chips\" accessibilityLabel=\"Filters\">{…}</TagGroup>`: a `View` with `flexDirection: 'row'`, `flexWrap: 'wrap'`, `alignItems: 'center'`, `columnGap` and `rowGap` from the tokens, `accessibilityRole=\"list\"` (announced on Android; a labelled container on iOS). It reads its children's keys to find the chip that follows a removed one and focuses it through its ref. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

@@ -1,0 +1,130 @@
+---
+// Component × platform matrix. Rendered entirely from docs/status/status.json. The legend is Tanrei's description list,
+// stacked in three columns: each term is the status's own tag, each value what the status means. Both tables are Tanrei's Table: the first
+// column names each row (a status, a component) and stays in view while the platforms scroll under it; the totals are
+// end-aligned figures with their sum as the table's footer row.
+import { platforms, statuses, statusComponents, statusTotals, componentHref } from '../lib/repo';
+import { contentLang, localeBase, strings } from '../lib/i18n';
+import StatusBadge from './StatusBadge.astro';
+import SourceNote from './SourceNote.astro';
+import Table from './Table.astro';
+
+interface Props {
+  /**
+   * The level of the block's headings, from where the page places it: 2 where the block stands directly under the
+   * page's title, one more than the heading it stands under otherwise. A page says it; the block does not guess
+   * (a heading that skips a level is a broken outline to assistive technology).
+   */
+  headingLevel: 2 | 3 | 4;
+}
+const Heading = `h${Astro.props.headingLevel}` as 'h2';
+const t = strings(contentLang(Astro));
+const base = localeBase(Astro);
+// One table per category, in the order the inventory lists them.
+const categories = [...new Set(statusComponents.map((c) => c.category))];
+---
+
+<div class="not-content matrix">
+  <section aria-labelledby="legend-title">
+    <Heading id="legend-title" class="docs-eyebrow">{t.legend}</Heading>
+    <tanrei-description-list layout="stacked" columns="3" separation="gap">
+      <dl>
+        {statuses.map((status) => (
+          <div>
+            <dt><StatusBadge status={status} /></dt>
+            <dd>{t.statusHelp[status]}</dd>
+          </div>
+        ))}
+      </dl>
+    </tanrei-description-list>
+  </section>
+
+  <section aria-labelledby="totals-title">
+    <Heading id="totals-title" class="docs-eyebrow">{t.totals}</Heading>
+    <Table label={t.totals} rowHeaders stickyFirstColumn>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col" data-wrap="false">{t.status_}</th>
+            {platforms.map((p) => <th scope="col" data-align="end" data-wrap="false">{t.platform[p] ?? p}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {statuses.map((status) => (
+            <tr>
+              <th scope="row" data-wrap="false"><StatusBadge status={status} /></th>
+              {platforms.map((p) => <td data-align="end">{statusTotals[p]?.[status] ?? 0}</td>)}
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" data-wrap="false">{t.total}</th>
+            {platforms.map((p) => <td data-align="end">{Object.values(statusTotals[p] ?? {}).reduce((a, b) => a + b, 0)}</td>)}
+          </tr>
+        </tfoot>
+      </table>
+    </Table>
+  </section>
+
+  {categories.map((category) => {
+    const rows = statusComponents.filter((c) => c.category === category);
+    const label = t.category[category] ?? category;
+    return (
+      <section aria-labelledby={`category-${category}`}>
+        <Heading id={`category-${category}`} class="docs-eyebrow">
+          {/* Each run of words is one expression: between the expressions of a tag that is chosen when the page is built, a space is not kept. */}
+          {`${label} `}<span class="count">{`· ${rows.length} ${t.components}`}</span>
+        </Heading>
+        <Table label={label} rowHeaders stickyFirstColumn>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col" data-wrap="false">{t.component}</th>
+                <th scope="col" data-wrap="false">{t.spec}</th>
+                {platforms.map((p) => <th scope="col" data-wrap="false">{t.platform[p] ?? p}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((c) => (
+                <tr data-component={c.name}>
+                  <th scope="row" data-wrap="false">
+                    {componentHref(base, c.name) ? <a class="tanrei-link" data-standalone href={componentHref(base, c.name)}>{c.title}</a> : c.title}{' '}
+                    <span class="id">{c.name}</span>
+                  </th>
+                  <td data-wrap="false" class="docs-muted">{c.hasSpec ? t.specYes : t.specNo}</td>
+                  {platforms.map((p) => <td data-wrap="false"><StatusBadge status={c.platforms[p] ?? 'planned'} /></td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Table>
+      </section>
+    );
+  })}
+  <SourceNote files={['docs/status/status.json']} />
+</div>
+
+<style>
+  .matrix {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+    margin-top: 1.5rem;
+  }
+  /* A section's heading, at whatever level the page gave the block. */
+  section > :global(.docs-eyebrow) {
+    margin: 0 0 0.75rem;
+  }
+  .count {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .id {
+    display: block;
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-2xs);
+    font-weight: 400;
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+</style>

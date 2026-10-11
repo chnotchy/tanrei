@@ -1,0 +1,49 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Uploading",
+    "accessibilityRole": "progressbar",
+    "accessibilityValue": {
+      "max": 10,
+      "min": 0,
+      "now": 3,
+      "text": "3 of 10 files"
+    },
+    "accessible": true,
+    "focusable": false,
+    "style": {
+      "alignSelf": "stretch",
+      "flexDirection": "row",
+      "height": 4
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "backgroundColor": "rgb(238, 238, 238)",
+          "borderRadius": 2,
+          "bottom": 0,
+          "end": 0,
+          "position": "absolute",
+          "start": 0,
+          "top": 0
+        }
+      },
+      "children": []
+    },
+    {
+      "type": "View",
+      "props": {
+        "collapsable": false,
+        "style": {
+          "backgroundColor": "rgb(27, 27, 27)",
+          "borderRadius": 2,
+          "width": "30%"
+        }
+      },
+      "children": []
+    }
+  ]
+}

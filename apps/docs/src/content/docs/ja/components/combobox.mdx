@@ -1,0 +1,239 @@
+---
+title: コンボボックス
+description: 入力して 1 つの値を見つけるためのボックスと、そこから開くオプションのリストです。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
+translationOf: components/combobox.mdx
+sourceHash: 8b063acb7cfd1c1829ee3980f804abae028a383a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="combobox" />
+
+<DemoFrame label="単独で使う例：ツールバーの絞り込みと、ラベルを横に置いた行" column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="トークンを検索" placeholder="トークンを検索" no-chevron empty-text="一致する項目はありません">
+    <span slot="leading-icon">search</span>
+    <tanrei-option value="primary" supporting-text="sys.color.primary">primary</tanrei-option>
+    <tanrei-option value="secondary" supporting-text="sys.color.secondary">secondary</tanrei-option>
+    <tanrei-option value="surface" supporting-text="sys.color.surface">surface</tanrei-option>
+  </tanrei-combobox>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>タイムゾーン</span>
+    <tanrei-combobox label="タイムゾーン" value="Europe/Lisbon" empty-text="一致する項目はありません">
+      <tanrei-option value="Asia/Tokyo">東京</tanrei-option>
+      <tanrei-option value="Europe/Lisbon">リスボン</tanrei-option>
+      <tanrei-option value="Europe/Berlin">ベルリン</tanrei-option>
+    </tanrei-combobox>
+  </div>
+</DemoFrame>
+
+コンボボックスは、[コンボボックスフィールド](/ja/components/combobox-field/)のコントロールだけを取り出したものです。ボックス、その中で入力するテキスト、先頭のグリフ、消去ボタン、シェブロンと、オプション、グループ、状態の行の入ったリストがあります。上にラベルの行はなく、下に補足もエラーテキストもありません。
+
+ユーザーが読むラベルがほかの場所にあるところで、単独で使います。
+
+| 場所 | ユーザーが読むラベル | コンボボックスの `label` |
+| --- | --- | --- |
+| ツールバーの絞り込み | プレースホルダーとグリフが、何をする欄かを伝えます | 何を探すか。「トークンを検索」 |
+| テーブルのセル | 列の見出し | 列と行。「担当者、リリースノート」 |
+| ラベルを横に置いた行 | 横にあるテキスト | それと同じ言葉 |
+
+単独で使うコンボボックスには、自身の `label` が必要です。これが、入力欄とリストのアクセシブルネームになります。Stacked のコンボボックスが `label` を描くことはありません。Filled と Outlined のコンボボックスは、ボックスの中で浮き上がるラベルとして描きます。
+
+これは**上級者向け**のコンポーネントです。自分で組み立てるプロダクトのための、コントロールだけの部品です。ほとんどのフォームに合うのは、このコンボボックスをフィールドに入れてそのまま使える形にした[コンボボックスフィールド](/ja/components/combobox-field/)です。
+
+**使われている場所**は、[コンボボックスフィールド](/ja/components/combobox-field/)です。自分で枠を付けるときは、[フィールド](/ja/components/field/)の中に入れます。フィールドが名前と説明を与え、必須であることを伝え、エラーの状態にします。
+
+単独でもフィールドの中でも、置かれた場所の幅いっぱいに広がるブロックです。自分の幅は持たず、オプションや値に合わせて幅が変わることもありません。ボックスを狭くするには、置く場所を狭くします。
+
+Web では、`<tanrei-option>` を子に持つ `<tanrei-combobox>` です。子の要素は、[セレクト](/ja/components/select/)が持つものと同じです。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- ツールバーの絞り込み。幅はツールバーが与えます。候補は入力した内容に対してしかないので、シェブロンは付けません。 -->
+    <tanrei-combobox id="token" label="トークンを検索" placeholder="トークンを検索" no-chevron filter="none"
+      style="inline-size: 16rem">
+      <span slot="leading-icon">search</span>
+    </tanrei-combobox>
+
+    <!-- テーブルのセル。列の見出しが、見えるラベルです。 -->
+    <td>
+      <tanrei-combobox name="assignee-release-notes" label="担当者、リリースノート" value="aiko">
+        <tanrei-option value="aiko">田中 愛子</tanrei-option>
+        <tanrei-option value="bao">グエン・バオ</tanrei-option>
+      </tanrei-combobox>
+    </td>
+
+    <script type="module">
+      import '@tanrei/web/components/combobox';
+
+      const token = document.querySelector('#token');
+      // ユーザーがテキストを変えました。絞り込みは利用者側で行い、オプションを渡し直します。
+      token.addEventListener('input', async () => {
+        const found = await find(token.inputValue);
+        token.replaceChildren(token.querySelector('[slot="leading-icon"]'), ...found.map(option));
+      });
+      // 確定した値が変わりました。value はすでに新しい値です。
+      token.addEventListener('change', (e) => open(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Combobox, Option } from '@tanrei/react';
+
+    <Combobox label="担当者、リリースノート" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
+      <Option value="aiko">田中 愛子</Option>
+      <Option value="bao">グエン・バオ</Option>
+    </Combobox>
+    ```
+  </TabItem>
+</Tabs>
+
+ボックスの中とリストの中で起こることは、単独でも、フィールドの中でも、コンボボックスフィールドでも同じです。説明はコンボボックスフィールドのページに 1 度だけあります。[リスト](/ja/components/combobox-field/#リスト)と、[入力する、移動する、選ぶ](/ja/components/combobox-field/#入力する移動する選ぶ)です。
+
+### フィールドの中に自分で入れる
+
+フィールドでコンボボックスを囲むと、コンボボックスフィールドを自分で書いたものになります。コンボボックスの `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、オプション、入力に関するすべてはコンボボックスに指定します。
+
+```html
+<tanrei-field label="都市" requirement="required" required-text="必須"
+  supporting-text="注文のお届け先です。">
+  <tanrei-combobox name="city" value="tokyo">
+    <tanrei-option value="kyoto">京都</tanrei-option>
+    <tanrei-option value="tokyo">東京</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+```
+
+<DemoFrame label="フィールドの中のコンボボックス。見た目はコンボボックスフィールドと同じです" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" requirement="required" required-text="必須" supporting-text="注文のお届け先です。">
+    <tanrei-combobox value="tokyo" empty-text="一致する項目はありません">
+      <tanrei-option value="kyoto">京都</tanrei-option>
+      <tanrei-option value="tokyo">東京</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</DemoFrame>
+
+コンボボックスは、自分にしか分からないことをフィールドに伝えます。補足は、パディングと先頭のグリフを越えた、テキストが始まる位置から始まります。Filled と Outlined のコンボボックスは、フィールドのラベルをボックスの中で浮き上がるラベルとして自分で描くので、フィールドはラベルの行を描きません。リストが開いている間は、コンボボックスはフォーカスの状態で描かれるので、入力欄にフォーカスがあってもなくても、フィールドのラベルと補足も一緒にフォーカスの状態で描かれます。
+
+フィールドのラベルを押すと、入力欄にフォーカスが移り、何も開きません。リストが開いている間は、ラベルはコンボボックスの外側にあります。押すとリストが閉じ、フォーカスは入力欄に残ります。
+
+## 仕様
+
+<DemoFrame label="単独のコンボボックス：エラー、無効、読み取り専用、消去ボタン付き、large" plain column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" value="nairobi" error empty-text="一致する項目はありません">
+    <tanrei-option value="nairobi">ナイロビ</tanrei-option><tanrei-option value="tokyo">東京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" value="tokyo" disabled>
+    <tanrei-option value="nairobi">ナイロビ</tanrei-option><tanrei-option value="tokyo">東京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" value="tokyo" readonly>
+    <tanrei-option value="nairobi">ナイロビ</tanrei-option><tanrei-option value="tokyo">東京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="都市" value="tokyo" clearable clear-label="都市を消去" empty-text="一致する項目はありません">
+    <tanrei-option value="nairobi">ナイロビ</tanrei-option><tanrei-option value="tokyo">東京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="都市" value="tokyo" empty-text="一致する項目はありません">
+    <tanrei-option value="nairobi">ナイロビ</tanrei-option><tanrei-option value="tokyo">東京</tanrei-option>
+  </tanrei-combobox>
+</DemoFrame>
+
+<DemoFrame label="単独の Filled と Outlined：コンボボックス自身のラベルがボックスの中で浮き上がります" system="m3-like" plain column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="都市" value="tokyo" empty-text="一致する項目はありません">
+    <tanrei-option value="nairobi">ナイロビ</tanrei-option><tanrei-option value="tokyo">東京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="都市" empty-text="一致する項目はありません">
+    <tanrei-option value="nairobi">ナイロビ</tanrei-option><tanrei-option value="tokyo">東京</tanrei-option>
+  </tanrei-combobox>
+</DemoFrame>
+
+### コンボボックスが受け持つものと、フィールドが受け持つもの
+
+| 観点 | コンボボックス | 囲んでいるフィールド |
+| --- | --- | --- |
+| 描くもの | ボックス、テキスト、プレースホルダー、先頭のグリフ、消去ボタンとシェブロン、オプション、グループ、状態の行の入ったリスト、Filled と Outlined のボックスの中で浮き上がるラベル | Stacked のコンボボックスの上のラベルの行、必須または任意の印、補足、エラーテキスト |
+| 持つもの | 値、テキスト、リストが開いているかどうか、フォームの中での位置、イベント | なし |
+| 支援技術に伝えるもの | リストを持つコンボボックスであること、展開されているかどうか、どのオプションがアクティブか | 名前、補足またはエラーテキスト、必須、invalid、無効 |
+
+3 つのバリアントと、`medium`（48）と `large`（56）の 2 つのサイズは、テキスト入力欄と同じです。コンボボックスとテキスト入力欄を横に並べると、すべての線がそろいます。既定のシステムが提供するのは `stacked` だけです。
+
+### フィールドなしで、単独で使う
+
+- **名前**は `label` です。`labelHidden` を付けると、Filled と Outlined のコンボボックスはラベルを描きません。
+- **エラー**は `error` で、利用者側で設定します。ボックスがエラーの状態で描かれ、invalid として伝わります。コンボボックスにエラーテキストはありません。何が違うのかは、横に言葉で書くか、フィールドで囲んで伝えます。
+- **必須**を伝えるのはフィールドです。単独のコンボボックスに必須の設定はありません。フォームが答えを求める箇所では、利用者側で検証します。
+- **どのオプションの名前でもないテキスト**は、`allowCustomValue` を付けていなければ、ユーザーが離れるときに破棄されます。コンボボックス自身のエラーになることはありません。
+
+<ComponentSpecs name="combobox" />
+
+### Web での描き方の違い
+
+- `<tanrei-option>` と `<tanrei-option-group>` はデータで、自分では何も描きません。セレクトが持つ要素と同じものです。値が空文字列のオプションは、描かれますが、選べません。空の値は、何も選ばれていないことを表すからです。
+- コンボボックスの子にある `<slot>` 要素は、そこに割り当てられた要素の代わりになります。シャドウルートにコンボボックスを持つ自前の要素は、こうして自分の子をオプションとして渡せます。オプションは、変わるたびに読み直されます。
+- 要素はフォームに関連付けられます。`name` があれば `value` を送信し、編集しただけで確定していないテキストは送信しません。リセットすると `value` 属性の値に戻り、ページの移動で復元され、無効な `<fieldset>` に従い、フィールドが必須としている間は、値がないことを報告します。
+- 要素はブロックです。`focus()` は入力欄に移り、ボックスの上の、ボタン以外の場所を押してもフォーカスが移ります。
+- `chevron` は、逆の意味の属性 `no-chevron` で指定します。`readOnly` は、`readonly` 属性です。
+- `input` は、テキストの要素のネイティブのイベントです。`change` と `action` は、`detail.value` と `detail.inputValue` を持つ composed な CustomEvent で、`action` をキャンセルすると Enter でフォームが送信されません。`toggle` は、`detail.open` と、閉じたときの `detail.reason` を持ちます。composed で、バブルはしません。
+- リストは、トップレイヤーにある `popover="manual"` の要素です。外側を押すとリストは閉じ、押した位置にある要素にもその操作が届きます。
+- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`leading-icon`、`clear-button`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
+- `empty-text` と `clear-label` を空のままにすると、プロダクトの言葉（`setWords()`）から読みます。
+- 要素が定義されるまでの間、オプションはふつうのテキストとして表示されます。`tanrei-combobox:not(:defined) > *` を隠し、高さを確保しておいてください。
+
+## ガイドライン
+
+### コンボボックス、コンボボックスフィールド、自分で書くフィールド
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| ラベル、リストの付いたボックス、補足、エラー | [コンボボックスフィールド](/ja/components/combobox-field/) |
+| ボックスだけ。ラベルは別の場所にある（ツールバーの絞り込み、テーブルのセル、ラベルを横に置いた行） | コンボボックスを単独で使い、コンボボックスの `label` で名前を付ける |
+| 枠の中、ボックスの横か下に置く自分の要素 | [フィールド](/ja/components/field/)に、コンボボックスと自分の要素を入れる |
+| 入力せずに選ぶ、決まったリスト | [セレクト](/ja/components/select/) |
+| 入力した結果が、値ではなく行き先になるもの | [検索](/ja/components/search/) |
+
+### 推奨
+
+- 単独のコンボボックスには、見えるラベルと同じ言葉の `label` を付けます。見えるラベルとその場所が合わせて伝えていることを言葉にしても構いません。「担当者、リリースノート」のようにします。
+- 単独のコンボボックスの幅は、置く場所で決めます。グリッドの列、セル、幅を持つツールバーの項目などです。
+- 入力した内容に対する候補しかない場合は、シェブロンを付けません（`no-chevron`）。
+- ボックスの上のラベル、補足、エラーがあれば足りるところでは、コンボボックスフィールドを使います。
+
+### 非推奨
+
+- ラベルの場所を節約するために、フォームで単独のコンボボックスを使わない。
+- プレースホルダーをラベルの代わりにしない。入力を始めた途端に消え、名前にもなりません。
+- フィールドの中のコンボボックスに `label`、`error`、`disabled` を指定しない。フィールドに指定すれば、ラベルと補足も一緒に変わります。
+- コンボボックスフィールドをフィールドの中に入れない。すでにフィールドです。フィールドが囲むコントロールは、コンボボックスです。
+- コンボボックスに `supporting-text`、`error-text`、`requirement` を書かない。これらはフィールドのもので、コンボボックスはどれも描きません。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="combobox" />
+
+### コンポーネントが担うこと
+
+- 入力欄は、リストボックスを持つ、編集できるコンボボックスです。名前は自身の `label` で、それがなければ、囲んでいるフィールドのラベルです。プレースホルダーが名前になることはありません。
+- 説明は、フィールドが与えるものです。補足またはエラーテキストと、任意であることを伝えるテキストです。
+- エラーの間は invalid として、フィールドが必須としている間は必須として伝えます。読み取り専用と無効の状態、リストが開いている間は展開されていることも伝えます。
+- リストが開いている間も、フォーカスは入力欄にとどまります。アクティブなオプションは、入力欄のアクティブな子孫として伝わります。そのため、文字を入力すれば、いつでもテキストを編集できます。
+- リストは、同じ名前のリストボックスです。それぞれのオプションは、名前、説明、選ばれているかどうか、無効かどうか、表示されているオプションの中での位置を伝えます。グループの名前は、そのタイトルです。
+- 状態の行は、ライブリージョンです。テキストが変わると控えめに読み上げ、読み込みに失敗したときはすぐに読み上げます。
+- シェブロンは、同じ名前のボタンで、フォーカスの順序には入りません。消去ボタンは、`clearLabel` を名前とするボタンで、入力欄の次にフォーカスが止まる位置です。
+- フォーカスは、キーボードでもポインターでも、ボックス自身の縁で示します。ヒット領域は最小ターゲットを満たします。
+- 浮き上がるラベルのあとのアスタリスクは、支援技術から隠します。必須の状態がすでに伝えているためです。
+- 名前がない場合は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- 単独のコンボボックスには、必ず `label` で名前を付けます。横に見えるテキストがあっても、それは名前になりません。
+- 単独のコンボボックスの値が誤りになりうる場合は、何が違うのかを、支援技術に届く言葉で伝えます。ページに結び付けた自前のメッセージか、コンボボックスを囲むフィールドを使います。
+- すべてのオプションにラベルと空でない値を付け、値は重複させません。
+- 消去できるコンボボックスには `clearLabel` を付け、`emptyText` と `statusText` を書きます。

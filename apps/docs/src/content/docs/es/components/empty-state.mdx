@@ -1,0 +1,196 @@
+---
+title: Estado vacío
+description: Lo que ocupa el lugar de un contenido que no está (una búsqueda sin resultados, una lista a la que nadie ha añadido nada, una página antes de su primer elemento) y dice qué falta, por qué o qué hacer, y ofrece la acción que lo resuelve.
+translationOf: components/empty-state.mdx
+sourceHash: 26030d545cec035e6eea1eee4b315425bdb08acd
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="empty-state" />
+
+<DemoFrame label="Una lista a la que nadie ha añadido nada todavía, y una búsqueda que no encontró nada" column>
+  <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>Un proyecto reúne las capas, las exportaciones y las personas de un mismo sistema de diseño.<tanrei-button slot="actions">Nuevo proyecto</tanrei-button><tanrei-button slot="actions" variant="text">Importar una capa</tanrei-button></tanrei-empty-state>
+  <tanrei-empty-state headline="No hay resultados para «tokne»" style="inline-size: min(100%, 30rem)"><span slot="media">search_off</span>Revisa la ortografía o busca una palabra más corta.<tanrei-button slot="actions" variant="outlined">Borrar búsqueda</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+Un estado vacío está donde estaría el contenido cuando no hay ninguno: sustituye a la lista, a las filas, a los resultados. Dice qué falta en pocas palabras, por qué o qué hacer en una frase, y ofrece el control que lo resuelve. Es discreto y plano, sin relleno y sin borde, y es contenido, que se lee donde está: no recibe el foco y no tiene estados.
+
+En la web es `<tanrei-empty-state>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+La descripción es el propio contenido del elemento. El título es el atributo `headline`, o el slot `title` donde es un encabezado o contenido tuyo. Un glifo del conjunto de iconos, o una imagen tuya, va en el slot `media`, y tus propios botones o enlaces, en el slot `actions`. Todas las palabras son tuyas: el componente no tiene ninguna propia.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Una región dentro de una vista: un glifo, un título, una frase, la acción. -->
+    <tanrei-empty-state headline="Aún no hay proyectos">
+      <span slot="media">folder_open</span>
+      Un proyecto reúne las capas, las exportaciones y las personas de un mismo sistema de diseño.
+      <tanrei-button slot="actions">Nuevo proyecto</tanrei-button>
+      <tanrei-button slot="actions" variant="text">Importar una capa</tanrei-button>
+    </tanrei-empty-state>
+
+    <!-- Una página que está vacía en su conjunto: large, y su título es el encabezado de la página. -->
+    <tanrei-empty-state size="large">
+      <h1 slot="title">Esta página no existe</h1>
+      Puede que la dirección esté mal escrita o que la página se haya movido.
+      <a slot="actions" class="tanrei-link" href="/">Ir a la página de inicio</a>
+    </tanrei-empty-state>
+
+    <!-- En un panel lateral: en el borde de inicio, donde habría empezado la lista. -->
+    <tanrei-empty-state align="start" headline="Todavía no hay diferencias con la base">
+      Cambia un valor a la izquierda y aparecerá aquí.
+    </tanrei-empty-state>
+
+    <!-- En respuesta a un filtro: se anuncia una vez, de forma cortés, cuando se muestra. -->
+    <tanrei-empty-state id="no-rows" live hidden headline="Ninguna entrada coincide con estos filtros">
+      Hay tres filtros activos. Si quitas uno, se muestran más entradas.
+      <tanrei-button slot="actions" variant="outlined">Borrar filtros</tanrei-button>
+    </tanrei-empty-state>
+
+    <script type="module">
+      import '@tanrei/web/components/empty-state';
+      import '@tanrei/web/empty-state.css'; // el lugar que un estado vacío renderizado en el servidor conserva antes de que el elemento esté definido
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, EmptyState } from '@tanrei/react';
+
+    {rows.length === 0 && (
+      <EmptyState live headline="Ninguna entrada coincide con estos filtros">
+        Hay tres filtros activos. Si quitas uno, se muestran más entradas.
+        <Button slot="actions" variant="outlined" onClick={clearFilters}>Borrar filtros</Button>
+      </EmptyState>
+    )}
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Las partes, añadidas una a una" plain column>
+  <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)"></tanrei-empty-state>
+  <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)">Un proyecto reúne las capas, las exportaciones y las personas de un mismo sistema de diseño.</tanrei-empty-state>
+  <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>Un proyecto reúne las capas, las exportaciones y las personas de un mismo sistema de diseño.</tanrei-empty-state>
+  <tanrei-empty-state headline="Aún no hay proyectos" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>Un proyecto reúne las capas, las exportaciones y las personas de un mismo sistema de diseño.<tanrei-button slot="actions">Nuevo proyecto</tanrei-button><tanrei-button slot="actions" variant="text">Importar una capa</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+<DemoFrame label="En el borde de inicio, y el tamaño large" plain column>
+  <tanrei-empty-state align="start" headline="Todavía no hay diferencias con la base" style="inline-size: min(100%, 30rem)">Cambia un valor a la izquierda y aparecerá aquí.</tanrei-empty-state>
+  <tanrei-empty-state size="large" headline="Esta página no existe" style="inline-size: min(100%, 30rem)"><span slot="media">explore_off</span>Puede que la dirección esté mal escrita o que la página se haya movido.<tanrei-button slot="actions" variant="outlined">Ir a la página de inicio</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+<ComponentSpecs name="empty-state" />
+
+## Pautas
+
+### Estado vacío, callout, snackbar, texto de estado
+
+| Componente | Qué es | Dónde está |
+| --- | --- | --- |
+| Estado vacío | El lugar de un contenido que no está. | Donde estarían la lista, las filas o los resultados. |
+| [Callout](/es/components/callout/) | Un aviso sobre un contenido que sí está. | Junto a ese contenido, en el flujo. |
+| [Snackbar](/es/components/snackbar/) | El resultado de algo que acaba de ocurrir. | Encima del contenido, por poco tiempo. |
+| El texto de estado de una búsqueda | El recuento de lo que se encontró («No hay resultados para tokne»). | En la propia fila de estado de la búsqueda. |
+
+Un lugar vacío no es un error. Un contenido que no se pudo cargar es un callout con el estado de error en ese mismo lugar, y un contenido que todavía se está cargando es un indicador de carga. Cambiar entre los tres estados de una región (cargando, vacía, con error) le corresponde a la región: el estado vacío no se muestra ni se oculta por sí mismo.
+
+### Tamaños
+
+| `size` | Encima y debajo | Glifo | Título | Descripción | Úsalo para |
+| --- | --- | --- | --- | --- | --- |
+| `medium` (predeterminado) | 32 | 32 | 16 | 14 | Una región dentro de una vista: una lista, el cuerpo de una tabla, una tarjeta, un panel, los resultados de una búsqueda. |
+| `large` | 64 | 48 | 20 | 16 | Una vista que está vacía en su conjunto: una página antes de su primer elemento, una página que no se encontró. |
+
+El bloque es tan ancho como su región y tan alto como su contenido y su margen interior. Donde la región es más alta, colocar el bloque en ella (centrarlo, mantener la altura mínima de una tabla) le corresponde a la región. El texto se limita a unos 60 caracteres latinos por línea (30 veces el tamaño de la descripción), de modo que una frase en medio de una tabla ancha no va de borde a borde.
+
+### Alineación
+
+`align` es `center` (el valor predeterminado) para una región que, por lo demás, está en blanco, y `start` para una columna estrecha, una lista en un panel lateral o una tabla cuyo encabezado se mantiene a la vista: el mensaje empieza entonces donde habría empezado el contenido.
+
+### Título
+
+`headline` es texto simple y nunca un encabezado. Donde el estado vacío es toda la región principal de una página, la página suele necesitar un encabezado: pon uno del nivel que necesite tu esquema en el slot `title`. El estado vacío lo dibuja como cualquier título y no cambia ni su rol ni su nivel. Dentro de una tarjeta que ya tiene un título, basta con texto.
+
+En una página que se renderiza en un servidor, da el título en el slot `title`: un atributo `headline` lo dibuja el elemento, así que no se muestra antes de que el elemento esté definido.
+
+### Gráfico
+
+Un glifo se da por su nombre, en un elemento: `<span slot="media">folder_open</span>`. Se dibuja con el tamaño del gráfico, en un color discreto. Cualquier otra cosa que haya en el slot (un `<img>`, un `<svg>`, un elemento tuyo) es una imagen: conserva su tamaño y sus colores, nunca es más ancha que el bloque y nunca se refleja. El gráfico es decorativo y queda oculto para la tecnología de apoyo, así que no pongas en la imagen la única forma de seguir adelante. Tanrei no incluye ilustraciones.
+
+### Acciones
+
+Las acciones son tus propios [botones](/es/components/button/) o enlaces, una o dos, la principal primero. El estado vacío las dispone en una fila que salta de línea y no les hace nada más. A una acción cuya etiqueta es más larga que su línea se le da la línea entera: un botón hace entonces saltar de línea su etiqueta, de modo que nada se corta y nada sobresale del bloque.
+
+<DemoFrame label="En una columna estrecha, cada acción ocupa una línea, y una etiqueta larga salta de línea" plain column>
+  <tanrei-empty-state headline="Sin resultados" style="inline-size: 14rem"><span slot="media">search_off</span>Revisa la ortografía.<tanrei-button slot="actions" variant="outlined">Borrar búsqueda</tanrei-button><tanrei-button slot="actions" variant="text">Abrir el índice de contenidos de la documentación</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+### Aparecer en respuesta a algo
+
+`live` es para un estado vacío que resulta de lo que la persona acaba de hacer: un filtro que no coincide con ninguna fila, el último elemento que se quita. Se anuncia una vez, de forma cortés (el título, después la descripción, y no las acciones), cuando se muestra y cuando su texto cambia. Mantenlo en la página con `hidden`, o añádelo cuando corresponda.
+
+<DemoFrame label="Un estado vacío activo, que se muestra en respuesta a una pulsación" plain column>
+  <tanrei-button variant="outlined" onclick="document.getElementById('empty-state-demo-live').hidden = false">Aplicar tres filtros</tanrei-button>
+  <tanrei-empty-state id="empty-state-demo-live" live hidden headline="Ninguna entrada coincide con estos filtros" style="inline-size: min(100%, 30rem)">Hay tres filtros activos. Si quitas uno, se muestran más entradas.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-empty-state').hidden = true">Borrar filtros</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+Uno que está en el marcado de la página y se muestra cuando la página se carga no se anuncia en ese momento. En la web, un estado vacío activo que tu script añade a la página después de que esta se haya cargado sí se anuncia; el elemento no puede distinguir uno añadido en respuesta a algo de uno añadido con una vista nueva de una aplicación de una sola página, así que, para un estado vacío que simplemente forma parte de una vista nueva, no pongas `live`.
+
+En una [búsqueda](/es/components/search/), el recuento de resultados es el propio texto de estado de la búsqueda, que ya se anuncia. Donde además muestres un estado vacío en la vista de la búsqueda, no le pongas `live`, o las mismas palabras se leerán dos veces.
+
+### En una tabla y en una lista
+
+Una tabla sin filas conserva su leyenda y su fila de encabezado; el estado vacío está donde estarían las filas del cuerpo: en una celda que abarca todas las columnas, o justo después de la tabla. Una lista sin elementos no es una lista de un elemento: el estado vacío ocupa el lugar de la lista.
+
+### Antes de que el elemento esté definido
+
+La descripción, el slot del título y las acciones son hijos del propio elemento, así que están en el documento: la búsqueda en la página los encuentra, se traducen, se seleccionan y se leen sin script. `@tanrei/web/empty-state.css` da a un estado vacío que todavía no está definido sus márgenes interiores, sus estilos de texto y su alineación, de modo que las palabras se pueden leer donde van a estar. Hasta entonces se muestra sin su glifo.
+
+### Recomendado
+
+- Di qué falta en el título, con palabras sencillas, y qué hacer en la descripción.
+- Ofrece la acción que llena el lugar o que cambia lo que se pidió.
+- Cita lo que la persona escribió en el título de una búsqueda sin resultados.
+
+### Evita
+
+- No le des un color de estado ni el rol de una alerta. Un lugar vacío es un hecho acerca del contenido.
+- No uses `live` para un lugar que está vacío cuando su vista se abre.
+- No dibujes a mano una frase gris centrada, ni una lista de un solo elemento que no es un elemento.
+- No lo uses para un «no hay nada» de una línea dentro de un control, como un menú sin opciones: ese es el texto propio del control.
+
+## Accesibilidad
+
+<ComponentAccessibility name="empty-state" />
+
+### De qué se encarga el componente
+
+- Es contenido simple, sin rol y sin nombre: el título, la descripción y después las acciones, que se leen donde están.
+- Con `live` se anuncia una vez, de forma cortés, mediante una región de estado propia: cuando se muestra después de que la página se haya presentado, y cuando su título o su descripción cambian. Nunca se anuncia de forma asertiva.
+- El glifo o la imagen quedan ocultos para la tecnología de apoyo.
+- Un título dado como texto es texto simple. Un encabezado en el slot `title` conserva su nivel.
+- No es una parada en el orden del foco y nunca mueve el foco. Tab llega a los enlaces de la descripción y después a las acciones.
+- Con el texto ampliado todo salta de línea y crece; con una anchura de 320 y el texto al 200% nada se desplaza hacia los lados, y cada acción queda en una línea propia.
+- Con colores forzados, el glifo, el título y la descripción se dibujan en el color del texto. Nada depende de un relleno.
+- En un diseño de derecha a izquierda, el inicio es el borde derecho y la primera acción está a la derecha, un glifo que el conjunto de iconos marca se refleja, y un título que cita una consulta escrita de izquierda a derecha conserva el orden de la consulta.
+- Las compilaciones de depuración notifican un tamaño o una alineación desconocidos, un estado vacío sin título y sin descripción, y uno con descripción y sin título.
+
+### Qué debes hacer tú
+
+- Escribe todas las palabras en el idioma de la página. El componente no aporta ninguna.
+- Da un encabezado en el slot `title` donde la página necesite uno.
+- Usa `live` solo para un estado vacío que aparece en respuesta a algo, y nunca junto a otra región activa que diga lo mismo.
+- No pongas un control en el slot `media`: queda oculto para la tecnología de apoyo.
+- Da a cada acción una etiqueta que quepa. Una etiqueta salta de línea donde su línea es demasiado corta, pero una sola palabra más larga que la línea no puede.

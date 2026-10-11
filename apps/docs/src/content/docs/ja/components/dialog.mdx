@@ -1,0 +1,311 @@
+---
+title: ダイアログ
+description: 作業を先に進めるのに欠かせない判断や入力のために、人をいったん立ち止まらせます。背後のすべてを暗くしてふさぎ、答えるか閉じるまで表示し続けます。
+translationOf: components/dialog.mdx
+sourceHash: f08d283670285cd3cd9a67213a30055ee2e5994c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="dialog" />
+
+:::note[仕様は改訂済み、各プラットフォームは追従待ち]
+このページは、仕様の現在の形のダイアログを説明しています。どのダイアログも少なくとも 1 つのアクションを持ち、アクションは役割で配置される Tonal のボタンが横幅いっぱいに並びます。アイコンは先頭にそろえた見出しの横に付き、コンパクトなウィンドウではダイアログが下端に表示されます。Web コンポーネントはこの改訂に対応しており、このページのデモは、現在提供している Web コンポーネントです。上の表で Web が追従待ち（lagging）のままなのは、改訂の確認とベースラインの記録が済んでいないためです。SwiftUI、Compose、Flutter、React Native は、追従するまで以前の版を提供します。アイコンが中央そろえの見出しの上に付き、テキストのアクションが渡した順に末尾側にそろえて 1 行に並び、アクションは省略でき、どのウィンドウでも中央に表示される形です。
+:::
+
+<DemoFrame label="確認のダイアログ：ボタンで開きます">
+  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-basic').open = true">下書きを破棄</tanrei-button>
+  <tanrei-dialog id="dialog-demo-basic" headline="下書きを破棄しますか？" supporting-text="作成中のメッセージはこのデバイスから削除されます。">
+    <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">キャンセル</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">破棄</tanrei-button>
+  </tanrei-dialog>
+</DemoFrame>
+
+### 使い方
+
+ダイアログは制御コンポーネントです。`open` を設定して開き、アクションのハンドラーの中か、`dismiss` を受けて `open` を false に戻して閉じます。アクションがダイアログを勝手に閉じることはないので、先に入力を確かめたり、進み具合を表示したり、エラーのときに開いたままにしたりできます。
+
+ダイアログは、省略できるアイコン、見出し、省略できる補足テキスト、利用者側の任意のコンテンツ、そしてアクションでできています。ダイアログは対話なので、必ず 1 つ以上の答えを用意します。アクションは Tanrei のボタンで、それぞれに `confirming`（保存、削除、許可のように作業を完了する）か `dismissive`（キャンセル、後で、のように作業から引き返す）を付けます。ダイアログはこの印で配置を決めるので、渡す順序は問いません。`variant` を設定していないアクションは Tonal で描きます。
+
+開いたときにフォーカスを受け取る要素は、プラットフォームの印で指定します。Web では `autofocus`、SwiftUI では `.defaultFocus` か `@AccessibilityFocusState`、Compose では `initialFocus` に渡す `FocusRequester`、Flutter では `autofocus: true`、React Native では `initialFocusRef` です。指定しなければフォーカスはダイアログそのものへ移り、見出しが最初に読み上げられます。
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、以前の版のダイアログをまだ提供しています。その版には `confirming` と `dismissive` の印も、Tonal の既定もないので、これらの例では各アクションに text のバリアントを指定し、完了するアクションを最後に置いています。追従するまで、例はその版のものです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="discard-draft" variant="text">下書きを破棄</tanrei-button>
+
+    <!-- closedby="none" は dismissible を false にします。 -->
+    <tanrei-dialog headline="下書きを破棄しますか？"
+                   supporting-text="作成中のメッセージはこのデバイスから削除されます。">
+      <!-- dismissive は先頭側、confirming は末尾側に置かれます。variant がなければどちらも Tonal です。 -->
+      <!-- autofocus で最初のフォーカスを指定します：もっとも破壊的でないアクションです。 -->
+      <tanrei-button slot="actions" dismissive autofocus>キャンセル</tanrei-button>
+      <tanrei-button slot="actions" confirming>破棄</tanrei-button>
+    </tanrei-dialog>
+
+    <!-- 見出しの横のアイコンと、自分の variant を持つアクション。 -->
+    <tanrei-dialog headline="プロジェクトを削除しますか？" alert>
+      <span slot="icon">delete</span>
+      <tanrei-button slot="actions" dismissive variant="text">キャンセル</tanrei-button>
+      <tanrei-button slot="actions" confirming variant="filled">削除</tanrei-button>
+    </tanrei-dialog>
+
+    <script type="module">
+      import '@tanrei/web/components/dialog';
+      const dialog = document.querySelector('tanrei-dialog');
+      const cancel = dialog.querySelector('[dismissive]');
+      const discard = dialog.querySelector('[confirming]');
+      document.querySelector('#discard-draft').addEventListener('click', () => (dialog.open = true));
+      // アクションはダイアログを閉じません。ハンドラーの中で閉じます。
+      cancel.addEventListener('click', () => (dialog.open = false));
+      discard.addEventListener('click', () => { discardDraft(); dialog.open = false; });
+      // Escape と背景を押したときは、ネイティブの <dialog> と同じく cancel が発火します。
+      // その後ダイアログは自分で閉じます。イベントをキャンセルすれば閉じません。
+      dialog.addEventListener('cancel', (e) => { if (unsaved()) e.preventDefault(); });
+      // close は閉じるたびに発火します。
+      dialog.addEventListener('close', onDialogClosed);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Dialog } from '@tanrei/react';
+
+    // Escape と背景ではダイアログが自分で閉じます（onCancel、続いて onClose）。onClose で open を合わせます。
+    <Dialog
+      open={open}
+      headline="下書きを破棄しますか？"
+      supportingText="作成中のメッセージはこのデバイスから削除されます。"
+      onClose={() => setOpen(false)}
+    >
+      <Button slot="actions" dismissive onClick={() => setOpen(false)}>キャンセル</Button>
+      <Button slot="actions" confirming onClick={discard}>破棄</Button>
+    </Dialog>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // .alert や .sheet と同じくモディファイアーです。閉じるよう求められると、バインディングに false が書き込まれます。
+    TanreiButton("下書きを破棄", variant: .text) { showDiscard = true }
+        .tanreiDialog("下書きを破棄しますか？", isPresented: $showDiscard,
+                      supportingText: "作成中のメッセージはこのデバイスから削除されます。",
+                      actions: {
+                          TanreiButton("キャンセル", variant: .text) { showDiscard = false }
+                          TanreiButton("破棄", variant: .text) { discardDraft(); showDiscard = false }
+                      })
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiDialog
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+
+    // 開いている間だけ呼ぶのではなく visible で切り替えるのは、閉じるときの動きを最後まで見せるためです。
+    val cancel = remember { FocusRequester() }
+    TanreiDialog(
+        visible = open,
+        onDismissRequest = { open = false },
+        headline = "下書きを破棄しますか？",
+        supportingText = "作成中のメッセージはこのデバイスから削除されます。",
+        initialFocus = cancel,
+        actions = {
+            TanreiButton(text = "キャンセル", onClick = { open = false }, modifier = Modifier.focusRequester(cancel), variant = TanreiButtonVariant.Text)
+            TanreiButton(text = "破棄", onClick = { discardDraft(); open = false }, variant = TanreiButtonVariant.Text)
+        },
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // showTanreiDialog はモーダルなルートをプッシュします。Navigator.pop で閉じ、閉じるよう求められたときは null で完了します。
+    final bool? discard = await showTanreiDialog<bool>(
+      context: context,
+      barrierDismissible: true, // 仕様の dismissible。Escape、戻る操作、スクリムで閉じられます
+      builder: (BuildContext context) => TanreiDialog(
+        headline: '下書きを破棄しますか？',
+        supportingText: '作成中のメッセージはこのデバイスから削除されます。',
+        actions: <Widget>[
+          TanreiButton(
+            variant: TanreiButtonVariant.text,
+            autofocus: true,
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('キャンセル'),
+          ),
+          TanreiButton(
+            variant: TanreiButtonVariant.text,
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('破棄'),
+          ),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { Button, Dialog } from '@tanrei/react-native';
+
+    const cancel = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // React Native の Modal と同じ名前です。visible で制御し、onRequestClose が仕様の dismiss にあたります。
+    <Dialog
+      visible={open}
+      headline="下書きを破棄しますか？"
+      supportingText="作成中のメッセージはこのデバイスから削除されます。"
+      onRequestClose={() => setOpen(false)}
+      initialFocusRef={cancel}
+      actions={
+        <>
+          <Button ref={cancel} variant="text" onPress={() => setOpen(false)}>キャンセル</Button>
+          <Button variant="text" onPress={discard}>破棄</Button>
+        </>
+      }
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="アラートのダイアログ：開いた時点で読み上げる、破壊的な操作の確認" plain>
+  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-alert').open = true">プロジェクトを削除</tanrei-button>
+  <tanrei-dialog id="dialog-demo-alert" alert headline="プロジェクトを削除しますか？" supporting-text="履歴も含め、プロジェクトのすべてが削除されます。元に戻すことはできません。">
+    <span slot="icon">delete</span>
+    <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">キャンセル</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">削除</tanrei-button>
+  </tanrei-dialog>
+</DemoFrame>
+
+<ComponentSpecs name="dialog" />
+
+## ガイドライン
+
+### 使う場面
+
+答えがないと作業を先に進められないときに使います。元に戻せない操作の確認、権限の確認、ページを離れずに 2〜3 項目を入力してもらうときなどです。ダイアログは人を立ち止まらせるので、そうするだけの価値があるときにだけ使います。
+
+元に戻せる操作に「よろしいですか？」と聞く代わりに、スナックバーで結果を伝えて「元に戻す」を添えます。画面をふさがない短い選択にはメニューを使います。長いフォームや複雑な作業は、専用のページに置きます。
+
+### 構成要素
+
+| 要素 | 設定 | 補足 |
+| --- | --- | --- |
+| アイコン | icon スロット | 省略できます。`delete` のような、判断の種類を示すグリフです。見出しの 1 行目の先頭に 12 あけて置き、見出しが折り返しても 1 行目の横にとどまります。 |
+| 見出し | `headline` | 必須です。「下書きを破棄しますか？」のような問いかけか文です。常に先頭にそろえます。ダイアログのアクセシブルネームになります。 |
+| 補足テキスト | `supportingText` | 何が起きるか、判断に必要なことを書きます。常に先頭にそろえます。ダイアログの説明になります。 |
+| コンテンツ | 既定のスロット | 判断に必要なそのほかのもの。選択肢のリストや入力欄などです。ダイアログは余白を付け、コンテンツの色を渡しますが、中のレイアウトはしません。 |
+| アクション | actions スロット | 必須です。Tanrei のボタンを 1 つ以上置き、それぞれに `confirming` か `dismissive` を付けます。ダイアログは横幅いっぱいのボタングループとして配置し、variant のないものを Tonal で描きます。 |
+
+要素がウィンドウに収まらないときは、ヘッダーとアクションはそのままで、その間の補足テキストとコンテンツがスクロールします。スクロールで隠れている部分がある間は、細い区切り線を引きます。文字が大きくてそれすらできないときは、ダイアログ全体がスクロールします。
+
+補足テキストのない見出しだけのダイアログも使えます。見出しで問いかけ、その答えを並べれば対話になるからです。使えないのは、答えるもののない告知だけのダイアログです。
+
+### アクション
+
+アクションはコンテナの内側の幅を均等に分け合い、間を 16 あけます。
+
+- **役割で配置する。** 1 行のときは、引き返すアクションが先頭側、完了するアクションが末尾側です。縦に積むときは、完了するアクションが一番上、引き返すアクションが一番下です。どちらの印もないアクションは、両者の間で渡した位置を保ちます。フォーカスとスクリーンリーダーは配置した順にたどるので、ボタンを手で並べ替える必要はありません。
+- **収まるかどうかで 1 行か縦積みかを決める。** どのラベルも自分の幅に 1 行で収まる間は 1 行に並べます。1 つでも折り返しそうになると縦に積み、それぞれをダイアログの幅いっぱいにします。ダイアログの幅や文字の大きさが変わると、決め直します。
+- **既定は Tonal。** `variant` を設定していないアクションは Tonal で描きます。印が決めるのは位置だけで、見た目は変えません。
+- **別の見た目にする。** テキストのキャンセルの横に Filled の削除を置くように、1 つのアクションだけ見た目を変えたいときは、そのボタンの `variant` を設定します。設定した variant をダイアログが上書きすることはありません。すべてのダイアログで見た目を変えたいプロダクトは、ボタンごとにではなくレイヤで一度だけ設定します（`actions.variant`、自分の幅のまま末尾側にそろえるなら `actions.arrangement`）。
+- **少なくとも 1 つ。** アクションのないダイアログも開きますが、デバッグビルドでエラーとして報告します。アクションを必須にできる API では必須にすると、仕様は定めています。SwiftUI の `actions:` ビルダー、Compose の `actions` 引数、Flutter の `actions` リスト、React Native の `actions` プロパティです。この 4 つのうち、いま必須なのは SwiftUI だけで、ほかは追従するまで、アクションのないダイアログも受け付けます。`dismissible` が false で、すべてのアクションが無効のダイアログも、出口がなくなるのでデバッグビルドで報告します。
+
+### コンパクトなウィンドウでは
+
+ウィンドウの幅が 600 より狭いときは、ダイアログは中央ではなく、ウィンドウのセーフエリアの下端に表示されます。下端と左右の端から 16（オンスクリーンキーボードが出ていればその上）あけ、幅はその余白を除いたウィンドウの幅で最大 560、四隅はすべて角丸です。見るのは幅だけなので、横向きのスマートフォンはコンパクトではなく、ダイアログは中央に表示されます。
+
+下端にあってもダイアログのままで、ボトムシートではありません。ドラッグハンドルはなく、ドラッグに追従せず、スワイプでも閉じません。ロール、フォーカス、背後の操作不能、閉じ方は、ほかのダイアログと同じです。開いている間にウィンドウの幅が 600 をまたぐと、動きを付けずにすぐもう一方の配置へ移り、フォーカスはそのままです。
+
+どこでもダイアログを中央に表示するシステムは、コンパクトの幅を 0 にします。`m3-like` と `cupertino` のプリセットはそうしています。どちらの元のデザインも、ダイアログを中央に表示するからです。これらのプリセットは、元のデザインどおりのテキストのアクションも保ちます。
+
+### 開く、フォーカス、閉じる
+
+ダイアログはモーダルなオーバーレイです。フォーカスを中へ移し、中にとどめ、閉じたら返します。
+
+- **開く。** `open` が true になると、ダイアログはウィンドウのすべてより上に中央そろえで（コンパクトなウィンドウでは下端に）現れ、ウィンドウ全体をスクリムで暗くします。外側のものはすべて操作不能になり、フォーカスも押下もできず、支援技術からも届かなくなります。背後のコンテンツはスクロールしなくなります。
+- **フォーカスが入る。** フォーカスは指定した要素へ、指定がなければダイアログそのものへ移ります。そのため支援技術は見出しを最初に読み、次の Tab で最初のフォーカスできる要素に届きます。フォーカスは、動きが終わってからではなく、開いた時点で移ります。
+- **フォーカスをとどめる。** 最後のフォーカスできる要素で Tab を押すと最初へ、最初の要素で Shift+Tab を押すと最後へ移ります。スクリーンリーダーで移動しても、ダイアログの外へは出ません。
+- **閉じるよう求める。** `dismissible` が true の間は、Escape、プラットフォームの「戻る」（Android の戻るボタンやジェスチャー、iOS のアクセシビリティの「戻る」ジェスチャー）、スクリムの押下で `dismiss` を 1 回発火し、利用者側で閉じます。Web では、ネイティブの `<dialog>` と同じく、`cancel` をキャンセルしない限りダイアログが自分で閉じます。`dismissible` が false の間はこれらの操作では何も起きず、アクションでしか閉じません。コンパクトなウィンドウの下端にあるダイアログも、スワイプでは閉じません。
+- **フォーカスが戻る。** 閉じると、開いたときにフォーカスを持っていた要素へフォーカスを戻し、背後のコンテンツを元の状態に戻します。
+- **重ねる。** ダイアログから開いたダイアログは、自分のスクリムとともに上に重なり、最初のダイアログも操作不能にします。Escape で閉じるのは一番上のものだけで、閉じると、最初のダイアログの中でフォーカスを持っていた要素へ戻ります。
+- **読み上げ。** ダイアログとして、見出しを名前、補足テキストを説明として伝えます。`alert` を付けるとアラートダイアログになり、開いた時点で支援技術が見出しと補足テキストを読み上げます。
+- **動き。** スクリムがフェードインします。中央のコンテナは、少し小さい大きさからフェードインしながら広がります。コンパクトなウィンドウの下端のコンテナは、広がらずに 32 せり上がりながらフェードインし、閉じるときは 32 沈みながらフェードアウトします。動きを減らす設定では広がったり動いたりせずにフェードし、すべてのアニメーションを取り除く Android の設定では瞬時に現れます。
+
+各プラットフォームでの表示方法は、Web では `showModal()` で開くネイティブの `<dialog>`、SwiftUI では iOS で背景を透明にした `.fullScreenCover`（全画面のカバーがない macOS では、モディファイアーを付けたビューの上のオーバーレイ）、Compose では `Dialog` のウィンドウ、Flutter ではモーダルなルート、React Native では透明な `Modal` です。どれもプラットフォーム自身の暗幕と遷移を切り、スクリムと動きはトークンから描くので、どのプラットフォームでも同じ見た目になります。
+
+まだ表示されていないスナックバーは、Tanrei のダイアログが開いている間は待ち、表示中のものは時間切れを止めます。ダイアログの中のツールチップは、ダイアログより上に描かれます。
+
+### 推奨
+
+- 見出しには問いかけそのもの、または文そのものを書きます。「下書きを破棄しますか？」「プロジェクトを削除しますか？」。「よろしいですか？」は避けます。
+- アクションには、何をするかが分かる名前を付けます。「破棄」「削除」「サインアウト」。「はい」「いいえ」は避けます。
+- どのアクションにも `confirming` か `dismissive` を付け、配置はダイアログに任せます。
+- どのダイアログにも答えを用意します。知らせるだけなら、スナックバーかページ上の 1 行にします。
+- 破壊的な操作の確認ではキャンセルに、フォームでは最初の入力欄に、最初のフォーカスを指定します。テキストを先に読んでほしいダイアログでは何も指定しません。
+- `alert` は、破壊的な操作の確認や接続の切断など、緊急の割り込みにだけ付けます。
+
+### 非推奨
+
+- 作業がどうしても先に進めないとき以外に、求められていないダイアログを開かない。
+- 人がアクションのどれかを必ず選ばなければならないとき以外に、`dismissible` を false にしない。スイッチやスクリーンリーダーの人は Escape や「戻る」に頼っています。閉じられないダイアログにも、キャンセルのような目に見える出口が必要です。
+- ダイアログに多くの項目を入れない。長いフォームはページに置きます。
+- 確定のアクションを最後にするためにアクションを手で並べ替えたり、Tonal にするためにすべてのボタンに variant を設定したりしない。どちらもダイアログが行います。
+- ボタンの見た目を `variant` 以上に変えたり、ダイアログの枠にコントロールを追加したりしない。
+- コンパクトなウィンドウの下端のダイアログを、ボトムシートとして扱わない。スワイプで閉じられるようにしたいなら、ボトムシートを使います。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="dialog" />
+
+### コンポーネントが担うこと
+
+- ダイアログをモーダルなダイアログとして伝えます。`alert` が true の間はアラートダイアログです。見出しを名前、補足テキストを説明とし、`alert` のときは開いた時点で見出しと補足テキストを読み上げます。
+- 開いている間、外側のものはすべて操作不能にし、支援技術からも隠します。
+- 開くと、指定した要素かダイアログそのものへフォーカスを移します。Tab と Shift+Tab はダイアログの中で折り返します。閉じると、開いたときにフォーカスを持っていた要素へ戻します。
+- `dismissible` が true の間は、Escape、プラットフォームの「戻る」、スクリムの押下で `dismiss` を発火します。ダイアログが重なっているときは、一番上のものだけです。
+- Enter と Space はフォーカス中のボタンを実行します。ダイアログが Enter に既定のアクションを割り当てることはありません。
+- アクションは Tanrei のボタンなので、それぞれが最小ターゲットを満たします。縦に積んだアクションの間の 16 で、どのターゲットも欠けません。
+- フォーカスとスクリーンリーダーは、目で見るのと同じ、配置した順にアクションをたどります。
+- コンパクトなウィンドウの下端でも、ロール、フォーカス、背後の操作不能、閉じ方は変わりません。ボトムシートのようにスワイプで閉じると思った人は、Escape、「戻る」、スクリム、引き返すアクションで閉じられます。
+- 文字を 200% にすると、ダイアログはウィンドウいっぱいまで広がり、ラベルが自分の幅に収まらなくなったアクションは縦に積み、補足テキストとコンテンツがスクロールします。とても低いウィンドウでは全体がまとめてスクロールするので、切れたり届かなかったりする部分はありません。
+- 見出しやアクションのないダイアログも開きますが、名前や答えがないことをデバッグビルドで報告します。`dismissible` が false で、すべてのアクションが無効のダイアログも報告します。
+
+プラットフォームごとの既知の制約：
+
+- Web：Firefox では、閉じていくダイアログをフェードの間トップレイヤーに残せないので、閉じるときはフェードせずにすぐ消えます。
+- Web：オンスクリーンキーボードを避けることは、キーボードのある実機ではまだ確かめていません。
+- SwiftUI には、ダイアログとアラートダイアログのロールがありません。コンテナはモーダルのトレイトを持ち、見出しを名前、補足テキストをヒントとして説明します。見出しには、ドキュメントの見出し（heading）であることを伝えるトレイトが付きます。`alert` のときは、開くと同時に VoiceOver が見出しと補足テキストを読み上げます。
+- macOS の SwiftUI には全画面のカバーがないので、ダイアログが覆うのはモディファイアーを付けたビューだけです。ウィンドウのルートに付けてください。開いている間そのビューは無効になり、そのコントロールはスクリムの下で無効の状態を描きます。
+- SwiftUI は、キーボードフォーカスをダイアログそのものへ移せません。目印がなければ、VoiceOver は見出しから始まります。閉じるとき、iOS は VoiceOver のフォーカスを開いた要素へ戻しますが、キーボードフォーカスは iOS でも macOS でも戻りません。
+- Compose には、アラートダイアログのロールがありません。ウィンドウは見出しを名前とするダイアログで、`alert` のダイアログは開くときに見出しと補足テキストを読み上げますが、その Android の API は Android 16 で非推奨になりました。
+- Compose：実際のダイアログのウィンドウ、Tab の折り返し、開いた要素へのフォーカスの戻り、戻るジェスチャー、TalkBack は、Robolectric でしか確かめておらず、実機ではまだ確かめていません。
+- Flutter：見出しとアクションだけで場所がなくなり、ダイアログ全体をまとめてスクロールするときは、その切り替えをレイアウトの後に決めるので、1 フレーム遅れて表示されます。Flutter には説明のプロパティがないので、補足テキストはコンテナのヒントになります。スクリムには、`barrierLabel` を渡さない限りアクセシブルネームがありません。
+- React Native は、どの要素がフォーカスを持っていたかを知ることができません。そのため閉じても、ダイアログを開いた要素へはフォーカスを戻せず、iOS と Android が閉じたウィンドウに対して決める場所へ移ります。`initialFocusRef` を渡さないときは、スクリーンリーダーだけが見出しへ移り、ハードウェアキーボードのフォーカスは新しいウィンドウでプラットフォームが決めた場所のままです。
+- React Native：Tab がダイアログの中で折り返すかどうかはプラットフォーム次第です。それに加え、スクリーンリーダーのフォーカス、「戻る」、iOS の「戻る」ジェスチャー、重ねたダイアログは、実機ではまだ確かめていません。
+- React Native：ダイアログがセーフエリアの内側に収まるのは、`TanreiProvider` にウィンドウのインセットを渡したときだけです。
+
+### 利用者側で行うこと
+
+- どのダイアログにも見出しを付けます。見出しがダイアログの名前です。
+- どのダイアログにもアクションを 1 つ以上置き、それぞれに `confirming` か `dismissive` を付けます。以前の版をまだ提供しているプラットフォームでは、完了するアクションを利用者側で最後に置きます。
+- ダイアログは利用者側で閉じます。各アクションのハンドラーの中と、`dismiss` を受けたとき（プラットフォームに応じて `onRequestClose`、`onDismissRequest`、バインディング、ルート）です。
+- 役に立つときは最初のフォーカスを指定します。破壊的な操作の確認ではキャンセル、フォームでは最初の入力欄です。
+- `dismissible` が false でも、キャンセルのような引き返すアクションを、目に見える出口として必ず用意します。
+- React Native では `initialFocusRef` を渡します。閉じた後、プラットフォームがフォーカスを開いた要素へ戻さない場合は、利用者側で戻します。
+- macOS の SwiftUI では、スクリムがウィンドウ全体を覆うように、`.tanreiDialog` をウィンドウのルートのビューに付けます。

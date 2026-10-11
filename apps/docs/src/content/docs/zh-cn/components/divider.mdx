@@ -1,0 +1,275 @@
+---
+title: "分隔线"
+description: "用一条细线把列表、布局或工具栏中的各组内容分开。"
+translationOf: components/divider.mdx
+sourceHash: a900ff2d8bf8a75bc9b74c35a5e534d81fd620fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="divider" />
+
+<DemoFrame label="在列表和工具栏中">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
+    <span>收件箱</span>
+    <tanrei-divider></tanrei-divider>
+    <span>归档</span>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <span>回收站</span>
+  </div>
+  <div role="toolbar" aria-label="格式" style="display: flex; align-items: stretch; gap: var(--tanrei-sys-space-space50)">
+    <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+    <tanrei-button variant="text" label="插入链接"><span slot="icon">link</span></tanrei-button>
+  </div>
+</DemoFrame>
+
+### 用法
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们提供的仍是上一版分隔线，只能画实线，也不接受单条分隔线自己的长度或粗细。在跟上之前，这些平台的示例展示的都是上一版。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+
+    <!-- 与文本从 72 px 处开始的列表对齐。 -->
+    <tanrei-divider inset="start" inset-length="72"></tanrei-divider>
+
+    <!-- 优惠券上方的撕线，以及一条较轻的章节分隔。 -->
+    <tanrei-divider line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+
+    <!-- 只把这一条分隔线加粗：它的点、线段和波浪保持原有比例。 -->
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider line-style="dotted" line-cap="round" thickness="4"></tanrei-divider>
+
+    <!-- 工具栏的分组是有含义的：把分隔线作为 separator 暴露出来。 -->
+    <div role="toolbar" aria-label="格式" style="display: flex">
+      <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+      <tanrei-button variant="text" label="插入链接"><span slot="icon">link</span></tanrei-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/divider';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Divider } from '@tanrei/react';
+
+    <Divider />
+    <Divider inset="start" insetLength={72} />
+    <Divider lineStyle="dashed" lineCap="round" />
+    <Divider lineStyle="wavy" amplitude={4} wavelength={24} />
+    <Divider lineStyle="dotted" lineCap="round" thickness={4} />
+    <Divider orientation="vertical" decorative={false} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    VStack(spacing: 0) {
+      inboxRow
+      TanreiDivider(inset: .start)
+      archiveRow
+    }
+
+    // 方向要明确写出，不从外层的栈推断。
+    HStack { formattingButtons; TanreiDivider(axis: .vertical, isDecorative: false); insertLinkButton }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.gestures.Orientation
+    import io.github.chnotchy.tanrei.components.TanreiDivider
+    import io.github.chnotchy.tanrei.components.TanreiDividerInset
+
+    Column {
+        InboxRow()
+        TanreiDivider(inset = TanreiDividerInset.Start)
+        ArchiveRow()
+    }
+
+    // 垂直分隔线会撑满行的高度，所以要给行一个高度。
+    Row(Modifier.height(IntrinsicSize.Min)) {
+        FormattingButtons()
+        TanreiDivider(orientation = Orientation.Vertical, decorative = false)
+        InsertLinkButton()
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    Column(
+      children: <Widget>[
+        inboxRow,
+        const TanreiDivider(inset: TanreiDividerInset.start),
+        archiveRow,
+      ],
+    );
+
+    // IntrinsicHeight 让垂直分隔线取得行的高度。
+    IntrinsicHeight(
+      child: Row(
+        children: <Widget>[
+          ...formattingButtons,
+          const TanreiDivider(axis: Axis.vertical, excludeFromSemantics: false),
+          insertLinkButton,
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Divider, IconButton } from '@tanrei/react-native';
+
+    <Divider />
+    <Divider inset="start" />
+
+    <View style={{ flexDirection: 'row' }}>
+      <IconButton accessibilityLabel="粗体" onPress={toggleBold}>format_bold</IconButton>
+      <Divider orientation="vertical" decorative={false} />
+      <IconButton accessibilityLabel="插入链接" onPress={insertLink}>link</IconButton>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="方向和缩进" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <tanrei-divider inset="both"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="线型" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider line-style="dotted"></tanrei-divider>
+    <tanrei-divider line-style="dashed"></tanrei-divider>
+    <tanrei-divider line-style="dashed" dash-length="12" gap="6"></tanrei-divider>
+    <tanrei-divider line-style="wavy"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
+    <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="粗细：单条分隔线自己的粗细，较粗的图案配圆形端点" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+点线和虚线的两端总是一个完整的点或线段：分隔线在保证最小间隔的前提下画出尽可能多的点或线段，再把每个间隔加宽相同的量。因此无论朝哪个方向、长度是多少，两端看起来都一样。波浪线由圆弧组成，并被拉伸成整数个波，所以它起于中线、止于中线。波浪线分隔线比其他线型高：高度是振幅的两倍加上线的粗细，默认是 5，而不是 1。
+
+点、线段和波浪的长度都是由线的粗细推导出的令牌，所以把分隔线画得更粗的设计系统会得到更大的图案，而外观不变。`thickness` 对单条分隔线做同样的事：凡是读取粗细的地方，它都代替令牌，点、线段和波浪则保持与它的比例。缩进不随之缩放。单条分隔线自己的属性（`insetLength`、`thickness`、`dashLength`、`gap`、`amplitude`、`wavelength`）按给定的值、以平台的单位直接使用，任何调节量都不会缩放它们。负值或非有限值，以及为 0 的 `thickness`、`dashLength` 或 `wavelength`，会回退到令牌的值，并会在调试构建中报告。当前线型不会画出的属性会被忽略。
+
+<ComponentSpecs name="divider" />
+
+## 指南
+
+### 何时使用
+
+仅靠留白无法让边界清楚的地方，才使用分隔线：密集列表的行与行之间、设置页面的各个部分之间、工具栏中各组操作之间。如果两组之间的间距或表面的变化已经表明一组在哪里结束，就不要画线。线越少的布局越容易浏览。
+
+### 同一种细线
+
+分隔线的线就是设计系统的细线：颜色是 `sys.color.outline-variant`，宽度是细线的宽度。在默认系统中，用户看到的其他细线也是这个颜色：outlined 按钮的边线、纸片的轮廓、菜单各组之间的线、导航栏或导航抽屉的边线、列表行下方的线。它们各自保留自己的令牌，而默认系统给它们同一个值，于是一个屏幕上只有一种线。你放置的分隔线不需要自己的颜色就能与它们一致。
+
+### 组件自行分隔其部件的地方
+
+有些组件会自行把自己的部件分开，在那里不要再加分隔线：
+
+- [菜单](/zh-cn/components/menu/)会把一个组与它旁边的内容分开。
+- 相连的[按钮组](/zh-cn/components/button-group/)和[带菜单的按钮](/zh-cn/components/button-with-menu/)会把自己的两半分开。
+- [导航抽屉](/zh-cn/components/navigation-drawer/)会在要求分隔线的部分（`divider`）之前画一条分隔线。
+- [列表](/zh-cn/components/list/)的行会在自己下方画线（`divider`），从行内文本开始的位置画起。
+
+同一个组件内部的部件如何区分，是整个设计系统的一项统一选择：在相接处画一条线（这是默认），或者留出一段空白间隙。组件可以通过自己的令牌偏离系统的选择，单个实例则可以通过 `separation` 属性偏离：菜单、按钮组、带菜单的按钮和进度指示器都有这个属性。选择间隙时，这些组件完全不画线，所以你手动加上的分隔线会成为仅剩的一条线，也就不再与周围一致。
+
+分隔线组件本身不在这项选择之内。你放在自己内容之间的 `<tanrei-divider>` 始终是一条线。
+
+### 如何选择缩进
+
+| 缩进 | 用途 |
+| --- | --- |
+| None | 横跨整个容器的边界：各部分之间、页眉下方。 |
+| Start | 行首有图标或头像的列表中，行与行之间。线从文本开始的位置画起，于是前置的那一列看起来连成一体。 |
+| Both | 组内的一处分隔，不应看起来像容器的边界：中间分隔线。 |
+
+只有当分隔线必须与某些内容对齐，而这些内容的缩进又与产品中其他列表不同时，才设置 `insetLength`。`inset` 在哪一侧缩进，它就作用于哪一侧；`inset` 为 none 时它不起作用。
+
+### 如何选择线型
+
+| 线型 | 用途 |
+| --- | --- |
+| Solid | 几乎所有分隔线。它是默认值。 |
+| Dashed | 同一产品中另一种性质的边界：优惠券上方的撕线、暂定内容的边缘。 |
+| Dotted | 比实线更轻的分隔。它只覆盖自身长度的三分之一左右，所以颜色相同时看起来更淡。 |
+| Wavy | 一处章节分隔，需要让人看出它与周围的实线是不同性质的边界。它在垂直于轴线的方向上比其他线型占用更多空间。 |
+
+圆形端点（`lineCap="round"`）让每个点成为圆点、每条线段成为两端圆润的短条，并把实线或波浪线的两端变圆。圆润的端点不超出线的长度，所以缩进仍然精确。在默认的细线上，圆形端点是看不出来的：它是为有自己 `thickness` 的分隔线准备的，也是为把线画得更粗的设计系统准备的。
+
+### 推荐
+
+- 分隔线周围的间距由布局提供：栈的间距、列表的 gap。分隔线自己不加任何间距，所以绝不会让间距加倍。
+- 在列表和卡片中让它保持装饰性（默认）。行本身已经说明了自己从哪里开始、到哪里结束。
+- 只有当分组对用户有含义时，才把 `decorative` 设为 false，例如工具栏或菜单的分组。
+- 在整个产品中，同一种边界只用一种线型，这样虚线的含义始终相同。
+
+### 避免
+
+- 不要在每两个元素之间都画线。先用间距，间距不够的地方再用分隔线。
+- 不要把分隔线用作容器的边框或轮廓。它没有容器，也没有形状。
+- 不要为了赋予含义而把它加粗或上色。`thickness` 是为需要足够空间才看得清的图案准备的，或者用来让一条线与周围较粗的线一致。分隔线的颜色不受对比度要求的约束，因为它所分隔的内容必须在没有它的情况下也能被理解。
+- 不要在自行分隔部件的组件内部再加分隔线，例如菜单的各组之间或列表的行与行之间。请使用该组件自己的属性。
+- 不要让线型独自承载含义。如果虚线表示“沿此处剪开”，也要用文字说明。
+- 不要靠它充当标题。两个表单之间的“— 或 —”是两条分隔线加一个标签，传达含义的是标签。
+
+## 无障碍
+
+<ComponentAccessibility name="divider" />
+
+### 组件负责的部分
+
+- 为装饰性（默认）时，它在每个平台上都对辅助技术隐藏。
+- 不是装饰性时，它在 Web 上作为带方向的 separator 暴露。Apple 平台、Android 和 Flutter 没有 separator 角色：在这些平台上，它留在无障碍树中，没有名称，并尽各平台所能传达信息。
+- 它永远不可聚焦，也不接受输入，所以绝不会妨碍两侧的控件。
+- 它的线至少有一个设备像素粗。实线、点线和虚线在垂直于轴线的方向上对齐到像素网格，所以绝不会模糊；波浪线则以抗锯齿方式绘制。
+- 线型不向辅助技术传达任何信息：非装饰性的点线、虚线或波浪线分隔线，与实线是同一个 separator。
+- 在 Web 上，强制颜色模式会用系统的文本颜色重画每一种线型。
+
+### 需要你做的事
+
+- 你赋予线型的任何含义（例如撕线），都要用文字说明。辅助技术不会传达线型，而且点线和虚线看起来比实线更淡。
+- 当分组有意义时，给每个组一个自己的名称。separator 没有名称，所以它说不出这些组是什么。
+- 不要用分隔线来承载页面的结构。那是标题和地标的事；线只能被看见。

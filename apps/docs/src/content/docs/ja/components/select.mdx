@@ -1,0 +1,283 @@
+---
+title: セレクト
+description: 決まったリストの中から 1 つの値を選べるようにします。テキスト入力欄のボックスと同じ見た目と寸法で、選ばれているオプションを表示するトリガーと、そこから開くオプションのリスト（グループ分けもできます）から成ります。ラベルの行、補足、エラーテキストは持ちません。バー、ツールバー、テーブルに置くか、プロダクトが自分で組み立てるフィールドの中で使います。
+translationOf: components/select.mdx
+sourceHash: b590963ddaa047a35f87209960b3ba6974490bfc
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="select" />
+
+<DemoFrame label="単独で使う例。バーに置くテーマのセレクトと、リストの上に置く並び順のセレクト" column>
+  <tanrei-select class="not-content" size="small" label="テーマ" value="auto">
+    <tanrei-option value="light" leading-icon="light_mode">ライト</tanrei-option>
+    <tanrei-option value="dark" leading-icon="dark_mode">ダーク</tanrei-option>
+    <tanrei-option value="auto" leading-icon="computer">デバイスに合わせる</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" size="small" label="並び順" value="updated">
+    <tanrei-option value="updated">更新日時</tanrei-option>
+    <tanrei-option value="name">名前</tanrei-option>
+    <tanrei-option value="size">サイズ</tanrei-option>
+  </tanrei-select>
+</DemoFrame>
+
+セレクトは、[セレクトフィールド](/ja/components/select-field/)のボックスだけを取り出したものです。値を表示するトリガー、先頭のアイコン、シェブロンと、そこから開くオプションのリストから成ります。上にラベルの行はなく、必須・任意の印も、下の補足やエラーテキストもありません。
+
+単独で使うのは、ユーザーが読むラベルが別の場所にあるときか、置かれた場所と表示している値から何を設定するものかが分かるときです。
+
+| 場所 | 何を設定するものかを伝えるもの | セレクトの `label` |
+| --- | --- | --- |
+| アプリバーに置くテーマや言語 | 置かれた場所、グリフ、表示している値 | 「テーマ」「言語」 |
+| ツールバーに置く並び順や絞り込み | その下にあるリスト | 「並び順」 |
+| テーブルの列のセル。テーブルの下にある、1 ページあたりの行数のセレクト | 列の見出し。セレクトの横にあるテキスト | 列と行。「ロール、エイダ・ラブレス」 |
+
+単独で使うセレクトには、自身の `label` が必要です。これがアクセシブルネームになります。Stacked のセレクトが `label` を描くことはありません。Filled と Outlined のセレクトは、ボックスの中で浮き上がるラベルとして描きます。
+
+フォームの中では、[セレクトフィールド](/ja/components/select-field/)を使います。このセレクトを[フィールド](/ja/components/field/)に入れたもので、上のラベル、必須・任意の印、補足、エラーがそろっています。
+
+**使われている場所**は、[セレクトフィールド](/ja/components/select-field/)です。自分で枠を付けるときは、[フィールド](/ja/components/field/)の中に入れます。フィールドが名前と説明を与え、必須であることを伝え、エラーの状態にします。
+
+幅を指定しなければ、単独のセレクトは最も幅の広いオプションに必要な幅になるので、どれを選んでも幅は変わりません。フィールドの中では、フィールドの幅いっぱいに広がります。
+
+Web では、`<tanrei-option>` を子に持つ `<tanrei-select>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+オプションはセレクトの子で、それぞれが値とラベルを持ちます。選ばれているオプションは `value` で指定します。セレクトは、ユーザーが別のオプションを選ぶと `change` を、ユーザーがリストを開くか閉じると `toggle` を発火します。`value` や `open` を利用者側で設定したときは、どちらも発火しません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- アプリバーの中：small で、自身の label が名前になります。label は描かれません。 -->
+    <tanrei-select size="small" label="テーマ" value="dark">
+      <tanrei-option value="light" leading-icon="light_mode">ライト</tanrei-option>
+      <tanrei-option value="dark" leading-icon="dark_mode">ダーク</tanrei-option>
+    </tanrei-select>
+
+    <!-- テーブルのセル：見えるラベルは列の見出しです。 -->
+    <td>
+      <tanrei-select name="role-ada" size="small" label="ロール、エイダ・ラブレス" value="editor">
+        <tanrei-option value="viewer">閲覧者</tanrei-option>
+        <tanrei-option value="editor">編集者</tanrei-option>
+      </tanrei-select>
+    </td>
+
+    <script type="module">
+      import '@tanrei/web/components/select';
+
+      const theme = document.querySelector('tanrei-select');
+      // ユーザーが別のオプションを選びました。value はすでに新しい値です。
+      theme.addEventListener('change', () => apply(theme.value));
+      // ユーザーが開いたか、閉じました。閉じたときは理由が付きます。
+      theme.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Option, Select } from '@tanrei/react';
+
+    <Select size="small" label="テーマ" value={theme} onChange={(event) => setTheme(event.currentTarget.value)}>
+      <Option value="light" leadingIcon="light_mode">ライト</Option>
+      <Option value="dark" leadingIcon="dark_mode">ダーク</Option>
+    </Select>
+    ```
+  </TabItem>
+</Tabs>
+
+### フィールドの中に自分で入れる
+
+フィールドでセレクトを囲むと、セレクトフィールドを自分で書いたものになります。セレクトの `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、オプション、選ぶ操作に関するすべてはセレクトに指定します。
+
+```html
+<tanrei-field label="国" requirement="required" required-text="必須"
+  supporting-text="請求書の宛先になります。">
+  <tanrei-select name="country" placeholder="国を選択">
+    <tanrei-option value="jp">日本</tanrei-option>
+    <tanrei-option value="ke">ケニア</tanrei-option>
+  </tanrei-select>
+</tanrei-field>
+```
+
+<DemoFrame label="フィールドの中にセレクトを入れたもの。セレクトフィールドと同じ見た目になります" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国" requirement="required" required-text="必須" supporting-text="請求書の宛先になります。">
+    <tanrei-select placeholder="国を選択">
+      <tanrei-option value="jp">日本</tanrei-option>
+      <tanrei-option value="ke">ケニア</tanrei-option>
+    </tanrei-select>
+  </tanrei-field>
+</DemoFrame>
+
+セレクトは、自分にしか分からないことをフィールドに伝えます。補足は、内側の余白と先頭のアイコンを過ぎた、値の始まる位置から始まります。Filled と Outlined のセレクトは、フィールドのラベルをボックスの中で浮き上がるラベルとして自分で描くので、フィールドはラベルの行を描きません。また、リストが開いている間のセレクトは、フォーカスがあってもなくてもフォーカスされた状態で描かれるので、その間はフィールドもラベルと補足をフォーカスされた状態で描きます。
+
+## 仕様
+
+<DemoFrame label="単独のセレクト。グループ、補足テキストと無効なオプション、エラー、読み取り専用、無効" plain column>
+  <tanrei-select class="not-content" label="タイムゾーン" value="Europe/Lisbon">
+    <tanrei-option-group label="アジア"><tanrei-option value="Asia/Tokyo">東京</tanrei-option><tanrei-option value="Asia/Seoul">ソウル</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="ヨーロッパ"><tanrei-option value="Europe/Lisbon">リスボン</tanrei-option><tanrei-option value="Europe/Berlin">ベルリン</tanrei-option></tanrei-option-group>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="プラン" value="team">
+    <tanrei-option value="free" supporting-text="プロジェクト 1 つ、コミュニティサポート">フリー</tanrei-option>
+    <tanrei-option value="team" supporting-text="プロジェクト無制限、ロールの共有">チーム</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="シングルサインオンと監査ログ" disabled>エンタープライズ</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="国" value="ke" error>
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">ケニア</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="国" value="jp" readonly>
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">ケニア</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="国" value="jp" disabled>
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">ケニア</tanrei-option>
+  </tanrei-select>
+</DemoFrame>
+
+### トリガー
+
+| パーツ | 内容 |
+| --- | --- |
+| 値 | 選ばれているオプションのラベルです。1 行で表示し、収まらないときは省略記号を付けて切ります |
+| プレースホルダー | 何も選ばれていない間に表示するヒントです。ラベルの代わりにも、選択肢にもなりません |
+| 先頭のアイコン | `leading-icon` スロットのグリフです。なければ、選ばれているオプション自身のグリフになります |
+| シェブロン | ボックスがリストを開くことを示します。回転はしません。読み取り専用のセレクトには描きません |
+| 浮き上がるラベル | `filled` と `outlined` のセレクトだけが描く、セレクトの名前です。何も選ばれていない間は値の行にあり、それ以外では値の上に浮き上がります。セレクトを囲むフィールドが必須と伝えているときは、後にアスタリスクが付きます |
+
+3 つのバリアントは、テキスト入力欄と同じです。既定のシステムが提供するのは `stacked` だけで、`filled` と `outlined` は、テキスト入力欄をその形で描くシステムのためのものです。1 つのフォームの中では、バリアントをそろえます。
+
+`medium`（48）と `large`（56）は、テキスト入力欄の高さです。`small`（40）は、バー、ツールバー、コントロールを詰めて並べた行のためのものです。
+
+### セレクトが受け持つものと、フィールドが受け持つもの
+
+- **セレクトが描くもの**は、ボックス、値、プレースホルダー、アイコン、リストとそのオプション、Filled と Outlined のボックスの中で浮き上がるラベルです。値、フォームの中での位置、イベントを持ちます。支援技術には、選ばれているオプション、リストが開いているかどうか、アクティブなオプション、読み取り専用であることを伝えます。
+- **囲んでいるフィールドが描くもの**は、Stacked のセレクトの上のラベルの行、必須または任意の印、補足、エラーテキストです。フィールドが持つものはありません。セレクトには、名前、説明になる補足またはエラーテキスト、必須・invalid・無効であることを与えます。
+
+フィールドなしで、単独で使うとき：
+
+- **名前**は `label` です。`labelHidden` を付けると、Filled と Outlined のセレクトはラベルを描きません。Stacked のセレクトでは何も変わりません。
+- **エラー**は `error` で、利用者側で設定します。ボックスがエラーの状態で描かれ、invalid として伝わります。セレクトにエラーテキストはありません。何が違うのかは、横に言葉で書くか、フィールドで囲んで伝えます。
+- **必須**を伝えるのはフィールドです。単独のセレクトに必須の設定はありません。フォームが回答を求める箇所では、利用者側で検証します。
+
+### リスト
+
+リストは、コンテナの下に、`comp.select.list.offset` だけ離れて、先頭側の端をそろえて開きます。下に余裕がないときは上に開きます。幅はコンテナと同じで、`list.min-width`（160）より狭くはなりません。高さはオプションの高さの合計で、`list.max-height`（320）を超えるとスクロールします。開いたとき、選ばれているオプションは見える位置にあります。
+
+| パーツ | 内容 |
+| --- | --- |
+| オプション | ラベルのある行です。補足の 1 行とグリフを添えられます。選ばれているオプションには、控えめな塗りとチェックが付きます |
+| グループ | ひと続きのオプションで、タイトルを付けられます。グループの間は、デザインシステムまたは `separation` の指定に従って、線か余白で区切ります |
+| 無効なオプション | 矢印キーで移動できるので、あることは分かりますが、選ぶことはできません |
+
+値が空文字列のオプションも、ほかと同じ選択肢です。「なし」や「指定なし」に使います。セレクト自身には、何も選ばれていない状態に戻す方法がありません。選ばないことを認める場合は、そのためのオプションを用意します。
+
+### 開く、移動する、選ぶ
+
+| 入力 | 起こること |
+| --- | --- |
+| コンテナを押す、Enter、Space、下矢印、上矢印 | リストを開きます。選ばれているオプションが、なければ最初の有効なオプションがアクティブになります |
+| 文字を入力する | リストを開き、入力した文字で始まる次のオプションをアクティブにします |
+| 下矢印、上矢印 | グループをまたいで、次または前のオプションへ移ります。端で止まります |
+| Home、End、Page Down、Page Up | 最初または最後のオプションへ、あるいは 10 個先または 10 個前のオプションへ移ります |
+| Enter または Space、オプションを押す | アクティブなオプションを選び、リストを閉じます |
+| Escape、Tab、外側を押す、コンテナを押す | 何も選ばずにリストを閉じます |
+
+値が変わるのは、開いたリストでユーザーがオプションを確定したとき、つまりオプションを押すか、Enter か Space を押したときだけです。閉じているセレクトで矢印キーを押したり文字を入力したりしても、見えないところで値が変わることはなく、リストが開きます。`change` をきっかけに、保存、ページの移動、ページの作り直しが起こることがあるからです。
+
+`toggle` は、閉じた理由を伝えます。`select`、`escape`、`outside`、`focus-out`、`anchor-hidden`、`press`、`tab` のいずれかです。
+
+<ComponentSpecs name="select" />
+
+### Web での描き方の違い
+
+- `<tanrei-option>` と `<tanrei-option-group>` はデータで、自分では何も描きません。ラベルは `label` 属性で、なければ要素のテキストです。グループのタイトルは、グループの `label` 属性です。
+- オプションはセレクトの子です。子の中に `<slot>` があると、そのスロットに割り当てられた要素がその位置にあるものとして読まれます。そのため、自分の要素からオプションを渡せます。シャドウルートに `<tanrei-select label="プラン"><slot></slot></tanrei-select>` と書きます。セレクトフィールドも、この方法でオプションを渡しています。
+- セレクトは、フォームに関連付けられる要素です。`name` を受け取り、`value` を送信し、リセットされると `value` 属性の値に戻ります。囲んでいるフィールドが必須と伝えていて `value` が空の間は、値がないことをフォームに伝えます。
+- 単独のセレクトはインラインのボックスです。フィールドの中では、フィールドの幅いっぱいに広がるブロックになります。
+- `change` は、composed でバブルするイベントです。`toggle` は composed ですが、バブルしません。セレクトと、それを囲むセレクトフィールドでは受け取れますが、`<details>` のような祖先には届きません。
+- リストは、トップレイヤーにある `popover="manual"` の要素です。外側を押すとリストは閉じ、押した位置にある要素にもその操作が届きます。
+- 浮き上がるラベル（`filled`、`outlined`）はコンテナの中にあるので、ラベルを押すとリストが開きます。
+- `supporting-text`、`error-text`、`requirement`、`required-mark`、`required-text`、`optional-text` と、`label-icon` スロットに入れる子は、セレクトフィールドとフィールドのものです。セレクトに書いても何も描かれません。デバッグビルドは、要素ごとに 1 度だけそのことを伝え、`<tanrei-select-field>` を案内します。
+- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`。
+- 要素が定義されるまでの間、オプションはふつうのテキストとして表示されます。`tanrei-select:not(:defined) > *` を隠し、高さを確保しておいてください。
+- Web には固有の戻る操作がないので、`toggle` が理由 `back` を伝えることはありません。
+- `readOnly` は、`readonly` 属性です。
+
+## ガイドライン
+
+### セレクト、セレクトフィールド、自分で書くフィールド
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| ラベル、ボックス、補足、エラー | [セレクトフィールド](/ja/components/select-field/) |
+| ボックスだけ。ラベルは別の場所（バー、ツールバー、テーブルのセル）にある | セレクトを単独で使い、セレクトの `label` で名前を付ける |
+| 枠の中、ボックスの横や下に置く自分の要素 | [フィールド](/ja/components/field/)に、セレクトと自分の要素を入れる |
+
+### セレクト、ラジオボタン、メニュー、コンボボックス
+
+| 観点 | セレクト | ラジオボタン | メニュー | コンボボックス |
+| --- | --- | --- | --- | --- |
+| 持つもの | 決まったリストの中の 1 つの値 | 少数の中の 1 つの値 | アクション | 入力して見つける 1 つの値 |
+| 選択肢が見えるとき | 押した後 | 常に | 押した後 | 押した後、絞り込まれた形で |
+| フォームの一部か | はい | はい | いいえ | はい |
+
+1. 短いオプションが 5 つ程度までで、並べる場所があるなら、すべてを見せます。ラジオボタンか、ビューを切り替えるものならタブです。
+2. 項目が値を表すのではなく、何かを実行するなら、メニューです。オプションは値であって、行き先ではありません。行き先を並べたものは、メニューかリンクです。
+3. スクロールするより入力したくなるほどリストが長いとき、またはリストにない値も受け付けるときは、コンボボックスです。
+4. 複数の値を選ぶなら、チェックボックスか、複数選択のリストです。
+
+### 推奨
+
+- 単独のセレクトには、何を選ぶのかが分かる `label` を付けます。見えるラベルがあるなら、それと同じ言葉にします。
+- 単独のセレクトを使うのは、ページを見た人が、置かれた場所、グリフ、表示している値から、何を設定するものかが分かるときだけにします。
+- オプションは、ユーザーが探す順に並べます。五十音順やアルファベット順、数の順、またはよく選ばれるものを先にした順です。
+- 長いリストはグループに分け、それぞれに短いタイトルを付けます。
+- ラベルの数語では伝えきれないことは、オプションの `supportingText` に書きます。
+
+### 非推奨
+
+- ラベルの場所を節約するために、フォームの中で単独のセレクトを使わない。セレクトフィールドを使います。
+- セレクトに `label` を書いて、ボックスの上に描かれることを期待しない。Stacked のセレクトはラベルを描きません。上のラベルは、セレクトフィールドの行です。
+- プレースホルダーをラベルの代わりにしない。何かを選ぶと消えてしまいます。
+- 断りなく、`change` でページの移動、送信、削除をしない。ユーザーは、読むためにリストの中を移動します。
+- フィールドの中のセレクトに `label`、`error`、`disabled` を指定しない。フィールドに指定すれば、ラベルと補足も一緒に変わります。
+- 理由を知る手段のないまま、オプションを無効にしない。理由は、そのオプションの補足テキストに書きます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="select" />
+
+### コンポーネントが担うこと
+
+- トリガーは、編集できないコンボボックスです。名前は自身の `label` で、なければ囲んでいるフィールドのラベルです。プレースホルダーが名前になることはありません。値は、選ばれているオプションのラベルです。
+- 説明は、フィールドが与えるものです。補足またはエラーテキストと、任意であることを伝えるテキストです。
+- エラーの間は invalid であることを、フィールドが必須と伝えている間は必須であることを伝えます。読み取り専用であること、無効であること、リストが開いている間は展開されていることも伝えます。
+- リストが開いている間も、フォーカスはトリガーにとどまります。アクティブなオプションは、トリガーのアクティブな子孫として伝わります。そのため、ユーザーがオプションを読んでいる間も、ボックスの名前と状態は失われません。
+- リストは、セレクトと同じ名前のリストボックスです。それぞれのオプションは、名前、説明、選ばれているかどうか、無効かどうか、オプションの中での位置を伝えます。グループの名前は、そのタイトルです。
+- 選ばれているオプションは、チェックでほかと見分けられます。塗りだけで示すことはありません。
+- グリフ、シェブロン、チェック、区切り線、浮き上がるラベルの後のアスタリスクは、支援技術から隠されます。
+- セレクトは、フォーカスの順序の中で 1 つの止まる位置です。Tab を押すと、開いているリストは閉じ、フォーカスは先へ進みます。
+- Escape はリストを閉じ、それより先には届きません。セレクトを囲むダイアログは、開いたままです。
+- small のセレクトの高さは 40 ですが、トリガーのヒット領域は最小ターゲットを満たします。オプションの高さも、最小ターゲット以上です。
+- テキストを 200% にすると、オプションとタイトルは折り返します。1 行のままなのはコンテナの中の値だけで、その全文は、リストと支援技術から得られます。
+- 強制カラーモードでは、トリガーとリストに縁が付き、アクティブなオプションはハイライトの色になります。選ばれているオプションは、チェックで示されます。
+- 右から左のレイアウトでは、トリガーとそれぞれの行が左右反転し、それぞれのテキストは自身の方向を保ちます。シェブロンとチェックは反転しません。
+- 自分の言葉は持たず、プロダクトの言葉も読みません。
+
+Web での既知の制約：
+
+- グループの間の区切り線は、セパレーターとしては伝わりません。リストボックスが持てるのは、オプションとグループだけだからです。
+- 入力した文字とラベルは、JavaScript のやり方で大文字と小文字を区別せずに比べます。ラベルの言語の規則には従いません。
+- 要素が定義されるまでの間、オプションは、コントロールのないテキストとしてページに置かれます。
+
+### 利用者側で行うこと
+
+- 単独で使うセレクトには必ず `label` で名前を付け、すべてのオプションにラベルを付けます。横に見えるテキストがあっても、それはセレクトの名前にはなりません。
+- 単独のセレクトの値が誤りになりうるときは、何が違うのかを、支援技術に届く言葉で伝えます。ページに結び付けた自分のメッセージか、セレクトを囲むフィールドです。
+- オプションの値は、1 つのセレクトの中で重複させません。

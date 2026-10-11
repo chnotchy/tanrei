@@ -1,0 +1,134 @@
+---
+title: 文字
+description: Tanrei 不自带任何文字。组件绘制或朗读的每一个标签、名称和消息，都是你的产品的——写在组件上，或者为整个产品只给一次。
+translationOf: foundations/words.mdx
+sourceHash: 2e2cdc9a6fac5336bbdea998f043a08a73daa2cb
+---
+
+import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+**Tanrei 不自带任何文字。** 没有哪个组件带有任何语言的默认文本：没有“必填”，没有“关闭”，也没有“确定”。组件绘制或朗读的文字，都是你的产品写的。
+
+默认值会掩盖它自己造成的失败。一个日语产品漏写了一个词，自己的文字旁边就会出现英语，而且没有任何东西报告这一点。英语产品同样有自己的说法（“Mandatory”“Done”“Nothing found”）。所以组件没有可以退而使用的文字，缺了哪一个，它会告诉你。
+
+## 文字从哪里来
+
+组件按下面的顺序查看三个地方，不看别处。
+
+| 地方 | 它给出什么 | 示例 |
+| --- | --- | --- |
+| **组件自身** | 只与这一个组件有关的文字，以及这一个组件说法不同的文字 | `label`、`error-text`；`close-label="关闭筛选条件"` |
+| **你的产品的文字** | 这个部件无论画在哪里，你的说法都一样的文字，每种语言只给一次 | `requiredText`、`closeLabel`、`previousMonthLabel` |
+| **平台** | 浏览器已经用读者的语言备好的东西 | 月份和星期的名称、数字、“上午”、缺少值时浏览器自己的提示 |
+
+这三处之后就什么都没有了：没有后备语言，也没有“暂时先用英语”。
+
+## 把产品的文字只给一次
+
+在 Web 上，调用一次 `setWords()`，在组件加载之前或之后都可以。已经在页面上的元素会立即绘制这些文字。
+
+```js
+import { setWords } from '@tanrei/web';
+
+setWords({
+  requiredText: '必填',
+  optionalText: '选填',
+  closeLabel: '关闭',
+  clearLabel: '清除',
+  targetLabel: '在新标签页中打开',
+});
+```
+
+只需给出你用到的组件的文字。第二次调用会按键逐个加到第一次之上；给出空字符串的键会被去掉。`@tanrei/web/words` 导出同一个函数，但不定义任何元素；`@tanrei/react` 也导出它。
+
+组件上的属性总是优先于产品的文字：
+
+<DemoFrame label="写在组件自身上的文字：其中一个字段的说法不同" plain column>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" requirement="required" required-text="必填"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="公司" requirement="required" required-text="开具发票需要"></tanrei-text-field>
+</DemoFrame>
+
+```html
+<tanrei-text-field label="邮箱" requirement="required" required-text="必填"></tanrei-text-field>
+<tanrei-text-field label="公司" requirement="required" required-text="开具发票需要"></tanrei-text-field>
+```
+
+## 不止一种语言
+
+每种语言给一组。组件读取离它最近的 `lang` 属性所对应的那一组，所以日语页面，或者英语页面里的日语部分，读到的都是日语的文字。
+
+```js
+setWords({ requiredText: 'Required', closeLabel: 'Close' }, { lang: 'en' });
+setWords({ requiredText: '必須', closeLabel: '閉じる' }, { lang: 'ja' });
+```
+
+- 给 `ja` 的一组也用于 `ja-JP`，除非你给了 `ja-JP` 它自己的一组。
+- 某种语言的那一组里没有的键，从不带 `lang` 给出的那一组里读取。
+- 这些文字是普通的字符串。如果你的产品有本地化库，就把那里的字符串交给 `setWords()`：它不是翻译系统，也没有复数规则。少数几个文字带有[由组件填入的占位标记](#带占位标记的文字)，除此之外，文字里的任何内容都不会被解读。
+
+## 带占位标记的文字
+
+有些句子里有一个只有组件才知道的值，而且要到说出这句话的那一刻才知道：一行在移动之后排在第几位，或者一次粘贴生成了多少个条目。整个句子仍然由你的产品来写。它用花括号括起一个名称，标出值该放在哪里，组件再把值填到那里。
+
+```js
+setWords({ movedText: '{headline}: {position} of {count}' }, { lang: 'en' });
+setWords({ movedText: '{headline}：{count} 件中 {position} 番目' }, { lang: 'ja' });
+```
+
+词序是你的语言的词序。组件只填入占位标记，不对句子做别的任何事。
+
+- **名称由组件决定。** 每个键有它自己的占位标记，列在[键的表格](#键)里，只有这些会被填入。一个占位标记可以写一次、写好几次，也可以不写。
+- **数字按元素所用的语言书写。** `{count}` 和 `{position}` 是整数，用最近的 `lang` 所对应的数字和分组方式书写。
+- **文本保持它自己的方向。** `{headline}` 和 `{entry}` 是组件持有的文本：一行的标题、用户键入的一个条目。它们作为纯文本填入，绝不当作标记（markup）。在绘制或朗读这个句子的地方，这段文本会被隔离开，所以阿拉伯语句子里的拉丁字母名称保持它自己的顺序。
+- **要写花括号本身，就连写两个。** `{{` 绘制成 `{`，`}}` 绘制成 `}`。不带占位标记的文字根本不会被解读，所以在那里花括号只写一个。
+- **有一个占位标记是必需的。** `entryRemoveLabel` 为纸片字段每个条目的移除按钮命名。没有 `{entry}`，每个按钮的名称就都一样。
+
+在开发时，控制台会报告这个键没有的占位标记（`{entri}`）、单独一个花括号，以及缺少的 `{entry}`。句子仍然完全按你写的样子使用。`setWords()` 在你给出文字时报告它们；写在元素上的文字，则由组件在用到它时报告。
+
+### 复数
+
+组件不懂语法：没有复数形式，没有序数词，也不会在两个句子之间做选择。处理数字有三种办法，哪一种都不需要 Tanrei 做什么。
+
+1. 写一个对任何数字都成立的句子：`第 {position} 项，共 {count} 项`、`已添加 {count} 项`。
+2. 把文字写在组件上，数量变化时更改它。你的产品知道数量，而组件上的文字总是优先。用哪个句子，由你自己的复数规则来选。
+3. 数字由你的产品自己持有的地方，文字不带占位标记：表格的状态（“第 1–20 件，共 132 件”）是由你写的一整个字符串。
+
+## 没有文字时
+
+缺少文字是产品的缺陷，就像文本字段没有标签一样。组件让它对用户的影响尽量小，并让你看得见它。
+
+- **本该绘制的文字不绘制。** 有标记能表达同样的意思时，标记就站在文字的位置上：必填小标签用星号，选择器的“取消”和“确定”用关闭和对勾的图标，“次日”用 `+1`。没有这样的标记时，什么都不绘制，那个位置保持原来的大小。
+- **需要名称的控件仍然会绘制，也仍然可以使用。** 日历的导航按钮、文本字段的调整手柄和选择器的操作，没有名称也照常工作。唯一的例外是数字字段的步进按钮：没有名称的步进按钮对辅助技术隐藏，因为它旁边的微调按钮自己就能步进。
+- **它会被报告。** 在开发时，控制台会指出是哪个属性，每个文字在每个页面上报告一次：`<tanrei-field>: required-text is empty and the product's words have no requiredText`。
+
+没有无障碍名称的控件，使用屏幕阅读器的人用不了。报告是为了让你去修正，而不是让你可以置之不理。
+
+## 缺少文字时让测试失败
+
+`missingWords()` 返回自页面加载以来被需要、却没有人给出的键。在一个把你的产品走一遍的测试的末尾调用它。
+
+```js
+import { missingWords } from '@tanrei/web';
+
+test('产品需要的每个文字都已给出', async () => {
+  // …渲染产品的各个界面…
+  expect(missingWords()).toEqual([]);
+});
+```
+
+## 什么不算文字
+
+字形、星号、短横线、数字，以及由区域设置给出的分隔符，都不是文字，组件仍然会绘制它们。API 里的名称（属性、取值）也不是，控制台告诉开发者的内容也不是，后者是英语。键盘快捷键画出的字符（“Ctrl”“Enter”、⌘）是按键本身带有的；为快捷键朗读的，是你给它的 `label`。
+
+## 键
+
+所有的键、读取它们的属性，以及组件在句子里填入的占位标记。大多数键与它的属性同名。有三个不同：复制按钮的 `label` 和 `failedLabel` 读取 `copyLabel` 和 `copyFailedLabel`，面包屑的 `overflowLabel` 读取 `breadcrumbsOverflowLabel`。
+
+<ProductWordKeys />
+
+只与某一样东西有关的文字——字段的 `label`、日期时间选择器的 `label`、移除按钮的“移除李华”、带有数量的状态文本——没有键：请在组件上给出它们。
+
+## 其他平台
+
+这条规则在每个平台上都相同。目前只有 Web 已经实现；SwiftUI、Jetpack Compose、Flutter 和 React Native 将按各自的惯用方式接受产品的文字。

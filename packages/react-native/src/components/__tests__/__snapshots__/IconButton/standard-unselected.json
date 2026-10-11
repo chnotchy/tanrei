@@ -1,0 +1,66 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Favorite",
+    "accessibilityRole": "button",
+    "accessibilityState": {
+      "disabled": false,
+      "selected": false
+    },
+    "accessibilityValue": {},
+    "accessible": true,
+    "collapsable": false,
+    "focusable": true,
+    "hitSlop": {
+      "bottom": 6,
+      "left": 6,
+      "right": 6,
+      "top": 6
+    },
+    "style": {
+      "alignItems": "center",
+      "alignSelf": "flex-start",
+      "borderRadius": 6,
+      "height": 36,
+      "justifyContent": "center",
+      "opacity": 1,
+      "width": 36
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityElementsHidden": true,
+        "accessible": false,
+        "importantForAccessibility": "no-hide-descendants",
+        "style": {
+          "alignItems": "center",
+          "height": 20,
+          "justifyContent": "center",
+          "width": 20
+        }
+      },
+      "children": [
+        {
+          "type": "Text",
+          "props": {
+            "allowFontScaling": false,
+            "collapsable": false,
+            "style": {
+              "color": "rgb(75, 75, 75)",
+              "fontFamily": "Material Symbols Rounded",
+              "fontSize": 20,
+              "fontWeight": "300",
+              "lineHeight": 20,
+              "textAlign": "center"
+            }
+          },
+          "children": [
+            "favorite"
+          ]
+        }
+      ]
+    }
+  ]
+}

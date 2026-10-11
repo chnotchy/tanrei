@@ -1,0 +1,172 @@
+{
+  "tanrei": {
+    "sys": {
+      "elevation": {
+        "$type": "shadow",
+        "$description": "Elevation expresses z-order. Each level is a hairline ring plus very soft shadows; there is no surface tint. The first layer of every level above 0 is the ring (spread 1, no blur): it sits OUTSIDE the container bounds, like a shadow spread, so it never changes the container size. Platforms without shadow spread draw it as a 1-unit outside border. Shadow values have the semantics of CSS box-shadow: `blur` is the CSS blur radius (the Gaussian's standard deviation is blur / 2), `spread` grows the shadow's shape before blurring. A platform whose shadow API takes another quantity converts: it never passes the number through.",
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product stacks surfaces at several heights: resting cards, raised controls, menus, dialogs.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Six levels of lift, each a list of shadow layers whose colors are roles, so they follow the scheme. A layer with no offset, no blur and a positive spread is a ring: draw it as a border.",
+            "rules": [
+              "Use a level as a whole. Do not build shadows from literals.",
+              "Level changes express state (hover lifts one level); do not use elevation for decoration."
+            ]
+          }
+        },
+        "level0": {
+          "$value": [],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "Shadows are replaced whole by a system; the rule language deliberately has no shadow math."
+            }
+          },
+          "$description": "No elevation: an empty list of shadow layers, so nothing is drawn."
+        },
+        "level1": {
+          "$value": [
+            {
+              "offsetX": {
+                "value": 0,
+                "unit": "px"
+              },
+              "offsetY": {
+                "value": 1,
+                "unit": "px"
+              },
+              "blur": {
+                "value": 3,
+                "unit": "px"
+              },
+              "spread": {
+                "value": 0,
+                "unit": "px"
+              },
+              "color": "{tanrei.sys.color.elevation-shadow-1}"
+            }
+          ],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "A single soft shadow per level, no outline ring."
+            }
+          }
+        },
+        "level2": {
+          "$value": [
+            {
+              "offsetX": {
+                "value": 0,
+                "unit": "px"
+              },
+              "offsetY": {
+                "value": 2,
+                "unit": "px"
+              },
+              "blur": {
+                "value": 8,
+                "unit": "px"
+              },
+              "spread": {
+                "value": 0,
+                "unit": "px"
+              },
+              "color": "{tanrei.sys.color.elevation-shadow-2}"
+            }
+          ],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "A single soft shadow per level, no outline ring."
+            }
+          }
+        },
+        "level3": {
+          "$value": [
+            {
+              "offsetX": {
+                "value": 0,
+                "unit": "px"
+              },
+              "offsetY": {
+                "value": 4,
+                "unit": "px"
+              },
+              "blur": {
+                "value": 16,
+                "unit": "px"
+              },
+              "spread": {
+                "value": 0,
+                "unit": "px"
+              },
+              "color": "{tanrei.sys.color.elevation-shadow-2}"
+            }
+          ],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "A single soft shadow per level, no outline ring."
+            }
+          }
+        },
+        "level4": {
+          "$value": [
+            {
+              "offsetX": {
+                "value": 0,
+                "unit": "px"
+              },
+              "offsetY": {
+                "value": 8,
+                "unit": "px"
+              },
+              "blur": {
+                "value": 24,
+                "unit": "px"
+              },
+              "spread": {
+                "value": 0,
+                "unit": "px"
+              },
+              "color": "{tanrei.sys.color.elevation-shadow-3}"
+            }
+          ],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "A single soft shadow per level, no outline ring."
+            }
+          }
+        },
+        "level5": {
+          "$value": [
+            {
+              "offsetX": {
+                "value": 0,
+                "unit": "px"
+              },
+              "offsetY": {
+                "value": 12,
+                "unit": "px"
+              },
+              "blur": {
+                "value": 40,
+                "unit": "px"
+              },
+              "spread": {
+                "value": 0,
+                "unit": "px"
+              },
+              "color": "{tanrei.sys.color.elevation-shadow-3}"
+            }
+          ],
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "A single soft shadow per level, no outline ring."
+            }
+          }
+        }
+      }
+    }
+  }
+}

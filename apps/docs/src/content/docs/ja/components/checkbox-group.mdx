@@ -1,0 +1,252 @@
+---
+title: チェックボックスグループ
+description: 一度に見せられる数の選択肢から、複数を選んで答える 1 つの質問です。1 つのラベルの下にチェックボックスが並び、説明と 1 つのエラーが付きます。チェックが入った値のリストを 1 つの名前で持ち、すべてにチェックを入れるチェックボックスを添えることもできます。
+translationOf: components/checkbox-group.mdx
+sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="checkbox-group" />
+
+<DemoFrame label="チェックボックスグループと、すべてにチェックを入れるチェックボックスを添えたもの" column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須">
+    <tanrei-checkbox value="email" label="メール" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="プッシュ通知"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="レポートを送る曜日" select-all-label="平日すべて">
+    <tanrei-checkbox value="mon" label="月曜日" checked></tanrei-checkbox>
+    <tanrei-checkbox value="tue" label="火曜日"></tanrei-checkbox>
+    <tanrei-checkbox value="wed" label="水曜日" checked></tanrei-checkbox>
+    <tanrei-checkbox value="thu" label="木曜日"></tanrei-checkbox>
+    <tanrei-checkbox value="fri" label="金曜日"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+チェックボックスグループは、答えがリストになる 1 つの質問で、選択肢を一度に見せられる数（7 つくらいまで）のときに使います。通知の受け取り方法、レポートを送る曜日、リストを絞り込む種類などです。答えは 1 つの値、つまりチェックが入った値のリストで、フォームは 1 つの名前で送信します。
+
+**構成要素**は、[フィールドグループ](/ja/components/field-group/)と[チェックボックス](/ja/components/checkbox/)です。フィールドグループは枠で、ラベル、必須または任意の印、説明、エラー、縦または横の並びを受け持ちます。チェックボックスは値を受け持ちます。1 つ 1 つが自分のラベルを持つ選択肢で、どれにチェックが入っているかがリストになります。チェックボックスグループが自分で描くものはなく、トークンもありません。2 つに加えるのは、プロダクトがいつも自分で書くことになる状態です。リストとそのための 1 つの `change`、フォームでの 1 つの名前とリセット、必須の集まりが空でないことをフォーム自身が確かめること、そして、すべてにチェックを入れるチェックボックスの 3 つの状態です。
+
+幅は、置かれた場所に合わせて広がります。
+
+Web では `<tanrei-checkbox-group>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+チェックボックスは、それぞれ自分の `value` が示す選択肢です。グループの `value` は、チェックが入った値のリストで、チェックボックスの並び順になります。どのチェックボックスにもない値がリストにあっても、そのまま残ります。検索で絞り込まれて見えなくなった選択肢は、選ばれたままです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-checkbox-group name="notify" label="通知の受け取り方法"
+        supporting-text="当てはまるものをすべて選んでください。"
+        requirement="required" required-text="必須"
+        error-text="連絡方法を 1 つ以上選んでください。">
+        <tanrei-checkbox value="email" label="メール" checked></tanrei-checkbox>
+        <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
+        <tanrei-checkbox value="push" label="プッシュ通知"></tanrei-checkbox>
+      </tanrei-checkbox-group>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox-group';
+
+      const group = document.querySelector('tanrei-checkbox-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value が新しいリストです。group.value はすでに同じ値になっています。
+        group.error = event.detail.value.length === 0;
+      });
+      // 答えはリストで設定します。プロパティであり、value 属性はありません。
+      group.value = ['email', 'push'];
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, CheckboxGroup } from '@tanrei/react';
+
+    const [channels, setChannels] = useState(['email']);
+
+    <CheckboxGroup name="notify" label="通知の受け取り方法" supportingText="当てはまるものをすべて選んでください。"
+                   value={channels} onChange={(event) => setChannels(event.detail.value)}
+                   error={channels.length === 0} errorText="連絡方法を 1 つ以上選んでください。">
+      <Checkbox value="email" label="メール" />
+      <Checkbox value="text" label="SMS" />
+      <Checkbox value="push" label="プッシュ通知" />
+    </CheckboxGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+マークアップでは、最初の値を HTML と同じ場所、つまりチェックボックスの `checked` に書きます。プロダクトが `value` を設定した後は、どれにチェックが入るかを `value` が決めます。
+
+### すべてにチェックを入れるチェックボックス
+
+`selectAllLabel` を指定すると、グループは最初のチェックボックスの前にもう 1 つのチェックボックスを置き、そのテキストを名前にします。ユーザーが切り替えられるチェックボックスのすべてにチェックが入っていればチェック、一部なら中間状態、1 つもなければ未チェックになります。未チェックか中間状態のときに押すとすべてにチェックが入り、チェックのときに押すとすべて外れます。リストの項目ではなく、何も送信しません。
+
+```html
+<tanrei-checkbox-group name="days" label="レポートを送る曜日" select-all-label="平日すべて">
+  <tanrei-checkbox value="mon" label="月曜日"></tanrei-checkbox>
+  <tanrei-checkbox value="tue" label="火曜日"></tanrei-checkbox>
+  …
+</tanrei-checkbox-group>
+```
+
+利用者側で無効にしたチェックボックスは、チェックが入っていてもいなくても、そのままになり、数に含まれません。このチェックボックスが数えるのは、ユーザーが切り替えられる選択肢だけです。ラベルは、その集まりのための言葉（「これらすべて」「平日すべて」など）を、質問の言い方に合わせて書きます。プロダクトの言葉から読まれることはありません。
+
+### 1 つ下の階層
+
+同じ集まりを 2 つの構成要素から自分で書いても、見た目は同じで、支援技術にとっても同じグループになります。
+
+```html
+<tanrei-field-group label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。"
+                    requirement="required" required-text="必須">
+  <tanrei-checkbox name="notify" value="email" label="メール" checked></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="push" label="プッシュ通知"></tanrei-checkbox>
+</tanrei-field-group>
+```
+
+<DemoFrame label="同じ集まりを自分で書いたもの。フィールドグループの中にチェックボックスがあります" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須">
+    <tanrei-checkbox name="notify" value="email" label="メール" checked></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="push" label="プッシュ通知"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+フィールドグループとチェックボックスを自分で書いたものにないのは、答えを持つことです。
+
+| 観点 | 自分で書いた場合 | チェックボックスグループ |
+| --- | --- | --- |
+| リスト | プロダクトがチェックボックスを 1 つずつ読む | `value` と、1 つの `change` |
+| 答えを設定する | チェックボックスごとの `checked` | `value = […]` |
+| リセットと復元 | チェックボックスがそれぞれ行う | 1 つのコントロール |
+| 必須の集まりが空のまま | プロダクトが確かめる | フォーム自身の検証が受け付けない |
+| チェックボックスが表示されていない値 | 失われる | 残る |
+| すべてにチェックを入れるチェックボックス | プロダクトが `indeterminate` を使って書く | `selectAllLabel` |
+| フォームが送信するもの | 同じ項目 | 同じ項目 |
+
+集まりが 1 つの答えでないときに、1 つ下の階層で書きます。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| いくつかの選択肢から複数を選ぶ、1 つの名前を持つ 1 つの答え | チェックボックスグループ |
+| フォームでそれぞれ自分の名前を持つチェックボックス。または、チェックボックスでないものを含む集まり | [フィールドグループ](/ja/components/field-group/)に[チェックボックス](/ja/components/checkbox/)を入れる |
+| 「すべて」の意味を自分で決める（ページにあるすべての項目、条件に合うすべての項目など） | [フィールドグループ](/ja/components/field-group/)に、自分で `indeterminate` を設定するチェックボックスを入れる |
+| いくつかの選択肢から 1 つ | [ラジオグループ](/ja/components/radio-group/) |
+| 1 つのことのオンとオフ | [チェックボックス](/ja/components/checkbox/)。すぐに反映されるものは[スイッチ](/ja/components/switch/) |
+| 多くの選択肢から複数。または、場所が狭い | [セレクト](/ja/components/select/)、または複数選択のリスト |
+
+## 仕様
+
+<DemoFrame label="横並び、受け付けられなかった回答、いつもオンの選択肢、無効なグループ" plain column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="サイズ" orientation="horizontal">
+    <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
+    <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
+    <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須" error error-text="この番号は SMS を受け取れません。ほかの方法を選ぶか、番号を変更してください。">
+    <tanrei-checkbox value="email" label="メール"></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="SMS" checked></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="プッシュ通知"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="受け取るお知らせ">
+    <tanrei-checkbox value="account" label="アカウントに関するお知らせ" checked disabled></tanrei-checkbox>
+    <tanrei-checkbox value="news" label="ニュース"></tanrei-checkbox>
+    <tanrei-checkbox value="offers" label="キャンペーン"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" disabled>
+    <tanrei-checkbox value="email" label="メール" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+### それぞれの構成要素が受け持つもの
+
+| 観点 | フィールドグループから | チェックボックスから | グループ自身のもの |
+| --- | --- | --- | --- |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText`、`orientation` | 各チェックボックスの `value`、`label`、`disabled`。チェックボックスに指定する | `value`、`selectAllLabel` |
+| イベント | — | なし。グループの中のチェックボックスは、自分のイベントを発生させない | `change` |
+| トークン | `comp.field-group.*` | `comp.checkbox.*` | なし |
+
+- **必須**は、1 つ以上という意味です。最小や最大の数（「3 つまで選べます」など）は、利用者側の決まりです。`change` でリストの長さを読み、`error` を設定し、数を含めた自分の言葉で `errorText` を書きます。
+- **エラー**は、集まりのものです。`error` は、最後のチェックボックスの下に `errorText` を描き、すべてのチェックボックスをそれぞれのエラーの状態にします。グループが自分で設定することはなく、値が変わっても解除されません。エラーでないグループの中の 1 つのチェックボックスだけをエラーにするには、そのチェックボックスの `error` を使います。
+- **無効。** 無効なグループは値を保ち、何も送信しません。有効なグループの中で 1 つだけ無効にしたチェックボックスは、リストの項目を保ち、一緒に送信されます。いつもオンの選択肢は、無効でチェックが入った 1 つのチェックボックスで表せ、隣に隠しフィールドを置く必要はありません。
+- 読み取り専用の状態はありません。チェックボックスにないためです。
+
+枠の動き（必須の印、説明、エラーとその読み上げ、縦の並びと折り返す横の並び）は[フィールドグループのページ](/ja/components/field-group/)に、チェックボックスの動きは[チェックボックスのページ](/ja/components/checkbox/)にあります。
+
+### 1 つのグループだけを変える
+
+チェックボックスグループに自分のトークンはありません。枠はフィールドグループのトークンを、チェックボックスはチェックボックスのトークンを、どこで設定されていても読みます。1 つだけ変えるには、構成要素のトークンをその要素に設定します。
+
+```html
+<tanrei-checkbox-group label="通知の受け取り方法"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-checkbox-group>
+```
+
+<ComponentSpecs name="checkbox-group" />
+
+### Web での描き方の違い
+
+- 要素のシャドウルートにあるのは `<tanrei-field-group>` で、その中に、`select-all-label` を指定している間のすべてにチェックを入れるチェックボックスと、スロットがあります。チェックボックスは利用者側の子要素のままです。要素をインポートすると、2 つの構成要素も定義されます。
+- `value` はプロパティだけで、配列を写して出し入れします。`value` 属性はありません。属性にリストを書くには、値に含まれるかもしれない区切りが必要になり、HTML にはすでに、子ごとの `checked` という書き方があるためです。
+- `value` 属性がなく、値も設定されていないチェックボックスには、値がありません。単独のチェックボックスが送信する「on」は、グループの中では読まれません。未チェックで描かれ、デバッグビルドが知らせます。
+- 要素はフォームに関連付けられます。`name` と `form` を受け取り、値ごとに 1 つの項目を `name` で送信します。同じ名前を持つ素のチェックボックスが送信するものと同じです。チェックボックスは、どんな `name` を持っていても何も送信しません。リセットすると最初の値に戻り、無効な `<fieldset>` に従い、`requirement` が `required` でリストが空の間は、値がないことを報告します。メッセージは `error-text`、なければ必須のテキスト、それもなければ `label` です。`error-text` は、`error` を設定するときだけでなく、最初から指定してください。
+- `change` は CustomEvent で、`detail.value` はリストの写しです。その前に `input` が発生します。グループの中のチェックボックスに付けたリスナーには、どちらも届きません。
+- パーツ: `field-group` が枠で、そのパーツは 1 つ下の階層と同じ名前です。`label`、`requirement-label`、`supporting-text`、`error-text` です。`select-all` がすべてにチェックを入れるチェックボックスで、そのパーツは `select-all-container`、`select-all-box`、`select-all-mark`、`select-all-label` です。利用者側のチェックボックスは、ほかの場所と同じく `tanrei-checkbox::part(…)` でスタイルを変えます。
+- 要素そのものはフォーカスを受け取りません。`focus()` は最初の有効なチェックボックスに移り、ページの `<label for>` もフォーカスをそこに移します。
+- 要素にロールはありません。名前は `label` で付けます。ラベルが別の場所に描かれているときは `label-hidden` を併せて指定します。`aria-label` はここでは何にも名前を付けないので、使いません。
+- 属性はケバブケースです。`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`select-all-label` です。
+- 要素が定義されるまでと、スクリプトがないときは、要素自身のものは何も描かれず、チェックボックスがそのままの内容として表示されます。スクリプトなしで動く必要があるページでは、同じ `name` を持つ素のチェックボックスを素の `<fieldset>` に入れます。送信される項目は同じです。
+
+## ガイドライン
+
+### 推奨
+
+- ラベルは質問として、各チェックボックスのラベルはその答えの 1 つとして書きます。
+- 答え方は `supportingText` で伝えます。「当てはまるものをすべて選んでください。」などです。
+- 縦の並びを優先します。横の並びは、短いラベルが少しだけのときに使います。
+- 必須にするときは、`errorText` も一緒に指定します。フォーム自身の検証が、利用者側の言葉で伝えられるようになります。
+- すべてにチェックを入れるチェックボックスは、6 つ以上の集まり、絞り込み、権限の集まりで使います。
+
+### 非推奨
+
+- いくつかの選択肢から 1 つを選ぶ答えに、チェックボックスグループを使わないでください。それは[ラジオグループ](/ja/components/radio-group/)です。
+- 送信するために、チェックボックスに `name` を付けないでください。グループが自分の名前でリストを送信します。
+- チェックボックスでない、操作できるものを中に入れないでください。デバッグビルドが知らせ、その値がリストの項目になることもありません。
+- 階層を示すために、すべてにチェックを入れるチェックボックスの下で集まりを字下げしないでください。選択肢の中の選択肢は、ツリーです。
+- `aria-label` でグループに名前を付けないでください。ラベルを描きたくないときは、`label` と `labelHidden` を指定します。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="checkbox-group" />
+
+### コンポーネントが担うこと
+
+- フィールドグループの、チェックボックスを含む 1 つのグループです。名前は `label` で、描かれていてもいなくても変わりません。説明は、説明のテキスト、エラーの間はエラーのテキスト、そしてプロダクトの言葉で書かれた必須または任意のテキストです。
+- グループには、必須の状態も invalid の状態もありません。必須かどうかは言葉で伝わり、エラーのグループのチェックボックスは、それぞれが invalid として伝わり、エラーのテキストが説明になります。
+- 各チェックボックスは、自分のロール、名前、チェックの状態を保ちます。すべてにチェックを入れるチェックボックスは、一部にチェックが入っている間、中間状態を伝えます。集まりの中での位置を伝えるチェックボックスはなく、いくつにチェックが入っているかも伝わりません。
+- 有効なチェックボックスは、どれも Tab でフォーカスが止まる位置です。すべてにチェックを入れるチェックボックスが最初です。Space は、フォーカスのあるチェックボックスを切り替えます。矢印キーはなく、Enter はフォームに任せます。
+- ラベル、必須または任意の印、説明、エラーのテキストを押しても、チェックは入らず、フォーカスも動きません。
+- フォーカスがチェックボックスの 1 つにある間に現れたエラーは、フィールドグループが 1 回だけ、控えめに読み上げます。
+- 書字方向、文字の拡大、強制カラーには、構成要素がそれぞれ応えます。右から左へのレイアウトでは、枠と各チェックボックスの左右が入れ替わります。文字を 200% にすると、どのテキストも折り返し、横の並びは縦の並びになり、横にスクロールすることはありません。
+- 自分の言葉は持ちません。`requiredText` と `optionalText` を空にすると、フィールドグループがプロダクトの言葉から読みます。
+
+Web での既知の不足: スクリーンリーダーがグループについて何を読むかは、ブラウザーのアクセシビリティツリーから読んだもので、スクリーンリーダーで聞いて確かめてはいません。Chromium は、フォームがこの要素を検証するため、アクセシビリティツリーの中でこの要素に自分のノードを与えます。ロールも名前もないノードで、グループを囲みます。
+
+### 利用者側で行うこと
+
+- `label` を必ず指定し、すべてのチェックボックスにも `label` を指定します。
+- グループが必須または任意のときは、`requiredText` と `optionalText` を、グループに、またはプロダクトに 1 回、指定します。グループには必須の状態がないので、それを伝えるのは言葉です。
+- 何が間違っているか、どう直せばよいかを `errorText` で伝えます。色だけを手がかりにしません。
+- 選んだ数が意味を持つとき（「5 つのうち 2 つを選択」など）は、`supportingText` に書きます。そうしなければ、読み上げられません。

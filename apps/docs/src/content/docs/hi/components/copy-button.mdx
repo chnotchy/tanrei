@@ -1,0 +1,142 @@
+---
+title: कॉपी बटन
+description: वह Button जो दिए गए टेक्स्ट को एक बार दबाने पर कॉपी करता है और इसकी पुष्टि करता है, या बताता है कि वह ऐसा नहीं कर सका। इसे Button बनाता है, और यह लेआउट को कभी नहीं हिलाता।
+translationOf: components/copy-button.mdx
+sourceHash: 11c3c4ca402e08be52105dad6861f24385f8af29
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="copy-button" />
+
+<DemoFrame label="कोई एक दबाएँ: ग्लिफ़ एक पल के लिए चेक बन जाता है">
+  <tanrei-copy-button text="npm install @tanrei/web" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+  <tanrei-copy-button variant="tonal" text="#30a3f0" label="रंग कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="लिंक कॉपी करें" copied-label="लिंक कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="कुंजी कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+</DemoFrame>
+
+कॉपी बटन उस चीज़ के बग़ल में इस्तेमाल करें जिसे व्यक्ति कहीं और पेस्ट करेगा: कोई कमांड, कुंजी, पता या रंग का मान। यह ब्राउज़र के जवाब का इंतज़ार करता है, दो सेकंड के लिए एक चेक (या त्रुटि का निशान) दिखाता है, और सहायक तकनीक को शब्दों में बताता है। [कोड ब्लॉक](/hi/components/code-block/) इसे आपके लिए ख़ुद रखता है।
+
+### इस्तेमाल
+
+कॉपी बटन उस वेरिएंट और साइज़ का [Button](/hi/components/button/) है जो आप बताते हैं। इसके अपने कोई रंग या माप नहीं हैं, इसलिए जो डिज़ाइन सिस्टम Button का स्टाइल बदलता है, वह उसके साथ हर कॉपी बटन का स्टाइल भी बदल देता है।
+
+शब्द आपके हैं। `label`, `copied-label` और `failed-label` के कोई डिफ़ॉल्ट नहीं हैं, क्योंकि Tanrei किसी भी भाषा में कोई टेक्स्ट नहीं देता।
+
+SwiftUI, Compose, Flutter और React Native नियोजित हैं: इस पेज के शुरू में हर प्लैटफ़ॉर्म के साथ दिए गए नाम वे हैं जो स्पेक उन्हें देता है, और वहाँ अभी कुछ उपलब्ध नहीं है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- सिर्फ़ आइकन (डिफ़ॉल्ट): नाम label से आता है। -->
+    <tanrei-copy-button
+      text="npm install @tanrei/web"
+      label="कॉपी करें"
+      copied-label="कॉपी हो गया"
+      failed-label="कॉपी नहीं हो सका"
+    ></tanrei-copy-button>
+
+    <!-- लेबल के साथ: टेक्स्ट रूप के साथ बदलता है, और चौड़ाई कभी नहीं बदलती। -->
+    <tanrei-copy-button
+      icon-only="false"
+      variant="tonal"
+      text="https://example.com/s/4f2a"
+      label="लिंक कॉपी करें"
+      copied-label="लिंक कॉपी हो गया"
+      failed-label="कॉपी नहीं हो सका"
+    ></tanrei-copy-button>
+
+    <script type="module">
+      import '@tanrei/web';
+
+      document.querySelector('tanrei-copy-button').addEventListener('copyfailed', () => {
+        // बटन बता चुका है कि वह कॉपी नहीं कर सका। इसके अलावा क्या होगा, यह आपको तय करना है।
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CopyButton } from '@tanrei/react';
+
+    <CopyButton text={command} label="कॉपी करें" copiedLabel="कॉपी हो गया" failedLabel="कॉपी नहीं हो सका" onCopyfailed={() => showHelp()} />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="साइज़ और वेरिएंट Button के हैं" plain>
+  <tanrei-copy-button size="small" text="small" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+  <tanrei-copy-button text="medium" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+  <tanrei-copy-button size="large" text="large" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+  <tanrei-copy-button variant="elevated" text="elevated" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+  <tanrei-copy-button disabled text="disabled" label="कॉपी करें" copied-label="कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+</DemoFrame>
+
+<DemoFrame label="चौड़ाई तीनों टेक्स्ट में से सबसे लंबे के लिए रखी जाती है" plain>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="कॉपी करें" copied-label="क्लिपबोर्ड पर कॉपी हो गया" failed-label="कॉपी नहीं हो सका"></tanrei-copy-button>
+  <tanrei-button variant="text">एक पड़ोसी जो नहीं हिलता</tanrei-button>
+</DemoFrame>
+
+बटन के तीन रूप हैं: सामान्य (ग्लिफ़ `content_copy`), कॉपी हो चुका (`check`) और विफल (`error`)। वह कॉपी हो चुका वाला रूप तभी दिखाता है जब ब्राउज़र कॉपी की पुष्टि कर देता है, और `comp.copy-button.confirmation.duration` (2 सेकंड) के बाद सामान्य रूप में लौट आता है। जब वह पुष्टि दिखा रहा हो, तब दबाने पर वह फिर से कॉपी करता और पुष्टि करता है।
+
+रूप बदलने पर कुछ नहीं हिलता। तीनों ग्लिफ़ एक ही बॉक्स में बनते हैं। लेबल वाला रूप हर समय अपने सबसे चौड़े टेक्स्ट की चौड़ाई रखता है।
+
+ग्लिफ़ तुरंत बदलता है, बिना किसी मोशन के। ये दो सेकंड ध्यान जाने के लिए हैं, इसलिए जहाँ मोशन कम किया गया है वहाँ भी ये रखे जाते हैं।
+
+अगर बटन के "कॉपी हो गया" दिखाते समय टेक्स्ट बदल जाए, तो वह तुरंत सामान्य रूप में लौट आता है: जो कॉपी हुआ था, वह अब वह नहीं है जो कॉपी होता।
+
+इवेंट `copied` और `copyfailed` हैं। इनका नाम `copy` नहीं रखा गया है, क्योंकि `copy` दस्तावेज़ का अपना क्लिपबोर्ड इवेंट है।
+
+<ComponentSpecs name="copy-button" />
+
+### वेब क्या अलग ढंग से बनाता है
+
+- कॉपी के लिए `navigator.clipboard.writeText` इस्तेमाल होता है। उसे एक सुरक्षित पेज (HTTPS या localhost) और व्यक्ति का दबाना चाहिए। जहाँ ब्राउज़र में क्लिपबोर्ड नहीं है या वह मना कर देता है, वहाँ बटन विफल रूप ले लेता है। कोई फ़ॉलबैक नहीं है।
+- दोनों इवेंट बबल होते हैं और शैडो रूट के पार नहीं जाते।
+
+## दिशानिर्देश
+
+### सिर्फ़ आइकन, या लेबल के साथ
+
+| रूप | क्या दिखाता है | कब इस्तेमाल करें |
+| --- | --- | --- |
+| **सिर्फ़ आइकन** | अकेला ग्लिफ़। देख सकने वाले व्यक्ति को चेक दिखता है, शब्द नहीं | उस चीज़ के बग़ल में जिसे वह कॉपी करता है: कोई कमांड, कोड ब्लॉक, पंक्ति का कोई मान |
+| **लेबल के साथ** | ग्लिफ़ और शब्द, जो रूप के साथ बदलते हैं | कॉपी व्यू की क्रियाओं में से एक है, या शब्द सबके लिए मायने रखते हैं |
+
+### करें
+
+- जब जगह से यह साफ़ न हो कि क्या कॉपी होता है, तो लेबल में बताएँ: "लिंक कॉपी करें", "JSON कॉपी करें"।
+- जब व्यक्ति को टेक्स्ट फिर भी मिलना ही चाहिए, तो `copyfailed` सुनें और ऐसा कुछ दिखाएँ जो बना रहे, जैसे किसी फ़ील्ड में चुना हुआ टेक्स्ट।
+- अपने कॉन्टेंट के बग़ल के कॉपी बटन के लिए text वेरिएंट ही रखें। जब कॉपी करना व्यू की मुख्य क्रिया हो, तब कोई और वेरिएंट चुनें।
+
+### न करें
+
+- बटन को सिर्फ़ होवर पर न दिखाएँ। तब वह टच से ढूँढ़ा नहीं जा सकता।
+- सफल कॉपी के लिए टूलटिप या स्नैकबार न खोलें। बटन पहले ही उसकी पुष्टि कर देता है।
+- इसे टेक्स्ट के अलावा कुछ और कॉपी करने के लिए इस्तेमाल न करें।
+
+## सुलभता
+
+<ComponentAccessibility name="copy-button" />
+
+### कंपोनेंट क्या सँभालता है
+
+- यह एक बटन है, जिसके पास Button का फ़ोकस इंडिकेटर, उसका न्यूनतम टार्गेट और उसकी कुंजियाँ (Enter और Space) हैं।
+- सिर्फ़ आइकन वाले रूप का नाम हर रूप में `label` से आता है। ग्लिफ़ बदलने पर नाम नहीं बदलता।
+- नतीजा एक लाइव रीजन के ज़रिए पढ़कर सुनाया जाता है: `copied-label` बिना टोके (polite), `failed-label` ज़ोर देकर, हर बार दबाने पर, फ़ोकस को हिलाए बिना।
+- पुष्टि एक शेप और शब्द हैं, कोई रंग नहीं।
+- दाएँ से बाएँ वाले लेआउट में कॉपी का ग्लिफ़ मिरर होता है, जैसा आइकन सेट कहता है। चेक और त्रुटि का निशान मिरर नहीं होते।
+
+### आपको क्या करना है
+
+- तीनों लेबल दें, अपने प्रॉडक्ट की भाषा में। बिना `label` के सिर्फ़ आइकन वाले बटन का कोई एक्सेसिबल नाम नहीं होता।
+- जहाँ व्यक्ति को टेक्स्ट नहीं खोना चाहिए, वहाँ विफलता के बाद का काम ख़ुद सँभालें।

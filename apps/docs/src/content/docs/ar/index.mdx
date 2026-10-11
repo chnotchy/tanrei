@@ -1,0 +1,48 @@
+---
+title: Tanrei
+description: نظام تصميم واحد لـ Web Components و SwiftUI و Jetpack Compose و Flutter و React Native، مبني من مجموعة واحدة من الرموز والمواصفات.
+translationOf: index.mdx
+sourceHash: 0a19eae7e744492d4ece696c3d93bdbcc1d0a23b
+template: splash
+hero:
+  title: نظام واحد.<br />خمس منصات.
+  tagline: نظام التصميم المفتوح المصدر Tanrei يقدّم الرموز نفسها والمكوّنات نفسها وعقد إمكانية الوصول نفسه إلى الويب و iOS و Android و Flutter و React Native، كلٌّ بأسلوبه.
+  actions:
+    - text: البدء
+      link: /ar/getting-started/
+      variant: primary
+    - text: المكوّنات
+      link: /ar/components/
+      variant: secondary
+    - text: الحالة
+      link: /ar/status/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '../../../components/cards';
+
+## مبني ليبقى متوافقًا
+
+<CardGrid>
+  <Card title="مصدران للحقيقة" icon="description">
+    رموز التصميم (tokens) ومواصفات المكوّنات هي العقود الوحيدة المكتوبة باليد. شيفرة المنصات وهذه الوثائق ومصفوفة الحالة كلها مشتقة منها، ويفشل CI حين تنحرف عنها.
+  </Card>
+  <Card title="تكافؤ لا تطابق" icon="extension">
+    تحصل كل منصة على الرموز والحالات ودلالات إمكانية الوصول نفسها، لكنها تحتفظ بشكل واجهتها البرمجية: `enabled` في Compose، وقيمة null للخاصية `onPressed` في Flutter، و `.disabled(_:)` في SwiftUI.
+  </Card>
+  <Card title="بنية مجرَّبة" icon="menu_book">
+    رموز المرجع والنظام والمكوّن؛ وأدوار ألوان؛ وسلّم طباعي؛ ولوحات درجات لونية مولَّدة لكل سمة ومستوى تباين. والمظهر متحفّظ شبه أحادي اللون.
+  </Card>
+  <Card title="إمكانية الوصول من البنية نفسها" icon="verified">
+    تُفحص أزواج التباين لكل سمة ومستوى تباين عند البناء. الحجم المرئي لا يحدد مساحة اللمس أبدًا، وحلقة التركيز جزء من كل مواصفة تفاعلية.
+  </Card>
+</CardGrid>
+
+## إلى أين بعد ذلك
+
+<CardGrid>
+  <LinkCard title="البدء" description="ثبِّت Tanrei واستخدمه على منصتك." href="/ar/getting-started/" />
+  <LinkCard title="الأسس" description="المبادئ والرموز واللون والطباعة والشكل والارتفاع والحركة وإمكانية الوصول." href="/ar/foundations/principles/" />
+  <LinkCard title="الحالة" description="ما هو موجود اليوم على كل منصة، مولَّدًا من المستودع." href="/ar/status/" />
+  <LinkCard title="كيف يُبنى Tanrei" description="سير العمل الذي يبدأ بالمواصفة ويُبقي خمس منصات صادقة." href="/ar/project/how-tanrei-is-built/" />
+</CardGrid>

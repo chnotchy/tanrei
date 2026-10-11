@@ -1,0 +1,218 @@
+---
+title: "复选框"
+description: "让用户打开或关闭一个独立的选项，显示只有部分打开的父级选项，并标出必选却尚未选择的选项。"
+translationOf: components/checkbox.mdx
+sourceHash: ca7b2e0456302b1067eb231313b74e6591fc6fad
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="checkbox" />
+
+<DemoFrame label="未选中、选中和半选">
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox indeterminate label="所有通知"></tanrei-checkbox>
+    <tanrei-checkbox checked label="消息"></tanrei-checkbox>
+    <tanrei-checkbox label="提及"></tanrei-checkbox>
+    <tanrei-checkbox checked label="提醒"></tanrei-checkbox>
+  </div>
+</DemoFrame>
+
+### 用法
+
+让复选框采用 Material 3 的尺寸和图标集图标的那次修订，只改变了它的外观和动效，所以下面的示例全部适用于当前版本。Web 按规格绘制它并为它添加动画。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们已经采用新的尺寸，但在跟上之前，仍然用各自的标记绘制对勾和横线，并以各自的方式做动画。此后还有两处改进，目前只在 Web 上实现：对勾和横线有了自己的、更粗的字重；方框的轮廓和填充作为一个形状来绘制。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-checkbox label="通过邮件接收更新"></tanrei-checkbox>
+    <tanrei-checkbox checked label="通过邮件接收更新"></tanrei-checkbox>
+
+    <!-- 子项选中情况不一致的父级。激活它会将它选中，并清除 indeterminate。 -->
+    <tanrei-checkbox indeterminate label="全选"></tanrei-checkbox>
+
+    <!-- 在表单中，它在选中时以 name 提交 value（默认为 "on"），并遵守 required。 -->
+    <form>
+      <tanrei-checkbox name="terms" required label="我同意服务条款"></tanrei-checkbox>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox';
+      // 元素先切换自己的 checked，再触发 change。
+      document.querySelector('tanrei-checkbox').addEventListener('change', (e) => save(e.detail.checked));
+      const terms = document.querySelector('[name="terms"]');
+      terms.error = submitted && !terms.checked;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox } from '@tanrei/react';
+
+    <Checkbox checked={updates} label="通过邮件接收更新" onChange={(e) => setUpdates(e.detail.checked)} />
+    <Checkbox checked={all} indeterminate={some && !all} label="全选" onChange={(e) => selectAll(e.detail.checked)} />
+    <Checkbox checked={terms} error={submitted && !terms} label="我同意服务条款" onChange={(e) => setTerms(e.detail.checked)} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCheckbox("通过邮件接收更新", isOn: $updates)
+
+    // isIndeterminate 来自你的数据。激活它会把 isOn 设为 true，随后由你的数据清除它。
+    TanreiCheckbox("全选", isOn: $allSelected, isIndeterminate: someSelected)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.ui.state.ToggleableState
+    import io.github.chnotchy.tanrei.components.TanreiCheckbox
+
+    TanreiCheckbox(checked = updates, onCheckedChange = { updates = it }, label = "通过邮件接收更新")
+
+    // 可能只有部分打开的父级接收一个 ToggleableState。下一个状态由调用方计算：
+    // 激活半选的复选框会使它变为 On。
+    TanreiCheckbox(
+        state = allState,
+        onClick = { selectAll(allState != ToggleableState.On) },
+        label = "全选",
+    )
+
+    TanreiCheckbox(
+        checked = terms,
+        onCheckedChange = { terms = it },
+        label = "我同意服务条款",
+        isError = submitted && !terms,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCheckbox(
+      value: updates,
+      onChanged: (bool value) => setState(() => updates = value), // 传 null 则禁用
+      label: '通过邮件接收更新',
+    );
+
+    // 启用 tristate 时，value 为 null 表示半选。激活它会调用 onChanged(true)。
+    TanreiCheckbox(
+      value: allSelected, // bool?：只有部分被选中时为 null
+      tristate: true,
+      onChanged: (bool value) => setState(() => selectAll(value)),
+      label: '全选',
+    );
+
+    TanreiCheckbox(
+      value: terms,
+      onChanged: (bool value) => setState(() => terms = value),
+      isError: submitted && !terms,
+      label: '我同意服务条款',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Checkbox } from '@tanrei/react-native';
+
+    <Checkbox value={updates} onValueChange={setUpdates} label="通过邮件接收更新" />
+    <Checkbox value={all} indeterminate={some && !all} onValueChange={selectAll} label="全选" />
+    <Checkbox value={terms} onValueChange={setTerms} error={submitted && !terms} label="我同意服务条款" />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="选中情况、错误和禁用" plain>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox label="未选中"></tanrei-checkbox>
+    <tanrei-checkbox checked label="选中"></tanrei-checkbox>
+    <tanrei-checkbox indeterminate label="半选"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox error label="错误，未选中"></tanrei-checkbox>
+    <tanrei-checkbox error checked label="错误，选中"></tanrei-checkbox>
+    <tanrei-checkbox error indeterminate label="错误，半选"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox disabled label="禁用，未选中"></tanrei-checkbox>
+    <tanrei-checkbox disabled checked label="禁用，选中"></tanrei-checkbox>
+    <tanrei-checkbox disabled indeterminate label="禁用，半选"></tanrei-checkbox>
+  </div>
+  <tanrei-checkbox checked label-hidden label="选择此行"></tanrei-checkbox>
+</DemoFrame>
+
+在默认系统中，复选框采用 Material 3 的尺寸：方框为 18，轮廓为 2，圆角为 2，位于直径 40 的圆形状态层之上，目标为 48。带标签时高 40。对勾和横线是系统图标集里的 `check` 和 `remove` 两个图标，以 20 的大小绘制在方框之上。它们有自己的字重，比系统的其他图标更粗：在默认系统中是 500，而图标是 300。在这个大小下，按图标的字重画出的笔画只有大约 1 像素宽，很难看清，所以标记加粗了，大小则保持不变。预设沿用它自己的图标字重。复选框不绘制自己的标记，因此设计系统更换图标集时，这两个图标会和其他图标一起更换。方框的轮廓和填充是一个形状：无论缩放比例或显示密度如何，方框背后的东西都不会从两者之间透出来，选中的方框从边缘到标记是一片均匀的颜色。在 `cupertino` 下，复选框保留较小的方框和 16 的图标。
+
+复选框发生变化时，方框、轮廓和图标都会改变颜色。出现的图标一边淡入，一边从一半大小开始放大，略微过冲后稳定下来。消失的图标以同样的方式淡出并缩小；在选中与半选之间切换时，对勾消失，横线同时出现。动的只有图标：方框的大小和位置始终不变。首次绘制的复选框会立即显示它的状态，所以页面加载时已经选中的方框不会播放动画。在减弱动态效果时，新的状态会在下一帧完整画出。
+
+<ComponentSpecs name="checkbox" />
+
+## 指南
+
+### 何时使用
+
+复选框用于彼此独立的选项：用户可以任选若干项（也可以一项都不选）的列表，或者像同意条款这样单独的“是或否”。选择在用户确认时生效，例如提交表单或保存。复选框也用来选择表格中的行或列表中的项。
+
+半选状态属于子项只有部分被选中的父级复选框，例如列表上方的“全选”。它不是用户可以选择的第三种答案。
+
+### 复选框、单选按钮还是开关
+
+| 控件 | 选项 | 何时生效 | 用途 |
+| --- | --- | --- | --- |
+| 复选框 | 任意数量的独立选项，也可以一项都不选 | 用户确认时 | 表单中的选项、同意条款、选择行 |
+| [单选按钮](/zh-cn/components/radio-button/) | 从全部显示出来的少量选项中恰好选一个 | 通常在用户确认时 | 一个问题的一个答案 |
+| [开关](/zh-cn/components/switch/) | 一项设置，开或关 | 立即 | 一经更改就生效的设置 |
+
+### 推荐
+
+- 把标签写成选项本身，并用肯定的说法：写“通过邮件接收更新”，而不是“不要给我发邮件”。
+- 一组复选框纵向排列，每行一个，让每个标签都从同一位置开始。
+- 半选状态由子项推导得出。父级被激活时，选中所有子项。
+- 必选的复选框没有选中时，设置 `error`，并在表单的消息中说明原因。
+
+### 避免
+
+- 不要把复选框用于立即生效的更改。请使用开关。
+- 不要把复选框用于互斥的选项。请使用单选按钮。
+- 不要在标签里放链接或其他控件。点击标签会切换复选框。
+- 不要隐藏标签，除非复选框所在的行已经说明了它选择的是什么。
+
+## 无障碍
+
+<ComponentAccessibility name="checkbox" />
+
+### 组件负责的部分
+
+- 它暴露复选框角色及其状态（选中、未选中，半选时为混合）、禁用状态，以及设置了 `error` 时的无效状态。React Native 没有无效状态，所以在那里错误会画出来，但不会被朗读。
+- 标签就是无障碍名称，无论它是画出来的，还是用 `labelHidden` 隐藏的。画出来的文本对辅助技术隐藏，所以名称只读一次。
+- 点击或轻点标签会切换复选框。标签是点击区域的一部分，点击区域满足最小目标。
+- Space 切换它。Enter 只在平台用 Enter 激活任何获得焦点的控件时（Android、tvOS）才切换它；在 Web 上，Enter 提交表单。
+- 它只在键盘聚焦时，围绕方框显示焦点指示。
+- 对勾和横线对辅助技术隐藏。选中和混合是根据状态朗读的，绝不根据图标的名称。
+- 在减弱动态效果时，新的状态会在变化后的第一帧完整画出，绝不延迟，也不会只画一半。变化过程中再次变化时，从那一刻已经画出的样子继续。
+- 图标字体还画不出图标时，复选框在图标的位置上什么都不画，绝不显示“check”这个词，并且仍然绘制填充的方框、暴露它的状态。字体加载完成后，图标就会出现。
+- 在 Web 上，它像原生复选框一样参与表单：`name`、`value`、`required` 和重置。
+- 缺少标签会在调试构建中报告。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 仍然用各自的标记绘制对勾和横线，并以各自的方式做动画，没有标记自己的字重，方框也不是一个形状。
+- 在 `m3-like` 下，对勾是图标集里的图标，一边淡入一边放大；而 Material 是一笔一笔地画出自己的对勾，并把它弯折成横线（模仿差距 `checkbox-mark-drawn-on`）。
+
+### 需要你做的事
+
+- 加载图标字体。在它加载完成之前，选中的复选框和半选的复选框看起来一样：都是没有图标的填充方框。它们的状态仍然会被朗读。
+- 如果你的设计系统为标记设置了更细的字重（`comp.checkbox.mark.weight`），请检查横线：它只有一笔，而凭视觉区分半选与选中，靠的只有它。
+- 写一个说明选项内容的标签，并且无论复选框是否选中，都保持不变。状态由平台朗读。
+- 设置 `error` 时，把原因以文本形式显示在复选框旁边或表单的摘要中，并把它与复选框关联起来。复选框只说明自己无效，不说明原因。在 React Native 上，这条消息是用户听到错误的唯一途径。
+- 为回答同一个问题的一组复选框起一个名称：在 Web 上，使用带 `<legend>` 的 `<fieldset>`。

@@ -1,0 +1,229 @@
+---
+title: Tarjeta de enlace
+description: Un enlace dibujado como un bloque. El título del destino, una frase sobre él, su imagen y el sitio en el que está, a partir de valores que la tarjeta recibe y nunca carga.
+translationOf: components/link-card.mdx
+sourceHash: 738b60d2538bbae63a50025bd28392c0e3895efd
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import picture from '../../../../../../../packages/web/test/fixtures/link-card.png?inline';
+import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?inline';
+
+## Descripción general
+
+<ComponentAvailability name="link-card" />
+
+<DemoFrame label="Una tarjeta de enlace con todas sus partes" plain column>
+  <tanrei-link-card class="not-content" style="inline-size: 100%" href="https://example.com/articles/designing-with-tokens" headline="Diseñar con tokens" description="Cómo unos pocos diales se convierten en un sistema entero." site-name="Example Journal" image={picture} site-icon={icon} external="on" external-label="enlace externo"></tanrei-link-card>
+</DemoFrame>
+
+Una tarjeta de enlace muestra un destino como algo con entidad propia: su título, una frase sobre él, una imagen donde la tiene y el sitio en el que está. Es un solo enlace. Se pulsa el bloque entero, y nada de lo que hay dentro se pulsa por separado.
+
+- Una expresión dentro de una frase que lleva a algún sitio es un [enlace](/es/components/link/).
+- Un grupo de contenido propio que lleva a algún sitio es una [tarjeta](/es/components/card/) con un destino.
+- Una vista previa con botones propios (guardar, compartir, descartar) es una tarjeta que contiene un enlace y esos botones.
+
+**El componente no obtiene nada por su cuenta.** Dibuja los valores que le das y nunca pide nada sobre `href` al destino, a un proxy ni a ningún servicio. Las únicas solicitudes que hace son las de la imagen y el icono del sitio que le entregas. Cómo consigue un sitio los valores se explica en [Cómo obtener los valores](#cómo-obtener-los-valores).
+
+En la web es `<tanrei-link-card>` alrededor de tu propia ancla. El elemento no tiene shadow root, así que la tarjeta es un enlace antes de que se ejecute ningún script. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link-card.css" />
+
+    <tanrei-link-card>
+      <a href="https://example.com/articles/designing-with-tokens" data-external="true">
+        <span data-part="body">
+          <span data-part="title" dir="auto">Diseñar con tokens</span>
+          <span data-part="description" dir="auto">Cómo unos pocos diales se convierten en un sistema entero.</span>
+          <span data-part="site">
+            <img data-part="site-icon" src="/link-pictures/icon.png" alt=""
+                 loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+            <span data-part="site-name"><span dir="auto">Example Journal</span></span>
+            <span data-part="address"><bdi data-part="host" dir="ltr"><span>example.</span><span>com</span></bdi></span>
+          </span>
+          <span data-part="words">enlace externo</span>
+        </span>
+        <img data-part="media" src="/link-pictures/picture.png" alt="" width="1200" height="630"
+             loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+      </a>
+    </tanrei-link-card>
+
+    <script type="module">
+      import '@tanrei/web/components/link-card';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LinkCard } from '@tanrei/react';
+    import '@tanrei/web/icons.css';
+    import '@tanrei/web/link-card.css';
+
+    <LinkCard
+      href={link.href}
+      headline={link.title}
+      description={link.description}
+      siteName={link.siteName}
+      image={link.image?.src}
+      siteIcon={link.siteIcon?.src}
+      external="on"
+      externalLabel="enlace externo"
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+Ese marcado no lo escribes a mano. `linkCardToHtml()` y `linkCardToNodes()` de `@tanrei/web/links` lo escriben a partir de los valores, de modo que la tarjeta está entera en el primer pintado y con los scripts desactivados.
+
+### Una tarjeta construida por script
+
+Un `<tanrei-link-card>` que no contiene ninguna ancla construye una a partir de sus atributos. Cada valor se escribe como texto, nunca como marcado.
+
+```html
+<tanrei-link-card
+  href="https://example.com/articles/designing-with-tokens"
+  headline="Diseñar con tokens"
+  description="Cómo unos pocos diales se convierten en un sistema entero."
+  site-name="Example Journal"
+></tanrei-link-card>
+```
+
+El atributo del título es `headline`, porque el `title` propio de HTML mostraría un tooltip sobre la tarjeta. Esta forma solo se dibuja cuando el script ya se ha ejecutado. En una página de contenido, escribe el marcado en el momento de la compilación.
+
+## Especificaciones
+
+<DemoFrame label="Dos aspectos" plain column>
+  <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
+    <tanrei-link-card href="/es/components/link/" headline="Enlace" description="Texto que lleva a algún sitio: una expresión dentro de una frase, una línea por sí sola, un glifo solo."></tanrei-link-card>
+    <tanrei-link-card variant="filled" href="/es/components/card/" headline="Tarjeta" description="Una superficie que agrupa contenido y acciones relacionados sobre un mismo tema."></tanrei-link-card>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="link-card" />
+
+## Pautas
+
+### Qué le das
+
+| Valor | Atributo | Se dibuja como |
+| --- | --- | --- |
+| `href` | `href` | El destino. El host que hay bajo el texto se lee de él y de nada más. |
+| `title` | `headline` | El título, en dos líneas como máximo. El nombre accesible de la tarjeta. |
+| `description` | `description` | Una frase o dos, en dos líneas como máximo. |
+| `image`, `imageAlt` | `image`, `image-alt` | Una imagen que cubre su caja, recortada por el centro. `imageAlt` se lee, nunca se dibuja. |
+| `siteName` | `site-name` | Cómo se llama el sitio a sí mismo, antes del host. |
+| `siteIcon` | `site-icon` | El icono pequeño del sitio, al inicio de la línea del sitio. |
+| `target`, `targetLabel` | `target`, `target-label` | `new` abre una pestaña nueva y dibuja su marca. Da las palabras. |
+| `external`, `externalLabel` | `external`, `external-label` | `auto` (el valor predeterminado), `on` u `off`, como en el enlace. |
+| `variant` | `variant` | `outlined` (el valor predeterminado) o `filled`. |
+
+### Adónde lleva
+
+Todo lo demás que hay en la tarjeta es lo que el destino dice de sí mismo, y un destino puede decir cualquier cosa. Por eso hay una parte que no le corresponde decir al destino.
+
+- El host se calcula a partir de `href`. Ningún valor lo define, lo sustituye ni lo oculta. Un host escrito en el marcado que no coincida se sustituye cuando el elemento queda definido, y una compilación de depuración lo notifica.
+- El nombre del sitio va antes del host, nunca en su lugar. Se omite donde solo repite el host.
+- El host nunca se corta. En una línea corta cede primero el nombre del sitio, y un host más largo que la línea salta de línea.
+- Un host internacionalizado se muestra en su propia escritura solo cuando es seguro: todas sus etiquetas de ese tipo en una sola escritura, o en las escrituras con las que se escriben juntos el japonés, el coreano o el chino. Un nombre latino con una letra prestada, y una palabra cirílica o griega bajo una terminación ASCII, se quedan en la forma `xn--`.
+- El host se lee a la tecnología de apoyo como parte de la descripción de la tarjeta.
+
+Una tarjeta no juzga su destino. Una página puede seguir describiéndose de forma falsa; el host junto a la descripción es la comprobación que tiene el lector. Las letras de aspecto parecido dentro de una misma escritura no se detectan.
+
+### Partes que faltan
+
+<DemoFrame label="Solo un título, y una ruta propia" plain column>
+  <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
+    <tanrei-link-card href="https://example.com/articles/designing-with-tokens" headline="Diseñar con tokens" external="off"></tanrei-link-card>
+    <tanrei-link-card href="/es/foundations/design-tokens/" headline="Tokens" description="Los diales, los roles de sistema y las vinculaciones de los componentes."></tanrei-link-card>
+  </div>
+</DemoFrame>
+
+| Se da | Se dibuja |
+| --- | --- |
+| Ninguna imagen, o una imagen que falla | La misma tarjeta sin la caja de la imagen. Nada ocupa su lugar. |
+| Ninguna descripción | El título y la línea del sitio. |
+| Solo un título | El título, y el host tomado de la dirección. |
+| Solo una dirección | La dirección en el lugar del título. Da un título: una compilación de depuración notifica su ausencia. |
+| Una ruta propia (`/guides/`) | Ningún host, así que no hay línea del sitio. Un título y una frase. |
+| Ningún destino, o un script | No es un enlace y no se dibuja como una tarjeta. El título como texto simple. |
+
+### Disposición
+
+- La tarjeta es un bloque. Toma el ancho que le da su contenedor y es tan alta como lo que contiene. No trae ningún espacio propio a su alrededor.
+- A partir de 480 de ancho, la imagen va junto al texto, en el borde de fin. Con menos, va encima del texto. La tarjeta decide según su propio ancho, no el de la ventana, y el límite crece con el tamaño del texto.
+- El elemento es un contenedor de tamaño, así que necesita que su diseño de página le dé un ancho. En una fila flex o en una celda de cuadrícula, dale uno.
+- En un texto largo es un bloque, como una figura. Nunca va dentro de una frase.
+
+### Una pestaña nueva y otro sitio
+
+- `target="new"` dibuja `open_in_new` al final de la línea del sitio. Da `target-label` («se abre en una pestaña nueva»); la marca sola no se lee.
+- Un destino en otro sitio que se abre donde está la persona dibuja `arrow_outward`. Si es externo o no lo decide la regla del enlace: `external="auto"` compara la dirección con el origen de la página y con `setSiteOrigins()`. Las palabras son `external-label`, o las que defines una sola vez con `setExternalLabel()`.
+- Nunca dos marcas. La pestaña nueva tiene prioridad.
+
+Tanrei no incluye textos propios. Dalos en el idioma de tu producto.
+
+### Cómo obtener los valores
+
+La tarjeta dibuja lo que se le da. Lee un destino **donde se compila tu sitio**, no mientras se lee una página.
+
+`@tanrei/web/links/node` es un módulo de Node para eso. `resolveLinkData()` lee una página una sola vez, en el equipo que compila el sitio, y devuelve los valores con la forma que recibe la tarjeta.
+
+```js
+import { linkCardToHtml, resolveLinkData } from '@tanrei/web/links/node';
+
+const result = await resolveLinkData(href, { site: ['docs.example.com'], lock: 'link-data.lock.json', pictureDirectory: 'public/link-pictures' });
+const html = result.ok ? linkCardToHtml(result.data) : `<a href="${href}">${href}</a>`;
+```
+
+- Lo que se leyó se guarda en `link-data.lock.json`, un archivo que confirmas en el repositorio. Una compilación lee ese archivo y nunca la red. `tanrei-links update` lo actualiza, y el cambio es un diff que revisa una persona.
+- Las imágenes se guardan entre los archivos de tu propio sitio, después de que tu propio paso de imágenes las haya codificado de nuevo. El navegador de un lector solo hace entonces solicitudes al sitio en el que ya está.
+- La utilidad lee solo direcciones `https` públicas, comprueba cada redirección, limita el tiempo y el tamaño, y toma todos los campos como texto.
+- Una dirección que falla no da ninguna tarjeta. Dibuja un enlace normal.
+
+El README del paquete lo explica entero en «Reading a destination where the site is built».
+
+Si tu producto busca los destinos mientras las personas lo usan (un mensaje que contiene una dirección), hazlo en un servicio propio y da a la tarjeta los mismos valores. Ese servicio debe rechazar cualquier dirección que no sea pública, comprobar de nuevo después de cada redirección y en el momento de conectarse, limitar el tiempo y el tamaño de cada respuesta, devolver texto y nunca marcado, servir las imágenes desde tu propio origen y no devolver nunca un host: lo calcula la tarjeta. Tanrei no incluye ningún servicio así.
+
+### Recomendado
+
+- Da el título real del destino. Nunca pongas un host ni una dirección en el título.
+- Mantén las imágenes entre tus propios archivos. Una imagen cargada desde otro sitio le dice a ese sitio quién está leyendo.
+- Usa `outlined` en el texto corrido. Usa `filled` donde la página ya tenga muchas líneas.
+
+### Evita
+
+- No pongas un botón ni un segundo enlace dentro de una tarjeta de enlace. Queda inerte y se notifica.
+- No pongas en una tarjeta de enlace un texto que el lector necesite. Su texto es una vista previa y puede cortarse.
+- No des `image-alt` salvo que la imagen diga algo que el título no dice.
+
+## Accesibilidad
+
+<ComponentAccessibility name="link-card" />
+
+### De qué se encarga el componente
+
+- La tarjeta es un solo enlace y una sola parada del teclado. Enter lo sigue. Espacio desplaza la página, como en cualquier enlace.
+- Su nombre es el título, o la dirección donde no hay título. No se añade nada al nombre.
+- Su descripción es, en este orden: la descripción, el texto alternativo de la imagen, el nombre del sitio, el host y, por último, las palabras de una pestaña nueva o de otro sitio.
+- Un título o una descripción que se cortan en la pantalla se exponen enteros.
+- La imagen, el icono del sitio, el punto y las marcas son decoración y no se leen.
+- El anillo de foco se dibuja por fuera de la tarjeta, así que una imagen no puede ocultarlo.
+- Con el texto al 200% en un espacio de 320 de ancho, la imagen pasa encima del texto, el host se mantiene entero y nada se desplaza hacia los lados.
+- Con colores forzados, los dos aspectos tienen un borde y el título toma el color de enlace del sistema.
+- En un diseño de derecha a izquierda, la imagen va a la izquierda y el texto empieza por la derecha. Un título de izquierda a derecha conserva su propio orden. El host va siempre de izquierda a derecha.
+- El texto que das se dibuja como texto simple. Los caracteres que invierten el orden del texto se eliminan.
+
+### Qué debes hacer tú
+
+- Da `target-label` siempre que `target` sea `new`, y las palabras de los enlaces externos.
+- Da un título. Una dirección es un mal nombre.
+- Da a la tarjeta un ancho desde su diseño de página.

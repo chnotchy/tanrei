@@ -1,0 +1,55 @@
+{
+  "type": "View",
+  "props": {
+    "collapsable": false,
+    "style": {
+      "backgroundColor": "rgb(255, 255, 255)",
+      "borderCurve": "continuous",
+      "borderRadius": 10,
+      "boxShadow": [
+        {
+          "blurRadius": 3,
+          "color": "rgba(0, 0, 0, 0.08)",
+          "offsetX": 0,
+          "offsetY": 1,
+          "spreadDistance": 0
+        }
+      ],
+      "opacity": 1
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "borderCurve": "continuous",
+          "borderRadius": 10,
+          "overflow": "hidden",
+          "paddingEnd": 16,
+          "paddingStart": 16,
+          "paddingVertical": 16
+        }
+      },
+      "children": [
+        {
+          "type": "Text",
+          "props": {
+            "allowFontScaling": true,
+            "collapsable": false,
+            "style": {
+              "color": "rgb(0, 0, 0)",
+              "fontSize": 15,
+              "fontWeight": "400",
+              "letterSpacing": 0,
+              "lineHeight": 20
+            }
+          },
+          "children": [
+            "Quarterly report. Revenue grew 12% over the previous quarter."
+          ]
+        }
+      ]
+    }
+  ]
+}

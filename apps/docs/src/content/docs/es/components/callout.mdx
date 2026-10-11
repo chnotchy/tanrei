@@ -1,0 +1,246 @@
+---
+title: Callout
+description: Un aviso que forma parte del contenido y se queda en él (una nota, una precaución, el motivo de algo o un resumen de lo que está mal), con un relleno discreto o con contorno, en los colores de un estado y con su glifo, con un título, acciones y un botón de cierre opcionales.
+translationOf: components/callout.mdx
+sourceHash: 320f2641050ceff2eca3845c2bce486e1bb800a0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="callout" />
+
+<DemoFrame label="Una nota, una precaución con título y un aviso con acciones y botón de cierre" column>
+  <tanrei-callout status="info" status-label="Información" style="inline-size: min(100%, 34rem)">La web dibuja esta revisión; las demás plataformas la seguirán.</tanrei-callout>
+  <tanrei-callout status="warning" headline="Prelanzamiento: todavía no se ha publicado" style="inline-size: min(100%, 34rem)">El paquete aún no está disponible en el registro de paquetes. Los pasos de instalación siguientes muestran cómo funcionará tras la primera versión.</tanrei-callout>
+  <tanrei-callout id="callout-demo-overview" variant="outlined" headline="Hay una versión más reciente de esta página" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Vuelve a cargarla para leerla. No se pierde nada de lo que has escrito.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">Volver a cargar</tanrei-button></tanrei-callout>
+  <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">Mostrar de nuevo el último</tanrei-button>
+</DemoFrame>
+
+Un callout es un aviso en el flujo de la página: se queda donde lo pones, con la anchura de su lugar, durante tanto tiempo como el contenido. De forma predeterminada es una nota, que se lee donde está igual que el párrafo anterior, y nunca recibe el foco.
+
+En la web es `<tanrei-callout>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+El cuerpo es el propio contenido del elemento. El título es el atributo `headline`, o el slot `title` cuando es contenido tuyo o un encabezado. Un glifo del conjunto de iconos va en el slot `icon`, y tus propios botones o enlaces, en el slot `actions`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Una nota. Su estado está en las palabras del título. -->
+    <tanrei-callout status="info">
+      <p slot="title">Nota</p>
+      Los estilos de texto se nombran por nivel, nunca por tamaño.
+    </tanrei-callout>
+
+    <!-- El título no dice el estado: status-label se lee primero («Advertencia, …») y no se dibuja. -->
+    <tanrei-callout status="warning" status-label="Advertencia" headline="Accesibilidad">
+      A un preajuste se le exige fidelidad a su original, no estos umbrales de contraste.
+    </tanrei-callout>
+
+    <!-- Un consejo: sin estado, con tu glifo y con la palabra en el título. -->
+    <tanrei-callout headline="Consejo">
+      <span slot="icon">lightbulb</span>
+      Mantén habilitada una acción y explica qué falta cuando se use.
+    </tanrei-callout>
+
+    <!-- El contenido extenso es prosa, con el tamaño del callout y sin medida. -->
+    <tanrei-callout size="large" status="warning">
+      <h3 slot="title">Prelanzamiento: todavía no se ha publicado</h3>
+      <div class="tanrei-prose" data-size="large" data-measure="false">
+        <p>El paquete aún no está en el registro de paquetes. <a href="/es/status/">Consulta el estado</a>.</p>
+        <ul><li>…</li></ul>
+      </div>
+    </tanrei-callout>
+
+    <script type="module">
+      import '@tanrei/web/components/callout';
+      import '@tanrei/web/callout.css'; // la caja que conserva un callout renderizado en el servidor antes de que se defina el elemento
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Callout } from '@tanrei/react';
+
+    <Callout status="warning" headline="El archivo ha cambiado en el disco" live open={conflict} closable closeLabel="Cerrar" onDismiss={() => setConflict(false)}>
+      Aquí tienes cambios que no están en él. No se sobrescribe nada hasta que elijas.
+      <Button slot="actions" variant="outlined" onClick={reload}>Volver a cargar desde el disco</Button>
+      <Button slot="actions" variant="text" onClick={keep}>Conservar los míos</Button>
+    </Callout>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Los dos aspectos en cada estado" plain column>
+  <tanrei-callout style="inline-size: min(100%, 34rem)">Los tamaños son mínimos: un control crece con el texto ampliado.</tanrei-callout>
+  <tanrei-callout status="info" status-label="Información" style="inline-size: min(100%, 34rem)">La web dibuja esta revisión; las demás plataformas la seguirán.</tanrei-callout>
+  <tanrei-callout status="warning" status-label="Advertencia" style="inline-size: min(100%, 34rem)">Un borde que es la única señal de que existe un control debe mantener 3:1 frente a su superficie.</tanrei-callout>
+  <tanrei-callout status="error" status-label="Error" style="inline-size: min(100%, 34rem)">No se pudo leer el archivo. No se ha cambiado nada.</tanrei-callout>
+  <tanrei-callout status="success" status-label="Correcto" style="inline-size: min(100%, 34rem)">Todas las comprobaciones de contraste se superan en los seis esquemas.</tanrei-callout>
+  <tanrei-callout variant="outlined" style="inline-size: min(100%, 34rem)">Los tamaños son mínimos: un control crece con el texto ampliado.</tanrei-callout>
+  <tanrei-callout variant="outlined" status="info" status-label="Información" style="inline-size: min(100%, 34rem)">La web dibuja esta revisión; las demás plataformas la seguirán.</tanrei-callout>
+  <tanrei-callout variant="outlined" status="warning" status-label="Advertencia" style="inline-size: min(100%, 34rem)">Un borde que es la única señal de que existe un control debe mantener 3:1 frente a su superficie.</tanrei-callout>
+  <tanrei-callout variant="outlined" status="error" status-label="Error" style="inline-size: min(100%, 34rem)">No se pudo leer el archivo. No se ha cambiado nada.</tanrei-callout>
+  <tanrei-callout variant="outlined" status="success" status-label="Correcto" style="inline-size: min(100%, 34rem)">Todas las comprobaciones de contraste se superan en los seis esquemas.</tanrei-callout>
+</DemoFrame>
+
+<DemoFrame label="Un título, tu propio glifo, acciones, un botón de cierre y el tamaño grande" plain column>
+  <tanrei-callout headline="Consejo" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>Mantén habilitada una acción y explica qué falta cuando se use.</tanrei-callout>
+  <tanrei-callout status="info" headline="Experimental" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>Este comportamiento puede cambiar antes de la primera versión.</tanrei-callout>
+  <tanrei-callout status="warning" headline="El archivo ha cambiado en el disco" style="inline-size: min(100%, 34rem)">Aquí tienes cambios que no están en él. No se sobrescribe nada hasta que elijas.<tanrei-button slot="actions" variant="outlined">Volver a cargar desde el disco</tanrei-button><tanrei-button slot="actions" variant="text">Conservar los míos</tanrei-button></tanrei-callout>
+  <tanrei-callout id="callout-demo-closable" headline="La búsqueda ahora incluye las notas de versión" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Pulsa el botón de cierre: el callout desaparece de inmediato y el foco vuelve a donde estaba.</tanrei-callout>
+  <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">Mostrarlo de nuevo</tanrei-button>
+  <tanrei-callout size="large" status="error" headline="Peligro" style="inline-size: min(100%, 34rem)">Este comando elimina todos los archivos generados y no se puede deshacer.</tanrei-callout>
+</DemoFrame>
+
+<ComponentSpecs name="callout" />
+
+## Pautas
+
+### Snackbar, callout o diálogo
+
+Los tres se distinguen de una vez por todas por dónde se sitúan y cuánto tiempo permanecen:
+
+| Tipo | Qué es | Dónde se sitúa | Cuánto permanece | Se anuncia |
+| --- | --- | --- | --- | --- |
+| [Snackbar](/es/components/snackbar/) | El resultado de algo que la aplicación acaba de hacer o que acaba de ocurrir. | Sobre el contenido, en el borde de la ventana. | Un momento, o hasta que se cierra. | Siempre. |
+| Callout | Un aviso que forma parte del contenido. | En el flujo, donde lo pones. | Tanto como el contenido. | Solo cuando aparece en respuesta a algo (`live`). |
+| [Diálogo](/es/components/dialog/) | Una pregunta que la persona debe responder antes de continuar. | Por encima de todo, con un velo. | Hasta que se responde. | Al recibir el foco. |
+
+Un **banner**, es decir, un aviso para toda una página o pantalla situado sobre su contenido, no es una cuarta cosa. Es un callout que colocas sobre el contenido de esa región, por lo general con `live` y con una acción o un botón de cierre. Ponlo donde quede primero en el orden de lectura de la región a la que se refiere.
+
+Un mensaje bajo un solo campo (este valor no es una fecha) tampoco es un callout: es el texto de apoyo del propio campo.
+
+### Cómo elegir un aspecto
+
+| `variant` | Qué dibuja | Úsalo para |
+| --- | --- | --- |
+| `tonal` (predeterminado) | Un relleno discreto. | La mayoría de los callouts. |
+| `outlined` | Sin relleno y con una línea fina. | Un callout sobre una superficie con tinte o dentro de una tarjeta con relleno, donde un relleno desaparecería, y muchos callouts muy juntos. |
+
+La línea fina es la única línea fina del sistema en todos los estados. Un estado nunca le da color.
+
+### Estados
+
+`status` es `default`, `info`, `warning`, `error` o `success`: los nombres que usan el snackbar y el tag, con el significado que tienen en todo el sistema. Un estado dibuja sus colores y su glifo (`info`, `warning`, `error`, `check_circle`) y decide cómo se anuncia un callout activo. No cambia nada más.
+
+| Qué estás escribiendo | Usa |
+| --- | --- |
+| Una nota: algo que conviene saber | `status="info"` |
+| Una precaución: algo que requiere atención | `status="warning"` |
+| Un peligro: algo que va a salir mal | `status="error"` |
+| Un consejo: una recomendación que quien lee puede seguir | `status="default"`, el glifo `lightbulb` en el slot `icon` y el título «Consejo» |
+
+Un consejo no es un éxito: nada ha salido bien. El slot `icon` admite cualquier glifo del conjunto de iconos, con estado o sin él, así que «experimental» y «nuevo en esta versión» tampoco necesitan un valor nuevo. La palabra va en el título.
+
+### Tamaños
+
+| `size` | Título | Cuerpo | Úsalo para |
+| --- | --- | --- | --- |
+| `medium` (predeterminado) | 14 sobre un interlineado de 20 | 14 sobre 22 | Un callout entre controles: un formulario, un panel, un diálogo. |
+| `large` | 16 sobre 24 | 16 sobre 26 | Un callout en una página cuyo propósito es el texto. |
+
+Son los dos tamaños de la prosa. Solo cambian los estilos de texto: los márgenes interiores, el glifo y el botón de cierre son los mismos.
+
+### Título
+
+`headline` es texto sin más y nunca un encabezado. La mayoría de los títulos son el rótulo de una nota, y una página cuyo esquema enumera «Nota» cinco veces sale perdiendo. Cuando un callout abre una parte de la página a la que la gente navega, pon en el slot `title` un encabezado del nivel que necesite tu esquema. El callout lo dibuja como cualquier título y no cambia ni su rol ni su nivel.
+
+En una página que se renderiza en un servidor, da el título en el slot `title`: un atributo `headline` lo dibuja el elemento, así que no se muestra antes de que el elemento esté definido.
+
+### Cuerpo
+
+El texto colocado directamente en el elemento toma el estilo de texto y el color del callout. Los bloques de contenido extenso (párrafos, listas, una tabla, un bloque de código) van en una prosa del tamaño del callout y sin medida:
+
+```html
+<tanrei-callout status="info">
+  <div class="tanrei-prose" data-measure="false">…Markdown renderizado…</div>
+</tanrei-callout>
+```
+
+La prosa no trae color, así que se lee sobre cualquier relleno, y sus enlaces van subrayados. Un componente colocado en el cuerpo conserva sus propios estilos. Un callout dentro de una prosa que mantiene una medida se limita a la medida como un bloque de texto; en cualquier otro lugar ocupa la anchura que se le da.
+
+### Acciones y cierre
+
+Las acciones son tus propios [botones](/es/components/button/) o enlaces, uno o dos. Usa botones `outlined` o `text`: un botón `tonal` tiene el relleno del callout tonal sin estado, y ahí no se distingue como botón. El callout los dispone en una fila que salta de línea y no hace nada más: no se cierra cuando se pulsa uno.
+
+`closable` dibuja un botón de cierre, que recibe su nombre de `close-label`. Al pulsarlo, `open` pasa a ser false y se emite `dismiss`. El callout nunca se cierra por sí solo y no responde a Escape. Cuando una persona cierre uno, recuérdalo: un callout que se puede cerrar y vuelve en cada visita es ruido. Una precaución que matiza el contenido que tiene al lado no debería poder cerrarse.
+
+### Aparecer en respuesta a algo
+
+`live` es para un callout que aparece o cambia mientras la persona trabaja: un resumen de los errores de un formulario después de enviarlo, un aviso de que el archivo ha cambiado por debajo. Mantenlo en la página con `open="false"` y define `open` cuando corresponda.
+
+<DemoFrame label="Un callout activo, mostrado en respuesta a una pulsación" plain column>
+  <tanrei-button variant="outlined" onclick="document.getElementById('callout-demo-live').open = true">Enviar el formulario</tanrei-button>
+  <tanrei-callout id="callout-demo-live" live open="false" status="error" headline="Hay tres campos que revisar" closable close-label="Cerrar" style="inline-size: min(100%, 34rem)">Escribe un nombre, elige una fecha de inicio e indica una dirección que pueda recibir correo.</tanrei-callout>
+</DemoFrame>
+
+```html
+<tanrei-callout id="errors" live open="false" status="error" headline="Hay tres campos que revisar">
+  Escribe un nombre, elige una fecha de inicio e indica una dirección que pueda recibir correo.
+</tanrei-callout>
+
+<script type="module">
+  form.addEventListener('submit', (event) => {
+    if (!form.checkValidity()) {
+      event.preventDefault();
+      document.querySelector('#errors').open = true; // se anuncia una vez, de forma asertiva
+    }
+  });
+</script>
+```
+
+Un callout activo se anuncia una vez cuando se muestra y cuando cambian su título, su cuerpo o su estado: de forma cortés para `default`, `info` y `success`, y de forma asertiva para `warning` y `error`. Uno que ya está en el marcado de la página cuando esta se carga no se anuncia en ese momento.
+
+En la web, un callout activo que tu script añade a la página después de que se haya cargado sí se anuncia. El elemento no puede distinguir un callout añadido en respuesta a algo de uno añadido con una vista nueva de una aplicación de página única, así que, para un aviso que simplemente forma parte de una vista nueva, no pongas `live`.
+
+### Antes de que el elemento esté definido
+
+El cuerpo, el slot del título y las acciones son hijos del propio elemento, así que están en el documento: la búsqueda en la página los encuentra, se traducen, se seleccionan y se leen sin script. `@tanrei/web/callout.css` da a un callout que aún no está definido la caja que tendrá (sus márgenes interiores, sus estilos de texto, el sitio de su glifo y de su botón de cierre, y nada en absoluto con `open="false"`), de modo que nada se mueve cuando el elemento se define. Hasta entonces se muestra sin el relleno, el glifo ni el botón de cierre.
+
+### Recomendado
+
+- Di el estado con palabras. «Advertencia: todavía no se ha publicado» no necesita nada más; «Accesibilidad» en una advertencia necesita `status-label="Advertencia"`.
+- Usa los estados con el significado que tienen en todas partes. Una recomendación no es un éxito.
+- Pon una sola lista de puntos en un solo callout en lugar de varios callouts seguidos.
+
+### Evita
+
+- No uses un callout activo para una nota que está escrita en la página. El contenido estático no es una alerta.
+- No anides callouts ni apiles varios en la parte superior de una página: los avisos del mismo peso, uno junto a otro, se anulan entre sí.
+- No muevas el foco a un resumen de errores y, además, lo anuncies. Mover el foco al resumen conviene a un formulario largo cuyo primer error puede quedar fuera de la pantalla; anunciarlo y mover el foco al primer campo con error conviene a uno corto.
+- No dependas del color para transmitir el estado. Con colores forzados, todos los callouts son un borde y un texto en el color del texto.
+
+## Accesibilidad
+
+<ComponentAccessibility name="callout" />
+
+### De qué se encarga el componente
+
+- Es una nota (`role="note"`), que recibe su nombre del título, o de `status-label` cuando no tiene título. Con `live` es, en cambio, una región activa: `role="status"`, o `role="alert"` para una advertencia o un error.
+- `status-label` se lee antes del título y del cuerpo como una frase aparte («Advertencia, …») y nunca se dibuja. Se ignora mientras `status` es `default`.
+- El glifo queda oculto para la tecnología de apoyo.
+- Un título dado como texto es texto sin más. Un encabezado en el slot `title` conserva su nivel.
+- No es una parada en el orden del foco y nunca mueve el foco. Tab llega a los enlaces y controles del cuerpo, después a las acciones y después al botón de cierre.
+- Cuando se cierra mientras el foco está dentro, el foco vuelve al elemento que lo tenía antes de entrar en el callout, de modo que el siguiente Tab llega a lo que venía a continuación.
+- El área de pulsación del botón de cierre alcanza el objetivo mínimo, y su anillo de foco se dibuja en un color que se ve sobre el relleno del callout.
+- Con el texto ampliado, todo salta de línea y crece; el glifo y el botón de cierre se quedan en la primera línea.
+- Con colores forzados, todos los aspectos ganan un borde en el color del texto, y el glifo se dibuja entero.
+- En un diseño de derecha a izquierda, el glifo pasa a la derecha y el botón de cierre a la izquierda, un glifo que el conjunto de iconos marca para ello se refleja, y un título escrito de izquierda a derecha conserva su propio orden.
+- Las compilaciones de depuración notifican una variante, un tamaño o un estado desconocidos, un callout sin título ni cuerpo, un estado que no se dice con palabras, un botón de cierre sin nombre y un `status-label` sin estado.
+
+### Qué debes hacer tú
+
+- Comprueba que las palabras de cada callout digan su estado. El componente no puede saber si un título lo hace.
+- Escribe `status-label` y `close-label` en el idioma de la página.
+- Usa `live` solo para un callout que aparece o cambia en respuesta a algo.
+- Da a cada acción una etiqueta que quepa. La etiqueta de un botón ocupa una sola línea, así que, en una pantalla estrecha con el texto ampliado, una etiqueta larga puede ser más ancha que el callout.

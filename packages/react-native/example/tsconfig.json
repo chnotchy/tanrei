@@ -1,0 +1,15 @@
+{
+  // Type-checked by the package's `typecheck` script (CI), with the package's own TypeScript and React Native types:
+  // the gallery needs no install of its own for that. `index.js` (the Expo entry) is not part of it.
+  // Expo's Metro reads `paths` of THIS file too: only runtime-true mappings belong here. The type-only pins of
+  // `react` / `react-native` are in tsconfig.typecheck.json, which is what the package's `typecheck` script uses.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"],
+    "paths": {
+      "@tanrei/react-native": ["../src/index.ts"],
+      "@tanrei/react-native/systems/*": ["../src/generated/systems/*.ts"]
+    }
+  },
+  "include": ["App.tsx", "src", "__tests__", "../src/testing/setup.ts"]
+}

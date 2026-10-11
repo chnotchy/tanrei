@@ -1,0 +1,175 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "alignItems": "center",
+      "height": 200,
+      "justifyContent": "center",
+      "width": 320
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "alignItems": "center",
+          "flexDirection": "column",
+          "gap": 4
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "importantForAccessibility": "no-hide-descendants"
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignSelf": "flex-start",
+                  "backgroundColor": "rgb(243, 237, 247)",
+                  "borderRadius": 12,
+                  "boxShadow": [
+                    {
+                      "blurRadius": 2,
+                      "color": "rgba(0, 0, 0, 0.3)",
+                      "offsetX": 0,
+                      "offsetY": 1,
+                      "spreadDistance": 0
+                    },
+                    {
+                      "blurRadius": 6,
+                      "color": "rgba(0, 0, 0, 0.15)",
+                      "offsetX": 0,
+                      "offsetY": 2,
+                      "spreadDistance": 2
+                    }
+                  ],
+                  "gap": 4,
+                  "maxWidth": 320,
+                  "paddingHorizontal": 16,
+                  "paddingVertical": 12
+                }
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "style": {
+                      "color": "rgb(73, 69, 79)",
+                      "fontFamily": "Roboto",
+                      "fontSize": 14,
+                      "fontWeight": "500",
+                      "letterSpacing": 0.1,
+                      "lineHeight": 20
+                    }
+                  },
+                  "children": [
+                    "Storage"
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "style": {
+                      "color": "rgb(73, 69, 79)",
+                      "fontFamily": "Roboto",
+                      "fontSize": 14,
+                      "fontWeight": "400",
+                      "letterSpacing": 0.25,
+                      "lineHeight": 20
+                    }
+                  },
+                  "children": [
+                    "Trash still counts toward storage."
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {},
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityHint": "Storage, Trash still counts toward storage.",
+                "accessibilityLabel": "info",
+                "accessibilityRole": "button",
+                "accessibilityState": {
+                  "disabled": false
+                },
+                "accessibilityValue": {},
+                "accessible": true,
+                "collapsable": false,
+                "focusable": true,
+                "hitSlop": {
+                  "bottom": 4,
+                  "left": 4,
+                  "right": 4,
+                  "top": 4
+                },
+                "style": {
+                  "alignItems": "center",
+                  "alignSelf": "flex-start",
+                  "borderRadius": 9999,
+                  "height": 40,
+                  "justifyContent": "center",
+                  "opacity": 1,
+                  "width": 40
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "alignItems": "center",
+                      "height": 24,
+                      "justifyContent": "center",
+                      "width": 24
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": false,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(73, 69, 79)",
+                          "fontFamily": "Material Symbols Outlined",
+                          "fontSize": 24,
+                          "fontWeight": "400",
+                          "lineHeight": 24,
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        "info"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

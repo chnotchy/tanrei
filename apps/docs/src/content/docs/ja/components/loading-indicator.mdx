@@ -1,0 +1,185 @@
+---
+title: ローディングインジケーター
+description: 長さの分からない短い待ち時間が進行中であることを、インラインで、またはコンテンツの上に重ねて示します。
+translationOf: components/loading-indicator.mdx
+sourceHash: 9ce360324a5fe7d64d8c45600b454acdad42f463
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="loading-indicator" />
+
+:::note[仕様は改訂済み、一部のプラットフォームは追従待ち]
+このページは、仕様の現在の形のローディングインジケーターを説明しています。表示する前に待ち、それから現れます。Web コンポーネントはすでにこの動作で、デモも待ち時間のあとに現れます。上の表で「追従待ち」の SwiftUI、Compose、Flutter、React Native は、追従するまでは挿入された時点で描画して支援技術に伝え、新しい 3 つのプロパティも受け付けません。そのため、以下のこれらの例は、いま提供しているものだけを示しています。
+:::
+
+<DemoFrame label="インラインとコンテナ付き">
+  <tanrei-loading-indicator label="メッセージを読み込み中"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="ギャラリーを読み込み中"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained label="更新中"></tanrei-loading-indicator>
+</DemoFrame>
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <section aria-busy="true">
+      <tanrei-loading-indicator label="メッセージを読み込み中"></tanrei-loading-indicator>
+    </section>
+
+    <!-- contained は、専用の浮き上がった円の上に描き、コンテンツに重ねて使います。 -->
+    <tanrei-loading-indicator contained size="large" label="更新中"></tanrei-loading-indicator>
+
+    <!-- 処理中のボタンは、押したらすぐに応えます。待ち時間なし。 -->
+    <tanrei-loading-indicator size="small" show-delay="0" label="保存中"></tanrei-loading-indicator>
+
+    <!-- 1 つだけ別の間合いに：長めに待ってから、大きくなりながら現れます。 -->
+    <tanrei-loading-indicator show-delay="600" entrance="grow" label="レポートを読み込み中"></tanrei-loading-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/loading-indicator';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react';
+
+    <section aria-busy={loading}>
+      {loading ? <LoadingIndicator label="メッセージを読み込み中" /> : <MessageList />}
+    </section>
+    <LoadingIndicator contained size="large" label="更新中" />
+    <LoadingIndicator size="small" showDelay={0} label="保存中" />
+    <LoadingIndicator showDelay={600} entrance="grow" label="レポートを読み込み中" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiLoadingIndicator("メッセージを読み込み中")
+
+    // コンテンツの上に重ねるときは、専用の浮き上がったコンテナに載せます。
+    TanreiLoadingIndicator("更新中", size: .large, contained: true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiContainedLoadingIndicator
+    import io.github.chnotchy.tanrei.components.TanreiLoadingIndicator
+    import io.github.chnotchy.tanrei.tokens.TanreiLoadingIndicatorSize
+
+    TanreiLoadingIndicator(contentDescription = "メッセージを読み込み中")
+
+    // コンテナ付きは、同じ引数を取る 2 つ目のコンポーザブルです。
+    TanreiContainedLoadingIndicator(contentDescription = "更新中", size = TanreiLoadingIndicatorSize.Large)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    const TanreiLoadingIndicator(semanticsLabel: 'メッセージを読み込み中');
+    const TanreiLoadingIndicator(
+      semanticsLabel: '更新中',
+      size: TanreiLoadingIndicatorSize.large,
+      contained: true,
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react-native';
+
+    <LoadingIndicator accessibilityLabel="メッセージを読み込み中" />
+    <LoadingIndicator accessibilityLabel="更新中" size="large" contained />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="サイズ、インラインとコンテナ付き" plain>
+  <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="small" label="Small、コンテナ付き"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="medium" label="Medium、コンテナ付き"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="large" label="Large、コンテナ付き"></tanrei-loading-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="loading-indicator" />
+
+## ガイドライン
+
+### 使う場面
+
+長さの分からない短い待ち時間に使います。次のページを読み込んでいるリスト、保存中のコントロール、描画中のプレビューなどです。何かが進んでいることは伝えますが、どれだけかかるかは伝えません。
+
+数秒以上かかるかもしれない待ち時間や、どこまで進んだかを測れる待ち時間には、代わりに[プログレスインジケーター](/ja/components/progress-indicator/)を使います。おおよそでも値があると、長い待ち時間は耐えやすくなります。
+
+### サイズの選び方
+
+| サイズ | 既定のシステムでのインジケーター / コンテナ | 用途 |
+| --- | --- | --- |
+| Small | 16 / 24 | 保存中のボタンなど、コントロールの中でアイコンの代わりに。 |
+| Medium | 24 / 32 | 1 行のテキストの横。既定値です。 |
+| Large | 40 / 48 | 内容を待っている空のセクションや、画面全体。 |
+
+### コンテナ付き
+
+コンテナ付き（contained）は、インジケーターを専用の浮き上がった円の上に描きます。引っ張って更新する操作や、画像やリストの上など、インジケーターがコンテンツに重なる場所で使うと、背後に何があっても見えるようになります。無地のサーフェスの上に置くときは、インラインのままにします。
+
+### 表示までの待ち時間と現れ方
+
+一瞬で終わる待ち時間には、何も表示しないのが最善です。そのため、インジケーターは挿入されてから一定の時間待ち、それから表示されます。既定のシステムでは 300 ミリ秒です。そのあとフェードインします。待ち時間より短く終われば、一瞬だけ現れて消える印がちらつくことはありません。待っている間もインジケーターは表示時と同じ大きさを占めるので、現れたときに周りが動くことはありません。
+
+インジケーターは、待ちが始まったら挿入し、終わったら取り除きます。待ち時間は挿入した時点から数えます。取り除かずに隠して再び見せたインジケーターは待ち直さず、挿入し直したインジケーターは待ち時間を最初から待ちます。
+
+待ち時間と現れ方は、システムがすべてのインジケーターに対して決めます。1 つのインジケーターだけ別の間合いが必要なときに限って、次のプロパティを設定します。
+
+- `showDelay` は待ち時間（ミリ秒）です。`0` にすると挿入した時点で表示します。押したらすぐに応えるべき、処理中のボタンなどに使います。
+- `entrance` は `fade` か `grow` です。grow は、中心から大きくなりながらフェードインします。既定値の `auto` はシステムの選択に従います。
+- `enterDuration` は現れる動きの長さ（ミリ秒）です。`0` にすると最初から全体を表示します。
+
+設定した値はそのまま使われ、モーションのダイヤルで伸び縮みしません。システムの値を使うなら、プロパティは設定しないままにします。
+
+### 推奨
+
+- 何を読み込んでいるのかを表すラベルを付けます。「読み込み中」ではなく「メッセージを読み込み中」です。横にキャプションを表示するなら、同じ言葉を使います。
+- 内容が現れる場所に置きます。内容が届いたとき、利用者はすでに正しい場所を見ています。
+- コントロールの中でアイコンの代わりに使うときは、コントロールの大きさを保ち、周りが動かないようにします。
+- 1 つのインジケーターだけ別の間合いが必要な場合を除き、待ち時間はシステムに任せます。
+
+### 非推奨
+
+- 測れる待ち時間や、長くなるかもしれない待ち時間に使わない。プログレスインジケーターを使います。
+- 1 つの待ち時間に複数のインジケーターを出さない。読み込んでいる領域ごとに 1 つで十分です。
+- 画面の一部だけを読み込んでいるのに、画面全体を覆わない。残りの部分は使えるままにします。
+- 問題が起きたことを色で伝えない。インジケーターを止めて、メッセージを表示します。
+- インジケーターを置いたまま、待ちと待ちの間だけ隠さない。取り除けば、次の待ちで待ち時間が改めて始まります。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="loading-indicator" />
+
+### コンポーネントが担うこと
+
+- 表示されたあとは、プログレスバーのロールをプラットフォームのビジー状態で伝え、ラベルを名前にし、値は伝えません。Flutter にはまだプログレスバーのロールもビジー状態もないため、ラベルを伝えます。
+- 表示までの待ち時間の間は、アクセシビリティツリーにまったく現れません。ロールも名前もビジー状態もありません。見えないほど短い待ちは、読み上げられることもありません。
+- フォーカスを受けず、現れたときも消えたときも自分から読み上げません。
+- 動きを減らす設定のときは、弧の回転を止め、代わりに円全体の不透明度をゆるやかに変化させます（1 秒に 1 回まで）。コンテナは動きません。grow の現れ方はフェードになります。表示までの待ち時間は残ります。これは動きではなく、待つ時間だからです。
+- アニメーションは、見えていない間は止まり、見えるようになると再開します。アプリがバックグラウンドにあるときはすべてのプラットフォームで、スクロールして画面外に出たときや隠れた画面にあるときは、プラットフォームがそれを判別できる範囲で止まります。
+- 空のラベルは、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- 読み込み中の領域は、待ちが始まったときから、インジケーターの待ち時間を待たずにビジー状態にし（Web では `aria-busy`）、内容が届いたら知らせます。ライブリージョンでメッセージを伝えるか、利用者が求めた内容なら新しい内容へフォーカスを移します。
+- 色を変えるときは、インジケーターの色が背後のサーフェスに対して、コンテナ付きのインジケーターの色がコンテナに対して、3:1 以上になるようにします。何かが進んでいることを伝えるのは、動いている印だけだからです。

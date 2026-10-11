@@ -1,0 +1,65 @@
+/*
+ * Callout before its element is defined (specs/callout.spec.json; CLO-13, CLO-22): `<tanrei-callout>` holds its title,
+ * its body and its actions as its own children, so a page that is rendered on a server shows them before any script
+ * runs — as plain blocks in the page's text, without the fill, the glyph and the close button. This stylesheet gives
+ * that first paint the box the element will have, so that nothing moves when the element is defined:
+ *
+ *   <tanrei-callout status="info">
+ *     <p slot="title">A revised spec</p>
+ *     The web draws this revision.
+ *   </tanrei-callout>
+ *
+ * - a block with the callout's paddings, in the body's text style of its size;
+ * - room at the start for the glyph of a status or of the `icon` slot (whose glyph name is not shown as text), and at
+ *   the end for the close button;
+ * - the title slot in the title's text style, the title's gap above the body;
+ * - nothing at all for `open="false"`.
+ *
+ * What it cannot give: a title in the `headline` attribute (it is drawn by the element — content pages use the title
+ * slot), and the row of the `actions` slot (its Buttons are elements that are not defined yet either).
+ *
+ * Every value is a `--tanrei-comp-callout-*` token. Every selector has no specificity (`:where()`), and none matches
+ * once the element is defined.
+ */
+@layer tanrei.components {
+  :where(tanrei-callout:not(:defined)) {
+    display: block;
+    box-sizing: border-box;
+    padding-block: var(--tanrei-comp-callout-container-padding-block);
+    padding-inline: var(--tanrei-comp-callout-container-padding-inline);
+    font: var(--tanrei-comp-callout-body-typescale-medium-font);
+    letter-spacing: var(--tanrei-comp-callout-body-typescale-medium-letter-spacing);
+    overflow-wrap: break-word;
+  }
+  :where(tanrei-callout[size='large']:not(:defined)) {
+    font: var(--tanrei-comp-callout-body-typescale-large-font);
+    letter-spacing: var(--tanrei-comp-callout-body-typescale-large-letter-spacing);
+  }
+  /* CLO-13: a callout that starts closed takes no space before it is defined either. */
+  :where(tanrei-callout[open='false' i]:not(:defined)) {
+    display: none;
+  }
+  /* The glyph's room: a status's, or the product's own. */
+  :where(tanrei-callout:not(:defined):is([status='info'], [status='warning'], [status='error'], [status='success'], :has(> [slot='icon']))) {
+    padding-inline-start: calc(var(--tanrei-comp-callout-container-padding-inline) + var(--tanrei-comp-callout-icon-size) + var(--tanrei-comp-callout-icon-gap));
+  }
+  /* The close button's room. */
+  :where(tanrei-callout[closable]:not(:defined)) {
+    padding-inline-end: calc(var(--tanrei-comp-callout-container-padding-inline-end-with-close) + var(--tanrei-comp-callout-controls-height) + var(--tanrei-comp-callout-container-gap));
+  }
+  /* A glyph is a name until its element draws it: the name is not shown. */
+  :where(tanrei-callout:not(:defined)) > :where([slot='icon']) {
+    display: none;
+  }
+  :where(tanrei-callout:not(:defined)) > :where([slot='title']) {
+    display: block;
+    margin: 0;
+    margin-block-end: var(--tanrei-comp-callout-title-gap);
+    font: var(--tanrei-comp-callout-title-typescale-medium-font);
+    letter-spacing: var(--tanrei-comp-callout-title-typescale-medium-letter-spacing);
+  }
+  :where(tanrei-callout[size='large']:not(:defined)) > :where([slot='title']) {
+    font: var(--tanrei-comp-callout-title-typescale-large-font);
+    letter-spacing: var(--tanrei-comp-callout-title-typescale-large-letter-spacing);
+  }
+}

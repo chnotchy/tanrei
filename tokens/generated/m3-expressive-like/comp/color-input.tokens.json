@@ -1,0 +1,49 @@
+{
+  "tanrei": {
+    "comp": {
+      "color-input": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets people set a color — a brand color in a theme, the color of a label, a category or a calendar — as a value they can read, type and paste, in the same box as its text inputs, beside a sample of it. The sample's shape and the hairline that keeps a pale sample apart from the box are the color input's own; the box is the one box.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "What a color input draws that is its own: the swatch's corners, and the color and width of the hairline around it. The swatch stands where a leading icon stands and has that icon's size (comp.input-box.icon.size). The box is comp.input-box.*.",
+            "rules": [
+              "A color input is the bare box: a swatch, the value as text and, where asked for, a picker button. It has no label row, no requirement tag, no help and no error text. Put it in a Field for those, or use the color field, which is that pair; their tokens are comp.field.*.",
+              "The box — container, edges, floating label, the value text, caret, selection, heights and paddings per size, the size of the swatch (icon.size), and the colors of each look in each state — is comp.input-box.*, shared with the text input, the select, the combobox and the number input. This group holds only the swatch's shape and its hairline.",
+              "It holds one opaque sRGB color as six hexadecimal digits after a number sign (#0f766e), or nothing. Always give it a name: the label of the Field that frames it, or its own label where its visible label is elsewhere.",
+              "The swatch is a sample, never the only sign of the value: the text beside it says the color, and assistive technology reads the text. Nothing is mixed into the swatch: no state layer, no tint, and in forced colors it keeps its color.",
+              "The picker button is an icon-only Button of the text variant with Button's own tokens; the input has no tokens for it.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          }
+        },
+        "swatch": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product shows a color beside its value: a sample large enough to judge the color, shaped as the product shapes its small marks, and edged so that a color close to the box's own fill, white on a light box, still shows where it ends."
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.extra-small}",
+            "$description": "The swatch's corners, never more than half its side: a slightly rounded square in the default system. A product that shows its colors as dots sets sys.shape.corner.full here."
+          },
+          "outline": {
+            "width": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.hairline}",
+              "$description": "The width of the swatch's edge, drawn inside its size, over the color."
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline-variant}",
+              "$description": "The swatch's edge, in every look and state: the one hairline, the color the divider draws its line in. It bounds a sample whose color is close to the container's, and it is all an empty swatch draws. Decorative: the value's text carries the meaning."
+            }
+          }
+        }
+      }
+    }
+  }
+}

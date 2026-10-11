@@ -1,0 +1,90 @@
+---
+title: Icons
+description: One icon set per design system, one weight, and one rule — outlined when unselected, filled when selected.
+---
+
+import DemoFrame from '../../../components/DemoFrame.astro';
+import TokenNotes from '../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../components/tokens/SystemValues.astro';
+
+Tanrei's default icons are [Material Symbols](https://fonts.google.com/icons), **Rounded**, at **weight 300**. Like the text faces, the font is referenced by name and not bundled: a product loads it.
+
+How an icon is drawn is a small group of tokens. The icon box comes in three sizes, `sys.icon.small`, `medium` and `large` (16, 20 and 24px by default), and the font's optical size follows the box.
+
+<TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
+
+## The fill rule
+
+**Unselected is outlined. Selected is filled. Always.** A navigation item, a tab, a toggle, a chip, a favourite: the icon stays the same glyph and only its fill changes with the state. Filled and outlined icons are never mixed for decoration, and never chosen by hand — on the web the fill follows the state of the control the icon sits in.
+
+<DemoFrame label="Fill follows selection">
+  <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> Favourite</button>
+  <span class="icon-demo" role="tablist">
+    <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> Home</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">search</span> Search</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> Settings</button>
+  </span>
+  <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>Add</tanrei-button>
+</DemoFrame>
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> Favourite</button>
+```
+
+`.tanrei-icon` reads `aria-pressed`, `aria-selected`, `aria-checked` and `aria-current` on any ancestor, or `data-selected` on the icon or an ancestor (`data-selected="false"` opts one icon out). Give an icon `aria-hidden="true"` when text next to it says the same thing, and the control an accessible name when it does not.
+
+On the native platforms the same values arrive with the design system (`system.icon`), together with a small helper that turns *selected* and a size into what the font needs. Tanrei does not ship an icon component yet.
+
+## An icon set per design system
+
+The icon set belongs to the design system, so a [layer](/foundations/design-systems/) can change it. What the shipped systems resolve to:
+
+<SystemValues tokens={['sys.icon.family.unselected', 'sys.icon.family.selected', 'sys.icon.weight', 'sys.icon.fill.unselected', 'sys.icon.fill.selected']} />
+
+An icon font tells a selected icon from an unselected one in one of two ways, and the tokens cover both. A selected icon always takes `family.selected` **and** `fill.selected`; which of the two actually changes what is drawn depends on the set.
+
+### One variable family
+
+A variable icon font, such as Material Symbols, is a single family with a `FILL` axis. Both family tokens point at `ref.typeface.icon` by default, so re-pointing that one token changes the set, and `fill.unselected` / `fill.selected` tell the states apart. This is all of what `m3-like` writes:
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.icon": { "$value": ["Material Symbols Outlined"], "reason": "Material Design 3 draws Material Symbols in the Outlined style." },
+  "tanrei.sys.icon.weight":   { "$value": 400, "reason": "Material Symbols default weight in Material Design 3." }
+}
+```
+
+### Two static families
+
+A static icon font has no axes. It ships the outlined and the filled drawings as two separate families, so the layer names one for each state:
+
+```json
+"tokens": {
+  "tanrei.sys.icon.family.unselected": { "$value": ["Material Icons Outlined"], "reason": "Acme uses the static Material Icons set: outlined when unselected." },
+  "tanrei.sys.icon.family.selected":   { "$value": ["Material Icons"], "reason": "Acme uses the static Material Icons set: filled when selected." },
+  "tanrei.sys.icon.weight":            { "$value": 400, "reason": "A static icon font has one weight; 400 is what Material Icons is drawn at." }
+}
+```
+
+The fill and weight tokens stay as they are. A static font ignores the axes, so they do no harm, and a component does not need to know which kind of set is active. This layer is the repository's own test fixture (`packages/tokens-build/test/fixtures/acme.system.json`).
+
+### Icon names are the product's concern
+
+Tanrei decides how an icon is drawn, not which icons exist. Sets name their glyphs differently, and a set may lack a glyph another one has. A product that changes its icon set checks the names it uses. A symbol set that is not a font, such as SF Symbols, cannot be named by a family token; that is filed in the mimicry-gaps registry as `platform-symbol-sets`.
+
+### React Native
+
+React Native's `<Text>` cannot set font-variation axes, so with a variable icon font `FILL` never reaches the glyph and an icon looks the same in both states. To keep the rule there, use two static families as above, or draw the icons as SVG.
+
+The icon helpers of the four native packages are being moved to the family-per-state model now; until a package's README describes it, expect that package to read a single family.
+
+<style>{`
+  .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }
+  .icon-demo[role='tablist'] { gap: 1rem; cursor: default; }
+  .icon-demo [role='tab'] { display: inline-flex; align-items: center; gap: 0.35rem; font: inherit; color: var(--tanrei-sys-color-on-surface-variant); background: none; border: 0; padding: 0.25rem; }
+  .icon-demo [aria-selected='true'] { color: var(--tanrei-sys-color-on-surface); }
+`}</style>

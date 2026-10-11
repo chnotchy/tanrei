@@ -1,0 +1,218 @@
+/*
+ * Steps (specs/steps.spec.json, STP-1 to STP-20): a procedure to read and carry out somewhere else —
+ * each step a ring with its number, an optional title and a body of the product's content, joined to the next by a
+ * hairline. A class on the product's own ordered list, not an element: the list is the document's list before any
+ * script runs, and without this stylesheet it is the browser's numbered list.
+ *
+ *   <ol class="tanrei-steps" role="list">                         medium: among controls
+ *     <li>Save the file in the folder that holds the settings.</li>
+ *     <li><p class="tanrei-steps-title">Build</p><p>Commit what the build writes.</p></li>
+ *     <li><h3>Use it</h3><p>…</p><pre>…</pre></li>              a title that is a heading of the page
+ *   </ol>
+ *   <ol class="tanrei-steps" role="list" data-size="large" start="4" aria-label="The workflow, continued">…</ol>
+ *
+ * `role="list"` is written by the product: a list without list markers loses its list semantics in one engine. The
+ * title is the item's first child where that child is a heading (`h2` to `h6`) or carries `tanrei-steps-title`.
+ *
+ * Every value is a `--tanrei-comp-steps-*` token. The steps bring no color of their own for text (STP-2, STP-6,
+ * STP-7): the number, the title and the body take the content color of the surface they sit on.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector has no specificity (`:where()`; a rule on `::before` or `::after` has a pseudo-element's), so one
+ *   class of the product's wins.
+ * - A step is a block in the flow, so whatever a product or a Markdown renderer writes in an item — text written
+ *   directly, with its links and code, or paragraphs and blocks — is laid out as it is anywhere. The item keeps room
+ *   at its start for the marker column and the gap; the marker is the item's `::before` and the connector its
+ *   `::after`, both out of the flow, placed against the item.
+ * - ONE marker column for the set (STP-1): `--_steps-column`, the marker's height of the size, which every marker of
+ *   one or two digits fits. A number too long for a circle widens its own marker; the column of the SET then has to
+ *   be as wide as its widest marker, which a stylesheet cannot measure — the package's script does (src/steps.ts,
+ *   `--_steps-measured`). Without the script such a marker reaches into the gap beside it.
+ * - The number is the list's own counter (`list-item`), so `start` is the `<ol>`'s attribute and a nested set counts
+ *   for itself. The items stay list items, with no marker of the list's own (`list-style: none`).
+ * - Inside a `.tanrei-prose` the list is not an island: prose's own rules reach the paragraphs, lists, links and code
+ *   of each body. What a set of steps draws itself — its inset, markers, gaps, the measure on the list, the title's
+ *   text style — is said here, and the build (scripts/build.js) writes these rules a second time at the end of
+ *   dist/prose.css, so that whichever of the two stylesheets a page loads last says the same of a set of steps.
+ * - Names that begin `--_steps-` are private.
+ */
+/* steps:rules */
+@layer tanrei.components {
+  /* ── The list: the text style and the measures of its size (STP-1, STP-7, STP-10; STP-19: any other size is the default) */
+  :where(.tanrei-steps) {
+    --_steps-body-font: var(--tanrei-comp-steps-body-typescale-medium-font);
+    --_steps-body-tracking: var(--tanrei-comp-steps-body-typescale-medium-letter-spacing);
+    --_steps-body-emphasized: var(--tanrei-comp-steps-body-typescale-medium-font-weight-emphasized);
+    --_steps-body-line: calc(var(--tanrei-comp-steps-body-typescale-medium-font-size) * var(--tanrei-comp-steps-body-typescale-medium-line-height));
+    --_steps-title-font: var(--tanrei-comp-steps-title-typescale-medium-font);
+    --_steps-title-tracking: var(--tanrei-comp-steps-title-typescale-medium-letter-spacing);
+    --_steps-title-emphasized: var(--tanrei-comp-steps-title-typescale-medium-font-weight-emphasized);
+    --_steps-title-line: calc(var(--tanrei-comp-steps-title-typescale-medium-font-size) * var(--tanrei-comp-steps-title-typescale-medium-line-height));
+    --_steps-label-font: var(--tanrei-comp-steps-marker-label-typescale-medium-font);
+    --_steps-label-tracking: var(--tanrei-comp-steps-marker-label-typescale-medium-letter-spacing);
+    /* STP-2, STP-14: the marker's height — the size's, or the number's line where enlarged text makes that taller. */
+    --_steps-marker: max(
+      var(--tanrei-comp-steps-marker-height-medium),
+      calc(var(--tanrei-comp-steps-marker-label-typescale-medium-font-size) * var(--tanrei-comp-steps-marker-label-typescale-medium-line-height))
+    );
+    /* STP-1: the marker column — as wide as the widest marker, which is the marker's height unless a number is too
+       long for a circle (then the script says how wide: see above). */
+    --_steps-column: var(--_steps-measured, var(--_steps-marker));
+    --tanrei-text-emphasized-weight: var(--_steps-body-emphasized);
+    display: block;
+    /* STP-10: a block in the flow, as wide as its container, with no inset and no space after it. */
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: none;
+    margin-block-end: 0;
+    margin-inline: 0;
+    padding: 0;
+    list-style: none;
+    font: var(--_steps-body-font);
+    letter-spacing: var(--_steps-body-tracking);
+    /* STP-14: a string with no break opportunity breaks rather than overflow. */
+    overflow-wrap: break-word;
+  }
+  :where(.tanrei-steps[data-size='large']) {
+    --_steps-body-font: var(--tanrei-comp-steps-body-typescale-large-font);
+    --_steps-body-tracking: var(--tanrei-comp-steps-body-typescale-large-letter-spacing);
+    --_steps-body-emphasized: var(--tanrei-comp-steps-body-typescale-large-font-weight-emphasized);
+    --_steps-body-line: calc(var(--tanrei-comp-steps-body-typescale-large-font-size) * var(--tanrei-comp-steps-body-typescale-large-line-height));
+    --_steps-title-font: var(--tanrei-comp-steps-title-typescale-large-font);
+    --_steps-title-tracking: var(--tanrei-comp-steps-title-typescale-large-letter-spacing);
+    --_steps-title-emphasized: var(--tanrei-comp-steps-title-typescale-large-font-weight-emphasized);
+    --_steps-title-line: calc(var(--tanrei-comp-steps-title-typescale-large-font-size) * var(--tanrei-comp-steps-title-typescale-large-line-height));
+    --_steps-label-font: var(--tanrei-comp-steps-marker-label-typescale-large-font);
+    --_steps-label-tracking: var(--tanrei-comp-steps-marker-label-typescale-large-letter-spacing);
+    --_steps-marker: max(
+      var(--tanrei-comp-steps-marker-height-large),
+      calc(var(--tanrei-comp-steps-marker-label-typescale-large-font-size) * var(--tanrei-comp-steps-marker-label-typescale-large-line-height))
+    );
+  }
+  /* STP-10: the space before it is its container's (PRS-15) — prose's rhythm inside a prose, none of its own elsewhere. */
+  :where(.tanrei-steps:not(.tanrei-prose *)) {
+    margin-block-start: 0;
+  }
+  /* STP-20: a set with no step draws nothing and takes no room. */
+  :where(.tanrei-steps:not(:has(> li))) {
+    display: none;
+  }
+
+  /* ── A step (STP-1, STP-3, STP-4) ──────────────────────────────────────────────────────────────────────────────── */
+  :where(.tanrei-steps) > :where(li) {
+    /* The height of the step's first line: the body's, the title's where it has one, and the marker's own where the
+       step begins with a block that is not text — so that the marker's top is that block's top (STP-3). */
+    --_steps-first-line: var(--_steps-body-line);
+    /* Where the marker's top is, from the step's: lower than it only where the first line is the taller of the two. */
+    --_steps-marker-top: max(0px, calc((var(--_steps-first-line) - var(--_steps-marker)) / 2));
+    position: relative;
+    box-sizing: border-box;
+    /* At least its marker: a step of one short line, and a step that holds nothing (STP-20). */
+    min-block-size: calc(var(--_steps-marker-top) + var(--_steps-marker));
+    min-inline-size: 0;
+    margin: 0;
+    /* STP-3: where the marker is taller than the first line, the content is lowered by half the difference. STP-1:
+       the content begins the marker gap after the marker column. */
+    padding-block: max(0px, calc((var(--_steps-marker) - var(--_steps-first-line)) / 2)) 0;
+    padding-inline: calc(var(--_steps-column) + var(--tanrei-comp-steps-marker-gap)) 0;
+    list-style: none;
+  }
+  :where(.tanrei-steps) > :where(li + li) {
+    margin-block-start: var(--tanrei-comp-steps-step-gap);
+  }
+  /* STP-8: in a prose that keeps a measure, a step that is text alone — no paragraph to keep to the measure, no block
+     to take the width — is kept to the measure as a paragraph would be, counted from where its text begins. (The
+     measure is prose's own, `--_prose-measure`; where there is none the declaration is not valid and the step fills
+     the set.) */
+  :where(.tanrei-steps) > :where(li:not(:has(> :not(a, abbr, b, bdi, bdo, br, cite, code, data, del, dfn, em, i, ins, kbd, mark, q, s, samp, small, span, strong, sub, sup, time, u, var, wbr)))) {
+    max-inline-size: calc(var(--_prose-measure) + var(--_steps-column) + var(--tanrei-comp-steps-marker-gap));
+  }
+  :where(.tanrei-steps) > :where(li:has(> :is(.tanrei-steps-title, h2, h3, h4, h5, h6):first-child)) {
+    --_steps-first-line: var(--_steps-title-line);
+  }
+  :where(.tanrei-steps) > :where(li:has(> :first-child:not(.tanrei-steps-title, h2, h3, h4, h5, h6, p, ul, ol, dl, blockquote, address, a, abbr, b, bdi, bdo, br, cite, code, data, del, dfn, em, i, ins, kbd, mark, q, s, samp, small, span, strong, sub, sup, time, u, var, wbr))) {
+    --_steps-first-line: var(--_steps-marker);
+  }
+
+  /* ── The body (STP-7, STP-8): the gap between two of its blocks, none before the first or after the last ───────── */
+  :where(.tanrei-steps) > :where(li) > :where(*) {
+    margin-block: 0;
+  }
+  :where(.tanrei-steps) > :where(li) > :where(* + *) {
+    margin-block-start: var(--tanrei-comp-steps-body-gap);
+  }
+  /* A list that is the first element of a step follows the step's own text (a list item's text and a list under it,
+     as a Markdown renderer writes a tight item): STP-9. */
+  :where(.tanrei-steps) > :where(li) > :where(:is(ul, ol):first-child) {
+    margin-block-start: var(--tanrei-comp-steps-body-gap);
+  }
+
+  /* ── The title (STP-6, STP-18): first in the step, in the title's text style whatever its level ───────────────── */
+  :where(.tanrei-steps) > :where(li) > :where(:is(.tanrei-steps-title, h2, h3, h4, h5, h6):first-child) {
+    --tanrei-text-emphasized-weight: var(--_steps-title-emphasized);
+    font: var(--_steps-title-font);
+    letter-spacing: var(--_steps-title-tracking);
+    /* Text of its own direction, by its first strong character; placed and aligned by the layout's. */
+    unicode-bidi: plaintext;
+    text-align: left;
+  }
+  :where(.tanrei-steps) > :where(li) > :where(:is(.tanrei-steps-title, h2, h3, h4, h5, h6):first-child:dir(rtl)) {
+    text-align: right;
+  }
+  :where(.tanrei-steps) > :where(li) > :where(:is(.tanrei-steps-title, h2, h3, h4, h5, h6):first-child + *) {
+    margin-block-start: var(--tanrei-comp-steps-title-gap);
+  }
+
+  /* ── The marker (STP-2, STP-3, STP-18): a ring with the step's number ──────────────────────────────────────────── */
+  /* steps:shape */
+  :where(.tanrei-steps) > :where(li)::before {
+    --tanrei-corner-radius: var(--tanrei-comp-steps-marker-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-steps-marker-shape-pill, 0);
+    content: counter(list-item);
+    position: absolute;
+    /* STP-3: at the top of the step, centred on its first line. STP-1: centred in the marker column. */
+    inset-block-start: var(--_steps-marker-top);
+    inset-inline: 0 calc(100% - var(--_steps-column));
+    display: block;
+    box-sizing: border-box;
+    inline-size: fit-content;
+    min-inline-size: var(--_steps-marker);
+    block-size: var(--_steps-marker);
+    margin-inline: auto;
+    /* The room between the number and the marker's edge, the ring inside it: two digits keep a circle. */
+    padding-inline: calc(var(--tanrei-comp-steps-marker-padding-inline) - var(--tanrei-comp-steps-marker-outline-width));
+    border: var(--tanrei-comp-steps-marker-outline-width) solid var(--tanrei-comp-steps-marker-outline-color);
+    font: var(--_steps-label-font);
+    /* The number at the marker's centre: one line as high as the marker is inside its ring. */
+    line-height: calc(var(--_steps-marker) - 2 * var(--tanrei-comp-steps-marker-outline-width));
+    letter-spacing: var(--_steps-label-tracking);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    white-space: nowrap;
+    /* STP-18: a left-to-right run whose digits are never reversed — a number has no strong character, so as text of
+       its own direction it is left to right in every layout (a sign stays before its digits). The marker's own
+       direction stays the layout's: its place is by logical start and end. */
+    unicode-bidi: plaintext;
+  }
+
+  /* ── The connector (STP-5): from under a marker to above the next, on the column's centre line ─────────────────── */
+  :where(.tanrei-steps) > :where(li:not(:last-child))::after {
+    content: '';
+    position: absolute;
+    inset-block: calc(var(--_steps-marker-top) + var(--_steps-marker) + var(--tanrei-comp-steps-connector-gap)) calc(var(--tanrei-comp-steps-connector-gap) - var(--tanrei-comp-steps-step-gap));
+    inset-inline-start: calc((var(--_steps-column) - var(--tanrei-comp-steps-connector-thickness)) / 2);
+    inline-size: 0;
+    border-inline-start: var(--tanrei-comp-steps-connector-thickness) solid var(--tanrei-comp-steps-connector-color);
+    pointer-events: none;
+  }
+
+  /* ── Forced colors (STP-15): the ring and the connector in the platform's text color ───────────────────────────── */
+  @media (forced-colors: active) {
+    :where(.tanrei-steps) > :where(li)::before,
+    :where(.tanrei-steps) > :where(li:not(:last-child))::after {
+      border-color: CanvasText;
+    }
+  }
+}
+/* steps:rules:end */

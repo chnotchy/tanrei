@@ -1,0 +1,129 @@
+{
+  "id": "acme",
+  "name": "Acme",
+  "extends": "tanrei",
+  "description": "A fixture that extends the vocabulary in every way a layer may.",
+  "vocabulary": {
+    "tanrei.sys.space.space1200": {
+      "$type": "dimension",
+      "rationale": "Hero sections need a 96px rhythm step.",
+      "derive": {
+        "fn": "mul",
+        "of": "{tanrei.dial.space.unit}",
+        "by": 12
+      }
+    },
+    "tanrei.sys.color.brand-glow": {
+      "$type": "color",
+      "rationale": "The glow behind the hero artwork; never used for text.",
+      "derive": {
+        "fn": "tone",
+        "palette": "accent",
+        "tone": {
+          "light": [
+            80
+          ],
+          "dark": [
+            30
+          ]
+        }
+      },
+      "onRole": "tanrei.sys.color.on-surface"
+    },
+    "tanrei.sys.motion.spring.standard.bouncy": {
+      "from": "default-spatial",
+      "rationale": "The rating stars land with a visible bounce; no core spring overshoots this much."
+    },
+    "tanrei.sys.motion.spring.expressive.bouncy": {
+      "from": "default-spatial",
+      "rationale": "The rating stars land with a visible bounce; no core spring overshoots this much."
+    },
+    "tanrei.comp.button.size.3x": {
+      "from": "large",
+      "scale": 1.5,
+      "rationale": "A hero call-to-action on the landing screen."
+    },
+    "tanrei.comp.button.variant.danger": {
+      "from": "filled",
+      "rationale": "Destructive confirmation is a distinct emphasis in this product."
+    },
+    "acme.comp.rating.star.size": {
+      "$type": "dimension",
+      "rationale": "The rating component's star.",
+      "derive": {
+        "fn": "mul",
+        "of": "{tanrei.dial.size.unit}",
+        "by": 5
+      }
+    },
+    "acme.comp.rating.star.color": {
+      "$type": "color",
+      "rationale": "The rating component's filled star.",
+      "$value": "{tanrei.sys.color.warning}"
+    },
+    "acme.comp.rating.gap": {
+      "$type": "dimension",
+      "rationale": "Distance between stars.",
+      "$value": "{tanrei.sys.space.space50}"
+    }
+  },
+  "tokens": {
+    "tanrei.comp.button.container.padding-block.3x": {
+      "$value": "{tanrei.sys.space.space200}"
+    },
+    "tanrei.comp.button.danger.container.color": {
+      "$value": "{tanrei.sys.color.error}"
+    },
+    "tanrei.comp.button.danger.label.color": {
+      "$value": "{tanrei.sys.color.on-error}"
+    },
+    "tanrei.sys.state.hover-state-layer-opacity": {
+      "$value": 0.06,
+      "reason": "Acme tells hovered, focused and pressed apart by three different strengths (also what makes BTN-3 observable in tests)."
+    },
+    "tanrei.sys.state.focus-state-layer-opacity": {
+      "$value": 0.12,
+      "reason": "Acme tells hovered, focused and pressed apart by three different strengths."
+    },
+    "tanrei.sys.state.pressed-state-layer-opacity": {
+      "$value": 0.2,
+      "reason": "Acme tells hovered, focused and pressed apart by three different strengths."
+    },
+    "tanrei.sys.behavior.focus-style": {
+      "$value": 1,
+      "reason": "Acme shows keyboard focus as a glow."
+    },
+    "tanrei.sys.icon.family.unselected": {
+      "$value": [
+        "Material Icons Outlined"
+      ],
+      "reason": "Acme uses the static Material Icons set: outlined when unselected."
+    },
+    "tanrei.sys.icon.family.selected": {
+      "$value": [
+        "Material Icons"
+      ],
+      "reason": "Acme uses the static Material Icons set: filled when selected."
+    },
+    "tanrei.sys.icon.weight": {
+      "$value": 400,
+      "reason": "A static icon font has one weight; 400 is what Material Icons is drawn at."
+    },
+    "tanrei.sys.icon.mark.weight": {
+      "$value": "{tanrei.sys.icon.weight}",
+      "reason": "A static icon set has one weight to draw: a control's mark takes the icons'."
+    },
+    "tanrei.sys.motion.spring.standard.bouncy.damping": {
+      "$value": 0.5,
+      "reason": "A visible bounce: half the critical damping."
+    },
+    "tanrei.sys.motion.spring.expressive.bouncy.damping": {
+      "$value": 0.4,
+      "reason": "The expressive scheme bounces a little more."
+    },
+    "tanrei.sys.motion.spring.expressive.bouncy.stiffness": {
+      "$value": 500,
+      "reason": "A slower, rounder bounce in the expressive scheme."
+    }
+  }
+}

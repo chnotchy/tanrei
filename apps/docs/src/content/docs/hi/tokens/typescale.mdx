@@ -1,0 +1,21 @@
+---
+title: टाइप स्केल टोकन
+description: स्तर के अनुसार हर टेक्स्ट स्टाइल, उसके लाइव नमूने, रिज़ॉल्व किए गए माप और एम्फ़ेसिस मिलने पर उसके वेट के साथ।
+translationOf: tokens/typescale.mdx
+sourceHash: 04f324a84d7ee88a6b98405c30b1b79539c95a7d
+---
+
+import Typescale from '../../../../components/tokens/Typescale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+नमूने जनरेट की गई CSS कस्टम प्रॉपर्टी से सेट हैं, इसलिए आप जो देखते हैं वही `@tanrei/web` शिप करता है। हर रोल अपने हिस्से अलग-अलग प्रॉपर्टी के रूप में देता है: `-font-family`, `-font-size`, `-line-height`, `-font-weight`, `-letter-spacing` और `-font-weight-emphasized`, और साथ में एक `-font` शॉर्टहैंड। मार्गदर्शन के लिए — `h2` या `p` कौन-सा रोल है, और एम्फ़ेसिस रोल के बजाय वेट क्यों है — [टाइपोग्राफ़ी](/hi/foundations/typography/) पढ़ें।
+
+## सोलह रोल
+
+<Typescale />
+
+## एम्फ़ेसिस स्टेप
+
+एम्फ़ेसिस वाला टेक्स्ट वही रोल है, जिसके वेट में उसकी फ़ैमिली का स्टेप जुड़ा है। रोल की फ़ैमिली उसके नाम का पहला खंड है; `caption`, `code`, `code-small` और `eyebrow` लेबल वाला स्टेप लेते हैं। चारों स्टेप, साथ आने वाले हर सिस्टम के लिए:
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />

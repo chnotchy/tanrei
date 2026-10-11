@@ -1,0 +1,263 @@
+---
+title: Vista de árbol
+description: Una jerarquía de elementos que se abren y se cierran. Las filas empiezan más adentro en cada nivel, con un chevron al inicio de cada fila que contiene otras. Solo se lee y se abre, o bien en ella se eligen uno o varios elementos, y es una sola parada en el orden del foco.
+translationOf: components/tree-view.mdx
+sourceHash: c1e2abc869592d34f3b6d9e017aefafd026c21e3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="tree-view" />
+
+<DemoFrame label="Un árbol de archivos: abre una carpeta con su fila, o con las teclas de flecha" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Dónde están los tokens" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>fuente de verdad, editada a mano</small></bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>ref/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>sys/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>comp/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>tanrei.resolver.json</bdi></span></li>
+        </ul>
+      </li>
+      <li>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>packages/</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>web/src/generated/tokens.css</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>react-native/src/generated/tokens.ts</bdi></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+Una vista de árbol muestra una estructura que una persona recorre o en la que elige: los archivos de un proyecto, los tokens de un sistema de diseño, las carpetas de un producto. Una fila que contiene otras tiene un chevron y se abre y se cierra. Con `selection` se eligen uno o varios elementos, y el árbol te dice cuáles.
+
+No es navegación. Los lugares de un producto son un panel de navegación, los encabezados de una página son una tabla de contenido, y el contenido plegado es un acordeón. Esos conservan enlaces y botones, cada uno con su propia parada en el orden del foco. Un árbol es una sola parada, que se recorre con las teclas de flecha, porque puede contener miles de filas.
+
+En la web es `<tanrei-tree-view>` alrededor de tus propias listas anidadas. Las listas se quedan en el documento, así que, donde no se ejecuta ningún script, la página muestra toda la jerarquía como una lista anidada. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/tree-view.css" />
+
+    <tanrei-tree-view label="Archivos del proyecto" selection="single" value="src/index.ts">
+      <ul>
+        <li data-value="src" data-open>
+          <span>
+            <span class="tanrei-icon" aria-hidden="true">folder</span>
+            <bdi>src<small data-supporting-text>lo que se publica</small></bdi>
+            <span data-trailing-text>12 archivos</span>
+          </span>
+          <ul>
+            <li data-value="src/index.ts"><span><bdi>index.ts</bdi></span></li>
+          </ul>
+        </li>
+        <li data-value="node_modules" data-expandable><span><bdi>node_modules</bdi></span></li>
+      </ul>
+    </tanrei-tree-view>
+
+    <script type="module">
+      import '@tanrei/web/components/tree-view';
+
+      const tree = document.querySelector('tanrei-tree-view');
+      tree.addEventListener('change', (event) => showFile(event.detail.value));
+      tree.addEventListener('toggle', (event) => {
+        if (event.detail.open && event.target.dataset.expandable !== undefined) loadItemsInto(event.target);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TreeView } from '@tanrei/react';
+    import '@tanrei/web/tree-view.css';
+
+    <TreeView label="Archivos del proyecto" selection="single" value={path} onChange={(event) => setPath(event.detail.value)}>
+      <ul>
+        {folders.map((folder) => (
+          <li key={folder.path} data-value={folder.path} data-open={folder.open ? '' : undefined}>
+            <span><bdi>{folder.name}</bdi></span>
+            <ul>
+              {folder.files.map((file) => (
+                <li key={file.path} data-value={file.path}><span><bdi>{file.name}</bdi></span></li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </TreeView>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/tree-view.css` dibuja el árbol antes de que se ejecute ningún script, y nada se mueve cuando el script se carga. El chevron es un glifo del conjunto de iconos y necesita la fuente de iconos.
+
+### Qué escribes tú
+
+| Parte | En la web |
+| --- | --- |
+| El nombre del árbol | El atributo `label`, en el idioma de tu producto. |
+| Un elemento | Un `<li>`. Su primer elemento hijo es su fila: un `<span>` o un `<div>`. |
+| La etiqueta | El texto de la fila, en un solo elemento: `<bdi>`. Puede incluir contenido en línea, como código en línea. |
+| El texto de apoyo | Un elemento con `data-supporting-text`, dentro del elemento de la etiqueta, después de la etiqueta. |
+| El icono | Un `.tanrei-icon` en la fila, que contiene el nombre del glifo. El árbol no tiene un glifo propio para una carpeta ni para un archivo. |
+| El contenido final | Un elemento con `data-trailing` en la fila: un tag, una muestra de color. Se coloca y no se le aplica ningún estilo. |
+| El texto final | Un elemento con `data-trailing-text` en la fila: un recuento, un tamaño, un valor. Una sola línea. |
+| Los elementos propios de un elemento | Un `<ul>` después de la fila, dentro del mismo `<li>`. |
+
+Una fila también puede contener su etiqueta como texto simple, sin un `<bdi>` alrededor. Usa el `<bdi>` donde la fila tiene un texto de apoyo, y donde la dirección de un nombre puede ser distinta de la de la página, como un nombre de archivo en una página en árabe.
+
+| En el `<li>` | Significado |
+| --- | --- |
+| `data-value` | Lo que identifica al elemento. Sin uno, no se puede elegir. Único dentro del árbol. |
+| `data-open` | Un padre muestra sus elementos. El árbol lo pone y lo quita cuando la persona abre o cierra el padre. |
+| `data-expandable` | El elemento va a contener elementos que todavía no has dado. Recibe un chevron; da sus elementos cuando `toggle` diga que se abrió. |
+| `data-loading` | Estás obteniendo sus elementos. Mientras está abierto se dibuja debajo de él una fila de carga, con el `loading-label` del árbol. |
+| `data-disabled` | La persona no puede elegirlo, abrirlo ni cerrarlo. Las teclas de flecha siguen llegando a él. |
+
+| Evento | Cuándo | `detail` |
+| --- | --- | --- |
+| `change` | La persona cambió la selección. En el árbol. | `value` (única) o `values` (múltiple), después del cambio |
+| `toggle` | La persona, o la búsqueda en la página del navegador, abrió o cerró un padre. En el `<li>`; se propaga. | `open` |
+
+Ninguno de los dos eventos se emite por un cambio que haces tú.
+
+## Especificaciones
+
+<DemoFrame label="Un elemento elegido: la fila elige, el chevron abre" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Todos los tokens" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li><span><bdi>Referencia</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
+      <li data-open>
+        <span><bdi>Sistema</bdi><span data-trailing-text>388</span></span>
+        <ul>
+          <li data-open>
+            <span><bdi>color</bdi><span data-trailing-text>64</span></span>
+            <ul>
+              <li data-value="sys.color.primary"><span><bdi>primary</bdi><span data-trailing-text>#1f1f1f</span></span></li>
+              <li data-value="sys.color.on-primary"><span><bdi>on-primary</bdi><span data-trailing-text>#ffffff</span></span></li>
+              <li data-value="sys.color.outline-variant"><span><bdi>outline-variant</bdi><span data-trailing-text>#d4d4d4</span></span></li>
+            </ul>
+          </li>
+          <li data-expandable><span><bdi>space</bdi><span data-trailing-text>19</span></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+<ComponentSpecs name="tree-view" />
+
+## Pautas
+
+### ¿Es una vista de árbol?
+
+| Tienes | Usa |
+| --- | --- |
+| Una estructura que recorrer o en la que elegir | Vista de árbol |
+| Los lugares de un producto, como enlaces | Panel de navegación |
+| Los encabezados de una página | Tabla de contenido |
+| Contenido plegado bajo unas pocas cabeceras | Acordeón |
+| Elementos de un solo nivel | Lista |
+
+### Qué hace una pulsación
+
+| El elemento | Una pulsación en su fila | Una pulsación en su chevron |
+| --- | --- | --- |
+| Se puede elegir, es un padre | Lo elige | Lo abre o lo cierra |
+| Se puede elegir, es una hoja | Lo elige | — |
+| No se puede elegir, es un padre | Lo abre o lo cierra | Lo abre o lo cierra |
+| No se puede elegir, es una hoja | Nada | — |
+
+Una pulsación nunca hace dos cosas. Una persona que elige una carpeta no pierde el punto en que estaba porque además se haya cerrado.
+
+Un elemento se puede elegir cuando `selection` es `single` o `multiple`, tiene un `data-value` y no está deshabilitado. En una selección única, pulsar de nuevo el elemento elegido no cambia nada. En una selección múltiple, cada elemento se elige por sí solo: elegir un padre no elige lo que contiene.
+
+Lo que hace una elección es cosa tuya. Responde a `change` para mostrar el archivo elegido, o el editor del token elegido, en un panel junto al árbol. Una fila no contiene ningún control: pon la acción junto al árbol.
+
+### La selección y los padres cerrados
+
+El árbol dibuja el relleno de selección en la propia fila del elemento. No marca un padre porque un elemento que tiene debajo esté seleccionado, y no abre un padre cerrado para mostrar una selección. Si el elemento elegido debe estar a la vista, pon `data-open` en los padres que tiene por encima: tú conoces el camino.
+
+### Densidad
+
+| `density` | Una fila de una línea | Úsala para |
+| --- | --- | --- |
+| `regular` (predeterminada) | 48 | Un producto que se usa tanto con el tacto como con un puntero. |
+| `compact` | 32 | Una herramienta que se recorre con un puntero, y un árbol pequeño dentro de una página de texto. |
+
+Una fila compacta es más baja que el objetivo de puntero. Se acepta porque se pide por su nombre y nunca es el valor predeterminado. Para el tacto, una fila tiene la altura del objetivo táctil en las dos densidades.
+
+### Guías
+
+`guides` dibuja una línea fina que baja desde cada padre abierto, junto a las filas que contiene. Úsalo en un árbol profundo, donde la sangría por sí sola ya no muestra qué filas van juntas. No ocupa espacio.
+
+### Árboles grandes
+
+El árbol muestra lo que se le da, no se desplaza y no dibuja solo las filas que están a la vista. Ponlo en tu propia caja de desplazamiento.
+
+- Da los elementos de un padre grande cuando se abra: márcalo con `data-expandable` y añade su `<ul>` cuando `toggle` diga que se abrió. Pon `data-loading` mientras los obtienes.
+- Solo cuestan algo las filas que se muestran. A los elementos de un padre cerrado no se les aplican estilos, no se disponen y no se leen hasta que el padre se abre.
+- Un cambio en una fila vuelve a aplicar estilos solo a esa fila, sea cual sea el tamaño del árbol.
+
+El filtrado también es cosa tuya. Da al árbol los elementos que coinciden, pon `data-open` en los padres que los contienen y di cuántos coincidieron en un mensaje de estado propio.
+
+### Árboles profundos y ventanas estrechas
+
+Cada nivel empieza una sangría más adentro. Donde la sangría de un nivel ocuparía más de la mitad de la anchura del árbol, sus filas empiezan donde empieza el nivel más profundo que cabe, de modo que los nombres conservan la mitad de la anchura. A la tecnología de apoyo se le sigue indicando el nivel verdadero.
+
+### Renderizado en un servidor
+
+Todo se dibuja antes de que el script se cargue, salvo el relleno de selección, que aparece cuando el elemento se define. Para tenerlo en el primer fotograma, escribe tú `aria-selected="true"` en la fila del elemento seleccionado.
+
+### Recomendado
+
+- Escribe `label`, y `loading-label` donde algún elemento pueda estar cargándose, en el idioma de tu producto. `loading-label` también se puede dar una sola vez para todo el producto, con `setWords({ loadingLabel })`.
+- Nombra tú los glifos: una carpeta y un archivo son tipos de tu producto, no del árbol.
+- Mantén los nombres enteros. Una etiqueta salta de línea y nunca se corta.
+
+### Evita
+
+- No pongas un enlace, un botón ni un campo en una fila. Ninguna tecla del árbol llega a él.
+- No uses un árbol para las páginas de un sitio. Los enlaces se encuentran por las vías con las que un navegador y un lector de pantalla enumeran los enlaces.
+- No selecciones al mover el foco. Las teclas de flecha mueven; Enter y Espacio eligen.
+
+## Accesibilidad
+
+<ComponentAccessibility name="tree-view" />
+
+### De qué se encarga el componente
+
+- El elemento es un `tree` que recibe su nombre de `label`. Cada fila es un `treeitem` y cada lista anidada, un `group`, de modo que el nivel procede del anidamiento.
+- La fila de un padre lleva `aria-expanded`. Una fila que se puede elegir lleva `aria-selected`, true o false. Una fila deshabilitada lleva `aria-disabled`, y un padre que se está cargando, `aria-busy`.
+- La etiqueta es el nombre de la fila. El texto de apoyo, el texto del contenido final y el texto final son su descripción, en ese orden.
+- El árbol es una sola parada. Tab entra en él por la fila que tuvo el foco la última vez, o por la primera fila seleccionada que se muestra, o por la primera fila.
+- Flecha abajo y Flecha arriba recorren las filas que se muestran. Flecha derecha abre un padre y después entra en él. Flecha izquierda lo cierra y después sale de él. En un diseño de derecha a izquierda, Flecha izquierda y Flecha derecha se intercambian.
+- Inicio y Fin van a la primera y a la última fila. Al escribir letras, el foco pasa a la siguiente fila cuya etiqueta empieza por ellas. `*` abre todos los padres cerrados que están al mismo nivel que la fila que tiene el foco.
+- Enter y Espacio hacen lo mismo que una pulsación en la fila. La selección nunca sigue al foco.
+- Abrir, cerrar y elegir se comunican mediante el propio estado de la fila. No se anuncia nada y el foco no se mueve.
+- Un padre que se cierra con la fila que tiene el foco dentro recibe el foco. Una fila con el foco que se quita da el foco a la fila que la sigue.
+- El anillo de foco se dibuja dentro de la fila, así que una caja de desplazamiento no lo recorta.
+- El chevron, los iconos y las guías quedan ocultos para la tecnología de apoyo. La fila de carga también queda oculta: el padre dice que está ocupado.
+- Con el texto al 200%, las etiquetas saltan de línea y las filas crecen. Lo único que llega a cortarse es un texto final.
+- Con colores forzados, una fila seleccionada toma los colores de selección del sistema y un borde.
+- Las compilaciones de depuración notifican un `label` vacío, un elemento sin etiqueta, un control en una fila, un valor que no nombra ningún elemento, dos elementos con un mismo valor y un `density` o un `selection` desconocidos.
+
+### Qué debes hacer tú
+
+- Da a cada elemento que se pueda elegir un `data-value` que sea único en el árbol.
+- Di tú que una carga ha fallado, junto al árbol o como un elemento cuya etiqueta lo diga. El árbol no anuncia nada cuando llegan los elementos.
+- Da una marca propia en el contenido final donde cada elemento elegido de una selección múltiple deba distinguirse por algo más que su relleno.
+- Pon un árbol largo en una caja de desplazamiento con un nombre o un encabezado, para que las personas sepan qué contiene la caja.

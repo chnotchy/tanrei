@@ -1,0 +1,262 @@
+---
+title: Number field
+description: Lets people enter a number as a number — typed in their locale's form or stepped by a key or a button, kept within limits, with its unit beside it — as one complete field of a form, built from a field and a number input.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="number-field" />
+
+<DemoFrame label="A number field with a unit and limits, and one that holds an amount of money" column>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Corner radius" value="8" min="0" max="64" step="0.25" suffix-text="px" supporting-text="0 to 64, in steps of a quarter." increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Amount" value="120" min="0" prefix-text="$" suffix-text="USD" min-fraction-digits="2" max-fraction-digits="2" invalid-text="Enter an amount in figures." increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+</DemoFrame>
+
+Use a number field for a number that the product reads as a number: a quantity, a size, a percentage, an amount. People type it in the form of their locale, or step it with the arrow keys or the two buttons at the end of the field. The field is drawn and measured as the text field of the same variant and size.
+
+**Built from** a [field](/components/field/) and a [number input](/components/number-input/). The field is the frame: the label, the required or optional mark, the help and the error. The number input is the control: the box, the number, its unit and the two steppers. The number field draws nothing of its own and has no token: every property it has is a property of one of the two, given to it unchanged.
+
+A number field is a field already: it is never placed inside a [field](/components/field/). Where the label stands elsewhere — beside a slider, in a cell of a table — use the [number input](/components/number-input/) alone.
+
+It is a block as wide as the place it is put in, and its box fills it. It has no width of its own: for a narrower field, give it a narrower place.
+
+On the web it is `<tanrei-number-field>`. The other platforms have not implemented it yet.
+
+### Usage
+
+`value` is a number, or `null` while the field holds none. It changes when the person **commits** — focus leaves the field, they press Enter, or they step — and not at every keystroke. While they type, the text is theirs: nothing is refused, reformatted, clamped or rounded. `input` carries what the text reads as meanwhile.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-number-field name="quantity" label="Quantity" value="1" min="1" max="99"
+        requirement="required" required-text="Required" invalid-text="Enter a number." increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+    </form>
+
+    <!-- A unit, a step of a quarter, and no upper limit. -->
+    <tanrei-number-field id="radius" label="Corner radius" value="8" min="0" step="0.25" suffix-text="px" increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+
+    <!-- Money: a sign before, a code after, always two decimals. -->
+    <tanrei-number-field label="Amount" value="120" prefix-text="$" suffix-text="USD"
+      min-fraction-digits="2" max-fraction-digits="2" increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+
+    <script type="module">
+      import '@tanrei/web/components/number-field';
+
+      const radius = document.querySelector('#radius');
+      // A commit changed the value. It is already the new one: a number, or null.
+      radius.addEventListener('change', () => save(radius.value));
+      // The person is typing or stepping: the number the text reads as, not clamped and not rounded, or null.
+      radius.addEventListener('input', (e) => preview(e.detail.value));
+      // A text that is not a number was committed. The field keeps it and shows invalidText:
+      // detail.text is that text, empty where the field was given none.
+      radius.addEventListener('entryerror', (e) => console.log(e.detail.reason, e.detail.text));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberField } from '@tanrei/react';
+
+    <NumberField label="Corner radius" value={radius} min={0} step={0.25} suffixText="px"
+      incrementLabel="Increase" decrementLabel="Decrease"
+      onChange={(event) => setRadius(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### One level down
+
+The same field, written by hand from its two members, is the same picture, and to assistive technology the same spin button with the same name, description and states:
+
+```html
+<tanrei-field label="Quantity" requirement="required" required-text="Required"
+  supporting-text="Up to 99 per order.">
+  <tanrei-number-input name="quantity" min="1" max="99" invalid-text="Enter a number."
+    increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
+</tanrei-field>
+```
+
+<DemoFrame label="The same field written by hand: a field with a number input in it" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" requirement="required" required-text="Required" supporting-text="Up to 99 per order.">
+    <tanrei-number-input min="1" max="99" invalid-text="Enter a number." increment-label="Increase" decrement-label="Decrease"></tanrei-number-input>
+  </tanrei-field>
+</DemoFrame>
+
+Go one level down when you need an arrangement the number field does not offer:
+
+| You need | Use |
+| --- | --- |
+| A label, the box, help and an error | The number field |
+| Something of your own inside the frame, beside or below the box | A [field](/components/field/) with a [number input](/components/number-input/) and your own element in it |
+| The box alone, under a label that stands elsewhere: beside a slider, a cell of a table, a toolbar | The [number input](/components/number-input/) alone, named by its own `label` |
+
+What changes one level down is where things are said. `name`, `value`, the limits and the unit are on the number input, which is then the control the form meets, and its events are heard on it. `label`, `error`, `disabled` and the requirement stay on the field, which passes them to the control: do not set the input's own. There is nothing the number field does that the field and the number input written by hand do not do.
+
+## Specs
+
+<DemoFrame label="A stepper disabled at the limit, digits at the end edge, no steppers, an error, a read-only and a disabled number field" plain column>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="99" min="1" max="99" increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Tone" value="40" min="0" max="100" align="end" increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Letter spacing" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="0" error error-text="Order at least 1." increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="12" readonly></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Quantity" value="12" disabled increment-label="Increase" decrement-label="Decrease"></tanrei-number-field>
+</DemoFrame>
+
+### The field
+
+| Part | What it is |
+| --- | --- |
+| Label | The field's: above the container (`stacked`). In `filled` and `outlined` the number input draws it, floating inside the box, and the field draws no label row. It is the accessible name, drawn or hidden with `labelHidden` |
+| Requirement mark | The field's, after the label: the requirement tag in its required form, an asterisk or nothing for `requirement="required"`; the requirement tag in its optional form for `optional`. A floating label takes the asterisk |
+| Input | The number input's: the number as text. What the person typed while they edit; the committed number in the locale's form otherwise. One line, which scrolls |
+| Prefix, suffix | The number input's: fixed text before and after the number, such as a currency sign or a unit. Part of the box, never of the value |
+| Steppers | The number input's: two buttons at the end, the first steps down, the second up. Leave them out with `steppers` false |
+| Supporting text | The field's: a line of help. It stays while the field is in error: the error text is drawn below it — `errorText` while `error` is true, and `invalidText` while the text is not a number. It starts and ends at the box's text padding, with and without steppers |
+
+The three variants and the two sizes, `medium` (48) and `large` (56), are the text field's. The default system ships `stacked` only.
+
+The number field has no token of its own. Its box reads the [number input's tokens](/components/number-input/#specs), its rows read the [field's tokens](/components/field/#specs), and its two steppers the [Button's](/components/button/#specs), wherever they are set. To change one instance, set a member's token on it: `style="--tanrei-comp-field-label-gap: 0.75rem"`.
+
+The two steppers are text Buttons of the medium size, side by side. Under the default system they take 88 of the field's width, and each is a full touch target. They are never drawn smaller and never stacked: where a row cannot afford them, turn them off. The keys still step.
+
+### The value and the text
+
+| When | What happens |
+| --- | --- |
+| The person types, pastes or dictates | Nothing is changed. `input` carries the number the text reads as, or `null` |
+| Focus leaves, or Enter | The text is committed: raised to `min`, lowered to `max`, rounded to `maxFractionDigits`, made the value, and written back in the locale's form. `change` fires if the value differs |
+| The text is empty | The value becomes `null` |
+| The text is not a number | The text stays. The value becomes `null`, the field is in error and shows `invalidText` — its `errorText` where there is none — and `entryerror` fires |
+| The product sets `value` | The number is shown, whatever was typed. No event fires, and the number is not corrected by `min` and `max` |
+
+A committed number is written with the locale's digits and decimal separator, between `minFractionDigits` and `maxFractionDigits` digits after it, and without grouping separators — so what is shown can be typed back.
+
+<DemoFrame label="The same value, 1.5, in German and in Egyptian Arabic" plain column>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Gewicht" value="1.5" step="0.1" suffix-text="kg" locale="de-DE" increment-label="Erhöhen" decrement-label="Verringern"></tanrei-number-field>
+  <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="1.5" step="0.1" locale="ar-EG" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
+</DemoFrame>
+
+A text is read leniently, by the field's `locale` — or, where that is empty, by the language of the page:
+
+- Spaces around the number and inside it are ignored.
+- A hyphen-minus, a minus sign or a plus sign before the digits is the sign.
+- ASCII digits, the locale's own digits and full-width digits are all digits.
+- The locale's grouping separator is ignored between digits: `1,234.50` reads as 1234.5 in English.
+- A typed or pasted prefix and suffix are ignored: `12 px` reads as 12.
+- Letters, an exponent, two separators or a sign alone are not a number.
+
+The field never guesses between two locales. In German, where the comma is the decimal separator, `1.500` reads as 1500 and `1.5` as 15.
+
+<DemoFrame label="In a right-to-left layout: a unit in Latin letters after the number, from left to right, and a unit in the page's own script at the number's left" plain column>
+  <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
+  <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
+</DemoFrame>
+
+A number and its unit are one piece of writing. The prefix is written before the number and the suffix after it, in the direction of the unit's own script, whatever the direction of the page. So "44 px", "$ 120 USD" and "40 %" read in an Arabic or a Hebrew page as they do in an English one, and a unit written in Arabic or Hebrew letters stands at the number's left. The steppers and the label follow the page. `align="end"` puts the number against its unit: at the right for a unit in Latin letters or signs, in both directions. For a Latin currency code at the number's left, begin the suffix with a right-to-left mark (U+200F).
+
+### Stepping
+
+| Input | What happens |
+| --- | --- |
+| Up Arrow, Down Arrow | Steps by `step` |
+| Page Up, Page Down | Steps by ten times `step` |
+| A press on a stepper | Steps once. Held, it repeats: after half a second, then ten times a second, then twenty |
+| Home, End, Left Arrow, Right Arrow | Move the caret in the text |
+| The wheel, a drag | Nothing. The page scrolls |
+
+A step goes to the next number on the step's grid, counted from `min` (from zero without one): with a step of 5, 12 steps up to 15 and down to 10. It is computed in decimal, so 0.2 stepped by 0.1 is 0.3. An empty field steps to the number nearest to zero that the limits allow.
+
+`step` says how far a step goes. It does not limit what may be typed: with a step of 5, a typed 12 stays 12. To accept only some numbers, validate the value and set `error`.
+
+### With a slider
+
+A number beside a slider, under one row title, is the box alone: a [number input](/components/number-input/#with-a-slider), named by its own `label`. Its page has the sample.
+
+<ComponentSpecs name="number-field" />
+
+### What the web draws differently
+
+- The element's shadow root holds a `<tanrei-field>` with a `<tanrei-number-input>` in it. Importing the number field defines both.
+- The number field is a form-associated element, and the one control its form meets. It takes `name` and submits its value as a plain decimal number (`12.5`) whatever the locale shows. It resets to the `value` attribute, and reports a missing value while `requirement="required"` and it holds none, and a bad input while its text is not a number.
+- It is a block as wide as its place. In a place that gives no width, a long label makes it wider than its box: give it a width there.
+- Parts are the members', under their own names: `label`, `label-icon`, `requirement-label` and `supporting-text` from the field; `container`, `outline`, `active-indicator`, `input`, `prefix`, `suffix` and `stepper` from the number input. `label` and `requirement-label` reach whichever of the two is drawn; `field-label` and `number-input-label` reach one. The two members are the parts `field` and `number-input`.
+- `entryerror`'s `detail.text` is the input's `invalidText`, empty where none was given. The detail types are the number input's: `TanreiNumberInputInputDetail` and `TanreiNumberInputEntryErrorDetail`.
+- `steppers` is the inverse attribute `no-steppers`, and `readOnly` is `readonly`.
+- `input` is a CustomEvent with `detail.value`. `change` and `action` are plain events: read `value` from the element. Unless `action` is cancelled, the form is then asked to submit.
+- Without `locale` the field reads the nearest `lang` attribute, then the browser's language.
+- Besides the locale's separator, a period is read as the decimal separator wherever the locale does not group with periods.
+- A page key steps on its own grid of ten steps: with a step of 2, Page Up from 42 gives 60.
+- On iOS and iPadOS the field asks for the full keyboard while a negative number may be typed, because the decimal keypad there has no minus sign.
+- Before the element is defined it has no size. Reserve the height.
+
+## Guidelines
+
+### Number field, text field or slider
+
+| Aspect | Number field | Text field | Slider |
+| --- | --- | --- | --- |
+| Holds | A number | Any text | A number within a range |
+| Chosen by | Typing or stepping | Typing | Dragging |
+| Good for | A value that is known | Digits that are not a quantity | A value chosen by feel |
+
+A postal code, a card number, a telephone number and a one-time code are digits, but not quantities: nobody adds one to a postal code. Use a [text field](/components/text-field/) for them.
+
+### Do
+
+- Write a label that names what is counted, and keep it visible in a form.
+- Put the unit in `suffixText`, and a currency sign in `prefixText`.
+- Give `valueText` where the suffix would be read badly: "1.5 times" for `×`.
+- Write `invalidText` so that it says what to type: "Enter a number."
+- Set `maxFractionDigits` to 0 for whole numbers. The keyboard then has no separator.
+- Give `incrementLabel` and `decrementLabel`, on the field or once for the whole product with `setWords()`. Tanrei ships no words: a stepper without a name is still drawn and still steps for a pointer, and is kept from assistive technology, where the spin button steps by itself.
+
+### Don't
+
+- Don't use a number field for digits that are not a quantity.
+- Don't save on `input`. It fires at every keystroke; `change` carries the committed value.
+- Don't expect `min` and `max` to correct a value you set yourself. They apply to what the person commits.
+- Don't put a control for choosing the unit inside the field. Put a [select](/components/select/) beside it.
+- Don't put a number field inside a field. It is a field already; the control a field frames is the [number input](/components/number-input/).
+- Don't hide the label of a number field to place the box under a label of your own. Use the number input.
+
+## Accessibility
+
+<ComponentAccessibility name="number-field" />
+
+### What the component handles
+
+- The input is a spin button. Its name is `label`, drawn or hidden, and never the placeholder.
+- Its value is the committed number, and its limits are `min` and `max`.
+- The shown supporting or error text is its description, with `optionalText` while the field is optional.
+- It is exposed as invalid while `error` is true or its text is not a number, as required while `requirement` is `required`, and as read-only.
+- An error that appears while the field has focus is announced once, politely — a text that is not a number too.
+- The steppers are buttons named by `decrementLabel` and `incrementLabel`; one that nobody named is hidden from assistive technology. They are outside the focus order, because the arrow keys step from the input; a person exploring by touch still finds them.
+- A press on a stepper does not move focus, so it does not raise the on-screen keyboard.
+- While an input method is composing, the field reads nothing and handles no key.
+- The wheel never changes the number.
+- The field's hit area meets the minimum target, and each stepper is a full target.
+- At 200% text the label and the help wrap. The number stays on one line, and scrolls.
+- In forced colors the field gains an edge, and an error is told by its words and the invalid state.
+- In a right-to-left layout the steppers and the label are mirrored: the steppers stand at the left end. The number and its unit are written as the unit's own script writes them: a unit in Latin letters or signs after the number, from left to right, and a unit in the page's script at the number's left. What is read aloud does not change.
+
+Known gaps on the web:
+
+- Chromium reads the number without its unit: it takes the value text from the text in the input, and passes over the one the field names. Name the unit in the label where it matters.
+- At 200% text in a window 320 wide, a field with steppers, a prefix and a long suffix is wider than the window, because it is never narrower than what it holds. Turn the steppers off there.
+- Before the element is defined, nothing is drawn.
+
+### What you need to do
+
+- Give every number field a `label`.
+- Write `invalidText` on the field. Give `requiredText`, `optionalText`, `incrementLabel` and `decrementLabel` on the field, or once for the whole product with `setWords()`. Tanrei ships no words; a missing one is reported in development. See [The product's words](/foundations/words/).
+- Validate the value yourself, set `error`, and write `errorText` so that it says how to put the number right.
+- Give both a slider and the number input beside it the same name.

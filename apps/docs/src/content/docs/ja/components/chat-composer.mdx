@@ -1,0 +1,207 @@
+---
+title: チャットコンポーザー
+description: メッセージを書いて送るための、すべてを 1 つのカプセルに収めたコンポーネントです。書いた分だけ伸びる入力エリア、メッセージに添付したファイル、プロダクト独自のアクション、送信できる間だけ有効になる送信ボタンを持ちます。メッセージを報告するだけで、自分では何も送信しません。
+translationOf: components/chat-composer.mdx
+sourceHash: 68233132907fd0b94d40dacc7db0d52a3c7fec59
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## 概要
+
+<ComponentAvailability name="chat-composer" />
+
+<DemoFrame label="2 つのレイアウトのチャットコンポーザー。メッセージを書き、ファイルを添付して、送信できます。どこにも送信されません。" column>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="メッセージ" placeholder="メッセージを入力" send-label="送信" attachments="own" attach-label="ファイルを添付" remove-label="削除"></tanrei-chat-composer>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="メッセージ" placeholder="メッセージを入力" send-label="送信" attachments="own" attach-label="ファイルを添付" remove-label="削除" max-length="280" counter>
+    <tanrei-button slot="leading" variant="text" label="メンションを追加"><span slot="icon">alternate_email</span></tanrei-button>
+    <tanrei-button slot="leading" variant="text" label="絵文字を追加"><span slot="icon">mood</span></tanrei-button>
+  </tanrei-chat-composer>
+</DemoFrame>
+
+チャットコンポーザーは、メッセージを書くための 1 つの場所です。会話、作業に付いたスレッド、問い合わせなどで使います。1 つのカプセルとして描かれ、その中に入力エリア、添付ファイル、プロダクト独自のアクション、送信ボタンが入ります。
+
+[埋め込みテキスト入力欄](/ja/components/embedded-text-input/)、[ファイルピッカー](/ja/components/file-picker/)、[ファイル項目](/ja/components/file-item/)、[ボタン](/ja/components/button/)**から作られています**。埋め込みテキスト入力欄は入力部分です。ファイルピッカーはプラットフォームのピッカーを開き、選ばれたものを判定します。ファイル項目は 1 つの添付ファイルです。ボタンは、送信ボタン、停止ボタン、添付ボタン、そしてプロダクト独自のボタンです。チャットコンポーザーは、これらを自分では描きません。加えるのは、これらをまとめるものです。カプセル、メッセージを送信できるかどうか、保持するファイル、カウンター、1 つのライブリージョン、フォームの値です。
+
+<Callout type="caution" title="送信はしません">
+チャットコンポーザーは接続を開きません。ユーザーが送信すると、テキストと添付ファイルを載せた `send` を発行し、実際の送信はプロダクトが行います。メッセージが届いたかどうかを知り、伝えるのもプロダクトです。
+</Callout>
+
+次の場合は、ほかのコンポーネントを使います。
+
+- フォームのフィールドに長いテキストを入力する場合。`multiline` を指定した[テキストフィールド](/ja/components/text-field/)を使います。
+- ファイルを選ぶだけの場合。[ファイルアップロード](/ja/components/file-upload/)を使います。
+- 検索する場合。[検索](/ja/components/search/)を使います。
+
+Web では `<tanrei-chat-composer>` です。ほかのプラットフォームでは、まだ実装されていません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-chat-composer label="メッセージ" placeholder="メッセージを入力" send-label="送信"
+                          attachments="own" attach-label="ファイルを添付" remove-label="削除">
+    </tanrei-chat-composer>
+    ```
+
+    ```js
+    composer.addEventListener('send', (event) => {
+      const { value, attachments } = event.detail;
+      post(value, attachments);
+    });
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ChatComposer } from '@tanrei/react';
+
+    <ChatComposer
+      label="メッセージ"
+      placeholder="メッセージを入力"
+      sendLabel="送信"
+      attachments="own"
+      attachLabel="ファイルを添付"
+      removeLabel="削除"
+      onSend={(event) => post(event.detail.value, event.detail.attachments)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+`keepAfterSend` を指定しない限り、コンポーザーはメッセージを渡すと同時に空になり、フォーカスは入力エリアに戻ります。
+
+### ファイルを自分で送る
+
+`attachments="given"` では、ファイル項目をプロダクトが用意します。添付されたファイルをすぐに送り、項目ごとに状態と進み具合を見せたいときに使います。`select` で `<tanrei-file-item>` を子として追加し、項目の `remove` で取り除きます。アップロード中の項目や、失敗して再試行できる項目がある間は、送信できません。
+
+```html
+<tanrei-chat-composer label="メッセージ" send-label="送信" attachments="given"
+                      attach-label="ファイルを添付" remove-label="削除" retry-label="再試行">
+  <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" progress="0.4"></tanrei-file-item>
+</tanrei-chat-composer>
+```
+
+### 1 つ下の階層
+
+カプセルはチャットコンポーザー自身の部品で、単独では取り出せません。1 つ下の階層では、メンバーを自分で配置し、ボックスも自分で描きます。
+
+```html
+<div class="my-composer" role="group" aria-label="メッセージ">
+  <div class="row">
+    <tanrei-file-picker multiple>
+      <tanrei-button slot="trigger" variant="text" label="ファイルを添付"><span slot="icon">attach_file</span></tanrei-button>
+    </tanrei-file-picker>
+    <tanrei-embedded-text-input label="メッセージ" multiline max-rows="6" enter-key="action"></tanrei-embedded-text-input>
+    <tanrei-button label="送信" disabled><span slot="icon">send</span></tanrei-button>
+  </div>
+</div>
+```
+
+メンバーが持ってくるのは、高さが伸びる入力部分、キーの扱い、各ファイル項目、ピッカーです。チャットコンポーザーが加えていることは、利用者側のコードで行います。ボックスを描いてフォーカスを示すこと、送信できるかどうかを判断すること、テキストの長さを上限と比べること、ドロップと貼り付けを受け取ること、ファイルを保持すること、送信後にすべてを空にすることです。
+
+## 仕様
+
+### 2 つのレイアウト
+
+| 場面 | `inline`（既定） | `stacked` |
+| --- | --- | --- |
+| テキストが 1 行 | 1 行に並びます。添付ボタン、先頭のアクション、入力エリア、カウンター、末尾のアクション、送信ボタンの順です | 入力エリアと送信ボタンが 1 行に並びます。それ以外はすべて下の行に入ります |
+| 複数行 | すべてのボタンが下端にとどまります | 送信ボタンは入力の行の下端にとどまります |
+| 向いている場面 | 短いメッセージ、幅の狭いパネル | アクションが多い場合、段落で書くメッセージ |
+
+カプセルの幅が `comp.chat-composer.layout.inline-min-width` より狭いと、`layout` の値にかかわらず stacked で配置されます。下の行に入るものがない stacked のコンポーザーは、inline と同じように描かれます。行数によってレイアウトが変わることはありません。
+
+### 送信できる条件
+
+送信ボタンは、次のすべてが満たされている間だけ有効になります。満たされていないものがあると、`sendablechange` がその理由を名前で運びます。
+
+| 理由 | 送信できない条件 |
+| --- | --- |
+| `disabled` | `disabled` が true |
+| `sending` | `sending` が true |
+| `blocked` | `blocked` が true |
+| `empty` | 空白以外の文字がなく、添付ファイルもない |
+| `length` | テキストが `maxLength` より長い |
+| `uploading` | 状態が `uploading` のファイル項目がある |
+| `failed` | 失敗して再試行できるファイル項目がある |
+
+### キー
+
+Enter で送信し、Shift+Enter で改行します。`sendKey="modifier"` では、Enter で改行します。Ctrl+Enter と Command+Enter は、どちらの設定でも送信します。インプットメソッドの Enter で送信されることはありません。
+
+### 1 つのチャットコンポーザーだけを変える
+
+デザインシステムは、各メンバーを、使われるすべての場所に対してスタイル付けします。1 つのコンポーザーだけを変えるには、その要素にトークンを設定します。カプセルは自身のトークンを読み、メンバーのトークンは中のメンバーに届きます。
+
+```html
+<tanrei-chat-composer style="--tanrei-comp-chat-composer-container-shape: 12px" …></tanrei-chat-composer>
+```
+
+<ComponentSpecs name="chat-composer" />
+
+### Web での描き方の違い
+
+- テキストは `name` で、保持している各ファイルは `files-name` で送信されます。フォームの中のコンポーザーは、`send` のあとフォームに送信を求め、自身は空にしません。
+- 画面上のキーボードとハードウェアのキーボードは区別できません。主なポインターが粗く、ホバーできない環境では、Enter は改行し、送信は送信ボタンで行います。
+- コンポーザーが自分で描くファイル項目には、ファイルのサイズは描かれません。
+- スクリプトが動かない間は、子として書いた `<textarea>` と送信用の `<button>` がフォームとして働きます。要素が定義されると、テキストを受け取り、両方を隠します。
+
+## ガイドライン
+
+### 言葉
+
+チャットコンポーザーは自身の言葉を持ちません。`label`、`placeholder`、`sendLabel` を指定し、使う場合は `stopLabel`、`attachLabel`、`removeLabel`、`retryLabel` と、受け付けなかったファイルのための 3 つの文も指定します。`setWords()` でプロダクト全体に 1 回設定するか、要素に指定します。
+
+### フィールドの中で
+
+[フィールド](/ja/components/field/)の中では、コンポーザーはフィールドのラベルを名前として、フィールドのヘルプかエラーテキストを入力エリアの説明として受け取り、フィールドのエラーと `disabled` にも従います。
+
+### 推奨
+
+- メッセージを送信できない理由は、コンポーザーのそばか `announcement` で、プロダクトの言葉で伝えます。
+- 独自のアクションは、アイコンのみのテキストボタンとして `leading` と `trailing` のスロットに入れます。
+- 1 つのメッセージに添付できるファイルの数を `maxFiles` に指定します。
+- 応答が時間をかけて届き、途中で止められる場合は、`stoppable` を使います。
+- コンポーザーを画面上のキーボードの上に保つのは、プラットフォームの仕組みで行います。コンポーザーが自分で画面に固定されることはありません。
+
+### 非推奨
+
+- 入力部分、ファイル項目、ボタンのスタイルを、コンポーザーを通して変えません。メンバーをスタイル付けします。
+- 送信ボタンと添付ボタンを、ボタン以外のものに置き換えません。
+- 上限でテキストを切り捨てません。`maxLength` は長すぎることを示し、ユーザーが直すのを待ちます。
+- ドラッグを、ファイルを添付する唯一の方法にしません。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="chat-composer" />
+
+### コンポーネントが担うこと
+
+- `label` を名前とするグループです。入力エリアは、同じ名前を持つ複数行のテキストボックスです。
+- カプセルの縁が、入力エリアのフォーカスの表示です。どの方法でフォーカスしても示されます。ボタンやファイル項目のアクションは自身のフォーカスリングを示し、そのときカプセルはフォーカスの縁を描きません。
+- Tab は、描かれている順に移動します。入力エリアのキーで添付ファイルが削除されることはありません。
+- 送信できないときの送信ボタンは、無効なボタンです。送信を止めている原因は、カウンターとファイル項目に示されます。
+- カウンターは、入力エリアの説明の最初の部分です。ライブリージョンではありません。
+- 1 つの polite なライブリージョンが、`announcement` と、添付ファイルの変化を伝えます。
+- インプットメソッドの Enter で送信されることはありません。
+- 幅 320 で文字を 200% にすると、stacked で配置されます。切れるものはなく、横にもスクロールしません。
+- 強制カラーでは、カプセルに縁が付き、フォーカス時の縁はハイライトの色になります。
+- どの言語でも、自身の言葉を持ちません。
+
+Web での既知の課題:
+
+- インプットメソッドは、Chromium では実際に動かして確かめ、Firefox と Safari ではイベントだけで確かめています。
+- スクリーンリーダーが読み上げる内容は、ブラウザーのアクセシビリティツリーで確かめたもので、実際のスクリーンリーダーで聞いて確かめてはいません。
+
+### 利用者側で行うこと
+
+- `label` を指定するか、フィールドの中に入れます。
+- コンポーザーが用意するボタンに名前を付けます。`sendLabel`、`stopLabel`、`attachLabel`、`removeLabel`、`retryLabel` です。
+- メッセージがどうなったかを伝えます。文で伝えるとよい場合は、`send` のハンドラーで `announcement` を設定します。
+- 失敗したファイル項目には、失敗した理由と対処を伝える `errorText` を指定します。

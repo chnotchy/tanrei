@@ -1,0 +1,73 @@
+---
+title: Color
+description: Color roles, the monochrome primary, the single accent, and how every scheme is generated and checked.
+---
+
+import Callout from '../../../components/Callout.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+Tanrei never asks a component to pick a color. Components ask for a **role**, such as `primary` or `surface-container`, and the active theme decides which color fills that role. The roles are defined by Tanrei's vocabulary, and their values by each design system's layer.
+
+## Roles
+
+- **Intents:** `primary`, `secondary`, and the four status intents `error`, `success`, `warning` and `info`. Each comes as a set of four: the color, its `on-` color for content placed on it, a quieter `-container`, and `on-…-container`.
+- **Surfaces:** `surface`, the five-step `surface-container-lowest` … `surface-container-highest` ladder, plus `surface-dim` and `surface-bright`. Content on any surface uses `on-surface` or the quieter `on-surface-variant`.
+- **Outlines:** `outline` and `outline-variant` (see below).
+- **Inverse** roles for elements that deliberately flip the theme, such as a snackbar.
+- **Fixed** roles that keep the same tone in light and dark.
+- **Utility:** `scrim`, `shadow`, `focus-ring` and the ring and shadow colors used by elevation.
+
+Always pair a fill with its own `on-` role. That pairing is what the contrast checks guarantee.
+
+## A monochrome primary
+
+In the default theme `primary` is near-black in light mode and near-white in dark mode. The most important action on a screen is therefore the highest-contrast object on it, and it never competes with the product's own colors. `secondary` is a softer neutral for supporting actions.
+
+## One accent, used sparingly
+
+The accent is not part of the core vocabulary. It is a palette that the default Tanrei system *declares* (seed `#30a3f0`), which gives it the same four roles as any intent: `accent`, `on-accent`, `accent-container`, `on-accent-container`. The core role `focus-ring` draws from it, and nothing else does: in the default system `link` takes the primary's color, and a link is told from the text beside it by its underline. A product declares its own palettes the same way — a brand color that must not be recalculated, or a quiz's "correct" and "incorrect" — and a preset that imitates Material Design 3 declares `tertiary` this way rather than Tanrei carrying that slot for everyone. Do not use the accent to decorate; when everything is blue, nothing is.
+
+## Outline and outline-variant
+
+The two outline roles look similar and do opposite jobs.
+
+| Role | Purpose | Contrast |
+| --- | --- | --- |
+| `outline` | A **functional boundary**: the only thing that shows where a control is, as with an empty text field, an unchecked checkbox or an outlined button. | At least 3:1 against every surface role |
+| `outline-variant` | A **decorative hairline**: dividers, card borders, the elevation ring. Removing it must not hide any information. | No requirement; it is a low-alpha black or white |
+
+<Callout type="caution">
+  If a border is the only cue that a control exists, it must use `outline`. A hairline at 8% alpha is pleasant and invisible to many people.
+</Callout>
+
+## Contrast levels
+
+Every theme exists at three contrast levels. **Standard** is the default. **Medium** and **high** move content roles toward the extremes and strengthen both outline roles. On the web, high contrast is applied automatically for `prefers-contrast: more`; the native platforms follow their own system setting. Try it here (the switch applies to the whole page):
+
+<DemoFrame label="Contrast">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+## How schemes are generated
+
+Colors are not picked by hand. A system file (`tokens/systems/tanrei.system.json`) declares the palettes — a seed color for the accent and for error, the hue and chroma of the neutrals — and states, as data, which tone of which palette each role takes in light and dark at each contrast level. At build time a generator:
+
+1. converts each key color into a **tonal palette** in the HCT color space using the Apache-2.0 `material-color-utilities` library, where tone maps predictably to contrast;
+2. clamps the neutral palettes to the theme's chroma, which is zero by default for pure grays;
+3. assigns a tone to every role for light and dark at each contrast level;
+4. writes the result as DTCG files under `tokens/generated/`.
+
+The generator's algorithm carries a version (`specVersion`), so a change to the mapping is a reviewable, deliberate event rather than a silent shift in every color.
+
+## Invariants enforced in CI
+
+For all six theme and contrast permutations, the token build fails unless:
+
+- every `(role, on-role)` pair reaches **4.5:1**;
+- `outline` reaches **3:1** against every surface role;
+- `focus-ring` reaches **3:1** against the surfaces it is drawn on.
+
+A threshold may not be loosened to make a build pass. See the full list of roles and values in the [color token reference](/tokens/color/).

@@ -1,0 +1,47 @@
+---
+// The product's words of a page, shown and run from one source. The documentation is
+// the product on its own pages: a page whose samples draw a component with many words — a calendar, a date-time
+// picker — gives them once, as a product does, instead of repeating six or eighteen attributes on every sample. This
+// component writes the `setWords({ … }, { lang })` call as the code a reader copies AND the same words as data, which
+// `lib/register-web.ts` hands to `setWords()` when the components load: what the page shows is what the page runs.
+//
+// The words are the page's own, in the page's language — nothing here knows a word. The code block is Tanrei's,
+// highlighted where the page is built, as every fenced block is (lib/markdown.mjs).
+import { highlightToNodes, loadLanguage, type TanreiCodeNode } from '@tanrei/web/highlight';
+import { contentLang } from '../lib/i18n';
+
+interface Props {
+  /** The words, by key (`docs/status/words.json`). */
+  words: Record<string, string>;
+  /** The language the set is for: the page's, unless given. */
+  lang?: string;
+  /** The code block's accessible name, in the page's language (COD-22). */
+  label: string;
+}
+const { words, lang = contentLang(Astro), label } = Astro.props;
+
+const quoted = (text: string) => `'${text.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`;
+const code = [`import { setWords } from '@tanrei/web';`, '', 'setWords(', '  {', ...Object.entries(words).map(([key, text]) => `    ${key}: ${quoted(text)},`), '  },', `  { lang: ${quoted(lang)} },`, ');'].join('\n');
+
+await loadLanguage('js');
+const nodes = await highlightToNodes(code, 'js', { lines: {} });
+const escape = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+const attribute = (text: string) => escape(text).replaceAll('"', '&quot;');
+const html = (node: TanreiCodeNode): string =>
+  typeof node === 'string'
+    ? escape(node)
+    : `<${node.name}${Object.entries(node.attributes)
+        .map(([name, value]) => ` ${name}="${attribute(value)}"`)
+        .join('')}>${node.children.map(html).join('')}</${node.name}>`;
+// JSON inside a script element: "<" is written so that no text can end the element.
+const data = JSON.stringify(words).replaceAll('<', '\\u003c');
+---
+
+<tanrei-code-block language="js" label={label} copy
+  ><pre translate="no" spellcheck="false"><code data-syntax-of="js" set:html={nodes.map(html).join('')} /></pre></tanrei-code-block
+>
+<script type="application/json" data-tanrei-product-words data-lang={lang} set:html={data} />
+
+<script>
+  import '../lib/register-web';
+</script>

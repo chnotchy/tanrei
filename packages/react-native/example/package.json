@@ -1,0 +1,25 @@
+{
+  "name": "tanrei-react-native-gallery",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Fixture gallery for @tanrei/react-native: every Button fixture under every shipped system. Not a pnpm workspace member — see the package README, \"Gallery app\".",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo start --ios",
+    "android": "expo start --android"
+  },
+  "dependencies": {
+    "expo": "~57.0.24",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@types/react": "~19.2.0",
+    "babel-preset-expo": "~57.0.12",
+    "typescript": "~5.9.2"
+  }
+}

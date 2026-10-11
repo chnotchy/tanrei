@@ -1,0 +1,409 @@
+---
+title: Tooltip
+description: Describe un elemento en pocas palabras cuando una persona lo señala con el puntero, le da el foco con el teclado o lo mantiene pulsado, sin tomar el foco ni bloquear nada.
+translationOf: components/tooltip.mdx
+sourceHash: 51e462efff5a2291a95f405f23d53506018a5153
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="tooltip" />
+
+<DemoFrame label="Apunta a un botón o dale el foco: un tooltip plain y uno rich">
+  <tanrei-tooltip text="Mover a la papelera" no-describe>
+    <tanrei-button variant="text" label="Mover a la papelera"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="Almacenamiento" text="Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan." placement="bottom">
+    <tanrei-button variant="text" label="Acerca del almacenamiento"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+### Uso
+
+El ancla es un elemento tuyo: un botón de icono, una etiqueta truncada, una marca de un gráfico. El tooltip le añade una descripción y no cambia nada más de ella. Envuelve el ancla en la web, Compose, Flutter y React Native, y es un modificador del ancla en SwiftUI.
+
+El tooltip se abre y se cierra solo, al pasar el cursor, con el foco del teclado y con la pulsación larga, y lo notifica mediante `toggle`. Tú defines `open` únicamente para mostrarlo por tu cuenta, como una pista de primer uso. Definirlo no emite nada, y el tooltip sigue abriéndose y cerrándose solo después.
+
+`describes` (true de forma predeterminada) convierte el texto en la descripción accesible del ancla. Ponlo en false cuando el texto repita el propio nombre del ancla, como ocurre con un botón de icono cuyo tooltip muestra su etiqueta, para que los lectores de pantalla no lean las palabras dos veces.
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native van rezagados: todavía ofrecen la revisión anterior del tooltip, que tiene cuatro colocaciones centradas y no tiene retardos por tooltip, desplazamientos, flecha, segundo aspecto ni atajo, y que aparece con un fundido sin crecer. Sus ejemplos muestran esa revisión hasta que se pongan al día.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- El tooltip envuelve su ancla. no-describe es describes en false: el texto repite la etiqueta. -->
+    <tanrei-tooltip text="Mover a la papelera" no-describe>
+      <tanrei-button variant="text" label="Mover a la papelera"><span slot="icon">delete</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- Una barra de herramientas densa que quiere sus nombres antes. Los retardos van en milisegundos. -->
+    <tanrei-tooltip text="Negrita" show-delay="150" no-describe>
+      <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- Las teclas del comando después de su nombre. El ancla las lleva para la tecnología de apoyo. -->
+    <tanrei-tooltip text="Negrita" shortcut="mod+b" no-describe>
+      <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- Debajo del control, alineado con su borde de inicio, con una flecha, sobre una superficie en lugar de inverso. -->
+    <tanrei-tooltip text="Filtrar por fecha o por propietario" placement="bottom-start" arrow inverse="false">
+      <tanrei-button variant="text" label="Filtrar"><span slot="icon">filter_list</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <tanrei-tooltip id="storage" variant="rich" title="Almacenamiento" placement="bottom"
+                    text="Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan.">
+      <tanrei-button variant="text" label="Acerca del almacenamiento"><span slot="icon">info</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <script type="module">
+      import '@tanrei/web/components/tooltip';
+      const storage = document.querySelector('#storage');
+      // Una pista de primer uso. Definir open no emite nada.
+      storage.open = true;
+      // toggle notifica lo que el tooltip hizo por sí solo: cursor, foco, pulsación larga, Escape, el tiempo de espera, otro tooltip.
+      storage.addEventListener('toggle', (e) => console.log(e.detail.open));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Tooltip } from '@tanrei/react';
+
+    <Tooltip text="Mover a la papelera" describes={false}>
+      <Button variant="text" label="Mover a la papelera" onClick={trash}><span slot="icon">delete</span></Button>
+    </Tooltip>
+    {/* Las teclas del comando después de su nombre: una combinación por cadena. */}
+    <Tooltip text="Negrita" shortcut={['mod+b']} describes={false}>
+      <Button variant="text" label="Negrita" onClick={bold}><span slot="icon">format_bold</span></Button>
+    </Tooltip>
+    {/* Debajo del control, alineado con su borde de inicio, con una flecha, sobre una superficie en lugar de inverso. */}
+    <Tooltip text="Filtrar por fecha o por propietario" placement="bottom-start" arrow inverse={false}>
+      <Button variant="text" label="Filtrar" onClick={filter}><span slot="icon">filter_list</span></Button>
+    </Tooltip>
+    <Tooltip
+      variant="rich"
+      title="Almacenamiento"
+      text="Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan."
+      placement="bottom"
+      touchTimeout={4000} // unas pocas frases necesitan más tiempo de lectura tras una pulsación larga
+      onToggle={(e) => log(e.detail.open)}
+    >
+      <Button variant="text" label="Acerca del almacenamiento"><span slot="icon">info</span></Button>
+    </Tooltip>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Un modificador del ancla. .tanreiTheme(_:) por encima de ella aloja la capa en la que se dibuja el tooltip.
+    // La descripción pasa a ser el accessibilityHint del ancla.
+    TanreiIconButton("Mover a la papelera", action: trash) { Image(systemName: "trash") }
+        .tanreiTooltip("Mover a la papelera", describes: false)
+
+    // isPresented es open; el tooltip lo escribe cuando se abre o se cierra solo.
+    TanreiIconButton("Acerca del almacenamiento", action: {}) { Image(systemName: "info.circle") }
+        .tanreiTooltip("Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan.",
+                       title: "Almacenamiento", variant: .rich, placement: .bottom, isPresented: $showHint)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiTooltip
+    import io.github.chnotchy.tanrei.components.TanreiTooltipPlacement
+    import io.github.chnotchy.tanrei.components.TanreiTooltipVariant
+    import io.github.chnotchy.tanrei.components.rememberTanreiTooltipState
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // Como el TooltipBox de Material: el tooltip envuelve su ancla.
+    TanreiTooltip(text = "Mover a la papelera", describes = false) {
+        TanreiIconButton(onClick = ::trash, contentDescription = "Mover a la papelera") { TanreiText("delete") }
+    }
+
+    // El estado es open. onToggle oye lo que el tooltip hace por sí solo; show() y dismiss() no emiten nada.
+    val hint = rememberTanreiTooltipState(onToggle = { open -> log(open) })
+    TanreiTooltip(
+        text = "Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan.",
+        variant = TanreiTooltipVariant.Rich,
+        title = "Almacenamiento",
+        placement = TanreiTooltipPlacement.Bottom,
+        state = hint,
+    ) {
+        TanreiIconButton(onClick = {}, contentDescription = "Acerca del almacenamiento") { TanreiText("info") }
+    }
+    LaunchedEffect(Unit) { hint.show() } // una pista de primer uso
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // show() y hide() definen open y no avisan a nadie. Los listeners oyen lo que el tooltip hace por sí solo.
+    final TanreiTooltipController hint = TanreiTooltipController();
+    hint.addListener(() => log(hint.isOpen));
+
+    // Como el Tooltip de Flutter: message es el texto, y excludeFromSemantics es describes, invertido.
+    TanreiTooltip(
+      message: 'Mover a la papelera',
+      excludeFromSemantics: true, // el texto repite el propio nombre del botón
+      child: TanreiIconButton(onPressed: trash, icon: const Icon(AppSymbols.delete), semanticLabel: 'Mover a la papelera'),
+    );
+    TanreiTooltip(
+      variant: TanreiTooltipVariant.rich,
+      title: 'Almacenamiento',
+      message: 'Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan.',
+      placement: TanreiTooltipPlacement.bottom,
+      controller: hint, // hint.show() para una pista de primer uso
+      child: TanreiIconButton(onPressed: info, icon: const Icon(AppSymbols.info), semanticLabel: 'Acerca del almacenamiento'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { IconButton, Tooltip } from '@tanrei/react-native';
+
+    // El ancla es UN hijo que acepta las propiedades de un Pressable. El tooltip añade sus controladores y llama primero a los del ancla.
+    <Tooltip text="Mover a la papelera" describes={false}>
+      <IconButton accessibilityLabel="Mover a la papelera" onPress={trash}>delete</IconButton>
+    </Tooltip>
+
+    // open lo muestra desde tu código y no emite nada; onOpenChange oye lo que hace por sí solo.
+    <Tooltip
+      variant="rich"
+      title="Almacenamiento"
+      text="Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan."
+      placement="bottom"
+      open={showHint}
+      onOpenChange={setShowHint}
+    >
+      <IconButton accessibilityLabel="Acerca del almacenamiento">info</IconButton>
+    </Tooltip>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Un tooltip plain debajo de su ancla y uno rich sin título" plain>
+  <tanrei-tooltip text="Mover a la papelera" placement="bottom" no-describe>
+    <tanrei-button variant="text" label="Mover a la papelera"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" text="Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan.">
+    <tanrei-button variant="text" label="Acerca del almacenamiento"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+<ComponentSpecs name="tooltip" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un tooltip para dar nombre a una acción de icono ante una persona que no reconoce el glifo, o para explicar en el momento un término, un límite o un ajuste. Es una descripción, que se lee de pasada.
+
+Un tooltip es invisible para quienes usan el tacto hasta que hacen una pulsación larga, y un lector de pantalla lo oye solo como una descripción. Nunca pongas únicamente en un tooltip algo que una persona necesita para terminar una tarea: muéstralo como texto en la pantalla. Una nota que necesita un enlace o un botón no es un tooltip. Usa un diálogo, o texto junto a lo que explica.
+
+### Cómo elegir una variante
+
+| Variante | Qué es | Úsala para |
+| --- | --- | --- |
+| Plain | Una frase corta, de forma predeterminada sobre la superficie inversa. Ignora `title` y puede mostrar un atajo de teclado después de su texto. | Nombrar lo que hace un icono: «Mover a la papelera», «Compartir». |
+| Rich | Un título opcional encima de unas pocas frases, de forma predeterminada sobre una superficie elevada. Ignora `shortcut`. | Explicar un término o un ajuste: «Almacenamiento» y qué cuenta para él. |
+
+La variante es una elección estructural, no un eje de tokens. Un sistema de diseño cambia el estilo de ambas formas, pero no puede añadir una tercera mediante valores.
+
+### Colocación
+
+`placement` nombra el lado del ancla que el tooltip prefiere y cómo se alinea a lo largo de ese lado. El valor predeterminado es `top`.
+
+<DemoFrame label="Apunta a un botón o dale el foco: las trece colocaciones" plain>
+  <tanrei-tooltip text="Encima, centrado" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Encima, con los bordes de inicio juntos" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Encima, con los bordes de fin juntos" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Debajo, centrado" placement="bottom"><tanrei-button variant="outlined" size="small">bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Debajo, con los bordes de inicio juntos" placement="bottom-start"><tanrei-button variant="outlined" size="small">bottom-start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Debajo, con los bordes de fin juntos" placement="bottom-end"><tanrei-button variant="outlined" size="small">bottom-end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Antes, centrado" placement="start"><tanrei-button variant="outlined" size="small">start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Antes, con los bordes superiores juntos" placement="start-top"><tanrei-button variant="outlined" size="small">start-top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Antes, con los bordes inferiores juntos" placement="start-bottom"><tanrei-button variant="outlined" size="small">start-bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Después, centrado" placement="end"><tanrei-button variant="outlined" size="small">end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Después, con los bordes superiores juntos" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Después, con los bordes inferiores juntos" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="El primer lado con sitio" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
+</DemoFrame>
+
+| Lado | Centrado en el ancla | Primeros bordes juntos | Segundos bordes juntos |
+| --- | --- | --- | --- |
+| Encima | `top` | `top-start` | `top-end` |
+| Debajo | `bottom` | `bottom-start` | `bottom-end` |
+| Antes del ancla | `start` | `start-top` | `start-bottom` |
+| Después del ancla | `end` | `end-top` | `end-bottom` |
+
+- **Alineado significa borde con borde.** `top-start` pone el borde de inicio del tooltip sobre el borde de inicio del ancla, y `end-bottom` pone su borde inferior sobre el borde inferior del ancla. Usa una colocación alineada para un tooltip ancho sobre un ancla pequeña cerca del borde de un panel, o para alinear un tooltip con una fila de texto.
+- **Inicio y fin siguen la dirección del diseño.** En un diseño de derecha a izquierda, `start` es el lado derecho y `top-start` alinea los bordes derechos. Arriba y abajo no se reflejan.
+- **`auto`** prueba arriba, abajo, fin e inicio, en ese orden, y toma el primer lado con sitio, centrado. Úsalo para un ancla cuyo entorno no puedes conocer, como un control en un panel que puede acoplarse a cualquier borde.
+- **Cuando no hay sitio.** El tooltip pasa al lado opuesto y conserva su alineación, y después se desliza a lo largo del lado para quedar dentro del área segura de la ventana. En una ventana más pequeña que el tooltip se queda dentro de la ventana, sobre el ancla si no hay más remedio. Una vez que ha cambiado de lado, lo conserva mientras ese lado tenga sitio, de modo que una página que se desplaza no lo lleva de un lado a otro.
+- **`offset` y `crossOffset`.** `offset` es la distancia desde el borde del ancla, y 0 deja que los dos se toquen; si no se define, es la distancia del sistema. `crossOffset` mueve el tooltip a lo largo de su lado, hacia el fin cuando está encima o debajo del ancla y hacia abajo cuando está a su lado, y nunca lo saca del lado del ancla. Ambos van en las unidades de diseño de la plataforma. Defínelos solo donde la caja del ancla no sea lo que el ojo toma por su borde, como un control con un área de pulsación grande e invisible o una marca de un gráfico.
+- **Un cambio mientras se muestra.** Un nuevo `placement` o un nuevo desplazamiento mueven el tooltip de inmediato, sin movimiento.
+
+### Una flecha
+
+<DemoFrame label="Apunta a un botón o dale el foco: con una flecha" plain>
+  <tanrei-tooltip text="Mover a la papelera" arrow no-describe>
+    <tanrei-button variant="text" label="Mover a la papelera"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip text="Filtrar por fecha o por propietario" placement="bottom-start" arrow>
+    <tanrei-button variant="text" label="Filtrar"><span slot="icon">filter_list</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="Almacenamiento" text="Los archivos de la papelera siguen contando para tu almacenamiento hasta que se eliminan." placement="end" arrow>
+    <tanrei-button variant="text" label="Acerca del almacenamiento"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+`arrow` dibuja en el borde del tooltip un pequeño triángulo que apunta al ancla. Está desactivado en el sistema predeterminado. Si no se define, toma la elección del sistema de diseño; `true` y `false` lo deciden para un solo tooltip. En la web, el atributo es `arrow` para true y `arrow="false"` para false.
+
+La flecha forma una sola figura con el tooltip, del mismo color. Apunta al ancla, no al centro del tooltip, también después de que el tooltip haya cambiado de lado o se haya deslizado, y se mantiene apartada de las esquinas. El tooltip se aleja lo que mide la altura de la flecha, de modo que la separación que ves es la misma con ella o sin ella.
+
+Usa una flecha donde el lado por sí solo no diga a qué control se refiere: una pista que abres tú sobre una barra de herramientas abarrotada, por ejemplo. Los nombres que se muestran al pasar el cursor rara vez la necesitan.
+
+### Dos aspectos
+
+<DemoFrame label="Apunta a un botón o dale el foco: cada forma, inversa y sobre una superficie" plain>
+  <tanrei-tooltip text="Los colores del esquema opuesto" inverse><tanrei-button variant="outlined" size="small">Plain, inverso</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Una superficie elevada del esquema" inverse="false"><tanrei-button variant="outlined" size="small">Plain, superficie</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="Sobre una superficie" text="Una superficie elevada del esquema, con su elevación." inverse="false"><tanrei-button variant="outlined" size="small">Rich, superficie</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="Inverso" text="Los colores del esquema opuesto, sin sombra." inverse><tanrei-button variant="outlined" size="small">Rich, inverso</tanrei-button></tanrei-tooltip>
+</DemoFrame>
+
+Cualquiera de las dos formas se puede dibujar inversa, con los colores del esquema opuesto, o sobre una superficie elevada del esquema.
+
+| `inverse` | Plain | Rich |
+| --- | --- | --- |
+| Sin definir (el valor predeterminado) | Lo que el sistema de diseño elija para los tooltips plain: inverso en el sistema predeterminado. | Lo que el sistema de diseño elija para los tooltips rich: una superficie en el sistema predeterminado. |
+| `true` | Inverso. | Inverso. |
+| `false` | Sobre una superficie. | Sobre una superficie. |
+
+En la web, el atributo es `inverse` para true e `inverse="false"` para false, como el del [snackbar](/es/components/snackbar/).
+
+Solo cambian los colores y la elevación. La forma, los tamaños, los estilos de texto, la flecha, la colocación y el movimiento son los mismos en ambos aspectos, y ninguno de los dos dice que un tooltip sea importante. Defínelo para el tooltip que, de otro modo, no tendría de qué distinguirse: una etiqueta oscura sobre un visor de imágenes oscuro o sobre una barra inversa, o una nota más larga sobre una superficie elevada y recargada.
+
+### Un atajo de teclado
+
+<DemoFrame label="Apunta a un botón o dale el foco: las teclas de un comando después de su nombre" plain>
+  <tanrei-tooltip text="Negrita" shortcut="mod+b" no-describe>
+    <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip text="Cursiva" shortcut="mod+i" no-describe>
+    <tanrei-button variant="text" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+`shortcut` muestra las teclas del comando del ancla después del texto de un tooltip plain, escritas para el teclado que usa la persona. Recibe los nombres de tecla del componente [atajo de teclado](/es/components/keyboard-shortcut/), una combinación por cadena; en la web, el atributo contiene las combinaciones separadas por espacios.
+
+El tooltip solo muestra las teclas. No hace que funcionen: las vincula tu producto. Las teclas se mantienen enteras en una línea mientras un texto largo salta de línea a su lado. Un tooltip rich ignora `shortcut`, y las compilaciones de depuración lo notifican.
+
+### Apertura, foco y cierre
+
+Un tooltip es una superposición de lectura. Las personas toman información de él y nunca actúan dentro de él, así que nunca toma el foco.
+
+| Entrada | Se abre | Se cierra |
+| --- | --- | --- |
+| Un puntero | Después de que repose sobre el ancla durante el retardo de aparición. | Después de que haya estado fuera del ancla, de la separación y del tooltip durante el retardo de ocultación. El puntero puede cruzar la separación hasta el tooltip para leerlo. |
+| El foco del teclado | De inmediato, cuando el ancla recibe el foco del teclado. El foco que viene de un puntero o del tacto no lo abre. | Cuando el foco sale del ancla. |
+| Una pulsación larga táctil | De inmediato, sin activar el ancla. | Cuando pasa el tiempo de espera táctil después de levantar el dedo, o antes con un toque en cualquier otro lugar. |
+
+- **Sin límite de tiempo mientras se usa.** Mientras el puntero está sobre el ancla, el tooltip o la separación entre ambos, o el ancla tiene el foco del teclado, se queda abierto. La separación no se dibuja ni recibe pulsaciones: solo cuenta como paso del cursor.
+- **Escape.** Escape lo cierra sin mover el foco y no va más allá, así que un diálogo que lo contenga se queda abierto. Sigue cerrado hasta que el puntero vuelve a entrar en el ancla o esta vuelve a recibir el foco.
+- **Activación.** Activar el ancla (un clic, un toque, Enter o Espacio) lo cierra, y el mismo paso del cursor no lo vuelve a abrir.
+- **De uno en uno.** Cuando se abre un tooltip, cualquier otro de la ventana se cierra, y el nuevo se abre sin el retardo, porque la persona ya está leyendo tooltips.
+- **Pasar de un tooltip a otro.** Un tooltip que toma el relevo de otro, o que se abre poco después de que otro se cerrara porque el puntero o el foco salieron de su ancla, aparece entero de inmediato: sin retardo y sin movimiento. Así, un puntero que recorre una barra de herramientas lee un nombre tras otro. Un tooltip cerrado con Escape, al activar su ancla o al pulsarlo no inicia ese tiempo.
+- **No toma el foco, no bloquea nada.** No contiene nada que pueda recibir el foco ni pulsarse, no deja nada inerte y no dibuja ningún velo. Una pulsación sobre el tooltip lo cierra y no llega a lo que hay debajo.
+- **Por encima de todo.** Se dibuja por encima de cualquier otra capa de su ventana, incluidos un diálogo abierto y su velo, así que un tooltip dentro de un diálogo es visible.
+- **Colocación.** Se sitúa donde dice `placement`; consulta [Colocación](#colocación). Sigue al ancla cuando esta se mueve, y se cierra cuando el ancla se quita, se oculta, sale de la ventana por el desplazamiento o queda fuera de la vista dentro de un área con desplazamiento.
+- **Movimiento.** Sale del lado del ancla: aparece con un fundido mientras crece un poco y se aleja unos píxeles del ancla, y vuelve del mismo modo. Un movimiento que se interrumpe da la vuelta desde donde está. Mientras se cierra, el tooltip no recibe el puntero, así que nunca estorba a lo que tiene debajo. Donde el movimiento está reducido, solo hace el fundido.
+- **Anuncio.** No se anuncia nada cuando aparece el tooltip. Mientras `describes` es true, su texto, después del título en un tooltip rich, es la descripción del ancla esté el tooltip abierto o no, y se evita que el tooltip dibujado se lea una segunda vez.
+
+### Retardos para un solo tooltip
+
+El sistema de diseño define el retardo de aparición, el retardo de ocultación y el tiempo de espera táctil para todos los tooltips a la vez. Un tooltip puede definir los suyos con `showDelay`, `hideDelay` y `touchTimeout`, en milisegundos. Si no se definen, cada uno toma el valor del sistema.
+
+- **Cuándo definirlos.** Define un retardo de aparición más corto en una barra de herramientas densa que quiere sus nombres antes, y uno más largo sobre un gráfico cuyas marcas recorre el puntero, para que ningún tooltip parpadee. Define un tiempo de espera táctil más largo en un tooltip rich de unas pocas frases, y uno más corto en un nombre de una sola palabra.
+- **0 significa de inmediato.** Un retardo de aparición de 0 abre el tooltip en cuanto el puntero entra en el ancla, y un retardo de ocultación de 0 lo cierra en cuanto el puntero sale del ancla, de la separación y del tooltip. Aun así, se puede seguir pasando el cursor por el tooltip, porque la separación cuenta como paso del cursor. Un tiempo de espera táctil de 0 lo cierra en cuanto se levanta el dedo, después de haberse mostrado durante toda la pulsación larga.
+- **Se usan tal como se escriben.** Un valor que defines no se escala con el dial de movimiento, y el movimiento reducido lo conserva: un retardo es una espera, no una animación. Un valor negativo o no numérico toma el valor del sistema, y las compilaciones de depuración lo notifican. En la web, un atributo vacío tampoco es un número.
+- **Solo el cursor y el tacto.** El foco del teclado sigue abriendo el tooltip de inmediato, un tooltip que se abre mientras otro se muestra sigue saltándose su retardo de aparición, y definir `open` sigue mostrándolo u ocultándolo de inmediato. La pulsación larga en sí dura lo que establece la plataforma.
+- **Un cambio durante la espera.** Una espera que ya está en curso termina como empezó. El nuevo valor se aplica la vez siguiente.
+
+Hoy solo la web y React aceptan estas propiedades. Cuando las demás plataformas se pongan al día, la especificación las nombra según el estilo propio de cada plataforma: `showDelayMillis`, `hideDelayMillis` y `touchTimeoutMillis` en Compose, `waitDuration`, `exitDuration` y `showDuration` del `Tooltip` de Flutter, y los nombres de la propia especificación en SwiftUI y React Native.
+
+Cada plataforma usa una presentación no modal: un elemento `popover="manual"` en la capa superior en la web, una superposición por encima de la ventana en SwiftUI (no `.popover`, que es modal en anchos compactos), un `Popup` que no puede tomar el foco en Compose, un `OverlayPortal` en Flutter y la capa de superposición de `TanreiProvider` en React Native (no un `Modal`, que recibe todos los toques).
+
+### Recomendado
+
+- Limita los tooltips plain a unas pocas palabras, y los tooltips rich a unas pocas frases.
+- Da la misma colocación al mismo tipo de ancla en toda una pantalla, como debajo de todos los iconos de una barra de herramientas.
+- Deja `inverse` y `arrow` al sistema de diseño en la mayoría de los tooltips, y defínelos en el que lo necesite.
+- Muestra las teclas de un comando con `shortcut`, no escribiéndolas en el texto.
+- Da los mismos retardos a los tooltips de un mismo grupo de anclas, para que lleven un mismo ritmo.
+- Pon `describes` en false cuando el tooltip muestre la propia etiqueta del ancla.
+
+### Evita
+
+- No uses un tooltip como nombre de un botón de icono. El `label` del botón es su nombre.
+- No pongas un tooltip en un ancla deshabilitada para explicar por qué lo está. Un control deshabilitado no puede recibir el foco y puede no recibir eventos de puntero. Pon el motivo en un texto visible.
+- No pongas enlaces, botones ni nada interactivo en un tooltip.
+- No repitas en un tooltip lo que el ancla ya dice en un texto visible.
+- No uses el aspecto inverso ni una flecha para que un tooltip parezca más importante.
+
+## Accesibilidad
+
+<ComponentAccessibility name="tooltip" />
+
+### De qué se encarga el componente
+
+- Mientras `describes` es true, el texto, después del título en un tooltip rich, es la descripción accesible del ancla, disponible se esté mostrando el tooltip o no. El ancla conserva su propio nombre y su rol. Mientras `describes` es false, el tooltip no añade nada al ancla.
+- Se evita que el tooltip dibujado se lea dos veces. Nunca toma el foco y no contiene nada que pueda recibirlo.
+- El foco del teclado en el ancla lo abre de inmediato, y llevar el foco a otro lugar lo cierra. El tooltip en sí nunca es una parada de tabulación.
+- Escape lo cierra sin mover el foco, y no cierra además un diálogo que lo contenga.
+- Cumple WCAG 1.4.13 (contenido al pasar el cursor o al recibir el foco): se puede descartar sin mover el puntero ni el foco, se puede pasar el cursor por él con cualquier retardo de ocultación, incluido 0, porque la separación entre el ancla y el tooltip cuenta como paso del cursor, y permanece hasta que termina el paso del cursor o el foco, o hasta que se descarta.
+- Crece con un texto más grande sin recortarlo, y su texto se alinea al inicio de la dirección del diseño.
+- Un atajo se expone como el atajo de teclado del ancla (`aria-keyshortcuts` en la web, en el elemento que recibe el foco), y las teclas dibujadas quedan ocultas para la tecnología de apoyo. Donde el ancla ya declara un atajo propio, las teclas del tooltip se escriben con todas sus letras al final de la descripción, mientras `describes` es true.
+- La flecha es decoración y queda oculta para la tecnología de apoyo. Ambos aspectos usan pares de colores de texto y de contenedor cuyo contraste comprueba la compilación en todos los esquemas.
+- Su movimiento es pequeño: un fundido, un ligero crecimiento y unos píxeles de recorrido. Donde el movimiento está reducido, hace el fundido sin crecer ni desplazarse, salvo en Android, cuyo ajuste quita todas las animaciones. Los retardos, el tiempo de espera táctil y el tiempo durante el cual el siguiente tooltip se abre de inmediato son esperas, no movimiento, y se conservan en todas partes.
+- Un tooltip cuyo texto está vacío nunca se abre y no añade nada. Las compilaciones de depuración lo notifican, igual que el título ignorado de un tooltip plain.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native todavía no aceptan `showDelay`, `hideDelay` ni `touchTimeout`, y no cuentan la separación como paso del cursor: allí todos los tooltips toman los retardos del sistema, y el puntero cruza la separación dentro del retardo de ocultación. Además, solo tienen las cuatro colocaciones centradas (`top`, `bottom`, `start`, `end`), y no tienen `offset`, `crossOffset`, `arrow`, `inverse` ni `shortcut`; sus tooltips hacen el fundido sin crecer ni desplazarse.
+- Web: una pulsación larga táctil abre un tooltip solo donde el navegador la notifica como un menú contextual. Safari en iOS no lo hace, así que allí un tooltip no se abre con el tacto.
+- Web: `<tanrei-tooltip>` lee y quita su propio atributo `title`, para que el navegador no dibuje además su tooltip nativo sobre el ancla. La propiedad `title` conserva el valor.
+- SwiftUI no tiene rol de tooltip. La descripción es la indicación de accesibilidad del ancla.
+- SwiftUI en iOS: Retorno o Espacio sobre un ancla con foco no cierran el tooltip, y Escape lo cierra solo mientras el ancla tiene el foco. Un ancla que recibe el foco con un toque, como un campo de texto, abre su tooltip. Un ancla que se hace transparente o queda tapada no se detecta como oculta.
+- SwiftUI dibuja los tooltips en una capa que proporcionan `.tanreiTheme(_:)` y un diálogo de Tanrei. El contenido que SwiftUI presenta aparte, como tu propio `.sheet` o `.popover`, necesita `.tanreiTooltipLayer()` para que sus tooltips se muestren.
+- Compose no tiene una propiedad de descripción. El texto pasa a ser la descripción de estado del ancla, que se lee después de su nombre y su rol. Un control de Tanrei la pone en su propio nodo; cualquier otra ancla se describe solo cuando un ancestro que fusiona la recoge. En un ancla conmutadora, como un botón de icono conmutador, sustituye al «On» o al «Off».
+- Compose: un tooltip que muestras desde el código sobre un ancla situada detrás de un diálogo abierto se dibuja debajo de la ventana del diálogo.
+- Compose: mientras el foco está en otro lugar de la ventana y sobre el ancla solo se pasó el cursor, Escape llega al tooltip solo en Android 9 (API 28) y posteriores.
+- Compose: el paso del cursor con un ratón real, un toque fuera, el listener de Escape y la lectura que TalkBack hace de la descripción de estado del ancla se han probado solo en Robolectric, todavía no en un dispositivo.
+- Flutter: el tooltip dibujado siempre se excluye de la semántica, porque el rol de tooltip de Flutter todavía no se puede usar. La descripción del ancla no se ve afectada.
+- Flutter: Escape se consume solo mientras el foco está en el ancla, o lo consume un diálogo de Tanrei. Otro ancestro que gestione Escape, como una ruta de diálogo de Material, lo sigue recibiendo mientras el foco está en otro lugar.
+- React Native: la descripción es el `accessibilityHint` del ancla, después de la indicación propia del ancla.
+- React Native: un toque en otro lugar no cierra antes un tooltip abierto con una pulsación larga. El tiempo de espera táctil lo cierra igualmente.
+- React Native: el tooltip no sigue a un ancla que se desplaza, y no se cierra cuando el ancla sale de la vista por el desplazamiento. Se mantiene dentro del área segura solo cuando pasas los márgenes interiores de la ventana a `TanreiProvider`.
+- React Native: el paso del cursor, llevar el puntero hasta el tooltip, la pulsación larga y Escape todavía no se han comprobado en un dispositivo.
+
+### Qué debes hacer tú
+
+- Da al ancla su propio nombre accesible. El tooltip nunca lo sustituye.
+- Pon `describes` en false cuando el texto repita ese nombre.
+- Vincula tú las teclas que muestras con `shortcut`, y muestra las mismas teclas en cualquier otro lugar donde aparezca el comando, como en un menú.
+- Haz que el ancla pueda recibir el foco, para que quienes usan el teclado puedan abrir el tooltip.
+- Si acortas el tiempo de espera táctil, asegúrate de que el texto se pueda seguir leyendo en el tiempo que queda. Un tiempo de espera de 0 muestra el tooltip solo mientras el dedo está apoyado.
+- Mantén fuera del tooltip todo lo que una persona necesita. Quienes usan el tacto o un lector de pantalla quizá nunca lo vean.
+- En React Native, pon `TanreiProvider` en la raíz de tu aplicación, con los `insets` de la ventana: su capa de superposición dibuja el tooltip dentro del área segura. En SwiftUI, aplica `.tanreiTheme(_:)` por encima del ancla, y `.tanreiTooltipLayer()` al contenido de tus propias hojas y popovers. En Flutter, el tooltip necesita un `Overlay` por encima, que tiene toda `WidgetsApp` con un `Navigator`.

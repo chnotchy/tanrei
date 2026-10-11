@@ -1,0 +1,205 @@
+---
+title: "单选按钮"
+description: "让用户从同时全部显示出来的一小组选项中恰好选择一个。"
+translationOf: components/radio-button.mdx
+sourceHash: daa79188285bc262a23e0fbc7f5abe067c3f98c3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="radio-button" />
+
+<DemoFrame label="一个组">
+  <div role="radiogroup" aria-label="发送频率" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="overview-frequency" value="daily" label="每天"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="weekly" checked label="每周"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="monthly" label="每月"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+### 用法
+
+让单选按钮采用 Material 3 的尺寸、并让圆环加粗成填充的那次修订，只改变了它的外观和动效，所以下面的示例全部适用于当前版本。Web 按规格绘制它。SwiftUI、Compose、Flutter 和 React Native 待跟进：在跟上之前，它们仍然绘制上一版的单选按钮——在 28 的状态层中画一个细线描边的 16 圆环和一个 8 的圆点——并且不在布局中预留 48 的目标高度。此后还有一处改进，目前只在 Web 上实现：圆环和填充作为一个形状来绘制。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- name 相同的选项构成一个组。组的名称来自包裹它们的元素。 -->
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">发送频率</span>
+      <tanrei-radio-button name="frequency" value="daily" label="每天"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="weekly" checked label="每周"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="monthly" label="每月"></tanrei-radio-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-button';
+      // 只有变为选中的选项触发 change；被它取代的那个不会触发。
+      document.querySelector('[role="radiogroup"]').addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton } from '@tanrei/react';
+
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">发送频率</span>
+      {options.map(({ value, label }) => (
+        <RadioButton
+          key={value}
+          name="frequency"
+          value={value}
+          label={label}
+          checked={frequency === value}
+          onChange={(e) => setFrequency(e.detail.value)}
+        />
+      ))}
+    </div>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // selection 是一个 Binding<Frequency?>：它与某个选项的 value 相等时，该选项为选中。
+    TanreiRadioGroup("发送频率") {
+      TanreiRadioButton("每天", value: Frequency.daily, selection: $frequency)
+      TanreiRadioButton("每周", value: Frequency.weekly, selection: $frequency)
+      TanreiRadioButton("每月", value: Frequency.monthly, selection: $frequency)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.selection.selectableGroup
+    import io.github.chnotchy.tanrei.components.TanreiRadioButton
+
+    // 组由父级构成；每个选项的 onClick 捕获它自己的值。
+    Column(Modifier.selectableGroup()) {
+        for ((value, label) in listOf("daily" to "每天", "weekly" to "每周", "monthly" to "每月")) {
+            TanreiRadioButton(selected = frequency == value, onClick = { frequency = value }, label = label)
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiRadioGroup<Frequency>(
+      groupValue: frequency,
+      onChanged: (Frequency value) => setState(() => frequency = value),
+      semanticLabel: '发送频率',
+      child: Column(
+        children: <Widget>[
+          for (final Frequency option in Frequency.values)
+            TanreiRadioButton<Frequency>(value: option, label: option.label),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react-native';
+
+    <RadioGroup accessibilityLabel="发送频率">
+      {options.map(({ value, label }) => (
+        <RadioButton key={value} value={value} label={label} selected={frequency === value} onSelect={setFrequency} />
+      ))}
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="选中、未选中和禁用" plain>
+  <div role="radiogroup" aria-label="启用" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-enabled" value="unselected" label="未选中"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-enabled" value="selected" checked label="选中"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="禁用" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="禁用，未选中"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="禁用，选中"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="隐藏标签">
+    <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="每周"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+在默认系统中，单选按钮采用 Material 3 的尺寸：一个描边为 2 的 20 圆环，位于直径 40 的圆形状态层之上。选中的选项不画圆点。它的圆环向内加粗到半径的一半，留在里面的圆面则用圆环的颜色以一半的不透明度填充。两种状态下，圆环的外径都不变。圆环和填充是一个形状：无论缩放比例或显示密度如何，也无论在变化过程的哪一帧，单选按钮背后的东西都不会从两者之间透出来。选择发生变化时，描边变粗或变细，同时圆环改变颜色，填充淡入或淡出；填充绝不从中心向外扩大。动效结束之前再次变化时，会从当前的位置折返；在减弱动态效果时，新的状态立即完整显示。
+
+每个选项在布局中至少占 48 的高度，也就是目标的尺寸，状态层在其中居中。因此，不留间隙地堆叠起来的选项绝不会共用目标区域。想把选项排得更紧的产品，可以在自己的层里调低 `option.min-height`，并接受目标相互重叠。
+
+在 `m3-like` 下，选中的选项保留 Material 的圆环、间隙和圆点，但圆点是淡入的，而不是从中心放大出现。在 `cupertino` 下，单选按钮保持较小的尺寸，并画出 Apple 的外观：细圆环里的一个浅色圆面，选中时则是围绕浅色中心的一圈着色环带。
+
+<ComponentSpecs name="radio-button" />
+
+## 指南
+
+### 何时使用
+
+当一个问题恰好只有一个答案，并且只有少量需要用户并排比较的选项时，使用单选按钮，例如配送速度，或者多久发送一次摘要。所有选项同时可见，所以这个组会占用空间。选项很多或空间不足时，请使用只显示已选项的列表或菜单。
+
+如果某个选项是安全且很可能被选的答案，组可以一开始就选中它。需要用户认真作答时，让所有选项都保持未选中。一旦选中了某个选项，用户就无法让这个组回到没有选择的状态，因为单选按钮绝不会因为自己被激活而取消选中。如果“无”是一个有效的答案，就把它加为一个选项。
+
+### 复选框、单选按钮还是开关
+
+| 控件 | 选项 | 何时生效 | 用途 |
+| --- | --- | --- | --- |
+| [复选框](/zh-cn/components/checkbox/) | 任意数量的独立选项，也可以一项都不选 | 用户确认时 | 表单中的选项、同意条款、选择行 |
+| 单选按钮 | 从全部显示出来的少量选项中恰好选一个 | 通常在用户确认时 | 一个问题的一个答案 |
+| [开关](/zh-cn/components/switch/) | 一项设置，开或关 | 立即 | 一经更改就生效的设置 |
+
+### 推荐
+
+- 给每个组起一个名称：也就是这些选项所回答的问题，以可见文本的形式显示在组的前面。
+- 选项纵向堆叠，并按对这个问题有意义的顺序排列，例如从小到大。每个选项已经预留了目标的高度，所以堆叠时不需要额外的间隙。
+- 标签保持简短，句式一致，便于比较。
+- 把同一组的选项放在同一个容器里。
+
+### 避免
+
+- 不要单独使用一个单选按钮。单个“是或否”的选择，请使用复选框或开关。
+- 不要把单选按钮用于并不互斥的选项。请使用复选框。
+- 不要在选项被选中的那一刻就启动重大的操作，例如跳转到别处。方向键会选中它经过的每个选项，键盘用户在移向目标选项的途中就会触发这个操作。
+- 不要把一个组拆散到屏幕的不同位置。
+
+## 无障碍
+
+<ComponentAccessibility name="radio-button" />
+
+### 组件负责的部分
+
+- 每个选项暴露单选角色、是否选中、禁用状态，以及它在组中的位置和组的大小（“2 of 3”）。Apple 的平台没有单选角色，所以在那里选项是一个带有选中特征的按钮，它的位置则作为无障碍值给出。Flutter 的语义目前还无法表达位置。
+- 标签就是无障碍名称，无论它是画出来的，还是用 `labelHidden` 隐藏的。画出来的文本对辅助技术隐藏，所以名称只读一次。
+- 一个组只有一个 Tab 停靠点：选中的选项；没有选项被选中时，是第一个可用的选项。方向键移到下一个或上一个可用的选项并选中它，到两端时循环；在从右到左的布局中，左方向键和右方向键互换。
+- Space 选中获得焦点的选项。Enter 只在平台用 Enter 激活任何获得焦点的控件时（Android、tvOS）才选中它；在 Web 上，Enter 提交表单。
+- 选中一个选项会取消其他选项的选中。只有变为选中的选项报告这次变化，激活已经选中的选项则什么都不会发生。
+- 点击或轻点标签会选中该选项。标签是点击区域的一部分，点击区域满足最小目标。每个选项都在布局中预留目标的高度，所以堆叠的选项各自保有完整、独立的目标。
+- 选中与否只由圆环来表达：在默认系统中，选中的圆环相对于每一种表面都保持 3:1 的对比度，并且粗细是未选中圆环的两倍半。半透明的填充是装饰，不计入其中。
+- 它只在键盘聚焦时显示焦点指示。
+- 在减弱动态效果时，新的状态立即完整显示。
+- 缺少标签会在调试构建中报告。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 仍然绘制上一版的单选按钮：带圆点，使用以前的尺寸，还没有把圆环和填充画成一个形状，也不在布局中预留目标的高度，所以不留间隙堆叠的选项会共用目标区域。
+- 在 `m3-like` 下，选中时的圆点以完整大小淡入，而 Material 是让它从中心放大出现（模仿差距 `radio-dot-scale-in`）。
+
+### 需要你做的事
+
+- 用组所回答的问题为它命名。在 Web 上，用带有 `role="radiogroup"` 和 `aria-labelledby` 的元素包裹这些选项，或者用带 `<legend>` 的 `<fieldset>`。在 Flutter 中，在 `TanreiRadioGroup` 上设置 `semanticLabel`；在 React Native 中，在 `RadioGroup` 上设置 `accessibilityLabel`。
+- 按平台的方式构成组，这样按键和位置才能正常工作：在 Web 上使用同一个 `name`，在 Compose 中给父级加上 `Modifier.selectableGroup()`，在 Flutter 中使用 `TanreiRadioGroup`，在 React Native 中使用 `RadioGroup`。
+- 如果问题必须回答却没有回答，把消息显示在组上：处于错误状态的[单选组](/zh-cn/components/radio-group/)会绘制它的错误文本，并让每个单选按钮都以错误形态绘制。没有用单选组来分组的选项，要在每个单选按钮上设置 `error`：圆环和圆点采用错误颜色，与复选框的方框一样。禁用的选项不显示错误颜色。
+- 处于错误状态的单选按钮不会暴露为无效，因为它的角色没有这种状态。这一点由组来说明：单选组是无效的，并以它的错误文本作为描述。自己为选项分组时，要在它们旁边用文字说明错误。
+- 如果你在自己的层里重新设定圆环和填充的样式，要让圆环足够醒目，单靠它就能看出选中与否。构建不会检查这一点。
+- 在 React Native 中，产品不是英文时，向 `RadioGroup` 传入 `positionText`。默认情况下，位置朗读为“2 of 3”。

@@ -1,0 +1,819 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "timeline",
+  "title": "Timeline",
+  "summary": "Sets events out in the order of time — each a marker at the start edge, its time, a title and an optional body, joined to the next by a hairline — and, where the events have one, shows which are done, which is under way and which are still ahead by the marker's shape and in words; an ordered list to read, never a control.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "list",
+      "description": "The ordered list itself: one column of events, as wide as its container gives it. It has no fill, no edge, no padding and no state of its own."
+    },
+    {
+      "id": "item",
+      "description": "One event: its marker at the start, and beside it its content — a time, a title and a body, each optional. Nothing about an event answers a pointer, a press or focus."
+    },
+    {
+      "id": "marker",
+      "description": "What begins an event, centred in a box at the start edge. A small filled dot for an event with no status; a hairline ring holding a glyph where the product names one; and for an event with a status a shape of its own: a ring holding a check for done, a filled circle holding a dot for the one under way, an empty ring for one still ahead. Decorative: the status is given in words."
+    },
+    {
+      "id": "connector",
+      "description": "The line from an event's marker to the next event's: the system's one hairline, on the marker column's centre line, kept a small distance from both markers. It shows that the events are one course of time. Decorative. The last event has none.",
+      "optional": true
+    },
+    {
+      "id": "time",
+      "description": "When the event happened or is due, as the product writes it (\"19 September 2026\", \"09:41\", \"Q3\", \"Wave 1\"): a short line in a quiet color, first in the event's content.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "What the event is, in a few words, set at the body's size in a heading weight. Text of its event and not a heading, unless the product gives a heading of its own as the title.",
+      "optional": true
+    },
+    {
+      "id": "body",
+      "description": "What more there is to say: the product's content. Text placed directly takes the body's text style; long-form blocks are set as prose; a block that is not text takes the body's whole width.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The list's accessible name, in the product's language (\"Release history\"). Not drawn. Give one where no heading directly before the timeline already says what it records."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "The size of the events' text, in prose's two sizes. Medium sets the body in the interface's own text style, for a timeline among controls: a panel, a card, a record's activity. Large sets it in the style for long reading, for a page whose purpose is the text: a changelog, a plan. A timeline inside a prose is given that prose's size. A design system may add values.",
+      "axis": "tanrei.comp.timeline.size"
+    },
+    {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How far apart the events are. Regular is for events with a body, or few of them. Compact halves the space between events, for a long log of one-line events. It changes that space only. A design system may add values.",
+      "axis": "tanrei.comp.timeline.density"
+    }
+  ],
+  "items": [
+    {
+      "name": "event",
+      "summary": "One event of the timeline: a time, a title, a body, and where the events have them a status and a glyph. Its place comes from the order the product gives the events in.",
+      "props": [
+        {
+          "name": "time",
+          "type": "string",
+          "default": "",
+          "description": "When, as the product writes it for its reader, in the product's language, calendar and format (\"19 September 2026\", \"2 hours ago\", \"Q3\", \"Wave 1\"). Drawn first in the event. The timeline does not format, translate or compare it."
+        },
+        {
+          "name": "datetime",
+          "type": "string",
+          "default": "",
+          "description": "The same moment for a machine: a date, a time or a period in the form the platform's time element takes (ISO 8601: \"2026-09-19\", \"2026-09-19T09:41:00Z\"). Not drawn. With it the time is exposed as a time; without it, as text — which is right for a time that is not a moment (\"Wave 1\")."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "default": "",
+          "description": "What the event is, in a few words. Plain text: read with the event, and not a heading. A title that is a heading of the page is given in the title slot instead."
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "values": [
+            "none",
+            "done",
+            "current",
+            "upcoming"
+          ],
+          "default": "none",
+          "description": "Where the event stands, for a timeline whose events have a state: done (finished), current (under way now), upcoming (not begun). None, the default, is an event that simply happened: a log has no statuses. It changes the marker's shape and nothing else; the words are statusLabel's."
+        },
+        {
+          "name": "statusLabel",
+          "type": "string",
+          "default": "",
+          "description": "The status in words, in the product's language (\"Done\", \"In progress\", \"Planned\"), read by assistive technology before the event's time and title and not drawn. Needed with every status but none, unless the event's own text already says it. Ignored while status is none."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "A glyph of the system's icon set, by name, drawn in the marker in place of the dot, the check or the inner mark (a release's tag, a comment's bubble). Decorative."
+        }
+      ],
+      "slots": [
+        {
+          "name": "title",
+          "description": "The title as content of the product's own: a heading of the level the page's outline needs (so the event is in the page's table of contents and can be linked to), or text with a link or a tag in it. Drawn in the title's text style whatever its level; its role and level are kept. Takes the place of the title prop."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "TML-1",
+      "text": "THE timeline SHALL lay out its events in one column, in the order they are given, each event a row of two parts: its marker, in a column at the timeline's start edge, and its content — its time, its title and its body, those it has, in that order — beside it. The marker column SHALL be as wide as the marker's box of the size (comp.timeline.marker.height.medium for medium, comp.timeline.marker.height.large for large); every event's content SHALL begin at one edge, comp.timeline.marker.gap after that column, and run to the timeline's end edge. THE timeline SHALL draw no fill, no edge and no elevation of its own and SHALL add no padding around itself.",
+      "verify": "Under the default system at medium the marker column is 24 wide and every event's content begins 36 from the timeline's start edge."
+    },
+    {
+      "id": "TML-2",
+      "text": "THE timeline SHALL separate the end of one event from the beginning of the next by the item gap of its density (comp.timeline.item.gap.regular for regular, comp.timeline.item.gap.compact for compact), and SHALL change nothing else with density. THE timeline SHALL keep the order the product gives: it SHALL NOT sort, reverse, group, number, hide, collapse or page its events, and SHALL NOT read their times to do so.",
+      "verify": "Two events with the times of 2026 and 2025, in that order, are drawn and exposed in that order."
+    },
+    {
+      "id": "TML-3",
+      "text": "WHERE an event has a time THE timeline SHALL draw it first in the event's content, as the product wrote it, in the time style of its size (comp.timeline.time.typescale.medium for medium, comp.timeline.time.typescale.large for large) and in comp.timeline.time.color, wrapping and never cut, and SHALL begin what follows it in the event comp.timeline.time.gap below it. WHERE datetime is not empty THE timeline SHALL expose the time as a time whose machine-readable value is datetime, and SHALL NOT draw datetime; WHERE it is empty the time is text. THE timeline SHALL NOT format, translate, shorten or update a time: a time that changes as the clock moves (\"2 hours ago\") is the product's to change."
+    },
+    {
+      "id": "TML-4",
+      "text": "WHERE an event has a title THE timeline SHALL draw it after the time, in comp.timeline.title.typescale.medium for medium (comp.timeline.title.typescale.large for large) and the content color of the surface the timeline sits on, SHALL wrap it and never cut it, and SHALL begin the event's body comp.timeline.title.gap below it. A title given as text SHALL be exposed as text of its event and SHALL NOT be a heading; WHERE the product gives the title as content of its own in the event's title slot THE timeline SHALL draw it as any title, in the same text style whatever its level, in place of the title prop, and SHALL change neither its role nor its level, nor the roles of what it holds (a link, a tag)."
+    },
+    {
+      "id": "TML-5",
+      "text": "THE timeline SHALL draw the content an event is given as that event's body and SHALL give it comp.timeline.body.typescale.medium for medium (comp.timeline.body.typescale.large for large) as the text style its text takes where nothing inside sets another, and no color of its own: its text takes the content color of the surface the timeline sits on. The body SHALL wrap and SHALL never be cut or limited to a number of lines. WHERE the body holds more than one block THE timeline SHALL separate two blocks that follow each other by comp.timeline.body.gap, SHALL lay long-form blocks out as prose of the timeline's size, and SHALL give every block that is not text — a code block, a table, a picture, any component — the body's whole inline size, such a block scrolling inside its own box when its content cannot shrink (PRS-15)."
+    },
+    {
+      "id": "TML-6",
+      "text": "THE timeline SHALL draw each event's marker centred in a square box whose side is the marker's box of the size (TML-1), the box at the top of the event with its centre on the centre of the event's first line of text; WHERE the box is taller than that line THE timeline SHALL lower the event's content by half the difference, so that no marker reaches into the space above its event. WHILE an event's status is none and its icon is empty THE marker SHALL be a filled circle of diameter comp.timeline.marker.dot.size in comp.timeline.marker.dot.color, a circle whatever corners a ring has. WHILE its status is none and its icon is not empty THE marker SHALL be a ring — the whole box, with corners comp.timeline.marker.shape, never larger than half the box's side and eased by sys.shape.corner-smoothing, no fill, and an edge comp.timeline.marker.outline.width wide in comp.timeline.marker.outline.color drawn inside the box — holding that glyph at its centre (TML-8). Every marker SHALL be kept from assistive technology.",
+      "verify": "Under the default system at medium: the dot is 8 across at the centre of a 24 box, 8 from each side; a ring is 24 across with a 16 glyph."
+    },
+    {
+      "id": "TML-7",
+      "text": "WHILE an event's status is done THE timeline SHALL draw its marker as the ring of TML-6 holding the icon set's check glyph, or the event's own glyph where icon is not empty, in comp.timeline.marker.icon.color. WHILE its status is current THE marker SHALL be the whole box filled with comp.timeline.marker.current.container.color, with the ring's corners and no edge, holding a filled circle of diameter comp.timeline.marker.dot.size, or the event's own glyph, in comp.timeline.marker.current.icon.color. WHILE its status is upcoming THE marker SHALL be the ring of TML-6, empty, or holding the event's own glyph in comp.timeline.marker.icon.color. The three SHALL differ in shape and not only in color — a mark in a ring, a filled circle, an empty ring — and a status SHALL change the marker only: the event's time, title, body and connectors are drawn as every other event's. Any number of events may have any status; THE timeline SHALL NOT derive one event's status from another's or from its time.",
+      "verify": "The fixture plan draws, in order, two rings with a check, one filled circle with a dot and one empty ring. With forced colors emulated the four markers are still three different shapes (TML-16)."
+    },
+    {
+      "id": "TML-8",
+      "text": "WHERE a marker holds a glyph THE timeline SHALL draw it in a box of comp.timeline.marker.icon.size at the centre of the marker, in comp.timeline.marker.icon.color (comp.timeline.marker.current.icon.color on the marker of a current event), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL keep it from assistive technology."
+    },
+    {
+      "id": "TML-9",
+      "text": "WHILE an event is followed by another event THE timeline SHALL draw a connector between their two markers: a straight line comp.timeline.connector.thickness thick in comp.timeline.connector.color, on the centre line of the marker column, from comp.timeline.connector.gap below the bottom of the upper marker's box to comp.timeline.connector.gap above the top of the lower marker's box, through the space between the two events, however tall the upper event's content is. THE timeline SHALL draw no connector after the last event and none for a timeline of one event; a connector SHALL take no room in the layout, SHALL never be drawn over a marker or over content, SHALL be the same line between events of any status, and SHALL be kept from assistive technology.",
+      "verify": "Under the default system at medium, between two one-line events with titles only: the upper box ends at 24, the connector runs from 28 to 4 above the lower box's top. A system that sets the thickness to zero draws none."
+    },
+    {
+      "id": "TML-10",
+      "text": "THE timeline SHALL lay itself out as a block in the flow of its container: it SHALL take the whole inline size the container gives it, with its start edge on the start edge of the text around it; it SHALL bring no outer space of its own (PRS-15: the space between it and its neighbours is its container's), SHALL never be wider than its container, SHALL have no minimum width and no maximum width, and SHALL NOT scroll. WHILE the timeline sits in a prose that keeps a measure THE timeline SHALL take that prose's full width as a block that is not text (PRS-18)."
+    },
+    {
+      "id": "TML-11",
+      "text": "THE timeline SHALL NOT take pointer, touch or keyboard input, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything it draws under a pointer, a press or focus: an event has no hovered, focused, pressed, selected or disabled state, a marker is not a control, and the timeline emits no event of its own. What the product places in a title slot or a body — a link, a Button, a tag — takes input by its own spec, and text in a time, a title and a body SHALL remain selectable where the platform lets text be selected."
+    },
+    {
+      "id": "TML-12",
+      "text": "THE timeline SHALL be exposed to assistive technology as an ordered list of as many items as it has events, named by label where label is not empty, and each event as one item of that list holding, in this order, its status in words, its time, its title and its body. WHILE an event's status is not none and its statusLabel is not empty THE timeline SHALL expose statusLabel as text before the event's time, set apart so that it is read as a phrase of its own (\"Done, 19 September 2026, …\"), and SHALL NOT draw it; WHILE status is none it SHALL ignore statusLabel. WHILE exactly one event of the timeline has the status current THE timeline SHALL also expose that event as the current item of its list, in the platform's own way; with none or several it SHALL expose no item as current. THE timeline SHALL NOT expose a status in any other way, and SHALL add no role to a time without datetime, to a title given as text or to anything in a body.",
+      "verify": "The fixture plan is read as a list of four items; the third is read as: In progress, Wave 2, Navigation and overlays, and its body, and is the list's current item."
+    },
+    {
+      "id": "TML-13",
+      "text": "WHEN label, or an event's time, datetime, title, status, statusLabel, icon or body changes, or an event is added, removed or moved, THE timeline SHALL draw and expose the new value at once, without a motion, and SHALL NOT announce the change by itself and SHALL NOT scroll to it."
+    },
+    {
+      "id": "TML-14",
+      "text": "WHILE the text size is enlarged THE timeline SHALL grow each time, title and body with it, keep every marker's box at the marker's box of the size and the dot and the glyph at comp.timeline.marker.dot.size and comp.timeline.marker.icon.size, each still centred on its event's first line (TML-6), and keep comp.timeline.marker.gap, the item gap, comp.timeline.time.gap, comp.timeline.title.gap, comp.timeline.body.gap and comp.timeline.connector.gap as they are; it SHALL wrap, set no fixed height on an event, lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %, except inside a block that scrolls in its own box (TML-5)."
+    },
+    {
+      "id": "TML-15",
+      "text": "WHERE the timeline is placed inside an event's body of another timeline THE timeline SHALL draw itself as a timeline of its own in the body's width, and in debug builds SHALL report that timelines are nested: events inside an event are a list of prose in the body."
+    },
+    {
+      "id": "TML-16",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE timeline SHALL draw each dot, each ring, each glyph and each connector in the platform's text color at their own sizes and widths, the marker of a current event as a circle filled with that text color whose inner mark or glyph is in the platform's background color, and each time, title and body in the text color; the three statuses SHALL then still differ by shape (TML-7), and nothing else the timeline draws relies on a fill.",
+      "verify": "On the web, with forced colors emulated: the fixture plan shows CanvasText rings, a CanvasText disc with a Canvas dot, and CanvasText connectors."
+    },
+    {
+      "id": "TML-17",
+      "text": "WHERE the layout direction is right-to-left THE timeline SHALL mirror its two parts and apply its spaces by logical start and end, so that the marker column and the connectors are at the right and each event's content is at its left, beginning at one edge and running to the timeline's left edge."
+    },
+    {
+      "id": "TML-18",
+      "text": "THE timeline SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the timeline is shown THE timeline SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "TML-19",
+      "text": "WHERE the layout direction is right-to-left THE timeline SHALL draw the glyph of a marker mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order TML-17 gives. THE timeline SHALL NOT mirror a glyph itself. The dot, the ring and the check are never mirrored."
+    },
+    {
+      "id": "TML-20",
+      "text": "THE timeline SHALL lay out an event's time, and a title given as text, each as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a date written in digits, a version and a clock time keep their own order in a right-to-left layout and reorder nothing beside them; THE timeline SHALL still place the time and the title and align their lines by the layout direction, not by the text's own. The body's direction is its content's.",
+      "verify": "The fixture ltr-times-rtl draws 2026-09-19 and v0.2.0 in their own order at the right edge of the content column, beside Arabic bodies."
+    },
+    {
+      "id": "TML-21",
+      "text": "WHEN size or density names a value that the active design system does not have THE timeline SHALL render with the default value's tokens, and WHEN an event's status names a value this spec does not have THE timeline SHALL draw that event as for none; in debug builds it SHALL report the unknown value."
+    },
+    {
+      "id": "TML-22",
+      "text": "IF the timeline holds no event THE timeline SHALL draw nothing, take no space and expose nothing: what stands in an empty timeline's place is the product's (an empty state). IF an event has neither a time, a title nor a body THE timeline SHALL still draw its marker and count it in the list's items, and in debug builds report that an event is empty. WHILE an event's status is not none and its statusLabel is empty THE timeline SHALL still draw it and in debug builds report that a status is not given in words; IF statusLabel is not empty while status is none THE timeline SHALL ignore it and in debug builds report it."
+    }
+  ],
+  "accessibility": {
+    "role": "list",
+    "keyboard": [],
+    "labeling": "An ordered list, named by label where the product gives one; where a heading directly before the timeline says what it records, no label is needed. Each event is a list item read as its status in words (statusLabel, where it has a status), its time, its title and its body, in that order. A time with datetime is exposed as a time; the markers and the connector are decorative and hidden. A title is text of its item, or the product's own heading where the product gave one. Where exactly one event is current, it is the list's current item.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the timeline takes no input and no focus (TML-11), so there is no target of its own to size and minimumTarget holds trivially. What is pressable inside a title or a body meets the minimum target by its own spec.",
+      "A status never rests on color alone (WCAG 1.4.1), and not on shape alone either. For a reader who sees, the three statuses are three shapes (TML-7), which forced colors keep (TML-16); for assistive technology each is statusLabel in words (TML-12). The component cannot tell whether an event's own text already says its status, so giving statusLabel is the product's to check. Where the status matters to every reader (a plan people decide by), show it in words too: a tag in the title or the body.",
+      "Order is carried by structure, not by the drawing: the timeline is an ordered list (TML-12), so a reader who does not see the markers and the connector loses nothing, and a missing stylesheet costs only the look.",
+      "A time is the product's words (TML-3). \"2 hours ago\" is read as written and goes stale as written; a product that shows relative times also gives datetime, so the exact moment is available to assistive technology and to the platform.",
+      "Contrast: the timeline brings no color for a title or a body, so they have the contrast of the content color of the surface they sit on. The time, the dot and a ring's glyph are on-surface-variant, held to 4.5:1 on every surface tone by the token invariants; the current marker's mark is on-primary on primary, held to 4.5:1, and primary on every surface tone is held to 4.5:1, as primary-colored text is, so the filled marker is found on any of them. The ring and the connector are the decorative hairline and are not held to a ratio: an upcoming event's empty ring may be faint, which is why its status is also in words.",
+      "A title is not a heading by default: a changelog of forty events would otherwise fill the page's outline. Where the events are the page's sections (one release per section), give each title as a heading in the title slot; its level is the page's, and the timeline does not change it (TML-4).",
+      "A timeline does not announce an event that is added (TML-13). A feed that grows while the person watches is the product's to announce, in a live region around or beside the timeline, and its own to decide whether to interrupt.",
+      "Text size, text spacing and reflow: TML-14. A long timeline is never cut, collapsed or paged by the component; hiding older events behind a control is the product's, with a Button after the list."
+    ]
+  },
+  "tokens": "comp.timeline",
+  "fixtures": [
+    {
+      "id": "dated",
+      "props": {
+        "label": "Release history"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "22 September 2026",
+            "datetime": "2026-09-22",
+            "title": "Text styles by level"
+          },
+          "content": "The text styles are named by their level, and every corner can be eased."
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "21 September 2026",
+            "datetime": "2026-09-21",
+            "title": "A vocabulary that can be extended"
+          },
+          "content": "A design layer may add a step to a series or a value to an axis, with its reason."
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "19 September 2026",
+            "datetime": "2026-09-19",
+            "title": "Development begins"
+          },
+          "content": "The token pipeline, the spec schema and the first spec exist."
+        }
+      ]
+    },
+    {
+      "id": "titles-only",
+      "props": {
+        "label": "Release history"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "22 September 2026",
+            "datetime": "2026-09-22",
+            "title": "Text styles by level"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "21 September 2026",
+            "datetime": "2026-09-21",
+            "title": "A vocabulary that can be extended"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "19 September 2026",
+            "datetime": "2026-09-19",
+            "title": "Development begins"
+          }
+        }
+      ]
+    },
+    {
+      "id": "plan",
+      "props": {
+        "label": "Roadmap"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "Wave 0",
+            "title": "Foundations",
+            "status": "done",
+            "statusLabel": "Done"
+          },
+          "content": "Tokens, theming, typography, icons, surfaces and the state primitives."
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "Wave 1",
+            "title": "The controls of day one",
+            "status": "done",
+            "statusLabel": "Done"
+          },
+          "content": "Buttons, fields, selection controls and the list."
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "Wave 2",
+            "title": "Navigation and overlays",
+            "status": "current",
+            "statusLabel": "In progress"
+          },
+          "content": "The drawer, tabs, dialogs, menus and sheets."
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "Wave 3",
+            "title": "The specialised pieces",
+            "status": "upcoming",
+            "statusLabel": "Not started"
+          },
+          "content": "Pickers, the carousel and what a documentation site needs."
+        }
+      ]
+    },
+    {
+      "id": "plan-icons",
+      "props": {
+        "label": "Order 1042"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "Monday, 09:41",
+            "title": "Order placed",
+            "status": "done",
+            "statusLabel": "Done",
+            "icon": "receipt_long"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "Tuesday, 14:05",
+            "title": "On its way",
+            "status": "current",
+            "statusLabel": "In progress",
+            "icon": "local_shipping"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "Expected Thursday",
+            "title": "Delivered",
+            "status": "upcoming",
+            "statusLabel": "Not started",
+            "icon": "home"
+          }
+        }
+      ]
+    },
+    {
+      "id": "icons",
+      "props": {
+        "label": "Activity"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "Today, 10:12",
+            "title": "Ada commented on the proposal",
+            "icon": "chat_bubble"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "Today, 09:30",
+            "title": "The checks passed",
+            "icon": "check_circle"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "Yesterday",
+            "title": "Grace opened the proposal",
+            "icon": "edit"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact",
+      "props": {
+        "label": "Activity",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "10:12",
+            "datetime": "10:12",
+            "title": "Layer saved"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "10:09",
+            "datetime": "10:09",
+            "title": "Contrast checked in six schemes"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "10:02",
+            "datetime": "10:02",
+            "title": "Primary color changed"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "09:58",
+            "datetime": "09:58",
+            "title": "Layer opened"
+          }
+        }
+      ]
+    },
+    {
+      "id": "large",
+      "props": {
+        "label": "Release history",
+        "size": "large"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "21 September 2026",
+            "datetime": "2026-09-21",
+            "title": "A vocabulary that can be extended"
+          },
+          "content": "A design layer may add a step to a series or a value to an axis, with its reason."
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "19 September 2026",
+            "datetime": "2026-09-19",
+            "title": "Development begins"
+          },
+          "content": "The token pipeline, the spec schema and the first spec exist."
+        }
+      ]
+    },
+    {
+      "id": "large-plan-compact",
+      "props": {
+        "label": "Roadmap",
+        "size": "large",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "Wave 1",
+            "title": "The controls of day one",
+            "status": "done",
+            "statusLabel": "Done"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "Wave 2",
+            "title": "Navigation and overlays",
+            "status": "current",
+            "statusLabel": "In progress"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "Wave 3",
+            "title": "The specialised pieces",
+            "status": "upcoming",
+            "statusLabel": "Not started"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-bodies",
+      "props": {
+        "label": "The history of an account"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "3 March",
+            "title": "The account was moved to another owner, who accepted it the same day after reading the terms that apply to shared accounts"
+          },
+          "content": "The export ran on the service and took an hour for a large mailbox; the page could be closed while it ran, and a message arrived at the account's address when the archive was ready. The archive stayed available for seven days."
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "1 March",
+            "title": "The move was asked for"
+          },
+          "content": "An account that is shared with other people can be moved only by the person who opened it; everyone else sees the choice greyed out, with the owner's name beside it, and can ask the owner from there."
+        }
+      ]
+    },
+    {
+      "id": "no-time",
+      "props": {
+        "label": "What happened"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "title": "The file was uploaded"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "title": "The file was checked"
+          },
+          "content": "No problems were found."
+        },
+        {
+          "kind": "event",
+          "props": {},
+          "content": "The file was published to everyone with the link."
+        }
+      ]
+    },
+    {
+      "id": "single",
+      "props": {
+        "label": "Release history"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "19 September 2026",
+            "datetime": "2026-09-19",
+            "title": "Development begins"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dated-rtl",
+      "props": {
+        "label": "سجل الإصدارات"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "٢١ سبتمبر ٢٠٢٦",
+            "datetime": "2026-09-21",
+            "title": "مفردات قابلة للتوسيع"
+          },
+          "content": "يمكن لطبقة التصميم أن تضيف قيمة إلى محور مع ذكر السبب."
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "١٩ سبتمبر ٢٠٢٦",
+            "datetime": "2026-09-19",
+            "title": "بدء التطوير"
+          },
+          "content": "أصبح مسار الرموز ومخطط المواصفات والمواصفة الأولى موجودة."
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "plan-rtl",
+      "props": {
+        "label": "خارطة الطريق"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "المرحلة ١",
+            "title": "عناصر التحكم الأساسية",
+            "status": "done",
+            "statusLabel": "تم"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "المرحلة ٢",
+            "title": "التنقل والطبقات",
+            "status": "current",
+            "statusLabel": "قيد التنفيذ",
+            "icon": "arrow_forward"
+          }
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "المرحلة ٣",
+            "title": "القطع المتخصصة",
+            "status": "upcoming",
+            "statusLabel": "لم يبدأ"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-times-rtl",
+      "props": {
+        "label": "سجل الإصدارات"
+      },
+      "items": [
+        {
+          "kind": "event",
+          "props": {
+            "time": "2026-09-21",
+            "datetime": "2026-09-21",
+            "title": "v0.2.0"
+          },
+          "content": "يمكن لطبقة التصميم أن تضيف قيمة إلى محور مع ذكر السبب."
+        },
+        {
+          "kind": "event",
+          "props": {
+            "time": "2026-09-19",
+            "datetime": "2026-09-19",
+            "title": "v0.1.0"
+          },
+          "content": "أصبح مسار الرموز ومخطط المواصفات والمواصفة الأولى موجودة."
+        }
+      ],
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-timeline",
+      "props": {
+        "label": "aria-label",
+        "size": "data-size",
+        "density": "data-density"
+      },
+      "items": {
+        "event": {
+          "name": "li",
+          "props": {
+            "time": "tanrei-timeline-time",
+            "datetime": "datetime",
+            "title": "tanrei-timeline-title",
+            "status": "data-status",
+            "statusLabel": "data-status-label",
+            "icon": "tanrei-timeline-marker"
+          },
+          "notes": "An `<li>` of the list. The time is the item's `<time class=\"tanrei-timeline-time\" datetime=\"…\">`, or a `<p>` of that class where it is not a moment. The title is the next child where it is a heading (`h2` to `h6`) or carries `class=\"tanrei-timeline-title\"`: the spec's `title` prop and its title slot are the same element on this platform, told apart by the tag the product chose. Every other child is the body. `data-status` is `done`, `current` or `upcoming`; `data-status-label` carries the words. A glyph is `<span class=\"tanrei-timeline-marker tanrei-icon\" aria-hidden=\"true\">flag</span>` as the item's first child."
+        }
+      },
+      "notes": "It is the form the steps take. A class on the product's own ordered list, not an element — `<ol class=\"tanrei-timeline\" role=\"list\">` with `<li>` children — styled by one optional stylesheet of the package, `@tanrei/web/timeline.css`, whose selectors are wrapped in `:where()` so one class on the product's side wins. The list stays the document's list: it is an ordered list with `<time>` elements before any script runs and for whatever reads the page as built, a renderer's `<ol>` needs one class and no wrapper, and there is nothing to define, so nothing changes place after the page loads; without the stylesheet it is the browser's numbered list of dated paragraphs. `label` is `aria-label` (or `aria-labelledby` naming the heading before it); `data-size=\"large\"` and `data-density=\"compact\"` are the size and the density. The marker is the item's `::before` — the dot, the ring, the filled circle with its inner dot, and the done event's check as the icon font's `check` ligature — unless the item's first child is a `.tanrei-timeline-marker`, which then is the marker and holds the glyph through the package's `.tanrei-icon` helper; the connector is the item's `::after`, absolutely placed, with `pointer-events: none`. `list-style: none` removes list semantics in one engine's accessibility tree, which is why the contract writes `role=\"list\"` on the `<ol>`. The status in words (TML-12) is generated content of the item's first text part, `content: attr(data-status-label) \", \"`, clipped out of sight and read with the item; the test of TML-12 is run with a screen reader in each engine, and where an engine does not read it the package's script writes a visually hidden `<span>` instead. The same script, where it is loaded, sets `aria-current=\"true\"` on the item while exactly one has `data-status=\"current\"`, and adds the debug reports of TML-15, TML-21 and TML-22; without it no item is exposed as current, and the words still are. A time and a title are `dir=\"auto\"`-like through `unicode-bidi: plaintext` with physical alignment by `:dir()` (TML-20). TML-6 uses `1lh` of the item's first line. Inside a `.tanrei-prose` the list is not an island (it is a class on an `<ol>`), so prose's own rules keep reaching each body, and `timeline.css` takes back from `prose.css` what a timeline draws itself: the list's inset, its markers, the item gap and the measure on the list. Under `forced-colors: active` the markers and the connector are `CanvasText`, and the current marker a `CanvasText` disc with a `Canvas` mark (TML-16). React: `Timeline` and `TimelineEvent` render the same `<ol>` and `<li>`; `TimelineEvent` takes `time`, `dateTime`, `title` (text, rendered as `<p class=\"tanrei-timeline-title\">`) or a heading child, `status`, `statusLabel` and `icon`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiTimeline",
+      "props": {
+        "label": "label",
+        "size": "size",
+        "density": "density"
+      },
+      "items": {
+        "event": {
+          "name": "TanreiTimelineEvent",
+          "props": {
+            "time": "time",
+            "datetime": "date",
+            "title": "title",
+            "status": "status",
+            "statusLabel": "statusLabel",
+            "icon": "icon"
+          },
+          "notes": "`TanreiTimelineEvent(title:, time:, date:, status:, statusLabel:, icon:) { body }`; a heading title is the `title:` view builder, marked with the header trait by the product."
+        }
+      },
+      "notes": "`TanreiTimeline(label:, size:, density:) { TanreiTimelineEvent(…) … }`. A `VStack` of rows, not a `List` (no row chrome, no selection). Each event is one accessibility element that contains its children, whose label begins with the status label; `date` is a `Date` handed to the element's accessibility value where the platform has a use for it."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiTimeline",
+      "props": {
+        "label": "label",
+        "size": "size",
+        "density": "density"
+      },
+      "items": {
+        "event": {
+          "name": "TanreiTimelineEvent",
+          "props": {
+            "time": "time",
+            "datetime": "dateTime",
+            "title": "title",
+            "status": "status",
+            "statusLabel": "statusDescription",
+            "icon": "icon"
+          },
+          "notes": "`TanreiTimelineEvent(title, time, dateTime, status, statusDescription, icon) { body }` inside the timeline's scope."
+        }
+      },
+      "notes": "`TanreiTimeline(label, size, density) { TanreiTimelineEvent(…) … }`. A `Column` with `collectionInfo` and `collectionItemInfo` semantics, so the events are a list of that many items; the connector is drawn behind the rows with `drawBehind`. No `clickable` and no `focusable` modifier."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiTimeline",
+      "props": {
+        "label": "semanticLabel",
+        "size": "size",
+        "density": "density"
+      },
+      "items": {
+        "event": {
+          "name": "TanreiTimelineEvent",
+          "props": {
+            "time": "time",
+            "datetime": "dateTime",
+            "title": "title",
+            "status": "status",
+            "statusLabel": "statusSemanticLabel",
+            "icon": "icon"
+          },
+          "notes": "`TanreiTimelineEvent(title:, time:, dateTime:, status:, statusSemanticLabel:, icon:, child:)`; `titleWidget:` takes a heading of the product's own."
+        }
+      },
+      "notes": "`TanreiTimeline(semanticLabel:, size:, density:, events: [TanreiTimelineEvent(…), …])`. A `Column`, not a `ListView`: the timeline does not scroll (TML-10). The connector is a `CustomPaint` behind the rows. Each event is a `Semantics(container: true)` whose label begins with the status label."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Timeline",
+      "props": {
+        "label": "accessibilityLabel",
+        "size": "size",
+        "density": "density"
+      },
+      "items": {
+        "event": {
+          "name": "TimelineEvent",
+          "props": {
+            "time": "time",
+            "datetime": "dateTime",
+            "title": "title",
+            "status": "status",
+            "statusLabel": "statusAccessibilityLabel",
+            "icon": "icon"
+          },
+          "notes": "`<TimelineEvent title=\"…\" time=\"…\" status=\"done\" statusAccessibilityLabel=\"Done\">body</TimelineEvent>`."
+        }
+      },
+      "notes": "`<Timeline accessibilityLabel=\"Release history\">` with `<TimelineEvent>` children; `accessibilityRole=\"list\"` on the container. Each event is one accessible element whose label is composed from the status label, the time and the title. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

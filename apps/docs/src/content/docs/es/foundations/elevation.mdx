@@ -1,0 +1,41 @@
+---
+title: Elevación
+description: Seis niveles de orden en profundidad, dibujados como un anillo de línea fina más una sombra muy suave, sin teñir la superficie.
+translationOf: foundations/elevation.mdx
+sourceHash: bc2274ed8495260bb223620a2d5073f522fcc4f2
+---
+
+import ElevationScale from '../../../../components/tokens/ElevationScale.astro';
+
+La elevación describe qué superficie está por encima de cuál. Tanrei conserva los seis niveles semánticos, de 0 a 5, y los dibuja de forma contenida.
+
+<ElevationScale />
+
+## Primero el anillo, luego la sombra
+
+Cada nivel por encima de cero es un token de sombra compuesto con dos tipos de capa:
+
+1. un **anillo de 1px** en el rol `elevation-ring`, que define el borde con nitidez sobre cualquier fondo;
+2. una o dos **sombras muy suaves y de baja opacidad**, que crecen con el nivel.
+
+El anillo es siempre la primera capa. Una plataforma que no puede dibujar la extensión de una sombra lo representa como un borde de un píxel y conserva el resto.
+
+## Sin tinte
+
+Las superficies elevadas no se tiñen con el color primario. La profundidad se expresa con el anillo, la sombra y, cuando hace falta, un paso en la escala de contenedores de superficie. Así, las superficies neutras siguen siendo neutras.
+
+## En los temas oscuros
+
+Las sombras se ven mal sobre un lienzo casi negro, así que en los temas oscuros el anillo hace la mayor parte del trabajo, y las superficies elevadas pasan además a un rol de contenedor más claro.
+
+## Cómo aplicar la elevación
+
+| Nivel | Uso habitual |
+| --- | --- |
+| 0 | La página y todo lo que queda al ras de ella |
+| 1 | Tarjetas en reposo, opciones segmentadas seleccionadas |
+| 2 | Botones elevados, tarjetas que se elevan al pasar el cursor |
+| 3 | Menús, popovers, snackbars |
+| 4–5 | Diálogos, hojas y otras superficies modales |
+
+Usa tan pocos niveles como la pantalla permita. Si hay que separar dos elementos vecinos y ninguno flota, usa una línea fina.

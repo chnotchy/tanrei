@@ -1,0 +1,23 @@
+---
+title: कलर टोकन
+description: सिस्टम का हर कलर रोल, कंट्रास्ट के हर स्तर पर उसके रिज़ॉल्व किए गए लाइट और डार्क मान के साथ।
+translationOf: tokens/color.mdx
+sourceHash: 268c3b3086d0f6139384b59c01acca9c79c5fa8e
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ColorRoles from '../../../../components/tokens/ColorRoles.astro';
+
+`tanrei.sys.color` के अंतर्गत सिस्टम के सभी कलर रोल, लाइट और डार्क के लिए रिज़ॉल्व किए हुए। स्वॉच रिज़ॉल्व किए गए असली मान दिखाते हैं, इसलिए आप जिस भी थीम में पढ़ रहे हों, दोनों थीम दिखती हैं; आधे पारदर्शी रोल उस कैनवस के ऊपर बनाए गए हैं जिसके लिए वे बने हैं। रोल का क्या अर्थ है और उन्हें कैसे इस्तेमाल करें, इसके लिए [रंग](/hi/foundations/color/) पढ़ें।
+
+<Tabs syncKey="contrast">
+  <TabItem label="स्टैंडर्ड" value="standard">
+    <ColorRoles contrast="standard" />
+  </TabItem>
+  <TabItem label="मध्यम" value="medium">
+    <ColorRoles contrast="medium" />
+  </TabItem>
+  <TabItem label="उच्च" value="high">
+    <ColorRoles contrast="high" />
+  </TabItem>
+</Tabs>

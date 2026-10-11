@@ -1,0 +1,1781 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "text-input",
+  "title": "Text input",
+  "summary": "The box people type in — one line, or several that follow the text or are resized by hand; a date or a time entered unit by unit in the locale's form; code held exactly as it is written — with optional icons, a prefix and a suffix, a picker button and, in the looks that float one, its label inside the box. It has no label row and no message: a Field frames it, or the product names it.",
+  "category": "text-inputs",
+  "level": "base",
+  "listing": "advanced",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The box around the input. A stacked or filled input fills it and carries the hover state layer on it; a press anywhere on it focuses the input."
+    },
+    {
+      "id": "active-indicator",
+      "description": "The line along the bottom of a filled field; its focused state is thicker and colored.",
+      "optional": true
+    },
+    {
+      "id": "outline",
+      "description": "The border of an outlined input, which opens a gap where the floated label crosses it; in a stacked input, the line drawn inside the container's edge while it is focused or in error, which takes no layout space. Its focused state is thicker and colored.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "In a filled or outlined input, its name drawn inside the box: it rests in the input line while the input is empty and unfocused, and floats above the input once focused or filled. A stacked input draws none: the label above it is the row of the Field that frames it.",
+      "optional": true
+    },
+    {
+      "id": "required-asterisk",
+      "description": "After the floating label's text, an asterisk, where the Field that frames the input says the control is required and marks it (TXI-50). Kept from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "input",
+      "description": "The platform's own text element, which holds the value, the selection and any input-method composition. A date, time or date-time field draws a row of segments in its place. In a code field it is a left-to-right box in the code face that begins at the left in every layout direction, and the part that scrolls sideways while its lines do not wrap."
+    },
+    {
+      "id": "segment",
+      "description": "One unit of a date or a time — year, month, day, hour, minute, day period — in the input line of a date, time or date-time field: focusable on its own, stepped, typed into and cleared on its own. The separators between segments are not segments.",
+      "optional": true
+    },
+    {
+      "id": "placeholder",
+      "description": "A hint shown in the empty input line; never a label. In a date, time or date-time field each empty segment shows its own.",
+      "optional": true
+    },
+    {
+      "id": "prefix",
+      "description": "Fixed text before the value (a currency sign). Colored by the affix part.",
+      "optional": true
+    },
+    {
+      "id": "suffix",
+      "description": "Fixed text after the value (a unit). Colored by the affix part.",
+      "optional": true
+    },
+    {
+      "id": "leading-icon",
+      "description": "An icon at the start of the field.",
+      "optional": true
+    },
+    {
+      "id": "trailing-icon",
+      "description": "An icon, or the product's icon-only Button, at the end of the field.",
+      "optional": true
+    },
+    {
+      "id": "picker-button",
+      "description": "In a date, time or date-time field, an icon-only Button of the text variant at the end of the container, showing the calendar_month glyph (date, date-time) or the schedule glyph (time); it asks the product to present Calendar or DateTimePicker.",
+      "optional": true
+    },
+    {
+      "id": "resize-grip",
+      "description": "In a multi-line field that is resized by hand, a glyph in the container's bottom corner at its end edge — drag_handle while it resizes vertically, drag_indicator while it resizes both ways — that the person drags, or moves from the keyboard, to resize the field.",
+      "optional": true
+    },
+    {
+      "id": "caret",
+      "description": "The insertion point, drawn by the platform in the caret color."
+    },
+    {
+      "id": "entries",
+      "description": "What was entered already, inside the container and before the typing part, in lines that wrap: the content of the entries slot. The text input lays it out and draws none of it.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "stacked",
+        "filled",
+        "outlined"
+      ],
+      "default": "stacked",
+      "description": "Stacked is a filled box that shows focus and error with a line inside its edge and draws no label: the label of the Field that frames it stands above it. Filled and outlined float the label inside the box, marked by a tinted box and a bottom line, or by a border. Use one style per form. A design system may leave some out (the Tanrei system ships stacked only) or add values.",
+      "axis": "tanrei.comp.input-box.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "Minimum height of a single-line input's container (48 / 56). The hit area always meets the minimum target.",
+      "axis": "tanrei.comp.input-box.size"
+    },
+    {
+      "name": "type",
+      "type": "enum",
+      "values": [
+        "text",
+        "email",
+        "password",
+        "number",
+        "search",
+        "tel",
+        "url",
+        "code",
+        "date",
+        "time",
+        "date-time"
+      ],
+      "default": "text",
+      "description": "What the value is: chooses the keyboard, autocorrection, obscured entry and semantics. code is text written for a machine rather than for a reader — a snippet of configuration, a pattern, an identifier, a query, a key: a left-to-right run in the code face that the platform does not correct, capitalise, check for spelling or complete, on one line or, with multiline, on many. date, time and date-time are entered segment by segment in the locale's numeric form and held as ISO 8601. The value is a string for every type."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The text in the field; for date, time and date-time, the ISO 8601 form of what its segments give (2026-09-27, 14:30, 2026-09-27T14:30), or empty while a segment is empty or the value is not available."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the input for assistive technology where no Field frames it; a filled or outlined input also draws it, as the label that floats in its box. Inside a Field leave it empty: the Field's label names the input, and is what floats."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Does not draw the floating label of a filled or outlined input, which stays the accessible name. Inside a Field, hide the label on the Field. A stacked input draws no label, so this changes nothing there."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "default": "",
+      "description": "A hint shown while the value is empty and the label is not in the input line (above, floated or hidden). Never a replacement for label. In a code field it is an example of the code and is drawn as code (TXI-53, TXI-54); a hint in words belongs in the supportingText of its Field. Ignored by a date, time or date-time field, whose empty segments each show their own."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the input in its error condition and exposes it as invalid. A Field sets it from its own error; set it here only where no Field frames the input. What a value means is the product's to validate; the input never sets this itself. A date or time input also enters an error of its own while it is committed half-filled or with a value that is not available (TXI-30)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents focus, editing and form submission. Inside a Field, disable the Field, so that its label follows."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "The value can be focused, selected and copied, but not changed."
+    },
+    {
+      "name": "multiline",
+      "type": "boolean",
+      "default": false,
+      "description": "Accepts line breaks and shows several lines, sized as resize says. Ignored for password, date, time and date-time."
+    },
+    {
+      "name": "minRows",
+      "type": "number",
+      "default": 2,
+      "description": "The fewest lines a multi-line field shows: the height of an empty auto-resized field, the starting and smallest height of a manually resized one, and the height of a fixed one."
+    },
+    {
+      "name": "maxRows",
+      "type": "number",
+      "default": 0,
+      "description": "The most lines an auto-resized field grows to before it scrolls, and the tallest a manually resized one can be made; 0 is no limit. Ignored while resize is fixed."
+    },
+    {
+      "name": "resize",
+      "type": "enum",
+      "values": [
+        "auto",
+        "manual",
+        "fixed"
+      ],
+      "default": "auto",
+      "description": "How a multi-line field gets its height. auto: it follows the number of lines between minRows and maxRows, with an animated change, and has no grip. manual: it starts at minRows lines and the person resizes it with the grip in its bottom end corner. fixed: it stays at minRows lines, with no grip. Ignored unless multiline."
+    },
+    {
+      "name": "resizeAxis",
+      "type": "enum",
+      "values": [
+        "vertical",
+        "both"
+      ],
+      "default": "vertical",
+      "description": "What the person can resize by hand: the height only, or the height and the width. Ignored unless resize is manual."
+    },
+    {
+      "name": "resizeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the resize grip, in the product's language (\"Resize\"). The product's: Tanrei has no word for it. Empty reads the product's words. Required while the grip is shown.",
+      "words": "resizeLabel"
+    },
+    {
+      "name": "wrap",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether a multi-line code field continues a line that does not fit on following rows (true), or keeps every line of the code on one row and scrolls sideways inside its container (false) — for code whose lines are read as rows: a table of values, a log, a file in which a line break means something. The value is the same either way. Ignored unless type is code and multiline is true: prose always wraps, and a single line always scrolls in its line."
+    },
+    {
+      "name": "maxLength",
+      "type": "number",
+      "default": 0,
+      "description": "The most user-perceived characters the user can enter; 0 is no limit. Ignored for date, time and date-time."
+    },
+    {
+      "name": "counter",
+      "type": "boolean",
+      "default": false,
+      "description": "Keeps the character count (and maxLength, when set): part of the input's description and announced when typing pauses (TXI-19). The input draws none: a text field gives the count to its Field, which draws it at the end of its supporting row, and a product that frames the input by hand gives it to the Field's countText."
+    },
+    {
+      "name": "prefixText",
+      "type": "string",
+      "default": "",
+      "description": "Fixed text before the value, not part of it. In a code field it is code: drawn in the code face at the left of the value in every layout direction (TXI-53)."
+    },
+    {
+      "name": "suffixText",
+      "type": "string",
+      "default": "",
+      "description": "Fixed text after the value, not part of it. In a code field it is code: drawn in the code face at the right of the value in every layout direction (TXI-53)."
+    },
+    {
+      "name": "autocomplete",
+      "type": "string",
+      "default": "",
+      "description": "The autofill hint, as an HTML autofill field name (email, current-password, new-password, one-time-code, tel, postal-code, …); each platform maps it to its own content type. A code field left without one asks the platform to offer no remembered entry (TXI-55)."
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "default": "",
+      "description": "A BCP 47 language tag (\"en-US\", \"ja-JP\") for how a date, time or date-time field shows and reads its value: the order of the year, month and day segments, the separators, the clock, the digits and the names of the units. Empty uses the platform's current locale. The calendar is the Gregorian calendar in every locale."
+    },
+    {
+      "name": "min",
+      "type": "string",
+      "default": "",
+      "description": "The earliest value a date, time or date-time field accepts from the person, in its ISO 8601 form; empty for no limit."
+    },
+    {
+      "name": "max",
+      "type": "string",
+      "default": "",
+      "description": "The latest value a date, time or date-time field accepts from the person, in its ISO 8601 form; empty for no limit."
+    },
+    {
+      "name": "disabledDates",
+      "type": "strings",
+      "default": [],
+      "description": "Dates inside min and max that a date or date-time field does not accept from the person, as ISO 8601 calendar dates — the same list the product gives its DateTimePicker. Ignored by a time field."
+    },
+    {
+      "name": "invalidText",
+      "type": "string",
+      "default": "",
+      "description": "The words for a date, time or date-time input committed with some segments filled and others empty: given to the Field that frames it, which shows them as its error text (TXI-30)."
+    },
+    {
+      "name": "unavailableText",
+      "type": "string",
+      "default": "",
+      "description": "The words for a date, time or date-time input committed with a value before min, after max or, for a date, listed in disabledDates: given to the Field that frames it, which shows them as its error text (TXI-30)."
+    },
+    {
+      "name": "segmentEmptyText",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads as the value of a date or time segment that holds nothing yet, in the product's language (\"Empty\"). The product's: Tanrei has no word for it. Empty reads the product's words; with neither, an empty segment has no value text.",
+      "words": "segmentEmptyText"
+    },
+    {
+      "name": "picker",
+      "type": "boolean",
+      "default": false,
+      "description": "Shows the picker button in a date, time or date-time field. The field presents no picker itself: it emits pickerRequest, and the product presents a DateTimePicker in the matching mode and sets value to what was picked."
+    },
+    {
+      "name": "pickerLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the picker button (\"Choose date\"). Required while picker is shown."
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading-icon",
+      "description": "An icon at the start of the input."
+    },
+    {
+      "name": "trailing-icon",
+      "description": "An icon at the end of the input, or the product's own icon-only Button (clear, reveal password). A date or time field's picker button comes after it."
+    },
+    {
+      "name": "entries",
+      "description": "What was entered already — the product's own elements, or the chips of a component that holds the input (a chip field): laid out inside the box before the typing part, in lines that wrap (TXI-64). The text input gives them no role, no focus order and no key (TXI-66)."
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "description": "The user changed the value; carries the new value. Emitted for every change, not when the product sets value. A date, time or date-time field emits it when its value changes — when its last segment is filled, a filled field is edited, or it is emptied — not for a segment that leaves the value empty."
+    },
+    {
+      "name": "change",
+      "description": "The user committed a changed value (focus left the field, or the action key was pressed in a single-line field); carries the value."
+    },
+    {
+      "name": "action",
+      "description": "The user pressed the keyboard's action key (Enter, Return, Go, Search, Done) in a single-line field."
+    },
+    {
+      "name": "pickerRequest",
+      "description": "The user activated the picker button of a date, time or date-time field; carries the value, type, min and max. The product presents the picker and sets value to the picked value."
+    },
+    {
+      "name": "entryError",
+      "description": "The user committed a date, time or date-time field that is half-filled or whose value is not available; carries the reason (invalid: some segments are empty; unavailable: before min, after max or a listed date) and the text of the row of segments as drawn. The entry error itself is shown by the Field that frames the input (TXI-30)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "TXI-1",
+      "text": "WHEN the user changes the value — by typing, deleting, pasting, cutting, dictating, autofill or an input method committing text — THE text input SHALL emit input once per change with the new value; WHEN the product sets value THE text input SHALL show it and SHALL NOT emit input or change."
+    },
+    {
+      "id": "TXI-2",
+      "text": "WHEN the input loses focus (for a date, time or date-time field, when focus leaves its segments as TXI-43 says), or the user presses the keyboard's action key in a single-line field, with a value different from the one last committed (the value when the input gained focus, or at the last change) THE text input SHALL emit change once with the value."
+    },
+    {
+      "id": "TXI-3",
+      "text": "WHEN the user presses the keyboard's action key in a single-line field THE text input SHALL emit action after any change it causes, and on the web, inside a form, SHALL then request the form's submission as a native input does unless action was cancelled; WHILE multiline is true the key SHALL insert a line break and SHALL NOT emit action. The submission SHALL be requested through the form's default button (BTN-30): WHILE the form has a submit button — the platform's own or a Button of type submit — the first of them in document order SHALL be pressed, so that its click is emitted and its name and value are sent, and WHILE that button is disabled nothing SHALL be submitted; only a form with no submit button is asked directly.",
+      "verify": "On the web, in a form whose first submit button is the platform's own with a name and a value: Enter in the field emits one click on that button and one submit whose data holds the pair; with the button disabled, no submit; in a form with no submit button, one submit as before."
+    },
+    {
+      "id": "TXI-4",
+      "text": "WHILE an input method is composing text THE text input SHALL leave the composition to the platform's native text element: it SHALL NOT write the value back into the element, trim, truncate, reformat or apply maxLength to it, and SHALL NOT emit change; input during a composition SHALL be the platform's own (marked as composing where the platform marks it), a committed composition SHALL always produce an input, and a value the product sets during a composition SHALL be applied when the composition ends.",
+      "verify": "Drive a Japanese input method (or the platform's composition test API) through a marked-text sequence and a commit, with maxLength set and a product that echoes value back on every input."
+    },
+    {
+      "id": "TXI-5",
+      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE text input SHALL NOT be focusable or editable, SHALL NOT emit input, change or action, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, and SHALL render every part from the disabled component tokens of its variant (of its error parts WHILE error is true)."
+    },
+    {
+      "id": "TXI-6",
+      "text": "WHILE hovered or focused THE text input SHALL render its container, active indicator, outline, floating label and its asterisk, input, placeholder, prefix and suffix, icons, resize grip, caret and opacity, and the widths of its outline and active indicator, from the component tokens of the highest-precedence active state, with precedence focused over hovered; unlike a button, focus gained by pointer or touch SHALL select the focused state, because a field shows where typing will go however it was focused. Selected text SHALL be highlighted in comp.input-box.selection.color and drawn in comp.input-box.selection.content.color in every variant and state.",
+      "verify": "Focused cannot be a snapshot fixture (the harnesses render without focus). Unit tests focus the input by pointer and by keyboard and read the resolved tokens: under the default system the focused outline and indicator are thicker and change color, and a hovered filled container carries the state layer."
+    },
+    {
+      "id": "TXI-7",
+      "text": "THE text input SHALL show focus by its focused tokens — the focused active indicator or outline is its focus indicator, drawn inside the container's edge by a stacked field (TXI-26) — and SHALL NOT draw the focus ring; WHERE sys.behavior.focus-style is glow it SHALL also draw the glow around the container while focused."
+    },
+    {
+      "id": "TXI-8",
+      "text": "WHERE the container is shorter than the minimum target THE text input SHALL extend its hit area vertically to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. WHEN the user presses anywhere on the input outside an interactive slot element, the picker button and the resize grip — the container's padding, a floating label, the prefix, the suffix, a decorative icon — THE text input SHALL focus the input (in a date, time or date-time field, the segment TXI-43 names); it SHALL draw no press answer, because a press on a field is not an action. A press on the label row of the Field that frames it focuses the input too, and is that Field's (FLD-12)."
+    },
+    {
+      "id": "TXI-9",
+      "text": "WHEN variant or size names a value that the active design system does not have THE text input SHALL render with the default value's tokens, and in debug builds report the unknown value; WHEN variant names a value the active system has but the text input does not know by name (one a layer added) it SHALL draw no label of its own and draw its edge as a stacked input does (TXI-26), with that value's own tokens; WHEN type names a value the text input does not know it SHALL behave as text and in debug builds report the unknown value."
+    },
+    {
+      "id": "TXI-10",
+      "text": "WHILE readOnly is true and disabled is false THE text input SHALL stay focusable, selectable and copyable, SHALL NOT let the user change the value, SHALL NOT emit input or change, SHALL expose the read-only state to assistive technology, SHALL be submitted with its form on the web, and SHALL render as an enabled field, including its hovered and focused states."
+    },
+    {
+      "id": "TXI-11",
+      "text": "WHILE error is true — set by the product, or by the Field that frames it (FLD-8) — or an entry error lasts (TXI-30) THE text input SHALL render every part, in every state, from the error parts of its variant (comp.input-box.outlined.error.outline.color and the other error. parts), so that the box itself is marked and not only a text below it, and SHALL expose the invalid state to assistive technology (aria-invalid on the web). THE text input SHALL never set error itself and SHALL show no error text of its own: the words that say what is wrong are the errorText of the Field that frames it, which that Field draws and gives the input as its description (FLD-7, FLD-11)."
+    },
+    {
+      "id": "TXI-13",
+      "text": "WHERE variant is filled or outlined, WHILE the input is focused, the value is not empty, or the platform reports the field autofilled, THE text input SHALL show its label floated, and otherwise rest it centred vertically in the container (for an outlined field, the input line) in comp.input-box.label.typescale.medium for size medium (and so on). A filled field floats the label to the top of the container, above the input line; an outlined field floats it onto the outline's top edge, centred on the line, and leaves a gap of comp.input-box.outline.notch-padding in the outline on each side of it. The floated label is drawn in comp.input-box.label.floated-typescale.medium for size medium (and so on). Beside a leading icon, an outlined field's floated label starts at comp.input-box.container.padding-inline.medium for size medium (and so on), over the icon, while its resting label starts at the input text; a filled field's label starts at the input text in both positions. WHEN the label does not fit on one line in the width it is given (a narrow field, a long or translated label, or enlarged text) THE text input SHALL wrap the label rather than cut it, resting and floated, and grow to hold it: a resting label wraps inside the container, which grows to hold its lines; a filled field's floated label takes as many lines as it needs above the input line; an outlined field's floated label sits on the outline's top edge with its last line centred on the line, the field reserving room above its container for the lines above that, and opens the outline's gap by the width of its widest line. The label SHALL never be drawn over the input or the value, and never be cut with an ellipsis, because text enlarged to 200% must lose no content. Neither variant SHALL change height when its label floats: an outlined field keeps the room for the floated lines above the last reserved while its label rests, as a filled field keeps its band (TXI-16). The label it floats SHALL be its accessible name (TXI-23): its own label where it has one, and otherwise the label of the Field that frames it. WHILE labelHidden is true — its own, or that Field's (FLD-25) — or it has no name THE text input SHALL draw no label (TXI-15). WHERE variant is stacked, or a variant laid out as stacked (TXI-9), THE text input SHALL draw no label at all: the label above it is the Field's row (FLD-2).",
+      "verify": "Unit: a field 96 wide with a label that needs two lines, both variants, resting and floated: the label's lines are all drawn, none overlaps the input line, the field is taller than with a one-line label, and an outlined field's gap is as wide as the widest line."
+    },
+    {
+      "id": "TXI-14",
+      "text": "WHEN the label floats or rests THE text input SHALL move and resize it, and open or close the outline's gap, over comp.input-box.motion.label-duration with comp.input-box.motion.label-easing; WHEN its state changes it SHALL animate colors and widths over comp.input-box.motion.state-duration with comp.input-box.motion.state-easing; WHERE motion is reduced it SHALL make both changes at once."
+    },
+    {
+      "id": "TXI-15",
+      "text": "WHILE labelHidden is true or it has no name to float (TXI-13) THE text input SHALL NOT draw the floating label; WHILE the value is empty THE text input SHALL show placeholder only while the label is not in the input line — a stacked input, whose label is the row of its Field; floated; or not drawn — so that the two never overlap, and the segments of a date, time or date-time field SHALL be shown by the same rule (TXI-42); and it SHALL show prefixText before the value, comp.input-box.affix.gap from it, and suffixText at the end of the input line, comp.input-box.affix.gap after the input, both in the input's text style, exactly while the label is not in the input line; while shown, the prefix and suffix SHALL be part of the input's description, so that a unit or currency is read with the value."
+    },
+    {
+      "id": "TXI-16",
+      "text": "THE text input SHALL be at least comp.input-box.container.height.medium tall for size medium (and so on) and centre a single input line in it (a multi-line field sets its lines from the top instead, TXI-51); WHILE a filled field draws its label, resting or floated, it SHALL be at least twice comp.input-box.container.padding-block-with-label.medium plus one line of comp.input-box.label.floated-typescale.medium plus one line of comp.input-box.input.typescale.medium tall for size medium (and so on), so that it does not change height when the label floats. It SHALL grow with enlarged text and never clip it, pad its text by comp.input-box.container.padding-inline.medium and an icon by comp.input-box.container.padding-inline-with-icon.medium from the container's edge (and so on), round a stacked or outlined field's four corners and a filled field's top corners by comp.input-box.container.shape and a filled field's bottom corners by comp.input-box.container.shape-bottom, and ease them by sys.shape.corner-smoothing."
+    },
+    {
+      "id": "TXI-17",
+      "text": "WHILE multiline is true and type is not password, date, time or date-time THE text input SHALL show its input as lines of comp.input-box.input.typescale.medium for size medium (and so on) and give it the height resize names — auto follows the number of lines (TXI-37, TXI-38), manual is the height the person gives it with the resize grip, starting at minRows lines (TXI-39–TXI-41), and fixed is minRows lines, with no grip, whatever maxRows is — scroll what does not fit, keeping the caret in view, align its floating label, icons, prefix and suffix with the first line, which keeps its place at the top of the container (TXI-51), and insert a line break on Enter; a minRows below 1 SHALL be 1. WHEN resize or resizeAxis names a value the text input does not know it SHALL behave as auto, or as vertical, and in debug builds report the unknown value; WHILE multiline is false it SHALL ignore resize, resizeAxis, minRows, maxRows and wrap; WHILE type is password, date, time or date-time THE text input SHALL stay single-line and in debug builds report a multi-line field of that type."
+    },
+    {
+      "id": "TXI-18",
+      "text": "WHILE maxLength is greater than 0 THE text input SHALL refuse a user edit that would make the value longer than maxLength user-perceived characters (grapheme clusters: an emoji, or a letter with its accents, counts once) and shorten a paste to fit; it SHALL NOT cut a composition in progress but apply the limit when the composition is committed, and SHALL NOT shorten a value the product sets."
+    },
+    {
+      "id": "TXI-19",
+      "text": "WHILE counter is true THE text input SHALL keep a count: the number of user-perceived characters in the value, counted as TXI-18 counts them — followed by a slash and maxLength WHILE maxLength is greater than 0 — written as digits and that one character, with no word. The count SHALL be part of the input's own description, before the description its Field gives (FLD-11), and WHEN typing pauses for one second THE text input SHALL announce the count once, politely, as that text, never on every keystroke. THE text input SHALL NOT draw the count: it SHALL let what holds it read the count, as that text, at every moment, and SHALL say that it changed with every change of the value or of maxLength, a value the product sets included — so that a text field gives it to its Field, which draws it at the end of its supporting row (TXF-67, FLD-27), and a product that frames the input by hand gives it to that Field's countText. WHILE nothing draws it THE text input SHALL still keep, describe and announce the count."
+    },
+    {
+      "id": "TXI-20",
+      "text": "THE text input SHALL give its input the keyboard and semantics of type: text a general keyboard; email an email keyboard without autocapitalization or autocorrection; password obscured, secure entry without autocorrection; number a numeric keyboard with a decimal separator; search a general keyboard whose action key reads as search; tel a phone keypad; url a URL keyboard without autocapitalization or autocorrection; code a general keyboard with nothing the platform would do to prose (TXI-55); date, time and date-time a numeric keypad on each number segment (TXI-45), without autocapitalization, autocorrection or suggestions. The value SHALL be a string for every type: number SHALL NOT parse, round or validate it, and date, time and date-time hold the ISO 8601 form of TXI-28."
+    },
+    {
+      "id": "TXI-21",
+      "text": "THE text input SHALL pass autocomplete to the platform as its autofill hint (mapped to the platform's content type where it has one), and WHEN the platform autofills the field it SHALL float the label where its variant floats it (TXI-13) and emit input with the filled value; on the web, a field the browser marks as autofilled SHALL float its label even before the browser exposes the value to script."
+    },
+    {
+      "id": "TXI-22",
+      "text": "THE text input SHALL draw an icon in the leading-icon or trailing-icon slot at comp.input-box.icon.size.medium for size medium (and so on), with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, colored by its leading-icon or trailing-icon part and comp.input-box.container.gap.medium from the text (and so on). Every glyph the text input draws — in these slots, in the picker button (TXI-32) and as the resize grip (TXI-39) — SHALL be a glyph of the system's icon set at a step of the sys.icon scale; the text input SHALL draw no mark of its own. An interactive element the product places in a slot SHALL keep its own tokens and be its own focus stop after the input. THE text input SHALL build in no clear, reveal or other action except the picker button of a date or time field (TXI-32), and SHALL hide those a platform draws inside its native element (the web's search cancel button and password reveal button)."
+    },
+    {
+      "id": "TXI-23",
+      "text": "THE text input SHALL take its name, its description and its required state from the Field that frames it, as every control a Field frames does (FLD-10, FLD-11): the Field's label is its accessible name, whether or not any label is drawn, and the Field's supporting text with, in error, the error text after it its description, after its own (the prefix and the suffix, TXI-15; the count, TXI-19). WHILE label is not empty THE text input SHALL use it as the accessible name instead, for an input no Field frames or one whose visible label is elsewhere. It SHALL never use placeholder as the name, and IF it has neither name it SHALL still render and work, and in debug builds SHALL report that it has no accessible name. WHILE its Field says it is required THE text input SHALL expose the required state to assistive technology (and, on the web, a missing value to the form's constraint validation), whichever mark is drawn and where none is; it has no requirement setting of its own, SHALL NOT validate because of one, and SHALL NOT raise an entry error on an empty date for it (TXI-30)."
+    },
+    {
+      "id": "TXI-24",
+      "text": "WHEN the layout direction is right-to-left THE text input SHALL mirror its layout — leading icon on the right, trailing icon and picker button on the left, the prefix at the field's start edge and the suffix at its end edge beside a value laid out by its own direction (beside one that is always left-to-right they stand as TXI-67 says), the label floating from the right edge with its asterisk to its left, the resize grip in the container's bottom-left corner, where a drag or an arrow to the left widens a field that resizes both ways — and SHALL lay out the typed text by its own direction: the base direction of the value's first strong character and, WHILE the value is empty or holds no strong character (digits, spaces, punctuation), the layout direction, so that the caret of an empty field and its placeholder stand at the field's start edge. A single-line value SHALL be aligned to the start edge of its own direction (left-to-right text typed into a right-to-left field sits at the left), and in a multiline field each paragraph SHALL take the direction and the alignment of its own first strong character; except that the values of email, url, tel, number and password fields SHALL be laid out left-to-right, aligned to the field's start edge, the input line of a code field as one left-to-right row that begins at the left (TXI-53), and the segments of a date, time or date-time field as one left-to-right row at the field's start edge, in the order the locale's own form gives (TXI-42).",
+      "verify": "Test an empty field, a value of digits only, a left-to-right and a right-to-left sentence, an email value and a multiline value with one paragraph of each direction, in both layout directions: where the caret and the placeholder stand, the order of the runs and the edge the text is aligned to. Fixtures stacked-date-rtl and stacked-multiline-manual-rtl draw the date row and the grip right-to-left."
+    },
+    {
+      "id": "TXI-26",
+      "text": "WHILE variant is stacked THE text input SHALL draw its container in its container color with no edge at rest (comp.input-box.stacked.outline.color is transparent), and WHILE focused SHALL draw its focused outline color and width as a line inside the container's edge, following its corners, that takes no layout space: the container's size and the places of the input text, the icons, the affixes and the picker button SHALL NOT change as the line appears, thickens or goes, and it SHALL change over comp.input-box.motion.state-duration with comp.input-box.motion.state-easing (TXI-14). WHILE the field is in error — error is true, or the entry error of TXI-30 — it SHALL draw the same inner line at rest, in comp.input-box.stacked.error.outline.color at comp.input-box.outline.width, so that the field itself is marked and not only its text. A hovered stacked field SHALL show the state layer on its container and draw no edge.",
+      "verify": "Unit: focusing a stacked field changes neither the container's box nor the input's, the icons' or the picker button's positions, and the resolved inner line takes the focused outline color and width; a stacked field with error true draws the error line at rest."
+    },
+    {
+      "id": "TXI-28",
+      "text": "WHILE type is date, time or date-time THE text input SHALL hold as its value the ISO 8601 form of what its segments give — a calendar date (2026-09-27), a time of day in hours and minutes on the 24-hour clock (14:30), or both joined by T (2026-09-27T14:30), with no time zone — or an empty string (TXI-46), and SHALL show it not as one editable text but as a row of segments in the locale's numeric form (TXI-42), each entered, stepped and cleared on its own (TXI-43–TXI-45). The locale SHALL be locale, or the platform's current locale while locale is empty, and the calendar the Gregorian calendar in every locale. THE text input SHALL ignore placeholder, maxLength, prefixText and suffixText for these types, because every empty segment shows its own placeholder and the row is not free text, and in debug builds SHALL report one that is set.",
+      "verify": "Fixtures stacked-date (en-US), stacked-date-ja (ja-JP), stacked-time-picker and stacked-date-time-picker set locale, so that every platform draws the same row; stacked-date-empty and stacked-time-empty show the segments' placeholders."
+    },
+    {
+      "id": "TXI-29",
+      "text": "WHEN the user pastes text while a segment of a date, time or date-time field has focus, or dictation or the platform's autofill hands the field text, THE text input SHALL read the whole text, whichever segment has focus: as a date WHEN it holds exactly three groups of digits (ASCII or the locale's) separated by one or more other characters, in the order of the locale's numeric form, or year, month, day WHEN the first group has four digits, with a four-digit year and a month and day that exist in that year, leading zeros optional; as a time WHEN it holds an hour and minutes as two groups of digits separated by one or more other characters, the hour from 0 to 23, or from 1 to 12 WHEN the locale's name for the morning or the afternoon, or a, p, am or pm in any case, comes before or after them; as a date-time WHEN it holds such a date and then such a time, separated by white space, a comma or T. WHEN the text reads as a value of the field's type THE text input SHALL fill every segment from it, move focus to the last segment and emit input as TXI-46 says; WHEN it reads as nothing THE text input SHALL leave every segment as it was. WHEN the user copies while a segment has focus THE text input SHALL put the whole row on the clipboard as drawn — the locale's form, with an empty segment's placeholder left out — and WHEN the user cuts it SHALL do the same and then empty every segment, unless readOnly is true.",
+      "verify": "Unit, en-US, pasting onto the day segment: \"9/7/2026\", \"09-07-2026\" and \"2026.9.7\" fill the row as 09/07/2026 and give 2026-09-07; \"9/7/26\", \"2/30/2026\" and \"9/7\" change nothing; in a time field \"2:30 pm\" and \"14:30\" give 14:30 and \"12:05 AM\" gives 00:05. Copy from a filled field puts \"09/07/2026\" on the clipboard."
+    },
+    {
+      "id": "TXI-30",
+      "text": "WHEN the user commits a date, time or date-time field (TXI-43: focus leaves it, or the action key is pressed) WHILE some of its segments are filled and others are empty, or WHILE every segment is filled and what they give is not available (TXI-46), THE text input SHALL keep its segments as they are, emit change if the value changed since the last commit (TXI-2), emit entryError once with the reason — invalid for a field that is not completely filled, unavailable for a date or time before min, after max or listed in disabledDates — and the text of its row of segments as drawn, and enter an entry error: it SHALL render and be exposed exactly as WHILE error is true (TXI-11), and SHALL report the refusal to the Field that frames it with invalidText or unavailableText as its words, which that Field shows in its supporting row and announces (FLD-28: its errorText while that one is empty); WHILE no Field frames it that text SHALL be part of the input's description. The entry error SHALL end with the next edit of a segment or WHEN the product sets value, and THE text input SHALL then withdraw its report; while it lasts, on the web, the field SHALL report badInput for a half-filled row, rangeUnderflow or rangeOverflow for a value before min or after max, and a custom error for a listed date, to the form's constraint validation. A field whose segments are all empty SHALL commit without an entry error, whether or not its Field says it is required (TXI-23).",
+      "verify": "Entry error cannot be a snapshot fixture (it needs typing and a commit). Unit: fill the month and the day and leave the field (invalid); with max 2026-12-31 fill 01/05/2027, and with disabledDates [\"2026-09-27\"] fill 09/27/2026 (unavailable): each emits entryError once with its reason, shows its text and sets the invalid state while the value is empty; the next keystroke on a segment clears it. Leaving an untouched empty field emits nothing."
+    },
+    {
+      "id": "TXI-31",
+      "text": "WHEN the product sets value on a date, time or date-time field THE text input SHALL fill every segment from it — or empty every segment for an empty value, except as TXI-46 keeps a half-filled row — and end any entry error, and SHALL NOT emit input or change (TXI-1) nor check it against min, max and disabledDates, because the field validates what the person enters and the product what it sets; WHEN value, min or max is neither empty nor the ISO 8601 form of the type THE text input SHALL treat it as empty, and an entry of disabledDates that is not an ISO 8601 calendar date as absent, and in debug builds report it, and it SHALL report a min later than max."
+    },
+    {
+      "id": "TXI-32",
+      "text": "WHILE type is date, time or date-time, picker is true and readOnly is false THE text input SHALL draw a picker button at the end of its container: an icon-only Button of the text variant and of the Button size with the field's size name (Button's default size for a field size Button does not have), showing the calendar_month glyph for date and date-time and the schedule glyph for time, its glyph centred where a trailing icon's would be, with the trailing-icon slot's content, if any, before it, comp.input-box.container.gap.medium away for size medium (and so on). It SHALL be a Button in every respect — its own tokens, its press, focus ring and target (BTN-5, BTN-8, BTN-9, BTN-10) — named by pickerLabel (an empty pickerLabel reported in debug builds), exposed as opening a dialog (aria-haspopup=\"dialog\" on the web), and a focus stop after the last segment and any interactive slot element; WHILE the field is disabled it SHALL be disabled with it. WHERE type is not date, time or date-time THE text input SHALL ignore picker and, WHILE picker is true, report it in debug builds.",
+      "verify": "Fixtures stacked-date-picker, stacked-date-picker-large, stacked-time-picker, stacked-date-time-picker, stacked-date-disabled and outlined-date-picker; unit tests check the Tab order, the name and the popup semantics."
+    },
+    {
+      "id": "TXI-33",
+      "text": "WHEN the user activates the picker button THE text input SHALL emit pickerRequest once with the value, type, min and max — the empty value WHILE the row is half-filled or not available, without raising the entry error of TXI-30, because the picker is about to give a whole value — and SHALL NOT itself change the value, move focus or present anything: the product presents the picker — a DateTimePicker whose mode is the field's type (date, time or date-time), a docked one anchored to the field — and that picker returns focus to the picker button when it closes (DTM-4). WHEN the product then sets value to the picked value THE text input SHALL fill its segments as TXI-31 says, without emitting input or change, because the picker's own change already told the product."
+    },
+    {
+      "id": "TXI-34",
+      "text": "THE text input SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the text input is shown THE text input SHALL draw itself for the new direction at once, without a motion of its own, keeping its value, its selection and caret, and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "TXI-35",
+      "text": "WHERE the layout direction is right-to-left THE text input SHALL draw the glyphs of its leading-icon and trailing-icon slots mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order TXI-24 gives. THE text input SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The picker button's calendar_month and schedule (TXI-32) and the resize grip's drag_handle and drag_indicator (TXI-39) are not marked and are never mirrored.",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "TXI-36",
+      "text": "THE text input SHALL lay out its floating label, its placeholder, its prefix and its suffix as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE text input SHALL still place each and align its lines by the layout direction, not by the text's own, except the prefix and the suffix of a value that is always left-to-right, which TXI-67 places. WHILE type is code the placeholder, the prefix and the suffix are code and SHALL be laid out as TXI-53 says instead; the floating label stays as this sentence says."
+    },
+    {
+      "id": "TXI-37",
+      "text": "WHILE multiline is true and resize is auto THE text input SHALL draw no resize grip and SHALL make its input exactly as tall as its lines of text — a line the text wraps onto counts as a line, and in a code field whose lines do not wrap (TXI-58) only the lines of the code count — never fewer than minRows lines and never more than maxRows lines (no upper limit while maxRows is 0, and exactly minRows lines while maxRows is smaller than minRows); WHILE the text has more lines than maxRows it SHALL scroll inside the input and keep the caret in view, and WHILE every line fits it SHALL show no scrollbar. THE height SHALL follow every cause of a changed number of lines — typing, deleting, pasting, a value the product sets, a changed width, enlarged text — and the container and whatever follows the input in the layout — the supporting row of its Field first — SHALL move with it.",
+      "verify": "Fixtures stacked-multiline (three lines of room for two of text: minRows), stacked-multiline-auto-grown (five lines of text, no limit) and stacked-multiline-auto-max (five lines of text in maxRows 3: scrolled, no grip)."
+    },
+    {
+      "id": "TXI-38",
+      "text": "WHEN the number of lines an auto-resized field shows changes because its value changed — by the person, or because value was set — THE text input SHALL change its height from the one shown to the new one over comp.text-input.motion.resize-duration with comp.text-input.motion.resize-easing, as one motion: however many lines arrive or leave at once, the height SHALL go from the one shown straight to the end height, which maxRows bounds, and never through a height for each line; a change that arrives while a motion is running SHALL continue from the height then shown to the new end height, and changes SHALL never be queued one after another. At every frame of the motion the first line and everything TXI-51 centres on it SHALL stay where they are, the container's bottom edge and whatever follows the input SHALL move with the height, the line that holds the caret SHALL stay in view, and no scrollbar SHALL be shown WHILE the end height holds every line. THE text input SHALL make the change at once, without that motion, WHEN it is first drawn or drawn again after it was not shown; WHEN the height changes because its width, its text size, minRows or maxRows changed; WHILE a pointer or a touch is held down in its text, so that text under a selection being dragged never moves away from the finger; and WHERE motion is reduced.",
+      "verify": "Unit: type a line break into a field of two lines and sample the input's height during the motion: it passes through heights between two and three lines and ends at three, and the first line's distance from the container's top edge is the same in every sample; with reduced motion the next frame is three lines. A five-line value on the first render shows five lines with no motion. Paste forty lines into a field with maxRows 6: the samples rise without a step to six lines, once. A value set from a script while a pointer is held down in the text changes the height in the next frame."
+    },
+    {
+      "id": "TXI-39",
+      "text": "WHILE multiline is true, resize is manual and disabled is false THE text input SHALL start at minRows lines, SHALL NOT change its height with its content, and SHALL draw a resize grip in the container's bottom corner at its end edge: the drag_handle glyph of the system's icon set WHILE resizeAxis is vertical and the drag_indicator glyph WHILE it is both, at comp.text-input.resize-grip.size, comp.text-input.resize-grip.inset from the container's bottom edge and from its end edge, colored by its resize-grip part (comp.text-input.stacked.resize-grip.color for a stacked field; its error. part WHILE the field is in error), drawn over the text and inside a stacked field's inner line. WHEN the user drags the grip THE text input SHALL follow the pointer without motion: vertically, the input's height between minRows lines and maxRows lines (no upper limit while maxRows is 0); and WHILE resizeAxis is both also horizontally, the field's own width, its end edge following the pointer, no wider and no narrower than its layout allows and never narrower than its inline paddings, its icons and sys.target.touch; WHILE resizeAxis is vertical a horizontal movement SHALL change nothing. THE text input SHALL keep the size the person gave it until resize, resizeAxis, minRows or maxRows changes, SHALL wrap its text to a new width and scroll what does not fit, and SHALL NOT select text, move the caret or take focus from the input because of a drag. WHILE readOnly is true the grip SHALL stay, because a person may need more of the text in view; WHILE disabled is true THE text input SHALL keep its size and draw no grip.",
+      "verify": "Fixtures stacked-multiline-manual, stacked-multiline-manual-both, stacked-multiline-manual-rtl and outlined-multiline-manual draw the grip; stacked-multiline-fixed draws none. Unit: a drag of 52 downward on the grip of a field with 26 px lines makes the input two lines taller and moves no caret; a drag to the side changes the width only while resizeAxis is both."
+    },
+    {
+      "id": "TXI-40",
+      "text": "THE text input SHALL give the resize grip a hit area at least sys.target.touch wide and high for touch input and sys.target.pointer for fine pointers, centred on the grip's glyph and reaching past the container's edges where it must, without changing the grip's drawn size or the field's layout; a platform that cannot tell the input type SHALL use sys.target.touch. A press that begins inside that area SHALL belong to the grip and SHALL NOT place the caret, the text under it staying reachable from the keyboard and by scrolling; WHILE a fine pointer is over it THE text input SHALL show the platform's resize cursor for the axes it resizes, where the platform has one."
+    },
+    {
+      "id": "TXI-41",
+      "text": "THE text input SHALL make the resize grip a focus stop of its own after the input and any interactive slot element, exposed as a window splitter — a focusable separator with a value on the web, the platform's adjustable trait elsewhere — named by resizeLabel, whose value is the number of lines the input shows, its minimum minRows and its maximum maxRows (none exposed while maxRows is 0); WHILE resizeLabel is empty and the product's words give none it SHALL still render and in debug builds report that the grip has no accessible name. WHILE the grip has keyboard focus, Down Arrow SHALL make the input one line taller and Up Arrow one line shorter, Home SHALL return it to minRows lines and End SHALL take it to maxRows lines (WHILE maxRows is 0, to the height that shows every line of the text), and WHILE resizeAxis is both the horizontal arrow that points to the field's end edge (Right Arrow in a left-to-right layout, Left Arrow in a right-to-left one) SHALL widen the field by one line height of its input text and the other SHALL narrow it by as much, each within the limits of TXI-39. WHEN the user activates the grip without dragging — a click or a tap that ends where it began, Enter or Space — THE text input SHALL make the input as tall as its text needs, within minRows and maxRows, and WHEN it is already that tall SHALL return it to minRows lines, so that resizing never depends on a drag. A change made from the keyboard or by activation SHALL move as TXI-38 says. THE grip SHALL show its keyboard focus as sys.behavior.focus-style names (ring or glow) around its glyph, SHALL NOT show it for focus gained by pointer or touch, and SHALL draw no state layer and no pressed answer of its own: the field has no pressed state, and the resize is the answer to the press.",
+      "verify": "Unit: Tab reaches the grip after the input; Down Arrow three times adds three lines and the exposed value follows; Home returns to minRows; Enter on a field whose text needs six lines shows six, and Enter again returns to minRows; in a right-to-left layout Left Arrow widens a field that resizes both ways."
+    },
+    {
+      "id": "TXI-42",
+      "text": "WHILE type is date, time or date-time THE text input SHALL draw in its input line, in place of one text input, one segment for each unit of the value, in the order and with the separators of the locale's numeric form: year, month and day for a date (month, day, year with \"/\" in en-US, \"09/27/2026\"; year, month, day in ja-JP, \"2026/09/27\"; day, month, year with \".\" in de-DE, \"27.09.2026\"); hour and minute, and a day-period segment where the locale's clock is the 12-hour one, for a time (\"2:30 PM\" in en-US, \"14:30\" in ja-JP); and for a date-time the date's segments, the text the locale joins them with, then the time's (\"09/27/2026, 2:30 PM\" in en-US). A filled segment SHALL show its number in the locale's digits — the year with four digits, the month, the day and the minute with two, the hour as the locale writes it — or the locale's name for the morning or the afternoon, in the input's text style and color; an empty segment SHALL show its placeholder in the placeholder color (the focused one as TXI-43 says): yyyy, mm, dd, hh and mm, and for the day period the locale's name for the morning. The separators and the joining text are not segments: they SHALL be drawn in the placeholder color WHILE every segment is empty and in the input color otherwise, SHALL NOT take focus, and SHALL be kept from assistive technology. Each segment SHALL keep the width of its filled form while it is empty or half typed, with comp.text-input.segment.padding-inline on each side, so that the row does not shift as it fills. The row SHALL start where the input text starts, at the field's start edge, and SHALL be laid out left to right in every layout direction, a day-period segment isolated in its own direction.",
+      "verify": "Fixtures stacked-date, stacked-date-ja, stacked-time-picker, stacked-time-24h, stacked-date-time-picker (filled rows), stacked-date-empty and stacked-time-empty (placeholders), stacked-date-rtl (the row left to right at the right edge)."
+    },
+    {
+      "id": "TXI-43",
+      "text": "WHILE type is date, time or date-time and disabled is false THE text input SHALL make each segment a focus stop of its own, in the row's order: Tab SHALL move from a segment to the next, and from the last to whatever follows it in the field (an interactive slot element, the picker button), and Shift+Tab the other way; Right Arrow SHALL move focus to the segment drawn to the right and Left Arrow to the one drawn to the left, stopping at the row's ends — the same segments in a right-to-left layout, because the row runs left to right there too. THE text input SHALL count as focused (TXI-6, TXI-7) WHILE any of its segments has focus, and SHALL draw the focused segment as selected text — comp.input-box.selection.color behind it across its width, and its text, the placeholder of an empty segment included, in comp.input-box.selection.content.color — with no caret; no part of the row can be selected on its own. WHEN the user presses a segment THE text input SHALL focus that segment; WHEN the user presses the field anywhere else that TXI-8 gives to the input THE text input SHALL focus the first empty segment, or the last segment WHILE none is empty. Moving focus between its segments, or between them and its picker button, SHALL NOT commit the field: it commits (TXI-2, TXI-30) WHEN focus leaves its segments and its picker button for anything else, or WHEN the action key is pressed on a segment.",
+      "verify": "Unit: Tab from the previous control lands on the first segment and visits each in turn, then the picker button; Right Arrow and Left Arrow move between segments in both layout directions; a press on the field's padding focuses the first empty segment; moving between segments emits no change."
+    },
+    {
+      "id": "TXI-44",
+      "text": "WHEN the user presses Up Arrow or Down Arrow on a segment, and readOnly is false, THE text input SHALL raise or lower that segment by one within its own range — a year from 1 to 9999, a month from 1 to 12, a day from 1 to the last day of the month that the month and year segments give (31 while the month is empty, 29 for a February whose year is empty), an hour from 0 to 23 or from 1 to 12 by the locale's clock, a minute from 0 to 59, a day period between its two names — wrapping from the last value to the first and back, and changing no other segment, except that a day beyond the last day of a newly chosen month or year SHALL become that last day. On an empty segment either key SHALL fill it with the current date's or time's value for that unit, from the device's clock. Page Up and Page Down SHALL step by 5 years, 2 months, 7 days, 2 hours or 15 minutes, and Home and End SHALL set a month, day, hour or minute to the first and the last value of its range. min, max and disabledDates SHALL NOT limit a step: a value that is not available is refused as a whole (TXI-46), so that a person can pass through a month that is not available on the way to one that is.",
+      "verify": "Unit: Up Arrow on an empty month in a test whose clock says 2026-10-06 gives 10; Up Arrow on 12 gives 01 and leaves the year; with day 31, stepping the month from 01 to 02 in 2026 makes the day 28; Down Arrow on PM gives AM."
+    },
+    {
+      "id": "TXI-45",
+      "text": "WHEN the user types a digit — ASCII or the locale's, from a keyboard, a touch keypad or the text an input method commits — on a number segment, and readOnly is false, THE text input SHALL take it as the next digit of that segment's number WHILE the digits typed since the segment took focus still form a number in its range (TXI-44), and SHALL otherwise start the number again with that digit; a segment that holds one digit SHALL show it in its filled form, with its leading zero. WHEN no further digit could extend the number — after two digits of a month, day, hour or minute, after a first digit too large to begin a two-digit value in the range (a month's 2 to 9), after four digits of a year — THE text input SHALL move focus to the next segment, and it SHALL do the same WHEN the user types a character of the separator that follows a segment that is not empty (\"/\", \".\", \"-\", \":\" or a space). On a day-period segment the first letter of the locale's name for the morning or for the afternoon, or a or p in any case, SHALL set it. Backspace or Delete SHALL remove the last digit of the focused segment, or the whole of a day period, and Backspace on a segment that is already empty SHALL move focus to the previous segment without clearing it. A year segment that holds fewer than four digits SHALL count as empty for the value, because a short year is never guessed into a century. THE text input SHALL ignore every other character, SHALL take nothing from an input method while it is composing (TXI-4), and on a touch platform SHALL ask for the numeric keypad while a number segment has focus. WHILE readOnly is true the segments SHALL take focus and be copied from (TXI-29) and SHALL NOT change.",
+      "verify": "Unit, en-US: 9 on the month shows 09 and focus moves to the day; 1 then 2 gives 12 and moves; 1 then 5 gives 05 and moves; 2026 on the year completes the value; \"/\" after 1 on the month moves to the day with 01; Backspace on 12 leaves 01, again empties it, again moves to the previous segment; p on the day period gives PM. With a Japanese input method, full-width digits committed by the composition are taken and nothing is taken before the commit."
+    },
+    {
+      "id": "TXI-46",
+      "text": "WHILE type is date, time or date-time THE text input SHALL have a value other than the empty string only WHILE every segment is filled and the date or time they give is available: not before min, not after max and, for a date or a date-time, its date not listed in disabledDates. WHEN an edit of a segment changes the value — the last empty segment is filled, a segment of a filled row is typed over, stepped or cleared, or what the row gives becomes or stops being available — THE text input SHALL emit input once with the new value (TXI-1); an edit that leaves the value as it was, such as a segment filled while another is still empty, SHALL emit nothing. WHEN the product sets value to what the field's value already is THE text input SHALL leave its segments as they are, so that a product that echoes the empty value back while a person is half-way through a date does not clear what they entered.",
+      "verify": "Unit, en-US: filling 09, 27 and 2026 emits input exactly once, with 2026-09-27; clearing the day emits input once with the empty value; with max 2026-12-31, stepping the year to 2027 emits the empty value; setting value to the empty string while only the month is filled keeps the month."
+    },
+    {
+      "id": "TXI-47",
+      "text": "WHILE type is date, time or date-time THE text input SHALL expose its row of segments as a group named as the input is (TXI-23) and each segment as a spin button: its name the locale's own name for its unit (in English \"year\", \"month\", \"day\", \"hour\", \"minute\" and \"AM/PM\") followed by that name; its minimum and maximum the range TXI-44 gives it; its current value its number, with as its value text the number and the locale's month name for a month (\"9 – September\"), the hour with its day period on a 12-hour clock (\"2 PM\") and the period's name for a day period; and WHILE the segment is empty no current value, and segmentEmptyText as its value text. The description the input has (TXI-23) SHALL be the description of the first segment, and of every segment WHILE the field is in error; every segment SHALL be exposed as invalid WHILE the field is in error (TXI-11, TXI-30), as required WHILE its Field says it is required (TXI-23) and as read-only WHILE readOnly is true, and WHILE disabled is true SHALL be exposed as disabled and left out of the focus order. THE text input SHALL keep the separators, the joining text and the placeholders from assistive technology, and SHALL add no announcement of its own WHEN a segment changes: a spin button's new value is read by the platform.",
+      "verify": "Unit: the accessibility tree of stacked-date holds a group named \"Start date\" with three spin buttons named \"month, Start date\", \"day, Start date\" and \"year, Start date\", the month with minimum 1, maximum 12, value 9; in stacked-date-empty each has no value and the value text the fixture gives as segmentEmptyText (\"Empty\"). An automated audit (axe on the web) passes on both."
+    },
+    {
+      "id": "TXI-50",
+      "text": "WHERE variant is filled or outlined, WHILE the floating label is drawn (TXI-13) and the Field that frames the input gives it an asterisk as its required mark (FLD-25) THE text input SHALL draw the character \"*\" after the label's text, comp.input-box.requirement.asterisk-gap from it, in the label's text style and at the label's place, resting and floated with it, colored by its required-asterisk part (comp.input-box.outlined.required-asterisk.color for an outlined input; its error. part WHILE the input is in error), and SHALL keep it from assistive technology, because the required state already says it (TXI-23). It SHALL draw no tag and no optional label: which mark a required control gets is the Field's to say (FLD-6), and a tag named there reaches a floating label as the asterisk. WHILE no Field frames it, or the Field gives no mark, or the label is not drawn, THE text input SHALL draw no mark.",
+      "verify": "The text field's fixture outlined-required (twin field.text-outlined-required): the asterisk follows the floating label. Unit, a Field around an outlined text input: requiredMark tag, asterisk and auto under a fixture system that names each mark draw the asterisk in the floating label; none draws nothing and keeps the required state; without a Field no mark is drawn."
+    },
+    {
+      "id": "TXI-51",
+      "text": "WHILE multiline is true THE text input SHALL align the content of its container to the container's top edge, not to its middle. It SHALL draw the first line of its input at the distance from the top edge at which a single-line field of the same variant, size, label and text size draws its one line (TXI-16): centred half of comp.input-box.container.height.medium below the top edge for size medium (and so on) in a stacked or an outlined field, lower by the band of the label in a filled field that draws its label, and lower where enlarged text makes a single-line field taller. It SHALL centre on that first line the leading and the trailing icon, an interactive element the product placed in a slot, the prefix and the suffix, the first line of the placeholder and the resting label of an outlined field, and SHALL rest a filled field's label where a single-line filled field rests it; every further line SHALL follow below the first, and any height the container has beyond one line — further lines of text, the room minRows asks for, the height a person gave it with the grip — SHALL lie below the first line, never above it. WHEN the container's height changes — by an auto resize and its motion (TXI-38), by the resize grip (TXI-39, TXI-41), or because minRows or maxRows changed — the first line, the label, the icons, the slot elements, the prefix and the suffix SHALL keep their distance from the container's top edge during the change and after it, and SHALL NOT move at any frame of the motion; and the resize grip SHALL keep its distance from the container's bottom edge and its end edge (TXI-39). WHILE the text scrolls inside the input (TXI-37) only the text SHALL move. A multi-line field that shows one line SHALL be drawn exactly as a single-line field of the same variant and size; WHILE multiline is false THE text input SHALL lay out as TXI-16 says, unchanged.",
+      "verify": "Unit: in the field of stacked-multiline-auto-grown-icons, sample at every frame, while a line break is typed and while one is deleted, the distance from the container's top edge to the leading icon, to the trailing icon and to the first line of the text: each is the same to the pixel in every sample, with and without reduced motion. Fixtures stacked-multiline, filled-multiline and outlined-multiline (two lines of text in three rows of room: the text starts at the top and the spare row is below it) and stacked-multiline-auto-grown-icons (both icons on the first of five lines). A multi-line field with minRows 1 and one line of text overlays stacked-filled pixel for pixel."
+    },
+    {
+      "id": "TXI-52",
+      "text": "THE text input SHALL have no words of its own: it SHALL take resizeLabel and segmentEmptyText from the instance's prop and, WHILE that is empty, from the product's words of the same name — the words a product sets once for all its components — and from nowhere else. WHILE neither gives resizeLabel the grip is as TXI-41 says: drawn, working and reported. IF neither gives segmentEmptyText THE text input SHALL expose an empty segment with no value and no value text, and in debug builds SHALL report the missing words once. The name of a segment's unit, the month's name and the period's name (TXI-47) are the platform's locale data and not the text input's words; the count (TXI-19) is digits and a slash; and the words of a requirement are the Field's (FLD-24).",
+      "verify": "Unit, with no product's words set: stacked-multiline-manual without resizeLabel draws a grip that works and reports the missing name; stacked-date-empty without segmentEmptyText exposes empty segments with no value text and reports once."
+    },
+    {
+      "id": "TXI-53",
+      "text": "WHILE type is code THE text input SHALL lay out its input line — the prefix, the value with its caret and its selection, the placeholder and the suffix — as one left-to-right row in every layout direction (COD-20, ICD-8): the row begins at the left end of the room the input line has between the icons, with the prefix first, the value beside it and the suffix at the row's right end; the value SHALL be aligned to the left, on one line and on many, in a field that is empty and in one that holds anything — never to the field's start edge, which TXI-24 gives the values of email, url, tel, number and password fields and which is the right in a right-to-left layout; the value's base direction left-to-right whatever its first strong character is and whether or not it holds one, so that an empty field, a field that holds only a bracket and a field whose first string is written in a right-to-left script are laid out alike; every line of a multi-line field left-to-right and beginning at the left; the caret of an empty field and its placeholder at the left; and sideways scrolling starting at the left. Text of a right-to-left script inside the code — a string, a comment — SHALL be laid out by the bidirectional algorithm inside its left-to-right line and SHALL reorder nothing outside its own run. WHERE the layout direction is right-to-left THE text input SHALL mirror everything else as TXI-24 says, and nothing of the row: the label floated from the right, the leading icon on the right and the trailing icon on the left of the row, and the resize grip in the container's bottom-left corner; the label row and the supporting row of its Field follow the page too (FLD-18, FLD-21). WHILE the layout direction is right-to-left and resize is manual — the one case in which the resize grip stands in the corner where a line of code begins — THE text input SHALL give the input room after its last line of comp.text-input.resize-grip.size and comp.text-input.resize-grip.inset together, as room the input scrolls through and not as height: the field SHALL be exactly as tall as the same field in a left-to-right layout, and WHEN the input is scrolled to its end the last line SHALL stand wholly above the grip. In a left-to-right layout, and while resize is auto or fixed, THE text input SHALL add no such room. WHEN the layout direction changes (TXI-34) the row SHALL keep its direction, its scroll offsets, its selection and its caret.",
+      "verify": "In a right-to-left stage, each of the fixtures stacked-code-multiline-empty-rtl (the caret after focus), stacked-code-multiline-brace-rtl and stacked-code-multiline-arabic-first-rtl: the inner element's computed direction is ltr and its text-align left, and the first character's box (a range's client rect) starts at the left padding edge of the input. stacked-code-rtl and stacked-code-empty-rtl: the same on one line — the value, and the placeholder, begin at the left, where an email field of the same stage begins at the right. stacked-code-affixes-rtl: from left to right the trailing icon, the prefix, the value, the suffix, the leading icon. stacked-code-multiline-manual-rtl: the field's height equals that of the same props in a left-to-right stage; with the input scrolled to its end the bottom of the last line's box is at or above the top of the grip's box, and in the left-to-right stage the input's scroll height is smaller by the grip's size and inset."
+    },
+    {
+      "id": "TXI-54",
+      "text": "WHILE type is code THE text input SHALL draw the value, the placeholder, the prefix and the suffix in the code face: the family, the weight and the letter spacing of comp.text-input.code.typescale at the font size and the line height of comp.input-box.input.typescale.medium for size medium (and so on), so that a code field is exactly as tall as a text input of its variant and size, sets its first line where that field does (TXI-16, TXI-51) and keeps the text size below which a touch browser zooms into a field. It SHALL draw the characters as they are held — every space kept, at the start, in the middle and at the end of a line; a tab character advancing to the next multiple of comp.text-input.code.tab-size columns of the face; no two characters joined into a ligature; nothing hyphenated, transformed or substituted — and in the colors of its variant and state, unchanged: THE text input SHALL NOT color any part of the code by what it means. The floating label SHALL keep its own text style, and the rows of the Field that frames it theirs."
+    },
+    {
+      "id": "TXI-55",
+      "text": "WHILE type is code THE text input SHALL ask its platform to leave the text alone: no spelling or grammar check and no marks of one; no autocorrection; no autocapitalization; no predictive or suggested words; no substitution of typed characters (straight quotation marks for curved ones, hyphens for dashes, two spaces for a full stop and a space, a text replacement of the person's device); no space added or removed around what is pasted or cut; no offer to translate the value; and, WHILE autocomplete is empty, no offer of an earlier entry. It SHALL give touch input a general keyboard — the one that puts ASCII letters and punctuation first where the platform has such a keyboard — SHALL NOT keep the person from another keyboard, script or input method, and SHALL leave a composition to the platform as TXI-4 says, because a string or a comment inside code may be in any language. THE text input SHALL hold the value exactly as it was entered: it SHALL NOT trim it, change its line breaks beyond what TXI-56 says, normalize its characters, parse it or validate it. What the code means, and whether it is well formed, is the product's: the product reads the value, and sets error, and its Field's errorText (TXI-11, FLD-7).",
+      "verify": "On the web the inner text element carries spellcheck=false, autocorrect=off, autocapitalize=none, translate=no and, with no autocomplete given, autocomplete=off; a platform that has no setting for one of these says so in its README."
+    },
+    {
+      "id": "TXI-56",
+      "text": "WHEN text is pasted, dropped or dictated into a field whose type is code THE text input SHALL take its plain text alone — no font, size, color, link, list or table of a formatted source — character for character: tab characters, no-break spaces and other spaces as they are, nothing converted to another character, and in a multi-line field every line break of the text as one line break of the value, whichever form the source wrote it in. A single-line field SHALL take a line break in such text as its platform's one-line text element does and SHALL NOT commit, submit or emit action because of one. maxLength SHALL apply as TXI-18 says. WHEN the person copies or cuts from a code field THE text input SHALL put on the clipboard the selected characters of the value alone, with the line breaks of the value and none that wrapping added (TXI-57).",
+      "verify": "On the web: paste a clipboard that holds both text/html (a bold word, a link, a table) and text/plain with tabs, a no-break space and CRLF line ends into a multi-line code field — the value is the plain text with each CRLF one line break and every other character unchanged; the same into a single-line code field emits no action and submits no form. Select all and copy from a wrapped field (stacked-code-multiline-wrap): the clipboard's text equals the value."
+    },
+    {
+      "id": "TXI-57",
+      "text": "WHILE type is code, multiline is true and wrap is true THE text input SHALL continue a line that does not fit on following rows: it breaks first at the spaces of the line and, where a part with no space is wider than the row, between any two characters; a following row SHALL begin at the left edge of the input, SHALL add no character and no mark, and SHALL NOT change the value, which holds the line breaks of the code alone; and the input SHALL NOT scroll sideways. A row the code wraps onto counts as a line for the field's height (TXI-37). WHILE type is not code, or multiline is false, THE text input SHALL ignore wrap — prose wraps as TXI-17 says and a single line scrolls within its line — and WHILE wrap is false there SHALL report it in debug builds.",
+      "verify": "stacked-code-multiline-wrap in a container 320 wide: the input's scroll width equals its client width, the field is more than one line tall, and the value holds no line break. A value of 400 characters without a space wraps as well. A text field of type text with wrap false wraps, and is reported once."
+    },
+    {
+      "id": "TXI-58",
+      "text": "WHILE type is code, multiline is true and wrap is false THE text input SHALL NOT break a line of the code: WHEN a line is wider than the input THE input SHALL scroll sideways inside the container — by pointer, touch and the wheel, and from the keyboard by moving the caret, which SHALL be kept in view (TXI-37) — beginning at the left, with the input's inline padding after the longest line scrolling with the code so that its last character can be brought clear of the container's edge. Only the code SHALL move (TXI-51): the container and its edge, the floating label, the icons, the prefix and the suffix and the resize grip SHALL keep their places, as do the rows of its Field. The length of a line SHALL change the width of nothing: the field is as wide as its layout makes it whatever it holds, no part of it SHALL count toward the width of the page or of a scrolling region the field stands in, and the page SHALL NOT scroll sideways for it. WHILE resize is auto the field's height SHALL be the lines of the code (TXI-37) and, WHERE the platform draws a sideways scrollbar that takes room, that room besides, so that no line stands under the scrollbar and none is scrolled up or down for its sake; a gesture or a wheel movement up or down over an input that cannot scroll that way SHALL scroll the page. THE input SHALL stay the field's one text stop in the focus order — the scrolling adds none — and the field SHALL show focus as TXI-7 says, on the container, which does not scroll; WHILE readOnly is true the caret SHALL still move and the input still scroll with it (TXI-10).",
+      "verify": "stacked-code-multiline-nowrap in a container 320 wide, alone and at the far end of a region that scrolls: the input's scroll width is greater than its client width, the host's and the container's widths equal those of the same field with an empty value, and neither the region's nor the document's scroll width grows (the scroll-box suite runs every fixture). The field's height is three lines and, where the scrollbar takes room, that room. End on the first line scrolls the input and moves no other part; Tab reaches the input once and no other stop is added for the scrolling; with readOnly the same keys scroll it."
+    },
+    {
+      "id": "TXI-59",
+      "text": "WHILE type is code THE text input SHALL change what no key does: Tab and Shift+Tab SHALL move focus out of the input as from every text input and SHALL never insert a character or an indent, so that the keyboard is never held in the field; Enter SHALL do what TXI-3 says for a single-line and for a multi-line field, with no indent added to the new line; and no key SHALL insert a matching bracket or quotation mark, change the indent of a selection, or comment a line. A tab character that reaches the value by a paste (TXI-56) or from the product SHALL be kept and drawn as TXI-54 says, and SHALL be removed by Backspace or Delete as one character.",
+      "verify": "Focus a multi-line code field between two buttons: Tab moves focus to the next button and Shift+Tab to the previous one, and the value is unchanged. Enter after an indented line adds a line break and no other character. A value set to a tab and a letter: Backspace after the tab leaves the letter alone; typing ( or \" inserts that one character."
+    },
+    {
+      "id": "TXI-60",
+      "text": "WHILE type is code THE text input SHALL be exposed to assistive technology exactly as the text input of its other types is: a text box — a multi-line one WHILE multiline is true — named and described as TXI-23 says, and invalid, required, read-only or disabled as TXI-5, TXI-10, TXI-11 and TXI-23 say. It SHALL add no role, no role description, no word and no announcement for holding code, because Tanrei has no words (TXI-52) and what the field expects is said by the product in the label and the help of its Field; it SHALL expose the value character for character, with no part of it marked as misspelled; it SHALL keep the caret's and the selection's reporting to the platform's text element; and it SHALL NOT announce that a line wrapped or that the input scrolled.",
+      "verify": "The accessibility tree of stacked-code-multiline is that of the same field with type text: a multi-line text box named by label, with no role description, and the inner element carries no aria-roledescription and no aria-label that the other types do not."
+    },
+    {
+      "id": "TXI-61",
+      "text": "WHERE the platform draws with a person's own forced colors THE text input SHALL draw a code field as it draws any field of its variant — its edge, its value and its placeholder in the platform's colors, the focused edge in the platform's highlight color — and nothing more: the code face, not a color, is what tells code from words. WHILE the text size is enlarged a code field SHALL grow with its text as TXI-16 and TXI-37 say, the code face keeping the input's size; at twice the text size in a container 320 wide a multi-line code field SHALL wrap (TXI-57) or scroll inside its container (TXI-58), a single-line one SHALL scroll within its line as every single-line field does, the floating label SHALL wrap (TXI-13), as the rows of its Field do (FLD-16), no content SHALL be cut, and the page SHALL NOT scroll sideways.",
+      "verify": "With forced colors emulated, stacked-code-multiline differs from the same field of type text in its font family alone. At a root font size of 200 % in a container 320 wide, stacked-code-multiline-wrap, stacked-code-multiline-nowrap and stacked-code: the document does not scroll sideways and no text is clipped by the container."
+    },
+    {
+      "id": "TXI-62",
+      "text": "THE text input SHALL say to the Field that frames it what only the input knows, and SHALL say it again WHEN it changes: that it draws the label itself WHILE its variant floats one (TXI-13), so that the Field draws no label row (FLD-25); how far its text stands from its own start edge — its inline padding and, beside a leading icon, that icon and its gap (TXI-16, TXI-22) — and the padding it keeps at its end edge (TXI-16), so that the Field's supporting row starts and ends there (FLD-26); and an entry error with its words (TXI-30, FLD-28). Its count is not among them: the Field is given a count as words (FLD-27), by what holds the two (TXI-19). It SHALL take from that Field its name, its description and its required, invalid and disabled states (TXI-5, TXI-11, TXI-23), whether the label is hidden (TXI-13) and whether an asterisk follows it (TXI-50), so that a Field and a text input placed by hand are drawn, named, described and marked exactly as a text field is.",
+      "verify": "The twin test of the text field: each fixture text-<id> of the Field — a Field around a text input, written by hand — is the same picture and the same accessibility tree as the text field's fixture <id>. Unit: changing variant from stacked to outlined removes the Field's label row and floats the same text in the input; adding a leading icon moves the start of the Field's supporting row to the input text."
+    },
+    {
+      "id": "TXI-63",
+      "text": "THE text input SHALL draw no label row above itself, no requirement tag, no help, no error text and no count: those are the rows of the Field that frames it (FLD-2 to FLD-7, FLD-27). WHILE no Field frames it THE text input SHALL be complete as a bare control — its box, the label that floats in it where its variant floats one, everything typed in it, its states and its events — THE text input SHALL be block-level, framed and bare alike: exactly as wide as the place it stands in — the width its layout gives it, which inside a Field is the Field's whole width (FLD-1), so that the box fills its Field — with no width of its own, never the platform's default width for a text element, and never the width of what it holds (TXI-58); the one width it keeps of its own is the one a person gives it with the resize grip (TXI-39). It SHALL be exactly as tall as its container, and the room TXI-13 keeps above an outlined one. A product that wants a narrower box gives it a narrower place."
+    },
+    {
+      "id": "TXI-64",
+      "text": "WHILE the entries slot holds content THE text input SHALL lay that content and its typing part out inside the container, between the leading and the trailing parts, in lines from the start edge: each item comp.text-input.entries.gap after the one before, a line comp.text-input.entries.row-gap below the one above, every item centred on the middle of its line, an item that does not fit going whole to the next line and never wider than a line. The typing part SHALL follow the last item on its line and take what is left of it WHILE that is at least comp.text-input.entries.typing-min-width, and otherwise a line of its own. The container SHALL keep its height while one line fits and grow by whole lines after that, its paddings unchanged.",
+      "verify": "The Field's fixtures entries-email-entries (one line), entries-email-many (twelve items on wrapped lines) and entries-email-long-entry (an item as wide as a line)."
+    },
+    {
+      "id": "TXI-65",
+      "text": "WHILE the entries slot holds content THE text input SHALL treat itself as not empty for its label: a filled or outlined input floats it (TXI-13), and its placeholder is not shown.",
+      "verify": "The Field's fixtures entries-email-filled (floated) and entries-email-filled-empty (resting)."
+    },
+    {
+      "id": "TXI-66",
+      "text": "WHEN the user presses the container outside every item of the entries slot THE text input SHALL treat it as a press on the container (TXI-8). THE text input SHALL give the items of the entries slot no role, no focus order and no key: they are the product's, or those of the component that holds the input.",
+      "verify": "Unit: a press in the gap between two items focuses the typing part; Tab reaches each item as the item itself decides."
+    },
+    {
+      "id": "TXI-67",
+      "text": "WHILE type is email, url, tel, number or password — a value THE text input lays out left-to-right whatever it holds (TXI-24) — THE text input SHALL treat the prefix, the value and the suffix as one run of writing and SHALL lay the three out in that order along the run's own direction in every layout direction, as the number input does (NMI-39): the run's direction SHALL be that of the first strong character of prefixText and, WHERE prefixText has none, of suffixText — a letter, or a direction mark the product wrote there — and left-to-right WHERE neither has one, so that \"$ 120 USD\", \"https://\" before an address and \"@example.com\" after a name stand in a right-to-left layout as in a left-to-right one, and a unit written in a right-to-left script stands at the value's left. THE text input SHALL decide that direction from prefixText and suffixText alone, never from the value. The value SHALL stay aligned to the field's start edge (TXI-24), and the icons, the picker button, the floating label and the paddings SHALL follow the layout. For every other type the value's direction is the person's and may change at any keystroke, so the row SHALL NOT follow it: the prefix stands at the field's start edge and the suffix at its end edge (TXI-24); a code field's row is TXI-53's, and a date, time or date-time field draws no affix (TXI-28)."
+    },
+    {
+      "id": "TXI-68",
+      "text": "THE text input SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the typed text and the placeholder, the prefix and the suffix, the icons at either end, the caret and the highlight of selected text, the paddings, the gaps and the least height of its size, and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group are those of what only a text input draws — the resize grip (TXI-39), the motion of a height that follows its text (TXI-38), a segment of a date or a time (TXI-42), the code face (TXI-53) and the entries place (TXI-64). WHEN a design system or a product sets a token of the box THE text input SHALL follow it, as the select, the combobox, the number input and the color input do, which read the same tokens; no token is held equal to another for this. WHERE one text input is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE text input SHALL draw itself from the value it finds there.",
+      "verify": "Every value the box of a text input draws is the value of the token it reads, in every scheme of every shipped system. A build test fails if a token with the name of a token of the box stands in the text input's own group. Unit, web: with the custom property of comp.input-box.container.shape set on one text input's element, its corners change and those of a text input and a select beside it do not; set on an ancestor of the three, all three change."
+    }
+  ],
+  "accessibility": {
+    "role": "textbox",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the input; further Tabs move to an interactive element in the trailing slot, then to the picker button, then to the resize grip, where there are any. In a date, time or date-time field Tab visits each segment in turn first. In a code field too: Tab never inserts a character or an indent (TXI-59)."
+      },
+      {
+        "keys": "Typing, Backspace, Delete, arrows, Home, End, selection and clipboard shortcuts",
+        "action": "Edit the value as the platform's own text element does (types other than date, time and date-time)."
+      },
+      {
+        "keys": "Enter",
+        "action": "In a single-line field, commits the value and emits action (and submits the enclosing form on the web). In a multi-line field, inserts a line break."
+      },
+      {
+        "keys": "Arrow keys, Home, End in a multi-line code field whose lines do not wrap",
+        "action": "Move the caret as in any text; the input scrolls sideways to keep it in view (TXI-58)."
+      },
+      {
+        "keys": "Left Arrow, Right Arrow on a segment",
+        "action": "Move focus to the segment drawn to the left or to the right (TXI-43)."
+      },
+      {
+        "keys": "Up Arrow, Down Arrow on a segment",
+        "action": "Raise or lower the segment by one, wrapping; fill an empty segment from the current date or time (TXI-44)."
+      },
+      {
+        "keys": "Page Up, Page Down, Home, End on a segment",
+        "action": "Step by a larger amount; go to the first or the last value of the segment (TXI-44)."
+      },
+      {
+        "keys": "Digits on a segment",
+        "action": "Fill the segment and move to the next once it can take no more; the separator's character also moves on (TXI-45)."
+      },
+      {
+        "keys": "Backspace or Delete on a segment",
+        "action": "Remove the segment's last digit; Backspace on an empty segment moves to the previous one (TXI-45)."
+      },
+      {
+        "keys": "Paste, copy and cut on a segment",
+        "action": "Paste reads a whole date or time into every segment; copy and cut take the whole row (TXI-29)."
+      },
+      {
+        "keys": "Enter or Space on the picker button",
+        "action": "Emits pickerRequest (TXI-33)."
+      },
+      {
+        "keys": "Up Arrow, Down Arrow, Home, End on the resize grip",
+        "action": "Make the field one line shorter or taller; return it to minRows or take it to its tallest (TXI-41)."
+      },
+      {
+        "keys": "Left Arrow, Right Arrow on the resize grip",
+        "action": "Where the field resizes both ways, narrow or widen it; the arrow toward the end edge widens (TXI-41)."
+      },
+      {
+        "keys": "Enter or Space on the resize grip",
+        "action": "Fit the height to the text, or return to minRows when it already fits (TXI-41)."
+      }
+    ],
+    "labeling": "The accessible name is the label of the Field that frames the input, or its own label where no Field does; a filled or outlined input draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name. The description is the input's own — the prefix and the suffix while shown, the count while counter is true — followed by what the Field gives: its supporting text with, in error, the error text after it and its optional text. The input is exposed as invalid while error is true, its Field is in error or an entry error lasts; as required while its Field says so, whichever mark is drawn; and as read-only while readOnly is true. A search input is exposed as a search box where the platform has that role. A date, time or date-time input is a group, named as the input is, whose segments are spin buttons named by their unit and that name, with a range, a value and a value text (segmentEmptyText while empty). The picker button is named by pickerLabel and exposed as opening a dialog. The resize grip is a window splitter named by resizeLabel whose value is the number of lines shown. A code input is the same text box as any other type: no role or word says that it holds code (TXI-60).",
+    "minimumTarget": true,
+    "notes": [
+      "Text entry happens in the platform's native element: on the web an <input> or <textarea> in the shadow root, with the label, description and invalid state set on that element — not through ElementInternals, which axe cannot see. The host is form-associated: it takes name, submits the value and joins constraint validation. A date, time or date-time field is the one exception: its segments are spin buttons that take digits one unit at a time, as the platforms' own date fields do, because one free text cannot give each unit a name, a range and a step.",
+      "Heights are minimums: at 200% text size the field grows, the floated label wraps rather than clips, and the input keeps its line height.",
+      "Web: iOS Safari zooms the page into an input whose text is smaller than 16 px. Both default sizes use 16 px text (comp.input-box.input.typescale); a layer that sets a smaller style brings the zoom back.",
+      "A trailing action (clear, reveal password, voice input) is the product's own icon-only Button, with its own accessible name in the product's language. The field builds none in except a date or time field's picker button, which the product names with pickerLabel, because each needs a localized name and a policy the field cannot know.",
+      "A date or a time is entered unit by unit: each segment says what it is, shows its own placeholder and cannot hold a value outside its range, so the format never has to be explained or remembered (WCAG 3.3.2), and a whole date can still be pasted. The picker is an alternative, never the only way.",
+      "Resizing by hand never depends on a drag (WCAG 2.5.7): the grip is a focus stop that the arrow keys move, and a click, a tap, Enter or Space fits the field to its text. Its hit area meets the minimum target although its glyph is small (WCAG 2.5.8).",
+      "A field that follows its text changes height with a short motion; where motion is reduced it changes at once (WCAG 2.3.3).",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "The input has no label row and no message of its own: a Field frames it and draws them (FLD-2 to FLD-11, FLD-25 to FLD-28), or the product names it with label where its visible label is elsewhere. Unframed and unnamed, it is reported (TXI-23).",
+      "Code is not prose (type code): it is left to right in every language, so a code field's input line keeps that direction and begins at the left while the label, the icons and the messages follow the page (TXI-53); and the platform's help for prose — spelling marks, autocorrection, capitals, curved quotation marks — changes or misreports it, so the field asks for none (TXI-55).",
+      "Tab always leaves a code field (WCAG 2.1.2). A field that indents with Tab needs a way out, words that say what it is, and a state that assistive technology is told — an editor's contract, which a product that embeds an editor takes on with it.",
+      "A code field whose lines do not wrap scrolls in two directions inside its container; the page never does (WCAG 1.4.10 allows it for content whose lines carry meaning). The caret is how the keyboard scrolls it, so a value that nobody may edit but that must be read whole is readOnly, not disabled, or is a Code block.",
+      "A screen reader reads punctuation and capitals in a code field as the person has set it to: the field cannot and does not change that. Color carries nothing in a code field — no part of the code is colored by its meaning — so nothing is lost in forced colors (TXI-61)."
+    ]
+  },
+  "tokens": "comp.text-input",
+  "fixtures": [
+    {
+      "id": "outlined-empty",
+      "props": {
+        "variant": "outlined",
+        "label": "Email"
+      }
+    },
+    {
+      "id": "outlined-filled",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@example.com"
+      }
+    },
+    {
+      "id": "filled-empty",
+      "props": {
+        "variant": "filled",
+        "label": "Email"
+      }
+    },
+    {
+      "id": "filled-filled",
+      "props": {
+        "variant": "filled",
+        "label": "Email",
+        "value": "ada@example.com"
+      }
+    },
+    {
+      "id": "outlined-large",
+      "props": {
+        "variant": "outlined",
+        "size": "large",
+        "label": "Email",
+        "value": "ada@example.com"
+      }
+    },
+    {
+      "id": "filled-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "Email",
+        "value": "ada@example.com"
+      }
+    },
+    {
+      "id": "outlined-label-hidden",
+      "props": {
+        "variant": "outlined",
+        "type": "search",
+        "label": "Search",
+        "labelHidden": true,
+        "placeholder": "Search components"
+      }
+    },
+    {
+      "id": "outlined-error",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@",
+        "error": true
+      }
+    },
+    {
+      "id": "filled-error",
+      "props": {
+        "variant": "filled",
+        "label": "Email",
+        "value": "ada@",
+        "error": true
+      }
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@example.com",
+        "disabled": true
+      }
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "label": "Email",
+        "value": "ada@example.com",
+        "disabled": true
+      }
+    },
+    {
+      "id": "outlined-read-only",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@example.com",
+        "readOnly": true
+      }
+    },
+    {
+      "id": "outlined-icons",
+      "props": {
+        "variant": "outlined",
+        "label": "Search",
+        "value": "tanrei"
+      },
+      "content": "leading-icon=search trailing-icon=close"
+    },
+    {
+      "id": "outlined-affixes",
+      "props": {
+        "variant": "outlined",
+        "type": "number",
+        "label": "Amount",
+        "value": "120",
+        "prefixText": "$",
+        "suffixText": "USD"
+      }
+    },
+    {
+      "id": "outlined-multiline",
+      "props": {
+        "variant": "outlined",
+        "label": "Message",
+        "multiline": true,
+        "minRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in."
+      }
+    },
+    {
+      "id": "filled-multiline",
+      "props": {
+        "variant": "filled",
+        "label": "Message",
+        "multiline": true,
+        "minRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in."
+      }
+    },
+    {
+      "id": "outlined-password",
+      "props": {
+        "variant": "outlined",
+        "type": "password",
+        "label": "Password",
+        "value": "correct horse"
+      }
+    },
+    {
+      "id": "stacked-empty",
+      "props": {
+        "variant": "stacked",
+        "label": "Email"
+      }
+    },
+    {
+      "id": "stacked-filled",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "value": "ada@example.com"
+      }
+    },
+    {
+      "id": "stacked-placeholder",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "placeholder": "name@example.com"
+      }
+    },
+    {
+      "id": "stacked-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "label": "Email",
+        "value": "ada@example.com"
+      }
+    },
+    {
+      "id": "stacked-error",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "value": "ada@",
+        "error": true
+      }
+    },
+    {
+      "id": "stacked-disabled",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "value": "ada@example.com",
+        "disabled": true
+      }
+    },
+    {
+      "id": "stacked-read-only",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "value": "ada@example.com",
+        "readOnly": true
+      }
+    },
+    {
+      "id": "stacked-icons",
+      "props": {
+        "variant": "stacked",
+        "label": "Search",
+        "value": "tanrei"
+      },
+      "content": "leading-icon=search trailing-icon=close"
+    },
+    {
+      "id": "stacked-affixes",
+      "props": {
+        "variant": "stacked",
+        "type": "number",
+        "label": "Amount",
+        "value": "120",
+        "prefixText": "$",
+        "suffixText": "USD"
+      }
+    },
+    {
+      "id": "stacked-multiline",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "minRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in."
+      }
+    },
+    {
+      "id": "stacked-password",
+      "props": {
+        "variant": "stacked",
+        "type": "password",
+        "label": "Password",
+        "value": "correct horse"
+      }
+    },
+    {
+      "id": "stacked-date",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27"
+      }
+    },
+    {
+      "id": "stacked-date-empty",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "segmentEmptyText": "Empty"
+      }
+    },
+    {
+      "id": "stacked-date-picker",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date"
+      }
+    },
+    {
+      "id": "stacked-date-picker-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date"
+      }
+    },
+    {
+      "id": "stacked-date-ja",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "ja-JP",
+        "label": "開始日",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "日付を選択"
+      }
+    },
+    {
+      "id": "stacked-time-picker",
+      "props": {
+        "variant": "stacked",
+        "type": "time",
+        "locale": "en-US",
+        "label": "Start time",
+        "value": "14:30",
+        "picker": true,
+        "pickerLabel": "Choose time"
+      }
+    },
+    {
+      "id": "stacked-date-time-picker",
+      "props": {
+        "variant": "stacked",
+        "type": "date-time",
+        "locale": "en-US",
+        "label": "Starts",
+        "value": "2026-09-27T14:30",
+        "picker": true,
+        "pickerLabel": "Choose date and time"
+      }
+    },
+    {
+      "id": "stacked-date-error",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date",
+        "error": true
+      }
+    },
+    {
+      "id": "stacked-date-disabled",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date",
+        "disabled": true
+      }
+    },
+    {
+      "id": "outlined-date-picker",
+      "props": {
+        "variant": "outlined",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date"
+      }
+    },
+    {
+      "id": "stacked-multiline-auto-grown",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "value": "Thanks for the review.\nThe new tokens are in.\nThe web is green.\nThe others follow.\nMore tomorrow."
+      }
+    },
+    {
+      "id": "stacked-multiline-auto-grown-icons",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "value": "Thanks for the review.\nThe new tokens are in.\nThe web is green.\nThe others follow.\nMore tomorrow."
+      },
+      "content": "leading-icon=search trailing-icon=close"
+    },
+    {
+      "id": "stacked-multiline-auto-max",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "maxRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in.\nThe web is green.\nThe others follow.\nMore tomorrow."
+      }
+    },
+    {
+      "id": "stacked-multiline-manual",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "resize": "manual",
+        "minRows": 3,
+        "resizeLabel": "Resize",
+        "value": "Thanks for the review.\nThe new tokens are in."
+      }
+    },
+    {
+      "id": "stacked-multiline-manual-both",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "resize": "manual",
+        "resizeAxis": "both",
+        "minRows": 3,
+        "resizeLabel": "Resize",
+        "value": "Thanks for the review.\nThe new tokens are in."
+      }
+    },
+    {
+      "id": "stacked-multiline-manual-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "הודעה",
+        "multiline": true,
+        "resize": "manual",
+        "resizeAxis": "both",
+        "minRows": 3,
+        "resizeLabel": "שינוי גודל",
+        "value": "תודה על הסקירה."
+      }
+    },
+    {
+      "id": "stacked-multiline-fixed",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "resize": "fixed",
+        "minRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in.\nThe web is green.\nThe others follow.\nMore tomorrow."
+      }
+    },
+    {
+      "id": "outlined-multiline-manual",
+      "props": {
+        "variant": "outlined",
+        "label": "Message",
+        "multiline": true,
+        "resize": "manual",
+        "minRows": 3,
+        "resizeLabel": "Resize",
+        "value": "Thanks for the review.\nThe new tokens are in."
+      }
+    },
+    {
+      "id": "stacked-time-empty",
+      "props": {
+        "variant": "stacked",
+        "type": "time",
+        "locale": "en-US",
+        "label": "Start time",
+        "segmentEmptyText": "Empty"
+      }
+    },
+    {
+      "id": "stacked-time-24h",
+      "props": {
+        "variant": "stacked",
+        "type": "time",
+        "locale": "ja-JP",
+        "label": "開始時刻",
+        "value": "14:30"
+      }
+    },
+    {
+      "id": "stacked-date-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "he-IL",
+        "label": "תאריך התחלה",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "בחירת תאריך"
+      }
+    },
+    {
+      "id": "stacked-code",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "Pattern",
+        "value": "tanrei.comp.button.*.container.color"
+      }
+    },
+    {
+      "id": "stacked-code-empty",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "Pattern",
+        "placeholder": "tanrei.comp.*.color"
+      }
+    },
+    {
+      "id": "stacked-code-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "type": "code",
+        "label": "Pattern",
+        "value": "tanrei.comp.button.*.container.color"
+      }
+    },
+    {
+      "id": "stacked-code-affixes",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "Pattern",
+        "value": "^sys\\.color\\.",
+        "prefixText": "/",
+        "suffixText": "/u"
+      }
+    },
+    {
+      "id": "stacked-code-multiline",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-empty",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "placeholder": "{ \"id\": \"acme\", \"extends\": \"tanrei\" }"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-wrap",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "label": "Rule",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-nowrap",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "wrap": false,
+        "minRows": 3,
+        "label": "Rule",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }\n{ \"match\": \"*\" }"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-tabs",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "label": "Recipe",
+        "value": "build:\n\tpnpm generate\n\t\tpnpm check"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-error",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n}",
+        "error": true
+      }
+    },
+    {
+      "id": "stacked-code-multiline-manual",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "wrap": false,
+        "resize": "manual",
+        "resizeAxis": "both",
+        "minRows": 3,
+        "resizeLabel": "Resize",
+        "label": "Rule",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }\n{ \"match\": \"*\" }"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-read-only",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "wrap": false,
+        "readOnly": true,
+        "label": "Rule",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-disabled",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "disabled": true,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      }
+    },
+    {
+      "id": "outlined-code-multiline",
+      "props": {
+        "variant": "outlined",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      }
+    },
+    {
+      "id": "filled-code-multiline",
+      "props": {
+        "variant": "filled",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      }
+    },
+    {
+      "id": "stacked-code-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "النمط",
+        "value": "tanrei.comp.button.*.container.color"
+      }
+    },
+    {
+      "id": "stacked-code-empty-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "النمط",
+        "placeholder": "tanrei.comp.*.color"
+      }
+    },
+    {
+      "id": "stacked-code-affixes-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "النمط",
+        "value": "^sys\\.color\\.",
+        "prefixText": "/",
+        "suffixText": "/u"
+      },
+      "content": "leading-icon=search trailing-icon=close"
+    },
+    {
+      "id": "stacked-code-multiline-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "الطبقة",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}",
+        "maxLength": 200
+      }
+    },
+    {
+      "id": "stacked-code-multiline-empty-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "الطبقة",
+        "placeholder": "{ \"id\": \"acme\", \"extends\": \"tanrei\" }"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-brace-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "الطبقة",
+        "value": "{"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-arabic-first-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "المصادر",
+        "value": "[\"مرحبا\", \"acme\"]\n// تعليق: comment"
+      }
+    },
+    {
+      "id": "stacked-code-multiline-nowrap-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "wrap": false,
+        "minRows": 3,
+        "label": "القاعدة",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }\n{ \"match\": \"*\" }",
+        "error": true
+      }
+    },
+    {
+      "id": "stacked-code-multiline-manual-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "resize": "manual",
+        "resizeAxis": "both",
+        "minRows": 3,
+        "resizeLabel": "تغيير الحجم",
+        "label": "الطبقة",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      }
+    },
+    {
+      "id": "stacked-affixes-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "number",
+        "label": "المبلغ",
+        "value": "120",
+        "prefixText": "$",
+        "suffixText": "USD"
+      }
+    },
+    {
+      "id": "stacked-url-prefix-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "url",
+        "label": "الموقع",
+        "value": "example.com",
+        "prefixText": "https://"
+      }
+    },
+    {
+      "id": "stacked-email-suffix-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "email",
+        "label": "البريد الإلكتروني",
+        "value": "noor",
+        "suffixText": "@example.com"
+      }
+    },
+    {
+      "id": "stacked-number-unit-own-script-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "number",
+        "label": "الوزن",
+        "value": "12",
+        "suffixText": "كغم"
+      }
+    },
+    {
+      "id": "stacked-text-suffix-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "اسم الملف",
+        "value": "تقرير",
+        "suffixText": ".pdf"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-text-input",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "multiline": "multiline",
+        "minRows": "minRows",
+        "maxRows": "maxRows",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeLabel",
+        "wrap": "noWrap",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "prefixText": "prefixText",
+        "suffixText": "suffixText",
+        "autocomplete": "autocomplete",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "picker",
+        "pickerLabel": "pickerLabel"
+      },
+      "events": {
+        "input": "input",
+        "change": "change",
+        "action": "action",
+        "pickerRequest": "pickerrequest",
+        "entryError": "entryerror"
+      },
+      "notes": "The input without the frame: the class `TanreiTextInput`, React `TextInput`. The host is `display: block` and as wide as its place, framed and bare (TXI-63): a Field keeps an inline-level control at its own size, at the start edge, so an inline host would not fill its Field. A form-associated custom element with a shadow root and `delegatesFocus` that takes `name`, submits its value, restores it and reports validity (a missing value while its Field says it is required; for date, time and date-time also badInput, rangeUnderflow and rangeOverflow while an entry error lasts, TXI-30). It renders an `<input>`, or a `<textarea>` while multiline, or the `role=\"group\"` of spin buttons of a date or a time; the `leading-icon` and `trailing-icon` slots are named slots; the picker button is a `<tanrei-button variant=\"text\">` in the shadow root. What the text field's note says of the inner element, of the types, of the segments, of the grip, of `noWrap` (attribute `no-wrap`, the inverse of `wrap`) and of code holds here for this element, with `--tanrei-comp-input-box-*` for the box (TXI-68) and `--tanrei-comp-text-input-*` for what is the text input's own. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`. The connection with a Field is `tanrei-field-connect` (`src/primitives/field.ts`), in both directions (TXI-62): the control's side gains what it says of itself — `drawsLabel`, `inset: { start, end }` (lengths written by the input from its own tokens and its measured icon boxes), `refusal: { text }` — and the frame's side gains `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states; a Field that does not read the three ignores them, and an input no Field answers is drawn as a bare one. The count is not in the exchange: `countText` is a read-only property of the element (the text of TXI-19, empty while `counter` is false), new after each of the element's updates, which a composed element reads as it reads the value and a product reads in its own `input` listener. The routine of TXI-37 and TXI-38 that measures the lines and moves the height is one file, `src/primitives/auto-height.ts`, which draws nothing and reads no token; the web's tests of the height are one suite, so that another element that types on several lines is held to the same behaviour. The name, the description, `aria-invalid`, `aria-required` and `aria-readonly` are written on the inner element, the input's own `label` winning. Attributes are kebab-case (`label-hidden`, `min-rows`, `max-rows`, `prefix-text`, `suffix-text`, `invalid-text`, `unavailable-text`, `picker-label`, `resize-axis`, `resize-label`, `disabled-dates`, `segment-empty-text`, `no-wrap`) except `readonly`, `maxlength`, `autocomplete`, `min` and `max`, which keep HTML's names. `input` and `change` are composed events; `action` is cancelable; `pickerrequest` and `entryerror` are composed CustomEvents whose `detail` carries `{ value, type, min, max }` and `{ reason, text }`. Words: `resize-label` and `segment-empty-text` left empty read the product's words (`setWords()`). For the types email, url, tel, number and password the row of prefix, input and suffix takes the direction TXI-67 gives as its own `dir`; for every other type it keeps the host's."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiTextInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "text",
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "placeholder": "prompt",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "multiline": "axis",
+        "minRows": "lineLimit",
+        "maxRows": "lineLimit",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeLabel",
+        "wrap": "wrap",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "prefixText": "prefix",
+        "suffixText": "suffix",
+        "autocomplete": "textContentType",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerLabel"
+      },
+      "events": {
+        "input": "text",
+        "change": "onCommit",
+        "action": "onSubmit",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Planned: this platform has the text field as one view, the frame and the input together. It owes the input as a view of its own, with the names its text field uses today for these props; the Field around it gives the name, the description and the states through the platform's own channel, and the input says what it draws back up (TXI-62)."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiTextInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "multiline": "singleLine",
+        "minRows": "minLines",
+        "maxRows": "maxLines",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeContentDescription",
+        "wrap": "softWrap",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "prefixText": "prefix",
+        "suffixText": "suffix",
+        "autocomplete": "contentType",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerContentDescription"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onCommit",
+        "action": "keyboardActions",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Planned: this platform has the text field as one view, the frame and the input together. It owes the input as a view of its own, with the names its text field uses today for these props; the Field around it gives the name, the description and the states through the platform's own channel, and the input says what it draws back up (TXI-62)."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiTextInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "controller",
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "placeholder": "hintText",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "multiline": "multiline",
+        "minRows": "minLines",
+        "maxRows": "maxLines",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeSemanticLabel",
+        "wrap": "softWrap",
+        "maxLength": "maxLength",
+        "counter": "showCounter",
+        "prefixText": "prefixText",
+        "suffixText": "suffixText",
+        "autocomplete": "autofillHints",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerSemanticLabel"
+      },
+      "events": {
+        "input": "onChanged",
+        "change": "onCommit",
+        "action": "onSubmitted",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Planned: this platform has the text field as one view, the frame and the input together. It owes the input as a view of its own, with the names its text field uses today for these props; the Field around it gives the name, the description and the states through the platform's own channel, and the input says what it draws back up (TXI-62)."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "TextInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "multiline": "multiline",
+        "minRows": "minRows",
+        "maxRows": "maxRows",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeAccessibilityLabel",
+        "wrap": "wrap",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "prefixText": "prefix",
+        "suffixText": "suffix",
+        "autocomplete": "autoComplete",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerAccessibilityLabel"
+      },
+      "events": {
+        "input": "onChangeText",
+        "change": "onEndEditing",
+        "action": "onSubmitEditing",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Planned: this platform has the text field as one view, the frame and the input together. It owes the input as a view of its own, with the names its text field uses today for these props; the Field around it gives the name, the description and the states through the platform's own channel, and the input says what it draws back up (TXI-62). The name is the one React Native's own text input has: a file that needs both imports one under another name."
+    }
+  }
+}

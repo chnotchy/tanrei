@@ -1,0 +1,252 @@
+---
+title: "复选框组"
+description: "提出一个可以有多个答案的问题，选项不多，同时全部显示出来——同一个标签之下的一组复选框，带有一段描述和一条错误；它在一个名称之下保存选中值的列表，还可以带上一个把它们全部选中的复选框。"
+translationOf: components/checkbox-group.mdx
+sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="checkbox-group" />
+
+<DemoFrame label="一个复选框组，以及一个带有全选复选框的复选框组" column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填">
+    <tanrei-checkbox value="email" label="邮件" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="短信"></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="推送通知"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="报告发送日" select-all-label="每个工作日">
+    <tanrei-checkbox value="mon" label="星期一" checked></tanrei-checkbox>
+    <tanrei-checkbox value="tue" label="星期二"></tanrei-checkbox>
+    <tanrei-checkbox value="wed" label="星期三" checked></tanrei-checkbox>
+    <tanrei-checkbox value="thu" label="星期四"></tanrei-checkbox>
+    <tanrei-checkbox value="fri" label="星期五"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+一个问题的答案是一个列表，而选项又少到可以同时全部显示出来（最多七个左右）时，就使用复选框组：通知的方式、发送报告的日子、筛选列表所用的种类。答案是一个值——选中值的列表——表单在一个名称之下提交它。
+
+**组成部分**是一个[字段组](/zh-cn/components/field-group/)和若干[复选框](/zh-cn/components/checkbox/)。字段组是框架：标签、必填或选填标记、描述、错误，以及排成一列或一行的布局。复选框保存值：每一个都是带有自己标签的一个选项，其中哪些被选中，就构成了这个列表。复选框组自己什么都不绘制，也没有令牌。它在这两者之上添加的，是每个产品本来都要自己写的状态：列表和针对它的一个 `change`；表单里的一个名称，连同重置，以及表单自己对“必填的一组不能为空”的校验；还有全选复选框的三种状态。
+
+它的宽度与所在的位置相同。
+
+在 Web 上它是 `<tanrei-checkbox-group>`。其他平台尚未实现。
+
+### 用法
+
+每个复选框就是由它的 `value` 命名的那个选项。组上的 `value` 是选中值的列表，按复选框的顺序排列。列表里有、却没有任何复选框拥有的值会被保留——被搜索筛到看不见的选项，仍然是选中的。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-checkbox-group name="notify" label="通知方式"
+        supporting-text="可多选。"
+        requirement="required" required-text="必填"
+        error-text="请至少选择一种通知方式。">
+        <tanrei-checkbox value="email" label="邮件" checked></tanrei-checkbox>
+        <tanrei-checkbox value="text" label="短信"></tanrei-checkbox>
+        <tanrei-checkbox value="push" label="推送通知"></tanrei-checkbox>
+      </tanrei-checkbox-group>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox-group';
+
+      const group = document.querySelector('tanrei-checkbox-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value 是新的列表；group.value 已经与它相同。
+        group.error = event.detail.value.length === 0;
+      });
+      // 产品以列表的形式设置答案。它是属性（property）：没有 value 属性（attribute）。
+      group.value = ['email', 'push'];
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, CheckboxGroup } from '@tanrei/react';
+
+    const [channels, setChannels] = useState(['email']);
+
+    <CheckboxGroup name="notify" label="通知方式" supportingText="可多选。"
+                   value={channels} onChange={(event) => setChannels(event.detail.value)}
+                   error={channels.length === 0} errorText="请至少选择一种通知方式。">
+      <Checkbox value="email" label="邮件" />
+      <Checkbox value="text" label="短信" />
+      <Checkbox value="push" label="推送通知" />
+    </CheckboxGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+在标记里，最初的值写在 HTML 本来写它的地方：各个复选框上的 `checked`。一旦产品设置了 `value`，哪些复选框被选中就由 `value` 决定。
+
+### 全选复选框
+
+给出 `selectAllLabel`，组就会在第一个复选框之前多带一个复选框，以这段文本命名。用户可以切换的复选框全部选中时，它是选中的；只有一部分选中时，它是半选的；一个都没有选中时，它是未选中的。在未选中或半选时按下它，会把它们全部选中；在选中时按下它，会把它们全部取消选中。它不是列表里的一项，也不提交任何东西。
+
+```html
+<tanrei-checkbox-group name="days" label="报告发送日" select-all-label="每个工作日">
+  <tanrei-checkbox value="mon" label="星期一"></tanrei-checkbox>
+  <tanrei-checkbox value="tue" label="星期二"></tanrei-checkbox>
+  …
+</tanrei-checkbox-group>
+```
+
+你自己禁用的复选框保持原样，无论选中与否，也不计算在内：全选复选框只计算用户可以切换的那些选项。这一组的标签——“以上全部”“每个工作日”——要用问题本身的措辞来写；它绝不会从产品的文字里读取。
+
+### 下一层
+
+用它的两个成员手写出来的同一组，画面是一样的，对辅助技术来说也是同一个组：
+
+```html
+<tanrei-field-group label="通知方式" supporting-text="可多选。"
+                    requirement="required" required-text="必填">
+  <tanrei-checkbox name="notify" value="email" label="邮件" checked></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="text" label="短信"></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="push" label="推送通知"></tanrei-checkbox>
+</tanrei-field-group>
+```
+
+<DemoFrame label="手写出来的同一组：一个字段组，里面有若干复选框" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填">
+    <tanrei-checkbox name="notify" value="email" label="邮件" checked></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="text" label="短信"></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="push" label="推送通知"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+手写的字段组和复选框没有做的事，是保存答案：
+
+| 方面 | 手写 | 复选框组 |
+| --- | --- | --- |
+| 列表 | 由产品从每个复选框上读取 | `value`，以及一个 `change` |
+| 设置答案 | 每个复选框上的 `checked` | `value = […]` |
+| 重置和恢复 | 每个复选框各管各的 | 作为一个控件 |
+| 必填的一组留空 | 由产品检查 | 表单自己的校验会拒绝 |
+| 复选框没有显示出来的值 | 丢失 | 保留 |
+| 全选复选框 | 由产品编写，用 `indeterminate` | `selectAllLabel` |
+| 表单提交的内容 | 同样的条目 | 同样的条目 |
+
+当这一组不是一个答案时，就往下走一层：
+
+| 你需要 | 使用 |
+| --- | --- |
+| 把少量选项中的几个作为一个名称之下的一个答案 | 复选框组 |
+| 在表单里各有自己名称的复选框，或者里面有不是复选框的东西的一组 | 一个[字段组](/zh-cn/components/field-group/)，里面放[复选框](/zh-cn/components/checkbox/) |
+| “全部”的含义按你自己的规则来定——某一页上的每一项、每个匹配的项 | 一个[字段组](/zh-cn/components/field-group/)，里面放一个由你自己设置 `indeterminate` 的复选框 |
+| 少量选项中的一个 | [单选组](/zh-cn/components/radio-group/) |
+| 一样东西的开或关 | [复选框](/zh-cn/components/checkbox/)；立即生效的地方用[开关](/zh-cn/components/switch/) |
+| 许多选项中的几个，或者空间很小 | [下拉选择框](/zh-cn/components/select/)，或者可以多选的列表 |
+
+## 规格
+
+<DemoFrame label="排成一行、被拒绝的回答、始终打开的选项，以及禁用的组" plain column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="尺码" orientation="horizontal">
+    <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
+    <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
+    <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" supporting-text="可多选。" requirement="required" required-text="必填" error error-text="这个号码无法接收短信。请选择其他方式，或者更换号码。">
+    <tanrei-checkbox value="email" label="邮件"></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="短信" checked></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="推送通知"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="接收内容">
+    <tanrei-checkbox value="account" label="与我的账户有关的消息" checked disabled></tanrei-checkbox>
+    <tanrei-checkbox value="news" label="新闻"></tanrei-checkbox>
+    <tanrei-checkbox value="offers" label="优惠"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知方式" disabled>
+    <tanrei-checkbox value="email" label="邮件" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="短信"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+### 各个成员提供什么
+
+| 方面 | 来自字段组 | 来自复选框 | 组自己的 |
+| --- | --- | --- | --- |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | 每个复选框的 `value`、`label` 和 `disabled`，写在复选框上 | `value`, `selectAllLabel` |
+| 事件 | — | 没有：组里的复选框自己不触发任何事件 | `change` |
+| 令牌 | `comp.field-group.*` | `comp.checkbox.*` | 没有 |
+
+- **必填**表示至少选一个。最少或最多选几个（“最多选三个”）是你自己的规则：在 `change` 里读取列表的长度，设置 `error`，并用你自己的话把这个数目写进 `errorText`。
+- **错误**是整组的。`error` 把 `errorText` 画在最后一个复选框下方，并让每个复选框进入它自己的错误状态。组绝不会自己设置它，值的变化也不会清除它。组没有出错、而其中一个复选框出错时，用的是那个复选框自己的 `error`。
+- **禁用**。禁用的组保留它的值，什么都不提交。在启用的组里单独禁用的复选框保留它的条目，并随组一起提交：始终打开的选项，就是一个禁用且选中的复选框，旁边不需要隐藏字段。
+- 它没有只读状态，因为复选框没有。
+
+框架做什么，也就是必填标记、描述、错误以及错误怎样朗读、一列和会换行的一行，写在[字段组的页面](/zh-cn/components/field-group/)上。复选框做什么，写在[复选框的页面](/zh-cn/components/checkbox/)上。
+
+### 单独调整某一个组
+
+复选框组没有自己的令牌。它的框架读取字段组的令牌，它的复选框读取复选框的令牌，无论这些令牌设置在哪里。要改动某一个实例，就在它上面设置成员的令牌：
+
+```html
+<tanrei-checkbox-group label="通知方式"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-checkbox-group>
+```
+
+<ComponentSpecs name="checkbox-group" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素的 shadow root 里有一个 `<tanrei-field-group>`，它包着全选复选框（给出 `select-all-label` 时才有）和一个插槽。复选框仍然是你自己的子元素。导入这个元素，两个成员也随之完成定义。
+- `value` 只是属性（property）：一个数组，写入和读出时都会复制。它没有 `value` 属性（attribute），因为把列表写进属性（attribute）需要一个分隔符，而值里可能就含有这个分隔符；HTML 也已经有了现成的写法：每个子元素上的 `checked`。
+- 既没有 `value` 属性（attribute）、也没有设置值的复选框就没有值：单独的复选框提交的那个“on”，在组里不会被读取。它画成未选中，调试构建会报告它。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`，并在 `name` 之下为每个值提交一个条目——与同名的原生复选框提交的内容相同。它的复选框无论带有什么 `name`，都不提交任何东西。它重置为最初的值，跟随被禁用的 `<fieldset>`，并在 `requirement` 为 `required` 而列表为空时报告缺少值。报告用的消息是 `error-text`，没有时是必填文字，再没有时是 `label`：请从一开始就给出 `error-text`，而不是只在设置 `error` 时才给。
+- `change` 是 CustomEvent，它的 `detail.value` 是列表的一份副本；`input` 在它之前触发。写在组里某个复选框上的监听器，两者都收不到。
+- 部件：`field-group` 是框架，它的部件在这里的名称与下一层相同：`label`、`requirement-label`、`supporting-text`、`error-text`。`select-all` 是全选复选框，它的部件是 `select-all-container`、`select-all-box`、`select-all-mark` 和 `select-all-label`。你自己的复选框，样式的写法与在任何地方一样，用 `tanrei-checkbox::part(…)`。
+- 这个元素本身不能获得焦点。`focus()` 会把焦点交给第一个启用的复选框，页面自己的 `<label for>` 也会把焦点移到那里。
+- 这个元素没有角色。用 `label` 为它命名，标签绘制在别处时再加上 `label-hidden`；绝不要用 `aria-label`，它在这里不为任何东西命名。
+- 属性（attribute）用 kebab-case 书写：`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`select-all-label`。
+- 在元素完成定义之前，以及没有脚本时，它自己的东西一样都不绘制：复选框显示为普通内容。必须在没有脚本时也能工作的页面，写一个原生的 `<fieldset>`，里面放 `name` 相同的原生复选框，它提交的是同样的条目。
+
+## 指南
+
+### 推荐
+
+- 把标签写成问题，把每个复选框的标签写成对它的一个回答。
+- 在 `supportingText` 里说明怎样回答：“可多选。”
+- 优先排成一列。只有少数几个简短的标签时，才排成一行。
+- 只要这一组是必填的，就给出 `errorText`，这样表单自己的校验就会用你的话来说明。
+- 六个或更多选项的组、筛选条件和成组的权限，使用全选复选框。
+
+### 避免
+
+- 不要把复选框组用于少量选项中只有一个答案的问题：那是[单选组](/zh-cn/components/radio-group/)。
+- 不要为了提交复选框而给它们 `name`：组会在自己的名称之下提交列表。
+- 不要在里面放任何可以操作、却不是复选框的东西。调试构建会报告它，它也不会给值添加任何条目。
+- 不要为了表现层级，把这一组缩进到全选复选框之下。选项里面还有选项，那是树。
+- 不要用 `aria-label` 为组命名。不该绘制标签的地方，给出 `label` 和 `labelHidden`。
+
+## 无障碍
+
+<ComponentAccessibility name="checkbox-group" />
+
+### 组件负责的部分
+
+- 它是一个组，也就是字段组的那一个，里面包含它的复选框。它的名称是 `label`，无论标签是否绘制；它的描述是辅助文本、处于错误状态时的错误文本，以及用产品的文字说明的必填或选填。
+- 组没有必填状态，也没有无效状态。必填与否用文字说明；组处于错误状态时，其中的每个复选框都暴露为无效，并以错误文本作为描述。
+- 每个复选框保留它自己的角色、名称和选中状态。只有一部分选中时，全选复选框说的是“混合”。没有哪个复选框带有在一组中的位置，选中了几个也不朗读。
+- 每个启用的复选框各是一个 Tab 停靠点，全选复选框排在最前。Space 切换获得焦点的那一个。没有方向键操作，Enter 留给表单。
+- 按下标签、必填和选填标记、描述或错误文本，不会选中任何东西，也不移动焦点。
+- 焦点在其中一个复选框上时出现的错误，由字段组以礼貌（polite）的方式朗读一次。
+- 方向、放大的文本和强制颜色模式，由各个成员各自应对：在从右到左的布局中，框架和每个复选框都会镜像；文本放大到 200% 时，每段文本都换行，一行变成一列，没有任何内容横向滚动。
+- 它没有自己的文字。`requiredText` 和 `optionalText` 留空时，由字段组从产品的文字里读取。
+
+Web 上的已知差距：屏幕阅读器对这个组会说什么，是从各浏览器的无障碍树里读出来的，还没有用屏幕阅读器实际听过。Chromium 在它的无障碍树里给这个元素一个自己的节点，因为表单会校验它：这是一个没有角色、没有名称的节点，包在组的外面。
+
+### 需要你做的事
+
+- 始终给出 `label`，并给每个复选框一个 `label`。
+- 组必填或选填的地方，给出 `requiredText` 和 `optionalText`——写在组上，或者为整个产品只给一次：组没有必填状态，所以要靠这些文字来说明。
+- 在 `errorText` 里说明哪里不对，以及怎样改正。颜色绝不是唯一的提示。
+- 选了几个很要紧的地方（“已选 2 项，共 5 项”），把它写进 `supportingText`：否则它不会被朗读。

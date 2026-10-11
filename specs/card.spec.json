@@ -1,0 +1,418 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "card",
+  "title": "Card",
+  "summary": "Sets a group of related content apart from its background, and can be one action that opens what it shows, or one link to it.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The shape that holds the content, clips it to its corners and, for an interactive card, carries hover, focus and press."
+    },
+    {
+      "id": "outline",
+      "description": "The border of the outlined variant.",
+      "optional": true
+    },
+    {
+      "id": "content",
+      "description": "Whatever the product puts in the card. The card does not lay it out; it only insets it, clips it and hands it a content color."
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus of an interactive card.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "elevated",
+        "filled",
+        "outlined"
+      ],
+      "default": "outlined",
+      "description": "How the card separates from its background: by depth (elevated), by tone (filled) or by an edge (outlined). Pick by the background, not by importance. A design system may add values.",
+      "axis": "tanrei.comp.card.variant"
+    },
+    {
+      "name": "interactive",
+      "type": "boolean",
+      "default": false,
+      "description": "Makes the whole card one pressable action (it emits click). Its content must then contain no other interactive element. A card whose action is to go somewhere takes href instead and is a link, not a button."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents interaction and removes an interactive card or a link card from the focus order. Ignored unless interactive is true or href is set: a card that is neither an action nor a link cannot be disabled."
+    },
+    {
+      "name": "href",
+      "type": "string",
+      "default": "",
+      "description": "The destination: an address as the platform's links take one (a URL; on the web a path or a fragment as well). Not empty, it makes the whole card one link — a link card — whether interactive is set or not: the link role, one tab stop, activated by pointer, touch or Enter and not by Space, opened by the platform as its own links are, and drawn exactly as an interactive card is (CRD-19, CRD-20). Its content must then contain no other interactive element, as an interactive card's."
+    },
+    {
+      "name": "target",
+      "type": "enum",
+      "values": [
+        "same",
+        "new"
+      ],
+      "default": "same",
+      "description": "Where the destination opens. same: where the person is — the same tab on the web, the app's own handling of the address elsewhere. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which the card says through targetLabel; the card draws no mark, because its content is the product's (CRD-21). Ignored without href."
+    },
+    {
+      "name": "targetLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads after the link's name while target is new (\"opens in a new tab\"). Tanrei ships no words of its own, so the product gives them in its own language, as it gives a chip its removeLabel. Required while target is new; ignored otherwise.",
+      "words": "targetLabel"
+    },
+    {
+      "name": "inset",
+      "type": "boolean",
+      "default": true,
+      "description": "Insets the content by the card's padding. Set it to false for content that reaches the card's edges (a photo on top); that content pads its own text."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name. For an interactive card or a link card, normally the text of its heading; without it the whole content becomes the name. For a card that is neither, a label makes it a named group."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The content: any layout of media, text and — only when interactive is false and href is empty — actions."
+    }
+  ],
+  "events": [
+    {
+      "name": "click",
+      "description": "An interactive card or a link card was activated by pointer, touch, keyboard or assistive technology. A link card emits it before its destination opens; a product that takes the navigation itself (a client-side router) cancels it (CRD-20)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "CRD-1",
+      "text": "WHEN the user activates an interactive card by pointer, touch, Enter or Space — a link card (CRD-19) by pointer, touch or Enter — THE card SHALL emit click exactly once."
+    },
+    {
+      "id": "CRD-2",
+      "text": "WHILE disabled is true and either interactive is true or href is not empty THE card SHALL NOT emit click, SHALL NOT be focusable and SHALL expose the disabled state to assistive technology."
+    },
+    {
+      "id": "CRD-3",
+      "text": "WHILE an interactive card is hovered, keyboard-focused or pressed THE card SHALL render its container, outline, elevation, content color and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "CRD-4",
+      "text": "WHEN an interactive card receives keyboard focus THE card SHALL show the focus ring without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "CRD-5",
+      "text": "WHERE the visual size of an interactive card is below the minimum target THE card SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "CRD-6",
+      "text": "WHILE disabled is true and either interactive is true or href is not empty THE card SHALL render its container, outline, elevation, content color and opacity from the disabled component tokens of its variant."
+    },
+    {
+      "id": "CRD-7",
+      "text": "WHEN variant names a value that the active design system does not have THE card SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "CRD-8",
+      "text": "WHEN the card is pressed by pointer, touch, Enter or Space THE card SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "CRD-9",
+      "text": "WHILE pressed THE card SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; content color, outline, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.card.motion.feedback-duration with comp.card.motion.state-easing, fades over comp.card.motion.state-duration with comp.card.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "CRD-10",
+      "text": "THE card SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "CRD-11",
+      "text": "WHILE interactive is false and href is empty THE card SHALL NOT be focusable, SHALL NOT emit click, SHALL NOT draw a hover, focus or press answer, SHALL ignore disabled, and SHALL render from the resting tokens of its variant."
+    },
+    {
+      "id": "CRD-12",
+      "text": "WHILE inset is true THE card SHALL place its content comp.card.container.padding inside the container on every side; WHILE inset is false the content SHALL reach the container's edges. In both cases THE card SHALL clip its content to the container's shape, draw the outline of the outlined variant (comp.card.outline.width wide) above the content, and grow with its content: the card has no height of its own."
+    },
+    {
+      "id": "CRD-13",
+      "text": "THE card SHALL hand its content the content color of its variant and state (comp.card.outlined.content.color for outlined at rest, and so on) as the platform's inherited foreground (the web's inherited color, SwiftUI's foreground style, Compose's content color, Flutter's default text and icon style); on React Native, which has no inherited text color, it SHALL provide the color through the Tanrei context that Tanrei's text components read. Plain text given as content, where the platform must style it, SHALL take sys.typescale.body."
+    },
+    {
+      "id": "CRD-14",
+      "text": "WHILE interactive is true THE card SHALL be exactly one focusable element with the button role (the link role WHILE href is not empty, CRD-19), named by label or, WHILE label is empty, by the text of its content merged in reading order, and in debug builds SHALL report that it has no label; WHILE interactive is false and href is empty THE card SHALL have no role of its own and leave its content's semantics untouched, except that WHERE label is set it SHALL be a group named by label."
+    },
+    {
+      "id": "CRD-15",
+      "text": "WHILE interactive is true or href is not empty THE card's content SHALL contain no interactive element (button, link, field, toggle or anything else focusable); a platform that can inspect its content (the web, on every slot change) SHALL report one in debug builds, and a platform that cannot SHALL state the rule in its README and docs page."
+    },
+    {
+      "id": "CRD-16",
+      "text": "WHEN the elevation or the colors of an interactive card change between states THE card SHALL animate the change over comp.card.motion.state-duration with comp.card.motion.state-easing, and SHALL change them at once where motion is reduced."
+    },
+    {
+      "id": "CRD-17",
+      "text": "WHEN the layout direction is right-to-left THE card SHALL apply its padding and clipping by logical start and end so that it mirrors, SHALL grow a ripple from the point of contact as in left-to-right, and SHALL NOT mirror its content itself: the content follows the layout direction."
+    },
+    {
+      "id": "CRD-18",
+      "text": "THE card SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the card is shown THE card SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows and its state.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "CRD-19",
+      "text": "WHILE href is not empty THE card SHALL be a link card, whether interactive is true or false: exactly one focusable element with the link role and not the button role, named as CRD-14 names an interactive card, its content presentational and held to CRD-15; the platform's own link to href (the web's anchor element; SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), so that whatever the platform gives a link — on the web its context menu, opening in a new tab or window, copying and dragging its address, and the address shown before it is followed — is the platform's, and not the card's to draw or to take over; and everything this spec says of an interactive card other than its role and its keys — its states, focus ring, minimum target, press answer, corners, motion and disabled look (CRD-3 to CRD-6, CRD-8 to CRD-10, CRD-16) — SHALL hold for a link card from the same tokens, with no look of its own for a link and none for a destination already visited.",
+      "verify": "Fixture outlined-link is drawn exactly as an interactive outlined card with the same content. On the web the shadow root holds an anchor with the href around the slot; assert the role link, the accessible name from label, and one tab stop."
+    },
+    {
+      "id": "CRD-20",
+      "text": "WHEN the user activates a link card by pointer, touch or Enter THE card SHALL emit click exactly once and then open href where target names, unless the product cancelled that click, in which case it SHALL open nothing: the product's own router has taken the navigation. It SHALL show the pressed state as CRD-8 and CRD-9 say and SHALL NOT hold the navigation back for sys.motion.duration.press-hold. THE card SHALL NOT activate a link card on Space, which on the web scrolls the page as it does on any link, and SHALL NOT show the pressed state for it; WHERE the platform gives its links other keys or gestures (on the web a modified or a middle click that opens a new tab, on Apple platforms a long press that previews) THE card SHALL leave them to the platform.",
+      "verify": "On the web: Enter follows the link and fires click once; Space fires no click and leaves the page to scroll; a click listener that calls preventDefault() keeps the page where it is."
+    },
+    {
+      "id": "CRD-21",
+      "text": "WHILE the card is a link card and target is new THE card SHALL open href in a new context — on the web a new tab or window that is given no handle to the page that opened it; on the other platforms outside the screen the person is on, as the platform's opener decides. THE card SHALL draw no mark of its own for it, because its content is the product's to lay out (CRD-12): a product that shows that the card opens elsewhere puts the glyph open_in_new of the system's icon set in the content, through the icon helper. WHILE target is new THE card SHALL expose targetLabel as its description, read after its name and role, and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE card SHALL ignore targetLabel.",
+      "verify": "Fixture filled-link-new: drawn as a filled interactive card; the description is exposed."
+    },
+    {
+      "id": "CRD-22",
+      "text": "WHILE href is not empty and disabled is true THE card SHALL NOT be a link that can be followed: it SHALL render as CRD-6 says, SHALL expose the link role with the disabled state and no destination, SHALL NOT be focusable, SHALL NOT emit click, and SHALL open nothing by any means the platform gives a link (on the web the anchor carries no href, so there is no context menu entry, no drag and no new tab for it).",
+      "verify": "Fixture outlined-link-disabled is drawn exactly as a disabled interactive outlined card with the same content."
+    },
+    {
+      "id": "CRD-23",
+      "text": "WHEN target names a value the card does not define THE card SHALL behave as same, and in debug builds report the unknown value. IF href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE card SHALL be the card its interactive makes it, without a destination, and in the last two cases report it in debug builds."
+    }
+  ],
+  "accessibility": {
+    "role": "button (link while href is set)",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to an interactive card or a link card. A card that is neither is not a tab stop; focus moves through its content."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activates an interactive card. A link card is activated by Enter alone: Space does what it does on any link (on the web it scrolls the page)."
+      }
+    ],
+    "labeling": "The role is button while interactive is true and link while href is set; otherwise the card has no role, or is a group when label is set. An interactive card's or a link card's name is label — normally its heading's text — or, without one, its whole content read as one string (reported in debug builds). Their content is presentational: its headings and images are read as part of the name, not as separate elements. While target is new, targetLabel is a link card's description.",
+    "minimumTarget": true,
+    "notes": [
+      "Never nest interactive elements in an interactive card or a link card: assistive technology cannot reach them (the card is one element) and a press on them would also activate the card. A card that needs its own buttons or links stays plain, and its primary action or destination is one of them: a heading that is a link, or a link Button.",
+      "Web: an interactive card draws a shadow element with role button and tabindex 0 around the slot (not a <button>, whose content model forbids block content); Enter activates on keydown and Space on keyup, as a native button does. A link card draws an anchor around the slot instead, which HTML allows around block content that holds nothing interactive. In debug builds either inspects the slotted content on every slotchange for focusable or interactive descendants and reports them.",
+      "SwiftUI, Compose, Flutter and React Native merge the content into the one accessible element (SwiftUI's button, Compose's merged clickable semantics, Flutter's merged semantics, React Native's accessible Pressable). None of them can reliably detect a nested interactive element, so each states the rule in its README; their tests assert that the merged element is the only one exposed.",
+      "Text size does not clip a card: it grows with its content at 200% text size.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "A card with a destination is a link: one element with the link role, the platform's own link, Enter and not Space, so that on the web the card can be opened in a new tab and its address copied. No visited state is drawn.",
+      "A link card that opens a new context says so through targetLabel. The card draws no mark of its own, since it does not lay out its content; a product that shows one puts the glyph open_in_new of the system's icon set in the content, where the icon helper mirrors it in a right-to-left layout."
+    ]
+  },
+  "tokens": "comp.card",
+  "fixtures": [
+    {
+      "id": "outlined",
+      "props": {
+        "variant": "outlined"
+      },
+      "content": "Quarterly report. Revenue grew 12% over the previous quarter."
+    },
+    {
+      "id": "filled",
+      "props": {
+        "variant": "filled"
+      },
+      "content": "Quarterly report. Revenue grew 12% over the previous quarter."
+    },
+    {
+      "id": "elevated",
+      "props": {
+        "variant": "elevated"
+      },
+      "content": "Quarterly report. Revenue grew 12% over the previous quarter."
+    },
+    {
+      "id": "outlined-flush",
+      "props": {
+        "variant": "outlined",
+        "inset": false
+      },
+      "content": "Quarterly report. Revenue grew 12% over the previous quarter."
+    },
+    {
+      "id": "outlined-interactive",
+      "props": {
+        "variant": "outlined",
+        "interactive": true,
+        "label": "Quarterly report"
+      },
+      "content": "Quarterly report. Revenue grew 12% over the previous quarter."
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "interactive": true,
+        "disabled": true,
+        "label": "Quarterly report"
+      },
+      "content": "Quarterly report. Revenue grew 12% over the previous quarter."
+    },
+    {
+      "id": "elevated-disabled",
+      "props": {
+        "variant": "elevated",
+        "interactive": true,
+        "disabled": true,
+        "label": "Quarterly report"
+      },
+      "content": "Quarterly report. Revenue grew 12% over the previous quarter."
+    },
+    {
+      "id": "outlined-link",
+      "props": {
+        "variant": "outlined",
+        "href": "/getting-started/",
+        "label": "Getting started"
+      },
+      "content": "Getting started. Install and use Tanrei on your platform."
+    },
+    {
+      "id": "filled-link-new",
+      "props": {
+        "variant": "filled",
+        "href": "https://example.com/tanrei",
+        "label": "Source",
+        "target": "new",
+        "targetLabel": "opens in a new tab"
+      },
+      "content": "Source. The repository, its issues and its releases."
+    },
+    {
+      "id": "outlined-link-disabled",
+      "props": {
+        "variant": "outlined",
+        "href": "/getting-started/",
+        "disabled": true,
+        "label": "Getting started"
+      },
+      "content": "Getting started. Install and use Tanrei on your platform."
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-card",
+      "props": {
+        "variant": "variant",
+        "interactive": "interactive",
+        "disabled": "disabled",
+        "inset": "inset",
+        "label": "label",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel"
+      },
+      "events": {
+        "click": "click"
+      },
+      "notes": "The content is the default slot. `inset` is a boolean property that defaults to true; its attribute is the inverse `flush`, because an HTML boolean attribute cannot default to true. `click` fires only while interactive is true and disabled is false. With `href` the shadow root holds an `<a part=\"container\">` around the slot in place of the element with role button; `click` then fires for a link card too. The link form: `href` is the `href` attribute; `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two; anything else is `same` and reported); `targetLabel` is the `target-label` attribute. Web-only, forwarded to the anchor and to nothing else: `rel` (to which `new` adds `noopener`) and `download`. Cancelling `click` (`preventDefault()`) cancels the navigation, which is how a client-side router takes it; a modified or a middle click is the browser's. A disabled link is the anchor without `href`, with `role=\"link\"` and `aria-disabled=\"true\"`, as the navigation drawer's destination already is. Space is not handed to the press controller. `element.click()` follows the link."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiCard",
+      "props": {
+        "variant": "variant",
+        "interactive": "action",
+        "disabled": "disabled",
+        "inset": "inset",
+        "label": "label",
+        "href": "destination",
+        "target": "target",
+        "targetLabel": "targetLabel"
+      },
+      "events": {
+        "click": "action"
+      },
+      "notes": "SwiftUI idiom (as `Button`): the initializer that takes `action:` makes the card interactive; the one without it is a plain container. `disabled` follows `.disabled(_:)`; `label` sets `accessibilityLabel`. Content is a `@ViewBuilder`. Not built on this platform yet: the initializer that takes `destination: URL` in place of `action:` draws the same control as a SwiftUI `Link`, so the address is opened by the environment's `openURL` — an app that routes addresses itself provides an `OpenURLAction`, which is how the navigation is cancelled — and VoiceOver reads the link trait. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint) are parameters of that initializer alone."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiCard",
+      "props": {
+        "variant": "variant",
+        "interactive": "onClick",
+        "disabled": "enabled",
+        "inset": "inset",
+        "label": "contentDescription",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel"
+      },
+      "events": {
+        "click": "onClick"
+      },
+      "notes": "Compose idiom (as `Card`): the overload with a non-null `onClick` is interactive; `enabled` is the inverse flag. Content is a `ColumnScope` lambda and reads the content color from `LocalTanreiContentColor` and plain text's style from `LocalTanreiTextStyle`, Tanrei's own locals (the package does not depend on Material, whose `LocalContentColor` it would otherwise be). Not built on this platform yet: the overload that takes `href: String` (`onClick` is then optional and called first) opens the address through `LocalUriHandler.current` after `onClick`; an app that routes addresses itself provides its own `UriHandler`. Compose has no link role for a clickable element (only link annotations inside text), so the node drops `Role.Button` and carries no role, and the README says so. `target: TanreiLinkTarget = TanreiLinkTarget.Same`; `targetLabel` is appended to the node's state description."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiCard",
+      "props": {
+        "variant": "variant",
+        "interactive": "onTap",
+        "disabled": "enabled",
+        "inset": "inset",
+        "label": "semanticLabel",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetSemanticLabel"
+      },
+      "events": {
+        "click": "onTap"
+      },
+      "notes": "Flutter idiom: a non-null `onTap` makes the card interactive. `enabled: false` disables it while keeping its interactive look (as `ListTile`), because a null `onTap` already means not interactive. Content is `child`. Not built on this platform yet: the `TanreiCard.link` constructor (`href` is a `Uri`) has `Semantics(link: true)` with the address as its `linkUrl`. The package has no plugin dependency, so the address is opened by the nearest `TanreiLinkOpener`, an inherited widget the app provides once (calling `url_launcher`, or its own router); without one the control opens nothing and reports it in debug builds. `target` is a `TanreiLinkTarget`; `targetSemanticLabel` is the semantics hint."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Card",
+      "props": {
+        "variant": "variant",
+        "interactive": "onPress",
+        "disabled": "disabled",
+        "inset": "inset",
+        "label": "accessibilityLabel",
+        "href": "href",
+        "target": "target",
+        "targetLabel": "targetLabel"
+      },
+      "events": {
+        "click": "onPress"
+      },
+      "notes": "A non-null `onPress` makes the card interactive (an accessible `Pressable` with the button role); without it the card is a `View`. Content is `children`. Not built on this platform yet: a Card with `href` has `accessibilityRole=\"link\"` and opens the address with `Linking.openURL` after `onPress`, unless `onPress` called `event.preventDefault()`. `target` is `\"same\" | \"new\"`; `targetLabel` is the `accessibilityHint`."
+    }
+  }
+}

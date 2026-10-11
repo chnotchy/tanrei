@@ -1,0 +1,197 @@
+---
+title: 埋め込みテキスト入力欄
+description: ほかのものが描くボックスのための、入力部分だけのコンポーネントです。テキスト、プレースホルダー、キャレット、選択範囲を、1 行か、動きを伴って伸び縮みする複数行で描きます。コンテナも、縁も、ラベルも、フォーカスの表示も描きません。ボックスを描き、フォーカスを示すのは、これを持つ側です。
+translationOf: components/embedded-text-input.mdx
+sourceHash: d4617a2417ef3e2af9c2ed1dcbc0776ac44b4e8a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## 概要
+
+<ComponentAvailability name="embedded-text-input" />
+
+<DemoFrame label="ページが描いたボックスの中の埋め込みテキスト入力欄。何行か入力すると、ボックスが高さに追従します。フォーカスはボックスの縁で示されます。" column>
+  <div class="not-content docs-embedded-holder" style="box-sizing: border-box; inline-size: 22.5rem; max-inline-size: 100%; background: var(--tanrei-sys-color-surface-container); border-radius: var(--tanrei-sys-shape-corner-large); padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); cursor: text">
+    <tanrei-embedded-text-input label="メッセージ" placeholder="メッセージを入力" multiline max-rows="6"></tanrei-embedded-text-input>
+  </div>
+</DemoFrame>
+
+<style>{`
+  .docs-embedded-holder { outline: var(--tanrei-sys-border-thick) solid transparent; outline-offset: calc(-1 * var(--tanrei-sys-border-thick)); }
+  .docs-embedded-holder:focus-within { outline-color: var(--tanrei-sys-color-focus-ring); }
+  @media (forced-colors: active) {
+    .docs-embedded-holder { outline-color: CanvasText; }
+    .docs-embedded-holder:focus-within { outline-color: Highlight; }
+  }
+`}</style>
+
+埋め込みテキスト入力欄は、コントロールの半分です。文字を入力する場所だけで、まわりには何もありません。塗りも、縁も、余白も、ラベルも、メッセージもありません。残りの半分が**ホルダー**、つまり入力部分を囲むボックスです。[チャットコンポーザー](/ja/components/chat-composer/)のように Tanrei のコンポーネントがホルダーになることも、利用者側のマークアップがホルダーになることもあります。
+
+ほとんどのプロダクトでは、これを直接置くことはありません。ボックスがテキスト以外のものも持つときに使います。アクションと並んだメッセージ、検索バー、その場で編集するタイトルなどです。
+
+次の場合は、ほかのコンポーネントを使います。
+
+- ボックスがテキストフィールドのボックスである場合。[テキスト入力欄](/ja/components/text-input/)か、ラベルとメッセージを備えた[テキストフィールド](/ja/components/text-field/)を使います。
+- メッセージを書いて送る場合。このコンポーネントから作られている[チャットコンポーザー](/ja/components/chat-composer/)を使います。
+- 値が、1 回だけ入力する短いコードである場合。[ワンタイムコード入力欄](/ja/components/one-time-code-input/)を使います。
+
+<Callout type="caution" title="フォーカスはホルダーが示します">
+埋め込みテキスト入力欄は、デザインシステムのフォーカスの様式が何であっても、フォーカスの表示を描きません。キャレットはその代わりになりません。細い線で、テキストを選択している間は描かれず、どのボックスに入力しているのかも伝えないからです。ボックスにフォーカスを示さないホルダーは、WCAG 2.4.7 を満たしません。Web では、`:focus-within` のルールが 1 つあれば足ります。
+</Callout>
+
+Web では `<tanrei-embedded-text-input>` です。ほかのプラットフォームでは、まだ実装されていません。
+
+### 使い方
+
+ボックス、その余白、フォーカスの表示は利用者側のものです。3 つの宣言で用意できます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="capsule">
+      <tanrei-embedded-text-input label="メッセージ" placeholder="メッセージを入力"
+                                  multiline max-rows="6"></tanrei-embedded-text-input>
+    </div>
+    ```
+
+    ```css
+    .capsule {
+      background: var(--tanrei-sys-color-surface-container);
+      border-radius: var(--tanrei-sys-shape-corner-large);
+      padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200);
+      outline: var(--tanrei-sys-border-thick) solid transparent;
+      outline-offset: calc(-1 * var(--tanrei-sys-border-thick));
+      cursor: text;
+    }
+    .capsule:focus-within { outline-color: var(--tanrei-sys-color-focus-ring); }
+    @media (forced-colors: active) {
+      .capsule { outline-color: CanvasText; }
+      .capsule:focus-within { outline-color: Highlight; }
+    }
+    ```
+
+    ```js
+    // 余白を押すことは、テキストを押すことです。
+    capsule.addEventListener('mousedown', (event) => {
+      if (event.target !== capsule) return;
+      event.preventDefault();
+      input.focusAt(event.clientX, event.clientY);
+    });
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { EmbeddedTextInput } from '@tanrei/react';
+
+    <div className="capsule">
+      <EmbeddedTextInput label="メッセージ" placeholder="メッセージを入力" multiline maxRows={6}
+                         onAction={(event) => send(event.detail.value)} />
+    </div>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+### ホルダーが担うこと
+
+| 項目 | ホルダーが用意するもの | 入力欄がホルダーに渡すもの |
+| --- | --- | --- |
+| ボックス | 見えるボックス、またはボックスとして読める場所 | テキストの背後には何も描かず、ホルダーの塗りがそのまま見えます |
+| フォーカス | 入力欄にフォーカスがある間、どの方法でフォーカスしたかを問わず、ボックスに示すフォーカスの表示 | `focusin` と `focusout`、および要素の `:focus-within` |
+| 状態 | エラーの印と、無効なボックスの見た目 | `error` は無効な値であることを支援技術に伝えるだけで、何も描きません。`disabled` はテキストを無効な内容として描きます |
+| 余白 | テキストのまわりの余白と、その余白を押した操作の引き渡し | 自身の余白はなく、最小ターゲットを満たす反応範囲と `focusAt(x, y)` を持ちます |
+| 名前 | 名前と、メッセージの内容 | `label`（必須）と `description`。どちらもテキストで渡します |
+| アクション | アクションが何であるか。送信、追加、検索、保存など | `action` イベント。入力欄はそれ以上何もしません |
+| 強制カラー | システムの色で描いたボックスの縁とフォーカスの表示 | システムの色で描いた自身のテキスト、プレースホルダー、選択範囲、キャレット |
+
+### 高さ
+
+`multiline` を指定すると、入力欄はちょうど行の分の高さになります。範囲は `minRows`（既定は 1）から `maxRows`（既定は 0 で、上限なし）までです。`maxRows` を超えた分は、入力欄の中でスクロールします。
+
+- 値の変化で行数が変わると、高さは `comp.embedded-text-input.motion.resize-duration` の時間をかけて変わります。一度に何行増えても、動きは 1 回です。
+- レイアウト上の入力欄の高さは、どのフレームでもアニメーション中の高さです。内容に合わせて大きさが決まるホルダーは、コードを書かなくても追従します。
+- 最初に描かれたとき、幅や文字サイズが変わったとき、テキストの上でポインターを押している間、モーションを減らす設定のときは、高さはすぐに変わります。
+- `rowschange` は、動きが始まる前に、これから表示する行数を伝えます。`rows` はその数をいつでも返します。
+
+### Enter
+
+| 入力欄 | Enter | Shift+Enter | Ctrl+Enter、Command+Enter |
+| --- | --- | --- | --- |
+| 1 行 | `action` | — | `action` |
+| 複数行、`enterKey="line-break"`（既定） | 改行 | 改行 | `action` |
+| 複数行、`enterKey="action"` | `action` | 改行 | `action` |
+
+インプットメソッドの Enter は、候補を選ぶか、テキストを確定します。`action` は発行されません。画面上のキーボードの改行キーは、複数行の入力欄では常に改行します。
+
+`action` は値を運ぶだけで、入力欄はそれ以上何もしません。値、選択範囲、フォーカスはそのまま残ります。
+
+<ComponentSpecs name="embedded-text-input" />
+
+### Web での描き方の違い
+
+- 画面上のキーボードとハードウェアのキーボードは区別できません。主なポインターが粗く、ホバーできない環境では、Enter を改行キーとして扱い、改行します。そのため、キーボードを接続したタブレットでは、Ctrl+Enter か Command+Enter でアクションを実行します。
+- `focusAt(x, y)` は、ある位置にどの文字があるかをブラウザーが答えられる場合、最も近い文字にキャレットを置きます。答えられない場合、位置がテキストより上か手前ならテキストの先頭に、それ以外なら末尾に置きます。
+- フォームの中に直接置くと、フォームのコントロールの 1 つになり、値を `name` で送信します。Tanrei のコンポーネントであるホルダーの中ではフォームを持たず、値はホルダーが運びます。
+- スクリプトが動かない間は、子として書いた `<textarea>` か `<input>` がコントロールになります。要素が定義されると、その子のテキストを受け取り、子を隠します。
+
+## ガイドライン
+
+### 埋め込みテキスト入力欄とテキスト入力欄
+
+| 観点 | 埋め込みテキスト入力欄 | テキスト入力欄 |
+| --- | --- | --- |
+| ボックス | ホルダー自身のもので、ほかでは描かれません | テキストフィールドのボックス。デザインシステムのすべての見た目とサイズがあります |
+| フォーカス | ホルダーが示します | 入力欄自身が示します |
+| ラベルとメッセージ | ホルダーがテキストで渡します | 自身のもの、またはフィールドのもの |
+| 種類 | テキスト、検索、メール、URL、電話番号 | 左記に加えて、パスワード、数値、日付、時刻、コード |
+
+### 推奨
+
+- `label` を指定します。ほかに名前を付けるものはありません。
+- ヘルプ、エラーテキスト、文字数が伝える内容は、テキストとして `description` に入れます。
+- エラーはボックスに示します。無効な値として伝わるように、入力欄にも `error` を渡します。
+- 小さな画面の下端に置くホルダーでは、`maxRows` を指定します。
+- 文字は 16 px 以上にします。タッチ操作のブラウザーは、それより小さい文字にズームします。
+
+### 非推奨
+
+- テキストフィールドのボックスが必要な場所では使いません。テキスト入力欄を使います。
+- 入力欄に 2 つ目のフォーカスリングを描きません。フォーカスはボックスが 1 回だけ示します。
+- ホルダーの高さを自分でアニメーションさせません。入力欄の高さに追従します。
+- プレースホルダーを名前の代わりにしません。
+- インプットメソッドが使う Enter で送信しません。それを除いた `action` を受け取ります。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="embedded-text-input" />
+
+### コンポーネントが担うこと
+
+- テキストボックスです。`multiline` が true の間は複数行のテキストボックスです。名前は `label`、説明は `description` です。
+- 無効な値、必須、読み取り専用、無効の各状態は、それぞれの名前のプロパティから支援技術に伝わります。
+- プレースホルダーが名前になることはありません。
+- Tab キーで止まる位置は 1 つです。Tab で文字が入ることはなく、Escape はホルダーに任せます。
+- インプットメソッドの Enter で `action` が発行されることはありません。
+- 反応範囲は、行の上下で最小ターゲットを満たします。大きさは変わりません。
+- 文字を 200% にしても、複数行の入力欄は折り返してすべての文字を表示します。横にはスクロールしません。
+- 強制カラーでは、テキスト、プレースホルダー、選択範囲、キャレットがシステムの色になります。
+- どの言語でも、自身の言葉を持ちません。
+
+Web での既知の課題:
+
+- インプットメソッドは、Chromium では実際に動かして確かめ、Firefox と Safari ではイベントだけで確かめています。
+- 画面上のキーボードかどうかは、主なポインターが粗く、ホバーできないことから推測します。この推測は、キーボードを接続したタブレットでは外れます。
+
+### 利用者側で行うこと
+
+- ボックスを描き、入力欄にフォーカスがある間、ボックスにフォーカスを示します。表示のコントラストは、背景に対して 3:1 以上を保ちます。
+- 入力欄の `label` には、ユーザーがそのボックスを呼ぶときの言葉を指定します。
+- エラーはボックスのそばに言葉で伝え、その言葉を `description` にも渡します。
+- 強制カラーでは、ボックスの縁をシステムのテキストの色で、フォーカスの表示をハイライトの色で描きます。

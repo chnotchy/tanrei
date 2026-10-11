@@ -1,0 +1,498 @@
+/*
+ * Breadcrumbs (specs/breadcrumbs.spec.json, BRC-1 to BRC-29): where a page sits in a
+ * hierarchy of pages — the levels above as links, in order from the top, the page itself last.
+ *
+ * `<tanrei-breadcrumbs>` is an element around the product's own anchors, which stay in the document: before any
+ * script runs and without it the page holds the whole trail as links that work, which a crawler, a search index and
+ * the browser's own list of links read as they are.
+ *
+ *   <tanrei-breadcrumbs label="Breadcrumbs" overflow-label="Show hidden levels">
+ *     <a href="/" data-icon="home">Home</a>
+ *     <a href="/components/">Components</a>
+ *     <span aria-current="page">Button</span>
+ *   </tanrei-breadcrumbs>
+ *
+ * A level is a child of the element: an `<a href>` for a level with a destination, a `<span>` (or an anchor without
+ * `href`) for one without. Its label is its text; `aria-current="page"` on the last one marks the current page;
+ * `data-icon` names a glyph of the icon set, drawn before the label, and `data-icon-only` draws the glyph alone and
+ * keeps the text as the name; `data-mirror="always | never"` is the product's word on mirroring that glyph. The
+ * element's `underline` attribute (`always | hover | never`) says when the links are underlined (BRC-30); without it
+ * they follow `comp.breadcrumbs.underline.visibility`. Both are read here, so a trail is drawn the same before the
+ * element is defined.
+ *
+ * This stylesheet draws the levels — the text style, the underline, the glyph, every state — and, until the element
+ * is defined, the whole trail as the wrap form (BRC-15) with its separators. The element
+ * (src/components/breadcrumbs/breadcrumbs.ts) keeps a shadow root for what the product did not write (the navigation
+ * landmark, the ordered list, the separators, the overflow button and its menu) and writes here:
+ *
+ *   data-pressed (on an anchor)          the answer to a press the system names: overlay, ripple, dim, none (BRC-19)
+ *   data-focus-style (on an anchor)      the focus style, where the browser has no style queries (BRC-20)
+ *   data-tanrei-underline (on the element)  comp.breadcrumbs.underline.visibility where it is not `always`, where the
+ *                                        browser has no style queries (BRC-30)
+ *   data-tanrei-mirrored (on a level)    the icon set mirrors the glyph `data-icon` names in right-to-left (BRC-27)
+ *   dir="auto" (on the last level)       while its label is cut: it is cut at the end of its own direction (BRC-28)
+ *   data-empty (on the element)          it has no level: nothing is drawn (BRC-1)
+ *
+ * A glyph and the separators drawn here need icons.css (the page that loads it has the icon font); without it their
+ * room is kept and nothing is drawn in it, so nothing moves when it arrives.
+ *
+ * Every value is a `--tanrei-comp-breadcrumbs-*` token, or the system's focus, target, icon and press-hold tokens.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name and has no specificity (`:where()`; a rule on a pseudo-element has a
+ *   pseudo-element's), so one class of the product's wins, and the ORDER of the rules decides between two of them.
+ * - A level is a box one line of the trail's text high (BRC-16, BRC-23), not an inline run: a flex item of the
+ *   element before it is defined, and of its list item after. Both are laid out alike, so nothing moves when the
+ *   element is defined (a trail that is then collapsed apart, which only script can measure).
+ * - A level has two pseudo-elements. `::before` is its glyph. `::after` is its separator until the element is defined
+ *   and its hit area after: the element draws the separators itself, outside the link, and hidden from assistive
+ *   technology by more than `content`'s alternative text.
+ * - The state rules, the focus indicator and the ripple's layer say what `stateRules()`, `focusRing()` and
+ *   `rippleStyles()` (src/primitives) say for a shadow root; they are restated here for an element of the document,
+ *   as the Link's are.
+ * - Pressed: with the package's script it is `data-pressed` (the shared press primitive). Without it, `:active` is
+ *   the overlay, held for press-hold by a delayed step of two names (below).
+ * - The corner rule (src/styles/shape.ts) is written by the build in place of the `breadcrumbs:shape` mark.
+ * - Names that begin `--_brc-` are private.
+ */
+/* The hold of a press that no script answers. While a level is held down, and for press-hold after, the pressed container
+   is drawn as a layer of its own — an image of that one color — and the state's color under it is not drawn: the
+   pressed color stands in the state's place, as it does with the script, and is not laid over it. Both are said by two
+   names that only a press changes, `--_brc-held-image` and `--_brc-held-clip` (the second layer of the image is there for
+   its clip alone: a background's color is clipped as its last layer is, and `text` leaves it behind the glyphs). No one
+   registers them — a registered custom property makes every transition of the page dear: each is a custom property like any other, which may change
+   in steps (`transition-behavior: allow-discrete`, said wherever the transition is), and a step after press-hold is all
+   the hold is; the two properties that read them have no transition, so they follow the names frame by frame. The
+   background's COLOR takes no part in the hold: mixed with the pressed one by a held number, it started its own
+   transition when the press ended — toward the value it has without the hold, which a transition's start does not
+   count — faded there while the press was being held, and came back. Where the browser does not know a step, the press
+   ends when the pointer is lifted. */
+
+@layer tanrei.components {
+  /* ── The corners of a level that is a link (BRC-16, BRC-20) ─────────────────────────────────────────────────── */
+  /* breadcrumbs:shape */
+
+  /* ── The whole (BRC-26): the layout's own start, for the lines of a label that has a direction of its own ───── */
+  :where(tanrei-breadcrumbs) {
+    --_brc-start: left;
+  }
+  :where(tanrei-breadcrumbs:dir(rtl)) {
+    --_brc-start: right;
+  }
+
+  /* ── Before the element is defined: the wrap form (BRC-15) — every level, on as many lines as it needs ──────── */
+  :where(tanrei-breadcrumbs:not(:defined)) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: var(--tanrei-comp-breadcrumbs-row-gap);
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  /* ── A level (BRC-3): its label in the trail's text style; text until it has a destination ──────────────────── */
+  :where(tanrei-breadcrumbs) > :where(a, span) {
+    /* One line of the trail's text, as a length that a glyph — whose own font is the icon set's — can read. */
+    --_brc-line: calc(var(--tanrei-comp-breadcrumbs-label-typescale-font-size) * var(--tanrei-comp-breadcrumbs-label-typescale-line-height));
+    position: relative;
+    isolation: isolate;
+    display: block;
+    flex: 0 1 auto;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    font: var(--tanrei-comp-breadcrumbs-label-typescale-font);
+    letter-spacing: var(--tanrei-comp-breadcrumbs-label-typescale-letter-spacing);
+    color: var(--tanrei-comp-breadcrumbs-label-color);
+    text-decoration-line: none;
+    /* BRC-15: a label wraps where its language allows and, for a run longer than the line, inside the run. */
+    overflow-wrap: anywhere;
+    /* BRC-28: text of its own direction, by its first strong character; its lines begin at the layout's start. */
+    text-align: var(--_brc-start);
+    unicode-bidi: plaintext;
+    -webkit-tap-highlight-color: transparent;
+
+    /* BRC-4: the current page — the last level — in the text color, heavier. */
+    &:where([aria-current]:not([aria-current='false'])):where(:last-child) {
+      color: var(--tanrei-comp-breadcrumbs-current-content-color);
+      font-weight: var(--tanrei-comp-breadcrumbs-label-typescale-font-weight-emphasized);
+    }
+
+    /* ── A level that is a link (BRC-2): the item part's tokens, underlined in the label's color ─────────────── */
+    &:where(:any-link:not([href=''], [href^='javascript:' i])) {
+      --_brc-container: var(--tanrei-comp-breadcrumbs-item-container-color);
+      --_brc-content: var(--tanrei-comp-breadcrumbs-item-content-color);
+      --_brc-hovered-container: var(--tanrei-comp-breadcrumbs-item-hovered-container-color);
+      --_brc-hovered-content: var(--tanrei-comp-breadcrumbs-item-hovered-content-color);
+      --_brc-focused-container: var(--tanrei-comp-breadcrumbs-item-focused-container-color);
+      --_brc-focused-content: var(--tanrei-comp-breadcrumbs-item-focused-content-color);
+      --_brc-pressed-container: var(--tanrei-comp-breadcrumbs-item-pressed-container-color);
+      --_brc-pressed-content: var(--tanrei-comp-breadcrumbs-item-pressed-content-color);
+      --_brc-now-container: var(--_brc-container);
+      --_brc-now-content: var(--_brc-content);
+      --_brc-target: var(--tanrei-sys-target-pointer);
+      --tanrei-corner-radius: var(--tanrei-comp-breadcrumbs-container-shape);
+      --tanrei-corner-pill: var(--tanrei-comp-breadcrumbs-container-shape-pill, 0);
+      color: var(--_brc-now-content);
+      /* BRC-16: the container is the box of the content; it takes no room. */
+      background-color: var(--_brc-now-container);
+      background-image: var(--_brc-held-image);
+      background-clip: var(--_brc-held-clip);
+      /* BRC-2, BRC-30: the underline, while it is shown — at rest, and in a state. Both in the default system. */
+      --_brc-line-rest: underline;
+      --_brc-line-state: underline;
+      text-decoration-line: var(--_brc-line-rest);
+      text-decoration-thickness: var(--tanrei-comp-breadcrumbs-underline-width);
+      text-underline-offset: var(--tanrei-comp-breadcrumbs-underline-offset);
+      cursor: pointer;
+      /* BRC-21; and the hold of a press that no script answers. */
+      /* (The hold stands first: its delay is where the script reads sys.motion.duration.press-hold as a time.) */
+      --_brc-held-image: none;
+      --_brc-held-clip: border-box;
+      transition:
+        --_brc-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+        --_brc-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold),
+        background-color var(--tanrei-comp-breadcrumbs-motion-state-duration) var(--tanrei-comp-breadcrumbs-motion-state-easing),
+        color var(--tanrei-comp-breadcrumbs-motion-state-duration) var(--tanrei-comp-breadcrumbs-motion-state-easing),
+        opacity var(--tanrei-comp-breadcrumbs-motion-state-duration) var(--tanrei-comp-breadcrumbs-motion-state-easing);
+      transition-behavior: allow-discrete;
+      @media (pointer: coarse) {
+        --_brc-target: var(--tanrei-sys-target-touch);
+      }
+    }
+    /* ── When the underline is shown (BRC-30): the design system's choice, the trail's own token, then
+       the `underline` attribute. `comp.breadcrumbs.underline.visibility` arrives as the choice's name and is read on
+       the element by a style query; where the browser has none the element reads it and writes
+       `data-tanrei-underline`. A name that is not known is the first value, always: no rule names it. ─────────── */
+    @container style(--tanrei-comp-breadcrumbs-underline-visibility: hover) {
+      & {
+        --_brc-line-rest: none;
+      }
+    }
+    @container style(--tanrei-comp-breadcrumbs-underline-visibility: never) {
+      & {
+        --_brc-line-rest: none;
+        --_brc-line-state: none;
+      }
+    }
+    :where(tanrei-breadcrumbs[data-tanrei-underline='hover']) > & {
+      --_brc-line-rest: none;
+    }
+    :where(tanrei-breadcrumbs[data-tanrei-underline='never']) > & {
+      --_brc-line-rest: none;
+      --_brc-line-state: none;
+    }
+    /* The attribute, whatever the tokens say; `auto` and a value it does not have follow them. */
+    :where(tanrei-breadcrumbs[underline='always']) > & {
+      --_brc-line-rest: underline;
+      --_brc-line-state: underline;
+    }
+    :where(tanrei-breadcrumbs[underline='hover']) > & {
+      --_brc-line-rest: none;
+      --_brc-line-state: underline;
+    }
+    :where(tanrei-breadcrumbs[underline='never']) > & {
+      --_brc-line-rest: none;
+      --_brc-line-state: none;
+    }
+
+    /* BRC-4: the current page with a destination — a link that keeps the current page's look, from the current part. */
+    &:where(:any-link:not([href=''], [href^='javascript:' i])):where([aria-current]:not([aria-current='false'])):where(:last-child) {
+      --_brc-container: var(--tanrei-comp-breadcrumbs-current-container-color);
+      --_brc-content: var(--tanrei-comp-breadcrumbs-current-content-color);
+      --_brc-hovered-container: var(--tanrei-comp-breadcrumbs-current-hovered-container-color);
+      --_brc-hovered-content: var(--tanrei-comp-breadcrumbs-current-hovered-content-color);
+      --_brc-focused-container: var(--tanrei-comp-breadcrumbs-current-focused-container-color);
+      --_brc-focused-content: var(--tanrei-comp-breadcrumbs-current-focused-content-color);
+      --_brc-pressed-container: var(--tanrei-comp-breadcrumbs-current-pressed-container-color);
+      --_brc-pressed-content: var(--tanrei-comp-breadcrumbs-current-pressed-content-color);
+      --_brc-line-rest: none;
+      --_brc-line-state: none;
+    }
+
+    /* ── A level's glyph (BRC-7): before the label, centred on its first line, in the level's color ───────────── */
+    /* A level with a glyph is laid out in the layout's direction, so that the glyph stands at the layout's start. */
+    &:where([data-icon]:not([data-icon=''])) {
+      unicode-bidi: isolate;
+    }
+    &:where([data-icon]:not([data-icon='']))::before {
+      content: attr(data-icon);
+      content: attr(data-icon) / '';
+      display: inline-block;
+      flex: none;
+      overflow: hidden;
+      inline-size: var(--tanrei-comp-breadcrumbs-icon-size);
+      block-size: var(--tanrei-comp-breadcrumbs-icon-size);
+      margin-block-start: calc((var(--_brc-line) - var(--tanrei-comp-breadcrumbs-icon-size)) / 2);
+      margin-inline-end: var(--tanrei-comp-breadcrumbs-container-gap);
+      vertical-align: top;
+      font-family: var(--tanrei-sys-icon-family-unselected);
+      font-size: var(--tanrei-comp-breadcrumbs-icon-size);
+      font-style: normal;
+      font-weight: normal;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-user-select: none;
+      user-select: none;
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      font-optical-sizing: auto;
+      font-variation-settings:
+        'FILL' var(--tanrei-sys-icon-fill-unselected),
+        'wght' var(--tanrei-sys-icon-weight),
+        'GRAD' 0;
+      opacity: var(--tanrei-icons, 0);
+    }
+    /* The optical size is the box's, written by hand where the engine can turn the box's size into a number: the
+       arithmetic and the condition are src/styles/icons.ts's, written in place by the build (writeGlyphAxes). */
+    @supports glyph-optical-size {
+      &:where([data-icon]:not([data-icon='']))::before {
+        font-variation-settings: glyph-axes(var(--tanrei-comp-breadcrumbs-icon-size));
+      }
+    }
+    /* The glyph's own direction is left to right (its name is a ligature), so its own inline end is the right — and in a
+       right-to-left layout the label stands on its left: the space goes there. */
+    &:where([data-icon]:not([data-icon='']):dir(rtl))::before {
+      margin-inline: var(--tanrei-comp-breadcrumbs-container-gap) 0;
+    }
+    /* BRC-27: mirrored where the icon set marks its name (the element writes the mark) or the product says always. */
+    &:where(:is([data-tanrei-mirrored], [data-mirror='always']):not([data-mirror='never']):dir(rtl))::before {
+      transform: scaleX(-1);
+    }
+    /* The glyph alone: a square one line high; the label is not drawn and is still the level's name. */
+    &:where([data-icon]:not([data-icon=''])):where([data-icon-only]:not([data-icon-only='false'])) {
+      display: flex;
+      flex: none;
+      align-items: center;
+      justify-content: center;
+      inline-size: var(--_brc-line);
+      block-size: var(--_brc-line);
+      font-size: 0;
+      letter-spacing: 0;
+      white-space: nowrap;
+      --_brc-line-rest: none;
+      --_brc-line-state: none;
+    }
+    &:where([data-icon]:not([data-icon=''])):where([data-icon-only]:not([data-icon-only='false']))::before {
+      margin: 0;
+    }
+
+    /* ── States (BRC-16): pressed over focused over hovered, each from its own tokens ─────────────────────────── */
+    @media (hover: hover) {
+      &:where(:any-link:not([href=''], [href^='javascript:' i]):hover) {
+        --_brc-now-container: var(--_brc-hovered-container);
+        --_brc-now-content: var(--_brc-hovered-content);
+        --tanrei-corner-radius: var(--tanrei-comp-breadcrumbs-hovered-container-shape);
+        --tanrei-corner-pill: var(--tanrei-comp-breadcrumbs-hovered-container-shape-pill, 0);
+        opacity: var(--tanrei-comp-breadcrumbs-hovered-opacity);
+        text-decoration-line: var(--_brc-line-state);
+      }
+    }
+    /* BRC-17: the focus indicator around the container; never animated, never for a pointer. */
+    &:where(:any-link:not([href=''], [href^='javascript:' i]):focus-visible) {
+      --_brc-now-container: var(--_brc-focused-container);
+      --_brc-now-content: var(--_brc-focused-content);
+      --_brc-focus-inner-edge: calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width));
+      --tanrei-corner-radius: var(--tanrei-comp-breadcrumbs-focused-container-shape);
+      --tanrei-corner-pill: var(--tanrei-comp-breadcrumbs-focused-container-shape-pill, 0);
+      opacity: var(--tanrei-comp-breadcrumbs-focused-opacity);
+      text-decoration-line: var(--_brc-line-state);
+      outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+      outline-offset: var(--_brc-focus-inner-edge);
+      /* The inner stroke, where the system has one: from the container to the outer stroke. The second term is 0
+         where the inner width is. */
+      box-shadow: 0 0 0 min(var(--_brc-focus-inner-edge), calc(var(--tanrei-sys-focus-inner-width) * 1000)) var(--tanrei-sys-color-focus-ring-inner);
+    }
+    /* BRC-20, focus-style: glow — the same two colors as a halo; read by a style query, and from data-focus-style
+       (written by the element when focus arrives) where there are none. */
+    @container style(--tanrei-sys-behavior-focus-style: glow) {
+      &:where(:any-link:not([href=''], [href^='javascript:' i]):focus-visible) {
+        /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
+        outline-color: transparent;
+        box-shadow:
+          0 0 var(--tanrei-sys-focus-inner-width) calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width)) var(--tanrei-sys-color-focus-ring-inner),
+          0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+      }
+    }
+    &:where(:any-link:not([href=''], [href^='javascript:' i])[data-focus-style='glow']:focus-visible) {
+      outline-color: transparent;
+      box-shadow:
+        0 0 var(--tanrei-sys-focus-inner-width) calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width)) var(--tanrei-sys-color-focus-ring-inner),
+        0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+    }
+    /* BRC-18, without script: the overlay at once, and the two names keep the container for press-hold after. */
+    &:where(:any-link:not([href=''], [href^='javascript:' i]):active:not([data-pressed])) {
+      --_brc-held-image: linear-gradient(var(--_brc-pressed-container), var(--_brc-pressed-container)), none;
+      --_brc-held-clip: border-box, text;
+      --_brc-now-content: var(--_brc-pressed-content);
+      --tanrei-corner-radius: var(--tanrei-comp-breadcrumbs-pressed-container-shape);
+      --tanrei-corner-pill: var(--tanrei-comp-breadcrumbs-pressed-container-shape-pill, 0);
+      opacity: var(--tanrei-comp-breadcrumbs-pressed-opacity);
+      text-decoration-line: var(--_brc-line-state);
+      transition-duration: 0s;
+      transition-delay: 0s;
+    }
+    /* BRC-18, BRC-19, with the script: `data-pressed` names the feedback. `none` changes nothing at all. */
+    &:where([data-pressed]:not([data-pressed='none'])) {
+      text-decoration-line: var(--_brc-line-state);
+      transition-duration: 0s;
+    }
+    &:where([data-pressed='overlay']) {
+      --_brc-now-container: var(--_brc-pressed-container);
+      --_brc-now-content: var(--_brc-pressed-content);
+      --tanrei-corner-radius: var(--tanrei-comp-breadcrumbs-pressed-container-shape);
+      --tanrei-corner-pill: var(--tanrei-comp-breadcrumbs-pressed-container-shape-pill, 0);
+      opacity: var(--tanrei-comp-breadcrumbs-pressed-opacity);
+    }
+    /* ripple, dim: everything but the container color, which stays with the state under the press. */
+    &:where([data-pressed='ripple'], [data-pressed='dim']) {
+      --_brc-now-content: var(--_brc-pressed-content);
+      --tanrei-corner-radius: var(--tanrei-comp-breadcrumbs-pressed-container-shape);
+      --tanrei-corner-pill: var(--tanrei-comp-breadcrumbs-pressed-container-shape-pill, 0);
+      opacity: var(--tanrei-comp-breadcrumbs-pressed-opacity);
+    }
+    /* The ripple's layer (src/primitives/ripple.ts adds it and sets --_x, --_y, --_r): the pressed container color,
+       clipped to the container and to a circle around the point of contact, under the label. */
+    & > :where(.ripple) {
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      border-radius: inherit;
+      corner-shape: inherit;
+      background: var(--_brc-pressed-container);
+      pointer-events: none;
+      clip-path: circle(var(--_r) at var(--_x) var(--_y));
+      animation: tanrei-breadcrumbs-ripple var(--tanrei-comp-breadcrumbs-motion-feedback-duration) var(--tanrei-comp-breadcrumbs-motion-state-easing) both;
+      transition: opacity var(--tanrei-comp-breadcrumbs-motion-state-duration) var(--tanrei-comp-breadcrumbs-motion-state-easing);
+    }
+    & > :where(.ripple.leaving) {
+      opacity: 0;
+    }
+
+    /* ── Where motion is reduced (BRC-19, BRC-21): every change at once; the hold stays ───────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      &:where(:any-link:not([href=''], [href^='javascript:' i])) {
+        transition:
+          --_brc-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+          --_brc-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold);
+        transition-behavior: allow-discrete;
+      }
+      & > :where(.ripple) {
+        animation: none;
+        transition: none;
+      }
+    }
+
+    /* ── Forced colors (BRC-24): a link in the link color, the current page and a level without a destination in
+       the text color, focus in the highlight; the underline stays ──────────────────────────────────────────────── */
+    @media (forced-colors: active) {
+      color: CanvasText;
+      /* The underline at rest, whatever was chosen: the colors are the person's, and tell no link from text. */
+      &:where(:any-link:not([href=''], [href^='javascript:' i])) {
+        --_brc-line-rest: underline;
+        --_brc-line-state: underline;
+        /* The container is the platform's, and so is a press: no layer of the level's own. */
+        background-image: none;
+        background-clip: border-box;
+        color: LinkText;
+      }
+      &:where([aria-current]:not([aria-current='false'])):where(:last-child),
+      &:where([data-icon]:not([data-icon=''])):where([data-icon-only]:not([data-icon-only='false'])) {
+        --_brc-line-rest: none;
+        --_brc-line-state: none;
+      }
+      &:where([aria-current]:not([aria-current='false'])):where(:last-child) {
+        color: CanvasText;
+      }
+      &:where(:any-link:not([href=''], [href^='javascript:' i]):focus-visible) {
+        outline-color: Highlight;
+      }
+    }
+  }
+
+  @keyframes tanrei-breadcrumbs-ripple {
+    from {
+      clip-path: circle(0 at var(--_x) var(--_y));
+    }
+  }
+
+  /* ── The hit area (BRC-23), once the element is defined: the minimum target above and below the line, and along
+     the trail halfway to the entry beside it — half a separator and its gap — so that a press on a separator
+     reaches the nearer of its two neighbours and no two hit areas overlap ───────────────────────────────────────── */
+  :where(tanrei-breadcrumbs:defined) > :where(a:any-link:not([href=''], [href^='javascript:' i]))::after {
+    content: '';
+    position: absolute;
+    inset-block: min(0px, calc((100% - var(--_brc-target)) / 2));
+    inset-inline: calc((var(--tanrei-comp-breadcrumbs-separator-size) / 2 + var(--tanrei-comp-breadcrumbs-separator-gap)) * -1);
+  }
+  /* The trail's two ends have no entry beside them: there the hit area ends with the level, so that a trail which
+     stands against the edge of what scrolls it widens nothing. */
+  :where(tanrei-breadcrumbs:defined) > :where(a:any-link:not([href=''], [href^='javascript:' i]):first-child)::after {
+    inset-inline-start: 0;
+  }
+  :where(tanrei-breadcrumbs:defined) > :where(a:any-link:not([href=''], [href^='javascript:' i]):last-child)::after {
+    inset-inline-end: 0;
+  }
+
+  /* ── The separators (BRC-6), until the element is defined and draws them itself: chevron_right after every level
+     but the last, in room the level keeps at its end, on its last line; no part of the link's box, and not pressed ── */
+  :where(tanrei-breadcrumbs:not(:defined)) > :where(a, span):where(:not(:last-child)) {
+    margin-inline-end: calc(var(--tanrei-comp-breadcrumbs-separator-size) + var(--tanrei-comp-breadcrumbs-separator-gap) * 2);
+  }
+  :where(tanrei-breadcrumbs:not(:defined)) > :where(a, span):where(:not(:last-child))::after {
+    content: 'chevron_right';
+    content: 'chevron_right' / '';
+    position: absolute;
+    inset-block-end: calc((var(--_brc-line) - var(--tanrei-comp-breadcrumbs-separator-size)) / 2);
+    inset-inline-start: calc(100% + var(--tanrei-comp-breadcrumbs-separator-gap));
+    overflow: hidden;
+    inline-size: var(--tanrei-comp-breadcrumbs-separator-size);
+    block-size: var(--tanrei-comp-breadcrumbs-separator-size);
+    color: var(--tanrei-comp-breadcrumbs-separator-color);
+    font-family: var(--tanrei-sys-icon-family-unselected);
+    font-size: var(--tanrei-comp-breadcrumbs-separator-size);
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    font-optical-sizing: auto;
+    font-variation-settings:
+      'FILL' var(--tanrei-sys-icon-fill-unselected),
+      'wght' var(--tanrei-sys-icon-weight),
+      'GRAD' 0;
+    opacity: var(--tanrei-icons, 0);
+  }
+  /* The optical size is the box's, written by hand where the engine can turn the box's size into a number: the
+     arithmetic and the condition are src/styles/icons.ts's, written in place by the build (writeGlyphAxes). */
+  @supports glyph-optical-size {
+    :where(tanrei-breadcrumbs:not(:defined)) > :where(a, span):where(:not(:last-child))::after {
+      font-variation-settings: glyph-axes(var(--tanrei-comp-breadcrumbs-separator-size));
+    }
+  }
+  /* BRC-27: pointing the way the trail reads. (No script reads the icon set's list here: chevron_right is this
+     stylesheet's own glyph, and every icon set that has it mirrors it.) */
+  :where(tanrei-breadcrumbs:not(:defined):dir(rtl)) > :where(a, span):where(:not(:last-child))::after {
+    transform: scaleX(-1);
+  }
+  @media (forced-colors: active) {
+    :where(tanrei-breadcrumbs:not(:defined)) > :where(a, span):where(:not(:last-child))::after {
+      color: CanvasText;
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "alignItems": "flex-start",
+      "width": 400
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityLabel": "Date",
+        "role": "group",
+        "style": {
+          "alignItems": "stretch",
+          "alignSelf": "flex-start",
+          "flexDirection": "row",
+          "flexWrap": "nowrap",
+          "gap": 2
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityLabel": "Previous",
+            "accessibilityRole": "button",
+            "accessibilityState": {
+              "disabled": false
+            },
+            "accessibilityValue": {},
+            "accessible": true,
+            "collapsable": false,
+            "focusable": true,
+            "hitSlop": {
+              "bottom": 4,
+              "left": 4,
+              "right": 1,
+              "top": 4
+            },
+            "style": {
+              "alignItems": "center",
+              "alignSelf": "stretch",
+              "backgroundColor": "rgb(238, 238, 238)",
+              "borderBottomEndRadius": 3,
+              "borderBottomStartRadius": 6,
+              "borderTopEndRadius": 3,
+              "borderTopStartRadius": 6,
+              "flexDirection": "row",
+              "flexShrink": 1,
+              "gap": 8,
+              "justifyContent": "center",
+              "minHeight": 40,
+              "minWidth": 48,
+              "opacity": 1,
+              "paddingEnd": 16,
+              "paddingStart": 16,
+              "paddingVertical": 6
+            }
+          },
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "allowFontScaling": true,
+                "collapsable": false,
+                "style": {
+                  "color": "rgb(38, 38, 38)",
+                  "flexShrink": 1,
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                  "letterSpacing": 0,
+                  "lineHeight": 20,
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                "Previous"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "accessibilityLabel": "Today",
+            "accessibilityRole": "button",
+            "accessibilityState": {
+              "disabled": false
+            },
+            "accessibilityValue": {},
+            "accessible": true,
+            "collapsable": false,
+            "focusable": true,
+            "hitSlop": {
+              "bottom": 4,
+              "left": 1,
+              "right": 1,
+              "top": 4
+            },
+            "style": {
+              "alignItems": "center",
+              "alignSelf": "stretch",
+              "backgroundColor": "rgb(238, 238, 238)",
+              "borderBottomEndRadius": 3,
+              "borderBottomStartRadius": 3,
+              "borderTopEndRadius": 3,
+              "borderTopStartRadius": 3,
+              "flexDirection": "row",
+              "flexShrink": 1,
+              "gap": 8,
+              "justifyContent": "center",
+              "minHeight": 40,
+              "minWidth": 48,
+              "opacity": 1,
+              "paddingEnd": 16,
+              "paddingStart": 16,
+              "paddingVertical": 6
+            }
+          },
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "allowFontScaling": true,
+                "collapsable": false,
+                "style": {
+                  "color": "rgb(38, 38, 38)",
+                  "flexShrink": 1,
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                  "letterSpacing": 0,
+                  "lineHeight": 20,
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                "Today"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "accessibilityLabel": "Next",
+            "accessibilityRole": "button",
+            "accessibilityState": {
+              "disabled": false
+            },
+            "accessibilityValue": {},
+            "accessible": true,
+            "collapsable": false,
+            "focusable": true,
+            "hitSlop": {
+              "bottom": 4,
+              "left": 1,
+              "right": 4,
+              "top": 4
+            },
+            "style": {
+              "alignItems": "center",
+              "alignSelf": "stretch",
+              "backgroundColor": "rgb(238, 238, 238)",
+              "borderBottomEndRadius": 6,
+              "borderBottomStartRadius": 3,
+              "borderTopEndRadius": 6,
+              "borderTopStartRadius": 3,
+              "flexDirection": "row",
+              "flexShrink": 1,
+              "gap": 8,
+              "justifyContent": "center",
+              "minHeight": 40,
+              "minWidth": 48,
+              "opacity": 1,
+              "paddingEnd": 16,
+              "paddingStart": 16,
+              "paddingVertical": 6
+            }
+          },
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "allowFontScaling": true,
+                "collapsable": false,
+                "style": {
+                  "color": "rgb(38, 38, 38)",
+                  "flexShrink": 1,
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500",
+                  "letterSpacing": 0,
+                  "lineHeight": 20,
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                "Next"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+---
+title: الشارة
+description: تضع نقطة أو عددًا صغيرًا على أيقونة أو عنصر تنقل أو صورة رمزية للدلالة على أن شيئًا ينتظر.
+translationOf: components/badge.mdx
+sourceHash: a4ece32edcc7d1571544b3c3cbf6afac6aa68eff
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="badge" />
+
+<DemoFrame label="نقطة وعدد">
+  <tanrei-badge label="رسائل جديدة">
+    <tanrei-button variant="text" label="المحادثة"><span slot="icon">chat</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="3" label="3 غير مقروءة">
+    <tanrei-button variant="text" label="الوارد"><span slot="icon">inbox</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 إشعارًا">
+    <tanrei-button variant="text" label="الإشعارات"><span slot="icon">notifications</span></tanrei-button>
+  </tanrei-badge>
+</DemoFrame>
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- بلا عدد: النقطة. والنقطة تحتاج إلى تسمية. -->
+    <tanrei-badge label="رسائل جديدة">
+      <tanrei-button variant="text" label="المحادثة"><span slot="icon">chat</span></tanrei-button>
+    </tanrei-badge>
+
+    <!-- القيمة 0 لا ترسم شيئًا؛ والعدد الذي يتجاوز max (999) يظهر 999+. -->
+    <tanrei-badge count="3" label="3 غير مقروءة">
+      <tanrei-button variant="text" label="الوارد"><span slot="icon">inbox</span></tanrei-button>
+    </tanrei-badge>
+
+    <script type="module">
+      import '@tanrei/web/components/badge';
+      import '@tanrei/web/components/button';
+      const badge = document.querySelector('tanrei-badge[count]');
+      badge.count = unread;
+      badge.label = `${unread} غير مقروءة`;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Badge, Button } from '@tanrei/react';
+
+    <Badge label="رسائل جديدة">
+      <Button variant="text" label="المحادثة" onClick={openChat}><span slot="icon">chat</span></Button>
+    </Badge>
+    <Badge count={unread} label={`${unread} غير مقروءة`}>
+      <Button variant="text" label="الوارد" onClick={openInbox}><span slot="icon">inbox</span></Button>
+    </Badge>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // القيمة nil هي النقطة.
+    TanreiBadge(count: nil, label: "رسائل جديدة") {
+      TanreiIconButton("المحادثة", action: openChat) { Image(systemName: "bubble.left") }
+    }
+    TanreiBadge(count: unread, label: "\(unread) غير مقروءة") {
+      TanreiIconButton("الوارد", action: openInbox) { Image(systemName: "tray") }
+    }
+
+    // الشيء نفسه في صورة مُعدِّل على أي عرض.
+    Image(systemName: "bell").accessibilityLabel("الإشعارات").tanreiBadge(1200, label: "أكثر من 999 غير مقروءة")
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiBadge
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // القيمة null هي النقطة.
+    TanreiBadge(count = null, contentDescription = "رسائل جديدة") {
+        TanreiIconButton(onClick = ::openChat, contentDescription = "المحادثة") { TanreiText("chat") }
+    }
+    TanreiBadge(count = unread, contentDescription = "$unread غير مقروءة") {
+        TanreiIconButton(onClick = ::openInbox, contentDescription = "الوارد") { TanreiText("inbox") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // بلا عدد: النقطة.
+    TanreiBadge(
+      semanticLabel: 'رسائل جديدة',
+      child: TanreiIconButton(onPressed: openChat, semanticLabel: 'المحادثة', icon: const Icon(AppSymbols.chat)),
+    );
+    TanreiBadge(
+      count: unread,
+      semanticLabel: '$unread غير مقروءة',
+      child: TanreiIconButton(onPressed: openInbox, semanticLabel: 'الوارد', icon: const Icon(AppSymbols.inbox)),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Badge, IconButton } from '@tanrei/react-native';
+
+    <Badge label="رسائل جديدة">
+      <IconButton accessibilityLabel="المحادثة" onPress={openChat}>chat</IconButton>
+    </Badge>
+    <Badge count={unread} label={`${unread} غير مقروءة`}>
+      <IconButton accessibilityLabel="الوارد" onPress={openInbox}>inbox</IconButton>
+    </Badge>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الأعداد والحد الأقصى" plain>
+  <tanrei-badge count="3" label="3 غير مقروءة">
+    <span class="tanrei-icon" role="img" aria-label="الإشعارات">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 غير مقروءة">
+    <span class="tanrei-icon" role="img" aria-label="الإشعارات">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="1200" label="أكثر من 999 غير مقروءة">
+    <span class="tanrei-icon" role="img" aria-label="الإشعارات">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="120" max="99" label="أكثر من 99 غير مقروءة">
+    <span class="tanrei-icon" role="img" aria-label="الإشعارات">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge label="رسائل جديدة">
+    <span class="tanrei-icon" role="img" aria-label="الإشعارات">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="0" label="لا رسائل غير مقروءة">
+    <span class="tanrei-icon" role="img" aria-label="الإشعارات">notifications</span>
+  </tanrei-badge>
+</DemoFrame>
+
+<ComponentSpecs name="badge" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم الشارة لتبيّن أن شيئًا ينتظر خلف أيقونة أو عنصر تنقل أو صورة رمزية: رسائل غير مقروءة، نشاط جديد، تحديثات تنتظر التثبيت. فهي تلفت النظر إلى الموضع الذي يستطيع الشخص أن يتصرف فيه. ليس للشارة كلمة ولا مكان خاص بها في التخطيط، ولذلك ليست تسمية حالة. للكلمة التي تسمّي حالة أو فئة، مثل «جديد» أو «تجريبي» أو «Pro»، استخدم [الوسم](/ar/components/tag/).
+
+### شارة أم رقاقة أم وسم
+
+يُفرَّق بين الثلاثة بما يفعله كل منها:
+
+| المكوّن | ما هو | أين يقف | هل يستقبل إدخالًا |
+| --- | --- | --- | --- |
+| الشارة | نقطة أو عدد ملحق بعنصر آخر. | على زاوية عنصر الارتكاز، خارج التخطيط. | لا. الإدخال يصل إلى عنصر الارتكاز. |
+| [الرقاقة](/ar/components/chip/) | عنصر تحكم. | داخل التخطيط. | نعم: تُضغط أو تُبدَّل أو تُزال، ولها تركيز وحالات. |
+| [الوسم](/ar/components/tag/) | تسمية ثابتة. | داخل التخطيط، ضمن السطر. | أبدًا. |
+
+1. إن كان رقمًا أو نقطة فوق شيء آخر فهو شارة.
+2. إن كان يُضغط أو يُحدَّد أو يُزال فهو رقاقة. وإن كان يقود إلى مكان ما فهو رابط.
+3. إن كان كلمة لا تقول إلا ما هو الشيء أو ما حالته فهو وسم.
+
+والعدد الذي يقف وحده في صف، كعدد النتائج بجانب عنوان، ليس شارة هو الآخر: للشارة دائمًا عنصر ارتكاز. اكتبه نصًّا، أو وسمًا حيث يسمّي حالة.
+
+### اختيار الهيئة
+
+تتبع الهيئة قيمة `count`، فلا طراز (variant) يُختار.
+
+| الهيئة | `count` | يُستخدم لـ |
+| --- | --- | --- |
+| نقطة | لا شيء (null) | شيء جديد، والعدد مجهول أو لا يهم. |
+| عدد | أكبر من 0 | العدد يساعد الشخص على أن يقرر هل ينظر الآن: رسائل غير مقروءة، طلبات معلّقة. |
+| لا شيء | 0 | لا شيء ينتظر. اربط الشارة بالعدد مباشرة؛ ولا حاجة إلى شرط حولها. |
+
+العدد الذي يتجاوز `max` يظهر في الصورة `max+` (أي `999+` افتراضيًّا)، فلا تزيد الشارة أبدًا على أربعة محارف. اخفض `max` (إلى 99 مثلًا) حيث يكون عنصر الارتكاز صغيرًا أو حيث تفقد القيمة الدقيقة أهميتها أبكر.
+
+### افعل
+
+- أعطِ كل شارة تسمية تُقرأ جيدًا بعد اسم عنصر الارتكاز: «3 غير مقروءة» بعد «الوارد». والنقطة أحوج ما تكون إليها، لأنها من دونها لا تقول شيئًا لقارئ الشاشة.
+- اترك فسحة حول عنصر الارتكاز. تقع الشارة على زاويته العليا من جهة النهاية وقد تتجاوز حدوده؛ ولا تحرّكه ولا تغيّر حجمه أبدًا.
+- أزِل الشارة حين يرى الشخص ما تشير إليه، ليبقى لها معنى.
+
+### لا تفعل
+
+- لا تضع شارة على كل عنصر. حين يُعلَّم كل شيء لا يبرز شيء.
+- لا تضع شارة على تسمية زر ولا في نص متصل. مكانها على أيقونة أو عنصر تنقل أو صورة رمزية. والكلمة التي بجانب تسمية أو في سطر من النص وسم.
+- لا تستخدم لون الشارة لتقول أي نوع من الأشياء ينتظر، ولا مدى استعجاله. قل ذلك في التسمية، أو في المحتوى الذي تشير إليه.
+- لا تجعل الشارة تفاعلية. اللمسات والنقرات عليها تصل إلى عنصر الارتكاز، وهناك يكون الإجراء.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="badge" />
+
+### ما يتكفل به المكوّن
+
+- النقطة والرقم المرسومان مخفيّان عن التقنيات المساعدة، فلا يُقرأ العدد مرتين أبدًا.
+- تصير التسمية (أو، في غيابها، العدد المعروض مثل `999+`) جزءًا من عنصر الارتكاز، فيُعلَن العنصر مرة واحدة بهما معًا: «الوارد، زر، 3 غير مقروءة». ولكل منصة أسلوبها: `aria-description` على عنصر الارتكاز في الويب، وقيمة إمكانية الوصول (accessibility value) على منصات Apple و Flutter و React Native، ووصف الحالة (state description) على Compose.
+- العدد 0 لا يضيف شيئًا: يُعلَن عنصر الارتكاز كما لو لم تكن عليه شارة.
+- تغيّر العدد أو التسمية يحدّث ما يقوله عنصر الارتكاز، من دون إعلان يقاطع الشخص.
+- لا تستقبل إدخالًا ولا تشغل حيّزًا، فتبقى مساحة اللمس لعنصر الارتكاز كاملة.
+- النقطة بلا تسمية، والعدد السالب، وقيمة `max` الأقل من 1 يُبلَّغ عنها في بنيات التنقيح (debug).
+
+### ما عليك فعله
+
+- اكتب تسمية تُكمل اسم عنصر الارتكاز ولا تكرّره: «3 غير مقروءة»، لا «في الوارد 3 رسائل غير مقروءة».
+- اجعل عنصر الارتكاز عنصرًا واحدًا له اسم خاص به، كزر أيقونة له تسمية. على Compose، الأيقونة المجرّدة التي ليست داخل عنصر يدمج فروعه تحتاج إلى عنصر كهذا حولها ليُقرأ الاسم والتسمية معًا.
+- إن وجب إعلان التغيّر لحظة حدوثه، كما في محادثة حيّة، فأعلنه من منتجك بمنطقة حيّة (live region). الشارة لا تُعلِن.

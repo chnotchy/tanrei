@@ -1,0 +1,218 @@
+---
+title: Casilla de verificación
+description: Permite activar o desactivar una elección independiente, mostrar una elección principal que solo está activada en parte y señalar una elección obligatoria que ha quedado sin hacer.
+translationOf: components/checkbox.mdx
+sourceHash: ca7b2e0456302b1067eb231313b74e6591fc6fad
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="checkbox" />
+
+<DemoFrame label="Sin marcar, marcada e indeterminada">
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox indeterminate label="Todas las notificaciones"></tanrei-checkbox>
+    <tanrei-checkbox checked label="Mensajes"></tanrei-checkbox>
+    <tanrei-checkbox label="Menciones"></tanrei-checkbox>
+    <tanrei-checkbox checked label="Recordatorios"></tanrei-checkbox>
+  </div>
+</DemoFrame>
+
+### Uso
+
+La revisión que dio a la casilla de verificación los tamaños de Material 3 y los glifos del conjunto de iconos solo cambió su aspecto y su movimiento, así que todos los ejemplos siguientes están al día. La web la dibuja y la anima como dice la especificación. SwiftUI, Compose, Flutter y React Native van rezagados: ya adoptan los nuevos tamaños, pero siguen dibujando la marca de verificación y el guion como marcas propias y animándolos a su manera hasta que se pongan al día. Dos refinamientos posteriores están por ahora solo en la web: la marca de verificación y el guion tienen un peso propio, más grueso, y el contorno y el relleno del recuadro se dibujan como una sola forma.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-checkbox label="Enviarme novedades por correo"></tanrei-checkbox>
+    <tanrei-checkbox checked label="Enviarme novedades por correo"></tanrei-checkbox>
+
+    <!-- Una casilla principal cuyas casillas secundarias están mezcladas. Al activarla se marca y se borra indeterminate. -->
+    <tanrei-checkbox indeterminate label="Seleccionar todo"></tanrei-checkbox>
+
+    <!-- En un formulario envía value ("on" de forma predeterminada) con name mientras está marcada, y respeta required. -->
+    <form>
+      <tanrei-checkbox name="terms" required label="Acepto las condiciones"></tanrei-checkbox>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox';
+      // El elemento cambia su propio checked antes de emitir change.
+      document.querySelector('tanrei-checkbox').addEventListener('change', (e) => save(e.detail.checked));
+      const terms = document.querySelector('[name="terms"]');
+      terms.error = submitted && !terms.checked;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox } from '@tanrei/react';
+
+    <Checkbox checked={updates} label="Enviarme novedades por correo" onChange={(e) => setUpdates(e.detail.checked)} />
+    <Checkbox checked={all} indeterminate={some && !all} label="Seleccionar todo" onChange={(e) => selectAll(e.detail.checked)} />
+    <Checkbox checked={terms} error={submitted && !terms} label="Acepto las condiciones" onChange={(e) => setTerms(e.detail.checked)} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCheckbox("Enviarme novedades por correo", isOn: $updates)
+
+    // isIndeterminate sale de tus datos. Al activarla, isOn pasa a true; después tus datos lo borran.
+    TanreiCheckbox("Seleccionar todo", isOn: $allSelected, isIndeterminate: someSelected)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.ui.state.ToggleableState
+    import io.github.chnotchy.tanrei.components.TanreiCheckbox
+
+    TanreiCheckbox(checked = updates, onCheckedChange = { updates = it }, label = "Enviarme novedades por correo")
+
+    // Una casilla principal que puede estar activada en parte recibe un ToggleableState. Quien la llama calcula el estado siguiente:
+    // al activar una casilla indeterminada pasa a On.
+    TanreiCheckbox(
+        state = allState,
+        onClick = { selectAll(allState != ToggleableState.On) },
+        label = "Seleccionar todo",
+    )
+
+    TanreiCheckbox(
+        checked = terms,
+        onCheckedChange = { terms = it },
+        label = "Acepto las condiciones",
+        isError = submitted && !terms,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCheckbox(
+      value: updates,
+      onChanged: (bool value) => setState(() => updates = value), // null la deshabilita
+      label: 'Enviarme novedades por correo',
+    );
+
+    // Con tristate, un valor nulo es indeterminado. Al activarla se llama a onChanged(true).
+    TanreiCheckbox(
+      value: allSelected, // bool?: null mientras solo algunas están seleccionadas
+      tristate: true,
+      onChanged: (bool value) => setState(() => selectAll(value)),
+      label: 'Seleccionar todo',
+    );
+
+    TanreiCheckbox(
+      value: terms,
+      onChanged: (bool value) => setState(() => terms = value),
+      isError: submitted && !terms,
+      label: 'Acepto las condiciones',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Checkbox } from '@tanrei/react-native';
+
+    <Checkbox value={updates} onValueChange={setUpdates} label="Enviarme novedades por correo" />
+    <Checkbox value={all} indeterminate={some && !all} onValueChange={selectAll} label="Seleccionar todo" />
+    <Checkbox value={terms} onValueChange={setTerms} error={submitted && !terms} label="Acepto las condiciones" />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Condiciones, error y estado deshabilitado" plain>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox label="Sin marcar"></tanrei-checkbox>
+    <tanrei-checkbox checked label="Marcada"></tanrei-checkbox>
+    <tanrei-checkbox indeterminate label="Indeterminada"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox error label="Error, sin marcar"></tanrei-checkbox>
+    <tanrei-checkbox error checked label="Error, marcada"></tanrei-checkbox>
+    <tanrei-checkbox error indeterminate label="Error, indeterminada"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox disabled label="Deshabilitada, sin marcar"></tanrei-checkbox>
+    <tanrei-checkbox disabled checked label="Deshabilitada, marcada"></tanrei-checkbox>
+    <tanrei-checkbox disabled indeterminate label="Deshabilitada, indeterminada"></tanrei-checkbox>
+  </div>
+  <tanrei-checkbox checked label-hidden label="Seleccionar fila"></tanrei-checkbox>
+</DemoFrame>
+
+En el sistema predeterminado, la casilla de verificación toma las medidas de Material 3: un recuadro de 18 con un contorno de 2 y una esquina de 2, sobre una capa de estado redonda de 40, con un objetivo de 48. Con etiqueta mide 40 de alto. La marca de verificación y el guion son los glifos `check` y `remove` del conjunto de iconos del sistema, dibujados a 20 sobre el recuadro. Tienen un peso propio, más grueso que el de los demás iconos del sistema: 500 en el sistema predeterminado, donde los iconos son de 300. A este tamaño, un trazo con el peso de los iconos mide alrededor de un píxel de ancho y cuesta verlo, así que la marca es más gruesa mientras su tamaño sigue igual. Un preajuste conserva su propio peso de icono. La casilla de verificación no dibuja ninguna marca propia, de modo que un sistema de diseño que cambia su conjunto de iconos cambia estos glifos junto con todos los demás. El contorno y el relleno del recuadro son una sola forma: nada de lo que hay detrás del recuadro se ve entre ellos con ningún nivel de zoom ni densidad de pantalla, y un recuadro marcado es de un solo color uniforme desde su borde hasta su marca. Con `cupertino`, la casilla de verificación conserva su recuadro más pequeño y un glifo de 16.
+
+Cuando la casilla de verificación cambia, el recuadro, el contorno y el glifo cambian de color, y un glifo que aparece lo hace con un fundido mientras crece desde la mitad de su tamaño, y se asienta tras sobrepasarlo ligeramente. Un glifo que se va se desvanece y se encoge del mismo modo, y entre marcada e indeterminada la marca de verificación se va mientras llega el guion. Solo se mueve el glifo: el recuadro nunca cambia de tamaño ni de posición. Una casilla de verificación que se dibuja por primera vez muestra su condición de inmediato, así que una página que se carga con casillas marcadas no las anima. Cuando el movimiento está reducido, la nueva condición se dibuja completa en el fotograma siguiente.
+
+<ComponentSpecs name="checkbox" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa una casilla de verificación para una elección que se sostiene por sí sola: una lista en la que las personas pueden escoger cualquier número de opciones, incluida ninguna, o un único sí o no, como aceptar unas condiciones. La elección surte efecto cuando la persona confirma, por ejemplo al enviar el formulario o al guardar. Una casilla de verificación también selecciona filas de una tabla o elementos de una lista.
+
+El estado indeterminado corresponde a una casilla principal cuyas casillas secundarias están marcadas en parte, como «Seleccionar todo» encima de una lista. No es una tercera respuesta que una persona pueda escoger.
+
+### Casilla de verificación, botón de opción o interruptor
+
+| Control | Elecciones | Surte efecto | Úsalo para |
+| --- | --- | --- | --- |
+| Casilla de verificación | Cualquier número de elecciones independientes, incluida ninguna | Cuando la persona confirma | Opciones de un formulario, aceptar unas condiciones, seleccionar filas |
+| [Botón de opción](/es/components/radio-button/) | Exactamente una de un grupo pequeño, todas a la vista | Cuando la persona confirma, por lo general | Una sola respuesta a una sola pregunta |
+| [Interruptor](/es/components/switch/) | Un solo ajuste, activado o desactivado | De inmediato | Ajustes que se aplican en cuanto cambian |
+
+### Recomendado
+
+- Escribe la etiqueta como la elección, formulada en positivo: «Enviarme novedades por correo», no «No enviarme correos».
+- Apila en vertical una lista de casillas de verificación, una por línea, para que todas las etiquetas empiecen en el mismo lugar.
+- Deriva el estado indeterminado de las casillas secundarias. Cuando se active la casilla principal, marca todas las secundarias.
+- Cuando una casilla de verificación obligatoria quede sin marcar, define `error` y explica el motivo en el mensaje del formulario.
+
+### Evita
+
+- No uses una casilla de verificación para un cambio que se aplica de inmediato. Usa un interruptor.
+- No uses casillas de verificación para elecciones que se excluyen entre sí. Usa botones de opción.
+- No pongas enlaces ni otros controles dentro de la etiqueta. Un clic en la etiqueta conmuta la casilla de verificación.
+- No ocultes la etiqueta salvo que la fila que rodea a la casilla de verificación ya diga qué selecciona.
+
+## Accesibilidad
+
+<ComponentAccessibility name="checkbox" />
+
+### De qué se encarga el componente
+
+- Expone el rol de casilla de verificación con su estado (marcada, sin marcar o mixta mientras es indeterminada), su estado deshabilitado y el estado no válido mientras `error` está definido. React Native no tiene estado no válido, así que ahí un error se dibuja pero no se anuncia.
+- La etiqueta es el nombre accesible, tanto si se dibuja como si se oculta con `labelHidden`. El texto dibujado queda oculto para la tecnología de apoyo, de modo que el nombre se lee una sola vez.
+- Un clic o un toque en la etiqueta conmuta la casilla de verificación. La etiqueta forma parte del área de pulsación, y el área de pulsación cumple el objetivo mínimo.
+- Espacio la conmuta. Enter la conmuta solo donde la plataforma activa con Enter cualquier control con foco (Android, tvOS); en la web, Enter envía el formulario.
+- Muestra el indicador de foco alrededor del recuadro, solo para el foco del teclado.
+- La marca de verificación y el guion quedan ocultos para la tecnología de apoyo. Los estados marcada y mixta se anuncian a partir del estado, nunca a partir del nombre del glifo.
+- Cuando el movimiento está reducido, la nueva condición se dibuja completa en el primer fotograma después del cambio, nunca con retraso ni a medio dibujar. Un cambio durante otro cambio continúa desde lo que hay dibujado en ese momento.
+- Mientras la fuente de iconos todavía no puede dibujar el glifo, la casilla de verificación no dibuja nada en su lugar, nunca la palabra «check», y sigue dibujando su recuadro relleno y exponiendo su estado. El glifo aparece cuando la fuente se ha cargado.
+- En la web participa en un formulario como una casilla de verificación nativa: `name`, `value`, `required` y el restablecimiento.
+- En las compilaciones de depuración se notifica que falta la etiqueta.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native siguen dibujando la marca de verificación y el guion como marcas propias y animándolos a su manera, sin el peso propio de la marca ni el recuadro de una sola forma.
+- Con `m3-like`, la marca de verificación es el glifo del conjunto de iconos y aparece con un fundido mientras crece, mientras que Material dibuja su propia marca trazo a trazo y la dobla hasta convertirla en el guion (laguna de imitación `checkbox-mark-drawn-on`).
+
+### Qué debes hacer tú
+
+- Carga la fuente de iconos. Hasta que se haya cargado, una casilla de verificación marcada y una indeterminada se ven iguales: ambas son recuadros rellenos sin glifo. Sus estados se siguen anunciando.
+- Si tu sistema de diseño define un peso más ligero para la marca (`comp.checkbox.mark.weight`), fíjate en el guion: es un solo trazo, y es lo único que distingue a la vista el estado indeterminado del marcado.
+- Escribe una etiqueta que dé nombre a la elección, y mantenla igual tanto si la casilla de verificación está marcada como si no. La plataforma anuncia el estado.
+- Cuando `error` esté definido, muestra el motivo como texto junto a la casilla de verificación o en el resumen del formulario, y asócialo a la casilla de verificación. La casilla de verificación dice que no es válida, no por qué. En React Native, el mensaje es la única forma de que el error se oiga.
+- Da un nombre a un grupo de casillas de verificación que responden a una misma pregunta: en la web, un `<fieldset>` con un `<legend>`.

@@ -1,0 +1,142 @@
+---
+title: コピーボタン
+description: 指定したテキストを 1 回の操作でコピーし、コピーできたこと、またはできなかったことを伝えるボタンです。ボタンコンポーネントが描き、レイアウトを動かしません。
+translationOf: components/copy-button.mdx
+sourceHash: 11c3c4ca402e08be52105dad6861f24385f8af29
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="copy-button" />
+
+<DemoFrame label="押すと、グリフがしばらくチェックに変わります">
+  <tanrei-copy-button text="npm install @tanrei/web" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+  <tanrei-copy-button variant="tonal" text="#30a3f0" label="色をコピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="リンクをコピー" copied-label="リンクをコピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="キーをコピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+</DemoFrame>
+
+コピーボタンは、ユーザーがほかの場所に貼り付けるものの横に置きます。コマンド、キー、アドレス、色の値などです。ブラウザーの応答を待ってから、チェック（またはエラーの印）を 2 秒間表示し、支援技術には言葉で伝えます。[コードブロック](../code-block/)は、コピーボタンを自動で配置します。
+
+### 使い方
+
+コピーボタンは、指定したバリアントとサイズの[ボタン](../button/)です。固有の色や寸法を持たないので、デザインシステムがボタンの見た目を変えると、すべてのコピーボタンも一緒に変わります。
+
+文言は利用者側で用意します。`label`、`copied-label`、`failed-label` に既定値はありません。Tanrei はどの言語の文言も同梱していないためです。
+
+SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- アイコンだけ（既定）：label が名前になります。 -->
+    <tanrei-copy-button
+      text="npm install @tanrei/web"
+      label="コピー"
+      copied-label="コピーしました"
+      failed-label="コピーできませんでした"
+    ></tanrei-copy-button>
+
+    <!-- ラベル付き：状態に合わせて文言が変わり、幅は変わりません。 -->
+    <tanrei-copy-button
+      icon-only="false"
+      variant="tonal"
+      text="https://example.com/s/4f2a"
+      label="リンクをコピー"
+      copied-label="リンクをコピーしました"
+      failed-label="コピーできませんでした"
+    ></tanrei-copy-button>
+
+    <script type="module">
+      import '@tanrei/web';
+
+      document.querySelector('tanrei-copy-button').addEventListener('copyfailed', () => {
+        // ボタンは、コピーできなかったことを伝え終えています。その先の対応は利用者側で行います。
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CopyButton } from '@tanrei/react';
+
+    <CopyButton text={command} label="コピー" copiedLabel="コピーしました" failedLabel="コピーできませんでした" onCopyfailed={() => showHelp()} />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="サイズとバリアントはボタンのものです" plain>
+  <tanrei-copy-button size="small" text="small" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+  <tanrei-copy-button text="medium" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+  <tanrei-copy-button size="large" text="large" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+  <tanrei-copy-button variant="elevated" text="elevated" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+  <tanrei-copy-button disabled text="disabled" label="コピー" copied-label="コピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+</DemoFrame>
+
+<DemoFrame label="3 つの文言のうち最も長いものの幅を確保します" plain>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="コピー" copied-label="クリップボードにコピーしました" failed-label="コピーできませんでした"></tanrei-copy-button>
+  <tanrei-button variant="text">隣のボタンは動きません</tanrei-button>
+</DemoFrame>
+
+ボタンには 3 つの状態があります。通常（グリフ `content_copy`）、コピー済み（`check`）、失敗（`error`）です。コピー済みの表示に変わるのは、ブラウザーがコピーを確認した後だけです。`comp.copy-button.confirmation.duration`（2 秒）が過ぎると通常に戻ります。確認を表示している間に押すと、もう一度コピーして確認します。
+
+状態が変わっても、何も動きません。3 つのグリフは同じボックスに描きます。ラベル付きの形は、最も長い文言の幅を常に確保します。
+
+グリフはモーションなしで切り替わります。2 秒は気付くための時間なので、動きを減らす設定でも短くしません。
+
+「コピー済み」を表示している間にテキストが変わると、すぐに通常に戻ります。コピーした内容が、いまコピーされる内容と違うためです。
+
+イベントは `copied` と `copyfailed` です。`copy` という名前ではありません。`copy` は文書のクリップボードイベントだからです。
+
+<ComponentSpecs name="copy-button" />
+
+### Web での描き方の違い
+
+- コピーには `navigator.clipboard.writeText` を使います。安全なページ（HTTPS または localhost）と、ユーザー自身が押すことが必要です。ブラウザーにクリップボードがないか、コピーを拒否したときは、失敗の表示になります。代わりの手段は試しません。
+- 2 つのイベントはバブリングしますが、シャドウルートの外には出ません。
+
+## ガイドライン
+
+### アイコンだけとラベル付き
+
+| 形 | 表示 | 使う場面 |
+| --- | --- | --- |
+| **アイコンだけ** | グリフだけ。画面を見ているユーザーには、チェックは見えますが文言は見えません | コピーするものの横。コマンド、コードブロック、行の中の値 |
+| **ラベル付き** | グリフと文言。文言は状態に合わせて変わります | コピーが画面のアクションの 1 つであるとき、または文言を全員に伝えたいとき |
+
+### 推奨
+
+- 置き場所から何をコピーするかが分からないときは、ラベルで伝えます。「リンクをコピー」「JSON をコピー」などです。
+- ユーザーがそのテキストをどうしても必要とする場面では、`copyfailed` を受け取り、消えない形で対応します。たとえば、テキストを選択した入力欄を表示します。
+- コピーするものの横に置くときは、Text バリアントのままにします。コピーが画面の主なアクションであるときは、別のバリアントを選びます。
+
+### 非推奨
+
+- ホバーしたときだけボタンを表示しない。タッチでは見つけられません。
+- コピーの成功をツールチップやスナックバーで知らせない。ボタンがすでに知らせています。
+- テキスト以外のコピーには使わない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="copy-button" />
+
+### コンポーネントが担うこと
+
+- ボタンです。ボタンコンポーネントと同じフォーカスインジケーター、最小ターゲット、キー操作（Enter と Space）を備えています。
+- アイコンだけの形は、どの状態でも `label` が名前です。グリフが変わっても、名前は変わりません。
+- 結果はライブリージョンで読み上げます。`copied-label` は控えめに、`failed-label` は割り込んで、押すたびに読み上げ、フォーカスは動かしません。
+- 確認は、色ではなく、形と言葉で伝えます。
+- 右から左のレイアウトでは、アイコンセットの定めに従って、コピーのグリフを左右反転します。チェックとエラーの印は反転しません。
+
+### 利用者側で行うこと
+
+- 3 つのラベルを、プロダクトの言語で指定します。`label` のないアイコンだけのボタンには、アクセシブルネームがありません。
+- ユーザーがテキストを失ってはいけない場面では、失敗への対応を利用者側で行います。

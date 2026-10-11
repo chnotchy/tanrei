@@ -1,0 +1,23 @@
+name: Bug
+description: Something renders or behaves differently from its spec
+labels: [bug]
+body:
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      multiple: true
+      options: [Web Components, React, SwiftUI, Jetpack Compose, Flutter, React Native, Tokens, Docs]
+    validations: { required: true }
+  - type: input
+    id: component
+    attributes: { label: Component or token, placeholder: "button / tanrei.sys.color.outline" }
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens, and what the spec says should happen
+      description: Cite the behavior id (e.g. BTN-3) if there is one. Screenshots help.
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes: { label: Tanrei version }

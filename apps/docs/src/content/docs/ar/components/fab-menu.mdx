@@ -1,0 +1,267 @@
+---
+title: قائمة FAB
+description: تفتح قائمة قصيرة من الإجراءات المترابطة من زر تبديل مرسوم بهيئة زر إجراء رئيسي مطويّ، يتحول إلى زر إغلاق القائمة ما دامت الإجراءات ظاهرة.
+translationOf: components/fab-menu.mdx
+sourceHash: 58f96ca923cd7e3ad7e31daa132c68b5a1f378d2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="fab-menu" />
+
+:::note[ليست في نظام Tanrei]
+نظام Tanrei الافتراضي لا يتضمن قائمة FAB، وكذلك cupertino، لأن Apple ليس لديها زر إجراء عائم؛ أما إعدادات Material الجاهزة فتتضمنها. في Tanrei، استخدم [زر الإجراء الرئيسي](/ar/components/main-action-button/) يفتح [لوحة سفلية](/ar/components/bottom-sheet/) من الإجراءات. ويبقى المكوّن يعمل تحت كل نظام، مع تحذير في أثناء التطوير حيث يستبعده النظام. العروض التوضيحية في هذه الصفحة مرسومة تحت الإعداد الجاهز `m3-like`، وهو نظام يتضمنها.
+:::
+
+<DemoFrame label="مغلقة ومفتوحة" system="m3-like">
+  {/* العناصر المفتوحة تُرسم في مكانها فوق زر التبديل ولا تحرّك أي تخطيط (FBM-12, FBM-13): احجز ارتفاعها — ثلاثة عناصر، والفجوات بينها، والإزاحة عن زر التبديل — ليتسع لها الإطار، وحاذِ زرَّي التبديل على امتداد الأسفل. */}
+  <div style="display: flex; align-items: end; gap: var(--tanrei-sys-space-space300); padding-block-start: calc(3 * max(var(--tanrei-comp-fab-menu-item-height), var(--tanrei-sys-target-touch)) + 2 * var(--tanrei-comp-fab-menu-list-gap) + var(--tanrei-comp-fab-menu-list-offset))">
+    <tanrei-fab-menu label="إنشاء">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="مستند" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="مجلد" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="رفع" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+    <tanrei-fab-menu inline open label="إنشاء">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="مستند" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="مجلد" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="رفع" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+  </div>
+</DemoFrame>
+
+### الاستخدام
+
+يُرسم زر التبديل بهيئة [زر إجراء رئيسي](/ar/components/main-action-button/) مطويّ، له تسمية وأيقونة. والعناصر إجراءات، كل منها أيقونة وتسمية، تُمرَّر بالطريقة التي تمرّر بها كل منصة الأبناء المتكررين. ومثل زر الإجراء الرئيسي، لا تضع قائمة FAB نفسها: تخطيطك هو الذي يضع زر التبديل، عادةً في الزاوية السفلى من جهة النهاية. وتظهر العناصر فوقه، في طبقة التراكب الخاصة بالمنصة.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-fab-menu class="primary-action" label="إنشاء">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="مستند" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="مجلد" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="رفع" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+
+    <style>
+      /* العنصر لا يضع شيئًا: الصفحة تضع زر التبديل في الزاوية السفلى من جهة النهاية. */
+      tanrei-fab-menu.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/fab-menu';
+      const fabMenu = document.querySelector('tanrei-fab-menu');
+      // زر التبديل يطلب الفتح أو الإغلاق؛ وأنت تضبط open.
+      fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));
+      // الحدث close يحمل السبب: escape أو outside أو tab أو focus-out أو item. الويب لا يرسل back أبدًا.
+      fabMenu.addEventListener('close', () => (fabMenu.open = false));
+      // الحدث click على عنصر يتصاعد، ويأتي قبل close.
+      fabMenu.querySelector('[label="رفع"]').addEventListener('click', upload);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FabMenu, FabMenuItem } from '@tanrei/react';
+
+    <FabMenu
+      className="primary-action"
+      label="إنشاء"
+      open={open}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <span slot="icon">add</span>
+      <FabMenuItem label="مستند" icon="description" onClick={newDocument} />
+      <FabMenuItem label="مجلد" icon="create_new_folder" onClick={newFolder} />
+      <FabMenuItem label="رفع" icon="upload" onClick={upload} />
+    </FabMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // توضع كما يوضع FAB. زر التبديل والعناصر كلاهما يكتب في الربط (binding).
+    DocumentList()
+        .overlay(alignment: .bottomTrailing) {
+            TanreiFabMenu("إنشاء", icon: "add", isPresented: $showsCreate) {
+                TanreiFabMenuItem("مستند", icon: "description", action: newDocument)
+                TanreiFabMenuItem("مجلد", icon: "create_new_folder", action: newFolder)
+                TanreiFabMenuItem("رفع", icon: "upload", action: upload)
+            }
+            .padding()
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiFabMenu
+    import io.github.chnotchy.tanrei.components.TanreiFabMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // رفع الحالة (state hoisting): أنت تحتفظ بالقيمة expanded. ضعها في المنفذ floatingActionButton في scaffold، أو ضعها بنفسك.
+    TanreiFabMenu(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        onDismissRequest = { expanded = false },
+        contentDescription = "إنشاء",
+        icon = { TanreiText("add") },
+    ) {
+        TanreiFabMenuItem(text = "مستند", icon = "description", onClick = ::newDocument)
+        TanreiFabMenuItem(text = "مجلد", icon = "create_new_folder", onClick = ::newFolder)
+        TanreiFabMenuItem(text = "رفع", icon = "upload", onClick = ::upload)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // قائمة FAB تفتح نفسها وتغلقها عبر المتحكم (controller)؛ و onToggle و onClose يبلّغان بذلك.
+    Scaffold(
+      body: const DocumentList(),
+      floatingActionButton: TanreiFabMenu(
+        controller: createMenu,
+        semanticLabel: 'إنشاء',
+        icon: const Icon(AppSymbols.add),
+        items: <TanreiFabMenuItem>[
+          TanreiFabMenuItem(label: 'مستند', icon: const Icon(AppSymbols.description), onPressed: newDocument),
+          TanreiFabMenuItem(label: 'مجلد', icon: const Icon(AppSymbols.createNewFolder), onPressed: newFolder),
+          TanreiFabMenuItem(label: 'رفع', icon: const Icon(AppSymbols.upload), onPressed: upload),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { View } from 'react-native';
+    import { FabMenu } from '@tanrei/react-native';
+
+    // متحكَّم بها: اضبط visible من onToggle، وعلى false من onDismiss الذي يستقبل السبب.
+    // زر التبديل لا يحدد موضعه أبدًا: الخاصية style هي التي تضعه.
+    <View style={{ flex: 1 }}>
+      <DocumentList />
+      <FabMenu
+        icon="add"
+        accessibilityLabel="إنشاء"
+        visible={open}
+        onToggle={setOpen}
+        onDismiss={() => setOpen(false)}
+        items={[
+          { label: 'مستند', icon: 'description', onPress: newDocument },
+          { label: 'مجلد', icon: 'create_new_folder', onPress: newFolder },
+          { label: 'رفع', icon: 'upload', onPress: upload },
+        ]}
+        style={styles.primaryAction}
+      />
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الطُرُز والأحجام والتعطيل" system="m3-like" plain>
+  <tanrei-fab-menu variant="tonal" label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu variant="surface" label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="small" label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="large" label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu disabled label="إنشاء"><span slot="icon">add</span></tanrei-fab-menu>
+</DemoFrame>
+
+<ComponentSpecs name="fab-menu" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم قائمة FAB حين يأتي الإجراء الرئيسي للشاشة في بضع هيئات مترابطة: مستند جديد، أو مجلد، أو رفع ملف؛ صورة أو ملاحظة. يُبقي زر التبديل الإجراء العائم الوحيد للشاشة في المتناول، وضغطه يُظهر الهيئات إجراءاتٍ لها تسميات فوقه مباشرة.
+
+حين لا يكون هناك إلا إجراء واحد، استخدم [زر الإجراء الرئيسي](/ar/components/main-action-button/). وحين تكثر الخيارات، أو تحتاج إلى أوصاف، استخدم [قائمة خيارات](/ar/components/menu/) من زر أو لوحة. وحين يخص الإجراء عنصرًا واحدًا لا الشاشة كلها، ضع زرًّا بجانب ذلك العنصر.
+
+### اختيار الطراز
+
+| الطراز | التوكيد | يُستخدم لـ |
+| --- | --- | --- |
+| Filled (الافتراضي) | الأعلى | الإجراءات الرئيسية للشاشة بكامل قوتها. |
+| Tonal | عالٍ | شاشة ينبغي أن يتصدرها محتواها. |
+| Surface | محايد | قائمة FAB فوق محتوى له لون أصلًا، كخريطة أو صورة. |
+
+الطراز (variant) يلوّن زر التبديل والعناصر على السواء. وما دامت القائمة مفتوحة يأخذ زر التبديل المظهر الآخر للطراز، ويستدير إلى دائرة، ويعرض رسم (glyph) الإغلاق، فلا تشبه الحالة المفتوحة الحالة المغلقة أبدًا. والحجم لا يضبط إلا زر التبديل (40 أو 48 أو 64): للعناصر حجم واحد.
+
+### الفتح والإغلاق
+
+قائمة FAB تراكب مُشغَّل (operated overlay) غير نمطي (modal)، مثل قائمة الخيارات. يعمل الأشخاص داخلها، فتأخذ التركيز وتعيده، لكن لا شيء آخر في الشاشة يُحجب: لا حجاب (scrim) ولا حصر للتركيز.
+
+- **الفتح.** يطلب زر التبديل الفتح بالحدث `toggle`. تظهر العناصر فوقه، محاذيةً لحافة نهايته، واحدًا بعد آخر بدءًا من الأقرب، وينتقل التركيز إلى العنصر الأول في الأعلى. وإن فُتحت بمفتاح السهم للأعلى ذهب التركيز إلى العنصر الأخير بدلًا من ذلك، وهو المجاور لزر التبديل.
+- **الإغلاق.** المفتاح Escape، وزر الرجوع في المنصة، والضغط خارج العناصر وزر التبديل، والمفتاح Tab، وخروج التركيز، كلها تطلب الإغلاق بالحدث `close` مع السبب. تفعيل عنصر يُصدر الحدث click الخاص به أولًا، ثم الحدث `close` بالسبب `item`. والضغط على زر التبديل والقائمة مفتوحة تبديل، لا ضغط في الخارج.
+- **عودة التركيز.** حين تُغلق العناصر والتركيز كان بينها، يعود التركيز إلى زر التبديل. والمفتاح Tab من عنصر يغلقها ويتابع من زر التبديل، كما كان سيفعل منه.
+- **من يغلق.** على الويب و Compose و React Native تضبط أنت `open` (أو `expanded` أو `visible`) من الحدث `toggle`، وتعيدها إلى false من الحدث `close`. وعلى SwiftUI و Flutter تفتح قائمة FAB نفسها وتغلقها عبر الربط (binding) أو المتحكم (controller) الخاص بها.
+
+### افعل
+
+- أعطِ زر التبديل تسمية تسمّي ما تشترك فيه إجراءاته، مثل «إنشاء». يحتفظ بهذا الاسم وهو مفتوح. وحالة التوسيع فيه تخبر قارئ الشاشة بأنه الآن يغلق القائمة.
+- أعطِ كل عنصر تسمية قصيرة وأيقونة. التسمية هي ما يقرؤه الأشخاص؛ والأيقونة تساعدهم على إيجاده فقط.
+- التزم بعنصرين إلى ستة عناصر. رتّبها كما يمسحها الأشخاص بأعينهم: الأول يُرسم في الأعلى، والأخير يقع فوق زر التبديل مباشرة.
+- اترك فسحة في نهاية المحتوى الذي يُمرَّر، كي لا يغطي زر التبديل العنصر الأخير تغطية دائمة.
+
+### لا تفعل
+
+- لا تعطّل عنصرًا. احذف الإجراء غير المتاح من القائمة. لا وجود لعنصر معطَّل.
+- لا تغيّر اسم زر التبديل إلى «إغلاق» وهو مفتوح، ولا تبدّل أيقونته بنفسك. المكوّن يؤدي المهمتين.
+- لا تضع قائمة FAB وزر إجراء رئيسي من الحجم نفسه في شاشة واحدة. للشاشة إجراء عائم واحد.
+- لا تستخدم قائمة FAB للإجراءات الثانوية، ولا للإجراءات التي لا رجعة فيها، ولا لإجراءات الإعدادات.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="fab-menu" />
+
+### ما يتكفل به المكوّن
+
+- زر التبديل زر تسمّيه التسمية. يعرّف التقنيات المساعدة بأنه يفتح قائمة خيارات وبأن القائمة مفتوحة أو لا، حيث تملك المنصة هاتين الخاصيتين، ويحتفظ باسمه وهو مفتوح.
+- ما دامت مفتوحة، تكون العناصر قائمة خيارات تسمّيها التسمية نفسها، وكل منها عنصر قائمة تسمّيه تسميته الخاصة، مع موضعه وعدد العناصر. والأيقونات مخفية.
+- المفتاح Enter أو Space أو مفتاح السهم للأسفل على زر التبديل يفتح القائمة وينقل التركيز إلى العنصر الأول. ومفتاح السهم للأعلى يفتحها وينقل التركيز إلى العنصر الأخير. مفتاحا السهمين للأسفل وللأعلى ينتقلان بين العناصر ويدوران عند الطرفين، والمفتاحان Home و End يصلان إلى الطرفين. المفتاح Enter أو Space على عنصر يفعّله ويغلق القائمة. والمفتاح Escape يغلق القائمة ويعيد التركيز إلى زر التبديل.
+- القائمة غير نمطية: لا تحصر التركيز، ولا تجعل بقية الشاشة خاملة، ولا ترسم حجابًا. والمفتاح Tab من عنصر يغلقها.
+- مساحة اللمس لزر التبديل تبلغ الحد الأدنى للهدف في كل حجم. وارتفاع كل عنصر لا يقل عن هدف واحد، وحاويته كلها مساحة لمسه.
+- زر التبديل لا يكبر مع حجم النص، لأن الأيقونة ليست نصًّا. أما العناصر فتكبر وتلتف تسمياتها.
+- حيث تكون الحركة مقلَّلة، يتغيّر زر التبديل وتظهر العناصر وتغادر فورًا.
+- بنيات التنقيح (debug) تبلّغ عن غياب تسمية زر التبديل، وعن عنصر بلا تسمية أو بلا أيقونة، وعن أقل من عنصرين أو أكثر من ستة عناصر.
+
+فجوات معروفة في المنصات:
+
+- الويب: لا يرسل الويب `back` أبدًا. المفتاح Escape هو طلب الإغلاق فيه.
+- الويب: توضع العناصر بسكربت نسبةً إلى زر التبديل، لا بخاصية CSS anchor positioning كما تقول ملاحظة الويب في المواصفة، تمامًا كما في قائمة الخيارات.
+- الضغط في الخارج يغلق العناصر في كل مكان. على الويب و Flutter يصل أيضًا إلى ما تحته. وعلى SwiftUI و Compose و React Native لا يصل.
+- ليس في SwiftUI دور قائمة ولا دور عنصر قائمة، ولا طريقة لقول إن زر التبديل يفتح قائمة أو إن القائمة مفتوحة. العناصر أزرار في حاوية تسمّيها التسمية، ولكل منها موضعه («`2 of 3`»، بالإنجليزية فقط) قيمةً له.
+- يعرض SwiftUI العناصر في عنصر `popover` الخاص بالمنصة، وهو يضع نفسه. يرسم فقاعته وسهمه خلف العناصر، ويوسّط العمود على زاوية زر التبديل بدل أن يحاذيه مع حافة نهاية الزر، ويقصّه في النظام الافتراضي؛ والرمز `list.offset` لا يضبط المسافة. وستُستبدل بعنصر `popover` هذا طبقةُ التراكب في Tanrei.
+- في SwiftUI: المفتاح Tab يغلق العناصر ويعيد التركيز إلى زر التبديل، لكن التركيز لا يستطيع أن يتابع منه في ضغطة المفتاح نفسها.
+- في SwiftUI: إطار إمكانية الوصول للعنصر يشمل ظله المرسوم، فتتداخل إطارات العناصر المتجاورة ببضع نقاط.
+- في SwiftUI: رمز SF Symbol الذي عرضه أكبر من ارتفاعه، مثل `folder.badge.plus`، يتجاوز صندوق أيقونة العنصر.
+- في SwiftUI: المفاتيح على زر التبديل وعلى العناصر، وانتقال التركيز إلى الداخل وعودته، مختبرة قواعدَ، لا بلوحة مفاتيح حقيقية بعد.
+- ليس في Compose دور قائمة ولا خاصية تقول إن زرًّا يفتح قائمة. العناصر أزرار في مجموعة اجتياز (traversal group) تسمّيها التسمية، وموضعها في معلومات المجموعة (collection info) الخاصة بها، وإجراءا التوسيع والطيّ في زر التبديل يقولان هل يفتحها أم يغلقها.
+- لا يعرّف Flutter بالقيمة has-popup على زر التبديل، ولا بالموضع في القائمة ولا بعدد العناصر.
+- ليس في React Native خاصية تقول إن زرًّا يفتح قائمة. زر التبديل لا يعرّف إلا بأن القائمة مفتوحة أو لا.
+- يرسم React Native العناصر في طبقة التراكب الخاصة بالمكوّن `TanreiProvider`، فلا بد من `TanreiProvider` فوقها. المفتاح Tab يغلق العناصر ويعيد التركيز إلى زر التبديل، والضغطة التالية على Tab تتابع منه.
+- في React Native: موضع العناصر، ودخولها المتعاقب، وانتقال التركيز إلى الداخل والخارج، والضغط في الخارج، لم تُفحص بعد على جهاز.
+
+### ما عليك فعله
+
+- اكتب تسمية لزر التبديل ولكل عنصر. الأيقونة وحدها ليست اسمًا.
+- ضع قائمة FAB في شجرة العناصر حيث تنتمي إجراءاتها. التقنيات المساعدة تقرأ زر التبديل بترتيب الشجرة، لا بحسب موضع رسمه.
+- على الويب و Compose و React Native، اضبط `open` من الحدث `toggle`، وعلى false من الحدث `close`. قائمة FAB تطلب فقط.
+- لا تنقل التركيز بنفسك حين تُغلق. قائمة FAB تعيد التركيز إلى زر التبديل.
+- أبعد زر التبديل عن شريط التنقل، واترك فسحة فوقه للعناصر.

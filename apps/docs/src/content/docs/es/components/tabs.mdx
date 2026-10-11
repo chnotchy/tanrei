@@ -1,0 +1,415 @@
+---
+title: Pestañas
+description: Cambia entre vistas de un mismo tema con una fila de pestañas con etiqueta sobre una pista. Hay una pestaña seleccionada, marcada por un indicador que se desliza entre las pestañas y sigue al dedo que se arrastra por la fila.
+translationOf: components/tabs.mdx
+sourceHash: 46bfaf68231605f7875bae06958c990851ac5120
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="tabs" />
+
+:::note[Una especificación revisada que aún no está en todas las plataformas]
+Esta página describe las pestañas tal como están especificadas ahora: pestañas sobre una pista, con un único indicador que se desliza hasta la pestaña seleccionada y sigue un arrastre por la fila, pestañas que se ajustan a su contenido de forma predeterminada, etiquetas que se truncan en lugar de saltar de línea y filas que pueden compartir una elección y recordarla (`group` y `rememberAs`). `fullWidth` sustituye a `scrollable`. Una fila tiene además tres variantes (primaria, secundaria y tonal), dos tamaños, una pista que se puede omitir y una `transition` que dice si el indicador se desliza. El componente web hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen una revisión anterior, con `scrollable` (`isScrollable`, con false como valor predeterminado, en Flutter), un indicador de línea, etiquetas fijas que saltan de línea, sin pista y sin arrastre.
+:::
+
+<DemoFrame label="Pestañas primarias y el panel de la seleccionada">
+  <tanrei-tabs value="overview" label="Proyecto" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="Resumen" icon="dashboard"></tanrei-tab>
+    <tanrei-tab value="activity" label="Actividad" icon="history"></tanrei-tab>
+    <tanrei-tab value="settings" label="Configuración" icon="settings"></tanrei-tab>
+    <tanrei-tab-panel value="overview">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">Tres servicios, todos en funcionamiento.</p>
+    </tanrei-tab-panel>
+    <tanrei-tab-panel value="activity">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">Desplegado hace 2 horas.</p>
+    </tanrei-tab-panel>
+    <tanrei-tab-panel value="settings">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">Región, dominios y acceso.</p>
+    </tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+### Uso
+
+Una fila de pestañas tiene un solo tipo de elemento, `tab`. Cada plataforma recibe las pestañas como recibe cualquier conjunto de hijos repetidos: elementos hijos `<tanrei-tab>` en la web, vistas `TanreiTab` etiquetadas por valor en el constructor de vistas de SwiftUI, llamadas a `TanreiTab` en la lambda de contenido de Compose, widgets `TanreiTab` en la lista `tabs:` de Flutter y un array `items` de objetos simples en React Native.
+
+La selección pertenece a la fila, por valor. `selected` contiene el valor de la pestaña seleccionada y `change` lleva el nuevo. Se escribe `value` en la web, Flutter y React Native, `selection` en SwiftUI y `selectedValue` en Compose. Si se deja vacío, queda seleccionada la primera pestaña habilitada. El `disabled` de una pestaña es solo suyo.
+
+Las pestañas no dibujan los paneles, pero deciden cuál se muestra. En la web, los elementos `<tanrei-tab-panel>` van después de las pestañas y se emparejan con ellas por `value`. En SwiftUI, cada pestaña lleva su panel. En Flutter, `TanreiTabBarView` muestra el panel del valor seleccionado. En Compose y React Native, eres tú quien muestra el panel seleccionado, justo después de la fila. Para paneles entre los que una persona puede pasar deslizando, usa en su lugar una [vista de pestañas](/es/components/tab-view/): dibuja su propia fila de pestañas o se enlaza con una fila colocada en otro lugar, como en una barra de la aplicación.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- La pestaña seleccionada de la fila es su value, como en un <select>. -->
+    <tanrei-tabs value="overview" label="Proyecto">
+      <tanrei-tab value="overview" label="Resumen" icon="dashboard"></tanrei-tab>
+      <tanrei-tab value="activity" label="Actividad" icon="history"></tanrei-tab>
+      <tanrei-tab value="billing" label="Facturación" icon="payments" disabled></tanrei-tab>
+      <!-- Los paneles van después de las pestañas y se emparejan con ellas por value. -->
+      <tanrei-tab-panel value="overview">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="billing">…</tanrei-tab-panel>
+    </tanrei-tabs>
+
+    <!-- Las filas que nombran un mismo grupo muestran una sola elección. remember-as la guarda en el dispositivo, con tu propia clave. -->
+    <tanrei-tabs variant="secondary" group="units" remember-as="report-units" label="Unidades">
+      <tanrei-tab value="metric" label="Métrico"></tanrei-tab>
+      <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
+      <tanrei-tab-panel value="metric">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="imperial">…</tanrei-tab-panel>
+    </tanrei-tabs>
+
+    <script type="module">
+      import '@tanrei/web/components/tabs';
+      // La fila define su propio value antes de emitir change, que lo lleva consigo.
+      document.querySelector('tanrei-tabs').addEventListener('change', (e) => showView(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tab, TabPanel, Tabs } from '@tanrei/react';
+
+    <Tabs value={view} label="Proyecto" onChange={(e) => setView(e.detail.value)}>
+      <Tab value="overview" label="Resumen" icon="dashboard" />
+      <Tab value="activity" label="Actividad" icon="history" />
+      <TabPanel value="overview"><Overview /></TabPanel>
+      <TabPanel value="activity"><Activity /></TabPanel>
+    </Tabs>
+
+    // Las filas que nombran un mismo grupo muestran una sola elección; solo la fila que usó la persona emite onChange.
+    <Tabs variant="secondary" group="units" rememberAs="report-units" label="Unidades" onChange={(e) => setUnits(e.detail.value)}>
+      <Tab value="metric" label="Métrico" />
+      <Tab value="imperial" label="Imperial" />
+      <TabPanel value="metric"><Metric /></TabPanel>
+      <TabPanel value="imperial"><Imperial /></TabPanel>
+    </Tabs>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Como las pestañas etiquetadas de TabView: cada pestaña lleva su panel y solo se muestra el seleccionado.
+    // Escribir en el binding es change. Una selección nil (Binding<V?>) selecciona la primera pestaña habilitada.
+    // Aplica .tag(_:) y .labelStyle(.iconOnly) al propio TanreiTab, antes que cualquier otro modificador.
+    @State private var view = "overview"
+
+    TanreiTabs(selection: $view, label: "Proyecto") {
+        TanreiTab("Resumen", icon: "dashboard") { OverviewView() }.tag("overview")
+        TanreiTab("Actividad", icon: "history") { ActivityView() }.tag("activity")
+        TanreiTab("Facturación", icon: "payments") { BillingView() }.tag("billing").disabled(true)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiTab
+    import io.github.chnotchy.tanrei.components.TanreiTabs
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // Elevación de estado: tú guardas selectedValue y lo cambias desde onSelectedValueChange.
+    var view by rememberSaveable { mutableStateOf("overview") }
+    Column {
+        TanreiTabs(selectedValue = view, onSelectedValueChange = { view = it }, contentDescription = "Proyecto") {
+            TanreiTab(value = "overview", label = "Resumen", icon = { TanreiText("dashboard") })
+            TanreiTab(value = "activity", label = "Actividad", icon = { TanreiText("history") })
+            // enabled es el inverso del disabled de la especificación.
+            TanreiTab(value = "billing", label = "Facturación", icon = { TanreiText("payments") }, enabled = false)
+        }
+        // Compose no tiene rol de panel de pestaña: muestra la vista seleccionada debajo de la fila, en el orden de lectura.
+        when (view) {
+            "overview" -> Overview()
+            "activity" -> Activity()
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Como TabBar, pero se selecciona por valor y no por el índice de un TabController. La barra no guarda ninguna selección propia.
+    TanreiTabBar<String>(
+      value: view, // null selecciona la primera pestaña habilitada
+      onChanged: (String value) => setState(() => view = value),
+      semanticLabel: 'Proyecto',
+      tabs: const <TanreiTab<String>>[
+        TanreiTab<String>(value: 'overview', label: 'Resumen', icon: Icon(AppSymbols.dashboard)),
+        TanreiTab<String>(value: 'activity', label: 'Actividad', icon: Icon(AppSymbols.history)),
+        TanreiTab<String>(value: 'billing', label: 'Facturación', icon: Icon(AppSymbols.payments), enabled: false),
+      ],
+    ),
+    // Muestra la vista del valor seleccionado y no se desliza. Cada vista es un panel de pestaña que recibe su nombre de la etiqueta de su pestaña.
+    TanreiTabBarView<String>(
+      value: view,
+      semanticLabels: const <String, String>{'overview': 'Resumen', 'activity': 'Actividad', 'billing': 'Facturación'},
+      children: <String, Widget>{'overview': const OverviewPage(), 'activity': const ActivityPage(), 'billing': const BillingPage()},
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { Tabs } from '@tanrei/react-native';
+
+    const [view, setView] = useState('overview');
+
+    // Controlado: cambia value desde onValueChange.
+    <Tabs
+      accessibilityLabel="Proyecto"
+      value={view}
+      onValueChange={setView}
+      items={[
+        { value: 'overview', label: 'Resumen', icon: 'dashboard' },
+        { value: 'activity', label: 'Actividad', icon: 'history' },
+        { value: 'billing', label: 'Facturación', icon: 'payments', disabled: true },
+      ]}
+    />
+    // React Native no tiene rol de panel de pestaña: renderiza el panel seleccionado justo después de la fila.
+    {view === 'overview' ? <Overview /> : <Activity />}
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Pestañas secundarias, una fila que llena el ancho, una fila que se ajusta al contenido y se desplaza, e iconos solos" plain column>
+  <tanrei-tabs variant="secondary" value="overview" label="Despliegue" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="Resumen" icon="dashboard"></tanrei-tab>
+    <tanrei-tab value="activity" label="Actividad" icon="history"></tanrei-tab>
+    <tanrei-tab value="billing" label="Facturación" icon="payments" disabled></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs full-width value="notifications" label="Cuenta" style="inline-size: 22rem">
+    <tanrei-tab value="profile" label="Perfil"></tanrei-tab>
+    <tanrei-tab value="activity" label="Actividad reciente"></tanrei-tab>
+    <tanrei-tab value="notifications" label="Configuración de notificaciones"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs value="analytics" label="Servicio" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="Resumen"></tanrei-tab>
+    <tanrei-tab value="deployments" label="Despliegues"></tanrei-tab>
+    <tanrei-tab value="analytics" label="Analíticas"></tanrei-tab>
+    <tanrei-tab value="logs" label="Registros"></tanrei-tab>
+    <tanrei-tab value="storage" label="Almacenamiento"></tanrei-tab>
+    <tanrei-tab value="settings" label="Configuración"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs value="list" label="Disposición">
+    <tanrei-tab value="list" label="Lista" icon="view_list" label-hidden></tanrei-tab>
+    <tanrei-tab value="grid" label="Cuadrícula" icon="grid_view" label-hidden></tanrei-tab>
+    <tanrei-tab value="map" label="Mapa" icon="map" label-hidden></tanrei-tab>
+  </tanrei-tabs>
+</DemoFrame>
+
+<DemoFrame label="Pestañas tonales con su pista, sin ella, y pequeñas, sin pista y sin transición" plain column>
+  <tanrei-tabs variant="tonal" value="week" label="Periodo">
+    <tanrei-tab value="day" label="Día"></tanrei-tab>
+    <tanrei-tab value="week" label="Semana"></tanrei-tab>
+    <tanrei-tab value="month" label="Mes"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs variant="tonal" track="false" value="week" label="Periodo, sin la pista">
+    <tanrei-tab value="day" label="Día"></tanrei-tab>
+    <tanrei-tab value="week" label="Semana"></tanrei-tab>
+    <tanrei-tab value="month" label="Mes"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs variant="tonal" track="false" size="small" transition="none" value="metric" label="Unidades">
+    <tanrei-tab value="metric" label="Métrico"></tanrei-tab>
+    <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
+  </tanrei-tabs>
+</DemoFrame>
+
+<ComponentSpecs name="tabs" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa pestañas para dividir un tema en vistas y mostrar una cada vez: Resumen, Actividad y Configuración de un proyecto; Publicaciones y Respuestas de un perfil; Vista previa e Historial de un archivo. Las vistas son equivalentes entre sí, y las personas pasan de una a otra en cualquier orden.
+
+Usa una barra de navegación o un panel de navegación para moverte entre los destinos de una aplicación, que son temas distintos. No uses pestañas para pasos que deben completarse en orden ni para filtrar una lista: para los filtros, usa chips. Las pestañas cambian la vista, nunca desencadenan una acción.
+
+En el sistema Tanrei, que no incluye el [botón segmentado](/es/components/segmented-button/), las pestañas ocupan también su lugar cuando una elección entre unas pocas cambia lo que se muestra debajo: Día, Semana y Mes sobre un calendario, o Estándar, Medio y Alto sobre los ejemplos de una página. Una fila así no necesita panel. Dale un nombre que diga qué se elige. Donde deba ser discreta junto a lo que cambia, usa la variante tonal, sin su pista, y el tamaño pequeño en una cabecera. Una elección que define un valor que se envía con un formulario, o que no cambia nada que una persona pueda ver, no son pestañas. Usa para ello [botones de opción](/es/components/radio-button/).
+
+### Pestañas, botón segmentado o grupo de botones
+
+| Componente | Qué es | Úsalo para |
+| --- | --- | --- |
+| Pestañas | Vistas de un mismo tema, o una elección que cambia lo que se muestra debajo. Hay una pestaña seleccionada, y las teclas de flecha mueven y seleccionan. | Cambiar lo que se muestra debajo: Resumen, Actividad, Configuración; Día, Semana, Mes. |
+| [Botón segmentado](/es/components/segmented-button/) | De dos a cinco opciones unidas que definen un valor, una o varias de ellas. El sistema Tanrei predeterminado no lo incluye; los preajustes de Material y cupertino sí. | Un ajuste con unas pocas respuestas fijas, en un producto que usa uno de esos preajustes. |
+| [Grupo de botones](/es/components/button-group/) | Botones separados dispuestos juntos. Cada uno se pulsa por su cuenta, y el grupo no guarda ninguna selección. | Acciones relacionadas: Cancelar y Guardar; Negrita, Cursiva y Subrayado. |
+
+Una prueba rápida: si elegir cambia lo que se muestra debajo, son pestañas, con panel o sin él. Si define un valor que se envía con un formulario, son botones de opción, o un botón segmentado donde el sistema lo incluya. Si pulsar hace algo, es un grupo de botones.
+
+### Cómo elegir una variante, un tamaño y una disposición
+
+| Elección | Qué hace | Úsala para |
+| --- | --- | --- |
+| Primary | El icono se apila encima de la etiqueta. El indicador se dibuja con los colores de la variante primaria. | Las vistas principales de una pantalla, en la parte superior de su contenido. |
+| Secondary | El icono va delante de la etiqueta, en una sola línea. El indicador se dibuja con los colores de la variante secundaria. | Vistas dentro de una de esas vistas, debajo de una fila de pestañas primarias o dentro de un panel. |
+| Tonal | El indicador es una capa suave y la etiqueta seleccionada es más oscura que las demás. El icono va delante de la etiqueta. | Una elección que no debe apartar la vista de lo que cambia: los lenguajes de un ejemplo de código, un contraste, una unidad. |
+| Medium (`size`, el valor predeterminado) | La fila mide 48 de alto y el indicador 40. | Una fila en la parte superior del contenido de una pantalla. |
+| Small (`size`) | La fila mide 32 de alto y el indicador 24. El margen interior junto a la etiqueta y el icono son más pequeños, y el icono va delante de la etiqueta en todas las variantes. El texto de la etiqueta tiene el mismo tamaño. | Una fila en una cabecera o en una barra de herramientas, junto a botones pequeños. |
+| Ajustar al contenido (`fullWidth` en false, el valor predeterminado) | Da a cada pestaña el tamaño de su contenido y mantiene cada etiqueta entera en una línea, por larga o grande que sea. La pista termina con su última pestaña, y las pestañas se desplazan hacia los lados dentro de ella cuando no caben. El indicador sigue el contenido de la pestaña seleccionada. | La mayoría de las filas: más de unas pocas pestañas, etiquetas de longitudes distintas, etiquetas traducidas o escritas por quienes usan el producto. |
+| Llenar el ancho (`fullWidth` en true) | Divide el ancho de la fila a partes iguales. Una etiqueta que no cabe en su parte se trunca al final con puntos suspensivos. El indicador es tan ancho como la parte de la pestaña. | De dos a cinco etiquetas cortas que deben abarcar la fila. |
+
+`fullWidth` se escribe `full-width` en la web, `fullWidth` en SwiftUI, Compose y React Native, y en Flutter como su inverso, `isScrollable`, cuyo valor predeterminado es true, como en el `TabBar` del propio Flutter.
+
+Una etiqueta nunca salta a una segunda línea ni se parte dentro de una palabra, en ninguna de las dos disposiciones, y un icono nunca se encoge para dejar sitio. En una fila que llena el ancho, una etiqueta truncada sigue siendo, entera, el nombre accesible de la pestaña, y la plataforma la muestra entera donde puede: un tooltip plain al pasar el cursor y con el foco del teclado en la web, un tooltip con la pulsación larga y al pasar el cursor en Compose, un `Tooltip` en Flutter, el visor de contenido grande en SwiftUI (y `.help` en macOS). React Native no tiene un tooltip propio, así que allí no se muestra entera.
+
+Las tres variantes son un mismo control. Se diferencian en cuánto pesa la selección y en nada más: las teclas, los roles y lo que se comunica a la tecnología de apoyo son los mismos.
+
+Un sistema de diseño puede añadir variantes y tamaños. Una variante añadida se dispone como la primaria.
+
+### Tamaños
+
+Una fila pequeña es tan alta como un [botón](/es/components/button/) pequeño, así que los dos comparten línea en una cabecera. Es más baja que el objetivo mínimo, y no se hace más alta por ello. Una pulsación justo encima o justo debajo de la fila, en la vertical de una pestaña, sigue seleccionando esa pestaña. Un control que esté ahí conserva su propia pulsación: una pulsación sobre un botón situado bajo la fila va al botón. Con un texto más grande, una fila pequeña crece como lo hace una mediana, y no se corta nada.
+
+### La pista y el indicador
+
+Las pestañas y el [interruptor](/es/components/switch/) comparten un mismo modelo: un tirador sobre una pista, que se desliza hasta lo elegido y que también se puede deslizar hasta allí con la mano. Los dos estados de un interruptor no son equivalentes, así que todo su aspecto cambia de uno a otro. Las pestañas son elecciones equivalentes, así que su pista nunca cambia y solo se mueve el indicador.
+
+- **La pista.** Un relleno discreto detrás de toda la fila, con los extremos totalmente redondeados y sin contorno. Es tan alta como la fila. En una fila que se ajusta al contenido termina un pequeño margen interior después de su última pestaña; en una fila que llena el ancho es tan ancha como la fila. Es la misma sea cual sea la pestaña seleccionada y sea cual sea el estado de una pestaña. Cuando las pestañas no caben, la pista se queda quieta y las pestañas se desplazan dentro de ella, recortadas por sus extremos redondeados.
+- **El indicador.** La pestaña seleccionada tiene el indicador detrás de su contenido. Es tan alto como la fila menos el margen interior de la pista por arriba y por abajo, de modo que tiene la misma altura en todas las pestañas: 40 en una fila de 48, y 56 donde las pestañas primarias apilan un icono encima de una etiqueta, en el sistema predeterminado. En una fila que se ajusta al contenido es tan ancho como el contenido de la pestaña más el margen interior, y es un círculo donde ese contenido no es más ancho que alto: un icono solo, una etiqueta de una letra, un carácter de ancho completo. En una fila que llena el ancho es tan ancho como la parte de la pestaña. La regla es la misma para las pestañas primarias y las secundarias.
+- **El mismo margen interior en tres lados.** El indicador mantiene un mismo margen interior respecto a la parte superior de la pista, a su parte inferior y, en la primera y la última pestaña, a su extremo, sea cual sea la altura de la fila. Su extremo redondeado y el de la pista son concéntricos. Una pestaña cuyo indicador es un círculo es tan ancha como ese círculo, o como el objetivo mínimo si este es mayor.
+- **El paso del cursor, el foco y la pulsación** se dibujan en la caja que el indicador ocupa en esa pestaña, o que ocuparía si la pestaña estuviera seleccionada, nunca en todo el rectángulo de la pestaña. Aun así, la pestaña entera responde al puntero.
+- **Una fila sin su pista.** Pon `track` en false y el relleno de detrás de la fila no se dibuja. Nada más cambia: la fila conserva su tamaño, el margen interior, el lugar de cada pestaña y todos los colores, de modo que una fila con pista y otra sin ella quedan alineadas. Úsala donde la fila esté sobre algo que ya es una barra: una cabecera, una tarjeta, el encabezado de un ejemplo de código. Si no se define, `track` sigue al sistema de diseño (`comp.tabs.track.visible`, activado en el sistema predeterminado). En la web, el atributo es `track="false"`.
+- **El indicador tonal.** Es una capa translúcida del color de la etiqueta seleccionada, puesta sobre la pista o sobre aquello en lo que esté la fila, de modo que destaca en la misma medida sobre cualquier superficie. Es una marca discreta a propósito, y la etiqueta seleccionada, más oscura, es la segunda.
+- **Etiquetas cubiertas.** Una etiqueta y un icono se dibujan con sus colores de cubierto exactamente donde el indicador los cubre. Mientras el indicador se desliza o se arrastra, cada etiqueta por la que pasa cambia solo donde está cubierta, y la etiqueta de la nueva pestaña queda cubierta por completo en el momento en que el indicador llega. La copia cubierta se dibuja con los colores del sistema, nunca con una mezcla, de modo que su contraste es el que prometen los tokens.
+
+Un sistema de diseño también puede dibujar una línea en el borde inferior de la fila, bajo la pestaña seleccionada, y un divisor a lo largo de toda la fila. Ambos existen en todos los sistemas y son transparentes en el predeterminado. Los preajustes de Material les dan color y hacen transparentes la pista y el indicador, como hacen las pestañas de Material.
+
+### Arrastrar por la fila
+
+- **Un toque sigue seleccionando.** En cambio, un arrastre por la fila, con el dedo, un lápiz o un ratón, lleva el indicador con el puntero. Su posición, su ancho y los colores de cubierto de las etiquetas que tiene debajo cambian de forma continua, sin ningún umbral.
+- **Al soltar se elige.** Se elige la pestaña de la que el indicador está más cerca, o aquella hacia la que apunta un lanzamiento. Si es otra pestaña, la fila la selecciona y emite `change` una sola vez, nunca para las pestañas por las que pasó el indicador. Si es la pestaña seleccionada, el indicador vuelve y no se emite nada.
+- **Nada más cambia por el camino.** La selección, el panel, el foco del teclado y lo que se comunica a la tecnología de apoyo se quedan como estaban hasta que se suelta. Escape, o que la plataforma cancele el puntero, devuelve el indicador a la pestaña seleccionada.
+- **El desplazamiento sigue funcionando.** Un arrastre que empieza hacia arriba o hacia abajo desplaza la página. En la web, en una fila cuyas pestañas se desplazan, solo un arrastre que empieza en la pestaña seleccionada mueve el indicador; cualquier otro arrastre hacia los lados desplaza las pestañas.
+- **Movimiento reducido.** El indicador sigue al puntero igualmente, porque lo mueve el propio dedo de la persona, y se coloca sobre su pestaña de inmediato.
+
+### La transición
+
+`transition` dice cómo dibuja una fila una nueva selección.
+
+| Valor | Qué hace |
+| --- | --- |
+| `slide` | El indicador se desliza y cambia de tamaño hasta la nueva pestaña, y las etiquetas cambian de color bajo él. Una pestaña que está fuera de la vista se desplaza hasta quedar a la vista con un movimiento. |
+| `none` | La nueva selección se dibuja entera en un solo fotograma. Nada se desplaza y nada se funde. |
+| `auto` (el valor predeterminado) | Toma la respuesta del sistema de diseño (`comp.tabs.motion.transition`, slide en el sistema predeterminado). |
+
+Usa `none` en una fila situada junto a un contenido que acaba de cambiar, donde un indicador que se desliza sería lo único que sigue moviéndose. Con `none`, un arrastre por la fila sigue llevando el indicador, que al soltar se coloca sobre su pestaña de inmediato. El paso del cursor, el foco y la pulsación se responden igual con todos los valores. Donde el movimiento está reducido, una selección se dibuja como la dibuja `none`, diga lo que diga `transition`.
+
+Una [vista de pestañas](/es/components/tab-view/) tiene una `transition` propia para sus paneles. Con el valor `none`, detiene también el deslizamiento de la fila que dibuja.
+
+### Selección y paneles
+
+- **Por valor.** Cada pestaña tiene un `value`, único en su fila. Un valor sobrevive a que se añadan, quiten o reordenen pestañas, mientras que un índice seleccionaría otra vista sin avisar. Un valor de `selected` que no nombra ninguna pestaña no selecciona ninguna ni muestra ningún panel, y las compilaciones de depuración lo notifican.
+- **Activación automática.** Mover el foco con las teclas de flecha también selecciona la pestaña, y el panel cambia de inmediato. Si un panel tarda en cargarse, muestra un estado de carga dentro de él en lugar de retrasar el cambio.
+- **Las pestañas deshabilitadas se saltan.** Las teclas de flecha pasan de largo y nunca son la parada de tabulación, porque llegar a una seleccionaría una pestaña que no se puede seleccionar. En esto se diferencian de la lista y del menú, cuyos elementos deshabilitados siguen siendo accesibles porque llegar a ellos no selecciona nada.
+- **El indicador se desliza.** Cuando la selección cambia, el indicador se desliza y cambia de tamaño desde la pestaña anterior hasta la nueva, y un círculo se ensancha por el camino hasta ser una cápsula. Donde el movimiento está reducido, se mueve de inmediato. Cuando la fila aparece por primera vez, o la pestaña seleccionada cambia de tamaño sin una nueva selección (llega una fuente, cambia el tamaño del texto), el indicador se coloca en su sitio sin deslizarse. Una pestaña que pasa a estar seleccionada o con foco mientras está parcialmente fuera de la vista por el desplazamiento se desplaza hasta quedar a la vista.
+- **La fila dibuja su propia pista.** Colócala sobre la superficie de la pantalla o de una barra de la aplicación. No necesita un contenedor propio.
+- **En una vista de pestañas.** Una [vista de pestañas](/es/components/tab-view/) que dibuja su propia fila usa estas pestañas, con los mismos tokens y el mismo comportamiento. Mientras una persona desliza una vista de pestañas, esta mueve el indicador mediante `indicatorOffset`: 0 en la pestaña seleccionada, 1 en la siguiente pestaña habilitada y −1 en la anterior, y valores intermedios a medida que se mueve el dedo. El indicador lo sigue fotograma a fotograma, sin un deslizamiento propio. Déjalo en 0 salvo que muevas tú el indicador. Deslizar la vista y arrastrar por su fila son un mismo gesto en dos lugares: al deslizar se mueve un panel, y los paneles viajan con el gesto; un arrastre por la fila puede pasar por varias pestañas, y los paneles esperan a que se suelte.
+
+### Compartir una elección
+
+Cuando la misma pregunta se responde en muchos lugares (la plataforma de cada ejemplo de código de este sitio, las unidades de cada cifra de un informe), da a esas filas el mismo `group`. Seleccionar una pestaña en una selecciona la pestaña del mismo valor en todas las demás filas que la tengan; una fila que no tiene esa pestaña conserva la suya.
+
+- **Se emparejan por valor.** Un grupo sigue el `value` de una pestaña, nunca su etiqueta, así que una etiqueta traducida o redactada de otro modo conserva la elección.
+- **Una fila se mueve, una fila avisa.** La fila que usó la persona se desliza y emite `change`, una sola vez. Todas las demás filas adoptan la elección de inmediato, sin movimiento, sin tomar el foco y sin desplazarse, y no emiten nada. La fila que usó la persona se queda donde está en la ventana mientras las filas de encima cambian de altura.
+- **Recordar va aparte.** `rememberAs` nombra la clave con la que la elección de una persona se guarda en su dispositivo y se restaura antes de que la fila se dibuje por primera vez. Sin clave no se almacena nada. La clave es tuya y se usa exactamente como la das, y solo se almacena el valor de la pestaña; si una preferencia recordada requiere consentimiento allí donde se usa tu producto, lo decides tú.
+- **En la web, las pestañas mantienen el grupo.** `group` y `remember-as` son atributos, y la clave es una clave de `localStorage`. En SwiftUI, Compose, Flutter y React Native, las filas que reciben el mismo estado de selección ya lo comparten, y es tu producto el que mantiene y almacena ese estado.
+
+<DemoFrame label="Dos filas de un mismo grupo: elige una pestaña en cualquiera de las dos" plain column>
+  <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="Unidades de distancia">
+    <tanrei-tab value="metric" label="Métrico"></tanrei-tab>
+    <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
+    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">Un maratón son 42.195 km.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">Un maratón son 26.2 millas.</p></tanrei-tab-panel>
+  </tanrei-tabs>
+  <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="Unidades de velocidad">
+    <tanrei-tab value="metric" label="Métrico"></tanrei-tab>
+    <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
+    <tanrei-tab value="nautical" label="Náutico"></tanrei-tab>
+    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">Caminar a paso ligero son 6 km/h.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">Caminar a paso ligero son 3.7 mph.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">Caminar a paso ligero son 3.2 nudos.</p></tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+En la demostración, Náutico existe solo en la segunda fila: al elegirlo, la primera fila conserva su propia elección, y vuelve a seguir a la otra en cuanto la elección es una que también tiene. Ninguna de las dos filas nombra una clave, así que no se almacena nada.
+
+Las pestañas de este sitio son un ejemplo: cada conjunto de ejemplos por plataforma es una [vista de pestañas](/es/components/tab-view/) de un mismo grupo.
+
+### Iconos
+
+- Da un icono a todas las pestañas de una fila, o a ninguna. Los iconos se dibujan con contorno cuando la pestaña no está seleccionada y con relleno cuando lo está.
+- `labelHidden` dibuja el icono solo. La etiqueta sigue siendo obligatoria: sigue siendo el nombre accesible de la pestaña. Una pestaña con `labelHidden` y sin icono dibuja su etiqueta de todos modos, y las compilaciones de depuración lo notifican.
+- Una pestaña con la etiqueta vacía y sin icono no tiene contenido: su indicador es un círculo vacío y la pestaña no tiene nombre accesible. Las compilaciones de depuración notifican la etiqueta vacía; da una etiqueta a la pestaña.
+- Para mostrar un recuento en una pestaña, coloca tú una insignia de Tanrei sobre su icono. Las pestañas no tienen una propiedad de insignia.
+
+### Recomendado
+
+- Escribe etiquetas cortas: una o dos palabras que nombren la vista, como «Resumen» o «Facturación». En una fila que llena el ancho, una etiqueta larga se corta.
+- Conserva el ajuste al contenido predeterminado cuando las etiquetas sean largas, estén traducidas, las escriban quienes usan el producto o se lean con tamaños de texto grandes.
+- Mantén estable el orden de las pestañas, para que las personas encuentren una vista donde la dejaron.
+- Pon las pestañas secundarias dentro de una vista de pestañas primarias, y no al revés.
+- Mantén en su sitio, y deshabilitada, una pestaña que a veces no está disponible, para que la fila no cambie de forma.
+
+### Evita
+
+- No uses pestañas para la navegación de la aplicación. Ese es el trabajo de la barra de navegación o del panel de navegación.
+- No hagas que una pestaña abra un diálogo, inicie una acción o salga de la pantalla. Una pestaña no tiene un destino propio: para moverte entre páginas, usa enlaces, una barra de navegación o un panel de navegación.
+- No anides dos filas de la misma variante.
+- No mezcles en una fila pestañas con icono y sin icono.
+
+## Accesibilidad
+
+<ComponentAccessibility name="tabs" />
+
+### De qué se encarga el componente
+
+- La fila se expone como una lista de pestañas que recibe su nombre de `label`. Cada pestaña tiene el rol de pestaña, su estado seleccionado, su posición y el número de pestañas, y recibe su nombre de su etiqueta, se dibuje esta o no.
+- El panel de la pestaña seleccionada se expone como un panel de pestaña, que recibe su nombre de su pestaña y se asocia con ella donde la plataforma puede expresarlo. Los demás paneles quedan ocultos a la vista y a la tecnología de apoyo. Un panel que no contiene nada que pueda recibir el foco se hace él mismo enfocable, para que Tab llegue a él.
+- La fila es una sola parada de tabulación: la pestaña seleccionada. Flecha derecha y Flecha izquierda llevan a la pestaña habilitada siguiente y a la anterior, pasando de un extremo al otro, y la seleccionan. Se intercambian en los diseños de derecha a izquierda. Inicio y Fin van a la primera y a la última pestaña habilitada. Enter y Espacio seleccionan la pestaña con foco. Tab pasa de la pestaña seleccionada a su panel.
+- Las teclas de flecha se saltan las pestañas deshabilitadas, que nunca son la parada de tabulación y se anuncian como deshabilitadas.
+- El anillo de foco rodea la caja que el indicador ocupa en la pestaña con foco, con su misma forma, y se mantiene dentro de la pista, de modo que una fila que se desplaza no puede recortarlo. Se muestra solo para el foco del teclado.
+- Las pestañas tocan a sus vecinas, así que una pestaña más estrecha que el objetivo mínimo crece en anchura hasta alcanzarlo. Una fila más baja que el objetivo (el tamaño pequeño) no se hace más alta: sus pestañas responden a una pulsación un poco por encima y por debajo de la fila, y ceden ante un control que esté ahí.
+- Una fila sin paneles sigue siendo una lista de pestañas que recibe su nombre de `label`, y sus pestañas dicen que no controlan nada. El estado seleccionado de una pestaña es lo que se comunica a la tecnología de apoyo; lo que la elección cambia debajo de la fila te toca dibujarlo a ti. Tab pasa de la pestaña seleccionada a lo que siga a la fila.
+- Con colores forzados, el indicador es un resaltado relleno en todas las variantes, con pista o sin ella, de modo que una fila tonal muestra su selección con tanta claridad como una primaria.
+- Un texto más grande nunca oculta una etiqueta a la tecnología de apoyo. Una pestaña que se ajusta a su contenido se ensancha y la fila se desplaza. Una pestaña que comparte la fila trunca su etiqueta, que sigue siendo su nombre accesible y se muestra entera donde la plataforma puede.
+- Los iconos, la pista, el indicador, el subrayado y el divisor quedan ocultos para la tecnología de apoyo. La copia cubierta de cada etiqueta bajo el indicador es decorativa, así que cada etiqueta se anuncia una sola vez.
+- Un arrastre por la fila nunca es la única manera: todas las pestañas se seleccionan con un toque o un clic sobre ellas, y con las teclas de flecha. Durante un arrastre, ninguna pestaña se expone como seleccionada, ningún panel cambia y no se anuncia nada; la selección se hace al soltar, y Escape cancela el arrastre. Con un lector de pantalla en funcionamiento, el arrastre con un dedo pertenece al lector, y las pestañas se seleccionan con su gesto de activación.
+- En un grupo, las filas que siguen a otra cambian en silencio. No se anuncia nada, el foco se queda en la pestaña que usó la persona y esa fila se queda donde está en la ventana, de modo que quien usa la ampliación de pantalla no pierde su sitio. Cada fila comunica a la tecnología de apoyo su pestaña seleccionada cuando la persona llega a ella.
+- Las compilaciones de depuración notifican una pestaña sin etiqueta, un valor vacío o repetido, un valor de `selected` que no nombra ninguna pestaña, una etiqueta oculta sin icono, una variante o un tamaño que el sistema de diseño no tiene y una `transition` que las pestañas no definen.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose y React Native no tienen rol de panel de pestaña. El panel seleccionado sigue a la fila en el orden de lectura.
+- SwiftUI tampoco tiene rol de lista de pestañas ni de pestaña. La fila es un contenedor que recibe su nombre de `label`, con el rasgo de barra de pestañas, y cada pestaña es un botón con el rasgo de seleccionado. En iOS, VoiceOver indica la posición de una pestaña a partir del rasgo de barra de pestañas; en el resto, la posición es el valor de la pestaña («2 of 3»), solo en inglés.
+- SwiftUI no puede asociar el panel con su pestaña ni saber si un panel contiene algo enfocable, así que un panel sin nada enfocable no se convierte en una parada de tabulación.
+- Compose no tiene rol de lista de pestañas. La fila es un grupo seleccionable que recibe su nombre de `contentDescription` y lleva el número de pestañas como información de colección. Cada pestaña tiene el rol de pestaña, su estado seleccionado y su posición.
+- Compose y React Native te dejan el panel a ti. No ocultan los demás paneles ni hacen enfocable un panel vacío.
+- Compose: una insignia colocada sobre el icono de una pestaña no se anuncia, porque el slot del icono es decorativo. Una insignia que envuelve toda la pestaña sí se anuncia, pero se dibuja en la esquina de la pestaña.
+- Compose: las teclas de flecha y el desplazamiento a través de la canalización de entrada real, y la lectura que TalkBack hace del rol y la posición de cada pestaña, se han probado solo en Robolectric, todavía no en un dispositivo.
+- La semántica de Flutter no tiene posición, ni número de pestañas, ni relación entre una pestaña y su panel. `TanreiTabBarView` es un panel de pestaña que recibe su nombre de los `semanticLabels` que le pasas.
+- React Native no tiene rol de panel de pestaña ni relación entre una pestaña y su panel. Una pestaña lleva su posición como texto de valor («2 of 3»), en inglés salvo que pases `positionText`.
+- React Native: las teclas de flecha, el desplazamiento de una pestaña hasta dejarla a la vista (y sus desplazamientos de derecha a izquierda) y el indicador deslizante todavía no se han comprobado en un dispositivo.
+- Web: una pestaña a la que se llega con la tecla Tab mientras está fuera de la vista por el desplazamiento la deja a la vista el navegador de inmediato, no a lo largo del movimiento del indicador.
+- Flutter: una fila desplazable cuya pestaña seleccionada empieza fuera de la vista muestra un fotograma en su borde de inicio antes de saltar a la pestaña.
+
+### Qué debes hacer tú
+
+- Da una etiqueta a todas las pestañas, incluidas las de solo icono.
+- Da nombre a la fila con `label` cuando una pantalla tenga más de una fila de pestañas. Di de qué son vistas las vistas, como «Proyecto».
+- Mantén el valor de cada pestaña único en su fila, y estable mientras se muestre la pantalla.
+- En Compose y React Native, renderiza solo el panel seleccionado, justo después de la fila. Cuando no contenga nada enfocable, hazlo enfocable y dale el nombre de su pestaña, para que Tab llegue a él.
+- En Flutter, pasa `semanticLabels` a `TanreiTabBarView` con la etiqueta de cada pestaña.
+- En React Native, pasa `positionText` en el idioma de tu producto.
+- Muestra un estado de carga dentro de un panel que tarde en cargarse. Las teclas de flecha seleccionan a medida que se mueven.
+- Da a las filas de un mismo grupo las mismas etiquetas para los mismos valores. Donde las filas estén muy separadas, di cerca de la primera que la elección se aplica a toda la página.
+- Elige tú la clave de `rememberAs` y nómbrala en tu aviso de privacidad donde tu producto lo necesite. Sin clave no se almacena nada.

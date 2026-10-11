@@ -1,0 +1,21 @@
+---
+title: Tokens de la escala tipográfica
+description: Todos los estilos de texto por nivel, con una muestra en vivo, sus métricas resueltas y el peso que toman con énfasis.
+translationOf: tokens/typescale.mdx
+sourceHash: 04f324a84d7ee88a6b98405c30b1b79539c95a7d
+---
+
+import Typescale from '../../../../components/tokens/Typescale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Las muestras se componen con las propiedades personalizadas de CSS generadas, así que lo que ves es lo que distribuye `@tanrei/web`. Cada rol expone sus partes como propiedades separadas: `-font-family`, `-font-size`, `-line-height`, `-font-weight`, `-letter-spacing` y `-font-weight-emphasized`, además de una forma abreviada `-font`. Para las pautas de uso (qué rol es un `h2` o un `p`, y por qué el énfasis es un peso y no un rol), lee [Tipografía](/es/foundations/typography/).
+
+## Los dieciséis roles
+
+<Typescale />
+
+## Pasos de énfasis
+
+El texto con énfasis es el rol con su peso más el paso de su familia. La familia de un rol es el primer segmento de su nombre; `caption`, `code`, `code-small` y `eyebrow` toman el paso de las etiquetas. Los cuatro pasos, por sistema incluido:
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />

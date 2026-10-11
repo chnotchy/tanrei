@@ -1,0 +1,283 @@
+---
+title: Select
+description: "Permite elegir un valor de una lista cerrada: un activador que tiene el aspecto y las medidas de la caja de una entrada de texto y muestra la opción elegida, y una lista de opciones, agrupadas si hace falta, que se abre desde él, sin fila de etiqueta, ayuda ni texto de error propios. Para una barra, una barra de herramientas o una tabla, o dentro de un campo que el producto compone por su cuenta."
+translationOf: components/select.mdx
+sourceHash: b590963ddaa047a35f87209960b3ba6974490bfc
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="select" />
+
+<DemoFrame label="Sin nada más: un select de tema para una barra y un criterio de orden sobre una lista" column>
+  <tanrei-select class="not-content" size="small" label="Tema" value="auto">
+    <tanrei-option value="light" leading-icon="light_mode">Claro</tanrei-option>
+    <tanrei-option value="dark" leading-icon="dark_mode">Oscuro</tanrei-option>
+    <tanrei-option value="auto" leading-icon="computer">Según el dispositivo</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" size="small" label="Ordenar por" value="updated">
+    <tanrei-option value="updated">Última actualización</tanrei-option>
+    <tanrei-option value="name">Nombre</tanrei-option>
+    <tanrei-option value="size">Tamaño</tanrei-option>
+  </tanrei-select>
+</DemoFrame>
+
+Un select es la caja de un [campo de selección](/es/components/select-field/), sola: el activador con el valor que muestra, su icono inicial y su chevron, y la lista de opciones que se abre desde él. No tiene fila de etiqueta encima, ni marca de obligatoriedad, ni ayuda ni texto de error debajo.
+
+Úsalo sin nada más donde la etiqueta que lee la persona está en otro lugar, o donde queda claro por el sitio en el que está el select y por lo que muestra:
+
+| Dónde | Qué le dice a la persona lo que define | El `label` del select |
+| --- | --- | --- |
+| Un tema o un idioma en una barra de la aplicación | Su lugar, su glifo y el valor que muestra | «Tema», «Idioma» |
+| Un criterio de orden o un filtro en una barra de herramientas | La lista sobre la que está | «Ordenar por» |
+| Una celda de una columna de una tabla; el select de filas por página debajo de una tabla | El encabezado de la columna; el texto que hay junto al select | La columna y la fila: «Rol, Ada Lovelace» |
+
+Sin nada más, el select necesita un `label` propio. Es el nombre accesible. Un select stacked nunca lo dibuja; uno filled o uno outlined lo dibuja como la etiqueta que flota en la caja.
+
+En un formulario, usa el [campo de selección](/es/components/select-field/): este select dentro de un [campo](/es/components/field/), con una etiqueta encima, una marca de obligatoriedad, ayuda y un error.
+
+**Se usa en** el [campo de selección](/es/components/select-field/). Para enmarcarlo tú, ponlo dentro de un [campo](/es/components/field/), que le da nombre, lo describe, lo marca como obligatorio y lo pone en su estado de error.
+
+Donde no le das un ancho, un select sin nada más es tan ancho como necesita su opción más ancha, de modo que elegir nunca cambia su ancho. Dentro de un campo, llena el campo.
+
+En la web es `<tanrei-select>`, con elementos `<tanrei-option>` como hijos. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+Las opciones son hijos del select: cada una tiene un valor y una etiqueta. `value` dice cuál es la elegida. El select emite `change` cuando la persona elige otra opción, y `toggle` cuando la persona abre o cierra la lista. Ninguno de los dos se emite cuando eres tú quien define `value` u `open`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- En una barra de la aplicación: pequeño, recibe su nombre de su propio label, que no se dibuja. -->
+    <tanrei-select size="small" label="Tema" value="dark">
+      <tanrei-option value="light" leading-icon="light_mode">Claro</tanrei-option>
+      <tanrei-option value="dark" leading-icon="dark_mode">Oscuro</tanrei-option>
+    </tanrei-select>
+
+    <!-- Una celda de una tabla: el encabezado de la columna es la etiqueta visible. -->
+    <td>
+      <tanrei-select name="role-ada" size="small" label="Rol, Ada Lovelace" value="editor">
+        <tanrei-option value="viewer">Lector</tanrei-option>
+        <tanrei-option value="editor">Editor</tanrei-option>
+      </tanrei-select>
+    </td>
+
+    <script type="module">
+      import '@tanrei/web/components/select';
+
+      const theme = document.querySelector('tanrei-select');
+      // La persona eligió otra opción. El valor ya es el nuevo.
+      theme.addEventListener('change', () => apply(theme.value));
+      // La persona abrió o cerró la lista; un cierre dice por qué.
+      theme.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Option, Select } from '@tanrei/react';
+
+    <Select size="small" label="Tema" value={theme} onChange={(event) => setTheme(event.currentTarget.value)}>
+      <Option value="light" leadingIcon="light_mode">Claro</Option>
+      <Option value="dark" leadingIcon="dark_mode">Oscuro</Option>
+    </Select>
+    ```
+  </TabItem>
+</Tabs>
+
+### En un campo, a mano
+
+Un campo alrededor de un select es un campo de selección escrito por extenso. Deja vacío el `label` del propio select: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se dicen en el campo; `name`, `value`, las opciones y todo lo que tiene que ver con elegir, en el select.
+
+```html
+<tanrei-field label="País" requirement="required" required-text="Obligatorio"
+  supporting-text="El país al que van dirigidas tus facturas.">
+  <tanrei-select name="country" placeholder="Elige un país">
+    <tanrei-option value="jp">Japón</tanrei-option>
+    <tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select>
+</tanrei-field>
+```
+
+<DemoFrame label="Un campo con un select dentro: la misma imagen que un campo de selección" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" requirement="required" required-text="Obligatorio" supporting-text="El país al que van dirigidas tus facturas.">
+    <tanrei-select placeholder="Elige un país">
+      <tanrei-option value="jp">Japón</tanrei-option>
+      <tanrei-option value="ke">Kenia</tanrei-option>
+    </tanrei-select>
+  </tanrei-field>
+</DemoFrame>
+
+El select le dice a su campo lo que solo él sabe. Su ayuda empieza donde empieza el valor, después del margen interior y de un icono inicial. Un select filled u outlined dibuja él mismo la etiqueta del campo, flotando en la caja, así que el campo no dibuja fila de etiqueta. Y mientras su lista está abierta, el select se dibuja con foco, lo tenga o no, así que el campo dibuja su etiqueta y su ayuda con foco durante ese tiempo.
+
+## Especificaciones
+
+<DemoFrame label="Selects sin nada más: grupos, texto de apoyo con una opción deshabilitada, en error, de solo lectura y deshabilitado" plain column>
+  <tanrei-select class="not-content" label="Zona horaria" value="Europe/Lisbon">
+    <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo">Tokio</tanrei-option><tanrei-option value="Asia/Seoul">Seúl</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="Europa"><tanrei-option value="Europe/Lisbon">Lisboa</tanrei-option><tanrei-option value="Europe/Berlin">Berlín</tanrei-option></tanrei-option-group>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="Plan" value="team">
+    <tanrei-option value="free" supporting-text="Un proyecto, ayuda de la comunidad">Gratis</tanrei-option>
+    <tanrei-option value="team" supporting-text="Proyectos ilimitados, roles compartidos">Equipo</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="Inicio de sesión único y registro de auditoría" disabled>Empresa</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="País" value="ke" error>
+    <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="País" value="jp" readonly>
+    <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="País" value="jp" disabled>
+    <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select>
+</DemoFrame>
+
+### El activador
+
+| Parte | Qué es |
+| --- | --- |
+| Valor | La etiqueta de la opción elegida, en una sola línea, cortada con puntos suspensivos donde no cabe |
+| Marcador de posición | Una indicación que se muestra mientras no hay nada elegido. Nunca es una etiqueta ni una opción |
+| Icono inicial | El glifo del slot `leading-icon` o, si no lo hay, el de la opción elegida |
+| Chevron | Dice que la caja abre una lista. No gira. Un select de solo lectura no lo dibuja |
+| Etiqueta flotante | Solo en un select `filled` u `outlined`: su nombre, que descansa en la línea mientras no hay nada elegido y flota encima del valor en los demás casos. Le sigue un asterisco donde el campo que rodea al select dice que es obligatorio |
+
+Las tres variantes son las de la entrada de texto. El sistema predeterminado solo incluye `stacked`; `filled` y `outlined` son para los sistemas que dibujan así sus entradas de texto. Usa un solo estilo en cada formulario.
+
+`medium` (48) y `large` (56) son las alturas de la entrada de texto. `small` (40) es para una barra, una barra de herramientas o una fila densa de controles.
+
+### Qué es del select y qué es del campo
+
+- **El select dibuja** la caja, el valor, el marcador de posición, los iconos, la lista y sus opciones, y la etiqueta que flota en una caja filled u outlined. Guarda el valor, su lugar en un formulario y los eventos. Dice a la tecnología de apoyo la opción elegida, si la lista está abierta, la opción activa y que es de solo lectura.
+- **El campo que lo rodea dibuja** la fila de la etiqueta encima de un select stacked, la marca de obligatorio o de opcional, la ayuda y el texto de error. No guarda nada. Da al select su nombre, la ayuda o el texto de error como descripción, y que es obligatorio, no válido o está deshabilitado.
+
+Sin nada más, sin un campo:
+
+- **El nombre** es `label`. `labelHidden` hace que un select filled u outlined deje de dibujarlo; en uno stacked no cambia nada.
+- **Un error** es `error`, que defines tú: la caja se dibuja en su estado de error y se expone como no válida. El select no tiene texto de error. Di con palabras, a su lado, qué está mal, o enmárcalo.
+- **La obligatoriedad** le corresponde decirla a un campo. Un select sin nada más no tiene ajuste de obligatoriedad: donde el formulario necesite una respuesta, valídala tú.
+
+### La lista
+
+La lista se abre a una distancia de `comp.select.list.offset` por debajo del contenedor, con los bordes de inicio juntos, y por encima de él donde no hay sitio debajo. Es tan ancha como el contenedor y mide como mínimo `list.min-width` (160). Es tan alta como sus opciones hasta `list.max-height` (320), y a partir de ahí se desplaza. Cuando se abre, la opción elegida queda a la vista.
+
+| Parte | Qué es |
+| --- | --- |
+| Opción | Una fila con una etiqueta y, de forma opcional, una línea de apoyo y un glifo. La elegida tiene un relleno discreto y una marca de verificación |
+| Grupo | Una serie de opciones bajo un título opcional. Los grupos se separan con una línea o con espacio, según digan el sistema de diseño o `separation` |
+| Opción deshabilitada | Se llega a ella con las teclas de flecha, para que las personas sepan que existe, y nunca se elige |
+
+Una opción cuyo valor es la cadena vacía es una opción como cualquier otra, para «Ninguno» o «Cualquiera». El select no tiene una forma propia de volver a no tener nada elegido: donde se permita no elegir, ofrece una opción que lo diga.
+
+### Abrir, moverse y elegir
+
+| Entrada | Qué ocurre |
+| --- | --- |
+| Una pulsación en el contenedor; Enter, Espacio, Flecha abajo o Flecha arriba | Abre la lista. La opción activa es la elegida o, si no hay ninguna, la primera habilitada |
+| Un carácter imprimible | Abre la lista y hace activa la siguiente opción que empieza por lo escrito |
+| Flecha abajo, Flecha arriba | La opción siguiente o la anterior, atravesando los grupos y deteniéndose en los extremos |
+| Inicio, Fin; Av Pág, Re Pág | La primera o la última opción; diez opciones hacia abajo o hacia arriba |
+| Enter o Espacio; una pulsación en una opción | Elige la opción activa y cierra la lista |
+| Escape; Tab; una pulsación fuera; una pulsación en el contenedor | Cierra la lista y no elige nada |
+
+El valor solo cambia cuando la persona confirma una opción en la lista abierta: con una pulsación, con Enter o con Espacio. En un select cerrado, las teclas de flecha y la escritura abren la lista en lugar de cambiar el valor sin que se vea, porque un `change` puede guardar, navegar o reconstruir una página.
+
+`toggle` lleva el motivo de un cierre: `select`, `escape`, `outside`, `focus-out`, `anchor-hidden`, `press` o `tab`.
+
+<ComponentSpecs name="select" />
+
+### Qué dibuja la web de otra manera
+
+- `<tanrei-option>` y `<tanrei-option-group>` son datos: no dibujan nada. La etiqueta es el atributo `label` o, si no lo hay, el texto del elemento. El título de un grupo es su atributo `label`.
+- Las opciones son los hijos del select. Un `<slot>` entre sus hijos representa los elementos asignados a él, de modo que un elemento tuyo puede pasarle opciones: `<tanrei-select label="Plan"><slot></slot></tanrei-select>` en su shadow root. El campo de selección hace exactamente esto.
+- El select es un elemento asociado a formularios. Recibe `name`, envía `value`, se restablece al valor del atributo `value` y, mientras el campo que lo rodea dice que es obligatorio y `value` está vacío, notifica al formulario que falta un valor.
+- Un select sin nada más es una caja en línea; dentro de un campo es un bloque que llena el campo.
+- `change` es un evento compuesto que se propaga. `toggle` es compuesto y no se propaga: se oye en el select, y en un campo de selección que lo rodee, y nunca en un antecesor como un `<details>`.
+- La lista es un elemento `popover="manual"` en la capa superior. Una pulsación fuera la cierra y además llega al elemento que hay debajo.
+- Una etiqueta flotante (`filled`, `outlined`) queda dentro del contenedor, así que una pulsación en ella abre la lista.
+- `supporting-text`, `error-text`, `requirement`, `required-mark`, `required-text` y `optional-text`, y un hijo para un slot `label-icon`, son del campo de selección y del campo. En un select no dibujan nada; una compilación de depuración lo dice una vez y nombra `<tanrei-select-field>`.
+- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`.
+- Antes de que el elemento esté definido, sus opciones son texto corrido. Oculta `tanrei-select:not(:defined) > *` y reserva la altura.
+- La web no tiene un gesto de retroceso propio, así que `toggle` nunca lleva el motivo `back`.
+- `readOnly` es el atributo `readonly`.
+
+## Pautas
+
+### Select, campo de selección o un campo a mano
+
+| Necesitas | Usa |
+| --- | --- |
+| Una etiqueta, la caja, una ayuda y un error | Un [campo de selección](/es/components/select-field/) |
+| La caja sola, donde su etiqueta está en otro lugar: una barra, una barra de herramientas, una celda de una tabla | Un select, que recibe su nombre de su propio `label` |
+| Algo tuyo dentro del marco, junto a la caja o debajo de ella | Un [campo](/es/components/field/) con un select y tu propio elemento dentro |
+
+### Select, botones de opción, un menú o un cuadro combinado
+
+| Aspecto | Select | Botones de opción | Menú | Cuadro combinado |
+| --- | --- | --- | --- | --- |
+| Contiene | Un valor de una lista cerrada | Un valor entre unos pocos | Acciones | Un valor que se encuentra escribiendo |
+| Muestra las opciones | Tras una pulsación | Siempre | Tras una pulsación | Tras una pulsación, filtradas |
+| Forma parte de un formulario | Sí | Sí | No | Sí |
+
+1. Con hasta unas cinco opciones cortas y sitio para ellas, muéstralas todas: botones de opción, o pestañas para una vista.
+2. Si los elementos hacen algo en lugar de representar un valor, es un menú. Una opción es un valor, nunca un lugar al que ir: una lista de destinos es un menú o son enlaces.
+3. Si la lista es tan larga que las personas prefieren escribir a desplazarse, o si admite un valor que no está en ella, es un cuadro combinado.
+4. Varios valores son casillas de verificación, o una lista con selección múltiple.
+
+### Recomendado
+
+- Da a un select sin nada más un `label` que nombre lo que se elige, con las palabras de la etiqueta visible donde la haya.
+- Usa un select sin nada más solo donde una persona que ve la página puede saber qué define: por su lugar, por su glifo o por el valor que muestra.
+- Ordena las opciones como las buscan las personas: por orden alfabético, por número o con las más habituales primero.
+- Agrupa una lista larga y da a cada grupo un título corto.
+- Usa `supportingText` en una opción para lo que su etiqueta no puede decir en pocas palabras.
+
+### Evita
+
+- No uses un select sin nada más en un formulario para ahorrarte el sitio de una etiqueta. Usa el campo de selección.
+- No escribas `label` en un select esperando verlo encima de la caja. Un select stacked no dibuja ninguna etiqueta: esa fila es del campo de selección.
+- No uses el marcador de posición como etiqueta. Desaparece en cuanto se elige algo.
+- No navegues, envíes ni elimines con `change` sin decirlo. Las personas recorren una lista para leerla.
+- No definas `label`, `error` ni `disabled` en un select que está dentro de un campo. Dilos en el campo, para que la etiqueta y la ayuda lo acompañen.
+- No deshabilites una opción sin dar una forma de saber por qué. Dilo en su texto de apoyo.
+
+## Accesibilidad
+
+<ComponentAccessibility name="select" />
+
+### De qué se encarga el componente
+
+- El activador es un cuadro combinado no editable. Su nombre es su propio `label` o, donde no lo tiene, la etiqueta del campo que lo rodea, y nunca el marcador de posición. Su valor es la etiqueta de la opción elegida.
+- Su descripción es la que le da su campo: la ayuda o el texto de error, y el texto de opcional.
+- Se expone como no válido mientras está en error, como obligatorio mientras su campo lo dice, como de solo lectura, como deshabilitado, y como expandido mientras su lista está abierta.
+- El foco permanece en el activador mientras la lista está abierta. La opción activa es su descendiente activo, de modo que la caja conserva su nombre y sus estados mientras la persona lee las opciones.
+- La lista es un cuadro de lista que recibe el mismo nombre que el select. Cada opción tiene su nombre, su descripción, si es la elegida, si está deshabilitada y su posición entre las opciones. Un grupo recibe su nombre de su título.
+- La opción elegida se distingue de las demás por su marca de verificación, nunca solo por su relleno.
+- Los glifos, el chevron, la marca de verificación, el divisor y el asterisco que sigue a una etiqueta flotante quedan ocultos para la tecnología de apoyo.
+- El select es una sola parada en el orden del foco. Tab cierra una lista abierta y sigue adelante.
+- Escape cierra la lista y no va más allá, de modo que un diálogo que rodee al select permanece abierto.
+- El área de pulsación del activador cumple el objetivo mínimo aunque un select pequeño mida 40 de alto, y las opciones son al menos tan altas como el objetivo mínimo.
+- Con el texto al 200%, las opciones y los títulos saltan de línea. Solo el valor del contenedor se queda en una línea, y la lista y la tecnología de apoyo lo siguen dando completo.
+- Con colores forzados, el activador y la lista ganan un borde, la opción activa toma los colores de resaltado y la opción elegida se muestra con su marca de verificación.
+- En un diseño de derecha a izquierda, el activador y cada fila se reflejan, y cada texto conserva su propia dirección. El chevron y la marca de verificación no se reflejan.
+- No tiene textos propios y no lee ninguno.
+
+Carencias conocidas en la web:
+
+- El divisor entre dos grupos no se expone como separador: un cuadro de lista solo contiene opciones y grupos.
+- Al escribir, las etiquetas se comparan sin distinguir mayúsculas de minúsculas a la manera de JavaScript, no según las reglas del idioma de la etiqueta.
+- Antes de que el elemento esté definido, las opciones son texto en la página, sin ningún control.
+
+### Qué debes hacer tú
+
+- Da nombre con `label` a cada select sin nada más, y da una etiqueta a cada opción. Un texto visible junto al select no le da nombre.
+- Donde un select sin nada más pueda estar mal, di qué está mal con palabras que lleguen a la tecnología de apoyo: un mensaje tuyo vinculado a la página, o un campo alrededor del select.
+- Mantén únicos los valores de las opciones dentro de un select.

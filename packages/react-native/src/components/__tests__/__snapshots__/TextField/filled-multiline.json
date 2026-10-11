@@ -1,0 +1,163 @@
+{
+  "type": "View",
+  "props": {},
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityState": {
+          "disabled": false
+        },
+        "accessibilityValue": {},
+        "accessible": false,
+        "collapsable": false,
+        "focusable": false,
+        "hitSlop": {
+          "bottom": 1,
+          "left": 0,
+          "right": 0,
+          "top": 1
+        },
+        "style": {
+          "alignItems": "flex-start",
+          "backgroundColor": "rgb(238, 238, 238)",
+          "borderBottomEndRadius": 0,
+          "borderBottomStartRadius": 0,
+          "borderTopEndRadius": 6,
+          "borderTopStartRadius": 6,
+          "flexDirection": "row",
+          "gap": 8,
+          "minHeight": 46,
+          "opacity": 1,
+          "paddingEnd": 12,
+          "paddingStart": 12,
+          "paddingVertical": 4
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "collapsable": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "borderBottomEndRadius": 0,
+              "borderBottomStartRadius": 0,
+              "borderBottomWidth": 1,
+              "borderColor": "rgb(132, 132, 132)",
+              "borderTopEndRadius": 6,
+              "borderTopStartRadius": 6,
+              "bottom": 0,
+              "left": 0,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": []
+        },
+        {
+          "type": "View",
+          "props": {
+            "style": {
+              "flex": 1,
+              "flexShrink": 1
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "height": 16
+                }
+              },
+              "children": []
+            },
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignItems": "flex-start",
+                  "flexDirection": "row",
+                  "gap": 2
+                }
+              },
+              "children": [
+                {
+                  "type": "TextInput",
+                  "props": {
+                    "accessibilityLabel": "Message",
+                    "accessibilityState": {
+                      "disabled": false
+                    },
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "cursorColor": "rgb(27, 27, 27)",
+                    "focusable": true,
+                    "inputMode": "text",
+                    "keyboardType": "default",
+                    "multiline": true,
+                    "placeholder": "",
+                    "placeholderTextColor": "rgb(75, 75, 75)",
+                    "readOnly": false,
+                    "selectionColor": "rgb(27, 27, 27)",
+                    "style": {
+                      "color": "rgb(27, 27, 27)",
+                      "flex": 1,
+                      "flexShrink": 1,
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "400",
+                      "letterSpacing": 0,
+                      "lineHeight": 22,
+                      "margin": 0,
+                      "minHeight": 66,
+                      "paddingBottom": 0,
+                      "paddingEnd": 0,
+                      "paddingStart": 0,
+                      "paddingTop": 0,
+                      "textAlignVertical": "top"
+                    },
+                    "submitBehavior": "newline",
+                    "value": "Thanks for the review.\nThe new tokens are in."
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "allowFontScaling": true,
+            "collapsable": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "color": "rgb(75, 75, 75)",
+              "end": 12,
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "500",
+              "letterSpacing": 0.12,
+              "lineHeight": 16,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "start": 12,
+              "top": 4
+            }
+          },
+          "children": [
+            "Message"
+          ]
+        }
+      ]
+    }
+  ]
+}

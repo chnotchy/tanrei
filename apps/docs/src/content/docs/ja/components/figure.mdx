@@ -1,0 +1,249 @@
+---
+title: フィギュア
+description: 画像、グラフ、見本、動く例など、見るためのものをひとつ、専用のステージに置きます。枠の有無を選べ、何を示しているかをキャプションで伝えます。上にタイトルと利用者側のコントロールを、下につながったブロックを置くこともできます。
+translationOf: components/figure.mdx
+sourceHash: 73569d4fce0f2d7484ec464c4bd25f4c23fa4f05
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="figure" />
+
+<DemoFrame label="Outlined、Filled、Plain" column>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
+    <tanrei-figure lang="ja">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>Outlined：細い線で囲んだサーフェス。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure lang="ja" variant="filled">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>Filled：控えめなトーンの塗りで、縁はありません。</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure lang="ja" variant="plain">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">保存</tanrei-button></div></div>
+        <figcaption>Plain：見せるもの自体が枠になります。</figcaption>
+      </figure>
+    </tanrei-figure>
+  </div>
+</DemoFrame>
+
+フィギュアは、読むものではなく見るものをひとつ見せます。記事の中の画像、レポートのグラフ、設定の結果のプレビュー、見本などです。それを周りから切り離し、何であるかを伝えます。このサイトで、動く例を囲んでいる枠もフィギュアです。
+
+フィギュアはカードではありません。カードは、ひとつの主題についてのコンテンツとアクションをまとめるもので、全体を押せることもあります。フィギュアはひとつのものを見せるだけで、押せることはなく、キャプションは枠の外に置きます。
+
+Web では、ネイティブの `<figure>` を `<tanrei-figure>` で囲みます。この要素はシャドウルートを持たないので、フィギュアとその `<figcaption>` は文書自身のものです。スクリプトがなくても、クローラーにも、リーダーモードでも読め、名前はブラウザーが付けます。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/figure.css" />
+
+    <tanrei-figure>
+      <figure>
+        <div data-part="frame">
+          <header>
+            <p data-part="title">四半期ごとの売上</p>
+            <div data-part="actions">
+              <tanrei-button variant="text" label="新しいタブで開く"><span slot="icon">open_in_new</span></tanrei-button>
+            </div>
+          </header>
+          <div data-part="stage">
+            <img src="revenue.svg" alt="棒グラフ。売上はどの四半期でも増えています。" />
+          </div>
+        </div>
+        <figcaption>すべての地域で売上が増え、北部が最も伸びました。</figcaption>
+      </figure>
+    </tanrei-figure>
+
+    <script type="module">
+      import '@tanrei/web/components/figure';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Figure } from '@tanrei/react';
+    import '@tanrei/web/figure.css';
+
+    <Figure variant="plain">
+      <figure>
+        <img src={photo.src} alt={photo.alt} />
+        <figcaption>{photo.caption}</figcaption>
+      </figure>
+    </Figure>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/figure.css` は、スクリプトが動く前にフィギュア全体を描きます。そのため、フィギュアの多いページでも、スクリプトが届いたときにレイアウトが動きません。要素自身も、同じスタイルシートをページに加えます。
+
+### 書くもの
+
+| パーツ | Web での書き方 |
+| --- | --- |
+| 枠 | `<div data-part="frame">`。`<figure>` の最初の子で、ヘッダー、ステージ、アタッチメントを収めます。 |
+| タイトル | 枠の `<header>` の中の、`data-part="title"` を持つ要素。`<p>` か、ページのアウトラインに必要な見出しです。 |
+| アクション | `<header>` の中の `<div data-part="actions">`。利用者側のコントロールを囲みます。 |
+| ステージ | `<div data-part="stage">`。見せるものを囲みます。 |
+| アタッチメント | ステージの後ろに置く、`data-part="attachment"` を持つ要素。コードブロック、テーブル、説明リストなど、どの要素でもかまいません。 |
+| キャプション | 枠の後ろの `<figcaption>`。 |
+
+ステージ以外のパーツは省略できます。ステージの要素の代わりに、`<img>`、`<picture>`、`<video>`、`<svg>`、`<canvas>` を 1 つだけ置くこともできます。Markdown レンダラーが書き出す `<figure><img …><figcaption>…</figcaption></figure>` のように、枠の要素がまったくないフィギュアも描かれます。その場合は、画像自体が枠になります。
+
+### 要素が組み立てるフィギュア
+
+`<figure>` を含まない `<tanrei-figure>` には、要素が定義されたときに `<figure>` が作られます。子はステージに入ります。ただし、`slot`（`title`、`actions`、`caption`、`attachment`）でパーツを指定した子は、そのパーツになります。`headline` 属性と `caption` 属性は、タイトルとキャプションとして書き出されます。
+
+```html
+<tanrei-figure headline="バリアント" caption="Filled のボタン。">
+  <tanrei-button variant="filled">保存</tanrei-button>
+</tanrei-figure>
+```
+
+この形は短く書けますが、描かれるのはスクリプトが動いた後です。ページのレイアウトを動かしたくない場合は、パーツを自分で書いてください。要素の子を自分で管理するフレームワーク（React）で使う場合も同じです。この形では、要素が子を移動するからです。
+
+## 仕様
+
+<DemoFrame label="タイトル、コントロール、つながったブロック、キャプション" plain column>
+  <tanrei-figure lang="ja" style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <header>
+          <p data-part="title">バリアント</p>
+          <div data-part="actions">
+            <tanrei-button variant="text" label="新しいタブで開く"><span slot="icon">open_in_new</span></tanrei-button>
+          </div>
+        </header>
+        <div data-part="stage">
+          <tanrei-button variant="filled">Filled</tanrei-button>
+        </div>
+        <tanrei-code-block data-part="attachment" label="マークアップ"><pre><code>&lt;tanrei-button variant="filled"&gt;Filled&lt;/tanrei-button&gt;</code></pre></tanrei-code-block>
+      </div>
+      <figcaption>Filled のボタンと、そのマークアップ。</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="inset なし：見せるものが枠の端まで届きます" plain column>
+  <tanrei-figure lang="ja" flush style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="inline-size: 100%; block-size: 9rem; background: linear-gradient(135deg, var(--tanrei-sys-color-primary-container), var(--tanrei-sys-color-tertiary-container))"></div>
+        </div>
+      </div>
+      <figcaption>枠は、中のものを自身の角丸に合わせて切り取ります。</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="ステージより広いコンテンツ：ステージの中でスクロールし、ステージはフォーカスが止まる位置になります" plain column>
+  <tanrei-figure lang="ja" style="inline-size: min(100%, 24rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="display: flex; flex: none; gap: 0.75rem">
+            <tanrei-button variant="filled">Filled</tanrei-button>
+            <tanrei-button variant="tonal">Tonal</tanrei-button>
+            <tanrei-button variant="elevated">Elevated</tanrei-button>
+            <tanrei-button variant="outlined">Outlined</tanrei-button>
+            <tanrei-button variant="text">Text</tanrei-button>
+          </div>
+        </div>
+      </div>
+      <figcaption>折り返さずに 1 行に並べた 5 つのボタン。</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<ComponentSpecs name="figure" />
+
+## ガイドライン
+
+### 3 つの見た目
+
+| `variant` | 描き方 | 用途 |
+| --- | --- | --- |
+| `outlined`（既定） | 細い線で囲んだサーフェス。 | 見本、動く例、図。 |
+| `filled` | 控えめなトーンの塗りで、縁はありません。 | すでに線の多いページ。影のあるものを置く下地。 |
+| `plain` | 塗りも、縁も、パディングも、線もありません。 | それ自体が枠になる画像。グリッドに並べる見本。 |
+
+Outlined は、中を空のままにせず、サーフェスの色で塗ります。そのため、フィギュアをどのパネルに置いても、中に置いた利用者側のコンポーネントは、トークンで確かめられているコントラストを保ちます。
+
+### タイトルは上、キャプションは下
+
+- `title`（Web では `headline` 属性）は、枠の中のヘッダーに置く短い 1 行です。見せているものの名前を書きます。
+- `caption` は枠の下に、先頭側の端にそろえて、セカンダリーのテキストとして描きます。折り返し、途中で切れることはありません。
+- 位置を選ぶ設定はありません。ステージの上のテキストはタイトルで、キャプションの場所は 1 つだけです。
+- タイトルはプレーンテキストで、見出しではありません。ページのアウトラインのためにそこに見出しが必要なときは、`data-part="title"` を付けた見出しを書きます。フィギュアはそれをタイトルのスタイルで描き、見出しのロールとレベルを保ちます。
+
+### コントロールと、つながったブロック
+
+- アクションは、ヘッダーの末尾側に置く利用者側のコントロールです。バリアントやテーマを切り替える、別の場所で開く、といったものです。フィギュアはそれらを 1 行に並べるだけで、ほかには何もしません。行の幅が足りなくなると、タイトルの下に移ります。
+- アタッチメントは、枠の中でステージの下に置く利用者側のブロックです。例のもとになったコードや、グラフのデータなどです。
+
+| `separation` | 描き方 |
+| --- | --- |
+| `auto`（既定） | デザインシステムが選んだもの。既定のシステムでは線です。 |
+| `divider` | ヘッダーの下とアタッチメントの上に線を描きます。アタッチメントは枠にぴったり付きます。 |
+| `gap` | 線は描きません。アタッチメントは枠の内側に 8 だけ入った位置に、自身の形のまま置かれます。 |
+
+### ステージ
+
+- `inset`（既定は true）は、ステージに上下 32、左右 24 のパディングを付けます。Web では `flush` を付けるとパディングがなくなり、画像、グラフ、地図などが枠の端まで届いて、枠の角丸で切り取られます。
+- 画像は、縦横比を保ったまま縮小されます。拡大されることはありません。
+- 縮められないコンテンツは、ステージの中で横にスクロールします。フィギュアが、自分の置かれたコンテナより広くなることはありません。
+- 枠のあるステージより狭いコンテンツは、中央に置かれます。Plain では、テキストの端から始まります。
+- ステージの高さは、コンテンツの高さです。その中に複数の例をどう並べるかは、利用者側のレイアウトで決めます。
+
+### ページの中で
+
+- フィギュアは与えられた幅いっぱいに広がり、外側に余白を持ちません。プローズの中では、ブロックとしての余白が付き、プローズの幅いっぱいに広がります。キャプションは、テキストのブロックと同じように行長の上限に収まります。
+- 複数のフィギュアを横に並べるときは、利用者側でグリッドを組みます。フィギュアはそのセルいっぱいに広がります。
+
+### 推奨
+
+- キャプションには、そのフィギュアで何を伝えたいかを書きます。「グラフ」ではなく「すべての地域で売上が増えた」のようにします。
+- 画像には、画像自身の代替テキストを付けます。キャプションはその代わりになりません。
+- 従うべき例や避けるべき例は、キャプションの先頭に小さいタグを置き、「推奨」「非推奨」のように言葉で示します。
+
+### 非推奨
+
+- 関連するコンテンツとアクションをまとめるためにフィギュアを使わない。それは[カード](/ja/components/card/)です。
+- フィギュアを押せるようにしない。何かを開く画像にしたいときは、画像をリンクで囲みます。
+- 例が正しいか誤りかを伝えるために枠に色を付けない。フィギュアにステータスはありません。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="figure" />
+
+### コンポーネントが担うこと
+
+- ネイティブのフィギュアはフィギュアのままです。名前はタイトルで、タイトルがなければキャプションです。両方あるときは、タイトルが名前、キャプションが説明になり、キャプションはその場所でも読み上げられます。
+- `label` は、タイトルもキャプションも描かないフィギュアに名前を付けます。画面には描かれず、タイトルかキャプションがあるときは無視されます。
+- ステージが横にスクロールしている間、ステージはフォーカスの順序で 1 つの止まる位置になります。順序は中のものより前で、フィギュアの名前を持つグループとして伝わります。矢印キーでスクロールし、Home と End でそれぞれの端へ移ります。スクロールしないステージは、フォーカスが止まる位置を増やしません。
+- フォーカスリングはステージの端の内側に描くので、何にも切り取られません。
+- ヘッダー、ステージ、アタッチメント、キャプションの中のものは、すべてそのまま操作でき、フォーカスの順序も変わりません。
+- テキストを 200% にすると、タイトルとキャプションは大きくなって折り返し、アクションはタイトルの下に移ります。
+- 右から左のレイアウトでは、ヘッダーが左右反転し、キャプションは右から始まります。ステージで見せているものは反転しません。
+- 強制カラーモードでは、Outlined と Filled にテキストの色の縁が付きます。Plain には付きません。
+- 名前のないフィギュア、ステージが空のフィギュア、未知のバリアントや区切り方は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- すべてのフィギュアに、タイトル、キャプション、`label` のいずれかを付けます。
+- ステージの中の画像には、画像自身の `alt` を付けます。画像が伝えることをキャプションがすべて述べているときは、画像を装飾として扱います（`alt=""`）。
+- 動く例は、操作できるままにしておきます。フィギュアがコンテンツを隠したり、画像に変えたりすることはありません。

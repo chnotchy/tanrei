@@ -1,0 +1,154 @@
+name: Deploy docs
+
+# Builds the docs site and uploads it to Cloudflare Pages (project "tanrei", served at https://tanrei.chnotchy.com).
+# main → production; a pull request → a preview at <branch>.tanrei.pages.dev, behind Cloudflare Access.
+#
+# Runs only where the repository variable DOCS_DEPLOY is "true" and the repository secrets CLOUDFLARE_API_TOKEN and
+# CLOUDFLARE_ACCOUNT_ID exist (repository secrets, not an Environment's: the job names no `environment`); a fork or a
+# copy without them deploys nothing. A pull request from a fork is given no secrets, so it gets no preview: the job
+# runs only for a pull request whose branch is in this repository. Deliberately not part of ci.yml, which release.yml
+# reuses: a release must not deploy the site.
+#
+# CI's docs job builds the same site; both builds stay. CI's is the check that gates merges and releases everywhere
+# (including a fork, where this workflow deploys nothing), and it holds no secret; this one builds what it
+# deploys, with the Cloudflare token, outside ci.yml. Handing CI's build to this workflow would take a workflow_run
+# that downloads a pull request's artifact into a job holding deploy secrets — the "pwn request" pattern GitHub
+# Security Lab warns about — to save about two Linux minutes.
+#
+# A pull request deploys a preview, and a push to main deploys production, only when something the site is built from
+# changed: the docs app, what it embeds (the web packages, Theme Studio) and what it reads (tokens, specs, design/,
+# docs/status/, the generators). Keep these paths equal in both triggers and to the `docs` filter of ci.yml's changes
+# job. A change the site is not built from leaves the deployed site as it is.
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/docs/**
+      - packages/web/**
+      - packages/react/**
+      - packages/studio/**
+      - packages/token-engine/**
+      - packages/tokens-build/**
+      - packages/tools/**
+      - tokens/**
+      - specs/**
+      - design/**
+      - docs/status/**
+      - tanrei.config.json
+      - scripts/**
+      - patches/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - turbo.json
+      - .github/workflows/deploy-docs.yml
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - apps/docs/**
+      - packages/web/**
+      - packages/react/**
+      - packages/studio/**
+      - packages/token-engine/**
+      - packages/tokens-build/**
+      - packages/tools/**
+      - tokens/**
+      - specs/**
+      - design/**
+      - docs/status/**
+      - tanrei.config.json
+      - scripts/**
+      - patches/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - turbo.json
+      - .github/workflows/deploy-docs.yml
+
+concurrency:
+  group: deploy-docs-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions: {}
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  deploy:
+    name: Docs · build and deploy to Cloudflare Pages
+    # A draft pull request gets no preview until it is ready for review or carries `ci:run` (the same hold as ci.yml);
+    # a pull request from a fork gets none (it is given no secrets).
+    if: >-
+      vars.DOCS_DEPLOY == 'true' && (github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+      (!github.event.pull_request.draft || contains(github.event.pull_request.labels.*.name, 'ci:run'))))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15 # the build takes about 1–2 minutes, the upload a few more
+    permissions:
+      contents: read
+      pull-requests: write # the preview URL is commented on the pull request
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @tanrei/web build
+      - run: pnpm --filter @tanrei/docs build
+
+      # A branch name is chosen by whoever opens the pull request and may carry shell metacharacters: take it through
+      # the environment and keep only the characters a Pages branch alias allows.
+      - name: Resolve deployment branch
+        id: branch
+        env:
+          HEAD_REF: ${{ github.head_ref || github.ref_name }}
+        run: |
+          safe=$(printf '%s' "$HEAD_REF" | tr -c 'A-Za-z0-9._/-' '-')
+          echo "name=${safe:0:255}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # wrangler is a pinned devDependency of @tanrei/docs; the action uses that one instead of fetching the latest.
+          packageManager: pnpm
+          workingDirectory: apps/docs
+          command: pages deploy dist --project-name=tanrei --branch=${{ steps.branch.outputs.name }}
+
+      - name: Comment the preview URL on the pull request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+          ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+        with:
+          script: |
+            const url = process.env.DEPLOYMENT_URL;
+            if (!url) return;
+            const alias = process.env.ALIAS_URL;
+            const body = [
+              '### Docs preview (Cloudflare Pages)',
+              '',
+              url,
+              ...(alias ? ['', `Branch alias: ${alias}`] : []),
+              '',
+              '_Behind Cloudflare Access: sign in with an allowed email to see it._',
+            ].join('\n');
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find((c) => c.user.type === 'Bot' && c.body.includes('Docs preview (Cloudflare Pages)'));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body });
+            }

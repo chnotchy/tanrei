@@ -1,0 +1,229 @@
+{
+  "tanrei": {
+    "comp": {
+      "app-bar": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product heads its screens with a bar that names the screen and holds its way back and its actions: a compact bar on most screens and a tall one on top-level screens, flat while the content is at its top and set apart once content scrolls under it.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "flat",
+              "scrolled"
+            ],
+            "states": [],
+            "perVariant": {
+              "container.color": "color",
+              "container.elevation": "shadow",
+              "outline.color": "color"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything an app bar reads: its height, title and subtitle styles per size (small, large), the insets and gaps of its top row, the title and subtitle colors, the width of its bottom edge, and for each condition (flat: nothing is under the bar; scrolled: content has scrolled under it) the container color, elevation and bottom-edge color.",
+            "rules": [
+              "The app bar has no interaction states: its navigation and actions are icon buttons with their own tokens, which the bar does not restyle.",
+              "flat and scrolled must differ visibly: the scrolled look is what tells the user there is content under the bar.",
+              "Heights are minimums: enlarged text grows the bar.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "small",
+              "values": [
+                "small",
+                "large"
+              ],
+              "members": [
+                "container.height",
+                "title.typescale",
+                "subtitle.typescale"
+              ]
+            },
+            "condition": {
+              "default": "flat",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "height": {
+            "$type": "dimension",
+            "$description": "The bar's minimum height, not counting the system inset above it. A large bar's top row is always the small height.",
+            "small": {
+              "$value": {
+                "value": 44,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 11
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 96,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 24
+                }
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "From the start and end edges to the navigation and actions slots.",
+            "$value": "{tanrei.sys.space.space100}",
+            "$extensions": {}
+          },
+          "padding-block-end": {
+            "$type": "dimension",
+            "$description": "Below the expanded title of a large bar.",
+            "$value": "{tanrei.sys.space.space150}"
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Between the navigation slot, the title block and the actions slot.",
+            "$value": "{tanrei.sys.space.space100}"
+          }
+        },
+        "actions": {
+          "gap": {
+            "$type": "dimension",
+            "$description": "Between two actions.",
+            "$value": "{tanrei.sys.target.spacing}"
+          }
+        },
+        "title": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The title: in the top row (small, and a large bar once collapsed), and expanded under it (large).",
+            "small": {
+              "$value": "{tanrei.sys.typescale.heading-4}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.display}",
+              "$extensions": {}
+            }
+          },
+          "inset": {
+            "$type": "dimension",
+            "$description": "The title's start inset when the navigation slot is empty, and the expanded title's start inset in a large bar.",
+            "$value": "{tanrei.sys.space.space200}"
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface}"
+          }
+        },
+        "subtitle": {
+          "typescale": {
+            "$type": "typography",
+            "small": {
+              "$value": "{tanrei.sys.typescale.body-small}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.body}"
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$description": "The bar's bottom edge.",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "flat": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "At the scroll edge Apple's bar shows the page through."
+                }
+              }
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "While nothing is under the bar it sits flush with the page, with no edge."
+                }
+              }
+            }
+          }
+        },
+        "scrolled": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-low}",
+              "$extensions": {}
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline-variant}"
+            }
+          }
+        },
+        "motion": {
+          "condition-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$description": "How long the bar takes to change between flat and scrolled."
+          },
+          "condition-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          }
+        }
+      }
+    }
+  }
+}

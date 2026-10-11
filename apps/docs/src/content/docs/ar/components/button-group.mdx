@@ -1,0 +1,378 @@
+---
+title: مجموعة الأزرار
+description: ترتّب بضعة أزرار مترابطة في صف أو عمود، متباعدة أو متصلة في شكل واحد، وتضع الإجراء الذي يُتمّ المهمة والإجراء الذي يتراجع عنها حيث يتوقعهما الأشخاص، وتسمّي الأزرار مجموعةً.
+translationOf: components/button-group.mdx
+sourceHash: c06ddd9b183514fe5cde84fd2dfb883e35f2c0ec
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="button-group" />
+
+<DemoFrame label="الطرازان standard و connected">
+  <tanrei-button-group>
+    <tanrei-button variant="outlined">إلغاء</tanrei-button>
+    <tanrei-button variant="tonal">حفظ المسودة</tanrei-button>
+    <tanrei-button variant="filled">نشر</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="نمط النص">
+    <tanrei-button variant="tonal" toggle selected label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="مائل"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+### الاستخدام
+
+العناصر هي [الأزرار](/ar/components/button/) التي تستخدمها أصلًا، بتسمية أو بأيقونة وحدها، بخصائصها وأحداثها. المجموعة تضعها فقط، وتصلها حين تكون من الطراز connected، وتسمّيها حين تكون لها تسمية.
+
+تعرض عيّنتا Web و React المواصفة الحالية. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: ما زالت تقدّم المراجعة السابقة من مجموعة الأزرار، وهي صف واحد بلا `orientation` ولا `fullWidth` ولا `separation` ولا رايات الترتيب، تفصل بين عناصره المتصلة دائمًا فجوة ضيقة، وعناصره ذات الأيقونة وحدها زر أيقونة منفصل. وتعرض عيّناتها تلك المراجعة إلى أن تلحق بالمواصفة.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- dismissive يذهب إلى بداية الصف، و confirming إلى نهايته؛ وفي العمود يتبادلان المكانين. -->
+    <tanrei-button-group>
+      <tanrei-button variant="outlined" dismissive>إلغاء</tanrei-button>
+      <tanrei-button variant="tonal">حفظ المسودة</tanrei-button>
+      <tanrei-button variant="filled" confirming>نشر</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- عمود بعرض حاويته: «سماح» يُرسم فوق «ليس الآن». -->
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>ليس الآن</tanrei-button>
+      <tanrei-button variant="tonal" confirming>سماح</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- التسمية تسمّي المجموعة. وكل زر تبديل يحتفظ بقيمة selected الخاصة به. -->
+    <tanrei-button-group variant="connected" label="نمط النص">
+      <tanrei-button variant="tonal" toggle label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="مائل"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-button-group>
+
+    <script type="module">
+      import '@tanrei/web/components/button-group';
+      import '@tanrei/web/components/button';
+      // المجموعة لا تُصدر أحداثًا خاصة بها: استمع على الأزرار، كما في أي مكان.
+      document.querySelector('[label="غامق"]').addEventListener('change', (e) => setBold(e.detail.selected));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, ButtonGroup } from '@tanrei/react';
+
+    // confirming و dismissive سمتان تقرؤهما المجموعة من أبنائها.
+    <ButtonGroup>
+      <Button variant="outlined" dismissive onClick={cancel}>إلغاء</Button>
+      <Button variant="tonal" onClick={saveDraft}>حفظ المسودة</Button>
+      <Button variant="filled" confirming onClick={publish}>نشر</Button>
+    </ButtonGroup>
+
+    <ButtonGroup orientation="vertical" fullWidth>
+      <Button variant="tonal" dismissive onClick={notNow}>ليس الآن</Button>
+      <Button variant="tonal" confirming onClick={allow}>سماح</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" label="نمط النص">
+      <Button variant="tonal" toggle selected={bold} label="غامق" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+      <Button variant="tonal" toggle selected={italic} label="مائل" onChange={(e) => setItalic(e.detail.selected)}><span slot="icon">format_italic</span></Button>
+    </ButtonGroup>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButtonGroup {
+        TanreiButton("إلغاء", variant: .outlined) { cancel() }
+        TanreiButton("حفظ المسودة", variant: .tonal) { saveDraft() }
+        TanreiButton("نشر") { publish() }
+    }
+
+    TanreiButtonGroup(variant: .connected, label: "نمط النص") {
+        TanreiIconButton("غامق", isSelected: $bold, variant: .tonal) { Image(systemName: "bold") }
+        TanreiIconButton("مائل", isSelected: $italic, variant: .tonal) { Image(systemName: "italic") }
+        TanreiIconButton("تسطير", isSelected: $underline, variant: .tonal) { Image(systemName: "underline") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroup
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroupVariant
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiIconButtonVariant
+
+    TanreiButtonGroup {
+        TanreiButton(text = "إلغاء", onClick = ::cancel, variant = TanreiButtonVariant.Outlined)
+        TanreiButton(text = "حفظ المسودة", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+        TanreiButton(text = "نشر", onClick = ::publish)
+    }
+
+    // contentDescription يسمّي المجموعة. ليس في Compose دور مجموعة: هي مجموعة اجتياز (traversal group).
+    TanreiButtonGroup(variant = TanreiButtonGroupVariant.Connected, contentDescription = "نمط النص") {
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "غامق",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = bold,
+            onCheckedChange = { bold = it },
+        ) { TanreiText("format_bold") }
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "مائل",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = italic,
+            onCheckedChange = { italic = it },
+        ) { TanreiText("format_italic") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButtonGroup(
+      children: <Widget>[
+        TanreiButton(variant: TanreiButtonVariant.outlined, onPressed: cancel, child: const Text('إلغاء')),
+        TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('حفظ المسودة')),
+        TanreiButton(onPressed: publish, child: const Text('نشر')),
+      ],
+    );
+
+    TanreiButtonGroup(
+      variant: TanreiButtonGroupVariant.connected,
+      semanticLabel: 'نمط النص',
+      children: <Widget>[
+        TanreiIconButton(
+          isSelected: bold,
+          onPressed: () => setState(() => bold = !bold),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: 'غامق',
+          icon: const Icon(AppSymbols.formatBold),
+        ),
+        TanreiIconButton(
+          isSelected: italic,
+          onPressed: () => setState(() => italic = !italic),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: 'مائل',
+          icon: const Icon(AppSymbols.formatItalic),
+        ),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button, ButtonGroup, IconButton } from '@tanrei/react-native';
+
+    <ButtonGroup>
+      <Button variant="outlined" onPress={cancel}>إلغاء</Button>
+      <Button variant="tonal" onPress={saveDraft}>حفظ المسودة</Button>
+      <Button onPress={publish}>نشر</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" accessibilityLabel="نمط النص">
+      <IconButton variant="tonal" accessibilityLabel="غامق" toggle selected={bold} onSelectedChange={setBold}>
+        format_bold
+      </IconButton>
+      <IconButton variant="tonal" accessibilityLabel="مائل" toggle selected={italic} onSelectedChange={setItalic}>
+        format_italic
+      </IconButton>
+    </ButtonGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+### صف أم عمود، وترتيب الإجراءات
+
+الخاصية `orientation` ترتّب الأزرار في صف واحد (`horizontal`، وهو الافتراضي) أو ترصّها في عمود واحد (`vertical`)، وفيه يكون كل زر بعرض العمود. والخاصية `fullWidth` تجعل المجموعة تملأ حاويتها: أزرار الصف تتقاسم العرض بالتساوي، وأزرار العمود كل منها بذلك العرض. هذه هي الهيئة المناسبة للإجراءات في أسفل لوحة أو لوح ضيق.
+
+رايتان على الزر تخبران المجموعة بمكانه، كي يبقى الاتجاهان متسقين أحدهما مع الآخر:
+
+| الراية | الزر | في الصف | في العمود |
+| --- | --- | --- | --- |
+| `confirming` | يُتمّ المهمة: «موافق»، «حفظ»، «التالي»، «حذف» | في النهاية | في الأعلى |
+| `dismissive` | يتراجع عنها: «إلغاء»، «رجوع»، «ليس الآن» | في البداية | في الأسفل |
+| لا هذه ولا تلك | أي شيء آخر | بين الاثنين، بالترتيب المعطى | بين الاثنين، بالترتيب المعطى |
+
+<DemoFrame label="الأزرار الثلاثة نفسها في صف وفي عمود" plain>
+  <tanrei-button-group>
+    <tanrei-button variant="outlined" dismissive>إلغاء</tanrei-button>
+    <tanrei-button variant="tonal">حفظ المسودة</tanrei-button>
+    <tanrei-button variant="filled" confirming>نشر</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group orientation="vertical">
+    <tanrei-button variant="outlined" dismissive>إلغاء</tanrei-button>
+    <tanrei-button variant="tonal">حفظ المسودة</tanrei-button>
+    <tanrei-button variant="filled" confirming>نشر</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<DemoFrame label="العرض الكامل: صف يتقاسم العرض، وعمود" plain column>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group full-width>
+      <tanrei-button variant="tonal" dismissive>ليس الآن</tanrei-button>
+      <tanrei-button variant="tonal" confirming>سماح</tanrei-button>
+    </tanrei-button-group>
+  </div>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>ليس الآن</tanrei-button>
+      <tanrei-button variant="tonal" confirming>سماح</tanrei-button>
+    </tanrei-button-group>
+  </div>
+</DemoFrame>
+
+تركيز لوحة المفاتيح وقارئات الشاشة يتبعان الترتيب بعد الوضع، فيلقى الجميع الإجراءات بالترتيب الذي رُسمت به. الرايتان تصفان المهمة لا النبرة: في «إلغاء · حذف»، الزر «حذف» هو الذي يُتمّ المهمة. والإجراء الذي لا رجعة فيه يُميَّز بمظهره وتسميته، لا بمكانه. و[مربع الحوار](/ar/components/dialog/) و[اللوحة الجانبية](/ar/components/side-sheet/) يضعان إجراءاتهما بالرايتين نفسيهما.
+
+### الوصل بفاصل أو بفجوة
+
+المجموعة من الطراز connected تصل أزرارها بإحدى طريقتين. مع **الفاصل** تتلامس الأزرار، وتكون زواياها قائمة حيث تلتقي، ويعلّم خط كل موضع وصل. ومع **الفجوة** تفصل بينها فجوة ضيقة، وتكون زواياها أضيق حيث يواجه أحدها الآخر. يختار نظام التصميم مرة واحدة لكل مكوّن يصل أجزاء (النظام الافتراضي يرسم فاصلًا)، ويستطيع نظام تصميم أن يخص مجموعة الأزرار باختيار مختلف، والخاصية `separation` (`auto` أو `divider` أو `gap`) تضبط مجموعة واحدة. والمجموعة من الطراز standard تتجاهلها.
+
+<DemoFrame label="متصلة بفاصل وبفجوة، في صف وفي عمود" plain>
+  <tanrei-button-group variant="connected" separation="divider" label="الحافظة">
+    <tanrei-button variant="outlined">قص</tanrei-button>
+    <tanrei-button variant="outlined">نسخ</tanrei-button>
+    <tanrei-button variant="outlined">لصق</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" separation="gap" label="الحافظة">
+    <tanrei-button variant="outlined">قص</tanrei-button>
+    <tanrei-button variant="outlined">نسخ</tanrei-button>
+    <tanrei-button variant="outlined">لصق</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="divider" label="التكبير">
+    <tanrei-button variant="tonal" label="تكبير"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="تصغير"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="gap" label="التكبير">
+    <tanrei-button variant="tonal" label="تكبير"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="تصغير"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+مع الفاصل، لا يحمل موضع الوصل خطًّا إلا حيث يستند الزران إلى التعبئة نفسها. بين زر تبديل محدَّد وآخر غير محدَّد، أو بين زر من الطراز filled وآخر من الطراز outlined، تعلّم حافة التعبئة موضع الوصل أصلًا، فلا يُرسم خط هناك.
+
+<DemoFrame label="أزرار تبديل متصلة بفاصل: لا خط بجانب الزر المحدَّد" plain>
+  <tanrei-button-group variant="connected" label="نمط النص">
+    <tanrei-button variant="outlined" toggle label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle selected label="مائل"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="تسطير"><span slot="icon">format_underlined</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="يتوسطه خط"><span slot="icon">format_strikethrough</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+## المواصفات
+
+<DemoFrame label="الطراز connected: outlined، والحجم large، ومع عنصر معطَّل" plain>
+  <tanrei-button-group variant="connected" label="الحافظة">
+    <tanrei-button variant="outlined">قص</tanrei-button>
+    <tanrei-button variant="outlined">نسخ</tanrei-button>
+    <tanrei-button variant="outlined">لصق</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="التاريخ">
+    <tanrei-button variant="tonal" size="large">السابق</tanrei-button>
+    <tanrei-button variant="tonal" size="large">اليوم</tanrei-button>
+    <tanrei-button variant="tonal" size="large">التالي</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="الحافظة">
+    <tanrei-button variant="outlined">قص</tanrei-button>
+    <tanrei-button variant="outlined" disabled>نسخ</tanrei-button>
+    <tanrei-button variant="outlined">لصق</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<ComponentSpecs name="button-group" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم مجموعة الأزرار حين تنتمي بضعة أزرار بعضها إلى بعض: نهاية نموذج («إلغاء»، «حفظ المسودة»، «نشر»)، تنسيق في محرر («غامق»، «مائل»، «تسطير»)، أزرار «السابق» و«اليوم» و«التالي» في تقويم. المجموعة تحسم تباعدها، وتصلها حين تكون مجموعة واحدة، وتسمّيها حين ينفع ذلك. وكل زر يبقى زرًّا.
+
+صف الإجراءات للشاشة الحالية أو للتحديد، الذي يوصَل إليه موضعَ توقف واحدًا للمفتاح Tab وتنتقل مفاتيح الأسهم بين إجراءاته، هو [شريط أدوات](/ar/components/toolbar/). والإجراء الرئيسي الموصول بقائمة خيارات من تنويعاته هو [زر مع قائمة](/ar/components/button-with-menu/): يشبه مجموعة متصلة من زرين، لكن نصفه الثاني يفتح قائمة خيارات دائمًا.
+
+### زر مقسَّم أم مجموعة أزرار أم رقاقات أم علامات تبويب
+
+هذه الأربعة كلها تضع بضعة أشياء مترابطة في صف، فيسهل الخلط بينها. تختلف في ما تفعله الضغطة وفي طريقة تنقل لوحة المفاتيح خلالها.
+
+| المكوّن | ما هو | التحديد | لوحة المفاتيح | يُستخدم لـ |
+| --- | --- | --- | --- | --- |
+| [الزر المقسَّم](/ar/components/segmented-button/) (إعدادات Material الجاهزة والإعداد الجاهز cupertino؛ ليس في نظام Tanrei) | عنصر تحكم واحد: خياران إلى خمسة خيارات متصلة تجيب عن سؤال واحد. | خاص به، بالقيمة: خيار واحد، أو عدة خيارات. | موضع توقف واحد للمفتاح Tab. مفاتيح الأسهم تنتقل بين الخيارات، وفي التحديد الواحد تختار أيضًا. | إعداد له بضع إجابات ثابتة ويُطبَّق فورًا: يوم، أسبوع، شهر؛ اليسار، الوسط، اليمين. |
+| [مجموعة الأزرار](/ar/components/button-group/) | صف أو عمود من أزرار منفصلة، متباعدة أو متصلة في شكل واحد. | لا شيء. زر التبديل في المجموعة يحتفظ بحالة التشغيل أو الإيقاف الخاصة به. | كل زر موضع توقف مستقل للمفتاح Tab. | إجراءات مترابطة: «إلغاء»، «حفظ المسودة»، «نشر»؛ و«غامق» و«مائل» و«تسطير» أزرارَ تبديل مستقلة. |
+| [الرقاقات](/ar/components/chip/) | عناصر تحكم صغيرة منفصلة في صف يلتف أو يُمرَّر. | كل رقاقة تصفية تُشغَّل أو تُوقَف بمفردها. | كل رقاقة موضع توقف مستقل للمفتاح Tab. | عوامل تصفية فوق قائمة، ردود مقترحة، عناصر أدخلها المستخدم. |
+| [علامات التبويب](/ar/components/tabs/) | عروض لموضوع واحد، لكل منها لوحته الخاصة. | علامة تبويب واحدة: العرض الظاهر على الشاشة. | موضع توقف واحد للمفتاح Tab. مفاتيح الأسهم تنتقل وتحدّد. | تبديل المحتوى المعروض: «نظرة عامة»، «النشاط»، «الإعدادات». |
+
+اختبار سريع: إن كان ضغطه يفعل شيئًا فهو مجموعة أزرار. وإن كان يغيّر المحتوى الذي تحته فهو علامات تبويب. وإن كان يضبط قيمة واحدة فهو أزرار اختيار، أو زر مقسَّم حيث يتضمنه النظام. والخيارات الكثيرة أو المستقلة رقاقات.
+
+### اختيار الطراز
+
+| الطراز | ما يفعله | يُستخدم لـ |
+| --- | --- | --- |
+| الطراز Standard، وهو الافتراضي | يباعد بين الأزرار بما يكفي ليحتفظ كل منها بهدف اللمس كاملًا بين جيرانه. وكل زر يحتفظ بزواياه الخاصة. | إجراءات تتجاور لكن كلًّا منها قائم بذاته، مثل «إلغاء» و«حفظ» في نموذج. |
+| الطراز Connected | يصل الأزرار في شكل واحد طرفاه الخارجيان مستديران، بفاصل أو بفجوة ضيقة (انظر [الوصل بفاصل أو بفجوة](#الوصل-بفاصل-أو-بفجوة)). عرض كل زر لا يقل عن هدف واحد، ويُمدّ إلى ارتفاع أطولها. | مجموعة شديدة الترابط تُقرأ عنصرَ تحكم واحدًا: «غامق»، «مائل»، «تسطير»؛ «السابق»، «اليوم»، «التالي». |
+
+في المجموعة من الطراز connected لا تتغيّر إلا الزوايا التي تواجه جارًا: قائمة مع الفاصل، وأضيق مع الفجوة. التعبئة والحدّ وطبقة الحالة والتموّج وحلقة التركيز تتبع الشكل الموصول، والطرفان الخارجيان المستديران في الصف الموصول ينالان حشوًا أكثر قليلًا، فيبدو محتوى الزرين الطرفيين متوازنًا. والزر الصغير ذو الأيقونة وحدها يتسع حول أيقونته المتوسطة إلى عرض الهدف، لأن الأزرار الموصولة لا يستطيع أحدها أن يمتد فوق الآخر.
+
+### صف أم عمود
+
+استخدم الصف افتراضيًّا. واستخدم العمود حيث لا تتسع الأزرار جنبًا إلى جنب بتسمياتها كاملة، كإجراءات لوحة ضيقة أو لوح بعرض الهاتف، أو بجانب محتوى يمتد عموديًّا، كعناصر التحكم في تكبير الخريطة. علّم الأزرار التي تُتمّ المهمة والأزرار التي تتراجع عنها، ليبقى الترتيب هو الذي يتوقعه الأشخاص حين يتغيّر التخطيط بين صف وعمود.
+
+### افعل
+
+- أعطِ كل أزرار المجموعة الحجم نفسه.
+- أنفق التوكيد كما تفعل في أي مكان: زر واحد من الطراز filled على الأكثر، وعادةً في النهاية.
+- أعطِ المجموعة تسمية حين لا تكون أزرارها مفهومة إلا معًا، مثل «نمط النص». واحذفها في صف إجراءات يقول كل منها ما يفعله.
+- استخدم طرازًا واحدًا لأزرار المجموعة من الطراز connected، ليُقرأ الشكل الموصول واحدًا.
+- علّم الزر الذي يُتمّ المهمة بالراية `confirming` والزر الذي يتراجع عنها بالراية `dismissive`، ودع المجموعة تضعهما. اكتبهما بأي ترتيب؛ المجموعة لا تحرّكهما في ترميزك.
+- اترك `separation` على القيمة `auto` ما لم يجب أن تختلف مجموعة واحدة، ليُميَّز كل عنصر تحكم موصول في المنتج بالطريقة نفسها.
+
+### لا تفعل
+
+- لا تستخدم أزرار التبديل في مجموعة لخيارات يستبعد أحدها الآخر، كالمحاذاة إلى اليسار والوسط واليمين. المجموعة لا تجعل أزرار التبديل فيها حصرية. استخدم علامات التبويب حيث يغيّر الاختيار المحتوى الذي تحته، وأزرار الاختيار حيث يضبط قيمة، أو زرًّا مقسَّمًا حيث يتضمنه النظام.
+- لا تضع في المجموعة شيئًا غير أزرار Tanrei، بتسمية أو بأيقونة وحدها: لا حقول ولا رقاقات ولا قوائم خيارات. بنيات التنقيح (debug) تبلّغ عن أي محتوى آخر.
+- لا تستخدم الرايتين للنبرة. الزر «حذف» الذي لا رجعة فيه ويُتمّ المهمة هو `confirming`؛ والزر الذي له الرايتان معًا يوضع كما لو لم تكن له أي منهما، ويُبلَّغ عنه.
+- لا تتوقع أن يلتف الصف. الصف الذي لا يتسع يضيّق أزراره ويلفّ تسمياتها. ولا ينتقل أبدًا إلى سطر ثانٍ ولا يُمرَّر.
+- لا تخلط الأحجام في مجموعة واحدة. المجموعة لا تغيّر حجم أزرارها.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="button-group" />
+
+### ما يتكفل به المكوّن
+
+- كل زر يحتفظ بدوره واسمه وحالته وموضع توقف المفتاح Tab الخاص به. المفتاح Tab ينتقل خلالها بالترتيب بعد الوضع: من البداية إلى النهاية في الصف، ومن الأعلى إلى الأسفل في العمود. المجموعة لا تأخذ التركيز، ولا تعالج مفاتيح الأسهم، ولا تحتفظ بتحديد.
+- الرايتان `confirming` و `dismissive` لا تُعلَنان. تقرران مكان الزر، والتركيز والقراءة يتبعان ذلك المكان.
+- الفاصل زخرفة: هو مخفي عن التقنيات المساعدة ولا يستقبل ضغطًا. ما يميّز زرين موصولين أحدهما من الآخر هو أن كلًّا منهما زر مستقل له اسمه.
+- مع تسمية، تُعرَّف المجموعة للتقنيات المساعدة مجموعةً (group) تسمّيها التسمية وتحتوي أزرارها. ومن دونها لا تضيف شيئًا إلى شجرة إمكانية الوصول.
+- في المجموعة من الطراز connected عرض كل زر لا يقل عن هدف واحد، ومساحة لمسه تمتد فوق الصف وتحته إلى الحد الأدنى للهدف. وفي المجموعة من الطراز standard، الضغط داخل الحدود المرئية للزر يذهب دائمًا إلى ذلك الزر، والضغط في الفجوة يذهب إلى الأقرب.
+- مؤشر التركيز يتبع شكل كل زر، ومنه الزوايا الموصولة.
+- عند أحجام النص الأكبر تكبر الأزرار كما تفعل في أي مكان. الصف الموصول يمدّ كل زر إلى ارتفاع أطولها، والعمود يجعل كل زر بعرض أعرضها، فيبقى الشكل الموصول مستويًا.
+- في النظام الافتراضي حدّ المجموعة من الطراز outlined وفواصلها هي الخط الرفيع، وهو هادئ عن قصد: كل زر يُعرَف بتسميته أو بأيقونته، لا بحافته.
+- بنيات التنقيح تبلّغ عن مجموعة فيها أقل من عنصرين، وعن محتوى ليس زرًّا من Tanrei، وعن زر له الرايتان معًا، وعن قيمة مجهولة للطراز أو الاتجاه أو الفصل، وعن صف بالعرض الكامل لا تستطيع أزراره تقاسم العرض بالتساوي، وعن صف ما زال لا يتسع بعد أن ضاقت أزراره.
+
+فجوات معروفة في المنصات:
+
+- الويب: زر الأيقونة الموصول يكون بعرض هدف المؤشر مع مؤشر دقيق، كالفأرة، وبعرض هدف اللمس مع مؤشر غير دقيق. حيث يكون شكل العنصر نفسه كبسوليًّا (pill)، تكون الزوايا التي يديرها نحو جار دائرية لا ملطَّفة بتنعيم الزوايا. داخل مجموعة قد تلتف تسمية Button؛ وخارجها تبقى على سطر واحد. والتبليغ عن صف ما زال لا يتسع يُفحص حين يتغيّر حجم المجموعة أو يتغيّر أبناؤها، لا حين تتغيّر تسمية عنصر.
+- ليس في SwiftUI دور مجموعة. المجموعة التي لها تسمية حاوية تسمّيها تسميتها وتحمل أزرارها. الزر Button الذي عنوانه `LocalizedStringKey`، كما هو حال السلسلة الحرفية، يمكن أن يضيق إلى ما دون أطول كلماته، فتنكسر عندئذ داخل الكلمة. والتبليغ عن صف ما زال لا يتسع هو فشل تأكيد (assertion failure) في بنيات التنقيح، فالتخطيط الذي يضيق أكثر مما يجب للحظة، كحاوية يتحرك عرضها، يوقف تطبيق التنقيح.
+- ليس في Compose دور مجموعة. المجموعة التي لها تسمية مجموعة اجتياز (traversal group) وصف محتواها هو التسمية، وكل زر يحتفظ بدوره.
+- في React Native: كيف يقسم iOS و Android الضغط في الفجوة بين زرين، والأزرار الممدودة في مجموعة من الطراز connected عند أحجام النص الكبيرة، وهل يُعلِن VoiceOver و TalkBack اسم المجموعة حين يدخلها التركيز، لم تُفحص على جهاز.
+- في React Native: الزر Button الذي ضاق يمكن أن ينكمش إلى ما دون أطول كلماته، فتنكسر حروفها عندئذ على أسطر، لأن تخطيط React Native ليس فيه حد أدنى لعرض محتوى النص.
+- في المجموعة من الطراز standard تلتقي مساحات اللمس عند منتصف الفجوة. فجوة النظام الافتراضي (16) واسعة بما يكفي ليحتفظ كل زر أيقونة، ومنه الصغير، بهدف اللمس 48 كاملًا بين جيرانه. ونظام التصميم الذي فجوته أضيق يضيّق الأهداف بين الأزرار.
+
+### ما عليك فعله
+
+- سمِّ كل زر أيقونة. تسمية المجموعة لا تسمّي الأزرار التي داخلها.
+- ضع المجموعة حيث تنتمي أزرارها في ترتيب القراءة. التقنيات المساعدة تصل إليها واحدًا واحدًا، بالترتيب الذي تظهر به.
+- إن وجب أن تبقى مجموعة من أزرار التبديل حصرية فيما بينها، فاستخدم عنصر تحكم بتحديد واحد: علامات التبويب حيث يغيّر الاختيار المحتوى الذي تحته، وأزرار الاختيار حيث يضبط قيمة، أو زرًّا مقسَّمًا حيث يتضمنه النظام. كل منها يُعلَن اختيارًا واحدًا؛ أما صف من أزرار التبديل فلا.

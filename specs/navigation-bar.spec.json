@@ -1,0 +1,1256 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "navigation-bar",
+  "title": "Navigation bar",
+  "summary": "Moves between three to five top-level destinations from the bottom edge of a compact screen, and shows which one is current with an indicator that slides between them and follows a finger dragged across the bar.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "badge"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The bar along the bottom edge, and the ground the active indicator moves on: one constant color, whichever destination is selected. Its color reaches under the system inset below it (home indicator, gesture bar)."
+    },
+    {
+      "id": "outline",
+      "description": "The bar's top edge, which sets it apart from the content above."
+    },
+    {
+      "id": "item",
+      "description": "One destination (an item of the destination kind): an equal share of the bar's width, less the bar's inset at its two ends, and its full height. The whole cell is the hit area."
+    },
+    {
+      "id": "item.container",
+      "description": "The destination's box: its cell, held in from the bar's top and bottom edges by the bar's inset. It is as wide as the destination's share of the bar, not as wide as its icon and label, so every destination of a bar has the same box. It carries hover, focus and press for every destination, which are therefore drawn where the active indicator is or would be, and it is filled as the active indicator while the destination is selected. When the selection changes the filled box slides from the previous destination to the new one, and it follows a finger dragged across the bar."
+    },
+    {
+      "id": "item.icon-indicator",
+      "description": "The box behind the icon alone, the icon centered in it. The default system leaves it transparent; a system that marks the selection behind the glyph only (Material's navigation bar) fills it and leaves the item container clear. It grows in from its center rather than sliding."
+    },
+    {
+      "id": "item.icon",
+      "description": "The destination's glyph (its icon). Outlined when unselected, filled when selected."
+    },
+    {
+      "id": "item.label",
+      "description": "The destination's name under the icon indicator, inside the item container, on one line. Always its accessible name, drawn or not.",
+      "optional": true
+    },
+    {
+      "id": "item.covered-content",
+      "description": "A second, decorative copy of the icon and label in the covered colors, clipped to the active indicator wherever it is drawn, so that the content inverts where the indicator covers it and the inversion travels with the indicator, in a slide and under a finger alike. Hidden from assistive technology."
+    },
+    {
+      "id": "item.badge",
+      "description": "A Tanrei badge anchored to the icon, drawn from the destination's badge, badgeCount and badgeLabel: a dot or a count (the badge component). It is drawn above both copies of the icon.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator around the item container, concentric with it and in its shape, held inside the bar, shown for keyboard focus."
+    }
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The value of the selected destination (selection is the bar's, by a destination's value). Empty selects none (the current screen is not one of the bar's destinations)."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "tonal",
+        "filled"
+      ],
+      "default": "tonal",
+      "description": "How the active indicator is filled. Tonal: a soft container with the content in that container's own color. Filled: the strong color, with the content inverted on it, for a bar that must stand out from a busy screen. Tonal destinations are drawn from the unselected and selected conditions, filled ones from filled-unselected and filled-selected. The indicator's size and place are the same in both."
+    },
+    {
+      "name": "labelVisibility",
+      "type": "enum",
+      "values": [
+        "always",
+        "selected",
+        "never"
+      ],
+      "default": "always",
+      "description": "Which destinations draw their label: all of them, only the selected one, or none. A label that is not drawn is still the destination's accessible name, and no item container changes size with it."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the bar itself for assistive technology (\"Main\"); on the web it names the navigation landmark."
+    }
+  ],
+  "items": [
+    {
+      "name": "destination",
+      "summary": "One top-level destination of the bar: an icon, a label under the icon, and optionally a badge on the icon.",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What identifies the destination. The bar's value selects the destination whose value equals it; change and reselect carry it. Unique within the bar. Empty on a link, its href stands as its value."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The address the destination leads to. Not empty, the destination is a link and not a button (NVB-30): it is followed as the platform follows a link, and the bar does not select it by itself (NVB-31). Empty, the destination is a button and the product moves on change. As the Button's href (a control with a destination is a link)."
+        },
+        {
+          "name": "target",
+          "type": "enum",
+          "values": [
+            "same",
+            "new"
+          ],
+          "default": "same",
+          "description": "Where a link opens, as the Button's target. same: where the person is. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which a bar's cell has no place to mark and says through targetLabel (NVB-32). A link that opens elsewhere is never selected by a press (NVB-31). Ignored without href."
+        },
+        {
+          "name": "targetLabel",
+          "type": "string",
+          "default": "",
+          "description": "What assistive technology reads after the link's name while target is new (\"opens in a new tab\"), as the Button's targetLabel: Tanrei ships no words of its own. Required while target is new; ignored otherwise.",
+          "words": "targetLabel"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its name, drawn under the icon (see the bar's labelVisibility) and always its accessible name. Required."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of its glyph in the system's icon set, drawn in the destination's own icon style: outlined while unselected, filled while selected. Required."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Makes it unavailable. It keeps its place, draws its disabled look, cannot be activated and leaves the focus order."
+        },
+        {
+          "name": "badge",
+          "type": "boolean",
+          "default": false,
+          "description": "Draws a Tanrei badge (the badge component) on the icon, from badgeCount and badgeLabel."
+        },
+        {
+          "name": "badgeCount",
+          "type": "number",
+          "default": null,
+          "description": "The badge's count, as the badge component's count: null draws the dot, 0 draws nothing, above 0 the number (above 999 as 999+). Ignored while badge is false."
+        },
+        {
+          "name": "badgeLabel",
+          "type": "string",
+          "default": "",
+          "description": "The badge's label, as the badge component's: what assistive technology reads after the destination's name and state (\"3 unread\"). A dot needs one. Ignored while badge is false."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The user activated a destination that is not the selected one, or released a drag of the active indicator on one; carries its value and, for a link, its href. For a link it comes before the link is followed, only for an activation that follows it in place (NVB-31), and a product that cancels it follows the link itself."
+    },
+    {
+      "name": "reselect",
+      "description": "The user activated the destination that is already selected (a product may scroll that screen to its top); carries its value and, for a link, its href, as change does. A drag that returns the indicator to it does not emit it."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected"
+  ],
+  "behavior": [
+    {
+      "id": "NVB-1",
+      "text": "WHEN the user activates a destination by pointer, touch, Enter or Space (Enter only for a destination that is a link, and for a link only an activation that NVB-31 counts) THE navigation bar SHALL emit change exactly once with the destination's value WHILE it is not the selected destination, and reselect exactly once with its value WHILE it is."
+    },
+    {
+      "id": "NVB-2",
+      "text": "WHILE a destination's disabled is true THE navigation bar SHALL NOT emit change or reselect for it, SHALL NOT make it focusable and SHALL expose it as disabled to assistive technology."
+    },
+    {
+      "id": "NVB-3",
+      "text": "THE navigation bar SHALL draw the destination whose value equals the bar's value from its variant's selected condition and every other destination from its variant's unselected condition: WHILE variant is tonal the selected condition is selected (comp.navigation-bar.selected.item.container.color, comp.navigation-bar.selected.item.icon-indicator.color, comp.navigation-bar.selected.item.icon.color, comp.navigation-bar.selected.item.label.color, comp.navigation-bar.selected.item.covered-icon.color, comp.navigation-bar.selected.item.covered-label.color) and the unselected condition is unselected; WHILE variant is filled they are filled-selected (comp.navigation-bar.filled-selected.item.container.color and the same parts) and filled-unselected. IF no destination's value equals a value that is not empty THE navigation bar SHALL draw every destination from its variant's unselected condition, and in debug builds report the value."
+    },
+    {
+      "id": "NVB-4",
+      "text": "WHILE a destination is hovered, keyboard-focused or pressed THE navigation bar SHALL render its item container, icon indicator, icon, label, covered icon and label, and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "NVB-5",
+      "text": "WHEN a destination receives keyboard focus THE navigation bar SHALL show the focus indicator (the ring or the glow, NVB-10) around its item container (NVB-12), concentric with it and in its shape, with its inner edge sys.focus.offset outside the container's edge, and SHALL hold it inside the bar: WHERE the space between the item container and the bar's edges (comp.navigation-bar.container.padding) is less than the indicator reaches, it SHALL be drawn further in by the difference, on every side alike, keeping the container's shape. THE indicator SHALL be drawn above the neighbouring destinations and the active indicator, without animation; focus gained by pointer or touch SHALL NOT show it.",
+      "verify": "Under the default system the ring reaches 4 beyond the item container (an offset of 2 and a ring 2 wide), which is comp.navigation-bar.container.padding: it surrounds the capsule of the focused destination, meets the bar's edge and never crosses it. Under `m3-like`, whose comp.navigation-bar.container.padding is nothing, it is drawn wholly inside the cell."
+    },
+    {
+      "id": "NVB-6",
+      "text": "THE navigation bar SHALL make each destination's hit area its whole cell, the bar's full height above the system inset and its share of the bar's width (NVB-11), the first and the last cell reaching the bar's start and end edges, and SHALL NOT let a cell's hit area fall below sys.target.touch in either direction; hover and press over any part of the cell SHALL answer on the item container. WHERE an equal share of the bar's width is narrower than sys.target.touch (more destinations than the width holds), the cells SHALL still share the bar's width and narrow below the target rather than make the bar wider than the space it is given."
+    },
+    {
+      "id": "NVB-7",
+      "text": "WHILE a destination's disabled is true THE navigation bar SHALL render its item container, icon indicator, icon, label, covered icon and label, and opacity from the disabled component tokens of its condition."
+    },
+    {
+      "id": "NVB-8",
+      "text": "WHEN a destination is pressed by pointer, touch, Enter or Space THE navigation bar SHALL show its pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "NVB-9",
+      "text": "WHILE a destination is pressed THE navigation bar SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole item container at once; ripple grows the pressed state layer, clipped to the item container, from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole destination and draws no state layer; none draws no answer to the press. Under ripple and dim only the item container color stays with the state under the press; icon indicator, icon, label, covered icon and label, and opacity still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.navigation-bar.motion.feedback-duration with comp.navigation-bar.motion.state-easing, fades over comp.navigation-bar.motion.state-duration with comp.navigation-bar.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "NVB-10",
+      "text": "THE navigation bar SHALL ease its item container and icon indicator corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "NVB-11",
+      "text": "THE navigation bar SHALL span the full width of its parent, at least comp.navigation-bar.container.height high above the system inset, filled with comp.navigation-bar.container.color, raised by comp.navigation-bar.container.elevation and edged at the top by comp.navigation-bar.outline.width of comp.navigation-bar.outline.color, and SHALL divide its width, less comp.navigation-bar.container.padding at its start and at its end, into equal cells, one per destination, in reading order from the start edge; right-to-left layouts SHALL mirror the order. THE bar's container SHALL be the same whichever destination is selected, whatever state a destination is in and while the active indicator moves: only the active indicator marks the selection.",
+      "verify": "Under the default system, a bar 360 wide with four destinations has cells 88 wide, the first starting 4 from the bar's start edge. Under `m3-like`, whose comp.navigation-bar.container.padding is nothing, the cells are 90 wide, as before this revision."
+    },
+    {
+      "id": "NVB-12",
+      "text": "THE navigation bar SHALL draw each destination's item container as wide as its cell and as tall as the bar above the system inset less comp.navigation-bar.container.padding above and below, the same size for every destination of the bar whatever each holds, with its four corners rounded by comp.navigation-bar.item.container.shape, each at most half its height, and SHALL NOT size it to the destination's content. Inside it THE navigation bar SHALL lay out the destination as a column centered in the item container: the icon indicator, comp.navigation-bar.item.icon-indicator.width wide and comp.navigation-bar.item.icon-indicator.height high with corners comp.navigation-bar.item.icon-indicator.shape, its icon centered in it; and WHILE the label is drawn, the label below it, comp.navigation-bar.item.gap away, centered, on one line in comp.navigation-bar.item.label.typescale. THE column SHALL keep comp.navigation-bar.item.container.padding-block between itself and the item container's top and bottom edges, the bar growing in height to keep it (NVB-21), and a label wider than the item container less comp.navigation-bar.item.container.padding-inline on each side SHALL be truncated at its end with an ellipsis. THE navigation bar SHALL NOT draw hover, focus or press on the part of the cell outside the item container. Every part is laid out in every system; a transparent color hides a part without changing the layout.",
+      "verify": "Under the default system, in `four-destinations` drawn 360 wide, the bar is 64 high and every item container is 88 by 56, a capsule, whatever the length of its label; a hovered or pressed destination that is not selected shows that capsule and never a shape around its icon and label alone. In `long-labels` the five item containers are equal and the long labels are truncated inside them. Under `m3-like` (a transparent item container and state layer) hover, focus and press show on the icon indicator, as before this revision."
+    },
+    {
+      "id": "NVB-13",
+      "text": "WHILE labelVisibility is always THE navigation bar SHALL draw every destination's label; WHILE it is selected it SHALL draw only the selected destination's label; WHILE it is never it SHALL draw none. A destination that draws no label SHALL center its icon indicator in its item container, whose size does not change with the label, and every destination's label SHALL remain its accessible name."
+    },
+    {
+      "id": "NVB-14",
+      "text": "THE navigation bar SHALL draw each icon at comp.navigation-bar.item.icon.size with the family and fill of its condition (selected for the selected destination, unselected for every other), sys.icon.weight, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max."
+    },
+    {
+      "id": "NVB-15",
+      "text": "WHEN the selected destination changes while no drag is followed (NVB-27) THE navigation bar SHALL slide the active indicator (the fill of the selected condition's item container) from the previous destination's item container to the new one's, at its full size throughout and drawn in the new destination's colors, every frame of the slide being the in-between look of NVB-27 (the indicator as a drag would draw it at that place, each icon and label in its covered color exactly where it is covered); SHALL grow the new destination's icon indicator in width from its center to its full width, at its full height throughout, and fade the previous one out; and SHALL change icon and label colors and icon fill; all over comp.navigation-bar.motion.selection-duration with comp.navigation-bar.motion.selection-easing. WHERE no destination was selected before, the active indicator SHALL fade in on the new item container at its full size, and WHERE none is selected after, it SHALL fade out, over the same time; it SHALL NOT grow or shrink in width to appear or disappear. WHILE labelVisibility is selected the labels SHALL appear and disappear over the same time, without resizing or moving any item container. WHERE motion is reduced it SHALL show the new selection at once. WHEN the bar first appears, or the selected destination changes size or place without a new selection (a font arriving, the text size changing, the bar resizing), THE navigation bar SHALL put the active indicator on it at once, without a slide.",
+      "verify": "Under the default system no frame of a slide shows an indicator narrower or lower than an item container, and a frame of a tap's slide and a drag held at the indicator's place in that frame (NVB-27) draw the same thing. Under `m3-like` the indicator behind the glyph still grows from its center, as Material's does."
+    },
+    {
+      "id": "NVB-16",
+      "text": "WHILE a destination's badge is true THE navigation bar SHALL draw a Tanrei badge anchored to its icon as the badge component draws one whose count is the destination's badgeCount and whose label is its badgeLabel, SHALL keep it while the destination is disabled, and SHALL expose the badge's description (badgeLabel, or the displayed count when it is empty) as part of the destination's own description, after its name and state."
+    },
+    {
+      "id": "NVB-17",
+      "text": "IF the navigation bar holds fewer than three or more than five destinations THE navigation bar SHALL still render them, and in debug builds report the count."
+    },
+    {
+      "id": "NVB-18",
+      "text": "THE navigation bar SHALL extend its container under the bottom system inset (home indicator, gesture bar, taskbar) and SHALL place its destinations above that inset and inside the left and right insets."
+    },
+    {
+      "id": "NVB-19",
+      "text": "THE navigation bar SHALL expose each destination as one element named by its label, with its selected state and its position in the set (for example 2 of 4), and its icon hidden: a link WHILE its href is not empty (NVB-30) and a button otherwise. On the web it is an anchor or a button inside a navigation landmark named by the bar's label, the selected destination carrying aria-current=\"page\"; on Apple platforms, Android, Flutter and React Native a tab of a tab bar, with the selected state, a link destination included: there the tab is what carries the position and the selection a bar is read by, and a link destination adds the link trait to it where the platform lets one element carry both. The selected destination is the place the product is showing, in a product of one screen and in a site of many pages alike: THE navigation bar SHALL have no second state and no second mark for a current page, and SHALL expose exactly one destination, or none, as current."
+    },
+    {
+      "id": "NVB-20",
+      "text": "WHILE a destination's label is empty THE navigation bar SHALL still render it, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "NVB-21",
+      "text": "WHILE the text size is enlarged THE navigation bar SHALL grow its height to hold its labels on one line inside their item containers (NVB-12), every item container growing with the bar alike, and SHALL NOT scale its icon indicators or icons; WHERE the platform offers a large-content viewer for bar items (iOS) a long press SHALL show the destination's icon and label enlarged."
+    },
+    {
+      "id": "NVB-22",
+      "text": "IF two destinations have the same value THE navigation bar SHALL treat the first of them as the one the bar's value selects, and in debug builds report the repeated value."
+    },
+    {
+      "id": "NVB-23",
+      "text": "THE navigation bar SHALL draw each destination's icon and label a second time, over the first, in the covered colors of its condition (comp.navigation-bar.unselected.item.covered-icon.color and comp.navigation-bar.unselected.item.covered-label.color for a tonal destination that is not selected, comp.navigation-bar.selected.item.covered-icon.color and comp.navigation-bar.selected.item.covered-label.color for the tonal selected one, comp.navigation-bar.filled-unselected.item.covered-icon.color, comp.navigation-bar.filled-unselected.item.covered-label.color, comp.navigation-bar.filled-selected.item.covered-icon.color and comp.navigation-bar.filled-selected.item.covered-label.color for a filled bar), clipped to the active indicator's current shape, its corners included, wherever the indicator is drawn; WHILE the indicator slides (NVB-15) or follows a drag (NVB-27) the clip SHALL move with it in the same frame, so that a destination it passes over changes where it is covered and the newly selected destination's icon and label are wholly in their covered colors when it lands, neither before nor after. THE navigation bar SHALL NOT approximate the covered colors with a blend mode, SHALL draw the badge above both copies, and SHALL expose each destination to assistive technology once.",
+      "verify": "Test the landed state in every fixture (the selected icon and label wholly in their covered colors), a frame in the middle of a slide in `filled` (a destination partly in each color), and a frame of a drag held where two cells meet (NVB-27), with motion not reduced."
+    },
+    {
+      "id": "NVB-24",
+      "text": "THE navigation bar SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the navigation bar is shown THE navigation bar SHALL draw itself for the new direction at once, without a motion of its own, keeping the selected destination and its focus; a drag (NVB-27) SHALL carry the active indicator to where the pointer is in either direction.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "NVB-25",
+      "text": "WHERE the layout direction is right-to-left THE navigation bar SHALL draw a destination's icon, in both of its copies (NVB-23) mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order NVB-11 gives. THE navigation bar SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name.",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "NVB-26",
+      "text": "THE navigation bar SHALL lay out a destination's label, in both of its copies (NVB-23) as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE navigation bar SHALL still place each label and align its lines by the layout direction, not by the text's own, and SHALL cut a label that does not fit (NVB-12) at the end of its own direction, so that a left-to-right label in a right-to-left layout loses its right end and never its beginning."
+    },
+    {
+      "id": "NVB-27",
+      "text": "WHEN the user presses the bar with touch, a pen or a mouse and drags past the platform's touch slop (8 points where the platform names none), further sideways than up or down, WHILE a destination is selected, THE navigation bar SHALL take the drag: the press SHALL activate no destination when it ends (NVB-1), the destination under it SHALL leave its pressed state as it does when a press ends (NVB-8), and from then until the drag ends THE navigation bar SHALL draw the active indicator where the pointer is along the bar — on an enabled destination's item container while the pointer is at that cell's center, halfway between two neighbouring enabled destinations while the pointer is where their cells meet (the middle of any disabled destinations between them), at the linear interpolation in between, and on the first or last enabled destination while the pointer is before or beyond its center — at its full size, in the selected destination's colors. Everything that differs between the indicator on the one destination and on the other SHALL change continuously with the pointer, with no threshold: its place, and the color of each icon and label, which is its covered color exactly where the indicator covers it and its own color elsewhere, the clip of NVB-23 moving with the indicator in the same frame. The icon indicator, each icon's fill and, WHILE labelVisibility is selected, the label that is drawn SHALL stay with the selected destination until the release (NVB-28). THE navigation bar SHALL place the indicator in the frame the pointer moves, without a motion of its own; WHEN the drag is taken with the pointer away from where the indicator rests THE navigation bar SHALL bring it to the pointer's place over comp.navigation-bar.motion.state-duration with comp.navigation-bar.motion.state-easing instead of at once, following the pointer meanwhile. A drag that is further up or down than sideways when it passes the slop SHALL be left to the page and to the system's gestures at the bottom edge for its whole length, a wheel or a trackpad SHALL move nothing, and WHILE no destination is selected THE navigation bar SHALL take no drag.",
+      "verify": "Test under the default system: in `four-destinations`, a touch pressed on Inbox and held where Inbox and Sent meet draws the indicator halfway between them, Sent's icon and label partly in each color, the bar's value still inbox and no change emitted; no frame shows a jump as the pointer crosses the place where the cells meet. A press on Settings dragged 12 to the side brings the indicator to the pointer over the state motion; a drag 12 up is not taken. In `disabled` the indicator passes over Starred and never rests on it. In `none-selected` no drag is taken and a press still activates. Under `m3-like`, whose item container is transparent, nothing is drawn moving and the release still chooses (mimicry gap `navigation-bar-indicator-drag`)."
+    },
+    {
+      "id": "NVB-28",
+      "text": "WHEN the user releases a drag the navigation bar has taken THE navigation bar SHALL choose one enabled destination: the one the active indicator is nearer to of the two it lies between (the one after it from halfway on), or, WHEN the release is a fling along the bar, the one of those two that the fling is toward; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond. WHERE the chosen destination is not the selected one and is not a link THE navigation bar SHALL activate it as NVB-1 does — emit change exactly once with its value — and SHALL slide the active indicator from where the release left it onto that destination over comp.navigation-bar.motion.selection-duration with comp.navigation-bar.motion.selection-easing, as NVB-15 does from a destination; WHERE the chosen destination is not the selected one and is a link THE navigation bar SHALL treat the release as a plain press on that link — emitting change and following the link as NVB-31 says, or only opening it where NVB-31 does not count it — SHALL NOT write value, and SHALL return the active indicator to the destination that value selects as NVB-29 returns it, the indicator going on to the chosen destination when the product sets value (NVB-15); WHERE it is the selected destination THE navigation bar SHALL return the indicator to it over the same motion and SHALL emit neither change nor reselect. The place where two cells meet decides only what a release chooses; nothing drawn changes at it. The release SHALL NOT also activate the destination under the pointer.",
+      "verify": "Test: a drag from Inbox released past the place where it meets Sent selects Sent and emits one change; released short of it, the indicator returns and nothing is emitted, reselect included; a fling toward Sent released short of that place selects Sent, and a fling back toward Inbox released past it leaves Inbox selected. A drag across a disabled destination never selects it. A listener hears no click-driven second change for the destination the release happens on. In the fixture links: a drag from Search released on Library emits one change carrying the value and the href /library/, the bar's value is still /search/, the link is followed, and with the event cancelled and value left alone the indicator is back on Search; with value set to /library/ inside the listener the indicator ends on Library."
+    },
+    {
+      "id": "NVB-29",
+      "text": "WHEN a drag the navigation bar has taken is cancelled — the platform cancels the pointer (a system gesture, a lost capture), Escape is pressed while it lasts, or the product sets value or removes or disables a destination the indicator lies between — THE navigation bar SHALL return the active indicator to the selected destination (the one the product has just set, where it set one) over comp.navigation-bar.motion.selection-duration with comp.navigation-bar.motion.selection-easing and emit nothing. WHILE a drag lasts THE navigation bar SHALL NOT change value, keyboard focus, or the selected state that each destination exposes to assistive technology, whatever the indicator covers, and SHALL announce nothing: the selection is made, and announced, by the release alone (NVB-28). WHERE motion is reduced THE navigation bar SHALL still draw the active indicator where the pointer is, which the person's own finger moves, taking the drag without the catch-up motion of NVB-27, and SHALL put it on its destination at once when the drag is released or cancelled.",
+      "verify": "Test: Escape during a drag returns the indicator and emits nothing; an accessibility snapshot taken mid-drag equals the one taken before the press; with motion reduced the indicator is on the chosen destination in the frame after the release."
+    },
+    {
+      "id": "NVB-30",
+      "text": "WHILE a destination's href is not empty THE navigation bar SHALL make it a link to that address and not a button. On the web it SHALL be an anchor element with that address, whose behaviours are the browser's own — following it on a plain click, a touch or Enter; opening it in another tab or window by a modified click or a middle click; the link's context menu; copying its address; showing its address on hover — and THE navigation bar SHALL NOT prevent, replace or imitate any of them, with one exception: a sideways drag that begins on a link destination moves the active indicator (NVB-27) and does not drag the link's address, because one gesture cannot do both and the drag is the bar's own way of moving its selection; Space SHALL NOT activate a link. On other platforms it SHALL be the platform's own link (SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), as BTN-22 says for a link button. THE navigation bar SHALL draw a link exactly as it draws a button destination, from the same tokens in every state and both variants (NVB-3, NVB-4, NVB-7 to NVB-9, NVB-12, NVB-23), SHALL draw no look of its own for a link the user has visited, and SHALL give its hit area (NVB-6) to the link. WHILE a link's value is empty THE navigation bar SHALL take its href as its value, for value, change, reselect and NVB-22. WHILE a link's disabled is true it SHALL keep the link role with the disabled state and no destination, and SHALL open nothing by any means the platform gives a link (NVB-2; on the web the anchor carries no address).",
+      "verify": "Test on the web: a control-click, a command-click, a shift-click and a middle click on a link destination open what the browser opens for a plain anchor; the context menu is the link's; the bar has called preventDefault on none of them. Fixture links is drawn exactly as the same bar of buttons."
+    },
+    {
+      "id": "NVB-31",
+      "text": "WHEN the user activates a link destination THE navigation bar SHALL count it as an activation (NVB-1) only WHILE it follows the link in the place where the product is shown: a click with the primary button and no modifier key, a touch, Enter, or the default action of assistive technology, on a link whose target is same and that asks for no download. It SHALL then emit change or reselect exactly once, carrying the destination's value and its href, before the link is followed, and SHALL NOT hold the link back for sys.motion.duration.press-hold; SHALL NOT write value itself on any platform, because where the product is, is the product's to say, and the page or the route shown next sets value; SHALL keep the active indicator on the destination that value selects, moving it as NVB-15 says only when value changes; and SHALL let the link be followed unless the product cancels the event (preventDefault on the web), as a product does that moves between its pages without loading a document. For every other activation of a link — a modified or a middle click, a link whose target is new, a download — THE navigation bar SHALL emit neither change nor reselect, and SHALL keep value and the drawn selection as they are.",
+      "verify": "Test on the web: a plain click on a link that is not selected emits one change with `detail.value` and `detail.href`, leaves the bar's value and its active indicator as they were and navigates; with the event cancelled it does not navigate; a listener that sets value slides the indicator; a control-click emits nothing; a plain click on the selected link emits one reselect and follows it."
+    },
+    {
+      "id": "NVB-32",
+      "text": "WHILE a destination is a link and its target is new THE navigation bar SHALL open its href in a new context, as BTN-24 says for a link button (on the web a new tab or window that is given no handle to the page that opened it), and SHALL draw no mark for it: a destination's cell is an icon over a label and has no trailing glyph place for a mark to stand in, as an icon-only button has none, and a second glyph beside the icon would be read as its badge. It SHALL expose targetLabel as part of the destination's description, after its badge's description (NVB-16), and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE navigation bar SHALL ignore targetLabel.",
+      "verify": "`links`: Help is drawn as the other three and is described as \"opens in a new tab\"; a plain click on it opens a new tab, emits nothing and leaves the indicator on Search."
+    },
+    {
+      "id": "NVB-33",
+      "text": "WHEN a destination's target names a value the navigation bar does not define THE navigation bar SHALL treat it as same, and in debug builds report the unknown value. IF a destination's href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE navigation bar SHALL make the destination a button without a destination, and in the last two cases report it in debug builds, as BTN-26 says for a button. WHILE a destination's href is empty THE navigation bar SHALL ignore its target and targetLabel."
+    }
+  ],
+  "accessibility": {
+    "role": "navigation",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the next destination that is not disabled: each destination is a tab stop, as the links of a navigation region are."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activates the focused destination (Enter only for a destination that is a link: it follows the link, and Space is left to the platform)."
+      },
+      {
+        "keys": "Enter with a modifier key, on a link (the web)",
+        "action": "What the browser does with a link: another tab or window, a download. The bar emits nothing and selects nothing (NVB-31)."
+      },
+      {
+        "keys": "Escape",
+        "action": "Cancels a pointer drag of the active indicator in progress: the indicator returns and nothing is selected. Otherwise it does nothing."
+      }
+    ],
+    "labeling": "Each destination is named by its label, drawn or not; its icon is decorative, and so is the covered copy of its icon and label. A badge adds its description (badgeLabel, or the displayed count) after the name, and a link that opens a new context its targetLabel after that. The bar's label names the bar itself.",
+    "minimumTarget": true,
+    "notes": [
+      "The semantics follow each platform's idiom for a bar of top-level destinations. On the web it is a navigation landmark whose destinations are links (or buttons in an app that does not change the URL) with aria-current=\"page\" on the current one: that is how a web user recognises site navigation, and the tablist pattern would promise tab panels and arrow-key movement that a switch of whole screens does not have. On iOS, Android, Flutter and React Native the same bar is the platform's tab bar (UITabBar, BottomNavigationView and Material's NavigationBar all expose their items as tabs), so each destination is announced as a tab with its selected state and position.",
+      "Selected and the current page are one thing. The bar lists the product's top-level places and the selected one is the place being shown, which the web exposes as aria-current=\"page\" on a button and on a link alike. A site of separate pages changes who says which it is — the page, through value, not a press — and nothing else: a link destination is followed, the bar never selects it by itself, and no destination is ever selected and another current.",
+      "Screen readers announce, for example, \"Inbox, tab, 1 of 4, selected, 3 unread\": name, role, position, state, then the badge's description.",
+      "Labels do not wrap: a bar's height is part of the screen's layout. A label longer than its item container allows is truncated, and stays whole as the destination's name. At 200% text size the bar and its item containers grow, and iOS shows the large-content viewer on a long press, as its own tab bar does.",
+      "The variant changes how strongly the selection is drawn, not what is announced: a tonal and a filled bar expose the same names, roles and states.",
+      "The drag is never the only way to choose (WCAG 2.5.7): a tap, a click, Enter and Space remain, and the keyboard is unchanged. While a drag lasts nothing a destination exposes changes and nothing is announced; the release announces once, as an activation does. With a screen reader running a one-finger drag is the reader's, and activation works as before.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.navigation-bar",
+  "fixtures": [
+    {
+      "id": "four-destinations",
+      "props": {
+        "value": "inbox",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "three-destinations",
+      "props": {
+        "value": "search",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "search",
+            "label": "Search",
+            "icon": "search"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "profile",
+            "label": "Profile",
+            "icon": "person"
+          }
+        }
+      ]
+    },
+    {
+      "id": "five-destinations",
+      "props": {
+        "value": "library",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "explore",
+            "label": "Explore",
+            "icon": "explore"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "create",
+            "label": "Create",
+            "icon": "add_circle"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "library",
+            "label": "Library",
+            "icon": "video_library"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "profile",
+            "label": "Profile",
+            "icon": "person"
+          }
+        }
+      ]
+    },
+    {
+      "id": "labels-selected",
+      "props": {
+        "value": "sent",
+        "labelVisibility": "selected",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "labels-never",
+      "props": {
+        "value": "inbox",
+        "labelVisibility": "never",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "badges",
+      "props": {
+        "value": "inbox",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "badge": true,
+            "badgeCount": 3,
+            "badgeLabel": "3 unread"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "chat",
+            "label": "Chat",
+            "icon": "chat",
+            "badge": true,
+            "badgeLabel": "New"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "value": "inbox",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "none-selected",
+      "props": {
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "selected-disabled",
+      "props": {
+        "value": "starred",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-labels",
+      "props": {
+        "value": "subscriptions",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "notifications",
+            "label": "Notifications",
+            "icon": "notifications"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "subscriptions",
+            "label": "Subscriptions",
+            "icon": "subscriptions"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "library",
+            "label": "Library",
+            "icon": "video_library"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "downloads",
+            "label": "Downloads",
+            "icon": "download"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled",
+      "props": {
+        "value": "sent",
+        "variant": "filled",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-labels-selected",
+      "props": {
+        "value": "starred",
+        "variant": "filled",
+        "labelVisibility": "selected",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-badges",
+      "props": {
+        "value": "inbox",
+        "variant": "filled",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "badge": true,
+            "badgeCount": 3,
+            "badgeLabel": "3 unread"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "chat",
+            "label": "Chat",
+            "icon": "chat",
+            "badge": true,
+            "badgeLabel": "New"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-selected-disabled",
+      "props": {
+        "value": "starred",
+        "variant": "filled",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "props": {
+        "value": "/search/",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "href": "/",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "href": "/search/",
+            "label": "Search",
+            "icon": "search"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "href": "/library/",
+            "label": "Library",
+            "icon": "video_library"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "href": "https://example.com/tanrei/help",
+            "label": "Help",
+            "icon": "help",
+            "target": "new",
+            "targetLabel": "opens in a new tab"
+          }
+        }
+      ]
+    },
+    {
+      "id": "links-rtl",
+      "props": {
+        "value": "/search/",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "href": "/",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "href": "/search/",
+            "label": "Search",
+            "icon": "search"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "href": "/library/",
+            "label": "Library",
+            "icon": "video_library"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "href": "https://example.com/tanrei/help",
+            "label": "Help",
+            "icon": "help",
+            "target": "new",
+            "targetLabel": "opens in a new tab"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "links-disabled",
+      "props": {
+        "value": "/",
+        "label": "Main"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "href": "/",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "href": "/search/",
+            "label": "Search",
+            "icon": "search",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "href": "/library/",
+            "label": "Library",
+            "icon": "video_library"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-navigation-bar",
+      "props": {
+        "value": "value",
+        "variant": "variant",
+        "labelVisibility": "labelVisibility",
+        "label": "label"
+      },
+      "events": {
+        "change": "change",
+        "reselect": "reselect"
+      },
+      "notes": "Destinations are `<tanrei-navigation-bar-item>` children, in order. The bar selects the activated destination itself (sets `value`) before firing `change`, as a native control does, unless the destination is a link. For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The bar does not set `value` for a link. `variant` is the `variant` attribute (`tonal`, `filled`) and `labelVisibility` the `label-visibility` attribute. The host is a navigation landmark (`role=\"navigation\"`, `aria-label` from `label`); the selected destination has `aria-current=\"page\"`. The active indicator is one layer of the bar that slides between the destinations' item containers; the covered copy of every icon and label (NVB-23) is an `aria-hidden` layer clipped with `clip-path` to the indicator's box, animated with it. A drag (NVB-27 to NVB-29) is followed with Pointer Events, as `tanrei-tabs` follows its own: `pointerdown` on the bar, `setPointerCapture` once the drag is taken, `pointermove` placing the indicator through the same custom properties a slide transitions, `pointerup` choosing the destination, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, `aria-current` is written only on the release, a destination that is a link is not draggable as a link (`draggable=\"false\"`, the one behaviour of a link the bar takes, NVB-30) and is followed with its own `click()` when a release chooses it, the indicator then returning to the destination `value` selects (NVB-28), and `touch-action: pan-y` leaves vertical drags to the page. The bottom inset is `env(safe-area-inset-bottom)`. It does not yet follow NVB-30 to NVB-33, nor the parts of NVB-1, NVB-19 and NVB-28 that concern links: a pressed link destination is selected like a button, `change` is not cancelable and carries no `href`, and the destination writes the link rules itself instead of using the shared link primitive (`packages/web/src/primitives/link.ts`).",
+      "items": {
+        "destination": {
+          "name": "tanrei-navigation-bar-item",
+          "props": {
+            "value": "value",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "label": "label",
+            "icon": "icon",
+            "disabled": "disabled",
+            "badge": "badge",
+            "badgeCount": "badgeCount",
+            "badgeLabel": "badgeLabel"
+          },
+          "notes": "`icon` is the glyph's name, as `<tanrei-tab>`'s. `badgeCount` and `badgeLabel` are the `badge-count` and `badge-label` attributes; the element draws a `<tanrei-badge>` around the glyph from them. `href` is the spec's own prop: the cell is an `<a href>` in the item's shadow root. `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two), `targetLabel` the `target-label` attribute, and `rel` (to which `new` adds `noopener`) and `download` are web-only and forwarded to the anchor, all as `<tanrei-button>`'s. Space is not handled on it. With no `value` attribute the item's `value` property reads its `href` attribute as written (not the resolved URL)."
+        }
+      }
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiNavigationBar",
+      "props": {
+        "value": "selection",
+        "variant": "variant",
+        "labelVisibility": "labelVisibility",
+        "label": "accessibilityLabel"
+      },
+      "events": {
+        "change": "selection",
+        "reselect": "onReselect"
+      },
+      "notes": "`TanreiNavigationBar(selection: Binding<Value>, variant:, labelVisibility:, onReselect:) { TanreiNavigationBarItem(…) … }`, placed with `.safeAreaInset(edge: .bottom)`. A bar of its own rather than a restyled `TabView`, whose bar the tokens cannot reach (indicator, geometry, colors). Activation writes the binding (change); activating the selected item calls `onReselect`. The bar is exposed as a tab bar and each item as a button with the selected trait; each item supports the large-content viewer. It lags the spec: it has no `variant`, and draws the active indicator behind the icon alone (the item container at its least size), growing in from its center instead of sliding, with the label outside it. Not built on this platform yet: the item container as wide as the destination's cell and held in by `container.padding`, hover, focus and press drawn in that box, and the drag of the active indicator (NVB-27 to NVB-29): a `DragGesture(minimumDistance:)` beside each item's tap, `predictedEndTranslation` for the fling, the binding written in `onEnded`. Link destinations are not built yet either (NVB-30 to NVB-33 and the parts of NVB-1, NVB-19 and NVB-28 that concern links, with the fixtures links, links-rtl and links-disabled).",
+      "items": {
+        "destination": {
+          "name": "TanreiNavigationBarItem",
+          "props": {
+            "value": "value",
+            "href": "destination",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "label": "title",
+            "icon": "icon",
+            "disabled": "disabled",
+            "badge": "badge",
+            "badgeCount": "count",
+            "badgeLabel": "label"
+          },
+          "notes": "`TanreiNavigationBarItem(_ title: String, icon: String, value: Value, badge: TanreiNavigationBadge? = nil)`, where `icon` is the glyph's name and `TanreiNavigationBadge(count: Int? = nil, label: String = \"\")` is drawn with `.tanreiBadge(…)` on the glyph (no badge is `nil`). `disabled` follows `.disabled(_:)` on the item. `destination: URL? = nil` makes it a link (the link trait beside the item's selected trait), opened by the environment's `openURL` after the selection callback, which an app that routes addresses itself answers with its own `OpenURLAction`; the binding is not written for it. `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint), as the Button's."
+        }
+      }
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiNavigationBar",
+      "props": {
+        "value": "selected",
+        "variant": "variant",
+        "labelVisibility": "labelVisibility",
+        "label": "contentDescription"
+      },
+      "events": {
+        "change": "onClick",
+        "reselect": "onClick"
+      },
+      "notes": "Compose idiom (as `NavigationBar`): `TanreiNavigationBar(variant, labelVisibility, contentDescription) { TanreiNavigationBarItem(…) … }`. There is no bar-level value: the caller marks the selected item with `selected = (current == value)`, so the bar's `value` and a destination's `value` both map to the item's `selected`, and one `onClick` per item covers change and reselect (the caller knows which item is selected). The bar draws the sliding active indicator behind its items, from the bounds of the selected item. Insets follow `WindowInsets.navigationBars` plus the horizontal display cutout, as a `windowInsets` parameter. Items have `Role.Tab` in a `selectableGroup()`. It lags the spec: it has no `variant`, and draws the active indicator behind the icon alone (the item container at its least size), growing in from its center instead of sliding, with the label outside it. Not built on this platform yet: the item container as wide as the destination's cell and held in by `container.padding`, hover, focus and press drawn in that box, and the drag of the active indicator (NVB-27 to NVB-29): `pointerInput` with `detectHorizontalDragGestures` on the bar and a `VelocityTracker` for the fling; the release calls the chosen item's `onClick`. Link destinations are not built yet either (NVB-30 to NVB-33 and the parts of NVB-1, NVB-19 and NVB-28 that concern links, with the fixtures links, links-rtl and links-disabled).",
+      "items": {
+        "destination": {
+          "name": "TanreiNavigationBarItem",
+          "props": {
+            "value": "selected",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "label": "label",
+            "icon": "icon",
+            "disabled": "enabled",
+            "badge": "badge",
+            "badgeCount": "count",
+            "badgeLabel": "contentDescription"
+          },
+          "notes": "`TanreiNavigationBarItem(selected, onClick, icon = \"inbox\", label = \"…\", enabled = true, badge = null)` in the bar's `RowScope` content lambda. `enabled` is the inverse flag. `badge: TanreiNavigationBadge?` with `TanreiNavigationBadge(count: Int? = null, contentDescription: String = \"\")`; the item draws a `TanreiBadge` around its icon from it. `icon` is the glyph's name; the item draws it in the selection's icon style. `href: String? = null` makes it a link: opened through `LocalUriHandler.current` after `onClick` (an app that routes addresses itself provides its own `UriHandler`); the item keeps `Role.Tab`, which Compose cannot join with a link role. `target: TanreiLinkTarget = TanreiLinkTarget.Same`, and `targetLabel` is appended to the state description, as the Button's."
+        }
+      }
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiNavigationBar",
+      "props": {
+        "value": "selectedIndex",
+        "variant": "variant",
+        "labelVisibility": "labelBehavior",
+        "label": "semanticLabel"
+      },
+      "events": {
+        "change": "onDestinationSelected",
+        "reselect": "onDestinationSelected"
+      },
+      "notes": "Flutter idiom (as `NavigationBar`): `TanreiNavigationBar(selectedIndex:, onDestinationSelected:, variant:, labelBehavior:, destinations: [TanreiNavigationDestination(…), …])`. A destination's value is its index in `destinations`; a `selectedIndex` of null selects none. `onDestinationSelected` is called for the selected destination too (reselect); the caller compares. `variant` is `TanreiNavigationBarVariant.tonal` or `.filled`; `labelBehavior` is `alwaysShow`, `onlyShowSelected` or `alwaysHide`. Bottom inset from `MediaQuery.padding` via `SafeArea`. It lags the spec: it has no `variant`, and draws the active indicator behind the icon alone (the item container at its least size), growing in from its center instead of sliding, with the label outside it. Not built on this platform yet: the item container as wide as the destination's cell and held in by `container.padding`, hover, focus and press drawn in that box, and the drag of the active indicator (NVB-27 to NVB-29): a `GestureDetector`'s horizontal drag callbacks on the bar, `DragEndDetails.primaryVelocity` for the fling; the release calls `onDestinationSelected`. Link destinations are not built yet either (NVB-30 to NVB-33 and the parts of NVB-1, NVB-19 and NVB-28 that concern links, with the fixtures links, links-rtl and links-disabled).",
+      "items": {
+        "destination": {
+          "name": "TanreiNavigationDestination",
+          "props": {
+            "value": "destinations",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetSemanticLabel",
+            "label": "label",
+            "icon": "icon",
+            "disabled": "enabled",
+            "badge": "badge",
+            "badgeCount": "count",
+            "badgeLabel": "semanticLabel"
+          },
+          "notes": "`TanreiNavigationDestination(icon:, label:, enabled: true, badge: null)` in the bar's `destinations:` list; its value is its index there. `icon` is the glyph's name. `badge: TanreiNavigationBadge(count:, semanticLabel:)`, drawn as a `TanreiBadge` around the icon. `enabled: false` disables it. `href: Uri? = null` makes it a link (`Semantics(link: true)` with the address as its `linkUrl`, beside the tab semantics), opened by the nearest `TanreiLinkOpener` after `onDestinationSelected`; `target` is a `TanreiLinkTarget` and `targetSemanticLabel` the semantics hint, as the Button's."
+        }
+      }
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "NavigationBar",
+      "props": {
+        "value": "value",
+        "variant": "variant",
+        "labelVisibility": "labelVisibility",
+        "label": "accessibilityLabel"
+      },
+      "events": {
+        "change": "onValueChange",
+        "reselect": "onReselect"
+      },
+      "notes": "Controlled, in React Native's `value` / `onValueChange` idiom, with a `destinations` data array; `variant` is `'tonal'` or `'filled'`. The bar has the `tablist` role and each destination the `tab` role with `accessibilityState.selected`; the covered copy is hidden with `importantForAccessibility=\"no-hide-descendants\"` and `accessibilityElementsHidden`. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either. It lags the spec: it has no `variant`, and draws the active indicator behind the icon alone (the item container at its least size), growing in from its center instead of sliding, with the label outside it. Not built on this platform yet: the item container as wide as the destination's cell and held in by `container.padding`, hover, focus and press drawn in that box, and the drag of the active indicator (NVB-27 to NVB-29): a `PanResponder` on the bar (or React Native Gesture Handler's `Gesture.Pan()` where the product has it), the release's `vx` for the fling; the release calls `onValueChange`. Link destinations are not built yet either (NVB-30 to NVB-33 and the parts of NVB-1, NVB-19 and NVB-28 that concern links, with the fixtures links, links-rtl and links-disabled).",
+      "items": {
+        "destination": {
+          "name": "NavigationBarDestination",
+          "props": {
+            "value": "value",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "label": "label",
+            "icon": "icon",
+            "disabled": "disabled",
+            "badge": "badge",
+            "badgeCount": "count",
+            "badgeLabel": "label"
+          },
+          "notes": "An entry of `destinations: NavigationBarDestination[]`: `{ value, label, icon, disabled?, badge? }`, where `icon` is the glyph's name and `badge?: { count?: number | null; label?: string }` (absent is no badge) is drawn as a `Badge` around the icon. `href?: string` makes it a link: the destination keeps the `tab` role (React Native gives an element one role), `onValueChange` receives the value and the href, and `Linking.openURL(href)` follows it unless the product handles it; `target` is `\"same\" | \"new\"` and `targetLabel` the `accessibilityHint`, as the Button's."
+        }
+      }
+    }
+  }
+}

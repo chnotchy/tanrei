@@ -1,0 +1,19 @@
+---
+title: Tokens de forma
+description: La escala de radios de esquina y el único número que dice cómo se curva una esquina.
+translationOf: tokens/shape.mdx
+sourceHash: 17940569b85fa7a8afc9a514a82b9a0400042b33
+---
+
+import ShapeScale from '../../../../components/tokens/ShapeScale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Radios de esquina bajo `tanrei.sys.shape.corner`. Para las pautas de uso, lee [Forma](/es/foundations/shape/).
+
+<ShapeScale />
+
+## Suavizado de esquinas
+
+`tanrei.sys.shape.corner-smoothing` es una cantidad de 0 a 1 con el significado de Figma: 0 es un cuarto de círculo, 0.6 es lo que Figma llama la esquina de iOS y 1 es la más suavizada. El radio no cambia con ella. La construcción de Figma es lo que significa la cantidad; Compose y Flutter la dibujan, la web dibuja la superelipse más cercana, y SwiftUI y React Native en iOS, la curva del sistema operativo (las distancias están en [Forma](/es/foundations/shape/#suavizado-de-esquinas)). Por sistema incluido:
+
+<SystemValues tokens={['sys.shape.corner-smoothing']} />

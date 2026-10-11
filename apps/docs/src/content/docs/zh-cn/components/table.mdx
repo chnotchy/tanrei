@@ -1,0 +1,568 @@
+---
+title: "表格"
+description: "呈现有行有列的数据，带具名的列、可选的行标题、说明文字和表尾行。放不下时在自己的框内滚动。列标题可以请求让各行按这一列排序，行也可以被选择；表格自己从不排序。"
+translationOf: components/table.mdx
+sourceHash: ad48baa8f17b9aee7128ff50a80331d6af74aaaa
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import SortedByThePage from '../../../../components/SortedByThePage.astro';
+import CountedByThePage from '../../../../components/CountedByThePage.astro';
+
+## 概览
+
+<ComponentAvailability name="table" />
+
+<DemoFrame label="行标题、靠末尾对齐的数字、一行表尾">
+  <tanrei-table class="tanrei-not-prose" row-headers>
+    <table>
+      <caption>按状态和平台统计的组件数</caption>
+      <thead>
+        <tr><th scope="col">状态</th><th scope="col" data-align="end" data-wrap="false">Web</th><th scope="col" data-align="end" data-wrap="false">SwiftUI</th><th scope="col" data-align="end" data-wrap="false">Compose</th><th scope="col" data-align="end" data-wrap="false">Flutter</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">计划中</th><td data-align="end">2</td><td data-align="end">6</td><td data-align="end">6</td><td data-align="end">6</td></tr>
+        <tr><th scope="row">Alpha</th><td data-align="end">31</td><td data-align="end">30</td><td data-align="end">30</td><td data-align="end">29</td></tr>
+        <tr><th scope="row">Beta</th><td data-align="end">4</td><td data-align="end">1</td><td data-align="end">1</td><td data-align="end">2</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><th scope="row">合计</th><td data-align="end">37</td><td data-align="end">37</td><td data-align="end">37</td><td data-align="end">37</td></tr>
+      </tfoot>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+表格用于有两个维度的数据：价目表、套餐对比、带类型和默认值的设置项列表、几样东西在几个平台上的状态、用户要处理的记录。列标题可以请求让各行按这一列排序，没有行的表格显示你的空状态，各行下方的状态行容纳你的句子和你的分页。行可以各用一个复选框来选择，正在等待行到来的表格会说明自己正忙。表格自己从不排序、筛选、获取数据或分页：给它什么行，它就按给它的顺序画什么行。它不调整列宽。
+
+在 Web 上，它是包在你自己的原生 `<table>` 外面的 `<tanrei-table>`。这个元素没有 shadow root，表格也从不会被设成别的 `display`，所以爬虫、复制粘贴到电子表格，以及屏幕阅读器的表格导航，遇到的都是一个普通的 HTML 表格。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/table.css" />
+
+    <tanrei-table row-headers>
+      <table>
+        <caption>各地区访问量</caption>
+        <thead>
+          <tr>
+            <th scope="col">地区</th>
+            <th scope="col" data-align="end" data-wrap="false">1 月</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">岛屿</th><td data-align="end">212</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><th scope="row">所有地区</th><td data-align="end">6,846</td></tr>
+        </tfoot>
+      </table>
+    </tanrei-table>
+
+    <script type="module">
+      import '@tanrei/web/components/table';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Table } from '@tanrei/react';
+    import '@tanrei/web/table.css';
+
+    <Table density="compact" striped label="表格的令牌">
+      <table>
+        <thead>
+          <tr><th scope="col">令牌</th><th scope="col">类型</th></tr>
+        </thead>
+        <tbody>
+          {tokens.map((token) => (
+            <tr key={token.name}><td data-wrap="false">{token.name}</td><td>{token.type}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </Table>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/table.css` 在任何脚本运行之前就画出整个表格。元素自己也会把同一份样式表加进页面，所以只加载了脚本的页面同样能得到画好的表格，只是晚一会儿。
+
+### 你要写的内容
+
+| 部件 | 在 Web 上 |
+| --- | --- |
+| 列 | `<thead>` 唯一那一行里的一个 `<th scope="col">`。它的文字就是列标题。 |
+| 列的对齐方式 | 列标题单元格上的 `data-align="start"`、`"center"` 或 `"end"`。`end` 用于需要相互比较的数字。 |
+| 文本不换行的列 | 列标题单元格上的 `data-wrap="false"`，用于标识符、日期和数字。 |
+| 行 | `<tbody>` 里的一个 `<tr>`。表尾行是 `<tfoot>` 里的一个 `<tr>`。 |
+| 单元格 | 一个 `<td>`。里面是文本、组件，或者什么都没有。 |
+| 行标题 | 作为第一个单元格的 `<th scope="row">`，同时在元素上设置 `row-headers`。 |
+| 名称 | 一个 `<caption>`；如果表格上方的标题已经为它命名，则用元素上的 `label`。 |
+| 可排序的列 | 列标题单元格上的 `aria-sort="none"`、`"ascending"` 或 `"descending"`，以及包在其文字外面的 `<button type="button">`。单元格上的 `data-value` 是 `sort` 事件带出的名称。 |
+| 没有行 | `<tbody>` 里的一个 `<tr data-part="empty">`，其中只有一个 `<td colspan>`，里面放你的空状态。 |
+| 状态行 | 表格之后的一个 `<div data-part="status">`，里面放一个 `<p role="status">` 和你的分页。你没有写这个段落时，元素上的 `status` 会写出它。 |
+| 可以选择的各行 | 元素上的 `selection="multiple"`，以及每一行里作为第一个单元格的 `<td data-part="selection">`。 |
+| 可以选择的一行 | `<tr>` 上的 `data-value`，以及它的选择单元格里的一个 `<tanrei-checkbox label-hidden>`。`<tr>` 上的 `data-selected` 表示它已被选中。 |
+| 针对所有行的复选框 | 表头行的选择单元格里的一个 `<tanrei-checkbox label-hidden>`。元素上的 `select-all-label` 为它命名。 |
+| 加载中的表格 | 元素上的 `loading`。 |
+| 占位行，代表尚未到达的行 | 一个 `<tr data-placeholder aria-hidden="true">`，它的单元格留空，或者放一个骨架屏占位符。 |
+
+元素会把列标题单元格上的对齐和换行设置带给这一列的每个单元格。要让它们在脚本运行之前就绘制出来，请像本页的演示那样，在每个单元格上重复 `data-align` 和 `data-wrap`。
+
+### 排序
+
+<SortedByThePage />
+
+<DemoFrame label="按下某个列标题：表格提出请求，由本页为各行排序" plain>
+  <tanrei-table class="tanrei-not-prose" data-docs-sorts>
+    <table>
+      <caption>商品</caption>
+      <thead>
+        <tr><th scope="col" aria-sort="ascending" data-value="name"><button type="button">名称</button></th><th scope="col" aria-sort="none" data-value="stock" data-align="end" data-wrap="false"><button type="button">库存</button></th><th scope="col" aria-sort="none" data-value="price" data-align="end" data-wrap="false"><button type="button">价格</button></th><th scope="col">备注</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>电子秤</td><td data-align="end" data-wrap="false">0</td><td data-align="end" data-wrap="false">189.00</td><td></td></tr>
+        <tr><td>滤纸</td><td data-align="end" data-wrap="false">120</td><td data-align="end" data-wrap="false">29.00</td><td>每包 100 张</td></tr>
+        <tr><td>手冲壶</td><td data-align="end" data-wrap="false">15</td><td data-align="end" data-wrap="false">239.00</td><td>电磁炉和燃气灶均可使用</td></tr>
+        <tr><td>手摇磨豆机</td><td data-align="end" data-wrap="false">8</td><td data-align="end" data-wrap="false">399.00</td><td></td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+可排序的列，是一个说明各行当前顺序的列标题单元格，它的文字外面包着你自己的按钮：
+
+```html
+<th scope="col" aria-sort="ascending" data-value="name"><button type="button">名称</button></th>
+<th scope="col" aria-sort="none" data-value="price" data-align="end"><button type="button">价格</button></th>
+```
+
+样式表让整个列标题单元格成为这个按钮，并根据 `aria-sort` 画出标记：各行没有按这一列排序时是双向箭头，按它升序排列时是向上的箭头，按它降序排列时是向下的箭头。你不用写任何图标。请加载 `@tanrei/web/icons.css` 和图标字体，因为这些标记是图标集中的字形。
+
+表格从不排序。按下按钮会触发 `sort`，屏幕上什么都不变；由你为各行排序，并写上新的 `aria-sort`：
+
+```js
+table.addEventListener('sort', (event) => {
+  const { column, index, direction } = event.detail; // 'price', 2, 'ascending' | 'descending'
+  showRows(sortedBy(column, direction));              // 你的数据、你的比较方式，或者你的服务器
+  for (const th of headerCells) th.setAttribute('aria-sort', th.dataset.value === column ? direction : 'none');
+});
+```
+
+`direction` 是用户请求的方向：`ascending`；如果各行已经按这一列升序排列，则是 `descending`。没有清除排序的第三次按下。你不必给出用户请求的顺序：可以把各行排成另一种顺序，也可以不按任何顺序排列。
+
+对于由服务器排序的表格，请用链接代替按钮：`<a href="?sort=price&order=asc">价格</a>`，指向另一种顺序的同一个表格。它不需要脚本就能工作。这时 `sort` 会在浏览器跟随链接之前触发，`event.preventDefault()` 则让页面留在原处。
+
+### 没有行
+
+<DemoFrame label="没有行：你的空状态位于表头行下方" plain>
+  <tanrei-table class="tanrei-not-prose">
+    <table>
+      <caption>符合条件的商品</caption>
+      <thead>
+        <tr><th scope="col">名称</th><th scope="col" data-align="end" data-wrap="false">库存</th><th scope="col" data-align="end" data-wrap="false">价格</th></tr>
+      </thead>
+      <tbody>
+        <tr data-part="empty"><td colspan="3"><tanrei-empty-state headline="没有符合这些筛选条件的商品"><span slot="media">search_off</span>移除一个筛选条件，或者换一个更短的词搜索。</tanrei-empty-state></td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+写一行，其中只有一个横跨所有列的单元格，把你的空状态放在里面：
+
+```html
+<tbody>
+  <tr data-part="empty">
+    <td colspan="3"><tanrei-empty-state headline="没有符合这些筛选条件的商品">…</tanrei-empty-state></td>
+  </tr>
+</tbody>
+```
+
+表格在它的上下留出空间，给它表格的框的宽度，并在各列横向滚动时让它始终可见。表格不添加任何自己的文字。没有这样一行时，没有行的表格就只有表头。
+
+### 状态行
+
+<DemoFrame label="你的句子和你的分页，位于各行下方" plain>
+  <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
+    <table>
+      <caption>版本发布（从新到旧）</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">版本</th><th scope="col" data-wrap="false">发布日期</th><th scope="col">更改</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">2.4.0</td><td data-wrap="false">5 月 12 日</td><td>表格让表头始终可见。</td></tr>
+        <tr><td data-wrap="false">2.3.2</td><td data-wrap="false">4 月 28 日</td><td>修复了用两位数年份输入日期的问题。</td></tr>
+        <tr><td data-wrap="false">2.3.1</td><td data-wrap="false">4 月 20 日</td><td>修复了菜单在屏幕之外打开的问题。</td></tr>
+        <tr><td data-wrap="false">2.3.0</td><td data-wrap="false">4 月 2 日</td><td>侧边面板，以及更低调的焦点环。</td></tr>
+        <tr><td data-wrap="false">2.2.1</td><td data-wrap="false">3 月 18 日</td><td>修复了工具提示一直不关闭的问题。</td></tr>
+        <tr><td data-wrap="false">2.2.0</td><td data-wrap="false">3 月 4 日</td><td>从右到左的布局。</td></tr>
+      </tbody>
+    </table>
+    <div data-part="status">
+      <p role="status">第 1–6 个，共 42 个版本</p>
+      <nav class="tanrei-pagination" aria-label="版本发布的页面">
+        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#状态行">
+          <span class="tanrei-pagination-label">下一页</span>
+          <span class="tanrei-pagination-title">第 7–12 个版本</span>
+        </a>
+      </nav>
+    </div>
+  </tanrei-table>
+</DemoFrame>
+
+在表格之后、元素之内写状态行：把你的句子放在一个作为状态的段落里，再加上你的分页。
+
+```html
+<tanrei-table>
+  <table>…</table>
+  <div data-part="status">
+    <p role="status">第 1–20 件，共 132 件</p>
+    <nav class="tanrei-pagination" aria-label="商品的页面">…</nav>
+  </div>
+</tanrei-table>
+```
+
+句子位于起始边缘，分页位于末尾；两者并排放不下时，分页排到句子下方。状态行不随各列横向滚动；如果表格的各行在自己的框内滚动，它会留在表格底部。表格什么都不数，也不写任何文字：“第 1–20 件，共 132 件”是你的，用你的语言写。你更改段落的文本时，新的文本会以礼貌（polite）的方式朗读给辅助技术的用户。如果你的 HTML 里没有这个段落，元素上的 `status` 属性会替你写出它。你自己写了段落时，被朗读的就是你写的那一个，这个属性不改变任何东西。
+
+### 选择行
+
+<CountedByThePage />
+
+<DemoFrame label="选择行：表格保存选择，由本页来数" plain>
+  <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="选择所有商品" data-docs-counts="已选择 {count} 件，共 4 件">
+    <table>
+      <caption>需要补货的商品</caption>
+      <thead>
+        <tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">名称</th><th scope="col" data-align="end" data-wrap="false">库存</th><th scope="col" data-align="end" data-wrap="false">价格</th></tr>
+      </thead>
+      <tbody>
+        <tr data-value="paper"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="row">滤纸</th><td data-align="end" data-wrap="false">120</td><td data-align="end" data-wrap="false">29.00</td></tr>
+        <tr data-value="grinder" data-selected><td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope="row">手摇磨豆机</th><td data-align="end" data-wrap="false">8</td><td data-align="end" data-wrap="false">399.00</td></tr>
+        <tr data-value="kettle"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="row">手冲壶</th><td data-align="end" data-wrap="false">15</td><td data-align="end" data-wrap="false">239.00</td></tr>
+        <tr data-value="scale" data-selected><td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope="row">电子秤</th><td data-align="end" data-wrap="false">0</td><td data-align="end" data-wrap="false">189.00</td></tr>
+      </tbody>
+    </table>
+    <div data-part="status"><p role="status">已选择 2 件，共 4 件</p></div>
+  </tanrei-table>
+</DemoFrame>
+
+在元素上设置 `selection="multiple"`，并让每一行都以一个选择单元格开头。在表头行里，这个单元格放针对所有行的复选框。在表体的行里，它放这一行的复选框，行则用 `data-value` 带上你用来识别这条记录的名称：
+
+```html
+<tanrei-table selection="multiple" row-headers select-all-label="选择所有商品">
+  <table>
+    <caption>需要补货的商品</caption>
+    <thead>
+      <tr>
+        <td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td>
+        <th scope="col">名称</th>
+        <th scope="col" data-align="end">价格</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-value="grinder" data-selected>
+        <td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td>
+        <th scope="row">手摇磨豆机</th>
+        <td data-align="end">399.00</td>
+      </tr>
+    </tbody>
+  </table>
+  <div data-part="status"><p role="status">已选择 1 件，共 4 件</p></div>
+</tanrei-table>
+```
+
+选择由表格保存。用户更改某个复选框时，元素会在那一行上写 `data-selected`，让表头行的复选框与各行保持一致，并触发一次 `selectionchange`，其中带有所有选中行的值，按行的顺序排列：
+
+```js
+table.addEventListener('selectionchange', (event) => {
+  if (!(event instanceof CustomEvent)) return;       // 见下面的说明
+  const { values } = event.detail;                   // ['grinder', 'scale']
+  // 你的句子，用你的语言，写进你自己写的那个段落
+  table.querySelector('[role="status"]').textContent = `已选择 ${values.length} 件，共 ${total} 件`;
+});
+```
+
+- 要自己选中某一行，就在它的 `<tr>` 上写 `data-selected`；去掉这个属性，这一行就不再被选中。元素会选中或取消选中这一行的复选框，不触发任何事件。
+- 一行是否被选中，写在这一行自己身上（`data-selected`）。你换一种顺序重新给出的行，原来选中的仍然选中，没有选中的仍然没有选中；第一次交给表格的行，只有它自己这样标明时才是选中的。
+- 没有 `data-value` 的行不能被选择。请像表尾行那样，把它的选择单元格留空。
+- 表头行的复选框，在所有行都被选中时是选中的，只有一部分行被选中时是半选的，没有可以选择的行时是禁用的。它代表的是交给表格的那些行，绝不代表其他页的行。
+- 选择列不是数据列。`row-headers` 和 `sticky-first-column` 指的是它后面的那一列，`sort` 事件的 `index` 也不把它计算在内。
+- 在选择单元格之外按下某一行，不会选择任何东西。
+
+浏览器自己也有一个名为 `selectionchange` 的事件，用于文本选区的变化；单元格里的文本字段发出的这个事件会经过表格。表格的事件是带有 `detail.values` 的 `CustomEvent`，浏览器的则不是。请像示例那样检查这一点。
+
+对于没有脚本也必须能用的页面，请使用原生复选框。复选框为 `checked` 的行，仅凭样式表就会画成选中的样子，这些复选框也会随你的表单一起提交：
+
+```html
+<tr data-value="grinder">
+  <td data-part="selection"><input type="checkbox" name="product" value="grinder" checked aria-label="选择手摇磨豆机" /></td>
+  <th scope="row">手摇磨豆机</th>
+</tr>
+```
+
+### 加载中
+
+<DemoFrame label="加载中：占位行，以及说明这一点的状态行" plain>
+  <tanrei-table class="tanrei-not-prose" loading>
+    <table>
+      <caption>本周订单</caption>
+      <thead>
+        <tr><th scope="col">客户</th><th scope="col" data-wrap="false">下单日期</th><th scope="col" data-align="end" data-wrap="false">总额</th></tr>
+      </thead>
+      <tbody>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 9rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 12rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 7rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+      </tbody>
+    </table>
+    <div data-part="status"><p role="status">正在加载</p></div>
+  </tanrei-table>
+</DemoFrame>
+
+获取行的期间设置 `loading`。表格会以忙碌状态暴露给辅助技术，并照常画出这期间你给它的内容。它什么都不获取，也什么都不等待：你说它在加载多久，它就加载多久。
+
+```html
+<tanrei-table loading>
+  <table>
+    <thead>…</thead>
+    <tbody>
+      <tr data-placeholder aria-hidden="true">
+        <td><span class="tanrei-skeleton-placeholder"></span></td>
+        <td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div data-part="status"><p role="status">正在加载</p></div>
+</tanrei-table>
+```
+
+- 首次加载时，给出占位行：`<tr data-placeholder aria-hidden="true">`。占位行至少有一行文本那么高，没有复选框，并且对辅助技术隐藏。
+- 占位行的单元格可以留空，也可以各放一个骨架屏占位符（`class="tanrei-skeleton-placeholder"`，来自 `@tanrei/web/skeleton.css`）。占位符与单元格里的一行文本一样高，所以占位行与替换它的行一样高。在这里只用这个类就够了：表格已经说明自己正忙。
+- 换页或换一种顺序时，保留表格原有的行，并设置 `loading`。用户正在读的行仍然可读。
+- 什么都不变淡，什么都不禁用。表格加载期间，列标题和复选框照常工作。
+- 设置了 `loading` 期间，即使没有别的行，也不画空状态所在的那一行。
+
+### Markdown
+
+Markdown 渲染器输出的是一个裸的 `<table>`。请在构建时把它包起来；Tanrei 不会在运行时移动你的内容。用 rehype 只需一小步：
+
+```js
+import { visit, SKIP } from 'unist-util-visit';
+
+/** 把文档里的每个表格包进 <tanrei-table>。 */
+export function rehypeTanreiTable() {
+  return (tree) =>
+    visit(tree, 'element', (node, index, parent) => {
+      if (node.tagName !== 'table' || parent?.tagName === 'tanrei-table') return;
+      parent.children[index] = { type: 'element', tagName: 'tanrei-table', properties: {}, children: [node] };
+      return SKIP;
+    });
+}
+```
+
+渲染器自己在单元格上写的 `align="right"` 会被读作 `end`，`align="left"` 读作 `start`，所以在从右到左的页面上，“数字靠右”就变成了“数字靠末尾”。
+
+## 规格
+
+<DemoFrame label="紧凑并带条纹，用于供人扫读的表格" plain>
+  <tanrei-table class="tanrei-not-prose" density="compact" striped label="表格的令牌">
+    <table>
+      <thead>
+        <tr><th scope="col" data-wrap="false">令牌</th><th scope="col" data-wrap="false">引用</th><th scope="col" data-wrap="false">类型</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">comp.table.separation</td><td data-wrap="false">sys.behavior.separation</td><td data-wrap="false">number</td></tr>
+        <tr><td data-wrap="false">comp.table.divider.color</td><td data-wrap="false">sys.color.outline-variant</td><td data-wrap="false">color</td></tr>
+        <tr><td data-wrap="false">comp.table.divider.thickness</td><td data-wrap="false">sys.border.hairline</td><td data-wrap="false">dimension</td></tr>
+        <tr><td data-wrap="false">comp.table.row.gap</td><td data-wrap="false">sys.space.space50</td><td data-wrap="false">dimension</td></tr>
+        <tr><td data-wrap="false">comp.table.stripe.container.color</td><td data-wrap="false">sys.color.surface-container-low</td><td data-wrap="false">color</td></tr>
+        <tr><td data-wrap="false">comp.table.caption.gap</td><td data-wrap="false">sys.space.space100</td><td data-wrap="false">dimension</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<DemoFrame label="比它的框更宽：在框内滚动，第一列保持不动" plain>
+  <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
+    <table>
+      <caption>各地区访问量</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">地区</th><th scope="col" data-align="end" data-wrap="false">1 月</th><th scope="col" data-align="end" data-wrap="false">2 月</th><th scope="col" data-align="end" data-wrap="false">3 月</th><th scope="col" data-align="end" data-wrap="false">4 月</th><th scope="col" data-align="end" data-wrap="false">5 月</th><th scope="col" data-align="end" data-wrap="false">6 月</th><th scope="col" data-align="end" data-wrap="false">7 月</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row" data-wrap="false">北部地区</th><td data-align="end">1,204</td><td data-align="end">1,310</td><td data-align="end">1,288</td><td data-align="end">1,402</td><td data-align="end">1,396</td><td data-align="end">1,450</td><td data-align="end">1,512</td></tr>
+        <tr><th scope="row" data-wrap="false">中部地区</th><td data-align="end">3,020</td><td data-align="end">2,985</td><td data-align="end">3,110</td><td data-align="end">3,204</td><td data-align="end">3,190</td><td data-align="end">3,275</td><td data-align="end">3,301</td></tr>
+        <tr><th scope="row" data-wrap="false">南部地区</th><td data-align="end">870</td><td data-align="end">902</td><td data-align="end">915</td><td data-align="end">899</td><td data-align="end">940</td><td data-align="end">968</td><td data-align="end">1,002</td></tr>
+        <tr><th scope="row" data-wrap="false">岛屿</th><td data-align="end">212</td><td data-align="end">220</td><td data-align="end">198</td><td data-align="end">240</td><td data-align="end">251</td><td data-align="end">263</td><td data-align="end">270</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<DemoFrame label="高度由布局给定：各行滚动，表头保持不动" plain>
+  <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
+    <table>
+      <caption>版本发布</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">版本</th><th scope="col" data-wrap="false">发布日期</th><th scope="col">更改</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">2.4.0</td><td data-wrap="false">5 月 12 日</td><td>表格让表头始终可见。</td></tr>
+        <tr><td data-wrap="false">2.3.2</td><td data-wrap="false">4 月 28 日</td><td>修复了用两位数年份输入日期的问题。</td></tr>
+        <tr><td data-wrap="false">2.3.1</td><td data-wrap="false">4 月 20 日</td><td>修复了菜单在屏幕之外打开的问题。</td></tr>
+        <tr><td data-wrap="false">2.3.0</td><td data-wrap="false">4 月 2 日</td><td>侧边面板，以及更低调的焦点环。</td></tr>
+        <tr><td data-wrap="false">2.2.1</td><td data-wrap="false">3 月 18 日</td><td>修复了工具提示一直不关闭的问题。</td></tr>
+        <tr><td data-wrap="false">2.2.0</td><td data-wrap="false">3 月 4 日</td><td>从右到左的布局。</td></tr>
+        <tr><td data-wrap="false">2.1.0</td><td data-wrap="false">2 月 11 日</td><td>日期时间选择器。</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<ComponentSpecs name="table" />
+
+## 指南
+
+### 它是不是表格
+
+有行有列的数据才用表格。不要用表格把东西并排摆放：辅助技术会为每个单元格朗读行、列和行列标题，对并非表格性质的内容来说这只是噪音。并排摆放请用布局。
+
+没有第二个维度的一组键和值，更接近描述列表，而不是表格。
+
+### 密度
+
+| `density` | 只有一行文字的行的高度 | 用于 |
+| --- | --- | --- |
+| `regular`（默认） | 46 | 供人阅读的表格：行数不多，单元格会换行。 |
+| `compact` | 32 | 供人扫读的表格：几百行，标识符和值。 |
+
+行没有自己的高度。它与其中最高的单元格一样高。
+
+### 区分各行
+
+| `separation` | 绘制什么 |
+| --- | --- |
+| `auto`（默认） | 设计系统选定的方式：在默认系统中是一道细线。 |
+| `divider` | 行与行之间、表头行下方和表尾行上方各一道细线。 |
+| `gap` | 留空，不画线。 |
+
+`striped` 每隔一行用一种柔和的颜色填充表体的行。它用于有许多相似行的宽表格，视线横向移动时容易跟丢所在的行。它可以与任何一种分隔方式组合。
+
+### 列
+
+- 列按自己的内容确定宽度。列绝不会比其中不可断开的内容更窄，长文本的列则占用短列留下的空间。
+- 文本会换行，绝不截断。标识符不在内部断开，而是把所在的列撑宽。
+- 数字列靠末尾对齐，让数位对齐。文本留在起始侧。只有标记，或者在每一行里都是同一类答案的单个词，才居中。
+- 只在不得不这样做的地方自己指定列宽（在列标题单元格上写 `style="width: …"`）。它会取代由内容得出的宽度。
+
+### 放不下的时候
+
+- 表格在自己的框内滚动，而不是让页面滚动。框的某条边上的一道细线，表示这条边之外还有列。
+- `sticky-first-column` 让第一列始终可见，其余各列在它下面滚动。当它会占去框的一半以上时，它会自行放开，所以手机屏幕绝不会被固定的那一列占满。
+- `sticky-header` 让表头行在各行滚动时始终可见。它在你的布局限制了表格高度的地方起作用（元素上的 `max-block-size`）；它不跟随页面。
+- 如果表格位于页面表面之外的另一种表面上（卡片、对话框），并且让表头行或第一列始终可见，或者带有状态行，请把 `--tanrei-comp-table-sticky-container-color` 设为那个表面的颜色。这些部分用这个颜色填充，这样从它们下面经过的行和列才不会透出来。
+
+### 排序指引
+
+- 用户会凭某一列去找某一行时，才让这一列可排序：名称、日期、金额、类别。备注列不属于这种情况。
+- 每个可排序的列都画出标记，静止时也画，这样在触摸屏上也能看出哪些列标题可以按下。
+- 一次只按一列排序。第二个排序键要用你自己的控件。
+- 想让新的顺序被朗读出来，就在状态行里说明（“已按价格从高到低排序”）。表格自己什么都不朗读。
+- 带有可排序列的表格，表头行在 regular 密度下至少高 44；用于触摸时，两种密度下都是 48。
+
+### 选择行指引
+
+- 用户要同时对几条记录执行操作（删除、导出、移动）时，才让他们选择行。只针对一条记录的操作，放在它所在的行里。
+- 在状态行里说明选中了多少行（“已选择 3 件，共 132 件”）。表格什么都不数。
+- 把对选中的行执行操作的按钮放在表格上方。按钮是你的；表格告诉你选中了什么。
+- “全部 132 件”要用你自己的控件来提供。表头行的复选框选择的是交给表格的那些行，绝不是其他页的行。
+- 每个复选框都是焦点顺序中的一个停靠点。一页的行数要控制在用户可以用 Tab 逐个走完的范围内，其余的分页。
+- 带有复选框的行在 regular 密度下至少高 44；用于触摸时，两种密度下都是 48。紧凑的行在使用指针时仍然紧凑。
+- [Tag](/zh-cn/components/tag/) 和[行内代码](/zh-cn/components/inline-code/)在你没有选择其他变体时都是 tonal 的；在默认系统中，tonal 的填充与选中行的填充几乎相同，所以在选中的行上看不出它们的形状。它们的文字仍然可读。在可以选择行的表格里，请使用 outlined 的 Tag。
+
+### 加载指引
+
+- 首次加载用占位行，数量与你预计的行数大致相当。
+- 更换顺序或换页时保留原有的行。不要用占位行或[加载指示器](/zh-cn/components/loading-indicator/)替换用户正在读的行。
+- 在状态行里写“正在加载”，结束后说明到达的内容（“第 1–20 件，共 132 件”）。
+- 清除 `loading` 时移除占位行。留下来的占位行仍然会被画出来，并在调试构建中报告。
+
+### 没有行与状态行
+
+- 没有行的表格使用空状态，说明为什么没有行、接下来该做什么。回应搜索或筛选的空状态应设置 `live`，这样结果才会被朗读。
+- 状态行只用来说明表格现在显示的内容：共有多少行，显示的是其中哪些。对行执行操作的按钮应放在表格上方。
+
+### 推荐
+
+- 给每个表格一个名称：人人都看得到的说明文字；如果上方的标题已经说明了它是什么，则用 `label`。
+- 只要第一列说明了每一行是什么，就把它写成行标题（`<th scope="row">` 加 `row-headers`）。
+- 没什么可说的单元格就留空。如果“没有”本身就是信息（“不可用”），就把它写出来。
+
+### 避免
+
+- 不要用表格给屏幕排版。
+- 不要指望靠条纹或颜色来传达含义。单元格里的状态应是一个词，或者是一个用标签文字写明这个状态的 Tag。
+- 不要为了填满空单元格而在里面放一个破折号。
+- 不要让行可以被按下，也不要在列标题里写你自己的排序标记或顺序。列标题只有按上面的 HTML 写法才变得可以按下，别无他法。行靠它的复选框来选择，可以打开的行则不属于表格。
+- 不要在表格加载期间把它变淡或禁用。
+
+## 无障碍
+
+<ComponentAccessibility name="table" />
+
+### 组件负责的部分
+
+- 原生表格始终是表格：行、列标题、行标题和单元格都是浏览器自己的，无论有没有条纹、采用哪种密度、是否正在滚动、是否固定了某一列或表头。
+- 说明文字为表格命名。没有说明文字时，`label` 成为表格的 `aria-label`，不绘制。两者都有时，名称是说明文字。
+- 表格在自己的框内滚动时，这个框是焦点顺序中的一个停靠点，排在单元格里的任何东西之前，同时也是一个以表格名称命名的区域。方向键、Page Up、Page Down、Home 和 End 可以滚动它。不滚动的表格不增加停靠点。
+- 焦点环画在框的边缘以内，所以不会被裁掉。
+- 如果表格每行的第一个单元格是普通的 `<td>`（渲染出来的 Markdown），并且设置了 `row-headers`，元素会给它们加上行标题角色。
+- 在从右到左的布局中，各列从右侧排起，滚动从右侧开始，固定的第一列位于右侧，每个单元格的文本保持自己的方向：数字绝不会被颠倒。
+- 文本放大到 200% 时，列宽会重新计算；放不下的地方，表格在自己的框内滚动。
+- 在强制颜色模式下，每条线都是文本颜色；带条纹的表格无论采用哪种分隔方式都会画出行线，因为这个模式会去掉填充。
+- 可排序列的列标题单元格是带有顺序（`aria-sort`）的列标题，其中你的按钮以列标题的文字命名。标记对辅助技术隐藏。
+- 排序按钮是焦点顺序中的一个停靠点。Enter 和 Space 按下它；它是链接时，只有 Enter。按下之后焦点仍留在它上面。如果你把表头行连同各行一起替换了，焦点会移到同一列的新按钮上。
+- 排序按钮的焦点指示画在它的列标题单元格内部；用键盘聚焦的按钮如果被固定的第一列或状态行挡住，会被带到看得见的地方。
+- 空状态所在的那一行是只有一个单元格的一行。表格不给它添加任何角色和文字。
+- 状态行的段落是一个状态：它的文本变化时会以礼貌（polite）的方式朗读，不移动焦点；首次绘制时什么都不朗读。
+- 在强制颜色模式下，排序按钮的标签和标记采用按钮的文本颜色，已排序的列只靠它的箭头来表明。
+- 没有脚本时，排序按钮、它们的标记、空状态所在的那一行和状态行照样绘制，排序链接也能工作。`sort` 事件需要脚本。
+- 可以选择行的表格仍然是表格。它不获得 grid 角色，行不获得选中状态，也没有任何按键把焦点从一个单元格移到另一个单元格。行的复选框的选中状态说明这一行已被选中。
+- 表头行的复选框会说明自己是选中还是未选中，半选时则说明是混合；没有可以选择的行时是禁用的。
+- 每个复选框都是焦点顺序中单独的一个停靠点：先是表头行的复选框和排序按钮，然后是每一行的复选框。Space 选中或取消选中它。
+- 行的复选框没有自己的名称时，以这一行的行标题单元格命名。
+- 在选择单元格里的任何位置按下，都是按下其中的复选框。某个复选框有焦点时，如果你替换了各行或重新排列了各行，焦点会移到 `data-value` 相同的那一行的复选框上。
+- 在强制颜色模式下，选中行的填充消失，复选框仍然说明这一行已被选中。
+- 设置了 `loading` 期间，表格以忙碌状态暴露给辅助技术（`aria-busy`）。占位行对辅助技术隐藏，所以用户听到的是表格正忙，而不是一行行空无一物的内容。加载开始或结束时，表格自己什么都不朗读。
+- 没有脚本时，选择列、选中的行（`data-selected`，或者已选中的原生复选框）和占位行照样绘制，原生复选框也能在你的表单里工作。让表头行的复选框保持一致，以及 `selectionchange` 事件，都需要脚本。
+- 没有名称的表格、未知的密度、分隔方式或选择方式、写在表体之前的表尾行、单元格数多于或少于列数的行、没有列标题的可排序列、同时排序的两列、没有名称的行复选框，以及不在加载中的表格里的占位行，会在调试构建中报告。
+
+### 需要你做的事
+
+- 给表格命名。会滚动却没有名称的表格是一个焦点停靠点，用户无法把它与别的停靠点区分开。
+- 给每一列一个列标题单元格，并把行标题标记为行标题。列标题和行标题是结构，不是样式。
+- 需要两级列标题或合并单元格的表格，请尽量保持简单。它们按 HTML 的方式工作，但这个组件没有任何部分是围绕它们设计的；拆分表格通常更清楚。
+- 单元格里可以按下的东西（链接、按钮）保留自己的名称、焦点和目标尺寸。请给它留出空间。
+- 为各行排序之后，在列标题单元格上写上新的 `aria-sort`：其中一个写 `ascending` 或 `descending`，其他可排序的列写 `none`。不要把这个属性留在没有按钮的列标题上。
+- 状态行的段落没有文本时，也要把它留在页面里，这样你下一次给它的文本才会被朗读。
+- 用 `select-all-label` 为表头行的复选框命名；表格没有行标题时，用各行复选框的 `label` 为它们命名。
+- 加载开始和结束时，都在状态行里说明。这是这一变化唯一会被朗读的地方。
+
+### 文字
+
+Tanrei 不自带任何文字。表格只向你要其中一段，即表头行复选框的名称：元素上的 `select-all-label`，或者用 `setWords()` 给出的 `selectAllLabel`。另外两段由你写在自己的 HTML 里。
+
+| 文字 | 在哪里给出 |
+| --- | --- |
+| 表头行复选框的名称（“选择所有商品”） | 元素上的 `select-all-label`，或者用 `setWords({ selectAllLabel: '选择所有行' })` 为所有表格只给一次。 |
+| 行的复选框的名称（“选择手摇磨豆机”） | 这一行的 `<tanrei-checkbox>` 上的 `label`，或者原生复选框上的 `aria-label`。有行标题时可以不写：行标题会为复选框命名。 |
+| 状态行的句子（“已选择 2 件，共 4 件”“正在加载”） | 状态行的段落；你不写段落时，用元素上的 `status`。 |
+
+没有为表头行的复选框命名时，它照样绘制、照样能用，但没有无障碍名称，调试构建会报告缺少这段文字。

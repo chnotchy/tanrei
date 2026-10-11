@@ -1,0 +1,20 @@
+---
+title: Componentes
+description: El inventario completo de componentes, agrupado por categoría, con lo que está documentado hoy.
+translationOf: components/index.mdx
+sourceHash: 1c7d450f3a7110054b173eb27a441d938ae9ecf7
+---
+
+import { inventory } from '../../../../lib/repo';
+import ComponentIndex from '../../../../components/ComponentIndex.astro';
+
+El inventario de Tanrei abarca {inventory.length} familias de componentes; la [página de estado](/es/status/) muestra qué ofrece cada plataforma. Un componente tiene una página aquí en cuanto tiene una especificación. Una entrada marcada como «Planificado» aún no tiene especificación y no es un enlace. La cifra de cada entrada cuenta las plataformas que tienen una implementación.
+
+Todas las páginas de componente tienen las mismas cuatro secciones:
+
+1. **Descripción general**: para qué sirve el componente y dónde está disponible.
+2. **Especificaciones**: anatomía, propiedades, estados, comportamiento, tokens y la correspondencia de nombres por plataforma, generadas a partir del archivo de especificación del componente.
+3. **Pautas**: cuándo y cómo usarlo.
+4. **Accesibilidad**: rol, interacción con el teclado y etiquetado.
+
+<ComponentIndex headingLevel={2} />

@@ -1,0 +1,401 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "radio-button",
+  "title": "Radio button",
+  "summary": "Lets people choose exactly one option from a small group shown all at once.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The round state layer behind the ring. It carries hover, focus and press and is invisible at rest."
+    },
+    {
+      "id": "ring",
+      "description": "The circle that shows there is an option. Its outer diameter never changes; its stroke is thin while unselected and thickens inward, towards the center, while selected."
+    },
+    {
+      "id": "fill",
+      "description": "What the ring leaves inside it, less an inset, tinted while selected (translucent in the default system) and clear while unselected. Where the inset is nothing it meets the ring's inner edge with no gap: ring and fill are drawn as one shape. It never grows or shrinks on its own, and it is never what carries the selection: the thickened ring is.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The visible text that names the option. A click on it selects the option.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus, around the ring."
+    }
+  ],
+  "props": [
+    {
+      "name": "selected",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this option is the one chosen in its group. Inside a radio group it follows the group's value."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "What this option stands for: carried by change, and submitted with a form on the web."
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "default": "",
+      "description": "The group this option belongs to where it does not stand in a radio group: on each platform that platform's bare way of forming a group (see platforms); the options of one group exclude each other and share one tab stop. Ignored inside a radio group, which is the group."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents interaction; the option is skipped by the focus order and by the arrow keys."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the option in the error form of its condition: the ring, and the fill while selected, in the error color (a required group left unanswered, a choice that cannot be taken). A radio group or a field group in error puts every option it holds there, so set it by hand only on options grouped without one (RAD-25). It draws and nothing more: the group, not the option, is exposed as invalid, and the words that say why are the group's."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The text that names the option: drawn next to the ring and used as the accessible name."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws no visible label but keeps label as the accessible name."
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "This option became selected by the user; carries its value. The option it replaced does not emit. Inside a radio group the group emits change in its place (RGP-4)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "RAD-1",
+      "text": "WHEN the user activates an unselected radio button by pointer, touch, Space, assistive technology or a click on its label THE radio button SHALL become selected and emit change exactly once with its value; Enter SHALL activate it only on a platform whose convention activates any focused control with Enter (Android, tvOS), and SHALL NOT on the web, where Enter submits the form."
+    },
+    {
+      "id": "RAD-2",
+      "text": "WHEN the user activates a radio button that is already selected THE radio button SHALL stay selected and SHALL NOT emit change: a radio button is never cleared by its own activation."
+    },
+    {
+      "id": "RAD-3",
+      "text": "WHEN a radio button becomes selected THE other radio buttons of its group SHALL become unselected, without emitting change."
+    },
+    {
+      "id": "RAD-4",
+      "text": "WHEN a radio button in a group has keyboard focus and the user presses Down Arrow or Right Arrow THE group SHALL move focus to the next enabled radio button, wrapping from the last to the first, and select it; Up Arrow and Left Arrow SHALL do the same towards the previous one; in a right-to-left layout Right Arrow SHALL move to the previous and Left Arrow to the next.",
+      "verify": "In a radio group on every platform (RGP-5). Without one: on the web, group by `name`; on Compose, inside a `selectableGroup()`."
+    },
+    {
+      "id": "RAD-5",
+      "text": "THE group SHALL keep exactly one of its radio buttons in the tab order: the selected one, or the first enabled one while none is selected; Tab SHALL leave the group rather than move within it."
+    },
+    {
+      "id": "RAD-6",
+      "text": "WHILE disabled is true THE radio button SHALL NOT change or emit change, SHALL NOT be focusable, SHALL be skipped by the arrow keys, SHALL ignore clicks on its label and SHALL expose the disabled state to assistive technology."
+    },
+    {
+      "id": "RAD-7",
+      "text": "WHILE hovered, keyboard-focused or pressed THE radio button SHALL render its container, ring, fill, label and opacity from the component tokens of its condition (selected or unselected, or the error- form of either, RAD-26) in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. A part the interaction states recolor changes over the component's state motion, as the container does; only a change of condition uses the selection motion (RAD-15).",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "RAD-8",
+      "text": "WHEN the radio button receives keyboard focus THE radio button SHALL show the focus ring around its ring without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "RAD-9",
+      "text": "WHERE the visual size is below the minimum target THE radio button SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. The visible label SHALL be part of the hit area as well."
+    },
+    {
+      "id": "RAD-10",
+      "text": "WHILE disabled is true THE radio button SHALL render its container, ring, fill, label and opacity from the disabled component tokens of its condition."
+    },
+    {
+      "id": "RAD-11",
+      "text": "WHEN the radio button is pressed by pointer, touch or Space, or by Enter where Enter activates it (Android, tvOS; never on the web, where Enter submits the form) THE radio button SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "RAD-12",
+      "text": "WHILE pressed THE radio button SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation; a press outside the container (on the label) grows it from the container's center); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; ring, fill, label, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.radio-button.motion.feedback-duration with motion.state-easing, fades over motion.state-duration with motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "RAD-13",
+      "text": "THE radio button SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow. A round container is unchanged by any amount; it shows only where a system gives the container a corner below full."
+    },
+    {
+      "id": "RAD-14",
+      "text": "THE radio button SHALL draw a ring of outer diameter comp.radio-button.ring.size centered in a round container of diameter comp.radio-button.container.size, the outer diameter the same in both conditions; while unselected the ring SHALL be stroked at comp.radio-button.ring.width inside that diameter, and while selected at comp.radio-button.ring.selected-width-share of the ring's radius (1 being a stroke as wide as the radius, a solid disc), or at comp.radio-button.ring.width where that is wider, the stroke growing inward from the outer diameter. It SHALL draw no dot of its own; what is drawn inside the ring is the fill (RAD-19)."
+    },
+    {
+      "id": "RAD-15",
+      "text": "WHEN the radio button becomes selected THE radio button SHALL, over comp.radio-button.motion.selection-duration with comp.radio-button.motion.selection-easing, thicken the ring's stroke inward from its unselected to its selected width, change the ring color from the unselected to the selected one, and run the fill's color continuously from comp.radio-button.unselected.fill.color (none in the default system) to comp.radio-button.selected.fill.color, fading the opacity in from none rather than passing through any other color; WHEN it becomes unselected it SHALL run the same change in reverse; the fill SHALL NOT grow from or shrink to the center; WHERE motion is reduced it SHALL show the new condition at once and in full, with no intermediate frame."
+    },
+    {
+      "id": "RAD-16",
+      "text": "THE radio button SHALL expose the role radio with the state checked or not checked, and its position in its group and the group's size; THE group SHALL be exposed as a radio group: the radio group component, named by its label (RGP-10), or, where the options are grouped without one (RAD-25), a container whose accessible name the product gives."
+    },
+    {
+      "id": "RAD-17",
+      "text": "WHILE label is not empty and labelHidden is false THE radio button SHALL draw label at the inline end of the container, comp.radio-button.label.gap away, in comp.radio-button.label.typescale, wrapping rather than truncating, the control centered on the label's first line; right-to-left layouts SHALL mirror the order."
+    },
+    {
+      "id": "RAD-18",
+      "text": "WHILE labelHidden is true THE radio button SHALL draw no label and SHALL still expose label as its accessible name; WHILE label is empty THE radio button SHALL still render, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "RAD-19",
+      "text": "THE radio button SHALL draw the fill in both conditions: the area inside the ring's inner edge at that moment, less comp.radio-button.fill.inset all round, never under the ring, in the fill color of its condition and state (comp.radio-button.selected.fill.color or comp.radio-button.unselected.fill.color at rest, and comp.radio-button.error-selected.fill.color or comp.radio-button.error-unselected.fill.color in the error forms, RAD-26; an unselected one is none in the default system, so an unselected option shows no fill there) at comp.radio-button.fill.opacity; a fill whose diameter would be zero or less SHALL NOT be drawn."
+    },
+    {
+      "id": "RAD-20",
+      "text": "WHEN the condition changes again before the selection motion of RAD-15 has finished THE radio button SHALL turn the change back from the stroke width and the ring and fill colors it has reached, and SHALL NOT jump to either end.",
+      "verify": "Select and unselect again within half the selection duration; the stroke and colors must turn back without a frame at either end."
+    },
+    {
+      "id": "RAD-21",
+      "text": "THE radio button SHALL take at least comp.radio-button.option.min-height of height in layout, the container centered in it; at its default, sys.target.touch, radio buttons stacked with no space between them keep whole targets that do not overlap, and a layer that lowers it accepts shared target area.",
+      "verify": "Stack three options with no gap and check that each option's hit area is its own 48 and that a press on a boundary selects exactly one option; then lower the token in a test layer and check that the options pack to it."
+    },
+    {
+      "id": "RAD-22",
+      "text": "THE radio button SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the radio button is shown THE radio button SHALL draw itself for the new direction at once, without a motion of its own, keeping its selection and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "RAD-23",
+      "text": "THE radio button SHALL lay out its label as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE radio button SHALL still place the label and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "RAD-24",
+      "text": "WHILE comp.radio-button.fill.inset is 0 (the default system's) THE radio button SHALL draw the ring and the fill as one shape: every point inside the ring's outer diameter SHALL be painted by the ring, by the fill, or, along the circle where the two meet, by both in shares that add up to the whole, so that nothing behind the radio button shows between the ring's inner edge and the fill at any zoom, display density or fractional position, or in any frame of the selection motion (RAD-15); neither SHALL be painted over the other (RAD-19), so that the fill is nowhere more or less opaque than comp.radio-button.fill.opacity makes it. WHILE comp.radio-button.fill.inset is above 0 the space it leaves between the ring and the fill SHALL show what is behind the radio button, as wide as the inset all round.",
+      "verify": "Draw `selected` and `disabled-selected` on a background that contrasts with the ring (the other scheme's surface, or a saturated color) at device pixel ratios 1, 1.25, 1.5, 2 and 3, each also offset by half a device pixel, and read the pixels along several radii: from the outer edge inward the color goes from the ring's to the fill's and no pixel between them is nearer the background's color than both, nor darker than the ring. Read them again at several frames of the selection motion, both ways. Under `m3-like`, whose comp.radio-button.fill.inset is 3, the space between the ring and the dot is the background's color and equally wide all round."
+    },
+    {
+      "id": "RAD-25",
+      "text": "WHILE the radio button stands in a radio group THE radio button SHALL take its group from it and from nothing else: selected SHALL follow the radio group's value and its own value (RGP-3), name SHALL be ignored, it SHALL be disabled WHILE the radio group is (RGP-7), and its selection by the person SHALL be reported by the radio group's change and by no event of its own that a listener on the group would receive as well (RGP-4). WHERE the radio button stands in no radio group it SHALL form its group by the platform's bare idiom — on the web the radio buttons of one name in the same form, or in the same document or shadow root outside a form — and RAD-3, RAD-4, RAD-5 and RAD-16 SHALL hold among those, the group's name, its required and invalid states and its layout being the product's, or those of a field group whose kind is radio-group that the product put around them (FGR-25). A radio button in no group at all SHALL still render and be selectable, as a group of one, and in debug builds SHALL report it where the platform can tell (on the web, a radio button with neither a radio group nor a name).",
+      "verify": "Web: three options in a `tanrei-radio-group`, each also given a different `name`, still exclude each other and share one tab stop, and a listener on the group counts one change per selection; three options with one `name` and no radio group behave as before."
+    },
+    {
+      "id": "RAD-26",
+      "text": "THE radio button SHALL draw the condition its props select — selected WHILE selected is true, otherwise unselected — and the error- form of that condition (error-selected, error-unselected) WHILE it is in error: WHILE error is true, or WHILE the radio group or the field group it stands in is in error and has put it there (RGP-8, FGR-8), as a checkbox draws the error- form of its condition (CHK-4). In an error form THE radio button SHALL render its container, ring, fill, label and opacity from the component tokens of that form in every state — at rest, hovered, focused and pressed with the precedence of RAD-7, and disabled as RAD-10 says — and SHALL change nothing else: the ring's diameter and its stroke in each condition (RAD-14), the fill's inset and opacity (RAD-19), the label, the focus indication (RAD-8), the hit area (RAD-9) and the selection motion (RAD-15), which runs between the two error forms' colors, are those of the same condition out of error. WHILE disabled is true the disabled tokens of the error form apply, which in the default system are the values of the plain form's: a disabled option shows no error color, because it cannot be the answer that puts the error right. WHEN the radio button enters or leaves the error forms without a change of selection THE radio button SHALL only recolor its ring and its fill, over comp.radio-button.motion.selection-duration with comp.radio-button.motion.selection-easing, and at once WHERE motion is reduced; nothing SHALL change size or move. THE radio button SHALL expose no invalid state and take no description for the error: the radio role has no such state, the group the options form carries it and the words that say why (RAD-16, RGP-10, FGR-25), and an option that repeated them would say the error once for every arrow key. It SHALL never set error itself, and being selected SHALL NOT clear it. WHERE the options are grouped without a radio group or a field group (RAD-25) error is the product's to set, on every option of the group together with the invalid state of the group it built.",
+      "verify": "Fixtures error-unselected and error-selected. Under the default system the ring of both forms and the fill of the selected one are the error role, and the label keeps its color. Unit: in each of hovered, focused, pressed and disabled the resolved tokens are those of the error form of the condition; a disabled radio button with error true draws what the same one with error false draws; select an option while in error and the stroke thickens as out of error while the colors run between the two error forms; toggling error alone changes no measured size. The accessibility tree shows no invalid state on a radio whose error is true, by its own prop or by its group."
+    },
+    {
+      "id": "RAD-27",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE radio button SHALL draw each error form exactly as it draws the same condition out of error there — its ring in the platform's own colors, the stroke's weight carrying the selection — and SHALL show no error color, because the person's colors leave none to show: the error is carried by the words of the group's error text and by the group's invalid state (RGP-14, FGR-17).",
+      "verify": "On the web, with forced colors emulated: the fixtures error-unselected and error-selected are the same pictures as unselected and selected."
+    }
+  ],
+  "accessibility": {
+    "role": "radio",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus into the group (to the selected option, or the first enabled one when none is selected) and out of it."
+      },
+      {
+        "keys": "Space",
+        "action": "Selects the focused option if it is not selected."
+      },
+      {
+        "keys": "Down Arrow / Right Arrow",
+        "action": "Moves to the next enabled option and selects it, wrapping (Left Arrow in right-to-left)."
+      },
+      {
+        "keys": "Up Arrow / Left Arrow",
+        "action": "Moves to the previous enabled option and selects it, wrapping (Right Arrow in right-to-left)."
+      },
+      {
+        "keys": "Enter",
+        "action": "Nothing on the web (it submits the form); selects where the platform activates any focused control with Enter (Android, tvOS)."
+      }
+    ],
+    "labeling": "label is each option's accessible name, visible or not (labelHidden). The group's name (the question the options answer) is the radio group's label. Where options are grouped without a radio group (RAD-25) the product gives it: on the web a container with role radiogroup and aria-labelledby; on the other platforms the group container's label.",
+    "minimumTarget": true,
+    "notes": [
+      "Scope: this spec covers the option, and what holds among the options of any group however it is formed (RAD-3, RAD-4, RAD-5, RAD-16). The radio group component (`radio-group`) is the group in the usual case: it holds the value, names the set and draws its label, its description and its error. Grouping without it (RAD-25) is for options that one container cannot lay out — one in each row of a table or a list, one on each card — and draws nothing, so it has no tokens.",
+      "iOS has no radio role: an option is exposed as a button with the selected trait, and its position (\"2 of 3\") through its accessibility value.",
+      "The ring alone carries the selected condition at 3:1 against the surface (WCAG 1.4.11): the selected ring is sys.color.primary, which the build holds to 4.5:1 on every surface role, and its stroke is 2.5 times the unselected one, so the selection does not rest on color alone (WCAG 1.4.1). The translucent fill is not counted. In an error form the ring is sys.color.error, which the build holds to 4.5:1 on every surface role as it holds the primary role, so both error forms keep 3:1 (WCAG 1.4.11) and the selection is still told by the stroke.",
+      "A group in error is said by the radio group — its error text and its invalid state (RGP-8) — and shown on every option of it: the ring, and the fill of the selected one, take the error color (RAD-26), as a checkbox's box does (CHK-4). The color is one more sign and never the only one (WCAG 1.4.1): the words and the state carry the error, and the option exposes no invalid state of its own, because the radio role has none. The option has an error condition so that one form marks its checkboxes and its radio buttons by one rule."
+    ]
+  },
+  "tokens": "comp.radio-button",
+  "fixtures": [
+    {
+      "id": "unselected",
+      "props": {
+        "value": "weekly",
+        "name": "frequency",
+        "label": "Weekly"
+      }
+    },
+    {
+      "id": "selected",
+      "props": {
+        "selected": true,
+        "value": "weekly",
+        "name": "frequency",
+        "label": "Weekly"
+      }
+    },
+    {
+      "id": "error-unselected",
+      "props": {
+        "error": true,
+        "value": "weekly",
+        "name": "frequency",
+        "label": "Weekly"
+      }
+    },
+    {
+      "id": "error-selected",
+      "props": {
+        "error": true,
+        "selected": true,
+        "value": "weekly",
+        "name": "frequency",
+        "label": "Weekly"
+      }
+    },
+    {
+      "id": "disabled-unselected",
+      "props": {
+        "disabled": true,
+        "value": "weekly",
+        "name": "frequency",
+        "label": "Weekly"
+      }
+    },
+    {
+      "id": "disabled-selected",
+      "props": {
+        "disabled": true,
+        "selected": true,
+        "value": "weekly",
+        "name": "frequency",
+        "label": "Weekly"
+      }
+    },
+    {
+      "id": "label-hidden",
+      "props": {
+        "selected": true,
+        "value": "weekly",
+        "name": "frequency",
+        "label": "Weekly",
+        "labelHidden": true
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-radio-button",
+      "props": {
+        "selected": "checked",
+        "value": "value",
+        "name": "name",
+        "disabled": "disabled",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "error": "error"
+      },
+      "events": {
+        "change": "change"
+      },
+      "notes": "Form-associated, with the native radio's idiom: `checked`, and a group is the options with one `name` under the same form (or the same root without a form); the options manage the arrow keys and the single tab stop among themselves. A `tanrei-radio-group` is the usual group: inside one the option needs no `name`, takes `checked`, its tab stop and its position from the group and submits nothing itself (RAD-25). Options grouped by `name` alone are wrapped by the product in an element with role radiogroup and a name. `labelHidden` is the `label-hidden` attribute. `error` is a reflected boolean attribute. The option asks the frame around it as a checkbox does (`FieldControlController` with `errorCondition: true`, `takes: 'all'`), and draws its error form while `error` or the frame's `invalid` holds (`data-error` on `.root`); it writes no `aria-invalid`, and in a group in error it takes no description from the group's frame — it names itself, and its group says the error (RAD-26); alone in a Field it takes its name and description from the Field as any control does. Under `forced-colors: active` the error forms are the plain ones (RAD-27)."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiRadioButton",
+      "props": {
+        "selected": "selection",
+        "value": "value",
+        "name": "TanreiRadioGroup",
+        "disabled": "disabled",
+        "label": "title",
+        "labelHidden": "labelsHidden",
+        "error": "isError"
+      },
+      "events": {
+        "change": "selection"
+      },
+      "notes": "`TanreiRadioButton(_ title:, value: V, selection: Binding<V?>)`: selected is `selection == value`, and activation writes `value` to the binding, which is the change event. SwiftUI has no radio group on iOS, so `TanreiRadioGroup` (a container with no tokens) carries the group's name, the arrow keys and the position announcements; it is the radio group component (`radio-group`), which adds the frame and holds the selection. Lagging: it draws a 16 ring with a 1 stroke and an 8 dot in a 28 state layer, not this spec's ring and dot. The error condition (`isError`, the error forms of RAD-26 and RAD-27, set by `TanreiRadioGroup` in error through the environment) is not built on this platform yet."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiRadioButton",
+      "props": {
+        "selected": "selected",
+        "value": "onClick",
+        "name": "selectableGroup",
+        "disabled": "enabled",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "error": "isError"
+      },
+      "events": {
+        "change": "onClick"
+      },
+      "notes": "Compose idiom, as `RadioButton`: the caller passes `selected` and an `onClick` that captures the option's value; the parent forms the group with `Modifier.selectableGroup()`, which a `TanreiRadioGroup` (`radio-group`) applies itself. `enabled` is the inverse flag. Lagging: it draws a 16 ring with a 1 stroke and an 8 dot in a 28 state layer, not this spec's ring and dot. The error condition (`isError`, the error forms of RAD-26 and RAD-27, given by a `TanreiRadioGroup` in error through its composition local) is not built on this platform yet."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiRadioButton",
+      "props": {
+        "selected": "groupValue",
+        "value": "value",
+        "name": "TanreiRadioGroup",
+        "disabled": "enabled",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "error": "isError"
+      },
+      "events": {
+        "change": "onChanged"
+      },
+      "notes": "Flutter idiom: `TanreiRadioButton<T>(value:)` inside a `TanreiRadioGroup<T>(groupValue:, onChanged:, semanticLabel:)` ancestor, shaped like Flutter's `RadioGroup` (3.35), which the package's minimum Flutter (3.32) lacks and whose name it must not take; selected is `groupValue == value`. The group carries the arrow keys, the single Tab stop and the radio-group semantics; it is the radio group component (`radio-group`), which adds the frame. `enabled` is the inverse flag, as Flutter's radio has since `RadioGroup` replaced the per-radio `onChanged`. Lagging: it draws a 16 ring with a 1 stroke and an 8 dot in a 28 state layer, not this spec's ring and dot. The error condition (`isError`, the error forms of RAD-26 and RAD-27, given by a `TanreiRadioGroup` in error through its inherited scope) is not built on this platform yet."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "RadioButton",
+      "props": {
+        "selected": "selected",
+        "value": "value",
+        "name": "RadioGroup",
+        "disabled": "disabled",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "error": "error"
+      },
+      "events": {
+        "change": "onSelect"
+      },
+      "notes": "Controlled: `onSelect(value)` fires and the caller moves `selected`. React Native has no group idiom, so a `RadioGroup` parent (no tokens) carries the radiogroup role, its name and the arrow keys where a keyboard exists; it is the radio group component (`radio-group`), which adds the frame and holds the value. Lagging: it draws a 16 ring with a 1 stroke and an 8 dot in a 28 state layer, not this spec's ring and dot. The error condition (`error`, the error forms of RAD-26 and RAD-27, given by a `RadioGroup` in error through its context) is not built on this platform yet."
+    }
+  }
+}

@@ -1,0 +1,2579 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "menu",
+  "title": "Menu",
+  "summary": "Offers a short set of actions or choices on a temporary surface that opens from the element that asked for it, with a second level in a submenu where the set needs one.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "keyboard-shortcut"
+  ],
+  "anatomy": [
+    {
+      "id": "surface",
+      "description": "The floating sheet that holds the items: its color, corners, elevation and padding. It is placed against the anchor and drawn above everything else."
+    },
+    {
+      "id": "container",
+      "description": "One item's row. It carries hover, focus and press, the fill of a checked item, and the fill of a submenu item whose submenu is open."
+    },
+    {
+      "id": "mark",
+      "description": "What shows whether a checkbox or radio item is chosen, in the mark column at the start of the row. By default it is the look of the matching control, drawn as a mark: a box for a checkbox item (empty, or filled with the icon set's check) and a ring for a radio item (thin, or heavy with its fill), in both conditions. Where the design system chooses the check (comp.menu.checkbox-item.mark, comp.menu.radio-item.mark) or the item or its group names a glyph (markIcon), it is that glyph of the system's icon set while the item is checked and nothing while it is not. It is never a control of its own: it takes no focus and no press, and the item stays a menu item checkbox or a menu item radio. Its column is reserved in every item of a surface that has a checkbox or radio item.",
+      "optional": true
+    },
+    {
+      "id": "leading-icon",
+      "description": "An icon before the label. Its column is reserved in every item of a menu where any item has one.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The item's text and its accessible name."
+    },
+    {
+      "id": "supporting-text",
+      "description": "A line below the label that says more about the item.",
+      "optional": true
+    },
+    {
+      "id": "trailing-text",
+      "description": "Text at the end of the row that is not a keyboard shortcut, such as a count or \"Beta\". It shares the trailing column with the shortcut.",
+      "optional": true
+    },
+    {
+      "id": "shortcut",
+      "description": "The item's keyboard shortcut at the end of the row, in the trailing column: the keyboard shortcut component at its small size, in the form comp.menu.shortcut.variant names, its legends in the trailing text's style and color (MNU-31).",
+      "optional": true
+    },
+    {
+      "id": "trailing-icon",
+      "description": "An icon at the end of the row. A submenu item draws its submenu indicator in this column instead, and a link item that opens a new context draws its mark there, the glyph open_in_new, while the product names no glyph for it (MNU-55).",
+      "optional": true
+    },
+    {
+      "id": "submenu-indicator",
+      "description": "The glyph chevron_right of the system's icon set at the end of a submenu item's row, in the trailing icon column: it says the item opens another level, and points to the side that level opens on. The icon set marks it as mirrored, so the icon helper turns it in a right-to-left layout. The menu draws no chevron of its own.",
+      "optional": true
+    },
+    {
+      "id": "submenu",
+      "description": "The surface a submenu item opens: a menu of its own beside the surface that holds the item, drawn with the surface's tokens and holding items of every kind, further submenus included.",
+      "optional": true
+    },
+    {
+      "id": "group",
+      "description": "A run of related items (a group item), optionally under a title. The menu separates a group from what is next to it by a divider or by a gap, as its separation names, and a group of radio items is one set of choices.",
+      "optional": true
+    },
+    {
+      "id": "group-title",
+      "description": "The heading drawn above a group's items when the group has a title. It starts where the rows' content starts, not after the check and icon columns. It names the group and takes no focus.",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "The hairline the menu draws between two groups while its separation is divider. Under gap there is none: empty space parts the groups.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus, drawn inside the item's row."
+    }
+  ],
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the menu is shown. The product opens it from its anchor (a button, an icon-only Button, a field). Where open is a plain value (web, Compose, React Native) the product closes the menu by setting it to false when the menu emits close; where it is a binding or a controller (SwiftUI, Flutter) the menu closes itself through it (MNU-5)."
+    },
+    {
+      "name": "placement",
+      "type": "enum",
+      "values": [
+        "bottom-start",
+        "bottom-end",
+        "top-start",
+        "top-end"
+      ],
+      "default": "bottom-start",
+      "description": "Where the surface goes against the anchor: below or above it, with its start or end edge aligned to the anchor's. The menu flips to the other side when this side has no room."
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How a group is told from what is next to it. divider: a line between them. gap: empty space and no line. Auto takes comp.menu.separation, the design system's answer (divider in the default system). It applies to the menu and to every submenu of it."
+    }
+  ],
+  "items": [
+    {
+      "name": "item",
+      "summary": "An action: it does something and closes the menu. With an href it is a link: it goes somewhere, and the menu closes.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The item's text and its accessible name. Required."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A line below the label that says more about the item."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon (a glyph of the system's icon set) before the label."
+        },
+        {
+          "name": "trailingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon at the end of the row."
+        },
+        {
+          "name": "trailingText",
+          "type": "string",
+          "default": "",
+          "description": "Text at the end of the row that is not a keyboard shortcut, such as a count or \"Beta\". An item's shortcut goes in shortcut; an item that has both draws the shortcut."
+        },
+        {
+          "name": "shortcut",
+          "type": "strings",
+          "default": [],
+          "description": "The item's keyboard shortcut, in the keyboard shortcut component's key names: one chord per string, pressed in order ([\"mod+c\"]). The menu draws it at the end of the row for the keyboard the person uses and exposes it as the item's keyboard shortcut (MNU-24, MNU-31). It does not make the keys work; the product binds them."
+        },
+        {
+          "name": "destructive",
+          "type": "boolean",
+          "default": false,
+          "description": "Marks an action that deletes or discards something; it is drawn in the error color."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents activation. The item stays reachable with the arrow keys."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The destination: an address as the platform's links take one (a URL; on the web a path or a fragment as well). Not empty, it makes the item a link item (a control with a destination is a link): the platform's own link, exposed as a menu item, drawn exactly as an action is and moved to with the same keys; a plain activation emits click, closes the menu and opens the destination (MNU-53, MNU-54). Empty, the item is an action and the product acts on click. Only the item kind has one: a checkbox item, a radio item and a submenu item take no destination (MNU-57)."
+        },
+        {
+          "name": "target",
+          "type": "enum",
+          "values": [
+            "same",
+            "new"
+          ],
+          "default": "same",
+          "description": "Where the destination opens, as the Button's target. same: where the person is. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which the item marks with the glyph open_in_new in its trailing icon column, unless trailingIcon names one, and says through targetLabel (MNU-55). Ignored without href."
+        },
+        {
+          "name": "targetLabel",
+          "type": "string",
+          "default": "",
+          "description": "What assistive technology reads after the link item's name while target is new (\"opens in a new tab\"), as the Button's targetLabel: Tanrei ships no words of its own. Required while target is new; ignored otherwise.",
+          "words": "targetLabel"
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The item was activated by pointer, touch, keyboard or assistive technology. A link item emits it before the menu closes and before its destination opens; a product that takes the navigation itself (a client-side router) cancels it, and the menu still closes (MNU-54)."
+        }
+      ]
+    },
+    {
+      "name": "checkbox-item",
+      "summary": "An option that is switched on or off on its own, such as \"Show grid\". It is marked as a checkbox unless the design system, its group or the item says otherwise.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The item's text and its accessible name. Required."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A line below the label that says more about the item."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon (a glyph of the system's icon set) before the label."
+        },
+        {
+          "name": "trailingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon at the end of the row."
+        },
+        {
+          "name": "trailingText",
+          "type": "string",
+          "default": "",
+          "description": "Text at the end of the row that is not a keyboard shortcut, such as a count or \"Beta\". An item's shortcut goes in shortcut; an item that has both draws the shortcut."
+        },
+        {
+          "name": "shortcut",
+          "type": "strings",
+          "default": [],
+          "description": "The item's keyboard shortcut, in the keyboard shortcut component's key names: one chord per string, pressed in order ([\"mod+c\"]). The menu draws it at the end of the row for the keyboard the person uses and exposes it as the item's keyboard shortcut (MNU-24, MNU-31). It does not make the keys work; the product binds them."
+        },
+        {
+          "name": "checked",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the option is on. It is the item's own: the menu switches it when the item is activated and emits the item's change."
+        },
+        {
+          "name": "markIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of a glyph of the system's icon set to mark this item with while it is checked, instead of the mark the design system chooses (\"check\" draws a plain check). Empty takes the group's markIcon, and then the design system's choice (MNU-38)."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents activation. The item stays reachable with the arrow keys."
+        }
+      ],
+      "events": [
+        {
+          "name": "change",
+          "description": "The item was activated; carries its new checked."
+        }
+      ]
+    },
+    {
+      "name": "radio-item",
+      "summary": "One choice of several in its group, such as \"Sort by name\"; its group holds which one is checked. It is marked as a radio button unless the design system, its group or the item says otherwise.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The item's text and its accessible name. Required."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A line below the label that says more about the item."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon (a glyph of the system's icon set) before the label."
+        },
+        {
+          "name": "trailingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon at the end of the row."
+        },
+        {
+          "name": "trailingText",
+          "type": "string",
+          "default": "",
+          "description": "Text at the end of the row that is not a keyboard shortcut, such as a count or \"Beta\". An item's shortcut goes in shortcut; an item that has both draws the shortcut."
+        },
+        {
+          "name": "shortcut",
+          "type": "strings",
+          "default": [],
+          "description": "The item's keyboard shortcut, in the keyboard shortcut component's key names: one chord per string, pressed in order ([\"mod+c\"]). The menu draws it at the end of the row for the keyboard the person uses and exposes it as the item's keyboard shortcut (MNU-24, MNU-31). It does not make the keys work; the product binds them."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Identifies the choice: the item is checked while its group's value equals it. Unique within its group; required."
+        },
+        {
+          "name": "markIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of a glyph of the system's icon set to mark this item with while it is checked, instead of the mark the design system chooses (\"check\" draws a plain check). Empty takes the group's markIcon, and then the design system's choice (MNU-38)."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents activation. The item stays reachable with the arrow keys."
+        }
+      ]
+    },
+    {
+      "name": "submenu",
+      "summary": "An item that opens another level of the menu beside it: it holds that level's items, of any kind, further submenus included. It is not an action and has no shortcut.",
+      "container": true,
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The item's text and its accessible name. Required."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A line below the label that says more about the item."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon (a glyph of the system's icon set) before the label."
+        },
+        {
+          "name": "trailingText",
+          "type": "string",
+          "default": "",
+          "description": "Text at the end of the row, before the submenu indicator: the current value of what the submenu sets (\"English\"), or a count."
+        },
+        {
+          "name": "open",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the item's submenu is shown. It is the item's own: the menu sets it when the submenu is opened or closed and emits the item's toggle; the product may also set it. It shows nothing while the surface that holds the item is not shown."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents the submenu from opening. The item stays reachable with the arrow keys."
+        }
+      ],
+      "events": [
+        {
+          "name": "toggle",
+          "description": "The item's submenu was opened or closed by the person; carries its new open."
+        }
+      ]
+    },
+    {
+      "name": "group",
+      "summary": "A run of related items, optionally titled. The menu separates a group from what is next to it, by a divider or a gap, and a group of radio items is one set of choices.",
+      "container": true,
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "default": "",
+          "description": "A short heading drawn above the group's items, which also names the group; empty draws none and leaves the group unnamed."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": null,
+          "description": "The value of the group's checked radio item; null checks none. The group sets it when a radio item is chosen and emits its change; the product may also set it. Unused by a group without radio items."
+        },
+        {
+          "name": "markIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of a glyph of the system's icon set that marks the group's checked checkbox and radio items, for those that name none of their own (\"check\" draws a plain check). Empty takes the design system's choice (MNU-38)."
+        }
+      ],
+      "events": [
+        {
+          "name": "change",
+          "description": "A radio item of the group was chosen; carries the group's new value."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "close",
+      "description": "The menu asks to be closed, every open submenu with it: Escape or the platform's back while no submenu is open, a press outside, Tab, focus leaving it, or an item's activation at any level. Carries which of these it was, named escape, back, outside, tab, focus-out or item (in the platform's casing). Closing a submenu alone is the submenu item's toggle, not this event."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected"
+  ],
+  "behavior": [
+    {
+      "id": "MNU-1",
+      "text": "WHEN open becomes true THE menu SHALL present its surface in the platform's overlay layer (the web's top layer through the popover API, SwiftUI's popover, Compose's Popup, Flutter's Overlay, React Native's overlay layer that TanreiProvider renders), above other content at comp.menu.surface.elevation, and SHALL move focus to its first enabled item; WHEN open becomes false THE menu SHALL remove the surface and, if focus was inside it, return focus to the anchor. A menu is an operated overlay, so it takes focus and returns it although it is not modal."
+    },
+    {
+      "id": "MNU-2",
+      "text": "THE menu SHALL place its surface comp.menu.surface.offset from the anchor on the side and edge that placement names (bottom-start: below the anchor with the start edges aligned; bottom-end: below with the end edges aligned; top-start and top-end: above); WHERE that side has less room than the surface needs within comp.menu.surface.viewport-margin of the viewport's edge and the other side has more THE menu SHALL flip to the other side; it SHALL shift along the anchor to stay within that margin, SHALL limit its height to the room left and scroll its items beyond it, and SHALL keep following the anchor while it moves. WHEN the layout direction is right-to-left start and end SHALL mirror."
+    },
+    {
+      "id": "MNU-3",
+      "text": "THE menu SHALL make its surface at least comp.menu.surface.min-width and at most comp.menu.surface.max-width wide — as wide as its widest item within those bounds — inset its items by comp.menu.surface.padding-block and comp.menu.surface.padding-inline, fill it with comp.menu.surface.color, round it by comp.menu.surface.shape eased by sys.shape.corner-smoothing, and clip its items to that shape."
+    },
+    {
+      "id": "MNU-4",
+      "text": "WHEN the menu opens THE menu SHALL fade its surface in and grow it from the edge that faces the anchor over comp.menu.motion.open-duration with comp.menu.motion.open-easing, and WHEN it closes fade it out over comp.menu.motion.close-duration with comp.menu.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once."
+    },
+    {
+      "id": "MNU-5",
+      "text": "WHEN the user presses Escape or the platform's back while no submenu is open, presses outside every surface of the menu and the anchor, presses Tab or Shift+Tab at any level, or moves focus out of the menu and all of its submenus THE menu SHALL emit close once with that reason and SHALL be closed, every open submenu with it (MNU-49): through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open to false where open is a plain value (web, Compose, React Native); Tab and Shift+Tab SHALL then move focus on from the anchor as they would have from it. Whether a press outside also reaches the element under it SHALL follow the platform and be stated in its README."
+    },
+    {
+      "id": "MNU-6",
+      "text": "WHEN the user activates an enabled item (an action) at any level by pointer, touch, Enter or Space THE menu SHALL emit the item's click once, then emit close and be closed as MNU-5 says, every open submenu with it, an item that is a link (MNU-53) opening its destination after that, and only for an activation that MNU-54 counts; WHEN the user activates an enabled checkbox item THE menu SHALL switch its checked and emit the item's change once with the new checked; WHEN the user activates an enabled radio item whose value is not its group's value THE menu SHALL set the group's value to the radio item's value, so that the group's other radio items become unchecked, and emit the group's change once; activating a radio item that is already checked SHALL emit no change. After a checkbox or radio item, a checked radio item included, the menu SHALL close as for an action when the activation came from pointer, touch or Enter, and SHALL stay open, at every level, when it came from Space. Activating a submenu item opens its submenu and closes nothing (MNU-43)."
+    },
+    {
+      "id": "MNU-7",
+      "text": "WHILE the menu is open THE menu SHALL move focus among the items of the surface that holds focus — the menu's own or one submenu's, never across levels — to the next and previous item with Down Arrow and Up Arrow, wrapping at the ends and passing through groups as if their items were the surface's, to the first and last item with Home and End, and to the next item of that surface whose label begins with the typed characters when printable characters are typed within one second of each other; disabled items SHALL be reachable but SHALL NOT activate, a submenu item SHALL take focus as any other item, and dividers, groups and group titles SHALL NOT take focus."
+    },
+    {
+      "id": "MNU-8",
+      "text": "WHEN a pointer moves onto an item THE menu SHALL move focus to that item without showing the focus ring and render it hovered, so that the arrow keys continue from it, except while the pointer is on its way to an open submenu (MNU-45); WHEN the pointer leaves the surface focus SHALL stay on that item."
+    },
+    {
+      "id": "MNU-9",
+      "text": "WHILE an item's disabled is true THE menu SHALL NOT emit its click or change, nor its group's change, for it and SHALL expose the disabled state to assistive technology."
+    },
+    {
+      "id": "MNU-10",
+      "text": "WHILE an item is hovered, keyboard-focused or pressed THE menu SHALL render its container, label, supporting text, trailing text, icons, mark (a glyph's mark color, and a control look's control and control-mark colors) and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "MNU-11",
+      "text": "WHEN an item receives keyboard focus THE menu SHALL show the focus ring inside the item's container, which the surface would otherwise clip, without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "MNU-12",
+      "text": "WHERE an item is shorter than the minimum target THE menu SHALL make its container at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because stacked items cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch. The whole row SHALL be the item's hit area."
+    },
+    {
+      "id": "MNU-13",
+      "text": "WHILE an item's disabled is true THE menu SHALL render its container, label, supporting text, trailing text, icons, mark (a glyph's mark color, and a control look's control and control-mark colors) and opacity from the disabled component tokens of its condition."
+    },
+    {
+      "id": "MNU-14",
+      "text": "WHEN placement names a value the menu does not define THE menu SHALL render with the default value, and in debug builds report the unknown value."
+    },
+    {
+      "id": "MNU-15",
+      "text": "WHEN the menu item is pressed by pointer, touch, Enter or Space THE menu item SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "MNU-16",
+      "text": "WHILE pressed THE menu item SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, supporting text, trailing text, icons, mark, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.menu.motion.feedback-duration with comp.menu.motion.state-easing, fades over comp.menu.motion.state-duration with comp.menu.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "MNU-17",
+      "text": "THE menu item SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "MNU-18",
+      "text": "THE menu SHALL draw an item from the condition it is in: destructive for an item (an action) whose destructive is true, selected for a checkbox item whose checked is true and for a radio item whose value equals its group's value, expanded for a submenu item whose submenu is open, otherwise unselected."
+    },
+    {
+      "id": "MNU-19",
+      "text": "THE menu SHALL lay out an item as one row: comp.menu.container.padding-inline from each edge, the mark column (while any item of the surface is a checkbox or radio item), the leading icon column (while any item has a leading icon), the label with the supporting text below it taking the remaining width, then the trailing column, which holds the shortcut or the trailing text, and the trailing icon column, which holds the trailing icon or, in a submenu item, the submenu indicator (MNU-42) or, in a link item that opens a new context and names no trailing icon, its mark (MNU-55), each comp.menu.container.gap from the next; an empty column SHALL keep its width in every item of the same surface so that labels align, each surface — the menu's and each submenu's — reserving its own columns, and WHEN the layout direction is right-to-left THE menu SHALL mirror the row.",
+      "verify": "Fixtures render the open menu in place: the harness draws the surface at its natural size, with its elevation and without an anchor, placement or open motion (on the web the `inline` test attribute; on the other platforms the test-only in-place initializer each README names). The fixture's items are the menu's items in order, a group item and a submenu item holding their own; open, placement and separation apply to the menu. A submenu item whose open is true is drawn with its submenu's surface placed against it as MNU-46 says, on a stage wide enough for every open level (so the harness never flips or overlaps a submenu), without the open motion and without moving focus; a submenu item whose open is false draws its row only. A fixture's direction is set on the stage. Every harness sets the ambient keyboard convention to apple (KBS-2), so every platform draws the same keys."
+    },
+    {
+      "id": "MNU-20",
+      "text": "THE menu SHALL make an item at least comp.menu.container.height tall, pad its content by comp.menu.container.padding-block above and below, draw the label in comp.menu.label.typescale, the supporting text in comp.menu.supporting-text.typescale and the trailing text and the shortcut's legends in comp.menu.trailing-text.typescale, and grow with its content and with enlarged text rather than clip or truncate it."
+    },
+    {
+      "id": "MNU-21",
+      "text": "THE menu SHALL draw leadingIcon at comp.menu.leading-icon.size and trailingIcon at comp.menu.trailing-icon.size through the icon helper, with the family and fill of the item's condition (selected for a checked item, otherwise unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; an empty name SHALL draw nothing."
+    },
+    {
+      "id": "MNU-22",
+      "text": "WHILE a checkbox or radio item is checked and its mark is a glyph (MNU-38) THE menu SHALL draw that glyph of the system's icon set — check where the design system's choice is check, the named glyph where markIcon names one — in its mark column, centered in a box of side comp.menu.mark.size, in the mark color of its condition, with sys.icon.family.selected, sys.icon.fill.selected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL draw nothing in that column while the item is not checked; it SHALL NOT mirror the check when the layout direction is right-to-left, a glyph that markIcon names following MNU-33; THE menu SHALL draw no mark of its own (no path, shape or character of its own for the check). WHEN checked changes while the menu is open THE menu SHALL fade the glyph in or out over comp.menu.motion.state-duration with comp.menu.motion.state-easing without moving or scaling it, and at once where motion is reduced.",
+      "verify": "The fixtures checkbox-check-mark and radio-check-mark name the glyph check, so they draw the plain check under every design system; mark-icon-custom names other glyphs. Under m3-like and cupertino, which choose check for both kinds of item, checkbox-checked and radio-checked draw the same plain check. Under the `acme` fixture system, whose icon set is static (a family per selection state), the glyph is drawn in its selected family; the glyph's box is comp.menu.mark.size, the same as comp.menu.leading-icon.size in the default system."
+    },
+    {
+      "id": "MNU-23",
+      "text": "WHILE the menu's separation is divider (MNU-35) THE menu SHALL draw a line of comp.menu.divider.thickness in comp.menu.divider.color across the surface's inner width, inside comp.menu.surface.padding-inline on each side (the same inset as the rows, not the rows' own padding) between a group and an adjacent group or an adjacent item outside any group, with comp.menu.divider.space above and below it, and SHALL expose it as a separator that takes no focus; it SHALL draw no line before the first or after the last element of the surface."
+    },
+    {
+      "id": "MNU-24",
+      "text": "THE menu SHALL expose the menu role, named by its anchor; each item as a menu item, a link item included (MNU-53), each checkbox item as a menu item checkbox and each radio item as a menu item radio with its checked state, whatever its mark looks like, each with its position and the size of the surface it is in, named by label and described by supporting text, a link item that opens a new context also by its targetLabel (MNU-55); each submenu item as a menu item that opens a menu, with whether that menu is open (aria-haspopup with the value menu, and aria-expanded, on the web), described also by its trailing text, and each submenu's surface as a menu of its own named by its submenu item's label; shortcut SHALL be exposed as the item's keyboard shortcut in the form KBS-12 gives (aria-keyshortcuts on the web) where the platform has that property, and otherwise the text KBS-10 gives as the item's description; trailing text SHALL be exposed as the item's description only, never as a keyboard shortcut, whatever it holds; icons, the mark and the submenu indicator SHALL be hidden; each group SHALL be exposed as a group, named by its title where it has one. THE menu SHALL also expose on its anchor that it opens a menu and whether the menu is open, where the platform has that property."
+    },
+    {
+      "id": "MNU-25",
+      "text": "WHILE the menu is open THE menu SHALL NOT trap focus, SHALL NOT make the rest of the screen inert and SHALL draw no scrim: it is an operated overlay that is not modal."
+    },
+    {
+      "id": "MNU-26",
+      "text": "WHILE an item's label is empty THE menu SHALL still render the item, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "MNU-27",
+      "text": "WHEN the colors of an item change between states THE menu SHALL animate them over comp.menu.motion.state-duration with comp.menu.motion.state-easing, and SHALL change them at once where motion is reduced."
+    },
+    {
+      "id": "MNU-28",
+      "text": "WHILE a group's title is not empty THE menu SHALL draw it above the group's items in comp.menu.group-title.typescale and comp.menu.group-title.color, starting comp.menu.group-title.padding-inline from the rows' start edge and ending comp.menu.group-title.padding-inline from their end edge, whether or not the menu draws the mark and leading icon columns (so that, at the default values, the title starts where each row's first column starts: the mark, the leading icon or the label), with comp.menu.container.padding-block above and below, wrapping and growing with enlarged text rather than clipping; WHEN the layout direction is right-to-left start and end SHALL mirror. The title SHALL take no focus and SHALL NOT be read as an item.",
+      "verify": "Fixtures group-titles (the mark column) and group-titles-icons (the mark and leading icon columns): in the default system the title's text starts at the same inline offset as the rows' marks, not their labels."
+    },
+    {
+      "id": "MNU-29",
+      "text": "WHEN a radio item is not inside a group, or a group's value names none of its radio items THE menu SHALL draw every such radio item unchecked; WHEN two radio items of one group share a value THE menu SHALL check both while the group's value names it; WHEN a group holds another group THE menu SHALL draw the inner group's items as the outer group's, with no title or divider of the inner group's own; in debug builds it SHALL report each of these."
+    },
+    {
+      "id": "MNU-30",
+      "text": "IF the icon set cannot draw a glyph the menu draws yet — the check or the named glyph of a mark, the check inside a checked box, the submenu indicator — because its font is still loading or failed to load THE menu SHALL draw nothing in the glyph's place, never the glyph's name as text, SHALL keep its column's width, SHALL still draw the box of a checkbox look and the ring of a radio look, SHALL still expose the item's checked state and whether its submenu is open, and SHALL show the glyph once the icon set can draw it, without the fade of MNU-22."
+    },
+    {
+      "id": "MNU-31",
+      "text": "WHILE an item's shortcut is not empty THE menu SHALL draw it in the item's trailing column with the keyboard shortcut component, hosted as KBS-13 says: at size small, in the form comp.menu.shortcut.variant names, with convention auto, and disabled while the item is disabled; its legends and separators SHALL take comp.menu.trailing-text.typescale and the trailing-text color of the item's condition and state, and its caps the keyboard shortcut's own tokens. IF an item has both a shortcut and trailing text THE menu SHALL draw the shortcut, not the trailing text, and in debug builds report the item.",
+      "verify": "The fixture icons-shortcut draws ⌘X, ⌘C and ⌘V as small keys in the default system (comp.menu.shortcut.variant keycap) and as text in m3-like and cupertino (plain); the harness sets the ambient convention to apple."
+    },
+    {
+      "id": "MNU-32",
+      "text": "THE menu SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the menu is shown THE menu SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state and its focus, the surface placed again by the new direction (MNU-2).",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "MNU-33",
+      "text": "WHERE the layout direction is right-to-left THE menu SHALL draw an item's leading icon and trailing icon, the glyph a markIcon names and the submenu indicator mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order MNU-19 gives. THE menu SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The check — the check of a mark and the check inside a checked box — is never mirrored (MNU-22, MNU-39).",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. So the submenu indicator, chevron_right, points to the left in a right-to-left layout, the side its submenu opens on (fixture submenu-open-rtl). Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "MNU-34",
+      "text": "THE menu SHALL lay out an item's label, supporting text and trailing text and a group's title as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE menu SHALL still place each and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "MNU-35",
+      "text": "THE menu SHALL separate a group from an adjacent group or an adjacent item outside any group as its separation names: WHILE separation is auto, as comp.menu.separation names, which follows sys.behavior.separation unless a design system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say; divider draws the line of MNU-23 and gap leaves the space of MNU-36. Every submenu SHALL separate its groups as its menu does. WHEN separation, or the token it follows, changes THE menu SHALL draw the other form at once, without animation, keeping its open state and its focus; WHEN separation names a value the menu does not define THE menu SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, divider, and state that in its README.",
+      "verify": "Fixtures groups-divider and groups-gap set the prop, so they draw the same under every design system; groups, group-titles and group-titles-icons leave it auto and draw the divider under the default system, under cupertino and under m3-like (which sets sys.behavior.separation to gap and comp.menu.separation back to divider). Test auto under a system that sets the component token apart from sys.behavior.separation, and under one that sets only the system's choice to gap."
+    },
+    {
+      "id": "MNU-36",
+      "text": "WHILE the menu's separation is gap (MNU-35) THE menu SHALL leave comp.menu.group.gap of empty space between a group and an adjacent group or an adjacent item outside any group, SHALL draw no line there and SHALL expose no separator, the groups staying exposed as groups (MNU-24); it SHALL leave no such space before the first or after the last element of the surface, and a group's title SHALL keep its own padding below that space (MNU-28).",
+      "verify": "Fixtures groups-gap and group-titles-gap: in the default system the last row of a group and the first row or the title of the next are 16 apart, with nothing drawn between them."
+    },
+    {
+      "id": "MNU-37",
+      "text": "WHILE a checkbox or radio item is checked THE menu SHALL fill its row, within the corners comp.menu.container.shape gives, with the container color of the selected condition in its state (comp.menu.selected.container.color at rest), SHALL draw that fill over its surface (comp.menu.surface.color) and under the row's content, so that a container color that is not opaque lets the surface show through it and nothing else, and SHALL draw its label, supporting text, trailing text and icons in that condition's colors; checked rows next to each other SHALL each keep their own corners and SHALL NOT be joined into one shape. THE menu SHALL NOT show a choice by the fill alone: a checked item always draws its mark (MNU-38), and a design system whose selected container color is none still marks it.",
+      "verify": "Fixtures checkbox-checked, radio-checked and selected-supporting-text show the fill in the default system, where it is a layer of the checked row's content color over the sheet, twice the hover layer: #dcdcdc on the sheet's #ffffff in light (1.37:1) and #3e3e3e on #1f1f1f in dark (1.55:1), where a hovered unchecked row is #ededed (1.17:1) and #2f2f2f (1.24:1). Test in the light and the dark scheme that an unchecked row at rest, a hovered unchecked row, a checked row at rest and a hovered checked row are four different colors in that order, each at least 1.1:1 from the one before it; and under a layer that sets comp.menu.surface.color to another color, that the checked row still differs from the sheet (a translucent fill follows its ground). m3-like and cupertino pin the selected colors to their own, so their checked rows have no fill; the `acme` fixture system values the selected condition's hovered, focused and pressed container differently from the unselected one's."
+    },
+    {
+      "id": "MNU-38",
+      "text": "THE menu SHALL draw the mark of a checkbox or radio item as the first of these that applies: the glyph the item's markIcon names; the glyph its group's markIcon names; otherwise what the design system chooses for the item's kind — comp.menu.checkbox-item.mark for a checkbox item (checkbox: the checkbox look of MNU-39; check: the icon set's check, as MNU-22 draws it) and comp.menu.radio-item.mark for a radio item (radio: the radio look of MNU-40; check: the same check). Whatever the mark is THE menu SHALL place it in the mark column, the first column of the row (MNU-19), before the leading icon, centered in a box of side comp.menu.mark.size, SHALL hide it from assistive technology, SHALL NOT make it a control of its own (it takes no focus and no press and has no role apart from its item's), and SHALL keep exposing the item as a menu item checkbox or a menu item radio with its checked state (MNU-24). A platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "In the default system checkbox-checked draws boxes and radio-checked rings; marks-icons-shortcut draws the mark, a leading icon and a shortcut in one row, in that order. Test both choices of each token under a system that sets them, a markIcon on an item inside a group that names another (the item's wins), and a markIcon under m3-like (the named glyph, not the system's check)."
+    },
+    {
+      "id": "MNU-39",
+      "text": "WHILE a checkbox item's mark is the checkbox look (MNU-38) THE menu SHALL draw, whether the item is checked or not, a box of side comp.menu.control.box.size with corners comp.menu.control.box.shape eased by sys.shape.corner-smoothing: WHILE the item is not checked the box SHALL be empty, with an outline of comp.menu.control.outline.width inside its edge in the control color of its condition and state (comp.menu.unselected.control.color at rest); WHILE it is checked the box SHALL be filled in the control color (comp.menu.selected.control.color at rest), outline and fill being one shape with no seam between them, with the glyph check of the system's icon set centered on it at comp.menu.control.mark.size in the control-mark color of its condition and state, drawn with sys.icon.family.selected, sys.icon.fill.selected, the weight comp.menu.control.mark.weight (not sys.icon.weight: the check in the box is a control's own mark, as the checkbox's is, CHK-12) and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, not clipped by the box and never mirrored; the weight SHALL change the stroke of the glyph only. THE menu SHALL draw no round state layer behind the box: the row is the item's container.",
+      "verify": "Fixtures checkbox-checked, checkbox-unchecked, checked-disabled and group-titles: in the default system the box is 18 with a 2 corner, centered in the 24 mark column, the same box the checkbox draws, and the check in a checked box is drawn at the value of comp.menu.control.mark.weight, which there equals comp.checkbox.mark.weight and is greater than sys.icon.weight, while the check of the glyph look (fixture checkbox-check-mark, MNU-22) keeps sys.icon.weight."
+    },
+    {
+      "id": "MNU-40",
+      "text": "WHILE a radio item's mark is the radio look (MNU-38) THE menu SHALL draw, whether the item is checked or not, a ring of outer diameter comp.menu.control.ring.size in the control color of its condition and state, the outer diameter the same in both conditions: WHILE the item is not checked the ring SHALL be stroked at comp.menu.control.ring.width inside that diameter; WHILE it is checked it SHALL be stroked at comp.menu.control.ring.selected-width-share of the ring's radius, or at comp.menu.control.ring.width where that is wider, the stroke growing inward, and the area inside the ring's inner edge, less comp.menu.control.fill.inset all round, SHALL be filled in the same control color at comp.menu.control.fill.opacity, ring and fill being one shape where they touch; a fill whose diameter would be zero or less SHALL NOT be drawn. THE menu SHALL draw no dot and no round state layer of its own.",
+      "verify": "Fixtures radio-checked, radio-none-checked, radio-checked-disabled and group-titles: in the default system the ring is 20 across, 2 thick when unchecked and 5 thick with a half-opaque centre when checked, the same ring the radio button draws."
+    },
+    {
+      "id": "MNU-41",
+      "text": "WHEN checked changes while the menu is open and the item's mark is a control look THE menu SHALL move the box's outline and fill, the check inside it, and the ring's stroke and fill from the old condition to the new over comp.menu.motion.state-duration with comp.menu.motion.state-easing — the check fading, the ring's stroke growing or thinning inward — without moving or resizing the box or the ring's outer diameter, and the row's fill SHALL change with it (MNU-27); WHERE motion is reduced it SHALL draw the new condition whole at once."
+    },
+    {
+      "id": "MNU-42",
+      "text": "THE menu SHALL draw a submenu item as an item's row (MNU-19, MNU-20) with the submenu indicator in its trailing icon column: the glyph chevron_right of the system's icon set at comp.menu.trailing-icon.size in the trailing-icon color of the item's condition and state, drawn through the icon helper with sys.icon.family.unselected, sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; its trailing text, where it has one, SHALL be drawn in the trailing column before the indicator, and a submenu item SHALL have no shortcut, no trailing icon of the product's and no mark. THE menu SHALL draw no chevron of its own (no path, shape or character of its own).",
+      "verify": "Fixtures submenu, submenu-icons-trailing-text and submenu-disabled show the closed item; the indicator's column is the trailing icon's, so a row with a shortcut and a row with the indicator align (submenu-icons-trailing-text)."
+    },
+    {
+      "id": "MNU-43",
+      "text": "WHEN the user presses Enter or Space on an enabled submenu item, presses the arrow key that points to the inline end on it (Right Arrow in a left-to-right layout, Left Arrow in a right-to-left one), presses it with a pointer or taps it THE menu SHALL open that item's submenu without delay, close any other open submenu of the same surface, move focus to the submenu's first enabled item (its first item where none is enabled), showing the focus ring only when the input was a key, set the item's open to true and emit the item's toggle once with true; it SHALL NOT emit close and SHALL close nothing else. WHEN the submenu is already open the same input SHALL move focus to its first enabled item and emit nothing. WHEN the product sets a submenu item's open to true while the surface that holds the item is shown THE menu SHALL open the submenu without moving focus and without emitting toggle.",
+      "verify": "Test each input, and both arrow keys in both directions: in a right-to-left layout Left Arrow opens and Right Arrow does not."
+    },
+    {
+      "id": "MNU-44",
+      "text": "WHEN a pointer that can hover rests on an enabled submenu item for comp.menu.motion.submenu-delay THE menu SHALL open that item's submenu, closing any other open submenu of the same surface, and SHALL leave focus on the submenu item (MNU-8) until the pointer enters the submenu or a key moves it; a pointer that leaves the item sooner SHALL open nothing. Touch has no hover: a tap opens the submenu (MNU-43). WHERE motion is reduced the delay SHALL still apply: it reads the pointer's intent and is not an animation.",
+      "verify": "Test with the delay's token set to a value the test can wait for, and that a pointer crossing the item in less than the delay opens nothing."
+    },
+    {
+      "id": "MNU-45",
+      "text": "WHILE a submenu is open and the pointer moves from its submenu item towards it THE menu SHALL keep the submenu open and SHALL NOT move hover or focus to the items the pointer crosses on the way (MNU-8): the pointer is on its way while it keeps moving inside the triangle whose corners are the pointer's last position on the submenu item and the two corners of the submenu's surface on the side that faces the item. WHEN the pointer leaves that triangle without entering the submenu, or rests inside it for comp.menu.motion.submenu-delay THE menu SHALL treat the item under the pointer as MNU-8 says, which closes the submenu when that item is another one (MNU-48). The triangle SHALL be taken anew each time the pointer leaves the submenu item and SHALL follow the side the submenu is placed on (MNU-46), so that it mirrors in a right-to-left layout and when the submenu is placed on the other side.",
+      "verify": "Move a pointer in a straight line from the submenu item to the far corner of its submenu, across the item below: the submenu stays open and the item below is never hovered. Move it straight down instead: the item below is hovered and the submenu closes."
+    },
+    {
+      "id": "MNU-46",
+      "text": "THE menu SHALL place a submenu's surface beside the surface that holds its submenu item, comp.menu.submenu.offset from that surface's inline-end edge (to the right in a left-to-right layout, to the left in a right-to-left one), with the block-start edge of its first row level with the block-start edge of the submenu item's row, and SHALL draw it above the surface it opened from; WHERE that side has less room than the surface needs within comp.menu.surface.viewport-margin of the viewport's edge and the inline-start side has more THE menu SHALL place it on the inline-start side instead, the same distance from that edge, and a submenu opened from a surface placed that way SHALL try that side first; it SHALL shift the surface along the block axis to stay within that margin, SHALL limit its height to the room left and scroll its items beyond it, and SHALL keep it in place against its submenu item while that item moves. WHEN the submenu item is scrolled out of the visible part of its surface THE menu SHALL close the submenu (MNU-48).",
+      "verify": "Fixtures submenu-open and submenu-two-levels (to the right of each parent surface, 4 from it in the default system, the first row level with the parent row) and submenu-open-rtl (to the left). Test the flip in a window with room only at the inline start."
+    },
+    {
+      "id": "MNU-47",
+      "text": "WHERE neither side of the surface that holds a submenu item has room for the submenu's surface at comp.menu.surface.min-width within comp.menu.surface.viewport-margin THE menu SHALL still present the submenu as a surface of its own, laid over the surface it opened from, on the side with more room and as far towards that side as the margin allows, narrowed down to comp.menu.surface.min-width before it covers more, and SHALL leave at least sys.target.touch of the covered surface's inline size uncovered on its other side wherever the viewport is wide enough for both; THE menu SHALL NOT replace the items of a surface with its submenu's at any window size. WHILE a submenu covers part of the surface it opened from, a press on the uncovered part of that surface SHALL close the submenu as MNU-48 says and SHALL NOT activate the item under the press, so that a person without a keyboard or a back button can go back one level; keys and focus SHALL behave as in a wide window.",
+      "verify": "Test in a window 360 wide: the submenu overlaps its parent, at least 48 of the parent stays uncovered, a tap there closes the submenu only, and a second tap acts on the item."
+    },
+    {
+      "id": "MNU-48",
+      "text": "WHEN focus is in a submenu and the user presses the arrow key that points to the inline start (Left Arrow in a left-to-right layout, Right Arrow in a right-to-left one), Escape or the platform's back THE menu SHALL close that submenu and every submenu opened from it, and nothing else, return focus to its submenu item, showing the focus ring only when the input was a key, set the item's open to false and emit the item's toggle once with false, without emitting close. WHEN focus or hover moves to another item of the surface that holds the submenu item (MNU-7, MNU-8), WHEN the submenu item becomes disabled or is removed, or WHEN the product sets its open to false THE menu SHALL close the submenu the same way — the product's own change emitting no toggle — and focus that was inside it SHALL move to the submenu item, or to the item that took focus. Escape and the platform's back SHALL close one level for each press, and the menu itself only when no submenu is open (MNU-5). THE menu SHALL keep at most one submenu open in each surface.",
+      "verify": "Test with two levels open: Escape three times closes the inner submenu, the outer submenu and then the menu, with focus on the inner submenu item, the outer submenu item and the anchor in turn; and both arrow keys in both directions."
+    },
+    {
+      "id": "MNU-49",
+      "text": "WHEN the menu is closed — for a reason MNU-5 or MNU-6 names, at whatever level it arose, or because the product sets open to false — THE menu SHALL close every open submenu with it at once, emit close once and never once for each level, set each closed submenu item's open to false without emitting its toggle, and return focus to the anchor as MNU-1 says, not to a submenu item; a press inside any surface of the menu SHALL NOT count as a press outside, and focus moving between the menu's surfaces SHALL NOT count as focus leaving it. The surfaces SHALL fade out together as MNU-4 says.",
+      "verify": "Test with two levels open: a press outside, Tab, and an action in the innermost submenu each emit close once, with the reasons outside, tab and item, and leave no surface shown."
+    },
+    {
+      "id": "MNU-50",
+      "text": "WHILE a submenu is open THE menu SHALL draw its submenu item in the expanded condition (MNU-18) in whatever interaction state it is in, so that the path from the menu to the surface in use stays marked while the pointer and focus are elsewhere, drawing that condition's container color over its surface as MNU-37 draws a checked row's, and SHALL draw the submenu's surface as the menu's own (MNU-3) from the same tokens, its items following every behaviour of the menu's items, with the open and close motion of MNU-4 growing from the edge that faces its submenu item.",
+      "verify": "Fixtures submenu-open and submenu-two-levels: each open submenu item has the expanded fill (comp.menu.expanded.container.color) with no pointer on it. In the default system that fill is the hover layer over the sheet — #ededed in light and #2f2f2f in dark, the color of a hovered plain row, 1.17:1 and 1.24:1 against the sheet — and it stays that color while the pointer is on the open item; under keyboard focus and under a press the open item takes the plain row's focused and pressed colors. Test under the `acme` fixture system, which values the expanded condition's states apart."
+    },
+    {
+      "id": "MNU-51",
+      "text": "WHEN the user presses the arrow key that points to the inline end on an item that is not a submenu item, or the arrow key that points to the inline start in the menu's own surface THE menu SHALL do nothing and SHALL NOT let the key scroll or act on what is behind the menu. WHILE a submenu item's disabled is true THE menu SHALL NOT open its submenu by any input, SHALL close it if it is open (MNU-48), and SHALL still expose that the item opens a menu, with the disabled state (MNU-9)."
+    },
+    {
+      "id": "MNU-52",
+      "text": "THE menu SHALL let a submenu hold items of every kind, groups and further submenus included, to any depth, each level behaving as MNU-42 to MNU-51 say, and SHALL keep the radio items of a submenu apart from those of every other surface: a group's value reaches only the radio items that are its own. WHEN a submenu item lies more than two levels of submenu below the menu, or WHEN a submenu holds no item THE menu SHALL still render what it can — a submenu with no item draws its row and its indicator, takes focus and opens nothing — and in debug builds report each. WHILE open is true on a submenu item whose own surface is not shown THE menu SHALL show nothing for it until that surface is shown.",
+      "verify": "A group may hold a submenu item; the submenu's items belong to the submenu's surface, not to the group (so a radio item inside the submenu needs a group inside the submenu). Test a third level: it works, and a debug build reports it."
+    },
+    {
+      "id": "MNU-53",
+      "text": "WHILE an item's href is not empty THE menu SHALL make the item a link item: the platform's own link to href (the web's anchor element; SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), as BTN-22 says for a link button, so that whatever the platform gives a link — on the web its context menu, opening in a new tab or window, copying and dragging its address, and the address shown before it is followed — is the platform's, and not the menu's to draw or to take over. WHERE the platform has a menu item role (the web) THE menu SHALL expose a link item with that role, on the link itself, and not with the link role: a menu's own role, an item's position in it and the keys of MNU-7 hold only while everything the menu holds is a menu item, and a menu of links is operated as a menu; WHERE the platform's menu items are buttons and it has no such role THE link item SHALL carry the platform's link role or trait in place of the button's. Everything this spec says of an item (an action) other than what MNU-54 to MNU-57 say — its row and columns, its conditions, destructive included, its states, focus ring, minimum height, press answer, corners and motion, its place in the order of the arrow keys, Home, End and typed characters, and focus following the pointer (MNU-7, MNU-8, MNU-10 to MNU-21, MNU-27, MNU-31) — SHALL hold for a link item from the same tokens, with no look of its own for a link and none for a destination already visited; a link item SHALL NOT be a Tab stop, as no item of a menu is.",
+      "verify": "Fixture links: its first two rows are drawn exactly as the rows of the fixture actions are. On the web the item's shadow root holds an anchor with the href and role menuitem; the accessibility tree shows four menu items and no link; Down Arrow, End and a typed character move between link items as between actions, and Tab closes the menu instead of moving to the next link."
+    },
+    {
+      "id": "MNU-54",
+      "text": "WHEN the user activates an enabled link item at any level as an item of a menu is activated — by a click with the primary button and no modifier key, a touch, Enter or Space with no modifier key, or the default action of assistive technology — THE menu SHALL emit the item's click exactly once, then emit close with the reason item and be closed as MNU-6 says for an action, and then open href where target names, unless the product cancelled that click, in which case it SHALL still close and SHALL open nothing: the product's own router has taken the navigation. It SHALL show the pressed state as MNU-15 and MNU-16 say and SHALL NOT hold the closing or the navigation back for sys.motion.duration.press-hold. Space SHALL activate a link item exactly as Enter does and SHALL scroll nothing: a link item is exposed and operated as a menu item (MNU-53), nothing in its look tells it from the action in the next row, Space activates every other row of the menu, and behind an open menu Space has no page to scroll (MNU-51). For every other activation the platform gives a link — on the web a click or Enter with a modifier key, a middle click and the link's context menu, on Apple platforms a long press that previews — THE menu SHALL leave the link to the platform, SHALL prevent, replace or imitate none of it, SHALL NOT emit close and SHALL stay open at every level with focus where it was, so that a person can open several of a menu's links in other tabs one after another; what MNU-5 says of a press outside and of focus leaving the menu still holds.",
+      "verify": "On the web: Enter on a focused link item fires its click once, then close with the reason item, then follows the link; Space does the same and the page behind does not scroll; a click listener that calls preventDefault() leaves the page where it is and the menu still emits close; a control-click, a command-click, a shift-click and a middle click open what the browser opens for a plain anchor, the menu has called preventDefault on none of them, no close is emitted and the menu is still open with focus on the item. Test a link item inside an open submenu: one close, both surfaces gone."
+    },
+    {
+      "id": "MNU-55",
+      "text": "WHILE an item is a link item and its target is new THE menu SHALL open href in a new context — on the web a new tab or window that is given no handle to the page that opened it; on the other platforms outside the screen the person is on, as the platform's opener decides — and, WHILE the item's trailingIcon is empty, SHALL draw the glyph open_in_new of the system's icon set in the item's trailing icon column, as MNU-21 draws trailingIcon: at comp.menu.trailing-icon.size, in the trailing-icon color of the item's condition and state (comp.menu.unselected.trailing-icon.color at rest, comp.menu.destructive.trailing-icon.color for a destructive item), through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name (MNU-33), hidden from assistive technology, and held to MNU-30 while the icon set cannot draw it. The mark SHALL reserve the trailing icon column in its surface as a trailing icon does (MNU-19), and the item's shortcut or trailing text SHALL keep its own column before it: the mark stands where a glyph of the product's would, not where the keys are written. WHILE trailingIcon names a glyph THE menu SHALL draw that glyph and no mark of its own: the product has chosen what that place shows. Whether a mark is drawn or not THE menu SHALL expose targetLabel as the end of the item's description, after its supporting text and whatever else MNU-24 puts there, and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE menu SHALL draw no mark and SHALL ignore targetLabel.",
+      "verify": "Fixture links: the third row ends in the mark, 24 large under the default system, and is described as \"opens in a new tab\"; no other row has one, and every row keeps the column. Fixture links-rtl shows it at the left, mirrored. Fixture links-trailing: a shortcut with no mark, trailing text and the mark side by side, the product's own glyph with no mark, and the mark in the column the submenu indicator below it stands in."
+    },
+    {
+      "id": "MNU-56",
+      "text": "WHILE a link item's disabled is true THE menu SHALL NOT make it a link that can be followed: it SHALL render it as MNU-13 says, the mark of MNU-55 with it, SHALL expose it as MNU-53 exposes a link item, with the disabled state and no destination, SHALL keep it reachable by the arrow keys as MNU-7 keeps any disabled item, SHALL NOT emit its click or close for it, and SHALL open nothing by any means the platform gives a link (on the web the anchor carries no href, so there is no context menu entry, no drag and no new tab for it).",
+      "verify": "Fixture links: the fourth row. On the web its anchor has no href attribute, role menuitem and aria-disabled true; Down Arrow still reaches it, and Enter, Space and a control-click do nothing and leave the menu open."
+    },
+    {
+      "id": "MNU-57",
+      "text": "THE menu SHALL give a destination to the item kind alone. A checkbox item and a radio item hold a state and a submenu item opens another level, so none of them has href, target or targetLabel: a control that holds a state, or a second action, is not a destination; WHERE a platform lets one be written on them (an attribute of the web's element, a field of React Native's item object) THE menu SHALL ignore it, keep the item what it is, and in debug builds report it. WHEN a link item's target names a value the menu does not define THE menu SHALL treat it as same, and in debug builds report the unknown value. IF an item's href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE menu SHALL make the item an action without a destination, and in the last two cases report it in debug builds, as BTN-26 says for a button. WHILE an item's href is empty THE menu SHALL ignore its target and targetLabel.",
+      "verify": "On the web: an href attribute on a checkbox item changes nothing about it — it stays a menu item checkbox, Space still switches it — and a debug build reports it once."
+    }
+  ],
+  "accessibility": {
+    "role": "menu",
+    "keyboard": [
+      {
+        "keys": "Enter, Space or Down Arrow on the anchor",
+        "action": "The product opens the menu; focus moves to the first enabled item."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow",
+        "action": "Moves focus to the next or previous item of the level that holds focus, wrapping at the ends."
+      },
+      {
+        "keys": "Home / End",
+        "action": "Moves focus to the first or last item of that level."
+      },
+      {
+        "keys": "Printable characters",
+        "action": "Moves focus to the next item of that level whose label begins with the characters typed."
+      },
+      {
+        "keys": "Right Arrow (Left Arrow in a right-to-left layout) on a submenu item",
+        "action": "Opens the submenu and moves focus to its first enabled item."
+      },
+      {
+        "keys": "Left Arrow (Right Arrow in a right-to-left layout) in a submenu",
+        "action": "Closes that submenu and returns focus to its submenu item."
+      },
+      {
+        "keys": "Enter",
+        "action": "Activates the focused item and closes the menu and its submenus, a link item's destination opening after that; on a submenu item, opens the submenu instead."
+      },
+      {
+        "keys": "Space",
+        "action": "Activates the focused item, a link item as Enter does; a checkbox or radio item leaves the menu open; on a submenu item, opens the submenu."
+      },
+      {
+        "keys": "Enter with a modifier key, on a link item (the web)",
+        "action": "What the browser does with a link: another tab or window, a download. The menu emits no close and stays open, with focus on the item (MNU-54)."
+      },
+      {
+        "keys": "Escape",
+        "action": "Closes the innermost open submenu and returns focus to its submenu item; with no submenu open, closes the menu and returns focus to the anchor."
+      },
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Closes the menu and every submenu, and moves focus on from the anchor."
+      }
+    ],
+    "labeling": "The menu is named by its anchor, and a submenu by its submenu item's label. Each item's label is its name and its supporting text its description; its shortcut is exposed as the item's keyboard shortcut where the platform has one, and otherwise given as text in its description (KBS-10); trailing text is description only. A link item is a menu item like any other, named by its label; while it opens a new context its targetLabel ends its description. Checkbox and radio items expose their checked state, whatever their mark looks like. A submenu item exposes that it opens a menu and whether that menu is open. A group is named by its title. Icons, the mark and the submenu indicator are decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "The anchor is the product's own button, icon-only Button or field. The menu does not draw it; it reads its position, returns focus to it, and sets its expanded state where the platform has one (aria-haspopup and aria-expanded on the web).",
+      "Five item kinds: item (an action), checkbox-item, radio-item, submenu and group. A checkbox item's checked is its own; which radio item is checked is its group's, by value; a submenu item's open is its own. A group may hold items of any kind except another group; a submenu may hold items of every kind.",
+      "A link item is the platform's own link exposed as a menu item: on the web an anchor with the menu item role. Assistive technology reads a menu by its items — how many, which one, the arrow keys — and that reading holds only while every child of the menu is a menu item; so the role stays, and what makes the row a link stays underneath it: its address, the browser's context menu and new-tab gestures, a crawler that follows it. It is the one link form that Space activates, because it is operated as a menu item and looks like the action beside it. A menu of nothing but links to a site's main pages, always in view, is navigation and belongs in a navigation landmark of links; the menu is for a short set that is out of the way until asked for (the folded levels of a trail, a choice of language, \"more\").",
+      "Focus: the menu is an operated overlay that is not modal. It moves focus in when it opens and returns it to the anchor when it closes, but does not keep it: Tab leaves the menu and closes it, at whatever level focus is. A submenu takes focus when it is opened by a key or a press and returns it to its submenu item when it closes alone.",
+      "Submenus follow the WAI-ARIA menu pattern: the arrow key that points to where the submenu opens, Enter and Space open it and move focus in; the opposite arrow key and Escape close it and return focus to its item; type-ahead, Home, End and the vertical arrow keys work inside the level that holds focus. A pointer opens a submenu by resting on its item, and may then cross other items on its way to the submenu without closing it (MNU-45); touch opens it with a tap. In a window too narrow to set two surfaces side by side the submenu is laid over its parent, never swapped in for it, so the keys, the roles and the reading order are the same at every size (MNU-47).",
+      "Depth: one level of submenus where possible, never more than two. Each level costs a person a precise sideways movement and hides the level before it on a small screen; a set that needs more belongs in a dialog, a sheet or a page. A debug build reports a third level; nothing stops it from working (MNU-52).",
+      "A checked item is told from an unchecked one by its mark, which differs in shape (an empty and a filled box, a thin and a heavy ring, a check or none), never by the row's fill alone: the fill supports the mark and is not held to a contrast of its own. It is still meant to be seen: in the default system a checked row's fill is a layer of the row's content color over the sheet, so it differs from the sheet and from a hovered row by the same step in every scheme (MNU-37), and the content on it keeps at least 4.5:1 in every state. The control looks are drawings in the mark column; the menu holds no checkbox and no radio button.",
+      "Under gap no separator is exposed between groups; the groups themselves, and their titles, carry the structure to assistive technology, as they do under divider.",
+      "A menu holds only its items. A field, slider or switch inside a menu would take arrow keys and typing that the menu needs.",
+      "Text size does not clip an item: items grow at 200% text size, and the surface scrolls when it no longer fits the viewport.",
+      "An item's shortcut is drawn by the keyboard shortcut component (KBS-13), which writes the keys for the keyboard the person uses and only shows them: the product binds them. Trailing text is never read as a shortcut; a product that typed its shortcut there keeps the text but not the keyboard shortcut semantics until it moves the keys to shortcut.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.menu",
+  "fixtures": [
+    {
+      "id": "actions",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Cut"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Copy"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Paste"
+          }
+        }
+      ]
+    },
+    {
+      "id": "icons-shortcut",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Cut",
+            "leadingIcon": "content_cut",
+            "shortcut": [
+              "mod+x"
+            ]
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Copy",
+            "leadingIcon": "content_copy",
+            "shortcut": [
+              "mod+c"
+            ]
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Paste",
+            "leadingIcon": "content_paste",
+            "shortcut": [
+              "mod+v"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "groups",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Cut"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Copy"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Paste"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Select all"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "group-titles",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "title": "View"
+          },
+          "items": [
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show grid",
+                "checked": true
+              }
+            },
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show rulers"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "title": "Sort by",
+            "value": "date"
+          },
+          "items": [
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Name",
+                "value": "name"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Date",
+                "value": "date"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Size",
+                "value": "size"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "group-titles-icons",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "title": "Text style"
+          },
+          "items": [
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Bold",
+                "leadingIcon": "format_bold",
+                "checked": true
+              }
+            },
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Italic",
+                "leadingIcon": "format_italic"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "title": "Align",
+            "value": "start"
+          },
+          "items": [
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Start",
+                "leadingIcon": "format_align_left",
+                "value": "start"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Center",
+                "leadingIcon": "format_align_center",
+                "value": "center"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "supporting-text",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Share link",
+            "leadingIcon": "link",
+            "supportingText": "Anyone with the link can view"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Duplicate",
+            "leadingIcon": "content_copy"
+          }
+        }
+      ]
+    },
+    {
+      "id": "trailing-icon",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Open in a new window",
+            "trailingIcon": "open_in_new"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Copy link"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkbox-checked",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Show grid",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Show rulers"
+          }
+        },
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Snap to grid",
+            "checked": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkbox-unchecked",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Show grid"
+          }
+        },
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Show rulers"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-checked",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "value": "name"
+          },
+          "items": [
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by name",
+                "value": "name"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by date",
+                "value": "date"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by size",
+                "value": "size"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "destructive",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Archive",
+            "leadingIcon": "archive"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Delete",
+            "leadingIcon": "delete",
+            "destructive": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Paste",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Copy"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checked-disabled",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Show grid",
+            "checked": true,
+            "disabled": true
+          }
+        },
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Show rulers"
+          }
+        }
+      ]
+    },
+    {
+      "id": "destructive-disabled",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Delete",
+            "destructive": true,
+            "disabled": true
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Archive"
+          }
+        }
+      ]
+    },
+    {
+      "id": "groups-divider",
+      "props": {
+        "open": true,
+        "separation": "divider"
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Cut"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Copy"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Paste"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Select all"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "groups-gap",
+      "props": {
+        "open": true,
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Cut"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Copy"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Paste"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Select all"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "group-titles-gap",
+      "props": {
+        "open": true,
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "title": "View"
+          },
+          "items": [
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show grid",
+                "checked": true
+              }
+            },
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Show rulers"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "title": "Sort by",
+            "value": "date"
+          },
+          "items": [
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Name",
+                "value": "name"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Date",
+                "value": "date"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Size",
+                "value": "size"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "radio-none-checked",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {},
+          "items": [
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by name",
+                "value": "name"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by date",
+                "value": "date"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "radio-checked-disabled",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "value": "name"
+          },
+          "items": [
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by name",
+                "value": "name",
+                "disabled": true
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by date",
+                "value": "date",
+                "disabled": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checkbox-check-mark",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Show grid",
+            "checked": true,
+            "markIcon": "check"
+          }
+        },
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Show rulers",
+            "markIcon": "check"
+          }
+        },
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Snap to grid",
+            "checked": true,
+            "markIcon": "check"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-check-mark",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "value": "name",
+            "markIcon": "check"
+          },
+          "items": [
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by name",
+                "value": "name"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by date",
+                "value": "date"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Sort by size",
+                "value": "size"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mark-icon-custom",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Pinned",
+            "checked": true,
+            "markIcon": "keep"
+          }
+        },
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Favorite",
+            "checked": true,
+            "markIcon": "star"
+          }
+        },
+        {
+          "kind": "checkbox-item",
+          "props": {
+            "label": "Muted",
+            "markIcon": "notifications_off"
+          }
+        }
+      ]
+    },
+    {
+      "id": "marks-icons-shortcut",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "title": "Text style"
+          },
+          "items": [
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Bold",
+                "leadingIcon": "format_bold",
+                "shortcut": [
+                  "mod+b"
+                ],
+                "checked": true
+              }
+            },
+            {
+              "kind": "checkbox-item",
+              "props": {
+                "label": "Italic",
+                "leadingIcon": "format_italic",
+                "shortcut": [
+                  "mod+i"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "title": "Align",
+            "value": "start"
+          },
+          "items": [
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Start",
+                "value": "start",
+                "leadingIcon": "format_align_left",
+                "shortcut": [
+                  "mod+shift+l"
+                ]
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Center",
+                "value": "center",
+                "leadingIcon": "format_align_center",
+                "shortcut": [
+                  "mod+shift+e"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "selected-supporting-text",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "value": "everyone"
+          },
+          "items": [
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Everyone",
+                "value": "everyone",
+                "supportingText": "Anyone with the link can view",
+                "trailingText": "Default"
+              }
+            },
+            {
+              "kind": "radio-item",
+              "props": {
+                "label": "Only me",
+                "value": "me",
+                "supportingText": "Nobody else can open it"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "submenu",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "New"
+          }
+        },
+        {
+          "kind": "submenu",
+          "props": {
+            "label": "Open recent"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Report.pdf"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Budget.xlsx"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Notes.txt"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Save"
+          }
+        }
+      ]
+    },
+    {
+      "id": "submenu-open",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "New"
+          }
+        },
+        {
+          "kind": "submenu",
+          "props": {
+            "label": "Open recent",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Report.pdf"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Budget.xlsx"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Notes.txt"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Save"
+          }
+        }
+      ]
+    },
+    {
+      "id": "submenu-open-rtl",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "New"
+          }
+        },
+        {
+          "kind": "submenu",
+          "props": {
+            "label": "Open recent",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Report.pdf"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Budget.xlsx"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Notes.txt"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Save"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "submenu-two-levels",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Save"
+          }
+        },
+        {
+          "kind": "submenu",
+          "props": {
+            "label": "Export",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "PDF"
+              }
+            },
+            {
+              "kind": "submenu",
+              "props": {
+                "label": "Image",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "PNG"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "JPEG"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "WebP"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Plain text"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Print"
+          }
+        }
+      ]
+    },
+    {
+      "id": "submenu-icons-trailing-text",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Find",
+            "leadingIcon": "search",
+            "shortcut": [
+              "mod+f"
+            ]
+          }
+        },
+        {
+          "kind": "submenu",
+          "props": {
+            "label": "Language",
+            "leadingIcon": "language",
+            "trailingText": "English"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "English"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Japanese"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "submenu",
+          "props": {
+            "label": "Share",
+            "leadingIcon": "share",
+            "supportingText": "Send a copy or a link"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Copy link"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Email"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "submenu-disabled",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "New"
+          }
+        },
+        {
+          "kind": "submenu",
+          "props": {
+            "label": "Open recent",
+            "disabled": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Report.pdf"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Budget.xlsx"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Notes.txt"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Save"
+          }
+        }
+      ]
+    },
+    {
+      "id": "submenu-choices",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Refresh"
+          }
+        },
+        {
+          "kind": "submenu",
+          "props": {
+            "label": "Sort by",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "group",
+              "props": {
+                "value": "date"
+              },
+              "items": [
+                {
+                  "kind": "radio-item",
+                  "props": {
+                    "label": "Name",
+                    "value": "name"
+                  }
+                },
+                {
+                  "kind": "radio-item",
+                  "props": {
+                    "label": "Date",
+                    "value": "date"
+                  }
+                },
+                {
+                  "kind": "radio-item",
+                  "props": {
+                    "label": "Size",
+                    "value": "size"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "group",
+              "props": {},
+              "items": [
+                {
+                  "kind": "checkbox-item",
+                  "props": {
+                    "label": "Folders first",
+                    "checked": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "links",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Guides",
+            "href": "/guides/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Source",
+            "href": "https://example.com/tanrei",
+            "target": "new",
+            "targetLabel": "opens in a new tab"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Archive",
+            "href": "/archive/",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "links-rtl",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Guides",
+            "href": "/guides/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Source",
+            "href": "https://example.com/tanrei",
+            "target": "new",
+            "targetLabel": "opens in a new tab"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "links-trailing",
+      "props": {
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Search the docs",
+            "href": "/search/",
+            "shortcut": [
+              "mod+k"
+            ]
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Release notes",
+            "href": "https://example.com/tanrei/releases",
+            "target": "new",
+            "targetLabel": "opens in a new tab",
+            "trailingText": "New"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Report a problem",
+            "href": "https://example.com/tanrei/issues",
+            "target": "new",
+            "targetLabel": "opens in a new tab",
+            "trailingIcon": "bug_report"
+          }
+        },
+        {
+          "kind": "submenu",
+          "props": {
+            "label": "Language",
+            "trailingText": "English"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "English",
+                "href": "/en/"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "日本語",
+                "href": "/ja/"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-menu",
+      "props": {
+        "open": "open",
+        "placement": "placement",
+        "separation": "separation"
+      },
+      "events": {
+        "close": "close"
+      },
+      "items": {
+        "item": {
+          "name": "tanrei-menu-item",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "destructive": "destructive",
+            "disabled": "disabled",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "With `href` the item's shadow root holds an `<a role=\"menuitem\" tabindex=\"-1\">` in place of its row element, drawn through the shared link primitive (`packages/web/src/primitives/link.ts`) as `<tanrei-list-item>`'s is, with Space left among the keys that press it (MNU-54). `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two), `targetLabel` the `target-label` attribute, and `rel` (to which `new` adds `noopener`) and `download` are web-only and forwarded to the anchor. `click` is the anchor's own click: cancelling it (`preventDefault()`) cancels the navigation and not the menu's `close`. The menu fires `close` from that click only when `event.button` is 0 and no modifier key is down; Enter with a modifier key is passed to the anchor, and Space calls the anchor's `click()`. A disabled link item is the anchor without `href`, with `aria-disabled=\"true\"`. An `href` attribute on `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item` or `tanrei-submenu` is ignored and reported (MNU-57)."
+        },
+        "checkbox-item": {
+          "name": "tanrei-menu-checkbox-item",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "checked": "checked",
+            "disabled": "disabled",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "change"
+          }
+        },
+        "radio-item": {
+          "name": "tanrei-menu-radio-item",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "value": "value",
+            "disabled": "disabled",
+            "markIcon": "markIcon"
+          }
+        },
+        "submenu": {
+          "name": "tanrei-submenu",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "open": "open",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "toggle"
+          },
+          "notes": "`<tanrei-submenu label=\"Open recent\">` holds the submenu's items as its children, as `tanrei-menu` holds its own; it draws the row in its parent's surface and its own surface as a manual popover in the top layer. `open` reflects, and `toggle` fires on it and bubbles."
+        },
+        "group": {
+          "name": "tanrei-menu-group",
+          "props": {
+            "title": "label",
+            "value": "value",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "change"
+          },
+          "notes": "The title is the `label` attribute, as `<optgroup label>`: a `title` attribute would also draw the browser's tooltip. The group sets its own `value` before firing `change`."
+        }
+      },
+      "notes": "`tanrei-menu` (open, placement, separation, and `anchor`: the id of the anchor element, as the HTML anchor attribute) holds `tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-submenu` and `tanrei-menu-group` children; item attributes are kebab-case (`supporting-text`, `leading-icon`, `trailing-icon`, `trailing-text`, `mark-icon`). `click`, `change` and `toggle` fire on the item or group and bubble, so one listener on the menu can take them all. The surface is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback where the browser has none; each submenu's surface is a popover of its own, placed against its `tanrei-submenu` the same way. The menu implements its own light dismiss so that it can emit `close` with a reason, and treats every surface of its tree as inside. A press outside also reaches the element under it. It sets `aria-haspopup=\"menu\"`, `aria-controls` and `aria-expanded` on the anchor element, and the same three on each submenu item's row. The `inline` attribute, for tests, draws the open surface in place, with each open submenu beside it (MNU-19). The mark is the `mark` part: the box or the ring of a control look, drawn by the menu's own styles from `--tanrei-comp-menu-control-*`, or the icon helper's glyph (MNU-22, MNU-38). The submenu indicator is the icon helper's `chevron_right` in the `submenu-indicator` part. A group's title is inset by `--tanrei-comp-menu-group-title-padding-inline` from the rows' edges (MNU-28). The link item is not built on this platform yet: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiMenu",
+      "props": {
+        "open": "isPresented",
+        "placement": "placement",
+        "separation": "separation"
+      },
+      "events": {
+        "close": "isPresented"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiMenuItem",
+          "props": {
+            "label": "title",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "destructive": "role",
+            "disabled": "disabled",
+            "href": "destination",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "`TanreiMenuItem(_ title:, role:, action:)`, as `Button(role:)`; `role: .destructive` is destructive. `destination: URL? = nil` makes it a SwiftUI `Link` (the link trait in place of the button's), opened by the environment's `openURL` after `action` and after `isPresented` is written, which an app that routes addresses itself answers with its own `OpenURLAction`; `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint), as the Button's."
+        },
+        "checkbox-item": {
+          "name": "TanreiMenuToggle",
+          "props": {
+            "label": "title",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "checked": "isOn",
+            "disabled": "disabled",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "isOn"
+          },
+          "notes": "`TanreiMenuToggle(_ title:, isOn:)`, as `Toggle` in a menu; writing the binding is change."
+        },
+        "radio-item": {
+          "name": "TanreiMenuOption",
+          "props": {
+            "label": "title",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "value": "tag",
+            "disabled": "disabled",
+            "markIcon": "markIcon"
+          },
+          "notes": "`TanreiMenuOption(_ title:).tag(value)` inside a section with a selection, as a `Picker`'s tagged options."
+        },
+        "submenu": {
+          "name": "TanreiSubmenu",
+          "props": {
+            "label": "title",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "open": "isExpanded",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "isExpanded"
+          },
+          "notes": "`TanreiSubmenu(_ title:, isExpanded:) { … }`, as a `Menu` nested in a `Menu`; the binding is optional, and writing it is toggle. `disabled` follows `.disabled(_:)`."
+        },
+        "group": {
+          "name": "TanreiMenuSection",
+          "props": {
+            "title": "title",
+            "value": "selection",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "selection"
+          },
+          "notes": "`TanreiMenuSection(_ title:) { … }` as `Section`; `TanreiMenuSection(_ title:, selection:) { TanreiMenuOption … }` for radio items, as an inline `Picker`. Writing the binding is change."
+        }
+      },
+      "notes": "A modifier on the anchor, `.tanreiMenu(isPresented:placement:) { … }`, as `.popover`, presented with `presentationCompactAdaptation(.popover)` so it stays a popover on iPhone; a press outside does not reach what is under it. The content builder takes the item views. `disabled` follows `.disabled(_:)`. Closing writes `false` to `isPresented`, which is close. SwiftUI's own `Menu` is not used: its items cannot be tokenised. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiMenu",
+      "props": {
+        "open": "expanded",
+        "placement": "placement",
+        "separation": "separation"
+      },
+      "events": {
+        "close": "onDismissRequest"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiMenuItem",
+          "props": {
+            "label": "text",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "destructive": "destructive",
+            "disabled": "enabled",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "`href: String? = null` makes it a link: opened through `LocalUriHandler.current` after `onClick` and `onDismissRequest` (an app that routes addresses itself provides its own `UriHandler`); Compose has no link role for a clickable element, so the node drops `Role.Button` and carries no role; `target: TanreiLinkTarget = TanreiLinkTarget.Same`, and `targetLabel` is appended to the state description, as the Button's."
+        },
+        "checkbox-item": {
+          "name": "TanreiCheckboxMenuItem",
+          "props": {
+            "label": "text",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "checked": "checked",
+            "disabled": "enabled",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "onCheckedChange"
+          }
+        },
+        "radio-item": {
+          "name": "TanreiRadioMenuItem",
+          "props": {
+            "label": "text",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "value": "value",
+            "disabled": "enabled",
+            "markIcon": "markIcon"
+          }
+        },
+        "submenu": {
+          "name": "TanreiSubmenu",
+          "props": {
+            "label": "text",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "open": "expanded",
+            "disabled": "enabled"
+          },
+          "events": {
+            "toggle": "onExpandedChange"
+          },
+          "notes": "`TanreiSubmenu(text, expanded, onExpandedChange) { … }`: the caller keeps `expanded` (state hoisting), and an overload without the pair keeps it itself. `enabled` is the inverse flag."
+        },
+        "group": {
+          "name": "TanreiMenuGroup",
+          "props": {
+            "title": "title",
+            "value": "selectedValue",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "onSelectedValueChange"
+          },
+          "notes": "`TanreiMenuGroup(title, selectedValue, onSelectedValueChange) { TanreiRadioMenuItem(text, value) }`; the caller keeps `selectedValue`."
+        }
+      },
+      "notes": "Compose idiom, as `DropdownMenu`: `TanreiMenu(expanded, onDismissRequest, placement) { TanreiMenuItem(text, onClick, …); TanreiMenuGroup { … } }` inside the anchor's `Box`, shown in a `Popup`; the item composables are called in its content lambda. The caller closes it, so close is `onDismissRequest` and it carries the reason; the caller also keeps each checkbox item's `checked` (state hoisting). A press outside does not reach what is under it. `enabled` is the inverse flag. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiMenuAnchor",
+      "props": {
+        "open": "controller",
+        "placement": "placement",
+        "separation": "separation"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiMenuItem",
+          "props": {
+            "label": "child",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "destructive": "destructive",
+            "disabled": "onPressed",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetSemanticLabel"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "As `MenuItemButton`: a null `onPressed` disables it. `href: Uri? = null` makes it a link (`Semantics(link: true)` with the address as its `linkUrl`), opened by the nearest `TanreiLinkOpener` after `onPressed` and after the menu has closed; `target` is a `TanreiLinkTarget` and `targetSemanticLabel` the semantics hint, as the Button's."
+        },
+        "checkbox-item": {
+          "name": "TanreiCheckboxMenuItem",
+          "props": {
+            "label": "child",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "checked": "value",
+            "disabled": "onChanged",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "onChanged"
+          },
+          "notes": "As `CheckboxMenuButton`: `value` is checked, a null `onChanged` disables it."
+        },
+        "radio-item": {
+          "name": "TanreiRadioMenuItem",
+          "props": {
+            "label": "child",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "value": "value",
+            "disabled": "enabled",
+            "markIcon": "markIcon"
+          },
+          "notes": "As `RadioMenuButton` under a `RadioGroup`: the item takes its `value` and `enabled`, the group the selection."
+        },
+        "submenu": {
+          "name": "TanreiSubmenu",
+          "props": {
+            "label": "child",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "open": "controller",
+            "disabled": "enabled"
+          },
+          "events": {
+            "toggle": "onOpenChanged"
+          },
+          "notes": "As `SubmenuButton`: `TanreiSubmenu(child:, menuChildren: […], controller:, onOpenChanged:)`; the optional `MenuController` opens and closes it, as the anchor's does the menu."
+        },
+        "group": {
+          "name": "TanreiMenuGroup",
+          "props": {
+            "title": "title",
+            "value": "groupValue",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "onChanged"
+          },
+          "notes": "`TanreiMenuGroup<T>(title:, groupValue:, onChanged:, children:)`, which is also the `RadioGroup` of its radio items."
+        }
+      },
+      "notes": "Flutter idiom, as `MenuAnchor`: `TanreiMenuAnchor(controller:, placement:, menuChildren: […], builder:)` shown in the `Overlay`; the item widgets go in `menuChildren`. `MenuController.open()` and `.close()` are open, `onClose` is close. A press outside also reaches what is under it (`consumeOutsideTap: false`). Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Menu",
+      "props": {
+        "open": "visible",
+        "placement": "placement",
+        "separation": "separation"
+      },
+      "events": {
+        "close": "onDismiss"
+      },
+      "items": {
+        "item": {
+          "name": "MenuItem",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "destructive": "destructive",
+            "disabled": "disabled",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "`href?: string` on an entry whose `kind` is `'item'` makes it a link (`accessibilityRole=\"link\"`): `onPress` receives an event whose `preventDefault()` keeps the menu from calling `Linking.openURL(href)`; `target` is `\"same\" | \"new\"` and `targetLabel` the `accessibilityHint`, as the Button's. An `href` on an entry of another kind is ignored and reported (MNU-57)."
+        },
+        "checkbox-item": {
+          "name": "MenuCheckboxItem",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "checked": "checked",
+            "disabled": "disabled",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "onCheckedChange"
+          }
+        },
+        "radio-item": {
+          "name": "MenuRadioItem",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingIcon": "trailingIcon",
+            "trailingText": "trailingText",
+            "shortcut": "shortcut",
+            "value": "value",
+            "disabled": "disabled",
+            "markIcon": "markIcon"
+          }
+        },
+        "submenu": {
+          "name": "MenuSubmenu",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "trailingText": "trailingText",
+            "open": "open",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "onOpenChange"
+          },
+          "notes": "`{ kind: 'submenu', label, items: […], open?, onOpenChange? }`: uncontrolled unless `open` is given."
+        },
+        "group": {
+          "name": "MenuGroup",
+          "props": {
+            "title": "title",
+            "value": "value",
+            "markIcon": "markIcon"
+          },
+          "events": {
+            "change": "onValueChange"
+          },
+          "notes": "`{ kind: 'group', title?, value?, onValueChange?, items: (MenuItem | MenuCheckboxItem | MenuRadioItem)[] }`."
+        }
+      },
+      "notes": "`<Menu visible anchorRef placement onDismiss items={[…]}>`: `items` is an array whose element type is the union of the five kinds, told apart by a `kind` field (`'item'`, `'checkbox-item'`, `'radio-item'`, `'submenu'`, `'group'`). Presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`); Android's back button (`BackHandler`) is close. A press outside closes the menu and does not reach what is under it. Controlled: the caller sets `visible` to false from `onDismiss` and keeps each checkbox item's `checked` and each group's `value`. Ships the previous revision today (the check stroked as a path in a 16 box, a group's title starting where the labels start). Not built on this platform yet, among the rest of this spec: the submenu item kind and everything about it (MNU-42 to MNU-52), `separation` (MNU-35, MNU-36), the checkbox and radio looks of the mark and `markIcon` (MNU-38 to MNU-41) and their 17 fixtures; the selected fill and colors arrive through the tokens. Reading comp.menu.separation, comp.menu.checkbox-item.mark and comp.menu.radio-item.mark as typed choices needs this platform's token output to write a component's choice as a typed enumeration, which it does not yet. Nor is the link item: MNU-53 to MNU-57 and what MNU-6, MNU-19 and MNU-24 say of it, with the fixtures links, links-rtl and links-trailing."
+    }
+  }
+}

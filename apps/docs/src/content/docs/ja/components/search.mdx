@@ -1,0 +1,417 @@
+---
+title: 検索
+description: 入力に合わせて候補と検索結果を示す検索バー、またはその代わりに置く小さなトリガーです。バーの下に開くビュー、ダイアログ、画面全体を覆うビューのいずれかに表示します。
+translationOf: components/search.mdx
+sourceHash: 16c14a0a1b37985bcc782ea5ca22d118c87dd619
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="search" />
+
+:::note[仕様は改訂済み、各プラットフォームは追従待ち]
+このページは、仕様の現在の形の検索を説明しています。検索はサイト内検索にも使えます。バーの代わりに置くトリガー、ダイアログのビュー、リンクである検索結果、ステータスの行、ショートカットが加わっています。Web コンポーネントはこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（入力欄のあるバー、docked と full-screen のビュー、候補）を提供しており、サンプルもその版のものです。
+:::
+
+<DemoFrame label="空、検索語あり、アイコンボタンあり" column>
+  <tanrei-search label="メールを検索" placeholder="メールを検索" style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search label="メールを検索" placeholder="メールを検索" value="請求書" clear-label="検索語を消去" style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search label="メールを検索" placeholder="メールを検索" style="inline-size: 20.5rem">
+    <tanrei-button variant="text" slot="leading" label="メニュー"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="trailing" label="音声で検索"><span slot="icon">mic</span></tanrei-button>
+    <tanrei-button variant="text" slot="trailing" label="アカウント"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-search>
+</DemoFrame>
+
+<DemoFrame label="サイト内検索：ショートカット付きのボタン型トリガー、アイコンのトリガー、ショートカットを示すバー。トリガーを押すとビューが開きます" plain column>
+  <tanrei-search bar="button" presentation="dialog" label="ドキュメントを検索" placeholder="検索" shortcut="mod+k" value="タブ" status-text="「タブ」の検索結果 3 件" clear-label="検索語を消去" back-label="戻る" style="inline-size: 20.5rem">
+    <tanrei-search-result-group value="tabs" headline="タブ" href="/ja/components/tabs/" leading-icon="article" excerpt='["同じ対象の複数のビューを、ラベル付きの", "タブ", "の並びで切り替えます。"]'>
+      <tanrei-search-result value="tabs-sharing" headline="選択を共有する" href="/ja/components/tabs/#選択を共有する" leading-icon="tag" excerpt='["同じグループを指定した", "タブ", "の並びは、同じ選択を示します。"]'></tanrei-search-result>
+    </tanrei-search-result-group>
+    <tanrei-search-result value="tab-view" headline="タブビュー" href="/ja/components/tab-view/" leading-icon="article" excerpt='["選ばれた", "タブ", "のビューを、自分の並びの下に表示します。"]'></tanrei-search-result>
+  </tanrei-search>
+  <tanrei-search bar="icon" presentation="full-screen" label="ドキュメントを検索" placeholder="検索" value="タブ" status-text="「タブ」の検索結果 3 件" clear-label="検索語を消去" back-label="戻る">
+    <tanrei-search-result-group value="tabs" headline="タブ" href="/ja/components/tabs/" leading-icon="article" excerpt='["同じ対象の複数のビューを、ラベル付きの", "タブ", "の並びで切り替えます。"]'>
+      <tanrei-search-result value="tabs-sharing" headline="選択を共有する" href="/ja/components/tabs/#選択を共有する" leading-icon="tag" excerpt='["同じグループを指定した", "タブ", "の並びは、同じ選択を示します。"]'></tanrei-search-result>
+    </tanrei-search-result-group>
+    <tanrei-search-result value="tab-view" headline="タブビュー" href="/ja/components/tab-view/" leading-icon="article" excerpt='["選ばれた", "タブ", "のビューを、自分の並びの下に表示します。"]'></tanrei-search-result>
+  </tanrei-search>
+  <tanrei-search label="メールを検索" placeholder="メールを検索" shortcut="/" clear-label="検索語を消去" style="inline-size: 20.5rem"></tanrei-search>
+</DemoFrame>
+
+### 使い方
+
+検索は、バーとビューでできています。バーには、検索のグリフ、入力欄、検索語があるときに出る消去ボタン、そして末尾に利用者側のアイコンボタンを 2 つまで置けます（音声入力やアカウントなど）。`leading` スロットに利用者側のメニューボタンや戻るボタンを入れると、グリフの代わりに表示します。ビューは検索している間に開き、上から順に、候補、ステータスの行、検索結果、そして利用者側のコンテンツを表示します。
+
+**バーかトリガーか。** 検索を置いた場所に何を表示するかは `bar` で決めます。
+
+- `field`（既定）：入力欄のあるバーです。
+- `button`：バーと同じ形のトリガーです。入力欄はなく、検索のグリフ、プレースホルダー、ショートカットのヒントだけを持ちます。余裕のあるヘッダーで使います。
+- `icon`：検索のグリフを示す、アイコンだけのボタンです。余裕のないヘッダーで使います。
+
+トリガーは、モーダルなビュー（ダイアログか全画面のビュー）を開き、入力欄はそのビューのヘッダーにあります。1 つのプロダクトで、広いウィンドウでは `button`、狭いウィンドウでは `icon` と使い分けます。
+
+**3 つの表示方法。** ビューをどこに開くかは `presentation` で決めます。
+
+- `docked`（既定）：バーのすぐ下に、バーと同じ幅のサーフェスをプラットフォームのオーバーレイ層に開きます。メニューがアンカーの下に開くのと同じです。フォーカスはバーの入力欄に残るので、候補が変わっても入力を続けられます。下に十分な余地がなければ、バーの上に開きます。
+- `dialog`：ウィンドウの上寄りに、スクリムの上へモーダルなサーフェスを開きます。ヘッダーには戻るボタン、入力欄、消去ボタンが並びます。大きなウィンドウで、トリガーから開くためのものです。スクリムを押すと閉じます。
+- `full-screen`：ウィンドウ全体を覆うモーダルなビューを開きます。ヘッダーは dialog と同じです。ビューはフォーカスを受け取って内側にとどめ、閉じるとバーまたはトリガーに戻します。
+
+大きなウィンドウでは docked か dialog、小さなウィンドウでは full-screen を使います。検索のほうでは自動で切り替えないので、プロダクトのブレークポイントに合わせて `presentation` を設定してください。トリガーに `docked` を組み合わせると、dialog として開きます。docked のビューは自分の入力欄を持たないからです。デバッグビルドで報告します。
+
+**候補**は項目の種類の 1 つです。候補はそれぞれ `value` と `headline` を持ち、必要なら `supportingText` と `leadingIcon`（過去の検索語なら履歴、結果ならフォルダーなど）も持ちます。今の検索語に合う候補を用意するのは利用者側で、検索はそれを描くだけで絞り込みはしません。候補が選ばれると、その値を付けて `select` を発火します。検索語を検索自身が書き換えることはないので、選ばれたときに何をするかは利用者側で決めます。検索語に入れて検索するか、その結果を開くかです。
+
+**検索結果**は、もう 1 つの項目の種類で、検索が見つけたもの（ページ、セクション、メッセージなど）を表します。結果は `value`、`headline`、`excerpt` を持ち、必要なら `leadingIcon` も持ちます。そして、行き先があります。`href` があれば、その行は本物のリンクになり、プラットフォームがほかのリンクと同じように開きます。修飾キーを押しながら新しいタブで開くことも、リンクのコンテキストメニューを使うこともできます。`href` がなければ行はボタンで、合図は `select` だけです。**結果グループ**は、結果を 1 つの見出しの下にまとめます。「メッセージ」のような控えめなタイトルにすることも、グループ自身に `href` を付けて、結果がそのセクションであるページにすることもできます。抜粋（`excerpt`）は、一致した部分に印を付けた一節です。どこが一致したかを決めるのは利用者側の検索で、検索コンポーネントがテキストの中から検索語を探すことはありません。Web では、抜粋は要素自身の内容で、一致した部分を `<mark>` で囲みます。または、`excerpt` にテキストの断片を順に渡し、偶数番目の断片を一致した部分とします。
+
+**ステータス。** 検索コンポーネントは、問い合わせを実行することも、待つことも、絞り込むこともしません。変更のたびに `input` を発火し、渡されたものを描くだけです。利用者側の検索が今何をしているかは、`status`（`idle`、`loading`、`error`）と `statusText` で伝えます。`statusText` には、件数（「トークン」の検索結果 12 件）、何も見つからなかったこと、失敗したことなどを書きます。ステータスの行はそのテキストを表示し、変わったときに読み上げます。読み込み中は、少し遅れてローディングインジケーターを表示します。
+
+**ショートカット。** `shortcut` には、検索を開くキーを、[キーボードショートカット](/ja/components/keyboard-shortcut/)のキー名（`mod+k`、`/`）で指定します。検索はそれを、使っているキーボードに合わせた 1 行のテキストのヒントとして書きます。ボタン型のトリガーでは末尾に、バーでは空でフォーカスがない間に表示します。また、トリガーまたは入力欄のキーボードショートカットとして伝えます。キーが効くのは、利用者側で割り当てたときか、`bindShortcut` を設定したときだけです。`bindShortcut` を設定すると、検索は表示されていて有効な間、ウィンドウ全体でキーを待ち受け、そのキーで開き、もう一度押すと閉じます。
+
+**開くときと閉じるとき。** バーを押す、文字を入力する、入力欄で下矢印を押す、のいずれかでビューが開きます。フォーカスが来ただけでは開きません。Tab でバーに移ったときも、全画面のビューからフォーカスが戻ってきたときも、閉じたままです。開閉は `toggle` で要求します。`toggle` は新しい状態と、閉じるときはその理由（`escape`、`back`、`select`、`submit`、`outside`、`tab`、`focus-out`、`shortcut`）を伝えます。ビューが閉じても検索語はそのまま残ります。入力欄で Enter を押すと `submit` を発火します。そのとき、ビューが検索結果やステータスを表示していれば、続けてそこへ進めるように、ビューは開いたままです。Web では要素が自分で `expanded` を切り替え、SwiftUI と Flutter ではバインディングやコントローラーが変わります。Compose と React Native では、メニューと同じく、コールバックを受けて利用者側で `expanded` を設定します。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-search name="q" label="メールを検索" placeholder="メールを検索" clear-label="検索語を消去">
+      <tanrei-button variant="text" slot="trailing" label="音声で検索"><span slot="icon">mic</span></tanrei-button>
+      <tanrei-search-suggestion value="invoices" headline="請求書" leading-icon="history"></tanrei-search-suggestion>
+      <tanrei-search-suggestion value="folder:invoices" headline="請求書"
+        supporting-text="フォルダー · 24 件のメッセージ" leading-icon="folder"></tanrei-search-suggestion>
+      <!-- それ以外の子要素は、候補の後に続く利用者側のコンテンツです。 -->
+    </tanrei-search>
+
+    <!-- 小さなウィンドウでは、ビューがウィンドウ全体を覆い、戻るボタンを持ちます。 -->
+    <tanrei-search presentation="full-screen" label="メールを検索" placeholder="メールを検索"
+      clear-label="検索語を消去" back-label="戻る"></tanrei-search>
+
+    <!-- サイト内検索：ショートカット付きのトリガー、ダイアログのビュー、リンクである検索結果。 -->
+    <tanrei-search id="docs-search" bar="button" presentation="dialog" label="ドキュメントを検索" placeholder="検索"
+      shortcut="mod+k" bind-shortcut clear-label="検索語を消去" back-label="戻る">
+      <!-- href を持つグループはページで、その中の結果は、ページ内で見つかったセクションです。 -->
+      <tanrei-search-result-group value="/tokens/" headline="デザイントークン" href="/tokens/" leading-icon="article">
+        色、サイズ、モーションを 3 層の<mark>トークン</mark>で表します。
+        <tanrei-search-result value="/tokens/#layers" headline="レイヤ" href="/tokens/#layers" leading-icon="tag">
+          レイヤは<mark>トークン</mark>の値を変え、独自のトークンを加えることもできます。
+        </tanrei-search-result>
+      </tanrei-search-result-group>
+      <!-- それ以外の子要素は、結果の後に続く利用者側のコンテンツです。 -->
+      <tanrei-button variant="text">さらに結果を読み込む</tanrei-button>
+    </tanrei-search>
+
+    <script type="module">
+      import '@tanrei/web/components/search';
+      import '@tanrei/web/components/button';
+      const search = document.querySelector('[name="q"]');
+      search.addEventListener('input', () => showSuggestionsFor(search.value));
+      search.addEventListener('submit', () => runSearch(search.value)); // キャンセルできます。フォームの中では、その後フォームを送信します
+      search.addEventListener('select', (e) => openSuggestion(e.detail.value));
+      // 要素は toggle を発火する前に、自分の expanded を切り替えます。
+      search.addEventListener('toggle', (e) => log(e.detail.expanded, e.detail.reason));
+
+      // 検索コンポーネントは、問い合わせも、待つことも、間引くこともしません。それは利用者側の仕事です。
+      const docs = document.querySelector('#docs-search');
+      let asked = 0;
+      docs.addEventListener('input', async () => {
+        const mine = ++asked;
+        docs.status = 'loading';
+        docs.statusText = '検索中';
+        const found = await query(docs.value);
+        if (mine !== asked) return; // より新しい問い合わせがあるので、この答えは捨てます
+        show(found); // <tanrei-search-result> の子要素を置き換えます
+        docs.status = 'idle';
+        docs.statusText = `「${docs.value}」の検索結果 ${found.length} 件`; // 答えごとに 1 回だけ設定します。読み上げられます
+      });
+      // 結果がその場で開かれました。イベントをキャンセルすると、リンクをルーターに任せられます。
+      docs.addEventListener('select', (e) => { /* e.preventDefault(); router.push(e.detail.value); */ });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Search, SearchResult, SearchResultGroup, SearchSuggestion } from '@tanrei/react';
+
+    <Search
+      label="メールを検索"
+      placeholder="メールを検索"
+      clearLabel="検索語を消去"
+      value={query}
+      onInput={(e) => setQuery(e.currentTarget.value)}
+      onSubmit={() => runSearch(query)}
+      onSelect={(e) => openSuggestion(e.detail.value)}
+    >
+      <Button variant="text" slot="trailing" label="音声で検索" onClick={dictate}><span slot="icon">mic</span></Button>
+      {suggestions.map((s) => (
+        <SearchSuggestion key={s.value} value={s.value} headline={s.headline} supportingText={s.detail} leadingIcon={s.icon} />
+      ))}
+    </Search>
+
+    // サイト内検索：ショートカット付きのトリガー、ダイアログのビュー、リンクである検索結果。
+    // excerpt はテキストの断片の並びで、偶数番目の断片が一致した部分です。
+    <Search
+      bar="button"
+      presentation="dialog"
+      label="ドキュメントを検索"
+      placeholder="検索"
+      shortcut={['mod+k']}
+      bindShortcut
+      clearLabel="検索語を消去"
+      backLabel="戻る"
+      status={status}
+      statusText={statusText}
+      onInput={(e) => runQuery(e.currentTarget.value)}
+      onSelect={(e) => { e.preventDefault(); router.push(e.detail.value); }}
+    >
+      {pages.map((page) => (
+        <SearchResultGroup key={page.url} value={page.url} headline={page.title} href={page.url} leadingIcon="article" excerpt={page.excerpt}>
+          {page.sections.map((s) => (
+            <SearchResult key={s.url} value={s.url} headline={s.title} href={s.url} leadingIcon="tag" excerpt={s.excerpt} />
+          ))}
+        </SearchResultGroup>
+      ))}
+    </Search>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 入力のたびに text へ、開閉のたびに isExpanded へ書き込みます。
+    TanreiSearch("メールを検索", text: $query, isExpanded: $isSearching,
+                 prompt: Text("メールを検索"), clearLabel: "検索語を消去",
+                 onSubmit: { value in runSearch(value) },
+                 onSelect: { value in openSuggestion(value) }) {
+        TanreiSearchSuggestion("請求書", leadingIcon: "history", value: "invoices")
+        TanreiSearchSuggestion("請求書", supportingText: "フォルダー · 24 件のメッセージ", leadingIcon: "folder", value: "folder:invoices")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSearch
+    import io.github.chnotchy.tanrei.components.TanreiSearchSuggestion
+
+    // 状態ホイスティング：value と expanded は呼び出し側で持ち、コールバックで更新します。
+    TanreiSearch(
+        value = query,
+        onValueChange = { query = it },
+        expanded = expanded,
+        onExpandedChange = { open, _ -> expanded = open }, // 2 つ目の引数は理由です
+        label = "メールを検索",
+        placeholder = "メールを検索",
+        clearLabel = "検索語を消去",
+        onSearch = { runSearch(query) },
+        onSelect = { openSuggestion(it) },
+    ) {
+        TanreiSearchSuggestion(value = "invoices", headline = "請求書", leadingIcon = "history")
+        TanreiSearchSuggestion(value = "folder:invoices", headline = "請求書", supportingText = "フォルダー · 24 件のメッセージ", leadingIcon = "folder")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // TanreiSearchController は、isExpanded も持つ TextEditingController です。
+    final TanreiSearchController search = TanreiSearchController();
+
+    TanreiSearch(
+      controller: search,
+      semanticLabel: 'メールを検索',
+      hintText: 'メールを検索',
+      clearLabel: '検索語を消去',
+      onChanged: showSuggestionsFor,
+      onSubmitted: runSearch,
+      onSelected: openSuggestion,
+      suggestions: const <TanreiSearchSuggestion>[
+        TanreiSearchSuggestion(value: 'invoices', headline: '請求書', leadingIcon: 'history'),
+        TanreiSearchSuggestion(value: 'folder:invoices', headline: '請求書', supportingText: 'フォルダー · 24 件のメッセージ', leadingIcon: 'folder'),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Search } from '@tanrei/react-native';
+
+    // 制御コンポーネント：onChangeText と onExpandedChange を受けて、value と expanded を更新します。
+    <Search
+      value={query}
+      onChangeText={setQuery}
+      expanded={expanded}
+      onExpandedChange={(next) => setExpanded(next)}
+      accessibilityLabel="メールを検索"
+      placeholder="メールを検索"
+      clearLabel="検索語を消去"
+      onSubmitEditing={() => runSearch(query)}
+      onSelect={openSuggestion}
+      suggestions={[
+        { value: 'invoices', headline: '請求書', leadingIcon: 'history' },
+        { value: 'folder:invoices', headline: '請求書', supportingText: 'フォルダー · 24 件のメッセージ', leadingIcon: 'folder' },
+      ]}
+    />
+
+    // 小さなウィンドウでは presentation="full-screen" と backLabel="戻る" を渡します。Android の戻るボタンでビューが閉じます。
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="候補、ステータスの行、グループにまとめた検索結果を表示した docked のビュー（その場に描画）" plain column>
+  <tanrei-search inline expanded label="メールを検索" placeholder="メールを検索" value="請求" status-text="メッセージ 2 件" clear-label="検索語を消去" style="inline-size: 20.5rem">
+    <tanrei-search-suggestion value="請求書" headline="請求書" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-result-group headline="メッセージ">
+      <tanrei-search-result value="m-1" headline="10 月分のご請求" leading-icon="mail" excerpt='["10 月分の", "請求", "書を添付します。"]'></tanrei-search-result>
+      <tanrei-search-result value="m-2" headline="Re: お支払いについて" leading-icon="mail" excerpt='["", "請求", "書をもう一度お送りください。"]'></tanrei-search-result>
+    </tanrei-search-result-group>
+  </tanrei-search>
+</DemoFrame>
+
+<DemoFrame label="無効状態、開いた docked のビュー" plain column>
+  <tanrei-search label="メールを検索" placeholder="メールを検索" disabled style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search inline expanded label="メールを検索" placeholder="メールを検索" value="請求" clear-label="検索語を消去" style="inline-size: 20.5rem">
+    <tanrei-search-suggestion value="請求書" headline="請求書" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-suggestion value="請求書 テンプレート" headline="請求書 テンプレート" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-suggestion value="folder:invoices" headline="請求書" supporting-text="フォルダー · 24 件のメッセージ" leading-icon="folder"></tanrei-search-suggestion>
+  </tanrei-search>
+</DemoFrame>
+
+<ComponentSpecs name="search" />
+
+## ガイドライン
+
+### 使う場面
+
+メール、ファイル、連絡先、設定のように、検索がプロダクトの内容にたどり着く主な手段で、候補があれば早く目的のものに届くときに使います。画面の上部か、検索対象のページの上部に置きます。
+
+サイト内検索としても使えます。ヘッダーのトリガーからダイアログを開き、見つかったページやセクションをリンクとして示します。
+
+画面にすでに出ている短いリストを絞り込むだけなら、あるいはフォームに検索語を入力するだけなら、`type` を search にした[テキストフィールド](/ja/components/text-field/)で足ります。決まったリストから値を 1 つ選ぶのは、検索ではなく[メニュー](/ja/components/menu/)やリストの役目です。
+
+### バーかトリガーか
+
+| `bar` | ページに置かれるもの | 開くビュー | 用途 |
+| --- | --- | --- | --- |
+| `field`（既定） | 入力欄のあるバー | どの表示方法でも | 検索が内容にたどり着く主な手段で、バーに専用の場所があるプロダクト |
+| `button` | バーと同じ形のトリガー。グリフ、プレースホルダー、ショートカットのヒントを持つ | モーダルなビュー（dialog か full-screen） | 余裕のあるヘッダー。検索がいくつかある要素の 1 つであるとき |
+| `icon` | 検索のグリフを示す、アイコンだけのボタン | モーダルなビュー（dialog か full-screen） | 狭いウィンドウなど、余裕のないヘッダー |
+
+トリガーの名前は `label` です。ボタン型のトリガーはプレースホルダーを表示し、プレースホルダーがなければラベルを表示します。ビューが閉じると、フォーカスはトリガーに戻ります。
+
+### docked、dialog、full-screen の使い分け
+
+| 表示方法 | ビューが開く場所 | フォーカス | 用途 |
+| --- | --- | --- | --- |
+| docked（既定） | バーの下に、バーと同じ幅で、コンテンツの上に重ねて | バーの入力欄に残ります。ほかの部分が操作できなくなることはなく、スクリムもありません | ビューを開いても画面全体を隠さずに済む、大きなウィンドウ |
+| dialog | ウィンドウの上寄りの中央に、最大幅までの幅で、スクリムの上に。内容が変わっても上端の位置は変わりません | ヘッダーの入力欄に移ってビューの中にとどまり、閉じるとトリガーまたはバーに戻ります | トリガーから開く、大きなウィンドウ。サイト内検索 |
+| full-screen | ウィンドウ全体を覆い、専用のヘッダー、戻るボタン、区切り線を持つ | ヘッダーの入力欄に移ってビューの中にとどまり、閉じるとバーまたはトリガーに戻ります | 候補と画面キーボードでほかに何も置けなくなる、小さなウィンドウ |
+
+3 つのどれでも検索語は同じです。ブレークポイントで `presentation` を切り替えても、検索語は変わりません。
+
+### 消去ボタンと戻るボタン
+
+どちらも組み込みです。その動きが検索そのものの一部だからです。消去ボタンは検索語を空にし、ビューとフォーカスはそのままにします。戻るボタンは全画面のビューを閉じます。名前はプロダクトの言語で付ける必要があるので、利用者側で渡します。`clearLabel`（「検索語を消去」）と、dialog と full-screen なら `backLabel`（「戻る」）です。iOS では、全画面のビューから出る方法は戻るボタンしかありません。ダイアログのヘッダーにも戻るボタンがあるので、Escape もポインターも使えない人もビューから出られます。
+
+### 候補、検索結果、利用者側のコンテンツ
+
+- **候補は選ぶもの、結果は行き先です。** 候補は、検索語を完成させたり、分かっているものへ直接移ったりするためのものです。矢印キーでアクティブになりますが、フォーカスは入力欄に残ります。結果は、利用者側の検索が見つけたものです。リンクであり、それ自体がフォーカスを受け取ります。
+- 先頭のアイコンで種類を見分けられるようにします。過去の検索語なら履歴、ほかにフォルダー、ページ、セクションなどです。
+- 見出しは短くし、詳しいことは補足テキストか抜粋に書きます。「請求書」の下に「フォルダー · 24 件のメッセージ」のようにします。途中で切らずに折り返します。
+- 抜粋では、一致した部分に印を付けます。印はシステムのもの（色と、より太い文字）なので、どこでも同じ見た目になります。
+- まとまりのある結果はグループにします。ページの下にそのセクション、「メッセージ」の下にメッセージ、などです。グループ自体が行き先であれば、その見出しはリンクになります。
+- アドレスのある結果には、必ず `href` を付けます。そうすれば、新しいタブで開くことも、アドレスをコピーすることも、行き先を確かめることもできます。`href` なしで `select` だけを使うのは、プロダクト自身が開く結果に限ります。
+- ビューの中の順番は決まっています。候補、ステータスの行、結果、そして利用者側のコンテンツです。「さらに結果を読み込む」ボタンや、すべての結果のページへのリンクなどを置きます。
+- 表示するものが何もない docked のビューは何も描きませんが、検索は開いたままです。表示するものができればすぐにまた表示されます。
+
+### ステータス
+
+- `statusText` は、答えごとに 1 回設定します。「『トークン』の検索結果 12 件」「『トークソ』に一致する結果はありません」などです。変わるたびに読み上げられるので、キーを押すたびに変えると騒がしくなります。
+- 問い合わせの実行中は、`status` を `loading` にします。ローディングインジケーターは少し遅れて現れるので、すぐに答えが返れば表示されません。
+- 失敗したときは、`status` を `error` にし、何が起きたかをテキストで伝えます。エラーとして描かれ、ただちに読み上げられます。
+- 順番が前後して届いた答えは捨てます。検索は、最後に設定されたものを描きます。
+
+### ショートカット
+
+- その種類のプロダクトで検索のショートカットとしてすでに知られているものを使い、どのキーボードでも正しくなるように `mod` で書きます。
+- `bindShortcut` を設定するのは、1 つの画面で 1 つの検索だけにします。同じキーを待ち受ける検索が 2 つあると、先に表示されたほうがキーを保ち、もう一方はデバッグビルドで報告されます。
+- `/` のような修飾キーのないショートカットは、フォーカスがテキスト入力にある間は無視されるので、その文字を入力できます。
+- `bindShortcut` がなければ、ヒントはキーを表示するだけです。利用者側でキーを割り当てるか、`shortcut` を空のままにします。
+
+### 推奨
+
+- プレースホルダーには、何を検索できるかを書きます。「メールを検索」などです。`label` も必ず設定します。プレースホルダーが名前になることはありません。
+- 検索語が変わるたびに候補を更新し、候補の間を移動している間は並び順を変えないようにします。
+- `select` を受けたら、その候補が示すとおりのことをします。結果を開くか、検索語をバーに入れて検索します。
+- 末尾のスロットのアイコンボタンは 2 つまでにします。
+- `target` が `new` の結果には、`targetLabel`（「新しいタブで開きます」）を付けます。
+
+### 非推奨
+
+- バーにフォーカスが来ただけでビューを開かない。検索はもともとそうしないようにできています。利用者側でその動きを足さないでください。
+- テキストフィールドのように自分でフォーカスを必要とするコントロールを、docked のビューに入れない。docked のビューを押しても、フォーカスは入力欄に残ります。
+- 候補がアクティブになっただけで検索語を書き換えない。検索語を変えるのは、候補が選ばれたとき（`select`）か、ユーザーが入力したときだけです。
+- フォームで値を選ばせるのに検索を使わない。
+- 結果のアドレスを `select` だけで扱わない。`href` のない行はボタンで、新しいタブで開けません。
+- 一致した部分を色だけで自分で示したり、出どころの分からないマークアップを抜粋に入れたりしない。Web では、抜粋の内容は利用者側のもので、置いたものがそのまま表示されます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="search" />
+
+### コンポーネントが担うこと
+
+- 入力欄は、`label` を名前とする検索フィールドです。プレースホルダーが名前になることはありません。プラットフォームに検索のロールがあれば、そのロールで伝えます。
+- Web の docked のビューは、WAI-ARIA のコンボボックスパターンに沿います。候補を表示している間、入力欄は `aria-autocomplete="list"`、`aria-expanded`、候補のリストを指す `aria-controls`、アクティブな候補を指す `aria-activedescendant` を持つコンボボックスになります。候補は `label` を名前とするリストボックスで、各候補は見出しを名前、補足テキストを説明とする選択肢です。
+- docked のビューでは、フォーカスは入力欄に残ります。アクティブな候補は下矢印と上矢印で動くので、検索語を直しながら候補を選べます。アクティブになった候補が一部でも見えていなければ、ビューがスクロールして見せます。
+- 全画面のビューとダイアログのビューは、`label` を名前とするモーダルダイアログです。フォーカスはヘッダーの入力欄の、検索語の末尾に移り、ビューの中にとどまります。外側はすべて操作できず、支援技術からも隠れます。閉じるとフォーカスはバーの入力欄またはトリガーに戻り、ビューが再び開くことはありません。
+- トリガーは `label` を名前とするボタンで、ダイアログを開くことと、ビューが開いているかどうかを伝えます。キーボードフォーカスは、バーと同じ方法で示します。
+- ダイアログのスクリムを押すとビューが閉じ、その操作が下にあるものに届くことはありません。ヘッダーの先頭には戻るボタンがあり、Tab で届きます。
+- 結果は `label` を名前とするリストで、グループは見出しを名前とします。`href` のある結果はリンクであり、選択肢になることはありません。入力欄がコンボボックスになるのは、ビューが候補を表示している間だけです。結果は見出しを名前、抜粋を説明とし、新しいコンテキストで開く場合は続けて `targetLabel` を伝えます。
+- 入力欄で下矢印を押すと、移れる候補がもうなければ、フォーカスが最初の結果に移り、グループをまたいで順に進みます。上矢印で戻り、最初の結果からは入力欄に戻ります。結果の上で文字の入力、削除、貼り付けをすると、フォーカスが入力欄に移り、そのキーは入力欄で働きます。モーダルなビューでは、Tab はほかのリンクと同じように結果を順に進みます。
+- ステータスの行はライブリージョンです。`statusText` は変わったときに読み上げられ、`status` が `error` の間はアラートとしてただちに読み上げられます。読み込み中は、結果がビジー状態として伝わり、ローディングインジケーターの名前は `statusText` になります。
+- ショートカットは、トリガーまたは入力欄のキーボードショートカットとして伝えます。ヒントは押す操作もフォーカスも受け取りません。
+- 入力欄にフォーカスが来ただけでは、Tab で来ても全画面のビューから戻ってきても、ビューは開きません。
+- Escape、プラットフォームの戻る操作、戻るボタンでビューが閉じます。docked のビューは、Tab と Shift+Tab、外側を押したとき、フォーカスが検索から外れたときにも閉じます。
+- 消去ボタンと戻るボタンは Tanrei のアイコンボタンで、名前は `clearLabel` と `backLabel` です。消去した後、フォーカスは入力欄に戻ります。
+- `leading` と `trailing` のスロットに置いたアイコンボタンは、自分の名前、ロール、フォーカスが止まる位置を読み順どおりに保ちます。全画面のヘッダーには表示しません。
+- 入力、IME の変換、音声入力、右から左（RTL）の文字は、テキストフィールドと同じように扱います。検索用キーボードの実行キーで送信します。
+- バーは、キーボードでもポインターでも、フィールドと同じく自分の縁でフォーカスを示します。候補の行は、アクティブな間、行の内側にフォーカスリングを表示します。行もバーも最小ターゲットを満たします。
+- 検索のグリフ、候補の先頭アイコン、区切り線は、支援技術から隠します。
+- 文字を大きくすると、バーとヘッダーは高くなり、検索語は 1 行のまま、候補の行は折り返します。
+- `label`、`clearLabel`、`backLabel` がない場合、候補の値が空か重複している場合、見出しが空の場合、`presentation`、`bar`、`status` に知らない値が指定された場合、トリガーに docked を組み合わせた場合、同じキーを待ち受ける検索が 2 つある場合、末尾のボタンが 3 つ以上ある場合は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native には、トリガー、ダイアログのビュー、検索結果、ステータスの行、ショートカットがまだありません。これらのプラットフォームでは、結果をビューの利用者側のコンテンツとして表示し、件数は利用者側で読み上げてください。
+- Web：`bindShortcut` で待ち受けるショートカットは、`mod` を、ヒントを書いている流儀（祖先が決めたもの、なければプラットフォームのもの）で解釈します。仕様はプラットフォームの流儀だけを挙げています。
+- SwiftUI、Compose、Flutter、React Native には、コンボボックスやリストボックスのロールがありません。入力欄は検索フィールドで、各候補はリスト内の位置を持つボタンになり、スクリーンリーダーではスワイプでたどります。アクティブな候補が、入力欄のアクティブな子孫として読み上げられることはありません。Flutter の候補はリスト内の位置も持ちません。SwiftUI と React Native は位置を英語で伝えます（「2 of 3」。React Native では `positionText` で変えられます）。
+- Flutter は入力欄を、検索ボックスのロールではなく、検索用の入力種別として伝えます。サポートしている最も古い Flutter 3.32 が、このロールを受け付けないためです。
+- docked のビューの外側を押すと、ビューが閉じます。Web、SwiftUI、Compose、Flutter では、その押した操作は下にあるものにも届きます。React Native では、メニューと同じく届きません。
+- Web：全画面のヘッダーの入力欄もコンボボックスなので、そこでもアクティブな候補が読み上げられます。仕様がコンボボックスとしているのは docked のビューだけです。
+- Web：docked のビューは、Android の戻るジェスチャーのような、プラットフォームの閉じる要求では閉じません。また、仕様の Web 向けの注記にある CSS のアンカー配置ではなく、スクリプトで配置しています。
+- 無効の状態がスロットのアイコンボタンにも及びます。仕様では、スロットのボタンは自分の状態を保ちます。SwiftUI の `.disabled(true)` はそれらも無効にし、Web では無効の不透明度が 1 未満ならそれらも薄くなります。同梱しているシステムの無効の不透明度は、どれも 1 です。
+- SwiftUI は docked のビューを、ウィンドウのすべてのビューの上ではなく、検索を含むコンテナの中で検索より後に置かれたものの上に描きます。検索をコンテナの後ろのほうに置くか、`zIndex` で前に出してください。macOS ではウィンドウの高さを読まないので、ビューは常に下へ、本来の高さで開きます。全画面のビューは、ウィンドウと同じ大きさのシートになります。
+- SwiftUI：選択範囲の色は、テキストフィールドの選択色ではなく、キャレットの色合いに従います。フォーカスのない入力欄を最初にタップすると、キャレットはタップした位置ではなく検索語の末尾に置かれます。キー操作は macOS でしかテストしておらず、iOS のハードウェアキーボードでは試していません。
+- Compose は細かいポインターとタッチを区別できないため、候補の行は常に高さ 48 です。Web ではマウスのとき 44 です。docked のビューの外側を押す操作は、テストで確かめられていません。
+- Flutter：入力欄にフォーカスがないときに利用者側が `expand()` で開いた docked のビューは、外側を押しても閉じません。全画面のビューには `Navigator` が必要で、ない場合は docked で表示します。
+- React Native：docked のビューは、開いたときと、ウィンドウやキーボードが変わったときに配置し直しますが、スクロールで動くバーには付いていきません。Escape、矢印キー、Tab は、`TextInput` が届ける環境でしか受け取れません。オーバーレイと、全画面のビューでのフォーカスの移動は、まだ実機で確かめていません。
+- `cupertino` では、バーはフォーカスの縁を描きません。iOS の検索フィールドと同じく、フォーカスはキャレットとキーボードで示します。
+- `m3-like` では、検索は既定のシステムの値で描かれます。Material の検索の値は、忠実度の参照データが検索を扱うようになるまで保留しています。Material の docked のビューはバーから伸びて 1 枚のサーフェスになりますが、Tanrei ではバーの下に別のサーフェスとして描きます（mimicry-gaps 台帳 `search-docked-view-joins-bar`）。
+
+### 利用者側で行うこと
+
+- プロダクトの言語で、検索に `label` を、消去ボタンに `clearLabel` を付けます。dialog と full-screen では `backLabel` も付けます。
+- 今の検索語に合う候補を用意し、見出しは単独で読んでも意味が分かるようにします。
+- 検索が何を見つけたかを、答えごとに 1 回、プロダクトの言語で `statusText` に書きます。検索はそれを読み上げますが、結果を自分で数えることはしません。
+- 問い合わせは利用者側で実行し、順番が前後して届いた答えは捨てます。
+- アドレスのある結果にはすべて `href` を付け、新しいコンテキストで開くものには `targetLabel` を付けます。
+- ショートカットのキーを割り当てるか、`bindShortcut` を設定します。何も起こらないキーのヒントは、誤解のもとです。
+- `select` を受けて何をするかを決め、選んだ候補で検索語を埋めるなら、利用者側で検索語を設定します。
+- Compose と React Native では、コールバックを受けて `expanded` を設定します。設定しないと、ビューは開きも閉じもしません。
+- Web でフォームと一緒に検索語を送るときは、検索に `name` を付けます。

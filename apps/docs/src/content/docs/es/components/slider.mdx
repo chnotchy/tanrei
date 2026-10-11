@@ -1,0 +1,308 @@
+---
+title: Control deslizante
+description: Permite elegir un valor, o un intervalo de valores, arrastrando un tirador a lo largo de una pista, de forma continua o por pasos.
+translationOf: components/slider.mdx
+sourceHash: 39176fadfe7f25e466cebc49d5889a32184219cc
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="slider" />
+
+<DemoFrame label="Continuo, por pasos con puntos de parada y un intervalo" column>
+  <tanrei-slider label="Volumen" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Brillo" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider range label="Precio máximo" start-label="Precio mínimo" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
+</DemoFrame>
+
+### Uso
+
+Un control deslizante elige un valor entre `min` y `max` (0 y 100 de forma predeterminada). Con `range` tiene dos tiradores y elige el tramo que va de `startValue` a `value`. Con `step` en 0 es continuo; por encima de 0, los valores se ajustan a `min` más múltiplos enteros de `step`.
+
+El control deslizante no dibuja ninguna etiqueta. `label` le da nombre para la tecnología de apoyo, y una etiqueta visible es un texto tuyo junto al control, con las mismas palabras. Un intervalo necesita además `startLabel` para su tirador de inicio.
+
+Dos eventos informan de un cambio. `input` se emite con cada cambio mientras la persona arrastra, y `change` se emite una vez cuando el cambio ha terminado: acabó la pulsación, o se pulsó una tecla o se hizo un ajuste desde una tecnología de apoyo. Un valor que defines tú no emite ninguno de los dos. Cada plataforma los nombra a su manera: `onValueChange` y `onValueChangeFinished` en Compose, `onChanged` y `onChangeEnd` en Flutter, `onValueChange` y `onSlidingComplete` en React Native y, en SwiftUI, el binding y `onCommit`.
+
+La revisión que dio al control deslizante su tirador redondo, y el examen posterior que hizo más grueso su anillo, solo cambiaron su aspecto, así que todos los ejemplos siguientes están al día. La web dibuja el aspecto actual. SwiftUI, Compose, Flutter y React Native van rezagados: todavía dibujan el aspecto anterior, un tirador redondo y macizo con las pistas cortadas en su borde y un solo tamaño de punto de parada para todos los tamaños, hasta que se pongan al día.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- El control deslizante no dibuja ninguna etiqueta: pon tu etiqueta visible a su lado, con las mismas palabras. -->
+    <tanrei-slider name="volume" label="Volumen" value="40" value-indicator="active"></tanrei-slider>
+
+    <!-- Por pasos, con un punto en cada paso. -->
+    <tanrei-slider label="Brillo" value="30" step="10" stops></tanrei-slider>
+
+    <!-- Un intervalo envía start-value y después value, con el mismo nombre. -->
+    <tanrei-slider name="price" range min="0" max="500" step="10" start-value="100" value="300"
+      label="Precio máximo" start-label="Precio mínimo"></tanrei-slider>
+
+    <script type="module">
+      import '@tanrei/web/components/slider';
+      const volume = document.querySelector('[name="volume"]');
+      // El elemento define su propio valor antes de emitir input y change.
+      volume.addEventListener('input', () => preview(volume.value));
+      volume.addEventListener('change', () => save(volume.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Slider } from '@tanrei/react';
+
+    <Slider
+      label="Volumen"
+      value={volume}
+      valueIndicator="active"
+      onInput={(e) => setVolume(e.currentTarget.value)}
+      onChange={(e) => save(e.detail.value)}
+    />
+
+    <Slider
+      range
+      min={0}
+      max={500}
+      step={10}
+      startValue={minPrice}
+      value={maxPrice}
+      label="Precio máximo"
+      startLabel="Precio mínimo"
+      onInput={(e) => setPrices(e.currentTarget.startValue, e.currentTarget.value)}
+    />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Cada cambio escribe en el binding; onCommit se ejecuta cuando un cambio ha terminado.
+    TanreiSlider("Volumen", value: $volume, in: 0...100, onCommit: save)
+
+    TanreiSlider("Brillo", value: $brightness, in: 0...100, step: 10)
+
+    // Un intervalo es el inicializador cuyo binding es un ClosedRange: lowerBound es el tirador de inicio.
+    TanreiSlider("Precio máximo", startLabel: "Precio mínimo", value: $prices, in: 0...500, step: 10)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSlider
+
+    // Elevación de estado: mueve value desde onValueChange.
+    TanreiSlider(
+        value = volume,
+        onValueChange = { volume = it },
+        contentDescription = "Volumen",
+        onValueChangeFinished = ::save, // lleva el valor, a diferencia del de foundation
+    )
+
+    // step es un tamaño, no el número de pasos de Material.
+    TanreiSlider(value = brightness, onValueChange = { brightness = it }, step = 10f, contentDescription = "Brillo")
+
+    // Un intervalo es la sobrecarga cuyo valor es un ClosedFloatingPointRange.
+    TanreiSlider(
+        value = prices,
+        onValueChange = { prices = it },
+        valueRange = 0f..500f,
+        step = 10f,
+        contentDescription = "Precio máximo",
+        startContentDescription = "Precio mínimo",
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiSlider(
+      value: volume,
+      onChanged: (double value) => setState(() => volume = value), // null lo deshabilita
+      onChangeEnd: save,
+      semanticLabel: 'Volumen',
+    );
+
+    // step es un tamaño, no las divisiones de Material.
+    TanreiSlider(value: brightness, step: 10, onChanged: (double value) => setState(() => brightness = value), semanticLabel: 'Brillo');
+
+    TanreiSlider.range(
+      start: minPrice,
+      end: maxPrice,
+      max: 500,
+      step: 10,
+      onChanged: (double start, double end) => setState(() {
+        minPrice = start;
+        maxPrice = end;
+      }),
+      semanticLabel: 'Precio máximo',
+      startSemanticLabel: 'Precio mínimo',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Slider } from '@tanrei/react-native';
+
+    <Slider value={volume} onValueChange={setVolume} onSlidingComplete={save} accessibilityLabel="Volumen" />
+
+    <Slider value={brightness} step={10} stops onValueChange={setBrightness} accessibilityLabel="Brillo" />
+
+    // Un intervalo: ambos callbacks reciben (value, startValue).
+    <Slider
+      range
+      minimumValue={0}
+      maximumValue={500}
+      step={10}
+      startValue={minPrice}
+      value={maxPrice}
+      onValueChange={(value, startValue) => setPrices(startValue, value)}
+      accessibilityLabel="Precio máximo"
+      startAccessibilityLabel="Precio mínimo"
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Tamaños, centrado, indicador de valor, vertical y deshabilitado" plain column>
+  <tanrei-slider size="medium" label="Volumen" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider size="large" label="Volumen" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Balance" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Volumen" value="40" value-indicator="always" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Volumen" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Brillo" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider orientation="vertical" label="Volumen" value="60" style="block-size: 12rem"></tanrei-slider>
+</DemoFrame>
+
+En el sistema predeterminado, el tirador es un anillo: un círculo de 20 relleno con el color de la superficie, dentro de un contorno del color de la pista activa. El contorno mide 3 de ancho y se dibuja por dentro del borde del círculo, así que no cambia el tamaño del tirador: deja un disco de 14 del color de la superficie, y un contorno más ancho dejaría uno más pequeño. La pista y la pista activa pasan por debajo del tirador y se encuentran en su centro, de modo que la pista activa se lee como una sola línea que termina en el anillo. El tirador mide 20 en todos los tamaños, sobre pistas de 4, 6 y 8.
+
+Los puntos de parada, y el punto que marca el final del recorrido, tienen la mitad del grosor de la pista: 2, 3 y 4 en small, medium y large. El indicador de valor se sitúa un poco por encima de la parte superior del anillo, centrado en él. Deshabilitado, el anillo conserva su relleno, y su contorno se atenúa junto con la pista activa.
+
+Un sistema de diseño puede dibujar el tirador a su manera con los mismos tokens. Con un contorno de 0, el tirador es una forma maciza y, con una separación entre las pistas y el tirador, las pistas se detienen antes de llegar a él y se redondean ahí. `m3-like` dibuja así la barra vertical de Material.
+
+<ComponentSpecs name="slider" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un control deslizante cuando las personas eligen un valor a ojo y ven su efecto mientras lo mueven: el volumen, el brillo, la exposición de una foto, el radio de búsqueda de un mapa. Un control deslizante de intervalo va bien para un filtro con un límite inferior y otro superior, como un precio.
+
+Cuando el número exacto importa más que su posición, como un importe o una cantidad, usa un [campo de texto](/es/components/text-field/), o pon uno junto al control deslizante para que la persona pueda hacer cualquiera de las dos cosas. Cuando solo hay unas pocas opciones con nombre, como Bajo, Medio y Alto, los [botones de opción](/es/components/radio-button/) nombran cada una, o un [botón segmentado](/es/components/segmented-button/) donde el sistema lo incluya.
+
+### Continuo o por pasos
+
+- **Continuo** (`step` en 0) admite cualquier valor entre `min` y `max`. Úsalo cuando los valores intermedios tengan sentido y el efecto se vea al instante.
+- **Por pasos** (`step` por encima de 0) se ajusta a `min` más múltiplos enteros de `step`. Úsalo cuando solo tengan sentido las unidades enteras: estrellas, un tamaño de fuente en puntos, un porcentaje de diez en diez.
+- `stops` dibuja un punto en cada valor que puede tomar un control deslizante por pasos. Actívalo cuando haya pocos pasos, para que las personas puedan contarlos. Con muchos pasos, los puntos abarrotan la pista, así que déjalos desactivados.
+
+Las teclas de flecha mueven un paso, o una centésima del intervalo en un control deslizante continuo. Re Pág y Av Pág mueven diez.
+
+### Un intervalo
+
+`range` dibuja dos tiradores, de `startValue` a `value`. Los tiradores pueden encontrarse, pero nunca cruzarse. Cada uno es su propia parada de tabulación y su propio control para un lector de pantalla, que oye el intervalo que el tirador todavía puede alcanzar. Da nombre a los dos tiradores: `startLabel` («Precio mínimo») y `label` («Precio máximo»).
+
+### Un control deslizante centrado
+
+`origin` define dónde empieza la pista activa. Si se deja vacío, empieza en `min`. Un valor dentro del intervalo, como 0 en un control de balance de -50 a 50, hace que la pista activa crezca desde ahí hacia cualquiera de los dos lados. Los extremos de la pista conservan sus puntos de parada, así que los dos límites siguen a la vista.
+
+### El indicador de valor
+
+`valueIndicator` muestra el valor del tirador en una pequeña etiqueta junto a él.
+
+| Valor | Muestra el valor | Úsalo para |
+| --- | --- | --- |
+| `none` (predeterminado) | Nunca | Controles deslizantes cuyo efecto se ve en otro lugar de la pantalla: volumen, brillo |
+| `active` | Mientras el tirador está pulsado o tiene el foco del teclado | Valores que las personas necesitan leer mientras los definen, donde un dedo tapa el tirador |
+| `always` | Todo el tiempo | Un valor que debe seguir siendo legible, cuando no hay sitio para un texto tuyo junto al control deslizante |
+
+El indicador se sitúa encima del tirador de un control deslizante horizontal y en el inicio en línea de uno vertical. Muestra `valueText` cuando lo proporcionas y, si no, el número en la configuración regional de la plataforma, con tantos decimales como tenga el paso del teclado, hasta dos. Es solo una vista del valor: no recibe el foco ni ninguna entrada, y un lector de pantalla lee el valor del tirador.
+
+### Texto del valor
+
+Define `valueText` con las palabras que expresan el valor actual cuando el número a secas no quedaría claro: «40%», «3 estrellas», «$300». Sustituye al número tanto en el indicador de valor como en lo que dice un lector de pantalla. En un intervalo, `startValueText` hace lo mismo para el tirador de inicio. Actualízalo cada vez que cambie el valor.
+
+Unas palabras escritas una sola vez dejan de ser ciertas tras el primer arrastre. Por eso el control deslizante acepta también una función que convierte un valor en sus palabras y que se da una sola vez: se la pide para cada tirador en cada cambio, y `valueText` y `startValueText` siguen teniendo prioridad donde los definas. En la web es `formatValue`, una propiedad y nunca un atributo. Las demás plataformas todavía no la han implementado.
+
+```js
+const dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+document.querySelector('[name="price"]').formatValue = (value) => dollars.format(value);
+```
+
+**Se usa en** el [campo de control deslizante](/es/components/slider-field/): un campo y un control deslizante como un solo componente, con estas palabras dibujadas al final de la fila de la etiqueta. Úsalo siempre que el control deslizante necesite una etiqueta dibujada, ayuda o un error.
+
+### Tamaño y orientación
+
+`small` es el control deslizante de uso diario. `medium` y `large` dan una pista más gruesa a un control destacado, como un control deslizante de volumen o de brillo en una pantalla multimedia. Todos los tamaños cumplen el objetivo mínimo.
+
+Un control deslizante vertical va de abajo (`min`) a arriba (`max`) en cualquier dirección del diseño. Uno horizontal va desde el inicio en línea, así que en un diseño de derecha a izquierda `min` queda a la derecha.
+
+### Recomendado
+
+- Pon una etiqueta visible tuya junto al control deslizante, con las mismas palabras que `label`.
+- Muestra el efecto del valor mientras la persona arrastra, y guárdalo en `change`, no en cada `input`.
+- Elige `min`, `max` y `step` de modo que todos los valores que el control deslizante puede tomar sean valores que alguien querría.
+- Da una unidad a `valueText` cuando el número por sí solo no diga qué cuenta.
+
+### Evita
+
+- No uses un control deslizante para un valor que haya que definir con precisión, como una fecha o una suma de dinero.
+- No uses un control deslizante para un ajuste que solo está activado o desactivado. Usa un [interruptor](/es/components/switch/).
+- No muestres puntos de parada en un control deslizante con muchos pasos.
+- No pongas un control deslizante dentro de una [barra de herramientas](/es/components/toolbar/). Necesita las teclas de flecha con las que la barra de herramientas mueve el foco.
+
+## Accesibilidad
+
+<ComponentAccessibility name="slider" />
+
+### De qué se encarga el componente
+
+- Cada tirador es un control deslizante para la tecnología de apoyo, que recibe su nombre de `label` (o de `startLabel` en el tirador de inicio de un intervalo), con su valor, su texto de valor, el valor más bajo y el más alto que puede tomar, su orientación y su estado deshabilitado. En las plataformas de Apple es un elemento ajustable: un deslizamiento vertical lo mueve un paso.
+- Un intervalo son dos controles deslizantes, el patrón de varios tiradores de WAI-ARIA. Los límites de cada tirador están acotados por el otro tirador, de modo que un lector de pantalla anuncia el intervalo que todavía puede alcanzar.
+- Las pistas, los puntos de parada, la capa de estado y el indicador de valor quedan ocultos para la tecnología de apoyo.
+- Cada tirador es una parada de tabulación, el de inicio primero. Las teclas de flecha mueven un paso, Re Pág y Av Pág diez pasos, e Inicio y Fin llevan al valor más bajo y al más alto. En un control deslizante horizontal de derecha a izquierda, Flecha derecha y Flecha izquierda se intercambian.
+- Las acciones de incrementar y reducir de un lector de pantalla mueven un paso; definir un valor directamente, donde la plataforma lo permite, se limita al intervalo y se ajusta al paso.
+- Una pulsación en cualquier punto del control deslizante lleva ahí el tirador más cercano, y un arrastre lo sigue. En pantallas táctiles, una pulsación que primero se mueve en perpendicular a la pista se deja a la vista de desplazamiento que lo rodea, de modo que el control deslizante no captura un desplazamiento.
+- Todo el control deslizante es el área de pulsación, y alcanza el objetivo mínimo en perpendicular a la pista. El tirador se dibuja más pequeño que el objetivo, pero eso no reduce el área de pulsación, así que cada tirador de un intervalo conserva también el objetivo entero.
+- Muestra el indicador de foco alrededor del tirador con foco, solo para el foco del teclado.
+- En el sistema predeterminado, el tirador se distingue de todo aquello sobre lo que se apoya con 3:1 o más: por su contorno frente a la pista y a la página, y por su relleno frente a la pista activa. La pista activa mantiene 3:1 frente a la pista y a la página, y el final de una pista tenue sigue a la vista gracias a su punto de parada.
+- Un control deslizante deshabilitado no puede recibir el foco, no muestra ningún indicador de valor y se expone como deshabilitado.
+- El tamaño del texto solo cambia el indicador de valor, que crece con el texto.
+- Las compilaciones de depuración notifican la falta de `label` o de `startLabel`; un valor, un valor de inicio o un origen fuera del intervalo o fuera de un paso; un valor de inicio por encima del valor; un `max` que no es mayor que `min`; un paso negativo, y un tamaño, una orientación o un ajuste del indicador de valor desconocidos.
+
+Carencias conocidas por plataforma:
+
+- En la web, cada tirador tiene el rol slider en el shadow root, no a través de `ElementInternals`, porque axe-core no puede ver la semántica definida de ese modo. No es un `<input type="range">`, que tiene un solo tirador y partes a las que no hay dos motores que den estilo de la misma forma.
+- Web: la tecnología de apoyo ajusta un slider de ARIA mediante las teclas de flecha que le envía el navegador, así que no se puede definir un valor directamente.
+- Web: el indicador de valor no está en la capa superior (top layer). Un ancestro con `overflow: hidden` lo recorta, y un hermano posicionado posterior con un `z-index` por encima de 1 lo tapa.
+- SwiftUI no puede exponer el valor más bajo y el más alto de un tirador ni su orientación, y en macOS un tirador no es un control deslizante para la tecnología de apoyo.
+- SwiftUI no puede distinguir un toque de un puntero: en iOS toda pulsación es un toque, también la del puntero de un iPad, y en macOS toda pulsación es de un puntero. Antes de iOS 18, el arrastre de un toque es un gesto de SwiftUI, del que una vista de desplazamiento que rodee el control deslizante quizá no pueda hacerse cargo.
+- SwiftUI: el indicador de valor se mantiene dentro del control deslizante en lugar de dentro de la ventana, y una vista dibujada después del control deslizante puede taparlo.
+- SwiftUI: las teclas se prueban como reglas, todavía no con un teclado real, porque el simulador no da foco del teclado durante la automatización.
+- La semántica del control deslizante de Compose no tiene orientación, así que la orientación de un tirador no se expone.
+- Flutter no expone el valor más bajo ni el más alto ni la orientación de un tirador, ni tiene una acción para definir un valor directamente.
+- Flutter siempre escribe el número con un `.` como separador decimal, en todas las configuraciones regionales. Define `valueText` donde eso importe.
+- Flutter: el área de pulsación crece en perpendicular a la pista solo donde el padre del control deslizante es más grande que él. Un padre con el tamaño exacto del control deslizante la recorta.
+- React Native no tiene una acción para definir un valor directamente ni una propiedad de orientación, así que no se expone ninguna de las dos cosas.
+- En React Native, las teclas de flecha solo funcionan donde hay un teclado físico conectado, como en la fila de pestañas.
+- React Native trata toda pulsación como un toque: una pulsación de ratón o de lápiz espera a haberse movido o a haber terminado antes de mover el tirador.
+- React Native dibuja el indicador de valor dentro del control deslizante, no en la capa de superposición, así que se queda dentro del control deslizante en lugar de dentro de la ventana, y una vista dibujada después del control deslizante puede taparlo.
+- React Native: el diseño, el arrastre y cómo cede ante una vista de desplazamiento, y los tiradores ajustables todavía no se han comprobado en un dispositivo.
+- SwiftUI, Compose, Flutter y React Native todavía dibujan el aspecto anterior: un tirador macizo, un solo tamaño de punto de parada para todos los tamaños y las pistas cortadas en el tirador en lugar de encontrarse debajo de él. Donde cortan, terminan la pista de forma distinta: recta en SwiftUI, redondeada con una muesca en Flutter y React Native, y cortada con la forma del tirador en Compose.
+- Con `cupertino`, el tirador blanco sobre una página blanca mide 1.0:1 en los esquemas claros, por debajo del 3:1 que necesita una parte que muestra el valor. No tiene contorno, tal como lo dibuja Apple, y se distingue por su sombra y por la pista activa teñida que tiene al lado; ninguna invariante comprueba un tirador frente a la página. El 1.0:1 es una medición que se conserva a título informativo: los criterios de accesibilidad de Tanrei no se aplican a un preajuste de imitación. Con `cupertino`, el control deslizante tampoco dibuja puntos de parada, ni siquiera en los extremos de la pista.
+- Con `m3-like`, el control deslizante dibuja la barra vertical de Material, a partir de las medidas publicadas por Material. Todavía no se han comprobado frente a la referencia de fidelidad. Con `m3-expressive-like`, el glifo que Material dibuja dentro de una pista gruesa no tiene sitio (laguna de imitación `slider-inset-icon`): pon tu icono junto al control deslizante.
+
+### Qué debes hacer tú
+
+- Da a cada control deslizante un `label`, y a un intervalo también un `startLabel`, en el idioma de tu producto. Muestra las mismas palabras como etiqueta visible a su lado.
+- Define `valueText` cuando el número por sí solo no quede claro, y mantenlo sincronizado con el valor.
+- Muestra el resultado de un cambio en algún lugar donde las personas puedan verlo, y diles con texto si un cambio no se pudo aplicar. El control deslizante solo anuncia su propio valor.
+- Con `cupertino`, donde el tirador es blanco y la pista no tiene puntos en los extremos, mantén el control deslizante fuera de una superficie blanca lisa siempre que puedas.
+- En la web, da al control deslizante un `name` para enviar su valor con un formulario.

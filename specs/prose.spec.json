@@ -1,0 +1,355 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "prose",
+  "title": "Prose",
+  "summary": "Long-form text — a help article, release notes, legal terms, anything written in Markdown or delivered by a CMS — set in the system's text styles by level, with one vertical rhythm and a limit on line length. A foundation rather than a control: prose styles and spaces the blocks a renderer produces, and the components placed among them; it does not parse anything.",
+  "category": "foundations",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "link"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The box that holds the text. It has no fill, edge, padding or state of its own; it sets the running text's style and lays its blocks out in one column."
+    },
+    {
+      "id": "heading",
+      "description": "A heading of level 1 to 6, in the heading role of its level.",
+      "optional": true
+    },
+    {
+      "id": "anchor",
+      "description": "A link to a heading, after the heading's text: the Link component, placed by prose.",
+      "optional": true
+    },
+    {
+      "id": "paragraph",
+      "description": "A paragraph of running text; the lead is a paragraph the author marks as the introduction.",
+      "optional": true
+    },
+    {
+      "id": "list",
+      "description": "An ordered or unordered list, which may hold lists; its items may be tasks.",
+      "optional": true
+    },
+    {
+      "id": "marker",
+      "description": "What begins a list item: a dot, a ring, a square, a number, a letter, or a task's mark.",
+      "optional": true
+    },
+    {
+      "id": "quote",
+      "description": "Quoted text: a line along its start edge and its content set in from it.",
+      "optional": true
+    },
+    {
+      "id": "rule",
+      "description": "A thematic break: the divider, with space around it.",
+      "optional": true
+    },
+    {
+      "id": "description-list",
+      "description": "Terms, each with its descriptions.",
+      "optional": true
+    },
+    {
+      "id": "footnotes",
+      "description": "The notes a text refers to, after a rule at its end, and the raised references to them.",
+      "optional": true
+    },
+    {
+      "id": "block",
+      "description": "Anything in the flow that is not text: a code block, a table, a callout, a figure, a picture, any component. Prose spaces and aligns it and does not style its inside.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "The size of the running text. Medium sets it in the interface's own text style (body), for prose among controls: a panel, a dialog, a card, a message. Large sets it in the style for long reading (body-large), for a page whose purpose is the text. Headings are the same at both. A design system may add values.",
+      "axis": "tanrei.comp.prose.size"
+    },
+    {
+      "name": "measure",
+      "type": "boolean",
+      "default": true,
+      "description": "Limits the text blocks to comp.prose.measure. False lets them fill the container, for a container that is already as narrow as a line should be, or a layout that must fill its column."
+    }
+  ],
+  "slots": [
+    {
+      "name": "content",
+      "description": "The text: the blocks a Markdown or rich-text renderer produced, or elements the product wrote, in reading order. Prose does not parse a string."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "PRS-1",
+      "text": "THE prose SHALL set each element of the text in one whole text style, by the element's level and never by a size: a heading of level 1 to 6 in sys.typescale.heading-1, sys.typescale.heading-2, sys.typescale.heading-3, sys.typescale.heading-4, sys.typescale.heading-5 and sys.typescale.heading-6; running text — a paragraph, a list item, a quote's text, a term and its description — in comp.prose.text.typescale.medium or comp.prose.text.typescale.large by size; secondary text — small print, footnotes — in comp.prose.small.typescale.medium or comp.prose.small.typescale.large by size; and a paragraph the author marks as the lead in comp.prose.lead.typescale."
+    },
+    {
+      "id": "PRS-2",
+      "text": "THE prose SHALL draw strong text at the emphasized weight of the text style it sits in — that style's weight plus sys.typescale.emphasis.body in running and secondary text, plus sys.typescale.emphasis.heading in a heading — and SHALL NOT change its size, its family or its color."
+    },
+    {
+      "id": "PRS-3",
+      "text": "THE prose SHALL draw stressed text (emphasis) in the italic of the text style's family; WHERE the language of the text is Chinese, Japanese or Korean, whose scripts have no italic, THE prose SHALL draw it upright at the emphasized weight of PRS-2 and SHALL NOT slant the glyphs.",
+      "verify": "Test with the language set on the prose or on an ancestor (lang=\"ja\"), with text that mixes kana and Latin letters: neither is slanted."
+    },
+    {
+      "id": "PRS-4",
+      "text": "THE prose SHALL give its text no color of its own: text, list markers and task marks take the content color of the surface the prose sits on, so the same prose reads on a page, in a card and in a callout; the only colors the prose brings are comp.prose.quote.line.color and the divider's."
+    },
+    {
+      "id": "PRS-5",
+      "text": "THE prose SHALL separate two blocks that follow each other by comp.prose.block.gap, whatever they are — a paragraph, a list, a quote, a description list, or a component placed in the flow — and SHALL give the first block no space before it and the last block no space after it, so the prose is exactly as tall as its content."
+    },
+    {
+      "id": "PRS-6",
+      "text": "WHEN a heading follows a block THE prose SHALL separate them by that heading's own space before — comp.prose.heading-1.gap.before, comp.prose.heading-2.gap.before, comp.prose.heading-3.gap.before, comp.prose.heading-4.gap.before, comp.prose.heading-5.gap.before or comp.prose.heading-6.gap.before by level — in place of comp.prose.block.gap; and THE prose SHALL separate a heading from whatever follows it, another heading included, by its own space after — comp.prose.heading-1.gap.after, comp.prose.heading-2.gap.after, comp.prose.heading-3.gap.after, comp.prose.heading-4.gap.after, comp.prose.heading-5.gap.after or comp.prose.heading-6.gap.after."
+    },
+    {
+      "id": "PRS-7",
+      "text": "THE prose SHALL put exactly one space between two neighbours: spaces never add up, a platform without collapsing margins computes the one space PRS-5, PRS-6, PRS-8, PRS-11 and PRS-12 name, and a wrapper that holds a single block (a heading with its anchor, a figure around a picture) is spaced as that block; a wrapper around a heading is one the product marks as such."
+    },
+    {
+      "id": "PRS-8",
+      "text": "THE prose SHALL set the items of a list in from the list's start edge by comp.prose.list.indent, at every depth, with the marker in that space and its end beside the item's first line; SHALL separate items by comp.prose.item.gap, and a nested list from its item's text by the same; and SHALL separate the blocks inside one item, and the items of a list in which any item holds more than one block, by comp.prose.nested.gap."
+    },
+    {
+      "id": "PRS-9",
+      "text": "THE prose SHALL mark the items of an unordered list with a filled dot at the first depth, a ring at the second and a filled square at the third, repeating from the fourth; and the items of an ordered list with a number and a period at the first depth, a lowercase letter at the second and a lowercase roman numeral at the third, repeating from the fourth, honouring a start number, a reversed order and an item's own number where the content gives one; a marker SHALL be drawn in the item's text style, and a number in figures of equal width so the periods of a list line up."
+    },
+    {
+      "id": "PRS-10",
+      "text": "WHERE a list item is a task THE prose SHALL draw, in place of its marker, the glyph check_box when it is done and check_box_outline_blank when it is not, from the system's icon set at comp.prose.task.icon.size, centred on the item's first line; the mark SHALL NOT take a press or focus, and its state SHALL be exposed to assistive technology with the item."
+    },
+    {
+      "id": "PRS-11",
+      "text": "THE prose SHALL draw a quote with a line of comp.prose.quote.line.thickness in comp.prose.quote.line.color along its start edge for its whole height, its content set in from that line by comp.prose.quote.inset in the running text's style unchanged, its blocks separated by comp.prose.nested.gap; a quote inside a quote SHALL repeat the line and the inset."
+    },
+    {
+      "id": "PRS-12",
+      "text": "WHERE the text has a thematic break THE prose SHALL draw it as a horizontal divider, as wide as the text blocks, with comp.prose.rule.gap above and below it in place of comp.prose.block.gap, exposed as a separator."
+    },
+    {
+      "id": "PRS-13",
+      "text": "THE prose SHALL draw a description list as groups: each term in the running text's style at its emphasized weight, each description below its term after comp.prose.item.gap and set in by comp.prose.list.indent, the groups separated by comp.prose.nested.gap."
+    },
+    {
+      "id": "PRS-14",
+      "text": "WHERE the text has footnotes THE prose SHALL draw each reference as a link raised above the baseline in the secondary text style without making its line taller, and the notes as an ordered list in the secondary text style after a rule, each note ending in a link back to its reference whose accessible name the product supplies."
+    },
+    {
+      "id": "PRS-15",
+      "text": "WHEN a block that is not text — a code block, a table, a callout, a figure or a picture, a set of steps, tabs, a card, any component — sits in the flow THE prose SHALL space it as a block (PRS-5), align its start edge with the text's, and add nothing else to it; such a block SHALL bring no outer space of its own, SHALL never be wider than the prose, SHALL scroll inside its own box when its content cannot shrink (a table, a line of code), and a picture SHALL scale down with its proportions kept."
+    },
+    {
+      "id": "PRS-16",
+      "text": "THE prose SHALL style only the text that is its own: what is inside a component placed in the flow, and inside any part the product marks as not prose, keeps the styles that component or the product gave it, at any depth.",
+      "verify": "Place a card with a heading and a paragraph in its content inside the prose: the card's text styles and spacing are unchanged. On the web test both a Tanrei element and a plain element marked as not prose."
+    },
+    {
+      "id": "PRS-17",
+      "text": "THE prose SHALL draw every link in its running text, headings, lists and quotes as the Link draws a link that is not standalone, and decide nothing about it: the link is underlined as comp.link.underline.visibility names — at rest in the default system, so that a link is told from the text around it without relying on color — and a link the content's pipeline or the platform has found to leave the site is marked as the Link marks an external link (LNK-30 to LNK-34). Inline code, a keyboard shortcut and any other inline component SHALL sit on the text's baseline without making its line taller; how each of them is drawn is that component's."
+    },
+    {
+      "id": "PRS-18",
+      "text": "WHILE measure is true THE prose SHALL keep every text block — headings, paragraphs, lists, quotes, description lists, footnotes and rules — a callout, which is a block of text in a box of its own, and a figure's caption, which is text under a frame that takes the full width, no wider than comp.prose.measure times the running text's font size, at the start edge of the prose and never centred, while every other block that is not text (PRS-15) takes the prose's full width; WHILE measure is false every block SHALL take the prose's full width."
+    },
+    {
+      "id": "PRS-19",
+      "text": "THE prose SHALL wrap its text and never cut it: lines break by the rules of the text's language — a line of Japanese or Chinese neither begins with closing punctuation or a small kana nor ends with opening punctuation — a string with no break opportunity that is longer than its line breaks anywhere rather than overflow, and the lines of a block align to its start edge, never justified and never hyphenated unless the product asks."
+    },
+    {
+      "id": "PRS-20",
+      "text": "WHERE the language of a heading is Chinese, Japanese or Korean THE prose SHALL NOT apply a negative letter-spacing of the heading's text style, and SHALL draw it at a letter-spacing of zero.",
+      "verify": "The default system's heading-1 to heading-5 have negative letter-spacing; test with lang=\"ja\" on the prose and on one heading inside an English prose."
+    },
+    {
+      "id": "PRS-21",
+      "text": "WHERE a heading has an anchor THE prose SHALL place the anchor — a link to that heading showing the glyph link — after the end of the heading's text, comp.prose.anchor.gap from it, on the last line's baseline and never alone on a line of its own; the anchor SHALL NOT be part of the heading's accessible name or of its text, and SHALL have an accessible name of its own that includes the heading's text, which the product supplies in its language."
+    },
+    {
+      "id": "PRS-22",
+      "text": "WHILE neither the heading nor its anchor is hovered and the anchor is not focused THE prose SHALL hide a heading's anchor from sight without removing it from the focus order or from assistive technology; WHEN the heading or the anchor is hovered, or the anchor takes keyboard focus, THE prose SHALL show it at once; WHERE the device has no hover THE prose SHALL always show it."
+    },
+    {
+      "id": "PRS-23",
+      "text": "WHEN a link or the address moves the view to a heading THE prose SHALL leave that heading's own space before (PRS-6) above it, below whatever the product keeps fixed at the top of the view."
+    },
+    {
+      "id": "PRS-24",
+      "text": "THE prose SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the prose is shown THE prose SHALL draw itself for the new direction at once, without a motion of its own, keeping its content and the reader's place in it.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "PRS-25",
+      "text": "WHERE the content states a direction for a block THE prose SHALL lay that block out wholly in it — its lines, its alignment, its list insets and markers and its quote line; a block whose content states none SHALL be laid out as text of its own direction, by its first strong character, with its lines aligned to the start edge of the layout, and SHALL reorder nothing beside it.",
+      "verify": "A left-to-right paragraph inside a right-to-left prose keeps its sentence order and its final period at its right end, and its lines begin at the right edge unless the paragraph itself states left-to-right."
+    },
+    {
+      "id": "PRS-26",
+      "text": "WHERE the layout direction is right-to-left THE prose SHALL place list insets and markers, a quote's line and inset, a description's inset and the edge the text blocks sit at on the right, and a heading's anchor after the heading's text on the left; the digits of a list number SHALL NOT be reversed, and inline code, an address and a number are left-to-right runs of their own."
+    },
+    {
+      "id": "PRS-27",
+      "text": "WHILE the text size is enlarged THE prose SHALL grow every text style and the measure with it, keep its gaps and insets, and wrap; it SHALL set no fixed height on any block, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points except inside a block of PRS-15 that scrolls in its own box."
+    },
+    {
+      "id": "PRS-28",
+      "text": "WHILE the platform forces its own colors THE prose SHALL draw a quote's line and a rule in the platform's text color, and its links are underlined at rest whatever the underline choice is (LNK-22)."
+    },
+    {
+      "id": "PRS-29",
+      "text": "THE prose SHALL add no role and change none: a heading is exposed as a heading of the level the content gives it, a list as a list with its items, a quote as a quote, a rule as a separator; THE prose SHALL NOT renumber, skip or restyle a level to change how large a heading looks."
+    },
+    {
+      "id": "PRS-30",
+      "text": "WHEN size is a value the system does not have THE prose SHALL draw the default size, as every axis a design system can extend does."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [],
+    "labeling": "Prose has no role and no accessible name: it is the text it holds, read in order (PRS-29). A product that needs the text as a landmark wraps it in one (an article, a main region) and names that. A heading's anchor is named by the product, with the heading's text in the name (PRS-21); a footnote's back link likewise (PRS-14).",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: prose takes no focus and no input, so there is no target of its own to size. What is pressable inside it — a link, a heading's anchor, a component — meets the minimum target by its own spec; a link in a line of running text is the inline exception every platform's guidance makes, and the Link component states it.",
+      "Contrast is the surface's: prose brings no text color (PRS-4), so running text has the contrast of the content color of the surface it sits on, which the default system holds to 4.5:1. The quote's line is decorative — the quote is exposed as a quote without it — and is not held to 3:1, as the divider's line is not.",
+      "A link is never told apart by color alone (PRS-17). In the default system that is the underline, drawn at rest. A design system or a product that chooses another underline for its links (sys.behavior.link-underline) is held by the build to a link color 3:1 apart from the text color in every scheme, and prose follows that choice: long-form text is where a link sits among the most words, so it is the first place such a choice should be looked at before it is made.",
+      "Heading levels are structure. Prose draws the level the content has (PRS-29); a document that skips levels is the author's to fix, and prose neither hides nor repairs it.",
+      "Line length (PRS-18) keeps a line within what WCAG 2.2 success criterion 1.4.8 asks for at level AAA — at most 80 characters, 40 where they are Chinese, Japanese or Korean — in the default system: 36 ems is 36 full-width characters and about 72 to 80 Latin ones. Text is never justified and line height is that of the role, which the default system sets at 1.57 or more for running text.",
+      "Text size, text spacing and reflow: PRS-27. A hidden anchor (PRS-22) stays in the focus order and in the accessibility tree; it is hidden from sight only."
+    ]
+  },
+  "tokens": "comp.prose",
+  "fixtures": [
+    {
+      "id": "specimen",
+      "props": {},
+      "content": "specimen"
+    },
+    {
+      "id": "specimen-large",
+      "props": {
+        "size": "large"
+      },
+      "content": "specimen"
+    },
+    {
+      "id": "headings",
+      "props": {},
+      "content": "headings"
+    },
+    {
+      "id": "lists",
+      "props": {},
+      "content": "lists"
+    },
+    {
+      "id": "quote-and-rule",
+      "props": {},
+      "content": "quote-and-rule"
+    },
+    {
+      "id": "blocks",
+      "props": {},
+      "content": "blocks"
+    },
+    {
+      "id": "anchors",
+      "props": {},
+      "content": "anchors"
+    },
+    {
+      "id": "unmeasured",
+      "props": {
+        "measure": false
+      },
+      "content": "measure"
+    },
+    {
+      "id": "measured",
+      "props": {},
+      "content": "measure"
+    },
+    {
+      "id": "japanese",
+      "props": {
+        "size": "large"
+      },
+      "content": "japanese"
+    },
+    {
+      "id": "rtl",
+      "props": {},
+      "content": "rtl",
+      "direction": "rtl"
+    },
+    {
+      "id": "mixed-direction",
+      "props": {},
+      "content": "mixed-direction",
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-prose",
+      "props": {
+        "size": "data-size",
+        "measure": "data-measure"
+      },
+      "notes": "A class, not an element: `class=\"tanrei-prose\"` on the element that holds the rendered Markdown or HTML, from the optional stylesheet `@tanrei/web/prose.css`, with `data-size=\"large\"` and `data-measure=\"false\"`. The stylesheet exists and covers part of this spec (headings, paragraphs, small, strong, block margins); the rest is not built on the web yet, which is why the status is lagging and not alpha. A fixture's `content` names a section of `specs/prose.specimen.md`, which every platform's harness builds its baselines from. Elements are matched by their HTML names (h1–h6, p, ul, ol, li, blockquote, hr, dl, dt, dd, small, strong, em, a, img, figure, sup). Every selector is wrapped in `:where()` so one class on the product's side wins. PRS-7 is the block layout's own margin collapsing plus `h1 + h2`-style rules that zero the lower heading's margin; a heading wrapped with its anchor is `<div class=\"tanrei-prose-heading\"><h2 id=\"…\">…</h2><a class=\"tanrei-prose-anchor\" href=\"#…\">…</a></div>`, the wrapper carrying the heading's margins (PRS-21). PRS-16: Tanrei's own elements are islands by their shadow roots; their slotted light-DOM content and any element with `class=\"tanrei-not-prose\"` are excluded by `:not(:where(.tanrei-not-prose *, <the registry's tag names> *))`. PRS-18: `max-inline-size: calc(var(--tanrei-comp-prose-measure) * <the running text's font-size property>)` on the text blocks, so it is a rem length that follows the reader's text size. PRS-19: `overflow-wrap: break-word`, `line-break: strict` under `:lang(ja, zh)`, and `text-wrap: pretty` for paragraphs and `balance` for headings where the browser knows them. PRS-3 and PRS-20 use `:lang(ja, zh, ko)`; `font-synthesis-style: none` there. PRS-25: blocks get `unicode-bidi: plaintext` and physical alignment by `:dir()`, as `productText()` does for a component's text; a block with its own `dir` attribute is left to it. PRS-23: `scroll-margin-block-start` is the heading's gap.before plus `--tanrei-prose-scroll-offset` (0 by default), which the product sets to its sticky header's height. PRS-10: a GFM renderer emits a disabled checkbox input; the stylesheet replaces its look with the glyph where `icons.css` is loaded and leaves the native box otherwise. PRS-12: an `hr` is drawn from the divider's tokens, because a Markdown renderer cannot emit `<tanrei-divider>`. An anchor of prose's own takes `data-underline`, `data-external` and the site icon's `img.tanrei-link-site-icon` exactly as an anchor with the Link's class does, because the same rules are written under prose's anchors; rendered Markdown gets them from the content pipeline (`markExternalLinks()` of `@tanrei/web/links`, given the tree the product's renderer already has) or from the package's script, and prose's stylesheet computes nothing about an address."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiProse",
+      "props": {
+        "size": "size",
+        "measure": "measure"
+      },
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiProse(size: .medium, measure: true) { … }` is a layout that spaces its children by PRS-5 to PRS-8; a child says what it is with `.tanreiProse(.heading(2))`, `.paragraph`, `.lead`, `.listItem(depth:marker:)`, `.quote`, `.rule`, `.block`. `TanreiProseStyle` (from the environment's system) gives a renderer the same facts as values: the text style per element and the gaps. No Markdown parser ships: `AttributedString(markdown:)` covers inline runs only, so a product brings its renderer (or swift-markdown) and maps its blocks onto these. Anchors (PRS-21 to PRS-23) apply where the product has addresses to link to; otherwise it passes none. Language (PRS-3, PRS-19, PRS-20) is the environment's locale, or the one a block carries."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiProse",
+      "props": {
+        "size": "size",
+        "measure": "measure"
+      },
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiProse(size, measure) { Heading(2) { … }; Paragraph { … }; ListItem(depth, marker) { … }; Quote { … }; Rule(); Block { … } }` in a scope that spaces its children by PRS-5 to PRS-8; `TanreiProseStyle` (a composition local) gives a Markdown renderer the text style per element and the gaps. No parser ships. The measure is `widthIn(max = …)` in sp-scaled units so it follows the font scale (PRS-27). Kinsoku line breaking is `LineBreak.Paragraph` with the strict strictness; a balanced heading is `LineBreak.Heading`."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiProse",
+      "props": {
+        "size": "size",
+        "measure": "measure"
+      },
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiProse(size:, measure:, children: […])` with `TanreiProseHeading(level:)`, `TanreiProseParagraph`, `TanreiProseListItem`, `TanreiProseQuote`, `TanreiProseRule` and `TanreiProseBlock`; `TanreiProseStyle.of(context)` gives a renderer the text style per element and the gaps, in the shape a Markdown package's style sheet takes, without Tanrei depending on one. Flutter has no language-specific line breaking beyond its own; PRS-19's kinsoku is what the engine does and its gaps are recorded when the platform implements this."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "TanreiProse",
+      "props": {
+        "size": "size",
+        "measure": "measure"
+      },
+      "notes": "Proposed spelling, for the platform's agent to settle. `<TanreiProse size measure>` with `TanreiProse.Heading level`, `.Paragraph`, `.ListItem`, `.Quote`, `.Rule` and `.Block`; `useTanreiProseStyle()` returns the text style per element and the gaps as plain style objects, the shape a Markdown renderer's style map takes, without Tanrei depending on one. React Native knows the app's direction only, so PRS-25's per-block direction is `writingDirection` on iOS and the app's direction on Android."
+    }
+  }
+}

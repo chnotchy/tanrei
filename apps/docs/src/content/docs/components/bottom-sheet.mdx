@@ -1,0 +1,311 @@
+---
+title: Bottom sheet
+description: Brings supplementary content or a short task up from the bottom edge, either over the lower part of the screen while the rest stays usable, or as a modal step that dims and blocks everything else until it is dismissed.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="bottom-sheet" />
+
+<DemoFrame label="A modal sheet: open it with the button">
+  <tanrei-button variant="outlined" onclick="document.getElementById('bottom-sheet-demo-modal').open = true">Save photo</tanrei-button>
+  <tanrei-bottom-sheet id="bottom-sheet-demo-modal" label="Save photo" handle-label="Resize sheet" onclose="this.open = false">
+    <p>Choose where to save the photo. You can change this later in Settings.</p>
+    <tanrei-button variant="text" onclick="this.closest('tanrei-bottom-sheet').open = false">Done</tanrei-button>
+  </tanrei-bottom-sheet>
+</DemoFrame>
+
+### Usage
+
+A bottom sheet is controlled, and it never closes itself. You open it by setting `open`. When the person asks it to go, the sheet emits `close` with the reason, and you set `open` back to false. SwiftUI is the one exception: there `open` is a binding, so the sheet writes false to it and then calls `onClose`. If you leave `open` true, the sheet stays, and after a drag it settles back at its lowest height. On the web this differs from the dialog: the sheet cancels the native `cancel` event and emits `close` in its place, so Escape does not close it until you do.
+
+`close` carries one of four reasons, in the platform's casing:
+
+| Reason | What the person did | Which form |
+| --- | --- | --- |
+| `drag` | Released a drag below half of the sheet's lowest height, or flung it down from there | Standard and modal |
+| `scrim` | Pressed the dim area around a modal sheet | Modal |
+| `escape` | Pressed Escape | Modal |
+| `back` | Used the platform's back: Android's back button or gesture, the iOS accessibility escape gesture. On the web, a close request that comes without a key, such as Android's back gesture in the browser, is `back`. | Modal |
+
+The sheet emits `close` only while `dismissible` is true, and exactly once for each request. While it is false, the scrim, Escape and back do nothing, and a drag down settles at the lowest height.
+
+The sheet has two forms on `variant`. **Modal**, the default, is a modal overlay: it dims the whole window, keeps focus inside, and returns focus when it closes. **Standard** is a layout region, not an overlay: it covers the bottom of the parent you place it in, draws no scrim, and lets the person keep working in the content above it.
+
+What goes in the sheet is yours. The sheet insets its content by its padding (set `inset` to false for a list whose rows pad themselves), clips it, hands it a content color and scrolls it. It has no headline or close button of its own: put your title and a Close or Done button in the content.
+
+Mark the element that should get focus when the sheet opens with the platform's own mark: `autofocus` on the web, `.defaultFocus` or an `@AccessibilityFocusState` on SwiftUI, a `FocusRequester` passed as `initialFocus` on Compose, `autofocus: true` on Flutter, and `initialFocusRef` on React Native. Without a mark, focus goes to the sheet itself, so its label is read first.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="save" variant="outlined">Save photo</tanrei-button>
+
+    <!-- Modal is the default. closedby="none" is dismissible set to false. -->
+    <tanrei-bottom-sheet id="save-sheet" label="Save photo" handle-label="Resize sheet">
+      <p>Choose where to save the photo.</p>
+      <tanrei-button variant="text" autofocus>Done</tanrei-button>
+    </tanrei-bottom-sheet>
+
+    <!-- Standard: covers the bottom of its containing block. flush is inset set to false; no-handle is handle set to false. -->
+    <div class="map" style="position: relative">
+      <tanrei-bottom-sheet variant="standard" open label="Nearby places" handle-label="Resize sheet" flush>
+        <tanrei-list>…</tanrei-list>
+      </tanrei-bottom-sheet>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/bottom-sheet';
+      const sheet = document.querySelector('#save-sheet');
+      document.querySelector('#save').addEventListener('click', () => (sheet.open = true));
+      sheet.querySelector('tanrei-button').addEventListener('click', () => (sheet.open = false));
+      // The sheet never closes itself. detail.reason is drag, scrim, escape or back.
+      sheet.addEventListener('close', (e) => (sheet.open = false));
+      // The person moved it to its other height. The sheet has already set detent.
+      sheet.addEventListener('detentchange', (e) => console.log(e.detail.detent));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { BottomSheet, Button } from '@tanrei/react';
+
+    <BottomSheet
+      open={open}
+      label="Save photo"
+      handleLabel="Resize sheet"
+      onClose={() => setOpen(false)}
+      onDetentchange={(e) => setDetent(e.detail.detent)}
+    >
+      <p>Choose where to save the photo.</p>
+      <Button variant="text" onClick={() => setOpen(false)}>Done</Button>
+    </BottomSheet>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // A modifier on the view the sheet covers, as .sheet is. Closing writes false to the binding,
+    // then calls onClose with the reason. A height the person chooses is written to detent.
+    PhotoView(photo)
+        .tanreiBottomSheet(isPresented: $saving, detent: $detent,
+                           handleLabel: "Resize sheet", label: "Save photo") {
+            SaveTargets(photo)
+            TanreiButton("Done", variant: .text) { saving = false }
+        }
+
+    // Standard: an overlay at the bottom of the view it covers.
+    MapView()
+        .tanreiBottomSheet(isPresented: $placesShown, variant: .standard,
+                           handleLabel: "Resize sheet", label: "Nearby places") {
+            PlacesList()
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiBottomSheet
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+
+    // visible rather than calling it only while open, so that the exit motion can run.
+    // Set it to false from onClose, which receives the reason.
+    TanreiBottomSheet(
+        visible = saving,
+        onClose = { saving = false },
+        detent = detent,
+        onDetentChange = { detent = it },
+        handleLabel = "Resize sheet",
+        contentDescription = "Save photo",
+    ) {
+        SaveTargets(photo)
+        TanreiButton(text = "Done", onClick = { saving = false }, variant = TanreiButtonVariant.Text)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // A modal sheet is the last child of a Stack over the whole page. Set open to false from onClose.
+    Stack(
+      children: <Widget>[
+        const Positioned.fill(child: PhotoPage()),
+        TanreiBottomSheet(
+          open: saving,
+          onClose: (TanreiSheetCloseReason reason) => setState(() => saving = false),
+          detent: detent,
+          onDetentChanged: (value) => setState(() => detent = value),
+          handleSemanticLabel: 'Resize sheet',
+          semanticLabel: 'Save photo',
+          child: const SaveTargets(),
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { BottomSheet, Button } from '@tanrei/react-native';
+
+    const done = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // Controlled: set open to false from onClose, which receives the reason ('drag', 'scrim', 'escape' or 'back').
+    // A modal sheet is presented in a transparent Modal. The sheet's insets prop replaces the sides of TanreiProvider's insets it names.
+    <BottomSheet
+      open={open}
+      onClose={(reason) => setOpen(false)}
+      detent={detent}
+      onDetentChange={setDetent}
+      handleLabel="Resize sheet"
+      accessibilityLabel="Save photo"
+      initialFocusRef={done}
+    >
+      <SaveTargets />
+      <Button ref={done} variant="text" onPress={() => setOpen(false)}>Done</Button>
+    </BottomSheet>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="A standard sheet over the bottom of its parent: drag it down to close it" plain>
+  <div style="position: relative; inline-size: 22rem; max-inline-size: 100%; block-size: 20rem; overflow: hidden">
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space75); padding: 1rem">
+      <p>Map</p>
+      <tanrei-button variant="outlined" onclick="this.closest('[data-tanrei-demo]').querySelector('tanrei-bottom-sheet').open = true">Show nearby places</tanrei-button>
+    </div>
+    <tanrei-bottom-sheet variant="standard" open label="Nearby places" handle-label="Resize sheet" onclose="this.open = false">
+      <p>Three cafés and a bakery are open within a ten-minute walk.</p>
+    </tanrei-bottom-sheet>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="bottom-sheet" />
+
+## Guidelines
+
+### When to use
+
+Use a bottom sheet on a compact screen, where there is no room beside the content, for something that belongs to the screen but is not its main subject: the places near a point on a map, the ways to share a photo, a short choice or form. The sheet rises from the edge the thumb is closest to.
+
+Use a [side sheet](/components/side-sheet/) for the same kind of content on a wide window, where it can sit beside the content instead of over it. Use a [dialog](/components/dialog/) for a decision the task cannot go on without. Use a [navigation drawer](/components/navigation-drawer/) for a product's destinations, not a bottom sheet.
+
+**Several actions from the main action.** When a screen's main action comes in a few related forms (a new document, a folder or an upload), the [main action button](/components/main-action-button/) opens a modal bottom sheet that lists them. In the Tanrei system this takes the place of the [FAB menu](/components/fab-menu/), which it does not ship.
+
+<DemoFrame label="Several actions from the main action: open the sheet with the button" plain>
+  <tanrei-main-action-button label="New" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
+  <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="New" handle-label="Resize sheet" flush onclose="this.open = false">
+    <tanrei-list>
+      <tanrei-list-item headline="Document" leading-icon="description" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+      <tanrei-list-item headline="Folder" leading-icon="folder" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+      <tanrei-list-item headline="Upload a file" leading-icon="upload" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+    </tanrei-list>
+  </tanrei-bottom-sheet>
+</DemoFrame>
+
+### Modal or standard
+
+| Form | What it is | Use for |
+| --- | --- | --- |
+| Modal (default) | A modal overlay. The sheet slides up over a scrim that dims the whole window. Everything outside it is inert, and focus stays inside until it closes. | A step the person finishes or dismisses before going back: sharing, a choice, a short form. |
+| Standard | A layout region. The sheet covers the bottom of its parent with no scrim, and the content above it stays usable. Tab moves between the sheet and the content, and focus leaving the sheet never closes it. | Content the person uses together with the screen, such as a list of places over a map. |
+
+Both forms read the same tokens: only the scrim and the behaviour set them apart, so a design system does not give them different looks.
+
+The layout regions are a standard navigation drawer (its collapsed form included), an app bar and a standard side sheet, which all sit beside or above the content. A standard bottom sheet covers part of its parent instead, but it is a layout region too, because what matters is the behaviour: it is not modal, it draws no scrim, and the content stays usable while it is open. A sheet that closed whenever focus left it could not be used from the keyboard alongside the map it describes.
+
+The standard sheet does not move or pad what it covers. If the end of your scrolling content must stay visible above the sheet, pad that content by the sheet's partial height.
+
+### Heights
+
+`detent` has two values. At `partial` the sheet takes a share of the area it covers, half with the default tokens. At `full` it reaches up to a small margin below the area's top. The area is the window below its top inset for a modal sheet, and the parent for a standard one. While the on-screen keyboard is shown, the area ends at the keyboard, so the sheet sits on it.
+
+The sheet is only as tall as its content. A sheet whose content fits within the partial height has one height, and `detent` changes nothing. While the content is taller, the sheet has two heights, and the person moves between them by dragging or with the drag handle. Each such move emits `detentChange` with the new height. On the web, Compose, Flutter and React Native, the sheet keeps the height the person chose until you set `detent` again. On SwiftUI it writes the height to the `detent` binding. Setting `detent` yourself moves the sheet without emitting anything.
+
+### The drag handle and gestures
+
+The drag handle is the short bar at the top of the sheet, in a row that stays in place while the content scrolls. With `handle` on, it is drawn on every sheet.
+
+- **A control, when there is somewhere to go.** While the sheet has two heights, the handle is a button named by `handleLabel`, with the expanded state at full height. A press, Enter or Space moves the sheet to its other height. While the sheet has one height, the handle is drawn at rest as a sign that the sheet can be dragged, but it cannot be focused or pressed and assistive technology does not see it.
+- **Its target.** The whole row across the handle is its hit area, at least the minimum target in each direction, although the bar itself is small.
+- **Dragging.** The person can drag the sheet up and down by the handle's row, by the padding around the content, or by the content itself. The sheet follows once the finger or pointer has moved past the platform's touch slop (8 points where the platform names none), and never rises above its full height.
+- **Letting go.** On release, a fling settles the sheet at the next height in its direction, and a slower release at the nearest height. A fling is a release faster than the platform's minimum fling velocity, or 0.5 points per millisecond where the platform names none.
+- **Dragging to close.** A release below half of the lowest height, or a downward fling from the lowest height, asks the sheet to close with the reason `drag`, while `dismissible` is true. The sheet holds where the drag left it for one frame, then slides out if you set `open` to false, or settles back if you did not. While `dismissible` is false it settles at its lowest height.
+- **Content that scrolls.** An upward drag on the content first raises the sheet to full height, then scrolls the content. A downward drag first scrolls the content back to its top, then lowers the sheet. Where a platform cannot pass one gesture from the sheet to the content's scroll, the second part takes a second drag (see the known platform gaps below). The keyboard and assistive technology can scroll the content at either height.
+
+Dragging is never the only way. The handle changes the height with one press or from the keyboard, and a modal sheet also closes with the scrim, Escape or back. A standard sheet, and a modal one whose `dismissible` is false, has no such second way to close, so give it a button that closes it.
+
+### Opening, focus and closing
+
+- **Opening.** The sheet slides up from below the bottom edge. A modal sheet fades in its scrim over the whole window at the same time. A sheet shown with `open` already true appears in place, without motion. A standard one then leaves focus where it is. A modal one moves focus in as if it had just opened, because nothing behind it can take focus any more.
+- **Focus in.** Opening moves focus to the element you marked, or to the sheet itself, in both forms. Focus moves when the sheet opens, not when its motion ends.
+- **Focus kept in, modal only.** In a modal sheet, Tab from the last focusable element goes to the first, and Shift+Tab from the first goes to the last. Screen-reader navigation stays inside, and the content behind does not scroll. A standard sheet keeps nothing: Tab moves on to the content, and the sheet stays open.
+- **Closing.** When the sheet closes while focus is inside it, focus returns to the element that had it when the sheet opened.
+- **Stacking.** A dialog, a menu or another modal sheet opened from a modal sheet stacks above it. Escape dismisses only the topmost, and the sheet gets back the focus that overlay returns.
+- **Motion.** Where motion is reduced, the sheet fades in and out in place without sliding. On Android, whose setting removes every animation, it appears and disappears at once.
+
+### Do
+
+- Put the sheet's task in plain view: a title at the top of the content, and a Done or Close button when the sheet has no other way to close.
+- Turn `inset` off for a list whose rows carry their own padding, so that the rows reach the edges.
+- Leave the handle on for any sheet whose content can grow taller than its partial height, so that keyboard and switch users can change its height.
+- Use the standard form when the person needs the content above the sheet while it is open.
+
+### Don't
+
+- Don't set `dismissible` to false unless the person must finish the sheet's task with one of its own controls.
+- Don't use a modal sheet for a decision that must interrupt the person. Use a [dialog](/components/dialog/).
+- Don't put a product's navigation in a bottom sheet. Use a [navigation drawer](/components/navigation-drawer/) or a navigation bar.
+- Don't stack sheet on sheet for a task with steps. Change the content of one sheet instead.
+
+## Accessibility
+
+<ComponentAccessibility name="bottom-sheet" />
+
+### What the component handles
+
+- A modal sheet is exposed as a modal dialog named by `label`. A standard sheet is a region named by `label`, a landmark on the web.
+- While a modal sheet is open, everything outside it is inert and hidden from assistive technology, and focus and screen-reader navigation stay inside it. A standard sheet makes nothing inert.
+- Opening moves focus to the element you marked, or to the sheet. Closing returns focus to the element that had it when the sheet opened. This holds for both forms.
+- Escape, the platform's back and a press on the scrim ask a modal sheet to close, while `dismissible` is true. A standard sheet ignores Escape and back.
+- While the sheet has two heights, the drag handle is one focusable button named by `handleLabel`, expanded at full height. Enter and Space move the sheet to its other height. At one height the handle is hidden from assistive technology. The grip is always hidden.
+- The handle's hit area is at least the minimum target, and its focus ring shows for keyboard focus only.
+- The content scrolls inside the sheet, and keyboard focus and assistive technology can scroll it at either height.
+- Larger text makes the sheet grow with its content, up to the height its detent allows, and the content scrolls beyond that. The handle does not scale.
+- The sheet's color reaches under the bottom system inset, and its content stays above that inset and above the on-screen keyboard.
+- Debug builds report a sheet without a `label`, an interactive handle without a `handleLabel`, and an unknown `variant` or `detent`.
+
+Known platform gaps:
+
+- A mouse drag on the content moves the sheet as a touch does, so text in a sheet cannot be selected by dragging down it while the sheet can still move.
+- Web: on touch, the browser decides who takes a gesture when it begins, so the hand-off between the sheet and the content's scroll takes a second gesture. A mouse or a pen hands off within one drag. Touch dragging is not yet covered by a test. In Firefox the sheet leaves at once instead of sliding out, as the dialog does.
+- SwiftUI has neither a dialog nor a region role: the sheet is a container named by `label`, with the modal trait while modal. The handle has no expanded state, so its value says "expanded" or "collapsed", in English only. SwiftUI cannot move focus to the sheet itself when nothing is marked, and gives keyboard focus back to nothing when it closes; on iOS the modal cover gives VoiceOver back. On macOS a modal sheet covers only the view the modifier is attached to, so attach it to the window's root.
+- SwiftUI on iOS: below its full height, a drag on the content raises the sheet and the next drag scrolls, and the content does not scroll there, not even for VoiceOver or the keyboard. Plain text in the content takes the body font without its line height, so two lines are 40 points tall where the other platforms draw 44.
+- SwiftUI: the bottom inset and the on-screen keyboard, the hardware keyboard, Escape and the iOS escape gesture have not been run on a device or tested by pressing them.
+- Compose: the sheet scrolls its content itself, so give it a plain column, not a lazy list. While a modal sheet closes, its window keeps focus until the exit motion ends. Its drags are verified under Robolectric only, not on a device.
+- Flutter: a standard sheet is a named container, not a region landmark, because Flutter 3.32 has no such role. The sheet has not yet been checked with TalkBack and VoiceOver on a device.
+- React Native cannot tell which element had focus, so when the sheet closes, focus goes where the platform puts it, not back to the element that opened it, as with the dialog and the navigation drawer. Without `initialFocusRef`, opening moves only the screen reader, to the sheet.
+- React Native cannot hand one gesture from the sheet to the content's scroll midway, so the rest of that drag is lost and the next one scrolls. The Modal, the drag, the keyboard avoidance and the insets are verified in Jest only, never on a device.
+- Under `cupertino`, the grip is drawn in Apple's light outline color and measures 1.8:1 against the sheet in the light scheme and 2.2:1 in the dark one, below the 3:1 a control's boundary needs. The medium and high contrast schemes bring it to 4.5:1 or more. The two figures that fall short are measurements kept as information: Tanrei's accessibility criteria do not apply to an imitation preset.
+- Under `m3-like`, the sheet at full height keeps the default system's top margin: Material's value waits for the fidelity reference to cover the bottom sheet.
+
+### What you need to do
+
+- Give every sheet a `label`, such as "Save photo". It names the dialog or the region.
+- Give the handle a `handleLabel`, such as "Resize sheet", in your product's language.
+- Close the sheet yourself: set `open` to false in answer to `close` (the `close` event on the web, `onClose` on Compose, Flutter and React Native), and from your own Done or Close button. On SwiftUI the sheet writes false to the binding for you.
+- Give a standard sheet, and a modal sheet whose `dismissible` is false, a visible button that closes it. Dragging must not be the only way out.
+- Mark initial focus where it helps, such as the first field of a short form.
+- On React Native, pass `initialFocusRef`, move focus back to the sheet's opener yourself after it closes, and pass the window's insets to the sheet's `insets` or to `TanreiProvider`.

@@ -1,0 +1,35 @@
+---
+// A notice in the page's flow, drawn by Tanrei's Callout at the reading size (specs/callout.spec.json).
+// It takes the props of the aside it replaces, so a page says what kind of notice it is and nothing about its look:
+// note → the `info` status, caution → `warning`, danger → `error`; a tip has no status and shows the glyph `lightbulb`.
+// The Markdown directives (`:::note[Title]` …) become the same markup at build time (lib/markdown.mjs).
+//
+// The title and the body are the callout's own children, in the document: found by the site's search, selectable, and
+// shown — with the box the element will have (`@tanrei/web/callout.css`, loaded in styles/prose.css) — before the
+// element is defined and where no script runs. The title is a paragraph, not a heading: a notice is not a section of
+// the page. Where the author gives none it is the kind's name in the page's language (Starlight's own strings).
+// Where the author gives one, the kind's name is still said to assistive technology, as `status-label` (CLO-20):
+// "Caution, Accessibility …". The body is prose with no measure of its own; the callout keeps to the column's.
+type Kind = 'note' | 'tip' | 'caution' | 'danger';
+interface Props {
+  type?: Kind;
+  title?: string;
+}
+const STATUS: Record<Kind, 'info' | 'warning' | 'error' | undefined> = { note: 'info', tip: undefined, caution: 'warning', danger: 'error' };
+
+const { type = 'note', title } = Astro.props;
+const kindName = Astro.locals.t(`aside.${type}`);
+const status = STATUS[type];
+const heading = title || kindName;
+const body = await Astro.slots.render('default');
+---
+
+<tanrei-callout size="large" status={status} status-label={status && heading !== kindName ? kindName : undefined}>
+  {type === 'tip' && <span slot="icon" data-pagefind-ignore>lightbulb</span>}
+  <p slot="title">{heading}</p>
+  {body.trim() && <div class="tanrei-prose" data-size="large" data-measure="false" set:html={body} />}
+</tanrei-callout>
+
+<script>
+  import '@tanrei/web/components/callout';
+</script>

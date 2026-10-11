@@ -1,0 +1,185 @@
+---
+title: مؤشر التحميل
+description: يبيّن أن انتظارًا قصيرًا مجهول الطول جارٍ، ضمن السطر أو فوق المحتوى.
+translationOf: components/loading-indicator.mdx
+sourceHash: 9ce360324a5fe7d64d8c45600b454acdad42f463
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="loading-indicator" />
+
+:::note[مواصفة معدَّلة لم تصل بعد إلى كل المنصات]
+تصف هذه الصفحة مؤشر التحميل كما هو في المواصفة الآن: ينتظر قبل أن يُعرض، ثم يدخل. مكوّن الويب يفعل ذلك منذ الآن، وكذلك العروض التوضيحية التي تظهر بعد المهلة. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق، ترسم المؤشر وتعرضه للتقنيات المساعدة فور إدراجه، ولا تأخذ الخصائص الثلاث الجديدة، فعيّناتها أدناه لا تعرض إلا ما تقدّمه فعلًا.
+:::
+
+<DemoFrame label="ضمن السطر ومحتوًى في حاوية">
+  <tanrei-loading-indicator label="جارٍ تحميل الرسائل"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="جارٍ تحميل المعرض"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained label="جارٍ التحديث"></tanrei-loading-indicator>
+</DemoFrame>
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <section aria-busy="true">
+      <tanrei-loading-indicator label="جارٍ تحميل الرسائل"></tanrei-loading-indicator>
+    </section>
+
+    <!-- contained: على دائرة مرتفعة خاصة به، فوق المحتوى. -->
+    <tanrei-loading-indicator contained size="large" label="جارٍ التحديث"></tanrei-loading-indicator>
+
+    <!-- الزر المشغول يستجيب للضغط فورًا: بلا مهلة. -->
+    <tanrei-loading-indicator size="small" show-delay="0" label="جارٍ الحفظ"></tanrei-loading-indicator>
+
+    <!-- إيقاع آخر لمؤشر واحد: انتظر أطول، ثم ادخل بالتكبّر. -->
+    <tanrei-loading-indicator show-delay="600" entrance="grow" label="جارٍ تحميل التقرير"></tanrei-loading-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/loading-indicator';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react';
+
+    <section aria-busy={loading}>
+      {loading ? <LoadingIndicator label="جارٍ تحميل الرسائل" /> : <MessageList />}
+    </section>
+    <LoadingIndicator contained size="large" label="جارٍ التحديث" />
+    <LoadingIndicator size="small" showDelay={0} label="جارٍ الحفظ" />
+    <LoadingIndicator showDelay={600} entrance="grow" label="جارٍ تحميل التقرير" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiLoadingIndicator("جارٍ تحميل الرسائل")
+
+    // فوق المحتوى، على حاويته المرتفعة الخاصة به.
+    TanreiLoadingIndicator("جارٍ التحديث", size: .large, contained: true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiContainedLoadingIndicator
+    import io.github.chnotchy.tanrei.components.TanreiLoadingIndicator
+    import io.github.chnotchy.tanrei.tokens.TanreiLoadingIndicatorSize
+
+    TanreiLoadingIndicator(contentDescription = "جارٍ تحميل الرسائل")
+
+    // الهيئة contained دالة composable ثانية لها المعاملات نفسها.
+    TanreiContainedLoadingIndicator(contentDescription = "جارٍ التحديث", size = TanreiLoadingIndicatorSize.Large)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    const TanreiLoadingIndicator(semanticsLabel: 'جارٍ تحميل الرسائل');
+    const TanreiLoadingIndicator(
+      semanticsLabel: 'جارٍ التحديث',
+      size: TanreiLoadingIndicatorSize.large,
+      contained: true,
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react-native';
+
+    <LoadingIndicator accessibilityLabel="جارٍ تحميل الرسائل" />
+    <LoadingIndicator accessibilityLabel="جارٍ التحديث" size="large" contained />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الأحجام، ضمن السطر وفي حاوية" plain>
+  <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="small" label="Small, contained"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="medium" label="Medium, contained"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="large" label="Large, contained"></tanrei-loading-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="loading-indicator" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم مؤشر التحميل لانتظار قصير لا تستطيع معرفة طوله: قائمة تجلب صفحتها التالية، عنصر تحكم يحفظ، معاينة تُرسم. يقول إن شيئًا يجري ولا يقول شيئًا عن المدة التي سيستغرقها.
+
+حين قد يدوم الانتظار أكثر من بضع ثوانٍ، أو حين تستطيع قياس ما أُنجز منه، استخدم [مؤشر التقدم](/ar/components/progress-indicator/) بدلًا منه. القيمة، ولو تقريبية، تجعل الانتظار الطويل أهون.
+
+### اختيار الحجم
+
+| الحجم | المؤشر / الحاوية في النظام الافتراضي | يُستخدم لـ |
+| --- | --- | --- |
+| صغير (small) | 16 / 24 | مكان أيقونة في عنصر تحكم، كزر يحفظ. |
+| متوسط (medium) | 24 / 32 | بجانب سطر من النص. وهو الافتراضي. |
+| كبير (large) | 40 / 48 | قسم فارغ أو عرض كامل ينتظر محتواه. |
+
+### داخل حاوية
+
+الهيئة contained ترسم المؤشر على دائرة مرتفعة خاصة به. استخدمها حيث يطفو المؤشر فوق المحتوى، كما في السحب للتحديث أو فوق صورة أو قائمة، ليبقى مرئيًّا أيًّا كان ما خلفه. وحيث يقع على سطح بسيط، اتركه ضمن السطر.
+
+### مهلة العرض والدخول
+
+الانتظار الذي ينتهي في لحظة ينبغي ألّا يعرض شيئًا. لذلك ينتظر المؤشر قبل أن يُعرض: 300 ms في النظام الافتراضي، محسوبة من لحظة إدراجه. ثم يتدرّج في الظهور. والانتظار الأقصر من المهلة لا يعرض أبدًا علامة تومض ثم تختفي. وفي أثناء المهلة يأخذ المؤشر مقاسه الكامل منذ البداية، فلا يتحرك شيء بجانبه حين يظهر.
+
+أدرِج المؤشر حين يبدأ الانتظار وأزِله حين ينتهي. تُحسب المهلة من الإدراج: المؤشر الذي يُخفى ثم يُعرض من جديد من دون أن يُزال لا ينتظر مرة أخرى، والذي يُدرج من جديد ينتظر المهلة كلها مرة أخرى.
+
+يقرر النظام المهلة والدخول لكل مؤشر. ولا تعيّنهما على مؤشر واحد إلا حين يحتاج إلى إيقاع مختلف:
+
+- الخاصية `showDelay` هي مدة الانتظار بالميلي ثانية. القيمة `0` تعرض المؤشر فور إدراجه، لزر مشغول ينبغي أن يستجيب للضغط فورًا.
+- الخاصية `entrance` قيمتها `fade` أو `grow`. القيمة grow تُظهر المؤشر تدريجيًّا وهو يكبر من مركزه. والقيمة `auto`، وهي الافتراضية، تأخذ اختيار النظام.
+- الخاصية `enterDuration` هي طول الدخول بالميلي ثانية. القيمة `0` تعرض المؤشر كاملًا فورًا.
+
+القيمة التي تعيّنها تُستخدم كما هي: قرص ضبط الحركة لا يغيّر مقدارها. واترك الخاصية بلا تعيين لتأخذ قيمة النظام.
+
+### افعل
+
+- أعطِه تسمية تقول ما الذي يُحمَّل: «جارٍ تحميل الرسائل»، لا «جارٍ التحميل». وإن عُرض بجانبه شرح فاستخدم الكلمات نفسها.
+- ضعه حيث سيظهر المحتوى، لينظر الشخص إلى الموضع الصحيح حين يصل.
+- حين يحلّ محل أيقونة في عنصر تحكم، أبقِ حجم عنصر التحكم، فلا يتحرك شيء من حوله.
+- اترك المهلة للنظام ما لم يحتج مؤشر واحد إلى إيقاع آخر.
+
+### لا تفعل
+
+- لا تستخدمه لانتظار تستطيع قياسه، أو قد يطول. استخدم مؤشر التقدم.
+- لا تعرض عدة مؤشرات لانتظار واحد. يكفي واحد لكل منطقة تُحمَّل.
+- لا تضعه فوق شاشة كاملة حين يكون جزء واحد منها فقط قيد التحميل. أبقِ الباقي صالحًا للاستخدام.
+- لا تلوّنه لتقول إن خطأ وقع. أوقفه واعرض رسالة بدلًا من ذلك.
+- لا تُبقِ مؤشرًا في مكانه وتُخفِه بين انتظار وآخر. أزِله، ليبدأ الانتظار التالي مهلة جديدة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="loading-indicator" />
+
+### ما يتكفل به المكوّن
+
+- بعد أن يُعرض، يعرض دور شريط التقدم (progress bar) في حالة الانشغال (busy) في المنصة، والتسمية اسمًا له وبلا قيمة. ليس في Flutter دور شريط تقدم ولا حالة انشغال بعد، فيعرض هناك التسمية.
+- في أثناء مهلة العرض لا يكون في شجرة إمكانية الوصول إطلاقًا: لا دور ولا اسم ولا حالة انشغال. الانتظار الأقصر من أن يُرى لا يُسمع كذلك.
+- لا يقبل التركيز أبدًا، ولا يُعلِن نفسه حين يظهر أو يزول.
+- حين يُطلب تقليل الحركة يتوقف القوس عن الدوران وتنبض عتامة دائرة كاملة برفق بدلًا من ذلك، مرة في الثانية على الأكثر؛ والحاوية تبقى ساكنة. ويصير الدخول بالتكبّر تدرّجًا في الظهور. وتبقى مهلة العرض: هي انتظار لا حركة.
+- تتوقف حركته ما دام لا يُرى، وتُستأنف حين يُرى: في تطبيق في الخلفية في كل مكان، وحين يُمرَّر خارج مجال الرؤية أو يكون على شاشة مخفيّة حيث تستطيع المنصة أن تعرف ذلك.
+- التسمية الفارغة يُبلَّغ عنها في بنيات التنقيح (debug).
+
+### ما عليك فعله
+
+- علِّم المنطقة التي تُحمَّل بأنها مشغولة ما دامت تُحمَّل (`aria-busy` على الويب)، من بداية الانتظار ومن دون انتظار مهلة المؤشر، وقل متى وصل المحتوى: رسالة في منطقة حيّة (live region)، أو نقل التركيز إلى المحتوى الجديد حين يكون الشخص قد طلبه.
+- أبقِ لون المؤشر بتباين 3:1 على الأقل مقابل السطح الذي خلفه، ولون المؤشر داخل الحاوية مقابل حاويته، إن غيّرتهما. العلامة المتحركة هي الدليل الوحيد على أن شيئًا يجري.

@@ -1,0 +1,252 @@
+---
+title: चेकबॉक्स ग्रुप
+description: ऐसा एक सवाल पूछता है जिसके, एक साथ दिखाए गए थोड़े-से विकल्पों में से, कई जवाब हो सकते हैं — एक लेबल के नीचे चेकबॉक्स का एक सेट, एक विवरण और एक त्रुटि के साथ, जो चेक किए गए मानों की लिस्ट एक नाम से रखता है और ऐसा चेकबॉक्स साथ ला सकता है जो उन सबको चेक कर देता है।
+translationOf: components/checkbox-group.mdx
+sourceHash: ea8d81d4935124793d854ad0c9c264e59b596578
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="checkbox-group" />
+
+<DemoFrame label="एक चेकबॉक्स ग्रुप, और एक जिसमें सबको चेक करने वाला चेकबॉक्स है" column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी">
+    <tanrei-checkbox value="email" label="ईमेल" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="पुश सूचना"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="रिपोर्ट किस दिन भेजें" select-all-label="हर कामकाजी दिन">
+    <tanrei-checkbox value="mon" label="सोमवार" checked></tanrei-checkbox>
+    <tanrei-checkbox value="tue" label="मंगलवार"></tanrei-checkbox>
+    <tanrei-checkbox value="wed" label="बुधवार" checked></tanrei-checkbox>
+    <tanrei-checkbox value="thu" label="गुरुवार"></tanrei-checkbox>
+    <tanrei-checkbox value="fri" label="शुक्रवार"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+चेकबॉक्स ग्रुप वहाँ इस्तेमाल करें जहाँ एक सवाल का जवाब एक लिस्ट है और विकल्प इतने कम हैं कि सब एक साथ दिखाए जा सकें, ज़्यादा से ज़्यादा सात के आसपास: सूचना पाने के तरीक़े, वे दिन जब रिपोर्ट भेजी जाती है, वे प्रकार जिनसे कोई लिस्ट फ़िल्टर होती है। जवाब एक ही मान है, यानी चेक किए गए मानों की लिस्ट, और फ़ॉर्म उसे एक नाम से सबमिट करता है।
+
+**किनसे बना है:** एक [फ़ील्ड ग्रुप](/hi/components/field-group/) और [चेकबॉक्स](/hi/components/checkbox/) से। फ़ील्ड ग्रुप फ़्रेम है: लेबल, ज़रूरी या वैकल्पिक का निशान, विवरण, त्रुटि, और कॉलम या पंक्ति का लेआउट। मान चेकबॉक्स रखते हैं: हर एक अपने लेबल वाला एक विकल्प है, और उनमें से कौन-से चेक किए गए हैं, वही लिस्ट है। चेकबॉक्स ग्रुप अपना कुछ नहीं बनाता और उसका कोई टोकन नहीं है। वह इन दोनों में वह स्टेट जोड़ता है जो वरना हर प्रॉडक्ट ख़ुद लिखता है: लिस्ट और उसके लिए एक `change`, फ़ॉर्म में एक नाम, रीसेट के साथ और फ़ॉर्म के अपने इस वैलिडेशन के साथ कि ज़रूरी सेट ख़ाली नहीं है, और सबको चेक करने वाले चेकबॉक्स के तीन स्टेट।
+
+यह उतना ही चौड़ा है जितनी वह जगह जिसमें इसे रखा गया है।
+
+वेब पर यह `<tanrei-checkbox-group>` है। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
+
+### इस्तेमाल
+
+हर चेकबॉक्स वह विकल्प है जिसका नाम उसका `value` है। ग्रुप का `value` चेक किए गए मानों की लिस्ट है, चेकबॉक्स के क्रम में। लिस्ट का जो मान किसी चेकबॉक्स का नहीं है, वह रखा रहता है: जिन विकल्पों को किसी खोज ने नज़र से हटा दिया है, वे चुने हुए रहते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-checkbox-group name="notify" label="सूचना कैसे भेजें"
+        supporting-text="जो भी लागू हों, सभी चुनें।"
+        requirement="required" required-text="ज़रूरी"
+        error-text="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
+        <tanrei-checkbox value="email" label="ईमेल" checked></tanrei-checkbox>
+        <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
+        <tanrei-checkbox value="push" label="पुश सूचना"></tanrei-checkbox>
+      </tanrei-checkbox-group>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox-group';
+
+      const group = document.querySelector('tanrei-checkbox-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value नई लिस्ट है; group.value में भी वही आ चुकी है।
+        group.error = event.detail.value.length === 0;
+      });
+      // प्रॉडक्ट जवाब को लिस्ट के रूप में सेट करता है। यह प्रॉपर्टी है: value ऐट्रिब्यूट नहीं होता।
+      group.value = ['email', 'push'];
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, CheckboxGroup } from '@tanrei/react';
+
+    const [channels, setChannels] = useState(['email']);
+
+    <CheckboxGroup name="notify" label="सूचना कैसे भेजें" supportingText="जो भी लागू हों, सभी चुनें।"
+                   value={channels} onChange={(event) => setChannels(event.detail.value)}
+                   error={channels.length === 0} errorText="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
+      <Checkbox value="email" label="ईमेल" />
+      <Checkbox value="text" label="SMS" />
+      <Checkbox value="push" label="पुश सूचना" />
+    </CheckboxGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+मार्कअप में पहला मान वहीं लिखा जाता है जहाँ HTML उसे लिखता है: चेकबॉक्स पर `checked`। प्रॉडक्ट के `value` सेट कर देने के बाद, कौन-से चेकबॉक्स चेक किए हुए हैं, यह `value` तय करता है।
+
+### सबको चेक करने वाला चेकबॉक्स
+
+`selectAllLabel` दें, तो ग्रुप पहले चेकबॉक्स से पहले एक और चेकबॉक्स ले आता है, जिसका नाम वही टेक्स्ट है। जब तक वह हर चेकबॉक्स चेक किया हुआ है जिसे व्यक्ति बदल सकता है, यह चेक किया हुआ रहता है; जब तक कुछ चेक किए हुए हैं, अनिश्चित; और जब तक कोई नहीं, चेक नहीं किया हुआ। चेक नहीं किया हुआ या अनिश्चित रहते दबाने पर यह सबको चेक कर देता है; चेक किया हुआ रहते दबाने पर सबसे चेक हटा देता है। यह लिस्ट की एंट्री नहीं है और कुछ सबमिट नहीं करता।
+
+```html
+<tanrei-checkbox-group name="days" label="रिपोर्ट किस दिन भेजें" select-all-label="हर कामकाजी दिन">
+  <tanrei-checkbox value="mon" label="सोमवार"></tanrei-checkbox>
+  <tanrei-checkbox value="tue" label="मंगलवार"></tanrei-checkbox>
+  …
+</tanrei-checkbox-group>
+```
+
+जिस चेकबॉक्स को आपने ख़ुद अक्षम किया है, वह जैसा है वैसा ही छोड़ दिया जाता है, चेक किया हुआ हो या नहीं, और गिना नहीं जाता: सबको चेक करने वाला चेकबॉक्स सिर्फ़ उन्हीं विकल्पों को गिनता है जिन्हें व्यक्ति बदल सकता है। इस सेट के लिए लेबल, जैसे "ये सभी" या "हर कामकाजी दिन", सवाल के शब्दों में लिखें; वह प्रॉडक्ट के शब्दों से कभी नहीं पढ़ा जाता।
+
+### एक स्तर नीचे
+
+वही सेट, अपने दोनों सदस्यों से हाथ से लिखा हुआ, वही तस्वीर है और सहायक तकनीक के लिए वही ग्रुप:
+
+```html
+<tanrei-field-group label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।"
+                    requirement="required" required-text="ज़रूरी">
+  <tanrei-checkbox name="notify" value="email" label="ईमेल" checked></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="push" label="पुश सूचना"></tanrei-checkbox>
+</tanrei-field-group>
+```
+
+<DemoFrame label="वही सेट हाथ से लिखा हुआ: एक फ़ील्ड ग्रुप, जिसके भीतर चेकबॉक्स हैं" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी">
+    <tanrei-checkbox name="notify" value="email" label="ईमेल" checked></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="push" label="पुश सूचना"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+हाथ से लिखे गए फ़ील्ड ग्रुप और चेकबॉक्स जो नहीं करते, वह है जवाब को रखना:
+
+| पहलू | हाथ से लिखा गया | चेकबॉक्स ग्रुप |
+| --- | --- | --- |
+| लिस्ट | प्रॉडक्ट उसे हर चेकबॉक्स से पढ़ता है | `value`, और एक `change` |
+| जवाब सेट करना | हर चेकबॉक्स पर `checked` | `value = […]` |
+| रीसेट और बहाल होना | हर चेकबॉक्स अपने आप | एक कंट्रोल |
+| ज़रूरी सेट जो ख़ाली छोड़ा गया | प्रॉडक्ट जाँचता है | फ़ॉर्म का अपना वैलिडेशन उसे अस्वीकार करता है |
+| ऐसा मान जिसका चेकबॉक्स दिखाया नहीं गया | खो जाता है | रखा रहता है |
+| सबको चेक करने वाला चेकबॉक्स | प्रॉडक्ट लिखता है, `indeterminate` के साथ | `selectAllLabel` |
+| फ़ॉर्म क्या सबमिट करता है | वही एंट्री | वही एंट्री |
+
+एक स्तर नीचे तब जाएँ जब सेट एक जवाब नहीं है:
+
+| आपको चाहिए | इस्तेमाल करें |
+| --- | --- |
+| थोड़े-से विकल्पों में से कई, एक नाम से एक जवाब के रूप में | चेकबॉक्स ग्रुप |
+| ऐसे चेकबॉक्स जिनमें हर एक का फ़ॉर्म में अपना नाम है, या ऐसा सेट जिसमें कुछ ऐसा है जो चेकबॉक्स नहीं है | एक [फ़ील्ड ग्रुप](/hi/components/field-group/), जिसके भीतर [चेकबॉक्स](/hi/components/checkbox/) हैं |
+| "सभी" का मतलब क्या है, इसका अपना नियम: किसी पेज का हर आइटम, मेल खाने वाला हर आइटम | एक [फ़ील्ड ग्रुप](/hi/components/field-group/), जिसमें एक ऐसा चेकबॉक्स है जिस पर आप `indeterminate` ख़ुद सेट करते हैं |
+| थोड़े-से विकल्पों में से एक | [रेडियो ग्रुप](/hi/components/radio-group/) |
+| किसी एक चीज़ को चालू या बंद करना | [चेकबॉक्स](/hi/components/checkbox/), या जहाँ असर तुरंत होता है वहाँ [स्विच](/hi/components/switch/) |
+| बहुत-से विकल्पों में से कई, या कम जगह | [सिलेक्ट](/hi/components/select/), या बहु चयन वाली लिस्ट |
+
+## स्पेक
+
+<DemoFrame label="एक पंक्ति, एक जवाब जो माना नहीं गया, एक विकल्प जो हमेशा चालू है, और एक अक्षम ग्रुप" plain column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="साइज़" orientation="horizontal">
+    <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
+    <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
+    <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी" error error-text="इस नंबर पर SMS नहीं भेजे जा सकते। कोई दूसरा तरीक़ा चुनें, या नंबर बदलें।">
+    <tanrei-checkbox value="email" label="ईमेल"></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="SMS" checked></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="पुश सूचना"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="मुझे भेजें">
+    <tanrei-checkbox value="account" label="मेरे खाते से जुड़े संदेश" checked disabled></tanrei-checkbox>
+    <tanrei-checkbox value="news" label="समाचार"></tanrei-checkbox>
+    <tanrei-checkbox value="offers" label="ऑफ़र"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" disabled>
+    <tanrei-checkbox value="email" label="ईमेल" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="SMS"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+### हर सदस्य क्या देता है
+
+| पहलू | फ़ील्ड ग्रुप से | चेकबॉक्स से | ग्रुप का अपना |
+| --- | --- | --- | --- |
+| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | हर चेकबॉक्स के `value`, `label` और `disabled`, चेकबॉक्स पर | `value`, `selectAllLabel` |
+| इवेंट | — | कोई नहीं: ग्रुप के भीतर का चेकबॉक्स अपना कुछ फ़ायर नहीं करता | `change` |
+| टोकन | `comp.field-group.*` | `comp.checkbox.*` | कोई नहीं |
+
+- **ज़रूरी** का मतलब है कम से कम एक। कम से कम या ज़्यादा से ज़्यादा की कोई संख्या ("ज़्यादा से ज़्यादा तीन चुनें") आपका नियम है: `change` में लिस्ट की लंबाई पढ़ें, `error` सेट करें और `errorText` में वह संख्या अपने शब्दों में लिखें।
+- **त्रुटि** सेट की है। `error` आख़िरी चेकबॉक्स के नीचे `errorText` दिखाता है और हर चेकबॉक्स को उसकी अपनी त्रुटि की अवस्था में लाता है। ग्रुप इसे कभी सेट नहीं करता, और मान बदलने से यह नहीं हटती। जो ग्रुप त्रुटि में नहीं है, उसमें त्रुटि वाला एक चेकबॉक्स उस चेकबॉक्स का अपना `error` है।
+- **अक्षम।** अक्षम ग्रुप अपना मान रखता है और कुछ सबमिट नहीं करता। जो चेकबॉक्स किसी सक्षम ग्रुप में अकेला अक्षम है, वह अपनी एंट्री रखता है और उसके साथ सबमिट होता है: जो विकल्प हमेशा चालू है, वह एक अक्षम, चेक किया हुआ चेकबॉक्स है, जिसके बग़ल में कोई छिपा फ़ील्ड नहीं चाहिए।
+- सिर्फ़ पढ़ने वाला कोई स्टेट नहीं है, क्योंकि चेकबॉक्स में वह नहीं होता।
+
+फ़्रेम क्या करता है, यानी ज़रूरी का निशान, विवरण, त्रुटि और वह कैसे पढ़कर सुनाई जाती है, कॉलम और वह पंक्ति जो रैप होती है, यह [फ़ील्ड ग्रुप के पेज](/hi/components/field-group/) पर है। चेकबॉक्स क्या करता है, यह [चेकबॉक्स के पेज](/hi/components/checkbox/) पर है।
+
+### किसी एक ग्रुप को अलग करना
+
+चेकबॉक्स ग्रुप का अपना कोई टोकन नहीं है। उसका फ़्रेम फ़ील्ड ग्रुप के टोकन पढ़ता है और उसके चेकबॉक्स चेकबॉक्स के, वे जहाँ भी सेट हों। किसी एक इंस्टेंस को बदलने के लिए, उस पर सदस्य का टोकन सेट करें:
+
+```html
+<tanrei-checkbox-group label="सूचना कैसे भेजें"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-checkbox-group>
+```
+
+<ComponentSpecs name="checkbox-group" />
+
+### वेब क्या अलग ढंग से बनाता है
+
+- एलिमेंट के शैडो रूट में एक `<tanrei-field-group>` रहता है, जिसके भीतर सबको चेक करने वाला चेकबॉक्स है, जब तक `select-all-label` दिया गया है, और एक स्लॉट। चेकबॉक्स आपके अपने चाइल्ड रहते हैं। एलिमेंट को इंपोर्ट करने से दोनों सदस्य डिफ़ाइन हो जाते हैं।
+- `value` सिर्फ़ प्रॉपर्टी है: एक ऐरे, जो भीतर आते और बाहर जाते समय कॉपी होता है। `value` ऐट्रिब्यूट नहीं है, क्योंकि ऐट्रिब्यूट में लिस्ट को ऐसा सेपरेटर चाहिए जो किसी मान में भी हो सकता है, और HTML के पास इसका रूप पहले से है: हर चाइल्ड पर `checked`।
+- जिस चेकबॉक्स पर न `value` ऐट्रिब्यूट है और न कोई मान सेट है, उसका कोई मान नहीं है: अकेला चेकबॉक्स जो "on" सबमिट करता है, वह ग्रुप में नहीं पढ़ा जाता। वह चेक नहीं किया हुआ दिखाया जाता है, और डीबग बिल्ड उसकी रिपोर्ट करता है।
+- यह फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, और हर मान के लिए `name` से एक एंट्री सबमिट करता है, वही जो एक ही नाम के नेटिव चेकबॉक्स सबमिट करते हैं। उसके चेकबॉक्स कुछ सबमिट नहीं करते, उन पर चाहे जो `name` हो। रीसेट होने पर वह अपने पहले मान पर लौटता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक `requirement` का मान `required` है और लिस्ट ख़ाली है, फ़ॉर्म को बताता है कि मान नहीं है। संदेश `error-text` है, वह न हो तो ज़रूरी का टेक्स्ट, वह भी न हो तो `label`: `error-text` शुरू से दें, सिर्फ़ तब नहीं जब `error` सेट हो।
+- `change` एक CustomEvent है, जिसका `detail.value` लिस्ट की एक कॉपी है; उससे पहले `input` फ़ायर होता है। ग्रुप के भीतर के किसी चेकबॉक्स पर लगा लिसनर दोनों में से कोई नहीं सुनता।
+- भाग: `field-group` फ़्रेम है, और उसके भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label`, `requirement-label`, `supporting-text`, `error-text`। `select-all` सबको चेक करने वाला चेकबॉक्स है, और उसके भाग `select-all-container`, `select-all-box`, `select-all-mark` और `select-all-label` हैं। आपके अपने चेकबॉक्स को स्टाइल वैसे ही दिया जाता है जैसे कहीं भी, `tanrei-checkbox::part(…)` से।
+- एलिमेंट पर ख़ुद फ़ोकस नहीं जा सकता। `focus()` पहले सक्षम चेकबॉक्स पर जाता है, और पेज का अपना `<label for>` फ़ोकस वहीं ले जाता है।
+- एलिमेंट का कोई रोल नहीं है। उसे `label` से नाम दें, और जहाँ लेबल कहीं और दिखाया गया है वहाँ साथ में `label-hidden` दें। उसे `aria-label` से कभी नाम न दें, जो यहाँ किसी चीज़ को नाम नहीं देता।
+- ऐट्रिब्यूट kebab-case में हैं: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `select-all-label`।
+- एलिमेंट के डिफ़ाइन होने से पहले, और स्क्रिप्ट के बिना, उसका अपना कुछ नहीं दिखता: चेकबॉक्स सादे कॉन्टेंट के रूप में दिखते हैं। जिस पेज को स्क्रिप्ट के बिना काम करना है, वह एक ही `name` के नेटिव चेकबॉक्स का एक नेटिव `<fieldset>` लिखता है, जो वही एंट्री सबमिट करता है।
+
+## दिशानिर्देश
+
+### करें
+
+- लेबल को सवाल के रूप में लिखें, और हर चेकबॉक्स के लेबल को उसके एक जवाब के रूप में।
+- जवाब कैसे देना है, यह `supportingText` में बताएँ: "जो भी लागू हों, सभी चुनें।"
+- कॉलम को तरजीह दें। पंक्ति सिर्फ़ थोड़े-से छोटे लेबल के लिए इस्तेमाल करें।
+- जब भी ग्रुप ज़रूरी हो, `errorText` दें, ताकि फ़ॉर्म का अपना वैलिडेशन यह बात आपके शब्दों में कहे।
+- सबको चेक करने वाला चेकबॉक्स छह या उससे ज़्यादा के सेट के लिए, फ़िल्टर के लिए और अनुमतियों के सेट के लिए इस्तेमाल करें।
+
+### न करें
+
+- थोड़े-से विकल्पों में से एक जवाब के लिए चेकबॉक्स ग्रुप इस्तेमाल न करें: वह [रेडियो ग्रुप](/hi/components/radio-group/) है।
+- चेकबॉक्स को सबमिट कराने के लिए उन्हें `name` न दें: लिस्ट को ग्रुप अपने नाम से सबमिट करता है।
+- इसमें ऐसा कुछ न रखें जिसे ऑपरेट किया जा सकता है और जो चेकबॉक्स नहीं है। डीबग बिल्ड उसकी रिपोर्ट करता है, और वह मान में कोई एंट्री नहीं बनाता।
+- हायरार्की दिखाने के लिए सेट को सबको चेक करने वाले चेकबॉक्स के नीचे इंडेंट न करें। विकल्पों के भीतर विकल्प एक ट्री है।
+- ग्रुप को `aria-label` से नाम न दें। जहाँ कोई लेबल नहीं दिखाना है, वहाँ `label` और `labelHidden` दें।
+
+## सुलभता
+
+<ComponentAccessibility name="checkbox-group" />
+
+### कंपोनेंट क्या सँभालता है
+
+- यह एक ग्रुप है, फ़ील्ड ग्रुप का, जिसमें इसके चेकबॉक्स रहते हैं। उसका नाम `label` है, चाहे वह दिखाया गया हो या नहीं; उसका विवरण सहायक टेक्स्ट है, त्रुटि में रहते त्रुटि टेक्स्ट, और प्रॉडक्ट के शब्दों में ज़रूरी या वैकल्पिक होना।
+- ग्रुप में न ज़रूरी का स्टेट होता है, न अमान्य का। ज़रूरी होना शब्दों में कहा जाता है, और त्रुटि वाले ग्रुप का हर चेकबॉक्स अमान्य के रूप में दिया जाता है और त्रुटि टेक्स्ट उसका विवरण होता है।
+- हर चेकबॉक्स अपना रोल, नाम और चेक होने का स्टेट रखता है। जब तक कुछ चेक किए हुए हैं, सबको चेक करने वाला चेकबॉक्स mixed कहता है। किसी चेकबॉक्स की सेट में कोई जगह नहीं होती, और कितने चेक किए हुए हैं, यह नहीं कहा जाता।
+- हर सक्षम चेकबॉक्स Tab कुंजी के लिए अपना अलग पड़ाव है, और सबको चेक करने वाला चेकबॉक्स सबसे पहले। Space उसे बदलती है जिस पर फ़ोकस है। ऐरो कुंजियाँ नहीं हैं, और Enter फ़ॉर्म के लिए छोड़ दी जाती है।
+- लेबल, ज़रूरी या वैकल्पिक के निशान, विवरण या त्रुटि टेक्स्ट पर दबाने से न कुछ चेक होता है, न फ़ोकस कहीं जाता है।
+- जो त्रुटि किसी चेकबॉक्स पर फ़ोकस रहते हुए आती है, उसे फ़ील्ड ग्रुप एक बार, बिना टोके (polite), पढ़कर सुनाता है।
+- दिशा, बड़ा किया गया टेक्स्ट और फ़ोर्स्ड कलर्स, इन सबको हर सदस्य अपने ढंग से सँभालता है: दाएँ से बाएँ वाले लेआउट में फ़्रेम और हर चेकबॉक्स मिरर होते हैं; 200% टेक्स्ट पर हर टेक्स्ट रैप होता है, पंक्ति कॉलम बन जाती है और कुछ भी आड़ा स्क्रॉल नहीं होता।
+- इसके अपने कोई शब्द नहीं हैं। `requiredText` और `optionalText` ख़ाली छोड़े जाएँ तो फ़ील्ड ग्रुप उन्हें प्रॉडक्ट के शब्दों से पढ़ता है।
+
+वेब पर ज्ञात कमियाँ: स्क्रीन रीडर ग्रुप के बारे में क्या कहते हैं, यह ब्राउज़र के एक्सेसिबिलिटी ट्री से पढ़ा गया है, स्क्रीन रीडर से सुना नहीं गया। Chromium अपने एक्सेसिबिलिटी ट्री में एलिमेंट को उसका अपना एक नोड देता है, क्योंकि फ़ॉर्म उसे वैलिडेट करता है: ग्रुप के चारों ओर एक नोड, जिसका न कोई रोल है न नाम।
+
+### आपको क्या करना है
+
+- `label` हमेशा दें, और हर चेकबॉक्स पर एक `label`।
+- जहाँ ग्रुप ज़रूरी या वैकल्पिक है, वहाँ `requiredText` और `optionalText` दें, ग्रुप पर या पूरे प्रॉडक्ट के लिए एक बार: ग्रुप में ज़रूरी का कोई स्टेट नहीं होता, इसलिए यह बात शब्द ही कहते हैं।
+- क्या ग़लत है, और उसे कैसे ठीक किया जाए, यह `errorText` में बताएँ। रंग कभी अकेला संकेत नहीं होता।
+- जहाँ चुने गए विकल्पों की संख्या मायने रखती है ("5 में से 2 चुने गए"), वहाँ उसे `supportingText` में लिखें: वरना वह पढ़कर नहीं सुनाई जाती।

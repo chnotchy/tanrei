@@ -1,0 +1,222 @@
+---
+title: スライダーフィールド
+description: 目盛りの上で値または値の範囲を選んでもらう、完成した 1 つのフィールドです。ラベルの下にトラックがあり、ラベルの行の末尾に値を言葉で示し、補足の 1 行と、値が受け付けられなかった理由が付きます。
+translationOf: components/slider-field.mdx
+sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="slider-field" />
+
+<DemoFrame label="スライダーフィールド、刻みごとに動くもの、範囲を選ぶもの" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字の大きさ" min="50" max="200" step="10" value="120"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="価格" supporting-text="1 泊あたり、税抜きです。" range min="0" max="50000" step="1000" start-value="10000" value="30000" start-label="下限価格" end-label="上限価格"></tanrei-slider-field>
+</DemoFrame>
+
+スライダーフィールドは、感覚で選び、言葉で読み返す値に使います。120% の文字の大きさ、5 km の距離、10,000 円から 30,000 円の価格などです。スライダーだけでは、描かれるラベルがなく、トラックを見ても値が何に設定されているかはわかりません。スライダーフィールドには、ラベル、言葉で示した値、トラック、補足の 1 行、エラーという、いつもの組み合わせが、そのまま使える形でそろっています。
+
+**構成要素**は、[フィールド](/ja/components/field/)と[スライダー](/ja/components/slider/)です。フィールドは枠で、ラベル、必須または任意の印、ラベルの行の末尾にある値のテキスト、補足、エラーを受け持ちます。スライダーはコントロールで、トラックとハンドル、それをユーザーが操作するすべてを受け持ちます。スライダーフィールドが自分で描くものはなく、トークンもありません。プロパティは、自身のものである `valueHidden` を除いて、どれも 2 つのどちらかのプロパティで、そのまま渡されます。
+
+幅は置かれた場所に合わせて広がり、トラックはその幅いっぱいに伸びます。
+
+Web では `<tanrei-slider-field>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+`value` はハンドルの値で、範囲では終点側のハンドルの値です。`startValue` は範囲の始点側のハンドルの値です。2 つのイベントはスライダーのもので、`input` はドラッグ中に値が変わるたびに、`change` は変更が終わったときに 1 回だけ発火します。どちらが届いた時点でも、フィールドの `value` と `startValue` はすでに新しい値になっています。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-slider-field name="text-size" label="文字の大きさ"
+        supporting-text="すべてのページに適用されます。"
+        min="50" max="200" step="10" value="120"></tanrei-slider-field>
+
+      <!-- 範囲は、同じ name で start-value、value の順に送信されます。ハンドルにはそれぞれ名前を付けます。 -->
+      <tanrei-slider-field name="price" label="価格" range
+        min="0" max="50000" step="1000" start-value="10000" value="30000"
+        start-label="下限価格" end-label="上限価格"></tanrei-slider-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/slider-field';
+
+      // 値を表す言葉を、1 回だけ渡します。プロパティであり、属性ではありません。
+      const percent = new Intl.NumberFormat(document.documentElement.lang, { style: 'percent' });
+      const size = document.querySelector('[name="text-size"]');
+      size.formatValue = (value) => percent.format(value / 100);
+      size.addEventListener('input', () => applyTextSize(size.value));
+
+      const yen = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' });
+      document.querySelector('[name="price"]').formatValue = (value) => yen.format(value);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SliderField } from '@tanrei/react';
+
+    <SliderField name="text-size" label="文字の大きさ" supportingText="すべてのページに適用されます。"
+      min={50} max={200} step={10} value={size}
+      formatValue={(value) => percent.format(value / 100)}
+      onInput={(event) => setSize(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### 言葉で示す値
+
+値は、ラベルの行の末尾に、スライダーがハンドルに与える言葉で描かれます。スクリーンリーダーが読み、値の表示が見せるのと同じ言葉です。言葉は次の順で決まります。
+
+| 言葉 | 使われるとき |
+| --- | --- |
+| `valueText`。範囲の始点側のハンドルでは `startValueText` | 利用者側で言葉を書き、`input` のたびに書き直すとき。 |
+| `formatValue` が書いたもの | 値からその言葉を作る関数を 1 つ、1 回だけ渡したとき。スライダーは、値が変わるたびに、ハンドルごとにこの関数を呼びます。 |
+| ページのロケールで書式化した数値 | どちらも指定していないとき。 |
+
+範囲の 2 つの値は、読む順に、半角ダッシュ（–）でつなぎます。右から左へのレイアウトでは、始点の言葉が右側、つまり始点側のハンドルがある側に置かれます。スライダーフィールドが、数値、単位、言葉を自分で書くことはありません。
+
+<DemoFrame label="ラベルと同じ行に収まる値のテキスト、独立した行に移る値のテキスト、値のテキストを隠したフィールド" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" value="40" value-indicator="active"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="税引き前の年収" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="年収の下限" end-label="年収の上限"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="明るさ" value="70" value-hidden></tanrei-slider-field>
+</DemoFrame>
+
+値のテキストは、ラベルの 1 行目のベースラインにそろえて置かれ、ラベルは残った幅の中で折り返します。そうするとラベルに行の半分も残らないときは、値のテキストがラベルのあとの独立した行に移り、必要ならそこで折り返します。`valueHidden` を指定すると、値のテキストを描きません。音量や明るさのように、数値がユーザーにとって意味を持たないスライダーに使います。その場合も、ハンドルは支援技術に値を伝えます。
+
+### 1 つ下の階層
+
+同じフィールドを 2 つの構成要素から自分で書いても、見た目は同じで、支援技術にとっても同じスライダーになります。
+
+```html
+<tanrei-field label="文字の大きさ" supporting-text="すべてのページに適用されます。" value-text="120%">
+  <tanrei-slider name="text-size" min="50" max="200" step="10" value="120"></tanrei-slider>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const slider = field.querySelector('tanrei-slider');
+  slider.formatValue = (value) => percent.format(value / 100);
+  // スライダーフィールドが自分で行うこと。値が変わるたびに、フィールドの値のテキストをスライダーの言葉にします。
+  slider.addEventListener('input', () => (field.valueText = slider.shownValueText));
+</script>
+```
+
+<DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中にスライダーがあり、値のテキストを 1 回だけ渡しています。上のリスナーがなければ、値に合わせて変わることはありません" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字の大きさ" supporting-text="すべてのページに適用されます。" value-text="120">
+    <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
+  </tanrei-field>
+</DemoFrame>
+
+スライダーフィールドにない並べ方が必要なときに、1 つ下の階層で書きます。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| ラベル、言葉で示した値、トラック、補足、エラー | スライダーフィールド |
+| スライダーが伝えない値のテキスト（「指定なし」のような文など）、または枠の中に置く自分の要素 | [フィールド](/ja/components/field/)に[スライダー](/ja/components/slider/)を入れ、`value-text` を自分で書く |
+| トラックだけ。名前は別の場所（表の列、ツールバーのアイコン、プレーヤーの音量コントロールなど）に描かれている | [スライダー](/ja/components/slider/)を単独で使い、スライダーの `label` で名前を付ける |
+| 縦向きのスライダー | [スライダー](/ja/components/slider/)を単独で使う。スライダーフィールドに向きの指定はありません |
+| わかっている値を入力する | [数値フィールド](/ja/components/number-field/)。単独でも、スライダーの隣でも使えます |
+
+1 つ下の階層で変わるのは、何をどこに指定するかです。`name`、`value`、`startValue` はスライダーに指定し、フォームに加わるコントロールもイベントが届く先もスライダーになります。`label` と `disabled` はフィールドに指定したままにします。フィールドがスライダーに伝えます。範囲の終点側のハンドルには、スライダーの `label` で名前を付けます。スライダーフィールドでは、これを `endLabel` と呼びます。
+
+## 仕様
+
+<DemoFrame label="プロダクトの言葉で示した必須、任意、エラー、無効" plain column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必須" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="optional" optional-text="任意" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" error error-text="0 より大きい値を選んでください。" value="0"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" disabled value="40"></tanrei-slider-field>
+</DemoFrame>
+
+### それぞれの構成要素が受け持つもの
+
+| 観点 | フィールドから | スライダーから |
+| --- | --- | --- |
+| プロパティ | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | `value`、`startValue`、`range`、`min`、`max`、`step`、`origin`、`stops`、`size`、`valueIndicator`、`valueText`、`startValueText`、`startLabel` と、スライダーの `label` にあたる `endLabel` |
+| イベント | — | `input`、`change` |
+| スロット | `label-icon` | — |
+| トークン | `comp.field.*` | `comp.slider.*` |
+
+スライダーフィールド自身のプロパティは `valueHidden` の 1 つです。また、フィールドのプロパティのうち 1 つは、スライダーフィールドが自分で埋めるので、利用者側では指定しません。フィールドの `valueText` で、スライダーの言葉が入ります。
+
+スライダーは、自分の `disabled` と `orientation` を持っています。どちらもスライダーフィールドのプロパティではありません。フィールドの `disabled` がスライダーを無効にするので、ラベルと値のテキストも一緒に変わります。トラックは常に行の方向に伸びます。スライダーフィールドに縦の向きはありません。
+
+スライダーには常に値があるので、ここでの `requirement` は「空ではない」という意味にはなりません。すべてのコントロールに必須か任意かを示すフォームでは、スライダーフィールドにも示します。何を受け付けないか（0 の音量、狭すぎる範囲など）は、利用者側で `error` と `errorText` を使って伝えます。エラーになってもトラックは変わりません。エラーを伝えるのは、言葉と、不正という状態です。
+
+ハンドルの動き（ドラッグ、キー、刻み、値の表示）は[スライダーのページ](/ja/components/slider/)に、枠の動き（必須の印、値のテキスト、補足、エラーとその読み上げ）は[フィールドのページ](/ja/components/field/)にあります。
+
+### 1 つのフィールドだけを変える
+
+スライダーフィールドに自分のトークンはありません。枠はフィールドのトークンを、トラックはスライダーのトークンを、どこで設定されていても読みます。1 つだけ変えるには、構成要素のトークンをその要素に設定します。
+
+```html
+<tanrei-slider-field label="音量" value="40"
+  style="--tanrei-comp-field-standard-value-text-color: var(--tanrei-sys-color-on-surface)"></tanrei-slider-field>
+```
+
+<ComponentSpecs name="slider-field" />
+
+### Web での描き方の違い
+
+- 要素のシャドウルートにあるのは、`<tanrei-slider>` を入れた `<tanrei-field>` だけです。要素をインポートすると、2 つとも定義されます。
+- 要素はフォームに関連付けられます。`name` と `form` を受け取り、値を送信します。範囲では、同じ name で始点の値、終点の値の順に送信します。無効の間は何も送信しません。リセットすると `value` 属性と `start-value` 属性の値に戻り、無効な `<fieldset>` に従います。2 つの構成要素がフォームに項目を加えることはありません。
+- `input` と `change` は、`detail.value`（範囲では `detail.startValue` も）を持つ、スライダーの CustomEvent です。イベントのターゲットはこの要素で、どのリスナーでも `event.target.value` が新しい値です。
+- `formatValue` はプロパティで、属性はありません。`(value: number) => string` または `null` です。
+- 範囲の 2 つの値のテキストは、フィールドの `value-text` という 1 つのテキストの中に、間に半角ダッシュを挟んで書かれます。それぞれが独立した書字方向を持つ並びになるよう、U+2068 と U+2069（最初の強い文字で方向が決まる分離）で囲みます。ただし「$100」や「3,400,000」のような単純な数値は、どちらの書字方向でも左から右への 1 つの並びになるので、そのまま書きます。
+- パーツ: `field` と `slider` が 2 つの構成要素です。構成要素のパーツは、1 つ下の階層と同じ名前です。`label`、`label-icon`、`requirement-label`、`value-text`、`supporting-text` と、`track`、`active-track`、`stop-indicator`、`container`、`handle`、`value-indicator` です。
+- 要素そのものはフォーカスを受け取りません。`focus()` はハンドルに（範囲では始点側のハンドルに）移り、ページの `<label for>` もフォーカスをそこに移します。
+- 要素にロールはありません。名前は `label` で付けます。ラベルが別の場所に描かれているときは `label-hidden` を併せて指定します。`aria-label` はここでは何にも名前を付けないので、使いません。
+- 属性は構成要素のものと同じです。`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`start-value`、`value-indicator`、`value-text`、`start-value-text`、`start-label` と、`end-label`、`value-hidden` です。
+- 要素が定義されるまでは大きさがなく、`label-icon` の子だけが表示されます。スクリプトなしで動く必要があるページでは、素の `<input type="range">` を `<label>` で囲みます。
+
+## ガイドライン
+
+### 推奨
+
+- 数字だけでは意味が伝わりにくいときは、`formatValue` で値を表す言葉を渡します。パーセント、通貨、単位などです。
+- 範囲では、2 つのハンドルの両方に `startLabel` と `endLabel` で名前を付けます。`label` の言葉を含む言葉にします。「価格」の下なら「下限価格」「上限価格」です。
+- ラベルだけでは伝わらないときは、その値で何が変わるかを `supportingText` で伝えます。
+- 何を受け付けないかは、`error` と `errorText` を使って言葉で伝えます。
+- 感覚で選ぶ値で、数値がユーザーに何も伝えないときは、`valueHidden` を使います。
+
+### 非推奨
+
+- ユーザーが動かせるスライダーに、マークアップで 1 回だけ `valueText` を書かないでください。最初のドラッグのあと、言葉が実際の値と合わなくなります。`formatValue` を渡すか、`input` のたびに `valueText` を書き直します。
+- スライダーフィールドをフィールドの中に入れないでください。すでにフィールドです。デバッグビルドがそう知らせます。
+- `aria-label` で名前を付けないでください。ラベルを描きたくないときは、`label` と `labelHidden` を指定します。
+- 値を見せるために `valueIndicator="always"` を使わないでください。値を見せるのは値のテキストの役目で、値の表示はラベルの行に重なります。
+- 正確でなければならない値に、スライダーフィールドを使わないでください。[数値フィールド](/ja/components/number-field/)を、単独で、またはスライダーフィールドの隣で使います。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="slider-field" />
+
+### コンポーネントが担うこと
+
+- ハンドルは、それぞれが 1 つのスライダーです。ハンドルが 1 つのときの名前は `label` で、描かれていてもいなくても変わりません。範囲の 2 つのハンドルの名前は `startLabel` と `endLabel` です。どちらかがないときは `label` が名前になり、デバッグビルドがそう知らせます。
+- それぞれのハンドルの説明は、表示されている補足またはエラーのテキストで、フィールドが任意の間は任意のテキストが加わります。`error` が true の間は不正として、`disabled` が true の間は無効として伝わります。Web のスライダーのロールには必須という状態がないので、必須のスライダーフィールドは `requiredText` を説明の中で伝えます。
+- それぞれのハンドルが、自分の値を言葉で伝えます。同じ言葉がラベルの行の末尾にも描かれますが、そちらは支援技術から隠されるので、値が読まれるのは 1 回です。
+- 描かれたラベル、必須や任意の印、値のテキストが、もう一度伝わることはありません。値のテキストが変わっても読み上げません。ハンドルが自分の値を伝えるためです。
+- フォーカスが止まる位置はスライダーのハンドルで、1 つ、範囲では 2 つです。キーはどれもスライダーのものです。ラベルの行を押すとフォーカスがハンドルに移り、値は変わりません。補足を押しても何も起きません。
+- 無効の間も、値のテキストは描かれたままです。無効なコントロールが何に設定されているかは、読めるままにします。
+- 書字方向、文字の拡大、強制カラーには、構成要素がそれぞれ応えます。右から左へのレイアウトでは、枠とトラックがそろって左右が入れ替わり、値の言葉は自分の並び順を保ちます。文字を 200% にしても、切れるものはなく、横にスクロールすることもありません。
+- 自分の言葉は持ちません。`requiredText` と `optionalText` を空にすると、フィールドがプロダクトの言葉から読みます。
+
+Web での既知の不足は次のとおりです。要素が定義されるまでは、何も描かれません。範囲の 2 つのハンドルは、`label` を名前とする 1 つのグループとしては伝わりません。
+
+### 利用者側で行うこと
+
+- `label` を必ず指定します。範囲では `startLabel` と `endLabel` も指定します。
+- 数字だけでは意味が伝わらないときは、値を表す言葉を渡し、値が変わっても言葉が合っているようにします。
+- 何を受け付けないかは `errorText` で伝えます。色だけを手がかりにしません。
+- 正確な値を入力する必要があるときは、スライダーの隣に数値フィールドを置きます。ハンドルを動かす手段はドラッグだけではありませんが、それでも値を打ち込む手段にはなりません。

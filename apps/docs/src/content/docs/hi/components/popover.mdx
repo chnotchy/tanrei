@@ -1,0 +1,216 @@
+---
+title: पॉपओवर
+description: वह कॉन्टेंट जिसे व्यक्ति पढ़ और ऑपरेट कर सकता है, एक छोटी सरफ़ेस पर दिखाता है। सरफ़ेस उस कंट्रोल के बग़ल में खुलती है जिसे व्यक्ति ने दबाया और उसी के साथ रहती है, बाक़ी पेज को धुँधला किए या रोके बिना।
+translationOf: components/popover.mdx
+sourceHash: 19cb5fd0f6cb90c5f432216ae31e97068033e853
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="popover" />
+
+<DemoFrame label="कोई बटन दबाएँ: लिंक वाला एक नोट, और क्रियाओं वाला एक छोटा फ़ॉर्म">
+  <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">स्टोरेज</tanrei-button>
+  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="स्टोरेज" closable close-label="स्टोरेज की जानकारी बंद करें" arrow placement="bottom" onclose="this.open = false">
+    ट्रैश की फ़ाइलें हटाए जाने तक आपके स्टोरेज में गिनी जाती हैं। <a class="tanrei-link" href="#दिशानिर्देश">स्टोरेज कैसे गिना जाता है</a>
+  </tanrei-popover>
+  <tanrei-button id="popover-demo-form-opener" variant="outlined" onclick="document.getElementById('popover-demo-form').open = !document.getElementById('popover-demo-form').open">नाम बदलें</tanrei-button>
+  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="फ़ोल्डर का नाम बदलें" onclose="this.open = false">
+    <tanrei-text-field label="नाम" value="रिपोर्ट" autofocus></tanrei-text-field>
+    <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">रद्द करें</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">नाम बदलें</tanrei-button>
+  </tanrei-popover>
+</DemoFrame>
+
+पॉपओवर उस कॉन्टेंट के लिए इस्तेमाल करें जिस पर व्यक्ति उसे खोलने वाले कंट्रोल के बग़ल में ही काम करता है: कुछ सेटिंग, एक छोटा फ़ॉर्म, शेयर करने का पैनल, वह नोट जिसे लिंक या बटन चाहिए। उसके आस-पास का बाक़ी पेज इस्तेमाल करने लायक़ बना रहता है।
+
+### इस्तेमाल
+
+कंट्रोल आपका अपना है। वेब पर आप उसे `anchor` से बताते हैं, जो उस एलिमेंट का id है जिसके बग़ल में पॉपओवर रहता है। वही एलिमेंट ओपनर भी है: पॉपओवर सहायक तकनीक को बताता है कि वह एक डायलॉग खोलता है और वह डायलॉग खुला है या नहीं, और फ़ोकस उसी को लौटाता है। जहाँ सरफ़ेस का ऐंकर कोई फ़ील्ड है और उसे फ़ील्ड के भीतर का कोई बटन खोलता है, वहाँ उस बटन को `opener` से बताएँ।
+
+पॉपओवर कंट्रोल्ड है, जैसे मेन्यू। ओपनर के दबाए जाने पर आप `open` सेट करते हैं, और जब पॉपओवर `close` एमिट करता है तो उसे वापस false करते हैं। वह कभी ख़ुद नहीं खुलता: न होवर पर, न फ़ोकस पर, न कुछ समय बाद। `close` के साथ एक कारण आता है: `escape`, `outside`, `focus-out`, `close` (उसका बंद करने वाला बटन) या `anchor-hidden`। कोई क्रिया पॉपओवर को कभी बंद नहीं करती; उसे आपका हैंडलर बंद करता है।
+
+उसे एक नाम दें: जहाँ वह हेडलाइन दिखाता है वहाँ `headline`, और जहाँ नहीं दिखाता वहाँ `label`।
+
+SwiftUI, Compose, Flutter और React Native नियोजित हैं: इस पेज के शुरू में हर प्लैटफ़ॉर्म के साथ दिए गए नाम वे हैं जो स्पेक उन्हें देता है, और वहाँ अभी कुछ उपलब्ध नहीं है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="share" variant="outlined">शेयर करें</tanrei-button>
+
+    <!-- anchor उस कंट्रोल का id है जिसके बग़ल में यह रहता है। -->
+    <tanrei-popover id="share-panel" anchor="share" headline="यह पेज शेयर करें" closable close-label="शेयर करने का पैनल बंद करें">
+      जिसके पास भी लिंक है, वह इसे पढ़ सकता है।
+      <tanrei-button slot="actions" dismissive>शेयर करना बंद करें</tanrei-button>
+      <tanrei-button slot="actions" confirming>लिंक कॉपी करें</tanrei-button>
+    </tanrei-popover>
+
+    <!-- फ़ील्ड के नीचे की सरफ़ेस: फ़ील्ड जितनी चौड़ी, और फ़ोकस फ़ील्ड में ही रहता है। -->
+    <tanrei-text-field id="city" label="शहर"></tanrei-text-field>
+    <tanrei-popover anchor="city" label="सुझाव" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
+
+    <script type="module">
+      import '@tanrei/web/components/popover';
+
+      const opener = document.querySelector('#share');
+      const panel = document.querySelector('#share-panel');
+      // ओपनर इसे टॉगल करता है। ओपनर पर दबाना कभी "outside" नहीं होता, इसलिए एक बार दबाने से यह बंद होकर दोबारा नहीं खुलता।
+      opener.addEventListener('click', () => (panel.open = !panel.open));
+      // Escape, बाहर दबाना, फ़ोकस का बाहर जाना, बंद करने वाला बटन, ऐंकर का नज़र से ओझल होना।
+      panel.addEventListener('close', (e) => {
+        console.log(e.detail.reason);
+        panel.open = false;
+      });
+      // कोई क्रिया इसे बंद नहीं करती: हैंडलर करता है, जब काम पूरा हो जाए।
+      panel.querySelector('[confirming]').addEventListener('click', async () => {
+        await navigator.clipboard.writeText(location.href);
+        panel.open = false;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useState } from 'react';
+    import { Button, Popover } from '@tanrei/react';
+
+    const [open, setOpen] = useState(false);
+
+    <Button id="share" variant="outlined" onClick={() => setOpen(!open)}>शेयर करें</Button>
+    <Popover anchor="share" open={open} headline="यह पेज शेयर करें" closable closeLabel="शेयर करने का पैनल बंद करें" onClose={() => setOpen(false)}>
+      जिसके पास भी लिंक है, वह इसे पढ़ सकता है।
+      <Button slot="actions" dismissive onClick={stopSharing}>शेयर करना बंद करें</Button>
+      <Button slot="actions" confirming onClick={copyLink}>लिंक कॉपी करें</Button>
+    </Popover>
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="स्थान, तीर, और अपने ऐंकर जितना चौड़ा पॉपओवर" plain>
+  <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">ऊपर, बीच में</tanrei-button>
+  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="स्टोरेज" placement="top" arrow onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
+  <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">बग़ल में, अंत की ओर</tanrei-button>
+  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="स्टोरेज" placement="end-top" onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
+  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">इस बटन जितना चौड़ा</tanrei-button>
+  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="स्टोरेज" width="anchor" onclose="this.open = false">ट्रैश अब भी स्टोरेज में गिना जाता है।</tanrei-popover>
+</DemoFrame>
+
+### यह कहाँ रहता है
+
+`placement` ऐंकर की एक ओर बताता है, और यह कि पॉपओवर उस ओर के साथ-साथ कैसे सीध में आता है। तेरह मान टूलटिप वाले ही हैं, और उसी तरह पढ़े जाते हैं।
+
+| मान | कहाँ |
+| --- | --- |
+| `bottom-start` (डिफ़ॉल्ट), `bottom`, `bottom-end` | ऐंकर के नीचे: शुरुआती किनारे साथ-साथ, बीच में, या अंतिम किनारे साथ-साथ |
+| `top-start`, `top`, `top-end` | ऐंकर के ऊपर, इन्हीं तीन तरीक़ों से |
+| `start`, `start-top`, `start-bottom` | ऐंकर के बग़ल में, उसके शुरू की ओर: बीच में, ऊपरी किनारे साथ-साथ, या निचले किनारे साथ-साथ |
+| `end`, `end-top`, `end-bottom` | ऐंकर के बग़ल में, उसके अंत की ओर, इन्हीं तीन तरीक़ों से |
+| `auto` | नीचे, ऊपर, अंत और शुरू में से वह पहली ओर जहाँ जगह हो |
+
+शुरू और अंत लेआउट की दिशा के साथ चलते हैं। `offset` ऐंकर से दूरी है, प्लैटफ़ॉर्म की लेआउट इकाइयों में, और उसे छोड़ देने पर वह `comp.popover.offset` लेता है। `crossOffset` पॉपओवर को उसकी ओर के साथ-साथ खिसकाता है, और उसे कभी ऐंकर की उस ओर से बाहर नहीं ले जाता।
+
+पॉपओवर विंडो के भीतर `comp.popover.window-margin` बनाए रखता है, इन क़दमों से, इसी क्रम में:
+
+1. जब पसंद की ओर जगह नहीं होती, तो वह उलटी ओर पलट जाता है और अपनी सीध बनाए रखता है।
+2. जहाँ दोनों में से किसी ओर जगह नहीं होती, वहाँ वह ज़्यादा जगह वाली ओर लेता है और उतनी ही जगह तक सीमित रहता है। तब उसका कॉन्टेंट स्क्रॉल होता है।
+3. वह अपनी ओर के साथ-साथ उतना खिसकता है जितना मार्जिन माँगता है।
+4. अपने सबसे छोटे साइज़ से भी छोटी विंडो में वह विंडो से बाहर जाने के बजाय ऐंकर को ढक लेता है।
+
+ऐंकर के हिलने पर वह उसके साथ चलता है, और जब तक उस ओर जगह है, वही ओर रखता है जिस पर वह है। जब ऐंकर का कोई भी हिस्सा दिखना बंद हो जाता है, तो वह `anchor-hidden` कारण के साथ `close` एमिट करता है।
+
+### साइज़
+
+पॉपओवर अपने कॉन्टेंट जितना चौड़ा होता है, `comp.popover.container.min-width` (160) और `container.max-width` (400) के बीच। `width="anchor"` के साथ वह ऐंकर जितना चौड़ा होता है, उस सरफ़ेस के लिए जो किसी फ़ील्ड से नीचे खुलती है। वह कभी मार्जिन घटाकर बची विंडो से ज़्यादा चौड़ा नहीं होता।
+
+वह अपने भागों जितना ऊँचा होता है, `container.max-height` (480) और उसकी ओर की जगह तक। उससे आगे कॉन्टेंट हेडर और क्रियाओं के बीच स्क्रॉल होता है, और वे दोनों अपनी जगह रहते हैं। कॉन्टेंट के स्क्रॉल होते ही हेडर के नीचे एक डिवाइडर दिखता है, और क्रियाओं के ऊपर तब तक, जब तक नीचे और कॉन्टेंट बाक़ी है।
+
+जो कॉन्टेंट अपनी पैडिंग ख़ुद रखता है या किनारों तक पहुँचता है, जैसे लिस्ट, उसके लिए `inset` को false करें (वेब पर `no-inset`)।
+
+### भाग
+
+| भाग | यह क्या है |
+| --- | --- |
+| हेडर | हेडलाइन, और `closable` के true रहते बंद करने वाला बटन। कॉन्टेंट के स्क्रॉल होते समय यह अपनी जगह रहता है |
+| कॉन्टेंट | डिफ़ॉल्ट स्लॉट। कुछ भी, लिंक, फ़ील्ड और दूसरे कंट्रोल समेत |
+| क्रियाएँ | `actions` स्लॉट में Tanrei के Button, जिनमें से हर एक पर, जहाँ वह वैसा है, `confirming` या `dismissive` का निशान होता है। वे वैसे रखे जाते हैं जैसे बटन ग्रुप उन्हें रखता है, और जब कोई लेबल नहीं समाता तो एक के ऊपर एक आ जाते हैं |
+| तीर | एक वैकल्पिक त्रिकोण जो ऐंकर की ओर इशारा करता है। `arrow` इसे एक पॉपओवर के लिए चालू करता है; `comp.popover.arrow.visible` पूरे डिज़ाइन सिस्टम के लिए |
+
+बिना `variant` की क्रिया `comp.popover.actions.variant` लेती है (डिफ़ॉल्ट सिस्टम में tonal)। बंद करने वाला बटन सिर्फ़ आइकन वाला small Button है, `comp.popover.close-button.variant` में।
+
+### मोशन
+
+पॉपओवर फ़ेड होकर आता है और उस किनारे से बढ़ता है जो ऐंकर की ओर है, और फ़ेड होकर जाता है। बीच में रोका गया मोशन जहाँ है वहीं से पलट जाता है। जहाँ मोशन कम किया गया है, वहाँ वह तुरंत दिखता और ग़ायब होता है।
+
+<ComponentSpecs name="popover" />
+
+### वेब क्या अलग ढंग से बनाता है
+
+- पॉपओवर टॉप लेयर में एक `popover="manual"` एलिमेंट है। मोडल `<dialog>` के भीतर ऑपरेट किए जा सकने के लिए उसे उसी डायलॉग का वंशज होना चाहिए।
+- बाहर दबाना पॉपओवर को बंद करता है और उसके नीचे के एलिमेंट तक भी पहुँचता है।
+- वेब का अपना कोई बैक जेस्चर नहीं है, इसलिए `close` के साथ `back` कारण कभी नहीं आता।
+- `anchorElement` और `openerElement` उस एलिमेंट के लिए प्रॉपर्टी हैं जिस तक कोई id नहीं पहुँच सकता, जैसे किसी दूसरे शैडो रूट का एलिमेंट।
+- `arrow` true, false या सेट नहीं होता है: ऐट्रिब्यूट `arrow` है, `arrow="false"` है, या है ही नहीं।
+- जो एलिमेंट खुलने पर फ़ोकस लेता है, उस पर `autofocus` से निशान लगाएँ।
+- फ़ोर्स्ड कलर्स में कंटेनर और उसके तीर को टेक्स्ट के रंग की आउटलाइन मिलती है।
+
+## दिशानिर्देश
+
+### टूलटिप, पॉपओवर, मेन्यू या डायलॉग
+
+| पहलू | टूलटिप | पॉपओवर | मेन्यू | डायलॉग |
+| --- | --- | --- | --- | --- |
+| कैसे खुलता है | होवर, कीबोर्ड फ़ोकस, देर तक दबाना | अपने ओपनर को दबाने पर | अपने ऐंकर को दबाने पर | प्रॉडक्ट खोलता है |
+| इसमें क्या रहता है | अपने ऐंकर का विवरण | वह कॉन्टेंट जिसे व्यक्ति ऑपरेट करता है | सिर्फ़ आइटम | एक फ़ैसला |
+| फ़ोकस लेता है | कभी नहीं | हाँ, और उसे लौटाता है | हाँ, और उसे लौटाता है | हाँ, और उसे भीतर रखता है |
+| पेज को रोकता है | नहीं | नहीं | नहीं | हाँ |
+
+1. अगर वह सिर्फ़ यह बताता है कि कंट्रोल क्या है, और उसमें दबाने लायक़ कुछ नहीं है, तो वह टूलटिप है।
+2. अगर वह कमांड या विकल्पों की सूची है, तो वह मेन्यू है।
+3. अगर व्यक्ति उसका जवाब दिए बिना आगे नहीं बढ़ सकता, तो वह डायलॉग है।
+4. वरना वह पॉपओवर है।
+
+### करें
+
+- इसे किसी कंट्रोल को दबाने पर खोलें, और उसी कंट्रोल को दोबारा दबाने पर बंद करें।
+- कॉन्टेंट छोटा रखें। एक काम, ज़्यादा से ज़्यादा कुछ फ़ील्ड।
+- `closable` तब जोड़ें जब पॉपओवर इतना बड़ा हो कि वह उस चीज़ को ढक ले जिसे व्यक्ति उसके बाहर दबाता, और टच के लिए, जहाँ Escape नहीं है।
+- जिस फ़ील्ड में व्यक्ति टाइप कर रहा है, उसके नीचे की सरफ़ेस के लिए `width="anchor"` और `initialFocus="anchor"` इस्तेमाल करें।
+- क्रियाओं के लेबल छोटे रखें। पॉपओवर से चौड़ा लेबल रैप नहीं होता।
+
+### न करें
+
+- पॉपओवर को होवर या फ़ोकस पर न खोलें। टच से उस तक पहुँचा नहीं जा सकता, और जो सरफ़ेस सिर्फ़ इसलिए फ़ोकस ले ले कि पॉइंटर उसके ऊपर से गुज़रा, वह एक जाल है।
+- पॉपओवर में वह चीज़ न रखें जिसे व्यक्ति ग़लती से एक बार बाहर दबाकर खो दे। लंबे फ़ॉर्म की जगह डायलॉग या शीट है।
+- पॉपओवर के भीतर एक से ज़्यादा पॉपओवर नेस्ट न करें। हर स्तर पर Escape एक बार और दबानी पड़ती है।
+- जिस चीज़ का जवाब व्यक्ति को आगे बढ़ने से पहले देना ही है, उसके लिए पॉपओवर इस्तेमाल न करें। वह डायलॉग है।
+
+## सुलभता
+
+<ComponentAccessibility name="popover" />
+
+### कंपोनेंट क्या सँभालता है
+
+- कंटेनर एक ऐसा डायलॉग है जो मोडल नहीं है, और उसका नाम `headline` या `label` से आता है। उसके बाहर की कोई चीज़ छिपाई या निष्क्रिय नहीं की जाती।
+- ओपनर सहायक तकनीक को बताता है कि वह एक डायलॉग खोलता है और वह डायलॉग खुला है या नहीं। उसका अपना नाम और रोल नहीं बदलते।
+- खुलने पर फ़ोकस उस एलिमेंट पर जाता है जिस पर आपने निशान लगाया है, या कंटेनर पर, ताकि पॉपओवर का नाम पहले पढ़ा जाए। कंटेनर पर फ़ोकस इंडिकेटर सिर्फ़ तब दिखता है जब पॉपओवर कीबोर्ड से खोला गया हो।
+- Tab क्रम में पॉपओवर अपने ओपनर के ठीक बाद आता है, वह दस्तावेज़ में कहीं भी हो। उसके आख़िरी एलिमेंट से Tab उस चीज़ पर बढ़ती है जो ओपनर के बाद आती है, और इससे पॉपओवर बंद हो जाता है। फ़ोकस कभी भीतर बाँधकर नहीं रखा जाता।
+- Escape सिर्फ़ सबसे ऊपर वाले ओवरले को बंद करती है, और उससे आगे नहीं जाती: पॉपओवर जिस डायलॉग में है, वह खुला रहता है।
+- अगर फ़ोकस पॉपओवर के भीतर था, तो बंद होने पर वह ओपनर पर लौटता है। अगर व्यक्ति फ़ोकस कहीं और ले गया है, तो वह वहीं रहता है।
+- पॉपओवर के भीतर से खोला गया ओवरले, जैसे मेन्यू या टूलटिप, उसी का हिस्सा है: उसमें दबाना या फ़ोकस जाना पॉपओवर को बंद नहीं करता।
+- 200% टेक्स्ट पर पॉपओवर रैप होता है, अपनी सीमाओं तक बढ़ता है और स्क्रॉल होता है। 320 चौड़ी विंडो में वह मार्जिन घटाकर बची विंडो जितना चौड़ा होता है।
+
+### आपको क्या करना है
+
+- पॉपओवर को `headline` या `label` दें, और `closable` रहते एक `closeLabel` भी।
+- ओपनर को दबाने पर `open` सेट करें, और `close` पर उसे false करें।
+- वेब पर, जहाँ हो सके, पॉपओवर एलिमेंट को दस्तावेज़ में उसके ओपनर के ठीक बाद रखें, ताकि स्क्रीन रीडर के पढ़ने का क्रम Tab क्रम के साथ चले।
+- छोटे फ़ॉर्म के पहले फ़ील्ड पर शुरुआती फ़ोकस का निशान लगाएँ। सिर्फ़ टेक्स्ट वाले पॉपओवर को बिना निशान के छोड़ें।

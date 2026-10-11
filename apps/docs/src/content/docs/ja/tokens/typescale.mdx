@@ -1,0 +1,21 @@
+---
+title: タイプスケールトークン
+description: 階層で名付けたすべてのテキストスタイル。実物の見本、解決済みの数値、強調したときの太さを示します。
+translationOf: tokens/typescale.mdx
+sourceHash: 04f324a84d7ee88a6b98405c30b1b79539c95a7d
+---
+
+import Typescale from '../../../../components/tokens/Typescale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+見本は、生成された CSS カスタムプロパティで組んでいます。ここに見えているものが、`@tanrei/web` が提供するものです。各ロールは、その構成要素を個別のプロパティとして公開しています。`-font-family`、`-font-size`、`-line-height`、`-font-weight`、`-letter-spacing`、`-font-weight-emphasized`、それにショートハンドの `-font` です。`h2` や `p` がどのロールにあたるのか、なぜ強調がロールではなく太さなのかといった指針は、[タイポグラフィ](/ja/foundations/typography/)を参照してください。
+
+## 16 のロール
+
+<Typescale />
+
+## 強調のステップ
+
+強調したテキストは、ロールを、その太さにファミリーのステップを足した太さで描いたものです。ロールのファミリーは、名前の最初の区切りです。`caption`、`code`、`code-small`、`eyebrow` はラベルのステップを取ります。同梱システムごとの 4 つのステップは次のとおりです。
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />

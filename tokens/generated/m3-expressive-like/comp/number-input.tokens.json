@@ -1,0 +1,75 @@
+{
+  "tanrei": {
+    "comp": {
+      "number-input": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product asks for a number as a number — a quantity, a size in a unit, a percentage, an amount of money — in the same box as its text inputs, and lets people nudge it by a step with two small buttons at the end of the box, which repeat while they are held, slowly at first and then faster. Where the two buttons stand and how a hold repeats is the number input's own; the box is the one box.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "What a number input draws that is its own: where its two steppers stand (their gap, and their inset from the end of the box) and how a held stepper repeats (the delay before the first repeat, the interval, and the faster interval of a long hold). The box, with the prefix and the suffix beside the figure, is comp.input-box.*.",
+            "rules": [
+              "A number input is the bare box: it has no label row, no requirement tag, no help and no error text. Put it in a Field for those, or use the number field, which is that pair; their tokens are comp.field.*.",
+              "The box — container, edges, floating label, the figure, placeholder, prefix and suffix (affix), caret, selection, heights and paddings per size, and the colors of each look in each state — is comp.input-box.*, shared with the text input, the select, the combobox and the color input. This group holds only the steppers' place and the timing of a hold.",
+              "Always give it a name: the label of the Field that frames it, or its own label where its visible label is elsewhere (a column's head, a row's title beside a slider). A placeholder is never the name.",
+              "A number input holds a number or nothing. For digits that are not a quantity (a postal code, a card number, a telephone number) use a text input; for a value chosen by feel within a range use a slider, and pair the two where both help.",
+              "The unit is suffixText and a currency sign is prefixText, drawn in comp.input-box's affix color beside the figure and read with the value; a unit a person can change is a select beside the input.",
+              "The steppers are two icon-only Buttons of the text variant with Button's own tokens; the input only places them (stepper.gap, stepper.inset) and times a hold (motion.repeat-delay, motion.repeat-interval, motion.repeat-interval-fast). Hide them with steppers where a row is too narrow; never shrink them.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          }
+        },
+        "stepper": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product lets people nudge a number by a press as well as type it — a quantity, a size, a percentage — and decides how close the two buttons stand to each other and to the box's edge; the buttons themselves are its Buttons."
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "Between the two steppers. 0 in the default system: they stand as close as their targets allow, each keeping sys.target.touch along the row, so two 40 buttons stand 8 apart and two that are 48 or wider touch."
+          },
+          "inset": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "From the container's end edge to the stepper nearest it: with a 40 button in a 48 container, the same room at the end as above and below."
+          }
+        },
+        "motion": {
+          "repeat-delay": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long2}",
+            "$description": "How long a stepper is held before it begins to repeat its step. A waiting time, not a motion: kept where motion is reduced.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how long a held stepper waits before it runs, long enough that a slow press steps once, short enough that holding is worth it."
+              }
+            }
+          },
+          "repeat-interval": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short2}",
+            "$description": "The time between two steps of a held stepper, for its first ten repeated steps.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how fast a held stepper runs at first, slow enough to stop on a value."
+              }
+            }
+          },
+          "repeat-interval-fast": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short1}",
+            "$description": "The time between two steps of a held stepper after its first ten repeated steps: the hold speeds up once, it does not change the size of a step.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "The same product lets a long hold cross a wide range (a hue from 0 to 360) without waiting on every step."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

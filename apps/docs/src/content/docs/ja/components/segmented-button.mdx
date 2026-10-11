@@ -1,0 +1,315 @@
+---
+title: セグメントボタン
+description: 関連する 2〜5 個の選択肢を、つながったセグメントとして横に並べた 1 つのコントロールです。1 つ、または複数を選べます。
+translationOf: components/segmented-button.mdx
+sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="segmented-button" />
+
+:::note[Tanrei システムでは提供しません]
+既定の Tanrei システムはセグメントボタンを提供しません。Material と cupertino のプリセットでは提供します。Tanrei では、複数の選択肢から 1 つを選ぶ場面には、下の内容が変わるなら[タブ](/ja/components/tabs/)を、値を設定するなら[ラジオボタン](/ja/components/radio-button/)を使います。それぞれが独立してオン・オフするボタンを並べる場面には[ボタングループ](/ja/components/button-group/)を使います。コンポーネント自体はどのシステムでも動作しますが、提供しないシステムでは開発時に警告が出ます。このページのデモは、これを提供する `m3-like` プリセットで表示しています。
+:::
+
+<DemoFrame label="単一選択、アイコン付き、アイコンのみ" system="m3-like">
+  <tanrei-segmented-button label="期間" value="week">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="週"></tanrei-segment>
+    <tanrei-segment value="month" label="月"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="表示" value="grid">
+    <tanrei-segment value="list" label="リスト" icon="view_list"></tanrei-segment>
+    <tanrei-segment value="grid" label="グリッド" icon="grid_view"></tanrei-segment>
+    <tanrei-segment value="map" label="地図" icon="map"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="文字揃え" value="center">
+    <tanrei-segment value="start" label="左揃え" icon="format_align_left" label-hidden></tanrei-segment>
+    <tanrei-segment value="center" label="中央揃え" icon="format_align_center" label-hidden></tanrei-segment>
+    <tanrei-segment value="end" label="右揃え" icon="format_align_right" label-hidden></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+### 使い方
+
+セグメントの渡し方は、各プラットフォームが繰り返しの子要素を受け取るいつものやり方に従います。Web では子要素、SwiftUI ではビュービルダーの中のビュー、Compose ではコンテンツラムダの中の呼び出し、Flutter では `segments` のリスト、React Native では `items` の配列です。選択状態はセグメントではなくセット全体が値で持ちます。1 つを選ぶか複数を選ぶかは `selection` で決めます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-segmented-button label="期間" value="week">
+      <tanrei-segment value="day" label="日"></tanrei-segment>
+      <tanrei-segment value="week" label="週"></tanrei-segment>
+      <tanrei-segment value="month" label="月"></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <!-- 複数選択。values はプロパティ（配列）です。属性では JSON の配列か、空白で区切った値を受け付けます。 -->
+    <tanrei-segmented-button id="days" selection="multiple" size="small" label="曜日" values="mon tue">
+      <tanrei-segment value="mon" label="月"></tanrei-segment>
+      <tanrei-segment value="tue" label="火"></tanrei-segment>
+      <tanrei-segment value="wed" label="水" disabled></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <script type="module">
+      import '@tanrei/web/components/segmented-button';
+      // 要素は自分の value か values を更新してから change を発火します。
+      document.querySelector('[label="期間"]').addEventListener('change', (e) => showRange(e.detail.value));
+      document.querySelector('#days').addEventListener('change', (e) => setDays(e.detail.values));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Segment, SegmentedButton } from '@tanrei/react';
+
+    // detail は、単一選択では { value }、複数選択では { values } です。
+    <SegmentedButton label="期間" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>
+      <Segment value="day" label="日" />
+      <Segment value="week" label="週" />
+      <Segment value="month" label="月" />
+    </SegmentedButton>
+
+    <SegmentedButton selection="multiple" label="曜日" values={days} onChange={(e) => 'values' in e.detail && setDays(e.detail.values)}>
+      <Segment value="mon" label="月" />
+      <Segment value="tue" label="火" />
+      <Segment value="wed" label="水" disabled />
+    </SegmentedButton>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // バインディングの型で選び方が決まります。オプショナルの値なら 1 つ、Set なら複数です。
+    // .tag と .labelStyle は、ほかのモディファイアーより先に、TanreiSegment そのものに付けます。
+    TanreiSegmentedButton("期間", selection: $range) {
+        TanreiSegment("日").tag("day")
+        TanreiSegment("週").tag("week")
+        TanreiSegment("月").tag("month")
+    }
+
+    // .labelStyle(.iconOnly) が labelHidden にあたります。タイトルはそのままセグメントの名前になります。
+    TanreiSegmentedButton("文字揃え", selection: $alignment) {
+        TanreiSegment("左揃え", icon: "format_align_left").tag("start").labelStyle(.iconOnly)
+        TanreiSegment("中央揃え", icon: "format_align_center").tag("center").labelStyle(.iconOnly)
+        TanreiSegment("右揃え", icon: "format_align_right").tag("end").labelStyle(.iconOnly)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSegment
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButton
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButtonSelectionMode
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSegmentedButtonSize
+
+    // コールバックは単一選択でも複数選択でも 1 つです。単一選択では要素が 1 つの Set を受け取ります。
+    TanreiSegmentedButton(
+        onSelectionChange = { range = it.single() },
+        contentDescription = "期間",
+        selectedValue = range,
+    ) {
+        TanreiSegment(value = "day", label = "日")
+        TanreiSegment(value = "week", label = "週")
+        TanreiSegment(value = "month", label = "月")
+    }
+
+    TanreiSegmentedButton(
+        onSelectionChange = { days = it },
+        contentDescription = "曜日",
+        selectionMode = TanreiSegmentedButtonSelectionMode.Multiple,
+        selectedValues = days,
+        size = TanreiSegmentedButtonSize.Small,
+    ) {
+        TanreiSegment(value = "mon", label = "月")
+        TanreiSegment(value = "tue", label = "火")
+        // Compose では逆向きのフラグを使います。
+        TanreiSegment(value = "wed", label = "水", enabled = false)
+    }
+
+    // labelHidden でアイコンだけを描きます。ラベルはそのままセグメントの名前になります。
+    TanreiSegment(value = "start", label = "左揃え", labelHidden = true, icon = { TanreiText("format_align_left") })
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // SegmentedButton と同じ形です。選択状態は 1 つの Set で持ち、単一選択のときの要素は多くても 1 つです。
+    TanreiSegmentedButton<String>(
+      semanticLabel: '期間',
+      selected: <String>{range},
+      onSelectionChanged: (Set<String> value) => setState(() => range = value.single),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'day', label: '日'),
+        TanreiSegment<String>(value: 'week', label: '週'),
+        TanreiSegment<String>(value: 'month', label: '月'),
+      ],
+    );
+
+    TanreiSegmentedButton<String>(
+      semanticLabel: '曜日',
+      multiSelectionEnabled: true,
+      size: TanreiSegmentedButtonSize.small,
+      selected: days,
+      onSelectionChanged: (Set<String> value) => setState(() => days = value),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'mon', label: '月'),
+        TanreiSegment<String>(value: 'tue', label: '火'),
+        TanreiSegment<String>(value: 'wed', label: '水', enabled: false),
+      ],
+    );
+
+    // labelHidden でアイコンだけを描きます。ラベルはそのままセグメントの名前になります。
+    const TanreiSegment<String>(value: 'start', label: '左揃え', icon: Icon(AppSymbols.formatAlignLeft), labelHidden: true);
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SegmentedButton } from '@tanrei/react-native';
+
+    // 制御コンポーネントです。onSelectionChange は値（単一選択）か値の配列（複数選択）を受け取ります。
+    <SegmentedButton
+      accessibilityLabel="期間"
+      value={range}
+      onSelectionChange={setRange}
+      items={[
+        { value: 'day', label: '日' },
+        { value: 'week', label: '週' },
+        { value: 'month', label: '月' },
+      ]}
+    />
+
+    <SegmentedButton
+      selectionMode="multiple"
+      accessibilityLabel="曜日"
+      size="small"
+      values={days}
+      onSelectionChange={setDays}
+      items={[
+        { value: 'mon', label: '月' },
+        { value: 'tue', label: '火' },
+        { value: 'wed', label: '水', disabled: true },
+      ]}
+    />
+
+    // アイコンだけのセグメント：{ value: 'start', label: '左揃え', icon: 'format_align_left', labelHidden: true }
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="サイズと無効なセグメント" system="m3-like" plain>
+  <tanrei-segmented-button label="期間" value="week" size="small">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="週"></tanrei-segment>
+    <tanrei-segment value="month" label="月"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="期間" value="week" size="large">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="週"></tanrei-segment>
+    <tanrei-segment value="month" label="月"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="期間" value="day">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="週"></tanrei-segment>
+    <tanrei-segment value="month" label="月" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="期間" value="month">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="週"></tanrei-segment>
+    <tanrei-segment value="month" label="月" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+<ComponentSpecs name="segmented-button" />
+
+## ガイドライン
+
+### 使う場面
+
+答えが数個に決まっている小さな問いを 1 つ尋ね、その答えを全部並べて見せたいときに使います。グラフの期間、リストの表示形式、段落の揃え方、リマインダーを繰り返す曜日などです。選んだ結果はすぐに画面に表れるようにします。単一選択では、矢印キーで移動するだけで選択が変わるからです。
+
+選択肢は 2〜5 個が目安です。それより多いならメニューかリストを使います。選ぶこと自体がフォームの主な作業なら、ラジオボタンのほうが読みやすくなります。選んだ答えで画面に表示する内容そのものが入れ替わるなら、[タブ](/ja/components/tabs/)を使います。
+
+### セグメントボタン、ボタングループ、チップ、タブの使い分け
+
+この 4 つは、どれも関連するものを数個、横に並べます。見た目が似ているので混同しやすいのですが、押したときに何が起こるか、キーボードでどう移動するかが違います。
+
+| コンポーネント | 何か | 選択 | キーボード | 用途 |
+| --- | --- | --- | --- | --- |
+| [セグメントボタン](/ja/components/segmented-button/) | 1 つの問いに答える 2〜5 個の選択肢を、つなげて 1 つにしたコントロール。 | 自分で持ちます（値で）。1 つ、または複数。 | Tab で止まるのは 1 か所。矢印キーで選択肢の間を移動し、単一選択では移動と同時に選びます。 | すぐに反映される、答えの決まった設定。日・週・月、左揃え・中央揃え・右揃えなど。 |
+| [ボタングループ](/ja/components/button-group/) | 独立したボタンを並べた行または列。間隔を空けて並べるか、つなげて 1 つの形にします。 | 持ちません。グループの中のトグルボタンは、それぞれ自分のオン・オフを持ちます。 | ボタンごとに Tab で止まります。 | 関連するアクション。キャンセル・下書きを保存・公開、互いに独立したトグルとしての太字・斜体・下線など。 |
+| [チップ](/ja/components/chip/) | 折り返すかスクロールする 1 行に並ぶ、独立した小さなコントロール。 | 絞り込みチップが、それぞれ単独でオン・オフを持ちます。 | チップごとに Tab で止まります。 | リストの上の絞り込み、返信の候補、ユーザーが入力した項目。 |
+| [タブ](/ja/components/tabs/) | 1 つの主題を分けたビュー。それぞれがパネルを持ちます。 | 1 つ。いま表示しているビューです。 | Tab で止まるのは 1 か所。矢印キーで移動と同時に選びます。 | 表示する内容の切り替え。概要・アクティビティ・設定など。 |
+
+迷ったときの見分け方：押すと何かが実行されるならボタングループです。値を設定するならセグメントボタンで、選択肢が多いときや互いに独立しているときはチップです。下の内容が入れ替わるならタブです。
+
+### 1 つを選ぶか、複数を選ぶか
+
+- **単一選択**（`selection="single"`、既定）はラジオグループです。セグメントを選ぶと、それまでの選択は外れます。選ばれているセグメントをもう一度押しても何も起こらないので、単一選択がそのセグメント自身によって解除されることはありません。まだ何も選ばれていないことを示す必要があるフォームのために、何も選ばれていない状態（`value` が空）から始めることもできます。
+- **複数選択**はトグルボタンの集まりです。セグメントごとにオンとオフを切り替え、すべてオフにもなります。少なくとも 1 つは選ばれていてほしいなら、セットが空になる変更をプロダクト側で反映しないようにします。
+
+セット全体を無効にする `disabled` はありません。セグメントを 1 つずつ無効にします。無効なセグメントも位置と輪郭はそのまま残り、矢印キーでは飛ばされます。
+
+### ラベル、アイコン、チェック
+
+- 選ばれたセグメントはラベルの前にチェックを表示します。アイコンがあるときは、その位置にチェックが入ります。こうすることで、選択が塗りの色だけで伝わることはありません。アイコンだけのセグメントはアイコンを残し、塗りつぶしの形で描きます。デザインシステムによってはチェックのサイズを 0 にしていることがあり、その場合はチェックを描かず、塗りとエレベーションで選択を示します。
+- どのセグメントも、いちばん幅の広いセグメントに合わせた同じ幅になります。幅は選ばれた状態で測るので、チェックが現れても隣が動くことはありません。幅が足りないときは、ラベルを省略せずに折り返し、すべてのセグメントがいちばん高いものに合わせて伸びます。
+- `labelHidden` にするとアイコンだけを描きます。それでもラベルは必須です。セグメントのアクセシブルネームになるからです。
+- サイズはセットの高さを決めます。すべてのサイズがボタンと同じ高さになるわけではありません（`m3-like` プリセットでは、small と medium はボタンと同じで、large はボタンより低くなります）。隣のボタンとは、サイズの名前ではなく高さで合わせてください。
+
+### 推奨
+
+- セットには、選択肢が答えている問いをラベルとして付けます。「期間」「文字揃え」などです。
+- ラベルは 1〜2 語程度に短くし、形をそろえます。「日」「週」「月」のようにします。
+- 1 つのセットでは、すべてのセグメントにアイコンを付けるか、どれにも付けないかのどちらかにします。
+- 妥当な既定値があるなら初期値として選んでおき、未回答のように見えないようにします。
+
+### 非推奨
+
+- アクションにセグメントボタンを使わない。セグメントは選択肢であり、クリックイベントも発火しません。ボタングループを使います。
+- それぞれが画面全体を占めるビューの切り替えに使わない。タブを使います。
+- 1 つのセットに 6 個以上のセグメントを入れたり、長さが極端に違うラベルを並べたりしない。どのセグメントもいちばん広いものの幅になります。
+- 状態によってセグメントのラベルを変えない。選択状態は別に読み上げられます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="segmented-button" />
+
+### コンポーネントが担うこと
+
+- 単一選択では、セットはラベルを名前とするラジオグループで、各セグメントは選択状態を持つラジオボタンです。複数選択では、セットはラベルを名前とするグループで、各セグメントは押下状態を持つトグルボタンです。
+- 各セグメントは、描かれているかどうかにかかわらず自分のラベルを名前とし、セット内での位置とセグメントの数を伝えます。アイコン、チェック、区切り線、輪郭は支援技術から隠します。選択状態をチェックのグリフから読み上げることはありません。
+- Tab で止まるのはセットの中の 1 か所です。選ばれているセグメント、複数選択では最後にフォーカスのあったセグメント、それもなければ最初の有効なセグメントです。矢印キーで次または前の有効なセグメントへ移り、端では折り返します。Home と End で両端へ移ります。単一選択では、移動するたびにそのセグメントを選びます。複数選択では、Space か Enter でフォーカスのあるセグメントを切り替えます。右から左（RTL）のレイアウトでは、左矢印で次のセグメントへ移ります。
+- 無効なセグメントは矢印キーで飛ばされ、Tab で止まる位置にもならず、無効であることを伝えます。
+- 各セグメントのヒット領域は、セットの上下に最小ターゲットまで広がります。隣どうしのセグメントは互いの上にヒット領域を広げられないので、各セグメントの幅も最小ターゲット以上になります。
+- フォーカスインジケーターは、フォーカスのあるセグメントの内側に描きます。輪郭や隣のセグメントに隠されることはありません。表示するのはキーボードフォーカスのときだけです。
+- 文字を大きくすると、ラベルが折り返し、すべてのセグメントがいちばん高いものに合わせて伸びます。アイコンの大きさは変わりません。
+- セットやセグメントのラベルがない場合、アイコンのないセグメントでラベルを隠そうとした場合、`value` や `values` がどのセグメントも指していない場合、セグメントの値が空か重複している場合、セグメントが 2 個未満か 6 個以上の場合は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- Web の複数選択のセットは、セグメントを囲むリストを通して各セグメントの位置を伝えます。トグルボタンは自分では位置を持てないためです。
+- SwiftUI にはラジオグループのロールがありません。セットはラベルを名前とするコンテナです。単一選択のセグメントは、選択のトレイトを持つボタンで、位置（「2 of 3」）を値として伝えます。この文言は今のところ英語だけです。複数選択のセグメントはトグルで、位置を伝えません。独自の値を持たせると、トグルのオンとオフの読み上げが置き換わってしまうためです。
+- SwiftUI：セットは、SwiftUI のセグメント形式のピッカーと同じく、与えられた幅いっぱいに広がります。本来の幅にとどめるには `.fixedSize(horizontal: true, vertical: false)` を付けます。セグメントの影とフォーカスリングは、すべての角をそのセグメントのいちばん大きい角の丸みで描きます。アイコンに渡した SF Symbols は、選択されても塗りつぶしの形に変わりません。`.fill` のシンボルを自分で渡してください。矢印キーの動きはルールとしてテストしており、シミュレーター上のキーボードでは確かめていません。
+- Compose にはラジオグループのロールがありません。セットは選択可能なグループで、各セグメントは、絞り込みチップと同じく、ラジオボタン（単一選択）か切り替え可能なボタン（複数選択）です。
+- Flutter は、セグメントの位置もセグメントの数も伝えません。また、複数選択のセットは、グループではなくラベルを名前とするコンテナになります。Flutter のセマンティクスにどちらのプロパティもないためです。
+- React Native：同じ幅にそろえるために、最初のレイアウトの後で各ラベルの幅を測っています。そのため、最初のフレームで親がセットより狭いと、いちばん長いラベルより狭い幅になることがあります。ハードウェアキーボードでの矢印キーと、Android で選択中のセグメントの影が隣の上に落ちるかどうかは、実機でまだ確かめていません。
+- `cupertino` システムでは、small と medium のセットの高さが 28 と 32 ではなく 30 と 34 になります。また、両端のセグメントは、外側の角より内側の角のほうが丸くなります。どちらもトークンか仕様の判断を待っています。
+
+### 利用者側で行うこと
+
+- セットにラベルを付け、アイコンだけのものも含めて、すべてのセグメントにラベルを付けます。
+- 選んだ結果は、コントロールの近くにすぐ表れるようにします。単一選択では、キーボード利用者は移動するだけで選ぶので、反映が遅いと矢印キーが効いていないように感じられます。どうしても時間がかかるなら、結果が表れる場所に進行状況を表示します。
+- 無効なセグメントがある理由が分かりにくいときは、近くで理由を伝えます。
+- Web のセグメントボタンはフォームコントロールではありません。フォームと一緒に値を送るときは、`change` を受けて hidden の input に値を写します。

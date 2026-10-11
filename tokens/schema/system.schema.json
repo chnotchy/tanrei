@@ -1,0 +1,570 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tanrei.chnotchy.com/schemas/system.schema.json",
+  "title": "Tanrei design system layer",
+  "description": "A design system expressed as a layer over Tanrei's vocabulary. A layer changes values — dials, palettes, per-token rules — and adds tokens only through its `vocabulary`, additively and with a rationale. Presets extend `tanrei`; a product extends a preset.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "Must equal the file name: <id>.system.json"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "extends": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "Id of the parent layer — an id, never a path. Only the root layer `tanrei` omits it."
+    },
+    "specVersion": {
+      "type": "string",
+      "description": "Version of the role table. Bump when role rules change meaningfully."
+    },
+    "unavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "What this system does not ship: components, and values of a component's `variant` prop. A layer that declares `unavailable` replaces its parent's list; a layer that omits it inherits the parent's. An empty object ships everything.",
+      "properties": {
+        "components": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          },
+          "description": "Component names from specs/inventory.json."
+        },
+        "variants": {
+          "type": "object",
+          "description": "component name → the values of its `variant` prop this system does not ship. At least one value must stay.",
+          "additionalProperties": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "description": "For a layer that imitates another design system: what it is inspired by and under which license its values were obtained. Rendered into NOTICE and the docs.",
+      "additionalProperties": false,
+      "required": [
+        "inspiredBy",
+        "disclaimer"
+      ],
+      "properties": {
+        "inspiredBy": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "license",
+              "url"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "license": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "disclaimer": {
+          "type": "string"
+        }
+      }
+    },
+    "palettes": {
+      "type": "object",
+      "description": "Declared palettes. Later layers replace a palette of the same name; `null` drops an inherited one (its roles leave this system, so anything that pointed at them must be re-pointed).",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Required when `roles` is set on a palette that is not a core intent: why does this system need it? It becomes the one-product rationale of the generated roles."
+              },
+              "source": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "seed"
+                    ],
+                    "properties": {
+                      "seed": {
+                        "$ref": "#/$defs/hex"
+                      },
+                      "tones": {
+                        "type": "object",
+                        "description": "Exact colors for single tones (0–100), e.g. a published ramp tuned by hand or a brand color that must not be recomputed. Every other tone is generated from the seed (or hue and chroma).",
+                        "propertyNames": {
+                          "pattern": "^(100|[1-9]?[0-9])$"
+                        },
+                        "additionalProperties": {
+                          "type": "string",
+                          "pattern": "^#[0-9a-fA-F]{6}$"
+                        },
+                        "minProperties": 1
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "hue",
+                      "chroma"
+                    ],
+                    "properties": {
+                      "hue": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 360
+                      },
+                      "chroma": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "tones": {
+                        "type": "object",
+                        "description": "Exact colors for single tones (0–100), e.g. a published ramp tuned by hand or a brand color that must not be recomputed. Every other tone is generated from the seed (or hue and chroma).",
+                        "propertyNames": {
+                          "pattern": "^(100|[1-9]?[0-9])$"
+                        },
+                        "additionalProperties": {
+                          "type": "string",
+                          "pattern": "^#[0-9a-fA-F]{6}$"
+                        },
+                        "minProperties": 1
+                      }
+                    }
+                  }
+                ]
+              },
+              "roles": {
+                "enum": [
+                  "intent"
+                ],
+                "description": "Generate the four roles of an intent for this palette: <name>, on-<name>, <name>-container, on-<name>-container, with contrast checks."
+              }
+            }
+          }
+        ]
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "description": "Per-token operations, keyed by token id. The id must exist: in core, or declared under `vocabulary` by this layer or an ancestor.",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9-]*\\.(dial|ref|sys|comp)\\.[a-z0-9][a-z0-9.-]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/operation"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "description": "Pattern rules for per-state component tokens. `*` matches one id segment and is available as $1, $2… in the operation. An explicit entry in `tokens` beats a pattern; among patterns, fewer wildcards win, then the later layer.",
+      "items": {
+        "type": "object",
+        "required": [
+          "match"
+        ],
+        "properties": {
+          "match": {
+            "type": "string",
+            "pattern": "^tanrei\\.comp\\.[a-z0-9.*-]+$"
+          },
+          "$value": {},
+          "reason": {
+            "type": "string"
+          },
+          "derive": {
+            "$ref": "#/$defs/rule"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "vocabulary": {
+      "type": "object",
+      "description": "Extensions of the vocabulary declared by this layer. `vocabulary` says that something exists; `tokens` and `rules` give it a value. Additive only: an id that core or an ancestor layer already declares cannot be declared again. Three kinds, told apart by shape: a token (`$type`) inside Tanrei's tree — a step in a series; an axis value (`from`) keyed `tanrei.comp.<component>.<axis>.<value>` — or, in a sys series whose steps are groups of tokens, a whole step cloned with `from` (a named spring set, `tanrei.sys.motion.spring.<scheme>.<name>`); a token in this layer's own namespace (`<layer id>.(sys|comp).…`).",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9-]*\\.(sys|comp)\\.[a-z0-9][a-z0-9.-]*$"
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/declaredToken"
+          },
+          {
+            "$ref": "#/$defs/declaredAxisValue"
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "hex": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "$type": {
+          "type": "string",
+          "description": "Optional assertion; it must match the vocabulary's type."
+        },
+        "$value": {
+          "description": "An alias (\"{tanrei.sys…}\") re-points the token. A literal pins it, exempt from dials, and needs `reason`. For a choice of kind (tanrei.sys.behavior.*) the literal is one of the token's names (\"ripple\") or its index. For a fontFamily it is the font stack: named families first, then a system or generic fallback."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 8
+        },
+        "derive": {
+          "$ref": "#/$defs/rule"
+        },
+        "scale": {
+          "description": "Multiply the inherited definition by N without restating it. For typography, a map of fields.",
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          ]
+        }
+      },
+      "description": "`$value` and `derive` may be combined on a typography token: `$value` pins the named fields (say lineHeight and fontWeight) and `derive` rules the rest (fontSize, letterSpacing)."
+    },
+    "declaredToken": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "$type",
+        "rationale"
+      ],
+      "description": "A new token. It needs a value: inline here (`$value` + `reason`, an alias, or `derive`), or under `tokens`.",
+      "properties": {
+        "$type": {
+          "enum": [
+            "color",
+            "dimension",
+            "number",
+            "duration",
+            "typography",
+            "shadow",
+            "cubicBezier",
+            "fontFamily",
+            "fontWeight"
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 8,
+          "description": "Why this design system or product needs the distinction. Shown wherever the token is shown."
+        },
+        "$description": {
+          "type": "string"
+        },
+        "$value": {
+          "description": "An alias (\"{tanrei.sys…}\") re-points the token. A literal pins it, exempt from dials, and needs `reason`."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 8
+        },
+        "derive": {
+          "$ref": "#/$defs/rule"
+        },
+        "onRole": {
+          "type": "string",
+          "pattern": "^tanrei\\.sys\\.color\\.[a-z0-9-]+$",
+          "description": "For a color role: the role drawn on top of it. Registers the pair with the contrast invariants."
+        }
+      }
+    },
+    "declaredAxisValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "rationale"
+      ],
+      "description": "A value cloned from an existing one. On a component axis (a size, a variant): every member token of the axis is cloned from the `from` value; `scale` multiplies the numeric members, still following the dials. In a sys series whose steps are groups of tokens (a named spring set, `tanrei.sys.motion.spring.<scheme>.<name>`): the whole group is cloned from the sibling `from`, so it can never be half a spring; `scale` does not apply. Override single members under `tokens`.",
+      "properties": {
+        "from": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$",
+          "description": "The existing value of the same axis — or the existing step of the same series — to start from."
+        },
+        "scale": {
+          "description": "Multiply the inherited definition by N without restating it. For typography, a map of fields.",
+          "oneOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 8
+        },
+        "$description": {
+          "type": "string"
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "description": "One rule of the closed, declarative rule language: mul, scale, clamp, em (numeric — packages/token-engine/src/rules.js) and tone, alpha, mix, contrast-pick (color — palette.js for color roles, states.js for per-state component tokens). `{ \"fixed\": \"<reason>\" }` keeps a literal. On a typography token the rule is a map of field → rule (fontSize, letterSpacing). No addition, conditionals, strings or functions of your own.",
+      "properties": {
+        "fn": {
+          "enum": [
+            "mul",
+            "scale",
+            "clamp",
+            "em",
+            "tone",
+            "alpha",
+            "mix",
+            "contrast-pick"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "tone"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "palette",
+              "tone"
+            ],
+            "properties": {
+              "palette": {
+                "type": "string",
+                "description": "A palette this system declares."
+              },
+              "tone": {
+                "description": "0–100. A number; [standard, medium, high]; or { \"light\": […], \"dark\": […] }. Legal on a color role and on a per-state component color (an explicit tone per state: rest 80, hover 70, pressed 40)."
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "contrast-pick"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "on",
+              "from"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "fn": {},
+              "on": {
+                "type": "string",
+                "pattern": "^\\{[a-z][a-z0-9-]*(\\.[a-z0-9][a-z0-9-]*)+\\}$",
+                "description": "The color token the result must be readable on."
+              },
+              "from": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "string",
+                  "pattern": "^\\{[a-z][a-z0-9-]*(\\.[a-z0-9][a-z0-9-]*)+\\}$"
+                },
+                "description": "The candidates. The one with the highest WCAG contrast against `on` wins, decided per scheme; the first wins a tie. On a color role: color roles or {tanrei.ref.palette.<palette>.<tone>}."
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "mix"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "base",
+              "with",
+              "amount"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "alpha"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "of",
+              "amount"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "mul"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "of",
+              "by"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "scale"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "base",
+              "ratio",
+              "step"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "clamp"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "of",
+              "min",
+              "max"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "fn"
+            ],
+            "properties": {
+              "fn": {
+                "const": "em"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "by"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

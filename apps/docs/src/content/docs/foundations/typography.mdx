@@ -1,0 +1,175 @@
+---
+title: Typography
+description: Sixteen text styles named by level — one display, six headings, three body sizes, labels, code, an eyebrow — set in Inter, with emphasis as a weight step rather than a role.
+---
+
+import TokenNotes from '../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../components/tokens/SystemValues.astro';
+
+Tanrei's text styles are named by the **level** a piece of text has in a page, not by a size class. There are sixteen roles: one `display`, `heading-1` to `heading-6`, three sizes of running text, three roles for text in and around controls, two for code, and an `eyebrow`. An `h2` is `heading-2`; a paragraph is `body`; the text on a button is `label`. Nobody has to remember which of three fourteen-pixel roles a table heading is.
+
+A role is a complete type style: family, size, weight, line height and tracking. Components bind to roles, never to raw sizes, and a [layer](/foundations/design-systems/) re-values a role without renaming it.
+
+## The sixteen roles
+
+| Role | Default | Use |
+| --- | --- | --- |
+| `display` | 48px · 450 · brand face | The one hero size: a landing screen's statement, a splash. Not a heading level. |
+| `heading-1` | 32px · 500 · brand face | `h1`, the page's title. |
+| `heading-2` | 24px · 500 · brand face | `h2`, a section. |
+| `heading-3` | 20px · 500 · brand face | `h3`, a subsection. |
+| `heading-4` | 18px · 500 | `h4`, a group inside a section. |
+| `heading-5` | 16px · 500 | `h5`, and the title of a card, a dialog or a list item. |
+| `heading-6` | 14px · 500 | `h6`, and a table's or a form section's heading. |
+| `body-large` | 16px · 400 | Lead text and long reading. |
+| `body` | 14px · 400 | `p`: the default text of an interface. |
+| `body-small` | 13px · 400 | `small`: secondary text, one step down. |
+| `label` | 14px · 500 | Text inside and next to controls: buttons, inputs, navigation. |
+| `label-small` | 12px · 500 | Chips, badges, dense controls. |
+| `caption` | 11px · 500 | Helper text, metadata, timestamps. |
+| `code` | 13px · 400 · mono | `code` and `pre`. |
+| `code-small` | 12px · 400 · mono | Code inside dense UI. |
+| `eyebrow` | 12px · 500 · tracked | A section's kicker above a heading, uppercase by the component. |
+
+Every family is strictly monotonic in size: no heading is smaller than the next heading down, no body role is smaller than the next body role. Where a heading and a body role share a size — `heading-6` and `body` are both 14px, `heading-5` and `body-large` both 16px — the default system's rule is one sentence: **headings weigh 500, body weighs 400.** A preset sets its own weights (`m3-like`'s `heading-1` is Material's 400).
+
+Pick the level the text has, not the size you want. An `h2` that must look small is still `heading-2`; a product that wants smaller section headings re-values `heading-2` in its layer, and every `h2` follows.
+
+### HTML and Markdown elements → roles
+
+| Element | Role |
+| --- | --- |
+| `h1` … `h6` | `heading-1` … `heading-6` |
+| `p`, `li`, `td` | `body` (`body-large` in prose at its reading size) |
+| A lead paragraph | `body-large` |
+| `small` | `body-small` |
+| `code`, `pre` | `code` |
+| `strong`, `b` | the role it sits in, at the emphasized weight |
+| `button`, `input`, `label` | `label` |
+| A kicker above a heading | `eyebrow` |
+
+On the web `@tanrei/web/text.css` gives every role a utility class, `.tanrei-text-<role>`, that sets all five fields of the role; `.tanrei-text-emphasized` on the same element or a descendant switches to the emphasized weight. It reads the custom properties of the active system, so it follows `data-tanrei-system`, the dials and a re-valued role.
+
+```html
+<h2 class="tanrei-text-heading-2">Section</h2>
+<p class="tanrei-text-body">Running text with <strong class="tanrei-text-emphasized">stress</strong>.</p>
+```
+
+### Prose: text you did not lay out
+
+A help article, release notes, terms, a message written in Markdown, a page from a CMS: the product does not place that text piece by piece, and it still has to read as one text with the rest of the interface. **Prose** is the part of the system for it — the table above applied to whatever a renderer produces, with one vertical rhythm and a limit on line length. It styles and spaces; it does not parse. Tanrei ships no Markdown parser on any platform.
+
+On the web it is a class from `@tanrei/web/prose.css`. This page is drawn by it.
+
+```html
+<article class="tanrei-prose">…h1, p, ul, blockquote, hr…</article>
+<article class="tanrei-prose" data-size="large">…</article>
+```
+
+- **Two sizes.** `medium` sets running text in `body`, for prose among controls: a panel, a dialog, a card. `large` sets it in `body-large`, for a page whose purpose is the text. Headings are the same at both.
+- **One space between two neighbours.** Blocks are one gap apart; a heading has more space before it than after it, so it belongs to what follows; a heading directly under a heading takes the upper one's space. Spaces never add up, and the first and last blocks have none.
+- **A measure.** Text blocks are at most 36 ems of the running text wide — about 72 to 80 Latin characters, 36 Japanese ones. A table, a code block, a figure or any component placed in the flow takes the full width. `data-measure="false"` lifts the limit where the container is already narrow.
+- **No text color.** Prose takes the content color of the surface it sits on, so the same text reads on a page, in a card and in a callout.
+- **Components stay themselves.** What is inside a Tanrei element, or inside a part marked `tanrei-not-prose`, is not styled by prose; prose only spaces it.
+- **Links are underlined at rest**, so that color alone never tells a link from the text beside it.
+- **Languages.** Japanese and Chinese lines break by their own rules; emphasis in Chinese, Japanese and Korean is upright at the emphasized weight, because those scripts have no italic; their headings are set without the negative tracking of the Latin headings. Direction is the place's: a right-to-left layout puts list insets, a quote's line and the text's edge on the right.
+
+A heading can carry an anchor — a link to itself, after the end of its text, shown when the heading is hovered or the link is focused and always shown where there is no hover:
+
+```html
+<div class="tanrei-prose-heading">
+  <h2 id="install">Install</h2>
+  <a class="tanrei-prose-anchor" href="#install" aria-label="Link to: Install">…</a>
+</div>
+```
+
+Every value is a `comp.prose.*` token, so a layer can re-point the rhythm without touching a margin. The behaviour is written down as `specs/prose.spec.json`; the web implements it first, and the other platforms follow.
+
+## Emphasis is a weight, not a role
+
+To stress text without changing its level — the selected tab, a key figure, `strong` inside a paragraph — a platform draws the role at its weight plus a **step** for its family. The four steps are tokens:
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />
+
+Tanrei adds 100 to every family, so an emphasized `heading-1` is 600 and an emphasized `body` is 500. A design system that stresses differently per family sets the four numbers: `m3-like` adds 200 to labels, as Material's emphasized label styles do; `cupertino` adds 200 to headings, body and labels. A role's family is the first segment of its name; `caption`, `code`, `code-small` and `eyebrow` take the label step.
+
+Every platform exposes the same modifier: `emphasized` on the text-style API (`.tanreiTextStyle(system.typescale.heading1, emphasized: true)` in SwiftUI, `typescale.heading1.emphasized()` in Compose — `emphasized(system.typescale.emphasis)` outside composition — `theme.textStyle(system.typescale.heading1, emphasized: true)` in Flutter, `text('heading1', { emphasized: true })` from `useTanrei()` in React Native, `--tanrei-sys-typescale-<role>-font-weight-emphasized` and `.tanrei-text-emphasized` on the web). There are no emphasized roles to name and no second scale to keep in step.
+
+## Typefaces
+
+The default families are **Inter** for Latin text, **Noto Sans JP** for Japanese and **Roboto Mono** for code, all openly licensed (SIL OFL 1.1 and Apache-2.0). The stack continues with Noto Sans for other scripts and then the system UI font, so text degrades gracefully where the fonts are not loaded. A product that ships further scripts adds the Noto family of each — Noto Sans KR, SC, TC, Arabic, Devanagari, Thai — to the stack in its layer; for Chinese, Japanese and Korean set `lang` on the page as well, because the three share code points and the font order decides which glyph forms appear. Tanrei does not bundle font files; [a product supplies them](#referenced-by-name-never-bundled).
+
+<TokenNotes tokens={['ref.typeface.brand', 'ref.typeface.plain', 'ref.typeface.mono']} source={['tokens/ref/typeface.tokens.json']} />
+
+## Typefaces per design system
+
+Typefaces belong to the design system. The roles are built on three stacks — `ref.typeface.brand` for `display` and `heading-1` to `heading-3`, `plain` for the smaller headings, running text, labels and the eyebrow, `mono` for code — and a [layer](/foundations/design-systems/) changes the typeface everywhere by giving a stack a new value. What the shipped systems resolve to:
+
+<SystemValues tokens={['ref.typeface.brand', 'ref.typeface.plain', 'ref.typeface.mono']} />
+
+This is how `m3-like` sets its text in Roboto:
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.brand": { "$value": ["Roboto", "system-ui", "sans-serif"], "reason": "Material Design 3's default typeface; Roboto is OFL-licensed." },
+  "tanrei.ref.typeface.plain": { "$value": ["Roboto", "system-ui", "sans-serif"], "reason": "Material Design 3's default typeface; Roboto is OFL-licensed." },
+  "tanrei.ref.typeface.mono":  { "$value": ["Roboto Mono", "ui-monospace", "monospace"], "reason": "The monospace companion of Roboto (OFL)." }
+}
+```
+
+Components are untouched: they bind to roles, and the roles reference the stacks.
+
+### How a stack is read
+
+A stack is written the way CSS writes one, because that is the form every design tool understands. Only the web can use it as written, so the build reads each stack once and hands every platform the same four facts:
+
+| Field | Meaning |
+|---|---|
+| `stack` | the list as written |
+| `families` | the *named* families, in order — the ones a product can install or register |
+| `generic` | the class of font to fall back to: `sans-serif`, `serif` or `monospace` |
+| `system` | `true` when the stack asks for the platform's own font before any named family |
+
+The default `brand` stack, `Inter, Noto Sans JP, Noto Sans, system-ui, sans-serif`, reads as families Inter, Noto Sans JP and Noto Sans, generic `sans-serif`, `system` false: `system-ui` comes after the named families, so it is only the fallback. The `cupertino` stack starts with `-apple-system`, so it reads as `system` true with Inter as the one named family: the platform's own font first, Inter where a platform has no such notion.
+
+A platform uses the named families in order, then its own font of the `generic` class; when `system` is true its own font comes first. Platforms do not interpret `system-ui`, `ui-monospace` or the generic keywords themselves.
+
+### Referenced by name, never bundled
+
+Tanrei ships no font files, for any design system. A stack is a list of names, and a product supplies the fonts behind the names it wants. A family that is not there is skipped, so text still renders in the next family or in the platform font, with the role's size, weight, line height and tracking unchanged.
+
+| Platform | How a product supplies a named family |
+|---|---|
+| Web | Load it under exactly that family name: your own `@font-face`, Google Fonts, or a font package. |
+| SwiftUI | Add the font files to the app and register them (`UIAppFonts` / `ATSApplicationFontsPath`, or `CTFontManagerRegisterFontsForURL`). |
+| Jetpack Compose | Put the fonts in the app's font resources and map names to them with `TanreiFontFamilies`, passed to `TanreiTheme`. |
+| Flutter | Declare the font files in the app's `pubspec.yaml` under the same family names. |
+| React Native | Link the font files (`npx react-native-asset`, or `expo-font`). React Native has no fallback list and picks a file per weight, so pass `resolveFont` to `TanreiProvider` when your fonts are registered under one name per weight. |
+
+The getting-started guides and each package's README have the details. Check a typeface's license before you ship it: the defaults are openly licensed, and `cupertino` refers to Apple's fonts by keyword or name only, because they may not be bundled or used on other platforms; elsewhere it falls back to an openly licensed face.
+
+## How presets re-value and extend the scale
+
+A preset that imitates another design system keeps the sixteen names and gives them that system's values; where its source has a style the core does not name, it *extends* the vocabulary with a role of its own. The names never move, so a product built on `tanrei` moves to `m3-like` without touching a heading.
+
+- **`m3-like`** re-values every role from Material Design 3's type scale — `heading-1` takes Material's *headline large*, `body` its *body medium*, `label` its *label large* — and adds `display-large` (57px) and `display-small` (36px), because Material has three display sizes and one product needs one. Its emphasis steps are Material's: 100 on display, headings and body, 200 on labels. The fidelity harness measures every text style Material publishes, all thirty including the emphasized ones, alongside the color roles and Button: of 288 measured tokens, 273 are equal, 14 are covered by another token, 1 is unmapped under a registered mimicry gap, and none is different — shown as 273 / 274 on the [design systems page](/foundations/design-systems/), which counts the covered ones out. The numbers are read from `tokens/generated/m3-like/fidelity.json`, which the build rewrites.
+- **`cupertino`** re-values every role from Apple's eleven iOS text styles — Large Title down to Caption 2 — and adds the three the core does not name: `body-callout`, `body-subhead` and `caption-small`. Its emphasis steps are 100 on display and 200 elsewhere, which is the distance between Apple's regular and emphasized styles.
+
+A role a preset adds is an ordinary token on every platform: `m3-like`'s `display-large` is `--tanrei-sys-typescale-display-large-font` on the web and a member of the typescale on each native package. The Theme Studio preview draws it in the type ramp beside the sixteen.
+
+## Character
+
+- **Display and headings are tight.** Large type is set with negative tracking — −0.04em on `display`, −0.03em on `heading-1`, easing to −0.01em at `heading-5` — which keeps big headings calm; `display` at weight 450 stays light.
+- **Small sizes open up.** `body-small`, `label-small`, `caption` and `eyebrow` carry slight positive tracking so that 11–13px text stays legible.
+- **Weights are numbers.** Because Inter is a variable font, weights such as 450 are valid and are preserved on every platform that supports variable axes. The emphasis steps are numbers for the same reason: 450 + 100 is a real weight.
+- **Mono is for code.** `code` and `code-small` use Roboto Mono. The `eyebrow` is set in the plain face — small, tracked wide, and uppercased by the component, never by the token.
+
+## Languages
+
+Line heights are chosen so that mixed Latin and CJK text does not clip, and Japanese inherits the same roles. Negative tracking is a Latin-script device; when a heading is mostly Japanese, prefer neutral tracking, as this site does.
+
+## Scaling
+
+Type sizes are expressed in relative units on the web (`rem`) and scale with the user's text-size setting on every platform. Layouts must tolerate text at 200%: containers grow, and labels wrap before they truncate. Every size is a coefficient on `dial.type.base` with `dial.type.contrast` as the exponent, so one dial moves the whole scale and the other spreads the headings from the body.
+
+See every role with live specimens in the [typescale reference](/tokens/typescale/).

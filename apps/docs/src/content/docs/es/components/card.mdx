@@ -1,0 +1,285 @@
+---
+title: Tarjeta
+description: Separa de su fondo un grupo de contenido relacionado, y puede ser una sola acción que abre lo que muestra o un solo enlace hacia ello.
+translationOf: components/card.mdx
+sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="card" />
+
+<DemoFrame label="Variantes">
+  <tanrei-card style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Filled</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Los ingresos crecieron un 12% respecto al trimestre anterior.</div>
+  </tanrei-card>
+</DemoFrame>
+
+Una tarjeta tiene tres formas. Una tarjeta simple es un contenedor: su contenido conserva su propia semántica y puede incluir botones y enlaces. Una tarjeta interactiva es un solo botón. Una tarjeta de enlace, es decir, una tarjeta con `href`, es un solo enlace. Usa una tarjeta de enlace cuando activarla lleve a la persona a otra página o dirección, y una tarjeta interactiva cuando algo ocurra donde la persona está.
+
+### Uso
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native van rezagados: ofrecen la tarjeta simple y la interactiva, y todavía no la tarjeta de enlace. Sus ejemplos muestran lo que ofrecen.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Una tarjeta que no es una acción: su contenido conserva su propia semántica y puede incluir botones. -->
+    <tanrei-card>
+      <h3 class="tanrei-text-heading-5">Informe trimestral</h3>
+      <p class="tanrei-text-body">Los ingresos crecieron un 12% respecto al trimestre anterior.</p>
+      <tanrei-button variant="text">Compartir</tanrei-button>
+    </tanrei-card>
+
+    <!-- Una sola acción: toda la tarjeta es un botón, que recibe su nombre de label. Nada interactivo dentro. -->
+    <tanrei-card variant="elevated" interactive label="Informe trimestral">…</tanrei-card>
+
+    <!-- Un solo enlace: con href toda la tarjeta es un ancla, que recibe su nombre de label. Nada interactivo dentro. -->
+    <tanrei-card href="/reports/q3/" label="Informe trimestral">…</tanrei-card>
+
+    <!-- Un enlace que abre una pestaña nueva lo dice con tus palabras. La tarjeta no dibuja ninguna marca: pon el glifo en tu contenido. -->
+    <tanrei-card href="https://example.com/reports/q3.pdf" target="new" target-label="se abre en una pestaña nueva" label="Informe trimestral">
+      <h3 class="tanrei-text-heading-5">Informe trimestral</h3>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </tanrei-card>
+
+    <!-- inset es true de forma predeterminada, así que su atributo es el inverso: flush deja que una foto llegue a los bordes. -->
+    <tanrei-card flush>
+      <img src="cover.jpg" alt="" />
+      <div style="padding: var(--tanrei-comp-card-container-padding)">…</div>
+    </tanrei-card>
+
+    <script type="module">
+      import '@tanrei/web/components/card';
+      document.querySelector('[interactive]').addEventListener('click', openReport);
+
+      // Una tarjeta de enlace emite click antes de que el navegador siga la dirección. Un enrutador del lado del cliente lo cancela.
+      document.querySelector('tanrei-card[href]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push(event.currentTarget.href);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Card } from '@tanrei/react';
+
+    <Card variant="filled">
+      <h3 className="tanrei-text-heading-5">Informe trimestral</h3>
+      <p className="tanrei-text-body">Los ingresos crecieron un 12% respecto al trimestre anterior.</p>
+    </Card>
+    <Card interactive label="Informe trimestral" onClick={openReport}>…</Card>
+    <Card href="/reports/q3/" label="Informe trimestral">…</Card>
+    <Card href="https://example.com/reports/q3.pdf" target="new" targetLabel="se abre en una pestaña nueva" label="Informe trimestral">…</Card>
+    <Card inset={false}>…</Card>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCard(variant: .filled) {
+        Text("Informe trimestral")
+        Text("Los ingresos crecieron un 12% respecto al trimestre anterior.")
+    }
+
+    // El inicializador que recibe action: es la tarjeta interactiva.
+    TanreiCard(label: Text("Informe trimestral"), action: openReport) { ReportSummary() }
+        .disabled(isLoading)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiCard
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiCardVariant
+
+    // Sin onClick la tarjeta no es una acción, así que puede incluir botones.
+    TanreiCard(variant = TanreiCardVariant.Filled) {
+        TanreiText("Informe trimestral")
+        TanreiText("Los ingresos crecieron un 12% respecto al trimestre anterior.")
+        TanreiButton(text = "Compartir", onClick = ::share)
+    }
+
+    // La sobrecarga con onClick es una sola acción. enabled = false la deshabilita.
+    TanreiCard(onClick = ::openReport, contentDescription = "Informe trimestral") {
+        TanreiText("Informe trimestral")
+        TanreiText("Los ingresos crecieron un 12% respecto al trimestre anterior.")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCard(
+      variant: TanreiCardVariant.filled,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Text('Informe trimestral'),
+          const Text('Los ingresos crecieron un 12% respecto al trimestre anterior.'),
+          TanreiButton(onPressed: share, child: const Text('Compartir')),
+        ],
+      ),
+    );
+
+    // Un onTap no nulo convierte toda la tarjeta en una sola acción; enabled: false la deshabilita.
+    TanreiCard(
+      onTap: openReport,
+      semanticLabel: 'Informe trimestral',
+      child: const ReportSummary(),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Text } from 'react-native';
+    import { Card, useContentColor } from '@tanrei/react-native';
+
+    // Una cadena simple se dibuja con el estilo body y el color de contenido de la tarjeta.
+    <Card variant="filled">Los ingresos crecieron un 12% respecto al trimestre anterior.</Card>
+
+    // Con onPress la tarjeta es una sola acción, que recibe el nombre de su encabezado.
+    <Card accessibilityLabel="Informe trimestral" onPress={openReport}>
+      <ReportSummary />
+    </Card>
+
+    // Tu propio texto lee el color de contenido de la tarjeta: React Native no tiene color de texto heredado.
+    function ReportSummary() {
+      const color = useContentColor();
+      return <Text style={{ color }}>Los ingresos crecieron un 12% respecto al trimestre anterior.</Text>;
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="A ras, interactiva y deshabilitada" plain>
+  <tanrei-card flush style="width: 15rem">
+    <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
+    <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">A ras: el contenido llega a los bordes.</div>
+  </tanrei-card>
+  <tanrei-card interactive label="Informe trimestral" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Informe trimestral</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Interactiva: pasa el cursor por encima, llega a ella con Tab, púlsala.</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" interactive disabled label="Informe trimestral" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Informe trimestral</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Interactiva y deshabilitada.</div>
+  </tanrei-card>
+</DemoFrame>
+
+<DemoFrame label="Tarjetas de enlace" plain>
+  <tanrei-card href="/es/components/button/" label="Botón" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Botón</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Una tarjeta de enlace. Enter la sigue, y el menú de enlaces del navegador funciona en ella.</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" href="/es/components/list/" target="new" target-label="se abre en una pestaña nueva" label="Lista" style="width: 15rem">
+    <div style="display: flex; align-items: center; gap: var(--tanrei-sys-space-space200)">
+      <div style="flex: 1; font: var(--tanrei-sys-typescale-heading-5-font)">Lista</div>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Se abre en una pestaña nueva. El glifo forma parte del contenido.</div>
+  </tanrei-card>
+  <tanrei-card href="/es/components/button/" disabled label="Botón" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Botón</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Una tarjeta de enlace deshabilitada: no hay nada que seguir.</div>
+  </tanrei-card>
+</DemoFrame>
+
+<ComponentSpecs name="card" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa una tarjeta para agrupar contenido sobre un mismo asunto, como un informe, una persona, un producto o un ajuste, y separarlo de lo que lo rodea. La tarjeta solo aplica el margen interior, el recorte y el color a su contenido. Tú dispones el contenido con los estilos de texto de Tanrei (`heading-5` para el título de una tarjeta) y con sus componentes.
+
+Haz interactiva toda la tarjeta cuando sea una sola acción que abre lo que muestra. Si necesita varias acciones, mantenla no interactiva y pon botones dentro.
+
+### Una tarjeta con destino es un enlace
+
+Un control con destino es un enlace, y eso vale también para una tarjeta. Cuando activar la tarjeta solo lleve a la persona a otra página, dale `href` en lugar de gestionar un clic en una tarjeta interactiva. La tarjeta es entonces un enlace real, que en la web es un ancla alrededor de su contenido. Las personas pueden abrirla en una pestaña nueva, copiar su dirección y ver adónde lleva antes de seguirla, y la tecnología de apoyo anuncia un enlace, no un botón. Las tarjetas que llevan de una página de este sitio a otra son tarjetas de enlace.
+
+- Una tarjeta de enlace se ve exactamente igual que una tarjeta interactiva en todos los estados. No hay aspecto de enlace ni estado visitado.
+- `href` prevalece sobre `interactive`: una tarjeta con ambos es un enlace.
+- Enter sigue una tarjeta de enlace. Espacio no: hace lo mismo que en cualquier enlace, que en la web es desplazar la página.
+- `click` se emite primero, y después se abre el destino. Cancela el clic para encargarte tú de la navegación, como hace un enrutador del lado del cliente.
+- `target` es `same` (el valor predeterminado) o `new`. Un enlace que abre una pestaña o una ventana nueva necesita `targetLabel`, las palabras que se leen después de su nombre, como «se abre en una pestaña nueva». Tanrei no incluye textos propios. La tarjeta no dibuja ninguna marca para ello, porque el contenido es tuyo: pon el glifo `open_in_new` en el contenido si quieres mostrar una.
+- Una tarjeta de enlace deshabilitada no se puede seguir de ningún modo y sale del orden del foco.
+- Un `href` que solo contiene espacios en blanco no es un destino. Una dirección `javascript:`, o una que no se puede leer como dirección, se rechaza y se notifica en las compilaciones de depuración, y la tarjeta es lo que sería sin ella.
+
+Cuando una tarjeta necesite un destino y además acciones propias, mantenla simple y convierte su encabezado en un enlace, o pon dentro un [Button](/es/components/button/) con `href`.
+
+### Cómo elegir una variante
+
+Elige según el fondo, no según la importancia.
+
+| Variante | Separa mediante | Úsala para |
+| --- | --- | --- |
+| Outlined (predeterminada) | Un borde | La mayoría de las tarjetas, y las tarjetas sobre una superficie del mismo tono que una tarjeta filled. |
+| Filled | Un tono | Tarjetas sobre una superficie lisa, donde el tono basta para marcar el grupo. Una tarjeta filled desaparece sobre una superficie del mismo tono. |
+| Elevated | La profundidad | Contenido que queda por encima de la página, como un elemento fijado o que se puede arrastrar. |
+
+### Recomendado
+
+- Da nombre a una tarjeta interactiva o a una tarjeta de enlace con `label`, que normalmente es el texto de su encabezado.
+- Usa una sola variante para un conjunto de tarjetas que se muestran juntas.
+- Usa `inset` en false (`flush` en la web) para contenido multimedia que llega hasta los bordes, y aplica tú el margen interior al texto que hay debajo con el token de relleno de la tarjeta.
+
+### Evita
+
+- No pongas un botón, un enlace, un campo, un conmutador ni nada que pueda recibir el foco en una tarjeta interactiva o en una tarjeta de enlace. La tecnología de apoyo no puede llegar a ello, y una pulsación sobre ello también activaría la tarjeta.
+- No navegues desde el controlador de clic de una tarjeta interactiva. Una tarjeta que lleva a algún sitio recibe `href`.
+- No deshabilites una tarjeta simple. Ahí `disabled` se ignora, porque no hay ninguna acción ni enlace que deshabilitar.
+- No uses la elevación para ordenar las tarjetas por importancia.
+
+## Accesibilidad
+
+<ComponentAccessibility name="card" />
+
+### De qué se encarga el componente
+
+- Una tarjeta que no es interactiva no tiene rol y no toca la semántica de su contenido. Con un `label` es un grupo que recibe de él su nombre.
+- Una tarjeta interactiva es un solo elemento que puede recibir el foco, con el rol de botón, y expone su estado deshabilitado. Su nombre es `label` o, si no lo hay, todo su contenido leído como una sola cadena. Las compilaciones de depuración notifican que falta la etiqueta.
+- Una tarjeta de enlace es un solo elemento que puede recibir el foco, con el rol de enlace, y recibe su nombre del mismo modo. Mientras `target` sea `new`, `targetLabel` es su descripción, que se lee después de su nombre y su rol. Una tarjeta de enlace deshabilitada conserva el rol de enlace, expone el estado deshabilitado y no tiene destino.
+- Enter y Espacio activan una tarjeta interactiva, y solo Enter una tarjeta de enlace. El área de pulsación cumple el objetivo mínimo, y el indicador de foco se muestra solo para el foco del teclado.
+- Crece con su contenido, así que el texto grande nunca se recorta.
+- En la web, las compilaciones de depuración notifican, en cada cambio de slot, un elemento interactivo dentro de una tarjeta interactiva o de una tarjeta de enlace, y también una tarjeta de enlace que abre una pestaña nueva sin `targetLabel`.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native todavía no tienen tarjeta de enlace. En ellas, una tarjeta que lleva a algún sitio sigue siendo una tarjeta interactiva que navega desde su acción.
+- Web: un elemento interactivo añadido más tarde, a mayor profundidad dentro de un elemento que ya está en la tarjeta, no se notifica.
+- Web: una tarjeta que no es interactiva nunca produce un clic propio, pero un clic en su contenido es un clic corriente del DOM y se propaga a través de la tarjeta.
+- SwiftUI, Compose, Flutter y React Native no pueden detectar un elemento interactivo anidado, así que no lo comprueban. Cumplir la regla te corresponde a ti.
+- React Native: una tarjeta no interactiva con etiqueta es un grupo, pero iOS no asigna ningún rasgo a ese rol. No se ha verificado en un dispositivo si VoiceOver anuncia el nombre del grupo.
+- Compose: la activación con Enter y Espacio mediante la gestión de teclas de la plataforma solo se ha probado con Robolectric, todavía no en un dispositivo.
+- React Native no tiene color de texto heredado. La tarjeta dibuja una cadena simple con su color de contenido; tu propio texto lo lee con `useContentColor()`.
+- SwiftUI: una tarjeta interactiva más pequeña que el objetivo mínimo conserva su tamaño visible, pero ocupa en el diseño el tamaño del objetivo.
+
+### Qué debes hacer tú
+
+- Dale un `label` a una tarjeta interactiva o a una tarjeta de enlace. Sin él, todo el contenido se lee como un único nombre largo.
+- Dale a una tarjeta de enlace que abre una pestaña o una ventana nueva un `targetLabel` en el idioma de tu producto.
+- Mantén las tarjetas interactivas y las tarjetas de enlace libres de otros controles. Cuando una tarjeta necesite botones o enlaces propios, mantenla simple y deja que uno de ellos sea su acción o su destino principal.
+- Da su propia semántica a los encabezados, las imágenes y el resto del contenido de una tarjeta no interactiva: texto alternativo, niveles de encabezado. La tarjeta no añade ninguna.

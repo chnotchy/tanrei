@@ -1,0 +1,45 @@
+---
+title: Movimiento
+description: Tokens de movimiento basados en muelles, transiciones de estado breves y la obligación estricta de respetar la preferencia de reducir movimiento.
+translationOf: foundations/motion.mdx
+sourceHash: f42d4188d081ad9ba7c1139a83ea7129667b29a3
+---
+
+import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
+
+En Tanrei, el movimiento explica un cambio y luego se aparta. La mayor parte es una capa de estado que aparece con un fundido de 150 milisegundos.
+
+## Dos tipos de movimiento
+
+Los tokens de movimiento se organizan como muelles a lo largo de dos ejes:
+
+- Los muelles **espaciales** mueven o redimensionan cosas. Pueden sobrepasar ligeramente su destino, como un objeto físico al asentarse.
+- Los muelles de **efectos** cambian el color y la opacidad. Nunca se sobrepasan, porque un color que rebota parece un fallo.
+
+Cada tipo viene en **rápido**, **predeterminado** y **lento**. Las plataformas con animación de muelles real usan los valores de rigidez y amortiguación; CSS usa la duración y la aproximación con cubic-bezier que se guardan junto a ellos.
+
+Hay dos esquemas. **Estándar** es el predeterminado y tiene una amortiguación casi crítica. **Expresivo** es una capa adicional con más rebote, para los productos que lo quieran.
+
+## Duraciones y curvas de aceleración
+
+Para las transiciones que no son muelles se ofrecen duraciones y curvas de aceleración fijas.
+
+| Tipo de cambio | Pauta |
+| --- | --- |
+| Cambio de estado (paso del cursor, pulsación, selección) | 100–200ms |
+| Un elemento que entra | unos 300ms |
+| Una revelación grande | hasta 800ms, con los elementos escalonados cada 100ms |
+| Todo lo que sale | más rápido de lo que entró |
+
+<MotionTokens part="easing" />
+
+## Lo que no se mueve
+
+- **El anillo de foco aparece al instante.** Quien usa el teclado necesita ver dónde está sin esperar a una animación.
+- **Sin onda de forma predeterminada.** La respuesta a la pulsación es la capa de estado; la onda es una opción del tema, no un punto de partida.
+
+## Movimiento reducido
+
+Toda implementación debe respetar el ajuste de reducir movimiento de la plataforma. Con él activo, el movimiento espacial se elimina o se sustituye por un fundido cruzado breve, y nada se repite en bucle. Esto forma parte de la definición de terminado de cada componente, no es una mejora.
+
+Todos los valores figuran en la [referencia de tokens de movimiento](/es/tokens/motion/).

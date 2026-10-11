@@ -1,0 +1,339 @@
+---
+title: ナビゲーションバー
+description: コンパクトな画面の下端から、3〜5 個の最上位の行き先の間を移動し、今どこにいるかを示します。
+translationOf: components/navigation-bar.mdx
+sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="navigation-bar" />
+
+:::note[仕様は改訂済み、各プラットフォームは追従待ち]
+このページは、仕様の現在の形のナビゲーションバーを説明しています。[タブ](/ja/components/tabs/)にならった形です。アクティブインジケーターは、バーの幅を等分した今の行き先の持ち分全体で、バーの端から少し内側に収めて描きます。アイコンとラベルにぴったり沿うピルではありません。選択が変わると、その大きさのまま新しい行き先へスライドし、バーに沿ってドラッグすると、ポインターについて動きます。ホバー、押下、フォーカスも同じ箱の中に描きます。`variant` で Tonal（既定）と Filled を選べます。ほかのプロパティとイベントは、どちらの版でも同じです。上で追従待ち（lagging）と示したプラットフォームは、追いつくまで最初の版を提供します。`variant` もドラッグもなく、インジケーターがアイコンの後ろだけにあり、中央から広がって現れる形で、これらの例もその版のものです。このページのデモは、現在提供している Web コンポーネントです。
+:::
+
+<DemoFrame label="4 つの行き先。1 つに件数が付いています">
+  <tanrei-navigation-bar value="inbox" label="メイン" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="受信" icon="inbox" badge badge-count="3" badge-label="未読 3 件"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="チャット" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="スター" icon="star"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="settings" label="設定" icon="settings"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="Filled のバリアント：バーを押したまま横にドラッグすると、インジケーターがついて動きます" plain>
+  <tanrei-navigation-bar variant="filled" value="chat" label="メディア" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="home" label="ホーム" icon="home"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="チャット" icon="chat" badge badge-label="新着メッセージ"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="スター" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="リンクのバー：ページが自分のアドレスで今の行き先を伝え、「ヘルプ」は新しいタブで開く" plain>
+  <tanrei-navigation-bar value="/ja/components/navigation-bar/" label="コンポーネント" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item href="/ja/components/button/" label="ボタン" icon="smart_button"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/ja/components/navigation-bar/" label="バー" icon="bottom_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/ja/components/navigation-drawer/" label="ドロワー" icon="side_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="https://example.com/" label="ヘルプ" icon="help" target="new" target-label="新しいタブで開きます"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+### 使い方
+
+ナビゲーションバーが持つ項目の種類は `destination`（行き先）の 1 つだけです。アイコン、その下のラベル、アイコンに付けられるバッジでできています。行き先の渡し方は、各プラットフォームで繰り返しの子要素を渡すときの流儀に従います。Web では子要素の `<tanrei-navigation-bar-item>`、SwiftUI ではビュービルダーの中の `TanreiNavigationBarItem`、Compose ではコンテンツラムダの中の `TanreiNavigationBarItem` の呼び出し、Flutter では `destinations:` に並べた `TanreiNavigationDestination`、React Native ではプレーンなオブジェクトの配列 `destinations` です。
+
+選択は、行き先の値によってバーが持ちます。`value` が今の行き先を指し、`change` が選ばれた行き先を伝えます。今の行き先をもう一度選ぶと `reselect` が発火するので、その画面を一番上までスクロールし直すといった対応ができます。値が空なら何も選ばれません。バーの行き先に含まれない画面を表示しているときに使います。SwiftUI では新しい値が `selection` のバインディングに書き込まれます。2 つのプラットフォームは、それぞれ自前のナビゲーションバーと同じ流儀を保ちます。Compose にはバー全体の値がなく、今の項目に利用者側で `selected` を付け、その `onClick` が change と reselect の両方を兼ねます。Flutter は番号で選びます。`selectedIndex` と `onDestinationSelected` で、今の行き先が選ばれたときにも呼ばれます。
+
+`variant` は、今の行き先をどれだけ強く示すかを決めます。`tonal`（既定）はインジケーターを控えめに塗り、`filled` は強い色で塗って、その上のアイコンとラベルを反転させます。今のところ Web で使えます。
+
+`href` を持つ行き先はリンクです。プラットフォーム自身のリンクで、ボタンの行き先とまったく同じに描かれます。Enter で実行でき、Space では実行しません。バーは、押されてもリンクを選択しません。行き先の値と `href` を持つ `change` を発火し、そのあとでリンクがたどられます。[ナビゲーションドロワー](/ja/components/navigation-drawer/)と同じく、移った先のページが `value` で今の行き先を伝えます。`value` のないリンクは、`href` を自分の値とします。`target` と `targetLabel` は[ボタン](/ja/components/button/)のものと同じです。リンクの行き先があるのは Web です。SwiftUI、Compose、Flutter、React Native にはまだありません。
+
+行き先の `icon` は、デザインシステムのアイコンフォントにあるグリフの名前です。選ばれていない間はアウトライン、選ばれている間は塗りで描かれます。`badge`、`badgeCount`、`badgeLabel` を指定すると、アイコンの上に Tanrei のバッジを描きます。件数がなければ点、あればその数です。SwiftUI、Compose、Flutter では 1 つの `TanreiNavigationBadge` の値として、React Native では `badge` オブジェクトとして渡します。
+
+バーはレイアウト領域で、オーバーレイではありません。色は下にあるホームインジケーターやジェスチャーバーの下まで広がり、行き先はそれらより上、左右のインセットの内側に収まります。React Native では、インセットはセーフエリアのライブラリに頼らず、プロパティからだけ受け取ります。`TanreiProvider` の `insets` か、バー自身の `insets` で、後者は指定した辺だけ provider の値を置き換えます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- ホスト要素は、label を名前とするナビゲーションのランドマークです。 -->
+    <!-- variant="filled" は今の行き先を反転させます。にぎやかな画面の上のバーに使います。既定は Tonal です。 -->
+    <tanrei-navigation-bar label="メイン" value="inbox">
+      <tanrei-navigation-bar-item value="inbox" label="受信" icon="inbox"
+                                  badge badge-count="3" badge-label="未読 3 件"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="chat" label="チャット" icon="chat"
+                                  badge badge-label="新着メッセージ"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="starred" label="スター" icon="star"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="settings" label="設定" icon="settings" disabled></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-bar';
+      const bar = document.querySelector('tanrei-navigation-bar');
+      // バーは change を発火する前に自分の value を更新します。change もその値を伝えます。
+      bar.addEventListener('change', (e) => showScreen(e.detail.value));
+      bar.addEventListener('reselect', () => scrollTo({ top: 0 }));
+    </script>
+
+    <!-- リンクのバー：各ページが、自分のアドレスを value に指定します。value のないリンクは href を値とします。 -->
+    <tanrei-navigation-bar label="メイン" value="/search/">
+      <tanrei-navigation-bar-item href="/" label="ホーム" icon="home"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/search/" label="検索" icon="search"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/library/" label="ライブラリ" icon="video_library"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="https://example.com/help" label="ヘルプ" icon="help"
+                                  target="new" target-label="新しいタブで開きます"></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      // ルーターが移動を扱う場合：change をキャンセルし、detail.href へ移動して、プロダクトが今どこにいるかを伝えます。
+      bar.addEventListener('change', (e) => {
+        if (!e.detail.href) return;
+        e.preventDefault();
+        router.push(e.detail.href);
+        bar.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NavigationBar, NavigationBarItem } from '@tanrei/react';
+
+    // にぎやかな画面の上のバーには variant="filled"。既定は Tonal です。
+    <NavigationBar label="メイン" value={screen} onChange={(e) => setScreen(e.detail.value)} onReselect={scrollToTop}>
+      <NavigationBarItem value="inbox" label="受信" icon="inbox" badge badgeCount={3} badgeLabel="未読 3 件" />
+      <NavigationBarItem value="chat" label="チャット" icon="chat" />
+      <NavigationBarItem value="starred" label="スター" icon="star" />
+    </NavigationBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 下側のセーフエリアのインセットに置く、専用のバーです。行き先を選ぶとバインディングに書き込まれます（change）。
+    ScreenView(screen)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TanreiNavigationBar(selection: $screen, accessibilityLabel: "メイン", onReselect: { _ in scrollToTop() }) {
+                TanreiNavigationBarItem("受信", icon: "inbox", value: "inbox",
+                                        badge: TanreiNavigationBadge(count: 3, label: "未読 3 件"))
+                TanreiNavigationBarItem("チャット", icon: "chat", value: "chat")
+                TanreiNavigationBarItem("スター", icon: "star", value: "starred")
+                // 無効にするのは SwiftUI 自身の disabled モディファイアーです。
+                TanreiNavigationBarItem("設定", icon: "settings", value: "settings").disabled(true)
+            }
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBadge
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBar
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBarItem
+
+    // Material の NavigationBar と同じく、バー全体の値はありません。今の項目に selected を付け、
+    // 1 つの onClick が change と reselect を兼ねます。
+    var screen by rememberSaveable { mutableStateOf("inbox") }
+    TanreiNavigationBar(contentDescription = "メイン") {
+        TanreiNavigationBarItem(
+            selected = screen == "inbox",
+            onClick = { if (screen == "inbox") { scrollToTop() } else { screen = "inbox" } },
+            icon = "inbox",
+            label = "受信",
+            badge = TanreiNavigationBadge(count = 3, contentDescription = "未読 3 件"),
+        )
+        TanreiNavigationBarItem(selected = screen == "chat", onClick = { screen = "chat" }, icon = "chat", label = "チャット")
+        // enabled は仕様の disabled を反転したものです。
+        TanreiNavigationBarItem(selected = screen == "settings", onClick = { screen = "settings" }, icon = "settings", label = "設定", enabled = false)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // NavigationBar と同じく、行き先の値はその番号です。バー自身は選択を持ちません。
+    TanreiNavigationBar(
+      selectedIndex: current, // null なら何も選びません
+      onDestinationSelected: (int index) {
+        if (index == current) {
+          scrollToTop(); // reselect
+        } else {
+          setState(() => current = index); // change
+        }
+      },
+      semanticLabel: 'メイン',
+      destinations: const <TanreiNavigationDestination>[
+        TanreiNavigationDestination(icon: 'inbox', label: '受信', badge: TanreiNavigationBadge(count: 3, semanticLabel: '未読 3 件')),
+        TanreiNavigationDestination(icon: 'chat', label: 'チャット'),
+        TanreiNavigationDestination(icon: 'settings', label: '設定', enabled: false),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationBar } from '@tanrei/react-native';
+
+    const [screen, setScreen] = useState('inbox');
+
+    // 制御コンポーネントです。onValueChange を受けて value を更新します。
+    <NavigationBar
+      accessibilityLabel="メイン"
+      value={screen}
+      onValueChange={setScreen}
+      onReselect={scrollToTop}
+      destinations={[
+        { value: 'inbox', label: '受信', icon: 'inbox', badge: { count: 3, label: '未読 3 件' } },
+        { value: 'chat', label: 'チャット', icon: 'chat', badge: { label: '新着メッセージ' } },
+        { value: 'settings', label: '設定', icon: 'settings', disabled: true },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="選択中のラベルだけを描くバーと、ラベルを描かないバー" plain column>
+  <tanrei-navigation-bar value="chat" label-visibility="selected" label="メイン" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="受信" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="チャット" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="スター" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+  <tanrei-navigation-bar value="inbox" label-visibility="never" label="サブ" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="受信" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="チャット" icon="chat" badge badge-label="新着メッセージ"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="スター" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-bar" />
+
+## ガイドライン
+
+### 使う場面
+
+縦に持ったスマートフォンのようなコンパクトな画面で、3〜5 個の最上位の行き先の間を移動するのに使います。「受信」「検索」「プロフィール」のように、一日に何度も戻ってくる場所です。バーはどの最上位の画面にも表示され続け、今どこにいるかを示します。
+
+1 つの画面の中で、同じ対象の複数のビューを切り替えるにはタブを使います。別の画面からたどり着いた画面を離れるには、アプリバーの戻るボタンを使います。詳細の画面では、ナビゲーションバーを表示しないことがよくあります。
+
+### バーとドロワーの選び方
+
+| 観点 | [ナビゲーションバー](/ja/components/navigation-bar/) | [ナビゲーションドロワー](/ja/components/navigation-drawer/)（折りたたみ） | [ナビゲーションドロワー](/ja/components/navigation-drawer/)（展開） |
+| --- | --- | --- | --- |
+| 置き場所 | 下端に沿って | 先頭側の端に沿ったアイコンの列 | 先頭側の端のパネルの中 |
+| ウィンドウ | Compact | Medium 以上 | Expanded 以上（スタンダード）、または Compact（モーダル） |
+| 行き先の数 | 3〜5 個 | 最上位の行き先とグループ。1 つにつき 1 セル | プロダクトにある分だけ。セクションとグループにまとめます |
+| 行き先の形 | アイコンと、その下の 1 行のラベル。アイコンにバッジ | 項目をアイコンの後ろで切った形。アイコンだけで、バッジを付け、名前はツールチップで示します | 1 行の項目。アイコン（省略可）、折り返すラベル、末尾のテキストや内容 |
+| ほかに持つもの | なし | ヘッダー：メニューボタンと、アイコンだけに折りたたんだメインアクション | ヘッダー：メニューボタン、タイトルやアカウントの切り替え、メインアクション |
+| ネイティブのプラットフォームでの行き先 | タブバーのタブ | 選択状態を持つボタン | 選択状態を持つボタン |
+| 位置づけ | レイアウト領域 | レイアウト領域。またはモーダルのドロワーが広がる元になるレイアウト内の列 | スタンダードはレイアウト領域、モーダルはモーダルなオーバーレイ |
+
+- **折りたたんだドロワーがナビゲーションレールです。** 折りたためるドロワーは、コンテンツに幅が要るときにアイコンの列まで狭まり、メニューボタンでまた広がります。どのアイコンも位置を変えません。Tanrei の独立したナビゲーションレールは、この形に統合されて廃止されました。
+- **バーとドロワーは、同じ行き先を置く場所が違うだけです。** 同じ行き先と同じ選択を受け取るので、ウィンドウの大きさに合わせて変わるプロダクトは、行き先に手を加えずにブレークポイントでバーとドロワーを切り替えられます。同時に表示するのはどちらか一方だけです。
+- **ドロワーはもっと多くを持てます。** バーに収まらないほど行き先が多いとき、メールアプリのフォルダーとラベルのように行き先がグループに分かれるときは、展開したドロワーを使います。大きいウィンドウではスタンダードのドロワーをコンテンツの横に置き、コンパクトなウィンドウではモーダルのドロワーをメニューボタンから重ねて開きます。
+- **モーダルの折りたためるドロワー**は、アイコンの列をレイアウトに残したまま、メニューボタンで開くとスクリムの上でコンテンツに重なって広がります。
+- どのプラットフォームでも、どちらも行き先の値で選び（Compose は項目ごとのフラグ、Flutter は番号）、`change` と `reselect` を発火します。
+
+### ラベル
+
+| `labelVisibility` | どうなるか | 用途 |
+| --- | --- | --- |
+| `always`（既定） | すべての行き先がラベルを描きます。 | ほとんどのバー。ラベルがあると、行き先がひと目で分かります。 |
+| `selected` | 今の行き先だけがラベルを描きます。ラベルを描かない行き先では、アイコンが行き先の中央に来ます。選択が変わっても、行き先の大きさと位置は変わりません。 | 場所が限られていて、アイコンがよく知られているバー。 |
+| `never` | どの行き先もラベルを描きません。 | 4〜5 個のアイコンが誰にでも分かる、メディアやソーシャルのプロダクト。 |
+
+描かれないラベルも行き先のアクセシブルネームとして使われるので、どの行き先にもラベルが必要です。
+
+### 選択とバッジ
+
+- **アクティブインジケーター。** どの行き先も 1 つの箱を持ちます。バーの幅を等分した持ち分を、バーの上下と両端から同じ余白（既定のシステムでは 4）だけ内側に収めた箱です。幅 360、高さ 64 のバーに行き先が 4 つあれば、それぞれの箱は 88 × 56 で、既定のシステムではカプセル形です。箱は、中身が何であっても 1 つのバーのどの行き先でも同じ大きさで、アイコンとラベルの大きさに合わせることはありません。今の行き先の箱は塗られてアクティブインジケーターになり、アイコンも塗りで描かれます。ホバー、フォーカス、押下は、どの行き先でもこの同じ箱の中に描きます。
+- **スライド。** 選択が変わると、インジケーターは前の行き先から新しい行き先へ、大きさを保ったままスライドします。アイコンとラベルはインジケーターに覆われたところだけ反転するので、インジケーターが通り過ぎる行き先は一瞬その部分だけ色が変わり、新しい行き先はインジケーターが着いたときにすべて反転します。何も選ばれていない状態からは新しい行き先の上にフェードインし、何も選ばれない状態へはフェードアウトします。伸びたり縮んだりすることはありません。バーが最初に表示されたときや、選択は変わらずに今の行き先の大きさだけが変わったとき（フォントの読み込み、文字の大きさの変更など）は、インジケーターをすぐその位置に置きます。動きを減らす設定では瞬時に切り替わります。
+- **ドラッグ。** 行き先が選ばれている間に、タッチ、ペン、マウスのいずれかでバーを押して横に動かすと、インジケーターがポインターについて動きます。離すまでは何も選ばれません。`value`、フォーカス、各アイコンの塗り、読み上げる内容は、今の行き先のままです。離すと、インジケーターが間にある 2 つの行き先のうち近い方、またはフリングした向きの方を選び、`change` を 1 回発火します。今の行き先の上に戻して離したときは、`reselect` を含めて何も発火しません。Escape でドラッグを取り消せます。ドラッグが唯一の方法になることはありません。タップ、クリック、Enter、Space でもこれまでどおり選べます。
+- **再選択。** 今の行き先をもう一度選ぶと、`change` ではなく `reselect` が発火します。その画面を一番上までスクロールするか、最初のページに戻すのが一般的な対応です。
+- **バッジ。** 件数のあるバッジはその数を（999 を超えると 999+）、件数のないバッジは点を描きます。`badgeLabel` は、スクリーンリーダーが行き先の名前の後に読む「未読 3 件」のような言葉です。点には読み上げる数がないので、必ず付けます。バッジは、行き先が無効になっても表示されたままです。
+
+### リンク
+
+ページが分かれているサイトでは、すべての行き先に `href` を指定し、バーの `value` をそのページ自身のアドレスにします。今の行き先と今のページは 1 つのものになり、印も 1 つです。
+
+- **選択するのではなく、たどる。** リンクの通常の操作では、行き先の値と `href` を持つ `change`（今の行き先なら `reselect`）を発火し、そのあとでリンクがたどられます。バーは `value` を書き換えません。アクティブインジケーターは `value` が指す行き先にとどまり、`value` が変わったときに動きます。
+- **ルーター。** 自分で移動を扱うには、イベントをキャンセルし、`detail.href` へ移動して `value` を設定します。インジケーターは新しい行き先へスライドします。
+- **ほかのタブ。** 修飾キーを押しながらのクリックや Enter、中クリック、`target` が `new` のリンク、ダウンロードは、ブラウザーのものです。バーは何も発火せず、何も選択しません。
+- **新しいコンテキスト。** `target: new` は新しいタブやウィンドウで開きます。行き先はアイコンとその下のラベルでできていて、印を置く場所がないので、印は描きません。`targetLabel` が、バッジの説明のあとで、それを支援技術に伝えます。
+- **ドラッグ。** リンクの上で始めた横方向のドラッグは、アクティブインジケーターを動かします。リンクのアドレスはドラッグしません。リンクの上で離すと、そのリンクを普通に押したことになります。`value` が変わるまで、インジケーターは今の行き先に戻ります。
+- **無効。** 無効なリンクは、どの方法でもたどれず、フォーカスの順序から外れます。
+
+### Tonal と Filled
+
+| `variant` | 今の行き先 | 用途 |
+| --- | --- | --- |
+| `tonal`（既定） | セカンダリーコンテナの色の控えめなインジケーターで、アイコンとラベルはそのコンテナの内容の色です。 | ほとんどのバー。 |
+| `filled` | プライマリーの色の強いインジケーターで、その上のアイコンとラベルを反転させます。 | 地図、写真の一覧、プレーヤーなど、にぎやかな画面の上で目立たせる必要のあるバー。 |
+
+インジケーターに覆われていない行き先は、どちらでも同じ見た目です。variant が変えるのは選択の描き方の強さだけで、読み上げる内容は変わりません。Tonal のバーも Filled のバーも、同じ名前、ロール、状態を伝えます。無効になった今の行き先は、Tonal ならインジケーターを保ってその上に無効の内容を描き、Filled なら無効の Filled ボタンと同じくインジケーターを薄くします。プライマリーの色の上の無効の内容は読みにくいからです。
+
+`m3-like` と `cupertino` のプリセットには `filled` がありません。Material のナビゲーションバーにも Apple のタブバーにも、スタイルは 1 つしかないからです。`m3-like` は Material と同じく、アイコンの後ろだけに箱を置いてラベルをその下に描き、行き先を囲む箱は描きません。`cupertino` は今のタブを色合いだけで示します。どちらでも、ドラッグしている間に動いて見えるものはありませんが、離したときには行き先が選ばれます。
+
+### 推奨
+
+- ラベルは「受信」「検索」「プロフィール」のような短い 1 語にします。行き先に収まらないラベルは末尾が省略記号で切られ、折り返しはしません。
+- `filled` は、Tonal のインジケーターがバーの後ろの画面に埋もれてしまう場所でだけ使います。
+- 行き先とその順番は、どの最上位の画面でも同じにします。
+- すべての行き先で同じスタイルのアイコンを使い、今の行き先の塗りの形はバーに描かせます。
+
+### 非推奨
+
+- 「作成」や「共有」のようなアクションをバーに置かない。メインアクションボタンかアプリバーを使います。
+- 行き先を 2 個以下や 6 個以上にしない。数はデバッグビルドで報告します。残りはナビゲーションドロワーに移します。
+- ときどき使えなくなる行き先を隠さない。無効にして、バーの形を保ちます。
+- すべての行き先に一度にバッジを付けない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="navigation-bar" />
+
+### コンポーネントが担うこと
+
+- Web では、バーは `label` を名前とするナビゲーションのランドマークです。各行き先はリンク（`href` があるとき）かボタンで、今の行き先には、リンクでもボタンでも同じく `aria-current="page"` が付きます。今のページのための 2 つ目の状態はありません。タブリストにはしません。画面全体を切り替えるものにはタブパネルも矢印キーでの移動もないからです。
+- iOS、Android、Flutter、React Native では、それぞれのプラットフォームの下端のバーと同じく、タブバーとして伝えます。各行き先はタブのロール（SwiftUI では選択のトレイトを持つボタン）、選択状態、位置を持つ 1 つの要素で、ラベルが描かれていてもいなくても、そのラベルを名前とします。スクリーンリーダーはたとえば「受信、タブ、4 個中 1 個目、選択中、未読 3 件」のように読み上げます。
+- アイコンは支援技術から隠します。バッジは、名前と状態の後に自分の説明（`badgeLabel`、なければ表示している数）を加え、新しいコンテキストで開くリンクは、その後に `targetLabel` を加えます。
+- 無効でない行き先は、ナビゲーション領域のリンクと同じく、それぞれが Tab で止まる位置です。Enter と Space でフォーカス中の行き先を実行します（Web のリンクでは Enter だけ）。無効な行き先はフォーカスを受け取らず、無効であることを伝えます。
+- フォーカスリングは行き先の箱の周りに、バーの内側に収めて、キーボードフォーカスのときだけ描きます。
+- インジケーターをドラッグしても、離すまでは読み上げる内容は何も変わらず、フォーカスも動きません。
+- インジケーターに覆われたところに描く、アイコンとラベルの反転したコピーは装飾です。支援技術がたどる行き先はそれぞれ 1 つだけで、`variant` によって読み上げは変わりません。
+- ヒット領域はセル全体です。バーの高さいっぱいと、幅を等分した 1 つ分で、最小ターゲットを下回りません。行き先に対してバーが狭すぎるときも幅は等分のままで、バーを与えられた幅より広げる代わりに、セルが最小ターゲットより狭くなります。
+- 文字を大きくすると、ラベルが 1 行に収まるように、バーと、それに合わせてどの行き先の箱も大きくなります。アイコンは拡大しません。省略されたラベルも、行き先の名前としては全体が使われます。iOS の大きなコンテンツビューアが使える場所では、長押しで行き先のアイコンとラベルを拡大して表示します。
+- 行き先が 2 個以下や 6 個以上のとき、ラベルのない行き先、どの行き先も指していない値、重複した値は、デバッグビルドで報告します。新しいコンテキストで開くのに `targetLabel` のないリンク、スクリプトを指す `href` や読み取れない `href`、バーが定義していない `target` も報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native にはリンクの行き先がありません。これらでは、行き先はまだ `href` を受け取りません。
+- Web：すべての寸法が `rem` に従うので、ブラウザーの文字サイズを大きくすると、項目コンテナとアイコンも大きくなります。Tanrei の文字の大きさだけを変えたときは大きくなりません。
+- SwiftUI：セルの最小値はプラットフォーム自身のターゲットで、macOS では 44 ポイントです。仕様が指定しているのは 48 ポイントのタッチターゲットです。
+- SwiftUI：iOS 以外では、行き先は位置を値のテキスト（「2 of 4」）として持ち、英語だけです。SF Symbol などの画像のアイコンは選択に従わないので、選ばれた行き先には塗りつぶしのシンボルを利用者側で渡します。大きなコンテンツビューアは組み込んでありますが、まだテストで確かめていません。
+- Compose にはバー全体の値がないので、どの行き先も指していない値を報告する手段がありません。何も選ばないときは、どの項目にも `selected` を付けません。
+- Flutter のセマンティクスには集合の中の位置がないので、「4 個中 1 個目」は読み上げられません。
+- SwiftUI、Flutter、React Native は、アイコンのファミリーと塗りを選択のモーションに合わせず瞬時に切り替えます。
+- React Native には大きなコンテンツビューアがありません。行き先は位置を値のテキスト（「1 of 4」）として持ち、`positionText` を渡さなければ英語です。
+- React Native：選択のモーション、インセット、TalkBack と VoiceOver の読み上げは、実機ではまだ確かめていません。
+- すべてのプラットフォーム（既定のシステム）：Tonal のインジケーターとバーのコントラストは約 1.15:1 で、iOS のアクセシビリティ監査で指摘されます。選択は塗りつぶしのアイコンとラベルの色でも示され、それが重要な場所では `filled` で 3:1 以上のインジケーターにできます。
+
+### 利用者側で行うこと
+
+- ラベルを描かないバーでも、すべての行き先にラベルを付けます。
+- `label` で「メイン」のようにバーに名前を付けます。画面にほかのナビゲーション領域があるときは特に必要です。
+- どのバッジにも、何を数えているかが分かる `badgeLabel` を付けます。点には必ず付けます。
+- 各行き先の値は重複させず、変えないでおきます。
+- ページが分かれているサイトでは、どのページでも `value` をそのページの行き先にします。バーは、自分ではリンクを選択しません。
+- 新しいタブで開くリンクには、「新しいタブで開きます」のように、プロダクトの言語で `targetLabel` を指定します。Tanrei は独自の文言を持ちません。
+- Compose では、`selected` を付けるのはちょうど 1 つの項目か、どれにも付けないかにします。Flutter では、受け取った番号を `selectedIndex` と比べて、再選択か変更かを見分けます。
+- React Native では、プロダクトの言語で `positionText` を渡し、ウィンドウのインセットを `TanreiProvider` に渡します。

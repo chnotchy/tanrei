@@ -1,0 +1,3395 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "tree-view",
+  "title": "Tree view",
+  "summary": "A hierarchy of items that open and close: rows that begin further in at each level, a chevron at the start of every row that holds others, an optional glyph, a note and a short value; read and opened only, or with one item or several chosen by the quiet selection; moved through with the arrow keys as one stop in the focus order; with room for touch or drawn closer for a tool and for a small tree inside text.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "loading-indicator"
+  ],
+  "anatomy": [
+    {
+      "id": "tree",
+      "description": "The column that holds the rows, named by its label. It draws no fill, no edge and no space of its own, and does not scroll. One stop in the focus order."
+    },
+    {
+      "id": "item",
+      "description": "One thing in the hierarchy (an item of the item kind): its row and, while it is a parent and open, the rows of the items it holds, which begin one level further in."
+    },
+    {
+      "id": "container",
+      "description": "An item's row: the box that carries hover, focus and press and the selected fill. It begins further from the start edge for each level and ends at the tree's end edge; the hit area is the tree's whole width."
+    },
+    {
+      "id": "chevron",
+      "description": "The mark at the start of a parent's row: the icon set's chevron_right, pointing toward the end of the line while the parent is closed and down while it is open. A leaf keeps its box empty, so that the names of one level begin on one line. The only mark of open and closed; hidden from assistive technology, which is given the state in words."
+    },
+    {
+      "id": "icon",
+      "description": "A glyph of the system's icon set before the label, by name: what kind of thing the item is (a folder, a file, a group). The product's choice; decorative.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The item's name and its accessible name. It wraps and is never cut."
+    },
+    {
+      "id": "supporting-text",
+      "description": "A few words about the item after its label, in the same block of text and quieter than the label. It wraps with the label.",
+      "optional": true
+    },
+    {
+      "id": "trailing",
+      "description": "The trailing slot's content at the end of the row: a tag, a swatch, a mark that the item changed. Not interactive; part of the row.",
+      "optional": true
+    },
+    {
+      "id": "trailing-text",
+      "description": "A short value at the end of the row, after the trailing content: a count, a size, the present value. One line.",
+      "optional": true
+    },
+    {
+      "id": "guide",
+      "description": "A hairline down from an open parent beside the rows it holds, where the tree asks for guides. Decorative.",
+      "optional": true
+    },
+    {
+      "id": "loading-row",
+      "description": "A row one level further in under an open parent that is fetching what it holds: a loading indicator and the words the product gives. Not an item: it takes no focus and cannot be chosen.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus of an item, drawn inside its row's container."
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the tree: what the hierarchy is (\"Project files\", \"Every token\"). Required: a tree is one stop in the focus order and is announced by this name."
+    },
+    {
+      "name": "selection",
+      "type": "enum",
+      "values": [
+        "none",
+        "single",
+        "multiple"
+      ],
+      "default": "none",
+      "description": "Whether people choose items. none: a tree that is read and opened — a figure of a file system in a page, a structure to look through; its leaves answer nothing and its parents open and close. single: one item is chosen (the file shown in the pane beside the tree, the token being edited). multiple: any number are chosen, each by itself. An item is chosen by its value; an item without one cannot be chosen."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": null,
+      "description": "The value of the selected item while selection is single; null selects none. The tree sets it when an item is chosen and emits change; the product may also set it."
+    },
+    {
+      "name": "values",
+      "type": "strings",
+      "default": [],
+      "description": "The values of the selected items while selection is multiple: a list of strings (the platforms take a set). An empty list selects none."
+    },
+    {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How much room a row takes, in a table's and an accordion's words. regular (a 48 row with a 14 label in the default system, a navigation drawer's row) is the tree of a product used by touch as well as by pointer. compact (a 32 row with a 13 label, a table's compact row) is for a tool used with a pointer, where hundreds of rows are looked through, and for a small tree inside a page of text. For touch a row is never lower than the touch target in either. A design system may add values.",
+      "axis": "tanrei.comp.tree-view.density"
+    },
+    {
+      "name": "guides",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws a hairline down from each open parent beside the rows it holds. For a deep tree, where the indent alone no longer shows which rows belong together. Decorative."
+    },
+    {
+      "name": "loadingLabel",
+      "type": "string",
+      "default": "",
+      "description": "The words of a loading row (\"Loading…\"), drawn beside its loading indicator and used as the indicator's name. Tanrei ships no words of its own. Required where any item may be loading.",
+      "words": "loadingLabel"
+    }
+  ],
+  "items": [
+    {
+      "name": "item",
+      "summary": "One thing in the hierarchy: a row with a label and, where it holds other items, a chevron that opens and closes them. An item that holds items, or says it will, is a parent; every other item is a leaf. The fixture's content is unused.",
+      "container": true,
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What identifies the item: the tree's value (single) or values (multiple) select the item whose value they hold, and change carries it. Unique within the tree. Empty, the item cannot be chosen: a press on its row opens or closes it where it is a parent and does nothing where it is a leaf."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its name, drawn in its row and used as its accessible name. Plain text; the label slot takes its place where the product needs inline content. Required unless the label slot is filled."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A few words about the item (\"the source of truth, edited by hand\"), drawn after the label in the same block of text and read as the item's description. Empty draws the label alone."
+        },
+        {
+          "name": "trailingText",
+          "type": "string",
+          "default": "",
+          "description": "A short value at the end of the row: a count, a size, the present value. One line; read after the supporting text as the item's description."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of a glyph in the system's icon set, drawn before the label: what kind of thing the item is. The tree has no glyphs of its own for a folder or a file: the product names them. Decorative."
+        },
+        {
+          "name": "open",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the items a parent holds are shown under its row. Set by the product for a parent that starts open; the web sets it itself when the user opens or closes the parent, and a controlled platform leaves it to the caller. Ignored on a leaf."
+        },
+        {
+          "name": "expandable",
+          "type": "boolean",
+          "default": false,
+          "description": "Says that the item holds items the product has not given yet: it is drawn and exposed as a parent, with a chevron, and its toggle tells the product to give them. An item that holds items is a parent whatever this says."
+        },
+        {
+          "name": "loading",
+          "type": "boolean",
+          "default": false,
+          "description": "Says that the product is fetching what the item holds: while the item is open a loading row is drawn under it, after any items it already holds, and the item is exposed as busy. Ignored on a leaf."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Makes it unavailable: it keeps its place and its open, draws its disabled look, and cannot be chosen, opened or closed by the user. The arrow keys still reach it, and the items it shows keep their own disabled."
+        }
+      ],
+      "slots": [
+        {
+          "name": "label",
+          "description": "The product's own label content in place of the label prop: text with inline content (a code span, a part of the name marked as a match). The tree draws it in the label's style and color. No control."
+        },
+        {
+          "name": "trailing",
+          "description": "Content at the end of the row, before the trailing text: a tag, a swatch, a mark. The tree places it and gives it no style. No control; it is part of the row and is read as part of the item's description where it has text."
+        }
+      ],
+      "events": [
+        {
+          "name": "toggle",
+          "description": "The parent opened or closed: by the user from its chevron, its row or the keyboard, or by the platform's search finding text under it; carries its new open state. Emitted exactly once per change, when the change begins. The moment to give the items of a parent that is expandable."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The user changed the selection; carries value (single) or values (multiple) after the change."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected",
+    "loading"
+  ],
+  "behavior": [
+    {
+      "id": "TRV-1",
+      "text": "THE tree view SHALL lay out the rows of its items in one column, in the order given and depth first: an item's row and then, WHILE the item is a parent and open, the rows of the items it holds, before the row of the item that follows it. It SHALL be as wide as the layout it is placed in gives it, with its start edge on the start edge of what is around it; SHALL bring no outer space, no fill and no edge of its own (PRS-15: the space between it and its neighbours is its container's); SHALL have no minimum width, no maximum width and no height of its own; and SHALL NOT scroll: it is as tall as the rows it shows, and the product places a long tree in a scrolling box of its own. Rows SHALL touch: there is no space and no line between two rows."
+    },
+    {
+      "id": "TRV-2",
+      "text": "THE tree view SHALL draw each item's row as a container at least as high as its density gives (comp.tree-view.container.height.regular for regular and comp.tree-view.container.height.compact for compact) and growing with its text, with corners comp.tree-view.container.shape, padded at its start and end by comp.tree-view.container.padding-inline.regular for regular and comp.tree-view.container.padding-inline.compact for compact and above its first line and below its last by comp.tree-view.container.padding-block.regular for regular and comp.tree-view.container.padding-block.compact for compact. Inside it SHALL lay out, from the start: the chevron's box (TRV-4); the icon, where the item has one (TRV-5); the text, which takes the remaining width and holds the label and after it the supporting text (TRV-6, TRV-7); the trailing slot's content, where there is any; and the trailing text, where the item has one (TRV-7); with comp.tree-view.container.gap.regular for regular and comp.tree-view.container.gap.compact for compact between each two of them. THE tree view SHALL centre the chevron, the icon, the trailing content and the trailing text on the label's first line and keep them there however tall the text grows, and any height a row has beyond its text SHALL be shared equally above and below it.",
+      "verify": "Under the default system a regular row with a one-line label is 48 high with the chevron's box 12 from the container's start; a compact one is 32 high with 8. The regular row has the height, the corners and the gap of a navigation drawer's row."
+    },
+    {
+      "id": "TRV-3",
+      "text": "THE tree view SHALL show an item's depth by where its row begins: the container of an item of the first level SHALL begin at the tree's start edge, and the container of every deeper item SHALL begin comp.tree-view.level.indent.regular for regular and comp.tree-view.level.indent.compact for compact further from that edge for each level below the first, so that its fill, its state layer and its focus indicator begin further in and not its content alone; every container SHALL end at the tree's end edge. WHILE the indent of an item's level would take more than half of the tree's width THE tree view SHALL begin that row where the deepest level that still fits begins, so that a deep tree in a narrow window keeps half of its width for names, SHALL still expose the item's true level (TRV-32), and in debug builds SHALL report the depth once.",
+      "verify": "The fixture deep in a stage 320 wide under the default system: levels one to six begin at 0, 32, 64, 96, 128 and 160; a seventh level would also begin at 160."
+    },
+    {
+      "id": "TRV-4",
+      "text": "THE tree view SHALL keep a box of comp.tree-view.chevron.size.regular for regular and comp.tree-view.chevron.size.compact for compact at the start of every row. In the row of a parent — an item that holds items, or whose expandable is true — it SHALL draw the glyph chevron_right of the system's icon set in that box, in the chevron color of the item's condition (comp.tree-view.unselected.chevron.color, comp.tree-view.selected.chevron.color), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max: as the icon helper draws it WHILE the parent is closed, which points toward the end of the line, and turned a quarter turn so that it points down WHILE the parent is open. In the row of a leaf it SHALL draw nothing in the box and keep the box, so that the icons and the labels of one level begin on one line whether an item opens or not. The chevron SHALL be the only thing about a row that shows whether its item is open: the container, the label, the texts and the icon SHALL be the same open and closed. THE tree view SHALL keep the chevron from assistive technology, which is given the state in words (TRV-32), and a disabled parent SHALL keep its chevron.",
+      "verify": "The fixture basic: the open parents' chevrons point down, the closed parent's points right, and the leaves' labels begin on the same line as the labels of the parents beside them."
+    },
+    {
+      "id": "TRV-5",
+      "text": "WHILE an item's icon is not empty THE tree view SHALL draw that glyph of the system's icon set after the chevron's box, in a box of comp.tree-view.icon.size.regular for regular and comp.tree-view.icon.size.compact for compact, in the icon color of the item's condition (comp.tree-view.unselected.icon.color, comp.tree-view.selected.icon.color), with the family and fill of that condition (sys.icon.family.selected and sys.icon.fill.selected for a selected item, sys.icon.family.unselected and sys.icon.fill.unselected otherwise), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL keep it from assistive technology. WHILE icon is empty THE tree view SHALL draw no glyph and keep no room for one. THE tree view SHALL have no glyph of its own for any kind of item and SHALL draw the same glyph whether the item is open or closed: a product that shows an open folder differently names another glyph when toggle tells it."
+    },
+    {
+      "id": "TRV-6",
+      "text": "THE tree view SHALL draw an item's label in the text style of its density (comp.tree-view.label.typescale.regular for regular and comp.tree-view.label.typescale.compact for compact) and the label color of its condition (comp.tree-view.unselected.label.color, comp.tree-view.selected.label.color); the label SHALL wrap and SHALL never be cut, and a name with no place to break (a path, an identifier) SHALL break where it must rather than widen the tree. WHERE the item's label slot holds content THE tree view SHALL draw that content in the label's place, size and color instead of the label, and SHALL leave a code span in it its own typeface. The label slot and the trailing slot SHALL hold no control: IF either holds a link, a button or a field THE tree view SHALL still render it and in debug builds report that a row holds no control; a platform that cannot inspect its slot content SHALL state the rule in its README and docs page."
+    },
+    {
+      "id": "TRV-7",
+      "text": "WHILE an item's supportingText is not empty THE tree view SHALL draw it after the label, in the same block of text and comp.tree-view.container.gap.regular for regular and comp.tree-view.container.gap.compact for compact after the label's last word, in comp.tree-view.supporting-text.typescale and the supporting-text color of the item's condition (comp.tree-view.unselected.supporting-text.color, comp.tree-view.selected.supporting-text.color), on the label's baseline; it SHALL go on where the label ends and wrap with it, and SHALL never be cut. WHILE an item's trailingText is not empty THE tree view SHALL draw it on one line at the end of the row, in comp.tree-view.trailing-text.typescale and the trailing-text color of the item's condition (comp.tree-view.unselected.trailing-text.color, comp.tree-view.selected.trailing-text.color); it SHALL NOT wrap, and WHILE it would take more than half of the row's inner width it SHALL be cut at the end of its own direction with an ellipsis, so that the label always keeps at least half. THE tree view SHALL place the trailing slot's content before the trailing text, SHALL give it no style, and SHALL apply a disabled item's opacity to it with the rest of the row.",
+      "verify": "The fixture file-tree: \"tokens/\" is followed on its line by its note in the quieter color; in a stage 320 wide the note wraps under the label and the row grows."
+    },
+    {
+      "id": "TRV-8",
+      "text": "WHILE guides is true THE tree view SHALL draw, for each open parent that shows at least one row under it, one line comp.tree-view.guide.width wide in comp.tree-view.guide.color, from the lower edge of the parent's row to the lower edge of the last row shown under it (the rows of its open descendants and a loading row included), centred under the parent's chevron box, which lies in the indent of the rows it runs beside and never inside their containers. The line SHALL keep its color and its full opacity in every state and condition of the rows beside it (a disabled item's opacity does not reach it), SHALL grow and shrink with the rows it runs beside as they are revealed and hidden (TRV-11), SHALL be hidden from assistive technology, and SHALL take no space: a tree is laid out the same with and without guides. WHILE guides is false THE tree view SHALL draw no such line.",
+      "verify": "The fixtures guides and compact-guides: one line under each open parent's chevron, none under a closed parent or a leaf; each fixture measures the same as its form without guides."
+    },
+    {
+      "id": "TRV-9",
+      "text": "THE tree view SHALL draw a parent's open as the state of that parent alone: WHILE open is true the rows of the items it holds are shown under its row, and WHILE open is false they are not drawn, take no space, cannot take focus and are not exposed to assistive technology, whatever their own open says; a closed parent SHALL keep its descendants' open, so that it opens again as it was. WHEN the tree first appears it SHALL draw every parent as its open says, in its first frame, without the motion of TRV-11 and without emitting toggle. THE tree view SHALL ignore the open of a leaf. On a platform that keeps what it does not draw (the web, where the items stay in the document) THE tree view SHALL NOT remove or rebuild a closed parent's items."
+    },
+    {
+      "id": "TRV-10",
+      "text": "WHEN the user presses the chevron of a parent that is not disabled, by pointer or touch, THE tree view SHALL emit that item's toggle exactly once with its new open state, SHALL NOT change the selection, and on the web SHALL set the item's open itself (a controlled platform leaves it to the caller). WHEN the user presses the row of a parent that cannot be chosen (TRV-15) anywhere, or presses Enter or Space while focus is on it, THE tree view SHALL do the same: a row that has nothing to choose opens and closes. WHEN the user presses the row of an item that can be chosen outside its chevron THE tree view SHALL change the selection (TRV-16, TRV-17) and SHALL NOT open or close it: the chevron opens and the row chooses, and one press never does both. THE tree view SHALL NOT open a parent because the pointer rests on it, and SHALL NOT open or close anything for a second press that follows the first quickly: each press is answered by itself.",
+      "verify": "Test in the fixture studio-tokens (selection single; the tiers and groups have no value): a press anywhere on a group's row emits one toggle and no change. In the fixture single (every item has a value): a press on a parent's label emits one change and no toggle; a press on its chevron emits one toggle and no change."
+    },
+    {
+      "id": "TRV-11",
+      "text": "WHEN a parent's open changes THE tree view SHALL reveal or hide the rows under it from its row downward, the rows after them moving with their lower edge, and SHALL turn its chevron, over comp.tree-view.motion.disclosure-duration with comp.tree-view.motion.disclosure-easing, at once where motion is reduced. The rows SHALL be laid out once, at the size they have when shown, and the motion SHALL only change how much of them is seen: no label SHALL wrap again and nothing SHALL be measured again from frame to frame. Rows that are being hidden SHALL stay drawn until the motion ends and SHALL leave the arrow keys and assistive technology when it begins. WHEN open changes again before the motion ends THE tree view SHALL go on from where the motion is toward the new state, without a jump. toggle SHALL be emitted when the change begins, not when the motion ends.",
+      "verify": "Test with the web's animations inspected: one height motion and one rotation of the chosen duration per change; none while prefers-reduced-motion is reduce. A navigation drawer's group, an accordion's item and a parent of the tree open over the same duration with the same curve in the default system."
+    },
+    {
+      "id": "TRV-12",
+      "text": "WHEN a parent opens or closes THE tree view SHALL keep that parent's row where it is in the view, as far as the scrolling of what holds the tree allows, and move only what follows it; it SHALL NOT scroll for any other reason of its own, and the rows of a parent that opens MAY reach below the view's edge. WHEN a parent closes, or its items are taken away, while keyboard focus is on a row under it THE tree view SHALL move focus to that parent's row; WHEN the item that has focus is removed and no parent of it closed THE tree view SHALL move focus to the row that follows it or, where none does, the row before it. WHEN keyboard focus moves to a row that is not wholly in view THE tree view SHALL have the scrolling box that holds it bring that row into view by the least distance that shows it whole."
+    },
+    {
+      "id": "TRV-13",
+      "text": "WHILE a parent is open and its loading is true THE tree view SHALL draw one loading row under it, after the rows of any items it already holds and one level further in than its own row: a container of that level and of the tree's density (TRV-2, TRV-3) holding, in the place of the chevron's box, a Loading indicator component of the small size named by loadingLabel, which the tree lays out and does not restyle, and after it loadingLabel in comp.tree-view.supporting-text.typescale and comp.tree-view.unselected.supporting-text.color. The loading row is not an item: it SHALL take no focus, answer no pointer and no key, SHALL NOT be counted among its parent's items, and SHALL be shown and hidden by the motion of TRV-11 with the rows beside it. THE tree view SHALL expose the parent as busy WHILE its loading is true, open or closed, and SHALL announce nothing itself when loading begins or ends. THE tree view SHALL fetch nothing: a parent whose expandable is true and that holds no items opens onto no rows, or onto the loading row, and what it holds is the product's to give, which it learns from toggle. WHILE an item may be loading and loadingLabel is empty THE tree view SHALL still draw the indicator, and in debug builds report that it has no name.",
+      "verify": "The fixture loading: the open parent \"packages\" shows one loading row at the second level with the small indicator under the place of a child's chevron; the closed parent \"apps\" is expandable, shows a chevron and no row."
+    },
+    {
+      "id": "TRV-14",
+      "text": "WHERE the platform can search the text of what is shown and reports a match that lies in rows it does not draw (on the web, the browser's find-in-page), WHEN the match is under a closed parent THE tree view SHALL open that parent and every closed parent above it, at once and without the motion of TRV-11, SHALL emit each one's toggle exactly once with true, and SHALL leave bringing the match into view to the platform; it SHALL do so for a disabled parent too, whose rows are still part of the page. On a platform that has no such search or cannot report such a match THE tree view SHALL NOT open anything for it.",
+      "verify": "On the web, in a browser whose find-in-page reveals content hidden until found: searching for a name that only a closed parent holds opens it and marks the name, and one toggle with true was emitted."
+    },
+    {
+      "id": "TRV-15",
+      "text": "THE tree view SHALL let an item be chosen exactly WHILE selection is single or multiple, the item's value is not empty and its disabled is false, a parent and a leaf alike. It SHALL render an item as selected, from the selected condition (comp.tree-view.selected.container.color and the selected tokens TRV-4 to TRV-7 name), WHILE selection is single and value equals the item's value, or selection is multiple and values holds it, and every other item from the unselected condition (comp.tree-view.unselected.container.color and the unselected tokens). WHEN value or values names no item THE tree view SHALL select nothing for that name, and WHEN two items carry the same value it SHALL still render them, both selected where that value is; in debug builds it SHALL report each of these. The selected fill SHALL be drawn on the item's own row and on no other: THE tree view SHALL NOT mark a parent because an item under it is selected, and SHALL NOT open a closed parent to show a selection; opening the parents of the item it selects is the product's, which knows the path.",
+      "verify": "The fixtures single and multiple: the selected rows carry the secondary-container fill from where their own level begins to the tree's end edge, and no other row differs from its unselected look."
+    },
+    {
+      "id": "TRV-16",
+      "text": "WHEN the user activates — by a press on its row outside the chevron, or by Enter or Space while focus is on it — an item that can be chosen in a tree whose selection is single and whose value is not that item's value THE tree view SHALL set value to the item's value, so that the item that was selected becomes unselected, and emit change exactly once; WHEN the item is already selected THE tree view SHALL change nothing and SHALL NOT emit change, because a single choice is never cleared by its own item."
+    },
+    {
+      "id": "TRV-17",
+      "text": "WHEN the user activates — by a press on its row outside the chevron, or by Enter or Space while focus is on it — an item that can be chosen in a tree whose selection is multiple THE tree view SHALL add the item's value to values, or remove it when values holds it, and emit change exactly once. Each item SHALL be chosen by itself: choosing a parent SHALL NOT choose the items it holds, a parent SHALL NOT show a mixed state for them, and closing a parent SHALL NOT change values."
+    },
+    {
+      "id": "TRV-18",
+      "text": "WHILE selection is none THE tree view SHALL render every item from the unselected condition, SHALL ignore value and values, and SHALL expose no selected state. A leaf — and, in a tree whose selection is single or multiple, a leaf that cannot be chosen — SHALL then answer nothing: THE tree view SHALL draw no hover and no press answer on its row, SHALL emit nothing for a press on it, and SHALL still let the arrow keys reach it and show its keyboard focus (TRV-24, TRV-25), so that a person who reads the tree with a keyboard or a screen reader meets every row. A parent SHALL answer hover, focus and press on its whole row, which opens and closes it (TRV-10).",
+      "verify": "The fixture file-tree: hovering \"tanrei.resolver.json\" changes nothing; hovering \"tokens/\" draws the hover layer on its row; Down from \"tokens/\" moves the focus ring through every row under it."
+    },
+    {
+      "id": "TRV-19",
+      "text": "THE tree view SHALL be one stop in the focus order however many items it shows: Tab SHALL move focus into it to one row — the row that had focus last, or else the first selected item that is shown, or else the first row — and Tab again SHALL leave it; no other row, and nothing inside a row, SHALL be a stop. Focus that enters the tree SHALL NOT change the selection and SHALL NOT open or close anything. WHILE the tree shows no row it SHALL NOT be a stop."
+    },
+    {
+      "id": "TRV-20",
+      "text": "WHEN focus is on a row and the user presses Down Arrow or Up Arrow THE tree view SHALL move focus to the next or the previous row that is shown, in the order the rows are drawn, whatever its level and whether or not it is disabled, without wrapping at the first and the last; WHEN the user presses Home or End it SHALL move focus to the first or the last row that is shown. It SHALL open and close nothing for these keys and SHALL NOT change the selection: selection does not follow focus. THE tree view SHALL NOT take these keys from the platform WHILE focus is not on one of its rows."
+    },
+    {
+      "id": "TRV-21",
+      "text": "WHEN focus is on a row and the user presses the arrow key toward the end of the line (Right in a left-to-right layout) THE tree view SHALL act by the row it is on: on a closed parent that is not disabled, open it as TRV-10 says and keep focus on it; on an open parent that shows at least one item, move focus to the first of them; on a leaf, on a disabled closed parent and on an open parent that shows none, do nothing. WHEN the user presses the arrow key toward the start of the line it SHALL likewise act by the row: on an open parent that is not disabled, close it as TRV-10 says and keep focus on it; on any other row that has a parent, move focus to that parent's row; on a row of the first level, do nothing.",
+      "verify": "Test in the fixture basic: Right on a closed parent emits one toggle and focus stays; Right again moves to its first child; Left there returns to the parent; Left again closes it with one toggle. In a right-to-left layout Left opens and steps in, and Right closes and steps out."
+    },
+    {
+      "id": "TRV-22",
+      "text": "WHEN focus is on a row and the user presses Enter or Space THE tree view SHALL do what a press on that row outside its chevron does: choose the item where it can be chosen (TRV-16, TRV-17), open or close it where it is a parent that cannot be chosen (TRV-10), and nothing on a leaf that cannot be chosen or on a disabled item. WHEN the user presses the asterisk key THE tree view SHALL open every closed parent that is not disabled among the focused row's siblings, itself included, emitting each one's toggle exactly once with true, and SHALL keep focus where it is. THE tree view SHALL leave every key it does not name here or in TRV-20, TRV-21 and TRV-23, and every key pressed with a modifier, to the platform."
+    },
+    {
+      "id": "TRV-23",
+      "text": "WHEN the user types printable characters while focus is on a row THE tree view SHALL move focus to the next row that is shown, after the focused one and going on from the first row after the last, whose label begins with the characters typed within one second of each other, compared without regard to case as the platform's locale does; one character typed again SHALL go on to the next such row; IF no label matches THE tree view SHALL keep focus where it is. It SHALL NOT open a closed parent to find a match, SHALL NOT change the selection, and SHALL NOT take a space typed inside such a run as an activation."
+    },
+    {
+      "id": "TRV-24",
+      "text": "WHILE a row is hovered, keyboard-focused or pressed THE tree view SHALL render its container, label, supporting text, trailing text, icon, chevron and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. Hover and press over any part of the row's hit area (TRV-26) SHALL answer on the whole container, the chevron's included; a row that answers nothing (TRV-18) SHALL take the focused state alone. The guide lines and the rows beside it SHALL NOT change under a pointer, a press or focus.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "TRV-25",
+      "text": "WHEN a row receives keyboard focus THE tree view SHALL show the focus ring inside the row's container, following comp.tree-view.container.shape, so that neither a neighbouring row nor a scrolling ancestor cuts it, without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "TRV-26",
+      "text": "THE tree view SHALL make each row's hit area the tree's whole width, however far its container is indented (TRV-3), and the row's whole height, with no gap between the hit areas of two rows. WHERE input is touch, or the platform cannot tell the input type, a row SHALL be at least sys.target.touch high, drawn so, in both densities, because rows that touch cannot extend a hit area over each other; for a fine pointer a row SHALL be at least sys.target.pointer high WHILE density is regular, and WHILE density is compact as high as its density gives, the one place where a row of the tree is lower than the pointer target. In the row of a parent that can be chosen, the chevron's own hit area SHALL be the part of the row's hit area from its start edge to the middle of the gap after the chevron's box, and at least sys.target.touch wide for touch and sys.target.pointer wide for a fine pointer, reaching over the start of what follows the chevron where the indent and the box give less.",
+      "verify": "Under the default system: a regular row is 48 high for every input; a compact row is 32 high for a mouse and 48 for touch. Test that a press at the tree's start edge beside a row of the third level is a press on that row's chevron."
+    },
+    {
+      "id": "TRV-27",
+      "text": "WHILE an item's disabled is true THE tree view SHALL render its container, label, supporting text, trailing text, icon, chevron and opacity from the disabled component tokens of its condition, and SHALL apply that opacity to the whole row, its trailing content included; SHALL NOT emit change or toggle for a press, a key or a touch on it; SHALL draw no hover and no press answer on it; and SHALL expose it as disabled. The arrow keys SHALL still reach it, so that people learn it exists. The item SHALL keep its place, its selection and its open: a disabled parent that is open still shows the items it holds, which keep their own disabled, and the product MAY still set its open and select it. A row that draws no fill at rest SHALL draw none while disabled.",
+      "verify": "The fixture disabled: the closed parent \"generated\" is disabled and cannot be opened; the open parent \"themes\" is disabled and its two items can still be chosen."
+    },
+    {
+      "id": "TRV-28",
+      "text": "WHEN an item's row is pressed by pointer, touch, Enter or Space THE tree view SHALL show its pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "TRV-29",
+      "text": "WHILE an item's row is pressed THE tree view SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer, clipped to the container, from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole row and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, supporting text, trailing text, icon, chevron and opacity still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.tree-view.motion.feedback-duration with comp.tree-view.motion.state-easing, fades over comp.tree-view.motion.state-duration with comp.tree-view.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "TRV-30",
+      "text": "THE tree view SHALL ease its rows' container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show a row's keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "TRV-31",
+      "text": "WHEN the colors of a row change between states, or between the unselected and the selected condition, THE tree view SHALL animate them over comp.tree-view.motion.state-duration with comp.tree-view.motion.state-easing, and SHALL change them at once where motion is reduced. The selected fill SHALL NOT slide from one row to another."
+    },
+    {
+      "id": "TRV-32",
+      "text": "THE tree view SHALL expose itself as a tree named by label, and as one in which several items may be selected WHILE selection is multiple; each item as one tree item named by its label (the text of the label slot's content where the product gave one), described by its supporting text, then the text of its trailing content, then its trailing text, with its level, its place among the items of its parent and their number; a parent with its expanded or collapsed state, and the items it shows as a group that belongs to it; WHILE selection is single or multiple, each item that can be chosen with its selected state, true or false, and an item that cannot with none; a disabled item as disabled and a loading parent as busy; and the chevron, the icon and the guide lines hidden. On the web these are the tree, treeitem and group roles with aria-expanded, aria-selected, aria-multiselectable, aria-disabled and aria-busy, the level, the set size and the position coming from the nesting of the elements. WHERE a platform has no tree semantics THE tree view SHALL expose each row as one element in the order drawn, with that name and description, the expanded or collapsed state, the selected state and the disabled state as the platform says them, and its level by the platform's own means where it has one; it SHALL NOT invent words for a level, and the platform's README SHALL say what a person is not told. WHILE label is empty THE tree view SHALL still render, and in debug builds report that the tree has no accessible name; WHILE an item's label is empty and its label slot holds nothing it SHALL report that the item has none.",
+      "verify": "On the web: the fixture single has one element with the tree role named \"Project files\"; every row is a treeitem; parents carry aria-expanded and leaves do not; exactly one treeitem has aria-selected true and every other one that has a value has it false; no row holds a second focusable element."
+    },
+    {
+      "id": "TRV-33",
+      "text": "WHEN a parent opens or closes, and WHEN the selection changes, THE tree view SHALL let the changed state of the row be the only thing assistive technology is told: it SHALL announce nothing itself, SHALL have no live region, and SHALL NOT move keyboard or screen-reader focus, except as TRV-12 says for a row that goes away."
+    },
+    {
+      "id": "TRV-34",
+      "text": "WHILE the text size is enlarged THE tree view SHALL grow its labels, its supporting texts and its trailing texts with it, keep its paddings, gaps and indents, wrap the label and the supporting text, and grow each row in height; it SHALL keep the chevron's and the icon's boxes at their token sizes, both still centred on the label's first line (TRV-2), SHALL cut nothing but a trailing text as TRV-7 says, SHALL set no fixed height, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %, where TRV-3 keeps half of the width for names.",
+      "verify": "Test the fixtures long-labels and deep at 200 % text in a stage 320 wide: every character of every label is visible, each chevron is on its row's first line, and nothing overlaps."
+    },
+    {
+      "id": "TRV-35",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE tree view SHALL draw its labels, texts, icons and chevrons in the platform's text color; the guide lines in that text color; a selected row in the platform's colors for a selected item, fill and text, and in addition with an edge in the text color inside its container, because the mode may remove a fill; a disabled row in the platform's color for disabled text; and a row's hover, press and focus in the platform's own colors, with the focus ring still inside the row. Open and closed SHALL still be told apart by the chevron's turn, which no color carries.",
+      "verify": "On the web, with forced colors emulated: the fixture single draws its selected row in Highlight and HighlightText with an edge; the fixture guides draws its lines in CanvasText; the fixture disabled draws its disabled rows in GrayText."
+    },
+    {
+      "id": "TRV-36",
+      "text": "WHERE the layout direction is right-to-left THE tree view SHALL mirror a row and apply its paddings and its indent by logical start and end: the tree's start edge is its right edge, each level begins further to the left, the chevron's box is at the right of its row with the icon, the text, the trailing content and the trailing text after it toward the left, and the guide lines stand under the chevrons. A closed parent's chevron SHALL point to the left, drawn so by the icon helper, which mirrors the glyph because the icon set marks chevron_right (TRV-38), and an open parent's SHALL point down. The arrow keys of TRV-21 SHALL follow the direction: Left opens and steps in, Right closes and steps out; Up, Down, Home and End SHALL be the same in both directions. A ripple SHALL still grow from the point of contact.",
+      "verify": "The fixtures rtl and rtl-guides-compact: the indent grows from the right edge, closed chevrons point left, open ones down."
+    },
+    {
+      "id": "TRV-37",
+      "text": "THE tree view SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the tree view is shown THE tree view SHALL draw itself for the new direction at once, without a motion of its own, keeping its selection, every parent's open and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "TRV-38",
+      "text": "WHERE the layout direction is right-to-left THE tree view SHALL draw an item's icon and a parent's chevron mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order TRV-2 gives. THE tree view SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The quarter turn of an open parent's chevron (TRV-4) is the tree's and SHALL end pointing down in both directions.",
+      "verify": "chevron_right and arrow_forward are marked by the default icon set; folder and settings are not. The fixture icons-rtl draws arrow_forward mirrored and folder and settings unmirrored."
+    },
+    {
+      "id": "TRV-39",
+      "text": "THE tree view SHALL lay out an item's label, its supporting text and its trailing text, and the words of a loading row, each as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right file name, a path, a number with its unit and a version keep their own order in a right-to-left layout and reorder nothing beside them; THE tree view SHALL still place each and align its lines by the layout direction, not by the text's own, and SHALL cut a trailing text that does not fit (TRV-7) at the end of its own direction.",
+      "verify": "The fixture ltr-labels-rtl draws left-to-right file names in a right-to-left stage: each name begins at the right of its text column and reads left to right, a trailing \"/\" stays at the name's right end, and the chevrons are at the right."
+    },
+    {
+      "id": "TRV-40",
+      "text": "WHILE the system's icon set cannot yet draw a glyph of the tree view (its font is still loading) THE tree view SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can; a parent SHALL open and close all the same."
+    },
+    {
+      "id": "TRV-41",
+      "text": "WHEN density names a value that the active design system does not have THE tree view SHALL render with the default density's tokens, and WHEN selection names a value the tree view does not define it SHALL render with none; in debug builds it SHALL report the unknown value. WHEN selection changes while the tree is shown THE tree view SHALL draw the new form at once, keeping every parent's open and its focus, and SHALL emit no change for it."
+    },
+    {
+      "id": "TRV-42",
+      "text": "IF the tree view has no items THE tree view SHALL draw nothing, take no space, expose nothing and be no stop in the focus order: the words for an empty hierarchy are the product's, beside the tree. IF an item holds no items and its expandable is false THE tree view SHALL treat it as a leaf whatever its open and loading say. WHEN items are added to or removed from a shown tree THE tree view SHALL draw them at once, without the motion of TRV-11, keeping the selection, every other parent's open and, as far as TRV-12 allows, its focus."
+    }
+  ],
+  "accessibility": {
+    "role": "tree",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus into the tree (to the row focused last, the first selected item that is shown, or the first row) and out of it. The tree is one stop; no row and nothing in a row is another."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow",
+        "action": "Moves focus to the next or previous row that is shown, whatever its level, without wrapping. Opens nothing and does not change the selection."
+      },
+      {
+        "keys": "Right Arrow (Left Arrow in right-to-left layouts)",
+        "action": "On a closed parent, opens it; on an open parent, moves focus to the first item it shows; on a leaf, nothing."
+      },
+      {
+        "keys": "Left Arrow (Right Arrow in right-to-left layouts)",
+        "action": "On an open parent, closes it; on any other row below the first level, moves focus to its parent; on a row of the first level, nothing."
+      },
+      {
+        "keys": "Home / End",
+        "action": "Moves focus to the first or the last row that is shown."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "What a press on the row does: chooses the item where it can be chosen (single: selects it; multiple: adds it to or removes it from the selection); opens or closes a parent that cannot be chosen; nothing on a leaf that cannot be chosen."
+      },
+      {
+        "keys": "* (asterisk)",
+        "action": "Opens every closed parent among the focused row's siblings. Focus stays."
+      },
+      {
+        "keys": "Printable characters",
+        "action": "Moves focus to the next shown row whose label begins with the characters typed."
+      }
+    ],
+    "labeling": "The tree is named by label. An item's label (or the text of its label slot) is its accessible name; its supporting text, the text of its trailing content and its trailing text are its description, in that order. A parent carries the expanded or collapsed state, a loading parent is busy, and in a selectable tree an item that can be chosen carries the selected state. The chevron, the icon and the guide lines are decorative. The words of a loading row are the product's (loadingLabel); Tanrei ships none.",
+    "minimumTarget": true,
+    "notes": [
+      "A tree view is the tree pattern: one stop in the focus order, the arrow keys moving through the rows that are shown, the horizontal arrows opening, closing and stepping between levels. It is the opposite choice from the navigation drawer and the accordion, on purpose. A drawer navigates: its destinations are links and buttons, each its own stop, found by the ways a browser and a screen reader list links, and its groups are disclosures. An accordion folds content: each header is a button and its own stop, and the arrow keys stay the page's. A tree reveals or selects a hierarchy: it may hold hundreds of rows, which no person should have to Tab through, and what it holds are items of one structure, not controls. Use the drawer for the places of a product, the accordion for folded content, and the tree for a structure a person looks through or chooses in.",
+      "A row holds no control (TRV-6): the tree role gives each row one name and one action, and a link, a button or a field inside it could be reached by no key of the pattern. An item is therefore not a link and has no destination: a hierarchy of pages is a navigation drawer or a table of contents, which keep the platform's links. What a press on an item does beyond choosing it — opening the chosen file in a pane, showing the chosen token's editor — is the product's answer to change.",
+      "The chevron opens and the row chooses (TRV-10). Where an item cannot be chosen — every item of a tree whose selection is none, and an item without a value in any tree — the whole row opens and closes it, so that a tree that is only read has rows as easy to hit as an accordion's. One press never does two things: a person who chooses a folder does not lose their place because it also closed.",
+      "Selection does not follow focus (TRV-20): moving through a tree with the arrow keys changes nothing, so that a person can read it without the pane beside it changing at every row. Enter or Space chooses.",
+      "The selected state is drawn by the quiet fill, the on-fill color of the label and the glyphs, and the filled form of the icon, as a selected destination of a navigation drawer is; to assistive technology it is the selected state. Under forced colors the row takes the platform's selected colors and an edge (TRV-35). A product that needs each chosen item of a multiple selection to carry a mark of its own puts one in the trailing slot.",
+      "WCAG 2.5.8 (target size): for touch every row is at least the touch target high in both densities (TRV-26). The compact density is lower than the pointer target for a fine pointer, by design: it is the density of a tool looked through with a mouse, it stays above the 24 by 24 the criterion asks, and its rows reach across the tree's whole width. A product that cannot accept that uses regular.",
+      "WCAG 1.4.10 (reflow) and 1.4.4 (resize text): labels wrap and are never cut, rows grow, and the indent never takes more than half of the tree's width (TRV-3), so a deep tree stays readable at 320 wide and at 200 % text. Past that depth the indent no longer shows the level; assistive technology is still told it.",
+      "WCAG 1.4.1 (use of color): open and closed are told by the chevron's turn and by the expanded state, never by color. Disabled is told by the faded row and by the disabled state.",
+      "WCAG 1.4.3 and 1.4.11 (contrast) in the default system: the label is on-surface and the supporting text, trailing text, icon and chevron are on-surface-variant, on the surface the tree stands on; on the selected fill every part is on-secondary-container. Each pair is held to 4.5:1 by the token invariants. The guide lines are decorative: the hierarchy is told by the indent and by the structure.",
+      "A loading parent is busy and nothing is announced when its items arrive (TRV-13, TRV-33): a person who opened it finds them with the next Down Arrow. A fetch that fails is the product's to say, beside the tree or as an item whose label says it.",
+      "The tree shows what it is given. Filtering is the product's: it gives the tree the items that match and sets open on the parents that hold them, and says how many matched in a status of its own. A part of a name marked as a match is inline content of the label slot.",
+      "The tree does not scroll and does not draw only the rows in view: the product places it in its own scrolling box, and gives a parent's items when it opens (expandable, toggle) where the hierarchy is too large to give at once. A platform that builds rows lazily states each item's level, position and set size where the structure no longer gives them.",
+      "Web: the items are the product's own nested lists in the document — a `<ul>` of `<li>` elements, each holding its row and, where it is a parent, a `<ul>` of its own — inside `<tanrei-tree-view>`. Without script the page shows the whole hierarchy as the nested list it is, every level shown; with the script the element gives the lists the tree's roles, states and keys. The stylesheet draws the whole look before the element is defined, so nothing moves when it is upgraded.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.tree-view",
+  "fixtures": [
+    {
+      "id": "basic",
+      "props": {
+        "label": "Project files"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "all-closed",
+      "props": {
+        "label": "Project files"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "all-open",
+      "props": {
+        "label": "Project files"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "leaves-only",
+      "props": {
+        "label": "Root files"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "LICENSE"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "tsconfig.json"
+          }
+        }
+      ]
+    },
+    {
+      "id": "icons",
+      "props": {
+        "label": "Project files"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "guides",
+      "props": {
+        "label": "Project files",
+        "guides": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact",
+      "props": {
+        "label": "Project files",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact-guides",
+      "props": {
+        "label": "Project files",
+        "density": "compact",
+        "guides": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "single",
+      "props": {
+        "label": "Project files",
+        "selection": "single",
+        "value": "src/components/checkbox.ts"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "value": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "value": "src/components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "value": "src/components/button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "value": "src/components/checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "value": "src/components/tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "value": "src/styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "value": "src/styles/tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "value": "src/styles/prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "value": "src/index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "value": "test",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "value": "test/button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "value": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "value": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "single-parent-selected",
+      "props": {
+        "label": "Project files",
+        "selection": "single",
+        "value": "src/components"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "value": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "value": "src/components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "value": "src/components/button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "value": "src/components/checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "value": "src/components/tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "value": "src/styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "value": "src/styles/tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "value": "src/styles/prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "value": "src/index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "value": "test",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "value": "test/button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "value": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "value": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "single-none-selected",
+      "props": {
+        "label": "Project files",
+        "selection": "single"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "value": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "value": "src/components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "value": "src/components/button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "value": "src/components/checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "value": "src/components/tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "value": "src/styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "value": "src/styles/tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "value": "src/styles/prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "value": "src/index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "value": "test",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "value": "test/button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "value": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "value": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "single-compact",
+      "props": {
+        "label": "Project files",
+        "selection": "single",
+        "value": "src/index.ts",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "value": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "value": "src/components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "value": "src/components/button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "value": "src/components/checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "value": "src/components/tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "value": "src/styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "value": "src/styles/tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "value": "src/styles/prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "value": "src/index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "value": "test",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "value": "test/button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "value": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "value": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "multiple",
+      "props": {
+        "label": "Project files",
+        "selection": "multiple",
+        "values": [
+          "src/components/button.ts",
+          "src/components/checkbox.ts",
+          "package.json"
+        ]
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "value": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "value": "src/components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "value": "src/components/button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "value": "src/components/checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "value": "src/components/tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "value": "src/styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "value": "src/styles/tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "value": "src/styles/prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "value": "src/index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "value": "test",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "value": "test/button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "value": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "value": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "multiple-parent-and-child",
+      "props": {
+        "label": "Project files",
+        "selection": "multiple",
+        "values": [
+          "src/components",
+          "src/components/tree-view.ts"
+        ],
+        "guides": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "value": "src",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "value": "src/components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "value": "src/components/button.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "checkbox.ts",
+                    "value": "src/components/checkbox.ts",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tree-view.ts",
+                    "value": "src/components/tree-view.ts",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "styles",
+                "value": "src/styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "tokens.css",
+                    "value": "src/styles/tokens.css",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "prose.css",
+                    "value": "src/styles/prose.css",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "value": "src/index.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "value": "test",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "button.test.ts",
+                "value": "test/button.test.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "value": "package.json",
+            "icon": "draft"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "value": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "supporting-text",
+      "props": {
+        "label": "Where the tokens live"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "tokens/",
+            "open": true,
+            "supportingText": "source of truth, edited by hand"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "ref/"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "sys/"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "comp/"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "themes/",
+                "supportingText": "input to the color scheme generator"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "generated/",
+                "supportingText": "palettes and schemes written by the generator"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "tanrei.resolver.json"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "design/tokens/",
+            "supportingText": "six resolved permutations"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "packages/",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "web/src/generated/tokens.css"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "swiftui/…/Generated/TanreiTokens.swift"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "compose/…/tokens/"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "flutter/lib/src/generated/tokens.g.dart"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "react-native/src/generated/tokens.ts"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trailing-text",
+      "props": {
+        "label": "Project files"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "open": true,
+            "trailingText": "12 files"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "trailingText": "9 files"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "trailingText": "4 KB"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "trailingText": "1 KB"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "test",
+            "expandable": true,
+            "trailingText": "3 files"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "trailingText": "2 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "all-parts",
+      "props": {
+        "label": "Project files",
+        "selection": "single",
+        "value": "src/index.ts",
+        "guides": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "value": "src",
+            "icon": "folder",
+            "open": true,
+            "supportingText": "what is published",
+            "trailingText": "12 files"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "value": "src/components",
+                "icon": "folder",
+                "supportingText": "one file per component",
+                "trailingText": "9 files"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "value": "src/components/button.ts",
+                    "icon": "draft",
+                    "trailingText": "4 KB"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "value": "src/index.ts",
+                "icon": "draft",
+                "supportingText": "the entry point",
+                "trailingText": "1 KB"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "value": "package.json",
+            "icon": "draft",
+            "trailingText": "2 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "all-parts-compact",
+      "props": {
+        "label": "Project files",
+        "selection": "single",
+        "value": "src/index.ts",
+        "guides": true,
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "src",
+            "value": "src",
+            "icon": "folder",
+            "open": true,
+            "supportingText": "what is published",
+            "trailingText": "12 files"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "components",
+                "value": "src/components",
+                "icon": "folder",
+                "supportingText": "one file per component",
+                "trailingText": "9 files"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "button.ts",
+                    "value": "src/components/button.ts",
+                    "icon": "draft",
+                    "trailingText": "4 KB"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "index.ts",
+                "value": "src/index.ts",
+                "icon": "draft",
+                "supportingText": "the entry point",
+                "trailingText": "1 KB"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "package.json",
+            "value": "package.json",
+            "icon": "draft",
+            "trailingText": "2 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "label": "Token sources",
+        "selection": "multiple",
+        "values": [
+          "themes/dark",
+          "generated"
+        ]
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "ref",
+            "value": "ref",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "palette",
+                "value": "ref/palette",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "typeface",
+                "value": "ref/typeface",
+                "icon": "draft",
+                "disabled": true
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "themes",
+            "value": "themes",
+            "icon": "folder",
+            "open": true,
+            "disabled": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "light",
+                "value": "themes/light",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "dark",
+                "value": "themes/dark",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "generated",
+            "value": "generated",
+            "icon": "folder",
+            "disabled": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "schemes",
+                "value": "generated/schemes",
+                "icon": "draft"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "loading",
+      "props": {
+        "label": "Repository",
+        "loadingLabel": "Loading…"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "packages",
+            "icon": "folder",
+            "open": true,
+            "expandable": true,
+            "loading": true
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "apps",
+            "icon": "folder",
+            "expandable": true
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "tokens",
+            "icon": "folder",
+            "open": true,
+            "loading": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "ref",
+                "icon": "folder",
+                "expandable": true
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "sys",
+                "icon": "folder",
+                "expandable": true
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "README.md",
+            "icon": "draft"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-labels",
+      "props": {
+        "label": "Generated files",
+        "selection": "single",
+        "value": "swift"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "packages",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "swiftui/Sources/Tanrei/Generated/TanreiTokens.swift",
+                "value": "swift",
+                "icon": "draft",
+                "supportingText": "every token as a typed constant, written by the generator and never by hand",
+                "trailingText": "212 KB"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "a-file-name-with-no-place-to-break-that-is-longer-than-the-tree-is-wide.generated.tokens.json",
+                "value": "long",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "The colors, sizes, text styles and motion of every component, for the three shipped presets",
+                "value": "prose",
+                "icon": "draft"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deep",
+      "props": {
+        "label": "Catalogue",
+        "guides": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Catalogue",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "Furniture",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "Seating",
+                    "open": true
+                  },
+                  "items": [
+                    {
+                      "kind": "item",
+                      "props": {
+                        "label": "Chairs",
+                        "open": true
+                      },
+                      "items": [
+                        {
+                          "kind": "item",
+                          "props": {
+                            "label": "Office chairs",
+                            "open": true
+                          },
+                          "items": [
+                            {
+                              "kind": "item",
+                              "props": {
+                                "label": "With armrests"
+                              }
+                            },
+                            {
+                              "kind": "item",
+                              "props": {
+                                "label": "Without armrests"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "item",
+                          "props": {
+                            "label": "Dining chairs"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "item",
+                      "props": {
+                        "label": "Sofas"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "Tables",
+                    "expandable": true
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "Lighting",
+                "expandable": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "file-tree",
+      "props": {
+        "label": "Where the tokens live",
+        "density": "compact",
+        "guides": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "tokens/",
+            "icon": "folder",
+            "open": true,
+            "supportingText": "source of truth, edited by hand"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "ref/",
+                "icon": "folder"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "sys/",
+                "icon": "folder"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "comp/",
+                "icon": "folder"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "themes/",
+                "icon": "folder",
+                "supportingText": "input to the color scheme generator"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "generated/",
+                "icon": "folder",
+                "supportingText": "palettes and schemes written by the generator"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "tanrei.resolver.json",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "design/tokens/",
+            "icon": "folder",
+            "supportingText": "six resolved permutations"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "packages/",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "web/src/generated/tokens.css",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "swiftui/…/Generated/TanreiTokens.swift",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "compose/…/tokens/",
+                "icon": "folder"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "flutter/lib/src/generated/tokens.g.dart",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "react-native/src/generated/tokens.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "studio-tokens",
+      "props": {
+        "label": "Every token",
+        "selection": "single",
+        "value": "sys.color.secondary-container",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Dials",
+            "trailingText": "14"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Reference",
+            "trailingText": "212"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "System",
+            "open": true,
+            "trailingText": "388"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "color",
+                "open": true,
+                "trailingText": "64"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "primary",
+                    "value": "sys.color.primary",
+                    "trailingText": "#1f1f1f"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "on-primary",
+                    "value": "sys.color.on-primary",
+                    "trailingText": "#ffffff"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "secondary-container",
+                    "value": "sys.color.secondary-container",
+                    "trailingText": "#e6e6e6"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "outline-variant",
+                    "value": "sys.color.outline-variant",
+                    "trailingText": "#d4d4d4"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "shape",
+                "trailingText": "12"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "corner.small",
+                    "value": "sys.shape.corner.small",
+                    "trailingText": "4px"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "corner.medium",
+                    "value": "sys.shape.corner.medium",
+                    "trailingText": "8px"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "space",
+                "expandable": true,
+                "trailingText": "19"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "typescale",
+                "expandable": true,
+                "trailingText": "17"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "expandable": true,
+            "trailingText": "4419"
+          }
+        }
+      ]
+    },
+    {
+      "id": "japanese",
+      "props": {
+        "label": "ドキュメント",
+        "selection": "single",
+        "value": "tokens"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "はじめに",
+            "value": "start",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "インストール",
+                "value": "install",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "最初のコンポーネント",
+                "value": "first",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "基礎",
+            "value": "foundations",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "デザイントークン",
+                "value": "tokens",
+                "icon": "draft",
+                "supportingText": "色、寸法、書体、動きの決定に名前を付けたもの"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "右から左へ書く言語への対応",
+                "value": "rtl",
+                "icon": "draft"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "label": "ملفات المشروع",
+        "selection": "single",
+        "value": "list"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "المشروع",
+            "value": "project",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "المكوّنات",
+                "value": "components",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "زر",
+                    "value": "button",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "قائمة",
+                    "value": "list",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "شجرة",
+                    "value": "tree",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "الأنماط",
+                "value": "styles",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "الألوان",
+                    "value": "colors",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "اقرأني",
+                "value": "readme",
+                "icon": "draft",
+                "trailingText": "4 KB"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "الاختبارات",
+            "value": "tests",
+            "icon": "folder",
+            "expandable": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "rtl-guides-compact",
+      "props": {
+        "label": "ملفات المشروع",
+        "density": "compact",
+        "guides": true
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "المشروع",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "المكوّنات",
+                "icon": "folder",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "زر",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "قائمة",
+                    "icon": "draft"
+                  }
+                },
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "شجرة",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "الأنماط",
+                "icon": "folder"
+              },
+              "items": [
+                {
+                  "kind": "item",
+                  "props": {
+                    "label": "الألوان",
+                    "icon": "draft"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "اقرأني",
+                "icon": "draft",
+                "trailingText": "4 KB"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "الاختبارات",
+            "icon": "folder",
+            "expandable": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "ltr-labels-rtl",
+      "props": {
+        "label": "ملفات الرموز",
+        "density": "compact",
+        "guides": true
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "tokens/",
+            "icon": "folder",
+            "open": true,
+            "supportingText": "source of truth, edited by hand"
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "ref/",
+                "icon": "folder"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "sys/",
+                "icon": "folder"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "comp/",
+                "icon": "folder"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "themes/",
+                "icon": "folder",
+                "supportingText": "input to the color scheme generator"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "generated/",
+                "icon": "folder",
+                "supportingText": "palettes and schemes written by the generator"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "tanrei.resolver.json",
+                "icon": "draft"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "design/tokens/",
+            "icon": "folder",
+            "supportingText": "six resolved permutations"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "packages/",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "web/src/generated/tokens.css",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "swiftui/…/Generated/TanreiTokens.swift",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "compose/…/tokens/",
+                "icon": "folder"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "flutter/lib/src/generated/tokens.g.dart",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "react-native/src/generated/tokens.ts",
+                "icon": "draft"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "icons-rtl",
+      "props": {
+        "label": "الإعدادات"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "عام",
+            "icon": "settings",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "item",
+              "props": {
+                "label": "اللغة",
+                "icon": "arrow_forward",
+                "trailingText": "العربية"
+              }
+            },
+            {
+              "kind": "item",
+              "props": {
+                "label": "المظهر",
+                "icon": "arrow_forward",
+                "trailingText": "فاتح"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "الملفات",
+            "icon": "folder",
+            "expandable": true,
+            "trailingText": "12"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-tree-view",
+      "props": {
+        "label": "label",
+        "selection": "selection",
+        "value": "value",
+        "values": "values",
+        "density": "density",
+        "guides": "guides",
+        "loadingLabel": "loading-label"
+      },
+      "events": {
+        "change": "change"
+      },
+      "items": {
+        "item": {
+          "name": "li",
+          "props": {
+            "value": "data-value",
+            "label": "(row text)",
+            "supportingText": "data-supporting-text",
+            "trailingText": "data-trailing-text",
+            "icon": "tanrei-icon",
+            "open": "data-open",
+            "expandable": "data-expandable",
+            "loading": "data-loading",
+            "disabled": "data-disabled"
+          },
+          "events": {
+            "toggle": "toggle"
+          },
+          "notes": "A native `<li>` whose first child element is its row (a `<span>` or a `<div>`) and whose next child, where it is a parent, is a `<ul>` of its items: `<li data-value=\"src\" data-open><span><i class=\"tanrei-icon\">folder</i>src <small data-supporting-text>what is published</small> <span data-trailing-text>12 files</span></span><ul>…</ul></li>`. The row's text is the label (the label slot: text and inline content); inside the row, an element with `data-supporting-text` holds the supporting text, one with `data-trailing` the trailing slot's content and one with `data-trailing-text` the trailing text; a `.tanrei-icon` element first in the row is the icon. `data-open`, `data-expandable`, `data-loading` and `data-disabled` are boolean attributes of the `<li>`, which the element mirrors as `aria-expanded`, `aria-busy` and `aria-disabled`; the element sets and removes `data-open` itself when the user opens or closes the parent. `toggle` is dispatched on the `<li>` and bubbles, with `detail.open`."
+        }
+      },
+      "notes": "Form: `<tanrei-tree-view>` is a custom element with **no shadow root**, around the product's own nested lists in the light DOM — `<tanrei-tree-view label=\"Project files\" selection=\"single\" value=\"src/index.ts\"><ul><li data-value=\"src\" data-open><span>src</span><ul><li data-value=\"src/index.ts\"><span>index.ts</span></li></ul></li></ul></tanrei-tree-view>` — the third component of this form after the table and the accordion. A hierarchy is a nested list: that is what a Markdown renderer emits, what a crawler and a reader mode keep, and what the page shows where script does not run. Everything drawn comes from one stylesheet, `@tanrei/web/tree-view.css`, whose selectors start at `tanrei-tree-view` and are wrapped in `:where()`; the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Before the element is defined the stylesheet already draws the whole look: the indent from the nesting depth (a counter-free rule per nesting step through a custom property the nested `ul` raises), the chevron as the row's `::before` in the icon font on an `li` that holds a `ul` or has `data-expandable`, turned under `li[data-open]`, the rows under an `li` without `data-open` not shown, the guide line as the nested `ul`'s `::before`, the selected fill from `aria-selected` once the element has set it and from `[value]` matching only after definition (a selected row is the one thing drawn at upgrade: the product that renders on a server writes `aria-selected=\"true\"` itself to have it in the first frame). Under `@media (scripting: none)` every level is shown and no chevron is drawn: a plain nested list in the tree's type and spacing. The element, once defined, adds what a stylesheet cannot: `role=\"tree\"` and `aria-label` on itself (`aria-multiselectable` for multiple), `role=\"none\"` on each `<ul>` directly inside it and `role=\"group\"` on each nested one, `role=\"treeitem\"`, `aria-expanded`, `aria-selected`, `aria-disabled` and `aria-busy` on each `<li>` (level, set size and position come from the nesting; they are written as `aria-level`, `aria-setsize` and `aria-posinset` only where a product marks a list as partial), the roving `tabindex` (0 on one `<li>`, -1 on the others) with the focus ring drawn on the row by `li:focus-visible > :first-child`, the keys of TRV-20 to TRV-23, the pointer rules of TRV-10 (the chevron's hit area is the row's `::before` box extended by the indent), `change` with `detail.value` or `detail.values`, the shared press primitive on the row (ripple and dim, TRV-29), the loading row (a `<tanrei-loading-indicator size=\"small\">` and the label in an element of its own after the nested list, `aria-hidden` apart from the indicator's name), opening for find-in-page where the browser reports it (closed lists are hidden with `hidden=\"until-found\"` where the browser has it and answered on `beforematch`; elsewhere closed rows are not found, TRV-14), the motion of TRV-11 (the nested list's height from 0 to `auto` under `interpolate-size: allow-keywords` where the browser can, one measured Web Animations run elsewhere, at once where neither is available) and every debug report. A `MutationObserver` on the subtree keeps roles and the tab stop right when the product adds or removes items. `value` and `values` are properties and attributes (`values` as a space-separated list is not taken: a value may hold a space; the attribute is JSON, the property an array). Inside `.tanrei-prose` the element is an island by its tag name (PRS-16). Markdown: the product wraps a nested list in `<tanrei-tree-view>` at build time and wraps each item's own text in its row element (a step of a few lines, shown in the README); Tanrei does not transform content. React: `TreeView` and `TreeItem` render the same elements."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiTreeView",
+      "props": {
+        "label": "label",
+        "selection": "selection",
+        "value": "selection",
+        "values": "selection",
+        "density": "density",
+        "guides": "showsGuides",
+        "loadingLabel": "loadingLabel"
+      },
+      "events": {
+        "change": "selection"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiTreeItem",
+          "props": {
+            "value": "tag",
+            "label": "title",
+            "supportingText": "supportingText",
+            "trailingText": "trailingText",
+            "icon": "icon",
+            "open": "isExpanded",
+            "expandable": "isExpandable",
+            "loading": "isLoading",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "isExpanded"
+          },
+          "notes": "`TanreiTreeItem(_ title: String, supportingText: String = \"\", trailingText: String = \"\", icon: String? = nil, isExpanded: Binding<Bool>, isExpandable: Bool = false, isLoading: Bool = false) { children }`, tagged with `.tag(value)`; a leaf has an initializer without the binding and the children. Toggling writes the binding, as `TanreiNavigationDrawerGroup` and `TanreiAccordionItem` do. A second initializer takes the label as a `@ViewBuilder` and `trailing:` as another (the slots). `disabled` follows `.disabled(_:)`."
+        }
+      },
+      "notes": "`TanreiTreeView(_ label: String, selection: Binding<Value?>, density:, showsGuides:, loadingLabel:) { TanreiTreeItem(…) { … } }`, with an initializer taking `Binding<Set<Value>>` for multiple and one without a selection for none, as `TanreiList` spells its three forms; a data-driven initializer takes a collection and a key path to its children, as the platform's outline views do. Built on a lazy stack of rows, not on `List` or `OutlineGroup`, whose rows, disclosure mark and selection are the platform's own look. Not used for the same reason: `DisclosureGroup`. Semantics: no tree trait exists for custom views; each row is one element with the selected trait and a value of expanded or collapsed, in order; on macOS the row also carries its disclosure level through the AppKit accessibility protocol. On iOS the level is not told (TRV-32's fallback), which the README states. Keys (TRV-19 to TRV-23) apply with a hardware keyboard and on macOS; `.focusable()` on the tree with a focused-row state gives the single stop."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiTreeView",
+      "props": {
+        "label": "label",
+        "selection": "selection",
+        "value": "value",
+        "values": "values",
+        "density": "density",
+        "guides": "guides",
+        "loadingLabel": "loadingLabel"
+      },
+      "events": {
+        "change": "onValueChange"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiTreeItem",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "supportingText": "supportingText",
+            "trailingText": "trailingText",
+            "icon": "icon",
+            "open": "expanded",
+            "expandable": "expandable",
+            "loading": "loading",
+            "disabled": "enabled"
+          },
+          "events": {
+            "toggle": "onExpandedChange"
+          },
+          "notes": "`TanreiTreeItem(label, value = \"\", expanded = false, onExpandedChange = {}, supportingText = \"\", trailingText = \"\", icon = null, expandable = false, loading = false, enabled = true, labelContent = null, trailing = null) { children }` in the tree's scope, with the names of `TanreiNavigationDrawerGroup` and `TanreiAccordionItem`. `enabled` is the inverse flag; `labelContent` and `trailing` are the slots."
+        }
+      },
+      "notes": "`TanreiTreeView(label, selection, value, onValueChange, …) { TanreiTreeItem(…) { … } }`, controlled; the multiple form takes `values: Set<String>` and `onValuesChange`. The scope flattens the shown items into a `LazyColumn` (the product's scrolling box where it gives none). Semantics: `collectionInfo` on the tree and `collectionItemInfo` on each row, `selected`, `stateDescription` left to the platform's expanded state through `expand()` and `collapse()` actions, `disabled()`; the platform's hierarchical collection flag where the toolkit exposes it, otherwise the level is not told (TRV-32's fallback), which the README states. Keys through `onKeyEvent` on the tree with a `FocusRequester` per shown row and one row in the focus order."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiTreeView",
+      "props": {
+        "label": "semanticLabel",
+        "selection": "selection",
+        "value": "value",
+        "values": "values",
+        "density": "density",
+        "guides": "guides",
+        "loadingLabel": "loadingLabel"
+      },
+      "events": {
+        "change": "onChanged"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiTreeItem",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "supportingText": "supportingText",
+            "trailingText": "trailingText",
+            "icon": "icon",
+            "open": "expanded",
+            "expandable": "expandable",
+            "loading": "loading",
+            "disabled": "enabled"
+          },
+          "events": {
+            "toggle": "onExpansionChanged"
+          },
+          "notes": "`TanreiTreeItem(label:, value: '', supportingText: '', trailingText: '', icon:, expanded: false, onExpansionChanged:, expandable: false, loading: false, enabled: true, labelWidget:, trailing:, children: const [])`, a description of an item and not a widget, as the list's items are; controlled, with the callback name of `TanreiNavigationDrawerGroup`. `labelWidget` and `trailing` are the slots."
+        }
+      },
+      "notes": "`TanreiTreeView(semanticLabel:, selection:, value:, values:, onChanged:, density:, guides:, loadingLabel:, items: [TanreiTreeItem(…)])`. Not built on the framework's `TreeSliver` or the Material library's `ExpansionTile`, whose rows and marks are their own look; it may read how the framework's tree lays out and reveals rows. Shrink-wrapped by default; a `TanreiTreeView.sliver` form builds rows lazily in the product's scroll view. Semantics: the tree and tree-item roles where the framework has them, with `expanded`, `selected` and `enabled`; otherwise one node per row in order with those flags and no level (TRV-32's fallback), stated in the README. Keys through `Focus` and `Shortcuts` on the tree with one focus node in the traversal order."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "TreeView",
+      "props": {
+        "label": "accessibilityLabel",
+        "selection": "selection",
+        "value": "value",
+        "values": "values",
+        "density": "density",
+        "guides": "guides",
+        "loadingLabel": "loadingLabel"
+      },
+      "events": {
+        "change": "onChange"
+      },
+      "items": {
+        "item": {
+          "name": "TreeItem",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "supportingText": "supportingText",
+            "trailingText": "trailingText",
+            "icon": "icon",
+            "open": "open",
+            "expandable": "expandable",
+            "loading": "loading",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "onToggle"
+          },
+          "notes": "`<TreeItem label=\"src\" value=\"src\" open={…} onToggle={…}>…</TreeItem>`, with the names of `NavigationDrawerGroup` and `AccordionItem`; controlled when `open` is given, and `defaultOpen` otherwise. The label slot is the `labelContent` prop and the trailing slot the `trailing` prop; its items are `children`."
+        }
+      },
+      "notes": "`<TreeView accessibilityLabel=\"Project files\" selection=\"single\" value={…} onChange={…}>` with `TreeItem` children; `value` is controlled when given, with `defaultValue` otherwise, and `values` likewise. Rows are views in a column; a `TreeView.Flat` form takes the shown rows as data for the product's `FlatList`. Semantics: `accessibilityState={{ expanded, selected, disabled, busy }}` on each row and the tree and tree item roles where the platform maps them; the level is not told on iOS and Android (TRV-32's fallback), stated in the README. Keys apply where a hardware keyboard is present (and on the web through React Native for Web). Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

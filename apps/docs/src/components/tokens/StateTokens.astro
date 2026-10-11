@@ -1,0 +1,58 @@
+---
+import { tokensIn, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import SourceNote from '../SourceNote.astro';
+import Table from '../Table.astro';
+const t = strings(contentLang(Astro));
+const tokens = tokensIn(`${ns}.sys.state`);
+---
+
+<Table label={`${ns}.sys.state`}><table>
+  <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">{t.value}</th><th scope="col" data-wrap="false">{t.specimen}</th></tr></thead>
+  <tbody>
+    {tokens.map((tk) => (
+      <tr>
+        <td data-wrap="false"><code>{tk.cssVar}</code></td>
+        <td class="docs-mono" data-wrap="false">{tk.value} <span class="docs-muted">({Math.round(tk.value * 100)}%)</span></td>
+        <td>
+          <span class="pair" data-pagefind-ignore>
+            <span class="specimen on-surface"><i style={`opacity: var(${tk.cssVar})`} />Aa</span>
+            <span class="specimen on-primary"><i style={`opacity: var(${tk.cssVar})`} />Aa</span>
+          </span>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table></Table>
+<SourceNote files={[`design/tokens/${ns}.light.tokens.json`, 'tokens/sys/state.tokens.json']} />
+
+<style>
+  .pair {
+    display: inline-flex;
+    gap: 0.5rem;
+  }
+  .specimen {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    inline-size: 3.5rem;
+    block-size: 2rem;
+    border-radius: var(--tanrei-sys-shape-corner-small);
+    font-size: var(--sl-text-xs);
+    font-weight: 500;
+    overflow: hidden;
+  }
+  .specimen i {
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+  }
+  .on-surface {
+    color: var(--tanrei-sys-color-on-surface);
+    box-shadow: inset 0 0 0 1px var(--tanrei-sys-color-outline);
+  }
+  .on-primary {
+    color: var(--tanrei-sys-color-on-primary);
+    background: var(--tanrei-sys-color-primary);
+  }
+</style>

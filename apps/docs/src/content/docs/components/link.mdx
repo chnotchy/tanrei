@@ -1,0 +1,238 @@
+---
+title: Link
+description: Text that leads somewhere, as a phrase in a sentence, a line by itself, or a glyph alone. In the text style of where it sits, underlined as your design system chooses, and marked where it leaves the site.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="link" />
+
+<DemoFrame label="In a sentence, by itself, and a glyph alone" column>
+  <p style="margin: 0; max-inline-size: 32rem">
+    Tokens are generated for every platform. Read
+    <a class="tanrei-link" href="../../foundations/design-tokens/">how the tokens are derived</a>, or look at
+    <a class="tanrei-link" href="https://example.com/tanrei" target="_blank" aria-description="opens in a new tab">the source code</a>.
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="../button/">Next: Button<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" href="#overview" aria-label="Link to Overview"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+  </p>
+</DemoFrame>
+
+The rule a product can apply without a table: **if it has an address it is a link; if it has none it is a button.** A control that does something on the page and leads nowhere is a [Button](../button/), the text variant where it should read as quietly as text. A destination that should look like a button is a Button with `href`.
+
+### Usage
+
+On the web the link is a class on your own anchor, not an element. The anchor is in the document, so it is a link before any script runs, and a crawler, a search index and a router that works on the page's anchors all find it. A router's own link component takes the class. Every anchor inside `.tanrei-prose` is drawn the same way without a class, so rendered Markdown needs nothing.
+
+SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet. React has no `Link` component yet either, so use the anchor with the class.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link.css" />
+
+    <!-- In a sentence. -->
+    <p>Read <a class="tanrei-link" href="/guides/accessibility/">the accessibility guide</a> first.</p>
+
+    <!-- By itself: the hit area reaches the minimum target. -->
+    <a class="tanrei-link" data-standalone href="/getting-started/">Getting started</a>
+
+    <!-- A new tab: the mark is drawn for you. Say it in words too. -->
+    <a class="tanrei-link" href="https://example.com/" target="_blank" aria-description="opens in a new tab">the source code</a>
+
+    <!-- Another site, opening where the person is: an arrow after the label, and the words for it. -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="external link">the standard</a>
+
+    <!-- With that site's icon: an image your own site serves, the anchor's first child. -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="external link"><img
+      class="tanrei-link-site-icon" src="/icons/example-com.png" alt="" width="32" height="32"
+      loading="lazy" decoding="async" referrerpolicy="no-referrer">the standard</a>
+
+    <!-- One link set apart from the design system's underline: always, hover or never. -->
+    <a class="tanrei-link" data-standalone data-underline="hover" href="/about/">About</a>
+
+    <!-- A region with its own choice: every link inside follows it. -->
+    <footer style="--tanrei-comp-link-underline-visibility: never">…</footer>
+
+    <!-- A glyph, written against the text with no space between them. -->
+    <a class="tanrei-link" data-standalone href="/tokens.zip"><span class="tanrei-icon" aria-hidden="true">download</span>Download the tokens</a>
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="/tokens/">Next: Tokens<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+
+    <!-- A glyph alone, named by aria-label. -->
+    <a class="tanrei-link" href="#installation" aria-label="Link to Installation"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+
+    <!-- The current page, a link that cannot be followed now, and a link on an inverse surface. -->
+    <a class="tanrei-link" data-standalone href="/components/" aria-current="page">Components</a>
+    <a class="tanrei-link" data-standalone role="link" aria-disabled="true">Previous page</a>
+    <a class="tanrei-link" data-variant="inverse" href="/changes/">what changed</a>
+
+    <script type="module">
+      // Optional: ripple and dim feedback, noopener, refusals and debug reports. `@tanrei/web` loads it too.
+      // It also marks the links that leave the site, where the page was not marked when it was made.
+      import { setSiteOrigins, setExternalLabel } from '@tanrei/web/link';
+      setSiteOrigins(['https://docs.example.com']); // origins that are part of your own site
+      setExternalLabel('external link');            // the words, once for the page, in your language
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/link.css';
+    import '@tanrei/web/link';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <a className="tanrei-link" href="/guides/accessibility/">the accessibility guide</a>
+
+    {/* A router's link renders its own anchor: give it the class. */}
+    <RouterLink className="tanrei-link" data-standalone to="/getting-started/">Getting started</RouterLink>
+    ```
+  </TabItem>
+</Tabs>
+
+| Prop | On the web |
+| --- | --- |
+| `href` | `href` |
+| `target: new` | `target="_blank"` |
+| `targetLabel` | `aria-description` |
+| `variant: inverse` | `data-variant="inverse"` |
+| `standalone` | `data-standalone` |
+| `iconPosition: trailing` | `data-icon-position="trailing"` |
+| `current` | `aria-current="page"` (or another of its values) |
+| `disabled` | `role="link" aria-disabled="true"`, and no `href` |
+| `label` | `aria-label` |
+| `underline` | `data-underline="always"`, `"hover"` or `"never"`; without it, the design system's choice |
+| `external: on`, `off` | `data-external="true"`, `data-external="false"`; without it, the address decides |
+| `externalLabel` | `aria-description` |
+| `siteIcon` | your own `<img class="tanrei-link-site-icon" alt="">`, the anchor's first child |
+
+## Specs
+
+<DemoFrame label="Wrapping: the underline, the state layer and the focus ring follow each line" plain>
+  <p style="margin: 0; max-inline-size: 22rem">
+    <a class="tanrei-link" href="../../foundations/accessibility/">the accessibility guide, which explains how every component is named, how it is reached and operated from the keyboard, and what each platform announces when its state changes</a>
+  </p>
+</DemoFrame>
+
+<DemoFrame label="A glyph and the new-tab mark" plain column>
+  <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>Download the tokens</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="opens in a new tab">View source</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="opens in a new tab"><span class="tanrei-icon" aria-hidden="true">code</span>View source</a>
+  <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="opens in a new tab">View source<span class="tanrei-icon" aria-hidden="true">code</span></a>
+</DemoFrame>
+
+<DemoFrame label="Current and disabled" plain>
+  <a class="tanrei-link" data-standalone href="../">Overview</a>
+  <a class="tanrei-link" data-standalone href="./" aria-current="page">Components</a>
+  <a class="tanrei-link" data-standalone role="link" aria-disabled="true">Previous page</a>
+</DemoFrame>
+
+<DemoFrame label="The underline: always, on hover, never" plain>
+  <a class="tanrei-link" data-standalone data-underline="always" href="../button/">Always</a>
+  <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">On hover</a>
+  <a class="tanrei-link" data-standalone data-underline="never" href="../button/">Never</a>
+</DemoFrame>
+
+<DemoFrame label="A link that leaves the site" plain column>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="external link">Specification</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="external link"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />Specification</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="opens in a new tab"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />Specification</a>
+</DemoFrame>
+
+<DemoFrame label="On an inverse surface" plain>
+  <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
+    The page was saved. See
+    <a class="tanrei-link" data-variant="inverse" href="../snackbar/">what changed</a>.
+  </div>
+</DemoFrame>
+
+A link brings no text style of its own: it takes the family, size, weight and line height of the text it sits in, in a paragraph, a heading, a caption or a table cell alike. Hover, focus and press are drawn behind its text on each line it runs over, and take no room, so nothing around a link moves. A glyph, the site's icon and the mark are the size of the text and stay on the line of the word beside them.
+
+**When the underline is drawn is a choice** with three values. `always` draws it at rest and in every state. `hover` draws it while the link is hovered, focused from the keyboard or pressed. `never` draws none, and hover, focus and press are still shown by the state layer, the label color and the focus ring. The choice is set at three levels: `sys.behavior.link-underline` for every text link of a design system, `comp.link.underline.visibility` for the Link alone, and the `underline` prop for one link. The default system chooses `always`. On the web the component token is a custom property, so a region such as a footer can carry its own value. The current link and a glyph alone have no underline under any choice, and forced colors draw it under every choice.
+
+**A link that leaves the site says so.** An external link shows the glyph `arrow_outward` after its label and, where you give one, the icon of that site before it. `external` is `auto`, `on` or `off`. Under `auto` an `http` or `https` address of another origin than the page's is external; a path, a fragment, a mail address, a telephone number and a download never are. Declare the other origins of your own site once, and they are not external either. `comp.link.external.marks` turns the icon off (`arrow`) or both marks off (`none`) for the whole product.
+
+Leaving the site and opening a new tab are two facts. The place after the label holds one glyph: `open_in_new` for a link with `target="_blank"`, external or not, and otherwise `arrow_outward` for an external link. Your own glyph at the trailing side replaces either, and a glyph alone has neither.
+
+**The link never fetches an icon.** `siteIcon` is an image you give: one your own site serves, made when the site is built. A component that asked the destination, or an icon service, for it would tell that party which page each reader is on. Where no icon is given the link shows the arrow alone. An icon that cannot be loaded keeps its room and draws nothing.
+
+<ComponentSpecs name="link" />
+
+### What the web draws differently
+
+- The container behind a link's text is the box of the text itself (the font's own height), not the full line height.
+- A link with a glyph or the mark that wraps is drawn as one box cut at the line ends. A link without them has all four corners on every line.
+- A standalone link with a glyph, the mark or the marks of an external link lays its label out in the direction of the layout, not of the label's own first letter.
+- The stylesheet computes nothing about an address: it draws the marks for `data-external`. Write the attribute where the page is made (the build step `markExternalLinks()` of `@tanrei/web/links` does it for rendered Markdown), and the marks are in the first paint.
+- With the package's script, an anchor without `data-external` whose address leaves the site is marked in the browser. These marks arrive after the first paint, and each moves what follows it on its line by the size of the text and the gap. A page with neither the attribute nor the script shows no external mark.
+- In a browser without style container queries the script reads the two choices for the whole page. A region's own value is not seen there, and without the script each choice is its first value: `always`, and both marks.
+- Under a design system whose press feedback is a ripple, a link that runs over several lines answers with the overlay instead.
+- Without the package's script the stylesheet draws every state, with the overlay as the press feedback.
+
+## Guidelines
+
+### Link, or Button
+
+| Component | What it is | Use it when |
+| --- | --- | --- |
+| **Link** | Text that leads somewhere, in the text style around it, underlined as the design system chooses | A phrase in a sentence, a line of text that is a destination, a glyph beside a heading |
+| **Button with a destination** | A link that is drawn as a button | The destination is one of the screen's actions: "Get started", "View source" |
+| **Text Button** | A button | It does something and leads nowhere, however much it should look like text |
+
+### In a sentence, or by itself
+
+`data-standalone` changes nothing a person sees. It says the link is not part of a line of text, so its hit area can reach the minimum target without taking presses meant for the lines above and below. Use it for a link under a paragraph, in a table cell or in a row of links. Leave it off inside a sentence.
+
+Links that stand by themselves are what `hover` and `never` are for: a list of navigation, a footer, a row of related pages. Their place in a list says what they are. Set `data-underline` on those links, or give the region its own value of the component token, and leave the links of your sentences underlined.
+
+### Do
+
+- Write a label that says where the link goes without the sentence around it: "the installation guide", not "here".
+- Use `data-variant="inverse"` only on `sys.color.inverse-surface`. On a quiet container (a status container, `secondary-container`) the standard link is right.
+- Mark at most one link of a set of navigation as current, and let the set decide which.
+- Leave `sys.target.spacing` between two standalone links, or let their rows be a target high.
+- Give the icon of a site as a file your own site serves. `resolveSiteIcons()` of `@tanrei/web/links` makes them when the site is built, so no reader's browser calls another party.
+- Set the words for external links once (`setExternalLabel()`, or `externalLabel` of the build step), in your product's language. They are the key `externalLabel` of [your product's words](/foundations/words/): `setWords({ externalLabel: '…' })` gives the same words, per language with `{ lang }`.
+
+### Don't
+
+- Don't remove the underline at rest in a layer whose link color is its text color. In the default system the link color is the text color itself, 1.00:1 against it in all six schemes, so the underline is the only thing that says "link". The build fails the default system, and warns a product's layer, where the choice is `hover` or `never` and the link color is under 3:1 from the text color.
+- Don't count on `hover` to reveal a link on a touch screen. There is no hover there, so `hover` is held to the same rule as `never`.
+- Don't load a site's icon from that site, or from an icon service, in the browser. Every reader's browser would then tell that party which page is being read.
+- Don't give a link a click handler in place of a destination. An anchor without an address is drawn as plain text and reported in debug builds.
+- Don't put a link inside a control that is pressed as a whole (a link card, a list item with a destination), or a control inside a link.
+- Don't style visited links. A product that needs "already opened" marks it from its own data, with a Tag or a glyph.
+
+## Accessibility
+
+<ComponentAccessibility name="link" />
+
+### What the component handles
+
+- It is the browser's own link: the link role, Enter to follow, the context menu, opening in a new tab, and a link that works without script.
+- In the default system the underline tells it from the text beside it without relying on color, in every scheme. In forced colors the underline is drawn whatever was chosen.
+- An external link has one description, read after its name: `aria-description` for a new tab, otherwise the words for an external link. The arrow and the site's icon are hidden from assistive technology.
+- The keyboard focus ring is drawn around the link's part of each line.
+- A standalone link and a glyph alone extend their hit area to the minimum target. A link in a sentence keeps to its own text.
+- The mark and a glyph beside a label are hidden from assistive technology.
+- With the package's script, a link that opens a new tab gets `noopener`, and a debug build reports a missing name, a missing description and an address that is not a destination. It also reports a link in a sentence that is not underlined at rest and stands under 3:1 from its text, external links that have no words (once for the page), and a site's icon that is loaded from another origin.
+
+### What you need to do
+
+- Give a glyph alone its name with `aria-label`, and put `aria-hidden="true"` on every glyph.
+- Say that a link opens a new tab with `aria-description`, in your product's language. Tanrei ships no words of its own.
+- Write a disabled link as the anchor without `href`, with `role="link"` and `aria-disabled="true"`. It leaves the focus order, so say in text beside it why the place cannot be reached.
+- Set `aria-current` on the link that names the page or section the person is at.
+- Use `hover` and `never` inside running text only where the link color stands 3:1 or more apart from the text color, and still 4.5:1 from the surface. With near-black text on a near-white surface that is a narrow band of mid tones.
+- Say that a link leaves the site in words: `aria-description` on the link, or the words you set once for every external link. Tanrei ships no words of its own. For a link that is external and opens a new tab, word the one description for both facts.
+- Write the site's icon with `alt=""`. It is decoration: the label names the link, and the arrow marks it.

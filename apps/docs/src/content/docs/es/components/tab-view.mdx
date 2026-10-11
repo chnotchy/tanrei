@@ -1,0 +1,239 @@
+---
+title: Vista de pestañas
+description: Muestra la vista de la pestaña seleccionada bajo su propia fila de pestañas, o vinculada a una fila colocada en otro lugar, y permite deslizar de una vista a otra mientras el indicador de las pestañas sigue al dedo.
+translationOf: components/tab-view.mdx
+sourceHash: 9e88a691605cc8a2ba05cfb5974f032f4a81ef01
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="tab-view" />
+
+Una vista de pestañas contiene un panel por pestaña y muestra el panel de la pestaña seleccionada. Seleccionar una pestaña cambia la vista con un breve desplazamiento, un fundido y un desenfoque; la persona también puede deslizar la vista hacia los lados, y el indicador de las pestañas sigue al dedo y se asienta en la pestaña en la que se detiene la vista. Con el movimiento reducido, el cambio es un fundido cruzado que sigue igualmente al dedo, sin desplazamiento ni desenfoque.
+
+<DemoFrame label="Una vista de pestañas con su propia fila: elige una pestaña, o desliza el panel con el dedo o con un lápiz">
+  <tanrei-tab-view label="Proyecto" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="overview" label="Resumen"><p>Tres tareas abiertas, que vencen esta semana.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="activity" label="Actividad"><p>Ada comentó el plan hace una hora.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="settings" label="Configuración"><p>Visible para todas las personas del espacio de trabajo.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+Una vista de pestañas tiene dos formas:
+
+- **Con su propia fila, la predeterminada.** La vista dibuja una fila de [pestañas](/es/components/tabs/) en su parte superior, con los paneles justo debajo. Cada panel lleva el `label`, el `icon`, el `labelHidden` y el `disabled` de su pestaña, de modo que una sola declaración crea tanto la pestaña como su vista. Los `variant`, `size`, `track`, `fullWidth`, `label`, `group` y `rememberAs` de la vista son los de la fila. La fila es un componente Tabs real: la misma pista y el mismo indicador, los mismos tokens, variantes y comportamiento, así que una capa que cambia el estilo de las pestañas también cambia el de la fila. Nunca se mueve, se funde ni se desenfoca con un cambio.
+- **Vinculada, para pestañas colocadas en otro lugar.** `tabs` vincula la vista a una fila situada en una barra de la aplicación o en una cabecera fija. Mientras está definido, la vista no dibuja ninguna fila propia, ni siquiera si esa fila falta, y sus propiedades de fila y las propiedades de pestaña de los paneles no se usan.
+
+Con su propia fila, la vista emite `change` por cada selección, venga de una pestaña o de un deslizamiento, y el `change` de la propia fila no te llega. Vinculada, las pestañas emiten `change` por una pestaña y la vista por un deslizamiento, de modo que cada selección se anuncia una sola vez.
+
+Las vistas de pestañas que nombran el mismo `group` muestran la misma elección, y `rememberAs` la conserva en el dispositivo de la persona. Las pestañas de contenido de este sitio son un ejemplo: cada conjunto de ejemplos por plataforma es una vista de pestañas secundaria de un mismo grupo, recordada con la clave propia del sitio.
+
+### Uso
+
+En la web es `<tanrei-tab-view>` con hijos `<tanrei-tab-panel>`, el mismo elemento que una fila de pestañas usa para sus propios paneles. El panel seleccionado es el `value` de la vista, que se mantiene igual al `value` de sus pestañas: definir cualquiera de los dos define el otro, sin ningún evento. Cuando la vista está vinculada, `tabs` nombra el id de un `<tanrei-tabs>` del mismo documento o shadow root. `swipeable` se escribe como su inverso, `no-swipe`, porque el valor predeterminado de un atributo booleano de HTML es false.
+
+SwiftUI, Compose, Flutter y React Native todavía no han implementado la vista de pestañas. Hasta que lo hagan, una fila de [pestañas](/es/components/tabs/) muestra ahí el panel seleccionado, como describe su propia página, sin el deslizamiento.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Con su propia fila (la forma predeterminada): cada panel declara su pestaña. -->
+    <tanrei-tab-view label="Proyecto">
+      <tanrei-tab-panel value="overview" label="Resumen" icon="dashboard">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity" label="Actividad" icon="history">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="billing" label="Facturación" icon="payments" disabled>…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <!-- Vinculada, para pestañas colocadas en otro lugar (una barra de la aplicación, una cabecera fija): la vista no dibuja ninguna fila. -->
+    <tanrei-tabs id="project-tabs" label="Proyecto">
+      <tanrei-tab value="overview" label="Resumen"></tanrei-tab>
+      <tanrei-tab value="activity" label="Actividad"></tanrei-tab>
+    </tanrei-tabs>
+    <tanrei-tab-view tabs="project-tabs">
+      <tanrei-tab-panel value="overview">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity">…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <!-- Las vistas que nombran un mismo grupo muestran una misma elección. remember-as la conserva en el dispositivo, con tu propia clave. -->
+    <tanrei-tab-view variant="secondary" group="platform" remember-as="my-docs-platform" label="Plataforma">
+      <tanrei-tab-panel value="web" label="Web">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="flutter" label="Flutter">…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <script type="module">
+      import '@tanrei/web/components/tab-view'; // define también las pestañas y los paneles
+      // Un change por selección. Con su propia fila: el de la vista, por una pestaña y por un deslizamiento.
+      // Vinculada: el de las pestañas por una pestaña, el de la vista por un deslizamiento. En un grupo: solo la vista que usó la persona.
+      document.addEventListener('change', (e) => console.log(e.target.localName, e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tab, TabPanel, Tabs, TabView } from '@tanrei/react';
+
+    // Con su propia fila: un solo onChange recibe todas las selecciones, vengan de una pestaña o de un deslizamiento.
+    <TabView label="Proyecto" value={view} onChange={(e) => setView(e.detail.value)}>
+      <TabPanel value="overview" label="Resumen" icon="dashboard"><Overview /></TabPanel>
+      <TabPanel value="activity" label="Actividad" icon="history"><Activity /></TabPanel>
+    </TabView>
+
+    // Vinculada: las pestañas anuncian una pestaña, la vista anuncia un deslizamiento. Actualiza tu estado desde ambos.
+    <Tabs id="project-tabs" label="Proyecto" value={view} onChange={(e) => setView(e.detail.value)}>
+      <Tab value="overview" label="Resumen" />
+      <Tab value="activity" label="Actividad" />
+    </Tabs>
+    <TabView tabs="project-tabs" onChange={(e) => setView(e.detail.value)}>
+      <TabPanel value="overview"><Overview /></TabPanel>
+      <TabPanel value="activity"><Activity /></TabPanel>
+    </TabView>
+
+    // Una elección compartida y recordada. noSwipe es el swipeable de la especificación, invertido.
+    <TabView variant="secondary" group="platform" rememberAs="my-docs-platform" label="Plataforma" noSwipe>
+      <TabPanel value="web" label="Web"><WebSample /></TabPanel>
+      <TabPanel value="flutter" label="Flutter"><FlutterSample /></TabPanel>
+    </TabView>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Una fila secundaria que ocupa todo el ancho, con iconos y una pestaña deshabilitada; y una vista vinculada a una fila colocada aparte" plain column>
+  <tanrei-tab-view variant="secondary" full-width label="Despliegue" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="overview" label="Resumen" icon="dashboard"><p>Tres servicios, todos en funcionamiento.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="activity" label="Actividad" icon="history"><p>Desplegado hace 2 horas.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="billing" label="Facturación" icon="payments" disabled><p>La facturación no está configurada.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+  <tanrei-tabs id="tab-view-demo-linked-tabs" label="Viaje">
+    <tanrei-tab value="plan" label="Plan"></tanrei-tab>
+    <tanrei-tab value="map" label="Mapa"></tanrei-tab>
+    <tanrei-tab value="notes" label="Notas"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-divider style="inline-size: 22.5rem; max-inline-size: 100%"></tanrei-divider>
+  <tanrei-tab-view tabs="tab-view-demo-linked-tabs" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="plan"><p>Día 1: llegada y paseo por el casco antiguo.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="map"><p>Cuatro lugares guardados cerca de la estación.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notes"><p>El museo cierra los lunes.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+<ComponentSpecs name="tab-view" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa una vista de pestañas cuando cada pestaña es una vista de igual rango de un mismo tema y las personas pasan de una a otra a menudo: Resumen, Actividad y Configuración de un proyecto, o el mismo ejemplo para varias plataformas. Añade tres cosas a una fila de pestañas: una sola declaración para una pestaña y su panel, el deslizamiento y un cambio que el indicador y los paneles hacen juntos.
+
+Una fila de [pestañas](/es/components/tabs/) con sus propios paneles basta cuando los paneles son contenido sencillo y nadie los va a deslizar. Una vista de pestañas no es un carrusel ni un paginador: muestra un panel por pestaña, y un deslizamiento mueve un panel. Una fila de elementos para explorar corresponde al [carrusel](/es/components/carousel/).
+
+### Con su propia fila o vinculada
+
+| Forma | Qué escribes | De dónde viene `change` | Úsala para |
+| --- | --- | --- | --- |
+| Con su propia fila (predeterminada) | Solo paneles. Cada panel nombra su pestaña con `label` e `icon`. | De la vista, por una pestaña y por un deslizamiento. | La mayoría de las vistas de pestañas: las pestañas están justo encima de su contenido. |
+| Vinculada (`tabs`) | Una fila de pestañas en otro lugar, y una vista de paneles que la nombra. | De las pestañas por una pestaña, de la vista por un deslizamiento. | Pestañas que están separadas de su contenido, como en una cabecera fija. |
+
+- Las propiedades de una fila vinculada deciden su aspecto, su nombre, su grupo y su clave. `variant`, `size`, `track`, `fullWidth`, `label`, `group` y `rememberAs` en una vista vinculada no se usan, y las compilaciones de depuración informan de cualquiera que esté definida.
+- Coloca una vista vinculada después de sus pestañas en el orden de lectura, para que Tab pase de la pestaña seleccionada al panel. Una vista con su propia fila lo hace por construcción.
+- Las pestañas no tienen insignia, así que un panel tampoco. Para marcar una pestaña con una insignia, escribe tú la fila y vincúlala.
+
+### Deslizamiento
+
+- **Un panel por deslizamiento.** Un arrastre con el dedo o con un lápiz, más hacia un lado que hacia arriba o hacia abajo, avanza hacia la pestaña habilitada siguiente o anterior, y el indicador sigue al dedo. Si se suelta pasada la mitad, o con un lanzamiento hacia la pestaña, el cambio se confirma; si no, vuelve. Un ratón, un panel táctil y una rueda no deslizan: usan las pestañas.
+- **Las pestañas deshabilitadas se saltan,** y en la primera o la última pestaña el panel se queda en reposo.
+- **El contenido que se arrastra hacia los lados conserva su arrastre.** No se toma un deslizamiento de una región que se desplaza hacia los lados, de un control deslizante, de un carrusel, de un campo de texto ni de un texto seleccionado. Para un panel que se arrastra hacia los lados como un todo, como un mapa o una superficie de dibujo, pon `swipeable` en false y deja el cambio a las pestañas.
+- **Un arrastre a lo largo de la fila** es el gesto propio de las pestañas: puede pasar por varias pestañas, el panel mostrado espera, y al soltar se cambia al panel de la pestaña elegida.
+- **El cambio es del sistema de diseño.** De forma predeterminada es un recorrido corto con un fundido y un desenfoque; un sistema puede convertirlo en un paso de página a todo el ancho. Donde el movimiento está reducido, solo queda el fundido.
+
+### La transición
+
+`transition` nombra la forma en que el panel mostrado deja paso al siguiente.
+
+| Valor | Qué hace |
+| --- | --- |
+| `slide` | Los paneles hacen el recorrido que dice el sistema de diseño, y siguen un deslizamiento. |
+| `fade` | Los dos paneles hacen un fundido cruzado en su sitio. |
+| `none` | El nuevo panel se muestra entero en un solo fotograma. La fila que dibuja la vista pone su indicador sobre la nueva pestaña en ese mismo fotograma. |
+| `auto` (el valor predeterminado) | Toma la respuesta del sistema de diseño (`comp.tab-view.motion.transition`, slide en el sistema predeterminado). |
+
+Usa `none` para paneles que se leen y no se contemplan, como el código. Con `none` se sigue tomando un deslizamiento: el panel se queda en reposo, el indicador sigue al dedo y, al soltar, el nuevo panel se muestra de inmediato. Para desactivar el deslizamiento, pon `swipeable` en false. Donde el movimiento está reducido, `slide` se dibuja como `fade`, y no se añade nada a `fade` ni a `none`. Una fila a la que la vista está vinculada conserva su propia `transition`.
+
+### Compartir una elección
+
+<DemoFrame label="Dos vistas de pestañas de un mismo grupo: elige una pestaña en cualquiera de las dos" plain column>
+  <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="Gestor de paquetes" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="npm" label="npm"><p>Instala el paquete con npm.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="pnpm" label="pnpm"><p>Instala el paquete con pnpm.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="yarn" label="Yarn"><p>Instala el paquete con Yarn.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+  <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="Gestor de paquetes" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="npm" label="npm"><p>Ejecuta la compilación con npm.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="pnpm" label="pnpm"><p>Ejecuta la compilación con pnpm.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+- Da el mismo `group` a todas las vistas que responden a la misma pregunta. El miembro es la propia fila de la vista, así que vale todo lo que la página de [pestañas](/es/components/tabs/) dice de un grupo: la elección se empareja por el `value` de un panel, nunca por su etiqueta, y una vista que no tiene ningún panel con ese valor conserva la suya. En la demostración, Yarn solo existe en la primera vista.
+- Solo la vista que usó la persona ejecuta un cambio y emite `change`. Todas las demás muestran su panel de inmediato, sin recorrido, fundido ni desenfoque, conservan el estado de los paneles que ocultan y no toman el foco.
+- La vista que usó la persona se queda donde está en la ventana mientras las vistas que tiene encima cambian de altura.
+- `rememberAs` nombra la clave con la que la elección se conserva en el dispositivo de la persona y se restaura antes de que la vista se dibuje por primera vez. Sin clave no se guarda nada, y solo se guarda el valor del panel. En la web, la clave es una clave de `localStorage`, usada exactamente como se da. La demostración no nombra ninguna.
+- Una vista vinculada no usa ninguna de las dos propiedades: la fila vinculada nombra su propio grupo y su propia clave.
+
+### Tamaño y paneles
+
+- La vista es tan ancha como su padre y tan alta como su fila más el panel mostrado. Es normal que los paneles tengan alturas distintas, así que lo que sigue a una vista se mueve cuando cambia su panel.
+- Da a la vista una altura propia cuando nada de lo que hay debajo deba moverse. La fila se queda arriba, y cada panel ocupa el resto y se desplaza dentro de él.
+- Un panel oculto permanece en su sitio con su estado: lo que se escribió en él y hasta dónde se desplazó. La vista no tiene modo diferido: renderiza el contenido de un panel costoso cuando su pestaña se selecciona por primera vez.
+
+### Recomendado
+
+- Da un `label` a cada panel, también cuando `labelHidden` muestra solo su icono: da nombre a la pestaña y, a través de ella, al panel.
+- Da un icono a todos los paneles, o a ninguno.
+- Mantén el `value` de cada panel único en su vista y estable mientras se muestra la pantalla.
+- Da nombre a la vista con `label` cuando una pantalla tenga más de una fila de pestañas.
+
+### Evita
+
+- No anides en un panel una vista de pestañas de la misma variante. Pon pestañas secundarias dentro de una vista de pestañas primarias.
+- No dependas del deslizamiento para mostrar que hay más vistas. Eso lo dicen las pestañas; el deslizamiento es un atajo.
+- No edites la fila que una vista dibuja para sí misma. Cambia los paneles, y la fila los sigue.
+- No uses una vista de pestañas para moverte entre los destinos de una aplicación. Ese es el trabajo de la barra o del panel de navegación.
+
+## Accesibilidad
+
+<ComponentAccessibility name="tab-view" />
+
+### De qué se encarga el componente
+
+- La propia fila de la vista es una lista de pestañas que recibe su nombre del `label` de la vista, y cada pestaña recibe su nombre del `label` de su panel. La vista en sí no tiene rol.
+- El panel mostrado es un panel de pestaña que recibe su nombre de su pestaña y está asociado a ella, en su propia fila o en la vinculada. Todos los demás paneles quedan ocultos para la tecnología de apoyo y para el foco, incluido uno que un cambio o un deslizamiento todavía dibuja. La exposición cambia cuando cambia la selección, no cuando termina el movimiento.
+- Tab pasa de la pestaña seleccionada al panel mostrado: a su primer elemento enfocable, o al propio panel cuando no contiene ninguno. Un panel así muestra el anillo de foco por dentro de su borde, solo para el foco del teclado.
+- Cuando un cambio oculta el panel que tiene el foco, el foco pasa a la pestaña seleccionada.
+- La vista no añade teclas propias. Las teclas de flecha, Inicio y Fin en una pestaña seleccionan otra pestaña, y la vista cambia. Dentro de un panel, las teclas de flecha pertenecen a su contenido.
+- El deslizamiento nunca es la única forma: a cada panel se llega con un toque en su pestaña y con las teclas de flecha. Con un lector de pantalla en funcionamiento, un deslizamiento con un dedo pertenece al lector, y las pestañas siguen siendo la forma de cambiar.
+- No se anuncia nada antes de que se suelte un deslizamiento, y un deslizamiento cancelado no cambia nada.
+- Una vista que sigue a su grupo cambia en silencio: no se anuncia nada, y el foco se queda donde está la persona. Si el foco estaba en un panel que el cambio oculta, pasa a la pestaña seleccionada de esa vista.
+- En los diseños de derecha a izquierda, el deslizamiento y el recorrido se reflejan con el orden de lectura. La vista no refleja el contenido de un panel.
+- Las compilaciones de depuración informan de un `tabs` que no nombra ninguna fila, de una pestaña seleccionada sin panel, de una vista con su propia fila y sin ningún panel, de un panel cuyo valor está vacío o repetido, de una fila vinculada que contiene paneles propios y de propiedades de fila definidas en una vista vinculada.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native no han implementado la vista de pestañas.
+- Web: cada panel es un contenedor de desplazamiento, así que el anillo de foco de un control situado en el borde mismo de un panel queda recortado.
+- Web: las pruebas de comportamiento se ejecutan solo en Chromium, y el deslizamiento solo con eventos de puntero sintéticos.
+
+### Qué debes hacer tú
+
+- Da un `label` a cada panel, y un `label` a la vista cuando una pantalla tenga más de una fila de pestañas.
+- Coloca una vista vinculada después de sus pestañas en el orden de lectura.
+- Vinculada, actualiza tu propio estado desde los dos eventos `change`: el de las pestañas y el de la vista.
+- Pon `swipeable` en false para un panel que se arrastra él mismo hacia los lados.
+- Da a las vistas de un mismo grupo las mismas etiquetas para los mismos valores y, donde estén muy separadas, di cerca de la primera que la elección se aplica a toda la página.
+- Elige tú la clave de `rememberAs`, y nómbrala en tu aviso de privacidad donde tu producto lo necesite.

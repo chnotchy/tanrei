@@ -1,0 +1,417 @@
+---
+title: البحث
+description: شريط بحث، أو مشغِّل مدمج له، يقدّم اقتراحات ونتائج والأشخاص يكتبون، في عرض مُرسى تحت الشريط أو في مربع حوار أو فوق الشاشة كلها.
+translationOf: components/search.mdx
+sourceHash: 16c14a0a1b37985bcc782ea5ca22d118c87dd619
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="search" />
+
+:::note[مواصفة معدَّلة، لم تصل إلى كل المنصات بعد]
+تصف هذه الصفحة البحث كما هو في المواصفة الآن، بحثًا في موقع أيضًا: مشغِّل (trigger) مكان الشريط، وعرض في مربع حوار، ونتائج هي روابط، ثم صف للحالة، واختصار. مكوّن الويب يفعل ذلك كله، وكذلك العروض التوضيحية. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق بالمواصفة تقدّم المراجعة السابقة، وهي الشريط مع حقل إدخاله، والعرضان المُرسى وملء الشاشة، والاقتراحات، وعيّناتها تعرض تلك المراجعة.
+:::
+
+<DemoFrame label="فارغ، ومع استعلام، ومع أزرار أيقونات" column>
+  <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" value="فاتورة" clear-label="مسح البحث" style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" style="inline-size: 20.5rem">
+    <tanrei-button variant="text" slot="leading" label="القائمة"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="trailing" label="البحث الصوتي"><span slot="icon">mic</span></tanrei-button>
+    <tanrei-button variant="text" slot="trailing" label="الحساب"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-search>
+</DemoFrame>
+
+<DemoFrame label="بحث في موقع: مشغِّل في هيئة زر مع اختصاره، ومشغِّل أيقونة، وشريط يعرض اختصاره. اضغط مشغِّلًا ليُفتح عرضه" plain column>
+  <tanrei-search bar="button" presentation="dialog" label="البحث في التوثيق" placeholder="بحث" shortcut="mod+k" value="تبويب" status-text="3 نتائج عن تبويب" clear-label="مسح البحث" back-label="رجوع" style="inline-size: 20.5rem">
+    <tanrei-search-result-group value="tabs" headline="علامات التبويب" href="/ar/components/tabs/" leading-icon="article" excerpt='["يبدّل بين عروض الموضوع نفسه بصف من علامات ", "التبويب", " المسمّاة."]'>
+      <tanrei-search-result value="tabs-sharing" headline="مشاركة الاختيار" href="/ar/components/tabs/#مشاركة-الاختيار" leading-icon="tag" excerpt='["صفوف علامات ", "التبويب", " التي تسمّي مجموعة واحدة تعرض الاختيار نفسه."]'></tanrei-search-result>
+    </tanrei-search-result-group>
+    <tanrei-search-result value="tab-view" headline="عرض التبويبات" href="/ar/components/tab-view/" leading-icon="article" excerpt='["يعرض عرض ", "التبويب", " المحدَّد تحت صفه."]'></tanrei-search-result>
+  </tanrei-search>
+  <tanrei-search bar="icon" presentation="full-screen" label="البحث في التوثيق" placeholder="بحث" value="تبويب" status-text="3 نتائج عن تبويب" clear-label="مسح البحث" back-label="رجوع">
+    <tanrei-search-result-group value="tabs" headline="علامات التبويب" href="/ar/components/tabs/" leading-icon="article" excerpt='["يبدّل بين عروض الموضوع نفسه بصف من علامات ", "التبويب", " المسمّاة."]'>
+      <tanrei-search-result value="tabs-sharing" headline="مشاركة الاختيار" href="/ar/components/tabs/#مشاركة-الاختيار" leading-icon="tag" excerpt='["صفوف علامات ", "التبويب", " التي تسمّي مجموعة واحدة تعرض الاختيار نفسه."]'></tanrei-search-result>
+    </tanrei-search-result-group>
+    <tanrei-search-result value="tab-view" headline="عرض التبويبات" href="/ar/components/tab-view/" leading-icon="article" excerpt='["يعرض عرض ", "التبويب", " المحدَّد تحت صفه."]'></tanrei-search-result>
+  </tanrei-search>
+  <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" shortcut="/" clear-label="مسح البحث" style="inline-size: 20.5rem"></tanrei-search>
+</DemoFrame>
+
+### الاستخدام
+
+البحث شريط وعرض. يحمل الشريط رسم البحث، وحقل الإدخال، وزر مسح ما دام هناك استعلام، وزرَّي أيقونة من عندك على الأكثر في النهاية، كالإدخال الصوتي أو الحساب. ويستطيع زر القائمة أو زر الرجوع الذي من عندك أن يأخذ مكان الرسم في المنفذ `leading`. ويُفتح العرض والشخص يبحث، ويحمل من الأعلى إلى الأسفل: الاقتراحات، ثم صف الحالة، ثم النتائج، ثم أي محتوى من عندك.
+
+**شريط أو مشغِّل.** الخاصية `bar` تقول ما الذي يقف حيث يوضع البحث:
+
+- `field` (الافتراضي): الشريط مع حقل إدخاله.
+- `button`: مشغِّل في هيئة الشريط لا يحمل حقل إدخال، بل رسم البحث والنص النائب وتلميح الاختصار فقط. استخدمه في ترويسة فيها متسع.
+- `icon`: زر بأيقونة فقط يعرض رسم البحث. استخدمه في ترويسة لا متسع فيها.
+
+المشغِّل يفتح عرضًا نمطيًّا (modal)، مربع الحوار أو عرض ملء الشاشة، وحقل الإدخال يكون في ترويسة ذلك العرض. والمنتج الواحد يستخدم `button` في النافذة العريضة و `icon` في الضيقة.
+
+**ثلاث طرائق للعرض.** الخاصية `presentation` تقول أين يُفتح العرض:
+
+- `docked` (الافتراضي): سطح تحت الشريط مباشرة، بعرضه، في طبقة التراكب الخاصة بالمنصة، كما تُفتح قائمة الخيارات تحت عنصر ارتكازها. يبقى التركيز في حقل إدخال الشريط، فيواصل الشخص الكتابة والاقتراحات تتغيّر. وإن لم يكن تحته متسع كافٍ فُتح العرض فوق الشريط.
+- `dialog`: سطح نمطي قرب أعلى النافذة، فوق حجاب، له ترويسة تحمل زر رجوع وحقل الإدخال وزر المسح. وهو للنافذة الكبيرة، يُفتح من مشغِّل. والضغط على الحجاب يغلقه.
+- `full-screen`: عرض نمطي فوق النافذة كلها، بالترويسة نفسها. يأخذ التركيز ويحتفظ به، ويعيده إلى الشريط أو إلى المشغِّل حين يُغلق.
+
+استخدم المُرسى أو مربع الحوار في النوافذ الكبيرة، وملء الشاشة في الصغيرة. البحث لا يختار عنك: عيِّن `presentation` من نقاط التحوّل (breakpoints) التي عندك. والمشغِّل مع `docked` يفتح مربع الحوار، لأن العرض المُرسى ليس له حقل إدخال خاص به، وتبلّغ بنيات التنقيح (debug) عن ذلك.
+
+**الاقتراحات** نوع من العناصر. لكل اقتراح `value` و `headline`، واختياريًّا `supportingText` و `leadingIcon`، كأيقونة السجل لاستعلام سابق أو مجلد لنتيجة. أنت تقدّم الاقتراحات للاستعلام الحالي؛ والبحث يرسمها ولا يصفّيها. واختيار أحدها يُصدر `select` مع قيمته. والبحث لا يغيّر الاستعلام بنفسه أبدًا، فأنت تقرر ما معنى الاختيار: أن يُملأ الاستعلام ويُجرى البحث، أو أن تُفتح النتيجة.
+
+**النتائج** نوع ثانٍ من العناصر، للأشياء التي وجدها البحث: صفحة أو قسم أو رسالة. للنتيجة `value` و `headline` و `excerpt` واختياريًّا `leadingIcon`، وهي تقود إلى مكان: مع `href` يكون صفها رابطًا حقيقيًّا، تفتحه المنصة كما تفتح أي رابط، في تبويب جديد مع مفتاح تعديل، وبقائمة السياق الخاصة به. ومن دون `href` يكون الصف زرًّا، ويكون `select` هو الإشارة الوحيدة. و **مجموعة النتائج** تضع نتائج تحت عنوان واحد: عنوان هادئ مثل «الرسائل»، أو، مع `href` خاص بها، الصفحة التي تكون النتائج أقسامًا منها. والمقتطف فقرة تميّز فيها أنت ما طابق؛ فالبحث لا يفتّش عن الاستعلام في النص. على الويب المقتطف هو محتوى العنصر نفسه مع `<mark>` حول المطابقات، أو مقاطع `excerpt`، وكل مقطع ثانٍ منها مطابقة.
+
+**الحالة.** البحث لا يجري استعلامًا ولا ينتظر ولا يصفّي أبدًا: يُصدر `input` لكل تغيّر ويرسم ما تعطيه. أخبره بما يفعله بحثك بالخاصيتين `status` (`idle` أو `loading` أو `error`) و `statusText`: العدد («12 نتيجة عن الرموز»)، أو أن لا شيء وُجد، أو الإخفاق. صف الحالة يعرض النص ويُعلِنه حين يتغيّر، وفي أثناء التحميل يعرض مؤشر تحميل بعد مهلة قصيرة.
+
+**الاختصار.** الخاصية `shortcut` تسمّي المفاتيح التي تفتح البحث، بأسماء المفاتيح التي في [اختصار لوحة المفاتيح](/ar/components/keyboard-shortcut/) (`mod+k` و `/`). يكتبها البحث تلميحًا، سطرًا من النص بحسب لوحة مفاتيح الشخص: في نهاية المشغِّل الذي في هيئة زر، وفي الشريط ما دام فارغًا وليس عليه التركيز. ويعرضها على أنها اختصار لوحة المفاتيح للمشغِّل أو لحقل الإدخال. والمفاتيح لا تعمل إلا إذا ربطتها أنت، أو عيّنت `bindShortcut`: عندئذ يستمع البحث في النافذة كلها ما دام معروضًا ومفعَّلًا، فيُفتح بالمفاتيح ويُغلق بها ثانية.
+
+**الفتح والإغلاق.** الضغط على الشريط، أو الكتابة، أو مفتاح السهم للأسفل في حقل الإدخال يفتح العرض. أما التركيز وحده فلا يفتحه أبدًا: الوصول إلى الشريط بالمفتاح Tab، أو عودة التركيز من عرض ملء الشاشة، يتركه مغلقًا. يطلب البحث الفتح أو الإغلاق بالحدث `toggle`، الذي يحمل الحالة الجديدة، وعند الإغلاق يحمل السبب: `escape` أو `back` أو `select` أو `submit` أو `outside` أو `tab` أو `focus-out` أو `shortcut`. ويبقى الاستعلام كما هو حين يُغلق العرض. والمفتاح Enter في حقل الإدخال يُصدر `submit`؛ ثم يبقى العرض مفتوحًا ما دام يعرض نتائج أو حالة، ليستطيع الشخص أن ينتقل إليها. على الويب يعيّن العنصر قيمة `expanded` فيه بنفسه، وعلى SwiftUI و Flutter يتغيّر الربط (binding) أو المتحكّم (controller). وعلى Compose و React Native تعيّن أنت `expanded` من دالة رد النداء، كما في قائمة الخيارات.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-search name="q" label="البحث في البريد" placeholder="ابحث في البريد" clear-label="مسح البحث">
+      <tanrei-button variant="text" slot="trailing" label="البحث الصوتي"><span slot="icon">mic</span></tanrei-button>
+      <tanrei-search-suggestion value="invoices" headline="فواتير" leading-icon="history"></tanrei-search-suggestion>
+      <tanrei-search-suggestion value="folder:invoices" headline="الفواتير"
+        supporting-text="مجلد · 24 رسالة" leading-icon="folder"></tanrei-search-suggestion>
+      <!-- العناصر الفرعية الأخرى هي محتواك أنت في العرض، بعد الاقتراحات. -->
+    </tanrei-search>
+
+    <!-- في نافذة صغيرة: العرض يغطي النافذة وله زر رجوع. -->
+    <tanrei-search presentation="full-screen" label="البحث في البريد" placeholder="ابحث في البريد"
+      clear-label="مسح البحث" back-label="رجوع"></tanrei-search>
+
+    <!-- بحث في موقع: مشغِّل مع اختصاره، وعرض في مربع حوار، ونتائج هي روابط. -->
+    <tanrei-search id="docs-search" bar="button" presentation="dialog" label="البحث في التوثيق" placeholder="بحث"
+      shortcut="mod+k" bind-shortcut clear-label="مسح البحث" back-label="رجوع">
+      <!-- المجموعة التي لها href هي الصفحة؛ ونتائجها هي الأقسام التي وُجدت فيها. -->
+      <tanrei-search-result-group value="/tokens/" headline="رموز التصميم" href="/tokens/" leading-icon="article">
+        الألوان والمقاسات والحركة في صورة <mark>رموز</mark>، في ثلاثة مستويات.
+        <tanrei-search-result value="/tokens/#layers" headline="الطبقات" href="/tokens/#layers" leading-icon="tag">
+          الطبقة تغيّر قيمة <mark>رمز</mark> وقد تضيف رموزها.
+        </tanrei-search-result>
+      </tanrei-search-result-group>
+      <!-- العناصر الفرعية الأخرى هي محتواك أنت، بعد النتائج. -->
+      <tanrei-button variant="text">تحميل نتائج أخرى</tanrei-button>
+    </tanrei-search>
+
+    <script type="module">
+      import '@tanrei/web/components/search';
+      import '@tanrei/web/components/button';
+      const search = document.querySelector('[name="q"]');
+      search.addEventListener('input', () => showSuggestionsFor(search.value));
+      search.addEventListener('submit', () => runSearch(search.value)); // قابل للإلغاء؛ وداخل نموذج يرسل النموذج بعد ذلك
+      search.addEventListener('select', (e) => openSuggestion(e.detail.value));
+      // العنصر يعيّن expanded الخاصة به قبل أن يُصدر toggle.
+      search.addEventListener('toggle', (e) => log(e.detail.expanded, e.detail.reason));
+
+      // البحث لا يستعلم ولا ينتظر ولا يؤخّر (debounce) أبدًا: ذلك من شأنك.
+      const docs = document.querySelector('#docs-search');
+      let asked = 0;
+      docs.addEventListener('input', async () => {
+        const mine = ++asked;
+        docs.status = 'loading';
+        docs.statusText = 'جارٍ البحث';
+        const found = await query(docs.value);
+        if (mine !== asked) return; // طُرح سؤال أحدث: أهمِل هذا الجواب
+        show(found); // استبدل العناصر الفرعية <tanrei-search-result>
+        docs.status = 'idle';
+        docs.statusText = `${found.length} نتيجة عن ${docs.value}`; // يُعيَّن مرة لكل جواب: فهو يُعلَن
+      });
+      // فُعِّلت نتيجة في مكانها. ألغِ الحدث لتسلّم الرابط إلى الموجِّه (router) عندك.
+      docs.addEventListener('select', (e) => { /* e.preventDefault(); router.push(e.detail.value); */ });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Search, SearchResult, SearchResultGroup, SearchSuggestion } from '@tanrei/react';
+
+    <Search
+      label="البحث في البريد"
+      placeholder="ابحث في البريد"
+      clearLabel="مسح البحث"
+      value={query}
+      onInput={(e) => setQuery(e.currentTarget.value)}
+      onSubmit={() => runSearch(query)}
+      onSelect={(e) => openSuggestion(e.detail.value)}
+    >
+      <Button variant="text" slot="trailing" label="البحث الصوتي" onClick={dictate}><span slot="icon">mic</span></Button>
+      {suggestions.map((s) => (
+        <SearchSuggestion key={s.value} value={s.value} headline={s.headline} supportingText={s.detail} leadingIcon={s.icon} />
+      ))}
+    </Search>
+
+    // بحث في موقع: مشغِّل مع اختصاره، وعرض في مربع حوار، ونتائج هي روابط.
+    // excerpt مقاطع من النص: كل مقطع ثانٍ مطابقة.
+    <Search
+      bar="button"
+      presentation="dialog"
+      label="البحث في التوثيق"
+      placeholder="بحث"
+      shortcut={['mod+k']}
+      bindShortcut
+      clearLabel="مسح البحث"
+      backLabel="رجوع"
+      status={status}
+      statusText={statusText}
+      onInput={(e) => runQuery(e.currentTarget.value)}
+      onSelect={(e) => { e.preventDefault(); router.push(e.detail.value); }}
+    >
+      {pages.map((page) => (
+        <SearchResultGroup key={page.url} value={page.url} headline={page.title} href={page.url} leadingIcon="article" excerpt={page.excerpt}>
+          {page.sections.map((s) => (
+            <SearchResult key={s.url} value={s.url} headline={s.title} href={s.url} leadingIcon="tag" excerpt={s.excerpt} />
+          ))}
+        </SearchResultGroup>
+      ))}
+    </Search>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // كل تعديل يكتب text؛ والفتح والإغلاق يكتبان isExpanded.
+    TanreiSearch("البحث في البريد", text: $query, isExpanded: $isSearching,
+                 prompt: Text("ابحث في البريد"), clearLabel: "مسح البحث",
+                 onSubmit: { value in runSearch(value) },
+                 onSelect: { value in openSuggestion(value) }) {
+        TanreiSearchSuggestion("فواتير", leadingIcon: "history", value: "invoices")
+        TanreiSearchSuggestion("الفواتير", supportingText: "مجلد · 24 رسالة", leadingIcon: "folder", value: "folder:invoices")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSearch
+    import io.github.chnotchy.tanrei.components.TanreiSearchSuggestion
+
+    // رفع الحالة (state hoisting): أنت تحتفظ بالقيمتين value و expanded، وتحرّكهما من دوال رد النداء.
+    TanreiSearch(
+        value = query,
+        onValueChange = { query = it },
+        expanded = expanded,
+        onExpandedChange = { open, _ -> expanded = open }, // الوسيط الثاني هو السبب
+        label = "البحث في البريد",
+        placeholder = "ابحث في البريد",
+        clearLabel = "مسح البحث",
+        onSearch = { runSearch(query) },
+        onSelect = { openSuggestion(it) },
+    ) {
+        TanreiSearchSuggestion(value = "invoices", headline = "فواتير", leadingIcon = "history")
+        TanreiSearchSuggestion(value = "folder:invoices", headline = "الفواتير", supportingText = "مجلد · 24 رسالة", leadingIcon = "folder")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // TanreiSearchController هو TextEditingController يحمل isExpanded أيضًا.
+    final TanreiSearchController search = TanreiSearchController();
+
+    TanreiSearch(
+      controller: search,
+      semanticLabel: 'البحث في البريد',
+      hintText: 'ابحث في البريد',
+      clearLabel: 'مسح البحث',
+      onChanged: showSuggestionsFor,
+      onSubmitted: runSearch,
+      onSelected: openSuggestion,
+      suggestions: const <TanreiSearchSuggestion>[
+        TanreiSearchSuggestion(value: 'invoices', headline: 'فواتير', leadingIcon: 'history'),
+        TanreiSearchSuggestion(value: 'folder:invoices', headline: 'الفواتير', supportingText: 'مجلد · 24 رسالة', leadingIcon: 'folder'),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Search } from '@tanrei/react-native';
+
+    // مُتحكَّم به: أنت تحرّك value و expanded من onChangeText و onExpandedChange.
+    <Search
+      value={query}
+      onChangeText={setQuery}
+      expanded={expanded}
+      onExpandedChange={(next) => setExpanded(next)}
+      accessibilityLabel="البحث في البريد"
+      placeholder="ابحث في البريد"
+      clearLabel="مسح البحث"
+      onSubmitEditing={() => runSearch(query)}
+      onSelect={openSuggestion}
+      suggestions={[
+        { value: 'invoices', headline: 'فواتير', leadingIcon: 'history' },
+        { value: 'folder:invoices', headline: 'الفواتير', supportingText: 'مجلد · 24 رسالة', leadingIcon: 'folder' },
+      ]}
+    />
+
+    // في نافذة صغيرة: presentation="full-screen" و backLabel="رجوع". زر الرجوع في Android يغلق العرض.
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="العرض المُرسى مع اقتراح، ثم صف الحالة، ونتائج مجمَّعة، مرسومًا في مكانه" plain column>
+  <tanrei-search inline expanded label="البحث في البريد" placeholder="ابحث في البريد" value="فات" status-text="رسالتان" clear-label="مسح البحث" style="inline-size: 20.5rem">
+    <tanrei-search-suggestion value="invoices" headline="فواتير" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-result-group headline="الرسائل">
+      <tanrei-search-result value="m-1" headline="فاتورتك لشهر أكتوبر" leading-icon="mail" excerpt='["مرفقة ", "فاتورة", " شهر أكتوبر."]'></tanrei-search-result>
+      <tanrei-search-result value="m-2" headline="رد: الدفع" leading-icon="mail" excerpt='["يُرجى إرسال ", "الفاتورة", " مرة أخرى."]'></tanrei-search-result>
+    </tanrei-search-result-group>
+  </tanrei-search>
+</DemoFrame>
+
+<DemoFrame label="معطَّل، والعرض المُرسى مفتوحًا" plain column>
+  <tanrei-search label="البحث في البريد" placeholder="ابحث في البريد" disabled style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search inline expanded label="البحث في البريد" placeholder="ابحث في البريد" value="فات" clear-label="مسح البحث" style="inline-size: 20.5rem">
+    <tanrei-search-suggestion value="invoices" headline="فواتير" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-suggestion value="invoice template" headline="قالب فاتورة" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-suggestion value="folder:invoices" headline="الفواتير" supporting-text="مجلد · 24 رسالة" leading-icon="folder"></tanrei-search-suggestion>
+  </tanrei-search>
+</DemoFrame>
+
+<ComponentSpecs name="search" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم البحث حين يكون البحث طريقًا رئيسيًّا إلى محتوى المنتج، كالبريد أو الملفات أو جهات الاتصال أو الإعدادات، وتساعد الاقتراحات الأشخاص على الوصول أسرع. ضعه في أعلى الشاشة أو أعلى الصفحة التي يبحث فيها.
+
+واستخدمه بحثًا في موقع أيضًا: مشغِّل في الترويسة يفتح مربع حوار، والصفحات والأقسام التي وُجدت روابط فيه.
+
+لتصفية قائمة قصيرة موجودة على الشاشة سلفًا، أو لإدخال عبارة بحث في نموذج، يكفي [حقل نص](/ar/components/text-field/) قيمة `type` فيه search. واختيار قيمة واحدة من قائمة ثابتة مهمة [قائمة خيارات](/ar/components/menu/) أو قائمة، لا مهمة بحث.
+
+### الشريط أو مشغِّل
+
+| `bar` | ما الذي يقف في الصفحة | يفتح | يُستخدم لـ |
+| --- | --- | --- | --- |
+| `field` (الافتراضي) | الشريط مع حقل إدخاله | أي طريقة عرض | منتج يكون البحث فيه طريقًا رئيسيًّا، وللشريط مكان خاص به |
+| `button` | مشغِّل في هيئة الشريط: الرسم والنص النائب وتلميح الاختصار | عرضًا نمطيًّا: مربع الحوار أو ملء الشاشة | ترويسة فيها متسع، والبحث فيها واحد من عدة أشياء |
+| `icon` | زر بأيقونة فقط فيه رسم البحث | عرضًا نمطيًّا: مربع الحوار أو ملء الشاشة | ترويسة لا متسع فيها، كما في نافذة ضيقة |
+
+المشغِّل تسمّيه `label`، والمشغِّل الذي في هيئة زر يعرض النص النائب، أو التسمية حيث لا نص نائب. وحين يُغلق عرضه يعود التركيز إلى المشغِّل.
+
+### مُرسى أم مربع حوار أم ملء الشاشة
+
+| طريقة العرض | أين يُفتح العرض | التركيز | يُستخدم لـ |
+| --- | --- | --- | --- |
+| المُرسى (الافتراضي) | تحت الشريط، بعرضه، فوق المحتوى | يبقى في حقل إدخال الشريط. لا شيء آخر يصير خاملًا (inert)، ولا حجاب | النوافذ الكبيرة، حيث يستطيع العرض أن يُفتح من دون أن يحجب الشاشة كلها |
+| مربع الحوار | قرب أعلى النافذة، متوسطًا، حتى عرض أقصى، فوق حجاب. يبقى أعلاه في مكانه ومحتواه يتغيّر | ينتقل إلى حقل الإدخال في الترويسة، ويبقى في العرض، ويعود إلى المشغِّل أو الشريط حين يُغلق | النوافذ الكبيرة، مفتوحًا من مشغِّل: بحث في موقع |
+| ملء الشاشة | فوق النافذة كلها، بترويسته وزر الرجوع والفاصل الخاصة به | ينتقل إلى حقل الإدخال في الترويسة، ويبقى في العرض، ويعود إلى الشريط أو المشغِّل حين يُغلق | النوافذ الصغيرة، حيث لا تترك الاقتراحات ولوحة المفاتيح التي على الشاشة متسعًا لشيء آخر |
+
+الاستعلام واحد في الثلاثة. وتبديل `presentation` عند نقطة تحوّل لا يغيّره.
+
+### زرّا المسح والرجوع
+
+كلاهما مبني في المكوّن، لأن سلوكهما من شأن البحث: المسح يفرّغ الاستعلام ويُبقي العرض والتركيز حيث هما، والرجوع يغلق عرض ملء الشاشة. ويجب أن يكون اسماهما بلغة منتجك، فأنت تعطيهما: `clearLabel` («مسح البحث»)، ثم `backLabel` («رجوع») لمربع الحوار وملء الشاشة. على iOS زر الرجوع هو المخرج الوحيد من عرض ملء الشاشة. وترويسة مربع الحوار فيها زر الرجوع أيضًا، ليستطيع من ليس عنده المفتاح Escape ولا مؤشر أن يغادره.
+
+### الاقتراحات والنتائج ومحتواك
+
+- **الاقتراح شيء يُختار؛ والنتيجة مكان يُذهب إليه.** الاقتراح يساعد على إتمام الاستعلام أو يقفز إلى شيء معروف، ومفاتيح الأسهم تجعله نشطًا والتركيز باقٍ في حقل الإدخال. والنتيجة شيء وجده بحثك: رابط يأخذ التركيز بنفسه.
+- استخدم الأيقونة التي في البداية للتفريق بين الأنواع: السجل لاستعلام سابق، ومجلد، وصفحة، وقسم.
+- أبقِ العناوين الرئيسية قصيرة وضع التفاصيل في النص المساعد أو المقتطف: «الفواتير»، ثم «مجلد · 24 رسالة». وهي تلتفّ ولا تُقتطع.
+- ميِّز في المقتطف ما طابق. والتمييز من النظام، لون ووزن أثقل، فتظهر المطابقات بالمظهر نفسه في كل مكان.
+- اجمع النتائج حين تنتمي إلى بعضها: الأقسام تحت صفحتها، والرسائل تحت «الرسائل». وعنوان المجموعة رابط حين تكون المجموعة نفسها مكانًا.
+- أعطِ النتيجة `href` كلما كان لها عنوان. يستطيع الشخص عندئذ أن يفتحها في تبويب جديد، وأن ينسخ عنوانها، وأن يرى إلى أين تقود. استخدم `select` من دون `href` فقط لنتيجة يفتحها منتجك بنفسه.
+- ترتيب العرض ثابت: الاقتراحات، ثم صف الحالة، ثم النتائج، ثم محتواك أنت، كزر «تحميل نتائج أخرى» أو رابط إلى صفحة نتائج كاملة.
+- العرض المُرسى الذي ليس فيه ما يُعرض لا يرسم شيئًا، ويبقى البحث مفتوحًا، فيظهر ثانية ما إن يوجد شيء.
+
+### الحالة
+
+- عيِّن `statusText` مرة واحدة لكل جواب: «12 نتيجة عن الرموز»، «لا نتائج عن الرمزو». فهو يُعلَن حين يتغيّر، وتغييره عند كل ضغطة مفتاح ضجيج.
+- عيِّن `status` بالقيمة `loading` ما دام استعلام يجري. مؤشر التحميل لا يظهر إلا بعد مهلة قصيرة، فالجواب السريع لا يعرضه.
+- عيِّن `status` بالقيمة `error` مع نص يقول ما حدث. يُرسم خطأً ويُعلَن فورًا.
+- أهمِل الأجوبة التي تصل على غير ترتيبها. البحث يرسم آخر ما عيّنته أيًّا كان.
+
+### الاختصار
+
+- استخدم اختصارًا يعرفه الناس سلفًا للبحث في نوع منتجك، واكتبه بالمفتاح `mod` ليكون صحيحًا على كل لوحة مفاتيح.
+- عيِّن `bindShortcut` على بحث واحد في الشاشة. من بين بحثين يربطان المفاتيح نفسها يحتفظ بها الذي عُرض أولًا، وتبلّغ بنيات التنقيح (debug) عن الآخر.
+- الاختصار الذي بلا مفتاح تعديل، مثل `/`، يُتجاهل ما دام التركيز في حقل إدخال نصي، ليستطيع الشخص كتابة المحرف.
+- من دون `bindShortcut` يعرض التلميح المفاتيح فقط: اربطها بنفسك، أو اترك `shortcut` فارغة.
+
+### افعل
+
+- اكتب نصًّا نائبًا يقول ما الذي يمكن البحث فيه: «ابحث في البريد». وعيِّن `label` أيضًا: النص النائب ليس الاسم أبدًا.
+- حدِّث الاقتراحات كلما تغيّر الاستعلام، وأبقِها في ترتيب ثابت والشخص يتنقل بينها.
+- عند `select` افعل ما يعد به الاقتراح: افتح نتيجة، أو ضع استعلامًا في الشريط وأجرِه.
+- اقصر منفذ النهاية على زرَّي أيقونة على الأكثر.
+- أعطِ `targetLabel` («يُفتح في تبويب جديد») للنتيجة التي قيمة `target` فيها `new`.
+
+### لا تفعل
+
+- لا تفتح العرض لمجرد أن الشريط تلقّى التركيز. البحث يتجنب ذلك سلفًا؛ فلا تُعده أنت.
+- لا تضع في عرض مُرسى عناصر تحكم تحتاج إلى تركيز خاص بها، كحقل نص. الضغط على العرض المُرسى يترك التركيز في حقل الإدخال.
+- لا تغيّر الاستعلام حين يصير اقتراح نشطًا. لا يغيّره إلا اختيار (`select`) أو كتابة الشخص.
+- لا تستخدم بحثًا لاختيار قيمة في نموذج.
+- لا تضع عنوان النتيجة في `select` وحده. الصف الذي بلا `href` زر، ولا يستطيع الشخص أن يفتحه في تبويب جديد.
+- لا تميّز المطابقات بنفسك باللون وحده، ولا تضع في مقتطف ترميزًا مجهول المصدر. على الويب محتوى المقتطف لك: ما تضعه فيه يُعرض كما هو.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="search" />
+
+### ما يتكفل به المكوّن
+
+- حقل الإدخال حقل بحث تسمّيه `label`، لا النص النائب أبدًا، وله دور البحث الخاص بالمنصة حيث يكون لها دور كهذا.
+- على الويب يتبع العرض المُرسى نمط WAI-ARIA لمربع التحرير والسرد (combobox). ما دامت الاقتراحات معروضة يكون حقل الإدخال مربع تحرير وسرد مع `aria-autocomplete="list"` و `aria-expanded`، و `aria-controls` تسمّي القائمة، و `aria-activedescendant` تسمّي الاقتراح النشط. والاقتراحات مربع قائمة (listbox) تسمّيه `label`، وكل خيار يسمّيه عنوانه الرئيسي ويصفه نصه المساعد.
+- التركيز في العرض المُرسى يبقى في حقل الإدخال. والاقتراح النشط يتحرك بمفتاحَي السهم للأسفل والسهم للأعلى، فيستطيع الشخص أن يواصل تدقيق الاستعلام. وحين يكون اقتراح نشط خارج المنظور جزئيًّا يمرّره العرض إلى الداخل.
+- عرض ملء الشاشة وعرض مربع الحوار مربعا حوار نمطيان تسمّيهما `label`. ينتقل التركيز إلى حقل الإدخال في الترويسة ومؤشر الكتابة (caret) في نهاية الاستعلام، ويبقى داخل العرض، ويصير كل ما هو خارجه خاملًا (inert) ومخفيًّا. وحين يُغلق العرض يعود التركيز إلى حقل إدخال الشريط أو إلى المشغِّل، ولا يُفتح العرض ثانية.
+- المشغِّل زر تسمّيه `label`، يقول إنه يفتح مربع حوار وما إذا كان عرضه مفتوحًا. ويعرض تركيز لوحة المفاتيح كما يعرضه الشريط.
+- الضغط على حجاب مربع الحوار يغلقه ولا يصل إلى شيء تحته. وتبدأ ترويسته بزر الرجوع، ويبلغه المفتاح Tab.
+- النتائج قائمة تسمّيها `label`، والمجموعة يسمّيها عنوانها الرئيسي. النتيجة التي لها `href` رابط، وليست خيارًا أبدًا؛ ولا يكون حقل الإدخال مربع تحرير وسرد إلا ما دام العرض يعرض اقتراحات. والنتيجة يسمّيها عنوانها الرئيسي ويصفها مقتطفها، ثم `targetLabel` حين تُفتح في سياق جديد.
+- مفتاح السهم للأسفل في حقل الإدخال، حين لا يبقى اقتراح يُذهب إليه، ينقل التركيز إلى النتيجة الأولى ثم عبر النتائج، مرورًا بالمجموعات؛ ومفتاح السهم للأعلى يعود به، ومن النتيجة الأولى إلى حقل الإدخال. والكتابة أو الحذف أو اللصق على نتيجة ينقل التركيز إلى حقل الإدخال، وهناك يعمل المفتاح. وفي العرض النمطي يمرّ المفتاح Tab على النتائج كما يمرّ على أي روابط.
+- صف الحالة منطقة حيّة (live region). تُعلَن `statusText` حين تتغيّر، وتُعلَن فورًا تنبيهًا (alert) ما دامت `status` بالقيمة `error`. وفي أثناء التحميل توسَم النتائج بأنها مشغولة (busy) ويسمّي مؤشرَ التحميل النصُّ `statusText`.
+- الاختصار يُعرض على أنه اختصار لوحة المفاتيح للمشغِّل أو لحقل الإدخال. وتلميحه لا يأخذ ضغطًا ولا تركيزًا.
+- وصول التركيز إلى حقل الإدخال لا يفتح العرض أبدًا، سواء بالمفتاح Tab أو بالعودة من عرض ملء الشاشة.
+- المفتاح Escape وإجراء الرجوع الخاص بالمنصة وزر الرجوع تغلق العرض. والعرض المُرسى يُغلق أيضًا بالمفتاح Tab أو Shift+Tab، أو بضغط في الخارج، أو بمغادرة التركيز للبحث.
+- زرّا المسح والرجوع زرّا أيقونة من Tanrei تسمّيهما `clearLabel` و `backLabel`. وبعد المسح يعود التركيز إلى حقل الإدخال.
+- أزرار الأيقونات التي من عندك في المنفذين `leading` و `trailing` تحتفظ بأسمائها وأدوارها ومواضع توقف التركيز الخاصة بها، بترتيب القراءة. ولا تُعرض في ترويسة ملء الشاشة.
+- الكتابة، والتركيب في أسلوب الإدخال (input-method composition)، والإملاء، والنص من اليمين إلى اليسار تعمل كما في حقل النص. ومفتاح الإجراء في لوحة مفاتيح البحث يرسل.
+- يعرض الشريط التركيز بحافته هو، سواء جاء التركيز من لوحة المفاتيح أو من مؤشر، كما يفعل الحقل. وصفوف الاقتراحات تعرض حلقة التركيز داخل الصف ما دامت نشطة. وكل صف والشريط يستوفيان الحد الأدنى للهدف.
+- رسم البحث والأيقونات التي في البداية والفاصل مخفيّة عن التقنيات المساعدة.
+- مع أحجام النص الأكبر يكبر الشريط والترويسة، ويبقى الاستعلام في سطر واحد، وتلتفّ صفوف الاقتراحات.
+- تبلّغ بنيات التنقيح (debug) عن `label` أو `clearLabel` أو `backLabel` الناقصة، وعن قيمة اقتراح فارغة أو مكررة، وعن عنوان رئيسي فارغ، وعن طريقة عرض أو قيمة `bar` أو حالة غير معروفة، وعن مشغِّل مع طريقة العرض المُرسى، وعن بحث ثانٍ يربط المفاتيح نفسها، وعن أكثر من زرَّين في النهاية.
+
+فجوات معروفة في المنصات:
+
+- ليس في SwiftUI و Compose و Flutter و React Native المشغِّل ولا عرض مربع الحوار ولا النتائج ولا صف الحالة ولا الاختصار بعد. على هذه المنصات اعرض النتائج في محتوى العرض الخاص بك وأعلن عددها بنفسك.
+- الويب: الاختصار المربوط يقرأ `mod` بالاصطلاح الذي كُتب به تلميحه، وهو الذي يعيّنه عنصر سلف وإلا فاصطلاح المنصة، في حين تسمّي المواصفة اصطلاح المنصة وحده.
+- ليس في SwiftUI و Compose و Flutter و React Native دور مربع تحرير وسرد ولا دور مربع قائمة. حقل الإدخال فيها حقل بحث، وكل اقتراح زر مع موضعه في القائمة، يبلغه قارئ الشاشة بالسحب. والاقتراح النشط لا يُعلَن هناك على أنه الفرع النشط (active descendant) لحقل الإدخال. واقتراحات Flutter ليس لها موضع في القائمة كذلك، و SwiftUI و React Native يذكران الموضع بالإنجليزية («`2 of 3`»؛ والخاصية `positionText` في React Native تغيّره).
+- يعرض Flutter حقل الإدخال نوعَ إدخال للبحث، لا دور مربع البحث، لأن Flutter 3.32، وهو أقدم إصدار مدعوم، يرفض ذلك الدور.
+- الضغط خارج العرض المُرسى يغلقه. على الويب و SwiftUI و Compose و Flutter يصل الضغط أيضًا إلى ما تحته؛ وعلى React Native لا يصل، كما في قائمة الخيارات.
+- الويب: حقل الإدخال في ترويسة ملء الشاشة مربع تحرير وسرد أيضًا، فيُعلَن الاقتراح النشط هناك كذلك. والمواصفة تسمّي مربع التحرير والسرد للعرض المُرسى فقط.
+- الويب: العرض المُرسى لا يُغلق بطلب الإغلاق الخاص بالمنصة، كإيماءة الرجوع في Android. ويوضع بسكربت، لا بخاصية CSS anchor positioning كما تقول ملاحظة الويب في المواصفة.
+- التعطيل يصل إلى أزرار الأيقونات التي في المنافذ، والمواصفة تتركها في حالتها هي: `.disabled(true)` في SwiftUI يعطّلها أيضًا، وعلى الويب عتامة تعطيل أقل من 1 كانت ستُبهتها. وعتامة التعطيل في كل نظام مضمَّن هي 1.
+- يرسم SwiftUI العرض المُرسى فوق ما تحمله حاوية البحث نفسها بعده، لا فوق كل عرض في النافذة. أبقِ البحث متأخرًا في حاويته، أو ارفعه بالمُعدِّل `zIndex`. وعلى macOS لا يُقرأ ارتفاع النافذة، فيُفتح العرض دائمًا في الأسفل بارتفاعه الطبيعي، وعرض ملء الشاشة لوحة (sheet) بحجم النافذة.
+- في SwiftUI: تظليل التحديد يتبع صبغة مؤشر الكتابة، لا لون التحديد الخاص بحقل النص. والنقرة الأولى على حقل إدخال ليس عليه التركيز تضع مؤشر الكتابة في نهاية الاستعلام، لا حيث وقعت النقرة. والمفاتيح مختبَرة على macOS فقط، لا بلوحة مفاتيح فعلية على iOS.
+- لا يستطيع Compose التفريق بين مؤشر دقيق ولمس، فارتفاع صفوف الاقتراحات فيه 48 دائمًا حيث هو على الويب 44 تحت الفأرة. والضغط خارج العرض المُرسى لا تبلغه اختباراته.
+- في Flutter: العرض المُرسى الذي يفتحه المنتج بالدالة `expand()` وحقل الإدخال ليس عليه التركيز لا يغلقه ضغط في الخارج. وعرض ملء الشاشة يحتاج إلى `Navigator`؛ ومن دونه يكون العرض مُرسى.
+- في React Native: يوضع العرض المُرسى حين يُفتح وحين تتغيّر النافذة أو لوحة المفاتيح، لكنه لا يتبع الشريط وهو يُمرَّر. والمفتاح Escape ومفاتيح الأسهم والمفتاح Tab تصل فقط حيث يوصلها `TextInput`، والتراكب وانتقالات التركيز في عرض ملء الشاشة لم تُفحص بعد على جهاز.
+- تحت `cupertino` لا يرسم الشريط حافة تركيز، كما أن حقل البحث في iOS يعرض التركيز بمؤشر الكتابة ولوحة المفاتيح فقط.
+- تحت `m3-like` يرسم البحث قيم النظام الافتراضي: قيم البحث في Material تنتظر أن يغطيه مرجع المطابقة. والعرض المُرسى في Material الذي يكبر من الشريط سطحًا واحدًا يُرسم سطحًا مستقلًّا تحته (فجوة المحاكاة `search-docked-view-joins-bar`).
+
+### ما عليك فعله
+
+- أعطِ البحث `label`، وأعطِه `clearLabel`، ثم `backLabel` لمربع الحوار وملء الشاشة، بلغة منتجك.
+- قدِّم اقتراحات للاستعلام الحالي، بعناوين رئيسية مفهومة حين تُقرأ وحدها.
+- قل ما وجده بحثك في `statusText`، بلغة منتجك، مرة واحدة لكل جواب. البحث يُعلِنه؛ ولا يعدّ النتائج بنفسه.
+- أجرِ الاستعلام بنفسك، وأهمِل الأجوبة التي تصل على غير ترتيبها.
+- أعطِ كل نتيجة لها عنوان `href`، وأعطِها `targetLabel` حين تُفتح في سياق جديد.
+- اربط مفاتيح الاختصار، أو عيِّن `bindShortcut`. التلميح بمفاتيح لا تفعل شيئًا مضلِّل.
+- قرِّر ما يفعله `select`، وعيِّن الاستعلام بنفسك إن كان الاختيار ينبغي أن يملأه.
+- على Compose و React Native عيِّن `expanded` من دالة رد النداء، وإلا لم يُفتح العرض ولم يُغلق.
+- على الويب أعطِ البحث `name` ليرسل استعلامه مع نموذج.

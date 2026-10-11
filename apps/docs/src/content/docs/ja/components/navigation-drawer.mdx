@@ -1,0 +1,517 @@
+---
+title: ナビゲーションドロワー
+description: プロダクトの行き先を、先頭側の端のパネルにセクションやグループでまとめて並べます。大きい画面ではコンテンツの横に、コンパクトな画面ではコンテンツの上に重ねて表示し、アイコンの列まで折りたたむこともできます。
+translationOf: components/navigation-drawer.mdx
+sourceHash: 99562d926c109200b21007f7db10ca4597cbb7da
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="navigation-drawer" />
+
+:::note[仕様は改訂済み、各プラットフォームは追従待ち]
+このページは、仕様の現在の形のナビゲーションドロワーを説明しています。`collapsible` のドロワーはアイコンの列まで狭まり、これがナビゲーションレールの代わりになります。折りたたんだドロワーは、展開したドロワーからラベルがなくなっただけのもので、各項目をアイコンの後ろで切った形です。メニューボタンでまた広がり、どのアイコンも位置を変えません。行き先の `badge` のテキストは `trailingText` になって控えめに描かれ、`trailing` スロットにはグリフやバッジを置けます。`badge` は、アイコンに付けるバッジになりました。`group` の項目で、入れ子の行き先を開閉できます。項目の高さは 48 で、メニューの項目と同じです。`responsive` を付けると、ウィンドウの幅がドロワーの表示のしかたを選びます。`href` を持つ行き先はリンクで、`revealSelected` と `scrollOffset` によってドロワーはサイトのサイドバーになります。Web コンポーネントはすでにこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（項目の高さ 44、`badge` は項目の末尾のテキスト、折りたたんだ形、グループ、リンクの行き先、幅に応じた表示はなく、ナビゲーションレールは別のコンポーネント）を提供しており、これらの例もその版のものです。
+:::
+
+<DemoFrame label="2 つのセクションを持つスタンダードのドロワー">
+  <tanrei-navigation-drawer open value="inbox" label="メール" style="block-size: 26rem">
+    <tanrei-navigation-drawer-section heading="メール">
+      <tanrei-navigation-drawer-item value="inbox" label="受信トレイ" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="sent" label="送信済み" icon="send"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="drafts" label="下書き" icon="draft"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-section heading="ラベル" divider>
+      <tanrei-navigation-drawer-item value="work" label="仕事" icon="label" trailing-text="新着"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="family" label="家族" icon="label"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="折りたためるドロワー：メニューボタンでアイコンの列に折りたたみます。折りたたんだセルは名前をツールチップで示します" plain>
+  <tanrei-navigation-drawer open collapsible value="home" label="ワークスペース" style="block-size: 30rem">
+    <tanrei-button slot="header-button" variant="text" label="メニュー"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-main-action-button slot="main-action" label="新しいプロジェクト"><span slot="icon">add</span></tanrei-main-action-button>
+    <tanrei-navigation-drawer-item value="home" label="ホーム" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="inbox" label="受信トレイ" icon="inbox" badge badge-count="3" badge-label="未読 3 件"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="プロジェクト" icon="folder" open>
+      <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="beacon" label="Beacon" icon="deployed_code"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item value="settings" label="設定" icon="settings" trailing-text="新着"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="リンクの行き先：ドロワーの value が今のページを示し、reveal-selected がそれを含むグループを開きます" plain>
+  <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="ドキュメント" style="block-size: 24rem">
+    <tanrei-navigation-drawer-item label="はじめに" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="基礎">
+      <tanrei-navigation-drawer-item label="カラー" href="#sidebar-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="タイポグラフィ" href="#sidebar-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="コンポーネント">
+      <tanrei-navigation-drawer-item label="ボタン" href="#sidebar-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="タブ" href="#sidebar-demo-tabs" trailing-text="新着"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item label="ソースコード" href="#sidebar-demo-source" target="new" target-label="新しいタブで開きます"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+### 使い方
+
+ナビゲーションドロワーが持つ項目は 5 種類です。`destination`（行き先）は、アイコン（省略可）、ラベル、末尾の内容（省略可）でできた 1 行の項目で、`href` を持つとリンクになります。`group`（グループ）は、中の行き先やグループを開閉する行です。`section`（セクション）は行き先やグループをまとめるもので、`heading`（見出し）と、前に引く `divider`（区切り線）を持てます。セクションは入れ子にできず、グループはセクションを持てません。`header-button`（最初のものがメニューボタン）と `main-action` はヘッダーに置きます。Web では子要素の `<tanrei-navigation-drawer-item>`、`<tanrei-navigation-drawer-group>`、`<tanrei-navigation-drawer-section>` と、`header-button` と `main-action` のスロットに入れるアイコンだけの `<tanrei-button>` と `<tanrei-main-action-button>` です。追従待ちのプラットフォームは、行き先とセクションをそれぞれの流儀で受け取ります。SwiftUI では `TanreiNavigationDrawerItem` と `TanreiNavigationDrawerSection` のビュー、Compose では同じ名前の呼び出し、Flutter では `children:` に並べた `TanreiNavigationDrawerDestination` と `TanreiNavigationDrawerSection`、React Native では配列 `items` の中の行き先とセクションの要素です。React Native のセクションは、自分の `items` を持つことで行き先と見分けられます。
+
+選択は、行き先の値によってドロワーが持ちます。行き先がどのセクションにあってもかまいません。`change` と `reselect` はナビゲーションバーと同じです。Compose にはドロワー全体の値がなく、今の項目に利用者側で `selected` を付け、その `onClick` が change と reselect を兼ねます。Flutter は番号で選び、番号はセクションをまたいで読み上げ順に数えます。
+
+`href` を持つ行き先はリンクであり、ボタンではありません。ブラウザーはほかのリンクと同じようにたどり、ドロワーは押されただけではそれを選択しません。どの行き先が今の場所かは、移った先のページが伝えます。ドロワーの `value` に、その行き先の値を、値がなければ書かれたとおりの `href` を設定します。リンクをふつうに実行したときにも `change` と `reselect` は発火します。どちらも `href` を持ち、キャンセルできるので、クライアントサイドのルーターはここで遷移を引き取れます。リンクの行き先は、今のところ Web で使えます。
+
+ドロワーには 2 つのバリアントがあり、1 つのプロダクトでたいてい両方を使います。ウィンドウの幅が足りればスタンダード、足りなければモーダルです。
+
+- **スタンダード**はレイアウト領域で、オーバーレイではありません。開いている間はコンテンツの横に自分の幅を確保し、閉じている間は幅を持ちません。スクリムを描かず、フォーカスを中に閉じ込めることもありません。
+- **モーダル**は操作するオーバーレイで、しかもモーダルなものです。スクリムとともにコンテンツの上に滑り込み、閉じるまでフォーカスを中にとどめ、行き先が選ばれると自分で閉じます。
+
+`responsive` を付けると、この選択をドロワーがウィンドウの幅から自分で行います（後述の「ウィンドウの幅に合わせる」を参照）。
+
+どちらのバリアントも `open` で表示と非表示を切り替えます。モーダルのドロワーは、スクリムや Escape を押したとき、プラットフォームの「戻る」を使ったとき、端の方へドラッグしたときにも閉じ、`close` を発火します。Web では、ダイアログと同じくドロワー自身が `open` を false に戻します。ほかのプラットフォームでは、閉じたことを受けて利用者側で状態を合わせます。Flutter と React Native では `onClose`、SwiftUI では `isPresented` のバインディング、Compose ではドロワーの状態で、その `confirmValueChange` が閉じるたびに呼ばれます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="menu" label="メニュー"><span slot="icon">menu</span></tanrei-button>
+
+    <!-- モーダルは、シャドウルートの中で showModal() で開く <dialog> です。スタンダードは label を名前とする <nav> です。 -->
+    <tanrei-navigation-drawer variant="modal" label="メール" value="inbox">
+      <tanrei-navigation-drawer-section heading="メール">
+        <tanrei-navigation-drawer-item value="inbox" label="受信トレイ" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item value="sent" label="送信済み" icon="send"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+      <tanrei-navigation-drawer-section heading="ラベル" divider>
+        <tanrei-navigation-drawer-item value="work" label="仕事" icon="label" trailing-text="新着"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+    </tanrei-navigation-drawer>
+
+    <!-- 折りたためるドロワー：最初のヘッダーボタンがメニューボタンです。ドロワーが自分で応え、expandedchange を発火します。 -->
+    <tanrei-navigation-drawer collapsible open label="ワークスペース" value="home">
+      <tanrei-button slot="header-button" variant="text" label="メニュー"><span slot="icon">menu</span></tanrei-button>
+      <tanrei-main-action-button slot="main-action" label="新しいプロジェクト"><span slot="icon">add</span></tanrei-main-action-button>
+      <span slot="header">ワークスペース</span>
+      <tanrei-navigation-drawer-item value="home" label="ホーム" icon="home"></tanrei-navigation-drawer-item>
+      <!-- グループ：その行で開閉し、toggle を発火します。 -->
+      <tanrei-navigation-drawer-group label="プロジェクト" icon="folder">
+        <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+      <!-- アイコンのバッジはどちらの形でも描き、末尾の内容は展開しているときだけ描きます。 -->
+      <tanrei-navigation-drawer-item value="inbox" label="受信トレイ" icon="inbox" badge badge-count="3" badge-label="未読 3 件"></tanrei-navigation-drawer-item>
+      <!-- 新しいタブで開くリンク：展開した項目の末尾に open_in_new を描き、名前の後に target-label を読み上げます。 -->
+      <tanrei-navigation-drawer-item label="ヘルプセンター" icon="help" href="/help" target="new" target-label="新しいタブで開きます"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer>
+
+    <!-- サイトのサイドバー：行き先はすべてリンクで、各ページが自分のアドレスを value としてドロワーに渡します。
+         responsive はウィンドウの幅で表示のしかたを選び、reveal-selected は今のページを含むグループを開きます。 -->
+    <tanrei-navigation-drawer id="sidebar" label="ドキュメント" value="/components/tabs/" reveal-selected responsive open>
+      <tanrei-navigation-drawer-item label="はじめに" href="/getting-started/"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-group label="コンポーネント">
+        <tanrei-navigation-drawer-item label="ボタン" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="タブ" href="/components/tabs/" trailing-text="新着"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-drawer';
+      import '@tanrei/web/components/button';
+      const drawer = document.querySelector('tanrei-navigation-drawer');
+      document.querySelector('#menu').addEventListener('click', () => (drawer.open = true));
+      // ドロワーは change を発火する前に自分の value を更新します。モーダルのドロワーはその後で自分で閉じます。
+      drawer.addEventListener('change', (e) => showFolder(e.detail.value));
+      // close は、スクリム、Escape、ドラッグ、行き先の選択のどれで閉じても発火します。
+      drawer.addEventListener('close', onDrawerClosed);
+      // 折りたためるドロワーは、メニューボタンが求めた形にすでになっています。
+      document.querySelector('[collapsible]').addEventListener('expandedchange', (e) => savePreference(e.detail.expanded));
+
+      const sidebar = document.querySelector('#sidebar');
+      // リンクの change はキャンセルでき、href を持ちます。クライアントサイドのルーターはここで遷移を引き取ります。
+      // ページごとに文書が分かれたサイトは何も聞かず、次のページが value を伝えます。
+      sidebar.addEventListener('change', (e) => {
+        e.preventDefault();
+        router.navigate(e.detail.href);
+      });
+      // responsive のドロワーは、ウィンドウの幅で決まった表示（standard、column、modal）を伝えます。
+      sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import {
+      NavigationDrawer,
+      NavigationDrawerGroup,
+      NavigationDrawerItem,
+      NavigationDrawerSection,
+    } from '@tanrei/react';
+
+    // モーダルのドロワーは自分で閉じます（onClose）。そこで open を合わせます。
+    <NavigationDrawer
+      variant="modal"
+      label="メール"
+      open={open}
+      value={folder}
+      onChange={(e) => setFolder(e.detail.value)}
+      onClose={() => setOpen(false)}
+    >
+      <NavigationDrawerSection heading="メール">
+        <NavigationDrawerItem value="inbox" label="受信トレイ" icon="inbox" trailingText="24" />
+        <NavigationDrawerItem value="sent" label="送信済み" icon="send" />
+      </NavigationDrawerSection>
+    </NavigationDrawer>
+
+    // サイトのサイドバー：行き先はリンクで、どれが今の場所かはページが伝えます。
+    <NavigationDrawer
+      label="ドキュメント"
+      open
+      responsive
+      revealSelected
+      value={pathname}
+      onChange={(e) => {
+        e.preventDefault(); // クライアントサイドのルーターが遷移を引き取ります
+        navigate(e.detail.href);
+      }}
+      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+    >
+      <NavigationDrawerGroup label="コンポーネント">
+        <NavigationDrawerItem label="ボタン" href="/components/button/" />
+        <NavigationDrawerItem label="タブ" href="/components/tabs/" trailingText="新着" />
+      </NavigationDrawerGroup>
+      <NavigationDrawerItem label="ソースコード" href="https://example.com/tanrei" target="new" targetLabel="新しいタブで開きます" />
+    </NavigationDrawer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // スタンダード：コンテンツの横に置きます。isPresented で表示と非表示を切り替え、行き先を選ぶと selection に書き込まれます。
+    HStack(spacing: 0) {
+        TanreiNavigationDrawer(variant: .standard, isPresented: $sidebarShown, selection: $folder,
+                               accessibilityLabel: "メール", onReselect: { _ in scrollToTop() }) {
+            TanreiNavigationDrawerSection("メール") {
+                TanreiNavigationDrawerItem("受信トレイ", icon: "inbox", value: "inbox", badge: "24")
+                TanreiNavigationDrawerItem("送信済み", icon: "send", value: "sent")
+            }
+            TanreiNavigationDrawerSection("ラベル", divider: true) {
+                TanreiNavigationDrawerItem("仕事", icon: "label", value: "work")
+            }
+        } header: {
+            Text("メール")
+        }
+        FolderView(folder)
+    }
+
+    // モーダル：覆うコンテンツに付けるモディファイアーです。閉じるとバインディングに false が書き込まれます。
+    FolderView(folder)
+        .tanreiNavigationDrawer(isPresented: $menuShown, selection: $folder, accessibilityLabel: "メール") { … }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawer
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerItem
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerSection
+    import io.github.chnotchy.tanrei.components.rememberTanreiDrawerState
+    import io.github.chnotchy.tanrei.tokens.TanreiNavigationDrawerVariant
+
+    // ドロワーは画面全体を包みます。drawerState が仕様の open で、confirmValueChange が仕様の close を受け取ります。
+    val drawerState = rememberTanreiDrawerState()
+    TanreiNavigationDrawer(
+        variant = if (wide) TanreiNavigationDrawerVariant.Standard else TanreiNavigationDrawerVariant.Modal,
+        drawerState = drawerState,
+        contentDescription = "メール",
+        drawerContent = {
+            // 今の項目に selected を付けます。モーダルのドロワーは onClick の後で自分で閉じます。
+            TanreiNavigationDrawerSection(heading = "メール") {
+                TanreiNavigationDrawerItem(selected = folder == "inbox", onClick = { folder = "inbox" }, label = "受信トレイ", icon = "inbox", badge = "24")
+                TanreiNavigationDrawerItem(selected = folder == "sent", onClick = { folder = "sent" }, label = "送信済み", icon = "send")
+            }
+            TanreiNavigationDrawerSection(heading = "ラベル", divider = true) {
+                TanreiNavigationDrawerItem(selected = folder == "work", onClick = { folder = "work" }, label = "仕事", icon = "label", badge = "新着")
+            }
+        },
+    ) {
+        FolderScreen(folder, onMenu = { drawerState.open() })
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // スタンダード：レイアウト領域として、Row の先頭でコンテンツの横に置きます。
+    Row(
+      children: <Widget>[
+        TanreiNavigationDrawer(
+          open: sidebarOpen,
+          selectedIndex: current, // セクションをまたいで読み上げ順に数えた番号
+          onDestinationSelected: (int index) => setState(() => current = index), // change と reselect
+          semanticLabel: 'メール',
+          children: const <TanreiNavigationDrawerChild>[
+            TanreiNavigationDrawerSection(
+              heading: 'メール',
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'inbox', label: '受信トレイ', badge: '24'),
+                TanreiNavigationDrawerDestination(icon: 'send', label: '送信済み'),
+              ],
+            ),
+            TanreiNavigationDrawerSection(
+              heading: 'ラベル',
+              divider: true,
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'label', label: '仕事', badge: '新着'),
+              ],
+            ),
+          ],
+        ),
+        const Expanded(child: Page()),
+      ],
+    ),
+
+    // モーダル：ウィンドウいっぱいの Stack の最後の子として置きます。onClose を受けて open を false にします。
+    Stack(
+      children: <Widget>[
+        const Positioned.fill(child: Page()),
+        TanreiNavigationDrawer(
+          variant: TanreiNavigationDrawerVariant.modal,
+          open: menuOpen,
+          onClose: () => setState(() => menuOpen = false),
+          selectedIndex: current,
+          onDestinationSelected: (int index) => setState(() => current = index),
+          semanticLabel: 'メール',
+          children: destinations,
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationDrawer } from '@tanrei/react-native';
+
+    const [open, setOpen] = useState(false);
+    const [folder, setFolder] = useState('inbox');
+
+    // 制御コンポーネントです。onClose を受けて open を false にします。モーダルのドロワーは透明な Modal で表示します。
+    <NavigationDrawer
+      variant={wide ? 'standard' : 'modal'}
+      open={open}
+      onClose={() => setOpen(false)}
+      accessibilityLabel="メール"
+      value={folder}
+      onValueChange={setFolder}
+      items={[
+        { heading: 'メール', items: [
+          { value: 'inbox', label: '受信トレイ', icon: 'inbox', badge: '24' },
+          { value: 'sent', label: '送信済み', icon: 'send' },
+        ] },
+        { heading: 'ラベル', divider: true, items: [{ value: 'work', label: '仕事', icon: 'label', badge: '新着' }] },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="セクションに入れず、アイコンを付けない行き先" plain>
+  <tanrei-navigation-drawer open value="deployments" label="プロジェクト" style="block-size: 20rem">
+    <tanrei-navigation-drawer-item value="overview" label="概要"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="deployments" label="デプロイ" trailing-text="3"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="settings" label="設定"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-drawer" />
+
+## ガイドライン
+
+### 使う場面
+
+ナビゲーションバーに収まらないほど行き先が多いとき、または行き先がグループに分かれるときに使います。メールアプリのフォルダーとラベル、プロジェクトの各セクション、管理画面などです。大きいウィンドウでは、スタンダードのドロワーをサイドバーとしてコンテンツの横に置きます。コンパクトなウィンドウでは、モーダルのドロワーをメニューボタンからコンテンツの上に滑り込ませ、行き先が選ばれたら閉じます。
+
+### バーとドロワーの選び方
+
+| 観点 | [ナビゲーションバー](/ja/components/navigation-bar/) | [ナビゲーションドロワー](/ja/components/navigation-drawer/)（折りたたみ） | [ナビゲーションドロワー](/ja/components/navigation-drawer/)（展開） |
+| --- | --- | --- | --- |
+| 置き場所 | 下端に沿って | 先頭側の端に沿ったアイコンの列 | 先頭側の端のパネルの中 |
+| ウィンドウ | Compact | Medium 以上 | Expanded 以上（スタンダード）、または Compact（モーダル） |
+| 行き先の数 | 3〜5 個 | 最上位の行き先とグループ。1 つにつき 1 セル | プロダクトにある分だけ。セクションとグループにまとめます |
+| 行き先の形 | アイコンと、その下の 1 行のラベル。アイコンにバッジ | 項目をアイコンの後ろで切った形。アイコンだけで、バッジを付け、名前はツールチップで示します | 1 行の項目。アイコン（省略可）、折り返すラベル、末尾のテキストや内容 |
+| ほかに持つもの | なし | ヘッダー：メニューボタンと、アイコンだけに折りたたんだメインアクション | ヘッダー：メニューボタン、タイトルやアカウントの切り替え、メインアクション |
+| ネイティブのプラットフォームでの行き先 | タブバーのタブ | 選択状態を持つボタン | 選択状態を持つボタン |
+| 位置づけ | レイアウト領域 | レイアウト領域。またはモーダルのドロワーが広がる元になるレイアウト内の列 | スタンダードはレイアウト領域、モーダルはモーダルなオーバーレイ |
+
+- **折りたたんだドロワーがナビゲーションレールです。** 折りたためるドロワーは、コンテンツに幅が要るときにアイコンの列まで狭まり、メニューボタンでまた広がります。どのアイコンも位置を変えません。Tanrei の独立したナビゲーションレールは、この形に統合されて廃止されました。
+- **バーとドロワーは、同じ行き先を置く場所が違うだけです。** 同じ行き先と同じ選択を受け取るので、ウィンドウの大きさに合わせて変わるプロダクトは、行き先に手を加えずにブレークポイントでバーとドロワーを切り替えられます。同時に表示するのはどちらか一方だけです。
+- **ドロワーはもっと多くを持てます。** バーに収まらないほど行き先が多いとき、メールアプリのフォルダーとラベルのように行き先がグループに分かれるときは、展開したドロワーを使います。大きいウィンドウではスタンダードのドロワーをコンテンツの横に置き、コンパクトなウィンドウではモーダルのドロワーをメニューボタンから重ねて開きます。
+- **モーダルの折りたためるドロワー**は、アイコンの列をレイアウトに残したまま、メニューボタンで開くとスクリムの上でコンテンツに重なって広がります。
+- どのプラットフォームでも、どちらも行き先の値で選び（Compose は項目ごとのフラグ、Flutter は番号）、`change` と `reselect` を発火します。
+
+### ナビゲーションレールの移り先
+
+Tanrei には独立したナビゲーションレールはありません。レールは、折りたためるドロワーを折りたたんだ形です。
+
+| 以前 | 現在 |
+| --- | --- |
+| ナビゲーションレール | `collapsible` を付け、`expanded` を false にしたナビゲーションドロワー |
+| レールの行き先（アイコンとその下のラベル） | 行き先。折りたたんだときは、項目をアイコンの後ろで切った形で描きます。アイコンだけで、名前はツールチップで示します |
+| レールのラベルの表示 | `collapsedLabels`：`never`（既定）、`selected`、`always`。後の 2 つは、アイコンの下に `shortLabel` を描きます |
+| レールのアイコンのバッジ | 行き先の `badge`、`badgeCount`、`badgeLabel`。どちらの形でも描きます |
+| レールのメニューボタンと FAB | ドロワーの最初の `header-button`（メニューボタン）と `main-action`。メインアクションは折りたたむとアイコンだけになります |
+| ドロワーの項目末尾の `badge` のテキスト | `trailingText`、または `trailing` スロット |
+| レールのトークン | `comp.navigation-drawer.collapsed.*` と、折りたたんだときの状態 |
+
+Web は実装済みです。SwiftUI、Compose、Flutter、React Native は、追いつくまで独立したナビゲーションレールを提供しますが、これらのページではそれを説明していません。
+
+### Material 3 での名前
+
+| Material 3 | Tanrei |
+| --- | --- |
+| Navigation rail | 折りたためるナビゲーションドロワーを折りたたんだ形 |
+| Expanded navigation rail | 折りたためるナビゲーションドロワーを展開した形 |
+| Modal expanded navigation rail | モーダルの折りたためるナビゲーションドロワー |
+| Navigation drawer | 折りたためないナビゲーションドロワー |
+
+### バリアントの選び方
+
+| バリアント | どういうものか | 用途 |
+| --- | --- | --- |
+| スタンダード（既定） | レイアウトの中のパネルで、末尾側の端に細い線を引きます。開閉に合わせて横のコンテンツの幅が変わります。スクリムを描かず、横のコンテンツで作業している間も開いたままです。 | ドロワーをサイドバーとして開いたままにできる、幅の広いウィンドウ。 |
+| モーダル | 末尾側の角が丸い、浮き上がったパネルです。スクリムの上に重なってコンテンツの上へ滑り込みます。閉じるまでフォーカスをとどめ、行き先が選ばれると自分で閉じます。 | コンパクトなウィンドウ。アプリバーや、折りたたんだドロワーのヘッダーにあるメニューボタンから開きます。 |
+
+デザインシステムはバリアントを追加できます。追加したバリアントは、スタンダードと同じように振る舞います。
+
+### 開く、フォーカス、閉じる
+
+- **スタンダードを開く。** ドロワーが滑り込み、横のコンテンツが場所を空けます。メニューボタンなどで人の求めに応じて開いたときは、今の行き先へ、なければドロワーの最初のフォーカスできる要素へフォーカスが移ります。最初から開いた状態で表示したドロワーは、フォーカスを動かしません。
+- **スタンダードの横で作業する。** Tab でドロワーからコンテンツへ進んでも、ドロワーは開いたままです。フォーカスが中にある状態で閉じると、開く前にフォーカスがあった場所へ戻ります。
+- **モーダルを開く。** ドロワーが先頭側の端から滑り込み、ウィンドウの残りの部分にスクリムがフェードインします。フォーカスは今の行き先へ、なければ最初のフォーカスできる要素へ移り、ドロワーの中にとどまります。背後のものはすべて、ポインター、タッチ、キーボード、支援技術のどれからも操作できなくなります。
+- **モーダルを閉じる。** スクリムを押す、Escape を押す、プラットフォームの「戻る」を使う、先頭側の端の方へ幅の半分を超えてドラッグするかその向きにフリングする、行き先を選ぶ。どれでも 1 回だけ閉じます。ドロワーは滑り出てスクリムが消え、開いたときにフォーカスを持っていた要素へフォーカスが戻ります。
+- **端からのスワイプでは開かない。** iOS では画面の先頭側の端は「戻る」のジェスチャーなので、そこからドロワーを開くことはしません。目に見えるメニューボタンから開きます。
+- 動きを減らす設定では、瞬時に開閉します。
+
+### 折りたたむ
+
+- **`collapsible`** を付けると、ドロワーは幅 72 の折りたたんだ形を持ちます。展開したドロワーからラベルがなくなっただけの形です。最上位の行き先とグループは、それぞれの項目をアイコンの後ろで切った 48 × 48 のセルになり、角の丸みは項目と同じで、選択中のものは項目とまったく同じように塗ります。ヘッダーのボタンは列に縦に並び、メインアクションはアイコンだけに縮みます。セクションの見出しは文字なしで行を保ち、ヘッダーのスロットと末尾の内容は描きません。
+- **折りたたんだセルは、名前をツールチップで示します。** ツールチップはコンテンツの側に出ます。ポインターをセルに置いたままにするとツールチップの待ち時間の後に、キーボードフォーカスではすぐに表示し、タッチでは表示しません。ラベルはもともとセルのアクセシブルネームなので、ツールチップが読み上げに加えるものはありません。
+- **`expanded`** は、スタンダードの折りたためるドロワーの形を選びます。モーダルの折りたためるドロワーは、閉じている間も列をレイアウトに残し、`open` でコンテンツの上へスクリム付きで広がります。
+- **メニューボタン** は最初の `header-button` です。ドロワーが折りたためる間は、展開しているか折りたたんでいるかを伝え、ドロワーを制御するボタンとして扱われます。押すと、求めた形を付けて `expandedChange` を発火します。Web はそれを自分で反映し、ほかのプラットフォームでは利用者側で `expanded` か `open` を設定します。グリフと名前は利用者側で決めます。
+- **`collapsedLabels`** は、どのセルがアイコンの下に短いラベルを描くかを選びます。既定の `never`（描かない）、`selected`（選択中のものだけ）、`always`（すべて）です。ラベル付きの列は、それを求めるプロダクトやデザインシステムのためのものです。そのときセルは `shortLabel`（なければラベル）を描き、ツールチップは出しません。どれでも、ラベルはアクセシブルネームのままです。
+- **どのアイコンも位置を変えません。** アイコンはどちらの形でも同じ列と同じ高さに並び、どのセルも高さを保つので、形が変わるときに動くのは末尾側の端だけです。端が通り過ぎるとラベルが消え、ラベル付きの列では短いラベルが現れます。唯一の例外は開いているグループで、折りたたんだドロワーはその中身を描かないため、その下のセルが上に詰まります。
+- **選択は、その場で色が変わります。** 新しく選ばれると、展開していても折りたたんでいても、項目はその場で色を変えます。選択を示すために何かが伸びたり、縮んだり、滑ったりすることはありません。
+
+### ウィンドウの幅に合わせる
+
+`responsive` を付けると、デザインシステムの 2 つのブレークポイント（既定のシステムでは 1024 と 600）をもとに、ウィンドウの幅がドロワーの表示のしかたを選びます。このとき `variant` は無視します。
+
+| ウィンドウ | 表示 | ドロワーのあり方 |
+| --- | --- | --- |
+| 広い方のブレークポイント以上 | `standard` | コンテンツの横のスタンダードのドロワー。`open` が何であっても表示し、折りたためるなら `expanded` が選ぶ形になります |
+| 狭い方のブレークポイント以上で、`collapsible` のとき | `column` | モーダルの折りたためるドロワー。アイコンの列をレイアウトに残し、`open` の間はコンテンツの上に広がります |
+| それより狭い | `modal` | 折りたためない、モーダルのドロワー |
+
+- **表示は導き出すもので、保存しません。** 幅だけに従い、ドロワーがそれを `variant`、`open`、`expanded` に書き込むことはありません。今の表示は、最初に決まったときと、幅によって変わるたびに、`presentationChange` が伝えます。
+- **新しい表示には、閉じた状態で入ります。** 動きを付けず、すぐに描きます。開いていたオーバーレイは下ろし、`close` を 1 回発火します。`expanded`、`value`、各グループの `open` は保つので、スタンダードの表示に戻ると、離れたときの形のままです。
+- **`modal` の表示では、メニューボタンは利用者側で用意します。** 表示が `modal` の間は、アプリバーなどに自前のメニューボタンを表示し、そこから `open` を設定します。このときドロワー自身のメニューボタンは、閉じることしかしません。
+- **ドロワーは、訪問をまたいで何も覚えません。** 展開か折りたたみかという人の選択を残したいときは、`expandedChange` が運ぶ値を保存し、そこから `expanded` を設定します。
+
+### サイトのサイドバーとして
+
+すべての行き先に `href` を付け、ドロワーの `value` にそのページ自身のアドレスを渡すと、ドロワーは文書でできたサイトのサイドバーになります。
+
+- **今の場所はページが伝えます。** リンクは、押されただけでは選択されません。各ページが、自分の行き先を `value` に設定します。その行き先の `value` を、なければ書かれたとおりの `href` を渡します。
+- **`revealSelected`** は、ドロワーが最初に現れたときに、選択中の行き先を含むグループを開きます。最初のフレームで、動きを付けずに開き、その後も `value` が変わるたびに開きます。その後で人が閉じたグループは、`value` が変わるまで閉じたままです。
+- **選択は、着いたときに見えています。** ドロワーが現れたとき、そして `value` が変わるたびに、選択を示す項目が全部は見えていなければ、スクロールする領域の中央へ運びます。見えていれば、まったく動かしません。そのため、今のページがすでに見えているサイドバーは、ページを移っても位置が変わりません。フォーカスは動かしません。
+- **`scrollOffset`** は、項目がどれだけスクロールしているかを読み書きします。ドロワーは何も保存しません。長いツリーを読者が離れたときの位置に保ちたいサイトは、スクロール量と各グループの `open` を自分で（たとえばセッションのストレージに）保存し、最初のフレームの前に戻します。それでも、今のページを含むグループは開き、選択が見えなくなるスクロール量よりも選択の方を優先します。
+- **サイトの外へ出るリンク**には `target` に `new` を指定します。新しいタブで開き、末尾の内容を置いていなければ、展開した項目の末尾にアイコンセットの `open_in_new` を描き、名前の後に `targetLabel` を読み上げます。この言葉（「新しいタブで開きます」など）は利用者側で用意します。Tanrei は文言を持ちません。
+- **ルーターは `change` を聞きます。** `change` は、ブラウザーがリンクをたどる前に発火します。ただし、ふつうの実行のときだけです。`target` が `same` のリンクを、修飾キーなしの主ボタン、タッチ、Enter のいずれかで実行したときです。これをキャンセルし、運ばれてきた `href` へ移ります。別のタブで開いたリンクは何も発火せず、モーダルのドロワーも開いたままにします。
+
+### 行き先、グループ、セクション
+
+- 行き先のラベルは切られずに折り返し、項目もそれに合わせて高くなります。項目の高さは最小 48 で、[メニュー](/ja/components/menu/)の項目と同じ高さ、同じ角の丸みです。
+- ラベルの位置がそろうように、アイコンはすべての行き先に付けるか、どれにも付けないかのどちらかにします。折りたためるドロワーは、折りたたんだときに最上位の行き先とグループをアイコンで描くので、それぞれにアイコンを付けます。
+- `trailingText` は、項目の末尾にラベルより控えめに描く短いテキストです。「24」のような件数か、「新着」のような言葉を書きます。そのほかのもの、たとえばグリフやバッジは `trailing` スロットに入れます。スロットは `trailingText` より優先され、操作はできません。`target` が `new` のリンクは、自分で項目の末尾に `open_in_new` を描くので、このグリフを利用者側で置くことはありません。末尾の内容はラベルの後に読み上げ、折りたたんでいる間は描きません。
+- `badge` は、どちらの形でもアイコンにバッジを描きます。点か `badgeCount` の数字で、名前は `badgeLabel` です。
+- グループの行は、中の行き先やグループを開閉します。アイコンセットの `expand_more` が、開いている間は半回転します。階層が 1 つ深くなるごとに、文字だけでなく、塗り、ステートレイヤー、フォーカスリングを含む項目全体を字下げします。選択中の行き先を含む閉じたグループは選択中として描き、折りたたんでいる間は最上位のグループも同じです。折りたたんでいる間にグループを押すと、ドロワーが展開してグループが開きます。階層は 3 つまでにします。
+- セクションの見出しは、その下の行き先をまとめて名付けるものです。見出しであって、操作できるものではありません。見出しのないセクションも作れます。タイトルのない、区切っただけのグループです。
+- セクションの `divider` は、上にあるものと区切るために、セクションの前に区切り線を描きます。区切り線を利用者側で置くことはありません。
+- ヘッダーには、アイコンの列に縦に並ぶヘッダーボタンと、その下のメインアクションがあります。ヘッダーのスロットは展開している間メニューボタンの横に置かれ、タイトルやアカウントの切り替えに使います。折りたたんでいる間は描きません。ドロワーがその見た目を変えることはありません。
+- 項目がヘッダーの下の空きより高くなると、項目がスクロールし、ヘッダーはその場にとどまります。スクロールがどちらかの端に達しても、ドロワーの背後のページまでスクロールすることはありません。
+
+### 推奨
+
+- よく使う行き先を先頭に、セクションの外か最初のセクションに置きます。
+- 自分のアドレスを持つ行き先には `href` を付け、本物のリンクにします。新しいタブで開け、アドレスをコピーでき、クローラーもたどれます。
+- セクションには「ラベル」「管理」のように、中の行き先に共通するものを名前にします。
+- スタンダードとモーダルで同じ行き先と値を使い、ウィンドウの幅だけで切り替えられるようにします。
+
+### 非推奨
+
+- 「サインアウト」や「新規作成」のようなアクションをドロワーに置かない。ドロワーの項目は場所です。
+- セクションを入れ子にしたり、グループにセクションを入れたりしない。デバッグビルドで報告し、内側のセクションの行き先をその場所に描きます。
+- グループの行を行き先として使わない。開閉するだけのものです。
+- スタンダードが収まる幅のウィンドウでモーダルを使わない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="navigation-drawer" />
+
+### コンポーネントが担うこと
+
+- Web では、ドロワーは `label` を名前とするナビゲーションのランドマークです。各行き先はリンク（`href` があるとき）かボタンで、今の行き先には `aria-current="page"` が付きます。モーダルのドロワーは、`label` を名前とするモーダルな `<dialog>` でもあります。
+- iOS、Android、Flutter、React Native では、各行き先は、選択状態と行き先の中での位置を持つボタンです。それぞれのプラットフォームでサイドバーやドロワーの項目が読み上げられるのと同じです。モーダルのドロワーは、`label` を名前とするモーダルなコンテナ（モーダルのトレイト、またはペインのタイトル）です。
+- 行き先は、どちらの形でもラベルを名前とする 1 つの要素です。アイコンは隠し、アイコンのバッジの説明と末尾の内容を、名前と状態の後に読み上げます。
+- リンクの行き先は、どの状態でもボタンの行き先とまったく同じように描き、訪問済みの見た目はありません。コンテキストメニュー、新しいタブで開くこと、ドラッグ、ホバーで出るアドレスなど、ブラウザーがリンクに与えるものはすべて残ります。新しいタブで開くリンクは、説明の最後に `targetLabel` を読み上げます。
+- 折りたたんだセルのツールチップは、ポインターやキーボードを目で見て使う人のためのものです。支援技術からは隠します。支援技術は、もともとラベルをセルの名前として読み上げます。
+- グループの行は、展開状態を持ち、入れ子のリストを制御するボタンです。閉じたグループでは右（左から右に書くレイアウトの場合）で開き、開いたグループでは左で閉じ、グループの中では左でその行へ移ります。Tab は表示中のすべての行をたどります。
+- ドロワーが折りたためる間、メニューボタンは展開しているか折りたたんでいるかを伝え、ドロワーを制御するボタンとして扱われます。形が変わっても、フォーカスはそれまでのセルにとどまります。
+- セクションの見出しは見出しとして伝え、フォーカスは受け取りません。
+- Tab はヘッダーの中身と、無効でないすべての行き先を順にたどります。Enter と Space でフォーカス中の行き先を実行します（Web のリンクでは Enter だけ）。無効な行き先はフォーカスを受け取らず、無効であることを伝えます。
+- スタンダードでは、開くとフォーカスが中に入り、閉じると戻ります。Tab でコンテンツへ進んでも閉じません。モーダルでは、Tab と Shift+Tab はドロワーの中で折り返し、Escape とプラットフォームの「戻る」で閉じてフォーカスを戻します。
+- フォーカスリングは項目の周りに、キーボードフォーカスのときだけ描きます。全部は見えていない項目にキーボードフォーカスが移ると、見えるところまで最小限だけスクロールします。
+- ヒット領域は、どちらの形でもセル全体で、最小ターゲットを下回ることはありません。
+- 文字を大きくしても、どちらの形の幅も変わらず、項目と見出しが高くなります。ラベルは折り返し、短いラベルは切り詰め、アイコンは拡大しません。
+- ラベルのない行き先、`label` のないモーダルのドロワー、どの行き先も指していない値、重複した値、入れ子のセクション、グループの中のセクション、3 つより深い階層、デザインシステムにないバリアント、メニューボタンのない折りたためるドロワー、`trailing` スロットの中のフォーカスできる要素、`javascript:` のアドレスや読み取れない `href`、定義にない `target`、`target` が `new` なのに `targetLabel` のないリンクは、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- Web：Firefox はトップレイヤーから出ていく要素をアニメーションできないので、そこではモーダルのドロワーがスライドして出ていかず、すぐに消えます。
+- Web：すべての寸法が `rem` に従うので、ブラウザーの文字サイズを大きくすると、アイコンも大きくなります。ドロワーの幅は変わりません。Tanrei の文字の大きさだけを変えたときは大きくなりません。
+- Web：開いたスタンダードのドロワーから Tab でフォーカスが出ていくことはテストしていますが、コンテンツのどこに着くかは、負荷がかかると安定しなかったため、まだ確かめていません。
+- SwiftUI は、どのビューがフォーカスを持っていたかを知ることができません。そのためドロワーを閉じても、キーボードフォーカスはどの要素にも戻らず、プラットフォームの既定の場所へ移ります。開いたときは現在の行き先か、なければ最初の有効な行き先にフォーカスが移り、ヘッダーのコントロールには移りません。Mac では、モーダルのドロワーが覆って無効にするのは、付けたビューだけです。ウィンドウのルートに付けてください。
+- SwiftUI：Escape、アクセシビリティの「戻る」ジェスチャー、開いたときのフォーカスの移動は、まだ端から端までテストしていません。行き先は位置を値のテキスト（「2 of 6」）として持ち、英語だけです。
+- Compose は、モーダルのドロワーを、Material のドロワーのようにアプリのウィンドウの中ではなく、`TanreiDialog` と同じく専用の `Dialog` ウィンドウで表示します。見た目は同じで、そのウィンドウがフォーカスを中にとどめ、「戻る」に応え、背後を支援技術から隠します。
+- Compose にはドロワー全体の値がないので、どの行き先も指していない値を報告する手段がありません。
+- Flutter のモーダルのドロワーは `Scaffold.drawer` ではありません。ウィンドウいっぱいの `Stack` の最後の子として置き、`open` で制御します。行き先は集合の中の位置を持ちません。
+- Flutter：短い行を持つデザインシステムのように、行とその間隔を合わせてもタッチターゲットに届かないとき、ヒット領域だけを広げるのではなく、行同士の間が広がります。
+- React Native は、どの要素がフォーカスを持っていたかを知ることができません。そのためドロワーを閉じても、開いた要素へはフォーカスを戻せません。モーダルのドロワーではプラットフォームが決めた場所へ移り、スタンダードのドロワーでは何もしません。
+- React Native のドロワーには、まだ自分の `insets` プロパティがなく、`TanreiProvider` のインセットだけを読みます。行き先は位置を値のテキストとして持ち、`positionText` を渡さなければ英語です。
+- React Native：モーダルのドロワーのドラッグとフリング、フォーカスの移動、アクセシビリティの「戻る」ジェスチャーは、実機ではまだ確かめていません。
+- 以前の版を提供している SwiftUI、Compose、Flutter、React Native：最初の項目はドロワーの余白から間隔の半分だけ下に置かれ、ラベルが折り返した行の高さの伸び方もそろっていません（SwiftUI と Compose は、文字が収まらなくなるまで行の最小の高さを保ちます）。追従するときに、余白を最初のセルまでで測り、行の高さを最小値として扱うようになります。
+- Web：モーダルの折りたためるドロワーは、列の幅まで狭まってからでないとフォーカスを戻さず、ドラッグするとパネル全体が動き、ダイアログは開いたときに測った列の位置に置かれます。
+
+### 利用者側で行うこと
+
+- すべての行き先にラベルを付けます。折りたたんだ列にラベルを描くとき（`collapsedLabels`）は、列には長すぎるラベルに `shortLabel` も付けます。
+- `target` が `new` のリンクには、プロダクトの言語で `targetLabel` を付けます。
+- サイトでは、各ページで `value` をそのページ自身の行き先に設定します。
+- `responsive` のドロワーの表示が `modal` の間は、ドロワーを開く自前のメニューボタンを表示します。
+- メニューボタンには「メニュー」のような名前を付けます。Web 以外のプラットフォームでは、`expandedChange` から `expanded` か `open` を設定します。
+- `label` で「メール」のようにドロワーに名前を付けます。モーダルのドロワーはダイアログなので、これがその名前になります。
+- モーダルのドロワーは、「メニュー」のようなラベルを持つ、目に見えるメニューボタンから開きます。
+- `open` を合わせておきます。モーダルのドロワーが閉じたら、プラットフォームに応じて `onClose`、バインディング、ドロワーの状態から false にします。
+- SwiftUI では、ドロワーが閉じた後に、キーボードフォーカスをメニューボタンへ利用者側で戻します。
+- React Native では、ドロワーが閉じた後にメニューボタンへのフォーカスの戻しを利用者側で行い、プロダクトの言語で `positionText` を渡し、ウィンドウのインセットを `TanreiProvider` に渡します。
+- 各行き先の値は重複させず、スタンダードとモーダルのどちらでも変えないでおきます。

@@ -1,0 +1,183 @@
+---
+title: Loading indicator
+description: Shows that a short wait of unknown length is under way, inline or over content.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="loading-indicator" />
+
+:::note[A revised spec, not yet on every platform]
+This page describes the loading indicator as the spec has it now: it waits before it is shown, then enters. The web component already does, and so do the demos, which appear after the delay. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they draw and expose the indicator as soon as it is inserted, and do not take the three new props, so their samples below show only what they ship.
+:::
+
+<DemoFrame label="Inline and contained">
+  <tanrei-loading-indicator label="Loading messages"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="Loading the gallery"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained label="Refreshing"></tanrei-loading-indicator>
+</DemoFrame>
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <section aria-busy="true">
+      <tanrei-loading-indicator label="Loading messages"></tanrei-loading-indicator>
+    </section>
+
+    <!-- Contained: on a raised circle of its own, over content. -->
+    <tanrei-loading-indicator contained size="large" label="Refreshing"></tanrei-loading-indicator>
+
+    <!-- A busy button answers the press at once: no delay. -->
+    <tanrei-loading-indicator size="small" show-delay="0" label="Saving"></tanrei-loading-indicator>
+
+    <!-- Another pace for one indicator: wait longer, then grow in. -->
+    <tanrei-loading-indicator show-delay="600" entrance="grow" label="Loading the report"></tanrei-loading-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/loading-indicator';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react';
+
+    <section aria-busy={loading}>
+      {loading ? <LoadingIndicator label="Loading messages" /> : <MessageList />}
+    </section>
+    <LoadingIndicator contained size="large" label="Refreshing" />
+    <LoadingIndicator size="small" showDelay={0} label="Saving" />
+    <LoadingIndicator showDelay={600} entrance="grow" label="Loading the report" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiLoadingIndicator("Loading messages")
+
+    // Over content, on its own raised container.
+    TanreiLoadingIndicator("Refreshing", size: .large, contained: true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiContainedLoadingIndicator
+    import io.github.chnotchy.tanrei.components.TanreiLoadingIndicator
+    import io.github.chnotchy.tanrei.tokens.TanreiLoadingIndicatorSize
+
+    TanreiLoadingIndicator(contentDescription = "Loading messages")
+
+    // Contained is a second composable with the same parameters.
+    TanreiContainedLoadingIndicator(contentDescription = "Refreshing", size = TanreiLoadingIndicatorSize.Large)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    const TanreiLoadingIndicator(semanticsLabel: 'Loading messages');
+    const TanreiLoadingIndicator(
+      semanticsLabel: 'Refreshing',
+      size: TanreiLoadingIndicatorSize.large,
+      contained: true,
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react-native';
+
+    <LoadingIndicator accessibilityLabel="Loading messages" />
+    <LoadingIndicator accessibilityLabel="Refreshing" size="large" contained />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Sizes, inline and contained" plain>
+  <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="small" label="Small, contained"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="medium" label="Medium, contained"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="large" label="Large, contained"></tanrei-loading-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="loading-indicator" />
+
+## Guidelines
+
+### When to use
+
+Use a loading indicator for a short wait whose length you cannot tell: a list fetching its next page, a control saving, a preview rendering. It says that something is happening and nothing about how long it will take.
+
+When the wait may last more than a few seconds, or when you can measure how far it has come, use a [progress indicator](/components/progress-indicator/) instead. A value, even a rough one, makes a long wait easier to bear.
+
+### Choosing a size
+
+| Size | Indicator / container in the default system | Use for |
+| --- | --- | --- |
+| Small | 16 / 24 | In place of an icon in a control, such as a button that is saving. |
+| Medium | 24 / 32 | Next to a line of text. The default. |
+| Large | 40 / 48 | An empty section or a whole view waiting for its content. |
+
+### Contained
+
+Contained draws the indicator on a raised circle of its own. Use it where the indicator floats over content, as in pull to refresh or over an image or a list, so that it stays visible whatever is behind it. Where it sits on a plain surface, leave it inline.
+
+### Show delay and entrance
+
+A wait that ends in a moment should show nothing. So the indicator waits before it is shown: 300 ms in the default system, counted from the moment it is inserted. Then it fades in. A wait shorter than the delay never shows a mark that flashes on and off. During the delay the indicator already takes its full size, so nothing beside it moves when it appears.
+
+Insert the indicator when the wait starts and remove it when the wait ends. The delay counts from insertion: an indicator that is hidden and shown again without being removed does not wait again, and one inserted again waits the whole delay again.
+
+The system decides the delay and the entrance for every indicator. Set them on one indicator only when it needs a different pace:
+
+- `showDelay` is the wait in milliseconds. `0` shows the indicator as it is inserted, for a busy button that should answer the press at once.
+- `entrance` is `fade` or `grow`. Grow fades the indicator in while it grows from its center. `auto`, the default, takes the system's choice.
+- `enterDuration` is the entrance's length in milliseconds. `0` shows the indicator whole at once.
+
+A value you set is used as given: the motion dial does not scale it. Leave a prop unset to take the system's value.
+
+### Do
+
+- Give it a label that says what is loading: "Loading messages", not "Loading". If a caption is shown next to it, use the same words.
+- Put it where the content will appear, so the person looks at the right place when it arrives.
+- When it replaces an icon in a control, keep the control's size, so nothing around it moves.
+- Leave the delay to the system unless one indicator needs another pace.
+
+### Don't
+
+- Don't use it for a wait you can measure, or one that may run long. Use a progress indicator.
+- Don't show several indicators for one wait. One per region that is loading is enough.
+- Don't put it over a whole screen when only one part of it is loading. Keep the rest usable.
+- Don't color it to say that something went wrong. Stop it and show a message instead.
+- Don't keep an indicator in place and hide it between waits. Remove it, so the next wait starts a new delay.
+
+## Accessibility
+
+<ComponentAccessibility name="loading-indicator" />
+
+### What the component handles
+
+- Once shown, it exposes the progress bar role in the platform's busy state, with the label as its name and no value. Flutter has no progress bar role or busy state yet, so there it exposes the label.
+- During its show delay it is not in the accessibility tree at all: no role, no name, no busy state. A wait too short to see is not heard either.
+- It is never focusable, and it does not announce itself when it appears or goes away.
+- When reduced motion is requested, the arc stops turning and a full circle gently pulses its opacity instead, at most once a second; a container stays still. A grow entrance becomes a fade. The show delay is kept: it is a wait, not motion.
+- Its animation stops while it cannot be seen — in an app in the background everywhere, and scrolled out of view or on a hidden screen where the platform can tell — and resumes when it can.
+- An empty label is reported in debug builds.
+
+### What you need to do
+
+- Mark the region being loaded as busy while it loads (`aria-busy` on the web), from the start of the wait, without waiting for the indicator's delay, and say when the content has arrived: a message in a live region, or focus moved to the new content when the person asked for it.
+- Keep the indicator color at least 3:1 against the surface behind it, and the contained indicator color against its container, if you change them. The moving mark is the only sign that something is happening.

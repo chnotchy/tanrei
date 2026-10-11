@@ -1,0 +1,194 @@
+---
+title: Empty state
+description: What stands in the place of content that is not there — a search with no results, a list nobody has added to, a page before its first item — and says what is missing, why or what to do, and offers the action that does it.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="empty-state" />
+
+<DemoFrame label="A list nobody has added to yet, and a search that found nothing" column>
+  <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>A project keeps the layers, the exports and the people of one design system together.<tanrei-button slot="actions">New project</tanrei-button><tanrei-button slot="actions" variant="text">Import a layer</tanrei-button></tanrei-empty-state>
+  <tanrei-empty-state headline="No results for “tokne”" style="inline-size: min(100%, 30rem)"><span slot="media">search_off</span>Check the spelling, or search for a shorter word.<tanrei-button slot="actions" variant="outlined">Clear the search</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+An empty state stands where content would be and there is none: it replaces the list, the rows, the results. It says what is missing in a few words, why or what to do in a sentence, and offers the control that does it. It is quiet and flat — no fill, no edge — and it is content, read where it stands: it takes no focus and has no state.
+
+On the web it is `<tanrei-empty-state>`. The other platforms have not implemented it yet.
+
+### Usage
+
+The description is the element's own content. The title is the `headline` attribute, or the `title` slot where it is a heading or your own content. A glyph of the icon set, or a picture of your own, goes in the `media` slot, and your own Buttons or links in the `actions` slot. Every word is yours: the component has none of its own.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- A region inside a view: a glyph, a title, a sentence, the action. -->
+    <tanrei-empty-state headline="No projects yet">
+      <span slot="media">folder_open</span>
+      A project keeps the layers, the exports and the people of one design system together.
+      <tanrei-button slot="actions">New project</tanrei-button>
+      <tanrei-button slot="actions" variant="text">Import a layer</tanrei-button>
+    </tanrei-empty-state>
+
+    <!-- A page that is empty as a whole: large, and its title is the page's heading. -->
+    <tanrei-empty-state size="large">
+      <h1 slot="title">This page does not exist</h1>
+      The address may be mistyped, or the page may have moved.
+      <a slot="actions" class="tanrei-link" href="/">Go to the start page</a>
+    </tanrei-empty-state>
+
+    <!-- In a side panel: at the start edge, where the list would have begun. -->
+    <tanrei-empty-state align="start" headline="Nothing differs from the base yet">
+      Change a value on the left and it is listed here.
+    </tanrei-empty-state>
+
+    <!-- In answer to a filter: announced once, politely, when it is shown. -->
+    <tanrei-empty-state id="no-rows" live hidden headline="No entries match these filters">
+      Three filters are on. Removing one shows more entries.
+      <tanrei-button slot="actions" variant="outlined">Clear the filters</tanrei-button>
+    </tanrei-empty-state>
+
+    <script type="module">
+      import '@tanrei/web/components/empty-state';
+      import '@tanrei/web/empty-state.css'; // the place a server-rendered empty state keeps before the element is defined
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, EmptyState } from '@tanrei/react';
+
+    {rows.length === 0 && (
+      <EmptyState live headline="No entries match these filters">
+        Three filters are on. Removing one shows more entries.
+        <Button slot="actions" variant="outlined" onClick={clearFilters}>Clear the filters</Button>
+      </EmptyState>
+    )}
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="The parts, added one by one" plain column>
+  <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)"></tanrei-empty-state>
+  <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)">A project keeps the layers, the exports and the people of one design system together.</tanrei-empty-state>
+  <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>A project keeps the layers, the exports and the people of one design system together.</tanrei-empty-state>
+  <tanrei-empty-state headline="No projects yet" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>A project keeps the layers, the exports and the people of one design system together.<tanrei-button slot="actions">New project</tanrei-button><tanrei-button slot="actions" variant="text">Import a layer</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+<DemoFrame label="At the start edge, and the large size" plain column>
+  <tanrei-empty-state align="start" headline="Nothing differs from the base yet" style="inline-size: min(100%, 30rem)">Change a value on the left and it is listed here.</tanrei-empty-state>
+  <tanrei-empty-state size="large" headline="This page does not exist" style="inline-size: min(100%, 30rem)"><span slot="media">explore_off</span>The address may be mistyped, or the page may have moved.<tanrei-button slot="actions" variant="outlined">Go to the start page</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+<ComponentSpecs name="empty-state" />
+
+## Guidelines
+
+### Empty state, callout, snackbar, status text
+
+| Component | What it is | Where it stands |
+| --- | --- | --- |
+| Empty state | The place of content that is not there. | Where the list, the rows or the results would be. |
+| [Callout](/components/callout/) | A notice about content that is there. | Beside that content, in the flow. |
+| [Snackbar](/components/snackbar/) | The result of something that just happened. | Above the content, briefly. |
+| A search's status text | The count of what was found ("No results for tokne"). | In the search's own status row. |
+
+An empty place is not an error. Content that failed to load is a callout with the error status in the same place, and content that is still loading is a loading indicator. The three states of a region — loading, empty, failed — are the region's to switch between; the empty state neither shows nor hides itself.
+
+### Sizes
+
+| `size` | Above and below | Glyph | Title | Description | Use for |
+| --- | --- | --- | --- | --- | --- |
+| `medium` (default) | 32 | 32 | 16 | 14 | A region inside a view: a list, a table's body, a card, a panel, a search's results. |
+| `large` | 64 | 48 | 20 | 16 | A view that is empty as a whole: a page before its first item, a page that was not found. |
+
+The block is as wide as its region and as tall as its content and padding. Where the region is taller, placing the block in it — centring it, keeping a table's minimum height — is the region's. The text is kept to about 60 Latin characters a line (30 times the description's size), so a sentence in the middle of a wide table does not run from edge to edge.
+
+### Alignment
+
+`align` is `center` (the default) for a region that is otherwise blank, and `start` for a narrow column, a list in a side panel, or a table whose header stays in view: the message then begins where the content would have.
+
+### Title
+
+`headline` is plain text and never a heading. Where the empty state is the whole of a page's main region, the page usually needs a heading: put one of the level your outline needs in the `title` slot. The empty state draws it as any title and changes neither its role nor its level. Inside a card that already has a title, text is enough.
+
+On a page that is rendered on a server, give the title in the `title` slot: a `headline` attribute is drawn by the element, so it is not shown before the element is defined.
+
+### Media
+
+A glyph is given by its name, in an element: `<span slot="media">folder_open</span>`. It is drawn at the media size, in a quiet color. Anything else in the slot — an `<img>`, an `<svg>`, an element of your own — is a picture: it keeps its own size and colors, is never wider than the block, and is never mirrored. The media is decorative and hidden from assistive technology, so do not put the only way forward in the picture. Tanrei ships no illustrations.
+
+### Actions
+
+The actions are your own [Buttons](/components/button/) or links, one or two, the main one first. The empty state lays them out in a row that wraps and does nothing else to them. An action whose label is longer than its line is given the line: a Button then wraps its label, so nothing is cut and nothing runs past the block.
+
+<DemoFrame label="In a narrow column the actions take a line each, and a long label wraps" plain column>
+  <tanrei-empty-state headline="No results" style="inline-size: 14rem"><span slot="media">search_off</span>Check the spelling.<tanrei-button slot="actions" variant="outlined">Clear the search</tanrei-button><tanrei-button slot="actions" variant="text">Open the list of contents of the documentation</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+### Appearing in answer to something
+
+`live` is for an empty state that results from what the person just did: a filter that matches no row, the last item removed. It is announced once, politely — the title, then the description, and not the actions — when it is shown and when its text changes. Keep it in the page with `hidden`, or add it when it applies.
+
+<DemoFrame label="A live empty state, shown in answer to a press" plain column>
+  <tanrei-button variant="outlined" onclick="document.getElementById('empty-state-demo-live').hidden = false">Apply three filters</tanrei-button>
+  <tanrei-empty-state id="empty-state-demo-live" live hidden headline="No entries match these filters" style="inline-size: min(100%, 30rem)">Three filters are on. Removing one shows more entries.<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-empty-state').hidden = true">Clear the filters</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+One that is in the page's markup and shown when the page loads is not announced then. On the web, a live empty state that your script adds to the page after it has loaded is announced; the element cannot tell one added in answer to something from one added with a new view of a single-page application, so for an empty state that is simply part of a new view, leave `live` off.
+
+In a [Search](/components/search/), the count of results is the search's own status text, which is already announced. Where you also show an empty state in the search's view, leave its `live` off, or the same words are read twice.
+
+### In a table and in a list
+
+A table with no rows keeps its caption and its header row; the empty state stands where the body's rows would be — in one cell that spans the columns, or directly after the table. A list with no items is not a list of one item: the empty state takes the list's place.
+
+### Before the element is defined
+
+The description, the title slot and the actions are the element's own children, so they are in the document: found by search in the page, translated, selected, and read without script. `@tanrei/web/empty-state.css` gives an empty state that is not defined yet its paddings, its text styles and its alignment, so the words are readable where they will stand. Until then it shows without its glyph.
+
+### Do
+
+- Say what is missing in the title, in plain words, and what to do in the description.
+- Offer the action that fills the place or changes what was asked for.
+- Quote what the person typed in the title of a search with no results.
+
+### Don't
+
+- Don't give it a status color or an alert's role. An empty place is a fact about the content.
+- Don't use `live` for a place that is empty when its view opens.
+- Don't draw a centred grey sentence by hand, or a list of one item that is not an item.
+- Don't use it for a one-line "nothing here" inside a control, such as a menu with no options: that is the control's own text.
+
+## Accessibility
+
+<ComponentAccessibility name="empty-state" />
+
+### What the component handles
+
+- It is plain content with no role and no name: the title, the description, then the actions, read where they stand.
+- With `live` it is announced once, politely, through a status region of its own: when it is shown after the page was presented, and when its title or its description changes. It is never announced assertively.
+- The glyph or the picture is hidden from assistive technology.
+- A title given as text is plain text. A heading in the `title` slot keeps its level.
+- It is not a stop in the focus order and never moves focus. Tab reaches the links of the description, then the actions.
+- With enlarged text everything wraps and grows; at a width of 320 with text at 200% nothing scrolls sideways and the actions stand each on a line of their own.
+- In forced colors the glyph, the title and the description are drawn in the text color. Nothing relies on a fill.
+- In a right-to-left layout the start is the right edge and the first action is at the right, a glyph the icon set marks is mirrored, and a title that quotes a left-to-right query keeps the query's order.
+- An unknown size or alignment, an empty state with no title and no description, and one with a description and no title are reported in debug builds.
+
+### What you need to do
+
+- Write every word in the language of the page. The component supplies none.
+- Give a heading in the `title` slot where the page needs one.
+- Use `live` only for an empty state that appears in answer to something, and never beside another live region that says the same.
+- Do not put a control in the `media` slot: it is hidden from assistive technology.
+- Give an action a label that fits. A label wraps where its line is too short, but a single word longer than the line cannot.

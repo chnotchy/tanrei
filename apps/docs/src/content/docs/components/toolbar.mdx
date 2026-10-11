@@ -1,0 +1,317 @@
+---
+title: Toolbar
+description: Holds a short row of actions for the current screen or selection, docked across the bottom edge or floating over the content. It is one Tab stop, and the arrow keys move between its actions.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="toolbar" />
+
+<DemoFrame label="Docked and floating" column>
+  <tanrei-toolbar label="Message actions" style="inline-size: 22rem">
+    <tanrei-button variant="text" label="Archive"><span slot="icon">archive</span></tanrei-button>
+    <tanrei-button variant="text" label="Delete"><span slot="icon">delete</span></tanrei-button>
+    <tanrei-button variant="text" label="Mark as unread"><span slot="icon">mark_email_unread</span></tanrei-button>
+    <tanrei-button variant="text" label="Move"><span slot="icon">drive_file_move</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Formatting">
+    <tanrei-button variant="text" toggle selected label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" toggle label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" toggle label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+    <tanrei-button variant="text" label="Insert link"><span slot="icon">link</span></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+### Usage
+
+A toolbar holds two kinds of item: `action`, which is a Tanrei [Button](/components/button/) with an icon and no label (a toggle such as Bold is one with `toggle` set), and `button`, which is a Tanrei Button with a label. They are your own components, each with its own label, click and state. The toolbar lays them out in reading order and moves keyboard focus among them. It never restyles them, so an icon-only Button in a toolbar looks and behaves as it does anywhere else. Each platform takes them the way it takes repeated children: child elements on the web, a view builder on SwiftUI, calls in a content lambda on Compose, a `children` list on Flutter and child elements on React Native.
+
+**Docked.** A docked toolbar spans the bottom edge of the screen. Its color reaches under the home indicator or gesture bar, and its items stay above it and inside the side insets. The web reads `env(safe-area-inset-bottom)`, SwiftUI places the bar with `.safeAreaInset(edge: .bottom)`, Compose takes `windowInsets` (the navigation bars by default), and Flutter reads the bottom `MediaQuery` padding. React Native takes its insets from the toolbar's `insets` prop or from `TanreiProvider`, since Tanrei takes no safe-area dependency.
+
+**Floating.** A floating toolbar does not place itself, as a [main action button](/components/main-action-button/) does not. Your layout puts it, normally centered above the bottom of the content, or beside the content's end edge when it is vertical.
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision of the toolbar and of the button, where an icon-only action is a separate icon button, and their samples show that revision until they catch up.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-toolbar label="Message actions">
+      <tanrei-button variant="text" label="Archive"><span slot="icon">archive</span></tanrei-button>
+      <tanrei-button variant="text" label="Delete"><span slot="icon">delete</span></tanrei-button>
+      <tanrei-button variant="text" label="Move"><span slot="icon">drive_file_move</span></tanrei-button>
+      <tanrei-button variant="filled">Reply</tanrei-button>
+    </tanrei-toolbar>
+
+    <!-- Floating and vertical: the page places it. -->
+    <tanrei-toolbar variant="floating" orientation="vertical" label="Map controls" class="map-controls">
+      <tanrei-button variant="text" label="Zoom in"><span slot="icon">add</span></tanrei-button>
+      <tanrei-button variant="text" label="Zoom out"><span slot="icon">remove</span></tanrei-button>
+    </tanrei-toolbar>
+
+    <script type="module">
+      import '@tanrei/web/components/toolbar';
+      import '@tanrei/web/components/button';
+      // The items are yours: the toolbar adds no events of its own.
+      document.querySelector('[label="Archive"]').addEventListener('click', archive);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Toolbar } from '@tanrei/react';
+
+    <Toolbar label="Message actions">
+      <Button variant="text" label="Archive" onClick={archive}><span slot="icon">archive</span></Button>
+      <Button variant="text" label="Delete" onClick={remove}><span slot="icon">delete</span></Button>
+      <Button variant="text" label="Move" onClick={move}><span slot="icon">drive_file_move</span></Button>
+      <Button variant="filled" onClick={reply}>Reply</Button>
+    </Toolbar>
+
+    <Toolbar variant="floating" label="Formatting">
+      <Button variant="text" toggle selected={bold} label="Bold" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+      <Button variant="text" label="Insert link" onClick={insertLink}><span slot="icon">link</span></Button>
+    </Toolbar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // A docked toolbar sits in the bottom safe-area inset; its background reaches under it.
+    MessageView()
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TanreiToolbar("Message actions") {
+                TanreiIconButton("Archive", action: archive) { Image(systemName: "archivebox") }
+                TanreiIconButton("Delete", action: delete) { Image(systemName: "trash") }
+                TanreiButton("Reply", action: reply)
+            }
+        }
+
+    TanreiToolbar("Formatting", variant: .floating) {
+        TanreiIconButton("Bold", isSelected: $bold) { Image(systemName: "bold") }
+        TanreiIconButton("Insert link", action: insertLink) { Image(systemName: "link") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.gestures.Orientation
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiToolbar
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiToolbarVariant
+
+    // A docked toolbar pads its items by WindowInsets.navigationBars unless you pass windowInsets.
+    TanreiToolbar(contentDescription = "Message actions") {
+        TanreiIconButton(onClick = ::archive, contentDescription = "Archive") { TanreiText("archive") }
+        TanreiIconButton(onClick = ::delete, contentDescription = "Delete") { TanreiText("delete") }
+        TanreiButton(text = "Reply", onClick = ::reply)
+    }
+
+    TanreiToolbar(contentDescription = "Formatting", variant = TanreiToolbarVariant.Floating) {
+        TanreiIconButton(onClick = {}, contentDescription = "Bold", checked = bold, onCheckedChange = { bold = it }) {
+            TanreiText("format_bold")
+        }
+        TanreiIconButton(onClick = ::insertLink, contentDescription = "Insert link") { TanreiText("link") }
+    }
+
+    // Vertical is for a floating toolbar; your layout places it.
+    TanreiToolbar(
+        contentDescription = "Map controls",
+        variant = TanreiToolbarVariant.Floating,
+        orientation = Orientation.Vertical,
+    ) {
+        TanreiIconButton(onClick = ::zoomIn, contentDescription = "Zoom in") { TanreiText("add") }
+        TanreiIconButton(onClick = ::zoomOut, contentDescription = "Zoom out") { TanreiText("remove") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiToolbar(
+      semanticLabel: 'Message actions',
+      children: <Widget>[
+        TanreiIconButton(onPressed: archive, semanticLabel: 'Archive', icon: const Icon(AppSymbols.archive)),
+        TanreiIconButton(onPressed: delete, semanticLabel: 'Delete', icon: const Icon(AppSymbols.delete)),
+        TanreiButton(onPressed: reply, child: const Text('Reply')),
+      ],
+    );
+
+    TanreiToolbar(
+      semanticLabel: 'Map controls',
+      variant: TanreiToolbarVariant.floating,
+      orientation: Axis.vertical,
+      children: <Widget>[
+        TanreiIconButton(onPressed: zoomIn, semanticLabel: 'Zoom in', icon: const Icon(AppSymbols.add)),
+        TanreiIconButton(onPressed: zoomOut, semanticLabel: 'Zoom out', icon: const Icon(AppSymbols.remove)),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button, IconButton, Toolbar } from '@tanrei/react-native';
+
+    // The bottom and side insets come from TanreiProvider's insets; the toolbar's own insets prop replaces the sides it names.
+    <Toolbar accessibilityLabel="Message actions">
+      <IconButton accessibilityLabel="Archive" onPress={archive}>archive</IconButton>
+      <IconButton accessibilityLabel="Delete" onPress={remove}>delete</IconButton>
+      <Button variant="filled" onPress={reply}>Reply</Button>
+    </Toolbar>
+
+    <Toolbar variant="floating" accessibilityLabel="Formatting">
+      <IconButton accessibilityLabel="Bold" toggle selected={bold} onSelectedChange={setBold}>format_bold</IconButton>
+      <IconButton accessibilityLabel="Insert link" onPress={insertLink}>link</IconButton>
+    </Toolbar>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="A button item, one item, a disabled item, a filled action, vertical" plain column>
+  <tanrei-toolbar label="Compose" style="inline-size: 22rem">
+    <tanrei-button variant="text" label="Attach file"><span slot="icon">attach_file</span></tanrei-button>
+    <tanrei-button variant="text" label="Insert photo"><span slot="icon">image</span></tanrei-button>
+    <tanrei-button variant="text" label="Insert link"><span slot="icon">link</span></tanrei-button>
+    <tanrei-button variant="filled">Send</tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="Reply" style="inline-size: 22rem">
+    <tanrei-button variant="tonal">Reply</tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="Message actions" style="inline-size: 22rem">
+    <tanrei-button variant="text" label="Archive"><span slot="icon">archive</span></tanrei-button>
+    <tanrei-button variant="text" label="Delete" disabled><span slot="icon">delete</span></tanrei-button>
+    <tanrei-button variant="text" label="Mark as unread"><span slot="icon">mark_email_unread</span></tanrei-button>
+    <tanrei-button variant="text" label="Move"><span slot="icon">drive_file_move</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Drawing tools">
+    <tanrei-button variant="text" label="Pen"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="Highlighter"><span slot="icon">ink_highlighter</span></tanrei-button>
+    <tanrei-button variant="text" label="Eraser"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-button variant="filled" label="Done"><span slot="icon">check</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" orientation="vertical" label="Map controls">
+    <tanrei-button variant="text" label="Zoom in"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="text" label="Zoom out"><span slot="icon">remove</span></tanrei-button>
+    <tanrei-button variant="text" label="My location"><span slot="icon">my_location</span></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+<ComponentSpecs name="toolbar" />
+
+## Guidelines
+
+### When to use
+
+Use a toolbar for a few actions on what is in front of the person: Archive, Delete and Move for an open message; Bold, Italic and Link in an editor; a pen and an eraser in a drawing app; zoom and location on a map. The actions act on the current screen or selection, not on where the person goes next.
+
+For the screen's title, the way back and one or two global actions, use the [app bar](/components/app-bar/) at the top. To move between the top-level destinations of an app, use the [navigation bar](/components/navigation-bar/). A docked toolbar and a navigation bar never share a screen: both claim the bottom edge.
+
+### Docked or floating
+
+| Variant | Where it sits | Items | Use for |
+| --- | --- | --- | --- |
+| Docked (default) | Across the bottom edge, flush with it, its color reaching under the system bar | Spread across the width, with equal space between | The actions of a detail screen: an open message, a photo, a document |
+| Floating | A rounded, raised surface over the content, placed by your layout | Closed up, as long as they need, each keeping room for its own touch target | Tools over content that should stay visible around them: an editor, a canvas, a map |
+
+A docked toolbar is always horizontal. A floating one may be vertical, beside the content on a large screen, as map controls are. One product can dock its toolbar on some screens and float it on others. A variant that a design system adds takes the docked structure with its own values.
+
+A docked toolbar spreads its items across the width and never brings them closer than its gap (16 in the default system). A floating toolbar closes its items up: in the default system its gap is 0, and two neighbours stand apart only as far as each needs to keep a touch target of its own along the row. Large buttons touch, medium ones end up 8 apart and small ones 16. The toolbar never widens or restyles an item to do this, and the spacing is the same for a mouse and for touch.
+
+<DemoFrame label="Floating: small, medium and large items, and narrow and wide ones" plain column>
+  <tanrei-toolbar variant="floating" label="Formatting, small">
+    <tanrei-button variant="text" size="small" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" size="small" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" size="small" label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Formatting, medium">
+    <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Formatting, large">
+    <tanrei-button variant="text" size="large" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" size="large" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" size="large" label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Drawing tools">
+    <tanrei-button variant="text" width="narrow" label="Undo"><span slot="icon">undo</span></tanrei-button>
+    <tanrei-button variant="text" width="narrow" label="Redo"><span slot="icon">redo</span></tanrei-button>
+    <tanrei-button variant="text" label="Pen"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="Eraser"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-button variant="filled" width="wide" label="Done"><span slot="icon">check</span></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+### Items
+
+- Use icon-only [Buttons](/components/button/) of the `text` variant for most actions. Give the one action the toolbar leads to, such as Send or Done, more weight: a filled icon-only button, perhaps at the `wide` width, or a filled button with a label when a word reads better than an icon.
+- A `narrow` icon-only button suits a toolbar with many small actions. It is drawn narrower than its target, and the toolbar keeps room for the target between its neighbours.
+- Make an action that switches something on and off (Bold, Mute) an icon-only button with `toggle`. It keeps its own selected state and its own announcement.
+- Keep the order stable. People find actions by position, and a toolbar whose items move between screens is hard to learn.
+- A toolbar with one item centers it. Consider whether that item belongs in the content instead.
+
+### When the items do not fit
+
+The toolbar never wraps, shrinks or hides an item. If the items need more room than it has, the row scrolls so that every item stays reachable, and debug builds tell you so. Put the extra actions in an overflow [menu](/components/menu/) of your own, anchored to a "More options" icon button at the end of the toolbar.
+
+### Do
+
+- Name the toolbar for what its actions do: "Formatting", "Message actions".
+- Disable an action that cannot apply right now rather than removing it, so the others do not move.
+- Place a floating toolbar clear of the content people need to see while they use it, and clear of a navigation bar and the system inset.
+
+### Don't
+
+- Don't put a text field, a slider or a set of chips in a toolbar. Each one needs the arrow keys that the toolbar uses to move focus. Search belongs in the app bar or the page.
+- Don't use a docked toolbar and a navigation bar on the same screen.
+- Don't restyle the items to make the toolbar look emphasized. Choose the tonal or filled variant for the buttons instead.
+- Don't put navigation destinations in a toolbar. Its items are actions.
+
+## Accessibility
+
+<ComponentAccessibility name="toolbar" />
+
+### What the component handles
+
+- The toolbar is one Tab stop, following the WAI-ARIA toolbar pattern. Tab enters it at the item that had keyboard focus last, or else at the first item that is not disabled, and the next Tab leaves it. A formatting toolbar of eight toggles costs one Tab press to cross, not eight.
+- Inside, the arrow keys along its axis move to the next or previous item and wrap at the ends: Right and Left Arrow in a horizontal toolbar, Down and Up Arrow in a vertical one. Home and End move to the first and last item. In a right-to-left layout, Left Arrow moves to the next item.
+- Moving focus never activates an item. Enter and Space act on the focused item as that item does, so a toggle still switches.
+- Disabled items are skipped by the arrow keys and are never the Tab stop, because a disabled button is not focusable.
+- The roving focus is the same one the list, menu and tabs use on each platform.
+- The toolbar is exposed as a toolbar named by `label`, with its orientation, where the platform has a toolbar role (the web, React Native). SwiftUI, Compose and Flutter have none: there it is a group named by `label` that contains its items in order.
+- Each item keeps its own name, role, state and target. The toolbar adds nothing to them and never restyles them.
+- Between two items the hit areas never overlap. In a docked toolbar they meet at the middle of the gap, and the default system's gap (16) is wide enough that every item keeps its whole 48 touch target there too; a design system with a narrower gap narrows the targets between items. In a floating toolbar the items stand just far enough apart for each to keep a touch target's length of its own along the row, whatever the pointer, so a narrow or a small button is never squeezed by its neighbours. On a side with no neighbour, an item keeps its whole target.
+- When an item that receives keyboard focus is scrolled out of view, the toolbar scrolls it fully into view.
+- At larger text sizes the toolbar grows across its axis to hold its items. It does not scale them.
+- Debug builds report a missing `label`, a toolbar with no items, an item that is not a Tanrei Button, a docked toolbar set to vertical, items that do not fit, and an unknown variant or orientation.
+
+Known platform gaps:
+
+- SwiftUI, Compose and Flutter have no toolbar role. A screen reader hears a named group, not a toolbar, and each package's README says so. The group does not expose its orientation.
+- Web: a docked toolbar reads `env(safe-area-inset-bottom)`, which is zero unless the page's viewport meta has `viewport-fit=cover`.
+- Web: while the items scroll, whatever of an item reaches past the toolbar across its axis is clipped: its hit area, its focus ring or glow, an elevated button's shadow. No scrollbar is shown.
+- On SwiftUI the one Tab stop is a focus group for the keyboard: Full Keyboard Access moves among its items with the arrow keys and leaves it with Tab. The keys are tested as rules, not yet with a real keyboard.
+- SwiftUI: while the items scroll, an end item's hit area stops at the toolbar's edge. When a resize makes the items start or stop scrolling, they are recreated, so an item loses its keyboard focus or a press in progress.
+- On React Native the Tab stop and the arrow keys work only where a hardware keyboard is attached, as in the tabs row.
+- React Native has the toolbar role but no way to expose an orientation, so a vertical toolbar is not announced as vertical.
+- React Native: the floating toolbar's width, the keys on a hardware keyboard, scrolling a focused item into view, and whether VoiceOver and TalkBack announce the toolbar have been checked in Jest only, not on a device.
+- Under `m3-like`, the toolbar draws the default system's values: Material's toolbar values wait for the fidelity reference to cover it. Material's vibrant toolbar, which recolors its items, cannot be drawn, because the toolbar never restyles its items (mimicry gap `toolbar-vibrant-color`).
+
+### What you need to do
+
+- Give the toolbar a `label`, and every item its own label in your product's language, including icon-only actions.
+- Put only Tanrei Buttons in it, icon-only or labelled.
+- When an action cannot apply, disable it, and say why nearby when the reason is not obvious.
+- Provide the overflow menu yourself when the actions do not fit.
+- Place a floating toolbar so that it does not cover content that is still needed while the toolbar is open.

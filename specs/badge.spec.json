@@ -1,0 +1,236 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "badge",
+  "title": "Badge",
+  "summary": "Marks an icon, a navigation item or an avatar with a dot or a small count to show that something is waiting.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The pill that holds the count: at least as wide as it is high, so a single digit sits in a circle."
+    },
+    {
+      "id": "dot",
+      "description": "The container's form when there is no count: a small circle with no label.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The count, or the capped count followed by a plus sign.",
+      "optional": true
+    },
+    {
+      "id": "outline",
+      "description": "A ring outside the dot or the pill that separates the badge from what it overlaps."
+    }
+  ],
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": null,
+      "description": "How many things are waiting. Null draws the dot (something is new, the number is unknown or unimportant); 0 draws nothing; above 0 draws the number."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 999,
+      "description": "The largest count shown as it is; a larger one shows as max followed by a plus sign (999+)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads after the anchor's own name (\"3 unread\"). With no label, the displayed count is read; a dot needs one."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The anchor the badge sits on: an icon, an icon-only Button, a navigation item or an avatar. In fixtures the anchor is the glyph of the system's icon set that the fixture's content names, drawn at the icon size sys.icon.medium in the color on-surface-variant; its accessible name is that glyph name (\"mail\"), and the badge adds the fixture's label to it as its value (\"mail, 3 unread\")."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "BDG-1",
+      "text": "WHILE count is null THE badge SHALL draw a circle of diameter comp.badge.dot.size in comp.badge.container.color with no label, its center comp.badge.dot.offset inside the anchor's top-end corner on both axes; the dot is a circle whatever corners the container has."
+    },
+    {
+      "id": "BDG-2",
+      "text": "WHILE count is above 0 THE badge SHALL draw a container at least comp.badge.container.height high and at least as wide as it is high, with comp.badge.container.padding-inline on each side of its label and corners of comp.badge.container.shape, filled with comp.badge.container.color, and the label centered in comp.badge.label.typescale and comp.badge.label.color."
+    },
+    {
+      "id": "BDG-3",
+      "text": "WHILE count is above 0 THE badge SHALL place the center of the container's leading circle (a square of the container's drawn height at its start) comp.badge.container.offset inside the anchor's top-end corner on both axes, so that a longer count grows toward the end, away from the anchor."
+    },
+    {
+      "id": "BDG-4",
+      "text": "WHEN count is greater than max THE badge SHALL show max followed by a plus sign (999+ with the default max) instead of count, and SHALL otherwise show count in full."
+    },
+    {
+      "id": "BDG-5",
+      "text": "WHILE count is 0 THE badge SHALL draw nothing and expose nothing to assistive technology, and its anchor SHALL render and be announced as it would without a badge."
+    },
+    {
+      "id": "BDG-6",
+      "text": "THE badge SHALL draw comp.badge.outline.width of comp.badge.outline.color around the dot or the container, outside its edge, without changing the badge's size or position."
+    },
+    {
+      "id": "BDG-7",
+      "text": "THE badge SHALL NOT change its anchor's size or position, SHALL NOT take space in the layout (it may extend past the anchor's bounds), and SHALL NOT take pointer, touch or keyboard input: input over the badge reaches the anchor."
+    },
+    {
+      "id": "BDG-8",
+      "text": "THE badge SHALL hide its drawn dot and number from assistive technology and SHALL add label to its anchor's accessible description, so that the anchor is announced with its own name followed by label; WHILE label is empty and count is above 0 THE badge SHALL add the displayed text instead (for example 999+)."
+    },
+    {
+      "id": "BDG-9",
+      "text": "WHILE count is null and label is empty THE badge SHALL still render, and in debug builds report that the dot tells assistive technology nothing."
+    },
+    {
+      "id": "BDG-10",
+      "text": "WHEN count or label changes THE badge SHALL update its anchor's accessible description and SHALL NOT announce the change by itself."
+    },
+    {
+      "id": "BDG-11",
+      "text": "WHERE the layout direction is right-to-left THE badge SHALL take the anchor's top-left corner as its top-end corner and grow toward the left, and SHALL isolate its label from the surrounding direction so that a capped count keeps its plus sign after the digits."
+    },
+    {
+      "id": "BDG-12",
+      "text": "THE badge SHALL format count and max with the current locale's digits and no grouping separator, and SHALL draw digits with tabular figures where the font has them, so that a changing count does not shift its neighbours."
+    },
+    {
+      "id": "BDG-13",
+      "text": "WHILE the text size is enlarged THE badge SHALL grow its container with its label, keep the center of the leading circle — a square of the grown container's height — at its placement, and keep the dot at comp.badge.dot.size."
+    },
+    {
+      "id": "BDG-14",
+      "text": "IF count is negative or not a number THE badge SHALL render as for 0; IF count is not a whole number THE badge SHALL use it rounded down; IF max is below 1 THE badge SHALL use its default of 999; in each case debug builds SHALL report the value."
+    },
+    {
+      "id": "BDG-15",
+      "text": "THE badge SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the badge is shown THE badge SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows and its state.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [],
+    "labeling": "The badge has no role or name of its own. label (or, without one, the displayed count) becomes part of the anchor's accessible description, so the anchor is announced as, for example, \"Inbox, button, 3 unread\". The drawn number is hidden, so it is never read twice.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the badge takes no input (BDG-7), so the minimum target is the anchor's and the badge never shrinks or covers it for input.",
+      "A dot conveys its meaning by color and position only, so a dot without a label fails for screen reader users (BDG-9); give it one (\"new messages\").",
+      "Where the count must be announced when it changes (a live chat), the product uses a live region; the badge does not announce by itself (BDG-10).",
+      "How the description reaches the anchor is each platform's idiom: the web sets it on the slotted anchor (an ID reference cannot cross the shadow root), Apple platforms append it to the anchor's accessibility value, Compose merges it into the anchor's semantics as a state description, Flutter adds it to the anchor's semantics value, React Native to its accessibility value."
+    ]
+  },
+  "tokens": "comp.badge",
+  "fixtures": [
+    {
+      "id": "dot",
+      "props": {
+        "label": "New messages"
+      },
+      "content": "notifications"
+    },
+    {
+      "id": "count-single",
+      "props": {
+        "count": 3,
+        "label": "3 unread"
+      },
+      "content": "notifications"
+    },
+    {
+      "id": "count-double",
+      "props": {
+        "count": 42,
+        "label": "42 unread"
+      },
+      "content": "notifications"
+    },
+    {
+      "id": "count-overflow",
+      "props": {
+        "count": 1200,
+        "label": "More than 999 unread"
+      },
+      "content": "notifications"
+    },
+    {
+      "id": "count-custom-max",
+      "props": {
+        "count": 120,
+        "max": 99,
+        "label": "More than 99 unread"
+      },
+      "content": "notifications"
+    },
+    {
+      "id": "count-zero",
+      "props": {
+        "count": 0,
+        "label": "No unread messages"
+      },
+      "content": "notifications"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-badge",
+      "props": {
+        "count": "count",
+        "max": "max",
+        "label": "label"
+      },
+      "notes": "Wraps its anchor in the default slot. No `count` attribute is the dot. The badge sets `aria-description` on the slotted anchor and keeps its own shadow content `aria-hidden`."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiBadge",
+      "props": {
+        "count": "count",
+        "max": "max",
+        "label": "label"
+      },
+      "notes": "`TanreiBadge(count: Int?, max:, label:) { anchor }`, with a `.tanreiBadge(_:max:label:)` modifier for the same view (SwiftUI's own `.badge` works only in lists and tab bars). `count: nil` is the dot."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiBadge",
+      "props": {
+        "count": "count",
+        "max": "max",
+        "label": "contentDescription"
+      },
+      "notes": "One composable plays Material's `BadgedBox` and `Badge` together: `TanreiBadge(count: Int?, max, contentDescription) { anchor }`. `count = null` is the dot."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiBadge",
+      "props": {
+        "count": "count",
+        "max": "max",
+        "label": "semanticLabel"
+      },
+      "notes": "As Flutter's `Badge.count`, with the anchor as `child`; `count: null` is the dot (Flutter's plain `Badge`)."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Badge",
+      "props": {
+        "count": "count",
+        "max": "max",
+        "label": "label"
+      },
+      "notes": "The anchor is `children`. `label` is appended to the anchor's `accessibilityValue.text`, not set as the badge's own `accessibilityLabel`: the badge itself is not an accessibility element."
+    }
+  }
+}

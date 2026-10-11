@@ -1,0 +1,240 @@
+---
+title: "日历"
+description: "以日期网格显示一个月，可以放在页面里，也可以放在选择器里；用户可以从中选择一个日期或一段日期范围。月份是一列连续的周，跟随滚动和拖动在月份之间移动。"
+translationOf: components/calendar.mdx
+sourceHash: c095f989d07f9cab3c2978b4e5df0acdf942d89e
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import ProductWords from '../../../../components/ProductWords.astro';
+
+export const words = {
+  previousMonthLabel: '上个月',
+  nextMonthLabel: '下个月',
+  yearViewLabel: '选择年份',
+  todayLabel: '今天',
+  startLabel: '开始日期',
+  endLabel: '结束日期',
+};
+
+## 概览
+
+<ComponentAvailability name="calendar" />
+
+日历是嵌在页面里的月份网格。它没有自己的表面、内边距和层级，所以可以和其他内容并排放在页面里，例如预订表单或报表的筛选条件；也可以放在 [DateTimePicker](/zh-cn/components/date-time-picker/) 里，后者原样组合它。它选择一个日期（`mode` 为 `single`），或一段连续的日期范围（`mode` 为 `range`）。
+
+:::note[目前仅在 Web 上；其他平台在计划中]
+Web 组件按本页的描述实现了日历：月份是一列连续的周，跟随滚动和拖动。本页的演示就是这个组件。SwiftUI、Compose、Flutter 和 React Native 尚未实现它。它们的包里仍保留着已停用的日期选择器的代码，本页不对其作说明。
+:::
+
+<DemoFrame label="一个日期。滚动或拖动日期，或者使用按钮，可以切换月份">
+  <tanrei-calendar label="入住日期" locale="zh-CN" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+</DemoFrame>
+
+### 用法
+
+用户选择某一天时，日历会自行设置 `value`（或 `start` 和 `end`），然后触发 `change`。你也可以自己设置它们：如果设置的日期不在当前显示的月份里，它所在的月份会被显示出来。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-calendar id="check-in" label="入住日期" value="2026-09-17" min="2026-09-01"></tanrei-calendar>
+
+    <!-- 范围选择，空余的单元格里显示相邻月份的日期。 -->
+    <tanrei-calendar id="stay" mode="range" label="住宿" show-adjacent-days
+      disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
+
+    <script type="module">
+      import '@tanrei/web/components/calendar';
+      const checkIn = document.querySelector('#check-in');
+      // 列表无法表达的规则通过属性传入：一个接收 ISO 日期、返回布尔值的函数。
+      checkIn.isDateDisabled = (iso) => bookedDays.has(iso);
+      // change 触发时，元素已经持有新的日期。
+      checkIn.addEventListener('change', (e) => save(e.detail.value));
+
+      // 范围选择在每次选择后都会触发 change；只选了开始日期时，end 为 ""。
+      document.querySelector('#stay').addEventListener('change', (e) => show(e.detail.start, e.detail.end));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Calendar } from '@tanrei/react';
+
+    <Calendar
+      label="入住日期"
+      value={checkIn}
+      min="2026-09-01"
+      isDateDisabled={(iso) => bookedDays.has(iso)}
+      onChange={(e) => setCheckIn(e.detail.value)}
+    />
+
+    <Calendar
+      mode="range"
+      label="住宿"
+      start={stay.start}
+      end={stay.end}
+      showAdjacentDays
+      disabledDates={['2026-09-21', '2026-09-22']}
+      onChange={(e) => setStay({ start: e.detail.start, end: e.detail.end })}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+这里没有 SwiftUI、Compose、Flutter 和 React Native 的示例，因为这些平台尚未实现日历。它在这些平台上将使用的名称，见[规格](#规格)中的平台对照表。
+
+### 日期选择器的去向
+
+日期和时间用两个组件来选择：这个日历，以及容纳它的 [DateTimePicker](/zh-cn/components/date-time-picker/)。
+
+| 以前 | 现在 |
+| --- | --- |
+| 日期选择器，模态或停靠式 | `date` 模式的 DateTimePicker，`modal` 或 `docked` |
+| 放在页面里的月份网格 | 日历 |
+| 带范围的日期选择器 | `mode` 为 `range` 的日历，或带 `range` 的 DateTimePicker |
+| 日期选择器的文本输入形式 | `type` 为 `date` 的[文本字段](/zh-cn/components/text-field/)，它的选择器按钮会打开 DateTimePicker |
+| 日期选择器的令牌 | 网格使用 `comp.calendar.*`，表面、页眉和操作使用 `comp.date-time-picker.*` |
+
+在 Web 上，以前用来选择日期的元素已经不存在。原先把它的网格直接画在页面里的地方，改用 `<tanrei-calendar>`，`value`、`min`、`max`、`disabled-dates`、`today`、`locale` 和 `first-day-of-week` 保持不变；原先把它作为选择器打开的地方，改用 `<tanrei-date-time-picker>`。
+
+### Material 3 和 Apple 的名称
+
+- Material 3 的停靠式和模态日期选择器，是 `date` 模式的 DateTimePicker。它的日期范围选择器是同一个组件加上 `range`。m3-like 预设用 Material 的容器和圆角绘制它们，横向翻页切换月份，并把文本操作放在末尾。
+- 放在页面里的日历，对应 Flutter 的 `CalendarDatePicker` 和 SwiftUI 的图形式日期选择器样式：在 SwiftUI、Compose 和 Flutter 上是 `TanreiCalendar`，在 React Native 上是 `Calendar`。
+- Material 用来切换到文本输入的铅笔和键盘切换按钮没有对应物：日期在文本字段里输入。
+- Apple 的图形式日期选择器是轴为水平方向的日历，cupertino 预设就是这样设置的。
+
+## 规格
+
+<ComponentSpecs name="calendar" />
+
+## 指南
+
+### 何时使用
+
+当所选日期前后的日期也有意义时，使用日历：住宿、预订、报表的时间范围，或者星期几很重要的日期。如果选择日期是页面任务的一部分，就把日历放在页面里。如果日期只是表单中的一项，请使用 `type` 为 `date` 的[文本字段](/zh-cn/components/text-field/)，并从它的选择器按钮打开 [DateTimePicker](/zh-cn/components/date-time-picker/)。已经知道日期的人，直接输入比在日历里找更快。
+
+### 选择
+
+- **一个日期。** 在 `single` 模式下，在可选的日期上按下或按 Enter，会让它成为 `value` 并触发 `change`。
+- **一段范围。** 在 `range` 模式下，第一次选择的是开始日期，第二次选择的是结束日期。选择早于开始日期的一天，或者在两端都已确定后再选择，都会重新开始。每次选择后都会触发 `change`，只选了开始日期时 `end` 为空，所以产品可以显示选到一半的范围。开始日期和结束日期是同一天时，就是一天的范围。
+- **值**是 ISO 8601 的日历日期（`2026-09-17`），不含时间和时区。`today` 默认是设备的当前日期；你可以按场地所在的时区设置它，或者为测试设置它。
+
+<DemoFrame label="一段范围。先选开始日期，再选结束日期；第三次选择会重新开始" plain>
+  <tanrei-calendar mode="range" label="住宿" locale="zh-CN" today="2026-09-24" start="2026-09-10" end="2026-09-16"></tanrei-calendar>
+</DemoFrame>
+
+范围是从开始日期到结束日期的一条色带。它在一周的行尾断开，在下一行继续。
+
+### 不可选的日期
+
+不可选的日期由 `min`、`max`、`disabledDates` 以及平台的 `isDateDisabled` 判定函数决定；后者用于列表无法表达的规则，例如每个周末。这些日期画得更淡，不能被选择，但仍然可以用方向键到达，这样用户能知道这个日期是存在的。“上一个”和“下一个”按钮在 `min` 和 `max` 所在的月份停下，滚动和拖动也是如此。
+
+跨过不可选日期的范围会把它包含在内；如果你的产品不能接受这样的范围，请在 `change` 之后告知用户。
+
+<DemoFrame label="9 月 7 日至 10 月 20 日，其中 9 月 21 日和 22 日已被占用" plain>
+  <tanrei-calendar label="预约日期" locale="zh-CN" today="2026-09-24" value="2026-09-17" min="2026-09-07" max="2026-10-20" disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
+</DemoFrame>
+
+### 在月份之间移动
+
+导航行的起始侧是视图切换按钮（“2026年9月”和一个 V 形箭头），末尾侧是“上一个”和“下一个”按钮。有四种方式可以移动月份，它们移动的是同一样东西，所以任何一种都可以中途接替另一种，画面不会跳动：
+
+- **按钮**和**按键**（Page Up 和 Page Down，或者移出当前月份的方向键）以一段短促的动效完成切换。
+- 用触控板或滚轮在日期上**滚动**，日期会随滚动量移动；只要滚动不停，就一个月接一个月地移过去。滚动停止时，日历会停在一个月份上：日期已经向相邻月份移动了四分之一，就停在相邻月份，否则回到原来的月份。按整步报告的滚轮，每一步移动一个月。
+- 用手指、触控笔或鼠标**拖动**日期，效果相同。松开时按同样的四分之一规则停下；如果是快速滑动，则停在滑动所朝的那一侧。没有移动的按下，仍然选择它下面的那一天。
+
+在默认系统中，月份沿垂直轴排列，是一列不间断的周。一个月是这一列上六行高的一个窗口。两个月共有的一周是同一行，它从自己在一个月里的位置移到在另一个月里的位置；进入视野的日期淡入；随着周的移动，相邻月份的日期会变成本月的日期。日历从不绘制两个分开的月份网格，无论显示哪个月，它的高度都不变。
+
+在减弱动态效果时，按钮或按键会立即切换月份。日期仍然跟随滚动和拖动，因为那是用户自己的手在移动它们；操作结束时，日期立即就位。
+
+轴是产品级的设置 `comp.calendar.navigation.axis`，而不是属性，所以一个产品里的每个日历都以相同的方式移动：
+
+| 轴 | 按钮 | 月份 | 滚动和拖动 |
+| --- | --- | --- | --- |
+| `vertical`（默认） | 向上和向下的箭头 | 一列连续的周 | 垂直方向的移动日期；水平方向的交给页面 |
+| `horizontal` | 向后和向前的箭头 | 并排的两页，较晚的月份靠末尾侧 | 水平方向的移动日期；垂直方向的交给页面 |
+
+按键从不随轴变化。
+
+<DemoFrame label="水平轴：月份是一页一页的" system="m3-like" plain>
+  <tanrei-calendar label="入住日期" locale="zh-CN" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+</DemoFrame>
+
+指针位于日期上方时，沿轴方向的滚动归日历所有；在第一个月和最后一个月，日期停住不动时也是如此。在以相同方向滚动的页面上，从这里开始的滚动不会滚动页面：在长页面上，请在日历旁边或周围留出空间，让滚动能够到达页面。星期行、导航行和日历周围的一切，都照常滚动页面。
+
+### 年份视图
+
+视图切换按钮会切换到年份视图，这是一个可滚动的列表，从 `min` 的年份到 `max` 的年份（没有设置时为 1900 到 2100）。选择一个年份会显示该年的同一个月，不改变任何已选内容。`startView` 设为 `year` 时，日历会先打开年份视图，适合生日这类离今天很远的日期。
+
+<DemoFrame label="为选择生日，先打开年份视图" plain>
+  <tanrei-calendar label="出生日期" locale="zh-CN" today="2026-09-24" start-view="year" max="2026-09-24"></tanrei-calendar>
+</DemoFrame>
+
+### 相邻月份的日期
+
+`showAdjacentDays` 用相邻月份的日期填满网格中空余的单元格，并把它们画得更淡。这些日期只要可选就能被选择，范围也可以在其中一个上开始或结束。用指针选择这样的日期时，日历先选中它，再显示它所在的月份，在那里它是本月的日期。不设置这个属性时，这些单元格是空的，不响应按下。
+
+<DemoFrame label="显示相邻月份的日期：选择 10 月 1 日会显示 10 月" plain>
+  <tanrei-calendar label="送达日期" locale="zh-CN" today="2026-09-24" value="2026-09-29" show-adjacent-days></tanrei-calendar>
+</DemoFrame>
+
+### 区域设置
+
+星期名称、月份标题和数字都取自区域设置（`locale`，或平台的区域设置）。`firstDayOfWeek` 也取自区域设置，除非你指定了星期几。在任何区域设置下，日历都是公历。不属于区域数据的文字——导航按钮的名称、视图切换按钮的描述、范围的开始和结束——是你的：Tanrei 不自带任何文字。可以把它们写在日历上，也可以像本页这样，按语言为整个产品只给一次：
+
+<ProductWords words={words} label="为整个产品只给一次的日历文字" />
+
+这段调用就是本页实际运行的那一段：页面上的每个日历都由这些文字命名，示例里一个也没有写。某个日历的说法不同时，由它自己给出——下面的日语日历用属性给出了它的四个文字，而属性总是优先。一个都不给时，导航按钮仍然可以使用，但没有名称，调试构建会逐一报告缺少的文字。只有表示今天的那个词，在你没有给出时取自浏览器的区域数据。
+
+<DemoFrame label="从星期一开始的一周，以及日语区域设置" plain>
+  <tanrei-calendar label="入住日期" locale="zh-SG" first-day-of-week="monday" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+  <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17" previous-month-label="前の月" next-month-label="次の月" year-view-label="年を選ぶ" today-label="今日"></tanrei-calendar>
+</DemoFrame>
+
+### 推荐
+
+- 页面上有不止一个日历，或者附近没有任何内容说明这个日期的用途时，给日历设置 `label`（“入住日期”）。
+- 让 `min` 和 `max` 只包含确实可以选择的日期，这样导航会在可选范围的尽头停下。
+- 对于用户已经知道的日期，在日历旁边提供文本字段，或者用文本字段代替日历。
+- 让按钮始终触手可及：滚动和拖动是捷径，并不是每个人都能使用。
+
+### 避免
+
+- 不要按屏幕分别设置轴。它是整个产品的一项决定。
+- 不要隐藏不可选的日期。把它们显示为不可选，日历的网格才保持完整。
+- 不要把垂直轴的日历贴着两侧边缘放在垂直滚动的页面里。从它的日期上开始的滚动永远到不了页面。
+- 不要把月份进入视野当作一次选择。滚动和拖动改变的是显示的内容，从不改变 `value`，也不触发任何事件。
+
+## 无障碍
+
+<ComponentAccessibility name="calendar" />
+
+### 组件负责的部分
+
+- 日历是一个以 `label` 命名的组。网格以它显示的月份命名，列标题是星期的全称，每一天以完整的日期命名，并暴露它是否选中、是否不可选、是否是今天。范围的两端由 `startLabel` 和 `endLabel` 描述。
+- Tab 顺序中只有一天是活动日期。方向键把它移动一天或一周，Home 和 End 移到一周的两端，Page Up 和 Page Down 移动一个月，加上 Shift 则移动一年，并在需要时切换月份。Enter 或 Space 选择它。
+- 视图切换按钮是一个按钮，以它显示的月份和年份命名，由 `yearViewLabel` 描述，并表明年份视图是否打开。年份列表也是一个 Tab 停靠点：方向键移动一年或一行，Home 和 End 移到列表两端。
+- 月份变化时，会以礼貌（polite）的方式朗读一次。滚动经过多个月份时，标题跟随每一个月份，但只朗读滚动结束时所在的月份；回到原处的滚动或拖动不朗读任何内容。
+- 拖动把日期停在两个月之间时，日历暴露的内容没有任何变化：标题、活动日期和焦点保持不动；进入视野的日期在它们的月份成为当前显示的月份之前，不接受焦点，也不响应按下。
+- 滚动和拖动是捷径：按钮以及 Page Up 和 Page Down 能做同样的事，所以没有任何操作依赖手势。
+- 每个单元格都不小于最小目标，文本放大后依然如此。在比七个目标更窄的空间里，单元格等比例变窄，数字保持原来的大小，所以日历永远不会比分配给它的空间更宽。导航按钮是 Tanrei 的按钮。
+- 从右到左的布局会镜像网格、导航、水平方向的箭头，以及下一页所在的一侧。周的垂直滚动不镜像，拖动时日期始终朝指针移动的方向移动。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 尚未实现日历：各平台跟上时会按这份规格来实现。
+- Web：年份的选中状态是它的按钮上的 `aria-current`，因为按钮本身没有选中状态。
+- Web：浏览器既不报告滚动的结束，也不报告滚动的惯性，所以日历根据短暂的静默或减速来判断滚动结束。如果浏览器对某个滚轮鼠标每次只报告几个像素，慢慢转动它时，每转过一格，日历都会回到原来的月份。
+- Web：拖动尚未在真机上用手指检查过，并且有一些测试在 Firefox 和 WebKit 中失败。
+
+### 需要你做的事
+
+- 设置 `label`，并给出日历使用的文字（`previousMonthLabel`、`nextMonthLabel`、`yearViewLabel`、`todayLabel`、`startLabel`、`endLabel`）：写在日历上，或者用 `setWords()` 为整个产品只给一次。Tanrei 不自带任何文字。没有这些文字时，导航按钮可以使用，但没有名称，范围的两端没有描述，每一处都会在开发时报告；只有表示今天的那个词取自浏览器的区域数据。参见[产品的文字](/zh-cn/foundations/words/)。
+- 提供输入日期的方式，例如 `type` 为 `date` 的文本字段。对许多人来说，这是最直接的途径。
+- 如果你的产品不能接受跨过不可选日期的范围，请在 `change` 之后告知用户。

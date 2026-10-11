@@ -1,0 +1,264 @@
+---
+title: Campo numérico
+description: Permite introducir un número como número (escrito en la forma de la configuración regional de la persona o cambiado por pasos con una tecla o un botón, mantenido dentro de unos límites y con su unidad al lado), como un campo de formulario completo, compuesto por un campo y una entrada numérica.
+translationOf: components/number-field.mdx
+sourceHash: 4f7122143845c2fb6b51c57ee749420811b6700a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="number-field" />
+
+<DemoFrame label="Un campo numérico con una unidad y límites, y otro que contiene un importe" column>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Radio de esquina" value="8" min="0" max="64" step="0.25" suffix-text="px" supporting-text="De 0 a 64, en pasos de un cuarto." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Importe" value="120" min="0" prefix-text="$" suffix-text="USD" min-fraction-digits="2" max-fraction-digits="2" invalid-text="Introduce un importe en cifras." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+</DemoFrame>
+
+Usa un campo numérico para un número que el producto lee como número: una cantidad, un tamaño, un porcentaje, un importe. Las personas lo escriben en la forma de su configuración regional, o lo cambian por pasos con las teclas de flecha o con los dos botones que hay al final del campo. El campo se dibuja y se mide como el campo de texto de la misma variante y el mismo tamaño.
+
+**Se compone de** un [campo](/es/components/field/) y una [entrada numérica](/es/components/number-input/). El campo es el marco: la etiqueta, la marca de obligatorio o de opcional, la ayuda y el error. La entrada numérica es el control: la caja, el número, su unidad y los dos botones de paso. El campo numérico no dibuja nada propio y no tiene ningún token: cada propiedad que tiene es una propiedad de uno de los dos, que recibe sin cambios.
+
+Un campo numérico ya es un campo: nunca se pone dentro de un [campo](/es/components/field/). Donde la etiqueta está en otro lugar —junto a un control deslizante, en una celda de una tabla—, usa la [entrada numérica](/es/components/number-input/) sola.
+
+Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No tiene ancho propio: para un campo más estrecho, dale un lugar más estrecho.
+
+En la web es `<tanrei-number-field>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+`value` es un número, o `null` mientras el campo no contiene ninguno. Cambia cuando la persona **confirma** (el foco sale del campo, pulsa Enter o da un paso), y no con cada pulsación de tecla. Mientras escribe, el texto es suyo: nada se rechaza, se reformatea, se ajusta a los límites ni se redondea. Entretanto, `input` lleva el número que representa el texto.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-number-field name="quantity" label="Cantidad" value="1" min="1" max="99"
+        requirement="required" required-text="Obligatorio" invalid-text="Introduce un número." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+    </form>
+
+    <!-- Una unidad, un paso de un cuarto y sin límite superior. -->
+    <tanrei-number-field id="radius" label="Radio de esquina" value="8" min="0" step="0.25" suffix-text="px" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+
+    <!-- Dinero: un signo delante, un código detrás y siempre dos decimales. -->
+    <tanrei-number-field label="Importe" value="120" prefix-text="$" suffix-text="USD"
+      min-fraction-digits="2" max-fraction-digits="2" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+
+    <script type="module">
+      import '@tanrei/web/components/number-field';
+
+      const radius = document.querySelector('#radius');
+      // Una confirmación cambió el valor. Ya es el nuevo: un número, o null.
+      radius.addEventListener('change', () => save(radius.value));
+      // La persona está escribiendo o dando pasos: el número que representa el texto, sin ajustar a los límites y sin redondear, o null.
+      radius.addEventListener('input', (e) => preview(e.detail.value));
+      // Se confirmó un texto que no es un número. El campo lo conserva y muestra invalidText:
+      // detail.text es ese texto, vacío donde el campo no recibió ninguno.
+      radius.addEventListener('entryerror', (e) => console.log(e.detail.reason, e.detail.text));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberField } from '@tanrei/react';
+
+    <NumberField label="Radio de esquina" value={radius} min={0} step={0.25} suffixText="px"
+      incrementLabel="Aumentar" decrementLabel="Reducir"
+      onChange={(event) => setRadius(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### Un nivel más abajo
+
+El mismo campo, escrito a mano a partir de sus dos miembros, da la misma imagen y es, para la tecnología de apoyo, el mismo botón de número (spin button) con el mismo nombre, la misma descripción y los mismos estados:
+
+```html
+<tanrei-field label="Cantidad" requirement="required" required-text="Obligatorio"
+  supporting-text="Hasta 99 por pedido.">
+  <tanrei-number-input name="quantity" min="1" max="99" invalid-text="Introduce un número."
+    increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
+</tanrei-field>
+```
+
+<DemoFrame label="El mismo campo escrito a mano: un campo con una entrada numérica dentro" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" requirement="required" required-text="Obligatorio" supporting-text="Hasta 99 por pedido.">
+    <tanrei-number-input min="1" max="99" invalid-text="Introduce un número." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-input>
+  </tanrei-field>
+</DemoFrame>
+
+Baja a ese nivel cuando necesites una organización que el campo numérico no ofrece:
+
+| Necesitas | Usa |
+| --- | --- |
+| Una etiqueta, la caja, una ayuda y un error | El campo numérico |
+| Algo tuyo dentro del marco, junto a la caja o debajo de ella | Un [campo](/es/components/field/) con una [entrada numérica](/es/components/number-input/) y tu propio elemento dentro |
+| La caja sola, bajo una etiqueta que está en otro lugar: junto a un control deslizante, una celda de una tabla, una barra de herramientas | La [entrada numérica](/es/components/number-input/) sola, que recibe su nombre de su propio `label` |
+
+Lo que cambia un nivel más abajo es dónde se dice cada cosa. `name`, `value`, los límites y la unidad están en la entrada numérica, que es entonces el control con el que trata el formulario, y sus eventos se oyen en ella. `label`, `error`, `disabled` y la obligatoriedad se quedan en el campo, que se los pasa al control: no definas los de la propia entrada. No hay nada que el campo numérico haga y que no hagan el campo y la entrada numérica escritos a mano.
+
+## Especificaciones
+
+<DemoFrame label="Un botón de paso deshabilitado en el límite, dígitos en el borde de fin, sin botones de paso, un error, y un campo numérico de solo lectura y otro deshabilitado" plain column>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="99" min="1" max="99" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Tono" value="40" min="0" max="100" align="end" increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Espaciado entre letras" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="0" error error-text="Pide al menos 1." increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="12" readonly></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Cantidad" value="12" disabled increment-label="Aumentar" decrement-label="Reducir"></tanrei-number-field>
+</DemoFrame>
+
+### El campo
+
+| Parte | Qué es |
+| --- | --- |
+| Etiqueta | Del campo: encima del contenedor (`stacked`). En `filled` y `outlined` la dibuja la entrada numérica, flotando dentro de la caja, y el campo no dibuja fila de etiqueta. Es el nombre accesible, tanto si se dibuja como si se oculta con `labelHidden` |
+| Marca de obligatoriedad | Del campo, después de la etiqueta: el tag de obligatoriedad en su forma de obligatorio, un asterisco o nada con `requirement="required"`; el tag de obligatoriedad en su forma de opcional con `optional`. Una etiqueta flotante lleva el asterisco |
+| Entrada | De la entrada numérica: el número como texto. Mientras la persona edita, lo que ha escrito; en los demás casos, el número confirmado en la forma de la configuración regional. Una sola línea, que se desplaza |
+| Prefijo, sufijo | De la entrada numérica: texto fijo antes y después del número, como un signo de moneda o una unidad. Forman parte de la caja, nunca del valor |
+| Botones de paso | De la entrada numérica: dos botones al final; el primero da un paso hacia abajo y el segundo, hacia arriba. Quítalos con `steppers` en false |
+| Texto de apoyo | Del campo: una línea de ayuda. Se queda mientras el campo está en error: el texto de error se dibuja debajo de ella, y es `errorText` mientras `error` es true e `invalidText` mientras el texto no es un número. Empieza y termina en el margen interior del texto de la caja, con botones de paso y sin ellos |
+
+Las tres variantes y los dos tamaños, `medium` (48) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`.
+
+El campo numérico no tiene ningún token propio. Su caja lee los [tokens de la entrada numérica](/es/components/number-input/#especificaciones), sus filas leen los [tokens del campo](/es/components/field/#especificaciones) y sus dos botones de paso, los [del botón](/es/components/button/#especificaciones), allí donde estén definidos. Para cambiar una sola instancia, define en ella el token de un miembro: `style="--tanrei-comp-field-label-gap: 0.75rem"`.
+
+Los dos botones de paso son botones de la variante `text` y de tamaño mediano, uno al lado del otro. Con el sistema predeterminado ocupan 88 del ancho del campo, y cada uno es un objetivo táctil completo. Nunca se dibujan más pequeños ni apilados: donde una fila no tenga sitio para ellos, desactívalos. Las teclas siguen dando pasos.
+
+### El valor y el texto
+
+| Cuándo | Qué ocurre |
+| --- | --- |
+| La persona escribe, pega o dicta | No se cambia nada. `input` lleva el número que representa el texto, o `null` |
+| El foco sale del campo, o Enter | El texto se confirma: se sube hasta `min`, se baja hasta `max`, se redondea a `maxFractionDigits`, pasa a ser el valor y se vuelve a escribir en la forma de la configuración regional. `change` se emite si el valor es distinto |
+| El texto está vacío | El valor pasa a ser `null` |
+| El texto no es un número | El texto se queda. El valor pasa a ser `null`, el campo queda en error y muestra `invalidText` —su `errorText` donde no hay ninguno—, y se emite `entryerror` |
+| El producto define `value` | Se muestra el número, sea lo que sea lo que se haya escrito. No se emite ningún evento, y `min` y `max` no corrigen el número |
+
+Un número confirmado se escribe con los dígitos y el separador decimal de la configuración regional, con entre `minFractionDigits` y `maxFractionDigits` dígitos después de este y sin separadores de agrupación, de modo que lo que se muestra se puede volver a escribir tal cual.
+
+<DemoFrame label="El mismo valor, 1.5, en alemán y en árabe de Egipto" plain column>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Gewicht" value="1.5" step="0.1" suffix-text="kg" locale="de-DE" increment-label="Erhöhen" decrement-label="Verringern"></tanrei-number-field>
+  <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="1.5" step="0.1" locale="ar-EG" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
+</DemoFrame>
+
+Un texto se lee con tolerancia, según el `locale` del campo o, donde este está vacío, según el idioma de la página:
+
+- Los espacios alrededor del número y dentro de él se ignoran.
+- Un guion, un signo menos o un signo más delante de los dígitos es el signo.
+- Los dígitos ASCII, los dígitos propios de la configuración regional y los dígitos de ancho completo son todos dígitos.
+- El separador de agrupación de la configuración regional se ignora entre dígitos: `1,234.50` se lee como 1234.5 en inglés.
+- Un prefijo y un sufijo escritos o pegados se ignoran: `12 px` se lee como 12.
+- Las letras, un exponente, dos separadores o un signo solo no son un número.
+
+El campo nunca adivina entre dos configuraciones regionales. En alemán, donde la coma es el separador decimal, `1.500` se lee como 1500 y `1.5` como 15.
+
+<DemoFrame label="En un diseño de derecha a izquierda: una unidad en letras latinas después del número, de izquierda a derecha, y una unidad en la escritura de la propia página a la izquierda del número" plain column>
+  <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
+  <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
+</DemoFrame>
+
+Un número y su unidad son una sola pieza de escritura. El prefijo se escribe antes del número y el sufijo después, en la dirección de la escritura de la propia unidad, sea cual sea la dirección de la página. Así, «44 px», «$ 120 USD» y «40 %» se leen en una página en árabe o en hebreo igual que en una en inglés, y una unidad escrita en letras árabes o hebreas queda a la izquierda del número. Los botones de paso y la etiqueta siguen a la página. `align="end"` pone el número junto a su unidad: a la derecha para una unidad en letras o signos latinos, en las dos direcciones. Para un código de moneda latino a la izquierda del número, empieza el sufijo con una marca de derecha a izquierda (U+200F).
+
+### Los pasos
+
+| Entrada | Qué ocurre |
+| --- | --- |
+| Flecha arriba, Flecha abajo | Da un paso de `step` |
+| Re Pág, Av Pág | Da un paso de diez veces `step` |
+| Una pulsación en un botón de paso | Da un paso. Si se mantiene pulsado, se repite: al cabo de medio segundo, después diez veces por segundo y después veinte |
+| Inicio, Fin, Flecha izquierda, Flecha derecha | Mueven el cursor de texto dentro del texto |
+| La rueda del ratón, un arrastre | Nada. La página se desplaza |
+
+Un paso lleva al siguiente número de la cuadrícula del paso, contada desde `min` (desde cero si no lo hay): con un paso de 5, desde 12 un paso hacia arriba lleva a 15 y uno hacia abajo, a 10. Se calcula en decimal, así que 0.2 más un paso de 0.1 es 0.3. Desde un campo vacío, un paso lleva al número más cercano a cero que permiten los límites.
+
+`step` dice hasta dónde llega un paso. No limita lo que se puede escribir: con un paso de 5, un 12 escrito sigue siendo 12. Para aceptar solo algunos números, valida el valor y activa `error`.
+
+### Con un control deslizante
+
+Un número junto a un control deslizante, bajo un mismo título de fila, es la caja sola: una [entrada numérica](/es/components/number-input/#con-un-control-deslizante), que recibe su nombre de su propio `label`. Su página tiene el ejemplo.
+
+<ComponentSpecs name="number-field" />
+
+### Qué dibuja la web de otra manera
+
+- El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-number-input>` dentro. Importar el campo numérico define ambos.
+- El campo numérico es un elemento asociado a formularios, y el único control con el que trata su formulario. Recibe `name` y envía su valor como un número decimal simple (`12.5`), muestre lo que muestre la configuración regional. Se restablece al valor del atributo `value`, y notifica al formulario que falta un valor mientras `requirement="required"` y no contiene ninguno, y que la entrada es incorrecta mientras su texto no es un número.
+- Es un bloque tan ancho como su lugar. En un lugar que no da ningún ancho, una etiqueta larga lo hace más ancho que su caja: dale ahí un ancho.
+- Las partes son las de los miembros, con sus propios nombres: `label`, `label-icon`, `requirement-label` y `supporting-text` del campo; `container`, `outline`, `active-indicator`, `input`, `prefix`, `suffix` y `stepper` de la entrada numérica. `label` y `requirement-label` llegan a la de los dos que se dibuje; `field-label` y `number-input-label` llegan a una sola. Los dos miembros son las partes `field` y `number-input`.
+- El `detail.text` de `entryerror` es el `invalidText` de la entrada, vacío donde no se dio ninguno. Los tipos del detalle son los de la entrada numérica: `TanreiNumberInputInputDetail` y `TanreiNumberInputEntryErrorDetail`.
+- `steppers` es el atributo inverso `no-steppers`, y `readOnly` es `readonly`.
+- `input` es un CustomEvent con `detail.value`. `change` y `action` son eventos simples: lee `value` del elemento. Salvo que `action` se cancele, a continuación se pide al formulario que se envíe.
+- Sin `locale`, el campo lee el atributo `lang` más cercano y, después, el idioma del navegador.
+- Además del separador de la configuración regional, un punto se lee como separador decimal siempre que la configuración regional no agrupe con puntos.
+- Una tecla de página da pasos sobre su propia cuadrícula de diez pasos: con un paso de 2, Re Pág desde 42 da 60.
+- En iOS y iPadOS, el campo pide el teclado completo mientras se pueda escribir un número negativo, porque allí el teclado decimal no tiene signo menos.
+- Antes de que el elemento esté definido, no tiene tamaño. Reserva la altura.
+
+## Pautas
+
+### Campo numérico, campo de texto o control deslizante
+
+| Aspecto | Campo numérico | Campo de texto | Control deslizante |
+| --- | --- | --- | --- |
+| Contiene | Un número | Cualquier texto | Un número dentro de un intervalo |
+| Se elige | Escribiendo o dando pasos | Escribiendo | Arrastrando |
+| Va bien para | Un valor que se conoce | Dígitos que no son una cantidad | Un valor que se elige a ojo |
+
+Un código postal, un número de tarjeta, un número de teléfono y un código de un solo uso son dígitos, pero no cantidades: nadie le suma uno a un código postal. Usa para ellos un [campo de texto](/es/components/text-field/).
+
+### Recomendado
+
+- Escribe una etiqueta que nombre lo que se cuenta, y mantenla visible en un formulario.
+- Pon la unidad en `suffixText` y un signo de moneda en `prefixText`.
+- Da un `valueText` donde el sufijo se leería mal: «1,5 veces» para `×`.
+- Escribe `invalidText` de modo que diga qué hay que escribir: «Introduce un número.»
+- Define `maxFractionDigits` en 0 para los números enteros. El teclado no tiene entonces separador.
+- Da `incrementLabel` y `decrementLabel`, en el campo o una sola vez para todo el producto con `setWords()`. Tanrei no incluye textos propios: un botón de paso sin nombre se dibuja igualmente y sigue dando pasos con un puntero, y queda oculto para la tecnología de apoyo, donde el botón de número da los pasos por sí mismo.
+
+### Evita
+
+- No uses un campo numérico para dígitos que no son una cantidad.
+- No guardes con `input`. Se emite con cada pulsación de tecla; `change` lleva el valor confirmado.
+- No esperes que `min` y `max` corrijan un valor que defines tú. Se aplican a lo que la persona confirma.
+- No pongas dentro del campo un control para elegir la unidad. Pon un [select](/es/components/select/) a su lado.
+- No pongas un campo numérico dentro de un campo. Ya es un campo; el control que un campo enmarca es la [entrada numérica](/es/components/number-input/).
+- No ocultes la etiqueta de un campo numérico para poner la caja bajo una etiqueta tuya. Usa la entrada numérica.
+
+## Accesibilidad
+
+<ComponentAccessibility name="number-field" />
+
+### De qué se encarga el componente
+
+- La entrada es un botón de número (spin button). Su nombre es `label`, tanto si se dibuja como si se oculta, y nunca el marcador de posición.
+- Su valor es el número confirmado, y sus límites son `min` y `max`.
+- El texto de apoyo o de error que se muestra es su descripción, con `optionalText` mientras el campo es opcional.
+- Se expone como no válido mientras `error` es true o su texto no es un número, como obligatorio mientras `requirement` es `required`, y como de solo lectura.
+- Un error que aparece mientras el campo tiene el foco se anuncia una vez, de forma cortés; también un texto que no es un número.
+- Los botones de paso son botones que reciben su nombre de `decrementLabel` y de `incrementLabel`; uno al que nadie dio nombre queda oculto para la tecnología de apoyo. Están fuera del orden del foco, porque las teclas de flecha dan los pasos desde la entrada; quien explora la pantalla con el tacto los encuentra igualmente.
+- Una pulsación en un botón de paso no mueve el foco, así que no hace aparecer el teclado en pantalla.
+- Mientras un método de entrada está componiendo, el campo no lee nada y no gestiona ninguna tecla.
+- La rueda del ratón nunca cambia el número.
+- El área de pulsación del campo cumple el objetivo mínimo, y cada botón de paso es un objetivo completo.
+- Con el texto al 200%, la etiqueta y la ayuda saltan de línea. El número se queda en una sola línea, y se desplaza.
+- Con colores forzados, el campo gana un borde, y un error se distingue por sus palabras y por el estado no válido.
+- En un diseño de derecha a izquierda, los botones de paso y la etiqueta se reflejan: los botones de paso quedan en el extremo izquierdo. El número y su unidad se escriben como los escribe la escritura de la propia unidad: una unidad en letras o signos latinos después del número, de izquierda a derecha, y una unidad en la escritura de la página a la izquierda del número. Lo que se lee en voz alta no cambia.
+
+Carencias conocidas en la web:
+
+- Chromium lee el número sin su unidad: obtiene el texto del valor a partir del texto que hay en la entrada, y pasa por alto el que indica el campo. Nombra la unidad en la etiqueta donde importe.
+- Con el texto al 200% en una ventana de 320 de ancho, un campo con botones de paso, un prefijo y un sufijo largo es más ancho que la ventana, porque nunca es más estrecho que lo que contiene. Desactiva ahí los botones de paso.
+- Antes de que el elemento esté definido, no se dibuja nada.
+
+### Qué debes hacer tú
+
+- Da un `label` a cada campo numérico.
+- Escribe `invalidText` en el campo. Da `requiredText`, `optionalText`, `incrementLabel` y `decrementLabel` en el campo, o una sola vez para todo el producto con `setWords()`. Tanrei no incluye textos propios; si falta uno, se notifica en desarrollo. Consulta [Los textos del producto](/es/foundations/words/).
+- Valida tú el valor, activa `error` y escribe `errorText` de modo que diga cómo corregir el número.
+- Da el mismo nombre a un control deslizante y a la entrada numérica que tiene al lado.

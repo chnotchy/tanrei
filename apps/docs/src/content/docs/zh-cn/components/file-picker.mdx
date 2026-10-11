@@ -1,0 +1,228 @@
+---
+title: "文件选择器"
+description: "让用户通过平台自己的选择器来选择文件：可以从一个按钮打开，在位置足够的地方还可以把文件拖到一块区域上。它在选择之前用文字说明限制，对选中的内容作出判定，再把它接受的文件和它拒绝的文件交给你的产品。它什么都不保留，什么都不列出，也不参与表单。"
+translationOf: components/file-picker.mdx
+sourceHash: 14fb2e7bfc0977e6a6a7e2555e9e35a3a2843c1a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## 概览
+
+<ComponentAvailability name="file-picker" />
+
+<DemoFrame label="两种布局的文件选择器。在这里选择文件不会带来任何变化：页面不保留任何文件。" column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="图层文件" accept=".json" constraints-text="一个 JSON 文件" selection-text="未选择文件">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="照片" accept="image/*" max-size="5000000" drop-text="将照片拖到此处，或选择照片" constraints-text="图片，每张不超过 5 MB">
+    <tanrei-button slot="trigger" variant="outlined">选择照片</tanrei-button>
+    <span slot="icon">image</span>
+  </tanrei-file-picker>
+</DemoFrame>
+
+文件选择器是选择文件的途径，仅此而已。你自己的[按钮](/zh-cn/components/button/)打开平台的文件选择器。按钮周围可以有一块拖放区域，它也接收拖到上面的文件。限制用你的文字写在旁边。选中的内容会对照限制作出判定，再交给你：被接受的文件随 `select` 交出，被拒绝的文件随 `reject` 交出。
+
+它是一个**高级**组件：一个不带任何附加功能的控件，供自己保留文件的产品使用。它不保留任何文件，不绘制列表，也不随表单提交任何东西。大多数产品需要的是[文件上传](/zh-cn/components/file-upload/)，也就是这个选择器加上它下方的一列[文件项](/zh-cn/components/file-item/)，可以直接用在表单里。
+
+**使用它的组件**是[文件上传](/zh-cn/components/file-upload/)。如果文件的去处不是文件上传的列表，就不用文件上传，单独使用它：
+
+- 一个文件当场读取，不予保留：导入设置文件、导入有若干行数据的电子表格、选一张要裁剪的图片。
+- 文件显示在别处：作为正在撰写的消息里的附件、显示在画布上、显示在你自己的表格里。
+- 工具栏里的一个添加附件按钮，没有区域，也没有文本。
+
+<Callout type="caution" title="它什么都不保留">
+`select` 之后，文件选择器就已经忘了这些文件。第二次选择会像第一次那样判定。如果你的产品不保留 `select` 交给它的东西，就没有谁会保留。
+</Callout>
+
+在 Web 上它是 `<tanrei-file-picker>`。其他平台尚未实现。
+
+### 用法
+
+在 `trigger` 插槽里放一个按钮，并监听 `select`。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field label="图层文件" supporting-text="这个图层会替换你正在编辑的图层。">
+      <tanrei-file-picker id="layer" accept=".json" constraints-text="一个 JSON 文件"
+                          selection-text="未选择文件">
+        <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+      </tanrei-file-picker>
+    </tanrei-field>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+      import '@tanrei/web/components/file-picker';
+      import '@tanrei/web/components/button';
+
+      const picker = document.querySelector('#layer');
+      picker.addEventListener('select', async ({ detail }) => {
+        const [file] = detail.files;
+        // 选择器什么都不保留。选了什么由你自己来说明，文件也由你按自己的需要处理。
+        picker.selectionText = file.name;
+        importLayer(JSON.parse(await file.text()));
+      });
+      // 被拒绝的文件带有一个原因，它是一个名称，而不是一句话。请用你自己的话来说。
+      picker.addEventListener('reject', ({ detail }) => {
+        const field = picker.closest('tanrei-field');
+        field.errorText = detail.files[0].reason === 'type' ? '请选择 JSON 文件。' : '请只选择一个文件。';
+        field.error = true;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Field, FilePicker } from '@tanrei/react';
+
+    <Field label="图层文件" error={!!problem} errorText={problem}>
+      <FilePicker accept={['.json']} constraintsText="一个 JSON 文件"
+        selectionText={chosen?.name ?? '未选择文件'}
+        onSelect={(event) => importLayer(event.detail.files[0])}
+        onReject={(event) => explain(event.detail.files)}>
+        <Button slot="trigger" variant="outlined">选择文件</Button>
+      </FilePicker>
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+通过别的途径到达你的产品的文件，例如粘贴进来的，或者放到页面其他部分上的，可以用 `judge()` 按同一条规则判定。它只给出答案，不触发任何事件：
+
+```js
+const { accepted, refused } = picker.judge(event.clipboardData.files);
+```
+
+在 React 中，`judge()` 在 ref 上：`ref.current.judge(files)`。
+
+## 规格
+
+<DemoFrame label="只有触发器；带有已选内容和限制；处于错误状态的拖放区域；已禁用" plain column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添加附件">
+    <tanrei-button slot="trigger" variant="outlined">添加附件</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="附件" constraints-text="PDF，不超过 10 MB" selection-text="brief.pdf">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple error label="附件" drop-text="将文件拖到此处，或选择文件" constraints-text="PDF 或 PNG，每个不超过 10 MB">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="附件" drop-text="将文件拖到此处，或选择文件" constraints-text="PDF 或 PNG，每个不超过 10 MB">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-picker>
+</DemoFrame>
+
+<ComponentSpecs name="file-picker" />
+
+## 指南
+
+### 两种布局
+
+| 布局 | 用在哪里 | 它绘制什么 |
+| --- | --- | --- |
+| `button`（默认） | 还有其他字段的表单、狭窄的位置、手机、工具栏。 | 触发器、它旁边说明已选内容的文本，以及下方的限制。它不接收拖放。 |
+| `drop-area` | 以交付文件为主要任务、并且用户多半使用指针的界面。 | 围着同一个触发器的一块有边界的区域，带有一个字形和一句提示。它接收拖到上面的文件，按下它的任何位置都会打开选择器。 |
+
+两种布局都通过同一个按钮打开同一个选择器。拖动是附加的途径，绝不是唯一的途径：用键盘、触摸和辅助技术选择文件，靠的都是触发器。
+
+### 触发器
+
+触发器是你自己的按钮，标签、变体和尺寸都由你决定。在 `trigger` 插槽里恰好放一个。文件选择器赋予它行为，绝不改动它的样式。
+
+- 在拖放区域布局中，没有触发器的文件选择器仍然接收拖放，调试构建会把它报告为失败。
+- 除了触发器和 `icon` 插槽里的字形，你放在里面的其他任何东西都不会绘制。调试构建会报告这一点。
+- `icon` 插槽替换拖放区域顶部的上传字形：照片用图片字形，电子表格用表格字形。它是装饰性的，在按钮布局中会被忽略。
+
+### 已选的内容
+
+`selectionText` 是按钮布局中触发器旁边的文本：先是“未选择文件”，然后是“brief.pdf”，再然后是“3 个文件”。文件选择器不保留任何文件，所以写不出这段文本。它由保留文件的一方来写：你，或者文件上传，后者会替你填好。
+
+让它留空，那个位置就什么都不绘制，这适合文件显示在别处的添加附件按钮。
+
+### 说明限制
+
+`accept`、`maxSize`、`maxFiles` 和 `multiple` 负责执行限制。`constraintsText` 负责说明限制。两者都要给出。
+
+| 属性 | 限制 | 超出限制的文件 |
+| --- | --- | --- |
+| `accept` | 接受的种类：带点的文件扩展名（`.pdf`）和媒体类型，整个类别写作 `image/*`。 | 以 `type` 为原因被拒绝。文件夹也以 `type` 为原因被拒绝。 |
+| `maxSize` | 单个文件的最大大小，以字节为单位。 | 以 `size` 为原因被拒绝。 |
+| `multiple` | 一次选择能否带来多个文件。 | 没有它时，同时到来的几个文件全部以 `count` 为原因被拒绝。文件选择器不会替用户从中挑一个。 |
+| `maxFiles` | 设置 `multiple` 时，一次选择或一次拖放最多能带来的文件数。 | 超出的文件以 `count` 为原因被拒绝。设为 0 则拒绝所有文件。 |
+
+- 把限制写成用户一读就懂的话：“PDF 或 PNG，每个不超过 10 MB”。Tanrei 不会根据 `accept` 或字节数拼出句子，因为它不自带任何文字。
+- 限制绘制在文件选择器里，而不是字段的帮助文本里。字段的帮助文本会让位给错误文本，而那恰恰是用户需要再读一遍限制的时候。
+- 每次选择，`select` 带着被接受的文件触发一次，随后 `reject` 带着每个被拒绝的文件及其原因触发一次。对于拒绝，文件选择器什么都不绘制，也什么都不说。请用你自己的话说明发生了什么：用字段的错误文本、你的列表中的一行，或者一条由你朗读的消息。
+- 限制针对的是一次选择。文件选择器不知道你此前保留了什么：请把 `maxFiles` 设为还能再放的文件数，或者由你自己判定总数。文件上传会做这件事。
+- 有东西拖在区域上方时，浏览器只告知种类和数量，绝不告知名称和大小。因此，过大的文件是在放下时被拒绝的，而不是还拖着的时候。
+
+### 在字段里
+
+表单要显示标签、帮助文本、错误或必填标记时，把文件选择器放进[字段](/zh-cn/components/field/)。字段绘制它们，并把它们交给文件选择器，文件选择器的触发器随即由它们命名和描述。
+
+```html
+<tanrei-field label="附件" requirement="required" required-text="必填"
+              error error-text="请选择不超过 10 MB 的 PDF。">
+  <tanrei-file-picker accept=".pdf" max-size="10000000"
+                      constraints-text="PDF，不超过 10 MB" selection-text="未选择文件">
+    <tanrei-button slot="trigger" variant="outlined">选择文件</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+```
+
+文件选择器不提交任何东西。它没有 `name`，也没有值，`required` 只是告知辅助技术。是否缺少文件，要由保留文件的组件来说：你的代码，或者[文件上传](/zh-cn/components/file-upload/)，后者是一个表单控件。
+
+### 从右到左
+
+在从右到左的布局中，触发器位于右侧，已选内容的文本在它左边，限制从右边缘开始。拖放区域的那一列仍然居中。作为 `selectionText` 给出的文件名保持自己的顺序，连同它的点和扩展名。字形只在图标集有相应标记时才镜像。
+
+### 推荐
+
+- 立即把 `select` 交给你的东西保留下来。
+- 说明选了什么：用 `selectionText`，或者在你的产品显示文件的地方说明。
+- 每一次拒绝都要在用户正看着的地方用文字说明。
+- 文件列在选择器下方、并随表单发送时，使用[文件上传](/zh-cn/components/file-upload/)。
+
+### 避免
+
+- 不要把拖放区域当作选择文件的唯一途径。它里面始终有触发器。
+- 不要指望表单提交选中的内容。文件选择器不参与表单。
+- 不要为了这一处而深入触发器内部改动它的样式。它是你的按钮：请选择它的变体和尺寸。
+- 不要在它里面搭建文件列表。请把[文件项](/zh-cn/components/file-item/)放在它下方，或者使用文件上传。
+
+## 无障碍
+
+<ComponentAccessibility name="file-picker" />
+
+### 组件负责的部分
+
+- 触发器是你的按钮。它的描述来自限制和说明已选内容的文本；在字段里，还来自字段的帮助文本或错误文本。
+- 有 `label` 时，或者在字段里，文件选择器是一个以它命名的组。没有名称时，它不暴露任何组：工具栏里的添加附件按钮只是一个按钮。
+- 拖放区域是同一个按钮的一个大的指针目标。它没有角色，没有名称，在焦点顺序中没有停靠点，也不响应任何按键。
+- `error` 把触发器暴露为无效，并用错误颜色绘制区域的边线。`disabled` 禁用触发器，区域也不再响应任何操作。
+- 文件选择器什么都不朗读。它没有实时区域：选了什么、拒绝了什么，由保留文件的一方来说。
+- 文本放大到 200% 时，所有文本都会换行，没有任何内容被截断。在强制颜色模式下，区域保留一道边线，正在接收拖动的区域边线更粗。
+
+它在 Web 上的构造方式：选择器是 shadow root 里一个真正的 `<input type="file">`，它看不见，不在焦点顺序中，也对辅助技术隐藏。触发器和字形留在你的 DOM 里。`select` 和 `reject` 会冒泡；`detail.files` 是一个 `File[]`，在 `reject` 中则是一个由 `{ file, reason }` 组成的列表。
+
+Web 上的已知差距：
+
+- 按钮没有必填状态。在字段里，字段的必填文字会加入触发器的描述。
+- 区域拒绝拖动时，浏览器不会把放下的内容交给它。这时，只有放下之前无法得知的情况（例如文件过大）才会触发 `reject`。
+- 在 Safari 中，点击不会让按钮获得焦点。在那里用指针选择文件之后，焦点仍在原来的位置。
+- 虚线边线无法贴合平滑过的圆角。在使用圆角平滑的设计系统中，浏览器绘制这种曲线的地方，边线画成实线。
+- 没有脚本时，以及在元素完成定义之前，触发器是一个什么都打不开的按钮。必须在不运行脚本的地方接收文件的页面，要写一个原生的 `<input type="file">`。
+
+### 需要你做的事
+
+- 在 `trigger` 插槽里放一个按钮，它的标签要说明它做什么。
+- 只要文件选择器不只是一个孤零零的按钮，就给它一个 `label`，或者把它放进字段。
+- 只要设置了 `accept`、`maxSize` 或 `maxFiles`，就要给出 `constraintsText`。
+- 用文字说明选了什么，也用文字说明每一次拒绝。
+- 文件出现在用户没有看着的地方时，在你自己的实时区域里朗读添加了什么。

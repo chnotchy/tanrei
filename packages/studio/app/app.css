@@ -1,0 +1,129 @@
+/* The page around the Studio. The Studio's own styles come with the package (src/studio.css). */
+:root {
+  font-family: var(--tanrei-ref-typeface-plain), 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
+  background: var(--tanrei-sys-color-surface-container-low);
+  color: var(--tanrei-sys-color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  text-size-adjust: 100%;
+}
+/* ── Typefaces by script ───────────────────────────────────────────────── */
+/* The default stacks name Inter, then the Japanese face (ref.typeface): right for English, Spanish and Japanese. In
+   another script the app must not reach the Japanese face: for Simplified Chinese it would draw the characters it has
+   in their Japanese forms and leave the rest to another font, two designs in one line; for Hindi and Arabic it has
+   nothing, and the reader gets whatever comes last. "A product adds the family of each further script it ships"
+   (ref.typeface.brand): the app is that product for the language it speaks (main.ts writes it on the root), with the
+   faces the reader's system already has — no font is downloaded for them. Inter stays first, for Latin text and
+   Western digits. The preview is not touched: its scope holds the stacks of the system being edited. */
+:root[lang^='zh'] {
+  --app-script-faces: 'PingFang SC', 'Noto Sans SC', 'Noto Sans CJK SC', 'Source Han Sans SC', 'Microsoft YaHei';
+}
+:root[lang='hi'] {
+  --app-script-faces: 'Kohinoor Devanagari', 'Noto Sans Devanagari', 'Nirmala UI', 'Devanagari Sangam MN', 'Mangal';
+}
+:root[lang='ar'] {
+  --app-script-faces: 'SF Arabic', 'Noto Sans Arabic', 'Segoe UI', 'Geeza Pro', 'Noto Naskh Arabic', 'Tahoma';
+}
+:root:is([lang^='zh'], [lang='hi'], [lang='ar']) {
+  --tanrei-ref-typeface-brand: Inter, var(--app-script-faces), system-ui, sans-serif;
+  --tanrei-ref-typeface-plain: Inter, var(--app-script-faces), system-ui, sans-serif;
+  --tanrei-ref-typeface-mono: 'Roboto Mono', var(--app-script-faces), ui-monospace, monospace;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-block-size: 100vh;
+}
+.app-bar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  min-block-size: 3.25rem;
+  padding: 0.5rem clamp(1rem, 3vw, 2rem);
+  border-block-end: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  background: color-mix(in srgb, var(--tanrei-sys-color-surface) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(12px);
+}
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  /* The minimum target: the name is one line of 19 pixels, the bar around it is taller. */
+  min-block-size: 1.5rem;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* The product's name is one left-to-right run in every language: the mark, then the name as it is written. */
+.app-name {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+.app-brand .app-name span {
+  font-weight: 400;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.app-mark {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  border-radius: 0.3125rem;
+  background: radial-gradient(circle at 50% 50%, var(--tanrei-sys-color-surface) 0 32%, transparent 34%), var(--tanrei-sys-color-on-surface);
+}
+.app-session {
+  flex: 1;
+  min-inline-size: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  color: var(--tanrei-sys-color-on-surface-variant);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.app-session code {
+  font-family: var(--tanrei-ref-typeface-mono);
+  font-size: 0.75rem;
+  color: var(--tanrei-sys-color-on-surface);
+}
+.app-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+/* The language select: as wide as the longest language name (the select's own intrinsic width), never the bar's. */
+.app-language {
+  flex: none;
+}
+/* A name that is read and not drawn (the theme button's «Theme: Dark»). */
+.app-unseen {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+#studio {
+  --ts-sticky-top: 3.25rem;
+  max-inline-size: 96rem;
+  margin: 0 auto;
+  padding: 0.25rem clamp(1rem, 3vw, 2rem) 4rem;
+}
+@media (max-width: 40rem) {
+  /* A phone: the brand, the language and the theme stand on one line in every language. */
+  .app-bar {
+    column-gap: 0.5rem;
+  }
+  .app-session {
+    display: none;
+  }
+  .app-tools {
+    margin-inline-start: auto;
+  }
+}

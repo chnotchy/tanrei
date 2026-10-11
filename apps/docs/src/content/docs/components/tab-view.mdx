@@ -1,0 +1,237 @@
+---
+title: Tab view
+description: Shows the view of the selected tab under its own row of Tabs, or linked to a row placed elsewhere, and lets a person swipe from view to view with the tabs' indicator following the finger.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="tab-view" />
+
+A tab view holds one panel per tab and shows the panel of the selected tab. Selecting a tab switches the view with a short shift, fade and blur; a person can also swipe the view sideways, and the tabs' indicator follows the finger, settling on the tab the view lands on. Under reduced motion the switch is a crossfade that still follows the finger, with no shift and no blur.
+
+<DemoFrame label="A tab view with its own row: choose a tab, or swipe the panel with touch or a pen">
+  <tanrei-tab-view label="Project" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="overview" label="Overview"><p>Three open tasks, due this week.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="activity" label="Activity"><p>Ada commented on the plan an hour ago.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="settings" label="Settings"><p>Visible to everyone in the workspace.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+A tab view has two forms:
+
+- **Its own row, the default.** The view draws a row of [Tabs](/components/tabs/) across its top, with the panels directly below it. Each panel carries its tab's `label`, `icon`, `labelHidden` and `disabled`, so one declaration makes both the tab and its view. The view's `variant`, `size`, `track`, `fullWidth`, `label`, `group` and `rememberAs` are the row's. The row is a real Tabs: the same track and indicator, the same tokens, variants and behaviour, so a layer that restyles the tabs restyles it too. It never moves, fades or blurs with a switch.
+- **Linked, for tabs placed elsewhere.** `tabs` links the view to a row in an app bar or a sticky header. While it is set, the view draws no row of its own, even while that row is missing, and its row props and the panels' tab props are unused.
+
+With its own row, the view emits `change` for every selection, from a tab or a swipe, and the row's own `change` does not reach you. Linked, the tabs emit `change` for a tab and the view for a swipe, so every selection is announced once.
+
+Tab views that name the same `group` show the same choice, and `rememberAs` keeps it on the person's device. The content tabs of this site are an example: every set of platform samples is a secondary tab view of one group, remembered under the site's own key.
+
+### Usage
+
+On the web it is `<tanrei-tab-view>` holding `<tanrei-tab-panel>` children, the same element a row of Tabs uses for its own panels. The selected panel is the view's `value`, kept equal to its tabs' `value`: setting either sets the other, without an event. When the view is linked, `tabs` names the id of a `<tanrei-tabs>` in the same document or shadow root. `swipeable` is spelled as its inverse, `no-swipe`, because an HTML boolean attribute defaults to false.
+
+SwiftUI, Compose, Flutter and React Native have not implemented the tab view yet. Until they do, a row of [Tabs](/components/tabs/) shows the selected panel there, as its own page describes, without the swipe.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Its own row (the default): each panel declares its tab. -->
+    <tanrei-tab-view label="Project">
+      <tanrei-tab-panel value="overview" label="Overview" icon="dashboard">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity" label="Activity" icon="history">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="billing" label="Billing" icon="payments" disabled>…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <!-- Linked, for tabs placed elsewhere (an app bar, a sticky header): the view draws no row. -->
+    <tanrei-tabs id="project-tabs" label="Project">
+      <tanrei-tab value="overview" label="Overview"></tanrei-tab>
+      <tanrei-tab value="activity" label="Activity"></tanrei-tab>
+    </tanrei-tabs>
+    <tanrei-tab-view tabs="project-tabs">
+      <tanrei-tab-panel value="overview">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity">…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <!-- Views that name one group show one choice. remember-as keeps it on the device, under your own key. -->
+    <tanrei-tab-view variant="secondary" group="platform" remember-as="my-docs-platform" label="Platform">
+      <tanrei-tab-panel value="web" label="Web">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="flutter" label="Flutter">…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <script type="module">
+      import '@tanrei/web/components/tab-view'; // defines the tabs and the panels too
+      // One change per selection. Own row: the view's, for a tab and for a swipe.
+      // Linked: the tabs' for a tab, the view's for a swipe. In a group: only the view the person used.
+      document.addEventListener('change', (e) => console.log(e.target.localName, e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tab, TabPanel, Tabs, TabView } from '@tanrei/react';
+
+    // Its own row: one onChange hears every selection, from a tab or a swipe.
+    <TabView label="Project" value={view} onChange={(e) => setView(e.detail.value)}>
+      <TabPanel value="overview" label="Overview" icon="dashboard"><Overview /></TabPanel>
+      <TabPanel value="activity" label="Activity" icon="history"><Activity /></TabPanel>
+    </TabView>
+
+    // Linked: the tabs announce a tab, the view announces a swipe. Update your state from both.
+    <Tabs id="project-tabs" label="Project" value={view} onChange={(e) => setView(e.detail.value)}>
+      <Tab value="overview" label="Overview" />
+      <Tab value="activity" label="Activity" />
+    </Tabs>
+    <TabView tabs="project-tabs" onChange={(e) => setView(e.detail.value)}>
+      <TabPanel value="overview"><Overview /></TabPanel>
+      <TabPanel value="activity"><Activity /></TabPanel>
+    </TabView>
+
+    // A shared choice, remembered. noSwipe is the spec's swipeable, inverted.
+    <TabView variant="secondary" group="platform" rememberAs="my-docs-platform" label="Platform" noSwipe>
+      <TabPanel value="web" label="Web"><WebSample /></TabPanel>
+      <TabPanel value="flutter" label="Flutter"><FlutterSample /></TabPanel>
+    </TabView>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="A secondary row that fills, with icons and a disabled tab; and a view linked to a row placed apart from it" plain column>
+  <tanrei-tab-view variant="secondary" full-width label="Deployment" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="overview" label="Overview" icon="dashboard"><p>Three services, all running.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="activity" label="Activity" icon="history"><p>Deployed 2 hours ago.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="billing" label="Billing" icon="payments" disabled><p>Billing is not set up.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+  <tanrei-tabs id="tab-view-demo-linked-tabs" label="Trip">
+    <tanrei-tab value="plan" label="Plan"></tanrei-tab>
+    <tanrei-tab value="map" label="Map"></tanrei-tab>
+    <tanrei-tab value="notes" label="Notes"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-divider style="inline-size: 22.5rem; max-inline-size: 100%"></tanrei-divider>
+  <tanrei-tab-view tabs="tab-view-demo-linked-tabs" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="plan"><p>Day 1: arrive, and walk the old town.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="map"><p>Four places saved near the station.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notes"><p>The museum is closed on Mondays.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+<ComponentSpecs name="tab-view" />
+
+## Guidelines
+
+### When to use
+
+Use a tab view when each tab is a peer view of one subject and people move between them often: a project's Overview, Activity and Settings, or the same sample for several platforms. It adds three things to a row of tabs: one declaration for a tab and its panel, the swipe, and a switch that the indicator and the panels make together.
+
+A row of [Tabs](/components/tabs/) with its own panels is enough when the panels are plain content and nobody will swipe them. A tab view is not a carousel and not a pager: it shows one panel per tab, and a swipe moves one panel. A row of items to browse belongs to the [carousel](/components/carousel/).
+
+### Its own row, or linked
+
+| Form | What you write | `change` comes from | Use for |
+| --- | --- | --- | --- |
+| Its own row (default) | Panels only. Each panel names its tab with `label` and `icon`. | The view, for a tab and for a swipe. | Most tab views: the tabs sit directly above their content. |
+| Linked (`tabs`) | A row of Tabs elsewhere, and a view of panels that names it. | The tabs for a tab, the view for a swipe. | Tabs that sit apart from their content, such as in a sticky header. |
+
+- A linked row's own props decide its look, its name, its group and its key. `variant`, `size`, `track`, `fullWidth`, `label`, `group` and `rememberAs` on a linked view are unused, and debug builds report one that is set.
+- Place a linked view after its tabs in reading order, so that Tab moves from the selected tab into the panel. A view with its own row does that by construction.
+- Tabs have no badge, so neither has a panel. To mark a tab with a badge, write the row yourself and link it.
+
+### Swiping
+
+- **One panel per swipe.** A drag by touch or a pen, further sideways than up or down, moves toward the next or the previous enabled tab, and the indicator follows the finger. Released past halfway, or with a fling toward the tab, it commits; otherwise it returns. A mouse, a trackpad and a wheel do not swipe: they use the tabs.
+- **Disabled tabs are skipped,** and at the first or last tab the panel stays at rest.
+- **Content that is dragged sideways keeps its drag.** A swipe is not taken from a region that scrolls sideways, a slider, a carousel, a text field or selected text. For a panel that is dragged sideways as a whole, such as a map or a drawing surface, set `swipeable` to false and leave the switch to the tabs.
+- **A drag across the row** is the tabs' own gesture: it can pass several tabs, the shown panel waits, and the release switches to the chosen tab's panel.
+- **The switch is the design system's.** By default it is a short travel with a fade and a blur; a system can make it a full-width page turn. Where motion is reduced, only the fade is left.
+
+### The transition
+
+`transition` names the form in which the shown panel gives way to the next.
+
+| Value | What it does |
+| --- | --- |
+| `slide` | The panels travel as the design system says, and follow a swipe. |
+| `fade` | The two panels crossfade in place. |
+| `none` | The new panel is shown whole in one frame. The row the view draws puts its indicator on the new tab in that same frame. |
+| `auto` (the default) | Takes the design system's answer (`comp.tab-view.motion.transition`, slide in the default system). |
+
+Use `none` for panels that are read and not watched, such as code. A swipe is still taken under `none`: the panel stays at rest, the indicator follows the finger, and the release shows the new panel at once. To turn the swipe off, set `swipeable` to false. Where motion is reduced, `slide` is drawn as `fade`, and nothing is added to `fade` or `none`. A row the view is linked to keeps its own `transition`.
+
+### Sharing a choice
+
+<DemoFrame label="Two tab views of one group: choose a tab in either" plain column>
+  <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="Package manager" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="npm" label="npm"><p>Install the package with npm.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="pnpm" label="pnpm"><p>Install the package with pnpm.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="yarn" label="Yarn"><p>Install the package with Yarn.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+  <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="Package manager" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="npm" label="npm"><p>Run the build with npm.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="pnpm" label="pnpm"><p>Run the build with pnpm.</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+- Give every view that answers the same question the same `group`. A view's own row is the member, so everything the [Tabs](/components/tabs/) page says of a group holds: the choice is matched by a panel's `value`, never by its label, and a view that has no panel of that value keeps its own. In the demo, Yarn exists in the first view only.
+- Only the view a person used runs a switch and emits `change`. Every other view shows its panel at once, with no travel, fade or blur, keeps the state of the panels it hides, and takes no focus.
+- The view a person used stays where it is in the window while views above it change height.
+- `rememberAs` names the key under which the choice is kept on the person's device and restored before the view is first drawn. Nothing is stored without a key, and only the panel's value is stored. On the web the key is a key of `localStorage`, used exactly as given. The demo names none.
+- A linked view uses neither prop: the linked row names its own group and key.
+
+### Size and panels
+
+- The view is as wide as its parent and as tall as its row plus the shown panel. Panels of unequal height are normal, so what follows a view moves when its panel changes.
+- Give the view a height of its own when nothing below it should move. The row stays at the top, and each panel fills the rest and scrolls inside it.
+- A hidden panel stays in place with its state: what was typed into it and how far it was scrolled. The view has no lazy mode: render a costly panel's content when its tab is first selected.
+
+### Do
+
+- Give every panel a `label`, also when `labelHidden` shows its icon alone: it names the tab and, through it, the panel.
+- Give every panel an icon, or none.
+- Keep each panel's `value` unique in its view and stable while the screen is shown.
+- Name the view with `label` when a screen has more than one row of tabs.
+
+### Don't
+
+- Don't nest a tab view of the same variant in a panel. Put secondary tabs inside a view of primary tabs.
+- Don't rely on the swipe to show that there are more views. The tabs say so; the swipe is a shortcut.
+- Don't edit the row a view draws for itself. Change the panels, and the row follows.
+- Don't use a tab view to move between the destinations of an app. That is the navigation bar's or drawer's job.
+
+## Accessibility
+
+<ComponentAccessibility name="tab-view" />
+
+### What the component handles
+
+- The view's own row is a tab list named by the view's `label`, and each tab is named by its panel's `label`. The view itself has no role.
+- The shown panel is a tab panel named by its tab and associated with it, in its own row or in the linked one. Every other panel is hidden from assistive technology and from focus, including one that a switch or a swipe still draws. The exposure moves when the selection does, not when the motion ends.
+- Tab moves from the selected tab into the shown panel: to its first focusable element, or to the panel itself when it holds none. Such a panel shows the focus ring inside its edge, for keyboard focus only.
+- When a switch hides the panel that holds focus, focus moves to the selected tab.
+- The view adds no keys of its own. The arrow keys, Home and End on a tab select another tab, and the view switches. Inside a panel the arrow keys belong to its content.
+- The swipe is never the only way: every panel is reached by a tap on its tab and by the arrow keys. With a screen reader running, a one-finger swipe belongs to the reader, and the tabs remain the way to switch.
+- Nothing is announced before a swipe is released, and a cancelled swipe changes nothing.
+- A view that follows its group changes silently: nothing is announced, and focus stays where the person is. If focus was in a panel that the change hides, it moves to that view's selected tab.
+- In right-to-left layouts the swipe and the travel mirror with the reading order. A panel's content is not mirrored by the view.
+- Debug builds report a `tabs` that names no row, a selected tab without a panel, a view with its own row and no panel, a panel whose value is empty or repeated, a linked row that holds panels of its own, and row props set on a linked view.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native have not implemented the tab view.
+- Web: every panel is a scroll container, so the focus ring of a control at a panel's very edge is clipped.
+- Web: the behaviour tests run in Chromium only, and the swipe with synthetic pointer events only.
+
+### What you need to do
+
+- Give every panel a `label`, and the view a `label` when a screen has more than one row of tabs.
+- Place a linked view after its tabs in reading order.
+- Linked, update your own state from both `change` events: the tabs' and the view's.
+- Set `swipeable` to false for a panel that is itself dragged sideways.
+- Give the views of one group the same labels for the same values, and where they are far apart, say near the first one that the choice applies to the whole page.
+- Choose the `rememberAs` key yourself, and name it in your privacy notice where your product needs one.

@@ -1,0 +1,185 @@
+---
+title: Indicador de carga
+description: Muestra que hay en curso una espera breve de duración desconocida, en línea o sobre el contenido.
+translationOf: components/loading-indicator.mdx
+sourceHash: 9ce360324a5fe7d64d8c45600b454acdad42f463
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="loading-indicator" />
+
+:::note[Una especificación revisada, que aún no está en todas las plataformas]
+Esta página describe el indicador de carga tal como lo define ahora la especificación: espera antes de mostrarse y luego entra. El componente web ya lo hace, y también las demostraciones, que aparecen después del retardo. SwiftUI, Compose, Flutter y React Native están marcados arriba como rezagados: hasta que se pongan al día, dibujan y exponen el indicador en cuanto se inserta, y no admiten las tres propiedades nuevas, así que sus ejemplos de más abajo muestran solo lo que ofrecen.
+:::
+
+<DemoFrame label="En línea y con contenedor">
+  <tanrei-loading-indicator label="Cargando mensajes"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="Cargando la galería"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained label="Actualizando"></tanrei-loading-indicator>
+</DemoFrame>
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <section aria-busy="true">
+      <tanrei-loading-indicator label="Cargando mensajes"></tanrei-loading-indicator>
+    </section>
+
+    <!-- Con contenedor: sobre un círculo elevado propio, encima del contenido. -->
+    <tanrei-loading-indicator contained size="large" label="Actualizando"></tanrei-loading-indicator>
+
+    <!-- Un botón ocupado responde a la pulsación de inmediato: sin retardo. -->
+    <tanrei-loading-indicator size="small" show-delay="0" label="Guardando"></tanrei-loading-indicator>
+
+    <!-- Otro ritmo para un solo indicador: espera más y luego entra creciendo. -->
+    <tanrei-loading-indicator show-delay="600" entrance="grow" label="Cargando el informe"></tanrei-loading-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/loading-indicator';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react';
+
+    <section aria-busy={loading}>
+      {loading ? <LoadingIndicator label="Cargando mensajes" /> : <MessageList />}
+    </section>
+    <LoadingIndicator contained size="large" label="Actualizando" />
+    <LoadingIndicator size="small" showDelay={0} label="Guardando" />
+    <LoadingIndicator showDelay={600} entrance="grow" label="Cargando el informe" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiLoadingIndicator("Cargando mensajes")
+
+    // Encima del contenido, sobre su propio contenedor elevado.
+    TanreiLoadingIndicator("Actualizando", size: .large, contained: true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiContainedLoadingIndicator
+    import io.github.chnotchy.tanrei.components.TanreiLoadingIndicator
+    import io.github.chnotchy.tanrei.tokens.TanreiLoadingIndicatorSize
+
+    TanreiLoadingIndicator(contentDescription = "Cargando mensajes")
+
+    // La forma con contenedor es un segundo composable con los mismos parámetros.
+    TanreiContainedLoadingIndicator(contentDescription = "Actualizando", size = TanreiLoadingIndicatorSize.Large)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    const TanreiLoadingIndicator(semanticsLabel: 'Cargando mensajes');
+    const TanreiLoadingIndicator(
+      semanticsLabel: 'Actualizando',
+      size: TanreiLoadingIndicatorSize.large,
+      contained: true,
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react-native';
+
+    <LoadingIndicator accessibilityLabel="Cargando mensajes" />
+    <LoadingIndicator accessibilityLabel="Actualizando" size="large" contained />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Tamaños, en línea y con contenedor" plain>
+  <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="small" label="Small, con contenedor"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="medium" label="Medium, con contenedor"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="large" label="Large, con contenedor"></tanrei-loading-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="loading-indicator" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un indicador de carga para una espera breve cuya duración no puedes conocer: una lista que obtiene su página siguiente, un control que guarda, una vista previa que se está generando. Dice que algo está ocurriendo y nada sobre cuánto va a tardar.
+
+Cuando la espera pueda durar más de unos segundos, o cuando puedas medir cuánto ha avanzado, usa en su lugar un [indicador de progreso](/es/components/progress-indicator/). Un valor, aunque sea aproximado, hace más llevadera una espera larga.
+
+### Cómo elegir un tamaño
+
+| Tamaño | Indicador / contenedor en el sistema predeterminado | Úsalo para |
+| --- | --- | --- |
+| Small | 16 / 24 | En lugar de un icono dentro de un control, como un botón que está guardando. |
+| Medium | 24 / 32 | Junto a una línea de texto. Es el valor predeterminado. |
+| Large | 40 / 48 | Una sección vacía o una vista entera que espera su contenido. |
+
+### Con contenedor
+
+La forma con contenedor dibuja el indicador sobre un círculo elevado propio. Úsala donde el indicador flota sobre el contenido, como al tirar para actualizar o encima de una imagen o de una lista, para que siga viéndose sea lo que sea lo que haya detrás. Donde se apoya sobre una superficie lisa, déjalo en línea.
+
+### Retardo de aparición y entrada
+
+Una espera que termina en un instante no debería mostrar nada. Por eso el indicador espera antes de mostrarse: 300 ms en el sistema predeterminado, contados desde el momento en que se inserta. Después aparece con un fundido. Una espera más corta que el retardo nunca muestra una marca que se enciende y se apaga. Durante el retardo el indicador ya ocupa su tamaño completo, así que nada de lo que tiene al lado se mueve cuando aparece.
+
+Inserta el indicador cuando empiece la espera y quítalo cuando termine. El retardo cuenta desde la inserción: un indicador que se oculta y se vuelve a mostrar sin quitarlo no espera otra vez, y uno que se inserta de nuevo vuelve a esperar el retardo entero.
+
+El sistema decide el retardo y la entrada de todos los indicadores. Defínelos en un indicador solo cuando necesite un ritmo distinto:
+
+- `showDelay` es la espera en milisegundos. `0` muestra el indicador en cuanto se inserta, para un botón ocupado que debe responder a la pulsación de inmediato.
+- `entrance` es `fade` o `grow`. Con grow, el indicador aparece con un fundido mientras crece desde su centro. `auto`, el valor predeterminado, toma la elección del sistema.
+- `enterDuration` es la duración de la entrada en milisegundos. `0` muestra el indicador entero de una vez.
+
+Un valor que definas se usa tal como lo das: el dial de movimiento no lo escala. Deja una propiedad sin definir para tomar el valor del sistema.
+
+### Recomendado
+
+- Dale una etiqueta que diga qué se está cargando: «Cargando mensajes», no «Cargando». Si se muestra una leyenda a su lado, usa las mismas palabras.
+- Ponlo donde aparecerá el contenido, para que la persona mire al lugar correcto cuando llegue.
+- Cuando sustituya a un icono dentro de un control, conserva el tamaño del control, para que nada se mueva a su alrededor.
+- Deja el retardo en manos del sistema salvo que un indicador necesite otro ritmo.
+
+### Evita
+
+- No lo uses para una espera que puedes medir, ni para una que pueda alargarse. Usa un indicador de progreso.
+- No muestres varios indicadores para una misma espera. Basta con uno por cada región que se está cargando.
+- No lo pongas sobre una pantalla entera cuando solo se está cargando una parte. Mantén utilizable el resto.
+- No le des color para decir que algo ha ido mal. Detenlo y muestra un mensaje.
+- No dejes un indicador en su sitio ocultándolo entre una espera y otra. Quítalo, para que la siguiente espera inicie un retardo nuevo.
+
+## Accesibilidad
+
+<ComponentAccessibility name="loading-indicator" />
+
+### De qué se encarga el componente
+
+- Una vez mostrado, expone el rol de barra de progreso en el estado ocupado de la plataforma, con la etiqueta como nombre y sin valor. Flutter todavía no tiene rol de barra de progreso ni estado ocupado, así que ahí expone la etiqueta.
+- Durante su retardo de aparición no está en el árbol de accesibilidad: sin rol, sin nombre, sin estado ocupado. Una espera demasiado corta para verse tampoco se oye.
+- Nunca puede recibir el foco, y no se anuncia a sí mismo cuando aparece ni cuando desaparece.
+- Cuando se pide reducir movimiento, el arco deja de girar y, en su lugar, un círculo completo hace pulsar suavemente su opacidad, como mucho una vez por segundo; un contenedor se queda quieto. Una entrada grow se convierte en un fundido. El retardo de aparición se conserva: es una espera, no movimiento.
+- Su animación se detiene mientras no se puede ver (en todas partes cuando la aplicación está en segundo plano, y cuando queda desplazado fuera de la vista o en una pantalla oculta donde la plataforma puede saberlo) y se reanuda cuando se puede.
+- Una etiqueta vacía se notifica en las compilaciones de depuración.
+
+### Qué debes hacer tú
+
+- Marca como ocupada la región que se está cargando mientras se carga (`aria-busy` en la web), desde el inicio de la espera, sin aguardar al retardo del indicador, y di cuándo ha llegado el contenido: con un mensaje en una región activa (live region), o llevando el foco al contenido nuevo cuando la persona lo haya pedido.
+- Si cambias los colores, mantén el color del indicador con un contraste de al menos 3:1 frente a la superficie que tiene detrás, y el color del indicador con contenedor frente a su contenedor. La marca en movimiento es la única señal de que algo está ocurriendo.

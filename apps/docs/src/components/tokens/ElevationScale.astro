@@ -1,0 +1,82 @@
+---
+import { tokensIn, formatValue, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import { figureId } from '../../lib/figure-id';
+import SourceNote from '../SourceNote.astro';
+import Table from '../Table.astro';
+const t = strings(contentLang(Astro));
+// Each level is named by its caption, which the docs write themselves (as components/tokens/ShapeScale.astro does).
+const tokens = tokensIn(`${ns}.sys.elevation`)
+  .filter((tk) => tk.type === 'shadow')
+  .map((tk) => ({ ...tk, captionId: `${figureId(Astro)}-caption` }));
+const dark = Object.fromEntries(tokensIn(`${ns}.sys.elevation`, 'dark').map((tk) => [tk.name, tk]));
+---
+
+<tanrei-figure variant="filled" class="not-content ground" data-tanrei-code="plain">
+  <figure aria-label={t.elevationLevels}>
+    <div data-part="stage" class="grid">
+      {/* A space after each level (a grid draws none): the search index reads «level0 level1», not one word. */}
+      {tokens.map((tk) => (
+        <>
+          <figure aria-labelledby={tk.captionId}>
+            <div class="card" style={`box-shadow: var(${tk.cssVar})`} />
+            <figcaption id={tk.captionId}><code>{tk.path.at(-1)}</code></figcaption>
+          </figure>{' '}
+        </>
+      ))}
+    </div>
+  </figure>
+</tanrei-figure>
+<Table label={`${ns}.sys.elevation`}><table>
+  <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col">{t.light}</th><th scope="col">{t.dark}</th></tr></thead>
+  <tbody>
+    {tokens.map((tk) => (
+      <tr>
+        <td data-wrap="false"><code>{tk.cssVar}</code></td>
+        <td class="docs-mono layers">{formatValue(tk).split(', ').map((l) => <div>{l}</div>)}</td>
+        <td class="docs-mono layers">{dark[tk.name] && formatValue(dark[tk.name]).split(', ').map((l) => <div>{l}</div>)}</td>
+      </tr>
+    ))}
+  </tbody>
+</table></Table>
+<SourceNote files={[`design/tokens/${ns}.light.tokens.json`, `design/tokens/${ns}.dark.tokens.json`, 'tokens/sys/elevation.tokens.json']} />
+
+<script>
+  import '@tanrei/web/components/figure';
+</script>
+
+<style>
+  /* The ground the levels are shown on is Tanrei's Figure in its filled look — a quiet tone, no edge, the stage's own
+     padding — with no title and no caption, so the site names it (FIG-16). The site's own: the grid of levels in the
+     stage, and each level's card and name. A level is not a figure of Tanrei's: a plain figure clips its stage, and a
+     shadow is drawn outside its box. */
+  .ground {
+    margin-top: 1.5rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+    gap: 1.5rem;
+  }
+  .grid figure {
+    margin: 0;
+  }
+  .card {
+    block-size: 4.5rem;
+    border: var(--docs-hairline);
+    border-radius: var(--tanrei-sys-shape-corner-medium);
+    background: var(--tanrei-sys-color-surface-container-lowest);
+  }
+  .grid figcaption {
+    margin-top: 0.75rem;
+    font-size: var(--sl-text-xs);
+    text-align: center;
+  }
+  code {
+    font-family: var(--sl-font-mono);
+  }
+  .layers div,
+  td code {
+    white-space: nowrap;
+  }
+</style>

@@ -1,0 +1,207 @@
+---
+title: مربع كتابة الرسائل
+description: يتيح للشخص أن يكتب رسالة ويرسلها، في كبسولة واحدة تحمل كل شيء. منطقة كتابة تكبر مع ما يُكتب، والملفات المرفقة بالرسالة، وإجراءاتك أنت، وزر إرسال لا يكون مفعَّلًا إلا ما دام إرسال الرسالة ممكنًا. وهو يبلّغ عن الرسالة ولا يرسل شيئًا بنفسه أبدًا.
+translationOf: components/chat-composer.mdx
+sourceHash: 68233132907fd0b94d40dacc7db0d52a3c7fec59
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="chat-composer" />
+
+<DemoFrame label="مربع كتابة الرسائل في كل تخطيط. اكتب رسالة، وأرفِق ملفًّا، وأرسِل. لا يُرسل شيء إلى أي مكان." column>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال" attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة"></tanrei-chat-composer>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال" attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة" max-length="280" counter>
+    <tanrei-button slot="leading" variant="text" label="الإشارة إلى شخص"><span slot="icon">alternate_email</span></tanrei-button>
+    <tanrei-button slot="leading" variant="text" label="إضافة رمز تعبيري"><span slot="icon">mood</span></tanrei-button>
+  </tanrei-chat-composer>
+</DemoFrame>
+
+مربع كتابة الرسائل (chat composer) هو المكان الواحد الذي تُكتب فيه الرسالة: في محادثة، أو في سلسلة ردود تحت عمل ما، أو في طلب مساعدة. ويُرسم كبسولة واحدة. والكبسولة تحمل منطقة الكتابة والمرفقات وإجراءاتك أنت وزر الإرسال.
+
+**يُبنى من** [حقل إدخال النص المدمج](/ar/components/embedded-text-input/) و[منتقي الملفات](/ar/components/file-picker/) و[عناصر الملفات](/ar/components/file-item/) و[أزرار](/ar/components/button/). حقل إدخال النص المدمج هو الكتابة. ومنتقي الملفات يفتح المنتقي الخاص بالمنصة ويحكم على ما اختير. وعنصر الملف مرفق واحد. والأزرار هي زر الإرسال وزر الإيقاف وزر الإرفاق وأزرارك أنت. ومربع كتابة الرسائل لا يرسم أيًّا منها. بل يضيف ما يربطها معًا: الكبسولة، وهل يمكن إرسال الرسالة، والملفات التي يحتفظ بها، والعدّاد، ومنطقة حيّة (live region) واحدة، وقيمة النموذج.
+
+<Callout type="caution" title="هو لا يرسل">
+مربع كتابة الرسائل لا يفتح أي اتصال. حين يرسل الشخص، يصدر الحدث `send` ومعه النص والمرفقات، ومنتجك هو الذي يرسل. وهل وصلت الرسالة أمر عليك أنت أن تعرفه وتقوله.
+</Callout>
+
+استخدم شيئًا آخر حين:
+
+- يملأ الأشخاص حقلًا في نموذج بنص طويل. فذاك [حقل النص](/ar/components/text-field/) مع `multiline`.
+- يختار الأشخاص ملفات فقط. فذاك مكوّن [رفع الملفات](/ar/components/file-upload/).
+- يبحث الأشخاص. فذاك [البحث](/ar/components/search/).
+
+على الويب هو `<tanrei-chat-composer>`. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-chat-composer label="الرسالة" placeholder="اكتب رسالة" send-label="إرسال"
+                          attachments="own" attach-label="إرفاق ملفات" remove-label="إزالة">
+    </tanrei-chat-composer>
+    ```
+
+    ```js
+    composer.addEventListener('send', (event) => {
+      const { value, attachments } = event.detail;
+      post(value, attachments);
+    });
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ChatComposer } from '@tanrei/react';
+
+    <ChatComposer
+      label="الرسالة"
+      placeholder="اكتب رسالة"
+      sendLabel="إرسال"
+      attachments="own"
+      attachLabel="إرفاق ملفات"
+      removeLabel="إزالة"
+      onSend={(event) => post(event.detail.value, event.detail.attachments)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+ما لم تعيّن `keepAfterSend`، يفرّغ مربع الكتابة نفسه وهو يسلّم الرسالة، ويعود التركيز إلى منطقة الكتابة.
+
+### إرسال الملفات بنفسك
+
+مع `attachments="given"` يعطي منتجك عناصر الملفات. استخدمها حين ترسل كل ملف فور إرفاقه وتريد أن يعرض كل عنصر حالته وتقدّمه. أضِف عنصر `<tanrei-file-item>` فرعيًّا عند الحدث `select`، وأزِله عند الحدث `remove` في العنصر. ولا يمكن إرسال شيء ما دام عنصر يُرفع، أو أخفق وتمكن إعادة محاولته.
+
+```html
+<tanrei-chat-composer label="الرسالة" send-label="إرسال" attachments="given"
+                      attach-label="إرفاق ملفات" remove-label="إزالة" retry-label="إعادة المحاولة">
+  <tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" progress="0.4"></tanrei-file-item>
+</tanrei-chat-composer>
+```
+
+### مستوى واحد إلى الأسفل
+
+الكبسولة جزء من مربع كتابة الرسائل نفسه ولا يمكن أخذها منفصلة. وفي المستوى الأدنى تضع الأعضاء بنفسك وترسم الصندوق.
+
+```html
+<div class="my-composer" role="group" aria-label="الرسالة">
+  <div class="row">
+    <tanrei-file-picker multiple>
+      <tanrei-button slot="trigger" variant="text" label="إرفاق ملفات"><span slot="icon">attach_file</span></tanrei-button>
+    </tanrei-file-picker>
+    <tanrei-embedded-text-input label="الرسالة" multiline max-rows="6" enter-key="action"></tanrei-embedded-text-input>
+    <tanrei-button label="إرسال" disabled><span slot="icon">send</span></tanrei-button>
+  </div>
+</div>
+```
+
+الأعضاء تأتي بالكتابة وارتفاعها الذي يكبر، وبالمفاتيح، وبكل عنصر ملف، وبالمنتقي. وشيفرتك تفعل عندئذ ما يضيفه مربع كتابة الرسائل: ترسم الصندوق وتُظهر التركيز عليه، وتقرّر هل يمكن إرسال الرسالة، وتقارن طول النص بحدّ، وتستقبل الإفلات واللصق، وتحتفظ بالملفات، وتفرّغ كل شيء بعد الإرسال.
+
+## المواصفات
+
+### التخطيطان
+
+| الحال | `inline` (الافتراضي) | `stacked` |
+| --- | --- | --- |
+| سطر واحد من النص | صف واحد: زر الإرفاق، وإجراءات البداية، ومنطقة الكتابة، والعدّاد، وإجراءات النهاية، وزر الإرسال | منطقة الكتابة وزر الإرسال في سطر واحد. وصف تحته يحمل كل ما عداهما |
+| عدة أسطر | كل زر يبقى عند الحافة السفلى | زر الإرسال يبقى عند الحافة السفلى لسطر الكتابة |
+| يصلح لـ | الرسائل القصيرة، ولوحة ضيقة | الإجراءات الكثيرة، والرسائل المكتوبة في فقرات |
+
+الكبسولة الأضيق من `comp.chat-composer.layout.inline-min-width` تُخطَّط بالتخطيط stacked أيًّا كان ما تقوله `layout`. ومربع الكتابة بالتخطيط stacked الذي ليس فيه شيء للصف السفلي يُرسم بالتخطيط inline. وعدد الأسطر لا يغيّر التخطيط أبدًا.
+
+### ما يمكن إرساله
+
+زر الإرسال لا يكون مفعَّلًا إلا ما دامت هذه الشروط كلها متحققة. ولكل شرط منها لا يتحقق يحمل الحدث `sendablechange` سببًا باسمه.
+
+| السبب | لا يمكن إرسال الرسالة ما دام |
+| --- | --- |
+| `disabled` | الخاصية `disabled` بالقيمة true |
+| `sending` | الخاصية `sending` بالقيمة true |
+| `blocked` | الخاصية `blocked` بالقيمة true |
+| `empty` | لا يوجد حرف غير المسافات البيضاء، ولا مرفق |
+| `length` | النص أطول من `maxLength` |
+| `uploading` | حالة أحد عناصر الملفات هي `uploading` |
+| `failed` | أحد عناصر الملفات أخفق وتمكن إعادة محاولته |
+
+### المفاتيح
+
+المفتاح Enter يرسل، والمفتاحان Shift+Enter يبدآن سطرًا جديدًا. ومع `sendKey="modifier"` يبدأ المفتاح Enter سطرًا جديدًا. والمفتاحان Ctrl+Enter أو Command+Enter يرسلان مع أيٍّ من قيمتَي `sendKey`. والمفتاح Enter في أسلوب الإدخال لا يرسل أبدًا.
+
+### تخصيص مربع كتابة رسائل واحد دون غيره
+
+نظام التصميم ينسّق كل عضو لكل مكان يُستخدم فيه. ولتخصيص مربع كتابة واحد، عيِّن رمز تصميم (token) على ذلك العنصر. فالكبسولة تقرأ رموزها هي، ورمز العضو يبلغ العضو الذي بداخلها.
+
+```html
+<tanrei-chat-composer style="--tanrei-comp-chat-composer-container-shape: 12px" …></tanrei-chat-composer>
+```
+
+<ComponentSpecs name="chat-composer" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- يُرسل النص تحت `name`، وكل ملف محتفَظ به تحت `files-name`. وبعد الحدث `send`، يطلب مربع الكتابة الذي في نموذج من النموذج أن يُرسل ولا يفرّغ نفسه.
+- لا يمكن تمييز لوحة مفاتيح على الشاشة من لوحة مفاتيح فعلية. فحيث يكون المؤشر الأساسي خشنًا ولا يستطيع التحويم، يبدأ المفتاح Enter سطرًا جديدًا وزر الإرسال هو الذي يرسل.
+- حجم الملف لا يُرسم على عنصر ملف يرسمه مربع الكتابة بنفسه.
+- بلا سكربت، يكون النموذج هو عنصر `<textarea>` وزر الإرسال `<button>` اللذان تكتبهما عنصرين فرعيين. وحين يُعرَّف العنصر يأخذ النص ويخفي الاثنين.
+
+## الإرشادات
+
+### الكلمات
+
+ليست لمربع كتابة الرسائل كلمات من عنده. أعطِ `label` و `placeholder` و `sendLabel`، وأعطِ حيث تُستخدم `stopLabel` و `attachLabel` و `removeLabel` و `retryLabel` والجمل الثلاث للملف المرفوض. عيِّنها مرة واحدة للمنتج بالدالة `setWords()`، أو على العنصر.
+
+### داخل حقل
+
+داخل [حقل](/ar/components/field/) يأخذ مربع الكتابة تسمية الحقل اسمًا له، ومساعدة الحقل أو نص خطئه وصفًا لمنطقة الكتابة، وخطأ الحقل والخاصية `disabled` فيه.
+
+### افعل
+
+- قل لماذا لا يمكن إرسال رسالة بكلماتك أنت، بجانب مربع الكتابة أو بالخاصية `announcement`.
+- ضع إجراءاتك في المنفذين `leading` و `trailing` أزرارًا من الطراز text بأيقونة فقط.
+- عيِّن `maxFiles` بعدد الملفات التي يجوز أن تحملها رسالة واحدة.
+- استخدم `stoppable` حيث يصل الجواب على مدى وقت ويمكن قطعه.
+- أبقِ مربع الكتابة فوق لوحة المفاتيح التي على الشاشة بوسائل المنصة نفسها. فمربع الكتابة لا يثبّت نفسه على الشاشة.
+
+### لا تفعل
+
+- لا تغيّر تنسيق الكتابة أو عناصر الملفات أو الأزرار عبر مربع الكتابة. نسِّق العضو نفسه.
+- لا تضع مكان زر الإرسال أو زر الإرفاق شيئًا غير زر.
+- لا تقطع النص عند حد. فالخاصية `maxLength` تعلّم ما زاد على الطول وتنتظر الشخص.
+- لا تجعل السحب الطريقة الوحيدة لإرفاق ملف.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="chat-composer" />
+
+### ما يتكفل به المكوّن
+
+- هو مجموعة تسمّيها `label`. ومنطقة الكتابة مربع نص (text box) متعدد الأسطر بالاسم نفسه.
+- حافة الكبسولة هي مؤشر التركيز لمنطقة الكتابة، في كل تركيز عليها. والزر أو إجراء عنصر الملف يعرض حلقة التركيز الخاصة به، والكبسولة عندئذ لا ترسم حافة تركيز.
+- المفتاح Tab ينتقل فيه بالترتيب الذي يُرسم به. ولا مفتاح في منطقة الكتابة يزيل مرفقًا.
+- زر الإرسال الذي لا يستطيع الإرسال زر معطَّل. وما يحبس الرسالة معروض على العدّاد وعلى عنصر الملف.
+- العدّاد هو الجزء الأول من وصف منطقة الكتابة. وليس منطقة حيّة.
+- منطقة حيّة واحدة تقول بتهذيب `announcement` التي تعطيها وما تغيّر بين المرفقات.
+- المفتاح Enter في أسلوب الإدخال لا يرسل أبدًا.
+- عند تكبير النص إلى 200% في عرض مقداره 320 يُخطَّط بالتخطيط stacked. ولا يُقصّ شيء ولا يُمرَّر شيء جانبيًّا.
+- في الألوان المفروضة (forced colors) تكتسب الكبسولة حافة، وحافتها وعليها التركيز بلون التحديد في النظام (highlight).
+- ليست له كلمات من عنده، بأي لغة.
+
+فجوات معروفة على الويب:
+
+- أساليب الإدخال اختُبرت بتشغيلها في Chromium، وفي Firefox و Safari بأحداثها وحدها.
+- ما تقوله قارئات الشاشة قُرئ من أشجار إمكانية الوصول في المتصفحات، ولم يُسمع بقارئ شاشة.
+
+### ما عليك فعله
+
+- أعطِه `label`، أو ضعه داخل حقل.
+- سمِّ الأزرار التي يأتي بها: `sendLabel`، `stopLabel`، `attachLabel`، `removeLabel`، `retryLabel`.
+- قل ما آل إليه أمر الرسالة. عيِّن `announcement` في معالج الحدث `send` حيث تنفع جملة.
+- أعطِ كل عنصر ملف أخفق `errorText` يقول لماذا أخفق وما العمل.

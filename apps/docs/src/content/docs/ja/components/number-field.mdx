@@ -1,0 +1,267 @@
+---
+title: 数値フィールド
+description: 数値を数値として入力できるようにします。ロケールの書き方で入力するか、キーやボタンで増減でき、範囲の中に保たれ、単位が横に付きます。フォームの完成した 1 つのフィールドで、数値入力欄をフィールドで囲んだものです。
+translationOf: components/number-field.mdx
+sourceHash: 4f7122143845c2fb6b51c57ee749420811b6700a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="number-field" />
+
+<DemoFrame label="単位と範囲のある数値フィールドと、金額を持つ数値フィールド" column>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="角の半径" value="8" min="0" max="64" step="0.25" suffix-text="px" supporting-text="0 から 64 まで、0.25 刻みです。" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="金額" value="120" min="0" prefix-text="$" suffix-text="USD" min-fraction-digits="2" max-fraction-digits="2" invalid-text="金額を数字で入力してください。" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
+</DemoFrame>
+
+数値フィールドは、プロダクトが数値として読む数に使います。数量、サイズ、パーセント、金額などです。ユーザーは自分のロケールの書き方で入力するか、矢印キーやフィールドの末尾側にある 2 つのボタンで増減します。フィールドは、同じバリアントとサイズのテキストフィールドと同じ見た目と寸法です。
+
+**構成要素**は、[フィールド](/ja/components/field/)と[数値入力欄](/ja/components/number-input/)です。フィールドは枠で、ラベル、必須または任意の印、補足、エラーを受け持ちます。数値入力欄はコントロールで、ボックス、数値、単位、2 つのステッパーを受け持ちます。数値フィールドは自分では何も描かず、自分のトークンも持ちません。数値フィールドのプロパティはどれも 2 つのどちらかのプロパティで、そのまま渡されます。
+
+数値フィールドは、すでにフィールドです。[フィールド](/ja/components/field/)の中には入れません。スライダーの横やテーブルのセルのように、ラベルがほかの場所にあるところでは、[数値入力欄](/ja/components/number-input/)を単独で使います。
+
+置かれた場所の幅いっぱいに広がるブロックで、ボックスもその幅いっぱいになります。自分の幅は持ちません。フィールドを狭くするには、置く場所を狭くします。
+
+Web では `<tanrei-number-field>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+`value` は数値で、フィールドが数値を持たない間は `null` です。値が変わるのは、ユーザーが**確定**したときです。フォーカスがフィールドを離れたとき、Enter を押したとき、増減したときで、キーを打つたびには変わりません。入力している間、テキストはユーザーのものです。拒否も、書き直しも、範囲への丸めも、桁の丸めもしません。その間にテキストが表す数は、`input` が運びます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-number-field name="quantity" label="数量" value="1" min="1" max="99"
+        requirement="required" required-text="必須" invalid-text="数値を入力してください。"
+        increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
+    </form>
+
+    <!-- 単位があり、0.25 刻みで、上限はありません。 -->
+    <tanrei-number-field id="radius" label="角の半径" value="8" min="0" step="0.25" suffix-text="px"
+      increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
+
+    <!-- 金額。前に記号、後ろにコード、小数は常に 2 桁です。 -->
+    <tanrei-number-field label="金額" value="120" prefix-text="$" suffix-text="USD"
+      min-fraction-digits="2" max-fraction-digits="2"
+      increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
+
+    <script type="module">
+      import '@tanrei/web/components/number-field';
+
+      const radius = document.querySelector('#radius');
+      // 確定によって値が変わりました。value はすでに新しい値で、数値か null です。
+      radius.addEventListener('change', () => save(radius.value));
+      // ユーザーが入力または増減しています。テキストが表す数で、範囲にも桁にも丸めていません。数でなければ null です。
+      radius.addEventListener('input', (e) => preview(e.detail.value));
+      // 数ではないテキストが確定されました。フィールドはテキストを残し、invalidText を表示します。
+      // detail.text はそのテキストで、フィールドに与えられていなければ空です。
+      radius.addEventListener('entryerror', (e) => console.log(e.detail.reason, e.detail.text));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NumberField } from '@tanrei/react';
+
+    <NumberField label="角の半径" value={radius} min={0} step={0.25} suffixText="px"
+      incrementLabel="増やす" decrementLabel="減らす"
+      onChange={(event) => setRadius(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### 1 つ下の階層
+
+同じフィールドを 2 つの構成要素から自分で書いても、見た目は同じで、支援技術にとっても、同じ名前、説明、状態を持つ同じスピンボタンになります。
+
+```html
+<tanrei-field label="数量" requirement="required" required-text="必須"
+  supporting-text="1 回の注文は 99 個までです。">
+  <tanrei-number-input name="quantity" min="1" max="99" invalid-text="数値を入力してください。"
+    increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
+</tanrei-field>
+```
+
+<DemoFrame label="同じフィールドを自分で書いたもの。フィールドの中に数値入力欄があります" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" requirement="required" required-text="必須" supporting-text="1 回の注文は 99 個までです。">
+    <tanrei-number-input min="1" max="99" invalid-text="数値を入力してください。" increment-label="増やす" decrement-label="減らす"></tanrei-number-input>
+  </tanrei-field>
+</DemoFrame>
+
+数値フィールドにない並べ方が必要なときに、1 つ下の階層で書きます。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| ラベル、ボックス、補足、エラー | 数値フィールド |
+| 枠の中、ボックスの横か下に置く自分の要素 | [フィールド](/ja/components/field/)に、[数値入力欄](/ja/components/number-input/)と自分の要素を入れる |
+| ボックスだけ。ラベルは別の場所にある（スライダーの横、テーブルのセル、ツールバー） | [数値入力欄](/ja/components/number-input/)を単独で使い、入力欄の `label` で名前を付ける |
+
+1 つ下の階層で変わるのは、何をどこに指定するかです。`name`、`value`、範囲、単位は数値入力欄に指定し、フォームに加わるコントロールもイベントが届く先も入力欄になります。`label`、`error`、`disabled`、必須の指定はフィールドに指定したままにします。フィールドがコントロールに伝えるので、入力欄の側には指定しません。数値フィールドが行い、フィールドと数値入力欄を自分で書いたものが行わないことはありません。
+
+## 仕様
+
+<DemoFrame label="上限で無効になったステッパー、末尾側にそろえた数字、ステッパーなし、エラー、読み取り専用、無効の数値フィールド" plain column>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="99" min="1" max="99" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="トーン" value="40" min="0" max="100" align="end" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="字間" value="-0.25" step="0.01" suffix-text="px" no-steppers></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="0" error error-text="1 個以上を注文してください。" increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="12" readonly></tanrei-number-field>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="数量" value="12" disabled increment-label="増やす" decrement-label="減らす"></tanrei-number-field>
+</DemoFrame>
+
+### フィールド
+
+| パーツ | 内容 |
+| --- | --- |
+| ラベル | フィールドのもの。コンテナの上（`stacked`）。`filled` と `outlined` では数値入力欄がボックスの中で浮き上がるラベルとして描き、フィールドはラベルの行を描きません。描いても `labelHidden` で隠しても、アクセシブルネームになります |
+| 必須・任意の印 | フィールドのもの。ラベルの後ろ。`requirement="required"` では必須のタグ、アスタリスク、または印なし。`optional` では任意のタグ。浮き上がるラベルにはアスタリスクが付きます |
+| 入力欄 | 数値入力欄のもの。テキストとしての数値。編集中はユーザーが入力したもの、それ以外は確定した数値をロケールの書き方で示します。1 行で、収まらない分はスクロールします |
+| プレフィックス、サフィックス | 数値入力欄のもの。数値の前後に置く決まったテキスト。通貨記号や単位です。ボックスの一部で、値には含まれません |
+| ステッパー | 数値入力欄のもの。末尾側にある 2 つのボタン。1 つ目が減らし、2 つ目が増やします。`steppers` を false にすると付きません |
+| 補足テキスト | フィールドのもの。補足の 1 行。フィールドがエラーの間も残り、その下にエラーテキストが描かれます。`error` が true の間は `errorText`、テキストが数でない間は `invalidText` です。ステッパーがあってもなくても、ボックスのテキストのパディングの位置で始まり、同じ位置で終わります |
+
+3 つのバリアントと、2 つのサイズ `medium`（48）と `large`（56）は、テキストフィールドのものです。既定のシステムが提供するのは `stacked` だけです。
+
+数値フィールドに自分のトークンはありません。ボックスは[数値入力欄のトークン](/ja/components/number-input/#仕様)を、行は[フィールドのトークン](/ja/components/field/#仕様)を、2 つのステッパーは[ボタンのトークン](/ja/components/button/#仕様)を、どこで設定されていても読みます。1 つのインスタンスだけを変えるには、構成要素のトークンをその要素に設定します。`style="--tanrei-comp-field-label-gap: 0.75rem"` のようにします。
+
+2 つのステッパーは、`medium` サイズのテキストボタンで、横に並びます。既定のシステムでは、フィールドの幅のうち 88 を使い、それぞれがタッチターゲットを満たします。小さく描くことも、縦に重ねることもしません。その幅を取れない行では、ステッパーをなくしてください。キーでは引き続き増減できます。
+
+### 値とテキスト
+
+| いつ | 起きること |
+| --- | --- |
+| ユーザーが入力、貼り付け、音声入力をする | 何も変えません。`input` が、テキストが表す数か `null` を運びます |
+| フォーカスが離れる、または Enter | テキストを確定します。`min` まで上げ、`max` まで下げ、`maxFractionDigits` の桁に丸めて値にし、ロケールの書き方で書き戻します。値が変わっていれば `change` を発火します |
+| テキストが空 | 値は `null` になります |
+| テキストが数ではない | テキストは残ります。値は `null` になり、フィールドはエラーになって `invalidText` を表示し（なければ `errorText`）、`entryerror` を発火します |
+| プロダクトが `value` を設定する | 入力されていた内容にかかわらず、その数値を表示します。イベントは発火せず、`min` と `max` による修正もしません |
+
+確定した数値は、ロケールの数字と小数点で、小数部を `minFractionDigits` 桁から `maxFractionDigits` 桁までにして書きます。桁区切りは付けません。表示されているものを、そのまま入力し直せるようにするためです。
+
+<DemoFrame label="同じ値 1.5 を、ドイツ語とエジプトのアラビア語で" plain column>
+  <tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Gewicht" value="1.5" step="0.1" suffix-text="kg" locale="de-DE" increment-label="Erhöhen" decrement-label="Verringern"></tanrei-number-field>
+  <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="1.5" step="0.1" locale="ar-EG" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
+</DemoFrame>
+
+テキストは、フィールドの `locale` に従って、寛容に読みます。`locale` が空のときは、ページの言語に従います。
+
+- 数の前後と途中の空白は無視します。
+- 数字の前のハイフンマイナス、マイナス記号、プラス記号は、符号として読みます。
+- ASCII の数字、ロケールの数字、全角の数字は、どれも数字として読みます。
+- 数字の間にあるロケールの桁区切りは無視します。英語では `1,234.50` を 1234.5 と読みます。
+- 一緒に入力または貼り付けたプレフィックスとサフィックスは無視します。`12 px` は 12 と読みます。
+- 文字、指数、2 つの小数点、符号だけのテキストは、数ではありません。
+
+フィールドは、2 つのロケールの書き方の間で推測しません。小数点がカンマのドイツ語では、`1.500` を 1500、`1.5` を 15 と読みます。
+
+<DemoFrame label="右から左のレイアウト：ラテン文字の単位は数値の後ろに左から右へ、ページ自身の文字の単位は数値の左に来ます" plain column>
+  <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="العرض" value="44" min="0" suffix-text="px" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
+  <div dir="rtl" lang="ar"><tanrei-number-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الوزن" value="12" min="0" step="0.5" suffix-text="كغم" locale="ar-u-nu-latn" increment-label="زيادة" decrement-label="إنقاص"></tanrei-number-field></div>
+</DemoFrame>
+
+数値とその単位は、ひと続きのテキストです。プレフィックスは数値の前に、サフィックスは数値の後ろに、単位自身の文字の向きで書きます。ページの向きには左右されません。そのため「44 px」「$ 120 USD」「40 %」は、アラビア語やヘブライ語のページでも英語のページと同じ並びになり、アラビア文字やヘブライ文字で書いた単位は数値の左に来ます。ステッパーとラベルはページの向きに従います。`align="end"` は数値を単位の側に寄せます。ラテン文字や記号の単位なら、どちらの向きでも右です。ラテン文字の通貨コードを数値の左に置きたいときは、サフィックスの先頭に右から左への方向マーク（U+200F）を書きます。
+
+### 増減
+
+| 入力 | 起きること |
+| --- | --- |
+| 上矢印、下矢印 | `step` だけ増減します |
+| Page Up、Page Down | `step` の 10 倍だけ増減します |
+| ステッパーを押す | 1 回増減します。押し続けると繰り返します。0.5 秒後から 1 秒に 10 回、その後は 1 秒に 20 回です |
+| Home、End、左矢印、右矢印 | テキストの中でキャレットを動かします |
+| ホイール、ドラッグ | 何も起きません。ページがスクロールします |
+
+増減は、`min` から（なければ 0 から）数えた `step` の目盛りの、次の数に進みます。`step` が 5 なら、12 は上に 15、下に 10 です。計算は 10 進で行うので、0.2 を 0.1 増やすと 0.3 になります。空のフィールドは、範囲が許す中で 0 に最も近い数になります。
+
+`step` は、1 回の増減でどれだけ進むかです。入力できる数は制限しません。`step` が 5 でも、入力した 12 は 12 のままです。特定の数だけを受け付けるには、値を検証して `error` を設定してください。
+
+### スライダーと並べる
+
+1 つの行見出しの下でスライダーの横に置く数値は、ボックスだけです。[数値入力欄](/ja/components/number-input/#スライダーと並べる)を単独で使い、入力欄の `label` で名前を付けます。サンプルは数値入力欄のページにあります。
+
+<ComponentSpecs name="number-field" />
+
+### Web での描き方の違い
+
+- 要素のシャドウルートには `<tanrei-field>` があり、その中に `<tanrei-number-input>` があります。数値フィールドをインポートすると、どちらも定義されます。
+- 数値フィールドは、フォームに関連付けられる要素で、フォームに加わるコントロールはこの要素だけです。`name` を受け取り、ロケールの表示にかかわらず、値を素の 10 進数（`12.5`）として送信します。リセットでは `value` 属性に戻ります。`requirement="required"` で値がない間は値の欠落を、テキストが数でない間は不正な入力を、フォームに報告します。
+- 置かれた場所の幅いっぱいに広がるブロックです。幅を与えない場所では、長いラベルがあるとボックスより広くなります。そこでは幅を与えてください。
+- パーツは構成要素のもので、名前も同じです。フィールドからは `label`、`label-icon`、`requirement-label`、`supporting-text`、数値入力欄からは `container`、`outline`、`active-indicator`、`input`、`prefix`、`suffix`、`stepper` です。`label` と `requirement-label` は、2 つのうち描かれているほうに届きます。`field-label` と `number-input-label` は、どちらか一方に届きます。2 つの構成要素は、パーツ `field` と `number-input` です。
+- `entryerror` の `detail.text` は入力欄の `invalidText` で、与えられていなければ空です。detail の型は数値入力欄のもので、`TanreiNumberInputInputDetail` と `TanreiNumberInputEntryErrorDetail` です。
+- `steppers` は逆の属性 `no-steppers` で、`readOnly` は `readonly` です。
+- `input` は `detail.value` を持つ CustomEvent です。`change` と `action` はただのイベントなので、`value` は要素から読みます。`action` をキャンセルしなければ、続けてフォームに送信を求めます。
+- `locale` がなければ、最も近い `lang` 属性、次にブラウザーの言語を読みます。
+- ロケールの小数点に加えて、桁区切りにピリオドを使わないロケールでは、ピリオドも小数点として読みます。
+- ページキーは、`step` 10 個分の目盛りで進みます。`step` が 2 なら、42 からの Page Up は 60 です。
+- iOS と iPadOS では、負の数を入力できる間、フィールドは通常のキーボードを求めます。小数用のキーパッドにマイナス記号がないためです。
+- 要素が定義されるまでは、大きさがありません。高さを確保してください。
+
+## ガイドライン
+
+### 数値フィールド、テキストフィールド、スライダー
+
+| 観点 | 数値フィールド | テキストフィールド | スライダー |
+| --- | --- | --- | --- |
+| 持つもの | 数値 | 任意のテキスト | 範囲の中の数値 |
+| 選び方 | 入力または増減 | 入力 | ドラッグ |
+| 向いている値 | 分かっている値 | 数量ではない数字 | 感覚で選ぶ値 |
+
+郵便番号、カード番号、電話番号、ワンタイムコードは数字ですが、数量ではありません。郵便番号に 1 を足す人はいません。これらには[テキストフィールド](/ja/components/text-field/)を使います。
+
+### 推奨
+
+- 何を数えるのかが分かるラベルを書き、フォームでは見えるようにしておきます。
+- 単位は `suffixText` に、通貨記号は `prefixText` に入れます。
+- サフィックスがうまく読み上げられない場合は `valueText` を与えます。`×` には「1.5 倍」のようにします。
+- `invalidText` には、何を入力すればよいかを書きます。「数値を入力してください。」のようにします。
+- 整数には `maxFractionDigits` を 0 にします。キーボードから小数点がなくなります。
+- `incrementLabel` と `decrementLabel` を、フィールドに書くか、`setWords()` でプロダクト全体に一度だけ渡します。Tanrei は言葉を同梱しません。名前のないステッパーも描かれ、ポインターでは増減できますが、支援技術からは隠されます。支援技術では、スピンボタン自身が増減するからです。
+
+### 非推奨
+
+- 数量ではない数字に数値フィールドを使わない。
+- `input` で保存しない。キーを打つたびに発火します。確定した値は `change` が運びます。
+- 利用者側で設定した値を `min` と `max` が修正するとは考えない。適用されるのは、ユーザーが確定したものです。
+- 単位を選ぶコントロールをフィールドの中に入れない。[セレクト](/ja/components/select/)を横に置きます。
+- 数値フィールドをフィールドの中に入れない。すでにフィールドです。フィールドが囲むコントロールは、[数値入力欄](/ja/components/number-input/)です。
+- 自分のラベルの下にボックスを置くために、数値フィールドのラベルを隠さない。数値入力欄を使います。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="number-field" />
+
+### コンポーネントが担うこと
+
+- 入力欄はスピンボタンです。名前は `label` で、描いても隠しても同じです。プレースホルダーが名前になることはありません。
+- 値は確定した数値で、範囲は `min` と `max` です。
+- 表示している補足テキストまたはエラーテキストが説明になります。フィールドが任意の間は `optionalText` も加わります。
+- `error` が true の間とテキストが数でない間は invalid、`requirement` が `required` の間は必須、また読み取り専用として伝えます。
+- フィールドにフォーカスがある間に現れたエラーは、1 回、控えめに読み上げます。数ではないテキストのエラーも同じです。
+- ステッパーは、`decrementLabel` と `incrementLabel` を名前とするボタンです。名前を与えられていないステッパーは、支援技術から隠します。矢印キーが入力欄から増減するので、フォーカス順には入りません。タッチで探索するユーザーは、ステッパーを見つけられます。
+- ステッパーを押してもフォーカスは動かないので、オンスクリーンキーボードは出てきません。
+- 入力メソッドが変換している間、フィールドは何も読まず、どのキーも扱いません。
+- ホイールが数値を変えることはありません。
+- フィールドのヒット領域は最小ターゲットを満たし、それぞれのステッパーもターゲットを満たします。
+- テキストを 200% にすると、ラベルと補足は折り返します。数値は 1 行のままで、スクロールします。
+- 強制カラーモードでは、フィールドに縁が付きます。エラーは、言葉と invalid の状態で伝わります。
+- 右から左のレイアウトでは、ステッパーとラベルが反転し、ステッパーは左端に来ます。数値とその単位は、単位自身の文字の書き方に従います。ラテン文字や記号の単位は数値の後ろに左から右へ、ページの文字で書いた単位は数値の左に来ます。読み上げられる内容は変わりません。
+
+Web での既知の制約：
+
+- Chromium は、数値を単位なしで読み上げます。値のテキストを入力欄のテキストから取り、フィールドが指定したものを使わないためです。単位が重要な場合は、ラベルに含めてください。
+- 幅 320 のウィンドウでテキストを 200% にすると、ステッパー、プレフィックス、長いサフィックスのあるフィールドは、ウィンドウより広くなります。持っているものより狭くはならないためです。その場合はステッパーをなくしてください。
+- 要素が定義されるまでは、何も描かれません。
+
+### 利用者側で行うこと
+
+- すべての数値フィールドに `label` を与えます。
+- `invalidText` はフィールドに書きます。`requiredText`、`optionalText`、`incrementLabel`、`decrementLabel` は、フィールドに書くか、`setWords()` でプロダクト全体に一度だけ渡します。Tanrei は言葉を同梱しません。足りない言葉は開発時に報告されます。[プロダクトの言葉](/ja/foundations/words/)を参照してください。
+- 値は利用者側で検証して `error` を設定し、`errorText` には数値の直し方を書きます。
+- スライダーと、その横の数値入力欄には、同じ名前を与えます。

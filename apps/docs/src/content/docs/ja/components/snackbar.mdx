@@ -1,0 +1,365 @@
+---
+title: スナックバー
+description: アプリがいま何をしたかを、画面の下端で短く伝えます。アクションは多くても 1 つで、フォーカスを奪わず、作業を中断させません。
+translationOf: components/snackbar.mdx
+sourceHash: f61661ae48c71d10693c9c317c171876ce5a19d1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="snackbar" />
+
+:::note[仕様は改訂済み、各プラットフォームは追従待ち]
+このページは、仕様の現在の形のスナックバーを説明しています。バーをスキームのサーフェスの上に、または反転（inverse）して描き、アクションは控えめな tonal になり、状態の種類は淡い色合いで描き、タイトルと長い文章の展開が加わりました。Web はこのすべてを描きます。上の表で Web が「追従待ち」のままなのは、反転した状態の種類の確認と、そのベースラインの記録が済んでいないためです。SwiftUI、Compose、Flutter、React Native は、それより前の版（テキストのアクション、状態の種類・タイトル・展開・`inverse` なし）を提供しており、追従するまで、それぞれのサンプルもその版を示します。デモは、現在提供している Web コンポーネントです。
+:::
+
+<DemoFrame label="その場に描いたもの：アクション付きのメッセージと、閉じるボタン付きのメッセージ" column>
+  <tanrei-snackbar message="会話をアーカイブしました" action="元に戻す"></tanrei-snackbar>
+  <tanrei-snackbar message="オフィスのプリンターに接続しました" closable close-label="閉じる"></tanrei-snackbar>
+</DemoFrame>
+
+### 使い方
+
+スナックバーは利用者側で配置するものではありません。ホストに表示を頼むと、ホストがキューに入れ、ホストの領域の下端に置き、時間切れを管理し、読み上げます。`show` は、そのスナックバーが閉じたときに結果を返します。アクションが実行されたなら `action`、そうでなければ `dismiss` と理由です。そのため「元に戻す」の処理を上から下へ順に書けます。
+
+| プラットフォーム | ホスト | 表示のしかた |
+| --- | --- | --- |
+| Web | `<tanrei-snackbar-host>`。ページの最後の要素として置きます | `host.show(options)`。Promise を返します |
+| SwiftUI | `TanreiSnackbarHost`。`.tanreiSnackbarHost(_:)` で付けます | `await host.show(message:…)` |
+| Compose | `TanreiSnackbarHost(hostState)`。コンテンツと同じ `Box` の最後に置きます | `hostState.showSnackbar(message, …)`。suspend 関数です |
+| Flutter | `TanreiSnackbarMessenger`。対象のページを包みます | `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(…))`。`closed` が Future のコントローラーを返します |
+| React Native | `TanreiProvider` がオーバーレイ層に描きます | `useSnackbar().show(options)`。Promise を返します |
+
+どのホストにも、表示中のスナックバーを閉じる `dismissCurrent` と、待っているものも破棄する `clear` があり、どちらも理由は `host` です。ホストの外で描いたスナックバーの要素は、その場に描かれ、ホストの中と同じく与えられた幅の中央に置かれます。時間切れ、キュー、登場の動き、読み上げのいずれもありません。上のデモのように、ドキュメントのページやテストのための形です。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- ページの最後に置きます。フォーカス順でのホストの位置に、スナックバーのコントロールが入ります。 -->
+    <tanrei-snackbar-host></tanrei-snackbar-host>
+
+    <script type="module">
+      import '@tanrei/web/components/snackbar';
+      const snackbars = document.querySelector('tanrei-snackbar-host');
+
+      async function archive() {
+        await archiveConversation();
+        // 閉じたときに { result: 'action' } か { result: 'dismiss', reason } で解決します。
+        const { result } = await snackbars.show({ message: '会話をアーカイブしました', action: '元に戻す' });
+        if (result === 'action') await restoreConversation();
+      }
+
+      // 状態の種類：グリフと、支援技術向けに言葉で表した状態。
+      snackbars.show({
+        status: 'error',
+        statusLabel: 'エラー',
+        title: 'メッセージを送信できませんでした',
+        message: 'オフラインです。メッセージは送信トレイに残ります。',
+        action: '再試行',
+        expandLabel: 'メッセージ全体を表示',
+      });
+
+      // デザインシステムの選択にかかわらず、反転して描きます。`inverse` を省くと、システムの選択に従います。
+      snackbars.show({ message: 'リンクをコピーしました', inverse: true });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useRef } from 'react';
+    import { SnackbarHost } from '@tanrei/react';
+    import type { TanreiSnackbarHost } from '@tanrei/web';
+
+    // ref は要素そのものです。show() はそのメソッドです。
+    const snackbars = useRef<TanreiSnackbarHost>(null);
+
+    async function archive() {
+      await archiveConversation();
+      const { result } = await snackbars.current!.show({ message: '会話をアーカイブしました', action: '元に戻す' });
+      if (result === 'action') await restoreConversation();
+    }
+
+    // 状態の種類と、メッセージの上のタイトル。
+    snackbars.current?.show({ status: 'error', statusLabel: 'エラー', title: 'メッセージを送信できませんでした', message: 'オフラインです。', action: '再試行' });
+
+    // デザインシステムの選択にかかわらず、反転して描きます。
+    snackbars.current?.show({ message: 'リンクをコピーしました', inverse: true });
+
+    // コンテンツの後ろ、ページの最後に置きます。
+    <SnackbarHost ref={snackbars} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    @State private var snackbars = TanreiSnackbarHost()
+
+    // 下端を使うビューにホストを付けます。シートではなくオーバーレイに描きます。
+    ContentView()
+        .tanreiSnackbarHost(snackbars)
+
+    // スナックバーが閉じたときに .action か .dismissed(reason) を返します。
+    // ホストを付けたビューが画面にない間は、表示の依頼はそのまま待ちます。
+    let result = await snackbars.show(message: "会話をアーカイブしました", actionLabel: "元に戻す")
+    if case .action = result { restoreConversation() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarHost
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarHostState
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarResult
+
+    // Material の SnackbarHostState と同じく、showSnackbar はスナックバーが閉じるまで中断します。
+    val snackbars = remember { TanreiSnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    Box(Modifier.fillMaxSize()) {
+        Content(onArchive = {
+            scope.launch {
+                when (snackbars.showSnackbar("会話をアーカイブしました", actionLabel = "元に戻す")) {
+                    TanreiSnackbarResult.ActionPerformed -> unarchive()
+                    is TanreiSnackbarResult.Dismissed -> Unit
+                }
+            }
+        })
+        // Box の最後に置くと、コンテンツより上に描かれ、フォーカス順でも最後になります。
+        TanreiSnackbarHost(snackbars, Modifier.fillMaxSize())
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // ScaffoldMessenger と同じ形です。ルートの中でページを包むと、上に開いたダイアログがスナックバーを覆います。
+    TanreiSnackbarMessenger(child: page);
+
+    Future<void> archive(BuildContext context) async {
+      await archiveConversation();
+      final TanreiSnackbarController snackbar = TanreiSnackbarMessenger.of(context).show(
+        const TanreiSnackbar(message: '会話をアーカイブしました', actionLabel: '元に戻す'),
+      );
+      // action、close、escape、timeout、host のいずれかで完了します。
+      if (await snackbar.closed == TanreiSnackbarClosedReason.action) {
+        await restoreConversation();
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useSnackbar } from '@tanrei/react-native';
+
+    // ホストは TanreiProvider のオーバーレイ層にあります。プロバイダーはアプリのルートに置きます。
+    const snackbar = useSnackbar();
+
+    async function archive() {
+      await archiveConversation();
+      const { result } = await snackbar.show({ message: '会話をアーカイブしました', actionLabel: '元に戻す' });
+      if (result === 'action') await restoreConversation();
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="折り返すメッセージと、次の行に回ったアクション" plain column>
+  <tanrei-snackbar message="変更は保存しましたが、オフラインだったため共有のコピーは更新できませんでした。" action="再試行"></tanrei-snackbar>
+  <tanrei-snackbar message="このフォルダーの上限より大きいため、3 つのファイルをアップロードできませんでした。" action="失敗したファイルを確認"></tanrei-snackbar>
+</DemoFrame>
+
+<ComponentSpecs name="snackbar" />
+
+## ガイドライン
+
+### 使う場面
+
+専用の画面を持たずに終わった操作について、その人がいま行ったことを確かめられるように使います。「会話をアーカイブしました」「リンクをコピーしました」「写真を保存しました」などです。それを取り消すか、続けて行うアクションを 1 つまで添えられます。
+
+スナックバーは報告するもので、問いかけるものではありません。2 つのアクションからの選択、作業を止めてしまうエラー、確認してもらう必要のあることは、ダイアログか、関係する場所のすぐ横に置きます。エラーの種類は、「メッセージを送信できませんでした」と「再試行」のように、あとから戻って対処できる失敗に使います。
+
+### スナックバーかダイアログか
+
+どちらもページの上に現れますが、役割は正反対です。
+
+| 観点 | スナックバー | [ダイアログ](/ja/components/dialog/) |
+| --- | --- | --- |
+| 役割 | すでに起きたことを報告します。 | 作業を先へ進める前に、判断や確認を求めます。 |
+| フォーカス | 動きません。その人は作業を続けられます。 | ダイアログの中へ移ります。後ろのページは操作できません。 |
+| 残る時間 | 数秒、またはアクションか閉じるボタンが使われるまで。 | その人が答えるまで。 |
+| アクション | 1 つまで。なくてもメッセージは完結しています。 | 問いかけへの答えです。 |
+
+メッセージを無視しても困ることが起きないなら、スナックバーです。答えがなければアプリが先へ進めないなら、ダイアログです。フィールドの入力の誤りのように、画面の一部分に属していて、見え続けている必要のあるメッセージは、どちらでもなく、その場所に置きます。たとえばフィールドの補足テキストです。
+
+### 構成要素
+
+| 要素 | 設定 | 補足 |
+| --- | --- | --- |
+| バー | `inverse` | 既定ではスキームの一段高いサーフェス、または反対のスキームの色です。[サーフェスの上か、反転か](#サーフェスの上か反転か)を参照してください。 |
+| 状態のグリフ | `status` と `statusLabel` | 省略できます。状態の種類では、文章の前にその状態のグリフを描きます。[状態の種類](#状態の種類)を参照してください。 |
+| タイトル | `title`（Web では `headline`） | 省略できます。メッセージの上に置く短い見出しで、メッセージと同じ大きさの太めの文字です。なければメッセージだけになります。 |
+| メッセージ | `message` | 必須です。1〜2 文の短いプレーンテキストで、全文が読み上げられます。タイトルがあるときは、その説明になり、タイトルより少し控えめに描きます。 |
+| アクション | `action`（ラベル） | 省略できます。「元に戻す」「表示」「再試行」など。tonal のボタンとして、バーから控えめに一段だけ離れたピルで描き、ラベルはバーの文章の色です。Button としてではなく、スナックバー自身のトークンで描きます。タイトルとメッセージの行を合わせて、その横で 3 行以上になるときや、ラベル自体が折り返すときは、次の行に回ります。 |
+| 展開ボタン | `expandLabel`、`expanded` | タイトルかメッセージが 3 行を超える間だけ描きます。`expandLabel` は「メッセージ全体を表示」のようなアクセシブルネームです。 |
+| 閉じるボタン | `closable` と `closeLabel` | 省略できます。閉じるまで残すメッセージや、早めに消したいこともあるメッセージに付けます。`closeLabel` はプロダクトの言語で書くアクセシブルネームです。 |
+
+アクション、展開ボタン、閉じるボタンは、文章の 1 行目の横に並びます。展開ボタンと閉じるボタンはアイコンだけのボタンで、アイコンセットの `expand_more`、`expand_less`、`close` のグリフを使い、ホバーや押下のときは円になります。
+
+### アクション
+
+アクションは、バーになじむ tonal のボタンです。コンテナはバーと同じ色で、その上にラベルの色をごく薄く重ねます。そのため、サーフェスの上でも反転でも、状態の種類があってもなくても、バーからの離れ方は同じ控えめな一段です。ラベルはバーの文章の色です。
+
+tonal なのは、たいてい「元に戻す」だからです。いま間違えた人が、ボタンがあることにすぐ気づけなければなりません。ラベルの文字だけでは、バーの上で見落とされがちです。
+
+**アクションを filled のボタンにしないでください。** filled のボタンが必要に思えるほど重要なアクションは、スナックバーに置くものではありません。スナックバーは消えてしまい、フォーカス順でも最後に届くからです。代わりに、画面のメインアクションから開く[ボトムシート](/ja/components/bottom-sheet/)に置きます。
+
+アクションの見た目は、プロダクトが変えることもできます。変えるときは、デザインシステムのレイヤでアクションの色のトークンと tonal の重ねの不透明度に別の値を与え、すべてのスナックバーに一度に適用します。スナックバーごとの variant はありません。Material と Cupertino のプリセットは、元のデザインにあるテキストのアクションを保つために、まさにこの方法を使っています。
+
+### 状態の種類
+
+| `status` | グリフ | 読み上げ | 用途 |
+| --- | --- | --- | --- |
+| `default` | なし | 控えめに | ほとんどのメッセージ。アプリがいま行ったこと。 |
+| `info` | `info` | 控えめに | その人の操作の結果ではないが、知っておく価値のあること。 |
+| `success` | `check_circle` | 控えめに | その人が待っていた作業が、うまく終わったこと。 |
+| `warning` | `warning` | 割り込んで | その人が対処しないと、うまくいかなくなりそうなこと。 |
+| `error` | `error` | 割り込んで | あとから戻って対処できる失敗。再試行や説明のアクションを添えます。 |
+
+<DemoFrame label="状態の種類：info、success、warning、error" column>
+  <tanrei-snackbar status="info" status-label="お知らせ" message="新しいバージョンをインストールできます。" action="再起動"></tanrei-snackbar>
+  <tanrei-snackbar status="success" status-label="成功" message="バックアップが完了しました" closable close-label="閉じる"></tanrei-snackbar>
+  <tanrei-snackbar status="warning" status-label="警告" headline="ストレージの空きがわずかです" message="残りの 200 MB を使い切ると、アップロードが止まります。" action="管理"></tanrei-snackbar>
+  <tanrei-snackbar status="error" status-label="エラー" headline="メッセージを送信できませんでした" message="オフラインです。メッセージは送信トレイに残ります。" action="再試行"></tanrei-snackbar>
+</DemoFrame>
+
+状態の種類では、バーをその状態の淡い色合いで描き、周りにその状態の色の細い線の縁を、文章の前にその色のグリフを描きます。縁は場所を取りません。default には独自の縁がなく、エレベーションが描く縁だけです。状態の種類を色だけで伝えることはありません。グリフの形で種類を見分けられ、`statusLabel` がプロダクトの言語で状態を言葉にします（「エラー」など）。このラベルはタイトルとメッセージより先に読み上げられます。warning と error は読み上げ中の内容に割り込み、ほかの種類は読み上げが終わるのを待ちます。
+
+### サーフェスの上か、反転か
+
+既定では、スナックバーをスキームの一段高いサーフェスの上に描きます。ダイアログと同じ、エレベーションで浮かせた明るいサーフェスで、文章はスキームの文字色です。反転して描くと、反対のスキームの色（ライトのスキームでは暗いバー）になり、どこに現れても周りから際立ちます。
+
+<DemoFrame label="反転して描いたもの：default と 4 つの状態の種類" plain column>
+  <tanrei-snackbar inverse message="会話をアーカイブしました" action="元に戻す"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="info" status-label="お知らせ" message="新しいバージョンをインストールできます。" action="再起動"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="success" status-label="成功" message="バックアップが完了しました" closable close-label="閉じる"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="warning" status-label="警告" headline="ストレージの空きがわずかです" message="残りの 200 MB を使い切ると、アップロードが止まります。" action="管理"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="error" status-label="エラー" headline="メッセージを送信できませんでした" message="オフラインです。メッセージは送信トレイに残ります。" action="再試行"></tanrei-snackbar>
+</DemoFrame>
+
+| `inverse` | 描き方 |
+| --- | --- |
+| 未設定（`null`、既定） | デザインシステムの選択に従います。既定のシステムはサーフェスを、`m3-like` プリセットは反転を選んでいます。 |
+| `true` | 反転して描きます。 |
+| `false` | サーフェスの上に描きます。反転を選んでいるシステムでも同じです。 |
+
+Web では、属性で 3 つのどれかを指定します。属性を書かなければ未設定、`inverse` は true、`inverse="false"` は false です。`show()` もオプションとして `inverse` を受け取ります。
+
+反転して描いた状態の種類は、もう一方のテーマでのその状態の種類と、要素の 1 つ 1 つまで同じです。ライトテーマで反転した info のバーは、ダークテーマが描く info のバーであり、文章、グリフ、縁、アクションもそのテーマのものです。ダークテーマではライトテーマのものになります。どのコントラストレベルでも同じです。そのため、反転した状態の種類は、プロダクトがほかの場所で描いていない色を使わず、グリフと縁はサーフェスの上と同じくらい鮮やかです。
+
+反転で変わるのは色だけです。大きさ、角、エレベーション、レイアウト、グリフ、動き、時間、読み上げ、キー操作は変わりません。反転は見た目であって、意味ではありません。メッセージが重要であることを伝えるために使わないでください。それを伝えるのは、状態の種類と `statusLabel` です。反転するかどうかは、プロダクト全体で一度だけ、デザインシステムのレイヤで決めることをおすすめします。そうすれば、どのスナックバーも同じ種類のメッセージに見えます。
+
+### 長い文章
+
+折りたたまれている間、タイトルとメッセージはそれぞれ 3 行までを表示し、切れたところを省略記号で終えます。そのとき、アクションと閉じるボタンの間に展開ボタンが現れます。展開ボタンを実行すると文章全体を表示し、新しい `expanded` の値とともに `toggle`（Web では `expandedchange`）を発火します。フォーカスはボタンに残り、スナックバーは閉じません。バーは下端を保ったまま上へ広がり、動きを減らす設定では瞬時に広がります。中身は上に揃えているので、バーが広がったり縮んだりする間も、グリフ、1 行目、その横のコントロールは上端からの距離を保ち、次の行に回ったアクションは下端からの距離を保ちます。コードから `expanded` を設定することもでき、そのときは何も発火しません。
+
+展開しても、ホストの使える高さに収まらないときは、バーがその高さになり、文章がバーの中でスクロールします。グリフとコントロールは動きません。文章が切れていてもいなくても、支援技術には常に全文が届きます。
+
+### 表示時間
+
+| `duration` | 自分から閉じるまでの時間 |
+| --- | --- |
+| `auto`（既定） | アクションがなければ `short`。アクションがあれば時間切れにならないので、誰も操作の途中で締め出されません（WCAG 2.2.1）。 |
+| `short` | 短い表示時間（既定のシステムでは 4 秒）で閉じます。 |
+| `long` | 長い表示時間（既定のシステムでは 10 秒）で閉じます。 |
+| `indefinite` | 人かコードが閉じるまで残ります。 |
+
+時間で閉じるスナックバーは、ポインターが上にある間、フォーカスが中にある間、展開している間、アプリが隠れているかバックグラウンドにある間、Tanrei のモーダルダイアログに覆われている間は止まり、再開するときは最初から数え直します。Android のアクセシビリティのタイムアウトのほうが長ければそちらを使い、スクリーンリーダーが動いている間はアクション付きのスナックバーが時間切れになることはありません。アクション付きのスナックバーを時間で閉じるなら、メニューの「元に戻す」のように、同じアクションをほかの場所にも用意します。デバッグビルドがそのことを知らせます。
+
+### 表示、フォーカス、閉じる
+
+スナックバーは読むためのオーバーレイです。人はメッセージを受け取るだけなので、表示してもフォーカスは動きません。
+
+- **一度に 1 つ。** ホストは頼まれた順にスナックバーを表示します。次のものは、前のものがフェードアウトし終えるまで待ちます。Tanrei のモーダルダイアログが開いている間に頼まれたものは、ダイアログが閉じるまで待ちます。
+- **配置。** 下端の中央に、下端と左右から余白を空けて、セーフエリアの内側、オンスクリーンキーボードより上に置きます。領域のコンテンツより上、モーダルダイアログとそのスクリムより下に描きます。
+- **読み上げ。** 現れたときに、支援技術が状態のラベル、タイトル、メッセージを 1 回読み上げ、続けてアクションのラベルを読みます。ふだんは控えめに、読み上げ中の内容の後に、warning と error では割り込んで読み上げます。キーボードのフォーカスもスクリーンリーダーのフォーカスも動かしません。
+- **フォーカス。** アクション、展開ボタン、閉じるボタンには、フォーカス順でのホストの位置で Tab で届きます。ホストを最後に置くのはこのためです。バー自体は Tab で止まる位置ではありません。ただし、展開したバーの文章がスクロールする間は、その文章が止まる位置になります。
+- **閉じる。** アクションが実行されると閉じ（`action`）、そうでないときは次の理由とともに閉じます（`dismiss`）。
+
+| 理由 | いつ |
+| --- | --- |
+| `close` | 閉じるボタンが実行されたとき。 |
+| `escape` | フォーカスがスナックバーの中にあるときに Escape が押されたとき。 |
+| `timeout` | `short` か `long` のスナックバーの時間が切れたとき。 |
+| `host` | コードが閉じたとき、またはキューを空にしたとき。 |
+
+- **フォーカスが戻る。** フォーカスが中にあるときにスナックバーが閉じると、フォーカスはスナックバーに入る前の要素へ戻ります。
+- **動き。** 下端の下から浮き上がりながらフェードインし、その場でフェードアウトします。動きを減らす設定では動かずにフェードし、すべてのアニメーションを取り除く Android の設定では瞬時に表示と非表示を切り替えます。
+
+### 推奨
+
+- 何が起きたかを過去形で書きます。「メッセージを送信しました」「3 つのファイルを移動しました」。
+- アクションには、そのメッセージの後に期待される短い動詞を使います。「元に戻す」「表示」「再試行」。
+- 起きたことに合う状態の種類を選び、状態の種類には必ず `statusLabel` を付けます。
+- スナックバーをサーフェスの上に描くか反転して描くかは、プロダクト全体で一度だけ決めます。
+- 展開ボタンがめったに要らないくらい、文章を短く保ちます。
+- 理由がない限り、既定の `auto` のままにします。アクションの途中で誰かを締め出すことがありません。
+- ホストはページやレイアウトの最後に置き、そのコントロールがフォーカス順で最後になるようにします。
+
+### 非推奨
+
+- 作業を止めるエラーや問いかけにスナックバーを使わない。ダイアログを使います。
+- アクションを 2 つ入れない。入るのは 1 つだけです。
+- アクションを filled のボタンにしない。filled が必要に思えるアクションをスナックバーに置かない。メインアクションから開くボトムシートを使います。
+- 日常的な確認に warning や error を使わない。スクリーンリーダーの読み上げに割り込みます。
+- 重要であることを示すために、スナックバーを反転して描かない。反転で変わるのは色だけです。どんな種類のメッセージかは、状態の種類が伝えます。
+- 画面ですでにはっきり分かることを、スナックバーで知らせない。
+- スナックバーやそのアクションにフォーカスを移さない。人を作業から引き離してはいけません。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="snackbar" />
+
+### コンポーネントが担うこと
+
+- スナックバーはライブリージョンで読み上げます。default、info、success は控えめなライブリージョン（Web では status ロール）、warning と error は割り込むライブリージョン（alert ロール）です。現れたときに、状態のラベル、タイトル、メッセージ、続いてアクションのラベルを 1 回読み上げます。文章が切れていても、読み上げるのは常に全文です。SwiftUI、Compose、Flutter、React Native ではプラットフォームの読み上げの仕組みを使い、warning と error では優先度を上げます。どれもフォーカスを奪いません。
+- 状態の種類を色だけで伝えることはありません。状態のグリフを描き、`statusLabel` をタイトルの前のテキストとして伝えます。グリフ自体は支援技術から隠し、展開と閉じるのグリフも同じく隠します。
+- アクションはラベルを、展開ボタンは `expandLabel` を、閉じるボタンは `closeLabel` を名前とします。どれもフォーカス順でのホストの位置で Tab で届き、Enter か Space で実行できます。
+- 展開ボタンは、展開しているかどうかを伝え、どちらの状態でも名前は変わりません。展開したバーの文章がスクロールするときは、文章はフォーカスが止まる位置になり、タイトルを名前とし、矢印キーと Page Up・Page Down でスクロールできます。
+- フォーカスが中にあるときに Escape を押すと閉じます。フォーカスが中にあるまま閉じると、フォーカスは元の場所へ戻ります。
+- 既定では、アクション付きのスナックバーは時間切れになりません。時間で閉じるものは、ホバー、フォーカス、展開の間は止まり、Android のアクセシビリティのタイムアウトまで延び、アクション付きならスクリーンリーダーが動いている間は時間切れになりません。
+- アクションと閉じるボタンは、描く大きさを変えずに、縦横ともに最小ターゲットを満たします。フォーカスリングはキーボードフォーカスのときだけ、スナックバーの種類に合わせた色で表示します。サーフェス、状態の色合い、反転のどのバーの上でも見えます。
+- 控えめに描く要素も、既定のシステムのすべてのスキームで、バーに対するコントラストを保ちます。状態のグリフは 3:1 以上、タイトルの下のメッセージは 4.5:1 以上、高コントラストのスキームでは 7:1 以上です。控えめにするのは色だけで、支援技術が読む内容は変わりません。反転して描いても同じです。
+- 文字を大きくしても、文章が見えなくなったままになることはありません。折りたたんだタイトルやメッセージは 3 行で省略記号で終わり、展開ボタンで残りを表示できます。アクションは次の行に回り、展開したバーが画面より高ければ中でスクロールします。
+- アイコンフォントが読み込まれる前に、グリフの名前がテキストとして描かれることはありません。フォントが描けるようになるまで、グリフの場所は空のままです。
+- 空のメッセージ、`closeLabel` のない閉じるボタン、`statusLabel` のない状態の種類、`expandLabel` のない展開ボタン、時間で閉じるアクション付きのスナックバーは、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- Web：ブラウザーはスクリーンリーダーが動いているかを伝えず、アクセシビリティのタイムアウトもないので、時間で閉じるスナックバーをどちらによっても延ばしません。アクションに確実に届くようにしているのは、既定の `auto` の表示時間です。
+- Web：オンスクリーンキーボードを避けることは、キーボードのある実機ではまだ確かめていません。
+- SwiftUI は、フォーカスを前にあった要素へ戻せません。フォーカスが中にあるままスナックバーが閉じると、取り除かれたビューに対して SwiftUI が移す先へフォーカスが移ります。利用者側の `NSHostingView` のように、シーンの外で表示しているビューのホストでは、タイムアウトが進みません。
+- Compose は、フォーカスがスナックバーに入る前にどの要素にあったかを知ることができません。フォーカスを持ったままスナックバーが閉じると、フォーカスは入ってきた方向へ戻ります。Tab で入った場合は、ホストの前の要素です。フォーカスが中にある間にコードが閉じたときは、フォーカスは動きません。
+- Compose：Android のアクセシビリティのタイムアウトまで延ばすことと、ウィンドウが隠れている間に止めることは、まだテストで確かめていません。
+- Compose：控えめな読み上げ、ウィンドウにフォーカスがない間の一時停止、アクセシビリティのタイムアウトは、Robolectric でしか確かめておらず、実機ではまだ確かめていません。
+- Flutter は、時間で閉じるスナックバーを Android のアクセシビリティのタイムアウトまでは延ばしません。Flutter はこの値を公開していないためです。
+- React Native は、フォーカスが前にどの要素にあったかを知ることができません。フォーカスが中にあるままスナックバーが閉じると、フォーカスはプラットフォームが決めた場所へ移ります。
+- React Native には、セーフエリアを知るための独自の API がありません。スナックバーがセーフエリアの内側に収まるのは、`TanreiProvider` にウィンドウのインセットを渡したときだけです。渡さないと、ホームインジケーターのある端末では一部がそれに重なることがあります。
+- React Native は、アクションを別の行に回すかどうかをレイアウト後の行から決めるので、別の行に回るのは最初のレイアウトの後になります。
+- React Native：控えめな読み上げ、キーボードより上に保つこと、バックグラウンドとポインターでの一時停止は、実機ではまだ確かめていません。
+
+### 利用者側で行うこと
+
+- メッセージは、読み上げられたときにそれだけで意味が通るプレーンテキストで書きます。
+- 閉じるボタンには `closeLabel` を、状態の種類には `statusLabel` を、文章が長くなりうるスナックバーには `expandLabel` を、どれもプロダクトの言語で付けます。
+- ホストはページの最後に、Compose ではレイアウトの最後に置きます。
+- React Native では、スナックバーがシステムバーにかからないように、`TanreiProvider` にウィンドウの `insets` を渡します。
+- アクション付きのスナックバーに `short` や `long` を選ぶなら、同じアクションを時間切れのない場所にも用意します。
+- 人が必ず対応しなければならないことは、スナックバーではなくダイアログで伝えます。

@@ -1,0 +1,337 @@
+---
+title: File item
+description: Shows one file — a glyph that says its format or a small picture of it, its name, and what the product says of it — with the actions to remove it and to try it again, as a row of a column of files or as a tile of a strip of pictures. It can be pressed to open the file. It never reads, keeps or sends the file itself.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import Callout from '../../../components/Callout.astro';
+import ListReorderProduct from '../../../components/ListReorderProduct.astro';
+import { demoPicture } from '../../../lib/demo-picture';
+
+## Overview
+
+<ComponentAvailability name="file-item" />
+
+<DemoFrame label="One file as a row, and files as tiles" column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="Remove"></tanrei-file-item>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="Remove"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="Remove"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+A file item is one file, shown. Before its name stands a glyph that says the file's format, or a small picture of the file. Below its name is one line with what your product says of it: its format, its size, where its sending stands, or what went wrong. At its end are the two actions a file has: remove it, and try it again.
+
+It has two forms:
+
+- `row`, the default: one line across the width its place gives. For a column of files.
+- `tile`: a box of a width and a height you give, with the name beneath it. For a strip of pictures.
+
+<Callout type="caution" title="It shows, and does nothing else">
+A file item reads no byte of a file, keeps no file and sends nothing. It removes nothing either: its remove action tells you that the person asked, and you take the item out. What it shows is what its props say.
+</Callout>
+
+**Used in** the [file upload](/components/file-upload/), where every chosen file is a file item. Use it by itself wherever your product shows files that it holds: the attachments of a message, the documents of a record, the files of a request that was already sent.
+
+Use something else when:
+
+- People choose files and you list them. That is a [file upload](/components/file-upload/), which holds file items for you.
+- People put the files in an order. That is a [list](/components/list/) whose rows show the files; see [Files in an order people change](#files-in-an-order-people-change).
+- People select among files. That is a [list](/components/list/) with a selection. A file item has no selected state.
+- The picture is the content, to be looked at. A file item's picture stands where a glyph would and has no alternative text.
+
+On the web it is `<tanrei-file-item>`. The other platforms have not implemented it yet.
+
+### Usage
+
+Give `name`, and the texts you have. `value` is what `click`, `remove` and `retry` give back to you.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <ul class="attachments" aria-label="Attachments">
+      <li>
+        <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 KB"
+                          href="/files/brief.pdf" remove-label="Remove"></tanrei-file-item>
+      </li>
+      <li>
+        <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB"
+                          status="uploading" status-text="Uploading" progress="0.4"
+                          remove-label="Remove" retry-label="Try again"></tanrei-file-item>
+      </li>
+    </ul>
+
+    <script type="module">
+      import '@tanrei/web/components/file-item';
+
+      const list = document.querySelector('.attachments');
+      // A file item never removes itself. You take it out, stop sending the file, and move focus.
+      list.addEventListener('remove', (event) => {
+        cancel(event.detail.value);
+        event.target.closest('li').remove();
+      });
+      list.addEventListener('retry', (event) => send(event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FileItem } from '@tanrei/react';
+
+    <ul aria-label="Attachments">
+      {files.map((file) => (
+        <li key={file.id}>
+          <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
+            status={file.status} statusText={file.statusText} progress={file.progress}
+            errorText={file.errorText} retryable={file.retryable}
+            removeLabel="Remove" retryLabel="Try again"
+            onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
+        </li>
+      ))}
+    </ul>
+    ```
+  </TabItem>
+</Tabs>
+
+`removeLabel` and `retryLabel` can be given once for the whole product with `setWords()`. Every other text is the instance's.
+
+## Specs
+
+<DemoFrame label="A row in each status: waiting, sent to 40%, under way, done, failed and retryable, failed for good" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="Waiting" remove-label="Remove"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="Uploading" progress="0.4" remove-label="Remove"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="Uploading" remove-label="Remove"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="Uploaded" remove-label="Remove"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="The connection was lost." retryable remove-label="Remove" retry-label="Try again"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="Larger than 10 MB." remove-label="Remove"></tanrei-file-item>
+</DemoFrame>
+
+<ComponentSpecs name="file-item" />
+
+## Guidelines
+
+### Two forms
+
+<DemoFrame label="The same three files as rows and as tiles" plain column>
+  <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="Remove"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="Remove"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" preview remove-label="Remove"></tanrei-file-item>
+  </div>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="Remove"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="Remove"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="Remove"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| Aspect | `row` (the default) | `tile` |
+| --- | --- | --- |
+| Use it for | A column of files of any kind. | A strip of pictures. |
+| Width | The width its place gives. | The box's: `width`, never wider than its place. |
+| The glyph or the picture | Before the name. With `preview`, a small square. | The whole box, `width` by `height`. |
+| The name | Wraps, and is never cut. | One line beneath the box, cut in the middle so that its ending stays. |
+| The second line | Below the name. | Beneath the box, wrapping inside its width. |
+| The bar | Beneath the texts. | Along the bottom edge of the box. |
+| The actions | At the end: retry, then remove. | In the box, at its top end corner. |
+
+`width` and `height` are numbers, read in the tile form alone. Without `height` the box is as high as the token `comp.file-item.tile.media.height` says; without `width` it is square. Choose the proportion of the pictures you have: `width="160" height="90"` for screenshots, a square for portraits of people. A box is never narrower than its two actions need.
+
+There is no third, compact form. A file on one line is a row with nothing on its second line.
+
+### What is shown
+
+Each part is shown when you give it. Two on-off props, `preview` and `nameHidden`, change what is shown. No prop lists the parts to show.
+
+| Part | Shown when |
+| --- | --- |
+| The glyph | Always, where no picture is drawn. |
+| The picture | `preview` is set, and there is a picture to draw. |
+| The name | Always in a row. In a tile, except when `nameHidden` is set and a picture is drawn. |
+| The format in words | You give `formatText`. Tanrei has no word for a format. |
+| The size | You give `sizeText`, formatted for the reader's language. |
+| The status in words | You give `statusText`. |
+| The error | `status` is `error` and you give `errorText`. It stands in the status's place, in every form, and is never cut. |
+| The bar | `status` is `uploading`. Filled to `progress`, or indeterminate while `progress` is not set. |
+
+A done file and a failed file have a mark before the words of their status: a check, and an error mark. The glyph before the name does not change with the status. A person learns one place for each: before the name, what the file is; before the status, how it stands.
+
+`nameHidden` is for a dense strip of pictures. It hides the name only behind a picture that is drawn. A tile that shows a glyph keeps its name, because a format's glyph does not tell two files of one format apart. The name stays the item's name for assistive technology in every case.
+
+### The glyph says the format
+
+There are ten kinds of glyph. Each kind has a list of media types and a list of file extensions. The glyph is chosen from `mediaType`. Where the media type is empty, is `application/octet-stream` or is on none of these lists, it is chosen from the extension of `name`. The kinds are matched in this order. The lists are fixed and the same on every platform, so one file draws one glyph wherever it is shown.
+
+<DemoFrame label="The ten kinds" plain column>
+  <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
+    <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
+    <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
+    <tanrei-file-item name="kickoff.pptx" readonly></tanrei-file-item>
+    <tanrei-file-item name="photos.zip" readonly></tanrei-file-item>
+    <tanrei-file-item name="tokens.json" readonly></tanrei-file-item>
+    <tanrei-file-item name="entrance.jpeg" readonly></tanrei-file-item>
+    <tanrei-file-item name="walkthrough.mp4" readonly></tanrei-file-item>
+    <tanrei-file-item name="interview.mp3" readonly></tanrei-file-item>
+    <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
+    <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| Kind | Glyph | Media types | Endings |
+| --- | --- | --- | --- |
+| pdf | `picture_as_pdf` | `application/pdf` | pdf |
+| spreadsheet | `table` | `text/csv`, `text/tab-separated-values`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `application/vnd.oasis.opendocument.spreadsheet`, `application/vnd.apple.numbers`, `application/x-iwork-numbers-sffnumbers` | xls, xlsx, ods, numbers, csv, tsv |
+| presentation | `slideshow` | `application/vnd.ms-powerpoint`, `application/vnd.openxmlformats-officedocument.presentationml.presentation`, `application/vnd.oasis.opendocument.presentation`, `application/vnd.apple.keynote`, `application/x-iwork-keynote-sffkey` | ppt, pptx, odp, key |
+| archive | `folder_zip` | `application/zip`, `application/x-zip-compressed`, `application/x-tar`, `application/gzip`, `application/x-gzip`, `application/x-bzip2`, `application/x-xz`, `application/x-7z-compressed`, `application/vnd.rar`, `application/x-rar-compressed` | zip, tar, gz, tgz, bz2, xz, 7z, rar |
+| code | `code` | `text/html`, `text/css`, `text/javascript`, `application/javascript`, `application/x-javascript`, `text/typescript`, `application/typescript`, `text/jsx`, `text/tsx`, `application/json`, `application/xml`, `text/xml`, `text/yaml`, `text/x-yaml`, `application/yaml`, `application/x-yaml`, `application/x-sh`, `text/x-sh`, `text/x-shellscript`, `text/x-python`, `text/x-script.python`, `text/x-ruby`, `application/x-ruby`, `text/x-go`, `text/x-rust`, `text/x-java`, `text/x-java-source`, `text/x-kotlin`, `text/x-swift`, `text/x-c`, `text/x-chdr`, `text/x-csrc`, `text/x-c++`, `text/x-c++src`, `text/x-csharp`, `text/x-php`, `application/x-php`, `application/x-httpd-php`, `application/sql`, `text/x-sql` | html, css, js, mjs, ts, tsx, jsx, json, xml, yaml, yml, sh, py, rb, go, rs, java, kt, swift, c, h, cpp, cs, php, sql |
+| image | `image` | Every type that begins with `image/` | png, jpg, jpeg, gif, webp, avif, svg, bmp, tif, tiff, heic, heif, ico |
+| video | `movie` | Every type that begins with `video/` | mp4, mov, m4v, webm, mkv, avi |
+| audio | `music_note` | Every type that begins with `audio/` | mp3, wav, m4a, aac, ogg, oga, flac, opus |
+| document | `description` | Every other type that begins with `text/`, and `application/rtf`, `application/msword`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `application/vnd.oasis.opendocument.text`, `application/vnd.apple.pages`, `application/x-iwork-pages-sffpages` | txt, md, rtf, doc, docx, odt, pages |
+| other | `draft` | — | Everything else, and a name without a dot |
+
+- The media type decides before the ending does. A file whose media type is on a list is that kind whatever its name ends with.
+- The file is never opened to learn its format.
+- For a format of your own, name a glyph of the icon set with `glyph`, or put your own in the `icon` slot.
+- Every glyph has one color. A format has no color of its own: a color means one thing wherever it is used, and a format is not a status.
+- Say the format in words with `formatText` where it matters. The glyph is hidden from assistive technology.
+
+### The preview, and what it costs
+
+`preview` draws a picture of the file in the glyph's place. It has two sources:
+
+- `previewSrc`: the address of a small version of the file that your server made. It is drawn for a file of any format.
+- The file itself, where `previewSrc` is empty and the file is an image. On the web you set the `file` property to the `File`.
+
+`fit` says how the picture fills its box. `cover`, the default, fills the box and cuts what does not fit; use it for photographs. `contain` shows the whole picture on the box's ground; use it for scans, signatures and diagrams, where the edges matter.
+
+<DemoFrame label="A box of 160 by 90: cover, contain, and the name hidden" plain>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="Remove"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="Remove"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="Remove"></tanrei-file-item>
+</DemoFrame>
+
+What a preview costs:
+
+| The picture comes from | What it costs |
+| --- | --- |
+| With `preview` off, the default | Nothing. A hundred file items cost what their texts cost. |
+| With `previewSrc` | One image request for each item, made by the platform's own image loading. |
+| With the file itself | One address for the file, made by the item when it first comes into or near view, and released when the item leaves the page, when you give it another file or none, and when the preview is no longer asked for. The platform's image decoder reads the file to draw it. The item reads nothing itself. |
+
+- Only images are drawn from the file. A frame of a video or a page of a document would mean opening and reading the file, which no Tanrei component does. Give `previewSrc` for those.
+- Until the picture can be drawn, and if it cannot be, the format's glyph is drawn. There is no spinner and no broken-picture mark, and `status` is not touched: a thumbnail that did not load is not the file's failure.
+- The picture has no alternative text. It stands where the glyph stood, and the file is named by `name`.
+
+### Pressable, a link, or read-only
+
+By default the body of a file item takes no focus and answers nothing. The item only holds its actions.
+
+<DemoFrame label="A body that is a button, a link that opens in a new tab, and a read-only file" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="Remove"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#pressable-a-link-or-read-only" target="new" target-label="opens in a new tab" remove-label="Remove"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="Sent on 4 December" readonly></tanrei-file-item>
+</DemoFrame>
+
+| Prop | The body is | Use it for |
+| --- | --- | --- |
+| `interactive` | A button. It emits `click` with `value`. | Opening the file where the person is: a picture in a viewer of your own, a document in a panel. |
+| `href` | A link to the file. It emits `click` first; cancel it to take the navigation yourself. | A file your server already has. With `target="new"`, give `targetLabel`. |
+| Neither | Not pressable. | A file that is only listed. |
+
+The body is the glyph or the picture, and the texts. The actions stand beside it and are never inside it, so a pressable file item has three stops at most: the body, retry, remove.
+
+`readOnly` draws neither action and keeps no room for them. Use it for the files of a record that is only read. The body can still be pressed.
+
+`disabled` disables the actions and the body. What the item shows stays as it is and stays readable.
+
+### Files in an order people change
+
+A file item has no handle, no move buttons and no order. Reordering belongs to the [list](/components/list/). Show each file as a row of a reorderable list: the name as the headline, the size as the supporting text, a glyph or a picture in the leading place, and a button of your own to remove it in the trailing place.
+
+<ListReorderProduct />
+
+<DemoFrame label="Files in an order people change: a reorderable list whose rows show the files" plain>
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="Move up" move-down-label="Move down" moved-text="{headline} moved to position {position} of {count}" style="inline-size: 26rem">
+    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="Remove cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="resume.docx" supporting-text="Document · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="Remove resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="portfolio.zip" supporting-text="Archive · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="Remove portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+```html
+<tanrei-list reorder="buttons" move-up-label="Move up" move-down-label="Move down"
+             moved-text="{headline} moved to position {position} of {count}">
+  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
+    <tanrei-button slot="trailing" variant="text" label="Remove cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
+  </tanrei-list-item>
+  …
+</tanrei-list>
+```
+
+This draws the list's row and not the file item: you name the glyph yourself, and a row has no bar and no status mark. The list moves the rows, announces each move and keeps focus; see [Reordering](/components/list/#reordering) on the list's page. A file item as the content of a list's row, and a strip of tiles in an order people change, are not built.
+
+### Words
+
+The file item has no words of its own. Two can be given once for the whole product with `setWords()`; every other text is a prop of the instance.
+
+| Prop | Key of the product's words | Without it |
+| --- | --- | --- |
+| `removeLabel` | `removeLabel` | The remove action is drawn and has no name. A debug build reports it. |
+| `retryLabel` | `retryLabel` | The retry action is drawn and has no name. A debug build reports it. |
+
+Each action is described by its file's name. One word, "Remove", is enough for every file: a person hears "Remove, button, brief.pdf".
+
+### Right to left
+
+In a right-to-left layout the glyph or the picture stands at the right and the actions at the left, with remove outermost; a bar fills from the right, and a tile's actions are at its top left corner. A picture is never mirrored. A file name in Latin letters keeps its own order, with its dot and its extension. Of the ten format glyphs only the one for `other` is mirrored, because the icon set marks it.
+
+### Do
+
+- Give `statusText` to a done file and `errorText` to a failed one. A status is never told by a mark or a color alone.
+- Set `retryable` only for a failure that trying again may cure. A file that is too large will be too large again.
+- Format the size yourself. Whether a megabyte is 1000 or 1024 kilobytes is your product's decision.
+- Put file items that belong together in a list of your own, a `<ul>` with a name, or in a file upload.
+- Move focus yourself after you remove an item. Alone, a file item cannot know what stands next to it.
+
+### Don't
+
+- Don't expect the item to remove itself, to change its status or to move its bar. It draws what you set.
+- Don't use `nameHidden` for files that are not pictures. Their tiles keep the name anyway.
+- Don't put a menu, a checkbox or a caption inside it. Its one slot is the glyph. Further actions on a file stand beside the item.
+- Don't use it as the row of a list people select from or reorder. That is the list's row.
+
+## Accessibility
+
+<ComponentAccessibility name="file-item" />
+
+### What the component handles
+
+- Alone, a file item is a group named by the file's name. In a file upload it is an item of the upload's list.
+- A pressable body is one button or one link, named by the file's name and described by the second line. It comes before the actions in the focus order. A link is activated by Enter and not by Space, and a link that opens in a new tab says `targetLabel` after its name.
+- The actions are buttons named by `removeLabel` and `retryLabel` and described by the file's name. Retry comes before remove.
+- The bar is a progress bar named by the file. An error is the text of the second line, read in the status's place.
+- The glyph, the picture and the status mark are hidden from assistive technology. The words say what they show.
+- A file item announces nothing. Whoever holds many of them has one live region for them all, as the file upload has.
+- The whole name always reaches assistive technology, also where a tile cuts it and where `nameHidden` hides it.
+- At 200% text a row wraps and loses nothing. A tile's box keeps its size and its texts grow beneath it.
+- In forced colors the box and a tile's action discs keep an edge, and the bar stays visible. A picture is left as it is.
+- Color changes between states are animated over a short time, and happen at once where motion is reduced.
+
+Known gaps on the web:
+
+- A picture that moves, such as an animated GIF, is played by the browser's image element. The file item cannot hold it still. Give a still version of the picture as `previewSrc` where that matters.
+- Before the element is defined nothing is drawn, because the name is an attribute and not text in the document. A page that must list files where script does not run writes its own links.
+
+### What you need to do
+
+- Give `name`, always.
+- Give `removeLabel` and `retryLabel`, on the element or once with `setWords()`.
+- Say every status and every failure in words: `statusText` and `errorText`.
+- With `target="new"`, give `targetLabel`.
+- Give a group of file items a list and a name of your own, and announce what was added, finished or failed in one live region of your own. A file upload does both for you.
+- After removing an item, move focus to the next file's remove action, or to what added the files.

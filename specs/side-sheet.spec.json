@@ -1,0 +1,569 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "side-sheet",
+  "title": "Side sheet",
+  "summary": "Shows supplementary content or a secondary task in a panel at the end edge, beside the content on a wide screen or over it on a compact one, with a headline, an optional close button and actions: optional beside the content, at least one over it.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The panel at the end edge, the full height of its parent (standard) or of the window (modal). Standard: part of the layout. Modal: above the content, the corners that face the content rounded. Its color reaches under the system insets at its end, top and bottom."
+    },
+    {
+      "id": "outline",
+      "description": "The start edge of a standard sheet, which sets it apart from the content beside it."
+    },
+    {
+      "id": "scrim",
+      "description": "Dims everything behind a modal sheet; a press on it asks the sheet to close.",
+      "optional": true
+    },
+    {
+      "id": "header",
+      "description": "The row at the top that holds the headline and the close button. It stays in place while the content scrolls.",
+      "optional": true
+    },
+    {
+      "id": "headline",
+      "description": "What the sheet is about (\"Filters\"). It is the sheet's accessible name.",
+      "optional": true
+    },
+    {
+      "id": "close-button",
+      "description": "An icon-only Button of the medium size showing the close glyph at the end of the header, in the variant comp.side-sheet.close-button.variant names (tonal in the default system). The sheet places it and chooses its variant; everything else it reads from Button's own tokens.",
+      "optional": true
+    },
+    {
+      "id": "content",
+      "description": "Whatever the product puts in the sheet. The sheet insets it, hands it a content color and scrolls it between the header and the actions; it does not lay it out."
+    },
+    {
+      "id": "divider",
+      "description": "Hairlines across the sheet: above the actions, drawn while there are actions; and below the header, drawn while the content is scrolled away from its top.",
+      "optional": true
+    },
+    {
+      "id": "actions",
+      "description": "Tanrei Buttons at the bottom of the sheet, each marked confirming or dismissive, laid out as a full-width Button group: a row the actions share equally, or a column when they do not fit. A Button whose variant the product did not set is tonal in the default system. At least one in a modal sheet; optional in a standard one.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "standard",
+        "modal"
+      ],
+      "default": "standard",
+      "description": "Standard sits beside the content and takes its width in the layout (a layout region); modal slides over the content with a scrim and holds focus until it closes (a modal overlay). One product uses both: standard where the window is wide enough, modal where it is not. A design system may add values.",
+      "axis": "tanrei.comp.side-sheet.variant"
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the sheet is shown: for a standard sheet, whether it takes its place in the layout; for a modal one, whether it is presented. The product opens it, and closes it in answer to close; on SwiftUI, where it is a binding, the sheet writes false itself."
+    },
+    {
+      "name": "headline",
+      "type": "string",
+      "default": "",
+      "description": "What the sheet is about, drawn in its header and used as its accessible name. Required."
+    },
+    {
+      "name": "closable",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the close button at the end of the header. A standard sheet has no other way for the person to close it, so give it one unless the product's own control or one of its actions closes it."
+    },
+    {
+      "name": "closeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The close button's accessible name (\"Close filters\"). Required while closable is true.",
+      "words": "closeLabel"
+    }
+  ],
+  "items": [
+    {
+      "name": "action",
+      "summary": "One action at the foot of the sheet: a Tanrei Button, placed by the sheet as a full-width Button group places its items and given the sheet's variant unless the product set one.",
+      "component": "button",
+      "props": [
+        {
+          "name": "variant",
+          "type": "string",
+          "default": "",
+          "description": "The Button's variant (filled, tonal, elevated, outlined, text, or one a system added). Empty, the default: the sheet gives it the variant comp.side-sheet.actions.variant names, tonal in the default system (SSH-17). Set it to give one action another look."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's disabled. A disabled action keeps its place and its share of the width."
+        },
+        {
+          "name": "confirming",
+          "type": "boolean",
+          "default": false,
+          "description": "The action completes the task (Apply, Save, Show results). Placed at the end of a row and at the top of a column (BGR-13, BGR-14). It decides the place only, never the look (BGR-19)."
+        },
+        {
+          "name": "dismissive",
+          "type": "boolean",
+          "default": false,
+          "description": "The action backs out of the task (Cancel, Discard changes). Placed at the start of a row and at the bottom of a column (BGR-13, BGR-14). It decides the place only, never the look (BGR-19)."
+        }
+      ],
+      "slots": [
+        {
+          "name": "label",
+          "description": "The Button's label, as its default slot. A fixture item's content is this label."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The action was activated, as the Button's click. The sheet does not close by itself (SSH-18)."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The content, below the header. A fixture's content string is plain text, which takes sys.typescale.body in the content color (SSH-10)."
+    },
+    {
+      "name": "actions",
+      "description": "The action items: Tanrei Buttons, each marked confirming or dismissive; at least one in a modal sheet (SSH-16). The sheet places them (SSH-11) and gives those without a variant its own (SSH-17). A fixture fills it through its items."
+    }
+  ],
+  "events": [
+    {
+      "name": "close",
+      "description": "The sheet asks to be closed: its close button, or for a modal sheet a press on the scrim, Escape, the platform's back or a drag toward its edge. Carries which of these it was, named close, scrim, escape, back or drag (in the platform's casing)."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "SSH-1",
+      "text": "WHILE variant is standard THE side sheet SHALL take its width in the layout at the end of the row the product places it in WHILE open is true, and no width and no presence to assistive technology or focus WHILE open is false; WHEN open changes it SHALL slide in or out at the end edge while the content beside it resizes, over comp.side-sheet.motion.enter-duration with comp.side-sheet.motion.enter-easing when opening and comp.side-sheet.motion.exit-duration with comp.side-sheet.motion.exit-easing when closing, and at once where motion is reduced. A standard sheet SHALL draw no scrim, SHALL NOT keep focus inside it, SHALL let Tab and Shift+Tab move focus out of it without closing it, and SHALL ignore Escape, the platform's back and drags (a standard sheet is a layout region, not an overlay)."
+    },
+    {
+      "id": "SSH-2",
+      "text": "WHEN open becomes true WHILE variant is modal THE side sheet SHALL slide in from the window's end edge over the content and fade in a scrim of comp.side-sheet.scrim.color over the rest of the window, over comp.side-sheet.motion.enter-duration with comp.side-sheet.motion.enter-easing; WHEN open becomes false it SHALL slide out to the end edge from wherever it is and fade the scrim out, over comp.side-sheet.motion.exit-duration with comp.side-sheet.motion.exit-easing. WHERE motion is reduced it SHALL fade in and out without sliding, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). WHILE it is open THE side sheet SHALL make everything behind it inert (not focusable, not pressable, hidden from assistive technology) and SHALL keep focus inside it: Tab from its last focusable element SHALL move to its first, Shift+Tab from its first to its last, and screen-reader navigation SHALL NOT leave it."
+    },
+    {
+      "id": "SSH-3",
+      "text": "WHEN open changes from false to true THE side sheet SHALL move focus to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads the headline first; WHEN it closes while focus is inside it THE side sheet SHALL return focus to the element that had it when the sheet opened or, where that element no longer exists or cannot take focus, to the platform's default. Focus SHALL move when the sheet opens or closes, not when its motion ends. This holds for both variants; a standard sheet mounted with open true SHALL NOT move focus, and a modal sheet mounted with open true SHALL move focus in as if it had just opened, because it makes everything behind it unfocusable and focus must be somewhere it can reach."
+    },
+    {
+      "id": "SSH-4",
+      "text": "WHILE variant is modal and the sheet is open, WHEN the user presses the scrim, presses Escape, uses the platform's back (Android's back gesture or button, the iOS accessibility escape gesture), or drags the sheet toward its end edge past half its width or flings it that way, THE side sheet SHALL emit close exactly once with the reason scrim, escape, back or drag; a drag SHALL follow the finger or pointer once it passes the platform's touch slop, and a released drag that does not ask to close SHALL slide the sheet back over comp.side-sheet.motion.enter-duration with comp.side-sheet.motion.enter-easing (at once where motion is reduced). The fling and the touch slop are those BSH-9 names for the bottom sheet: the platform's own, or 0.5 points per millisecond and 8 points where the platform names none."
+    },
+    {
+      "id": "SSH-5",
+      "text": "WHILE closable is true THE side sheet SHALL draw at the end of its header an icon-only Button of the medium size showing the close glyph and named by closeLabel, in the variant comp.side-sheet.close-button.variant names, given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens and answers hover, focus and press as any Button does; WHEN the user activates it THE side sheet SHALL emit close exactly once with the reason close, in either variant. WHILE closable is true and closeLabel is empty it SHALL still draw the button, and in debug builds report that the button has no accessible name.",
+      "verify": "Under the default system the close button of standard, modal and the other closable fixtures is a tonal circle; under m3-like it is a bare glyph (text)."
+    },
+    {
+      "id": "SSH-6",
+      "text": "WHEN the side sheet has emitted close THE side sheet SHALL be closed through its binding where open is one (SwiftUI), and by the product setting open to false where open is a plain value (web, Compose, Flutter, React Native); a released drag that asked to close SHALL hold where it left the sheet for one frame, then slide out from there IF open has become false, or slide back IF open is still true (the product declined to close it)."
+    },
+    {
+      "id": "SSH-7",
+      "text": "THE side sheet SHALL be comp.side-sheet.container.width wide beside the end system inset — WHILE variant is modal never wider than the window less sys.target.touch, so that a strip of scrim stays pressable — and the full height of its parent (standard) or of the window (modal), filled with its variant's container color (comp.side-sheet.container.color.standard or comp.side-sheet.container.color.modal), raised by its variant's elevation (comp.side-sheet.container.elevation.standard, comp.side-sheet.container.elevation.modal), with the corners at its start edge rounded by its variant's shape (comp.side-sheet.container.shape.standard, comp.side-sheet.container.shape.modal) eased by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and square corners at its end edge, and edged at its start by comp.side-sheet.outline.width of its variant's outline color (comp.side-sheet.outline.color.standard, comp.side-sheet.outline.color.modal); right-to-left layouts SHALL put it at the left edge, mirrored."
+    },
+    {
+      "id": "SSH-8",
+      "text": "THE side sheet SHALL lay out, top to bottom: WHILE headline is not empty or closable is true, the header, a row at least comp.side-sheet.header.height high holding the headline from comp.side-sheet.container.padding-inline after the start edge and, WHILE closable is true, the close button ending comp.side-sheet.header.padding-inline-end before the end edge, comp.side-sheet.header.gap after the headline, both centred in the row; then the content, inset by comp.side-sheet.container.padding-inline from the start and end edges, starting directly below the header or, without one, comp.side-sheet.container.padding-block below the top edge; then, WHILE the sheet has at least one action, the divider and the actions pinned to the bottom (SSH-11), or else comp.side-sheet.container.padding-block of space below the content. It SHALL extend its container under the system insets at its end, top and bottom and place the header, content and actions inside them."
+    },
+    {
+      "id": "SSH-9",
+      "text": "WHILE headline is not empty THE side sheet SHALL draw it in comp.side-sheet.headline.typescale and comp.side-sheet.headline.color, wrapping onto more lines rather than truncating and growing the header with it, and SHALL expose it as a heading."
+    },
+    {
+      "id": "SSH-10",
+      "text": "THE side sheet SHALL hand its content comp.side-sheet.content.color as the platform's inherited foreground (the web's inherited color, SwiftUI's foreground style, Compose's content color, Flutter's default text and icon style, React Native's Tanrei text context); plain text given as content, where the platform must style it, SHALL take sys.typescale.body. WHILE the content is taller than the room between the header and the actions THE side sheet SHALL scroll it there, keeping the header and the actions in place, and SHALL let assistive technology and keyboard focus scroll it."
+    },
+    {
+      "id": "SSH-11",
+      "text": "WHILE the sheet has at least one action THE side sheet SHALL draw a divider of comp.side-sheet.divider.width in comp.side-sheet.divider.color across its full width below the content, whether or not the content scrolls, and below it lay out its actions as a standard Button group lays out its items (BGR-12 to BGR-19), comp.side-sheet.actions.gap apart, comp.side-sheet.container.padding-inline from each side edge and comp.side-sheet.actions.padding-block above and below them, in the order the group gives them — dismissive at the start and confirming at the end of a row, confirming on top and dismissive at the bottom of a column, unflagged actions between them in the order given — with focus and reading order following that order (BGR-15). WHILE comp.side-sheet.actions.arrangement is fill it SHALL make them a full-width group across the sheet's inner width, the actions sharing a row equally (BGR-17) or each as wide as the column; WHILE it is start it SHALL keep them at their own widths, the row aligned to the start edge, and a column as wide as its widest action and aligned to the start. It SHALL place them in a row WHILE every action's label fits its share on one line (fill) or the row at its own widths fits the inner width (start), and otherwise in a column, re-deciding when the sheet's width or the text size changes. WHEN the layout direction is right-to-left it SHALL place them as a Button group places them right to left (BGR-8). It SHALL hide the divider from assistive technology.",
+      "verify": "Under the default system: modal shows Cancel · Apply sharing the width below the divider; standard-actions shows Reset · Apply; modal-stacked shows its two actions in a column, the confirming one on top. start is observed under a fixture system that sets comp.side-sheet.actions.arrangement to 1 (m3-like's representative fixture)."
+    },
+    {
+      "id": "SSH-12",
+      "text": "THE side sheet SHALL expose its container, WHILE variant is modal, as a modal dialog named by headline and, WHILE variant is standard, as a complementary region named by headline (the web's aside landmark); WHILE headline is empty it SHALL still render, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "SSH-13",
+      "text": "WHEN variant names a value that the active design system does not have THE side sheet SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "SSH-14",
+      "text": "WHILE the text size is enlarged THE side sheet SHALL keep its width, grow its header with the headline (its height is a minimum), scroll its content (SSH-10), stack its actions once a label no longer fits its share (SSH-11), and SHALL NOT scale the close button beyond what the Button itself does."
+    },
+    {
+      "id": "SSH-15",
+      "text": "WHEN a dialog, a menu or another modal sheet opens from a modal side sheet THE side sheet SHALL stay below it, become inert with the rest of the window, and on the other overlay's closing receive back the focus that overlay returns; Escape SHALL dismiss only the topmost overlay."
+    },
+    {
+      "id": "SSH-16",
+      "text": "WHILE variant is modal, IF the sheet opens with no action THE side sheet SHALL still open and lay out its other parts, and in debug builds SHALL report as an error that a modal side sheet must offer at least one action; a platform whose modal sheet has an API of its own that can require an action (a required, non-empty builder or list of actions) SHALL require it there, and one that can count its actions only when the sheet opens SHALL count them then. WHILE variant is standard THE side sheet SHALL accept having no action and report nothing, and SHALL then draw neither the divider above the actions nor the actions (SSH-8)."
+    },
+    {
+      "id": "SSH-17",
+      "text": "WHILE an action's variant is empty THE side sheet SHALL give that Button the variant comp.side-sheet.actions.variant names, through the channel a Button reads from the component that places it, so that the Button renders from that variant's tokens and states as it would with the variant set; WHILE an action's variant is set THE side sheet SHALL leave it as set. THE side sheet SHALL NOT change an action's size or tokens, and SHALL NOT change its look or emphasis for its confirming or dismissive (BGR-19).",
+      "verify": "Under the default system every action of standard-actions, modal, modal-single-action and modal-stacked is tonal; action-variants shows a text Cancel beside a filled Apply, as set."
+    },
+    {
+      "id": "SSH-18",
+      "text": "WHEN the user activates an action THE side sheet SHALL let the Button emit its own click and SHALL NOT close, emit close or otherwise answer it itself, whether the action is confirming, dismissive or neither; the product closes the sheet from the action's handler, as it does in answer to close."
+    },
+    {
+      "id": "SSH-19",
+      "text": "WHILE the header is drawn and the content is scrolled away from its top THE side sheet SHALL draw a divider of comp.side-sheet.divider.width in comp.side-sheet.divider.color across its full width below the header, hidden from assistive technology; WHILE the content is at its top, or there is no header, it SHALL draw none there. It SHALL show and hide this divider at once, without motion."
+    },
+    {
+      "id": "SSH-20",
+      "text": "WHILE the on-screen keyboard covers the bottom of the sheet THE side sheet SHALL keep its header in place, raise its divider and actions to sit directly above the keyboard, scroll the content in the room left between them, and scroll the focused element into that room; WHEN the keyboard hides it SHALL return the actions to the bottom edge. It SHALL move them as the platform moves content for its keyboard, and at once where motion is reduced."
+    },
+    {
+      "id": "SSH-21",
+      "text": "THE side sheet SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the side sheet is shown THE side sheet SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "SSH-22",
+      "text": "THE side sheet SHALL lay out its headline as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE side sheet SHALL still place the headline and align its lines by the layout direction, not by the text's own."
+    }
+  ],
+  "accessibility": {
+    "role": "dialog",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus through the close button, the content's focusable elements and the actions, in that order, the actions in the order they are placed (BGR-15). In an open modal sheet it wraps and never leaves the sheet; from an open standard sheet it moves on to the content, and the sheet stays open."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activates the focused close button (close, reason close) or action (its click; the sheet does not close by itself, SSH-18). The sheet adds no default action to Enter."
+      },
+      {
+        "keys": "Escape",
+        "action": "Asks an open modal sheet to close (close, reason escape); with stacked overlays, only the topmost. A standard sheet ignores it."
+      }
+    ],
+    "labeling": "The headline is the sheet's accessible name and is exposed as a heading: the modal dialog's name, or the standard sheet's complementary region's. The close button is named by closeLabel. Each action is named by its own label; confirming and dismissive are not announced, and the actions are read in the order they are placed (BGR-15). The dividers are decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "The sheet has no target of its own; its close button and its actions are Tanrei Buttons, which meet the minimum target themselves (BTN-5). comp.side-sheet.actions.gap keeps each action's whole target in a column in the default system.",
+      "A modal sheet offers at least one action (SSH-16): it holds focus until the person is done, so a person using a screen reader or a switch finds a way to finish the task where they finish reading it, not only a way out. The close button, Escape, back and the scrim still dismiss it. A standard sheet sits beside the content, which the person keeps working in, so it may have no action.",
+      "Placement is by task, not by code order: in a row the dismissive action is at the start and the confirming one at the end; in a column the confirming one is on top. Focus and screen readers follow the placed order.",
+      "Dragging is never the only way (WCAG 2.5.7): a modal sheet also closes with its close button, Escape, back or a press on the scrim.",
+      "The standard form is a layout region, not an overlay: opening it moves focus in and closing it returns focus, and focus leaving it never closes it. The modal form is a modal overlay. The web presents it with a modal <dialog> element (showModal gives inertness and the top layer; its cancel event is cancelled and becomes close with the reason escape); Compose draws it in a window of its own (a Dialog, as TanreiDialog and the modal drawer are) and Flutter as a controlled overlay in a Stack over the page, each with a scrim, trapping focus and answering back; SwiftUI presents it as the dialog is, with a full-screen cover on iOS; React Native presents it in a transparent Modal.",
+      "Opening a modal sheet by a swipe from the screen edge is left out, as for the drawer: the product opens it from a button."
+    ]
+  },
+  "tokens": "comp.side-sheet",
+  "fixtures": [
+    {
+      "id": "standard",
+      "props": {
+        "open": true,
+        "headline": "Filters",
+        "closable": true,
+        "closeLabel": "Close filters"
+      },
+      "content": "Show results from the last 30 days with every selected label."
+    },
+    {
+      "id": "standard-actions",
+      "props": {
+        "open": true,
+        "headline": "Filters"
+      },
+      "content": "Show results from the last 30 days with every selected label.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {},
+          "content": "Reset"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Apply"
+        }
+      ]
+    },
+    {
+      "id": "modal",
+      "props": {
+        "variant": "modal",
+        "open": true,
+        "headline": "Filters",
+        "closable": true,
+        "closeLabel": "Close filters"
+      },
+      "content": "Show results from the last 30 days with every selected label.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Apply"
+        }
+      ]
+    },
+    {
+      "id": "modal-single-action",
+      "props": {
+        "variant": "modal",
+        "open": true,
+        "headline": "Filters",
+        "closable": true,
+        "closeLabel": "Close filters"
+      },
+      "content": "Show results from the last 30 days with every selected label.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Show results"
+        }
+      ]
+    },
+    {
+      "id": "modal-stacked",
+      "props": {
+        "variant": "modal",
+        "open": true,
+        "headline": "Edit profile",
+        "closable": true,
+        "closeLabel": "Close profile editor"
+      },
+      "content": "Your name and photo are shown to everyone in the workspace.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Discard changes"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Save and continue"
+        }
+      ]
+    },
+    {
+      "id": "action-variants",
+      "props": {
+        "variant": "modal",
+        "open": true,
+        "headline": "Filters",
+        "closable": true,
+        "closeLabel": "Close filters"
+      },
+      "content": "Show results from the last 30 days with every selected label.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "variant": "text",
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "variant": "filled",
+            "confirming": true
+          },
+          "content": "Apply"
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-side-sheet",
+      "props": {
+        "variant": "variant",
+        "open": "open",
+        "headline": "headline",
+        "closable": "closable",
+        "closeLabel": "closeLabel"
+      },
+      "events": {
+        "close": "close"
+      },
+      "notes": "`closeLabel` is the `close-label` attribute. `close` is a CustomEvent whose `detail.reason` is `close`, `scrim`, `escape`, `back` or `drag`; the product sets `open` to false from it. Slots: default and `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the sheet's shadow root uses manual slot assignment, assigns its content children to the default slot, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim. Standard: an `<aside>` named by the headline, placed by the product as the last item of a flex row; its width animates. The close button is a `<tanrei-button>` in the shadow root, icon-only (the close glyph in its `icon` slot, its `label` from `close-label`), whose variant comes from the resolved comp.side-sheet.close-button.variant through the internal controller the group gives its items. The `autofocus` attribute on a slotted element marks initial focus. Debug builds (`import.meta.env.DEV` or the package's dev export) report a modal sheet opened with no assigned action (SSH-16). The keyboard's room (SSH-20) is the `visualViewport`'s height. Insets are `env(safe-area-inset-*)`. Snapshot harness: a 720 × 480 viewport with a `surface` page; the standard sheet at the end of a row whose other child fills the rest of the width; the modal sheet opened by `open`, the screenshot being the viewport.",
+      "items": {
+        "action": {
+          "name": "tanrei-button",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled",
+            "confirming": "confirming",
+            "dismissive": "dismissive"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "A `tanrei-button` child with `slot=\"actions\"`: its label is its content. `confirming` and `dismissive` are boolean attributes that the sheet reads, as the button group does. A Button without a `variant` attribute takes the sheet's variant through the internal controller the group already gives its items (SSH-17); the attribute, once written, wins."
+        }
+      }
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiSideSheet",
+      "props": {
+        "variant": "variant",
+        "open": "isPresented",
+        "headline": "headline",
+        "closable": "closable",
+        "closeLabel": "closeLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: standard `TanreiSideSheet(_ headline:, isPresented: Binding<Bool>, closable:, closeLabel:, initialFocus:, onClose:) { content } actions: { … }`, a view the product places at the end of an `HStack`, with `actions:` optional. Modal: the modifier `.tanreiSideSheet(_ headline:, isPresented:, …, content:, actions:)` on the view it covers, with `actions:` a required builder whose subviews the sheet counts through a variadic view, reporting an empty one in debug builds (SSH-16); presented as `tanreiDialog` is (on iOS `.fullScreenCover` with a clear presentation background and the system transition off; Tanrei draws the scrim, the sheet and the drag), and on macOS, which has no full-screen cover, as an overlay of the modified view with the modal trait. Both lay out the actions with the button group's `Layout`. Closing writes false to `isPresented` and then calls `onClose` with the reason. The close button is an icon-only `TanreiButton` whose variant the sheet sets from its token. Initial focus is `.defaultFocus`, or an `@AccessibilityFocusState` binding the product passes as `initialFocus` (without it, VoiceOver starts at the headline); Escape is `.onKeyPress(.escape)` and the escape gesture `.accessibilityAction(.escape)`. The keyboard's safe area lifts the actions (SSH-20). Snapshot harness: renders `TanreiSideSheetSurface` (the sheet and, for a modal sheet, the scrim) in place in a 720 × 480 frame over a `surface` page.",
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled",
+            "confirming": "tanreiGroupPlacement(.confirming)",
+            "dismissive": "tanreiGroupPlacement(.dismissive)"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "A `TanreiButton` in the `actions:` builder. The flags are the button group's `.tanreiGroupPlacement(_:)` modifier (one enum: both cannot be set). A Button created with `variant: nil` reads the sheet's variant from an environment value the sheet sets (internal to the package)."
+        }
+      }
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiSideSheet",
+      "props": {
+        "variant": "variant",
+        "open": "visible",
+        "headline": "headline",
+        "closable": "closable",
+        "closeLabel": "closeLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: `TanreiSideSheet(visible, onClose: (TanreiSheetCloseReason) -> Unit, headline, variant, closable, closeLabel, initialFocus: FocusRequester?, actions: (@Composable () -> Unit)?, content)`; the caller sets `visible` to false from `onClose`. The actions lambda's receiver is the button group's scope, not `RowScope`, so the flags are its `Modifier.confirming()` and `Modifier.dismissive()` and no inert `weight` or `align` is offered. Its `Layout` sees the actions' measurables and, for a modal sheet, reports none in debug builds (SSH-16); `variant` is a parameter, so the type cannot require actions for the modal form alone. Standard: a composable the product places at the end of a `Row`; its width animates. Modal: drawn in a `Dialog` window of its own, as `TanreiDialog` and the modal drawer are, with the window's own dim off (Tanrei draws the scrim); the window traps focus, answers back and hides the content behind from TalkBack, and the sheet sets a pane title from the headline. The close button is an icon-only `TanreiButton` whose variant the sheet sets from its token. The keyboard's room is `WindowInsets.ime` (SSH-20). Snapshot harness: renders `TanreiSideSheetContent` (the sheet and, for a modal sheet, the scrim) in place in a 720 × 480 dp box over a `surface` page.",
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "enabled",
+            "confirming": "Modifier.confirming()",
+            "dismissive": "Modifier.dismissive()"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "A `TanreiButton` in the `actions` lambda, whose receiver is the button group's scope, so the flags are its `Modifier.confirming()` and `Modifier.dismissive()`. `enabled` is disabled's inverse. `variant: TanreiButtonVariant? = null` takes the sheet's from a `CompositionLocal` (internal to the library)."
+        }
+      }
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiSideSheet",
+      "props": {
+        "variant": "variant",
+        "open": "open",
+        "headline": "headline",
+        "closable": "showCloseButton",
+        "closeLabel": "closeButtonSemanticLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: `TanreiSideSheet(variant:, open:, onClose: ValueChanged<TanreiSheetCloseReason>, headline:, showCloseButton:, closeButtonSemanticLabel:, actions: [...], child:)`, controlled: the caller sets `open` to false from `onClose`. A modal sheet asserts `actions` non-empty when it opens (SSH-16); the actions are laid out with the button group's render object. Standard: placed at the end of a `Row`. Modal: a controlled overlay in a `Stack` over the page, as the modal navigation drawer, with its own scrim and slide, a `FocusScope` that keeps focus in, the page's semantics blocked, back through `PopScope` and Escape through `Shortcuts`/`Actions`. The close button is an icon-only `TanreiButton` whose variant the sheet sets from its token; the headline is wrapped in `Semantics(header: true)`. The keyboard's room is `MediaQuery.viewInsetsOf(context).bottom` (SSH-20). Snapshot harness: a golden of the whole 720 × 480 surface over a `surface` page.",
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "onPressed",
+            "confirming": "TanreiButtonGroupItem.placement",
+            "dismissive": "TanreiButtonGroupItem.placement"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "A `TanreiButton` in `actions:`; a null `onPressed` disables it. The flags are the button group's `TanreiButtonGroupItem(placement:, child:)` (one enum: both cannot be set). A Button with `variant: null` takes the sheet's from an `InheritedWidget` (internal to the package)."
+        }
+      }
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "SideSheet",
+      "props": {
+        "variant": "variant",
+        "open": "open",
+        "headline": "headline",
+        "closable": "closable",
+        "closeLabel": "closeLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "notes": "Lagging: ships the earlier revision — a standard icon button to close, the actions a row from the start edge in the order given, optional in both variants, 8 apart. The target: controlled: `open`, `onClose(reason)`; the caller sets `open` to false from it. `actions` is a React node (a `Button` or a fragment of them); development builds report it empty when a modal sheet opens (SSH-16); the types cannot tie it to `variant`. The content is `children`. Standard: a `View` the product places at the end of a row (`flexDirection: 'row'`). Modal: presented in a transparent `Modal` with `animationType=\"none\"`, `statusBarTranslucent` and `navigationBarTranslucent`; `onRequestClose` (Android back, and Escape on a hardware keyboard) is close with the reason `back` or `escape`. Drags with `PanResponder`. The close button is an icon-only `Button` whose variant the sheet sets from its token; the headline has the `header` role. The keyboard's height comes from `Keyboard` events (SSH-20). Insets come from the sheet's own `insets` prop, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency. Snapshot harness: renders `SideSheetSurface` in place in a 720 × 480 view over a `surface` page. The initial-focus mark is an `initialFocusRef` prop, as on the bottom sheet and the dialog (SSH-3).",
+      "items": {
+        "action": {
+          "name": "Button",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled",
+            "confirming": "confirming",
+            "dismissive": "dismissive"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "A `Button` in the `actions` prop. `confirming` and `dismissive` are props the sheet reads from its actions, as the button group reads them. A Button with no `variant` takes the sheet's from a React context (internal to the package)."
+        }
+      }
+    }
+  }
+}

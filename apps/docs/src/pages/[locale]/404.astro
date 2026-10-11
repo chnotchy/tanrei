@@ -1,0 +1,15 @@
+---
+// The page that was not found, in each language but the root's (pages/404.astro says what it is): one page under each
+// language's folder, in that language, whose first action leads to that language's first page.
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import NotFound from '../../components/NotFound.astro';
+import { translations } from '../../../i18n/locales.mjs';
+import { notFoundFrontmatter } from '../../lib/page-head';
+
+export const getStaticPaths = () => translations.map(({ dir, lang }) => ({ params: { locale: dir }, props: { lang } }));
+const { lang } = Astro.props;
+---
+
+<StarlightPage frontmatter={notFoundFrontmatter(lang)}>
+  <NotFound />
+</StarlightPage>

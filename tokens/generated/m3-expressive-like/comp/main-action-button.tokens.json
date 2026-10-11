@@ -1,0 +1,361 @@
+{
+  "tanrei": {
+    "comp": {
+      "main-action-button": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product keeps the single most important action of a screen above its content, with its name written out where there is room and as its icon alone where there is not, changing between the two while the screen is in use, at more than one size and emphasis, enabled and disabled.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "filled",
+              "tonal",
+              "surface"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "container.elevation": "shadow",
+              "label.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a main action button reads: per size its height (the side of the collapsed form), corner shape, paddings (with the icon at the leading or the trailing side, and without one), gap, label text style and icon size; per variant (filled, tonal, surface) the container color, container elevation and label color (the icon takes the label color) in each state; and the motion of collapsing and extending.",
+            "rules": [
+              "Use at most one per screen, for the action the screen exists for. A second, smaller one may sit next to it for a closely related action.",
+              "It does not position itself: the screen layout places it (usually the inline-end bottom corner, above any navigation bar).",
+              "Always give it a label: it is the accessible name, collapsed or extended. Without one it cannot extend.",
+              "Collapse it (extended false) only when it has an icon; without an icon it stays extended.",
+              "Put the icon at the trailing side only when the glyph points where the action goes (Next, Continue); otherwise leave it leading.",
+              "It is an action, never a toggle: collapsing changes its shape, not its meaning.",
+              "Prefer hiding it when its action is unavailable to disabling it.",
+              "Heights are minimums: a height must hold 2 × padding-block + one label line, and the build reports it when it does not.",
+              "Each variant's state-layer.color is the color hover, focus and press mix into its container; it aliases that variant's label color.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "members": [
+                "container.height",
+                "container.shape",
+                "container.padding-inline-start",
+                "container.padding-inline-end",
+                "container.padding-inline-start-with-icon",
+                "container.padding-inline-end-with-icon",
+                "container.padding-block",
+                "container.gap",
+                "label.typescale",
+                "icon.size"
+              ]
+            },
+            "variant": {
+              "default": "filled",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "height": {
+            "$type": "dimension",
+            "$description": "The height, per size; collapsed, the container is a square of this side (a circle under full corners). The FAB's sides and the extended FAB's heights; they are not yet Material 3's measurements.",
+            "small": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 56,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 14
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 96,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 24
+                }
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$description": "The corner, per size, in both forms: full in the default system, so it is a circle collapsed and a pill extended. A system with rounded squares sets a step per size.",
+            "small": {
+              "$value": "{tanrei.sys.shape.corner.medium}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.shape.corner.large}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.shape.corner.extra-large}",
+              "$extensions": {}
+            }
+          },
+          "padding-inline-start": {
+            "$type": "dimension",
+            "$description": "Start padding when no icon is at the start (no icon, or the icon trailing), in the reading direction.",
+            "small": {
+              "$value": "{tanrei.sys.space.space200}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space250}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space400}"
+            }
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "$description": "End padding when no icon is at the end (no icon, or the icon leading), in the reading direction.",
+            "small": {
+              "$value": "{tanrei.sys.space.space200}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space250}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space400}"
+            }
+          },
+          "padding-inline-start-with-icon": {
+            "$type": "dimension",
+            "$description": "Start padding when the icon is leading; tighter, so the glyph aligns optically.",
+            "small": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space200}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space300}"
+            }
+          },
+          "padding-inline-end-with-icon": {
+            "$type": "dimension",
+            "$description": "End padding when the icon is trailing; the mirror of padding-inline-start-with-icon.",
+            "small": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space250}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space400}"
+            }
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "Vertical padding of the extended form. Heights are minimums, so this only shows when text is enlarged.",
+            "small": {
+              "$value": "{tanrei.sys.space.space75}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space75}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space75}"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Distance between the icon and the label, per size.",
+            "small": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space200}"
+            }
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The label's text style, per size: the large size carries a larger label.",
+            "small": {
+              "$value": "{tanrei.sys.typescale.label}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.typescale.label}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.heading-5}"
+            }
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The icon box, per size, in both forms: a step of the icon scale for each size (24 / 24 / 32).",
+            "small": {
+              "$value": "{tanrei.sys.icon.medium}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.icon.medium}"
+            },
+            "large": {
+              "$value": {
+                "value": 36,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "Material 3 draws the large FAB's and large extended FAB's icon at 36dp, above Tanrei's icon steps."
+                }
+              }
+            }
+          }
+        },
+        "filled": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level3}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-primary}",
+              "$description": "The label, and the icon beside it or alone (as Button's icon, it takes the label color, so collapsing does not recolor it)."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.main-action-button.filled.label.color}",
+              "$description": "The color hover, focus and press mix into the container. As Button's, it is the label color."
+            }
+          }
+        },
+        "tonal": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary-container}",
+              "$extensions": {}
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level3}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-primary-container}",
+              "$description": "The label, and the icon beside it or alone (as Button's icon, it takes the label color, so collapsing does not recolor it).",
+              "$extensions": {}
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.main-action-button.tonal.label.color}",
+              "$description": "The color hover, focus and press mix into the container. As Button's, it is the label color."
+            }
+          }
+        },
+        "surface": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-high}",
+              "$extensions": {}
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level3}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$description": "The label, and the icon beside it or alone (as Button's icon, it takes the label color, so collapsing does not recolor it)."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.main-action-button.surface.label.color}",
+              "$description": "The color hover, focus and press mix into the container. As Button's, it is the label color."
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "resize-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.duration}",
+            "$description": "How long the container takes to collapse to its icon or extend to show its label."
+          },
+          "resize-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.easing}"
+          }
+        }
+      }
+    }
+  }
+}

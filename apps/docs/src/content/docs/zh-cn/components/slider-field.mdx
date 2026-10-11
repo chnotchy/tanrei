@@ -1,0 +1,222 @@
+---
+title: "滑块字段"
+description: "以一个完整字段的形式，让用户在一个刻度范围上选择一个值或一个取值范围——标签下方是轨道，标签行末尾是用文字写出的值，还有一行帮助文本和值被拒绝的原因。"
+translationOf: components/slider-field.mdx
+sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="slider-field" />
+
+<DemoFrame label="一个滑块字段、一个步进的，以及一个范围" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字大小" min="50" max="200" step="10" value="120"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="价格" supporting-text="每晚，不含税。" range min="0" max="500" step="10" start-value="100" value="300" start-label="最低价格" end-label="最高价格"></tanrei-slider-field>
+</DemoFrame>
+
+滑块字段用于凭感觉选择、再用文字读出来的值：120 % 的文字大小、5 km 的距离、从 $100 到 $300 的价格。单独的滑块没有画出来的标签，它的轨道也不说明自己被设成了多少。滑块字段对应的是最常见的情况，可以直接使用：一个标签、用文字写出的值、轨道、一行帮助文本和一条错误。
+
+**组成部分**是一个[字段](/zh-cn/components/field/)和一个[滑块](/zh-cn/components/slider/)。字段是框架：标签、必填或选填标记、标签行末尾的值文本、帮助文本和错误。滑块是控件：轨道、手柄，以及用户用它们做的一切。滑块字段自己什么都不绘制，也没有令牌：它的每个属性都是这两者之一的属性，原样交给那一个成员，只有 `valueHidden` 例外，那是它自己的属性。
+
+它的宽度与所在的位置相同，轨道填满这个宽度。
+
+在 Web 上它是 `<tanrei-slider-field>`。其他平台尚未实现。
+
+### 用法
+
+`value` 是手柄的值，在范围中是末尾手柄的值；`startValue` 是范围的起始手柄的值。两个事件是滑块自己的事件：用户拖动期间每次变化时触发 `input`，变化结束时触发一次 `change`。监听到其中任何一个时，字段的 `value` 和 `startValue` 都已经是新的值。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-slider-field name="text-size" label="文字大小"
+        supporting-text="适用于所有页面。"
+        min="50" max="200" step="10" value="120"></tanrei-slider-field>
+
+      <!-- 范围在同一个 name 之下先提交 start-value，再提交 value。请为每个手柄命名。 -->
+      <tanrei-slider-field name="price" label="价格" range
+        min="0" max="500" step="10" start-value="100" value="300"
+        start-label="最低价格" end-label="最高价格"></tanrei-slider-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/slider-field';
+
+      // 表示值的文字，只给一次：它是属性（property），绝不是属性（attribute）。
+      const percent = new Intl.NumberFormat(document.documentElement.lang, { style: 'percent' });
+      const size = document.querySelector('[name="text-size"]');
+      size.formatValue = (value) => percent.format(value / 100);
+      size.addEventListener('input', () => applyTextSize(size.value));
+
+      const dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+      document.querySelector('[name="price"]').formatValue = (value) => dollars.format(value);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SliderField } from '@tanrei/react';
+
+    <SliderField name="text-size" label="文字大小" supportingText="适用于所有页面。"
+      min={50} max={200} step={10} value={size}
+      formatValue={(value) => percent.format(value / 100)}
+      onInput={(event) => setSize(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### 用文字写出的值
+
+值画在标签行的末尾，用的是滑块给手柄的那些文字——也就是屏幕阅读器读到的、数值指示器显示的同一些文字。它们按以下顺序取用：
+
+| 文字 | 何时 |
+| --- | --- |
+| `valueText`，范围的起始手柄则是 `startValueText` | 文字由你自己来写，并且每次 `input` 时都要重写一遍。 |
+| `formatValue` 写出的内容 | 你只给一次一个把值变成文字的函数。每次变化时，滑块都为每个手柄调用它。 |
+| 按页面的区域设置书写的数字 | 两者都没有给出。 |
+
+范围的两个值用一个短破折号（en dash）连接，按阅读顺序排列：在从右到左的布局中，起始值的文字位于右边，也就是起始手柄所在的一边。滑块字段自己不写任何数字、单位或词。
+
+<DemoFrame label="与标签同在一行的值文本、自己另占一行的值文本，以及把它隐藏起来的字段" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" value="40" value-indicator="active"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="税前年收入" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="最低年收入" end-label="最高年收入"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="亮度" value="70" value-hidden></tanrei-slider-field>
+</DemoFrame>
+
+值文本位于标签第一行的基线上，标签在剩下的空间里换行。如果这样会让标签得不到这一行的一半，值文本就在标签之后另占一行，必要时在那里换行。`valueHidden` 把它去掉，用于数字对用户没有意义的滑块：音量、亮度。手柄仍然会把它的值告诉辅助技术。
+
+### 下一层
+
+用它的两个成员手写出来的同一个字段，画面是一样的，对辅助技术来说也是同一个滑块：
+
+```html
+<tanrei-field label="文字大小" supporting-text="适用于所有页面。" value-text="120 %">
+  <tanrei-slider name="text-size" min="50" max="200" step="10" value="120"></tanrei-slider>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const slider = field.querySelector('tanrei-slider');
+  slider.formatValue = (value) => percent.format(value / 100);
+  // 滑块字段自己会做的事：每次变化时，字段的值文本都取滑块的值文本。
+  slider.addEventListener('input', () => (field.valueText = slider.shownValueText));
+</script>
+```
+
+<DemoFrame label="手写出来的同一个字段：一个字段，里面有一个滑块，值文本只给了一次——没有上面的监听器，它就不会保持同步" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字大小" supporting-text="适用于所有页面。" value-text="120">
+    <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
+  </tanrei-field>
+</DemoFrame>
+
+当你需要滑块字段没有提供的排布方式时，就往下走一层：
+
+| 你需要 | 使用 |
+| --- | --- |
+| 标签、用文字写出的值、轨道、帮助文本和错误 | 滑块字段 |
+| 滑块说不出来的值文本——一句话，“价格不限”——或者在框架里放你自己的东西 | 一个[字段](/zh-cn/components/field/)，里面放一个[滑块](/zh-cn/components/slider/)，再加上你自己的 `value-text` |
+| 只要轨道，由绘制在别处的东西命名——表格的列、工具栏的字形、播放器的音量控件 | 单独使用的[滑块](/zh-cn/components/slider/)，由它自己的 `label` 命名 |
+| 纵向的滑块 | 单独使用的[滑块](/zh-cn/components/slider/)：滑块字段没有方向设置 |
+| 已经知道、要键入的值 | [数字字段](/zh-cn/components/number-field/)，单独使用，或者放在滑块旁边 |
+
+下到这一层之后，变的是各样东西写在哪里。`name`、`value` 和 `startValue` 写在滑块上，这时它就是表单面对的控件，它的事件也在它上面监听。`label` 和 `disabled` 仍然写在字段上，由字段转交给滑块。范围的末尾手柄由滑块自己的 `label` 命名，滑块字段把它叫作 `endLabel`。
+
+## 规格
+
+<DemoFrame label="带产品文字的必填、选填、错误和禁用" plain column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必填" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="optional" optional-text="选填" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" error error-text="请选择大于 0 的音量。" value="0"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" disabled value="40"></tanrei-slider-field>
+</DemoFrame>
+
+### 各个成员提供什么
+
+| 方面 | 来自字段 | 来自滑块 |
+| --- | --- | --- |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel`，以及 `endLabel`，也就是滑块的 `label` |
+| 事件 | — | `input`, `change` |
+| 插槽 | `label-icon` | — |
+| 令牌 | `comp.field.*` | `comp.slider.*` |
+
+有一个属性是滑块字段自己的：`valueHidden`。字段还有一个属性由滑块字段自己填写，不由你来设置：字段的 `valueText`，取自滑块的文字。
+
+滑块有它自己的 `disabled` 和 `orientation`。两者都不是滑块字段的属性：字段的 `disabled` 禁用滑块，标签和值文本因此也随之变化；轨道则始终沿行内方向延伸：滑块字段没有垂直方向。
+
+滑块总是有值，所以 `requirement` 在这里并不表示“不为空”。把每个控件都标为必填或选填的表单，也会给这一个加上标记；表单拒绝的是什么——音量为 0、范围太窄——要由你用 `error` 和 `errorText` 来说明。错误不会改变轨道的任何东西：传达它的是文字和无效状态。
+
+手柄做什么，也就是拖动、按键、步进和数值指示器，写在[滑块的页面](/zh-cn/components/slider/)上。框架做什么，也就是必填标记、值文本、帮助文本、错误以及错误怎样朗读，写在[字段的页面](/zh-cn/components/field/)上。
+
+### 单独调整某一个字段
+
+滑块字段没有自己的令牌。它的框架读取字段的令牌，它的轨道读取滑块的令牌，无论这些令牌设置在哪里。要改动某一个实例，就在它上面设置成员的令牌：
+
+```html
+<tanrei-slider-field label="音量" value="40"
+  style="--tanrei-comp-field-standard-value-text-color: var(--tanrei-sys-color-on-surface)"></tanrei-slider-field>
+```
+
+<ComponentSpecs name="slider-field" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-slider>`，此外什么都没有。导入这个元素，两个成员也随之完成定义。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`；提交的是值，范围则在同一个 name 之下先提交起始值、再提交值，禁用时什么都不提交；重置为 `value` 和 `start-value` 属性（attribute）的值；跟随被禁用的 `<fieldset>`。它的两个成员不向表单添加任何条目。
+- `input` 和 `change` 是滑块的 CustomEvent，带有 `detail.value`（范围还带有 `detail.startValue`）。它们的 target 是这个元素，在每个监听器里，`event.target.value` 都是新的值。
+- `formatValue` 是属性（property），绝不是属性（attribute）：`(value: number) => string`，或者 `null`。
+- 范围的两段值文本写进字段的 `value-text` 这同一段文本里，中间是一个短破折号。每一段都是一个有自己方向的片段——包在首强隔离符（first-strong isolate，U+2068 和 U+2069）里——除非它是“$100”或“3,400,000”这样的纯数字：这种文本在两种方向下本来就是一个从左到右的片段，所以原样写入。
+- 部件：`field` 和 `slider` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label`、`label-icon`、`requirement-label`、`value-text`、`supporting-text`；`track`、`active-track`、`stop-indicator`、`container`、`handle`、`value-indicator`。
+- 这个元素本身不能获得焦点：`focus()` 会把焦点交给手柄，范围则交给起始手柄；页面自己的 `<label for>` 也会把焦点移到那里。
+- 这个元素没有角色。用 `label` 为它命名，标签绘制在别处时再加上 `label-hidden`；绝不要用 `aria-label`，它在这里不为任何东西命名。
+- 属性（attribute）就是成员自己的那些：`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`start-value`、`value-indicator`、`value-text`、`start-value-text`、`start-label`；另外还有 `end-label` 和 `value-hidden`。
+- 在元素完成定义之前，它没有尺寸，只显示作为子元素的 `label-icon`。必须在没有脚本时也能工作的页面，用一个 `<label>` 包住一个普通的 `<input type="range">`。
+
+## 指南
+
+### 推荐
+
+- 单独一个数字不够清楚时，用 `formatValue` 给出表示值的文字：百分比、货币、单位。
+- 用 `startLabel` 和 `endLabel` 为范围的两个手柄命名，措辞里要包含 `label` 的词：“价格”之下是“最低价格”和“最高价格”。
+- 标签没有说明这个值改变什么的地方，在 `supportingText` 里说明。
+- 用文字说明拒绝的是什么，使用 `error` 和 `errorText`。
+- 凭感觉设置、数字对用户毫无意义的值，使用 `valueHidden`。
+
+### 避免
+
+- 不要在标记里只写一次 `valueText`，却让用户可以移动滑块：第一次拖动之后，这些文字就不对了。请给出 `formatValue`，或者每次 `input` 时都重写 `valueText`。
+- 不要把滑块字段放进字段。它本身已经是字段；调试构建会报告这一点。
+- 不要用 `aria-label` 为它命名。不该绘制标签的地方，给出 `label` 和 `labelHidden`。
+- 不要用 `valueIndicator="always"` 来显示值：这是值文本的事，而指示器会盖在标签行上。
+- 不要把滑块字段用于必须精确的值。请使用[数字字段](/zh-cn/components/number-field/)，单独使用，或者放在它旁边。
+
+## 无障碍
+
+<ComponentAccessibility name="slider-field" />
+
+### 组件负责的部分
+
+- 每个手柄都是一个滑块。只有一个手柄时，它以 `label` 命名，无论标签是否绘制；范围的两个手柄以 `startLabel` 和 `endLabel` 命名，缺少其中一个时以 `label` 命名，调试构建会报告这一点。
+- 每个手柄的描述是显示出来的辅助文本或错误文本，字段为选填时还加上选填文字；`error` 为 true 时，它暴露为无效，`disabled` 为 true 时，暴露为禁用。Web 的滑块角色没有必填状态，所以必填的滑块字段把 `requiredText` 放在描述里。
+- 每个手柄都用文字说出自己的值。同样的文字画在标签行的末尾，而那里的文字不提供给辅助技术，所以一个值只读一次。
+- 画出来的标签、必填和选填标记以及值文本，不会再暴露第二次；值文本的变化也不朗读：手柄会说出自己的值。
+- 它的焦点停靠点就是滑块的手柄——一个，或者范围的两个——每个按键也都是滑块的。按下标签行会把焦点移到手柄上，不改变任何东西；按下帮助文本什么都不会发生。
+- 禁用时，值文本仍然画出来：禁用的控件被设成了什么，仍然读得到。
+- 方向、放大的文本和强制颜色模式，由各个成员各自应对：在从右到左的布局中，框架和轨道一起镜像，而表示值的文字保持自己的顺序；文本放大到 200% 时，没有任何内容被截断，也没有任何内容横向滚动。
+- 它没有自己的文字。`requiredText` 和 `optionalText` 留空时，由字段从产品的文字里读取。
+
+Web 上的已知差距：在元素完成定义之前，什么都不绘制；范围的两个手柄没有作为一个以 `label` 命名的组暴露出来。
+
+### 需要你做的事
+
+- 始终给出 `label`，范围还要给出 `startLabel` 和 `endLabel`。
+- 单独一个数字让人看不懂时，给出表示值的文字，并在值变化时让它们始终正确。
+- 用 `errorText` 说明拒绝的是什么。颜色绝不是唯一的提示。
+- 用户必须输入精确值的地方，在滑块旁边提供一个数字字段：拖动绝不是移动手柄的唯一方式，但它终究不是键入数值的方式。

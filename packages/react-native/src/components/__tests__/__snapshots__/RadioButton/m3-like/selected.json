@@ -1,0 +1,129 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "frequency",
+    "accessibilityRole": "radiogroup"
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityLabel": "Weekly",
+        "accessibilityRole": "radio",
+        "accessibilityState": {
+          "checked": true,
+          "disabled": false,
+          "selected": true
+        },
+        "accessibilityValue": {
+          "text": "1 of 1"
+        },
+        "accessible": true,
+        "collapsable": false,
+        "focusable": true,
+        "hitSlop": {
+          "bottom": 4,
+          "left": 4,
+          "right": 4,
+          "top": 4
+        },
+        "style": {
+          "alignItems": "flex-start",
+          "alignSelf": "flex-start",
+          "flexDirection": "row",
+          "gap": 4,
+          "opacity": 1
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "collapsable": false,
+            "style": {
+              "alignItems": "center",
+              "borderRadius": 9999,
+              "height": 40,
+              "justifyContent": "center",
+              "width": 40
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "borderRadius": 10,
+                  "height": 20,
+                  "justifyContent": "center",
+                  "width": 20
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessible": false,
+                    "importantForAccessibility": "no",
+                    "style": {
+                      "borderColor": "rgb(103, 80, 164)",
+                      "borderRadius": 10,
+                      "borderWidth": 2,
+                      "bottom": 0,
+                      "left": 0,
+                      "pointerEvents": "none",
+                      "position": "absolute",
+                      "right": 0,
+                      "top": 0
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "collapsable": false,
+                    "style": {
+                      "backgroundColor": "rgb(103, 80, 164)",
+                      "borderRadius": 5,
+                      "height": 10,
+                      "pointerEvents": "none",
+                      "transform": [
+                        {
+                          "scale": 1
+                        }
+                      ],
+                      "width": 10
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "props": {
+            "allowFontScaling": true,
+            "collapsable": false,
+            "style": {
+              "color": "rgb(29, 27, 32)",
+              "flexShrink": 1,
+              "fontFamily": "Roboto",
+              "fontSize": 14,
+              "fontWeight": "400",
+              "letterSpacing": 0.25,
+              "lineHeight": 20,
+              "marginTop": 10
+            }
+          },
+          "children": [
+            "Weekly"
+          ]
+        }
+      ]
+    }
+  ]
+}

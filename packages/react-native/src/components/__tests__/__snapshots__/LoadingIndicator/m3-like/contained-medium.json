@@ -1,0 +1,86 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Loading",
+    "accessibilityRole": "progressbar",
+    "accessibilityState": {
+      "busy": true
+    },
+    "accessible": true,
+    "focusable": false,
+    "style": {
+      "alignItems": "center",
+      "alignSelf": "flex-start",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "borderRadius": 9999,
+      "boxShadow": [
+        {
+          "blurRadius": 2,
+          "color": "rgba(0, 0, 0, 0.3)",
+          "offsetX": 0,
+          "offsetY": 1,
+          "spreadDistance": 0
+        },
+        {
+          "blurRadius": 6,
+          "color": "rgba(0, 0, 0, 0.15)",
+          "offsetX": 0,
+          "offsetY": 2,
+          "spreadDistance": 2
+        }
+      ],
+      "height": 48,
+      "justifyContent": "center",
+      "width": 48
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "collapsable": false,
+        "style": {
+          "height": 40,
+          "opacity": 1,
+          "width": 40
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessible": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "direction": "ltr",
+              "height": 40,
+              "left": 0,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "top": 0,
+              "width": 40
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "borderColor": "rgb(73, 69, 79)",
+                  "borderRadius": 20,
+                  "borderWidth": 4,
+                  "height": 40,
+                  "left": 0,
+                  "position": "absolute",
+                  "top": 0,
+                  "width": 40
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

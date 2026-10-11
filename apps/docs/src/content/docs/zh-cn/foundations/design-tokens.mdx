@@ -1,0 +1,73 @@
+---
+title: 设计令牌
+description: 由少数几个调节量推导出的四个层级，按上下文解析，以 DTCG 格式只写一次，再为每个平台生成。
+translationOf: foundations/design-tokens.mdx
+sourceHash: 556e1a52c075e10f7e3d783fcb96a5377bb4a3a4
+---
+
+import FileTree from '../../../../components/FileTree.astro';
+import Callout from '../../../../components/Callout.astro';
+
+设计令牌是一项有名字的设计决策。Tanrei 把每一种颜色、尺寸、文本样式、半径、阴影、时长和不透明度，都以 [Design Tokens Community Group 格式](https://www.designtokens.org/)（2025.10 版）的令牌保存在仓库的 `tokens/` 目录下。这个目录是项目的两个唯一可信来源之一。
+
+## 层级
+
+在下面三个层级之下，还有第四个层级 `dial`：所有推导值都由这七个数值而来。关于调节量、层，以及产品如何定制 Tanrei，参见[设计系统与定制](/zh-cn/foundations/design-systems/)。
+
+| 层级 | 前缀 | 内容 | 示例 |
+| --- | --- | --- | --- |
+| 参考 | `tanrei.ref.*` | 原材料：色调调色板、透明度阶梯、字体和字重。 | `tanrei.ref.palette.neutral.10` |
+| 系统 | `tanrei.sys.*` | 带有角色的决策：某个颜色或尺寸**用来做什么**。主题改变的就是这一层。 | `tanrei.sys.color.primary` |
+| 组件 | `tanrei.comp.*` | 从组件的各个部件到系统令牌的绑定。 | `tanrei.comp.button.filled.container.color` |
+
+每个层级只能指向更低的层级：组件令牌引用系统令牌，系统令牌引用参考令牌。
+
+有两条规则让这些层级保持有用，两者都由 `pnpm validate` 强制执行：
+
+- **组件令牌不包含字面值**，无论是颜色、字体排印、形状、动效还是不透明度。组件令牌永远是别名，因此主题只需修改系统层，就能改变所有组件的样式。
+- **组件不包含硬编码的设计值。** 如果缺少某个值，解决办法是新增令牌，而不是写一个魔法数字。
+
+## 上下文
+
+令牌不是只有一个值，而是每个上下文各有一个值。目前 Tanrei 解析两个上下文维度：
+
+- **主题：** 浅色或深色。
+- **对比度：** 标准、中或高。
+
+这样一共有六种解析后的组合。它们由一个 DTCG 解析器文件（`tokens/tanrei.resolver.json`）描述，并以完全解析的文件形式写入 `design/tokens/`；本站的[令牌参考](/zh-cn/tokens/color/)渲染的正是这些文件。
+
+## 命名
+
+令牌的名称就是它的路径。各平台按自己的约定来书写同一条路径：
+
+| 平台 | `tanrei.sys.color.primary` 写作 |
+| --- | --- |
+| CSS | `--tanrei-sys-color-primary` |
+| Swift、Kotlin、Dart、TypeScript | 包的令牌命名空间下生成的常量 |
+
+命名空间、CSS 前缀和标签前缀都来自同一个文件 `tanrei.config.json`。仓库中的其他任何地方都不允许硬编码它们。
+
+## 从源文件到各平台
+
+<FileTree>
+- tokens/ 唯一可信来源，手工编辑
+  - ref/
+  - sys/
+  - comp/
+  - themes/ 配色方案生成器的输入
+  - generated/ 生成器写出的调色板和配色方案
+  - tanrei.resolver.json
+- design/tokens/ 六种解析后的组合
+- packages/
+  - web/src/generated/tokens.css
+  - swiftui/…/Generated/TanreiTokens.swift
+  - compose/…/tokens/
+  - flutter/lib/src/generated/tokens.g.dart
+  - react-native/src/generated/tokens.ts
+</FileTree>
+
+`pnpm generate` 会重新构建所有派生文件。CI 会重新生成一遍，只要有任何差异就失败，因此手工改动生成的文件是留不住的。
+
+<Callout>
+  在 CSS 中，颜色令牌以 `light-dark()` 成对输出。一份样式表同时服务于两个主题，某个子树只要改变自己的 `color-scheme`，就能切换主题。
+</Callout>

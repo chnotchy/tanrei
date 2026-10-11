@@ -1,0 +1,302 @@
+---
+title: DateTimePicker
+description: Lets a person choose a date, a time, or a date and time — or a span of any of them — from a Calendar and time wheels or a clock dial, in a dialog or in a surface that drops down from a field.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import ProductWords from '../../../components/ProductWords.astro';
+
+export const words = {
+  confirmLabel: 'OK',
+  cancelLabel: 'Cancel',
+  dateLabel: 'Date',
+  startLabel: 'Start',
+  endLabel: 'End',
+  rangeLabel: 'Range',
+  nextDayLabel: 'next day',
+  rangeErrorText: 'End must be after start',
+  hourLabel: 'Hour',
+  minuteLabel: 'Minute',
+  periodLabel: 'AM or PM',
+  wheelsLabel: 'Wheels',
+  dialLabel: 'Dial',
+  entryModeLabel: 'Time input',
+  previousMonthLabel: 'Previous month',
+  nextMonthLabel: 'Next month',
+  yearViewLabel: 'Choose a year',
+  todayLabel: 'Today',
+};
+
+## Overview
+
+<ComponentAvailability name="date-time-picker" />
+
+A DateTimePicker is a surface that holds a [Calendar](/components/calendar/), a time section, or both. `mode` is `date`, `time` or `date-time`, and `range` adds a start and an end to any of them. It opens as a dialog over a scrim (`modal`) or as a surface below the field or button that opened it (`docked`). Its values are strings: `2026-09-17`, `19:30` or `2026-09-17T19:30`, with no seconds and no time zone.
+
+:::note[On the web today; planned elsewhere]
+The web component implements the picker as this page describes it: the two ends of a range are two fields joined by a dash, AM and PM are a quiet part of the time, the entry-mode tabs draw glyphs, and the wheels take typed digits. The demos are that component. SwiftUI, Compose, Flutter and React Native have not built it yet. Their packages still hold the code of the retired date picker and time picker, which this page does not document.
+:::
+
+<DemoFrame label="Open one with a button: a docked date, and a modal time">
+  <tanrei-button id="dtp-demo-due" variant="outlined" onclick="document.getElementById('dtp-demo-due-picker').open = true">Due date</tanrei-button>
+  <tanrei-date-time-picker id="dtp-demo-due-picker" presentation="docked" anchor="dtp-demo-due" label="Due date" locale="en-US" today="2026-09-24" value="2026-09-28" onchange="document.getElementById('dtp-demo-due').textContent = 'Due ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
+  <tanrei-button id="dtp-demo-alarm" variant="outlined" onclick="document.getElementById('dtp-demo-alarm-picker').open = true">Alarm</tanrei-button>
+  <tanrei-date-time-picker id="dtp-demo-alarm-picker" mode="time" locale="en-US" value="07:30" minute-step="5" label="Alarm" onchange="document.getElementById('dtp-demo-alarm').textContent = 'Alarm ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
+</DemoFrame>
+
+### Usage
+
+The picker is controlled: you set `open`, and it asks to be closed with `close`. It sets its own `value` (or `start` and `end`) before it emits `change`, and it writes nothing into the field that opened it.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- A modal picker for a time, opened from any button. -->
+    <tanrei-button id="alarm-button" variant="outlined">Alarm</tanrei-button>
+    <tanrei-date-time-picker id="alarm" mode="time" value="07:30" minute-step="5" label="Alarm"></tanrei-date-time-picker>
+
+    <!-- A docked picker below a text field, opened by the field's picker button. -->
+    <tanrei-text-field id="due" label="Due date" type="date" picker picker-label="Choose date"></tanrei-text-field>
+    <tanrei-date-time-picker id="due-picker" presentation="docked" anchor="due" label="Due date"></tanrei-date-time-picker>
+
+    <!-- Opening hours: a range of times. An end at or before the start is on the next day. -->
+    <tanrei-date-time-picker id="hours" mode="time" range start="09:00" end="17:30" label="Opening hours"></tanrei-date-time-picker>
+
+    <script type="module">
+      import '@tanrei/web/components/date-time-picker';
+      const alarm = document.querySelector('#alarm');
+      document.querySelector('#alarm-button').addEventListener('click', () => (alarm.open = true));
+      alarm.addEventListener('change', (e) => save(e.detail.value)); // "07:35": alarm.value is already the new one
+      // The picker never closes itself. e.detail.reason: escape, back, outside, tab, focus-out, cancel, confirm or select.
+      alarm.addEventListener('close', () => (alarm.open = false));
+
+      // The field asks; the product opens the picker and writes the value back.
+      const field = document.querySelector('#due');
+      const due = document.querySelector('#due-picker');
+      field.addEventListener('pickerrequest', (e) => {
+        Object.assign(due, { value: e.detail.value, min: e.detail.min, max: e.detail.max, open: true });
+      });
+      due.addEventListener('change', (e) => (field.value = e.detail.value));
+      due.addEventListener('close', () => (due.open = false));
+
+      const hours = document.querySelector('#hours');
+      hours.addEventListener('change', (e) => saveHours(e.detail.start, e.detail.end));
+      hours.addEventListener('close', () => (hours.open = false));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useState } from 'react';
+    import { DateTimePicker, TextField } from '@tanrei/react';
+
+    const [due, setDue] = useState('');
+    const [open, setOpen] = useState(false);
+
+    <TextField
+      id="due"
+      label="Due date"
+      type="date"
+      value={due}
+      picker
+      pickerLabel="Choose date"
+      onChange={(e) => setDue(e.currentTarget.value)}
+      onPickerrequest={() => setOpen(true)}
+    />
+    <DateTimePicker
+      presentation="docked"
+      anchor="due"
+      label="Due date"
+      open={open}
+      value={due}
+      onChange={(e) => setDue(e.detail.value)}
+      onClose={() => setOpen(false)}
+    />
+
+    // A modal date and time, in steps of 15 minutes.
+    <DateTimePicker
+      mode="date-time"
+      minuteStep={15}
+      label="Meeting start"
+      open={meetingOpen}
+      value={meeting}
+      onChange={(e) => setMeeting(e.detail.value)}
+      onClose={() => setMeetingOpen(false)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+There are no SwiftUI, Compose, Flutter or React Native samples, because those platforms have not built the picker. The names it will have there are in the platform mapping under [Specs](#specs).
+
+### Where the date picker and time picker went
+
+| Before | Now |
+| --- | --- |
+| Date picker, modal or docked | A DateTimePicker in `date` mode, `modal` or `docked` |
+| Date picker with a range | `mode` `date` with `range` |
+| Time picker | A DateTimePicker in `time` mode. The dial is one entry mode; wheels are the other, and the default |
+| The time picker's AM and PM segments | The period: a short third wheel beside the hour and minute wheels, or a selector beside the minute in the dial mode |
+| Typing a date or a time in the picker | A [Text field](/components/text-field/) of `type` `date`, `time` or `date-time`, whose picker button asks the product to open this picker |
+| An inline month grid | A [Calendar](/components/calendar/) |
+| The two pickers' tokens | `comp.date-time-picker.*` for the surface, header, time section and actions, and `comp.calendar.*` for the grid |
+
+New with this component: `date-time` mode, ranges of times (an end may fall on the next day), the wheels and `minuteStep`.
+
+On the web, the two earlier elements, one that picked a date and one that picked a time, are gone. Both are `<tanrei-date-time-picker>`, with `mode="date"` or `mode="time"`. A docked picker still takes `anchor` and `opener`, the ids of the elements it is placed below and opened by, and the picker is still opened with `open` and closed in answer to `close`. The dial is `entry-mode="dial"`.
+
+### Material 3's and Apple's names
+
+- Material 3's docked and modal date pickers are a DateTimePicker in `date` mode, and its date range picker is the same with `range`.
+- Material 3's time picker is a DateTimePicker in `time` mode. The m3-like preset offers the dial alone, with Material's larger selectors and dial, and text actions at the end.
+- Material's full-screen range picker, and the pencil and keyboard toggles to text entry, have no counterpart: text entry is the Text field's.
+- Apple's wheel time picker is the wheels, which the cupertino preset offers alone, with Apple's grey band.
+- Flutter's `showDatePicker` and `showTimePicker` are `showTanreiDateTimePicker`, SwiftUI's presented pickers are the `.tanreiDateTimePicker` modifier, and Compose's picker dialogs are `TanreiDateTimePicker`. React Native's is `DateTimePicker`, which is not the community package of the same name.
+
+## Specs
+
+The demos below draw the open surface in place, with the web's `inline` attribute, which is for documentation and tests. A picker in a product opens over the page.
+
+<DemoFrame label="A date: modal, with its header and actions, and docked, which commits by the day" plain>
+  <tanrei-date-time-picker inline open locale="en-US" today="2026-09-24" value="2026-09-17" label="Check-in"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open presentation="docked" locale="en-US" today="2026-09-24" value="2026-09-17" label="Check-in"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="A time: the wheels, the default, and the dial" plain>
+  <tanrei-date-time-picker inline open mode="time" locale="en-US" value="19:30" label="Alarm"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open mode="time" entry-mode="dial" locale="en-US" value="19:30" label="Alarm"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="A range of times that ends on the next day, and a 24-hour clock in steps of 15 minutes" plain>
+  <tanrei-date-time-picker inline open mode="time" range locale="en-US" start="22:00" end="06:00" label="Quiet hours"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open mode="time" hour-cycle="h23" minute-step="15" locale="en-US" value="19:30" label="Departure"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="A date and time, and a range of dates" plain>
+  <tanrei-date-time-picker inline open mode="date-time" locale="en-US" today="2026-09-24" value="2026-09-17T19:30" minute-step="5" label="Meeting start"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open range locale="en-US" today="2026-09-24" start="2026-09-10" end="2026-09-16" label="Stay"></tanrei-date-time-picker>
+</DemoFrame>
+
+<ComponentSpecs name="date-time-picker" />
+
+## Guidelines
+
+### When to use
+
+Use a DateTimePicker when a person chooses a date or a time and seeing the calendar or the clock helps: which weekday, how far away, which hours. Open it from a [Text field](/components/text-field/)'s picker button, so a person who knows the value can still type it, or from any button. Lay a [Calendar](/components/calendar/) in the page instead when the choice of dates is the page's task.
+
+### Choosing a form
+
+| You need | Set |
+| --- | --- |
+| A date | `mode` `date` (the default). `docked` below a field for a quick choice; `modal` where the date deserves the screen |
+| A span of dates | `mode` `date` with `range` |
+| A time | `mode` `time` |
+| Opening hours, a shift, quiet hours | `mode` `time` with `range`. An end at or before the start falls on the next day |
+| An appointment | `mode` `date-time` |
+| A booking from one moment to another | `mode` `date-time` with `range` |
+
+`min`, `max`, `disabledDates`, `today`, `firstDayOfWeek`, `startView` and `showAdjacentDays` are passed to the calendar and mean what they mean [there](/components/calendar/). They bound dates only: times are not bounded.
+
+### Opening and committing
+
+The picker is controlled. You open it by setting `open`, from the Text field's `pickerRequest` or a button's handler, and it emits `close` with a reason. On the web, Compose and React Native you set `open` back to false; on SwiftUI and Flutter the binding or the route closes it.
+
+- **Modal, or anything with a time.** The picker holds a pending choice and commits it with OK: it emits `change` if the choice differs, then `close` with `confirm`. OK is disabled while the choice is incomplete. Cancel, Escape, back and a press on the scrim close it and commit nothing. A value you set while it is open does not move the pending choice.
+- **Docked, date only.** Choosing a day that completes the choice commits it at once and closes the picker (`select`). It has no actions. Choosing a range's start keeps it open.
+- **The write-back.** The picker writes nothing into the field. Set the field's `value` from `change`. When it closes, focus returns to whatever had it, which is usually the field's picker button.
+
+The product stays between the field and the picker because it often configures the picker from things the field does not know: a range from two fields, a minute step, a day predicate.
+
+On the web a docked picker takes `anchor`, the id of the element it is placed below, and `opener` when another element opens it. Given a Text field as its anchor, it marks the field's picker button as the control that opens a dialog.
+
+### Parts and layout
+
+From top to bottom: the header, the body and the actions.
+
+| Part | Notes |
+| --- | --- |
+| Header | A start-aligned title row: `label`, which says what is being chosen ("Check-in"), and the entry-mode tabs at its end when the picker sets a time. The picker has no word of its own for `label`: without one the row draws no words. A modal picker with a date also shows the pending value below it ("Thu, Sep 17", "Sep 10 – Sep 16", and `dateLabel` for a date not chosen yet), with a hairline under the header. |
+| Calendar | For `date` and `date-time`. The picker passes its props to the Calendar and does not restyle it. |
+| Time section | For `time` and `date-time`. Top to bottom: the range display, across the whole section, when `range` is set; the time display in the dial mode; and the wheels or the dial. The period stands in the row of the hour and the minute. |
+| Actions | Cancel and OK, a full-width row of tonal Buttons placed by their task, as in a [dialog](/components/dialog/). |
+
+`layout` `vertical` stacks the calendar above the time section, and `horizontal` puts them side by side; for a time alone in the dial mode, `horizontal` puts the time display beside the dial. `auto`, the default, chooses horizontal only when the window is too short for vertical and wide enough for horizontal. When the parts do not fit, the header and the actions stay and the body scrolls between them.
+
+### Setting a time
+
+- **Wheels or dial.** Wheels are the default and come first. The dial is the clock face, with the time display — the hour and minute selectors — as the row next to it. `entryMode` chooses which one the picker opens on, and the person can switch with the entry-mode tabs: two icon-only tabs at the end of the title row, a keyboard glyph for the wheels and a clock glyph for the dial. Their words (`wheelsLabel`, `dialLabel`) are their accessible names. A product that offers only one sets `comp.date-time-picker.time.entry-modes`, and the tabs are not drawn.
+- **Typing a number.** A press on a wheel's chosen value, or a digit typed while a wheel has focus, begins a typed entry: on a touch device the number keyboard comes up. Two digits, or one that no second could join, end the entry, and a finished hour moves on to the minute, so `7` `3` `0` is 7:30. The dial mode's selectors read digits from a keyboard the same way. A whole date is still typed in the Text field.
+- **The clock.** `hourCycle` is the locale's by default, or `h12` or `h23`. Values are 24-hour in every cycle.
+- **The period.** With a 12-hour clock, AM or PM is a part of the time, not a switch above it. In the wheels mode it is a short third wheel, and in the dial mode a narrow selector that changes to the other when pressed. It stands after the minute, or before the hour where the locale writes it first, as Japanese does. Changing it keeps the hour's number and changes the half of the day. It is drawn quiet and never takes the mark of the unit being set.
+- **Minute step.** `minuteStep` (1, 5, 10, 15 or 30) sets the minute wheel's rows and the dial's numbers. A time off the step, set or typed, rounds down to it.
+- **An empty time** starts at the current time.
+
+### Ranges
+
+A range of dates is chosen in the calendar: a start, then an end.
+
+A range that has a time shows its two ends as two range fields joined by a dash: "9:00 AM – 5:30 PM". No word says start or end; the order and the dash do. The field being set is marked as selected, and the wheels or the dial below show and set its time. Pressing the other field sets that end instead. Focus alone does not, so Tab can pass over a field without changing which end is being set. In a date-time range, choosing a start in the calendar selects the start's field, and choosing an end the end's.
+
+- A time range whose end is at or before its start ends on the next day, and the end's field says so (`nextDayLabel`).
+- A date-time range whose end is before its start shows `rangeErrorText` and keeps OK disabled.
+
+### Words
+
+Tanrei ships no words: every word a picker shows or announces is yours. `label` says what this one picker chooses and is written on it. The others are said the same way wherever a picker is drawn, so give them once for the whole product, per language, as this page does:
+
+<ProductWords words={words} label="The picker's words, set once for the product" />
+
+That call is the one this page runs: the samples above carry a `label` and none of these words. A picker says its own where it differs (`confirm-label="Book"`), and an attribute always wins. Without them the picker still works: Cancel and OK are icon-only buttons with the close and check glyphs, an overnight end reads `+1`, a date not chosen yet draws nothing, and a debug build reports each missing word. The hour's, the minute's and the period's names and the word for the present day come from the browser's locale data where you give none.
+
+### Do
+
+- Open the picker from a Text field's picker button, so the value can also be typed.
+- Set `label` to what is being chosen ("Check-in", "Meeting start"), in your product's language, and the other words the picker shows.
+- Use `minuteStep` when only some minutes make sense, such as every 15 minutes for a booking.
+- Give the picker the same `min`, `max` and `disabledDates` as the field it serves, so the two accept the same dates.
+
+### Don't
+
+- Don't use a DateTimePicker as the only way to enter a date a person already knows, such as a birth date. Let them type it.
+- Don't set the entry modes or the actions' look per picker. They are product settings, in the layer.
+- Don't write the value into the field before `change`. The picker commits only with OK, or with the day in a docked date picker.
+- Don't leave `open` true after `close` on the web, Compose or React Native. The picker never closes itself there.
+- Don't use the web's `inline` attribute in a product. It draws the surface without the overlay's behaviour.
+
+## Accessibility
+
+<ComponentAccessibility name="date-time-picker" />
+
+### What the component handles
+
+- The surface is a dialog named by `label`. A modal picker keeps focus inside and draws a scrim; a docked picker takes focus and returns it to its anchor, but Tab leaves it and closes it. Focus moves in when it opens: to the calendar's active day, or to the hour.
+- The calendar, the tabs and the Buttons name themselves from the words the picker gives them. The entry-mode tabs are a real tab list, read with their names and positions ("Wheels, tab, 1 of 2") though they draw glyphs alone.
+- The two ends of a range are two buttons in a group named `rangeLabel`, each read with its name, its time and whether it is the one being set ("Start, 9:00 AM"). `startLabel` and `endLabel` are never drawn: they are what tells assistive technology which end is which. The dash is hidden.
+- The hour and minute wheels and selectors are spin buttons, operated by the arrow keys, Page Up and Page Down and Home and End, and read as drawn (the hour with its period in a 12-hour clock). They stay spin buttons while a number is typed into them. The period is a third spin button of two values, named `periodLabel`. The dial is hidden from assistive technology: everything it does, the selectors do too.
+- Escape ends a typed entry first, keeping the value before it. Otherwise it closes the picker without committing and returns focus to where it was.
+- A date-time range whose end is before its start is announced once, politely, and described on the end's range field.
+- Every selector, range field and wheel row is at least the minimum target, and the wheels, selectors, period and dial numbers grow with enlarged text rather than clip it. On a narrow window the picker is never wider than the window: the calendar's cells and the range fields narrow.
+- Right-to-left layouts mirror the title row, the columns, the range display, the side the period stands on and the actions. The hour, the separator and the minute stay in that order, and the dial runs clockwise.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native have not built the DateTimePicker: each builds it from this spec when it catches up.
+- Web: the end's range field is a button, which has no invalid state, so a range error reaches assistive technology as its description and its announcement only.
+- Web: the browser does not report a device-wide choice of 12- or 24-hour time, so `hourCycle` `locale` follows the locale alone.
+- Web: a press outside a docked picker closes it and also reaches the element under it, as a menu's does.
+- Web: the docked picker is placed by script, not yet by CSS anchor positioning.
+- Web: the wheels, the dial and the calendar's drag have not yet been checked with a finger on a device, and some tests fail in Firefox and WebKit.
+- The wheels do not match the dial's diameter or the selectors' width; whether they should is undecided.
+
+### What you need to do
+
+- Give every picker a `label` that says what is being chosen ("Check-in", "Meeting time"). It is this picker's alone: without it the title row draws no words and the dialog has no name.
+- Give every other word the picker shows or announces: on the picker, or once for the whole product with `setWords()`, as this page does. Tanrei ships none: the actions (`confirmLabel`, `cancelLabel`), `dateLabel`, `nextDayLabel`, `rangeErrorText`, the calendar's six, and the names that are only heard (`wheelsLabel`, `dialLabel`, `entryModeLabel`, `rangeLabel`, `startLabel`, `endLabel`). Without them the picker draws marks in their place where a mark says the same — icon-only close and check buttons, `+1` after an overnight end — and reports each missing word in development. The hour's, the minute's and the period's names and the word for the present day come from the browser's locale data when you give none. See [The product's words](/foundations/words/).
+- Open it from a control that says what it opens, such as a Text field's picker button named by `pickerLabel` ("Choose date").
+- Set the field's `value` from `change`, and close the picker from `close` where `open` is a plain value.
+- Offer typing as well, through the Text field.

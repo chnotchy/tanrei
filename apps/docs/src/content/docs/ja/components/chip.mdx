@@ -1,0 +1,271 @@
+---
+title: チップ
+description: 行に並べて使う、ラベル付きの小さなコントロールです。提案されたアクションやどこかへのリンク、オンとオフを切り替える絞り込み、ユーザーが入力して取り除ける項目を表します。
+translationOf: components/chip.mdx
+sourceHash: a3d58a12a8d3b292cac1c4863b58d2661736ea10
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="chip" />
+
+<DemoFrame label="種類">
+  <tanrei-chip label="カレンダーに追加"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip label="いいですね"></tanrei-chip>
+  <tanrei-chip kind="filter" selected label="ベジタリアン"></tanrei-chip>
+  <tanrei-chip kind="filter" label="30 分以内"></tanrei-chip>
+  <tanrei-chip kind="input" label="山田 花子" remove-label="山田 花子を削除"></tanrei-chip>
+</DemoFrame>
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、角の丸みが小さく、グリフも小さく、取り除くアクションが `close` のグリフで、`destructiveRemove` もリンクの形（`href`）も持たない以前の版のチップをまだ提供しています。これらの例は、追従するまでその版のものです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-chip label="カレンダーに追加"><span slot="icon">event</span></tanrei-chip>
+
+    <!-- href のあるアクションチップはリンクです。新しいタブで開くものは印を表示し、そのことを自分の言葉で伝えます。 -->
+    <tanrei-chip label="営業時間" href="/visit/hours/"></tanrei-chip>
+    <tanrei-chip label="経路" href="https://example.com/map" target="new" target-label="新しいタブで開きます"></tanrei-chip>
+
+    <!-- 絞り込みチップは自分の selected を切り替え、change を発火します。 -->
+    <tanrei-chip kind="filter" label="ベジタリアン"></tanrei-chip>
+
+    <!-- 入力チップは、remove-label を名前とする 2 つ目のボタンを持ちます。 -->
+    <tanrei-chip kind="input" label="山田 花子" remove-label="山田 花子を削除">
+      <img slot="avatar" src="ada.jpg" alt="" />
+    </tanrei-chip>
+
+    <!-- 適用中の絞り込みを外しても何も失われないので、破壊的な見た目をオフにします。 -->
+    <tanrei-chip kind="input" label="30 分以内" remove-label="30 分以内を削除" no-destructive-remove></tanrei-chip>
+
+    <script type="module">
+      import '@tanrei/web/components/chip';
+      document.querySelector('[kind="filter"]').addEventListener('change', (e) => filter(e.detail.selected));
+      // チップは DOM に残ります。取り除いて隣にフォーカスを移すのはページの役目です。
+      document.querySelector('[kind="input"]').addEventListener('remove', (e) => removeRecipient(e.target));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip } from '@tanrei/react';
+
+    <Chip label="カレンダーに追加" onClick={addToCalendar}><span slot="icon">event</span></Chip>
+    <Chip label="営業時間" href="/visit/hours/" />
+    <Chip label="経路" href="https://example.com/map" target="new" targetLabel="新しいタブで開きます" />
+    <Chip kind="filter" selected={vegetarian} label="ベジタリアン" onChange={(e) => setVegetarian(e.detail.selected)} />
+    <Chip kind="input" label="山田 花子" removeLabel="山田 花子を削除" onRemove={() => removeRecipient(ada)} />
+    <Chip kind="input" label="30 分以内" removeLabel="30 分以内を削除" destructiveRemove={false} onRemove={clearTimeFilter} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // どのイニシャライザーを使うかで種類が決まります。
+    TanreiChip("カレンダーに追加", icon: "event", action: addToCalendar)
+    TanreiChip("ベジタリアン", isSelected: $vegetarian)
+    TanreiChip("山田 花子", removeLabel: "山田 花子を削除", action: openContact, onRemove: removeAda)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiChip
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // どのオーバーロードを使うかで種類が決まります。onClick だけならアクションチップです。
+    TanreiChip(onClick = ::addToCalendar, label = "カレンダーに追加", icon = { TanreiText("event") })
+
+    // selected と onSelectedChange を渡すと絞り込みチップになります。
+    TanreiChip(selected = vegetarian, onSelectedChange = { vegetarian = it }, label = "ベジタリアン")
+
+    // onClick と onRemove を渡すと入力チップになります。リストから取り除き、フォーカスを移すのは呼び出し側です。
+    TanreiChip(
+        onClick = { openContact(ada) },
+        onRemove = { recipients -= ada },
+        label = "山田 花子",
+        removeContentDescription = "山田 花子を削除",
+        avatar = { ContactPhoto(ada) },
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // どのコンストラクターを使うかで種類が決まります。
+    TanreiChip(label: 'カレンダーに追加', icon: const Icon(AppSymbols.event), onPressed: addToCalendar);
+
+    TanreiChip.filter(
+      label: 'ベジタリアン',
+      selected: vegetarian,
+      onSelected: (bool value) => setState(() => vegetarian = value),
+    );
+
+    TanreiChip.input(
+      label: '山田 花子',
+      removeSemanticLabel: '山田 花子を削除',
+      avatar: Image.asset('ada.png', fit: BoxFit.cover),
+      onDeleted: () => setState(() => recipients.remove(ada)), // フォーカスの移動も呼び出し側で
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Chip } from '@tanrei/react-native';
+
+    <Chip label="カレンダーに追加" icon="event" onPress={addToCalendar} />
+    <Chip kind="filter" label="ベジタリアン" selected={vegetarian} onSelectedChange={setVegetarian} />
+    <Chip
+      kind="input"
+      label="山田 花子"
+      avatar={{ uri: ada.photo }}
+      removeAccessibilityLabel="山田 花子を削除"
+      onRemove={() => removeRecipient(ada)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="バリアント、サイズ、無効状態" plain>
+  <tanrei-chip variant="elevated" label="カレンダーに追加"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="filter" variant="elevated" selected label="ベジタリアン"></tanrei-chip>
+  <tanrei-chip size="small" label="カレンダーに追加"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="input" size="small" label="山田 花子" remove-label="山田 花子を削除"></tanrei-chip>
+  <tanrei-chip disabled label="カレンダーに追加"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="filter" selected disabled label="ベジタリアン"></tanrei-chip>
+</DemoFrame>
+
+<DemoFrame label="取り除くアクション：破壊的（既定）と通常。ホバーかフォーカスで違いが見えます" plain>
+  <tanrei-chip kind="input" label="山田 花子" remove-label="山田 花子を削除"></tanrei-chip>
+  <tanrei-chip kind="input" label="30 分以内" remove-label="30 分以内を削除" no-destructive-remove></tanrei-chip>
+</DemoFrame>
+
+<DemoFrame label="リンクのチップ：同じタブ、新しいタブ、無効" plain>
+  <tanrei-chip label="タグ" href="/ja/components/tag/"></tanrei-chip>
+  <tanrei-chip label="バッジ" href="/ja/components/badge/" target="new" target-label="新しいタブで開きます"></tanrei-chip>
+  <tanrei-chip label="タグ" href="/ja/components/tag/" disabled></tanrei-chip>
+</DemoFrame>
+
+既定のシステムでは、どのチップも両端が半円のピル形で、文字を大きくして背が高くなってもピル形のままです。グリフは高さが許す限り大きく、medium では 24、small では 20 です。選択中の絞り込みチップのチェックはシステムのアイコンセットの `check`、取り除くグリフは `cancel` で、後者はいつも塗りつぶしで描きます。チップは独自の印を描かないので、別の印にしたいデザインシステムは別のアイコンセットを選びます。Outlined のチップの輪郭は、区切り線が引くのと同じ控えめな細い線です。
+
+<ComponentSpecs name="chip" />
+
+## ガイドライン
+
+### 使う場面
+
+関連する小さな選択肢を横に並べて見せるときに使います。リストの上の絞り込み、メッセージの下の返信候補、メールの宛先などです。10 個並べるにはボタンは重すぎ、チェックボックスはフォームの一部に見え、バッジやタグは押せません。
+
+### 種類の選び方
+
+`kind` は、チップが何をするか、つまりロールと構成要素を決めます。見た目は変わりません。
+
+| 種類 | 何か | 用途 |
+| --- | --- | --- |
+| Action（既定） | ボタン。`href` があればリンク | 日付の横の「カレンダーに追加」のような、内容に結び付いた補助アクション（assist）や、「いいですね」のような返信の提案（suggestion）。移動先があれば、関連するページへの近道。 |
+| Filter | オンとオフを持つボタン | リストの絞り込み。「ベジタリアン」「30 分以内」など。オンのときはチェックと選択時の色で示します。 |
+| Input | ユーザーが入力した項目。取り除くアクションを持つ | 宛先、タグ、検索語。アイコンの代わりにアバターも表示できます。 |
+
+Material Design 3 にはチップが 4 系統あります。Tanrei では種類を 3 つにまとめています。assist と suggestion は、どちらもラベルと任意のアイコンを持つボタンなので、同じ `action` として扱います。提案のチップを控えめに見せたいデザインシステムは、専用のバリアントを追加します。
+
+### バリアントとサイズの選び方
+
+| バリアント | 用途 |
+| --- | --- |
+| Outlined（既定） | 無地のサーフェスの上のチップ。輪郭は区切り線と同じ細い線で、チップを控えめに区切ります。意味を伝えるのはラベルです。 |
+| Elevated | 写真や地図、込み入った背景の上。輪郭だけでは埋もれてしまう場所に使います。 |
+
+たいていのチップは `medium`（32）にします。フィールドの中に並ぶ入力済みの項目や、表の上に並ぶ絞り込みなど、密度の高い場所では `small`（24）を使います。表の行の中に置く静的なラベルは[タグ](/ja/components/tag/)です。どちらのサイズでも最小ターゲットは満たします。
+
+### チップ、タグ、バッジ
+
+チップはコントロールです。押す、切り替える、取り除くといった操作を受け、フォーカスと状態を持ちます。[タグ](/ja/components/tag/)は、ステータスやカテゴリーなど、1 つの項目に付ける静的なラベルで、ポインターには反応しません。[バッジ](/ja/components/badge/)は、ほかの要素の角に付くドットや件数です。
+
+- 押す、選ぶ、取り除くものなら、チップを使います。
+- 付いている項目について何かを伝えるだけなら、タグを使います。
+- 何かの上に載る数字やドットなら、バッジを使います。
+
+何もしないチップをラベルとして使わないでください。チップを無効にしてラベルの代わりにするのも避けます。
+
+### 移動先のあるチップはリンク
+
+移動先のあるコントロールはリンクです。押すとどこかへ移動するだけのアクションチップには `href` を指定します。チップはボタンではなく本物のリンクになり、Web ではアンカーになるので、新しいタブで開いたり、アドレスをコピーしたりできます。見た目はどの状態でもアクションチップとまったく同じで、訪問済みの状態はありません。
+
+- リンクのチップは Enter で移動します。Space では移動しません。Space はふつうのリンクと同じ働きをします。
+- 先に `click` が発火し、そのあとで移動先が開きます。クライアントサイドのルーターのように移動を自分で扱うなら、その click をキャンセルします。
+- `target` を `new` にすると、ラベルのあとに `open_in_new` のグリフを表示します。このとき `targetLabel` が必要です。名前のあとに読まれる言葉で、「新しいタブで開きます」などと書きます。Tanrei はこの文言を用意していません。
+- 無効なリンクのチップは移動できず、フォーカスの順序からも外れます。
+- リンクになれるのはアクションチップだけです。絞り込みチップは状態を持ち、入力チップは 2 つ目のアクションを持つので、どちらも `href` を無視し、デバッグビルドで報告します。
+
+### 取り除くアクション
+
+入力チップの末尾には、取り除くアクションがあります。塗りつぶしの `cancel` グリフを、それより少し大きい丸いコンテナに載せたもので、ホバー、フォーカス、押下の間はグリフの周りに輪として見えます。既定のシステムでは、丸いコンテナはチップの丸い端と同心で、端からの距離が上下からの距離と同じになります。丸いコンテナは自分の場所を取らないので、チップの幅も高さも変えません。取り除くアクションはチップとは別のボタンで、名前、ホバー・フォーカス・押下の状態、ヒット領域を自分で持ちます。ヒット領域は外側に向かって広がり、ラベルにはかかりません。このボタンを押すか、チップにフォーカスがある状態で Backspace か Delete を押すと、チップを取り除くよう求めます。**チップは自分自身を取り除きません。** 項目を取り除き、次のチップ、前のチップ、またはチップが属するフィールドへフォーカスを移すのは、利用者側のコードです。
+
+既定では、取り除くアクションは破壊的なアクションとして見えます（`destructiveRemove`。オフにしない限りオンです）。通常時の見た目はフラグがないときと同じで、ホバー、フォーカス、押下の間だけ、グリフとステートレイヤーがエラーの色になります。適用中の絞り込みのように、あとから付け直せて何も失われない取り除きではオフにします。Web では HTML の真偽値属性を既定で true にできないため、属性は反対の意味の `no-destructive-remove` です。このフラグが変えるのは色だけで、ほかの種類のチップでは無視されます。
+
+読み取り専用のフィールドのエントリのように、いまは取り除けない入力チップは、取り除くアクションを描きません。`removable` を false にします。働かないアクションが残ることはなく、Backspace と Delete も何も求めず、チップの余白は取り除くアクションのないチップと同じになります。Web では、属性は反対の意味の `not-removable` です。ほかの種類のチップでは無視されます。
+
+**使われている場所**は、[チップフィールド](/ja/components/chip-field/)です。エントリの 1 件ずつが、小さい入力チップです。チップフィールドでは、チップ全体で Tab が止まる場所を 1 つにし、専用のキーを用意して、求められたチップを取り除き、フォーカスを移します。Web では、チップをこのようにまとめるコンポーネントが、それぞれのチップに `tabindex="-1"` を設定します。チップと取り除くアクションは Tab の順序から外れますが、どちらもフォーカスは受け取れます。
+
+### 推奨
+
+- ラベルは 1〜3 語程度に短くします。チップは 1 行のままで、レイアウトの幅が足りないときだけラベルを末尾で省略します。
+- 1 行に並べるチップのバリアントはそろえます。
+- 取り除くアクションのラベルには項目の名前を入れます。「削除」ではなく「山田 花子を削除」です。
+- 宛先やタグのように、取り除くと入力したものが失われる場所では、破壊的な見た目を残します。取り除いても害のない場所ではオフにします。
+- Web では、並べたチップを[タググループ](/ja/components/tag-group/)に入れます。チップを折り返す行に並べ、チップの間に間隔を取り、全体を 1 つのリストとして伝えます。ほかのプラットフォームでは、またスクロールさせる並びでは、自分でレイアウトします。
+
+### 非推奨
+
+- それだけで完結し、すぐに反映される設定に絞り込みチップを使わない。スイッチを使います。
+- 画面の主アクションにチップを使わない。ボタンかメインアクションボタンを使います。
+- アクションチップの click ハンドラーからページを移動しない。移動するチップには `href` を指定します。
+- 絞り込みの横に提案アクションを置くなど、1 行の中に種類を混ぜない。
+- 状態によって変わるラベルを絞り込みチップに付けない。状態は別に読み上げられます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="chip" />
+
+### コンポーネントが担うこと
+
+- どのチップも、ボタンのロール、名前としてのラベル、無効状態を伝えます。アイコン、チェック、アバターは支援技術から隠します。
+- `href` のあるアクションチップは、同じ名前のまま、ボタンではなくリンクのロールを伝えます。新しいタブで開くリンクの印は支援技術から隠し、`targetLabel` をリンクの説明として、名前とロールのあとに読ませます。
+- 絞り込みチップは、トグルボタンと同じように、オンかどうかも伝えます（Web では押下状態、Apple のプラットフォームでは選択のトレイト、Android では切り替え可能な状態）。状態をチェックのグリフから読み上げることはありません。
+- 入力チップは 2 つの要素でできています。チップ本体と、その後ろの取り除くアクションです。後者は取り除くアクションのラベルを名前とする、独立したボタンです。Tab ではこの順にたどります。チップ本体にフォーカスがあるときは、Backspace か Delete でも取り除くよう求めます。
+- Enter と Space でチップを実行し、取り除くアクションにフォーカスがあるときはそちらを実行します。リンクのチップは Enter だけで実行します。それぞれが自分のフォーカスインジケーターを、キーボードフォーカスのときだけ表示します。
+- チップのヒット領域は、どちらのサイズでも最小ターゲットを満たします。取り除くアクションも自分のヒット領域で最小ターゲットを満たし、ラベルにはかかりません。
+- 破壊的な見た目だけに頼ることはありません。`destructiveRemove` がオンでもオフでも、取り除くアクションのロール、名前、グリフ、大きさ、ヒット領域は変わらず、読み上げも増えません。何をするかは「山田 花子を削除」という名前が伝えます。
+- ラベルが省略されても、アクセシブルネームは全文のままです。文字を大きくすると、チップは縦に伸び、ピル形のままです。
+- 既定のシステムでは、Outlined のチップの輪郭は区切り線と同じ細い線で、サーフェスに対するコントラストは 3:1 に届きません。チップを見分ける手がかりは輪郭ではありません。ラベルは十分なコントラストのテキストで、選択中の絞り込みチップは塗りとチェックで、フォーカスはフォーカスリングで示します。3:1 の輪郭が必要なプロダクトは、レイヤで `comp.chip.outlined.outline.color` を `sys.color.outline` にします。
+- ラベルがない場合、入力チップに取り除くアクションのラベルがない場合、新しいタブで開くリンクに `targetLabel` がない場合、絞り込みチップや入力チップに移動先を指定した場合、未知の種類を指定した場合は、デバッグビルドで報告します。未知の種類はアクションチップとして描画され、動作します。
+
+プラットフォームごとの既知の制約：
+
+- React Native：Backspace と Delete はキーイベントで受け取っていますが、iOS と Android で実際に届くかは実機でまだ確かめていません。いずれにしても、取り除くアクションには Tab で届きます。
+- React Native：VoiceOver と TalkBack がチップ本体と取り除くアクションを 2 つの要素としてこの順にたどるか、また取り除くアクションのヒット領域は、実機なしのテストでしか確かめていません。Android ではヒット領域が親ビューの外に出られないため、入力チップの並びの周りには余白を取ってください。
+- Flutter：取り除くアクションのヒット領域はチップの末尾より外まで届き、Flutter はその分だけ入力チップのレイアウト幅を広げます。そのため、入力チップを並べると間隔が少し広くなります。
+- Compose：取り除くアクションのヒット領域は、チップの幅を広げずにチップの末尾より外まで届きます。そのため、すぐ後ろに置いたチップと重なる部分では、後ろのチップが押されます。そこへのタッチ、プラットフォームのキー処理を通したキー操作、TalkBack は Robolectric 上でしか確かめておらず、実機ではまだ試していません。
+- SwiftUI：チップ本体での Backspace と Delete、チップ本体から取り除くアクションへの Tab は、部分ごとにはテストしていますが、通しではまだ動かしていません。押すとコントロールが薄くなるシステム（cupertino）では、取り除くグリフがチップより 1 フレーム遅れて薄くなります。
+- SwiftUI と Compose では、文字を大きくするとラベルは大きくなりますが、アイコン、チェック、取り除くグリフ、アバターは元の大きさのままです。ラベルに合わせて大きくすべきかは、まだ決まっていません。
+- Web は、チェックと取り除くグリフを、仕様が名前を挙げるアイコンセットの `check` と `cancel` で描きます（CHP-13、CHP-18）。以前の版を提供している SwiftUI、Compose、Flutter、React Native は、取り除くアクションをまだ `close` で描き（Flutter は Material Symbols のコードポイントで指定しています）、アイコンフォントがない場合、Compose と SwiftUI はチェックとバツを独自のベクターで描きます。それぞれ、追従した時点で `cancel` と `check` を名前で描き、独自のベクターは描かなくなります。
+
+### 利用者側で行うこと
+
+- ユーザーが入力チップを取り除いたら、チップを取り除き、隣のチップかフィールドへフォーカスを移します。チップは求めるだけで、その後は何もしません。
+- 入力チップには、項目の名前を含む取り除くアクションのラベルを必ず付けます。「削除」とだけ読み上げられるボタンが並ぶと、どれがどの項目のものか区別できません。
+- 新しいタブやウィンドウで開くリンクのチップには、プロダクトの言語で `targetLabel` を付けます。
+- 絞り込みチップの並びには、何を絞り込むのかが分かる見出しかグループ名を付けます。
+- 矢印キーでチップ間を移動するなど、並び全体のキーボード操作が必要なら自分で用意します。各チップが扱うのは Tab、Enter、Space と、入力チップでの Backspace と Delete だけです。

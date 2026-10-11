@@ -1,0 +1,19 @@
+---
+title: शेप टोकन
+description: कॉर्नर रेडियस का स्केल, और वह एक संख्या जो बताती है कि कोना कैसे मुड़ता है।
+translationOf: tokens/shape.mdx
+sourceHash: 17940569b85fa7a8afc9a514a82b9a0400042b33
+---
+
+import ShapeScale from '../../../../components/tokens/ShapeScale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+`tanrei.sys.shape.corner` के अंतर्गत कॉर्नर रेडियस। मार्गदर्शन के लिए [शेप](/hi/foundations/shape/) पढ़ें।
+
+<ShapeScale />
+
+## कॉर्नर स्मूदिंग
+
+`tanrei.sys.shape.corner-smoothing` 0 से 1 तक की एक मात्रा है, Figma वाले अर्थ में: 0 चौथाई वृत्त है, 0.6 वह है जिसे Figma iOS का कोना कहता है, और 1 सबसे ज़्यादा ढला हुआ। इससे रेडियस नहीं बदलता। इस मात्रा का अर्थ Figma की रचना ही है; Compose और Flutter उसे बनाते हैं, वेब सबसे क़रीबी सुपरएलिप्स बनाता है, और SwiftUI और iOS पर React Native, OS का वक्र (दूरियाँ [शेप](/hi/foundations/shape/#कॉर्नर-स्मूदिंग) पेज पर हैं)। साथ आने वाले हर सिस्टम के लिए:
+
+<SystemValues tokens={['sys.shape.corner-smoothing']} />

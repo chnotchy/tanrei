@@ -1,0 +1,223 @@
+---
+title: الصورة الرمزية
+description: تمثّل شخصًا أو فريقًا أو مشروعًا بصورة صغيرة، وبالأحرف الأولى أو برسم أيقونة حيث لا صورة، في دائرة أو مربع مستدير الزوايا بثلاثة أحجام. وتُعرض عدة صور رمزية مجموعةً واحدة متراكبة تعدّ الباقي. وهي صورة، لا عنصر تحكم أبدًا.
+translationOf: components/avatar.mdx
+sourceHash: 3fba4dba17faacf3912404f2c65a411b7cfa585a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="avatar" />
+
+<DemoFrame label="أحرف أولى، ورسم أيقونة، ومربع، ومجموعة">
+  <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar label="شخص بلا صورة"></tanrei-avatar>
+  <tanrei-avatar label="فريق التصميم" initials="فت" shape="square"></tanrei-avatar>
+  <tanrei-avatar-group label="المراجعون" max="4" overflow-label="و3 آخرون">
+    <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+    <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
+    <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
+    <tanrei-avatar label="Hedy Lamarr" initials="HL"></tanrei-avatar>
+    <tanrei-avatar label="Annie Easley" initials="AE"></tanrei-avatar>
+    <tanrei-avatar label="Mary Jackson" initials="MJ"></tanrei-avatar>
+  </tanrei-avatar-group>
+</DemoFrame>
+
+الصورة الرمزية (avatar) تبيّن لمن يعود الشيء: كاتب منشور، أو المشاركون في محادثة، أو صاحب مهمة. ترسم صورة، وعندها دائمًا ما ترسمه حين لا توجد صورة. ولا تستجيب أبدًا لمؤشر إدخال (pointer) ولا لمفتاح ولا لتركيز.
+
+على الويب هي `<tanrei-avatar>`، وعدة صور رمزية معًا هي `<tanrei-avatar-group>`. والمنصات الأخرى لم تنفّذها بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- وحدها: اسمها هو تسميتها. -->
+    <tanrei-avatar label="Ada Lovelace" initials="AL" src="/people/ada.jpg"></tanrei-avatar>
+
+    <!-- بجانب الاسم نفسه مكتوبًا: زخرفية، ليُقرأ الاسم مرة واحدة. -->
+    <p>
+      <tanrei-avatar decorative size="small" initials="AL" src="/people/ada.jpg"></tanrei-avatar>
+      Ada Lovelace
+    </p>
+
+    <!-- ليست شخصًا واحدًا: مربع، برسم أيقونة من عندك. -->
+    <tanrei-avatar label="خدمة البناء" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
+
+    <!-- ستة أعضاء، وأربعة صناديق على الأكثر: ثلاثة أعضاء و«+3». -->
+    <tanrei-avatar-group label="المراجعون" max="4" overflow-label="و3 آخرون">
+      <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+      <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
+      <!-- … -->
+    </tanrei-avatar-group>
+
+    <!-- قبل أن يصل السكربت، تحفظ ورقة الأنماط هذه مكان كل صورة رمزية. -->
+    <link rel="stylesheet" href="@tanrei/web/avatar.css" />
+    <script type="module">
+      import '@tanrei/web/components/avatar';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Avatar, AvatarGroup } from '@tanrei/react';
+
+    <Avatar label={person.name} initials={person.initials} src={person.picture} />
+
+    <AvatarGroup label="المراجعون" max={4} total={reviewerCount} overflowLabel={`و${reviewerCount - 3} آخرون`}>
+      {reviewers.slice(0, 3).map((person) => (
+        <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
+      ))}
+    </AvatarGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="ثلاثة أحجام وشكلان" plain>
+  <tanrei-avatar size="small" label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar size="large" label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar size="small" shape="square" label="فريق التصميم" initials="فت"></tanrei-avatar>
+  <tanrei-avatar shape="square" label="فريق التصميم" initials="فت"></tanrei-avatar>
+  <tanrei-avatar size="large" shape="square" label="مشروع"></tanrei-avatar>
+</DemoFrame>
+
+<ComponentSpecs name="avatar" />
+
+## الإرشادات
+
+### متى تُستخدم
+
+استخدم الصورة الرمزية حيث تخبر صورة صغيرة الناسَ بمن يعود إليه الشيء، شخصًا كان أو غير شخص، أسرع مما يخبرهم الاسم وحده: سطر الكاتب، أو تعليق، أو صف في قائمة أشخاص، أو رأس ملف شخصي. وهي صورة لا أكثر. ليس لها تحويم ولا تركيز ولا ضغط ولا حدث.
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| نقطة أو عدد على شخص («3 غير مقروءة») | [شارة](/ar/components/badge/) حول الصورة الرمزية. |
+| صورة رمزية تقود إلى ملف شخصي | [رابطًا](/ar/components/link/) يحمل الصورة الرمزية. |
+| صورة رمزية تفتح قائمة خيارات | [زرًّا](/ar/components/button/) يحمل الصورة الرمزية. |
+| شخص يمكن اختياره أو إزالته | [رقاقة](/ar/components/chip/). |
+| حالة الحضور (متصل، بالخارج) | كلمات بجانب الاسم، مع [وسم](/ar/components/tag/) حيث تحتاج إلى علامة. |
+
+### ما ترسمه
+
+ترسم الصورة الرمزية أول ما يتوفر لها من هذه:
+
+1. الصورة التي في `src`، بعد أن تُحمَّل.
+2. الأحرف الأولى التي تعطيها في `initials`.
+3. رسم الأيقونة (glyph) الذي في منفذ `icon`.
+4. رسم النظام نفسه: شخص للدائرة، وعلامة محايدة للمربع.
+
+يحتفظ الصندوق بحجمه منذ الرسم الأول. وما دامت الصورة تُحمَّل يُرسم البديل في مكانها، وتأخذ الصورة مكانه حين تصل. ولا يتحرك شيء حول الصورة الرمزية. والصورة التي يتعذّر تحميلها تترك البديل: لا علامة صورة مكسورة، ولا تطلبها الصورة الرمزية مرة أخرى.
+
+### الأحرف الأولى
+
+لا تصنع الصورة الرمزية الأحرف الأولى من الاسم. فأيّ الأحرف يمثّل الاسم أمر يتوقف على نظام كتابته وعلى أيّ أجزائه يأتي أولًا، ومنتجك يعرف ذلك سلفًا. أعطِها في `initials`:
+
+| الاسم | `initials` |
+| --- | --- |
+| Ada Lovelace | `AL` |
+| 山田 花子 | `山` أو `山田` |
+| 王小明 | `王` |
+| ليلى حسن | `لح` |
+| किरण राव | `किरा` |
+
+ترسم الصورة الرمزية حرفين على الأكثر، معدودين كما يعدّهما القارئ، فلا يُشطر أبدًا حرف مع علاماته ولا مقطع متصل. وترسمهما كما كُتبا ولا تغيّر الأحرف بين كبيرة وصغيرة.
+
+<DemoFrame label="الأحرف الأولى في عدة أنظمة كتابة" plain>
+  <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar label="山田 花子" initials="山田" lang="ja"></tanrei-avatar>
+  <tanrei-avatar label="王小明" initials="王" lang="zh-Hans"></tanrei-avatar>
+  <tanrei-avatar label="ليلى حسن" initials="لح" lang="ar"></tanrei-avatar>
+  <tanrei-avatar label="किरण राव" initials="किरा" lang="hi"></tanrei-avatar>
+</DemoFrame>
+
+### الأحجام والأشكال
+
+| `size` | الضلع | يُستخدم لـ |
+| --- | --- | --- |
+| `small` | 24 | بجانب سطر واحد من النص: سطر الكاتب، أو خلية جدول، أو إشارة إلى شخص. |
+| `medium` (الافتراضي) | 40 | صف في قائمة، أو تعليق. |
+| `large` | 56 | رأس صفحة الشخص نفسه أو بطاقته. |
+
+| `shape` | يُستخدم لـ |
+| --- | --- |
+| `circle` (الافتراضي) | شخص. |
+| `square` | ما ليس شخصًا واحدًا: فريق، أو مشروع، أو مؤسسة، أو روبوت (bot). |
+
+لكل بديل التعبئة الهادئة نفسها. ولا لون لكل شخص: فاللون الذي لا يعني شيئًا ليس في النظام.
+
+### الصورة
+
+- أعطِ صورة مربعة لا يقل ضلعها عن ضعف ضلع الصورة الرمزية، لتبقى حادّة على شاشة عالية الكثافة. والصورة التي لها نسبة أبعاد أخرى تُقصّ حول مركزها.
+- القيمة `loading="lazy"` تؤجّل طلب الصورة إلى أن تقترب الصورة الرمزية من النافذة. استخدمها في القوائم الطويلة.
+- الخاصيتان `referrerpolicy` و `crossorigin` تُمرَّران إلى الصورة كما تكتبهما. والصورة الرمزية لا تختار أيًّا منهما: فما يُقال لمستضيف الصورة عن صفحتك قرارك أنت.
+
+### المجموعات
+
+ترسم المجموعة أعضاءها صفًّا واحدًا. يتراكب كل عضو على الذي قبله بمقدار ربع ضلعه، وحول كلٍّ منهم فجوة بلون السطح.
+
+<DemoFrame label="مجموعة تعدّ ما لم تُعطَه" plain>
+  <tanrei-avatar-group label="الأعضاء" max="4" total="240" overflow-label="و237 آخرون">
+    <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+    <tanrei-avatar label="Grace Hopper"></tanrei-avatar>
+    <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
+  </tanrei-avatar-group>
+</DemoFrame>
+
+- الخاصية `max` هي أكثر ما ترسمه المجموعة من الصناديق، ومنها صندوق الباقي. ستة أعضاء مع `max="4"` هم ثلاثة أعضاء و«`+3`». ولا ترسم المجموعة «`+1`» أبدًا: فذلك إنفاق صندوق لإخفاء وجه واحد.
+- الخاصية `total` هي العدد الحقيقي حين تعطي المجموعة أعضاء أقل من الموجودين. ثلاثة أعضاء مع `max="4"` و `total="240"` هم ثلاثة أعضاء و«`+237`».
+- المجموعة تعطي خاصيتيها `size` و `shape` لكل عضو فيها.
+- على سطح غير سطح الصفحة، عيِّن `--tanrei-comp-avatar-group-outline-color` بلون ذلك السطح.
+- صندوق الباقي نص، لا عنصر تحكم. وحيث يحتاج الناس إلى أن يروا من هم الآخرون، ضع رابطًا أو زرًّا بجانب المجموعة.
+
+### قبل أن يصل السكربت
+
+العنصر `<tanrei-avatar>` يرسم في جذر ظل (shadow root) خاص به، فالصفحة المولَّدة على خادم لا تعرض شيئًا في مكانه إلى أن يعمل السكربت. حمِّل `@tanrei/web/avatar.css` فتحتفظ كل صورة رمزية بصندوق له حجمها وشكلها، ولا تتحرك الصفحة. ولا تظهر صورة ولا أحرف أولى ولا اسم حتى ذلك الحين. وللصفحة التي يجب أن تُقرأ بلا سكربت، اكتب الاسم نصًّا بجانب صورة رمزية زخرفية.
+
+المجموعة التي لها `max` تعرض كل عضو أعطيتها إياه إلى أن يعدّهم السكربت. وإن وجب ألا يحرّك ذلك الصفحة، فأعطِ المجموعة الأعضاء الذين ترسمهم فقط، والباقين في `total`.
+
+### افعل
+
+- أعطِ كل صورة رمزية قائمة وحدها `label`: الاسم كاملًا.
+- عيِّن `decorative` على الصورة الرمزية التي تقف بجانب الاسم نفسه مكتوبًا.
+- أعطِ كل شخص `initials`، ليظهر من هو حتى حين تغيب الصورة أو تتأخر.
+- التزم شكلًا واحدًا للنوع الواحد من الأشياء في المنتج كله.
+
+### لا تفعل
+
+- لا تضع معالجًا على الصورة الرمزية. ضعها في رابط أو زر، ففيهما الحالات ومؤشر التركيز.
+- لا تكتب «صورة» في التسمية. التسمية هي الاسم.
+- لا تستخدم لونًا أو حلقة أو نقطة من عندك لإظهار حالة. العدد شارة، والحضور يُقال بالكلمات.
+- لا تستخدم الصورة الرمزية لصورة زخرفية ولا لشعار في عنوان. فهي تمثّل شخصًا، أو شيئًا يتصرف الناس بصفته.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="avatar" />
+
+### ما يتكفل به المكوّن
+
+- وحدها، هي صورة واحدة تسمّيها الخاصية `label`، سواء رسمت صورة أم أحرفًا أولى أم رسم أيقونة. والأحرف الأولى واسم الرسم وعنوان الصورة لا تُقرأ أبدًا.
+- مع `decorative` تكون مخفيّة عن التقنيات المساعدة.
+- داخل رابط أو زر تصير تسميتها اسم ذلك العنصر، والضغط على الصورة الرمزية يصل إلى ذلك العنصر.
+- الشارة التي حولها تضيف تسمية الشارة بعد اسم الصورة الرمزية.
+- المجموعة مجموعة واحدة تسمّيها الخاصية `label`. تحمل صورة لها اسم لكل عضو ترسمه، بالترتيب المعطى، ثم نص الباقي. والأعضاء الذين لا ترسمهم لا يُعرضون للتقنيات المساعدة.
+- لا تأخذ إدخالًا ولا تركيزًا، فلا تضيف موضع توقف إلى ترتيب التركيز.
+- مع النص المكبَّر تحتفظ بصندوقها، كما تفعل الأيقونة.
+- في وضع الألوان المفروضة (forced colors) يكتسب كل بديل حدًّا بلون النص. والصورة تحتفظ بألوانها.
+- في تخطيط من اليمين إلى اليسار تبدأ المجموعة من اليمين. والصورة والأحرف الأولى لا تُعكس أبدًا، وعلامة الزائد في «`+3`» تبقى قبل الأرقام.
+- الصورة الرمزية التي بلا اسم، والأحرف الأولى التي تزيد على حرفين، والصورة التي يخفق تحميلها، والحجم أو الشكل غير المعروف، يُبلَّغ عنها في بنيات التنقيح (debug).
+
+### ما عليك فعله
+
+- قرِّر لكل صورة رمزية أهي مسمّاة أم زخرفية. والقاعدة: إن كان حذف الصورة الرمزية يُضيع اسمًا فهي مسمّاة. وإلا فهي زخرفية.
+- اكتب `overflowLabel` بلغة الصفحة، وفيه العدد («و3 آخرون»). ومن دونه يُقرأ «`+3`» كما هو مرسوم.
+- أعطِ الصورة الرمزية الصغيرة التي داخل رابط مساحة تكفي للضغط. عرض الصورة الرمزية 24؛ والرابط نفسه هو الذي يجب أن يستوفي الحد الأدنى للهدف.
+- الصورة تأتي بألوانها. وحيث تكون الصور باهتة عند حافتها في كثير من الأحيان، أعطِ السطح الذي خلفها درجة لونية.

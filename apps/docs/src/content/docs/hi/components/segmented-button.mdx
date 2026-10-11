@@ -1,0 +1,315 @@
+---
+title: सेगमेंटेड बटन
+description: लोगों को दो से पाँच संबंधित विकल्पों में से एक या कई चुनने देता है, जो एक ही कंट्रोल के जुड़े हुए सेगमेंट के रूप में अगल-बग़ल बने होते हैं।
+translationOf: components/segmented-button.mdx
+sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="segmented-button" />
+
+:::note[Tanrei सिस्टम में नहीं]
+डिफ़ॉल्ट Tanrei सिस्टम सेगमेंटेड बटन नहीं देता; Material और cupertino प्रीसेट इसे देते हैं। Tanrei में कई में से एक का चुनाव, जहाँ वह नीचे का कॉन्टेंट बदलता है वहाँ [टैब](/hi/components/tabs/) से होता है, और जहाँ वह एक मान सेट करता है वहाँ [रेडियो बटन](/hi/components/radio-button/) से; जो बटन अलग-अलग, अपने आप टॉगल होते हैं, वे एक [बटन ग्रुप](/hi/components/button-group/) हैं। कंपोनेंट फिर भी हर सिस्टम में काम करता है, और जहाँ सिस्टम इसे छोड़ देता है वहाँ डेवलपमेंट में एक चेतावनी देता है। इस पेज के डेमो `m3-like` प्रीसेट में बने हैं, जो इसे देने वाला एक सिस्टम है।
+:::
+
+<DemoFrame label="एकल चयन, आइकन के साथ, सिर्फ़ आइकन" system="m3-like">
+  <tanrei-segmented-button label="अवधि" value="week">
+    <tanrei-segment value="day" label="दिन"></tanrei-segment>
+    <tanrei-segment value="week" label="हफ़्ता"></tanrei-segment>
+    <tanrei-segment value="month" label="महीना"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="व्यू" value="grid">
+    <tanrei-segment value="list" label="लिस्ट" icon="view_list"></tanrei-segment>
+    <tanrei-segment value="grid" label="ग्रिड" icon="grid_view"></tanrei-segment>
+    <tanrei-segment value="map" label="नक़्शा" icon="map"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="टेक्स्ट अलाइनमेंट" value="center">
+    <tanrei-segment value="start" label="बाएँ अलाइन करें" icon="format_align_left" label-hidden></tanrei-segment>
+    <tanrei-segment value="center" label="बीच में" icon="format_align_center" label-hidden></tanrei-segment>
+    <tanrei-segment value="end" label="दाएँ अलाइन करें" icon="format_align_right" label-hidden></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+### इस्तेमाल
+
+सेगमेंटेड बटन अपने सेगमेंट उसी तरह रखता है जैसे हर प्लैटफ़ॉर्म दोहराए जाने वाले चाइल्ड रखता है: वेब पर चाइल्ड एलिमेंट, SwiftUI पर व्यू बिल्डर के भीतर व्यू, Compose पर कॉन्टेंट लैम्ब्डा के भीतर कॉल, Flutter पर एक `segments` लिस्ट और React Native पर एक `items` ऐरे। चयन सेट का होता है, मान के आधार पर। `selection` बताता है कि वह एक मान है या कई।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-segmented-button label="अवधि" value="week">
+      <tanrei-segment value="day" label="दिन"></tanrei-segment>
+      <tanrei-segment value="week" label="हफ़्ता"></tanrei-segment>
+      <tanrei-segment value="month" label="महीना"></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <!-- एक साथ कई। values एक प्रॉपर्टी (ऐरे) है; ऐट्रिब्यूट JSON ऐरे या स्पेस से अलग किए गए मान लेता है। -->
+    <tanrei-segmented-button id="days" selection="multiple" size="small" label="दिन" values="mon tue">
+      <tanrei-segment value="mon" label="सोम"></tanrei-segment>
+      <tanrei-segment value="tue" label="मंगल"></tanrei-segment>
+      <tanrei-segment value="wed" label="बुध" disabled></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <script type="module">
+      import '@tanrei/web/components/segmented-button';
+      // एलिमेंट अपना value या values ख़ुद अपडेट करता है, फिर change फ़ायर करता है।
+      document.querySelector('[label="अवधि"]').addEventListener('change', (e) => showRange(e.detail.value));
+      document.querySelector('#days').addEventListener('change', (e) => setDays(e.detail.values));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Segment, SegmentedButton } from '@tanrei/react';
+
+    // एकल चयन के लिए detail { value } है, और कई के लिए { values }।
+    <SegmentedButton label="अवधि" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>
+      <Segment value="day" label="दिन" />
+      <Segment value="week" label="हफ़्ता" />
+      <Segment value="month" label="महीना" />
+    </SegmentedButton>
+
+    <SegmentedButton selection="multiple" label="दिन" values={days} onChange={(e) => 'values' in e.detail && setDays(e.detail.values)}>
+      <Segment value="mon" label="सोम" />
+      <Segment value="tue" label="मंगल" />
+      <Segment value="wed" label="बुध" disabled />
+    </SegmentedButton>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // बाइंडिंग का टाइप ही चयन है: एक के लिए ऑप्शनल मान, कई के लिए Set।
+    // .tag और .labelStyle को ख़ुद TanreiSegment पर लगाएँ, किसी भी दूसरे मॉडिफ़ायर से पहले।
+    TanreiSegmentedButton("अवधि", selection: $range) {
+        TanreiSegment("दिन").tag("day")
+        TanreiSegment("हफ़्ता").tag("week")
+        TanreiSegment("महीना").tag("month")
+    }
+
+    // .labelStyle(.iconOnly) ही labelHidden है: शीर्षक फिर भी सेगमेंट को नाम देता है।
+    TanreiSegmentedButton("टेक्स्ट अलाइनमेंट", selection: $alignment) {
+        TanreiSegment("बाएँ अलाइन करें", icon: "format_align_left").tag("start").labelStyle(.iconOnly)
+        TanreiSegment("बीच में", icon: "format_align_center").tag("center").labelStyle(.iconOnly)
+        TanreiSegment("दाएँ अलाइन करें", icon: "format_align_right").tag("end").labelStyle(.iconOnly)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSegment
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButton
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButtonSelectionMode
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSegmentedButtonSize
+
+    // दोनों तरह के चयन के लिए एक ही कॉलबैक। एकल चयन वाला सेट एक सदस्य वाला सेट देता है।
+    TanreiSegmentedButton(
+        onSelectionChange = { range = it.single() },
+        contentDescription = "अवधि",
+        selectedValue = range,
+    ) {
+        TanreiSegment(value = "day", label = "दिन")
+        TanreiSegment(value = "week", label = "हफ़्ता")
+        TanreiSegment(value = "month", label = "महीना")
+    }
+
+    TanreiSegmentedButton(
+        onSelectionChange = { days = it },
+        contentDescription = "दिन",
+        selectionMode = TanreiSegmentedButtonSelectionMode.Multiple,
+        selectedValues = days,
+        size = TanreiSegmentedButtonSize.Small,
+    ) {
+        TanreiSegment(value = "mon", label = "सोम")
+        TanreiSegment(value = "tue", label = "मंगल")
+        // Compose उलटा फ़्लैग इस्तेमाल करता है।
+        TanreiSegment(value = "wed", label = "बुध", enabled = false)
+    }
+
+    // labelHidden सिर्फ़ आइकन बनाता है। लेबल फिर भी सेगमेंट को नाम देता है।
+    TanreiSegment(value = "start", label = "बाएँ अलाइन करें", labelHidden = true, icon = { TanreiText("format_align_left") })
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // SegmentedButton जैसा रूप: एक Set चयन रखता है, जिसमें single रहते हुए ज़्यादा से ज़्यादा एक सदस्य होता है।
+    TanreiSegmentedButton<String>(
+      semanticLabel: 'अवधि',
+      selected: <String>{range},
+      onSelectionChanged: (Set<String> value) => setState(() => range = value.single),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'day', label: 'दिन'),
+        TanreiSegment<String>(value: 'week', label: 'हफ़्ता'),
+        TanreiSegment<String>(value: 'month', label: 'महीना'),
+      ],
+    );
+
+    TanreiSegmentedButton<String>(
+      semanticLabel: 'दिन',
+      multiSelectionEnabled: true,
+      size: TanreiSegmentedButtonSize.small,
+      selected: days,
+      onSelectionChanged: (Set<String> value) => setState(() => days = value),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'mon', label: 'सोम'),
+        TanreiSegment<String>(value: 'tue', label: 'मंगल'),
+        TanreiSegment<String>(value: 'wed', label: 'बुध', enabled: false),
+      ],
+    );
+
+    // labelHidden सिर्फ़ आइकन बनाता है। लेबल फिर भी सेगमेंट को नाम देता है।
+    const TanreiSegment<String>(value: 'start', label: 'बाएँ अलाइन करें', icon: Icon(AppSymbols.formatAlignLeft), labelHidden: true);
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SegmentedButton } from '@tanrei/react-native';
+
+    // कंट्रोल्ड: onSelectionChange को मान (single) या कई मान (multiple) मिलते हैं।
+    <SegmentedButton
+      accessibilityLabel="अवधि"
+      value={range}
+      onSelectionChange={setRange}
+      items={[
+        { value: 'day', label: 'दिन' },
+        { value: 'week', label: 'हफ़्ता' },
+        { value: 'month', label: 'महीना' },
+      ]}
+    />
+
+    <SegmentedButton
+      selectionMode="multiple"
+      accessibilityLabel="दिन"
+      size="small"
+      values={days}
+      onSelectionChange={setDays}
+      items={[
+        { value: 'mon', label: 'सोम' },
+        { value: 'tue', label: 'मंगल' },
+        { value: 'wed', label: 'बुध', disabled: true },
+      ]}
+    />
+
+    // सिर्फ़ आइकन वाला सेगमेंट: { value: 'start', label: 'बाएँ अलाइन करें', icon: 'format_align_left', labelHidden: true }
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="साइज़ और अक्षम सेगमेंट" system="m3-like" plain>
+  <tanrei-segmented-button label="अवधि" value="week" size="small">
+    <tanrei-segment value="day" label="दिन"></tanrei-segment>
+    <tanrei-segment value="week" label="हफ़्ता"></tanrei-segment>
+    <tanrei-segment value="month" label="महीना"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="अवधि" value="week" size="large">
+    <tanrei-segment value="day" label="दिन"></tanrei-segment>
+    <tanrei-segment value="week" label="हफ़्ता"></tanrei-segment>
+    <tanrei-segment value="month" label="महीना"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="अवधि" value="day">
+    <tanrei-segment value="day" label="दिन"></tanrei-segment>
+    <tanrei-segment value="week" label="हफ़्ता"></tanrei-segment>
+    <tanrei-segment value="month" label="महीना" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="अवधि" value="month">
+    <tanrei-segment value="day" label="दिन"></tanrei-segment>
+    <tanrei-segment value="week" label="हफ़्ता"></tanrei-segment>
+    <tanrei-segment value="month" label="महीना" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+<ComponentSpecs name="segmented-button" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+सेगमेंटेड बटन तब इस्तेमाल करें जब किसी एक छोटे सवाल के कुछ तय जवाब हों और वे सब लोगों को एक साथ दिखने चाहिए: चार्ट की अवधि, लिस्ट का लेआउट, पैराग्राफ़ का अलाइनमेंट, वे दिन जिन पर रिमाइंडर दोहराया जाता है। असर तुरंत दिखना चाहिए, क्योंकि एकल चयन में ऐरो कुंजियाँ चलते-चलते चुनती भी हैं।
+
+दो से पाँच विकल्प ठीक बैठते हैं। पाँच से ज़्यादा हों, तो मेन्यू या लिस्ट इस्तेमाल करें। जब चुनाव ही किसी फ़ॉर्म का मुख्य काम हो, तो रेडियो बटन ज़्यादा ठीक रहते हैं। जब जवाब से यह बदलता हो कि स्क्रीन पर कौन-सा कॉन्टेंट रहेगा, तो [टैब](/hi/components/tabs/) इस्तेमाल करें।
+
+### सेगमेंटेड बटन, बटन ग्रुप, चिप या टैब
+
+ये चारों कुछ संबंधित चीज़ों को एक पंक्ति में रखते हैं, इसलिए इनमें आसानी से भ्रम हो जाता है। फ़र्क़ इसमें है कि दबाने पर क्या होता है और कीबोर्ड इनके भीतर कैसे चलता है।
+
+| कंपोनेंट | यह क्या है | चयन | कीबोर्ड | किसके लिए इस्तेमाल करें |
+| --- | --- | --- | --- | --- |
+| [सेगमेंटेड बटन](/hi/components/segmented-button/) | एक कंट्रोल: आपस में जुड़े दो से पाँच विकल्प, जो एक ही सवाल का जवाब देते हैं। | इसका अपना, मान के आधार पर: एक विकल्प, या कई। | एक Tab स्टॉप। ऐरो कुंजियाँ विकल्पों के बीच ले जाती हैं, और एकल चयन में वे चुनती भी हैं। | कुछ तय जवाबों वाली सेटिंग, जो तुरंत लागू होती है: दिन, हफ़्ता, महीना; बाएँ, बीच में, दाएँ। |
+| [बटन ग्रुप](/hi/components/button-group/) | अलग-अलग बटनों की एक पंक्ति या एक कॉलम, अलग-अलग दूरी पर या एक ही शेप में जुड़े हुए। | कोई नहीं। ग्रुप का टॉगल बटन अपना चालू या बंद स्टेट ख़ुद रखता है। | हर बटन अपना अलग Tab स्टॉप है। | संबंधित क्रियाएँ: रद्द करें, ड्राफ़्ट सेव करें, प्रकाशित करें; एक-दूसरे से स्वतंत्र टॉगल के रूप में बोल्ड, इटैलिक और अंडरलाइन। |
+| [चिप](/hi/components/chip/) | एक पंक्ति में अलग-अलग छोटे कंट्रोल, जो अगली पंक्ति में जाती है या स्क्रॉल होती है। | हर फ़िल्टर चिप अपने आप में चालू या बंद होती है। | हर चिप अपना अलग Tab स्टॉप है। | लिस्ट के ऊपर के फ़िल्टर, सुझाए गए जवाब, व्यक्ति के दर्ज किए हुए आइटम। |
+| [टैब](/hi/components/tabs/) | एक ही विषय के व्यू, हर एक अपने पैनल के साथ। | एक टैब: वह व्यू जो स्क्रीन पर है। | एक Tab स्टॉप। ऐरो कुंजियाँ ले जाती हैं और चुनती हैं। | यह बदलना कि कौन-सा कॉन्टेंट दिखे: अवलोकन, गतिविधि, सेटिंग। |
+
+एक झटपट कसौटी: अगर उसे दबाने से कुछ होता है, तो वह बटन ग्रुप है। अगर वह एक मान सेट करता है, तो वह सेगमेंटेड बटन है, या चिप जब विकल्प बहुत सारे हों या एक-दूसरे से स्वतंत्र हों। अगर वह नीचे का कॉन्टेंट बदल देता है, तो वह टैब है।
+
+### एक चुनाव या कई
+
+- **Single** (`selection="single"`, डिफ़ॉल्ट) एक रेडियो ग्रुप है। किसी सेगमेंट को चुनने से उससे पहले वाला चुनाव हट जाता है। चुने हुए सेगमेंट को दोबारा दबाने से कुछ नहीं होता, इसलिए एकल चयन को उसके अपने सेगमेंट से हटाया नहीं जा सकता। सेट की शुरुआत कुछ भी चुने बिना हो सकती है (`value` ख़ाली), उस फ़ॉर्म के लिए जिसे दिखाना ही है कि अभी तक कुछ नहीं चुना गया।
+- **Multiple** टॉगल बटनों का एक ग्रुप है। हर सेगमेंट चालू और बंद होता है, और सेट में अंत में कोई भी चुना हुआ न रहे, यह हो सकता है। अगर आपके प्रॉडक्ट को कम से कम एक चाहिए, तो वह बदलाव लागू न करें जो सेट को ख़ाली छोड़ दे।
+
+सेट का अपना कोई `disabled` नहीं है। सेगमेंट को एक-एक करके अक्षम करें। अक्षम सेगमेंट अपनी जगह और अपनी आउटलाइन बनाए रखता है, और ऐरो कुंजियाँ उसे लाँघ जाती हैं।
+
+### लेबल, आइकन और चेक
+
+- चयनित सेगमेंट अपने लेबल से पहले एक चेक दिखाता है, और आइकन हो तो उसकी जगह, इसलिए चयन कभी सिर्फ़ फ़िल से नहीं बताया जाता। सिर्फ़ आइकन वाला सेगमेंट अपना आइकन बनाए रखता है और उसे भरा हुआ बनाता है। कोई डिज़ाइन सिस्टम चेक का साइज़ 0 कर सकता है: तब वह कोई चेक नहीं बनाता, और चयन को फ़िल और एलिवेशन से दिखाता है।
+- हर सेगमेंट सबसे चौड़े सेगमेंट जितना चौड़ा होता है, और यह चौड़ाई ऐसे नापी जाती है मानो वह चयनित हो, इसलिए चेक के दिखने से कोई पड़ोसी कभी नहीं खिसकता। कम जगह मिलने पर लेबल कई पंक्तियों में टूट जाते हैं और हर सेगमेंट सबसे ऊँचे जितना बढ़ जाता है। वे कभी कटते नहीं।
+- `labelHidden` सिर्फ़ आइकन बनाता है। लेबल फिर भी ज़रूरी है, क्योंकि वह सेगमेंट का एक्सेसिबल नाम बना रहता है।
+- साइज़ सेट की ऊँचाई तय करता है। ये साइज़ हर स्टेप पर Button की ऊँचाइयाँ नहीं हैं (`m3-like` प्रीसेट में small और medium Button से मेल खाते हैं और large उससे कम है), इसलिए सेट को उसके बग़ल के बटनों से ऊँचाई के आधार पर मिलाएँ, साइज़ के नाम के आधार पर नहीं।
+
+### करें
+
+- सेट को ऐसा लेबल दें जो वह सवाल पूछे जिसका जवाब उसके विकल्प देते हैं: "अवधि", "टेक्स्ट अलाइनमेंट"।
+- लेबल एक या दो शब्दों के रखें, और रूप में एक जैसे: दिन, हफ़्ता, महीना।
+- सेट के हर सेगमेंट को आइकन दें, या किसी को नहीं।
+- जब कोई समझदारी भरा डिफ़ॉल्ट हो तो शुरुआती मान चुनें, ताकि कंट्रोल कभी बिना जवाब का न दिखे।
+
+### न करें
+
+- क्रियाओं के लिए सेगमेंटेड बटन इस्तेमाल न करें। सेगमेंट एक चुनाव है, और वह कोई click एमिट नहीं करता। बटन ग्रुप इस्तेमाल करें।
+- इसे उन व्यू के बीच बदलने के लिए इस्तेमाल न करें जिनमें से हर एक स्क्रीन को भरता है। टैब इस्तेमाल करें।
+- एक सेट में पाँच से ज़्यादा सेगमेंट न रखें, और न बहुत अलग-अलग लंबाई वाले लेबल। हर सेगमेंट सबसे चौड़े सेगमेंट की चौड़ाई लेता है।
+- सेगमेंट का लेबल उसके स्टेट के साथ न बदलें। चयन अलग से पढ़कर सुनाया जाता है।
+
+## सुलभता
+
+<ComponentAccessibility name="segmented-button" />
+
+### कंपोनेंट क्या सँभालता है
+
+- एकल चयन में सेट अपने लेबल के नाम वाला एक रेडियो ग्रुप है, और हर सेगमेंट अपने checked स्टेट वाला एक रेडियो। बहु चयन में सेट अपने लेबल के नाम वाला एक ग्रुप है, और हर सेगमेंट अपने दबाए हुए स्टेट वाला एक टॉगल बटन।
+- हर सेगमेंट का नाम उसके अपने लेबल से आता है, चाहे वह दिखता हो या नहीं, और वह अपनी जगह और सेगमेंट की संख्या बताता है। आइकन, चेक, डिवाइडर और आउटलाइन छिपे रहते हैं। स्टेट कभी चेक से पढ़कर नहीं सुनाया जाता।
+- सेट एक Tab स्टॉप है: चयनित सेगमेंट, या बहु चयन में वह जिस पर आख़िरी बार फ़ोकस था, या फिर पहला सक्षम सेगमेंट। ऐरो कुंजियाँ अगले या पिछले सक्षम सेगमेंट पर ले जाती हैं और सिरे से घूमकर दूसरे सिरे पर आ जाती हैं, और Home और End सिरों तक पहुँचाती हैं। एकल चयन में फ़ोकस जिस सेगमेंट पर जाता है, वह चुन भी लिया जाता है। बहु चयन में Space और Enter फ़ोकस वाले सेगमेंट को बदलती हैं। दाएँ से बाएँ वाले लेआउट में Left Arrow अगले सेगमेंट पर ले जाती है।
+- अक्षम सेगमेंट को ऐरो कुंजियाँ लाँघ जाती हैं, वे कभी Tab स्टॉप नहीं होते, और सहायक तकनीक को अक्षम के रूप में मिलते हैं।
+- हर सेगमेंट का हिट एरिया सेट के ऊपर और नीचे न्यूनतम टार्गेट तक पहुँचता है, और हर सेगमेंट कम से कम एक टार्गेट जितना चौड़ा है, क्योंकि पड़ोसी एक-दूसरे के ऊपर तक नहीं पहुँच सकते।
+- फ़ोकस इंडिकेटर फ़ोकस वाले सेगमेंट के भीतर बनता है, जहाँ आउटलाइन और पड़ोसी उसे ढक नहीं सकते। वह सिर्फ़ कीबोर्ड फ़ोकस के लिए दिखता है।
+- बड़े टेक्स्ट साइज़ पर लेबल अगली पंक्ति में जाते हैं और हर सेगमेंट सबसे ऊँचे जितना बढ़ जाता है। आइकन अपना साइज़ बनाए रखता है।
+- डीबग बिल्ड इन बातों की रिपोर्ट करते हैं: सेट या सेगमेंट के लेबल का न होना, बिना आइकन का छिपा हुआ लेबल, ऐसा value या values जो किसी सेगमेंट का नाम नहीं लेते, सेगमेंट का ख़ाली या दोहराया हुआ मान, और दो से कम या पाँच से ज़्यादा सेगमेंट वाला सेट।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- वेब पर, बहु चयन वाला सेट हर सेगमेंट को उसकी जगह सेगमेंट के इर्द-गिर्द की एक लिस्ट के ज़रिए देता है, क्योंकि टॉगल बटन अपनी कोई जगह नहीं रख सकता।
+- SwiftUI में रेडियो ग्रुप का कोई रोल नहीं है। सेट अपने लेबल के नाम वाला एक कंटेनर है। एकल चयन वाले सेट का सेगमेंट selected ट्रेट वाला एक बटन है, जिसका मान उसकी जगह है ("2 of 3"), फ़िलहाल सिर्फ़ अंग्रेज़ी में। बहु चयन वाले सेट का सेगमेंट एक टॉगल है और कोई जगह नहीं बताता, क्योंकि उसका अपना मान टॉगल के चालू या बंद की जगह ले लेता।
+- SwiftUI: सेट उतनी चौड़ाई लेता है जितनी उसे दी जाती है, जैसे SwiftUI का सेगमेंटेड पिकर लेता है। `.fixedSize(horizontal: true, vertical: false)` उसकी स्वाभाविक चौड़ाई बनाए रखता है। सेगमेंट की शैडो और फ़ोकस रिंग हर कोने पर उसका सबसे बड़ा कोना इस्तेमाल करते हैं। आइकन के रूप में दिया गया SF Symbol चयनित होने पर अपने भरे हुए रूप में नहीं बदलता: `.fill` वाला सिंबल ख़ुद दें। ऐरो कुंजियाँ नियमों के रूप में टेस्ट की गई हैं, सिम्युलेटर पर कीबोर्ड से नहीं।
+- Compose में रेडियो ग्रुप का कोई रोल नहीं है। सेट एक selectable ग्रुप है, और हर सेगमेंट एक रेडियो बटन (single) या एक toggleable बटन (multiple) है, जैसे फ़िल्टर चिप है।
+- Flutter न सेगमेंट की जगह बताता है, न सेगमेंट की संख्या, और बहु चयन वाला सेट ग्रुप की जगह अपने लेबल के नाम वाला एक कंटेनर है, क्योंकि Flutter के सिमैंटिक्स में दोनों में से कोई प्रॉपर्टी नहीं है।
+- React Native: बराबर चौड़ाइयाँ पहले लेआउट के बाद हर लेबल को नापने से आती हैं, इसलिए जिस सेट का पैरेंट पहले फ़्रेम पर उससे सँकरा हो, वह अपने सबसे चौड़े लेबल से भी सँकरी चौड़ाई ले सकता है। हार्डवेयर कीबोर्ड की ऐरो कुंजियाँ, और Android पर उठे हुए चयन की अपने पड़ोसियों के ऊपर पड़ने वाली शैडो, किसी डिवाइस पर जाँची नहीं गई हैं।
+- `cupertino` सिस्टम में small और medium सेट 28 और 32 की जगह 30 और 34 ऊँचे हैं, और सिरे के सेगमेंट के भीतरी कोने उनके बाहरी कोनों से ज़्यादा गोल हैं। दोनों टोकन या स्पेक के किसी फ़ैसले का इंतज़ार कर रहे हैं।
+
+### आपको क्या करना है
+
+- सेट को एक लेबल दें, और हर सेगमेंट को एक लेबल, सिर्फ़ आइकन वाले सेगमेंट समेत।
+- चुनाव का असर तुरंत दिखाएँ, कंट्रोल के पास। एकल चयन में कीबोर्ड इस्तेमाल करने वाला व्यक्ति फ़ोकस ले जाकर ही चुनता है, इसलिए असर धीमा हो तो ऐरो कुंजियाँ अटकी हुई-सी लगती हैं। अगर उसमें समय लगना ही है, तो प्रगति वहाँ दिखाएँ जहाँ नतीजा दिखेगा।
+- जब यह साफ़ न हो कि अक्षम सेगमेंट क्यों नहीं चुने जा सकते, तो पास में उसका कारण दें।
+- वेब पर सेगमेंटेड बटन कोई फ़ॉर्म कंट्रोल नहीं है। फ़ॉर्म के साथ उसका मान भेजने के लिए उसे `change` से एक hidden इनपुट में कॉपी करें।

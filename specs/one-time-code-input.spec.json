@@ -1,0 +1,570 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "one-time-code-input",
+  "title": "One-time-code input",
+  "summary": "Takes a short code sent to the person — a sign-in or verification code — as one text value drawn in separate cells, so that its length and what is still missing can be seen, and the platform can fill it in one step.",
+  "category": "text-inputs",
+  "level": "base",
+  "listing": "advanced",
+  "anatomy": [
+    {
+      "id": "cell",
+      "description": "One box per character of the code, empty or holding one character. The component's container: it carries the hover and the focus answer, and its tokens are the container's."
+    },
+    {
+      "id": "character",
+      "description": "The character a filled cell holds, or the platform's obscuring mark in its place while mask is true."
+    },
+    {
+      "id": "caret",
+      "description": "Drawn in the active cell while the field has focus and that cell is empty: where the next character goes.",
+      "optional": true
+    },
+    {
+      "id": "separator",
+      "description": "A short line between two groups of cells. A drawing only: not part of the value and kept from assistive technology.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The code entered so far: at most length characters, digits or, for alphanumeric, digits and upper-case letters, with no separator. One string, whatever the cells and groups drawn."
+    },
+    {
+      "name": "length",
+      "type": "number",
+      "default": 6,
+      "description": "How many characters the code has, and so how many cells are drawn. A whole number of 1 or more."
+    },
+    {
+      "name": "type",
+      "type": "enum",
+      "values": [
+        "numeric",
+        "alphanumeric"
+      ],
+      "default": "numeric",
+      "description": "What a cell takes: numeric is the digits 0 to 9, with a numeric keypad; alphanumeric is digits and the letters A to Z, held in upper case, with a general keyboard."
+    },
+    {
+      "name": "groupSize",
+      "type": "number",
+      "default": 0,
+      "description": "Draws the cells in groups of this many, counted from the first, with a mark between two groups (3 for a six-character code written \"123 456\"). 0 draws one group. It changes the drawing only: the value has no separator."
+    },
+    {
+      "name": "mask",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the platform's obscuring mark in each filled cell in place of its character, and exposes the field as protected. For a screen other people can see; a code that is used once and expires rarely needs it."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the field for assistive technology where no Field frames it (the visible label is a dialog headline or a step title, in the same words). Never drawn. Inside a Field leave it empty: the Field names it."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws every cell in the error condition and exposes the field as invalid. A Field sets it from its own error; set it here only where no Field frames the control. What a wrong code means is the product's to say, in words, with the Field's errorText."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents entry and takes the field out of the focus order. Inside a Field, disable the Field, so that its label follows."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "Keeps the field focusable and its value readable, and lets nothing change it: for the moment a complete code is being checked, when taking focus away would lose the place of a person who must then correct it."
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "description": "The person changed the value; carries the new value. Emitted for every change, not when the product sets value."
+    },
+    {
+      "name": "change",
+      "description": "The person committed a changed value (focus left the field, or the action key was pressed); carries the value."
+    },
+    {
+      "name": "complete",
+      "description": "A change by the person left the value length characters long; carries the value. Emitted after input, once for that change. The field does nothing else: checking the code is the product's."
+    },
+    {
+      "name": "action",
+      "description": "The person pressed the keyboard's action key (Enter, Return, Done)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "OTC-1",
+      "text": "THE one-time-code input SHALL draw one row of length cells, in the order of the code's characters, each a box at least comp.one-time-code-input.container.height high and comp.one-time-code-input.container.width wide (OTC-23), with corners of comp.one-time-code-input.container.shape (never more than half its height) eased by sys.shape.corner-smoothing, comp.one-time-code-input.container.gap from the next, filled with comp.one-time-code-input.standard.container.color. The row SHALL start at the start edge of the width its layout gives it and SHALL be as wide as its cells, gaps and group marks need; the field SHALL be as tall as its rows. THE one-time-code input SHALL draw no label, no help, no error text, no placeholder and no container around the row: a Field frames it (OTC-22).",
+      "verify": "Under the default system six cells in one group are 6 × 40 and 5 × 6: 270 wide and 48 high."
+    },
+    {
+      "id": "OTC-2",
+      "text": "THE one-time-code input SHALL be one field to the person, the form, the keyboard and assistive technology: it SHALL hold one value, be one stop in the focus order, edit in one native text element of the platform, so that an input method, the platform's autofill, the clipboard and dictation meet one text input, and be exposed as one text box whose value is the whole code. The cells, the caret it draws and the group marks SHALL be a drawing of that value: they SHALL NOT be exposed to assistive technology, SHALL NOT take focus one by one, and SHALL NOT be separate inputs.",
+      "verify": "Unit: the accessibility tree holds one text box and no other node for the field; Tab enters and leaves it once; a screen reader reads the value as one string."
+    },
+    {
+      "id": "OTC-3",
+      "text": "THE one-time-code input SHALL draw the character at each place of value in the cell of that place, centred, on one line, in comp.one-time-code-input.input.typescale with tabular figures and in comp.one-time-code-input.standard.input.color, and SHALL leave empty every cell past the end of value. An empty cell and a filled cell SHALL have the same box and the same fill. The value SHALL never have a gap: the filled cells are always the first ones."
+    },
+    {
+      "id": "OTC-4",
+      "text": "THE one-time-code input SHALL hold in value only the characters its type permits — WHILE type is numeric the ASCII digits 0 to 9; WHILE type is alphanumeric those digits and the letters A to Z — and SHALL read what a person types, pastes, dictates or is given by autofill leniently before deciding: a decimal digit of any script and a full-width digit or letter SHALL be read as its ASCII form, and a lower-case letter as its upper-case form. A character that is still not permitted SHALL be dropped: it SHALL NOT enter a cell, move the active cell or emit an event. The value SHALL therefore be ASCII, in upper case, and comparable as it stands with the code the product sent.",
+      "verify": "Unit: typing \"１２３\" with an input method and \"١٢٣\" gives \"123\"; typing \"a7k\" into an alphanumeric field gives \"A7K\"; a letter typed into a numeric field changes nothing."
+    },
+    {
+      "id": "OTC-5",
+      "text": "WHILE the field has focus THE one-time-code input SHALL have one active cell, the cell the next character goes to: the first empty cell and, WHILE every cell is filled, the last cell — unless the person moved it to a filled cell (OTC-8, OTC-25). WHEN focus enters by the keyboard, by a press on a Field's label or from the product THE active cell SHALL be that first empty or last cell; WHEN focus leaves, the field SHALL have no active cell. The insertion point of the native text element SHALL stand at the active cell — before its character WHILE it is filled, at the end of the value WHILE it is empty — so that assistive technology that reads where the insertion point is, and the character at it, reads the active cell.",
+      "verify": "Unit: with \"1234\" entered and the second cell made active, the native text element's selection starts at 1; after a character is typed there it starts at 2."
+    },
+    {
+      "id": "OTC-6",
+      "text": "WHEN the person types a permitted character (OTC-4) THE one-time-code input SHALL put it in the active cell, in place of the character that cell holds, and SHALL move the active cell to the next one; WHILE the active cell is the last THE active cell SHALL stay there, so that a further character replaces the last one and nothing is typed past the end. Text an input method commits SHALL be read character by character in the same way. WHILE an input method holds text it has not yet committed THE one-time-code input SHALL draw that text's characters, read by OTC-4, in the cells from the active cell on, marked as the platform marks composing text, SHALL NOT change value or emit an event for it, and SHALL remove it from the cells when the input method cancels it; the cells are the only drawing of what is typed, so text that is being composed is never left unseen. THE one-time-code input SHALL NOT move focus out of itself because the code is complete (OTC-14)."
+    },
+    {
+      "id": "OTC-7",
+      "text": "WHILE hovered THE one-time-code input SHALL render every cell from the hovered component tokens, and WHILE focused SHALL render its active cell, and that cell alone, from the focused ones (their error parts WHILE error is true), with precedence focused over hovered; unlike a button, focus gained by pointer or touch SHALL select the focused state, because a field shows where typing will go however it was focused. THE one-time-code input SHALL show focus by the active cell's focused tokens and SHALL NOT draw the focus ring: the focused outline color and width are drawn as a line inside that cell's edge, following its corners and taking no layout space, so that no cell moves as the line appears, moves to another cell or goes; WHERE sys.behavior.focus-style is glow it SHALL also draw the glow around the active cell. A hovered cell SHALL show the state layer and draw no edge; a focused cell SHALL draw no state layer. WHILE the active cell is empty and readOnly is false THE one-time-code input SHALL draw a caret centred in it, one line of the input's text style high, in comp.one-time-code-input.standard.caret.color (comp.one-time-code-input.standard.error.caret.color WHILE error is true), blinking as the platform's own caret does and steady WHERE motion is reduced; a filled active cell SHALL draw no caret. WHEN its state, its active cell, error or disabled changes THE one-time-code input SHALL change its colors and line widths over comp.one-time-code-input.motion.state-duration with comp.one-time-code-input.motion.state-easing, and at once WHERE motion is reduced; a character SHALL appear in its cell at once, with no motion of its own.",
+      "verify": "Focused cannot be a snapshot fixture. Unit: focus the field by pointer and by keyboard and read the resolved tokens of each cell: under the default system only the active cell has an inner line, in the focus-ring role at the thick width, and no cell changes its box."
+    },
+    {
+      "id": "OTC-8",
+      "text": "WHEN the person presses Left Arrow or Right Arrow THE one-time-code input SHALL move the active cell to the cell drawn on that side, in every layout direction (OTC-27), no further than the first cell on one side and the first empty cell — or the last cell WHILE all are filled — on the other; Home SHALL move it to the first cell and End to that furthest one. Up Arrow, Down Arrow, Page Up and Page Down SHALL do nothing in the field and SHALL be left to the page. THE one-time-code input SHALL NOT change the value by any of these keys."
+    },
+    {
+      "id": "OTC-9",
+      "text": "WHEN the person presses Backspace THE one-time-code input SHALL, WHILE the active cell is filled, remove its character and keep the active cell where it is, and WHILE the active cell is empty, remove the character before it and move the active cell there; WHEN the person presses Delete it SHALL remove the active cell's character. The characters after a removed one SHALL each move one cell toward the first, so that the value keeps no gap (OTC-3). On an empty field both keys SHALL do nothing.",
+      "verify": "Unit: with \"123456\" entered, six presses of Backspace empty the field and leave the first cell active; with \"1234\" and the second cell active, Delete leaves \"134\"."
+    },
+    {
+      "id": "OTC-10",
+      "text": "WHEN the person selects all with the platform's own command THE one-time-code input SHALL select the whole value and draw every filled cell as the active cell is drawn (OTC-7); a permitted character typed then SHALL replace the whole value and stand in the first cell, and Backspace or Delete SHALL empty the field. Copy SHALL take the whole value, without group marks, whichever cell is active, and cut SHALL take it and empty the field; WHILE mask is true copy and cut SHALL give nothing and cut SHALL change nothing, as the platform's protected field gives nothing and keeps its text. THE one-time-code input SHALL offer no selection of some cells only: a drag and Shift with an arrow key SHALL select nothing."
+    },
+    {
+      "id": "OTC-11",
+      "text": "WHEN text is pasted, dropped or dictated into the field, or given to it by the platform's autofill, THE one-time-code input SHALL read the whole text as one code, wherever the active cell is: it SHALL remove white space and hyphen and dash characters, read the rest by OTC-4, and, IF every remaining character is permitted and there is at least one, replace the whole value with the first length of them. IF that fails WHILE type is numeric and the text holds exactly one run of exactly length digits that no other digit adjoins, it SHALL take that run, so that a whole message pasted with its code in it is read. Otherwise it SHALL change nothing and emit nothing. After a change the active cell SHALL be the first empty cell, or the last WHILE all are filled.",
+      "verify": "Unit, length 6, numeric: \"123456\", \" 123 456 \", \"123-456\" and \"Your code is 123456.\" all give \"123456\"; \"12345\" gives \"12345\" with the sixth cell active; \"1234567\" gives \"123456\"; \"Code 123456, valid for 10 minutes\" gives \"123456\"; \"call 0312345678\" and \"abc\" change nothing."
+    },
+    {
+      "id": "OTC-12",
+      "text": "THE one-time-code input SHALL ask the platform for the code it received and for the keyboard of its type: it SHALL mark its text element as a one-time code for the platform's autofill (the web's autofill field name one-time-code; each native platform's own content type for a one-time code), so that the code offered above the keyboard or by a password manager fills the field in one step (OTC-11); WHILE type is numeric it SHALL show a numeric keypad, and WHILE type is alphanumeric a general keyboard that capitalizes every character, each without autocorrection, suggestions or spelling marks. THE one-time-code input SHALL NOT read the person's messages itself and SHALL NOT keep or offer codes entered before."
+    },
+    {
+      "id": "OTC-13",
+      "text": "WHEN the person changes the value — by typing, removing, cutting, pasting or autofill — THE one-time-code input SHALL emit input carrying the new value, once for each change; WHEN focus leaves the field or the action key is pressed and the value differs from the value at the last commit it SHALL emit change carrying the value; WHEN the person presses the keyboard's action key (Enter, Return, Done) it SHALL emit action and, WHERE the platform has forms, leave the key to the form, which submits as it does from any text input: through its default button (BTN-30) — WHILE the form has a submit button, the platform's own or a Button of type submit, the first of them in document order is pressed, so that its click is emitted and its name and value are sent, and WHILE that button is disabled nothing is submitted; only a form with no submit button is asked directly. A key that commits or cancels an input method's composing text SHALL NOT emit action and SHALL NOT reach the form. THE one-time-code input SHALL emit none of these when the product sets value.",
+      "verify": "On the web, in a form whose first submit button is the platform's own with a name and a value: Enter in the field emits one click on that button and one submit whose data holds the pair; with the button disabled, no submit; in a form with no submit button, one submit as before."
+    },
+    {
+      "id": "OTC-14",
+      "text": "WHEN a change by the person leaves the value length characters long — the last empty cell was typed into, a whole code was pasted or filled, or a character of a complete code was replaced — THE one-time-code input SHALL emit complete carrying the value, after the input event of that change and once for it. It SHALL NOT emit complete when the product sets value, and SHALL do nothing else because the code is complete: it SHALL NOT submit a form, move or drop focus, disable itself, or announce anything. What follows a complete code — checking it, saying that it is wrong, moving on — is the product's.",
+      "verify": "Unit: typing six digits emits complete once, after the sixth input; pasting a whole code emits input then complete; replacing the third digit of a complete code emits both again; setting value from the product emits neither."
+    },
+    {
+      "id": "OTC-15",
+      "text": "WHILE groupSize is a whole number from 1 to length minus 1 THE one-time-code input SHALL draw, after every groupSize cells counted from the first and before the next cell, a group mark: a horizontal line comp.one-time-code-input.separator.width long and comp.one-time-code-input.separator.thickness thick, with round ends, centred on the height of the cells, comp.one-time-code-input.container.gap from the cell on each side, in comp.one-time-code-input.standard.separator.color; the last group holds the cells that remain. The mark SHALL be a drawing only: it SHALL NOT be part of value, of what is copied or of what a form submits, SHALL take no focus and no press of its own, and SHALL be kept from assistive technology. WHILE groupSize is 0 THE one-time-code input SHALL draw no mark and one even row.",
+      "verify": "Under the default system six cells in two groups are 6 × 40, 4 × 6 and a mark of 8 with 6 on each side: 284 wide. A fixture system that sets the mark's thickness to nothing draws the groups 20 apart and no line."
+    },
+    {
+      "id": "OTC-16",
+      "text": "WHILE mask is true THE one-time-code input SHALL draw, in each filled cell and in place of its character, the mark the platform's own protected text field draws for a character, in the character's color and text style, at once and without first showing what was typed; it SHALL expose the field as a protected text entry, so that assistive technology does not read the characters back, and SHALL keep its type's keyboard and the platform's code autofill (OTC-12). The value, the events and what a form submits SHALL be the same as without mask."
+    },
+    {
+      "id": "OTC-17",
+      "text": "WHILE error is true — set by the product, or by the Field that frames it (FLD-8) — THE one-time-code input SHALL render every cell from the error parts of its tokens: at rest a line comp.one-time-code-input.outline.width wide inside each cell's edge in comp.one-time-code-input.standard.error.outline.color, drawn as the focused line is (OTC-7), so that the field itself is marked and not only a text below it; and it SHALL expose the field as invalid to assistive technology. THE one-time-code input SHALL never set error itself and SHALL NOT empty, select or change the value because of it: whether a wrong code is cleared is the product's to decide. The words that say what is wrong are the Field's errorText (FLD-7, FLD-9); the error color is never the only sign."
+    },
+    {
+      "id": "OTC-18",
+      "text": "WHEN the product sets value THE one-time-code input SHALL show it, reading it by OTC-4 and keeping its first length permitted characters; IF anything was dropped it SHALL in debug builds report it. It SHALL emit no event for a value the product sets, and setting value to what it already is SHALL change nothing, the active cell included. WHEN the value is set while the field has focus THE active cell SHALL become the first empty cell, or the last WHILE all are filled."
+    },
+    {
+      "id": "OTC-19",
+      "text": "IF length is not a whole number of 1 or more THE one-time-code input SHALL draw 6 cells, and IF groupSize is not a whole number from 0 to length minus 1 it SHALL draw one group, and in debug builds SHALL report each. WHEN length becomes smaller than the value is long THE one-time-code input SHALL keep the first length characters, without emitting an event. WHEN type names a value it does not know it SHALL behave as numeric and in debug builds report the unknown value."
+    },
+    {
+      "id": "OTC-20",
+      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE one-time-code input SHALL NOT be focusable or editable, SHALL have no active cell and no caret, SHALL NOT emit input, change, complete or action, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, and SHALL render every cell, character and group mark from the disabled component tokens (of its error parts WHILE error is true).",
+      "verify": "Under the default system a disabled cell keeps its fill, its character and the group mark read as disabled content, and no error line is drawn."
+    },
+    {
+      "id": "OTC-21",
+      "text": "WHILE readOnly is true and disabled is false THE one-time-code input SHALL stay focusable, with its active cell and its focused line, and copyable (OTC-10); SHALL NOT let the person change the value by typing, removing, cutting, pasting or autofill; SHALL draw no caret; SHALL NOT emit input, change or complete; SHALL expose the read-only state to assistive technology; SHALL be submitted with its form on the web; and SHALL render as an enabled field, including its hovered and focused states."
+    },
+    {
+      "id": "OTC-22",
+      "text": "THE one-time-code input SHALL take its name, its description and its required state from the Field that frames it, as every control a Field frames does (FLD-10, FLD-11): the Field's label is its accessible name, the Field's supporting text with, in error, the error text after it its description. WHILE label is not empty THE one-time-code input SHALL use it as the accessible name instead, drawn nowhere, for a field no Field frames or one whose visible label is elsewhere. IF it has neither THE one-time-code input SHALL still render and work, and in debug builds SHALL report that it has no accessible name. It SHALL expose how many characters the code has only through its value and the product's own words: it SHALL say no word of its own (OTC-30).",
+      "verify": "Unit: in a Field with label \"Verification code\" the text box is named \"Verification code\" and described by the supporting text; alone with label it is named by label; a press on the Field's label focuses the field and the first empty cell is active."
+    },
+    {
+      "id": "OTC-23",
+      "text": "THE one-time-code input SHALL never be wider than its layout gives it. WHEN the row needs more width than there is, the cells SHALL share the width equally and become narrower than comp.one-time-code-input.container.width, never narrower than a character of the input's text style with comp.one-time-code-input.container.padding-inline on each side; IF the row still does not fit, it SHALL wrap onto further rows comp.one-time-code-input.container.gap below, each from the start edge: between two groups first, where the group mark at the break SHALL NOT be drawn, and between any two cells where there are no groups or one group alone does not fit. A cell SHALL never be cut, drawn over another or scrolled sideways, and the code SHALL never be drawn at a smaller text size to make it fit.",
+      "verify": "Under the default system, in a layout 288 wide (a 320 screen with 16 at each side) six cells in two groups need 284 and stand in one row at full width; eight cells in two groups of four need 376 and stand in one row of narrower cells (29 wide). Unit: in a layout narrower than six cells at their narrowest, six cells in two groups stand in two rows of three, without a mark, and six cells in one group wrap between cells."
+    },
+    {
+      "id": "OTC-24",
+      "text": "WHILE the text size is enlarged THE one-time-code input SHALL grow with its characters: each cell grows in height with the character's line, keeping comp.one-time-code-input.container.height as a minimum, becomes as wide as the character and its paddings need where that is more than comp.one-time-code-input.container.width, and all cells keep one size; the row then narrows and wraps by OTC-23. At 200% in a layout 288 wide no character SHALL be lost, cut or laid over another part, and nothing SHALL need scrolling in two directions.",
+      "verify": "Unit, default system, text at 200% (32 px digits), 288 wide: six cells in two groups stand in one row, each at least 48 high and all of one width, every digit whole; in a layout 150 wide they stand in two rows of three."
+    },
+    {
+      "id": "OTC-25",
+      "text": "WHEN the person presses a cell, a group mark or the space between cells THE one-time-code input SHALL take focus and make the pressed cell the active cell WHILE it is filled, and otherwise the first empty cell; it SHALL change nothing else and SHALL draw no press answer, because a press on a field is not an action. WHERE a cell is shorter than the minimum target THE one-time-code input SHALL extend the row's hit area vertically to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "OTC-26",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE one-time-code input SHALL draw an edge comp.one-time-code-input.outline.width wide in the platform's control text color around every cell, that edge in the platform's highlight color at the focused width around the active cell, its characters, masks and group marks in the platform's text color and its caret in that color, and a disabled field in the platform's disabled text color; it SHALL rely on no color of its own to show an error, which is carried by the Field's words and the invalid state (OTC-17).",
+      "verify": "On the web, with forced colors emulated: every cell of every fixture has a visible edge, and the group mark is CanvasText."
+    },
+    {
+      "id": "OTC-27",
+      "text": "WHERE the layout direction is right-to-left THE one-time-code input SHALL keep the cells a left-to-right run: the first character of the code in the leftmost cell of its row, the group marks between the same cells, Right Arrow moving to the cell on the right and Left Arrow to the cell on the left, because a code is a sequence of digits and Latin letters that is written, sent and read aloud left to right in every script and digits are never reversed. Only the row's place SHALL follow the layout: the row, and every row of a wrapped code, SHALL start at the right edge of the width its layout gives it, where the Field's label and help start. A wrapped code SHALL read from the top row down in both directions.",
+      "verify": "Fixtures grouped-partial-rtl and error-rtl: \"123\" stands in the three leftmost cells of a row that ends at the left of the stage's right edge; the first empty cell, the fourth from the left, is the one that would be active."
+    },
+    {
+      "id": "OTC-28",
+      "text": "THE one-time-code input SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the field is shown THE one-time-code input SHALL draw itself for the new direction at once, without a motion of its own, keeping its value, its active cell and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "OTC-29",
+      "text": "WHERE the platform has forms (the web) THE one-time-code input SHALL take part in them as a native text input does: it takes name, submits its value — the code alone, without group marks — or an empty string WHILE it holds none, restores it on navigation, resets to the value it was first given, and reports to the form's constraint validation a missing value WHILE its Field says it is required and it is empty. It SHALL report nothing for a code that is shorter than length: an unfinished code is the product's to refuse."
+    },
+    {
+      "id": "OTC-30",
+      "text": "THE one-time-code input SHALL have no words of its own: it SHALL draw no word in any language and expose none. Its name is the Field's label or its own label, each the product's (OTC-22); what a required, a wrong or an expired code is called is the Field's requiredText, supportingText and errorText; the group mark and the mask are marks, not words. It SHALL read no key of the product's words.",
+      "verify": "Unit: no test finds, in the rendering or in the accessibility tree of any fixture, a word the fixture did not give."
+    }
+  ],
+  "accessibility": {
+    "role": "textbox",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the field, which is one stop however many cells it draws, and on from it."
+      },
+      {
+        "keys": "A permitted character",
+        "action": "Fills the active cell, replacing what it holds, and moves to the next cell (OTC-6). Other characters do nothing (OTC-4)."
+      },
+      {
+        "keys": "Left Arrow / Right Arrow",
+        "action": "Move the active cell to the cell on that side, in every layout direction, among the filled cells and the first empty one (OTC-8)."
+      },
+      {
+        "keys": "Home / End",
+        "action": "Move the active cell to the first cell, or to the first empty cell (the last cell while all are filled)."
+      },
+      {
+        "keys": "Backspace / Delete",
+        "action": "Remove a character; the ones after it move up, so the value keeps no gap (OTC-9)."
+      },
+      {
+        "keys": "The platform's select all, copy, cut and paste",
+        "action": "Act on the whole code: paste replaces it from the first cell, read leniently (OTC-10, OTC-11)."
+      },
+      {
+        "keys": "Enter",
+        "action": "Emits action, commits a changed value, and submits the enclosing form on the web."
+      }
+    ],
+    "labeling": "One text box. Its accessible name is the label of the Field that frames it, or its own label where no Field does; its description is the Field's supporting text with, in error, the error text after it. Its value is the whole code as one string. It is exposed as invalid while error is true, required while its Field says so, read-only while readOnly is true, and as a protected text entry while mask is true. The cells, the caret and the group marks are not exposed.",
+    "minimumTarget": true,
+    "notes": [
+      "One field, not one input per character. A row of separate inputs is a group of unnamed text boxes to a screen reader, breaks the platform's code autofill and paste, turns Backspace and the arrow keys into focus management, and gives a form several values for one answer. Here the cells are a drawing of one native text element.",
+      "For a short code sent to the person and typed back once. A password, a PIN the person chose, a recovery or licence key and a card number are text fields with the matching type and autofill name; a number the product reads as a number is a number field.",
+      "It has no label, help or error text of its own: a Field frames it (FLD-1 to FLD-24) and is where a product says how many characters to expect (\"Enter the 6-digit code we sent to …\"), that the code was wrong, and that it is required. Errors are words (WCAG 3.3.1, 1.4.1).",
+      "Never moves focus or submits by itself when the code is complete (OTC-14): a change of context on input (WCAG 3.2.2) is the product's decision, taken with the complete event, and a product that submits on complete should say so before the field.",
+      "Codes expire. Where a product limits the time to enter one, the limit, its extension and the way to ask for a new code are the product's, beside the field (WCAG 2.2.1); the field has no timer and no resend control.",
+      "A code that must be copied from another place is a cognitive test unless it can be pasted or filled: paste and the platform's autofill always work and are never blocked, masked or not (WCAG 3.3.8).",
+      "The active cell's focused line is the focus indicator. A design system must keep it visible: without it nothing shows where a replaced character will go.",
+      "The cells are a left-to-right run in a right-to-left layout (OTC-27); the row stands at the start edge with the Field's label.",
+      "Web: a touch browser zooms the page into an input whose text is smaller than 16 px. The character style is 16 px in the default system; a layer that sets a smaller style brings the zoom back.",
+      "Heights are minimums: at 200% text size the cells grow and the row narrows or wraps (OTC-23, OTC-24); nothing is cut (WCAG 1.4.4, 1.4.10).",
+      "Not pressable: a press focuses the field and is not an action (OTC-25), so BTN-8, BTN-9 and BTN-10 are not copied.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.one-time-code-input",
+  "fixtures": [
+    {
+      "id": "empty",
+      "props": {
+        "label": "Verification code"
+      }
+    },
+    {
+      "id": "partial",
+      "props": {
+        "label": "Verification code",
+        "value": "123"
+      }
+    },
+    {
+      "id": "complete",
+      "props": {
+        "label": "Verification code",
+        "value": "123456"
+      }
+    },
+    {
+      "id": "grouped-empty",
+      "props": {
+        "label": "Verification code",
+        "groupSize": 3
+      }
+    },
+    {
+      "id": "grouped-partial",
+      "props": {
+        "label": "Verification code",
+        "groupSize": 3,
+        "value": "1234"
+      }
+    },
+    {
+      "id": "grouped-complete",
+      "props": {
+        "label": "Verification code",
+        "groupSize": 3,
+        "value": "123456"
+      }
+    },
+    {
+      "id": "length-4",
+      "props": {
+        "label": "Verification code",
+        "length": 4,
+        "value": "4821"
+      }
+    },
+    {
+      "id": "length-8-grouped",
+      "props": {
+        "label": "Verification code",
+        "length": 8,
+        "groupSize": 4,
+        "value": "12345678"
+      }
+    },
+    {
+      "id": "alphanumeric-grouped",
+      "props": {
+        "label": "Verification code",
+        "type": "alphanumeric",
+        "groupSize": 3,
+        "value": "A7K93Q"
+      }
+    },
+    {
+      "id": "masked",
+      "props": {
+        "label": "Verification code",
+        "mask": true,
+        "value": "1234"
+      }
+    },
+    {
+      "id": "error",
+      "props": {
+        "label": "Verification code",
+        "error": true,
+        "value": "123456"
+      }
+    },
+    {
+      "id": "error-grouped-empty",
+      "props": {
+        "label": "Verification code",
+        "error": true,
+        "groupSize": 3
+      }
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "label": "Verification code",
+        "disabled": true
+      }
+    },
+    {
+      "id": "disabled-value",
+      "props": {
+        "label": "Verification code",
+        "disabled": true,
+        "groupSize": 3,
+        "value": "123456"
+      }
+    },
+    {
+      "id": "disabled-error",
+      "props": {
+        "label": "Verification code",
+        "disabled": true,
+        "error": true,
+        "value": "123456"
+      }
+    },
+    {
+      "id": "read-only",
+      "props": {
+        "label": "Verification code",
+        "readOnly": true,
+        "value": "123456"
+      }
+    },
+    {
+      "id": "grouped-partial-rtl",
+      "props": {
+        "label": "Verification code",
+        "groupSize": 3,
+        "value": "123"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "error-rtl",
+      "props": {
+        "label": "Verification code",
+        "error": true,
+        "value": "123456"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "grouped-ja",
+      "props": {
+        "label": "確認コード",
+        "groupSize": 3,
+        "value": "123456"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-one-time-code-input",
+      "props": {
+        "value": "value",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "mask",
+        "label": "label",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "input",
+        "change": "change",
+        "complete": "complete",
+        "action": "action"
+      },
+      "notes": "A control, so a custom element with a shadow root, form-associated (`static formAssociated = true`) as the text field is: it takes `name`, submits the code, restores and resets it, follows `<fieldset disabled>` and reports `valueMissing` (OTC-29). `<tanrei-field label=\"Verification code\" supporting-text=\"…\" error-text=\"…\"><tanrei-one-time-code-input name=\"code\" group-size=\"3\"></tanrei-one-time-code-input></tanrei-field>`: the field is the one element in the Field's default slot and asks it for its name, description, invalid, required and disabled states with the `tanrei-field-connect` event, as every Tanrei control does. In the shadow root there is exactly one `<input type=\"text\">` (`type=\"password\"` while `mask` is set), laid over the whole row, with transparent text and no caret of its own, carrying `autocomplete=\"one-time-code\"`, `inputmode=\"numeric\"` (`\"text\"` with `autocapitalize=\"characters\"` for `alphanumeric`), `autocorrect=\"off\"`, `spellcheck=\"false\"`, `enterkeyhint=\"done\"`, and `aria-label`, `aria-description`, `aria-invalid`, `aria-required` and `aria-readonly` set on that element — not through ElementInternals, which axe cannot see. It has no `maxlength` and no `pattern`: the browser would cut or refuse a code pasted or filled with a space in it before the element could read it (OTC-11); the element reads and cuts in `beforeinput` and `input`. The cells, the caret and the group marks are `aria-hidden` elements under the input, drawn from the value; the caret is the element's own, blinking with a CSS animation that `prefers-reduced-motion: reduce` stops. `input` is a composed, bubbling CustomEvent whose `detail.value` is the code; the native input's own `input` event is stopped at the shadow root. `change`, `complete` and `action` are composed, bubbling events (the host's `value` is set before each fires). Enter is left to the native input, so a form submits implicitly as from any text input. Attributes are kebab-case (`group-size`) except `readonly`, which keeps HTML's name. The host is `display: block`; the row is a wrapping flex row with `direction: ltr` whatever the page's, placed at the inline start of the host by the page's direction. Tabular figures are `font-variant-numeric: tabular-nums`. Under `forced-colors: active` each cell has a `ButtonText` border, the active one `Highlight`. Before the element is defined it has no size and shows nothing: a page that must not jump gives the tag a block size of the cell height in its own stylesheet, and a page that must work without script uses a plain `<input autocomplete=\"one-time-code\" inputmode=\"numeric\">`, which this element is a drawing of. The product may fill `value` itself from the browser's own retrieval of a code from a message (the WebOTP API); the element does not call it, because the message's form and the permission are the product's. Words: the element has no words of its own and reads no key of `setWords()`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiOneTimeCodeInput",
+      "props": {
+        "value": "code",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "isMasked",
+        "label": "label",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "code",
+        "change": "onCommit",
+        "complete": "onComplete",
+        "action": "onSubmit"
+      },
+      "notes": "`TanreiField(\"Verification code\") { TanreiOneTimeCodeInput(code: $code, length: 6, groupSize: 3, onComplete: verify) }`. `code` is a `Binding<String>`, written on every change, which is the input event. Built on one `TextField` (`SecureField` while masked) laid over the drawn cells, with `.textContentType(.oneTimeCode)`, so that the code from a message is offered above the keyboard, `.keyboardType(.numberPad)` (`.asciiCapable` with `.textInputAutocapitalization(.characters)` for alphanumeric) and `.autocorrectionDisabled()`. `disabled` follows `.disabled(_:)`, `action` is `.onSubmit`, `label` is `.accessibilityLabel` where no `TanreiField` gives one (it reads `\\.tanreiField`). The cells are hidden from accessibility; the row is laid out with `.environment(\\.layoutDirection, .leftToRight)` and placed by the surrounding direction."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiOneTimeCodeInput",
+      "props": {
+        "value": "value",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "masked",
+        "label": "label",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onCommit",
+        "complete": "onComplete",
+        "action": "keyboardActions"
+      },
+      "notes": "`TanreiField(label = \"Verification code\") { TanreiOneTimeCodeInput(value = code, onValueChange = { code = it }, onComplete = ::verify) }`. One `BasicTextField` whose `decorationBox` draws the cells from the value; `KeyboardOptions(keyboardType = KeyboardType.NumberPassword, autoCorrectEnabled = false)` (`KeyboardType.Ascii` with `KeyboardCapitalization.Characters` for alphanumeric), `semantics { contentType = ContentType.SmsOtpCode }` for the platform's autofill, and `VisualTransformation` for the mask. `enabled` is the inverse flag; the name, the description and `isError` come from `LocalTanreiFieldState` where a `TanreiField` frames it. The row is drawn under `CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)` and placed by the surrounding direction."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiOneTimeCodeInput",
+      "props": {
+        "value": "controller",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "obscureText",
+        "label": "semanticLabel",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "onChanged",
+        "change": "onCommit",
+        "complete": "onCompleted",
+        "action": "onSubmitted"
+      },
+      "notes": "`TanreiField(labelText: 'Verification code', child: TanreiOneTimeCodeInput(controller: code, groupSize: 3, onCompleted: verify))`. One `EditableText` under the drawn cells with `autofillHints: [AutofillHints.oneTimeCode]`, `keyboardType: TextInputType.number` (`TextInputType.visiblePassword` with `TextCapitalization.characters` for alphanumeric), `autocorrect: false`, `enableSuggestions: false` and an input formatter that reads by OTC-4. `enabled` is the inverse flag; the name and the states come from `TanreiFieldScope` where a `TanreiField` frames it. The row is wrapped in `Directionality(textDirection: TextDirection.ltr)` and aligned by the surrounding `Directionality`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "OneTimeCodeInput",
+      "props": {
+        "value": "value",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "secureTextEntry",
+        "label": "accessibilityLabel",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "onChangeText",
+        "change": "onEndEditing",
+        "complete": "onComplete",
+        "action": "onSubmitEditing"
+      },
+      "notes": "`<Field label=\"Verification code\"><OneTimeCodeInput value={code} onChangeText={setCode} groupSize={3} onComplete={verify} /></Field>`. One transparent `TextInput` over the drawn cells with `textContentType=\"oneTimeCode\"` (iOS) and `autoComplete=\"sms-otp\"` (Android; `\"one-time-code\"` on iOS), `keyboardType=\"number-pad\"` (`\"default\"` with `autoCapitalize=\"characters\"` for alphanumeric), `autoCorrect={false}` and `caretHidden`. The cells are `importantForAccessibility=\"no\"` and `accessibilityElementsHidden`. The name and the states come from `FieldContext` where a `Field` frames it. The row sets `direction: \"ltr\"` and is aligned by the app's direction."
+    }
+  }
+}

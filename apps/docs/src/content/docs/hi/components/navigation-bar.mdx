@@ -1,0 +1,339 @@
+---
+title: नेविगेशन बार
+description: कॉम्पैक्ट स्क्रीन के निचले किनारे से तीन से पाँच सबसे ऊपरी स्तर के गंतव्यों के बीच ले जाता है, और दिखाता है कि मौजूदा गंतव्य कौन-सा है।
+translationOf: components/navigation-bar.mdx
+sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="navigation-bar" />
+
+:::note[संशोधित स्पेक, जो अभी हर प्लैटफ़ॉर्म पर नहीं है]
+यह पेज नेविगेशन बार को वैसा बताता है जैसा स्पेक में वह अभी है, [टैब](/hi/components/tabs/) की तर्ज़ पर। सक्रिय इंडिकेटर मौजूदा गंतव्य का बार में पूरा बराबर हिस्सा है, जो बार के किनारों से भीतर रखा गया है, न कि आइकन और लेबल से सटा हुआ कोई पिल। चयन बदलने पर वह अपने पूरे साइज़ में नए गंतव्य तक खिसकता है, और बार पर किया गया ड्रैग उसे पॉइंटर के साथ ले चलता है। होवर, दबाना और फ़ोकस उसी बॉक्स में बनाए जाते हैं। `variant` tonal (डिफ़ॉल्ट) और filled के बीच चुनता है। बाक़ी हर प्रॉपर्टी और इवेंट दोनों संशोधनों में एक जैसा है। ऊपर जिन प्लैटफ़ॉर्म पर "पीछे" लिखा है, वे बराबरी पर आने तक पहला संशोधन देते हैं: न `variant`, न ड्रैग, और सिर्फ़ आइकन के पीछे का इंडिकेटर जो अपने केंद्र से बढ़ता हुआ आता है, और उनके उदाहरण वही संशोधन दिखाते हैं। इस पेज के डेमो में वही वेब कंपोनेंट है जो आज दिया जाता है।
+:::
+
+<DemoFrame label="चार गंतव्य, जिनमें से एक पर गिनती है">
+  <tanrei-navigation-bar value="inbox" label="मुख्य" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="इनबॉक्स" icon="inbox" badge badge-count="3" badge-label="3 अपठित"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="चैट" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="तारांकित" icon="star"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="settings" label="सेटिंग" icon="settings"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="filled वेरिएंट: इंडिकेटर को साथ ले चलने के लिए बार पर दबाएँ और ड्रैग करें" plain>
+  <tanrei-navigation-bar variant="filled" value="chat" label="मीडिया" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="home" label="होम" icon="home"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="चैट" icon="chat" badge badge-label="नए संदेश"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="तारांकित" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="लिंक का बार: पेज अपने पते से मौजूदा गंतव्य का नाम लेता है, और सहायता नया टैब खोलती है" plain>
+  <tanrei-navigation-bar value="/hi/components/navigation-bar/" label="कंपोनेंट" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item href="/hi/components/button/" label="बटन" icon="smart_button"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/hi/components/navigation-bar/" label="बार" icon="bottom_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/hi/components/navigation-drawer/" label="ड्रॉअर" icon="side_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="https://example.com/" label="सहायता" icon="help" target="new" target-label="नए टैब में खुलता है"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+### इस्तेमाल
+
+नेविगेशन बार में एक ही तरह का आइटम होता है, `destination`: एक आइकन, उसके नीचे एक लेबल, और आइकन पर एक वैकल्पिक बैज। हर प्लैटफ़ॉर्म गंतव्यों को वैसे ही लेता है जैसे वह दोहराए जाने वाले किसी भी चाइल्ड को लेता है: वेब पर `<tanrei-navigation-bar-item>` चाइल्ड एलिमेंट, SwiftUI के व्यू बिल्डर में `TanreiNavigationBarItem` व्यू, Compose के कॉन्टेंट लैम्ब्डा में `TanreiNavigationBarItem` कॉल, Flutter की `destinations:` लिस्ट में `TanreiNavigationDestination` ऑब्जेक्ट, और React Native पर सादे ऑब्जेक्ट का `destinations` ऐरे।
+
+चयन बार का होता है, गंतव्य के मान से। `value` मौजूदा गंतव्य का नाम बताता है, `change` वह गंतव्य लाता है जो व्यक्ति ने चुना, और `reselect` तब फ़ायर होता है जब वह मौजूदा गंतव्य को दोबारा चुनता है, ताकि आप उस स्क्रीन को वापस सबसे ऊपर तक स्क्रॉल कर सकें। ख़ाली मान किसी को नहीं चुनता, उस स्क्रीन के लिए जो बार के गंतव्यों में से नहीं है। SwiftUI नया मान `selection` बाइंडिंग में लिखता है। दो प्लैटफ़ॉर्म अपना तरीक़ा रखते हैं, जैसा उनके अपने नेविगेशन बार करते हैं। Compose में बार के स्तर का कोई मान नहीं है: आप मौजूदा आइटम को `selected` चिह्नित करते हैं, और उसका `onClick` change और reselect दोनों का काम करता है। Flutter इंडेक्स से चुनता है: `selectedIndex`, और `onDestinationSelected`, जिसे वह मौजूदा गंतव्य के लिए भी कॉल करता है।
+
+`variant` तय करता है कि मौजूदा गंतव्य कितना उभारकर दिखाया जाए: `tonal` (डिफ़ॉल्ट) उसके इंडिकेटर को हल्के से भरता है, और `filled` उसे गहरे रंग से भरता है, जिस पर आइकन और लेबल उलटे रंग में होते हैं। यह आज वेब पर है।
+
+`href` वाला गंतव्य एक लिंक है: प्लैटफ़ॉर्म का अपना लिंक, जो ठीक बटन वाले गंतव्य की तरह बनता है। Enter उसे सक्रिय करती है और Space नहीं करती। बार दबाने पर लिंक को नहीं चुनता: वह गंतव्य के मान और उसके `href` के साथ `change` एमिट करता है, और फिर लिंक खोला जाता है। जो पेज खुलता है वही `value` के ज़रिए मौजूदा गंतव्य का नाम लेता है, जैसे [नेविगेशन ड्रॉअर](/hi/components/navigation-drawer/) में, और बिना `value` वाला लिंक अपने `href` को अपना मान बना लेता है। `target` और `targetLabel` [Button](/hi/components/button/) वाले ही हैं। लिंक वाले गंतव्य वेब पर बने हैं; SwiftUI, Compose, Flutter और React Native में वे अभी नहीं हैं।
+
+गंतव्य का `icon` डिज़ाइन सिस्टम के आइकन फ़ॉन्ट के किसी ग्लिफ़ का नाम है। बार उसे अचयनित रहते आउटलाइन वाला और चयनित रहते भरा हुआ बनाता है। `badge`, `badgeCount` और `badgeLabel` आइकन पर Tanrei का बैज बनाते हैं: गिनती न हो तो एक बिंदु, वरना संख्या। SwiftUI, Compose और Flutter इन्हें एक `TanreiNavigationBadge` मान के रूप में लेते हैं, और React Native एक `badge` ऑब्जेक्ट के रूप में।
+
+बार एक लेआउट रीजन है, ओवरले नहीं। उसका रंग अपने नीचे के होम इंडिकेटर या जेस्चर बार के नीचे तक पहुँचता है, और उसके गंतव्य उनके ऊपर और बग़ल के इनसेट के भीतर रहते हैं। React Native पर इनसेट सिर्फ़ प्रॉपर्टी से आते हैं, सेफ़ एरिया की किसी डिपेंडेंसी के बिना: `TanreiProvider` के `insets`, या बार के अपने `insets`, जिनकी ओर के मान प्रोवाइडर के मानों की जगह लेते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- होस्ट एक नेविगेशन लैंडमार्क है जिसका नाम label से आता है। -->
+    <!-- variant="filled" मौजूदा गंतव्य को उलटे रंग में दिखाता है, भरी-भरी स्क्रीन के ऊपर के बार के लिए। Tonal डिफ़ॉल्ट है। -->
+    <tanrei-navigation-bar label="मुख्य" value="inbox">
+      <tanrei-navigation-bar-item value="inbox" label="इनबॉक्स" icon="inbox"
+                                  badge badge-count="3" badge-label="3 अपठित"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="chat" label="चैट" icon="chat"
+                                  badge badge-label="नए संदेश"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="starred" label="तारांकित" icon="star"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="settings" label="सेटिंग" icon="settings" disabled></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-bar';
+      const bar = document.querySelector('tanrei-navigation-bar');
+      // बार change फ़ायर करने से पहले अपना value ख़ुद सेट करता है, और change उसे साथ लाता है।
+      bar.addEventListener('change', (e) => showScreen(e.detail.value));
+      bar.addEventListener('reselect', () => scrollTo({ top: 0 }));
+    </script>
+
+    <!-- लिंक का बार: हर पेज value को अपने पते पर सेट करता है। बिना value वाला लिंक अपना href लेता है। -->
+    <tanrei-navigation-bar label="मुख्य" value="/search/">
+      <tanrei-navigation-bar-item href="/" label="होम" icon="home"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/search/" label="खोज" icon="search"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/library/" label="लाइब्रेरी" icon="video_library"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="https://example.com/help" label="सहायता" icon="help"
+                                  target="new" target-label="नए टैब में खुलता है"></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      // राउटर नेविगेशन अपने हाथ में लेता है: change रद्द करें, detail.href पर जाएँ, और बताएँ कि प्रॉडक्ट अब कहाँ है।
+      bar.addEventListener('change', (e) => {
+        if (!e.detail.href) return;
+        e.preventDefault();
+        router.push(e.detail.href);
+        bar.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NavigationBar, NavigationBarItem } from '@tanrei/react';
+
+    // भरी-भरी स्क्रीन के ऊपर के बार के लिए variant="filled"; tonal डिफ़ॉल्ट है।
+    <NavigationBar label="मुख्य" value={screen} onChange={(e) => setScreen(e.detail.value)} onReselect={scrollToTop}>
+      <NavigationBarItem value="inbox" label="इनबॉक्स" icon="inbox" badge badgeCount={3} badgeLabel="3 अपठित" />
+      <NavigationBarItem value="chat" label="चैट" icon="chat" />
+      <NavigationBarItem value="starred" label="तारांकित" icon="star" />
+    </NavigationBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // निचले सेफ़ एरिया इनसेट में अपना अलग बार। गंतव्य चुनने पर बाइंडिंग में लिखा जाता है (change)।
+    ScreenView(screen)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TanreiNavigationBar(selection: $screen, accessibilityLabel: "मुख्य", onReselect: { _ in scrollToTop() }) {
+                TanreiNavigationBarItem("इनबॉक्स", icon: "inbox", value: "inbox",
+                                        badge: TanreiNavigationBadge(count: 3, label: "3 अपठित"))
+                TanreiNavigationBarItem("चैट", icon: "chat", value: "chat")
+                TanreiNavigationBarItem("तारांकित", icon: "star", value: "starred")
+                // disabled SwiftUI का अपना मॉडिफ़ायर है।
+                TanreiNavigationBarItem("सेटिंग", icon: "settings", value: "settings").disabled(true)
+            }
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBadge
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBar
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBarItem
+
+    // Material के NavigationBar की तरह: बार के स्तर का कोई मान नहीं। आप मौजूदा आइटम को selected चिह्नित करते हैं,
+    // और एक ही onClick change और reselect दोनों है।
+    var screen by rememberSaveable { mutableStateOf("inbox") }
+    TanreiNavigationBar(contentDescription = "मुख्य") {
+        TanreiNavigationBarItem(
+            selected = screen == "inbox",
+            onClick = { if (screen == "inbox") { scrollToTop() } else { screen = "inbox" } },
+            icon = "inbox",
+            label = "इनबॉक्स",
+            badge = TanreiNavigationBadge(count = 3, contentDescription = "3 अपठित"),
+        )
+        TanreiNavigationBarItem(selected = screen == "chat", onClick = { screen = "chat" }, icon = "chat", label = "चैट")
+        // enabled स्पेक के disabled का उलटा है।
+        TanreiNavigationBarItem(selected = screen == "settings", onClick = { screen = "settings" }, icon = "settings", label = "सेटिंग", enabled = false)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // NavigationBar की तरह: गंतव्य का मान उसका इंडेक्स है। बार अपना कोई चयन नहीं रखता।
+    TanreiNavigationBar(
+      selectedIndex: current, // null किसी को नहीं चुनता
+      onDestinationSelected: (int index) {
+        if (index == current) {
+          scrollToTop(); // reselect
+        } else {
+          setState(() => current = index); // change
+        }
+      },
+      semanticLabel: 'मुख्य',
+      destinations: const <TanreiNavigationDestination>[
+        TanreiNavigationDestination(icon: 'inbox', label: 'इनबॉक्स', badge: TanreiNavigationBadge(count: 3, semanticLabel: '3 अपठित')),
+        TanreiNavigationDestination(icon: 'chat', label: 'चैट'),
+        TanreiNavigationDestination(icon: 'settings', label: 'सेटिंग', enabled: false),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationBar } from '@tanrei/react-native';
+
+    const [screen, setScreen] = useState('inbox');
+
+    // कंट्रोल्ड: value को onValueChange से बदलें।
+    <NavigationBar
+      accessibilityLabel="मुख्य"
+      value={screen}
+      onValueChange={setScreen}
+      onReselect={scrollToTop}
+      destinations={[
+        { value: 'inbox', label: 'इनबॉक्स', icon: 'inbox', badge: { count: 3, label: '3 अपठित' } },
+        { value: 'chat', label: 'चैट', icon: 'chat', badge: { label: 'नए संदेश' } },
+        { value: 'settings', label: 'सेटिंग', icon: 'settings', disabled: true },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="सिर्फ़ चयनित का लेबल, और कोई लेबल नहीं" plain column>
+  <tanrei-navigation-bar value="chat" label-visibility="selected" label="मुख्य" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="इनबॉक्स" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="चैट" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="तारांकित" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+  <tanrei-navigation-bar value="inbox" label-visibility="never" label="द्वितीयक" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="इनबॉक्स" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="चैट" icon="chat" badge badge-label="नए संदेश"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="तारांकित" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-bar" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+नेविगेशन बार को कॉम्पैक्ट स्क्रीन पर, जैसे सीधा पकड़ा हुआ फ़ोन, तीन से पाँच सबसे ऊपरी स्तर के गंतव्यों के बीच जाने के लिए इस्तेमाल करें: वे जगहें जहाँ व्यक्ति दिन भर लौटता है, जैसे इनबॉक्स, खोज और प्रोफ़ाइल। बार सबसे ऊपरी स्तर की हर स्क्रीन पर रहता है और दिखाता है कि व्यक्ति कहाँ है।
+
+एक स्क्रीन के भीतर एक ही विषय के व्यू के बीच बदलने के लिए टैब इस्तेमाल करें। जिस स्क्रीन पर व्यक्ति किसी दूसरी स्क्रीन से पहुँचा, उससे निकलने के लिए ऐप बार का "पीछे" बटन इस्तेमाल करें: ब्योरे वाली स्क्रीन आम तौर पर नेविगेशन बार को छिपा देती हैं।
+
+### बार और ड्रॉअर के बीच चुनाव
+
+| पहलू | [नेविगेशन बार](/hi/components/navigation-bar/) | [नेविगेशन ड्रॉअर](/hi/components/navigation-drawer/), सिमटा हुआ | [नेविगेशन ड्रॉअर](/hi/components/navigation-drawer/), फैला हुआ |
+| --- | --- | --- | --- |
+| कहाँ रहता है | निचले किनारे के साथ | शुरुआती किनारे के साथ आइकन का एक कॉलम | शुरुआती किनारे पर एक पैनल में |
+| विंडो | कॉम्पैक्ट | मीडियम और उससे चौड़ी | एक्सपैंडेड और उससे चौड़ी (standard), या कॉम्पैक्ट (modal) |
+| गंतव्य | तीन से पाँच | उसके सबसे ऊपरी स्तर के गंतव्य और ग्रुप, हर एक के लिए एक सेल | जितने प्रॉडक्ट में हैं, सेक्शन और ग्रुप में |
+| एक गंतव्य | एक पंक्ति के लेबल के ऊपर एक आइकन, आइकन पर बैज के साथ | आइकन के बाद काटी गई पंक्ति: अकेला आइकन, जिस पर बैज है और जिसका नाम टूलटिप में है | एक पंक्ति: एक वैकल्पिक आइकन, अगली पंक्ति में जाने वाला लेबल, और अंत में अंतिम टेक्स्ट या कॉन्टेंट |
+| इसमें और क्या है | और कुछ नहीं | एक हेडर: मेन्यू बटन और मुख्य क्रिया, अपने आइकन तक सिमटी हुई | एक हेडर: मेन्यू बटन, एक शीर्षक या खाता बदलने वाला कंट्रोल, और मुख्य क्रिया |
+| नेटिव प्लैटफ़ॉर्म पर गंतव्य है | टैब बार का एक टैब | चयनित स्टेट वाला एक बटन | चयनित स्टेट वाला एक बटन |
+| यह क्या है | एक लेआउट रीजन | एक लेआउट रीजन, या लेआउट का वह कॉलम जिससे मोडल ड्रॉअर चौड़ा होता है | Standard: एक लेआउट रीजन। Modal: एक मोडल ओवरले |
+
+- **सिमटा हुआ ड्रॉअर ही नेविगेशन रेल है।** समेटा जा सकने वाला ड्रॉअर वहाँ आइकन के एक कॉलम तक सँकरा हो जाता है जहाँ कॉन्टेंट को चौड़ाई चाहिए, और उसका मेन्यू बटन उसे फिर चौड़ा करता है; हर आइकन अपनी जगह रहता है। Tanrei की अलग नेविगेशन रेल हटाकर इसी रूप में मिला दी गई है।
+- **बार और ड्रॉअर दो जगहों पर गंतव्यों का एक ही सेट हैं।** वे वही गंतव्य और वही चयन लेते हैं, इसलिए जो प्रॉडक्ट विंडो के हिसाब से ढलता है, वह एक ब्रेकपॉइंट पर बार की जगह ड्रॉअर रख देता है और अपने गंतव्यों को छूता तक नहीं। एक समय में इनमें से एक ही दिखाएँ, दोनों कभी नहीं।
+- **ड्रॉअर में ज़्यादा समाता है।** उसे फैला हुआ तब इस्तेमाल करें जब प्रॉडक्ट में बार में समा सकने से ज़्यादा गंतव्य हों, या जब वे ग्रुप में बँटते हों, जैसे किसी मेल ऐप के फ़ोल्डर और लेबल। बड़ी विंडो में standard ड्रॉअर कॉन्टेंट के बग़ल में रहता है। कॉम्पैक्ट विंडो में मोडल ड्रॉअर मेन्यू बटन से उसके ऊपर खिसककर आता है।
+- **समेटा जा सकने वाला मोडल ड्रॉअर** अपने आइकन का कॉलम लेआउट में रखता है और, जब उसका मेन्यू बटन उसे खोलता है, स्क्रिम के ऊपर कॉन्टेंट पर चौड़ा होता है।
+- हर प्लैटफ़ॉर्म पर दोनों गंतव्य के मान से चुनते हैं (Compose हर आइटम के फ़्लैग से, Flutter इंडेक्स से) और `change` और `reselect` एमिट करते हैं।
+
+### लेबल
+
+| `labelVisibility` | क्या करता है | किसके लिए |
+| --- | --- | --- |
+| `always` (डिफ़ॉल्ट) | हर गंतव्य अपना लेबल बनाता है। | ज़्यादातर बार। लेबल गंतव्यों को एक नज़र में पहचानने लायक़ बनाते हैं। |
+| `selected` | सिर्फ़ मौजूदा गंतव्य अपना लेबल बनाता है। बिना लेबल का आइकन अपने गंतव्य के बीच में रहता है। चयन के साथ कोई गंतव्य अपना साइज़ या जगह नहीं बदलता। | वे बार जहाँ जगह कम है और आइकन जाने-पहचाने हैं। |
+| `never` | कोई गंतव्य अपना लेबल नहीं बनाता। | मीडिया और सोशल प्रॉडक्ट, जिनके चार या पाँच आइकन हर कोई जानता है। |
+
+जो लेबल दिखाया नहीं जाता, वह अब भी गंतव्य का एक्सेसिबल नाम है, इसलिए हर गंतव्य को एक लेबल चाहिए।
+
+### चयन और बैज
+
+- **सक्रिय इंडिकेटर।** हर गंतव्य का एक बॉक्स होता है: बार की चौड़ाई में उसका बराबर हिस्सा, जो बार के किनारों से, ऊपर और नीचे और दोनों सिरों पर, एक ही इनसेट (डिफ़ॉल्ट सिस्टम में 4) से भीतर रखा जाता है। 360 चौड़े और 64 ऊँचे बार में चार गंतव्यों में से हर एक का बॉक्स 88 × 56 का है, जो डिफ़ॉल्ट सिस्टम में एक कैप्सूल है। बार के हर गंतव्य के लिए बॉक्स एक जैसा होता है, चाहे उसमें कुछ भी हो, और वह कभी अपने आइकन और लेबल के साइज़ का नहीं बनाया जाता। मौजूदा गंतव्य का बॉक्स भरा होता है, जो उसे सक्रिय इंडिकेटर बनाता है, और उसका आइकन भरा हुआ होता है। होवर, फ़ोकस और दबाना हर गंतव्य के लिए उसी बॉक्स में बनाए जाते हैं।
+- **खिसकना।** चयन बदलने पर इंडिकेटर पुराने गंतव्य से नए तक अपने पूरे साइज़ में खिसकता है। आइकन और लेबल सिर्फ़ वहीं उलटे रंग में होते हैं जहाँ इंडिकेटर उन्हें ढकता है, इसलिए जिस गंतव्य के ऊपर से वह गुज़रता है वह एक पल के लिए उसके नीचे रंग बदलता है, और इंडिकेटर के पहुँचते ही नया गंतव्य पूरी तरह उलटे रंग में होता है। जब पहले कोई चयन न हो, तो इंडिकेटर नए गंतव्य पर फ़ेड होकर आता है; जब चयन हटकर कोई चयन न रहे, तो वह फ़ेड होकर चला जाता है। वह कभी बढ़ता या सिकुड़ता नहीं। जब बार पहली बार दिखता है, या मौजूदा गंतव्य नए चयन के बिना साइज़ बदलता है (कोई फ़ॉन्ट आ गया, टेक्स्ट का साइज़ बदल गया), तो इंडिकेटर तुरंत अपनी जगह रख दिया जाता है। जहाँ मोशन कम किया गया है, वहाँ बदलाव तुरंत होता है।
+- **ड्रैग।** जब कोई गंतव्य चयनित हो, तब बार पर टच, पेन या माउस से ऐसा दबाना जो बग़ल की ओर चलता है, इंडिकेटर को पॉइंटर के साथ ले चलता है। छोड़ने तक कुछ नहीं चुना जाता: `value`, फ़ोकस, हर आइकन का फ़िल और जो पढ़कर सुनाया जाता है, सब मौजूदा गंतव्य के साथ रहते हैं। छोड़ने पर उन दो गंतव्यों में से पास वाला चुना जाता है जिनके बीच इंडिकेटर है, या वह जिसकी ओर फ़्लिंग है, और `change` एक बार फ़ायर होता है। वापस मौजूदा गंतव्य पर छोड़ने पर कुछ फ़ायर नहीं होता, `reselect` भी नहीं। Escape ड्रैग को रद्द करती है। ड्रैग कभी अकेला तरीक़ा नहीं है: टैप, क्लिक, Enter और Space पहले की तरह चुनते हैं।
+- **दोबारा चुनना।** मौजूदा गंतव्य को फिर चुनने पर `reselect` फ़ायर होता है, `change` नहीं। इसका आम जवाब उस स्क्रीन को सबसे ऊपर तक स्क्रॉल करना है, या उसके पहले पेज पर लौटना।
+- **बैज।** गिनती वाला बैज संख्या दिखाता है (999 से ऊपर 999+), और बिना गिनती वाला एक बिंदु। `badgeLabel` वह है जो स्क्रीन रीडर गंतव्य के नाम के बाद कहता है, जैसे "3 अपठित"। बिंदु में पढ़ने के लिए कोई संख्या नहीं होती, इसलिए उसे यह हमेशा चाहिए। गंतव्य के अक्षम रहते भी बैज बना रहता है।
+
+### लिंक
+
+अलग-अलग पेजों वाली साइट में हर गंतव्य को `href` दें और बार के `value` को पेज के अपने पते पर सेट करें। तब मौजूदा गंतव्य और मौजूदा पेज एक ही चीज़ हैं, एक ही निशान के साथ।
+
+- **खोला जाता है, चुना नहीं जाता।** लिंक को सादे ढंग से सक्रिय करने पर `change` एमिट होता है, या मौजूदा लिंक पर `reselect`, गंतव्य के मान और उसके `href` के साथ, और फिर लिंक खोला जाता है। बार `value` नहीं लिखता: सक्रिय इंडिकेटर उसी गंतव्य पर रहता है जिसका नाम `value` लेता है, और `value` बदलने पर खिसकता है।
+- **राउटर।** नेविगेशन अपने हाथ में लेने के लिए इवेंट रद्द करें, `detail.href` पर जाएँ और `value` सेट करें। तब इंडिकेटर नए गंतव्य तक खिसकता है।
+- **दूसरे टैब।** मॉडिफ़ायर कुंजी के साथ क्लिक या Enter, मिडिल क्लिक, वह लिंक जिसका `target` `new` है, और डाउनलोड, ब्राउज़र के हैं। बार न कुछ एमिट करता है, न कुछ चुनता है।
+- **नया संदर्भ।** `target: new` एक नया टैब या विंडो खोलता है। गंतव्य लेबल के ऊपर एक आइकन है, जिसमें निशान के लिए कोई जगह नहीं है, इसलिए कोई निशान नहीं बनता: `targetLabel` यह बात सहायक तकनीक को बताता है, बैज के विवरण के बाद।
+- **ड्रैग।** बग़ल की ओर का जो ड्रैग किसी लिंक पर शुरू होता है, वह सक्रिय इंडिकेटर को चलाता है और लिंक के पते को ड्रैग नहीं करता। किसी लिंक पर छोड़ा जाए, तो वह उस लिंक पर सादा दबाना है: `value` बदलने तक इंडिकेटर मौजूदा गंतव्य पर लौट आता है।
+- **अक्षम।** अक्षम लिंक किसी भी तरीक़े से खोला नहीं जा सकता और फ़ोकस के क्रम से बाहर हो जाता है।
+
+### Tonal और filled
+
+| `variant` | मौजूदा गंतव्य | किसके लिए |
+| --- | --- | --- |
+| `tonal` (डिफ़ॉल्ट) | secondary container रंग का एक हल्का इंडिकेटर, जिसके आइकन और लेबल उस कंटेनर के कॉन्टेंट रंग में होते हैं। | ज़्यादातर बार। |
+| `filled` | primary रंग का एक गहरा इंडिकेटर, जिस पर उसके आइकन और लेबल उलटे रंग में होते हैं। | वह बार जिसे भरी-भरी स्क्रीन से अलग दिखना है: नक़्शा, फ़ोटो ग्रिड, प्लेयर। |
+
+जिन गंतव्यों को इंडिकेटर नहीं ढकता, वे दोनों में एक जैसे दिखते हैं। वेरिएंट यह बदलता है कि चयन कितना उभारकर बनाया जाता है, यह नहीं कि क्या पढ़कर सुनाया जाता है: tonal और filled बार वही नाम, रोल और स्टेट देते हैं। अक्षम मौजूदा गंतव्य अपना tonal इंडिकेटर रखता है, जिस पर अक्षम कॉन्टेंट होता है; filled इंडिकेटर वैसे ही फीका पड़ता है जैसे अक्षम filled बटन, क्योंकि primary रंग पर अक्षम कॉन्टेंट पढ़ना मुश्किल होता।
+
+`m3-like` और `cupertino` प्रीसेट `filled` को छोड़ देते हैं, क्योंकि Material के नेविगेशन बार और Apple के टैब बार की एक ही स्टाइल है। `m3-like` Material का बॉक्स सिर्फ़ आइकन के पीछे रखता है, लेबल उसके नीचे और गंतव्य के चारों ओर कोई बॉक्स नहीं, और `cupertino` मौजूदा टैब को सिर्फ़ अपने टिंट से चिह्नित करता है। दोनों में ड्रैग के दौरान कुछ चलता हुआ नहीं दिखता, और छोड़ने पर चुनाव फिर भी होता है।
+
+### करें
+
+- लेबल को एक छोटे शब्द तक रखें: "इनबॉक्स", "खोज", "प्रोफ़ाइल"। जो लेबल अपने गंतव्य में नहीं समाता, वह अपने अंत पर एलिप्सिस के साथ काटा जाता है, और कुछ भी अगली पंक्ति में नहीं जाता।
+- `filled` सिर्फ़ वहाँ इस्तेमाल करें जहाँ tonal इंडिकेटर बार के पीछे की स्क्रीन में खो जाएगा।
+- गंतव्य और उनका क्रम सबसे ऊपरी स्तर की हर स्क्रीन पर एक जैसा रखें।
+- हर गंतव्य के लिए एक ही आइकन स्टाइल इस्तेमाल करें, और मौजूदा गंतव्य के लिए भरा हुआ रूप बार को बनाने दें।
+
+### न करें
+
+- बार को "बनाएँ" या "शेयर करें" जैसी क्रियाओं के लिए इस्तेमाल न करें। मुख्य ऐक्शन बटन या ऐप बार इस्तेमाल करें।
+- इसमें तीन से कम या पाँच से ज़्यादा गंतव्य न रखें। गिनती डीबग बिल्ड में रिपोर्ट की जाती है। बाक़ी को नेविगेशन ड्रॉअर में ले जाएँ।
+- जो गंतव्य कभी-कभी उपलब्ध नहीं होता, उसे न छिपाएँ। उसे अक्षम करें, ताकि बार का रूप बना रहे।
+- एक साथ हर गंतव्य पर बैज न दिखाएँ।
+
+## सुलभता
+
+<ComponentAccessibility name="navigation-bar" />
+
+### कंपोनेंट क्या सँभालता है
+
+- वेब पर बार एक नेविगेशन लैंडमार्क है जिसका नाम `label` से आता है। हर गंतव्य एक लिंक (`href` के साथ) या एक बटन है, और मौजूदा गंतव्य पर `aria-current="page"` होता है, लिंक पर भी और बटन पर भी: मौजूदा पेज के लिए कोई दूसरा स्टेट नहीं है। यह टैब लिस्ट नहीं है: पूरी स्क्रीन के बीच बदलने में न टैब पैनल होते हैं, न ऐरो कुंजियों से चलना।
+- iOS, Android, Flutter और React Native पर बार प्लैटफ़ॉर्म का टैब बार है, जैसे उनके अपने बॉटम बार हैं। हर गंतव्य टैब रोल वाला एक एलिमेंट है (SwiftUI पर selected ट्रेट वाला एक बटन), अपने चयनित स्टेट और सेट में अपनी जगह के साथ, जिसका नाम उसका लेबल है, चाहे लेबल दिखाया गया हो या नहीं। स्क्रीन रीडर, उदाहरण के लिए, कहता है: "इनबॉक्स, टैब, 4 में से 1, चयनित, 3 अपठित"।
+- आइकन सहायक तकनीक से छिपा रहता है। बैज अपना विवरण (`badgeLabel`, या वह संख्या जो वह दिखाता है) नाम और स्टेट के बाद जोड़ता है, और नया संदर्भ खोलने वाला लिंक उसके बाद अपना `targetLabel` जोड़ता है।
+- हर गंतव्य जो अक्षम नहीं है, अपना अलग Tab स्टॉप है, जैसे किसी नेविगेशन रीजन के लिंक होते हैं। Enter और Space फ़ोकस वाले गंतव्य को सक्रिय करती हैं (वेब पर लिंक के लिए सिर्फ़ Enter)। अक्षम गंतव्य फ़ोकस नहीं लेते और अक्षम के रूप में पढ़कर सुनाए जाते हैं।
+- फ़ोकस रिंग गंतव्य के बॉक्स के चारों ओर बनती है और बार के भीतर रखी जाती है, सिर्फ़ कीबोर्ड फ़ोकस के लिए।
+- इंडिकेटर का ड्रैग छोड़े जाने तक पढ़कर सुनाई जाने वाली कोई चीज़ नहीं बदलता, और फ़ोकस को कभी नहीं हटाता।
+- हर आइकन और लेबल की वह उलटे रंग वाली प्रति जिसे इंडिकेटर ढकता है, सजावटी है: सहायक तकनीक को हर गंतव्य एक ही बार मिलता है, और `variant` यह नहीं बदलता कि क्या पढ़कर सुनाया जाता है।
+- पूरा सेल हिट एरिया है: बार की पूरी ऊँचाई और उसकी चौड़ाई का बराबर हिस्सा, कम से कम न्यूनतम टार्गेट जितना। जो बार अपने गंतव्यों के लिए बहुत सँकरा है, वह भी अपनी चौड़ाई बराबर बाँटता है: सेल टार्गेट से नीचे तक सँकरे हो जाते हैं, बजाय इसके कि बार अपनी जगह से चौड़ा हो।
+- बड़ा टेक्स्ट बार को, और उसके साथ हर गंतव्य के बॉक्स को, बढ़ाता है, ताकि लेबल अब भी एक पंक्ति में समाएँ। आइकन स्केल नहीं किए जाते। जो लेबल काटा गया है, वह गंतव्य के नाम के रूप में पूरा रहता है। जहाँ iOS large-content viewer देता है, वहाँ देर तक दबाने पर गंतव्य का आइकन और लेबल बड़े करके दिखाए जाते हैं।
+- तीन से कम या पाँच से ज़्यादा गंतव्य, बिना लेबल का गंतव्य, ऐसा मान जो किसी गंतव्य का नाम नहीं है, और दो बार इस्तेमाल हुआ मान, डीबग बिल्ड में रिपोर्ट किए जाते हैं। इनकी भी रिपोर्ट की जाती है: ऐसा लिंक जो `targetLabel` के बिना नया संदर्भ खोलता है, ऐसा `href` जो किसी स्क्रिप्ट का नाम लेता है या पढ़ा नहीं जा सकता, और ऐसा `target` जिसे बार परिभाषित नहीं करता।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- SwiftUI, Compose, Flutter और React Native में लिंक वाले गंतव्य नहीं हैं: वहाँ गंतव्य अभी `href` नहीं लेता।
+- Web: हर साइज़ `rem` के अनुसार चलता है, इसलिए ब्राउज़र का बड़ा टेक्स्ट साइज़ आइटम के कंटेनर और आइकन को भी बढ़ाता है। अकेले Tanrei के टाइप को बड़ा करने से ऐसा नहीं होता।
+- SwiftUI: सेल का न्यूनतम साइज़ प्लैटफ़ॉर्म का अपना टार्गेट है, macOS पर 44 पॉइंट, जबकि स्पेक 48 पॉइंट का टच टार्गेट बताता है।
+- SwiftUI: iOS के बाहर गंतव्य सेट में अपनी जगह को अपने मान टेक्स्ट के रूप में रखता है ("2 of 4"), सिर्फ़ अंग्रेज़ी में। इमेज आइकन, जैसे कोई SF Symbol, चयन के अनुसार नहीं बदलता: चयनित गंतव्य के लिए भरा हुआ सिंबल ख़ुद दें। large-content viewer बना हुआ है, पर अभी किसी टेस्ट ने उसे चलाकर नहीं देखा है।
+- Compose में बार के स्तर का कोई मान नहीं है, इसलिए ऐसे मान के बारे में रिपोर्ट करने को कुछ नहीं है जो किसी गंतव्य का नाम नहीं है: किसी को न चुनने के लिए किसी आइटम को selected चिह्नित न करें।
+- Flutter के सिमैंटिक्स में सेट के भीतर की जगह नहीं है, इसलिए "4 में से 1" पढ़कर नहीं सुनाया जाता।
+- SwiftUI, Flutter और React Native आइकन की फ़ैमिली और फ़िल को चयन के मोशन के दौरान बदलने के बजाय तुरंत बदल देते हैं।
+- React Native में large-content viewer नहीं है। गंतव्य सेट में अपनी जगह को अपने मान टेक्स्ट के रूप में रखता है ("1 of 4"), अंग्रेज़ी में, जब तक आप `positionText` न दें।
+- React Native: चयन का मोशन, इनसेट और TalkBack और VoiceOver जो पढ़कर सुनाते हैं, ये अभी किसी डिवाइस पर जाँचे नहीं गए हैं।
+- हर प्लैटफ़ॉर्म, डिफ़ॉल्ट सिस्टम: tonal इंडिकेटर का बार के मुक़ाबले कंट्रास्ट क़रीब 1.15:1 है, और iOS का एक्सेसिबिलिटी ऑडिट इसे चिह्नित करता है। भरा हुआ आइकन और लेबल का रंग भी चयन को चिह्नित करते हैं, और जहाँ यह मायने रखता है वहाँ `filled` कम से कम 3:1 का इंडिकेटर देता है।
+
+### आपको क्या करना है
+
+- हर गंतव्य को एक लेबल दें, उस बार में भी जो कोई लेबल नहीं बनाता।
+- बार को `label` से नाम दें, जैसे "मुख्य", ख़ासकर तब जब स्क्रीन में कोई दूसरा नेविगेशन रीजन हो।
+- हर बैज को ऐसा `badgeLabel` दें जो बताए कि वह क्या गिनता है, और बिंदु के लिए हमेशा दें।
+- हर गंतव्य का मान अनोखा और स्थिर रखें।
+- अलग-अलग पेजों वाली साइट में हर पेज पर `value` को उस पेज के गंतव्य पर सेट करें। बार किसी लिंक को अपने आप नहीं चुनता।
+- नया टैब खोलने वाले लिंक को अपने प्रॉडक्ट की भाषा में `targetLabel` दें, जैसे "नए टैब में खुलता है"। Tanrei अपना कोई शब्द साथ नहीं देता।
+- Compose पर ठीक एक आइटम को `selected` चिह्नित करें, या किसी को नहीं। Flutter पर reselect और change में फ़र्क़ करने के लिए मिले हुए इंडेक्स की तुलना `selectedIndex` से करें।
+- React Native पर `positionText` अपने प्रॉडक्ट की भाषा में दें, और `TanreiProvider` को विंडो के इनसेट दें।

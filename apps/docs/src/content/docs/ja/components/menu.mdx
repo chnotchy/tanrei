@@ -1,0 +1,494 @@
+---
+title: メニュー
+description: 呼び出した要素から開く一時的なサーフェスに、少数のアクションや選択肢を並べて見せます。
+translationOf: components/menu.mdx
+sourceHash: 740ced78f44526a9b305909b0ad3023504f4cc05
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="menu" />
+
+<DemoFrame label="アクション、チェックボックス項目、ラジオのグループ、破壊的なアクション">
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="コピー" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+    <tanrei-menu-item label="貼り付け" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
+    <tanrei-menu-group label="表示">
+      <tanrei-menu-checkbox-item label="グリッドを表示" checked></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="並べ替え" value="name">
+      <tanrei-menu-radio-item label="名前" value="name"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="更新日" value="date"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+    <tanrei-menu-item label="削除" leading-icon="delete" destructive></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="サブメニュー：隣にもう 1 つの階層を開く項目" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="新規ファイル" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
+    <tanrei-submenu label="最近使った項目を開く" leading-icon="history" open>
+      <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+      <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      <tanrei-menu-item label="Budget.xlsx"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-submenu label="共有" leading-icon="share">
+      <tanrei-menu-item label="リンクをコピー" leading-icon="link"></tanrei-menu-item>
+      <tanrei-menu-item label="メールで送る" leading-icon="mail"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-menu-item label="印刷" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="リンクのメニュー：どの行も行き先を持ち、1 つは新しいタブで開く" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="ボタン" href="/ja/components/button/"></tanrei-menu-item>
+    <tanrei-menu-item label="リスト" href="/ja/components/list/"></tanrei-menu-item>
+    <tanrei-menu-item label="サンプルサイト" href="https://example.com/" target="new" target-label="新しいタブで開きます"></tanrei-menu-item>
+    <tanrei-menu-item label="アーカイブ" href="/archive/" disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+### 使い方
+
+メニューを開く起点（アンカー）は、利用者側のボタン、アイコンボタン、入力欄です。メニューはアンカーを描きません。アンカーの位置を読んでそこにサーフェスを配置し、閉じたらフォーカスをアンカーへ戻します。開くのは利用者側で、閉じるのはメニューから求められたときです。
+
+メニューの項目には 5 つの種類があります。アクションの `item`、`checkbox-item`、`radio-item`、隣にメニューのもう 1 つの階層を開く `submenu`、そしてほかの種類の項目をまとめる `group` です。項目の渡し方は、各プラットフォームで繰り返しの子要素を渡すときの流儀に従います。Web では子要素、SwiftUI ではビュービルダーの中のビュー、Compose ではコンテンツラムダの中の呼び出し、Flutter では `menuChildren` のウィジェット、React Native では `kind` で種類を見分けるプレーンなオブジェクトの配列 `items` です。チェックボックス項目の `checked` はその項目自身のものです。どのラジオ項目がチェックされているかは、値によってグループが持ちます。
+
+項目のキーボードショートカットは `shortcut` プロパティで指定します。書き方は[キーボードショートカット](/ja/components/keyboard-shortcut/)の中立なキー名（`mod+c`）です。メニューはそれを項目の末尾にキーボードショートカットのコンポーネントで描き、Apple のキーボードでは ⌘C、それ以外では Ctrl+C と表示して、項目のキーボードショートカットとして伝えます。キーを実際に効かせるのはプロダクト側です。`trailingText` は、件数や「Beta」のようなショートカット以外のもののためのものです。Web はこのすべてに対応し、現在の見た目で描きます。SwiftUI、Compose、Flutter、React Native は追従待ちです。追従するまでは `shortcut` プロパティがなく、以下の例のようにショートカットを `trailingText` に書きます。サブメニュー、`separation`、`markIcon` もありません。また、チェックを 16 の枠に独自の印で描き、チェックされた行を塗らず、グループのタイトルをラベルの位置から始めます。
+
+`href` を持つ項目はリンク項目です。プラットフォーム自身のリンクで、アクションとまったく同じに描かれ、同じキーで移動できます。通常の操作では、項目の `click` を発火し、メニューを閉じ、そのあとで行き先を開きます。`target` と `targetLabel` は[ボタン](/ja/components/button/)のものと同じです。リンク項目があるのは Web です。SwiftUI、Compose、Flutter、React Native にはまだありません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="more" label="その他"><span slot="icon">more_vert</span></tanrei-button>
+
+    <!-- anchor には、メニューを開く要素の id を指定します。 -->
+    <tanrei-menu anchor="more">
+      <!-- shortcut は中立なキー名で書き、利用者のキーボードに合わせて ⌘C か Ctrl+C と描きます。 -->
+      <tanrei-menu-item label="コピー" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+      <!-- グループのタイトルは、<optgroup label> と同じく label 属性です。 -->
+      <tanrei-menu-group label="表示">
+        <tanrei-menu-checkbox-item label="グリッドを表示" checked></tanrei-menu-checkbox-item>
+      </tanrei-menu-group>
+      <!-- グループか個々の項目に mark-icon="check" を付けると、チェックされた項目をただのチェックで示します。 -->
+      <tanrei-menu-group label="並べ替え" value="name" mark-icon="check">
+        <tanrei-menu-radio-item label="名前" value="name"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="更新日" value="date"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+      <!-- サブメニュー：子要素が次の階層です。toggle を発火し、close は発火しません。 -->
+      <tanrei-submenu label="最近使った項目を開く" leading-icon="history">
+        <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+        <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-item label="削除" leading-icon="delete" destructive></tanrei-menu-item>
+      <!-- href があれば項目はリンクです。click を発火し、メニューを閉じ、そのあとブラウザーがリンクをたどります。 -->
+      <tanrei-menu-item label="キーボードショートカット" href="/help/shortcuts/"></tanrei-menu-item>
+      <tanrei-menu-item label="ソース" href="https://example.com/tanrei" target="new" target-label="新しいタブで開きます"></tanrei-menu-item>
+    </tanrei-menu>
+
+    <!-- separation="gap" は、デザインシステムの選択にかかわらず、このメニューとそのサブメニューでグループを余白で分けます。 -->
+    <tanrei-menu anchor="more" separation="gap">…</tanrei-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/menu';
+      const menu = document.querySelector('tanrei-menu');
+      // アンカーの押下はアンカー自身のものです。メニューは閉じないので、ここで開閉を切り替えます。
+      document.querySelector('#more').addEventListener('click', () => (menu.open = !menu.open));
+      // close は理由（escape、outside、tab、focus-out、item）を伝えます。
+      menu.addEventListener('close', () => (menu.open = false));
+      // click、change、toggle は項目かグループで発火してバブリングするので、メニューに付けた 1 つのリスナーですべて受け取れます。
+      menu.querySelector('[label="コピー"]').addEventListener('click', copy);
+      menu.querySelector('[label="グリッドを表示"]').addEventListener('change', (e) => setGrid(e.detail.checked));
+      menu.querySelector('[label="並べ替え"]').addEventListener('change', (e) => sortBy(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioItem, Submenu } from '@tanrei/react';
+
+    <Button variant="text" id="more" label="その他" onClick={() => setOpen(!open)}><span slot="icon">more_vert</span></Button>
+    <Menu anchor="more" open={open} onClose={() => setOpen(false)}>
+      <MenuItem label="コピー" leadingIcon="content_copy" shortcut={['mod+c']} onClick={copy} />
+      <MenuGroup label="表示">
+        <MenuCheckboxItem label="グリッドを表示" checked={grid} onChange={(e) => setGrid(e.detail.checked)} />
+      </MenuGroup>
+      <MenuGroup label="並べ替え" value={sort} onChange={(e) => setSort(e.detail.value)}>
+        <MenuRadioItem label="名前" value="name" />
+        <MenuRadioItem label="更新日" value="date" />
+      </MenuGroup>
+      <Submenu label="最近使った項目を開く" leadingIcon="history">
+        <MenuItem label="Report.pdf" onClick={() => openFile('Report.pdf')} />
+        <MenuItem label="Notes.txt" onClick={() => openFile('Notes.txt')} />
+      </Submenu>
+      <MenuItem label="削除" leadingIcon="delete" destructive onClick={remove} />
+      {/* リンク項目。ルーターは click をキャンセルして自分で移動します。メニューはそれでも閉じます。 */}
+      <MenuItem label="キーボードショートカット" href="/help/shortcuts/" onClick={(e) => { e.preventDefault(); navigate('/help/shortcuts/'); }} />
+    </Menu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // .popover と同じく、アンカーに付けるモディファイアーです。閉じると isPresented に false が書き込まれます。
+    TanreiIconButton("その他", action: { showMenu = true }) { Image(systemName: "ellipsis") }
+        .tanreiMenu(isPresented: $showMenu, placement: .bottomStart) {
+            TanreiMenuItem("コピー", action: copy)
+            TanreiMenuSection("表示") {
+                TanreiMenuToggle("グリッドを表示", isOn: $showGrid)
+            }
+            TanreiMenuSection("並べ替え", selection: $sort) {
+                // .tag(_:) は TanreiMenuOption そのものに付けます。
+                TanreiMenuOption("名前").tag("name")
+                TanreiMenuOption("更新日").tag("date")
+            }
+            TanreiMenuItem("削除", role: .destructive, action: delete)
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiCheckboxMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiMenu
+    import io.github.chnotchy.tanrei.components.TanreiMenuGroup
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiRadioMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // DropdownMenu と同じく、アンカーの Box の中で呼びます。閉じるのは呼び出し側で、onDismissRequest に理由が届きます。
+    Box {
+        TanreiIconButton(onClick = { expanded = true }, contentDescription = "その他") { TanreiText("more_vert") }
+        TanreiMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            TanreiMenuItem(text = "コピー", onClick = ::copy, trailingText = "⌘C", leadingIcon = { TanreiText("content_copy") })
+            TanreiMenuGroup(title = "表示") {
+                TanreiCheckboxMenuItem(text = "グリッドを表示", checked = showGrid, onCheckedChange = { showGrid = it })
+            }
+            TanreiMenuGroup(title = "並べ替え", selectedValue = sort, onSelectedValueChange = { sort = it }) {
+                TanreiRadioMenuItem(text = "名前", value = "name")
+                TanreiRadioMenuItem(text = "更新日", value = "date")
+            }
+            TanreiMenuItem(text = "削除", onClick = ::delete, destructive = true, leadingIcon = { TanreiText("delete") })
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // MenuAnchor と同じく、コントローラーで開きます。閉じるよう求めるときは、理由を添えて onClose を呼び、自分で閉じます。
+    final TanreiMenuController menu = TanreiMenuController();
+
+    TanreiMenuAnchor(
+      controller: menu,
+      onClose: (TanreiMenuCloseReason reason) {},
+      menuChildren: <Widget>[
+        TanreiMenuItem(
+          onPressed: copy,
+          leadingIcon: const Icon(AppSymbols.contentCopy),
+          trailingText: '⌘C',
+          child: const Text('コピー'),
+        ),
+        TanreiMenuGroup<String>(
+          title: '表示',
+          children: <Widget>[
+            TanreiCheckboxMenuItem(
+              value: showGrid,
+              onChanged: (bool value) => setState(() => showGrid = value),
+              child: const Text('グリッドを表示'),
+            ),
+          ],
+        ),
+        TanreiMenuGroup<String>(
+          title: '並べ替え',
+          groupValue: sort,
+          onChanged: (String value) => setState(() => sort = value),
+          children: const <Widget>[
+            TanreiRadioMenuItem<String>(value: 'name', child: Text('名前')),
+            TanreiRadioMenuItem<String>(value: 'date', child: Text('更新日')),
+          ],
+        ),
+        // onPressed を null にすると項目は無効になります。
+        TanreiMenuItem(onPressed: delete, destructive: true, child: const Text('削除')),
+      ],
+      builder: (BuildContext context, TanreiMenuController controller, Widget? child) =>
+          TanreiIconButton(onPressed: controller.open, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'その他'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { IconButton, Menu } from '@tanrei/react-native';
+
+    const more = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // メニューが開いているかどうかは、アンカー側で支援技術に伝えます。メニューからは設定できません。
+    <IconButton ref={more} accessibilityLabel="その他" accessibilityState={{ expanded: open }} onPress={() => setOpen(true)}>
+      more_vert
+    </IconButton>
+    // 制御コンポーネントです。onDismiss に理由が届いたら、visible を false にします。
+    <Menu
+      visible={open}
+      anchorRef={more}
+      accessibilityLabel="その他"
+      onDismiss={() => setOpen(false)}
+      items={[
+        { label: 'コピー', leadingIcon: 'content_copy', trailingText: '⌘C', onPress: copy },
+        { kind: 'group', title: '表示', items: [{ kind: 'checkbox-item', label: 'グリッドを表示', checked: grid, onCheckedChange: setGrid }] },
+        { kind: 'group', title: '並べ替え', value: sort, onValueChange: setSort, items: [
+          { kind: 'radio-item', label: '名前', value: 'name' },
+          { kind: 'radio-item', label: '更新日', value: 'date' },
+        ] },
+        { label: '削除', leadingIcon: 'delete', destructive: true, onPress: remove },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="補足テキスト、末尾アイコン、無効な項目" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="共有" supporting-text="このファイルへのリンクを送ります" leading-icon="share"></tanrei-menu-item>
+    <tanrei-menu-item label="オフラインで使用可能" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
+    <tanrei-menu-item label="名前を変更" leading-icon="edit" disabled></tanrei-menu-item>
+    <tanrei-menu-item label="削除" leading-icon="delete" destructive disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="チェックとアイコンの列の上のグループタイトル" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="文字スタイル">
+      <tanrei-menu-checkbox-item label="太字" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="斜体" leading-icon="format_italic"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="配置" value="start">
+      <tanrei-menu-radio-item label="先頭揃え" value="start" leading-icon="format_align_left"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="中央揃え" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="印：既定のシステムの箱と輪、そして mark-icon で指定したただのチェック" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="表示">
+      <tanrei-menu-checkbox-item label="ルーラー" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="ガイド"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="ズーム" value="fit">
+      <tanrei-menu-radio-item label="ウィンドウに合わせる" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="実際のサイズ" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="表示" mark-icon="check">
+      <tanrei-menu-checkbox-item label="ルーラー" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="ガイド"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="ズーム" value="fit" mark-icon="check">
+      <tanrei-menu-radio-item label="ウィンドウに合わせる" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="実際のサイズ" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="分け方：グループの間の区切り線と、余白" plain>
+  <tanrei-menu inline open separation="divider">
+    <tanrei-menu-item label="元に戻す" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="やり直す" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="切り取り" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="コピー" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="検索">
+      <tanrei-menu-item label="ページ内を検索" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open separation="gap">
+    <tanrei-menu-item label="元に戻す" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="やり直す" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="切り取り" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="コピー" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="検索">
+      <tanrei-menu-item label="ページ内を検索" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+既定のシステムでは、チェックボックス項目はチェックボックスとして、ラジオ項目はラジオボタンとして印を描きます。チェックされていてもいなくても描くので、空の箱とチェックの入った塗られた箱、細い輪と中を塗った太い輪になります。そのため、オフの選択肢も選択肢であることが見て分かります。これらは印の列に描く絵であって、コントロールではありません。押すのもフォーカスするのも、行だけです。箱の中のチェックは、[チェックボックス](/ja/components/checkbox/)と同じく、コントロール自身の印のための太いウェイトで描きます。
+
+`markIcon` は、チェックされた項目を示すグリフをアイコンセットの名前で指定し、既定の印の代わりにします。個々の項目にも、グループに付けてその中のすべての項目にも指定できます。`check` を指定すると、隣の先頭アイコンと同じ大きさ（既定のシステムでは 24）のただのチェックを描き、チェックされていない間は何も描きません。印はデザインシステムが選ぶもので、`m3-like` と `cupertino` はただのチェックを使います。右から左のレイアウトでもチェックは反転しません。メニューが開いている間に項目のチェックが変わると、印は動かずに切り替わり、動きを減らす設定ではすぐに切り替わります。
+
+チェックされた行は、塗りでも示します。既定のシステムでは、行自身の内容の色をメニューのサーフェスの上に薄く重ねた層で塗り、ライトテーマでもダークテーマでも、ホバーした行より一段強く見えます。そのため、浮き上がったサーフェスの上でも、チェックされた行、ホバーした行、何もしていない行を見分けられます。サブメニューを開いている項目は、開いている間ホバーの塗りを保ち、いま使っている階層までの道筋を示します。チェックされた行のように見えることはありません。
+
+グループのタイトルは、行の内容が始まる位置から始まります。メニューがチェックや先頭アイコンの列を描くときはその列の上から、どちらも描かないときはラベルの上からです。反対側の端からも同じ距離で終わり、折り返し、文字を大きくすると大きくなり、右から左のレイアウトでは反転します。
+
+<ComponentSpecs name="menu" />
+
+## ガイドライン
+
+### 使う場面
+
+画面に常に置いておくほどではない、補助的なアクションや設定に使います。行の「その他」、ツールバーからあふれた操作、並べ替えの順序、表示のオプションなどです。開いて 1 つ選び、元の作業に戻る、という使われ方をします。
+
+画面の主なアクションにはボタンを使います。メニューに入れると隠れてしまうからです。選ぶこと自体が画面の主な目的なら、リスト、ラジオボタン、セレクトを使います。答えないと先に進めない問いにはダイアログを使います。メニューに入れるのはメニューの項目だけです。入力欄、スライダー、スイッチは、メニューが必要とするキー操作を奪ってしまうので入れません。
+
+どこかへ移動する行はリンク項目です。項目に `href` を指定します。パンくずリストの折りたたまれた階層、言語の選択、「その他」のように、求められるまで表に出ない少数の行き先に使います。常に見えているサイトの主要なページはナビゲーションです。[ナビゲーションバー](/ja/components/navigation-bar/)、[ナビゲーションドロワー](/ja/components/navigation-drawer/)、またはリンクの[リスト](/ja/components/list/)に置きます。
+
+### 項目の種類の選び方
+
+| 種類 | 何か | 実行すると | 用途 |
+| --- | --- | --- | --- |
+| Item | アクション。`href` があればリンク | クリックを発火し、メニューが閉じます。リンク項目の行き先は、そのあとで開きます。 | 「コピー」「名前を変更」「共有」。「削除」「破棄」には `destructive` を付けると、エラーの色で描かれます。行き先にするには `href` を指定します。 |
+| Checkbox item | それぞれ独立してオンとオフを切り替える選択肢 | `checked` を切り替え、change を発火します。 | 「グリッドを表示」「ルーラーを表示」など、互いに影響しない設定。 |
+| Radio item | グループの中の選択肢の 1 つ | グループの `value` をその値にし、グループが change を発火します。すでにチェックされているラジオ項目は何も発火しません。 | 「名前順」「日付順」など、1 つの問いへの 1 つの答え。 |
+| Submenu | 隣にもう 1 つの階層を開く項目 | サブメニューを開き、toggle を発火します。メニューは開いたままです。 | 「最近使った項目を開く」「共有」「移動」など、そのまま並べるとメニューが長くなりすぎる、もうひとまとまりの項目。 |
+| Group | 関連する項目のまとまり。タイトルを付けられます | 何も起きません。フォーカスも受けません。 | 関連する項目を区切ることと、1 つの問いのラジオ項目をまとめること。 |
+
+チェックボックス項目とラジオ項目は、タップ、クリック、Enter で実行するとアクションと同じくメニューを閉じます。Space で実行したときは開いたままなので、キーボードで続けて複数の設定を変えられます。
+
+### グループ、タイトル、分け方
+
+- メニューは、グループとその隣にあるものを、区切り線か余白で分けます。一番上と一番下は分けません。利用者側で区切り線を置く必要はありません。
+- どちらで分けるかはデザインシステムの選択で、自分のパーツを分けるすべてのコンポーネントに共通の 1 つの選択です。既定のシステムでは区切り線です。`separation` は、1 つのメニューとそのサブメニューについて決めます。`auto`（既定）はデザインシステムに従い、`divider` と `gap` はシステムの選択にかかわらずその分け方にします。余白で分けるときはセパレーターを伝えず、グループはグループとして伝えます。
+- `title` を付けたグループは、項目の上の、行の内容が始まる位置から控えめな見出しを描き、それがグループの名前になります。ラジオ項目のグループには、「並べ替え」のように問いを表すタイトルを付けます。
+- ラジオ項目はグループに入れます。グループの外のラジオ項目はチェックされることがなく、デバッグビルドで報告されます。
+- グループの中にグループは入れられません。内側のグループの項目は、外側のグループの項目として描かれます。
+
+### リンク
+
+リンク項目はプラットフォーム自身のリンクです。ブラウザーのコンテキストメニュー、新しいタブで開く操作、ホバーしたときに表示されるアドレスは、どれもそのまま働きます。リンク独自の見た目はありません。どの状態でも、隣の行のアクションと同じに描かれます。
+
+- **操作。** クリック、タップ、Enter、Space のどれでも、項目の `click` を発火し、メニューが閉じ、そのあとで行き先が開きます。Space は、メニューのほかのすべての行と同じように、リンク項目も実行します。メニューの外では、Space はリンクを実行しません。
+- **ルーター。** 自分で移動を扱うには、項目の `click` をキャンセルします。メニューはそれでも閉じ、ほかには何も開きません。
+- **ほかのタブ。** 修飾キーを押しながらのクリックや Enter、中クリックは、ブラウザーのものです。メニューは `close` を発火せず、開いたままなので、メニューのリンクを続けていくつも開けます。
+- **新しいコンテキスト。** `target: new` は新しいタブやウィンドウで開きます。`trailingIcon` に自分のグリフを指定していなければ、項目の末尾のアイコンの列にアイコンセットの `open_in_new` が描かれ、`targetLabel` がそれを支援技術に伝えます。ショートカットや末尾のテキストは、その印の手前にある自分の列に残ります。
+- **無効。** 無効なリンク項目は、どの方法でもたどれません。ほかの無効な項目と同じように、矢印キーでは到達できます。
+- **項目の種類は Item だけ。** チェックボックス項目、ラジオ項目、サブメニュー項目は行き先を持ちません。状態を持つか、別の階層を開くからです。
+
+### サブメニュー
+
+サブメニュー項目は、末尾にアイコンセットの `chevron_right` を描く行で、その子が次の階層になります。子には、グループを含めてどの種類の項目も置けます。サブメニュー項目はアクションではなく、ショートカットも持ちません。
+
+- **開く。** 押す、タップする、Enter、Space、行の終わりの方を指す矢印キーのどれでも、サブメニューがすぐに開き、フォーカスが最初の有効な項目へ移ります。ポインターを項目の上に置いたままにすると、少し待ってから開き、フォーカスは項目に残ります。
+- **サブメニューへ向かう途中。** ポインターが項目から開いたサブメニューへ向かって動いている間、途中で通る項目はホバーにもフォーカスにもなりません。斜めに動かしても、サブメニューは閉じません。
+- **1 つの階層を閉じる。** 行の始まりの方を指す矢印キーか Escape で、フォーカスのある階層が閉じ、フォーカスがその項目へ戻ります。Escape がメニュー全体を閉じるのは、サブメニューが開いていないときだけです。親の階層のほかの項目へ移っても、サブメニューは閉じます。1 つのサーフェスで開けるサブメニューは 1 つまでです。
+- **全体を閉じる。** どの階層のアクションの実行でも、Tab でも、すべてのサーフェスの外を押しても、フォーカスがすべてのサーフェスから出ても、メニュー全体が閉じ、`close` を 1 回だけ発火します。
+- **置き場所。** その項目のあるサーフェスの隣、末尾側に、最初の行を項目の行の高さに合わせて置きます。そちらに場所がなければ反対側に置きます。どちらにも入らないほど狭いウィンドウでは、親のサーフェスに重ねて置き、親の一部を帯のように残します。その帯を押すと、サブメニューが閉じます。メニューが自分の中身をサブメニューの中身に置き換えることはありません。
+- **`open` と `toggle`。** サブメニュー項目の `open` は、その項目自身のものです。人がサブメニューを開閉すると、メニューが `open` を設定し、項目が `toggle` を発火します。利用者側で `open` を変えたとき、メニュー全体が閉じたときは、`toggle` を発火しません。
+- **深さ。** サブメニューは、メニューの下 2 階層までにします。3 階層目も描きますが、デバッグビルドで報告します。項目のないサブメニューも報告します。
+- グループの `value` が届くのは、同じサーフェスにあるラジオ項目だけです。印とアイコンの列も、サーフェスごとに描きます。
+
+### 開く、フォーカス、閉じる
+
+メニューは、操作するオーバーレイですが、モーダルではありません。人がその中で操作するので、フォーカスを受け取り、閉じるときに返します。画面のほかの部分はふさぎません。
+
+- **開く。** アンカーが実行されたら、利用者側で `open` を設定します。サーフェスはプラットフォームのオーバーレイ層に現れ、`placement` の指定どおりアンカーに沿って置かれます。既定はアンカーの下で、先頭側の端をそろえます。その側に空きがなければ反対側に回り、画面からはみ出さないようにずれ、高すぎればスクロールし、アンカーが動けば付いていきます。
+- **フォーカスが入る。** フォーカスは最初の有効な項目へ移ります。その後は矢印キー、Home、End、先頭文字で項目の間を移動します。端では折り返し、グループはまたいで進みます。ポインターを項目に載せるとフォーカスもそこへ移るので、キー操作はポインターのあった場所から続けられます。
+- **モーダルではない。** フォーカスを閉じ込めず、画面のほかの部分を操作不能にせず、スクリムも描きません。Tab を押すとメニューから抜け、メニューは閉じます。
+- **閉じる。** メニューは、閉じるよう求めるときに理由を伝えます。理由の名前はどのプラットフォームでも同じで、表記だけがそれぞれの流儀に従います。
+
+| 理由 | いつ |
+| --- | --- |
+| `escape` | Escape が押されたとき。 |
+| `back` | Android の戻るボタンやジェスチャーなど、プラットフォームの「戻る」。 |
+| `outside` | サーフェスとアンカーの外が押されたとき。 |
+| `tab` | Tab か Shift+Tab が押されたとき。フォーカスはその後、アンカーから押したのと同じように次へ進みます。 |
+| `focus-out` | それ以外の方法でフォーカスがメニューの外へ出たとき。 |
+| `item` | 項目が実行されたとき。 |
+
+- **フォーカスが戻る。** メニューが閉じたとき、フォーカスがメニューの中にあれば、アンカーへ戻ります。
+
+誰がメニューを閉じるかはプラットフォームの流儀に従います。Web と React Native では、閉じるイベントを受けて `open`（`visible`）を false に戻します。Compose では、`TanreiMenuCloseReason` を受け取る `onDismissRequest` で `expanded` を false にします。Flutter では、メニューが理由を添えて `onClose` を呼び、コントローラーを通じて自分で閉じます。SwiftUI では、メニューが `isPresented` に `false` を書き込むので、理由は伝わりません。
+
+外側を押したとき、その下にある要素にも押下が届くかどうかも、プラットフォームによって違います。Web と Flutter では届きます。SwiftUI、Compose、React Native では、メニューが閉じるだけです。
+
+### 推奨
+
+- ラベルは短くし、アクションは「リンクをコピー」「ファイルを削除」のように、何をするかが分かる言葉にします。
+- アクションのキーボードショートカットは `shortcut` に中立なキー名（`mod+c`）で書き、キーはプロダクト側で割り当てます。`trailingText` はそれ以外のものに使います。末尾のテキストがショートカットとして伝わることはありません。
+- 破壊的なアクションは最後に置き、グループで分けるかグループの後ろに置いて、ほかの項目から離します。
+- ときどき使えるようになる項目は、無効にしたまま同じ場所に残し、メニューの形を変えないようにします。無効な項目にも矢印キーで届きます。
+
+### 非推奨
+
+- 画面の主なアクションをメニューに入れない。
+- 互いに排他的な選択にチェックボックス項目を使わない。グループに入れたラジオ項目を使います。
+- 項目が 1 つだけのメニューを作らない。そのアクションはボタンとして見せます。
+- よく使うアクションをサブメニューに入れない。サブメニューを 2 階層より深くしない。
+- アクションの末尾に `chevron_right` を置かない。それはサブメニュー項目の印です。
+- サイトの主要なナビゲーションを、リンクのメニューで作らない。メニューは求められて開き、消えるものです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="menu" />
+
+### コンポーネントが担うこと
+
+- サーフェスはメニューとして伝えます。アクションはメニュー項目、チェックボックス項目はチェックボックスのメニュー項目、ラジオ項目はラジオのメニュー項目として、それぞれチェック状態、位置、メニュー全体の件数とともに伝えます。
+- 各項目はラベルを名前とし、補足テキストを説明とします。項目の `shortcut` は、プラットフォームにキーボードショートカットのプロパティがあればそこに（Web では `aria-keyshortcuts`）、なければキー名を読み上げる形で説明の一部として伝えます。末尾のテキストは、いつも説明の一部としてだけ伝えます。アイコンと印は隠します。箱、輪、チェックは絵であり、チェックの状態は項目自身が持ちます。
+- リンク項目は、リンクではなくメニュー項目として伝えます。メニューは、項目とその数、そして矢印キーによって読まれ、それが成り立つのは、すべての行がメニュー項目であるあいだだけだからです。その下では、プラットフォームのリンクのままです。新しいコンテキストで開くあいだは、`targetLabel` が説明の最後に加わり、印は隠されます。
+- グループは、タイトルを名前とするグループとして伝えます。区切り線はフォーカスを受けないセパレーターです。グループを余白で分けるときは、セパレーターはありません。タイトルもフォーカスを受けず、項目としては読み上げません。
+- サブメニュー項目は、メニューを開く項目として、展開の状態とともに伝えます。無効な間も同じです。そのサーフェスは、項目のラベルを名前とする独立したメニューで、位置はサーフェスごとに数えます。
+- プラットフォームにそのプロパティがあれば、アンカーにも「メニューを開く」ことと、開いているかどうかを伝えます（Web では `aria-haspopup`、`aria-controls`、`aria-expanded`）。
+- 開くとフォーカスを最初の有効な項目へ移し、閉じるとき、フォーカスがメニューの中にあればアンカーへ戻します。上下の矢印キーは端で折り返し、Home と End で両端へ、文字を打つとラベルがその文字で始まる次の項目へ移ります。Enter で実行して閉じます。チェックボックス項目とラジオ項目を Space で実行したときは開いたままです。Escape で閉じてフォーカスを戻し、Tab で閉じてアンカーから次へ進みます。サブメニューの中では、行の始まりの方を指す矢印キーと Escape がその階層だけを閉じ、フォーカスをその項目へ戻します。行に沿った矢印キーは、何もしないときでも、メニューの背後のページには届きません。
+- 無効な項目にも矢印キーで届きますが、実行はできません。
+- フォーカスリングは項目の内側に描くので、サーフェスに切られません。キーボードフォーカスのときだけ表示します。ポインターを載せた項目は、フォーカスではなくホバーとして描きます。
+- どの項目も高さは最小ターゲット以上で、行全体がヒット領域です。
+- 文字を大きくすると項目は伸び、画面に収まらなくなるとサーフェスがスクロールします。
+- アイコンフォントがまだチェックなどのグリフの印を描けない間は、その場所に何も描かず、「check」という文字を出すこともありません。列の幅は保ち、チェックの状態も伝えます。フォントが読み込まれると、印が現れます。
+- ラベルのない項目、グループの外のラジオ項目、どのラジオ項目も指していないグループの値、同じ値を持つ 2 つのラジオ項目、グループの中のグループ、ショートカットと末尾のテキストの両方を持つ項目、メニューが定義していない `separation`、3 階層目のサブメニュー、項目のないサブメニューは、デバッグビルドで報告します。新しいコンテキストで開くのに `targetLabel` のないリンク項目、チェックボックス項目・ラジオ項目・サブメニュー項目に付けた `href`、スクリプトを指す `href` や読み取れない `href`、メニューが定義していない `target` も報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native にはリンク項目がありません。これらでは、項目はまだ `href` を受け取りません。
+- SwiftUI、Compose、Flutter、React Native には、サブメニュー、`separation`、`markIcon`、チェックされた行の塗りがありません。また、まだチェックを 16 の枠に独自の印で描き、グループのタイトルをラベルの位置から始めます。
+- `m3-like` と `cupertino` のタイトルの開始位置は Tanrei の決まりに従うもので、元のデザインと照らし合わせて測ってはいません。
+- Web：メニューは Android の戻るジェスチャーのようなプラットフォームの閉じる要求を受け取らないため、`back` は送られません。
+- Web：`aria-haspopup` と `aria-expanded` はアンカーに設定します。アイコンだけの `<tanrei-button>` のようなカスタム要素のアンカーでは、シャドウルートの中のボタンに設定します。`aria-controls` と、アンカーから取るメニューの名前は、シャドウルートの境界を越えられません。
+- Web：サーフェスの位置は、CSS のアンカー配置ではなくスクリプトで決めています。
+- Web：サブメニュー項目は、`aria-controls` で自分のサーフェスを指せません。`aria-controls` はシャドウルートの中へ届かないからです。代わりに、サーフェスはアクセシビリティツリーで項目の子孫になります。
+- Web（macOS の WebKit）：サブメニューを開いている項目は、押されても押下の色にならず、ホバーの色のままです。
+- SwiftUI には、メニュー、メニュー項目、セパレーターのロールも、ショートカットのプロパティもなく、アンカーがメニューを開くことや、メニューが開いていることを伝える手段もありません。どの項目も位置（「2 of 3」、英語のみ）を値に持つボタンで、チェックボックス項目はトグル、ラジオ項目はチェックされている間は選択済みとして伝わります。
+- SwiftUI は無効なボタンにキーボードフォーカスを渡さないため、矢印キーは無効な項目に止まらず、飛ばして進みます。
+- SwiftUI はメニューをポップオーバーとして表示し、位置はポップオーバー自身が決めます。トークンが決めるのは上下どちらに開くかだけで、アンカーや画面の端からの距離、揃え方、閉じるときの動きはポップオーバーのものです。iOS 26 では、サーフェスをポップオーバー自身のより大きな角丸で切り抜き、独自の影を描きます。実機での見た目はまだ確かめていません。
+- SwiftUI：Tab でメニューは閉じてフォーカスはアンカーへ戻りますが、同じキー操作でそこから次へは進めません。
+- SwiftUI は、ラジオ項目の値を、`TanreiMenuOption` そのものに付けた `.tag(_:)` からしか読めません。
+- SwiftUI：矢印キー、Home、End、先頭文字での移動、Escape、Tab は、規則としてテストしているだけで、実際のキーボードではまだ確かめていません。
+- React Native はメニューを `TanreiProvider` のオーバーレイ層に描くため、上位に `TanreiProvider` が必要です。Tab でメニューは閉じてフォーカスはアンカーへ戻りますが、同じキー操作でそこから次へは進めません。次の Tab で先へ進みます。
+- React Native：メニューが開いている間に、背後の要素をスクリーンリーダーで操作したときの動きと、フォーカスがメニューの外へ出るときの動きは、実機ではまだ確かめていません。
+- React Native には、チェックボックスやラジオのメニュー項目のロールも、ショートカットのプロパティもありません。どの項目もメニュー項目のロールで、チェックボックス項目とラジオ項目はチェック状態を持ち、末尾のテキストは説明の一部として読み上げられます。
+- React Native では、メニューからアンカーのプロパティを設定できません。`accessibilityState={{ expanded: open }}` は利用者側で付けてください。
+- React Native では、メニューが開いている間にアンカーが動いても付いていきません。アンカーを測るのは、メニューが開いたときとウィンドウの大きさが変わったときだけです。
+- React Native：矢印キー、先頭文字での移動、Escape、Tab、Space と Enter の違いは、ハードウェアキーボードをつないだ実機ではまだ確かめていません。
+- Compose には、メニュー、メニュー項目、セパレーターのロールも、ショートカットのプロパティもありません。サーフェスはコレクションとして伝わり、アクションにはロールがなく、チェックボックス項目はチェックボックス、ラジオ項目はラジオボタンとして伝わり、末尾のテキストは説明の一部として読み上げられます。アンカーの展開状態もメニューからは設定できません。
+- Compose：メニューが開いている間にアンカーを押すと、外側を押したものとして扱われます。メニューは `outside` で閉じ、押下はアンカーに届きません。
+- Compose：ポップアップのウィンドウフォーカス、実際の外側への押下、戻るボタン、アンカーへのフォーカスの戻り、そこから Tab で次へ進むこと、メニューでの TalkBack は、Robolectric でしか確かめておらず、実機ではまだです。
+- Flutter には、グループやセパレーターのロールがなく、メニューにアンカーの名前を付けることも、アンカーがメニューを開くことを伝えることもできず、項目に位置と件数もありません。グループは、タイトルを名前とするコンテナとして伝わります。アンカーの展開状態は伝わります。
+- Flutter：TalkBack、VoiceOver、Web のスクリーンリーダーがメニューをどう読み上げるかと、開いたメニューでの Android の戻るジェスチャーは、実機ではまだ確かめていません。
+
+### 利用者側で行うこと
+
+- メニューにはアンカーと同じ名前を付けます。アイコンボタンのアンカーには「その他」「並べ替え」のようなラベルを付けます。React Native では、同じ名前をメニューの `accessibilityLabel` にも渡します。
+- Compose と React Native では、メニューが開いているかどうかをアンカーで伝えます。メニューからは設定できません。
+- メニューに求められたら閉じます。閉じたときに自分でフォーカスを動かす必要はありません。メニューがアンカーへ戻します。
+- アイコンを表示する項目も含め、すべての項目にラベルを付けます。ラベルが名前になり、先頭文字での移動もラベルで照らし合わせます。
+- ラジオ項目のグループには、何についての選択かが分かるタイトルを付けます。
+- すべてのサブメニュー項目にラベルを付けます。ラベルは、項目と、それが開くサブメニューの名前になります。
+- 新しいタブで開くリンク項目には、「新しいタブで開きます」のように、プロダクトの言語で `targetLabel` を指定します。Tanrei は独自の文言を持ちません。

@@ -1,0 +1,215 @@
+---
+title: タググループ
+description: タグやチップの集まりを、折り返す行に並べ、中身に合った間隔を取り、1 つの名前付きのリストとして伝えます。メンバーはそのままの姿で、チップが取り除かれた後は、フォーカスが次のチップへ進みます。
+translationOf: components/tag-group.mdx
+sourceHash: 8d6af56bf72c101aa98470342704cf2202d0d379
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="tag-group" />
+
+<DemoFrame label="タグの集まりと、絞り込みの並び" column>
+  <tanrei-tag-group class="not-content" label="タグ">
+    <tanrei-tag label="デザイントークン"></tanrei-tag>
+    <tanrei-tag label="アクセシビリティ"></tanrei-tag>
+    <tanrei-tag label="右から左"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="絞り込み">
+    <tanrei-chip kind="filter" label="未完了" selected></tanrei-chip>
+    <tanrei-chip kind="filter" label="自分の担当"></tanrei-chip>
+    <tanrei-chip kind="filter" label="レビュー待ち"></tanrei-chip>
+    <tanrei-chip kind="filter" label="ブロック中"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+[タグ](/ja/components/tag/)も[チップ](/ja/components/chip/)も、1 つずつ置くものです。タググループは、それらをいくつかまとめて置くためのものです。記事のタグ、一覧の上の絞り込み、フィールドの下に出すいくつかの候補などに使います。メンバーを折り返す行に並べ、メンバーの間に適切な間隔を取り、全体が 1 つのリストであることを支援技術に伝えます。
+
+グループ自身は何も描きません。コンテナも、縁も、パディングも、目に見えるラベルもありません。メンバーは、ほかの場所に置いたときとまったく同じように描かれ、フォーカスを受け、押されます。
+
+Web では `<tanrei-tag-group>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag-group label="タグ">
+      <tanrei-tag label="デザイントークン"></tanrei-tag>
+      <tanrei-tag label="アクセシビリティ"></tanrei-tag>
+    </tanrei-tag-group>
+
+    <!-- チップの集まりは、そのことを指定します。行の間隔が広くなります。 -->
+    <tanrei-tag-group id="recipients" spacing="chips" label="宛先">
+      <tanrei-chip kind="input" label="山田 花子" remove-label="山田 花子を削除"></tanrei-chip>
+      <tanrei-chip kind="input" label="佐藤 健" remove-label="佐藤 健を削除"></tanrei-chip>
+    </tanrei-tag-group>
+
+    <script type="module">
+      import '@tanrei/web/components/tag-group';
+      import '@tanrei/web/components/tag';
+      import '@tanrei/web/components/chip';
+
+      const recipients = document.querySelector('#recipients');
+      // チップが自分を取り除くことはありません。利用者側で取り除くと、グループがフォーカスを次のチップへ移します。
+      recipients.addEventListener('remove', (event) => {
+        event.target.remove();
+        // 最後の 1 つがなくなると、グループにはフォーカスの行き先がありません。集まりが属するコントロールへ移します。
+        if (!recipients.children.length) document.querySelector('#add-recipient').focus();
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip, TagGroup } from '@tanrei/react';
+
+    <TagGroup spacing="chips" label="宛先">
+      {recipients.map((person) => (
+        <Chip key={person.id} kind="input" label={person.name} removeLabel={`${person.name}を削除`} onRemove={() => remove(person.id)} />
+      ))}
+    </TagGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="折り返すタグ、ステータスのタグ、各タグのページへのリンク、入力された項目" plain column>
+  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="タグ">
+    <tanrei-tag label="デザイントークン"></tanrei-tag>
+    <tanrei-tag label="アクセシビリティ"></tanrei-tag>
+    <tanrei-tag label="右から左"></tanrei-tag>
+    <tanrei-tag label="タイポグラフィ"></tanrei-tag>
+    <tanrei-tag label="カラー"></tanrei-tag>
+    <tanrei-tag label="モーション"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" label="プラットフォーム">
+    <tanrei-tag label="Web: Stable" status="success" size="small"></tanrei-tag>
+    <tanrei-tag label="SwiftUI: Beta" size="small"></tanrei-tag>
+    <tanrei-tag label="Flutter: 追従待ち" status="warning" variant="outlined" size="small"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="タグ">
+    <tanrei-chip label="デザイントークン" href="#仕様"></tanrei-chip>
+    <tanrei-chip label="アクセシビリティ" href="#仕様"></tanrei-chip>
+    <tanrei-chip label="右から左" href="#仕様"></tanrei-chip>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="宛先">
+    <tanrei-chip kind="input" label="山田 花子" remove-label="山田 花子を削除"></tanrei-chip>
+    <tanrei-chip kind="input" label="佐藤 健" remove-label="佐藤 健を削除"></tanrei-chip>
+    <tanrei-chip kind="input" label="鈴木 一郎" remove-label="鈴木 一郎を削除"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+<ComponentSpecs name="tag-group" />
+
+## ガイドライン
+
+### タググループの用途
+
+| 集まり | 使うもの |
+| --- | --- |
+| 静的なタグ。記事のカテゴリー、設定が取りうる値、ステータスの並びなど | タググループ。 |
+| それぞれのタグのページへ進むタグ | `spacing="chips"` のタググループに、`href` を持つチップを入れます。タグはテキストで、リンクにはなれません。 |
+| 一覧の上の絞り込み、フィールドの下の候補、ユーザーが入力した項目 | `spacing="chips"` のタググループ。 |
+| 2〜4 個の異なるアクション | [ボタングループ](/ja/components/button-group/)。 |
+| いくつかの中から 1 つを選ぶ | [ラジオグループ](/ja/components/radio-group/)、[タブ](/ja/components/tabs/)、[セグメントボタン](/ja/components/segmented-button/)のいずれか。 |
+| 目に見えるラベル、必須・任意の表示、エラーが必要なコントロール | [フィールドグループ](/ja/components/field-group/)。 |
+| フィールドの中に入力された値 | フィールド自身が扱います。[コンボボックス](/ja/components/combobox/)は、自分でチップを並べます。 |
+
+### 間隔
+
+`spacing` は、集まりの中身を伝え、2 つの距離を決めます。1 行の中のメンバー同士の距離と、行と行の距離です。
+
+- `tags`（既定値）は、静的なタグのための値です。行と行は、1 行の中のタグ同士と同じ近さで並ぶので、折り返した集まりが 1 つのまとまりに見えます。
+- `chips` は、チップのための値です。チップは、見えている縁の外側でも、タッチターゲットの大きさまで押下を受け取ります。行と行は、medium のチップがそのターゲットを丸ごと保てるだけ離れます。2 つのチップの領域が重なるところでは、領域は間隔の真ん中で接します。
+
+チップの集まりを `tags` のままにしても動作します。ただし行と行がタッチターゲットの高さより近くなるので、デバッグビルドがそのことを報告します。
+
+small のチップは、集まりが 1 行に収まる、密度の高い場所のためのものです。折り返した行では、タッチターゲットが本来の大きさになる前に、行の間で接します。タッチ画面で折り返す集まりには、medium のチップを使います。
+
+デザインシステムは、`spacing` に値を追加できます。
+
+### レイアウト
+
+- メンバーは、指定した順に並びます。グループが並べ替えることも、選択されたチップを前へ出すこともありません。
+- 行に収まらないメンバーは、丸ごと次の行へ進みます。切れることも、縮むことも、隠れることも、スクロールすることもなく、「ほか 3 件」のような表示もありません。表示を減らすには、グループに渡すメンバーを減らし、最後のメンバーを、残りを表示するアクションチップにします。
+- 1 つのメンバーがグループより広い場合、そのメンバーはグループの幅になり、自身のラベルを省略記号で切ります。
+- 集まりは、先頭側の端から始まります。行の末尾や中央に置くには、周りのレイアウトでグループを配置します。
+- メンバーは、すべて同じサイズにします。サイズの違うメンバーは、行の中央にそろいます。
+- メンバーのないグループは、何も描かず、場所も取りません。タグのない記事を特別に扱う必要はありません。
+
+### ラベル
+
+`label` は、支援技術に向けた集まりの名前です。「タグ」「絞り込み」のように付けます。描かれることはありません。目に見える名前が必要な場合は、利用者側の見出しやテキストを集まりの前に置き、そのうえで `label` も指定します。
+
+### 選択
+
+グループは値を持ちません。絞り込みチップは、それぞれが自身の `selected` を持ち、同時にいくつもオンにできます。一度に 1 つだけにするには、1 つがオンになったときに、利用者側でほかをオフにします。
+
+### チップを取り除く
+
+チップは取り除くことを求め、実際に取り除くのは利用者側です。フォーカスがそのチップか、その取り除くアクションにあった場合、グループは、後ろに続くチップへフォーカスを移します。後ろに続くチップがなければ、前のチップへ移します。いくつもの項目を続けて取り除く人は、いた場所からそのまま続けられます。
+
+次の 2 つは、利用者側の役割です。
+
+- フォーカスを受けられるチップが残っていないときは、集まりが属するコントロールへフォーカスを移します。項目を追加するフィールドや、絞り込みを開くボタンなどです。そうしなければ、フォーカスはどこにもなくなります。
+- グループは、何も読み上げません。取り除いたことを伝える必要がある場合は、ライブリージョンか[スナックバー](/ja/components/snackbar/)で伝えます。たとえば、絞り込まれる一覧から離れた場所で絞り込みを取り除いた場合です。
+
+### 推奨
+
+- チップの集まりには、`spacing="chips"` を指定します。
+- 集まりには、ページの言語で `label` を付けます。
+- 1 つの集まりには、1 種類のメンバーを入れます。入力された項目の後ろに「追加」のチップを 1 つ置く場合は例外です。
+
+### 非推奨
+
+- ダイアログやフォームのアクションにタググループを使わない。ボタングループを使います。
+- タグとチップ以外のものを入れない。ほかの内容も並べられますが、デバッグビルドで報告されます。
+- グループからメンバーの見た目を変えない。代わりに、レイヤでグループのトークンを変えます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="tag-group" />
+
+### コンポーネントが担うこと
+
+- 集まりは、`label` を名前とする 1 つのリストとして伝わります。メンバーは、それぞれがリストの 1 項目です。タグはそのテキストとして、チップは状態を持つボタンまたはリンクとして、入力チップは取り除くアクションを横に伴って読み上げられます。
+- リストは、メンバーがいくつあり、いまその何番目にいるかを伝えます。「リスト、4 項目」のように読み上げられます。
+- メンバーは、指定した順に読み上げられ、その順にフォーカスを受けます。右から左のレイアウトでも同じです。
+- チップは、1 つずつがフォーカスが止まる位置です。入力チップは 2 か所で、チップ、その取り除くアクションの順です。グループ自身はフォーカスを受けず、キーも処理しません。
+- フォーカスのあったチップが取り除かれると、フォーカスは次のチップへ移ります。取り除くアクションへ移ることはありません。
+- 空のグループは、何も伝えません。空のリストも、名前もありません。
+- テキストを 200% にすると、メンバーが大きくなり、より多くの行に折り返します。切れるものはなく、横にスクロールすることもありません。
+- 強制カラーモードでも、グループは何も描きません。メンバーが、自身の縁を描きます。
+- 右から左のレイアウトでは、すべての行が右から始まります。
+
+Web での作り：リストは、グループのシャドウルートにある 1 つの要素で、スロットを囲みます。グループは、メンバーがグループの中にある間、それぞれに `role="listitem"` を書き込み、メンバーが出ていくときに取り除きます。自身の `role` を持つメンバーや、それ自体に意味のあるネイティブ要素（リンク、ボタン）は、そのロールを保ち、リストの項目にはなりません。そのような要素は `span` で包みます。
+
+Web での既知の制約：
+
+- 要素が定義されるまでの間、メンバーは、間の空白で区切られて順にページに置かれ、間隔もリストもありません。最初の描画からレイアウトをそろえたいページは、次の規則を加えます。
+
+  ```css
+  tanrei-tag-group:not(:defined) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+  }
+  ```
+
+- 集まりの中のチップを矢印キーで移動する機能はありません。フォーカスが止まる位置を 1 つにしたい長い絞り込みの並びは、チップを入れた[ツールバー](/ja/components/toolbar/)にします。
+
+### 利用者側で行うこと
+
+- グループに `label` を指定します。コンポーネントは文言を持ちません。
+- 入力チップには、その項目の名前を含む `removeLabel` を付けます。
+- チップが `remove` を発火したら取り除き、最後の 1 つがなくなったら、利用者側でフォーカスを移します。
+- ステータスは、それぞれのタグの言葉で伝えます。色だけでは伝わりません。

@@ -1,0 +1,13 @@
+---
+title: Status
+description: Which component exists on which platform, generated from the repository.
+tableOfContents: false
+---
+
+import StatusMatrix from '../../components/StatusMatrix.astro';
+
+This page is not written by hand. The matrix below is produced by `pnpm generate` from the component specs and from what actually exists in each platform package: an implementation, its tests, its snapshots and its docs pages. If a cell says *planned*, nothing shippable exists there yet, whatever anyone may have intended.
+
+A component can only move past *planned* on a platform when the parity checker finds all of those pieces, so the matrix cannot claim more than the repository contains.
+
+<StatusMatrix headingLevel={2} />

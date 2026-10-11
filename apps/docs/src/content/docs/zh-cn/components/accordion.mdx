@@ -1,0 +1,227 @@
+---
+title: "折叠面板"
+description: "由一行来就地显示和隐藏的内容。单独一项就是一个可以展开和折叠的区块；多项组成一组，各项可以各自展开，也可以一次只展开一项。"
+translationOf: components/accordion.mdx
+sourceHash: 010922231eaa1d94bf0862076fd838ff5349dd3f
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="accordion" />
+
+<DemoFrame label="帮助页面上的问题：outlined 外观，展开了一项" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
+    <details open>
+      <summary>什么是设计令牌？</summary>
+      一项有名字的设计决策：一种颜色、一个尺寸、一段时长。组件读取令牌，从不读取字面值。
+    </details>
+    <details>
+      <summary>支持哪些平台？</summary>
+      Web Components、SwiftUI、Jetpack Compose、Flutter 和 React Native，都来自同一套令牌和规格。
+    </details>
+    <details>
+      <summary>怎样改变外观？</summary>
+      用一个层：一份设置各个调节量的文件，产品需要时还可以单独设置某个令牌。
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+折叠面板把页面的一部分内容收在各个标题行之下，由标题行来显示和隐藏它们：帮助页面上的回答、设置界面的各个分区、表单里的高级选项。只有一项时，它就是一个可以展开和折叠的区块，用的仍是同一个组件。在导航抽屉里展开的一组目的地，是抽屉自己的分组；在同一处的几个视图之间选择，用的是标签页。
+
+在 Web 上，它是包在你自己的原生 `<details>` 元素外面的 `<tanrei-accordion>`。这个元素没有 shadow root，所以在任何脚本运行之前，每一项就能展开和折叠、获得焦点、带有自己的展开状态，折叠起来的内容也留在页面里。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/accordion.css" />
+
+    <tanrei-accordion variant="outlined">
+      <details open>
+        <summary>
+          <span class="tanrei-icon" aria-hidden="true">palette</span>
+          颜色
+          <span data-supporting-text>角色、调色板和六种配色方案</span>
+          <span data-trailing-text>48 个角色</span>
+        </summary>
+        <p>组件读取的每一种颜色都是一个角色。</p>
+      </details>
+      <details>
+        <summary>字体</summary>
+        <p>文本用一个字体栈，代码用另一个。</p>
+      </details>
+    </tanrei-accordion>
+
+    <script type="module">
+      import '@tanrei/web/components/accordion';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Accordion } from '@tanrei/react';
+    import '@tanrei/web/icons.css';
+    import '@tanrei/web/accordion.css';
+
+    <Accordion density="compact" exclusive>
+      {sections.map((section) => (
+        <details key={section.id} onToggle={(event) => track(section.id, event.currentTarget.open)}>
+          <summary>
+            {section.name}
+            <span data-trailing-text>{section.count}</span>
+          </summary>
+          {section.content}
+        </details>
+      ))}
+    </Accordion>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/accordion.css` 在任何脚本运行之前就画出整个外观和每一种状态。元素自己也会把同一份样式表加进页面，所以只加载了脚本的页面同样能得到画好的折叠面板，只是晚一会儿。V 形箭头和各项的图标都是图标集的字形：它们需要 `@tanrei/web/icons.css` 和图标字体。
+
+### 你要写的内容
+
+| 部件 | 在 Web 上 |
+| --- | --- |
+| 项 | 一个 `<details>`。`open` 既是它自己的属性（attribute），也是它自己的属性（property）。 |
+| 标题行 | 它的 `<summary>`，写在这一项的最前面。它是一个按钮。 |
+| 标签 | summary 的文本。 |
+| 作为标题元素的标签，或带行内内容的标签 | 在文本的位置上写一个元素：`<summary><h3>账单</h3></summary>`，或 `<summary><span>使用 <code>tokens.css</code></span></summary>`。 |
+| 辅助文本 | summary 里带 `data-supporting-text` 的元素。 |
+| 后置文本 | summary 里带 `data-trailing-text` 的元素。 |
+| 图标 | summary 最前面的一个 `<span class="tanrei-icon" aria-hidden="true">`，里面写字形的名称。 |
+| 内容 | summary 之后的一切：文本、你自己的块、任何组件、另一个折叠面板。 |
+| 禁用的项 | `<summary aria-disabled="true" tabindex="-1">`。 |
+| 项的事件 | 这一项自己的 `toggle`。它不冒泡；`event.newState` 是 `"open"` 或 `"closed"`。 |
+
+`open` 每变化一次，浏览器都会发送 `toggle`，包括由你自己的代码造成的变化，以及浏览器刚解析完一个 `<details open>` 时造成的那一次。自己设置 `open` 的代码，可以凭自己设置的状态认出哪些变化是自己造成的。
+
+### Markdown
+
+Markdown 渲染器会把 `<details>` 当作 HTML 原样输出。请在源文件里用 `<tanrei-accordion>` 把一个或几个 `<details>` 包起来，或者在构建时包起来，做法见[表格页面](/zh-cn/components/table/#markdown)针对表格的示例。
+
+## 规格
+
+<DemoFrame label="紧凑密度，带第二行文字，行末有一个值：面板里的折叠项" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
+    <details open>
+      <summary>文本<span data-supporting-text>正文、标签和标题</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
+      字体栈，按顺序排列。
+    </details>
+    <details>
+      <summary>代码<span data-supporting-text>代码块和行内代码</span><span data-trailing-text>Roboto Mono</span></summary>
+      字体栈，按顺序排列。
+    </details>
+    <details>
+      <summary>继承的规则<span data-trailing-text>12</span></summary>
+      有 12 条规则来自这一层之下的各层。
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+<DemoFrame label="一次只展开一项，每一项有自己的边线" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
+    <details open>
+      <summary><span class="tanrei-icon" aria-hidden="true">palette</span>颜色</summary>
+      角色、调色板和六种配色方案。
+    </details>
+    <details>
+      <summary><span class="tanrei-icon" aria-hidden="true">notifications</span>通知</summary>
+      邮件、推送和每周摘要。
+    </details>
+    <details>
+      <summary aria-disabled="true" tabindex="-1"><span class="tanrei-icon" aria-hidden="true">person</span>账户</summary>
+      你的姓名、地址和密码。
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+<ComponentSpecs name="accordion" />
+
+## 指南
+
+### 它是不是折叠面板
+
+折叠起来的内容要按一下才能读到，也无法一眼看到。只有一部分人需要的内容才折叠起来，大多数人为之而来的内容则保持展开。不要把表单的必填字段或错误信息藏在折叠的项里。
+
+### 两种外观
+
+| `variant` | 绘制什么 | 用于 |
+| --- | --- | --- |
+| `plain`（默认） | 直接画在表面上的各行，周围什么都没有。 | 页面或面板的内容流中的内容。 |
+| `outlined` | 一道带圆角的细线。 | 应当在其他块之间读作一个整体的一组项。 |
+
+两种外观在静止状态下都不带任何填充，项展开时，标题行的颜色也保持不变。展开与否只由箭头表示。
+
+### 密度
+
+| `density` | 单行文字的标题行 | 标签 | 用于 |
+| --- | --- | --- | --- |
+| `regular`（默认） | 56 | 16，行高 24，medium 字重 | 供人阅读的页面：常见问题、长表单的各个部分。 |
+| `compact` | 48 | 14，行高 20，medium 字重 | 控件之间的面板：设置、检查器、卡片。 |
+
+标题行随其中的文本增高。compact 的标题行就是导航抽屉的一行：高度、文本样式和箭头都相同。
+
+### 区分各项
+
+| `separation` | `plain` | `outlined` |
+| --- | --- | --- |
+| `auto`（默认） | 设计系统选定的方式：在默认系统中是一道细线。 | 同左。 |
+| `divider` | 项与项之间各一道细线，第一项上方和最后一项下方没有。 | 整组外面围一圈边线，项与项之间各一道细线。 |
+| `gap` | 留空，不画线。 | 每一项有自己的边线。 |
+
+### 一次只展开一项
+
+设置 `exclusive` 后，另一项展开时，原先展开的那一项会折叠。它用于彼此排斥的项，例如同一个选择的各个步骤；不要用它来让页面显得短一些：想把两个回答并排对照的读者就做不到了。上方的项折叠时，被按下的标题行在视图中留在原来的位置。
+
+在 Web 上，`exclusive` 就是 `<details>` 的 `name` 属性（attribute），由元素写到它的各项上。不运行脚本也必须互斥的标记，要自己在每一项上写相同的 `name`。
+
+### 推荐
+
+- 把标签写成纯文本。如果页面大纲需要这一行是标题，就用一个级别合适的标题元素作标签。
+- 用辅助文本说明这一项里有什么，让人不必展开就能做出判断。
+- 用后置文本显示计数或当前的值。它只有一行，空间不够时先被截断的是它，而不是标签。
+- 属于某一项的操作，放进这一项的内容里。
+
+### 避免
+
+- 不要在标题行里放链接、按钮或开关。标题行本身就是一个按钮。
+- 不要用颜色或字重来表示哪一项是展开的。
+- 折叠面板的嵌套不要超过三层。
+- 不要因为某一项里有无效的内容，就不作说明地把它展开：表单被拒绝时，展开包含第一个错误的那一项，再把焦点移到那个字段上。
+
+## 无障碍
+
+<ComponentAccessibility name="accordion" />
+
+### 组件负责的部分
+
+- 每个标题行都是一个 details 元素的 summary：一个带展开状态的按钮，在焦点顺序中有自己的停靠点。Enter 和 Space 切换它。指向行末方向的方向键展开折叠的项，指向行首方向的方向键折叠展开的项，两者都随布局方向而变。上、下方向键以及 Home 和 End 仍然归页面使用。
+- 标题行以它的标签命名。元素把辅助文本和后置文本依次作为它的描述。没有脚本时，这三者按这个顺序一起读作它的名称。
+- 图标和箭头对辅助技术隐藏。
+- 内容不是区域，也不朗读任何东西：辅助技术得到的全部信息，就是按钮的状态变了。
+- 折叠的内容不绘制、不可聚焦，也不暴露给辅助技术，但它留在文档里：其中的字段保有自己的值，并随所在的表单一起提交。
+- 指向折叠项内部某处的链接会展开这一项；浏览器自己的页面内查找，在浏览器会为它展开 details 元素的地方，也是如此。
+- 项展开时，焦点绝不移动。如果某一项折叠时焦点在它里面，焦点就移到它的标题行上。
+- 焦点环画在标题行这一行的内部，所以不会被任何东西裁掉。
+- 高度按展开动效变化；在减弱动态效果时，则立即画成最终的高度。
+- 两种密度的标题行都不低于触摸目标的高度。
+- 文本放大到 200% 时，标签换行，标题行增高，箭头留在第一行。
+- 在强制颜色模式下，边线和线都是文本颜色，禁用的标题行是禁用文本的颜色。
+- 没有名称的标题行、标签里的控件、没有内容的项、未知的值，以及超过三层的嵌套，会在调试构建中报告。
+
+### 需要你做的事
+
+- 决定标签是不是标题。大多数标签只是给面板里的一个折叠项命名，保持为文本即可。帮助页面上的问题，如果人们会按标题在其中跳转，就是标题。
+- 作为标签的标题元素位于按钮之内。这时有些辅助技术只读出按钮的名称，而不把这个标题列入标题列表。如果页面大纲不能依赖这一点，请改为把标题元素放在单独一项的前面。
+- 给禁用的项同时写上 `aria-disabled="true"` 和 `tabindex="-1"`。缺少后者时元素会补上，但要等脚本运行之后。
+- 如果标签、辅助文本或后置文本的书写方向可能与页面相反，请把标签包在一个 `<span>` 里：这样每个带标记的元素都保有自己的方向。裸文本的标签按页面的方向排版。

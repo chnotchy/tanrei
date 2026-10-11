@@ -1,0 +1,1611 @@
+{
+  "$comment": "Names the project stopped using. `pnpm validate` fails when one appears outside its `allow` list (path prefixes), so a hand-written file — a NOTICE, a README, a comment — cannot keep saying what is no longer true. Add a term in the same commit that retires it. `notFollowedBy` (a regular expression) spares a longer, living name that the retired one begins: `-` is a word break, so `tanrei-fab` alone would also match `tanrei-fab-menu`. `notPrecededBy` does the same for a longer name that ends with the retired one. History is allowed to remember: changesets, changelogs and the frozen oracle.",
+  "terms": [
+    {
+      "term": "Geist",
+      "since": "2026-09-21",
+      "reason": "the default typefaces changed",
+      "replacedBy": "Inter (Latin), Noto Sans JP / Noto Sans, Roboto Mono",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "Lucide",
+      "caseSensitive": false,
+      "since": "2026-09-21",
+      "reason": "the default icon set changed",
+      "replacedBy": "Material Symbols Rounded (weight 300, FILL 0 unselected / 1 selected)",
+      "allow": [
+        ".changeset/",
+        "packages/tools/test/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "typescale.display-medium",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.display",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.headline-large",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.heading-1",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.headline-medium",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.heading-2",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.headline-small",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.heading-3",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.title-large",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.heading-4",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.title-medium",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.heading-5",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.title-small",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.heading-6",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.body-medium",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.body",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.label-large",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.label",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.label-medium",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.label-small",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.code-medium",
+      "since": "2026-09-22",
+      "reason": "the type scale is by level",
+      "replacedBy": "typescale.code",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "typescale.emphasized",
+      "since": "2026-09-22",
+      "reason": "emphasis is a weight step, not a role",
+      "replacedBy": "typescale.emphasis.<family> + the platform's `emphasized` modifier",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "corner-style",
+      "since": "2026-09-22",
+      "reason": "corner smoothing is an amount",
+      "replacedBy": "sys.shape.corner-smoothing (0–1)",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "on-emphasis",
+      "since": "2026-09-22",
+      "reason": "the emphasis roles are gone",
+      "replacedBy": "on-primary (a recolored button is a variant)",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "emphasis-container",
+      "since": "2026-09-22",
+      "reason": "the emphasis roles are gone",
+      "replacedBy": "primary-container",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tokens-build/test/pipeline.test.js",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "multi-browse",
+      "since": "2026-09-27",
+      "reason": "the carousel is described by its axes; the multi-browse layout is retired",
+      "replacedBy": "the default carousel (hero with peeking neighbours)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "docs/governance/mimicry-gaps.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/"
+      ]
+    },
+    {
+      "term": "comp.fab",
+      "notFollowedBy": "-menu",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "comp.main-action-button",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "comp.extended-fab",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "comp.main-action-button",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "--tanrei-comp-fab",
+      "notFollowedBy": "-menu",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "--tanrei-comp-main-action-button",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "--tanrei-comp-extended-fab",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "--tanrei-comp-main-action-button",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "tanrei-fab",
+      "notFollowedBy": "-menu",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "tanrei-main-action-button",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx",
+        "packages/tools/src/scans.js"
+      ]
+    },
+    {
+      "term": "tanrei-extended-fab",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "tanrei-main-action-button",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "TanreiFab",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "TanreiMainActionButton",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "TanreiExtendedFab",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "TanreiMainActionButton",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "TanreiFabSize",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "TanreiMainActionButtonSize",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "TanreiFabVariant",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "TanreiMainActionButtonVariant",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "TanreiExtendedFabSize",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "TanreiMainActionButtonSize",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "TanreiExtendedFabVariant",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "TanreiMainActionButtonVariant",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "Fab",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "MainActionButton (React)",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "ExtendedFab",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "MainActionButton (React)",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "TanreiFloatingActionButton",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "TanreiMainActionButton",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/web/",
+        "packages/react/",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "TanreiExtendedFloatingActionButton",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "TanreiMainActionButton",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/web/",
+        "packages/react/",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx"
+      ]
+    },
+    {
+      "term": "FloatingActionButton",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "MainActionButton (React Native); Material 3's own name stays in the M3 mapping and the fidelity maps",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/web/",
+        "packages/react/",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx",
+        "tokens/fidelity/",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "ExtendedFloatingActionButton",
+      "since": "2026-09-27",
+      "reason": "merged into the main action button",
+      "replacedBy": "MainActionButton (React Native); Material 3's own name stays in the M3 mapping and the fidelity maps",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/web/",
+        "packages/react/",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ja/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/hi/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/es/components/main-action-button.mdx",
+        "apps/docs/src/content/docs/ar/components/main-action-button.mdx",
+        "tokens/fidelity/",
+        "docs/governance/mimicry-gaps.json"
+      ]
+    },
+    {
+      "term": "navigation-rail",
+      "notFollowedBy": "-into-drawer",
+      "since": "2026-09-27",
+      "reason": "the navigation rail is the navigation drawer's collapsed form",
+      "replacedBy": "a collapsible navigation drawer, collapsed (tanrei-navigation-drawer collapsible, comp.navigation-drawer.collapsed.*)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "tokens/comp/navigation-rail.tokens.json",
+        "tokens/tanrei.resolver.json",
+        "tokens/systems/",
+        "tokens/vocabulary.lock.json",
+        "tokens/generated/",
+        "design/tokens/",
+        "packages/tokens-build/generated-manifest.json",
+        "docs/status/",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "TanreiNavigationRail",
+      "since": "2026-09-27",
+      "reason": "the navigation rail is the navigation drawer's collapsed form",
+      "replacedBy": "a collapsible navigation drawer, collapsed (TanreiNavigationDrawer)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "TanreiNavigationRailItem",
+      "since": "2026-09-27",
+      "reason": "the navigation rail is the navigation drawer's collapsed form",
+      "replacedBy": "a collapsible navigation drawer, collapsed (TanreiNavigationDrawerItem)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "TanreiNavigationRailDestination",
+      "since": "2026-09-27",
+      "reason": "the navigation rail is the navigation drawer's collapsed form",
+      "replacedBy": "a collapsible navigation drawer, collapsed (TanreiNavigationDrawerDestination)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "NavigationRail",
+      "since": "2026-09-27",
+      "reason": "the navigation rail is the navigation drawer's collapsed form",
+      "replacedBy": "a collapsible navigation drawer, collapsed (NavigationDrawer, React Native); Material's own rail widget is cited without its bare name",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "navigation_rail",
+      "since": "2026-09-27",
+      "reason": "the navigation rail is the navigation drawer's collapsed form",
+      "replacedBy": "a collapsible navigation drawer, collapsed (navigation_drawer.dart)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "icon-button",
+      "notPrecededBy": "absorbs-",
+      "since": "2026-09-27",
+      "reason": "Icon button is a form of Button",
+      "replacedBy": "Button with an icon and no label",
+      "allow": [
+        ".changeset/",
+        "docs/status/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/"
+      ]
+    },
+    {
+      "term": "TanreiIconButton",
+      "since": "2026-09-27",
+      "reason": "Icon button is a form of Button",
+      "replacedBy": "Button with an icon and no label",
+      "allow": [
+        ".changeset/",
+        "docs/status/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "apps/docs/src/content/docs/components/app-bar.mdx",
+        "apps/docs/src/content/docs/ja/components/app-bar.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/app-bar.mdx",
+        "apps/docs/src/content/docs/hi/components/app-bar.mdx",
+        "apps/docs/src/content/docs/es/components/app-bar.mdx",
+        "apps/docs/src/content/docs/ar/components/app-bar.mdx",
+        "apps/docs/src/content/docs/components/badge.mdx",
+        "apps/docs/src/content/docs/ja/components/badge.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/badge.mdx",
+        "apps/docs/src/content/docs/hi/components/badge.mdx",
+        "apps/docs/src/content/docs/es/components/badge.mdx",
+        "apps/docs/src/content/docs/ar/components/badge.mdx",
+        "apps/docs/src/content/docs/components/button-group.mdx",
+        "apps/docs/src/content/docs/ja/components/button-group.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-group.mdx",
+        "apps/docs/src/content/docs/hi/components/button-group.mdx",
+        "apps/docs/src/content/docs/es/components/button-group.mdx",
+        "apps/docs/src/content/docs/ar/components/button-group.mdx",
+        "apps/docs/src/content/docs/components/menu.mdx",
+        "apps/docs/src/content/docs/ja/components/menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/menu.mdx",
+        "apps/docs/src/content/docs/hi/components/menu.mdx",
+        "apps/docs/src/content/docs/es/components/menu.mdx",
+        "apps/docs/src/content/docs/ar/components/menu.mdx",
+        "apps/docs/src/content/docs/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/ja/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/hi/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/es/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/ar/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/components/toolbar.mdx",
+        "apps/docs/src/content/docs/ja/components/toolbar.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/toolbar.mdx",
+        "apps/docs/src/content/docs/hi/components/toolbar.mdx",
+        "apps/docs/src/content/docs/es/components/toolbar.mdx",
+        "apps/docs/src/content/docs/ar/components/toolbar.mdx",
+        "apps/docs/src/content/docs/components/tooltip.mdx",
+        "apps/docs/src/content/docs/ja/components/tooltip.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/tooltip.mdx",
+        "apps/docs/src/content/docs/hi/components/tooltip.mdx",
+        "apps/docs/src/content/docs/es/components/tooltip.mdx",
+        "apps/docs/src/content/docs/ar/components/tooltip.mdx"
+      ]
+    },
+    {
+      "term": "IconButton",
+      "since": "2026-09-27",
+      "reason": "Icon button is a form of Button",
+      "replacedBy": "Button with an icon and no label",
+      "allow": [
+        ".changeset/",
+        "docs/status/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "apps/docs/src/content/docs/components/app-bar.mdx",
+        "apps/docs/src/content/docs/ja/components/app-bar.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/app-bar.mdx",
+        "apps/docs/src/content/docs/hi/components/app-bar.mdx",
+        "apps/docs/src/content/docs/es/components/app-bar.mdx",
+        "apps/docs/src/content/docs/ar/components/app-bar.mdx",
+        "apps/docs/src/content/docs/components/badge.mdx",
+        "apps/docs/src/content/docs/ja/components/badge.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/badge.mdx",
+        "apps/docs/src/content/docs/hi/components/badge.mdx",
+        "apps/docs/src/content/docs/es/components/badge.mdx",
+        "apps/docs/src/content/docs/ar/components/badge.mdx",
+        "apps/docs/src/content/docs/components/button-group.mdx",
+        "apps/docs/src/content/docs/ja/components/button-group.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-group.mdx",
+        "apps/docs/src/content/docs/hi/components/button-group.mdx",
+        "apps/docs/src/content/docs/es/components/button-group.mdx",
+        "apps/docs/src/content/docs/ar/components/button-group.mdx",
+        "apps/docs/src/content/docs/components/date-picker.mdx",
+        "apps/docs/src/content/docs/ja/components/date-picker.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/date-picker.mdx",
+        "apps/docs/src/content/docs/hi/components/date-picker.mdx",
+        "apps/docs/src/content/docs/es/components/date-picker.mdx",
+        "apps/docs/src/content/docs/ar/components/date-picker.mdx",
+        "apps/docs/src/content/docs/components/divider.mdx",
+        "apps/docs/src/content/docs/ja/components/divider.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/divider.mdx",
+        "apps/docs/src/content/docs/hi/components/divider.mdx",
+        "apps/docs/src/content/docs/es/components/divider.mdx",
+        "apps/docs/src/content/docs/ar/components/divider.mdx",
+        "apps/docs/src/content/docs/components/menu.mdx",
+        "apps/docs/src/content/docs/ja/components/menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/menu.mdx",
+        "apps/docs/src/content/docs/hi/components/menu.mdx",
+        "apps/docs/src/content/docs/es/components/menu.mdx",
+        "apps/docs/src/content/docs/ar/components/menu.mdx",
+        "apps/docs/src/content/docs/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/ja/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/hi/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/es/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/ar/components/navigation-rail.mdx",
+        "apps/docs/src/content/docs/components/toolbar.mdx",
+        "apps/docs/src/content/docs/ja/components/toolbar.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/toolbar.mdx",
+        "apps/docs/src/content/docs/hi/components/toolbar.mdx",
+        "apps/docs/src/content/docs/es/components/toolbar.mdx",
+        "apps/docs/src/content/docs/ar/components/toolbar.mdx",
+        "apps/docs/src/content/docs/components/tooltip.mdx",
+        "apps/docs/src/content/docs/ja/components/tooltip.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/tooltip.mdx",
+        "apps/docs/src/content/docs/hi/components/tooltip.mdx",
+        "apps/docs/src/content/docs/es/components/tooltip.mdx",
+        "apps/docs/src/content/docs/ar/components/tooltip.mdx"
+      ]
+    },
+    {
+      "term": "icon_button",
+      "since": "2026-09-27",
+      "reason": "Icon button is a form of Button",
+      "replacedBy": "Button with an icon and no label",
+      "allow": [
+        ".changeset/",
+        "docs/status/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/"
+      ]
+    },
+    {
+      "term": "date-picker",
+      "notPrecededBy": "(?:stacked|outlined|rn|web)-",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "calendar (tanrei-calendar, comp.calendar) or date-time-picker (tanrei-date-time-picker, comp.date-time-picker)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "design/figma/README.md",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "time-picker",
+      "notPrecededBy": "(?:date|stacked|web)-",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "date-time-picker (tanrei-date-time-picker, comp.date-time-picker)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "design/figma/README.md",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "TanreiDatePicker",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "TanreiCalendar or TanreiDateTimePicker",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "TanreiTimePicker",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "TanreiDateTimePicker",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "tanreiDatePicker",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "TanreiCalendar or tanreiDateTimePicker (SwiftUI)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "tanreiTimePicker",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "tanreiDateTimePicker (SwiftUI)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "date_picker",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "calendar or date_time_picker (Flutter)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "time_picker",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "date_time_picker (Flutter)",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "DatePicker",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "Calendar or DateTimePicker (React Native); the platforms' own date controls are cited without their bare name",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "TimePicker",
+      "since": "2026-09-27",
+      "reason": "the date and time pickers are Calendar and DateTimePicker",
+      "replacedBy": "DateTimePicker (React Native); the platforms' own time controls are cited without their bare name",
+      "allow": [
+        ".changeset/",
+        "CHANGELOG.md",
+        "packages/tools/test/",
+        "packages/tokens-build/test/",
+        "docs/status/",
+        "docs/governance/mimicry-gaps.json",
+        "tokens/fidelity/",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "packages/web/src/generated/"
+      ]
+    },
+    {
+      "term": "split-button",
+      "notPrecededBy": "missing-font-rule-chip-",
+      "notFollowedBy": "-(chevron-slot-and-hover|chevron-slots-hover|code-after-the-rename|halves-outlines-meet|device-check|menu-anchor-trailing-half|empty-menu-(frame|report-when|report-traps)|keyboard-end-to-end|macos-toggle-while-open|disabled-open(-form)?|item-click-stops|web-implemented|label-overflows-below-min-content|turn-timer)",
+      "since": "2026-10-06",
+      "reason": "renamed: its decisive trait is the menu it reveals, not that it is cut in two",
+      "replacedBy": "button-with-menu (also comp.button-with-menu, --tanrei-comp-button-with-menu, tanrei-button-with-menu); Material 3's own two-word name, \"split button\", stays sayable in the M3 mapping and the fidelity maps",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+      ]
+    },
+    {
+      "term": "TanreiSplitButton",
+      "since": "2026-10-06",
+      "reason": "renamed: its decisive trait is the menu it reveals, not that it is cut in two",
+      "replacedBy": "TanreiButtonWithMenu",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+      ]
+    },
+    {
+      "term": "TanreiSplitButtonSize",
+      "since": "2026-10-06",
+      "reason": "renamed: its decisive trait is the menu it reveals, not that it is cut in two",
+      "replacedBy": "TanreiButtonWithMenuSize",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+      ]
+    },
+    {
+      "term": "TanreiSplitButtonVariant",
+      "since": "2026-10-06",
+      "reason": "renamed: its decisive trait is the menu it reveals, not that it is cut in two",
+      "replacedBy": "TanreiButtonWithMenuVariant",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+      ]
+    },
+    {
+      "term": "TanreiSplitButtonTokens",
+      "since": "2026-10-06",
+      "reason": "renamed: its decisive trait is the menu it reveals, not that it is cut in two",
+      "replacedBy": "TanreiButtonWithMenuTokens (generated)",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+      ]
+    },
+    {
+      "term": "SplitButton",
+      "since": "2026-10-06",
+      "reason": "renamed: its decisive trait is the menu it reveals, not that it is cut in two",
+      "replacedBy": "ButtonWithMenu (React, React Native); Material's Compose names (SplitButtonLayout, SplitButtonDefaults) have no word break and are not matched",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+      ]
+    },
+    {
+      "term": "split_button",
+      "since": "2026-10-06",
+      "reason": "renamed: its decisive trait is the menu it reveals, not that it is cut in two",
+      "replacedBy": "button_with_menu (Flutter)",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+      ]
+    },
+    {
+      "term": "splitButton",
+      "since": "2026-10-06",
+      "reason": "renamed: its decisive trait is the menu it reveals, not that it is cut in two",
+      "replacedBy": "buttonWithMenu (generated accessors)",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "packages/tools/test/",
+        "CHANGELOG.md",
+        "design/figma/renames.json",
+        "packages/swiftui/",
+        "packages/compose/",
+        "packages/flutter/",
+        "packages/react-native/",
+        "Package.swift",
+        "apps/docs/src/content/docs/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ja/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/zh-cn/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/hi/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/es/components/button-with-menu.mdx",
+        "apps/docs/src/content/docs/ar/components/button-with-menu.mdx"
+      ]
+    },
+    {
+      "term": "comp.code-block.syntax.comment.color",
+      "since": "2026-10-07",
+      "reason": "renamed: the syntax roles are a token axis, a member and then the role",
+      "replacedBy": "comp.code-block.syntax.color.comment",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "CHANGELOG.md",
+        "design/figma/renames.json"
+      ]
+    },
+    {
+      "term": "comp.code-block.syntax.keyword.color",
+      "since": "2026-10-07",
+      "reason": "renamed: the syntax roles are a token axis, a member and then the role",
+      "replacedBy": "comp.code-block.syntax.color.keyword",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "CHANGELOG.md",
+        "design/figma/renames.json"
+      ]
+    },
+    {
+      "term": "comp.code-block.syntax.literal.color",
+      "since": "2026-10-07",
+      "reason": "renamed: the syntax roles are a token axis, a member and then the role",
+      "replacedBy": "comp.code-block.syntax.color.string and comp.code-block.syntax.color.constant",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "CHANGELOG.md",
+        "design/figma/renames.json"
+      ]
+    },
+    {
+      "term": "comp.code-block.syntax.name.color",
+      "since": "2026-10-07",
+      "reason": "renamed: the syntax roles are a token axis, a member and then the role",
+      "replacedBy": "comp.code-block.syntax.color.function, comp.code-block.syntax.color.type, comp.code-block.syntax.color.tag and comp.code-block.syntax.color.property",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "CHANGELOG.md",
+        "design/figma/renames.json"
+      ]
+    },
+    {
+      "term": "comp.code-block.syntax.punctuation.color",
+      "since": "2026-10-07",
+      "reason": "renamed: the syntax roles are a token axis, a member and then the role",
+      "replacedBy": "comp.code-block.syntax.color.punctuation",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "CHANGELOG.md",
+        "design/figma/renames.json"
+      ]
+    },
+    {
+      "term": "comp.code-block.syntax.keyword.emphasis",
+      "since": "2026-10-07",
+      "reason": "renamed: the syntax roles are a token axis, a member and then the role",
+      "replacedBy": "comp.code-block.syntax.emphasis.keyword",
+      "allow": [
+        ".changeset/",
+        "packages/tokens-build/test/oracle/",
+        "CHANGELOG.md",
+        "design/figma/renames.json"
+      ]
+    },
+    {
+      "term": "a11y-conflict",
+      "since": "2026-09-27",
+      "reason": "a preset's accessibility measurements are not mimicry gaps: Tanrei's accessibility criteria do not apply to an imitation preset",
+      "replacedBy": "measurements in tokens/generated/<preset>/a11y-report.json (criteria: \"not-applied\"), kept as information",
+      "allow": [
+        ".changeset/",
+        "packages/tools/test/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "TanreiOneTimeCodeFieldDetail",
+      "since": "2026-10-08",
+      "reason": "the bare control was renamed the one-time-code input, and the name that returned for the composed component has no detail type of its own: its events are its member's, with the member's type",
+      "replacedBy": "TanreiOneTimeCodeInputDetail",
+      "allow": [
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "TanreiOneTimeCodeFieldType",
+      "since": "2026-10-08",
+      "reason": "the bare control was renamed the one-time-code input, and the name that returned for the composed component has no type of its own for `type`: the prop is its member's",
+      "replacedBy": "TanreiOneTimeCodeInputType",
+      "allow": [
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "TanreiOneTimeCodeFieldTokens",
+      "since": "2026-10-08",
+      "reason": "the token group was renamed with the bare control, and the name that returned for the composed component has no token group",
+      "replacedBy": "TanreiOneTimeCodeInputTokens (generated)",
+      "allow": [
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp.one-time-code-field",
+      "since": "2026-10-08",
+      "reason": "the token group was renamed with the bare control, and the name that returned for the composed component has no token group: its frame reads comp.field and its control comp.one-time-code-input",
+      "replacedBy": "comp.one-time-code-input (the control's tokens); comp.field (the frame's)",
+      "allow": [
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-one-time-code-field",
+      "since": "2026-10-08",
+      "reason": "the custom properties of the token group that was renamed with the bare control; the name that returned for the composed component has no token group",
+      "replacedBy": "--tanrei-comp-one-time-code-input-* (the control's); --tanrei-comp-field-* (the frame's)",
+      "allow": [
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "tanrei-file-upload-item",
+      "since": "2026-10-08",
+      "reason": "the row of a file upload became a component of its own, the File item, and the web was rebuilt from it; the two accepted specs' web notes still tell that the element went",
+      "replacedBy": "tanrei-file-item",
+      "allow": [
+        "specs/file-item.spec.json",
+        "specs/file-upload.spec.json",
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "TanreiFileUploadItem",
+      "since": "2026-10-08",
+      "reason": "the row of a file upload became a component of its own, the File item, and the web was rebuilt from it; the two accepted specs' web notes still tell that the element went",
+      "replacedBy": "TanreiFileItem",
+      "allow": [
+        "specs/file-item.spec.json",
+        "specs/file-upload.spec.json",
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "FileUploadItem",
+      "since": "2026-10-08",
+      "reason": "the row of a file upload became a component of its own, the File item, and the web was rebuilt from it; the two accepted specs' web notes still tell that the element went",
+      "replacedBy": "FileItem (React and React Native); TanreiFileItem (SwiftUI, Compose, Flutter)",
+      "allow": [
+        "specs/file-item.spec.json",
+        "specs/file-upload.spec.json",
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    },
+    {
+      "term": "comp-file-upload-item",
+      "since": "2026-10-08",
+      "reason": "the custom properties of a file upload's row moved with their token ids to the File item's group",
+      "replacedBy": "--tanrei-comp-file-item-* (with `standard` as the form `row`)",
+      "allow": [
+        "specs/file-item.spec.json",
+        "specs/file-upload.spec.json",
+        ".changeset/",
+        "CHANGELOG.md"
+      ]
+    }
+  ]
+}

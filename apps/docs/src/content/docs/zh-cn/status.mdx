@@ -1,0 +1,15 @@
+---
+title: 状态
+description: 哪个组件在哪个平台上已经存在，由仓库生成。
+translationOf: status.mdx
+sourceHash: 4fa1412c15c5add9d5bcf34096d42c42daf3616e
+tableOfContents: false
+---
+
+import StatusMatrix from '../../../components/StatusMatrix.astro';
+
+这个页面不是手写的。下面的矩阵由 `pnpm generate` 根据组件规格，以及各平台包中实际存在的内容生成：实现、测试、快照和文档页面。如果某个单元格显示“计划中”（planned），那就说明那里还没有任何可交付的东西，不管谁曾经有过什么打算。
+
+只有当对等检查器找齐了上述所有部分，组件在某个平台上才能越过“计划中”，因此这张矩阵所声称的不可能多于仓库实际包含的。
+
+<StatusMatrix headingLevel={2} />

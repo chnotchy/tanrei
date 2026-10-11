@@ -1,0 +1,306 @@
+---
+title: Slider
+description: Lets people choose a value, or a range of values, by dragging a handle along a track, continuously or in steps.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="slider" />
+
+<DemoFrame label="Continuous, stepped with stops, and a range" column>
+  <tanrei-slider label="Volume" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Brightness" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider range label="Maximum price" start-label="Minimum price" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
+</DemoFrame>
+
+### Usage
+
+A slider chooses one value between `min` and `max` (0 and 100 by default). With `range` it has two handles and chooses the span from `startValue` to `value`. `step` 0 is continuous; above 0 the values snap to `min` plus whole multiples of `step`.
+
+The slider draws no label. `label` names it for assistive technology, and a visible label is your own text beside the slider, in the same words. A range needs `startLabel` for its start handle too.
+
+Two events report a change. `input` fires for every change while the person drags, and `change` fires once when the change is finished: the press ended, or a key or an assistive-technology adjustment was made. A value you set yourself fires neither. Each platform names them in its own way: `onValueChange` and `onValueChangeFinished` on Compose, `onChanged` and `onChangeEnd` on Flutter, `onValueChange` and `onSlidingComplete` on React Native, and on SwiftUI the binding and `onCommit`.
+
+The revision that gave the slider its round thumb, and the review that made its ring heavier, changed only how it looks, so every sample below is current. The web draws the current look. SwiftUI, Compose, Flutter and React Native are lagging: they still draw the previous look, a solid round handle with the tracks cut at its edge and one stop-dot size for every size, until they catch up.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- The slider draws no label: put your visible label beside it, in the same words. -->
+    <tanrei-slider name="volume" label="Volume" value="40" value-indicator="active"></tanrei-slider>
+
+    <!-- Stepped, with a dot at every step. -->
+    <tanrei-slider label="Brightness" value="30" step="10" stops></tanrei-slider>
+
+    <!-- A range submits start-value, then value, under the same name. -->
+    <tanrei-slider name="price" range min="0" max="500" step="10" start-value="100" value="300"
+      label="Maximum price" start-label="Minimum price"></tanrei-slider>
+
+    <script type="module">
+      import '@tanrei/web/components/slider';
+      const volume = document.querySelector('[name="volume"]');
+      // The element sets its own value before it fires input and change.
+      volume.addEventListener('input', () => preview(volume.value));
+      volume.addEventListener('change', () => save(volume.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Slider } from '@tanrei/react';
+
+    <Slider
+      label="Volume"
+      value={volume}
+      valueIndicator="active"
+      onInput={(e) => setVolume(e.currentTarget.value)}
+      onChange={(e) => save(e.detail.value)}
+    />
+
+    <Slider
+      range
+      min={0}
+      max={500}
+      step={10}
+      startValue={minPrice}
+      value={maxPrice}
+      label="Maximum price"
+      startLabel="Minimum price"
+      onInput={(e) => setPrices(e.currentTarget.startValue, e.currentTarget.value)}
+    />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Every change writes the binding; onCommit runs when a change is finished.
+    TanreiSlider("Volume", value: $volume, in: 0...100, onCommit: save)
+
+    TanreiSlider("Brightness", value: $brightness, in: 0...100, step: 10)
+
+    // A range is the initializer whose binding is a ClosedRange: lowerBound is the start handle.
+    TanreiSlider("Maximum price", startLabel: "Minimum price", value: $prices, in: 0...500, step: 10)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSlider
+
+    // State hoisting: move value from onValueChange.
+    TanreiSlider(
+        value = volume,
+        onValueChange = { volume = it },
+        contentDescription = "Volume",
+        onValueChangeFinished = ::save, // it carries the value, unlike foundation's
+    )
+
+    // step is a size, not Material's count of steps.
+    TanreiSlider(value = brightness, onValueChange = { brightness = it }, step = 10f, contentDescription = "Brightness")
+
+    // A range is the overload whose value is a ClosedFloatingPointRange.
+    TanreiSlider(
+        value = prices,
+        onValueChange = { prices = it },
+        valueRange = 0f..500f,
+        step = 10f,
+        contentDescription = "Maximum price",
+        startContentDescription = "Minimum price",
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiSlider(
+      value: volume,
+      onChanged: (double value) => setState(() => volume = value), // null disables it
+      onChangeEnd: save,
+      semanticLabel: 'Volume',
+    );
+
+    // step is a size, not Material's divisions.
+    TanreiSlider(value: brightness, step: 10, onChanged: (double value) => setState(() => brightness = value), semanticLabel: 'Brightness');
+
+    TanreiSlider.range(
+      start: minPrice,
+      end: maxPrice,
+      max: 500,
+      step: 10,
+      onChanged: (double start, double end) => setState(() {
+        minPrice = start;
+        maxPrice = end;
+      }),
+      semanticLabel: 'Maximum price',
+      startSemanticLabel: 'Minimum price',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Slider } from '@tanrei/react-native';
+
+    <Slider value={volume} onValueChange={setVolume} onSlidingComplete={save} accessibilityLabel="Volume" />
+
+    <Slider value={brightness} step={10} stops onValueChange={setBrightness} accessibilityLabel="Brightness" />
+
+    // A range: both callbacks receive (value, startValue).
+    <Slider
+      range
+      minimumValue={0}
+      maximumValue={500}
+      step={10}
+      startValue={minPrice}
+      value={maxPrice}
+      onValueChange={(value, startValue) => setPrices(startValue, value)}
+      accessibilityLabel="Maximum price"
+      startAccessibilityLabel="Minimum price"
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Sizes, centered, value indicator, vertical and disabled" plain column>
+  <tanrei-slider size="medium" label="Volume" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider size="large" label="Volume" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Balance" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Volume" value="40" value-indicator="always" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Volume" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="Brightness" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider orientation="vertical" label="Volume" value="60" style="block-size: 12rem"></tanrei-slider>
+</DemoFrame>
+
+In the default system the thumb is a ring: a 20 circle filled with the surface color, inside an outline in the active track's color. The outline is 3 wide and is drawn inside the circle's edge, so it does not change the thumb's size: it leaves a 14 disc of the surface color, and a wider outline would leave a smaller one. The track and the active track run under the thumb and meet at its center, so the active track reads as one line that ends in the ring. The thumb is 20 at every size, on tracks of 4, 6 and 8.
+
+The stop dots, and the dot that marks the end of the travel, are half as thick as the track: 2, 3 and 4 at small, medium and large. The value indicator sits a little above the top of the ring, centered on it. Disabled, the ring keeps its fill, and its outline fades with the active track.
+
+A design system can draw the thumb its own way from the same tokens. With an outline of 0 the thumb is a solid shape, and with a gap between the tracks and the thumb, the tracks stop short of it and are rounded there. `m3-like` draws Material's upright bar that way.
+
+<ComponentSpecs name="slider" />
+
+## Guidelines
+
+### When to use
+
+Use a slider when people choose a value by feel and see its effect as they move: volume, brightness, a photo's exposure, a map's search radius. A range slider suits a filter with a low and a high bound, such as a price.
+
+When the exact number matters more than its position, such as an amount of money or a quantity, use a [text field](/components/text-field/), or put one next to the slider so the person can do either. When there are only a few named choices, such as Low, Medium and High, [radio buttons](/components/radio-button/) name each one, or a [segmented button](/components/segmented-button/) where the system ships one.
+
+### Continuous or stepped
+
+- **Continuous** (`step` 0) takes any value between `min` and `max`. Use it when the in-between values are meaningful and the effect shows at once.
+- **Stepped** (`step` above 0) snaps to `min` plus whole multiples of `step`. Use it when only whole units make sense: stars, a font size in points, a percentage in tens.
+- `stops` draws a dot at every value a stepped slider can take. Turn it on when there are few steps, so people can count them. With many steps the dots crowd the track, so leave them off.
+
+The arrow keys move by one step, or by one hundredth of the range on a continuous slider. Page Up and Page Down move by ten.
+
+### A range
+
+`range` draws two handles, from `startValue` to `value`. The handles can meet but never cross. Each is its own Tab stop and its own control for a screen reader, which hears the range the handle can still reach. Name both handles: `startLabel` ("Minimum price") and `label` ("Maximum price").
+
+### A centered slider
+
+`origin` sets where the active track starts. Left empty, it starts at `min`. A value inside the range, such as 0 on a balance control from -50 to 50, makes the active track grow from there toward either side. The ends of the track keep their stop dots, so both limits stay visible.
+
+### The value indicator
+
+`valueIndicator` shows the handle's value in a small label beside it.
+
+| Value | Shows the value | Use for |
+| --- | --- | --- |
+| `none` (default) | Never | Sliders whose effect shows elsewhere on screen: volume, brightness |
+| `active` | While the handle is pressed or has keyboard focus | Values people need to read while they set them, where a finger covers the handle |
+| `always` | All the time | A value that must stay readable, when there is no room for your own text beside the slider |
+
+The indicator sits above a horizontal slider's handle and at the inline start of a vertical one. It shows `valueText` when you give one, and otherwise the number in the platform's locale, with as many decimal places as the keyboard step has, up to two. It is only a view of the value: it takes no focus and no input, and a screen reader reads the value from the handle instead.
+
+### Value text
+
+Set `valueText` to the words for the current value when the bare number would be unclear: "40%", "3 stars", "$300". It replaces the number both in the value indicator and in what a screen reader says. For a range, `startValueText` does the same for the start handle. Update it whenever the value changes.
+
+Words written once are wrong after the first drag. So the slider also takes one function from a value to its words, given once: it asks the function for each handle at every change, and `valueText` and `startValueText` still win where you set them. On the web it is `formatValue`, a property and never an attribute. The other platforms have not implemented it yet.
+
+```js
+const dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+document.querySelector('[name="price"]').formatValue = (value) => dollars.format(value);
+```
+
+**Used in** the [slider field](/components/slider-field/): a field and a slider as one component, with these words drawn at the end of the label row. Use it wherever the slider needs a label that is drawn, help or an error.
+
+### Size and orientation
+
+`small` is the everyday slider. `medium` and `large` give a prominent control, such as a volume or brightness slider on a media screen, a heavier track. Every size meets the minimum target.
+
+A vertical slider runs from the bottom (`min`) to the top (`max`) in every layout direction. A horizontal slider runs from the inline start, so in a right-to-left layout `min` is on the right.
+
+### Do
+
+- Put your own visible label beside the slider, in the same words as `label`.
+- Show the effect of the value while the person drags, and save it on `change`, not on every `input`.
+- Choose `min`, `max` and `step` so that every value the slider can take is one people would want.
+- Give `valueText` a unit when the number alone does not say what it counts.
+
+### Don't
+
+- Don't use a slider for a value people must set precisely, such as a date or a sum of money.
+- Don't use a slider for a setting that is only on or off. Use a [switch](/components/switch/).
+- Don't show stop dots on a slider with many steps.
+- Don't put a slider inside a [toolbar](/components/toolbar/). It needs the arrow keys the toolbar moves focus with.
+
+## Accessibility
+
+<ComponentAccessibility name="slider" />
+
+### What the component handles
+
+- Each handle is a slider for assistive technology, named by `label` (or `startLabel` for a range's start handle), with its value, its value text, the lowest and highest value it can take, its orientation and its disabled state. On Apple platforms it is an adjustable element: a vertical swipe moves it one step.
+- A range is two sliders, the WAI-ARIA multi-thumb pattern. Each handle's limits are bounded by the other handle, so a screen reader announces the range it can still reach.
+- The tracks, stop dots, state layer and value indicator are hidden from assistive technology.
+- Each handle is a Tab stop, the start handle first. Arrow keys move one step, Page Up and Page Down ten steps, and Home and End to the lowest and highest value. In a right-to-left horizontal slider, Right and Left Arrow are swapped.
+- A screen reader's increment and decrement actions move one step; setting a value directly, where the platform allows it, is clamped and snapped.
+- A press anywhere on the slider moves the nearer handle there, and a drag follows. On touch, a press that first moves across the track is left to the scroll view around it, so the slider does not catch a scroll.
+- The whole slider is the hit area, and it reaches the minimum target across the track. The thumb is drawn smaller than the target, but that does not make the hit area smaller, so each handle of a range keeps the whole target too.
+- It shows the focus indicator around the focused handle for keyboard focus only.
+- The handle is told apart from everything it lies on at 3:1 or more in the default system: by its outline against the track and the page, and by its fill against the active track. The active track keeps 3:1 against the track and the page, and the end of a faint track stays visible by its stop dot.
+- A disabled slider is not focusable, shows no value indicator and is exposed as disabled.
+- Text size changes only the value indicator, which grows with the text.
+- Debug builds report a missing `label` or `startLabel`, a value, start value or origin outside the range or off a step, a start value above the value, a `max` not above `min`, a negative step, and an unknown size, orientation or value-indicator setting.
+
+Known platform gaps:
+
+- On the web each handle has the slider role in the shadow root, not through `ElementInternals`, because axe-core cannot see semantics set that way. It is not an `<input type="range">`, which has one handle and parts no two engines style alike.
+- Web: assistive technology adjusts an ARIA slider through the arrow keys the browser sends it, so a value cannot be set directly.
+- Web: the value indicator is not in the top layer. An ancestor with `overflow: hidden` clips it, and a later positioned sibling with a `z-index` above 1 covers it.
+- SwiftUI cannot expose a handle's lowest and highest value or its orientation, and on macOS a handle is not a slider for assistive technology.
+- SwiftUI cannot tell a touch from a pointer: on iOS every press is a touch, an iPad pointer's too, and on macOS every press is a pointer's. Before iOS 18 a touch's drag is a SwiftUI gesture, which a scroll view around the slider may not be able to take over.
+- SwiftUI: the value indicator is kept inside the slider rather than the window, and a view drawn after the slider can cover it.
+- SwiftUI: the keys are tested as rules, not yet with a real keyboard, because the simulator gives no keyboard focus under automation.
+- Compose's slider semantics have no orientation, so a handle's orientation is not exposed.
+- Flutter exposes no lowest or highest value and no orientation for a handle, and no action to set a value directly.
+- Flutter always writes the number with a `.` as the decimal separator, in every locale. Set `valueText` where that matters.
+- Flutter: the hit area grows across the track only where the slider's parent is larger than the slider. A parent exactly the slider's size cuts it off.
+- React Native has no action to set a value directly and no orientation property, so neither is exposed.
+- On React Native the arrow keys work only where a hardware keyboard is attached, as in the tabs row.
+- React Native treats every press as a touch: a mouse or stylus press waits until it has moved or ended before it moves the handle.
+- React Native draws the value indicator inside the slider, not in the overlay layer, so it stays inside the slider rather than the window, and a view drawn after the slider can cover it.
+- React Native: the layout, the drag and how it gives way to a scroll view, and the adjustable handles have not yet been checked on a device.
+- SwiftUI, Compose, Flutter and React Native still draw the previous look: a solid handle, one stop-dot size for every size, and the tracks cut at the handle rather than meeting under it. Where they cut, they end the track differently: square on SwiftUI, rounded with a notch on Flutter and React Native, and cut to the handle's shape on Compose.
+- Under `cupertino`, the white thumb on a white page measures 1.0:1 in the light schemes, below the 3:1 a part that shows the value needs. It has no outline, as Apple draws it, and is told apart by its shadow and by the tinted active track beside it; no invariant checks a handle against the page. The 1.0:1 is a measurement kept as information: Tanrei's accessibility criteria do not apply to an imitation preset. Under `cupertino` the slider also draws no stop dots, not even at the ends of the track.
+- Under `m3-like`, the slider draws Material's upright bar, from Material's published measurements. They have not yet been checked against the fidelity reference. Under `m3-expressive-like`, the glyph Material draws inside a thick track has no place (mimicry gap `slider-inset-icon`): put your icon beside the slider.
+
+### What you need to do
+
+- Give every slider a `label`, and a range a `startLabel` too, in your product's language. Show the same words as a visible label beside it.
+- Set `valueText` when the number alone is unclear, and keep it in step with the value.
+- Show the result of a change somewhere people can see it, and tell them in text if a change could not be applied. The slider announces only its own value.
+- Under `cupertino`, where the thumb is white and the track has no end dots, keep the slider off a plain white surface when you can.
+- On the web, give the slider a `name` to submit its value with a form.

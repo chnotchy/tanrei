@@ -1,0 +1,92 @@
+---
+title: アイコン
+description: アイコンセットはデザインシステムごとに 1 つ、太さも 1 つ、規則も 1 つ。未選択は線、選択中は塗り。
+translationOf: foundations/icons.mdx
+sourceHash: 6905ea230fdb3955442d8050cf3af2f3fe852839
+---
+
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Tanrei の既定のアイコンは [Material Symbols](https://fonts.google.com/icons) の **Rounded**、**太さ 300** です。文字用の書体と同じく、フォントは名前で参照するだけで同梱しません。読み込むのはプロダクトの役目です。
+
+アイコンの描き方は、少数のトークンで決まります。アイコンの枠は `sys.icon.small`・`medium`・`large` の 3 サイズ（既定では 16・20・24px）で、フォントのオプティカルサイズは枠の大きさに追従します。
+
+<TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
+
+## 塗りの規則
+
+**未選択は線。選択中は塗り。例外はありません。** ナビゲーション項目、タブ、トグル、チップ、お気に入り。どれもグリフは同じまま、状態に応じて塗りだけが変わります。装飾のために線と塗りを混ぜることはなく、塗りを手で選ぶこともありません。Web では、アイコンが置かれたコントロールの状態に塗りが自動で追従します。
+
+<DemoFrame label="塗りは選択状態に追従する">
+  <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> お気に入り</button>
+  <span class="icon-demo" role="tablist">
+    <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> ホーム</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">search</span> 検索</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> 設定</button>
+  </span>
+  <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>追加</tanrei-button>
+</DemoFrame>
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> お気に入り</button>
+```
+
+`.tanrei-icon` は、祖先要素の `aria-pressed`・`aria-selected`・`aria-checked`・`aria-current`、またはアイコン自身か祖先の `data-selected` を読み取ります（`data-selected="false"` を付けると、そのアイコンだけ対象から外せます）。隣のテキストが同じ内容を伝えているならアイコンに `aria-hidden="true"` を付け、そうでないならコントロールにアクセシブルネームを付けてください。
+
+ネイティブの各プラットフォームでは、同じ値がデザインシステムと一緒に届きます（`system.icon`）。あわせて、「選択中かどうか」とサイズから、フォントに渡す設定を返す小さなヘルパーがあります。アイコンコンポーネントはまだ提供していません。
+
+## デザインシステムごとのアイコンセット
+
+アイコンセットはデザインシステムに属するものなので、[レイヤ](/ja/foundations/design-systems/)で変えられます。同梱システムでの解決値は次のとおりです。
+
+<SystemValues tokens={['sys.icon.family.unselected', 'sys.icon.family.selected', 'sys.icon.weight', 'sys.icon.fill.unselected', 'sys.icon.fill.selected']} />
+
+アイコンフォントが選択中と未選択を描き分ける方法は 2 通りあり、トークンはその両方に対応しています。選択中のアイコンには、常に `family.selected` と `fill.selected` の**両方**が適用されます。実際に見た目を変えるのがどちらになるかは、セット次第です。
+
+### バリアブルフォント 1 ファミリー
+
+Material Symbols のようなバリアブルのアイコンフォントは、`FILL` 軸を持つ 1 つのファミリーです。ファミリーのトークンは既定でどちらも `ref.typeface.icon` を指しているので、このトークン 1 つを差し替えればセットが変わり、状態の描き分けは `fill.unselected` / `fill.selected` が受け持ちます。`m3-like` が書いているのはこれだけです。
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.icon": { "$value": ["Material Symbols Outlined"], "reason": "Material Design 3 draws Material Symbols in the Outlined style." },
+  "tanrei.sys.icon.weight":   { "$value": 400, "reason": "Material Symbols default weight in Material Design 3." }
+}
+```
+
+### スタティックフォント 2 ファミリー
+
+スタティックなアイコンフォントには軸がありません。線の絵と塗りの絵が別々のファミリーとして配布されているので、レイヤでは状態ごとにファミリーを指定します。
+
+```json
+"tokens": {
+  "tanrei.sys.icon.family.unselected": { "$value": ["Material Icons Outlined"], "reason": "Acme uses the static Material Icons set: outlined when unselected." },
+  "tanrei.sys.icon.family.selected":   { "$value": ["Material Icons"], "reason": "Acme uses the static Material Icons set: filled when selected." },
+  "tanrei.sys.icon.weight":            { "$value": 400, "reason": "A static icon font has one weight; 400 is what Material Icons is drawn at." }
+}
+```
+
+塗りと太さのトークンはそのままで構いません。スタティックフォントは軸を無視するので害はなく、コンポーネントはどちらの種類のセットが有効かを知る必要がありません。このレイヤは、リポジトリ自身のテスト用フィクスチャ（`packages/tokens-build/test/fixtures/acme.system.json`）です。
+
+### アイコンの名前はプロダクトが決める
+
+Tanrei が決めるのはアイコンの「描き方」であって、「どのアイコンがあるか」ではありません。グリフの名前はセットごとに違い、あるセットにあるグリフが別のセットに無いこともあります。アイコンセットを変えるプロダクトは、自分が使っている名前を確認してください。なお、SF Symbols のようにフォントではないシンボルセットは、ファミリーのトークンでは指定できません。これは mimicry-gaps 台帳に `platform-symbol-sets` として登録しています。
+
+### React Native
+
+React Native の `<Text>` はフォントのバリエーション軸を設定できません。そのためバリアブルのアイコンフォントでは `FILL` がグリフに届かず、アイコンはどちらの状態でも同じ見た目になります。React Native で塗りの規則を守るには、上のようにスタティックフォント 2 ファミリーを使うか、アイコンを SVG で描いてください。
+
+ネイティブ 4 パッケージのアイコンヘルパーは、いま「状態ごとのファミリー」モデルへ移行しているところです。各パッケージの README にその記載が載るまでは、そのパッケージは単一のファミリーを読むものと考えてください。
+
+<style>{`
+  .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }
+  .icon-demo[role='tablist'] { gap: 1rem; cursor: default; }
+  .icon-demo [role='tab'] { display: inline-flex; align-items: center; gap: 0.35rem; font: inherit; color: var(--tanrei-sys-color-on-surface-variant); background: none; border: 0; padding: 0.25rem; }
+  .icon-demo [aria-selected='true'] { color: var(--tanrei-sys-color-on-surface); }
+`}</style>

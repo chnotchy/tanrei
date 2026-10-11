@@ -1,0 +1,4 @@
+{
+  "$comment": "The native platforms whose checks are paused until they catch up with the web (CONTRIBUTING.md#native-ci-is-paused). One switch: CI's changes job skips their jobs, release.yml publishes none of them, and the root `pnpm build`, `pnpm test` and `pnpm check` leave their packages out (scripts/run-unpaused.mjs). Take a platform out of the list in the commit that brings it up to the current specs.",
+  "paused": ["swiftui", "compose", "flutter", "react-native"]
+}

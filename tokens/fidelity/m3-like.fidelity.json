@@ -1,0 +1,178 @@
+{
+  "$comment": "How the m3-like preset is measured against its reference. Every reference token of a covered component is either MAPPED to something Tanrei resolves — and must then be equal — or listed under `unmapped` with the mimicry gap that explains it. `{variant}` and `{state}` are filled from the tables below. Kinds: equal (default) · level (the reference names an elevation level; Tanrei's token must alias the level of the same name) · state-layer (the reference gives a layer color and opacity; Tanrei's state color must equal that layer composited over the resting container) · with-opacity (a color and a separate opacity token; Tanrei's token is that color with its alpha multiplied).",
+  "system": "m3-like",
+  "reference": "reference/material-web.json",
+  "scope": "Every color role and every text style the reference publishes, and Button (five variants) at the reference's single size (40px = Tanrei's medium).",
+  "colors": {
+    "$comment": "md.sys.color.<role> is compared with tanrei.sys.color.<role> in light and dark. `rename` lists roles whose Tanrei name differs.",
+    "rename": {},
+    "unmapped": [
+      {
+        "ref": "scrim",
+        "gap": "scrim-color-and-opacity",
+        "note": "m3-like draws black at 32%, the reference's rendered result; the reference token itself is opaque black."
+      }
+    ]
+  },
+  "typescale": {
+    "$comment": "md.sys.typescale.<role>-<field> is compared with the Tanrei role `roles` names (a typescale level). An `-emphasized` role is the base role's weight plus the family's `emphasis.*` step; `families` says which step a role takes where its family is not its first name segment.",
+    "roles": {
+      "display-large": "display-large",
+      "display-medium": "display",
+      "display-small": "display-small",
+      "headline-large": "heading-1",
+      "headline-medium": "heading-2",
+      "headline-small": "heading-3",
+      "title-large": "heading-4",
+      "title-medium": "heading-5",
+      "title-small": "heading-6",
+      "body-large": "body-large",
+      "body-medium": "body",
+      "body-small": "body-small",
+      "label-large": "label",
+      "label-medium": "label-small",
+      "label-small": "caption"
+    },
+    "families": {
+      "display-large": "display",
+      "display-small": "display",
+      "heading-5": "label",
+      "heading-6": "label"
+    }
+  },
+  "components": {
+    "filled-button": "filled",
+    "filled-tonal-button": "tonal",
+    "elevated-button": "elevated",
+    "outlined-button": "outlined",
+    "text-button": "text"
+  },
+  "states": {
+    "hover": "hovered",
+    "focus": "focused",
+    "pressed": "pressed",
+    "disabled": "disabled"
+  },
+  "map": [
+    {
+      "ref": "container-color",
+      "tanrei": "tanrei.comp.button.{variant}.container.color"
+    },
+    {
+      "ref": "container-height",
+      "tanrei": "tanrei.comp.button.container.height.medium"
+    },
+    {
+      "ref": "container-shape",
+      "tanrei": "tanrei.comp.button.container.shape"
+    },
+    {
+      "ref": "container-shadow-color",
+      "tanrei": "tanrei.sys.color.shadow"
+    },
+    {
+      "ref": "container-elevation",
+      "tanrei": "tanrei.comp.button.{variant}.container.elevation",
+      "kind": "level"
+    },
+    {
+      "ref": "{state}-container-elevation",
+      "tanrei": "tanrei.comp.button.{variant}.{state}.container.elevation",
+      "kind": "level"
+    },
+    {
+      "ref": "label-text-color",
+      "tanrei": "tanrei.comp.button.{variant}.label.color"
+    },
+    {
+      "ref": "{state}-label-text-color",
+      "tanrei": "tanrei.comp.button.{variant}.{state}.label.color",
+      "with": "{state}-label-text-opacity"
+    },
+    {
+      "ref": "{state}-label-text-opacity",
+      "covered-by": "{state}-label-text-color"
+    },
+    {
+      "ref": "{state}-state-layer-color",
+      "tanrei": "tanrei.comp.button.{variant}.{state}.container.color",
+      "kind": "state-layer",
+      "opacity": "{state}-state-layer-opacity",
+      "over": "container-color"
+    },
+    {
+      "ref": "{state}-state-layer-opacity",
+      "tanrei": "tanrei.sys.state.{state-ref}-state-layer-opacity"
+    },
+    {
+      "ref": "disabled-container-color",
+      "tanrei": "tanrei.comp.button.{variant}.disabled.container.color",
+      "with": "disabled-container-opacity"
+    },
+    {
+      "ref": "disabled-container-opacity",
+      "covered-by": "disabled-container-color"
+    },
+    {
+      "ref": "outline-color",
+      "tanrei": "tanrei.comp.button.{variant}.outline.color"
+    },
+    {
+      "ref": "outline-width",
+      "tanrei": "tanrei.comp.button.outline.width.medium"
+    },
+    {
+      "ref": "{state}-outline-color",
+      "tanrei": "tanrei.comp.button.{variant}.{state}.outline.color",
+      "with": "{state}-outline-opacity"
+    },
+    {
+      "ref": "{state}-outline-opacity",
+      "covered-by": "{state}-outline-color"
+    },
+    {
+      "ref": "label-text-font",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "field": "fontFamily"
+    },
+    {
+      "ref": "label-text-size",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "field": "fontSize"
+    },
+    {
+      "ref": "label-text-line-height",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "field": "lineHeight"
+    },
+    {
+      "ref": "label-text-tracking",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "field": "letterSpacing"
+    },
+    {
+      "ref": "label-text-weight",
+      "tanrei": "tanrei.comp.button.label.typescale.medium",
+      "field": "fontWeight"
+    },
+    {
+      "ref": "with-icon-icon-size",
+      "tanrei": "tanrei.comp.button.icon.size.medium"
+    },
+    {
+      "ref": "with-icon-icon-color",
+      "tanrei": "tanrei.comp.button.{variant}.label.color",
+      "note": "Tanrei draws the icon in the label color; equal in the reference for every variant, so one token reproduces both."
+    },
+    {
+      "ref": "with-icon-{state}-icon-color",
+      "tanrei": "tanrei.comp.button.{variant}.{state}.label.color",
+      "with": "with-icon-{state}-icon-opacity"
+    },
+    {
+      "ref": "with-icon-{state}-icon-opacity",
+      "covered-by": "with-icon-{state}-icon-color"
+    }
+  ],
+  "unmapped": []
+}

@@ -1,0 +1,209 @@
+---
+title: One-time-code input
+description: Takes a short code sent to the person — a sign-in or verification code — as one text value drawn in separate cells, so that its length and what is still missing can be seen, and the platform can fill it in one step.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="one-time-code-input" />
+
+<DemoFrame label="A one-time-code input inside a field, and one whose code the product refused" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone.">
+    <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
+  </tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone." error error-text="That code is not right. Check the message and try again.">
+    <tanrei-one-time-code-input group-size="3" value="123456"></tanrei-one-time-code-input>
+  </tanrei-field>
+</DemoFrame>
+
+Use a one-time-code input for a short code that a product sent to the person and asks back once: to sign in, to confirm an e-mail address or a telephone number, to approve a payment. The cells show how long the code is and how much of it is still missing.
+
+It is one input for the whole code, not one input per character. There is one text value, one stop for the Tab key and one text box for assistive technology; the cells are a drawing of that value. So the platform's own code autofill fills it in one step, a paste lands whole, and a screen reader reads one named text box.
+
+It is an **advanced** component: the bare control, for a product that composes its own. It has no label, help or error text of its own. Most products want the [one-time-code field](/components/one-time-code-field/), which is this input inside a field, ready to use.
+
+**Used in** the [one-time-code field](/components/one-time-code-field/). To compose your own, put it inside a [field](/components/field/), which names it, describes it, marks it required and puts it in its error condition — the examples on this page are written that way, one level below the one-time-code field. Where the visible label is elsewhere — the headline of a dialog — use it alone and give `label`, which is never drawn.
+
+On the web it is `<tanrei-one-time-code-input>`. The other platforms have not implemented it yet.
+
+### Usage
+
+`value` is the code entered so far: at most `length` characters, digits or — for `alphanumeric` — digits and upper-case letters, with no separator, whatever the groups drawn.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-field label="Verification code"
+        supporting-text="Enter the 6-digit code we sent to your phone."
+        error-text="That code is not right. Check the message and try again."
+        requirement="required" required-text="Required">
+        <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
+      </tanrei-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+      import '@tanrei/web/components/one-time-code-input';
+
+      const field = document.querySelector('tanrei-field');
+      const code = document.querySelector('tanrei-one-time-code-input');
+      // The person changed the value. It is already the new one.
+      code.addEventListener('input', () => (field.error = false));
+      // The last cell was filled, or a whole code was pasted or filled. Nothing else happens by itself.
+      code.addEventListener('complete', async (e) => {
+        code.readOnly = true;
+        const right = await verify(e.detail.value);
+        code.readOnly = false;
+        field.error = !right;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Field, OneTimeCodeInput } from '@tanrei/react';
+
+    <Field label="Verification code" error={wrong}
+      supportingText="Enter the 6-digit code we sent to your phone."
+      errorText="That code is not right. Check the message and try again.">
+      <OneTimeCodeInput name="code" groupSize={3} value={code}
+        onInput={(event) => setCode(event.detail.value)}
+        onComplete={(event) => verify(event.detail.value)} />
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Four cells, eight cells in two groups, letters and digits, a masked code, a read-only one and a disabled one" plain column>
+  <tanrei-one-time-code-input class="not-content" label="PIN from the letter" length="4" value="4821"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Pairing code" length="8" group-size="4" value="1234"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Sign-in code" type="alphanumeric" group-size="3" value="A7K93Q"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Verification code" mask value="1234"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Verification code" readonly value="123456"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Verification code" disabled group-size="3" value="123456"></tanrei-one-time-code-input>
+</DemoFrame>
+
+### The cells
+
+| Part | What it is |
+| --- | --- |
+| Cell | One box per character of the code, empty or holding one character. An empty cell and a filled one are the same box |
+| Character | The character of a filled cell, in the text field's input style with tabular figures. With `mask`, the mark a password field draws stands in its place |
+| Active cell | While the input has focus, the cell the next character goes to: the first empty cell, or the last one when all are filled. It draws the focused line inside its edge — the input's focus indicator and its place marker in one |
+| Caret | In an empty active cell. A filled active cell draws none: the next character replaces what it holds |
+| Group mark | With `groupSize`, a short line after every so many cells. A drawing only: it is not part of the value, of what is copied or of what a form submits |
+
+A cell is as high as a medium text field, so a one-time-code input and a text field in one form are equally tall. There is one size and one look; a design system sets the cell's height, corners and fill in its layer.
+
+The row starts at the start edge and is as wide as its cells need: six cells in two groups are 284 wide in the default system, which fits a 320 screen. Where there is less room the cells share the width and become narrower, down to a character with a small padding on each side; then the row wraps — between two groups first, without the mark at the break, and between cells where there are no groups. A cell is never cut and the code is never drawn smaller to make it fit.
+
+### Typing and reading
+
+| When | What happens |
+| --- | --- |
+| A permitted character is typed | It fills the active cell, replacing what the cell holds, and the next cell becomes active. On the last cell the active cell stays, so a further character replaces the last |
+| Any other character is typed | Nothing. A cell holds only what a code can hold |
+| Backspace | A filled active cell loses its character; an empty one loses the character before it. What follows moves up: the value has no gap |
+| Left and Right Arrow, Home, End | Move the active cell among the filled cells and the first empty one. Up and Down do nothing |
+| Select all, then a character | Replaces the whole code. There is no selection of some cells only |
+| Paste, drop, autofill, dictation | The whole text is read as one code, wherever the active cell is |
+
+What is typed or pasted is read leniently. Digits of other scripts and full-width digits and letters are read as their ASCII forms, and lower-case letters as upper case; the value is always ASCII and can be compared as it stands with the code that was sent.
+
+A pasted text loses its spaces, hyphens and dashes: `123 456` and `123-456` are `123456`. For digits, a longer text is searched for exactly one run of exactly `length` digits, so a whole message — "Your code is 123456." — can be pasted. Anything ambiguous changes nothing.
+
+Text that an input method has not committed yet is drawn in the cells, underlined, and changes no value until it is committed.
+
+### Events
+
+| Event | When |
+| --- | --- |
+| `input` | Every change by the person. It carries the new value |
+| `complete` | A change by the person left the value `length` characters long. After that change's `input`, once |
+| `change` | Focus left the input, or Enter was pressed, and the value differs from the last committed one |
+| `action` | Enter. In a form on the web, the form is then submitted as from any text input |
+
+None of them fires when the product sets `value`. And nothing else happens when the code is complete: the input does not submit, move focus, disable itself or announce anything. What follows a complete code is the product's.
+
+<ComponentSpecs name="one-time-code-input" />
+
+### What the web draws differently
+
+- The element is form-associated. It takes `name` and submits the code alone, or an empty string. It resets to the `value` attribute, and reports a missing value while its field says it is required and it is empty. A code shorter than `length` is reported as nothing: an unfinished code is yours to refuse.
+- In the shadow root there is exactly one `<input>`, with `autocomplete="one-time-code"` and `inputmode="numeric"` (`text`, capitalizing, for `alphanumeric`); with `mask` it is a password input. It has no `maxlength` and no `pattern`: the browser would cut a code pasted with a space in it before it could be read.
+- `input`, `change`, `complete` and `action` are CustomEvents with `detail.value`. Cancel `action` to keep the form from being submitted.
+- The attribute for `readOnly` is `readonly`, and for `groupSize` it is `group-size`.
+- The caret is the element's own drawing. Where an input method shows a window of candidates, the browser places it by the native input's text, at the start of the row, not by the active cell.
+- The element does not read the person's messages. A product may ask the browser for the code of a message itself and set `value`.
+- Before the element is defined it has no size. Reserve the height of a cell. A page that must work without script uses a plain `<input autocomplete="one-time-code" inputmode="numeric">`, which this element is a drawing of.
+
+## Guidelines
+
+### One-time-code input or text field
+
+| Aspect | One-time-code input | Text field |
+| --- | --- | --- |
+| Holds | A short code of known length, sent to the person and typed back once | Any text |
+| Shows | A cell for each character: how long the code is, how much is missing | The text |
+| Takes | Digits, or digits and upper-case letters | Anything |
+
+A text field with `autocomplete="one-time-code"` enters a code correctly too, and is the right choice where cells are not wanted. A password, a PIN the person chose, a recovery or licence key, a card number and a postal code are [text fields](/components/text-field/): they have no short fixed length worth drawing, or must not be shown as cells. A number the product reads as a number is a [number field](/components/number-field/).
+
+### Do
+
+- Use the [one-time-code field](/components/one-time-code-field/) where a label, the cells, help and an error are all you need. Write a field with this input in it by hand only for an arrangement the one-time-code field does not offer.
+- Put the input in a [field](/components/field/) and say in its `supportingText` how many characters to expect and where the code was sent.
+- Draw the groups as the message writes them: `groupSize="3"` for a code sent as "123 456".
+- Say that a code is wrong in words, with the field's `error` and `errorText`. Decide yourself whether a wrong code is cleared: often one digit is wrong.
+- Use `readOnly`, not `disabled`, while a complete code is being checked. A disabled input loses focus, and a person who must then correct the code loses their place.
+- Put the way to ask for a new code, and any time limit, beside the input. They are a button and text of yours.
+- If you check or submit on `complete`, say so before the input.
+
+### Don't
+
+- Don't build a code entry from one input per character. A screen reader meets several unnamed text boxes, and autofill and paste cannot fill them.
+- Don't block paste, masked or not. A code that must be copied by eye is a test of memory.
+- Don't move focus away or submit the form without telling the person first.
+- Don't use `mask` by habit. A code that is used once and expires rarely needs hiding, and hiding it makes a mistake harder to see.
+- Don't use `label` inside a field. The field names the control.
+
+## Accessibility
+
+<ComponentAccessibility name="one-time-code-input" />
+
+### What the component handles
+
+- It is one text box. Its name is the field's label, or its own `label` where no field frames it; its description is the field's shown supporting or error text; its value is the whole code as one string.
+- It is exposed as invalid while in error, as required while its field says so, as read-only while `readOnly` is true, and as a password field while `mask` is true.
+- The cells, the caret and the group marks are hidden from assistive technology and take no focus.
+- The native insertion point stands at the active cell — before its character while the cell is filled — so a screen reader that reads the character at the insertion point reads the cell that is drawn active.
+- It is one stop for the Tab key, however many cells it draws.
+- Nothing is announced by the input itself: not a change, not a complete code. An error that appears is announced by the field around it.
+- The key that commits or cancels an input method's text is not the action key and does not submit the form.
+- The hit area meets the minimum target. A press focuses the input and makes the pressed cell active while that cell is filled.
+- At 200% text the cells grow with their characters, become narrower and wrap; nothing is cut and nothing scrolls sideways.
+- In forced colors every cell gains an edge, and the active cell's edge is the highlight color. No color of the input's own shows an error.
+- In a right-to-left layout the cells stay a left-to-right run — digits are never reversed — and the row stands at the right edge, under the field's label.
+- It has no words of its own, in any language.
+
+Known gaps on the web:
+
+- What screen readers say while a code is typed, replaced and pasted has been read from the browsers' accessibility trees, not heard with a screen reader.
+- Input methods have been driven in Chromium and, in Firefox and Safari, by their events alone.
+- Before the element is defined, nothing is drawn.
+
+### What you need to do
+
+- Give the control a name: the label of the field around it, or its own `label` where the visible label is elsewhere — in the same words.
+- Say what is expected in words: how many characters, and where the code was sent. The cells show the length only to people who see them.
+- Say that a code is wrong, expired or required with the field's `errorText`, `supportingText` and `requirement`. Color is never the only sign.
+- Where the time to enter a code is limited, say so, and let the person ask for more time or a new code.

@@ -1,0 +1,3285 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "tabs",
+  "title": "Tabs",
+  "summary": "Switches between views of the same subject with a row of labelled tabs, one of them selected and marked by an indicator that slides between them and follows a finger dragged across the row: in three weights (primary, secondary, tonal), on a track or straight on the surface the row stands on, as tall as a screen's views need or as low as a header allows, and with the slide or without it.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "tooltip"
+  ],
+  "anatomy": [
+    {
+      "id": "tablist",
+      "description": "The row that holds the tabs. It lays them out on the track, hugging their content (scrolling when they do not fit) or sharing its width, moves keyboard focus among them, and follows a drag across it with the active indicator."
+    },
+    {
+      "id": "track",
+      "description": "The constant background of the whole row, a capsule in the default system: one color per variant, the same whichever tab is selected and whatever state a tab is in, with no outline. Tabs are one choice among equals, so the track never says which one is selected; the active indicator does. It may be left out (track): the row then stands on the surface it is placed on and keeps the track's inset, corners and clip, so that nothing moves. A layer whose tabs sit on a line makes it transparent."
+    },
+    {
+      "id": "container",
+      "description": "One tab's state layer, the area that draws hover, focus and press: the box the active indicator has on this tab while it is selected, or would have if it were. In the default system that is a capsule, or a circle where the tab's content is not wider than it is tall, and in a row that fills it is as wide as the tab; it is never the tab's rectangle. The area that answers hover and a tap is still the whole tab."
+    },
+    {
+      "id": "icon",
+      "description": "A glyph above the label (a primary tab of the medium size) or before it (a secondary or tonal tab, and every tab of the small size).",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The tab's text and its accessible name, always on one line. A tab that hugs its content shows it whole; a tab that shares the row's width truncates it with an ellipsis and shows it whole where the platform can. It may be hidden for an icon-only tab (labelHidden) and still name it.",
+      "optional": true
+    },
+    {
+      "id": "active-indicator",
+      "description": "The thumb: the shape behind the selected tab's content — filled in primary and secondary tabs, a translucent layer in tonal ones — and, with the selected label's color, the mark of the selection in the default system. Its height is the row's less the track's inset, the same on every tab, and on the first and the last tab it lies that same inset from the track's end, so the thumb's round end and the track's are concentric at every row height. In a row that hugs it is as wide as the selected tab's content plus padding, and a circle where that content is not wider than it is tall (an icon, one full-width character, a one-letter label); in a row that fills it is as wide as the tab. It slides to the newly selected tab, or is drawn on it at once where the row's transition is none, and follows a finger dragged across the row, and the label and icon take their covered colors wherever it covers them, so their inversion travels with it."
+    },
+    {
+      "id": "underline",
+      "description": "The line on the row's bottom edge under the selected tab: as wide as the tab's content in primary tabs, as wide as the tab in secondary tabs. It moves with the active indicator. The default system leaves it transparent; a layer that marks the selection with a line (Material's tabs) colors it."
+    },
+    {
+      "id": "divider",
+      "description": "The hairline along the bottom of the whole row, under the underline. The default system leaves it transparent, because its row is a track and needs no line; a layer whose tabs sit on a line colors it."
+    },
+    {
+      "id": "panel",
+      "description": "The view a tab shows. The tabs associate the selected tab with it and hide the others; they do not draw it. A row's panels are its own or, where a Tab view draws the row or is linked to it, the Tab view's, which switches and swipes them. A row may have none: it then switches what the product draws below it, and says so by its name alone (TAB-42)."
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus, drawn around the tab's container, so that it surrounds the place the active indicator has on that tab (a capsule or a circle in the default system), and held inside the track."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "primary",
+        "secondary",
+        "tonal"
+      ],
+      "default": "primary",
+      "description": "How much the selection weighs. Primary tabs switch the main views of a screen, at the top of its content: the active indicator is the filled color. Secondary tabs switch within one of those views: the indicator is one step quieter. Tonal tabs are the quiet row, for a choice that should not compete with what it changes — the language of a code sample, a contrast, a unit, a period: the indicator is a tonal layer, under a label that is darker than the others. The three are the same control in every other respect (TAB-50), and each is drawn with or without its track (track), at each size (size).",
+      "axis": "tanrei.comp.tabs.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium"
+      ],
+      "default": "medium",
+      "description": "The row's height (32 / 48) and what shrinks with it: a tab's padding, the active indicator's margins and the icon. Medium is the row of a screen's views, as tall as the touch target. Small stands in a header or a toolbar, as tall as a small Button; its hit area still meets the minimum target (TAB-5), and its icon stands before the label in every variant. The label's text style, the colors and the motion are the same at both.",
+      "axis": "tanrei.comp.tabs.size"
+    },
+    {
+      "name": "track",
+      "type": "boolean",
+      "default": null,
+      "description": "Whether the row draws its track, the tonal background behind all its tabs. False draws none: the row stands on the surface it is placed on — in a header that is already a bar, on a card, in the heading of a sample — and nothing else changes, neither its size nor a tab's place nor a color of its variant (TAB-49). True draws it. Null, the default, takes comp.tabs.track.visible, the system's choice, which is on in the default system. Independent of variant: each of the three is drawn both ways."
+    },
+    {
+      "name": "fullWidth",
+      "type": "boolean",
+      "default": false,
+      "description": "False (hug, the default) sizes each tab to its content, never truncating its label, and scrolls the tabs sideways inside the track when they do not fit; the active indicator's width then follows the selected tab's content. True (fill) divides the row's width equally among the tabs and truncates a label that does not fit its share (for two to five short labels); the active indicator's width is then the tab's, the same on every tab."
+    },
+    {
+      "name": "selected",
+      "type": "string",
+      "default": null,
+      "description": "The value of the selected tab. The tabs set it when a tab is activated, or when a drag across the row is released on another tab, and emit change; the product may also set it. null selects the first enabled tab. While the row is a member of a group (group), the group's choice selects the tab of that value wherever the row has one (TAB-36)."
+    },
+    {
+      "name": "indicatorOffset",
+      "type": "number",
+      "default": 0,
+      "description": "Where the active indicator and the underline are drawn while the Tab view it belongs to is swiped, relative to the selected tab: 0 on it, 1 on the next enabled tab and −1 on the previous one in reading order, and in between for values between. The Tab view sets it; a product leaves it at 0 unless it drives the indicator itself. A drag across the row itself is followed by the tabs (TAB-28) and does not pass through this prop."
+    },
+    {
+      "name": "transition",
+      "type": "enum",
+      "values": [
+        "auto",
+        "slide",
+        "none"
+      ],
+      "default": "auto",
+      "description": "How this row draws a new selection: the row's part of the effect of switching views. slide: the active indicator and the underline slide and resize to the newly selected tab, the labels' colors changing under them, and a tab out of view is scrolled in with a motion. none: the new selection is drawn whole in one frame — nothing travels and nothing fades (TAB-43). Auto takes comp.tabs.motion.transition, the design system's answer (slide in the default system). Under both a drag across the row still carries the indicator and hover, focus and press are answered the same; reduced motion draws none whatever this says. A Tab view has a transition of its own for its panels, and the row it draws follows it where it is none (TBV-22, TBV-23)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the row: what the views are views of, or, for a row without panels, what is chosen (Contrast, Units). Needed when a screen has more than one row of tabs, and always for a row that has no panel, where nothing else says what the row is for (TAB-42)."
+    },
+    {
+      "name": "group",
+      "type": "string",
+      "default": "",
+      "description": "Names a choice this row shares with other rows of tabs, placed by the product or drawn by a Tab view. Rows that name the same group show the same choice: selecting a tab in one selects the tab of the same value in every other row that has one, at once and without moving focus or the page, and a row that has no tab of that value keeps its own (TAB-36 to TAB-38, TAB-40). Empty (the default): the row's choice is its own. The name is the product's and is compared exactly. On a platform where the product keeps the selection in its own state, rows given the same state are the group, and each platform's mapping says how it is spelled."
+    },
+    {
+      "name": "rememberAs",
+      "type": "string",
+      "default": "",
+      "description": "The key under which a person's choice on this row is kept on their device across pages and visits, and from which it is restored before the row is first drawn (TAB-39). Empty (the default): the row neither reads nor writes any storage; nothing is remembered without a key. The key is the product's own and is used exactly as given, so the product can name it in its privacy notice, read it itself and clear it. Only the chosen tab's value is stored. It needs no group, and a group needs no key: sharing and remembering are separate choices."
+    }
+  ],
+  "items": [
+    {
+      "name": "tab",
+      "summary": "One tab of the row: a label, an optional icon, and the value that selects it.",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Identifies the tab: the row's selected names the selected tab by it, and change carries it. Unique within the row; required."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The tab's text and its accessible name. Required, even when labelHidden is true."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon (a glyph of the system's icon set). Give every tab of a row an icon, or none."
+        },
+        {
+          "name": "labelHidden",
+          "type": "boolean",
+          "default": false,
+          "description": "Draws the icon alone and keeps label as the accessible name (an icon-only tab)."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents selecting the tab; the arrow keys skip it."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The user selected another tab, by activating it or by releasing a drag on it; carries its value, which selected now holds."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected"
+  ],
+  "behavior": [
+    {
+      "id": "TAB-1",
+      "text": "WHEN the user activates an enabled tab that is not selected by pointer, touch, Enter or Space THE tabs SHALL set selected to its value and emit change exactly once with it; WHEN the tab is already selected THE tabs SHALL emit nothing."
+    },
+    {
+      "id": "TAB-2",
+      "text": "WHILE a tab's disabled is true THE tabs SHALL NOT select it or emit change for it, SHALL skip it with the arrow keys, SHALL NOT make it the Tab stop and SHALL expose the disabled state to assistive technology."
+    },
+    {
+      "id": "TAB-3",
+      "text": "WHILE a tab is hovered, keyboard-focused or pressed THE tabs SHALL render its container, label, icon, covered label and icon, active indicator, underline and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "TAB-4",
+      "text": "WHEN a tab receives keyboard focus THE tabs SHALL show the focus indicator (the ring or the glow, TAB-10) around the tab's container (TAB-18), concentric with it and in its shape, so that it surrounds the place the active indicator has on that tab, with its inner edge sys.focus.offset outside the container's edge. THE tabs SHALL hold the indicator inside the track, which clips a row that scrolls: WHERE the space above and below the container (comp.tabs.track.padding) is less than the indicator reaches, it SHALL be drawn further in by the difference, on every side alike, keeping the container's shape. THE indicator SHALL be drawn above the neighbouring tabs and the active indicator, without animation; focus gained by pointer or touch SHALL NOT show it.",
+      "verify": "Under the default system the ring reaches 4 beyond the container (an offset of 2 and a ring 2 wide), which is comp.tabs.track.padding: it surrounds the capsule of a focused tab of `primary` and the circle of a focused tab of `primary-icon-only`, meets the track's edge and never crosses it, and is never a rectangle. Under `m3-like`, whose comp.tabs.track.padding is nothing and whose comp.tabs.container.shape is square, the ring is wholly inside the container, square."
+    },
+    {
+      "id": "TAB-5",
+      "text": "WHERE a tab is narrower than the minimum target THE tabs SHALL make it at least sys.target.touch wide for touch input and sys.target.pointer wide for fine pointers, in layout, because tabs touch their neighbours, so a hit area cannot extend over them. WHERE the row is shorter than the minimum target (the small size) THE tabs SHALL extend each tab's hit area above and below the row, by the same distance on each side, to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing the row's height or the place of anything around it; WHERE that extension lies over the row's own panel or over a control beside the row, a press on something that panel or control would itself answer SHALL go to it and not to the tab. A platform that cannot tell the input type SHALL use sys.target.touch.",
+      "verify": "Test the fixtures primary-small and tonal-small-no-track: the row is 32 tall, and a press 5 points above the row's top edge and one 5 points below its bottom edge, in line with a tab, select that tab. Put a Button directly under a small row: a press on the Button's top edge presses the Button. Test primary-single-characters and primary-small-single-characters: no tab is narrower than the target."
+    },
+    {
+      "id": "TAB-6",
+      "text": "WHILE a tab's disabled is true THE tabs SHALL render its container, label, icon, covered label and icon, active indicator, underline and opacity from the disabled component tokens of its variant and, for the selected tab, of its selected parts."
+    },
+    {
+      "id": "TAB-7",
+      "text": "WHEN variant or size names a value that the active design system does not have THE tabs SHALL render with the tokens of that prop's default value, and in debug builds report the unknown value."
+    },
+    {
+      "id": "TAB-8",
+      "text": "WHEN the tab is pressed by pointer, touch, Enter or Space THE tab SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "TAB-9",
+      "text": "WHILE pressed THE tab SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, icon, covered label and icon, active indicator, underline, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.tabs.motion.feedback-duration with comp.tabs.motion.state-easing, fades over comp.tabs.motion.state-duration with comp.tabs.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay. Every answer is drawn in the tab's container, which is the active indicator's box (TAB-18) and not the tab's rectangle, wherever on the tab the press lands; a ripple is clipped to it."
+    },
+    {
+      "id": "TAB-10",
+      "text": "THE tab SHALL ease its container and track corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow. The default system's containers and track are fully rounded, which no amount changes; the smoothing shows only under a system that gives them a corner below full."
+    },
+    {
+      "id": "TAB-11",
+      "text": "THE tabs SHALL render the tab whose value equals selected (or, while selected is null, the first enabled tab) from the selected parts of its variant (comp.tabs.primary.selected.label.color and the other selected. parts for primary, and so on) and every other tab from the variant's own parts; WHEN selected names no tab THE tabs SHALL render none as selected, show no panel, and in debug builds report the value; WHEN a tab's value is empty or repeats another tab's THE tabs SHALL still render it, treat the first tab with a value as the one that value selects, and in debug builds report the tab."
+    },
+    {
+      "id": "TAB-12",
+      "text": "THE tabs SHALL be one Tab stop, the selected tab; WHILE a tab has keyboard focus Right Arrow and Left Arrow SHALL move focus to the next and previous enabled tab, wrapping at the ends, and Home and End to the first and last enabled tab, and each move SHALL also select the tab it reaches and emit change (automatic activation); in a right-to-left layout Left Arrow SHALL move to the next tab and Right Arrow to the previous; Tab SHALL move focus from the selected tab into its panel, or, WHERE the row has no panel (TAB-42), to whatever follows the row."
+    },
+    {
+      "id": "TAB-13",
+      "text": "THE tabs SHALL expose the tab list role named by the row's label, each tab with the tab role, its selected state, its position and the number of tabs, named by its own label whether or not that label is drawn; THE tabs SHALL expose the selected tab's panel with the tab panel role, named by its tab and associated with it where the platform can express that, SHALL hide the other panels from view and from assistive technology, and SHALL make a panel with no focusable content itself focusable so that Tab reaches it. WHERE the tabs belong to a Tab view, as the row it draws itself (TBV-16) or as a row it is linked to (TBV-17), its panels take the place of the tabs' own (TBV-9, TBV-15), and each tab SHALL be associated with the Tab view's panel of its value. A row that has no panel is exposed as TAB-42 says."
+    },
+    {
+      "id": "TAB-14",
+      "text": "WHILE fullWidth is false THE tabs SHALL size each tab to its content plus the padding of the row's size on each side (comp.tabs.container.padding-inline.medium for medium, comp.tabs.container.padding-inline.small for small; TAB-44), or, WHERE its active indicator is a circle (TAB-16), to that circle and no wider, in either case never narrower than its active indicator or than the minimum target (TAB-5), keep its label on one line and whole however long it is or however large the text, place the tabs so that the first tab's active indicator starts comp.tabs.track.padding in from the track's start edge and the last tab's ends the same distance before the track's end (TAB-34), and scroll them sideways inside the track when they are wider than the space the row has; WHILE fullWidth is true THE tabs SHALL divide the row's width, less comp.tabs.track.padding at each end, equally among the tabs, each at least as wide as the minimum target (the tabs scroll sideways only when the row is too narrow for that), keep each label on one line, and truncate a label wider than its tab less the padding of the row's size on each side (and, beside an icon, less the icon and comp.tabs.container.gap) at the end of the label's own direction (TAB-33), with an ellipsis. A label SHALL NOT wrap onto a second line or break within a word, and an icon SHALL NOT shrink to make room for it.",
+      "verify": "Fixtures: each renders one row of tabs 360 wide and no panel, holding the fixture's tabs in order; variant, fullWidth, selected and label apply to the row and each tab's props to that tab. In `primary-fill-truncated` and `secondary-icons-fill` some labels do not fit their share and are truncated. Under the default system a row that hugs three short labels is narrower than 360 and its track ends with its last tab; an icon-only tab and a one-character tab are as wide as the minimum target (48 with touch input, 44 with a fine pointer), not their content plus 32; under `m3-like`, whose comp.tabs.track.padding is nothing, the first tab starts at the row's edge."
+    },
+    {
+      "id": "TAB-15",
+      "text": "WHEN the row first appears with its selected tab partly or wholly out of view, or a tab becomes selected or receives keyboard focus while part of it is scrolled out of view, THE tabs SHALL scroll the tabs inside the track until the whole tab is visible (at once when the row first appears), over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing, and at once where motion is reduced. WHERE the tab becomes selected because the row follows its group's choice THE tabs SHALL bring it into view at once (TAB-38). WHILE the row's transition is none (TAB-43) THE tabs SHALL bring a tab that becomes selected into view at once."
+    },
+    {
+      "id": "TAB-16",
+      "text": "THE tabs SHALL draw the selected tab's active indicator behind its content and centred on it, as tall as the row less comp.tabs.track.padding above and below, which is the same height on every tab of the row whatever the tab holds. WHILE fullWidth is false the indicator SHALL be as wide as the tab's content (its label and icon as TAB-18 lays them out, the icon alone while the label is hidden) plus the active indicator's padding of the row's size on each side (comp.tabs.active-indicator.padding-inline.medium for medium, comp.tabs.active-indicator.padding-inline.small for small), never wider than the tab; WHERE that content is not wider than it is tall (an icon alone, one full-width character, a one-letter label) the indicator SHALL instead be exactly as wide as it is tall, so that it is a circle. WHILE fullWidth is true the indicator SHALL be as wide as the tab, whatever the tab holds. In either case it SHALL NOT be narrower than it is tall, its width SHALL follow the same rule in every variant, and its four corners SHALL be rounded by comp.tabs.primary.active-indicator.shape for primary, comp.tabs.secondary.active-indicator.shape for secondary and comp.tabs.tonal.active-indicator.shape for tonal, each at most half its height. THE tabs SHALL also draw the selected tab's underline on the bottom edge of the row, above the divider, comp.tabs.primary.underline.thickness thick for primary, comp.tabs.secondary.underline.thickness for secondary and comp.tabs.tonal.underline.thickness for tonal, with the corners that face away from the divider rounded by comp.tabs.primary.underline.shape for primary, comp.tabs.secondary.underline.shape for secondary and comp.tabs.tonal.underline.shape for tonal, spanning the tab's content for primary and the tab's whole width for secondary and tonal. Both are drawn in every system, each in its look's color; a transparent color (the default system's underline, and the active indicator of a system that marks the selection with the line) hides the part without changing the layout. A tab with no content (an empty label and no icon, which TAB-22 reports in debug builds) has an underline of no width and a circular active indicator; the report, not a wider indicator, is the remedy.",
+      "verify": "Under the default system, with one-line labels: the indicator is 40 tall in every fixture without stacked icons and 56 with them; in `primary` it is as wide as the selected tab; in `primary-icon-only` and `primary-single-characters` it is a circle 40 across, centred in its tab; in `primary-fill` and `primary-icon-only-fill` it is 40 tall and as wide as its share. A test gives a tab the one-character label \"日\" and sees a circle, and the two-word label \"Recent activity\" and sees a capsule. Under `m3-like` the indicator is transparent and the underline is drawn as before this revision."
+    },
+    {
+      "id": "TAB-17",
+      "text": "WHEN the selected tab changes while indicatorOffset is 0 and no drag is followed (TAB-28), and the row's transition is slide (TAB-43), THE tabs SHALL slide and resize the active indicator and the underline together from the old tab to the new one over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing, drawn in the newly selected tab's colors, every frame of the slide being the in-between look of TAB-28 (the indicator as a drag would draw it at that place: its width between the two tabs' indicators, a circle becoming a capsule and a capsule a circle, each label and icon in its covered color exactly where it is covered), and SHALL move them at once where motion is reduced; the panel SHALL change at once unless a linked Tab view switches it (TBV-2). WHEN the row first appears, or the selected tab changes size or place without a new selection (a font arriving, the text size changing, the row resizing), THE tabs SHALL put the active indicator and the underline on it at once, without a slide. WHERE the selected tab changes because the row follows a choice of its group that was made on another row, or one restored from storage, THE tabs SHALL likewise put them on it at once (TAB-38)."
+    },
+    {
+      "id": "TAB-18",
+      "text": "THE tabs SHALL make every tab of a row as tall as the row: at least the container height of the row's size (comp.tabs.container.height.medium for medium, comp.tabs.container.height.small for small), at least comp.tabs.container.height-with-icon where a primary tab stacks an icon above a drawn label, and tall enough that the content of its tallest tab keeps the indicator's padding of that size (comp.tabs.active-indicator.padding-block.medium for medium, comp.tabs.active-indicator.padding-block.small for small) between itself and the active indicator's top and bottom edges (TAB-16); each tab's content SHALL be centred in it and clear of the underline's thickness at the bottom edge. THE tabs SHALL draw each tab's container, which carries hover, focus and press, in the box the active indicator has on that tab while it is selected, or would have if it were (TAB-16), centred in the tab: as tall as the row less comp.tabs.track.padding above and below; WHILE fullWidth is false as wide as the tab's content plus the active indicator's padding of the row's size on each side (TAB-16), and exactly as wide as it is tall WHERE that content is not wider than it is tall; WHILE fullWidth is true as wide as the tab. Its corners SHALL be rounded by comp.tabs.container.shape, each at most half its height, and THE tabs SHALL NOT draw hover, focus or press on the part of the tab's rectangle outside that box. The container SHALL lie above the track and under the active indicator, and the area that answers hover and a press SHALL remain the whole tab (TAB-5): a pointer anywhere on the tab shows the state, in the container. A primary tab of the medium size with an icon and a drawn label SHALL stack the icon above the label, comp.tabs.container.gap apart; a secondary or tonal tab, and a tab of any variant at the small size, SHALL place its icon before its label, comp.tabs.container.gap apart, centred on the label's line. THE tabs SHALL draw the icon at the icon size of the row's size (comp.tabs.icon.size.medium for medium, comp.tabs.icon.size.small for small) through the icon helper with the family and fill of the tab's selection (selected for the selected tab, otherwise unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and the label in comp.tabs.label.typescale.",
+      "verify": "Under the default system a hovered or pressed tab of `primary` shows a capsule 40 tall and as wide as the tab; a tab of `primary-icon-only` and a one-letter tab of `primary-single-characters`, a circle 40 across centred in the tab; a tab of `primary-fill`, a capsule 40 tall and as wide as its share. None of them shows a rectangle. A pointer at a tab's corner, outside the container, still shows the hovered state, in the container. Under `m3-like` (comp.tabs.track.padding nothing, comp.tabs.container.shape square) the container is the whole tab, square, as before this revision, except on a tab whose content is not wider than it is tall in a row that hugs, where it is as wide as the row is tall (mimicry gap `tabs-state-layer-follows-indicator`)."
+    },
+    {
+      "id": "TAB-19",
+      "text": "WHILE a tab's labelHidden is true THE tabs SHALL draw only the tab's icon and keep its label as its accessible name; WHILE labelHidden is true and icon is empty THE tabs SHALL draw the label anyway and in debug builds report the tab."
+    },
+    {
+      "id": "TAB-20",
+      "text": "THE tabs SHALL draw a line of comp.tabs.divider.thickness in comp.tabs.divider.color along the bottom of the whole row, under the tabs, the active indicator and the underline, across the full width of the row even while its tabs scroll, and SHALL hide it from assistive technology. The line is drawn in every system; a transparent color (the default system's) hides it without changing the layout."
+    },
+    {
+      "id": "TAB-21",
+      "text": "WHEN the layout direction is right-to-left THE tabs SHALL order the tabs from the right, start the track and a row of tabs that hug their content at the right edge, truncate a label at the end of the label's own direction (TAB-33: a right-to-left label at its left end, a left-to-right label at its right end), and mirror the slide of the active indicator and the underline; a drag (TAB-28) SHALL still carry them to where the pointer is."
+    },
+    {
+      "id": "TAB-22",
+      "text": "WHILE a tab's label is empty THE tabs SHALL still render the tab and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "TAB-23",
+      "text": "WHEN the colors of a tab change between states or between selected and not selected THE tabs SHALL animate them over comp.tabs.motion.state-duration with comp.tabs.motion.state-easing, and SHALL change them at once where motion is reduced. WHERE a tab becomes selected or stops being selected because the row follows a choice of its group that was made on another row, or one restored from storage, THE tabs SHALL change its colors at once (TAB-38). WHILE the row's transition is none THE tabs SHALL change the colors of a tab that becomes selected or stops being selected at once (TAB-43), and SHALL still animate a change between states."
+    },
+    {
+      "id": "TAB-24",
+      "text": "THE tabs SHALL draw each tab's label and icon a second time, over the first, in the covered colors of the tab's look (comp.tabs.primary.covered-label.color and comp.tabs.primary.covered-icon.color for a primary tab that is not selected, comp.tabs.primary.selected.covered-label.color and comp.tabs.primary.selected.covered-icon.color for the selected one, and the same parts of secondary and of tonal), clipped to the active indicator's current shape, its corners included, wherever the indicator is drawn; WHILE the indicator slides (TAB-17) the clip SHALL move with it in the same frame, so that each label and icon it passes over changes where it is covered and the newly selected tab's content is wholly in its covered colors when the indicator lands, neither before nor after. THE tabs SHALL NOT approximate the covered colors with a blend mode, and SHALL expose each label to assistive technology once.",
+      "verify": "Test the landed state in every fixture (the selected label wholly in its covered color), a frame in the middle of a slide (a label partly in each color), and a frame of a drag held between two tabs (TAB-28), with motion not reduced."
+    },
+    {
+      "id": "TAB-25",
+      "text": "WHILE a tab's label is truncated (TAB-14) THE tabs SHALL keep the whole label as the tab's accessible name and SHALL show the whole label through the platform's idiom for revealing truncated text where it has one — a plain tooltip on pointer hover and keyboard focus, or on long press where tooltips open that way, or the platform's large-content viewer — without exposing it to assistive technology a second time; WHILE the label fits THE tabs SHALL show no such tooltip."
+    },
+    {
+      "id": "TAB-26",
+      "text": "WHILE indicatorOffset is not 0 THE tabs SHALL draw the active indicator and the underline between the selected tab and the next enabled tab (above 0) or the previous enabled tab (below 0) in reading order, each edge at the linear interpolation between its place on the one tab and on the other by the offset's magnitude, clamped to 1, in the selected tab's colors, and SHALL follow the offset in the frame it changes, without a motion of their own; the covered label and icon SHALL follow as TAB-24 says; WHERE there is no enabled tab in the offset's direction THE tabs SHALL draw them on the selected tab. WHEN selected changes while indicatorOffset is not 0 THE tabs SHALL place them at once by the new selected tab and the offset, without the slide of TAB-17. WHILE indicatorOffset is not 0 THE tabs SHALL take no drag of their own (TAB-28): the swipe that sets it already has the indicator.",
+      "verify": "Test offsets 0.5, −0.5 and 1 (halfway, and wholly on the neighbour, a label under the indicator partly in each color), and a frame that sets selected to the next tab and the offset to −0.5 at once (the indicator does not move). The last case is the commit of TBV-4."
+    },
+    {
+      "id": "TAB-27",
+      "text": "THE tabs SHALL draw a track behind the whole row, under the tabs, their containers and the active indicator: filled, WHILE the row's track is on (TAB-49), with comp.tabs.primary.track.color for primary, comp.tabs.secondary.track.color for secondary and comp.tabs.tonal.track.color for tonal, its corners rounded by comp.tabs.track.shape, each at most half its height, with no outline, as tall as the row, and as wide as the tabs plus comp.tabs.track.padding at each end but never wider than the space the row has; WHILE the tabs do not fit that space THE tabs SHALL keep the track still and scroll the tabs inside it, clipped to its shape (TAB-14). THE track SHALL be the same whichever tab is selected, whatever state any tab is in and while the active indicator moves, because tabs are one choice among equals: only the active indicator marks the selection. THE tabs SHALL hide the track from assistive technology. The track is drawn in every system; a transparent color hides it without changing the layout. So does a row whose track is off (TAB-49): it fills nothing and keeps the track's box, inset, corners and clip.",
+      "verify": "Under the default system the track of `primary` and of `primary-second-selected` is pixel for pixel the same outside the indicator, and `primary-disabled` and `primary-selected-disabled` have the same track as `primary`. In `primary-scrollable` the track is 360 wide and the tabs scroll under its rounded ends. Under `m3-like` nothing is drawn."
+    },
+    {
+      "id": "TAB-28",
+      "text": "WHEN the user presses the row with touch, a pen or a mouse and drags past the platform's touch slop (8 points where the platform names none), further sideways than up or down, THE tabs SHALL take the drag: the press SHALL activate no tab when it ends (TAB-1), the tab under it SHALL leave its pressed state as it does when a press ends (TAB-8), and from then until the drag ends THE tabs SHALL draw the active indicator and the underline where the pointer is along the row — on an enabled tab while the pointer is at that tab's centre, halfway between two neighbouring enabled tabs while the pointer is where they meet (the middle of any disabled tabs between them), each edge at the linear interpolation in between, and on the first or last enabled tab while the pointer is before or beyond its centre — in the selected tab's colors. Everything that differs between the indicator on the one tab and on the other SHALL change continuously with the pointer, with no threshold: its place, its width (between the two tabs' indicators, a circle widening into a capsule and a capsule narrowing into a circle), the underline's place and width with it, and the color of each label and icon, which is its covered color exactly where the indicator covers it and its own color elsewhere, the clip of TAB-24 moving with the indicator in the same frame. THE tabs SHALL place them in the frame the pointer moves, without a motion of their own; WHEN the drag is taken with the pointer away from where they rest THE tabs SHALL bring them to the pointer's place over comp.tabs.motion.state-duration with comp.tabs.motion.state-easing instead of at once, following the pointer meanwhile. A drag that is further up or down than sideways when it passes the slop SHALL be left to vertical scrolling for its whole length, and a wheel or a trackpad SHALL only scroll. WHILE the tabs do not fit and scroll inside the track (TAB-14) THE tabs SHALL take only a drag that starts on the selected tab, SHALL leave every other sideways drag to scroll the tabs as before, and SHALL scroll the tabs to keep the active indicator in view while a drag carries it toward an end of the track.",
+      "verify": "Test under the default system and `m3-like` (whose underline follows the pointer the same way): in `primary-fill`, a touch pressed on Overview and held at the place where Overview and Activity meet draws the indicator halfway between them, Activity's label partly in each color, selected still Overview and no change emitted; in `primary-single-characters`, a drag held halfway between M and Custom draws an indicator whose width is halfway between the circle's and Custom's capsule, and no frame shows a jump as the pointer crosses the place where the tabs meet; a frame of a tap's slide (TAB-17) and a drag held at the indicator's place in that frame draw the same thing. A press on Settings dragged 12 to the side brings the indicator to the pointer over the state motion; a drag 12 down is not taken. In `primary-scrollable`, a drag that starts on Deployments scrolls the tabs and one that starts on Overview carries the indicator."
+    },
+    {
+      "id": "TAB-29",
+      "text": "WHEN the user releases a drag the tabs have taken THE tabs SHALL choose one enabled tab: the one the active indicator is nearer to of the two it lies between (the one after it from halfway on), or, WHEN the release is a fling along the row, the one of those two that the fling is toward; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond. WHERE the chosen tab is not the selected one THE tabs SHALL set selected to its value and emit change exactly once with it, and SHALL slide and resize the active indicator and the underline from where the release left them onto that tab over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing, as TAB-17 does from a tab; WHERE it is the selected tab THE tabs SHALL return them to it over the same motion and emit nothing. The place where two tabs meet decides only what a release chooses; nothing drawn changes at it. The chosen tab SHALL become the row's Tab stop (TAB-12), and the release SHALL NOT also activate the tab under the pointer.",
+      "verify": "Test: a drag from Overview released past the place where it meets Activity selects Activity and emits one change; released short of it, the indicator returns and nothing is emitted; a fling toward Activity released short of that place selects Activity, and a fling back toward Overview released past it leaves Overview selected. A drag across a disabled tab never selects it. A listener hears no click-driven second change for the tab the release happens on."
+    },
+    {
+      "id": "TAB-30",
+      "text": "WHEN a drag the tabs have taken is cancelled — the platform cancels the pointer (a system gesture, a lost capture), Escape is pressed while it lasts, or the product sets selected or removes or disables a tab the indicator lies between — THE tabs SHALL return the active indicator and the underline to the selected tab (the one the product has just set, where it set one) over comp.tabs.motion.indicator-duration with comp.tabs.motion.indicator-easing and emit nothing. WHILE a drag lasts THE tabs SHALL NOT change selected, the panel shown (their own, or a Tab view's, whose shown panel cannot change before a tab is chosen), keyboard focus, or the selected state that each tab exposes to assistive technology, whatever the indicator covers, and SHALL announce nothing: the selection is made, and announced, by the release alone (TAB-29). WHERE motion is reduced THE tabs SHALL still draw the active indicator and the underline where the pointer is, which the person's own finger moves, taking the drag without the catch-up motion of TAB-28, and SHALL put them on their tab at once when the drag is released or cancelled.",
+      "verify": "Test: Escape during a drag returns the indicator and emits nothing; an accessibility snapshot taken mid-drag equals the one taken before the press; with motion reduced the indicator is on the chosen tab in the frame after the release."
+    },
+    {
+      "id": "TAB-31",
+      "text": "THE tabs SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the tabs is shown THE tabs SHALL draw itself for the new direction at once, without a motion of its own, keeping the selected tab, scrolled into view as TAB-15 says, and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "TAB-32",
+      "text": "WHERE the layout direction is right-to-left THE tabs SHALL draw a tab's icon, in both of its copies (TAB-24) mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order TAB-21 gives. THE tabs SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name.",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "TAB-33",
+      "text": "THE tabs SHALL lay out a tab's label, in both of its copies (TAB-24) as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE tabs SHALL still place each label and align its lines by the layout direction, not by the text's own, and SHALL cut a label that does not fit (TAB-14) at the end of its own direction, so that a left-to-right label in a right-to-left layout loses its right end and never its beginning."
+    },
+    {
+      "id": "TAB-34",
+      "text": "THE tabs SHALL hold the active indicator the same distance, comp.tabs.track.padding, from the track's top, from its bottom and, on the first and the last tab, from the track's end: at every height the row takes (comp.tabs.container.height.small, comp.tabs.container.height.medium, comp.tabs.container.height-with-icon, or taller with larger text), whether the tabs hug or fill, and whether the indicator is a capsule or a circle; so that wherever the track's corner radius less comp.tabs.track.padding is the indicator's corner radius — at every height while comp.tabs.track.shape and the variant's active-indicator shape are both full, as in the default system — the indicator's end and the track's end are concentric curves. WHERE the first or the last tab is wider than its active indicator (a circle in a tab widened to the minimum target) THE tabs SHALL let that tab reach into the track's inset on that side by half the difference, as far as the track's edge, rather than hold the indicator further in; WHERE half the difference is more than the inset the tab SHALL end at the track's edge in layout and its hit area SHALL extend beyond the track's end as far as the minimum target needs, without affecting layout. A tab's container and its focus ring are drawn in the indicator's box and SHALL lie in the same place; WHILE the tabs scroll inside the track the distance SHALL hold at each end once the row is scrolled to that end. All of this SHALL hold whether the track is drawn or not (TAB-49).",
+      "verify": "Under the default system, in every fixture, a test measures the selected indicator's distance from the track's top and bottom and, with the first tab and then the last tab selected, from the track's end, and requires all of them to be 4 within half a device pixel: rows 48 tall (indicator 40, corner 20, in a track of corner 24), rows 64 tall with stacked icons (`primary-icons`: indicator 56, corner 28, in a track of corner 32), rows that fill (`primary-fill`, `secondary-icons-fill`, `primary-icon-only-fill`), circles (`primary-icon-only`, `primary-single-characters`, `primary-two-icons`: the circle's center is 24 from the end and 24 from the top, the center of the track's half circle), and `primary` again at twice the text size. It hovers and focuses the first and the last tab and measures the container and the focus ring the same way. Under `m3-like`, whose comp.tabs.track.padding is nothing, the first tab starts at the row's edge as before."
+    },
+    {
+      "id": "TAB-35",
+      "text": "WHILE fullWidth is false and every tab of the row draws its icon alone (TAB-19) THE tabs SHALL draw every tab's place — the active indicator on the selected tab, the container of each other tab — as a circle of one diameter, the row's height less comp.tabs.track.padding above and below, with the tab's glyph, the icon size of the row's size across (TAB-18), at its center; SHALL set neighbouring circles' centers one tab's width apart, every tab being as wide as the larger of the circle and the minimum target of TAB-5; SHALL make the track as wide as that leaves it and no wider, the first and the last circle concentric with its ends (TAB-34), so that the row is symmetric about its middle and, but for the thumb's place and the glyphs, the same whichever tab is selected; SHALL keep the active indicator that circle, neither wider nor narrower, in every frame while it slides or is dragged from one tab to another (TAB-17, TAB-28); and SHALL give the tabs hit areas that meet halfway between neighbouring circles and reach the track's top, its bottom and, on the first and the last tab, its end, so that every point of the track selects the tab whose circle is nearest and every hit area meets the minimum target. A row of two such tabs stays a row of tabs: each is exposed as a tab with its label as its name, and activating the selected one changes nothing.",
+      "verify": "`primary-two-icons` under the default system: the track is 48 tall with a corner of 24; each circle is 40 across with a 24 glyph at its center, 8 clear all round. With touch input the track is 96 wide, the circles' centers are 24 and 72 from its start, the circles are 8 apart and each hit area is 48 by 48; with a fine pointer the track is 92 wide, the centers are 24 and 68 from its start, the circles are 4 apart — the 4 that lies between each circle and the track's top, bottom and end — and each hit area is 46 by 48. `primary-two-icons-second-selected` is the first fixture mirrored about the track's middle, but for the glyphs; `secondary-two-icons` has the same geometry in the secondary thumb's color. A test selects the other tab and sees the thumb's width stay 40 in every frame while its center travels 48 (44 with a fine pointer); drags the thumb across and sees the same; hovers and focuses the tab that is not selected and sees a 40 circle concentric with the track's other end; and taps the track's inset at each end and sees the nearer tab selected."
+    },
+    {
+      "id": "TAB-36",
+      "text": "WHILE group is not empty THE tabs SHALL be a member of the group of that name, together with every other row of tabs in the same document or window whose group is the same string, compared exactly, whether the product placed that row or a Tab view drew it (TBV-16); a group SHALL hold one choice, the value of a tab, or none, and SHALL hold none until TAB-37 or TAB-39 gives it one. WHILE its group holds a choice and the tabs has an enabled tab with that value THE tabs SHALL have that tab selected: it SHALL set selected to the value and emit nothing, in the first frame it is drawn, in the frame the choice changes, and in the frame it gains such a tab, has such a tab enabled, or is given the group. WHILE its group holds no choice, or the tabs has no enabled tab with the choice's value, THE tabs SHALL keep its own selected and select as TAB-11 says, SHALL report nothing, and SHALL follow the group again as soon as the choice is the value of one of its enabled tabs. WHILE group is empty THE tabs SHALL share its choice with no other row.",
+      "verify": "Fixtures `shared-choice` (Web, React, SwiftUI, Flutter; Flutter selected) and `shared-choice-lacking` (Web, React; React selected) name the same group, `fixture-platform`. Each is drawn alone for its baseline, where a row in a group that holds no choice looks as it does without a group; no fixture sets rememberAs, so that no baseline depends on what a device has stored. A test stages the two one under the other in one document and selects SwiftUI on the first: the second still shows React, its selected is `react`, and it has emitted nothing. It then selects Web on the first and sees Web selected on the second in the same frame; selects React on the second and sees React on the first; and adds a SwiftUI tab to the second while the choice is `swiftui` and sees it selected at once. A third row with another group name, and one with none, never change. The same test is run with a Tab view's own row as a member (tab-view fixtures `shared-choice` and `shared-choice-lacking`). A harness that draws several fixtures in one document gives each fixture's props before the row is first drawn, so that none of them becomes the group's choice (TAB-37)."
+    },
+    {
+      "id": "TAB-37",
+      "text": "WHEN a person selects a tab on a row that is a member of a group (TAB-1, TAB-12, TAB-29), or the product sets selected on such a row, after the row has first been drawn, to the value of one of its enabled tabs, THE tabs SHALL make that value its group's choice in the same frame, so that every member follows as TAB-36 says. THE row the person selected on SHALL emit change exactly once, as it does without a group, and every other member SHALL emit nothing, so that each choice a person makes is announced once, by the row it was made on, however many rows follow it; a selected set by the product SHALL emit nothing on any member. The selected a row has when it is first drawn SHALL NOT become the group's choice, nor SHALL a selected that names none of the row's tabs or names a disabled one; a drag across a row before its release (TAB-28) and indicatorOffset SHALL NOT be shared, and the other members wait for the selection.",
+      "verify": "Test with three members: a listener on their common ancestor hears exactly one change for a tab tapped on one of them, one for each arrow key that selects a tab, one for a drag released on another tab, and none when the product sets selected, although every member follows in each case. A drag held between two tabs of one member leaves the others as they were."
+    },
+    {
+      "id": "TAB-38",
+      "text": "WHEN a group's choice gives a row another selected tab and that row is neither the one a person selected on nor the one the product set (TAB-37), or the choice is one restored from storage (TAB-39), THE tabs SHALL draw that tab as selected at once: the active indicator and the underline on it without the slide of TAB-17, its colors without the motion of TAB-23, the tab brought into view inside the track at once (TAB-15), and its own panel changed at once (TAB-13). THE tabs SHALL NOT move keyboard focus to that row or within it, SHALL NOT show a hovered, focused or pressed state for the change, SHALL NOT scroll anything outside its own track to bring itself into view, and SHALL announce nothing. THE row a person selected on SHALL answer the press, slide and keep keyboard focus as it does without a group, and a row whose selected the product set SHALL slide as TAB-17 says. Every member SHALL draw the new choice in the same frame: no frame SHALL show one member with the new choice and another member, which has an enabled tab of that value, with the old one. WHERE a member follows a drag of its own when the choice changes THE tabs SHALL cancel that drag as TAB-30 says for a selected the product sets.",
+      "verify": "Test with motion not reduced: in the frame after a tab is selected on one member, the active indicator of every other member is already whole on the new tab and its label wholly in its covered color, while the indicator of the member acted on is part of the way. Keyboard focus is on the tab the person used before and after, and the document's scroll position has changed only as TAB-40 says."
+    },
+    {
+      "id": "TAB-39",
+      "text": "WHILE rememberAs is not empty THE tabs SHALL keep the person's choice on their device: WHEN a person's selection gives the row another selected tab, made on the row itself or, through its group, on another member (TAB-37), THE tabs SHALL store that tab's value, and nothing else, under exactly the key rememberAs in the storage the platform keeps for the product on the device across pages and visits, once for each key however many members name it; a selected set by the product and a choice restored from storage SHALL be stored by no row. WHEN the row is first drawn while a value is stored under its key THE tabs SHALL restore it before that first frame: WHILE the row is a member of a group that holds no choice the stored value SHALL become the group's choice, whether or not this row has a tab with it (a group that already holds a choice keeps it), and WHILE the row has no group the row SHALL select its enabled tab with that value where it has one; no frame SHALL show the row with another tab selected, or another panel, first, and the row SHALL emit nothing. THE tabs SHALL use a stored value only to compare it with its tabs' values, and SHALL NOT draw it, announce it or run it. WHILE rememberAs is empty THE tabs SHALL neither read nor write any storage. IF the storage is missing, blocked or full, or reading or writing it fails, THEN THE tabs SHALL behave as though nothing were stored, keep the choice for as long as the document or window lasts, and raise and report nothing.",
+      "verify": "Test with a storage the test owns: a row with rememberAs `k` and no stored value draws its own selected and reads `k` once; a person's selection writes the tab's value under `k`, exactly that key and that string; a row created afterwards with `k` shows that tab in its first frame (a frame-by-frame recording never shows the first tab) and emits nothing. A stored value that names no tab, a disabled tab, or markup leaves the row as it would be with nothing stored and is drawn nowhere. With a storage that throws on every access the row works and nothing is thrown or logged. A row without rememberAs never touches the storage, in a group or out of one; setting selected from the product writes nothing."
+    },
+    {
+      "id": "TAB-40",
+      "text": "WHEN a person selects a tab on a row that is a member of a group and, in following that choice, other members change the size of what lies before the row in a region that scrolls, THE tabs SHALL keep the row where the person is using it: in the frame that first draws the new choice the row SHALL be at the place in the window that it had in the frame before, the scroll positions of the regions it scrolls in having been moved by exactly the distance the row would otherwise have moved, at once, with no scrolling motion and with no frame in between that shows the row elsewhere; WHERE a region cannot scroll that far THE tabs SHALL move it as far as it goes. THE tabs SHALL make no such correction for a choice the product set or one restored from storage, where no person has a place to keep, and SHALL leave what lies after the row to move as its own panel's and the other members' new heights require.",
+      "verify": "Test: a document holds ten Tab views of one group whose panels differ in height by tab (tab-view fixture `shared-choice`, whose panels differ in height), scrolled so that the eighth is in the middle of the window. A tab selected on the eighth, by pointer and again by an arrow key, leaves the top edge of its row at the same window coordinate, to within one device pixel, in the frame before and in every frame after, while the seven above it have changed height. The same holds inside a scrolling region that is not the document, and with the browser's own scroll anchoring on and off."
+    },
+    {
+      "id": "TAB-41",
+      "text": "WHILE many rows are members of one group (a page of sixty code samples) THE tabs SHALL do the work of a choice once for the group and not once for each row: storage SHALL be read at most once for each key in the life of a document or window and written at most once for each key and choice (TAB-39), the place of the row acted on SHALL be measured and corrected once (TAB-40), and a member that follows SHALL run no motion (TAB-38). WHEN a member is removed THE tabs SHALL take it out of its group, and the group SHALL keep its choice for as long as the document or window lasts, with or without members, so that a row drawn later (a view navigated to without a new document) takes it in its first frame.",
+      "verify": "Test with sixty-two members that name one key: one read of the storage as they appear, one write for a choice, every member changed in the frame after the selection, and no animation running on a member that was not acted on. Remove every member, add a new one with the same group, and see it draw the choice in its first frame."
+    },
+    {
+      "id": "TAB-42",
+      "text": "WHILE the row has no panel — none of its own and none of a Tab view that draws it or is linked to it (TAB-13) — THE tabs SHALL still expose the tab list role named by the row's label, and each tab with the tab role, its selected state, its position and the number of tabs, named by its own label; SHALL associate no tab with any element as the thing it controls and SHALL expose no tab panel; SHALL show and hide nothing itself; and SHALL keep the keyboard model of TAB-12 whole, Tab moving focus from the selected tab to whatever follows the row. A selection SHALL be made, announced and emitted exactly as on a row with panels (TAB-1, TAB-12): the selected state of the tab is what assistive technology is told, and what the choice changes below the row is the product's to draw on change. WHERE a row has a panel for some of its tabs and not for others THE tabs SHALL associate each tab that has one with it (TAB-13) and SHALL show no panel while a tab without one is selected.",
+      "verify": "Test the fixture tonal-small-no-track-no-transition (a row with no panel): the row has the tab list role and the name Contrast, three tabs, one selected, positions 1 to 3 of 3; no tab names an element it controls; no element has the tab panel role. Right Arrow selects Medium, emits change once and moves focus to it; Tab from it lands on the control placed after the row."
+    },
+    {
+      "id": "TAB-43",
+      "text": "THE tabs SHALL draw a new selection as the row's transition names: the name transition gives, or, WHILE transition is auto, the name comp.tabs.motion.transition holds (slide or none); WHEN transition names a value the tabs do not define THE tabs SHALL treat it as auto and in debug builds report it. WHILE the row's transition is slide, TAB-15, TAB-17, TAB-23 and TAB-28 to TAB-30 hold as written. WHILE it is none THE tabs SHALL draw a new selection whole in the frame it is made, whatever made it — a press, a key, the release of a drag, the product, or the row's group: the active indicator and the underline on the newly selected tab at their full size and gone from the tab that was selected, each of the two tabs' labels and icons in the colors of its new look, and the tab brought into view inside the track (TAB-15), with no slide, no resize, no fade and no frame that shows a look in between. THE tabs SHALL still take a drag across the row (TAB-28) and still draw the active indicator where indicatorOffset puts it (TAB-26), each in the frame the pointer or the offset moves, since the person's own finger moves it and no motion is the component's; they SHALL take the drag without the catch-up motion of TAB-28 and SHALL put the active indicator and the underline on their tab at once when the drag is released or cancelled (TAB-29, TAB-30), as TAB-30 says where motion is reduced. A tab's hover, focus and press SHALL be answered as under slide: the state's colors over comp.tabs.motion.state-duration (TAB-23), the press as sys.behavior.pressed-feedback names and held for sys.motion.duration.press-hold (TAB-8, TAB-9), the focus indicator without animation (TAB-4); WHERE the newly selected tab is still hovered, focused or pressed it SHALL be drawn in that state of the selected look. WHERE motion is reduced THE tabs SHALL draw a new selection as none does whatever transition names. Changing transition SHALL NOT change the selected tab, keyboard focus or what the row emits, and a slide that is running when the row's transition becomes none SHALL end on its tab at once.",
+      "verify": "Test the fixture tonal-no-transition: press Activity and read the first frame after the press — the indicator is on Activity at its full size, Overview has none, and both labels are in their final colors; no transition or animation runs on the indicator, the cover or the labels' colors. Hover a tab that is not selected: its state layer fades in over the state duration. Drag from Overview toward Settings: the indicator is under the pointer in every frame, and on release it is on its tab in the next frame. Test primary-slide under a system that sets comp.tabs.motion.transition to none: it slides. Test primary under that system: it does not."
+    },
+    {
+      "id": "TAB-44",
+      "text": "THE tabs SHALL draw the row at its size: every tab at least the container height of that size tall (comp.tabs.container.height.medium for medium, comp.tabs.container.height.small for small), with the tab padding (comp.tabs.container.padding-inline.medium for medium, comp.tabs.container.padding-inline.small for small), the active indicator's margins (comp.tabs.active-indicator.padding-inline.medium for medium, comp.tabs.active-indicator.padding-inline.small for small; comp.tabs.active-indicator.padding-block.medium for medium, comp.tabs.active-indicator.padding-block.small for small) and the icon size (comp.tabs.icon.size.medium for medium, comp.tabs.icon.size.small for small) of that size. Everything else SHALL be the same at every size: the label's text style (comp.tabs.label.typescale), the gap, the track's inset and corners (comp.tabs.track.padding, comp.tabs.track.shape), every color and every motion, what assistive technology is told and the keyboard model. The heights are minimums (TAB-18): with larger text a small row grows as a medium one does, cuts nothing, and scrolls its tabs inside the track rather than the page (TAB-14). WHILE size is small THE tabs SHALL place a tab's icon before its label in every variant (TAB-18) and SHALL meet the minimum target by its hit area (TAB-5). Size, variant, track and transition are independent: each variant SHALL be drawn at each size, and changing size SHALL NOT change the selected tab, keyboard focus or what is scrolled into view.",
+      "verify": "Test the fixtures primary-small and tonal-small-no-track: the row is 32 tall and the active indicator 24; primary and tonal-no-track are 48 and 40. Test tonal-small-no-track-long-labels at 200 % text in a stage 320 wide: every label is whole, the row has grown taller, its tabs scroll inside it, and the stage does not scroll sideways. Test primary-small-icons: the icon stands before the label and the row is 32 tall."
+    },
+    {
+      "id": "TAB-45",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE tabs SHALL draw the active indicator as a filled, opaque shape in the platform's highlight color with the selected tab's label and icon in its highlighted-text color, every other tab's label and icon in its text color, a disabled tab's in its color for disabled text and a disabled selected tab's indicator in that same color, the underline in the highlight color and the divider in the text color, and the focus indicator in the platform's own colors, in every variant alike and with or without the track. THE tabs SHALL NOT rely on the track, on a state layer, on a translucent fill or on a difference between two of the system's own colors to say which tab is selected there: the filled indicator SHALL remain, so that a tonal row without a track, whose indicator is a faint layer in the system's own colors, shows its selection as plainly as a primary one.",
+      "verify": "On the web, with forced colors emulated: in the fixtures primary, secondary, tonal, tonal-small-no-track and tonal-no-track-disabled the selected tab is a Highlight shape with HighlightText content, the others CanvasText, the disabled tab GrayText; a focused tab shows a ring."
+    },
+    {
+      "id": "TAB-49",
+      "text": "THE tabs SHALL fill the track (TAB-27) while the row's track is on and SHALL fill nothing behind the row while it is off: on or off as track says while it is true or false, and, WHILE track is null, as comp.tabs.track.visible holds (on in the default system). WHILE the track is off the surface the row is placed on SHALL show between and around the tabs, and THE tabs SHALL change nothing else: the row's size, the inset the track has (comp.tabs.track.padding) above, below and at each end, the place and size of every tab, container, active indicator, underline and focus indicator (TAB-4, TAB-34), the corners that clip a row that scrolls (comp.tabs.track.shape, TAB-14), the hit areas, and every color of the row's variant, so that turning the track on or off moves nothing and two rows that differ only in it line up. THE tabs SHALL draw every part in its own color over whatever lies beneath it — the track, or with no track whatever is behind the row — and SHALL NOT assume a surface: a color that is translucent (a state layer, the default system's tonal active indicator) is laid over what is there. The track is decoration, drawn or not, and nothing a person is told changes with it. Track, variant, size and transition are independent: each variant SHALL be drawn with and without its track at each size, and changing track SHALL be drawn at once, without a motion of its own, and SHALL NOT change the selected tab, keyboard focus, what is scrolled into view or what the row emits.",
+      "verify": "Test the pairs primary and primary-no-track, secondary and secondary-no-track, tonal and tonal-no-track, and the same three at the small size: in each pair every tab, the active indicator and the row have the same boxes, and only the fill behind the row differs. Test tonal-no-track on a stage whose background is sys.color.surface-container: the indicator is the same layer over that background, not a color computed against sys.color.surface. Test tonal-track-on under a system that sets comp.tabs.track.visible to off: the track is drawn; tonal under that system has none."
+    },
+    {
+      "id": "TAB-50",
+      "text": "THE tabs SHALL draw the three variants alike in everything but their tokens: the same parts in the same places, the same sizes, the same keyboard model, and the same roles, names and states told to assistive technology; a variant says how much the selection weighs, not what the row is. Each variant SHALL read its own parts (comp.tabs.primary.selected.active-indicator.color, comp.tabs.secondary.selected.active-indicator.color, comp.tabs.tonal.selected.active-indicator.color, and so on for every part TAB-3, TAB-6, TAB-11 and TAB-24 name). WHERE an active indicator's color is translucent — the default system's tonal indicator is a layer of the selected tab's content color — THE tabs SHALL draw it once, at that opacity, over the track or the surface beneath it, with the tab's state layer (TAB-18) beneath it showing through; SHALL NOT let two drawings of it overlap and darken while it slides, resizes or is dragged; and SHALL draw the covered label and icon (TAB-24) over it at their own opacity. A tonal tab's label and icon are comp.tabs.tonal.label.color and comp.tabs.tonal.icon.color where the indicator does not cover them and comp.tabs.tonal.selected.covered-label.color and comp.tabs.tonal.selected.covered-icon.color on the selected tab once the indicator has landed, so that in the default system a tonal row tells its selection by the layer and by the darker label together; and a tonal tab with an icon and a drawn label SHALL place the icon before the label at every size (TAB-18).",
+      "verify": "Test the fixtures tonal and tonal-no-track in the default system: the selected tab's indicator is comp.tabs.tonal.selected.state-layer.color at 16 % over what is beneath it, its label is sys.color.on-secondary-container and the other labels sys.color.on-surface-variant; hover the selected tab: the hover layer shows through the indicator. Press Settings and sample the indicator in the middle of the slide: its opacity is the same as at rest. The roles, names and states of primary, secondary and tonal are the same."
+    }
+  ],
+  "accessibility": {
+    "role": "tablist",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the selected tab, and from it into its panel or, where the row has no panel, to whatever follows the row."
+      },
+      {
+        "keys": "Right Arrow / Left Arrow",
+        "action": "Moves focus to the next or previous enabled tab, wrapping, and selects it (mirrored in right-to-left layouts)."
+      },
+      {
+        "keys": "Home / End",
+        "action": "Moves focus to the first or last enabled tab and selects it."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Selects the focused tab (needed only after the product has moved focus without selecting)."
+      },
+      {
+        "keys": "Escape (during a drag)",
+        "action": "Cancels a drag that a pointer has in progress; the indicator returns to the selected tab and nothing is selected."
+      }
+    ],
+    "labeling": "Each tab is named by its label, drawn or not (labelHidden), and whole even when it is drawn truncated. The row is named by its own label. The selected tab's panel is named by its tab; a row with no panel names nothing but itself and its tabs. Icons, the covered copies of labels and icons, the track, the indicator, the underline and the divider are decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "Activation is automatic: moving focus with the arrow keys selects the tab, as the WAI-ARIA tabs pattern recommends when a panel shows without a noticeable delay. A product whose panels load slowly shows a loading state in the panel; a manual mode (focus first, Enter to select) can be added later as a new prop without breaking this spec.",
+      "Tabs and the switch share one model: a thumb on a track that slides to what is chosen and follows a finger. A switch has two states, and its track, outline and handle differ between them; tabs have two or more equal choices, so their track never changes and the active indicator alone moves.",
+      "The drag is never the only way (WCAG 2.5.7): every tab is selected by a single tap or click on it, and by the arrow keys. With a screen reader running, a one-finger drag belongs to the reader; tabs are then selected by the reader's activation, as before.",
+      "A drag changes what is drawn, continuously (the indicator's place and width, and the labels' colors under it), and nothing that assistive technology is told: no tab is exposed as selected on the way, no panel changes, and no change is emitted for the tabs the indicator passes (TAB-30). There is no threshold in the look; the place where two tabs meet decides only what a release chooses.",
+      "Selection is the row's: selected holds the selected tab's value, and change carries the new one. A tab's disabled is its own.",
+      "Web: `tanrei-tab-panel` elements are matched to tabs by their `value` attribute, whether they are the row's children or a linked `tanrei-tab-view`'s, and get role tabpanel, aria-labelledby and the tab's aria-controls. SwiftUI, Compose, Flutter and React Native have no tab panel role; there the selected panel follows the row in reading order, and each README says so.",
+      "Tabs switch views of one subject. Moving between destinations of an app belongs to the navigation bar or drawer.",
+      "A Tab view (`tab-view`) draws its own row of tabs from its panels by default, or is linked to a row placed elsewhere; either way it holds the panels. The link is by value: the Tab view shows the panel of `selected`, follows the tabs when a tab is selected, and sets `selected` on both and emits its own change when the user swipes it (TBV-2, TBV-4). While a swipe is in progress it sets `indicatorOffset`, which places the active indicator and the underline between two tabs (TAB-26); TAB-24 makes the covered colors follow the indicator wherever it is drawn. A drag across the row and a swipe of the view are one gesture in two places: the indicator follows the finger, the selection is made on release (from halfway, or by a fling), a cancelled gesture returns it, and nothing is announced before the release. They differ in reach: a swipe moves one panel, and the panels travel with it; a drag across the row can pass several tabs, and the panels wait for the release, then switch as for a selected tab (TBV-2). A row without a Tab view shows its own panels (TAB-13).",
+      "Text size never hides a label: a tab that hugs its content grows wider and the row scrolls; a tab that shares the row's width truncates its label, which stays the tab's accessible name and is shown whole where the platform can (TAB-25). A product whose labels are long, translated, written by users, or read at large text sizes keeps the default hug.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "A shared choice (group) is one decision shown in many places: a person who picks a platform, a language or a unit once should not be asked again by every sample on the page. The rows that follow change silently and at once (TAB-38): nothing is announced, focus stays on the tab the person used, and each row tells assistive technology its selected tab when the person reaches it. A change of content elsewhere on the page is not a change of context (WCAG 3.2.2), but it should not surprise: rows of one group carry the same labels for the same values (WCAG 3.2.4), and a product whose rows are far apart says near the first one that the choice applies to the whole page.",
+      "Tabs of different rows are matched by value, never by label, so a choice survives a translated label, an icon-only tab and a change of wording, and a remembered choice still holds after the person changes language.",
+      "Remembering (rememberAs) is off unless the product names a key, and what is kept is one short string the product itself wrote as a tab's value: no text a person typed, no identifier, nothing sent anywhere by the component. Whether keeping a preference on the device needs the person's consent where the product is used is the product's to decide, which is why there is no default key and no remembering by default. A person who blocks storage loses nothing but the memory (TAB-39).",
+      "The page does not move under the person (TAB-40): a row whose choice changes the height of samples above it stays under the pointer and under keyboard focus, which is what WCAG 2.4.3 and 3.2.2 ask of a control that changes content elsewhere, and what keeps a person using magnification from losing their place.",
+      "A row without panels (TAB-42) is still tabs when the choice changes what is shown below the row: Day, Week and Month over a calendar; Standard, Medium and High over the examples of a page; a unit over a table. It is announced as a tab list whose tabs control nothing, so the row's label is what tells a person what they are choosing, and the product draws the result after the row in reading order where it can, so that a person who has chosen finds it by reading on; where the choice reaches the whole page, the label or the words beside the row say so. A choice that sets a value sent with a form, or that changes nothing a person can see, is not tabs: it is radio buttons.",
+      "Variant, track, size and transition say how the row looks and moves, never what it is: every combination is a tab list with one keyboard model (TAB-49, TAB-50). Primary is the row of a screen's main views, secondary a row inside one of them, tonal the quiet row — in the heading of a sample, in a header, in a toolbar — where the choice should not draw the eye from what it changes.",
+      "The selected tab is told to assistive technology as a state, and to sight by the indicator and by its label. A tonal row's indicator is a quiet mark on purpose: in the default system a layer about 1.4:1 from what it lies on, the same step on the track and on any surface, with the selected label darker than the others. It is not held to 3:1 against its ground, as the selected destination of a navigation drawer is not. A person who needs more has the system's medium and high contrast and the platform's forced colors, where the indicator is a filled highlight (TAB-45); a product that cannot accept the quiet mark uses secondary or primary, which are filled.",
+      "Without its track (TAB-49) a row has no ground of its own: its labels are held on every surface role of the system, and a product that places a row on a color of its own checks the labels against it, as it does for text.",
+      "A small row (TAB-44) is 32 tall and still pressed over the minimum target (TAB-5, WCAG 2.5.8): its hit area reaches above and below it, which a header or a toolbar has room for. Directly over content that answers a press at its top edge, that content wins the overlap; a product that stacks a small row tight against such content uses the medium size.",
+      "transition none (TAB-43) takes away the motion the row plays by itself when the selection changes, in every motion setting; it takes away no way of selecting, and a drag across the row still carries the indicator under the finger. Where motion is reduced every row is drawn that way, and the state colors then change at once too (TAB-23), a ripple appearing whole (TAB-9)."
+    ]
+  },
+  "tokens": "comp.tabs",
+  "fixtures": [
+    {
+      "id": "primary",
+      "props": {
+        "variant": "primary",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary",
+      "props": {
+        "variant": "secondary",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-fill",
+      "props": {
+        "variant": "primary",
+        "fullWidth": true,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-fill",
+      "props": {
+        "variant": "secondary",
+        "fullWidth": true,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-fill-truncated",
+      "props": {
+        "variant": "primary",
+        "fullWidth": true,
+        "selected": "notifications",
+        "label": "Account"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "profile",
+            "label": "Profile"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Recent activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notification settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-icons",
+      "props": {
+        "variant": "primary",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-icons",
+      "props": {
+        "variant": "secondary",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-icons-fill",
+      "props": {
+        "variant": "secondary",
+        "fullWidth": true,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-icon-only",
+      "props": {
+        "variant": "primary",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-icon-only-fill",
+      "props": {
+        "variant": "primary",
+        "fullWidth": true,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-single-characters",
+      "props": {
+        "variant": "primary",
+        "selected": "m",
+        "label": "Size"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "s",
+            "label": "S"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "m",
+            "label": "M"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "l",
+            "label": "L"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "custom",
+            "label": "Custom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-second-selected",
+      "props": {
+        "variant": "primary",
+        "selected": "activity"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-scrollable",
+      "props": {
+        "variant": "primary",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "deployments",
+            "label": "Deployments"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "analytics",
+            "label": "Analytics"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "logs",
+            "label": "Logs"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "storage",
+            "label": "Storage"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-scrollable",
+      "props": {
+        "variant": "secondary",
+        "selected": "analytics"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "deployments",
+            "label": "Deployments"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "analytics",
+            "label": "Analytics"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "logs",
+            "label": "Logs"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "storage",
+            "label": "Storage"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-disabled",
+      "props": {
+        "variant": "primary",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-disabled",
+      "props": {
+        "variant": "secondary",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-selected-disabled",
+      "props": {
+        "variant": "primary",
+        "selected": "billing"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-two-icons",
+      "props": {
+        "variant": "primary",
+        "selected": "light",
+        "label": "Theme"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "light",
+            "label": "Light",
+            "icon": "light_mode",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "dark",
+            "label": "Dark",
+            "icon": "dark_mode",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-two-icons-second-selected",
+      "props": {
+        "variant": "primary",
+        "selected": "dark",
+        "label": "Theme"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "light",
+            "label": "Light",
+            "icon": "light_mode",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "dark",
+            "label": "Dark",
+            "icon": "dark_mode",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-two-icons",
+      "props": {
+        "variant": "secondary",
+        "selected": "light",
+        "label": "Theme"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "light",
+            "label": "Light",
+            "icon": "light_mode",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "dark",
+            "label": "Dark",
+            "icon": "dark_mode",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "shared-choice",
+      "props": {
+        "variant": "primary",
+        "selected": "flutter",
+        "label": "Platform",
+        "group": "fixture-platform"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "web",
+            "label": "Web"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "react",
+            "label": "React"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "swiftui",
+            "label": "SwiftUI"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "flutter",
+            "label": "Flutter"
+          }
+        }
+      ]
+    },
+    {
+      "id": "shared-choice-lacking",
+      "props": {
+        "variant": "primary",
+        "selected": "react",
+        "label": "Platform",
+        "group": "fixture-platform"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "web",
+            "label": "Web"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "react",
+            "label": "React"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal",
+      "props": {
+        "variant": "tonal",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-no-track",
+      "props": {
+        "variant": "primary",
+        "track": false,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-no-track",
+      "props": {
+        "variant": "secondary",
+        "track": false,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-small",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-small",
+      "props": {
+        "variant": "secondary",
+        "size": "small",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-small",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-small-no-track",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "track": false,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-small-no-track",
+      "props": {
+        "variant": "secondary",
+        "size": "small",
+        "track": false,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-small-no-track",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-track-on",
+      "props": {
+        "variant": "tonal",
+        "track": true,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-fill",
+      "props": {
+        "variant": "tonal",
+        "fullWidth": true,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track-fill",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "fullWidth": true,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-small-fill",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "fullWidth": true,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-small-no-track-fill",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "fullWidth": true,
+        "selected": "standard",
+        "label": "Contrast"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "standard",
+            "label": "Standard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "medium",
+            "label": "Medium"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "high",
+            "label": "High"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-small-no-track-fill-truncated",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "fullWidth": true,
+        "selected": "notifications",
+        "label": "Account"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "profile",
+            "label": "Profile"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Recent activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notification settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-second-selected",
+      "props": {
+        "variant": "tonal",
+        "selected": "activity",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track-second-selected",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "selected": "activity",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-icons",
+      "props": {
+        "variant": "tonal",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track-icons",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-small-icons",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-small-icons",
+      "props": {
+        "variant": "secondary",
+        "size": "small",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-small-no-track-icons",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-icon-only",
+      "props": {
+        "variant": "tonal",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track-icon-only",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-no-track-icon-only",
+      "props": {
+        "variant": "primary",
+        "track": false,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-small-icon-only",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-small-no-track-icon-only",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-small-single-characters",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "selected": "m",
+        "label": "Size"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "s",
+            "label": "S"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "m",
+            "label": "M"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "l",
+            "label": "L"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "custom",
+            "label": "Custom"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-disabled",
+      "props": {
+        "variant": "tonal",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-selected-disabled",
+      "props": {
+        "variant": "tonal",
+        "selected": "billing"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track-disabled",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track-selected-disabled",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "selected": "billing"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-no-track-disabled",
+      "props": {
+        "variant": "primary",
+        "track": false,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "secondary-no-track-selected-disabled",
+      "props": {
+        "variant": "secondary",
+        "track": false,
+        "selected": "billing"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-small-disabled",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-small-no-track-disabled",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "selected": "overview"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-long-labels",
+      "props": {
+        "variant": "primary",
+        "selected": "notifications",
+        "label": "Account"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "profile",
+            "label": "Profile and sign-in"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notification settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing and invoices"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "members",
+            "label": "Members and permissions"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "integrations",
+            "label": "Connected services"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-long-labels",
+      "props": {
+        "variant": "tonal",
+        "selected": "notifications",
+        "label": "Account"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "profile",
+            "label": "Profile and sign-in"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notification settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing and invoices"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "members",
+            "label": "Members and permissions"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "integrations",
+            "label": "Connected services"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track-long-labels",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "selected": "notifications",
+        "label": "Account"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "profile",
+            "label": "Profile and sign-in"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notification settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing and invoices"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "members",
+            "label": "Members and permissions"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "integrations",
+            "label": "Connected services"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-small-long-labels",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "selected": "notifications",
+        "label": "Account"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "profile",
+            "label": "Profile and sign-in"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notification settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing and invoices"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "members",
+            "label": "Members and permissions"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "integrations",
+            "label": "Connected services"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-small-no-track-long-labels",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "selected": "notifications",
+        "label": "Account"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "profile",
+            "label": "Profile and sign-in"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notification settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing and invoices"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "members",
+            "label": "Members and permissions"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "integrations",
+            "label": "Connected services"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-rtl",
+      "props": {
+        "variant": "primary",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "secondary-rtl",
+      "props": {
+        "variant": "secondary",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "tonal-rtl",
+      "props": {
+        "variant": "tonal",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "tonal-no-track-rtl",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "primary-small-rtl",
+      "props": {
+        "variant": "primary",
+        "size": "small",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "tonal-small-no-track-rtl",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "selected": "standard",
+        "label": "التباين"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "standard",
+            "label": "قياسي"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "medium",
+            "label": "متوسط"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "high",
+            "label": "عالٍ"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "tonal-small-no-track-icons-rtl",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "selected": "activity"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "tonal-small-no-track-long-labels-rtl",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "selected": "notifications",
+        "label": "Account"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "profile",
+            "label": "Profile and sign-in"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "notifications",
+            "label": "Notification settings"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "billing",
+            "label": "Billing and invoices"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "members",
+            "label": "Members and permissions"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "integrations",
+            "label": "Connected services"
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "primary-no-transition",
+      "props": {
+        "variant": "primary",
+        "transition": "none",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-transition",
+      "props": {
+        "variant": "tonal",
+        "transition": "none",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "primary-slide",
+      "props": {
+        "variant": "primary",
+        "transition": "slide",
+        "selected": "overview",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-small-no-track-no-transition",
+      "props": {
+        "variant": "tonal",
+        "size": "small",
+        "track": false,
+        "transition": "none",
+        "selected": "standard",
+        "label": "Contrast"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "standard",
+            "label": "Standard"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "medium",
+            "label": "Medium"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "high",
+            "label": "High"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track-no-transition",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "transition": "none",
+        "selected": "web",
+        "label": "Platform"
+      },
+      "items": [
+        {
+          "kind": "tab",
+          "props": {
+            "value": "web",
+            "label": "Web"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "react",
+            "label": "React"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "swiftui",
+            "label": "SwiftUI"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "compose",
+            "label": "Compose"
+          }
+        },
+        {
+          "kind": "tab",
+          "props": {
+            "value": "flutter",
+            "label": "Flutter"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-tabs",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "track": "track",
+        "fullWidth": "fullWidth",
+        "selected": "value",
+        "indicatorOffset": "indicatorOffset",
+        "transition": "transition",
+        "label": "label",
+        "group": "group",
+        "rememberAs": "rememberAs"
+      },
+      "events": {
+        "change": "change"
+      },
+      "items": {
+        "tab": {
+          "name": "tanrei-tab",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "disabled"
+          },
+          "notes": "A child element: `<tanrei-tab value=\"overview\" label=\"Overview\" icon=\"dashboard\">`, with `label-hidden` and `disabled` attributes, as `<option>` in a `<select>`."
+        }
+      },
+      "notes": "`tanrei-tabs` (variant, full-width, value, label) holds `tanrei-tab` children and, after them, `tanrei-tab-panel` children matched to tabs by their `value` attribute, or is drawn by a `tanrei-tab-view` as its own row, or is named by a linked `tanrei-tab-view` (`tabs=\"<id>\"`) whose `tanrei-tab-panel` children take their place. `indicatorOffset` is a property only, with no attribute: the Tab view writes it in every frame of a drag. The row's selected is its `value`, as a `<select>`'s. It sets role tablist, tab and tabpanel, aria-selected, aria-controls and aria-labelledby, hides the panels that are not selected, and gives a panel with no focusable content tabindex 0. It sets its own `value` before firing `change`, as a native control does. The covered copy of a label and icon (TAB-24) is an `aria-hidden` layer clipped with `clip-path` to the indicator's box, animated with it; a truncated label (`text-overflow: ellipsis`) shows the whole label in a plain tooltip (TAB-25) without `aria-describedby`, since it is already the name. The track is the row's own background, and the tabs scroll inside it. A drag (TAB-28 to TAB-30) is followed with Pointer Events: `pointerdown` on the row, `setPointerCapture` once the drag is taken, `pointermove` placing the indicator, `pointerup` choosing the tab, and `pointercancel`, `lostpointercapture` or Escape cancelling; the `click` that follows a taken drag is swallowed, and `aria-selected` is written only on the release. The in-between look needs no second mechanism: the indicator's inset and width are the same custom properties a slide transitions, written in each frame of a drag, and the covered copy's `clip-path` follows them, so a drag and a slide draw the same frames. `touch-action: pan-y` on a row that does not scroll (and on the selected tab of one that does) leaves sideways drags to the row and vertical ones to the page. A shared choice: `group` and `remember-as` are attributes with the properties `group` and `rememberAs`. A group is the `tanrei-tabs` of one document that name it, those inside shadow trees and those a `tanrei-tab-view` drew included; an iframe is another document. The members and the choice are kept by the module, in a map from the name, and never in the DOM. `remember-as` is a key of the origin's `localStorage`, read synchronously before the row's first render and at most once for each key, every access inside `try`, so a browser that blocks storage or throws on it costs nothing but the memory; a key is the product's to namespace, since `localStorage` is shared by everything on the origin. A member that follows is written (`value`, `aria-selected`, its panels' `hidden`) with its slide and its color transition off for that frame. For TAB-40 the row acted on reads its `getBoundingClientRect().top` before the group is written and once more after, and moves `scrollTop` of its nearest scrolling ancestor (the document's scrolling element where none is nearer) by the difference with `behavior: 'instant'`; a browser that anchors scrolling itself has by then moved some or all of the way, and the row corrects only what is left, so the two never add up. `change` bubbles, so one listener on the document hears each choice once and reads the group from `event.target.group`. The first frame of TAB-39 is the first the element draws: before `tanrei-tabs` is defined the element draws nothing of its own, and a product that shows server-rendered rows before then guards that as it guards any element not yet defined. The value `tonal` of `variant`; `size` is an attribute and a property (`small`, `medium`); both axes are open registries (`TanreiTabsVariantRegistry`, `TanreiTabsSizeRegistry` in `registry.ts`, in the Button's form), and each size's five tokens are read through the same private custom properties, set by a block per size as a variant's are. A small row's tab keeps its 32-high box and carries the hit area of TAB-5 as an inset pseudo-element that reaches above and below it, under any interactive content it overlaps; the row itself is not made taller. `track` is a property that is true, false or null: the attribute is absent for null, present for true and `=\"false\"` for false, as the tooltip's `arrow` is; null reads `--tanrei-comp-tabs-track-visible` from the cascade by a style query, as a separation is read, and off sets the track's fill to none and nothing else. `transition` is an attribute and a property (`auto`, `slide`, `none`); auto reads `--tanrei-comp-tabs-motion-transition`, in the stylesheet by a style query and once in the script for the scroll and the settle after a drag; under none the indicator's and the cover's transitions and the selected look's color transition are off, `scrollIntoView` uses `behavior: 'instant'`, and the drag is taken as it is under `prefers-reduced-motion`. The tonal indicator is one element with a translucent background, so its slide and resize never overlap two drawings of it (TAB-50). A row without panels (TAB-42) writes no `aria-controls` and is what the element already is when it has no `tanrei-tab-panel`."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiTabs",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "track": "track",
+        "fullWidth": "fullWidth",
+        "selected": "selection",
+        "indicatorOffset": "link",
+        "transition": "transition",
+        "label": "label",
+        "group": "selection",
+        "rememberAs": "selection"
+      },
+      "events": {
+        "change": "selection"
+      },
+      "items": {
+        "tab": {
+          "name": "TanreiTab",
+          "props": {
+            "value": "tag",
+            "label": "title",
+            "icon": "icon",
+            "labelHidden": "labelStyle",
+            "disabled": "disabled"
+          },
+          "notes": "`TanreiTab(_ title:, icon:) { panel }.tag(value)` in the row's view builder, as `TabView`'s tagged tabs; `.labelStyle(.iconOnly)` is labelHidden; `disabled` follows `.disabled(_:)`."
+        }
+      },
+      "notes": "`TanreiTabs(selection: Binding<V>, variant:, fullWidth:) { TanreiTab … }`: each tab carries its panel, and only the selected one is shown. The binding holds the selected tab's tag; writing it is change. `label` sets the row's `accessibilityLabel`. A truncated label (`.lineLimit(1)`, `.truncationMode(.tail)`) is shown whole by the large-content viewer and by `.help` on macOS (TAB-25). SwiftUI's `TabView` is an app's tab bar (a navigation bar), not this component. Until it catches up it ships `scrollable:` instead of `fullWidth:`, a line indicator and wrapping fixed labels. `link` is the shared `TanreiTabLink` a linked Tab view is passed too: the tabs read the indicator offset (TAB-26) from it and report their order and disabled tabs to the Tab view through it; without a Tab view it is omitted and the offset is 0. The drag is a `DragGesture(minimumDistance:)` on the row, `simultaneousGesture` with the tabs' taps, its `onChanged` placing the indicator and its `onEnded` reading `predictedEndTranslation` for the fling; the binding is written only in `onEnded`. Until it catches up it also draws no track and follows no drag. A shared choice has no parameter here: rows given the same `Binding` show the same choice, which is the group (TAB-36), and SwiftUI redraws them in one frame. The product keeps a row that lacks a value on a binding of its own, since a selection that names none of a row's tabs selects none (TAB-11), and remembers by backing the binding with `@AppStorage` (or `@SceneStorage`), which is restored before the first frame. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a selected the product sets, since the row cannot tell following from being set; the README says so, and says that a `ScrollView` does not hold a row in place when content above it changes height. Not built on this platform yet: `variant: .tonal`; `size: TanreiTabsSize` (`.small`, `.medium`); `track: Bool?` (nil reads the generated choice `trackVisible`); `transition: TanreiTabsTransition` (`.auto`, `.slide`, `.none`; `.auto` reads the generated choice), under `.none` the selection is set without `withAnimation` and the `DragGesture` stays. The hit area of a small row is `.contentShape` on a frame of the minimum target."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiTabs",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "track": "track",
+        "fullWidth": "fullWidth",
+        "selected": "selectedValue",
+        "indicatorOffset": "link",
+        "transition": "transition",
+        "label": "contentDescription",
+        "group": "selectedValue",
+        "rememberAs": "selectedValue"
+      },
+      "events": {
+        "change": "onSelectedValueChange"
+      },
+      "items": {
+        "tab": {
+          "name": "TanreiTab",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiTab(value, label, icon, labelHidden, enabled)` called in the `TanreiTabs { }` content lambda. `enabled` is the inverse flag."
+        }
+      },
+      "notes": "`TanreiTabs(selectedValue, onSelectedValueChange, variant, fullWidth, contentDescription) { TanreiTab(…) }`, one composable for rows that hug and rows that fill (Material's `PrimaryTabRow`, `SecondaryTabRow` and `ScrollableTabRow` in one). State hoisting: the caller keeps `selectedValue` and moves it from `onSelectedValueChange`. A truncated label (`maxLines = 1`, `TextOverflow.Ellipsis`) is shown whole in a plain tooltip on long press and hover (TAB-25). Compose has no tab panel role: the product shows the selected tab's content below the row. Until it catches up it ships `scrollable` instead of `fullWidth`, a line indicator and wrapping fixed labels. `link` is the shared `rememberTanreiTabLink()` a linked Tab view is passed too: the tabs read the indicator offset (TAB-26) from it and report their order and disabled tabs to the Tab view through it; without a Tab view it is omitted and the offset is 0. The drag is `Modifier.pointerInput` with `detectHorizontalDragGestures` (or `draggable` with a `DraggableState`) on the row, a `VelocityTracker` giving the fling; `onSelectedValueChange` is called only when the drag ends. Until it catches up it also draws no track and follows no drag. A shared choice has no parameter here: rows given the same hoisted `selectedValue` show the same choice, which is the group (TAB-36), and recompose in one frame. The caller gives a row that lacks a value a state of its own, since a selection that names none of a row's tabs selects none (TAB-11), and remembers by keeping the state in DataStore or `SharedPreferences`, read before the first composition. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a selected the product sets, since the row cannot tell following from being set; the README says so, and says that a `LazyColumn` keeps its first visible item in place when items above change height while a scrolling `Column` does not. Not built on this platform yet: `TanreiTabsVariant.Tonal`; `size: TanreiTabsSize` (`Small`, `Medium`); `track: Boolean? = null` (null reads the generated choice `trackVisible`); `transition: TanreiTabsTransition` (`Auto`, `Slide`, `None`), under `None` the indicator is placed with `snapTo` in place of `animateTo` and the drag is still detected. The hit area of a small row is `Modifier.minimumInteractiveComponentSize()` outside the drawn box."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiTabBar",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "track": "track",
+        "fullWidth": "isScrollable",
+        "selected": "value",
+        "indicatorOffset": "link",
+        "transition": "transition",
+        "label": "semanticLabel",
+        "group": "value",
+        "rememberAs": "value"
+      },
+      "events": {
+        "change": "onChanged"
+      },
+      "items": {
+        "tab": {
+          "name": "TanreiTab",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiTab<T>(value:, label:, icon:, labelHidden:, enabled:)` widgets in the bar's `tabs:` list."
+        }
+      },
+      "notes": "`TanreiTabBar<T>(value:, onChanged:, variant:, isScrollable:, semanticLabel:, tabs: [TanreiTab<T>(…)])`, as `TabBar` but selected by value rather than by a `TabController`'s index; the caller moves `value` from `onChanged`. `isScrollable` is the inverse of fullWidth, as in Flutter's `TabBar`, and defaults to true (hug). A truncated label (`maxLines: 1`, `TextOverflow.ellipsis`) is shown whole in a `Tooltip` (TAB-25). `TanreiTabBarView` gives way to the Tab view, `TanreiTabView`, which draws a `TanreiTabBar` itself or is linked by `link:`, a `TanreiTabLink<T>` passed to both, as Flutter's `TabController` is shared by a `TabBar` and a `TabBarView`: the bar reads the indicator offset (TAB-26) from it and reports its order and disabled tabs to the view through it. Until it catches up, `TanreiTabBarView<T>(value:, children:, semanticLabels:)` shows the panel of the selected value and does not swipe. Until it catches up it ships `isScrollable` defaulting to false, a line indicator and wrapping fixed labels. The drag is a `GestureDetector`'s `onHorizontalDragStart`, `onHorizontalDragUpdate` and `onHorizontalDragEnd` on the bar, `DragEndDetails.primaryVelocity` giving the fling; `onChanged` is called only from `onHorizontalDragEnd`. Until it catches up it also draws no track and follows no drag. A shared choice has no parameter here: bars given the same `value` from one piece of the product's state show the same choice, which is the group (TAB-36), and rebuild in one frame. The product gives a bar that lacks a value a state of its own, since a selection that names none of a bar's tabs selects none (TAB-11), and remembers with `shared_preferences` or its own store, read before the first build. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a selected the product sets, since the row cannot tell following from being set; the README says so, and says that a scroll view does not hold a bar in place when content above it changes height. Not built on this platform yet: `TanreiTabsVariant.tonal`; `size: TanreiTabsSize` (`small`, `medium`); `bool? track` (null reads the generated choice `trackVisible`); `transition: TanreiTabsTransition` (`auto`, `slide`, `none`), under `none` the controller's value is set without `animateTo` and the horizontal drag is still recognised. The hit area of a small row is a `GestureDetector` box of the minimum target with `HitTestBehavior.translucent`."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Tabs",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "track": "track",
+        "fullWidth": "fullWidth",
+        "selected": "value",
+        "indicatorOffset": "link",
+        "transition": "transition",
+        "label": "accessibilityLabel",
+        "group": "value",
+        "rememberAs": "value"
+      },
+      "events": {
+        "change": "onValueChange"
+      },
+      "items": {
+        "tab": {
+          "name": "Tab",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "disabled"
+          },
+          "notes": "The element type of the row's `items` array: `{ value, label, icon?, labelHidden?, disabled? }`."
+        }
+      },
+      "notes": "`<Tabs items={Tab[]} value onValueChange variant fullWidth accessibilityLabel>`; controlled, the caller moves `value` from `onValueChange` and renders the selected panel below the row. The row has the `tablist` role and each tab the `tab` role with its selected state; React Native has no tab panel role, so the selected panel follows the row in reading order. A truncated label (`numberOfLines={1}`, `ellipsizeMode=\"tail\"`) keeps the whole label as the tab's `accessibilityLabel`; React Native has no tooltip of its own, so it is not shown whole elsewhere (TAB-25: where the platform has an idiom). Until it catches up it ships `scrollable` instead of `fullWidth`, a line indicator and wrapping fixed labels. `link` is the shared `useTabLink()` a linked Tab view is passed too: the tabs read the indicator offset (TAB-26) from it and report their order and disabled tabs to the Tab view through it; without a Tab view it is omitted and the offset is 0. The drag is a `PanResponder` on the row (or React Native Gesture Handler's `Gesture.Pan()` where the product has it), claiming the responder once the drag passes the slop sideways, with the release's `vx` giving the fling; `onValueChange` is called only on release. Until it catches up it also draws no track and follows no drag. A shared choice has no prop here: rows given the same controlled `value` from one piece of the product's state show the same choice, which is the group (TAB-36), and render in one commit. The product gives a row that lacks a value a state of its own, since a selection that names none of a row's tabs selects none (TAB-11), and remembers with AsyncStorage or its own store; AsyncStorage answers after the first frame, so a product that must not show another tab first reads it before it mounts the screen. TAB-37 to TAB-41 describe a group the component keeps, which this platform does not have: every row slides as TAB-17 says for a selected the product sets, since the row cannot tell following from being set; the README says so, and says that a `ScrollView` holds a row in place only with `maintainVisibleContentPosition`. Not built on this platform yet: `variant=\"tonal\"`; `size` (`\"small\"`, `\"medium\"`); `track?: boolean | null` (null reads the generated choice `trackVisible`); `transition` (`\"auto\"`, `\"slide\"`, `\"none\"`), under `\"none\"` the indicator's value is set with `setValue` in place of `Animated.timing` and the `PanResponder` stays. The hit area of a small row is `hitSlop`."
+    }
+  }
+}

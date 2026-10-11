@@ -1,0 +1,261 @@
+---
+title: Tree view
+description: A hierarchy of items that open and close. Rows begin further in at each level, with a chevron at the start of every row that holds others. It is read and opened only, or one item or several are chosen in it, and it is one stop in the focus order.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="tree-view" />
+
+<DemoFrame label="A file tree: open a folder by its row, or with the arrow keys" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Where the tokens live" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>source of truth, edited by hand</small></bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>ref/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>sys/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>comp/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>tanrei.resolver.json</bdi></span></li>
+        </ul>
+      </li>
+      <li>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>packages/</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>web/src/generated/tokens.css</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>react-native/src/generated/tokens.ts</bdi></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+A tree view shows a structure a person looks through or chooses in: the files of a project, the tokens of a design system, the folders of a product. A row that holds others has a chevron and opens and closes. With `selection` one item or several are chosen, and the tree tells you which.
+
+It is not navigation. The places of a product are a navigation drawer, the headings of a page are a table of contents, and folded content is an accordion. Those keep links and buttons, each its own stop in the focus order. A tree is one stop, moved through with the arrow keys, because it may hold thousands of rows.
+
+On the web it is `<tanrei-tree-view>` around your own nested lists. The lists stay in the document, so where no script runs the page shows the whole hierarchy as a nested list. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/tree-view.css" />
+
+    <tanrei-tree-view label="Project files" selection="single" value="src/index.ts">
+      <ul>
+        <li data-value="src" data-open>
+          <span>
+            <span class="tanrei-icon" aria-hidden="true">folder</span>
+            <bdi>src<small data-supporting-text>what is published</small></bdi>
+            <span data-trailing-text>12 files</span>
+          </span>
+          <ul>
+            <li data-value="src/index.ts"><span><bdi>index.ts</bdi></span></li>
+          </ul>
+        </li>
+        <li data-value="node_modules" data-expandable><span><bdi>node_modules</bdi></span></li>
+      </ul>
+    </tanrei-tree-view>
+
+    <script type="module">
+      import '@tanrei/web/components/tree-view';
+
+      const tree = document.querySelector('tanrei-tree-view');
+      tree.addEventListener('change', (event) => showFile(event.detail.value));
+      tree.addEventListener('toggle', (event) => {
+        if (event.detail.open && event.target.dataset.expandable !== undefined) loadItemsInto(event.target);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TreeView } from '@tanrei/react';
+    import '@tanrei/web/tree-view.css';
+
+    <TreeView label="Project files" selection="single" value={path} onChange={(event) => setPath(event.detail.value)}>
+      <ul>
+        {folders.map((folder) => (
+          <li key={folder.path} data-value={folder.path} data-open={folder.open ? '' : undefined}>
+            <span><bdi>{folder.name}</bdi></span>
+            <ul>
+              {folder.files.map((file) => (
+                <li key={file.path} data-value={file.path}><span><bdi>{file.name}</bdi></span></li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </TreeView>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/tree-view.css` draws the tree before any script runs, and nothing moves when the script loads. The chevron is a glyph of the icon set and needs the icon font.
+
+### What you write
+
+| Part | On the web |
+| --- | --- |
+| The tree's name | The `label` attribute, in your product's language. |
+| An item | An `<li>`. Its first child element is its row: a `<span>` or a `<div>`. |
+| The label | The row's text, in one element: `<bdi>`. It may hold inline content such as a code span. |
+| The supporting text | An element with `data-supporting-text`, inside the label's element, after the label. |
+| The icon | A `.tanrei-icon` in the row, holding the glyph's name. The tree has no glyph of its own for a folder or a file. |
+| The trailing content | An element with `data-trailing` in the row: a tag, a swatch. It is placed and not styled. |
+| The trailing text | An element with `data-trailing-text` in the row: a count, a size, a value. One line. |
+| An item's own items | A `<ul>` after the row, inside the same `<li>`. |
+
+A row may also hold its label as plain text, with no `<bdi>` around it. Use the `<bdi>` where the row has a supporting text, and where a name's direction can differ from the page's, such as a file name on an Arabic page.
+
+| On the `<li>` | Meaning |
+| --- | --- |
+| `data-value` | What identifies the item. Without one it cannot be chosen. Unique within the tree. |
+| `data-open` | A parent shows its items. The tree sets and removes it when the user opens or closes the parent. |
+| `data-expandable` | The item will hold items you have not given yet. It gets a chevron; give its items when `toggle` says it opened. |
+| `data-loading` | You are fetching its items. While it is open a loading row is drawn under it, with the tree's `loading-label`. |
+| `data-disabled` | It cannot be chosen, opened or closed by the user. The arrow keys still reach it. |
+
+| Event | When | `detail` |
+| --- | --- | --- |
+| `change` | The user changed the selection. On the tree. | `value` (single) or `values` (multiple), after the change |
+| `toggle` | The user, or the browser's find-in-page, opened or closed a parent. On the `<li>`; it bubbles. | `open` |
+
+Neither event fires for a change you make yourself.
+
+## Specs
+
+<DemoFrame label="One item chosen: the row chooses, the chevron opens" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="Every token" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li><span><bdi>Reference</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
+      <li data-open>
+        <span><bdi>System</bdi><span data-trailing-text>388</span></span>
+        <ul>
+          <li data-open>
+            <span><bdi>color</bdi><span data-trailing-text>64</span></span>
+            <ul>
+              <li data-value="sys.color.primary"><span><bdi>primary</bdi><span data-trailing-text>#1f1f1f</span></span></li>
+              <li data-value="sys.color.on-primary"><span><bdi>on-primary</bdi><span data-trailing-text>#ffffff</span></span></li>
+              <li data-value="sys.color.outline-variant"><span><bdi>outline-variant</bdi><span data-trailing-text>#d4d4d4</span></span></li>
+            </ul>
+          </li>
+          <li data-expandable><span><bdi>space</bdi><span data-trailing-text>19</span></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+<ComponentSpecs name="tree-view" />
+
+## Guidelines
+
+### Is it a tree view
+
+| You have | Use |
+| --- | --- |
+| A structure to look through or choose in | Tree view |
+| The places of a product, as links | Navigation drawer |
+| The headings of one page | Table of contents |
+| Content folded under a few headers | Accordion |
+| Items of one level | List |
+
+### What a press does
+
+| The item | A press on its row | A press on its chevron |
+| --- | --- | --- |
+| Can be chosen, a parent | Chooses it | Opens or closes it |
+| Can be chosen, a leaf | Chooses it | — |
+| Cannot be chosen, a parent | Opens or closes it | Opens or closes it |
+| Cannot be chosen, a leaf | Nothing | — |
+
+One press never does two things. A person who chooses a folder does not lose their place because it also closed.
+
+An item can be chosen when `selection` is `single` or `multiple`, it has a `data-value` and it is not disabled. In a single selection, pressing the chosen item again changes nothing. In a multiple selection each item is chosen by itself: choosing a parent does not choose what it holds.
+
+What a choice does is yours. Answer `change` to show the chosen file or the chosen token's editor in a pane beside the tree. A row holds no control: put the action beside the tree.
+
+### Selection and parents that are closed
+
+The tree draws the selected fill on the item's own row. It does not mark a parent because an item under it is selected, and it does not open a closed parent to show a selection. If the chosen item should be in view, set `data-open` on the parents above it: you know the path.
+
+### Density
+
+| `density` | A row of one line | Use for |
+| --- | --- | --- |
+| `regular` (default) | 48 | A product used by touch as well as by pointer. |
+| `compact` | 32 | A tool looked through with a pointer, and a small tree inside a page of text. |
+
+A compact row is lower than the pointer target. That is accepted because it is asked for by name and is never the default. For touch a row is the touch target high in both densities.
+
+### Guides
+
+`guides` draws a hairline down from each open parent beside the rows it holds. Use it in a deep tree, where the indent alone no longer shows which rows belong together. It takes no space.
+
+### Large trees
+
+The tree shows what it is given, does not scroll and does not draw only the rows in view. Place it in your own scrolling box.
+
+- Give a large parent's items when it opens: mark it `data-expandable`, and add its `<ul>` when `toggle` says it opened. Set `data-loading` while you fetch.
+- Only the rows that are shown cost anything. A closed parent's items are not styled, laid out or read until it opens.
+- A change of one row restyles that row alone, whatever the size of the tree.
+
+Filtering is yours too. Give the tree the items that match, set `data-open` on the parents that hold them, and say how many matched in a status of your own.
+
+### Deep trees and narrow windows
+
+Each level begins one indent further in. Where a level's indent would take more than half of the tree's width, its rows begin where the deepest level that fits begins, so names keep half of the width. Assistive technology is still told the true level.
+
+### Rendering on a server
+
+Everything is drawn before the script loads except the selected fill, which appears when the element is defined. To have it in the first frame, write `aria-selected="true"` on the selected item's row yourself.
+
+### Do
+
+- Write `label`, and `loading-label` where any item may be loading, in your product's language. `loading-label` can also be given once for the whole product, with `setWords({ loadingLabel })`.
+- Name the glyphs yourself: a folder and a file are your product's kinds, not the tree's.
+- Keep names whole. A label wraps and is never cut.
+
+### Don't
+
+- Don't put a link, a button or a field in a row. No key of the tree reaches it.
+- Don't use a tree for the pages of a site. Links are found by the ways a browser and a screen reader list links.
+- Don't select by moving focus. The arrow keys move; Enter and Space choose.
+
+## Accessibility
+
+<ComponentAccessibility name="tree-view" />
+
+### What the component handles
+
+- The element is a `tree` named by `label`. Each row is a `treeitem` and each nested list a `group`, so the level comes from the nesting.
+- A parent's row carries `aria-expanded`. A row that can be chosen carries `aria-selected`, true or false. A disabled row carries `aria-disabled`, and a loading parent `aria-busy`.
+- The label is the row's name. The supporting text, the text of the trailing content and the trailing text are its description, in that order.
+- The tree is one stop. Tab enters it at the row focused last, or the first selected row that is shown, or the first row.
+- Down and Up move through the rows that are shown. Right opens a parent, then steps in. Left closes it, then steps out. In a right-to-left layout Left and Right swap.
+- Home and End go to the first and the last row. Typing letters moves to the next row whose label begins with them. `*` opens every closed parent among the focused row and its siblings.
+- Enter and Space do what a press on the row does. Selection never follows focus.
+- Opening, closing and choosing are told by the row's own state. Nothing is announced and focus does not move.
+- A parent that closes around the focused row takes the focus. A focused row that is removed gives focus to the row after it.
+- The focus ring is drawn inside the row, so a scrolling box does not clip it.
+- The chevron, the icons and the guides are hidden from assistive technology. The loading row is hidden too: the parent says that it is busy.
+- At 200% text labels wrap and rows grow. Only a trailing text is ever cut.
+- In forced colors a selected row takes the system's selection colors and an edge.
+- An empty `label`, an item without a label, a control in a row, a value that names no item, two items with one value and an unknown `density` or `selection` are reported in debug builds.
+
+### What you need to do
+
+- Give every item that can be chosen a `data-value` that is unique in the tree.
+- Say what a failed fetch is yourself, beside the tree or as an item whose label says it. The tree announces nothing when items arrive.
+- Give a mark of your own in the trailing content where each chosen item of a multiple selection must be told apart by more than its fill.
+- Place a long tree in a scrolling box with a name or a heading, so that people know what the box holds.

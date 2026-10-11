@@ -1,0 +1,155 @@
+---
+title: Código en línea
+description: Un tramo de código dentro de una frase, en el tipo de letra de código y al tamaño del texto que lo rodea, sobre un relleno tenue o sin él. Es texto, nunca un control.
+translationOf: components/inline-code.mdx
+sourceHash: a781f6f71d206aae52e9b17504a2139e3ab309d7
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="inline-code" />
+
+<DemoFrame label="En una frase, en un encabezado y plain" column>
+  <div class="tanrei-not-prose" style="max-inline-size: 32rem">
+    <p style="margin: 0">
+      Ejecuta <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> en la carpeta que contiene
+      <code class="tanrei-code" translate="no" spellcheck="false">package.json</code> y después inicia el servidor con
+      <code class="tanrei-code" translate="no" spellcheck="false">{'npm run dev -- --port 4000'}</code>.
+    </p>
+    <p style="margin: 0.75rem 0 0; font: var(--tanrei-sys-typescale-heading-2-font)">
+      Definir <code class="tanrei-code" translate="no" spellcheck="false">size</code> en un grupo
+    </p>
+    <p style="margin: 0.75rem 0 0">
+      Plain: <code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
+    </p>
+  </div>
+</DemoFrame>
+
+El código en línea nombra dentro de una frase algo que viene del código: un comando, una propiedad, un archivo, un valor. Las líneas de código que se leen y se copian son un [bloque de código](/es/components/code-block/). Las teclas que hay que pulsar son un [atajo de teclado](/es/components/keyboard-shortcut/), que lee en voz alta los nombres de los modificadores.
+
+### Uso
+
+En la web, el código en línea es una clase que pones en tu propio elemento `code`, no un elemento. El texto está en el documento, así que los buscadores, la búsqueda en la página y la copia funcionan antes de que se ejecute ningún script. Todos los `code` dentro de `.tanrei-prose` que no están en un `pre` se dibujan igual sin necesidad de la clase, así que el Markdown renderizado no necesita nada.
+
+SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <!-- Tonal: el valor predeterminado. -->
+    <p>Ejecuta primero <code class="tanrei-code" translate="no" spellcheck="false">npm install</code>.</p>
+
+    <!-- Plain: solo el tipo de letra, en el color del texto que lo rodea. -->
+    <code class="tanrei-code" data-variant="plain">comp.button.container.shape</code>
+
+    <!-- Un ancestro elige por todos los tramos que contiene. -->
+    <table data-tanrei-code="plain">
+      <tr><td><code class="tanrei-code">variant</code></td><td><code class="tanrei-code">filled</code></td></tr>
+    </table>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/code.css';
+
+    <p>Ejecuta primero <code className="tanrei-code" translate="no" spellCheck={false}>npm install</code>.</p>
+    ```
+  </TabItem>
+</Tabs>
+
+| Propiedad | En la web |
+| --- | --- |
+| `text` | El propio contenido del elemento |
+| `variant: tonal` | `data-variant="tonal"` |
+| `variant: plain` | `data-variant="plain"` |
+| `variant: auto` (el valor predeterminado) | Sin atributo. Elige el ancestro más cercano con `data-tanrei-code="plain"` o `"tonal"`, y es tonal donde ninguno lo hace |
+
+## Especificaciones
+
+<DemoFrame label="Salta de línea, y cada trozo conserva su relleno" plain>
+  <div class="tanrei-not-prose" style="max-inline-size: 22rem">
+    <p style="margin: 0">
+      El token <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> es más largo que esta línea. Se parte donde termina la línea y nunca se corta.
+    </p>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="En un enlace, en texto fuerte y una columna de código" plain column>
+  <div class="tanrei-not-prose">
+    <p style="margin: 0">
+      Consulta <a class="tanrei-link" href="../button/">la referencia de <code class="tanrei-code">Button</code></a>. <strong>Nunca definas <code class="tanrei-code">disabled</code> en la única salida.</strong>
+    </p>
+    <div data-tanrei-code="plain" style="display: grid; grid-template-columns: auto auto; gap: 0.25rem 1.5rem; justify-content: start; margin-block-start: 0.75rem">
+      <span>Propiedad</span><span>Predeterminado</span>
+      <code class="tanrei-code">variant</code><code class="tanrei-code">filled</code>
+      <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
+    </div>
+  </div>
+</DemoFrame>
+
+El código en línea no tiene tamaño propio. Su tamaño de fuente es el del texto en el que está, multiplicado por una proporción (`comp.inline-code.label.scale`) que iguala el tipo de letra de código y el del texto. En el texto de cuerpo es 13 junto a 14. En un encabezado es el tamaño del propio encabezado.
+
+Nunca hace más alta su línea. El relleno es tan alto como la caja de texto del propio tipo de letra de código y no tiene margen interior ni arriba ni abajo.
+
+Un tramo salta de línea con su línea. Se parte primero por sus espacios. Una parte sin espacios que es más larga que la línea se parte entre caracteres, y no se añade ningún guion, porque un guion cambiaría el código. Nunca se corta y nunca se desplaza.
+
+Dentro de un enlace toma el color del enlace, y el subrayado del enlace pasa por debajo de él. Dentro de texto fuerte es un paso de peso más grueso. Nunca se inclina.
+
+Siempre se dispone de izquierda a derecha, como un tramo aparte, también en una frase de derecha a izquierda.
+
+<ComponentSpecs name="inline-code" />
+
+### Qué dibuja la web de otra manera
+
+- `translate="no"` y `spellcheck="false"` son atributos tuyos, o de tu renderizador de Markdown. Una hoja de estilos no puede definirlos.
+- Un guion en el código es un lugar donde puede terminar una línea, antes de que el tramo se parta entre caracteres.
+- WebKit dibuja el relleno y las esquinas de cada trozo de un tramo que salta de línea, pero no el espacio de cada extremo: los trozos posteriores al primero empiezan en el borde del relleno.
+- Un salto de línea dentro del tramo se dibuja como un solo espacio únicamente en los navegadores que admiten `white-space-collapse: preserve-spaces`. Escribe cada tramo en una sola línea.
+- Un `data-variant` desconocido se dibuja como `auto`, y las compilaciones de depuración no notifican nada.
+
+## Pautas
+
+### Tonal o plain
+
+| Variante | Qué dibuja | Úsalo cuando |
+| --- | --- | --- |
+| **Tonal** | El tipo de letra de código sobre un relleno tenue | Un nombre en el texto corrido |
+| **Plain** | Solo el tipo de letra de código, en el color del texto que lo rodea | Una columna o una lista en la que todas las entradas son código, y un texto sobre un contenedor de color |
+
+### Recomendado
+
+- Escribe la frase de modo que se entienda cuando el código se dice como palabras. Los lectores de pantalla no anuncian el rol de código de forma predeterminada.
+- Usa plain sobre un contenedor de color, como un contenedor de estado o una superficie inversa. El relleno tonal es un rol de superficie y solo se empareja con superficies.
+- Elige la variante una sola vez en el ancestro (`data-tanrei-code="plain"`) para una tabla o una lista de nombres.
+
+### Evita
+
+- No uses el código en línea para dar énfasis. Dice «esto es código».
+- No pongas en código en línea las teclas que hay que pulsar. Usa un atajo de teclado.
+- No pongas en él más de una línea. Usa un bloque de código.
+
+## Accesibilidad
+
+<ComponentAccessibility name="inline-code" />
+
+### De qué se encarga el componente
+
+- Es el elemento `code`, así que tiene el rol de código, y su texto se lee donde está dentro de la frase.
+- Se distingue de las palabras que lo rodean por su tipo de letra, no por el color. Con colores forzados el relleno desaparece y no se pierde nada.
+- No recibe foco ni entrada. Dentro de un enlace o de un botón, una pulsación sobre él llega a ese elemento.
+- Un nombre largo se parte en lugar de hacer que la página se desplace, con cualquier tamaño de texto.
+- Al seleccionar y copiar una frase, los caracteres del código se copian exactamente.
+
+### Qué debes hacer tú
+
+- Escribe un nombre con todas sus letras en la frase cuando su grafía importe, porque los símbolos se leen según los ajustes de cada persona.
+- Marca el tramo con `translate="no"` para que la traducción del navegador no lo toque.

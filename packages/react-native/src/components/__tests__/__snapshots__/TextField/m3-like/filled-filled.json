@@ -1,0 +1,162 @@
+{
+  "type": "View",
+  "props": {},
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityState": {
+          "disabled": false
+        },
+        "accessibilityValue": {},
+        "accessible": false,
+        "collapsable": false,
+        "focusable": false,
+        "hitSlop": {
+          "bottom": 0,
+          "left": 0,
+          "right": 0,
+          "top": 0
+        },
+        "style": {
+          "alignItems": "center",
+          "backgroundColor": "rgb(230, 224, 233)",
+          "borderBottomEndRadius": 0,
+          "borderBottomStartRadius": 0,
+          "borderTopEndRadius": 4,
+          "borderTopStartRadius": 4,
+          "flexDirection": "row",
+          "gap": 16,
+          "minHeight": 56,
+          "opacity": 1,
+          "paddingEnd": 16,
+          "paddingStart": 16,
+          "paddingVertical": 8
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "collapsable": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "borderBottomEndRadius": 0,
+              "borderBottomStartRadius": 0,
+              "borderBottomWidth": 1,
+              "borderColor": "rgb(73, 69, 79)",
+              "borderTopEndRadius": 4,
+              "borderTopStartRadius": 4,
+              "bottom": 0,
+              "left": 0,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": []
+        },
+        {
+          "type": "View",
+          "props": {
+            "style": {
+              "flex": 1,
+              "flexShrink": 1
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "height": 16
+                }
+              },
+              "children": []
+            },
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "gap": 2
+                }
+              },
+              "children": [
+                {
+                  "type": "TextInput",
+                  "props": {
+                    "accessibilityLabel": "Email",
+                    "accessibilityState": {
+                      "disabled": false
+                    },
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "cursorColor": "rgb(103, 80, 164)",
+                    "focusable": true,
+                    "inputMode": "text",
+                    "keyboardType": "default",
+                    "multiline": false,
+                    "placeholder": "",
+                    "placeholderTextColor": "rgb(73, 69, 79)",
+                    "readOnly": false,
+                    "selectionColor": "rgb(103, 80, 164)",
+                    "style": {
+                      "color": "rgb(29, 27, 32)",
+                      "flex": 1,
+                      "flexShrink": 1,
+                      "fontFamily": "Roboto",
+                      "fontSize": 16,
+                      "fontWeight": "400",
+                      "letterSpacing": 0.5,
+                      "lineHeight": 24,
+                      "margin": 0,
+                      "minHeight": 24,
+                      "paddingBottom": 0,
+                      "paddingEnd": 0,
+                      "paddingStart": 0,
+                      "paddingTop": 0
+                    },
+                    "submitBehavior": "blurAndSubmit",
+                    "value": "ada@example.com"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "allowFontScaling": true,
+            "collapsable": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "color": "rgb(73, 69, 79)",
+              "end": 16,
+              "fontFamily": "Roboto",
+              "fontSize": 12,
+              "fontWeight": "400",
+              "letterSpacing": 0.3996,
+              "lineHeight": 16,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "start": 16,
+              "top": 8
+            }
+          },
+          "children": [
+            "Email"
+          ]
+        }
+      ]
+    }
+  ]
+}

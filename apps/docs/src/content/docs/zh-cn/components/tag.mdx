@@ -1,0 +1,172 @@
+---
+title: "标签（Tag）"
+description: "用一段简短的静态文字标出类别或状态，外观可以是柔和填充、带轮廓或实色填充；有语义状态时采用该状态的颜色。它是文本，从不是控件。"
+translationOf: components/tag.mdx
+sourceHash: fe967cfb476e3d4571ebf0fdbe8939c0c7803905
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="tag" />
+
+<DemoFrame label="三种外观，带语义状态和不带语义状态">
+  <tanrei-tag label="草稿"></tanrei-tag>
+  <tanrei-tag variant="outlined" label="草稿"></tanrei-tag>
+  <tanrei-tag variant="filled" label="默认"></tanrei-tag>
+  <tanrei-tag status="success" label="已通过"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="即将到期"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="失败"></tanrei-tag>
+</DemoFrame>
+
+标签（Tag）是一个词或一个短语，说明某样东西是什么，或处于什么状态：文章的类别、构建的结果、版本所处的阶段、几个值当中的默认值。它位于布局之中，与旁边的文本同处一行，从不响应指针、按键或焦点。
+
+在 Web 上它是 `<tanrei-tag>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag label="Beta"></tanrei-tag>
+    <tanrei-tag variant="outlined" label="设计"><span slot="icon">sell</span></tanrei-tag>
+
+    <!-- 标签的文字说出了状态。 -->
+    <tanrei-tag status="error" label="失败"></tanrei-tag>
+
+    <!-- 标签的文字没有说出状态：status-label 会在它之前朗读（“错误，3 个构建”），但不绘制。 -->
+    <tanrei-tag status="error" status-label="错误" label="3 个构建"></tanrei-tag>
+
+    <script type="module">
+      import '@tanrei/web/components/tag';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tag } from '@tanrei/react';
+
+    <Tag label="Beta" />
+    <Tag variant="outlined" label="设计"><span slot="icon">sell</span></Tag>
+    <Tag status="error" statusLabel="错误" label={`${failed} 个构建`} />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="每种外观在每种语义状态下的样子" plain>
+  <tanrei-tag status="info" label="审核中"></tanrei-tag>
+  <tanrei-tag status="warning" label="即将到期"></tanrei-tag>
+  <tanrei-tag status="error" label="失败"></tanrei-tag>
+  <tanrei-tag status="success" label="已通过"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="info" label="审核中"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="即将到期"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="error" label="失败"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="success" label="已通过"></tanrei-tag>
+  <tanrei-tag variant="filled" status="info" label="审核中"></tanrei-tag>
+  <tanrei-tag variant="filled" status="warning" label="即将到期"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="失败"></tanrei-tag>
+  <tanrei-tag variant="filled" status="success" label="已通过"></tanrei-tag>
+</DemoFrame>
+
+<DemoFrame label="两种尺寸、图标、圆点" plain>
+  <tanrei-tag size="small" label="可选"></tanrei-tag>
+  <tanrei-tag size="small" variant="filled" label="必填"></tanrei-tag>
+  <tanrei-tag label="设计"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag size="small" label="设计"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag dot label="已归档"></tanrei-tag>
+  <tanrei-tag dot status="success" label="在线"></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="性能下降"></tanrei-tag>
+</DemoFrame>
+
+<ComponentSpecs name="tag" />
+
+## 指南
+
+### 徽标、纸片还是 Tag
+
+这三者只需区分一次，依据是它们各自做什么：
+
+| 组件 | 它是什么 | 位于哪里 | 是否接受输入 |
+| --- | --- | --- | --- |
+| [徽标](/zh-cn/components/badge/) | 附着在另一个元素上的圆点或计数。 | 在锚点的角上，布局之外。 | 否。输入会落到锚点上。 |
+| [纸片（Chip）](/zh-cn/components/chip/) | 一个控件。 | 在布局之中。 | 是：它可以被按下、切换或移除，并且有焦点和状态。 |
+| Tag | 一段静态的文字标签。 | 在布局之中，与文本同行。 | 从不。 |
+
+1. 如果它可以被按下、选中或移除，它就是纸片。如果它通向某个地方，它就是链接。
+2. 如果它是叠在别的东西上面的一个数字或圆点，它就是徽标。
+3. 如果它只是一个词，说明某样东西是什么或处于什么状态，它就是 Tag。
+
+Tag 绝不会因为加了处理函数而变成控件。在链接、按钮、列表项或整体可按下的行里，它始终是那个元素的文本：落在它上面的输入会到达那个元素，悬停、聚焦和按下也由那个元素自己绘制。
+
+### 如何选择外观
+
+| `variant` | 绘制什么 | 用于 |
+| --- | --- | --- |
+| `tonal`（默认） | 柔和的填充。 | 大多数 Tag。 |
+| `outlined` | 没有填充，只有一道细线。 | 许多 Tag 挨在一起的地方：表格的一列、一串类别。 |
+| `filled` | 实色填充。 | 相邻几个当中被选定的那一个：几个值当中的默认值、几个字段当中的必填项。也用于那个绝不能被漏看的语义状态。 |
+
+### 语义状态
+
+`status` 为 `default`、`info`、`warning`、`error` 或 `success`。它只改变颜色。outlined 的 Tag 在每种语义状态下都保留表面的文本颜色和它的细线，所以它总会以该状态的颜色画一个圆点（或你提供的图标）：这个标记是该状态唯一显现的地方。
+
+Tag 自己不绘制任何表示状态的图标。在有帮助的地方请自己指定一个，就像本站为自己的状态表中的六种状态所做的那样：
+
+<DemoFrame label="本站的六种状态" plain>
+  <tanrei-tag size="small" variant="outlined" label="计划中"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="待跟进"><span slot="icon">schedule</span></tanrei-tag>
+  <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
+  <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
+  <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
+  <tanrei-tag size="small" status="error" label="已弃用"><span slot="icon">block</span></tanrei-tag>
+</DemoFrame>
+
+### 尺寸
+
+| `size` | 高度 | 文本 | 用于 |
+| --- | --- | --- | --- |
+| `small` | 20 | 12 | 字段的标签旁边、表格单元格里、一行正文之中。它不会把这一行撑高。 |
+| `medium`（默认） | 24 | 14 | 标题旁边，或单独使用。 |
+
+[字段](/zh-cn/components/field/)和[字段组](/zh-cn/components/field-group/)的“必填”和“选填”小标签，就是小号的这个组件：必填用 filled，选填用 tonal。它们读取 Tag 的令牌，没有自己的令牌，所以重新设定小号 Tag 样式的设计系统，也就同时重新设定了它们的样式。
+
+### 推荐
+
+- 用文字说出状态。“失败”无需更多说明；以错误颜色显示“3 个构建”的 Tag 则需要 `statusLabel`。
+- 给 Tag 留出放得下标签文字的空间。放不下的文字会以省略号截断，而 Tag 没有悬停或聚焦可以用来显示其余部分。
+- 一组 Tag 属于同一个集合时，例如一篇文章的类别，请把它们放进列表（在 Web 上是 `<ul>` 和 `<li>`），并为列表命名。
+
+### 避免
+
+- 不要让 Tag 可以被按下。可以被按下、切换或移除的标签是纸片；通向某个地方的是链接。
+- 不要使用没有标签文字的 Tag。单独一个圆点或图标不是 Tag，它什么也不会绘制。
+- 不要指望靠颜色来传达状态。在强制颜色模式下，每个 Tag 看起来都一样：一道边线，加上文本颜色的标签文字。
+- 不要用 Tag 表示图标上的计数。那是徽标。
+
+## 无障碍
+
+<ComponentAccessibility name="tag" />
+
+### 组件负责的部分
+
+- 它没有角色，也没有名称：它的标签文字在 Tag 所在的位置作为文本朗读。在链接、按钮或表格单元格里，它是那个元素内容的一部分。
+- `statusLabel` 作为另一个短语在标签文字之前朗读（“错误，3 个构建”），从不绘制。`status` 为 `default` 时它会被忽略。
+- 图标和圆点对辅助技术隐藏。
+- 它不接受输入，也不获得焦点，所以不会给焦点顺序增加停靠点，也不会给一行增加目标。
+- 被截断的标签文字仍然会完整朗读。
+- 在强制颜色模式下，每种外观都会多出一道文本颜色的边线，标签文字、图标和圆点也都采用这个颜色。
+- 在从右到左的布局中，图标或圆点移到标签文字的右侧，图标集标记为需要镜像的图标会被镜像，从左到右书写的标签文字保持自己的顺序，并在它自己的末尾截断。
+- 未知的变体、尺寸或语义状态，空的标签文字，以及没有语义状态却设置了的 `statusLabel`，会在调试构建中报告。
+
+### 需要你做的事
+
+- 检查每个 Tag 的文字是否说出了它的状态。组件无法判断“3 个构建”是好消息还是坏消息。
+- 用页面的语言来写 `statusLabel`。
+- 如果某个变化必须在发生时就朗读出来（例如用户正看着的构建完成了），请把 Tag 放进实时区域（live region），或者用消息条（Snackbar）来报告这个变化。Tag 自己不会朗读。

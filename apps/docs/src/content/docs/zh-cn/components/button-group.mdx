@@ -1,0 +1,378 @@
+---
+title: "按钮组"
+description: "把几个相关的按钮排成一行或一列，彼此隔开或连接成一个形状，把完成任务和退出任务的操作放在用户预期的位置，并把这些按钮作为一个组来命名。"
+translationOf: components/button-group.mdx
+sourceHash: c06ddd9b183514fe5cde84fd2dfb883e35f2c0ec
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="button-group" />
+
+<DemoFrame label="标准式与连接式">
+  <tanrei-button-group>
+    <tanrei-button variant="outlined">取消</tanrei-button>
+    <tanrei-button variant="tonal">保存草稿</tanrei-button>
+    <tanrei-button variant="filled">发布</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="文本样式">
+    <tanrei-button variant="tonal" toggle selected label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+### 用法
+
+组里的项就是你已经在用的[按钮](/zh-cn/components/button/)，带标签的或纯图标的都可以，属性和事件也都是按钮自己的。按钮组只负责摆放它们，在连接式（connected）下把它们连接起来，在有标签时为它们命名。
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们提供的仍是按钮组的上一版，只有单独一行，没有 `orientation`、`fullWidth`、`separation` 和顺序标志，连接式的项之间总是隔着一条窄间隙，纯图标的项则是另一个独立的图标按钮。在它们跟上之前，这些平台的示例展示的是那一版。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- dismissive 排到一行的起始侧，confirming 排到末尾侧；在一列中两者互换位置。 -->
+    <tanrei-button-group>
+      <tanrei-button variant="outlined" dismissive>取消</tanrei-button>
+      <tanrei-button variant="tonal">保存草稿</tanrei-button>
+      <tanrei-button variant="filled" confirming>发布</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- 与容器等宽的一列：“允许”画在“以后再说”的上方。 -->
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>以后再说</tanrei-button>
+      <tanrei-button variant="tonal" confirming>允许</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- label 为按钮组命名。每个切换按钮各自保存自己的 selected。 -->
+    <tanrei-button-group variant="connected" label="文本样式">
+      <tanrei-button variant="tonal" toggle label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-button-group>
+
+    <script type="module">
+      import '@tanrei/web/components/button-group';
+      import '@tanrei/web/components/button';
+      // 按钮组自身不触发任何事件：和在别处一样，在按钮上监听。
+      document.querySelector('[label="粗体"]').addEventListener('change', (e) => setBold(e.detail.selected));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, ButtonGroup } from '@tanrei/react';
+
+    // confirming 和 dismissive 是按钮组从子元素上读取的属性。
+    <ButtonGroup>
+      <Button variant="outlined" dismissive onClick={cancel}>取消</Button>
+      <Button variant="tonal" onClick={saveDraft}>保存草稿</Button>
+      <Button variant="filled" confirming onClick={publish}>发布</Button>
+    </ButtonGroup>
+
+    <ButtonGroup orientation="vertical" fullWidth>
+      <Button variant="tonal" dismissive onClick={notNow}>以后再说</Button>
+      <Button variant="tonal" confirming onClick={allow}>允许</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" label="文本样式">
+      <Button variant="tonal" toggle selected={bold} label="粗体" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+      <Button variant="tonal" toggle selected={italic} label="斜体" onChange={(e) => setItalic(e.detail.selected)}><span slot="icon">format_italic</span></Button>
+    </ButtonGroup>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButtonGroup {
+        TanreiButton("取消", variant: .outlined) { cancel() }
+        TanreiButton("保存草稿", variant: .tonal) { saveDraft() }
+        TanreiButton("发布") { publish() }
+    }
+
+    TanreiButtonGroup(variant: .connected, label: "文本样式") {
+        TanreiIconButton("粗体", isSelected: $bold, variant: .tonal) { Image(systemName: "bold") }
+        TanreiIconButton("斜体", isSelected: $italic, variant: .tonal) { Image(systemName: "italic") }
+        TanreiIconButton("下划线", isSelected: $underline, variant: .tonal) { Image(systemName: "underline") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroup
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroupVariant
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiIconButtonVariant
+
+    TanreiButtonGroup {
+        TanreiButton(text = "取消", onClick = ::cancel, variant = TanreiButtonVariant.Outlined)
+        TanreiButton(text = "保存草稿", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+        TanreiButton(text = "发布", onClick = ::publish)
+    }
+
+    // contentDescription 为按钮组命名。Compose 没有组角色：它是一个遍历组。
+    TanreiButtonGroup(variant = TanreiButtonGroupVariant.Connected, contentDescription = "文本样式") {
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "粗体",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = bold,
+            onCheckedChange = { bold = it },
+        ) { TanreiText("format_bold") }
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "斜体",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = italic,
+            onCheckedChange = { italic = it },
+        ) { TanreiText("format_italic") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButtonGroup(
+      children: <Widget>[
+        TanreiButton(variant: TanreiButtonVariant.outlined, onPressed: cancel, child: const Text('取消')),
+        TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('保存草稿')),
+        TanreiButton(onPressed: publish, child: const Text('发布')),
+      ],
+    );
+
+    TanreiButtonGroup(
+      variant: TanreiButtonGroupVariant.connected,
+      semanticLabel: '文本样式',
+      children: <Widget>[
+        TanreiIconButton(
+          isSelected: bold,
+          onPressed: () => setState(() => bold = !bold),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: '粗体',
+          icon: const Icon(AppSymbols.formatBold),
+        ),
+        TanreiIconButton(
+          isSelected: italic,
+          onPressed: () => setState(() => italic = !italic),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: '斜体',
+          icon: const Icon(AppSymbols.formatItalic),
+        ),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button, ButtonGroup, IconButton } from '@tanrei/react-native';
+
+    <ButtonGroup>
+      <Button variant="outlined" onPress={cancel}>取消</Button>
+      <Button variant="tonal" onPress={saveDraft}>保存草稿</Button>
+      <Button onPress={publish}>发布</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" accessibilityLabel="文本样式">
+      <IconButton variant="tonal" accessibilityLabel="粗体" toggle selected={bold} onSelectedChange={setBold}>
+        format_bold
+      </IconButton>
+      <IconButton variant="tonal" accessibilityLabel="斜体" toggle selected={italic} onSelectedChange={setItalic}>
+        format_italic
+      </IconButton>
+    </ButtonGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+### 一行或一列，以及操作的顺序
+
+`orientation` 决定按钮是排成一行（`horizontal`，默认）还是叠成一列（`vertical`）；在一列中，每个按钮都与列等宽。`fullWidth` 让按钮组占满它的容器：一行中的按钮平分宽度，一列中的每个按钮都是这个宽度。面板或狭窄区域底部的操作适合用这种形态。
+
+按钮上的两个标志告诉按钮组它应当放在哪里，这样两种方向下的顺序才能保持一致：
+
+| 标志 | 这个按钮 | 在一行中 | 在一列中 |
+| --- | --- | --- | --- |
+| `confirming` | 完成任务：确定、保存、下一步、删除 | 在末尾 | 在顶部 |
+| `dismissive` | 退出任务：取消、返回、以后再说 | 在起始处 | 在底部 |
+| 两者都没有 | 其他任何按钮 | 在两者之间，按给出的顺序 | 在两者之间，按给出的顺序 |
+
+<DemoFrame label="同样的三个按钮，排成一行和一列" plain>
+  <tanrei-button-group>
+    <tanrei-button variant="outlined" dismissive>取消</tanrei-button>
+    <tanrei-button variant="tonal">保存草稿</tanrei-button>
+    <tanrei-button variant="filled" confirming>发布</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group orientation="vertical">
+    <tanrei-button variant="outlined" dismissive>取消</tanrei-button>
+    <tanrei-button variant="tonal">保存草稿</tanrei-button>
+    <tanrei-button variant="filled" confirming>发布</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<DemoFrame label="占满宽度：平分宽度的一行，以及一列" plain column>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group full-width>
+      <tanrei-button variant="tonal" dismissive>以后再说</tanrei-button>
+      <tanrei-button variant="tonal" confirming>允许</tanrei-button>
+    </tanrei-button-group>
+  </div>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>以后再说</tanrei-button>
+      <tanrei-button variant="tonal" confirming>允许</tanrei-button>
+    </tanrei-button-group>
+  </div>
+</DemoFrame>
+
+键盘焦点和屏幕阅读器遵循摆放后的顺序，所以每个人遇到这些操作的顺序都与它们画出来的顺序相同。标志描述的是按钮与任务的关系，而不是语气：在“取消 · 删除”中，“删除”是 confirming 的那一个。破坏性操作靠它自身的外观和标签来区分，而不是靠位置。[对话框](/zh-cn/components/dialog/)和[侧边面板](/zh-cn/components/side-sheet/)也用这两个标志来摆放各自的操作。
+
+### 以分隔线或间隙连接
+
+连接式按钮组用两种方式之一把按钮连接起来。用**分隔线**时，按钮彼此相接，相接处的圆角变成直角，每条接缝上有一条线。用**间隙**时，按钮之间隔着一条窄间隙，彼此相对的圆角收得更小。设计系统为所有连接部件的组件统一选择一次（默认系统画分隔线），设计系统也可以让按钮组单独不同，而 `separation`（`auto`、`divider`、`gap`）则设置某一个按钮组。标准式按钮组会忽略它。
+
+<DemoFrame label="以分隔线和以间隙连接，排成一行和一列" plain>
+  <tanrei-button-group variant="connected" separation="divider" label="剪贴板">
+    <tanrei-button variant="outlined">剪切</tanrei-button>
+    <tanrei-button variant="outlined">复制</tanrei-button>
+    <tanrei-button variant="outlined">粘贴</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" separation="gap" label="剪贴板">
+    <tanrei-button variant="outlined">剪切</tanrei-button>
+    <tanrei-button variant="outlined">复制</tanrei-button>
+    <tanrei-button variant="outlined">粘贴</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="divider" label="缩放">
+    <tanrei-button variant="tonal" label="放大"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="缩小"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="gap" label="缩放">
+    <tanrei-button variant="tonal" label="放大"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="缩小"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+使用分隔线时，只有两侧按钮的填充相同，接缝上才有线。在选中的切换按钮与未选中的切换按钮之间，或 filled 按钮与 outlined 按钮之间，填充的边缘已经标出了接缝，所以那里不画线。
+
+<DemoFrame label="以分隔线连接的切换按钮：选中项的两旁没有线" plain>
+  <tanrei-button-group variant="connected" label="文本样式">
+    <tanrei-button variant="outlined" toggle label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle selected label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="删除线"><span slot="icon">format_strikethrough</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+## 规格
+
+<DemoFrame label="连接式：outlined、large，以及含有禁用项" plain>
+  <tanrei-button-group variant="connected" label="剪贴板">
+    <tanrei-button variant="outlined">剪切</tanrei-button>
+    <tanrei-button variant="outlined">复制</tanrei-button>
+    <tanrei-button variant="outlined">粘贴</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="日期">
+    <tanrei-button variant="tonal" size="large">上一个</tanrei-button>
+    <tanrei-button variant="tonal" size="large">今天</tanrei-button>
+    <tanrei-button variant="tonal" size="large">下一个</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="剪贴板">
+    <tanrei-button variant="outlined">剪切</tanrei-button>
+    <tanrei-button variant="outlined" disabled>复制</tanrei-button>
+    <tanrei-button variant="outlined">粘贴</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<ComponentSpecs name="button-group" />
+
+## 指南
+
+### 何时使用
+
+当几个按钮属于一个整体时，使用按钮组：表单的末尾（取消、保存草稿、发布），编辑器的格式设置（粗体、斜体、下划线），日历的“上一个”“今天”和“下一个”。按钮组确定它们的间距，在它们是一组时把它们连接起来，在有帮助时为它们命名。其中的每个按钮仍然是按钮。
+
+针对当前屏幕或所选内容的一行操作，如果整体是一个 Tab 停靠点、用方向键在其中移动，那就是[工具栏](/zh-cn/components/toolbar/)。一个主操作与列出其变化形式的菜单连在一起，是[带菜单的按钮](/zh-cn/components/button-with-menu/)：它看起来像由两个按钮组成的连接式按钮组，但它的后半边总是打开菜单。
+
+### 分段按钮、按钮组、纸片（Chip）还是标签页
+
+这四种组件都把几个相关的东西排成一行，所以容易混淆。它们的区别在于按下之后发生什么，以及键盘如何在其中移动。
+
+| 组件 | 它是什么 | 选择 | 键盘 | 用于 |
+| --- | --- | --- | --- | --- |
+| [分段按钮](/zh-cn/components/segmented-button/)（Material 和 cupertino 预设提供；Tanrei 系统中没有） | 一个控件：两到五个连在一起的选项，回答同一个问题。 | 由它自己保存，以值表示：一个选项，或多个。 | 一个 Tab 停靠点。方向键在选项之间移动，单选时移动的同时也选中。 | 只有几个固定答案、立即生效的设置：日、周、月；左对齐、居中、右对齐。 |
+| [按钮组](/zh-cn/components/button-group/) | 由各自独立的按钮排成的一行或一列，彼此隔开或连接成一个形状。 | 没有。组里的切换按钮各自保存自己的开关状态。 | 每个按钮都是一个单独的 Tab 停靠点。 | 相关的操作：取消、保存草稿、发布；作为相互独立的切换按钮的粗体、斜体和下划线。 |
+| [纸片](/zh-cn/components/chip/) | 排成一行的、各自独立的小控件，这一行可以换行或滚动。 | 每个筛选纸片各自开或关。 | 每个纸片都是一个单独的 Tab 停靠点。 | 列表上方的筛选条件、建议的回复、用户输入的条目。 |
+| [标签页](/zh-cn/components/tabs/) | 同一主题的几个视图，每个视图有自己的面板。 | 一个标签页：屏幕上显示的那个视图。 | 一个 Tab 停靠点。方向键移动并选中。 | 切换显示哪些内容：概览、动态、设置。 |
+
+一个快速的判断方法：如果按下它会执行某件事，那是按钮组。如果它改变下方的内容，那是标签页。如果它设置一个值，那是单选按钮；在提供分段按钮的系统中，也可以是分段按钮。选项很多或相互独立时，用纸片。
+
+### 如何选择变体
+
+| 变体 | 作用 | 用于 |
+| --- | --- | --- |
+| Standard（默认） | 把按钮彼此隔开，间距足以让每个按钮在相邻按钮之间保有完整的触摸目标。每个按钮保留自己的圆角。 | 放在一起但各自独立的操作，例如表单的“取消”和“保存”。 |
+| Connected | 用分隔线或窄间隙把按钮连接成一个外端呈圆形的形状（参见[以分隔线或间隙连接](#以分隔线或间隙连接)）。每个按钮的宽度至少等于一个目标，并拉伸到与最高的按钮同高。 | 读起来像一个控件的、关系紧密的一组：粗体、斜体、下划线；上一个、今天、下一个。 |
+
+在连接式按钮组中，只有面向相邻按钮的圆角会改变：用分隔线时是直角，用间隙时收得更小。填充、轮廓、状态层、涟漪和焦点环都沿着连接后的形状绘制；连成一行时，圆形的外端会多一点内边距，让两端按钮的内容看起来留白均匀。small 的纯图标按钮会以图标为中心加宽到目标宽度，因为连在一起的按钮无法把点击区域伸到彼此之上。
+
+### 一行还是一列
+
+默认用一行。当按钮带着完整的标签无法并排放下时（例如窄面板或手机宽度的区域里的操作），或者放在纵向排列的内容旁边时（例如地图的缩放控件），用一列。请标出完成任务的按钮和退出任务的按钮，这样布局在一行和一列之间变化时，顺序仍然是用户预期的那一个。
+
+### 推荐
+
+- 让组里的每个按钮都使用相同的尺寸。
+- 和在别处一样分配强调：最多一个 filled 按钮，通常放在末尾。
+- 当按钮只有放在一起才有意义时，给按钮组加上标签，例如“文本样式”。如果一行操作各自都说明了自己做什么，就不用加。
+- 连接式按钮组里的按钮使用同一种变体，这样连接后的形状读起来才是一个整体。
+- 把完成任务的按钮标为 `confirming`，把退出任务的按钮标为 `dismissive`，让按钮组来摆放它们。书写顺序随意；按钮组不会在你的标记中移动它们。
+- 除非某个按钮组必须不同，否则让 `separation` 保持 `auto`，这样产品中所有连接式控件的分隔方式都一致。
+
+### 避免
+
+- 不要用组里的切换按钮来表示相互排斥的选择，例如左对齐、居中和右对齐。按钮组不会让其中的切换按钮互斥。选择会改变下方内容时用标签页，设置一个值时用单选按钮，在提供分段按钮的系统中也可以用分段按钮。
+- 除了 Tanrei 的 Button（带标签的或纯图标的）之外，不要把任何东西放进按钮组：输入框、纸片、菜单都不行。其他内容会在调试构建中报告。
+- 不要用标志来表达语气。完成任务的破坏性操作“删除”是 `confirming`；同时带有两个标志的按钮会按两者都没有来摆放，并被报告。
+- 不要指望一行会换行。放不下时，这一行会让其中的 Button 变窄，并让它们的标签换行。它绝不会移到第二行，也不会滚动。
+- 不要在一个按钮组里混用尺寸。按钮组不会调整按钮的尺寸。
+
+## 无障碍
+
+<ComponentAccessibility name="button-group" />
+
+### 组件负责的部分
+
+- 每个按钮都保有自己的角色、名称、状态和 Tab 停靠点。Tab 按摆放后的顺序在它们之间移动：一行中从起始侧到末尾侧，一列中从上到下。按钮组自身不接收焦点，不处理方向键，也不保存任何选择。
+- `confirming` 和 `dismissive` 不会被朗读。它们决定按钮的位置，焦点和朗读都遵循这个位置。
+- 分隔线是装饰：它对辅助技术隐藏，也不接收按下。让人区分两个相连按钮的，是它们各自是一个按钮、各有自己的名称。
+- 有标签时，按钮组作为一个以该标签命名、包含这些按钮的组暴露给辅助技术。没有标签时，它不给无障碍树增加任何东西。
+- 在连接式按钮组中，每个按钮的宽度至少等于一个目标，点击区域向这一行的上方和下方延伸到最小目标。在标准式按钮组中，按在某个按钮可见范围内的按下总是交给这个按钮，按在间隙里的则交给较近的那个按钮。
+- 焦点指示沿着每个按钮的形状绘制，包括连接处的圆角。
+- 文本放大时，按钮和在别处一样变大。连接式的一行把每个按钮拉伸到与最高的按钮同高，一列让每个按钮与最宽的按钮同宽，所以连接后的形状保持整齐。
+- 在默认系统中，outlined 按钮组的轮廓及其分隔线都是细线，有意画得很淡：让人认出每个按钮的是它的标签或图标，而不是它的边线。
+- 调试构建会报告以下情况：按钮组少于两项，内容不是 Tanrei 的 Button，按钮同时带有两个标志，变体、方向或分隔方式未知，占满宽度的一行中按钮无法平分宽度，以及一行在其中的 Button 变窄之后仍然放不下。
+
+已知的平台差距：
+
+- Web：连接式按钮组中的图标按钮，在鼠标等精确指针下宽度等于指针目标，在粗略指针下宽度等于触摸目标。当某一项自身的形状是胶囊形时，它转向相邻项的圆角是圆弧，而不是经过圆角平滑处理的曲线。在按钮组内，Button 的标签可以换行；在按钮组外，它保持在一行。一行仍然放不下的报告是在按钮组尺寸变化或其子元素变化时检查的，而不是在某一项的标签变化时。
+- SwiftUI 没有组角色。带标签的按钮组是一个以其标签命名、容纳这些按钮的容器。标题为 `LocalizedStringKey` 的 Button（字符串字面量就是这样）可能被压缩到比它最长的单词还窄，这时会在单词内部断行。一行仍然放不下的报告在调试构建中是断言失败，所以哪怕布局只是一时过窄，例如宽度带动画的容器，也会让调试中的应用停止。
+- Compose 没有组角色。带标签的按钮组是一个以该标签作为内容描述的遍历组，每个按钮保有自己的角色。
+- React Native：iOS 和 Android 如何分配按在两个按钮之间间隙里的按下，文本放大时连接式按钮组中被拉伸的按钮，以及焦点进入按钮组时 VoiceOver 和 TalkBack 是否朗读按钮组的名称，都还没有在真机上检查过。
+- React Native：变窄的 Button 可能缩到比它最长的单词还窄，这个单词的字母于是被拆到多行，因为 React Native 的布局没有文本的最小内容宽度。
+- 在标准式按钮组中，相邻的点击区域在间隙的中点相接。默认系统的间隙（16）足够宽，每个图标按钮（包括 small 的）都能在相邻按钮之间保有完整的 48 触摸目标。间隙更窄的设计系统会让按钮之间的目标变窄。
+
+### 需要你做的事
+
+- 为每个图标按钮命名。按钮组的标签不会为其中的按钮命名。
+- 把按钮组放在阅读顺序中它的按钮应处的位置。辅助技术按它们出现的顺序逐个到达。
+- 如果一组切换按钮必须保持互斥，请使用单选的控件：选择会改变下方内容时用标签页，设置一个值时用单选按钮，在提供分段按钮的系统中也可以用分段按钮。它们各自都会作为“选择其一”被朗读；一行切换按钮则不会。

@@ -1,0 +1,464 @@
+---
+title: ファイルアップロード
+description: ファイルピッカーでファイルを選ばせ、選ばれたファイルをファイル項目として見せます。縦に並ぶ行にも、タイルの並びにもなります。フォームに置くだけで、選ばれたファイルを保持し、コードなしで送信します。ファイルを自分で送るプロダクトは、ファイル項目を自分で渡します。自身では何もアップロードしません。
+translationOf: components/file-upload.mdx
+sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## 概要
+
+<ComponentAvailability name="file-upload" />
+
+<DemoFrame label="2 つのレイアウトのファイルアップロード。ファイルを選ぶと一覧に並び、取り除くこともできます。何も送信されません。" column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添付ファイル" accept=".pdf" constraints-text="PDF、10 MB まで" max-size="10000000" empty-text="ファイルが選ばれていません" remove-label="取り除く" type-error-text="追加できるのは PDF だけです。" size-error-text="10 MB を超えています。">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-upload>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="添付ファイル" accept=".pdf,image/png" max-size="10000000" drop-text="ここにファイルをドラッグするか、選んでください" constraints-text="PDF または PNG、1 つにつき 10 MB まで" remove-label="取り除く" type-error-text="追加できるのは PDF と PNG だけです。" size-error-text="10 MB を超えています。">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+ファイルアップロードは、2 つのものを 1 か所にまとめます。ファイルを選ぶ手段と、選ばれたファイルの一覧です。いつもの組み合わせが、フォームでそのまま使える形でそろっています。
+
+**構成要素**は、[ファイルピッカー](/ja/components/file-picker/)と[ファイル項目](/ja/components/file-item/)です。ファイルピッカーは、選ぶ手段です。プラットフォームのファイルピッカーを開く利用者側の[ボタン](/ja/components/button/)、そのまわりのドロップ領域、言葉で伝える制限、選ばれたファイルの判定を受け持ちます。ファイル項目は、選ばれた 1 つのファイルです。グリフまたは画像、名前、サイズ、状態と、取り除くアクション、もう一度試すアクションを受け持ちます。ファイルアップロードは、そのどちらも描きません。加えるのは、2 つを結び付けるものです。どのファイルを保持しているか、あと何個のファイルが入るか、すべてのファイルに共通の形（行かタイル）、多くの変化をまとめた 1 つのメッセージ、取り除いた後のフォーカスの行き先、そしてフォームの値です。
+
+行を誰が持つかは、`rows` プロパティで決まります。
+
+- `own`（既定）。ファイルアップロードが、選ばれたファイルを保持し、その行を自分で描きます。フォームに置くだけで動きます。選び、一覧を見て、取り除き、送信できます。コードは書きません。
+- `given`。プロダクトが行を渡します。ファイルを選ばれた時点で 1 つずつ送り、行ごとに状態、進み具合、再試行のアクションを見せたい場合に使います。
+
+<Callout type="caution" title="アップロードはしません">
+ファイルアップロードは、接続を開かず、ファイルを 1 バイトも読みません。`rows="own"` では、選ばれたファイルについてブラウザーのハンドルだけを保持し、フォームが送信されるときにフォームがファイルを送ります。`rows="given"` では何も保持しません。ファイルをどこへ、どの認証情報で、どう分割し、どう再試行して送るかは、フォームまたはプロダクトのコードが決めます。このページのサンプルは何も送りません。
+</Callout>
+
+次の場合は、ほかのものを使います。
+
+- ファイルがすでに保存されていて、開いたり選択したりする場合。それは[リスト](/ja/components/list/)です。
+- 宛先やラベルのような値を入力する場合。それは[タググループ](/ja/components/tag-group/)の入力チップです。
+- 1 つの作業がどこまで進んだかだけを示す場合。それは[プログレスインジケーター](/ja/components/progress-indicator/)です。
+- ファイルの行き先が、ピッカーの下の一覧ではない場合。書いている途中のメッセージの中に入る、キャンバスの上に置かれる、その場で読んで保持しない、といったときです。それは単独の[ファイルピッカー](/ja/components/file-picker/)で、[ファイル項目](/ja/components/file-item/)はファイルを見せる場所に置きます。[1 つ下の階層](#1-つ下の階層)を見てください。
+- スクリプトが動かない場所でファイルを受け取る必要がある場合。自身のフォームにネイティブの `<input type="file">` を書きます。カスタム要素は、スクリプトなしではピッカーを開くことも、ファイルを運ぶこともできません。
+
+Web では `<tanrei-file-upload>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+要素をフォームに置き、`name` とトリガーを指定します。それだけです。選ばれたファイルは一覧に並び、それぞれの行に取り除くアクションが付き、フォームは保持されているファイルを送信します。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form method="post" enctype="multipart/form-data" action="/requests">
+      <tanrei-file-upload name="attachments" multiple
+                          accept=".pdf,image/png" max-size="10000000"
+                          label="添付ファイル"
+                          constraints-text="PDF または PNG、1 つにつき 10 MB まで"
+                          remove-label="取り除く"
+                          type-error-text="追加できるのは PDF と PNG だけです。"
+                          size-error-text="10 MB を超えています。">
+        <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+      </tanrei-file-upload>
+      <button type="submit">送信</button>
+    </form>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload } from '@tanrei/react';
+
+    <form method="post" encType="multipart/form-data" action="/requests">
+      <FileUpload
+        name="attachments"
+        multiple
+        accept={['.pdf', 'image/png']}
+        maxSize={10_000_000}
+        label="添付ファイル"
+        constraintsText="PDF または PNG、1 つにつき 10 MB まで"
+        removeLabel="取り除く"
+        typeErrorText="追加できるのは PDF と PNG だけです。"
+        sizeErrorText="10 MB を超えています。"
+      >
+        <Button slot="trigger" variant="outlined">ファイルを選ぶ</Button>
+      </FileUpload>
+      <button type="submit">送信</button>
+    </form>
+    ```
+  </TabItem>
+</Tabs>
+
+何も書かなくても、次のように動きます。
+
+- `multiple` があると、2 回目に選んだファイルは 1 回目に加わります。`maxFiles` は、保持されているファイルをすべて数えます。`multiple` がなければ、新しいファイルが、保持されていたファイルと入れ替わります。
+- 同じファイルを 2 回選んでも、保持されるのは 1 つです。
+- 制限に合わないファイルは保持されません。理由を伝える利用者側の文とともに、失敗した行として描かれ、取り除くか、もう一度選ぶと消えます。
+- 取り除くアクションは、その行を取り除きます。フォーカスは次の行へ進みます。
+- フォームは、保持されているファイルを `name` で送信します。リセットすると一覧は空になります。
+
+マークアップでは書けないことは、次の 3 つのコードで足します。どれも任意です。
+
+```js
+const upload = document.querySelector('tanrei-file-upload');
+
+// ファイルのサイズを、プロダクトの言葉で書きます。指定しなければ、サイズは描かれません。
+const megabytes = new Intl.NumberFormat('ja', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+upload.formatSize = (bytes) => megabytes.format(bytes / 1e6);
+
+// 利用者の操作で、保持されているファイルが変わりました。
+upload.addEventListener('change', ({ detail }) => console.log(detail.files));
+
+// コードから、保持されているファイルを読み、ファイルを渡し、空にします。
+upload.files;          // File[]。読むたびに新しい配列です
+upload.add(files);     // 選んだときと同じように判定します。断られたファイルと理由を返します
+upload.clear();
+```
+
+React では、同じ 3 つを ref から使います。`ref.current.files`、`ref.current.add(files)`、`ref.current.clear()` です。`formatSize` と `onChange` はプロパティです。
+
+### ファイルを自分で送る
+
+プロダクトがファイルを 1 つずつ自分で送り、その結果を伝える場合は、`rows="given"` を指定します。`select` で、残すファイルごとに[ファイル項目](/ja/components/file-item/)を追加します。ファイル項目の `remove` で、その項目を取り除きます。このときコンポーネント自身は、行を追加も削除もせず、ファイルも保持しません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-file-upload id="attachments" rows="given" layout="drop-area" multiple
+                        accept=".pdf,image/png" max-size="10000000"
+                        label="添付ファイル"
+                        drop-text="ここにファイルをドラッグするか、選んでください"
+                        constraints-text="PDF または PNG、1 つにつき 10 MB まで"
+                        remove-label="取り除く" retry-label="もう一度試す">
+      <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+    </tanrei-file-upload>
+
+    <script type="module">
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const upload = document.querySelector('#attachments');
+      const size = new Intl.NumberFormat('ja', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+
+      upload.addEventListener('select', ({ detail }) => {
+        for (const file of detail.files) {
+          const row = document.createElement('tanrei-file-item');
+          Object.assign(row, { value: crypto.randomUUID(), name: file.name, sizeText: size.format(file.size / 1e6), status: 'uploading', statusText: 'アップロード中', progress: 0 });
+          upload.append(row);
+          // 利用者側のコードがファイルを送り、結果を伝えます。コンポーネントは、設定された内容を描くだけです。
+          send(file, {
+            onProgress: (share) => (row.progress = share),
+            onDone: () => Object.assign(row, { status: 'done', statusText: 'アップロード済み' }),
+            onError: () => Object.assign(row, { status: 'error', errorText: '接続が切れました。', retryable: true }),
+          });
+        }
+      });
+
+      // 断られたファイルの理由は名前であって、文ではありません。利用者側の言葉で伝えます。
+      upload.addEventListener('reject', ({ detail }) => {
+        const tooLarge = detail.files.filter((refused) => refused.reason === 'size').length;
+        if (tooLarge) upload.announcement = `${tooLarge} 個のファイルが 10 MB を超えていました。`;
+      });
+
+      // 行が自分で消えることはありません。利用者側が取り除くと、フォーカスは次の行へ進みます。
+      upload.addEventListener('remove', (event) => event.target.remove());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload, FileItem } from '@tanrei/react';
+
+    <FileUpload
+      rows="given"
+      layout="drop-area"
+      multiple
+      accept={['.pdf', 'image/png']}
+      maxSize={10_000_000}
+      label="添付ファイル"
+      dropText="ここにファイルをドラッグするか、選んでください"
+      constraintsText="PDF または PNG、1 つにつき 10 MB まで"
+      removeLabel="取り除く"
+      retryLabel="もう一度試す"
+      onSelect={(event) => start(event.detail.files)}
+      onReject={(event) => explain(event.detail.files)}
+    >
+      <Button slot="trigger" variant="outlined">ファイルを選ぶ</Button>
+      {rows.map((row) => (
+        <FileItem key={row.id} value={row.id} name={row.name} sizeText={row.sizeText} status={row.status} statusText={row.statusText} progress={row.progress} errorText={row.errorText} retryable={row.retryable} onRemove={() => remove(row.id)} onRetry={() => retry(row.id)} />
+      ))}
+    </FileUpload>
+    ```
+  </TabItem>
+</Tabs>
+
+<Callout type="caution" title="行は、渡すと指定したときだけ描かれます">
+利用者側がファイルアップロードの中に書いた `<tanrei-file-item>` は、`rows="given"` があるときだけ描かれます。この属性がなければ、ファイルアップロードは自身でファイルを保持し、利用者側の行は描かれず、デバッグビルドがそのことを報告します。
+</Callout>
+
+### 1 つ下の階層
+
+同じものを 2 つの構成要素から自分で書いても、見た目は同じで、名前、説明、状態も同じです。
+
+```html
+<!-- ファイルアップロード -->
+<tanrei-field label="添付ファイル">
+  <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
+      constraints-text="PDF、5 つまで" empty-text="ファイルが選ばれていません" remove-label="取り除く" retry-label="もう一度試す">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="アップロード中" progress="0.4"></tanrei-file-item>
+  </tanrei-file-upload>
+</tanrei-field>
+
+<!-- 1 つ下の階層：2 つの構成要素を、プロダクトが並べます -->
+<tanrei-field label="添付ファイル">
+  <tanrei-file-picker multiple accept=".pdf" max-files="5"
+      constraints-text="PDF、5 つまで" selection-text="ファイルが選ばれていません">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+<ul class="my-files" aria-label="添付ファイル">
+  <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="アップロード中" progress="0.4"
+        remove-label="取り除く" retry-label="もう一度試す"></tanrei-file-item></li>
+</ul>
+```
+
+<DemoFrame label="同じものを自分で書いたもの。ファイルピッカーと、ファイル項目を 1 つ入れたページ自身のリストです" column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="添付ファイル" multiple accept=".pdf" max-files="5" constraints-text="PDF、5 つまで">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-picker>
+  <ul class="not-content" aria-label="添付ファイル" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="アップロード中" progress="0.4" remove-label="取り除く" retry-label="もう一度試す"></tanrei-file-item></li>
+  </ul>
+</DemoFrame>
+
+ファイルの行は、単独でも、ファイルアップロードの中でも、同じ要素です。自分で書いたものに付いてこないのは、ファイルアップロードが持っている状態です。
+
+- 多くの変化をまとめた、控えめな 1 つのメッセージ。
+- 取り除いた後、次のファイルへ進むフォーカス。
+- フォームの値、リセット、検証。
+- 2 回選ばれたファイルを飛ばすことと、あと何個のファイルが入るかの判定。
+- すべてのファイルに共通の、形（行かタイル）、収め方（`cover` か `contain`）、2 つのアクションの名前。
+- 項目を囲むリストと、全体を囲むグループ。
+
+ファイルアップロードにない並べ方が必要なときに、1 つ下の階層で書きます。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| 選ぶ手段、その下の一覧、フォームの値 | ファイルアップロード |
+| 選ばれたファイルを、ピッカーの下ではない場所に置く（メッセージの中、プレビューの横、テーブルの中など） | [ファイルピッカー](/ja/components/file-picker/)と、ファイルを見せる場所に置く[ファイル項目](/ja/components/file-item/) |
+| その場で読み、保持しない 1 つのファイル | [ファイルピッカー](/ja/components/file-picker/)を単独で使う |
+| プロダクトがすでに持っていて、選ぶもののないファイル | [ファイル項目](/ja/components/file-item/)を単独で使う |
+| 並べ替えられるファイル | 行でファイルを見せる[リスト](/ja/components/list/)。[ファイル項目のページ](/ja/components/file-item/#並べ替えられるファイル)を見てください |
+
+## 仕様
+
+<DemoFrame label="プロダクトが渡した、状態ごとの行。待機中、40% まで送信、送信中、完了、失敗して再試行できる、失敗して再試行できない" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="添付ファイル" constraints-text="PDF または PNG、1 つにつき 10 MB まで" remove-label="取り除く" retry-label="もう一度試す">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="待機中"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="アップロード中" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="アップロード中"></tanrei-file-item>
+    <tanrei-file-item value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="アップロード済み"></tanrei-file-item>
+    <tanrei-file-item value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="接続が切れました。" retryable></tanrei-file-item>
+    <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 MB" status="error" error-text="10 MB を超えています。"></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+<DemoFrame label="同じファイルアップロードをタイルにしたもの。どのファイルも画像の入ったボックスで、その下に名前があります" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="写真" constraints-text="画像、1 枚につき 5 MB まで" remove-label="取り除く" retry-label="もう一度試す">
+    <tanrei-button slot="trigger" variant="outlined">写真を選ぶ</tanrei-button>
+    <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+### それぞれの構成要素が受け持つもの
+
+| 観点 | ファイルピッカーから | ファイル項目から | ファイルアップロード自身 |
+| --- | --- | --- | --- |
+| プロパティ | `layout`、`multiple`、`accept`、`maxSize`、`constraintsText`、`dropText`、`disabled`、`error`、`required` | `itemForm`、`itemPreview`、`itemFit`、`itemNameHidden`、`itemWidth`、`itemHeight`（項目の `form`、`preview`、`fit`、`nameHidden`、`width`、`height`）、`removeLabel`、`retryLabel` | `rows`、`maxFiles`、`label`、`emptyText`、`typeErrorText`、`sizeErrorText`、`countErrorText`、`announcement` |
+| イベント | — | 利用者側が渡したファイル項目の `click`、`remove`、`retry` | `select`、`reject`、`change` |
+| スロット | `trigger`、`icon` | — | 既定のスロット。`rows="given"` のときの、利用者側のファイル項目です |
+| トークン | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`、`comp.file-upload.list.item-gap` |
+
+ファイルピッカーは、自分の `label`、`maxFiles`、`selectionText` を持っています。これらは、そのまま渡されません。ファイルアップロードの `label` は、ピッカーと一覧の両方に名前を付けます。`maxFiles` は、一覧のすべてのファイルを数えます。ピッカーの `selectionText` は、一覧が空の間、ファイルアップロードが `emptyText` から書きます。
+
+ファイル項目からの 8 つのプロパティは、ファイルアップロードのすべてのファイル項目に渡されます。すべてのファイルを同じ描き方にそろえるためです。利用者側のファイル項目がそのどれかを別の値にしていても、上書きされ、デバッグビルドが報告します。`disabled` も、すべてのファイル項目に渡されます。
+
+選ぶときの動き（トリガー、ドロップ領域、`accept` と制限）は[ファイルピッカーのページ](/ja/components/file-picker/)に、ファイルの行やタイルが見せるもの（形式ごとのグリフ、画像、状態、押せる本体）は[ファイル項目のページ](/ja/components/file-item/)にあります。
+
+### 1 つのファイルアップロードだけを変える
+
+ファイルアップロードに自分のトークンは 2 つあります。一覧の 2 つの間隔です。それ以外に描くものはすべて、ファイルピッカーのトークンとファイル項目のトークンを、どこで設定されていても読みます。1 つのインスタンスだけを変えるには、構成要素のトークンをその要素に設定します。
+
+```html
+<tanrei-file-upload label="添付ファイル" style="--tanrei-comp-file-item-row-container-gap: 16px">…</tanrei-file-upload>
+```
+
+<ComponentSpecs name="file-upload" />
+
+### Web での描き方の違い
+
+- 要素のシャドウルートにあるのは、1 つの `<tanrei-file-picker>`、リスト、1 つのライブリージョンです。`rows="own"` では、ファイルアップロードが作る `<tanrei-file-item>` がリストに入ります。`rows="given"` では、利用者側のファイル項目は、利用者側の DOM の既定のスロットに残ります。要素をインポートすると、構成要素は 2 つとも定義されます。
+- スロットに入れたトリガーとグリフは、ファイルピッカーに渡され、利用者側の DOM に残ります。トリガーは利用者側のボタンのままで、置かれた場所でフォーカスを受け取ります。
+- 要素はフォームに関連付けられますが、2 つの構成要素は関連付けられません。構成要素がフォームに項目を加えることはありません。
+- `select`、`reject`、`change` は、ファイルアップロード自身の CustomEvent です。ファイルピッカーの `select` と `reject` は、外には出ません。利用者側が渡したファイル項目の `click`、`remove`、`retry` は、利用者側のリスナーまでバブリングします。ファイルアップロードが作る項目のものは、中で処理されます。
+- パーツ: `file-picker`、`list`、そしてファイルアップロードが作る項目ごとの `file-item` があります。ファイルピッカーの `container`、`icon`、`label`、`supporting-text`、`selection-text` は、そのままの名前です。ファイルアップロードが作る項目のパーツは、`item-` という接頭辞が付きます。`item-container`、`item-media`、`item-icon`、`item-preview`、`item-headline`、`item-supporting-text`、`item-status-icon`、`item-progress`、`item-action` です。利用者側が渡したファイル項目は、その要素自身としてスタイルを付けます。`tanrei-file-item::part(icon)` のように書きます。
+- `item-preview` と `rows="own"` を指定すると、ファイル項目がそれぞれ自分の画像のアドレスを作り、解放します。ファイルアップロードは 1 つも作りません。
+- 要素そのものはフォーカスを受け取りません。フォーカスが止まる位置はどれも、利用者側のトリガーか、ファイル項目の中です。
+
+## ガイドライン
+
+### 選ぶ手段と制限
+
+選ぶ手段は、[ファイルピッカー](/ja/components/file-picker/)のものです。`button` と `drop-area` の 2 つのレイアウト、`trigger` スロットに入れる利用者側のボタン、`icon` スロットのグリフ、そして `accept`、`maxSize`、`multiple` という制限と、それを伝える `constraintsText` です。詳しくはファイルピッカーのページにあります。どれも、同じ名前でファイルアップロードのプロパティになっています。
+
+ファイルアップロードが制限に加えるものは、次のとおりです。
+
+- `maxFiles` は、1 回の選択ではなく、一覧全体のファイルの最大数です。`rows="own"` では保持されているファイルを、`rows="given"` では利用者側が渡したファイル項目を数えます。選択は、まだ入るファイルの数に照らして判定されます。
+- `rows="own"` では、同じファイルを 2 回選んでも、保持されるのは 1 つです。
+- `rows="own"` では、断られたファイルは 1 つずつ、理由を伝える利用者側の文とともに、失敗した行として描かれます。文は `typeErrorText`、`sizeErrorText`、`countErrorText` です。要素に指定するか、`setWords()` でプロダクト全体に一度だけ指定します。
+- `rows="given"` では、断ったことについて何も描かれません。`reject` は、断られたファイルを 1 つずつ、理由とともに伝えます。理由は `type`、`size`、`count` のいずれかです。何が起きたかは、フィールドのエラーテキスト、失敗した行、または `announcement` を使って、利用者側の言葉で伝えます。
+- `emptyText` は、ボタンのレイアウトで、ファイルが選ばれていない間、トリガーの横に置かれるテキストです。
+
+### 行を誰が持つか
+
+| 項目 | `rows="own"`（既定） | `rows="given"` |
+| --- | --- | --- |
+| 使う場面 | まとめて送信するフォーム。 | ファイルを 1 つずつ自分で送るプロダクト。 |
+| 行 | ファイルアップロードが作るファイル項目です。保持したファイルと、断ったファイルに 1 つずつです。 | 利用者側が追加し、取り除く `<tanrei-file-item>` の子要素です。 |
+| 2 回目に選んだとき | `multiple` があれば加わり、なければ入れ替わります。同じファイルは 1 つだけ保持されます。 | 利用者側が決めます。 |
+| 断られたファイル | 利用者側の文が付いた、失敗した行。 | `reject` だけです。 |
+| 行が見せるもの | 名前、サイズ、取り除く。状態も進み具合もありません。何も送っていないためです。 | 名前、サイズ、状態、進み具合、エラー、再試行、取り除く。 |
+| 取り除く | 行を取り除き、`change` を発火します。 | 行の `remove` を発火します。取り除くのは利用者側です。 |
+| フォームの値 | 保持されているファイル。 | 利用者側がファイルを渡した行の `file`。 |
+| フォームのリセット | 一覧を空にします。 | 何も変わりません。 |
+
+ファイルアップロードが、子要素からモードを推測することはありません。行を自分で持つプロダクトは、最初に選ばれる前には行を 1 つも持っていません。そのため、`rows="given"` と指定します。
+
+表示中に `rows` を変えると、保持されていたファイルはすべて、イベントなしで手放されます。必要であれば、先に `files` を読みます。
+
+### 行かタイルか
+
+`itemForm` は、すべてのファイルの形を選びます。`row`（既定）は、縦に並ぶ行です。`tile` は、折り返すボックスの並びです。1 つのファイルアップロードでは、すべてのファイルを同じ形で描きます。
+
+| プロパティ | すべてのファイル項目の | すること |
+| --- | --- | --- |
+| `itemForm` | `form` | `row` または `tile`。 |
+| `itemPreview` | `preview` | グリフの場所に画像を描きます。項目の `previewSrc` のアドレスにある画像か、ファイルが画像であればファイルそのものです。 |
+| `itemFit` | `fit` | `cover` または `contain`。 |
+| `itemNameHidden` | `nameHidden` | 画像を描いているタイルでは、名前が描かれません。 |
+| `itemWidth`、`itemHeight` | `width`、`height` | タイルのボックス。 |
+
+`rows="own"` と `itemPreview` を指定すると、保持されているファイルのうち画像であるものは、自分の画像を見せます。画像にはそれぞれコストがあります。それはファイル項目のコストで、[ファイル項目のページ](/ja/components/file-item/#プレビューとそのコスト)に書いてあります。`itemPreview` がなければ（既定）、保持された 100 個のファイルのコストは、100 個のハンドルだけです。
+
+ファイルアップロードのファイルには、利用者が変えられる順序がありません。順序を変えたい場合は、[並べ替えられるファイル](/ja/components/file-item/#並べ替えられるファイル)を見てください。
+
+### 利用者側が渡す行
+
+`rows="given"` では、それぞれの行は、利用者側が書く[ファイル項目](/ja/components/file-item/)で、ファイル項目自身のプロパティを持ちます。`value`、`name`、`mediaType`、`formatText`、`sizeText`、`status`、`statusText`、`progress`、`errorText`、`retryable`、`previewSrc`、`interactive`、`href`、`readOnly` です。それぞれが何を描くかは、ファイル項目のページにあります。ファイルアップロードが自分で作る行は、保持したファイルでは `pending` のファイル項目、断ったファイルでは再試行のない `error` のファイル項目です。
+
+| `status` | 名前の前 | 2 行目 | バー | アクション |
+| --- | --- | --- | --- | --- |
+| `pending` | 形式のグリフ | サイズ、続けて `statusText` | なし | 取り除く |
+| `uploading` | 形式のグリフ | サイズ、続けて `statusText` | `progress` の値まで塗られます。`progress` の指定がなければ不確定の表示 | 取り除く |
+| `done` | 形式のグリフ | サイズ、続けてチェックと `statusText` | なし | 取り除く |
+| `error` | 形式のグリフ | サイズ、続けてエラーの印と `errorText` | なし | `retryable` であれば再試行、続けて取り除く |
+
+- サイズは利用者側で整形し、`sizeText` として渡します。`rows="own"` では、`formatSize` という関数として渡します。1 メガバイトを 1000 キロバイトとするか 1024 キロバイトとするかは、プロダクトが決めます。
+- `progress` は、利用者側の送信について利用者側が伝える値です。コンポーネントが自分でバーを動かすことはありません。
+- ファイルアップロードがすべての行に渡すものは、行には設定しません。形、プレビュー、2 つのアクションの名前、`disabled` です。
+
+### フィールドの中で
+
+フォームがラベル、補足テキスト、エラー、必須の印を見せる場合は、ファイルアップロードを[フィールド](/ja/components/field/)の中に置きます。フィールドがそれらを描き、ファイルアップロードに渡します。
+
+```html
+<tanrei-field label="添付ファイル" requirement="required" required-text="必須"
+              error error-text="10 MB 以下の PDF を選んでください。">
+  <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
+                      constraints-text="PDF、10 MB まで" remove-label="取り除く">
+    <tanrei-button slot="trigger" variant="outlined">ファイルを選ぶ</tanrei-button>
+  </tanrei-file-upload>
+</tanrei-field>
+```
+
+- `name` があると、ファイルアップロードは、保持しているすべてのファイルを順に送信します。断られたファイルが送信されることはありません。ファイルを 1 つも保持していない間は、項目を 1 つも送信しません。ネイティブのファイル入力は空の項目を 1 つ送信するため、このフィールドを読むサーバーは両方を確認します。
+- `required` は、ファイルを 1 つも保持していない間、値がないことをフォームに伝えます。メッセージはブラウザー自身のものです。利用者が読む文は、フィールドの `errorText` です。ボタンには必須という状態がないため、必須のファイルアップロードはフィールドの中に置きます。フィールドが、フォームを送信する前に必須であることを伝えます。
+- フォームをリセットすると、一覧は空になります。送信した後も、ファイルと行は残ります。フォームをリセットするか、`clear()` を呼びます。
+- 履歴からページに戻っても、何も復元されません。ファイルアップロードは空の状態で始まります。
+- `name` がなければ、ファイルアップロードは何も送信しませんが、ファイルは保持し、一覧にも並べます。ファイルを自分で送る場合は、自身の submit ハンドラーで `files` を読みます。
+- `rows="given"` では、値は、ファイルを持つすべての行の `file` です。`row.file = file` と書きます。この場合、リセットしても何も変わりません。行は利用者側のものだからです。
+- ファイルアップロードが自分で `error` を設定することはありません。利用者側が、何が問題かを伝える言葉とともに、フィールドに設定します。
+
+### 言葉
+
+ファイルアップロードは、自身の言葉を持ちません。6 つは `setWords()` でプロダクト全体に一度だけ指定でき、それ以外はすべてインスタンスのプロパティです。
+
+| プロパティ | プロダクトの言葉のキー | ない場合 |
+| --- | --- | --- |
+| `emptyText` | `noFileText` | トリガーの横には何も描かれません。 |
+| `removeLabel` | `removeLabel` | 取り除くアクションは描かれますが、名前がありません。デバッグビルドが報告します。 |
+| `retryLabel` | `retryLabel` | 再試行のアクションは描かれますが、名前がありません。デバッグビルドが報告します。再試行のアクションがあるのは、利用者側が渡す行だけです。 |
+| `typeErrorText` | `fileTypeErrorText` | 種類を理由に断られたファイルは、文のない失敗した行として描かれます。デバッグビルドが報告します。 |
+| `sizeErrorText` | `fileSizeErrorText` | 大きすぎるファイルについて、同じです。 |
+| `countErrorText` | `fileCountErrorText` | これ以上入らないファイルについて、同じです。 |
+
+3 つの文が読まれるのは、`rows="own"` のときだけで、その理由でファイルが断られた後だけです。ファイルのサイズは、言葉のキーではありません。`formatSize` という関数で、インスタンスのプロパティです。
+
+それぞれのアクションは、そのファイルの名前で説明されます。「取り除く」という 1 語があれば、すべての行に足ります。利用者には「取り除く、ボタン、brief.pdf」と聞こえます。
+
+### 右から左
+
+右から左のレイアウトでは、トリガーと行のグリフが右に、行のアクションが左に並び、取り除くアクションがいちばん外側になります。バーは右から伸び、タイルの並びは右から始まります。ラテン文字のファイル名は、ドットと拡張子を含めて、自身の並びを保ちます。グリフが反転するのは、アイコンセットがそう指定している場合だけです。画像が反転することはありません。
+
+### 推奨
+
+- プロダクトがファイルを 1 つずつ自分で送るのでなければ、ファイルアップロードをフォームに置き、ファイルの保持を任せます。
+- 行の一覧は短く保ち、ファイルが選ばれた順に並べます。
+- 断ったことは、利用者が見ている場所で伝えます。フィールドのエラーテキストか、失敗した行です。
+- 多くの変化は、`announcement` で 1 つの文にまとめます。「40 個のファイルを追加しました」のように伝えます。
+
+### 非推奨
+
+- ドロップ領域を、選ぶための唯一の手段にしない。領域には、必ずトリガーを入れます。
+- トリガー、アイコン、ファイル項目以外のものを中に入れない。ほかの内容は描かれず、デバッグビルドが報告します。
+- `rows="given"` なしで行を書かない。その行は描かれません。
+- アップロードの進み具合を見せるために `rows="own"` を使わない。保持されたファイルの行には状態がありません。ファイルアップロードは何も送らないためです。
+- 個数、合計サイズ、全体のバーを中に表示しない。それらは、利用者側の言葉で横に描きます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="file-upload" />
+
+### コンポーネントが担うこと
+
+- 全体は、`label` か、まわりのフィールドによって名前が付くグループです。トリガーは利用者側のボタンです。制限、何も選ばれていないことを伝えるテキスト、フィールドの補足テキストまたはエラーが、その説明になります。
+- ドロップ領域は、同じボタンのための、ポインター用の大きなターゲットです。ロールも、名前も、フォーカス順の停止位置も、キーもありません。
+- 行はリストで、それぞれのファイル項目がその項目です。それぞれが、名前、形式、サイズ、状態またはエラーを読み上げます。送っているファイルには、そのファイルの名前が付いたプログレスバーがあります。
+- Tab は、まずトリガーに、続いてそれぞれのファイルに、順に届きます。利用者側が押せるようにした場合は本体、次に再試行、その次に取り除くの順です。
+- 控えめに伝えるライブリージョンが 1 つあり、追加された行、完了した行、失敗した行を、利用者側の言葉で伝えます。同時に届いた変化は、1 つのメッセージになります。進み具合が読み上げられることはありません。
+- `rows="own"` では、1 回の選択が 1 つのメッセージになります。保持されたファイルの名前が先で、続けて、断られたファイルの名前と利用者側の文です。ファイルアップロードが言葉や個数を足すことはありません。代わりに利用者側の 1 文を伝えるには、`change` のリスナーで `announcement` を設定します。
+- 行を取り除いたことは、読み上げられません。行が取り除かれた後、フォーカスは次の行の取り除くアクションへ進みます。次の行がなければ前の行へ、行が残っていなければトリガーへ進みます。`rows="own"` では、これをファイルアップロード自身が行います。
+- テキストが 200% のときも、すべてのテキストが折り返され、何も切り詰められません。強制カラーモードでは、領域は縁を保ち、受け取り中の領域は縁が太くなり、行のバーも見えたままです。
+
+Web での構成は次のとおりです。ファイルピッカーは、ファイルアップロードの構成要素で、そのシャドウルートの中にあります。その中のピッカーは本物の `<input type="file">` で、見た目、フォーカス順、支援技術のいずれからも隠されています。トリガーは、利用者側の DOM にそのまま残ります。利用者側が渡すファイル項目も同じです。グループ、リスト、ライブリージョン、そしてファイルアップロードが自分で作るファイル項目は、シャドウルートの中にあります。
+
+Web での既知の不足は、構成要素のものです。ボタンには必須という状態がなく、ブラウザーはドラッグを断っている領域にドロップを届けず、Safari ではクリックしてもボタンにフォーカスが移らず、破線の縁はスムージングをかけた角に沿うことができません（[ファイルピッカーのページ](/ja/components/file-picker/#アクセシビリティ)）。動く画像は、ブラウザーが再生します（[ファイル項目のページ](/ja/components/file-item/#アクセシビリティ)）。ファイルアップロードのまわりにフィールドがなく `required` だけを指定した場合、ファイルが足りないことを伝えるのはフォームの検証だけです。
+
+### 利用者側で行うこと
+
+- `trigger` スロットに、何をするかが分かるラベルの付いたボタンを 1 つ入れます。
+- グループに `label` を付けるか、ファイルアップロードをフィールドの中に置きます。
+- `accept`、`maxSize`、`maxFiles` を指定するときは、必ず `constraintsText` も指定します。
+- `removeLabel` を、要素に、または `setWords()` で一度だけ指定します。再試行できる行を渡す場合は、`retryLabel` も指定します。
+- `rows="own"` では、断られたファイルのための 3 つの文を指定します。設定した制限に合わせて、`typeErrorText`、`sizeErrorText`、`countErrorText` を指定します。
+- 断ったことと失敗したことは、必ず言葉で伝えます。
+- 多くの行が一度に変わるとき、そして聞こえる必要のある形で行を取り除くときは、`announcement` を設定します。

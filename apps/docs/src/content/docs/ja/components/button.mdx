@@ -1,0 +1,377 @@
+---
+title: ボタン
+description: 1 回のタップまたはクリックで、アクションの実行、オン・オフの切り替え、移動先への移動を行えるようにします。
+translationOf: components/button.mdx
+sourceHash: d3c82e9e9c52acaafaa279ddf1b5083da7264b09
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="button" />
+
+<DemoFrame label="バリアント">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、ボタンの以前の版を提供しています。そこでは、アイコンだけの形とトグルは別のアイコンボタンで、アイコンだけのボタンの幅とリンクの形はまだありません。追いつくまで、これらの例はその版のものです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="filled">デプロイ</tanrei-button>
+    <tanrei-button variant="outlined" size="small">キャンセル</tanrei-button>
+    <tanrei-button disabled>デプロイ中…</tanrei-button>
+
+    <!-- href があるとリンクになります。見た目は同じボタンです。 -->
+    <tanrei-button variant="tonal" href="/pricing/">料金を見る</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      document.querySelector('tanrei-button').addEventListener('click', deploy);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button variant="filled" onClick={deploy}>デプロイ</Button>
+    <Button variant="outlined" size="small" onClick={cancel}>キャンセル</Button>
+    <Button disabled>デプロイ中…</Button>
+
+    // href があるとリンクになります。見た目は同じボタンです。
+    <Button variant="tonal" href="/pricing/">料金を見る</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButton("デプロイ", variant: .filled) { deploy() }
+    TanreiButton("キャンセル", variant: .outlined, size: .small) { cancel() }
+
+    // 無効化は SwiftUI の環境値に従います。
+    TanreiButton("デプロイ中…") {}
+      .disabled(true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.*
+
+    TanreiButton(text = "デプロイ", onClick = ::deploy, variant = TanreiButtonVariant.Filled)
+    TanreiButton(text = "キャンセル", onClick = ::cancel, variant = TanreiButtonVariant.Outlined, size = TanreiButtonSize.Small)
+
+    // Compose では逆向きのフラグ enabled を使います。
+    TanreiButton(text = "デプロイ中…", onClick = {}, enabled = false)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButton(variant: TanreiButtonVariant.filled, onPressed: deploy, child: const Text('デプロイ'));
+    TanreiButton(variant: TanreiButtonVariant.outlined, size: TanreiButtonSize.small, onPressed: cancel, child: const Text('キャンセル'));
+
+    // onPressed が null のとき、ボタンは無効になります。
+    TanreiButton(onPressed: null, child: const Text('デプロイ中…'));
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button } from '@tanrei/react-native';
+
+    <Button variant="filled" onPress={deploy}>デプロイ</Button>
+    <Button variant="outlined" size="small" onPress={cancel}>キャンセル</Button>
+    <Button disabled>デプロイ中…</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+### アイコン、アイコンだけ、トグル
+
+ボタンはラベルの横にアイコンを持てます。位置は先頭で、`iconPosition` を `trailing` にすると末尾です。アイコンのある側のパディングはラベルの側より 1 段狭く、両側が同じくらいの余白に見えます。ラベルがなければアイコンだけのボタンになります。高さと同じ幅の円で、名前は `label` から取るので、このときは `label` が必須です。`toggle` を付けると、押すたびに自分の `selected` を切り替え、色とグリフの塗りで状態を示し、押された状態として読み上げさせます。
+
+<DemoFrame label="アイコンだけのボタンとトグル">
+  <tanrei-button variant="text" label="検索"><span slot="icon">search</span></tanrei-button>
+  <tanrei-button variant="tonal" label="編集"><span slot="icon">edit</span></tanrei-button>
+  <tanrei-button variant="outlined" toggle selected label="お気に入り"><span slot="icon">favorite</span></tanrei-button>
+  <tanrei-button variant="filled" icon-position="trailing">次へ<span slot="icon">arrow_forward</span></tanrei-button>
+</DemoFrame>
+
+Tanrei にはアイコンボタンという別のコンポーネントはありません。Material の名前は次のように対応します。
+
+| Material | Tanrei |
+| --- | --- |
+| Icon button | アイコンがありラベルのないボタン |
+| Standard icon button | `text` バリアント |
+| Filled / Tonal / Outlined icon button | `filled`、`tonal`、`outlined` バリアント |
+| Icon toggle button | `toggle` と `selected` |
+
+Text のトグルにはアイコンを付けてください。コンテナのない Text のトグルは、ラベルだけだと文字色の変化でしか状態を示せません。グリフの塗りが状態を見えるようにします。
+
+### アイコンだけのボタンの幅
+
+アイコンだけのボタンには 3 つの幅があります。幅を変えても高さは変わりません。ラベルのあるボタンは `width` を無視します。
+
+| `width` | 既定のシステムでの幅（small / medium / large） | 用途 |
+| --- | --- | --- |
+| `default` | 高さと同じ幅：32 / 40 / 56。円になります | ほとんどのアイコンのアクション。 |
+| `narrow` | グリフと、その両側の小さな余白：28 / 32 / 32。カプセル形になります | アイコンのアクションを詰めて並べる行。フィールドの末尾のツールや、密度の高い表の行など。 |
+| `wide` | 40 / 52 / 72。カプセル形になります | 行の中で、隣より重みを持たせたい 1 つのアクション。 |
+
+<DemoFrame label="アイコンだけのボタンの幅：default、narrow、wide" plain>
+  <tanrei-button variant="tonal" label="追加"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="narrow" label="追加"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="wide" label="追加"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="outlined" size="small" width="narrow" label="その他のオプション"><span slot="icon">more_vert</span></tanrei-button>
+  <tanrei-button variant="filled" size="large" width="wide" label="再生"><span slot="icon">play_arrow</span></tanrei-button>
+</DemoFrame>
+
+narrow のボタンは、グリフとその両側の余白だけでできています。そのため、グリフがカプセルの端に触れることはなく、デザインシステムがグリフの大きさを変えれば、ボタンもそれに従います。見た目は最小ターゲットより狭くなりますが、ヒット領域は狭くなりません。ターゲットは見えている端の外側まで届きます。ボタンの横にその分の余裕を取るか、項目の間隔を自分で取る[ツールバー](/ja/components/toolbar/)や[ボタングループ](/ja/components/button-group/)の中に置いてください。
+
+### 移動先のあるボタンはリンク
+
+ボタンに `href` を指定すると、ボタンではなくリンクになります。コントロールは同じで、どの状態でも同じトークンで描かれますが、ロールはリンクになり、プラットフォームがリンクに与えるものがすべて使えます。Web では本物のアンカーなので、新しいタブで開く、アドレスをコピーする、移動する前に行き先を確かめる、といったことができます。押すと別の場所へ移動するだけのコントロールには、必ずこの形を使います。ふつうのボタンの click で移動させることはしません。
+
+<DemoFrame label="リンク：同じ場所、新しいタブ、アイコンだけ、無効" plain>
+  <tanrei-button href="/ja/components/button-group/">ボタングループ</tanrei-button>
+  <tanrei-button variant="outlined" href="/ja/components/toolbar/" target="new" target-label="新しいタブで開きます">ツールバー</tanrei-button>
+  <tanrei-button variant="text" href="/ja/components/" label="すべてのコンポーネント"><span slot="icon">apps</span></tanrei-button>
+  <tanrei-button variant="tonal" href="/ja/components/button-group/" disabled>ボタングループ</tanrei-button>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button href="/getting-started/">はじめる</tanrei-button>
+
+    <!-- 新しいタブ。ラベルの後ろの印は自動で描かれます。target-label はスクリーンリーダーが読み上げる文言です。 -->
+    <tanrei-button variant="outlined" href="https://example.com/source" target="new" target-label="新しいタブで開きます">
+      ソースを見る
+    </tanrei-button>
+
+    <!-- Web のみ：rel と download はアンカーに渡されます。 -->
+    <tanrei-button variant="tonal" href="/report.pdf" download="report.pdf"><span slot="icon">download</span>レポートをダウンロード</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      // click が先に発火します。クライアントサイドのルーターはこれをキャンセルして、移動を自分で引き受けます。
+      document.querySelector('[href="/getting-started/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button href="/getting-started/">はじめる</Button>
+
+    <Button variant="outlined" href="https://example.com/source" target="new" targetLabel="新しいタブで開きます">
+      ソースを見る
+    </Button>
+
+    // click が先に発火します。クライアントサイドのルーターはこれをキャンセルして、移動を自分で引き受けます。
+    <Button
+      href="/getting-started/"
+      onClick={(event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      }}
+    >
+      はじめる
+    </Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **キー。** Enter でリンク先へ移動します。Space は、ボタンでの働きではなく、ふつうのリンクの上での働きをします（Web ではページがスクロールします）。
+- **`target`。** `same`（既定）は、いまいる場所で移動先を開きます。`new` は新しいタブかウィンドウで開きます。このとき、ラベルのあるボタンはラベルの後ろに `open_in_new` のグリフを表示します（自分で末尾のアイコンを置いている場合を除きます）。また `targetLabel` が必須になります。Tanrei は文言を持たないので、「新しいタブで開きます」にあたる言葉をプロダクトの言語で指定します。
+- **無効。** 無効なリンクのボタンは、移動も、コピーも、ドラッグもできず、無効なリンクとして伝わります。
+- **トグル。** トグルは状態を持つので、移動先は持てません。`toggle` を付けている間、`href` は無視されます。
+- **Web のみ**、`rel` と `download` がアンカーに渡されます。`target` を `new` にすると、`rel` には必ず `noopener` が加わります。
+- 訪問済みの見た目はありません。リンクのボタンの色は、ほかのボタンと同じく、強調の度合いと状態を表します。
+
+### フォームの中で
+
+Web では、ボタンはフォームのコントロールの 1 つで、押したときにフォームへ何をするかを `type` で示します。ほかのプラットフォームにはフォームの要素がありません。そこでは、ボタンを押したときとフィールドの `action` の両方から、同じ関数を呼びます。
+
+| `type` | 押したとき |
+| --- | --- |
+| `button`（既定） | フォームには何もしません。フォームの中のボタンで、送信せずにピッカーを開いたり行を追加したりできます。 |
+| `submit` | ブラウザー自身の送信ボタンと同じように、フォームに送信を求めます。先に `click`、次にフォームの検証、その後にフォームの `submit` イベントの順です。 |
+| `reset` | `click` とフォームの `reset` イベントの後に、フォームのすべてのコントロールを初期値に戻します。 |
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form id="profile">
+      <tanrei-text-field label="名前" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-button type="reset" variant="text">クリア</tanrei-button>
+      <tanrei-button type="submit" variant="outlined" name="intent" value="draft">下書きを保存</tanrei-button>
+      <tanrei-button type="submit" name="intent" value="publish">公開</tanrei-button>
+    </form>
+
+    <!-- フォームの外では、form 属性でフォームを id で指定します。 -->
+    <tanrei-button type="submit" form="profile" name="intent" value="publish">公開</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/text-field';
+      document.querySelector('#profile').addEventListener('submit', (event) => {
+        event.preventDefault();
+        // 押されたボタンの name と value がデータに入ります。"draft" か "publish" です。
+        const data = new FormData(event.target, event.submitter);
+        save(data.get('name'), data.get('intent'));
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, TextField } from '@tanrei/react';
+
+    <form
+      id="profile"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget, (event.nativeEvent as SubmitEvent).submitter);
+        save(data.get('name'), data.get('intent'));
+      }}
+    >
+      <TextField label="名前" name="name" requirement="required" />
+      <Button type="reset" variant="text">クリア</Button>
+      <Button type="submit" variant="outlined" name="intent" value="draft">下書きを保存</Button>
+      <Button type="submit" name="intent" value="publish">公開</Button>
+    </form>
+
+    // フォームの外では、form にフォームの id を渡します。
+    <Button type="submit" form="profile" name="intent" value="publish">公開</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **どのフォームか。** ボタンを囲むフォーム、または `form` 属性が id で指定するフォームです。ダイアログのアクションやページヘッダーにあるボタンは、この属性で、自分を囲んでいないフォームを送信します。要素の `form` プロパティはそのフォームを返し、設定はできません。
+- **フィールドでの Enter。** フォームの最初の送信ボタンが、そのフォームの既定のボタンです。Tanrei のボタンでも、ブラウザー自身のボタンでも同じです。フォームのフィールドで Enter を押すと、このボタンが押されます。Tanrei のテキストフィールド、数値フィールド、カラーフィールド、コンボボックス、ワンタイムコード入力欄、検索、チェックボックス、ラジオボタン、スイッチと、ブラウザー自身の 1 行の入力欄が対象です。ボタンはほかの押し方と同じく `click` を発火し、その `click` をキャンセルすると送信もキャンセルされます。
+- **無効。** 無効な送信ボタンは何も送信しません。フォームの既定のボタンである間は Enter も止めるので、準備のできていないフォームがボタンを避けて送信されることはありません。`<fieldset disabled>` の中のボタンは、`type` にかかわらず一緒に無効になります。リンクのボタンは無効になりません。
+- **どのボタンが押されたか。** `name` と `value` は、そのボタンがフォームを送信したときだけ送られます。`submit` のリスナーで、`event.submitter.value` か `new FormData(form, event.submitter)` から読み取ります。`event.submitter` は Tanrei の要素ではありません。`submit` イベントが配送される間、要素が自分の場所に置くネイティブの `<button>` です。そのため、`event.submitter` を要素と比較しないでください。
+- **フォームの送り方**を決めるのはフォームだけです。`formaction`、`formmethod`、`formenctype`、`formtarget`、`formnovalidate` は読み取りません。検証なしで下書きを保存するには、そのボタンの `click` リスナーでフォームの `noValidate` を設定します。`click` は検証より先に実行されます。
+- **二重の送信。** ボタンは 2 回目の押下を防ぎません。リクエストの処理中はボタンを無効にするか、2 回目の `submit` を無視します。
+- **トグルとリンク**は `type` を無視します。状態を切り替える押下や、どこかへ移動する押下は、フォームを送信しません。3 つのどれでもない `type` は `button` として動作します。
+
+### ラベルより長い名前
+
+リストのすべての行にある「削除」のように、同じ言葉が複数のボタンに描かれていると、スクリーンリーダーの利用者には、その言葉だけではどの行のボタンかがわかりません。それぞれのボタンに `label` を指定します。`label` は、描かれたテキストに代わってボタンのアクセシブルネームの全体になり、ボタンの見た目は変わりません。
+
+<DemoFrame label="すべての行に同じ言葉があり、それぞれのボタンに行の名前を付けた例" plain>
+  <tanrei-button variant="text" size="small" label="削除：Inter">削除</tanrei-button>
+  <tanrei-button variant="text" size="small" label="削除：Noto Sans JP">削除</tanrei-button>
+  <tanrei-button variant="text" size="small" label="削除：Roboto Mono">削除</tanrei-button>
+</DemoFrame>
+
+| `label` | 描かれるラベル | アクセシブルネーム |
+| --- | --- | --- |
+| あり | なし（アイコンのみ） | `label` |
+| 空 | あり | 描かれたテキスト |
+| あり | あり | `label` の全体で、それだけ |
+
+- **名前には、描かれたテキストを含めます。** 音声入力を使う人は、ボタンに見えている言葉を口にします。プロダクトの言語で無理がなければ、名前をその言葉で始めます。「削除」と描かれたボタンなら「削除：Inter」のようにします。大文字と小文字の違いや余分な空白は問いません。
+- **デバッグビルドは**、描かれたテキストを含まない `label` を報告します。その場合も、ボタンは指定された名前をそのまま使います。描かれたテキストに戻すことも、2 つをつなげることもありません。語句の順序は、プロダクトの言語が決めるものだからです。
+- **説明は名前ではありません。** ボタンを隣のボタンと見分けさせるのは名前です。「新しいタブで開きます」のような、押したときに起きることは説明で、名前とロールの後に読み上げられます。
+
+## 仕様
+
+<DemoFrame label="サイズと無効状態" plain>
+  <tanrei-button size="small">Small</tanrei-button>
+  <tanrei-button size="medium">Medium</tanrei-button>
+  <tanrei-button size="large">Large</tanrei-button>
+  <tanrei-button disabled>Disabled</tanrei-button>
+  <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
+</DemoFrame>
+
+<ComponentSpecs name="button" />
+
+## ガイドライン
+
+### 使う場面
+
+ボタンは、その場で何かが起こるアクションに使います。フォームの送信、保存、処理の開始、ダイアログの確定などです。Web では、フォームを送信するボタンは、そのことを `type` で示します（[フォームの中で](#フォームの中で)を参照）。
+
+押しても別の場所へ移動するだけなら、それはリンクです。ランディングページの「はじめる」やリストの末尾の「すべて見る」のように、その移動先にボタンの強調がふさわしいときは、ボタンのまま `href` を指定します。そうすると、リンクのロール、キー操作、ブラウザーの振る舞いを持つリンクになります（[移動先のあるボタンはリンク](#移動先のあるボタンはリンク)を参照）。文の中にある移動先は、ふつうのテキストリンクのままにします。
+
+### バリアントの選び方
+
+バリアントは強調の度合いを表します。強調には限りがあるので、1 つの画面で使うのは 1 度だけにします。
+
+| バリアント | 強調 | 用途 |
+| --- | --- | --- |
+| Filled | 最も強い | 画面やダイアログの中で最も重要な、ただ 1 つのアクション。 |
+| Tonal | 強い | 重要だが Filled と競合させたくないアクション。補助的な領域での主アクション。 |
+| Elevated | 中 | 込み入った背景や模様のある背景から切り離して見せたいアクション。 |
+| Outlined | 中 | Filled の隣に置く同格のアクション。「キャンセル」など。 |
+| Text | 弱い | 緊急度の低いアクション。カード、ダイアログ、ツールバー内のインラインアクション。 |
+
+`variant` のないボタンは Filled です。ただし、[ダイアログ](/ja/components/dialog/)や[サイドシート](/ja/components/side-sheet/)のアクションとして置いたときは、その置き場所の variant（既定のシステムでは Tonal）になります。見た目を変えたいアクションにだけ variant を設定すれば済みます。サイドシートの閉じるボタンも、同じようにシートの閉じるボタン用の variant になります。
+
+### 推奨
+
+- ラベルには、何が起こるかを表す動詞、または動詞と名詞の組み合わせを使います。**デプロイ**、**下書きを保存**、**メンバーを追加** など。
+- Filled ボタンは 1 画面に 1 つまでにします。2 つのアクションが同じくらい重要に思えるなら、その画面は 2 つの役割を抱えている可能性があります。
+- 主アクションは、そのプラットフォームの利用者が期待する位置に置き、プロダクト全体で順序を揃えます。
+- 密度の高いツールバーや表では `small`（32）、通常は `medium`（40）、タッチ主体の画面やヒーロー領域では `large`（56）を使います。どのサイズでもヒット領域は確保されます。
+- アイコンスロットはラベルを補強するために使います。ラベルを省くのは、検索、閉じる、その他のように広く通じるグリフのときだけにし、`label` でボタンに名前を付けます。
+
+### 非推奨
+
+- ボタンの click で画面を移動させない。移動先のあるコントロールはリンクです。`href` を指定すれば、新しいタブで開け、アドレスをコピーでき、リンクとして読み上げられます。
+- 「保存」や「削除」のようにページに作用するものに `href` を付けない。`targetLabel` で伝えずに新しいタブを開くこともしません。
+- リストの全行に Filled ボタンを置かない。Text ボタンにするか、選択した項目に作用するアクションを上部に 1 つ置きます。
+- 入力の不備を伝える唯一の手段としてボタンを無効化しない。有効のままにして、押されたときに何が足りないかを説明します。
+- ラベルを途中で切らない。ボタンの幅を広げるか、ラベルを短くします。
+- アイコンだけのボタンを `label` なしで置かない。グリフは名前になりません。
+- narrow のアイコンだけのボタンを、自分で隙間なく並べない。ターゲットは見えている端の外側まで届くので、重なってしまいます。
+
+### 文言
+
+ラベルの末尾に句読点は付けません。1〜2 語を目安にします。書き方は、プロダクトのそれぞれの言語でのラベルの書き方に合わせます。英語ではセンテンスケース（先頭のみ大文字）にし、日本語では「保存します」のような丁寧な文末ではなく、「保存」「デプロイ」のような名詞またはサ変名詞の形にします。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="button" />
+
+### コンポーネントが担うこと
+
+- すべてのプラットフォームで、ボタンのロールと無効状態を支援技術に伝えます。`href` があるときは、代わりにリンクのロールを伝え、実行するのは Enter だけになります。
+- トグルは押された状態を持つボタンで、チェックボックスでもスイッチでもありません。名前は状態によって変わりません。
+- 新しいタブなどで開くリンクは、そのことを 2 通りに伝えます。見える人には `open_in_new` の印で、見えない人にはリンクの説明としての `targetLabel` で伝えます。印そのものは支援技術から隠されます。
+- 描かれたラベルに加えて `label` があるときは、1 つのコントロールに 1 つの名前、つまり `label` を伝えます。描かれたテキストがもう一度読み上げられることはありません。
+- Web では、フィールドでの Enter がフォームの既定のボタンを押し、無効な既定のボタンはそのキーを止めます。無効な fieldset の中のボタンは、一緒に無効になります。
+- `small` サイズでも、narrow の幅でも、ボタンを大きく描くことなく、ヒット領域は最小ターゲットを満たします。
+- キーボードフォーカス時に、ギャップとリングからなるフォーカスインジケーターをアニメーションなしで表示します。
+- 色はロールの組から取得しており、そのコントラストはすべてのコントラストレベルで検証されています。Outlined のボタンの輪郭は既定のシステムの細い線で、あえて控えめにしてあります。コントロールを見分けさせるのは輪郭ではなく、ラベルとアイコンです。もっと強い輪郭が必要なプロダクトは、レイヤで `comp.button.outlined.outline.color` を `sys.color.outline` に設定します。
+- 文字サイズを大きくするとコンテナが大きくなり、ラベルは途中で切れません。
+
+### 利用者側で行うこと
+
+- 文脈がなくても意味が通じるラベルを書きます。プロジェクト名の横に「削除」とだけ書くより、「プロジェクトを削除」のほうが適切です。スクリーンリーダーの利用者は、ボタンだけを単独で聞くことがあります。
+- 時間のかかる処理を始めるアクションでは、フォーカスを移動するか、進行状況を読み上げさせます。ボタンを無効にするだけでは、スクリーンリーダーの利用者には何も伝わりません。
+- 破壊的な操作であることなどの意味を、バリアントの色だけで伝えないでください。ラベルの言葉で示します。
+- リンクのボタンには、行き先がわかる名前を付けます。「こちらをクリック」ではなく「請求書を見る」のようにします。`target` が `new` のときは `targetLabel` を書きます。
+- 複数のボタンに同じ言葉が描かれるときは、その言葉を含み、ボタンが何に作用するかを示す `label` をそれぞれに指定します（[ラベルより長い名前](#ラベルより長い名前)を参照）。
+- フォームの送信ボタンを無効にするときは、何が足りないのかをページ上で伝えます。無効なボタンは Enter も止めますが、それだけでは何も説明しません。
+- アイコンだけのボタンには、必ず `label` で名前を付けます。ポインターを使う人のために同じ文言の[ツールチップ](/ja/components/tooltip/)を表示してもかまいませんが、`label` の代わりにはなりません。

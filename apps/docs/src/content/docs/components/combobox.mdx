@@ -1,0 +1,237 @@
+---
+title: Combobox
+description: The box people type in to find one value, and the list of options it opens — without a label row, help or error text of its own. For a place whose label stands elsewhere, or inside a field a product composes itself.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="combobox" />
+
+<DemoFrame label="Bare: a filter in a toolbar, and a row whose label stands beside its combobox" column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Find a token" placeholder="Find a token" no-chevron empty-text="No matches">
+    <span slot="leading-icon">search</span>
+    <tanrei-option value="primary" supporting-text="sys.color.primary">primary</tanrei-option>
+    <tanrei-option value="secondary" supporting-text="sys.color.secondary">secondary</tanrei-option>
+    <tanrei-option value="surface" supporting-text="sys.color.surface">surface</tanrei-option>
+  </tanrei-combobox>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>Time zone</span>
+    <tanrei-combobox label="Time zone" value="Europe/Lisbon" empty-text="No matches">
+      <tanrei-option value="Asia/Tokyo">Tokyo</tanrei-option>
+      <tanrei-option value="Europe/Lisbon">Lisbon</tanrei-option>
+      <tanrei-option value="Europe/Berlin">Berlin</tanrei-option>
+    </tanrei-combobox>
+  </div>
+</DemoFrame>
+
+A combobox is the control of a [combobox field](/components/combobox-field/), alone: the box, the text typed in it, the leading glyph, the clear button and the chevron, and the list with its options, groups and status row. It has no label row above it, and no help and no error text below it.
+
+Use it bare where the label a person reads stands somewhere else:
+
+| Where | The label a person reads | The combobox's `label` |
+| --- | --- | --- |
+| A filter in a toolbar | The placeholder and the glyph say what it does | What it finds: "Find a token" |
+| A cell of a table | The column's header | The column and the row: "Assignee, release notes" |
+| A row whose label stands beside the box | The text beside it | The same words |
+
+Bare, the combobox needs a `label` of its own. It is the accessible name, of the input and of the list. A stacked combobox never draws it; a filled or an outlined one draws it as the label that floats in the box.
+
+It is an **advanced** component: the bare control, for a product that composes its own. Most forms want the [combobox field](/components/combobox-field/), which is this combobox inside a field, ready to use.
+
+**Used in** the [combobox field](/components/combobox-field/). To frame it yourself, put it in a [field](/components/field/), which names it, describes it, marks it required and puts it in its error condition.
+
+It is a block as wide as the place it is put in, bare and framed alike. It has no width of its own, and its width never follows its options or its value: for a narrower box, give it a narrower place.
+
+On the web it is `<tanrei-combobox>` with `<tanrei-option>` children, the elements a [select](/components/select/) holds. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- A filter in a toolbar: the toolbar gives it its width. No chevron: its suggestions exist only for what was typed. -->
+    <tanrei-combobox id="token" label="Find a token" placeholder="Find a token" no-chevron filter="none"
+      style="inline-size: 16rem">
+      <span slot="leading-icon">search</span>
+    </tanrei-combobox>
+
+    <!-- A cell of a table: the column's header is the visible label. -->
+    <td>
+      <tanrei-combobox name="assignee-release-notes" label="Assignee, release notes" value="aiko">
+        <tanrei-option value="aiko">Aiko Tanaka</tanrei-option>
+        <tanrei-option value="bao">Bao Nguyen</tanrei-option>
+      </tanrei-combobox>
+    </td>
+
+    <script type="module">
+      import '@tanrei/web/components/combobox';
+
+      const token = document.querySelector('#token');
+      // The person changed the text: you filter, and give the options back.
+      token.addEventListener('input', async () => {
+        const found = await find(token.inputValue);
+        token.replaceChildren(token.querySelector('[slot="leading-icon"]'), ...found.map(option));
+      });
+      // The committed value changed. The value is already the new one.
+      token.addEventListener('change', (e) => open(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Combobox, Option } from '@tanrei/react';
+
+    <Combobox label="Assignee, release notes" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
+      <Option value="aiko">Aiko Tanaka</Option>
+      <Option value="bao">Bao Nguyen</Option>
+    </Combobox>
+    ```
+  </TabItem>
+</Tabs>
+
+What happens in the box and in the list is the same bare, framed and in a combobox field, and is described once, on the combobox field's page: [the list](/components/combobox-field/#the-list), and [typing, moving and choosing](/components/combobox-field/#typing-moving-and-choosing).
+
+### In a field, by hand
+
+A field around a combobox is a combobox field written out. Leave the combobox's own `label` empty: the field names it. `label`, `error`, `disabled` and the requirement are said on the field; `name`, `value`, the options and everything about typing on the combobox.
+
+```html
+<tanrei-field label="City" requirement="required" required-text="Required"
+  supporting-text="Where the order is sent.">
+  <tanrei-combobox name="city" value="tokyo">
+    <tanrei-option value="kyoto">Kyoto</tanrei-option>
+    <tanrei-option value="tokyo">Tokyo</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+```
+
+<DemoFrame label="A field with a combobox in it: the same picture as a combobox field" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" requirement="required" required-text="Required" supporting-text="Where the order is sent.">
+    <tanrei-combobox value="tokyo" empty-text="No matches">
+      <tanrei-option value="kyoto">Kyoto</tanrei-option>
+      <tanrei-option value="tokyo">Tokyo</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</DemoFrame>
+
+The combobox tells its field what only it knows. Its help starts where the text starts, past the padding and a leading glyph. A filled or an outlined combobox draws the field's label itself, floating in the box, so the field draws no label row. And while its list is open it is drawn focused, so the field's label and help are drawn focused with it, whether or not the input has focus.
+
+A press on the field's label moves focus to the input and opens nothing. While the list is open the label is outside the combobox: the press closes the list, and focus stays in the input.
+
+## Specs
+
+<DemoFrame label="Bare comboboxes: in error, disabled, read-only, clearable, and large" plain column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" value="nairobi" error empty-text="No matches">
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" value="tokyo" disabled>
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" value="tokyo" readonly>
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="City" value="tokyo" clearable clear-label="Clear city" empty-text="No matches">
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="City" value="tokyo" empty-text="No matches">
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
+  </tanrei-combobox>
+</DemoFrame>
+
+<DemoFrame label="Filled and outlined bare: the combobox's own label floats in the box" system="m3-like" plain column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="City" value="tokyo" empty-text="No matches">
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="City" empty-text="No matches">
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokyo</tanrei-option>
+  </tanrei-combobox>
+</DemoFrame>
+
+### What is the combobox's, and what is the field's
+
+| Aspect | The combobox | The field around it |
+| --- | --- | --- |
+| Draws | The box, the text, the placeholder, the leading glyph, the clear button and the chevron, the list with its options, groups and status row, and the label that floats in a filled or an outlined box | The label row above a stacked combobox, the required or optional mark, the help, the error text |
+| Holds | The value, the text, whether the list is open, its place in a form, the events | Nothing |
+| Says to assistive technology | That it is a combobox with a list, expanded or not, and which option is active | The name, the help or the error text, required, invalid, disabled |
+
+The three variants and the two sizes, `medium` (48) and `large` (56), are the text input's: a combobox and a text input side by side share every line. The default system ships `stacked` only.
+
+### Bare, without a field
+
+- **The name** is `label`. `labelHidden` stops a filled or an outlined combobox from drawing it.
+- **An error** is `error`, which you set: the box is drawn in its error condition and exposed as invalid. The combobox has no error text. Say what is wrong in words beside it, or frame it.
+- **Required** is a field's to say. A bare combobox has no requirement setting: where the form needs an answer, validate it yourself.
+- **A text that names no option** is given up when the person leaves, unless `allowCustomValue` is set. It is never an error of the combobox's own.
+
+<ComponentSpecs name="combobox" />
+
+### What the web draws differently
+
+- `<tanrei-option>` and `<tanrei-option-group>` are data: they draw nothing. They are the elements a select holds. An option whose value is the empty string is drawn and cannot be chosen, because the empty value means that nothing is chosen.
+- A `<slot>` element among the combobox's children stands for the elements assigned to it. An element of your own that holds a combobox in its shadow root passes its own children on as the options this way, and they are read again whenever they change.
+- The element is form-associated. With a `name` it submits `value` and never the text of an edit that was not committed, resets to its `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while its field says it is required.
+- The element is a block. `focus()` goes to the input, and a press anywhere on the box outside a button focuses it.
+- `chevron` is the inverse attribute `no-chevron`, and `readOnly` is `readonly`.
+- `input` is the native event of the text element. `change` and `action` are composed CustomEvents that carry `detail.value` and `detail.inputValue`; cancel `action` to keep Enter from submitting the form. `toggle` carries `detail.open` and, for a close, `detail.reason`; it is composed and does not bubble.
+- The list is a `popover="manual"` element in the top layer. A press outside closes it and also reaches the element under it.
+- Parts: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`.
+- `empty-text` and `clear-label` left empty are read from the product's words (`setWords()`).
+- Before the element is defined, its options are running text. Hide `tanrei-combobox:not(:defined) > *` and reserve the height.
+
+## Guidelines
+
+### Combobox, combobox field, or a field by hand
+
+| You need | Use |
+| --- | --- |
+| A label, the box with its list, help and an error | A [combobox field](/components/combobox-field/) |
+| The box alone, under a label that stands elsewhere: a toolbar's filter, a table's cell, a row with its label beside it | A combobox, named by its own `label` |
+| Something of your own inside the frame, beside or below the box | A [field](/components/field/) with a combobox and your own element in it |
+| A closed list with no typing | A [select](/components/select/) |
+| Typing that leads to places to go rather than to a value | A [search](/components/search/) |
+
+### Do
+
+- Give a bare combobox a `label` in the words of the visible label, or in words that say what the visible label and its place say together: "Assignee, release notes".
+- Give a bare combobox its width by its place: a column of a grid, a cell, a toolbar's item with a width.
+- Leave the chevron out (`no-chevron`) where suggestions exist only for what was typed.
+- Use the combobox field wherever a label above the box, help and an error are what you need.
+
+### Don't
+
+- Don't use a bare combobox in a form to save the room of a label.
+- Don't use the placeholder as the label. It goes as soon as someone types, and it is never the name.
+- Don't set `label`, `error` or `disabled` on a combobox inside a field. Say them on the field, so that the label and the help follow.
+- Don't put a combobox field inside a field. It is a field already; the control a field frames is the combobox.
+- Don't write `supporting-text`, `error-text` or `requirement` on a combobox. They are a field's, and a combobox draws none of them.
+
+## Accessibility
+
+<ComponentAccessibility name="combobox" />
+
+### What the component handles
+
+- The input is an editable combobox with a list box. Its name is its own `label`, or the label of the field around it where it has none. The placeholder is never the name.
+- Its description is what its field gives: the help or the error text, and the optional text.
+- It is exposed as invalid while in error, as required while its field says so, as read-only and disabled, and as expanded while its list is open.
+- Focus stays in the input while the list is open. The active option is its active descendant, so typing never stops editing the text.
+- The list is a list box of the same name. Each option has its name, its description, whether it is the chosen one, whether it is disabled, and its position among the options shown. A group is named by its title.
+- The status row is a live region: its text is read politely when it changes, and at once when the source failed.
+- The chevron is a button of the same name, outside the focus order. The clear button is named by `clearLabel`, and is the next focus stop after the input.
+- Focus is shown by the box's own edge, from the keyboard and from a pointer alike. The hit area meets the minimum target.
+- The asterisk after a floating label is hidden from assistive technology: the required state already says it.
+- A missing name is reported in debug builds.
+
+### What you need to do
+
+- Name every bare combobox with `label`. A visible text beside it does not name it.
+- Where a bare combobox can be wrong, say what is wrong in words that reach assistive technology: a message of your own tied to the page, or a field around the combobox.
+- Give every option a label and a value that is not empty, and keep the values unique.
+- Give a clearable combobox a `clearLabel`, and write `emptyText` and `statusText`.

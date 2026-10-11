@@ -1,0 +1,127 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "height": 72,
+      "justifyContent": "center",
+      "paddingHorizontal": 16,
+      "width": 360
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {},
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityState": {
+              "disabled": true
+            },
+            "accessibilityValue": {},
+            "accessible": false,
+            "collapsable": false,
+            "focusable": false,
+            "hitSlop": {
+              "bottom": 4,
+              "left": 0,
+              "right": 0,
+              "top": 4
+            },
+            "style": {
+              "alignItems": "center",
+              "backgroundColor": "rgb(238, 238, 238)",
+              "borderRadius": 9999,
+              "flexDirection": "row",
+              "gap": 16,
+              "minHeight": 40,
+              "opacity": 1,
+              "paddingEnd": 12,
+              "paddingStart": 12
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityElementsHidden": true,
+                "accessible": false,
+                "importantForAccessibility": "no-hide-descendants",
+                "style": {
+                  "alignItems": "center",
+                  "height": 20,
+                  "justifyContent": "center",
+                  "width": 20
+                }
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": false,
+                    "collapsable": false,
+                    "style": {
+                      "color": "rgba(27, 27, 27, 0.38)",
+                      "fontFamily": "Material Symbols Rounded",
+                      "fontSize": 20,
+                      "fontWeight": "300",
+                      "lineHeight": 20,
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    "search"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TextInput",
+              "props": {
+                "accessibilityLabel": "Search mail",
+                "accessibilityRole": "search",
+                "accessibilityState": {
+                  "disabled": true
+                },
+                "allowFontScaling": true,
+                "collapsable": false,
+                "cursorColor": "rgba(27, 27, 27, 0.38)",
+                "editable": false,
+                "enterKeyHint": "search",
+                "focusable": false,
+                "inputMode": "search",
+                "keyboardType": "default",
+                "multiline": false,
+                "placeholder": "Search mail",
+                "placeholderTextColor": "rgba(27, 27, 27, 0.38)",
+                "readOnly": true,
+                "returnKeyType": "search",
+                "selectionColor": "rgba(27, 27, 27, 0.38)",
+                "style": {
+                  "color": "rgba(27, 27, 27, 0.38)",
+                  "flex": 1,
+                  "flexShrink": 1,
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "400",
+                  "letterSpacing": 0,
+                  "lineHeight": 26,
+                  "margin": 0,
+                  "minHeight": 26,
+                  "paddingBottom": 0,
+                  "paddingEnd": 0,
+                  "paddingStart": 0,
+                  "paddingTop": 0
+                },
+                "submitBehavior": "submit",
+                "value": ""
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

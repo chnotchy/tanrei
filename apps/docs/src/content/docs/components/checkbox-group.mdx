@@ -1,0 +1,250 @@
+---
+title: Checkbox group
+description: Asks one question that may have several answers among a few choices shown all at once — a set of checkboxes under one label, with a description and one error, that holds the list of checked values under one name and can bring a checkbox that checks them all.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="checkbox-group" />
+
+<DemoFrame label="A checkbox group, and one with a checkbox that checks them all" column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required">
+    <tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="Text message"></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="Push notification"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Send the report on" select-all-label="Every weekday">
+    <tanrei-checkbox value="mon" label="Monday" checked></tanrei-checkbox>
+    <tanrei-checkbox value="tue" label="Tuesday"></tanrei-checkbox>
+    <tanrei-checkbox value="wed" label="Wednesday" checked></tanrei-checkbox>
+    <tanrei-checkbox value="thu" label="Thursday"></tanrei-checkbox>
+    <tanrei-checkbox value="fri" label="Friday"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+Use a checkbox group where one question has a list for an answer and the choices are few enough to show all at once, up to about seven: the ways to be notified, the days a report is sent, the kinds a list is filtered by. The answer is one value — the list of the checked values — and a form submits it under one name.
+
+**Built from** a [field group](/components/field-group/) and [checkboxes](/components/checkbox/). The field group is the frame: the label, the required or optional mark, the description, the error and the layout in a column or a row. The checkboxes hold the value: each is a choice with its own label, and which of them are checked is the list. The checkbox group draws nothing of its own and has no token. What it adds to the two is the state every product otherwise writes: the list and one `change` for it, one name in a form, with reset and the form's own validation that a required set is not empty, and the three states of a select-all checkbox.
+
+It is as wide as the place it is put in.
+
+On the web it is `<tanrei-checkbox-group>`. The other platforms have not implemented it yet.
+
+### Usage
+
+Each checkbox is the choice named by its `value`. `value` on the group is the list of the checked values, in the order of the checkboxes. A value in the list that no checkbox has is kept — the choices a search has narrowed out of sight stay chosen.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-checkbox-group name="notify" label="Notify me by"
+        supporting-text="Choose all that apply."
+        requirement="required" required-text="Required"
+        error-text="Choose at least one way to reach you.">
+        <tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>
+        <tanrei-checkbox value="text" label="Text message"></tanrei-checkbox>
+        <tanrei-checkbox value="push" label="Push notification"></tanrei-checkbox>
+      </tanrei-checkbox-group>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox-group';
+
+      const group = document.querySelector('tanrei-checkbox-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value is the new list; group.value is already the same.
+        group.error = event.detail.value.length === 0;
+      });
+      // The product sets the answer as a list. It is a property: there is no value attribute.
+      group.value = ['email', 'push'];
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, CheckboxGroup } from '@tanrei/react';
+
+    const [channels, setChannels] = useState(['email']);
+
+    <CheckboxGroup name="notify" label="Notify me by" supportingText="Choose all that apply."
+                   value={channels} onChange={(event) => setChannels(event.detail.value)}
+                   error={channels.length === 0} errorText="Choose at least one way to reach you.">
+      <Checkbox value="email" label="Email" />
+      <Checkbox value="text" label="Text message" />
+      <Checkbox value="push" label="Push notification" />
+    </CheckboxGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+In markup the first value is written where HTML writes it: `checked` on the checkboxes. Once the product has set `value`, `value` decides which checkboxes are checked.
+
+### A checkbox that checks them all
+
+Give `selectAllLabel` and the group brings one more checkbox before the first, named by that text. It is checked while every checkbox a person can switch is checked, indeterminate while some are, and unchecked while none is. Pressed while unchecked or indeterminate it checks them all; pressed while checked it unchecks them all. It is not an entry of the list and submits nothing.
+
+```html
+<tanrei-checkbox-group name="days" label="Send the report on" select-all-label="Every weekday">
+  <tanrei-checkbox value="mon" label="Monday"></tanrei-checkbox>
+  <tanrei-checkbox value="tue" label="Tuesday"></tanrei-checkbox>
+  …
+</tanrei-checkbox-group>
+```
+
+A checkbox you disabled yourself is left as it is, checked or not, and is not counted: the select-all checkbox counts only the choices a person can switch. Write the label for this set — "All of these", "Every weekday" — in the words of the question; it is never read from the product's words.
+
+### One level down
+
+The same set, written by hand from its two members, is the same picture and the same group to assistive technology:
+
+```html
+<tanrei-field-group label="Notify me by" supporting-text="Choose all that apply."
+                    requirement="required" required-text="Required">
+  <tanrei-checkbox name="notify" value="email" label="Email" checked></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="text" label="Text message"></tanrei-checkbox>
+  <tanrei-checkbox name="notify" value="push" label="Push notification"></tanrei-checkbox>
+</tanrei-field-group>
+```
+
+<DemoFrame label="The same set written by hand: a field group with checkboxes in it" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required">
+    <tanrei-checkbox name="notify" value="email" label="Email" checked></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="text" label="Text message"></tanrei-checkbox>
+    <tanrei-checkbox name="notify" value="push" label="Push notification"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+What the field group and the checkboxes written by hand do not do is hold the answer:
+
+| Aspect | Written by hand | The checkbox group |
+| --- | --- | --- |
+| The list | Read from each checkbox by the product | `value`, and one `change` |
+| Setting the answer | `checked` on each checkbox | `value = […]` |
+| Reset and restore | Each checkbox by itself | One control |
+| A required set left empty | The product checks | The form's own validation refuses it |
+| A value whose checkbox is not shown | Lost | Kept |
+| A checkbox that checks them all | Written by the product, with `indeterminate` | `selectAllLabel` |
+| What a form submits | The same entries | The same entries |
+
+Go one level down when the set is not one answer:
+
+| You need | Use |
+| --- | --- |
+| Several of a few choices as one answer under one name | The checkbox group |
+| Checkboxes that each have a name of their own in the form, or a set that holds something that is not a checkbox | A [field group](/components/field-group/) with [checkboxes](/components/checkbox/) in it |
+| Your own rule for what "all" means — every item on a page, every item that matches | A [field group](/components/field-group/) with a checkbox you set `indeterminate` on yourself |
+| One of a few | A [radio group](/components/radio-group/) |
+| One thing on or off | A [checkbox](/components/checkbox/), or a [switch](/components/switch/) where it takes effect at once |
+| Several of many, or little room | A [select](/components/select/) or a list with multiple selection |
+
+## Specs
+
+<DemoFrame label="A row, a refused answer, a choice that is always on, and a disabled group" plain column>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Sizes" orientation="horizontal">
+    <tanrei-checkbox value="s" label="S" checked></tanrei-checkbox>
+    <tanrei-checkbox value="m" label="M" checked></tanrei-checkbox>
+    <tanrei-checkbox value="l" label="L"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required" error error-text="This number cannot receive text messages. Choose another way, or change the number.">
+    <tanrei-checkbox value="email" label="Email"></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="Text message" checked></tanrei-checkbox>
+    <tanrei-checkbox value="push" label="Push notification"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Send me">
+    <tanrei-checkbox value="account" label="Messages about my account" checked disabled></tanrei-checkbox>
+    <tanrei-checkbox value="news" label="News"></tanrei-checkbox>
+    <tanrei-checkbox value="offers" label="Offers"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+  <tanrei-checkbox-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" disabled>
+    <tanrei-checkbox value="email" label="Email" checked></tanrei-checkbox>
+    <tanrei-checkbox value="text" label="Text message"></tanrei-checkbox>
+  </tanrei-checkbox-group>
+</DemoFrame>
+
+### What each member gives
+
+| Aspect | From the field group | From the checkboxes | The group's own |
+| --- | --- | --- | --- |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`, `orientation` | Each checkbox's `value`, `label` and `disabled`, on the checkbox | `value`, `selectAllLabel` |
+| Events | — | None: a checkbox in a group fires nothing of its own | `change` |
+| Tokens | `comp.field-group.*` | `comp.checkbox.*` | None |
+
+- **Required** means at least one. A least or a greatest number ("choose up to three") is your rule: read the list's length in `change`, set `error` and write `errorText` with the number in your own words.
+- **Error** is the set's. `error` draws `errorText` below the last checkbox and puts every checkbox in its own error condition. The group never sets it, and a change of value does not clear it. One checkbox in error in a group that is not is that checkbox's own `error`.
+- **Disabled.** A disabled group keeps its value and submits nothing. A checkbox disabled by itself in an enabled group keeps its entry and is submitted with it: a choice that is always on is one disabled, checked checkbox, with no hidden field beside it.
+- There is no read-only state, because a checkbox has none.
+
+What the frame does — the required mark, the description, the error and how it is announced, the column and the row that wraps — is on the [field group's page](/components/field-group/). What a checkbox does is on the [checkbox's page](/components/checkbox/).
+
+### Setting one group apart
+
+The checkbox group has no token of its own. Its frame reads the field group's tokens and its checkboxes read the checkbox's, wherever they are set. To change one instance, set the member's token on it:
+
+```html
+<tanrei-checkbox-group label="Notify me by"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-checkbox-group>
+```
+
+<ComponentSpecs name="checkbox-group" />
+
+### What the web draws differently
+
+- The element's shadow root holds a `<tanrei-field-group>` around the select-all checkbox, while `select-all-label` is given, and a slot. The checkboxes stay your own children. Importing the element defines both members.
+- `value` is a property only: an array, copied in and out. There is no `value` attribute, because a list in an attribute needs a separator a value may contain, and HTML already has the form: `checked` on each child.
+- A checkbox with no `value` attribute and no value set has none: the "on" a bare checkbox submits is not read in a group. It is drawn unchecked, and a debug build reports it.
+- The element is form-associated. It takes `name` and `form`, and submits one entry under `name` for each value — what native checkboxes of one name submit. Its checkboxes submit nothing, whatever `name` they carry. It resets to its first value, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and the list is empty. The message is `error-text`, else the required text, else `label`: give `error-text` from the start, not only when `error` is set.
+- `change` is a CustomEvent whose `detail.value` is a copy of the list; `input` is fired before it. A listener on a checkbox inside the group hears neither.
+- Parts: `field-group` is the frame, and its parts have the same names here as one level down: `label`, `requirement-label`, `supporting-text`, `error-text`. `select-all` is the select-all checkbox, and its parts are `select-all-container`, `select-all-box`, `select-all-mark` and `select-all-label`. Your own checkboxes are styled as they are anywhere, with `tanrei-checkbox::part(…)`.
+- The element is not focusable itself. `focus()` goes to the first enabled checkbox, and a page's own `<label for>` moves focus there.
+- The element has no role. Name it with `label` — with `label-hidden` where the label is drawn elsewhere — and never with `aria-label`, which names nothing here.
+- The attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `select-all-label`.
+- Before the element is defined, and without script, nothing of its own is drawn: the checkboxes show as plain content. A page that must work without script writes a native `<fieldset>` of native checkboxes of one `name`, which submits the same entries.
+
+## Guidelines
+
+### Do
+
+- Write the label as the question, and each checkbox's label as one answer to it.
+- Say how to answer in `supportingText`: "Choose all that apply."
+- Prefer a column. Use a row only for a few short labels.
+- Give `errorText` whenever the group is required, so that the form's own validation says it in your words.
+- Use the select-all checkbox for a set of six or more, for filters and for sets of permissions.
+
+### Don't
+
+- Don't use a checkbox group for one answer among a few: that is a [radio group](/components/radio-group/).
+- Don't give the checkboxes a `name` to submit them: the group submits the list under its own.
+- Don't put anything that can be operated and is not a checkbox in it. A debug build reports it, and it makes no entry of the value.
+- Don't indent the set under the select-all checkbox to show a hierarchy. Choices inside choices are a tree.
+- Don't name the group with `aria-label`. Where no label should be drawn, give `label` and `labelHidden`.
+
+## Accessibility
+
+<ComponentAccessibility name="checkbox-group" />
+
+### What the component handles
+
+- It is one group, the field group's, that contains its checkboxes. Its name is `label`, drawn or not; its description is the supporting text, the error text while in error, and the requirement in the product's words.
+- A group has no required and no invalid state. The requirement is said in words, and each checkbox of a group in error is exposed as invalid and described by the error text.
+- Each checkbox keeps its own role, name and checked state. The select-all checkbox says mixed while some are checked. No checkbox has a position in a set, and how many are checked is not said.
+- Every enabled checkbox is its own stop for the Tab key, the select-all checkbox first. Space switches the focused one. There are no arrow keys, and Enter is left to the form.
+- A press on the label, the requirement mark, the description or the error text checks nothing and moves no focus.
+- An error that appears while focus is on one of the checkboxes is announced once, politely, by the field group.
+- Direction, enlarged text and forced colors are each member's own answer: in a right-to-left layout the frame and each checkbox are mirrored; at 200% text every text wraps, a row becomes a column and nothing scrolls sideways.
+- It has no words of its own. `requiredText` and `optionalText` left empty are read from the product's words by the field group.
+
+Known gaps on the web: what screen readers say of the group has been read from the browsers' accessibility trees, not heard with a screen reader. Chromium gives the element a node of its own in its accessibility tree, because the form validates it: a node with no role and no name, around the group.
+
+### What you need to do
+
+- Give `label`, always, and a `label` on every checkbox.
+- Give `requiredText` and `optionalText` — on the group or once for the product — where the group is required or optional: a group has no required state, so the words are what says it.
+- Say what is wrong in `errorText`, and how to put it right. Color is never the only sign.
+- Where the number of choices matters ("2 of 5 chosen"), write it in `supportingText`: it is not announced otherwise.

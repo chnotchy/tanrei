@@ -1,0 +1,700 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "toolbar",
+  "title": "Toolbar",
+  "summary": "Holds a short row of actions for the current screen or selection, docked across the bottom edge or floating over the content.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The surface that holds the items: a bar across the bottom edge of the screen whose color reaches under the bottom system inset (docked), or a rounded, raised surface over the content (floating)."
+    },
+    {
+      "id": "items",
+      "description": "The actions: the product's own Tanrei Buttons, icon-only and labelled, in reading order. The toolbar lays them out and moves keyboard focus among them; it does not restyle them."
+    },
+    {
+      "id": "outline",
+      "description": "The docked toolbar's top edge, or the edge around a floating toolbar's whole shape (none in the default system)."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "docked",
+        "floating"
+      ],
+      "default": "docked",
+      "description": "Docked spans the bottom edge of the screen, flush with it; floating is a rounded, raised surface over the content, as long as its items. One product docks its toolbar on some screens and floats it on others. A design system may add values.",
+      "axis": "tanrei.comp.toolbar.variant"
+    },
+    {
+      "name": "orientation",
+      "type": "enum",
+      "values": [
+        "horizontal",
+        "vertical"
+      ],
+      "default": "horizontal",
+      "description": "The direction the items run. Vertical is for a floating toolbar beside the content on a large screen; a docked toolbar is always horizontal."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the toolbar for assistive technology (\"Formatting\", \"Message actions\"). Never drawn. Required."
+    }
+  ],
+  "items": [
+    {
+      "name": "action",
+      "summary": "An icon action: a Button of the text variant and the medium size with an icon and no label, unless the product sets otherwise, laid out by the toolbar and not restyled; a toggle (bold, mute) is one with toggle set.",
+      "component": "button",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its accessible name (\"Bold\"), as the Button's label. Required."
+        },
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "filled",
+            "tonal",
+            "elevated",
+            "outlined",
+            "text"
+          ],
+          "default": "text",
+          "description": "As the Button's variant: text for most actions, filled for the one the toolbar leads to (Done, Send)."
+        },
+        {
+          "name": "toggle",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's toggle: the action switches something on and off."
+        },
+        {
+          "name": "selected",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's selected: whether a toggle is on."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's disabled."
+        }
+      ],
+      "slots": [
+        {
+          "name": "icon",
+          "description": "Its glyph, as the Button's icon slot. A fixture item's content is this glyph."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The action was activated, as the Button's click."
+        },
+        {
+          "name": "change",
+          "description": "A toggle was switched, as the Button's change."
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "summary": "A labelled action: the button component, medium unless the product sets otherwise, laid out by the toolbar and not restyled.",
+      "component": "button",
+      "props": [
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "filled",
+            "tonal",
+            "elevated",
+            "outlined",
+            "text"
+          ],
+          "default": "filled",
+          "description": "As the button's variant."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the button's disabled."
+        }
+      ],
+      "slots": [
+        {
+          "name": "default",
+          "description": "Its label, as the button's default slot. A fixture item's content is this label."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The button was activated, as the button's click."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "Holds the items, in reading order: Tanrei Buttons, icon-only and labelled."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "TBR-1",
+      "text": "WHILE variant is docked THE toolbar SHALL span the full width of its parent, be at least comp.toolbar.container.size.docked high above the bottom system inset, fill its container with comp.toolbar.container.color.docked, raise it by comp.toolbar.container.elevation.docked, round it by comp.toolbar.container.shape.docked, and draw its top edge comp.toolbar.outline.width thick in comp.toolbar.outline.color.docked.",
+      "verify": "Docked fixtures are drawn in a 360 × 64 stage (the toolbar across its width, no system inset)."
+    },
+    {
+      "id": "TBR-2",
+      "text": "WHILE variant is docked THE toolbar SHALL lay its items out in one row in reading order, the first comp.toolbar.container.padding-inline.docked from the start edge and the last as far from the end edge, with equal space between neighbours and never less than comp.toolbar.container.gap.docked, each item vertically centered in the row; a toolbar with one item SHALL center it."
+    },
+    {
+      "id": "TBR-3",
+      "text": "WHILE variant is docked THE toolbar SHALL extend its container under the bottom system inset (home indicator, gesture bar, taskbar) and SHALL place its items above that inset and inside the left and right insets, so that its color reaches the screen's bottom edge while no item sits under a system bar."
+    },
+    {
+      "id": "TBR-4",
+      "text": "WHILE variant is floating THE toolbar SHALL fill its container with comp.toolbar.container.color.floating, raise it by comp.toolbar.container.elevation.floating, round it by comp.toolbar.container.shape.floating eased by sys.shape.corner-smoothing, draw an edge comp.toolbar.outline.width thick in comp.toolbar.outline.color.floating around its whole shape, be as long along its axis as its items need — comp.toolbar.container.padding-inline.floating at each end and comp.toolbar.container.gap.floating between neighbours, or as much more as TBR-16 keeps for their targets — and at least comp.toolbar.container.size.floating across it, with every item centered across the axis.",
+      "verify": "Horizontal floating fixtures are drawn centered in a 360 × 96 stage, so that the elevation's shadow shows on every side."
+    },
+    {
+      "id": "TBR-5",
+      "text": "WHILE variant is floating THE toolbar SHALL NOT position itself: it SHALL lay out at its own size where the layout that holds it places it (normally centered above the bottom edge of the content, clear of a navigation bar and of the system inset, or beside the content's end edge for a vertical toolbar), and SHALL NOT draw a scrim, move content or reach under a system inset."
+    },
+    {
+      "id": "TBR-6",
+      "text": "WHILE orientation is vertical and variant is floating THE toolbar SHALL stack its items from top to bottom in the order given, with the floating paddings and gap along the vertical axis and at least comp.toolbar.container.size.floating as its width; WHILE orientation is vertical and variant is docked THE toolbar SHALL lay out as a horizontal docked toolbar and in debug builds report that a docked toolbar is horizontal.",
+      "verify": "The vertical fixture is drawn centered in a 96 × 240 stage."
+    },
+    {
+      "id": "TBR-7",
+      "text": "WHEN the layout direction is right-to-left THE toolbar SHALL lay out a horizontal toolbar's items from the right edge, in reading order, mirrored; a vertical toolbar SHALL keep its top-to-bottom order."
+    },
+    {
+      "id": "TBR-8",
+      "text": "IF the items need more length than the toolbar has along its axis THE toolbar SHALL keep every item at its own size and the gap at its minimum, SHALL scroll its items along its axis so that every item stays reachable, SHALL bring an item that receives keyboard focus fully into view, and in debug builds SHALL report that the extra actions belong in an overflow menu the product provides; it SHALL NOT wrap, shrink or hide an item."
+    },
+    {
+      "id": "TBR-9",
+      "text": "THE toolbar SHALL NOT restyle its items: each SHALL render as the Button it is, from its own tokens, variant and size, and SHALL keep its own press, focus, target and disabled behaviour and its own semantics, a toggle Button staying a toggle. Between two items the hit areas SHALL never overlap (as BGR-4): in a docked toolbar they SHALL meet at the middle of the gap, and in a floating one where the lengths TBR-16 keeps for the two items meet; each item SHALL keep its full target on every side that has no neighbour. In a docked toolbar the gap (at least comp.toolbar.container.gap.docked) is what keeps an item's target whole between its neighbours: at sys.target.touch minus the item's length or more, every item keeps its full target there, as the default system's gap does for every Button size; a layer that narrows that gap narrows the targets between items. In a floating toolbar TBR-16 keeps it, whatever comp.toolbar.container.gap.floating is.",
+      "verify": "Under the default system comp.toolbar.container.gap.docked is 16, sys.target.touch (48) minus the small icon-only Button (32), comp.toolbar.container.gap.floating is 0, and comp.toolbar.container.padding-inline.floating is 12, the space across the row around a medium item ((64 − 40) / 2), more than its reach (4): in floating, floating-filled-action, floating-vertical and the docked fixtures every item's hit area is at least 48 along the axis and 48 across it, and Android's touch-target check (48 dp, an error for the default system) passes on each of them."
+    },
+    {
+      "id": "TBR-10",
+      "text": "THE toolbar SHALL be one Tab stop: the item that had keyboard focus last, or else the first item that is not disabled. WHILE an item has keyboard focus, Right Arrow and Left Arrow in a horizontal toolbar (Left Arrow moving to the next item in a right-to-left layout) and Down Arrow and Up Arrow in a vertical one SHALL move focus to the next and previous item that is not disabled, wrapping at the ends, and Home and End to the first and last such item; moving focus SHALL NOT activate an item, and Enter and Space SHALL act on the focused item as that item does. A disabled item SHALL NOT take focus, as its own spec says (BTN-2)."
+    },
+    {
+      "id": "TBR-11",
+      "text": "THE toolbar SHALL expose itself as a toolbar named by label, with its orientation, on a platform that has a toolbar role, and on any other platform as a group named by label that contains its items in order; each item SHALL keep its own name, role and state, and the toolbar SHALL add nothing to them."
+    },
+    {
+      "id": "TBR-12",
+      "text": "WHILE label is empty THE toolbar SHALL still render, and in debug builds report that it has no accessible name; IF the toolbar holds no item, or an element that is not a Button, THE toolbar SHALL still lay out what it holds and in debug builds report it, because a field or a slider would take the arrow keys the toolbar moves focus with."
+    },
+    {
+      "id": "TBR-13",
+      "text": "WHEN variant names a value that the active design system does not have, or orientation a value the component does not define, THE toolbar SHALL render with the default value (docked, horizontal), and in debug builds report the unknown value. A variant value that a layer adds SHALL take the docked structure — spanning the width, reaching under the insets, spreading its items, a top edge — with its own values, because the structure is not a value a layer can set."
+    },
+    {
+      "id": "TBR-14",
+      "text": "WHILE the text size is enlarged THE toolbar SHALL grow across its axis to hold its items (its size is a minimum) and SHALL NOT scale its items itself; each item grows or keeps its size as its own spec says."
+    },
+    {
+      "id": "TBR-15",
+      "text": "THE toolbar SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the toolbar is shown THE toolbar SHALL draw itself for the new direction at once, without a motion of its own, keeping its focus and the item its Tab stop stands on.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "TBR-16",
+      "text": "WHILE variant is floating THE toolbar SHALL lay its items comp.toolbar.container.gap.floating apart, measured between their visible bounds along its axis, and SHALL move two neighbours further apart only as far as each needs in order to keep, centred on itself, a length of sys.target.touch along the axis that its neighbour's does not reach into, because items that stand this close cannot extend a hit area over each other (as BGR-3): where the token is 0, as in the default system, an item at least sys.target.touch long touches its neighbour, and a shorter one stands half of what it lacks away from it. THE toolbar SHALL NOT widen, resize or restyle an item to do so (TBR-9), SHALL space its items the same whatever the input type, so that the toolbar does not change with the pointer, and SHALL space them so along the vertical axis WHILE orientation is vertical (TBR-6). A floating toolbar is as long as its items need (TBR-4) and never spreads them across a width; WHILE variant is docked THE toolbar SHALL spread its items across its width and keep comp.toolbar.container.gap.docked as the least space between them (TBR-2), unchanged.",
+      "verify": "Fixture floating under the default system: four medium icon-only Buttons (40) stand 8 apart (4 + 4) where they stood 16, and the toolbar is 208 long (4 × 40 + 3 × 8 + 2 × 12) where it was 232. floating-vertical: the same along the column. Unit: a floating toolbar of large (56) Buttons draws them touching; one of small (32) Buttons 16 apart; with sys.target.touch set to 0 in a test layer every size touches. The docked fixtures do not move."
+    }
+  ],
+  "accessibility": {
+    "role": "toolbar",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus into the toolbar (to the item focused last, or the first enabled item) and out of it: the toolbar is one Tab stop."
+      },
+      {
+        "keys": "Right Arrow / Left Arrow (horizontal), Down Arrow / Up Arrow (vertical)",
+        "action": "Moves focus to the next or previous enabled item, wrapping at the ends (Left and Right mirrored in right-to-left layouts)."
+      },
+      {
+        "keys": "Home / End",
+        "action": "Moves focus to the first or last enabled item."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activates the focused item, as that Button does."
+      }
+    ],
+    "labeling": "label names the toolbar; it is never drawn. Each item is named by its own label (an icon-only Button's label, a labelled Button's text). The toolbar adds no name, role or state to its items.",
+    "minimumTarget": true,
+    "notes": [
+      "The toolbar has no target of its own and takes no input: its items are the product's Buttons, icon-only and labelled, which meet the minimum target themselves (BTN-5). A medium item's target (48) fits inside a floating toolbar's 64.",
+      "The web has the toolbar role (with aria-orientation) and React Native has role toolbar. SwiftUI, Compose and Flutter have no toolbar role: there the toolbar is a group (an accessibility container, a traversal group, a semantics container) named by label, and each README says so.",
+      "One Tab stop with arrow-key movement is the WAI-ARIA toolbar pattern. It uses the same roving focus the list, menu and tabs use on each platform; a Button outside a toolbar is unchanged.",
+      "A toolbar holds actions only. A text field, slider or chip set inside it would take the arrow keys the toolbar needs; search belongs in the app bar or the page.",
+      "A docked toolbar and a navigation bar are not used on the same screen: both claim the bottom edge.",
+      "How the items look is their own design system's answer; the toolbar reads no state tokens."
+    ]
+  },
+  "tokens": "comp.toolbar",
+  "fixtures": [
+    {
+      "id": "docked",
+      "props": {
+        "variant": "docked",
+        "label": "Message actions"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Archive"
+          },
+          "content": "archive"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Delete"
+          },
+          "content": "delete"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Mark as unread"
+          },
+          "content": "mark_email_unread"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Move"
+          },
+          "content": "drive_file_move"
+        }
+      ]
+    },
+    {
+      "id": "docked-button",
+      "props": {
+        "variant": "docked",
+        "label": "Compose"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Attach file"
+          },
+          "content": "attach_file"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Insert photo"
+          },
+          "content": "image"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Insert link"
+          },
+          "content": "link"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled"
+          },
+          "content": "Send"
+        }
+      ]
+    },
+    {
+      "id": "docked-one-item",
+      "props": {
+        "variant": "docked",
+        "label": "Reply"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal"
+          },
+          "content": "Reply"
+        }
+      ]
+    },
+    {
+      "id": "docked-disabled-item",
+      "props": {
+        "variant": "docked",
+        "label": "Message actions"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Archive"
+          },
+          "content": "archive"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Delete",
+            "disabled": true
+          },
+          "content": "delete"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Mark as unread"
+          },
+          "content": "mark_email_unread"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Move"
+          },
+          "content": "drive_file_move"
+        }
+      ]
+    },
+    {
+      "id": "floating",
+      "props": {
+        "variant": "floating",
+        "label": "Formatting"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Bold",
+            "toggle": true,
+            "selected": true
+          },
+          "content": "format_bold"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Italic",
+            "toggle": true
+          },
+          "content": "format_italic"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Underline",
+            "toggle": true
+          },
+          "content": "format_underlined"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Insert link"
+          },
+          "content": "link"
+        }
+      ]
+    },
+    {
+      "id": "floating-filled-action",
+      "props": {
+        "variant": "floating",
+        "label": "Drawing tools"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Pen"
+          },
+          "content": "edit"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Highlighter"
+          },
+          "content": "ink_highlighter"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Eraser"
+          },
+          "content": "ink_eraser"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Done",
+            "variant": "filled"
+          },
+          "content": "check"
+        }
+      ]
+    },
+    {
+      "id": "floating-vertical",
+      "props": {
+        "variant": "floating",
+        "orientation": "vertical",
+        "label": "Map controls"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "label": "Zoom in"
+          },
+          "content": "add"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Zoom out"
+          },
+          "content": "remove"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "My location"
+          },
+          "content": "my_location"
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-toolbar",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "label": "label"
+      },
+      "notes": "The items are `<tanrei-button>` children, icon-only and labelled, in the default slot. The host has `role=\"toolbar\"`, `aria-orientation` and `aria-label` from `label`. The roving Tab stop sets `tabindex` on the item elements (0 on the Tab stop, -1 on the others): both items delegate focus to the button in their shadow root, and a host whose tabindex is -1 takes that button out of the Tab order. A docked toolbar's bottom inset is `env(safe-area-inset-bottom)`. Snapshot harness: the stages of TBR-1, TBR-4 and TBR-6.",
+      "items": {
+        "action": {
+          "name": "tanrei-button",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "toggle": "toggle",
+            "selected": "selected",
+            "disabled": "disabled"
+          },
+          "events": {
+            "click": "click",
+            "change": "change"
+          },
+          "notes": "An icon-only `<tanrei-button>` child; the glyph is its content."
+        },
+        "button": {
+          "name": "tanrei-button",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "A `<tanrei-button>` child; the label is its content."
+        }
+      }
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiToolbar",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "label": "label"
+      },
+      "notes": "`TanreiToolbar(_ label: String, variant:, orientation:) { items }`, a view builder of `TanreiButton`s, icon-only and labelled. A docked toolbar is placed with `.safeAreaInset(edge: .bottom)`, its background ignoring the bottom safe area. SwiftUI's own `.toolbar` with a bottom-bar placement is not used: its bar cannot take the tokens. SwiftUI has no toolbar role: the toolbar is an accessibility container (`.accessibilityElement(children: .contain)`) labelled by `label`. The roving Tab stop is one focus group for the keyboard: Full Keyboard Access moves among its items with the arrow keys and leaves it with Tab.",
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "label",
+            "variant": "variant",
+            "toggle": "isSelected",
+            "selected": "isSelected",
+            "disabled": "disabled"
+          },
+          "events": {
+            "click": "action",
+            "change": "isSelected"
+          },
+          "notes": "An icon-only `TanreiButton` in the toolbar's view builder; a toggle is its `isSelected:` initializer."
+        },
+        "button": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "A `TanreiButton` in the toolbar's view builder."
+        }
+      }
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiToolbar",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "label": "contentDescription"
+      },
+      "notes": "`TanreiToolbar(contentDescription, modifier, variant, orientation, windowInsets) { … }`, the items called in its content lambda. `windowInsets` defaults to `WindowInsets.navigationBars` for a docked toolbar and to none for a floating one. Compose has no toolbar role: the toolbar is a traversal group (`isTraversalGroup`) labelled by `contentDescription`, and the README says so. The roving Tab stop is `TanreiRovingFocus`, the primitive the list, menu and tabs use, horizontal or vertical by orientation; the toolbar registers each item it holds.",
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "contentDescription",
+            "variant": "variant",
+            "toggle": "onCheckedChange",
+            "selected": "checked",
+            "disabled": "enabled"
+          },
+          "events": {
+            "click": "onClick",
+            "change": "onCheckedChange"
+          },
+          "notes": "An icon-only `TanreiButton` called in the toolbar's content lambda."
+        },
+        "button": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "enabled"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "A `TanreiButton` called in the toolbar's content lambda."
+        }
+      }
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiToolbar",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "label": "semanticLabel"
+      },
+      "notes": "`TanreiToolbar(semanticLabel:, variant:, orientation:, children: [...])` (`orientation` is Flutter's `Axis`). A docked toolbar applies the bottom `MediaQuery.padding` itself, as `SafeArea` would, with its color under it. Flutter's widgets library has no toolbar role: the toolbar is a `Semantics(container: true, explicitChildNodes: true, label:)`, and the README says so. The roving Tab stop is `TanreiItemGroupMixin`, the primitive the list, menu and tabs use, with its item axis set by orientation.",
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "semanticLabel",
+            "variant": "variant",
+            "toggle": "isSelected",
+            "selected": "isSelected",
+            "disabled": "onPressed"
+          },
+          "events": {
+            "click": "onPressed",
+            "change": "onPressed"
+          },
+          "notes": "An icon-only `TanreiButton` in the toolbar's `children`."
+        },
+        "button": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "onPressed"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "A `TanreiButton` in the toolbar's `children`."
+        }
+      }
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Toolbar",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "label": "accessibilityLabel"
+      },
+      "notes": "`<Toolbar variant orientation accessibilityLabel insets>{items}</Toolbar>`, the items being `Button` elements, icon-only and labelled. The view has `role=\"toolbar\"`. A docked toolbar takes the bottom inset from its own `insets` prop, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency. The roving Tab stop and the arrow keys work where a hardware keyboard is attached, as the tabs row's do.",
+      "items": {
+        "action": {
+          "name": "Button",
+          "props": {
+            "label": "accessibilityLabel",
+            "variant": "variant",
+            "toggle": "toggle",
+            "selected": "selected",
+            "disabled": "disabled"
+          },
+          "events": {
+            "click": "onPress",
+            "change": "onSelectedChange"
+          },
+          "notes": "An icon-only `Button` element among the toolbar's children."
+        },
+        "button": {
+          "name": "Button",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "A `Button` element among the toolbar's children."
+        }
+      }
+    }
+  }
+}

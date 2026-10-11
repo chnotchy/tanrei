@@ -1,0 +1,66 @@
+---
+// Overview → per-platform availability, from docs/status/status.json + the spec's `platforms` block. The component's
+// summary and its facts (category, token namespace, level) are the page's head's (frame/PageTitle.astro); what a
+// design system leaves out is Tanrei's description list, a system to a line.
+import { getSpec, platforms, statusOf, unavailable } from '../lib/repo';
+import { contentLang, strings } from '../lib/i18n';
+import StatusBadge from './StatusBadge.astro';
+import SourceNote from './SourceNote.astro';
+
+interface Props {
+  name: string;
+}
+const spec = getSpec(Astro.props.name);
+const row = statusOf(spec.name);
+const t = strings(contentLang(Astro));
+// The systems that leave this component, or some of its variants, out.
+const leftOutBy = Object.entries(unavailable).filter(([, u]) => u.components.includes(spec.name)).map(([id]) => id);
+const variantsLeftOut = Object.entries(unavailable).flatMap(([id, u]) => (u.variants[spec.name] ? [`${id}: ${u.variants[spec.name].join(', ')}`] : []));
+---
+
+<div class="not-content availability" data-tanrei-code="plain">
+  {/* The platforms are a list of facts, a platform to a fact. A `dl` takes no name of its own (DSL-17), so the group
+      around the list carries the one the hand-made list had. */}
+  <div role="group" aria-label={t.availability}>
+    <tanrei-description-list class="platforms" layout="stacked" separation="gap" columns={platforms.length}>
+      <dl>
+        {platforms.map((p) => (
+          <div>
+            {/* A space between a fact's three: a grid draws none, and the search index reads three words, not one. */}
+            <dt>{t.platform[p] ?? p}</dt>{' '}
+            <dd><code>{spec.platforms[p]?.name ?? '—'}</code></dd>{' '}
+            <dd><StatusBadge status={row?.platforms[p] ?? spec.platforms[p]?.status ?? 'planned'} /></dd>
+          </div>
+        ))}
+      </dl>
+    </tanrei-description-list>
+  </div>
+  {(leftOutBy.length > 0 || variantsLeftOut.length > 0) && (
+    <tanrei-description-list class="left-out" layout="inline" density="compact" separation="gap">
+      <dl>
+        {leftOutBy.length > 0 && <div><dt>{t.notShippedIn}</dt>{leftOutBy.map((id) => <dd><code>{id}</code></dd>)}</div>}
+        {variantsLeftOut.length > 0 && <div><dt>{t.variantsNotShippedIn}</dt><dd>{variantsLeftOut.join(' · ')}</dd></div>}
+      </dl>
+    </tanrei-description-list>
+  )}
+  <SourceNote files={['docs/status/status.json', `specs/${spec.name}.spec.json`]} />
+</div>
+
+<script>
+  import '../lib/register-web';
+</script>
+
+<style>
+  .left-out {
+    margin-block-start: 1rem;
+  }
+  code {
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-xs);
+  }
+  /* The platforms are the description list's facts. The site's own: a column may be narrower than the list's own
+     least width, so that the five platforms stand in one row of the content column; a longer name wraps in its column. */
+  .platforms {
+    --tanrei-comp-description-list-column-min-width: 7rem;
+  }
+</style>

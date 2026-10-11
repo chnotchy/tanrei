@@ -1,0 +1,299 @@
+---
+title: "组合框字段"
+description: "让用户通过键入找到一个值，并作为表单的一个字段——一个组合框，带有随键入不断收窄的选项列表，用户从中选择，在产品允许的地方也可以填入自己的值；它位于可以说明必填或选填的标签之下，带有一行帮助文本，以及值被拒绝的原因。"
+translationOf: components/combobox-field.mdx
+sourceHash: bbeaab2ab8acefab4401f11d94edd44c2a8dfcdf
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="combobox-field" />
+
+<DemoFrame label="一个只接受自身选项的组合框字段，以及一个还接受用户自己的值的组合框字段" column>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="tokyo" clearable clear-label="清除城市" placeholder="输入城市名称查找" supporting-text="订单将寄往该城市。" empty-text="无匹配项">
+    <tanrei-option value="kyoto">京都</tanrei-option>
+    <tanrei-option value="lisbon">里斯本</tanrei-option>
+    <tanrei-option value="nairobi">内罗毕</tanrei-option>
+    <tanrei-option value="tokyo">东京</tanrei-option>
+    <tanrei-option value="toronto">多伦多</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="字体" value="Recursive" allow-custom-value>
+    <tanrei-option value="Inter">Inter</tanrei-option>
+    <tanrei-option value="Noto Sans JP">Noto Sans JP</tanrei-option>
+    <tanrei-option value="Roboto Mono">Roboto Mono</tanrei-option>
+    <tanrei-option value="Source Serif 4">Source Serif 4</tanrei-option>
+  </tanrei-combobox-field>
+</DemoFrame>
+
+表单里凡是要填一个用户宁愿键入也不愿滚动查找的值的地方，都使用组合框字段：几百个城市中的一个、一个人、一个令牌。它也适用于既给出建议值、又接受用户自己的值的字段，例如字体。它是最普通的情形，拿来就能用：标签、带列表的方框、一行帮助文本，以及值有误时的文字。方框的绘制方式和尺寸与同一变体、同一尺寸的文本字段的方框相同，列表则按下拉选择框的样子绘制。
+
+**组成部分**是一个[字段](/zh-cn/components/field/)和一个[组合框](/zh-cn/components/combobox/)。字段是框架：标签、必填或选填标记、帮助文本和错误。组合框是控件：方框、键入其中的文本，以及带有选项的列表。组合框字段自己什么都不绘制，也没有令牌：它的每个属性都是这两者之一的属性，原样交给它们；你给它的选项，就是它的组合框的选项。
+
+它是一个块，放在哪里就和那里一样宽，它的方框会把它填满。它没有自己的宽度：想要窄一些的字段，就把它放进窄一些的地方。它的宽度绝不跟随选项或值，因为用户在还不知道有哪些选项时就开始键入了。
+
+在 Web 上它是 `<tanrei-combobox-field>`，子元素是 `<tanrei-option>`，也就是[下拉选择框](/zh-cn/components/select/)所包含的那种元素。其他平台尚未实现。
+
+### 用法
+
+组合框字段保存的就是它的组合框保存的东西，一共两样。`value` 是已确认的选择：选中选项的值，或者一段自定义文本。`inputValue` 是输入框里的文本。只有用户选择某个选项、确认文本（在没有活动选项时按 Enter，或者离开字段）或按下清除按钮时，值才会改变；键入和在列表中移动绝不会改变它。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-combobox-field name="city" label="城市" value="tokyo" requirement="required" required-text="必填"
+        clearable clear-label="清除城市" empty-text="无匹配项">
+        <tanrei-option value="kyoto">京都</tanrei-option>
+        <tanrei-option value="tokyo">东京</tanrei-option>
+      </tanrei-combobox-field>
+    </form>
+
+    <!-- 只要方框，用在标签位于别处的地方：一个组合框，由它自己的 label 命名。导入组合框字段时，它也随之完成定义。 -->
+    <tanrei-combobox label="令牌" placeholder="查找令牌" no-chevron style="inline-size: 16rem">
+      <tanrei-option value="primary">primary</tanrei-option>
+    </tanrei-combobox>
+
+    <!-- 选项只是建议：与任何选项都不对应的文本会成为值。 -->
+    <tanrei-combobox-field label="字体" value="Recursive" allow-custom-value>
+      <tanrei-option value="Inter">Inter</tanrei-option>
+    </tanrei-combobox-field>
+
+    <!-- 由你来筛选：在 input 时向服务器查询。状态行说明你的数据源正在做什么。 -->
+    <tanrei-combobox-field id="assignee" label="负责人" filter="none" no-chevron placeholder="查找成员">
+      <span slot="leading-icon">person_search</span>
+    </tanrei-combobox-field>
+
+    <script type="module">
+      import '@tanrei/web/components/combobox-field';
+
+      const assignee = document.querySelector('#assignee');
+      // 用户修改了文本。组合框不会延迟或丢弃这个事件：防抖由你自己来做。
+      assignee.addEventListener('input', async () => {
+        assignee.status = 'loading';
+        assignee.statusText = '正在加载成员';
+        const people = await find(assignee.inputValue);
+        assignee.replaceChildren(...people.map(option));
+        assignee.status = 'idle';
+        assignee.statusText = `共 ${total} 人，已显示 ${people.length} 人`;
+      });
+      // 已确认的值变了。value 已经是新的值。
+      assignee.addEventListener('change', (e) => save(e.detail.value));
+      // 由用户打开或关闭；关闭时带有原因。它不冒泡：请在字段本身上监听。
+      assignee.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ComboboxField, Option } from '@tanrei/react';
+
+    <ComboboxField label="城市" value={city} clearable clearLabel="清除城市" emptyText="无匹配项" onChange={(event) => setCity(event.detail.value)}>
+      <Option value="kyoto">京都</Option>
+      <Option value="tokyo">东京</Option>
+    </ComboboxField>
+    ```
+  </TabItem>
+</Tabs>
+
+### 下一层
+
+组合框字段是一个里面放着[组合框](/zh-cn/components/combobox/)的[字段](/zh-cn/components/field/)。需要字段没有提供的东西时——在标签和方框之间，或者在帮助文本下方放你自己的内容——就自己把这两者写出来。画面、名称、描述和状态都相同。
+
+```html
+<!-- 组合框字段 -->
+<tanrei-combobox-field name="city" label="城市" requirement="required" required-text="必填"
+  supporting-text="订单将寄往该城市。" value="tokyo">
+  <tanrei-option value="kyoto">京都</tanrei-option>
+  <tanrei-option value="tokyo">东京</tanrei-option>
+</tanrei-combobox-field>
+
+<!-- 手写的同一个字段：框架的属性写在字段上，其余的一切——以及选项——写在组合框上 -->
+<tanrei-field label="城市" requirement="required" required-text="必填" supporting-text="订单将寄往该城市。">
+  <tanrei-combobox name="city" value="tokyo">
+    <tanrei-option value="kyoto">京都</tanrei-option>
+    <tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+```
+
+<DemoFrame label="里面放着组合框的字段：画面与组合框字段相同" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" requirement="required" required-text="必填" supporting-text="订单将寄往该城市。">
+    <tanrei-combobox value="tokyo" empty-text="无匹配项">
+      <tanrei-option value="kyoto">京都</tanrei-option>
+      <tanrei-option value="tokyo">东京</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</DemoFrame>
+
+不同的是表单的控件在哪里：手写时它是组合框，`name` 写在组合框上；在组合框字段里，它是字段。
+
+## 规格
+
+<DemoFrame label="分组、带辅助文本和一个禁用选项、错误、只读，以及禁用的组合框字段" plain column>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="时区" value="Europe/Lisbon" empty-text="无匹配项">
+    <tanrei-option-group label="亚洲"><tanrei-option value="Asia/Tokyo">东京</tanrei-option><tanrei-option value="Asia/Seoul">首尔</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="欧洲"><tanrei-option value="Europe/Lisbon">里斯本</tanrei-option><tanrei-option value="Europe/Berlin">柏林</tanrei-option></tanrei-option-group>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="套餐" value="team" empty-text="无匹配项">
+    <tanrei-option value="free" supporting-text="1 个项目，社区支持">免费版</tanrei-option>
+    <tanrei-option value="team" supporting-text="项目数量不限，共享角色">团队版</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="单点登录和审计日志" disabled>企业版</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="nairobi" error error-text="暂不支持配送到内罗毕。请选择其他城市。" empty-text="无匹配项">
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="tokyo" readonly>
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="tokyo" disabled>
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox-field>
+</DemoFrame>
+
+### 字段
+
+| 部件 | 它是什么 |
+| --- | --- |
+| 标签 | 容器上方由字段绘制的那一行（`stacked`），或者浮动在容器内部的、组合框自己的标签（`filled`、`outlined`）。它是无障碍名称，无论是画出来的，还是用 `labelHidden` 隐藏的 |
+| 必填和选填标记 | 位于标签之后：`requirement="required"` 时是“必填”小标签、星号，或者什么都不画；`optional` 时是“选填”小标签。浮动标签带的是星号 |
+| 输入框 | 文本：用户为查找选项而键入的内容；用户没有在键入时，是选中选项的标签或自定义值。保持在一行之内，放不下时滚动 |
+| 占位符 | 输入框为空时显示的提示。它绝不是标签，也绝不是一个值 |
+| 前置图标 | `leading-icon` 插槽里的字形；没有时，采用选中选项自己的字形 |
+| 清除按钮 | 设置了 `clearable` 且文本不为空时出现：清空文本和值 |
+| V 形箭头 | 表明这个字段有一个可以浏览的列表，并用来打开和关闭它。它不会转动。只针对已键入的内容给出建议的地方，不要画它（`chevron` 设为 false） |
+| 辅助文本 | 字段的那一行：一行帮助文本。`error` 为 true 时它保留，`errorText` 位于它的下方。两者都从输入框的文本开始的位置起笔 |
+
+标签行、标记和辅助文本那一行属于[字段](/zh-cn/components/field/)，用字段的令牌绘制；其余的一切属于[组合框](/zh-cn/components/combobox/)。三种变体和两种尺寸——`medium`（48）和 `large`（56）——就是文本字段的那些。默认系统只提供 `stacked`。
+
+列表打开期间，标签和帮助文本随方框一起画成聚焦的样子，无论输入框是否有焦点。
+
+### 列表
+
+列表在容器下方相距 `comp.combobox.list.offset` 处打开，与容器正好一样宽；下方没有空间时，在容器上方打开。它的高度等于各行加起来的高度，上限是 `list.max-height`（320），超过时滚动。
+
+| 部件 | 它是什么 |
+| --- | --- |
+| 选项 | 一行，带有标签，还可以有一行辅助文本和一个字形。选中的那一个带有低调的填充和一个对勾 |
+| 匹配部分 | 使用 `filter="contains"` 时，每个标签中与文本匹配的部分以更粗的字重绘制 |
+| 组 | 一串选项，上方可以有一个标题。筛选之后没有选项的组不画出来 |
+| 状态行 | 位于选项之后：`statusText`；`status` 为 `loading` 时是加载指示器，为 `error` 时是失败信息；没有任何匹配时是 `emptyText` |
+
+`filter="contains"` 显示标签中包含这段文本的选项，不区分大小写、字符的全角半角和字母上的附加符号。使用 `filter="none"` 时，组合框显示你给它的每一个选项，由你在 `input` 时筛选。组合框绝不会自己获取数据、等待、排序或排名。
+
+### 键入、移动和选择
+
+| 输入 | 发生什么 |
+| --- | --- |
+| 键入 | 编辑文本并打开经过筛选的列表。第一个匹配项是活动选项；设置了 `allowCustomValue` 时，没有活动选项 |
+| 列表关闭时的下方向键、上方向键；V 形箭头 | 打开列表并显示所有选项。活动选项是选中的那一个；没有选中的选项时，是第一个启用的选项 |
+| 列表打开时的下方向键、上方向键 | 下一个或上一个选项，可以跨组，到头时停住 |
+| Page Down、Page Up | 向下或向上移动十个选项 |
+| Home、End、左方向键、右方向键 | 在文本中移动插入点 |
+| 有活动选项时的 Enter；按下某个选项 | 选择它并关闭列表。不会提交表单 |
+| 没有活动选项时的 Enter | 确认文本，触发 `action`，并提交表单，除非 `action` 被取消 |
+| Escape | 关闭打开的列表，保留文本。再按一次，恢复为已确认的值所对应的文本。它绝不会清除值 |
+| Tab；在外部按下 | 离开字段：文本得到处理，列表关闭。活动选项不会被选中 |
+| 按下标签 | 把焦点移到输入框，不打开任何东西。列表打开时，这算在组合框外部按下：列表关闭，焦点留在输入框里 |
+
+离开字段时，文本会得到处理：由组合框决定这段文本代表哪个值。文本为空，值就清空。文本与某个选项的整个标签相同，就选择那个选项。其他任何文本，在设置了 `allowCustomValue` 时成为值，没有设置时被放弃。
+
+列表不会在获得焦点时打开。如果你需要这样，请自己设置 `open`。
+
+输入法正在组合输入时，每一次按键都属于输入法。用来确认转换的那一次 Enter 不选择任何选项，也不提交任何内容。
+
+`toggle` 带有关闭的原因：`select`、`commit`、`escape`、`outside`、`press`、`tab`、`focus-out`、`anchor-hidden` 或 `empty`。
+
+<ComponentSpecs name="combobox-field" />
+
+### Web 上绘制方式的不同之处
+
+- `<tanrei-option>` 和 `<tanrei-option-group>` 是数据：它们什么都不画。它们就是下拉选择框所包含的那些元素。值为空字符串的选项会画出来，但不能被选中，因为空值表示什么都没有选。
+- 这个元素的 shadow root 里有一个包着 `<tanrei-combobox>` 的 `<tanrei-field>`。你的 `<tanrei-option>` 子元素仍然是它自己的子元素，通过插槽到达组合框；没有任何东西被移动或复制。
+- 组合框字段是与表单关联的元素：表单看到的唯一控件。它接受 `name`，提交 `value`，绝不提交尚未确认的编辑文本；重置时回到 `value` 属性（attribute）的值，并在 `requirement="required"` 且 `value` 为空时向表单报告缺少值。没有活动选项时按 Enter 会提交它的表单。
+- `value`、`inputValue` 和 `open` 在任何时刻都是组合框的：在每个监听器里，它们都已经是新的值。
+- `chevron` 对应含义相反的属性（attribute）`no-chevron`，`readOnly` 对应 `readonly`。
+- `input` 是文本元素的原生事件。`change` 和 `action` 带有 `detail.value` 和 `detail.inputValue`。这四个事件是组合框自己的事件，以组合框字段为目标；`toggle` 不冒泡。
+- `focus()` 会把焦点交给输入框。这个元素自己不能获得焦点，也没有角色：用 `label` 为它命名，绝不要用 `aria-label`。
+- 部件：`field` 和 `combobox` 是两个成员；每个成员的部件都以自己的名称导出，`label` 和 `requirement-label` 还另外导出为 `field-label`、`combobox-label`、`field-requirement-label` 和 `combobox-requirement-label`。
+- 要单独调整某一个字段，就在它上面设置自定义属性：各行用 `--tanrei-comp-field-*`，方框用 `--tanrei-comp-input-box-*`，列表用 `--tanrei-comp-combobox-*`。
+- 列表是顶层（top layer）中的 `popover="manual"` 元素。在外部按下会关闭它，这次按下也会传到它下方的元素。
+- 状态行位于选项下方，不随选项滚动，所以数量或失败信息始终留在视野之内。
+- 在元素定义之前，它的选项是页面上的普通文本。请隐藏 `tanrei-combobox-field:not(:defined) > *`，并预留高度。
+- Web 没有自己的返回手势，所以 `toggle` 绝不会带有原因 `back`。
+
+## 指南
+
+### 组合框字段、下拉选择框、搜索还是文本字段
+
+| 方面 | 组合框字段 | 下拉选择框 | 搜索 | 文本字段 |
+| --- | --- | --- | --- | --- |
+| 里面是什么 | 通过键入找到的一个值 | 封闭列表中的一个值 | 查询词 | 任意文本 |
+| 如何显示选项 | 随用户键入而显示 | 按下之后显示 | 显示建议和结果 | 不显示 |
+| 是否接受列表之外的值 | 设置了 `allowCustomValue` 时接受 | 否 | 是 | 是 |
+| 是否属于表单 | 是 | 是 | 否 | 是 |
+
+1. 选项不超过五个左右、都很短时，把它们全部显示出来：用单选按钮。
+2. 如果列表短到可以一眼扫完，并且是封闭的，那是下拉选择框。
+3. 如果用户宁愿键入也不愿滚动，或者字段要接受列表之外的值，那是组合框字段。
+4. 如果键入通向的是要去的地方，而不是一个值，那是搜索。
+5. 要选多个值时，用别的组件：组合框只保存一个值。
+6. 如果标签在别处——工具栏里的筛选框、表格的单元格——那是单独使用的[组合框](/zh-cn/components/combobox/)，由它自己的 `label` 命名。
+
+### 推荐
+
+- 写一个标签，说明选择的是什么，并让它在表单中保持可见。
+- 只有当列表之外的值确实是一个有效的回答时，才使用 `allowCustomValue`。
+- 值可以为空的组合框字段，请设置 `clearable`，并用 `clearLabel` 为按钮命名。
+- 加载选项时，设置 `status` 和 `statusText`，让列表说明它正在等待、显示了多少项，或者加载失败了。
+- 给出 `emptyText`：写在组合框字段上，或者用 `setWords({ emptyText })` 为整个产品只给一次。Tanrei 不自带任何文字：没有它，文本没有任何匹配时不绘制这一行，列表也就没有东西可显示。
+
+### 避免
+
+- 不要把占位符当作标签。用户一开始键入，它就消失了。
+- 不要在 `input` 时保存、跳转或提交。每按一次键它都会触发；`change` 才代表已确认的值。
+- 不要把与任何选项都不对应的文本当作字段的错误。用户离开时，这段文本就被放弃了。如果你想提示“请从列表中选择一项”，请自己设置 `error` 和 `errorText`。
+- 不要把组合框字段放进字段。它已经是一个字段；字段框住的控件是[组合框](/zh-cn/components/combobox/)。
+- 在字段很多的表单里，不要让列表在获得焦点时打开：每停靠一次，它都会盖住下方的字段。
+
+## 无障碍
+
+<ComponentAccessibility name="combobox-field" />
+
+### 组件负责的部分
+
+- 输入框是一个带列表框的可编辑组合框。它的名称是 `label`，无论是画出来的还是隐藏的，绝不是占位符。字段把它交给组合框，组合框把它带在自己的输入框上。
+- 显示出来的辅助文本或错误文本是它的描述；字段为选填时，还会加上 `optionalText`。
+- 焦点在字段内时出现的错误，会以礼貌（polite）的方式朗读一次。
+- `error` 为 true 时，它暴露为无效；`requirement` 为 `required` 时，暴露为必填；只读时暴露为只读；列表打开时，暴露为已展开。
+- 列表打开期间，焦点留在输入框里。活动选项是输入框的活动后代，所以键入时对文本的编辑绝不会中断。
+- 列表是一个以标签命名的列表框。每个选项都有自己的名称、描述、是否选中、是否禁用，以及它在所显示的选项中的位置。组以它的标题命名。
+- 匹配部分靠字重来标记，绝不只靠颜色。标签仍作为一整段文本朗读。
+- 状态行是一个实时区域（live region）：它的文本变化时，以礼貌（polite）的方式朗读；数据源失败时，立即朗读。加载期间，列表标记为忙碌，不朗读任何内容。
+- 输入法正在组合输入时，组合框不处理任何按键。
+- V 形箭头是供指针和触摸浏览使用的按钮，不在焦点顺序之内。键盘用下方向键打开列表。
+- 清除按钮是一个以 `clearLabel` 命名的按钮，也是输入框之后的下一个焦点停靠点。
+- Escape 关闭列表，并且不再向外传递，所以包含组合框的对话框保持打开。
+- 字段的点击区域达到最小目标，每个选项的高度也不小于最小目标。
+- 文本放大到 200% 时，标签、帮助文本、选项、标题和状态行会换行。只有输入框里的文本保持在一行之内，并且可以滚动。
+- 在强制颜色模式下，字段和列表会多出一道边线，活动选项采用系统的高亮颜色，选中的选项靠对勾来表示。
+- 在从右到左的布局中，字段和每一行都会镜像，每段文本保持自己的方向。V 形箭头、清除按钮的字形和对勾不镜像。
+
+Web 上的已知差距：
+
+- 两个组之间的分隔线没有作为分隔符暴露：列表框只能包含选项和组。
+- 筛选对所有文字一律忽略大小写、全角半角和附加符号的差别。它不会按首辅音匹配谚文，也不会按读音匹配假名。
+- 在元素定义之前，选项是页面上的文本，没有对应的控件。
+
+### 需要你做的事
+
+- 为每个组合框字段提供 `label`，并为每个选项提供标签和一个不为空的值。
+- 为可清除的组合框字段提供 `clearLabel`。
+- 在组合框字段上编写 `statusText`。`emptyText`、`requiredText`、`optionalText` 和 `clearLabel` 可以写在组合框字段上，也可以用 `setWords()` 为整个产品只给一次。Tanrei 不自带任何文字；缺少的文字会在开发时报告。参见[产品的文字](/zh-cn/foundations/words/)。
+- 自己校验值，设置 `error`，并编写说明如何改正的 `errorText`。
+- 在同一个组合框字段里，让各个选项的值保持唯一。

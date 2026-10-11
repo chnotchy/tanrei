@@ -1,0 +1,211 @@
+---
+title: プログレスインジケーター
+description: タスクがどこまで進んだかを、進み具合が分からないときは進行中であることを、バーまたはリングで示します。
+translationOf: components/progress-indicator.mdx
+sourceHash: 4c913cc78754e128adde1441de5e69fac8eff4f8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="progress-indicator" />
+
+<DemoFrame label="リニアとサーキュラー">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator value="0.4" label="report.pdf をアップロード中"></tanrei-progress-indicator>
+    <tanrei-progress-indicator label="エクスポートを準備中"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" value="0.4" label="写真を同期中"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" label="同期中"></tanrei-progress-indicator>
+</DemoFrame>
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、まだ `separation` がありません。これらの例は、いま提供しているものを示しています。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-progress-indicator value="0.4" label="report.pdf をアップロード中"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="10 件中 3 件" label="アップロード中"></tanrei-progress-indicator>
+
+    <!-- value がなければ、value のない <progress> と同じく不確定です。 -->
+    <tanrei-progress-indicator variant="circular" size="small" label="同期中"></tanrei-progress-indicator>
+
+    <!-- デザインシステムの選択にかかわらず、インジケーターとトラックの残りの間に間隔を空けます。 -->
+    <tanrei-progress-indicator separation="gap" value="0.4" label="report.pdf をアップロード中"></tanrei-progress-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/progress-indicator';
+      const bar = document.querySelector('tanrei-progress-indicator');
+      bar.value = sent / total;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react';
+
+    <ProgressIndicator value={sent / total} label="report.pdf をアップロード中" />
+    <ProgressIndicator value={files} max={10} valueText={`10 件中 ${files} 件`} label="アップロード中" />
+    <ProgressIndicator variant="circular" size="small" value={null} label="同期中" />
+    <ProgressIndicator separation="gap" value={sent / total} label="report.pdf をアップロード中" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiProgressIndicator("report.pdf をアップロード中", value: sent / total)
+    TanreiProgressIndicator("アップロード中", value: Double(files), in: 0...10, currentValueLabel: "10 件中 \(files) 件")
+
+    // value を渡さなければ（既定値）不確定です。
+    TanreiProgressIndicator("同期中", variant: .circular, size: .small)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicator
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicatorVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiProgressIndicatorSize
+
+    // progress はラムダなので、値が変わっても再コンポーズせずに描き直します。
+    TanreiProgressIndicator(progress = { sent / total }, contentDescription = "report.pdf をアップロード中")
+    TanreiProgressIndicator(
+        progress = { files.toFloat() },
+        contentDescription = "アップロード中",
+        valueRange = 0f..10f,
+        stateDescription = "10 件中 $files 件",
+    )
+
+    // progress を取らないオーバーロードが不確定です。
+    TanreiProgressIndicator(
+        contentDescription = "同期中",
+        variant = TanreiProgressIndicatorVariant.Circular,
+        size = TanreiProgressIndicatorSize.Small,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiProgressIndicator(value: sent / total, semanticsLabel: 'report.pdf をアップロード中');
+    TanreiProgressIndicator(
+      value: files.toDouble(),
+      max: 10,
+      semanticsValue: '10 件中 $files 件',
+      semanticsLabel: 'アップロード中',
+    );
+
+    // value: null（既定値）は不確定です。
+    const TanreiProgressIndicator(
+      variant: TanreiProgressIndicatorVariant.circular,
+      size: TanreiProgressIndicatorSize.small,
+      semanticsLabel: '同期中',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react-native';
+
+    <ProgressIndicator accessibilityLabel="report.pdf をアップロード中" value={sent / total} />
+    <ProgressIndicator accessibilityLabel="アップロード中" value={files} max={10} valueText={`10 件中 ${files} 件`} />
+    <ProgressIndicator accessibilityLabel="同期中" variant="circular" size="small" />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="サイズ、範囲の両端、独自の範囲" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="0" label="未開始"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="1" label="完了"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="10 件中 3 件" label="アップロード中"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+</DemoFrame>
+
+<DemoFrame label="区切り方：divider（既定のシステムの選択）と gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" size="large" value="0.4" label="Gap、large"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="progress-indicator" />
+
+## ガイドライン
+
+### 使う場面
+
+待っていることに気付く程度の時間がかかるタスクに使います。アップロード、インポート、デプロイ、時間のかかる保存などです。おおよそでも測れるなら、どこまで進んだかを示します。バーが進んでいると、人は落ち着いて待てます。まだ測れないときは不確定で表示し、値が分かった時点で切り替えます。
+
+次のページを読み込んでいるリストのように、長さを測れない短い待ち時間には、代わりに[ローディングインジケーター](/ja/components/loading-indicator/)を使います。値を約束しないので、トラックを持ちません。
+
+### バリアントの選び方
+
+| バリアント | 用途 |
+| --- | --- |
+| Linear | ページやセクションに属するタスク。ページの上端、カードの中、アップロード一覧のファイルの下など。バーはレイアウトが与える幅いっぱいに伸びます。 |
+| Circular | 狭い場所や、テキストの横での進捗。ボタンの中、リストの行、小さなパネルなど。リングの大きさは固定です。 |
+
+### サイズの選び方
+
+| サイズ | 既定のシステムでのバーの太さ / リングの大きさ | 用途 |
+| --- | --- | --- |
+| Small | 2 / 16 | 密度の高い行、コントロールの中、小さなテキストの横。 |
+| Medium | 4 / 24 | ほとんどの場所。既定値です。 |
+| Large | 8 / 40 | その画面の主役であるタスクや、内容を待っている空のセクション。 |
+
+### 区切り線か間隔か
+
+確定のインジケーターをトラックの残りと見分ける方法は 2 つあります。`divider` では、インジケーターをトラックの上に、間を空けずに描きます。`gap` では、インジケーターのあとに少しだけ間隔を空けます。リングでは弧の両端に空け、バーではトラックの終わりを点で示します。不確定のインジケーターは、どちらでも同じ見た目です。
+
+この選択は、デザインシステムが、同じ選択を持つすべてのコンポーネントについて一度だけ行います。既定のシステムは divider です。`separation` を `auto` のままにしておけば、その選択に従うので、周りのボタングループやメニューとそろいます。1 つのインジケーターだけを変える理由があるときに限り、`divider` か `gap` を指定します。
+
+### 推奨
+
+- 何が進行中なのかを表すラベルを付けます。「進捗」ではなく「report.pdf をアップロード中」です。横にキャプションを表示するなら、同じ言葉を使います。
+- パーセントが自然な読み方でないときは、値のテキストを使います。「10 件中 3 件」「ステップ 2/4」などです。
+- タスクが終わったら、言葉で伝えます。完了したというメッセージか、何がうまくいかず次に何をすればよいかです。
+
+### 非推奨
+
+- 失敗を色で伝えない。赤いバーは、その色が見えない人には何も伝えません。インジケーターを止めて、横にメッセージを表示します。
+- ストレージの使用量やパスワードの強度のような、量の目盛りとして使わない。それはメーターという別のコンポーネントです。
+- タスクが終わる前に値を戻したり、最後まで飛ばしたりしない。バーは残りの待ち時間についての約束です。
+- 1 つのタスクに複数のインジケーターを出さない。全体に 1 つ、または利用者が気にかける項目ごとに 1 つにします。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="progress-indicator" />
+
+### コンポーネントが担うこと
+
+- プログレスバーのロールと、名前としてのラベルを伝えます。確定のときは範囲、範囲内に収めた現在の値、値のテキスト（あれば）を、不確定のときは値を伝えずにプラットフォームのビジー状態を伝えます。Flutter にはまだプログレスバーのロールもビジー状態もないため、ラベルと値を伝えます。
+- フォーカスを受けず、変化を自分から読み上げません。支援技術は、利用者がたどり着いたときに現在の値を読み上げます。
+- 動きを減らす設定のときは、値の変化をすぐに反映し、不確定の表示は動きを止めて、代わりに不透明度をゆるやかに変化させます（1 秒に 1 回まで）。
+- 繰り返すアニメーションは、見えていない間は止まり、見えるようになると再開します。アプリがバックグラウンドにあるときはすべてのプラットフォームで、スクロールして画面外に出たときや隠れた画面にあるときは、プラットフォームがそれを判別できる範囲で止まります。
+- 空のラベル、範囲外の値、未知の `separation` は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- タスクの終わりは、プロダクト側で知らせます。ライブリージョンでメッセージを伝えるか、結果へフォーカスを移します。インジケーターは、完了や失敗を伝えません。
+- インジケーターの色、トラックの色、背後のサーフェスの色を変えるときは、divider でも gap でも、インジケーターの色がトラックと背後のサーフェスの両方に対して 3:1 以上になるようにします。値は、インジケーターとトラックの境目から読み取られるからです。
+- タスクがページの一部を止めている間は、その領域をビジー状態にします（Web では `aria-busy`）。

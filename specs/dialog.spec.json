@@ -1,0 +1,668 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "dialog",
+  "title": "Dialog",
+  "summary": "Stops a person for a decision or a few details that the task cannot go on without, in a surface that dims and blocks everything behind it and always offers at least one answer, until one is chosen or the dialog is dismissed.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "scrim",
+      "description": "The dim over everything behind the dialog. It blocks presses and, when the dialog is dismissible, dismisses it when pressed."
+    },
+    {
+      "id": "container",
+      "description": "The raised surface that holds everything else: centred in the window, or at the bottom of a compact window (DLG-17). It is a dialog in both places, never a sheet."
+    },
+    {
+      "id": "header",
+      "description": "The icon and the headline. By default the icon sits at the headline's start and both are aligned to the start; a system may put the icon above a centred headline instead (DLG-9)."
+    },
+    {
+      "id": "icon",
+      "description": "A glyph that marks the kind of decision (a warning, a deletion), at the headline's start.",
+      "optional": true
+    },
+    {
+      "id": "headline",
+      "description": "The question or statement the dialog is about, aligned to the start. It is the dialog's accessible name."
+    },
+    {
+      "id": "supporting-text",
+      "description": "What will happen, or what the person needs to know to decide. It is the dialog's accessible description.",
+      "optional": true
+    },
+    {
+      "id": "content",
+      "description": "Whatever else the decision needs: a list to choose from, a field. The dialog insets it and hands it a content color; it does not lay it out.",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "Hairlines between the header and the scrolling content and between the content and the actions, drawn only while the content scrolls.",
+      "optional": true
+    },
+    {
+      "id": "actions",
+      "description": "The answers: one or more Tanrei Buttons, each marked confirming or dismissive, laid out as a full-width Button group (a row that the actions share equally, or a column when they do not fit). A Button whose variant the product did not set is tonal in the default system. Required: a dialog asks something, so it always offers an answer."
+    }
+  ],
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the dialog is presented. The product opens it, and closes it from an action's handler or in answer to dismiss."
+    },
+    {
+      "name": "headline",
+      "type": "string",
+      "default": "",
+      "description": "The question or statement (\"Discard draft?\"). Required: it is the accessible name."
+    },
+    {
+      "name": "supportingText",
+      "type": "string",
+      "default": "",
+      "description": "What will happen, or what the person needs to know. It is the accessible description."
+    },
+    {
+      "name": "alert",
+      "type": "boolean",
+      "default": false,
+      "description": "Marks a dialog that interrupts with something urgent (a destructive confirmation, a lost connection): assistive technology reads its headline and supporting text as soon as it opens, and the web exposes it as an alertdialog."
+    },
+    {
+      "name": "dismissible",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether Escape, the platform's back and a press on the scrim ask to close the dialog (dismiss). Set it to false only when the person must choose one of the actions; give such a dialog a dismissive action."
+    }
+  ],
+  "items": [
+    {
+      "name": "action",
+      "summary": "One answer at the foot of the dialog: a Tanrei Button, placed by the dialog as a full-width Button group places its items and given the dialog's variant unless the product set one.",
+      "component": "button",
+      "props": [
+        {
+          "name": "variant",
+          "type": "string",
+          "default": "",
+          "description": "The Button's variant (filled, tonal, elevated, outlined, text, or one a system added). Empty, the default: the dialog gives it the variant comp.dialog.actions.variant names, tonal in the default system (DLG-20). Set it to give one action another look (a filled Delete beside a text Cancel)."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's disabled. A disabled action keeps its place and its share of the width."
+        },
+        {
+          "name": "confirming",
+          "type": "boolean",
+          "default": false,
+          "description": "The action completes the task (OK, Save, Delete, Allow). Placed at the end of a row and at the top of a column (BGR-13, BGR-14). It decides the place only, never the look (BGR-19)."
+        },
+        {
+          "name": "dismissive",
+          "type": "boolean",
+          "default": false,
+          "description": "The action backs out of the task (Cancel, Not now, Keep editing). Placed at the start of a row and at the bottom of a column (BGR-13, BGR-14). It decides the place only, never the look (BGR-19)."
+        }
+      ],
+      "slots": [
+        {
+          "name": "label",
+          "description": "The Button's label, as its default slot. A fixture item's content is this label."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The action was activated, as the Button's click. The dialog does not close by itself (DLG-6)."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The custom content, below the supporting text."
+    },
+    {
+      "name": "icon",
+      "description": "A glyph at the headline's start (DLG-9).",
+      "fixture": "glyph"
+    },
+    {
+      "name": "actions",
+      "description": "The action items: Tanrei Buttons, one at least (DLG-19), each marked confirming or dismissive. The dialog places them (DLG-10) and gives those without a variant its own (DLG-20). A fixture fills it through its items."
+    }
+  ],
+  "events": [
+    {
+      "name": "dismiss",
+      "description": "The person asked to close the dialog without an action: Escape, the platform's back, or a press on the scrim. Emitted only while dismissible is true."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "DLG-1",
+      "text": "WHEN open becomes true THE dialog SHALL present its container above everything in its window, with its scrim of comp.dialog.scrim.color over the whole window behind it, SHALL make everything outside it inert (not focusable, not pressable, hidden from assistive technology) and SHALL keep the content behind it from scrolling, until it closes."
+    },
+    {
+      "id": "DLG-2",
+      "text": "WHEN the dialog opens THE dialog SHALL move focus to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads the headline first and the next Tab reaches the first focusable element."
+    },
+    {
+      "id": "DLG-3",
+      "text": "WHILE the dialog is open THE dialog SHALL keep focus inside it: Tab from its last focusable element SHALL move to its first, Shift+Tab from its first SHALL move to its last, and screen-reader navigation SHALL NOT leave it."
+    },
+    {
+      "id": "DLG-4",
+      "text": "WHEN the dialog closes THE dialog SHALL return focus to the element that had it when the dialog opened or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay, and SHALL restore the content behind it to what it was before."
+    },
+    {
+      "id": "DLG-5",
+      "text": "WHILE dismissible is true, WHEN the user presses Escape, uses the platform's back (Android's back gesture or button, the iOS accessibility escape gesture) or presses the scrim THE dialog SHALL emit dismiss once; the product closes it by setting open to false, except on the web, where the dialog closes itself unless dismiss is cancelled, as a native dialog does. WHILE dismissible is false THE dialog SHALL ignore these inputs and emit nothing."
+    },
+    {
+      "id": "DLG-6",
+      "text": "WHEN an action is activated THE dialog SHALL NOT close by itself; the product closes it from the action's handler by setting open to false."
+    },
+    {
+      "id": "DLG-7",
+      "text": "WHILE the window is at least comp.dialog.compact.window-width wide THE dialog SHALL centre its container in the window's safe area, at least comp.dialog.container.margin from every edge and from the on-screen keyboard, as wide as its widest part (its text, its content, or its actions in one row at their own widths) between comp.dialog.container.min-width and comp.dialog.container.max-width but never wider than the window less the margins. In every window THE dialog SHALL draw its container in comp.dialog.container.color with comp.dialog.container.elevation and comp.dialog.container.shape corners eased by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0).",
+      "verify": "Fixtures render in a 640 × 640 window, which is not compact under the default system; a fixture whose id starts with compact- renders in a 360 × 640 window, which is (DLG-17)."
+    },
+    {
+      "id": "DLG-8",
+      "text": "THE dialog SHALL inset its parts by comp.dialog.container.padding on every side and stack the header (the icon and the headline, DLG-9), the supporting text and the content comp.dialog.container.gap apart, leaving out a part that is empty, with the actions comp.dialog.actions.margin-block-start below the last of them. It SHALL draw the headline in comp.dialog.headline.typescale and comp.dialog.headline.color, wrapping onto more lines rather than truncating, and the supporting text in comp.dialog.supporting-text.typescale and comp.dialog.supporting-text.color, and SHALL hand the content comp.dialog.content.color as the platform's inherited foreground (the web's inherited color, SwiftUI's foreground style, Compose's content color, Flutter's default text and icon style, React Native's Tanrei text context); plain text given as content, where the platform must style it, SHALL take sys.typescale.body."
+    },
+    {
+      "id": "DLG-9",
+      "text": "WHILE the icon slot is filled THE dialog SHALL draw the icon at comp.dialog.icon.size in comp.dialog.icon.color, with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and place it as comp.dialog.icon.placement says: WHILE it is inline, at the start of the header, comp.dialog.header.gap before the headline and centred on the headline's first line, so that a headline that wraps keeps the icon beside its first line; WHILE it is above, above the headline, comp.dialog.container.gap apart, with the icon and the headline centred. The supporting text and the content SHALL be aligned to the start in either placement, and WHILE the icon slot is empty the headline SHALL be aligned to the start whatever the placement.",
+      "verify": "The default system's placement is inline; above is observed under a fixture system that sets comp.dialog.icon.placement to 1, with the fixture icon."
+    },
+    {
+      "id": "DLG-10",
+      "text": "THE dialog SHALL lay out its actions as a standard Button group lays out its items (BGR-12 to BGR-19), comp.dialog.actions.gap apart, in the order the group gives them — dismissive at the start and confirming at the end of a row, confirming on top and dismissive at the bottom of a column — with focus and reading order following that order (BGR-15). WHILE comp.dialog.actions.arrangement is fill it SHALL make them a full-width group across the container's inner width, the actions sharing a row equally (BGR-17) or each as wide as the column; WHILE it is end it SHALL keep them at their own widths, the row aligned to the end, and a column as wide as its widest action and aligned to the end. It SHALL place them in a row WHILE every action's label fits its share on one line (fill) or the row at its own widths fits the inner width (end), and otherwise in a column, re-deciding when the dialog's width or the text size changes.",
+      "verify": "Under the default system: basic shows Cancel · Discard sharing the width; stacked shows three actions in a column, the confirming one on top. end is observed under a fixture system that sets comp.dialog.actions.arrangement to 1."
+    },
+    {
+      "id": "DLG-11",
+      "text": "WHEN the dialog's parts do not fit in the height its placement leaves THE dialog SHALL keep the header and the actions in place and scroll the supporting text and the content between them, and SHALL draw a divider of comp.dialog.divider.width in comp.dialog.divider.color across the container below the header WHILE the scrolled part is not at its top, and above the actions WHILE more of it lies below; WHILE everything fits THE dialog SHALL draw no divider."
+    },
+    {
+      "id": "DLG-12",
+      "text": "WHEN the header and the actions alone leave no room for the scrolled part (large text on a short window) THE dialog SHALL scroll all of its parts together instead, so that nothing is cut off or unreachable."
+    },
+    {
+      "id": "DLG-13",
+      "text": "WHEN the dialog opens centred in the window (DLG-7) THE dialog SHALL fade its scrim in and fade its container in while growing it about its centre from comp.dialog.motion.enter-scale of its size to its full size, over comp.dialog.motion.enter-duration with comp.dialog.motion.enter-easing; WHEN it closes there it SHALL fade both out over comp.dialog.motion.exit-duration with comp.dialog.motion.exit-easing. WHERE motion is reduced it SHALL fade without growing, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). Focus SHALL move (DLG-2, DLG-4) when the dialog opens or closes, not when the motion ends."
+    },
+    {
+      "id": "DLG-14",
+      "text": "THE dialog SHALL expose its container as a modal dialog — an alert dialog WHILE alert is true — named by headline and described by supportingText; WHEN alert is true and the dialog opens it SHALL have assistive technology read the headline and the supporting text at once; WHILE headline is empty it SHALL still open, and in debug builds SHALL report that it has no accessible name."
+    },
+    {
+      "id": "DLG-15",
+      "text": "WHEN a dialog opens while another is open THE dialog SHALL stack above it with its own scrim, make the first one inert as well, and on closing return focus to the element inside the first dialog that had it; Escape SHALL dismiss only the topmost dialog."
+    },
+    {
+      "id": "DLG-16",
+      "text": "WHEN the layout direction is right-to-left THE dialog SHALL mirror its layout — the icon at the right of the headline, the headline and the supporting text aligned to the right, and its actions placed as a Button group places them right to left (BGR-8: dismissive at the right, confirming at the left of a row; a column's order unchanged) — and SHALL NOT mirror its content itself: the content follows the layout direction."
+    },
+    {
+      "id": "DLG-17",
+      "text": "WHILE the window is narrower than comp.dialog.compact.window-width (a compact window) THE dialog SHALL place its container at the bottom of the window's safe area, comp.dialog.container.margin above its bottom edge or above the on-screen keyboard while it is shown and comp.dialog.container.margin from its side edges, as wide as the window less those margins but never wider than comp.dialog.container.max-width (centred between the side edges), and never higher than the window's safe area less comp.dialog.container.margin at the top and at the bottom, with all four corners comp.dialog.container.shape. It SHALL stay a dialog there — DLG-1 to DLG-6, DLG-8 to DLG-12 and DLG-14 to DLG-16 hold unchanged — and SHALL draw no drag handle, follow no drag and close on no swipe. WHEN the window's width crosses comp.dialog.compact.window-width while the dialog is open THE dialog SHALL move to the other placement at once, without motion, keeping focus where it is. WHERE comp.dialog.compact.window-width is 0 no window is compact.",
+      "verify": "The fixtures compact and compact-stacked render in a 360 × 640 window (DLG-7's verify): the container sits 16 above the bottom edge and 16 from each side, 328 wide."
+    },
+    {
+      "id": "DLG-18",
+      "text": "WHEN the dialog opens at the bottom of a compact window (DLG-17) THE dialog SHALL fade its scrim in and fade its container in while moving it up from comp.dialog.motion.enter-offset below its place to its place, without growing, over comp.dialog.motion.enter-duration with comp.dialog.motion.enter-easing; WHEN it closes there it SHALL fade both out while moving the container down by comp.dialog.motion.enter-offset, over comp.dialog.motion.exit-duration with comp.dialog.motion.exit-easing. WHERE motion is reduced it SHALL fade without moving, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). Focus SHALL move as DLG-13 says."
+    },
+    {
+      "id": "DLG-19",
+      "text": "IF the dialog opens with no action THE dialog SHALL still open and lay out its other parts, and in debug builds SHALL report as an error that a dialog must offer at least one action; a platform whose API can require an action (a required, non-empty list or builder of actions) SHALL require it, and one that can count its actions only when it opens SHALL count them then. It SHALL report likewise a dialog whose actions are all disabled while dismissible is false, which leaves the person no way out."
+    },
+    {
+      "id": "DLG-20",
+      "text": "WHILE an action's variant is empty THE dialog SHALL give that Button the variant comp.dialog.actions.variant names, through the channel a Button reads from the component that places it, so that the Button renders from that variant's tokens and states as it would with the variant set; WHILE an action's variant is set THE dialog SHALL leave it as set. THE dialog SHALL NOT change an action's size or tokens, and SHALL NOT change its look or emphasis for its confirming or dismissive (BGR-19).",
+      "verify": "Under the default system every action of basic, icon, content, scrolling, single-action, stacked and the compact fixtures is tonal; action-variants shows a text Cancel beside a filled Delete, as set."
+    },
+    {
+      "id": "DLG-21",
+      "text": "THE dialog SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the dialog is shown THE dialog SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "DLG-22",
+      "text": "WHERE the layout direction is right-to-left THE dialog SHALL draw the glyph of its icon slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order DLG-16 gives. THE dialog SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name.",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "DLG-23",
+      "text": "THE dialog SHALL lay out its headline and its supporting text as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE dialog SHALL still place each and align its lines by the layout direction, not by the text's own."
+    }
+  ],
+  "accessibility": {
+    "role": "dialog",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Move focus through the dialog's focusable elements, wrapping from the last to the first and back; focus never leaves the dialog."
+      },
+      {
+        "keys": "Escape",
+        "action": "Dismisses the dialog (emits dismiss) while dismissible is true; with nested dialogs, only the topmost."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activate the focused button. The dialog adds no default action to Enter."
+      }
+    ],
+    "labeling": "The headline is the accessible name and the supporting text the description. The role is dialog, or alertdialog while alert is true (platforms without that distinction read the headline and supporting text on opening). Everything outside the dialog is hidden from assistive technology while it is open. Each action is named by its own label; confirming and dismissive are not announced, and the actions are read in the order they are placed (BGR-15).",
+    "minimumTarget": true,
+    "notes": [
+      "The dialog has no target of its own; its actions are Tanrei Buttons, which meet the minimum target themselves (BTN-5). comp.dialog.actions.gap keeps each action's whole target in a column in the default system.",
+      "Initial focus: mark the least destructive action (Cancel) in a destructive confirmation, the first field in a form, and nothing in a dialog whose text must be read first. Without a mark, focus goes to the container (DLG-2).",
+      "Every dialog offers an action (DLG-19). Use dismissible false sparingly: a person using a switch or a screen reader relies on Escape and back. A dialog that must not be dismissed still needs a visible way out, a dismissive action.",
+      "Placement is by task, not by code order: in a row the dismissive action is at the start and the confirming one at the end; in a column the confirming one is on top. Focus and screen readers follow the placed order, so a sighted and a screen-reader user meet the actions in the same order.",
+      "At the bottom of a compact window the dialog is still a modal dialog (DLG-17): the same role, focus, inertness and dismissal, and no drag. A person who expects a bottom sheet's swipe to close it uses Escape, back or the scrim, or a dismissive action.",
+      "Text size: at 200% the dialog grows up to the window; its actions stack when a label no longer fits its share (DLG-10), its supporting text and content scroll (DLG-11), and on a very short window everything scrolls together (DLG-12).",
+      "Web: a native `<dialog>` opened with `showModal()` inside the shadow root, so the rest of the page is inert and the dialog is in the top layer. `::backdrop` draws the scrim. The `autofocus` attribute on a slotted element marks initial focus. `form method=\"dialog\"` closes it natively, and the native `close` event follows every close.",
+      "Where a platform presents the dialog in a window of its own (Compose's `Dialog`, React Native's `Modal`), the platform's own window dim is switched off and Tanrei draws the scrim, so every platform draws the same color."
+    ]
+  },
+  "tokens": "comp.dialog",
+  "fixtures": [
+    {
+      "id": "basic",
+      "props": {
+        "open": true,
+        "headline": "Discard draft?",
+        "supportingText": "The message you were writing will be deleted from this device."
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Discard"
+        }
+      ]
+    },
+    {
+      "id": "icon",
+      "props": {
+        "open": true,
+        "headline": "Delete project?",
+        "supportingText": "Everything in the project, including its history, will be deleted. This cannot be undone."
+      },
+      "slots": {
+        "icon": "delete"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Delete"
+        }
+      ]
+    },
+    {
+      "id": "content",
+      "props": {
+        "open": true,
+        "headline": "Share with the team",
+        "supportingText": "People you add can view and comment."
+      },
+      "content": "Anyone on the team with the link can open this document.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Share"
+        }
+      ]
+    },
+    {
+      "id": "scrolling",
+      "props": {
+        "open": true,
+        "headline": "Terms of service",
+        "supportingText": "Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change."
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Decline"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Accept"
+        }
+      ]
+    },
+    {
+      "id": "single-action",
+      "props": {
+        "open": true,
+        "headline": "Your session has expired",
+        "supportingText": "Sign in again to keep working. Nothing you saved is lost."
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Sign in"
+        }
+      ]
+    },
+    {
+      "id": "stacked",
+      "props": {
+        "open": true,
+        "headline": "Allow access to your location?",
+        "supportingText": "Nearby stores and delivery times use your location."
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Don't allow"
+        },
+        {
+          "kind": "action",
+          "props": {},
+          "content": "Allow once"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Allow while using the app"
+        }
+      ]
+    },
+    {
+      "id": "action-variants",
+      "props": {
+        "open": true,
+        "headline": "Delete 3 photos?",
+        "supportingText": "They are removed from every device signed in to this account."
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "variant": "text",
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "variant": "filled",
+            "confirming": true
+          },
+          "content": "Delete"
+        }
+      ]
+    },
+    {
+      "id": "compact",
+      "props": {
+        "open": true,
+        "headline": "Discard draft?",
+        "supportingText": "The message you were writing will be deleted from this device."
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Discard"
+        }
+      ]
+    },
+    {
+      "id": "compact-stacked",
+      "props": {
+        "open": true,
+        "headline": "Allow access to your location?",
+        "supportingText": "Nearby stores and delivery times use your location."
+      },
+      "slots": {
+        "icon": "location_on"
+      },
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Don't allow"
+        },
+        {
+          "kind": "action",
+          "props": {},
+          "content": "Allow once"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Allow while using the app"
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-dialog",
+      "props": {
+        "open": "open",
+        "headline": "headline",
+        "supportingText": "supportingText",
+        "alert": "alert",
+        "dismissible": "closedby"
+      },
+      "events": {
+        "dismiss": "cancel"
+      },
+      "notes": "`supportingText` is the `supporting-text` attribute. `dismissible` is HTML's own `closedby` attribute: `any` (the default: Escape and a press on the backdrop) or `none`. `cancel` is cancelable, as on a native `<dialog>`; `close` follows every close. Slots: default, `icon`, `actions`. The actions are laid out by the button group's placement (BGR-13 to BGR-17) inside the shadow root: the dialog's shadow root uses manual slot assignment, assigns its icon and content children to their slots, and assigns each action to one of three action slots in the order of the orientation, so focus and the accessibility tree follow the placed order (BGR-15); CSS `order` is not used. Compact (DLG-17): a media query cannot read a custom property, so the dialog reads the resolved comp.dialog.compact.window-width once per system and matches it with `matchMedia('(width < …px)')`, re-placing at once on change. Debug builds (`import.meta.env.DEV` or the package's dev export) report a dialog opened with no assigned action (DLG-19). Snapshot harness: a 640 × 640 viewport, and 360 × 640 for the compact- fixtures, with the dialog opened by `open`; the screenshot is the viewport, since the dialog and its backdrop are in the top layer.",
+      "items": {
+        "action": {
+          "name": "tanrei-button",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled",
+            "confirming": "confirming",
+            "dismissive": "dismissive"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "A `tanrei-button` child with `slot=\"actions\"`: its label is its content. `confirming` and `dismissive` are boolean attributes that the dialog reads, as the button group does. A Button without a `variant` attribute takes the dialog's variant through the internal controller the group already gives its items (DLG-20); the attribute, once written, wins."
+        }
+      }
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "tanreiDialog",
+      "props": {
+        "open": "isPresented",
+        "headline": "headline",
+        "supportingText": "supportingText",
+        "alert": "alert",
+        "dismissible": "dismissible"
+      },
+      "events": {
+        "dismiss": "isPresented"
+      },
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: a view modifier, as `.alert` and `.sheet` are: `.tanreiDialog(_ headline:, isPresented: Binding<Bool>, supportingText:, alert:, dismissible:, icon:, actions:, content:)`. Dismissal writes false to the binding, SwiftUI's idiom. It is presented with `.fullScreenCover`, with a clear presentation background and the system transition off (Tanrei draws the scrim and the motion); that presentation makes the rest of the app inaccessible to VoiceOver, as `accessibilityViewIsModal` does. Initial focus is `.defaultFocus` or an `@AccessibilityFocusState` the product passes; the iOS escape gesture is `.accessibilityAction(.escape)`. `actions:` is a required builder; the dialog counts its subviews through a variadic view and reports an empty one in debug builds (DLG-19), and lays them out with the button group's `Layout`. Compact is the window's width (a `GeometryReader` at the presentation's root) against the token, not the horizontal size class, so every platform switches at the same width. Snapshot harness: `TanreiDialogSurface` in place in a 640 × 640 frame, and 360 × 640 for the compact- fixtures.",
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled",
+            "confirming": "tanreiGroupPlacement(.confirming)",
+            "dismissive": "tanreiGroupPlacement(.dismissive)"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "A `TanreiButton` in the `actions:` builder. The flags are the button group's `.tanreiGroupPlacement(_:)` modifier (one enum: both cannot be set). A Button created with `variant: nil` reads the dialog's variant from an environment value the dialog sets (internal to the package)."
+        }
+      }
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiDialog",
+      "props": {
+        "open": "visible",
+        "headline": "headline",
+        "supportingText": "supportingText",
+        "alert": "alert",
+        "dismissible": "dismissible"
+      },
+      "events": {
+        "dismiss": "onDismissRequest"
+      },
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window. The target: `TanreiDialog(visible, onDismissRequest, headline, supportingText, alert, dismissible, initialFocus: FocusRequester?, icon, actions, content)` with `actions` a required parameter; the group's `Layout` sees its measurables and reports none in debug builds (DLG-19). `visible` rather than calling it only while open, so that the exit motion can run before the window goes. Presented in a `Dialog` window with `usePlatformDefaultWidth = false` and the window's own dim off (Tanrei draws the scrim). `dismissible` sets `dismissOnBackPress` and `dismissOnClickOutside`. The headline is the window's `paneTitle`. Compact is `LocalWindowInfo.current.containerSize` against the token, not a window size class, so every platform switches at the same width. Snapshot harness: renders `TanreiDialogContent` (the surface and the scrim) in place in a 640 × 640 dp box, and 360 × 640 for the compact- fixtures; the window itself is covered by instrumented tests.",
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "enabled",
+            "confirming": "Modifier.confirming()",
+            "dismissive": "Modifier.dismissive()"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "A `TanreiButton` in the `actions` lambda, whose receiver is the button group's scope, so the flags are its `Modifier.confirming()` and `Modifier.dismissive()`. `enabled` is disabled's inverse. `variant: TanreiButtonVariant? = null` takes the dialog's from a `CompositionLocal` (internal to the library)."
+        }
+      }
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiDialog",
+      "props": {
+        "open": "showTanreiDialog",
+        "headline": "headline",
+        "supportingText": "supportingText",
+        "alert": "alert",
+        "dismissible": "barrierDismissible"
+      },
+      "events": {
+        "dismiss": "showTanreiDialog"
+      },
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 golden. The target: `showTanreiDialog<T>(context:, barrierDismissible:, builder:)` pushes a modal route that draws the scrim as its barrier, and returns a `Future<T?>`; `Navigator.pop(context, value)` from an action closes it, and a dismissal completes the future with null. `TanreiDialog(headline:, supportingText:, alert:, icon:, required actions:, child:)` is the surface the builder returns; `actions` is asserted non-empty (DLG-19). Initial focus is `autofocus: true` on a focusable widget. The route is marked `scopesRoute` and `namesRoute`, so assistive technology stays inside it. Compact is `MediaQuery.sizeOf(context).width` against the token. Snapshot harness: a golden of the whole 640 × 640 surface after `showTanreiDialog`, and 360 × 640 for the compact- fixtures, as the overlay is part of the widget tree.",
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "onPressed",
+            "confirming": "TanreiButtonGroupItem.placement",
+            "dismissive": "TanreiButtonGroupItem.placement"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "A `TanreiButton` in `actions:`; a null `onPressed` disables it. The flags are the button group's `TanreiButtonGroupItem(placement:, child:)` (one enum: both cannot be set). A Button with `variant: null` takes the dialog's from an `InheritedWidget` (internal to the package)."
+        }
+      }
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Dialog",
+      "props": {
+        "open": "visible",
+        "headline": "headline",
+        "supportingText": "supportingText",
+        "alert": "alert",
+        "dismissible": "dismissible"
+      },
+      "events": {
+        "dismiss": "onRequestClose"
+      },
+      "notes": "Lagging: ships the earlier revision — the icon above a centred headline, text actions in a row at the end, optional actions, centred in every window, the 480 × 640 harness. The target: named as React Native's `Modal`: `visible` and `onRequestClose` (Android's back and, here, Escape on a hardware keyboard and a press on the scrim). Presented in a transparent `Modal` with `animationType=\"none\"` (Tanrei draws the scrim and the motion), `statusBarTranslucent` and `navigationBarTranslucent`. Initial focus is an `initialFocusRef` the product passes, moved with `AccessibilityInfo.setAccessibilityFocus`. `actions` is required in the types, and development builds report it empty when the dialog becomes visible (DLG-19). Compact is `useWindowDimensions().width` against the token. Snapshot harness: renders `DialogSurface` (the surface and the scrim) in place in a 640 × 640 view, and 360 × 640 for the compact- fixtures, since a `Modal` is a native window the snapshot does not include.",
+      "items": {
+        "action": {
+          "name": "Button",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled",
+            "confirming": "confirming",
+            "dismissive": "dismissive"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "A `Button` in the `actions` prop (an element or a fragment of them). `confirming` and `dismissive` are props the dialog reads from its actions, as the button group reads them. A Button with no `variant` takes the dialog's from a React context (internal to the package)."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+---
+title: Accesibilidad
+description: Los requisitos de accesibilidad que Tanrei incorpora en los tokens y en las especificaciones de los componentes, y las comprobaciones que los imponen.
+translationOf: foundations/accessibility.mdx
+sourceHash: e94f88f875361d6db6bddce65fd01e14b10dc758
+---
+
+import Callout from '../../../../components/Callout.astro';
+import DimensionScale from '../../../../components/tokens/DimensionScale.astro';
+
+En Tanrei, la accesibilidad es un conjunto de restricciones sobre el propio sistema. La compilación de los tokens se niega a producir un esquema que no cumpla el contraste, y la especificación de un componente no es válida sin su rol, su tabla de teclado y su garantía de objetivo.
+
+## Contraste
+
+| Contenido | Contraste mínimo |
+| --- | --- |
+| Texto e iconos que transmiten significado | 4.5:1 |
+| Texto grande (a partir de unos 24px en peso normal, o 19px en negrita) | 3:1 |
+| Límites y gráficos necesarios para identificar o manejar un control | 3:1 |
+| El anillo de foco frente a las superficies adyacentes | 3:1 |
+
+Los elementos deshabilitados y la decoración pura, incluidas las líneas finas de `outline-variant`, están exentos. Esa exención es la razón por la que un borde que es la única señal de un control debe usar `outline` y no `outline-variant`.
+
+### Invariantes que se imponen
+
+Se cumplen en todos los temas y en todos los niveles de contraste, seis combinaciones en total; de lo contrario, la compilación falla:
+
+- cada par de roles `(X, on-X)` es de al menos 4.5:1;
+- `outline` es de al menos 3:1 frente a todos los roles de superficie;
+- `focus-ring` es de al menos 3:1 frente a las superficies.
+
+Las reglas del proyecto prohíben rebajar un umbral para que una comprobación pase.
+
+## Tamaño del objetivo
+
+<DimensionScale group="target" source="tokens/sys/measure.tokens.json" />
+
+**El tamaño visual no es el área de pulsación.** Un botón pequeño de Tanrei mide 32 unidades de alto, lo adecuado para una barra de herramientas densa, pero sigue respondiendo en al menos 48 unidades para el toque y 44 para un puntero. Los componentes amplían su área de pulsación de forma invisible y mantienen al menos 8 unidades entre objetivos vecinos. Todas las especificaciones declaran esta garantía, y todas las plataformas la prueban.
+
+## Foco
+
+Todo componente interactivo muestra el indicador de foco, una separación seguida de un anillo, para el foco del teclado y de la tecnología de apoyo, de inmediato y sin animación. El orden del foco sigue el orden de lectura. Los componentes deshabilitados salen del orden del foco.
+
+## Teclado
+
+La especificación de cada componente contiene una tabla de teclas y acciones, que se muestra en su página de documentación, en **Accesibilidad**. Las plataformas compatibles con teclado físico implementan la tabla con exactitud.
+
+## Escalado del texto
+
+Las interfaces deben seguir siendo utilizables con el texto al **200%**. Los contenedores crecen con su texto, las etiquetas se dividen en varias líneas antes de truncarse y nada depende de una altura fija para que quepa una línea de texto. Las implementaciones nativas usan el mecanismo de texto escalable de cada plataforma.
+
+## Movimiento reducido
+
+Cuando el sistema pide reducir el movimiento, la animación espacial se elimina o se sustituye por un fundido breve, y nada se repite en bucle. Consulta [Movimiento](/es/foundations/motion/).
+
+## Semántica
+
+Una especificación indica el rol WAI-ARIA del componente y cómo se forma su nombre accesible. Cada plataforma hace corresponder el rol con su equivalente nativo: rasgos de accesibilidad en SwiftUI, propiedades de semántica en Compose y Flutter, `accessibilityRole` en React Native. En la web, Tanrei prefiere elementos nativos dentro de el shadow root, para que los navegadores y las herramientas de pruebas vean una semántica real.
+
+## Cómo se prueba
+
+| Plataforma | Comprobación automática |
+| --- | --- |
+| Web | axe-core en Playwright |
+| SwiftUI | auditoría de accesibilidad de XCTest |
+| Compose | comprobaciones de Accessibility Test Framework |
+| Flutter | comparadores `meetsGuideline` |
+| React Native | aserciones de rol y de etiqueta, además de auditorías nativas mediante la aplicación de galería |
+
+<Callout>
+  Las comprobaciones automáticas detectan una minoría de los problemas reales. Son un mínimo. Usa un lector de pantalla y un teclado con todo lo que construyas con estos componentes.
+</Callout>

@@ -1,0 +1,39 @@
+{
+  "tanrei": {
+    "comp": {
+      "copy-button": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets people copy things it shows them — a command, a key, an address, a color value, a block of code — with one press, and tells them each time, in the same way and for the same length of time, that it was copied.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "The one value a copy button has of its own: how long it shows that the text was copied, or that it could not be. Everything it draws is a Button's, from the Button's tokens.",
+            "rules": [
+              "A copy button copies one given text and confirms it. It does nothing else: an action with another result is a Button.",
+              "It is drawn by Button: choose variant and size as for any Button (the quiet icon action is the text variant). It has no colors or measures of its own.",
+              "Give label, copiedLabel and failedLabel in the product's language; none has a default.",
+              "The confirmation is a time to notice, not a motion: do not shorten it for reduced motion.",
+              "Do not show a snackbar as well for a successful copy: the button has said it."
+            ]
+          }
+        },
+        "confirmation": {
+          "duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 2000,
+              "unit": "ms"
+            },
+            "$description": "How long the button shows the copied or the failed form before it returns to rest: long enough to be seen by someone looking at where the text will be pasted, short enough that a second copy a moment later is confirmed anew.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A time to notice, not an animation: the motion dial, which speeds or slows animation, must not shorten it."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

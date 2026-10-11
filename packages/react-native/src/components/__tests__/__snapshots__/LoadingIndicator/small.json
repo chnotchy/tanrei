@@ -1,0 +1,66 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Loading",
+    "accessibilityRole": "progressbar",
+    "accessibilityState": {
+      "busy": true
+    },
+    "accessible": true,
+    "focusable": false,
+    "style": {
+      "alignSelf": "flex-start",
+      "height": 16,
+      "width": 16
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "collapsable": false,
+        "style": {
+          "height": 16,
+          "opacity": 1,
+          "width": 16
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessible": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "direction": "ltr",
+              "height": 16,
+              "left": 0,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "top": 0,
+              "width": 16
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "borderColor": "rgb(75, 75, 75)",
+                  "borderRadius": 8,
+                  "borderWidth": 2,
+                  "height": 16,
+                  "left": 0,
+                  "position": "absolute",
+                  "top": 0,
+                  "width": 16
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

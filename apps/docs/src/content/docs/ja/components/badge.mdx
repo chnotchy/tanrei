@@ -1,0 +1,216 @@
+---
+title: バッジ
+description: アイコン、ナビゲーション項目、アバターにドットや小さな数を付けて、何かが待っていることを示します。
+translationOf: components/badge.mdx
+sourceHash: a4ece32edcc7d1571544b3c3cbf6afac6aa68eff
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="badge" />
+
+<DemoFrame label="ドットと数">
+  <tanrei-badge label="新着メッセージ">
+    <tanrei-button variant="text" label="チャット"><span slot="icon">chat</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="3" label="未読 3 件">
+    <tanrei-button variant="text" label="受信トレイ"><span slot="icon">inbox</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="通知 42 件">
+    <tanrei-button variant="text" label="通知"><span slot="icon">notifications</span></tanrei-button>
+  </tanrei-badge>
+</DemoFrame>
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- count がなければドットです。ドットにはラベルが必要です。 -->
+    <tanrei-badge label="新着メッセージ">
+      <tanrei-button variant="text" label="チャット"><span slot="icon">chat</span></tanrei-button>
+    </tanrei-badge>
+
+    <!-- 0 は何も描かず、max（999）を超える数は 999+ と表示します。 -->
+    <tanrei-badge count="3" label="未読 3 件">
+      <tanrei-button variant="text" label="受信トレイ"><span slot="icon">inbox</span></tanrei-button>
+    </tanrei-badge>
+
+    <script type="module">
+      import '@tanrei/web/components/badge';
+      import '@tanrei/web/components/button';
+      const badge = document.querySelector('tanrei-badge[count]');
+      badge.count = unread;
+      badge.label = `未読 ${unread} 件`;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Badge, Button } from '@tanrei/react';
+
+    <Badge label="新着メッセージ">
+      <Button variant="text" label="チャット" onClick={openChat}><span slot="icon">chat</span></Button>
+    </Badge>
+    <Badge count={unread} label={`未読 ${unread} 件`}>
+      <Button variant="text" label="受信トレイ" onClick={openInbox}><span slot="icon">inbox</span></Button>
+    </Badge>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // nil はドットです。
+    TanreiBadge(count: nil, label: "新着メッセージ") {
+      TanreiIconButton("チャット", action: openChat) { Image(systemName: "bubble.left") }
+    }
+    TanreiBadge(count: unread, label: "未読 \(unread) 件") {
+      TanreiIconButton("受信トレイ", action: openInbox) { Image(systemName: "tray") }
+    }
+
+    // 任意のビューにモディファイアーとして付けても同じです。
+    Image(systemName: "bell").accessibilityLabel("通知").tanreiBadge(1200, label: "未読 999 件以上")
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiBadge
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // null はドットです。
+    TanreiBadge(count = null, contentDescription = "新着メッセージ") {
+        TanreiIconButton(onClick = ::openChat, contentDescription = "チャット") { TanreiText("chat") }
+    }
+    TanreiBadge(count = unread, contentDescription = "未読 $unread 件") {
+        TanreiIconButton(onClick = ::openInbox, contentDescription = "受信トレイ") { TanreiText("inbox") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // count がなければドットです。
+    TanreiBadge(
+      semanticLabel: '新着メッセージ',
+      child: TanreiIconButton(onPressed: openChat, semanticLabel: 'チャット', icon: const Icon(AppSymbols.chat)),
+    );
+    TanreiBadge(
+      count: unread,
+      semanticLabel: '未読 $unread 件',
+      child: TanreiIconButton(onPressed: openInbox, semanticLabel: '受信トレイ', icon: const Icon(AppSymbols.inbox)),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Badge, IconButton } from '@tanrei/react-native';
+
+    <Badge label="新着メッセージ">
+      <IconButton accessibilityLabel="チャット" onPress={openChat}>chat</IconButton>
+    </Badge>
+    <Badge count={unread} label={`未読 ${unread} 件`}>
+      <IconButton accessibilityLabel="受信トレイ" onPress={openInbox}>inbox</IconButton>
+    </Badge>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="数と上限" plain>
+  <tanrei-badge count="3" label="未読 3 件">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="未読 42 件">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="1200" label="未読 999 件以上">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="120" max="99" label="未読 99 件以上">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge label="新着メッセージ">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="0" label="未読なし">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+</DemoFrame>
+
+<ComponentSpecs name="badge" />
+
+## ガイドライン
+
+### 使う場面
+
+アイコン、ナビゲーション項目、アバターの先に何かが待っていることを示すときに使います。未読のメッセージ、新しいアクティビティ、インストールできる更新などです。バッジは、操作できる場所へ視線を導きます。バッジには言葉がなく、レイアウトの中に自分の場所も持たないので、状態を表すラベルではありません。「新着」「ベータ」「Pro」のように、状態や分類を言葉で示すものには、[タグ](/ja/components/tag/)を使います。
+
+### バッジ、チップ、タグ
+
+この 3 つは、何をするものかで区別します。
+
+| 種類 | 何であるか | どこに置かれるか | 入力を受けるか |
+| --- | --- | --- | --- |
+| バッジ | ほかの要素に付くドットや数。 | アンカーの角の上。レイアウトの外です。 | 受けません。入力はアンカーに届きます。 |
+| [チップ](/ja/components/chip/) | コントロール。 | レイアウトの中。 | 受けます。押す、切り替える、取り除くことができ、フォーカスと状態を持ちます。 |
+| [タグ](/ja/components/tag/) | 静的なラベル。 | レイアウトの中、行内。 | 受けません。 |
+
+1. 何かの上に載る数やドットは、バッジです。
+2. 押す、選ぶ、取り除くものは、チップです。どこかへ移動するものは、リンクです。
+3. それが何であるか、どんな状態かを言葉で示すだけのものは、タグです。
+
+見出しの横の検索結果の件数のように、行の中に単独で置く数も、バッジではありません。バッジには必ずアンカーがあります。そのような数はテキストとして書くか、状態を示すものならタグにします。
+
+### 形の選び方
+
+形は `count` で決まるので、選ぶバリアントはありません。
+
+| 形 | `count` | 用途 |
+| --- | --- | --- |
+| ドット | なし（null） | 何か新しいものがあり、その数は分からないか重要でないとき。 |
+| 数 | 1 以上 | 今見るべきかどうかを判断するのに数が役立つとき。未読メッセージ、保留中のリクエストなど。 |
+| なし | 0 | 待っているものがないとき。バッジは数にそのまま結び付けます。条件分岐で囲む必要はありません。 |
+
+`max` を超える数は `max+`（既定値では 999+）と表示するので、バッジが 4 文字より長くなることはありません。アンカーが小さい場所や、正確な数がそれほど意味を持たない場所では、`max` を小さくします（たとえば 99）。
+
+### 推奨
+
+- アンカーの名前に続けて自然に読めるラベルを、どのバッジにも付けます。「受信トレイ」に続く「未読 3 件」のようにです。とくにドットには必須です。ラベルがないと、スクリーンリーダーには何も伝わりません。
+- アンカーの周りに余白を取ります。バッジはアンカーの上の末尾側の角に載り、アンカーの範囲からはみ出すことがあります。アンカーの位置や大きさは変えません。
+- バッジが指す内容をユーザーが見たら、バッジを消します。そうすることで、バッジが意味を持ち続けます。
+
+### 非推奨
+
+- すべての項目にバッジを付けない。すべてに印があると、どれも目立たなくなります。
+- ボタンのラベルや本文の中にバッジを置かない。バッジを置くのは、アイコン、ナビゲーション項目、アバターです。ラベルの横や文章の中に置く言葉は、タグです。
+- 待っているものの種類や緊急度を、バッジの色で伝えない。ラベルか、バッジが指す先の内容で伝えます。
+- バッジを操作できるようにしない。バッジへのタップやクリックはアンカーに届きます。操作する場所はアンカーです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="badge" />
+
+### コンポーネントが担うこと
+
+- 描かれたドットと数は支援技術から隠すので、数が二重に読まれることはありません。
+- ラベル（ラベルがなければ「999+」のように表示している数）がアンカーの一部になり、アンカーは両方を合わせて 1 度だけ読み上げられます。たとえば「受信トレイ、ボタン、未読 3 件」です。方法は各プラットフォームの流儀に従います。Web ではアンカーの `aria-description`、Apple のプラットフォーム、Flutter、React Native ではアクセシビリティの値、Compose では状態の説明（state description）です。
+- 数が 0 のときは何も加えません。アンカーはバッジがないときと同じように読み上げられます。
+- 数やラベルが変わると、アンカーが伝える内容を更新します。ユーザーの作業を遮る読み上げはしません。
+- 入力も場所も取らないので、アンカーのヒット領域はそのまま保たれます。
+- ラベルのないドット、負の数、1 未満の `max` は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- アンカーの名前を繰り返さず、続きとして読めるラベルを書きます。「受信トレイに未読メッセージが 3 件あります」ではなく「未読 3 件」です。
+- アンカーは、ラベル付きのアイコンボタンのように、自分の名前を持つ 1 つの要素にします。Compose では、子孫をまとめる要素の中にない単なるアイコンに付ける場合、名前とラベルが一緒に読まれるように、それをまとめる要素で囲みます。
+- ライブチャットのように、変化をその場で読み上げる必要があるときは、プロダクト側でライブリージョンを使って知らせます。バッジ自身は読み上げません。

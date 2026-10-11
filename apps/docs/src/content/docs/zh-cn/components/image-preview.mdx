@@ -1,0 +1,248 @@
+---
+title: "图片预览"
+description: "用户按下缩略图时，把一组图片中的一张铺满整个窗口显示，供人仔细查看：可以放大再还原，放大后可以四处移动，也可以移到下一张或上一张，直到关闭为止。"
+translationOf: components/image-preview.mdx
+sourceHash: caadfe986913a18784dba1d60a26a868a2370960
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import landscape from '../../../../../../../packages/web/test/fixtures/image-preview-landscape.png?url';
+import landscapeSmall from '../../../../../../../packages/web/test/fixtures/image-preview-landscape-thumbnail.png?url';
+import portrait from '../../../../../../../packages/web/test/fixtures/image-preview-portrait.png?url';
+import square from '../../../../../../../packages/web/test/fixtures/image-preview-square.png?url';
+
+## 概览
+
+<ComponentAvailability name="image-preview" />
+
+<DemoFrame label="页面上的三张图片：按下其中一张，可以仔细查看">
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="放大：一张宽 1600、高 1000 的图" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 0, open: true })"><img src={landscapeSmall} alt="" width="160" height="100" style="display: block" /></tanrei-card>
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="放大：一张宽 1000、高 1500 的图" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 1, open: true })"><img src={portrait} alt="" width="67" height="100" style="display: block" /></tanrei-card>
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="放大：一张宽 1200、高 1200 的图" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 2, open: true })"><img src={square} alt="" width="100" height="100" style="display: block" /></tanrei-card>
+  <tanrei-image-preview id="image-preview-demo" label="三张图" close-label="关闭" zoom-in-label="放大" zoom-out-label="缩小" previous-label="上一张图片" next-label="下一张图片" count-text="第 {position} 张，共 {count} 张" loading-label="正在加载图片" error-text="无法加载这张图片" onclose="this.open = false">
+    <tanrei-image-preview-item src={landscape} thumbnail-src={landscapeSmall} width="1600" height="1000" alt="一张宽 1600、高 1000 的图：一个边框、两条对角线和一个圆环" caption="每张图上都写着它自己的尺寸，还有一圈边线，四个角各有一个标记，这样你就能看出它是完整的。"></tanrei-image-preview-item>
+    <tanrei-image-preview-item src={portrait} width="1000" height="1500" alt="一张宽 1000、高 1500 的图：一个边框、两条对角线和一个圆环"></tanrei-image-preview-item>
+    <tanrei-image-preview-item src={square} width="1200" height="1200" alt="一张宽 1200、高 1200 的图：一个边框、两条对角线和一个圆环"></tanrei-image-preview-item>
+  </tanrei-image-preview>
+</DemoFrame>
+
+如果页面讲的是别的内容，因而只把图片显示得很小，而用户又需要暂时把它放大来看，就使用图片预览：文章里的照片、待售商品的图片、对话里的附件、指南里的屏幕截图。用户按下缩略图，看完，然后回到原来的位置。
+
+它只显示静态图片，别的都不显示。它不向用户提出任何问题，所以它不是[对话框](/zh-cn/components/dialog/)；它的图片是用来看的，不是用来按的，所以它也不是[轮播](/zh-cn/components/carousel/)。不过，从轮播的某一项或[图示](/zh-cn/components/figure/)里的图片打开它，是很自然的做法。
+
+**用到的组件**有[按钮](/zh-cn/components/button/)（缩小、放大、关闭、上一张和下一张），以及在图片到来之前占位的[骨架屏](/zh-cn/components/skeleton/)。它们是真正的组件，读取各自的令牌。放大并移动图片的展示区，以及从一张图片翻到下一张的切换，则是图片预览自己的，别处没有。
+
+在 Web 上它是 `<tanrei-image-preview>`，子元素是 `<tanrei-image-preview-item>`。其他平台尚未实现。
+
+### 用法
+
+用来打开它的元素由你提供。它是包着你自己的图片的一个按钮（图片可以单独放着，也可以在图示或网格里），它要说明自己会打开一个对话框，名称要说出它做什么、针对哪张图片：“放大：一间窗外是花园的卧室”。单凭图片的 `alt`，只能说出是哪张图片，说不出操作。由你为它的按下编写的处理函数，把 `index` 设为那张图片，把 `open` 设为 true。上面演示中的缩略图是由 `label` 命名的可交互[卡片](/zh-cn/components/card/)；像下面的示例那样用一个原生按钮包住图片，是最朴素的形式，而且可以说明它会打开对话框。
+
+图片预览绝不会自己关闭。它触发 `close`，并带上原因（`button`、`escape`、`back` 或 `swipe`），由你把 `open` 设为 false。随后焦点回到打开它的元素。
+
+每张图片都有一个 `src` 和一个 `alt`：`src` 是预览中显示的图片，通常是比缩略图更大的文件；`alt` 是必需的。给出 `thumbnailSrc`（你的页面已经加载好的那张小图），图片预览就会先把它放大绘制，直到 `src` 到来，这样打开时绝不会一片空白。知道 `width` 和 `height` 时也请给出，这样图片加载之前，它的位置就已经留好。无论一共有多少张，只会请求当前显示的那张和它前后各一张。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <button type="button" class="thumbnail" aria-haspopup="dialog"
+            aria-label="放大：一间窗外是花园的卧室" data-index="0">
+      <img src="room-small.jpg" alt="" width="320" height="200" />
+    </button>
+    <button type="button" class="thumbnail" aria-haspopup="dialog"
+            aria-label="放大：窗边的书桌" data-index="1">
+      <img src="desk-small.jpg" alt="" width="320" height="200" />
+    </button>
+
+    <tanrei-image-preview label="房间的照片"
+      close-label="关闭" zoom-in-label="放大" zoom-out-label="缩小"
+      previous-label="上一张图片" next-label="下一张图片"
+      count-text="第 {position} 张，共 {count} 张"
+      loading-label="正在加载图片" error-text="无法加载这张图片">
+      <tanrei-image-preview-item src="room-large.jpg" thumbnail-src="room-small.jpg"
+        width="1600" height="1000" alt="一间窗外是花园的卧室"
+        caption="早晨的东侧卧室。"></tanrei-image-preview-item>
+      <tanrei-image-preview-item src="desk-large.jpg" thumbnail-src="desk-small.jpg"
+        width="1600" height="1000" alt="窗边的书桌"></tanrei-image-preview-item>
+    </tanrei-image-preview>
+
+    <script type="module">
+      import '@tanrei/web/components/image-preview';
+
+      const preview = document.querySelector('tanrei-image-preview');
+      for (const thumbnail of document.querySelectorAll('.thumbnail')) {
+        thumbnail.addEventListener('click', () => {
+          preview.index = Number(thumbnail.dataset.index);
+          preview.open = true;
+        });
+      }
+      // 用户要求关闭它：关闭控件、Escape、返回，或者向下拖动。
+      preview.addEventListener('close', () => (preview.open = false));
+      // 用户移到了另一张图片。preview.index 已经是新的值。
+      preview.addEventListener('indexchange', (e) => markAsSeen(e.detail.index));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ImagePreview, ImagePreviewItem } from '@tanrei/react';
+
+    const [shown, setShown] = useState<number | null>(null);
+
+    {photos.map((photo, at) => (
+      <button key={photo.id} type="button" aria-haspopup="dialog"
+              aria-label={`放大：${photo.alt}`} onClick={() => setShown(at)}>
+        <img src={photo.small} alt="" width={320} height={200} />
+      </button>
+    ))}
+
+    <ImagePreview label="房间的照片" open={shown !== null} index={shown ?? 0}
+      closeLabel="关闭" zoomInLabel="放大" zoomOutLabel="缩小"
+      previousLabel="上一张图片" nextLabel="下一张图片" countText="第 {position} 张，共 {count} 张"
+      loadingLabel="正在加载图片" errorText="无法加载这张图片"
+      onIndexchange={(event) => setShown(event.detail.index)}
+      onClose={() => setShown(null)}>
+      {photos.map((photo) => (
+        <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}
+          width={photo.width} height={photo.height} alt={photo.alt} caption={photo.caption} />
+      ))}
+    </ImagePreview>
+    ```
+  </TabItem>
+</Tabs>
+
+文字由你提供：五个控件的名称、计数的句子，以及图片加载中和加载失败时说的话。把它们写在每个元素上，或者通过产品的文字（`setWords()`）只给一次，供所有图片预览使用。计数是用你的语言写的一个完整句子，带有 `{position}` 和 `{count}` 两个占位标记，所以词序可以按你的语言来排，例如日语的 `{count}枚中{position}枚目`。
+
+### 每个操作都有三种方式
+
+没有哪个操作只能靠手势完成。每个操作都有一个按一下就能用到的控件，还有一个按键。
+
+| 目的 | 用手势 | 用控件 | 用按键 |
+| --- | --- | --- | --- |
+| 放大，以及还原到适应大小 | 在某一点轻点两下或点击两下；双指张合；在触控板上双指张合；按住 Ctrl 或 Command 滚动滚轮 | 放大、缩小 | `+` 或 `=`、`−`、`0` |
+| 在放大的图片上移动 | 拖动；滚轮 | — | 方向键 |
+| 移到下一张或上一张图片 | 横向拖动 | 下一张、上一张 | 适应大小时按向左键和向右键；Page Up 和 Page Down；Home 和 End 前往第一张和最后一张图片 |
+| 关闭 | 适应大小时，用触摸向下拖动 | 关闭 | Escape |
+| 隐藏和显示控件 | 在图片上轻点一下或点击一下 | — | 按任意键即可显示 |
+
+- **缩放**是一个数字：1 表示图片完整地显示在窗口的空闲区域内，并且绝不超过图片自身的尺寸。普通图片的缩放级别是 1、2 和 4。很宽或很高的图片在适应大小时显得很小，它的第一级缩放会填满空闲区域。
+- **只有在适应大小时，拖动才会在图片之间切换**；或者拖动开始时，放大的图片在那一侧已经到了边缘。拖动途中才碰到边缘的，就停在那里：在一张图片上移动的用户，绝不会不小心离开这张图片。用手指或触控笔时，拖过展示区的一半或者快速一划，就翻到下一张图片；用鼠标时，只有拖过展示区的一半才会翻到那张图片，快速一划不算，移动得再快也一样。
+- **切换图片会让缩放回到 1。** 缩放属于某一张图片，而不属于整组图片。
+- **控件绝不会自己隐藏。** 用户在图片上轻点一下，才把它们隐藏起来。隐藏之后，它们仍在焦点顺序中，也仍然会告知辅助技术。
+- `index`、`zoom` 和 `controlsHidden` 由你设置；用户改变它们时，图片预览会自己写入新值，然后才触发 `indexchange`、`zoomchange` 或 `controlshiddenchange`。
+
+### 按需换用更大的图片
+
+更改当前显示的图片的 `src` 之后，图片预览会按原来的缩放和位置继续绘制先前的图片，直到新图片加载完成。因此，你可以在 `zoomchange` 时换上一个对那个缩放级别来说足够大的文件，而用户看到的只是细节变多了。
+
+```js
+preview.addEventListener('zoomchange', (e) => {
+  if (e.detail.zoom > 2) preview.children[preview.index].src = largest(preview.index);
+});
+```
+
+没有到来的图片会绘制成一个标记，并带上你的 `errorText`，`loaderror` 会告诉你是哪一张。更改它的 `src`，图片预览就会重新请求。
+
+### 下一层
+
+图片预览不是由其他组件构成的，所以你无法用它的成员写出同样的东西。下一层是平台自己的模态呈现、Tanrei 的按钮、一个骨架屏，以及你自己对图片的处理：
+
+```html
+<dialog class="viewer" aria-label="房间的照片">
+  <tanrei-button variant="text" label="缩小"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="text" label="放大"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="text" label="关闭"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" label="上一张图片"><span slot="icon">chevron_left</span></tanrei-button>
+  <img alt="一间窗外是花园的卧室" src="room-large.jpg" tabindex="0">
+  <tanrei-button variant="tonal" label="下一张图片"><span slot="icon">chevron_right</span></tanrei-button>
+  <p>早晨的东侧卧室。</p>
+</dialog>
+```
+
+**这并不是一个近似的等价物。** 你可以单独拿来用的，是五个按钮和骨架屏：同样的元素，同样的令牌。拿不走的，是图片预览之所以是图片预览的一切：缩放及其级别、放大的图片的移动及其边缘、图片之间的切换、判定一次拖动是移动放大的图片、还是切换到另一张图片的规则、控件的隐藏、只加载相邻的图片，以及告知辅助技术的内容。下到这一层的产品要自己写出这一切，包括每个手势对应的控件和按键。
+
+| 你需要 | 使用 |
+| --- | --- |
+| 把一组图片中的一张放大，仔细看过之后离开 | 图片预览 |
+| 页面上的一排项，供人浏览和按下 | [轮播](/zh-cn/components/carousel/)，它的项可以打开图片预览 |
+| 页面上带说明文字的一张图片 | [图示](/zh-cn/components/figure/)，它的图片可以打开图片预览 |
+| 一个必须回答的问题 | [对话框](/zh-cn/components/dialog/) |
+| 视频、文档、地图，或者旋转、裁剪之类的工具 | 你自己的查看器，建在平台的模态呈现之上 |
+
+## 规格
+
+### 单独调整某一个图片预览
+
+无论浅色还是深色，表面都用主题自己的表面，并且没有遮罩：图片预览不会让窗口的任何部分露在外面。如果产品的图片在两种主题下都需要深色的展示区，就在它的层里重新指定填充色和内容色。单独调整某一个实例时，写在元素上：
+
+```html
+<tanrei-image-preview label="平面图"
+  style="--tanrei-comp-image-preview-layout-page-gap: 32px"></tanrei-image-preview>
+```
+
+它的按钮所用的两个变体也是令牌：`comp.image-preview.bar.button.variant`（text）和 `comp.image-preview.navigation.button.variant`（tonal）。按钮和骨架屏读取各自的令牌 `comp.button.*` 和 `comp.skeleton.*`。
+
+<ComponentSpecs name="image-preview" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素是 shadow root 里的一个原生 `<dialog>`，以模态方式打开：后面的页面是惰性（inert）的，也不滚动。它不写入历史记录条目；如果产品希望浏览器的“后退”能关闭它，就在打开时推入自己的条目，并在离开那个条目时把 `open` 设为 false。
+- `<tanrei-image-preview-item>` 是数据，而不是 `<img>`：图片预览没有请求的图片，浏览器一张也不会请求。没有 `src` 的项什么都不会请求，只是等着。
+- 它的事件是会冒泡的 CustomEvent：`close`（`detail.reason`）、`indexchange`（`detail.index`）、`zoomchange`（`detail.zoom`）、`controlshiddenchange`（`detail.hidden`）、`loaderror`（`detail.index`）。按钮自己的 `click` 不会离开这个元素。
+- 部件：`container`、`bar`、`count`、`stage`、`image`、`placeholder`、`error`、`caption`；每个按钮以自己的名称作为部件名，即 `zoom-out`、`zoom-in`、`close`、`previous`、`next`；每个按钮自己的部件，则在部件名前面加上按钮的名称：`close-container`、`next-icon`。
+- 属性（attribute）的名称是属性（property）名的 kebab-case 写法：`max-zoom`、`controls-hidden`、`close-label`、`previous-label`、`next-label`、`zoom-in-label`、`zoom-out-label`、`count-text`、`loading-label`、`error-text`；在项上是 `thumbnail-src`。
+- 展示区自己接管双指张合和滚动手势，所以图片预览打开时，浏览器自己的双指张合不会缩放页面。用键盘进行的浏览器页面缩放仍然有效。关闭的图片预览不会从页面接管任何滚轮事件和触摸。
+- 触控板上的双指张合，会以带 Ctrl 的滚轮事件到来；浏览器有自己的手势事件时，则以那个事件到来。不提供用触控板横向滚动来翻到另一张图片。
+- 图片预览打开时，图片淡入并略微变大。如果浏览器无法在淡出期间保留一个已关闭的对话框，图片预览就会在关闭时立即消失；无论哪种情况，焦点和页面都在同一时刻交还。
+- Android 的返回操作会以 `back` 为原因关闭它。分辨不出返回和 Escape 的浏览器会报告 `escape`。
+
+## 指南
+
+### 推荐
+
+- 让打开它的元素是一个包着图片的按钮，说明它会打开对话框，并用操作和图片来给它命名。
+- 先把 `index` 设为被按下的那张图片，再设置 `open`。
+- 每次收到 `close` 都把它关闭。如果想在向下拖动之后让它保持打开，就让 `open` 保持原样：图片会回到原位。
+- 给每张图片一个 `alt`，说明图片显示的是什么。`caption` 用来写你对图片的说明：署名、日期、一句话。
+- 有 `thumbnailSrc`、`width` 和 `height` 时就给出它们。
+- 根据 `loaderror`，用你自己的方式报告失败；`errorText` 是所有图片共用的一句话。
+
+### 避免
+
+- 不要把它用于提问、表单，或者任何需要用户回应的东西。它没有操作，也没有任何设置能去掉关闭它的途径。
+- 不要用定时器隐藏控件；也不要在控件隐藏的状态下打开它，除非在你的产品里，轻点一下就能显示控件是显而易见的。
+- 不要在它上面叠加你自己的手势，并让这个手势成为做某件事的唯一方式。这里的每个操作都有一个控件和一个按键。
+- 不要在它打开期间写入地址或历史记录条目，除非你也在离开那个条目时把它关闭。
+- 不要把 `<img>` 用作它的子元素。那样浏览器会一次加载整组图片。
+
+## 无障碍
+
+<ComponentAccessibility name="image-preview" />
+
+### 组件负责的部分
+
+- 它是一个由 `label` 命名的模态对话框。它打开期间，它之外的一切都对辅助技术隐藏，既不能获得焦点，也不能按下。
+- 打开时焦点移到展示区，并且留在图片预览内部：Tab 依次经过缩小、放大、关闭、上一张、展示区、下一张，以及可滚动的说明文字，过了最后一个就回到第一个。关闭时，焦点回到原先持有它的元素。
+- 展示区是一张图片：它的名称是当前显示的图片的 `alt`，它的描述先是计数的句子，然后是说明文字。这组图片中的其他图片都不暴露，缩放也不告知任何人。
+- 图片的切换会以礼貌（polite）的方式朗读一次：先是计数的句子，然后是新图片的 `alt`。
+- 五个控件是按钮，用的是你给的名称。到了范围尽头的那个控件会被禁用，原本在它上面的焦点移到展示区。
+- 每个手势都有一个控件和一个按键。控件可以用轻点一下来隐藏，但绝不会由定时器隐藏；隐藏之后，它们仍然可以获得焦点，也仍然暴露给辅助技术，按任意键、焦点落到其中某一个上，或者移动鼠标，都会让它们显示出来。
+- 图片加载期间，骨架屏以 `loadingLabel` 为名称说明它正忙。图片加载失败时，`errorText` 会被绘制、朗读，并加入展示区的描述。
+- 长的说明文字最多占窗口的三分之一，并在它自己的区域里滚动；这时这个区域是一个焦点停靠点，可以用按键滚动。
+- 在从右到左的布局中，顶栏、上一张和下一张所在的两侧、它们的字形、下一张图片所在的一侧，以及向左键和向右键，都会镜像。图片本身，以及放大的图片移动的方向，则不镜像。
+- 在宽 320 的窗口中把文本放大到 200% 时，计数独占一行，顶栏变高，说明文字增高到它的三分之一上限并滚动，图片则适应剩下的空间。在强制颜色模式下，填充和文本采用系统的颜色，图片保持原样。
+- 在减弱动态效果的环境中，图片预览打开和关闭时只淡入淡出，不变大，缩放级别的变化和图片的切换都立即完成，而图片仍然跟随移动它的手指。
+
+Web 上的已知差距：屏幕阅读器会说什么，是从各浏览器的无障碍树里读出来的，还没有用屏幕阅读器实际听过；手势是由测试驱动的，还没有在手机和触控板上用手实际操作过。
+
+### 需要你做的事
+
+- 用你的语言给出 `label`、五个控件的名称、计数的句子、`loadingLabel` 和 `errorText`：写在元素上，或者在产品的文字里只给一次。
+- 给每张图片一个 `alt`。用户特意要仔细看的图片，绝不是装饰。
+- 用操作和图片来给打开它的元素命名，并给它标上 `aria-haspopup="dialog"`。
+- 如果用户移到了另一张图片，而你的页面显示着那张图片的缩略图，你可以在 `close` 之后把焦点移到那个缩略图上。图片预览并不了解你的页面。
+- 在没有键盘的触摸屏上，要在放大的图片上移动，就得用单指拖动。请让缩小控件始终够得着：对于无法拖动的用户，不要在控件隐藏的状态下打开图片预览。

@@ -1,0 +1,88 @@
+---
+title: React Native
+description: React Native アプリに Tanrei を追加します。
+translationOf: getting-started/react-native.mdx
+sourceHash: 79720aca2100185d961719b9ede0569a4ec3ab34
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`@tanrei/react-native` は TypeScript で書かれ、ネイティブモジュールを含みません。そのため、リンクするものは何もなく、Expo でも動作します。New Architecture を対象とし、React 19 と React Native 0.78 以降が必要です。
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+
+## インストール
+
+### ソースから
+
+<Callout type="caution" title="現在はビルドできません">
+  React Native のパッケージは、現在の仕様とトークンに追従していません。ソースは以前の版の生成されたトークンコードに合わせて書かれていて、現在のコードに対してはビルドが型エラーで止まります。追従するまで CI は止めてあり、[ステータスページ](/ja/status/)ではそのコンポーネントを*追従待ち*としています。以下はアプリに追加する手順で、パッケージが追従すれば動きます。
+</Callout>
+
+[Web のパッケージ](/ja/getting-started/web/)と同じく（Git、Node 22.12 以降、pnpm 12）、リポジトリのクローンでパッケージをビルドしてパックします。
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/react-native build
+pnpm --filter @tanrei/react-native pack --pack-destination ../tanrei-packages
+```
+
+次に、パックしたファイルをアプリにインストールします。
+
+```sh
+npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
+```
+
+### 最初のリリース後
+
+```sh
+npm install @tanrei/react-native
+```
+
+## 使い方
+
+```tsx
+import { Button, TanreiProvider } from '@tanrei/react-native';
+
+export function App() {
+  return (
+    <TanreiProvider>
+      <Button variant="filled" onPress={deploy}>
+        デプロイ
+      </Button>
+      <Button variant="outlined" size="small" disabled>
+        キャンセル
+      </Button>
+    </TanreiProvider>
+  );
+}
+```
+
+コンポーネントの名前は、接頭辞のない `Button` です。JavaScript のモジュールが、すでに名前空間の役割を果たしているためです。押されたことは `onPress` で伝わります。これは、仕様の `click` イベントに対する React Native の流儀です。
+
+## テーマとコントラスト
+
+`TanreiProvider` は、既定ではシステムのカラースキームに従います。固定するには、`theme` に `"light"` か `"dark"` を、`contrast` に `"standard"`・`"medium"`・`"high"` のいずれかを設定します。
+
+```tsx
+<TanreiProvider theme="dark" contrast="high">
+  <App />
+</TanreiProvider>
+```
+
+ツリーの中では、`useTanrei()` が、自分のビューで使える解決済みの色とテキストスタイルを返します。
+
+```tsx
+const theme = useTanrei();
+<Text style={[theme.text('body'), { color: theme.color('onSurfaceVariant') }]}>最後のデプロイは 2 分前</Text>;
+<Text style={theme.text('heading2', { emphasized: true })}>デプロイ</Text>;
+```
+
+このプラットフォームでは、テキストスタイルとカラーロールのキーはキャメルケースです。`heading1` から `heading6` は `h1` から `h6`、`body` は段落、`label` はコントロール上のテキストです。トークン `sys.color.on-surface-variant` は `onSurfaceVariant` になります。`emphasized` は、ファミリーの強調のステップを太さに加えます。別のロールではありません。
+
+## フォント
+
+Inter（および Noto Sans JP、Roboto Mono）を、普段のフォントの設定方法（たとえば `expo-font`）で読み込みます。React Native は太さごとにフォントファイルを選ぶので、`TanreiProvider` に `resolveFont` 関数を渡して、ファミリーと太さを、登録したフォント名に対応づけてください。

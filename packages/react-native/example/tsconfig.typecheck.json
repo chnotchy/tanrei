@@ -1,0 +1,17 @@
+{
+  // What `pnpm --filter @tanrei/react-native typecheck` checks the gallery with. It differs from tsconfig.json in one
+  // thing: `react` / `react-native` TYPES are pinned to the package's copies. Once `example/node_modules` is installed
+  // (to RUN the gallery), resolution from here would otherwise find the app's React Native types next to the library's
+  // newer ones, and the two disagree. These pins must not be in tsconfig.json: Expo's Metro resolves through its
+  // `paths`, and `react` would become `@types/react` (seen: "Unable to resolve react from src/GalleryScreen.tsx").
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@tanrei/react-native": ["../src/index.ts"],
+      "@tanrei/react-native/systems/*": ["../src/generated/systems/*.ts"],
+      "react": ["../node_modules/@types/react"],
+      "react/*": ["../node_modules/@types/react/*"],
+      "react-native": ["../node_modules/react-native/types_generated/index.d.ts"]
+    }
+  }
+}

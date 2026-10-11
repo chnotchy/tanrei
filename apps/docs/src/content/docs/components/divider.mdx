@@ -1,0 +1,273 @@
+---
+title: Divider
+description: Separates groups of content in a list, a layout or a toolbar with a thin line.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="divider" />
+
+<DemoFrame label="In a list and in a toolbar">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
+    <span>Inbox</span>
+    <tanrei-divider></tanrei-divider>
+    <span>Archive</span>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <span>Trash</span>
+  </div>
+  <div role="toolbar" aria-label="Formatting" style="display: flex; align-items: stretch; gap: var(--tanrei-sys-space-space50)">
+    <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+    <tanrei-button variant="text" label="Insert link"><span slot="icon">link</span></tanrei-button>
+  </div>
+</DemoFrame>
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision of the divider, which draws solid lines only and takes no per-divider lengths or thickness, and their samples show that revision until they catch up.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+
+    <!-- Line up with a list whose text starts 72 px in. -->
+    <tanrei-divider inset="start" inset-length="72"></tanrei-divider>
+
+    <!-- A tear line above a coupon, and a light section break. -->
+    <tanrei-divider line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+
+    <!-- A thicker line for this divider alone: its dots, dashes and wave keep their proportions. -->
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider line-style="dotted" line-cap="round" thickness="4"></tanrei-divider>
+
+    <!-- A toolbar's groups mean something: expose the divider as a separator. -->
+    <div role="toolbar" aria-label="Formatting" style="display: flex">
+      <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+      <tanrei-button variant="text" label="Insert link"><span slot="icon">link</span></tanrei-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/divider';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Divider } from '@tanrei/react';
+
+    <Divider />
+    <Divider inset="start" insetLength={72} />
+    <Divider lineStyle="dashed" lineCap="round" />
+    <Divider lineStyle="wavy" amplitude={4} wavelength={24} />
+    <Divider lineStyle="dotted" lineCap="round" thickness={4} />
+    <Divider orientation="vertical" decorative={false} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    VStack(spacing: 0) {
+      inboxRow
+      TanreiDivider(inset: .start)
+      archiveRow
+    }
+
+    // The axis is stated, not taken from the enclosing stack.
+    HStack { formattingButtons; TanreiDivider(axis: .vertical, isDecorative: false); insertLinkButton }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.gestures.Orientation
+    import io.github.chnotchy.tanrei.components.TanreiDivider
+    import io.github.chnotchy.tanrei.components.TanreiDividerInset
+
+    Column {
+        InboxRow()
+        TanreiDivider(inset = TanreiDividerInset.Start)
+        ArchiveRow()
+    }
+
+    // A vertical divider fills the row's height, so give the row one.
+    Row(Modifier.height(IntrinsicSize.Min)) {
+        FormattingButtons()
+        TanreiDivider(orientation = Orientation.Vertical, decorative = false)
+        InsertLinkButton()
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    Column(
+      children: <Widget>[
+        inboxRow,
+        const TanreiDivider(inset: TanreiDividerInset.start),
+        archiveRow,
+      ],
+    );
+
+    // IntrinsicHeight gives a vertical divider the row's height.
+    IntrinsicHeight(
+      child: Row(
+        children: <Widget>[
+          ...formattingButtons,
+          const TanreiDivider(axis: Axis.vertical, excludeFromSemantics: false),
+          insertLinkButton,
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Divider, IconButton } from '@tanrei/react-native';
+
+    <Divider />
+    <Divider inset="start" />
+
+    <View style={{ flexDirection: 'row' }}>
+      <IconButton accessibilityLabel="Bold" onPress={toggleBold}>format_bold</IconButton>
+      <Divider orientation="vertical" decorative={false} />
+      <IconButton accessibilityLabel="Insert link" onPress={insertLink}>link</IconButton>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Orientations and insets" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <tanrei-divider inset="both"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="Line styles" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider line-style="dotted"></tanrei-divider>
+    <tanrei-divider line-style="dashed"></tanrei-divider>
+    <tanrei-divider line-style="dashed" dash-length="12" gap="6"></tanrei-divider>
+    <tanrei-divider line-style="wavy"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
+    <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="Thickness: one divider's own, with round caps on the thicker patterns" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+A dotted or dashed line always has a whole dot or dash at both ends: the divider draws as many as fit with at least the gap between them, and widens every gap by the same amount. It looks the same at both ends, in either direction and at any length. A wave is made of circular arcs, stretched to a whole number of waves so that it starts and ends on the midline. A wavy divider is taller than the others: twice the amplitude plus the line's thickness, 5 by default instead of 1.
+
+The lengths of the dots, the dashes and the wave are tokens derived from the line's thickness, so a design system that draws thicker dividers gets a larger pattern with the same look. `thickness` does the same for one divider: it stands in for the token wherever the thickness is read, and the dots, dashes and wave keep their proportions to it. The inset is not scaled. The per-divider props (`insetLength`, `thickness`, `dashLength`, `gap`, `amplitude`, `wavelength`) are used as given, in the platform's unit, and no dial scales them. A negative or non-finite value, or a `thickness`, `dashLength` or `wavelength` of 0, falls back to the token and is reported in debug builds. A prop the current style does not draw is ignored.
+
+<ComponentSpecs name="divider" />
+
+## Guidelines
+
+### When to use
+
+Use a divider where space alone does not make a boundary clear: between the rows of a dense list, between the sections of a settings page, between groups of actions in a toolbar. Where the gap between two groups, or a change of surface, already shows where one ends, leave the line out. A layout with fewer lines is easier to scan.
+
+### One hairline
+
+The divider's line is the design system's hairline: `sys.color.outline-variant`, at the hairline width. In the default system the other thin lines a person sees are that same color: an outlined button's edge, a chip's outline, the line between a menu's groups, the edge of a navigation bar or a navigation drawer, the line under a list row. They keep their own tokens, and the default system gives them one value, so that a screen has one kind of line. A divider you place needs no color of its own to match them.
+
+### Where a component separates its own parts
+
+Some components set their own parts apart, and there you do not add a divider:
+
+- A [menu](/components/menu/) separates a group from what is next to it.
+- A connected [button group](/components/button-group/) and a [button with menu](/components/button-with-menu/) separate their halves.
+- A [navigation drawer](/components/navigation-drawer/) draws a divider before a section that asks for one (`divider`).
+- A [list](/components/list/) row draws the line under itself (`divider`), starting where its text starts.
+
+How parts inside one component are told apart is one choice for the whole design system: by a line where they touch, which is the default, or by a gap of empty space. A component can leave the system's choice through its own token, and one instance through its `separation` prop: the menu, the button group, the button with menu and the progress indicator have one. Under a gap those components draw no line at all, so a divider you added by hand would be the only line left, and would no longer match.
+
+The divider component itself is not part of that choice. A `<tanrei-divider>` you place between your own content is always a line.
+
+### Choosing an inset
+
+| Inset | Use for |
+| --- | --- |
+| None | A boundary across the whole container: between sections, under a header. |
+| Start | Between the rows of a list whose rows start with an icon or an avatar. The line starts where the text does, so the leading column reads as one. |
+| Both | A break inside a group that should not look like a boundary of the container: a middle divider. |
+
+Set `insetLength` only on a divider that must line up with content whose inset differs from the rest of the product's lists. It applies wherever `inset` applies the inset, and does nothing while `inset` is none.
+
+### Choosing a line style
+
+| Line style | Use for |
+| --- | --- |
+| Solid | Almost every divider. It is the default. |
+| Dashed | A boundary of a different kind in the same product: a tear line above a coupon, the edge of something provisional. |
+| Dotted | A lighter break than a solid line. It covers about a third of its length, so it reads fainter in the same color. |
+| Wavy | A section break that should read as a different kind of boundary from the solid lines around it. It takes more room across its axis than the others. |
+
+Round caps (`lineCap="round"`) make every dot a disc and every dash a rounded bar, and round the ends of a solid or wavy line. The rounded ends stay inside the line's length, so an inset stays exact. On the default hairline, a round cap cannot be seen: it is meant for a divider with a `thickness` of its own, and for design systems that draw thicker lines.
+
+### Do
+
+- Put the space around a divider in the layout: a stack's spacing, a list's gap. The divider adds none of its own, so it never doubles a gap.
+- Keep it decorative (the default) in lists and cards. The rows already say where they start and end.
+- Set `decorative` to false only where the grouping means something to the person, such as the groups of a toolbar or a menu.
+- Keep one line style for one kind of boundary across the product, so that a dashed line always means the same thing.
+
+### Don't
+
+- Don't draw a line between every pair of elements. Use spacing first, and a divider where spacing is not enough.
+- Don't use a divider as a border or an outline of a container. It has no container and no shape.
+- Don't make it thicker or colored to give it meaning. `thickness` is for a pattern that needs the room to be seen, or a rule that matches thicker lines around it. The divider's color is not held to a contrast ratio, because the content it separates must be understood without it.
+- Don't add a divider inside a component that separates its own parts, such as between a menu's groups or a list's rows. Use the component's own prop.
+- Don't let a line style carry meaning on its own. If a dashed line means "cut here", say so in text as well.
+- Don't rely on it for a heading. "— or —" between two forms is two dividers and a label, and the label carries the meaning.
+
+## Accessibility
+
+<ComponentAccessibility name="divider" />
+
+### What the component handles
+
+- Decorative (the default), it is hidden from assistive technology on every platform.
+- Not decorative, it is exposed as a separator with its orientation on the web. Apple platforms, Android and Flutter have no separator role: there it is kept in the accessibility tree with no name, and says as much as each platform can.
+- It is never focusable and takes no input, so it never gets in the way of the controls on either side.
+- Its line is at least one device pixel thick. A solid, dotted or dashed line is aligned to the pixel grid across its axis, so it is never blurred; a wave is drawn antialiased.
+- The line style says nothing to assistive technology: a dotted, dashed or wavy divider that is not decorative is the same separator as a solid one.
+- On the web, forced colors mode redraws every line style in the system's text color.
+
+### What you need to do
+
+- State in text any meaning you give a line style, such as a tear line. Assistive technology does not convey the style, and a dotted or dashed line reads fainter than a solid one.
+- Give each group its own name when the grouping matters. A separator has no name, so it cannot say what the groups are.
+- Don't use a divider to carry the structure of a page. Headings and landmarks do that; a line is only seen.

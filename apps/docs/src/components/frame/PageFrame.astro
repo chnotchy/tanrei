@@ -1,0 +1,51 @@
+---
+// The frame of every page, drawn by Tanrei's app shell (specs/app-shell.spec.json) in place of the
+// framework's: this component replaces Starlight's `PageFrame` (astro.config.mjs). The framework still writes the
+// document, the head and the `<main>`; everything around the main region is a region of the shell, written here in
+// the order a keyboard walks them (APS-22):
+//
+//   the skip link     a Tanrei Link in the shell's slot, to the main region's id (the framework's own `SkipLink` is
+//                     overridden to draw nothing: it stands outside the frame);
+//   the announcement  the page's banner (front matter `banner`), and the notices that a page is shown in English or
+//                     is a draft, each a Callout;
+//   the header        the page's banner landmark around the app bar (Header.astro);
+//   the navigation    the sidebar as a navigation drawer (Sidebar.astro), on pages that have one;
+//   the aside, main   written by TwoColumnContent.astro, which this component's default slot holds.
+//
+// `@tanrei/web/app-shell.css` lays all of it out before any script runs and where none does (styles/frame.css loads
+// it, with what each part shows until its element is defined).
+import { frameWords } from './frame';
+
+const route = Astro.locals.starlightRoute;
+const words = frameWords(Astro);
+const banner = route.entry.data.banner;
+const notices = [route.isFallback && Astro.locals.t('i18n.untranslatedContent'), route.entry.data.draft && Astro.locals.t('page.draft')].filter((text): text is string => typeof text === 'string');
+---
+
+<tanrei-app-shell aside-order="before" aside-label={route.toc ? words.onThisPage : undefined}>
+  <a class="tanrei-link" data-standalone slot="skip-link" href="#main">{words.skipLink}</a>
+  {
+    (banner || notices.length > 0) && (
+      <div slot="announcement" class="docs-announcement" data-pagefind-ignore>
+        {banner && (
+          <tanrei-callout status="info" status-label={Astro.locals.t('aside.note')}>
+            <div set:html={banner.content} />
+          </tanrei-callout>
+        )}
+        {notices.map((text) => (
+          <tanrei-callout status="warning" status-label={Astro.locals.t('aside.caution')}>
+            {text}
+          </tanrei-callout>
+        ))}
+      </div>
+    )
+  }
+  <header slot="header" class="print:hidden"><slot name="header" /></header>
+  {route.hasSidebar && <slot name="sidebar" />}
+  <slot />
+</tanrei-app-shell>
+
+<script>
+  import '@tanrei/web/components/app-shell';
+  import '@tanrei/web/components/callout';
+</script>

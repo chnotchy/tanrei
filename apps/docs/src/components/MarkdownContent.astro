@@ -1,0 +1,51 @@
+---
+// The content column, drawn by Tanrei's prose (specs/prose.spec.json) at the reading size, in place of
+// Starlight's Markdown typography: this component replaces Starlight's `MarkdownContent`, and so its `markdown.css`
+// (headings, paragraphs, lists, quotes, rules, spacing) is never loaded. Tables, notices and code are Tanrei's Table,
+// Callout and Code block, written by the Markdown pipeline (lib/markdown.mjs) and by the
+// docs' own components; their elements are defined here, for every page.
+//
+// The wrapper keeps Starlight's class (its table of contents and print styles look for it) and takes prose's. Six
+// things in the rendered content are then said in Tanrei's words, here, once, for every page:
+//
+// - A heading with its link. Starlight's Markdown step writes `div.sl-heading-wrapper > hN + a.sl-anchor-link` with an
+//   inline SVG and a visually hidden label; prose places `div.tanrei-prose-heading > hN + a.tanrei-prose-anchor`
+//   (PRS-21 to PRS-23). The anchor shows the glyph `link` of the icon set and is named by Starlight's own translated
+//   label ("Section titled …"). It is the Link that is a glyph alone (LNK-16), drawn by the rules prose carries.
+// - What is not prose. Starlight and the docs mark such parts `not-content`; prose's word is `tanrei-not-prose`
+//   (PRS-16). Starlight's cards and link cards carry no mark and lay their own content out, so they get it too.
+// - A notice's kind, in words. The Markdown pipeline writes a callout with its kind and its title's text
+//   (`data-kind`, `data-title`) but does not know the page's language. Where the callout has a status and the author's
+//   title does not already say the kind, its name in the page's language (Starlight's strings) becomes `status-label`,
+//   which assistive technology reads before the title (CLO-20), as `Callout.astro` does for its own.
+// - A code block's words. The pipeline writes `copy` on every fenced block, and an author may mark lines; the copy
+//   button's name, its two announcements and what is read before a marked line (COD-9, COD-15, COD-16) are the page's
+//   language's, from the docs' strings (lib/i18n.ts). A block that already says one keeps it.
+// - An external link's words. The pipeline marks every Markdown link that leaves the site `data-external` and leaves
+//   `data-docs-words="externalLink"` where its description belongs; it becomes `aria-description`, in the page's
+//   language, from the docs' strings (LNK-34). No other anchor is touched.
+// - Inline code. Every `code` that is not in a `pre` — Markdown's, and the ones the docs' components write in a table,
+//   a caption or a list of facts — is Tanrei's inline code by its class, `tanrei-code` (specs/inline-code.spec.json),
+//   with the two attributes a stylesheet cannot give: `translate="no"` and `spellcheck="false"` (ICD-7). Prose draws
+//   its own `code` the same way, but a table, a card and every part marked `not-content` are islands prose leaves
+//   alone, so the class is what draws it there. The variant is the nearest ancestor's `data-tanrei-code`: the docs'
+//   own tables and facts say `plain` (a column of names is not a column of chips); running text says nothing, which
+//   is tonal.
+//
+// The rewriting itself is `tanreiContent` of lib/markdown-content.mjs (a function of the HTML and of the page's words,
+// so that Node can test it without the site); this component gives it the content and the page's language's words.
+import { contentLang, strings } from '../lib/i18n';
+import { tanreiContent } from '../lib/markdown-content.mjs';
+
+const html = await Astro.slots.render('default');
+const dictionary = strings(contentLang(Astro));
+const content = tanreiContent(html, { kind: (name) => Astro.locals.t(`aside.${name}`), code: dictionary.code, externalLink: dictionary.externalLink });
+---
+
+<div class="sl-markdown-content tanrei-prose" data-size="large" set:html={content} />
+
+<script>
+  import '@tanrei/web/components/table';
+  import '@tanrei/web/components/callout';
+  import '@tanrei/web/components/code-block';
+</script>

@@ -1,0 +1,610 @@
+/*
+ * Prose (specs/prose.spec.json, PRS-1 to PRS-30): long-form text — rendered Markdown, content
+ * from a CMS, any HTML you do not put classes on — set in the system's text styles by level, with one vertical rhythm
+ * and a limit on line length. A class, not an element, and it parses nothing:
+ *
+ *   <article class="tanrei-prose">…h1, p, ul, blockquote, hr…</article>
+ *   <article class="tanrei-prose" data-size="large">…</article>      a page whose purpose is the text
+ *   <article class="tanrei-prose" data-measure="false">…</article>   text blocks fill the container
+ *
+ * Every value is a `--tanrei-comp-prose-*` token (the headings' text styles are `sys.typescale.heading-1…6`, and a
+ * rule is drawn from the divider's tokens), so a design system, the dials and a layer that re-points the rhythm all
+ * reach it. Prose brings no text color (PRS-4); a link is drawn by the Link component's rules (link.css), which the
+ * build writes into this stylesheet for prose's own anchors — `@tanrei/web/prose.css` alone draws them. Inline code
+ * and a bare block of code are drawn the same way, by the code components' rules (code.css).
+ *
+ * Classes: `tanrei-prose` (the container), `tanrei-prose-lead` (a lead paragraph), `tanrei-prose-heading` and
+ * `tanrei-prose-anchor` (a heading with its anchor, PRS-21), `tanrei-not-prose` (a part prose leaves alone, PRS-16):
+ *
+ *   <div class="tanrei-prose-heading">
+ *     <h2 id="what-goes-in">What goes in</h2>
+ *     <a class="tanrei-prose-anchor" href="#what-goes-in" aria-label="Link to: What goes in">…the glyph `link`…</a>
+ *   </div>
+ *
+ * `--tanrei-prose-scroll-offset` is the height of whatever the product keeps fixed at the top of the view (PRS-23).
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - What is prose's own (PRS-16) is said ONCE, by a value and not by a selector: `--_prose-own` is 1 on a
+ *   `.tanrei-prose` and 0 on an island — an element with `tanrei-not-prose`, or one of Tanrei's custom elements, whose
+ *   slotted content is that component's — and it is inherited, so what an element's parent holds says whether the
+ *   element is prose's own. Every element rule stands in one `@container style(--_prose-own: 1)`, which asks exactly
+ *   that of the parent. So the island itself is a block of the prose, nothing inside it is, and a prose inside an
+ *   island is prose again at any depth. The build (scripts/build.js) writes the tag names of every Tanrei element
+ *   beside `.tanrei-not-prose` in that one rule, from `custom-elements.json`; this source file names the class alone
+ *   — and the landmark of a pagination, a component that is classes and no element (pagination.css).
+ *   (A pseudo-element asks its own element: the marker of a list item that is itself marked `tanrei-not-prose` is not
+ *   prose's.) A browser without style queries draws the container's text style and no element rule.
+ * - WHAT IT COSTS is part of how it is written (prose.test.ts and
+ *   prose.perf.test.ts hold the first three; has.test.ts holds the fourth for every stylesheet of the package):
+ *   1. No selector looks for an island among an element's ancestors. Said in each rule's selector, it would cost every rule, on every element, a walk to the root with every Tanrei tag name tried at each
+ *      step: seconds on a page of documentation.
+ *   2. A rule begins with the NAMES it is for — `:where(h1, h2, .tanrei-prose-heading)…` — and the build writes it once
+ *      per name, the one form an engine files under the name and tries on those elements alone. A rule that begins
+ *      with anything else is tried on every element of the document: the test counts them, and a new one needs a reason.
+ *   3. `:has()` stands on a NAMED element (`li:has(…)`, `.tanrei-prose-heading:has(…)`), never on any element
+ *      whatever (`:has(> h2:only-child)`): an engine must then remember every element of the page as one that a later
+ *      change may concern, and each attribute a component writes, each child it adds, restyles what follows every
+ *      ancestor — a tenth of a long page per write here, and with a product's own `:has()` rules beside it the whole
+ *      document. This is why a wrapper of a heading is spaced as the heading only when it is named
+ *      `tanrei-prose-heading` (PRS-7).
+ *   4. `:has()` is asked of the element a rule STYLES, never of one element for the sake of another
+ *      (`li:has(> p) > :not(:first-child)`, `:is(ul, ol):has(…) > li + li`): what it finds reaches other elements as an
+ *      inherited value (`--_prose-item-gap`), or is said from the other element's side (`li > p ~ *`). The other form
+ *      makes its element one whose subtree an engine restyles when something inside it changes — and WHOLE where any
+ *      such rule of the page, in any root, styles an element it cannot name (`… > :not(:first-child)`). A table of
+ *      live components in a page of prose is then restyled, every cell and everything in it, at each attribute one of
+ *      them writes: a second of style time on a page of documentation (has.test.ts holds it for every stylesheet of the
+ *      package, and prose.perf.test.ts what it costs). The one exception is what follows a heading's wrapper
+ *      (`.tanrei-prose-heading:has(> h2) + *`): no value passes between siblings, the wrapper holds a heading and an
+ *      anchor, and what is restyled is the one element after it.
+ * - Every selector has no specificity (`:where()`; a rule on `::marker` or `::before` has a pseudo-element's), so one
+ *   class of the product's wins, and so the ORDER of the rules below is what decides between two of them.
+ * - PRS-7, exactly one space between two neighbours: no element has a space after it, and the space before an element
+ *   is chosen by what precedes it — by one rule, the last that matches. Nothing relies on two margins meeting.
+ * - Names that begin `--_prose-` are private.
+ */
+/* No custom property is registered by this stylesheet (src/styles/registered-properties.ts says what one costs a page).
+   A task's mark, whose own font is the checkbox's or the icon set's, centres itself on the first line of its item by
+   saying `1lh` in its own `line-height` — there the unit is the PARENT's line, as a length — and reading it back as
+   its own `1lh` (PRS-10). */
+
+@layer tanrei.components {
+  /* ── The container: the running text's style, by size (PRS-1; PRS-30: any other size is the default) ──────────── */
+  :where(.tanrei-prose) {
+    --_prose-text-font: var(--tanrei-comp-prose-text-typescale-medium-font);
+    --_prose-text-size: var(--tanrei-comp-prose-text-typescale-medium-font-size);
+    --_prose-text-tracking: var(--tanrei-comp-prose-text-typescale-medium-letter-spacing);
+    --_prose-text-emphasized: var(--tanrei-comp-prose-text-typescale-medium-font-weight-emphasized);
+    --_prose-small-font: var(--tanrei-comp-prose-small-typescale-medium-font);
+    --_prose-small-tracking: var(--tanrei-comp-prose-small-typescale-medium-letter-spacing);
+    --_prose-small-emphasized: var(--tanrei-comp-prose-small-typescale-medium-font-weight-emphasized);
+    /* PRS-18: a count of ems of the running text — a rem length, so it grows with the reader's text size (PRS-27). */
+    --_prose-measure: calc(var(--tanrei-comp-prose-measure) * var(--_prose-text-size));
+    --tanrei-text-emphasized-weight: var(--_prose-text-emphasized);
+    font: var(--_prose-text-font);
+    letter-spacing: var(--_prose-text-tracking);
+    /* PRS-19: a string with no break opportunity breaks anywhere rather than overflow. */
+    overflow-wrap: break-word;
+  }
+  :where(.tanrei-prose[data-size='large']) {
+    --_prose-text-font: var(--tanrei-comp-prose-text-typescale-large-font);
+    --_prose-text-size: var(--tanrei-comp-prose-text-typescale-large-font-size);
+    --_prose-text-tracking: var(--tanrei-comp-prose-text-typescale-large-letter-spacing);
+    --_prose-text-emphasized: var(--tanrei-comp-prose-text-typescale-large-font-weight-emphasized);
+    --_prose-small-font: var(--tanrei-comp-prose-small-typescale-large-font);
+    --_prose-small-tracking: var(--tanrei-comp-prose-small-typescale-large-letter-spacing);
+    --_prose-small-emphasized: var(--tanrei-comp-prose-small-typescale-large-font-weight-emphasized);
+  }
+  :where(.tanrei-prose[data-measure='false']) {
+    --_prose-measure: none;
+  }
+  /* PRS-19: Japanese and Chinese lines neither begin with closing punctuation or a small kana nor end with opening punctuation. */
+  :where(.tanrei-prose):where(:lang(ja), :lang(zh)) {
+    line-break: strict;
+  }
+
+  /* ── What is prose's own (PRS-16) ──────────────────────────────────────────────────────────────────────────────── */
+  /* 1 on a prose and 0 on an island, inherited: what an element's PARENT holds says whether the element is prose's
+     own (see HOW IT IS WRITTEN). An element that is both — a prose that is itself a Tanrei element — is a prose: the
+     later rule. */
+  /* A pagination is a component placed in the flow (PRS-16) that is classes on the product's own `nav` and anchors,
+     not an element: its landmark is an island as an element is, so its anchors are the pagination's and not prose's
+     links, whichever of the two stylesheets is loaded last. (src/link.ts leaves their presses to it likewise.) */
+  :where(.tanrei-not-prose), :where(.tanrei-pagination) {
+    --_prose-own: 0;
+  }
+  :where(.tanrei-prose) {
+    --_prose-own: 1;
+  }
+  @container style(--_prose-own: 1) {
+    /* ── Text styles (PRS-1) ─────────────────────────────────────────────────────────────────────────────────────── */
+    /* A heading, and the wrapper that holds it with its anchor (the wrapper's line is the heading's line). */
+    :where(h1, .tanrei-prose-heading:has(> h1)) {
+      --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-1-font-weight-emphasized);
+      font: var(--tanrei-sys-typescale-heading-1-font);
+      letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing);
+      /* PRS-23: its own space before stays above a heading that is navigated to. */
+      scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-1-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
+    }
+    :where(h2, .tanrei-prose-heading:has(> h2)) {
+      --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-2-font-weight-emphasized);
+      font: var(--tanrei-sys-typescale-heading-2-font);
+      letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing);
+      scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-2-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
+    }
+    :where(h3, .tanrei-prose-heading:has(> h3)) {
+      --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-3-font-weight-emphasized);
+      font: var(--tanrei-sys-typescale-heading-3-font);
+      letter-spacing: var(--tanrei-sys-typescale-heading-3-letter-spacing);
+      scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-3-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
+    }
+    :where(h4, .tanrei-prose-heading:has(> h4)) {
+      --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-4-font-weight-emphasized);
+      font: var(--tanrei-sys-typescale-heading-4-font);
+      letter-spacing: var(--tanrei-sys-typescale-heading-4-letter-spacing);
+      scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-4-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
+    }
+    :where(h5, .tanrei-prose-heading:has(> h5)) {
+      --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-5-font-weight-emphasized);
+      font: var(--tanrei-sys-typescale-heading-5-font);
+      letter-spacing: var(--tanrei-sys-typescale-heading-5-letter-spacing);
+      scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-5-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
+    }
+    :where(h6, .tanrei-prose-heading:has(> h6)) {
+      --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-6-font-weight-emphasized);
+      font: var(--tanrei-sys-typescale-heading-6-font);
+      letter-spacing: var(--tanrei-sys-typescale-heading-6-letter-spacing);
+      scroll-margin-block-start: calc(var(--tanrei-comp-prose-heading-6-gap-before) + var(--tanrei-prose-scroll-offset, 0px));
+    }
+    /* PRS-20: no negative tracking for a heading in Chinese, Japanese or Korean — zero. */
+    :where(h1, h2, h3, h4, h5, h6, .tanrei-prose-heading):where(:lang(ja), :lang(zh), :lang(ko)) {
+      letter-spacing: 0;
+    }
+    /* PRS-19: a heading's lines are balanced, a paragraph's avoid a short last line, where the browser knows how. */
+    :where(h1, h2, h3, h4, h5, h6) {
+      text-wrap: balance;
+    }
+    :where(p) {
+      text-wrap: pretty;
+    }
+
+    /* Running text is the container's style, inherited: a paragraph, a list item, a quote, a term, a description. */
+    /* A lead paragraph, marked by the author. */
+    :where(.tanrei-prose-lead) {
+      --tanrei-text-emphasized-weight: var(--tanrei-comp-prose-lead-typescale-font-weight-emphasized);
+      font: var(--tanrei-comp-prose-lead-typescale-font);
+      letter-spacing: var(--tanrei-comp-prose-lead-typescale-letter-spacing);
+    }
+    /* Secondary text: small print, footnotes (PRS-14) and the references to them. */
+    :where(small, sup, [data-footnotes], .footnotes) {
+      --tanrei-text-emphasized-weight: var(--_prose-small-emphasized);
+      font: var(--_prose-small-font);
+      letter-spacing: var(--_prose-small-tracking);
+    }
+    /* PRS-14: a reference is raised above the baseline and does not make its line taller. */
+    :where(sup) {
+      line-height: 0;
+      vertical-align: super;
+    }
+
+    /* Inline code and a block of code are the code components' (specs/inline-code.spec.json, specs/code-block.spec.json). The build (scripts/build.js) writes their rules here from code.css and the code block's
+       light-DOM rules: under every `code` that is prose's own and not in a `pre` — the code face at the size of the
+       text around it, on its faint fill (ICD-1 to ICD-16), so rendered Markdown needs no class — and under a bare
+       `pre`, which is drawn as a filled code block of the medium size and scrolls in its own box (PRS-15). A
+       `tanrei-code-block` is an island (PRS-16) and draws its own. */
+    :where(code:not(pre code)) {
+      /* code:rules */
+    }
+    :where(pre) {
+      /* code:block */
+    }
+    :where(pre code) {
+      font: inherit;
+      letter-spacing: inherit;
+    }
+    /* PRS-17: what sits in a line of text does not make the line taller. PRS-26: a run of keys or of sample output is
+       a left-to-right run of its own, as inline code is. */
+    :where(kbd, samp) {
+      line-height: 0;
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
+    /* PRS-2: strong text is the emphasized weight of the style it sits in. A term is too (PRS-13). */
+    :where(strong, b, dt) {
+      font-weight: var(--tanrei-text-emphasized-weight);
+    }
+    /* PRS-3: Chinese, Japanese and Korean have no italic — emphasis is upright at the emphasized weight, never slanted. */
+    :where(:lang(ja), :lang(zh), :lang(ko)) {
+      font-synthesis-style: none;
+    }
+    :where(em, i):where(:lang(ja), :lang(zh), :lang(ko)) {
+      font-style: normal;
+      font-weight: var(--tanrei-text-emphasized-weight);
+    }
+    /* PRS-19, for a block in another language than its prose. */
+    :where(:lang(ja), :lang(zh)) {
+      line-break: strict;
+    }
+
+    /* PRS-17: a link is the Link component's (specs/link.spec.json), drawn as a link that is not standalone, and
+       prose decides nothing about it: it is underlined as comp.link.underline.visibility names (at rest, in the
+       default system; `data-underline` sets one anchor apart), and an anchor the content's pipeline or the package's
+       script marked `data-external` shows the Link's arrow and, where the pipeline wrote one, the site's picture
+       (LNK-27 to LNK-34). The build (scripts/build.js) writes the rules of link.css here, under prose's own anchors,
+       so rendered Markdown needs no class and the two cannot differ; a heading's anchor is the link that is a glyph
+       alone. Prose names no color of its own for it (PRS-4), and computes nothing about an address. */
+    :where(a) {
+      /* link:rules */
+    }
+
+    /* ── Direction (PRS-24 to PRS-26) ───────────────────────────────────────────────────────────────── */
+    /* A block's lines begin at the start edge of the layout — or of the block, where the content states its direction. */
+    :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, .tanrei-prose-heading) {
+      text-align: left;
+    }
+    :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd, .tanrei-prose-heading):where(:dir(rtl)) {
+      text-align: right;
+    }
+    /* A block that states no direction is text of its own direction, by its first strong character; one that states
+       it (`dir`), and what is inside one, is left to it. */
+    :where(h1, h2, h3, h4, h5, h6, p, li, dt, dd):where(:not([dir], .tanrei-prose [dir] *)) {
+      unicode-bidi: plaintext;
+    }
+
+    /* ── Blocks ──────────────────────────────────────────────────────────────────────────────────────────────────── */
+    /* No element brings a space of its own; the rhythm below gives each the one space before it. */
+    :where(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, dd, blockquote, figure, pre, hr) {
+      margin-block: 0;
+    }
+    /* …nor an inset: a rule narrower than the prose stays at the start edge, never centred (PRS-18). */
+    :where(dd, blockquote, figure, hr) {
+      margin-inline: 0;
+    }
+    /* PRS-18: a text block is no wider than the measure, at the start edge; anything else takes the full width. A
+       callout is a block of text in a box of its own, so it is kept to the measure too (it has none of its own, CLO-22). */
+    :where(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, blockquote, hr, figcaption, [data-footnotes], .footnotes, .tanrei-prose-heading, tanrei-callout) {
+      box-sizing: border-box;
+      max-inline-size: var(--_prose-measure);
+    }
+    /* PRS-15: a picture scales down with its proportions kept. (Not the picture of the site an external link leads
+       to: that one is a part of its link, sized by the link's rules — LNK-32.) */
+    :where(img:not(.tanrei-link-site-icon), video) {
+      max-inline-size: 100%;
+      block-size: auto;
+    }
+
+    /* PRS-8, PRS-9: a list — its items set in, the marker in that space, by depth. */
+    :where(ul, ol) {
+      /* PRS-8: the space between two items of this list (below: a list in which an item holds blocks takes another). */
+      --_prose-item-gap: var(--tanrei-comp-prose-item-gap);
+      padding-inline-start: var(--tanrei-comp-prose-list-indent);
+      list-style-position: outside;
+    }
+    /* A dot, a ring, a square, repeating from the fourth depth — nine deep. A rule for a depth also matches every
+       deeper list, so the rules stand in order of depth and the last that matches is the list's own. */
+    :where(ul) {
+      list-style-type: disc;
+    }
+    :where(.tanrei-prose :is(ul, ol) ul) {
+      list-style-type: circle;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) ul) {
+      list-style-type: square;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) ul) {
+      list-style-type: disc;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ul) {
+      list-style-type: circle;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ul) {
+      list-style-type: square;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ul) {
+      list-style-type: disc;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ul) {
+      list-style-type: circle;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ul) {
+      list-style-type: square;
+    }
+    /* A number, a lowercase letter, a lowercase roman numeral, each with a period; `start`, `reversed` and an item's
+       `value` are the browser's. */
+    :where(ol) {
+      list-style-type: decimal;
+    }
+    :where(.tanrei-prose :is(ul, ol) ol) {
+      list-style-type: lower-alpha;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) ol) {
+      list-style-type: lower-roman;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) ol) {
+      list-style-type: decimal;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ol) {
+      list-style-type: lower-alpha;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ol) {
+      list-style-type: lower-roman;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ol) {
+      list-style-type: decimal;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ol) {
+      list-style-type: lower-alpha;
+    }
+    :where(.tanrei-prose :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ol) {
+      list-style-type: lower-roman;
+    }
+    /* A marker is drawn in the item's text style; a number in figures of equal width, so the periods line up. */
+    :where(li)::marker {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* PRS-11: a quote — a line along its start edge for its whole height, its content set in from the line. */
+    :where(blockquote) {
+      border-inline-start: var(--tanrei-comp-prose-quote-line-thickness) solid var(--tanrei-comp-prose-quote-line-color);
+      padding-inline-start: var(--tanrei-comp-prose-quote-inset);
+    }
+
+    /* PRS-12: a thematic break is the divider's line, as wide as the text blocks. */
+    :where(hr) {
+      block-size: 0;
+      border: 0;
+      border-block-start: var(--tanrei-comp-divider-line-thickness) solid var(--tanrei-comp-divider-line-color);
+    }
+
+    /* PRS-13: a description is set in under its term — by a margin, not a padding: the description is a paragraph of
+       its own direction (`unicode-bidi: plaintext`, above), and WebKit draws such a paragraph over its box's inline
+       padding where its direction is not the layout's and the two paddings differ (a left-to-right description in a
+       right-to-left page would stand at the term's edge). */
+    :where(dd) {
+      margin-inline-start: var(--tanrei-comp-prose-list-indent);
+    }
+
+    /* PRS-14: the notes follow a rule at the end of the text; the label a renderer writes for assistive technology
+       (`.sr-only`) is hidden from sight only. */
+    :where([data-footnotes], .footnotes) {
+      /* The hidden label is laid out against its section: against nothing, a scroll box the prose stands in would not
+         cut it, and the page would scroll sideways to reach it (src/scroll-box.test.ts). */
+      position: relative;
+      border-block-start: var(--tanrei-comp-divider-line-thickness) solid var(--tanrei-comp-divider-line-color);
+      padding-block-start: var(--tanrei-comp-prose-rule-gap);
+    }
+    :where(:is([data-footnotes], .footnotes) > .sr-only) {
+      position: absolute;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    /* ── Rhythm (PRS-5 to PRS-8, PRS-11 to PRS-13): the one space before an element, by what precedes it ─────────── */
+    /* PRS-5: two blocks that follow each other. A block is a child of the prose, of a wrapper, of a quote or of a
+       description; what cannot be seen (a style or script element) is not a neighbour. */
+    :where(:is(.tanrei-prose, section, article, div, blockquote, dd) > :not(style, script, template, link, meta, [hidden]) ~ *) {
+      margin-block-start: var(--tanrei-comp-prose-block-gap);
+    }
+    /* PRS-11, PRS-13: the blocks inside a quote, and inside a description. */
+    :where(:is(blockquote, dd) > * + *) {
+      margin-block-start: var(--tanrei-comp-prose-nested-gap);
+    }
+    /* PRS-8: the blocks inside one item — after its text, or after its first paragraph: a paragraph that is not the
+       item's first element, and whatever follows a paragraph. (Said from the block's side, with no `:has()`: see HOW
+       IT IS WRITTEN, 4.) */
+    :where(pre, blockquote, table, figure, div, dl, details):where(li > *),
+    :where(p):where(li > :not(:first-child)),
+    :where(li > p ~ *) {
+      margin-block-start: var(--tanrei-comp-prose-nested-gap);
+    }
+    /* PRS-8: items — by their list's gap — and a nested list under its item's text. */
+    :where(li + li) {
+      margin-block-start: var(--_prose-item-gap, var(--tanrei-comp-prose-item-gap));
+    }
+    :where(ul, ol):where(li > *) {
+      margin-block-start: var(--tanrei-comp-prose-item-gap);
+    }
+    /* PRS-8: the items of a list in which any item holds more than one block. Asked ON the list and handed to its
+       items as the list's gap (every list sets its own, so a list inside takes nothing from this one). */
+    :where(ul, ol):where(:has(> li > :is(p, pre, blockquote, table, figure, div, dl) ~ :is(p, pre, blockquote, table, figure, div, dl, hr))) {
+      --_prose-item-gap: var(--tanrei-comp-prose-nested-gap);
+    }
+    /* PRS-13: a description under its term, and the groups of a description list. */
+    :where(dd):where(dt + *, dd + *) {
+      margin-block-start: var(--tanrei-comp-prose-item-gap);
+    }
+    :where(dd + dt),
+    :where(dl > div + div) {
+      margin-block-start: var(--tanrei-comp-prose-nested-gap);
+    }
+
+    /* PRS-6: a heading after a block takes its own space before. PRS-7: the wrapper that holds the heading — with its
+       anchor, or alone — is spaced as the heading: the wrapper that is named, `tanrei-prose-heading`. A wrapper with no
+       name is a block like any other (see HOW IT IS WRITTEN, on `:has()`). */
+    :where(h1, .tanrei-prose-heading:has(> h1)):where(:is(.tanrei-prose, section, article, div, blockquote, dd, li) > :not(style, script, template, link, meta, [hidden]) ~ *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-1-gap-before);
+    }
+    :where(h2, .tanrei-prose-heading:has(> h2)):where(:is(.tanrei-prose, section, article, div, blockquote, dd, li) > :not(style, script, template, link, meta, [hidden]) ~ *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-2-gap-before);
+    }
+    :where(h3, .tanrei-prose-heading:has(> h3)):where(:is(.tanrei-prose, section, article, div, blockquote, dd, li) > :not(style, script, template, link, meta, [hidden]) ~ *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-3-gap-before);
+    }
+    :where(h4, .tanrei-prose-heading:has(> h4)):where(:is(.tanrei-prose, section, article, div, blockquote, dd, li) > :not(style, script, template, link, meta, [hidden]) ~ *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-4-gap-before);
+    }
+    :where(h5, .tanrei-prose-heading:has(> h5)):where(:is(.tanrei-prose, section, article, div, blockquote, dd, li) > :not(style, script, template, link, meta, [hidden]) ~ *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-5-gap-before);
+    }
+    :where(h6, .tanrei-prose-heading:has(> h6)):where(:is(.tanrei-prose, section, article, div, blockquote, dd, li) > :not(style, script, template, link, meta, [hidden]) ~ *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-6-gap-before);
+    }
+    /* PRS-6: whatever follows a heading — another heading included — is its space after from it, in place of any other. */
+    :where(:is(h1, .tanrei-prose-heading:has(> h1)) + *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-1-gap-after);
+    }
+    :where(:is(h2, .tanrei-prose-heading:has(> h2)) + *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-2-gap-after);
+    }
+    :where(:is(h3, .tanrei-prose-heading:has(> h3)) + *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-3-gap-after);
+    }
+    :where(:is(h4, .tanrei-prose-heading:has(> h4)) + *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-4-gap-after);
+    }
+    :where(:is(h5, .tanrei-prose-heading:has(> h5)) + *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-5-gap-after);
+    }
+    :where(:is(h6, .tanrei-prose-heading:has(> h6)) + *) {
+      margin-block-start: var(--tanrei-comp-prose-heading-6-gap-after);
+    }
+
+    /* PRS-12: a rule has its own space above and below, whatever its neighbours are. PRS-14: so do the notes. */
+    :where(hr, [data-footnotes], .footnotes):where(:is(.tanrei-prose, section, article, div, blockquote, dd, li) > :not(style, script, template, link, meta, [hidden]) ~ *),
+    :where(hr + *) {
+      margin-block-start: var(--tanrei-comp-prose-rule-gap);
+    }
+    /* The notes' list begins where the section's own space ends: its hidden label is not a neighbour. */
+    :where(:is([data-footnotes], .footnotes) > .sr-only + *) {
+      margin-block-start: 0;
+    }
+
+    /* ── A task item (PRS-10) ────────────────────────────────────────────────────────────────────────────────────── */
+    /* A renderer writes a disabled checkbox first in the item (or in the item's first paragraph): it stands in the
+       marker's place, its end beside the first line, centred on that line. It takes no press and no focus, being
+       disabled, and assistive technology reads its state with the item. */
+    :where(li:has(> input[type='checkbox']:first-child, > p:first-child > input[type='checkbox']:first-child)) {
+      list-style-type: none;
+      /* The glyph (`::before`, below) is laid out against its item — it stays where it would have stood: against
+         nothing, a scroll box the prose stands in would not cut it (src/scroll-box.test.ts). */
+      position: relative;
+    }
+    /* Out of the line (a float at the line's start, wholly in the list's inset), so that the item's text begins where
+       every other item's does: the space a renderer writes after the box is then the line's first, and is dropped. */
+    :where(input):where(li > [type='checkbox']:first-child, li > p:first-child > [type='checkbox']:first-child) {
+      float: inline-start;
+      box-sizing: border-box;
+      inline-size: var(--tanrei-comp-prose-task-icon-size);
+      block-size: var(--tanrei-comp-prose-task-icon-size);
+      /* The line it stands on is its parent's (the item's, or the item's first paragraph's): a box has no text to lose a line of its own. */
+      line-height: 1lh;
+      margin-block: calc((1lh - var(--tanrei-comp-prose-task-icon-size)) / 2);
+      margin-inline: calc(-1 * (var(--tanrei-comp-prose-task-icon-size) + var(--tanrei-comp-prose-item-gap))) var(--tanrei-comp-prose-item-gap);
+      /* The browser's own box where the icon stylesheet is not loaded; where it is (`--tanrei-icons`, set by
+         icons.css), the glyph below is drawn in its place and the box is not. */
+      opacity: calc(1 - var(--tanrei-icons, 0));
+    }
+    /* The glyph of the system's icon set: check_box_outline_blank, and check_box — in the selected family and fill —
+       when the task is done. Decorative: the checkbox says the state. (The glyph's declarations are icons.css's.) */
+    :where(li:has(> input[type='checkbox']:first-child, > p:first-child > input[type='checkbox']:first-child))::before {
+      content: 'check_box_outline_blank';
+      content: 'check_box_outline_blank' / '';
+      /* A flex box whose one line is the item's line high (`line-height`, below), centred on a box the size of the
+         glyph: the glyph is drawn where a line as tall as its box put it, and the item's line is this box's `1lh`. */
+      display: flex;
+      align-items: center;
+      position: absolute;
+      overflow: hidden;
+      inline-size: var(--tanrei-comp-prose-task-icon-size);
+      block-size: var(--tanrei-comp-prose-task-icon-size);
+      margin-block: calc((1lh - var(--tanrei-comp-prose-task-icon-size)) / 2);
+      margin-inline-start: calc(-1 * (var(--tanrei-comp-prose-task-icon-size) + var(--tanrei-comp-prose-item-gap)));
+      font-family: var(--tanrei-sys-icon-family-unselected);
+      font-size: var(--tanrei-comp-prose-task-icon-size);
+      font-style: normal;
+      font-weight: normal;
+      line-height: 1lh;
+      letter-spacing: normal;
+      text-transform: none;
+      white-space: nowrap;
+      word-wrap: normal;
+      -webkit-user-select: none;
+      user-select: none;
+      pointer-events: none;
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      font-optical-sizing: auto;
+      font-variation-settings:
+        'FILL' var(--tanrei-sys-icon-fill-unselected),
+        'wght' var(--tanrei-sys-icon-weight),
+        'GRAD' 0;
+      opacity: var(--tanrei-icons, 0);
+    }
+    /* The optical size is the box's, written by hand where the engine can turn the box's size into a number: the
+       arithmetic and the condition are src/styles/icons.ts's, written in place by the build (writeGlyphAxes). */
+    @supports glyph-optical-size {
+      :where(li:has(> input[type='checkbox']:first-child, > p:first-child > input[type='checkbox']:first-child))::before {
+        font-variation-settings: glyph-axes(var(--tanrei-comp-prose-task-icon-size));
+      }
+    }
+    :where(li:has(> input[type='checkbox']:first-child:checked, > p:first-child > input[type='checkbox']:first-child:checked))::before {
+      content: 'check_box';
+      content: 'check_box' / '';
+      font-family: var(--tanrei-sys-icon-family-selected);
+      font-variation-settings:
+        'FILL' var(--tanrei-sys-icon-fill-selected),
+        'wght' var(--tanrei-sys-icon-weight),
+        'GRAD' 0;
+    }
+    /* The optical size is the box's, written by hand where the engine can turn the box's size into a number: the
+       arithmetic and the condition are src/styles/icons.ts's, written in place by the build (writeGlyphAxes). */
+    @supports glyph-optical-size {
+      :where(li:has(> input[type='checkbox']:first-child:checked, > p:first-child > input[type='checkbox']:first-child:checked))::before {
+        font-variation-settings: glyph-axes(var(--tanrei-comp-prose-task-icon-size), selected);
+      }
+    }
+
+    /* ── A heading's anchor (PRS-21, PRS-22) ─────────────────────────────────────────────────────────────────────── */
+    /* The heading is a run of text in its wrapper's line, of its own direction (PRS-25); the anchor follows the end
+       of that text on its last line and is never on a line of its own, because it takes no part in the line: it is
+       placed where it would have stood. The wrapper keeps the room it stands in, so it never leaves the text block. */
+    :where(.tanrei-prose-heading) {
+      /* The anchor is laid out against its wrapper (it stays where it would have stood: it names no edge): against
+         nothing, a scroll box the prose stands in would not cut it (src/scroll-box.test.ts). */
+      position: relative;
+      padding-inline-end: calc(var(--tanrei-comp-prose-anchor-gap) + 1lh);
+    }
+    :where(h1, h2, h3, h4, h5, h6):where(.tanrei-prose-heading > *) {
+      display: inline;
+    }
+    /* One line of the heading high and as wide, its content centred: what it shows, and how it looks, focuses and is
+       pressed, are the Link component's — the link that is a glyph alone (LNK-16), whose rules stand above. */
+    :where(.tanrei-prose-anchor) {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      inline-size: 1lh;
+      block-size: 1lh;
+      margin-block: 0;
+      margin-inline-start: var(--tanrei-comp-prose-anchor-gap);
+      /* PRS-22: shown and hidden at once — the link's own changes of state keep their timing, its opacity has none. */
+      transition-property: --_link-held-image, --_link-held-clip, background-color, color;
+    }
+    /* PRS-22: hidden from sight — never from the focus order or assistive technology — until the heading or the anchor
+       is hovered or the anchor takes keyboard focus; shown at once; always shown where the device has no hover. */
+    @media (hover: hover) {
+      :where(.tanrei-prose-heading:not(:hover) > .tanrei-prose-anchor:not(:hover, :focus-visible)) {
+        opacity: 0;
+      }
+    }
+
+    /* ── Forced colors (PRS-28): a quote's line and a rule in the platform's text color; links are underlined at
+       rest whatever the underline choice is — the Link's own rule, written above with the rest of its rules (LNK-22) */
+    @media (forced-colors: active) {
+      :where(blockquote, hr, [data-footnotes], .footnotes) {
+        border-color: CanvasText;
+      }
+    }
+  }
+
+  /* PRS-18: a figure's caption is text under a frame that takes the prose's full width, so it is kept to the measure
+     like a text block. The Figure is an island (PRS-16) — nothing else inside it is prose's — so this one rule reaches
+     the caption of a figure placed in the flow by its own name; a bare `figure`'s caption is in the list above. */
+  :where(.tanrei-prose) :where(tanrei-figure) > :where(figure) > :where(figcaption) {
+    max-inline-size: var(--_prose-measure);
+  }
+}

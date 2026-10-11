@@ -1,0 +1,480 @@
+/*
+ * App shell (specs/app-shell.spec.json, APS-1 to APS-30): the frame of a page or an
+ * app. It places a header, the navigation, the main content, an aside and a footer, decides from the window's width
+ * how each is shown, and lets a keyboard reach the content in one step. It draws the frame and none of what stands
+ * in it.
+ *
+ * `<tanrei-app-shell>` is an element with no shadow root around the product's own regions, which stay in the
+ * document and keep their semantics — a `header` is the page's banner, the one `main` its main landmark:
+ *
+ *   <tanrei-app-shell aside-order="before" aside-label="On this page">
+ *     <a class="tanrei-link" data-standalone slot="skip-link" href="#main">Skip to content</a>
+ *     <div slot="announcement">…a callout…</div>
+ *     <header slot="header">
+ *       <tanrei-app-bar headline="Tanrei">
+ *         <tanrei-button slot="navigation" data-app-shell-menu variant="text" label="Menu">…</tanrei-button>
+ *       </tanrei-app-bar>
+ *     </header>
+ *     <tanrei-navigation-drawer slot="navigation" responsive collapsible label="Documentation">…</tanrei-navigation-drawer>
+ *     <aside slot="aside">…</aside>
+ *     <main id="main" tabindex="-1">…</main>
+ *     <footer slot="footer">…</footer>
+ *     <tanrei-navigation-bar slot="navigation-bar" label="Sections">…</tanrei-navigation-bar>
+ *   </tanrei-app-shell>
+ *
+ * The regions are children with a `slot` attribute (no shadow root reads it: it is the region's name) and the one
+ * `main` without one, written in the order a keyboard walks them (APS-22): the skip link, the announcement, the
+ * header, the navigation, the aside while `aside-order` is `before`, the main region, the aside while it is `after`,
+ * the footer, the navigation bar. The stylesheet places them on a grid by name and never reorders focus.
+ *
+ * Attributes of the element: `scroll` (page | main), `header-position` (sticky | static), `main-width`
+ * (contained | full), `aside-order` (after | before), `separation` (auto | divider | gap), `navigation-open`,
+ * `aside-label`.
+ *
+ * This stylesheet lays the whole frame out before and without script (APS-24): the window's class is three media
+ * conditions, a region that the class does not show has no box, the skip link is an anchor to the main region's id.
+ * The element (src/components/app-shell/app-shell.ts) adds what a stylesheet cannot: the two events, the menu
+ * button's opening of the navigation, the measured height of the header, the landmark of a region whose element
+ * does not give one, and the debug reports. It writes
+ *
+ *   data-window-class (on the element)       compact | medium | expanded: the class, for a rule or a script of the product
+ *   data-separation (on the element)         the separation the tokens name, where the browser has no style queries (APS-18)
+ *   data-menu (on the element)               shown | hidden, where the browser has no style queries (APS-6)
+ *   --tanrei-app-shell-scroll-offset         (on the document's root) the header's measured height (APS-17)
+ *   --tanrei-app-shell-scroll-offset-end     (on the document's root) the navigation bar's measured height
+ *   --_aps-footer (on the element)           the footer's measured height: where the navigation and the aside stop staying in view (APS-11)
+ *
+ * and this stylesheet gives everything the frame holds
+ *
+ *   --tanrei-app-shell-window-class          compact | medium | expanded, inherited: a component inside the frame
+ *                                            follows the class with `@container style(…)`, with no script (APS-3)
+ *
+ * THE WINDOW'S WIDTHS
+ *
+ * A custom property cannot stand in a media condition. The two widths are written here as
+ * `token(comp.app-shell.breakpoint.medium)` and `token(comp.app-shell.breakpoint.expanded)`, and the build
+ * (scripts/build.js, scripts/conditions.js) writes the resolved value of each, in rem, in its place — in the
+ * conditions and in the two `--_aps-breakpoint-*` properties the element reads them back from, so the script and
+ * the stylesheet can never part. A system or a layer that changes the widths gets a stylesheet of its own
+ * (`dist/systems/<id>.app-shell.css`); src/components/app-shell/app-shell.test.ts fails if a condition drifts from
+ * its token. rem in a media condition is the reader's own text size, so enlarged text moves the frame to a narrower
+ * class (APS-2).
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name and has no specificity (`:where()`), so one class of the product's
+ *   wins, and the ORDER of the rules decides between two of them.
+ * - A rule reaches the frame's own regions by the child combinator only: a `main` or a `[slot]` deeper in the page
+ *   is the product's.
+ * - `:has()` is asked only of the element a rule styles (src/styles/has.test.ts): what the frame learns of its
+ *   regions — whether it has a navigation, and one with a collapsed form — reaches the menu button as an inherited
+ *   value (`--_aps-menu`), read there by a style query.
+ * - The navigation and the aside that stay in view are `position: sticky` in the row of the main region, with a
+ *   block size of zero and a least block size of the row or the window less the header, whichever is less: they
+ *   add nothing to the height of the row, so a short page with a footer is exactly as tall as the window.
+ * - The lines of APS-18 are borders whose width is taken out of the padding beside them: they take no room.
+ * - Names that begin `--_aps-` are private.
+ */
+@layer tanrei.components {
+  /* ── The frame (APS-1, APS-14, APS-27) ──────────────────────────────────────────────────────────────────────── */
+  :where(tanrei-app-shell) {
+    /* APS-2: the two widths the conditions below were written from, for the element's two listeners. */
+    --_aps-breakpoint-medium: token(comp.app-shell.breakpoint.medium);
+    --_aps-breakpoint-expanded: token(comp.app-shell.breakpoint.expanded);
+    /* APS-3: the class, for everything the frame holds. */
+    --tanrei-app-shell-window-class: compact;
+    /* APS-8: the gutter of the class, and what centres a contained main region in its room. */
+    --_aps-gutter: var(--tanrei-comp-app-shell-gutter-compact);
+    --_aps-centring: calc((100% - var(--tanrei-comp-app-shell-main-max-width)) / 2);
+    /* APS-27: the system insets at the start, the end and the bottom. */
+    --_aps-inset-start: env(safe-area-inset-left, 0px);
+    --_aps-inset-end: env(safe-area-inset-right, 0px);
+    --_aps-inset-bottom: env(safe-area-inset-bottom, 0px);
+    /* APS-8, APS-9, APS-11: the inset of the main region, of a stacked aside and of the footer, from each edge. */
+    --_aps-inline-start: max(var(--_aps-gutter), var(--_aps-inset-start));
+    --_aps-inline-end: max(var(--_aps-gutter), var(--_aps-inset-end));
+    /* APS-18: the separation this frame draws — its attribute's, else comp.app-shell.separation's — and its line. */
+    --_aps-separation: var(--tanrei-comp-app-shell-separation);
+    --_aps-line: var(--tanrei-comp-app-shell-outline-width);
+    --_aps-line-color: var(--tanrei-comp-app-shell-outline-color);
+    /* APS-6: whether the menu button is shown: only while the navigation has no place in the layout. */
+    --_aps-menu: hidden;
+    /* APS-5, APS-9: what is kept over the top of the window, and the height the navigation and the aside stay in. */
+    --_aps-top: var(--tanrei-app-shell-scroll-offset, 0px);
+    --_aps-view: calc(100vh - var(--_aps-top));
+    --_aps-view: calc(100dvh - var(--_aps-top));
+
+    display: grid;
+    grid-template-columns: [frame-start] auto [main-start] minmax(0, 1fr) [aside-start] auto [frame-end];
+    grid-template-rows: [announcement] auto [header] auto [before] auto [main] minmax(0, 1fr) [after] auto [footer] auto [bar] auto [frame-end];
+    box-sizing: border-box;
+    /* The skip link, while it is not shown, is laid out against the frame (src/scroll-box.test.ts). */
+    position: relative;
+    min-inline-size: 0;
+    /* APS-14: at least as tall as the window, and as tall as its content: the window scrolls the page. */
+    min-block-size: 100vh;
+    min-block-size: 100dvh;
+    /* APS-27: the fill reaches under every inset; the content ends above the bottom one. */
+    padding-block-end: var(--_aps-inset-bottom);
+    /* APS-1: the frame's fill, and the foreground of what it holds. No elevation and no corner of its own. */
+    background-color: var(--tanrei-comp-app-shell-container-color);
+    color: var(--tanrei-comp-app-shell-content-color);
+  }
+  :where(tanrei-app-shell[hidden]) {
+    display: none;
+  }
+  /* APS-28: start and end as sides, by the layout direction. */
+  :where(tanrei-app-shell):dir(rtl) {
+    --_aps-inset-start: env(safe-area-inset-right, 0px);
+    --_aps-inset-end: env(safe-area-inset-left, 0px);
+  }
+  /* APS-8: `main-width="full"` takes all the room inside the gutters (APS-29: any other value is contained). */
+  :where(tanrei-app-shell[main-width='full']) {
+    --_aps-centring: 0px;
+  }
+  :where(tanrei-app-shell[separation='divider']) {
+    --_aps-separation: divider;
+  }
+  :where(tanrei-app-shell[separation='gap']) {
+    --_aps-separation: gap;
+  }
+  /* APS-6: a compact window with a navigation region shows the menu button. */
+  :where(tanrei-app-shell):where(:has(> [slot='navigation'])) {
+    --_aps-menu: shown;
+  }
+  /* APS-13: the navigation bar lays itself out over the bottom inset (NVB-18); the frame adds none under it. */
+  :where(tanrei-app-shell):where(:has(> [slot='navigation-bar'])) {
+    --_aps-inset-bottom: 0px;
+  }
+
+  /* ── The regions (APS-1): each in its place; one that is absent has no box, so it takes no room ─────────────── */
+  :where(tanrei-app-shell) > :where([slot='announcement']) {
+    /* APS-12: across the frame's whole width above the header, with no inset of its own. */
+    grid-area: announcement / frame-start / auto / frame-end;
+    min-inline-size: 0;
+  }
+  :where(tanrei-app-shell) > :where([slot='header']) {
+    grid-area: header / frame-start / auto / frame-end;
+    min-inline-size: 0;
+    /* APS-16: kept at the top of the window while the page scrolls under it; no fill, elevation or edge of the frame's. */
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+  }
+  :where(tanrei-app-shell[header-position='static'], tanrei-app-shell[scroll='main']) > :where([slot='header']) {
+    position: static;
+  }
+
+  /* APS-4, APS-5: the navigation. In a compact window it has no place in the layout: a navigation drawer presents
+     itself over the content (its own modal presentation, which has no box here), and anything else is not shown. */
+  :where(tanrei-app-shell) > :where([slot='navigation']) {
+    grid-area: before / frame-start / footer / main-start;
+    /* APS-5: as wide as what it holds draws itself, and never wider than the window less a touch target. */
+    max-inline-size: calc(100vw - var(--tanrei-sys-target-touch));
+    /* APS-5: in view while the page scrolls, from below what is kept over the top to the window's bottom edge, and
+       never past the row: it adds nothing to the row's height (see HOW IT IS WRITTEN). */
+    position: sticky;
+    inset-block-start: var(--_aps-top);
+    align-self: start;
+    block-size: 0;
+    min-block-size: min(100%, var(--_aps-view));
+    /* APS-11: …and it stops staying in view where the footer begins (the footer's height, as the element measures it). */
+    margin-block-end: var(--_aps-footer, 0px);
+  }
+  /* APS-5: what is not a navigation drawer scrolls inside that height by itself (a drawer does: NVD-61). */
+  :where(tanrei-app-shell) > :where([slot='navigation']:not(tanrei-navigation-drawer)) {
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  @media (width < token(comp.app-shell.breakpoint.expanded)) {
+    /* APS-4: what cannot present itself over the content is not shown, and so is kept from focus and from assistive
+       technology. APS-24: a drawer that is not defined yet presents nothing; one with a collapsed form keeps its
+       column's place in a medium window (below). */
+    :where(tanrei-app-shell) > :where([slot='navigation']:not(tanrei-navigation-drawer)),
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation']:not(:defined, [collapsible])) {
+      display: none;
+    }
+  }
+  @media (width < token(comp.app-shell.breakpoint.medium)) {
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation']:not(:defined)) {
+      display: none;
+    }
+  }
+
+  /* APS-8: the main region, inset by the gutter of the class and by main.padding-block, its content no wider than
+     main.max-width and centred while contained. Never wider than the room the row leaves it. */
+  :where(tanrei-app-shell) > :where(main, [role='main']) {
+    grid-area: main / main-start / auto / frame-end;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    padding-block: var(--tanrei-comp-app-shell-main-padding-block);
+    padding-inline: max(var(--_aps-inline-start), var(--_aps-centring)) max(var(--_aps-inline-end), var(--_aps-centring));
+  }
+  /* APS-20: the main region takes focus when the skip link is followed; it is not a control, and draws no ring. */
+  :where(tanrei-app-shell) > :where(main:focus, [role='main']:focus) {
+    outline: none;
+  }
+
+  /* APS-9: the aside, in the main region's column while the window is compact or medium: above the main content
+     (`aside-order="before"`) or below it, aside.gap from it, with the main region's gutters, width and centring.
+     The space between the two is the aside's: it reaches into the main region's own padding by a margin, so the
+     main region is the same with and without an aside. APS-18: the line stands in the middle of that space. */
+  :where(tanrei-app-shell) > :where([slot='aside']) {
+    grid-area: after / main-start / auto / frame-end;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin-inline: max(var(--_aps-inline-start), var(--_aps-centring)) max(var(--_aps-inline-end), var(--_aps-centring));
+    margin-block-start: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2 - var(--tanrei-comp-app-shell-main-padding-block));
+    border-block-start: var(--_aps-line) solid var(--_aps-line-color);
+    padding-block: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2) var(--tanrei-comp-app-shell-main-padding-block);
+  }
+  :where(tanrei-app-shell[aside-order='before']) > :where([slot='aside']) {
+    grid-row: before;
+    margin-block: 0 calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2 - var(--tanrei-comp-app-shell-main-padding-block));
+    border-block-start: 0;
+    border-block-end: var(--_aps-line) solid var(--_aps-line-color);
+    padding-block: var(--tanrei-comp-app-shell-main-padding-block) calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2);
+  }
+
+  /* APS-11: the footer, after the row, across the frame's whole width; the frame lays out nothing inside it. */
+  :where(tanrei-app-shell) > :where([slot='footer']) {
+    grid-area: footer / frame-start / auto / frame-end;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    border-block-start: var(--_aps-line) solid var(--_aps-line-color);
+    padding-block: calc(var(--tanrei-comp-app-shell-footer-padding-block) - var(--_aps-line)) var(--tanrei-comp-app-shell-footer-padding-block);
+    padding-inline: var(--_aps-inline-start) var(--_aps-inline-end);
+    /* A browser keeps a sticky part inside the frame, not inside its row: until the element has measured the footer
+       (above), the footer is drawn over the end of the navigation and the aside, on the frame's own fill. */
+    position: relative;
+    z-index: 1;
+    background-color: var(--tanrei-comp-app-shell-container-color);
+  }
+
+  /* APS-13: the navigation bar, at the bottom edge of a compact window, in view while the page scrolls; the page
+     ends above it. */
+  :where(tanrei-app-shell) > :where([slot='navigation-bar']) {
+    grid-area: bar / frame-start / auto / frame-end;
+    min-inline-size: 0;
+    position: sticky;
+    inset-block-end: 0;
+    z-index: 1;
+  }
+
+  /* ── The menu button (APS-6): shown only while the navigation has no place in the layout; never restyled ────── */
+  @container style(--_aps-menu: hidden) {
+    :where(tanrei-app-shell) :where([data-app-shell-menu]) {
+      display: none;
+    }
+  }
+  /* …and where the browser has no style queries, by the element's own word. */
+  :where(tanrei-app-shell[data-menu='hidden']) :where([data-app-shell-menu]) {
+    display: none;
+  }
+
+  /* ── The skip link (APS-19): nothing of it is drawn until the keyboard reaches it — clipped, never removed, so
+     it stays the first stop and stays exposed — and then in a small raised box at the top start corner of the
+     window, inside the insets, above every region and every sticky part. The box is the anchor's own `::after`,
+     under its text: the Link keeps its color, its underline, its focus ring and its states (LNK-1). Nothing moves.
+     (These rules have an attribute's specificity, not none: the link's own stylesheet, wherever the page loads it,
+     says `position: relative` of the same anchor.) */
+  :where(tanrei-app-shell) > [slot='skip-link'] {
+    position: absolute;
+    overflow: hidden;
+    inline-size: var(--tanrei-sys-border-hairline);
+    block-size: var(--tanrei-sys-border-hairline);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  :where(tanrei-app-shell) > [slot='skip-link']:focus-visible {
+    position: fixed;
+    z-index: 2;
+    overflow: visible;
+    inset-block-start: calc(env(safe-area-inset-top, 0px) + var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-block));
+    inset-inline-start: calc(var(--_aps-inset-start) + var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline));
+    inline-size: auto;
+    block-size: auto;
+    max-inline-size: calc(100vw - 2 * (var(--tanrei-comp-app-shell-skip-link-offset) + var(--tanrei-comp-app-shell-skip-link-container-padding-inline)) - var(--_aps-inset-start) - var(--_aps-inset-end));
+    clip-path: none;
+    white-space: normal;
+    font: var(--tanrei-comp-app-shell-skip-link-label-typescale-font);
+    letter-spacing: var(--tanrei-comp-app-shell-skip-link-label-typescale-letter-spacing);
+  }
+  /* app-shell:shape */
+  :where(tanrei-app-shell) > [slot='skip-link']:focus-visible::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset-block: calc(-1 * var(--tanrei-comp-app-shell-skip-link-container-padding-block));
+    inset-inline: calc(-1 * var(--tanrei-comp-app-shell-skip-link-container-padding-inline));
+    box-sizing: border-box;
+    background-color: var(--tanrei-comp-app-shell-skip-link-container-color);
+    box-shadow: var(--tanrei-comp-app-shell-skip-link-container-elevation);
+    /* The corners, eased by sys.shape.corner-smoothing (the rule above, written by the build). */
+    --tanrei-corner-radius: var(--tanrei-comp-app-shell-skip-link-container-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-app-shell-skip-link-container-shape-pill, 0);
+  }
+
+  /* ── APS-2: a medium window ─────────────────────────────────────────────────────────────────────────────────── */
+  @media (width >= token(comp.app-shell.breakpoint.medium)) {
+    :where(tanrei-app-shell) {
+      --tanrei-app-shell-window-class: medium;
+      --_aps-gutter: var(--tanrei-comp-app-shell-gutter-medium);
+      /* APS-13: the navigation bar is not shown, so the frame ends above the bottom inset itself. */
+      --_aps-inset-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    /* APS-4, APS-6: a navigation with a collapsed form stands as its column, and the menu button is the drawer's
+       own (NVD-37); any other is still presented over the content from the menu button. */
+    :where(tanrei-app-shell):where(:has(> [slot='navigation'][collapsible])) {
+      --_aps-menu: hidden;
+    }
+    /* APS-24: the column of a drawer that is not defined yet keeps its place. */
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation'][collapsible]:not(:defined)) {
+      inline-size: var(--tanrei-comp-navigation-drawer-collapsed-container-width);
+    }
+    /* APS-13: not shown, kept from focus and from assistive technology, and given no space. */
+    :where(tanrei-app-shell) > :where([slot='navigation-bar']) {
+      display: none;
+    }
+  }
+
+  /* ── APS-2: an expanded window ──────────────────────────────────────────────────────────────────────────────── */
+  @media (width >= token(comp.app-shell.breakpoint.expanded)) {
+    :where(tanrei-app-shell) {
+      --tanrei-app-shell-window-class: expanded;
+      --_aps-gutter: var(--tanrei-comp-app-shell-gutter-expanded);
+    }
+    /* APS-4, APS-6: the navigation stands beside the main region, whatever it is, and no menu button is shown. */
+    :where(tanrei-app-shell):where(:has(> [slot='navigation'])) {
+      --_aps-menu: hidden;
+    }
+    /* APS-24: a drawer that is not defined yet keeps its place. */
+    :where(tanrei-app-shell) > :where(tanrei-navigation-drawer[slot='navigation']:not(:defined)) {
+      inline-size: var(--tanrei-comp-navigation-drawer-container-width);
+    }
+    :where(tanrei-app-shell) > :where([slot='aside']:not(tanrei-side-sheet)) {
+      inline-size: var(--tanrei-comp-app-shell-aside-width);
+    }
+    /* APS-9: the aside beside the main region at the end edge, aside.width wide, its first line level with the main
+       content's, in view while the page scrolls and scrolling inside that height by itself. APS-18: its line is at
+       its start edge. */
+    :where(tanrei-app-shell) > :where(main, [role='main']) {
+      grid-column: main-start / aside-start;
+    }
+    :where(tanrei-app-shell) > :where([slot='aside']) {
+      grid-area: before / aside-start / footer / frame-end;
+      margin: 0;
+      border-block: 0;
+      border-inline-start: var(--_aps-line) solid var(--_aps-line-color);
+      padding-block: var(--tanrei-comp-app-shell-main-padding-block);
+      padding-inline: calc(var(--tanrei-comp-app-shell-aside-padding-inline) - var(--_aps-line)) max(var(--tanrei-comp-app-shell-aside-padding-inline), var(--_aps-inset-end));
+      position: sticky;
+      inset-block-start: var(--_aps-top);
+      align-self: start;
+      block-size: 0;
+      min-block-size: min(100%, var(--_aps-view));
+      margin-block-end: var(--_aps-footer, 0px);
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+  }
+  /* ── APS-15: `scroll="main"` — the frame is exactly the window, and the main region is its one scrolling view ── */
+  :where(tanrei-app-shell[scroll='main']) {
+    /* Nothing is kept over the top of the scrolling view: the header stands above it. */
+    --_aps-top: 0px;
+    block-size: calc(100vh - env(keyboard-inset-height, 0px));
+    block-size: calc(100dvh - env(keyboard-inset-height, 0px));
+    min-block-size: 0;
+    overflow: clip;
+  }
+  :where(tanrei-app-shell[scroll='main']) > :where(main, [role='main']) {
+    min-block-size: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  /* The navigation and an aside beside the main region are as tall as the row, and scroll inside it. */
+  :where(tanrei-app-shell[scroll='main']) > :where([slot='navigation']) {
+    position: static;
+    min-block-size: 100%;
+    margin-block-end: 0;
+  }
+  /* The navigation bar and the footer stay in place (APS-11, APS-13). */
+  :where(tanrei-app-shell[scroll='main']) > :where([slot='navigation-bar']) {
+    position: static;
+  }
+  /* An aside above or below the main region keeps its place beside the scrolling view; its space is its own. */
+  :where(tanrei-app-shell[scroll='main']) > :where([slot='aside']) {
+    margin-block: 0;
+    padding-block: calc((var(--tanrei-comp-app-shell-aside-gap) - var(--_aps-line)) / 2);
+  }
+  @media (width >= token(comp.app-shell.breakpoint.expanded)) {
+    :where(tanrei-app-shell[scroll='main']) > :where([slot='aside']) {
+      position: static;
+      min-block-size: 100%;
+      margin-block-end: 0;
+      padding-block: var(--tanrei-comp-app-shell-main-padding-block);
+    }
+  }
+
+  /* ── APS-18: gap — no line, and the same spaces. Read from the cascade by a style query; `data-separation` is
+     the element's word for it where the browser has none ───────────────────────────────────────────────────────── */
+  @container style(--_aps-separation: gap) {
+    :where(tanrei-app-shell) > :where([slot='aside'], [slot='footer']) {
+      --_aps-line: 0px;
+    }
+  }
+  :where(tanrei-app-shell[data-separation='gap']) > :where([slot='aside'], [slot='footer']) {
+    --_aps-line: 0px;
+  }
+
+  /* ── APS-10: a side sheet in the aside takes its own width and draws its own edge: no width, inset or line of the
+     frame's, in any class. One that presents itself over the content has no box here, and so takes no space ────── */
+  :where(tanrei-app-shell) > :where(tanrei-side-sheet[slot='aside']) {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  /* ── APS-17: the scroll offset. Until the element has measured the header, a small app bar's height while the
+     header is sticky; the page's scrolling view keeps that much clear above an anchor's target and a focused
+     element, and the navigation bar's height below ────────────────────────────────────────────────────────────── */
+  :where(:root):where(:has(tanrei-app-shell:not([scroll='main'], [header-position='static']) > [slot='header'])) {
+    --tanrei-app-shell-scroll-offset: var(--tanrei-comp-app-bar-container-height-small);
+    scroll-padding-block-start: var(--tanrei-app-shell-scroll-offset);
+  }
+  @media (width < token(comp.app-shell.breakpoint.medium)) {
+    :where(:root):where(:has(tanrei-app-shell:not([scroll='main']) > [slot='navigation-bar'])) {
+      --tanrei-app-shell-scroll-offset-end: var(--tanrei-comp-navigation-bar-container-height);
+      scroll-padding-block-end: var(--tanrei-app-shell-scroll-offset-end);
+    }
+  }
+
+  /* ── APS-26: forced colors — the system's colors fill the frame; the lines and the skip link's edge are the
+     system's text color ──────────────────────────────────────────────────────────────────────────────────────── */
+  @media (forced-colors: active) {
+    :where(tanrei-app-shell) {
+      --_aps-line-color: CanvasText;
+      background-color: Canvas;
+      color: CanvasText;
+    }
+    :where(tanrei-app-shell) > :where([slot='footer']) {
+      background-color: Canvas;
+    }
+    :where(tanrei-app-shell) > [slot='skip-link']:focus-visible::after {
+      border: var(--tanrei-comp-app-shell-outline-width) solid CanvasText;
+      background-color: Canvas;
+    }
+  }
+
+  /* ── Print: the content, not the frame's sticky parts ───────────────────────────────────────────────────────── */
+  @media print {
+    :where(tanrei-app-shell) > :where([slot='header'], [slot='navigation'], [slot='aside'], [slot='navigation-bar']) {
+      position: static;
+    }
+    :where(tanrei-app-shell) > [slot='skip-link'],
+    :where(tanrei-app-shell) > :where([slot='navigation'], [slot='navigation-bar']) {
+      display: none;
+    }
+  }
+}

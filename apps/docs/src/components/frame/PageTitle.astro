@@ -1,0 +1,105 @@
+---
+// The head of a page, drawn by Tanrei's page header (specs/page-header.spec.json) in place of the
+// framework's title: this component replaces Starlight's `PageTitle`. First in the main region:
+//
+//   the breadcrumbs   Tanrei's breadcrumbs (specs/breadcrumbs.spec.json), from the sidebar's own
+//                     hierarchy — the language's first page, the groups the page stands in, the page itself. A group
+//                     is a link where it has a page of its own (Components, Getting started) and plain text where it
+//                     has none. The page itself is the last level, not a link, `aria-current="page"`;
+//   the title         the page's own `h1`, with the id the framework's anchors know;
+//   the description   the page's `description` from its front matter, which until now only the head of the document
+//                     and the search carried. On a component's page it is that page's summary, in the reader's
+//                     language: the spec's own sentence is not printed a second time under it;
+//   the meta line     on a page with a `date` (an announcement): when it was published, as a `<time>` with its
+//                     machine-readable day, written in the page's language where the site is built (PGH-8).
+//
+// Under the head of a component's page stand the facts of its spec — category, token namespace, its level and,
+// where it is built from other components, their names, each a link to its page — as Tanrei's
+// description list (specs/description-list.spec.json), stacked in columns: a layout its stylesheet draws alone, so
+// the facts are in their final place before the element is defined.
+//
+// A component that others are built from says where ("Used in": every component whose `builtFrom` names it), and one
+// a list shows only on request (`listing`) leads with one line — Tanrei's Callout, between the head and
+// the facts — that says so and links to what most products place in its stead.
+// The level and that mark are also given to the search index as the page's own facts (`data-pagefind-meta`), which
+// the search's results say (components/frame/Search.astro).
+//
+// The page header's stylesheet and the breadcrumbs' draw all of it before their elements are defined
+// (styles/frame.css loads them); the elements add the landmark, the list and the folding of a trail that does not fit.
+// The id the framework gives the page's title (its constant is not exported): anchors to the top of a page name it.
+const PAGE_TITLE_ID = '_top';
+import { frameWords, homeHref, trail, type Entry } from './frame';
+import { localeBase, strings } from '../../lib/i18n';
+import { dateParts } from '../../lib/dated';
+import { aroundPlace, isNotFoundPage, levelFacts, listingFacts, specOfPage } from '../../lib/page-head';
+import Callout from '../Callout.astro';
+
+const route = Astro.locals.starlightRoute;
+const words = frameWords(Astro);
+const t = strings(route.lang);
+const { title, description } = route.entry.data;
+const published = route.entry.data.date ? dateParts(route.entry.data.date, route.lang) : undefined;
+const spec = specOfPage(route.id);
+const levelOf = spec && levelFacts(spec, route.lang, localeBase(Astro));
+const listingOf = spec && listingFacts(spec, localeBase(Astro));
+const [beforeInstead, afterInstead] = aroundPlace(t.listing.placedInstead, 'components');
+// What the search index keeps of the page beside its words: the level, and the mark of a component shown on request.
+// One fact to an element: the index reads everything after a key's colon as its value.
+const indexLevel = levelOf && `level:${levelOf.level}`;
+const indexOnRequest = listingOf?.onRequest ? `onrequest:${t.listing.advanced}` : undefined;
+const levels = route.hasSidebar ? trail(route.sidebar as unknown as Entry[]) : [];
+// The page that was not found has no head: the empty state in its main region holds its heading (components/NotFound.astro).
+const head = !isNotFoundPage(route.id);
+---
+
+{head && (
+<tanrei-page-header class="docs-page-header">
+  <tanrei-breadcrumbs label={words.breadcrumbs} overflow-label={words.hiddenLevels} data-pagefind-ignore>
+    <a href={homeHref(route)} data-icon="home">{words.home}</a>
+    {levels.map((level) => (level.href ? <a href={level.href}>{level.label}</a> : <span>{level.label}</span>))}
+    <span aria-current="page">{title}</span>
+  </tanrei-breadcrumbs>
+  <h1 id={PAGE_TITLE_ID}>{title}</h1>
+  {description && <p>{description}</p>}
+  {published && (
+    <div data-part="meta">
+      <span>{t.published} <time datetime={published.datetime}>{published.text}</time></span>
+    </div>
+  )}
+</tanrei-page-header>
+)}
+{listingOf?.onRequest && (
+  <Callout type="note" title={t.listing.advanced}>
+    {listingOf.placedInstead.length > 0 && (
+      <p>{beforeInstead}{listingOf.placedInstead.map((member, at) => (<>{at > 0 && ', '}{member.href ? <a class="tanrei-link" href={member.href}>{member.title}</a> : member.title}</>))}{afterInstead}</p>
+    )}
+  </Callout>
+)}
+{spec && (
+  <tanrei-description-list class="docs-page-facts" layout="stacked" columns="3" density="compact" separation="gap" data-pagefind-meta={indexLevel}>
+    <dl data-pagefind-meta={indexOnRequest}>
+      <div><dt>{t.category_}</dt><dd>{t.category[spec.category] ?? spec.category}</dd></div>
+      <div><dt>{t.tokens}</dt><dd><code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">{spec.tokens}</code></dd></div>
+      {levelOf && <div><dt>{t.level_}</dt><dd>{levelOf.level}</dd></div>}
+      {levelOf && levelOf.builtFrom.length > 0 && (
+        <div>
+          <dt>{t.builtFrom}</dt>
+          {/* One value: the members in the spec's order, a comma and a space between two, so that a reader and the search index read names and not one word. */}
+          <dd>{levelOf.builtFrom.map((member, at) => (<>{at > 0 && ', '}{member.href ? <a class="tanrei-link" href={member.href}>{member.title}</a> : member.title}</>))}</dd>
+        </div>
+      )}
+      {listingOf && listingOf.usedIn.length > 0 && (
+        <div>
+          <dt>{t.usedIn}</dt>
+          <dd>{listingOf.usedIn.map((member, at) => (<>{at > 0 && ', '}{member.href ? <a class="tanrei-link" href={member.href}>{member.title}</a> : member.title}</>))}</dd>
+        </div>
+      )}
+    </dl>
+  </tanrei-description-list>
+)}
+
+<script>
+  import '@tanrei/web/components/page-header';
+  import '@tanrei/web/components/breadcrumbs';
+  import '@tanrei/web/components/description-list';
+</script>

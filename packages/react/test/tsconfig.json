@@ -1,0 +1,5 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "noEmit": true, "declaration": false, "rootDir": "..", "jsx": "react-jsx", "allowImportingTsExtensions": true, "types": [], "lib": ["ES2022", "DOM", "DOM.Iterable"] },
+  "include": ["../src", "."]
+}

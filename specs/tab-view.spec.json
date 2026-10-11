@@ -1,0 +1,1005 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "tab-view",
+  "title": "Tab view",
+  "summary": "Shows the view of the selected tab under its own row of Tabs, or linked to a row placed elsewhere, and lets a person swipe from view to view with the tabs' indicator following the finger.",
+  "category": "navigation",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "tabs"
+  ],
+  "anatomy": [
+    {
+      "id": "tabs",
+      "description": "The row of tabs the Tab view draws above its container while it is not linked to a row placed elsewhere (TBV-16): a Tabs, whole (tab list, tabs, active indicator, underline and divider), drawn from the tabs' own tokens, with one tab for each panel, named and marked as the panel says. Linked to another row, the Tab view draws none (TBV-17).",
+      "optional": true
+    },
+    {
+      "id": "container",
+      "description": "The region that holds the panels, below the row when the Tab view draws one: as wide as the Tab view and as tall as the shown panel. It draws nothing of its own, takes the swipe, and clips the panels to its corners while they travel and blur. The row is outside it and is never moved, faded or blurred by a switch."
+    },
+    {
+      "id": "panel",
+      "description": "One view, matched to the tab of the same value. While the Tab view draws its own row, the panel also says what its tab shows (a label, an icon) and whether it is disabled. One panel is shown at rest; during a switch the old and the new panel are drawn in the same place, the new one over the old. Its content is the product's."
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus on a panel that holds nothing focusable, drawn inside the container's edge."
+    }
+  ],
+  "props": [
+    {
+      "name": "selected",
+      "type": "string",
+      "default": null,
+      "description": "The value of the selected tab, whose panel is shown. The Tab view keeps it equal to its tabs' selected, whether it draws them or is linked to them. null shows the panel of the tab the tabs select while theirs is null (the first enabled tab)."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "primary",
+        "secondary",
+        "tonal"
+      ],
+      "default": "primary",
+      "description": "The variant of the row the Tab view draws itself, with the Tabs' meaning: primary for the main views of a screen, secondary for views within one of them, tonal for the quiet row of a sample or a setting. A design system may add values to the tabs' axis, and the row takes them. Ignored while the Tab view is linked to a row placed elsewhere, which has its own.",
+      "axis": "tanrei.comp.tabs.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium"
+      ],
+      "default": "medium",
+      "description": "The size of the row the Tab view draws itself, with the Tabs' meaning: medium for the views of a screen, small for a row in a card's or a sample's header. A design system may add values to the tabs' axis, and the row takes them. Ignored while the Tab view is linked to a row placed elsewhere, which has its own.",
+      "axis": "tanrei.comp.tabs.size"
+    },
+    {
+      "name": "track",
+      "type": "boolean",
+      "default": null,
+      "description": "Whether the row the Tab view draws itself draws its track, with the Tabs' meaning: false draws none, true draws it, and null, the default, takes comp.tabs.track.visible, the system's choice. Ignored while the Tab view is linked to a row placed elsewhere, which has its own."
+    },
+    {
+      "name": "fullWidth",
+      "type": "boolean",
+      "default": false,
+      "description": "How the row the Tab view draws itself lays out its tabs, with the Tabs' meaning: false (hug) sizes each tab to its label and scrolls the row when they do not fit; true (fill) shares the row's width among the tabs. The Tab view itself is always as wide as its parent. Ignored while the Tab view is linked to a row placed elsewhere."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the row the Tab view draws itself: what the views are views of. Needed when a screen has more than one row of tabs. Ignored while the Tab view is linked to a row placed elsewhere, which is named by its own label."
+    },
+    {
+      "name": "tabs",
+      "type": "string",
+      "default": "",
+      "description": "Empty (the default): the Tab view draws its own row of tabs above its panels, one per panel. Set: the Tab view is linked to a Tabs placed elsewhere (in an app bar, a sticky header) and draws no row; those tabs name its panels, move between them without a swipe and draw their indicator where a swipe has brought it. How a platform names the link is in its mapping."
+    },
+    {
+      "name": "swipeable",
+      "type": "boolean",
+      "default": true,
+      "description": "Lets a person switch panels by dragging the shown panel sideways. False leaves the switch to the tabs alone, for panels whose content is itself dragged sideways (a map, a drawing surface)."
+    },
+    {
+      "name": "transition",
+      "type": "enum",
+      "values": [
+        "auto",
+        "slide",
+        "fade",
+        "none"
+      ],
+      "default": "auto",
+      "description": "The effect of switching views: the form in which the shown panel gives way to the next. slide: the panels travel, and fade and blur on the way, as the system's transition values say, and follow a swipe. fade: the two panels crossfade in place. none: the new panel is shown whole in one frame, and the row the Tab view draws puts its indicator on the new tab in that same frame (TBV-22, TBV-23). Auto takes comp.tab-view.motion.transition, the design system's answer (slide in the default system). Where motion is reduced slide is drawn as fade, and nothing is ever added to fade or none. It applies whether the Tab view draws its row or is linked to one; a linked row keeps its own transition."
+    },
+    {
+      "name": "group",
+      "type": "string",
+      "default": "",
+      "description": "The group of the row the Tab view draws itself, with the Tabs' meaning: Tab views and rows of tabs that name the same group show the same choice, and a view that has no panel of that value keeps its own. Empty (the default): the view's choice is its own. Ignored while the Tab view is linked to a row placed elsewhere, which names its own group."
+    },
+    {
+      "name": "rememberAs",
+      "type": "string",
+      "default": "",
+      "description": "The key under which the row the Tab view draws itself keeps a person's choice on their device and restores it before the view is first drawn, with the Tabs' meaning. Empty (the default): nothing is read or written. Ignored while the Tab view is linked to a row placed elsewhere, which names its own key."
+    }
+  ],
+  "items": [
+    {
+      "name": "panel",
+      "summary": "One view of the Tab view: the content shown while the tab with its value is selected, and, for the row the Tab view draws itself, what that tab shows.",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "The value of the tab that shows this panel. Unique within the Tab view; required."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The text of this panel's tab in the row the Tab view draws itself, and the accessible name of both the tab and the panel. Required there, even when labelHidden is true; not used while the Tab view is linked, where the linked row's own tab names the panel."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon (a glyph of the system's icon set) for this panel's tab in the row the Tab view draws itself. Give every panel an icon, or none. Not used while the Tab view is linked."
+        },
+        {
+          "name": "labelHidden",
+          "type": "boolean",
+          "default": false,
+          "description": "Draws this panel's tab as its icon alone and keeps label as its accessible name (an icon-only tab), in the row the Tab view draws itself. Not used while the Tab view is linked."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Makes this panel's tab disabled in the row the Tab view draws itself: a person cannot select it, and a swipe skips its panel. Not used while the Tab view is linked, where the linked row's own tab says whether it is disabled."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The user selected another panel; carries its value, which selected and the tabs' selected now hold. The Tab view announces every selection made on its own row and every swipe. While it is linked, a selection made on the linked tabs is announced by their own change instead, so every selection is announced once."
+    }
+  ],
+  "states": [
+    "enabled",
+    "focused",
+    "dragged"
+  ],
+  "behavior": [
+    {
+      "id": "TBV-1",
+      "text": "THE Tab view SHALL show the panel whose value is the value of its tabs' selected tab, its tabs being the row it draws itself (TBV-16) or the row it is linked to (TBV-17) (TAB-11: the first enabled tab while their selected is null), and hide every other panel; THE Tab view SHALL keep its own selected equal to its tabs' selected, and WHEN either of them is set THE Tab view SHALL set the other to the same value without emitting change.",
+      "verify": "Fixtures: each renders a Tab view 360 wide with the fixture's props, holding the fixture's panels in order; while the fixture leaves tabs empty the view draws its own row from them. A fixture that sets tabs renders the tabs fixture `primary` (Overview, Activity, Settings; 360 wide) above the view, its selected set to the fixture's, and links the view to it by that name (on a platform that links by an object, through a link made for the fixture). Each panel shows its content as body text (sys.typescale.body) inside sys.space.space200 of padding, which is the fixture's content, not the Tab view's."
+    },
+    {
+      "id": "TBV-2",
+      "text": "WHEN its tabs' selected changes while their indicatorOffset is 0 (the user selected a tab, by activating it or by releasing a drag across the row on it, TAB-1, TAB-12 and TAB-29, or the product set it) THE Tab view SHALL switch from the shown panel to the newly selected tab's panel as TBV-5 and TBV-6 say, in the form its transition names (TBV-22); WHILE it is linked THE Tab view SHALL NOT emit change for that selection, which the linked tabs have announced themselves, and WHILE it draws its own row it SHALL announce it as TBV-18 says. WHERE their selected changes because they follow a choice of their group that was made on another member, or one restored from storage, THE Tab view SHALL show the panel at once instead, as TBV-20 says."
+    },
+    {
+      "id": "TBV-3",
+      "text": "WHILE swipeable is true, WHEN the user drags the shown panel by touch or pen past the platform's touch slop, further sideways than up or down, THE Tab view SHALL take the drag and track it with a progress p, the drag's sideways distance divided by the width of its container and kept between 0 and 1: toward the next enabled tab of its tabs when the drag moves toward the start edge, and toward the previous enabled tab when it moves toward the end edge. In every frame of the drag THE Tab view SHALL draw the switch to that tab's panel at p (TBV-5) and set its tabs' indicatorOffset to p toward the next tab or to −p toward the previous one; WHERE there is no enabled tab in the drag's direction THE Tab view SHALL leave the panel at rest and indicatorOffset at 0. A drag that is further up or down than sideways when it passes the slop SHALL be left to vertical scrolling for its whole length. A drag that starts on the row the Tab view draws itself is the row's (its tabs are pressed, its active indicator follows the drag, TAB-28, and it scrolls sideways itself) and SHALL NOT be taken; WHILE its tabs follow a drag of their own, in its own row or in the linked row, THE Tab view SHALL take no drag and SHALL leave the shown panel at rest until that drag's release selects a tab (TBV-2): the indicator changes continuously under the finger, but which panel is shown is not decided before the release."
+    },
+    {
+      "id": "TBV-4",
+      "text": "WHEN the user releases a drag the Tab view has taken THE Tab view SHALL commit it if p is at least 0.5 or the release is a fling toward the tab, and cancel it otherwise, a fling away from the tab always cancelling; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond. To commit THE Tab view SHALL set its selected and its tabs' selected to that tab's value and emit change exactly once with it, re-express indicatorOffset from the new tab (1 − p toward the tab it left) in the same frame, and finish the switch while bringing indicatorOffset to 0 over comp.tab-view.motion.switch-duration with comp.tab-view.motion.switch-easing, starting from where the release left them. To cancel THE Tab view SHALL bring the switch back to p = 0 and indicatorOffset to 0 over the same motion and emit nothing."
+    },
+    {
+      "id": "TBV-5",
+      "text": "WHILE a switch from panel A to panel B is at progress p THE Tab view SHALL draw both panels in the same place, B over A, with a travel D of comp.tab-view.transition.distance plus comp.tab-view.transition.distance-fraction times the width of its container: A moved p × D toward the edge it leaves by (the start edge when B's tab comes after A's among its tabs, the end edge otherwise), at an opacity of 1 − p × (1 − comp.tab-view.transition.opacity) and blurred by p × comp.tab-view.transition.blur; B moved (1 − p) × D from the opposite edge, at an opacity of 1 − (1 − p) × (1 − comp.tab-view.transition.opacity) and blurred by (1 − p) × comp.tab-view.transition.blur. The travel SHALL follow p as eased, an overshoot included; the opacity and the blur SHALL follow p clamped between 0 and 1. THE Tab view SHALL clip both panels to its container, its corners rounded by comp.tab-view.container.shape, so that neither travel nor blur draws outside it or over the row it draws itself; WHERE a platform cannot blur a view THE Tab view SHALL draw the travel and the fade without the blur and say so in its README.",
+      "verify": "Test frames with motion not reduced, under the default system: a drag held at p = 0.5 toward the next tab draws both panels at half opacity, 20 from rest in opposite directions and each blurred by half of comp.tab-view.transition.blur, with the tabs' active indicator halfway between the two tabs and the view's own row neither moved nor blurred; at p = 0 and p = 1 only one panel is visible, at rest and sharp."
+    },
+    {
+      "id": "TBV-6",
+      "text": "WHEN a switch starts from a selection on its tabs or by the product (TBV-2) THE Tab view SHALL run p from 0 to 1 over comp.tab-view.motion.switch-duration with comp.tab-view.motion.switch-easing; WHEN the selection changes again, or the user starts a drag, before a switch has ended THE Tab view SHALL end that switch at once, as if it had finished, and start from the panel it switched to. WHEN the Tab view first appears, or its panels are added, removed or given other values, or it is linked or unlinked (TBV-17), THE Tab view SHALL show the selected tab's panel at once, without a switch."
+    },
+    {
+      "id": "TBV-7",
+      "text": "WHERE motion is reduced THE Tab view SHALL draw every switch as TBV-5 says with comp.tab-view.transition.distance, comp.tab-view.transition.distance-fraction and comp.tab-view.transition.blur taken as 0, so that only the fade is left: during a drag the panels crossfade with p, and a switch from a selection, and the rest of a switch after a release, SHALL run over comp.tab-view.motion.fade-duration with comp.tab-view.motion.fade-easing. Its tabs' indicatorOffset SHALL still follow the drag, which the person's finger moves, and SHALL return to 0 at once on release."
+    },
+    {
+      "id": "TBV-8",
+      "text": "THE Tab view SHALL NOT take a drag that starts on its own row or while its tabs follow a drag of their own (TBV-3), on content that handles sideways drags itself (a region that scrolls sideways, a slider, a carousel, a text field, selected text or its handles) or that is made by mouse, trackpad or wheel, and WHILE swipeable is false THE Tab view SHALL take no drag at all; in every such case the panels switch only through the tabs (TBV-2)."
+    },
+    {
+      "id": "TBV-9",
+      "text": "THE Tab view SHALL expose the shown panel with the tab panel role, named by its tab and associated with it where the platform can express that (the tab controls the panel; the panel is labelled by the tab), whether the tab is in the row it draws itself or in the row it is linked to, SHALL hide every other panel from assistive technology and from focus, including a panel that a switch or a drag still draws, SHALL move that exposure to the new panel when selected changes rather than when the switch's drawing ends, and SHALL make a shown panel with no focusable content itself focusable so that Tab reaches it."
+    },
+    {
+      "id": "TBV-10",
+      "text": "WHEN a switch hides the panel that holds keyboard focus THE Tab view SHALL move focus to its tabs' selected tab. WHEN a panel with no focusable content receives keyboard focus THE Tab view SHALL show the focus ring inside the container's edge, its corners following comp.tab-view.container.shape, as sys.behavior.focus-style names (ring or glow), without animation; focus gained by pointer or touch SHALL NOT show it; a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "TBV-11",
+      "text": "THE Tab view SHALL be as wide as its parent and, unless the product sizes it through the platform's own sizing, as tall as the row it draws itself (none while it is linked) plus its shown panel; WHILE a switch draws two panels its container SHALL be as tall as the taller of them, and SHALL take the new panel's height at once when the switch ends. THE Tab view SHALL place its own row at its top edge, across its whole width, with the container directly below it and no space between them. WHILE the product sizes it THE Tab view SHALL keep its own row at its own height at the top, and make each panel fill the rest and scroll up and down inside it, below the row."
+    },
+    {
+      "id": "TBV-12",
+      "text": "THE Tab view SHALL keep a hidden panel and its state (its scroll position, what was typed into it), so that it is shown as it was left, and SHALL NOT discard or recreate a panel because it is hidden, nor because its tab in the row it draws itself changes."
+    },
+    {
+      "id": "TBV-13",
+      "text": "WHEN the layout direction is right-to-left THE Tab view SHALL mirror the drag and the travel with the reading order: a drag toward the start edge, which is the right, moves toward the next tab, and a panel leaves by the start edge when the tab it gives way to comes after its own; THE Tab view SHALL NOT mirror a panel's content. Its own row SHALL mirror as TAB-21 says."
+    },
+    {
+      "id": "TBV-14",
+      "text": "WHEN tabs names a row that is not there (on a platform that links by an object, a link that no row uses) THE Tab view SHALL show the panel whose value equals selected (the first panel while selected is null), take no drag, expose no panel with the tab panel role, draw no row of its own (TBV-17), and in debug builds report that its panels have no tabs; WHEN the selected tab has no panel THE Tab view SHALL show none and in debug builds report the value. WHILE the Tab view draws its own row and holds no panel THE Tab view SHALL draw that row with no tab and in debug builds report that it has no panels."
+    },
+    {
+      "id": "TBV-15",
+      "text": "WHEN a panel's value is empty, repeats another panel's, or, while the Tab view is linked, is the value of no tab of the linked row THE Tab view SHALL still hold it, show only the first panel with a given value, give its own row no tab for any other, and in debug builds report the panel; WHEN the linked row holds panels of its own THE Tab view SHALL show and associate its own panels in their place, keep the tabs' panels hidden, and in debug builds report the tabs' panels."
+    },
+    {
+      "id": "TBV-16",
+      "text": "WHILE tabs is empty THE Tab view SHALL draw its own row of Tabs above its container (TBV-11) and be linked to that row as it would be to a row placed elsewhere: one tab for each panel that TBV-15 shows, in the panels' order, whose value, label, icon, labelHidden and disabled are the panel's; the row's variant, size, track, fullWidth, label, group and rememberAs SHALL be the Tab view's own, its transition what TBV-23 says, and its selected the Tab view's selected. The row SHALL be a Tabs in every respect, drawn from the tabs' tokens of its variant and size with every TAB behaviour (among them the press answer of TAB-8 to TAB-10, the keyboard of TAB-12, the names of TAB-13 and TAB-22, and the indicator of TAB-17 and TAB-26), and SHALL change in the same frame as the panels it is drawn from are added, removed, reordered or given another value, label, icon, labelHidden or disabled.",
+      "verify": "Fixtures `default` to `tall-panel` draw the row from their panels; `secondary-fill`, `icons` and `disabled-tab` show that the view's variant, fullWidth and label and each panel's icon and disabled reach the row. A test gives a panel another label and icon and sees its tab change in the same frame, the panel's content and scroll position kept (TBV-12)."
+    },
+    {
+      "id": "TBV-17",
+      "text": "WHILE tabs names a row THE Tab view SHALL draw no row of its own, whether or not the named row is there (TBV-14), and SHALL use none of its variant, size, track, fullWidth, label, group and rememberAs or of its panels' label, icon, labelHidden and disabled, which the linked row's own props and tabs replace; WHEN tabs names a row while variant, size, track, fullWidth, label, group or rememberAs differ from their defaults THE Tab view SHALL in debug builds report that they apply only to a row it draws itself. WHEN tabs changes from empty to a row, or back, THE Tab view SHALL remove or draw its own row at once, keep its selected (giving it to the newly linked row, or taking that row's while its own is null) and show the selected tab's panel at once (TBV-6)."
+    },
+    {
+      "id": "TBV-18",
+      "text": "WHILE the Tab view draws its own row, WHEN the user selects another tab on that row (TAB-1, TAB-12, TAB-29) THE Tab view SHALL set its selected to that tab's value and emit change exactly once with it, in the same frame as the row sets its own selected, and SHALL NOT let the row's own change reach the product as a second announcement; together with TBV-4 every selection a person makes on a Tab view with its own row, by a tab or by a swipe, SHALL be announced once, by the Tab view.",
+      "verify": "Test: a listener on the Tab view's parent hears exactly one change for a tab tapped on the view's own row, one for each arrow key that selects a tab on it, one for a drag across the row released on another tab, one for a committed swipe, and none for a selection set by the product, for a cancelled swipe or for a drag across the row that returns to the selected tab."
+    },
+    {
+      "id": "TBV-19",
+      "text": "THE Tab view SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the Tab view is shown THE Tab view SHALL draw itself for the new direction at once, without a motion of its own, keeping the selected panel and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "TBV-20",
+      "text": "WHEN its tabs' selected changes because their group's choice was made on another member or restored from storage (TAB-36, TAB-38, TAB-39) THE Tab view SHALL show the newly selected tab's panel at once, with none of the travel, fade and blur of TBV-5 and without the motion of TBV-6 or TBV-7, SHALL take that panel's height in the same frame (TBV-11), SHALL keep the panel it hides and its state (TBV-12), SHALL move the panels' exposure to assistive technology in that frame (TBV-9), and SHALL emit no change. WHERE that hides the panel that holds keyboard focus THE Tab view SHALL move focus to its tabs' selected tab as TBV-10 says, without scrolling anything to show it. WHERE the Tab view follows a swipe when the choice changes THE Tab view SHALL end the swipe without committing it, emit nothing for it, and show the chosen panel at rest. THE Tab view a person selected on SHALL switch as TBV-2 and TBV-6 say and announce the selection once (TBV-18, or the linked tabs' change).",
+      "verify": "Fixtures `shared-choice` (Web, React, SwiftUI, Flutter; Flutter selected; panels of one, two, five and two lines of text at 360 wide, more or less) and `shared-choice-lacking` (Web, React; React selected) name the group the tabs' fixtures of the same ids name. A test stages the two one under the other with motion not reduced and selects Web on the first: in the next frame the second shows its Web panel whole, at rest, sharp and at full opacity, as tall as that panel, while the first is part of the way through its switch; the second has emitted nothing. Selecting SwiftUI on the first leaves the second on its panel."
+    },
+    {
+      "id": "TBV-21",
+      "text": "WHEN a person commits a swipe (TBV-4) on a Tab view whose tabs are a member of a group and, in following that choice, other members change the size of what lies before the Tab view in a region that scrolls, THE Tab view SHALL keep its container where the person is using it, as TAB-40 says of a row: in the frame that first draws the new choice the container's top edge SHALL be at the place in the window that it had in the frame before, the scroll positions of the regions it scrolls in having been moved by the difference at once and without a scrolling motion, as far as each region can scroll. A selection made on a tab SHALL be kept in place by the row (TAB-40), whether the Tab view drew that row or is linked to it.",
+      "verify": "Test as TAB-40's, with a committed swipe on the eighth view in place of a tap on its tab: the top edge of its container is at the same window coordinate in the frame before the release settles the choice and in the frame after."
+    },
+    {
+      "id": "TBV-22",
+      "text": "THE Tab view SHALL draw every switch between two panels in the form its transition names: the name transition gives, or, WHILE transition is auto, the name comp.tab-view.motion.transition holds (slide, fade or none); WHEN transition names a value the Tab view does not define THE Tab view SHALL treat it as auto and in debug builds report it. WHILE the form is slide THE Tab view SHALL switch as TBV-3 to TBV-6 say. WHILE the form is fade THE Tab view SHALL draw every switch as TBV-5 says with comp.tab-view.transition.distance, comp.tab-view.transition.distance-fraction, comp.tab-view.transition.blur and comp.tab-view.transition.opacity all taken as 0, so that the two panels crossfade in place: a switch from a selection, and the rest of a switch after a swipe is released, SHALL run over comp.tab-view.motion.fade-duration with comp.tab-view.motion.fade-easing, and during a swipe the panels SHALL crossfade with p (TBV-3). WHILE the form is none THE Tab view SHALL show the newly selected tab's panel whole in the frame the selection is made, with none of the travel, fade and blur of TBV-5 and no motion of TBV-6, SHALL take that panel's height in the same frame (TBV-11), SHALL keep the panel it hides and its state (TBV-12) and SHALL move the panels' exposure and keyboard focus as TBV-9 and TBV-10 say — the drawing TBV-20 gives a choice made elsewhere; a swipe SHALL still be taken while swipeable is true (TBV-3), SHALL leave the shown panel at rest for its whole length while its tabs' indicatorOffset follows the finger, and WHEN it is released SHALL be committed or cancelled as TBV-4 decides, the new panel shown at once and indicatorOffset brought to 0 at once. In every form THE Tab view SHALL select, emit and announce as it does under slide (TBV-4, TBV-18): the form changes what is drawn between two panels and nothing else.",
+      "verify": "Test the fixture no-transition: press Activity and read the first frame after the press — the Activity panel is shown at rest at full opacity, the Overview panel is hidden, the container has the new height and the row's indicator is on Activity; no transition or animation runs on a panel. Swipe toward Activity past half the width and release: the panel does not move during the swipe, the row's indicator follows the finger, and the frame after the release shows Activity. Test fade: in the middle of a switch both panels are in place, neither moved nor blurred, and their opacities add to 1; the row's indicator slides. Test slide under a system that sets comp.tab-view.motion.transition to none: the panels travel."
+    },
+    {
+      "id": "TBV-23",
+      "text": "WHERE motion is reduced THE Tab view SHALL draw the form slide as TBV-7 says, the form fade as TBV-22 says, and the form none as none: reduced motion SHALL never add a motion that transition took away. WHILE the Tab view draws its own row (TBV-16) and the form is none, THE Tab view SHALL give that row the tabs' transition none (TAB-43), so that the indicator is on the new tab in the frame the new panel is shown and nothing is left traveling over a view that has already changed; WHILE the form is slide or fade the row's transition SHALL be auto, the tabs' own answer (comp.tabs.motion.transition). THE Tab view SHALL NOT set the transition of a row it is linked to (TBV-17), which has its own. WHEN transition changes while a switch is drawn THE Tab view SHALL end that switch at once, as if it had finished (TBV-6), and SHALL draw the next one in the new form; changing transition SHALL NOT change selected, the shown panel, keyboard focus or what is emitted.",
+      "verify": "Test the fixture tonal-no-track-no-transition: the view's own row has transition none, and a selection moves its indicator in one frame. Test fade and slide: the row's transition is auto. Test no-transition with reduced motion emulated: nothing fades. Test default with reduced motion emulated: the panels crossfade, as before."
+    }
+  ],
+  "accessibility": {
+    "role": "tabpanel",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus from the selected tab (in the Tab view's own row, or in the linked row) into the shown panel (its first focusable element, or the panel itself when it holds none), and back."
+      },
+      {
+        "keys": "Right Arrow / Left Arrow, Home / End (on a tab)",
+        "action": "Select another tab (TAB-12), and the Tab view switches to its panel. The Tab view adds no keys of its own: inside a panel the arrow keys belong to its content."
+      }
+    ],
+    "labeling": "The row the Tab view draws itself is a tab list named by the Tab view's label, each tab named by its panel's label. Each panel is named by the tab of the same value, in the Tab view's own row or in the linked row, and each tab controls its panel. The Tab view itself is not named: it has no role of its own beyond its row and its panels.",
+    "minimumTarget": true,
+    "notes": [
+      "The Tab view has no target of its own: its own row's tabs meet the minimum target as every tab does (TAB-5), and its panels hold the product's controls, which meet it themselves.",
+      "The swipe is never the only way (WCAG 2.5.1): every panel is reached by a single tap on its tab, and by the arrow keys on the tabs. With a screen reader running, a one-finger swipe belongs to the reader; the tabs remain the way to switch panels.",
+      "The swipe of the view and the drag across its tabs are one gesture in two places (TBV-3, TBV-4; TAB-28 to TAB-30): the tabs' active indicator follows the finger, the selection is made on release, from halfway or by a fling, a cancelled gesture returns the indicator, nothing is announced before the release, and under reduced motion the indicator still follows the finger and lands at once. They differ in reach. A swipe of the view moves to the neighbouring panel, and the panels travel with the finger. A drag across the row can pass several tabs, so the panels wait: the shown panel stays at rest during the drag, and the release switches to the chosen tab's panel as any selected tab does (TBV-2, TBV-6), its switch and the indicator's settling running over equal times.",
+      "One declaration makes the tab and its view: while the Tab view draws its own row, each panel carries its tab's label, icon, labelHidden and disabled, so the tabs and the panels cannot fall out of step. Its row is a Tabs, not a look-alike: the same tokens, the same variants and the same behaviours, so a system that restyles the tabs restyles the Tab view's row too.",
+      "Linked, for tabs placed elsewhere: a product whose tabs sit in a top app bar or a sticky header, apart from their content, sets tabs to name that row, and the Tab view draws none. The linked row names the panels, and its own props decide its look. The Tab view must then follow its tabs in reading order, so that Tab moves from the selected tab into the panel; a Tab view with its own row meets that by construction.",
+      "Selection belongs to the Tab view and its tabs together: they hold the same selected, and each selection is announced once. With its own row, the Tab view announces every selection (TBV-18). Linked, the component the person used announces it: the linked tabs' change for a tab, the Tab view's change for a swipe; a product that keeps the selection itself updates it from both.",
+      "The panels' role, name and association are the Tab view's; the tabs' own panels (TAB-13) are for a row without a Tab view. Web: `tanrei-tab-panel` children of `tanrei-tab-view` get role tabpanel, aria-labelledby and the tab's aria-controls, and the view's own row is in the same tree as its panels so that these references resolve. SwiftUI, Compose, Flutter and React Native have no association between a tab and its panel; there each panel is named by its tab (Flutter exposes its tab panel role) and follows the row in reading order, and each README says so.",
+      "A panel that is not shown stays in place, hidden, with its state. A product whose panels are costly renders their content when their tab is first selected; the Tab view has no lazy mode of its own yet (it can be added as a prop without breaking this spec).",
+      "A tab of the Tab view's own row carries what a tab of the Tabs carries, and nothing more: the Tabs have no badge, so neither does a panel. A product that marks a tab with a badge writes its row itself and links it; a badge on the Tabs would reach the panel as one more tab prop.",
+      "Tab view is not a carousel and not a pager: it shows one panel at a time, one per tab, and a person moves one panel per swipe. A row of items to browse belongs to the carousel.",
+      "How a switch looks is a value decision of the active design system (tokens.md): a short travel with a fade and a blur by default, a full-width page turn in a system that pages.",
+      "A Tab view in a group (group) is the usual home of a shared choice: the same sample in several languages or platforms, many times on one page. Its own row is the member (TBV-16), so everything the Tabs say of a group holds: the choice is matched by value, the views that follow change silently and at once and keep their hidden panels' state (TBV-20), the row the person used stays where it is on the screen (TAB-40, TBV-21), and remembering is off unless the product names a key (TAB-39).",
+      "Panels of unequal height are the normal case for samples, and the view is as tall as its shown panel (TBV-11). What follows a view therefore moves when its panel changes; what a person is using does not. A product that wants no movement at all below a view sizes the view itself, and the panels then scroll inside it (TBV-11).",
+      "The effect of switching views has two parts with two owners: the panels' change is the Tab view's (transition: slide, fade or none; TBV-22), and the indicator's travel to the new tab is the row's (the tabs' transition: slide or none; TAB-43). Set on a Tab view that draws its row, none covers both (TBV-23), so that \"no effect\" means that nothing moves; fade and slide leave the row to the system. A row placed by the product, linked or alone, is set by its own prop.",
+      "transition changes what is drawn and never what is told: the selection, the panel's exposure and the announcement are made in the same frame in every form (TBV-9, TBV-22). None is the calm choice for panels that are read rather than watched — a code sample in several languages, a table in several units — and for a page that holds many views sharing one choice.",
+      "Under fade the panels finish (comp.tab-view.motion.fade-duration) before the row's indicator lands (comp.tabs.motion.indicator-duration), as they do where motion is reduced; the rule that the switch and the indicator land together holds for slide.",
+      "A swipe under none still switches panels and still shows the finger its progress, on the row's indicator; the panels wait for the release. A product that wants no swipe sets swipeable to false, which is a separate decision."
+    ]
+  },
+  "tokens": "comp.tab-view",
+  "fixtures": [
+    {
+      "id": "default",
+      "props": {
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "second-selected",
+      "props": {
+        "label": "Project",
+        "selected": "activity"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "secondary-fill",
+      "props": {
+        "variant": "secondary",
+        "fullWidth": true,
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "icons",
+      "props": {
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview",
+            "icon": "dashboard"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity",
+            "icon": "history"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "disabled-tab",
+      "props": {
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "billing",
+            "label": "Billing",
+            "disabled": true
+          },
+          "content": "Invoices, payment methods and the plan's limits."
+        }
+      ]
+    },
+    {
+      "id": "tall-panel",
+      "props": {
+        "label": "Project",
+        "selected": "settings"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          },
+          "content": "Notifications, members and billing for this project. Choose who is told about deployments and failed checks, invite people to the project or remove them, and change the plan the project is billed on. Changes apply to everyone in the project."
+        }
+      ]
+    },
+    {
+      "id": "linked",
+      "props": {
+        "tabs": "project-tabs"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "missing-panel",
+      "props": {
+        "tabs": "project-tabs",
+        "selected": "activity"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "shared-choice",
+      "props": {
+        "label": "Platform",
+        "selected": "flutter",
+        "group": "fixture-platform"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "web",
+            "label": "Web"
+          },
+          "content": "Add the element to the page."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "react",
+            "label": "React"
+          },
+          "content": "Import the component from the React package and render it. It takes the same props as the element, in camel case."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "swiftui",
+            "label": "SwiftUI"
+          },
+          "content": "Add the Swift package to the project, import the module and place the view in a body. Its label is a string or a view of your own, its action a closure, and its look follows the system the environment carries. Nothing else is needed: the tokens are compiled into the package."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "flutter",
+            "label": "Flutter"
+          },
+          "content": "Add the package to pubspec.yaml and place the widget in a build method. Its look follows the nearest theme."
+        }
+      ]
+    },
+    {
+      "id": "shared-choice-lacking",
+      "props": {
+        "label": "Platform",
+        "selected": "react",
+        "group": "fixture-platform"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "web",
+            "label": "Web"
+          },
+          "content": "Add the element to the page."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "react",
+            "label": "React"
+          },
+          "content": "Import the component from the React package and render it. It takes the same props as the element, in camel case."
+        }
+      ]
+    },
+    {
+      "id": "tonal",
+      "props": {
+        "variant": "tonal",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "primary-small",
+      "props": {
+        "size": "small",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "slide",
+      "props": {
+        "transition": "slide",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "fade",
+      "props": {
+        "transition": "fade",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "no-transition",
+      "props": {
+        "transition": "none",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          },
+          "content": "Three deployments this week. The last one finished two hours ago."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "activity",
+            "label": "Activity"
+          },
+          "content": "Kenji merged the pricing page. Aiko opened two issues."
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          },
+          "content": "Notifications, members and billing for this project."
+        }
+      ]
+    },
+    {
+      "id": "tonal-no-track-no-transition",
+      "props": {
+        "variant": "tonal",
+        "track": false,
+        "transition": "none",
+        "label": "Platform"
+      },
+      "items": [
+        {
+          "kind": "panel",
+          "props": {
+            "value": "web",
+            "label": "Web"
+          },
+          "content": "<tanrei-button label=\"Save\"></tanrei-button>"
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "react",
+            "label": "React"
+          },
+          "content": "<Button label=\"Save\" />"
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "swiftui",
+            "label": "SwiftUI"
+          },
+          "content": "TanreiButton(\"Save\") { save() }"
+        },
+        {
+          "kind": "panel",
+          "props": {
+            "value": "compose",
+            "label": "Compose"
+          },
+          "content": "TanreiButton(onClick = ::save) { Text(\"Save\") }"
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-tab-view",
+      "props": {
+        "selected": "value",
+        "variant": "variant",
+        "fullWidth": "fullWidth",
+        "label": "label",
+        "tabs": "tabs",
+        "swipeable": "noSwipe",
+        "group": "group",
+        "rememberAs": "rememberAs",
+        "size": "size",
+        "track": "track",
+        "transition": "transition"
+      },
+      "events": {
+        "change": "change"
+      },
+      "items": {
+        "panel": {
+          "name": "tanrei-tab-panel",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "disabled"
+          },
+          "notes": "The same element the tabs' own panels are: `<tanrei-tab-panel value=\"overview\" label=\"Overview\" icon=\"dashboard\">`, a child of `tanrei-tab-view`, with `label-hidden` and `disabled` attributes, as `tanrei-tab` has them. label, icon, label-hidden and disabled are read only by a `tanrei-tab-view` that draws its own row; a panel of a `tanrei-tabs`, or of a linked view, ignores them."
+        }
+      },
+      "notes": "Its own row: `<tanrei-tab-view label=\"Project\">` with `tanrei-tab-panel` children, and the attributes `variant` and `full-width` for the row. The view draws its row as a `tanrei-tabs` element of its own, placed as its first light-DOM child (in a `tabs` slot above the container) and marked as the view's, with one `tanrei-tab` per panel, and links itself to it as to any row. It is in the light DOM, not the shadow root, so that the tab's aria-controls and the panel's aria-labelledby point within one tree; the product does not edit it. The row's `change` stops at the view, which fires its own (TBV-18). Linked: `<tanrei-tabs id=\"project-tabs\">` … `</tanrei-tabs>` `<tanrei-tab-view tabs=\"project-tabs\">`: `tabs` is the id of a `tanrei-tabs` in the same tree (as `popovertarget` is), and the `tabsElement` property sets the element itself; either one set means the view draws no row, even while the element is missing. The selected panel is the view's `value`, kept equal to its tabs' `value` in both directions; the view sets its own `value` before firing `change`, as a native control does. `no-swipe` is the inverse of swipeable, since an HTML boolean attribute defaults to false. The view writes its tabs' `indicatorOffset` property during a drag and its settle. The drag is Pointer Events on touch and pen with `touch-action: pan-y` on the container (not on the row), so vertical scrolling stays the browser's; the travel is a transform, the fade `opacity` and the blur `filter: blur()`, on the two panels only while a switch runs. The panels keep their place in the light DOM; a hidden one has `hidden` and `inert`. A shared choice: `group` and `remember-as` are attributes with the properties `group` and `rememberAs`, and the view writes both onto the `tanrei-tabs` it draws, which is the member of the group; a linked view has neither, and its `tanrei-tabs` carries them. A view that follows writes its panels' `hidden` and `inert` in the frame its row changes and starts no switch. For a committed swipe (TBV-21) the view measures and corrects its container's top as its row does for a tab (TAB-40). Sixty views of one group cost one read of `localStorage`, one write for a choice, and one measured element. `size` and `track` are forwarded to the `tanrei-tabs` the view draws, as `variant` is (`track` is true, false or null, with the attribute forms of the tabs'). `transition` is an attribute and a property (`auto`, `slide`, `fade`, `none`); auto reads `--tanrei-comp-tab-view-motion-transition`. fade runs the code path of `prefers-reduced-motion` (TBV-7) with the opacity end taken as 0; none runs the code path of a choice that came from the group (TBV-20) and sets `transition=\"none\"` on the view's own row, removing it again when the form is no longer none."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiTabView",
+      "props": {
+        "selected": "selection",
+        "variant": "variant",
+        "fullWidth": "fullWidth",
+        "label": "label",
+        "tabs": "link",
+        "swipeable": "swipeable",
+        "group": "selection",
+        "rememberAs": "selection",
+        "size": "size",
+        "track": "track",
+        "transition": "transition"
+      },
+      "events": {
+        "change": "selection"
+      },
+      "items": {
+        "panel": {
+          "name": "TanreiTabPanel",
+          "props": {
+            "value": "tag",
+            "label": "title",
+            "icon": "icon",
+            "labelHidden": "labelStyle",
+            "disabled": "disabled"
+          },
+          "notes": "`TanreiTabPanel(_ title:, icon:) { … }.tag(value)` in the view's builder, as the tabs' `TanreiTab` is; `.labelStyle(.iconOnly)` is labelHidden and `.disabled(_:)` is disabled. A linked view's panels may omit the title: `TanreiTabPanel { … }.tag(value)`."
+        }
+      },
+      "notes": "Its own row: `TanreiTabView(selection: Binding<V>, variant:, fullWidth:, label:, swipeable:) { TanreiTabPanel … }`; the view draws a `TanreiTabs` above its panels and links it through a `TanreiTabLink` of its own. Linked: `TanreiTabView(selection:, link: TanreiTabLink, swipeable:) { … }`, a second initializer without the row's parameters, so that a view cannot be given both; the link is an observable object the product creates once and passes to its tabs too (`TanreiTabs(…, link:)`), through which the tabs report their order and disabled tabs and read the indicator offset. Writing the binding is change: a tab on the view's own row and a swipe write it; a linked row writes it through its own binding. The drag is a `DragGesture` on the panels that yields to vertical scrolling; the blur is `.blur(radius:)`, converted from the token's standard deviation. SwiftUI's page-style `TabView` is a full-width pager without a tab row, so it is not this component. A shared choice has no parameter here: views given the same `Binding` show the same choice, and the product remembers it in `@AppStorage`, as the tabs' mapping says. A view whose selection changes that way switches as TBV-2 says for a selected the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`.auto`, `.slide`, `.fade`, `.none`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiTabView",
+      "props": {
+        "selected": "selectedValue",
+        "variant": "variant",
+        "fullWidth": "fullWidth",
+        "label": "contentDescription",
+        "tabs": "link",
+        "swipeable": "swipeable",
+        "group": "selectedValue",
+        "rememberAs": "selectedValue",
+        "size": "size",
+        "track": "track",
+        "transition": "transition"
+      },
+      "events": {
+        "change": "onSelectedValueChange"
+      },
+      "items": {
+        "panel": {
+          "name": "TanreiTabPanel",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiTabPanel(value, label, icon, labelHidden, enabled) { … }` called in the `TanreiTabView { }` content, a scope that collects the panels (as a lazy list's content does) so that the row can be drawn from their labels before a panel is composed. `enabled` is the inverse flag."
+        }
+      },
+      "notes": "Its own row: `TanreiTabView(selectedValue, onSelectedValueChange, modifier, variant, fullWidth, contentDescription, swipeable) { TanreiTabPanel(…) { … } }`; the view composes a `TanreiTabs` above its panels, linked through a link it remembers itself. Linked: an overload `TanreiTabView(selectedValue, onSelectedValueChange, link, modifier, swipeable) { … }` without the row's parameters, with `val link = rememberTanreiTabLink()` passed to `TanreiTabs(…, link = link)` too; the tabs read the indicator offset from it as a frame-time lambda, so a drag does not recompose the row. State hoisting: the caller keeps `selectedValue`; with its own row the view calls `onSelectedValueChange` for a tab and for a swipe, and linked the caller moves it from both components' callbacks. Not `HorizontalPager`: the travel is a short offset, not a scroll, and hidden panels stay composed (TBV-12). The blur is `Modifier.blur`, which draws nothing below Android 12; there the switch has no blur, as the README says. A shared choice has no parameter here: views given the same hoisted `selectedValue` show the same choice, and the caller remembers it in its own store, as the tabs' mapping says. A view whose `selectedValue` changes that way switches as TBV-2 says for a selected the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`Auto`, `Slide`, `Fade`, `None`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiTabView",
+      "props": {
+        "selected": "value",
+        "variant": "variant",
+        "fullWidth": "isScrollable",
+        "label": "semanticLabel",
+        "tabs": "link",
+        "swipeable": "swipeable",
+        "group": "value",
+        "rememberAs": "value",
+        "size": "size",
+        "track": "track",
+        "transition": "transition"
+      },
+      "events": {
+        "change": "onChanged"
+      },
+      "items": {
+        "panel": {
+          "name": "TanreiTabPanel",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiTabPanel<T>(value:, label:, icon:, labelHidden:, enabled:, child:)` entries of the view's `panels:` list, as the bar's `TanreiTab<T>` entries are; `enabled` is the inverse flag."
+        }
+      },
+      "notes": "Its own row: `TanreiTabView<T>(value:, onChanged:, variant:, isScrollable:, semanticLabel:, swipeable:, panels: [TanreiTabPanel<T>(…)])`; the view builds a `TanreiTabBar<T>` above its panels, linked through a `TanreiTabLink<T>` of its own. `isScrollable` is the inverse of fullWidth and defaults to true (hug), as on the bar. Linked: `TanreiTabView<T>.linked(link:, value:, onChanged:, swipeable:, panels:)`, a named constructor without the row's parameters, with the `TanreiTabLink<T>` the product creates and passes to `TanreiTabBar(…, link:)` too, as Flutter's `TabController` is shared by a `TabBar` and a `TabBarView`. It replaces the existing `TanreiTabBarView`, which named only the content; its `semanticLabels` give way to the tabs, through which each panel is named by its tab with Flutter's tab panel role. The blur is an `ImageFiltered` blur, converted from the token's standard deviation. A shared choice has no parameter here: views given the same `value` from one piece of the product's state show the same choice, and the product remembers it in its own store, as the bar' mapping says. A view whose `value` changes that way switches as TBV-2 says for a selected the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`auto`, `slide`, `fade`, `none`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "TabView",
+      "props": {
+        "selected": "value",
+        "variant": "variant",
+        "fullWidth": "fullWidth",
+        "label": "accessibilityLabel",
+        "tabs": "link",
+        "swipeable": "swipeable",
+        "group": "value",
+        "rememberAs": "value",
+        "size": "size",
+        "track": "track",
+        "transition": "transition"
+      },
+      "events": {
+        "change": "onValueChange"
+      },
+      "items": {
+        "panel": {
+          "name": "TabPanel",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "disabled"
+          },
+          "notes": "`<TabPanel value=\"overview\" label=\"Overview\" icon=\"dashboard\">…</TabPanel>` children of `<TabView>`; `labelHidden` and `disabled` as on the row's `Tab`."
+        }
+      },
+      "notes": "Its own row: `<TabView value onValueChange variant fullWidth accessibilityLabel swipeable>` with `<TabPanel>` children; the view renders a `<Tabs>` above its panels from their props, linked through a link of its own. Linked: `<TabView value onValueChange link swipeable>`, where `const link = useTabLink()` is passed to `<Tabs link={link}>` too and carries the indicator offset as an animated value, so a drag does not re-render the row; the props type is a union, so that `link` and the row's props cannot be given together. Controlled: with its own row the view calls `onValueChange` for a tab and for a swipe; linked, the caller moves `value` from both components' callbacks. React Native has no tab panel role and cannot blur a view without a native module, so the switch draws its travel and fade only, as the README says. A shared choice has no prop here: views given the same controlled `value` show the same choice, and the product remembers it in its own store, as the tabs' mapping says. A view whose `value` changes that way switches as TBV-2 says for a selected the product sets, with its motion: this platform cannot tell a view that follows from one the product set, so TBV-20 and TBV-21 are not reached here, and the README says so. Not built on this platform yet: `size` and `track` are the row's, with the Tabs' meaning and type; `transition` (`\"auto\"`, `\"slide\"`, `\"fade\"`, `\"none\"`) is the form of a switch (TBV-22): fade is the crossfade the view already draws where motion is reduced, none the change at once it already draws for a choice made elsewhere (TBV-20), and under none the view's own row is given the tabs' transition none (TBV-23)."
+    }
+  }
+}

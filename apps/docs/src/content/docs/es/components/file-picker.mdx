@@ -1,0 +1,228 @@
+---
+title: Selector de archivos
+description: Permite elegir archivos con el selector propio de la plataforma —desde un botón y, donde hay sitio, desde un lugar al que también se pueden arrastrar—, dice los límites con palabras antes de la elección, juzga lo elegido y entrega a tu producto lo que se aceptó y lo que se rechazó. No conserva nada, no enumera nada y no participa en ningún formulario.
+translationOf: components/file-picker.mdx
+sourceHash: 14fb2e7bfc0977e6a6a7e2555e9e35a3a2843c1a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## Descripción general
+
+<ComponentAvailability name="file-picker" />
+
+<DemoFrame label="Un selector de archivos en cada disposición. Elegir un archivo no cambia nada aquí: la página no conserva ninguno." column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Archivo de capa" accept=".json" constraints-text="Un archivo JSON" selection-text="Ningún archivo elegido">
+    <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Fotos" accept="image/*" max-size="5000000" drop-text="Arrastra fotos aquí o elígelas" constraints-text="Imágenes, hasta 5 MB cada una">
+    <tanrei-button slot="trigger" variant="outlined">Elegir fotos</tanrei-button>
+    <span slot="icon">image</span>
+  </tanrei-file-picker>
+</DemoFrame>
+
+Un selector de archivos es la forma de elegir archivos, y nada más. Tu propio [botón](/es/components/button/) abre el selector de archivos de la plataforma. A su alrededor puede haber una zona para soltar, que además recibe los archivos que se arrastran hasta ella. Los límites aparecen al lado, con tus palabras. Lo elegido se juzga según los límites y se te entrega: los archivos aceptados, con `select`; los rechazados, con `reject`.
+
+Es un componente **avanzado**: el control sin nada más, para un producto que conserva los archivos por su cuenta. No conserva ningún archivo, no dibuja ninguna lista y no envía nada con un formulario. La mayoría de los productos quieren el [control de subida de archivos](/es/components/file-upload/), que es este selector con una lista de [elementos de archivo](/es/components/file-item/) debajo, listo para usarse en un formulario.
+
+**Se usa en** el [control de subida de archivos](/es/components/file-upload/). Úsalo por separado cuando los archivos van a un lugar que no es la lista del control de subida:
+
+- Un archivo se lee en el momento y no se conserva: importar un archivo de configuración, una hoja de cálculo con filas, una imagen para recortar.
+- Los archivos se muestran en otra parte: como adjuntos dentro de un mensaje que se está escribiendo, en un lienzo, en una tabla tuya.
+- Un botón de adjuntar sin zona y sin textos, en una barra de herramientas.
+
+<Callout type="caution" title="No conserva nada">
+Después de `select`, el selector de archivos ya ha olvidado los archivos. Una segunda elección se juzga como si fuera la primera. Si tu producto no conserva lo que `select` le da, nadie lo conserva.
+</Callout>
+
+En la web es `<tanrei-file-picker>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+Pon un botón en el slot `trigger` y escucha `select`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field label="Archivo de capa" supporting-text="La capa sustituye a la que estás editando.">
+      <tanrei-file-picker id="layer" accept=".json" constraints-text="Un archivo JSON"
+                          selection-text="Ningún archivo elegido">
+        <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
+      </tanrei-file-picker>
+    </tanrei-field>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+      import '@tanrei/web/components/file-picker';
+      import '@tanrei/web/components/button';
+
+      const picker = document.querySelector('#layer');
+      picker.addEventListener('select', async ({ detail }) => {
+        const [file] = detail.files;
+        // El selector no conserva nada. Di tú qué se ha elegido y haz con el archivo lo que te propongas.
+        picker.selectionText = file.name;
+        importLayer(JSON.parse(await file.text()));
+      });
+      // Un archivo rechazado tiene un motivo que es un nombre, no una frase. Dilo con tus propias palabras.
+      picker.addEventListener('reject', ({ detail }) => {
+        const field = picker.closest('tanrei-field');
+        field.errorText = detail.files[0].reason === 'type' ? 'Elige un archivo JSON.' : 'Elige un solo archivo.';
+        field.error = true;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Field, FilePicker } from '@tanrei/react';
+
+    <Field label="Archivo de capa" error={!!problem} errorText={problem}>
+      <FilePicker accept={['.json']} constraintsText="Un archivo JSON"
+        selectionText={chosen?.name ?? 'Ningún archivo elegido'}
+        onSelect={(event) => importLayer(event.detail.files[0])}
+        onReject={(event) => explain(event.detail.files)}>
+        <Button slot="trigger" variant="outlined">Elegir un archivo</Button>
+      </FilePicker>
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+Los archivos que llegan a tu producto por otra vía —pegados, soltados en otra parte de la página— se juzgan con la misma regla mediante `judge()`. Responde y no emite nada:
+
+```js
+const { accepted, refused } = picker.judge(event.clipboardData.files);
+```
+
+En React, `judge()` está en la ref: `ref.current.judge(files)`.
+
+## Especificaciones
+
+<DemoFrame label="El activador solo; con lo elegido y los límites; una zona para soltar en su estado de error; deshabilitado" plain column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Adjuntar">
+    <tanrei-button slot="trigger" variant="outlined">Adjuntar un archivo</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Archivo adjunto" constraints-text="PDF, hasta 10 MB" selection-text="brief.pdf">
+    <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple error label="Archivos adjuntos" drop-text="Arrastra archivos aquí o elígelos" constraints-text="PDF o PNG, hasta 10 MB cada uno">
+    <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="Archivos adjuntos" drop-text="Arrastra archivos aquí o elígelos" constraints-text="PDF o PNG, hasta 10 MB cada uno">
+    <tanrei-button slot="trigger" variant="outlined">Elegir archivos</tanrei-button>
+  </tanrei-file-picker>
+</DemoFrame>
+
+<ComponentSpecs name="file-picker" />
+
+## Pautas
+
+### Dos disposiciones
+
+| Disposición | Úsala para | Qué dibuja |
+| --- | --- | --- |
+| `button` (la predeterminada) | Un formulario, junto a otros campos; un lugar estrecho; un teléfono; una barra de herramientas. | El activador, el texto que hay a su lado y dice qué se ha elegido y, debajo, los límites. No recibe nada que se suelte. |
+| `drop-area` | Una pantalla cuya tarea principal es entregar archivos, donde es probable que haya un puntero. | Una zona delimitada alrededor del mismo activador, con un glifo y una invitación. Recibe los archivos que se arrastran hasta ella, y una pulsación en cualquier punto de ella abre el selector. |
+
+Las dos abren el mismo selector desde el mismo botón. Arrastrar es un añadido y nunca la única forma: el activador es la manera de elegir archivos con el teclado, con el tacto y con tecnología de apoyo.
+
+### El activador
+
+El activador es tu propio botón, con tu etiqueta, tu variante y tu tamaño. Pon exactamente uno en el slot `trigger`. El selector de archivos le da el comportamiento y nunca cambia su estilo.
+
+- Un selector de archivos sin activador sigue recibiendo lo que se suelta en la disposición con zona para soltar, y una compilación de depuración lo notifica como un fallo.
+- Cualquier otra cosa que pongas dentro, aparte del activador y de un glifo en el slot `icon`, no se dibuja. Una compilación de depuración lo notifica.
+- El slot `icon` sustituye el glifo de subida que hay en la parte superior de la zona para soltar: una imagen para fotos, una tabla para una hoja de cálculo. Es decorativo, y se ignora en la disposición de botón.
+
+### Lo que se ha elegido
+
+`selectionText` es el texto que aparece junto al activador en la disposición de botón: «Ningún archivo elegido», después «brief.pdf», después «3 archivos». El selector de archivos no conserva ningún archivo, así que no puede escribir ese texto. Lo escribe quien conserva los archivos: tú, o el control de subida de archivos, que lo rellena por ti.
+
+Déjalo vacío y ahí no se dibuja nada, lo que conviene a un botón de adjuntar cuyos archivos aparecen en otra parte.
+
+### Di los límites
+
+`accept`, `maxSize`, `maxFiles` y `multiple` hacen cumplir los límites. `constraintsText` los dice. Da ambas cosas.
+
+| Propiedad | El límite | Un archivo que lo incumple |
+| --- | --- | --- |
+| `accept` | Los tipos de archivo que se admiten: extensiones de archivo con su punto (`.pdf`) y tipos de medio, o una familia entera como `image/*`. | Se rechaza con el motivo `type`. Una carpeta también se rechaza con `type`. |
+| `maxSize` | El tamaño máximo de un archivo, en bytes. | Se rechaza con el motivo `size`. |
+| `multiple` | Si una elección puede traer más de un archivo. | Sin él, varios archivos que llegan juntos se rechazan todos, con el motivo `count`. No se elige ninguno en lugar de la persona. |
+| `maxFiles` | El máximo de archivos que puede traer una elección o una acción de soltar, con `multiple`. | Los archivos que lo superan se rechazan con el motivo `count`. Cero rechaza todos los archivos. |
+
+- Escribe los límites como los leería una persona: «PDF o PNG, hasta 10 MB cada uno». Tanrei no construye ninguna frase a partir de `accept` ni de un número de bytes, porque no incluye textos propios.
+- Los límites se dibujan en el selector de archivos y no en la ayuda de un campo. La ayuda de un campo cede su lugar al texto de error, que es justo cuando una persona necesita volver a leer los límites.
+- `select` se emite una vez por elección con los archivos aceptados, y después `reject` una vez con cada archivo rechazado y su motivo. El selector de archivos no dibuja ni dice nada por un rechazo. Di qué ocurrió con tus propias palabras: el texto de error de un campo, una fila de tu lista, un mensaje que anuncias.
+- Los límites son los de una elección. El selector de archivos no sabe qué conservaste antes: define `maxFiles` con el número de archivos que aún caben, o juzga tú el total. El control de subida de archivos lo hace.
+- Mientras algo se arrastra sobre la zona, un navegador dice los tipos y un recuento, nunca nombres ni tamaños. Por eso, un archivo demasiado grande se rechaza al soltarlo, no mientras se sostiene.
+
+### En un campo
+
+Pon el selector de archivos en un [campo](/es/components/field/) cuando el formulario muestre una etiqueta, una ayuda, un error o una marca de obligatorio. El campo los dibuja y se los da al selector de archivos, cuyo activador recibe entonces de ellos su nombre y su descripción.
+
+```html
+<tanrei-field label="Archivo adjunto" requirement="required" required-text="Obligatorio"
+              error error-text="Elige un PDF de 10 MB como máximo.">
+  <tanrei-file-picker accept=".pdf" max-size="10000000"
+                      constraints-text="PDF, hasta 10 MB" selection-text="Ningún archivo elegido">
+    <tanrei-button slot="trigger" variant="outlined">Elegir un archivo</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+```
+
+Un selector de archivos no envía nada. No tiene `name` ni valor, y `required` solo informa a la tecnología de apoyo. Decir si falta un archivo le corresponde al componente que conserva los archivos: tu código, o un [control de subida de archivos](/es/components/file-upload/), que sí es un control de formulario.
+
+### De derecha a izquierda
+
+En un diseño de derecha a izquierda, el activador está a la derecha, con el texto de lo elegido a su izquierda, y los límites empiezan desde el borde derecho. La columna de la zona para soltar sigue centrada. El nombre de un archivo que se da como `selectionText` conserva su propio orden, con su punto y su extensión. Un glifo solo se refleja donde el conjunto de iconos lo marca.
+
+### Recomendado
+
+- Conserva lo que `select` te da, de inmediato.
+- Di qué se ha elegido: con `selectionText`, o en el lugar donde tu producto muestra los archivos.
+- Di con palabras cada rechazo, donde la persona está mirando.
+- Usa el [control de subida de archivos](/es/components/file-upload/) cuando los archivos se enumeran debajo del selector y se envían con un formulario.
+
+### Evita
+
+- No uses la zona para soltar como la única forma de elegir. Siempre contiene el activador.
+- No esperes que un formulario envíe lo elegido. El selector de archivos no participa en ningún formulario.
+- No cambies el estilo del activador solo para este lugar metiéndote en su interior. Es tu botón: elige su variante y su tamaño.
+- No construyas una lista de archivos dentro de él. Pon [elementos de archivo](/es/components/file-item/) debajo, o usa el control de subida de archivos.
+
+## Accesibilidad
+
+<ComponentAccessibility name="file-picker" />
+
+### De qué se encarga el componente
+
+- El activador es tu botón. Lo describen los límites y el texto que dice qué se ha elegido y, dentro de un campo, la ayuda o el error del campo.
+- Con un `label`, o dentro de un campo, el selector de archivos es un grupo con ese nombre. Sin nombre no expone ningún grupo: un botón de adjuntar en una barra de herramientas es solo un botón.
+- La zona para soltar es un único objetivo del puntero, grande, para ese mismo botón. No tiene rol, ni nombre, ni parada en el orden del foco, ni tecla.
+- `error` expone el activador como no válido y dibuja el borde de la zona con el rol de color de error. `disabled` deshabilita el activador, y la zona no responde a nada.
+- El selector de archivos no anuncia nada. No tiene región activa: lo que se eligió o se rechazó lo dice quien conserva los archivos.
+- Con el texto al 200%, todos los textos saltan de línea y nada se corta. En colores forzados, la zona conserva un borde, y una zona que está recibiendo un arrastre tiene uno más grueso.
+
+Cómo está construido en la web: el selector es un `<input type="file">` real en el shadow root, apartado de la vista, del orden del foco y de la tecnología de apoyo. El activador y el glifo se quedan en tu DOM. `select` y `reject` se propagan hacia arriba; `detail.files` es un `File[]` y, en `reject`, una lista de `{ file, reason }`.
+
+Carencias conocidas en la web:
+
+- Un botón no tiene estado obligatorio. Dentro de un campo, el texto de obligatorio del campo se suma a la descripción del activador.
+- Un navegador no entrega lo que se suelta en una zona que rechaza el arrastre. Entonces `reject` solo se emite por lo que no se podía saber antes de soltar, como un archivo demasiado grande.
+- En Safari, un clic no da el foco a un botón. Después de elegir allí un archivo con el puntero, el foco está donde estaba antes.
+- Un borde discontinuo no puede seguir una esquina suavizada. En un sistema de diseño que define un suavizado de esquinas, el borde se dibuja continuo donde el navegador dibuja esa curva.
+- Sin script, y hasta que el elemento está definido, el activador es un botón que no abre nada. Una página que debe recibir archivos donde no se ejecutan scripts escribe un `<input type="file">` nativo.
+
+### Qué debes hacer tú
+
+- Pon un botón en el slot `trigger`, con una etiqueta que diga qué hace.
+- Da al selector de archivos un `label`, o ponlo en un campo, siempre que sea algo más que un botón suelto.
+- Da `constraintsText` siempre que definas `accept`, `maxSize` o `maxFiles`.
+- Di qué se ha elegido, y di cada rechazo, con palabras.
+- Anuncia lo que se añadió en una región activa tuya cuando los archivos aparezcan en un lugar al que la persona no está mirando.

@@ -1,0 +1,822 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "calendar",
+  "title": "Calendar",
+  "summary": "Shows one month as a grid of days, in the page or inside a picker, lets a person choose one date or one range of dates from it, and moves from month to month as one column of weeks that follows a scroll and a drag.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "navigation-row",
+      "description": "The top row: the view toggle at the start, and the previous and next buttons at the end."
+    },
+    {
+      "id": "view-toggle",
+      "description": "The displayed month and year with a chevron (expand_more). Pressing it switches between the day view and the year view. It is drawn with the unselected condition's colors."
+    },
+    {
+      "id": "navigation",
+      "description": "The previous-month and next-month buttons: Tanrei icon-only Buttons of the text variant whose arrows follow the axis the months move along. They are hidden in the year view. A scroll of a wheel or a trackpad, a drag with a finger, a pen or a mouse, and Page Up and Page Down move the month too."
+    },
+    {
+      "id": "weekday-row",
+      "description": "The narrow names of the seven weekdays, from the first day of the week."
+    },
+    {
+      "id": "day",
+      "description": "One day in the grid (an item the calendar generates): its number on a round container that carries the day's condition and its state answer. The containers of the days inside a range join into one band. On the vertical axis the days are one unbroken column of weeks: a week two months share is one row, which a month change carries from its place in the one view to its place in the other."
+    },
+    {
+      "id": "year",
+      "description": "One year of the year view (an item the calendar generates), on a container that carries the year's condition and its state answer.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator around the container of the day, year or view toggle that has keyboard focus."
+    }
+  ],
+  "props": [
+    {
+      "name": "mode",
+      "type": "enum",
+      "values": [
+        "single",
+        "range"
+      ],
+      "default": "single",
+      "description": "single: one date, in value. range: one contiguous span of dates, from start to end inclusive."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The chosen date in single mode, as an ISO 8601 calendar date (\"2026-09-17\"); empty when none is chosen. The calendar sets it when the person chooses a day and emits change; the product may also set it. A calendar date has no time and no time zone."
+    },
+    {
+      "name": "start",
+      "type": "string",
+      "default": "",
+      "description": "The first date of the chosen range in range mode, as an ISO 8601 calendar date; empty when none is chosen."
+    },
+    {
+      "name": "end",
+      "type": "string",
+      "default": "",
+      "description": "The last date of the chosen range in range mode, as an ISO 8601 calendar date, never before start; empty while only start is chosen."
+    },
+    {
+      "name": "min",
+      "type": "string",
+      "default": "",
+      "description": "The earliest date that can be chosen, as an ISO 8601 calendar date; empty for no limit."
+    },
+    {
+      "name": "max",
+      "type": "string",
+      "default": "",
+      "description": "The latest date that can be chosen, as an ISO 8601 calendar date; empty for no limit."
+    },
+    {
+      "name": "disabledDates",
+      "type": "strings",
+      "default": [],
+      "description": "Dates inside min and max that cannot be chosen (booked, closed), as ISO 8601 calendar dates. Every platform also takes a predicate (isDateDisabled) for a rule no list can hold, such as every weekend; a day is unavailable when either says so."
+    },
+    {
+      "name": "today",
+      "type": "string",
+      "default": "",
+      "description": "The date drawn as today, as an ISO 8601 calendar date. Empty uses the device's current date in its own time zone. Set it when the product's today is another (a venue's time zone, a server's date) and in tests."
+    },
+    {
+      "name": "firstDayOfWeek",
+      "type": "enum",
+      "values": [
+        "locale",
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday"
+      ],
+      "default": "locale",
+      "description": "The weekday in the first column. locale takes it from the locale (Sunday in the United States and Japan, Monday in most of Europe)."
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "default": "",
+      "description": "A BCP 47 language tag (\"en-US\", \"ja-JP\") for month and weekday names, digits and the first day of the week. Empty uses the platform's current locale. The calendar is the Gregorian calendar in every locale."
+    },
+    {
+      "name": "startView",
+      "type": "enum",
+      "values": [
+        "day",
+        "year"
+      ],
+      "default": "day",
+      "description": "Whether the calendar first shows the days of a month or the list of years. year suits a date far from today, such as a birthday."
+    },
+    {
+      "name": "showAdjacentDays",
+      "type": "boolean",
+      "default": false,
+      "description": "Fills the grid's spare cells with the days of the previous and next month, drawn quieter than the month's own. Such a day can be chosen when it is available, and a range may start or end on it; choosing one also shows its month."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the whole calendar (\"Check-in date\"). Needed when a page has more than one calendar, or when nothing near it says what the date is for. A picker that holds the calendar names it with its own label."
+    },
+    {
+      "name": "startLabel",
+      "type": "string",
+      "default": "",
+      "description": "Range mode: the description of the start day, in the product's language (\"Start date\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "startLabel"
+    },
+    {
+      "name": "endLabel",
+      "type": "string",
+      "default": "",
+      "description": "Range mode: the description of the end day, in the product's language (\"End date\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "endLabel"
+    },
+    {
+      "name": "previousMonthLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the previous-month button, in the product's language (\"Previous month\"). The product's: Tanrei has no words for it. Empty reads the product's words. Required: a glyph alone is not a name.",
+      "words": "previousMonthLabel"
+    },
+    {
+      "name": "nextMonthLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the next-month button, in the product's language (\"Next month\"). The product's: Tanrei has no words for it. Empty reads the product's words. Required: a glyph alone is not a name.",
+      "words": "nextMonthLabel"
+    },
+    {
+      "name": "yearViewLabel",
+      "type": "string",
+      "default": "",
+      "description": "The description of the view toggle, whose name is the month and year it shows, in the product's language (\"Choose a year\"). The product's: Tanrei has no words for it. Empty reads the product's words.",
+      "words": "yearViewLabel"
+    },
+    {
+      "name": "todayLabel",
+      "type": "string",
+      "default": "",
+      "description": "Read after today's date and the current year, where the platform has no property that says so (the web's aria-current), in the product's language (\"Today\"). The product's: Tanrei has no words for it. Empty reads the product's words. With neither, the platform's own word for the present day in the locale, where it has one.",
+      "words": "todayLabel"
+    }
+  ],
+  "items": [
+    {
+      "name": "day",
+      "summary": "One day in the grid. The calendar generates the days from the month, the bounds, the disabled dates and showAdjacentDays; a product and a fixture never list them.",
+      "props": [
+        {
+          "name": "date",
+          "type": "string",
+          "default": "",
+          "description": "The day, as an ISO 8601 calendar date."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the day is unavailable: before min, after max, in disabledDates or named by isDateDisabled."
+        },
+        {
+          "name": "adjacent",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the day belongs to the previous or next month, shown because showAdjacentDays is true."
+        }
+      ]
+    },
+    {
+      "name": "year",
+      "summary": "One year of the year view, from min's year to max's year. The calendar generates them; a product and a fixture never list them.",
+      "props": [
+        {
+          "name": "year",
+          "type": "number",
+          "default": 0,
+          "description": "The year."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The person chose a day that changes the choice. Carries value in single mode, or start and end in range mode (end empty after a start alone). The calendar has already set the props it carries."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected"
+  ],
+  "behavior": [
+    {
+      "id": "CAL-1",
+      "text": "THE calendar SHALL lay out, from top to bottom, the navigation row, the weekday row and six rows of seven cells, each cell a square of comp.calendar.cell.size but never smaller than sys.target.touch for touch input and sys.target.pointer for fine pointers (a platform that cannot tell the input type SHALL use sys.target.touch), because the cells are the days' hit areas and cannot extend over each other; the first day of the displayed month SHALL sit in the column of its weekday, and all six rows SHALL be kept when the month needs fewer, so that the calendar keeps its height when the month changes. The navigation row and the weekday row are each one cell tall. THE calendar SHALL draw no surface and no padding of its own: it is as wide as its seven columns, and the page or the picker that holds it gives it its background and inset.",
+      "verify": "Fixtures draw the calendar at its natural size centred on a 400 × 440 stage of the surface color. Every fixture sets locale en-US (or the locale it is about) and today, so month names, the first day of the week and today's ring are the same on every platform."
+    },
+    {
+      "id": "CAL-2",
+      "text": "THE calendar SHALL draw each day from exactly one condition, by precedence: selected for the date of single mode and for a range's start and end; in-range for a day strictly between a range's start and end; today for the date today names (or the device's current date) when it is neither; adjacent for a shown day of the previous or next month (CAL-15) when it is none of these; otherwise unselected. It SHALL draw each year of the year view from selected for the displayed year, today for the current year when it is not displayed, and otherwise unselected, and the view toggle from unselected. WHILE a day is unavailable THE calendar SHALL draw it from the disabled tokens of its condition."
+    },
+    {
+      "id": "CAL-3",
+      "text": "THE calendar SHALL draw a day's number in the locale's digits, centred in its cell, in comp.calendar.day.label.typescale and the label color of its condition (comp.calendar.unselected.label.color, and so on), on a container of side comp.calendar.day.container.size centred in the cell, with comp.calendar.day.container.shape corners eased by sys.shape.corner-smoothing, in the container color of its condition, with an outline of comp.calendar.outline.width in the outline color of its condition. The container of an in-range day SHALL instead span the full width of its cell at the same height, so that the containers of consecutive in-range days join into one band that breaks at the ends of a row with square ends; WHILE a range's start and end differ each of them SHALL also draw, behind its own container, the half of its cell toward the other in comp.calendar.in-range.container.color, so that the band runs into it. The band SHALL cover every day the grid shows between start and end, and no empty cell."
+    },
+    {
+      "id": "CAL-4",
+      "text": "THE calendar SHALL draw each weekday's narrow name from the locale (\"S\", \"M\" in English; \"日\", \"月\" in Japanese) centred in its column, in comp.calendar.weekday.typescale and comp.calendar.weekday.color, and SHALL expose it as a column header named by the weekday's full name; weekday names SHALL take no focus."
+    },
+    {
+      "id": "CAL-5",
+      "text": "THE calendar SHALL draw the navigation row with the view toggle at the start and, in the day view, the previous-month and next-month buttons at the end, comp.calendar.navigation.gap apart, each a Tanrei Button of the text variant and the medium size with an icon and no label, named previousMonthLabel and nextMonthLabel. WHILE comp.calendar.navigation.axis is vertical their glyphs SHALL be arrow_upward and arrow_downward; WHILE it is horizontal they SHALL be arrow_back for the previous month and arrow_forward for the next in every layout direction, pointing toward the start and the end: in a right-to-left layout the icon helper mirrors both, because the icon set marks them as mirrored, and the calendar SHALL NOT exchange the two names or mirror a glyph itself. The previous button SHALL be disabled while the displayed month is min's month and the next button while it is max's month, and in the year view both SHALL be hidden. THE calendar SHALL NOT change the buttons' variant, size or tokens.",
+      "verify": "The default system is vertical. horizontal is observed under a fixture system that sets comp.calendar.navigation.axis to 1."
+    },
+    {
+      "id": "CAL-6",
+      "text": "THE calendar SHALL draw the view toggle as a container at least comp.calendar.view-toggle.container.height tall with comp.calendar.view-toggle.container.shape corners eased by sys.shape.corner-smoothing, padded by comp.calendar.view-toggle.container.padding-inline at each end, holding the displayed month and year in the locale's form (\"September 2026\", \"2026年9月\") in comp.calendar.view-toggle.label.typescale and, comp.calendar.view-toggle.gap after it, the expand_more glyph at comp.calendar.view-toggle.icon.size with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, both in comp.calendar.unselected.label.color on comp.calendar.unselected.container.color; the glyph SHALL be turned half a turn while the year view is shown, over comp.calendar.motion.state-duration with comp.calendar.motion.state-easing (at once where motion is reduced). WHERE the view toggle is shorter than the minimum target it SHALL extend its hit area to sys.target.touch for touch input and sys.target.pointer for fine pointers without changing its visual size. WHEN it is activated it SHALL switch between the day view and the year view."
+    },
+    {
+      "id": "CAL-7",
+      "text": "WHEN the year view is shown THE calendar SHALL draw, in the space of the weekday row and the six rows of days, the years from min's year to max's year (1900 to 2100 when min or max is empty) in rows of three cells, each a third of the grid's width and comp.calendar.cell.size tall, each year centred in its cell in the locale's digits in comp.calendar.year.label.typescale on a container of comp.calendar.year.container.width by comp.calendar.year.container.height with comp.calendar.year.container.shape corners, colored and outlined as a day of its condition is; the list SHALL scroll, and SHALL open scrolled so that the displayed year's row is the third row in view, or as near to it as the list's ends allow. WHEN the user chooses a year THE calendar SHALL show the day view of the month with the displayed month's number in that year, clamped between min's and max's months, move focus to its active day and SHALL NOT change the choice; WHEN the view toggle is activated in the year view it SHALL show the day view unchanged."
+    },
+    {
+      "id": "CAL-8",
+      "text": "WHILE mode is single, WHEN the user chooses an available day by pointer, touch, Enter or Space THE calendar SHALL set value to it and, if it differs from the value before, emit change once with it."
+    },
+    {
+      "id": "CAL-9",
+      "text": "WHILE mode is range, WHEN the user chooses an available day THE calendar SHALL make it the start and clear the end when no start is chosen, when both are chosen, or when the day is before the start, and otherwise SHALL make it the end (a start and end on the same day make a one-day range); after each choice it SHALL set start and end and emit change once with both, end empty after a start alone. A range SHALL be one contiguous span from start to end inclusive; unavailable days between them SHALL stay inside it, drawn and exposed as unavailable (a product that cannot accept such a span says so after change)."
+    },
+    {
+      "id": "CAL-10",
+      "text": "THE calendar SHALL give the day grid one tab stop, the active day: WHEN a month is shown the active day SHALL be the chosen date (single mode) or start (range mode) when it lies in that month, otherwise today when it does, otherwise the first available day of the month, otherwise its first day; only the active day SHALL take focus from Tab, and the keys of CAL-11 move it."
+    },
+    {
+      "id": "CAL-11",
+      "text": "WHILE focus is on a day THE calendar SHALL move the active day and focus with Right Arrow and Left Arrow one day in the direction the arrow points (the next and the previous day left to right, the previous and the next right to left), with Down Arrow and Up Arrow one week later and earlier, with Home and End to the first and last day of its week row, with Page Down and Page Up to the same day of the next and previous month (the last day of that month when it is shorter), and with Shift+Page Down and Shift+Page Up to the same day of the next and previous year, whatever comp.calendar.navigation.axis is; WHEN the new active day lies in another month THE calendar SHALL show that month; it SHALL NOT move the active day before min or after max; unavailable days SHALL be reachable but SHALL NOT be chosen; Enter and Space SHALL choose the active day."
+    },
+    {
+      "id": "CAL-12",
+      "text": "WHILE focus is in the year view THE calendar SHALL give the list one tab stop, the displayed year, and SHALL move focus with Right Arrow and Left Arrow one year in the direction the arrow points, with Down Arrow and Up Arrow one row, and with Home and End to the first and last year, scrolling the focused year into view; Enter and Space SHALL choose the focused year (CAL-7)."
+    },
+    {
+      "id": "CAL-13",
+      "text": "WHEN the previous-month or next-month button is activated, a step of a detented wheel moves the month (CAL-33), a scroll or a drag ends on another month than the one shown when it began (CAL-34, CAL-31) or a day of a neighbouring month is chosen (CAL-15), THE calendar SHALL show that month, keep focus where it was, make the active day the same day number of the new month (its last day when the month is shorter; the chosen day, WHEN a day was chosen) and announce the new month and year once, politely; WHEN a year is chosen in the year view it SHALL announce the month and year it shows the same way. A month that a scroll only passes through is shown without an announcement (CAL-34)."
+    },
+    {
+      "id": "CAL-14",
+      "text": "WHEN the displayed month changes by a button, a key, a step of a detented wheel (CAL-33) or a chosen day THE calendar SHALL play the change over comp.calendar.motion.page-duration with comp.calendar.motion.page-easing: WHILE comp.calendar.navigation.axis is vertical as one continuous scroll of the weeks, every frame of it being the in-between look of CAL-29 at the progress the easing gives, so that the two months are never drawn as two separate grids and a week they share is neither drawn twice nor replaced; WHILE the axis is horizontal as two pages, the old month's grid sliding out toward the start and the new one in from the end for a later month, and the reverse for an earlier one. Every way of moving the month SHALL move the same thing — on the vertical axis the one progress of CAL-29, on the horizontal one the place of the two pages — and none SHALL have a look of its own: a scroll of a wheel or a trackpad is followed as CAL-33 says and settles as CAL-34 says, and a drag is followed as CAL-30 says and settles as CAL-31 says. WHEN one of them begins while the days are still moving — a month change is playing, or the days are settling after a scroll or a drag — THE calendar SHALL carry on from what is on screen, without a jump and without waiting for the motion to end. WHEN it switches between the day view and the year view it SHALL cross-fade them over the same duration and easing; WHERE motion is reduced it SHALL make all of these changes at once. The weekday row, the navigation row and the calendar's size SHALL NOT move.",
+      "verify": "A unit test reads a frame in the middle of a button's month change on the vertical axis (the default system) and finds one grid, with the shared week row between its two places (CAL-29); under a fixture system that sets comp.calendar.navigation.axis to 1 it finds the two pages. A unit test presses the next button and, before the change has ended, scrolls by 24 points: the days carry on from where they were, with no frame at either month's view in between."
+    },
+    {
+      "id": "CAL-15",
+      "text": "WHILE showAdjacentDays is true THE calendar SHALL fill the cells before the displayed month's first day and after its last with the days of the previous and next month, in order, drawn from the adjacent condition unless a higher one applies (CAL-2), and treated as any day for availability (CAL-16), choosing (CAL-8, CAL-9) and the range's band (CAL-3); WHEN the user chooses such a day by pointer or touch THE calendar SHALL choose it as any day, emitting change as CAL-8 and CAL-9 say, and SHALL then show that day's month (CAL-13) with the motion of CAL-14, where the chosen day is one of the month's own and the active day, taking focus if focus was in the grid; a range's start and its end SHALL both do so. A press on an unavailable one SHALL choose nothing and show no other month. WHILE showAdjacentDays is false those cells SHALL be empty, take no press and be hidden from assistive technology."
+    },
+    {
+      "id": "CAL-16",
+      "text": "THE calendar SHALL treat as unavailable every day before min, after max, listed in disabledDates or named by the platform's isDateDisabled predicate. WHILE a day is unavailable THE calendar SHALL render its container, label, outline and opacity from the disabled tokens of its condition (comp.calendar.unselected.container.color at rest, and so on), SHALL NOT make it the chosen date, start or end, SHALL expose it to assistive technology as unavailable (disabled), and SHALL keep it reachable by the arrow keys. WHEN value, start or end names an unavailable day THE calendar SHALL still draw it as chosen, from the disabled tokens of the selected condition, until the person chooses another."
+    },
+    {
+      "id": "CAL-17",
+      "text": "WHEN the calendar is first shown THE calendar SHALL show the month of value or start, otherwise of today, clamped between min's month and max's month, or the year view WHERE startView is year; WHEN the product sets value, start or end to a date outside the displayed month THE calendar SHALL show that date's month, without the motion of CAL-14."
+    },
+    {
+      "id": "CAL-18",
+      "text": "WHILE a day, a year or the view toggle is hovered, keyboard-focused or pressed THE calendar SHALL render its container, label, outline and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. WHEN these colors change between states THE calendar SHALL animate them over comp.calendar.motion.state-duration with comp.calendar.motion.state-easing, and SHALL change them at once where motion is reduced.",
+      "verify": "Hovered, focused and pressed cannot be fixtures. Unit tests read the resolved tokens under the `acme` fixture system, which values the three states differently."
+    },
+    {
+      "id": "CAL-19",
+      "text": "WHEN a day, a year or the view toggle receives keyboard focus THE calendar SHALL show the focus ring around its container — around the circle of comp.calendar.day.container.size for every day, an in-range day included — without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "CAL-20",
+      "text": "WHEN the calendar's day, year or view toggle is pressed by pointer, touch, Enter or Space THE calendar SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "CAL-21",
+      "text": "WHILE pressed THE calendar's day, year or view toggle SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, outline, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.calendar.motion.feedback-duration with comp.calendar.motion.state-easing, fades over comp.calendar.motion.state-duration with comp.calendar.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "CAL-22",
+      "text": "THE calendar's day, year and view toggle SHALL ease their container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show their keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "CAL-23",
+      "text": "THE calendar SHALL expose itself as a group named by label while label is not empty, the day grid as a grid named by the displayed month and year with the weekday names as its column headers, and each shown day as a cell that can be activated, named by its full date in the locale (\"Thursday, September 17, 2026\") followed by todayLabel for today where the platform has no property for the current date, with its selected state (true for the chosen date and for every day of a range), described by startLabel or endLabel for a range's start and end, and with its disabled state while unavailable; empty cells SHALL be hidden. It SHALL expose the view toggle as a button named by its visible month and year, described by yearViewLabel, with its expanded state (true while the year view is shown), and each year as a button with its selected state and todayLabel for the current year."
+    },
+    {
+      "id": "CAL-24",
+      "text": "THE calendar SHALL take month and weekday names, digits and the locale's first day of the week from locale, or from the platform's current locale while locale is empty, and SHALL use firstDayOfWeek instead of the locale's while it is not locale; WHERE the platform has no week data for the locale it SHALL use the first days of CLDR's weekData, which the platform package embeds. Every date SHALL be a Gregorian calendar date without a time or a time zone, and WHILE today is empty THE calendar SHALL read the device's current date in its own time zone WHEN it is first shown and WHEN the date changes while it is shown."
+    },
+    {
+      "id": "CAL-25",
+      "text": "THE calendar's days, years, weekday names and view toggle SHALL grow with enlarged text rather than clip it: a day's container SHALL grow to hold its number. WHERE the space given to the calendar is narrower than seven minimum targets, the cells SHALL narrow equally so that the grid fits it, keeping their numbers at their size, and the calendar SHALL never be wider than the space it is given."
+    },
+    {
+      "id": "CAL-26",
+      "text": "WHEN the layout direction is right-to-left THE calendar SHALL mirror its layout — the first day of the week in the rightmost column, the view toggle at the right and the navigation buttons at the left, and, on the horizontal axis, the slide of CAL-14 and the side each neighbouring month lies on (the next month toward the left, so that a drag toward the right brings it, CAL-30) — and SHALL NOT mirror the vertical scroll of the weeks, a vertical drag or the vertical arrows. A drag SHALL move the days where the pointer goes, and a scroll of a wheel or a trackpad SHALL move them where it moves the content of a scrolled list, in every layout direction."
+    },
+    {
+      "id": "CAL-27",
+      "text": "WHEN mode, startView or firstDayOfWeek names a value the calendar does not define THE calendar SHALL behave as its default value and in debug builds report the unknown value; WHEN value, start, end, min, max, today or an entry of disabledDates is not an ISO 8601 calendar date, end is before start, value is set in range mode or start or end in single mode THE calendar SHALL ignore it and in debug builds report it; WHEN min is later than max THE calendar SHALL ignore both and report it in debug builds."
+    },
+    {
+      "id": "CAL-28",
+      "text": "THE calendar SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the calendar is shown THE calendar SHALL draw itself for the new direction at once, without a motion of its own, keeping the displayed month, the selection and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "CAL-29",
+      "text": "WHILE comp.calendar.navigation.axis is vertical THE calendar SHALL treat the days as one unbroken column of week rows, in which a month's view is the six rows from the row of its first day, and SHALL draw every look between the views of two neighbouring months from one progress, 0 at the one and 1 at the other, with no threshold. The rows SHALL be offset along the column by the progress times the distance between the two views' first rows (four or five rows, each comp.calendar.cell.size tall) and clipped to the grid's six rows, so that a week the two views share is one row that travels from its place in the one to its place in the other. Every day SHALL be drawn at the linear interpolation by the progress between what the one view draws for it and what the other draws: its container, label and outline colors between the tokens of the adjacent condition and those of the unselected condition (comp.calendar.adjacent.label.color and comp.calendar.unselected.label.color, and so on, in the state the day is in) WHERE it is a neighbouring month's day in the one view and the month's own in the other (CAL-2), and its opacity between 1 where a view draws it and 0 where a view does not — a row outside that view's six, or a cell that view leaves empty because showAdjacentDays is false — so that a day coming into view fades in and a day leaving it fades out as far as the weeks have moved. A day that both views draw alike SHALL NOT change, and the band of a range (CAL-3) SHALL follow the same rule, each piece with its day. WHERE the two months are not neighbours (a step of a year, CAL-11; a date the keys reach in a further month) the distance SHALL be six rows, as if the later month's view began where the earlier one's ends.",
+      "verify": "The in-between look has no prop, so it cannot be a fixture. A unit test holds a drag a quarter, a half and three quarters of the way from September to October 2026 (today 2026-09-24, locale en-US), with showAdjacentDays true and with it false, and reads the offset of the shared row (September 27 to October 3), the label color of October 1 (between adjacent and unselected with adjacent days shown; its opacity with them hidden), the opacity of October 20 and of September 8, and that September 28 is one element throughout. The same values are read at a frame of a button's month change (CAL-14)."
+    },
+    {
+      "id": "CAL-30",
+      "text": "WHILE the day view is shown, WHEN the user presses the day grid with touch, a pen or the primary button of a mouse and drags past the platform's touch slop (8 points where the platform names none, for every kind of pointer), further along the axis comp.calendar.navigation.axis names than across it, THE calendar SHALL take the drag: the press SHALL choose no day when it ends (CAL-8, CAL-9), the day under it SHALL leave its pressed state as it does when a press ends (CAL-20), and from then until the drag ends THE calendar SHALL move the days by the distance the pointer has travelled along the axis since the press, in the frame the pointer moves and without a motion of its own — toward the next month for a drag toward the top (vertical) or the start (horizontal), toward the previous month for the reverse — never further than the view of the month next to the displayed one, and never past min's or max's month, where the days SHALL stop. WHILE the axis is vertical THE calendar SHALL draw the in-between look of CAL-29 at the progress that travel gives (the travel over the distance between the two views), so that the scroll of the weeks, the fading in of the days coming into view and the change of a neighbouring month's day into one of the month's own all follow the pointer continuously; WHILE the axis is horizontal the two pages of CAL-14 SHALL travel with the pointer, side by side. A press that ends before it has passed the slop SHALL choose the day under it as CAL-8 and CAL-9 say, with every kind of pointer, so that a click of a mouse on a day still chooses it. WHILE a drag the calendar has taken lasts, THE calendar SHALL follow the pointer wherever it goes, outside the grid and the calendar included; no day SHALL be drawn hovered; nothing the calendar draws SHALL be selected as text or picked up by the platform's drag and drop; and a fine pointer SHALL show the platform's cursor for something held and dragged (grabbing) until the drag ends. At rest the cursor over a day SHALL stay the one a pressable day shows: the grid does not advertise the drag, which is a shortcut. A press of another mouse button SHALL take no drag. A drag that is further across the axis than along it when it passes the slop SHALL be left to the scrolling ancestor for its whole length; a scroll of a wheel or a trackpad is followed as CAL-33 says.",
+      "verify": "A unit test drags the grid with a touch pointer by half the distance between two views and reads the days' offset in the same frame, then drags on past the next month's view and finds the days stopped there; with max in the displayed month it finds that a drag toward the next month moves nothing. The same test is run with a mouse pointer (the primary button), which also reads the cursor while the drag lasts, that the day under the pointer is not drawn hovered, and that no text is selected when it ends; a mouse press released within the slop on September 17 chooses it and emits change; a drag begun with the secondary button moves nothing. A drag across the axis reaches the scrolling ancestor."
+    },
+    {
+      "id": "CAL-31",
+      "text": "WHEN the user releases a drag the calendar has taken THE calendar SHALL choose one month: the neighbouring month the days have moved toward WHERE they are a quarter or more of the distance from the displayed month's view toward its view, and otherwise the displayed month — the same quarter that ends a scroll (CAL-34) — or, WHEN the release is a fling along the axis, the one of the two the fling is toward; a fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond, with every kind of pointer. WHERE the chosen month is not the displayed one THE calendar SHALL show it as CAL-13 says and bring the days from where the release left them to its view over comp.calendar.motion.page-duration with comp.calendar.motion.page-easing; WHERE it is the displayed month THE calendar SHALL return them over the same motion and announce nothing. The quarter decides only what a release chooses; nothing drawn changes at it. The release SHALL NOT also choose the day under the pointer, and a drag SHALL never change value, start or end, nor emit change.",
+      "verify": "A unit test releases a slow drag at a fifth of the distance and finds the displayed month unchanged and nothing announced, and at three tenths and finds the neighbour shown and announced once; it releases a fling toward the displayed month from three quarters of the way and finds the displayed month."
+    },
+    {
+      "id": "CAL-32",
+      "text": "WHEN a drag the calendar has taken is cancelled — the platform cancels the pointer (a system gesture, a lost capture), Escape is pressed while it lasts, the product sets value, start or end (CAL-17), or the year view is shown — THE calendar SHALL return the days to the view of the displayed month (the month the product's date has just named, where it named one) over comp.calendar.motion.page-duration with comp.calendar.motion.page-easing and announce nothing; WHEN the product sets value, start or end, or the year view is shown, while a scroll is being followed THE calendar SHALL do the same and SHALL ignore what is left of that scroll (CAL-34). WHILE a drag or a scroll holds the days between two views THE calendar SHALL NOT change the month and year that the view toggle and the grid's name show, the active day, keyboard focus or what it exposes to assistive technology: the days of the month coming into view SHALL be hidden from assistive technology and take no focus and no press until that month is the displayed one, which it becomes by the release that chooses it (CAL-31), by the end of the scroll that chooses it or by the scroll reaching its view (CAL-34). WHERE motion is reduced THE calendar SHALL still move the days with the pointer and with the scroll and draw the in-between look, which the person's own hand moves, and SHALL put them at the chosen month's view at once when the drag is released or cancelled or the scroll ends."
+    },
+    {
+      "id": "CAL-33",
+      "text": "WHILE the day view is shown, WHEN a wheel or a trackpad scrolls over the day grid further along the axis comp.calendar.navigation.axis names than across it, THE calendar SHALL take the scroll and move the days by the distance the scroll reports, one point for each point and in the frame it arrives, as the content of a scrolled list moves — toward the next month for a scroll toward the bottom (vertical) or toward the end (horizontal), toward the previous month for the reverse — without a motion of its own and with no least amount: the slightest scroll moves the days by that much and no further. WHILE the axis is vertical THE calendar SHALL draw the in-between look of CAL-29 at the progress that travel gives; WHILE it is horizontal the two pages of CAL-14 SHALL travel side by side. A scroll that goes on SHALL go on through month after month: WHEN the days reach the view of the neighbouring month THE calendar SHALL make that month the displayed one (CAL-34) and carry on toward the month after it with the distance that is left, in the same frame, so that a scroll never waits for an earlier one to end and no part of it is dropped. The days SHALL stop at the view of min's or max's month; a scroll along the axis that can move them no further SHALL still be the calendar's and SHALL NOT be passed on to a scrolling ancestor. A scroll further across the axis than along it SHALL be left to the scrolling ancestor, and so SHALL a scroll that zooms (a pinch on a trackpad, a wheel turned with the platform's zoom key). WHERE the platform reports a scroll as steps of a detented wheel and not as a distance (a delta in lines or pages on the web; a mouse wheel's notch where the platform tells it from a trackpad), each step SHALL instead move one month, as a press of the previous or next button does (CAL-13, CAL-14), one step after another without waiting for the motion to end.",
+      "verify": "Unit tests send wheel events over the day grid of September 2026 (today 2026-09-24, locale en-US), whose view is four rows from October's. A delta of 24 points moves the rows by 24 points in the same frame and changes neither the title nor the announcement. Deltas that sum to four rows and 48 points more show October in the title and leave the rows 48 points on toward November; twenty events of 100 points sent 16 ms apart end several months later, each month passed through in turn. With max in September a scroll toward the next month moves nothing and is not passed on; a scroll across the axis is passed on. An event whose delta is in lines moves one month and three of them three. Under a fixture system that sets comp.calendar.navigation.axis to 1 the same is read with a horizontal delta, left to right and right to left."
+    },
+    {
+      "id": "CAL-34",
+      "text": "THE calendar SHALL take a scroll it follows (CAL-33) as ended WHEN the platform says that it has ended, its momentum included, where the platform reports that; where it does not (the web), WHEN no scroll event has arrived for 150 milliseconds, or WHEN the scroll has slowed below 0.1 points per millisecond, measured over its events of the last 100 milliseconds — the tail of a momentum scroll, which need not be waited out: THE calendar SHALL then ignore the events that follow for as long as they are no faster than that, until a faster one arrives or 150 milliseconds pass without any. WHEN a scroll ends with the days between two views THE calendar SHALL choose one of the two — the neighbouring month WHERE the days are a quarter or more of the distance from the displayed month's view toward its view, and otherwise the displayed month, so that a slight scroll returns and a deliberate one need not reach halfway — and SHALL bring the days to the chosen view over comp.calendar.motion.page-duration with comp.calendar.motion.page-easing (at once where motion is reduced, CAL-32). The displayed month SHALL be the month whose view the days last rested on or reached: WHEN a scroll that goes on reaches a neighbouring month's view THE calendar SHALL show that month in the view toggle and the grid's name at once, make its days the ones that take focus and presses, and move the active day and a focused day as CAL-13 says, but SHALL announce nothing yet; the quarter is then counted from that view. THE calendar SHALL announce the month and year once, politely, WHEN a scroll has ended and the days have been given their view, and only WHERE that month is not the one that was displayed when the scroll began; a scroll that returns SHALL announce nothing. WHEN a faster scroll event arrives, a drag is taken or a button or a key moves the month while the days are settling THE calendar SHALL carry on from what is on screen (CAL-14). A scroll SHALL never change value, start or end, nor emit change.",
+      "verify": "Unit tests with a controlled clock, on September 2026. Wheel events that sum to 40 points (less than a quarter of the four rows), then 150 ms of silence: the days return to September, the title is unchanged and nothing is announced. Events that sum to 60 points, then silence: October is shown and announced once. Events that reach October's view and 20 points more, then silence: the title read October when its view was reached, the days return to October's view, and October is announced once, after the silence. A stream that slows below 0.1 points per millisecond settles before its last event, and its later, slower events move nothing; an event of 30 points sent 20 ms after them moves the days again from where they are."
+    },
+    {
+      "id": "CAL-35",
+      "text": "THE calendar SHALL have no words of its own: it SHALL take startLabel, endLabel, previousMonthLabel, nextMonthLabel, yearViewLabel and todayLabel from the instance's prop and, WHILE that is empty, from the product's words of the same name; WHILE neither gives todayLabel it SHALL take the word from the platform's locale data WHERE the platform has the locale's own word for the present day, and it SHALL take no other word from anywhere. IF neither gives a navigation button its name, or a range's start or end its description, THE calendar SHALL still draw the part and keep it working, and in debug builds SHALL report the missing words once, naming the prop. WHILE neither gives yearViewLabel the view toggle SHALL have no description: its name and its expanded state (CAL-23) still say what it shows.",
+      "verify": "Unit, with no product's words set: a calendar without the props has navigation buttons with no accessible name and one report that names previousMonthLabel and nextMonthLabel; with the product's words set the buttons are named by them, and an instance's own prop wins. No test finds an English word the test did not give, except the locale's own names under an English locale."
+    }
+  ],
+  "accessibility": {
+    "role": "group",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves through the view toggle, the previous and next buttons and the active day (or the displayed year)."
+      },
+      {
+        "keys": "Arrow keys",
+        "action": "Move the active day by one day (Left and Right, in the direction the arrow points) or one week (Up and Down), changing the month as needed, whatever axis the months move along; in the year view, by one year or one row."
+      },
+      {
+        "keys": "Home / End",
+        "action": "The first or last day of the week row; the first or last year."
+      },
+      {
+        "keys": "Page Up / Page Down",
+        "action": "The same day of the previous or next month."
+      },
+      {
+        "keys": "Shift+Page Up / Shift+Page Down",
+        "action": "The same day of the previous or next year."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Choose the active day or the focused year; activate the focused button."
+      }
+    ],
+    "labeling": "The calendar is a group named by label when it has one. The grid is named by the month and year it shows and its column headers are the weekdays' full names. Each day is named by its full date in the locale, with todayLabel after today's where the platform has no current-date property, and exposes its selected and disabled states; a range's start and end are described by startLabel and endLabel. The view toggle is named by its visible month and year, described by yearViewLabel, and exposes whether the year view is expanded. The navigation buttons are named by previousMonthLabel and nextMonthLabel.",
+    "minimumTarget": true,
+    "notes": [
+      "The cells are the days' hit areas and are never smaller than the minimum target (CAL-1); the view toggle extends its hit area (CAL-6). The navigation buttons are Tanrei Buttons, which meet the target themselves (BTN-5).",
+      "Unavailable days stay reachable by the arrow keys, as the WAI-ARIA date picker dialog pattern recommends, so a screen-reader user learns that a date exists and cannot be chosen.",
+      "Scrolling and dragging to move the month are pointer and touch shortcuts, with a finger, a pen, a mouse, a wheel or a trackpad. The buttons and Page Up / Page Down do the same, so nothing depends on a gesture, and a drag is never the only way (WCAG 2.5.7). While a drag lasts nothing the calendar exposes changes; while a scroll goes on through several months the title follows each month it reaches, but the month is announced once, when the scroll or the release has chosen it (CAL-31, CAL-32, CAL-34), so a screen reader is not read every month that passes.",
+      "A scroll along the calendar's axis is the calendar's while the pointer is over the day grid (CAL-33): a page that scrolls the same way does not scroll from there. The weekday row, the navigation row and everything around the calendar scroll the page as usual, and a calendar with a horizontal axis leaves the page's vertical scroll alone.",
+      "A day of a neighbouring month that is chosen by pointer brings its month into view (CAL-15), announced as any month change is. The keys never need it: the arrow keys show a day's month before Enter can choose it (CAL-11).",
+      "Typing a date is the Text field's job, not the calendar's: a product that wants both puts a Text field beside it, or uses a DateTimePicker opened from the field's trailing button. Typing is the fastest route for many people and the most direct one for screen reader users.",
+      "The calendar has no words of its own. Month and weekday names, digits and date forms are the platform's locale data, in the locale the calendar was given. Every other word it shows or announces is the product's: a prop of this instance, or the product's words set once.",
+      "The web exposes the grid with role grid, rows, column headers and gridcells with aria-selected and aria-disabled, and today with aria-current=\"date\" (so todayLabel is not added there). The platforms without a grid role expose the rows and columns through their collection semantics where they have them (Compose's collection info), and otherwise each day as a button in reading order.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.calendar",
+  "fixtures": [
+    {
+      "id": "single",
+      "props": {
+        "value": "2026-09-17",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today"
+      }
+    },
+    {
+      "id": "empty",
+      "props": {
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today"
+      }
+    },
+    {
+      "id": "range",
+      "props": {
+        "mode": "range",
+        "start": "2026-09-10",
+        "end": "2026-09-16",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "startLabel": "Start date",
+        "endLabel": "End date"
+      }
+    },
+    {
+      "id": "range-start",
+      "props": {
+        "mode": "range",
+        "start": "2026-09-10",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "startLabel": "Start date",
+        "endLabel": "End date"
+      }
+    },
+    {
+      "id": "monday",
+      "props": {
+        "value": "2026-09-17",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "firstDayOfWeek": "monday",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today"
+      }
+    },
+    {
+      "id": "ja",
+      "props": {
+        "value": "2026-09-17",
+        "today": "2026-09-24",
+        "locale": "ja-JP",
+        "previousMonthLabel": "前の月",
+        "nextMonthLabel": "次の月",
+        "yearViewLabel": "年を選択",
+        "todayLabel": "今日"
+      }
+    },
+    {
+      "id": "unavailable",
+      "props": {
+        "value": "2026-09-12",
+        "min": "2026-09-03",
+        "max": "2026-09-22",
+        "disabledDates": [
+          "2026-09-12"
+        ],
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today"
+      }
+    },
+    {
+      "id": "range-unavailable",
+      "props": {
+        "mode": "range",
+        "start": "2026-09-10",
+        "end": "2026-09-16",
+        "disabledDates": [
+          "2026-09-13"
+        ],
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "startLabel": "Start date",
+        "endLabel": "End date"
+      }
+    },
+    {
+      "id": "adjacent-days",
+      "props": {
+        "value": "2026-09-17",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "showAdjacentDays": true,
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today"
+      }
+    },
+    {
+      "id": "adjacent-days-range",
+      "props": {
+        "mode": "range",
+        "start": "2026-09-28",
+        "end": "2026-10-02",
+        "today": "2026-09-24",
+        "locale": "en-US",
+        "showAdjacentDays": true,
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today",
+        "startLabel": "Start date",
+        "endLabel": "End date"
+      }
+    },
+    {
+      "id": "year",
+      "props": {
+        "startView": "year",
+        "value": "2026-09-17",
+        "today": "2027-01-15",
+        "locale": "en-US",
+        "previousMonthLabel": "Previous month",
+        "nextMonthLabel": "Next month",
+        "yearViewLabel": "Choose a year",
+        "todayLabel": "Today"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-calendar",
+      "props": {
+        "mode": "mode",
+        "value": "value",
+        "start": "start",
+        "end": "end",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "today": "today",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showAdjacentDays",
+        "label": "label",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel"
+      },
+      "events": {
+        "change": "change"
+      },
+      "items": {
+        "day": {
+          "name": "renderDay",
+          "props": {
+            "date": "date",
+            "disabled": "disabled",
+            "adjacent": "adjacent"
+          },
+          "notes": "A gridcell button in the shadow root with `part=\"day\"`, `data-date` and, for a day of the neighbouring month, `data-adjacent`, rendered by `renderDay`."
+        },
+        "year": {
+          "name": "renderYear",
+          "props": {
+            "year": "year"
+          },
+          "notes": "A button in the shadow root with `part=\"year\"`, rendered by `renderYear`."
+        }
+      },
+      "notes": "Attributes are kebab-case (`disabled-dates` is a space-separated list of ISO dates, `first-day-of-week`, `start-view`, `show-adjacent-days`, `start-label`, …); `isDateDisabled` is a property only (a function from an ISO date string to a boolean). `value`, `start` and `end` are set before `change` fires, as a native control does. The navigation buttons are `<tanrei-button variant=\"text\">` elements with a slotted glyph and no label, in the shadow root. The calendar is not form-associated: the product's field is. A vertical axis reads `wheel` events with `deltaY` and a horizontal axis `deltaX`: a delta in pixels (`deltaMode` 0) is a distance and is followed point for point (CAL-33), a delta in lines or pages is a step of one month; an event with `ctrlKey` is a zoom and is left alone. The web reports neither the end of a scroll nor its momentum, so a scroll ends by the 150 ms of silence or the slow-down of CAL-34, and a mouse wheel that the browser reports in pixels is followed as a distance like a trackpad (the web cannot tell them apart). Drags of touch, a pen and a mouse's primary button are followed along the axis (pointer events with `setPointerCapture` once the drag is taken; `touch-action: pan-x` on a vertical grid and `pan-y` on a horizontal one, so the page keeps its pan across it); while a drag is taken the grid shows `cursor: grabbing`, draws no hover, and the `click` that follows the release chooses nothing. On the vertical axis the day grid is one keyed list of week rows — the rows of the displayed month and, while a change plays or a drag lasts, those of the month it moves toward — offset by one custom property for the progress (CAL-29), which a drag and a scroll write in each frame and a button's change and a settle transition; a day's colors are mixed by that progress with `color-mix()` and its opacity follows it, so a shared week is one element throughout. The rows coming into view are `inert` and `aria-hidden` until their month is the displayed one. The slop is 8 points for every pointer and a fling 0.5 points per millisecond, as the tabs' and the sheets'. The axis is read from the resolved comp.calendar.navigation.axis custom property once per system. Locale data comes from `Intl.DateTimeFormat` and `Intl.Locale`'s week info where the browser has it; otherwise the embedded CLDR table. Without `locale` it reads the nearest `lang` attribute, then `navigator.language`. Snapshot harness: the element on a 400 × 440 stage of the surface color (CAL-1's verify). Words: the element has no words of its own. `start-label`, `end-label`, `previous-month-label`, `next-month-label`, `year-view-label` and `today-label` left empty read the product's words, set once with `setWords()` from `@tanrei/web`; the element draws again when they change. The present day's word, where neither the instance nor the product gives one, is `Intl.RelativeTimeFormat(locale, { numeric: \"auto\" }).format(0, \"day\")`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiCalendar",
+      "props": {
+        "mode": "range",
+        "value": "selection",
+        "start": "range",
+        "end": "range",
+        "min": "minDate",
+        "max": "maxDate",
+        "disabledDates": "disabledDates",
+        "today": "today",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showsAdjacentDays",
+        "label": "label",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel"
+      },
+      "events": {
+        "change": "selection"
+      },
+      "items": {
+        "day": {
+          "name": "TanreiCalendarDay",
+          "props": {
+            "date": "date",
+            "disabled": "disabled",
+            "adjacent": "isAdjacent"
+          }
+        },
+        "year": {
+          "name": "TanreiCalendarYear",
+          "props": {
+            "year": "year"
+          }
+        }
+      },
+      "notes": "Planned. A view: `TanreiCalendar(selection: Binding<DateComponents?>, …)` for a date and `TanreiCalendar(range: Binding<TanreiDateRange>, …)` for a range, where `TanreiDateRange` holds `start` and `end` as `DateComponents?`; the initializer is the mode. Dates are `DateComponents` with year, month and day in the Gregorian calendar, so no time zone enters. Writing the binding is change. `minDate`, `maxDate`, `today` and `disabledDates` (`Set<DateComponents>`) take `DateComponents`; `isDateDisabled` is a closure. The words are fields of a `TanreiCalendarLabels` passed as `labels:`, whose field names are the spec's; `label` is the view's own. `locale` defaults to the `\\.locale` environment. Arrow keys through `.onKeyPress`; the drag of CAL-30 through a `DragGesture(minimumDistance:)` on the axis whose `predictedEndTranslation` gives the fling, which a mouse drives on macOS and iPadOS as a finger does; on macOS the scroll through an `NSEvent` monitor, whose `phase` and `momentumPhase` say when a scroll ends (CAL-34) and whose `hasPreciseScrollingDeltas` tells a trackpad's distance from a wheel's steps (CAL-33). On the vertical axis the weeks are one column offset by an animatable progress (`animatableData`), not two pages (CAL-29). The navigation buttons are `TanreiButton`s with an icon and no label. Built from the date picker's calendar view, which the DateTimePicker also shows. The product's words are read from the `\\.tanreiWords` environment value."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiCalendar",
+      "props": {
+        "mode": "mode",
+        "value": "value",
+        "start": "start",
+        "end": "end",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "today": "today",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showAdjacentDays",
+        "label": "label",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel"
+      },
+      "events": {
+        "change": "onChange"
+      },
+      "items": {
+        "day": {
+          "name": "TanreiCalendarDay",
+          "props": {
+            "date": "date",
+            "disabled": "disabled",
+            "adjacent": "adjacent"
+          }
+        },
+        "year": {
+          "name": "TanreiCalendarYear",
+          "props": {
+            "year": "year"
+          }
+        }
+      },
+      "notes": "Planned. `TanreiCalendar(mode, value, start, end, onChange, min, max, disabledDates, isDateDisabled, today, firstDayOfWeek, locale, startView, showAdjacentDays, label, labels, modifier)`. Dates are `TanreiDate(year, month, day)`, the date picker's value class (API 23 has no `java.time.LocalDate`). `onChange` receives a `TanreiDateSelection(value, start, end)`; the caller keeps the state (hoisting). The other words are fields of a `TanreiCalendarLabels`. Compose has no grid role: the grid sets `collectionInfo` (7 columns) and each day `collectionItemInfo`, `Role.Button`, `selected` and `disabled()`. The drag of CAL-30 through `pointerInput` on the axis with a `VelocityTracker` for the fling, for touch, a stylus and a mouse alike; a scroll (CAL-33) through `PointerEventType.Scroll`, a mouse wheel's being steps. On the horizontal axis a `HorizontalPager` with one page a month is the likely primitive; on the vertical axis the weeks are one column offset by a progress with `lerp` for the colors (CAL-29), which a pager cannot draw, since it lays out two pages. Arrow keys through `onPreviewKeyEvent`. The navigation buttons are `TanreiButton`s with an icon and no label. The product's words are read from `LocalTanreiWords`."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiCalendar",
+      "props": {
+        "mode": "mode",
+        "value": "value",
+        "start": "start",
+        "end": "end",
+        "min": "firstDate",
+        "max": "lastDate",
+        "disabledDates": "disabledDates",
+        "today": "currentDate",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showAdjacentDays",
+        "label": "label",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel"
+      },
+      "events": {
+        "change": "onChanged"
+      },
+      "items": {
+        "day": {
+          "name": "TanreiCalendarDay",
+          "props": {
+            "date": "date",
+            "disabled": "disabled",
+            "adjacent": "adjacent"
+          }
+        },
+        "year": {
+          "name": "TanreiCalendarYear",
+          "props": {
+            "year": "year"
+          }
+        }
+      },
+      "notes": "Planned. A widget, as Flutter's own `CalendarDatePicker` is an inline calendar: `TanreiCalendar(mode:, value:, start:, end:, onChanged:, firstDate:, lastDate:, currentDate:, …)`; `firstDate`, `lastDate` and `currentDate` keep Flutter's names. Dates are `DateTime`s of which only the year, month and day are read; `isDateDisabled` is a function. `onChanged` receives a `TanreiDateSelection`. Month and weekday names come from `TanreiDateLocalizations` (English built in, no `intl` dependency), the first day of the week from the embedded CLDR table. On the horizontal axis paging through a `PageView`; on the vertical axis the weeks are one column driven by an `AnimationController` whose value is the progress of CAL-29 (`Color.lerp` for the colors), moved by a `GestureDetector`'s vertical drag callbacks, with `DragEndDetails.primaryVelocity` for the fling, for every `PointerDeviceKind`; a trackpad's scroll (CAL-33) arrives as `PointerPanZoomUpdateEvent`s, whose end event ends it (CAL-34), and a mouse wheel's `PointerScrollEvent` is a step. The navigation buttons are `TanreiButton`s with an icon and no label. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Calendar",
+      "props": {
+        "mode": "mode",
+        "value": "value",
+        "start": "start",
+        "end": "end",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "today": "today",
+        "firstDayOfWeek": "firstDayOfWeek",
+        "locale": "locale",
+        "startView": "startView",
+        "showAdjacentDays": "showAdjacentDays",
+        "label": "accessibilityLabel",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "previousMonthLabel": "previousMonthLabel",
+        "nextMonthLabel": "nextMonthLabel",
+        "yearViewLabel": "yearViewLabel",
+        "todayLabel": "todayLabel"
+      },
+      "events": {
+        "change": "onChange"
+      },
+      "items": {
+        "day": {
+          "name": "CalendarDay",
+          "props": {
+            "date": "date",
+            "disabled": "disabled",
+            "adjacent": "adjacent"
+          }
+        },
+        "year": {
+          "name": "CalendarYear",
+          "props": {
+            "year": "year"
+          }
+        }
+      },
+      "notes": "Planned. Controlled: `value` (or `start` and `end`) and `onChange({ value, start, end })`; the caller moves them. Dates are ISO 8601 strings, never `Date` objects, so no time zone enters. `isDateDisabled` is a function prop. The grid has the `grid` role; days the `button` role with `accessibilityState` `selected` and `disabled`. The drag of CAL-30 through a `PanResponder` on the axis (the release's velocity gives the fling) and, on the web renderer, `onWheel` read as the web package reads it (CAL-33, CAL-34); on the vertical axis the weeks are one column moved by an `Animated.Value` that is the progress of CAL-29, with `interpolate` for the colors and the opacity. Locale data from Hermes's `Intl.DateTimeFormat`; the first day of the week from the embedded CLDR table. The navigation buttons are the package's `Button` with an icon and no label. The product's words are read from the `TanreiWordsProvider` context."
+    }
+  }
+}

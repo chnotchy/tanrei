@@ -1,0 +1,77 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "alignSelf": "flex-start",
+      "flexDirection": "row"
+    }
+  },
+  "children": [
+    {
+      "type": "Text",
+      "props": {
+        "accessibilityLabel": "notifications",
+        "accessibilityValue": {
+          "text": "42 unread"
+        },
+        "accessible": true,
+        "allowFontScaling": false,
+        "style": {
+          "color": "rgb(107, 106, 108)",
+          "fontFamily": "Material Symbols Rounded",
+          "fontSize": 24,
+          "fontWeight": "300",
+          "lineHeight": 24
+        }
+      },
+      "children": [
+        "notifications"
+      ]
+    },
+    {
+      "type": "View",
+      "props": {
+        "accessibilityElementsHidden": true,
+        "accessible": false,
+        "importantForAccessibility": "no-hide-descendants",
+        "style": {
+          "alignItems": "center",
+          "backgroundColor": "rgb(238, 55, 43)",
+          "borderRadius": 9999,
+          "justifyContent": "center",
+          "marginStart": -9,
+          "minHeight": 18,
+          "minWidth": 18,
+          "paddingEnd": 6,
+          "paddingStart": 6,
+          "pointerEvents": "none",
+          "position": "absolute",
+          "start": "100%",
+          "top": -9
+        }
+      },
+      "children": [
+        {
+          "type": "Text",
+          "props": {
+            "allowFontScaling": true,
+            "style": {
+              "color": "rgb(255, 255, 255)",
+              "fontSize": 13,
+              "fontVariant": [
+                "tabular-nums"
+              ],
+              "fontWeight": "400",
+              "letterSpacing": 0,
+              "lineHeight": 18,
+              "textAlign": "center"
+            }
+          },
+          "children": [
+            "⁨42⁩"
+          ]
+        }
+      ]
+    }
+  ]
+}

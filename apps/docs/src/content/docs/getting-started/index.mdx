@@ -1,0 +1,76 @@
+---
+title: Getting started
+description: What Tanrei ships, how the pieces fit together, and where to start on your platform.
+---
+
+import Callout from '../../../components/Callout.astro';
+import { CardGrid, LinkCard } from '../../../components/cards';
+import { Tabs, TabItem } from '../../../components/tabs';
+
+Tanrei is a design system delivered as native libraries. You do not adopt a runtime or a cross-platform framework; you add the package for the platform you already build on and get the same tokens, components and accessibility behaviour as every other platform.
+
+<Callout type="caution" title="Pre-release">
+  Tanrei is in active development and **nothing has been released yet**: no package is on a registry. Each platform's guide shows how to build it from the source today, and how installing will work after the first release. The API shown in these guides reflects the current specs and source, and can change before then. The [status page](/status/) shows exactly what exists today. The Web and React packages build from source; SwiftUI, Compose, Flutter and React Native have not caught up with the current specs and do not build yet.
+</Callout>
+
+## Pick your platform
+
+<CardGrid>
+  <LinkCard title="Web" description="CSS custom properties and Web Components. Works with any framework, or none." href="/getting-started/web/" />
+  <LinkCard title="React" description="Typed React components generated from the Web Components." href="/getting-started/react/" />
+  <LinkCard title="SwiftUI" description="A Swift package for iOS and macOS." href="/getting-started/swiftui/" />
+  <LinkCard title="Jetpack Compose" description="An Android library on Compose Foundation, with no Material dependency." href="/getting-started/compose/" />
+  <LinkCard title="Flutter" description="A pure Dart package that works with or without MaterialApp." href="/getting-started/flutter/" />
+  <LinkCard title="React Native" description="Pure TypeScript components, no native modules." href="/getting-started/react-native/" />
+</CardGrid>
+
+## The same button, six ways
+
+Every component is defined once, in a platform-neutral spec, and implemented with each platform's idioms. Your choice of tab is remembered across the site.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="tonal">Save draft</tanrei-button>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    <Button variant="tonal" onClick={saveDraft}>Save draft</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    TanreiButton("Save draft", variant: .tonal) { saveDraft() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    TanreiButton(text = "Save draft", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('Save draft'))
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    <Button variant="tonal" onPress={saveDraft}>Save draft</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+## What you get on every platform
+
+- **Tokens.** Color roles, typescale, shape, elevation, motion, state and spacing values generated from one DTCG source into CSS custom properties, Swift, Kotlin, Dart and TypeScript constants.
+- **Themes.** Light and dark, each at standard, medium and high contrast. By default a theme follows the operating system; you can force either setting for the whole app or a subtree.
+- **Components.** Implementations of the shared specs, with the same variants, states and keyboard behaviour everywhere.
+- **Accessibility defaults.** Minimum hit targets, a visible focus ring, text that survives 200% scaling and respect for reduced motion are built in rather than left to each screen.
+
+## How to read these docs
+
+- [Foundations](/foundations/principles/) explain the ideas and the rules.
+- The [token reference](/tokens/color/) lists every value, rendered straight from the token files.
+- [Components](/components/) follow one template: overview, specs, guidelines, accessibility. Tables on those pages come from the component's spec, so they cannot fall out of date.
+- [Status](/status/) is generated from the repository.

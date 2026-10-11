@@ -1,0 +1,517 @@
+---
+title: "导航抽屉"
+description: "在起始侧边缘的一块面板里，按分区和分组列出产品的目的地：在大屏幕上位于内容旁边，在 compact 屏幕上盖在内容之上，还可以收起为一列图标。"
+translationOf: components/navigation-drawer.mdx
+sourceHash: 99562d926c109200b21007f7db10ca4597cbb7da
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="navigation-drawer" />
+
+:::note[规格已修订，尚未覆盖所有平台]
+本页描述的是规格当前所定的导航抽屉。`collapsible` 的抽屉可以收窄为一列图标，由此取代了导航轨道（navigation rail）：收起的抽屉就是去掉标签的展开抽屉，每一行都在图标之后截断，它的菜单按钮再把它展宽，每个图标都留在原位。目的地的 `badge` 文本改为 `trailingText`，画得更低调，另有 `trailing` 插槽用来放图标或 `Badge`；`badge` 现在指图标上的徽标。`group` 项用来展开和折叠嵌套的目的地。行高为 48，与菜单项的高度相同。`responsive` 让窗口的宽度决定抽屉的呈现方式。带 `href` 的目的地是链接，`revealSelected` 和 `scrollOffset` 则让抽屉可以充当网站的侧边栏。Web 组件已经做到了这一切，本页的演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——行高 44，`badge` 是行末的文本，没有收起形态、分组、链接目的地和响应式呈现，另有一个独立的导航轨道；这些平台的示例展示的也是那个版本。
+:::
+
+<DemoFrame label="带两个分区的标准抽屉">
+  <tanrei-navigation-drawer open value="inbox" label="邮件" style="block-size: 26rem">
+    <tanrei-navigation-drawer-section heading="邮件">
+      <tanrei-navigation-drawer-item value="inbox" label="收件箱" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="sent" label="已发送" icon="send"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="drafts" label="草稿箱" icon="draft"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-section heading="标签" divider>
+      <tanrei-navigation-drawer-item value="work" label="工作" icon="label" trailing-text="新"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="family" label="家庭" icon="label"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="可收起的抽屉：菜单按钮把它收起为一列图标，其中的单元格用工具提示显示名称" plain>
+  <tanrei-navigation-drawer open collapsible value="home" label="工作区" style="block-size: 30rem">
+    <tanrei-button slot="header-button" variant="text" label="菜单"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-main-action-button slot="main-action" label="新建项目"><span slot="icon">add</span></tanrei-main-action-button>
+    <tanrei-navigation-drawer-item value="home" label="首页" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="inbox" label="收件箱" icon="inbox" badge badge-count="3" badge-label="3 封未读"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="项目" icon="folder" open>
+      <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="beacon" label="Beacon" icon="deployed_code"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item value="settings" label="设置" icon="settings" trailing-text="新"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="作为链接的目的地：抽屉的 value 指明当前页面，reveal-selected 展开包含它的分组" plain>
+  <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="文档" style="block-size: 24rem">
+    <tanrei-navigation-drawer-item label="开始使用" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="基础">
+      <tanrei-navigation-drawer-item label="颜色" href="#sidebar-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="字体排印" href="#sidebar-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="组件">
+      <tanrei-navigation-drawer-item label="按钮" href="#sidebar-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="标签页" href="#sidebar-demo-tabs" trailing-text="新"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item label="源代码" href="#sidebar-demo-source" target="new" target-label="在新标签页中打开"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+### 用法
+
+导航抽屉有五种项。`destination`（目的地）是一行，包含可选的图标、标签，以及行末可选的后置内容；带 `href` 时它是链接。`group`（分组）也是一行，用来展开和折叠它里面的目的地和分组。`section`（分区）把目的地和分组归在一个可选的 `heading` 之下，前面可以加一条可选的 `divider`；分区不能嵌套，分组里也不能放分区。`header-button`（第一个是菜单按钮）和 `main-action` 位于页眉。在 Web 上，它们是 `<tanrei-navigation-drawer-item>`、`<tanrei-navigation-drawer-group>` 和 `<tanrei-navigation-drawer-section>` 子元素，以及放在 `header-button` 和 `main-action` 插槽里的纯图标 `<tanrei-button>` 和一个 `<tanrei-main-action-button>`。待跟进的平台按各自的惯用方式接收目的地和分区：在 SwiftUI 上是 `TanreiNavigationDrawerItem` 和 `TanreiNavigationDrawerSection` 视图，在 Compose 上是同名的调用，在 Flutter 上是 `children:` 中的 `TanreiNavigationDrawerDestination` 和 `TanreiNavigationDrawerSection` 对象，在 React Native 上是 `items` 数组中的目的地条目和分区条目，其中分区靠它自己的 `items` 来区分。
+
+选择属于抽屉，以目的地的值来表示，无论这个目的地位于何处。`change` 和 `reselect` 的工作方式与导航栏相同。Compose 没有抽屉级别的值：由你把当前项标记为 `selected`，它的 `onClick` 同时充当 change 和 reselect。Flutter 按索引选择，索引按阅读顺序跨各个分区连续计数。
+
+带 `href` 的目的地是链接，而不是按钮。浏览器像跟随任何链接一样跟随它，抽屉不会因为按下而选中它：由到达的页面说明哪个目的地是当前的——把抽屉的 `value` 设为那个目的地的值；目的地没有值时，设为它原样书写的 `href`。对链接的普通激活仍会触发 `change` 和 `reselect`。它们带着链接的 `href`，并且可以取消，客户端路由就是这样接管导航的。目前只有 Web 提供链接目的地。
+
+抽屉有两种变体，一个产品通常两种都用：窗口足够宽时用标准，不够宽时用模态。
+
+- **标准**抽屉是一块布局区域，不是浮层。打开时它在内容旁边占据自己的宽度，关闭时不占宽度。它不绘制遮罩，也从不把焦点留在自己内部。
+- **模态**抽屉是供操作的浮层，而且是模态的。它带着遮罩从内容上方滑入，在关闭之前把焦点限制在自己之内，并在用户选择目的地之后自行关闭。
+
+使用 `responsive` 时，抽屉会根据窗口的宽度自己做出这个选择（见下文“跟随窗口的宽度”）。
+
+`open` 显示或隐藏任一变体。用户按下遮罩或 Escape、使用平台的返回操作，或把抽屉朝它所在的边缘拖动时，模态抽屉也会关闭，然后触发 `close`。在 Web 上，抽屉会像对话框一样自己把 `open` 设回 false。在其他平台上，由你根据关闭事件让它保持同步：Flutter 和 React Native 上是 `onClose`，SwiftUI 上是 `isPresented` 绑定，Compose 上是抽屉状态，它的 `confirmValueChange` 会收到每一次关闭。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="menu" label="菜单"><span slot="icon">menu</span></tanrei-button>
+
+    <!-- 模态：shadow root 中的一个 <dialog>，用 showModal() 打开。标准抽屉是一个由 label 命名的 <nav>。 -->
+    <tanrei-navigation-drawer variant="modal" label="邮件" value="inbox">
+      <tanrei-navigation-drawer-section heading="邮件">
+        <tanrei-navigation-drawer-item value="inbox" label="收件箱" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item value="sent" label="已发送" icon="send"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+      <tanrei-navigation-drawer-section heading="标签" divider>
+        <tanrei-navigation-drawer-item value="work" label="工作" icon="label" trailing-text="新"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+    </tanrei-navigation-drawer>
+
+    <!-- 可收起：第一个页眉按钮是菜单按钮。抽屉自己响应它，并触发 expandedchange。 -->
+    <tanrei-navigation-drawer collapsible open label="工作区" value="home">
+      <tanrei-button slot="header-button" variant="text" label="菜单"><span slot="icon">menu</span></tanrei-button>
+      <tanrei-main-action-button slot="main-action" label="新建项目"><span slot="icon">add</span></tanrei-main-action-button>
+      <span slot="header">工作区</span>
+      <tanrei-navigation-drawer-item value="home" label="首页" icon="home"></tanrei-navigation-drawer-item>
+      <!-- 分组：它的行负责展开和折叠它，并触发 toggle。 -->
+      <tanrei-navigation-drawer-group label="项目" icon="folder">
+        <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+      <!-- 图标上的徽标，两种形态下都显示；后置内容只在展开时显示。 -->
+      <tanrei-navigation-drawer-item value="inbox" label="收件箱" icon="inbox" badge badge-count="3" badge-label="3 封未读"></tanrei-navigation-drawer-item>
+      <!-- 在新标签页中打开的链接：展开的行以 open_in_new 结尾，target-label 在它的名称之后朗读。 -->
+      <tanrei-navigation-drawer-item label="帮助中心" icon="help" href="/help" target="new" target-label="在新标签页中打开"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer>
+
+    <!-- 网站的侧边栏：每个目的地都是链接，每个页面把自己的地址作为 value 交给抽屉。
+         responsive 让窗口的宽度决定呈现方式；reveal-selected 展开包含当前页面的分组。 -->
+    <tanrei-navigation-drawer id="sidebar" label="文档" value="/components/tabs/" reveal-selected responsive open>
+      <tanrei-navigation-drawer-item label="开始使用" href="/getting-started/"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-group label="组件">
+        <tanrei-navigation-drawer-item label="按钮" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="标签页" href="/components/tabs/" trailing-text="新"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-drawer';
+      import '@tanrei/web/components/button';
+      const drawer = document.querySelector('tanrei-navigation-drawer');
+      document.querySelector('#menu').addEventListener('click', () => (drawer.open = true));
+      // 抽屉先设置自己的 value，再触发 change。随后模态抽屉会自行关闭。
+      drawer.addEventListener('change', (e) => showFolder(e.detail.value));
+      // 模态抽屉每次关闭之后都会触发 close：遮罩、Escape、拖动或选择目的地。
+      drawer.addEventListener('close', onDrawerClosed);
+      // 此时可收起的抽屉已经变成了菜单按钮所要求的形态。
+      document.querySelector('[collapsible]').addEventListener('expandedchange', (e) => savePreference(e.detail.expanded));
+
+      const sidebar = document.querySelector('#sidebar');
+      // 链接的 change 可以取消，并带有它的 href：客户端路由在这里接管导航。
+      // 由独立文档组成的网站什么都不用监听，由下一个页面给出 value。
+      sidebar.addEventListener('change', (e) => {
+        e.preventDefault();
+        router.navigate(e.detail.href);
+      });
+      // 响应式抽屉会说明窗口宽度让它变成了什么：standard、column 或 modal。
+      sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import {
+      NavigationDrawer,
+      NavigationDrawerGroup,
+      NavigationDrawerItem,
+      NavigationDrawerSection,
+    } from '@tanrei/react';
+
+    // 模态抽屉会自行关闭（onClose）：在那里让 open 保持同步。
+    <NavigationDrawer
+      variant="modal"
+      label="邮件"
+      open={open}
+      value={folder}
+      onChange={(e) => setFolder(e.detail.value)}
+      onClose={() => setOpen(false)}
+    >
+      <NavigationDrawerSection heading="邮件">
+        <NavigationDrawerItem value="inbox" label="收件箱" icon="inbox" trailingText="24" />
+        <NavigationDrawerItem value="sent" label="已发送" icon="send" />
+      </NavigationDrawerSection>
+    </NavigationDrawer>
+
+    // 网站的侧边栏：目的地是链接，由页面说明哪一个是当前的。
+    <NavigationDrawer
+      label="文档"
+      open
+      responsive
+      revealSelected
+      value={pathname}
+      onChange={(e) => {
+        e.preventDefault(); // 客户端路由接管导航
+        navigate(e.detail.href);
+      }}
+      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+    >
+      <NavigationDrawerGroup label="组件">
+        <NavigationDrawerItem label="按钮" href="/components/button/" />
+        <NavigationDrawerItem label="标签页" href="/components/tabs/" trailingText="新" />
+      </NavigationDrawerGroup>
+      <NavigationDrawerItem label="源代码" href="https://example.com/tanrei" target="new" targetLabel="在新标签页中打开" />
+    </NavigationDrawer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 标准：位于内容旁边。isPresented 显示和隐藏它；选择目的地时会写入 selection。
+    HStack(spacing: 0) {
+        TanreiNavigationDrawer(variant: .standard, isPresented: $sidebarShown, selection: $folder,
+                               accessibilityLabel: "邮件", onReselect: { _ in scrollToTop() }) {
+            TanreiNavigationDrawerSection("邮件") {
+                TanreiNavigationDrawerItem("收件箱", icon: "inbox", value: "inbox", badge: "24")
+                TanreiNavigationDrawerItem("已发送", icon: "send", value: "sent")
+            }
+            TanreiNavigationDrawerSection("标签", divider: true) {
+                TanreiNavigationDrawerItem("工作", icon: "label", value: "work")
+            }
+        } header: {
+            Text("邮件")
+        }
+        FolderView(folder)
+    }
+
+    // 模态：加在它所覆盖的内容上的修饰符。关闭时会向绑定写入 false。
+    FolderView(folder)
+        .tanreiNavigationDrawer(isPresented: $menuShown, selection: $folder, accessibilityLabel: "邮件") { … }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawer
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerItem
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerSection
+    import io.github.chnotchy.tanrei.components.rememberTanreiDrawerState
+    import io.github.chnotchy.tanrei.tokens.TanreiNavigationDrawerVariant
+
+    // 抽屉包住整个屏幕。drawerState 对应规格中的 open；confirmValueChange 会收到规格中的 close。
+    val drawerState = rememberTanreiDrawerState()
+    TanreiNavigationDrawer(
+        variant = if (wide) TanreiNavigationDrawerVariant.Standard else TanreiNavigationDrawerVariant.Modal,
+        drawerState = drawerState,
+        contentDescription = "邮件",
+        drawerContent = {
+            // 由你把当前项标记为 selected。模态抽屉在 onClick 之后自行关闭。
+            TanreiNavigationDrawerSection(heading = "邮件") {
+                TanreiNavigationDrawerItem(selected = folder == "inbox", onClick = { folder = "inbox" }, label = "收件箱", icon = "inbox", badge = "24")
+                TanreiNavigationDrawerItem(selected = folder == "sent", onClick = { folder = "sent" }, label = "已发送", icon = "send")
+            }
+            TanreiNavigationDrawerSection(heading = "标签", divider = true) {
+                TanreiNavigationDrawerItem(selected = folder == "work", onClick = { folder = "work" }, label = "工作", icon = "label", badge = "新")
+            }
+        },
+    ) {
+        FolderScreen(folder, onMenu = { drawerState.open() })
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 标准：一块布局区域，放在 Row 的最前面，位于内容旁边。
+    Row(
+      children: <Widget>[
+        TanreiNavigationDrawer(
+          open: sidebarOpen,
+          selectedIndex: current, // 按阅读顺序跨各个分区连续计数
+          onDestinationSelected: (int index) => setState(() => current = index), // change 和 reselect
+          semanticLabel: '邮件',
+          children: const <TanreiNavigationDrawerChild>[
+            TanreiNavigationDrawerSection(
+              heading: '邮件',
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'inbox', label: '收件箱', badge: '24'),
+                TanreiNavigationDrawerDestination(icon: 'send', label: '已发送'),
+              ],
+            ),
+            TanreiNavigationDrawerSection(
+              heading: '标签',
+              divider: true,
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'label', label: '工作', badge: '新'),
+              ],
+            ),
+          ],
+        ),
+        const Expanded(child: Page()),
+      ],
+    ),
+
+    // 模态：填满窗口的 Stack 的最后一个子项。在 onClose 中把 open 设为 false。
+    Stack(
+      children: <Widget>[
+        const Positioned.fill(child: Page()),
+        TanreiNavigationDrawer(
+          variant: TanreiNavigationDrawerVariant.modal,
+          open: menuOpen,
+          onClose: () => setState(() => menuOpen = false),
+          selectedIndex: current,
+          onDestinationSelected: (int index) => setState(() => current = index),
+          semanticLabel: '邮件',
+          children: destinations,
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationDrawer } from '@tanrei/react-native';
+
+    const [open, setOpen] = useState(false);
+    const [folder, setFolder] = useState('inbox');
+
+    // 受控：在 onClose 中把 open 设为 false。模态抽屉在一个透明的 Modal 中呈现。
+    <NavigationDrawer
+      variant={wide ? 'standard' : 'modal'}
+      open={open}
+      onClose={() => setOpen(false)}
+      accessibilityLabel="邮件"
+      value={folder}
+      onValueChange={setFolder}
+      items={[
+        { heading: '邮件', items: [
+          { value: 'inbox', label: '收件箱', icon: 'inbox', badge: '24' },
+          { value: 'sent', label: '已发送', icon: 'send' },
+        ] },
+        { heading: '标签', divider: true, items: [{ value: 'work', label: '工作', icon: 'label', badge: '新' }] },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="不带图标、也不属于任何分区的目的地" plain>
+  <tanrei-navigation-drawer open value="deployments" label="项目" style="block-size: 20rem">
+    <tanrei-navigation-drawer-item value="overview" label="概览"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="deployments" label="部署" trailing-text="3"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="settings" label="设置"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-drawer" />
+
+## 指南
+
+### 何时使用
+
+当产品的目的地多到导航栏放不下，或者这些目的地可以归成几组时，使用导航抽屉：邮件应用的文件夹和标签、项目的各个部分、管理后台。在大窗口上，标准抽屉作为侧边栏位于内容旁边。在 compact 窗口上，模态抽屉由菜单按钮唤出，从内容上方滑入，选定目的地之后随即消失。
+
+### 在导航栏与导航抽屉之间选择
+
+| 方面 | [导航栏](/zh-cn/components/navigation-bar/) | 收起的[导航抽屉](/zh-cn/components/navigation-drawer/) | 展开的[导航抽屉](/zh-cn/components/navigation-drawer/) |
+| --- | --- | --- | --- |
+| 所在位置 | 沿底边 | 沿起始侧边缘的一列图标 | 起始侧边缘的一块面板里 |
+| 窗口 | Compact | Medium 及更宽 | Expanded 及更宽（标准），或 compact（模态） |
+| 目的地 | 三到五个 | 它的顶级目的地和分组，各占一个单元格 | 产品有多少就放多少，按分区和分组组织 |
+| 一个目的地 | 图标在上，单行标签在下，图标上可带徽标 | 在图标之后截断的行：只有图标，图标上可带徽标，名称放在工具提示里 | 一行：可选的图标、可换行的标签，以及末尾的后置文本或内容 |
+| 它还容纳 | 没有别的 | 页眉：菜单按钮和主操作，后者收起为它的图标 | 页眉：菜单按钮、标题或账户切换器，以及主操作 |
+| 在原生平台上，目的地是 | 标签栏的一个标签 | 带选中状态的按钮 | 带选中状态的按钮 |
+| 它是什么 | 布局区域 | 布局区域，或布局中的一列，模态抽屉从这一列展宽 | 标准：布局区域。模态：模态浮层 |
+
+- **收起的导航抽屉就是导航轨道。** 可收起的抽屉在内容需要宽度时收窄为一列图标，它的菜单按钮再把它展宽；每个图标都留在原位。Tanrei 原先独立的导航轨道已并入这种形态。
+- **导航栏和导航抽屉是同一组目的地的两种摆放位置。** 它们接收相同的目的地和相同的选择，所以随窗口自适应的产品可以在某个断点把导航栏换成导航抽屉，而不必改动目的地。一次只显示其中一个，绝不同时显示。
+- **导航抽屉容纳得更多。** 当产品的目的地多到导航栏放不下，或者它们可以归成几组（例如邮件应用的文件夹和标签）时，使用展开的导航抽屉。在大窗口上，标准抽屉位于内容旁边。在 compact 窗口上，模态抽屉由菜单按钮唤出，从内容上方滑入。
+- **可收起的模态抽屉**把它那一列图标留在布局中；菜单按钮打开它时，它在遮罩之上、内容上方展宽。
+- 在每个平台上，两者都按目的地的值选择（Compose 用每个项上的标志，Flutter 用索引），并触发 `change` 和 `reselect`。
+
+### 导航轨道去了哪里
+
+Tanrei 没有单独的导航轨道：导航轨道就是一个处于收起形态的可收起抽屉。
+
+| 以前 | 现在 |
+| --- | --- |
+| 导航轨道 | 带 `collapsible` 且 `expanded` 设为 false 的导航抽屉 |
+| 导航轨道的目的地，图标在上、标签在下 | 目的地，收起时画成在图标之后截断的行：只有图标，名称放在工具提示里 |
+| 导航轨道的标签可见性 | `collapsedLabels`：`never`（默认）、`selected` 或 `always`。后两者在图标下方绘制 `shortLabel` |
+| 导航轨道在图标上的徽标 | 目的地的 `badge`、`badgeCount` 和 `badgeLabel`，两种形态下都绘制 |
+| 导航轨道的菜单按钮和 FAB | 抽屉的第一个 `header-button`（即它的菜单按钮），以及收起为图标的 `main-action` |
+| 抽屉行末的 `badge` 文本 | `trailingText`，或 `trailing` 插槽 |
+| 导航轨道的令牌 | `comp.navigation-drawer.collapsed.*` 和收起形态的条件 |
+
+Web 已经实现了它；SwiftUI、Compose、Flutter 和 React Native 在跟上之前，提供的仍是各自独立的导航轨道，本文档已不再介绍它。
+
+### Material 3 的名称
+
+| Material 3 | Tanrei |
+| --- | --- |
+| Navigation rail | 处于收起形态的可收起导航抽屉 |
+| Expanded navigation rail | 处于展开形态的可收起导航抽屉 |
+| Modal expanded navigation rail | 可收起的模态导航抽屉 |
+| Navigation drawer | 不可收起的导航抽屉 |
+
+### 如何选择变体
+
+| 变体 | 它是什么 | 适用于 |
+| --- | --- | --- |
+| 标准（默认） | 布局中的一块面板，末尾侧边缘有一条细线。它打开和关闭时，旁边的内容随之调整大小。它不绘制遮罩，用户在内容中工作时它保持打开。 | 宽窗口，抽屉可以作为侧边栏一直开着。 |
+| 模态 | 一块抬升的面板，末尾侧的角是圆角，在遮罩之上从内容上方滑入。它在关闭之前一直持有焦点，并在选定目的地之后自行关闭。 | compact 窗口，由应用栏里或收起的抽屉页眉里的菜单按钮打开。 |
+
+设计系统可以增加变体。它增加的变体，行为与标准变体相同。
+
+### 打开、焦点与关闭
+
+- **打开标准抽屉。** 它滑入的同时，旁边的内容为它让出位置。当你是为了响应用户（例如通过菜单按钮）而打开它时，焦点移到当前目的地，否则移到抽屉中第一个可聚焦的元素。一开始就打开着的抽屉不移动焦点。
+- **在标准抽屉旁边工作。** Tab 从抽屉移入内容，抽屉保持打开。焦点在抽屉内时关闭它，会把焦点交还给它打开之前所在的位置。
+- **打开模态抽屉。** 它从起始侧边缘滑入，同时遮罩在窗口的其余部分上淡入。焦点移到当前目的地，否则移到第一个可聚焦的元素，并留在抽屉内。它背后的一切对指针、触摸、键盘和辅助技术都是惰性的（inert）。
+- **关闭模态抽屉。** 按下遮罩、Escape、平台的返回操作、朝起始侧边缘拖动超过其宽度的一半或朝那个方向快速滑动，以及选择目的地，每一种都会让它关闭一次。它滑出，遮罩淡出，焦点交还给原先持有它的元素。
+- **不能从边缘滑动打开。** 在 iOS 上，屏幕的起始侧边缘是返回手势，所以抽屉从不从那里打开。请通过一个可见的菜单按钮打开它。
+- 在减弱动态效果时，抽屉的打开和关闭立即完成。
+
+### 收起
+
+- **`collapsible`** 让抽屉拥有宽 72 的收起形态：也就是去掉标签的展开抽屉。每个顶级目的地和分组都是在图标之后截断的那一行，尺寸为 48 × 48，带有行的圆角；选中的那个与它的行一样被填充。页眉的按钮在这一列中上下堆叠，主操作收起为它的图标。分区标题保留各自的行，但没有文字；页眉插槽和后置内容不绘制。
+- **收起的单元格用工具提示显示名称**，工具提示朝向内容一侧：指针停在单元格上时，经过工具提示的延迟后出现；键盘聚焦时立即出现；触摸时从不出现。标签本来就是单元格的无障碍名称，所以工具提示不会给朗读的内容增加任何东西。
+- **`expanded`** 选择可收起的标准抽屉处于哪种形态。可收起的模态抽屉在关闭时把它那一列留在布局中，`open` 让它在遮罩之上、内容上方展宽。
+- **菜单按钮**是第一个 `header-button`。抽屉可收起时，它暴露为已展开或已收起，并控制着抽屉；激活它会触发 `expandedChange`，带着所要求的形态。Web 会自己应用这个形态；在其他平台上，由你据此设置 `expanded` 或 `open`。它的图标和名称由你决定。
+- **`collapsedLabels`** 选择哪些单元格在图标下方绘制短标签：`never`（默认）、只有 `selected` 的那个，或 `always`。带标签的图标列是为想要它的产品或设计系统准备的。这时单元格绘制它的 `shortLabel`（没有提供时绘制它的标签），并且不显示工具提示。无论哪种情况，标签都仍是无障碍名称。
+- **每个图标都留在原位。** 两种形态下，图标都排在同一列、同一条线上，每个单元格也保持自己的高度，所以形态变化时移动的只有末尾侧边缘：边缘经过标签时标签淡出，在带标签的图标列中短标签淡入。展开的分组是唯一的例外：收起的抽屉不绘制它的项，所以下方的单元格会上移。
+- **选择在原位变色。** 新的选择让各行在原地改变颜色，展开和收起时都是如此。不会有任何东西通过放大、缩小或滑动来表示选择。
+
+### 跟随窗口的宽度
+
+`responsive` 让窗口的宽度决定抽屉的呈现方式，依据是其设计系统的两个断点（默认系统中为 1024 和 600）。这时 `variant` 被忽略。
+
+| 窗口 | 呈现方式 | 抽屉是什么 |
+| --- | --- | --- |
+| 不小于较宽的断点 | `standard` | 内容旁边的标准抽屉，无论 `open` 是什么都显示，并且可以收起，形态由 `expanded` 选择 |
+| 不小于较窄的断点，且为 `collapsible` | `column` | 可收起的模态抽屉：它那一列图标留在布局中，`open` 时在内容上方展宽 |
+| 比这更窄 | `modal` | 不可收起的模态抽屉 |
+
+- **呈现方式是推导出的，从不存储。** 它只取决于宽度：抽屉不会把它写入 `variant`、`open` 或 `expanded`。`presentationChange` 会说明它是什么，第一次以及每当宽度改变它时都会触发。
+- **进入新的呈现方式时，抽屉是关闭的。** 它立即绘制，不带动效。原先打开着的浮层会被收回，`close` 触发一次。`expanded`、`value` 和每个分组的 `open` 都会保留，所以回到标准呈现方式时，它仍是离开时的形态。
+- **在 `modal` 呈现方式下，菜单按钮由你提供。** 呈现方式为 `modal` 时，请显示一个你自己的菜单按钮（例如放在应用栏里），并通过它设置 `open`。在这种呈现方式下，抽屉自己的菜单按钮只用来关闭它。
+- **抽屉不会在两次访问之间记住任何东西。** 要保留用户选择的形态，请把 `expandedChange` 带来的值存起来，并据此设置 `expanded`。
+
+### 作为网站的侧边栏
+
+给每个目的地一个 `href`，再把页面自己的地址作为抽屉的 `value`，抽屉就成了一个文档型网站的侧边栏。
+
+- **由页面说明自己在哪里。** 按下从不选中链接。每个页面把 `value` 设为它自己对应的目的地：设为那个目的地的 `value`；目的地没有值时，设为它原样书写的 `href`。
+- **`revealSelected`** 在抽屉初次出现时展开包含选中目的地的各个分组，在第一帧完成且不带动效；此后每当 `value` 变化时再次展开。用户之后折叠的分组会一直保持折叠，直到 `value` 变化。
+- **到达时选中项就在可见范围内。** 抽屉出现时，以及每当 `value` 变化时，如果显示选择的那一行没有完全可见，它会被带到可滚动行区域的中间；如果已经完全可见，则完全不动。所以，当前页面已在可见范围内的侧边栏，在页面之间切换时会留在原处。焦点不会移动。
+- **`scrollOffset`** 读取并设置各行已滚动的距离。抽屉自己不存储任何东西。如果网站希望一棵很长的树停留在读者离开时的位置，就要自己保存这个偏移量和每个分组的 `open`（例如存在会话存储里），并在第一帧之前把它们交还给抽屉。包含当前页面的分组照样会展开，而且当某个偏移量会让选中项落在可见范围之外时，以选中项为准。
+- **离开本站的链接**把 `target` 设为 `new`。它在新标签页中打开；除非你在那里放了后置内容，否则它展开的行以图标集的 `open_in_new` 结尾；`targetLabel` 在它的名称之后朗读。这句话由你来写（“在新标签页中打开”）：Tanrei 不提供任何文案。
+- **路由监听 `change`。** 它在浏览器跟随链接之前触发，而且只针对普通激活：不带修饰键的主按键、触摸或 Enter，并且链接的 `target` 是 `same`。取消它，然后前往它带来的 `href`。在另一个标签页中打开的链接不会触发任何事件，模态抽屉也会保持打开。
+
+### 行、分组与分区
+
+- 行的标签会换行而不是被截断，行随之变高。行高至少为 48，即[菜单](/zh-cn/components/menu/)项的高度，并带有菜单项的圆角。
+- 要么给每个目的地都配上图标，要么都不配，这样标签才能对齐。可收起的抽屉在收起时靠图标来绘制每个顶级目的地和分组，所以请给它们每一个都配上图标。
+- `trailingText` 是行末的简短文本，比标签更低调：一个计数（“24”）或一个词（“新”）。`trailing` 插槽用来放其他任何东西，例如一个图标或一个 `Badge`；它优先于 `trailingText`，并且永远不可交互。`target` 为 `new` 的链接会自动以 `open_in_new` 作为行的结尾，所以你不必自己放这个图标。后置内容在标签之后朗读，收起时不绘制。
+- `badge` 在图标上绘制一个 `Badge`，两种形态下都有：一个圆点，或 `badgeCount`，由 `badgeLabel` 命名。
+- 分组的行用来展开和折叠它里面的目的地和分组，行上是图标集的 `expand_more`，展开时旋转半圈。每一级都作为一个整体再向内缩进一档：缩进的是它的填充、状态层和焦点环，而不只是文字。包含选中目的地的分组在折叠时画成选中的样子，抽屉收起时的顶级分组也是如此；在抽屉收起时激活某个分组，会展开抽屉并展开这个分组。嵌套不要超过三级。
+- 分区的标题为它下面的目的地命名。它是标题元素（heading），不是控件。分区可以没有标题，这时它是一个没有名称、只以分隔线隔开的组。
+- 分区的 `divider` 在它前面绘制一条分隔线，把它与上面的内容分开。你永远不需要自己放分隔线。
+- 页眉容纳各个页眉按钮（它们在图标列中上下堆叠），以及它们下方的主操作。页眉插槽在展开时位于菜单按钮旁边，用来放标题或账户切换器，收起时不绘制。抽屉不会改变它的样式。
+- 当各行的总高度超过页眉下方的空间时，行可以滚动，页眉留在原处。滚动到任一端之后，不会接着去滚动抽屉背后的页面。
+
+### 推荐
+
+- 把最常用的目的地放在最前面：放在分区之外，或放在第一个分区里。
+- 目的地有自己的地址时，给它一个 `href`，让它成为真正的链接：它可以在新标签页中打开，可以复制，也能被爬虫跟随。
+- 按分区中各目的地的共同点给分区命名：“标签”“管理”。
+- 在模态和标准两种形态中使用相同的目的地和值，这样产品只凭窗口宽度就能在两者之间切换。
+
+### 避免
+
+- 不要用抽屉放“退出登录”或“写邮件”这样的操作。它的行代表的是去处。
+- 不要在分区里嵌套分区，也不要把分区放进分组。调试构建会报告这种情况，并在原处直接绘制内层分区的目的地。
+- 不要把分组的行当作目的地。它只负责展开和折叠。
+- 不要在宽度足以容纳标准抽屉的窗口上使用模态抽屉。
+
+## 无障碍
+
+<ComponentAccessibility name="navigation-drawer" />
+
+### 组件负责的部分
+
+- 在 Web 上，抽屉是一个由 `label` 命名的导航地标。每个目的地是链接（带 `href`）或按钮，当前目的地带有 `aria-current="page"`。模态抽屉同时还是一个由 `label` 命名的模态 `<dialog>`。
+- 在 iOS、Android、Flutter 和 React Native 上，每个目的地是一个按钮，带有选中状态以及它在各目的地中的位置，这与这些平台上侧边栏和抽屉项的朗读方式一致。模态抽屉是一个由 `label` 命名的模态容器：使用模态特征，或窗格标题。
+- 在两种形态下，目的地都是一个以其标签命名的元素。它的图标被隐藏；图标上徽标的描述以及随后的后置内容，在名称和状态之后朗读。
+- 链接目的地在每一种状态下都与按钮目的地画得完全一样，没有“已访问”的外观。它保留浏览器赋予链接的一切：上下文菜单、在新标签页中打开、拖动，以及悬停时显示地址。在新标签页中打开的链接，会在其描述的末尾朗读它的 `targetLabel`。
+- 收起单元格的工具提示是给使用指针或键盘、视力正常的用户看的。它对辅助技术隐藏，因为辅助技术本来就把标签作为单元格的名称来朗读。
+- 分组的行是一个带展开状态的按钮，控制着它的嵌套列表。右方向键（在从左到右的布局中）展开折叠的分组，左方向键折叠展开的分组，在分组内部按左方向键则移到分组的行上。Tab 依次经过每一个显示出来的行。
+- 抽屉可收起时，它的菜单按钮暴露为已展开或已收起，并控制着抽屉。形态变化时，焦点留在原来所在的单元格上。
+- 分区的标题暴露为标题元素，并且不可聚焦。
+- Tab 依次经过页眉的内容和每一个未禁用的目的地。Enter 和 Space 激活获得焦点的目的地（对 Web 上的链接只有 Enter）。禁用的目的地不接受焦点，并朗读为已禁用。
+- 在标准抽屉中，打开时焦点移入，关闭时焦点交还；Tab 会继续移到内容上，而不会关闭抽屉。在模态抽屉中，Tab 和 Shift+Tab 在抽屉内循环，Escape 和平台的返回操作关闭抽屉并交还焦点。
+- 焦点环绘制在行的周围，只在键盘聚焦时显示。键盘焦点落在没有完全可见的行上时，会以最短的距离把它滚入可见范围。
+- 两种形态下，点击区域都是整个单元格，并且绝不小于最小目标。
+- 文本变大时，两种形态的宽度都保持不变，行和分区标题则变高。标签会换行；短标签会被截断。图标不会缩放。
+- 调试构建会报告：目的地没有标签、模态抽屉没有 `label`、值不对应任何目的地、同一个值被使用了两次、嵌套的分区、分组里的分区、超过三级的嵌套、设计系统中没有的变体、可收起的抽屉没有菜单按钮、`trailing` 插槽里有可聚焦的元素、`href` 是 `javascript:` 地址或无法解析、未知的 `target`，以及 `target` 为 `new` 却没有 `targetLabel` 的链接。
+
+已知的平台差距：
+
+- Web：Firefox 无法为离开顶层（top layer）的元素播放动画，所以在那里模态抽屉会立即消失，而不是滑出。
+- Web：所有尺寸都跟随 `rem`，因此调大浏览器的文本大小时，图标也会变大，但抽屉的宽度绝不会变。只放大 Tanrei 的文字则不会。
+- Web：Tab 能离开打开着的标准抽屉这一点已有测试，但它落在内容中的哪个位置还没有测试，因为这在高负载下不稳定。
+- SwiftUI 无法得知此前是哪个视图持有焦点，所以关闭抽屉时键盘焦点不会交还给任何元素：平台按默认行为放置它。打开抽屉时，焦点落在当前目的地上，否则落在第一个可用的目的地上，绝不落在页眉里的控件上。在 Mac 上，模态抽屉只覆盖并禁用它所附着的那个视图，所以请把它附着到窗口的根视图上。
+- SwiftUI：Escape、无障碍的退出手势以及打开时焦点移入，都还没有做过端到端测试。目的地把它的位置作为值文本（“2 of 6”）携带，而且只有英文。
+- Compose 在一个独立的 `Dialog` 窗口中呈现模态抽屉，与 `TanreiDialog` 一样，而不是像 Material 的抽屉那样放在应用的窗口之内。它看起来是一样的，这个窗口会把焦点限制在内、响应返回操作，并隐藏它背后的内容。
+- Compose 没有抽屉级别的值，所以“值不对应任何目的地”这种情况无从报告。
+- Flutter 的模态抽屉不是 `Scaffold.drawer`。由你把它作为填满窗口的 `Stack` 的最后一个子项放置，并用 `open` 控制它。它的目的地不带“在集合中的位置”。
+- Flutter：当行加上行间隙比触摸目标还矮时（例如行较矮的设计系统），各行会相互拉开距离，而不是只扩大点击区域。
+- React Native 无法得知此前是哪个元素持有焦点，所以关闭抽屉时不会把焦点交还给打开它的元素。模态抽屉把焦点留在平台放置的位置，标准抽屉则什么都不做。
+- React Native 的抽屉还没有自己的 `insets` 属性：它只读取 `TanreiProvider` 的边衬区（insets）。目的地把它的位置作为值文本携带，除非你传入 `positionText`，否则是英文。
+- React Native：模态抽屉的拖动和快速滑动、它的焦点移动以及退出手势，尚未在真机上验证。
+- SwiftUI、Compose、Flutter 和 React Native（它们提供的是上一版）：第一行位于抽屉内边距下方半个间隙处，而且标签换行的行在各平台上变高的方式并不一致（SwiftUI 和 Compose 会保持行的最小高度，直到文本再也放不下）。各平台在跟上时，都会把内边距量到第一个单元格，并把行高当作最小值。
+- Web：可收起的模态抽屉要等收窄回它那一列之后才交还焦点；拖动时移动的是整块面板；它的对话框按打开时测得的那一列的盒子来定位。
+
+### 需要你做的事
+
+- 给每个目的地一个标签。在收起的图标列绘制标签（`collapsedLabels`）的情况下，标签太长放不下时，请提供 `shortLabel`。
+- 给 `target` 为 `new` 的链接一个用你的产品语言写的 `targetLabel`。
+- 在网站上，把每个页面的 `value` 设为该页面自己对应的目的地。
+- 响应式抽屉的呈现方式为 `modal` 时，请显示一个你自己的菜单按钮来打开它。
+- 给菜单按钮一个名称，例如“菜单”；在 Web 以外的平台上，请根据 `expandedChange` 设置 `expanded` 或 `open`。
+- 给抽屉一个 `label`，例如“邮件”。模态抽屉是一个对话框，这个标签就是它的名称。
+- 通过一个带有自己标签（例如“菜单”）的可见菜单按钮来打开模态抽屉。
+- 让 `open` 保持同步：模态抽屉关闭时把它设为 false（视平台而定，通过 `onClose`、绑定或抽屉状态）。
+- 在 SwiftUI 上，抽屉关闭之后，请自己把键盘焦点交还给菜单按钮。
+- 在 React Native 上，抽屉关闭之后，请自己把焦点移回菜单按钮，传入用你的产品语言写的 `positionText`，并把窗口的边衬区交给 `TanreiProvider`。
+- 让每个目的地的值在标准和模态两种形态之间保持唯一且稳定。

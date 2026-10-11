@@ -1,0 +1,476 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "copy-button",
+  "title": "Copy button",
+  "summary": "Copies a given text to the clipboard with one press and confirms it — its glyph becomes a check for a moment and assistive technology is told — or says that it could not; it is drawn by Button and never moves the layout.",
+  "category": "actions",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The button: a Button of the chosen variant and size, drawn from the Button's tokens. It carries the state answer."
+    },
+    {
+      "id": "icon",
+      "description": "The glyph, in one box whatever it shows: content_copy at rest, check when the text has been copied, error when it could not be."
+    },
+    {
+      "id": "label",
+      "description": "The button's text, where it is not icon-only: label at rest, copiedLabel and failedLabel in the two other forms, in a box as wide as the widest of the three.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "default": "",
+      "description": "The text to copy, exactly as it will be pasted. Plain text only."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "What the button does, in the product's language (\"Copy\", \"Copy link\", \"Copy JSON\"): the accessible name of the icon-only form and the visible text of the labelled one. Required.",
+      "words": "copyLabel"
+    },
+    {
+      "name": "copiedLabel",
+      "type": "string",
+      "default": "",
+      "description": "What is announced, and shown in the labelled form, when the text has been copied (\"Copied\"). Required.",
+      "words": "copiedLabel"
+    },
+    {
+      "name": "failedLabel",
+      "type": "string",
+      "default": "",
+      "description": "What is announced, and shown in the labelled form, when the platform refuses the copy (\"Could not copy\"). Required.",
+      "words": "copyFailedLabel"
+    },
+    {
+      "name": "iconOnly",
+      "type": "boolean",
+      "default": true,
+      "description": "True draws the glyph alone, named by label. False draws the glyph and the label as text."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "filled",
+        "tonal",
+        "elevated",
+        "outlined",
+        "text"
+      ],
+      "default": "text",
+      "description": "The Button variant it is drawn as. The default, text, is the quiet icon action beside what it copies; a copy that is a view's main action takes another. The values are Button's."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "The Button size it is drawn at (32 / 40 / 56). The values are Button's."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents the copy; the button is drawn and exposed as a disabled Button."
+    }
+  ],
+  "events": [
+    {
+      "name": "copied",
+      "description": "The platform confirmed that the text is on the clipboard; carries the text."
+    },
+    {
+      "name": "copyfailed",
+      "description": "The platform refused the copy or has no clipboard to write to; carries the platform's reason where it gives one."
+    }
+  ],
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "disabled"
+  ],
+  "behavior": [
+    {
+      "id": "CPY-1",
+      "text": "THE copy button SHALL be drawn as a Button (BTN) of its variant and size, from the Button's own tokens in every state — its container, its glyph, its label, its state layer, its outline and elevation, its disabled form — icon-only with the glyph content_copy WHILE iconOnly is true, and with that glyph leading and label as its text otherwise. It SHALL have no color, shape or measure of its own, SHALL extend its hit area as BTN-5 says, and SHALL draw its glyphs through the platform's icon helper, as a Button does."
+    },
+    {
+      "id": "CPY-2",
+      "text": "WHEN the copy button is activated by pointer, touch, Enter, Space or assistive technology THE copy button SHALL ask the platform to put text on the clipboard as plain text, exactly as given; it SHALL NOT read the clipboard, SHALL NOT copy anything but text, SHALL NOT move focus, and SHALL NOT show the copied form before the platform has answered. A second activation before that answer SHALL be ignored."
+    },
+    {
+      "id": "CPY-3",
+      "text": "WHEN the platform confirms that the text is on the clipboard THE copy button SHALL take the copied form: the glyph check in place of content_copy, in the same box and the same color, and, WHILE iconOnly is false, copiedLabel in place of label; it SHALL emit copied once, carrying the text, and SHALL return to rest comp.copy-button.confirmation.duration after it took the form.",
+      "verify": "A test with the platform's clipboard replaced by a double presses the button, reads the glyph check and the event, advances the clock by the token's value and reads content_copy again."
+    },
+    {
+      "id": "CPY-4",
+      "text": "IF the platform refuses the copy or has no clipboard to write to THEN THE copy button SHALL take the failed form — the glyph error in the same box and the same color, and, WHILE iconOnly is false, failedLabel in place of label — SHALL emit copyfailed once, and SHALL return to rest comp.copy-button.confirmation.duration after it took the form. It SHALL NOT select the text, open a dialog or try another way by itself: what else happens is the product's, on that event. IF text is empty WHEN the copy button is activated THEN it SHALL copy nothing and take the failed form, and in debug builds report that there was nothing to copy."
+    },
+    {
+      "id": "CPY-5",
+      "text": "WHEN the copy button takes the copied form THE copy button SHALL have assistive technology announce copiedLabel once, politely (after what is being read); WHEN it takes the failed form it SHALL have failedLabel announced once, assertively. Every activation SHALL be announced anew, also when the same words were announced a moment before. The announcement SHALL NOT move keyboard or screen-reader focus, and nothing SHALL be announced on the return to rest.",
+      "verify": "A test presses twice within the duration and reads two announcements."
+    },
+    {
+      "id": "CPY-6",
+      "text": "WHILE iconOnly is true THE copy button SHALL be named by label in every form: its name does not change with its form, and the form is told by the announcement of CPY-5. WHILE iconOnly is false THE copy button SHALL be named by the text it shows. THE glyph SHALL be kept from assistive technology in every form."
+    },
+    {
+      "id": "CPY-7",
+      "text": "THE copy button SHALL NOT move or resize anything when it changes form: the three glyphs are drawn in one box; WHILE iconOnly is false the label's box SHALL be as wide as the widest of label, copiedLabel and failedLabel at all times, the shown text at its start; the button's width and height SHALL be the same in every form; and the copy button SHALL open no tooltip, popover or other surface of its own.",
+      "verify": "A test reads the button's box at rest, in the copied form and in the failed form of the fixture labelled-long-confirmation: the three are equal."
+    },
+    {
+      "id": "CPY-8",
+      "text": "WHEN the copy button is activated WHILE it is in the copied or the failed form THE copy button SHALL copy again as CPY-2 says and, on the platform's answer, take the form that answer gives, emit its event, announce it (CPY-5) and count the duration from that moment."
+    },
+    {
+      "id": "CPY-9",
+      "text": "THE copy button SHALL change its glyph and its text at once, without a motion, in both directions; the time of comp.copy-button.confirmation.duration is a time to notice and SHALL NOT be shortened or skipped where motion is reduced. WHEN text changes WHILE the copy button is in the copied form THE copy button SHALL return to rest at once: what was copied is no longer what would be."
+    },
+    {
+      "id": "CPY-10",
+      "text": "WHILE disabled is true THE copy button SHALL be drawn and exposed as a disabled Button, SHALL copy nothing and SHALL emit nothing; WHEN it becomes disabled WHILE in the copied or the failed form it SHALL return to rest at once."
+    },
+    {
+      "id": "CPY-11",
+      "text": "WHILE the system's icon set cannot yet draw a glyph of the copy button (its font is still loading) THE copy button SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can; label, copiedLabel and failedLabel SHALL still reach assistive technology."
+    },
+    {
+      "id": "CPY-12",
+      "text": "WHEN the copy button is pressed by pointer, touch, Enter or Space THE copy button SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "CPY-13",
+      "text": "WHILE pressed THE copy button SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, icon, outline, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.button.motion.feedback-duration with comp.button.motion.state-easing, fades over comp.button.motion.state-duration with comp.button.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced."
+    },
+    {
+      "id": "CPY-14",
+      "text": "THE copy button SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "CPY-15",
+      "text": "THE copy button SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the copy button is shown THE copy button SHALL draw itself for the new direction at once, without a motion of its own, keeping its form, the time left before it returns to rest and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "CPY-16",
+      "text": "WHERE the layout direction is right-to-left THE copy button SHALL place its glyph and its label as a Button places a leading icon and a label (BTN-11), and SHALL draw each of its glyphs mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored: the icon helper mirrors the glyph inside its own box, changing neither its place, size, color and fill. THE copy button SHALL NOT mirror a glyph itself.",
+      "verify": "The default icon set marks content_copy and marks neither check nor error: the fixtures icon-rtl and labelled-rtl draw content_copy mirrored, and a test reads check unmirrored in the copied form in a right-to-left layout."
+    },
+    {
+      "id": "CPY-17",
+      "text": "WHILE label, copiedLabel or failedLabel is empty THE copy button SHALL still render and copy, and in debug builds report which is missing: an icon-only button without label has no accessible name. WHEN variant or size names a value the Button does not have in the active design system THE copy button SHALL be drawn with its own default for that prop, and in debug builds report the unknown value."
+    }
+  ],
+  "accessibility": {
+    "role": "button",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the copy button."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Copies the text and confirms it; focus stays on the button."
+      }
+    ],
+    "labeling": "The icon-only form is named by label, which is required, in every form: the name does not change when the glyph does. The labelled form is named by the text it shows. The result is announced through a live region: copiedLabel politely, failedLabel assertively (CPY-5).",
+    "minimumTarget": true,
+    "notes": [
+      "The target is the Button's (BTN-5): at least sys.target.touch for touch and sys.target.pointer for a fine pointer on both axes, whatever size is drawn.",
+      "The confirmation is a status message (WCAG 4.1.3): it reaches assistive technology without moving focus. The glyph change alone would say nothing to a person who cannot see it, and a changed name is not announced on every platform, which is why the icon-only form's name stays and the live region speaks.",
+      "The confirmation is not given by color: the glyph changes shape (check, error) in the Button's own icon color, and the words are announced. No success or error color is used.",
+      "The confirmation returns by itself after comp.copy-button.confirmation.duration. Nothing a person must act on is in it, so no timing control is needed (WCAG 2.2.1); a failure a person must act on is the product's to show, on copyfailed, in something that stays.",
+      "A sighted person using the icon-only form sees the check and no words. Where the words matter to them too, use the labelled form, or show the product's own message on copied.",
+      "The labelled form's visible text is its name (WCAG 2.5.3) in every form; its width is reserved for the widest of the three texts, so neighbouring controls do not move under a pointer about to press them (CPY-7).",
+      "Copying needs the platform's permission and, on the web, a secure page and a press by the person: a copy asked for by script alone may be refused, and is then a failure (CPY-4)."
+    ]
+  },
+  "tokens": "comp.copy-button",
+  "fixtures": [
+    {
+      "id": "icon",
+      "props": {
+        "text": "npm install @tanrei/web",
+        "label": "Copy",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "icon-small",
+      "props": {
+        "size": "small",
+        "text": "npm install @tanrei/web",
+        "label": "Copy",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "icon-large",
+      "props": {
+        "size": "large",
+        "text": "npm install @tanrei/web",
+        "label": "Copy",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "icon-tonal",
+      "props": {
+        "variant": "tonal",
+        "text": "#30a3f0",
+        "label": "Copy color",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "icon-outlined",
+      "props": {
+        "variant": "outlined",
+        "text": "#30a3f0",
+        "label": "Copy color",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "icon-elevated",
+      "props": {
+        "variant": "elevated",
+        "text": "#30a3f0",
+        "label": "Copy color",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "icon-filled",
+      "props": {
+        "variant": "filled",
+        "text": "#30a3f0",
+        "label": "Copy color",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "icon-disabled",
+      "props": {
+        "disabled": true,
+        "text": "npm install @tanrei/web",
+        "label": "Copy",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "labelled",
+      "props": {
+        "iconOnly": false,
+        "text": "{ \"name\": \"acme\" }",
+        "label": "Copy JSON",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "labelled-tonal",
+      "props": {
+        "iconOnly": false,
+        "variant": "tonal",
+        "text": "https://example.com/s/4f2a",
+        "label": "Copy link",
+        "copiedLabel": "Link copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "labelled-filled-small",
+      "props": {
+        "iconOnly": false,
+        "variant": "filled",
+        "size": "small",
+        "text": "https://example.com/s/4f2a",
+        "label": "Copy link",
+        "copiedLabel": "Link copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "labelled-outlined-large",
+      "props": {
+        "iconOnly": false,
+        "variant": "outlined",
+        "size": "large",
+        "text": "https://example.com/s/4f2a",
+        "label": "Copy link",
+        "copiedLabel": "Link copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "labelled-long-confirmation",
+      "props": {
+        "iconOnly": false,
+        "variant": "outlined",
+        "text": "sk-test-0000",
+        "label": "Copy",
+        "copiedLabel": "Copied to the clipboard",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "labelled-disabled",
+      "props": {
+        "iconOnly": false,
+        "disabled": true,
+        "text": "sk-test-0000",
+        "label": "Copy key",
+        "copiedLabel": "Copied",
+        "failedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "icon-rtl",
+      "props": {
+        "text": "https://example.com/s/4f2a",
+        "label": "نسخ",
+        "copiedLabel": "تم النسخ",
+        "failedLabel": "تعذر النسخ"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "labelled-rtl",
+      "props": {
+        "iconOnly": false,
+        "variant": "tonal",
+        "text": "https://example.com/s/4f2a",
+        "label": "نسخ الرابط",
+        "copiedLabel": "تم النسخ",
+        "failedLabel": "تعذر النسخ"
+      },
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-copy-button",
+      "props": {
+        "text": "text",
+        "label": "label",
+        "copiedLabel": "copiedLabel",
+        "failedLabel": "failedLabel",
+        "iconOnly": "iconOnly",
+        "variant": "variant",
+        "size": "size",
+        "disabled": "disabled"
+      },
+      "events": {
+        "copied": "copied",
+        "copyfailed": "copyfailed"
+      },
+      "notes": "`<tanrei-copy-button text=\"…\" label=\"Copy\" copied-label=\"Copied\" failed-label=\"Could not copy\">`, with `icon-only=\"false\"` for the labelled form. Its shadow root holds a `<tanrei-button>` (so every Button token and state applies unchanged) and one visually hidden live region: `role=\"status\"` for the copied announcement and `role=\"alert\"` for the failed one, emptied and set again on each activation so the same words are spoken twice (CPY-5). CPY-2 is `navigator.clipboard.writeText(text)`, which needs a secure context and the person's activation; where the API is missing or the promise rejects, that is CPY-4 — no `document.execCommand` fallback. The events are named `copied` and `copyfailed`, not `copy`, because `copy` is the document's own clipboard event and bubbles. CPY-7: the three labels are stacked in one grid cell, two of them `visibility: hidden`. The timer is a `setTimeout` of the token's value read from the custom property, cleared on a new activation and on disconnect."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiCopyButton",
+      "props": {
+        "text": "text",
+        "label": "label",
+        "copiedLabel": "copiedLabel",
+        "failedLabel": "failedLabel",
+        "iconOnly": "iconOnly",
+        "variant": "variant",
+        "size": "size",
+        "disabled": "disabled"
+      },
+      "events": {
+        "copied": "onCopied",
+        "copyfailed": "onCopyFailed"
+      },
+      "notes": "`TanreiCopyButton(text:, label:, copiedLabel:, failedLabel:, iconOnly:, variant:, size:)` over `TanreiButton`. Writes `UIPasteboard.general.string` (`NSPasteboard.general` on macOS), which does not fail; the failed form is reached only where no pasteboard exists (a preview). Announces with `AccessibilityNotification.Announcement`, at high priority for the failed form. `disabled` is the environment's `isEnabled`."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiCopyButton",
+      "props": {
+        "text": "text",
+        "label": "label",
+        "copiedLabel": "copiedLabel",
+        "failedLabel": "failedLabel",
+        "iconOnly": "iconOnly",
+        "variant": "variant",
+        "size": "size",
+        "disabled": "enabled"
+      },
+      "events": {
+        "copied": "onCopied",
+        "copyfailed": "onCopyFailed"
+      },
+      "notes": "`TanreiCopyButton(text, label, copiedLabel, failedLabel, iconOnly, variant, size, enabled)` over `TanreiButton`, writing through the platform clipboard of the composition. Android 13 and later show the system's own confirmation of a copy: there the copy button still changes its glyph and leaves the announcement of copiedLabel to the system, so the person is told once; the README says so. Earlier versions announce through a polite live region on the button's semantics."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiCopyButton",
+      "props": {
+        "text": "text",
+        "label": "label",
+        "copiedLabel": "copiedLabel",
+        "failedLabel": "failedLabel",
+        "iconOnly": "iconOnly",
+        "variant": "variant",
+        "size": "size",
+        "disabled": "enabled"
+      },
+      "events": {
+        "copied": "onCopied",
+        "copyfailed": "onCopyFailed"
+      },
+      "notes": "`TanreiCopyButton(text: …, label: …, copiedLabel: …, failedLabel: …)` over `TanreiButton`. `Clipboard.setData(ClipboardData(text: text))`; a `PlatformException` is CPY-4. Announces with `SemanticsService.announce`, assertively for the failed form. On Android 13 and later the same rule as Compose's applies."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "CopyButton",
+      "props": {
+        "text": "text",
+        "label": "label",
+        "copiedLabel": "copiedLabel",
+        "failedLabel": "failedLabel",
+        "iconOnly": "iconOnly",
+        "variant": "variant",
+        "size": "size",
+        "disabled": "disabled"
+      },
+      "events": {
+        "copied": "onCopied",
+        "copyfailed": "onCopyFailed"
+      },
+      "notes": "`<CopyButton text=\"…\" label=\"Copy\" copiedLabel=\"Copied\" failedLabel=\"Could not copy\" />` over `Button`. React Native has no clipboard in its core: the package takes the app's writer (`write={(text) => Clipboard.setStringAsync(text)}`) or a provider set once at the app's root, and a missing writer is CPY-4 with a debug report. Which of the two, and whether a clipboard module becomes an optional peer dependency, is the platform agent's to propose. Announces with `AccessibilityInfo.announceForAccessibility`. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

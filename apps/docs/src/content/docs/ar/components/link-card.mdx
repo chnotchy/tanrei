@@ -1,0 +1,229 @@
+---
+title: بطاقة الرابط
+description: رابط واحد مرسوم في صورة كتلة. عنوان الوجهة، وجملة عنها، وصورتها، والموقع الذي هي فيه، من قيم تُعطى للبطاقة ولا تحمّلها هي أبدًا.
+translationOf: components/link-card.mdx
+sourceHash: 738b60d2538bbae63a50025bd28392c0e3895efd
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import picture from '../../../../../../../packages/web/test/fixtures/link-card.png?inline';
+import icon from '../../../../../../../packages/web/test/fixtures/site-icon.png?inline';
+
+## نظرة عامة
+
+<ComponentAvailability name="link-card" />
+
+<DemoFrame label="بطاقة رابط بكل أجزائها" plain column>
+  <tanrei-link-card class="not-content" style="inline-size: 100%" href="https://example.com/articles/designing-with-tokens" headline="التصميم بالرموز" description="كيف تصير بضعة أقراص ضبط نظامًا كاملًا." site-name="Example Journal" image={picture} site-icon={icon} external="on" external-label="رابط خارجي"></tanrei-link-card>
+</DemoFrame>
+
+بطاقة الرابط (link card) تعرض الوجهة شيئًا قائمًا بذاته: عنوانها، وجملة عنها، وصورة حيث تكون لها صورة، والموقع الذي هي فيه. وهي رابط واحد. الكتلة كلها تُضغط، ولا شيء في داخلها يُضغط وحده.
+
+- العبارة التي في جملة وتقود إلى مكان ما [رابط](/ar/components/link/).
+- المجموعة من محتواك أنت التي تقود إلى مكان ما [بطاقة](/ar/components/card/) لها وجهة.
+- المعاينة التي لها أزرارها (حفظ، مشاركة، تجاهل) بطاقة تحمل رابطًا وتلك الأزرار.
+
+**المكوّن لا يجلب شيئًا.** يرسم القيم التي تعطيه إياها، ولا يسأل الوجهة ولا خادمًا وسيطًا (proxy) ولا أي خدمة عن شيء يخص `href`. والطلبات الوحيدة التي يرسلها هي طلبا الصورة وأيقونة الموقع اللتين تسلّمهما إليه. وكيف يحصل الموقع على القيم مذكور تحت [الحصول على القيم](#الحصول-على-القيم).
+
+على الويب هي `<tanrei-link-card>` حول عنصر anchor الذي تكتبه أنت. وليس للعنصر جذر ظل (shadow root)، فالبطاقة رابط قبل أن يعمل أي سكربت. والمنصات الأخرى لم تنفّذها بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link-card.css" />
+
+    <tanrei-link-card>
+      <a href="https://example.com/articles/designing-with-tokens" data-external="true">
+        <span data-part="body">
+          <span data-part="title" dir="auto">التصميم بالرموز</span>
+          <span data-part="description" dir="auto">كيف تصير بضعة أقراص ضبط نظامًا كاملًا.</span>
+          <span data-part="site">
+            <img data-part="site-icon" src="/link-pictures/icon.png" alt=""
+                 loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+            <span data-part="site-name"><span dir="auto">Example Journal</span></span>
+            <span data-part="address"><bdi data-part="host" dir="ltr"><span>example.</span><span>com</span></bdi></span>
+          </span>
+          <span data-part="words">رابط خارجي</span>
+        </span>
+        <img data-part="media" src="/link-pictures/picture.png" alt="" width="1200" height="630"
+             loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+      </a>
+    </tanrei-link-card>
+
+    <script type="module">
+      import '@tanrei/web/components/link-card';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LinkCard } from '@tanrei/react';
+    import '@tanrei/web/icons.css';
+    import '@tanrei/web/link-card.css';
+
+    <LinkCard
+      href={link.href}
+      headline={link.title}
+      description={link.description}
+      siteName={link.siteName}
+      image={link.image?.src}
+      siteIcon={link.siteIcon?.src}
+      external="on"
+      externalLabel="رابط خارجي"
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+لا تكتب ذلك الترميز (markup) بيدك. الدالتان `linkCardToHtml()` و `linkCardToNodes()` في `@tanrei/web/links` تكتبانه من القيم، فتكون البطاقة كاملة في الرسم الأول ومع إيقاف السكربتات.
+
+### بطاقة يبنيها السكربت
+
+العنصر `<tanrei-link-card>` الذي لا يحمل عنصر anchor يبني واحدًا من خصائص HTML التي عليه. وكل قيمة تُكتب نصًّا، لا ترميزًا أبدًا.
+
+```html
+<tanrei-link-card
+  href="https://example.com/articles/designing-with-tokens"
+  headline="التصميم بالرموز"
+  description="كيف تصير بضعة أقراص ضبط نظامًا كاملًا."
+  site-name="Example Journal"
+></tanrei-link-card>
+```
+
+خاصية HTML التي تحمل العنوان هي `headline`، لأن الخاصية `title` في HTML نفسها كانت ستعرض تلميحًا فوق البطاقة. وهذه الهيئة لا تُرسم إلا بعد أن يعمل السكربت. فاكتب الترميز عند البناء في صفحة محتوى.
+
+## المواصفات
+
+<DemoFrame label="مظهران" plain column>
+  <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
+    <tanrei-link-card href="/ar/components/link/" headline="الرابط" description="نص يقود إلى مكان ما: عبارة في جملة، أو سطر وحده، أو رسم أيقونة وحده."></tanrei-link-card>
+    <tanrei-link-card variant="filled" href="/ar/components/card/" headline="البطاقة" description="سطح يجمع محتوى وإجراءات مترابطة حول موضوع واحد."></tanrei-link-card>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="link-card" />
+
+## الإرشادات
+
+### ما تعطيها إياه
+
+| القيمة | خاصية HTML | تُرسم |
+| --- | --- | --- |
+| `href` | `href` | الوجهة. والمضيف (host) الذي تحت النص يُقرأ منها ولا يُقرأ من شيء غيرها. |
+| `title` | `headline` | العنوان، في سطرين على الأكثر. وهو اسم البطاقة المتاح للتقنيات المساعدة. |
+| `description` | `description` | جملة أو جملتان، في سطرين على الأكثر. |
+| `image`، `imageAlt` | `image`، `image-alt` | صورة تغطي صندوقها، مقصوصة عند مركزها. والقيمة `imageAlt` تُقرأ ولا تُرسم أبدًا. |
+| `siteName` | `site-name` | ما يسمّي الموقع به نفسه، قبل المضيف. |
+| `siteIcon` | `site-icon` | أيقونة الموقع الصغيرة، في بداية سطر الموقع. |
+| `target`، `targetLabel` | `target`، `target-label` | القيمة `new` تفتح تبويبًا جديدًا وترسم علامته. أعطِ الكلمات. |
+| `external`، `externalLabel` | `external`، `external-label` | القيمة `auto` (الافتراضية) أو `on` أو `off`، كما في الرابط. |
+| `variant` | `variant` | الطراز `outlined` (الافتراضي) أو `filled`. |
+
+### إلى أين تقود
+
+كل ما عدا ذلك في البطاقة هو ما تقوله الوجهة عن نفسها، والوجهة تستطيع أن تقول أي شيء. ولذلك جزء واحد ليس للوجهة أن تقوله.
+
+- المضيف يُحسب من `href`. لا قيمة تعيّنه أو تستبدله أو تخفيه. والمضيف المكتوب في الترميز إذا اختلف يُستبدل حين يُعرَّف العنصر، وتبلّغ عنه بنية التنقيح.
+- اسم الموقع يقف قبل المضيف، لا في مكانه أبدًا. ويُحذف حيث لا يفعل إلا تكرار المضيف.
+- المضيف لا يُقصّ أبدًا. في السطر القصير يتراجع اسم الموقع أولًا، والمضيف الأطول من السطر يلتفّ.
+- المضيف المدوَّل (internationalised) يُعرض بكتابته هو حين يكون ذلك آمنًا فقط: كل جزء منه بكتابة واحدة، أو بالكتابات التي تُكتب بها اليابانية أو الكورية أو الصينية معًا. أما الاسم اللاتيني الذي فيه حرف واحد مستعار، والكلمة السيريلية أو اليونانية تحت نهاية بأحرف ASCII، فتبقى في الصيغة `xn--`.
+- المضيف يُقرأ للتقنيات المساعدة جزءًا من وصف البطاقة.
+
+البطاقة لا تحكم على وجهتها. فقد تصف الصفحة نفسها وصفًا كاذبًا مع ذلك؛ والمضيف الذي بجانب الوصف هو وسيلة القارئ للتحقق. والأحرف المتشابهة داخل الكتابة الواحدة لا تُكشف.
+
+### الأجزاء الناقصة
+
+<DemoFrame label="عنوان فقط، ومسار من عندك" plain column>
+  <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
+    <tanrei-link-card href="https://example.com/articles/designing-with-tokens" headline="التصميم بالرموز" external="off"></tanrei-link-card>
+    <tanrei-link-card href="/ar/foundations/design-tokens/" headline="الرموز" description="أقراص الضبط، وأدوار النظام، وربط المكوّنات."></tanrei-link-card>
+  </div>
+</DemoFrame>
+
+| المعطى | المرسوم |
+| --- | --- |
+| لا صورة، أو صورة يخفق تحميلها | البطاقة نفسها بلا صندوق الصورة. ولا شيء يقف في مكانه. |
+| لا وصف | العنوان وسطر الموقع. |
+| عنوان فقط | العنوان، والمضيف من عنوان الوجهة. |
+| عنوان وجهة فقط | عنوان الوجهة في مكان العنوان. أعطِ عنوانًا: بنية التنقيح تبلّغ عن غيابه. |
+| مسار من عندك (`/guides/`) | لا مضيف، فلا سطر للموقع. عنوان وجملة. |
+| لا وجهة، أو سكربت | ليست رابطًا ولا تُرسم بطاقة. العنوان نصًّا عاديًّا. |
+
+### التخطيط
+
+- البطاقة كتلة. تأخذ العرض الذي تعطيها إياه حاويتها، وارتفاعها ارتفاع ما تحمله. ولا تأتي بفراغ من عندها حولها.
+- من العرض 480 فصاعدًا تقف الصورة بجانب النص، عند حافة النهاية. وفي الأضيق تقف فوق النص. والبطاقة تقرر من عرضها هي، لا من عرض النافذة، والحد يكبر مع مقاس النص.
+- العنصر حاوية قياس (size container)، فيحتاج إلى عرض من تخطيطه. في صف flex أو خلية grid أعطِه عرضًا.
+- في النص الطويل هي كتلة كالشكل التوضيحي. ولا تقع أبدًا داخل جملة.
+
+### تبويب جديد، وموقع آخر
+
+- القيمة `target="new"` ترسم `open_in_new` في نهاية سطر الموقع. أعطِ `target-label` («يُفتح في تبويب جديد»)؛ فالعلامة وحدها لا تُقرأ.
+- الوجهة التي في موقع آخر وتُفتح حيث الشخص ترسم `arrow_outward`. وهل هي خارجية أمر تحكمه قاعدة الرابط: القيمة `external="auto"` تقارن عنوان الوجهة بأصل (origin) الصفحة وبما تعطيه `setSiteOrigins()`. والكلمات هي `external-label`، أو التي تعيّنها مرة واحدة بالدالة `setExternalLabel()`.
+- لا علامتان أبدًا. التبويب الجديد يغلب.
+
+لا يتضمن Tanrei أي كلمة. أعطِها بلغة منتجك.
+
+### الحصول على القيم
+
+البطاقة ترسم ما تُعطاه. اقرأ الوجهة **حيث يُبنى موقعك**، لا والصفحة تُقرأ.
+
+الوحدة `@tanrei/web/links/node` وحدة Node لهذا الغرض. الدالة `resolveLinkData()` تقرأ الصفحة مرة واحدة، على الجهاز الذي يبني الموقع، وتعيد القيم بالصورة التي تأخذها البطاقة.
+
+```js
+import { linkCardToHtml, resolveLinkData } from '@tanrei/web/links/node';
+
+const result = await resolveLinkData(href, { site: ['docs.example.com'], lock: 'link-data.lock.json', pictureDirectory: 'public/link-pictures' });
+const html = result.ok ? linkCardToHtml(result.data) : `<a href="${href}">${href}</a>`;
+```
+
+- ما قُرئ يُحفظ في `link-data.lock.json`، وهو ملف تودعه في المستودع. والبناء يقرأ ذلك الملف ولا يقرأ الشبكة أبدًا. والأمر `tanrei-links update` يحدّثه، والتغيير فرق (diff) يراجعه شخص.
+- الصور تُخزَّن بين ملفات موقعك أنت، بعد أن تعيد خطوة الصور عندك ترميزها من جديد. فلا يطلب متصفح القارئ عندئذ إلا من الموقع الذي هو فيه أصلًا.
+- الدالة المساعدة لا تقرأ إلا عناوين `https` العامة، وتفحص كل إعادة توجيه، وتحدّ الوقت والحجم، وتأخذ كل حقل نصًّا.
+- عنوان الوجهة الذي تخفق قراءته لا يعطي بطاقة. ارسم رابطًا عاديًّا.
+
+ملف README الخاص بالحزمة فيه ذلك كله تحت «Reading a destination where the site is built».
+
+إن كان منتجك يبحث عن الوجهات والناس يستخدمونه (رسالة فيها عنوان وجهة)، فافعل ذلك في خدمة من عندك، وأعطِ البطاقة القيم نفسها. وعلى مثل هذه الخدمة أن ترفض كل عنوان ليس عنوانًا عامًّا، وأن تفحص من جديد بعد كل إعادة توجيه وعند لحظة الاتصال، وأن تحدّ وقت كل جواب وحجمه، وأن تعيد نصًّا لا ترميزًا أبدًا، وأن تقدّم الصور من أصلك أنت، وألا تعيد مضيفًا أبدًا: فالبطاقة تحسبه. ولا يتضمن Tanrei خدمة كهذه.
+
+### افعل
+
+- أعطِ عنوان الوجهة الحقيقي. لا تضع مضيفًا ولا عنوان وجهة في العنوان أبدًا.
+- أبقِ الصور بين ملفاتك أنت. الصورة المحمَّلة من موقع آخر تخبر ذلك الموقع بمن يقرأ.
+- استخدم `outlined` في النص المتصل. واستخدم `filled` حيث تكثر الخطوط في الصفحة أصلًا.
+
+### لا تفعل
+
+- لا تضع زرًّا ولا رابطًا ثانيًا داخل بطاقة رابط. يُجعل خاملًا (inert) ويُبلَّغ عنه.
+- لا تضع في بطاقة رابط نصًّا لا بد للقارئ منه. نصها معاينة وقد يُقصّ.
+- لا تعطِ `image-alt` إلا إذا كانت الصورة تقول شيئًا لا يقوله العنوان.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="link-card" />
+
+### ما يتكفل به المكوّن
+
+- البطاقة رابط واحد وموضع توقف واحد للوحة المفاتيح. المفتاح Enter يتبعه. والمفتاح Space يمرّر الصفحة، كما في أي رابط.
+- اسمها هو العنوان، أو عنوان الوجهة حيث لا عنوان. ولا يُضاف إلى الاسم شيء.
+- وصفها هو، بالترتيب: الوصف، ثم النص البديل للصورة، ثم اسم الموقع، ثم المضيف، وأخيرًا كلمات التبويب الجديد أو كلمات الموقع الآخر.
+- العنوان أو الوصف الذي يُقصّ على الشاشة يُعرض كاملًا للتقنيات المساعدة.
+- الصورة وأيقونة الموقع والنقطة والعلامات زخرفة ولا تُقرأ.
+- حلقة التركيز تُرسم خارج البطاقة، فلا تستطيع صورة أن تخفيها.
+- عند تكبير النص إلى 200% في حيّز عرضه 320 تنتقل الصورة إلى فوق النص، ويبقى المضيف كاملًا، ولا شيء يُمرَّر جانبيًّا.
+- في الألوان المفروضة (forced colors) يكون للمظهرين حدّ، ويأخذ العنوان لون الرابط في النظام.
+- في تخطيط من اليمين إلى اليسار تقف الصورة عند اليسار ويبدأ النص من اليمين. والعنوان المكتوب من اليسار إلى اليمين يحتفظ بترتيبه. والمضيف من اليسار إلى اليمين دائمًا.
+- النص الذي تعطيه يُرسم نصًّا عاديًّا. والمحارف التي تعكس ترتيب النص تُسقَط.
+
+### ما عليك فعله
+
+- أعطِ `target-label` كلما كانت `target` بالقيمة `new`، وأعطِ كلمات الروابط الخارجية.
+- أعطِ عنوانًا. عنوان الوجهة اسم ضعيف.
+- أعطِ البطاقة عرضًا من تخطيطها.

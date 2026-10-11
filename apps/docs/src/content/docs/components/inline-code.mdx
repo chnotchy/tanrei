@@ -1,0 +1,153 @@
+---
+title: Inline code
+description: A run of code inside a sentence, in the code face at the size of the text around it, on a faint fill or plain. It is text, never a control.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="inline-code" />
+
+<DemoFrame label="In a sentence, in a heading, and plain" column>
+  <div class="tanrei-not-prose" style="max-inline-size: 32rem">
+    <p style="margin: 0">
+      Run <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> in the folder that holds
+      <code class="tanrei-code" translate="no" spellcheck="false">package.json</code>, then start the server with
+      <code class="tanrei-code" translate="no" spellcheck="false">{'npm run dev -- --port 4000'}</code>.
+    </p>
+    <p style="margin: 0.75rem 0 0; font: var(--tanrei-sys-typescale-heading-2-font)">
+      Setting <code class="tanrei-code" translate="no" spellcheck="false">size</code> on a group
+    </p>
+    <p style="margin: 0.75rem 0 0">
+      Plain: <code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
+    </p>
+  </div>
+</DemoFrame>
+
+Inline code names a thing from code inside a sentence: a command, a prop, a file, a value. Lines of code to read and copy are a [Code block](../code-block/). Keys to press are a [Keyboard shortcut](../keyboard-shortcut/), which reads the modifier names aloud.
+
+### Usage
+
+On the web, inline code is a class on your own `code` element, not an element. The text is in the document, so search, find-in-page and copy work before any script runs. Every `code` inside `.tanrei-prose` that is not in a `pre` is drawn the same way without the class, so rendered Markdown needs nothing.
+
+SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <!-- Tonal: the default. -->
+    <p>Run <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> first.</p>
+
+    <!-- Plain: the face alone, in the color of the text around it. -->
+    <code class="tanrei-code" data-variant="plain">comp.button.container.shape</code>
+
+    <!-- An ancestor chooses for every run inside it. -->
+    <table data-tanrei-code="plain">
+      <tr><td><code class="tanrei-code">variant</code></td><td><code class="tanrei-code">filled</code></td></tr>
+    </table>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/code.css';
+
+    <p>Run <code className="tanrei-code" translate="no" spellCheck={false}>npm install</code> first.</p>
+    ```
+  </TabItem>
+</Tabs>
+
+| Prop | On the web |
+| --- | --- |
+| `text` | The element's own content |
+| `variant: tonal` | `data-variant="tonal"` |
+| `variant: plain` | `data-variant="plain"` |
+| `variant: auto` (the default) | No attribute. The nearest ancestor with `data-tanrei-code="plain"` or `"tonal"` chooses, and tonal where none does |
+
+## Specs
+
+<DemoFrame label="It wraps, and every piece keeps its fill" plain>
+  <div class="tanrei-not-prose" style="max-inline-size: 22rem">
+    <p style="margin: 0">
+      The token <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> is longer than this line. It breaks where the line ends and is never cut.
+    </p>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="In a link, in strong text, and a column of code" plain column>
+  <div class="tanrei-not-prose">
+    <p style="margin: 0">
+      See <a class="tanrei-link" href="../button/">the <code class="tanrei-code">Button</code> reference</a>. <strong>Never set <code class="tanrei-code">disabled</code> on the only way out.</strong>
+    </p>
+    <div data-tanrei-code="plain" style="display: grid; grid-template-columns: auto auto; gap: 0.25rem 1.5rem; justify-content: start; margin-block-start: 0.75rem">
+      <span>Prop</span><span>Default</span>
+      <code class="tanrei-code">variant</code><code class="tanrei-code">filled</code>
+      <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
+    </div>
+  </div>
+</DemoFrame>
+
+Inline code has no size of its own. Its font size is the size of the text it sits in, multiplied by one ratio (`comp.inline-code.label.scale`), which evens out the code face and the text face. In body text that is 13 beside 14. In a heading it is the heading's own size.
+
+It never makes its line taller. The fill is as tall as the code face's own text box and has no padding above or below.
+
+A run wraps with its line. It breaks at its spaces first. A part with no space that is longer than the line breaks between characters, and no hyphen is added, because a hyphen would change the code. It is never cut and never scrolls.
+
+Inside a link it takes the link's color and the link's underline runs under it. Inside strong text it is one weight step heavier. It is never slanted.
+
+It is always laid out left to right, as a run of its own, in a right-to-left sentence too.
+
+<ComponentSpecs name="inline-code" />
+
+### What the web draws differently
+
+- `translate="no"` and `spellcheck="false"` are your attributes, or your Markdown renderer's. A stylesheet cannot set them.
+- A hyphen in the code is a place where a line may end, before the run is broken between characters.
+- WebKit draws the fill and the corners of every piece of a run that wraps, and not the room at each end: the pieces after the first begin at the fill's edge.
+- A line break inside the run is drawn as one space only in browsers that support `white-space-collapse: preserve-spaces`. Write a run on one line.
+- An unknown `data-variant` is drawn as `auto`, and nothing is reported in debug builds.
+
+## Guidelines
+
+### Tonal or plain
+
+| Variant | Draws | Use it when |
+| --- | --- | --- |
+| **Tonal** | The code face on a faint fill | A name in running text |
+| **Plain** | The code face alone, in the color of the text around it | A column or a list whose every entry is code, and text on a colored container |
+
+### Do
+
+- Write the sentence so that it reads when the code is spoken as words. Screen readers do not announce the code role by default.
+- Use plain on a colored container such as a status container or an inverse surface. The tonal fill is a surface role and is paired with surfaces only.
+- Set the form once on the ancestor (`data-tanrei-code="plain"`) for a table or a list of names.
+
+### Don't
+
+- Don't use inline code for emphasis. It says "this is code".
+- Don't put keys to press in inline code. Use a Keyboard shortcut.
+- Don't put more than a line in it. Use a Code block.
+
+## Accessibility
+
+<ComponentAccessibility name="inline-code" />
+
+### What the component handles
+
+- It is the `code` element, so it has the code role, and its text is read where it sits in the sentence.
+- It is told from the words around it by its face, not by color. In forced colors the fill goes and nothing is lost.
+- It takes no focus and no input. Inside a link or a button, a press over it reaches that element.
+- A long name breaks instead of scrolling the page, at any text size.
+- Selecting and copying a sentence copies the code's characters exactly.
+
+### What you need to do
+
+- Write a name out in the sentence where its spelling matters, because symbols are read as the person's settings say.
+- Mark the run `translate="no"` so that a browser's translation leaves it alone.

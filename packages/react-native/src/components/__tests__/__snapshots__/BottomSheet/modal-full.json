@@ -1,0 +1,255 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "backgroundColor": "rgb(255, 255, 255)",
+      "height": 720,
+      "width": 400
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "pointerEvents": "box-none",
+        "style": {
+          "bottom": 0,
+          "left": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "collapsable": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "backgroundColor": "rgba(0, 0, 0, 0.4)",
+              "bottom": 0,
+              "left": 0,
+              "opacity": 1,
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityState": {},
+                "accessibilityValue": {},
+                "accessible": false,
+                "collapsable": false,
+                "focusable": false,
+                "style": {
+                  "flex": 1
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "pointerEvents": "box-none",
+            "style": {
+              "alignItems": "center",
+              "bottom": 0,
+              "justifyContent": "flex-end",
+              "left": 0,
+              "paddingTop": 48,
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityLabel": "Terms of service",
+                "accessibilityViewIsModal": true,
+                "aria-modal": true,
+                "collapsable": false,
+                "role": "dialog",
+                "style": {
+                  "backgroundColor": "rgb(249, 249, 249)",
+                  "borderTopEndRadius": 12,
+                  "borderTopStartRadius": 12,
+                  "boxShadow": [
+                    {
+                      "blurRadius": 2,
+                      "color": "rgba(0, 0, 0, 0.04)",
+                      "offsetX": 0,
+                      "offsetY": 1,
+                      "spreadDistance": 0
+                    }
+                  ],
+                  "flexShrink": 1,
+                  "maxWidth": 640,
+                  "width": "100%"
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessible": false,
+                    "collapsable": false,
+                    "importantForAccessibility": "no",
+                    "style": {
+                      "borderBottomEndRadius": 0,
+                      "borderBottomStartRadius": 0,
+                      "borderColor": "rgba(0, 0, 0, 0.08)",
+                      "borderTopEndRadius": 13,
+                      "borderTopStartRadius": 13,
+                      "borderWidth": 1,
+                      "bottom": -1,
+                      "left": -1,
+                      "pointerEvents": "none",
+                      "position": "absolute",
+                      "right": -1,
+                      "top": -1
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flexShrink": 1,
+                      "paddingBottom": 0
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "alignSelf": "center",
+                          "marginVertical": 12
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "View",
+                          "props": {
+                            "accessibilityElementsHidden": true,
+                            "accessibilityState": {
+                              "disabled": true
+                            },
+                            "accessibilityValue": {},
+                            "accessible": false,
+                            "collapsable": false,
+                            "focusable": false,
+                            "hitSlop": {
+                              "bottom": 12,
+                              "left": 0,
+                              "right": 0,
+                              "top": 12
+                            },
+                            "importantForAccessibility": "no-hide-descendants",
+                            "style": {
+                              "alignItems": "center",
+                              "borderRadius": 9999,
+                              "height": 24,
+                              "justifyContent": "center",
+                              "opacity": 1,
+                              "width": 48
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "View",
+                              "props": {
+                                "accessibilityElementsHidden": true,
+                                "accessible": false,
+                                "collapsable": false,
+                                "importantForAccessibility": "no-hide-descendants",
+                                "pointerEvents": "none",
+                                "style": {
+                                  "backgroundColor": "rgb(132, 132, 132)",
+                                  "borderRadius": 9999,
+                                  "height": 4,
+                                  "width": 32
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "borderTopEndRadius": 0,
+                          "borderTopStartRadius": 0,
+                          "flexShrink": 1,
+                          "overflow": "hidden"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "RCTScrollView",
+                          "props": {
+                            "bounces": false,
+                            "contentContainerStyle": {
+                              "paddingBottom": 16,
+                              "paddingEnd": 16,
+                              "paddingStart": 16,
+                              "paddingTop": 0
+                            },
+                            "scrollEventThrottle": 16,
+                            "style": {
+                              "flexGrow": 0,
+                              "flexShrink": 1
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "View",
+                              "props": {},
+                              "children": [
+                                {
+                                  "type": "Text",
+                                  "props": {
+                                    "allowFontScaling": true,
+                                    "style": {
+                                      "color": "rgb(27, 27, 27)",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 14,
+                                      "fontWeight": "400",
+                                      "letterSpacing": 0,
+                                      "lineHeight": 22
+                                    }
+                                  },
+                                  "children": [
+                                    "Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change."
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

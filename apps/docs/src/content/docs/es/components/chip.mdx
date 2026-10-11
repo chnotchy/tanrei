@@ -1,0 +1,271 @@
+---
+title: Chip
+description: Un control pequeño con etiqueta que va en una fila, para una acción sugerida o un enlace a algún sitio, un filtro que está activado o desactivado, o un elemento que la persona introdujo y puede quitar.
+translationOf: components/chip.mdx
+sourceHash: a3d58a12a8d3b292cac1c4863b58d2661736ea10
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="chip" />
+
+<DemoFrame label="Tipos">
+  <tanrei-chip label="Añadir al calendario"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip label="Me parece bien"></tanrei-chip>
+  <tanrei-chip kind="filter" selected label="Vegetariano"></tanrei-chip>
+  <tanrei-chip kind="filter" label="Menos de 30 min"></tanrei-chip>
+  <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace"></tanrei-chip>
+</DemoFrame>
+
+### Uso
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native van rezagados: todavía ofrecen la revisión anterior del chip, con esquinas menos redondeadas, glifos más pequeños, un glifo `close` para la acción de quitar, sin `destructiveRemove` y sin forma de enlace (`href`), y sus ejemplos muestran esa revisión hasta que se pongan al día.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-chip label="Añadir al calendario"><span slot="icon">event</span></tanrei-chip>
+
+    <!-- Un chip de acción con href es un enlace. El que abre una pestaña nueva muestra una marca y lo dice con tus palabras. -->
+    <tanrei-chip label="Horario de apertura" href="/visit/hours/"></tanrei-chip>
+    <tanrei-chip label="Cómo llegar" href="https://example.com/map" target="new" target-label="se abre en una pestaña nueva"></tanrei-chip>
+
+    <!-- Un chip de filtro cambia su propio selected y emite change. -->
+    <tanrei-chip kind="filter" label="Vegetariano"></tanrei-chip>
+
+    <!-- Un chip de entrada tiene un segundo botón, que recibe su nombre de remove-label. -->
+    <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace">
+      <img slot="avatar" src="ada.jpg" alt="" />
+    </tanrei-chip>
+
+    <!-- Quitar un filtro aplicado no pierde nada: desactiva el aspecto destructivo. -->
+    <tanrei-chip kind="input" label="Menos de 30 min" remove-label="Quitar Menos de 30 min" no-destructive-remove></tanrei-chip>
+
+    <script type="module">
+      import '@tanrei/web/components/chip';
+      document.querySelector('[kind="filter"]').addEventListener('change', (e) => filter(e.detail.selected));
+      // El chip sigue en el DOM: la página lo quita y mueve el foco a un vecino.
+      document.querySelector('[kind="input"]').addEventListener('remove', (e) => removeRecipient(e.target));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip } from '@tanrei/react';
+
+    <Chip label="Añadir al calendario" onClick={addToCalendar}><span slot="icon">event</span></Chip>
+    <Chip label="Horario de apertura" href="/visit/hours/" />
+    <Chip label="Cómo llegar" href="https://example.com/map" target="new" targetLabel="se abre en una pestaña nueva" />
+    <Chip kind="filter" selected={vegetarian} label="Vegetariano" onChange={(e) => setVegetarian(e.detail.selected)} />
+    <Chip kind="input" label="Ada Lovelace" removeLabel="Quitar a Ada Lovelace" onRemove={() => removeRecipient(ada)} />
+    <Chip kind="input" label="Menos de 30 min" removeLabel="Quitar Menos de 30 min" destructiveRemove={false} onRemove={clearTimeFilter} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // El inicializador elige el tipo.
+    TanreiChip("Añadir al calendario", icon: "event", action: addToCalendar)
+    TanreiChip("Vegetariano", isSelected: $vegetarian)
+    TanreiChip("Ada Lovelace", removeLabel: "Quitar a Ada Lovelace", action: openContact, onRemove: removeAda)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiChip
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // La sobrecarga elige el tipo. onClick por sí solo es un chip de acción.
+    TanreiChip(onClick = ::addToCalendar, label = "Añadir al calendario", icon = { TanreiText("event") })
+
+    // selected con onSelectedChange es un chip de filtro.
+    TanreiChip(selected = vegetarian, onSelectedChange = { vegetarian = it }, label = "Vegetariano")
+
+    // onClick con onRemove es un chip de entrada. Quítalo de tu lista y mueve el foco tú.
+    TanreiChip(
+        onClick = { openContact(ada) },
+        onRemove = { recipients -= ada },
+        label = "Ada Lovelace",
+        removeContentDescription = "Quitar a Ada Lovelace",
+        avatar = { ContactPhoto(ada) },
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // El constructor elige el tipo.
+    TanreiChip(label: 'Añadir al calendario', icon: const Icon(AppSymbols.event), onPressed: addToCalendar);
+
+    TanreiChip.filter(
+      label: 'Vegetariano',
+      selected: vegetarian,
+      onSelected: (bool value) => setState(() => vegetarian = value),
+    );
+
+    TanreiChip.input(
+      label: 'Ada Lovelace',
+      removeSemanticLabel: 'Quitar a Ada Lovelace',
+      avatar: Image.asset('ada.png', fit: BoxFit.cover),
+      onDeleted: () => setState(() => recipients.remove(ada)), // y mueve el foco tú
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Chip } from '@tanrei/react-native';
+
+    <Chip label="Añadir al calendario" icon="event" onPress={addToCalendar} />
+    <Chip kind="filter" label="Vegetariano" selected={vegetarian} onSelectedChange={setVegetarian} />
+    <Chip
+      kind="input"
+      label="Ada Lovelace"
+      avatar={{ uri: ada.photo }}
+      removeAccessibilityLabel="Quitar a Ada Lovelace"
+      onRemove={() => removeRecipient(ada)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Variantes, tamaños y estado deshabilitado" plain>
+  <tanrei-chip variant="elevated" label="Añadir al calendario"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="filter" variant="elevated" selected label="Vegetariano"></tanrei-chip>
+  <tanrei-chip size="small" label="Añadir al calendario"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="input" size="small" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace"></tanrei-chip>
+  <tanrei-chip disabled label="Añadir al calendario"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="filter" selected disabled label="Vegetariano"></tanrei-chip>
+</DemoFrame>
+
+<DemoFrame label="Acciones de quitar: destructiva (predeterminada) y simple; pasa el cursor por encima o dales el foco" plain>
+  <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Quitar a Ada Lovelace"></tanrei-chip>
+  <tanrei-chip kind="input" label="Menos de 30 min" remove-label="Quitar Menos de 30 min" no-destructive-remove></tanrei-chip>
+</DemoFrame>
+
+<DemoFrame label="Chips de enlace: aquí, en una pestaña nueva, deshabilitado" plain>
+  <tanrei-chip label="Tag" href="/es/components/tag/"></tanrei-chip>
+  <tanrei-chip label="Insignia" href="/es/components/badge/" target="new" target-label="se abre en una pestaña nueva"></tanrei-chip>
+  <tanrei-chip label="Tag" href="/es/components/tag/" disabled></tanrei-chip>
+</DemoFrame>
+
+En el sistema predeterminado, todos los chips tienen forma de píldora, y la conservan cuando un texto más grande los hace más altos. Sus glifos son tan grandes como permite su altura: 24 en un chip mediano y 20 en uno pequeño. La marca de verificación de un chip de filtro seleccionado es el glifo `check` del conjunto de iconos del sistema, y el glifo de quitar es `cancel`, siempre dibujado con relleno. El chip no dibuja ninguna marca propia, de modo que un sistema de diseño que quiera otras marcas elige otro conjunto de iconos. El borde de un chip outlined es la línea fina, la misma línea discreta que dibuja un divisor.
+
+<ComponentSpecs name="chip" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa chips para elecciones pequeñas y relacionadas que se muestran en una fila: los filtros encima de una lista, las respuestas sugeridas bajo un mensaje, los destinatarios de un correo. Un botón pesa demasiado para una fila de diez, una casilla de verificación se lee como parte de un formulario, y una insignia o un tag no se pueden pulsar.
+
+### Cómo elegir un tipo
+
+`kind` decide qué hace el chip, su rol y sus partes. No cambia el aspecto.
+
+| Tipo | Qué es | Úsalo para |
+| --- | --- | --- |
+| Action (predeterminado) | Un botón o, con `href`, un enlace | Una acción de asistencia ligada al contenido, como «Añadir al calendario» junto a una fecha, o una sugerencia, como la respuesta «Me parece bien». Con un destino, un atajo a una página relacionada. |
+| Filter | Un botón que está activado o desactivado | Acotar una lista: «Vegetariano», «Menos de 30 min». Cuando está activado, muestra una marca de verificación y los colores de seleccionado. |
+| Input | Un elemento que la persona introdujo, con una acción de quitar | Destinatarios, etiquetas, términos de búsqueda. Puede mostrar un avatar en lugar de un icono. |
+
+Material Design 3 tiene cuatro familias de chips. Tanrei cuenta tres tipos: sus chips de asistencia y de sugerencia son ambos botones con una etiqueta y un icono opcional, así que los dos son del tipo `action`. Un sistema de diseño que quiera que las sugerencias se vean más discretas añade su propia variante para ellas.
+
+### Cómo elegir una variante y un tamaño
+
+| Variante | Úsala para |
+| --- | --- |
+| Outlined (predeterminada) | Chips sobre una superficie lisa. El borde es la línea fina: separa el chip con discreción, y la etiqueta lleva el significado. |
+| Elevated | Chips sobre una foto, un mapa o un fondo recargado, donde un borde por sí solo se perdería. |
+
+Usa `medium` (32) para la mayoría de los chips, y `small` (24) en lugares densos, como los elementos introducidos dentro de un campo o los filtros encima de una tabla. Un rótulo estático en una fila de tabla es un [tag](/es/components/tag/). Los dos tamaños cumplen el objetivo mínimo.
+
+### Chip, tag o insignia
+
+Un chip es un control: se pulsa, se conmuta o se quita, recibe el foco y tiene estados. Un [tag](/es/components/tag/) es un rótulo estático sobre un elemento, como un estado o una categoría, y nunca responde a un puntero. Una [insignia](/es/components/badge/) es un punto o un recuento unido a la esquina de otro elemento.
+
+- Si se pulsa, se selecciona o se quita, usa un chip.
+- Si solo dice algo sobre el elemento en el que está, usa un tag.
+- Si es un número o un punto encima de otra cosa, usa una insignia.
+
+No uses como rótulo un chip que no hace nada, y no deshabilites un chip para convertirlo en uno.
+
+### Un chip con destino es un enlace
+
+Un control con destino es un enlace. Un chip de acción que solo lleva a la persona a algún sitio recibe `href`, y entonces es un enlace real y no un botón: en la web, un ancla, que se puede abrir en una pestaña nueva y cuya dirección se puede copiar. Se ve exactamente igual que un chip de acción en todos los estados, y no hay estado visitado.
+
+- Enter sigue un chip de enlace. Espacio no: hace lo mismo que en cualquier enlace.
+- `click` se emite primero, y después se abre el destino. Cancela el clic para encargarte tú de la navegación, como hace un enrutador del lado del cliente.
+- Con `target` en `new`, el chip muestra el glifo `open_in_new` después de su etiqueta, y necesita `targetLabel`, las palabras que se leen después de su nombre, como «se abre en una pestaña nueva». Tanrei no incluye textos propios.
+- Un chip de enlace deshabilitado no se puede seguir y sale del orden del foco.
+- Solo un chip de acción puede ser un enlace. Un chip de filtro guarda un estado y un chip de entrada lleva una segunda acción, así que ambos ignoran `href`, y las compilaciones de depuración lo notifican.
+
+### La acción de quitar
+
+Un chip de entrada termina con una acción de quitar: el glifo `cancel` con relleno sobre un contenedor redondo un poco mayor que él, que se ve como un anillo alrededor del glifo al pasar el cursor, con el foco y al pulsar. En el sistema predeterminado, el contenedor redondo es concéntrico con el extremo redondeado del chip, y queda tan lejos del extremo como de la parte superior y de la inferior. No ocupa espacio propio, así que no hace el chip más ancho ni más alto. La acción de quitar es un botón aparte con su propio nombre, sus propios estados al pasar el cursor, de foco y de pulsación, y su propia área de pulsación, que se extiende hacia fuera y nunca cubre la etiqueta. Al pulsarla, o al pulsar Retroceso o Supr mientras el chip tiene el foco, se pide quitar el chip. **El chip nunca se quita a sí mismo.** Tu código quita el elemento y mueve el foco: al chip siguiente, al anterior o al campo al que pertenecen los chips.
+
+De forma predeterminada, la acción de quitar se presenta como destructiva (`destructiveRemove`, activado salvo que lo desactives). En reposo se ve como se vería sin el indicador. Mientras tiene el cursor encima, el foco o está pulsada, su glifo y su capa de estado toman el color de error. Desactívalo para una eliminación que no pierde nada, como un filtro aplicado que la persona puede volver a añadir. En la web el atributo es el inverso, `no-destructive-remove`, porque un atributo booleano de HTML no puede ser true de forma predeterminada. El indicador cambia los colores y nada más, y se ignora en los demás tipos.
+
+Un chip de entrada que ahora no se puede quitar, como un elemento de un campo de solo lectura, no dibuja la acción de quitar: define `removable` como false. No queda ahí una acción que no hace nada, Retroceso y Supr no piden nada, y el chip lleva el margen interior de un chip sin esa acción. En la web el atributo es el inverso, `not-removable`. Se ignora en los demás tipos.
+
+**Se usa en** el [campo de chips](/es/components/chip-field/), donde cada elemento es un chip de entrada pequeño. Ahí el campo da a todo el conjunto una sola parada de tabulación y sus propias teclas, quita el chip que lo pide y mueve el foco. En la web, un componente que contiene chips de esta manera define `tabindex="-1"` en cada chip, lo que saca el chip y su acción de quitar del orden de tabulación y deja que ambos sigan pudiendo recibir el foco.
+
+### Recomendado
+
+- Mantén las etiquetas cortas, de una a tres palabras. Un chip se queda en una sola línea y corta su etiqueta con puntos suspensivos solo cuando el diseño le da demasiado poco ancho.
+- Usa una sola variante para una fila de chips.
+- Nombra el elemento en la etiqueta de quitar: «Quitar a Ada Lovelace», no «Quitar».
+- Conserva el aspecto destructivo de la acción de quitar donde quitar haga perder lo que la persona introdujo, como un destinatario o una etiqueta. Desactívalo donde la eliminación sea inofensiva.
+- En la web, pon la fila de chips en un [grupo de tags](/es/components/tag-group/): los coloca en líneas, de modo que el que no cabe en una pasa a la siguiente, mantiene la distancia entre ellos y los expone como una sola lista. En las demás plataformas, y en una fila con desplazamiento, dispón tú los chips.
+
+### Evita
+
+- No uses un chip de filtro para un ajuste que se aplica de inmediato y va solo. Usa un interruptor.
+- No uses un chip para la acción principal de una pantalla. Usa un botón o un botón de acción principal.
+- No navegues desde el controlador de clic de un chip de acción. Un chip que lleva a algún sitio recibe `href`.
+- No mezcles tipos en una misma fila, como filtros junto a acciones sugeridas.
+- No le des a un chip de filtro una etiqueta que cambie con su estado. El estado se anuncia por separado.
+
+## Accesibilidad
+
+<ComponentAccessibility name="chip" />
+
+### De qué se encarga el componente
+
+- Todos los chips exponen el rol de botón, la etiqueta como nombre y su estado deshabilitado. El icono, la marca de verificación y el avatar quedan ocultos para la tecnología de apoyo.
+- Un chip de acción con `href` expone en su lugar el rol de enlace, con el mismo nombre. La marca de un enlace que abre una pestaña nueva queda oculta para la tecnología de apoyo; `targetLabel` es la descripción del enlace, que se lee después de su nombre y su rol.
+- Un chip de filtro expone además si está activado, como hace un botón conmutador: un estado pulsado en la web, el rasgo de seleccionado en las plataformas de Apple, un estado conmutable en Android. Su estado nunca se anuncia a partir de la marca de verificación.
+- Un chip de entrada son dos elementos: el chip y después su acción de quitar, un botón aparte que recibe su nombre de la etiqueta de quitar. Tab llega a ellos en ese orden. Retroceso o Supr sobre el chip con foco también piden quitarlo.
+- Enter y Espacio activan el chip, o la acción de quitar cuando esta tiene el foco. Un chip de enlace se activa solo con Enter. Cada uno muestra su propio indicador de foco, solo para el foco del teclado.
+- El área de pulsación del chip cumple el objetivo mínimo en los dos tamaños. La acción de quitar tiene un área de pulsación propia que también lo cumple, sin cubrir la etiqueta.
+- El aspecto destructivo de la acción de quitar nunca es la única señal. Con `destructiveRemove` activado o desactivado, la acción de quitar conserva su rol, su nombre, su glifo, su tamaño y su área de pulsación, y no anuncia nada más. El nombre, «Quitar a Ada Lovelace», dice lo que hace.
+- La etiqueta completa sigue siendo el nombre accesible incluso cuando se corta. Con tamaños de texto mayores, el chip crece en altura y conserva la forma de píldora.
+- En el sistema predeterminado, el borde de un chip outlined es la línea fina, que queda por debajo de 3:1 frente a la superficie. El borde no es lo que identifica al chip: la etiqueta es texto con contraste pleno, un chip de filtro seleccionado muestra su relleno y su marca de verificación, y el foco muestra el anillo de foco. Un producto que necesite un borde de 3:1 define `comp.chip.outlined.outline.color` como `sys.color.outline` en una capa.
+- Las compilaciones de depuración notifican que falta la etiqueta, que falta la etiqueta de quitar en un chip de entrada, un enlace que abre una pestaña nueva sin `targetLabel`, un destino en un chip de filtro o de entrada, y un tipo desconocido, que se renderiza y se comporta como un chip de acción.
+
+Carencias conocidas por plataforma:
+
+- React Native: Retroceso y Supr se entregan mediante un evento de tecla cuya entrega en iOS y Android no se ha comprobado en un dispositivo. En cualquier caso, la acción de quitar sigue siendo accesible con Tab.
+- React Native: que VoiceOver y TalkBack llegan al chip y a su acción de quitar como dos elementos en ese orden, y el área de pulsación de la acción de quitar, solo se han probado sin un dispositivo. En Android, un área de pulsación no puede extenderse más allá de la vista padre, así que deja espacio alrededor de una fila de chips de entrada.
+- Flutter: el área de pulsación de la acción de quitar se extiende más allá del extremo del chip, y Flutter le hace sitio ensanchando el diseño del chip de entrada, así que una fila de chips de entrada queda un poco más espaciada.
+- Compose: el área de pulsación de la acción de quitar se extiende más allá del extremo del chip sin ensancharlo, así que un chip colocado justo después recibe las pulsaciones donde ambos se solapan. Un toque ahí, las teclas mediante la gestión de teclas de la plataforma y TalkBack solo se han probado con Robolectric, todavía no en un dispositivo.
+- SwiftUI: Retroceso y Supr sobre el chip, y Tab desde el chip hasta su acción de quitar, se prueban por partes, pero todavía no de extremo a extremo. Donde una pulsación atenúa el control (cupertino), el glifo de quitar se atenúa un fotograma después que el chip.
+- SwiftUI y Compose mantienen el icono, la marca de verificación, el glifo de quitar y el avatar en su propio tamaño cuando el texto crece, mientras que la etiqueta crece. Todavía no se ha decidido si deben crecer con la etiqueta.
+- La web dibuja la marca de verificación y el glifo de quitar como `check` y `cancel` del conjunto de iconos, con los nombres que da la especificación (CHP-13, CHP-18). SwiftUI, Compose, Flutter y React Native, que ofrecen la revisión anterior, siguen dibujando la acción de quitar con `close` (Flutter, mediante un punto de código de Material Symbols), y sin una fuente de iconos Compose y SwiftUI dibujan la marca de verificación y la cruz como vectores propios. Cada una dibujará `cancel` y `check` por su nombre, y ningún vector propio, cuando se ponga al día.
+
+### Qué debes hacer tú
+
+- Cuando la persona quite un chip de entrada, quítalo y mueve el foco a un chip vecino o al campo. El chip no hace nada después de pedirlo.
+- Dale a cada chip de entrada una etiqueta de quitar que nombre su elemento. Varios botones «Quitar» en una fila no se pueden distinguir.
+- Dale a un chip de enlace que abre una pestaña o una ventana nueva un `targetLabel` en el idioma de tu producto.
+- Dale a una fila de chips de filtro un encabezado visible o un nombre de grupo que diga qué filtran.
+- Proporciona tú el modelo de teclado de una fila si lo necesitas, como las teclas de flecha entre chips. Cada chip solo gestiona Tab, Enter, Espacio y, en un chip de entrada, Retroceso y Supr.

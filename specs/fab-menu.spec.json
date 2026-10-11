@@ -1,0 +1,744 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "fab-menu",
+  "title": "FAB menu",
+  "summary": "Opens a short list of related actions from a toggle drawn as a collapsed main action button, which turns into the list's close button while they show.",
+  "category": "actions",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The toggle that opens and closes the menu, drawn as a collapsed main action button. It casts the shadow, carries hover, focus and press, and changes its colors and corners between closed and open."
+    },
+    {
+      "id": "icon",
+      "description": "The toggle's glyph: the product's icon while closed, the glyph close of the system's icon set while open. The FAB menu draws no mark of its own for it."
+    },
+    {
+      "id": "list",
+      "description": "The column of items above the toggle, end-aligned with it. It draws nothing of its own and is presented above the page."
+    },
+    {
+      "id": "item",
+      "description": "One action: a raised container holding an icon and a label. It carries its own hover, focus and press."
+    },
+    {
+      "id": "item-icon",
+      "description": "An item's glyph, before its label."
+    },
+    {
+      "id": "item-label",
+      "description": "An item's text and its accessible name."
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus, around the toggle or the item that has it."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "filled",
+        "tonal",
+        "surface"
+      ],
+      "axis": "tanrei.comp.fab-menu.variant",
+      "default": "filled",
+      "description": "Emphasis, as the main action button's variants of the same names: it colors the toggle and the items. A design system may add values."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "axis": "tanrei.comp.fab-menu.size",
+      "default": "medium",
+      "description": "The toggle's size (40 / 48 / 64, square), as the main action button's. The items keep one size. A design system may add values."
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the items are shown. Where open is a plain value (web, Compose, React Native) the product sets it from toggle and sets it to false from close; where it is a binding or a controller (SwiftUI, Flutter) the FAB menu opens and closes itself through it (FBM-1, FBM-15)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the toggle and of the list (\"Create\"). Required: an icon alone is not a name."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents opening and removes the toggle from the focus order. Hiding a FAB menu whose actions are unavailable is usually better than disabling it."
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "description": "The toggle's glyph while closed (a glyph of the system's icon set).",
+      "fixture": "glyph"
+    }
+  ],
+  "items": [
+    {
+      "name": "item",
+      "summary": "One action of the menu: an icon and a label on a raised container.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The item's text and its accessible name. Required."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of the item's icon (a glyph of the system's icon set). Required."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The item was activated by pointer, touch, keyboard or assistive technology."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "toggle",
+      "description": "The toggle asks to open or close the menu; carries the open value it asks for."
+    },
+    {
+      "name": "close",
+      "description": "The menu asks to be closed; carries the reason: escape, back, outside, tab, focus-out or item (in the platform's casing)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "FBM-1",
+      "text": "WHEN the user activates the toggle by pointer, touch, Enter or Space THE FAB menu SHALL emit toggle exactly once with the opposite of open, and WHEN the user presses Down Arrow or Up Arrow on the toggle while open is false it SHALL emit toggle with true; the menu SHALL then open or close through open: through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open where open is a plain value (web, Compose, React Native)."
+    },
+    {
+      "id": "FBM-2",
+      "text": "WHILE disabled is true THE FAB menu SHALL NOT emit toggle or close, SHALL NOT make the toggle focusable, SHALL expose the disabled state to assistive technology, and SHALL draw the toggle closed and present no items, whatever open says."
+    },
+    {
+      "id": "FBM-3",
+      "text": "WHILE the toggle or an item is hovered, keyboard-focused or pressed THE FAB menu SHALL render its container, icon, label, elevation and opacity from the component tokens of its variant in its own highest-precedence active state — the toggle from its closed parts (comp.fab-menu.filled.container.color for filled, and so on) or its open parts (comp.fab-menu.filled.open.container.color, and so on), an item from the item parts (comp.fab-menu.filled.item.container.color, and so on) — with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "FBM-4",
+      "text": "WHEN the toggle or an item receives keyboard focus THE FAB menu SHALL show the focus ring around that one's own shape, without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "FBM-5",
+      "text": "WHERE the toggle is smaller than the minimum target THE FAB menu SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; THE FAB menu SHALL make each item at least that target tall, because stacked items cannot extend a hit area over each other, and each item's whole container SHALL be its hit area; a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "FBM-6",
+      "text": "WHILE disabled is true THE FAB menu SHALL render the toggle's container, icon, elevation and opacity from the disabled component tokens of its variant's closed parts."
+    },
+    {
+      "id": "FBM-7",
+      "text": "WHEN variant or size names a value that the active design system does not have THE FAB menu SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "FBM-8",
+      "text": "WHEN the toggle is pressed by pointer, touch, Enter or Space THE toggle SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "FBM-9",
+      "text": "WHILE pressed THE toggle SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; icon, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.fab-menu.motion.feedback-duration with comp.fab-menu.motion.state-easing, fades over comp.fab-menu.motion.state-duration with comp.fab-menu.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced. Each item SHALL answer its own press in the same way, within its own container and from its item parts: label, icon, elevation and opacity still come from its pressed tokens.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "FBM-10",
+      "text": "THE toggle SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README. Each item SHALL ease its corners and show its keyboard focus in the same way.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "FBM-11",
+      "text": "THE FAB menu SHALL draw the toggle as a square whose side is the container size of its size (comp.fab-menu.container.size.medium for medium, and so on), with the corners of its size (comp.fab-menu.container.shape.medium, and so on) while closed and comp.fab-menu.container.shape-open while open, and its icon centred in it at the icon size of its size (comp.fab-menu.icon.size.medium, and so on) through the icon helper, with the family and fill of an unselected icon, sys.icon.weight, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max: the icon slot's glyph while closed, and the glyph close of the system's icon set while open, not mirrored when the layout direction is right-to-left. THE FAB menu SHALL draw no mark of its own (no path, shape or character of its own) for the close glyph."
+    },
+    {
+      "id": "FBM-12",
+      "text": "THE FAB menu SHALL NOT position itself: the toggle SHALL lay out at its own size where the layout that holds it places it (normally the inline-end bottom corner of the screen, clear of any navigation bar), as a main action button does (MAB-18), and the items SHALL be presented above the page rather than laid out, so that they move no content."
+    },
+    {
+      "id": "FBM-13",
+      "text": "WHEN open becomes true THE FAB menu SHALL present its items in the platform's overlay layer (the web's top layer through the popover API, SwiftUI's presentation as the menu's, Compose's Popup, Flutter's Overlay, React Native's overlay layer that TanreiProvider renders) as a column above the toggle, comp.fab-menu.list.offset from its top edge and comp.fab-menu.list.gap apart, the first item at the top and every item's end edge aligned with the toggle's, and SHALL move focus to the first item, or to the last (the one nearest the toggle) when Up Arrow opened it; WHEN open becomes false THE FAB menu SHALL remove the items and, if focus was in them, return focus to the toggle. The FAB menu is an operated overlay, so it takes focus and returns it although it is not modal.",
+      "verify": "Fixtures: each draws the toggle at the inline-end bottom corner of a 320 × 320 stage, 16 from both edges; an open fixture draws its items in place above the toggle with their elevation and without open motion, through the same test-only in-place rendering as the menu (MNU-19: the `inline` attribute on the web, the in-place initializer each README names elsewhere). The fixture's items are the menu's items in order."
+    },
+    {
+      "id": "FBM-14",
+      "text": "WHILE open is true THE FAB menu SHALL NOT trap focus, SHALL NOT make the rest of the screen inert and SHALL draw no scrim: it is an operated overlay that is not modal."
+    },
+    {
+      "id": "FBM-15",
+      "text": "WHEN the user presses Escape or the platform's back, presses outside the items and the toggle, presses Tab or Shift+Tab on an item, or moves focus out of the items and the toggle THE FAB menu SHALL emit close once with that reason (escape, back, outside, tab, focus-out) and SHALL be closed: through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open to false where open is a plain value (web, Compose, React Native); Tab and Shift+Tab SHALL then move focus on from the toggle as they would have from it. A press on the toggle while open is not a press outside: it SHALL emit toggle with false (FBM-1) and no close. Whether a press outside also reaches the element under it SHALL follow the platform, as the menu's does, and be stated in its README."
+    },
+    {
+      "id": "FBM-16",
+      "text": "WHEN the user activates an item by pointer, touch, Enter or Space THE FAB menu SHALL emit the item's click once and then emit close with the reason item, in that order, and SHALL be closed as FBM-15 says."
+    },
+    {
+      "id": "FBM-17",
+      "text": "WHILE open is true and an item has keyboard focus THE FAB menu SHALL move focus to the next item with Down Arrow and to the previous one with Up Arrow, wrapping at the ends, and to the first and last item with Home and End."
+    },
+    {
+      "id": "FBM-18",
+      "text": "THE FAB menu SHALL draw each item as a container at least comp.fab-menu.item.height tall and as wide as its content, with corners comp.fab-menu.item.shape eased by sys.shape.corner-smoothing, holding its icon and then its label comp.fab-menu.item.gap apart, padded by comp.fab-menu.item.padding-inline-start at the start and comp.fab-menu.item.padding-inline-end at the end; the label SHALL be set in comp.fab-menu.item.label.typescale on one line while it fits and SHALL wrap rather than truncate, the item growing with it; the icon SHALL be drawn at comp.fab-menu.item.icon.size through the icon helper with the family and fill of an unselected icon, sys.icon.weight, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; and the item SHALL cast its item elevation (comp.fab-menu.filled.item.container.elevation for filled, and so on) outside its container without clipping it."
+    },
+    {
+      "id": "FBM-19",
+      "text": "WHEN the FAB menu opens THE FAB menu SHALL change the toggle's colors and corners and cross-fade its icon to the glyph close (a cross-fade of two glyphs, neither drawn along a path) over comp.fab-menu.motion.open-duration with comp.fab-menu.motion.open-easing, and fade and grow each item in from its end edge over the same, starting with the item nearest the toggle and delaying each next one by comp.fab-menu.motion.stagger; WHEN it closes it SHALL reverse the toggle's change and fade all items out together over comp.fab-menu.motion.close-duration with comp.fab-menu.motion.close-easing; WHERE motion is reduced it SHALL change and show or hide everything at once."
+    },
+    {
+      "id": "FBM-20",
+      "text": "THE FAB menu SHALL expose the toggle as a button named by label that opens a menu, with whether the menu is open where the platform has those properties, and while open SHALL expose the items as a menu named by label, each a menu item named by its own label with its position and the number of items; the icons SHALL be hidden."
+    },
+    {
+      "id": "FBM-21",
+      "text": "THE FAB menu SHALL cast the toggle's elevation, of its variant and state (comp.fab-menu.filled.container.elevation for filled at rest, comp.fab-menu.filled.open.container.elevation while open, and so on), outside its container without clipping it, and WHEN the elevation or the colors of the toggle or an item change between interaction states SHALL animate the change over comp.fab-menu.motion.state-duration with comp.fab-menu.motion.state-easing, changing them at once where motion is reduced."
+    },
+    {
+      "id": "FBM-22",
+      "text": "WHEN the layout direction is right-to-left THE FAB menu SHALL align the items' end edges with the toggle's left edge, mirror the order of each item's icon and label (a glyph itself only as FBM-26 says) and apply its paddings by logical start and end, and SHALL grow a ripple from the point of contact as in left-to-right."
+    },
+    {
+      "id": "FBM-23",
+      "text": "WHILE label is empty, an item's label or icon is empty, or the menu holds fewer than two or more than six items, THE FAB menu SHALL still render, and in debug builds report it."
+    },
+    {
+      "id": "FBM-24",
+      "text": "IF the icon set cannot draw the close glyph yet (its font is still loading or failed to load) WHILE open is true THE FAB menu SHALL draw nothing in the toggle's icon box, never the glyph's name as text, SHALL keep the toggle's size, colors, corners, name and expanded state, and SHALL draw the glyph once the icon set can, without the cross-fade of FBM-19."
+    },
+    {
+      "id": "FBM-25",
+      "text": "THE FAB menu SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the FAB menu is shown THE FAB menu SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "FBM-26",
+      "text": "WHERE the layout direction is right-to-left THE FAB menu SHALL draw the glyph of its icon slot while closed and the icon of each item mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order FBM-22 gives. THE FAB menu SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The close glyph of the open toggle is not marked and is never mirrored (FBM-11).",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "FBM-27",
+      "text": "THE FAB menu SHALL lay out the label of each item as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE FAB menu SHALL still place each label and align its lines by the layout direction, not by the text's own."
+    }
+  ],
+  "accessibility": {
+    "role": "button",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the toggle; from an item, closes the menu and moves focus on from the toggle."
+      },
+      {
+        "keys": "Enter, Space or Down Arrow on the toggle",
+        "action": "Opens the menu (Enter and Space also close it); focus moves to the first item."
+      },
+      {
+        "keys": "Up Arrow on the toggle",
+        "action": "Opens the menu; focus moves to the last item, the one nearest the toggle."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow",
+        "action": "Moves focus to the next or previous item, wrapping at the ends."
+      },
+      {
+        "keys": "Home / End",
+        "action": "Moves focus to the first or last item."
+      },
+      {
+        "keys": "Enter or Space on an item",
+        "action": "Activates the item and closes the menu."
+      },
+      {
+        "keys": "Escape",
+        "action": "Closes the menu and returns focus to the toggle."
+      }
+    ],
+    "labeling": "label names the toggle and the list (\"Create\"). Each item is named by its label. Icons are decorative. The toggle keeps its name while open; its expanded state says it is open.",
+    "minimumTarget": true,
+    "notes": [
+      "Focus: the FAB menu is an operated overlay that is not modal, like the menu. It moves focus in when it opens and returns it to the toggle when it closes, but does not keep it: Tab from an item closes it.",
+      "Its place in the focus and reading order is where the layout puts the toggle in the element tree, not where it is drawn, as for the main action button.",
+      "Compose has no menu role: the items are buttons in a traversal group named by label, with their position in their collection info.",
+      "Text size does not change the toggle: an icon is not text. The items grow with enlarged text and wrap their labels.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.fab-menu",
+  "fixtures": [
+    {
+      "id": "filled-closed",
+      "props": {
+        "variant": "filled",
+        "label": "Create"
+      },
+      "slots": {
+        "icon": "add"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Document",
+            "icon": "description"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Folder",
+            "icon": "create_new_folder"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Upload",
+            "icon": "upload"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-closed",
+      "props": {
+        "variant": "tonal",
+        "label": "Create"
+      },
+      "slots": {
+        "icon": "add"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Document",
+            "icon": "description"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Folder",
+            "icon": "create_new_folder"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Upload",
+            "icon": "upload"
+          }
+        }
+      ]
+    },
+    {
+      "id": "surface-closed",
+      "props": {
+        "variant": "surface",
+        "label": "Create"
+      },
+      "slots": {
+        "icon": "add"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Document",
+            "icon": "description"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Folder",
+            "icon": "create_new_folder"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Upload",
+            "icon": "upload"
+          }
+        }
+      ]
+    },
+    {
+      "id": "small-closed",
+      "props": {
+        "variant": "filled",
+        "size": "small",
+        "label": "Create"
+      },
+      "slots": {
+        "icon": "add"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Document",
+            "icon": "description"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Folder",
+            "icon": "create_new_folder"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Upload",
+            "icon": "upload"
+          }
+        }
+      ]
+    },
+    {
+      "id": "large-closed",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "Create"
+      },
+      "slots": {
+        "icon": "add"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Document",
+            "icon": "description"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Folder",
+            "icon": "create_new_folder"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Upload",
+            "icon": "upload"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-open",
+      "props": {
+        "variant": "filled",
+        "open": true,
+        "label": "Create"
+      },
+      "slots": {
+        "icon": "add"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Document",
+            "icon": "description"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Folder",
+            "icon": "create_new_folder"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Upload",
+            "icon": "upload"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tonal-open",
+      "props": {
+        "variant": "tonal",
+        "open": true,
+        "label": "Create"
+      },
+      "slots": {
+        "icon": "add"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Document",
+            "icon": "description"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Folder",
+            "icon": "create_new_folder"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Upload",
+            "icon": "upload"
+          }
+        }
+      ]
+    },
+    {
+      "id": "surface-open",
+      "props": {
+        "variant": "surface",
+        "open": true,
+        "label": "Create"
+      },
+      "slots": {
+        "icon": "add"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Document",
+            "icon": "description"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Folder",
+            "icon": "create_new_folder"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Upload",
+            "icon": "upload"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "disabled": true,
+        "label": "Create"
+      },
+      "slots": {
+        "icon": "add"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Document",
+            "icon": "description"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Folder",
+            "icon": "create_new_folder"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Upload",
+            "icon": "upload"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-fab-menu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "open": "open",
+        "label": "label",
+        "disabled": "disabled"
+      },
+      "events": {
+        "toggle": "toggle",
+        "close": "close"
+      },
+      "items": {
+        "item": {
+          "name": "tanrei-fab-menu-item",
+          "props": {
+            "label": "label",
+            "icon": "icon"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "A child element: `<tanrei-fab-menu-item label=\"Upload\" icon=\"upload\">`; its `click` bubbles."
+        }
+      },
+      "notes": "`<tanrei-fab-menu label=\"Create\" variant size open>` with a `slot=\"icon\"` glyph and `tanrei-fab-menu-item` children. The toggle is a `<button>` in the shadow root with `aria-haspopup=\"menu\"`, `aria-expanded` and `aria-controls`; the items are a manual popover in the top layer with role menu, placed with CSS anchor positioning and a script fallback, as the menu is. `toggle` is a CustomEvent whose `detail.open` is the value asked for (not the popover's ToggleEvent, which does not leave the shadow root); `close` carries `detail.reason`. The page positions the element. The `inline` attribute, for tests, draws the open items in place (FBM-13). The open toggle's glyph is the icon helper's `close` in the `icon` part (FBM-11)."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiFabMenu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "open": "isPresented",
+        "label": "label",
+        "disabled": "disabled"
+      },
+      "events": {
+        "toggle": "isPresented",
+        "close": "isPresented"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiFabMenuItem",
+          "props": {
+            "label": "title",
+            "icon": "icon"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "`TanreiFabMenuItem(_ title:, icon:, action:)` in the view builder."
+        }
+      },
+      "notes": "`TanreiFabMenu(_ label:, icon:, variant:, size:, isPresented: Binding<Bool>) { TanreiFabMenuItem … }`, placed by the caller as the main action button is (an `.overlay(alignment: .bottomTrailing)`). The items are presented as `TanreiMenu` presents its surface, with a clear background, so a press outside closes them. Writing the binding is toggle and close. `disabled` follows `.disabled(_:)`. iOS has no menu role: the items are buttons in a container named by label. Without an installed icon font it strokes the close glyph as a shape of its own (`TanreiChipGlyph(kind: .close)`) instead of drawing nothing (FBM-11, FBM-24)."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiFabMenu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "open": "expanded",
+        "label": "contentDescription",
+        "disabled": "enabled"
+      },
+      "events": {
+        "toggle": "onExpandedChange",
+        "close": "onDismissRequest"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiFabMenuItem",
+          "props": {
+            "label": "text",
+            "icon": "icon"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "`TanreiFabMenuItem(text, icon, onClick)` called in the content lambda."
+        }
+      },
+      "notes": "`TanreiFabMenu(expanded, onExpandedChange, onDismissRequest, contentDescription, icon, variant, size, enabled) { TanreiFabMenuItem(…) }`, placed through `Scaffold`'s `floatingActionButton` slot or by the caller; the items are shown in a `Popup`. State hoisting: the caller keeps `expanded`, sets it from `onExpandedChange` and to false from `onDismissRequest`, which carries the reason. Material 3's `FloatingActionButtonMenu` is not used. `enabled` is the inverse flag. Without an installed icon font it strokes the close glyph as a vector of its own (`TanreiDrawnGlyph`) instead of drawing nothing (FBM-11, FBM-24)."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiFabMenu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "open": "controller",
+        "label": "semanticLabel",
+        "disabled": "enabled"
+      },
+      "events": {
+        "toggle": "onToggle",
+        "close": "onClose"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiFabMenuItem",
+          "props": {
+            "label": "label",
+            "icon": "icon"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "`TanreiFabMenuItem(label:, icon:, onPressed:)` in the `items:` list."
+        }
+      },
+      "notes": "`TanreiFabMenu(controller:, semanticLabel:, icon:, variant:, size:, enabled:, items: [TanreiFabMenuItem(…)], onToggle:, onClose:)`, built with the widgets library and placed through `Scaffold.floatingActionButton` or by the caller; the items are shown in the `Overlay`. The controller is a `TanreiMenuController` (the Tanrei menu's own), passed or created internally; it is open, so the FAB menu opens and closes itself; `onToggle` and `onClose` report it. `enabled` is a flag here, because the toggle's press is the component's own. Lagging behind FBM-24: it writes the close glyph as the Material Symbols code point U+E5CD (`tanreiCloseGlyph`), and without the icon font it draws whatever the fallback face has there instead of nothing."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "FabMenu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "open": "visible",
+        "label": "accessibilityLabel",
+        "disabled": "disabled"
+      },
+      "events": {
+        "toggle": "onToggle",
+        "close": "onDismiss"
+      },
+      "items": {
+        "item": {
+          "name": "FabMenuItem",
+          "props": {
+            "label": "label",
+            "icon": "icon"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "The element type of the `items` array: `{ label, icon, onPress }`, where `icon` is the glyph's name."
+        }
+      },
+      "notes": "`<FabMenu icon=\"add\" accessibilityLabel visible onToggle onDismiss items={FabMenuItem[]} variant size disabled>`; the caller positions it. The items are presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the toggle (`measureInWindow`); Android's back button (`BackHandler`) is close. Controlled: the caller sets `visible` from `onToggle` and to false from `onDismiss`, which carries the reason. Lagging behind FBM-24: without the icon font the ligature `close` prints as a word."
+    }
+  }
+}

@@ -1,0 +1,311 @@
+---
+title: "对话框"
+description: "当任务缺少某个决定或几项信息就无法继续时，让用户停下来作答：它出现在一个表面上，把背后的一切变暗并挡住，直到用户作答或将它关闭。"
+translationOf: components/dialog.mdx
+sourceHash: f08d283670285cd3cd9a67213a30055ee2e5994c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="dialog" />
+
+:::note[规格已修订，尚未覆盖所有平台]
+本页描述的是规格当前所定的对话框：每个对话框至少提供一个操作；操作是一行占满宽度的 tonal 按钮，按各自的任务放置；图标位于向起始侧对齐的标题旁边；在 compact 窗口中，对话框位于底部。Web 组件已经实现这次修订，本页的演示就是目前发布的 Web 组件；在修订通过评审、基准图记录完成之前，它在上表中仍标记为“待跟进”。SwiftUI、Compose、Flutter 和 React Native 在跟上之前仍提供上一版：图标位于居中的标题上方，text 变体的操作按给定顺序在末尾侧排成一行，操作可以省略，对话框在任何窗口中都居中。
+:::
+
+<DemoFrame label="确认对话框：用按钮打开它">
+  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-basic').open = true">放弃草稿</tanrei-button>
+  <tanrei-dialog id="dialog-demo-basic" headline="放弃草稿？" supporting-text="你正在撰写的消息将从此设备上删除。">
+    <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">取消</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">放弃</tanrei-button>
+  </tanrei-dialog>
+</DemoFrame>
+
+### 用法
+
+对话框是受控组件。把 `open` 设为 true 即可打开它；要关闭它，就在某个操作的处理函数中，或在响应 `dismiss` 时，把 `open` 设回 false。操作本身从不关闭对话框，所以你可以先做校验、显示进度，或在出错时让它保持打开。
+
+对话框由可选的图标、标题、可选的辅助文本、可选的自定义内容以及操作组成。对话框是一次对话：它总是至少提供一个回答。操作是 Tanrei 的按钮，每个都标记为 `confirming`（完成任务：保存、删除、允许）或 `dismissive`（退出任务：取消、以后再说）。对话框按这些标记来放置操作，所以你可以按任意顺序给出它们；没有设置 `variant` 的操作，对话框会把它画成 tonal。
+
+对话框打开时应当获得焦点的元素，用平台自己的方式标记：在 Web 上是 `autofocus`，在 SwiftUI 上是 `.defaultFocus` 或 `@AccessibilityFocusState`，在 Compose 上是作为 `initialFocus` 传入的 `FocusRequester`，在 Flutter 上是 `autofocus: true`，在 React Native 上是 `initialFocusRef`。没有标记时，焦点落在对话框本身，因此最先朗读的是它的标题。
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们仍提供对话框的上一版，其中没有 `confirming` 和 `dismissive` 标记，也没有默认的 tonal。因此它们的示例为每个操作指定 text 变体，并把确认类操作放在最后；在这些平台跟上之前，示例展示的都是那一版。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="discard-draft" variant="text">放弃草稿</tanrei-button>
+
+    <!-- closedby="none" 相当于把 dismissible 设为 false。 -->
+    <tanrei-dialog headline="放弃草稿？"
+                   supporting-text="你正在撰写的消息将从此设备上删除。">
+      <!-- dismissive 放在起始侧，confirming 放在末尾侧。没有 variant 时，两者都是 tonal。 -->
+      <!-- autofocus 标记初始焦点：破坏性最小的那个操作。 -->
+      <tanrei-button slot="actions" dismissive autofocus>取消</tanrei-button>
+      <tanrei-button slot="actions" confirming>放弃</tanrei-button>
+    </tanrei-dialog>
+
+    <!-- 标题旁边有一个图标，并且有一个操作指定了自己的 variant。 -->
+    <tanrei-dialog headline="删除项目？" alert>
+      <span slot="icon">delete</span>
+      <tanrei-button slot="actions" dismissive variant="text">取消</tanrei-button>
+      <tanrei-button slot="actions" confirming variant="filled">删除</tanrei-button>
+    </tanrei-dialog>
+
+    <script type="module">
+      import '@tanrei/web/components/dialog';
+      const dialog = document.querySelector('tanrei-dialog');
+      const cancel = dialog.querySelector('[dismissive]');
+      const discard = dialog.querySelector('[confirming]');
+      document.querySelector('#discard-draft').addEventListener('click', () => (dialog.open = true));
+      // 操作从不关闭对话框：由你在它的处理函数中关闭。
+      cancel.addEventListener('click', () => (dialog.open = false));
+      discard.addEventListener('click', () => { discardDraft(); dialog.open = false; });
+      // 按下 Escape 或按下背景会触发 cancel，与原生 <dialog> 相同。
+      // 随后对话框会自行关闭，除非你取消了该事件。
+      dialog.addEventListener('cancel', (e) => { if (unsaved()) e.preventDefault(); });
+      // 每次关闭之后都会触发 close。
+      dialog.addEventListener('close', onDialogClosed);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Dialog } from '@tanrei/react';
+
+    // Escape 和背景会让对话框自行关闭（先 onCancel，再 onClose）：在 onClose 中让 open 保持同步。
+    <Dialog
+      open={open}
+      headline="放弃草稿？"
+      supportingText="你正在撰写的消息将从此设备上删除。"
+      onClose={() => setOpen(false)}
+    >
+      <Button slot="actions" dismissive onClick={() => setOpen(false)}>取消</Button>
+      <Button slot="actions" confirming onClick={discard}>放弃</Button>
+    </Dialog>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 它是一个修饰符，与 .alert 和 .sheet 一样。关闭请求会把 false 写入绑定。
+    TanreiButton("放弃草稿", variant: .text) { showDiscard = true }
+        .tanreiDialog("放弃草稿？", isPresented: $showDiscard,
+                      supportingText: "你正在撰写的消息将从此设备上删除。",
+                      actions: {
+                          TanreiButton("取消", variant: .text) { showDiscard = false }
+                          TanreiButton("放弃", variant: .text) { discardDraft(); showDiscard = false }
+                      })
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiDialog
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+
+    // 用 visible 控制，而不是只在打开时才调用它，这样退出动效才能播放。
+    val cancel = remember { FocusRequester() }
+    TanreiDialog(
+        visible = open,
+        onDismissRequest = { open = false },
+        headline = "放弃草稿？",
+        supportingText = "你正在撰写的消息将从此设备上删除。",
+        initialFocus = cancel,
+        actions = {
+            TanreiButton(text = "取消", onClick = { open = false }, modifier = Modifier.focusRequester(cancel), variant = TanreiButtonVariant.Text)
+            TanreiButton(text = "放弃", onClick = { discardDraft(); open = false }, variant = TanreiButtonVariant.Text)
+        },
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // showTanreiDialog 会推入一个模态路由。Navigator.pop 关闭它；用户关闭时，future 以 null 完成。
+    final bool? discard = await showTanreiDialog<bool>(
+      context: context,
+      barrierDismissible: true, // 规格中的 dismissible：Escape、返回和遮罩
+      builder: (BuildContext context) => TanreiDialog(
+        headline: '放弃草稿？',
+        supportingText: '你正在撰写的消息将从此设备上删除。',
+        actions: <Widget>[
+          TanreiButton(
+            variant: TanreiButtonVariant.text,
+            autofocus: true,
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TanreiButton(
+            variant: TanreiButtonVariant.text,
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('放弃'),
+          ),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { Button, Dialog } from '@tanrei/react-native';
+
+    const cancel = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // 命名沿用 React Native 的 Modal：由 visible 控制，onRequestClose 就是规格中的 dismiss。
+    <Dialog
+      visible={open}
+      headline="放弃草稿？"
+      supportingText="你正在撰写的消息将从此设备上删除。"
+      onRequestClose={() => setOpen(false)}
+      initialFocusRef={cancel}
+      actions={
+        <>
+          <Button ref={cancel} variant="text" onPress={() => setOpen(false)}>取消</Button>
+          <Button variant="text" onPress={discard}>放弃</Button>
+        </>
+      }
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="警告对话框：一打开就被朗读的破坏性操作确认" plain>
+  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-alert').open = true">删除项目</tanrei-button>
+  <tanrei-dialog id="dialog-demo-alert" alert headline="删除项目？" supporting-text="项目中的所有内容，包括它的历史记录，都将被删除。此操作无法撤销。">
+    <span slot="icon">delete</span>
+    <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">取消</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">删除</tanrei-button>
+  </tanrei-dialog>
+</DemoFrame>
+
+<ComponentSpecs name="dialog" />
+
+## 指南
+
+### 何时使用
+
+当任务没有回答就无法继续时，使用对话框：确认一件无法撤销的事、请求一项权限，或在不离开页面的情况下收集两三项信息。它会让用户停下来，所以只在值得让用户停下来时才用。
+
+对于可以撤销的操作，不要问“确定吗？”，而是用消息条报告刚刚发生的事，并可附带“撤销”。不挡住屏幕的简短选择，用菜单。较长的表单和复杂的任务，放到单独的页面上。
+
+### 部件
+
+| 部件 | 设置方式 | 说明 |
+| --- | --- | --- |
+| 图标 | icon 插槽 | 可选。标明决定属于哪一类的图标，例如 `delete`。它位于标题第一行的起始处，与标题相距 12；标题换行时，它仍留在第一行旁边。 |
+| 标题 | `headline` | 必填。提问或陈述，例如“放弃草稿？”。始终向起始侧对齐。它是对话框的无障碍名称。 |
+| 辅助文本 | `supportingText` | 将会发生什么，或用户做决定时需要知道的事。始终向起始侧对齐。它是对话框的描述。 |
+| 内容 | 默认插槽 | 做决定还需要的其他东西：供选择的列表、一个输入框。对话框为它留出内边距并提供内容颜色，但不负责它的布局。 |
+| 操作 | actions 插槽 | 必填：至少一个 Tanrei 按钮，每个都标记为 `confirming` 或 `dismissive`。对话框把它们作为占满宽度的按钮组放置，并把没有 variant 的操作画成 tonal。 |
+
+当各部件在窗口中放不下时，页眉和操作留在原位，辅助文本和内容在两者之间滚动；只要有内容被滚出视野，两者之间就显示一条细的分隔线。如果文本很大，连这样也放不下，整个对话框就一起滚动。
+
+只有标题、没有辅助文本的对话框是允许的：标题里的提问加上它的回答，就是一次对话。对话框不能是一句没有任何东西可回答的陈述。
+
+### 操作
+
+各操作平分容器的内部宽度，彼此相距 16。
+
+- **按任务放置。** 排成一行时，取消类操作在起始侧，确认类操作在末尾侧。排成一列时，确认类操作在最上面，取消类操作在最下面。两种标记都没有的操作，保持它在两者之间的给定位置。焦点和屏幕阅读器遵循放置后的顺序，所以你不必手动给按钮排序。
+- **放得下就排成行，否则排成列。** 只要每个标签都能在自己那一份宽度内排成一行，操作就保持一行。一旦有标签需要换行，它们就叠成一列，每个与对话框同宽。对话框的宽度或文本大小变化时，会重新判断。
+- **默认是 tonal。** 没有设置 `variant` 的操作画成 tonal。标记只决定位置，从不决定外观。
+- **换一种外观。** 设置某个按钮的 `variant`，就能让那个操作换一种外观，例如 text 的“取消”配 filled 的“删除”。对话框从不覆盖你设置的 variant。如果产品希望所有对话框都换一种外观，应在产品的层里设置一次（`actions.variant`；如果要让操作保持各自的宽度并向末尾侧对齐，则设置 `actions.arrangement`），而不是在每个按钮上设置。
+- **至少一个。** 没有操作的对话框仍会打开，调试构建会把它报告为错误。规格规定，凡是平台 API 能够把操作设为必填的地方都要这样做：SwiftUI 的 `actions:` 构建器、Compose 的 `actions` 参数、Flutter 的 `actions` 列表和 React Native 的 `actions` 属性。这四者之中，目前只有 SwiftUI 的是必填的；其余三个在跟上之前仍接受没有操作的对话框。如果对话框的所有操作都被禁用，而 `dismissible` 又为 false，调试构建也会报告，因为这样就没有出路了。
+
+### 在 compact 窗口中
+
+当窗口宽度小于 600 时，对话框不再居中，而是位于窗口安全区域的底部：距底边和两侧边缘 16（或位于屏幕键盘上方），宽度为窗口宽度减去这些边距，最大 560，四个角都是圆角。只看宽度，所以横屏的手机不算 compact，它的对话框是居中的。
+
+在那里它仍然是对话框，而不是底部面板。它没有拖动手柄，不跟随拖动，也不会因轻扫而关闭。它的角色、焦点、惰性和关闭方式与任何对话框相同。如果对话框打开期间窗口宽度越过 600，它会立即换到另一种位置，不带动效，焦点留在原处。
+
+如果一个系统要让对话框在任何地方都居中，就把 compact 宽度设为 0。`m3-like` 和 `cupertino` 预设就是这样做的，因为它们各自的原版都把对话框居中。它们也保留了原版的 text 操作。
+
+### 打开、焦点与关闭
+
+对话框是模态浮层。它把焦点移进来，把焦点留在里面，并在关闭时把焦点交还。
+
+- **打开。** 当 `open` 变为 true 时，对话框呈现在所在窗口的一切之上，居中（或位于 compact 窗口的底部），下面是一层让整个窗口变暗的遮罩。它之外的一切都变为惰性（inert）：无法获得焦点，无法按下，辅助技术也无法到达。它背后的内容停止滚动。
+- **焦点移入。** 焦点移到你标记的元素上，否则移到对话框本身，这样辅助技术会先朗读标题，下一次按 Tab 就到达第一个可聚焦的元素。焦点在对话框打开时移动，而不是在动效结束时。
+- **焦点限制在对话框之内。** 在最后一个可聚焦的元素上按 Tab 会回到第一个，在第一个上按 Shift+Tab 会到最后一个。屏幕阅读器的导航不会离开对话框。
+- **关闭。** 当 `dismissible` 为 true 时，Escape、平台的返回操作（Android 的返回按钮或返回手势、iOS 的无障碍“退出”手势）以及在遮罩上的按下，都会触发一次 `dismiss`，然后由你关闭对话框。在 Web 上，除非你取消 `cancel` 事件，否则对话框会自行关闭，与原生 `<dialog>` 一样。当 `dismissible` 为 false 时，这些操作不起任何作用，只有操作能关闭对话框。位于 compact 窗口底部的对话框不会因轻扫而关闭。
+- **焦点交还。** 对话框关闭时，焦点交还给它打开时持有焦点的那个元素。它背后的内容恢复原状。
+- **叠放。** 从一个对话框中打开的对话框叠在它上面，带有自己的遮罩，并让第一个对话框也变为惰性。Escape 只关闭最上面的那个；关闭后，焦点交还给第一个对话框中原先持有焦点的元素。
+- **朗读。** 对话框会被朗读为对话框，以标题为名称，以辅助文本为描述。带有 `alert` 时，它是警告对话框，一打开辅助技术就会朗读标题和辅助文本。
+- **动效。** 遮罩淡入。居中的容器从略小于自身的尺寸放大，同时淡入。位于 compact 窗口底部的容器上升 32 到位，同时淡入，不放大；淡出时下沉 32。在减弱动态效果时，它只淡入淡出，不放大也不移动；Android 的这项设置会移除所有动画，所以在那里它立即出现。
+
+各平台的呈现方式：在 Web 上是用 `showModal()` 打开的原生 `<dialog>`；在 iOS 的 SwiftUI 上是背景透明的 `.fullScreenCover`（macOS 没有全屏覆盖，在那里是覆盖在修饰符所附着的视图之上的浮层）；在 Compose 上是 `Dialog` 窗口；在 Flutter 上是模态路由；在 React Native 上是透明的 `Modal`。每个平台都关掉了自带的变暗效果和转场，所以所有平台都根据令牌绘制出相同的遮罩和动效。
+
+Tanrei 的对话框打开期间，尚未显示的消息条会等待，已经显示的消息条会暂停计时。对话框内的工具提示绘制在对话框之上。
+
+### 推荐
+
+- 把标题直接写成那个提问或陈述：“放弃草稿？”“删除项目？”。避免使用“确定吗？”。
+- 用操作所做的事为它命名：“放弃”“删除”“退出登录”。避免使用“是”和“否”。
+- 把每个操作都标记为 `confirming` 或 `dismissive`，让对话框来放置它们。
+- 让每个对话框都有回答。只是告知的对话框，应当是消息条或页面上的一行文字。
+- 在破坏性操作的确认中，把初始焦点标记在“取消”上。在表单中，标记第一个输入框。如果对话框的文本必须先被读到，就什么也不标记。
+- 只为紧急的打断设置 `alert`：破坏性操作的确认、连接中断。
+
+### 避免
+
+- 不要打开用户没有要求的对话框，除非任务确实无法继续。
+- 不要把 `dismissible` 设为 false，除非用户必须在这些操作中选择一个。使用开关控制和屏幕阅读器的用户依赖 Escape 和返回操作。无法关闭的对话框仍然需要一条看得见的出路，例如“取消”。
+- 不要在对话框里放超过几项的信息。长表单放到页面上。
+- 不要为了把确认类操作放在最后而手动给操作排序，也不要为了得到 tonal 而给每个按钮设置 variant：这两件事对话框都会做。
+- 不要在 `variant` 之外另行改变按钮的样式，也不要往对话框的边框区域添加控件。
+- 不要把 compact 窗口底部的对话框当作底部面板。如果用户应当能够把它轻扫关闭，就使用底部面板。
+
+## 无障碍
+
+<ComponentAccessibility name="dialog" />
+
+### 组件负责的部分
+
+- 对话框以模态对话框的身份提供给辅助技术，`alert` 为 true 时则是警告对话框；它以标题为名称，以辅助文本为描述。带有 `alert` 时，一打开就会朗读标题和辅助文本。
+- 对话框打开期间，它之外的一切都是惰性的，并对辅助技术隐藏。
+- 打开时，焦点移到你标记的元素上，否则移到对话框本身。Tab 和 Shift+Tab 在对话框内循环。关闭时，焦点交还给它打开时持有焦点的那个元素。
+- 当 `dismissible` 为 true 时，Escape、平台的返回操作以及在遮罩上的按下会触发 `dismiss`。对话框叠放时，只关闭最上面的那个。
+- Enter 和 Space 激活当前聚焦的按钮。对话框不为 Enter 添加默认操作。
+- 操作是 Tanrei 的按钮，它们自己就满足最小目标。叠成一列的操作之间相距 16，让每个目标保持完整。
+- 焦点和屏幕阅读器按放置后的顺序遇到各个操作，与视力正常的用户看到的顺序相同。
+- 在 compact 窗口的底部，对话框保持相同的角色、焦点、惰性和关闭方式。以为可以像底部面板那样轻扫的用户，可以用 Escape、返回操作、遮罩或取消类操作关闭它。
+- 文本大小为 200% 时，对话框最多放大到与窗口同大；标签在自己那一份宽度内放不下时，操作叠成一列；辅助文本和内容可以滚动；在非常矮的窗口中，所有内容一起滚动。因此没有任何东西被截掉或无法到达。
+- 没有标题或没有操作的对话框仍会打开，调试构建会报告缺少名称或缺少回答。如果对话框的所有操作都被禁用，而 `dismissible` 又为 false，调试构建也会报告。
+
+已知的平台差距：
+
+- Web：Firefox 无法让正在关闭的对话框在淡出期间留在顶层（top layer），所以在那里对话框关闭时立即消失，没有退出时的淡出。
+- Web：避让屏幕键盘这一点，尚未在带有屏幕键盘的设备上检查过。
+- SwiftUI 没有对话框角色，也没有警告对话框角色。容器带有模态特征，以标题为名称，以辅助文本作为提示（hint）来描述，标题则带有标题（heading）特征。带有 `alert` 时，对话框一打开，VoiceOver 就朗读标题和辅助文本。
+- macOS 上的 SwiftUI 没有全屏覆盖：对话框只覆盖修饰符所附着的视图，所以请把它附着在窗口的根视图上。对话框打开期间该视图被禁用，其中的控件会在遮罩之下绘制禁用状态。
+- SwiftUI 无法把键盘焦点移到对话框本身。没有标记时，VoiceOver 从标题开始。关闭时，iOS 会把 VoiceOver 焦点交还给发起呈现的元素，但无论在 iOS 还是 macOS 上，键盘焦点都不会交还。
+- Compose 没有警告对话框角色。窗口是一个以标题为名称的对话框；带有 `alert` 的对话框在打开时朗读标题和辅助文本，所用的 Android API 在 Android 16 中已被弃用。
+- Compose：真实的对话框窗口、Tab 的循环、焦点交还给打开它的元素、返回手势和 TalkBack，都只在 Robolectric 上测试过，尚未在设备上测试。
+- Flutter：当连标题和操作都放不下、整个对话框一起滚动时，这一切换要在一次布局之后才能决定，因此晚一帧显示。Flutter 没有描述属性，所以辅助文本成为容器的提示。除非你传入 `barrierLabel`，否则遮罩没有无障碍标签。
+- React Native 无法得知先前是哪个元素持有焦点，所以关闭时不会把焦点交还给打开对话框的元素：焦点落在 iOS 和 Android 为已关闭的窗口安排的位置。没有 `initialFocusRef` 时，只有屏幕阅读器会移动（移到标题）；硬件键盘的焦点留在平台在新窗口中安排的位置。
+- React Native：Tab 是否在对话框内循环由平台决定。这一点，以及屏幕阅读器焦点、返回操作、iOS 的“退出”手势和嵌套的对话框，都尚未在设备上检查过。
+- React Native：只有当你把窗口的边衬区（insets）传给 `TanreiProvider` 时，对话框才会保持在安全区域之内。
+
+### 需要你做的事
+
+- 为每个对话框提供标题。它是对话框的名称。
+- 为每个对话框提供至少一个操作，并把每个操作标记为 `confirming` 或 `dismissive`。在仍提供上一版的平台上，请自己把确认类操作放在最后。
+- 自己关闭对话框：在每个操作的处理函数中，以及在响应 `dismiss` 时（视平台而定，是 `onRequestClose`、`onDismissRequest`、绑定或路由）。
+- 在有帮助的地方标记初始焦点：破坏性操作的确认中标记“取消”，表单中标记第一个输入框。
+- 为每个对话框提供一条看得见的出路，也就是“取消”这样的取消类操作，即使 `dismissible` 为 false 也是如此。
+- 在 React Native 上，传入 `initialFocusRef`。对话框关闭后，如果平台没有把焦点交还给打开它的元素，请自己把焦点移回去。
+- 在 macOS 的 SwiftUI 上，把 `.tanreiDialog` 附着在窗口的根视图上，让遮罩覆盖整个窗口。

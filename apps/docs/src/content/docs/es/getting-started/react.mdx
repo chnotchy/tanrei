@@ -1,0 +1,71 @@
+---
+title: React
+description: Componentes de React con tipos, generados a partir de los Web Components de Tanrei.
+translationOf: getting-started/react.mdx
+sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`@tanrei/react` envuelve cada elemento personalizado de `@tanrei/web` en un componente de React de verdad, con propiedades y controladores de eventos tipados. Los envoltorios se generan a partir del manifiesto de elementos personalizados, así que siempre coinciden con los elementos que envuelven.
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+
+## Instalación
+
+Se requiere React 18 o posterior.
+
+### Desde el código fuente
+
+Igual que con el [paquete Web](/es/getting-started/web/) (Git, Node 22.12 o posterior, pnpm 12): compila los dos paquetes en un clon del repositorio y empaquétalos,
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/web --filter @tanrei/react build
+pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanrei-packages
+```
+
+y luego instala los dos archivos empaquetados en tu proyecto con un solo comando, para que el paquete de React encuentre el paquete Web a su lado:
+
+```sh
+npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
+```
+
+### Después del primer lanzamiento
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
+## Uso
+
+```tsx
+import '@tanrei/web/tokens.css';
+import { Button } from '@tanrei/react';
+
+export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
+  return (
+    <>
+      <Button variant="filled" onClick={onDeploy}>
+        Desplegar
+      </Button>
+      <Button variant="text" size="small" disabled>
+        Revertir
+      </Button>
+    </>
+  );
+}
+```
+
+Las propiedades llevan los mismos nombres que los atributos del elemento (`variant`, `size`, `disabled`). Los eventos son controladores de eventos de React corrientes.
+
+## Renderizado en el servidor
+
+Los componentes generan en el servidor la etiqueta de un elemento personalizado y se actualizan en el navegador. En los frameworks que separan servidor y cliente, importa `@tanrei/react` desde un componente de cliente para que las definiciones de los elementos se registren en el navegador.
+
+<Callout>
+  El tema, el contraste, los tokens y las fuentes funcionan exactamente como se describe en la [guía de Web](/es/getting-started/web/); el paquete de React no añade nada propio encima.
+</Callout>

@@ -1,0 +1,104 @@
+/*
+ * Text styles by level: one utility per role of `sys.typescale`, for text outside a component.
+ *
+ *   <h2 class="tanrei-text-heading-2">Section</h2>
+ *   <p class="tanrei-text-body">Running text with <strong class="tanrei-text-emphasized">stress</strong>.</p>
+ *
+ * A class sets EVERY field of its role — family, size, weight, line height and letter-spacing (the `font` shorthand
+ * cannot carry tracking, so it is set beside it). Use a role whole; do not mix one role's size with another's line
+ * height. `.tanrei-text-emphasized` switches to the emphasized weight of the role it is in: the role's weight plus the
+ * weight step of its family (`sys.typescale.emphasis.*`) — on the element that carries the role, or on any descendant.
+ * Nothing else changes: emphasis is a weight, not a role. `.tanrei-text-eyebrow` is the plain face, small and tracked;
+ * the uppercase is the component's (`text-transform`), not the role's.
+ *
+ * Every rule reads the custom properties of the active system, so the classes follow `data-tanrei-system`, the
+ * dials and a re-valued role. A role a preset ADDS to the vocabulary (`m3-like`'s `display-large`) has no class here:
+ * write the same two declarations from its properties.
+ */
+@layer tanrei.components {
+  .tanrei-text-display {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-display-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-display-font);
+    letter-spacing: var(--tanrei-sys-typescale-display-letter-spacing);
+  }
+  .tanrei-text-heading-1 {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-1-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-heading-1-font);
+    letter-spacing: var(--tanrei-sys-typescale-heading-1-letter-spacing);
+  }
+  .tanrei-text-heading-2 {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-2-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-heading-2-font);
+    letter-spacing: var(--tanrei-sys-typescale-heading-2-letter-spacing);
+  }
+  .tanrei-text-heading-3 {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-3-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-heading-3-font);
+    letter-spacing: var(--tanrei-sys-typescale-heading-3-letter-spacing);
+  }
+  .tanrei-text-heading-4 {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-4-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-heading-4-font);
+    letter-spacing: var(--tanrei-sys-typescale-heading-4-letter-spacing);
+  }
+  .tanrei-text-heading-5 {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-5-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-heading-5-font);
+    letter-spacing: var(--tanrei-sys-typescale-heading-5-letter-spacing);
+  }
+  .tanrei-text-heading-6 {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-heading-6-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-heading-6-font);
+    letter-spacing: var(--tanrei-sys-typescale-heading-6-letter-spacing);
+  }
+  .tanrei-text-body-large {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-body-large-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-body-large-font);
+    letter-spacing: var(--tanrei-sys-typescale-body-large-letter-spacing);
+  }
+  .tanrei-text-body {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-body-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-body-font);
+    letter-spacing: var(--tanrei-sys-typescale-body-letter-spacing);
+  }
+  .tanrei-text-body-small {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-body-small-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-body-small-font);
+    letter-spacing: var(--tanrei-sys-typescale-body-small-letter-spacing);
+  }
+  .tanrei-text-label {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-label-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-label-font);
+    letter-spacing: var(--tanrei-sys-typescale-label-letter-spacing);
+  }
+  .tanrei-text-label-small {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-label-small-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-label-small-font);
+    letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
+  }
+  .tanrei-text-caption {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-caption-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-caption-font);
+    letter-spacing: var(--tanrei-sys-typescale-caption-letter-spacing);
+  }
+  .tanrei-text-code {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-code-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-code-font);
+    letter-spacing: var(--tanrei-sys-typescale-code-letter-spacing);
+  }
+  .tanrei-text-code-small {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-code-small-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-code-small-font);
+    letter-spacing: var(--tanrei-sys-typescale-code-small-letter-spacing);
+  }
+  .tanrei-text-eyebrow {
+    --tanrei-text-emphasized-weight: var(--tanrei-sys-typescale-eyebrow-font-weight-emphasized);
+    font: var(--tanrei-sys-typescale-eyebrow-font);
+    letter-spacing: var(--tanrei-sys-typescale-eyebrow-letter-spacing);
+  }
+
+  /* After the roles, so it wins on the same element; a descendant inherits the role's emphasized weight. */
+  .tanrei-text-emphasized {
+    font-weight: var(--tanrei-text-emphasized-weight);
+  }
+}

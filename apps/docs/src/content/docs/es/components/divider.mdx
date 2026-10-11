@@ -1,0 +1,275 @@
+---
+title: Divisor
+description: Separa grupos de contenido en una lista, un diseño o una barra de herramientas con una línea delgada.
+translationOf: components/divider.mdx
+sourceHash: a900ff2d8bf8a75bc9b74c35a5e534d81fd620fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="divider" />
+
+<DemoFrame label="En una lista y en una barra de herramientas">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
+    <span>Bandeja de entrada</span>
+    <tanrei-divider></tanrei-divider>
+    <span>Archivo</span>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <span>Papelera</span>
+  </div>
+  <div role="toolbar" aria-label="Formato" style="display: flex; align-items: stretch; gap: var(--tanrei-sys-space-space50)">
+    <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+    <tanrei-button variant="text" label="Insertar enlace"><span slot="icon">link</span></tanrei-button>
+  </div>
+</DemoFrame>
+
+### Uso
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native van rezagados: todavía ofrecen la revisión anterior del divisor, que solo dibuja líneas continuas y no admite longitudes ni grosor por divisor, y sus ejemplos muestran esa revisión hasta que se pongan al día.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+
+    <!-- Se alinea con una lista cuyo texto empieza 72 px hacia dentro. -->
+    <tanrei-divider inset="start" inset-length="72"></tanrei-divider>
+
+    <!-- Una línea de corte sobre un cupón y un salto de sección ligero. -->
+    <tanrei-divider line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+
+    <!-- Una línea más gruesa solo para este divisor: sus puntos, sus trazos y su onda conservan las proporciones. -->
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider line-style="dotted" line-cap="round" thickness="4"></tanrei-divider>
+
+    <!-- Los grupos de una barra de herramientas significan algo: expón el divisor como un separador. -->
+    <div role="toolbar" aria-label="Formato" style="display: flex">
+      <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+      <tanrei-button variant="text" label="Insertar enlace"><span slot="icon">link</span></tanrei-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/divider';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Divider } from '@tanrei/react';
+
+    <Divider />
+    <Divider inset="start" insetLength={72} />
+    <Divider lineStyle="dashed" lineCap="round" />
+    <Divider lineStyle="wavy" amplitude={4} wavelength={24} />
+    <Divider lineStyle="dotted" lineCap="round" thickness={4} />
+    <Divider orientation="vertical" decorative={false} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    VStack(spacing: 0) {
+      inboxRow
+      TanreiDivider(inset: .start)
+      archiveRow
+    }
+
+    // El eje se indica de forma explícita, no se toma de la pila que lo contiene.
+    HStack { formattingButtons; TanreiDivider(axis: .vertical, isDecorative: false); insertLinkButton }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.gestures.Orientation
+    import io.github.chnotchy.tanrei.components.TanreiDivider
+    import io.github.chnotchy.tanrei.components.TanreiDividerInset
+
+    Column {
+        InboxRow()
+        TanreiDivider(inset = TanreiDividerInset.Start)
+        ArchiveRow()
+    }
+
+    // Un divisor vertical ocupa la altura de la fila, así que dale una a la fila.
+    Row(Modifier.height(IntrinsicSize.Min)) {
+        FormattingButtons()
+        TanreiDivider(orientation = Orientation.Vertical, decorative = false)
+        InsertLinkButton()
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    Column(
+      children: <Widget>[
+        inboxRow,
+        const TanreiDivider(inset: TanreiDividerInset.start),
+        archiveRow,
+      ],
+    );
+
+    // IntrinsicHeight da a un divisor vertical la altura de la fila.
+    IntrinsicHeight(
+      child: Row(
+        children: <Widget>[
+          ...formattingButtons,
+          const TanreiDivider(axis: Axis.vertical, excludeFromSemantics: false),
+          insertLinkButton,
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Divider, IconButton } from '@tanrei/react-native';
+
+    <Divider />
+    <Divider inset="start" />
+
+    <View style={{ flexDirection: 'row' }}>
+      <IconButton accessibilityLabel="Negrita" onPress={toggleBold}>format_bold</IconButton>
+      <Divider orientation="vertical" decorative={false} />
+      <IconButton accessibilityLabel="Insertar enlace" onPress={insertLink}>link</IconButton>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Orientaciones y márgenes interiores" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <tanrei-divider inset="both"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="Estilos de línea" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider line-style="dotted"></tanrei-divider>
+    <tanrei-divider line-style="dashed"></tanrei-divider>
+    <tanrei-divider line-style="dashed" dash-length="12" gap="6"></tanrei-divider>
+    <tanrei-divider line-style="wavy"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
+    <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="Grosor: el propio de un divisor, con extremos redondeados en los patrones más gruesos" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+Una línea de puntos o de trazos siempre tiene un punto o un trazo entero en ambos extremos: el divisor dibuja tantos como quepan con al menos la separación entre ellos, y ensancha todas las separaciones en la misma medida. Se ve igual en los dos extremos, en cualquiera de las dos direcciones y con cualquier longitud. Una onda está hecha de arcos de circunferencia, estirados hasta formar un número entero de ondas para que empiece y termine en la línea media. Un divisor ondulado es más alto que los demás: el doble de la amplitud más el grosor de la línea, 5 de forma predeterminada en lugar de 1.
+
+Las longitudes de los puntos, de los trazos y de la onda son tokens derivados del grosor de la línea, de modo que un sistema de diseño que dibuja divisores más gruesos obtiene un patrón mayor con el mismo aspecto. `thickness` hace lo mismo para un solo divisor: ocupa el lugar del token dondequiera que se lea el grosor, y los puntos, los trazos y la onda conservan sus proporciones respecto a él. El margen interior no se escala. Las propiedades por divisor (`insetLength`, `thickness`, `dashLength`, `gap`, `amplitude`, `wavelength`) se usan tal como se dan, en la unidad de la plataforma, y ningún dial las escala. Un valor negativo o no finito, o un `thickness`, un `dashLength` o un `wavelength` de 0, recurre al token y se notifica en las compilaciones de depuración. Una propiedad que el estilo actual no dibuja se ignora.
+
+<ComponentSpecs name="divider" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un divisor donde el espacio por sí solo no deja claro un límite: entre las filas de una lista densa, entre las secciones de una página de configuración, entre grupos de acciones de una barra de herramientas. Donde la separación entre dos grupos, o un cambio de superficie, ya muestra dónde termina uno, omite la línea. Un diseño con menos líneas se recorre con la vista más fácilmente.
+
+### Una sola línea fina
+
+La línea del divisor es la línea fina del sistema de diseño: `sys.color.outline-variant`, con el ancho de la línea fina. En el sistema predeterminado, las demás líneas delgadas que ve una persona son de ese mismo color: el borde de un botón outlined, el contorno de un chip, la línea entre los grupos de un menú, el borde de una barra de navegación o de un panel de navegación, la línea bajo una fila de lista. Conservan sus propios tokens, y el sistema predeterminado les da un único valor, para que una pantalla tenga un solo tipo de línea. Un divisor que coloques tú no necesita un color propio para coincidir con ellas.
+
+### Dónde un componente separa sus propias partes
+
+Algunos componentes separan sus propias partes, y ahí no añades un divisor:
+
+- Un [menú](/es/components/menu/) separa un grupo de lo que tiene al lado.
+- Un [grupo de botones](/es/components/button-group/) conectado y un [botón con menú](/es/components/button-with-menu/) separan sus mitades.
+- Un [panel de navegación](/es/components/navigation-drawer/) dibuja un divisor antes de una sección que lo pide (`divider`).
+- Una fila de [lista](/es/components/list/) dibuja la línea bajo sí misma (`divider`), empezando donde empieza su texto.
+
+Cómo se distinguen las partes dentro de un componente es una única elección para todo el sistema de diseño: con una línea donde se tocan, que es lo predeterminado, o con una separación de espacio vacío. Un componente puede apartarse de la elección del sistema mediante su propio token, y una instancia mediante su propiedad `separation`: el menú, el grupo de botones, el botón con menú y el indicador de progreso la tienen. Con una separación, esos componentes no dibujan ninguna línea, así que un divisor añadido a mano sería la única línea que quedaría, y ya no coincidiría.
+
+El componente divisor en sí no forma parte de esa elección. Un `<tanrei-divider>` que colocas entre tu propio contenido es siempre una línea.
+
+### Cómo elegir un margen interior
+
+| Margen interior | Úsalo para |
+| --- | --- |
+| Ninguno | Un límite a lo ancho de todo el contenedor: entre secciones, bajo una cabecera. |
+| Inicio | Entre las filas de una lista cuyas filas empiezan con un icono o un avatar. La línea empieza donde empieza el texto, de modo que la columna inicial se lee como una sola. |
+| Ambos | Un corte dentro de un grupo que no debe parecer un límite del contenedor: un divisor intermedio. |
+
+Define `insetLength` solo en un divisor que deba alinearse con un contenido cuyo margen interior difiere del resto de las listas del producto. Se aplica dondequiera que `inset` aplique el margen interior, y no hace nada mientras `inset` sea none.
+
+### Cómo elegir un estilo de línea
+
+| Estilo de línea | Úsalo para |
+| --- | --- |
+| Continua | Casi todos los divisores. Es el valor predeterminado. |
+| De trazos | Un límite de otro tipo dentro del mismo producto: una línea de corte sobre un cupón, el borde de algo provisional. |
+| De puntos | Un corte más ligero que una línea continua. Cubre aproximadamente un tercio de su longitud, así que se ve más tenue con el mismo color. |
+| Ondulada | Un salto de sección que debe leerse como un tipo de límite distinto del de las líneas continuas que lo rodean. Ocupa más espacio en perpendicular a su eje que las demás. |
+
+Los extremos redondeados (`lineCap="round"`) convierten cada punto en un disco y cada trazo en una barra redondeada, y redondean los extremos de una línea continua u ondulada. Los extremos redondeados se quedan dentro de la longitud de la línea, de modo que un margen interior sigue siendo exacto. En la línea fina predeterminada, un extremo redondeado no se aprecia: está pensado para un divisor con un `thickness` propio y para los sistemas de diseño que dibujan líneas más gruesas.
+
+### Recomendado
+
+- Pon el espacio que rodea un divisor en el diseño: el espaciado de una pila, la separación de una lista. El divisor no añade ninguno propio, así que nunca duplica una separación.
+- Mantenlo decorativo (lo predeterminado) en listas y tarjetas. Las filas ya dicen dónde empiezan y dónde terminan.
+- Pon `decorative` en false solo donde la agrupación signifique algo para la persona, como los grupos de una barra de herramientas o de un menú.
+- Mantén un único estilo de línea para un mismo tipo de límite en todo el producto, para que una línea de trazos signifique siempre lo mismo.
+
+### Evita
+
+- No dibujes una línea entre cada par de elementos. Usa primero el espaciado, y un divisor donde el espaciado no baste.
+- No uses un divisor como borde o contorno de un contenedor. No tiene contenedor ni forma.
+- No lo hagas más grueso ni le des color para darle significado. `thickness` es para un patrón que necesita espacio para verse, o para una raya que coincida con líneas más gruesas a su alrededor. Al color del divisor no se le exige una relación de contraste, porque el contenido que separa debe entenderse sin él.
+- No añadas un divisor dentro de un componente que separa sus propias partes, por ejemplo entre los grupos de un menú o las filas de una lista. Usa la propiedad del propio componente.
+- No dejes que un estilo de línea transmita un significado por sí solo. Si una línea de trazos significa «corta por aquí», dilo también con texto.
+- No dependas de él como encabezado. «— o —» entre dos formularios son dos divisores y una etiqueta, y es la etiqueta la que transmite el significado.
+
+## Accesibilidad
+
+<ComponentAccessibility name="divider" />
+
+### De qué se encarga el componente
+
+- Cuando es decorativo (lo predeterminado), queda oculto para la tecnología de apoyo en todas las plataformas.
+- Cuando no es decorativo, en la web se expone como un separador con su orientación. Las plataformas de Apple, Android y Flutter no tienen rol de separador: ahí se mantiene en el árbol de accesibilidad sin nombre, y dice tanto como cada plataforma permite.
+- Nunca puede recibir el foco ni recibe entrada, así que nunca estorba a los controles que tiene a cada lado.
+- Su línea tiene al menos un píxel de dispositivo de grosor. Una línea continua, de puntos o de trazos se alinea con la cuadrícula de píxeles en perpendicular a su eje, así que nunca se ve borrosa; una onda se dibuja con suavizado de bordes.
+- El estilo de línea no le dice nada a la tecnología de apoyo: un divisor de puntos, de trazos u ondulado que no es decorativo es el mismo separador que uno continuo.
+- En la web, el modo de colores forzados vuelve a dibujar todos los estilos de línea con el color de texto del sistema.
+
+### Qué debes hacer tú
+
+- Expresa con texto cualquier significado que le des a un estilo de línea, como una línea de corte. La tecnología de apoyo no transmite el estilo, y una línea de puntos o de trazos se ve más tenue que una continua.
+- Da a cada grupo su propio nombre cuando la agrupación importe. Un separador no tiene nombre, así que no puede decir cuáles son los grupos.
+- No uses un divisor para sostener la estructura de una página. De eso se encargan los encabezados y las regiones de referencia (landmarks); una línea solo se ve.

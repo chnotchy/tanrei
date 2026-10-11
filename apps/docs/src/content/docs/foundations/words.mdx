@@ -1,0 +1,132 @@
+---
+title: Words
+description: Tanrei ships no words. Every label, name and message a component draws or says is your product's — given on the component, or once for the whole product.
+---
+
+import ProductWordKeys from '../../../components/ProductWordKeys.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+**Tanrei ships no words.** No component has a default text in any language: not "Required", not "Close", not "OK". A word a component draws or says is one your product wrote.
+
+A default hides the failure it causes. A product in Japanese that forgets one word shows English beside its own text, and nothing reports it. A product in English has its own voice too ("Mandatory", "Done", "Nothing found"). So a component has no word to fall back on, and it tells you when one is missing.
+
+## Where a word comes from
+
+A component looks in three places, in this order, and nowhere else.
+
+| Place | What it gives | Example |
+| --- | --- | --- |
+| **The component itself** | Words about this one thing, and any word this one says differently | `label`, `error-text`; `close-label="Close filters"` |
+| **Your product's words** | Words you say the same way wherever the part is drawn, given once per language | `requiredText`, `closeLabel`, `previousMonthLabel` |
+| **The platform** | What the browser already has in the reader's language | Month and weekday names, digits, "AM", the browser's own message for a missing value |
+
+After these there is nothing: no fallback language, and no English "for now".
+
+## Give your product's words once
+
+On the web, call `setWords()` once, before or after the components load. Elements already on the page draw the words at once.
+
+```js
+import { setWords } from '@tanrei/web';
+
+setWords({
+  requiredText: 'Required',
+  optionalText: 'Optional',
+  closeLabel: 'Close',
+  clearLabel: 'Clear',
+  targetLabel: 'opens in a new tab',
+});
+```
+
+Give only the words of the components you use. A second call adds to the first, key by key; a key given as an empty string is taken away. `@tanrei/web/words` exports the same function without defining any element, and `@tanrei/react` exports it too.
+
+An attribute on one component always wins over your product's words:
+
+<DemoFrame label="The word on the component itself: one field says it differently" plain column>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" requirement="required" required-text="Required"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Company" requirement="required" required-text="Needed for invoices"></tanrei-text-field>
+</DemoFrame>
+
+```html
+<tanrei-text-field label="Email" requirement="required" required-text="Required"></tanrei-text-field>
+<tanrei-text-field label="Company" requirement="required" required-text="Needed for invoices"></tanrei-text-field>
+```
+
+## More than one language
+
+Give one set per language. A component reads the set of the nearest `lang` attribute around it, so a page in Japanese, or a Japanese part of an English page, reads the Japanese words.
+
+```js
+setWords({ requiredText: 'Required', closeLabel: 'Close' }, { lang: 'en' });
+setWords({ requiredText: '必須', closeLabel: '閉じる' }, { lang: 'ja' });
+```
+
+- A set for `ja` also answers `ja-JP`, unless you give `ja-JP` a set of its own.
+- A key that the language's set does not have is read from the set given without `lang`.
+- The words are plain strings. If your product has a localization library, hand it the strings from there: `setWords()` is not a translation system, and has no plural rules. A few words have [places a component fills](#a-word-with-places), and nothing else is read in a word.
+
+## A word with places
+
+Some sentences hold a value that only the component knows, at the moment it says them: where a row stands after a move, or how many entries a paste made. Your product still writes the whole sentence. It marks where the value goes with a name between braces, and the component puts the value there.
+
+```js
+setWords({ movedText: '{headline}: {position} of {count}' }, { lang: 'en' });
+setWords({ movedText: '{headline}：{count} 件中 {position} 番目' }, { lang: 'ja' });
+```
+
+The order of the words is your language's. The component fills the places and does nothing else to the sentence.
+
+- **The component decides the names.** Each key has its own places, listed in [the table of keys](#the-keys), and only those are filled. You may write a place once, several times, or not at all.
+- **A number is written in the language of the element.** `{count}` and `{position}` are whole numbers, written with the digits and the grouping of the nearest `lang`.
+- **A text keeps its own direction.** `{headline}` and `{entry}` are texts the component holds: a row's headline, an entry a person typed. They are put in as plain text, never as markup. Where the sentence is drawn or announced, the text is isolated, so a Latin name inside an Arabic sentence stays in its own order.
+- **To write a brace, write it twice.** `{{` is drawn as `{` and `}}` as `}`. A word without places is not read at all, so there a brace is written once.
+- **One place is needed.** `entryRemoveLabel` names the remove button of each entry of a chip field. Without `{entry}` every button has the same name.
+
+In development the console reports a place the key does not have (`{entri}`), a single brace and the missing `{entry}`. The sentence is still used exactly as you wrote it. `setWords()` reports them when you give the word, and the component reports them when it uses a word given on the element.
+
+### Plurals
+
+The component has no grammar: no plural forms, no ordinals and no choice between two sentences. You have three ways to deal with a number, and none needs anything from Tanrei.
+
+1. Write a sentence that is right for every number: `{position} of {count}`, `Added: {count}`.
+2. Give the word on the component, and change it when the count changes. Your product knows the count, and a word on the component always wins. Your own plural rules choose the sentence.
+3. Where your product holds the numbers itself, the word has no places: a table's status ("1–20 of 132") is one whole string that you write.
+
+## Without a word
+
+A missing word is a fault of the product, as a text field without a label is. The component makes it small for the person and visible to you.
+
+- **Words that would be drawn are not drawn.** Where a mark says the same thing, the mark stands in their place: an asterisk for the requirement tag of a required field, the close and check icons for a picker's Cancel and OK, `+1` for "next day". Where no mark does, nothing is drawn and the place keeps its size.
+- **A control that needs a name is still drawn and still works.** A calendar's navigation buttons, a text field's resize grip and a picker's actions keep working without a name. The one exception is a number field's steppers: an unnamed one is hidden from assistive technology, because the spin button beside it steps by itself.
+- **It is reported.** In development the console names the attribute, once per word and page: `<tanrei-field>: required-text is empty and the product's words have no requiredText`.
+
+A control without an accessible name fails people who use a screen reader. The report is there so that you fix it, not so that you may leave it.
+
+## Fail a test on a missing word
+
+`missingWords()` returns the keys that were needed since the page loaded and that nobody gave. Ask it at the end of a test that walks through your product.
+
+```js
+import { missingWords } from '@tanrei/web';
+
+test('every word the product needs is given', async () => {
+  // …render the screens of the product…
+  expect(missingWords()).toEqual([]);
+});
+```
+
+## What is not a word
+
+A glyph, an asterisk, a dash, a digit and a separator the locale gives are not words, and a component still draws them. Nor are the names in the API (a prop, a value), or what the console tells a developer, which is English. The legends a keyboard shortcut draws ("Ctrl", "Enter", ⌘) are what the keys themselves carry; what is read aloud for a shortcut is the `label` you give it.
+
+## The keys
+
+Every key, the props that read it, and the places the component fills in its sentence. Most keys have the name of their prop. Three differ: a copy button's `label` and `failedLabel` read `copyLabel` and `copyFailedLabel`, and the breadcrumbs' `overflowLabel` reads `breadcrumbsOverflowLabel`.
+
+<ProductWordKeys />
+
+Words that are about one thing — a field's `label`, a date-time picker's `label`, a remove button's "Remove Ada Lovelace", a status text with a count — have no key: give them on the component.
+
+## Other platforms
+
+The rule is the same on every platform. Only the web is built so far; SwiftUI, Jetpack Compose, Flutter and React Native will take the product's words in their own idiom.

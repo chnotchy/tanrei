@@ -1,0 +1,436 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "empty-state",
+  "title": "Empty state",
+  "summary": "Stands in the place of content that is not there — a search with no results, a list nobody has added to, a page before its first item — and says what is missing, why or what to do, and offers the action that does it; quiet, flat, and announced only when it appears in answer to something.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The block that holds the message, as wide as the region it stands in and as tall as its content and its padding, with no fill, no edge and no elevation: it is drawn on the surface of the region whose content is missing. It carries no state."
+    },
+    {
+      "id": "media",
+      "description": "What pictures the empty place, above the title: a glyph of the system's icon set, in a quiet color, or a picture of the product's own. Decorative: the title says it.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "What is missing, in a few words (\"No results\", \"No projects yet\"). The one part at the surface's full text color. Plain text unless the product gives a heading; it wraps and is never cut."
+    },
+    {
+      "id": "description",
+      "description": "Why the place is empty, or what the person can do about it, in a sentence or two, in a quiet color. The product's content: text, with links where it needs them.",
+      "optional": true
+    },
+    {
+      "id": "actions",
+      "description": "One or two of the product's own Buttons or links that fill the place or change what was asked for (\"New project\", \"Clear the filter\"), in a row below the text.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "title",
+      "type": "string",
+      "default": "",
+      "description": "What is missing, in a few words, in the product's language (\"No results for tokne\"). Plain text, never a heading. The title slot takes its place where the product needs a heading of its own level or inline content."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "Medium is for an empty region inside a view: a list, a table's body, a card, a panel, a search's results. Large is for a view that is empty as a whole: the main region of a page before its first item, a page that was not found. It changes the room above and below, the glyph's size and the text styles. A design system may add values.",
+      "axis": "tanrei.comp.empty-state.size"
+    },
+    {
+      "name": "align",
+      "type": "enum",
+      "values": [
+        "center",
+        "start"
+      ],
+      "default": "center",
+      "description": "Where the parts stand on the inline axis. Center, the default, is for a region that is otherwise blank. Start puts every part at the region's start edge with its text aligned there, for a narrow column, a list in a side panel or a table whose header stays in view, where the content would have begun at that edge."
+    },
+    {
+      "name": "live",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the empty state is announced. False, the default, is for a place that is empty when its view is presented: it is read where it stands. True is for one that appears in answer to what the person did (a search that found nothing, a filter that matches no row, the last item removed): it is a live region, announced once, politely, when it is shown and when its text changes. It is never announced assertively and never takes focus: an empty place is not an error. It changes nothing that is drawn."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The description: text, with the product's own links and inline content. Empty draws the title alone."
+    },
+    {
+      "name": "media",
+      "description": "A glyph of the system's icon set, by name, drawn through the platform's icon helper at the media size; or a picture of the product's own (an illustration), which keeps its own size and colors.",
+      "fixture": "glyph"
+    },
+    {
+      "name": "title",
+      "description": "The product's own title content in place of the title prop: a heading of the level the page's outline needs, or text with inline content. The empty state draws it in the title's style and changes neither its role nor its level.",
+      "fixture": "text"
+    },
+    {
+      "name": "actions",
+      "description": "The actions: the product's own Buttons or links, one or two, the main one first. The empty state lays them out below the text and does nothing else to them.",
+      "fixture": "button"
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "EMP-1",
+      "text": "THE empty state SHALL lay itself out as a block that takes the whole inline size of the region it is placed in and is as tall as its content and its padding: it SHALL lay out in one column, in this order, its media, its title, its description and its actions, those it has, padded above the first and below the last by the block padding of its size (comp.empty-state.container.padding-block.medium for medium, comp.empty-state.container.padding-block.large for large) and at the start and the end by comp.empty-state.container.padding-inline. THE empty state SHALL draw no fill, no edge and no elevation, SHALL bring no outer space of its own, SHALL set no height of its own and SHALL NOT scroll: where the region is taller, placing the block in it is the region's.",
+      "verify": "Under the default system a medium empty state with a title alone is 32 + one title line (24) + 32 = 88 high, in a region of any width."
+    },
+    {
+      "id": "EMP-2",
+      "text": "WHILE align is center THE empty state SHALL centre every part on the inline axis of its container and centre the lines of its title and its description; WHILE align is start THE empty state SHALL place every part at the container's start edge, inside the inline padding, and align the lines of its text to the start. In both THE empty state SHALL keep its title and its description no wider than comp.empty-state.content.measure times the description's font size, and no wider than the container less its inline padding.",
+      "verify": "Under the default system at medium the text is at most 30 × 14 = 420 wide; in a container 1200 wide a centred description wraps at 420, not at 1168."
+    },
+    {
+      "id": "EMP-3",
+      "text": "WHERE the media slot holds a glyph THE empty state SHALL draw it first, in a box of the media size of its size (comp.empty-state.media.size.medium for medium, comp.empty-state.media.size.large for large), in comp.empty-state.media.color, with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL begin the title comp.empty-state.media.gap below it. WHERE the slot holds a picture or a view of the product's own THE empty state SHALL draw it in the same place at its own size, never wider than the container less its inline padding and with its proportions kept, and SHALL NOT color, clip or mirror it. THE empty state SHALL keep the media from assistive technology, and SHALL draw no media the product did not give."
+    },
+    {
+      "id": "EMP-4",
+      "text": "THE empty state SHALL draw its title in the text style of its size (comp.empty-state.title.typescale.medium for medium, comp.empty-state.title.typescale.large for large) and in comp.empty-state.title.color; the title SHALL wrap and SHALL never be cut. WHERE the title slot holds content THE empty state SHALL draw that content in the title's place, style and color instead of the title prop, and SHALL change neither its role nor its level: a title given as text is plain text and never a heading, and a title the product gives as a heading stays a heading of the level the product gave it, drawn as every other title is."
+    },
+    {
+      "id": "EMP-5",
+      "text": "WHERE the default slot holds content THE empty state SHALL draw it as the description, comp.empty-state.title.gap below the title, in the text style of its size (comp.empty-state.description.typescale.medium for medium, comp.empty-state.description.typescale.large for large) and in comp.empty-state.description.color; the description SHALL wrap and SHALL never be cut or limited to a number of lines. A link in the description is the product's own and is drawn by its own spec, in its own color and underlined."
+    },
+    {
+      "id": "EMP-6",
+      "text": "WHERE the actions slot holds content THE empty state SHALL lay it out in one row comp.empty-state.actions.gap below the text, in the order given from the start, comp.empty-state.actions.item-gap apart, centred or at the start as align says (EMP-2); WHERE the row does not fit the container THE empty state SHALL wrap it, comp.empty-state.actions.item-gap between its lines, and SHALL never cut or shrink an action below its own minimum. THE empty state SHALL NOT restyle, resize, reorder or rename the actions, and SHALL emit no event of its own: an action's press is that control's."
+    },
+    {
+      "id": "EMP-7",
+      "text": "THE empty state SHALL NOT take pointer, touch or keyboard input, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything it draws under a pointer, a press or focus: it has no hovered, focused, pressed, selected or disabled state and draws no state layer and no focus indicator. What the product places in it — a link in the description, a Button in the actions — takes input and focus by its own spec, in the order the parts are drawn, and text in the title and the description SHALL remain selectable where the platform lets text be selected."
+    },
+    {
+      "id": "EMP-8",
+      "text": "WHILE live is false THE empty state SHALL be exposed to assistive technology as plain content, read where it stands in reading order: its title as text (or as the heading the product gave), then its description, then its actions as the controls they are. It SHALL have no role and no name of its own, SHALL NOT be announced when it is shown or when its text changes, SHALL NOT move focus, and SHALL NOT be exposed as an alert, a status, a dialog or a note: an empty place is content, not a message."
+    },
+    {
+      "id": "EMP-9",
+      "text": "WHILE live is true THE empty state SHALL be a polite live region. WHEN it is shown after its page or view was first presented, and WHEN its title or its description changes while it is shown, THE empty state SHALL have assistive technology announce it once, after what is being read: the title, then the description, and not the names of its actions. It SHALL never announce assertively and SHALL NOT move keyboard or screen-reader focus. A live empty state that is drawn with the first presentation of its page or view SHALL NOT announce itself then. live SHALL change nothing that is drawn.",
+      "verify": "A test shows a live empty state after a query returns nothing and reads one polite announcement of its title and description; the same element present at first render announces nothing."
+    },
+    {
+      "id": "EMP-10",
+      "text": "WHEN title, the title slot's content, the description, the media or the actions change THE empty state SHALL draw and expose the new value at once, without a motion, and SHALL announce it only as EMP-9 says. THE empty state SHALL neither show nor hide itself: whether the place is empty is the product's to know, and the product puts the empty state there and takes it away."
+    },
+    {
+      "id": "EMP-11",
+      "text": "WHILE the text size is enlarged THE empty state SHALL grow its title and its description, and the measure with them, keep its paddings and gaps, wrap, and grow in height; it SHALL keep a glyph's box at the media size of its size, SHALL cut nothing and set no fixed height, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %, its actions then each on a line of their own where two do not fit side by side."
+    },
+    {
+      "id": "EMP-12",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE empty state SHALL draw its glyph, its title and its description in the platform's text color, and leave links, Buttons and a picture of the product's own to their own specs and colors; nothing the empty state draws relies on a fill."
+    },
+    {
+      "id": "EMP-13",
+      "text": "WHERE the layout direction is right-to-left THE empty state SHALL apply its paddings by logical start and end and mirror the order of its actions, so that the first action is at the right; WHILE align is start it SHALL place every part at the right edge and align its text to the right; WHILE align is center the column stays centred."
+    },
+    {
+      "id": "EMP-14",
+      "text": "THE empty state SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the empty state is shown THE empty state SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "EMP-15",
+      "text": "WHERE the layout direction is right-to-left THE empty state SHALL draw the glyph of its media slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order EMP-13 gives. THE empty state SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as a picture or a view of its own rather than by a glyph's name."
+    },
+    {
+      "id": "EMP-16",
+      "text": "THE empty state SHALL lay out a title given as text as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a title that quotes what the person typed, a file's name or a number keeps its own order in a right-to-left layout; THE empty state SHALL still place the title and align its lines by the layout direction and by align, not by the text's own. The description's direction is its content's.",
+      "verify": "The fixture search-no-results-rtl quotes a left-to-right query inside an Arabic title; the query keeps its order and the title stays centred."
+    },
+    {
+      "id": "EMP-17",
+      "text": "WHEN size names a value that the active design system does not have, or align names a value this spec does not have, THE empty state SHALL render with the default value, and in debug builds report the unknown value."
+    },
+    {
+      "id": "EMP-18",
+      "text": "IF the title, the title slot and the description are all empty THE empty state SHALL draw nothing, take no space and expose nothing, and in debug builds report that an empty state says nothing: a glyph or actions alone do not tell a person what is missing. IF the description is given and the title and the title slot are empty THE empty state SHALL still render and in debug builds report that an empty state has no title."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [],
+    "labeling": "An empty state that is not live has no role and no name: it is content, read where it stands — the title (plain text, or the heading the product gave in the title slot), the description, then the actions, which are the product's own controls with their own names. A live empty state is a polite live region instead (the status role on the web), announced once when it is shown after its view was presented and when its text changes. The glyph or the picture is hidden.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the empty state takes no input and no focus (EMP-7), so there is no target of its own to size and minimumTarget holds trivially. Its actions meet the minimum target by their own specs.",
+      "Never an alert. An empty place is a fact about the content, not something that went wrong: it is announced only when it results from what the person just did (live), and then politely (EMP-9). A failure to load is a different thing and is said by a callout with the error status in the same place.",
+      "It replaces content, so it must not hide that the container is still there. A table that has no rows keeps its caption and its header; the empty state stands where the body's rows would be (on the web, outside the table element or in one cell that spans the columns, as the product's table allows). A list with no items is not exposed as a list of one item: the empty state stands in the list's place.",
+      "In a search, the count of results is the search's own status text, which is already a live region (SRC-48). Where the product also shows an empty state in the search's view, only one of the two is live, or the same words are announced twice: leave the empty state's live false there and let the status text speak.",
+      "The heading level is the product's (EMP-4). An empty state that is the whole of a page's main region usually needs a heading, so that the page has one; an empty state inside a card that already has a title needs none.",
+      "Contrast in the default system: the title is on-surface and the description and the glyph are on-surface-variant, each held to 4.5:1 on every surface tone by the token invariants, so the empty state can stand on a page, in a card or in a panel. The glyph is decorative.",
+      "Say what to do, not only what is missing: a description and an action are what make an empty place a way forward. Do not put the only way forward in the picture.",
+      "Text size, text spacing and reflow: EMP-11."
+    ]
+  },
+  "tokens": "comp.empty-state",
+  "fixtures": [
+    {
+      "id": "title",
+      "props": {
+        "title": "No projects yet"
+      }
+    },
+    {
+      "id": "description",
+      "props": {
+        "title": "No projects yet"
+      },
+      "content": "A project keeps the layers, the exports and the people of one design system together."
+    },
+    {
+      "id": "media",
+      "props": {
+        "title": "No projects yet"
+      },
+      "content": "A project keeps the layers, the exports and the people of one design system together.",
+      "slots": {
+        "media": "folder_open"
+      }
+    },
+    {
+      "id": "actions",
+      "props": {
+        "title": "No projects yet"
+      },
+      "content": "A project keeps the layers, the exports and the people of one design system together.",
+      "slots": {
+        "media": "folder_open",
+        "actions": [
+          "New project",
+          "Import a layer"
+        ]
+      }
+    },
+    {
+      "id": "start",
+      "props": {
+        "title": "No projects yet",
+        "align": "start"
+      },
+      "content": "A project keeps the layers, the exports and the people of one design system together.",
+      "slots": {
+        "media": "folder_open",
+        "actions": [
+          "New project",
+          "Import a layer"
+        ]
+      }
+    },
+    {
+      "id": "large",
+      "props": {
+        "title": "No projects yet",
+        "size": "large"
+      },
+      "content": "A project keeps the layers, the exports and the people of one design system together.",
+      "slots": {
+        "media": "folder_open",
+        "actions": [
+          "New project",
+          "Import a layer"
+        ]
+      }
+    },
+    {
+      "id": "large-title",
+      "props": {
+        "title": "This page does not exist",
+        "size": "large"
+      }
+    },
+    {
+      "id": "large-start",
+      "props": {
+        "title": "This page does not exist",
+        "size": "large",
+        "align": "start"
+      },
+      "content": "The address may be mistyped, or the page may have moved.",
+      "slots": {
+        "actions": "Go to the start page"
+      }
+    },
+    {
+      "id": "title-slot",
+      "props": {
+        "size": "large"
+      },
+      "content": "A project keeps the layers, the exports and the people of one design system together.",
+      "slots": {
+        "title": "No projects yet",
+        "actions": "New project"
+      }
+    },
+    {
+      "id": "search-no-results",
+      "props": {
+        "title": "No results for “tokne”",
+        "live": true
+      },
+      "content": "Check the spelling, or search for a shorter word.",
+      "slots": {
+        "media": "search_off",
+        "actions": "Clear the search"
+      }
+    },
+    {
+      "id": "table-no-rows",
+      "props": {
+        "title": "No entries match these filters"
+      },
+      "content": "Three filters are on. Removing one shows more entries.",
+      "slots": {
+        "actions": "Clear the filters"
+      }
+    },
+    {
+      "id": "list-no-items",
+      "props": {
+        "title": "Nothing differs from the base yet",
+        "align": "start"
+      },
+      "content": "Change a value on the left and it is listed here."
+    },
+    {
+      "id": "long-text",
+      "props": {
+        "title": "No results for “the contrast of a status color against its own quiet container in the high-contrast dark scheme”"
+      },
+      "content": "Nothing in the documentation matches every word of that. Check the spelling, search for fewer words, or look for the page in the list of contents at the side: the foundations are listed first, then the components by name, then the notes on how the project is run.",
+      "slots": {
+        "media": "search_off",
+        "actions": [
+          "Clear the search",
+          "Open the list of contents"
+        ]
+      }
+    },
+    {
+      "id": "actions-rtl",
+      "props": {
+        "title": "لا توجد مشاريع بعد"
+      },
+      "content": "يجمع المشروع الطبقات والتصديرات والأشخاص لنظام تصميم واحد.",
+      "slots": {
+        "media": "folder_open",
+        "actions": [
+          "مشروع جديد",
+          "استيراد طبقة"
+        ]
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "start-rtl",
+      "props": {
+        "title": "لا توجد مشاريع بعد",
+        "align": "start"
+      },
+      "content": "يجمع المشروع الطبقات والتصديرات والأشخاص لنظام تصميم واحد.",
+      "slots": {
+        "media": "arrow_forward",
+        "actions": [
+          "مشروع جديد",
+          "استيراد طبقة"
+        ]
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "search-no-results-rtl",
+      "props": {
+        "title": "لا نتائج عن “tokne”",
+        "live": true
+      },
+      "content": "تحقق من الإملاء أو ابحث عن كلمة أقصر.",
+      "slots": {
+        "media": "search_off",
+        "actions": "مسح البحث"
+      },
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-empty-state",
+      "props": {
+        "title": "headline",
+        "size": "size",
+        "align": "align",
+        "live": "live"
+      },
+      "notes": "It is the form the callout takes. `<tanrei-empty-state>` with the description as light-DOM children, the glyph or the picture in the `media` slot, the title in the `title` slot (`<p slot=\"title\">`, or `<h2 slot=\"title\">` where it is a heading) or the `headline` attribute (HTML's global `title` attribute would show a tooltip over the whole block, as on the callout), and Buttons or links in the `actions` slot. Everything the product writes stays in the document: the title where it is slotted, the description, the links and the Buttons are light-DOM content, read by a crawler and by a page without script. **Before the element is defined** the stylesheet of `@tanrei/web` gives `tanrei-empty-state:not(:defined)` `display: block`, the block and inline padding of its `size`, the description's text style and color, and `text-align` by its `align`, so the content is readable in its place and the block keeps most of its height; a `headline` attribute does not show until the element is defined, which is why a page that must read without script gives the title in the slot. The host has no `role`, no `tabindex` and no listeners; the glyph is `aria-hidden`. With `live` the announcement is made through a visually hidden `role=\"status\"` region in the shadow root that exists from the element's first render and is filled, with the title and the description's text, only when the element is connected or changed after the document's first presentation (EMP-9); the host itself gets no live role, so slotted content is not read twice. The text block's width is `max-inline-size: calc(var(--tanrei-comp-empty-state-content-measure) * 1em)` on the element that carries the description's font size (EMP-2). The description takes its color and text style through inherited `color` and `font`, so text placed directly in the element is styled. In a table the element goes in one `<td colspan>` of a body row, or directly after the table, which keeps its caption and its header row (the Table spec says nothing of an empty body); in a list it takes the list's place rather than being an item. Nothing changes under `forced-colors: active` but the colors the mode sets (EMP-12)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiEmptyState",
+      "props": {
+        "title": "title",
+        "size": "size",
+        "align": "alignment",
+        "live": "isLive"
+      },
+      "notes": "`TanreiEmptyState(_ title: String, size:, alignment:, isLive:, media:, actions:) { description }`, the glyph given by name through `icon:` or a view through `media:`; a heading title is the `title:` view builder with the header trait set by the product. Not the platform's own unavailable-content view, whose sizes and colors are the platform's: the same structure drawn from Tanrei's tokens. `isLive` posts one announcement with the title and the description when the view appears after its screen did."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiEmptyState",
+      "props": {
+        "title": "title",
+        "size": "size",
+        "align": "alignment",
+        "live": "live"
+      },
+      "notes": "`TanreiEmptyState(title, size, alignment, live, media, actions) { description }`, the glyph given by name through `icon` or a composable through `media`. With `live` the text column has `liveRegion = LiveRegionMode.Polite`, set only after the first composition of its screen."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiEmptyState",
+      "props": {
+        "title": "title",
+        "size": "size",
+        "align": "alignment",
+        "live": "live"
+      },
+      "notes": "`TanreiEmptyState(title: …, size:, alignment:, live:, icon:, media:, actions: […], child: description)`; `titleWidget:` takes a heading of the product's own. With `live` the text is wrapped in `Semantics(liveRegion: true)` after the first frame of its route, and announced through `SemanticsService.announce` with polite assertiveness where the platform does not read live regions."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "EmptyState",
+      "props": {
+        "title": "title",
+        "size": "size",
+        "align": "align",
+        "live": "live"
+      },
+      "notes": "`<EmptyState title=\"No projects yet\" icon=\"folder_open\" actions={…}>description</EmptyState>`; `media` takes an element of the product's own. With `live`, `accessibilityLiveRegion=\"polite\"` on Android and one `AccessibilityInfo.announceForAccessibility` call on iOS when it mounts after its screen. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

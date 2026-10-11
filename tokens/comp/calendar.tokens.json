@@ -1,0 +1,490 @@
+{
+  "tanrei": {
+    "comp": {
+      "calendar": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets a person choose a date (a due date, a birthday) or a span of dates (a stay, a report period) from a month grid — laid out in a page beside other content, or inside a picker's surface — with today marked, the days of the neighbouring months shown or not, and some dates unavailable.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "adjacent",
+              "today",
+              "selected",
+              "in-range"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "label.color": "color",
+              "outline.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a calendar reads: the navigation row (the month-and-year view toggle, the gap between the previous and next buttons, and the axis the months move along); the weekday names; the cell size, the day and year containers and their text styles; the ring a condition draws; the motion of a month change and of a state change; and, for each condition of a day or a year (unselected, adjacent, today, selected, in-range), its container, label, outline and state-layer colors in each state.",
+            "rules": [
+              "A day is drawn from exactly one condition, by precedence selected > in-range > today > adjacent > unselected; a year from selected (the year on show), today (the current year) or unselected. Never pick a look by hand.",
+              "adjacent is a day of the previous or next month shown in the grid's spare cells (showAdjacentDays). It must stay readable, because it can be chosen; it is quieter than a day of the month, never as faint as an unavailable day.",
+              "The in-range condition's container is the band that joins a range: it spans the whole cell, so its color must read against the surface in every scheme.",
+              "The view toggle (month and year) draws with the unselected condition's colors; its geometry is its own.",
+              "The previous and next buttons are Tanrei icon-only Buttons of the text variant: restyle them through Button's tokens. navigation.axis chooses their arrows and the direction months move; it is a product's choice, never the person's.",
+              "On the vertical axis a month change is one continuous scroll of weeks that follows a drag: never draw two separate month grids there. Every look in between is an interpolation of the tokens of the two views (adjacent and unselected colors, and opacity), so it has no token of its own; on the horizontal axis the months are pages.",
+              "Each condition's state-layer.color is the color hover, focus and press mix into its container; it aliases that condition's label color.",
+              "The calendar draws no surface of its own: it sits on the page or on the surface of the picker that holds it.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          }
+        },
+        "view-toggle": {
+          "container": {
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 36,
+                "unit": "px"
+              },
+              "$description": "The least height of the month-and-year button; its hit area extends to the minimum target.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 9
+                }
+              }
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "A button-like control, so a pill in the default system."
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space150}"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Between the month and year and the chevron."
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.label}"
+            }
+          },
+          "icon": {
+            "size": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.icon.small}"
+            }
+          }
+        },
+        "navigation": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between the previous and next buttons."
+          },
+          "axis": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "The axis months move along. vertical: the previous button points up and the next down, the weeks scroll as one column from one month to the next (a week two months share is one row, the days coming into view fade in and a neighbouring month's day changes into one of the month's own as the weeks move), and a vertical scroll or drag moves the month. horizontal: the buttons point back and forward, a later month's page slides in from the end, and a horizontal scroll or drag moves the month. A drag is followed on either axis. The arrow keys move by day and week, and Page Up and Page Down by month, on either axis. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once which way its calendars move: down one column of weeks, as a scrolling list of months reads on a phone, or sideways page by page, as a wall calendar's pages turn. A person never switches it, so it is the product's value, not a prop."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "vertical",
+                  "horizontal"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A choice of kind; no dial scales it."
+              }
+            }
+          }
+        },
+        "weekday": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label-small}"
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          }
+        },
+        "cell": {
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 48,
+              "unit": "px"
+            },
+            "$description": "The side of the square each weekday name and each day occupies, and the height of a row of years. Never smaller than the minimum target: the cells are the days' hit areas and cannot extend over each other.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              }
+            }
+          }
+        },
+        "day": {
+          "container": {
+            "size": {
+              "$type": "dimension",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$description": "The side of a day's container, and the height of the band that joins a range. 40 is Material's day.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "A day is pressed like a button, so a circle in the default system."
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body}"
+            }
+          }
+        },
+        "year": {
+          "container": {
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 72,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 18
+                }
+              }
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 36,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 9
+                }
+              }
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "A year is pressed like a button, so a pill in the default system."
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body}"
+            }
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The ring a day or year container draws in its condition's outline color (today's ring in the default)."
+          }
+        },
+        "motion": {
+          "page-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium1}",
+            "$description": "How long a month change takes — the weeks' scroll on the vertical axis, the pages' slide on the horizontal one, and the settling or the return after a drag is released — and the day and year views' cross-fade."
+          },
+          "page-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          }
+        },
+        "unselected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A plain day or year draws no container; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A plain day or year draws no ring."
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.calendar.unselected.label.color}"
+            }
+          }
+        },
+        "adjacent": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A day of the neighbouring month draws no container; hover, focus and press mix into it."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "Quieter than a day of the month, and still held to text contrast, because it can be chosen."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A day of the neighbouring month draws no ring."
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.calendar.adjacent.label.color}"
+            }
+          }
+        },
+        "today": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "Today is marked by its ring, not a fill; hover, focus and press mix into the empty container."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.calendar.today.label.color}"
+            }
+          }
+        },
+        "selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-primary}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A selected day is marked by its fill; it draws no ring, today or not."
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.calendar.selected.label.color}"
+            }
+          }
+        },
+        "in-range": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-dim}",
+              "$description": "The band that joins the days of a range, drawn across their whole cells. surface-dim recedes from the surface in every scheme, where the tonal containers are within a step or two of surface-bright in the dark default."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A day inside a range is marked by the band; it draws no ring, today or not."
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.calendar.in-range.label.color}"
+            }
+          }
+        }
+      }
+    }
+  }
+}

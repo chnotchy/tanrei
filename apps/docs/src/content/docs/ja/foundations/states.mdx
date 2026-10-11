@@ -1,0 +1,53 @@
+---
+title: インタラクション状態
+description: ステートレイヤー、「すき間、その外にリング」のフォーカスインジケーター、そして無効の描き方。
+translationOf: foundations/states.mdx
+sourceHash: 72082392521651e7f88cd4fd4707171e4d48f3d1
+---
+
+import Callout from '../../../../components/Callout.astro';
+import StateTokens from '../../../../components/tokens/StateTokens.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+操作可能なコンポーネントは、状態について 1 つの語彙を共有します。enabled、hovered、focused、pressed、dragged、selected、activated、error、loading、disabled です。コンポーネントの仕様は対応する状態を列挙し、すべてのプラットフォームがそのすべてを実装しなければなりません。
+
+## ステートレイヤー
+
+ホバー、フォーカス、押下、ドラッグは、**ステートレイヤー**で示します。コンポーネントのコンテナを覆う、半透明のオーバーレイです。
+
+- レイヤーは**コンテンツ**の色、つまり覆っているものの `on-` ロールの色を取ります。filled のボタンでは `on-primary`、text のボタンではラベルの色です。
+- 不透明度は、コンポーネントではなくトークンが決めます。
+- **一度に見えるレイヤーは 1 つだけです。** 状態が重なったときは、最も強いものが勝ちます。押下、フォーカス、ホバーの順です。
+- 短いエフェクトの遷移でフェードインし、押下のときは即座に現れます。
+
+<StateTokens />
+
+下のボタンにホバーしたり、押したりして、さまざまなコンテナの上のレイヤーを確かめてください。
+
+<DemoFrame label="ステートレイヤー">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+## フォーカス：すき間、その外にリング
+
+キーボードフォーカスは、サーフェスの色の 2px のすき間と、その外側の `focus-ring` ロールの 2px のリングで描きます。すき間があることで、コンポーネント自身の塗りがリングの色に近いときでも、リングが見えることが保証されます。このロールは、サーフェスに対して 3:1 のコントラストがあるかどうかを検証されます。
+
+- リングは、キーボードと支援技術によるフォーカスに対して表示します。ポインターのクリックでは表示しません。
+- アニメーションすることはありません。
+- コンポーネントの形状に沿い、外側にずらして描きます。
+
+## 既定ではリップルを描かない
+
+Tanrei は、押下のときに広がるリップルを描きません。押下のステートレイヤーが、その応えです。テーマがリップルを選ぶことはできますが、リップルに依存するコンポーネントはありません。
+
+## 無効
+
+無効なコンポーネントは、コンテナを `on-surface` の `disabled-container-opacity` で、コンテンツを `disabled-content-opacity` で描きます。ステートレイヤーは表示せず、フォーカスの順序から外れます。無効な要素はコントラストの要件の対象外です。だからこそ、無効は控えめに使ってください。
+
+<Callout type="tip">
+  できれば、アクションは有効なままにして、使われたときに何が足りないかを説明してください。無効なボタンは、なぜ無効なのかを誰にも伝えられません。
+</Callout>

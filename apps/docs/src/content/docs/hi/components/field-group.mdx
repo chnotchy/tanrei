@@ -1,0 +1,188 @@
+---
+title: फ़ील्ड ग्रुप
+description: एक ही सवाल का जवाब देने वाले कंट्रोल के सेट को, यानी चेकबॉक्स, स्विच, या साथ रहने वाले फ़ील्ड को, नाम देता है, ऐसे लेबल के साथ जो बता सकता है कि सेट ज़रूरी है या वैकल्पिक, एक विवरण और पूरे सेट की एक त्रुटि के साथ, और कंट्रोल को कॉलम या पंक्ति में रखता है।
+translationOf: components/field-group.mdx
+sourceHash: 0c05f716a744df37389e7c61de7327157afc78c5
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="field-group" />
+
+<DemoFrame label="चेकबॉक्स का एक सेट, नाम, विवरण और ज़रूरी के निशान के साथ" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी">
+    <tanrei-checkbox label="ईमेल" checked></tanrei-checkbox>
+    <tanrei-checkbox label="SMS"></tanrei-checkbox>
+    <tanrei-checkbox label="पुश सूचना"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+कुछ सवालों का जवाब कई कंट्रोल से दिया जाता है: इनमें से कौन-से, ये सेटिंग, पाँच फ़ील्ड में बँटा पता। फ़ील्ड ग्रुप ऐसे सेट को एक नाम देता है, एक पंक्ति जो बताती है कि जवाब कैसे देना है, एक शब्द जो बताता है कि जवाब देना ज़रूरी है या नहीं, और जवाब अस्वीकार होने पर एक वजह। यह वह [फ़ील्ड](/hi/components/field/) है जिसका कंट्रोल एक सेट है।
+
+ग्रुप सेट को फ़्रेम देता है और उसका लेआउट बनाता है। वह कुछ नहीं चुनता, कोई मान नहीं रखता, फ़ोकस नहीं हटाता और कोई कुंजी नहीं सँभालता: यह सब हर कंट्रोल का अपना रहता है।
+
+वेब पर यह `<tanrei-field-group>` है। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
+
+### इस्तेमाल
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field-group label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी"
+                        error error-text="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
+      <tanrei-checkbox name="notify" value="email" label="ईमेल"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="push" label="पुश सूचना"></tanrei-checkbox>
+    </tanrei-field-group>
+
+    <!-- साथ रहने वाले फ़ील्ड। -->
+    <tanrei-field-group label="डिलीवरी का पता" spacing="fields">
+      <tanrei-text-field label="मकान नंबर और गली" requirement="required" required-text="ज़रूरी"></tanrei-text-field>
+      <tanrei-text-field label="शहर" requirement="required" required-text="ज़रूरी"></tanrei-text-field>
+    </tanrei-field-group>
+
+    <script type="module">
+      import '@tanrei/web/components/field-group';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, FieldGroup } from '@tanrei/react';
+
+    <FieldGroup label="सूचना कैसे भेजें" supportingText="जो भी लागू हों, सभी चुनें।" error={none} errorText="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
+      <Checkbox label="ईमेल" checked={email} onChange={(event) => setEmail(event.detail.checked)} />
+      <Checkbox label="SMS" checked={text} onChange={(event) => setText(event.detail.checked)} />
+    </FieldGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="पूरे सेट की त्रुटि, एक पंक्ति, स्विच, और साथ रहने वाले फ़ील्ड" plain column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" supporting-text="जो भी लागू हों, सभी चुनें।" requirement="required" required-text="ज़रूरी" error error-text="सूचना भेजने का कम से कम एक तरीक़ा चुनें।">
+    <tanrei-checkbox label="ईमेल"></tanrei-checkbox>
+    <tanrei-checkbox label="SMS"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="सूचना कैसे भेजें" orientation="horizontal">
+    <tanrei-checkbox label="ईमेल" checked></tanrei-checkbox>
+    <tanrei-checkbox label="SMS"></tanrei-checkbox>
+    <tanrei-checkbox label="पुश"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="निजता" supporting-text="ये सिर्फ़ इस डिवाइस पर लागू होती हैं।" requirement="optional" optional-text="वैकल्पिक">
+    <tanrei-switch label="इस्तेमाल का डेटा शेयर करें" selected></tanrei-switch>
+    <tanrei-switch label="मेरी स्थिति दिखाएँ"></tanrei-switch>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="शहर और पिन कोड" spacing="fields" orientation="horizontal">
+    <tanrei-text-field label="शहर" value="जयपुर"></tanrei-text-field>
+    <tanrei-text-field label="पिन कोड" value="302001"></tanrei-text-field>
+  </tanrei-field-group>
+</DemoFrame>
+
+<ComponentSpecs name="field-group" />
+
+## दिशानिर्देश
+
+### फ़ील्ड ग्रुप किस काम का है
+
+| सेट | क्या इस्तेमाल करें |
+| --- | --- |
+| एक ही सवाल का जवाब देने वाले चेकबॉक्स, या वे स्विच जो सेटिंग का एक सेट हैं | फ़ील्ड ग्रुप। |
+| साथ रहने वाले फ़ील्ड: पता, हिस्सों में बँटी तारीख़ | `spacing="fields"` वाला फ़ील्ड ग्रुप। |
+| रेडियो बटन | [रेडियो ग्रुप](/hi/components/radio-group/), जो उनके चारों ओर का फ़ील्ड ग्रुप है और उनका एक मान भी रखता है। हाथ से लिखना हो, तो `kind="radio-group"` वाला फ़ील्ड ग्रुप (नीचे)। |
+| एक कंट्रोल | [फ़ील्ड](/hi/components/field/)। |
+
+### रेडियो बटन का सेट: `kind`
+
+ग्रुप का न ज़रूरी का स्टेट होता है, न अमान्य का, इसलिए फ़ील्ड ग्रुप ज़रूरी या वैकल्पिक होना शब्दों में कहता है और अपने चेकबॉक्स को एक-एक करके अमान्य चिह्नित करता है। रेडियो बटन का सेट अलग है: वह पूरा का पूरा ज़रूरी और अमान्य होता है। `kind="radio-group"` फ़ील्ड ग्रुप को बताता है कि उसका सेट एक ही ग्रुप के रेडियो बटन हैं। तब सहायक तकनीक को वह उनके रेडियो ग्रुप के रूप में मिलता है: जब तक `requirement` का मान `required` है तब तक ज़रूरी, जब तक `error` true है तब तक अमान्य, और अपना ओरिएंटेशन बताता हुआ। `requiredText` अब उसके विवरण का हिस्सा नहीं रहता, क्योंकि यह बात स्टेट कह देता है।
+
+```html
+<tanrei-field-group kind="radio-group" label="डिलीवरी" requirement="required" required-text="ज़रूरी">
+  <tanrei-radio-button name="delivery" value="standard" label="स्टैंडर्ड, 3 से 5 दिन" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="एक ही name वाले रेडियो बटन के चारों ओर एक फ़ील्ड ग्रुप, जिसका kind radio-group है" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="डिलीवरी" requirement="required" required-text="ज़रूरी">
+    <tanrei-radio-button name="delivery-kind" value="standard" label="स्टैंडर्ड, 3 से 5 दिन" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-kind" value="express" label="एक्सप्रेस, अगले दिन"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+`kind` सिर्फ़ यह बदलता है कि सहायक तकनीक को क्या दिया जाता है; जो दिखता है उसमें कुछ नहीं बदलता। फ़ील्ड ग्रुप अब भी कोई मान नहीं रखता, फ़ोकस नहीं हटाता और कोई कुंजी नहीं सँभालता: रेडियो बटन अपना चयन, अपनी ऐरो कुंजियाँ और अपना एक पड़ाव अपने `name` से बनाए रखते हैं। यह एक स्तर नीचे का [रेडियो ग्रुप](/hi/components/radio-group/) है। जब तक आपको सेट को ऐसे ढंग से न रखना हो जैसे रेडियो ग्रुप नहीं रखता, रेडियो ग्रुप ही इस्तेमाल करें: वह एक मान, एक `change` और फ़ॉर्म में एक कंट्रोल के रूप में जगह जोड़ता है।
+
+इस प्रकार में ग्रुप के भीतर एक ही ग्रुप के रेडियो बटन होते हैं और ऑपरेट की जा सकने वाली और कोई चीज़ नहीं, और `spacing` का मान `controls` ही रहता है। कोई दूसरा कंट्रोल, दो नामों के रेडियो बटन और कोई दूसरी स्पेसिंग डीबग बिल्ड में रिपोर्ट की जाती हैं।
+
+### यह फ़ील्ड से कैसे अलग है
+
+सेट ऊँचा होता है और ऊपर से पढ़ा जाता है, इसलिए दो चीज़ें वहाँ नहीं रहतीं जहाँ वे फ़ील्ड में रहती हैं:
+
+- विवरण लेबल के नीचे, कंट्रोल से पहले आता है, और ग्रुप में त्रुटि रहने पर भी बना रहता है। "जो भी लागू हों, सभी चुनें" विकल्पों से पहले पढ़ा जाना चाहिए, और जवाब अस्वीकार होने पर व्यक्ति को यही दोबारा चाहिए।
+- त्रुटि टेक्स्ट अपनी अलग पंक्ति है, आख़िरी कंट्रोल के नीचे।
+
+लेबल, ज़रूरी या वैकल्पिक का टैग और तारांकन वही हैं जो फ़ील्ड के हैं।
+
+### लेआउट
+
+- `orientation="vertical"` (डिफ़ॉल्ट) कंट्रोल को एक कॉलम में ऊपर-नीचे रखता है। इसी को तरजीह दें: हर लेबल एक ही किनारे से शुरू होता है और ऊपर से नीचे पढ़ा जाता है।
+- `orientation="horizontal"` उन्हें ऐसी पंक्ति में रखता है जो अगली पंक्ति में जा सकती है। इसे दो या तीन छोटे विकल्पों के लिए रखें, या उन फ़ील्ड के लिए जो एक ही पंक्ति की तरह पढ़े जाते हैं, जैसे शहर और उसका पिन कोड। अगली पंक्ति में गई पंक्ति में यह साफ़ नहीं रहता कि कौन-सा लेबल किस निशान का है।
+- `spacing` बताता है कि सेट में क्या है। `controls` चेकबॉक्स और स्विच को एक टच टार्गेट की दूरी पर रखता है; `fields` फ़ील्ड को उतनी दूरी पर रखता है जितनी फ़ॉर्म दो फ़ील्ड के बीच रखता है, और हर एक को पूरी चौड़ाई भरने देता है। डिज़ाइन सिस्टम इसमें मान जोड़ सकता है।
+
+चेकबॉक्स या स्विच का निशान अपने कंटेनर के भीतर रहता है, इसलिए वह ग्रुप के लेबल से थोड़ा भीतर से शुरू होता है। ग्रुप उसे बाहर नहीं खींचता: कंट्रोल अपना होवर और अपनी फ़ोकस रिंग इसी कंटेनर पर बनाता है।
+
+### त्रुटियाँ
+
+`error` सेट को त्रुटि की अवस्था में रखता है: त्रुटि टेक्स्ट दिखाया जाता है, हर चेकबॉक्स अपने त्रुटि वाले रूप में दिखाया जाता है और अमान्य के रूप में दिया जाता है, और हर रेडियो बटन अपने त्रुटि वाले रूप में दिखाया जाता है। रेडियो बटन अमान्य के रूप में नहीं दिया जाता: उसके रोल में ऐसा कोई स्टेट नहीं है, और यह बात रेडियो ग्रुप कहता है। स्विच का कोई त्रुटि वाला रूप नहीं है, और वह जैसा है वैसा ही रहता है। ग्रुप का फ़ील्ड वही त्रुटि बनाए रखता है जो आपने उसे दी: हर फ़ील्ड अपनी त्रुटि शब्दों में कहता है, और ग्रुप की त्रुटि पूरे सेट के लिए है ("कम से कम एक चुनें")।
+
+मान्य ग्रुप का कोई एक कंट्रोल फिर भी अकेले त्रुटि में हो सकता है।
+
+### करें
+
+- सेट को उस सवाल से नाम दें जिसका जवाब उसके कंट्रोल देते हैं: "सूचना कैसे भेजें"।
+- हर कंट्रोल को उसका अपना लेबल दें। ग्रुप का लेबल उनकी जगह नहीं लेता।
+- एक जैसे लेबल वाले दो सेट को अलग पहचानने के लिए फ़ील्ड का ग्रुप इस्तेमाल करें: "डिलीवरी का पता" और "बिलिंग का पता"।
+
+### न करें
+
+- बिना बताए रेडियो बटन को फ़ील्ड ग्रुप में न रखें: [रेडियो ग्रुप](/hi/components/radio-group/) इस्तेमाल करें, या `kind="radio-group"` सेट करें। सादे ग्रुप में उनका न ज़रूरी का स्टेट होता है, न अमान्य का, और डीबग बिल्ड इसकी रिपोर्ट करता है।
+- फ़ील्ड ग्रुप को सिर्फ़ लेआउट के लिए इस्तेमाल न करें। साझा नाम न हो, तो फ़ील्ड ख़ुद रखें, उसी स्पेसिंग टोकन के साथ (`comp.field-group.gap.fields`)।
+- ग्रुप को एक स्तर से ज़्यादा गहरा नेस्ट न करें। ग्रुप के भीतर का ग्रुप उसका एक सदस्य है, और ग्रुप के भीतर ग्रुप के रूप में पढ़ा जाता है।
+
+## सुलभता
+
+<ComponentAccessibility name="field-group" />
+
+### कंपोनेंट क्या सँभालता है
+
+- वेब पर ग्रुप `legend` वाला `fieldset` है: ऐसा ग्रुप जिसके भीतर उसके कंट्रोल हैं और जिसका नाम `label` से आता है, चाहे वह दिखाया गया हो या `labelHidden` से छिपाया गया हो।
+- ग्रुप का विवरण `supportingText` है, फिर `errorText` जब तक `error` true है, फिर `requiredText` या `optionalText`। ग्रुप का न ज़रूरी का स्टेट होता है, न अमान्य का, इसीलिए ज़रूरी या वैकल्पिक होना शब्दों में कहा जाता है।
+- जिस भी चेकबॉक्स को ग्रुप ने त्रुटि में रखा है, वह ख़ुद अमान्य के रूप में दिया जाता है, और त्रुटि टेक्स्ट उसका विवरण होता है।
+- `kind="radio-group"` के साथ वही एलिमेंट रेडियो ग्रुप है: ज़रूरी का स्टेट, अमान्य का स्टेट और अपना ओरिएंटेशन वह ख़ुद रखता है, और `requiredText` उसके विवरण में नहीं रहता। वेब पर यह वही `fieldset` है, रेडियो ग्रुप के रोल के साथ।
+- `disabled` हर कंट्रोल को अक्षम करता है और ग्रुप को अक्षम के रूप में देता है। सक्षम ग्रुप कभी उस कंट्रोल को सक्षम नहीं करता जिसे आपने ख़ुद अक्षम किया है।
+- जब फ़ोकस ग्रुप के भीतर रहते हुए कोई त्रुटि आती है या उसके शब्द बदलते हैं, तो उसे एक बार, बिना टोके (polite), पढ़कर सुनाया जाता है। त्रुटि की वजह से फ़ोकस कभी नहीं हटता।
+- ग्रुप फ़ोकस के क्रम में पड़ाव नहीं है, कोई कुंजी नहीं लेता और दबाने पर कुछ नहीं करता: Tab हर सक्षम कंट्रोल तक उसी क्रम में पहुँचती है जिसमें वे दिए गए हैं।
+- ज़रूरी या वैकल्पिक का टैग और तारांकन सहायक तकनीक से छिपे रहते हैं।
+- 200% टेक्स्ट पर हर टेक्स्ट रैप होता है, पंक्ति कॉलम बन जाती है, और कुछ भी नहीं कटता।
+- फ़ोर्स्ड कलर्स में हर टेक्स्ट सिस्टम के टेक्स्ट का रंग लेता है और ज़रूरी या वैकल्पिक के टैग को एक किनारा मिलता है।
+- दाएँ से बाएँ वाले लेआउट में पंक्तियाँ दाईं ओर से शुरू होती हैं, कंट्रोल की पंक्ति दाईं ओर से चलती है, और हर टेक्स्ट अपनी दिशा बनाए रखता है।
+- जिस फ़ील्ड ग्रुप का `kind` `group` है उसमें रेडियो बटन, बिना कंट्रोल का ग्रुप और बिना लेबल का ग्रुप डीबग बिल्ड में रिपोर्ट किए जाते हैं।
+
+वेब पर ज्ञात कमियाँ:
+
+- चेकबॉक्स का विवरण `aria-description` से दिया जाता है, जिसे हर स्क्रीन रीडर के साथ जाँचा नहीं गया है।
+- एलिमेंट के डिफ़ाइन होने से पहले कंट्रोल पेज पर ग्रुप के लेबल, विवरण और लेआउट के बिना रहते हैं।
+
+### आपको क्या करना है
+
+- ग्रुप को `label` दें।
+- जवाब को ख़ुद वैलिडेट करें, `error` सेट करें, और `errorText` ऐसा लिखें कि वह बताए कि जवाब कैसे ठीक किया जाए।
+- आवश्यकता के शब्द दें: ग्रुप पर `required-text` और `optional-text`, या `setWords({ requiredText, optionalText })` से पूरे प्रॉडक्ट के लिए एक बार। वे ग्रुप के विवरण के हिस्से के रूप में पढ़े जाते हैं, और ग्रुप का ज़रूरी का कोई स्टेट नहीं होता: `requiredText` के बिना कोई चीज़ सहायक तकनीक को नहीं बताती कि जवाब ज़रूरी है। Tanrei अपना कोई शब्द साथ नहीं देता; छूटे हुए शब्द की डेवलपमेंट में रिपोर्ट होती है। देखें [प्रॉडक्ट के शब्द](/hi/foundations/words/)।
+- सबमिट विफल होने के बाद फ़ॉर्म के ऊपर भी बताएँ कि क्या अस्वीकार हुआ, और हर कंट्रोल का लिंक दें: त्रुटि की स्थिति वाला एक लाइव [कॉलआउट](/hi/components/callout/)।

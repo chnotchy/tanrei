@@ -1,0 +1,78 @@
+---
+title: शुरुआत करें
+description: Tanrei में क्या-क्या मिलता है, उसके हिस्से आपस में कैसे जुड़ते हैं, और अपने प्लैटफ़ॉर्म पर कहाँ से शुरू करें।
+translationOf: getting-started/index.mdx
+sourceHash: 29f0e96c7f768e4c4fac79e67bd59e1112e73709
+---
+
+import Callout from '../../../../components/Callout.astro';
+import { CardGrid, LinkCard } from '../../../../components/cards';
+import { Tabs, TabItem } from '../../../../components/tabs';
+
+Tanrei एक डिज़ाइन सिस्टम है जो हर प्लैटफ़ॉर्म की नेटिव लाइब्रेरी के रूप में मिलता है। आपको कोई रनटाइम या क्रॉस-प्लैटफ़ॉर्म फ़्रेमवर्क नहीं अपनाना पड़ता; जिस प्लैटफ़ॉर्म पर आप पहले से काम कर रहे हैं, उसका पैकेज जोड़ें और आपको वही टोकन, कंपोनेंट और सुलभता का व्यवहार मिलता है जो बाक़ी सभी प्लैटफ़ॉर्म पर है।
+
+<Callout type="caution" title="प्री-रिलीज़">
+  Tanrei का विकास जारी है और **अभी कुछ भी रिलीज़ नहीं हुआ है**: कोई भी पैकेज किसी रजिस्ट्री पर नहीं है। हर प्लैटफ़ॉर्म की गाइड बताती है कि आज उसे सोर्स से कैसे बिल्ड करें, और पहली रिलीज़ के बाद इंस्टॉल कैसे होगा। इन गाइड में दिखाया गया API मौजूदा स्पेक और सोर्स के अनुसार है, और तब तक बदल सकता है। आज वास्तव में क्या मौजूद है, यह [स्थिति पेज](/hi/status/) पर ठीक-ठीक दिखता है। Web और React पैकेज सोर्स से बिल्ड होते हैं; SwiftUI, Compose, Flutter और React Native अभी मौजूदा स्पेक तक नहीं पहुँचे हैं और अभी बिल्ड नहीं होते।
+</Callout>
+
+## अपना प्लैटफ़ॉर्म चुनें
+
+<CardGrid>
+  <LinkCard title="Web" description="CSS कस्टम प्रॉपर्टी और Web Components। किसी भी फ़्रेमवर्क के साथ चलता है, और बिना फ़्रेमवर्क के भी।" href="/hi/getting-started/web/" />
+  <LinkCard title="React" description="Web Components से जनरेट किए गए, टाइप वाले React कंपोनेंट।" href="/hi/getting-started/react/" />
+  <LinkCard title="SwiftUI" description="iOS और macOS के लिए एक Swift पैकेज।" href="/hi/getting-started/swiftui/" />
+  <LinkCard title="Jetpack Compose" description="Compose Foundation पर बनी Android लाइब्रेरी, Material पर कोई निर्भरता नहीं।" href="/hi/getting-started/compose/" />
+  <LinkCard title="Flutter" description="पूरी तरह Dart में लिखा पैकेज, जो MaterialApp के साथ भी चलता है और उसके बिना भी।" href="/hi/getting-started/flutter/" />
+  <LinkCard title="React Native" description="सिर्फ़ TypeScript में लिखे कंपोनेंट, कोई नेटिव मॉड्यूल नहीं।" href="/hi/getting-started/react-native/" />
+</CardGrid>
+
+## एक ही बटन, छह तरीक़ों से
+
+हर कंपोनेंट एक ही बार, प्लैटफ़ॉर्म से स्वतंत्र स्पेक में परिभाषित होता है, और हर प्लैटफ़ॉर्म पर उसके अपने तरीक़े से इम्प्लीमेंट किया जाता है। आप जो टैब चुनते हैं, वह पूरी साइट पर याद रखा जाता है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="tonal">ड्राफ़्ट सेव करें</tanrei-button>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    <Button variant="tonal" onClick={saveDraft}>ड्राफ़्ट सेव करें</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    TanreiButton("ड्राफ़्ट सेव करें", variant: .tonal) { saveDraft() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    TanreiButton(text = "ड्राफ़्ट सेव करें", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('ड्राफ़्ट सेव करें'))
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    <Button variant="tonal" onPress={saveDraft}>ड्राफ़्ट सेव करें</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+## हर प्लैटफ़ॉर्म पर आपको क्या मिलता है
+
+- **टोकन।** कलर रोल, टाइप स्केल, शेप, एलिवेशन, मोशन, स्टेट और स्पेसिंग के मान, जो एक ही DTCG सोर्स से CSS कस्टम प्रॉपर्टी और Swift, Kotlin, Dart और TypeScript के कॉन्स्टेंट के रूप में जनरेट होते हैं।
+- **थीम।** लाइट और डार्क, और दोनों में स्टैंडर्ड, मध्यम और उच्च कंट्रास्ट। डिफ़ॉल्ट रूप से थीम ऑपरेटिंग सिस्टम की सेटिंग के अनुसार चलती है; आप पूरे ऐप या किसी सबट्री के लिए इनमें से कोई भी सेटिंग तय कर सकते हैं।
+- **कंपोनेंट।** साझा स्पेक के इम्प्लीमेंटेशन, जिनमें वेरिएंट, स्टेट और कीबोर्ड का व्यवहार हर जगह एक जैसा है।
+- **सुलभता के डिफ़ॉल्ट।** न्यूनतम हिट टार्गेट, दिखने वाली फ़ोकस रिंग, 200% तक बड़ा करने पर भी ठीक रहने वाला टेक्स्ट, और "मोशन कम करें" सेटिंग का पालन — ये सब पहले से शामिल हैं, हर स्क्रीन पर अलग से करने के लिए नहीं छोड़े गए।
+
+## ये दस्तावेज़ कैसे पढ़ें
+
+- [बुनियादी बातें](/hi/foundations/principles/) में विचार और नियम समझाए गए हैं।
+- [टोकन रेफ़रेंस](/hi/tokens/color/) में हर मान की सूची है, जो सीधे टोकन फ़ाइलों से रेंडर होती है।
+- [कंपोनेंट](/hi/components/) के पेज एक ही ढाँचे पर चलते हैं: अवलोकन, स्पेक, दिशानिर्देश, सुलभता। इन पेजों की टेबल कंपोनेंट के स्पेक से बनती हैं, इसलिए वे पुरानी नहीं पड़ सकतीं।
+- [स्थिति](/hi/status/) रिपॉज़िटरी से जनरेट होती है।

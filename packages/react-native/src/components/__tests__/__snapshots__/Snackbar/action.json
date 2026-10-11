@@ -1,0 +1,164 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "width": 400
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "alignSelf": "center",
+          "backgroundColor": "rgb(31, 31, 31)",
+          "borderRadius": 6,
+          "boxShadow": [
+            {
+              "blurRadius": 1,
+              "color": "rgba(0, 0, 0, 0.04)",
+              "offsetX": 0,
+              "offsetY": 1,
+              "spreadDistance": 0
+            },
+            {
+              "blurRadius": 8,
+              "color": "rgba(0, 0, 0, 0.04)",
+              "offsetX": 0,
+              "offsetY": 4,
+              "spreadDistance": -4
+            },
+            {
+              "blurRadius": 24,
+              "color": "rgba(0, 0, 0, 0.06)",
+              "offsetX": 0,
+              "offsetY": 16,
+              "spreadDistance": -8
+            }
+          ],
+          "justifyContent": "center",
+          "maxWidth": 560,
+          "minHeight": 48,
+          "minWidth": 288,
+          "paddingEnd": 8,
+          "paddingStart": 16
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessible": false,
+            "importantForAccessibility": "no",
+            "style": {
+              "borderColor": "rgba(0, 0, 0, 0.08)",
+              "borderRadius": 7,
+              "borderWidth": 1,
+              "bottom": -1,
+              "left": -1,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "right": -1,
+              "top": -1
+            }
+          },
+          "children": []
+        },
+        {
+          "type": "View",
+          "props": {
+            "style": {
+              "alignItems": "flex-start",
+              "flexDirection": "row",
+              "gap": 8
+            }
+          },
+          "children": [
+            {
+              "type": "Text",
+              "props": {
+                "allowFontScaling": true,
+                "collapsable": false,
+                "style": {
+                  "color": "rgb(241, 241, 241)",
+                  "flexGrow": 1,
+                  "flexShrink": 1,
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "letterSpacing": 0,
+                  "lineHeight": 22,
+                  "paddingBottom": 12,
+                  "paddingTop": 12
+                }
+              },
+              "children": [
+                "Conversation archived"
+              ]
+            },
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "gap": 4,
+                  "marginTop": 5
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Undo",
+                    "accessibilityState": {},
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": true,
+                    "hitSlop": {
+                      "bottom": 6,
+                      "left": 6,
+                      "right": 6,
+                      "top": 6
+                    },
+                    "role": "button",
+                    "style": {
+                      "alignItems": "center",
+                      "borderRadius": 6,
+                      "justifyContent": "center",
+                      "minHeight": 36,
+                      "opacity": 1,
+                      "paddingEnd": 12,
+                      "paddingStart": 12
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(226, 226, 226)",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "500",
+                          "letterSpacing": 0,
+                          "lineHeight": 20
+                        }
+                      },
+                      "children": [
+                        "Undo"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

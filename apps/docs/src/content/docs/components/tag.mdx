@@ -1,0 +1,170 @@
+---
+title: Tag
+description: Names a category or a status with a short static label, quietly, outlined or filled, in the colors of a status where it has one. It is text, never a control.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="tag" />
+
+<DemoFrame label="Three looks, with and without a status">
+  <tanrei-tag label="Draft"></tanrei-tag>
+  <tanrei-tag variant="outlined" label="Draft"></tanrei-tag>
+  <tanrei-tag variant="filled" label="Default"></tanrei-tag>
+  <tanrei-tag status="success" label="Passed"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="Expiring"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="Failed"></tanrei-tag>
+</DemoFrame>
+
+A tag is a word or a short phrase that says what a thing is or what state it is in: an article's category, a build's result, a release's stage, the default among several values. It stands in the layout, inline with the text beside it, and never answers a pointer, a key or focus.
+
+On the web it is `<tanrei-tag>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag label="Beta"></tanrei-tag>
+    <tanrei-tag variant="outlined" label="Design"><span slot="icon">sell</span></tanrei-tag>
+
+    <!-- The label says the status. -->
+    <tanrei-tag status="error" label="Failed"></tanrei-tag>
+
+    <!-- The label does not say it: status-label is read before it ("Error, 3 builds") and not drawn. -->
+    <tanrei-tag status="error" status-label="Error" label="3 builds"></tanrei-tag>
+
+    <script type="module">
+      import '@tanrei/web/components/tag';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tag } from '@tanrei/react';
+
+    <Tag label="Beta" />
+    <Tag variant="outlined" label="Design"><span slot="icon">sell</span></Tag>
+    <Tag status="error" statusLabel="Error" label={`${failed} builds`} />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Each look in each status" plain>
+  <tanrei-tag status="info" label="In review"></tanrei-tag>
+  <tanrei-tag status="warning" label="Expiring"></tanrei-tag>
+  <tanrei-tag status="error" label="Failed"></tanrei-tag>
+  <tanrei-tag status="success" label="Passed"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="info" label="In review"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="Expiring"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="error" label="Failed"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="success" label="Passed"></tanrei-tag>
+  <tanrei-tag variant="filled" status="info" label="In review"></tanrei-tag>
+  <tanrei-tag variant="filled" status="warning" label="Expiring"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="Failed"></tanrei-tag>
+  <tanrei-tag variant="filled" status="success" label="Passed"></tanrei-tag>
+</DemoFrame>
+
+<DemoFrame label="Two sizes, a glyph, a dot" plain>
+  <tanrei-tag size="small" label="Optional"></tanrei-tag>
+  <tanrei-tag size="small" variant="filled" label="Required"></tanrei-tag>
+  <tanrei-tag label="Design"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag size="small" label="Design"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag dot label="Archived"></tanrei-tag>
+  <tanrei-tag dot status="success" label="Online"></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="Degraded"></tanrei-tag>
+</DemoFrame>
+
+<ComponentSpecs name="tag" />
+
+## Guidelines
+
+### Badge, chip or tag
+
+The three are told apart once, by what they do:
+
+| Kind | What it is | Where it stands | Takes input |
+| --- | --- | --- | --- |
+| [Badge](/components/badge/) | A dot or a count attached to another element. | On its anchor's corner, outside the layout. | No. Input reaches the anchor. |
+| [Chip](/components/chip/) | A control. | In the layout. | Yes: it is pressed, switched or removed, and has focus and states. |
+| Tag | A static label. | In the layout, inline. | Never. |
+
+1. If it is pressed, selected or removed, it is a chip. If it leads somewhere, it is a link.
+2. If it is a number or a dot on top of something else, it is a badge.
+3. If it is a word that only says what a thing is or what state it is in, it is a tag.
+
+A tag never becomes a control by gaining a handler. Inside a link, a button, a list item or a row that is pressed as a whole, it stays text of that element: input over it reaches the element, and the element draws its own hover, focus and press.
+
+### Choosing a look
+
+| `variant` | Draws | Use for |
+| --- | --- | --- |
+| `tonal` (default) | A quiet fill. | Most tags. |
+| `outlined` | No fill and one hairline. | Many tags close together: a table column, a list of categories. |
+| `filled` | A full fill. | The chosen one among its neighbours: the default among values, the required among fields. Also the one status that must not be missed. |
+
+### Statuses
+
+`status` is `default`, `info`, `warning`, `error` or `success`. It changes colors only. An outlined tag keeps the surface's text color and its hairline in every status, so it always draws a dot (or your glyph) in the status's color: that mark is the only place the status shows.
+
+The tag draws no status glyph by itself. Name one where it helps, as this site does for the six statuses of its own status tables:
+
+<DemoFrame label="The six statuses of this site" plain>
+  <tanrei-tag size="small" variant="outlined" label="Planned"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="Lagging"><span slot="icon">schedule</span></tanrei-tag>
+  <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
+  <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
+  <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
+  <tanrei-tag size="small" status="error" label="Deprecated"><span slot="icon">block</span></tanrei-tag>
+</DemoFrame>
+
+### Sizes
+
+| `size` | Height | Text | Use for |
+| --- | --- | --- | --- |
+| `small` | 20 | 12 | Beside a field's label, in a table cell, in a line of body text. It does not make the line taller. |
+| `medium` (default) | 24 | 14 | Beside a heading, or by itself. |
+
+The required and optional tags of a [field](/components/field/) and a [field group](/components/field-group/) are this component at its small size: filled for required, tonal for optional. They read the tag's tokens and have none of their own, so a design system that restyles its small tags restyles them too.
+
+### Do
+
+- Say the status in words. "Failed" needs nothing more; a tag that reads "3 builds" in the error colors needs `statusLabel`.
+- Give a tag room for its label. A label that does not fit is cut with an ellipsis, and the tag has no hover or focus to show the rest.
+- Put a set of tags in a list (`<ul>` and `<li>` on the web) and name the list, where they are one set, such as an article's categories.
+
+### Don't
+
+- Don't make a tag pressable. A label that is pressed, switched or removed is a chip; one that leads somewhere is a link.
+- Don't use a tag with no label. A dot or a glyph alone is not a tag, and it draws nothing.
+- Don't rely on the color to carry the status. In forced colors every tag looks alike: an edge and a label in the text color.
+- Don't use a tag for a count on an icon. That is a badge.
+
+## Accessibility
+
+<ComponentAccessibility name="tag" />
+
+### What the component handles
+
+- It has no role and no name: its label is read where the tag sits, as text. Inside a link, a button or a table cell it is part of that element's content.
+- `statusLabel` is read before the label as a second phrase ("Error, 3 builds") and is never drawn. It is ignored while `status` is `default`.
+- The glyph and the dot are hidden from assistive technology.
+- It takes no input and no focus, so it adds no stop to the focus order and no target to a row.
+- A label that is cut is still read in full.
+- In forced colors every look gains an edge in the text color, and the label, the glyph and the dot take that color.
+- In a right-to-left layout the glyph or the dot moves to the right of the label, a glyph the icon set marks is mirrored, and a left-to-right label keeps its own order and is cut at its own end.
+- An unknown variant, size or status, an empty label and a `statusLabel` without a status are reported in debug builds.
+
+### What you need to do
+
+- Check that each tag's words say its status. The component cannot tell whether "3 builds" is good or bad news.
+- Write `statusLabel` in the language of the page.
+- If a change must be announced as it happens (a build that finishes while the person watches), put the tag in a live region or report the change with a snackbar. The tag does not announce.

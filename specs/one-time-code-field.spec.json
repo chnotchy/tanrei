@@ -1,0 +1,376 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "one-time-code-field",
+  "title": "One-time-code field",
+  "summary": "Asks for a short code sent to the person as one complete field: a One-time-code input under the Field's label, with the Field's help and its error, tied together for assistive technology and taking part in a form as one control.",
+  "category": "text-inputs",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "field",
+    "one-time-code-input"
+  ],
+  "anatomy": [
+    {
+      "id": "field",
+      "description": "The frame: a Field, whole — its label row with the label glyph and the requirement mark, and its supporting row, where the error text stands below the help. Drawn by the Field from the Field's tokens (FLD-1 to FLD-9)."
+    },
+    {
+      "id": "one-time-code-input",
+      "description": "The frame's one control: a One-time-code input, whole — its cells, its characters, its caret and its group marks. Drawn by the One-time-code input from its own tokens (OTC-1 to OTC-3, OTC-15)."
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "from": "field.label",
+      "note": "Always given: the control of a one-time-code field never names itself, so the case of an empty label does not arise."
+    },
+    {
+      "name": "labelHidden",
+      "from": "field.labelHidden"
+    },
+    {
+      "name": "supportingText",
+      "from": "field.supportingText"
+    },
+    {
+      "name": "errorText",
+      "from": "field.errorText"
+    },
+    {
+      "name": "error",
+      "from": "field.error",
+      "note": "The one error of the one-time-code field: the Field passes it to the control (FLD-8, OTC-17), whose own error is not a prop here."
+    },
+    {
+      "name": "disabled",
+      "from": "field.disabled",
+      "note": "The one disabled of the one-time-code field: the Field passes it to the control (FLD-14, OTC-20), whose own disabled is not a prop here."
+    },
+    {
+      "name": "requirement",
+      "from": "field.requirement"
+    },
+    {
+      "name": "requiredMark",
+      "from": "field.requiredMark"
+    },
+    {
+      "name": "requiredText",
+      "from": "field.requiredText"
+    },
+    {
+      "name": "optionalText",
+      "from": "field.optionalText"
+    },
+    {
+      "name": "value",
+      "from": "one-time-code-input.value"
+    },
+    {
+      "name": "length",
+      "from": "one-time-code-input.length"
+    },
+    {
+      "name": "type",
+      "from": "one-time-code-input.type"
+    },
+    {
+      "name": "groupSize",
+      "from": "one-time-code-input.groupSize"
+    },
+    {
+      "name": "mask",
+      "from": "one-time-code-input.mask"
+    },
+    {
+      "name": "readOnly",
+      "from": "one-time-code-input.readOnly"
+    }
+  ],
+  "slots": [
+    {
+      "name": "label-icon",
+      "from": "field.label-icon"
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "from": "one-time-code-input.input"
+    },
+    {
+      "name": "change",
+      "from": "one-time-code-input.change"
+    },
+    {
+      "name": "complete",
+      "from": "one-time-code-input.complete"
+    },
+    {
+      "name": "action",
+      "from": "one-time-code-input.action"
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "OTF-1",
+      "text": "THE one-time-code field SHALL be a Field whose one control is a One-time-code input, and SHALL draw nothing of its own: every row, text, mark, cell and line it shows is drawn by one of the two, from that component's own tokens, as FLD-1 to FLD-8 and OTC-1 to OTC-3, OTC-7 and OTC-15 to OTC-17 say. THE one-time-code field SHALL have no token, no size and no gap of its own: the Field places the control and gives it its width (FLD-1), and the One-time-code input lays its row out in that width (OTC-1, OTC-23). What it shows SHALL be the picture a product gets by placing that One-time-code input in that Field by hand with the same values, and what assistive technology is told SHALL be the same name, description and states (FLD-10, FLD-11, OTC-22)."
+    },
+    {
+      "id": "OTF-2",
+      "text": "THE one-time-code field SHALL give each of its props, unchanged, to the member it is from and SHALL hold no state between the two: label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText are the Field's; value, length, type, groupSize, mask and readOnly are the One-time-code input's. A value a member does not know SHALL be passed on as given and answered by that member (FLD-22, OTC-19). THE one-time-code field SHALL never set the One-time-code input's own label, error or disabled: the Field's label names the control (FLD-10, OTC-22), the Field's error puts it in its error condition (FLD-8, OTC-17) and the Field's disabled disables it (FLD-14, OTC-20), so that each is said once, in the place where the label follows."
+    },
+    {
+      "id": "OTF-3",
+      "text": "THE one-time-code field SHALL hold one value, the One-time-code input's. WHEN the person changes it THE one-time-code field's value SHALL be the new one before any event is reported, and THE one-time-code field SHALL report input, change, complete and action as the One-time-code input emits them — the same events, carrying the same value, in the same order and as often (OTC-13, OTC-14) — as its own, adding none and holding none back. WHEN the product sets value THE one-time-code field SHALL show it as OTC-18 says and SHALL report no event."
+    },
+    {
+      "id": "OTF-4",
+      "text": "WHERE the platform has forms (the web) THE one-time-code field SHALL be the one control the form meets, and what OTC-29 says of a One-time-code input SHALL hold of the one-time-code field as a whole: it takes name; it submits the code alone, an empty string WHILE it holds none, and nothing WHILE disabled (OTC-20); it is restored on navigation and resets to the value it was first given; and it reports a missing value WHILE requirement is required and the value is empty, and nothing for a code shorter than length. Its members SHALL add no entry of their own to the form, and the action key SHALL submit the form the one-time-code field belongs to as OTC-13 says, unless action was cancelled."
+    },
+    {
+      "id": "OTF-5",
+      "text": "THE one-time-code field SHALL be one stop in the focus order, its control's (FLD-12, OTC-2). WHEN the product moves focus to the one-time-code field THE one-time-code field SHALL pass it to the control, whose active cell is then the one OTC-5 names. A press on the label row SHALL move focus to the control and a press on the supporting row SHALL do nothing (FLD-12); THE one-time-code field SHALL take focus for no other press, SHALL add no key, and SHALL draw no focus indicator of its own: the frame's focused tokens and the active cell's focused line are the members' (FLD-13, OTC-7)."
+    },
+    {
+      "id": "OTF-6",
+      "text": "THE one-time-code field SHALL hold exactly one control and SHALL take no other from the product: it has no place for a child but the Field's label glyph (FLD-3, FLD-20), so that the cases of FLD-15 — no control, several controls — and of FLD-23 — a control replaced by another — never arise in it. IF the one-time-code field is placed in a Field THEN THE one-time-code field SHALL be drawn as it is and reported in debug builds as a field placed in a Field (FLD-15); WHERE it is placed in a field group THE one-time-code field SHALL follow the group's disabled as a Field does (FGR-14) and SHALL take nothing else from the group."
+    },
+    {
+      "id": "OTF-7",
+      "text": "THE one-time-code field SHALL have no words of its own: every word it shows or says is a prop of the Field's, read as FLD-24 says — the instance's, else the product's words of the same name — and the One-time-code input has none (OTC-30). THE one-time-code field SHALL read no key of the product's words itself."
+    },
+    {
+      "id": "OTF-8",
+      "text": "THE one-time-code field SHALL add nothing to how its members answer the place they are used in: the layout direction (FLD-18 to FLD-21; OTC-27 and OTC-28, by which the cells stay a left-to-right run and stand at the start edge, under the label), enlarged text (FLD-16, OTC-23, OTC-24), a person's own forced colors (FLD-17, OTC-26) and the caret's reduced motion are each member's own answer. THE one-time-code field SHALL have no direction, size, color or motion setting of its own, and SHALL never be wider than its layout gives it."
+    }
+  ],
+  "accessibility": {
+    "role": "textbox",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the control and on from it: the one-time-code field is one stop, its control's, and adds none (OTF-5)."
+      },
+      {
+        "keys": "Every other key",
+        "action": "The One-time-code input's own, as its spec's keyboard table says (OTC-6, OTC-8 to OTC-11, OTC-13). The one-time-code field handles no key."
+      }
+    ],
+    "labeling": "One text box, the One-time-code input's (OTC-2); the frame has no role. Its accessible name is label, drawn or not (labelHidden), and its description is the supporting text with, in error, the error text after it, with optionalText while requirement is optional (FLD-10, FLD-11, OTC-22). It is exposed as invalid while error is true, required while requirement is required, disabled while disabled is true, read-only while readOnly is true, and as a protected text entry while mask is true. The label's drawn text, the requirement mark, the cells, the caret and the group marks are not exposed a second time (FLD-11, OTC-2).",
+    "minimumTarget": true,
+    "notes": [
+      "What the one-time-code field adds to its members is their being one thing: one tag or one call, one set of props, one value and one entry in a form (OTF-2 to OTF-4). The tie between the two — the name, the description, required, invalid, disabled — is not the one-time-code field's: it is what a Field gives any control it frames, and it runs here exactly as it runs in a product's own Field.",
+      "One level down: a Field with a One-time-code input in it, written by the product, is the same picture and the same text box, and the Field's fixtures code-supporting, code-error, code-disabled and code-required-rtl are this component's twins. A product drops to it for an arrangement the one-time-code field does not offer: something of its own inside the frame beside the cells (a resend control, a countdown), or the One-time-code input alone under a dialog's headline, named by its own label.",
+      "The members' notes hold as written and are not repeated: errors are words (the Field's); nothing happens by itself when the code is complete, and paste and the platform's autofill are never blocked (the One-time-code input's).",
+      "The hit area is the control's (OTC-25); the label widens where a press can land without widening what a press does (FLD-12).",
+      "Not pressable: a press focuses the control and is not an action (OTC-25), so BTN-8, BTN-9 and BTN-10 are not copied.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.field",
+  "fixtures": [
+    {
+      "id": "supporting",
+      "twin": "field.code-supporting",
+      "props": {
+        "label": "Verification code",
+        "supportingText": "Enter the 6-digit code we sent to your phone.",
+        "groupSize": 3,
+        "value": "123"
+      }
+    },
+    {
+      "id": "error",
+      "twin": "field.code-error",
+      "props": {
+        "label": "Verification code",
+        "supportingText": "Enter the 6-digit code we sent to your phone.",
+        "error": true,
+        "errorText": "That code is not right. Check the message and try again.",
+        "groupSize": 3,
+        "value": "123456"
+      }
+    },
+    {
+      "id": "disabled",
+      "twin": "field.code-disabled",
+      "props": {
+        "label": "Verification code",
+        "supportingText": "Enter the 6-digit code we sent to your phone.",
+        "disabled": true,
+        "groupSize": 3,
+        "value": "123456"
+      }
+    },
+    {
+      "id": "required-rtl",
+      "twin": "field.code-required-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "رمز التحقق",
+        "requirement": "required",
+        "requiredText": "مطلوب",
+        "supportingText": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى هاتفك.",
+        "groupSize": 3,
+        "value": "123"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-one-time-code-field",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "value",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "mask",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "input",
+        "change": "change",
+        "complete": "complete",
+        "action": "action"
+      },
+      "notes": "`<tanrei-one-time-code-field name=\"code\" label=\"Verification code\" supporting-text=\"Enter the 6-digit code we sent to your phone.\" group-size=\"3\"></tanrei-one-time-code-field>`. Composed: a custom element with a shadow root that holds its members' own elements — `<tanrei-field part=\"field\" exportparts=\"label, label-icon, requirement-label, supporting-text\"><tanrei-one-time-code-input part=\"one-time-code-input\" exportparts=\"input, cell, character, caret, separator\"></tanrei-one-time-code-input></tanrei-field>` — and nothing else but the passage of the `label-icon` slot; its module imports both members' modules, so where it is defined they are. Each prop is a property and an attribute of the element under its member's own attribute name (`label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `group-size`, `readonly`) and is set on that member as a property; the element writes no custom property and reads no token, so every `--tanrei-comp-field-*` and `--tanrei-comp-one-time-code-input-*` value reaches the members by inheritance, and one instance is set apart by setting such a property on this element. One level down, the same by hand: `<tanrei-field label=\"Verification code\" supporting-text=\"…\"><tanrei-one-time-code-input name=\"code\" group-size=\"3\"></tanrei-one-time-code-input></tanrei-field>`. Form-associated itself (`static formAssociated = true`): its members stand in its shadow root, outside any form, so it takes `name` and `form`, repeats on its own ElementInternals the value, the state and the validity its One-time-code input tells its own — the same flags, the same message and the same anchor, the native input, so the browser's message points where it points one level down — resets to its `value` attribute, and passes a disabled `<fieldset>` on to its Field (OTF-4); Enter in the cells presses the default button of this element's form. The shadow root does not delegate focus — a press on the supporting row must do nothing (FLD-12) — so `focus()` and `blur()` are passed to the control, a click that arrives on the element itself (a page's own `<label for>`) moves focus there, and `autofocus` is copied to the control (OTF-5). The four events are the One-time-code input's own composed, bubbling CustomEvents: they leave the shadow root by themselves with the element as their target, and the element's `value` is at every moment its One-time-code input's — what was last set on the element until the input has taken it, and from then on what the input holds — so `event.target.value` is the code in every listener, capturing or bubbling (OTF-3); it dispatches nothing itself. The name, the description and the states reach the native input as values, by the `tanrei-field-connect` exchange between the two members inside the one shadow root, exactly as in a product's markup; the element's own host has no role and takes no ARIA attribute — name it with `label` (and `label-hidden`), never with `aria-label`. Inside a `tanrei-field-group` it follows the group's `disabled` through its Field (OTF-6). `custom-elements.json` shows it whole — sixteen attributes with their members' descriptions, four events with `TanreiOneTimeCodeInputDetail`, the `label-icon` slot, the two member parts and the nine exported ones, and the `form` attribute — and the React wrapper `OneTimeCodeField` is generated from that, with `onInput`, `onChange`, `onComplete` and `onAction`. Before the element is defined it has no size and shows nothing but a `label-icon` child, which a page hides with `tanrei-one-time-code-field:not(:defined) > *`; a page that must not jump gives the tag a block size of its own, and a page that must work without script writes a `<label>` around a plain `<input autocomplete=\"one-time-code\" inputmode=\"numeric\">` with its help beside it. The host is `display: block`. Words: the element has none; `required-text` and `optional-text` left empty are read by its Field from the product's words."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiOneTimeCodeField",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "code",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "isMasked",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "code",
+        "change": "onCommit",
+        "complete": "onComplete",
+        "action": "onSubmit"
+      },
+      "notes": "`TanreiOneTimeCodeField(\"Verification code\", code: $code, supportingText: \"…\", groupSize: 3, onComplete: verify)`: a view whose body is `TanreiField(…) { TanreiOneTimeCodeInput(…) }` with each argument passed to the member it is from, and nothing else. `code` is the input's `Binding<String>`; `labelHidden` follows `.labelsHidden()` and `disabled` follows `.disabled(_:)`, as the Field's do; the glyph is the Field's `labelIcon:`. One field is set apart by `.tanreiTheme(_:)` on this view. Planned: owed after the One-time-code input itself."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiOneTimeCodeField",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "value",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "masked",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onCommit",
+        "complete": "onComplete",
+        "action": "keyboardActions"
+      },
+      "notes": "`TanreiOneTimeCodeField(label = \"Verification code\", value = code, onValueChange = { code = it }, supportingText = …, groupSize = 3, onComplete = ::verify)`: a composable that calls `TanreiField(…) { TanreiOneTimeCodeInput(…) }` with each argument passed to the member it is from, and nothing else. `enabled` is the Field's inverse flag; the glyph is the Field's `labelIcon`. One field is set apart by a `TanreiTheme(…) { }` around this call. Planned: owed after the One-time-code input itself."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiOneTimeCodeField",
+      "props": {
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "supportingText": "helperText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "controller",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "obscureText",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "onChanged",
+        "change": "onCommit",
+        "complete": "onCompleted",
+        "action": "onSubmitted"
+      },
+      "notes": "`TanreiOneTimeCodeField(labelText: 'Verification code', controller: code, helperText: …, groupSize: 3, onCompleted: verify)`: a widget whose build returns `TanreiField(…, child: TanreiOneTimeCodeInput(…))` with each argument passed to the member it is from, and nothing else. The names follow the members'; `enabled` is the Field's inverse flag; the glyph is the Field's `labelIcon`. One field is set apart by a `TanreiTheme` widget around it. Planned: owed after the One-time-code input itself."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "OneTimeCodeField",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "value",
+        "length": "length",
+        "type": "type",
+        "groupSize": "groupSize",
+        "mask": "secureTextEntry",
+        "readOnly": "readOnly"
+      },
+      "events": {
+        "input": "onChangeText",
+        "change": "onEndEditing",
+        "complete": "onComplete",
+        "action": "onSubmitEditing"
+      },
+      "notes": "`<OneTimeCodeField label=\"Verification code\" value={code} onChangeText={setCode} supportingText=\"…\" groupSize={3} onComplete={verify} />`: a component that returns `<Field …><OneTimeCodeInput … /></Field>` with each prop passed to the member it is from, and nothing else. The glyph is the Field's `labelIcon` prop. One field is set apart by a provider around it. Planned: owed after the One-time-code input itself."
+    }
+  }
+}

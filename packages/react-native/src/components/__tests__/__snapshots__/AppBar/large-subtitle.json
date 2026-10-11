@@ -1,0 +1,338 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "width": 360
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "collapsable": false,
+        "style": {
+          "alignSelf": "stretch",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "paddingLeft": 0,
+          "paddingRight": 0,
+          "paddingTop": 0
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "style": {
+              "alignItems": "center",
+              "flexDirection": "row",
+              "gap": 8,
+              "minHeight": 56,
+              "paddingEnd": 8,
+              "paddingStart": 8
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "flexDirection": "row"
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Menu",
+                    "accessibilityRole": "button",
+                    "accessibilityState": {
+                      "disabled": false
+                    },
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": true,
+                    "hitSlop": {
+                      "bottom": 6,
+                      "left": 6,
+                      "right": 6,
+                      "top": 6
+                    },
+                    "style": {
+                      "alignItems": "center",
+                      "alignSelf": "flex-start",
+                      "borderRadius": 6,
+                      "height": 36,
+                      "justifyContent": "center",
+                      "opacity": 1,
+                      "width": 36
+                    },
+                    "testID": "navigation.0"
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "accessibilityElementsHidden": true,
+                        "accessible": false,
+                        "importantForAccessibility": "no-hide-descendants",
+                        "style": {
+                          "alignItems": "center",
+                          "height": 20,
+                          "justifyContent": "center",
+                          "width": 20
+                        },
+                        "testID": "navigation.0.icon"
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(75, 75, 75)",
+                              "fontFamily": "Material Symbols Rounded",
+                              "fontSize": 20,
+                              "fontWeight": "300",
+                              "lineHeight": 20,
+                              "textAlign": "center"
+                            },
+                            "testID": "navigation.0.glyph"
+                          },
+                          "children": [
+                            "menu"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "flex": 1,
+                  "justifyContent": "center"
+                }
+              },
+              "children": []
+            },
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "flexDirection": "row",
+                  "gap": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Search",
+                    "accessibilityRole": "button",
+                    "accessibilityState": {
+                      "disabled": false
+                    },
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": true,
+                    "hitSlop": {
+                      "bottom": 6,
+                      "left": 6,
+                      "right": 6,
+                      "top": 6
+                    },
+                    "style": {
+                      "alignItems": "center",
+                      "alignSelf": "flex-start",
+                      "borderRadius": 6,
+                      "height": 36,
+                      "justifyContent": "center",
+                      "opacity": 1,
+                      "width": 36
+                    },
+                    "testID": "action.0"
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "accessibilityElementsHidden": true,
+                        "accessible": false,
+                        "importantForAccessibility": "no-hide-descendants",
+                        "style": {
+                          "alignItems": "center",
+                          "height": 20,
+                          "justifyContent": "center",
+                          "width": 20
+                        },
+                        "testID": "action.0.icon"
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(75, 75, 75)",
+                              "fontFamily": "Material Symbols Rounded",
+                              "fontSize": 20,
+                              "fontWeight": "300",
+                              "lineHeight": 20,
+                              "textAlign": "center"
+                            },
+                            "testID": "action.0.glyph"
+                          },
+                          "children": [
+                            "search"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityLabel": "Account",
+                    "accessibilityRole": "button",
+                    "accessibilityState": {
+                      "disabled": false
+                    },
+                    "accessibilityValue": {},
+                    "accessible": true,
+                    "collapsable": false,
+                    "focusable": true,
+                    "hitSlop": {
+                      "bottom": 6,
+                      "left": 6,
+                      "right": 6,
+                      "top": 6
+                    },
+                    "style": {
+                      "alignItems": "center",
+                      "alignSelf": "flex-start",
+                      "borderRadius": 6,
+                      "height": 36,
+                      "justifyContent": "center",
+                      "opacity": 1,
+                      "width": 36
+                    },
+                    "testID": "action.1"
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "accessibilityElementsHidden": true,
+                        "accessible": false,
+                        "importantForAccessibility": "no-hide-descendants",
+                        "style": {
+                          "alignItems": "center",
+                          "height": 20,
+                          "justifyContent": "center",
+                          "width": 20
+                        },
+                        "testID": "action.1.icon"
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(75, 75, 75)",
+                              "fontFamily": "Material Symbols Rounded",
+                              "fontSize": 20,
+                              "fontWeight": "300",
+                              "lineHeight": 20,
+                              "textAlign": "center"
+                            },
+                            "testID": "action.1.glyph"
+                          },
+                          "children": [
+                            "account_circle"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "style": null
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "justifyContent": "flex-end",
+                  "minHeight": 56,
+                  "paddingBottom": 12,
+                  "paddingEnd": 16,
+                  "paddingStart": 16
+                }
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "ellipsizeMode": "tail",
+                    "numberOfLines": 1,
+                    "role": "heading",
+                    "style": {
+                      "color": "rgb(27, 27, 27)",
+                      "fontFamily": "Inter",
+                      "fontSize": 32,
+                      "fontWeight": "500",
+                      "letterSpacing": -0.96,
+                      "lineHeight": 40
+                    }
+                  },
+                  "children": [
+                    "Inbox"
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "ellipsizeMode": "tail",
+                    "numberOfLines": 1,
+                    "style": {
+                      "color": "rgb(75, 75, 75)",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "400",
+                      "letterSpacing": 0,
+                      "lineHeight": 22
+                    }
+                  },
+                  "children": [
+                    "ada@example.com"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

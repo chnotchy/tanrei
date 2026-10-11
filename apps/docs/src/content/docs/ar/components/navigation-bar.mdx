@@ -1,0 +1,339 @@
+---
+title: شريط التنقل
+description: ينقل بين ثلاث إلى خمس وجهات عليا من الحافة السفلية لشاشة مضغوطة، ويبيّن أيها الحالية.
+translationOf: components/navigation-bar.mdx
+sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="navigation-bar" />
+
+:::note[مواصفة معدَّلة، لم تصل بعد إلى كل منصة]
+تصف هذه الصفحة شريط التنقل كما هو في المواصفة الآن، على مثال [علامات التبويب](/ar/components/tabs/). المؤشر النشط هو الحصة المتساوية الكاملة للوجهة الحالية من الشريط، مُزاحةً إلى الداخل عن حواف الشريط، لا حبّة تلتف حول الأيقونة والتسمية. ينزلق إلى الوجهة الجديدة بحجمه الكامل حين يتغيّر التحديد، والسحب على امتداد الشريط يحمله مع مؤشر الإدخال. ويُرسم التحويم والضغط والتركيز في ذلك الصندوق نفسه. تختار الخاصية `variant` بين tonal (الافتراضي) و filled. وكل الخصائص والأحداث الأخرى هي نفسها في المراجعتين. المنصات الموسومة أعلاه بأنها متأخرة تقدّم المراجعة الأولى إلى أن تلحق: بلا `variant`، وبلا سحب، وبمؤشر خلف الأيقونة وحدها يكبر من مركزه، وتعرض عيّناتها تلك المراجعة. العروض الحيّة في هذه الصفحة هي مكوّن الويب كما يُقدَّم اليوم.
+:::
+
+<DemoFrame label="أربع وجهات، على إحداها عدد">
+  <tanrei-navigation-bar value="inbox" label="الرئيسي" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="الوارد" icon="inbox" badge badge-count="3" badge-label="3 غير مقروءة"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="المحادثة" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="المميَّزة" icon="star"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="settings" label="الإعدادات" icon="settings"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="الطراز filled: اضغط واسحب على امتداد الشريط لتحمل المؤشر" plain>
+  <tanrei-navigation-bar variant="filled" value="chat" label="الوسائط" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="home" label="الرئيسية" icon="home"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="المحادثة" icon="chat" badge badge-label="رسائل جديدة"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="المميَّزة" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="شريط من الروابط: الصفحة تسمّي الوجهة الحالية بعنوانها، و«المساعدة» تفتح تبويبًا جديدًا" plain>
+  <tanrei-navigation-bar value="/ar/components/navigation-bar/" label="المكوّنات" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item href="/ar/components/button/" label="الزر" icon="smart_button"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/ar/components/navigation-bar/" label="الشريط" icon="bottom_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/ar/components/navigation-drawer/" label="الدرج" icon="side_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="https://example.com/" label="المساعدة" icon="help" target="new" target-label="يُفتح في تبويب جديد"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+### الاستخدام
+
+لشريط التنقل نوع واحد من العناصر، هو `destination`: أيقونة، وتسمية تحتها، وشارة اختيارية على الأيقونة. تأخذ كل منصة الوجهات كما تأخذ أي عناصر فرعية متكررة: عناصر فرعية `<tanrei-navigation-bar-item>` على الويب، وعروض `TanreiNavigationBarItem` في باني العرض على SwiftUI، واستدعاءات `TanreiNavigationBarItem` في دالة المحتوى على Compose، وكائنات `TanreiNavigationDestination` في القائمة `destinations:` على Flutter، ومصفوفة `destinations` من كائنات بسيطة على React Native.
+
+التحديد ملك للشريط، بقيمة الوجهة. تسمّي الخاصية `value` الوجهة الحالية، ويحمل الحدث `change` الوجهة التي اختارها الشخص، ويصدر الحدث `reselect` حين يختار الوجهة الحالية مرة أخرى، لتعيد تلك الشاشة إلى أعلاها. والقيمة الفارغة لا تحدّد شيئًا، لشاشة ليست من وجهات الشريط. يكتب SwiftUI القيمة الجديدة في الربط `selection`. وتحتفظ منصتان بأسلوبهما، كما تفعل أشرطة التنقل الخاصة بهما. ليس في Compose قيمة على مستوى الشريط: تعلّم العنصر الحالي بالخاصية `selected`، وتقوم `onClick` فيه مقام change و reselect معًا. ويحدّد Flutter بالفهرس: `selectedIndex`، و `onDestinationSelected` التي يستدعيها للوجهة الحالية أيضًا.
+
+تضبط الخاصية `variant` مدى قوة تمييز الوجهة الحالية: القيمة `tonal` (الافتراضية) تملأ مؤشرها بلطف، والقيمة `filled` تملؤه بقوة، مع الأيقونة والتسمية معكوستَي اللون عليه. وهي على الويب اليوم.
+
+الوجهة التي لها `href` رابط: هي رابط المنصة نفسه، تُرسم كما تُرسم الوجهة التي هي زر تمامًا. يفعّلها المفتاح Enter ولا يفعّلها المفتاح Space. ولا يحدّد الشريط الرابط عند الضغط: يُصدر الحدث `change` حاملًا قيمة الوجهة وقيمة `href` فيها، ثم يُتبع الرابط. والصفحة التي تصل هي التي تسمّي الوجهة الحالية بالخاصية `value`، كما في [درج التنقل](/ar/components/navigation-drawer/)، والرابط الذي بلا `value` يأخذ قيمة `href` قيمةً له. والخاصيتان `target` و `targetLabel` هما خاصيتا [الزر](/ar/components/button/). الويب ينفّذ الوجهات التي هي روابط؛ أما SwiftUI و Compose و Flutter و React Native فليست فيها بعد.
+
+قيمة `icon` في الوجهة هي اسم رسم في خط الأيقونات الخاص بنظام التصميم. يرسمه الشريط مفرَّغًا ما دامت الوجهة غير محدَّدة ومعبَّأً حين تكون محدَّدة. وترسم الخصائص `badge` و `badgeCount` و `badgeLabel` شارة من Tanrei على الأيقونة: نقطة حين لا يوجد عدد، والرقم في غير ذلك. يأخذها SwiftUI و Compose و Flutter قيمة واحدة من النوع `TanreiNavigationBadge`، ويأخذها React Native كائنًا `badge`.
+
+الشريط منطقة من التخطيط، لا تراكب. يصل لونه إلى ما تحت مؤشر الشاشة الرئيسية أو شريط الإيماءات أسفله، وتقع وجهاته فوقهما وداخل الهوامش الجانبية (insets). على React Native تأتي الهوامش من الخصائص وحدها، بلا اعتماد على حزمة للمنطقة الآمنة: الخاصية `insets` على `TanreiProvider`، أو `insets` على الشريط نفسه، وجوانبها تستبدل جوانب المزوِّد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- العنصر المضيف مَعلم تنقل (navigation landmark) تسمّيه label. -->
+    <!-- variant="filled" يعكس ألوان الوجهة الحالية، لشريط فوق شاشة مزدحمة. والافتراضي tonal. -->
+    <tanrei-navigation-bar label="الرئيسي" value="inbox">
+      <tanrei-navigation-bar-item value="inbox" label="الوارد" icon="inbox"
+                                  badge badge-count="3" badge-label="3 غير مقروءة"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="chat" label="المحادثة" icon="chat"
+                                  badge badge-label="رسائل جديدة"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="starred" label="المميَّزة" icon="star"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="settings" label="الإعدادات" icon="settings" disabled></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-bar';
+      const bar = document.querySelector('tanrei-navigation-bar');
+      // يضبط الشريط قيمته بنفسه قبل أن يُصدر change الذي يحملها.
+      bar.addEventListener('change', (e) => showScreen(e.detail.value));
+      bar.addEventListener('reselect', () => scrollTo({ top: 0 }));
+    </script>
+
+    <!-- شريط من الروابط: كل صفحة تضبط value على عنوانها هي. والرابط الذي بلا value يأخذ قيمة href. -->
+    <tanrei-navigation-bar label="الرئيسي" value="/search/">
+      <tanrei-navigation-bar-item href="/" label="الرئيسية" icon="home"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/search/" label="البحث" icon="search"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/library/" label="المكتبة" icon="video_library"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="https://example.com/help" label="المساعدة" icon="help"
+                                  target="new" target-label="يُفتح في تبويب جديد"></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      // الموجِّه يتولى التنقل: ألغِ change، واذهب إلى detail.href، وقل أين صار المنتج الآن.
+      bar.addEventListener('change', (e) => {
+        if (!e.detail.href) return;
+        e.preventDefault();
+        router.push(e.detail.href);
+        bar.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NavigationBar, NavigationBarItem } from '@tanrei/react';
+
+    // variant="filled" لشريط فوق شاشة مزدحمة؛ والافتراضي tonal.
+    <NavigationBar label="الرئيسي" value={screen} onChange={(e) => setScreen(e.detail.value)} onReselect={scrollToTop}>
+      <NavigationBarItem value="inbox" label="الوارد" icon="inbox" badge badgeCount={3} badgeLabel="3 غير مقروءة" />
+      <NavigationBarItem value="chat" label="المحادثة" icon="chat" />
+      <NavigationBarItem value="starred" label="المميَّزة" icon="star" />
+    </NavigationBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // شريط مستقل في الهامش الآمن السفلي. اختيار وجهة يكتب في الربط (change).
+    ScreenView(screen)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TanreiNavigationBar(selection: $screen, accessibilityLabel: "الرئيسي", onReselect: { _ in scrollToTop() }) {
+                TanreiNavigationBarItem("الوارد", icon: "inbox", value: "inbox",
+                                        badge: TanreiNavigationBadge(count: 3, label: "3 غير مقروءة"))
+                TanreiNavigationBarItem("المحادثة", icon: "chat", value: "chat")
+                TanreiNavigationBarItem("المميَّزة", icon: "star", value: "starred")
+                // disabled مُعدِّل من SwiftUI نفسه.
+                TanreiNavigationBarItem("الإعدادات", icon: "settings", value: "settings").disabled(true)
+            }
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBadge
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBar
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBarItem
+
+    // مثل NavigationBar في Material: لا قيمة على مستوى الشريط. تعلّم العنصر الحالي بـ selected،
+    // و onClick واحدة هي change و reselect معًا.
+    var screen by rememberSaveable { mutableStateOf("inbox") }
+    TanreiNavigationBar(contentDescription = "الرئيسي") {
+        TanreiNavigationBarItem(
+            selected = screen == "inbox",
+            onClick = { if (screen == "inbox") { scrollToTop() } else { screen = "inbox" } },
+            icon = "inbox",
+            label = "الوارد",
+            badge = TanreiNavigationBadge(count = 3, contentDescription = "3 غير مقروءة"),
+        )
+        TanreiNavigationBarItem(selected = screen == "chat", onClick = { screen = "chat" }, icon = "chat", label = "المحادثة")
+        // enabled عكس disabled في المواصفة.
+        TanreiNavigationBarItem(selected = screen == "settings", onClick = { screen = "settings" }, icon = "settings", label = "الإعدادات", enabled = false)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // مثل NavigationBar: قيمة الوجهة فهرسها. لا يحتفظ الشريط بتحديد خاص به.
+    TanreiNavigationBar(
+      selectedIndex: current, // القيمة null لا تحدّد شيئًا
+      onDestinationSelected: (int index) {
+        if (index == current) {
+          scrollToTop(); // reselect
+        } else {
+          setState(() => current = index); // change
+        }
+      },
+      semanticLabel: 'الرئيسي',
+      destinations: const <TanreiNavigationDestination>[
+        TanreiNavigationDestination(icon: 'inbox', label: 'الوارد', badge: TanreiNavigationBadge(count: 3, semanticLabel: '3 غير مقروءة')),
+        TanreiNavigationDestination(icon: 'chat', label: 'المحادثة'),
+        TanreiNavigationDestination(icon: 'settings', label: 'الإعدادات', enabled: false),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationBar } from '@tanrei/react-native';
+
+    const [screen, setScreen] = useState('inbox');
+
+    // متحكَّم به: حرِّك value من onValueChange.
+    <NavigationBar
+      accessibilityLabel="الرئيسي"
+      value={screen}
+      onValueChange={setScreen}
+      onReselect={scrollToTop}
+      destinations={[
+        { value: 'inbox', label: 'الوارد', icon: 'inbox', badge: { count: 3, label: '3 غير مقروءة' } },
+        { value: 'chat', label: 'المحادثة', icon: 'chat', badge: { label: 'رسائل جديدة' } },
+        { value: 'settings', label: 'الإعدادات', icon: 'settings', disabled: true },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="تسمية الوجهة المحدَّدة وحدها، وبلا تسميات" plain column>
+  <tanrei-navigation-bar value="chat" label-visibility="selected" label="الرئيسي" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="الوارد" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="المحادثة" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="المميَّزة" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+  <tanrei-navigation-bar value="inbox" label-visibility="never" label="الثانوي" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="الوارد" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="المحادثة" icon="chat" badge badge-label="رسائل جديدة"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="المميَّزة" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-bar" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم شريط التنقل على شاشة مضغوطة (Compact)، كهاتف يُمسك عموديًّا، للانتقال بين ثلاث إلى خمس وجهات عليا: الأماكن التي يعود إليها الشخص طوال اليوم، مثل «الوارد» و«البحث» و«الملف الشخصي». يبقى الشريط في كل شاشة عليا ويبيّن أين يوجد الشخص.
+
+استخدم علامات التبويب للتبديل بين عروض لموضوع واحد داخل شاشة. واستخدم زر الرجوع في شريط التطبيق لمغادرة شاشة وصل إليها الشخص من أخرى: شاشات التفاصيل تخفي شريط التنقل عادةً.
+
+### الاختيار بين الشريط والدرج
+
+| الجانب | [شريط التنقل](/ar/components/navigation-bar/) | [درج التنقل](/ar/components/navigation-drawer/) مطويًّا | [درج التنقل](/ar/components/navigation-drawer/) موسَّعًا |
+| --- | --- | --- | --- |
+| موضعه | على امتداد الحافة السفلية | عمود من الأيقونات على امتداد حافة البداية | في لوحة عند حافة البداية |
+| النافذة | مضغوطة (Compact) | متوسطة (Medium) فأوسع | موسَّعة (Expanded) فأوسع (قياسي)، أو مضغوطة (نمطي) |
+| الوجهات | ثلاث إلى خمس | وجهاته ومجموعاته العليا، خلية لكل منها | بقدر ما في المنتج، في أقسام ومجموعات |
+| الوجهة | أيقونة فوق تسمية من سطر واحد، مع شارة على الأيقونة | الصف مقطوعًا بعد أيقونته: الأيقونة وحدها، عليها شارة، واسمها في تلميح | صف: أيقونة اختيارية، وتسمية تلتف، ونص أو محتوى في نهايته |
+| يحمل أيضًا | لا شيء آخر | رأسًا: زر القائمة والإجراء الرئيسي مطويًّا إلى أيقونته | رأسًا: زر القائمة، وعنوانًا أو مبدِّل حسابات، والإجراء الرئيسي |
+| على المنصات الأصلية، الوجهة هي | تبويب في شريط تبويب | زر له حالة تحديد | زر له حالة تحديد |
+| ما هو | منطقة من التخطيط | منطقة من التخطيط، أو عمود في التخطيط يتّسع منه درج نمطي | القياسي: منطقة من التخطيط. النمطي: تراكب نمطي |
+
+- **الدرج المطوي هو سكة التنقل (navigation rail).** يضيق الدرج القابل للطي إلى عمود من الأيقونات حيث يحتاج المحتوى إلى العرض، ويوسّعه زر القائمة فيه من جديد؛ وتبقى كل أيقونة في مكانها. سكة التنقل المستقلة في Tanrei أُلغيت وصارت هذه الهيئة.
+- **الشريط والدرج مجموعة واحدة من الوجهات في مكانين.** يأخذان الوجهات نفسها والتحديد نفسه، فالمنتج الذي يتكيّف مع النافذة يضع الدرج مكان الشريط عند نقطة تحوّل (breakpoint) من دون أن يمسّ وجهاته. أظهر واحدًا منهما في كل مرة، لا الاثنين معًا أبدًا.
+- **الدرج يحمل أكثر.** استخدمه موسَّعًا حين يكون في المنتج وجهات أكثر مما يحمله الشريط، أو حين تقع في مجموعات، كمجلدات تطبيق بريد وتصنيفاته. على نافذة كبيرة يقع الدرج القياسي بجانب المحتوى. وعلى نافذة مضغوطة ينزلق الدرج النمطي فوقه من زر قائمة.
+- **الدرج النمطي القابل للطي** يُبقي عمود أيقوناته في التخطيط ويتّسع فوق المحتوى، فوق حجاب (scrim)، حين يفتحه زر القائمة فيه.
+- على كل المنصات، يحدّد كلاهما بقيمة الوجهة (في Compose بعلامة على كل عنصر، وفي Flutter بالفهرس) ويُصدران `change` و `reselect`.
+
+### التسميات
+
+| `labelVisibility` | ما تفعله | يُستخدم لـ |
+| --- | --- | --- |
+| `always` (الافتراضية) | ترسم كل وجهة تسميتها. | معظم الأشرطة. التسميات تجعل الوجهات تُعرَف من نظرة. |
+| `selected` | الوجهة الحالية وحدها ترسم تسميتها. والأيقونة التي بلا تسمية تقع في وسط وجهتها. لا تغيّر أي وجهة حجمها ولا مكانها مع التحديد. | الأشرطة التي يضيق فيها الحيّز وأيقوناتها معروفة جيدًا. |
+| `never` | لا ترسم أي وجهة تسميتها. | منتجات الوسائط والتواصل الاجتماعي التي يعرف الجميع أيقوناتها الأربع أو الخمس. |
+
+التسمية التي لا تُرسم تبقى الاسم المتاح للتقنيات المساعدة لوجهتها، فكل وجهة تحتاج إلى تسمية.
+
+### التحديد والشارات
+
+- **المؤشر النشط.** لكل وجهة صندوق واحد: حصتها المتساوية من عرض الشريط، مُزاحةً إلى الداخل عن حواف الشريط، من الأعلى والأسفل وعند الطرفين، بإزاحة واحدة (4 في النظام الافتراضي). فأربع وجهات في شريط عرضه 360 وارتفاعه 64 لكل منها صندوق 88 × 56، وهو كبسولة في النظام الافتراضي. الصندوق واحد لكل وجهات الشريط، أيًّا كان ما تحمله، ولا يُقاس أبدًا على أيقونتها وتسميتها. صندوق الوجهة الحالية معبَّأ، وهذا ما يجعله المؤشر النشط، وأيقونتها معبَّأة. ويُرسم التحويم والتركيز والضغط في ذلك الصندوق نفسه لكل وجهة.
+- **الانزلاق.** حين يتغيّر التحديد ينزلق المؤشر من الوجهة القديمة إلى الجديدة بحجمه الكامل. لا تُعكس ألوان الأيقونات والتسميات إلا حيث يغطيها المؤشر، فالوجهة التي يمرّ فوقها تغيّر ألوانها تحته لحظة، والوجهة الجديدة تكون معكوسة الألوان كلها حين يستقر المؤشر. من انعدام التحديد يظهر المؤشر تدريجيًّا على الوجهة الجديدة؛ وإلى انعدام التحديد يختفي تدريجيًّا. لا يكبر ولا يصغر أبدًا. وحين يظهر الشريط أول مرة، أو يتغيّر حجم الوجهة الحالية من دون تحديد جديد (وصول خط، تغيّر حجم النص)، يوضع المؤشر في مكانه فورًا. وحيث تُقلَّل الحركة يحدث التغيّر فورًا.
+- **السحب.** الضغط على الشريط مع حركة جانبية، باللمس أو بقلم أو بفأرة، ووجهةٌ ما محدَّدة، يحمل المؤشر النشط مع مؤشر الإدخال. لا يُختار شيء حتى الإفلات: تبقى `value` والتركيز وتعبئة كل أيقونة وما يُعلَن مع الوجهة الحالية. يختار الإفلات أقرب الوجهتين اللتين يقع المؤشر بينهما، أو الوجهة التي تتجه إليها دفعة سريعة (fling)، ويُصدر `change` مرة واحدة. وإن أُفلت عائدًا إلى الوجهة الحالية فلا يُصدر شيئًا، ولا حتى `reselect`. يلغي المفتاح Escape السحب. والسحب ليس الطريق الوحيد أبدًا: اللمسة والنقرة والمفتاحان Enter و Space تختار كما من قبل.
+- **إعادة التحديد.** اختيار الوجهة الحالية مرة أخرى يُصدر `reselect`، لا `change`. والجواب المعتاد أن تُعاد تلك الشاشة إلى أعلاها، أو أن يُرجَع إلى صفحتها الأولى.
+- **الشارات.** الشارة التي لها عدد تعرض الرقم (999+ فوق 999)، والتي بلا عدد تعرض نقطة. والخاصية `badgeLabel` هي ما يقوله قارئ الشاشة بعد اسم الوجهة، مثل «3 غير مقروءة». النقطة لا رقم لها يُقرأ، فهي تحتاج إليها دائمًا. وتبقى الشارة ما دامت وجهتها معطَّلة.
+
+### الروابط
+
+في موقع من صفحات منفصلة، أعطِ كل وجهة `href` واضبط قيمة `value` للشريط على عنوان الصفحة نفسها. فتصير الوجهة الحالية والصفحة الحالية شيئًا واحدًا، بعلامة واحدة.
+
+- **يُتبع ولا يُحدَّد.** التفعيل العادي للرابط يُصدر `change`، أو `reselect` على الوجهة الحالية، حاملًا قيمة الوجهة وقيمة `href` فيها، ثم يُتبع الرابط. ولا يكتب الشريط `value`: يبقى المؤشر النشط على الوجهة التي تسمّيها `value` ويتحرك حين تتغيّر `value`.
+- **الموجِّه.** ألغِ الحدث لتتولى التنقل بنفسك، واذهب إلى `detail.href` واضبط `value`. فينزلق المؤشر عندئذ إلى الوجهة الجديدة.
+- **التبويبات الأخرى.** النقرة أو المفتاح Enter مع مفتاح تعديل، والنقرة بالزر الأوسط، والرابط الذي قيمة `target` فيه `new`، والتنزيل، كلها من شأن المتصفح. لا يُصدر الشريط شيئًا ولا يحدّد شيئًا.
+- **سياق جديد.** القيمة `target: new` تفتح تبويبًا جديدًا أو نافذة جديدة. والوجهة أيقونة فوق تسمية، لا مكان فيها لعلامة، فلا تُرسم علامة: تقول الخاصية `targetLabel` ذلك للتقنيات المساعدة، بعد وصف الشارة.
+- **السحب.** السحب الجانبي الذي يبدأ على رابط يحرّك المؤشر النشط ولا يسحب عنوان الرابط. وإن أُفلت على رابط فهو ضغط عادي على ذلك الرابط: يعود المؤشر إلى الوجهة الحالية إلى أن تتغيّر `value`.
+- **التعطيل.** الرابط المعطَّل لا يمكن اتباعه بأي وسيلة، ويخرج من ترتيب التركيز.
+
+### الطرازان tonal و filled
+
+| `variant` | الوجهة الحالية | يُستخدم لـ |
+| --- | --- | --- |
+| `tonal` (الافتراضي) | مؤشر لطيف بلون الحاوية الثانوية، وأيقونته وتسميته بلون محتوى تلك الحاوية. | معظم الأشرطة. |
+| `filled` | مؤشر قوي باللون الأساسي، وأيقونته وتسميته معكوستا اللون عليه. | شريط يجب أن يبرز عن شاشة مزدحمة: خريطة، شبكة صور، مشغِّل. |
+
+الوجهات التي لا يغطيها المؤشر تبدو واحدة في الطرازين. يغيّر الطراز (variant) مدى قوة رسم التحديد، لا ما يُعلَن: الشريط من الطراز tonal والشريط من الطراز filled يعرِّفان الأسماء والأدوار والحالات نفسها. الوجهة الحالية المعطَّلة تحتفظ بمؤشرها من الطراز tonal وعليه محتوى معطَّل؛ أما المؤشر من الطراز filled فيبهت كما يبهت زر Button معطَّل من الطراز filled، لأن المحتوى المعطَّل على اللون الأساسي تصعب قراءته.
+
+يحذف الإعدادان الجاهزان `m3-like` و `cupertino` القيمة `filled`، لأن لشريط التنقل في Material ولشريط التبويب عند Apple نمطًا واحدًا. يحتفظ `m3-like` بصندوق Material خلف الأيقونة وحدها، والتسمية تحته وبلا صندوق حول الوجهة، ويعلّم `cupertino` التبويب الحالي بصبغته فقط. وتحت كليهما لا يُظهر السحب شيئًا يتحرك، ومع ذلك يختار إفلاته.
+
+### افعل
+
+- اجعل التسمية كلمة واحدة قصيرة: «الوارد»، «البحث»، «الملف الشخصي». التسمية التي لا تسعها وجهتها تُقتطع عند نهايتها بعلامة الحذف (…)، ولا شيء يلتف.
+- لا تستخدم `filled` إلا حيث يضيع المؤشر من الطراز tonal أمام الشاشة التي خلف الشريط.
+- أبقِ الوجهات وترتيبها واحدًا في كل شاشة عليا.
+- استخدم نمط الأيقونات نفسه لكل الوجهات، ودع الشريط يرسم الهيئة المعبَّأة للوجهة الحالية.
+
+### لا تفعل
+
+- لا تستخدم الشريط لإجراءات مثل «إنشاء» أو «مشاركة». استخدم زر الإجراء الرئيسي أو شريط التطبيق.
+- لا تضع فيه أقل من ثلاث وجهات ولا أكثر من خمس. تبلّغ بنيات التنقيح (debug) عن العدد. انقل الباقي إلى درج تنقل.
+- لا تُخفِ وجهة تكون غير متاحة أحيانًا. عطِّلها، ليحتفظ الشريط بهيئته.
+- لا تُظهر شارة على كل الوجهات دفعة واحدة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="navigation-bar" />
+
+### ما يتكفل به المكوّن
+
+- على الويب الشريط مَعلم تنقل (navigation landmark) تسمّيه الخاصية `label`. كل وجهة رابط (مع `href`) أو زر، والحالية تحمل `aria-current="page"`، على الرابط وعلى الزر سواء: لا حالة ثانية للصفحة الحالية. وليس قائمة تبويبات (tab list): فالتبديل بين شاشات كاملة لا لوحات تبويب فيه ولا تنقّل بمفاتيح الأسهم.
+- على iOS و Android و Flutter و React Native الشريط هو شريط التبويب الخاص بالمنصة، كما هي أشرطتها السفلية. كل وجهة عنصر واحد له دور التبويب (وعلى SwiftUI زر له الصفة selected)، وحالة تحديده وموضعه، واسمه تسميته سواء رُسمت أم لم تُرسم. يقول قارئ الشاشة مثلًا: «الوارد، تبويب، 1 من 4، محدَّد، 3 غير مقروءة».
+- الأيقونة مخفية عن التقنيات المساعدة. وتضيف الشارة وصفها (`badgeLabel`، أو الرقم الذي تعرضه) بعد الاسم والحالة، ويضيف الرابط الذي يفتح سياقًا جديدًا نص `targetLabel` الخاص به بعد ذلك.
+- كل وجهة غير معطَّلة موضع توقف مستقل للمفتاح Tab، كروابط منطقة تنقل. يفعّل المفتاحان Enter و Space الوجهة التي عليها التركيز (المفتاح Enter فقط للرابط على الويب). الوجهات المعطَّلة لا تقبل التركيز وتُعلَن معطَّلة.
+- تُرسم حلقة التركيز حول صندوق الوجهة وتبقى داخل الشريط، لتركيز لوحة المفاتيح فقط.
+- سحب المؤشر لا يغيّر شيئًا مما يُعلَن حتى يُفلَت، ولا ينقل التركيز أبدًا.
+- النسخة المعكوسة الألوان من كل أيقونة وتسمية يغطيها المؤشر زخرفية: تلقى التقنيات المساعدة كل وجهة مرة واحدة، ولا تغيّر `variant` ما يُعلَن.
+- الخلية كلها مساحة اللمس: ارتفاع الشريط كاملًا وحصة متساوية من عرضه، بما لا يقل عن الحد الأدنى للهدف. والشريط الأضيق من أن يسع وجهاته يقسم عرضه بالتساوي مع ذلك: تضيق الخلايا دون الهدف بدل أن تجعل الشريط أعرض من حيّزه.
+- النص الأكبر يكبّر الشريط، ومعه صندوق كل وجهة، لتبقى التسميات في سطر واحد. أما الأيقونات فلا تُكبَّر. والتسمية المقتطعة تبقى كاملة اسمًا للوجهة. وحيث يوفّر iOS عارض المحتوى المكبَّر (large-content viewer)، يُظهر الضغط المطوَّل أيقونة الوجهة وتسميتها مكبَّرتين.
+- تبلّغ بنيات التنقيح عن أقل من ثلاث وجهات أو أكثر من خمس، ووجهة بلا تسمية، وقيمة لا تسمّي أي وجهة، وقيمة مستخدَمة مرتين. وتبلّغ أيضًا عن رابط يفتح سياقًا جديدًا بلا `targetLabel`، وعن `href` تسمّي سكربتًا أو تتعذّر قراءتها، وعن قيمة `target` لا يعرّفها الشريط.
+
+فجوات معروفة في المنصات:
+
+- ليس في SwiftUI و Compose و Flutter و React Native وجهات هي روابط: الوجهة لا تأخذ `href` هناك بعد.
+- على الويب: كل حجم يتبع `rem`، فتكبير حجم النص في المتصفح يكبّر كذلك حاويات العناصر والأيقونات. أما تكبير خطوط Tanrei وحدها فلا يفعل.
+- على SwiftUI: الحد الأدنى للخلايا هو هدف المنصة نفسها، 44 نقطة على macOS، حيث تسمّي المواصفة هدف اللمس ذا 48 نقطة.
+- على SwiftUI: خارج iOS، تحمل الوجهة موضعها نصًّا لقيمتها («`2 of 4`»)، بالإنجليزية فقط. والأيقونة التي هي صورة، مثل SF Symbol، لا تتبع التحديد: مرِّر الأيقونة المعبَّأة للوجهة المحدَّدة بنفسك. وعارض المحتوى المكبَّر مبنيّ في المكوّن لكن لم يختبره اختبار بعد.
+- ليس في Compose قيمة على مستوى الشريط، فالقيمة التي لا تسمّي أي وجهة ليس لها ما يُبلَّغ عنه: لا تعلّم أي عنصر بالخاصية selected لئلا يُحدَّد شيء.
+- ليس في دلالات Flutter موضع ضمن المجموعة، فلا يُعلَن «1 من 4».
+- يبدّل SwiftUI و Flutter و React Native فصيلة الأيقونة وتعبئتها فورًا بدل أن يجري ذلك على حركة التحديد.
+- ليس في React Native عارض محتوى مكبَّر. وتحمل الوجهة موضعها نصًّا لقيمتها («`1 of 4`»)، بالإنجليزية ما لم تمرِّر `positionText`.
+- على React Native: حركة التحديد، والهوامش، وما يعلنه TalkBack و VoiceOver لم تُفحص بعد على جهاز.
+- على كل المنصات، في النظام الافتراضي: تباين المؤشر من الطراز tonal مع الشريط نحو 1.15:1، ويشير إليه فحص إمكانية الوصول في iOS. والأيقونة المعبَّأة ولون التسمية يعلّمان التحديد أيضًا، والقيمة `filled` تعطي مؤشرًا بتباين 3:1 على الأقل حيث يهمّ ذلك.
+
+### ما عليك فعله
+
+- أعطِ كل وجهة تسمية، حتى في شريط لا يرسم أي تسمية.
+- سمِّ الشريط بالخاصية `label`، مثل «الرئيسي»، وخصوصًا حين تكون في الشاشة منطقة تنقل أخرى.
+- أعطِ كل شارة قيمة `badgeLabel` تقول ما الذي تعدّه، وأعطِها للنقطة دائمًا.
+- أبقِ قيمة كل وجهة فريدة وثابتة.
+- في موقع من صفحات منفصلة، اضبط `value` في كل صفحة على وجهة تلك الصفحة. الشريط لا يحدّد رابطًا من تلقاء نفسه.
+- أعطِ الرابط الذي يفتح تبويبًا جديدًا `targetLabel` بلغة منتجك، مثل «يُفتح في تبويب جديد». ولا يقدّم Tanrei كلمات من عنده.
+- على Compose، علِّم عنصرًا واحدًا بالضبط بالخاصية `selected`، أو لا تعلّم شيئًا. وعلى Flutter، قارن الفهرس الذي تتلقاه مع `selectedIndex` لتفرّق بين إعادة التحديد والتغيير.
+- على React Native، مرِّر `positionText` بلغة منتجك، وأعطِ `TanreiProvider` هوامش النافذة.

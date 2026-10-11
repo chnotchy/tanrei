@@ -1,0 +1,80 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Loading",
+    "accessibilityRole": "progressbar",
+    "accessibilityState": {
+      "busy": true
+    },
+    "accessible": true,
+    "focusable": false,
+    "style": {
+      "alignItems": "center",
+      "alignSelf": "flex-start",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "borderCurve": "continuous",
+      "borderRadius": 9999,
+      "boxShadow": [
+        {
+          "blurRadius": 8,
+          "color": "rgba(0, 0, 0, 0.12)",
+          "offsetX": 0,
+          "offsetY": 2,
+          "spreadDistance": 0
+        }
+      ],
+      "height": 32,
+      "justifyContent": "center",
+      "width": 32
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "collapsable": false,
+        "style": {
+          "height": 20,
+          "opacity": 1,
+          "width": 20
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessible": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "direction": "ltr",
+              "height": 20,
+              "left": 0,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "top": 0,
+              "width": 20
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "borderColor": "rgb(107, 106, 108)",
+                  "borderRadius": 10,
+                  "borderWidth": 2,
+                  "height": 20,
+                  "left": 0,
+                  "position": "absolute",
+                  "top": 0,
+                  "width": 20
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

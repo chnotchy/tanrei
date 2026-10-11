@@ -1,0 +1,665 @@
+/*
+ * Link card (specs/link-card.spec.json, LKC-1 to LKC-36): one link drawn as a block —
+ * the destination's title, a sentence about it, its picture and the site it is on — from values the card is given and
+ * never loads.
+ *
+ * `<tanrei-link-card>` is an element with no shadow root around the product's own anchor, which stays in the document:
+ * it is a link before any script runs, for a crawler and for whatever reads the page as built (LKC-1).
+ *
+ *   <tanrei-link-card variant="filled">
+ *     <a href="https://example.com/articles/designing-with-tokens">
+ *       <span data-part="body">
+ *         <span data-part="title" dir="auto">Designing with tokens</span>
+ *         <span data-part="description" dir="auto">How a handful of dials becomes a whole system.</span>
+ *         <span data-part="image-alt">A wall of color swatches</span>
+ *         <span data-part="site">
+ *           <img data-part="site-icon" src="/link-pictures/….png" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+ *           <span data-part="site-name"><span dir="auto">Example Journal</span></span>
+ *           <span data-part="address"><bdi data-part="host" dir="ltr">example.com</bdi></span>
+ *         </span>
+ *         <span data-part="words">external link</span>
+ *       </span>
+ *       <img data-part="media" src="/link-pictures/….png" alt="" width="1200" height="630" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+ *     </a>
+ *   </tanrei-link-card>
+ *
+ * Every part but the title is optional. That markup is what `linkCardToNodes()` (src/links/index.ts) writes where a
+ * site is built; for a page built by script the element takes the same values as attributes and writes the parts
+ * itself, as text. The anchor says where it opens and what it is, as any anchor does: `target="_blank"` draws the mark
+ * open_in_new, `data-external` (written where the page is made, or by the element — LKC-24) the mark arrow_outward.
+ *
+ * This stylesheet draws everything, before and without script (an element that is not yet defined is still an
+ * element), so a page of link cards does not move when the script arrives (LKC-36). The element
+ * (src/components/link-card/link-card.ts) adds what a stylesheet cannot and writes it here as attributes:
+ *
+ *   data-pressed (on the anchor)        the shared press primitive: overlay, ripple, dim, none, and the hold (LKC-18, LKC-19)
+ *   data-focus-style (on the anchor)    sys.behavior.focus-style, where the browser has no style queries (LKC-20)
+ *   data-external (on the anchor)       "detected", where the page was not marked when it was made (LKC-24)
+ *   data-undrawn (on the site name)     it only repeats the host (LKC-7)
+ *   aria-labelledby, aria-describedby   the name and the description as LKC-25 divides them
+ *
+ * The marks need icons.css; without it no mark is drawn and none takes room.
+ *
+ * Every value is a `--tanrei-comp-link-card-*` token, or the system's focus, target, icon and motion tokens.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name and has no specificity (`:where()`), so one class of the product's
+ *   wins, and the ORDER of the rules decides between two of them.
+ * - The element is the query container (LKC-12): the picture stands beside the text from the card's OWN inline size.
+ *   A custom property cannot stand in a `@container` condition, so the width is written as
+ *   `token(comp.link-card.layout.beside-min-width)` and the build (scripts/build.js, scripts/conditions.js) writes the
+ *   token's value in its place, in rem — so the boundary grows with the text size (LKC-29).
+ * - The anchor is the container (LKC-2): the fill, the corners, the states. Nothing clips it — the focus ring stands
+ *   outside it — so the picture takes the corners where it meets them, and every text part clips itself.
+ * - The edge is the anchor's `::before`, inside its size and above the picture (LKC-2); the focus ring's inner stroke
+ *   its `::after` (LKC-17); the hit area the body's `::before` (LKC-21). The mark is the address's `::after`: in the
+ *   line, after the host's last character (LKC-7, LKC-23, LKC-24).
+ * - The state rules, the focus indicator and the minimum target say what `stateRules()`, `focusRing()` and
+ *   `minimumTarget()` (src/primitives) say for a shadow root; they are restated here for an anchor in the document, as
+ *   the Link's are.
+ * - What one element finds out for another passes as an inherited value, never as a `:has()` asked for the other's
+ *   sake (has.test.ts): the look's colors are named on the element, the state's on the anchor, and each part reads
+ *   them; `--_lc-dot` is whether a host follows the site's name.
+ * - The build writes the corner-smoothing rule (src/styles/shape.ts) in place of the `link-card:shape` mark.
+ * - Names that begin `--_lc-` are private.
+ */
+@layer tanrei.components {
+  /* ── The box (LKC-2): a block as wide as its container gives it, with no outer space and no height of its own ──── */
+  :where(tanrei-link-card) {
+    /* The look's colors, at rest and in each state (LKC-2, LKC-16). A variant no rule names is the default (LKC-27). */
+    --_lc-container: var(--tanrei-comp-link-card-outlined-container-color);
+    --_lc-outline: var(--tanrei-comp-link-card-outlined-outline-color);
+    --_lc-title: var(--tanrei-comp-link-card-outlined-title-color);
+    --_lc-description: var(--tanrei-comp-link-card-outlined-description-color);
+    --_lc-site: var(--tanrei-comp-link-card-outlined-site-color);
+    --_lc-hovered-container: var(--tanrei-comp-link-card-outlined-hovered-container-color);
+    --_lc-hovered-outline: var(--tanrei-comp-link-card-outlined-hovered-outline-color);
+    --_lc-hovered-title: var(--tanrei-comp-link-card-outlined-hovered-title-color);
+    --_lc-hovered-description: var(--tanrei-comp-link-card-outlined-hovered-description-color);
+    --_lc-hovered-site: var(--tanrei-comp-link-card-outlined-hovered-site-color);
+    --_lc-focused-container: var(--tanrei-comp-link-card-outlined-focused-container-color);
+    --_lc-focused-outline: var(--tanrei-comp-link-card-outlined-focused-outline-color);
+    --_lc-focused-title: var(--tanrei-comp-link-card-outlined-focused-title-color);
+    --_lc-focused-description: var(--tanrei-comp-link-card-outlined-focused-description-color);
+    --_lc-focused-site: var(--tanrei-comp-link-card-outlined-focused-site-color);
+    --_lc-pressed-container: var(--tanrei-comp-link-card-outlined-pressed-container-color);
+    --_lc-pressed-outline: var(--tanrei-comp-link-card-outlined-pressed-outline-color);
+    --_lc-pressed-title: var(--tanrei-comp-link-card-outlined-pressed-title-color);
+    --_lc-pressed-description: var(--tanrei-comp-link-card-outlined-pressed-description-color);
+    --_lc-pressed-site: var(--tanrei-comp-link-card-outlined-pressed-site-color);
+    /* The picture box's fill, shown until the picture arrives (LKC-11); none in forced colors (LKC-30). */
+    --_lc-media-fill: var(--tanrei-comp-link-card-media-container-color);
+    /* LKC-3, LKC-32, LKC-33: start as a side, by the layout direction — not by the title's or the description's own text. */
+    --_lc-start: left;
+    --_lc-end: right;
+    /* LKC-23, LKC-32: a mark is mirrored in a right-to-left layout, inside its own box. */
+    --_lc-mirror: 1;
+    /* The room a mark takes: the size of the site line's text and the gap — none where icons.css is not loaded. */
+    --_lc-mark: calc(1em * var(--tanrei-icons, 0));
+    --_lc-mark-gap: calc(var(--tanrei-comp-link-card-site-item-gap) * var(--tanrei-icons, 0));
+
+    /* No margin is written: an element has none of its own, and the space around a card is its container's (PRS-15). */
+    display: block;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    /* LKC-12: the layout is chosen from the card's own inline size. */
+    container-type: inline-size;
+    /* What a card's text must not take from where it is used. */
+    text-indent: 0;
+  }
+  :where(tanrei-link-card[hidden]) {
+    display: none;
+  }
+  :where(tanrei-link-card):dir(rtl) {
+    --_lc-start: right;
+    --_lc-end: left;
+    --_lc-mirror: -1;
+  }
+  :where(tanrei-link-card[variant='filled']) {
+    --_lc-container: var(--tanrei-comp-link-card-filled-container-color);
+    --_lc-outline: var(--tanrei-comp-link-card-filled-outline-color);
+    --_lc-title: var(--tanrei-comp-link-card-filled-title-color);
+    --_lc-description: var(--tanrei-comp-link-card-filled-description-color);
+    --_lc-site: var(--tanrei-comp-link-card-filled-site-color);
+    --_lc-hovered-container: var(--tanrei-comp-link-card-filled-hovered-container-color);
+    --_lc-hovered-outline: var(--tanrei-comp-link-card-filled-hovered-outline-color);
+    --_lc-hovered-title: var(--tanrei-comp-link-card-filled-hovered-title-color);
+    --_lc-hovered-description: var(--tanrei-comp-link-card-filled-hovered-description-color);
+    --_lc-hovered-site: var(--tanrei-comp-link-card-filled-hovered-site-color);
+    --_lc-focused-container: var(--tanrei-comp-link-card-filled-focused-container-color);
+    --_lc-focused-outline: var(--tanrei-comp-link-card-filled-focused-outline-color);
+    --_lc-focused-title: var(--tanrei-comp-link-card-filled-focused-title-color);
+    --_lc-focused-description: var(--tanrei-comp-link-card-filled-focused-description-color);
+    --_lc-focused-site: var(--tanrei-comp-link-card-filled-focused-site-color);
+    --_lc-pressed-container: var(--tanrei-comp-link-card-filled-pressed-container-color);
+    --_lc-pressed-outline: var(--tanrei-comp-link-card-filled-pressed-outline-color);
+    --_lc-pressed-title: var(--tanrei-comp-link-card-filled-pressed-title-color);
+    --_lc-pressed-description: var(--tanrei-comp-link-card-filled-pressed-description-color);
+    --_lc-pressed-site: var(--tanrei-comp-link-card-filled-pressed-site-color);
+  }
+
+  /* ── The container (LKC-1, LKC-2): the anchor — the link, pressed as a whole ─────────────────────────────────── */
+  /* LKC-20: the corners, eased by sys.shape.corner-smoothing. */
+  /* link-card:shape */
+  :where(tanrei-link-card) > :where(a) {
+    --tanrei-corner-radius: var(--tanrei-comp-link-card-container-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-link-card-container-shape-pill, 0);
+    /* The state the card is in now: each part reads these (LKC-16). */
+    --_lc-now-container: var(--_lc-container);
+    --_lc-now-outline: var(--_lc-outline);
+    --_lc-now-title: var(--_lc-title);
+    --_lc-now-description: var(--_lc-description);
+    --_lc-now-site: var(--_lc-site);
+    --_lc-target: var(--tanrei-sys-target-pointer);
+    /* LKC-12, narrow: the picture above the text (it is written after the body, so that the text is read first). */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    isolation: isolate;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    /* LKC-2: the fill of the look and state; no elevation. */
+    background-color: var(--_lc-now-container);
+    box-shadow: none;
+    color: var(--_lc-now-title);
+    /* LKC-4: no underline under the title, or under anything else. */
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    /* LKC-28. */
+    transition:
+      background-color var(--tanrei-comp-link-card-motion-state-duration) var(--tanrei-comp-link-card-motion-state-easing),
+      opacity var(--tanrei-comp-link-card-motion-state-duration) var(--tanrei-comp-link-card-motion-state-easing);
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-link-card) > :where(a) {
+      --_lc-target: var(--tanrei-sys-target-touch);
+    }
+  }
+  /* LKC-2: the edge — inside the container's size, above the picture. */
+  :where(tanrei-link-card) > :where(a)::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    box-sizing: border-box;
+    border: var(--tanrei-comp-link-card-outline-width) solid var(--_lc-now-outline);
+    border-radius: inherit;
+    corner-shape: inherit;
+    pointer-events: none;
+    transition: border-color var(--tanrei-comp-link-card-motion-state-duration) var(--tanrei-comp-link-card-motion-state-easing);
+  }
+
+  /* ── The body (LKC-3): the text, padded on every side, at the start edge ─────────────────────────────────────── */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    padding: var(--tanrei-comp-link-card-container-padding);
+    text-align: var(--_lc-start);
+    /* Where the element reads sys.motion.duration.press-hold as a time (LKC-18): nothing here transitions. */
+    transition-property: none;
+    transition-delay: var(--tanrei-sys-motion-duration-press-hold);
+  }
+  /* LKC-21: the hit area reaches the minimum target on both axes around the card, and takes no room. */
+  :where(tanrei-link-card) > :where(a:any-link) > :where([data-part='body'])::before {
+    content: '';
+    position: absolute;
+    inset-block: min(0px, calc((100% - var(--_lc-target)) / 2));
+    inset-inline: min(0px, calc((100% - var(--_lc-target)) / 2));
+  }
+
+  /* ── The title and the description (LKC-4 to LKC-6): a few lines at most, cut where their own direction ends ──── */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='title'], [data-part='description']) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    box-sizing: border-box;
+    overflow: hidden;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    /* LKC-33: placed and aligned by the layout direction; the text itself is of its own direction (`dir="auto"`). */
+    text-align: var(--_lc-start);
+    white-space: normal;
+    /* A run with no place to break that is longer than the line breaks inside itself. */
+    overflow-wrap: anywhere;
+    transition: color var(--tanrei-comp-link-card-motion-state-duration) var(--tanrei-comp-link-card-motion-state-easing);
+  }
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='title']) {
+    -webkit-line-clamp: var(--tanrei-comp-link-card-title-max-lines);
+    line-clamp: var(--tanrei-comp-link-card-title-max-lines);
+    font: var(--tanrei-comp-link-card-title-typescale-font);
+    letter-spacing: var(--tanrei-comp-link-card-title-typescale-letter-spacing);
+    color: var(--_lc-now-title);
+  }
+  /* LKC-5: the address in the title's place — one left-to-right run that may break anywhere. */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='title'][data-address]) {
+    word-break: break-all;
+  }
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='description']) {
+    -webkit-line-clamp: var(--tanrei-comp-link-card-description-max-lines);
+    line-clamp: var(--tanrei-comp-link-card-description-max-lines);
+    margin-block-start: var(--tanrei-comp-link-card-title-gap);
+    font: var(--tanrei-comp-link-card-description-typescale-font);
+    letter-spacing: var(--tanrei-comp-link-card-description-typescale-letter-spacing);
+    color: var(--_lc-now-description);
+  }
+  /* A part that is not drawn takes no room and leaves no gap (LKC-3, LKC-6). */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='description']:empty, [data-part='site']:empty) {
+    display: none;
+  }
+  /* LKC-25: what the picture shows, and the words of a new context or of another site — read, never drawn. */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='image-alt'], [data-part='words']) {
+    position: absolute;
+    overflow: hidden;
+    inline-size: var(--tanrei-sys-border-hairline);
+    block-size: var(--tanrei-sys-border-hairline);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* ── The site line (LKC-7): the icon, the site's name, the host and the mark, in reading order ─────────────────── */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) {
+    display: flex;
+    align-items: flex-start;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    margin-block-start: var(--tanrei-comp-link-card-site-gap);
+    padding: 0;
+    font: var(--tanrei-comp-link-card-site-typescale-font);
+    letter-spacing: var(--tanrei-comp-link-card-site-typescale-letter-spacing);
+    color: var(--_lc-now-site);
+    text-align: var(--_lc-start);
+    transition: color var(--tanrei-comp-link-card-motion-state-duration) var(--tanrei-comp-link-card-motion-state-easing);
+  }
+  /* LKC-10: the site's icon — a square box at the start of the line, the whole picture inside it, centred on the
+     height of the line's first row. A picture in every state and direction: nothing recolors or mirrors it. */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where(img[data-part='site-icon']) {
+    display: block;
+    flex: none;
+    box-sizing: border-box;
+    inline-size: var(--tanrei-comp-link-card-site-icon-size);
+    block-size: var(--tanrei-comp-link-card-site-icon-size);
+    max-inline-size: none;
+    margin-block: calc((1lh - var(--tanrei-comp-link-card-site-icon-size)) / 2);
+    margin-inline: 0 var(--tanrei-comp-link-card-site-item-gap);
+    border-radius: calc(var(--tanrei-comp-link-card-site-icon-shape) * var(--_corner-scale, 1));
+    corner-shape: inherit;
+    object-fit: contain;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* The site's name: one line, cut at its own end, and the first to give way. It is a row that wraps inside one line's
+     height: while even its first character and an ellipsis do not fit, its text is on a second row, which is not
+     drawn — and the dot with it. */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name']) {
+    /* Whether a host follows: then a middle dot stands between the two, and its room is kept after the name. */
+    --_lc-dot: 0;
+    --_lc-dot-room: calc(var(--tanrei-comp-link-card-site-item-gap) + (var(--tanrei-comp-link-card-site-item-gap) + 1ch) * var(--_lc-dot));
+    display: flex;
+    flex: 0 99999 auto;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    overflow: hidden;
+    min-inline-size: 0;
+    block-size: 1lh;
+    margin: 0;
+    padding: 0;
+  }
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name']:has(+ [data-part='address'] > [data-part='host'])) {
+    --_lc-dot: 1;
+  }
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name']:empty, [data-part='site-name'][data-undrawn]) {
+    display: none;
+  }
+  /* The row's first item: nothing, as tall as the line — what the text wraps away from. */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name'])::before {
+    content: '';
+    flex: none;
+    inline-size: 0;
+    block-size: 100%;
+  }
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name']) > :where(span) {
+    display: block;
+    position: relative;
+    flex: 1 1 0%;
+    box-sizing: border-box;
+    overflow: hidden;
+    /* Its first character and an ellipsis, and the room after it. */
+    min-inline-size: calc(2em + var(--_lc-dot-room));
+    padding-block: 0;
+    padding-inline: 0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  /* The room after the name is on the layout's end side, whatever the name's own direction. */
+  :where(tanrei-link-card):not(:dir(rtl)) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name']) > :where(span) {
+    padding-right: var(--_lc-dot-room);
+  }
+  :where(tanrei-link-card):dir(rtl) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name']) > :where(span) {
+    padding-left: var(--_lc-dot-room);
+  }
+  /* The middle dot between the name and the host, kept from assistive technology. */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name']) > :where(span)::after {
+    content: '\00B7';
+    content: '\00B7' / '';
+    position: absolute;
+    inset-block-start: 0;
+    inline-size: 1ch;
+    text-align: center;
+    opacity: var(--_lc-dot);
+  }
+  :where(tanrei-link-card):not(:dir(rtl)) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name']) > :where(span)::after {
+    right: var(--tanrei-comp-link-card-site-item-gap);
+  }
+  :where(tanrei-link-card):dir(rtl) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='site-name']) > :where(span)::after {
+    left: var(--tanrei-comp-link-card-site-item-gap);
+  }
+  /* The address: the host — never cut, shortened or ended with an ellipsis; longer than the line it runs onto further
+     lines, breaking after a dot and, where one label is longer than the line, inside it — and after its last
+     character the mark. Lines are placed by the layout direction; the host itself is a left-to-right run (LKC-9). */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='address']) {
+    display: block;
+    flex: 0 1 auto;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    text-align: var(--_lc-start);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='address']) > :where([data-part='host']) {
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+  /* A line may end after each label's dot: a place to break that is no character of the host — it is not copied and
+     not read. (A `wbr` would be read as a space between the labels.) */
+  :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='address']) > :where([data-part='host']) > :where(span:not(:last-child))::after {
+    content: '\200B';
+    content: '\200B' / '';
+  }
+  /* The mark (LKC-23, LKC-24): ONE glyph at the end of the site line, in a box as large as the
+     line's font size, in the site color — arrow_outward for a destination that leaves the site and opens where the
+     person is, open_in_new for one that opens a new context, external or not. One pseudo-element, so the two are
+     never both drawn. Decorative: the words say it (LKC-25). (The glyph's declarations are icons.css's.) */
+  :where(tanrei-link-card) > :where(a:any-link:is([target='_blank' i], [data-external]:not([data-external='false']))) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='address'])::after {
+    content: 'arrow_outward';
+    content: 'arrow_outward' / '';
+    display: inline-block;
+    overflow: hidden;
+    inline-size: var(--_lc-mark);
+    block-size: 1em;
+    vertical-align: middle;
+    font-family: var(--tanrei-sys-icon-family-unselected);
+    font-size: 1em;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-user-select: none;
+    user-select: none;
+    pointer-events: none;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    font-optical-sizing: auto;
+    font-variation-settings:
+      'FILL' var(--tanrei-sys-icon-fill-unselected),
+      'wght' var(--tanrei-sys-icon-weight),
+      'GRAD' 0;
+    opacity: var(--tanrei-icons, 0);
+    /* LKC-32: mirrored inside its own box in a right-to-left layout, as the icon set says of both names. */
+    transform: scaleX(var(--_lc-mirror));
+  }
+  /* The optical size is the box's, written by hand where the engine can turn the box's size into a number: the
+     arithmetic and the condition are src/styles/icons.ts's, written in place by the build (writeGlyphAxes). */
+  @supports glyph-optical-size {
+    :where(tanrei-link-card) > :where(a:any-link:is([target='_blank' i], [data-external]:not([data-external='false']))) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='address'])::after {
+      font-variation-settings: glyph-axes(1em);
+    }
+  }
+  /* The gap before the mark, where something stands before it on the line. */
+  :where(tanrei-link-card) > :where(a:any-link:is([target='_blank' i], [data-external]:not([data-external='false']))) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='address']:not(:empty))::after {
+    margin-inline-start: var(--_lc-mark-gap);
+  }
+  :where(tanrei-link-card) > :where(a:any-link[target='_blank' i]) > :where([data-part='body']) > :where([data-part='site']) > :where([data-part='address'])::after {
+    content: 'open_in_new';
+    content: 'open_in_new' / '';
+  }
+
+  /* ── The picture (LKC-11 to LKC-13): a box the picture covers, cropped at its centre ─────────────────────────── */
+  /* Narrow: above the text, across the card, as tall as its width divided by comp.link-card.media.aspect-ratio. The
+     box has its final size before the picture arrives, and its fill until then. */
+  :where(tanrei-link-card) > :where(a) > :where(img[data-part='media']) {
+    display: block;
+    order: -1;
+    flex: none;
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: none;
+    block-size: auto;
+    aspect-ratio: var(--tanrei-comp-link-card-media-aspect-ratio);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: var(--_lc-media-fill);
+    object-fit: cover;
+    object-position: center;
+    /* Clipped by the card's corners where the box meets them. */
+    border-start-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1));
+    border-start-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1));
+    corner-shape: inherit;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* LKC-12, wide: beside the body at the card's end edge, comp.link-card.media.width wide and as tall as the card,
+     whose height is the body's — the picture is out of the flow and the anchor keeps its room. */
+  @container (inline-size >= token(comp.link-card.layout.beside-min-width)) {
+    :where(tanrei-link-card) > :where(a:has(> img[data-part='media'])) {
+      padding-inline-end: var(--tanrei-comp-link-card-media-width);
+    }
+    :where(tanrei-link-card) > :where(a) > :where(img[data-part='media']) {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-end: 0;
+      inline-size: var(--tanrei-comp-link-card-media-width);
+      block-size: 100%;
+      aspect-ratio: auto;
+      border-start-start-radius: 0;
+      border-end-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1));
+    }
+  }
+
+  /* ── States (LKC-16): pressed over focused over hovered, each from its own tokens ────────────────────────────── */
+  @media (hover: hover) {
+    :where(tanrei-link-card) > :where(a:any-link:hover) {
+      --_lc-now-container: var(--_lc-hovered-container);
+      --_lc-now-outline: var(--_lc-hovered-outline);
+      --_lc-now-title: var(--_lc-hovered-title);
+      --_lc-now-description: var(--_lc-hovered-description);
+      --_lc-now-site: var(--_lc-hovered-site);
+      opacity: var(--tanrei-comp-link-card-hovered-opacity);
+    }
+  }
+  /* LKC-17: the focus indicator, around the whole card and outside it; never animated, never for a pointer. */
+  :where(tanrei-link-card) > :where(a:any-link:focus-visible) {
+    --_lc-now-container: var(--_lc-focused-container);
+    --_lc-now-outline: var(--_lc-focused-outline);
+    --_lc-now-title: var(--_lc-focused-title);
+    --_lc-now-description: var(--_lc-focused-description);
+    --_lc-now-site: var(--_lc-focused-site);
+    --_lc-focus-inner-edge: calc(var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-inner-width));
+    opacity: var(--tanrei-comp-link-card-focused-opacity);
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--_lc-focus-inner-edge);
+  }
+  :where(tanrei-link-card) > :where(a:any-link:focus-visible)::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--_lc-focus-inner-edge) * -1);
+    border: var(--tanrei-sys-focus-inner-width) solid var(--tanrei-sys-color-focus-ring-inner);
+    border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1) + var(--_lc-focus-inner-edge));
+    corner-shape: inherit;
+    pointer-events: none;
+  }
+  /* LKC-20, focus-style: glow — the same two colors as a halo; read by a style query, and from data-focus-style
+     (written by the element when focus arrives) where there are none. */
+  @container style(--tanrei-sys-behavior-focus-style: glow) {
+    :where(tanrei-link-card) > :where(a:any-link:focus-visible) {
+      outline-color: transparent;
+    }
+    :where(tanrei-link-card) > :where(a:any-link:focus-visible)::after {
+      inset: calc(var(--tanrei-sys-focus-offset) * -1);
+      border: 0;
+      border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1) + var(--tanrei-sys-focus-offset));
+      box-shadow:
+        0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+        0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+    }
+  }
+  :where(tanrei-link-card) > :where(a:any-link[data-focus-style='glow']:focus-visible) {
+    outline-color: transparent;
+  }
+  :where(tanrei-link-card) > :where(a:any-link[data-focus-style='glow']:focus-visible)::after {
+    inset: calc(var(--tanrei-sys-focus-offset) * -1);
+    border: 0;
+    border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1) + var(--tanrei-sys-focus-offset));
+    box-shadow:
+      0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+      0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+  }
+  /* LKC-18, without script: the pressed tokens at once, as a plain state change (LKC-36). */
+  :where(tanrei-link-card) > :where(a:any-link:active:not([data-pressed])) {
+    --_lc-now-container: var(--_lc-pressed-container);
+    --_lc-now-outline: var(--_lc-pressed-outline);
+    --_lc-now-title: var(--_lc-pressed-title);
+    --_lc-now-description: var(--_lc-pressed-description);
+    --_lc-now-site: var(--_lc-pressed-site);
+    opacity: var(--tanrei-comp-link-card-pressed-opacity);
+    transition-duration: 0s;
+  }
+  /* LKC-18, LKC-19, with the element: `data-pressed` names the feedback, shown without delay. `none` changes nothing. */
+  :where(tanrei-link-card) > :where(a[data-pressed]:not([data-pressed='none'])) {
+    transition-duration: 0s;
+  }
+  :where(tanrei-link-card) > :where(a[data-pressed='overlay']) {
+    --_lc-now-container: var(--_lc-pressed-container);
+  }
+  /* overlay, ripple, dim: everything but the container color, which under ripple and dim stays with the state under the press. */
+  :where(tanrei-link-card) > :where(a:is([data-pressed='overlay'], [data-pressed='ripple'], [data-pressed='dim'])) {
+    --_lc-now-outline: var(--_lc-pressed-outline);
+    --_lc-now-title: var(--_lc-pressed-title);
+    --_lc-now-description: var(--_lc-pressed-description);
+    --_lc-now-site: var(--_lc-pressed-site);
+    opacity: var(--tanrei-comp-link-card-pressed-opacity);
+  }
+  /* The ripple's layer (src/primitives/ripple.ts adds it and sets --_x, --_y, --_r): the pressed container color,
+     clipped to the container and to a circle around the point of contact, behind the text and under the picture. */
+  :where(tanrei-link-card) > :where(a) > :where(.ripple) {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    background: var(--_lc-pressed-container);
+    pointer-events: none;
+    clip-path: circle(var(--_r) at var(--_x) var(--_y));
+    animation: tanrei-link-card-ripple var(--tanrei-comp-link-card-motion-feedback-duration) var(--tanrei-comp-link-card-motion-state-easing) both;
+    transition: opacity var(--tanrei-comp-link-card-motion-state-duration) var(--tanrei-comp-link-card-motion-state-easing);
+  }
+  :where(tanrei-link-card) > :where(a) > :where(.ripple.leaving) {
+    opacity: 0;
+  }
+  @keyframes tanrei-link-card-ripple {
+    from {
+      clip-path: circle(0 at var(--_x) var(--_y));
+    }
+  }
+  /* LKC-28, LKC-19: where motion is reduced the colors change at once and the ripple appears whole. */
+  @media (prefers-reduced-motion: reduce) {
+    :where(tanrei-link-card) > :where(a),
+    :where(tanrei-link-card) > :where(a)::before,
+    :where(tanrei-link-card) > :where(a) > :where([data-part='body']) > :where([data-part='title'], [data-part='description'], [data-part='site']) {
+      transition: none;
+    }
+    :where(tanrei-link-card) > :where(a) > :where(.ripple) {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  /* ── Forced colors (LKC-30): an edge in the text color in both looks, the title in the link color ────────────── */
+  @media (forced-colors: active) {
+    :where(tanrei-link-card) {
+      --_lc-media-fill: transparent;
+    }
+    :where(tanrei-link-card) > :where(a:any-link) {
+      --_lc-now-outline: CanvasText;
+      --_lc-now-title: LinkText;
+      --_lc-now-description: CanvasText;
+      --_lc-now-site: CanvasText;
+    }
+    :where(tanrei-link-card) > :where(a:any-link:focus-visible) {
+      outline-color: Highlight;
+    }
+  }
+
+  /* ── Not a link (LKC-27): no destination — or an empty one, or a script — is not drawn as a card ─────────────── */
+  /* The title, where it has one, as plain text in the style of the text around it, and nothing else. */
+  :where(tanrei-link-card:has(> a:is(:not(:any-link), [href=''], [href^='javascript:' i]))) {
+    display: inline;
+    container-type: normal;
+  }
+  :where(tanrei-link-card) > :where(a:is(:not(:any-link), [href=''], [href^='javascript:' i])) {
+    display: inline;
+    position: static;
+    padding: 0;
+    border-radius: 0;
+    background-color: transparent;
+    color: inherit;
+    opacity: unset;
+    outline: none;
+    cursor: inherit;
+    transition: none;
+  }
+  :where(tanrei-link-card) > :where(a:is(:not(:any-link), [href=''], [href^='javascript:' i]))::before,
+  :where(tanrei-link-card) > :where(a:is(:not(:any-link), [href=''], [href^='javascript:' i]))::after {
+    content: none;
+  }
+  :where(tanrei-link-card) > :where(a:is(:not(:any-link), [href=''], [href^='javascript:' i])) > :where(*) {
+    display: none;
+  }
+  :where(tanrei-link-card) > :where(a:is(:not(:any-link), [href=''], [href^='javascript:' i])) > :where([data-part='body']) {
+    display: inline;
+    padding: 0;
+    text-align: inherit;
+  }
+  :where(tanrei-link-card) > :where(a:is(:not(:any-link), [href=''], [href^='javascript:' i])) > :where([data-part='body']) > :where(*) {
+    display: none;
+  }
+  :where(tanrei-link-card) > :where(a:is(:not(:any-link), [href=''], [href^='javascript:' i])) > :where([data-part='body']) > :where([data-part='title']) {
+    display: inline;
+    overflow: visible;
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    text-align: inherit;
+    word-break: inherit;
+    overflow-wrap: inherit;
+    transition: none;
+  }
+}

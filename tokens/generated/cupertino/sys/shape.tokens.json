@@ -1,0 +1,169 @@
+{
+  "tanrei": {
+    "sys": {
+      "shape": {
+        "$extensions": {
+          "dev.tanrei.llm": {
+            "usage": "Corner radii by size. Components alias a step (button → corner.small); `full` is a pill or circle and is fixed, not scaled.",
+            "rules": [
+              "Re-point a component's shape token to restyle one component; change dial.shape.unit to restyle them all."
+            ]
+          }
+        },
+        "corner": {
+          "$type": "dimension",
+          "none": {
+            "$value": {
+              "value": 0,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 0
+              }
+            }
+          },
+          "extra-small": {
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 2
+              }
+            }
+          },
+          "small": {
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "Default for controls: buttons, inputs, menu items, tooltips.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 4
+              }
+            }
+          },
+          "medium": {
+            "$value": {
+              "value": 10,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 5
+              }
+            }
+          },
+          "large": {
+            "$value": {
+              "value": 14,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 7
+              }
+            }
+          },
+          "large-increased": {
+            "$value": {
+              "value": 16,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 8
+              }
+            }
+          },
+          "extra-large": {
+            "$value": {
+              "value": 20,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 10
+              }
+            }
+          },
+          "extra-large-increased": {
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 12
+              }
+            }
+          },
+          "extra-extra-large": {
+            "$value": {
+              "value": 32,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.shape.unit}",
+                "by": 16
+              }
+            }
+          },
+          "full": {
+            "$value": {
+              "value": 9999,
+              "unit": "px"
+            },
+            "$description": "Opt-in only: avatars, badges, segmented controls, pill variants.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A pill is \"as round as possible\", not a multiple of the roundness dial."
+              }
+            }
+          },
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product rounds small controls, cards, sheets and pills differently, so it needs several corner steps at once.",
+              "since": "0.1.0"
+            }
+          }
+        },
+        "corner-smoothing": {
+          "$type": "number",
+          "$value": 0.6,
+          "$description": "How a corner's curve eases into the straight edge, 0–1, with Figma's meaning: 0 is a quarter circle, 0.6 is the iOS continuous corner, 1 the most eased curve. The radius does not change. Platforms that only have the OS's curve draw it for any amount above 0.",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product decides the quality of its roundness once — a brand is as much in how a corner eases as in how large it is.",
+              "since": "0.1.0"
+            },
+            "dev.tanrei.derive": {
+              "fixed": "Apple platforms draw continuous corners: Figma's 60 % corner smoothing."
+            }
+          }
+        }
+      }
+    }
+  }
+}

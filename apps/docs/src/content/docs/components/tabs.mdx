@@ -1,0 +1,413 @@
+---
+title: Tabs
+description: Switches between views of the same subject with a row of labelled tabs on a track. One tab is selected, marked by an indicator that slides between the tabs and follows a finger dragged across the row.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="tabs" />
+
+:::note[A revised spec, not yet on every platform]
+This page describes the tabs as they are specified now: tabs on a track, with one indicator that slides to the selected tab and follows a drag across the row, tabs that hug their content by default, labels truncated rather than wrapped, and rows that can share one choice and remember it (`group` and `rememberAs`). `fullWidth` replaces `scrollable`. A row also has three variants (primary, secondary and tonal), two sizes, a track that can be left out, and a `transition` that says whether the indicator slides. The web component does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship an earlier revision, with `scrollable` (`isScrollable` defaulting to false on Flutter), a line indicator, fixed labels that wrap, no track and no drag.
+:::
+
+<DemoFrame label="Primary tabs and the panel of the selected one">
+  <tanrei-tabs value="overview" label="Project" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="Overview" icon="dashboard"></tanrei-tab>
+    <tanrei-tab value="activity" label="Activity" icon="history"></tanrei-tab>
+    <tanrei-tab value="settings" label="Settings" icon="settings"></tanrei-tab>
+    <tanrei-tab-panel value="overview">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">Three services, all running.</p>
+    </tanrei-tab-panel>
+    <tanrei-tab-panel value="activity">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">Deployed 2 hours ago.</p>
+    </tanrei-tab-panel>
+    <tanrei-tab-panel value="settings">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">Region, domains and access.</p>
+    </tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+### Usage
+
+A row of tabs has one kind of item, `tab`. Each platform takes the tabs the way it takes any repeated children: `<tanrei-tab>` child elements on the web, `TanreiTab` views tagged by value in SwiftUI's view builder, `TanreiTab` calls in Compose's content lambda, `TanreiTab` widgets in Flutter's `tabs:` list, and an `items` array of plain objects on React Native.
+
+The selection belongs to the row, by value. `selected` holds the value of the selected tab and `change` carries the new one. It is spelled `value` on the web, Flutter and React Native, `selection` on SwiftUI and `selectedValue` on Compose. Left empty, the first enabled tab is selected. A tab's `disabled` is its own.
+
+The tabs do not draw the panels, but they decide which one shows. On the web, `<tanrei-tab-panel>` elements follow the tabs and are matched to them by `value`. On SwiftUI each tab carries its panel. On Flutter, `TanreiTabBarView` shows the panel of the selected value. On Compose and React Native you show the selected panel yourself, right after the row. For panels a person can swipe between, use a [Tab view](/components/tab-view/) instead: it draws its own row of tabs, or links to a row placed elsewhere, such as in an app bar.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- The row's selected tab is its value, as a <select>'s. -->
+    <tanrei-tabs value="overview" label="Project">
+      <tanrei-tab value="overview" label="Overview" icon="dashboard"></tanrei-tab>
+      <tanrei-tab value="activity" label="Activity" icon="history"></tanrei-tab>
+      <tanrei-tab value="billing" label="Billing" icon="payments" disabled></tanrei-tab>
+      <!-- Panels follow the tabs and are matched to them by value. -->
+      <tanrei-tab-panel value="overview">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="billing">…</tanrei-tab-panel>
+    </tanrei-tabs>
+
+    <!-- Rows that name one group show one choice. remember-as keeps it on the device, under your own key. -->
+    <tanrei-tabs variant="secondary" group="units" remember-as="report-units" label="Units">
+      <tanrei-tab value="metric" label="Metric"></tanrei-tab>
+      <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
+      <tanrei-tab-panel value="metric">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="imperial">…</tanrei-tab-panel>
+    </tanrei-tabs>
+
+    <script type="module">
+      import '@tanrei/web/components/tabs';
+      // The row sets its own value before it fires change, which carries it.
+      document.querySelector('tanrei-tabs').addEventListener('change', (e) => showView(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tab, TabPanel, Tabs } from '@tanrei/react';
+
+    <Tabs value={view} label="Project" onChange={(e) => setView(e.detail.value)}>
+      <Tab value="overview" label="Overview" icon="dashboard" />
+      <Tab value="activity" label="Activity" icon="history" />
+      <TabPanel value="overview"><Overview /></TabPanel>
+      <TabPanel value="activity"><Activity /></TabPanel>
+    </Tabs>
+
+    // Rows that name one group show one choice; only the row the person used fires onChange.
+    <Tabs variant="secondary" group="units" rememberAs="report-units" label="Units" onChange={(e) => setUnits(e.detail.value)}>
+      <Tab value="metric" label="Metric" />
+      <Tab value="imperial" label="Imperial" />
+      <TabPanel value="metric"><Metric /></TabPanel>
+      <TabPanel value="imperial"><Imperial /></TabPanel>
+    </Tabs>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // As TabView's tagged tabs: each tab carries its panel, and only the selected one is shown.
+    // Writing the binding is change. A nil selection (Binding<V?>) selects the first enabled tab.
+    // Apply .tag(_:) and .labelStyle(.iconOnly) to the TanreiTab itself, before any other modifier.
+    @State private var view = "overview"
+
+    TanreiTabs(selection: $view, label: "Project") {
+        TanreiTab("Overview", icon: "dashboard") { OverviewView() }.tag("overview")
+        TanreiTab("Activity", icon: "history") { ActivityView() }.tag("activity")
+        TanreiTab("Billing", icon: "payments") { BillingView() }.tag("billing").disabled(true)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiTab
+    import io.github.chnotchy.tanrei.components.TanreiTabs
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // State hoisting: you keep selectedValue and move it from onSelectedValueChange.
+    var view by rememberSaveable { mutableStateOf("overview") }
+    Column {
+        TanreiTabs(selectedValue = view, onSelectedValueChange = { view = it }, contentDescription = "Project") {
+            TanreiTab(value = "overview", label = "Overview", icon = { TanreiText("dashboard") })
+            TanreiTab(value = "activity", label = "Activity", icon = { TanreiText("history") })
+            // enabled is the inverse of the spec's disabled.
+            TanreiTab(value = "billing", label = "Billing", icon = { TanreiText("payments") }, enabled = false)
+        }
+        // Compose has no tab panel role: show the selected view below the row, in reading order.
+        when (view) {
+            "overview" -> Overview()
+            "activity" -> Activity()
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // As TabBar, but selected by value instead of a TabController's index. The bar keeps no selection of its own.
+    TanreiTabBar<String>(
+      value: view, // null selects the first enabled tab
+      onChanged: (String value) => setState(() => view = value),
+      semanticLabel: 'Project',
+      tabs: const <TanreiTab<String>>[
+        TanreiTab<String>(value: 'overview', label: 'Overview', icon: Icon(AppSymbols.dashboard)),
+        TanreiTab<String>(value: 'activity', label: 'Activity', icon: Icon(AppSymbols.history)),
+        TanreiTab<String>(value: 'billing', label: 'Billing', icon: Icon(AppSymbols.payments), enabled: false),
+      ],
+    ),
+    // Shows the view of the selected value, and does not swipe. Each view is a tab panel named by its tab's label.
+    TanreiTabBarView<String>(
+      value: view,
+      semanticLabels: const <String, String>{'overview': 'Overview', 'activity': 'Activity', 'billing': 'Billing'},
+      children: <String, Widget>{'overview': const OverviewPage(), 'activity': const ActivityPage(), 'billing': const BillingPage()},
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { Tabs } from '@tanrei/react-native';
+
+    const [view, setView] = useState('overview');
+
+    // Controlled: move value from onValueChange.
+    <Tabs
+      accessibilityLabel="Project"
+      value={view}
+      onValueChange={setView}
+      items={[
+        { value: 'overview', label: 'Overview', icon: 'dashboard' },
+        { value: 'activity', label: 'Activity', icon: 'history' },
+        { value: 'billing', label: 'Billing', icon: 'payments', disabled: true },
+      ]}
+    />
+    // React Native has no tab panel role: render the selected panel right after the row.
+    {view === 'overview' ? <Overview /> : <Activity />}
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Secondary tabs, a row that fills, a row that hugs and scrolls, and icons alone" plain column>
+  <tanrei-tabs variant="secondary" value="overview" label="Deployment" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="Overview" icon="dashboard"></tanrei-tab>
+    <tanrei-tab value="activity" label="Activity" icon="history"></tanrei-tab>
+    <tanrei-tab value="billing" label="Billing" icon="payments" disabled></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs full-width value="notifications" label="Account" style="inline-size: 22rem">
+    <tanrei-tab value="profile" label="Profile"></tanrei-tab>
+    <tanrei-tab value="activity" label="Recent activity"></tanrei-tab>
+    <tanrei-tab value="notifications" label="Notification settings"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs value="analytics" label="Service" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="Overview"></tanrei-tab>
+    <tanrei-tab value="deployments" label="Deployments"></tanrei-tab>
+    <tanrei-tab value="analytics" label="Analytics"></tanrei-tab>
+    <tanrei-tab value="logs" label="Logs"></tanrei-tab>
+    <tanrei-tab value="storage" label="Storage"></tanrei-tab>
+    <tanrei-tab value="settings" label="Settings"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs value="list" label="Layout">
+    <tanrei-tab value="list" label="List" icon="view_list" label-hidden></tanrei-tab>
+    <tanrei-tab value="grid" label="Grid" icon="grid_view" label-hidden></tanrei-tab>
+    <tanrei-tab value="map" label="Map" icon="map" label-hidden></tanrei-tab>
+  </tanrei-tabs>
+</DemoFrame>
+
+<DemoFrame label="Tonal tabs with their track, without it, and small without it and without a transition" plain column>
+  <tanrei-tabs variant="tonal" value="week" label="Period">
+    <tanrei-tab value="day" label="Day"></tanrei-tab>
+    <tanrei-tab value="week" label="Week"></tanrei-tab>
+    <tanrei-tab value="month" label="Month"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs variant="tonal" track="false" value="week" label="Period, without the track">
+    <tanrei-tab value="day" label="Day"></tanrei-tab>
+    <tanrei-tab value="week" label="Week"></tanrei-tab>
+    <tanrei-tab value="month" label="Month"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs variant="tonal" track="false" size="small" transition="none" value="metric" label="Units">
+    <tanrei-tab value="metric" label="Metric"></tanrei-tab>
+    <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
+  </tanrei-tabs>
+</DemoFrame>
+
+<ComponentSpecs name="tabs" />
+
+## Guidelines
+
+### When to use
+
+Use tabs to split one subject into views and show one at a time: a project's Overview, Activity and Settings; a profile's Posts and Replies; a file's Preview and History. The views are peers, and people move between them in any order.
+
+Use a navigation bar or drawer to move between the destinations of an app, which are different subjects. Don't use tabs for steps that must be completed in order, or to filter one list: use chips for filters. Tabs change the view, never trigger an action.
+
+In the Tanrei system, which does not ship the [segmented button](/components/segmented-button/), tabs also take its place when one choice among a few changes what is shown below: Day, Week and Month over a calendar, or Standard, Medium and High over the examples of a page. Such a row needs no panel. Give it a name that says what is chosen. Where it should stay quiet beside what it changes, use the tonal variant, without its track, and the small size in a header. A choice that sets a value sent with a form, or that changes nothing a person can see, is not tabs. Use [radio buttons](/components/radio-button/) for it.
+
+### Tabs, segmented button or button group
+
+| Component | What it is | Use for |
+| --- | --- | --- |
+| Tabs | Views of one subject, or one choice that changes what is shown below. One tab is selected, and the arrow keys move and select. | Switching what is shown below: Overview, Activity, Settings; Day, Week, Month. |
+| [Segmented button](/components/segmented-button/) | Two to five joined options that set a value, one or several of them. The default Tanrei system does not ship it; the Material and cupertino presets do. | A setting with a few fixed answers, in a product that uses one of those presets. |
+| [Button group](/components/button-group/) | Separate buttons laid out together. Each is pressed on its own, and the group holds no selection. | Related actions: Cancel and Save; Bold, Italic and Underline. |
+
+A quick test: if choosing changes what is shown below, it is tabs, with or without a panel. If it sets a value that is sent with a form, it is radio buttons, or a segmented button where the system ships one. If pressing does something, it is a button group.
+
+### Choosing a variant, a size and a layout
+
+| Choice | What it does | Use for |
+| --- | --- | --- |
+| Primary | An icon stacks above the label. The indicator is drawn in the primary variant's colors. | The main views of a screen, at the top of its content. |
+| Secondary | An icon sits before the label, on one line. The indicator is drawn in the secondary variant's colors. | Views within one of those views, below a row of primary tabs or inside a panel. |
+| Tonal | The indicator is a soft layer and the selected label is darker than the others. An icon sits before the label. | A choice that should not draw the eye from what it changes: the languages of a code sample, a contrast, a unit. |
+| Medium (`size`, the default) | The row is 48 high and the indicator 40. | A row at the top of a screen's content. |
+| Small (`size`) | The row is 32 high and the indicator 24. The padding beside a label and the icon are smaller, and an icon sits before the label in every variant. The label's text is the same size. | A row in a header or a toolbar, beside small buttons. |
+| Hug (`fullWidth` false, the default) | Sizes each tab to its content and keeps every label whole on one line, however long or large. The track ends with its last tab, and the tabs scroll sideways inside it when they do not fit. The indicator follows the selected tab's content. | Most rows: more than a few tabs, labels of different lengths, labels that are translated or written by users. |
+| Fill (`fullWidth` true) | Divides the row's width equally. A label that does not fit its share is truncated at its end with an ellipsis. The indicator is as wide as the tab's share. | Two to five short labels that must span the row. |
+
+`fullWidth` is spelled `full-width` on the web, `fullWidth` on SwiftUI, Compose and React Native, and on Flutter as its inverse, `isScrollable`, which defaults to true, as in Flutter's own `TabBar`.
+
+A label never wraps onto a second line or breaks within a word, in either layout, and an icon never shrinks to make room. In a row that fills, a truncated label stays the tab's whole accessible name, and the platform shows it whole where it can: a plain tooltip on hover and keyboard focus on the web, a tooltip on long press and hover on Compose, a `Tooltip` on Flutter, the large-content viewer on SwiftUI (and `.help` on macOS). React Native has no tooltip of its own, so there it is not shown whole.
+
+The three variants are one control. They differ in how much the selection weighs and in nothing else: the keys, the roles and what assistive technology is told are the same.
+
+A design system may add variants and sizes. A variant it adds is laid out as primary.
+
+### Sizes
+
+A small row is as high as a small [Button](/components/button/), so the two share a line in a header. It is lower than the minimum target, and it is not made taller for it. A press just above or just below the row, in line with a tab, still selects that tab. A control that stands there keeps its own press: a press on a button under the row goes to the button. With larger text a small row grows as a medium one does, and nothing is cut.
+
+### The track and the indicator
+
+Tabs and the [switch](/components/switch/) share one model: a thumb on a track, which slides to what is chosen and can be slid there by hand. A switch's two states are not equals, so its whole look changes between them. Tabs are equal choices, so their track never changes and only the indicator moves.
+
+- **The track.** One quiet fill behind the whole row, with fully rounded ends and no outline. It is as tall as the row. In a row that hugs it ends a small inset after its last tab; in a row that fills it is as wide as the row. It is the same whichever tab is selected and whatever state a tab is in. When the tabs do not fit, the track stays still and the tabs scroll inside it, clipped to its rounded ends.
+- **The indicator.** The selected tab has the indicator behind its content. It is as tall as the row less the track's inset above and below, so it has the same height on every tab: 40 in a row of 48, and 56 where primary tabs stack an icon above a label, in the default system. In a row that hugs it is as wide as the tab's content plus padding, and a circle where that content is not wider than it is tall: an icon alone, a one-letter label, one full-width character. In a row that fills it is as wide as the tab's share. The rule is the same for primary and secondary tabs.
+- **The same inset on three sides.** The indicator keeps one inset from the track's top, from its bottom and, on the first and the last tab, from its end, at every row height. Its rounded end and the track's are concentric. A tab whose indicator is a circle is as wide as that circle, or as the minimum target where that is larger.
+- **Hover, focus and press** are drawn in the box the indicator has on that tab, or would have if the tab were selected, never on the tab's whole rectangle. The whole tab still answers the pointer.
+- **A row without its track.** Set `track` to false and the fill behind the row is not drawn. Nothing else changes: the row keeps its size, the inset, the place of every tab and every color, so a row with its track and one without line up. Use it where the row stands on something that is already a bar: a header, a card, the heading of a code sample. Left unset, `track` follows the design system (`comp.tabs.track.visible`, on in the default system). On the web the attribute is `track="false"`.
+- **The tonal indicator.** It is a translucent layer of the selected label's color, laid over the track or over whatever the row stands on, so it is seen by the same step on every surface. It is a quiet mark by intent, and the darker selected label is the second one.
+- **Covered labels.** A label and an icon are drawn in their covered colors exactly where the indicator covers them. While the indicator slides or is dragged, each label it passes over changes only where it is covered, and the new tab's label is wholly covered the moment the indicator lands. The covered copy is drawn with the system's colors, never with a blend, so its contrast is the one the tokens promise.
+
+A design system can also draw a line on the row's bottom edge under the selected tab, and a divider along the whole row. Both are there in every system and are transparent in the default one. The Material presets color them and make the track and the indicator transparent, as Material's tabs do.
+
+### Dragging across the row
+
+- **A tap still selects.** A drag across the row, with touch, a pen or a mouse, carries the indicator with the pointer instead. Its place, its width and the covered colors of the labels under it change continuously, with no threshold.
+- **The release chooses.** The tab the indicator is nearer to is chosen, or the one a fling is toward. If that is another tab, the row selects it and emits `change` once, never for the tabs the indicator passed. If it is the selected tab, the indicator returns and nothing is emitted.
+- **Nothing else changes on the way.** The selection, the panel, keyboard focus and what assistive technology is told stay as they were until the release. Escape, or the platform cancelling the pointer, returns the indicator to the selected tab.
+- **Scrolling keeps working.** A drag that goes up or down first scrolls the page. On the web, in a row whose tabs scroll, only a drag that starts on the selected tab moves the indicator; any other sideways drag scrolls the tabs.
+- **Reduced motion.** The indicator still follows the pointer, which the person's own finger moves, and lands on its tab at once.
+
+### The transition
+
+`transition` says how a row draws a new selection.
+
+| Value | What it does |
+| --- | --- |
+| `slide` | The indicator slides and resizes to the new tab, and the labels change color under it. A tab out of view is scrolled in with a motion. |
+| `none` | The new selection is drawn whole in one frame. Nothing travels and nothing fades. |
+| `auto` (the default) | Takes the design system's answer (`comp.tabs.motion.transition`, slide in the default system). |
+
+Use `none` for a row beside content it has just changed, where a sliding indicator would be the only thing still moving. Under `none` a drag across the row still carries the indicator, and lands on its tab at once on release. Hover, focus and press are answered the same under every value. Where motion is reduced, a selection is drawn as `none` draws it, whatever `transition` says.
+
+A [Tab view](/components/tab-view/) has a `transition` of its own for its panels. Set to `none`, it also stops the slide of the row it draws.
+
+### Selection and panels
+
+- **By value.** Every tab has a `value`, unique in its row. A value survives tabs being added, removed or reordered, where an index would quietly select another view. A `selected` value that names no tab selects none and shows no panel, and debug builds report it.
+- **Automatic activation.** Moving focus with the arrow keys also selects the tab, and the panel changes at once. If a panel takes time to load, show a loading state inside it rather than delaying the switch.
+- **Disabled tabs are skipped.** The arrow keys pass over them and they are never the Tab stop, because landing on one would select a tab that cannot be selected. This differs from list and menu, whose disabled items stay reachable because moving there selects nothing.
+- **The indicator slides.** When the selection changes, the indicator slides and resizes from the old tab to the new one, a circle widening into a capsule on the way. It moves at once where motion is reduced. When the row first appears, or the selected tab changes size without a new selection (a font arriving, the text size changing), the indicator is put in place without sliding. A tab that becomes selected or focused while partly scrolled out of view is scrolled into view.
+- **The row draws its own track.** Place it on the surface of the screen or of an app bar. It needs no container of its own.
+- **In a Tab view.** A [Tab view](/components/tab-view/) that draws its own row uses these tabs, with the same tokens and behaviour. While a person swipes a Tab view, it moves the indicator through `indicatorOffset`: 0 on the selected tab, 1 on the next enabled tab and −1 on the previous one, and in between as the finger moves. The indicator follows it frame by frame, without a slide of its own. Leave it at 0 unless you drive the indicator yourself. A swipe of the view and a drag across its row are one gesture in two places: a swipe moves one panel, and the panels travel with it; a drag across the row can pass several tabs, and the panels wait for the release.
+
+### Sharing a choice
+
+When the same question is answered in many places — the platform of every code sample on this site, the units of every figure in a report — give those rows the same `group`. Selecting a tab in one selects the tab of the same value in every other row that has one; a row that has no such tab keeps its own.
+
+- **Matched by value.** A group follows a tab's `value`, never its label, so a translated or reworded label keeps the choice.
+- **One row moves, one row announces.** The row a person used slides and emits `change`, once. Every other row takes the choice at once, without a motion, without taking focus and without scrolling, and emits nothing. The row the person used stays where it is in the window while the rows above it change height.
+- **Remembering is separate.** `rememberAs` names the key under which a person's choice is kept on their device and restored before the row is first drawn. Without a key nothing is stored. The key is yours, used exactly as given, and only the tab's value is stored; whether a remembered preference needs consent where your product is used is your judgement.
+- **On the web the tabs keep the group.** `group` and `remember-as` are attributes, and the key is a key of `localStorage`. On SwiftUI, Compose, Flutter and React Native, rows given the same selection state already share it, and your product keeps and stores that state.
+
+<DemoFrame label="Two rows of one group: choose a tab in either" plain column>
+  <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="Units of distance">
+    <tanrei-tab value="metric" label="Metric"></tanrei-tab>
+    <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
+    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">A marathon is 42.195 km.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">A marathon is 26.2 miles.</p></tanrei-tab-panel>
+  </tanrei-tabs>
+  <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="Units of speed">
+    <tanrei-tab value="metric" label="Metric"></tanrei-tab>
+    <tanrei-tab value="imperial" label="Imperial"></tanrei-tab>
+    <tanrei-tab value="nautical" label="Nautical"></tanrei-tab>
+    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">A brisk walk is 6 km/h.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">A brisk walk is 3.7 mph.</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">A brisk walk is 3.2 knots.</p></tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+In the demo, Nautical exists in the second row only: choosing it leaves the first row on its own choice, and the first row follows again as soon as the choice is one it has. Neither row names a key, so nothing is stored.
+
+The tabs of this site are an example: every set of platform samples is a [Tab view](/components/tab-view/) of one group.
+
+### Icons
+
+- Give every tab of a row an icon, or none. Icons are drawn outlined when not selected and filled when selected.
+- `labelHidden` draws the icon alone. The label is still required: it stays the tab's accessible name. A tab with `labelHidden` and no icon draws its label anyway, and debug builds report it.
+- A tab with an empty label and no icon has no content: its indicator is an empty circle, and the tab has no accessible name. Debug builds report the empty label; give the tab a label.
+- To show a count on a tab, place a Tanrei badge on its icon yourself. Tabs have no badge prop.
+
+### Do
+
+- Keep labels short: one or two words that name the view, such as "Overview" or "Billing". In a row that fills, a long label is cut off.
+- Keep the default hug when labels are long, translated, written by users, or read at large text sizes.
+- Keep the order of tabs stable, so people can find a view where they left it.
+- Put secondary tabs inside a view of primary tabs, not the other way round.
+- Keep a tab that is sometimes unavailable in place and disabled, so the row does not change shape.
+
+### Don't
+
+- Don't use tabs for app navigation. That is the navigation bar's or drawer's job.
+- Don't make a tab open a dialog, start an action or leave the screen. A tab has no destination of its own: to move between pages, use links, a navigation bar or a navigation drawer.
+- Don't nest two rows of the same variant.
+- Don't mix tabs with and without icons in one row.
+
+## Accessibility
+
+<ComponentAccessibility name="tabs" />
+
+### What the component handles
+
+- The row is exposed as a tab list named by its `label`. Each tab has the tab role, its selected state, its position and the number of tabs, and is named by its label, whether or not the label is drawn.
+- The selected tab's panel is exposed as a tab panel, named by its tab and associated with it where the platform can express that. The other panels are hidden from view and from assistive technology. A panel with nothing focusable in it is made focusable itself, so that Tab reaches it.
+- The row is one Tab stop: the selected tab. Right and Left Arrow move to the next and previous enabled tab, wrapping at the ends, and select it. They are swapped in right-to-left layouts. Home and End go to the first and last enabled tab. Enter and Space select the focused tab. Tab moves from the selected tab into its panel.
+- Disabled tabs are skipped by the arrow keys, are never the Tab stop, and are announced as disabled.
+- The focus ring surrounds the box the indicator has on the focused tab, in its shape, and is held inside the track, so a row that scrolls cannot clip it. It shows for keyboard focus only.
+- Tabs touch their neighbours, so a tab narrower than the minimum target grows to it in width. A row lower than the target (the small size) is not made taller: its tabs answer a press a little above and below the row, and yield to a control that stands there.
+- A row without panels is still a tab list named by its `label`, and its tabs say that they control nothing. The selected state of a tab is what assistive technology is told; what the choice changes below the row is yours to draw. Tab moves from the selected tab to whatever follows the row.
+- With forced colors the indicator is a filled highlight in every variant, with or without the track, so a tonal row shows its selection as plainly as a primary one.
+- Larger text never hides a label from assistive technology. A tab that hugs its content grows wider and the row scrolls. A tab that shares the row truncates its label, which stays its accessible name and is shown whole where the platform can.
+- Icons, the track, the indicator, the underline and the divider are hidden from assistive technology. The covered copy of each label under the indicator is decorative, so each label is announced once.
+- A drag across the row is never the only way: every tab is selected by a tap or a click on it, and by the arrow keys. During a drag no tab is exposed as selected, no panel changes and nothing is announced; the release makes the selection, and Escape cancels the drag. With a screen reader running, a one-finger drag belongs to the reader, and tabs are selected by its activation.
+- In a group, the rows that follow change silently. Nothing is announced, focus stays on the tab the person used, and that row stays where it is in the window, so a person using magnification does not lose their place. Each row tells assistive technology its selected tab when the person reaches it.
+- Debug builds report a tab without a label, a value that is empty or repeated, a `selected` value that names no tab, a hidden label without an icon, a variant or a size the design system does not have, and a `transition` the tabs do not define.
+
+Known platform gaps:
+
+- SwiftUI, Compose and React Native have no tab panel role. The selected panel follows the row in reading order.
+- SwiftUI has no tab list or tab role either. The row is a container named by `label` with the tab bar trait, and each tab is a button with the selected trait. On iOS, VoiceOver states a tab's position from the tab bar trait; elsewhere the position is the tab's value ("2 of 3"), in English only.
+- SwiftUI cannot associate the panel with its tab, and cannot tell whether a panel holds anything focusable, so a panel with nothing focusable is not made a Tab stop.
+- Compose has no tab list role. The row is a selectable group named by `contentDescription` and carries the number of tabs as collection info. Each tab has the tab role, its selected state and its position.
+- Compose and React Native leave the panel to you. They do not hide the other panels or make an empty panel focusable.
+- Compose: a badge placed on a tab's icon is not announced, because the icon slot is decorative. A badge wrapping the whole tab is announced, but is drawn at the tab's corner.
+- Compose: the arrow keys and scrolling through the real input pipeline, and TalkBack reading each tab's role and position, have been tested on Robolectric only, not yet on a device.
+- Flutter's semantics have no position, no number of tabs and no relation from a tab to its panel. `TanreiTabBarView` is a tab panel named by the `semanticLabels` you pass.
+- React Native has no tab panel role and no relation from a tab to its panel. A tab carries its position as its value text ("2 of 3"), in English unless you pass `positionText`.
+- React Native: the arrow keys, scrolling a tab into view (and its right-to-left offsets) and the sliding indicator have not yet been checked on a device.
+- Web: a tab reached with the Tab key while scrolled out of view is scrolled into view by the browser at once, not over the indicator's motion.
+- Flutter: a scrollable row whose selected tab starts out of view shows one frame at its start edge before it jumps to the tab.
+
+### What you need to do
+
+- Give every tab a label, including an icon-only tab.
+- Name the row with `label` when a screen has more than one row of tabs. Say what the views are views of, such as "Project".
+- Keep each tab's value unique in its row, and stable while the screen is shown.
+- On Compose and React Native, render only the selected panel, right after the row. When it has nothing focusable in it, make it focusable and name it after its tab, so that Tab reaches it.
+- On Flutter, pass `semanticLabels` to `TanreiTabBarView` with each tab's label.
+- On React Native, pass `positionText` in your product's language.
+- Show a loading state inside a panel that takes time to load. The arrow keys select as they move.
+- Give the rows of one group the same labels for the same values. Where the rows are far apart, say near the first one that the choice applies to the whole page.
+- Choose the `rememberAs` key yourself, and name it in your privacy notice where your product needs one. Nothing is stored without a key.

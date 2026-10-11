@@ -1,0 +1,155 @@
+---
+title: "行内代码"
+description: "句子里的一段代码，使用代码字体，字号随周围的文本而定，带淡淡的填充或不带填充。它是文本，从不是控件。"
+translationOf: components/inline-code.mdx
+sourceHash: a781f6f71d206aae52e9b17504a2139e3ab309d7
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="inline-code" />
+
+<DemoFrame label="在句子里、在标题里，以及 plain" column>
+  <div class="tanrei-not-prose" style="max-inline-size: 32rem">
+    <p style="margin: 0">
+      在 <code class="tanrei-code" translate="no" spellcheck="false">package.json</code> 所在的文件夹里运行
+      <code class="tanrei-code" translate="no" spellcheck="false">npm install</code>，然后用
+      <code class="tanrei-code" translate="no" spellcheck="false">{'npm run dev -- --port 4000'}</code> 启动服务器。
+    </p>
+    <p style="margin: 0.75rem 0 0; font: var(--tanrei-sys-typescale-heading-2-font)">
+      在组上设置 <code class="tanrei-code" translate="no" spellcheck="false">size</code>
+    </p>
+    <p style="margin: 0.75rem 0 0">
+      Plain：<code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
+    </p>
+  </div>
+</DemoFrame>
+
+行内代码在句子里指出代码中的某样东西：一条命令、一个属性、一个文件、一个值。供人阅读和复制的多行代码用[代码块](../code-block/)。要按的键用[键盘快捷键](../keyboard-shortcut/)，它会读出修饰键的名称。
+
+### 用法
+
+在 Web 上，行内代码不是一个元素，而是加在你自己的 `code` 元素上的一个类。文字就在文档里，所以在任何脚本运行之前，搜索、页面内查找和复制都能用。`.tanrei-prose` 里每个不在 `pre` 中的 `code` 不加类也会以同样的方式绘制，所以渲染出来的 Markdown 什么都不用加。
+
+SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <!-- Tonal：默认。 -->
+    <p>请先运行 <code class="tanrei-code" translate="no" spellcheck="false">npm install</code>。</p>
+
+    <!-- Plain：只有代码字体，颜色与周围的文本相同。 -->
+    <code class="tanrei-code" data-variant="plain">comp.button.container.shape</code>
+
+    <!-- 由祖先元素为其中的每一段代码做选择。 -->
+    <table data-tanrei-code="plain">
+      <tr><td><code class="tanrei-code">variant</code></td><td><code class="tanrei-code">filled</code></td></tr>
+    </table>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/code.css';
+
+    <p>请先运行 <code className="tanrei-code" translate="no" spellCheck={false}>npm install</code>。</p>
+    ```
+  </TabItem>
+</Tabs>
+
+| 属性 | 在 Web 上 |
+| --- | --- |
+| `text` | 元素自己的内容 |
+| `variant: tonal` | `data-variant="tonal"` |
+| `variant: plain` | `data-variant="plain"` |
+| `variant: auto`（默认） | 不加属性。由最近的带 `data-tanrei-code="plain"` 或 `"tonal"` 的祖先元素决定；没有这样的祖先元素时为 tonal |
+
+## 规格
+
+<DemoFrame label="它会换行，每一段都保留自己的填充" plain>
+  <div class="tanrei-not-prose" style="max-inline-size: 22rem">
+    <p style="margin: 0">
+      令牌 <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> 比这一行还长。它在行末断开，绝不截断。
+    </p>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="在链接里、在加粗文本里，以及一列代码" plain column>
+  <div class="tanrei-not-prose">
+    <p style="margin: 0">
+      参见 <a class="tanrei-link" href="../button/"><code class="tanrei-code">Button</code> 参考</a>。<strong>绝不要在唯一的出路上设置 <code class="tanrei-code">disabled</code>。</strong>
+    </p>
+    <div data-tanrei-code="plain" style="display: grid; grid-template-columns: auto auto; gap: 0.25rem 1.5rem; justify-content: start; margin-block-start: 0.75rem">
+      <span>属性</span><span>默认值</span>
+      <code class="tanrei-code">variant</code><code class="tanrei-code">filled</code>
+      <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
+    </div>
+  </div>
+</DemoFrame>
+
+行内代码没有自己的字号。它的字号是所在文本的字号乘以一个比例（`comp.inline-code.label.scale`），这个比例让代码字体和正文字体看起来一样大。在正文里是 14 旁边的 13。在标题里则是标题自己的字号。
+
+它绝不会把所在的行撑高。填充与代码字体自身的文本框一样高，上下没有内边距。
+
+一段代码随所在的行换行。它先在空格处断开。不含空格又比一行还长的部分在字符之间断开，并且不加连字符，因为连字符会改变代码。它绝不截断，也绝不滚动。
+
+在链接里，它采用链接的颜色，链接的下划线从它下面穿过。在加粗文本里，它加重一档字重。它绝不倾斜。
+
+它始终从左到右排列，自成一段，在从右到左的句子里也是如此。
+
+<ComponentSpecs name="inline-code" />
+
+### Web 上绘制方式的不同之处
+
+- `translate="no"` 和 `spellcheck="false"` 是由你或你的 Markdown 渲染器来写的属性。样式表无法设置它们。
+- 代码里的连字符是可以换行的位置，先于在字符之间断开。
+- 对于换行的一段代码，WebKit 会绘制每一段的填充和圆角，但不绘制两端留出的空间：第一段之后的各段从填充的边缘开始。
+- 只有在支持 `white-space-collapse: preserve-spaces` 的浏览器里，一段代码内部的换行才会绘制成一个空格。请把一段代码写在一行里。
+- 未知的 `data-variant` 按 `auto` 绘制，调试构建中不报告任何内容。
+
+## 指南
+
+### Tonal 还是 plain
+
+| 变体 | 绘制什么 | 何时使用 |
+| --- | --- | --- |
+| **Tonal** | 淡淡的填充上的代码字体 | 连续文本中的一个名称 |
+| **Plain** | 只有代码字体，颜色与周围的文本相同 | 每一项都是代码的列或列表，以及有颜色的容器上的文本 |
+
+### 推荐
+
+- 句子要写得把代码当作词语读出来时也读得通。屏幕阅读器默认不朗读代码角色。
+- 在语义状态的容器或反色表面这类有颜色的容器上使用 plain。tonal 的填充是一个表面角色，只与表面配对。
+- 对于表格或一列名称，在祖先元素上统一设置一次形式（`data-tanrei-code="plain"`）。
+
+### 避免
+
+- 不要用行内代码表示强调。它说的是“这是代码”。
+- 不要把要按的键放进行内代码。请使用键盘快捷键。
+- 不要在里面放超过一行的内容。请使用代码块。
+
+## 无障碍
+
+<ComponentAccessibility name="inline-code" />
+
+### 组件负责的部分
+
+- 它就是 `code` 元素，所以具有代码角色，它的文字在句子中所在的位置朗读。
+- 它靠字体与周围的词语区分开，而不是靠颜色。在强制颜色模式下填充会消失，但什么都不会丢。
+- 它不获得焦点，也不接受输入。在链接或按钮里，落在它上面的按下操作会到达那个元素。
+- 在任何文本大小下，长名称都会断开，而不会让页面滚动。
+- 选中并复制一个句子时，复制到的代码字符完全一致。
+
+### 需要你做的事
+
+- 在拼写要紧的地方，把名称在句子里写出来，因为符号怎么读取决于用户的设置。
+- 给这段代码标上 `translate="no"`，让浏览器的翻译不去动它。

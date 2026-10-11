@@ -1,0 +1,949 @@
+{
+  "tanrei": {
+    "sys": {
+      "motion": {
+        "$extensions": {
+          "dev.tanrei.llm": {
+            "usage": "Durations (multiples of dial.motion.unit), easing curves and springs. Short durations for small state changes, long for large spatial ones.",
+            "rules": [
+              "Respect reduced motion: platforms skip or shorten transitions; never rely on motion to convey state."
+            ]
+          }
+        },
+        "duration": {
+          "$type": "duration",
+          "short1": {
+            "$value": {
+              "value": 50,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 1
+              }
+            }
+          },
+          "short2": {
+            "$value": {
+              "value": 100,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 2
+              }
+            }
+          },
+          "short3": {
+            "$value": {
+              "value": 150,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 3
+              }
+            }
+          },
+          "short4": {
+            "$value": {
+              "value": 200,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 4
+              }
+            }
+          },
+          "medium1": {
+            "$value": {
+              "value": 250,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 5
+              }
+            }
+          },
+          "medium2": {
+            "$value": {
+              "value": 300,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 6
+              }
+            }
+          },
+          "medium3": {
+            "$value": {
+              "value": 350,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 7
+              }
+            }
+          },
+          "medium4": {
+            "$value": {
+              "value": 400,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 8
+              }
+            }
+          },
+          "long1": {
+            "$value": {
+              "value": 450,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 9
+              }
+            }
+          },
+          "long2": {
+            "$value": {
+              "value": 500,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 10
+              }
+            }
+          },
+          "long3": {
+            "$value": {
+              "value": 550,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 11
+              }
+            }
+          },
+          "long4": {
+            "$value": {
+              "value": 600,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 12
+              }
+            }
+          },
+          "extra-long1": {
+            "$value": {
+              "value": 700,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 14
+              }
+            }
+          },
+          "extra-long2": {
+            "$value": {
+              "value": 800,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 16
+              }
+            }
+          },
+          "extra-long3": {
+            "$value": {
+              "value": 900,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 18
+              }
+            }
+          },
+          "extra-long4": {
+            "$value": {
+              "value": 1000,
+              "unit": "ms"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 20
+              }
+            }
+          },
+          "stagger": {
+            "$value": {
+              "value": 100,
+              "unit": "ms"
+            },
+            "$description": "Delay between items in a sequential reveal.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 2
+              }
+            }
+          },
+          "press-hold": {
+            "$value": {
+              "value": 100,
+              "unit": "ms"
+            },
+            "$description": "The shortest time a pressed state stays visible. A tap or a keyboard activation is over in a frame; without a floor the feedback cannot be seen.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 2
+              }
+            }
+          },
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product uses short durations for small state changes and longer ones for large surfaces entering or leaving.",
+              "since": "0.1.0"
+            }
+          }
+        },
+        "easing": {
+          "$type": "cubicBezier",
+          "standard": {
+            "$value": [
+              0.2,
+              0,
+              0,
+              1
+            ],
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A curve is a shape, not a quantity a dial can scale."
+              }
+            }
+          },
+          "standard-decelerate": {
+            "$value": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A curve is a shape, not a quantity a dial can scale."
+              }
+            }
+          },
+          "standard-accelerate": {
+            "$value": [
+              0.3,
+              0,
+              1,
+              1
+            ],
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A curve is a shape, not a quantity a dial can scale."
+              }
+            }
+          },
+          "emphasized-decelerate": {
+            "$value": [
+              0.05,
+              0.7,
+              0.1,
+              1
+            ],
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A curve is a shape, not a quantity a dial can scale."
+              }
+            }
+          },
+          "emphasized-accelerate": {
+            "$value": [
+              0.3,
+              0,
+              0.8,
+              0.15
+            ],
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A curve is a shape, not a quantity a dial can scale."
+              }
+            }
+          },
+          "linear": {
+            "$value": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A curve is a shape, not a quantity a dial can scale."
+              }
+            }
+          },
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product eases entrances, exits and on-screen moves differently.",
+              "since": "0.1.0"
+            }
+          }
+        },
+        "spring": {
+          "$description": "Motion physics. \"spatial\" moves things (may overshoot); \"effects\" changes color/opacity (never overshoots). `standard` is the default scheme; `expressive` is the additive layer.",
+          "standard": {
+            "fast-spatial": {
+              "damping": {
+                "$type": "number",
+                "$value": 0.9,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 1400,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.27,
+                  1.06,
+                  0.18,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 350,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 7
+                  }
+                }
+              }
+            },
+            "default-spatial": {
+              "damping": {
+                "$type": "number",
+                "$value": 0.9,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 700,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.27,
+                  1.06,
+                  0.18,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 500,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 10
+                  }
+                }
+              }
+            },
+            "slow-spatial": {
+              "damping": {
+                "$type": "number",
+                "$value": 0.9,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 300,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.27,
+                  1.06,
+                  0.18,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 750,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 15
+                  }
+                }
+              }
+            },
+            "fast-effects": {
+              "damping": {
+                "$type": "number",
+                "$value": 1,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 3800,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.31,
+                  0.94,
+                  0.34,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 150,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 3
+                  }
+                }
+              }
+            },
+            "default-effects": {
+              "damping": {
+                "$type": "number",
+                "$value": 1,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 1600,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.34,
+                  0.8,
+                  0.34,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 200,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 4
+                  }
+                }
+              }
+            },
+            "slow-effects": {
+              "damping": {
+                "$type": "number",
+                "$value": 1,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 800,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.34,
+                  0.88,
+                  0.34,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 300,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 6
+                  }
+                }
+              }
+            }
+          },
+          "expressive": {
+            "fast-spatial": {
+              "damping": {
+                "$type": "number",
+                "$value": 0.6,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 800,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.42,
+                  1.67,
+                  0.21,
+                  0.9
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 350,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 7
+                  }
+                }
+              }
+            },
+            "default-spatial": {
+              "damping": {
+                "$type": "number",
+                "$value": 0.8,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 380,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.38,
+                  1.21,
+                  0.22,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 500,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 10
+                  }
+                }
+              }
+            },
+            "slow-spatial": {
+              "damping": {
+                "$type": "number",
+                "$value": 0.8,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 200,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.39,
+                  1.29,
+                  0.35,
+                  0.98
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 650,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 13
+                  }
+                }
+              }
+            },
+            "fast-effects": {
+              "damping": {
+                "$type": "number",
+                "$value": 1,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 3800,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.31,
+                  0.94,
+                  0.34,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 150,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 3
+                  }
+                }
+              }
+            },
+            "default-effects": {
+              "damping": {
+                "$type": "number",
+                "$value": 1,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 1600,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.34,
+                  0.8,
+                  0.34,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 200,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 4
+                  }
+                }
+              }
+            },
+            "slow-effects": {
+              "damping": {
+                "$type": "number",
+                "$value": 1,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "stiffness": {
+                "$type": "number",
+                "$value": 800,
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Spring physics do not scale linearly with the speed dial."
+                  }
+                }
+              },
+              "easing": {
+                "$type": "cubicBezier",
+                "$value": [
+                  0.34,
+                  0.88,
+                  0.34,
+                  1
+                ],
+                "$description": "Approximation for platforms without spring animations (CSS).",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A curve is a shape, not a quantity a dial can scale."
+                  }
+                }
+              },
+              "duration": {
+                "$type": "duration",
+                "$value": {
+                  "value": 300,
+                  "unit": "ms"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.motion.unit}",
+                    "by": 6
+                  }
+                }
+              }
+            }
+          },
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product animates things that move (may overshoot) differently from things that fade (never overshoot), at more than one speed.",
+              "since": "0.1.0"
+            }
+          }
+        }
+      }
+    }
+  }
+}

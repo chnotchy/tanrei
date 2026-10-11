@@ -1,0 +1,240 @@
+---
+title: Enlace
+description: Texto que lleva a algún sitio, como una expresión dentro de una frase, una línea por sí sola o un glifo solo. En el estilo de texto del lugar donde está, subrayado como elija tu sistema de diseño y marcado cuando sale del sitio.
+translationOf: components/link.mdx
+sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="link" />
+
+<DemoFrame label="En una frase, por sí solo y un glifo solo" column>
+  <p style="margin: 0; max-inline-size: 32rem">
+    Los tokens se generan para todas las plataformas. Lee
+    <a class="tanrei-link" href="../../foundations/design-tokens/">cómo se derivan los tokens</a> o consulta
+    <a class="tanrei-link" href="https://example.com/tanrei" target="_blank" aria-description="se abre en una pestaña nueva">el código fuente</a>.
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="../button/">Siguiente: Botón<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" href="#descripción-general" aria-label="Enlace a Descripción general"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+  </p>
+</DemoFrame>
+
+La regla que un producto puede aplicar sin consultar una tabla: **si tiene una dirección, es un enlace; si no la tiene, es un botón.** Un control que hace algo en la página y no lleva a ningún sitio es un [botón](/es/components/button/), de la variante `text` cuando debe leerse con la misma discreción que el texto. Un destino que debe parecer un botón es un botón con `href`.
+
+### Uso
+
+En la web, el enlace es una clase que pones en tu propia ancla, no un elemento. El ancla está en el documento, así que es un enlace antes de que se ejecute ningún script, y la encuentran un rastreador, un índice de búsqueda y un enrutador que trabaje sobre las anclas de la página. El componente de enlace de un enrutador recibe la clase. Todas las anclas dentro de `.tanrei-prose` se dibujan igual sin necesidad de la clase, así que el Markdown renderizado no necesita nada.
+
+SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos. React tampoco tiene aún un componente `Link`, así que usa el ancla con la clase.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link.css" />
+
+    <!-- En una frase. -->
+    <p>Lee primero <a class="tanrei-link" href="/guides/accessibility/">la guía de accesibilidad</a>.</p>
+
+    <!-- Por sí solo: el área de pulsación alcanza el objetivo mínimo. -->
+    <a class="tanrei-link" data-standalone href="/getting-started/">Primeros pasos</a>
+
+    <!-- Una pestaña nueva: la marca se dibuja sola. Dilo también con palabras. -->
+    <a class="tanrei-link" href="https://example.com/" target="_blank" aria-description="se abre en una pestaña nueva">el código fuente</a>
+
+    <!-- Otro sitio, que se abre donde está la persona: una flecha después de la etiqueta, y las palabras que lo dicen. -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="enlace externo">la norma</a>
+
+    <!-- Con el icono de ese sitio: una imagen que sirve tu propio sitio, como primer hijo del ancla. -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="enlace externo"><img
+      class="tanrei-link-site-icon" src="/icons/example-com.png" alt="" width="32" height="32"
+      loading="lazy" decoding="async" referrerpolicy="no-referrer">la norma</a>
+
+    <!-- Un enlace que se aparta del subrayado del sistema de diseño: always, hover o never. -->
+    <a class="tanrei-link" data-standalone data-underline="hover" href="/about/">Acerca de</a>
+
+    <!-- Una región con su propia elección: todos los enlaces que contiene la siguen. -->
+    <footer style="--tanrei-comp-link-underline-visibility: never">…</footer>
+
+    <!-- Un glifo, escrito pegado al texto, sin espacio entre ambos. -->
+    <a class="tanrei-link" data-standalone href="/tokens.zip"><span class="tanrei-icon" aria-hidden="true">download</span>Descargar los tokens</a>
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="/tokens/">Siguiente: Tokens<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+
+    <!-- Un glifo solo, con el nombre que le da aria-label. -->
+    <a class="tanrei-link" href="#instalación" aria-label="Enlace a Instalación"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+
+    <!-- La página actual, un enlace que ahora no se puede seguir y un enlace sobre una superficie inversa. -->
+    <a class="tanrei-link" data-standalone href="/components/" aria-current="page">Componentes</a>
+    <a class="tanrei-link" data-standalone role="link" aria-disabled="true">Página anterior</a>
+    <a class="tanrei-link" data-variant="inverse" href="/changes/">qué ha cambiado</a>
+
+    <script type="module">
+      // Opcional: la respuesta de onda y de atenuación, noopener, los rechazos y los informes de depuración. `@tanrei/web` también lo carga.
+      // También marca los enlaces que salen del sitio, donde la página no se marcó al generarla.
+      import { setSiteOrigins, setExternalLabel } from '@tanrei/web/link';
+      setSiteOrigins(['https://docs.example.com']); // orígenes que forman parte de tu propio sitio
+      setExternalLabel('enlace externo');           // las palabras, una vez para la página, en tu idioma
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/link.css';
+    import '@tanrei/web/link';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <a className="tanrei-link" href="/guides/accessibility/">la guía de accesibilidad</a>
+
+    {/* El enlace de un enrutador renderiza su propia ancla: dale la clase. */}
+    <RouterLink className="tanrei-link" data-standalone to="/getting-started/">Primeros pasos</RouterLink>
+    ```
+  </TabItem>
+</Tabs>
+
+| Propiedad | En la web |
+| --- | --- |
+| `href` | `href` |
+| `target: new` | `target="_blank"` |
+| `targetLabel` | `aria-description` |
+| `variant: inverse` | `data-variant="inverse"` |
+| `standalone` | `data-standalone` |
+| `iconPosition: trailing` | `data-icon-position="trailing"` |
+| `current` | `aria-current="page"` (u otro de sus valores) |
+| `disabled` | `role="link" aria-disabled="true"`, y sin `href` |
+| `label` | `aria-label` |
+| `underline` | `data-underline="always"`, `"hover"` o `"never"`; sin él, la elección del sistema de diseño |
+| `external: on`, `off` | `data-external="true"`, `data-external="false"`; sin él, decide la dirección |
+| `externalLabel` | `aria-description` |
+| `siteIcon` | tu propia `<img class="tanrei-link-site-icon" alt="">`, como primer hijo del ancla |
+
+## Especificaciones
+
+<DemoFrame label="Salto de línea: el subrayado, la capa de estado y el anillo de foco siguen cada línea" plain>
+  <p style="margin: 0; max-inline-size: 22rem">
+    <a class="tanrei-link" href="../../foundations/accessibility/">la guía de accesibilidad, que explica qué nombre recibe cada componente, cómo se llega a él y cómo se maneja con el teclado, y qué anuncia cada plataforma cuando cambia su estado</a>
+  </p>
+</DemoFrame>
+
+<DemoFrame label="Un glifo y la marca de pestaña nueva" plain column>
+  <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>Descargar los tokens</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="se abre en una pestaña nueva">Ver el código fuente</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="se abre en una pestaña nueva"><span class="tanrei-icon" aria-hidden="true">code</span>Ver el código fuente</a>
+  <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="se abre en una pestaña nueva">Ver el código fuente<span class="tanrei-icon" aria-hidden="true">code</span></a>
+</DemoFrame>
+
+<DemoFrame label="Actual y deshabilitado" plain>
+  <a class="tanrei-link" data-standalone href="../">Descripción general</a>
+  <a class="tanrei-link" data-standalone href="./" aria-current="page">Componentes</a>
+  <a class="tanrei-link" data-standalone role="link" aria-disabled="true">Página anterior</a>
+</DemoFrame>
+
+<DemoFrame label="El subrayado: siempre, al pasar el cursor, nunca" plain>
+  <a class="tanrei-link" data-standalone data-underline="always" href="../button/">Siempre</a>
+  <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">Al pasar el cursor</a>
+  <a class="tanrei-link" data-standalone data-underline="never" href="../button/">Nunca</a>
+</DemoFrame>
+
+<DemoFrame label="Un enlace que sale del sitio" plain column>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="enlace externo">Especificación</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="enlace externo"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />Especificación</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="se abre en una pestaña nueva"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />Especificación</a>
+</DemoFrame>
+
+<DemoFrame label="Sobre una superficie inversa" plain>
+  <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
+    La página se ha guardado. Consulta
+    <a class="tanrei-link" data-variant="inverse" href="../snackbar/">qué ha cambiado</a>.
+  </div>
+</DemoFrame>
+
+Un enlace no trae un estilo de texto propio: toma la familia, el tamaño, el peso y el interlineado del texto en el que está, lo mismo en un párrafo que en un encabezado, una leyenda o una celda de tabla. El paso del cursor, el foco y la pulsación se dibujan detrás de su texto en cada línea por la que pasa, y no ocupan sitio, así que nada de lo que rodea a un enlace se mueve. Un glifo, el icono del sitio y la marca tienen el tamaño del texto y se quedan en la línea de la palabra que tienen al lado.
+
+**Cuándo se dibuja el subrayado es una elección** con tres valores. `always` lo dibuja en reposo y en todos los estados. `hover` lo dibuja mientras el enlace tiene el cursor encima, tiene el foco del teclado o está pulsado. `never` no dibuja ninguno, y el paso del cursor, el foco y la pulsación se siguen mostrando con la capa de estado, el color de la etiqueta y el anillo de foco. La elección se fija en tres niveles: `sys.behavior.link-underline` para todos los enlaces de texto de un sistema de diseño, `comp.link.underline.visibility` solo para el enlace, y la propiedad `underline` para un enlace concreto. El sistema predeterminado elige `always`. En la web, el token de componente es una propiedad personalizada, así que una región como un pie de página puede llevar su propio valor. El enlace actual y un glifo solo no tienen subrayado con ninguna elección, y los colores forzados lo dibujan con todas.
+
+**Un enlace que sale del sitio lo dice.** Un enlace externo muestra el glifo `arrow_outward` después de su etiqueta y, cuando proporcionas uno, el icono de ese sitio antes de ella. `external` es `auto`, `on` u `off`. Con `auto`, una dirección `http` o `https` de un origen distinto del de la página es externa; una ruta, un fragmento, una dirección de correo, un número de teléfono y una descarga nunca lo son. Declara una sola vez los demás orígenes de tu propio sitio, y tampoco serán externos. `comp.link.external.marks` quita el icono (`arrow`) o las dos marcas (`none`) en todo el producto.
+
+Salir del sitio y abrir una pestaña nueva son dos hechos distintos. En el lugar que sigue a la etiqueta cabe un solo glifo: `open_in_new` para un enlace con `target="_blank"`, sea externo o no, y en los demás casos `arrow_outward` para un enlace externo. Tu propio glifo en el lado de fin sustituye a cualquiera de los dos, y un glifo solo no tiene ninguno.
+
+**El enlace nunca va a buscar un icono.** `siteIcon` es una imagen que proporcionas tú: una que sirve tu propio sitio, creada cuando se compila el sitio. Un componente que se la pidiera al destino, o a un servicio de iconos, le diría a ese tercero en qué página está cada lector. Cuando no se proporciona ningún icono, el enlace muestra solo la flecha. Un icono que no se puede cargar conserva su sitio y no dibuja nada.
+
+<ComponentSpecs name="link" />
+
+### Qué dibuja la web de otra manera
+
+- El contenedor que queda detrás del texto de un enlace es la caja del propio texto (la altura propia de la fuente), no el interlineado completo.
+- Un enlace con un glifo o con la marca que salta de línea se dibuja como una sola caja cortada en los finales de línea. Un enlace sin ellos tiene las cuatro esquinas en cada línea.
+- Un enlace por sí solo con un glifo, con la marca o con las marcas de un enlace externo dispone su etiqueta en la dirección del diseño, no en la de la primera letra de la etiqueta.
+- La hoja de estilos no calcula nada a partir de una dirección: dibuja las marcas para `data-external`. Escribe el atributo allí donde se genera la página (el paso de compilación `markExternalLinks()` de `@tanrei/web/links` lo hace para el Markdown renderizado), y las marcas están en el primer pintado.
+- Con el script del paquete, un ancla sin `data-external` cuya dirección sale del sitio se marca en el navegador. Estas marcas llegan después del primer pintado, y cada una desplaza lo que la sigue en su línea en la medida del tamaño del texto y del espacio de separación. Una página que no tiene ni el atributo ni el script no muestra ninguna marca de enlace externo.
+- En un navegador sin consultas de contenedor de estilo, el script lee las dos elecciones para toda la página. Allí no se ve el valor propio de una región, y sin el script cada elección toma su primer valor: `always`, y las dos marcas.
+- En un sistema de diseño cuya respuesta a la pulsación es una onda, un enlace que ocupa varias líneas responde con la superposición en su lugar.
+- Sin el script del paquete, la hoja de estilos dibuja todos los estados, con la superposición como respuesta a la pulsación.
+
+## Pautas
+
+### Enlace o botón
+
+| Componente | Qué es | Úsalo cuando |
+| --- | --- | --- |
+| **Enlace** | Texto que lleva a algún sitio, en el estilo del texto que lo rodea, subrayado como elija el sistema de diseño | Una expresión dentro de una frase, una línea de texto que es un destino, un glifo junto a un encabezado |
+| **Botón con destino** | Un enlace que se dibuja como un botón | El destino es una de las acciones de la pantalla: «Empezar», «Ver el código fuente» |
+| **Botón de texto** | Un botón | Hace algo y no lleva a ningún sitio, por mucho que deba parecer texto |
+
+### En una frase o por sí solo
+
+`data-standalone` no cambia nada de lo que ve una persona. Dice que el enlace no forma parte de una línea de texto, de modo que su área de pulsación puede alcanzar el objetivo mínimo sin quedarse con las pulsaciones destinadas a las líneas de arriba y de abajo. Úsalo para un enlace situado bajo un párrafo, en una celda de tabla o en una fila de enlaces. No lo pongas dentro de una frase.
+
+Los enlaces que están por sí solos son aquello para lo que existen `hover` y `never`: una lista de navegación, un pie de página, una fila de páginas relacionadas. Su lugar en una lista dice lo que son. Define `data-underline` en esos enlaces, o da a la región su propio valor del token de componente, y deja subrayados los enlaces de tus frases.
+
+### Recomendado
+
+- Escribe una etiqueta que diga adónde lleva el enlace sin necesidad de la frase que lo rodea: «la guía de instalación», no «aquí».
+- Usa `data-variant="inverse"` solo sobre `sys.color.inverse-surface`. Sobre un contenedor discreto (un contenedor de estado, `secondary-container`), el enlace estándar es el adecuado.
+- Marca como actual un enlace como máximo en cada conjunto de navegación, y deja que sea el conjunto el que decida cuál.
+- Deja `sys.target.spacing` entre dos enlaces por sí solos, o haz que sus filas tengan la altura de un objetivo.
+- Proporciona el icono de un sitio como un archivo que sirve tu propio sitio. `resolveSiteIcons()` de `@tanrei/web/links` los crea cuando se compila el sitio, así que el navegador de ningún lector llama a un tercero.
+- Define una sola vez las palabras de los enlaces externos (`setExternalLabel()`, o `externalLabel` en el paso de compilación), en el idioma de tu producto. Son la clave `externalLabel` de [los textos de tu producto](/es/foundations/words/): `setWords({ externalLabel: '…' })` da las mismas palabras, y con `{ lang }` las da por idioma.
+
+### Evita
+
+- No quites el subrayado en reposo en una capa cuyo color de enlace es su color de texto. En el sistema predeterminado, el color del enlace es el propio color del texto, con un contraste de 1.00:1 frente a él en los seis esquemas, así que el subrayado es lo único que dice «enlace». Cuando la elección es `hover` o `never` y el color del enlace está a menos de 3:1 del color del texto, la compilación falla en el sistema predeterminado y da una advertencia en la capa de un producto.
+- No cuentes con `hover` para revelar un enlace en una pantalla táctil. Allí no hay paso del cursor, así que a `hover` se le aplica la misma regla que a `never`.
+- No cargues el icono de un sitio desde ese sitio, ni desde un servicio de iconos, en el navegador. El navegador de cada lector le diría entonces a ese tercero qué página se está leyendo.
+- No le des a un enlace un controlador de clic en lugar de un destino. Un ancla sin dirección se dibuja como texto sin más, y las compilaciones de depuración lo notifican.
+- No pongas un enlace dentro de un control que se pulsa entero (una tarjeta de enlace, un elemento de lista con destino), ni un control dentro de un enlace.
+- No des estilo a los enlaces visitados. Un producto que necesita indicar «ya abierto» lo marca a partir de sus propios datos, con un tag o con un glifo.
+
+## Accesibilidad
+
+<ComponentAccessibility name="link" />
+
+### De qué se encarga el componente
+
+- Es el enlace del propio navegador: el rol de enlace, Enter para seguirlo, el menú contextual, la apertura en una pestaña nueva y un enlace que funciona sin script.
+- En el sistema predeterminado, el subrayado lo distingue del texto que tiene al lado sin depender del color, en todos los esquemas. Con colores forzados, el subrayado se dibuja sea cual sea la elección.
+- Un enlace externo tiene una sola descripción, que se lee después de su nombre: `aria-description` para una pestaña nueva y, en los demás casos, las palabras de un enlace externo. La flecha y el icono del sitio quedan ocultos para la tecnología de apoyo.
+- El anillo de foco del teclado se dibuja alrededor de la parte del enlace que hay en cada línea.
+- Un enlace por sí solo y un glifo solo extienden su área de pulsación hasta el objetivo mínimo. Un enlace dentro de una frase se limita a su propio texto.
+- La marca y un glifo situado junto a una etiqueta quedan ocultos para la tecnología de apoyo.
+- Con el script del paquete, un enlace que abre una pestaña nueva recibe `noopener`, y una compilación de depuración notifica que falta el nombre, que falta la descripción y que una dirección no es un destino. También notifica un enlace dentro de una frase que no está subrayado en reposo y está a menos de 3:1 de su texto, los enlaces externos que no tienen palabras (una vez para la página) y el icono de un sitio que se carga desde otro origen.
+
+### Qué debes hacer tú
+
+- Da su nombre a un glifo solo con `aria-label`, y pon `aria-hidden="true"` en todos los glifos.
+- Di con `aria-description` que un enlace abre una pestaña nueva, en el idioma de tu producto. Tanrei no incluye textos propios.
+- Escribe un enlace deshabilitado como el ancla sin `href`, con `role="link"` y `aria-disabled="true"`. Sale del orden del foco, así que explica en un texto a su lado por qué no se puede llegar a ese lugar.
+- Define `aria-current` en el enlace que nombra la página o la sección en la que está la persona.
+- Usa `hover` y `never` dentro de un texto corrido solo cuando el color del enlace esté a 3:1 o más del color del texto, y siga a 4.5:1 de la superficie. Con un texto casi negro sobre una superficie casi blanca, eso es una franja estrecha de tonos medios.
+- Di con palabras que un enlace sale del sitio: con `aria-description` en el enlace, o con las palabras que defines una sola vez para todos los enlaces externos. Tanrei no incluye textos propios. Para un enlace que es externo y abre una pestaña nueva, redacta la única descripción de modo que diga los dos hechos.
+- Escribe el icono del sitio con `alt=""`. Es decoración: la etiqueta da nombre al enlace, y la flecha lo marca.

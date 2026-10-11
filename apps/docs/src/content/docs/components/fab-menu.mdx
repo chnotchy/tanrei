@@ -1,0 +1,265 @@
+---
+title: FAB menu
+description: Opens a short list of related actions from a toggle drawn as a collapsed main action button, which turns into the list's close button while they show.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="fab-menu" />
+
+:::note[Not in the Tanrei system]
+The default Tanrei system does not ship the FAB menu, and neither does cupertino, because Apple has no floating action button; the Material presets do. In Tanrei, use a [Main Action Button](/components/main-action-button/) that opens a [bottom sheet](/components/bottom-sheet/) of actions. The component still works under every system, with a warning in development where the system leaves it out. The demos on this page are drawn under the `m3-like` preset, a system that ships it.
+:::
+
+<DemoFrame label="Closed and open" system="m3-like">
+  {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}
+  <div style="display: flex; align-items: end; gap: var(--tanrei-sys-space-space300); padding-block-start: calc(3 * max(var(--tanrei-comp-fab-menu-item-height), var(--tanrei-sys-target-touch)) + 2 * var(--tanrei-comp-fab-menu-list-gap) + var(--tanrei-comp-fab-menu-list-offset))">
+    <tanrei-fab-menu label="Create">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="Document" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Folder" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Upload" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+    <tanrei-fab-menu inline open label="Create">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="Document" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Folder" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Upload" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+  </div>
+</DemoFrame>
+
+### Usage
+
+The toggle is drawn as a collapsed [main action button](/components/main-action-button/), with a label and an icon. The items are actions, each an icon and a label, passed the way each platform passes repeated children. Like the main action button, the FAB menu does not place itself: your layout puts the toggle, usually in the inline-end bottom corner. The items appear above it, in the platform's overlay layer.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-fab-menu class="primary-action" label="Create">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="Document" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Folder" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="Upload" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+
+    <style>
+      /* The element places nothing: the page puts the toggle in the inline-end bottom corner. */
+      tanrei-fab-menu.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/fab-menu';
+      const fabMenu = document.querySelector('tanrei-fab-menu');
+      // The toggle asks to open or close; you set open.
+      fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));
+      // close carries the reason: escape, outside, tab, focus-out or item. The web never sends back.
+      fabMenu.addEventListener('close', () => (fabMenu.open = false));
+      // An item's click bubbles, and comes before close.
+      fabMenu.querySelector('[label="Upload"]').addEventListener('click', upload);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FabMenu, FabMenuItem } from '@tanrei/react';
+
+    <FabMenu
+      className="primary-action"
+      label="Create"
+      open={open}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <span slot="icon">add</span>
+      <FabMenuItem label="Document" icon="description" onClick={newDocument} />
+      <FabMenuItem label="Folder" icon="create_new_folder" onClick={newFolder} />
+      <FabMenuItem label="Upload" icon="upload" onClick={upload} />
+    </FabMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Placed as the FAB is. The toggle and the items both write the binding.
+    DocumentList()
+        .overlay(alignment: .bottomTrailing) {
+            TanreiFabMenu("Create", icon: "add", isPresented: $showsCreate) {
+                TanreiFabMenuItem("Document", icon: "description", action: newDocument)
+                TanreiFabMenuItem("Folder", icon: "create_new_folder", action: newFolder)
+                TanreiFabMenuItem("Upload", icon: "upload", action: upload)
+            }
+            .padding()
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiFabMenu
+    import io.github.chnotchy.tanrei.components.TanreiFabMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // State hoisting: you keep expanded. Put it in a scaffold's floatingActionButton slot, or place it yourself.
+    TanreiFabMenu(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        onDismissRequest = { expanded = false },
+        contentDescription = "Create",
+        icon = { TanreiText("add") },
+    ) {
+        TanreiFabMenuItem(text = "Document", icon = "description", onClick = ::newDocument)
+        TanreiFabMenuItem(text = "Folder", icon = "create_new_folder", onClick = ::newFolder)
+        TanreiFabMenuItem(text = "Upload", icon = "upload", onClick = ::upload)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // The FAB menu opens and closes itself through the controller; onToggle and onClose report it.
+    Scaffold(
+      body: const DocumentList(),
+      floatingActionButton: TanreiFabMenu(
+        controller: createMenu,
+        semanticLabel: 'Create',
+        icon: const Icon(AppSymbols.add),
+        items: <TanreiFabMenuItem>[
+          TanreiFabMenuItem(label: 'Document', icon: const Icon(AppSymbols.description), onPressed: newDocument),
+          TanreiFabMenuItem(label: 'Folder', icon: const Icon(AppSymbols.createNewFolder), onPressed: newFolder),
+          TanreiFabMenuItem(label: 'Upload', icon: const Icon(AppSymbols.upload), onPressed: upload),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { View } from 'react-native';
+    import { FabMenu } from '@tanrei/react-native';
+
+    // Controlled: set visible from onToggle, and to false from onDismiss, which receives the reason.
+    // The toggle never positions itself: style places it.
+    <View style={{ flex: 1 }}>
+      <DocumentList />
+      <FabMenu
+        icon="add"
+        accessibilityLabel="Create"
+        visible={open}
+        onToggle={setOpen}
+        onDismiss={() => setOpen(false)}
+        items={[
+          { label: 'Document', icon: 'description', onPress: newDocument },
+          { label: 'Folder', icon: 'create_new_folder', onPress: newFolder },
+          { label: 'Upload', icon: 'upload', onPress: upload },
+        ]}
+        style={styles.primaryAction}
+      />
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Variants, sizes and disabled" system="m3-like" plain>
+  <tanrei-fab-menu variant="tonal" label="Create"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu variant="surface" label="Create"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="small" label="Create"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="large" label="Create"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu disabled label="Create"><span slot="icon">add</span></tanrei-fab-menu>
+</DemoFrame>
+
+<ComponentSpecs name="fab-menu" />
+
+## Guidelines
+
+### When to use
+
+Use a FAB menu when a screen's main action comes in a few related forms: a new document, a folder or an upload; a photo or a note. The toggle keeps the screen's one floating action in reach, and pressing it shows the forms as labelled actions right above it.
+
+When there is only one action, use a [main action button](/components/main-action-button/). When the choices are many, or need descriptions, use a [menu](/components/menu/) from a button or a sheet. When an action belongs to one item rather than to the whole screen, put a button next to that item.
+
+### Choosing a variant
+
+| Variant | Emphasis | Use for |
+| --- | --- | --- |
+| Filled (default) | Highest | The screen's main actions at full strength. |
+| Tonal | High | A screen whose content should lead. |
+| Surface | Neutral | A FAB menu over content that already has color, such as a map or a photo. |
+
+The variant colors the toggle and the items alike. While open, the toggle takes the variant's other look, rounds into a circle and shows a close glyph, so open never looks like closed. The size sets only the toggle (40, 48 or 64): the items have one size.
+
+### Opening and closing
+
+The FAB menu is an operated overlay that is not modal, like the menu. People act inside it, so it takes focus and gives it back, but nothing else on the screen is blocked: there is no scrim and no focus trap.
+
+- **Opening.** The toggle asks to open with `toggle`. The items appear above it, end-aligned with it, one after another from the nearest, and focus moves to the first item at the top. Opened with Up Arrow, focus goes to the last item instead, the one next to the toggle.
+- **Closing.** Escape, the platform's back, a press outside the items and the toggle, Tab, or focus leaving all ask to close with `close` and the reason. Activating an item emits its click first, then `close` with the reason `item`. A press on the toggle while open is a toggle, not a press outside.
+- **Focus back.** When the items close and focus was among them, focus returns to the toggle. Tab from an item closes them and moves on from the toggle, as it would have from it.
+- **Who closes.** On the web, Compose and React Native you set `open` (`expanded`, `visible`) from `toggle` and back to false from `close`. On SwiftUI and Flutter the FAB menu opens and closes itself through its binding or controller.
+
+### Do
+
+- Give the toggle a label that names what its actions have in common, such as "Create". It keeps that name while open. Its expanded state tells a screen reader that it now closes the list.
+- Give every item a short label and an icon. The label is what people read; the icon only helps them find it.
+- Keep to two to six items. Order them as people scan them: the first is drawn at the top, and the last sits right above the toggle.
+- Leave room at the end of scrolling content, so the toggle never permanently covers the last item.
+
+### Don't
+
+- Don't disable an item. Leave an unavailable action out of the list. There is no disabled item.
+- Don't rename the toggle to "Close" while open, or swap its icon yourself. The component does both jobs.
+- Don't place a FAB menu and a main action button of the same size on one screen. A screen has one floating action.
+- Don't use a FAB menu for minor, destructive or settings actions.
+
+## Accessibility
+
+<ComponentAccessibility name="fab-menu" />
+
+### What the component handles
+
+- The toggle is a button named by the label. It exposes that it opens a menu and whether the menu is open, where the platform has those properties, and keeps its name while open.
+- While open, the items are a menu named by the same label, each a menu item named by its own label, with its position and the number of items. The icons are hidden.
+- Enter, Space or Down Arrow on the toggle open the menu and move focus to the first item. Up Arrow opens it and moves focus to the last item. Down and Up Arrow move between the items and wrap, and Home and End reach the ends. Enter or Space on an item activates it and closes the menu. Escape closes the menu and returns focus to the toggle.
+- The menu is not modal: it does not trap focus, does not make the rest of the screen inert and draws no scrim. Tab from an item closes it.
+- The toggle's hit area reaches the minimum target at every size. Each item is at least a target tall, and its whole container is its hit area.
+- The toggle does not grow with the text size, because an icon is not text. The items grow and wrap their labels.
+- Where motion is reduced, the toggle changes and the items appear and leave at once.
+- Debug builds report a missing toggle label, an item without a label or an icon, and fewer than two or more than six items.
+
+Known platform gaps:
+
+- Web: the web never sends `back`. Escape is its close request.
+- Web: the items are placed by script against the toggle, not by CSS anchor positioning as the spec's web note says, just as the menu is.
+- A press outside closes the items everywhere. On the web and Flutter it also reaches what is under it. On SwiftUI, Compose and React Native it does not.
+- SwiftUI has no menu or menu item role, and no way to say that the toggle opens a menu or that the menu is open. The items are buttons in a container named by the label, each with its position ("2 of 3", in English only) as its value.
+- SwiftUI presents the items in a popover, which places itself. It draws its own bubble and arrow behind the items, centres the column on the toggle's corner instead of lining it up with the toggle's end edge, and clips it in the default system; `list.offset` does not set the distance. The popover is to be replaced by Tanrei's overlay layer.
+- SwiftUI: Tab closes the items and returns focus to the toggle, but focus cannot move on from it in the same keystroke.
+- SwiftUI: an item's accessibility frame takes in its drawn shadow, so neighbouring items' frames overlap by a few points.
+- SwiftUI: an SF Symbol wider than it is tall, such as `folder.badge.plus`, reaches past the item's icon box.
+- SwiftUI: the keys on the toggle and the items, and focus moving in and back, are tested as rules, not yet with a real keyboard.
+- Compose has no menu role and no property that says a button opens a menu. The items are buttons in a traversal group named by the label, with their position in their collection info, and the toggle's expand and collapse actions say whether it opens or closes them.
+- Flutter exposes no has-popup on the toggle, and no position in the menu or number of items.
+- React Native has no property that says a button opens a menu. The toggle exposes only whether the menu is open.
+- React Native draws the items in `TanreiProvider`'s overlay layer, so there must be a `TanreiProvider` above it. Tab closes the items and returns focus to the toggle, and the next Tab moves on from it.
+- React Native: the items' placement, their staggered entrance, focus moving in and out, and the press outside have not yet been checked on a device.
+
+### What you need to do
+
+- Write a label for the toggle and for every item. An icon alone is not a name.
+- Put the FAB menu in the element tree where its actions belong. Assistive technology reads the toggle in tree order, not where it is drawn.
+- On the web, Compose and React Native, set `open` from `toggle` and to false from `close`. The FAB menu only asks.
+- Do not move focus yourself when it closes. The FAB menu returns focus to the toggle.
+- Keep the toggle clear of the navigation bar, and leave room above it for the items.

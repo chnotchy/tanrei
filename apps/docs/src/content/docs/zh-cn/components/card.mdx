@@ -1,0 +1,285 @@
+---
+title: "卡片"
+description: "把一组相关内容与背景区分开来；整张卡片也可以是一个操作（打开它所展示的内容），或是一个指向该内容的链接。"
+translationOf: components/card.mdx
+sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="card" />
+
+<DemoFrame label="变体">
+  <tanrei-card style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">营收比上一季度增长 12%。</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Filled</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">营收比上一季度增长 12%。</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">营收比上一季度增长 12%。</div>
+  </tanrei-card>
+</DemoFrame>
+
+卡片有三种形态。普通卡片是一个容器：内容保留各自的语义，里面可以放按钮和链接。可交互卡片是一个按钮。链接卡片，也就是带 `href` 的卡片，是一个链接。激活卡片后用户会前往另一个页面或地址时，用链接卡片；事情就在当前位置发生时，用可交互卡片。
+
+### 用法
+
+Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们提供普通卡片和可交互卡片，还没有链接卡片。这些平台的示例展示的是它们目前提供的内容。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 不是操作的卡片：内容保留各自的语义，里面可以放按钮。 -->
+    <tanrei-card>
+      <h3 class="tanrei-text-heading-5">季度报告</h3>
+      <p class="tanrei-text-body">营收比上一季度增长 12%。</p>
+      <tanrei-button variant="text">分享</tanrei-button>
+    </tanrei-card>
+
+    <!-- 一个操作：整张卡片是一个按钮，以 label 命名。里面不放任何可交互的元素。 -->
+    <tanrei-card variant="elevated" interactive label="季度报告">…</tanrei-card>
+
+    <!-- 一个链接：有了 href，整张卡片就是一个锚元素，以 label 命名。里面不放任何可交互的元素。 -->
+    <tanrei-card href="/reports/q3/" label="季度报告">…</tanrei-card>
+
+    <!-- 在新标签页中打开的链接要用你自己的文字说明这一点。卡片不绘制任何标记：图标请放进你的内容里。 -->
+    <tanrei-card href="https://example.com/reports/q3.pdf" target="new" target-label="在新标签页中打开" label="季度报告">
+      <h3 class="tanrei-text-heading-5">季度报告</h3>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </tanrei-card>
+
+    <!-- inset 默认为 true，所以对应的 HTML 属性取其反义：flush 让照片一直铺到边缘。 -->
+    <tanrei-card flush>
+      <img src="cover.jpg" alt="" />
+      <div style="padding: var(--tanrei-comp-card-container-padding)">…</div>
+    </tanrei-card>
+
+    <script type="module">
+      import '@tanrei/web/components/card';
+      document.querySelector('[interactive]').addEventListener('click', openReport);
+
+      // 链接卡片会在浏览器前往该地址之前触发 click。客户端路由会取消它。
+      document.querySelector('tanrei-card[href]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push(event.currentTarget.href);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Card } from '@tanrei/react';
+
+    <Card variant="filled">
+      <h3 className="tanrei-text-heading-5">季度报告</h3>
+      <p className="tanrei-text-body">营收比上一季度增长 12%。</p>
+    </Card>
+    <Card interactive label="季度报告" onClick={openReport}>…</Card>
+    <Card href="/reports/q3/" label="季度报告">…</Card>
+    <Card href="https://example.com/reports/q3.pdf" target="new" targetLabel="在新标签页中打开" label="季度报告">…</Card>
+    <Card inset={false}>…</Card>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCard(variant: .filled) {
+        Text("季度报告")
+        Text("营收比上一季度增长 12%。")
+    }
+
+    // 接受 action: 的初始化方法创建的就是可交互卡片。
+    TanreiCard(label: Text("季度报告"), action: openReport) { ReportSummary() }
+        .disabled(isLoading)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiCard
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiCardVariant
+
+    // 没有 onClick 的卡片不是操作，所以里面可以放按钮。
+    TanreiCard(variant = TanreiCardVariant.Filled) {
+        TanreiText("季度报告")
+        TanreiText("营收比上一季度增长 12%。")
+        TanreiButton(text = "分享", onClick = ::share)
+    }
+
+    // 带 onClick 的重载是一个操作。enabled = false 会禁用它。
+    TanreiCard(onClick = ::openReport, contentDescription = "季度报告") {
+        TanreiText("季度报告")
+        TanreiText("营收比上一季度增长 12%。")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCard(
+      variant: TanreiCardVariant.filled,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Text('季度报告'),
+          const Text('营收比上一季度增长 12%。'),
+          TanreiButton(onPressed: share, child: const Text('分享')),
+        ],
+      ),
+    );
+
+    // onTap 不为 null 时，整张卡片是一个操作；enabled: false 会禁用它。
+    TanreiCard(
+      onTap: openReport,
+      semanticLabel: '季度报告',
+      child: const ReportSummary(),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Text } from 'react-native';
+    import { Card, useContentColor } from '@tanrei/react-native';
+
+    // 纯字符串会以 body 样式和卡片的内容颜色绘制。
+    <Card variant="filled">营收比上一季度增长 12%。</Card>
+
+    // 有了 onPress，卡片就是一个操作，以它的标题命名。
+    <Card accessibilityLabel="季度报告" onPress={openReport}>
+      <ReportSummary />
+    </Card>
+
+    // 你自己的文本要读取卡片的内容颜色：React Native 没有可继承的文本颜色。
+    function ReportSummary() {
+      const color = useContentColor();
+      return <Text style={{ color }}>营收比上一季度增长 12%。</Text>;
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="铺满边缘、可交互、禁用" plain>
+  <tanrei-card flush style="width: 15rem">
+    <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
+    <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">铺满边缘：内容一直延伸到卡片边缘。</div>
+  </tanrei-card>
+  <tanrei-card interactive label="季度报告" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">季度报告</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">可交互：把指针悬停在上面，用 Tab 聚焦，再按下它。</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" interactive disabled label="季度报告" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">季度报告</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">可交互，并且已禁用。</div>
+  </tanrei-card>
+</DemoFrame>
+
+<DemoFrame label="链接卡片" plain>
+  <tanrei-card href="/zh-cn/components/button/" label="按钮" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">按钮</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">链接卡片。按 Enter 前往目标，浏览器的链接菜单对它同样有效。</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" href="/zh-cn/components/list/" target="new" target-label="在新标签页中打开" label="列表" style="width: 15rem">
+    <div style="display: flex; align-items: center; gap: var(--tanrei-sys-space-space200)">
+      <div style="flex: 1; font: var(--tanrei-sys-typescale-heading-5-font)">列表</div>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">在新标签页中打开。图标是内容的一部分。</div>
+  </tanrei-card>
+  <tanrei-card href="/zh-cn/components/button/" disabled label="按钮" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">按钮</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">禁用的链接卡片：无处可去。</div>
+  </tanrei-card>
+</DemoFrame>
+
+<ComponentSpecs name="card" />
+
+## 指南
+
+### 何时使用
+
+用卡片把关于同一个对象的内容归为一组，并与周围的内容区分开来，例如一份报告、一个人、一件商品或一项设置。卡片只做三件事：给内容留出内边距、按自己的形状裁切内容、为内容提供颜色。内容的布局由你来完成，使用 Tanrei 的文本样式（卡片标题用 `heading-5`）和组件。
+
+如果整张卡片就是一个操作，用来打开它所展示的内容，就让整张卡片可交互。如果它需要多个操作，就让卡片保持不可交互，把按钮放在里面。
+
+### 有目标地址的卡片是链接
+
+有目标地址的控件是链接，卡片也不例外。如果激活卡片只是把用户带到另一个页面，就给它 `href`，而不是在可交互卡片上处理点击。这样卡片就是一个真正的链接，在 Web 上是包住其内容的锚元素。用户可以在新标签页中打开它、复制它的地址，并在前往之前看到它通向哪里；辅助技术朗读的是链接，而不是按钮。本站中从一个页面通向另一个页面的卡片都是链接卡片。
+
+- 链接卡片在每种状态下的外观都与可交互卡片完全相同。没有链接专属的外观，也没有“已访问”状态。
+- `href` 优先于 `interactive`：两者都有的卡片是链接。
+- Enter 会前往链接卡片的目标。Space 不会：它的作用与在任何链接上一样，在 Web 上就是滚动页面。
+- 先触发 `click`，然后才打开目标。如果要像客户端路由那样自己接管导航，就取消这次点击。
+- `target` 为 `same`（默认）或 `new`。在新标签页或新窗口中打开的链接需要 `targetLabel`，也就是在名称之后朗读的文字，例如“在新标签页中打开”。Tanrei 不自带任何文案。卡片不会为此绘制标记，因为内容是你的：想显示标记的话，把 `open_in_new` 图标放进内容里。
+- 禁用的链接卡片无论用什么方式都无法前往目标，也不在焦点顺序之内。
+- 只含空白字符的 `href` 不算目标地址。`javascript:` 地址，或无法解析为地址的值，会被拒绝并在调试构建中报告，卡片则表现得如同没有设置它。
+
+如果卡片既需要目标地址，又需要自己的操作，就让它保持普通卡片，把它的标题做成链接，或者在里面放一个带 `href` 的[按钮](/zh-cn/components/button/)。
+
+### 如何选择变体
+
+按背景来选，而不是按重要程度。
+
+| 变体 | 靠什么区分 | 用于 |
+| --- | --- | --- |
+| Outlined（默认） | 一道边线 | 大多数卡片，以及放在与 filled 卡片同色调的表面上的卡片。 |
+| Filled | 色调 | 放在素净表面上的卡片，仅凭色调就能标出这一组内容。放在同色调的表面上，filled 卡片会消失不见。 |
+| Elevated | 纵深 | 位于页面之上的内容，例如固定的项或可拖动的项。 |
+
+### 推荐
+
+- 用 `label` 为可交互卡片或链接卡片命名，通常取它标题的文字。
+- 一起展示的一组卡片使用同一种变体。
+- 对于要铺到边缘的媒体，把 `inset` 设为 false（在 Web 上是 `flush`），并用卡片的内边距令牌自行为下方的文本留出内边距。
+
+### 避免
+
+- 不要在可交互卡片或链接卡片里放按钮、链接、输入框、开关或其他任何可聚焦的元素。辅助技术无法到达它，而且在它上面按下也会激活卡片。
+- 不要在可交互卡片的点击处理函数里进行导航。要去往别处的卡片应使用 `href`。
+- 不要禁用普通卡片。`disabled` 在那里会被忽略，因为没有可禁用的操作或链接。
+- 不要用层级来给卡片排重要程度。
+
+## 无障碍
+
+<ComponentAccessibility name="card" />
+
+### 组件负责的部分
+
+- 不可交互的卡片没有角色，也不改动其内容的语义。有 `label` 时，它是以该标签命名的分组。
+- 可交互卡片是一个可聚焦的元素，角色为按钮，并暴露其禁用状态。它的名称是 `label`；没有 `label` 时，是它的全部内容连读成的一个字符串。缺少标签会在调试构建中报告。
+- 链接卡片是一个可聚焦的元素，角色为链接，命名方式相同。当 `target` 为 `new` 时，`targetLabel` 是它的描述，在名称和角色之后朗读。禁用的链接卡片保留链接角色，暴露禁用状态，并且没有目标地址。
+- Enter 和 Space 激活可交互卡片，链接卡片只由 Enter 激活。点击区域满足最小目标，焦点指示只在键盘聚焦时显示。
+- 卡片随内容变大，因此大号文本不会被裁切。
+- 在 Web 上，调试构建会在每次插槽内容变化时报告可交互卡片或链接卡片里的可交互元素，也会报告在新标签页中打开却没有 `targetLabel` 的链接卡片。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 还没有链接卡片。在这些平台上，要去往别处的卡片仍然是在其操作中进行导航的可交互卡片。
+- Web：之后才添加到卡片内已有元素更深层的可交互元素不会被报告。
+- Web：不可交互的卡片自己从不产生点击，但在其内容上的点击是普通的 DOM 点击，会经由卡片冒泡。
+- SwiftUI、Compose、Flutter 和 React Native 无法检测嵌套的可交互元素，因此不做这项检查。这条规则要靠你来遵守。
+- React Native：带标签的不可交互卡片是一个分组，但 iOS 不把这个角色映射为任何特征。VoiceOver 是否朗读分组的名称，尚未在真机上验证。
+- Compose：通过平台按键处理由 Enter 和 Space 激活，目前只在 Robolectric 下测试过，尚未在真机上测试。
+- React Native 没有可继承的文本颜色。卡片以自己的内容颜色绘制纯字符串；你自己的文本用 `useContentColor()` 读取这个颜色。
+- SwiftUI：小于最小目标的可交互卡片保持其可见尺寸，但在布局中占据最小目标的大小。
+
+### 需要你做的事
+
+- 为可交互卡片或链接卡片提供 `label`。没有它，全部内容会被读成一个很长的名称。
+- 为在新标签页或新窗口中打开的链接卡片提供 `targetLabel`，使用你的产品的语言。
+- 可交互卡片和链接卡片里不要放其他控件。如果卡片需要自己的按钮或链接，就让它保持普通卡片，并让其中一个充当它的主要操作或目标地址。
+- 为不可交互卡片里的标题、图片和其他内容提供各自的语义：替代文本、标题级别。卡片不会添加任何语义。

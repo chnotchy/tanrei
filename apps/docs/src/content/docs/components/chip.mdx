@@ -1,0 +1,269 @@
+---
+title: Chip
+description: A small labelled control in a row, for a suggested action or a link to somewhere, a filter that is on or off, or an item the user entered and can remove.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="chip" />
+
+<DemoFrame label="Kinds">
+  <tanrei-chip label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip label="Sounds good"></tanrei-chip>
+  <tanrei-chip kind="filter" selected label="Vegetarian"></tanrei-chip>
+  <tanrei-chip kind="filter" label="Under 30 min"></tanrei-chip>
+  <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Remove Ada Lovelace"></tanrei-chip>
+</DemoFrame>
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision of the chip, with less rounded corners, smaller glyphs, a `close` glyph for the remove action, no `destructiveRemove` and no link form (`href`), and their samples show that revision until they catch up.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-chip label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
+
+    <!-- An action chip with href is a link. One that opens a new tab shows a mark and says so in your words. -->
+    <tanrei-chip label="Opening hours" href="/visit/hours/"></tanrei-chip>
+    <tanrei-chip label="Directions" href="https://example.com/map" target="new" target-label="opens in a new tab"></tanrei-chip>
+
+    <!-- A filter chip switches its own selected and fires change. -->
+    <tanrei-chip kind="filter" label="Vegetarian"></tanrei-chip>
+
+    <!-- An input chip has a second button, named by remove-label. -->
+    <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Remove Ada Lovelace">
+      <img slot="avatar" src="ada.jpg" alt="" />
+    </tanrei-chip>
+
+    <!-- Removing an applied filter loses nothing: turn the destructive look off. -->
+    <tanrei-chip kind="input" label="Under 30 min" remove-label="Remove Under 30 min" no-destructive-remove></tanrei-chip>
+
+    <script type="module">
+      import '@tanrei/web/components/chip';
+      document.querySelector('[kind="filter"]').addEventListener('change', (e) => filter(e.detail.selected));
+      // The chip stays in the DOM: the page removes it and moves focus to a neighbour.
+      document.querySelector('[kind="input"]').addEventListener('remove', (e) => removeRecipient(e.target));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip } from '@tanrei/react';
+
+    <Chip label="Add to calendar" onClick={addToCalendar}><span slot="icon">event</span></Chip>
+    <Chip label="Opening hours" href="/visit/hours/" />
+    <Chip label="Directions" href="https://example.com/map" target="new" targetLabel="opens in a new tab" />
+    <Chip kind="filter" selected={vegetarian} label="Vegetarian" onChange={(e) => setVegetarian(e.detail.selected)} />
+    <Chip kind="input" label="Ada Lovelace" removeLabel="Remove Ada Lovelace" onRemove={() => removeRecipient(ada)} />
+    <Chip kind="input" label="Under 30 min" removeLabel="Remove Under 30 min" destructiveRemove={false} onRemove={clearTimeFilter} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // The initializer chooses the kind.
+    TanreiChip("Add to calendar", icon: "event", action: addToCalendar)
+    TanreiChip("Vegetarian", isSelected: $vegetarian)
+    TanreiChip("Ada Lovelace", removeLabel: "Remove Ada Lovelace", action: openContact, onRemove: removeAda)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiChip
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // The overload chooses the kind. onClick alone is an action chip.
+    TanreiChip(onClick = ::addToCalendar, label = "Add to calendar", icon = { TanreiText("event") })
+
+    // selected with onSelectedChange is a filter chip.
+    TanreiChip(selected = vegetarian, onSelectedChange = { vegetarian = it }, label = "Vegetarian")
+
+    // onClick with onRemove is an input chip. Remove it from your list and move focus yourself.
+    TanreiChip(
+        onClick = { openContact(ada) },
+        onRemove = { recipients -= ada },
+        label = "Ada Lovelace",
+        removeContentDescription = "Remove Ada Lovelace",
+        avatar = { ContactPhoto(ada) },
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // The constructor chooses the kind.
+    TanreiChip(label: 'Add to calendar', icon: const Icon(AppSymbols.event), onPressed: addToCalendar);
+
+    TanreiChip.filter(
+      label: 'Vegetarian',
+      selected: vegetarian,
+      onSelected: (bool value) => setState(() => vegetarian = value),
+    );
+
+    TanreiChip.input(
+      label: 'Ada Lovelace',
+      removeSemanticLabel: 'Remove Ada Lovelace',
+      avatar: Image.asset('ada.png', fit: BoxFit.cover),
+      onDeleted: () => setState(() => recipients.remove(ada)), // and move focus yourself
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Chip } from '@tanrei/react-native';
+
+    <Chip label="Add to calendar" icon="event" onPress={addToCalendar} />
+    <Chip kind="filter" label="Vegetarian" selected={vegetarian} onSelectedChange={setVegetarian} />
+    <Chip
+      kind="input"
+      label="Ada Lovelace"
+      avatar={{ uri: ada.photo }}
+      removeAccessibilityLabel="Remove Ada Lovelace"
+      onRemove={() => removeRecipient(ada)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Variants, sizes and disabled" plain>
+  <tanrei-chip variant="elevated" label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="filter" variant="elevated" selected label="Vegetarian"></tanrei-chip>
+  <tanrei-chip size="small" label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="input" size="small" label="Ada Lovelace" remove-label="Remove Ada Lovelace"></tanrei-chip>
+  <tanrei-chip disabled label="Add to calendar"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="filter" selected disabled label="Vegetarian"></tanrei-chip>
+</DemoFrame>
+
+<DemoFrame label="Remove actions: destructive (default) and plain; hover or focus them" plain>
+  <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Remove Ada Lovelace"></tanrei-chip>
+  <tanrei-chip kind="input" label="Under 30 min" remove-label="Remove Under 30 min" no-destructive-remove></tanrei-chip>
+</DemoFrame>
+
+<DemoFrame label="Link chips: here, in a new tab, disabled" plain>
+  <tanrei-chip label="Tag" href="/components/tag/"></tanrei-chip>
+  <tanrei-chip label="Badge" href="/components/badge/" target="new" target-label="opens in a new tab"></tanrei-chip>
+  <tanrei-chip label="Tag" href="/components/tag/" disabled></tanrei-chip>
+</DemoFrame>
+
+In the default system every chip is a pill, and stays one when larger text makes it taller. Its glyphs are as large as its height allows: 24 on a medium chip and 20 on a small one. The check of a selected filter chip is the glyph `check` of the system's icon set, and the remove glyph is `cancel`, always drawn filled. The chip draws no mark of its own, so a design system that wants other marks chooses another icon set. The edge of an outlined chip is the hairline, the same quiet line a divider draws.
+
+<ComponentSpecs name="chip" />
+
+## Guidelines
+
+### When to use
+
+Use chips for small, related choices shown in a row: filters above a list, suggested replies under a message, the recipients of an email. A button is too heavy for a row of ten, a checkbox reads as part of a form, and a badge or a tag cannot be pressed.
+
+### Choosing a kind
+
+`kind` decides what the chip does, its role and its parts. It does not change the look.
+
+| Kind | What it is | Use for |
+| --- | --- | --- |
+| Action (default) | A button, or with `href` a link | An assist action tied to the content, such as "Add to calendar" next to a date, or a suggestion, such as the reply "Sounds good". With a destination, a shortcut to a related page. |
+| Filter | A button that is on or off | Narrowing a list: "Vegetarian", "Under 30 min". When on, it shows a check and the selected colors. |
+| Input | An item the user entered, with a remove action | Recipients, tags, search terms. It can show an avatar in place of an icon. |
+
+Material Design 3 has four chip families. Tanrei counts three kinds: its assist and suggestion chips are both buttons with a label and an optional icon, so both are the `action` kind. A design system that wants suggestions to look quieter adds its own variant for them.
+
+### Choosing a variant and size
+
+| Variant | Use for |
+| --- | --- |
+| Outlined (default) | Chips on a plain surface. The edge is the hairline: it sets the chip apart quietly, and the label carries the meaning. |
+| Elevated | Chips over a photo, a map or a busy background, where an edge alone would get lost. |
+
+Use `medium` (32) for most chips, and `small` (24) in dense places, such as entered items inside a field or filters above a table. A static label in a table row is a [tag](/components/tag/). Both sizes meet the minimum target.
+
+### Chip, tag or badge
+
+A chip is a control: it is pressed, switched or removed, takes focus and has states. A [tag](/components/tag/) is a static label on one item, such as a status or a category, and never answers a pointer. A [badge](/components/badge/) is a dot or a count attached to the corner of another element.
+
+- If it is pressed, selected or removed, use a chip.
+- If it only says something about the item it sits on, use a tag.
+- If it is a number or a dot on top of something else, use a badge.
+
+Don't use a chip that does nothing as a label, and don't disable a chip to make it one.
+
+### A chip with a destination is a link
+
+A control with a destination is a link. An action chip that only takes the person somewhere takes `href`, and is then a real link and not a button: on the web an anchor, which can be opened in a new tab and whose address can be copied. It looks exactly like an action chip in every state, and there is no visited state.
+
+- Enter follows a link chip. Space does not: it does what it does on any link.
+- `click` fires first, then the destination opens. Cancel the click to take the navigation yourself, as a client-side router does.
+- With `target` set to `new` the chip shows the `open_in_new` glyph after its label, and needs `targetLabel`, the words read after its name, such as "opens in a new tab". Tanrei ships no words of its own.
+- A disabled link chip cannot be followed and leaves the focus order.
+- Only an action chip can be a link. A filter chip holds a state and an input chip carries a second action, so both ignore `href`, and debug builds report it.
+
+### The remove action
+
+An input chip ends with a remove action: the filled `cancel` glyph on a round container a little larger than it, which shows as a ring around the glyph on hover, focus and press. In the default system the round container is concentric with the chip's round end, as far from the end as from the top and the bottom. It takes no room of its own, so it does not make the chip wider or taller. The remove action is a separate button with its own name, its own hover, focus and press, and its own hit area, which extends outward and never covers the label. Pressing it, or pressing Backspace or Delete while the chip has focus, asks to remove the chip. **The chip never removes itself.** Your code removes the item and moves focus: to the next chip, the previous one, or the field the chips belong to.
+
+By default the remove action reads as destructive (`destructiveRemove`, on unless you turn it off). At rest it looks as it would without the flag. While it is hovered, focused or pressed, its glyph and its state layer take the error color. Turn it off for a removal that loses nothing, such as an applied filter the person can add back. On the web the attribute is the inverse, `no-destructive-remove`, because an HTML boolean attribute cannot default to true. The flag changes colors and nothing else, and it is ignored on the other kinds.
+
+An input chip that cannot be taken away now, such as an entry of a read-only field, draws no remove action: set `removable` to false. No action stands there doing nothing, Backspace and Delete ask for nothing, and the chip is padded as a chip without one. On the web the attribute is the inverse, `not-removable`. It is ignored on the other kinds.
+
+**Used in** the [chip field](/components/chip-field/), where each entry is a small input chip. There the field gives the whole set one Tab stop and its own keys, removes a chip that asks, and moves focus. On the web a component that holds chips this way sets `tabindex="-1"` on each chip, which takes the chip and its remove action out of the Tab order and leaves both focusable.
+
+### Do
+
+- Keep labels short, one to three words. A chip stays on one line and cuts its label with an ellipsis only when the layout gives it too little width.
+- Use one variant for a row of chips.
+- Name the item in the remove label: "Remove Ada Lovelace", not "Remove".
+- Keep the destructive remove look where removing loses what the person entered, such as a recipient or a tag. Turn it off where the removal is harmless.
+- On the web, put a row of chips in a [tag group](/components/tag-group/): it wraps them onto lines, keeps the distance between them and exposes them as one list. On the other platforms, and for a row that scrolls, lay the chips out yourself.
+
+### Don't
+
+- Don't use a filter chip for a setting that applies at once and stands alone. Use a switch.
+- Don't use a chip for the main action of a screen. Use a button or a main action button.
+- Don't navigate from an action chip's click handler. A chip that goes somewhere takes `href`.
+- Don't mix kinds in one row, such as filters beside suggested actions.
+- Don't give a filter chip a label that changes with its state. The state is announced separately.
+
+## Accessibility
+
+<ComponentAccessibility name="chip" />
+
+### What the component handles
+
+- Every chip exposes the button role, the label as its name, and its disabled state. The icon, the check and the avatar are hidden from assistive technology.
+- An action chip with `href` exposes the link role instead, with the same name. The mark of a link that opens a new tab is hidden from assistive technology; `targetLabel` is the link's description, read after its name and role.
+- A filter chip also exposes whether it is on, as a toggle button does: a pressed state on the web, the selected trait on Apple platforms, a toggleable state on Android. Its state is never announced from the check.
+- An input chip is two elements: the chip, then its remove action, a separate button named by the remove label. Tab reaches them in that order. Backspace or Delete on the focused chip also asks to remove it.
+- Enter and Space activate the chip, or the remove action when it has focus. A link chip is activated by Enter alone. Each shows its own focus indicator, for keyboard focus only.
+- The chip's hit area meets the minimum target at both sizes. The remove action has a hit area of its own that meets it as well, without covering the label.
+- The destructive remove look is never the only cue. With `destructiveRemove` on or off, the remove action keeps its role, its name, its glyph, its size and its hit area, and announces nothing more. The name, "Remove Ada Lovelace", says what it does.
+- The full label stays the accessible name even when it is cut. At larger text sizes the chip grows in height and stays a pill.
+- In the default system the edge of an outlined chip is the hairline, which is below 3:1 against the surface. The edge is not what identifies the chip: the label is text at full contrast, a selected filter chip shows its fill and its check, and focus shows the focus ring. A product that needs a 3:1 edge sets `comp.chip.outlined.outline.color` to `sys.color.outline` in a layer.
+- Debug builds report a missing label, a missing remove label on an input chip, a link that opens a new tab without a `targetLabel`, a destination on a filter or an input chip, and an unknown kind, which renders and behaves as an action chip.
+
+Known platform gaps:
+
+- React Native: Backspace and Delete are delivered through a key event whose delivery on iOS and Android has not been checked on a device. The remove action stays reachable by Tab either way.
+- React Native: that VoiceOver and TalkBack reach the chip and its remove action as two elements in that order, and the remove action's hit area, have been tested without a device only. On Android a hit area cannot reach past the parent view, so leave room around a row of input chips.
+- Flutter: the remove action's hit area reaches past the chip's end, and Flutter makes room for it by widening the input chip's layout, so a row of input chips is spaced a little wider.
+- Compose: the remove action's hit area reaches past the chip's end without widening the chip, so a chip placed right after it takes presses where the two overlap. A touch there, keys through the platform's key handling and TalkBack have been tested under Robolectric only, not yet on a device.
+- SwiftUI: Backspace and Delete on the chip, and Tab from the chip to its remove action, are tested on their parts but not yet driven end to end. Where a press dims the control (cupertino), the remove glyph dims one frame after the chip.
+- SwiftUI and Compose keep the icon, the check, the remove glyph and the avatar at their own size as text grows, while the label grows. Whether they should grow with the label is not yet decided.
+- The web draws the check and the remove glyph as the icon set's `check` and `cancel`, by the names the spec gives (CHP-13, CHP-18). SwiftUI, Compose, Flutter and React Native, which ship the previous revision, still draw the remove action with `close` (Flutter by a Material Symbols code point), and without an icon font Compose and SwiftUI draw the check and the cross as vectors of their own. Each draws `cancel` and `check` by name, and no vector of its own, when it catches up.
+
+### What you need to do
+
+- When the user removes an input chip, remove it and move focus to a neighbouring chip or to the field. The chip does nothing after it asks.
+- Give every input chip a remove label that names its item. Several "Remove" buttons in a row cannot be told apart.
+- Give a link chip that opens a new tab or window a `targetLabel` in the language of your product.
+- Give a row of filter chips a visible heading or a group name that says what they filter.
+- Provide the keyboard model of a row yourself if you need one, such as arrow keys between chips. Each chip handles only Tab, Enter, Space and, on an input chip, Backspace and Delete.

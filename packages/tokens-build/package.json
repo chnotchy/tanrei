@@ -1,0 +1,34 @@
+{
+  "name": "@tanrei/tokens-build",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "generate": "node src/cli.js generate",
+    "validate": "node src/cli.js validate",
+    "figma-plans": "node src/cli.js figma-plans",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@material/material-color-utilities": "^0.4.0",
+    "@terrazzo/parser": "^2.0.0",
+    "@tanrei/token-engine": "workspace:*",
+    "ajv": "^8.20.0"
+  },
+  "exports": {
+    ".": "./src/product.js",
+    "./product": "./src/product.js",
+    "./resolve": "./src/resolve.js",
+    "./ir": "./src/ir.js",
+    "./fonts": "./src/fonts.js",
+    "./model": "./src/model.js",
+    "./reader": "./src/reader.js",
+    "./bundle": "./src/bundle.js",
+    "./invariants": "./src/invariants.js",
+    "./scheme": "./src/scheme.js",
+    "./emit/css": "./src/emit/css.js",
+    "./pure": "./src/pure.js",
+    "./config": "./src/config.js"
+  }
+}

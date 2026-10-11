@@ -1,0 +1,415 @@
+---
+title: タブ
+description: 同じ対象の複数のビューを、トラックの上に置いたラベル付きのタブの並びで切り替えます。選択中のタブは 1 つで、タブの間を滑り、並びの上をドラッグする指にも付いてくるインジケーターがそれを示します。
+translationOf: components/tabs.mdx
+sourceHash: 46bfaf68231605f7875bae06958c990851ac5120
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="tabs" />
+
+:::note[仕様は改訂済み、各プラットフォームは追従待ち]
+このページは、現在の仕様のタブを説明しています。タブはトラックの上に並び、1 つのインジケーターが選択中のタブへ滑り、並びの上のドラッグにも付いてきます。タブは既定で中身に合わせた幅になり、ラベルは折り返さずに省略します。複数の並びで 1 つの選択を共有し、記憶することもできます（`group` と `rememberAs`）。`scrollable` は `fullWidth` に置き換わりました。並びには 3 つのバリアント（primary、secondary、tonal）と 2 つのサイズがあり、トラックを描かないことも、インジケーターが滑るかどうかを `transition` で指定することもできます。Web コンポーネントはこのすべてに対応しており、デモもそれを示しています。SwiftUI、Compose、Flutter、React Native は上の表で「追従待ち」です。追従するまでは以前の版（`scrollable`、Flutter では false が既定の `isScrollable`、線のインジケーター、折り返す固定幅のラベル。トラックもドラッグもありません）を提供しています。
+:::
+
+<DemoFrame label="プライマリーのタブと、選択中のタブのパネル">
+  <tanrei-tabs value="overview" label="プロジェクト" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="概要" icon="dashboard"></tanrei-tab>
+    <tanrei-tab value="activity" label="アクティビティ" icon="history"></tanrei-tab>
+    <tanrei-tab value="settings" label="設定" icon="settings"></tanrei-tab>
+    <tanrei-tab-panel value="overview">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">3 つのサービスがすべて稼働中です。</p>
+    </tanrei-tab-panel>
+    <tanrei-tab-panel value="activity">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">2 時間前にデプロイしました。</p>
+    </tanrei-tab-panel>
+    <tanrei-tab-panel value="settings">
+      <p style="font: var(--tanrei-sys-typescale-body-font)">リージョン、ドメイン、アクセス権。</p>
+    </tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+### 使い方
+
+タブの並びが持つ項目の種類は `tab` の 1 つだけです。タブの渡し方は、各プラットフォームで繰り返しの子要素を渡すときの流儀に従います。Web では子要素の `<tanrei-tab>`、SwiftUI ではビュービルダーの中で値のタグを付けた `TanreiTab`、Compose ではコンテンツラムダの中の `TanreiTab` の呼び出し、Flutter では `tabs:` に並べた `TanreiTab` ウィジェット、React Native ではプレーンなオブジェクトの配列 `items` です。
+
+選択は、値によって並びが持ちます。`selected` は選択中のタブの値で、`change` が新しい値を伝えます。名前は Web、Flutter、React Native では `value`、SwiftUI では `selection`、Compose では `selectedValue` です。空のままにすると、最初の有効なタブが選ばれます。タブの `disabled` はそのタブ自身のものです。
+
+パネルを描くのはタブではありませんが、どのパネルを表示するかはタブが決めます。Web では、タブの後ろに置いた `<tanrei-tab-panel>` を `value` でタブと対応づけます。SwiftUI では各タブが自分のパネルを持ちます。Flutter では、`TanreiTabBarView` が選択中の値のパネルを表示します。Compose と React Native では、選択中のパネルを利用者側で並びのすぐ後ろに表示します。スワイプで切り替えるパネルには、代わりに[タブビュー](/ja/components/tab-view/)を使います。タブビューは自分のタブの並びを描くか、アプリバーなどほかの場所に置いた並びとつながります。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 並びの選択中のタブは、<select> と同じく value です。 -->
+    <tanrei-tabs value="overview" label="プロジェクト">
+      <tanrei-tab value="overview" label="概要" icon="dashboard"></tanrei-tab>
+      <tanrei-tab value="activity" label="アクティビティ" icon="history"></tanrei-tab>
+      <tanrei-tab value="billing" label="請求" icon="payments" disabled></tanrei-tab>
+      <!-- パネルはタブの後ろに置き、value でタブと対応づけます。 -->
+      <tanrei-tab-panel value="overview">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="billing">…</tanrei-tab-panel>
+    </tanrei-tabs>
+
+    <!-- 同じ group を指定した並びは 1 つの選択を示します。remember-as は、利用者側で決めたキーで選択を端末に保存します。 -->
+    <tanrei-tabs variant="secondary" group="units" remember-as="report-units" label="単位">
+      <tanrei-tab value="metric" label="メートル法"></tanrei-tab>
+      <tanrei-tab value="imperial" label="ヤード・ポンド法"></tanrei-tab>
+      <tanrei-tab-panel value="metric">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="imperial">…</tanrei-tab-panel>
+    </tanrei-tabs>
+
+    <script type="module">
+      import '@tanrei/web/components/tabs';
+      // 並びは change を発火する前に自分の value を更新します。change もその値を伝えます。
+      document.querySelector('tanrei-tabs').addEventListener('change', (e) => showView(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tab, TabPanel, Tabs } from '@tanrei/react';
+
+    <Tabs value={view} label="プロジェクト" onChange={(e) => setView(e.detail.value)}>
+      <Tab value="overview" label="概要" icon="dashboard" />
+      <Tab value="activity" label="アクティビティ" icon="history" />
+      <TabPanel value="overview"><Overview /></TabPanel>
+      <TabPanel value="activity"><Activity /></TabPanel>
+    </Tabs>
+
+    // 同じ group を指定した並びは 1 つの選択を示します。onChange を発火するのは、操作された並びだけです。
+    <Tabs variant="secondary" group="units" rememberAs="report-units" label="単位" onChange={(e) => setUnits(e.detail.value)}>
+      <Tab value="metric" label="メートル法" />
+      <Tab value="imperial" label="ヤード・ポンド法" />
+      <TabPanel value="metric"><Metric /></TabPanel>
+      <TabPanel value="imperial"><Imperial /></TabPanel>
+    </Tabs>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // TabView のタグ付きタブと同じく、各タブが自分のパネルを持ち、選択中のものだけを表示します。
+    // バインディングへの書き込みが change にあたります。選択が nil（Binding<V?>）なら最初の有効なタブを選びます。
+    // .tag(_:) と .labelStyle(.iconOnly) は、ほかのモディファイアーより先に TanreiTab そのものに付けます。
+    @State private var view = "overview"
+
+    TanreiTabs(selection: $view, label: "プロジェクト") {
+        TanreiTab("概要", icon: "dashboard") { OverviewView() }.tag("overview")
+        TanreiTab("アクティビティ", icon: "history") { ActivityView() }.tag("activity")
+        TanreiTab("請求", icon: "payments") { BillingView() }.tag("billing").disabled(true)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiTab
+    import io.github.chnotchy.tanrei.components.TanreiTabs
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // 状態ホイスティングです。selectedValue は呼び出し側で持ち、onSelectedValueChange で更新します。
+    var view by rememberSaveable { mutableStateOf("overview") }
+    Column {
+        TanreiTabs(selectedValue = view, onSelectedValueChange = { view = it }, contentDescription = "プロジェクト") {
+            TanreiTab(value = "overview", label = "概要", icon = { TanreiText("dashboard") })
+            TanreiTab(value = "activity", label = "アクティビティ", icon = { TanreiText("history") })
+            // enabled は仕様の disabled を反転したものです。
+            TanreiTab(value = "billing", label = "請求", icon = { TanreiText("payments") }, enabled = false)
+        }
+        // Compose にはタブパネルのロールがありません。選択中のビューを並びの下、読み上げ順で後ろに置きます。
+        when (view) {
+            "overview" -> Overview()
+            "activity" -> Activity()
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // TabBar と同じ形ですが、TabController の番号ではなく値で選びます。バー自身は選択を持ちません。
+    TanreiTabBar<String>(
+      value: view, // null なら最初の有効なタブを選びます
+      onChanged: (String value) => setState(() => view = value),
+      semanticLabel: 'プロジェクト',
+      tabs: const <TanreiTab<String>>[
+        TanreiTab<String>(value: 'overview', label: '概要', icon: Icon(AppSymbols.dashboard)),
+        TanreiTab<String>(value: 'activity', label: 'アクティビティ', icon: Icon(AppSymbols.history)),
+        TanreiTab<String>(value: 'billing', label: '請求', icon: Icon(AppSymbols.payments), enabled: false),
+      ],
+    ),
+    // 選択中の値のビューを表示します。スワイプはしません。各ビューは、タブのラベルを名前とするタブパネルです。
+    TanreiTabBarView<String>(
+      value: view,
+      semanticLabels: const <String, String>{'overview': '概要', 'activity': 'アクティビティ', 'billing': '請求'},
+      children: <String, Widget>{'overview': const OverviewPage(), 'activity': const ActivityPage(), 'billing': const BillingPage()},
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { Tabs } from '@tanrei/react-native';
+
+    const [view, setView] = useState('overview');
+
+    // 制御コンポーネントです。onValueChange を受けて value を更新します。
+    <Tabs
+      accessibilityLabel="プロジェクト"
+      value={view}
+      onValueChange={setView}
+      items={[
+        { value: 'overview', label: '概要', icon: 'dashboard' },
+        { value: 'activity', label: 'アクティビティ', icon: 'history' },
+        { value: 'billing', label: '請求', icon: 'payments', disabled: true },
+      ]}
+    />
+    // React Native にはタブパネルのロールがありません。選択中のパネルを並びのすぐ後ろに描きます。
+    {view === 'overview' ? <Overview /> : <Activity />}
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="セカンダリーのタブ、幅を等分する並び、中身に合わせてスクロールする並び、アイコンだけの並び" plain column>
+  <tanrei-tabs variant="secondary" value="overview" label="デプロイ" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="概要" icon="dashboard"></tanrei-tab>
+    <tanrei-tab value="activity" label="アクティビティ" icon="history"></tanrei-tab>
+    <tanrei-tab value="billing" label="請求" icon="payments" disabled></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs full-width value="notifications" label="アカウント" style="inline-size: 22rem">
+    <tanrei-tab value="profile" label="プロフィール"></tanrei-tab>
+    <tanrei-tab value="activity" label="最近のアクティビティ"></tanrei-tab>
+    <tanrei-tab value="notifications" label="通知の設定と配信先の管理"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs value="analytics" label="サービス" style="inline-size: 22rem">
+    <tanrei-tab value="overview" label="概要"></tanrei-tab>
+    <tanrei-tab value="deployments" label="デプロイ"></tanrei-tab>
+    <tanrei-tab value="analytics" label="分析"></tanrei-tab>
+    <tanrei-tab value="logs" label="ログ"></tanrei-tab>
+    <tanrei-tab value="storage" label="ストレージ"></tanrei-tab>
+    <tanrei-tab value="settings" label="設定"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs value="list" label="レイアウト">
+    <tanrei-tab value="list" label="リスト" icon="view_list" label-hidden></tanrei-tab>
+    <tanrei-tab value="grid" label="グリッド" icon="grid_view" label-hidden></tanrei-tab>
+    <tanrei-tab value="map" label="地図" icon="map" label-hidden></tanrei-tab>
+  </tanrei-tabs>
+</DemoFrame>
+
+<DemoFrame label="トーナルのタブ。トラックあり、トラックなし、トラックもトランジションもない小さい並び" plain column>
+  <tanrei-tabs variant="tonal" value="week" label="期間">
+    <tanrei-tab value="day" label="日"></tanrei-tab>
+    <tanrei-tab value="week" label="週"></tanrei-tab>
+    <tanrei-tab value="month" label="月"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs variant="tonal" track="false" value="week" label="期間（トラックなし）">
+    <tanrei-tab value="day" label="日"></tanrei-tab>
+    <tanrei-tab value="week" label="週"></tanrei-tab>
+    <tanrei-tab value="month" label="月"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-tabs variant="tonal" track="false" size="small" transition="none" value="metric" label="単位">
+    <tanrei-tab value="metric" label="メートル法"></tanrei-tab>
+    <tanrei-tab value="imperial" label="ヤード・ポンド法"></tanrei-tab>
+  </tanrei-tabs>
+</DemoFrame>
+
+<ComponentSpecs name="tabs" />
+
+## ガイドライン
+
+### 使う場面
+
+1 つの対象をいくつかのビューに分け、1 つずつ見せるときに使います。プロジェクトの「概要」「アクティビティ」「設定」、プロフィールの「投稿」「返信」、ファイルの「プレビュー」「履歴」などです。ビュー同士は対等で、どの順番で行き来してもかまいません。
+
+アプリの行き先、つまり別々の対象の間を移動するには、ナビゲーションバーかドロワーを使います。順番どおりに進める手順や、1 つのリストの絞り込みにはタブを使いません。絞り込みにはチップを使います。タブはビューを切り替えるもので、アクションを実行するものではありません。
+
+[セグメントボタン](/ja/components/segmented-button/)を提供しない Tanrei システムでは、少数の選択肢から 1 つを選ぶことで下に表示する内容が変わる場面でも、セグメントボタンの代わりにタブを使います。カレンダーの上の「日」「週」「月」や、ページの例の上の「標準」「中」「高」などです。こうした並びにパネルは要りません。何を選ぶのかがわかる名前を付けます。切り替える対象のそばで目立たせたくないときは、トーナルのバリアントをトラックなしで使い、ヘッダーの中では小さいサイズにします。フォームと一緒に送る値を決める選択や、目に見えるものを何も変えない選択は、タブにしません。そうした選択には[ラジオボタン](/ja/components/radio-button/)を使います。
+
+### タブ、セグメントボタン、ボタングループの使い分け
+
+| コンポーネント | どういうものか | 用途 |
+| --- | --- | --- |
+| タブ | 1 つの対象のビュー、または下に表示する内容を変える 1 つの選択です。選択中のタブは 1 つで、矢印キーは移動と同時に選択します。 | 下に表示する内容の切り替え。「概要」「アクティビティ」「設定」、「日」「週」「月」など。 |
+| [セグメントボタン](/ja/components/segmented-button/) | 値を決める、つながった 2〜5 個の選択肢です。1 つ選ぶ形と複数選ぶ形があります。既定の Tanrei システムは提供せず、Material と cupertino のプリセットが提供します。 | そのプリセットを使うプロダクトでの、決まった少数の答えを持つ設定。 |
+| [ボタングループ](/ja/components/button-group/) | まとめて配置した別々のボタンです。それぞれを個別に押し、グループは選択を持ちません。 | 関連するアクション。「キャンセル」と「保存」、「太字」「斜体」「下線」など。 |
+
+簡単な見分け方があります。選ぶと下に表示する内容が変わるなら、パネルがあってもなくてもタブです。フォームと一緒に送る値を決めるならラジオボタン（システムが提供していればセグメントボタン）です。押すと何かが実行されるならボタングループです。
+
+### バリアント、サイズ、レイアウトの選び方
+
+| 選択肢 | どうなるか | 用途 |
+| --- | --- | --- |
+| Primary | アイコンはラベルの上に重なります。インジケーターはプライマリーのバリアントの色で描かれます。 | 画面の主なビュー。コンテンツの一番上に置きます。 |
+| Secondary | アイコンはラベルの前に、同じ行に並びます。インジケーターはセカンダリーのバリアントの色で描かれます。 | 主なビューの中でさらに分けるビュー。プライマリーのタブの下や、パネルの中に置きます。 |
+| Tonal | インジケーターは淡い層で、選択中のラベルはほかのラベルより濃くなります。アイコンはラベルの前に並びます。 | 切り替える対象から目を奪いたくない選択。コードサンプルの言語、コントラスト、単位など。 |
+| 中（`size`、既定） | 並びの高さは 48、インジケーターは 40 です。 | 画面のコンテンツの一番上に置く並び。 |
+| 小（`size`） | 並びの高さは 32、インジケーターは 24 です。ラベルの横のパディングとアイコンが小さくなり、どのバリアントでもアイコンはラベルの前に並びます。ラベルの文字の大きさは同じです。 | ヘッダーやツールバーの中で、小さいボタンと並べる並び。 |
+| 中身に合わせる（`fullWidth` が false、既定） | タブの幅を中身に合わせ、どれほど長くても大きくても、ラベルを 1 行のまま省略せずに表示します。トラックは最後のタブで終わり、タブが収まらなければトラックの中で横にスクロールします。インジケーターの幅は選択中のタブの中身に従います。 | ほとんどの並び。タブが多いとき、ラベルの長さがまちまちなとき、翻訳されるラベルや利用者が書くラベル。 |
+| 幅を等分する（`fullWidth` が true） | 並びの幅をタブで等分します。割り当てに収まらないラベルは、末尾を省略記号で省略します。インジケーターはタブの割り当てと同じ幅です。 | 並びいっぱいに広げたい、2〜5 個の短いラベル。 |
+
+`fullWidth` の書き方は、Web では `full-width`、SwiftUI、Compose、React Native では `fullWidth` です。Flutter では逆の意味の `isScrollable` で、Flutter 自身の `TabBar` と同じく true が既定です。
+
+どちらのレイアウトでも、ラベルが 2 行目へ折り返したり単語の途中で切れたりすることはなく、アイコンがラベルのために縮むこともありません。幅を等分する並びで省略されたラベルも、全体がタブのアクセシブルネームのまま残り、プラットフォームが可能な方法で全体を表示します。Web ではホバーとキーボードフォーカスでのプレーンなツールチップ、Compose では長押しとホバーでのツールチップ、Flutter では `Tooltip`、SwiftUI では大きなコンテンツビューア（macOS では `.help` も）です。React Native には独自のツールチップがないので、全体を表示する手段はありません。
+
+3 つのバリアントは 1 つのコントロールです。違うのは選択の重みだけで、キー操作も、ロールも、支援技術に伝える内容も同じです。
+
+デザインシステムはバリアントとサイズを追加できます。追加したバリアントはプライマリーと同じ配置で描かれます。
+
+### サイズ
+
+小さい並びは小さい[ボタン](/ja/components/button/)と同じ高さなので、ヘッダーの中で 1 行に並びます。高さは最小ターゲットに届きませんが、そのために並びを高くすることはありません。並びのすぐ上やすぐ下でも、タブと同じ位置を押せば、そのタブを選択できます。そこに置かれたコントロールは、自分への押下を保ちます。並びの下のボタンを押せば、ボタンが押されます。文字を大きくすると、小さい並びも中の並びと同じように高くなり、何も切れません。
+
+### トラックとインジケーター
+
+タブと[スイッチ](/ja/components/switch/)は 1 つの考え方を共有しています。トラックの上のハンドルが、選ばれたものへ滑り、手で滑らせることもできる、という考え方です。スイッチの 2 つの状態は対等ではないので、状態によって見た目全体が変わります。タブは対等な選択肢なので、トラックは変わらず、動くのはインジケーターだけです。
+
+- **トラック。** 並び全体の背後にある、控えめな 1 色の塗りです。両端は完全に丸く、輪郭はありません。高さは並びと同じです。中身に合わせる並びでは、最後のタブから少しの余白を置いて終わります。幅を等分する並びでは、並びと同じ幅です。どのタブが選ばれていても、タブがどの状態でも変わりません。タブが収まらないときは、トラックは動かず、タブがその中でスクロールし、丸い両端で切り取られます。
+- **インジケーター。** 選択中のタブの中身の背後に描きます。高さは、並びの高さからトラックの上下の余白を引いたもので、どのタブでも同じです。既定のシステムでは、48 の並びで 40、プライマリーのタブがアイコンをラベルの上に重ねる並びで 56 です。中身に合わせる並びでは、タブの中身にパディングを加えた幅です。中身の幅が高さ以下のとき（アイコンだけ、1 文字のラベル、全角 1 文字など）は円になります。幅を等分する並びでは、タブの割り当てと同じ幅です。この決まりはプライマリーでもセカンダリーでも同じです。
+- **3 辺で同じ余白。** インジケーターは、トラックの上端、下端、そして最初と最後のタブではトラックの端から、並びの高さによらず同じ余白を保ちます。インジケーターの丸い端とトラックの丸い端は同心です。インジケーターが円になるタブは、その円と同じ幅になります。最小ターゲットのほうが大きければ、最小ターゲットの幅です。
+- **ホバー、フォーカス、押下**は、インジケーターがそのタブで占める（選択されていれば占めるはずの）箱の中に描き、タブの矩形全体には描きません。ポインターに応答するのは、これまでどおりタブ全体です。
+- **トラックのない並び。** `track` を false にすると、並びの背後の塗りを描きません。ほかは何も変わりません。並びの大きさ、余白、各タブの位置、すべての色がそのままなので、トラックのある並びとない並びはぴったり揃います。ヘッダー、カード、コードサンプルの見出しなど、すでに帯になっているものの上に並びを置くときに使います。指定しなければ、`track` はデザインシステムに従います（`comp.tabs.track.visible`。既定のシステムでは on）。Web の属性は `track="false"` です。
+- **トーナルのインジケーター。** 選択中のラベルの色の半透明の層で、トラックの上にも、並びが置かれたどの面の上にも重ねて描くので、どの面でも同じ差で見えます。意図して控えめにした印で、濃くなった選択中のラベルが 2 つ目の印です。
+- **覆われたラベル。** ラベルとアイコンは、インジケーターに覆われた部分だけが、覆われたときの色で描かれます。インジケーターが滑る間やドラッグされている間、通り過ぎるラベルは覆われた部分だけが変わり、新しいタブのラベルはインジケーターが着いた瞬間にすべて覆われた色になります。覆われたコピーはブレンドではなくシステムの色で描くので、コントラストはトークンが約束するとおりです。
+
+デザインシステムは、選択中のタブの下、並びの下端に線を引くことも、並び全体に区切り線を引くこともできます。どちらもすべてのシステムにあり、既定のシステムでは透明です。Material のプリセットは、Material のタブと同じく、この 2 つに色を付け、トラックとインジケーターを透明にします。
+
+### 並びの上をドラッグする
+
+- **タップは今までどおり選択する。** タッチ、ペン、マウスで並びの上をドラッグすると、インジケーターがポインターに付いてきます。位置、幅、その下のラベルの覆われた色は、しきい値なしに連続して変わります。
+- **離したときに選ばれる。** インジケーターに近いほうのタブ、またはフリングの向かう先のタブが選ばれます。それが別のタブなら、並びはそのタブを選択して `change` を 1 回発火します。インジケーターが通り過ぎたタブについては発火しません。選択中のタブなら、インジケーターは元に戻り、何も発火しません。
+- **途中では何も変わらない。** 選択、パネル、キーボードフォーカス、支援技術に伝える内容は、離すまで変わりません。Escape を押すか、プラットフォームがポインターを取り消すと、インジケーターは選択中のタブへ戻ります。
+- **スクロールは今までどおり。** 先に上下へ動いたドラッグは、ページのスクロールです。Web では、タブがスクロールする並びでインジケーターを動かせるのは、選択中のタブから始めたドラッグだけです。それ以外の横方向のドラッグは、タブをスクロールします。
+- **動きを減らす設定。** インジケーターは、その人自身の指が動かすものなので、引き続きポインターに付いていき、離すとすぐにタブの上に置かれます。
+
+### トランジション
+
+`transition` は、並びが新しい選択をどう描くかを指定します。
+
+| 値 | 動作 |
+| --- | --- |
+| `slide` | インジケーターが新しいタブへ滑りながら大きさを変え、その下でラベルの色が変わります。見えていないタブは、動きを付けてスクロールで見える位置に出します。 |
+| `none` | 新しい選択を 1 フレームで全体描きます。何も移動せず、何もフェードしません。 |
+| `auto`（既定） | デザインシステムの答えに従います（`comp.tabs.motion.transition`。既定のシステムでは slide）。 |
+
+切り替えたばかりの内容のそばにある並びには `none` を使います。そこでは、滑るインジケーターだけがまだ動いているものになるからです。`none` でも、並びの上のドラッグはインジケーターを運び、離すとすぐにタブの上に置かれます。ホバー、フォーカス、押下への応答は、どの値でも同じです。動きを減らす設定では、`transition` が何であっても、選択は `none` と同じように描かれます。
+
+[タブビュー](/ja/components/tab-view/)は、パネルのための `transition` を別に持っています。それを `none` にすると、ビューが描く並びのインジケーターも滑らなくなります。
+
+### 選択とパネル
+
+- **値で選ぶ。** どのタブも、並びの中で重複しない `value` を持ちます。値は、タブを追加、削除、並べ替えしても変わりません。番号で選ぶと、知らないうちに別のビューが選ばれてしまいます。どのタブも指していない `selected` の値では何も選ばれず、パネルも表示されません。デバッグビルドで報告します。
+- **自動で選択される。** 矢印キーでフォーカスを動かすと、そのタブも選択され、パネルはすぐに切り替わります。読み込みに時間のかかるパネルは、切り替えを遅らせるのではなく、パネルの中で読み込み中の状態を表示します。
+- **無効なタブは飛ばす。** 矢印キーは無効なタブを飛ばし、無効なタブが Tab で止まる位置になることもありません。フォーカスが移るだけで選択されてしまい、選べないタブを選ぶことになるからです。リストとメニューは無効な項目にも届きますが、そちらはフォーカスが移っても何も選ばれないためです。
+- **インジケーターが動く。** 選択が変わると、インジケーターは前のタブから新しいタブへ、大きさを変えながら滑るように移動します。円は途中でカプセルへ広がります。動きを減らす設定では瞬時に移動します。並びが最初に現れたときや、選択は変わらずに選択中のタブの大きさが変わったとき（フォントの読み込み、文字サイズの変更など）は、滑らずにその場所へ置かれます。一部がスクロールで隠れたタブが選ばれたりフォーカスを受けたりすると、そのタブが見えるところまで並びをスクロールします。
+- **並びは自分のトラックを描く。** 画面やアプリバーのサーフェスの上に置きます。並びのためのコンテナは必要ありません。
+- **タブビューの中で。** 自分の並びを描く[タブビュー](/ja/components/tab-view/)は、このタブを同じトークンと振る舞いで使います。タブビューをスワイプしている間、タブビューは `indicatorOffset` でインジケーターを動かします。選択中のタブの上なら 0、次の有効なタブなら 1、前なら −1 で、指の動きに合わせてその間の値をとります。インジケーターは自分の動きを持たず、フレームごとにそれに従います。自分でインジケーターを動かすのでなければ 0 のままにします。タブビューのスワイプと、その並びの上のドラッグは、2 つの場所で行う 1 つのジェスチャーです。スワイプはパネルを 1 つ動かし、パネルも一緒に動きます。並びの上のドラッグは複数のタブを通り過ぎることができ、パネルは指を離すまで待ちます。
+
+### 選択を共有する
+
+同じ問いに何か所も答えるとき（このサイトのすべてのコードサンプルのプラットフォームや、レポートのすべての数値の単位など）は、それらのタブの並びに同じ `group` を指定します。ひとつの並びでタブを選ぶと、同じ値のタブをもつほかのすべての並びでもそのタブが選ばれます。その値のタブをもたない並びは、自分の選択を保ちます。
+
+- **値で対応づける。** グループが追うのはタブの `value` であり、ラベルではありません。ラベルを翻訳したり言い換えたりしても選択は保たれます。
+- **動くのも知らせるのも、操作された並びだけ。** 操作された並びだけがインジケーターをスライドさせ、`change` を 1 回発火します。ほかの並びは、モーションなしで、フォーカスもスクロールも動かさずにただちに選択を反映し、何も発火しません。上にある並びやパネルの高さが変わっても、操作された並びはウィンドウ内の同じ位置にとどまります。
+- **記憶は別の指定。** `rememberAs` は、選択をその端末に保存し、並びが最初に描かれる前に復元するためのキーです。キーがなければ何も保存しません。キーは利用者側で決めるもので、指定されたとおりに使われ、保存されるのはタブの値だけです。記憶した設定に同意が必要かどうかは、提供する場面に応じて利用者側で判断してください。
+- **Web ではタブがグループを保つ。** `group` と `remember-as` は属性で、キーは `localStorage` のキーです。SwiftUI、Compose、Flutter、React Native では、同じ選択状態を渡された並びどうしがすでに選択を共有しており、その状態の保持と保存は利用者側で行います。
+
+<DemoFrame label="同じグループの 2 つの並び：どちらかでタブを選んでください" plain column>
+  <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="距離の単位">
+    <tanrei-tab value="metric" label="メートル法"></tanrei-tab>
+    <tanrei-tab value="imperial" label="ヤード・ポンド法"></tanrei-tab>
+    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">マラソンは 42.195 km です。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">マラソンは 26.2 マイルです。</p></tanrei-tab-panel>
+  </tanrei-tabs>
+  <tanrei-tabs variant="secondary" group="docs-demo-units" value="metric" label="速さの単位">
+    <tanrei-tab value="metric" label="メートル法"></tanrei-tab>
+    <tanrei-tab value="imperial" label="ヤード・ポンド法"></tanrei-tab>
+    <tanrei-tab value="nautical" label="海里"></tanrei-tab>
+    <tanrei-tab-panel value="metric"><p style="font: var(--tanrei-sys-typescale-body-font)">早歩きは時速 6 km です。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="imperial"><p style="font: var(--tanrei-sys-typescale-body-font)">早歩きは時速 3.7 マイルです。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="nautical"><p style="font: var(--tanrei-sys-typescale-body-font)">早歩きは 3.2 ノットです。</p></tanrei-tab-panel>
+  </tanrei-tabs>
+</DemoFrame>
+
+このデモでは、「海里」は 2 つ目の並びにしかありません。これを選んでも 1 つ目の並びは自分の選択を保ち、選択が 1 つ目の並びにもある値になると、再び従います。どちらの並びもキーを指定していないので、何も保存されません。
+
+このサイトのタブがその例です。プラットフォーム別のサンプルはすべて、ひとつのグループに属する[タブビュー](/ja/components/tab-view/)です。
+
+### アイコン
+
+- 1 つの並びでは、すべてのタブにアイコンを付けるか、どれにも付けないかのどちらかにします。アイコンは、選択されていないときはアウトライン、選択されているときは塗りで描かれます。
+- `labelHidden` を付けるとアイコンだけを描きます。それでもラベルは必須で、タブのアクセシブルネームとして使われます。`labelHidden` を付けてもアイコンがなければラベルを描き、デバッグビルドで報告します。
+- ラベルが空でアイコンもないタブには中身がありません。インジケーターは空の円になり、タブにはアクセシブルネームがありません。空のラベルはデバッグビルドで報告します。タブにラベルを付けてください。
+- タブに件数を表示したいときは、Tanrei のバッジを利用者側でアイコンに重ねます。タブ自体にバッジのプロパティはありません。
+
+### 推奨
+
+- ラベルは「概要」「請求」のように、ビューを表す 1〜2 語の短い言葉にします。幅を等分する並びでは、長いラベルは省略されます。
+- ラベルが長いとき、翻訳されるとき、利用者が書くとき、大きな文字で読まれるときは、既定の「中身に合わせる」のままにします。
+- タブの並び順は変えないでおき、前と同じ場所でビューを見つけられるようにします。
+- セカンダリーのタブはプライマリーのタブのビューの中に置き、その逆にはしません。
+- ときどき使えなくなるタブは、無効にしたまま同じ場所に残し、並びの形を変えないようにします。
+
+### 非推奨
+
+- アプリの行き先の移動にタブを使わない。それはナビゲーションバーかドロワーの役割です。
+- タブでダイアログを開いたり、アクションを実行したり、画面を離れたりしない。タブは行き先を持ちません。ページの間を移動するには、リンク、ナビゲーションバー、ナビゲーションドロワーを使います。
+- 同じバリアントの並びを入れ子にしない。
+- 1 つの並びで、アイコンのあるタブとないタブを混ぜない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="tabs" />
+
+### コンポーネントが担うこと
+
+- 並びは、`label` を名前とするタブリストとして伝えます。各タブはタブのロールを持ち、選択状態、位置、タブの数とともに伝え、ラベルが描かれていてもいなくても、そのラベルを名前とします。
+- 選択中のタブのパネルはタブパネルとして伝え、タブを名前とし、プラットフォームで表せる場合はタブと関連づけます。ほかのパネルは画面からも支援技術からも隠します。フォーカスできるものを含まないパネルは、Tab で届くようにパネル自体をフォーカス可能にします。
+- 並びは Tab で止まる位置が 1 つだけで、それは選択中のタブです。右矢印と左矢印で次と前の有効なタブへ移り、端では折り返し、移った先のタブを選択します。右から左（RTL）のレイアウトでは左右が入れ替わります。Home と End で最初と最後の有効なタブへ移ります。Enter と Space でフォーカス中のタブを選択します。Tab を押すと、選択中のタブからそのパネルへ進みます。
+- 無効なタブは矢印キーで飛ばし、Tab で止まる位置にもならず、無効であることを伝えます。
+- フォーカスリングは、フォーカス中のタブでインジケーターが占める箱を、その形のまま囲み、トラックの内側に収めるので、スクロールする並びに切られません。キーボードフォーカスのときだけ表示します。
+- タブは隣のタブと接しているので、最小ターゲットより幅の狭いタブは、最小ターゲットの幅まで広がります。最小ターゲットより低い並び（小さいサイズ）を高くすることはありません。タブは並びの少し上と少し下でも押下に応答し、そこにコントロールがあれば、そのコントロールに譲ります。
+- パネルのない並びも、`label` を名前とするタブリストとして伝え、各タブは何も制御していないことを伝えます。支援技術に伝えるのはタブの選択状態です。その選択が並びの下の何を変えるかは、プロダクトが描きます。Tab を押すと、選択中のタブから並びの次にあるものへ進みます。
+- 強制カラーでは、どのバリアントでも、トラックがあってもなくても、インジケーターを塗りつぶしたハイライトで描くので、トーナルの並びもプライマリーと同じようにはっきりと選択を示します。
+- 文字を大きくしても、ラベルが支援技術から隠れることはありません。中身に合わせるタブは幅が広がり、並びがスクロールします。幅を等分するタブはラベルを省略しますが、ラベルはアクセシブルネームのまま残り、プラットフォームが可能な方法で全体を表示します。
+- アイコン、トラック、インジケーター、下線、区切り線は支援技術から隠します。インジケーターの下に描く覆われたラベルのコピーは装飾なので、各ラベルが読み上げられるのは 1 回だけです。
+- 並びの上のドラッグが唯一の手段になることはありません。どのタブも、タップやクリック、矢印キーで選択できます。ドラッグの間は、どのタブも選択中として伝えず、パネルも変わらず、何も読み上げません。選択は指を離したときに行われ、Escape でドラッグを取り消せます。スクリーンリーダーの動作中は、1 本指のドラッグはスクリーンリーダーのもので、タブはその決定操作で選択します。
+- グループでは、従う側の並びは静かに変わります。何も読み上げず、フォーカスは操作されたタブに残り、操作された並びはウィンドウ内の同じ位置にとどまるので、拡大表示を使っている人も場所を見失いません。それぞれの並びは、フォーカスや読み上げがそこへ移ったときに、選択中のタブを支援技術に伝えます。
+- ラベルのないタブ、空の値や重複した値、どのタブも指していない `selected` の値、アイコンなしで隠したラベル、デザインシステムにないバリアントやサイズ、タブが定義していない `transition` は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、React Native にはタブパネルのロールがありません。選択中のパネルは、読み上げ順で並びの後ろに続きます。
+- SwiftUI にはタブリストとタブのロールもありません。並びは `label` を名前とし、タブバーのトレイトを持つコンテナで、各タブは選択のトレイトを持つボタンです。iOS では VoiceOver がタブバーのトレイトからタブの位置を読み上げます。それ以外では位置はタブの値（「2 of 3」）で、英語だけです。
+- SwiftUI では、パネルをタブと関連づけることも、パネルにフォーカスできるものがあるかを調べることもできません。そのため、フォーカスできるものを含まないパネルは Tab で止まる位置になりません。
+- Compose にはタブリストのロールがありません。並びは `contentDescription` を名前とする選択可能なグループで、タブの数をコレクションの情報として持ちます。各タブはタブのロール、選択状態、位置を持ちます。
+- Compose と React Native では、パネルは利用者側に任されます。ほかのパネルを隠すことも、空のパネルをフォーカス可能にすることもしません。
+- Compose：タブのアイコンに重ねたバッジは読み上げられません。アイコンのスロットが装飾として扱われるためです。タブ全体を包むバッジは読み上げられますが、タブの角に描かれます。
+- Compose：実際の入力経路を通した矢印キーとスクロール、TalkBack による各タブのロールと位置の読み上げは、Robolectric でしか確かめておらず、実機ではまだ確かめていません。
+- Flutter のセマンティクスには、位置、タブの数、タブからパネルへの関連づけがありません。`TanreiTabBarView` は、利用者側で渡す `semanticLabels` を名前とするタブパネルです。
+- React Native には、タブパネルのロールも、タブからパネルへの関連づけもありません。タブは位置を値のテキスト（「2 of 3」）として持ちます。`positionText` を渡さなければ英語です。
+- React Native：矢印キー、タブが見えるところまでのスクロール（右から左のレイアウトでのずれも含む）、インジケーターの移動は、実機ではまだ確かめていません。
+- Web：スクロールで隠れたタブに Tab キーで移ると、ブラウザーがインジケーターの動きに合わせずに瞬時にスクロールして表示します。
+- Flutter：選択中のタブが最初から見えていないスクロールする並びは、そのタブへ移る前に、並びの先頭を 1 フレームだけ表示します。
+
+### 利用者側で行うこと
+
+- アイコンだけのタブも含め、すべてのタブにラベルを付けます。
+- 1 つの画面にタブの並びが複数あるときは、`label` で並びに名前を付けます。「プロジェクト」のように、何のビューなのかが分かる名前にします。
+- 各タブの値は並びの中で重複させず、画面を表示している間は変えないでおきます。
+- Compose と React Native では、選択中のパネルだけを並びのすぐ後ろに描きます。パネルにフォーカスできるものがないときは、パネルをフォーカス可能にし、タブと同じ名前を付けて、Tab で届くようにします。
+- Flutter では、`TanreiTabBarView` の `semanticLabels` に各タブのラベルを渡します。
+- React Native では、プロダクトの言語で `positionText` を渡します。
+- 読み込みに時間のかかるパネルでは、パネルの中に読み込み中の状態を表示します。矢印キーは移動と同時に選択するからです。
+- 同じグループの並びでは、同じ値に同じラベルを付けます。並びどうしが離れているときは、最初の並びの近くで、選択がページ全体に適用されることを伝えます。
+- `rememberAs` のキーは利用者側で決め、必要な場合はプライバシーに関する説明に記載します。キーがなければ何も保存されません。

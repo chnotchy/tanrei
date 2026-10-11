@@ -1,0 +1,60 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Uploading",
+    "accessibilityRole": "progressbar",
+    "accessibilityValue": {
+      "max": 1,
+      "min": 0,
+      "now": 0.4
+    },
+    "accessible": true,
+    "focusable": false,
+    "style": {
+      "alignSelf": "stretch",
+      "flexDirection": "row",
+      "height": 4
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "collapsable": false,
+        "style": {
+          "backgroundColor": "rgb(103, 80, 164)",
+          "borderRadius": 2,
+          "width": "40%"
+        }
+      },
+      "children": []
+    },
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "backgroundColor": "rgb(232, 222, 248)",
+          "borderRadius": 2,
+          "flex": 1,
+          "marginStart": 4
+        }
+      },
+      "children": []
+    },
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "backgroundColor": "rgb(103, 80, 164)",
+          "borderRadius": 2,
+          "end": 0,
+          "height": 4,
+          "position": "absolute",
+          "top": 0,
+          "width": 4
+        }
+      },
+      "children": []
+    }
+  ]
+}

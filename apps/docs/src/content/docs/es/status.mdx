@@ -1,0 +1,15 @@
+---
+title: Estado
+description: Qué componente existe en qué plataforma, generado a partir del repositorio.
+translationOf: status.mdx
+sourceHash: 4fa1412c15c5add9d5bcf34096d42c42daf3616e
+tableOfContents: false
+---
+
+import StatusMatrix from '../../../components/StatusMatrix.astro';
+
+Esta página no está escrita a mano. `pnpm generate` produce la matriz siguiente a partir de las especificaciones de los componentes y de lo que existe realmente en el paquete de cada plataforma: una implementación, sus pruebas, sus instantáneas y sus páginas de documentación. Si una celda dice *Planificado*, allí todavía no existe nada que se pueda distribuir, fuera cual fuera la intención de nadie.
+
+Un componente solo puede pasar de *Planificado* en una plataforma cuando el comprobador de paridad encuentra todas esas piezas, así que la matriz no puede afirmar más de lo que contiene el repositorio.
+
+<StatusMatrix headingLevel={2} />

@@ -1,0 +1,78 @@
+---
+title: はじめに
+description: Tanrei が提供するもの、その全体像、そしてお使いのプラットフォームでの始め方。
+translationOf: getting-started/index.mdx
+sourceHash: 29f0e96c7f768e4c4fac79e67bd59e1112e73709
+---
+
+import Callout from '../../../../components/Callout.astro';
+import { CardGrid, LinkCard } from '../../../../components/cards';
+import { Tabs, TabItem } from '../../../../components/tabs';
+
+Tanrei は、各プラットフォームのネイティブなライブラリとして提供されるデザインシステムです。特別なランタイムやクロスプラットフォームのフレームワークを導入する必要はありません。いま開発に使っているプラットフォーム向けのパッケージを追加するだけで、ほかのすべてのプラットフォームと同じトークン、コンポーネント、アクセシビリティの振る舞いが手に入ります。
+
+<Callout type="caution" title="プレリリース">
+  Tanrei は現在開発中で、**まだ何もリリースしていません**。どのパッケージもレジストリにはありません。各プラットフォームのガイドでは、いまソースからビルドする方法と、最初のリリース後のインストール方法を示しています。ガイドに示す API は現時点の仕様とソースを反映したもので、リリースまでに変わる可能性があります。いま実際に何があるかは、[ステータスページ](/ja/status/)で正確に確認できます。Web と React のパッケージはソースからビルドできます。SwiftUI、Compose、Flutter、React Native は現在の仕様に追従しておらず、まだビルドできません。
+</Callout>
+
+## プラットフォームを選ぶ
+
+<CardGrid>
+  <LinkCard title="Web" description="CSS カスタムプロパティと Web Components。どのフレームワークでも、フレームワークなしでも使えます。" href="/ja/getting-started/web/" />
+  <LinkCard title="React" description="Web Components から生成した、型付きの React コンポーネント。" href="/ja/getting-started/react/" />
+  <LinkCard title="SwiftUI" description="iOS と macOS 向けの Swift パッケージ。" href="/ja/getting-started/swiftui/" />
+  <LinkCard title="Jetpack Compose" description="Compose Foundation の上に作った、Material に依存しない Android ライブラリ。" href="/ja/getting-started/compose/" />
+  <LinkCard title="Flutter" description="MaterialApp があってもなくても動く、Dart だけで書かれたパッケージ。" href="/ja/getting-started/flutter/" />
+  <LinkCard title="React Native" description="ネイティブモジュールを含まない、TypeScript だけのコンポーネント。" href="/ja/getting-started/react-native/" />
+</CardGrid>
+
+## 同じボタンを、6 通りに
+
+すべてのコンポーネントは、プラットフォームに依存しない仕様で一度だけ定義され、各プラットフォームの流儀で実装されます。選んだタブは、サイト内のほかのページでも保持されます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="tonal">下書きを保存</tanrei-button>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    <Button variant="tonal" onClick={saveDraft}>下書きを保存</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    TanreiButton("下書きを保存", variant: .tonal) { saveDraft() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    TanreiButton(text = "下書きを保存", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('下書きを保存'))
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    <Button variant="tonal" onPress={saveDraft}>下書きを保存</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+## どのプラットフォームでも得られるもの
+
+- **トークン。** カラーロール、タイプスケール、形状、エレベーション、モーション、状態、スペーシングの値。単一の DTCG ソースから、CSS カスタムプロパティと、Swift・Kotlin・Dart・TypeScript の定数として生成されます。
+- **テーマ。** ライトとダーク、それぞれに標準・中・高の 3 段階のコントラスト。既定では OS の設定に従い、アプリ全体または一部のサブツリーに対して固定することもできます。
+- **コンポーネント。** 共通仕様の実装です。バリアント、状態、キーボード操作はどこでも同じです。
+- **アクセシビリティの既定値。** 最小ターゲット、見えるフォーカスリング、200% の文字拡大に耐えるテキスト、動きを減らす設定への対応。これらは画面ごとに任されるのではなく、最初から組み込まれています。
+
+## このドキュメントの読み方
+
+- [基礎](/ja/foundations/principles/)では、考え方と規則を説明します。
+- [トークンリファレンス](/ja/tokens/color/)は、すべての値をトークンファイルから直接描画して一覧にしています。
+- [コンポーネント](/ja/components/)のページは、概要・仕様・ガイドライン・アクセシビリティという共通の構成です。ページ内の表はコンポーネントの仕様から生成されるため、古くなることがありません。
+- [ステータス](/ja/status/)は、リポジトリから生成されます。

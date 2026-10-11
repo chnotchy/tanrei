@@ -1,0 +1,517 @@
+---
+title: درج التنقل
+description: يسرد وجهات المنتج في لوحة عند حافة البداية، في أقسام ومجموعات، بجانب المحتوى على شاشة كبيرة أو فوقه على شاشة مضغوطة، ويمكن أن يُطوى إلى عمود من الأيقونات.
+translationOf: components/navigation-drawer.mdx
+sourceHash: 99562d926c109200b21007f7db10ca4597cbb7da
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="navigation-drawer" />
+
+:::note[مواصفة معدَّلة لم تصل بعد إلى كل المنصات]
+تصف هذه الصفحة درج التنقل كما هو في المواصفة الآن. الدرج الذي له `collapsible` يضيق إلى عمود من الأيقونات يحلّ محل سكة التنقل (navigation rail): الدرج المطوي هو الدرج الموسَّع وقد ذهبت تسمياته، وكل صف فيه مقطوع بعد أيقونته، وزر القائمة فيه يوسّعه من جديد وكل أيقونة في مكانها. نص `badge` في الوجهة صار `trailingText`، يُرسم أهدأ، والمنفذ `trailing` يحمل رسمًا أو Badge؛ أما `badge` فصارت الآن شارة على الأيقونة. العناصر من النوع `group` تفتح الوجهات المتداخلة وتغلقها. ارتفاع الصفوف 48، وهو ارتفاع عنصر قائمة الخيارات. والخاصية `responsive` تدع عرض النافذة يختار طريقة عرض الدرج. والوجهة التي لها `href` رابط، و `revealSelected` و `scrollOffset` تجعلان الدرج شريطًا جانبيًّا لموقع. مكوّن الويب يفعل هذا كله من الآن، وكذلك العروض الحيّة. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق بالمواصفة تقدّم المراجعة السابقة، بصفوف ارتفاعها 44، و `badge` نصًّا في نهاية الصف، وبلا هيئة مطوية ولا مجموعات ولا وجهات روابط ولا عرض متجاوب، وبسكة تنقل مستقلة، وتعرض عيّناتها تلك المراجعة.
+:::
+
+<DemoFrame label="درج قياسي فيه قسمان">
+  <tanrei-navigation-drawer open value="inbox" label="البريد" style="block-size: 26rem">
+    <tanrei-navigation-drawer-section heading="البريد">
+      <tanrei-navigation-drawer-item value="inbox" label="الوارد" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="sent" label="المرسَل" icon="send"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="drafts" label="المسودات" icon="draft"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-section heading="التصنيفات" divider>
+      <tanrei-navigation-drawer-item value="work" label="العمل" icon="label" trailing-text="جديد"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="family" label="العائلة" icon="label"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="درج قابل للطي: زر القائمة فيه يطويه إلى عمود الأيقونات، وهناك تُظهر الخلية اسمها في تلميح" plain>
+  <tanrei-navigation-drawer open collapsible value="home" label="مساحة العمل" style="block-size: 30rem">
+    <tanrei-button slot="header-button" variant="text" label="القائمة"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-main-action-button slot="main-action" label="مشروع جديد"><span slot="icon">add</span></tanrei-main-action-button>
+    <tanrei-navigation-drawer-item value="home" label="الرئيسية" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="inbox" label="الوارد" icon="inbox" badge badge-count="3" badge-label="3 غير مقروءة"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="المشاريع" icon="folder" open>
+      <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="beacon" label="Beacon" icon="deployed_code"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item value="settings" label="الإعدادات" icon="settings" trailing-text="جديد"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="وجهات هي روابط: قيمة value في الدرج تسمّي الصفحة الحالية، و reveal-selected تفتح المجموعة التي تحويها" plain>
+  <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="التوثيق" style="block-size: 24rem">
+    <tanrei-navigation-drawer-item label="البدء" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="الأسس">
+      <tanrei-navigation-drawer-item label="اللون" href="#sidebar-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="الطباعة" href="#sidebar-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="المكوّنات">
+      <tanrei-navigation-drawer-item label="الزر" href="#sidebar-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="علامات التبويب" href="#sidebar-demo-tabs" trailing-text="جديد"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item label="الشيفرة المصدرية" href="#sidebar-demo-source" target="new" target-label="يُفتح في تبويب جديد"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+### الاستخدام
+
+لدرج التنقل خمسة أنواع من العناصر. النوع `destination` صف فيه أيقونة اختيارية وتسمية ومحتوى اختياري في نهايته؛ ومع `href` يكون رابطًا. والنوع `group` صف يفتح الوجهات والمجموعات التي داخله ويغلقها. والنوع `section` يجمع وجهات ومجموعات تحت `heading` اختياري، وقبله `divider` اختياري؛ الأقسام لا تتداخل، والمجموعات لا تحمل أقسامًا. ويقع في الترويسة العنصر `header-button` (وأولها زر القائمة) والعنصر `main-action`. على الويب هي عناصر فرعية `<tanrei-navigation-drawer-item>` و `<tanrei-navigation-drawer-group>` و `<tanrei-navigation-drawer-section>`، وعناصر `<tanrei-button>` بأيقونة فقط وعنصر `<tanrei-main-action-button>` في المنفذين `header-button` و `main-action`. وتأخذ المنصات المتأخرة الوجهات والأقسام بأسلوبها: عروض `TanreiNavigationDrawerItem` و `TanreiNavigationDrawerSection` على SwiftUI واستدعاءات بالاسمين نفسيهما على Compose، وكائنات `TanreiNavigationDrawerDestination` و `TanreiNavigationDrawerSection` في `children:` على Flutter، ومدخلات وجهات وأقسام في مصفوفة `items` على React Native، حيث يُعرَف القسم بأن له `items` خاصة به.
+
+التحديد ملك للدرج، بقيمة الوجهة، أينما وقفت الوجهة. يعمل `change` و `reselect` كما في شريط التنقل. ليس في Compose قيمة على مستوى الدرج: تميّز العنصر الحالي بالخاصية `selected`، وتقوم `onClick` فيه مقام change و reselect معًا. ويحدّد Flutter بالفهرس، معدودًا عبر الأقسام بترتيب القراءة.
+
+الوجهة التي لها `href` رابط لا زر. يتبعها المتصفح كما يتبع أي رابط، ولا يحدّدها الدرج بالضغط: الصفحة التي تصل هي التي تقول أي وجهة هي الحالية، بضبط `value` في الدرج على قيمة تلك الوجهة، أو على `href` فيها كما كُتبت حيث لا قيمة لها. ومع ذلك يصدر `change` و `reselect` عند تفعيل عادي لرابط. يحملان `href` الخاصة به ويمكن إلغاؤهما، وبهذا يتولى موجِّه (router) من جهة العميل التنقل. وجهات الروابط على الويب اليوم.
+
+للدرج طرازان (variants)، والمنتج الواحد يستخدم الاثنين عادةً: القياسي حيث النافذة عريضة بما يكفي، والنمطي (modal) حيث ليست كذلك.
+
+- **القياسي** منطقة من التخطيط، لا تراكب. ما دام مفتوحًا يأخذ عرضه بجانب المحتوى، وما دام مغلقًا لا يأخذ شيئًا. لا يرسم حجابًا (scrim) ولا يحتفظ بالتركيز أبدًا.
+- **النمطي** تراكب مشغَّل (operated overlay)، ونمطي كذلك. ينزلق فوق المحتوى مع حجاب، ويحصر التركيز داخله حتى يُغلق، ويغلق نفسه بعد أن يختار الشخص وجهة.
+
+مع `responsive` يتخذ الدرج ذلك القرار بنفسه، من عرض النافذة (انظر «اتباع عرض النافذة» أدناه).
+
+تُظهر الخاصية `open` أيًّا من الطرازين أو تخفيه. ويُغلق الدرج النمطي أيضًا حين يضغط الشخص الحجاب أو المفتاح Escape، أو يستخدم إجراء الرجوع في المنصة، أو يسحبه نحو حافته، ثم يُصدر `close`. على الويب يعيد الدرج `open` إلى false بنفسه، كما يفعل مربع الحوار. وفي غيره تُبقيها أنت متوافقة انطلاقًا من الإغلاق: `onClose` على Flutter و React Native، والربط `isPresented` على SwiftUI، وحالة الدرج على Compose، حيث تسمع `confirmValueChange` كل إغلاق.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="menu" label="القائمة"><span slot="icon">menu</span></tanrei-button>
+
+    <!-- النمطي: عنصر <dialog> في shadow root، يُفتح بـ showModal(). والقياسي عنصر <nav> اسمه label. -->
+    <tanrei-navigation-drawer variant="modal" label="البريد" value="inbox">
+      <tanrei-navigation-drawer-section heading="البريد">
+        <tanrei-navigation-drawer-item value="inbox" label="الوارد" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item value="sent" label="المرسَل" icon="send"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+      <tanrei-navigation-drawer-section heading="التصنيفات" divider>
+        <tanrei-navigation-drawer-item value="work" label="العمل" icon="label" trailing-text="جديد"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+    </tanrei-navigation-drawer>
+
+    <!-- قابل للطي: أول زر في الترويسة هو زر القائمة. يستجيب له الدرج بنفسه ويُصدر expandedchange. -->
+    <tanrei-navigation-drawer collapsible open label="مساحة العمل" value="home">
+      <tanrei-button slot="header-button" variant="text" label="القائمة"><span slot="icon">menu</span></tanrei-button>
+      <tanrei-main-action-button slot="main-action" label="مشروع جديد"><span slot="icon">add</span></tanrei-main-action-button>
+      <span slot="header">مساحة العمل</span>
+      <tanrei-navigation-drawer-item value="home" label="الرئيسية" icon="home"></tanrei-navigation-drawer-item>
+      <!-- مجموعة: صفها يفتحها ويغلقها، ويُصدر toggle. -->
+      <tanrei-navigation-drawer-group label="المشاريع" icon="folder">
+        <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+      <!-- شارة على الأيقونة، في الهيئتين؛ والمحتوى في النهاية يُرسم في الهيئة الموسَّعة فقط. -->
+      <tanrei-navigation-drawer-item value="inbox" label="الوارد" icon="inbox" badge badge-count="3" badge-label="3 غير مقروءة"></tanrei-navigation-drawer-item>
+      <!-- رابط يفتح تبويبًا جديدًا: الصف الموسَّع ينتهي بـ open_in_new، وتُقرأ target-label بعد اسمه. -->
+      <tanrei-navigation-drawer-item label="مركز المساعدة" icon="help" href="/help" target="new" target-label="يُفتح في تبويب جديد"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer>
+
+    <!-- شريط جانبي لموقع: كل وجهة رابط، وكل صفحة تعطي الدرج عنوانها هي قيمةً لـ value.
+         responsive تدع عرض النافذة يختار طريقة العرض؛ و reveal-selected تفتح المجموعات التي تحوي الصفحة. -->
+    <tanrei-navigation-drawer id="sidebar" label="التوثيق" value="/components/tabs/" reveal-selected responsive open>
+      <tanrei-navigation-drawer-item label="البدء" href="/getting-started/"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-group label="المكوّنات">
+        <tanrei-navigation-drawer-item label="الزر" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="علامات التبويب" href="/components/tabs/" trailing-text="جديد"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-drawer';
+      import '@tanrei/web/components/button';
+      const drawer = document.querySelector('tanrei-navigation-drawer');
+      document.querySelector('#menu').addEventListener('click', () => (drawer.open = true));
+      // يضبط الدرج قيمته بنفسه قبل أن يُصدر change. ثم يغلق الدرج النمطي نفسه.
+      drawer.addEventListener('change', (e) => showFolder(e.detail.value));
+      // close يتبع كل إغلاق لدرج نمطي: الحجاب، Escape، سحب، أو وجهة.
+      drawer.addEventListener('close', onDrawerClosed);
+      // الدرج القابل للطي يكون قد اتخذ الهيئة التي طلبها زر القائمة فيه.
+      document.querySelector('[collapsible]').addEventListener('expandedchange', (e) => savePreference(e.detail.expanded));
+
+      const sidebar = document.querySelector('#sidebar');
+      // الحدث change لرابط قابل للإلغاء ويحمل href الخاصة به: هنا يتولى موجِّه من جهة العميل التنقل.
+      // الموقع المكوَّن من مستندات منفصلة لا يستمع إلى شيء، والصفحة التالية هي التي تقول value.
+      sidebar.addEventListener('change', (e) => {
+        e.preventDefault();
+        router.navigate(e.detail.href);
+      });
+      // الدرج المتجاوب يقول ما الذي جعله عرض النافذة: standard أو column أو modal.
+      sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import {
+      NavigationDrawer,
+      NavigationDrawerGroup,
+      NavigationDrawerItem,
+      NavigationDrawerSection,
+    } from '@tanrei/react';
+
+    // الدرج النمطي يغلق نفسه (onClose): أبقِ open متوافقة هناك.
+    <NavigationDrawer
+      variant="modal"
+      label="البريد"
+      open={open}
+      value={folder}
+      onChange={(e) => setFolder(e.detail.value)}
+      onClose={() => setOpen(false)}
+    >
+      <NavigationDrawerSection heading="البريد">
+        <NavigationDrawerItem value="inbox" label="الوارد" icon="inbox" trailingText="24" />
+        <NavigationDrawerItem value="sent" label="المرسَل" icon="send" />
+      </NavigationDrawerSection>
+    </NavigationDrawer>
+
+    // شريط جانبي لموقع: الوجهات روابط، والصفحة هي التي تقول أيها الحالية.
+    <NavigationDrawer
+      label="التوثيق"
+      open
+      responsive
+      revealSelected
+      value={pathname}
+      onChange={(e) => {
+        e.preventDefault(); // موجِّه من جهة العميل يتولى التنقل
+        navigate(e.detail.href);
+      }}
+      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+    >
+      <NavigationDrawerGroup label="المكوّنات">
+        <NavigationDrawerItem label="الزر" href="/components/button/" />
+        <NavigationDrawerItem label="علامات التبويب" href="/components/tabs/" trailingText="جديد" />
+      </NavigationDrawerGroup>
+      <NavigationDrawerItem label="الشيفرة المصدرية" href="https://example.com/tanrei" target="new" targetLabel="يُفتح في تبويب جديد" />
+    </NavigationDrawer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // القياسي: بجانب المحتوى. isPresented تُظهره وتخفيه؛ واختيار وجهة يكتب في selection.
+    HStack(spacing: 0) {
+        TanreiNavigationDrawer(variant: .standard, isPresented: $sidebarShown, selection: $folder,
+                               accessibilityLabel: "البريد", onReselect: { _ in scrollToTop() }) {
+            TanreiNavigationDrawerSection("البريد") {
+                TanreiNavigationDrawerItem("الوارد", icon: "inbox", value: "inbox", badge: "24")
+                TanreiNavigationDrawerItem("المرسَل", icon: "send", value: "sent")
+            }
+            TanreiNavigationDrawerSection("التصنيفات", divider: true) {
+                TanreiNavigationDrawerItem("العمل", icon: "label", value: "work")
+            }
+        } header: {
+            Text("البريد")
+        }
+        FolderView(folder)
+    }
+
+    // النمطي: مُعدِّل على المحتوى الذي يغطيه. الإغلاق يكتب false في الربط.
+    FolderView(folder)
+        .tanreiNavigationDrawer(isPresented: $menuShown, selection: $folder, accessibilityLabel: "البريد") { … }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawer
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerItem
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerSection
+    import io.github.chnotchy.tanrei.components.rememberTanreiDrawerState
+    import io.github.chnotchy.tanrei.tokens.TanreiNavigationDrawerVariant
+
+    // الدرج يغلّف الشاشة. drawerState هي open في المواصفة؛ و confirmValueChange تسمع close في المواصفة.
+    val drawerState = rememberTanreiDrawerState()
+    TanreiNavigationDrawer(
+        variant = if (wide) TanreiNavigationDrawerVariant.Standard else TanreiNavigationDrawerVariant.Modal,
+        drawerState = drawerState,
+        contentDescription = "البريد",
+        drawerContent = {
+            // أنت تميّز العنصر الحالي بـ selected. الدرج النمطي يغلق نفسه بعد onClick.
+            TanreiNavigationDrawerSection(heading = "البريد") {
+                TanreiNavigationDrawerItem(selected = folder == "inbox", onClick = { folder = "inbox" }, label = "الوارد", icon = "inbox", badge = "24")
+                TanreiNavigationDrawerItem(selected = folder == "sent", onClick = { folder = "sent" }, label = "المرسَل", icon = "send")
+            }
+            TanreiNavigationDrawerSection(heading = "التصنيفات", divider = true) {
+                TanreiNavigationDrawerItem(selected = folder == "work", onClick = { folder = "work" }, label = "العمل", icon = "label", badge = "جديد")
+            }
+        },
+    ) {
+        FolderScreen(folder, onMenu = { drawerState.open() })
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // القياسي: منطقة من التخطيط، أول عنصر في Row بجانب المحتوى.
+    Row(
+      children: <Widget>[
+        TanreiNavigationDrawer(
+          open: sidebarOpen,
+          selectedIndex: current, // معدود عبر الأقسام بترتيب القراءة
+          onDestinationSelected: (int index) => setState(() => current = index), // change و reselect
+          semanticLabel: 'البريد',
+          children: const <TanreiNavigationDrawerChild>[
+            TanreiNavigationDrawerSection(
+              heading: 'البريد',
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'inbox', label: 'الوارد', badge: '24'),
+                TanreiNavigationDrawerDestination(icon: 'send', label: 'المرسَل'),
+              ],
+            ),
+            TanreiNavigationDrawerSection(
+              heading: 'التصنيفات',
+              divider: true,
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'label', label: 'العمل', badge: 'جديد'),
+              ],
+            ),
+          ],
+        ),
+        const Expanded(child: Page()),
+      ],
+    ),
+
+    // النمطي: آخر عنصر فرعي في Stack يملأ النافذة. اضبط open على false من onClose.
+    Stack(
+      children: <Widget>[
+        const Positioned.fill(child: Page()),
+        TanreiNavigationDrawer(
+          variant: TanreiNavigationDrawerVariant.modal,
+          open: menuOpen,
+          onClose: () => setState(() => menuOpen = false),
+          selectedIndex: current,
+          onDestinationSelected: (int index) => setState(() => current = index),
+          semanticLabel: 'البريد',
+          children: destinations,
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationDrawer } from '@tanrei/react-native';
+
+    const [open, setOpen] = useState(false);
+    const [folder, setFolder] = useState('inbox');
+
+    // متحكَّم به: اضبط open على false من onClose. الدرج النمطي يُعرض في Modal شفاف.
+    <NavigationDrawer
+      variant={wide ? 'standard' : 'modal'}
+      open={open}
+      onClose={() => setOpen(false)}
+      accessibilityLabel="البريد"
+      value={folder}
+      onValueChange={setFolder}
+      items={[
+        { heading: 'البريد', items: [
+          { value: 'inbox', label: 'الوارد', icon: 'inbox', badge: '24' },
+          { value: 'sent', label: 'المرسَل', icon: 'send' },
+        ] },
+        { heading: 'التصنيفات', divider: true, items: [{ value: 'work', label: 'العمل', icon: 'label', badge: 'جديد' }] },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="وجهات بلا أيقونات، خارج أي قسم" plain>
+  <tanrei-navigation-drawer open value="deployments" label="المشروع" style="block-size: 20rem">
+    <tanrei-navigation-drawer-item value="overview" label="نظرة عامة"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="deployments" label="عمليات النشر" trailing-text="3"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="settings" label="الإعدادات"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-drawer" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم درج التنقل حين يكون في المنتج وجهات أكثر مما يحمله شريط التنقل، أو حين تقع وجهاته في مجموعات: مجلدات تطبيق بريد وتصنيفاته، أو أقسام مشروع، أو منطقة إدارة. على نافذة كبيرة يقع الدرج القياسي بجانب المحتوى شريطًا جانبيًّا. وعلى نافذة مضغوطة (Compact) ينزلق الدرج النمطي فوق المحتوى من زر قائمة ويختفي حالما تُختار وجهة.
+
+### الاختيار بين الشريط والدرج
+
+| الجانب | [شريط التنقل](/ar/components/navigation-bar/) | [درج التنقل](/ar/components/navigation-drawer/) مطويًّا | [درج التنقل](/ar/components/navigation-drawer/) موسَّعًا |
+| --- | --- | --- | --- |
+| أين يقع | على امتداد الحافة السفلية | عمود من الأيقونات على امتداد حافة البداية | في لوحة عند حافة البداية |
+| النافذة | مضغوطة (Compact) | متوسطة (Medium) فأوسع | موسَّعة (Expanded) فأوسع (قياسي)، أو مضغوطة (نمطي) |
+| الوجهات | ثلاث إلى خمس | وجهاته ومجموعاته العليا، خلية لكل منها | بقدر ما في المنتج، في أقسام ومجموعات |
+| الوجهة | أيقونة فوق تسمية من سطر واحد، مع شارة على الأيقونة | الصف مقطوعًا بعد أيقونته: الأيقونة وحدها، عليها شارة، واسمها في تلميح | صف: أيقونة اختيارية، وتسمية تلتف، ونص أو محتوى في نهايته |
+| يحمل أيضًا | لا شيء آخر | ترويسة: زر القائمة والإجراء الرئيسي مطويًّا إلى أيقونته | ترويسة: زر القائمة، وعنوانًا أو مبدِّل حسابات، والإجراء الرئيسي |
+| على المنصات الأصلية، الوجهة هي | تبويب في شريط تبويب | زر له حالة تحديد | زر له حالة تحديد |
+| ما هو | منطقة من التخطيط | منطقة من التخطيط، أو عمود في التخطيط يتّسع منه درج نمطي | القياسي: منطقة من التخطيط. النمطي: تراكب نمطي |
+
+- **الدرج المطوي هو سكة التنقل (navigation rail).** يضيق الدرج القابل للطي إلى عمود من الأيقونات حيث يحتاج المحتوى إلى العرض، ويوسّعه زر القائمة فيه من جديد؛ وتبقى كل أيقونة في مكانها. سكة التنقل المستقلة في Tanrei أُلغيت وحلّت محلها هذه الهيئة.
+- **الشريط والدرج مجموعة واحدة من الوجهات في مكانين.** يأخذان الوجهات نفسها والتحديد نفسه، فالمنتج الذي يتكيّف مع النافذة يضع الدرج مكان الشريط عند نقطة تحوّل (breakpoint) من دون أن يمسّ وجهاته. أظهر واحدًا منهما في كل مرة، لا الاثنين معًا أبدًا.
+- **الدرج يحمل أكثر.** استخدمه موسَّعًا حين يكون في المنتج وجهات أكثر مما يحمله الشريط، أو حين تقع في مجموعات، كمجلدات تطبيق بريد وتصنيفاته. على نافذة كبيرة يقع الدرج القياسي بجانب المحتوى. وعلى نافذة مضغوطة ينزلق الدرج النمطي فوقه من زر قائمة.
+- **الدرج النمطي القابل للطي** يُبقي عمود أيقوناته في التخطيط ويتّسع فوق المحتوى، فوق حجاب (scrim)، حين يفتحه زر القائمة فيه.
+- على كل المنصات، يحدّد كلاهما بقيمة الوجهة (في Compose بعلامة على كل عنصر، وفي Flutter بالفهرس) ويُصدران `change` و `reselect`.
+
+### أين ذهبت سكة التنقل
+
+ليس في Tanrei سكة تنقل خاصة بها: السكة درج قابل للطي، مطويًّا.
+
+| من قبل | الآن |
+| --- | --- |
+| سكة التنقل | درج تنقل له `collapsible`، و `expanded` فيه مضبوطة على false |
+| وجهة السكة، أيقونة فوق تسميتها | وجهة تُرسم في الهيئة المطوية صفًّا مقطوعًا بعد أيقونته: الأيقونة وحدها، واسمها في تلميح |
+| ظهور التسميات في السكة | الخاصية `collapsedLabels`: القيمة `never` (الافتراضية) أو `selected` أو `always`. والأخيرتان ترسمان `shortLabel` تحت الأيقونة |
+| شارة السكة على الأيقونة | الخصائص `badge` و `badgeCount` و `badgeLabel` في الوجهة، تُرسم في الهيئتين |
+| زر القائمة و FAB في السكة | أول `header-button` في الدرج، وهو زر القائمة فيه، والعنصر `main-action` فيه مطويًّا إلى أيقونته |
+| نص `badge` في نهاية الصف في الدرج | الخاصية `trailingText`، أو المنفذ `trailing` |
+| رموز السكة | الرموز `comp.navigation-drawer.collapsed.*` وشروط الهيئة المطوية |
+
+ينفّذه الويب؛ أما SwiftUI و Compose و Flutter و React Native فما زالت تقدّم سكة التنقل المستقلة الخاصة بها، وهذه الصفحات لم تعد توثّقها، إلى أن تلحق.
+
+### أسماء Material 3
+
+| Material 3 | Tanrei |
+| --- | --- |
+| Navigation rail | درج تنقل قابل للطي، مطويًّا |
+| Expanded navigation rail | درج تنقل قابل للطي، موسَّعًا |
+| Modal expanded navigation rail | درج تنقل نمطي قابل للطي |
+| Navigation drawer | درج تنقل غير قابل للطي |
+
+### اختيار الطراز
+
+| الطراز | ما هو | يُستخدم لـ |
+| --- | --- | --- |
+| القياسي (الافتراضي) | لوحة في التخطيط، لها خط رفيع عند حافة النهاية. المحتوى الذي بجانبها يتغيّر حجمه وهي تُفتح وتُغلق. لا يرسم حجابًا ويبقى مفتوحًا والشخص يعمل في المحتوى. | النوافذ العريضة، حيث يستطيع الدرج أن يبقى مفتوحًا شريطًا جانبيًّا. |
+| النمطي | لوحة مرتفعة زاويتاها من جهة النهاية مستديرتان، تنزلق فوق المحتوى، فوق حجاب. يحصر التركيز حتى يُغلق، ويغلق نفسه بعد اختيار وجهة. | النوافذ المضغوطة، ويُفتح من زر قائمة في شريط التطبيق أو في ترويسة درج مطوي. |
+
+يجوز لنظام التصميم أن يضيف طُرُزًا. والطراز الذي يضيفه يتصرف كالقياسي.
+
+### الفتح والتركيز والإغلاق
+
+- **فتح الدرج القياسي.** ينزلق داخلًا والمحتوى الذي بجانبه يفسح له. وحين تفتحه استجابةً للشخص، كما من زر قائمة، ينتقل التركيز إلى الوجهة الحالية، وإلا فإلى أول عنصر في الدرج يقبل التركيز. والدرج المفتوح منذ البداية لا ينقل أي تركيز.
+- **العمل بجانب درج قياسي.** ينقل المفتاح Tab التركيز من الدرج إلى المحتوى، ويبقى الدرج مفتوحًا. وإغلاقه والتركيز داخله يعيد التركيز إلى حيث كان قبل أن يُفتح.
+- **فتح الدرج النمطي.** ينزلق داخلًا من حافة البداية والحجاب يظهر تدريجيًّا فوق بقية النافذة. ينتقل التركيز إلى الوجهة الحالية، وإلا فإلى أول عنصر يقبل التركيز، ويبقى في الدرج. وكل ما خلفه خامل أمام المؤشر واللمس ولوحة المفاتيح والتقنيات المساعدة.
+- **إغلاق الدرج النمطي.** الضغط على الحجاب، والمفتاح Escape، وإجراء الرجوع في المنصة، والسحب نحو حافة البداية أكثر من نصف عرضه أو دفعة سريعة (fling) في ذلك الاتجاه، واختيار وجهة: كل منها يغلقه مرة واحدة. ينزلق خارجًا، ويختفي الحجاب تدريجيًّا، ويعود التركيز إلى العنصر الذي كان عليه.
+- **لا سحب من الحافة للفتح.** على iOS حافة البداية للشاشة هي إيماءة الرجوع، فلا يُفتح الدرج منها أبدًا. افتحه من زر قائمة ظاهر.
+- حيث تُقلَّل الحركة، يُفتح الدرج ويُغلق فورًا.
+
+### الطي
+
+- **الخاصية `collapsible`** تعطي الدرج هيئته المطوية، بعرض 72: الدرج الموسَّع وقد ذهبت تسمياته. كل وجهة ومجموعة عليا هي صفها مقطوعًا بعد أيقونته، 48 في 48 بزوايا الصف، والمحدَّدة منها تُعبَّأ تمامًا كما يُعبَّأ صفها. تُرصّ أزرار الترويسة في العمود ويُطوى الإجراء الرئيسي إلى أيقونته. تحتفظ عناوين الأقسام بصفوفها بلا نص، ولا يُرسم منفذ الترويسة ولا المحتوى الذي في النهاية.
+- **الخلية المطوية تُظهر اسمها في تلميح**، نحو المحتوى: بعد مهلة التلميح ما دام المؤشر مستقرًّا على الخلية، وفورًا عند تركيز لوحة المفاتيح، ولا تُظهره أبدًا للمس. التسمية هي أصلًا اسم الخلية المتاح للتقنيات المساعدة، فلا يضيف التلميح شيئًا إلى ما يُقرأ.
+- **الخاصية `expanded`** تختار هيئة الدرج القياسي القابل للطي. أما الدرج النمطي القابل للطي فيُبقي عموده في التخطيط ما دام مغلقًا، و `open` توسّعه فوق المحتوى، فوق حجاب.
+- **زر القائمة** هو أول `header-button`. ما دام الدرج قابلًا للطي، يُعرَّف للتقنيات المساعدة موسَّعًا أو مطويًّا، متحكمًا في الدرج، وتفعيله يُصدر `expandedChange` بالهيئة المطلوبة. يطبّقها الويب بنفسه؛ وفي غيره تضبط `expanded` أو `open` منه. وأنت تختار رسمه واسمه.
+- **الخاصية `collapsedLabels`** تختار أي الخلايا ترسم تسمية قصيرة تحت الأيقونة: `never`، وهي الافتراضية، أو الخلية `selected`، أو `always`. العمود ذو التسميات لمنتج أو نظام تصميم يريده. عندئذ ترسم الخلية `shortLabel` الخاصة بها، أو تسميتها إن لم تعطِ واحدة، ولا تُظهر تلميحًا. وتبقى التسمية هي الاسم المتاح للتقنيات المساعدة في الحالين.
+- **كل أيقونة تبقى في مكانها.** تقع الأيقونات على عمود واحد وخط واحد في الهيئتين، وتحتفظ كل خلية بارتفاعها، فلا يحرّك تغيّر الهيئة إلا حافة النهاية: تختفي التسميات تدريجيًّا حين تمرّ بها الحافة، وفي العمود ذي التسميات تظهر التسميات القصيرة تدريجيًّا. والمجموعة المفتوحة هي الاستثناء الوحيد: الدرج المطوي لا يرسم عناصرها، فتصعد الخلايا التي تحتها.
+- **التحديد يغيّر اللون في مكانه.** التحديد الجديد يعيد تلوين الصفوف حيث تقف، موسَّعة أو مطوية. لا شيء يكبر أو يصغر أو ينزلق ليُظهره.
+
+### اتباع عرض النافذة
+
+تدع الخاصية `responsive` عرض النافذة يختار طريقة عرض الدرج، انطلاقًا من نقطتَي التحوّل في نظام تصميمه (1024 و 600 في النظام الافتراضي). وعندئذ تُهمَل `variant`.
+
+| النافذة | طريقة العرض | ما هو الدرج |
+| --- | --- | --- |
+| لا تقل عن نقطة التحوّل الأعرض | `standard` | درج قياسي بجانب المحتوى، يُعرض أيًّا كان ما تقوله `open`، وقابل للطي بالهيئة التي تختارها `expanded` |
+| لا تقل عن الأضيق، مع `collapsible` | `column` | درج نمطي قابل للطي: عمود أيقوناته في التخطيط، ويتّسع فوق المحتوى ما دامت `open` |
+| أضيق من ذلك | `modal` | درج نمطي غير قابل للطي |
+
+- **طريقة العرض مشتقة، لا تُخزَّن أبدًا.** تتبع العرض وحده: لا يكتبها الدرج في `variant` ولا `open` ولا `expanded`. ويقول `presentationChange` ما هي، أول مرة وكلما غيّرها العرض.
+- **يُدخَل إلى طريقة العرض الجديدة والدرج مغلق.** تُرسم فورًا، بلا حركة. التراكب الذي كان مفتوحًا يُنزَل ويصدر `close` مرة واحدة. وتُحفظ `expanded` و `value` وقيمة `open` لكل مجموعة، فتعود طريقة العرض القياسية بالهيئة التي تُركت عليها.
+- **في طريقة العرض `modal` زر القائمة من عندك.** أظهر زر قائمة خاصًّا بك، في شريط التطبيق مثلًا، ما دامت طريقة العرض `modal`، واضبط `open` منه. زر القائمة الخاص بالدرج لا يفعل هناك إلا إغلاقه.
+- **الدرج لا يتذكر شيئًا بين الزيارات.** لتحفظ اختيار الشخص للهيئة، خزِّن ما يحمله `expandedChange` واضبط `expanded` منه.
+
+### شريطًا جانبيًّا لموقع
+
+أعطِ كل وجهة `href` وأعطِ الدرج عنوان الصفحة نفسها قيمةً للخاصية `value`، فيصير الدرج الشريط الجانبي لموقع من المستندات.
+
+- **الصفحة تقول أين هي.** الضغط لا يحدّد رابطًا أبدًا. تضبط كل صفحة `value` على وجهتها هي: على `value` تلك الوجهة، أو على `href` فيها كما كُتبت حيث لا قيمة لها.
+- **الخاصية `revealSelected`** تفتح المجموعات التي تحوي الوجهة المحدَّدة حين يظهر الدرج أول مرة، في إطاره الأول وبلا حركة، ومرة أخرى كلما تغيّرت `value`. والمجموعة التي يغلقها الشخص بعد ذلك تبقى مغلقة حتى تتغيّر `value`.
+- **التحديد ظاهر عند الوصول.** حين يظهر الدرج، وكلما تغيّرت `value`، يُؤتى بالصف الذي يُظهر التحديد إلى وسط الصفوف القابلة للتمرير إن لم يكن ظاهرًا كله، ولا يُحرَّك إطلاقًا إن كان ظاهرًا. فالشريط الجانبي الذي صفحته الحالية ظاهرة من قبل يبقى حيث هو من صفحة إلى صفحة. والتركيز لا ينتقل.
+- **الخاصية `scrollOffset`** تقرأ مقدار تمرير الصفوف وتضبطه. الدرج لا يخزّن شيئًا. والموقع الذي يريد لشجرة طويلة أن تبقى حيث تركها القارئ يحفظ الإزاحة وقيمة `open` لكل مجموعة بنفسه، في تخزين الجلسة مثلًا، ويعيدها قبل الإطار الأول. والمجموعة التي تحوي الصفحة الحالية تُفتح على كل حال، والتحديد يغلب إزاحة كانت ستتركه خارج المجال المرئي.
+- **الرابط الذي يغادر الموقع** يأخذ `target` بالقيمة `new`. يُفتح في تبويب جديد، وينتهي صفه الموسَّع بالرسم `open_in_new` من مجموعة الأيقونات ما لم تضع هناك محتوى، وتُقرأ `targetLabel` بعد اسمه. الكلمات كلماتك («يُفتح في تبويب جديد»): Tanrei لا يقدّم أي كلمات.
+- **الموجِّه يستمع إلى `change`.** يصدر قبل أن يتبع المتصفح الرابط، وللتفعيل العادي فقط: الزر الأساسي بلا مفتاح تعديل، أو لمسة، أو المفتاح Enter، على رابط قيمة `target` فيه `same`. ألغِه واذهب إلى `href` التي يحملها. والرابط الذي يُفتح في تبويب آخر لا يُصدر شيئًا، ويترك الدرج النمطي مفتوحًا.
+
+### الصفوف والمجموعات والأقسام
+
+- تسمية الصف تلتف بدل أن تُقتطع، ويكبر الصف معها. ارتفاع الصفوف 48 على الأقل، وهو ارتفاع عنصر [قائمة الخيارات](/ar/components/menu/)، وبزواياه.
+- أعطِ كل الوجهات أيقونات، أو لا تعطِ أيًّا منها، لتصطف التسميات. الدرج القابل للطي يرسم كل وجهة ومجموعة عليا بأيقونتها وهو مطوي، فأعطِ كلًّا منها أيقونة.
+- الخاصية `trailingText` نص قصير في نهاية الصف، أهدأ من التسمية: عدد («24») أو كلمة («جديد»). والمنفذ `trailing` يحمل أي شيء آخر، كرسم أو Badge؛ وهو يغلب `trailingText` وليس تفاعليًّا أبدًا. والرابط الذي له `target` بالقيمة `new` يُنهي صفه بالرسم `open_in_new` من تلقاء نفسه، فلا تضع ذلك الرسم أنت. يُقرأ المحتوى الذي في النهاية بعد التسمية، ولا يُرسم في الهيئة المطوية.
+- الخاصية `badge` ترسم Badge على الأيقونة، في الهيئتين: نقطة، أو `badgeCount`، واسمها `badgeLabel`.
+- صف المجموعة يفتح الوجهات والمجموعات التي داخلها ويغلقها، مع الرسم `expand_more` من مجموعة الأيقونات مُدارًا نصف دورة ما دامت مفتوحة. يبدأ كل مستوى مُزاحًا إلى الداخل إزاحة إضافية واحدة بكامله: تعبئته وطبقة حالته وحلقة تركيزه، لا نصه وحده. المجموعة المغلقة التي تحوي الوجهة المحدَّدة تُرسم محدَّدة، وكذلك المجموعة العليا في الهيئة المطوية؛ وتفعيل مجموعة في الهيئة المطوية يوسّع الدرج ويفتحها. التزم بثلاثة مستويات.
+- عنوان القسم يسمّي الوجهات التي تحته. هو عنوان، لا عنصر تحكم. وقد يكون القسم بلا عنوان، مجموعةً مفصولة بلا اسم.
+- الخاصية `divider` في القسم ترسم فاصلًا قبله، ليتميّز عمّا فوقه. لا تضع فاصلًا بنفسك أبدًا.
+- تحمل الترويسة أزرار الترويسة، مرصوصة في عمود الأيقونات، والإجراء الرئيسي تحتها. ويقع منفذ الترويسة بجانب زر القائمة في الهيئة الموسَّعة، لعنوان أو مبدِّل حسابات، ولا يُرسم في الهيئة المطوية. والدرج لا يغيّر مظهره.
+- حين تكون الصفوف أطول من الحيّز الذي تحت الترويسة، تصير قابلة للتمرير وتبقى الترويسة في مكانها. والتمرير الذي يبلغ أحد الطرفين لا يتابع إلى تمرير الصفحة التي خلف الدرج.
+
+### افعل
+
+- ضع الوجهات الأكثر استخدامًا أولًا، خارج الأقسام أو في القسم الأول.
+- أعطِ الوجهة `href` حين يكون لها عنوان خاص بها، لتكون رابطًا حقيقيًّا: يمكن فتحه في تبويب جديد ونسخه، ويمكن أن يتبعه زاحف بحث.
+- سمِّ الأقسام بما تشترك فيه وجهاتها: «التصنيفات»، «الإدارة».
+- استخدم الوجهات والقيم نفسها في الهيئتين النمطية والقياسية، ليبدّل المنتج بينهما بعرض النافذة وحده.
+
+### لا تفعل
+
+- لا تستخدم الدرج لإجراءات مثل «تسجيل الخروج» أو «إنشاء رسالة». صفوفه أماكن.
+- لا تضع قسمًا داخل قسم، ولا قسمًا داخل مجموعة. تبلّغ بنيات التنقيح (debug) عن ذلك وترسم وجهات القسم الداخلي في موضعه.
+- لا تستخدم صف المجموعة وجهةً. هو يفتح ويغلق فقط.
+- لا تستخدم درجًا نمطيًّا على نافذة عريضة بما يكفي لدرج قياسي.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="navigation-drawer" />
+
+### ما يتكفل به المكوّن
+
+- على الويب، الدرج معلم تنقل (navigation landmark) اسمه `label`. كل وجهة رابط (مع `href`) أو زر، والحالية تحمل `aria-current="page"`. والدرج النمطي هو كذلك عنصر `<dialog>` نمطي اسمه `label`.
+- على iOS و Android و Flutter و React Native، كل وجهة زر له حالة تحديده وموضعه بين الوجهات، كما تُقرأ الأشرطة الجانبية وعناصر الأدراج على تلك المنصات. والدرج النمطي حاوية نمطية اسمها `label`: الصفة modal، أو عنوان لوحة (pane title).
+- الوجهة عنصر واحد اسمه تسميته، في الهيئتين. أيقونتها مخفية؛ ووصف الشارة التي على أيقونتها ثم المحتوى الذي في نهايتها يُقرآن بعد اسمها وحالتها.
+- الوجهة التي هي رابط تُرسم تمامًا كالوجهة التي هي زر، في كل حالة، وبلا مظهر خاص بالرابط الذي سبقت زيارته. تحتفظ بكل ما يعطيه المتصفح للرابط: قائمته السياقية، والفتح في تبويب جديد، والسحب، والعنوان عند التحويم. والتي تفتح تبويبًا جديدًا تُقرأ `targetLabel` الخاصة بها في آخر وصفها.
+- تلميح الخلية المطوية لمستخدمي المؤشر ولوحة المفاتيح المبصرين. وهو مخفي عن التقنيات المساعدة، التي تقرأ التسمية أصلًا اسمًا للخلية.
+- صف المجموعة زر له حالة توسّع يتحكم في قائمته المتداخلة. مفتاح السهم الأيمن (في تخطيط من اليسار إلى اليمين) يفتح مجموعة مغلقة، ومفتاح السهم الأيسر يغلق مجموعة مفتوحة، ومفتاح السهم الأيسر داخل مجموعة ينقل التركيز إلى صفها. وينتقل المفتاح Tab عبر كل صف ظاهر.
+- ما دام الدرج قابلًا للطي، يُعرَّف زر القائمة فيه للتقنيات المساعدة موسَّعًا أو مطويًّا، متحكمًا في الدرج. ويبقى التركيز على الخلية التي كان عليها حين تتغيّر الهيئة.
+- عنوان القسم يُعرَّف للتقنيات المساعدة عنوانًا (heading) ولا يقبل التركيز.
+- ينتقل المفتاح Tab عبر محتوى الترويسة وكل وجهة غير معطَّلة. يفعّل المفتاحان Enter و Space الوجهة التي عليها التركيز (المفتاح Enter فقط للرابط على الويب). الوجهات المعطَّلة لا تقبل التركيز وتُعلَن معطَّلة.
+- في الدرج القياسي، ينتقل التركيز إلى الداخل حين تفتحه ويعود حين تغلقه، وينتقل المفتاح Tab إلى المحتوى من دون أن يغلقه. وفي الدرج النمطي، يدور المفتاح Tab و Shift+Tab داخل الدرج، ويغلقه المفتاح Escape وإجراء الرجوع في المنصة ويعيدان التركيز.
+- تُرسم حلقة التركيز حول الصف، لتركيز لوحة المفاتيح فقط. وتركيز لوحة المفاتيح على صف ليس ظاهرًا كله يمرّره حتى يظهر بأقل مسافة.
+- مساحة اللمس هي الخلية كلها، في الهيئتين، ولا تقل أبدًا عن الحد الأدنى للهدف.
+- النص الأكبر يُبقي عرض الهيئتين ويجعل الصفوف والعناوين أطول. التسميات تلتف؛ والتسميات القصيرة تُقتطع. والأيقونات لا تُكبَّر.
+- تبلّغ بنيات التنقيح عن وجهة بلا تسمية، ودرج نمطي بلا `label`، وقيمة لا تسمّي أي وجهة، وقيمة مستخدَمة مرتين، وقسم متداخل، وقسم داخل مجموعة، وتداخل أعمق من ثلاثة مستويات، وطراز ليس في نظام التصميم، ودرج قابل للطي بلا زر قائمة، وعنصر يقبل التركيز في المنفذ `trailing`، وقيمة `href` هي عنوان `javascript:` أو لا يمكن قراءتها، وقيمة `target` غير معروفة، ورابط له `target` بالقيمة `new` وليس له `targetLabel`.
+
+فجوات معروفة في المنصات:
+
+- على الويب: لا يستطيع Firefox تحريك عنصر يغادر الطبقة العليا (top layer)، فهناك يختفي الدرج النمطي فورًا بدل أن ينزلق خارجًا.
+- على الويب: كل حجم يتبع `rem`، فتكبير حجم النص في المتصفح يكبّر كذلك الأيقونات، لكنه لا يكبّر عرض الدرج أبدًا. أما تكبير خطوط Tanrei وحدها فلا يفعل.
+- على الويب: كون المفتاح Tab يغادر درجًا قياسيًّا مفتوحًا مختبَر، لكن لم يُختبر بعد أين يحطّ في المحتوى، وقد كان ذلك غير مستقر تحت الحمل.
+- لا يستطيع SwiftUI أن يعرف أي عرض كان عليه التركيز، فإغلاق الدرج لا يعيد تركيز لوحة المفاتيح إلى أي عنصر: تضعه المنصة حيث تضعه افتراضيًّا. وفتحه يركّز الوجهة الحالية، وإلا فأول وجهة مفعَّلة، ولا يركّز أبدًا عنصر تحكم في الترويسة. وعلى Mac، لا يغطي الدرج النمطي ولا يعطّل إلا العرض الملحق به، فألحقه بجذر النافذة.
+- على SwiftUI: لم يُختبر بعد من البداية إلى النهاية المفتاح Escape ولا إيماءة الخروج في إمكانية الوصول ولا انتقال التركيز إلى الداخل عند الفتح. وتحمل الوجهة موضعها نصًّا لقيمتها («`2 of 6`»)، بالإنجليزية فقط.
+- يعرض Compose الدرج النمطي في نافذة `Dialog` خاصة به، كما هو `TanreiDialog`، لا داخل نافذة التطبيق كما يفعل درج Material. يبدو واحدًا، والنافذة تحصر التركيز وتستجيب للرجوع وتخفي ما خلفها.
+- ليس في Compose قيمة على مستوى الدرج، فالقيمة التي لا تسمّي أي وجهة ليس لها ما يُبلَّغ عنه.
+- الدرج النمطي في Flutter ليس `Scaffold.drawer`. تضعه آخر عنصر فرعي في `Stack` يملأ النافذة وتتحكم فيه بالخاصية `open`. ولا تحمل وجهاته موضعًا ضمن المجموعة.
+- على Flutter: حيث يكون الصف وفجوته أقصر من هدف اللمس، كما في نظام تصميم صفه قصير، تتباعد الصفوف بدل أن تكبر مساحة اللمس وحدها.
+- لا يستطيع React Native أن يعرف أي عنصر كان عليه التركيز، فإغلاق الدرج لا يعيد التركيز إلى العنصر الذي فتحه. يترك الدرج النمطي التركيز حيث تضعه المنصة، والدرج القياسي لا يفعل شيئًا.
+- ليس للدرج في React Native خاصية `insets` خاصة به بعد: يقرأ هوامش `TanreiProvider` وحدها. وتحمل الوجهة موضعها نصًّا لقيمتها، بالإنجليزية ما لم تمرِّر `positionText`.
+- على React Native: لم يُفحص بعد على جهاز سحب الدرج النمطي ودفعته السريعة، ولا انتقال تركيزه، ولا إيماءة الخروج.
+- على SwiftUI و Compose و Flutter و React Native، وهي تقدّم المراجعة السابقة: يقع الصف الأول على بُعد نصف فجوة تحت حشو الدرج، والصف الذي التفّت تسميته لا يكبر بالطريقة نفسها على كل منها (يُبقي SwiftUI و Compose الارتفاع الأدنى للصف إلى أن لا يسع النص). وحين تلحق، تقيس كل منها الحشو إلى الخلية الأولى وتعامل ارتفاع الصف حدًّا أدنى.
+- على الويب: الدرج النمطي القابل للطي لا يعيد التركيز إلا بعد أن يضيق عائدًا إلى عموده، والسحب يحرّك اللوحة كلها، ومربع حواره يوضع على صندوق العمود كما قيس حين فُتح.
+
+### ما عليك فعله
+
+- أعطِ كل وجهة تسمية. وحيث يرسم العمود المطوي تسميات (`collapsedLabels`)، أعطِ `shortLabel` حيث تكون التسمية أطول مما يسعه.
+- أعطِ الرابط الذي له `target` بالقيمة `new` قيمة `targetLabel` بلغة منتجك.
+- في الموقع، اضبط `value` في كل صفحة على وجهة تلك الصفحة نفسها.
+- ما دامت طريقة عرض الدرج المتجاوب `modal`، أظهر زر قائمة خاصًّا بك يفتحه.
+- أعطِ زر القائمة اسمًا، مثل «القائمة»، وعلى المنصات غير الويب اضبط `expanded` أو `open` من `expandedChange`.
+- أعطِ الدرج `label`، مثل «البريد». الدرج النمطي مربع حوار، والتسمية اسمه.
+- افتح الدرج النمطي من زر قائمة ظاهر له تسميته، مثل «القائمة».
+- أبقِ `open` متوافقة: اضبطها على false حين يُغلق الدرج النمطي (من `onClose` أو الربط أو حالة الدرج، بحسب المنصة).
+- على SwiftUI، أعِد تركيز لوحة المفاتيح إلى زر القائمة بنفسك بعد أن يُغلق الدرج.
+- على React Native، أعِد التركيز إلى زر القائمة بنفسك بعد أن يُغلق الدرج، ومرِّر `positionText` بلغة منتجك، وأعطِ `TanreiProvider` هوامش النافذة.
+- أبقِ قيمة كل وجهة فريدة وثابتة عبر الهيئتين القياسية والنمطية.

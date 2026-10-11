@@ -1,0 +1,201 @@
+---
+title: الخط الزمني
+description: أحداث مرتبة بترتيب الزمن، لكل حدث علامة ووقت وعنوان ومتن من محتواك، ويصله بالذي يليه خط رفيع. وحيث تكون للأحداث حالة، يقول شكل العلامة وكلماتك أيها اكتمل وأيها جارٍ وأيها آتٍ. هو قائمة تُقرأ، وليس عنصر تحكم أبدًا.
+translationOf: components/timeline.mdx
+sourceHash: 0251491f2f4ffd11a3d50c86f7ebc160d900e2c7
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="timeline" />
+
+<DemoFrame label="سجل لما حدث" column>
+  <ol class="tanrei-timeline" role="list" aria-label="سجل الإصدارات" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="2026-09-22">22 سبتمبر 2026</time><p class="tanrei-timeline-title">أنماط النص بحسب المستوى</p><p>صارت أنماط النص تُسمّى بمستواها، وصار تنعيم كل زاوية ممكنًا.</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-21">21 سبتمبر 2026</time><p class="tanrei-timeline-title">مفردات يمكن توسيعها</p><p>يجوز لطبقة التصميم أن تضيف درجة إلى سلسلة أو قيمة إلى محور، مع ذكر السبب.</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-19">19 سبتمبر 2026</time><p class="tanrei-timeline-title">بدء التطوير</p><p>صار هناك مسار بناء الرموز، ومخطط المواصفات (schema)، والمواصفة الأولى.</p></li>
+  </ol>
+</DemoFrame>
+
+ثلاثة أشياء تُرسم علاماتٍ يصل بينها خط. وتختلف في ما يفعله القارئ بها:
+
+| المكوّن | ما هو | العلامة | ما يقوله عن الحالة | هل يأخذ إدخالًا |
+| --- | --- | --- | --- | --- |
+| **الخطوات** | طريقة عمل تُنفَّذ خطوة خطوة | حلقة فيها رقم الخطوة | لا شيء | لا، أبدًا |
+| **الخط الزمني** (timeline) | سجل لما حدث ولما سيأتي | نقطة أو رسم أيقونة (glyph)، وليست رقمًا أبدًا | اختياريًّا، أين وصل كل حدث | لا، أبدًا |
+| **مؤشر الخطوات** (stepper) | موضع الشخص في مسار يديره المنتج | رقم أو علامة صح | موضع الشخص نفسه | نعم |
+
+الخط الزمني لا يرقّم أحداثه ولا يفرزها ولا يخفيها أبدًا، ولا يقرأ أوقاتها. الترتيب هو الذي تعطيه أنت.
+
+### الاستخدام
+
+على الويب، الخط الزمني صنف (class) على القائمة المرتبة التي تكتبها أنت، لا عنصر مستقل. فالقائمة هي قائمة المستند، بعناصر `<time>` التي فيها، قبل أن يعمل أي سكربت، ومن دون ورقة الأنماط هي قائمة المتصفح المرقَّمة من فقرات مؤرَّخة.
+
+أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: الأسماء التي بجانب كل منصة في أعلى هذه الصفحة هي ما تعطيها إياه المواصفة، ولا شيء منها متاح هناك بعد. وليس في React مكوّن `Timeline` بعد كذلك، فاستخدم القائمة مع الصنف.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/timeline.css" />
+
+    <!-- سجل: أحداث وقعت فحسب. -->
+    <ol class="tanrei-timeline" role="list" aria-label="سجل الإصدارات">
+      <li>
+        <time class="tanrei-timeline-time" datetime="2026-09-19">19 سبتمبر 2026</time>
+        <p class="tanrei-timeline-title">بدء التطوير</p>
+        <p>صار هناك مسار بناء الرموز، ومخطط المواصفات (schema)، والمواصفة الأولى.</p>
+      </li>
+    </ol>
+
+    <!-- خطة: لكل حدث حالة، بشكل وبكلماتك. -->
+    <ol class="tanrei-timeline" role="list" data-size="large" aria-label="خارطة الطريق">
+      <li data-status="done" data-status-label="مكتمل">
+        <!-- ليس لحظة زمنية: فقرة، لا عنصر time. -->
+        <p class="tanrei-timeline-time">المرحلة Wave 1</p>
+        <!-- عنوان هو عنوان قسم في الصفحة: يحتفظ بدوره ومستواه. -->
+        <h3 id="wave-1">عناصر التحكم لليوم الأول</h3>
+        <p>الأزرار، والحقول، وعناصر التحديد، والقائمة.</p>
+      </li>
+      <li data-status="current" data-status-label="قيد التنفيذ">
+        <p class="tanrei-timeline-time">المرحلة Wave 2</p>
+        <h3 id="wave-2">التنقل والتراكبات</h3>
+      </li>
+      <li data-status="upcoming" data-status-label="لم يبدأ">
+        <!-- رسم من عندك في العلامة. -->
+        <span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">flag</span>
+        <p class="tanrei-timeline-time">المرحلة Wave 3</p>
+        <h3 id="wave-3">القطع المتخصصة</h3>
+      </li>
+    </ol>
+
+    <script type="module">
+      // اختياري: يعلّم الحدث الوحيد الجاري بأنه العنصر الحالي في القائمة، ويضيف تقارير التنقيح.
+      // والحزمة `@tanrei/web` تحمّله أيضًا.
+      import '@tanrei/web/timeline';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/timeline.css';
+    import '@tanrei/web/timeline';
+
+    <ol className="tanrei-timeline" role="list" aria-label="سجل الإصدارات">
+      <li>
+        <time className="tanrei-timeline-time" dateTime="2026-09-19">19 سبتمبر 2026</time>
+        <p className="tanrei-timeline-title">بدء التطوير</p>
+        <p>صار هناك مسار بناء الرموز، ومخطط المواصفات (schema)، والمواصفة الأولى.</p>
+      </li>
+    </ol>
+    ```
+  </TabItem>
+</Tabs>
+
+| الخاصية | على الويب |
+| --- | --- |
+| `label` | الخاصية `aria-label` (أو `aria-labelledby` تسمّي عنوان القسم الذي قبل القائمة) |
+| `size: large` | القيمة `data-size="large"` |
+| `density: compact` | القيمة `data-density="compact"` |
+| حدث | عنصر `<li>` |
+| الوقت `time` مع `datetime` | عنصر `<time class="tanrei-timeline-time" datetime="…">` يحمل الكلمات التي تكتبها |
+| الوقت `time` الذي ليس لحظة زمنية | عنصر `<p class="tanrei-timeline-time">` |
+| `title` | عنصر له `class="tanrei-timeline-title"` (عنصر `<p>`) |
+| منفذ العنوان | عنوان قسم (من `h2` إلى `h6`) يبدأ به الحدث أو يلي وقته |
+| `status` | القيمة `data-status="done"` أو `"current"` أو `"upcoming"` |
+| `statusLabel` | الخاصية `data-status-label` |
+| `icon` | عنصر `<span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">` ابنًا أول لعنصر القائمة |
+
+اكتب `role="list"` على القائمة: أحد محرّكات المتصفحات يُسقط دلالة القائمة عن قائمة أزيلت علاماتها.
+
+الوقت لك أنت. اكتبه بلغة قارئك وتقويمه وصيغته، وضع اللحظة نفسها في `datetime` للآلات. الخط الزمني لا ينسّق شيئًا: «قبل ساعتين» تبقى كما كُتبت إلى أن تغيّرها.
+
+## المواصفات
+
+<DemoFrame label="خطة: مكتمل، مكتمل، جارٍ، آتٍ" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="خارطة الطريق" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="مكتمل"><p class="tanrei-timeline-time">المرحلة Wave 0</p><p class="tanrei-timeline-title">الأسس</p><p>الرموز، والسمات، والطباعة، والأيقونات، والأسطح، وعناصر الحالة الأولية.</p></li>
+    <li data-status="done" data-status-label="مكتمل"><p class="tanrei-timeline-time">المرحلة Wave 1</p><p class="tanrei-timeline-title">عناصر التحكم لليوم الأول</p><p>الأزرار، والحقول، وعناصر التحديد، والقائمة.</p></li>
+    <li data-status="current" data-status-label="قيد التنفيذ"><p class="tanrei-timeline-time">المرحلة Wave 2</p><p class="tanrei-timeline-title">التنقل والتراكبات</p><p>الدرج، وعلامات التبويب، ومربعات الحوار، وقوائم الخيارات، واللوحات.</p></li>
+    <li data-status="upcoming" data-status-label="لم يبدأ"><p class="tanrei-timeline-time">المرحلة Wave 3</p><p class="tanrei-timeline-title">القطع المتخصصة</p><p>المنتقيات، والعرض الدوّار، وما يحتاج إليه موقع توثيق.</p></li>
+  </ol>
+</DemoFrame>
+
+<DemoFrame label="رسوم من عندك، وسجل بالكثافة compact" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="الطلب 1042" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="مكتمل"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">الاثنين، 09:41</p><p class="tanrei-timeline-title">تم تقديم الطلب</p></li>
+    <li data-status="current" data-status-label="قيد التنفيذ"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">الثلاثاء، 14:05</p><p class="tanrei-timeline-title">في الطريق</p></li>
+    <li data-status="upcoming" data-status-label="لم يبدأ"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">متوقَّع يوم الخميس</p><p class="tanrei-timeline-title">التسليم</p></li>
+  </ol>
+  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="النشاط" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">حُفظت الطبقة</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">فُحص التباين في ستة مخططات لونية</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">غُيّر اللون الأساسي</p></li>
+  </ol>
+</DemoFrame>
+
+- **العلامة** تقف في صندوق عند حافة البداية، عرضه 24 في الحجم medium و 28 في الحجم large، موسَّطةً على السطر الأول من الحدث. بلا حالة هي نقطة صغيرة؛ ومع رسم من عندك هي حلقة بخط رفيع تحمل الرسم.
+- **الحالة** تغيّر شكل العلامة ولا شيء غيره: حلقة فيها علامة صح للحدث المكتمل، ودائرة معبَّأة فيها نقطة للحدث الجاري، وحلقة فارغة للحدث الآتي. والدائرة المعبَّأة هي اللون الوحيد الذي يأتي به الخط الزمني سوى لون الوقت.
+- **خط الوصل** يمتد من صندوق كل علامة إلى الذي يليه، ويتوقف قبل أن يبلغ أيًّا منهما. والحدث الأخير لا خط له، وهو الخط نفسه بين الأحداث أيًّا كانت حالتها.
+- **الوقت** أول ما في الحدث، بلون هادئ. و**العنوان** يليه بحجم المتن وبوزن العناوين. و**المتن** هو محتواك: بين كل كتلتين فيه 8.
+- **الكثافة**: القيمة regular تضع 16 بين الحدثين، والقيمة compact تضع 8، لسجل طويل من أحداث كل منها سطر واحد. ولا تغيّر إلا تلك المسافة.
+- **الحجمان** هما حجما النص المتصل (prose): الحجم medium بين عناصر التحكم، والحجم large في صفحة غايتها النص. والعلامة وخط الوصل يطابقان ما في الخطوات، فيُقرأ الاثنان في الصفحة الواحدة أسرةً واحدة.
+
+<ComponentSpecs name="timeline" />
+
+### داخل النص المتصل
+
+داخل `.tanrei-prose` ليس الخط الزمني جزيرة معزولة: الفقرات والقوائم والروابط والشيفرة المضمَّنة في كل متن تبقى للنص المتصل. يأخذ الخط الزمني عرض النص المتصل كله، فكتلة الشيفرة في متن تأخذ العمود، والفقرات داخل المتن تبقى تقف عند حدّ طول السطر (measure). والملف `@tanrei/web/prose.css` يحمل قواعد الخط الزمني، فلا تحتاج صفحة من النص المتصل إلى ورقة أنماط ثانية.
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- اكتب نص الحدث في عناصر (`<p>`): النص المكتوب مباشرة في عنصر القائمة لا يمكن إعطاؤه الفراغ الذي تحت الوقت أو العنوان.
+- علامة الصح للحدث المكتمل هي الرسم `check` من مجموعة الأيقونات، فهي تحتاج إلى `icons.css` وخط الأيقونات. ومن دونهما تكون الحلقة فارغة.
+- خارج النص المتصل، يُخطَّط المتن الطويل (قوائم، اقتباسات) كما يُخطَّط في أي مكان من صفحتك، لا كنص متصل.
+- الحجم أو الكثافة التي يضيفها نظام تصميم تُرسم كالقيمة الافتراضية إلى أن يقدّم ذلك النظام قاعدة لها.
+- من دون سكربت الحزمة لا يُعلَّم أي عنصر بأنه العنصر الحالي في القائمة. والحالة تبقى تُقرأ بالكلمات.
+
+## الإرشادات
+
+### افعل
+
+- أعطِ الأحداث بالترتيب الذي يتوقعه قارئك: الأحدث أولًا في سجل التغييرات، والأقدم أولًا في الخطة. والخط الزمني يحفظه.
+- أعطِ كل حدث له حالة كلماته في `data-status-label`، بلغة قارئك.
+- حيث تهمّ الحالة كل قارئ، أظهرها بالكلمات أيضًا: وسم في العنوان أو في المتن.
+- أعطِ الوقت النسبي («قبل ساعتين») لحظته الدقيقة في `datetime`.
+- استخدم القيمة compact لسجل طويل من أحداث كل منها سطر واحد، وضع زرًّا بعد القائمة لإظهار الأحداث الأقدم.
+
+### لا تفعل
+
+- لا تستخدم الخط الزمني لطريقة عمل. الخطوات هي التي ترقّم ما على القارئ فعله.
+- لا تستخدمه لإظهار موضع شخص في مسار هو فيه: ذلك مؤشر خطوات، والعلامة ليست عنصر تحكم.
+- لا تجعل كل عنوان عنوان قسم. سجل تغييرات فيه أربعون حدثًا يملأ مخطَّط عناوين الصفحة. استخدم عنوان قسم حيث يكون كل حدث قسمًا من الصفحة.
+- لا تضع خطًّا زمنيًّا داخل حدث. الأحداث التي داخل حدث قائمة في المتن.
+- لا تعتمد على العلامة وحدها لتقول إن شيئًا أخفق. قله بكلمات الحدث وبوسم.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="timeline" />
+
+### ما يتكفل به المكوّن
+
+- يبقى القائمة المرتبة للمستند: قائمة عدد عناصرها عدد الأحداث، يُقرأ كل منها بحالته بالكلمات ثم وقته ثم عنوانه ثم متنه.
+- الحالة بالكلمات تُقرأ قبل الوقت ولا تُرسم في أي مكان. والعلامات وخط الوصل زخرفية ومخفية.
+- الحالات الثلاث ثلاثة أشكال، لا ثلاثة ألوان، وتبقى كذلك في الألوان المفروضة (forced colors).
+- حيث يكون حدث واحد بالضبط جاريًا، يعلّمه سكربت الحزمة بأنه العنصر الحالي في القائمة.
+- الوقت الذي له `datetime` هو عنصر time الخاص بالمستند نفسه.
+- النص يكبر مع إعدادات القارئ ويلتفّ. ولا شيء يُقصّ أو يُطوى أو يُقسَّم إلى صفحات.
+
+### ما عليك فعله
+
+- اكتب `role="list"` على القائمة، وسمِّها بعنوان قبلها أو بالخاصية `aria-label`.
+- أعطِ `data-status-label` مع كل حالة، إلا إذا كان نص الحدث نفسه يقولها أصلًا.
+- تصل الكلمات إلى قارئ الشاشة عبر ورقة الأنماط في الإصدارات الحالية من محرّكات المتصفحات الثلاثة. ولمتصفح أقدم يُستخدم بلا سكربت الحزمة، اكتبها بنفسك على الصورة `<span class="tanrei-timeline-status">مكتمل، </span>` في بداية عنصر القائمة، بدلًا من `data-status-label`.
+- أعلِن الحدث الذي يُضاف والشخص يشاهد في منطقة حيّة (live region) من عندك: الخط الزمني لا يفعل ذلك.

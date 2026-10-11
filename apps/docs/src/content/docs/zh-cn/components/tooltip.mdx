@@ -1,0 +1,409 @@
+---
+title: "工具提示"
+description: "当用户用指针指向某个元素、用键盘聚焦它或长按它时，用几个词描述这个元素；它不取得焦点，也不阻挡任何东西。"
+translationOf: components/tooltip.mdx
+sourceHash: 51e462efff5a2291a95f405f23d53506018a5153
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="tooltip" />
+
+<DemoFrame label="用指针指向按钮，或聚焦按钮：plain 和 rich 工具提示">
+  <tanrei-tooltip text="移到回收站" no-describe>
+    <tanrei-button variant="text" label="移到回收站"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="存储空间" text="回收站中的文件在删除前仍会占用你的存储空间。" placement="bottom">
+    <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+### 用法
+
+锚点是你自己的元素：图标按钮、被截断的标签、图表中的标记。工具提示给它加上一段描述，除此之外不改变它的任何方面。在 Web、Compose、Flutter 和 React Native 上，工具提示包裹锚点；在 SwiftUI 上，它是锚点上的一个修饰符。
+
+工具提示会在悬停、键盘聚焦和长按时自行打开和关闭，并通过 `toggle` 报告。只有在你要自己显示它时才设置 `open`，例如首次使用时的提示。设置它不会触发任何事件，之后工具提示仍会继续自行打开和关闭。
+
+`describes`（默认为 true）让这段文本成为锚点的无障碍描述。如果文本重复了锚点自己的名称，就把它设为 false，这样屏幕阅读器不会把同样的词读两遍；工具提示显示的就是图标按钮的标签时，正是这种情况。
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们提供的仍是工具提示的上一版，只有四个居中的位置，不能为单个工具提示设置延迟、偏移、箭头、第二种外观和快捷键，并且只淡入淡出，不会变大。在跟上之前，这些平台的示例展示的是那一版。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 工具提示包裹它的锚点。no-describe 相当于把 describes 设为 false：文本与标签重复。 -->
+    <tanrei-tooltip text="移到回收站" no-describe>
+      <tanrei-button variant="text" label="移到回收站"><span slot="icon">delete</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- 紧凑的工具栏希望名称更快出现。延迟以毫秒为单位。 -->
+    <tanrei-tooltip text="粗体" show-delay="150" no-describe>
+      <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- 命令的按键显示在名称之后。锚点负责把它们提供给辅助技术。 -->
+    <tanrei-tooltip text="粗体" shortcut="mod+b" no-describe>
+      <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- 在控件下方，与它的起始边对齐，带箭头，画在表面上而不是反色。 -->
+    <tanrei-tooltip text="按日期或所有者筛选" placement="bottom-start" arrow inverse="false">
+      <tanrei-button variant="text" label="筛选"><span slot="icon">filter_list</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <tanrei-tooltip id="storage" variant="rich" title="存储空间" placement="bottom"
+                    text="回收站中的文件在删除前仍会占用你的存储空间。">
+      <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <script type="module">
+      import '@tanrei/web/components/tooltip';
+      const storage = document.querySelector('#storage');
+      // 首次使用时的提示。设置 open 不会触发任何事件。
+      storage.open = true;
+      // toggle 报告工具提示自行做了什么：悬停、聚焦、长按、Escape、超时、另一个工具提示。
+      storage.addEventListener('toggle', (e) => console.log(e.detail.open));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Tooltip } from '@tanrei/react';
+
+    <Tooltip text="移到回收站" describes={false}>
+      <Button variant="text" label="移到回收站" onClick={trash}><span slot="icon">delete</span></Button>
+    </Tooltip>
+    {/* 命令的按键显示在名称之后：每个字符串是一个组合键。 */}
+    <Tooltip text="粗体" shortcut={['mod+b']} describes={false}>
+      <Button variant="text" label="粗体" onClick={bold}><span slot="icon">format_bold</span></Button>
+    </Tooltip>
+    {/* 在控件下方，与它的起始边对齐，带箭头，画在表面上而不是反色。 */}
+    <Tooltip text="按日期或所有者筛选" placement="bottom-start" arrow inverse={false}>
+      <Button variant="text" label="筛选" onClick={filter}><span slot="icon">filter_list</span></Button>
+    </Tooltip>
+    <Tooltip
+      variant="rich"
+      title="存储空间"
+      text="回收站中的文件在删除前仍会占用你的存储空间。"
+      placement="bottom"
+      touchTimeout={4000} // 长按之后，几句话需要更长的时间来阅读
+      onToggle={(e) => log(e.detail.open)}
+    >
+      <Button variant="text" label="关于存储空间"><span slot="icon">info</span></Button>
+    </Tooltip>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 锚点上的一个修饰符。它上层的 .tanreiTheme(_:) 提供绘制工具提示的那一层。
+    // 描述会成为锚点的 accessibilityHint。
+    TanreiIconButton("移到回收站", action: trash) { Image(systemName: "trash") }
+        .tanreiTooltip("移到回收站", describes: false)
+
+    // isPresented 就是 open；工具提示自行打开或关闭时会写入它。
+    TanreiIconButton("关于存储空间", action: {}) { Image(systemName: "info.circle") }
+        .tanreiTooltip("回收站中的文件在删除前仍会占用你的存储空间。",
+                       title: "存储空间", variant: .rich, placement: .bottom, isPresented: $showHint)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiTooltip
+    import io.github.chnotchy.tanrei.components.TanreiTooltipPlacement
+    import io.github.chnotchy.tanrei.components.TanreiTooltipVariant
+    import io.github.chnotchy.tanrei.components.rememberTanreiTooltipState
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // 与 Material 的 TooltipBox 一样：工具提示包裹它的锚点。
+    TanreiTooltip(text = "移到回收站", describes = false) {
+        TanreiIconButton(onClick = ::trash, contentDescription = "移到回收站") { TanreiText("delete") }
+    }
+
+    // state 就是 open。onToggle 得知工具提示自行做了什么；show() 和 dismiss() 不触发任何事件。
+    val hint = rememberTanreiTooltipState(onToggle = { open -> log(open) })
+    TanreiTooltip(
+        text = "回收站中的文件在删除前仍会占用你的存储空间。",
+        variant = TanreiTooltipVariant.Rich,
+        title = "存储空间",
+        placement = TanreiTooltipPlacement.Bottom,
+        state = hint,
+    ) {
+        TanreiIconButton(onClick = {}, contentDescription = "关于存储空间") { TanreiText("info") }
+    }
+    LaunchedEffect(Unit) { hint.show() } // 首次使用时的提示
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // show() 和 hide() 设置 open，不通知任何人。监听器得知的是工具提示自行做了什么。
+    final TanreiTooltipController hint = TanreiTooltipController();
+    hint.addListener(() => log(hint.isOpen));
+
+    // 与 Flutter 的 Tooltip 一样：message 是文本，excludeFromSemantics 是取反的 describes。
+    TanreiTooltip(
+      message: '移到回收站',
+      excludeFromSemantics: true, // 文本与按钮自己的名称重复
+      child: TanreiIconButton(onPressed: trash, icon: const Icon(AppSymbols.delete), semanticLabel: '移到回收站'),
+    );
+    TanreiTooltip(
+      variant: TanreiTooltipVariant.rich,
+      title: '存储空间',
+      message: '回收站中的文件在删除前仍会占用你的存储空间。',
+      placement: TanreiTooltipPlacement.bottom,
+      controller: hint, // 用 hint.show() 显示首次使用时的提示
+      child: TanreiIconButton(onPressed: info, icon: const Icon(AppSymbols.info), semanticLabel: '关于存储空间'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { IconButton, Tooltip } from '@tanrei/react-native';
+
+    // 锚点是接受 Pressable 属性的“一个”子元素。工具提示会加上自己的处理函数，并先调用锚点自己的处理函数。
+    <Tooltip text="移到回收站" describes={false}>
+      <IconButton accessibilityLabel="移到回收站" onPress={trash}>delete</IconButton>
+    </Tooltip>
+
+    // open 从你的代码里显示它，不触发任何事件；onOpenChange 得知它自行做了什么。
+    <Tooltip
+      variant="rich"
+      title="存储空间"
+      text="回收站中的文件在删除前仍会占用你的存储空间。"
+      placement="bottom"
+      open={showHint}
+      onOpenChange={setShowHint}
+    >
+      <IconButton accessibilityLabel="关于存储空间">info</IconButton>
+    </Tooltip>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="位于锚点下方的 plain 工具提示，以及没有标题的 rich 工具提示" plain>
+  <tanrei-tooltip text="移到回收站" placement="bottom" no-describe>
+    <tanrei-button variant="text" label="移到回收站"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" text="回收站中的文件在删除前仍会占用你的存储空间。">
+    <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+<ComponentSpecs name="tooltip" />
+
+## 指南
+
+### 何时使用
+
+用工具提示为认不出图标的用户说出图标操作的名称，或者就地解释一个术语、一项限制或一项设置。它是一段描述，供人顺带一读。
+
+对触摸用户来说，工具提示在长按之前是看不见的；屏幕阅读器也只是把它当作一段描述来读。凡是用户完成任务所需要的内容，绝不要只放在工具提示里：把它作为文本显示在屏幕上。需要链接或按钮的说明不是工具提示。请使用对话框，或者把文字放在它所解释的对象旁边。
+
+### 如何选择变体
+
+| 变体 | 它是什么 | 用途 |
+| --- | --- | --- |
+| Plain | 一个简短的短语，默认画在反色表面上。它忽略 `title`，可以在文本之后显示键盘快捷键。 | 说出图标的作用：“移到回收站”“分享”。 |
+| Rich | 几句话，上方可以有一个标题，默认画在抬升的表面上。它忽略 `shortcut`。 | 解释一个术语或一项设置：“存储空间”以及哪些内容计入其中。 |
+
+变体是结构上的选择，而不是令牌的一个轴。设计系统可以改变两种形式的样式，但不能靠取值添加第三种。
+
+### 位置
+
+`placement` 指定工具提示优先出现在锚点的哪一侧，以及它沿这一侧如何对齐。默认是 `top`。
+
+<DemoFrame label="用指针指向按钮，或聚焦按钮：十三种位置" plain>
+  <tanrei-tooltip text="上方，居中" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="上方，起始边对齐" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="上方，末尾边对齐" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="下方，居中" placement="bottom"><tanrei-button variant="outlined" size="small">bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="下方，起始边对齐" placement="bottom-start"><tanrei-button variant="outlined" size="small">bottom-start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="下方，末尾边对齐" placement="bottom-end"><tanrei-button variant="outlined" size="small">bottom-end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="起始侧，居中" placement="start"><tanrei-button variant="outlined" size="small">start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="起始侧，顶边对齐" placement="start-top"><tanrei-button variant="outlined" size="small">start-top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="起始侧，底边对齐" placement="start-bottom"><tanrei-button variant="outlined" size="small">start-bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="末尾侧，居中" placement="end"><tanrei-button variant="outlined" size="small">end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="末尾侧，顶边对齐" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="末尾侧，底边对齐" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="第一个有空间的一侧" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
+</DemoFrame>
+
+| 所在的一侧 | 相对锚点居中 | 第一条边对齐 | 第二条边对齐 |
+| --- | --- | --- | --- |
+| 上方 | `top` | `top-start` | `top-end` |
+| 下方 | `bottom` | `bottom-start` | `bottom-end` |
+| 锚点之前（起始侧） | `start` | `start-top` | `start-bottom` |
+| 锚点之后（末尾侧） | `end` | `end-top` | `end-bottom` |
+
+- **对齐指的是边贴着边。** `top-start` 把工具提示的起始边放在锚点的起始边上，`end-bottom` 把它的底边放在锚点的底边上。锚点很小、又靠近面板边缘，而工具提示较宽时，使用带对齐的位置；要让工具提示与一行文本对齐时也是如此。
+- **起始和末尾随布局方向而定。** 在从右到左的布局中，`start` 是右侧，`top-start` 对齐的是右边。顶部和底部不镜像。
+- **`auto`** 依次尝试上方、下方、末尾侧和起始侧，取第一个有空间的一侧，并居中。锚点周围的环境无法预知时使用它，例如可能停靠在任意一边的面板里的控件。
+- **没有空间时。** 工具提示翻转到相对的一侧并保持原来的对齐方式，然后沿这一侧平移，以留在窗口的安全区域之内。窗口比工具提示还小时，它留在窗口之内，必要时盖在锚点上。一旦翻转，只要那一侧还有空间，它就留在那一侧，所以页面滚动时它不会来回跳动。
+- **`offset` 和 `crossOffset`。** `offset` 是到锚点边缘的距离，0 让两者相接；不设置时是系统规定的距离。`crossOffset` 让工具提示沿它所在的一侧移动：在锚点上方或下方时朝末尾侧移动，在锚点旁边时朝底部移动，但从不移出锚点的这一侧。两者都以平台的布局单位计。只有当锚点的盒子并不是眼睛所认定的边缘时才设置它们，例如带有很大的不可见点击区域的控件，或图表里的一个标记。
+- **显示期间的更改。** 新的 `placement` 或偏移会让工具提示立即移动，不带动效。
+
+### 箭头
+
+<DemoFrame label="用指针指向按钮，或聚焦按钮：带箭头" plain>
+  <tanrei-tooltip text="移到回收站" arrow no-describe>
+    <tanrei-button variant="text" label="移到回收站"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip text="按日期或所有者筛选" placement="bottom-start" arrow>
+    <tanrei-button variant="text" label="筛选"><span slot="icon">filter_list</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="存储空间" text="回收站中的文件在删除前仍会占用你的存储空间。" placement="end" arrow>
+    <tanrei-button variant="text" label="关于存储空间"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+`arrow` 在工具提示的边缘画一个指向锚点的小三角形。在默认系统中它是关闭的。不设置时，采用设计系统的选择；`true` 和 `false` 为单个工具提示作出决定。在 Web 上，这个属性写作 `arrow` 表示 true，写作 `arrow="false"` 表示 false。
+
+箭头与工具提示是同一个形状，颜色相同。它指向的是锚点，而不是工具提示的中部，工具提示翻转或平移之后也是如此；它还会避开圆角。带箭头时，工具提示会多离开一个箭头的高度，所以你看到的间隙在有无箭头时都一样。
+
+仅凭所在的一侧还说不清指的是哪个控件时，使用箭头：例如你自己在拥挤的工具栏上打开的一条提示。悬停时显示的名称很少需要箭头。
+
+### 两种外观
+
+<DemoFrame label="用指针指向按钮，或聚焦按钮：两种形式各自的反色外观和表面外观" plain>
+  <tanrei-tooltip text="相反配色方案的颜色" inverse><tanrei-button variant="outlined" size="small">Plain，反色</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="当前配色方案中抬升的表面" inverse="false"><tanrei-button variant="outlined" size="small">Plain，表面</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="画在表面上" text="当前配色方案中抬升的表面，带有它的层级。" inverse="false"><tanrei-button variant="outlined" size="small">Rich，表面</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="反色" text="相反配色方案的颜色，没有阴影。" inverse><tanrei-button variant="outlined" size="small">Rich，反色</tanrei-button></tanrei-tooltip>
+</DemoFrame>
+
+两种形式都可以画成反色，即使用相反配色方案的颜色；也可以画在当前配色方案中抬升的表面上。
+
+| `inverse` | Plain | Rich |
+| --- | --- | --- |
+| 未设置（默认） | 按设计系统为 plain 工具提示所作的选择：在默认系统中是反色。 | 按设计系统为 rich 工具提示所作的选择：在默认系统中是表面。 |
+| `true` | 反色。 | 反色。 |
+| `false` | 画在表面上。 | 画在表面上。 |
+
+在 Web 上，这个属性写作 `inverse` 表示 true，写作 `inverse="false"` 表示 false，与[消息条（Snackbar）](/zh-cn/components/snackbar/)的属性相同。
+
+变化的只有颜色和层级。形状、尺寸、文本样式、箭头、位置和动效在两种外观下都相同，而且两种外观都不表示工具提示很重要。只在某个工具提示不这样设置就无法与背景区分开时才设置它：例如深色图片查看器或反色栏之上的深色标签，或者内容繁杂的凸起表面之上一段较长的说明。
+
+### 键盘快捷键
+
+<DemoFrame label="用指针指向按钮，或聚焦按钮：命令的按键显示在名称之后" plain>
+  <tanrei-tooltip text="粗体" shortcut="mod+b" no-describe>
+    <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip text="斜体" shortcut="mod+i" no-describe>
+    <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+`shortcut` 在 plain 工具提示的文本之后显示锚点所对应命令的按键，并按用户所用的键盘书写。它使用[键盘快捷键](/zh-cn/components/keyboard-shortcut/)组件的按键名称，每个字符串是一个组合键；在 Web 上，属性中的组合键用空格分隔。
+
+工具提示只显示按键。它不会让这些按键生效：按键由你的产品来绑定。较长的文本在按键旁边换行时，按键始终完整地保持在一行之内。rich 工具提示忽略 `shortcut`，并会在调试构建中报告。
+
+### 打开、焦点和关闭
+
+工具提示是供阅读的浮层。用户从中获取信息，从不在里面进行操作，所以它从不取得焦点。
+
+| 输入 | 打开 | 关闭 |
+| --- | --- | --- |
+| 指针 | 指针在锚点上停留满显示延迟之后。 | 指针离开锚点、间隙和工具提示满隐藏延迟之后。指针可以越过间隙移到工具提示上去阅读它。 |
+| 键盘焦点 | 锚点获得键盘焦点时立即打开。来自指针或触摸的焦点不会打开它。 | 焦点离开锚点时。 |
+| 触摸长按 | 立即打开，不激活锚点。 | 手指抬起后经过触摸超时；如果在别处触摸，则更早关闭。 |
+
+- **使用期间没有时间限制。** 指针位于锚点、工具提示或两者之间的间隙之上时，或者锚点持有键盘焦点时，工具提示保持打开。间隙不会被绘制，也不响应按下：它只是算作悬停。
+- **Escape。** Escape 关闭工具提示而不移动焦点，并且不再向外传递，所以包含它的对话框保持打开。在指针再次进入锚点或锚点再次获得焦点之前，工具提示保持关闭。
+- **激活。** 激活锚点（点击、轻点、Enter 或 Space）会关闭工具提示，同一次悬停不会再次打开它。
+- **一次只有一个。** 一个工具提示打开时，窗口里的其他工具提示都会关闭；新的工具提示打开时没有延迟，因为用户已经在阅读工具提示了。
+- **在工具提示之间移动。** 如果一个工具提示接替了另一个，或者在另一个工具提示因指针或焦点离开其锚点而关闭之后不久打开，它会立即完整出现：没有延迟，也没有动效。所以指针沿工具栏扫过时，可以一个接一个地读到名称。因 Escape、激活锚点或在其上按下而关闭的工具提示，不会开始这段计时。
+- **不取得焦点，不阻挡任何东西。** 它不包含任何可聚焦或可按下的内容，不让任何东西变为惰性（inert），也不绘制遮罩。在工具提示上按下会关闭它，并且这次按下不会到达它下面的内容。
+- **位于一切之上。** 它画在所在窗口的所有其他层之上，包括打开的对话框及其遮罩，所以对话框里的工具提示是看得见的。
+- **位置。** 它位于 `placement` 所指定的地方，见[位置](#位置)。锚点移动时它会跟随；锚点被移除、被隐藏、被滚出窗口，或者在滚动区域内被滚出视野时，它会关闭。
+- **动效。** 它从靠近锚点的一侧出现：淡入的同时略微变大，并朝远离锚点的方向移动几个像素；消失时按原路返回。被打断的动效会从当前位置掉头。关闭过程中，工具提示不接收指针，所以它从不挡住下面的内容。在减弱动态效果的设置下，它只淡入淡出。
+- **朗读。** 工具提示出现时不朗读任何内容。`describes` 为 true 时，无论工具提示是否打开，它的文本（rich 工具提示则在标题之后）都是锚点的描述，并且画出来的工具提示不会被再读一遍。
+
+### 单个工具提示的延迟
+
+设计系统为所有工具提示统一设置显示延迟、隐藏延迟和触摸超时。单个工具提示可以用 `showDelay`、`hideDelay` 和 `touchTimeout` 设置自己的值，以毫秒为单位。不设置时，各自采用系统的值。
+
+- **何时设置。** 紧凑的工具栏希望名称更快出现时，设置更短的显示延迟；图表上的标记会被指针扫过时，设置更长的显示延迟，这样就不会有工具提示一闪而过。有几句话的 rich 工具提示设置更长的触摸超时，只有一个词的名称设置更短的触摸超时。
+- **0 表示立即。** 显示延迟为 0 时，指针一进入锚点，工具提示就打开；隐藏延迟为 0 时，指针一离开锚点、间隙和工具提示，它就关闭。即使这样，指针仍然可以悬停到工具提示上，因为间隙算作悬停。触摸超时为 0 时，工具提示在整个长按期间显示，手指一抬起就关闭。
+- **原样使用。** 你设置的值不会被动效调节量缩放，减弱动态效果时也保持不变：延迟是等待，不是动画。负值或非数字的值会采用系统的值，并会在调试构建中报告。在 Web 上，空的属性同样不是数字。
+- **仅限悬停和触摸。** 键盘焦点仍然立即打开工具提示；在另一个工具提示正显示时打开的工具提示仍然跳过显示延迟；设置 `open` 仍然立即显示或隐藏它。长按本身采用平台自己的时长。
+- **等待期间的更改。** 已经开始的等待会按开始时的值走完。新的值从下一次起生效。
+
+目前只有 Web 和 React 接受这些属性。其他平台跟上时，规格会按各平台的惯用方式为它们命名：Compose 上是 `showDelayMillis`、`hideDelayMillis` 和 `touchTimeoutMillis`，Flutter 上是 `Tooltip` 的 `waitDuration`、`exitDuration` 和 `showDuration`，SwiftUI 和 React Native 上是规格自己的名称。
+
+每个平台都使用非模态的呈现方式：在 Web 上是顶层（top layer）中的 `popover="manual"` 元素；在 SwiftUI 上是窗口之上的浮层（不是 `.popover`，它在 compact 宽度下是模态的）；在 Compose 上是不能取得焦点的 `Popup`；在 Flutter 上是 `OverlayPortal`；在 React Native 上是 `TanreiProvider` 的浮层（不是 `Modal`，它会接收所有触摸）。
+
+### 推荐
+
+- plain 工具提示保持在几个词以内，rich 工具提示保持在几句话以内。
+- 在同一个屏幕上，给同一类锚点设置相同的位置，例如工具栏里每个图标的下方。
+- 对大多数工具提示，把 `inverse` 和 `arrow` 交给设计系统决定，只为确实需要的那一个设置它们。
+- 用 `shortcut` 显示命令的按键，而不要把它们写进文本里。
+- 给同一组锚点的工具提示设置相同的延迟，让它们保持同一个节奏。
+- 工具提示显示的是锚点自己的标签时，把 `describes` 设为 false。
+
+### 避免
+
+- 不要把工具提示当作图标按钮的名称。按钮的 `label` 才是它的名称。
+- 不要在禁用的锚点上放工具提示来解释它为什么被禁用。禁用的控件无法获得焦点，也可能收不到指针事件。把原因写在可见的文本里。
+- 不要在工具提示里放链接、按钮或任何其他可交互的内容。
+- 不要在工具提示里重复锚点已经用可见文本说明的内容。
+- 不要用反色外观或箭头来让工具提示显得更重要。
+
+## 无障碍
+
+<ComponentAccessibility name="tooltip" />
+
+### 组件负责的部分
+
+- `describes` 为 true 时，文本（rich 工具提示则在标题之后）是锚点的无障碍描述，无论工具提示是否正在显示都可以读到。锚点保留自己的名称和角色。`describes` 为 false 时，工具提示不给锚点添加任何内容。
+- 画出来的工具提示不会被读两遍。它从不取得焦点，也不包含任何可聚焦的内容。
+- 锚点获得键盘焦点时，工具提示立即打开；焦点移走时，它关闭。工具提示本身从不是 Tab 停靠点。
+- Escape 关闭它而不移动焦点，并且不会同时关闭包含它的对话框。
+- 它满足 WCAG 1.4.13（悬停或聚焦时显示的内容）：不移动指针或焦点就能关闭它；无论隐藏延迟是多少（包括 0），指针都能悬停到它上面，因为锚点与工具提示之间的间隙算作悬停；它会一直保留，直到悬停或聚焦结束，或者它被关闭。
+- 文本放大时它随之变大，不会裁掉文本；它的文本向布局方向的起始侧对齐。
+- 快捷键会作为锚点的键盘快捷键提供给辅助技术（在 Web 上是 `aria-keyshortcuts`，设置在取得焦点的元素上），画出来的按键对辅助技术隐藏。如果锚点已经声明了自己的快捷键，则在 `describes` 为 true 时，改为把工具提示的按键拼写出来，放在描述的末尾。
+- 箭头是装饰，对辅助技术隐藏。两种外观使用的都是成对的文本颜色和容器颜色，构建会在每种配色方案下检查它们的对比度。
+- 它的动效很小：淡入、略微变大，以及几个像素的位移。在减弱动态效果的设置下，它只淡入淡出，不变大也不移动；Android 除外，它的这项设置会移除所有动画。各种延迟、触摸超时，以及下一个工具提示会立即打开的那段时间，都是等待而不是动效，在任何地方都保持不变。
+- 文本为空的工具提示从不打开，也不添加任何内容。调试构建会报告这种情况，也会报告 plain 工具提示上被忽略的标题。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 还不接受 `showDelay`、`hideDelay` 和 `touchTimeout`，也不把间隙算作悬停：在这些平台上，每个工具提示都采用系统的延迟，指针要在隐藏延迟之内越过间隙。它们还只有四个居中的位置（`top`、`bottom`、`start`、`end`），没有 `offset`、`crossOffset`、`arrow`、`inverse` 和 `shortcut`；它们的工具提示只淡入淡出，不变大也不移动。
+- Web：只有在浏览器把触摸长按报告为上下文菜单的地方，长按才会打开工具提示。iOS Safari 不这样报告，所以在那里工具提示无法通过触摸打开。
+- Web：`<tanrei-tooltip>` 会读取并移除自己的 `title` 属性（attribute），这样浏览器就不会再在锚点上画出原生的工具提示。`title` 属性（property）保留这个值。
+- SwiftUI 没有工具提示角色。描述是锚点的无障碍提示（accessibility hint）。
+- iOS 上的 SwiftUI：在已聚焦的锚点上按 Return 或 Space 不会关闭工具提示，Escape 也只在锚点持有焦点时才关闭它。因轻点而获得焦点的锚点（例如文本字段）会打开它的工具提示。被设为透明或被遮住的锚点不会被检测为隐藏。
+- SwiftUI 把工具提示画在由 `.tanreiTheme(_:)` 和 Tanrei 对话框提供的一层里。由 SwiftUI 另行呈现的内容，例如你自己的 `.sheet` 或 `.popover`，需要加上 `.tanreiTooltipLayer()`，其中的工具提示才会显示。
+- Compose 没有描述属性。文本会成为锚点的状态描述，在名称和角色之后读出。Tanrei 的控件把它放在自己的节点上；其他锚点只有在某个会合并后代的祖先接收它时才会得到描述。在切换型的锚点上，例如切换图标按钮，它会取代“开”或“关”。
+- Compose：如果锚点位于打开的对话框后面，你从代码里在它上面显示的工具提示会画在对话框窗口的下方。
+- Compose：焦点位于窗口的其他地方、锚点只是被悬停时，只有在 Android 9（API 28）及更高版本上，Escape 才会到达工具提示。
+- Compose：真实鼠标的悬停、在外部的触摸、Escape 监听器以及 TalkBack 对锚点状态描述的朗读，目前只在 Robolectric 上测试过，尚未在设备上测试。
+- Flutter：画出来的工具提示始终被排除在语义之外，因为 Flutter 的工具提示角色目前还不能使用。锚点上的描述不受影响。
+- Flutter：只有焦点位于锚点之内时，或者由 Tanrei 对话框处理时，Escape 才会被消费。焦点在别处时，其他处理 Escape 的祖先（例如 Material 的对话框路由）仍然会收到它。
+- React Native：描述是锚点的 `accessibilityHint`，排在锚点自己的提示之后。
+- React Native：在别处触摸不会让长按打开的工具提示更早关闭。触摸超时仍然会关闭它。
+- React Native：工具提示不会跟随滚动的锚点，锚点滚出视野时它也不会关闭。只有当你把窗口的边衬区（insets）传给 `TanreiProvider` 时，它才会保持在安全区域之内。
+- React Native：悬停、把指针移到工具提示上、长按和 Escape 尚未在设备上检验过。
+
+### 需要你做的事
+
+- 给锚点设置它自己的无障碍名称。工具提示从不替代它。
+- 文本重复这个名称时，把 `describes` 设为 false。
+- 你用 `shortcut` 显示的按键要由你自己绑定；这个命令出现在其他地方（例如菜单里）时，也要显示相同的按键。
+- 让锚点可以获得焦点，这样键盘用户才能打开工具提示。
+- 如果你缩短了触摸超时，请确认在剩下的时间里文本仍然读得完。超时为 0 时，工具提示只在手指按住期间显示。
+- 把用户需要的一切都放在工具提示之外。触摸用户和屏幕阅读器用户可能永远看不到它。
+- 在 React Native 上，把 `TanreiProvider` 放在应用的根部，并传入窗口的 `insets`：它的浮层会把工具提示画在安全区域之内。在 SwiftUI 上，在锚点的上层应用 `.tanreiTheme(_:)`，并给你自己的面板和弹出层的内容加上 `.tanreiTooltipLayer()`。在 Flutter 上，工具提示的上层需要有一个 `Overlay`，每个带 `Navigator` 的 `WidgetsApp` 都有。

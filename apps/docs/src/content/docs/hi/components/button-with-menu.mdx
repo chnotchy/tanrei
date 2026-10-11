@@ -1,0 +1,408 @@
+---
+title: मेन्यू वाला बटन
+description: एक बार दबाने पर मुख्य क्रिया करता है, और अपने बग़ल में जुड़े दूसरे बटन से खुलने वाले मेन्यू में संबंधित क्रियाएँ देता है।
+translationOf: components/button-with-menu.mdx
+sourceHash: da09049dfc3d610609f88d3630ba5407eb6f36c2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="button-with-menu" />
+
+:::note[स्प्लिट बटन कहाँ गया]
+इस कंपोनेंट को स्प्लिट बटन नहीं कहा जाता। "स्प्लिट बटन" यह बताता है कि वह कैसा दिखता है, यानी दो हिस्सों में कटा हुआ बटन, और connected [बटन ग्रुप](/hi/components/button-group/) भी वैसा ही दिखता है; इस कंपोनेंट को जो चीज़ अलग करती है, वह है वह मेन्यू जिसे इसका दूसरा हिस्सा सामने लाता है। इसके व्यवहार की आईडी पर उसी नाम का `SPB` प्रीफ़िक्स है।
+
+| पहले | अब |
+| --- | --- |
+| स्प्लिट बटन (`split-button`) | मेन्यू वाला बटन (`button-with-menu`) |
+| `comp.split-button.*`, `--tanrei-comp-split-button-*` | `comp.button-with-menu.*`, `--tanrei-comp-button-with-menu-*` |
+| `<tanrei-split-button>`, `TanreiSplitButton` (वेब क्लास) | `<tanrei-button-with-menu>`, `TanreiButtonWithMenu` |
+| `SplitButton` (React, React Native) | `ButtonWithMenu` |
+| `TanreiSplitButton` (SwiftUI, Compose, Flutter) | `TanreiButtonWithMenu` |
+
+Material 3 अपने समकक्ष कंपोनेंट को स्प्लिट बटन कहता है; m3-like प्रीसेट में मेन्यू वाला बटन वही कंपोनेंट है।
+:::
+
+:::caution[नेटिव प्लैटफ़ॉर्म ने अभी इसका नाम नहीं बदला है]
+स्पेक, टोकन, वेब एलिमेंट (`<tanrei-button-with-menu>`) और React रैपर (`ButtonWithMenu`) बटन विद मेन्यू नाम रखते हैं, और वेब यही संशोधन बनाता है। SwiftUI, Compose, Flutter और React Native अभी स्प्लिट बटन नाम से पिछला संशोधन देते हैं, इसलिए इस पेज पर उनका कोड `TanreiSplitButton` और `SplitButton` इस्तेमाल करता है; यह तब बदलेगा जब हर प्लैटफ़ॉर्म कंपोनेंट का नाम बदलेगा।
+
+यह संशोधन नीचे की बातें लाता है, जिन्हें अभी तक सिर्फ़ वेब बनाता है:
+
+- दोनों हिस्से एक डिवाइडर रेखा से या एक गैप से जुड़े होते हैं। डिज़ाइन सिस्टम यह चुनाव एक बार हर कंपोनेंट के लिए करता है, कोई डिज़ाइन सिस्टम इस कंपोनेंट के लिए अलग चुनाव कर सकता है, और `separation` (`auto`, `divider`, `gap`) किसी एक इंस्टेंस के लिए इसे तय करता है। डिफ़ॉल्ट सिस्टम डिवाइडर बनाता है।
+- शुरुआती हिस्से में आइकन की ओर की पैडिंग एक स्टेप कम है, और दोनों गोल बाहरी सिरों को थोड़ी ज़्यादा पैडिंग मिलती है।
+- मेन्यू खुला रहने पर अंतिम हिस्सा अपना शेप बनाए रखता है; मेन्यू का खुला होना सिर्फ़ शेवरॉन से पता चलता है।
+- `trailingWidth` (`default`, `narrow`) ज़्यादा पतला अंतिम हिस्सा बनाता है: उसी साइज़ के narrow, सिर्फ़ आइकन वाले [Button](/hi/components/button/) जितना चौड़ा, यानी शेवरॉन और हर ओर एक छोटा इनसेट।
+:::
+
+<DemoFrame label="वेरिएंट">
+  <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+</DemoFrame>
+
+<DemoFrame label="अपने मेन्यू के साथ: अंतिम हिस्सा दबाएँ" plain>
+  <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    <span slot="icon">save</span>
+    <tanrei-menu-item slot="menu" label="इस रूप में सेव करें…"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="कॉपी सेव करें"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="टेम्पलेट के रूप में सेव करें"></tanrei-menu-item>
+  </tanrei-button-with-menu>
+</DemoFrame>
+
+### इस्तेमाल
+
+मेन्यू वाला बटन एक शेप में जुड़े दो बटन हैं। शुरुआती हिस्सा मुख्य क्रिया करता है। अंतिम हिस्सा, जिस पर शेवरॉन है, संबंधित क्रियाओं का [मेन्यू](/hi/components/menu/) खोलता है। मेन्यू का कॉन्टेंट मेन्यू के अपने आइटम प्रकार हैं (क्रियाएँ, चेकबॉक्स आइटम, रेडियो आइटम और ग्रुप), और वे उसी तरह दिए जाते हैं जैसे हर प्लैटफ़ॉर्म मेन्यू के आइटम देता है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प">
+      <span slot="icon">save</span>
+      <tanrei-menu-item slot="menu" label="इस रूप में सेव करें…"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="कॉपी सेव करें"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/button-with-menu';
+      import '@tanrei/web/components/menu';
+      const split = document.querySelector('tanrei-button-with-menu');
+      // सिर्फ़ शुरुआती हिस्से का click एलिमेंट तक पहुँचता है।
+      split.addEventListener('click', save);
+      // अंतिम हिस्सा खोलने या बंद करने को कहता है; open आप सेट करते हैं।
+      split.addEventListener('toggle', (e) => (split.open = e.detail.open));
+      // close के साथ मेन्यू का कारण आता है: escape, outside, tab, focus-out या item (वेब पर back नहीं है)।
+      split.addEventListener('close', () => (split.open = false));
+      // आइटम का click मेन्यू वाले बटन पर रुक जाता है: ख़ुद आइटम पर सुनें।
+      split.querySelector('[label="इस रूप में सेव करें…"]').addEventListener('click', saveAs);
+    </script>
+
+    <!-- गैप से जुड़ा एक इंस्टेंस, पतले अंतिम हिस्से के साथ। डिज़ाइन सिस्टम के अनुसार चलने के लिए separation को छोड़ दें। -->
+    <tanrei-button-with-menu variant="tonal" separation="gap" trailing-width="narrow" label="मर्ज करें" menu-label="मर्ज करने के और विकल्प">
+      <tanrei-menu-item slot="menu" label="स्क्वॉश करके मर्ज करें"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="रीबेस करके मर्ज करें"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <!-- दबाने के साथ-साथ 400 ms के होवर पर भी खुलता है; अपना ग्लिफ़, बंद और खुला। -->
+    <tanrei-button-with-menu label="शेयर करें" menu-label="शेयर करने के और विकल्प" hover-open hover-delay="400">
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <tanrei-menu-item slot="menu" label="लिंक कॉपी करें"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="ईमेल"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ButtonWithMenu, MenuItem } from '@tanrei/react';
+
+    // onClick शुरुआती हिस्से का है। MenuItem का onClick आइटम एलिमेंट पर लगा लिसनर है,
+    // इसलिए वह ButtonWithMenu के भीतर फ़ायर होता है; उसे नेटिव MouseEvent मिलता है।
+    <ButtonWithMenu
+      label="सेव करें"
+      menuLabel="सेव करने के और विकल्प"
+      open={open}
+      onClick={save}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <MenuItem slot="menu" label="इस रूप में सेव करें…" onClick={saveAs} />
+      <MenuItem slot="menu" label="कॉपी सेव करें" onClick={saveCopy} />
+    </ButtonWithMenu>
+
+    // गैप से जुड़ा एक इंस्टेंस, पतले अंतिम हिस्से के साथ।
+    <ButtonWithMenu variant="tonal" separation="gap" trailingWidth="narrow" label="मर्ज करें" menuLabel="मर्ज करने के और विकल्प"
+      open={mergeOpen} onClick={merge} onToggle={(e) => setMergeOpen(e.detail.open)} onClose={() => setMergeOpen(false)}>
+      <MenuItem slot="menu" label="स्क्वॉश करके मर्ज करें" onClick={squash} />
+      <MenuItem slot="menu" label="रीबेस करके मर्ज करें" onClick={rebase} />
+    </ButtonWithMenu>
+
+    // होवर पर भी खुलता है; hoverDelay null हो तो सिस्टम की देरी ली जाती है।
+    <ButtonWithMenu label="शेयर करें" menuLabel="शेयर करने के और विकल्प" hoverOpen hoverDelay={400} open={shareOpen}
+      onToggle={(e) => setShareOpen(e.detail.open)} onClose={() => setShareOpen(false)}>
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <MenuItem slot="menu" label="लिंक कॉपी करें" onClick={copyLink} />
+    </ButtonWithMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // पहले शीर्षक, Button की तरह। अंतिम हिस्सा और मेन्यू, दोनों बाइंडिंग में लिखते हैं।
+    TanreiSplitButton("सेव करें", menuLabel: "सेव करने के और विकल्प", isMenuPresented: $showsSaveOptions, action: save) {
+        TanreiMenuItem("इस रूप में सेव करें…", action: saveAs)
+        TanreiMenuItem("कॉपी सेव करें", action: saveCopy)
+    }
+
+    // होवर पर भी खुलता है (macOS, और पॉइंटर वाला iPadOS); hoverDelay nil हो तो सिस्टम की देरी ली जाती है।
+    // chevron: और openChevron: एक-एक ग्लिफ़ बिल्डर लेते हैं, chevron और chevron-open स्लॉट के लिए।
+    TanreiSplitButton("शेयर करें", menuLabel: "शेयर करने के और विकल्प", isMenuPresented: $showsShareOptions,
+                      opensOnHover: true, hoverDelay: .milliseconds(400), action: share) {
+        TanreiMenuItem("लिंक कॉपी करें", action: copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiSplitButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSplitButtonVariant
+
+    // स्टेट होइस्टिंग, मेन्यू की तरह: menuExpanded आप रखते हैं।
+    TanreiSplitButton(
+        text = "सेव करें",
+        onClick = ::save,
+        menuContentDescription = "सेव करने के और विकल्प",
+        menuExpanded = expanded,
+        onMenuExpandedChange = { expanded = it },
+        onMenuDismissRequest = { expanded = false }, // इसे एक TanreiMenuCloseReason मिलता है
+        variant = TanreiSplitButtonVariant.Tonal,
+        icon = { TanreiText("save") },
+    ) {
+        TanreiMenuItem(text = "इस रूप में सेव करें…", onClick = ::saveAs)
+        TanreiMenuItem(text = "कॉपी सेव करें", onClick = ::saveCopy)
+    }
+
+    // होवर पर भी खुलता है, माउस या स्टाइलस के लिए; hoverDelayMillis null हो तो सिस्टम की देरी ली जाती है।
+    TanreiSplitButton(
+        text = "शेयर करें",
+        onClick = ::share,
+        menuContentDescription = "शेयर करने के और विकल्प",
+        menuExpanded = shareExpanded,
+        onMenuExpandedChange = { shareExpanded = it }, // दबाना, कुंजी या होवर
+        onMenuDismissRequest = { shareExpanded = false },
+        chevron = { TanreiText("more_vert") },
+        openChevron = { TanreiText("close") },
+        openOnHover = true,
+        hoverDelayMillis = 400,
+    ) {
+        TanreiMenuItem(text = "लिंक कॉपी करें", onClick = ::copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // मेन्यू वाला बटन कंट्रोलर के ज़रिए मेन्यू खोलता और बंद करता है; onMenuToggle और onMenuClose इसकी सूचना देते हैं।
+    TanreiSplitButton(
+      label: 'सेव करें',
+      menuSemanticLabel: 'सेव करने के और विकल्प',
+      onPressed: save, // onPressed null हो तो दोनों हिस्से अक्षम हो जाते हैं
+      menuController: saveOptions,
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: saveAs, child: const Text('इस रूप में सेव करें…')),
+        TanreiMenuItem(onPressed: saveCopy, child: const Text('कॉपी सेव करें')),
+      ],
+    );
+
+    // होवर पर भी खुलता है, टच के लिए कभी नहीं; chevron और openChevron एक-एक ग्लिफ़ विजेट लेते हैं।
+    TanreiSplitButton(
+      label: 'शेयर करें',
+      menuSemanticLabel: 'शेयर करने के और विकल्प',
+      onPressed: share,
+      openOnHover: true,
+      hoverDelay: const Duration(milliseconds: 400), // null हो तो सिस्टम की देरी ली जाती है
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: copyLink, child: const Text('लिंक कॉपी करें')),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SplitButton } from '@tanrei/react-native';
+
+    // कंट्रोल्ड: menuVisible को onMenuToggle से सेट करें, और onMenuDismiss से false करें, जिसे कारण मिलता है।
+    <SplitButton
+      label="सेव करें"
+      icon="save"
+      menuAccessibilityLabel="सेव करने के और विकल्प"
+      menuVisible={open}
+      onPress={save}
+      onMenuToggle={setOpen}
+      onMenuDismiss={() => setOpen(false)}
+      menuItems={[
+        { label: 'इस रूप में सेव करें…', onPress: saveAs },
+        { label: 'कॉपी सेव करें', onPress: saveCopy },
+      ]}
+    />
+
+    // होवर पर भी खुलता है, सिर्फ़ पॉइंटर के लिए; chevron और openChevron ग्लिफ़ के नाम हैं।
+    <SplitButton
+      label="शेयर करें"
+      menuAccessibilityLabel="शेयर करने के और विकल्प"
+      chevron="more_vert"
+      openChevron="close"
+      hoverOpen
+      hoverDelay={400}
+      menuVisible={shareOpen}
+      onPress={share}
+      onMenuToggle={setShareOpen}
+      onMenuDismiss={() => setShareOpen(false)}
+      menuItems={[{ label: 'लिंक कॉपी करें', onPress: copyLink }]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+### डिवाइडर से जुड़े या गैप से
+
+दोनों हिस्से दो में से एक तरीक़े से जुड़े होते हैं। **डिवाइडर** के साथ वे एक-दूसरे को छूते हैं, जहाँ वे मिलते हैं वहाँ के कोने चौकोर होते हैं, और जोड़ पर एक रेखा होती है। **गैप** के साथ वे एक सँकरे गैप की दूरी पर रहते हैं, और जहाँ वे आमने-सामने होते हैं वहाँ उनके कोने ज़्यादा कसे हुए होते हैं। डिज़ाइन सिस्टम यह चुनाव एक बार उन सभी कंपोनेंट के लिए करता है जो भागों को जोड़ते हैं (डिफ़ॉल्ट सिस्टम डिवाइडर बनाता है), कोई डिज़ाइन सिस्टम इस कंपोनेंट के लिए अलग चुनाव कर सकता है, और `separation` (`auto`, `divider`, `gap`) किसी एक इंस्टेंस के लिए इसे तय करता है। दोनों हिस्से हमेशा अगल-बग़ल रहते हैं: कोई खड़ा रूप नहीं है।
+
+<DemoFrame label="डिवाइडर से और गैप से जुड़े हुए" plain>
+  <tanrei-button-with-menu separation="divider" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="divider" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="gap" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="divider" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+</DemoFrame>
+
+### पतला अंतिम हिस्सा
+
+डिफ़ॉल्ट रूप से अंतिम हिस्सा शेवरॉन को बटन की ऊँचाई जितने वर्ग में रखता है, और उसके गोल बाहरी सिरे पर थोड़ी ज़्यादा पैडिंग होती है। `trailingWidth` को `narrow` करने पर यह मुख्य क्रिया से लगा एक पतला हैंडल बन जाता है: ठीक उतना चौड़ा जितना उसी साइज़ का narrow, सिर्फ़ आइकन वाला [Button](/hi/components/button/) होता है (डिफ़ॉल्ट सिस्टम में 28 / 32 / 32), जिसमें शेवरॉन बीच में होता है, हर ओर एक छोटा इनसेट होता है और बाहरी पैडिंग नहीं होती। शुरुआती हिस्सा दोनों चौड़ाइयों पर एक जैसा रहता है।
+
+<DemoFrame label="अंतिम हिस्से की चौड़ाई: default और narrow, हर साइज़ पर" plain>
+  <tanrei-button-with-menu size="small" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="small" trailing-width="narrow" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu trailing-width="narrow" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" trailing-width="narrow" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+</DemoFrame>
+
+पतला अंतिम हिस्सा न्यूनतम टार्गेट से सँकरा बनता है, पर उसका हिट एरिया सँकरा नहीं होता: टार्गेट बाहर की ओर, अंतिम किनारे से आगे तक पहुँचता है। वहाँ उसके लिए जगह छोड़ें, जैसे narrow, सिर्फ़ आइकन वाले Button के बग़ल में छोड़ते हैं।
+
+## स्पेक
+
+<DemoFrame label="साइज़, आइकन, खुला और अक्षम" plain>
+  <tanrei-button-with-menu size="small" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="सेव करें" menu-label="सेव करने के और विकल्प"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu disabled label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" disabled label="सेव करें" menu-label="सेव करने के और विकल्प"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="शेयर करें" menu-label="शेयर करने के और विकल्प"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="शेयर करें" menu-label="शेयर करने के और विकल्प"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+</DemoFrame>
+
+<ComponentSpecs name="button-with-menu" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+मेन्यू वाला बटन उस क्रिया के लिए इस्तेमाल करें जिसका एक आम रूप हो और कुछ दूसरे रूप हों: "सेव करें" और "इस रूप में सेव करें…", "मर्ज करें" और "स्क्वॉश करके मर्ज करें", "भेजें" और "भेजना शेड्यूल करें"। आम रूप एक बार दबाने से हो जाता है, और दूसरे रूप बस एक बार और दबाने की दूरी पर रहते हैं।
+
+अगर कोई भी विकल्प साफ़ तौर पर आम वाला नहीं है, तो मेन्यू खोलने वाला बटन या आइकन बटन इस्तेमाल करें। अगर कोई दूसरा रूप है ही नहीं, तो सादा [बटन](/hi/components/button/) इस्तेमाल करें। अगल-बग़ल रखी अलग-अलग क्रियाओं के सेट के लिए [बटन ग्रुप](/hi/components/button-group/) इस्तेमाल करें।
+
+### वेरिएंट चुनना
+
+वेरिएंट वही एम्फ़ेसिस रखते हैं जो Button के वेरिएंट रखते हैं, और वही बजट लागू होता है: हर व्यू में एक ही ज़ोरदार क्रिया।
+
+| वेरिएंट | एम्फ़ेसिस | किसके लिए |
+| --- | --- | --- |
+| Filled (डिफ़ॉल्ट) | सबसे ज़्यादा | किसी व्यू की मुख्य क्रिया। |
+| Tonal | ज़्यादा | वह महत्वपूर्ण क्रिया जिसे filled बटन से होड़ नहीं करनी चाहिए। |
+| Elevated | मध्यम | व्यस्त या पैटर्न वाले बैकग्राउंड के ऊपर का मेन्यू वाला बटन। |
+| Outlined | मध्यम | filled बटन के बग़ल की गौण क्रिया। |
+
+कोई text वेरिएंट नहीं है। फ़िल या बॉर्डर के बिना यह दिखाने वाला कुछ नहीं होता कि दोनों हिस्से कहाँ मिलते हैं, और बँटवारा ग़ायब हो जाता।
+
+साइज़ की ऊँचाइयाँ Button वाली ही हैं, इसलिए मेन्यू वाला बटन उसी साइज़ के बटनों के साथ एक पंक्ति में रह सकता है। डिफ़ॉल्ट सिस्टम में बाहरी सिरे पूरी तरह गोल हैं। दोनों हिस्सों का जोड़ कैसा दिखता है, यह separation पर निर्भर करता है: डिवाइडर के साथ वे चौकोर कोनों पर एक-दूसरे को छूते हैं और जोड़ पर एक रेखा होती है, और कोई भी हिस्सा जोड़ के साथ-साथ अपनी आउटलाइन नहीं बनाता, इसलिए outlined मेन्यू वाले बटन की आउटलाइन चारों ओर एक ही रेखा है; गैप के साथ हर हिस्सा अपनी आउटलाइन, और elevated सरफ़ेस की रिंग, अपने ही किनारे के भीतर बनाता है, इसलिए दोनों कभी एक-दूसरे को नहीं छूते।
+
+### शेवरॉन
+
+अंतिम हिस्सा आइकन सेट का `expand_more` बनाता है, और मेन्यू खुला रहने पर उसे आधा चक्कर घुमा देता है। डिफ़ॉल्ट सिस्टम में अंतिम हिस्सा खुला रहने पर अपना शेप बनाए रखता है, इसलिए मेन्यू का खुला होना सिर्फ़ शेवरॉन से पता चलता है। कोई डिज़ाइन सिस्टम खुले हिस्से को उसके अपने भीतरी कोने दे सकता है: m3-like प्रीसेट खुला रहने पर उसे गोल करके एक गोला बना देते हैं।
+
+दो स्लॉट ग्लिफ़ को बदलते हैं। हर एक आइकन सेट का एक ग्लिफ़ लेता है:
+
+| आप जो स्लॉट भरते हैं | बंद | खुला |
+| --- | --- | --- |
+| कोई नहीं | `expand_more` | `expand_more`, घुमाया हुआ |
+| सिर्फ़ `chevron` | आपका ग्लिफ़ | आपका ग्लिफ़, घुमाया हुआ |
+| `chevron-open` (`chevron` के साथ या उसके बिना) | `chevron` वाला ग्लिफ़, या `expand_more` | `chevron-open` वाला ग्लिफ़; दोनों घूमने की जगह क्रॉस-फ़ेड होते हैं |
+
+जिस ग्लिफ़ की कोई दिशा नहीं है, जैसे `more_vert`, उसे घूमना नहीं चाहिए: उसे `chevron-open` वाले ग्लिफ़ के साथ दें, या दोनों स्लॉट में वही ग्लिफ़ रखें।
+
+### होवर पर खुलना
+
+`hoverOpen` के साथ मेन्यू तब भी खुलता है जब माउस, ट्रैकपैड या होवर करता हुआ पेन `hoverDelay` मिलीसेकंड तक अंतिम हिस्से पर टिका रहे। सिस्टम की देरी लेने के लिए `hoverDelay` को सेट न करें; डिफ़ॉल्ट सिस्टम में यह 300 ms है। दबाना और कीबोर्ड पहले की तरह ही मेन्यू खोलते हैं, और टच उसे होवर पर कभी नहीं खोलता।
+
+- होवर से खुला मेन्यू फ़ोकस नहीं लेता: फ़ोकस वहीं रहता है जहाँ व्यक्ति था, उदाहरण के लिए किसी टेक्स्ट फ़ील्ड में। आइटम फिर भी होवर दिखाते हैं, और किसी आइटम पर क्लिक उसे फिर भी सक्रिय करता है।
+- यह तब बंद होता है जब पॉइंटर थोड़ी मोहलत तक अंतिम हिस्से और मेन्यू, दोनों से बाहर रहा हो, ताकि पॉइंटर मेन्यू पर जा सके, या किनारे से फिसलकर वापस आ सके। किसी और तरीक़े से खुला मेन्यू पॉइंटर के हटने पर कभी बंद नहीं होता।
+- होवर से खुला मेन्यू दिखते समय अंतिम हिस्से पर दबाना या कोई कुंजी उसे खुला रखती है और फ़ोकस उसके भीतर ले जाती है। तब से वह दबाने से खुला मेन्यू है: अगली बार दबाने पर वह बंद हो जाता है।
+- Escape होवर से खुले मेन्यू को बंद करती है, फ़ोकस चाहे कहीं भी हो।
+- होवर उसी toggle इवेंट के ज़रिए कहता है जिससे दबाना कहता है, इसलिए `open` सेट करने वाले कोड में कोई बदलाव नहीं चाहिए।
+
+होवर पर खुलना वहाँ इस्तेमाल करें जहाँ पॉइंटर आम हो और अपने आप दिखने वाला मेन्यू अच्छा लगे, जैसे डेस्कटॉप एडिटर का टूलबार। यह कभी दबाने की जगह नहीं लेता।
+
+### मेन्यू
+
+- मेन्यू एक Tanrei Menu है, उस सब के साथ जो मेन्यू देता है: फ़ोकस उसके भीतर जाता है, ऐरो कुंजियाँ और टाइपअहेड उसमें आगे-पीछे ले जाते हैं, और स्क्रीन पर बने रहने के लिए वह पलटता और खिसकता है। वह पूरे मेन्यू वाले बटन के नीचे खुलता है, उसके अंतिम किनारे की सीध में।
+- मेन्यू खुला रहने पर शेवरॉन अपना खुला रूप दिखाता है ([शेवरॉन](#शेवरॉन) देखें)।
+- जब मेन्यू बंद होता है और फ़ोकस उसके भीतर था, तो फ़ोकस अंतिम हिस्से पर लौटता है, यानी उस बटन पर जिसने उसे खोला था।
+- मेन्यू खुला रहने पर अंतिम हिस्से पर दबाना एक टॉगल है, बाहर दबाना नहीं: वह `toggle` से बंद करने को कहता है और कोई `close` एमिट नहीं करता। जब कोई क्रिया आइटम मेन्यू बंद करता है, तो पहले आइटम का click आता है, फिर `item` कारण के साथ `close`।
+- मेन्यू को कौन बंद करता है, यह प्लैटफ़ॉर्म के अनुसार है। वेब, Compose और React Native पर आप `open` (`menuExpanded`, `menuVisible`) को toggle इवेंट से सेट करते हैं और close इवेंट से वापस false करते हैं। SwiftUI और Flutter पर मेन्यू वाला बटन अपनी बाइंडिंग या कंट्रोलर के ज़रिए मेन्यू को ख़ुद खोलता और बंद करता है।
+
+### करें
+
+- शुरुआती हिस्से पर आम क्रिया का लेबल लिखें, क्रिया-शब्द के रूप में: "सेव करें", "मर्ज करें", "भेजें"।
+- अंतिम हिस्से को ऐसा लेबल दें जो बताए कि मेन्यू क्या देता है: "सेव करने के और विकल्प", न कि "और" या "मेन्यू"।
+- मेन्यू को मुख्य क्रिया के दूसरे रूपों से भरें। ख़ुद मुख्य क्रिया को वहाँ दोहराने की ज़रूरत नहीं है।
+- मेन्यू छोटा रखें। कुछ आइटम उसके लिए ठीक हैं; लंबी लिस्ट यह इशारा करती है कि विकल्प एक ही क्रिया के रूप नहीं हैं।
+- `separation` को `auto` पर ही रहने दें, जब तक कि किसी एक इंस्टेंस को अलग न होना हो, ताकि प्रॉडक्ट का हर जुड़ा हुआ कंट्रोल एक ही तरीक़े से अलग पहचाना जाए।
+- पतला अंतिम हिस्सा वहाँ इस्तेमाल करें जहाँ मेन्यू गौण हो और चौड़ाई कम हो, जैसे टेबल की पंक्ति या घना हेडर।
+
+### न करें
+
+- मेन्यू में असंबंधित क्रियाएँ न रखें, जैसे "सेटिंग" या "सहायता"। उनके लिए अपने मेन्यू वाला आइकन बटन इस्तेमाल करें।
+- ऐसा मेन्यू वाला बटन इस्तेमाल न करें जिसके मेन्यू में एक ही आइटम हो। दोनों क्रियाओं को बटन के रूप में दिखाएँ।
+- किसी एक हिस्से को अक्षम करने की कोशिश न करें। `disabled` दोनों पर लागू होता है। अगर दूसरे रूप उपलब्ध नहीं हैं, तो मेन्यू के उन आइटम को अक्षम करें।
+- मेन्यू वाला बटन वहाँ इस्तेमाल न करें जहाँ अंतिम हिस्सा अपना मेन्यू खोलने के सिवा कुछ और करता हो। उसका सिमैंटिक्स हमेशा यही कहता है कि वह एक मेन्यू खोलता है।
+
+## सुलभता
+
+<ComponentAccessibility name="button-with-menu" />
+
+### कंपोनेंट क्या सँभालता है
+
+- मेन्यू वाला बटन पढ़ने के क्रम में दो बटन हैं, और हर एक अपना अलग Tab स्टॉप है। शुरुआती हिस्से का नाम उसके लेबल से आता है। अंतिम हिस्से का नाम उसके मेन्यू लेबल से आता है, और वह यह बताता है कि वह एक मेन्यू खोलता है और मेन्यू खुला है या नहीं, जहाँ प्लैटफ़ॉर्म में ये प्रॉपर्टी हैं। कोई एलिमेंट इन दोनों को लपेटता नहीं, इसलिए स्क्रीन रीडर को दो बटन सुनाई देते हैं और कुछ नहीं।
+- आइकन और शेवरॉन, `chevron` या `chevron-open` स्लॉट के ग्लिफ़ समेत, सहायक तकनीक से छिपे रहते हैं। अंतिम हिस्सा यह बताता है कि मेन्यू खुला है या नहीं, चाहे वह जैसे भी खुला हो: दबाने से, कुंजी से या होवर से।
+- शुरुआती हिस्से पर Enter और Space मुख्य क्रिया करती हैं। अंतिम हिस्से पर Enter, Space या Down Arrow मेन्यू खोलती हैं और फ़ोकस को उसके पहले सक्षम आइटम पर ले जाती हैं। इसके बाद मेन्यू वैसे ही काम करता है जैसे कहीं भी करता है, और Escape उसे बंद करके फ़ोकस को अंतिम हिस्से पर लौटा देती है।
+- होवर से खुला मेन्यू फ़ोकस को वहीं छोड़ता है जहाँ वह था, और Escape उसे बंद करती है, फ़ोकस चाहे कहीं भी हो और पॉइंटर को हिलाए बिना, इसलिए होवर ने जो दिखाया उसे हमेशा ख़ारिज किया जा सकता है (WCAG 1.4.13)। वह Escape आगे नहीं जाती; अगली Escape हमेशा की तरह पेज तक पहुँचती है।
+- हर हिस्सा होवर, दबाने और फ़ोकस का जवाब अलग से देता है। दूसरा हिस्सा कभी ऐसा स्टेट नहीं दिखाता जो उसका अपना न हो।
+- हर हिस्से का हिट एरिया बाहर की ओर और ऊपर-नीचे न्यूनतम टार्गेट तक पहुँचता है। दूसरे हिस्से की ओर वह जोड़ पर, या गैप के बीचोबीच, रुक जाता है, इसलिए दोनों कभी एक-दूसरे पर नहीं चढ़ते। पतला अंतिम हिस्सा शुरुआती हिस्से की ओर जितना नहीं पहुँच पाता, उतना वह बाहर की ओर पहुँचता है, इसलिए ज़्यादा चौड़ा बने बिना उसके पास अपना पूरा टार्गेट होता है।
+- डिवाइडर सजावट है: वह सहायक तकनीक से छिपा रहता है और दबाना नहीं लेता। दोनों हिस्से दो बटन हैं, चाहे उनके बीच रेखा हो या गैप।
+- डिफ़ॉल्ट सिस्टम में outlined वेरिएंट की आउटलाइन, और outlined, tonal और elevated वेरिएंट का डिवाइडर, बारीक रेखा हैं, जो जान-बूझकर हल्की रखी गई है: शुरुआती हिस्से की पहचान उसके लेबल से होती है और अंतिम हिस्से की उसके शेवरॉन से। filled वेरिएंट का डिवाइडर ज़्यादा मज़बूत है, क्योंकि उस फ़िल पर बारीक रेखा दिखाई नहीं दे सकती।
+- लेबल कभी कटता नहीं। बड़े टेक्स्ट साइज़ पर वह अगली पंक्ति में जाता है, और दोनों हिस्सों की ऊँचाई साथ-साथ बढ़ती है।
+- अक्षम मेन्यू वाला बटन सहायक तकनीक को दोनों हिस्से अक्षम के रूप में देता है, उन्हें फ़ोकस के क्रम से बाहर कर देता है, कोई मेन्यू पेश नहीं करता और अपना बंद रूप बनाता है, `open` चाहे जो कहे।
+- डीबग बिल्ड लेबल या मेन्यू लेबल के न होने की, और बिना आइटम वाले मेन्यू की रिपोर्ट करते हैं।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- Web: सिर्फ़ शुरुआती हिस्से का click मेन्यू वाले बटन पर लगे लिसनर तक पहुँचता है। मेन्यू आइटम का click मेन्यू वाले बटन पर रुक जाता है, इसलिए किसी पूर्वज पर लगा लिसनर उसे कभी नहीं सुनता: आइटम पर सुनें। मेन्यू आइटम के React रैपर इसी कारण `onClick` को एलिमेंट से जोड़ते हैं।
+- SwiftUI में ऐसी कोई प्रॉपर्टी नहीं है जो कहे कि बटन एक मेन्यू खोलता है, और न कोई expanded स्टेट है। मेन्यू का पॉपओवर अंतिम हिस्से से जुड़ा है; चूँकि दोनों हिस्सों की ऊँचाई एक है और अंतिम हिस्सा पंक्ति का अंत है, इसलिए उसका निचला अंतिम सिरा पूरे मेन्यू वाले बटन का निचला अंतिम सिरा भी है। बाइंडिंग ही टॉगल भी है और बंद करना भी, इसलिए बंद होने का कारण आगे नहीं दिया जाता। जो मेन्यू स्लॉट पल भर के लिए भी ख़ाली हो, जैसे बाद में लोड होने वाले आइटम पर चलने वाला `ForEach`, वह डीबग बिल्ड में एक असर्शन फ़ेल्यर है और डीबग ऐप को रोक देता है। दोनों हिस्सों पर Enter, Space और Down Arrow, फ़ोकस का अंतिम हिस्से पर लौटना, और macOS पर मेन्यू खुला रहते अंतिम हिस्से पर क्लिक, शुरू से अंत तक टेस्ट नहीं किए गए हैं।
+- Flutter में ऐसी कोई प्रॉपर्टी नहीं है जो कहे कि बटन एक मेन्यू खोलता है। अंतिम हिस्सा यह बताता है कि मेन्यू खुला है या नहीं, पर यह नहीं कि वह मेन्यू खोलता है।
+- Compose में ऐसी कोई प्रॉपर्टी नहीं है जो कहे कि बटन एक मेन्यू खोलता है। अंतिम हिस्सा एक बटन है जिसमें उसके स्टेट के लिए फैलाने और समेटने की क्रियाएँ हैं। ख़ुद मेन्यू में Compose की वे कमियाँ हैं जो [मेन्यू](/hi/components/menu/) के पेज पर दी गई हैं।
+- React Native में भी ऐसी कोई प्रॉपर्टी नहीं है जो कहे कि बटन एक मेन्यू खोलता है। अंतिम हिस्सा यह बताता है कि मेन्यू खुला है या नहीं, पर यह नहीं कि वह मेन्यू खोलता है।
+- React Native: मेन्यू खुला रहते अंतिम हिस्से पर दबाना, फ़ोकस का उस पर लौटना, और शेवरॉन का घूमना सिर्फ़ डिवाइस के बिना टेस्ट किए गए हैं।
+
+### आपको क्या करना है
+
+- दोनों लेबल लिखें। अकेला शेवरॉन कोई नाम नहीं है, और "सेव करें" के बग़ल में "और" यह नहीं बताता कि मेन्यू में क्या है।
+- वेब, Compose और React Native पर `open` को toggle इवेंट से सेट करें और close इवेंट से false करें। मेन्यू वाला बटन सिर्फ़ कहता है। `hoverOpen` के साथ होवर उसी toggle इवेंट के ज़रिए कहता है।
+- मेन्यू बंद होने पर फ़ोकस ख़ुद न ले जाएँ। मेन्यू वाला बटन उसे अंतिम हिस्से पर लौटा देता है।
+- हर मेन्यू आइटम को लेबल दें, उन आइटम समेत जो आइकन दिखाते हैं।
+- पतले अंतिम हिस्से के अंतिम किनारे के आगे जगह छोड़ें, ताकि उसका टार्गेट अगले कंट्रोल पर न चढ़े।

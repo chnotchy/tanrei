@@ -1,0 +1,492 @@
+---
+title: Menu
+description: A short set of actions or choices on a temporary surface that opens from the element that asked for it.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="menu" />
+
+<DemoFrame label="Actions, a checkbox item, a radio group and a destructive action">
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="Copy" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+    <tanrei-menu-item label="Paste" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
+    <tanrei-menu-group label="View">
+      <tanrei-menu-checkbox-item label="Show grid" checked></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Sort by" value="name">
+      <tanrei-menu-radio-item label="Name" value="name"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="Date modified" value="date"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+    <tanrei-menu-item label="Delete" leading-icon="delete" destructive></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="A submenu: an item that opens another level beside it" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="New file" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
+    <tanrei-submenu label="Open recent" leading-icon="history" open>
+      <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+      <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      <tanrei-menu-item label="Budget.xlsx"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-submenu label="Share" leading-icon="share">
+      <tanrei-menu-item label="Copy link" leading-icon="link"></tanrei-menu-item>
+      <tanrei-menu-item label="Send by mail" leading-icon="mail"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-menu-item label="Print" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="A menu of links: each row goes somewhere, and one opens a new tab" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="Button" href="/components/button/"></tanrei-menu-item>
+    <tanrei-menu-item label="List" href="/components/list/"></tanrei-menu-item>
+    <tanrei-menu-item label="Example site" href="https://example.com/" target="new" target-label="opens in a new tab"></tanrei-menu-item>
+    <tanrei-menu-item label="Archive" href="/archive/" disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+### Usage
+
+The anchor is your own button, icon button or field. The menu does not draw it: it reads the anchor's position, places its surface against it and returns focus to it. You open the menu from the anchor and close it when the menu asks.
+
+A menu has five item kinds: `item` (an action), `checkbox-item`, `radio-item`, `submenu` (an item that opens another level of the menu beside it) and `group`, which holds items of the other kinds. Each platform takes them the way it takes any repeated children: child elements on the web, views in a view builder on SwiftUI, calls in a content lambda on Compose, widgets in `menuChildren` on Flutter, and an `items` array of plain objects on React Native, told apart by `kind`. A checkbox item's `checked` is its own. Which radio item is checked belongs to its group, by value.
+
+An item's keyboard shortcut is its `shortcut` prop, written in the [keyboard shortcut](/components/keyboard-shortcut/)'s neutral key names (`mod+c`). The menu draws it at the end of the row with the keyboard shortcut component, as ⌘C on Apple's keyboards and Ctrl+C elsewhere, and exposes it as the item's keyboard shortcut. It does not make the keys work: your product binds them. `trailingText` is for anything that is not a shortcut, such as a count or "Beta". The web draws all of this, and the current look. SwiftUI, Compose, Flutter and React Native are lagging: until they catch up, they have no `shortcut` prop and write the shortcut in `trailingText`, as their samples below do. They have no submenus, no `separation` and no `markIcon` either, and they still draw the check as a mark of their own in a 16 box, fill no checked row and start a group's title where the labels start.
+
+An item with an `href` is a link item: the platform's own link, drawn exactly as an action and moved to with the same keys. A plain activation emits the item's `click`, closes the menu and then opens the destination. `target` and `targetLabel` are the [Button](/components/button/)'s. The web builds link items; SwiftUI, Compose, Flutter and React Native do not have them yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="more" label="More"><span slot="icon">more_vert</span></tanrei-button>
+
+    <!-- anchor is the id of the element the menu opens from. -->
+    <tanrei-menu anchor="more">
+      <!-- shortcut is in neutral key names: drawn ⌘C or Ctrl+C for the person's keyboard. -->
+      <tanrei-menu-item label="Copy" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+      <!-- A group's title is its label attribute, as <optgroup label>. -->
+      <tanrei-menu-group label="View">
+        <tanrei-menu-checkbox-item label="Show grid" checked></tanrei-menu-checkbox-item>
+      </tanrei-menu-group>
+      <!-- mark-icon="check" on a group, or on one item, marks the checked ones with a plain check. -->
+      <tanrei-menu-group label="Sort by" value="name" mark-icon="check">
+        <tanrei-menu-radio-item label="Name" value="name"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="Date modified" value="date"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+      <!-- A submenu: its children are the next level. It fires toggle, never close. -->
+      <tanrei-submenu label="Open recent" leading-icon="history">
+        <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+        <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-item label="Delete" leading-icon="delete" destructive></tanrei-menu-item>
+      <!-- With href an item is a link: its click, then close, then the browser follows it. -->
+      <tanrei-menu-item label="Keyboard shortcuts" href="/help/shortcuts/"></tanrei-menu-item>
+      <tanrei-menu-item label="Source" href="https://example.com/tanrei" target="new" target-label="opens in a new tab"></tanrei-menu-item>
+    </tanrei-menu>
+
+    <!-- separation="gap" sets groups apart by empty space in this menu and its submenus, whatever the design system chose. -->
+    <tanrei-menu anchor="more" separation="gap">…</tanrei-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/menu';
+      const menu = document.querySelector('tanrei-menu');
+      // A press on the anchor is the anchor's own: it does not close the menu, so toggle it here.
+      document.querySelector('#more').addEventListener('click', () => (menu.open = !menu.open));
+      // close carries its reason: escape, outside, tab, focus-out or item.
+      menu.addEventListener('close', () => (menu.open = false));
+      // click, change and toggle fire on the item or group and bubble, so one listener on the menu can take them all.
+      menu.querySelector('[label="Copy"]').addEventListener('click', copy);
+      menu.querySelector('[label="Show grid"]').addEventListener('change', (e) => setGrid(e.detail.checked));
+      menu.querySelector('[label="Sort by"]').addEventListener('change', (e) => sortBy(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioItem, Submenu } from '@tanrei/react';
+
+    <Button variant="text" id="more" label="More" onClick={() => setOpen(!open)}><span slot="icon">more_vert</span></Button>
+    <Menu anchor="more" open={open} onClose={() => setOpen(false)}>
+      <MenuItem label="Copy" leadingIcon="content_copy" shortcut={['mod+c']} onClick={copy} />
+      <MenuGroup label="View">
+        <MenuCheckboxItem label="Show grid" checked={grid} onChange={(e) => setGrid(e.detail.checked)} />
+      </MenuGroup>
+      <MenuGroup label="Sort by" value={sort} onChange={(e) => setSort(e.detail.value)}>
+        <MenuRadioItem label="Name" value="name" />
+        <MenuRadioItem label="Date modified" value="date" />
+      </MenuGroup>
+      <Submenu label="Open recent" leadingIcon="history">
+        <MenuItem label="Report.pdf" onClick={() => openFile('Report.pdf')} />
+        <MenuItem label="Notes.txt" onClick={() => openFile('Notes.txt')} />
+      </Submenu>
+      <MenuItem label="Delete" leadingIcon="delete" destructive onClick={remove} />
+      {/* A link item. A router cancels the click and goes there itself; the menu still closes. */}
+      <MenuItem label="Keyboard shortcuts" href="/help/shortcuts/" onClick={(e) => { e.preventDefault(); navigate('/help/shortcuts/'); }} />
+    </Menu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // A modifier on the anchor, as .popover. Closing writes false to isPresented.
+    TanreiIconButton("More", action: { showMenu = true }) { Image(systemName: "ellipsis") }
+        .tanreiMenu(isPresented: $showMenu, placement: .bottomStart) {
+            TanreiMenuItem("Copy", action: copy)
+            TanreiMenuSection("View") {
+                TanreiMenuToggle("Show grid", isOn: $showGrid)
+            }
+            TanreiMenuSection("Sort by", selection: $sort) {
+                // Apply .tag(_:) to the TanreiMenuOption itself.
+                TanreiMenuOption("Name").tag("name")
+                TanreiMenuOption("Date modified").tag("date")
+            }
+            TanreiMenuItem("Delete", role: .destructive, action: delete)
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiCheckboxMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiMenu
+    import io.github.chnotchy.tanrei.components.TanreiMenuGroup
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiRadioMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // As DropdownMenu: call the menu inside the anchor's Box. You close it: onDismissRequest carries the reason.
+    Box {
+        TanreiIconButton(onClick = { expanded = true }, contentDescription = "More") { TanreiText("more_vert") }
+        TanreiMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            TanreiMenuItem(text = "Copy", onClick = ::copy, trailingText = "⌘C", leadingIcon = { TanreiText("content_copy") })
+            TanreiMenuGroup(title = "View") {
+                TanreiCheckboxMenuItem(text = "Show grid", checked = showGrid, onCheckedChange = { showGrid = it })
+            }
+            TanreiMenuGroup(title = "Sort by", selectedValue = sort, onSelectedValueChange = { sort = it }) {
+                TanreiRadioMenuItem(text = "Name", value = "name")
+                TanreiRadioMenuItem(text = "Date modified", value = "date")
+            }
+            TanreiMenuItem(text = "Delete", onClick = ::delete, destructive = true, leadingIcon = { TanreiText("delete") })
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // As MenuAnchor: a controller opens it. When the menu asks to close, it calls onClose with the reason and closes itself.
+    final TanreiMenuController menu = TanreiMenuController();
+
+    TanreiMenuAnchor(
+      controller: menu,
+      onClose: (TanreiMenuCloseReason reason) {},
+      menuChildren: <Widget>[
+        TanreiMenuItem(
+          onPressed: copy,
+          leadingIcon: const Icon(AppSymbols.contentCopy),
+          trailingText: '⌘C',
+          child: const Text('Copy'),
+        ),
+        TanreiMenuGroup<String>(
+          title: 'View',
+          children: <Widget>[
+            TanreiCheckboxMenuItem(
+              value: showGrid,
+              onChanged: (bool value) => setState(() => showGrid = value),
+              child: const Text('Show grid'),
+            ),
+          ],
+        ),
+        TanreiMenuGroup<String>(
+          title: 'Sort by',
+          groupValue: sort,
+          onChanged: (String value) => setState(() => sort = value),
+          children: const <Widget>[
+            TanreiRadioMenuItem<String>(value: 'name', child: Text('Name')),
+            TanreiRadioMenuItem<String>(value: 'date', child: Text('Date modified')),
+          ],
+        ),
+        // A null onPressed disables an item.
+        TanreiMenuItem(onPressed: delete, destructive: true, child: const Text('Delete')),
+      ],
+      builder: (BuildContext context, TanreiMenuController controller, Widget? child) =>
+          TanreiIconButton(onPressed: controller.open, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'More'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { IconButton, Menu } from '@tanrei/react-native';
+
+    const more = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // Tell assistive technology whether the anchor's menu is open: the menu cannot set it here.
+    <IconButton ref={more} accessibilityLabel="More" accessibilityState={{ expanded: open }} onPress={() => setOpen(true)}>
+      more_vert
+    </IconButton>
+    // Controlled: set visible to false from onDismiss, which receives the reason.
+    <Menu
+      visible={open}
+      anchorRef={more}
+      accessibilityLabel="More"
+      onDismiss={() => setOpen(false)}
+      items={[
+        { label: 'Copy', leadingIcon: 'content_copy', trailingText: '⌘C', onPress: copy },
+        { kind: 'group', title: 'View', items: [{ kind: 'checkbox-item', label: 'Show grid', checked: grid, onCheckedChange: setGrid }] },
+        { kind: 'group', title: 'Sort by', value: sort, onValueChange: setSort, items: [
+          { kind: 'radio-item', label: 'Name', value: 'name' },
+          { kind: 'radio-item', label: 'Date modified', value: 'date' },
+        ] },
+        { label: 'Delete', leadingIcon: 'delete', destructive: true, onPress: remove },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Supporting text, trailing icon and disabled items" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="Share" supporting-text="Send a link to this file" leading-icon="share"></tanrei-menu-item>
+    <tanrei-menu-item label="Available offline" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
+    <tanrei-menu-item label="Rename" leading-icon="edit" disabled></tanrei-menu-item>
+    <tanrei-menu-item label="Delete" leading-icon="delete" destructive disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="Group titles over the check and icon columns" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="Text style">
+      <tanrei-menu-checkbox-item label="Bold" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Italic" leading-icon="format_italic"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Align" value="start">
+      <tanrei-menu-radio-item label="Start" value="start" leading-icon="format_align_left"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="Center" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="Marks: the default system's box and ring, and a plain check named by mark-icon" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="Show">
+      <tanrei-menu-checkbox-item label="Rulers" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Guides"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Zoom" value="fit">
+      <tanrei-menu-radio-item label="Fit to window" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="Actual size" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="Show" mark-icon="check">
+      <tanrei-menu-checkbox-item label="Rulers" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Guides"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Zoom" value="fit" mark-icon="check">
+      <tanrei-menu-radio-item label="Fit to window" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="Actual size" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="Separation: a divider between groups, and a gap" plain>
+  <tanrei-menu inline open separation="divider">
+    <tanrei-menu-item label="Undo" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="Redo" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="Cut" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="Copy" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Find">
+      <tanrei-menu-item label="Find in page" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open separation="gap">
+    <tanrei-menu-item label="Undo" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="Redo" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="Cut" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="Copy" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Find">
+      <tanrei-menu-item label="Find in page" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+In the default system a checkbox item is marked as a checkbox and a radio item as a radio button, drawn whether the item is checked or not: an empty box and a filled box with a check, a thin ring and a heavy ring with its fill. An option that is off is then still seen to be an option. These are drawings in the mark column, not controls: the row is the one thing to press and to focus. The check in the box is drawn at the heavier weight of a control's own mark, as the [checkbox](/components/checkbox/)'s is.
+
+`markIcon`, on one item or on a group for all of its items, names a glyph of the icon set to mark a checked item with instead. `check` draws a plain check at the size of the leading icon beside it (24 in the default system), and nothing while the item is not checked. A design system chooses its own marks: `m3-like` and `cupertino` use the plain check. The check is not mirrored in a right-to-left layout. When an item's checked state changes while the menu is open, the mark changes without moving, at once where motion is reduced.
+
+A checked row is also filled. In the default system the fill is a layer of the row's own content color over the menu's surface, one step stronger than a hovered row in the light theme and in the dark one, so a checked row, a hovered row and a row at rest are told apart on a raised surface. The item whose submenu is open keeps the hover fill while its submenu is open, which marks the path to the level in use, and never looks like a checked row.
+
+A group's title starts where the rows' content starts: over the check or the leading icon when the menu draws those columns, and over the labels when it draws neither. It ends the same distance from the other edge, wraps, grows with larger text and mirrors in a right-to-left layout.
+
+<ComponentSpecs name="menu" />
+
+## Guidelines
+
+### When to use
+
+Use a menu for secondary actions and settings that do not need a place on the screen: "More" on a row, a toolbar's overflow, a sort order, the options of a view. People open it, pick one thing and go back to what they were doing.
+
+Use buttons for the main actions of a screen, since a menu hides them. Use a list, radio buttons or a select when the choice is the main task of the screen. Use a dialog when people must answer before they go on. A menu holds only its items: no fields, sliders or switches, which would take the keys the menu needs.
+
+A row that goes somewhere is a link item: give the item an `href`. Use one for a short set of places that stays out of the way until asked for, such as the folded levels of a breadcrumb trail, a choice of language or "More". A site's main pages, always in view, are navigation: put them in a [navigation bar](/components/navigation-bar/), a [navigation drawer](/components/navigation-drawer/) or a [list](/components/list/) of links.
+
+### Choosing an item kind
+
+| Kind | What it is | After it is activated | Use for |
+| --- | --- | --- | --- |
+| Item | An action, or with an `href` a link | Emits its click, then the menu closes. A link item's destination opens after that. | "Copy", "Rename", "Share". Set `destructive` for "Delete" or "Discard": it is drawn in the error color. Give it an `href` for a place to go. |
+| Checkbox item | An option that is on or off on its own | Switches its `checked` and emits its change. | "Show grid", "Show rulers": settings that do not affect each other. |
+| Radio item | One choice of several in its group | Sets its group's `value` and the group emits its change. A checked radio item emits nothing. | "Sort by name", "Sort by date": one answer to one question. |
+| Submenu | An item that opens another level beside it | Opens its submenu and emits its toggle. The menu stays open. | "Open recent", "Share", "Move to": a second set of items that would make the menu too long. |
+| Group | A run of related items, optionally with a title | Nothing: it takes no focus. | Setting related items apart, and holding the radio items of one question. |
+
+A checkbox or radio item activated by a tap, a click or Enter closes the menu, like an action. Activated with Space, it leaves the menu open, so a keyboard user can change several settings in one go.
+
+### Groups, titles and separation
+
+- The menu sets a group apart from whatever is next to it, never at the top or the bottom: by a divider, or by a gap of empty space. You do not place dividers yourself.
+- Which of the two is the design system's choice, one choice for every component that separates its own parts: a divider in the default system. `separation` decides for one menu and its submenus: `auto` (the default) follows the design system, and `divider` or `gap` names one whatever the system chose. Under a gap no separator is exposed, and the groups are still exposed as groups.
+- A group with a `title` draws it as a quiet heading above its items, starting where the rows' content starts, and is named by it. Give the group of radio items a title that asks the question, such as "Sort by".
+- Radio items belong in a group. A radio item outside a group is never checked, and debug builds report it.
+- A group cannot hold another group. The inner group's items are drawn as the outer group's.
+
+### Links
+
+A link item is the platform's own link, so the browser's context menu, opening in a new tab and the address shown on hover all work. It has no look of its own: it is drawn as the action in the next row, in every state.
+
+- **Activation.** A click, a tap, Enter or Space emits the item's `click`, then the menu closes, then the destination opens. Space activates a link item, as it activates every other row of a menu. Elsewhere Space does not activate a link.
+- **A router.** Cancel the item's `click` to take the navigation yourself. The menu still closes, and nothing else opens.
+- **Other tabs.** A click or Enter with a modifier key, and a middle click, are the browser's. The menu emits no `close` and stays open, so several of its links can be opened one after another.
+- **A new context.** `target: new` opens a new tab or window. The item ends with the icon set's `open_in_new` in the trailing icon column, unless `trailingIcon` names a glyph of your own, and `targetLabel` says it to assistive technology. A shortcut or trailing text keeps its own column before the mark.
+- **Disabled.** A disabled link item cannot be followed by any means. It stays reachable with the arrow keys, as any disabled item does.
+- **Only the item kind.** A checkbox item, a radio item and a submenu item take no destination: they hold a state or open another level.
+
+### Submenus
+
+A submenu item is a row that ends with the icon set's `chevron_right`, and its children are the next level: items of any kind, groups included. It is not an action and has no shortcut.
+
+- **Opening.** A press, a tap, Enter, Space or the arrow key that points to the end of the line opens the submenu at once and moves focus to its first enabled item. A pointer that rests on the item opens it after a short delay and leaves focus on the item.
+- **On the way to it.** While the pointer moves from the item toward its open submenu, the items it crosses are neither hovered nor focused, so a diagonal path does not close the submenu.
+- **Closing one level.** The arrow key that points to the start of the line, or Escape, closes the level that holds focus and returns focus to its item. Escape closes the whole menu only when no submenu is open. Moving to another item of the parent closes the submenu too. At most one submenu is open in a surface.
+- **Closing everything.** An action at any level, Tab, a press outside every surface, and focus leaving them all close the whole menu with one `close`.
+- **Where it goes.** Beside the surface that holds its item, on the end side, its first row level with the item's row; on the other side where that side has no room. In a window too narrow for either, it is laid over its parent and leaves a strip of the parent uncovered: a press on the strip closes the submenu. The menu never replaces its own content with the submenu's.
+- **`open` and `toggle`.** A submenu item's `open` is its own. The menu sets it and the item emits `toggle` when the person opens or closes the submenu. Your own change of `open`, and the whole menu closing, emit no `toggle`.
+- **Depth.** Keep to two levels of submenu below the menu. A third is still drawn, and debug builds report it, as they report a submenu without items.
+- A group's `value` reaches only the radio items of its own surface, and each surface draws its own mark and icon columns.
+
+### Opening, focus and closing
+
+A menu is an operated overlay that is not modal. People act inside it, so it takes focus and gives it back. Nothing else on the screen is blocked.
+
+- **Opening.** You set `open` when the anchor is activated. The surface appears in the platform's overlay layer, placed against the anchor as `placement` says: below it by default, with the start edges aligned. It flips to the other side when that side has no room, shifts to stay inside the screen, scrolls when it is too tall, and follows the anchor while it moves.
+- **Focus in.** Focus moves to the first enabled item. The arrow keys, Home, End and typeahead then move through the items, wrapping at the ends and passing through groups. A pointer moving onto an item moves focus there too, so the keys continue from where the pointer was.
+- **Not modal.** The menu does not trap focus, does not make the rest of the screen inert and draws no scrim. Tab leaves the menu and closes it.
+- **Closing.** The menu asks to be closed and says why. The reasons have the same names on every platform, in the platform's own casing:
+
+| Reason | When |
+| --- | --- |
+| `escape` | Escape was pressed. |
+| `back` | The platform's back, such as Android's back button or gesture. |
+| `outside` | A press landed outside the surface and the anchor. |
+| `tab` | Tab or Shift+Tab was pressed. Focus then moves on from the anchor, as it would have from it. |
+| `focus-out` | Focus moved out of the menu some other way. |
+| `item` | An item was activated. |
+
+- **Focus back.** When the menu closes and focus was inside it, focus returns to the anchor.
+
+Who closes the menu follows the platform. On the web and React Native you set `open` (`visible`) back to false from the close event. On Compose you set `expanded` to false from `onDismissRequest`, which carries a `TanreiMenuCloseReason`. On Flutter the menu calls `onClose` with the reason and closes itself through its controller. On SwiftUI the menu writes `false` to `isPresented`, so the reason is not passed on.
+
+Whether a press outside also reaches what is under it follows the platform too. On the web and Flutter it does. On SwiftUI, Compose and React Native the press only closes the menu.
+
+### Do
+
+- Keep labels short and start them with a verb for actions: "Copy link", "Delete file".
+- Give an action's keyboard shortcut in `shortcut`, in neutral key names (`mod+c`), and bind the keys in your product. Keep `trailingText` for anything else: trailing text is never exposed as a shortcut.
+- Put a destructive action last, set apart in its own group or after one.
+- Keep a disabled item in place when it is sometimes available, so the menu does not change shape. People can still reach it with the arrow keys.
+
+### Don't
+
+- Don't put the main action of a screen in a menu.
+- Don't use checkbox items for choices that exclude each other. Use radio items in a group.
+- Don't make a menu of one item. Show the action as a button.
+- Don't put an action people use often in a submenu, and don't go deeper than two levels of submenu.
+- Don't use a trailing `chevron_right` on an action. It is the mark of a submenu item.
+- Don't build a site's main navigation as a menu of links. A menu is asked for and goes away.
+
+## Accessibility
+
+<ComponentAccessibility name="menu" />
+
+### What the component handles
+
+- The surface is exposed as a menu. Actions are menu items, checkbox items are menu item checkboxes and radio items are menu item radios, each with its checked state, its position and the menu's size.
+- Each item is named by its label and described by its supporting text. An item's `shortcut` is exposed as its keyboard shortcut where the platform has that property (`aria-keyshortcuts` on the web), and otherwise its spelled-out keys are part of its description. Trailing text is only ever part of the description. Icons and marks are hidden: the box, the ring and the check are drawings, and the checked state is the item's own.
+- A link item is exposed as a menu item, not as a link: a menu is read by its items, their count and the arrow keys, and that holds only while every row is a menu item. It is still the platform's link underneath. While it opens a new context, its `targetLabel` ends its description, and its mark is hidden.
+- A group is exposed as a group named by its title. Dividers are separators that take no focus; where groups are set apart by a gap, there is no separator. Titles take no focus and are not read as items.
+- A submenu item is exposed as an item that opens a menu, with its expanded state, also while it is disabled. Its surface is a menu of its own, named by the item's label, and each surface counts its own positions.
+- The anchor is told that it opens a menu and whether the menu is open, where the platform has that property (on the web, `aria-haspopup`, `aria-controls` and `aria-expanded`).
+- Opening moves focus to the first enabled item. Closing returns focus to the anchor when it was inside the menu. Up and Down Arrow wrap, Home and End go to the ends, and typing moves to the next item whose label begins with the typed letters. Enter activates and closes. Space on a checkbox or radio item leaves the menu open. Escape closes and returns focus. Tab closes and moves on from the anchor. In a submenu, the arrow key toward the start of the line and Escape close that level alone and return focus to its item; the arrow keys along the line that do nothing never reach the page behind the menu.
+- Disabled items can still be reached with the arrow keys, but do not activate.
+- The focus ring is drawn inside the item, so the surface cannot clip it. It shows for keyboard focus only. A pointer moving onto an item shows it as hovered, not focused.
+- Each item is at least the minimum target tall, and the whole row is its hit area.
+- Items grow with larger text, and the surface scrolls when it no longer fits the screen.
+- While the icon font cannot draw a glyph mark yet, such as the check, the menu draws nothing in its place, never the word "check". It keeps the column's width and still exposes the checked state, and shows the mark once the font has loaded.
+- Debug builds report an item without a label, a radio item outside a group, a group value that names none of its radio items, two radio items that share a value, a group inside a group, an item with both a shortcut and trailing text, a `separation` the menu does not define, a third level of submenu and a submenu without items. They also report a link item that opens a new context without a `targetLabel`, an `href` on a checkbox item, a radio item or a submenu item, an `href` that names a script or cannot be read, and a `target` the menu does not define.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native have no link items: an item takes no `href` there yet.
+- SwiftUI, Compose, Flutter and React Native have no submenus, no `separation`, no `markIcon` and no fill on a checked row. They still draw the check as a mark of their own in a 16 box, and start a group's title where the labels start.
+- Where the title starts under `m3-like` and `cupertino` follows Tanrei's rule and has not been measured against the originals.
+- Web: the menu does not listen for the platform's close request, such as Android's back gesture, so `back` is never sent.
+- Web: `aria-haspopup` and `aria-expanded` are set on the anchor. On a custom element anchor such as an icon-only `<tanrei-button>`, they go on the button inside its shadow root. `aria-controls` and the menu's name, which comes from the anchor, cannot cross a shadow root.
+- Web: the surface is placed by script, not by CSS anchor positioning.
+- Web: a submenu item cannot point to its surface with `aria-controls`, which cannot reach into a shadow root. The surface is the item's descendant in the accessibility tree instead.
+- Web, WebKit on macOS: an open submenu's item keeps its hovered color under a press instead of taking the pressed one.
+- SwiftUI has no menu, menu item or separator role, no shortcut property, and no way to say that the anchor opens a menu or that the menu is open. Each item is a button with its position as its value ("2 of 3", in English only), a checkbox item is a toggle, and a radio item is selected while it is checked.
+- SwiftUI never gives keyboard focus to a disabled button, so the arrow keys pass over a disabled item instead of reaching it.
+- SwiftUI presents the menu as a popover, which places itself. The tokens choose only the side: the popover keeps its own distance from the anchor and from the window's edges, aligns itself, and closes with its own motion. On iOS 26 it clips the surface to its own larger corners and draws its own shadow. How this looks on a device has not been checked yet.
+- SwiftUI: Tab closes the menu and returns focus to the anchor, but focus cannot move on from it in the same keystroke.
+- SwiftUI reads a radio item's value only from a `.tag(_:)` applied to the `TanreiMenuOption` itself.
+- SwiftUI: the arrow keys, Home, End, typeahead, Escape and Tab are tested as rules, not yet with a real keyboard.
+- React Native draws the menu in `TanreiProvider`'s overlay layer, so there must be a `TanreiProvider` above it. Tab closes the menu and returns focus to the anchor, but cannot move on from it in the same keystroke. The next Tab moves on.
+- React Native: what a screen reader does with an element behind the open menu, and focus leaving the menu, have not yet been checked on a device.
+- React Native has no menu item checkbox or menu item radio role and no shortcut property. Every item is a menu item, checkbox and radio items carry a checked state, and the trailing text is read as part of the description.
+- React Native cannot set properties on your anchor. Give it `accessibilityState={{ expanded: open }}` yourself.
+- React Native does not follow an anchor that moves while the menu is open. It measures the anchor when the menu opens and when the window changes size.
+- React Native: the arrow keys, typeahead, Escape, Tab, and Space against Enter have not yet been checked on a device with a hardware keyboard.
+- Compose has no menu, menu item or separator role and no shortcut property. The surface is a collection, an action has no role, a checkbox item is a checkbox and a radio item is a radio button, and the trailing text is read as part of the description. The menu cannot set the anchor's expanded state.
+- Compose: a press on the anchor while the menu is open counts as a press outside. It closes the menu with `outside` and does not reach the anchor.
+- Compose: the popup's window focus, a real press outside, the back button, focus returning to the anchor, Tab moving on from it, and TalkBack on the menu have been tested under Robolectric only, not yet on a device.
+- Flutter has no group or separator role, cannot name the menu by its anchor or say that the anchor opens a menu, and gives items no position or set size. A group is a container named by its title. The anchor does get the expanded state.
+- Flutter: what TalkBack, VoiceOver and a web screen reader announce for the menu, and Android's back gesture on an open menu, have not yet been checked on a device.
+
+### What you need to do
+
+- Name the menu by its anchor. Give an icon button anchor a label such as "More" or "Sort". On React Native, pass the same name as the menu's `accessibilityLabel`.
+- On Compose and React Native, expose on the anchor whether the menu is open. The menu cannot set it there.
+- Close the menu when it asks, and do not move focus yourself when it closes. The menu returns focus to the anchor.
+- Give every item a label, including items that show an icon. The label is the name and what typeahead matches.
+- Give the group of radio items a title that says what the choice is about.
+- Give every submenu item a label: it names the item and the submenu it opens.
+- Give a link item that opens a new tab a `targetLabel`, in your product's language, such as "opens in a new tab". Tanrei ships no words of its own.

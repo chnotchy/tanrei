@@ -1,0 +1,248 @@
+---
+title: معاينة الصور
+description: تعرض صورة واحدة من مجموعة على النافذة كلها حين يضغط الشخص صورتها المصغّرة، ليراها عن قرب، فيكبّرها ويعيدها، ويتحرك فيها وهي مكبَّرة، وينتقل إلى الصورة التالية أو السابقة، إلى أن تُغلق.
+translationOf: components/image-preview.mdx
+sourceHash: caadfe986913a18784dba1d60a26a868a2370960
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import landscape from '../../../../../../../packages/web/test/fixtures/image-preview-landscape.png?url';
+import landscapeSmall from '../../../../../../../packages/web/test/fixtures/image-preview-landscape-thumbnail.png?url';
+import portrait from '../../../../../../../packages/web/test/fixtures/image-preview-portrait.png?url';
+import square from '../../../../../../../packages/web/test/fixtures/image-preview-square.png?url';
+
+## نظرة عامة
+
+<ComponentAvailability name="image-preview" />
+
+<DemoFrame label="ثلاث صور في صفحة: اضغط إحداها لتراها عن قرب">
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="تكبير: رسم عرضه 1600 وارتفاعه 1000" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 0, open: true })"><img src={landscapeSmall} alt="" width="160" height="100" style="display: block" /></tanrei-card>
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="تكبير: رسم عرضه 1000 وارتفاعه 1500" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 1, open: true })"><img src={portrait} alt="" width="67" height="100" style="display: block" /></tanrei-card>
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="تكبير: رسم عرضه 1200 وارتفاعه 1200" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 2, open: true })"><img src={square} alt="" width="100" height="100" style="display: block" /></tanrei-card>
+  <tanrei-image-preview id="image-preview-demo" label="ثلاثة رسوم" close-label="إغلاق" zoom-in-label="تكبير" zoom-out-label="تصغير" previous-label="الصورة السابقة" next-label="الصورة التالية" count-text="{position} من {count}" loading-label="جارٍ تحميل الصورة" error-text="تعذّر تحميل هذه الصورة" onclose="this.open = false">
+    <tanrei-image-preview-item src={landscape} thumbnail-src={landscapeSmall} width="1600" height="1000" alt="رسم عرضه 1600 وارتفاعه 1000: إطار وقطران وحلقة" caption="كل رسم مكتوب عليه مقاسه، وله حافة وعلامة في كل زاوية، لترى أنه معروض كاملًا."></tanrei-image-preview-item>
+    <tanrei-image-preview-item src={portrait} width="1000" height="1500" alt="رسم عرضه 1000 وارتفاعه 1500: إطار وقطران وحلقة"></tanrei-image-preview-item>
+    <tanrei-image-preview-item src={square} width="1200" height="1200" alt="رسم عرضه 1200 وارتفاعه 1200: إطار وقطران وحلقة"></tanrei-image-preview-item>
+  </tanrei-image-preview>
+</DemoFrame>
+
+استخدم معاينة الصور (image preview) حيث تعرض الصفحة صورة صغيرة لأن الصفحة تتناول شيئًا آخر، ويحتاج الشخص إليها كبيرة للحظة: صورة فوتوغرافية في مقال، أو صور سلعة معروضة للبيع، أو مرفق في محادثة، أو لقطة شاشة في دليل. يضغط الشخص الصورة المصغّرة، وينظر، ثم يعود إلى حيث كان.
+
+هي تعرض صورًا ثابتة ولا شيء غيرها. وهي لا تطلب من الشخص شيئًا، فليست [مربع حوار](/ar/components/dialog/)؛ وصورها يُنظر إليها ولا تُضغط، فليست [عرضًا دوّارًا](/ar/components/carousel/). ومع ذلك فإن عنصرًا في عرض دوّار، أو صورة في [شكل توضيحي](/ar/components/figure/)، موضع طبيعي تُفتح منه.
+
+**تُبنى من** [أزرار](/ar/components/button/)، هي التصغير والتكبير والإغلاق والسابق والتالي، ومن [هيكل تحميل](/ar/components/skeleton/) يقف مكان الصورة وهي في طريقها. وهذه هي المكوّنات الحقيقية، تقرأ رموزها هي. أما منطقة العرض (stage) التي تكبّر الصورة وتحرّكها، والانتقال من صورة إلى التي تليها، فهما لمعاينة الصور وحدها ولا يوجدان في أي مكان آخر.
+
+على الويب هي `<tanrei-image-preview>` ومعها عناصر فرعية `<tanrei-image-preview-item>`. والمنصات الأخرى لم تنفّذها بعد.
+
+### الاستخدام
+
+عنصر الفتح (opener) من عندك. وهو زر حول صورتك، وحدها أو في شكل توضيحي أو في شبكة، يقول إنه يفتح مربع حوار، ويسمّى بما يفعله وبالصورة التي يفتحها: «تكبير: غرفة نوم لها نافذة تطل على حديقة». فالخاصية `alt` في الصورة تسمّي الصورة وحدها ولا تسمّي الإجراء. ومعالجك لضغطه يعيّن `index` على تلك الصورة و `open` على true. والصور المصغّرة في العرض التوضيحي أعلاه [بطاقات](/ar/components/card/) تفاعلية تسمّيها `label`؛ أما الزر الأصلي حول الصورة، كما في العيّنة أدناه، فهو الهيئة البسيطة، ويستطيع أن يقول إنه يفتح مربع حوار.
+
+المعاينة لا تغلق نفسها أبدًا. يصدر عنها الحدث `close` ومعه السبب، وهو `button` أو `escape` أو `back` أو `swipe`، وأنت تعيّن `open` على false. وعندئذ يعود التركيز إلى عنصر الفتح.
+
+لكل صورة `src`، وهي الصورة كما تعرضها المعاينة، وتكون في العادة ملفًا أكبر من الصورة المصغّرة، ولها `alt`، وهي مطلوبة. أعطِ `thumbnailSrc`، أي الصورة الصغيرة التي سبق أن حمّلتها صفحتك، فترسمها المعاينة مكبَّرة إلى أن تصل `src`، فلا يكون الفتح فارغًا أبدًا. وأعطِ `width` و `height` حيث تعرفهما، فيُحجز مكان الصورة قبل أن تُحمَّل. ولا تُطلب إلا الصورة المعروضة والتي قبلها والتي بعدها، مهما كان عدد الصور.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <button type="button" class="thumbnail" aria-haspopup="dialog"
+            aria-label="تكبير: غرفة نوم لها نافذة تطل على حديقة" data-index="0">
+      <img src="room-small.jpg" alt="" width="320" height="200" />
+    </button>
+    <button type="button" class="thumbnail" aria-haspopup="dialog"
+            aria-label="تكبير: المكتب بجانب النافذة" data-index="1">
+      <img src="desk-small.jpg" alt="" width="320" height="200" />
+    </button>
+
+    <tanrei-image-preview label="صور الغرفة"
+      close-label="إغلاق" zoom-in-label="تكبير" zoom-out-label="تصغير"
+      previous-label="الصورة السابقة" next-label="الصورة التالية"
+      count-text="{position} من {count}"
+      loading-label="جارٍ تحميل الصورة" error-text="تعذّر تحميل هذه الصورة">
+      <tanrei-image-preview-item src="room-large.jpg" thumbnail-src="room-small.jpg"
+        width="1600" height="1000" alt="غرفة نوم لها نافذة تطل على حديقة"
+        caption="غرفة النوم الشرقية في الصباح."></tanrei-image-preview-item>
+      <tanrei-image-preview-item src="desk-large.jpg" thumbnail-src="desk-small.jpg"
+        width="1600" height="1000" alt="المكتب بجانب النافذة"></tanrei-image-preview-item>
+    </tanrei-image-preview>
+
+    <script type="module">
+      import '@tanrei/web/components/image-preview';
+
+      const preview = document.querySelector('tanrei-image-preview');
+      for (const thumbnail of document.querySelectorAll('.thumbnail')) {
+        thumbnail.addEventListener('click', () => {
+          preview.index = Number(thumbnail.dataset.index);
+          preview.open = true;
+        });
+      }
+      // طلب الشخص إغلاقها: بعنصر تحكم الإغلاق، أو بالمفتاح Escape، أو بالرجوع، أو بسحب إلى الأسفل.
+      preview.addEventListener('close', () => (preview.open = false));
+      // انتقل الشخص إلى صورة أخرى. والقيمة الجديدة موجودة سلفًا في preview.index
+      preview.addEventListener('indexchange', (e) => markAsSeen(e.detail.index));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ImagePreview, ImagePreviewItem } from '@tanrei/react';
+
+    const [shown, setShown] = useState<number | null>(null);
+
+    {photos.map((photo, at) => (
+      <button key={photo.id} type="button" aria-haspopup="dialog"
+              aria-label={`تكبير: ${photo.alt}`} onClick={() => setShown(at)}>
+        <img src={photo.small} alt="" width={320} height={200} />
+      </button>
+    ))}
+
+    <ImagePreview label="صور الغرفة" open={shown !== null} index={shown ?? 0}
+      closeLabel="إغلاق" zoomInLabel="تكبير" zoomOutLabel="تصغير"
+      previousLabel="الصورة السابقة" nextLabel="الصورة التالية" countText="{position} من {count}"
+      loadingLabel="جارٍ تحميل الصورة" errorText="تعذّر تحميل هذه الصورة"
+      onIndexchange={(event) => setShown(event.detail.index)}
+      onClose={() => setShown(null)}>
+      {photos.map((photo) => (
+        <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}
+          width={photo.width} height={photo.height} alt={photo.alt} caption={photo.caption} />
+      ))}
+    </ImagePreview>
+    ```
+  </TabItem>
+</Tabs>
+
+الكلمات كلماتك: أسماء عناصر التحكم الخمسة، وجملة العدّ، وما يُقال أثناء تحميل الصورة وعند فشله. أعطِها على كل عنصر، أو أعطِها مرة واحدة لكل المعاينات معًا في كلمات المنتج (`setWords()`). وجملة العدّ جملة كاملة بلغتك فيها موضعان معلَّمان، `{position}` و `{count}`، ليكون ترتيب الكلمات ترتيب لغتك. ففي اليابانية مثلًا: `{count}枚中{position}枚目`.
+
+### كل عملية بثلاث طرق
+
+لا شيء يُفعل بإيماءة وحدها. فلكل عملية عنصر تحكم تبلغه ضغطة واحدة، ومفتاح.
+
+| العملية | بإيماءة | بعنصر تحكم | بمفتاح |
+| --- | --- | --- | --- |
+| التكبير، والعودة إلى الملاءمة | نقرتان باللمس أو بالمؤشر على نقطة؛ أو قرص بإصبعين؛ أو قرص على لوحة اللمس؛ أو المفتاح Ctrl أو Command مع العجلة | التكبير، والتصغير | `+` أو `=`، `−`، `0` |
+| التحرك في صورة مكبَّرة | سحب؛ أو العجلة | — | مفاتيح الأسهم |
+| الانتقال إلى الصورة التالية أو السابقة | سحب جانبي | التالي، والسابق | السهم الأيسر والسهم الأيمن عند الملاءمة؛ والمفتاحان Page Up و Page Down؛ والمفتاحان Home و End للصورة الأولى والأخيرة |
+| الإغلاق | سحب إلى الأسفل باللمس، عند الملاءمة | الإغلاق | المفتاح Escape |
+| إخفاء عناصر التحكم وإظهارها | نقرة واحدة باللمس أو بالمؤشر على الصورة | — | أي مفتاح يظهرها |
+
+- **التكبير** رقم: 1 هو الصورة كاملة في المساحة الخالية من النافذة، ولا تتجاوز مقاسها هي أبدًا. والدرجات 1 و 2 و 4 للصورة العادية. والصورة العريضة جدًّا أو الطويلة جدًّا، وهي صغيرة عند الملاءمة، تملأ المساحة الخالية في درجتها الأولى.
+- **السحب ينقل بين الصور عند الملاءمة فقط**، أو حين يبدأ والصورة المكبَّرة واقفة أصلًا عند حافتها من تلك الجهة. والسحب الذي يبلغ الحافة في أثنائه يتوقف عندها: فالشخص الذي يتحرك في صورة لا يغادرها مصادفة أبدًا. والإصبع أو القلم ينقل إلى الصورة التالية بسحب يتجاوز نصف منطقة العرض أو بدفعة سريعة؛ والفأرة لا تنقل إليها إلا بسحب يتجاوز نصف منطقة العرض، لا بدفعة سريعة أبدًا، مهما كانت سرعة حركتها.
+- **تغيير الصورة يعيد التكبير إلى 1.** فالتكبير يخص صورة واحدة، لا المجموعة.
+- **عناصر التحكم لا تختفي من تلقاء نفسها أبدًا.** يخفيها الشخص بنقرة واحدة على الصورة. وهي مخفية تبقى في ترتيب التركيز وتظل تُعرَّف للتقنيات المساعدة.
+- الخصائص `index` و `zoom` و `controlsHidden` لك أن تعيّنها، والمعاينة تكتبها بنفسها حين يغيّرها الشخص، قبل الحدث `indexchange` أو `zoomchange` أو `controlshiddenchange`.
+
+### مصدر أكبر عند الطلب
+
+غيِّر `src` في الصورة المعروضة فتظل المعاينة ترسم الصورة السابقة، بتكبيرها وفي موضعها، إلى أن تُحمَّل الجديدة. وبذلك تستطيع أن تردّ على الحدث `zoomchange` بملف كبير بما يكفي لذلك التكبير، ولا يرى الشخص إلا تفاصيل أكثر.
+
+```js
+preview.addEventListener('zoomchange', (e) => {
+  if (e.detail.zoom > 2) preview.children[preview.index].src = largest(preview.index);
+});
+```
+
+الصورة التي لا تصل تُرسم علامةً مع `errorText` التي أعطيتها، والحدث `loaderror` يخبرك أيّ صورة هي. غيِّر `src` فيها فتطلبها المعاينة من جديد.
+
+### مستوى واحد إلى الأسفل
+
+معاينة الصور لا تُبنى من مكوّنات أخرى، فلا تستطيع أن تكتب الشيء نفسه من أعضائها. وفي المستوى الأدنى: العرض النمطي (modal) الخاص بالمنصة، وأزرار Tanrei، وهيكل تحميل، ومعالجتك أنت للصورة:
+
+```html
+<dialog class="viewer" aria-label="صور الغرفة">
+  <tanrei-button variant="text" label="تصغير"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="text" label="تكبير"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="text" label="إغلاق"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" label="الصورة السابقة"><span slot="icon">chevron_left</span></tanrei-button>
+  <img alt="غرفة نوم لها نافذة تطل على حديقة" src="room-large.jpg" tabindex="0">
+  <tanrei-button variant="tonal" label="الصورة التالية"><span slot="icon">chevron_right</span></tanrei-button>
+  <p>غرفة النوم الشرقية في الصباح.</p>
+</dialog>
+```
+
+**هذا ليس مكافئًا قريبًا.** ما تستطيع أخذه منفردًا هو الأزرار الخمسة وهيكل التحميل: العناصر نفسها، بالرموز نفسها. وما لا تستطيع أخذه هو كل ما يجعل معاينة الصور ما هي: التكبير ودرجاته، وتحريك الصورة المكبَّرة وحوافها، والانتقال بين الصور، والقاعدة التي تقرّر هل يحرّك السحب الصورة المكبَّرة أم ينقل إلى صورة أخرى، وإخفاء عناصر التحكم، وتحميل الصور المجاورة وحدها، وما تُخبَر به التقنيات المساعدة. والمنتج الذي ينزل مستوى يكتب ذلك كله، ومنه عنصر التحكم والمفتاح لكل إيماءة.
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| صورة واحدة من مجموعة، كبيرة، تُتفحَّص ثم تُترك | معاينة الصور |
+| صف من العناصر في الصفحة للتصفح والضغط | [العرض الدوّار](/ar/components/carousel/)، وعناصره يمكن أن تفتح معاينة صور |
+| صورة واحدة في الصفحة مع شرح | [الشكل التوضيحي](/ar/components/figure/)، وصورته يمكن أن تفتح معاينة صور |
+| سؤال يجب أن يُجاب عنه | [مربع الحوار](/ar/components/dialog/) |
+| فيديو، أو مستند، أو خريطة، أو أدوات للتدوير أو الاقتطاع | عارض من عندك على العرض النمطي الخاص بالمنصة |
+
+## المواصفات
+
+### تخصيص معاينة واحدة دون غيرها
+
+السطح هو سطح السمة نفسها في الفاتح وفي الداكن، ولا يوجد حجاب (scrim): فالمعاينة لا تترك من النافذة شيئًا مكشوفًا. والمنتج الذي تحتاج صوره إلى منطقة عرض داكنة في السمتين يعيد توجيه التعبئات وألوان المحتوى في طبقته. أما المثيل الواحد فيُخصَّص على العنصر:
+
+```html
+<tanrei-image-preview label="المخططات"
+  style="--tanrei-comp-image-preview-layout-page-gap: 32px"></tanrei-image-preview>
+```
+
+طرازا أزرارها رمزان أيضًا: `comp.image-preview.bar.button.variant` (القيمة text) و `comp.image-preview.navigation.button.variant` (القيمة tonal). والأزرار وهيكل التحميل تقرأ رموزها هي، `comp.button.*` و `comp.skeleton.*`.
+
+<ComponentSpecs name="image-preview" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- العنصر عنصر `<dialog>` أصلي في جذر ظل (shadow root)، يُفتح نمطيًّا: فالصفحة التي خلفه خاملة (inert) ولا تُمرَّر. وهو لا يكتب أي مُدخلة في سجل التصفح؛ والمنتج الذي يريد أن يغلقه زر الرجوع في المتصفح يضيف مُدخلته عند الفتح ويعيّن `open` على false حين تُغادَر تلك المُدخلة.
+- العنصر `<tanrei-image-preview-item>` بيانات، لا عنصر `<img>`: فالمتصفح لا يطلب صورة لم تطلبها المعاينة. والعنصر الذي بلا `src` لا يُطلب له شيء، وينتظر.
+- أحداثه من النوع CustomEvent وتنتقل صعودًا في الشجرة: `close` (`detail.reason`)، `indexchange` (`detail.index`)، `zoomchange` (`detail.zoom`)، `controlshiddenchange` (`detail.hidden`)، `loaderror` (`detail.index`). أما أحداث `click` الخاصة بالأزرار فلا تغادر العنصر.
+- الأجزاء: `container`، `bar`، `count`، `stage`، `image`، `placeholder`، `error`، `caption`؛ وكل زر باسمه، أي `zoom-out`، `zoom-in`، `close`، `previous`، `next`؛ وأجزاء كل زر نفسه، ويسبق اسمَ كل جزء منها اسمُ الزر: `close-container`، `next-icon`.
+- خصائص HTML (attributes) هي أسماء خصائص العنصر بصيغة kebab-case: `max-zoom`، `controls-hidden`، `close-label`، `previous-label`، `next-label`، `zoom-in-label`، `zoom-out-label`، `count-text`، `loading-label`، `error-text`؛ وعلى العنصر الفرعي `thumbnail-src`.
+- منطقة العرض تأخذ إيماءات القرص والتمرير لنفسها، فلا تكبّر إيماءة القرص الخاصة بالمتصفح الصفحة ما دامت المعاينة مفتوحة. وتكبير الصفحة في المتصفح بلوحة المفاتيح يظل يعمل. والمعاينة المغلقة لا تأخذ من الصفحة حدث عجلة ولا لمسًا.
+- القرص على لوحة اللمس يصل على أنه حدث العجلة مع المفتاح Ctrl، أو على أنه حدث الإيماءة الخاص بالمتصفح حيث يوجد. ولا يُتاح الانتقال بين الصور بتمرير جانبي على لوحة اللمس.
+- الصورة تظهر تدريجيًّا وتكبر قليلًا حين تُفتح المعاينة. وحيث لا يستطيع المتصفح أن يُبقي مربع حوار مغلقًا إلى أن يتلاشى، تزول المعاينة فورًا حين تُغلق؛ وفي الحالتين يُعاد التركيز وتُعاد الصفحة في اللحظة نفسها.
+- الرجوع في Android يغلقها بالسبب `back`. والمتصفح الذي لا يفرّق بين الرجوع والمفتاح Escape يبلّغ بالسبب `escape`.
+
+## الإرشادات
+
+### افعل
+
+- اجعل عنصر الفتح زرًّا حول الصورة، وقل إنه يفتح مربع حوار، وسمِّه بالإجراء وبالصورة.
+- عيِّن `index` على الصورة التي ضُغطت قبل أن تعيّن `open`.
+- أغلقها ردًّا على كل حدث `close`. ولإبقائها مفتوحة بعد سحب إلى الأسفل، اترك `open` كما هي: فتعود الصورة إلى مكانها.
+- أعطِ كل صورة `alt` تقول ما تعرضه. واستخدم `caption` لما تقوله أنت عنها: نسبة الصورة إلى صاحبها، أو تاريخ، أو جملة.
+- أعطِ `thumbnailSrc` و `width` و `height` حيث تكون عندك.
+- بلِّغ عن الفشل بعبارتك أنت اعتمادًا على الحدث `loaderror`؛ فالخاصية `errorText` جملة واحدة لكل الصور.
+
+### لا تفعل
+
+- لا تستخدمها لسؤال أو نموذج أو أي شيء يجب أن يجيب عنه الشخص. فليست لها إجراءات، ولا يستطيع أي إعداد أن يزيل طرق إغلاقها.
+- لا تُخفِ عناصر التحكم بمؤقِّت، ولا تفتحها وعناصر التحكم مخفية إلا إذا كان واضحًا أن نقرة واحدة هي طريقة منتجك في إظهارها.
+- لا تجعل الطريقة الوحيدة لفعل شيء إيماءةً من عندك فوقها. فلكل عملية هنا عنصر تحكم ومفتاح.
+- لا تكتب عنوان الصفحة ولا مُدخلة في سجل التصفح وهي مفتوحة إلا إذا أغلقتها أيضًا حين تُغادَر تلك المُدخلة.
+- لا تستخدم عنصر `<img>` عنصرًا فرعيًّا لها. فالمتصفح سيحمّل كل صور المجموعة دفعة واحدة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="image-preview" />
+
+### ما يتكفل به المكوّن
+
+- هي مربع حوار نمطي تسمّيه `label`. وكل ما هو خارجها محجوب عن التقنيات المساعدة ولا يمكن نقل التركيز إليه ولا ضغطه ما دامت مفتوحة.
+- يذهب التركيز إلى منطقة العرض حين تُفتح، ويبقى في الداخل: فالمفتاح Tab يمرّ بالتصغير، ثم التكبير، ثم الإغلاق، ثم السابق، ثم منطقة العرض، ثم التالي، ثم الشرح إذا كان يُمرَّر، ثم يعود إلى البداية. وحين تُغلق يعود التركيز إلى العنصر الذي كان عليه.
+- منطقة العرض صورة واحدة: اسمها هو `alt` في الصورة المعروضة، ووصفها جملة العدّ ثم الشرح. ولا تُعرض للتقنيات المساعدة أي صورة أخرى من المجموعة، والتكبير لا يُخبَر به أحد.
+- تغيّر الصورة يُعلَن بتهذيب، مرة واحدة: جملة العدّ، ثم `alt` في الصورة الجديدة.
+- عناصر التحكم الخمسة أزرار بالأسماء التي تعطيها. وما كان منها عند نهاية مداه يُعطَّل، والتركيز الذي كان عليه ينتقل إلى منطقة العرض.
+- لكل إيماءة عنصر تحكم ومفتاح. ويمكن إخفاء عناصر التحكم بنقرة واحدة، ولا تُخفى بمؤقِّت أبدًا؛ وهي مخفية تبقى قابلة للتركيز ومعروضة للتقنيات المساعدة، ويظهرها أي مفتاح، أو وقوع التركيز على أحدها، أو تحريك الفأرة.
+- ما دامت الصورة تُحمَّل، يقول هيكل التحميل إنه مشغول، باسم هو `loadingLabel`. وحين تفشل صورة، تُرسم `errorText` وتُقال وتُضاف إلى وصف منطقة العرض.
+- الشرح الطويل يأخذ ثلث النافذة على الأكثر ويُمرَّر في منطقة خاصة به، تكون عندئذ موضع توقف للتركيز تمرّرها المفاتيح.
+- في تخطيط من اليمين إلى اليسار يُعكس الشريط، وجانبا السابق والتالي، ورسماهما، والجهة التي تقع فيها الصورة التالية، ومفتاحا السهم الأيسر والسهم الأيمن. أما الصورة، وطريقة تحرك الصورة المكبَّرة، فلا تُعكسان.
+- مع النص عند 200% في نافذة عرضها 320، يأخذ العدّ سطرًا خاصًّا به ويكبر الشريط، ويكبر الشرح إلى ثلثه ويُمرَّر، وتُلاءَم الصورة مع ما يبقى. وفي الألوان المفروضة (forced colors) تأخذ التعبئات والنص ألوان النظام وتُترك الصور كما هي.
+- حيث تكون الحركة مقلَّلة تُفتح المعاينة وتُغلق بالتلاشي من دون أن تكبر، وتحدث درجات التكبير وتغيّرات الصورة فورًا، وتظل الصورة تتبع الإصبع الذي يحرّكها.
+
+فجوات معروفة على الويب: ما تقوله قارئات الشاشة قُرئ من أشجار إمكانية الوصول في المتصفحات ولم يُسمع بقارئ شاشة، والإيماءات شُغِّلت بالاختبارات ولم تُجرَّب باليد بعد على هاتف ولوحة لمس.
+
+### ما عليك فعله
+
+- أعطِ `label`، وأسماء عناصر التحكم الخمسة، وجملة العدّ، و `loadingLabel` و `errorText`، بلغتك: على العنصر أو مرة واحدة في كلمات المنتج.
+- أعطِ كل صورة `alt`. فالصورة التي اختار الشخص أن يراها عن قرب ليست زخرفة أبدًا.
+- سمِّ عنصر الفتح بما يفعله وبالصورة التي يفتحها، وعلِّمه بالخاصية `aria-haspopup="dialog"`.
+- حيث انتقل الشخص إلى صورة أخرى وصفحتك تعرض صورتها المصغّرة، لك أن تنقل التركيز إلى تلك الصورة المصغّرة بعد الحدث `close`. فالمعاينة لا تعرف صفحتك.
+- على شاشة لمس بلا لوحة مفاتيح، يحتاج التحرك في صورة مكبَّرة إلى سحب بإصبع واحد. أبقِ عنصر تحكم التصغير في المتناول: لا تفتح المعاينة وعناصر التحكم مخفية لمن لا يستطيعون السحب.

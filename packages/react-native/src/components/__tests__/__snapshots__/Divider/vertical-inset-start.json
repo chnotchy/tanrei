@@ -1,0 +1,30 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityElementsHidden": true,
+    "accessible": false,
+    "focusable": false,
+    "importantForAccessibility": "no-hide-descendants",
+    "style": {
+      "alignSelf": "stretch",
+      "width": 1
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "backgroundColor": "rgba(0, 0, 0, 0.08)",
+          "bottom": 0,
+          "end": 0,
+          "pointerEvents": "none",
+          "position": "absolute",
+          "start": 0,
+          "top": 16
+        }
+      },
+      "children": []
+    }
+  ]
+}

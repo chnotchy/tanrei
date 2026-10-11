@@ -1,0 +1,53 @@
+---
+title: Forma
+description: Una escala de esquinas de radio pequeño, con 6px como valor predeterminado para los controles, y un único número para la manera en que se curva una esquina.
+translationOf: foundations/shape.mdx
+sourceHash: 6d0deb5bb38aea8a6c9070ec3a2a764fa7025f9e
+---
+
+import ShapeScale from '../../../../components/tokens/ShapeScale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Los tokens de forma definen los radios de las esquinas. La escala conserva los nombres de paso habituales, `none`, `extra-small`, `small`, `medium`, `large`, `extra-large` y `full`, y les asigna valores deliberadamente pequeños, porque los diseños de Tanrei son densos y sus bordes son delgados. Los radios grandes junto a líneas finas se ven blandos e imprecisos; los pequeños se ven mecanizados.
+
+<ShapeScale />
+
+## Cómo aplicar la forma
+
+- **Los controles usan `small` (6px):** botones, campos de texto, elementos de menú, tooltips.
+- **Los contenedores suben de paso con el tamaño:** `medium` para tarjetas y menús, `large` y superiores para diálogos y hojas.
+- **`full` se activa de forma explícita.** Las píldoras y los círculos se reservan para lo que es redondo por naturaleza o necesita destacarse: avatares, insignias, controles segmentados.
+- **Los pasos `-increased`** pertenecen a la capa expresiva. Agrandan las esquinas sin cambiar la escala predeterminada.
+
+## Esquinas anidadas
+
+Cuando un elemento redondeado está dentro de un contenedor redondeado, el radio interior debe ser igual al radio exterior menos el margen interior que hay entre ellos. Dos curvas concéntricas con el mismo radio se ven desajustadas; restar la separación las hace paralelas. Si el resultado es cero o menos, usa `none`.
+
+## Suavizado de esquinas
+
+Un radio dice cuán grande es una esquina. Un segundo token, `sys.shape.corner-smoothing`, dice cómo su curva *se funde* con el borde recto: un número de 0 a 1 con el significado que Figma da a su control deslizante de suavizado de esquinas. En 0, la esquina es un cuarto de círculo. En **0.6 es lo que Figma llama la esquina de iOS**: cercana a la esquina continua que Apple dibuja en todo rectángulo redondeado, pero no la misma curva (véase más abajo). En 1, el arco casi ha desaparecido en dos tramos largos de transición. El radio no cambia; solo cambia la calidad de la curva, y la diferencia se aprecia mejor en los radios grandes y en las píldoras.
+
+<SystemValues tokens={['sys.shape.corner-smoothing']} />
+
+Es un solo número para todo el sistema (una marca está tanto en cómo se funde una esquina como en lo grande que es), y ningún dial lo escala. `cupertino` lo fija en 0.6; el sistema predeterminado se queda en 0. Una capa lo define como cualquier valor fijado:
+
+```json
+"tokens": {
+  "tanrei.sys.shape.corner-smoothing": { "$value": 0.6, "reason": "Nuestras aplicaciones nativas dibujan esquinas continuas." }
+}
+```
+
+En Theme Studio es el control deslizante que hay en Groups → Shape. En Figma, el mismo número se aplica al suavizado de esquinas de cada nodo, de modo que el archivo muestra lo que dibuja el preajuste.
+
+### Qué dibuja cada plataforma
+
+| Plataforma | En 0 | Por encima de 0 |
+|---|---|---|
+| Jetpack Compose, Flutter | un cuarto de círculo | La construcción del suavizado de esquinas de Figma, que es lo que significa la cantidad: tres curvas de Bézier cúbicas por esquina, cuyo arco se encoge y cuyos tramos de transición crecen con la cantidad. Lo que alguien de diseño ve en el archivo de Figma es lo que dibujan estas dos plataformas. La esquina continua de Apple es una curva *distinta*: en 0.6, las dos difieren en 5.1 px² en una caja de 180×80 con radio 20, el 0.035% del área; no se ve, pero es el triple de la discrepancia propia de los rasterizadores, y ninguna cantidad las hace coincidir. Las pruebas fijan la construcción, no la curva de Apple. |
+| Web | un cuarto de círculo | La superelipse más cercana que puede tener una caja: `corner-shape: superellipse(2 + s)` con el radio escalado por (1 + 0.4 s); a 9.5 px² de la construcción de Figma y a 5.7 de la de Apple en la misma caja en 0.6. Los navegadores sin `corner-shape` dibujan esquinas circulares. |
+| SwiftUI | `.circular` | `.continuous`: la curva propia del sistema operativo para cualquier cantidad superior a 0. La cantidad se redondea a la del sistema operativo, y el README del paquete lo indica; en 0.6 son los ~5 px² de diferencia con la construcción de Figma mencionados arriba, dentro de lo que tolera la paridad. |
+| React Native | `borderCurve: "circular"` | En iOS, `borderCurve: "continuous"`, igualmente la curva del sistema operativo para cualquier cantidad superior a 0. Android no tiene una curva así y se queda en circular. |
+
+Todo lugar en el que un componente se redondea lee la cantidad: el contenedor, el anillo de foco, el anillo de la elevación, el recorte de la onda. Button lo establece en el requisito BTN-10.
+
+El suavizado de esquinas es un número y no una elección de tipo como `circular` o `continuous`, porque el único lugar donde quienes diseñan ajustan esto a diario, Figma, tiene un control deslizante, y porque tres curvas distintas bajo un mismo nombre no serían paridad.

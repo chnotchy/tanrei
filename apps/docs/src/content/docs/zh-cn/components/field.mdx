@@ -1,0 +1,208 @@
+---
+title: "字段"
+description: "为一个控件配上表单给每个字段的东西——可以说明控件必填或选填的标签、一行帮助文本，以及值被拒绝的原因——并把每一样都与这个控件关联起来，供辅助技术使用。它是一个框架，从不是控件。"
+translationOf: components/field.mdx
+sourceHash: 1988f960c4e1a43fbe309826a40223811eca68ee
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="field" />
+
+<DemoFrame label="滑块和开关，各由一个字段命名、提供帮助文本并加上标记" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必填" supporting-text="适用于提醒和媒体。"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" requirement="optional" optional-text="选填" supporting-text="有评审等待你处理时发送。"><tanrei-switch selected></tanrei-switch></tanrei-field>
+</DemoFrame>
+
+文本字段可以说明自己是什么、是否必须填写、该怎么填，以及填写的内容为什么被拒绝。字段把同样的四样东西交给做不到这些的控件：滑块、开关、[文本输入框](/zh-cn/components/text-input/)、[颜色输入框](/zh-cn/components/color-input/)、[一次性验证码输入框](/zh-cn/components/one-time-code-input/)，或者你的产品自己构建的控件。文本字段本身就是包住一个文本输入框的字段。标签位于控件上方，帮助文本位于控件下方。字段处于错误状态时，帮助文本保留，错误文本加在它的下方。
+
+字段只绘制这个框架，别无其他。它没有容器，没有值，也没有事件；控件保留自己的外观、按键、事件，以及在表单中的位置。
+
+在 Web 上它是 `<tanrei-field>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field label="音量" supporting-text="适用于提醒和媒体。" requirement="optional" optional-text="选填">
+      <tanrei-slider name="volume" value="40"></tanrei-slider>
+    </tanrei-field>
+
+    <!-- 校验由产品来做；字段显示原因，并把控件标记为无效。 -->
+    <tanrei-field label="音量" requirement="required" required-text="必填" error error-text="请选择大于 0 的音量。">
+      <tanrei-slider name="volume" value="0"></tanrei-slider>
+    </tanrei-field>
+
+    <!-- 文本输入框：字段为它命名，帮助文本从文本开始的位置起笔，并画出交给它的计数。 -->
+    <tanrei-field label="显示名称" supporting-text="显示在你的评论旁边。" count-text="2/40">
+      <tanrei-text-input name="display-name" value="李华" maxlength="40" counter></tanrei-text-input>
+    </tanrei-field>
+
+    <!-- 自己有名称的控件：字段的标签留空。 -->
+    <tanrei-field supporting-text="你可以随时撤回同意。">
+      <tanrei-checkbox label="我同意使用条款"></tanrei-checkbox>
+    </tanrei-field>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Field, Slider } from '@tanrei/react';
+
+    <Field label="音量" supportingText="适用于提醒和媒体。" error={tooQuiet} errorText="请选择大于 0 的音量。">
+      <Slider value={volume} onChange={(event) => setVolume(event.detail.value)} />
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="三种必填和选填标记、错误、禁用的字段，以及标签的字形" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必填"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="optional" optional-text="选填"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必填" error error-text="请选择大于 0 的音量。"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="适用于提醒和媒体。" disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+</DemoFrame>
+
+<DemoFrame label="帮助文本和错误同时出现：帮助文本保留，错误文本加在它的下方" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="密码" supporting-text="至少 8 个字符，其中包含一个数字。"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="密码" supporting-text="至少 8 个字符，其中包含一个数字。" error error-text="这个密码太短。"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
+</DemoFrame>
+
+<DemoFrame label="字段里的文本输入框：带帮助文本和计数的，以及处于错误状态的" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="显示名称" supporting-text="显示在你的评论旁边。" count-text="2/40"><tanrei-text-input value="李华" maxlength="40" counter></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" requirement="required" required-text="必填" error error-text="请输入完整的邮箱地址。"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
+</DemoFrame>
+
+### 包住文本输入框
+
+包住[文本输入框](/zh-cn/components/text-input/)的字段，就是手写出来的[文本字段](/zh-cn/components/text-field/)：画面、名称、描述和状态都相同。只有输入框自己知道的事，由它告诉所在的字段，字段照着做：
+
+| 输入框告诉字段 | 字段 |
+| --- | --- |
+| 它的文本离它的边有多远：它的内边距，以及前置图标 | 让辅助文本那一行从那里开始、到那里结束，于是帮助文本从文本开始的位置起笔 |
+| 标签由它自己绘制，浮在 filled 或 outlined 的方框里 | 不绘制标签行，也不绘制必填和选填小标签，但仍然为输入框命名。必填的输入框会在浮动标签后面带一个星号 |
+| 它拒绝了一个日期或时间：只填了一半，或者不可用 | 像 `error` 为 true 时那样处于错误状态，并显示输入框为此给出的文字 |
+
+`countText` 是关于控件的值的计数，写成要画出来的样子（“2/40”）。字段把它画在辅助文本那一行的末尾，此外不拿它做任何事：字段不计数，并且不让辅助技术读到这个画出来的计数，因为控件会说出自己的计数。每次 `input` 时，用输入框的 `countText` 来写它。文本字段会自己做这件事。
+
+`valueText` 是用文字写出的控件当前的值（“40 %”“$100 – $300”），用于从控件本身读不出值的控件：滑块。字段把它画在标签行的末尾，与标签的第一行对齐，此外不拿它做任何事：字段绝不读取值，也不为值设定格式，并且不让辅助技术读到这段画出来的文字，因为控件会说出自己的值。如果它会让标签只剩下不到半行，它就在标签之后单独占一行。标签不绘制时，它也不绘制。每次 `input` 时，用滑块的 `shownValueText` 来写它——[滑块字段](/zh-cn/components/slider-field/)会自己做这件事，它就是为滑块准备好的字段。
+
+<DemoFrame label="里面放着滑块的字段，用文字写出的值位于标签行的末尾" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文本大小" supporting-text="适用于每一个页面。" value-text="120 %"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120 %"></tanrei-slider></tanrei-field>
+</DemoFrame>
+
+### 包住下拉选择框
+
+包住[下拉选择框](/zh-cn/components/select/)的字段，就是手写出来的[下拉选择字段](/zh-cn/components/select-field/)：画面、名称、描述和状态都相同。下拉选择框的选项是它自己的子元素。只有它自己知道的事，由它告诉所在的字段，字段照着做：
+
+| 下拉选择框告诉字段 | 字段 |
+| --- | --- |
+| 它的值离它的边有多远：它的内边距，以及前置图标 | 让辅助文本那一行从那里开始、到那里结束，于是帮助文本从值开始的位置起笔 |
+| 标签由它自己绘制，浮在 filled 或 outlined 的方框里 | 不绘制标签行，也不绘制必填和选填小标签，但仍然为下拉选择框命名。必填的下拉选择框会在浮动标签后面带一个星号 |
+| 只要它的列表开着，它就画成聚焦的样子 | 在这段时间里用聚焦时的颜色绘制标签和帮助文本，无论焦点是否在字段内 |
+
+<ComponentSpecs name="field" />
+
+## 指南
+
+### 用字段，还是用本身就是字段的控件
+
+| 控件 | 使用 |
+| --- | --- |
+| 没有自己的标签、帮助文本和错误：滑块、开关、你自己构建的控件 | 在它外面套一个字段——滑块也可以用把两者合为一个组件的字段：[滑块字段](/zh-cn/components/slider-field/)。 |
+| 是供用户键入的、单独使用的控件：[文本输入框](/zh-cn/components/text-input/)、[颜色输入框](/zh-cn/components/color-input/)、[一次性验证码输入框](/zh-cn/components/one-time-code-input/) | 在它外面套一个字段——或者用把两者合为一个组件的字段：[文本字段](/zh-cn/components/text-field/)、[颜色字段](/zh-cn/components/color-field/)、[一次性验证码字段](/zh-cn/components/one-time-code-field/)。 |
+| 是单独使用的[下拉选择框](/zh-cn/components/select/) | 在它外面套一个字段——或者用把两者合为一个组件的[下拉选择字段](/zh-cn/components/select-field/)。 |
+| 已经是一个字段：文本字段、一次性验证码字段、滑块字段、下拉选择字段，以及任何自带 `supportingText` 的控件 | 只用控件本身。绝不要把它放进字段。 |
+| 用旁边的标签为自己命名：[复选框](/zh-cn/components/checkbox/)、自带标签的开关 | 需要帮助文本或错误时，用一个 `label` 为空的字段。 |
+| 是回答同一个问题的一组控件 | [字段组](/zh-cn/components/field-group/)。 |
+
+经验法则：如果控件有 `supportingText` 属性，它就不需要字段。
+
+### 必填和选填
+
+`requirement` 为 `none`、`required` 或 `optional`：只用一项设置，因为一个控件不可能既必填又选填。
+
+- `required` 把控件暴露为必填，并在标签旁边绘制必填标记。
+- `optional` 绘制一个低调的小标签，并把它的文字加入控件的描述。
+- 两者都不做校验。缺少回答要由你用 `error` 和 `errorText` 来报告。
+
+必填的控件如何标记，是设计系统为每个字段和每一组控件做的一项选择：令牌 `sys.behavior.requirement-mark`，它的取值是 `tag`（一个写着“必填”的实色填充小标签）、`asterisk` 和 `none`。默认系统用小标签来标记。设计系统只要设置这一个令牌，就能一次改变所有表单。字段通过自己的令牌 `comp.field.requirement.mark` 读取它，这个令牌跟随它；只有要让单个字段的标记方式不同于成组的控件时，设计系统才设置这个令牌。`requiredMark` 可以为单个字段覆盖这两者（`tag`、`asterisk` 或 `none`）。
+
+必填和选填小标签就是一个小号的 [Tag](/zh-cn/components/tag/)，必填用 filled，选填用 tonal，仅此而已：字段没有为它准备的令牌。重新设定小号 Tag 样式的设计系统，也就同时重新设定了必填和选填小标签的样式；字段聚焦、处于错误状态或禁用时，它看起来都一样。小标签上的文字是你的：把 `requiredText` 和 `optionalText` 写在字段上，或者用 `setWords()` 为整个产品只给一次。Tanrei 不自带任何文字：没有 `requiredText` 时，小标签的位置上是一个星号；没有 `optionalText` 时，不绘制小标签。
+
+标记两者中较少的那一种。在几乎每一项都必须填写的表单里，标记选填的；在必须填写的很少的表单里，标记必填的。
+
+### 帮助文本和错误
+
+- `supportingText` 说明该怎么填：格式、范围，或者这个值的用途。
+- `errorText` 用文字说明这次回答哪里错了、怎样改正。`error` 为 true 时，它绘制在帮助文本的下方，帮助文本仍然保留。所以不要在其中把帮助文本再写一遍。
+- 带帮助文本的字段处于错误状态时会更高，高出的是错误文本和一小段间隙（`comp.field.error-text.gap`）。错误文本上方的东西都不会动，在错误出现之前也不为它预留空间。没有帮助文本的字段，在帮助文本本该在的位置显示错误文本。
+- 错误文本出现或消失时，计数始终留在第一行的末尾，也就是帮助文本的旁边。
+- 在完成校验之后才设置 `error`，不要在用户还在填写时设置。字段自己绝不会设置它。
+
+### 一个控件
+
+一个字段只框住一个控件，也就是它默认插槽里的那一个元素。有多个时，它只为第一个命名并提供描述，并在调试构建中报告这一点：一组控件应该用字段组。
+
+要禁用字段里的控件，请在字段上禁用，而不是在控件上禁用，这样标签和帮助文本才会随之变化。
+
+### 推荐
+
+- 用几个词写出标签，说明要填的是什么，并让它保持可见。只有当同一个控件在别处已有可见的标签时（例如表格的列标题），才使用 `labelHidden`。
+- 同一列里的字段保持相同的宽度，让标签和控件各自对齐。
+
+### 避免
+
+- 不要把文本字段，或任何自己绘制标签和帮助文本的控件，放进字段。那样会出现两个标签，调试构建也会报告这一点。字段框住的是不带任何附加功能的那个控件：文本输入框。
+- 不要用标签来写操作说明。那是辅助文本的用途。
+- 不要只靠错误的颜色。请把错误写出来。
+
+## 无障碍
+
+<ComponentAccessibility name="field" />
+
+### 组件负责的部分
+
+- 标签就是控件的无障碍名称，无论它是画出来的，还是用 `labelHidden` 隐藏的。自己已有名称的控件保留自己的名称。
+- 控件的描述是帮助文本；字段处于错误状态时，后面接错误文本；控件为选填时，再接 `optionalText`。它们排在控件已有的描述之后。
+- `error` 为 true 时，控件暴露为无效；`requirement` 为 `required` 时，暴露为必填；`disabled` 为 true 时，暴露为禁用。角色没有必填状态的控件（例如滑块），改为在描述里说出 `requiredText`。
+- 自己有错误状态的控件（例如复选框或单选按钮），会以它的错误状态绘制。
+- 焦点位于字段内时出现或改了措辞的错误，会以礼貌（polite）的方式朗读一次：只读错误文本，不再重读帮助文本。焦点绝不会因为错误而移动。
+- 按下标签会把焦点移到控件上，但不会操作控件。
+- 字段不在焦点顺序中增加停靠点，也不处理任何按键。
+- 必填和选填小标签、星号和标签的字形对辅助技术隐藏：它们表达的内容，状态和描述已经说明了。画出来的计数也是如此：控件会描述并朗读自己的计数。
+- 文本放大到 200% 时，标签和辅助文本会换行，不会有任何内容被截断。
+- 在强制颜色模式下，所有文本都采用系统的文本颜色，必填和选填小标签会多出一道边线。这时错误文本和帮助文本看起来一样，要靠它们的文字和先后顺序来区分：帮助文本在前。所以错误必须用文字写出来。
+- 在从右到左的布局中，各行从右侧开始，字形移到标签的右侧，标记移到标签的左侧，每段文本保持自己的方向。
+
+在 Web 上，属性（attribute）用 kebab-case 书写：`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`count-text`。部件是 `label`、`label-icon`、`requirement-label`、`value-text`、`supporting-text`（帮助文本）、`error-text` 和 `counter`。
+
+Web 关联控件的方式：id 无法跨 shadow root 引用，所以字段把自己的文本作为值提供出来。Tanrei 的控件向所在的字段索取这些文本，并写到自己内部的元素上。其他任何元素会收到 `aria-label`（仅当它没有自己的名称时）、`aria-description`、`aria-invalid`、`aria-required` 和 `disabled`，并在离开字段时原样恢复它原有的值。
+
+Web 上的已知差距：
+
+- 描述是用 `aria-description` 提供的，它还没有在每一种屏幕阅读器上验证过；已经有自己的 `aria-describedby` 的元素，也拿不到字段的文本。
+- 在元素定义之前，控件出现在页面上时没有标签和帮助文本。
+
+### 需要你做的事
+
+- 为每个字段提供 `label`，除非控件自己有名称。
+- 自己校验值，设置 `error`，并编写说明如何改正的 `errorText`。
+- 提交失败之后，还要在表单上方说明有多少项回答被拒绝，并逐一链接过去：使用一个带 `live`、处于错误语义状态的[提示块](/zh-cn/components/callout/)。字段无法生成它，因为只有表单知道自己的全部错误。
+- 给出必填和选填的文字：把 `required-text` 和 `optional-text` 写在字段上，或者用 `setWords({ requiredText, optionalText })` 为整个产品只给一次。Tanrei 不自带任何文字；缺少的文字会在开发时报告。参见[产品的文字](/zh-cn/foundations/words/)。
+- 如果你用星号标记必填的控件，请在表单靠近顶部的地方说明一次星号的含义。
+- 对于你自己构建的控件，要确保名称和状态落在它的语义所在之处：要么它把角色放在自己的元素上，让字段写入的属性直接生效；要么由它自己监听并接收这些值（见 Web 包的 README 中的“Field”一节）。

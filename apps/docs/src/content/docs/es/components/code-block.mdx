@@ -1,0 +1,296 @@
+---
+title: Bloque de código
+description: Líneas de código para leer, comparar y copiar, en el tipo de letra de código, que se desplazan dentro del propio bloque o saltan de línea, con una cabecera, números de línea, líneas marcadas, un prompt y un botón de copiar opcionales. Si le das el código y su lenguaje, resalta el código por sí mismo.
+translationOf: components/code-block.mdx
+sourceHash: 3f2cb34d6a6385776faace656f870690072e864d
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+export const runs = (list) => list.map(([text, syntax]) => (syntax ? <span data-syntax={syntax}>{text}</span> : text));
+
+export const footer = `// El pie de un formulario: una acción principal y una salida.
+import { Button } from '@tanrei/react';
+
+type FooterProps = { onSave: () => void; busy: boolean };
+
+export function Footer({ onSave, busy }: FooterProps) {
+  const retries = 3;
+  return (
+    <footer className="footer">
+      <Button variant="text">Cancelar</Button>
+      <Button disabled={busy} onClick={onSave}>Guardar</Button>
+    </footer>
+  );
+}`;
+
+export const given = [
+  ['{', 'punctuation'], ['\n  '], ['"name"', 'property'], [':', 'punctuation'], [' '], ['"acme"', 'string'], [',', 'punctuation'], ['\n  '],
+  ['"dials"', 'property'], [':', 'punctuation'], [' '], ['{', 'punctuation'], [' '], ['"size.unit"', 'property'], [':', 'punctuation'], [' '], ['4', 'constant'], [' '], ['},', 'punctuation'], ['\n  '],
+  ['"compact"', 'property'], [':', 'punctuation'], [' '], ['false', 'constant'], ['\n'],
+  ['}', 'punctuation'],
+];
+
+## Descripción general
+
+<ComponentAvailability name="code-block" />
+
+<DemoFrame label="Un título, una etiqueta de lenguaje y un botón de copiar; el código se resalta a partir de su lenguaje" column>
+  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar">
+    <pre><code>{footer}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+Un bloque de código muestra código que la gente lee, compara y copia. Un nombre o un comando dentro de una frase es [código en línea](/es/components/inline-code/).
+
+**El bloque de código resalta el código por sí mismo.** Dale el código y su `language`, y le da color a partir de tokens: no hay que instalar ningún resaltador ni escribir ningún tema ni ninguna hoja de estilos. Así, el código sigue el esquema, el nivel de contraste y el sistema de diseño como todo lo demás en la página. El resaltado es color y peso, y nada más: los caracteres, las líneas, lo que se selecciona, lo que se copia y lo que lee un lector de pantalla son los mismos con él y sin él.
+
+### Uso
+
+En la web, el código se queda en tu documento, como un `<pre><code>` corriente. Está ahí sin script: para quien lee cuando el script ha fallado, para los buscadores, para la búsqueda en la página. El elemento dibuja el marco a su alrededor. Carga `@tanrei/web/code.css` para dar a un bloque su relleno, sus esquinas, su margen interior y su tipo de letra antes de que el elemento esté definido.
+
+SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <tanrei-code-block
+      title="sizes.js"
+      language="js"
+      language-label="JavaScript"
+      copy
+      copy-label="Copiar"
+      copied-label="Copiado"
+      copy-failed-label="No se pudo copiar"
+    >
+      <pre><code>const sizes = ['small', 'medium', 'large'];</code></pre>
+    </tanrei-code-block>
+
+    <!-- Números, líneas marcadas, un prompt. -->
+    <tanrei-code-block label="Ejemplo" line-numbers start-line="96" highlighted-lines="98, 100-101" highlighted-label="Resaltada">
+      <pre><code>…</code></pre>
+    </tanrei-code-block>
+
+    <tanrei-code-block label="Instalación" prompt="$" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar">
+      <pre><code>npm install @tanrei/web</code></pre>
+    </tanrei-code-block>
+
+    <script type="module">
+      import '@tanrei/web';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CodeBlock } from '@tanrei/react';
+    import '@tanrei/web/code.css';
+
+    {/* El elemento dispone el código en líneas, así que deja que el código sea suyo: pásale el texto. */}
+    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="Copiar" copiedLabel="Copiado" copyFailedLabel="No se pudo copiar" />
+    ```
+  </TabItem>
+</Tabs>
+
+`language` es un identificador (`tsx`, `css`, `sh`): es aquello por lo que el bloque resalta, y no se dibuja. Las palabras de la cabecera son `language-label`. Un bloque construido desde un script define la propiedad `code` en lugar de contener un `<pre><code>`, y el elemento escribe él mismo el `<pre><code>`.
+
+## Especificaciones
+
+<DemoFrame label="Filled y outlined, medium y small" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" label="Ejemplo"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="Números de línea, una línea resaltada y líneas añadidas y eliminadas" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="Resaltada" removed-lines="4" added-lines="5" removed-label="Eliminada" added-label="Añadida" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="Una línea larga se desplaza dentro del bloque, o salta de línea" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="Ejemplo" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>Cancelar</tanrei-button><tanrei-button variant="filled" @click=\${save}>Guardar cambios</tanrei-button></footer>\`;\n\n// La línea de arriba es una sola línea: no cabe y nunca se corta.`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" label="Ejemplo" wrap line-numbers><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>Cancelar</tanrei-button><tanrei-button variant="filled" @click=\${save}>Guardar cambios</tanrei-button></footer>\`;\n\n// La línea de arriba es una sola línea: no cabe y nunca se corta.`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="Un prompt y un límite de líneas visibles" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="Instalación" prompt="$" language="sh" language-label="Shell" copy copy-label="Copiar" copied-label="Copiado" copy-failed-label="No se pudo copiar"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+**Dos aspectos.** `filled` es un relleno discreto, para el código en una página. `outlined` no tiene relleno y va dentro de una línea fina, para el código dentro de una tarjeta o de un panel que ya tienen relleno.
+
+**El cuerpo.** De forma predeterminada, una línea nunca se parte. Una línea que no cabe se desplaza dentro del bloque, y la página nunca se desplaza hacia los lados. `wrap`, en cambio, parte las líneas, y una fila de continuación empieza bajo el código, no bajo los números. `max-lines` limita la altura en líneas, y el resto se desplaza dentro del bloque.
+
+**El botón de copiar** se dibuja siempre, nunca solo al pasar el cursor. Nunca tapa código que no se pueda apartar de él: un cuerpo que se desplaza gana ese mismo espacio en su final, y las filas que saltan de línea se detienen antes de su columna. Copia el código como texto sin formato, sin los números de línea, el prompt, los signos ni las líneas eliminadas. Una selección hecha a mano copia exactamente los caracteres seleccionados.
+
+**Las líneas marcadas** nunca se marcan solo con el color.
+
+| Marca | Barra en el borde izquierdo | Banda | Signo | Se lee antes de la línea |
+| --- | --- | --- | --- | --- |
+| Resaltada | sí | sí | | `highlighted-label` |
+| Añadida | sí | | + | `added-label` |
+| Eliminada | sí | | − | `removed-label` |
+
+Las listas de líneas son números e intervalos separados por comas (`"3, 7-9"`). Cuentan según los números que ve quien lee, a partir de `start-line`.
+
+**De derecha a izquierda.** El código va siempre de izquierda a derecha: las líneas, los números y el inicio del desplazamiento están a la izquierda en todos los diseños. Solo se refleja el marco, de modo que el título pasa a la derecha y el botón de copiar a la izquierda.
+
+<ComponentSpecs name="code-block" />
+
+### Resaltado
+
+El color procede de una de tres fuentes, en este orden.
+
+1. **Los tramos que das tú.** Código resaltado allí donde se generó la página, o por un resaltador que elegiste tú. Se dibujan tal como se dan, y el bloque nunca vuelve a resaltar ese código, digan lo que digan `language` y `highlight`.
+2. **El resaltador propio del bloque**, cuando `highlight` es true, `language` nombra un lenguaje que el bloque conoce y el código no es más largo que `comp.code-block.syntax.max-length` (50&nbsp;000 caracteres).
+3. **Sin resaltar**, en todos los demás casos.
+
+El código se dibuja enseguida, sin resaltar. Sus colores llegan un momento después, en un solo fotograma, y no mueven nada. El código que cambia se vuelve a leer, y el código que crece por el final conserva los colores que ya tiene.
+
+| `language` | Qué ocurre |
+| --- | --- |
+| `html`, `xml`, `svg`, `css`, `javascript` (`js`, `mjs`, `cjs`, `jsx`), `typescript` (`ts`, `tsx`), `json` (`jsonc`), `shell` (`sh`, `bash`, `zsh`), `swift`, `kotlin` (`kt`), `dart` | Se resalta. No se distingue entre mayúsculas y minúsculas. |
+| vacío, `text`, `plain`, `plaintext` | Sin resaltar. No se notifica nada. |
+| cualquier otro valor | Sin resaltar. Una compilación de depuración notifica una vez el lenguaje desconocido. |
+
+El bloque nunca adivina el lenguaje: ni por el código, ni por el `title`, ni por el `language-label`. Un código corto es ambiguo, y una suposición equivocada colorea mal el código.
+
+**Cómo desactivarlo.** `highlight="false"` desactiva el resaltador propio del bloque para un solo bloque. Los tramos que das tú se siguen dibujando.
+
+**Un límite.** El código más largo que `comp.code-block.syntax.max-length` se dibuja sin resaltar, entero, nunca resaltado a medias. Un sistema de diseño puede cambiar el valor.
+
+**Con líneas añadidas y eliminadas**, el bloque lee el código como los dos textos que contiene: el código posterior al cambio da color a las líneas que no están eliminadas, y el código anterior al cambio, a las eliminadas. Una línea eliminada que abre una cadena no puede colorear mal lo que sigue.
+
+**Los fallos son silenciosos.** Un resaltador que no se puede cargar, que lanza una excepción o cuyos tramos, unidos, no coinciden exactamente con el código deja el código sin resaltar. La cabecera, el botón de copiar, las líneas y las marcas siguen funcionando.
+
+Las gramáticas son pequeñas a propósito. Están pensadas para mostrar código, no para editarlo. Donde un lenguaje es difícil pueden poner un tramo en el color equivocado, pero nunca pierden un carácter.
+
+### Resaltar donde se genera la página
+
+Un sitio que genera sus páginas puede resaltar durante la compilación. Los colores están entonces en el primer pintado, y el navegador no carga ningún resaltador. `highlightToHtml` es la misma función que usa el elemento, y se ejecuta en Node.
+
+```js
+import { highlightToHtml } from '@tanrei/web/highlight';
+
+const html = await highlightToHtml(source, 'tsx');
+// <tanrei-code-block language="tsx"><pre><code data-syntax-of="tsx">${html}</code></pre></tanrei-code-block>
+```
+
+`data-syntax-of` en el `<code>` dice que el código ya está resaltado. El elemento lo dibuja tal como se da y no importa nada.
+
+### Tu propio resaltador
+
+`@tanrei/web/highlight` es un módulo independiente, sin dependencias. El elemento lo importa la primera vez que un bloque lo necesita, y la gramática de cada lenguaje, la primera vez que se pide ese lenguaje.
+
+| Exportación | Qué hace |
+| --- | --- |
+| `highlight(code, language)` | Los tramos, o `null` para un lenguaje que no conoce. Una promesa la primera vez que se usa un lenguaje, y un valor después. |
+| `highlightToHtml(code, language, { lines })` | El HTML interno del `<code>`. Con `lines`, un `<span data-line>` por línea. |
+| `registerLanguage(names, grammar)` | Añade un lenguaje o sustituye uno. Una gramática son datos: estados con nombre, cada uno una lista de reglas con un patrón, un rol y el estado en el que se entra o del que se sale. Puede ser una función que importa la gramática. |
+| `loadLanguage(language)` | Carga una gramática antes de que llegue el primer código en ese lenguaje. |
+| `setHighlighter(fn)` | Sustituye el resaltador entero. `null` desactiva el resaltado automático en la página. |
+| `languages()` | Todos los nombres por los que se conoce un lenguaje. |
+| `foldScope(scopes, text)` | El rol que corresponde a un nombre de ámbito separado por puntos, según la tabla de más abajo. |
+| `tokenize(grammar, code)`, `checkGrammar(grammar)` | Para probar una gramática que escribas tú. |
+
+Un producto que ya tiene un resaltador de su confianza también puede definir `TanreiCodeBlock.highlighter` como una función `(code, language, signal) => runs`. El bloque pregunta entonces a esa función, y el módulo de Tanrei no se carga nunca.
+
+### Roles de sintaxis
+
+| Rol (`data-syntax`) | Qué es | En el sistema predeterminado |
+| --- | --- | --- |
+| `comment` | Un comentario, un comentario de documentación | Más discreto que el código |
+| `keyword` | Una de las palabras propias del lenguaje: una palabra clave, un modificador, una regla-at, una anotación, un operador escrito como palabra | Morado, un paso de peso más grueso |
+| `string` | Texto escrito en el código: una cadena, un carácter, una expresión regular, el valor de un atributo de marcado | Verde |
+| `constant` | Un valor que no es texto: un número, un booleano, null, una constante con nombre, una unidad, un valor de color, una secuencia de escape | Naranja |
+| `function` | El nombre de una función o de un método, declarado o llamado | Azul |
+| `type` | El nombre de un tipo: una clase, una estructura, una interfaz, un tipo integrado, un espacio de nombres | Verde azulado |
+| `tag` | Aquello a lo que se dirigen el marcado y las hojas de estilos: el nombre de un elemento, el nombre de un componente en el marcado, un selector | Rojo |
+| `property` | Un nombre que pertenece a algo: una propiedad, una clave, un atributo de marcado, una propiedad de estilo, la opción de un comando | Azul, de un tono más cercano al color del código |
+| `punctuation` | Corchetes, llaves y paréntesis, separadores, los delimitadores del marcado | Más discreto que el código |
+| sin rol (sin span) | Todo lo demás: variables, parámetros, operadores escritos como signos, texto entre etiquetas | El color del código |
+
+Cada rol tiene dos tokens: un color (`comp.code-block.syntax.color.*`) y un paso de peso (`comp.code-block.syntax.emphasis.*`). Los roles son un eje de tokens, así que un sistema de diseño puede añadir uno. El verde y el rojo del sistema predeterminado proceden de paletas propias de la sintaxis, de un matiz cercano al de los colores de éxito y de error. Una línea añadida o eliminada se distingue por su barra, su signo y su etiqueta, nunca solo por el color. Un rol solo cambia el color y el peso, de modo que el código resaltado y el código sin resaltar tienen las mismas líneas y columnas.
+
+Un tramo es un `<span data-syntax="…">` dentro del `<code>`. El texto que queda fuera de un span es texto sin rol.
+
+<DemoFrame label="Los tramos que das tú se dibujan tal como se dan" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="Ejemplo">
+    <pre><code>{runs(given)}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+### Cómo reducir los ámbitos de un resaltador a los roles
+
+Algunos resaltadores nombran lo que encuentran con nombres de ámbito (scopes) separados por puntos, tomados de un vocabulario común. `foldScope` los reduce a los roles, para que tu resaltador y el de Tanrei den los mismos colores. Los ámbitos de un token se prueban del más específico hacia fuera. Dentro de un mismo ámbito gana la primera fila que coincide. Un ámbito que no coincide con ninguna fila se pasa por alto, y un token que no coincide con nada queda sin rol.
+
+| # | El ámbito empieza por | Rol |
+| --- | --- | --- |
+| 1 | `comment`, `punctuation.definition.comment` | `comment` |
+| 2 | `constant.character.escape`, `constant.numeric`, `constant.language`, `constant.other`, `keyword.other.unit`, `support.constant`, `variable.other.constant`, `variable.other.enummember` | `constant` |
+| 3 | `string`, `punctuation.definition.string`, `markup.inline.raw`, `markup.raw` | `string` |
+| 4 | `entity.name.tag`, `support.class.component`, `meta.selector` y, en las hojas de estilos, `entity.other.attribute-name` | `tag` |
+| 5 | `entity.other.attribute-name`, `support.type.property-name`, `meta.property-name`, `meta.object-literal.key`, `variable.other.property`, `variable.other.object.property`, `support.type.vendored.property-name`, `variable.parameter.option` | `property` |
+| 6 | `entity.name.function`, `support.function`, `variable.function`, `meta.function-call.generic` | `function` |
+| 7 | `entity.name.type`, `entity.name.class`, `entity.name.namespace`, `entity.other.inherited-class`, `support.type`, `support.class`, `storage.type.primitive`, `storage.type.built-in`, `keyword.type` | `type` |
+| 8 | `keyword.operator` cuyo texto está formado por letras (`new`, `typeof`, `in`) | `keyword` |
+| 9 | `keyword.operator` en los demás casos | sin rol |
+| 10 | `keyword`, `storage`, `variable.language`, `meta.decorator`, `punctuation.decorator`, `entity.name.function.decorator`, `markup.heading` | `keyword` |
+| 11 | `punctuation`, `meta.brace`, `meta.delimiter` | `punctuation` |
+| 12 | `variable`, `meta`, `source`, `text`, `markup`, `invalid` | sin rol |
+
+- Las comillas de una cadena forman parte de la cadena. Una secuencia de escape dentro de una cadena es una constante.
+- Las claves de JSON son propiedades, y sus valores, cadenas y constantes.
+- El nombre de un decorador es una palabra clave.
+- `invalid` queda sin rol. Un componente que muestra código no lo juzga.
+- Añadida y eliminada son propiedades de una línea (`added-lines`, `removed-lines`), no de un tramo.
+
+### Qué dibuja la web de otra manera
+
+- El elemento da una caja a cada línea envolviéndola en `<span data-line>`. Mueve tus nodos y divide el texto y los tramos en los saltos de línea, y no añade ningún carácter al código. Un framework que es dueño de los hijos del `<code>` debería pasar `code` en su lugar, o renderizar `[data-line]` él mismo.
+- La etiqueta de una línea marcada es un `<span>` oculto situado antes del código de la línea. Forma parte del `textContent` del `<code>`, y queda fuera de lo que se copia.
+- El aspecto outlined se dibuja sobre aquello en lo que se coloca. Donde eso no sea el color de superficie, indícalo en `--tanrei-code-block-ground`, para que los números de línea y el botón de copiar puedan apoyarse en él mientras el código se desplaza por debajo.
+- Antes de que el elemento esté definido, `code.css` dibuja el relleno, las esquinas, el margen interior y los colores de los tramos. La cabecera, el botón de copiar, los números y las marcas necesitan el elemento.
+- `highlight` es true de forma predeterminada, así que su atributo se escribe para desactivarlo: `highlight="false"`. La propiedad acepta un booleano.
+- El elemento escribe sus propios tramos como spans dentro de tu `<code>`, línea a línea, y los marca como suyos. Un framework que es dueño de los hijos del `<code>` debería pasar `code` y dejar que el elemento los escriba.
+- El límite se lee de la propiedad personalizada `--tanrei-comp-code-block-syntax-max-length`, tal como la cascada se la da al bloque.
+- Una página que usa el paquete de un solo archivo lleva el resaltador dentro. Una página que importa `@tanrei/web` como módulos lo carga bajo demanda.
+
+## Pautas
+
+### Recomendado
+
+- Da un `title` o un `label` a un bloque que pueda desplazarse. El cuerpo que se desplaza es una parada de foco y necesita un nombre.
+- Usa `outlined` dentro de una tarjeta o de un panel, y `filled` en una página y sobre un contenedor de color.
+- Usa un prompt para un bloque de comandos que hay que escribir. El prompt no se copia.
+- Da a cada bloque su `language`. Usa `language="text"` para un texto que no tiene sintaxis.
+- Pon varios archivos o lenguajes en [pestañas](/es/components/tabs/), cada una con un bloque de código.
+
+### Evita
+
+- No uses un bloque de código para un nombre dentro de una frase. Usa código en línea.
+- No dependas de los colores de la sintaxis para decir algo. El mismo código dibujado sin resaltar debe decir lo mismo.
+- No mezcles comandos y su salida bajo un mismo prompt. Todas las líneas que no están vacías reciben el prompt. Usa dos bloques.
+
+## Accesibilidad
+
+<ComponentAccessibility name="code-block" />
+
+### De qué se encarga el componente
+
+- El código es el elemento `code` dentro de un grupo que recibe su nombre de `title`, o de `label`.
+- Un cuerpo que puede desplazarse es una parada en el orden del foco, después del botón de copiar, y se desplaza con las teclas de flecha. Un cuerpo que cabe no es una parada, así que una página de ejemplos cortos no añade ninguna.
+- Los números de línea, los signos, las barras y el prompt quedan ocultos para la tecnología de apoyo. A una línea marcada la precede su etiqueta, con palabras.
+- La página nunca se desplaza hacia los lados por un bloque de código, con 320 de ancho y con el texto al doble de tamaño.
+- Con colores forzados, todos los aspectos ganan un borde, todo el código tiene el color del texto, y las barras y los signos se mantienen.
+- El resaltado no añade nada para la tecnología de apoyo. No se expone ningún rol, y los colores que llegan no se anuncian. La selección, el foco y la posición de desplazamiento se conservan.
+- Con una deficiencia de la visión del color rojo-verde, algunos de los seis matices se acercan entre sí, primero el verde de una cadena y el rojo del nombre de una etiqueta. Las palabras clave se distinguen además por el peso.
+
+### Qué debes hacer tú
+
+- Proporciona `copy-label`, `copied-label` y `copy-failed-label` junto con `copy`, y la etiqueta de cada marca que uses, en el idioma de tu producto.
+- Di en el texto que rodea al bloque qué muestra una línea resaltada. La etiqueta solo dice que está resaltada.

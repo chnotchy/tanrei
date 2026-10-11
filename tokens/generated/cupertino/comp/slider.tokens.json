@@ -1,0 +1,416 @@
+{
+  "tanrei": {
+    "comp": {
+      "slider": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets people choose a value, or a range of values, along a track by dragging a handle — continuous or in steps, from the start or from a middle value, at more than one weight — enabled and disabled.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "standard"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "state-layer.color": "color",
+              "handle.color": "color",
+              "handle.width": "dimension",
+              "handle.elevation": "shadow",
+              "handle-outline.color": "color",
+              "track.color": "color",
+              "active-track.color": "color",
+              "stop-indicator.color": "color",
+              "active-stop-indicator.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a slider reads: per size (small, medium, large) the track's thickness and corners, the handle's height and the stop dots' size; the round state layer's size and shape, the handle's corners and outline width, the gap around a handle, the value indicator's geometry, colors and text style, the motion; and for its one condition (standard) the colors of the state layer, the handle's fill and outline, the track, the active track and the stop dots, the handle's width and elevation, in each state.",
+            "rules": [
+              "The handle must be told apart from the track, the active track and the surface, each by its outline or its fill at 3:1 or more; the active track must stay at least 3:1 against the track and the surface: the value is read from them.",
+              "The handle's fill covers its whole shape and its outline is drawn over the fill, inside the handle's edge: the outline never makes the handle larger, and an outline width of 0 draws none.",
+              "A stop dot on the active track and one on the track have their own colors; each must be seen on the part it lies on, disabled too.",
+              "The state layer (container) is a circle centered on the handle, invisible at rest; a size of 0 draws none.",
+              "handle.width is along the track, handle.height across it: equal values with full corners draw a round handle, a narrow width draws a bar.",
+              "track.gap 0 lets the track and the active track meet under the handle's center; above 0 the tracks stop that far from the handle's edge.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "standard.state-layer.color is the color hover, focus and press mix into the container; it aliases the handle's outline color, the handle's strong color."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "small",
+              "values": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "members": [
+                "track.thickness",
+                "track.shape",
+                "handle.height",
+                "stop-indicator.size"
+              ]
+            },
+            "condition": {
+              "default": "standard",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The diameter of the round state layer centered on each handle. It sets how far the track is inset from the slider's ends, so that a handle and its state layer stay inside the slider at min and max. 0 draws no state layer.",
+            "$value": {
+              "value": 32,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 8
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}"
+          }
+        },
+        "track": {
+          "thickness": {
+            "$type": "dimension",
+            "$description": "The track's extent across its axis, per size.",
+            "small": {
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 1
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 6,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 1.5
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 8,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 2
+                }
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$description": "The corners of the track's and the active track's ends, per size, clamped to half the thickness.",
+            "small": {
+              "$value": "{tanrei.sys.shape.corner.full}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.shape.corner.full}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.shape.corner.full}"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Empty track on each side of a handle, from the handle's edge. 0 in Tanrei: the track and the active track run under the handle and meet at its center, so the active track reads as one with the handle. A system that sets a bar handle apart from a thick track raises it.",
+            "$value": "{tanrei.sys.space.space0}"
+          }
+        },
+        "handle": {
+          "height": {
+            "$type": "dimension",
+            "$description": "The handle's extent across the track, per size. Its extent along the track is the condition's handle.width. In Tanrei both are 20, so the handle is a circle of that diameter.",
+            "small": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 7
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 7
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 7
+                }
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$description": "The handle's corners, clamped to half its smaller side.",
+            "$value": "{tanrei.sys.shape.corner.full}"
+          }
+        },
+        "handle-outline": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product may draw its handle as a ring: a light fill that sets it apart from the active track, inside an outline in the active track's color that sets it apart from the page and the track. One color cannot stand out against all three, so the outline and the fill are separate.",
+              "since": "0.1.0"
+            }
+          },
+          "width": {
+            "$type": "dimension",
+            "$description": "The width of the handle's outline, drawn over its fill inside the handle's edge, so the handle keeps its width and height: a wider outline grows inward. Three stroke units in Tanrei, one more than sys.border.thick: on a 20 handle a 2 ring reads thin beside the track it ends, and 3 leaves a 14 disc of fill, still clearly a ring. 0 draws no outline.",
+            "$value": "{tanrei.sys.space.space0}",
+            "$extensions": {}
+          }
+        },
+        "stop-indicator": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The diameter of a stop dot, per size: at an end of the handle's travel that lies on the track, and at every step while stops is true. Half the track's thickness in Tanrei, so a dot sits inside the track with a margin on each side. 0 draws none.",
+            "small": {
+              "$value": "{tanrei.sys.space.space0}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space0}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space0}",
+              "$extensions": {}
+            }
+          }
+        },
+        "value-indicator": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-surface}"
+            },
+            "height": {
+              "$type": "dimension",
+              "$description": "The value indicator's minimum height; it is never narrower than it is high.",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.small}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-on-surface}"
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.label-small}"
+            }
+          },
+          "offset": {
+            "$type": "dimension",
+            "$description": "Between the handle's outer edge across the track (the top of a round handle, its outline included) and the value indicator.",
+            "$value": "{tanrei.sys.space.space100}"
+          }
+        },
+        "standard": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The round state layer is invisible at rest."
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.slider.standard.handle-outline.color}",
+              "$description": "The color hover, focus and press mix into the container: the handle's outline color. The fill is the surface's color in Tanrei and would not show on it."
+            }
+          },
+          "handle": {
+            "color": {
+              "$type": "color",
+              "$description": "The handle's fill: its whole shape, under its outline. The surface's color in Tanrei, so the handle stands out from the active track that runs under it.",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  1,
+                  1,
+                  1
+                ],
+                "alpha": 1,
+                "hex": "#ffffff"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "UISlider's thumb is white in every appearance and contrast, lifted by its shadow. on-primary turns near-black in cupertino's increased-contrast dark schemes, where the thumb would vanish into the black page."
+                }
+              }
+            },
+            "width": {
+              "$type": "dimension",
+              "$description": "The handle's extent along the track. Equal to handle.height in Tanrei, so the handle is round.",
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 7
+                }
+              }
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level2}",
+              "$extensions": {}
+            }
+          },
+          "handle-outline": {
+            "color": {
+              "$type": "color",
+              "$description": "The handle's outline. The active track's color in Tanrei, so the active track and the handle read as one, and the handle stands out from the track and the page by it.",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "track": {
+            "color": {
+              "$type": "color",
+              "$description": "The track where it is not active: the rest of the range.",
+              "$value": "{tanrei.sys.color.surface-container-highest}",
+              "$extensions": {}
+            }
+          },
+          "active-track": {
+            "color": {
+              "$type": "color",
+              "$description": "The part of the track from the origin to the value, or between a range's handles.",
+              "$value": "{tanrei.sys.color.primary}",
+              "$extensions": {}
+            }
+          },
+          "stop-indicator": {
+            "color": {
+              "$type": "color",
+              "$description": "A stop dot that lies on the track.",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "active-stop-indicator": {
+            "color": {
+              "$type": "color",
+              "$description": "A stop dot that lies on the active track.",
+              "$value": "{tanrei.sys.color.on-primary}"
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the ripple takes to spread from the handle's center when sys.behavior.pressed-feedback is ripple."
+          },
+          "value-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$description": "How long the handle takes to reach a value set by a key, assistive technology, a tap on the track or the product. A drag follows the press without it."
+          },
+          "value-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}"
+          }
+        }
+      }
+    }
+  }
+}

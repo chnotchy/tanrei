@@ -1,0 +1,835 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "steps",
+  "title": "Steps",
+  "summary": "Sets a procedure out as numbered steps — each a ring with its number, an optional title and a body of the product's content, joined to the next by a hairline — for a reader to work through in order; an ordered list to read, never a control and never a record of progress.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "list",
+      "description": "The ordered list itself: one column of steps, as wide as its container gives it. It has no fill, no edge, no padding and no state of its own, and it brings no text color."
+    },
+    {
+      "id": "step",
+      "description": "One item of the list: its marker at the start, and beside it its content — a title, where it has one, and a body. A step has no state: none is current, done or failed."
+    },
+    {
+      "id": "marker",
+      "description": "What begins a step: a ring in the system's one hairline holding the step's number. At least as high and as wide as the marker's height of the size; a circle in the default system, widened into a pill by a number too long for one. The ring is decorative; the number is the step's number, exposed once with the list item."
+    },
+    {
+      "id": "connector",
+      "description": "The line from a step's marker to the next step's: the same hairline, on the marker column's centre line, kept a small distance from both rings. It shows that the steps are one sequence and where a step of several blocks ends. Decorative. The last step has none.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "A step's name, in a few words (\"Install\", \"Say where each output goes\"), set at the body's size in a heading weight. Text of its step and not a heading, unless the product gives a heading of its own as the title.",
+      "optional": true
+    },
+    {
+      "id": "body",
+      "description": "A step's content: what the product puts in it. Text placed directly takes the body's text style; long-form blocks are set as prose; a block that is not text — a code block, a table, tabs — takes the body's whole width.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The list's accessible name, in the product's language (\"Installing the package\"). Not drawn. Give one where no heading directly before the steps already says what the procedure is."
+    },
+    {
+      "name": "start",
+      "type": "number",
+      "default": 1,
+      "description": "The number of the first step; each following step's number is one more. For a procedure that a note, a heading or a choice between tabs interrupts and that continues in a second set of steps (\"4, 5, 6\"). A whole number."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "The size of the steps' text, in prose's two sizes. Medium sets the body in the interface's own text style, for steps among controls: a panel, a dialog, a card. Large sets it in the style for long reading, for a page whose purpose is the text. Steps inside a prose are given that prose's size. A design system may add values.",
+      "axis": "tanrei.comp.steps.size"
+    }
+  ],
+  "items": [
+    {
+      "name": "step",
+      "summary": "One step of the procedure: an optional title and a body. Its number comes from its place in the list and from start, never from a prop of its own.",
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "default": "",
+          "description": "The step's name, in a few words. Plain text: drawn first in the step, read with the step, and not a heading. A title that is a heading of the page is given in the title slot instead."
+        }
+      ],
+      "slots": [
+        {
+          "name": "title",
+          "description": "The title as content of the product's own: a heading of the level the page's outline needs (so the step is in the page's table of contents and can be linked to). Drawn in the title's text style whatever its level; its role and level are kept. Takes the place of the title prop."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "STP-1",
+      "text": "THE steps SHALL lay out its steps in one column, in the order they are given, each step a row of two parts: its marker, in a column at the steps' start edge, and its content — its title, where it has one, and its body — beside it. The marker column SHALL be as wide as the widest marker of the set and never narrower than the marker's height of the size (comp.steps.marker.height.medium for medium, comp.steps.marker.height.large for large), each marker centred in it; every step's content SHALL begin at one edge, comp.steps.marker.gap after that column, and run to the steps' end edge. THE steps SHALL separate the end of one step from the beginning of the next by comp.steps.step.gap, SHALL give the first step no space before it and the last step no space after it, and SHALL draw no fill, no edge around itself and no elevation.",
+      "verify": "Under the default system the content of a medium step begins 36 from the steps' start edge (24 and 12) and of a large one 40 (28 and 12); two one-line medium steps are 16 apart, and the set is exactly as tall as its steps and the gaps between them. In the fixture two-digits the three contents (steps 9, 10 and 11) begin at the same edge."
+    },
+    {
+      "id": "STP-2",
+      "text": "THE steps SHALL draw each step's marker as a ring with the step's number at its centre: a box at least comp.steps.marker.height.medium high and wide for medium (comp.steps.marker.height.large for large), with corners comp.steps.marker.shape, never larger than half the box's height and eased by sys.shape.corner-smoothing, no fill, and an edge comp.steps.marker.outline.width wide in comp.steps.marker.outline.color drawn inside the box's size; the number SHALL be set on one line in comp.steps.marker.label.typescale.medium for medium (comp.steps.marker.label.typescale.large for large), in the content color of the surface the steps sit on, with at least comp.steps.marker.padding-inline between it and the ring at the start and at the end, so that a number too long for a circle widens its marker into a pill and is never cut.",
+      "verify": "Under the default system the markers of the fixtures short and two-digits are circles 24 across; in three-digits the marker of 99 is a circle and those of 100 and 101 are pills 24 high, and the three contents still share one edge (STP-1)."
+    },
+    {
+      "id": "STP-3",
+      "text": "THE steps SHALL place each marker at the top of its step with its centre on the centre of the step's first line of text — the title's first line where the step has a title, else the first line of the body; WHERE the marker is taller than that line THE steps SHALL lower the step's content by half the difference, so that the marker's top is the step's top and no marker reaches into the space above its step; WHERE a step begins with a block that is not text (a code block, a table, a picture) THE steps SHALL place the marker's top on that block's top.",
+      "verify": "Under the default system a medium step without a title has a first line 22 high and a marker 24 high: the text begins 1 below the step's top. With a title (a line 20 high) it begins 2 below."
+    },
+    {
+      "id": "STP-4",
+      "text": "THE steps SHALL number its steps in order: the first step's number is start and each following step's is one more than the one before it. THE number SHALL be written as a whole number in the digits 0 to 9, with no period, bracket or other mark beside it and no word before it. WHEN a step is added, removed or moved, or start changes, THE steps SHALL draw every step's new number at once, without a motion.",
+      "verify": "The fixture start draws 4, 5 and 6. A test inserts a step before the second of three and reads 1, 2, 3, 4."
+    },
+    {
+      "id": "STP-5",
+      "text": "WHILE a step is followed by another step THE steps SHALL draw a connector between their two markers: a straight line comp.steps.connector.thickness thick in comp.steps.connector.color, on the centre line of the marker column, from comp.steps.connector.gap below the upper marker's bottom edge to comp.steps.connector.gap above the lower marker's top edge, through the space between the two steps, however tall the upper step's content is. THE steps SHALL draw no connector after the last step and none for a set of one step; a connector SHALL take no room in the layout, SHALL never be drawn over a marker or over a step's content, and SHALL be kept from assistive technology.",
+      "verify": "Under the default system the connector between two one-line medium steps is 8 long (16 between the markers, 4 kept at each end). The fixture single draws none. In long-bodies each connector is as long as its step's wrapped text."
+    },
+    {
+      "id": "STP-6",
+      "text": "WHERE a step has a title THE steps SHALL draw it first in the step's content, in comp.steps.title.typescale.medium for medium (comp.steps.title.typescale.large for large) and the content color of the surface the steps sit on, SHALL wrap it and never cut it, and SHALL begin the step's body comp.steps.title.gap below it. A title given as text SHALL be exposed as text of its step and SHALL NOT be a heading; WHERE the product gives the title as content of its own in the step's title slot — a heading of the level its page's outline needs — THE steps SHALL draw it as any title, in the same text style whatever its level, and SHALL change neither its role nor its level. A step with a title and no body SHALL be drawn as its marker and its title alone.",
+      "verify": "The fixture titles-as-headings gives level 4 headings: each is drawn in the title's text style, not in the heading role of level 4, and is still exposed as a heading of level 4. The fixture titles-only has no bodies."
+    },
+    {
+      "id": "STP-7",
+      "text": "THE steps SHALL draw the content a step is given as that step's body and SHALL give it comp.steps.body.typescale.medium for medium (comp.steps.body.typescale.large for large) as the text style its text takes where nothing inside sets another. THE steps SHALL give the body no color of its own: its text takes the content color of the surface the steps sit on, so the same steps read on a page, in a card and in a callout. The body SHALL wrap and SHALL never be cut or limited to a number of lines. WHERE the body holds more than one block THE steps SHALL separate two blocks that follow each other by comp.steps.body.gap, whatever they are, and SHALL give the first block no space before it and the last block no space after it; the body's long-form blocks — paragraphs, lists, a quote — SHALL otherwise be set as prose of the steps' size sets them (PRS-1 to PRS-3, PRS-19), a link in them SHALL be underlined at rest (PRS-17), and THE steps SHALL add no style to anything inside a component placed in a body.",
+      "verify": "In the fixture with-code the paragraph of each step and the code block under it are 8 apart under the default system, and the next step's marker begins 16 below the code block."
+    },
+    {
+      "id": "STP-8",
+      "text": "THE steps SHALL give every block of a body that is not text — a code block, a table, a set of tabs, a callout, a figure or a picture, any component — the whole inline size of the body, from the edge every step's content begins at (STP-1) to the steps' end edge, and such a block SHALL scroll inside its own box when its content cannot shrink (PRS-15). WHILE the steps sit in a prose that keeps a measure THE steps themselves SHALL take that prose's full width as a block that is not text (PRS-18), and the text blocks of a body SHALL be kept no wider than comp.prose.measure times their font size, from the body's start edge; WHERE the steps sit outside a prose, or in one without a measure, every block of a body SHALL take the body's full inline size.",
+      "verify": "The fixtures in-prose and with-code are built in a prose 720 wide with a measure: the paragraphs of in-prose end at the measure, counted from the content's start edge, and the code blocks of with-code end at the prose's end edge."
+    },
+    {
+      "id": "STP-9",
+      "text": "WHERE a step's body holds a list THE steps SHALL leave it a list of prose, nested one depth below the steps: an ordered list is marked with lowercase letters and an unordered one with a ring (PRS-9's second depth), set in by prose's own inset from the body's start edge, so that sub-steps never repeat the steps' numbers and never draw markers or connectors of their own. WHERE the product places a set of steps inside a step's body THE steps SHALL draw it as a set of its own, numbered from its own start and laid out in the body's width, and in debug builds SHALL report that steps are nested.",
+      "verify": "The fixture nested-list draws a, b, c in the second step and three rings in the third."
+    },
+    {
+      "id": "STP-10",
+      "text": "THE steps SHALL lay itself out as a block in the flow of its container: it SHALL take the whole inline size the container gives it, with its start edge on the start edge of the text around it; it SHALL bring no outer space of its own (PRS-15: the space between it and its neighbours is its container's), SHALL never be wider than its container, SHALL have no minimum width and no maximum width, and SHALL NOT scroll.",
+      "verify": "Test a set of steps inside a callout's body and inside a tab's panel, each 320 wide: the markers begin at the container's text edge and nothing overflows."
+    },
+    {
+      "id": "STP-11",
+      "text": "THE steps SHALL NOT take pointer, touch or keyboard input, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything they draw under a pointer, a press or focus: a step has no current, completed, error, hovered, focused, pressed, selected or disabled state, a marker is not a control, and the steps emit no event. What the product places in a body — a link, a code block's copy button, tabs — takes input by its own spec, and text in a title and a body SHALL remain selectable where the platform lets text be selected."
+    },
+    {
+      "id": "STP-12",
+      "text": "THE steps SHALL be exposed to assistive technology as an ordered list of as many items as it has steps, named by label where label is not empty, and each step as one item of that list holding, in this order, its number, its title and its body. Each step's number SHALL be exposed exactly once, as the item's number, and SHALL be the number the marker draws (STP-4), also where start is not 1; the ring and the connector SHALL be kept from assistive technology. THE steps SHALL NOT expose a step as current, done or failed, and SHALL add no role to a title or to anything in a body.",
+      "verify": "With a screen reader on the web's three engines and on each native platform: the fixture start is announced as a list of three items whose items are read as 4, 5 and 6 with their titles; no number is read twice and none is missing."
+    },
+    {
+      "id": "STP-13",
+      "text": "WHEN label, a step's title or a step's body changes THE steps SHALL draw and expose the new value at once, without a motion, and SHALL NOT announce the change by itself."
+    },
+    {
+      "id": "STP-14",
+      "text": "WHILE the text size is enlarged THE steps SHALL grow each number, title and body with it and grow each marker with its number, keeping the marker's height of the size as a minimum; THE steps SHALL keep comp.steps.marker.gap, comp.steps.step.gap, comp.steps.title.gap, comp.steps.body.gap and comp.steps.connector.gap as they are, wrap, set no fixed height on a step, lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %, except inside a block that scrolls in its own box (STP-8).",
+      "verify": "Test the fixtures titles and with-code at 200 % text in a stage 320 wide: every word is visible, each marker holds its number inside its ring, every connector still joins two markers, and only a code block scrolls sideways."
+    },
+    {
+      "id": "STP-15",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE steps SHALL draw each ring and each connector in the platform's text color at their own widths, and each number, title and body in that text color; nothing the steps draw relies on a fill.",
+      "verify": "On the web, with forced colors emulated: every fixture's rings and connectors are CanvasText and every number is readable inside its ring."
+    },
+    {
+      "id": "STP-16",
+      "text": "WHERE the layout direction is right-to-left THE steps SHALL mirror its two parts and apply its spaces by logical start and end, so that the marker column and the connectors are at the right and each step's content is at its left, beginning at one edge and running to the steps' left edge; a body's blocks that are not text SHALL still take the body's whole inline size (STP-8)."
+    },
+    {
+      "id": "STP-17",
+      "text": "THE steps SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the steps are shown THE steps SHALL draw themselves for the new direction at once, without a motion of their own, keeping what they show.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "STP-18",
+      "text": "THE steps SHALL draw a step's number as a left-to-right run whose digits are never reversed, in every layout direction, and SHALL lay out a title given as text as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a command, a file's name and a version keep their own order in a right-to-left layout and reorder nothing beside them; THE steps SHALL still place the title and align its lines by the layout direction, not by the text's own. The body's blocks are laid out as prose lays out a block (PRS-25): each by its own first strong character unless the content states a direction, with its lines aligned to the start edge of the layout.",
+      "verify": "The fixture rtl-two-digits draws 9, 10 and 11, each read left to right, at the right of its step. The fixture ltr-title-rtl draws left-to-right titles that begin at the right edge of the content and read left to right."
+    },
+    {
+      "id": "STP-19",
+      "text": "WHEN size names a value that the active design system does not have THE steps SHALL render with the default size's tokens, and in debug builds report the unknown value. IF start is not a whole number THE steps SHALL number from 1 and in debug builds report it; a start of zero or below is a whole number and is drawn as it is."
+    },
+    {
+      "id": "STP-20",
+      "text": "IF the steps hold no step THE steps SHALL draw nothing, take no space and expose nothing, and in debug builds report that a set of steps is empty. IF a step has neither a title nor a body THE steps SHALL still draw its marker, count it in the numbering and in the list's items, and in debug builds report that a step is empty: a number is never skipped, so the numbers a reader sees are the numbers the content has."
+    }
+  ],
+  "accessibility": {
+    "role": "list",
+    "keyboard": [],
+    "labeling": "An ordered list, named by label where the product gives one; where a heading directly before the steps says what the procedure is, no label is needed. Each step is a list item read as its number, its title and its body, in that order. The number is the list item's own and is read once; the ring and the connector are decorative and hidden. A title is text of its item, or the product's own heading where the product gave one.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the steps take no input and no focus (STP-11), so there is no target of their own to size and minimumTarget holds trivially. What is pressable inside a body — a link, a copy button, tabs — meets the minimum target by its own spec.",
+      "Order is carried by structure, not by the drawing: the steps are an ordered list whose items have numbers (STP-12), so a reader who does not see the rings and the connector loses nothing. That is also why forced colors and a missing stylesheet cost nothing but the look.",
+      "The number a person hears is the number a person sees (STP-12), also for a set that continues another with start. A platform whose list semantics would announce a position (\"1 of 3\") in place of the drawn number adds the number to the item's text instead of relying on the position.",
+      "Contrast is the surface's: the steps bring no text color (STP-2, STP-6, STP-7), so the number, the title and the body have the contrast of the content color of the surface they sit on, which the default system holds to 4.5:1. The ring and the connector are decorative — the number is read without the ring, and the order without the line — and are not held to 3:1, as the divider's line and a quote's line are not.",
+      "A title is not a heading by default, because a page whose outline lists every step of every procedure is harder to move through by headings. Where the steps are the page's sections (a long guide with one screen of content per step), give each title as a heading in the title slot; its level is the page's, and the steps do not change it (STP-6).",
+      "Steps say nothing about progress (STP-11, STP-12): no step is current, done or failed, and none can be. A flow in which the person is somewhere — a checkout, a set-up wizard — needs a component that exposes the current step, which this is not.",
+      "Text size, text spacing and reflow: STP-14. A long procedure is never cut, collapsed or paged by the component."
+    ]
+  },
+  "tokens": "comp.steps",
+  "fixtures": [
+    {
+      "id": "short",
+      "props": {
+        "label": "What to do next"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Save the file in the folder that holds the project's settings."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Name the file in the settings, under the key for the design layer."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Run the build and commit what it writes."
+        }
+      ]
+    },
+    {
+      "id": "titles",
+      "props": {
+        "label": "The workflow"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "Propose"
+          },
+          "content": "Write or change the spec, and the tokens where the change needs them."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Validate"
+          },
+          "content": "Check the schemas, the token rules and the contrast of every scheme."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Generate"
+          },
+          "content": "Rebuild the token outputs, the scaffolds and the status matrix."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Implement"
+          },
+          "content": "Build the change on each platform the spec lists, with its tests."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Check"
+          },
+          "content": "Run every check in order. All of them pass before anything is merged."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Record"
+          },
+          "content": "Add a note of the change for the people who will read the release."
+        }
+      ]
+    },
+    {
+      "id": "titles-only",
+      "props": {
+        "label": "The workflow"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "Propose"
+          },
+          "content": ""
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Validate"
+          },
+          "content": ""
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Generate"
+          },
+          "content": ""
+        }
+      ]
+    },
+    {
+      "id": "long-bodies",
+      "props": {
+        "label": "Moving an account"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Choose the account to move. An account that is shared with other people can be moved only by the person who opened it; everyone else sees the choice greyed out, with the owner's name beside it, and can ask the owner from there."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Export the account's data. The export runs on the service and may take an hour for a large mailbox; the page can be closed while it runs, and a message arrives at the account's address when the archive is ready. The archive stays available for seven days and can be asked for again after that."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Close the old account once the archive has been opened and checked. Closing cannot be undone: the address is released after thirty days and may then be given to someone else."
+        }
+      ]
+    },
+    {
+      "id": "long-title",
+      "props": {
+        "label": "Moving an account"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "Choose the account to move, or ask its owner to do so when the account is shared with other people and was opened by one of them"
+          },
+          "content": "Choose the account to move. An account that is shared with other people can be moved only by the person who opened it; everyone else sees the choice greyed out, with the owner's name beside it, and can ask the owner from there."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Close the old account"
+          },
+          "content": "Close the old account once the archive has been opened and checked. Closing cannot be undone: the address is released after thirty days and may then be given to someone else."
+        }
+      ]
+    },
+    {
+      "id": "single",
+      "props": {
+        "label": "What to do next"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Run the build and commit what it writes."
+        }
+      ]
+    },
+    {
+      "id": "start",
+      "props": {
+        "label": "The workflow, continued",
+        "start": 4
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "Implement"
+          },
+          "content": "Build the change on each platform the spec lists, with its tests."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Check"
+          },
+          "content": "Run every check in order. All of them pass before anything is merged."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Record"
+          },
+          "content": "Add a note of the change for the people who will read the release."
+        }
+      ]
+    },
+    {
+      "id": "two-digits",
+      "props": {
+        "label": "The workflow, continued",
+        "start": 9
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Save the file in the folder that holds the project's settings."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Name the file in the settings, under the key for the design layer."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Run the build and commit what it writes."
+        }
+      ]
+    },
+    {
+      "id": "three-digits",
+      "props": {
+        "label": "The workflow, continued",
+        "start": 99
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "Propose"
+          },
+          "content": "Write or change the spec, and the tokens where the change needs them."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Validate"
+          },
+          "content": "Check the schemas, the token rules and the contrast of every scheme."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Generate"
+          },
+          "content": "Rebuild the token outputs, the scaffolds and the status matrix."
+        }
+      ]
+    },
+    {
+      "id": "large",
+      "props": {
+        "size": "large",
+        "label": "The workflow"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "Propose"
+          },
+          "content": "Write or change the spec, and the tokens where the change needs them."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Validate"
+          },
+          "content": "Check the schemas, the token rules and the contrast of every scheme."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Generate"
+          },
+          "content": "Rebuild the token outputs, the scaffolds and the status matrix."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Implement"
+          },
+          "content": "Build the change on each platform the spec lists, with its tests."
+        }
+      ]
+    },
+    {
+      "id": "large-short",
+      "props": {
+        "size": "large",
+        "label": "What to do next"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Save the file in the folder that holds the project's settings."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Name the file in the settings, under the key for the design layer."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Run the build and commit what it writes."
+        }
+      ]
+    },
+    {
+      "id": "large-long-bodies",
+      "props": {
+        "size": "large",
+        "label": "Moving an account"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Choose the account to move. An account that is shared with other people can be moved only by the person who opened it; everyone else sees the choice greyed out, with the owner's name beside it, and can ask the owner from there."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Export the account's data. The export runs on the service and may take an hour for a large mailbox; the page can be closed while it runs, and a message arrives at the account's address when the archive is ready. The archive stays available for seven days and can be asked for again after that."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "Close the old account once the archive has been opened and checked. Closing cannot be undone: the address is released after thirty days and may then be given to someone else."
+        }
+      ]
+    },
+    {
+      "id": "large-two-digits",
+      "props": {
+        "size": "large",
+        "label": "The workflow, continued",
+        "start": 9
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "Propose"
+          },
+          "content": "Write or change the spec, and the tokens where the change needs them."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Validate"
+          },
+          "content": "Check the schemas, the token rules and the contrast of every scheme."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "Generate"
+          },
+          "content": "Rebuild the token outputs, the scaffolds and the status matrix."
+        }
+      ]
+    },
+    {
+      "id": "japanese",
+      "props": {
+        "size": "large",
+        "label": "自分のデザインシステムを作る"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "レイヤーを作る"
+          },
+          "content": "既定のシステムかプリセットのどれかを元にして、プロダクトのレイヤーファイルを作ります。"
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "出力先を決める"
+          },
+          "content": "設定ファイルに、プラットフォームごとの出力先を書きます。出荷するものだけを並べてください。"
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "ビルドする"
+          },
+          "content": "ビルドを実行し、書き出されたファイルをそのままコミットします。"
+        }
+      ]
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "label": "البدء"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "ثبّت الحزمة"
+          },
+          "content": "أضف الحزمة إلى المشروع من سطر الأوامر."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "حمّل الأنماط"
+          },
+          "content": "حمّل ورقة الأنماط مرة واحدة قبل أي نمط آخر في الصفحة."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "استخدم العناصر"
+          },
+          "content": "اكتب العناصر في الصفحة كما تكتب أي عنصر آخر."
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-two-digits",
+      "props": {
+        "label": "البدء",
+        "start": 9
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {},
+          "content": "أضف الحزمة إلى المشروع من سطر الأوامر."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "حمّل ورقة الأنماط مرة واحدة قبل أي نمط آخر في الصفحة."
+        },
+        {
+          "kind": "step",
+          "props": {},
+          "content": "اكتب العناصر في الصفحة كما تكتب أي عنصر آخر."
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-title-rtl",
+      "props": {
+        "label": "البدء"
+      },
+      "items": [
+        {
+          "kind": "step",
+          "props": {
+            "title": "npm install"
+          },
+          "content": "أضف الحزمة إلى المشروع من سطر الأوامر."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "tokens.css"
+          },
+          "content": "حمّل ورقة الأنماط مرة واحدة قبل أي نمط آخر في الصفحة."
+        },
+        {
+          "kind": "step",
+          "props": {
+            "title": "v2.1 beta"
+          },
+          "content": "اكتب العناصر في الصفحة كما تكتب أي عنصر آخر."
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "with-code",
+      "props": {
+        "size": "large",
+        "label": "Use"
+      },
+      "content": "with-code"
+    },
+    {
+      "id": "with-code-medium",
+      "props": {
+        "label": "Use"
+      },
+      "content": "with-code"
+    },
+    {
+      "id": "with-table-and-tabs",
+      "props": {
+        "size": "large",
+        "label": "Your own design system"
+      },
+      "content": "with-table-and-tabs"
+    },
+    {
+      "id": "nested-list",
+      "props": {
+        "label": "Moving an account"
+      },
+      "content": "nested-list"
+    },
+    {
+      "id": "in-prose",
+      "props": {
+        "label": "Handing a notebook over"
+      },
+      "content": "in-prose"
+    },
+    {
+      "id": "in-prose-large",
+      "props": {
+        "size": "large",
+        "label": "Handing a notebook over"
+      },
+      "content": "in-prose"
+    },
+    {
+      "id": "titles-as-headings",
+      "props": {
+        "size": "large",
+        "label": "Handing a notebook over"
+      },
+      "content": "titles-as-headings"
+    },
+    {
+      "id": "with-code-rtl",
+      "props": {
+        "size": "large",
+        "label": "الاستخدام"
+      },
+      "content": "with-code-rtl",
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-steps",
+      "props": {
+        "label": "aria-label",
+        "start": "start",
+        "size": "data-size"
+      },
+      "items": {
+        "step": {
+          "name": "li",
+          "props": {
+            "title": "tanrei-steps-title"
+          },
+          "notes": "An `<li>` of the list; its children are the body. The title is the item's first child where that child is a heading (`h2` to `h6`) or carries `class=\"tanrei-steps-title\"` (a `<p>` for a title that is not a heading): the spec's `title` prop and its title slot are the same element on this platform, told apart by the tag the product chose."
+        }
+      },
+      "notes": "Form: a class on the product's own ordered list, not an element — `<ol class=\"tanrei-steps\" role=\"list\">` with `<li>` children — styled by one optional stylesheet of the package, `@tanrei/web/steps.css`, whose selectors are wrapped in `:where()` so one class on the product's side wins. The list stays the document's list: it is an ordered list before any script runs and for whatever reads the page as built, a Markdown renderer's `<ol>` needs one class and no wrapper, and there is nothing to define, so nothing changes place after the page loads; without the stylesheet it is the browser's numbered list. `start` is the `<ol>`'s own attribute, `label` is `aria-label` (or `aria-labelledby` naming the heading before it), `data-size=\"large\"` is the size. The marker is the item's `::before` showing the item's number from a counter that honours `start` (the implicit `list-item` counter where the three engines agree on it, else a counter of the stylesheet's set from `start` by the package's script); the connector is the item's `::after`, absolutely placed, with `pointer-events: none`. One shared marker column (STP-1) is a grid on the `<ol>` with the items as subgrids. `list-style: none` removes list semantics in one engine's accessibility tree, which is why the contract writes `role=\"list\"` on the `<ol>`; the number in `::before` is generated content, read once with the item (STP-12), and the test of STP-12 is run with a screen reader in each engine. The number is drawn with `unicode-bidi: isolate` and `direction: ltr` (STP-18); a title is `dir=\"auto\"`-like through `unicode-bidi: plaintext` with physical alignment by `:dir()`, as `productText()` does. STP-3 uses `1lh` of the item's first line. Inside a `.tanrei-prose` the list is not an island (it is a class on an `<ol>`, not a Tanrei element), so prose's own rules keep reaching the paragraphs, lists, links and inline code of each body at any depth, with no second prose to open and no limit of depth; `steps.css` takes back from `prose.css` what a set of steps draws itself: the list's inset, its markers, the item gap, the measure on the list (STP-8) and the gap between an item's blocks (STP-7), and a list inside an item is already prose's second depth (STP-9). Outside a prose the stylesheet alone sets the body's text style and the gaps between an item's direct children; long-form content there is wrapped by the product in `<div class=\"tanrei-prose\" data-measure=\"false\">` around the list. Under `forced-colors: active` the ring and the connector are `CanvasText` (STP-15). The package's script, where it is loaded, adds only the debug reports of STP-9, STP-19 and STP-20. React: `Steps` and `Step` render the same `<ol>` and `<li>`; `Step` takes `title` (text, rendered as `<p class=\"tanrei-steps-title\">`) or a heading as its first child."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiSteps",
+      "props": {
+        "label": "label",
+        "start": "start",
+        "size": "size"
+      },
+      "items": {
+        "step": {
+          "name": "TanreiStep",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`TanreiStep(_ title: String? = nil) { body }` in the steps' view builder; `TanreiStep(title: { Text(…).accessibilityAddTraits(.isHeader) }) { body }` is the title slot."
+        }
+      },
+      "notes": "`TanreiSteps(label:, start:, size:) { TanreiStep(\"Install\") { … } }`. A `Layout` that measures the widest marker, places contents at one edge and draws the connectors in a background; not a `List`, so it brings no rows, separators or scrolling. Each step is an accessibility container whose first element's label is the number; the set is exposed as a list through the platform's list semantics where it has them and named by `label`. The body is the product's views; rendered text goes through the prose layout."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiSteps",
+      "props": {
+        "label": "label",
+        "start": "start",
+        "size": "size"
+      },
+      "items": {
+        "step": {
+          "name": "TanreiStep",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`TanreiStep(title: String? = null) { body }` in `TanreiStepsScope`; an overload takes `title: @Composable () -> Unit` with `Modifier.semantics { heading() }` for the title slot."
+        }
+      },
+      "notes": "`TanreiSteps(label, start, size) { TanreiStep(\"Install\") { … } }`. A custom `Layout`, not a `LazyColumn`: a procedure is short and is never recycled. `CollectionInfo` and `CollectionItemInfo` expose the list and each item; the number is the first text of the item; the ring and the connector are drawn in `drawBehind` and have no semantics."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiSteps",
+      "props": {
+        "label": "semanticLabel",
+        "start": "start",
+        "size": "size"
+      },
+      "items": {
+        "step": {
+          "name": "TanreiStep",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`TanreiStep(title: 'Install', child: …)`; `titleWidget:` takes a widget wrapped in `Semantics(header: true)` for the title slot."
+        }
+      },
+      "notes": "`TanreiSteps(semanticLabel:, start:, size:, children: [TanreiStep(…)])`. Not the framework's `Stepper`, which is a control with a current step. A `CustomMultiChildLayout`-style render object for the shared column; connectors painted by a `CustomPainter` excluded from semantics. Follows `Directionality`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Steps",
+      "props": {
+        "label": "accessibilityLabel",
+        "start": "start",
+        "size": "size"
+      },
+      "items": {
+        "step": {
+          "name": "Step",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`<Step title=\"Install\">…</Step>`; `title` also takes an element with `accessibilityRole=\"header\"` for the title slot."
+        }
+      },
+      "notes": "`<Steps accessibilityLabel=\"…\" start={1} size=\"medium\"><Step title=\"Install\">…</Step></Steps>`. `accessibilityRole=\"list\"` on the container; each step's number is the first text of its item. The marker column's width is measured once per set (`onLayout`). Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

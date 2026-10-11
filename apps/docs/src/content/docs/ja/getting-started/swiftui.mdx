@@ -1,0 +1,80 @@
+---
+title: SwiftUI
+description: Swift Package Manager で、iOS または macOS のアプリに Tanrei を追加します。
+translationOf: getting-started/swiftui.mdx
+sourceHash: 02740f9c5f67946f91b0fceca00e160f25a1ad9d
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+Swift パッケージ `Tanrei` は、SwiftUI のビュー、テーマの環境、生成されたトークンの定数を提供します。iOS 17 以降と macOS 14 以降に対応し、Swift 6 言語モード向けに書かれています。
+
+<PreReleaseNotice registry="Swift Package Manager" pkg="Tanrei" />
+
+## インストール
+
+### ソースから
+
+<Callout type="caution" title="現在はビルドできません">
+  SwiftUI のパッケージは、現在の仕様とトークンに追従していません。ソースは以前の版の生成されたトークンコードに合わせて書かれていて、現在のコードではコンパイルできません。追従するまで CI は止めてあり、[ステータスページ](/ja/status/)ではそのコンポーネントを*追従待ち*としています。以下はアプリに追加する手順で、パッケージが追従すれば動きます。
+</Callout>
+
+リポジトリをアプリの隣にクローンし、クローンをローカルパッケージとして追加します。Xcode で **File → Add Package Dependencies… → Add Local…** を選んで `Package.swift` のあるフォルダーを指定するか、自分の `Package.swift` に書きます。
+
+```swift
+dependencies: [
+  .package(path: "../tanrei")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+ローカルのクローンではなくリポジトリを追うには、`.package(url: "https://github.com/chnotchy/tanrei", branch: "main")` を使います。
+
+### 最初のリリース後
+
+Xcode で **File → Add Package Dependencies…** を選び、リポジトリの URL を入力します。または `Package.swift` に追加します。
+
+```swift
+dependencies: [
+  .package(url: "https://github.com/chnotchy/tanrei", from: "<version>")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+パッケージマニフェストはリポジトリのルートにあります。Swift Package Manager が、Git の依存関係をルートから解決するためです。Swift のリリースには、素のセマンティックバージョンのタグを付ける予定です。
+
+## 使い方
+
+```swift
+import SwiftUI
+import Tanrei
+
+struct DeployView: View {
+  @State private var isDeploying = false
+
+  var body: some View {
+    TanreiButton("デプロイ", variant: .filled, action: { isDeploying = true })
+      .disabled(isDeploying)
+  }
+}
+```
+
+`action:` は仕様の `click` です。末尾のクロージャは `icon:` スロットです（`TanreiButton("デプロイ", action: deploy) { Image(systemName: "arrow.up") }`）。`disabled` という引数はありません。Tanrei は SwiftUI 自身の `.disabled(_:)` の環境に従うので、コンテナを無効にすると、システムのコントロールと同じように、その中のボタンも無効になります。
+
+## テーマとコントラスト
+
+既定では、Tanrei はシステムのカラースキームと、アクセシビリティ設定の「**コントラストを上げる**」に従います。どちらも、テーマのモディファイアーで上書きできます。
+
+```swift
+ContentView()
+  .tanreiTheme(TanreiTheme(appearance: .dark, contrast: .high))
+```
+
+## フォント
+
+タイプスケールは、フォントがアプリに登録されていれば Inter（日本語には Noto Sans JP、コードには Roboto Mono）を使い、登録されていなければシステムフォントにフォールバックします。テキストスタイルは階層で名付けられ、環境の中のシステムにあります（`@Environment(\.tanreiSystem) private var system`）。セクションのタイトルには `.tanreiTextStyle(system.typescale.heading2)`、本文には `system.typescale.body`、コントロールには `system.typescale.label` を使います。これらは Dynamic Type に合わせて拡大縮小します。`.tanreiTextStyle(system.typescale.heading1, emphasized: true)` は、見出しのファミリーの強調のステップを太さに加えます。角は `system.shape.cornerSmoothing` に従います。0 では `.circular`、0 より大きければ、値にかかわらず OS の `.continuous` の角です。

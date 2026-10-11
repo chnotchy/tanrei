@@ -1,0 +1,447 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "main-action-button",
+  "title": "Main action button",
+  "summary": "Performs the single most important action of a screen on a raised container that floats above the content, showing its icon and its written name, or collapsing to its icon alone.",
+  "category": "actions",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The raised shape that holds the icon and the label, casts the shadow and carries hover, focus and press. Extended it is as wide as its content; collapsed it is a square of its height, a circle under full corners."
+    },
+    {
+      "id": "icon",
+      "description": "The glyph that names the action, at the leading or the trailing side of the label; drawn in the label color. Required to collapse.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "Text that names the action. Shown while extended; hidden, but still the accessible name, while collapsed. Required to extend.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "filled",
+        "tonal",
+        "surface"
+      ],
+      "default": "filled",
+      "description": "Emphasis. Filled is the screen's main action at full strength; tonal is quieter; surface keeps the container neutral where a colored one would compete with the content beneath (a map, a photo). A design system may add values.",
+      "axis": "tanrei.comp.main-action-button.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "Visual height (40 / 56 / 96), which is also the side of the collapsed form, so one button keeps its height while it collapses and extends. Small sits beside a medium one for a related action; large marks the action on a wide or empty screen. The hit area always meets the minimum target. A design system may add values.",
+      "axis": "tanrei.comp.main-action-button.size"
+    },
+    {
+      "name": "extended",
+      "type": "boolean",
+      "default": true,
+      "description": "Shows the label beside the icon. False collapses the button to its icon (for example while the content scrolls); the label stays the accessible name. It changes the button's form, never its meaning: this is not a toggle. A button without an icon stays extended, and one without a label never extends (MAB-15, MAB-16)."
+    },
+    {
+      "name": "iconPosition",
+      "type": "enum",
+      "values": [
+        "leading",
+        "trailing"
+      ],
+      "default": "leading",
+      "description": "The side of the label the icon is on, in the reading direction. Trailing is for a glyph that points where the action goes, such as the arrow of Next. Collapsed, the icon is centered whichever side it is on."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents interaction and removes the button from the focus order. Hiding it when its action is unavailable is usually better than disabling it."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The visible text while extended, and the accessible name in either form. Required: an icon alone is not a name."
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "description": "The icon (a glyph of the system's icon set).",
+      "fixture": "glyph"
+    }
+  ],
+  "events": [
+    {
+      "name": "click",
+      "description": "The button was activated by pointer, touch, keyboard or assistive technology."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "MAB-1",
+      "text": "WHEN the user activates the main action button by pointer, touch, Enter or Space THE main action button SHALL emit click exactly once."
+    },
+    {
+      "id": "MAB-2",
+      "text": "WHILE disabled is true THE main action button SHALL NOT emit click, SHALL NOT be focusable and SHALL expose the disabled state to assistive technology."
+    },
+    {
+      "id": "MAB-3",
+      "text": "WHILE hovered, keyboard-focused or pressed THE main action button SHALL render its container, label, icon, elevation and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently. The default system raises the container under hover (elevation level4 against level3 at rest), so hover alone is visible there."
+    },
+    {
+      "id": "MAB-4",
+      "text": "WHEN the main action button receives keyboard focus THE main action button SHALL show the focus ring without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "MAB-5",
+      "text": "WHERE the visual size is below the minimum target THE main action button SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "MAB-6",
+      "text": "WHILE disabled is true THE main action button SHALL render its container, label, icon, elevation and opacity from the disabled component tokens of its variant."
+    },
+    {
+      "id": "MAB-7",
+      "text": "WHEN variant or size names a value that the active design system does not have THE main action button SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "MAB-8",
+      "text": "WHEN the main action button is pressed by pointer, touch, Enter or Space THE main action button SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "MAB-9",
+      "text": "WHILE pressed THE main action button SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, icon, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.main-action-button.motion.feedback-duration with comp.main-action-button.motion.state-easing, fades over comp.main-action-button.motion.state-duration with comp.main-action-button.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "MAB-10",
+      "text": "THE main action button SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "MAB-11",
+      "text": "WHILE it is extended THE main action button SHALL draw a container at least the height of its size (comp.main-action-button.container.height.medium for medium, and so on) with the corners of its size (comp.main-action-button.container.shape.medium, and so on), holding its label and, when it has one, its icon on the side iconPosition names (leading: before the label in the reading direction; trailing: after it), the two separated by comp.main-action-button.container.gap.medium (and so on); it SHALL pad the icon's side by comp.main-action-button.container.padding-inline-start-with-icon.medium for a leading icon or comp.main-action-button.container.padding-inline-end-with-icon.medium for a trailing one, a start without an icon by comp.main-action-button.container.padding-inline-start.medium and an end without an icon by comp.main-action-button.container.padding-inline-end.medium, and the top and bottom by at least comp.main-action-button.container.padding-block.medium (and so on for each size), and SHALL be as wide as that content."
+    },
+    {
+      "id": "MAB-12",
+      "text": "THE main action button SHALL set its label in the text style of its size (comp.main-action-button.label.typescale.medium, and so on) and the label color of its variant and state (comp.main-action-button.filled.label.color for filled at rest, and so on), SHALL NOT truncate it (it stays on one line while it fits, wraps when the layout gives it less width, and the container grows in both axes with it), and SHALL draw the icon, in either form, in the same color at the icon size of its size (comp.main-action-button.icon.size.medium, and so on) with the family and fill of an unselected icon, sys.icon.weight, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max."
+    },
+    {
+      "id": "MAB-13",
+      "text": "WHILE it is collapsed THE main action button SHALL hide its label and draw a square container whose side is the height of its size (comp.main-action-button.container.height.medium, and so on) with the corners of its size (comp.main-action-button.container.shape.medium, and so on; a circle where they are full, as in the default system) and its icon centered in it whichever side iconPosition names, and SHALL keep label as its accessible name."
+    },
+    {
+      "id": "MAB-14",
+      "text": "WHEN extended changes THE main action button SHALL change its width between the two forms over comp.main-action-button.motion.resize-duration with comp.main-action-button.motion.resize-easing, keeping its height and corners, fading the label out as it narrows and in as it widens, and moving the icon between its side of the label and the center, and SHALL change at once where motion is reduced; which edge stays in place is decided by the layout that holds it, as for any change of its width."
+    },
+    {
+      "id": "MAB-15",
+      "text": "IF the main action button has no icon THEN THE main action button SHALL draw its extended form whatever extended says (there is no empty collapsed form), and in debug builds report it while extended is false."
+    },
+    {
+      "id": "MAB-16",
+      "text": "IF label is empty THEN THE main action button SHALL draw its collapsed form whatever extended says, and in debug builds report that it has no accessible name; this holds over MAB-15 when it has no icon either."
+    },
+    {
+      "id": "MAB-17",
+      "text": "THE main action button SHALL cast the elevation of its variant and state (comp.main-action-button.filled.container.elevation for filled at rest, and so on) outside its container without clipping it, in either form and while it changes between them, and WHEN the elevation or the colors change between states SHALL animate the change over comp.main-action-button.motion.state-duration with comp.main-action-button.motion.state-easing, changing them at once where motion is reduced."
+    },
+    {
+      "id": "MAB-18",
+      "text": "THE main action button SHALL NOT position itself: it SHALL lay out at its own size where the layout that holds it places it (normally the inline-end bottom corner of the screen, clear of any navigation bar), and SHALL NOT draw a scrim or move content."
+    },
+    {
+      "id": "MAB-19",
+      "text": "WHEN the layout direction is right-to-left THE main action button SHALL mirror the order of its icon and label (a leading icon on the right, a trailing one on the left) and apply its paddings by logical start and end, SHALL NOT mirror the glyph itself (the icon helper mirrors a glyph the icon set marks, MAB-22), and SHALL grow a ripple from the point of contact as in left-to-right."
+    },
+    {
+      "id": "MAB-20",
+      "text": "THE main action button SHALL expose itself to assistive technology as a button named by label with no pressed, selected, checked or expanded state, and WHEN extended changes SHALL NOT change its role, its name or its focus, and SHALL NOT announce the change."
+    },
+    {
+      "id": "MAB-21",
+      "text": "THE main action button SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the main action button is shown THE main action button SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows and its state.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "MAB-22",
+      "text": "WHERE the layout direction is right-to-left THE main action button SHALL draw the glyph of its icon slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order MAB-19 gives. THE main action button SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name.",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "MAB-23",
+      "text": "THE main action button SHALL lay out its label as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE main action button SHALL still place the label and align its lines by the layout direction, not by the text's own."
+    }
+  ],
+  "accessibility": {
+    "role": "button",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the main action button."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activates it."
+      }
+    ],
+    "labeling": "label is the accessible name, whether it is shown or collapsed away. The icon is decorative to assistive technology. A tooltip may show the same text to sighted pointer users while it is collapsed, but it never replaces label.",
+    "minimumTarget": true,
+    "notes": [
+      "It is an action, never a toggle. Collapsing and extending change what is drawn, not what is announced: the role stays button, the name stays label, and there is no expanded state to report (MAB-20).",
+      "Its place in the focus and reading order is where the layout puts it in the element tree, not where it is drawn. Put it where its action belongs: after the content it acts on, or first when it is the screen's reason to exist.",
+      "Extended, text must remain readable at 200% text size: the container grows, the label never truncates. Collapsed, the icon is not text: where sizes are points or dp (SwiftUI, Compose, Flutter, React Native), text size leaves the square and the icon as they are; on the web every Tanrei size follows the root font size (rem), so the square and its icon grow together and stay square and whole. Either way the label is still announced.",
+      "A trailing icon that points (an arrow) keeps its glyph in right-to-left layouts; the product chooses the glyph that points the right way for the direction.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.main-action-button",
+  "fixtures": [
+    {
+      "id": "filled-extended",
+      "props": {
+        "variant": "filled",
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "filled-collapsed",
+      "props": {
+        "variant": "filled",
+        "extended": false,
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "tonal-extended",
+      "props": {
+        "variant": "tonal",
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "tonal-collapsed",
+      "props": {
+        "variant": "tonal",
+        "extended": false,
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "surface-extended",
+      "props": {
+        "variant": "surface",
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "surface-collapsed",
+      "props": {
+        "variant": "surface",
+        "extended": false,
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "filled-icon-trailing",
+      "props": {
+        "variant": "filled",
+        "iconPosition": "trailing",
+        "label": "Next"
+      },
+      "slots": {
+        "icon": "arrow_forward"
+      }
+    },
+    {
+      "id": "filled-label-only",
+      "props": {
+        "variant": "filled",
+        "label": "Compose"
+      }
+    },
+    {
+      "id": "filled-small-extended",
+      "props": {
+        "variant": "filled",
+        "size": "small",
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "filled-small-collapsed",
+      "props": {
+        "variant": "filled",
+        "size": "small",
+        "extended": false,
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "filled-large-extended",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "filled-large-collapsed",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "extended": false,
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "disabled": true,
+        "label": "Compose"
+      },
+      "slots": {
+        "icon": "edit"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-main-action-button",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "extended": "extended",
+        "iconPosition": "iconPosition",
+        "disabled": "disabled",
+        "label": "label"
+      },
+      "events": {
+        "click": "click"
+      },
+      "notes": "The icon is the `icon` slot (a glyph of the icon font). `extended` is a boolean property that defaults to true; its attribute is the inverse `collapsed`, because an HTML boolean attribute cannot default to true. `iconPosition` is the `icon-position` attribute. The host has no `aria-expanded` or `aria-pressed` (MAB-20). The element is inline; the page positions it (for example with `position: fixed` or a sticky container)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiMainActionButton",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "extended": "isExtended",
+        "iconPosition": "iconPosition",
+        "disabled": "disabled",
+        "label": "title"
+      },
+      "events": {
+        "click": "action"
+      },
+      "notes": "The initializer takes the title first, as `Button(_:action:)` does, and an optional icon name. `disabled` follows `.disabled(_:)`. The view is placed by the caller, typically in an `.overlay(alignment: .bottomTrailing)`."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiMainActionButton",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "extended": "expanded",
+        "iconPosition": "iconPosition",
+        "disabled": "enabled",
+        "label": "text"
+      },
+      "events": {
+        "click": "onClick"
+      },
+      "notes": "Compose idiom (as Material 3's extended FAB composable): `expanded` collapses it; `enabled` is the inverse flag; `text` is a String so it is also the content description. Placed through `Scaffold`'s `floatingActionButton` slot or by the caller."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiMainActionButton",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "extended": "isExtended",
+        "iconPosition": "iconPosition",
+        "disabled": "onPressed",
+        "label": "label"
+      },
+      "events": {
+        "click": "onPressed"
+      },
+      "notes": "Flutter idiom (as Material 3's extended FAB): `isExtended` collapses it and a null `onPressed` disables it. Placed through `Scaffold.floatingActionButton` or by the caller; it adds no `Hero`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "MainActionButton",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "extended": "extended",
+        "iconPosition": "iconPosition",
+        "disabled": "disabled",
+        "label": "label"
+      },
+      "events": {
+        "click": "onPress"
+      },
+      "notes": "The icon is the `icon` prop (a glyph name). The caller positions it (for example absolutely inside the screen's root view)."
+    }
+  }
+}

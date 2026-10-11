@@ -1,0 +1,31 @@
+{
+  "name": "tanrei-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Tanrei — a cross-platform design system (Web Components, SwiftUI, Jetpack Compose, Flutter, React Native).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "packageManager": "pnpm@12.4.2",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "validate": "turbo run validate",
+    "build": "node scripts/run-unpaused.mjs build",
+    "test": "node scripts/run-unpaused.mjs test --concurrency=3",
+    "generate": "turbo run generate && node scripts/generate-fixtures.mjs",
+    "drift": "node packages/tools/src/cli.js drift",
+    "status": "node packages/tools/src/cli.js status",
+    "check": "pnpm validate && pnpm generate && pnpm drift && node scripts/check-format.mjs && pnpm build && pnpm test",
+    "docs:dev": "pnpm --filter @tanrei/docs dev",
+    "changeset": "changeset",
+    "version-packages": "changeset version && node packages/tools/src/cli.js sync-versions",
+    "prepare": "lefthook install"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.3",
+    "lefthook": "^2.1.14",
+    "turbo": "^2.11.2",
+    "typescript": "^7.0.2"
+  }
+}

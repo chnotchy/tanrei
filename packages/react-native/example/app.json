@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "Tanrei Gallery",
+    "slug": "tanrei-react-native-gallery",
+    "version": "0.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true
+  }
+}

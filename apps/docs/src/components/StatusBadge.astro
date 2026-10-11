@@ -1,0 +1,111 @@
+---
+// A status of the status tables, drawn with Tanrei's own Tag: a small tag whose look and glyph follow the
+// mapping the tag's `docs-status-*` fixtures show. The word carries the status; the color and the glyph only repeat it.
+// The glyph's name is a ligature's text, not a word of the page: the search index does not read it. It reads the word
+// instead, which is an attribute of the tag and no text of the page (`data-pagefind-index-attrs`).
+//
+// The compact form — a mark with a title and no visible word (the roadmap's lists) — is not a tag: a tag without a
+// label draws nothing (TAG-20). It stays the hand-drawn dot until it has a component of its own.
+import { contentLang, strings } from '../lib/i18n';
+interface Props {
+  status: string;
+  compact?: boolean;
+}
+const { status, compact = false } = Astro.props;
+const t = strings(contentLang(Astro));
+const label = t.status[status] ?? status;
+
+/** The look of each status: the variant, the status colors and the glyph of the icon set. An unknown status is a plain tag. */
+const LOOKS: Record<string, { variant?: 'outlined'; status?: 'warning' | 'success' | 'error'; icon: string }> = {
+  planned: { variant: 'outlined', icon: 'radio_button_unchecked' },
+  lagging: { variant: 'outlined', status: 'warning', icon: 'schedule' },
+  alpha: { icon: 'clock_loader_40' },
+  beta: { icon: 'clock_loader_80' },
+  stable: { status: 'success', icon: 'check_circle' },
+  deprecated: { status: 'error', icon: 'block' },
+};
+const look = LOOKS[status];
+---
+
+{
+  compact ? (
+    <span class:list={['status', `status-${status}`, 'compact']} title={label}>
+      <span class="dot" aria-hidden="true" />
+      <span class="sr-only">{label}</span>
+    </span>
+  ) : (
+    <tanrei-tag class="status-tag" data-status={status} size="small" variant={look?.variant} status={look?.status} label={label} data-pagefind-index-attrs="label">
+      {look && <span slot="icon" data-pagefind-ignore>{look.icon}</span>}
+    </tanrei-tag>
+  )
+}
+
+<script>
+  import '../lib/register-web';
+</script>
+
+<style>
+  /* Until the element is defined (the script has not run yet, or never will), the status is still its word: the label
+     as plain text in the tag's own text style, and the glyph's name — which would be spelled out — not shown. */
+  .status-tag:not(:defined) {
+    display: inline-block;
+    font: var(--tanrei-comp-tag-label-typescale-small-font);
+    letter-spacing: var(--tanrei-comp-tag-label-typescale-small-letter-spacing);
+    color: var(--tanrei-sys-color-on-surface);
+    white-space: nowrap;
+  }
+  .status-tag:not(:defined)::before {
+    content: attr(label);
+  }
+  .status-tag:not(:defined) > [slot='icon'] {
+    display: none;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-2xs);
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+  .dot {
+    inline-size: 0.625rem;
+    block-size: 0.625rem;
+    border-radius: 50%;
+    box-sizing: border-box;
+    flex: none;
+  }
+  /* Shape carries the meaning as well as fill, so the legend never relies on color alone. */
+  .status-planned .dot {
+    border: 1px dashed var(--tanrei-sys-color-outline);
+  }
+  .status-lagging .dot {
+    border: 1.5px dotted var(--tanrei-sys-color-on-surface);
+  }
+  .status-alpha .dot {
+    border: 1.5px solid var(--tanrei-sys-color-on-surface);
+    background: linear-gradient(90deg, var(--tanrei-sys-color-on-surface) 50%, transparent 50%);
+  }
+  .status-beta .dot {
+    border: 1.5px solid var(--tanrei-sys-color-on-surface);
+    background: conic-gradient(var(--tanrei-sys-color-on-surface) 75%, transparent 0);
+  }
+  .status-stable .dot {
+    background: var(--tanrei-sys-color-on-surface);
+  }
+  .status-deprecated .dot {
+    border: 1.5px solid var(--tanrei-sys-color-error);
+    background: linear-gradient(45deg, transparent 42%, var(--tanrei-sys-color-error) 42% 58%, transparent 58%);
+  }
+  .sr-only {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>

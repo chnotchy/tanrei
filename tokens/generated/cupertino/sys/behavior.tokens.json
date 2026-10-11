@@ -1,0 +1,119 @@
+{
+  "tanrei": {
+    "sys": {
+      "behavior": {
+        "$type": "number",
+        "$description": "Choices between a few named ways of behaving — what no value can express. DTCG has no string type, so each token is a number: the index into `$extensions[\"dev.tanrei.enum\"].values`. Platforms receive a typed enumeration, never the number.",
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product decides how a press answers the finger, how keyboard focus looks, whether parts that sit side by side are told apart by a line or by space, and whether its text links are underlined at rest, only when pointed at, or not at all; these are choices of kind, not of amount: one product answers a press with a layer that grows from the finger where another dims the whole control, and no number reaches from the one to the other.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "System-wide choices of behaviour. Components read them; a product or preset layer changes them like any value: { \"$value\": <index>, \"reason\": \"…\" }. The allowed names are in each token's dev.tanrei.enum.",
+            "rules": [
+              "Never branch on the design system's id in a component; read these tokens instead.",
+              "The per-state component tokens still give every state its colors and opacity. pressed-feedback only chooses HOW the pressed layer appears (at once everywhere, growing from the pointer, as a dim of the whole control, or not at all).",
+              "A platform that cannot draw a choice falls back to the first value and says so in its README.",
+              "separation is read through a component token of the same name (comp.<component>.….separation), which aliases it: set the sys token to change every component at once, a component token to set one component apart, and the component's separation prop to set one instance apart.",
+              "link-underline is read through a component token (comp.link.underline.visibility, comp.breadcrumbs.underline.visibility), which aliases it: set the sys token to change every text link at once, a component token to set one component apart, and the underline prop to set one link or one trail apart.",
+              "Set link-underline to hover or never only in a system whose link color stands 3:1 apart from its text color in every scheme; the build checks it. Where the link color is the text color, or near it, the underline is the only thing that says \"link\".",
+              "requirement-mark is read through a component token (comp.field.requirement.mark, comp.field-group.requirement.mark), which aliases it: set the sys token to change every form at once, a component token to mark single fields and sets of controls differently, and the requiredMark prop to set one field or one set apart. Under asterisk say once, near the top of a form, what the asterisk means; only tag says it in words."
+            ]
+          }
+        },
+        "pressed-feedback": {
+          "$value": 2,
+          "$description": "How a press is answered. overlay: the pressed tokens apply to the whole container at once. ripple: the pressed state layer grows from the point of contact. dim: the pressed opacity applies to the whole control and no state layer is drawn. none: no visual answer to a press (focus and hover still apply).",
+          "$extensions": {
+            "dev.tanrei.enum": {
+              "values": [
+                "overlay",
+                "ripple",
+                "dim",
+                "none"
+              ]
+            },
+            "dev.tanrei.derive": {
+              "fixed": "Apple platforms dim the whole control while it is pressed; no state layer is drawn."
+            }
+          }
+        },
+        "focus-style": {
+          "$value": 0,
+          "$description": "How keyboard focus is shown. ring: the two-tone focus ring at sys.focus offset and width. glow: the same colors as a soft halo (blurred by the ring width) instead of a hard line. Both must meet the focus contrast invariants.",
+          "$extensions": {
+            "dev.tanrei.enum": {
+              "values": [
+                "ring",
+                "glow"
+              ]
+            },
+            "dev.tanrei.derive": {
+              "fixed": "A choice of kind; no dial scales it."
+            }
+          }
+        },
+        "separation": {
+          "$value": 0,
+          "$description": "How parts that sit side by side inside one component are told apart. divider: the parts touch and a line is drawn where they meet (where the parts already differ in color, as a progress indicator's do, the edge between the colors is that line). gap: the parts are drawn apart, with empty space between them and no line. Read by the connected button group, the button with menu, the progress indicator and the menu, each through its own component token so that a design system can set one apart; an instance can set its own.",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product draws its joined controls, its bars and its menus in one manner: a product whose buttons are cut apart by space wants its progress bar and its menu groups cut the same way, and a product that rules a line between them wants the line everywhere. Without one choice the manner has to be restated in every component and drifts.",
+              "since": "0.1.0"
+            },
+            "dev.tanrei.enum": {
+              "values": [
+                "divider",
+                "gap"
+              ]
+            },
+            "dev.tanrei.derive": {
+              "fixed": "A choice of kind; no dial scales it."
+            }
+          }
+        },
+        "link-underline": {
+          "$value": 0,
+          "$description": "When a text link is underlined. always: at rest and in every state. hover: not at rest; while the link is pointed at, focused from the keyboard or pressed. never: in no state. Read by the Link (and so by every link of long-form text) and by the breadcrumbs, each through its own component token so that a design system can set one apart; an instance can set its own. A link that is not underlined at rest is told from the text beside it by color alone, so hover and never are held by the build to a link color 3:1 apart from the text color (WCAG 1.4.1); where the platform forces its own colors the underline is drawn whatever is chosen.",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product underlines its links or does not, and decides it once: a product whose link color is plainly not its text color may want its sentences and its lists of links free of lines, with the line returning under the pointer or not at all, and a product whose links share the color of its text needs the line everywhere. Without one choice the manner is restated wherever a text link is drawn and drifts between a paragraph and a trail of pages.",
+              "since": "0.1.0"
+            },
+            "dev.tanrei.enum": {
+              "values": [
+                "always",
+                "hover",
+                "never"
+              ]
+            },
+            "dev.tanrei.derive": {
+              "fixed": "A choice of kind; no dial scales it."
+            }
+          }
+        },
+        "requirement-mark": {
+          "$value": 2,
+          "$description": "How a required control, or a required set of controls, is marked beside its label. tag: a small filled Tag holding the product's word for it. asterisk: \"*\" after the label's text. none: no mark is drawn; the requirement is still exposed to assistive technology. Read by the Field (and so by every composed field) and by the field group, each through its own component token so that a design system can set one apart; an instance can set its own. A label that floats inside its control's box has no room for a tag and shows tag as the asterisk. What is optional is said in words under every choice.",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product decides once, for all of its forms, how an answer that must be given is marked: in words beside each label, with an asterisk it explains once at the top of a form, or not at all where nearly everything must be answered and it marks the optional answers instead. A form that says \"Required\" beside one label and sets an asterisk after the next reads as two forms. Without one choice the manner is restated for every kind of frame — a field, a set of controls — and drifts between them.",
+              "since": "0.1.0"
+            },
+            "dev.tanrei.enum": {
+              "values": [
+                "tag",
+                "asterisk",
+                "none"
+              ]
+            },
+            "dev.tanrei.derive": {
+              "fixed": "Apple's forms draw no required mark beside a label."
+            }
+          }
+        }
+      }
+    }
+  }
+}

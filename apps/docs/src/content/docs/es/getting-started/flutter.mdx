@@ -1,0 +1,80 @@
+---
+title: Flutter
+description: Añade Tanrei a una aplicación de Flutter.
+translationOf: getting-started/flutter.mdx
+sourceHash: 6acea5bb31fd86ae29f31dcab38bc245008b152b
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+El paquete `tanrei` está escrito solo en Dart. Proporciona widgets, un `TanreiTheme` heredado y constantes de tokens generadas, y no depende de `MaterialApp` ni de `CupertinoApp`: funciona dentro de cualquiera de las dos, o en una `WidgetsApp` sin más.
+
+<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+
+## Instalación
+
+### Desde el código fuente
+
+<Callout type="caution" title="Hoy no se compila">
+  El paquete de Flutter todavía no se ha puesto al día con las especificaciones y los tokens actuales: su código fuente se escribió para una versión anterior del código de tokens generado y no compila con el de hoy. Su CI está en pausa hasta que se ponga al día, y la [página de estado](/es/status/) marca sus componentes como *rezagados*. Los pasos siguientes muestran cómo se añade a una aplicación; funcionarán cuando el paquete se haya puesto al día.
+</Callout>
+
+Clona el repositorio junto a tu aplicación y declara la dependencia del paquete por su ruta:
+
+```sh
+flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
+```
+
+`flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"` sigue al repositorio en lugar de a un clon local.
+
+### Después del primer lanzamiento
+
+```sh
+flutter pub add tanrei
+```
+
+## Uso
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:tanrei/tanrei.dart';
+
+class DeployButton extends StatelessWidget {
+  const DeployButton({super.key, required this.isDeploying, required this.onDeploy});
+
+  final bool isDeploying;
+  final VoidCallback onDeploy;
+
+  @override
+  Widget build(BuildContext context) {
+    return TanreiTheme(
+      data: TanreiThemeData.platform(context),
+      child: TanreiButton(
+        variant: TanreiButtonVariant.filled,
+        onPressed: isDeploying ? null : onDeploy,
+        child: const Text('Desplegar'),
+      ),
+    );
+  }
+}
+```
+
+No hay un indicador `disabled`. Como en los botones del propio Flutter, pasar `null` en `onPressed` deshabilita el botón.
+
+## Tema y contraste
+
+`TanreiThemeData.platform(context)` lee de `MediaQuery` el brillo y el indicador de contraste alto. Para fijarlos, parte de una constante y cópiala:
+
+```dart
+TanreiTheme(
+  data: TanreiThemeData.dark.copyWith(contrast: TanreiContrast.high),
+  child: const App(),
+)
+```
+
+Coloca `TanreiTheme` por encima de tu navegador para que todas las rutas lo vean.
+
+## Estilos de texto
+
+`TanreiTheme.of(context).system.typescale` contiene los dieciséis estilos de texto por nivel (`heading2` para el título de una sección, `body` para el texto corrido, `label` para un control) como tokens `TanreiTextStyle`; `theme.textStyle(system.typescale.heading2)` (o `token.toTextStyle()`) convierte uno en un `TextStyle` de Flutter. `theme.textStyle(token, emphasized: true)` (a mano, `token.emphasized(system.typescale.emphasis)`) es el mismo estilo con su peso más el paso de énfasis de la familia (`typescale.emphasis`); el énfasis es un peso, no otro rol. Consulta [Tipografía](/es/foundations/typography/) para ver los roles y su correspondencia con los elementos.

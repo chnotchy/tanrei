@@ -1,0 +1,1363 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "accordion",
+  "title": "Accordion",
+  "summary": "Content that a row shows and hides in place: one item is a single disclosure, several are a set whose items open by themselves or one at a time; each header is a button with a label, an optional glyph, second line and short value, and a chevron that turns; as rows on the surface or bounded by one hairline, ruled by a line or parted by a gap, with room for reading or drawn closer among controls.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "accordion",
+      "description": "The column that holds the items. It draws nothing of its own in the plain look and adds no space around the items; in the outlined look with a line between the items it carries the one edge around them all. It has no role and no name."
+    },
+    {
+      "id": "item",
+      "description": "One header and the content it shows and hides (an item of the item kind). Open or closed by itself; in the outlined look with a gap between the items it carries an edge of its own."
+    },
+    {
+      "id": "container",
+      "description": "An item's header: the row across the item's width that opens and closes it. One button. It carries hover, focus and press and is the hit area; it has no fill at rest in the default system."
+    },
+    {
+      "id": "icon",
+      "description": "A glyph of the system's icon set at the start of the header, by name. Decorative, and the same open and closed.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The item's name and the header's accessible name. Plain text unless the product gives a heading; it wraps and is never cut."
+    },
+    {
+      "id": "supporting-text",
+      "description": "A line under the label that says what the item holds, quieter than the label. It wraps.",
+      "optional": true
+    },
+    {
+      "id": "trailing-text",
+      "description": "A short value before the chevron, readable without opening the item: a count, the present value of what the item holds. One line.",
+      "optional": true
+    },
+    {
+      "id": "chevron",
+      "description": "The icon set's expand_more at the end of the header, turned half a turn while the item is open: the only mark of open and closed. Hidden from assistive technology, which is given the state in words."
+    },
+    {
+      "id": "content",
+      "description": "What the item shows while open, under its header and inset to the header's first part: the product's content, from one sentence to fields, a table or another accordion. Not drawn, not focusable and not exposed while the item is closed, and still part of the document where the platform has one."
+    },
+    {
+      "id": "outline",
+      "description": "The outlined look's edge: one hairline with rounded corners around the whole accordion, or around each item where the items are parted by a gap.",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "A hairline across the accordion between two items, where the items are ruled by a line.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus of a header, drawn inside the header's row."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "plain",
+        "outlined"
+      ],
+      "default": "plain",
+      "description": "How the accordion stands on its surface. plain: rows on the surface, with nothing around them; for content in the flow of a page or a panel. outlined: bounded by one hairline with rounded corners; for a set that should read as one block among others, and on a surface where rows alone would be lost. A design system may add values.",
+      "axis": "tanrei.comp.accordion.variant"
+    },
+    {
+      "name": "density",
+      "type": "enum",
+      "values": [
+        "regular",
+        "compact"
+      ],
+      "default": "regular",
+      "description": "How much room a header takes, in a table's words. regular (a 56 header with a 16 label in the default system) is for a page a person reads: the questions of a help page, the sections of a long form. compact (a 48 header with a 14 label, a navigation drawer row's) is for a panel among controls: settings, an inspector, a card. A design system may add values.",
+      "axis": "tanrei.comp.accordion.density"
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How an item is told from the item next to it. divider: one hairline between them; in the outlined look the items share one edge. gap: empty space and no line; in the outlined look each item has an edge of its own. Auto takes comp.accordion.separation, the design system's answer (divider in the default system)."
+    },
+    {
+      "name": "exclusive",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether opening an item closes the one that was open, so that at most one item of this accordion is open. False, the default, lets every item open and close by itself: a reader may compare two answers, and nothing moves that they did not touch. True is for items that exclude each other (the steps of one choice). An open item can always be closed again, leaving none open."
+    }
+  ],
+  "items": [
+    {
+      "name": "item",
+      "summary": "One header and the content it shows and hides. The fixture's content is the text of its content.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its name, drawn in its header and used as the header's accessible name. Plain text, never a heading; the label slot takes its place where the product needs a heading of its own level or inline content. Required unless the label slot is filled."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A line under the label that says what the item holds (\"Email, push and the weekly digest\"), read as the header's description. Empty draws the label alone."
+        },
+        {
+          "name": "trailingText",
+          "type": "string",
+          "default": "",
+          "description": "A short value before the chevron that can be read without opening the item: a count, the present value. One line; read after the supporting text as the header's description."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of a glyph in the system's icon set, drawn at the start of the header. Decorative."
+        },
+        {
+          "name": "open",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether its content is shown under its header. Set by the product for an item that starts open; the web sets it itself when the user opens or closes the item, and a controlled platform leaves it to the caller."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Makes its header unavailable: it keeps its place and its open, draws its disabled look, cannot be toggled and leaves the focus order. The content of an open disabled item stays shown and as usable as the product made it."
+        }
+      ],
+      "slots": [
+        {
+          "name": "label",
+          "description": "The product's own label content in place of the label prop: text with inline content (a code span, a tag), or a heading of the level the page's outline needs. The accordion draws it in the label's style and changes neither its role nor its level. No control."
+        },
+        {
+          "name": "default",
+          "description": "The content: text, or the product's own blocks (paragraphs, fields, a table, any component, another accordion). The accordion insets it and gives it no style."
+        }
+      ],
+      "events": [
+        {
+          "name": "toggle",
+          "description": "The item opened or closed: by the user from its header, by the accordion closing it for another (exclusive), or by the platform's search finding text in it; carries its new open state. Emitted exactly once per change, when the change begins."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "ACC-1",
+      "text": "THE accordion SHALL lay out its items in one column, in the order given, each as wide as the accordion, and the accordion as wide as the layout it is placed in gives it: in a page, in a card, in a dialog, in a panel and in another item's content alike, with its start edge on the start edge of what is around it. It SHALL bring no outer space of its own (PRS-15: the space between it and its neighbours is its container's), SHALL have no minimum width, no maximum width and no height of its own, and SHALL NOT scroll: it is as tall as its headers and its open content, and content that cannot shrink scrolls inside its own box. An accordion of one item is a single disclosure and SHALL differ in nothing from an item of a set."
+    },
+    {
+      "id": "ACC-2",
+      "text": "THE accordion SHALL draw each item as a header and, WHILE the item is open, its content below the header (ACC-8). A header is one row across the item's whole width, at least as high as its density gives (comp.accordion.container.height.regular for regular and comp.accordion.container.height.compact for compact) and growing with its text, padded at its start and end by comp.accordion.container.padding-inline.regular for regular and comp.accordion.container.padding-inline.compact for compact and above its first line and below its last by comp.accordion.container.padding-block.regular for regular and comp.accordion.container.padding-block.compact for compact. Inside it SHALL lay out, from the start: the icon, where the item has one (ACC-5); the text, a column that takes the remaining width and holds the label (ACC-3) and under it the supporting text (ACC-4); the trailing text, where it has one (ACC-4); and the chevron (ACC-6); with comp.accordion.container.gap between each two of them. THE accordion SHALL centre the icon, the trailing text and the chevron on the label's first line and keep them there however tall the text grows, and any height a header has beyond its text SHALL be shared equally above and below it.",
+      "verify": "Under the default system a regular header with a one-line label is 56 high with the label 16 from the start edge and the chevron's box 16 from the end edge; a compact one is 48 high with 12 and 12, the height, the text style and the chevron of a navigation drawer group's row."
+    },
+    {
+      "id": "ACC-3",
+      "text": "THE accordion SHALL draw an item's label in the text style of its density (comp.accordion.label.typescale.regular for regular and comp.accordion.label.typescale.compact for compact) and the label color of its variant (comp.accordion.plain.label.color for plain, comp.accordion.outlined.label.color for outlined); the label SHALL wrap and SHALL never be cut. WHERE the item's label slot holds content THE accordion SHALL draw that content in the label's place, style and color instead of the label, and SHALL change neither its role nor its level: a label given as text is plain text and never a heading, and a label the product gives as a heading stays a heading of the level the product gave it, drawn as every other label is. The label slot SHALL hold text, inline content or a heading and no control: IF it holds a link, a button or a field THE accordion SHALL still render it and in debug builds report that a header is one button and holds no other.",
+      "verify": "Test a label slot holding a heading of level 2 and one of level 4: both are drawn in the label's text style, and the accessibility tree keeps levels 2 and 4."
+    },
+    {
+      "id": "ACC-4",
+      "text": "WHILE an item's supportingText is not empty THE accordion SHALL draw it under the label, in the text style of its density (comp.accordion.supporting-text.typescale.regular for regular and comp.accordion.supporting-text.typescale.compact for compact) and the supporting-text color of its variant (comp.accordion.plain.supporting-text.color, comp.accordion.outlined.supporting-text.color); it SHALL wrap and SHALL never be cut, and the header SHALL grow to hold it. WHILE an item's trailingText is not empty THE accordion SHALL draw it on one line between the text and the chevron, in the text style of its density (comp.accordion.trailing-text.typescale.regular for regular and comp.accordion.trailing-text.typescale.compact for compact) and the trailing-text color of its variant (comp.accordion.plain.trailing-text.color, comp.accordion.outlined.trailing-text.color); it SHALL NOT wrap, and WHILE it would take more than half of the header's inner width it SHALL be cut at the end of its own direction with an ellipsis, so that the label always keeps at least half."
+    },
+    {
+      "id": "ACC-5",
+      "text": "WHILE an item's icon is not empty THE accordion SHALL draw that glyph of the system's icon set at the start of the header, in a box of comp.accordion.icon.size.regular for regular and comp.accordion.icon.size.compact for compact, in the icon color of its variant (comp.accordion.plain.icon.color, comp.accordion.outlined.icon.color), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL keep it from assistive technology. WHILE icon is empty THE accordion SHALL draw no glyph and keep no room for one: the label starts at the start padding. The icon SHALL be the same glyph whether the item is open or closed."
+    },
+    {
+      "id": "ACC-6",
+      "text": "THE accordion SHALL draw a chevron at the end of every header: the icon set's expand_more in a box of comp.accordion.chevron.size.regular for regular and comp.accordion.chevron.size.compact for compact, in the chevron color of its variant (comp.accordion.plain.chevron.color, comp.accordion.outlined.chevron.color), drawn as ACC-5 draws a glyph, turned half a turn WHILE the item is open, and kept from assistive technology, which is given the item's state in words (ACC-24). The chevron SHALL be the only thing about a header that shows whether its item is open: the header's container, label, texts and icon SHALL be the same open and closed. A disabled item SHALL keep its chevron.",
+      "verify": "The fixtures plain and compact: the open item's chevron points up, every other points down, and nothing else differs between the headers. The chevron of a compact header has the box, the glyph and the turn of a navigation drawer group's chevron."
+    },
+    {
+      "id": "ACC-7",
+      "text": "THE accordion SHALL draw an item's open as the state of that item alone: WHILE open is true its content is shown under its header, and WHILE open is false its content is not drawn, takes no space, cannot take focus and is not exposed to assistive technology. WHEN the accordion first appears it SHALL draw every item as its open says, in its first frame, without the motion of ACC-13 and without emitting toggle. A closed item's content SHALL stay what it was: on a platform that keeps what it does not draw (the web, where the content stays in the document, a field in it keeps its value and is still sent with its form) THE accordion SHALL NOT remove, rebuild or reset it when the item closes or opens; on a platform that builds only what is drawn, the content is built again when the item opens, and state that must outlive a close is the product's to hold.",
+      "verify": "On the web: type into a field inside an open item, close the item and open it again; the field holds what was typed, and the text of a closed item is still in the document."
+    },
+    {
+      "id": "ACC-8",
+      "text": "WHILE an item is open THE accordion SHALL draw the content of its default slot under its header, inset at its start and end by the header's inline padding (comp.accordion.container.padding-inline.regular for regular and comp.accordion.container.padding-inline.compact for compact), so that it starts under the first part of the header, with no space above it and comp.accordion.content.padding-block-end.regular for regular and comp.accordion.content.padding-block-end.compact for compact below it. The content is the product's: THE accordion SHALL give it no text style and no color, which it takes from where the accordion stands, SHALL add no style to anything inside a component placed in it (PRS-16), and SHALL neither cut it nor limit its height. Hover, focus and press of a header SHALL change nothing about the content."
+    },
+    {
+      "id": "ACC-9",
+      "text": "WHILE variant is plain THE accordion SHALL draw no edge and no fill of its own: its headers are rows on the surface it stands on, in the colors of the plain look (comp.accordion.plain.container.color and the plain tokens ACC-3 to ACC-6 name). WHILE variant is outlined THE accordion SHALL draw an edge comp.accordion.outline.width wide in comp.accordion.outline.color with corners comp.accordion.outline.shape, inside the size of what it bounds and without moving anything in it — around the whole accordion WHILE its separation is divider, and around each item WHILE it is gap (ACC-10) — SHALL clip the headers' containers, their state layers and the content to that edge's corners, and SHALL draw its headers in the colors of the outlined look (comp.accordion.outlined.container.color and the outlined tokens ACC-3 to ACC-6 name). The variant SHALL change the edge and these colors and nothing else."
+    },
+    {
+      "id": "ACC-10",
+      "text": "THE accordion SHALL tell an item from the item next to it as its separation names: WHILE separation is auto, as comp.accordion.separation names, which follows sys.behavior.separation unless a design system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say. WHILE it is divider THE accordion SHALL draw one line of comp.accordion.divider.thickness in comp.accordion.divider.color across its whole width between every two items that follow each other, under the first one's content WHILE that item is open and under its header WHILE it is closed, without adding to an item's height, and SHALL draw no line above the first item or below the last. WHILE it is gap it SHALL leave comp.accordion.item.gap of empty space between every two items that follow each other, SHALL draw no such line, and SHALL leave no such space above the first item or below the last. WHEN separation, or the token it follows, changes THE accordion SHALL draw the other form at once, without animation, keeping every item's open; WHEN separation names a value the accordion does not define it SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, divider, and state that in its README.",
+      "verify": "The fixtures plain and outlined follow the system (divider in the default system, drawn as gap under a system that sets sys.behavior.separation to gap); plain-divider, plain-gap, outlined-divider and outlined-gap draw the same under every design system. In outlined-divider one edge bounds three items with two lines between them; in outlined-gap each of the three items has an edge of its own."
+    },
+    {
+      "id": "ACC-11",
+      "text": "WHEN the user activates the header of an item that is not disabled by pointer, touch, Enter or Space THE accordion SHALL emit that item's toggle exactly once with its new open state, and on the web SHALL set the item's open itself (a controlled platform leaves it to the caller). WHEN focus is on the header of a closed item and the user presses the arrow key toward the end of the line (Right in a left-to-right layout) THE accordion SHALL open the item in the same way, and on the header of an open item the arrow key toward the start SHALL close it; the arrow key that would do neither, and every other key, SHALL be left to the platform. THE accordion SHALL NOT move focus from one header to another by an arrow key: every header is a stop of its own in the focus order, as a navigation drawer's group rows are. Activating a header SHALL NOT move focus, and focus SHALL stay on the header while its item opens and closes.",
+      "verify": "Test: Enter, Space, a click and a touch each emit one toggle; Right on a closed header opens it and Right again does nothing; Left on an open header closes it; Down, Up, Home and End emit nothing and are not prevented; in a right-to-left layout Left opens and Right closes."
+    },
+    {
+      "id": "ACC-12",
+      "text": "WHILE exclusive is true THE accordion SHALL keep at most one of its own items open: WHEN an item opens, by the user's act, by the product setting its open or by ACC-16, THE accordion SHALL close the item that was open, emitting that item's toggle exactly once with false and on the web setting its open itself (a controlled platform leaves it to the caller), in the same motion as the one that opens (ACC-13). An open item SHALL still close by its own header, leaving none open. The items of an accordion placed inside an item's content SHALL NOT count: each accordion keeps its own. WHEN the accordion first appears, or exclusive becomes true, with more than one item open THE accordion SHALL draw the first of them in order open and the others closed, on the web setting their open itself, and in debug builds report that an exclusive accordion was given several open items. WHILE exclusive is false every item SHALL open and close by itself.",
+      "verify": "The fixture exclusive: opening the third item closes the first, with one toggle from each. The fixture exclusive-two-open is drawn with only its first open item open. Test that an accordion nested in an open item of an exclusive accordion opens and closes without closing its parent's items."
+    },
+    {
+      "id": "ACC-13",
+      "text": "WHEN an item's open changes THE accordion SHALL reveal or hide its content from the header downward, the item growing or shrinking in height and everything after it moving with its lower edge, and SHALL turn the chevron, over comp.accordion.motion.disclosure-duration with comp.accordion.motion.disclosure-easing, at once where motion is reduced. The content SHALL be laid out once, at the width and height it has when shown, and the motion SHALL only change how much of it is seen: its lines SHALL NOT wrap again, its parts SHALL NOT be resized and nothing in it SHALL be measured again from frame to frame. Content that is being hidden SHALL stay drawn until the motion ends and SHALL leave the focus order and assistive technology when the motion begins. WHEN open changes again before the motion ends THE accordion SHALL go on from where the motion is toward the new state, without a jump. toggle SHALL be emitted when the change begins, not when the motion ends.",
+      "verify": "Test with the web's animations inspected: one height motion and one rotation of the chosen duration per change; none while prefers-reduced-motion is reduce; a second activation at half way returns from half way. A navigation drawer's group and a compact item open over the same duration with the same curve in the default system."
+    },
+    {
+      "id": "ACC-14",
+      "text": "WHEN items open and close in answer to the user's act on a header THE accordion SHALL keep that header where it is in the view, as far as the scrolling of what holds it allows, and move only what follows it: IF another item above it closes at the same time (ACC-12) THE accordion SHALL hold the activated header's place while the content above it goes, so that the row under the pointer or the finger does not move away from it. It SHALL NOT scroll for any other reason: an item that opens SHALL NOT be scrolled into view, and its content MAY reach below the view's edge.",
+      "verify": "Test in a page 600 high with the fixture exclusive made tall: with the first item open and the third header at 400 from the top, activating the third header leaves it at 400."
+    },
+    {
+      "id": "ACC-15",
+      "text": "WHEN an item closes while keyboard focus is inside its content THE accordion SHALL move focus to that item's header or, WHILE the item is disabled, leave focus to the platform's default; WHEN it closes while focus is elsewhere it SHALL NOT move focus."
+    },
+    {
+      "id": "ACC-16",
+      "text": "WHERE the platform can search the text of what is shown and reports a match that lies in content it does not draw, or goes to a place inside such content (on the web, the browser's find-in-page and a link to a fragment of the page), WHEN the match or the place is inside a closed item THE accordion SHALL open that item, and every closed item of an accordion that holds it, at once and without the motion of ACC-13, SHALL emit each one's toggle exactly once with true, SHALL apply ACC-12 to each, and SHALL leave bringing the match into view to the platform; it SHALL do so for a disabled item too, whose header is unavailable and whose content is still part of the page. On a platform that has no such search or cannot report such a match, a closed item's content is not found, and THE accordion SHALL NOT open anything for it.",
+      "verify": "On the web, in a browser whose find-in-page reveals content hidden until found: searching for a word that only a closed item holds opens the item and marks the word, and one toggle with true was emitted. A link to the id of an element inside a closed item opens the item."
+    },
+    {
+      "id": "ACC-17",
+      "text": "WHILE an item's header is hovered, keyboard-focused or pressed THE accordion SHALL render that header's container, label, supporting text, trailing text, icon, chevron and opacity from the component tokens of its variant in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. Hover and press over any part of the header's row SHALL answer on the whole container. The content, the edge and the lines SHALL NOT change under a pointer, a press or focus.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "ACC-18",
+      "text": "WHEN an item's header receives keyboard focus THE accordion SHALL show the focus ring inside the header's container, following comp.accordion.container.shape, so that neither a neighbouring item, an outlined edge nor a scrolling ancestor cuts it, without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "ACC-19",
+      "text": "WHERE a header is lower than the minimum target THE accordion SHALL make its container at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch. The whole row, from the item's start edge to its end edge, its paddings, icon, texts and chevron included, SHALL be the header's hit area.",
+      "verify": "Under the default system both densities already hold the touch target (56 and 48). Test under a layer that sets the compact height to 32: the header is drawn 48 high for touch and 44 for a fine pointer."
+    },
+    {
+      "id": "ACC-20",
+      "text": "WHILE an item's disabled is true THE accordion SHALL render its header's container, label, supporting text, trailing text, icon, chevron and opacity from the disabled component tokens of its variant, SHALL NOT emit its toggle for a press, a key or a touch, SHALL NOT make its header focusable and SHALL expose the header as disabled. The item SHALL keep its place and its open: a disabled item that is open still shows its content, which stays as usable as the product made it, and the product MAY still set its open. A header that draws no fill at rest SHALL draw none while disabled.",
+      "verify": "The fixture disabled: the second item is closed and disabled, the third open and disabled with its content shown; Tab passes from the first header to the content of the third item."
+    },
+    {
+      "id": "ACC-21",
+      "text": "WHEN an item's header is pressed by pointer, touch, Enter or Space THE accordion SHALL show its pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "ACC-22",
+      "text": "WHILE an item's header is pressed THE accordion SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer, clipped to the container, from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole header and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, supporting text, trailing text, icon, chevron and opacity still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.accordion.motion.feedback-duration with comp.accordion.motion.state-easing, fades over comp.accordion.motion.state-duration with comp.accordion.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "ACC-23",
+      "text": "THE accordion SHALL ease its headers' container corners and the outlined look's corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show a header's keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "ACC-24",
+      "text": "THE accordion SHALL expose each item's header as one button named by its label (the text of the label slot's content where the product gave one), described by its supporting text and then its trailing text, with its expanded or collapsed state, the disabled state where it applies, and its icon and chevron hidden; and SHALL expose an open item's content after its header in reading order, as the content it is. On the web the header is the summary of a details element, which the browser exposes as a button with the expanded state; on Apple platforms a button whose value is expanded or collapsed, as a disclosure group reads; on Android the expanded state with the expand and collapse actions; in Flutter the expanded semantics flag; in React Native accessibilityState.expanded. THE accordion SHALL NOT make an item's content a landmark or a named region, and the accordion itself SHALL have no role and no name: a page with several items would otherwise list each of them among its regions. WHILE an item's label is empty and its label slot holds nothing THE accordion SHALL still render it, and in debug builds report that its header has no accessible name.",
+      "verify": "On the web: every header in the fixture plain has the expanded state true or false and the name of its label; no element of the accordion has the region role; the fixture supporting-text reads the supporting text as the header's description."
+    },
+    {
+      "id": "ACC-25",
+      "text": "WHEN an item opens or closes THE accordion SHALL let the header's changed state be the only thing assistive technology is told: it SHALL announce nothing itself, SHALL have no live region, and SHALL NOT move keyboard or screen-reader focus into the content."
+    },
+    {
+      "id": "ACC-26",
+      "text": "WHILE the text size is enlarged THE accordion SHALL grow its label, its supporting text and its trailing text with it, keep its paddings and gaps, wrap the label and the supporting text, and grow each header in height; it SHALL keep the icon's and the chevron's boxes at their token sizes, both still centred on the label's first line (ACC-2), SHALL cut nothing but a trailing text as ACC-4 says, SHALL set no fixed height, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %.",
+      "verify": "Test the fixtures long-label and all-parts at 200 % text in a stage 320 wide: every word of every label and supporting text is visible, the chevron is on the first line, and nothing overlaps."
+    },
+    {
+      "id": "ACC-27",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE accordion SHALL draw the outlined look's edge and the lines of ACC-10 in the platform's text color; its labels, texts, icons and chevrons in that text color; a disabled header in the platform's color for disabled text; and a header's hover, press and focus in the platform's own colors for a button and for focus, with the focus ring still inside the header. Open and closed SHALL still be told apart by the chevron's turn, which no color carries.",
+      "verify": "On the web, with forced colors emulated: the fixture outlined has a visible edge and two lines in CanvasText; the fixture disabled draws its disabled headers in GrayText; a focused header shows a ring."
+    },
+    {
+      "id": "ACC-28",
+      "text": "WHERE the layout direction is right-to-left THE accordion SHALL mirror the order of a header's parts and apply its paddings by logical start and end: the icon at the right, the text after it, the trailing text and the chevron at the left; the content SHALL be inset by the same paddings. The arrow keys of ACC-11 SHALL follow the direction: Left opens and Right closes. The chevron's half turn SHALL be the same in both directions: a glyph that points down and then up has no mirrored form. A ripple SHALL still grow from the point of contact."
+    },
+    {
+      "id": "ACC-29",
+      "text": "THE accordion SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the accordion is shown THE accordion SHALL draw itself for the new direction at once, without a motion of its own, keeping every item's open and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "ACC-30",
+      "text": "WHERE the layout direction is right-to-left THE accordion SHALL draw an item's icon mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size and color nor the order ACC-28 gives. THE accordion SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The chevron (expand_more, ACC-6) is not marked and is never mirrored.",
+      "verify": "arrow_forward is marked by the default icon set; settings is not. The fixture icon-rtl draws arrow_forward mirrored and settings unmirrored, and both chevrons as in a left-to-right layout."
+    },
+    {
+      "id": "ACC-31",
+      "text": "THE accordion SHALL lay out an item's label, its supporting text and its trailing text each as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name, a number with its unit and a version keep their own order in a right-to-left layout and reorder nothing beside them; THE accordion SHALL still place each and align its lines by the layout direction, not by the text's own, and SHALL cut a trailing text that does not fit (ACC-4) at the end of its own direction.",
+      "verify": "The fixture ltr-label-rtl draws a left-to-right label in a right-to-left stage: the label begins at the right edge of the text column and reads left to right, and the chevron is at the left."
+    },
+    {
+      "id": "ACC-32",
+      "text": "WHERE an item's content holds another accordion THE accordion SHALL treat it as content like any other: the inner accordion is laid out inside the item's inset (ACC-8), which is what shows its depth; it has its own variant, density, separation and exclusive; its headers answer the keys of ACC-11 for its own items only; and WHEN the outer item closes and opens again the inner items SHALL be as their open said. IF accordions nest more than three levels deep THE accordion SHALL still render them, and in debug builds report the depth."
+    },
+    {
+      "id": "ACC-33",
+      "text": "WHILE the system's icon set cannot yet draw a glyph of the accordion (its font is still loading) THE accordion SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can; a header SHALL open and close its item all the same."
+    },
+    {
+      "id": "ACC-34",
+      "text": "WHEN variant or density names a value that the active design system does not have THE accordion SHALL render with the default value (the default variant's or density's tokens), and in debug builds report the unknown value."
+    },
+    {
+      "id": "ACC-35",
+      "text": "IF the accordion has no items THE accordion SHALL draw nothing, take no space and expose nothing. IF an item has no content THE accordion SHALL still render its header, which opens onto nothing but the space under the content (ACC-8), and in debug builds report that the item shows and hides nothing."
+    }
+  ],
+  "accessibility": {
+    "role": "button",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to each header that is not disabled, in order, and through the focusable content of each open item after its header. Every header is its own stop; the accordion is not one."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "On a header, opens or closes its item. Focus stays on the header."
+      },
+      {
+        "keys": "Right arrow / Left arrow (mirrored in right-to-left layouts)",
+        "action": "On the header of a closed item, the arrow toward the end of the line opens it; on the header of an open item, the arrow toward the start closes it. Elsewhere the keys are the platform's. As on a navigation drawer's group row."
+      },
+      {
+        "keys": "Up arrow / Down arrow / Home / End",
+        "action": "Nothing of the accordion's: they scroll the page as they do anywhere. Focus does not rove between headers."
+      }
+    ],
+    "labeling": "Each header is a button named by its label (or by the text of the label slot's content), described by its supporting text and then its trailing text, with the expanded or collapsed state; its icon and chevron are hidden. A label given as text is plain text; a heading in the label slot keeps its level. An open item's content follows its header in reading order and has no role or name of its own. The accordion has no role and no name.",
+    "minimumTarget": true,
+    "notes": [
+      "An accordion is a set of disclosures, not a tree and not tabs: a header is a button with an expanded state that shows or hides what follows it, and every header stays its own tab stop. This is the model of a navigation drawer's groups, on purpose: a group in a drawer and an item in content answer the same keys in the same way, and a person learns it once. One tab stop with roving arrow keys would make a long page of content behave like a single widget and take the arrow keys from the page.",
+      "WCAG 1.3.1 (info and relationships): the accordion does not decide whether a label is a heading. Most labels are names of a fold in a panel and should stay text. Where the items are the sections of a page that people navigate by heading (the questions of a help page), the product gives a heading of the right level in the label slot. Some assistive technology reads a heading inside a button as the button's name only; where the outline must not depend on that, the product puts the heading before a single-item accordion instead.",
+      "The content is not a region. Naming every item's content as a landmark fills the list of regions with entries a person did not ask for; six items make six regions. A product whose single disclosure is a main part of its page may give its own content element the region role and the label's name.",
+      "Closed content costs a press to read and cannot be seen at a glance. Do not close what most people need, do not hide a form's required fields or its errors in a closed item, and when a form is refused, open the item that holds the first error before moving focus to the field: the accordion does not open an item because something inside it is invalid.",
+      "exclusive moves the page: opening one item closes another, and what the reader was looking at goes. The accordion keeps the activated header where it is (ACC-14), which removes the worst of it; even so, keep exclusive for items that exclude each other. A person who wants two answers side by side cannot have them.",
+      "Where the platform's own search can reach closed content (the web's find-in-page), a match opens the item (ACC-16), so closing content does not hide it from someone who looks for its words. Native platforms have no such search: there, text in a closed item is found only by the product's own search, which sets the item's open.",
+      "A header holds no control (ACC-3). A switch, a menu button or a link beside the label would be a control inside a button: unreachable or ambiguous for assistive technology, and a press on it would also toggle the item. An action that belongs to an item goes into its content, or beside the accordion.",
+      "WCAG 2.5.8 (target size): a header is the whole row and at least the touch target high in both densities; rows that touch do not share or extend hit areas (ACC-19).",
+      "WCAG 1.4.1 (use of color): open and closed are told by the chevron's turn and by the expanded state, never by color; the header keeps its colors when open. Disabled is told by the faded header and by the disabled state.",
+      "WCAG 1.4.3 and 1.4.11 (contrast) in the default system: the label is on-surface and the supporting text, trailing text, icon and chevron are on-surface-variant, on the surface the accordion stands on; each is held to 4.5:1 on every surface role by the token invariants. The edge and the lines are decorative: every header is told as a button by its chevron and its states.",
+      "Forced colors (ACC-27): the edge and the lines take the text color and the states the platform's own; nothing about open and closed rested on a color.",
+      "Web: the items are the product's own `<details>` elements with a `<summary>` each, in the document, inside `<tanrei-accordion>`. They open and close, keep their place in the tab order, are found by search in the page and are read, translated and printed as the page's content before any script runs and without it; what the script adds is listed in the platform notes. Before the element is defined, and without script, the stylesheet already draws the whole look, so nothing moves when the element is upgraded.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.accordion",
+  "fixtures": [
+    {
+      "id": "plain",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "outlined",
+      "props": {
+        "variant": "outlined"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "plain-divider",
+      "props": {
+        "separation": "divider"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "plain-gap",
+      "props": {
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "outlined-divider",
+      "props": {
+        "variant": "outlined",
+        "separation": "divider"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "outlined-gap",
+      "props": {
+        "variant": "outlined",
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "compact",
+      "props": {
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "compact-outlined",
+      "props": {
+        "density": "compact",
+        "variant": "outlined"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "compact-outlined-gap",
+      "props": {
+        "density": "compact",
+        "variant": "outlined",
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "all-closed",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?"
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "all-open",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?",
+            "open": true
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?",
+            "open": true
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "single",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?"
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        }
+      ]
+    },
+    {
+      "id": "single-open",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        }
+      ]
+    },
+    {
+      "id": "single-outlined",
+      "props": {
+        "variant": "outlined"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        }
+      ]
+    },
+    {
+      "id": "exclusive",
+      "props": {
+        "exclusive": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?",
+            "open": true
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?"
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "exclusive-two-open",
+      "props": {
+        "exclusive": true
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?"
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?",
+            "open": true
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?",
+            "open": true
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "supporting-text",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Colors",
+            "supportingText": "Roles, palettes and the six schemes",
+            "open": true
+          },
+          "content": "Every color a component reads is a role. A role takes its value from a palette, in each scheme."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Typefaces",
+            "supportingText": "One stack for text, one for code"
+          },
+          "content": "One stack for text, one for code."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Shape",
+            "supportingText": "The corner scale and how much the corners are eased"
+          },
+          "content": "The corner scale and how much the corners are eased."
+        }
+      ]
+    },
+    {
+      "id": "trailing-text",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Colors",
+            "trailingText": "48 roles"
+          },
+          "content": "Roles, palettes and the six schemes."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Typefaces",
+            "trailingText": "Inter",
+            "open": true
+          },
+          "content": "One stack for text, one for code."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Shape",
+            "trailingText": "8 px"
+          },
+          "content": "The corner scale and how much the corners are eased."
+        }
+      ]
+    },
+    {
+      "id": "icon",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Colors",
+            "icon": "palette",
+            "open": true
+          },
+          "content": "Roles, palettes and the six schemes."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Notifications",
+            "icon": "notifications"
+          },
+          "content": "Email, push and the weekly digest."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Account",
+            "icon": "person"
+          },
+          "content": "Your name, your address and your password."
+        }
+      ]
+    },
+    {
+      "id": "all-parts",
+      "props": {
+        "variant": "outlined"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Colors",
+            "icon": "palette",
+            "supportingText": "Roles, palettes and the six schemes",
+            "trailingText": "48 roles",
+            "open": true
+          },
+          "content": "Roles, palettes and the six schemes."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Notifications",
+            "icon": "notifications",
+            "supportingText": "Email, push and the weekly digest",
+            "trailingText": "On"
+          },
+          "content": "Email, push and the weekly digest."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Language",
+            "icon": "language",
+            "supportingText": "The language of the interface, not of your content",
+            "trailingText": "English"
+          },
+          "content": "The language of the interface."
+        }
+      ]
+    },
+    {
+      "id": "all-parts-compact",
+      "props": {
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Colors",
+            "icon": "palette",
+            "supportingText": "Roles, palettes and the six schemes",
+            "trailingText": "48 roles",
+            "open": true
+          },
+          "content": "Roles, palettes and the six schemes."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Notifications",
+            "icon": "notifications",
+            "supportingText": "Email, push and the weekly digest",
+            "trailingText": "On"
+          },
+          "content": "Email, push and the weekly digest."
+        }
+      ]
+    },
+    {
+      "id": "disabled",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What is a design token?"
+          },
+          "content": "A named design decision: a color, a size, a duration. Components read tokens and never a literal value."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?",
+            "disabled": true
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How do I change the look?",
+            "disabled": true,
+            "open": true
+          },
+          "content": "With a layer: a file that sets the dials and, where a product needs it, single tokens."
+        }
+      ]
+    },
+    {
+      "id": "disabled-outlined",
+      "props": {
+        "variant": "outlined"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Colors",
+            "icon": "palette",
+            "trailingText": "48 roles"
+          },
+          "content": "Roles, palettes and the six schemes."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Typefaces",
+            "icon": "settings",
+            "trailingText": "Inter",
+            "disabled": true
+          },
+          "content": "One stack for text, one for code."
+        }
+      ]
+    },
+    {
+      "id": "long-label",
+      "props": {},
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "What happens to the components of a product that already ships when a design system changes the value of a token they read?",
+            "open": true
+          },
+          "content": "They follow it at the next build. A token is a name, and the product holds the name."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Which platforms are covered?",
+            "trailingText": "Five platforms, one set of tokens and one set of specs for all of them"
+          },
+          "content": "Web Components, SwiftUI, Jetpack Compose, Flutter and React Native, from one set of tokens and specs."
+        }
+      ]
+    },
+    {
+      "id": "plain-rtl",
+      "props": {},
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "ما هو رمز التصميم؟",
+            "open": true
+          },
+          "content": "قرار تصميم له اسم: لون أو مقاس أو مدة."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "ما المنصات المشمولة؟"
+          },
+          "content": "خمس منصات من مجموعة واحدة من الرموز."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "كيف أغيّر المظهر؟"
+          },
+          "content": "بطبقة: ملف يضبط القيم."
+        }
+      ]
+    },
+    {
+      "id": "outlined-gap-rtl",
+      "props": {
+        "variant": "outlined",
+        "separation": "gap"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "الألوان",
+            "trailingText": "48",
+            "open": true
+          },
+          "content": "الأدوار واللوحات والمخططات الستة."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "الخطوط",
+            "trailingText": "Inter"
+          },
+          "content": "خط للنص وخط للشيفرة."
+        }
+      ]
+    },
+    {
+      "id": "icon-rtl",
+      "props": {},
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "التالي",
+            "icon": "arrow_forward"
+          },
+          "content": "الخطوة التالية."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "الإعدادات",
+            "icon": "settings",
+            "open": true
+          },
+          "content": "إعدادات الواجهة."
+        }
+      ]
+    },
+    {
+      "id": "ltr-label-rtl",
+      "props": {},
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Tanrei 0.1.0",
+            "trailingText": "2026-10-07",
+            "open": true
+          },
+          "content": "ملاحظات الإصدار."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "الإصدارات السابقة"
+          },
+          "content": "لا توجد إصدارات سابقة."
+        }
+      ]
+    },
+    {
+      "id": "docs-on-this-page",
+      "props": {
+        "variant": "outlined",
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "On this page",
+            "trailingText": "Behaviour"
+          },
+          "content": "Overview. Anatomy. Behaviour. Accessibility. Tokens."
+        }
+      ]
+    },
+    {
+      "id": "docs-conflicts",
+      "props": {
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Conflicts on file",
+            "trailingText": "3"
+          },
+          "content": "Three traits of the original cannot be drawn yet. Each has an entry in the ledger."
+        }
+      ]
+    },
+    {
+      "id": "studio-folds",
+      "props": {
+        "density": "compact"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Text",
+            "supportingText": "Body, labels and headings",
+            "trailingText": "Inter, Noto Sans JP",
+            "open": true
+          },
+          "content": "The font stack, in order."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Code",
+            "supportingText": "Code blocks and inline code",
+            "trailingText": "Roboto Mono"
+          },
+          "content": "The font stack, in order."
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Inherited rules",
+            "trailingText": "12"
+          },
+          "content": "Twelve rules come from the layers below this one."
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-accordion",
+      "props": {
+        "variant": "variant",
+        "density": "density",
+        "separation": "separation",
+        "exclusive": "exclusive"
+      },
+      "items": {
+        "item": {
+          "name": "details",
+          "props": {
+            "label": "summary",
+            "supportingText": "data-supporting-text",
+            "trailingText": "data-trailing-text",
+            "icon": "tanrei-icon",
+            "open": "open",
+            "disabled": "aria-disabled"
+          },
+          "events": {
+            "toggle": "toggle"
+          },
+          "notes": "A native `<details>` whose first child is its `<summary>`. The summary's content is the label (the label slot): text, inline content, or a heading (`<summary><h3>…</h3></summary>`, which HTML allows). Inside the summary, an element with `data-supporting-text` holds the supporting text and one with `data-trailing-text` the trailing text; a `.tanrei-icon` element first in the summary is the icon. `open` is the element's own attribute and property, and `toggle` its own event (not bubbling; `event.newState` is `open` or `closed`), which the browser also sends when the product changes `open` — a product that sets `open` itself tells its own changes by the state it set. A disabled item is written `<summary aria-disabled=\"true\" tabindex=\"-1\">`: the stylesheet draws it and takes the pointer from it, `tabindex` takes it from the focus order, and the script refuses what is left."
+        }
+      },
+      "notes": "Form: `<tanrei-accordion>` is a custom element with **no shadow root**, around the product's own native `<details>` elements in the light DOM — `<tanrei-accordion variant=\"outlined\"><details open><summary>Colors</summary><p>…</p></details><details>…</details></tanrei-accordion>`. The browser's disclosure is kept whole: it opens and closes without script, a summary is focusable and answers Enter and Space, it is exposed with its expanded state, its closed content stays in the document, find-in-page and a fragment link open it where the browser does that for a details element (ACC-16; in a browser that does not, the script listens for `beforematch` and `hashchange` where they exist, and otherwise closed content is not found, as in every details element there), and `exclusive` is the `name` attribute, which the element writes on its own `<details>` children with a name of its own (a nested accordion gets another, ACC-12); markup that must be exclusive without script writes `name` itself. Everything drawn comes from one stylesheet, `@tanrei/web/accordion.css`, whose selectors start at `tanrei-accordion` and are wrapped in `:where()`; it styles the page before the element is defined and without script (an element that is not yet defined is still an element), and the element adopts the same sheet into the root it is connected to, so it also works inside another component's shadow root. Props are attributes of the wrapper: `variant`, `density`, `separation`, `exclusive`. The summary is a grid (icon, text, trailing text, chevron); the browser's own marker is removed (`list-style: none` and the `::-webkit-details-marker` rule) and the chevron is the summary's `::after` in the icon font (`expand_more`), rotated under `details[open]`. The content's inset is padding on the `<details>` with the summary pulled back out by a negative inline margin, so no wrapper is needed around the product's content. The stylesheet alone gives the default system's whole look and every state: hover, `:focus-visible` with the ring as an inset outline, `:active` with the press-hold as a delayed transition back, the disabled look from `summary[aria-disabled=\"true\"]`, forced colors, and the separation through a style query on the component token's custom property with the `separation` attribute over it. Motion (ACC-13) is CSS where the browser can animate a details element's content box (`::details-content` with `block-size` from 0 to `auto` under `interpolate-size: allow-keywords`, `overflow: clip`, and `content-visibility` transitioned discretely so that closing content stays drawn until the end); elsewhere the script animates the height once per change with the Web Animations API from one measurement taken before the first frame, and where neither is available the item opens at once, which is also the reduced-motion form. No script reads layout from frame to frame. The package's script, where it is loaded, adds what a stylesheet cannot: the shared press primitive on the summary (ripple and dim, ACC-22), the arrow keys of ACC-11, the `name` of `exclusive`, holding the activated header's place where the browser's scroll anchoring does not (ACC-14), moving focus to the summary when an item closes around it (ACC-15), refusing a disabled summary's click, and every debug report. Inside `.tanrei-prose` the element is an island by its tag name (PRS-16); the product makes an item's long-form content prose by its own `<div class=\"tanrei-prose\" data-measure=\"false\">`. Markdown: a renderer passes `<details>` through as HTML; the product wraps one or several in `<tanrei-accordion>`. React: `Accordion` and `AccordionItem` render the same elements."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiAccordion",
+      "props": {
+        "variant": "variant",
+        "density": "density",
+        "separation": "separation",
+        "exclusive": "isExclusive"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiAccordionItem",
+          "props": {
+            "label": "title",
+            "supportingText": "supportingText",
+            "trailingText": "trailingText",
+            "icon": "icon",
+            "open": "isExpanded",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "isExpanded"
+          },
+          "notes": "`TanreiAccordionItem(_ title: String, supportingText: String = \"\", trailingText: String = \"\", icon: String? = nil, isExpanded: Binding<Bool>) { content }`, as SwiftUI's `DisclosureGroup` binds its state and as `TanreiNavigationDrawerGroup` does; toggling writes the binding. A second initializer takes the label as a `@ViewBuilder` (the label slot; `.accessibilityAddTraits(.isHeader)` is the product's). `disabled` follows `.disabled(_:)`."
+        }
+      },
+      "notes": "`TanreiAccordion(variant:, density:, separation:, isExclusive:) { TanreiAccordionItem(…) { … } … }`. The header is a button whose accessibility value is expanded or collapsed. An exclusive accordion writes false to the binding of the item it closes. Closed content is not in the view tree; state that must outlive a close is the product's (ACC-7). There is no search of the screen's text to answer (ACC-16)."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiAccordion",
+      "props": {
+        "variant": "variant",
+        "density": "density",
+        "separation": "separation",
+        "exclusive": "exclusive"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiAccordionItem",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "trailingText": "trailingText",
+            "icon": "icon",
+            "open": "expanded",
+            "disabled": "enabled"
+          },
+          "events": {
+            "toggle": "onExpandedChange"
+          },
+          "notes": "`TanreiAccordionItem(label, expanded, onExpandedChange, supportingText = \"\", trailingText = \"\", icon = null, enabled = true, labelContent = null) { content }`, the names of `TanreiNavigationDrawerGroup`; the header has `Modifier.semantics { expand() / collapse() }` and the expanded state. `enabled` is the inverse flag; `labelContent` is the label slot."
+        }
+      },
+      "notes": "`TanreiAccordion(variant, density, separation, exclusive) { TanreiAccordionItem(…) { … } }`, items in a scope of the accordion. Controlled: an exclusive accordion calls `onExpandedChange(false)` on the item it closes. Closed content leaves the composition; `rememberSaveable` in the content keeps what the product wants kept (ACC-7)."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiAccordion",
+      "props": {
+        "variant": "variant",
+        "density": "density",
+        "separation": "separation",
+        "exclusive": "exclusive"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiAccordionItem",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "trailingText": "trailingText",
+            "icon": "icon",
+            "open": "expanded",
+            "disabled": "enabled"
+          },
+          "events": {
+            "toggle": "onExpansionChanged"
+          },
+          "notes": "`TanreiAccordionItem(label:, supportingText: '', trailingText: '', icon:, expanded:, onExpansionChanged:, enabled: true, labelWidget:, child:)`, controlled, with the callback name of `TanreiNavigationDrawerGroup`; the header carries `Semantics(button: true, expanded:)`. `labelWidget` is the label slot."
+        }
+      },
+      "notes": "`TanreiAccordion(variant:, density:, separation:, exclusive:, children: [TanreiAccordionItem(…)])`. An exclusive accordion calls `onExpansionChanged(false)` on the item it closes. A closed item's `child` is not built; a `PageStorageKey` or the product's own state keeps what must be kept (ACC-7)."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Accordion",
+      "props": {
+        "variant": "variant",
+        "density": "density",
+        "separation": "separation",
+        "exclusive": "exclusive"
+      },
+      "items": {
+        "item": {
+          "name": "AccordionItem",
+          "props": {
+            "label": "label",
+            "supportingText": "supportingText",
+            "trailingText": "trailingText",
+            "icon": "icon",
+            "open": "open",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "onToggle"
+          },
+          "notes": "`<AccordionItem label=\"…\" open={…} onToggle={…}>…</AccordionItem>`, with the names of `NavigationDrawerGroup`; controlled when `open` is given, and `defaultOpen` otherwise. The label slot is the `labelContent` prop; the content is `children`. The header sets `accessibilityRole=\"button\"` and `accessibilityState={{ expanded, disabled }}`."
+        }
+      },
+      "notes": "`<Accordion variant=\"outlined\" exclusive>` with `AccordionItem` children. An exclusive accordion calls `onToggle(false)` on the item it closes. Closed content is not mounted. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

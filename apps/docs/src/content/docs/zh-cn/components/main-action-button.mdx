@@ -1,0 +1,208 @@
+---
+title: "主操作按钮"
+description: "在一个悬浮于内容之上的抬升容器上，执行屏幕中最重要的那一个操作；可以写出操作的名称，也可以收起为只有图标。"
+translationOf: components/main-action-button.mdx
+sourceHash: ff82dd77880b90c7becab88915c0e91b8fea6fda
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="main-action-button" />
+
+<DemoFrame label="展开与收起">
+  <tanrei-main-action-button label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="撰写" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+主操作按钮代表屏幕为之存在的那一个操作：邮箱里的“撰写”，日历里的“新建日程”，列表里的“添加”。它画在一个悬浮于内容之上的抬升容器上，所以内容在它下方滚动时，它始终触手可及。
+
+它是一个按钮，有两种形态。**展开**（extended，默认）显示图标和标签。**收起**（collapsed）只显示图标，放在一个与展开形态等高的正方形里，在默认系统中是圆形。由产品让它在两种形态之间变化，例如内容滚动时收起，回到顶部时再展开。它是一个操作，绝不是切换按钮：收起改变的是它的形状，而不是它的含义，标签在两种形态下都是它的无障碍名称。
+
+在 Web 上它是 `<tanrei-main-action-button>`，在 React 中是 `MainActionButton`。SwiftUI、Compose、Flutter 和 React Native 尚未实现。
+
+### 用法
+
+标签是一个属性，而不是内容，因为两种形态都需要它：展开时画出来，并且始终是无障碍名称。图标是图标集中的一个图标。按钮不会自己定位：由你的布局来放置它，通常放在屏幕末尾侧的底角，并避开[导航栏](/zh-cn/components/navigation-bar/)。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-main-action-button class="primary-action" label="撰写">
+      <span slot="icon">edit</span>
+    </tanrei-main-action-button>
+
+    <!-- 收起：这个属性（attribute）与 extended 属性（property）含义相反。 -->
+    <tanrei-main-action-button label="撰写" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+
+    <!-- 指向操作去向的图标放在标签之后。 -->
+    <tanrei-main-action-button label="下一步" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+
+    <style>
+      /* 元素自己不做任何定位：由页面把它放在末尾侧的底角。 */
+      tanrei-main-action-button.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/main-action-button';
+      const compose = document.querySelector('tanrei-main-action-button.primary-action');
+      compose.addEventListener('click', newMessage);
+      // extended 是一个默认为 true 的属性；从外部把它收起，例如在页面滚动之后。
+      addEventListener('scroll', () => (compose.extended = scrollY === 0), { passive: true });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { MainActionButton } from '@tanrei/react';
+
+    <MainActionButton className="primary-action" label="撰写" extended={atTop} onClick={newMessage}>
+      <span slot="icon">edit</span>
+    </MainActionButton>
+
+    <MainActionButton variant="tonal" label="下一步" iconPosition="trailing" onClick={next}>
+      <span slot="icon">arrow_forward</span>
+    </MainActionButton>
+    ```
+  </TabItem>
+</Tabs>
+
+### FAB 和扩展 FAB 的去向
+
+主操作按钮取代了悬浮操作按钮（floating action button）和扩展 FAB。过去由产品来回替换的两个组件，现在是同一个组件的两种形态。
+
+| 之前 | 现在 |
+| --- | --- |
+| 悬浮操作按钮（`fab`） | 收起的主操作按钮：`extended` 设为 false |
+| 扩展 FAB（`extended-fab`） | 展开的主操作按钮（默认） |
+| 扩展 FAB 的 `expanded` | `extended` |
+| `comp.fab.*`、`comp.extended-fab.*` | `comp.main-action-button.*` |
+
+### Material 3 的名称
+
+- Material 3 的 FAB、small FAB 和 large FAB 分别是 medium、small 和 large 尺寸的收起的主操作按钮。它的 extended FAB 是展开形态。
+- Compose 的 `expanded`（在 `ExtendedFloatingActionButton` 上）和 Flutter 的 `isExtended`（在 `FloatingActionButton.extended` 上）就是 `extended`。
+- Material 3 的 primary、secondary、tertiary 和 surface 这几种 FAB 颜色，对应 `filled`、`tonal` 和 `surface` 变体，以及预设添加的值。m3-like 预设通过这个组件的令牌，画出 Material 的圆角方形和 56 / 96 的高度。
+
+## 规格
+
+<DemoFrame label="变体" plain>
+  <tanrei-main-action-button label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="tonal" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="surface" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="尺寸，展开与收起" plain>
+  <tanrei-main-action-button size="small" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="撰写"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="small" label="撰写" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="撰写" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="撰写" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="后置图标、没有图标，以及禁用" plain>
+  <tanrei-main-action-button label="下一步" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="开始"></tanrei-main-action-button>
+  <tanrei-main-action-button label="撰写" disabled><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="撰写" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<ComponentSpecs name="main-action-button" />
+
+## 指南
+
+### 何时使用
+
+主操作按钮用于大多数用户来到这个屏幕要做的那个操作，并且无论他们滚动到哪里，这个操作都应当触手可及：写一条消息、添加一项、开始录音。一个屏幕有一个，或者没有。很多屏幕不需要它：设置页面或阅读视图里，没有哪一个操作值得悬浮在内容之上。
+
+- 属于某个表单、某个对话框或内容中某一项的操作，请在那些内容所在的位置使用[按钮](/zh-cn/components/button/)。
+- 针对当前屏幕或所选内容的多个操作，请使用[工具栏](/zh-cn/components/toolbar/)。
+- 当主操作有几种相关的形式时（新建文档、文件夹或上传），让主操作按钮打开一个列出它们的[底部面板](/zh-cn/components/bottom-sheet/)。在提供 [FAB 菜单](/zh-cn/components/fab-menu/)的预设中，这件事由 FAB 菜单来做；默认系统不提供它。
+- 它执行一个操作，不接受目标地址。只把用户带到别处的控件是链接：带 `href` 的[按钮](/zh-cn/components/button/)。
+
+### 展开还是收起
+
+一开始用展开形态。告诉用户这个按钮做什么的，是写出来的名称；只有在用户已经记住图标之后，单独一个图标才靠得住。
+
+当标签的代价大于它的好处时，把它收起：内容在滚动而按钮会遮住内容时，或者在窄窗口里。有空间时再把它展开，例如回到列表顶部时。这个变化由你通过设置 `extended` 来做；按下按钮绝不会改变它的形态。
+
+- 形态变化时，按钮的高度和圆角保持不变；哪一条边固定不动，由你的布局决定。锚定在末尾侧时，它朝那条边收起。
+- 没有图标的按钮保持展开，因为没有可以收起成的东西。没有标签的按钮画成收起形态，并会在调试构建中报告：它没有名称。
+- 在减弱动态效果时，形态立即切换。
+
+### 如何选择变体
+
+| 变体 | 强调程度 | 用于 |
+| --- | --- | --- |
+| Filled（默认） | 最高 | 以最强的力度呈现屏幕的主操作。 |
+| Tonal | 高 | 应当由内容唱主角的屏幕上的主操作。 |
+| Surface | 中性 | 位于本身已有颜色的内容（例如地图或照片）之上的主操作；在那里，带颜色的容器会与内容争抢注意力。 |
+
+设计系统可以添加自己的变体。
+
+### 如何选择尺寸
+
+| 尺寸 | 默认系统中的高度 | 用于 |
+| --- | --- | --- |
+| Small | 40 | medium 按钮旁边的第二个相关操作，或密集的布局。 |
+| Medium（默认） | 56 | 大多数屏幕的主操作。 |
+| Large | 96 | 宽阔或几乎空白的屏幕上的操作；在那里，medium 按钮会被淹没。 |
+
+高度同时也是收起形态的边长，所以同一个按钮在收起和展开时高度不变。
+
+### 位置
+
+这个按钮不画遮罩，也不移动任何内容。把它放在内容之上，通常在末尾侧的底角，并避开导航栏、停靠的工具栏和系统的边衬区。在可滚动内容的末尾留出空间，让按钮不会一直遮住最后一项。它的阴影投在容器之外：如果容纳它的容器会裁剪内容，请为阴影留出空间。
+
+### 推荐
+
+- 标签写成表示操作的一个动词，或动词加名词：**撰写**、**新建日程**、**添加照片**。
+- 选择用户已经把它和这个操作联系起来的图标，例如表示书写的 `edit` 或表示创建的 `add`。
+- 对于指向操作去向的图标，例如“下一步”的箭头，把 `iconPosition` 设为 `trailing`。
+- 在每一个有主操作按钮的屏幕上，都把它放在同一个位置。
+- 当它的操作在某个屏幕上不可用时，把它隐藏。这通常比让一个禁用的按钮悬浮在内容之上对用户更好。
+
+### 避免
+
+- 不要在一个屏幕上放两个相同尺寸的主操作按钮。如果两个操作看起来同样重要，那么哪一个都不是主操作：请使用内容里的按钮。
+- 不要把它用于次要的、破坏性的或仅用于导航的操作，例如“删除”“设置”或“返回”。
+- 不要把它当作切换按钮使用，也不要通过更改它的标签或图标来显示状态。
+- 不要在用户第一次看到的屏幕上把它收起，那时没有别的东西说明这个图标的含义。
+- 不要让它遮住用户决定是否按下它时所需要的内容。
+
+### 文案
+
+标签采用句首大写的写法（sentence case），末尾不加标点。以一到两个词为宜。标签不会截断：放得下时保持在一行，布局给它的宽度不够时换行。
+
+## 无障碍
+
+<ComponentAccessibility name="main-action-button" />
+
+### 组件负责的部分
+
+- 在两种形态下，它都是一个以 `label` 命名的按钮。图标对辅助技术隐藏。
+- 收起和展开改变的是画出来的东西，而不是朗读的内容：角色、名称和焦点都保持原样，不朗读任何内容，也没有“已按下”或“已展开”状态。
+- Enter 和 Space 激活它。禁用时，它不触发任何事件，离开焦点顺序，并暴露为禁用。
+- 在每种尺寸下，包括 small，它的点击区域都达到最小目标。
+- 它只在键盘聚焦时显示焦点指示，不带动画。
+- 展开时，容器随文本大小变大，标签绝不截断。收起时，图标不是文本。在 Web 上，Tanrei 的每个尺寸都跟随根字号，所以正方形和其中的图标一起变大，并保持为正方形。
+- 在从右到左的布局中，图标和标签互换两侧，内边距随之调换。只有图标集标记为表示方向的图标，其本身才会被镜像。
+- 调试构建会报告没有标签的按钮，以及没有图标却被收起的按钮。
+
+### 需要你做的事
+
+- 始终用你的产品的语言给它一个 `label`，即使它永远只以收起形态出现。
+- 把它放在元素树中它的操作所属的位置：在它所作用的内容之后；如果它就是这个屏幕存在的理由，则放在最前面。辅助技术和 Tab 键按树中的顺序到达它，而不是按它画出来的位置。
+- 它收起时，可以考虑为使用指针的用户提供一个文字相同的[工具提示](/zh-cn/components/tooltip/)。工具提示永远不能代替 `label`。
+- 确保它不会遮住拥有键盘焦点的内容或控件。在内容的末尾留出空间，或者把按钮移开。
+- 不要依靠变体的颜色来传达含义。请在标签里说出来。

@@ -1,0 +1,158 @@
+{
+  "tanrei": {
+    "comp": {
+      "toolbar": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product puts a short row of actions for the current screen or selection across the bottom edge on some screens and floating over the content on others (an editor's tools, a map's controls), horizontal or, beside the content on a large screen, vertical.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a toolbar reads: for each variant (docked: across the bottom edge; floating: a rounded surface over the content) the container color, elevation, corners, cross-axis size, end padding, minimum gap between items and edge color, and the width of that edge.",
+            "rules": [
+              "The toolbar has no interaction states: its items are the product's icon buttons and buttons, with their own tokens, which the toolbar does not restyle.",
+              "docked and floating must differ visibly at rest: a floating toolbar is raised and rounded, a docked one is flush with the screen's bottom edge.",
+              "container.size is the extent across the row of items: the height of a horizontal toolbar, the width of a vertical one. It is a minimum.",
+              "A container color must keep the items' own icon and label colors readable: a standard icon button draws on-surface-variant on it.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "variant": {
+              "default": "docked",
+              "values": [
+                "docked",
+                "floating"
+              ],
+              "members": [
+                "container.color",
+                "container.elevation",
+                "container.shape",
+                "container.size",
+                "container.padding-inline",
+                "container.gap",
+                "outline.color"
+              ]
+            }
+          }
+        },
+        "container": {
+          "color": {
+            "$type": "color",
+            "docked": {
+              "$value": "{tanrei.sys.color.surface}"
+            },
+            "floating": {
+              "$value": "{tanrei.sys.color.surface-bright}",
+              "$description": "White in light schemes, lighter than the page in dark ones, as a raised surface is."
+            }
+          },
+          "elevation": {
+            "$type": "shadow",
+            "docked": {
+              "$value": "{tanrei.sys.elevation.level0}"
+            },
+            "floating": {
+              "$value": "{tanrei.sys.elevation.level3}",
+              "$description": "The FAB's level: a floating toolbar sits over the content as a FAB does. Level 1 is only a hairline ring in the default system, so a raised surface needs level 2 or more."
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "docked": {
+              "$value": "{tanrei.sys.shape.corner.none}",
+              "$description": "A docked toolbar is flush with the screen's edges."
+            },
+            "floating": {
+              "$value": "{tanrei.sys.shape.corner.full}"
+            }
+          },
+          "size": {
+            "$type": "dimension",
+            "$description": "The extent across the row of items: the height of a horizontal toolbar, the width of a vertical one, not counting a docked toolbar's system inset. A minimum: a button's enlarged label grows it.",
+            "docked": {
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 16
+                }
+              }
+            },
+            "floating": {
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 16
+                }
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "From each end of the toolbar, along its axis, to the first and the last item.",
+            "docked": {
+              "$value": "{tanrei.sys.space.space200}"
+            },
+            "floating": {
+              "$value": "{tanrei.sys.space.space100}",
+              "$description": "Equal to the space across the row around a medium item (64 − 40 = 2 × 12), so the items sit evenly inside the rounded ends.",
+              "$extensions": {}
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Between the visible bounds of two neighbouring items. docked: the least space between them in a toolbar that spreads its items across its width; neighbouring hit areas meet at the middle of it (TBR-9), so it is what keeps each item's target whole: at sys.target.touch minus an item's length or more, the item keeps its full target between neighbours, and the default system's 16 is 48 minus its narrowest icon button (small, 32). floating: the space between items in a toolbar that is as long as its items need; 0 in the default system, where the items stand as close as their targets allow, each keeping sys.target.touch along the axis (TBR-16), so medium icon buttons (40) stand 8 apart and items 48 or longer touch.",
+            "docked": {
+              "$value": "{tanrei.sys.target.spacing}",
+              "$extensions": {}
+            },
+            "floating": {
+              "$value": "{tanrei.sys.target.spacing}",
+              "$extensions": {}
+            }
+          }
+        },
+        "outline": {
+          "color": {
+            "$type": "color",
+            "$description": "A docked toolbar's top edge; the edge around a floating toolbar's whole shape.",
+            "docked": {
+              "$value": "{tanrei.sys.color.outline-variant}"
+            },
+            "floating": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A floating toolbar is set apart by its elevation, not by an edge."
+                }
+              }
+            }
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,387 @@
+/*
+ * Skeleton (specs/skeleton.spec.json, SKL-1 to SKL-26): stands where content will be while it
+ * loads — quiet placeholders in the shape of what is coming, which keep the box the content will take, in a region
+ * that says once that it is busy.
+ *
+ * `<tanrei-skeleton>` is an element with no shadow root around the product's own layout, and a placeholder is the
+ * product's own empty element with a class:
+ *
+ *   <tanrei-skeleton label="Loading the author">
+ *     <div class="byline">
+ *       <span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span>
+ *       <div>
+ *         <p><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span></p>
+ *         <p><span class="tanrei-skeleton-placeholder" data-lines="2"></span></p>
+ *       </div>
+ *     </div>
+ *   </tanrei-skeleton>
+ *
+ * A placeholder: `data-shape` (text | block | circle; missing or unknown is text), `data-lines` (text: how many
+ * lines), and the CSS properties `inline-size` and `block-size` for its sizes — in its `style` or by a rule of the
+ * product's. A text placeholder takes the text style of where it stands (the inherited `font`), so it goes where the
+ * text will be: inside the heading, the paragraph, the cell.
+ *
+ * This stylesheet draws everything, before and without script — a skeleton is what a page shows before its script has
+ * run: the shapes and their sizes, the show delay (an animation that keeps the skeleton hidden for its length), the
+ * pulse, stillness under reduced motion, outlines in forced colors. The element (src/components/skeleton/skeleton.ts)
+ * adds what a stylesheet cannot: the role, the name and the busy state when the delay ends, `inert` for what the
+ * skeleton holds, a delay that is counted where the skeleton is not rendered, pausing while unseen, the wave (which
+ * has to be measured) and the debug reports. It writes, on the skeleton:
+ *
+ *   data-clocked     the element counts this insertion's show delay itself; the stylesheet's own wait is off
+ *   data-waiting     that delay is running: nothing is drawn (SKL-7)
+ *   data-paused      the skeleton cannot be seen: its animation is held (SKL-14)
+ *   data-animation   the manner the tokens name, where the browser has no style queries (SKL-12)
+ *   data-wave        the manner is wave and the placeholders are measured: `--_skl-wave-size` on the skeleton, and
+ *                    `--_skl-wave-offset` on each placeholder
+ *
+ * Every value is a `--tanrei-comp-skeleton-*` token.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name or at the placeholder's class and has no specificity (`:where()`; a
+ *   rule on a pseudo-element has a pseudo-element's), so one class of the product's wins and the ORDER of the rules
+ *   decides between two of them. The one `!important` is a text placeholder's height, which is its lines and nothing
+ *   else (SKL-3: it does not read a block size).
+ * - The skeleton is a plain block: what stands in it is laid out as it would be without it (margins collapse through
+ *   it), so the box it holds is the box the content takes. The gap of SKL-1 is a margin between two placeholders that
+ *   are both its own children.
+ * - A text placeholder is ONE element, `lines` line boxes high (`1lh` each). Its bars are real boxes with real corners:
+ *   the first is its `::before`, the last of two or more its `::after` (shorter: `last-line-inline-size`), and each
+ *   bar between them is a shadow of the first, one line box further down — a shadow has the box's size and corners and
+ *   is drawn once, so a translucent fill stays even. The stylesheet reads `data-lines` up to 24 and holds 22 shadows;
+ *   the element writes the rule of a larger number.
+ * - A block's and a circle's `::before` is a strut one line box long, never painted: it gives the placeholder the size
+ *   of SKL-4 and SKL-5 where neither the product nor its layout gave one, and yields to a size that is given.
+ * - The pulse is an animation of each placeholder's own `opacity`, which a browser runs without layout and off the
+ *   main thread. Nothing here asks for a frame.
+ * - The corner-smoothing rule (src/styles/shape.ts) is written by the build in place of the
+ *   `skeleton:shape` mark, so the curve has one source.
+ * - Names that begin `--_skl-` are private.
+ */
+@layer tanrei.components {
+  /* ── The region (SKL-1): a block as wide as its place and as tall as what it holds; no look of its own ─────────── */
+  :where(tanrei-skeleton) {
+    --_skl-gap: var(--tanrei-comp-skeleton-container-gap);
+    /* SKL-9: the show delay of this skeleton — the token's, or none (`show-delay="0"`). */
+    --_skl-delay: var(--tanrei-comp-skeleton-motion-show-delay);
+    /* SKL-8: a pulse begins when the skeleton is shown. */
+    --_skl-pulse-delay: var(--_skl-delay);
+
+    display: block;
+    /* SKL-19: it takes no pointer; `inert`, which the element adds, also keeps focus and assistive technology out. */
+    pointer-events: none;
+    /* SKL-7: from its insertion it is hidden for its delay, with its box kept: nothing is drawn, nothing is exposed.
+       The delay is the animation's length — a wait, not motion, so reduced motion keeps it (SKL-10). */
+    animation: tanrei-skeleton-wait var(--_skl-delay) step-end;
+    /* The token's delay again, in a property that does nothing, for the element to read as a time (SKL-9). */
+    transition: none 0s linear var(--tanrei-comp-skeleton-motion-show-delay);
+  }
+  :where(tanrei-skeleton[hidden]) {
+    display: none;
+  }
+  :where(tanrei-skeleton[show-delay='0']) {
+    --_skl-delay: 0s;
+  }
+  /* The element counts the delay (see the head of this file): the animation's wait is off, and a pulse begins at the
+     moment `data-waiting` is taken away. */
+  :where(tanrei-skeleton[data-clocked]) {
+    --_skl-pulse-delay: 0s;
+    animation: none;
+  }
+  :where(tanrei-skeleton[data-waiting]) {
+    visibility: hidden;
+  }
+  /* SKL-26: a skeleton that holds no placeholder draws nothing and takes no space. (Asked of the skeleton itself.) */
+  :where(tanrei-skeleton:not(:has(.tanrei-skeleton-placeholder))) {
+    display: none;
+  }
+  /* SKL-1: two placeholders that stand directly in the skeleton, one under the other. */
+  :where(tanrei-skeleton) > :where(.tanrei-skeleton-placeholder) + :where(.tanrei-skeleton-placeholder) {
+    margin-block-start: var(--_skl-gap);
+  }
+
+  /* ── A placeholder (SKL-2): one box — for text, one box a line — filled, with the corners of its shape ─────────── */
+  /* skeleton:shape */
+  :where(.tanrei-skeleton-placeholder) {
+    --_skl-fill: var(--tanrei-comp-skeleton-placeholder-color);
+    --_skl-lines: 1;
+    /* 1 while the placeholder has a last line that is not its first (SKL-3), else 0. */
+    --_skl-more: min(1, var(--_skl-lines) - 1);
+    --_skl-line: var(--tanrei-sys-border-hairline);
+
+    /* A block that keeps its bars' margins inside it. */
+    display: flow-root;
+    box-sizing: border-box;
+    /* SKL-21: never wider than its place; and no least size from what stands in it (a strut). */
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    min-block-size: 0;
+    /* SKL-12, pulse: the fill's opacity falls to dim-opacity and returns, every placeholder in step. */
+    animation: tanrei-skeleton-pulse var(--tanrei-comp-skeleton-motion-dim-duration) var(--tanrei-comp-skeleton-motion-dim-easing) var(--_skl-pulse-delay, 0s) infinite alternate;
+  }
+
+  :where(.tanrei-skeleton-placeholder[hidden]) {
+    display: none;
+  }
+  /* SKL-3, SKL-25: `data-lines`, as far as an attribute can be read here; the element writes the rule of any other. */
+  :where(.tanrei-skeleton-placeholder[data-lines='2']) {
+    --_skl-lines: 2;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='3']) {
+    --_skl-lines: 3;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='4']) {
+    --_skl-lines: 4;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='5']) {
+    --_skl-lines: 5;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='6']) {
+    --_skl-lines: 6;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='7']) {
+    --_skl-lines: 7;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='8']) {
+    --_skl-lines: 8;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='9']) {
+    --_skl-lines: 9;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='10']) {
+    --_skl-lines: 10;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='11']) {
+    --_skl-lines: 11;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='12']) {
+    --_skl-lines: 12;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='13']) {
+    --_skl-lines: 13;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='14']) {
+    --_skl-lines: 14;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='15']) {
+    --_skl-lines: 15;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='16']) {
+    --_skl-lines: 16;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='17']) {
+    --_skl-lines: 17;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='18']) {
+    --_skl-lines: 18;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='19']) {
+    --_skl-lines: 19;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='20']) {
+    --_skl-lines: 20;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='21']) {
+    --_skl-lines: 21;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='22']) {
+    --_skl-lines: 22;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='23']) {
+    --_skl-lines: 23;
+  }
+  :where(.tanrei-skeleton-placeholder[data-lines='24']) {
+    --_skl-lines: 24;
+  }
+
+  /* ── Text (SKL-3; SKL-25: a shape this spec does not have is text): `lines` line boxes of the text style in effect ── */
+  :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle'])) {
+    block-size: calc(var(--_skl-lines) * 1lh) !important;
+  }
+  :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::before,
+  :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::after {
+    --tanrei-corner-radius: var(--tanrei-comp-skeleton-placeholder-shape-text);
+    --tanrei-corner-pill: var(--tanrei-comp-skeleton-placeholder-shape-text-pill, 0);
+    content: '';
+    display: block;
+    box-sizing: border-box;
+    background-color: var(--_skl-fill);
+  }
+  /* The first bar: as tall as the font size, centred in the first line box; and one shadow of it for each line
+     between the first and the last, a line box apart (a shadow that is not needed stands under the bar, undrawn). */
+  :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::before {
+    block-size: 1em;
+    margin-block-start: calc((1lh - 1em) / 2);
+    box-shadow:
+      0 calc(1lh * clamp(0, var(--_skl-lines) - 2, 1)) 0 0 var(--_skl-fill),
+      0 calc(2lh * clamp(0, var(--_skl-lines) - 3, 1)) 0 0 var(--_skl-fill),
+      0 calc(3lh * clamp(0, var(--_skl-lines) - 4, 1)) 0 0 var(--_skl-fill),
+      0 calc(4lh * clamp(0, var(--_skl-lines) - 5, 1)) 0 0 var(--_skl-fill),
+      0 calc(5lh * clamp(0, var(--_skl-lines) - 6, 1)) 0 0 var(--_skl-fill),
+      0 calc(6lh * clamp(0, var(--_skl-lines) - 7, 1)) 0 0 var(--_skl-fill),
+      0 calc(7lh * clamp(0, var(--_skl-lines) - 8, 1)) 0 0 var(--_skl-fill),
+      0 calc(8lh * clamp(0, var(--_skl-lines) - 9, 1)) 0 0 var(--_skl-fill),
+      0 calc(9lh * clamp(0, var(--_skl-lines) - 10, 1)) 0 0 var(--_skl-fill),
+      0 calc(10lh * clamp(0, var(--_skl-lines) - 11, 1)) 0 0 var(--_skl-fill),
+      0 calc(11lh * clamp(0, var(--_skl-lines) - 12, 1)) 0 0 var(--_skl-fill),
+      0 calc(12lh * clamp(0, var(--_skl-lines) - 13, 1)) 0 0 var(--_skl-fill),
+      0 calc(13lh * clamp(0, var(--_skl-lines) - 14, 1)) 0 0 var(--_skl-fill),
+      0 calc(14lh * clamp(0, var(--_skl-lines) - 15, 1)) 0 0 var(--_skl-fill),
+      0 calc(15lh * clamp(0, var(--_skl-lines) - 16, 1)) 0 0 var(--_skl-fill),
+      0 calc(16lh * clamp(0, var(--_skl-lines) - 17, 1)) 0 0 var(--_skl-fill),
+      0 calc(17lh * clamp(0, var(--_skl-lines) - 18, 1)) 0 0 var(--_skl-fill),
+      0 calc(18lh * clamp(0, var(--_skl-lines) - 19, 1)) 0 0 var(--_skl-fill),
+      0 calc(19lh * clamp(0, var(--_skl-lines) - 20, 1)) 0 0 var(--_skl-fill),
+      0 calc(20lh * clamp(0, var(--_skl-lines) - 21, 1)) 0 0 var(--_skl-fill),
+      0 calc(21lh * clamp(0, var(--_skl-lines) - 22, 1)) 0 0 var(--_skl-fill),
+      0 calc(22lh * clamp(0, var(--_skl-lines) - 23, 1)) 0 0 var(--_skl-fill);
+  }
+  /* The last bar of two or more: last-line-inline-size of the placeholder, from the start edge. */
+  :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::after {
+    inline-size: calc(100% * var(--tanrei-comp-skeleton-placeholder-last-line-inline-size));
+    block-size: calc(1em * var(--_skl-more));
+    margin-block-start: calc((var(--_skl-lines) - 1) * 1lh - 1em * var(--_skl-more));
+  }
+
+  /* ── Block (SKL-4): the size given, else the layout's, else its place wide and one line box high ───────────────── */
+  :where(.tanrei-skeleton-placeholder[data-shape='block']) {
+    --tanrei-corner-radius: var(--tanrei-comp-skeleton-placeholder-shape-block);
+    --tanrei-corner-pill: var(--tanrei-comp-skeleton-placeholder-shape-block-pill, 0);
+    background-color: var(--_skl-fill);
+  }
+  :where(.tanrei-skeleton-placeholder[data-shape='block'])::before {
+    content: '';
+    display: block;
+    block-size: 1lh;
+    max-block-size: 100%;
+  }
+
+  /* ── Circle (SKL-5): a square of the side given, else one line box, drawn round ────────────────────────────────── */
+  :where(.tanrei-skeleton-placeholder[data-shape='circle']) {
+    --tanrei-corner-radius: var(--tanrei-comp-skeleton-placeholder-shape-circle);
+    --tanrei-corner-pill: var(--tanrei-comp-skeleton-placeholder-shape-circle-pill, 0);
+    /* One size given is both: the other follows from the ratio, also where the place is narrower than the side. */
+    inline-size: fit-content;
+    aspect-ratio: 1;
+    background-color: var(--_skl-fill);
+    /* Never an oval: where a block size was given and the place is narrower than it, the box cannot follow (a height
+       that is given is kept), and the fill is the circle that fits. On a square this cuts nothing. */
+    clip-path: circle(closest-side);
+  }
+  :where(.tanrei-skeleton-placeholder[data-shape='circle'])::before {
+    content: '';
+    display: block;
+    inline-size: 1lh;
+    max-inline-size: 100%;
+  }
+
+  /* ── The manner (SKL-12 to SKL-14) ─────────────────────────────────────────────────────────────────────────────── */
+  /* SKL-7: while the element's delay runs nothing is animated; a pulse begins when it ends (SKL-8). */
+  :where(tanrei-skeleton[data-waiting]) :where(.tanrei-skeleton-placeholder) {
+    animation-name: none;
+  }
+  /* none: still, at the resting opacity. By a style query where the browser has them, else by the element's word. */
+  @container style(--tanrei-comp-skeleton-motion-animation: none) {
+    :where(.tanrei-skeleton-placeholder) {
+      animation-name: none;
+    }
+  }
+  :where(tanrei-skeleton[data-animation='none']) :where(.tanrei-skeleton-placeholder) {
+    animation-name: none;
+  }
+  /* wave: the same fall and return, each point later than the skeleton's start edge by its share of the skeleton's
+     inline size — one mask as wide as the skeleton, placed in every placeholder where the skeleton's start edge is,
+     and moved by one skeleton's width a pulse. Only the fill's opacity changes. The element measures the skeleton and
+     each placeholder's distance from its left edge; until it has, a wave is drawn as a pulse. The band is the same
+     seen from either side, so right to left it only runs the other way (SKL-22). */
+  :where(tanrei-skeleton[data-wave]) :where(.tanrei-skeleton-placeholder) {
+    mask-image: linear-gradient(to right, rgb(0 0 0 / 1), rgb(0 0 0 / var(--tanrei-comp-skeleton-placeholder-dim-opacity)), rgb(0 0 0 / 1));
+    mask-size: var(--_skl-wave-size, 100%) 100%;
+    mask-repeat: repeat;
+    mask-position: calc(0px - var(--_skl-wave-offset, 0px)) 0;
+    animation-name: tanrei-skeleton-wave;
+    animation-duration: calc(2 * var(--tanrei-comp-skeleton-motion-dim-duration));
+    animation-timing-function: linear;
+    animation-direction: normal;
+  }
+  :where(tanrei-skeleton[data-wave]):dir(rtl) :where(.tanrei-skeleton-placeholder) {
+    animation-direction: reverse;
+  }
+  /* SKL-14: held while the skeleton cannot be seen, and resumed where it stopped. */
+  :where(tanrei-skeleton[data-paused]) :where(.tanrei-skeleton-placeholder) {
+    animation-play-state: paused;
+  }
+  /* SKL-13: reduced motion is stillness, whatever the manner; the delay above is kept (SKL-10). */
+  @media (prefers-reduced-motion: reduce) {
+    :where(.tanrei-skeleton-placeholder),
+    :where(tanrei-skeleton[data-wave]) :where(.tanrei-skeleton-placeholder) {
+      mask-image: none;
+      animation-name: none;
+    }
+  }
+
+  /* ── Forced colors (SKL-20): each placeholder, and each line of text, the outline of its shape; no fill; still ─── */
+  @media (forced-colors: active) {
+    :where(.tanrei-skeleton-placeholder),
+    :where(tanrei-skeleton[data-wave]) :where(.tanrei-skeleton-placeholder) {
+      mask-image: none;
+      animation-name: none;
+    }
+    :where(.tanrei-skeleton-placeholder[data-shape='block']),
+    :where(.tanrei-skeleton-placeholder[data-shape='circle']) {
+      background-color: transparent;
+      outline: var(--_skl-line) solid CanvasText;
+      outline-offset: calc(0px - var(--_skl-line));
+    }
+    :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::before,
+    :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::after {
+      border: var(--_skl-line) solid CanvasText;
+      background-color: transparent;
+      box-shadow: none;
+    }
+    /* The lines between the first and the last: a shadow is not drawn in this mode, and a copy of a filled box would
+       be a filled bar. The first bar's outline is copied instead, each copy doubling what is there (1, 2, 4, 8 and 16
+       line boxes down, each no further than the lines that are left), up to 32 lines. Where the last doubling is not
+       a whole one, copies fall on copies: the step is a whole number of pixels where the browser can round, so that
+       two copies of one line are one line and not two lines a fraction apart (a line height of 21.98 measured: a
+       hairline drawn two thick). */
+    :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::before {
+      --_skl-full: max(1, var(--_skl-lines) - 1);
+      --_skl-step: 1lh;
+      filter: drop-shadow(0 calc(var(--_skl-step) * (min(2, var(--_skl-full)) - 1)) 0 CanvasText) drop-shadow(0 calc(var(--_skl-step) * (min(4, var(--_skl-full)) - min(2, var(--_skl-full)))) 0 CanvasText)
+        drop-shadow(0 calc(var(--_skl-step) * (min(8, var(--_skl-full)) - min(4, var(--_skl-full)))) 0 CanvasText) drop-shadow(0 calc(var(--_skl-step) * (min(16, var(--_skl-full)) - min(8, var(--_skl-full)))) 0 CanvasText)
+        drop-shadow(0 calc(var(--_skl-step) * (min(32, var(--_skl-full)) - min(16, var(--_skl-full)))) 0 CanvasText);
+    }
+    @supports (inline-size: round(1lh, 1px)) {
+      :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::before {
+        --_skl-step: round(1lh, 1px);
+      }
+    }
+    :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::after {
+      border-width: calc(var(--_skl-line) * var(--_skl-more));
+    }
+  }
+
+  /* SKL-7: hidden for as long as it runs; when it ends the skeleton is what its other rules say — visible. */
+  @keyframes tanrei-skeleton-wait {
+    from,
+    to {
+      visibility: hidden;
+    }
+  }
+  /* SKL-12: from the resting opacity (the placeholder's own) to dim-opacity; `alternate` is the way back. */
+  @keyframes tanrei-skeleton-pulse {
+    to {
+      opacity: var(--tanrei-comp-skeleton-placeholder-dim-opacity);
+    }
+  }
+  @keyframes tanrei-skeleton-wave {
+    from {
+      mask-position: calc(0px - var(--_skl-wave-offset, 0px)) 0;
+    }
+    to {
+      mask-position: calc(var(--_skl-wave-size, 100%) - var(--_skl-wave-offset, 0px)) 0;
+    }
+  }
+}

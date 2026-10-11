@@ -1,0 +1,208 @@
+---
+title: フィールド
+description: フォームのどのフィールドにもあるもの、つまり必須か任意かを示せるラベル、補足の 1 行、値が受け付けられなかった理由を 1 つのコントロールに添え、支援技術に向けてそれぞれをコントロールと結び付けます。フィールドは枠であり、コントロールではありません。
+translationOf: components/field.mdx
+sourceHash: 1988f960c4e1a43fbe309826a40223811eca68ee
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="field" />
+
+<DemoFrame label="フィールドで名前、補足、印を付けたスライダーとスイッチ" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必須" supporting-text="通知とメディアに適用されます。"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知" requirement="optional" optional-text="任意" supporting-text="レビュー待ちがあるときにお知らせします。"><tanrei-switch selected></tanrei-switch></tanrei-field>
+</DemoFrame>
+
+テキストフィールドは、何を入力するものか、回答が必須かどうか、どう答えればよいか、なぜ回答が受け付けられなかったかを、自分で伝えられます。フィールドは、それができないコントロール（スライダー、スイッチ、[テキスト入力欄](/ja/components/text-input/)、[カラー入力欄](/ja/components/color-input/)、[ワンタイムコード入力欄](/ja/components/one-time-code-input/)、プロダクトが独自に作ったコントロールなど）に、同じ 4 つを添えます。テキストフィールドは、それ自体が、テキスト入力欄を囲むフィールドです。ラベルはコントロールの上に、補足は下に置きます。フィールドがエラーの間も補足は残り、その下にエラーテキストが加わります。
+
+フィールドが描くのは枠だけです。コンテナも、値も、イベントも持ちません。コントロールは、自身の見た目、キー操作、イベント、フォームの中での役割をそのまま保ちます。
+
+Web では `<tanrei-field>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field label="音量" supporting-text="通知とメディアに適用されます。" requirement="optional" optional-text="任意">
+      <tanrei-slider name="volume" value="40"></tanrei-slider>
+    </tanrei-field>
+
+    <!-- 検証するのはプロダクト側です。フィールドは理由を表示し、コントロールが invalid であることを伝えます。 -->
+    <tanrei-field label="音量" requirement="required" required-text="必須" error error-text="0 より大きい値を選んでください。">
+      <tanrei-slider name="volume" value="0"></tanrei-slider>
+    </tanrei-field>
+
+    <!-- テキスト入力欄：フィールドが名前を与え、補足はテキストが始まる位置から始まり、渡された文字数を描きます。 -->
+    <tanrei-field label="表示名" supporting-text="コメントの横に表示されます。" count-text="5/40">
+      <tanrei-text-input name="display-name" value="山田 花子" maxlength="40" counter></tanrei-text-input>
+    </tanrei-field>
+
+    <!-- 自分で名前を持つコントロール：フィールドのラベルは空にします。 -->
+    <tanrei-field supporting-text="同意はいつでも取り消せます。">
+      <tanrei-checkbox label="利用規約に同意する"></tanrei-checkbox>
+    </tanrei-field>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Field, Slider } from '@tanrei/react';
+
+    <Field label="音量" supportingText="通知とメディアに適用されます。" error={tooQuiet} errorText="0 より大きい値を選んでください。">
+      <Slider value={volume} onChange={(event) => setVolume(event.detail.value)} />
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="3 種類の必須・任意の印、エラー、無効なフィールド、ラベルのグリフ" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必須"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="optional" optional-text="任意"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" requirement="required" required-text="必須" error error-text="0 より大きい値を選んでください。"><tanrei-slider value="0"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量" supporting-text="通知とメディアに適用されます。" disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="音量"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+</DemoFrame>
+
+<DemoFrame label="補足とエラーを同時に：補足は残り、その下にエラーテキストが加わります" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="パスワード" supporting-text="8 文字以上で、数字を 1 つ含めてください。"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="パスワード" supporting-text="8 文字以上で、数字を 1 つ含めてください。" error error-text="パスワードが短すぎます。"><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
+</DemoFrame>
+
+<DemoFrame label="フィールドの中のテキスト入力欄：補足と文字数のあるものと、エラーのもの" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="表示名" supporting-text="コメントの横に表示されます。" count-text="5/40"><tanrei-text-input value="山田 花子" maxlength="40" counter></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" requirement="required" required-text="必須" error error-text="メールアドレスを最後まで入力してください。"><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
+</DemoFrame>
+
+### テキスト入力欄を囲む
+
+[テキスト入力欄](/ja/components/text-input/)を囲んだフィールドは、[テキストフィールド](/ja/components/text-field/)を自分で書いたものです。見た目も、名前、説明、状態も同じです。入力欄は、自分にしか分からないことをフィールドに伝え、フィールドはそれに従います。
+
+| 入力欄が伝えること | フィールド |
+| --- | --- |
+| テキストが端からどれだけ離れているか。パディングと、先頭のアイコンの分です | 補足の行をその位置で始め、その位置で終えます。補足は、テキストが始まる位置から始まります |
+| ラベルを自分で描くこと。Filled と Outlined のボックスの中で浮き上がるラベルです | ラベルの行と必須・任意のタグを描きません。入力欄に名前を与えることは変わりません。必須の入力欄では、浮き上がるラベルのあとにアスタリスクが付きます |
+| 日付や時刻を受け付けなかったこと。途中まで入力したままか、選べない値です | `error` が true の間と同じようにエラーになり、入力欄がそのために持つ言葉を表示します |
+
+`countText` は、コントロールの値についての数を、描くとおりの形（「12/40」）で渡すものです。フィールドはそれを補足の行の末尾に描き、ほかには何もしません。数えることはなく、描いた数は支援技術から隠します。コントロールが自分の数を伝えるためです。`input` のたびに、入力欄の `countText` から書き込みます。テキストフィールドは、これを自分で行います。
+
+`valueText` は、コントロールの今の値を言葉で表したもの（「40%」「100 ドル – 300 ドル」）です。スライダーのように、コントロールを見ても値が読み取れないものに使います。フィールドはそれをラベルの行の末尾、ラベルの 1 行目に描き、ほかには何もしません。値を読んだり書式化したりすることはなく、描いたテキストは支援技術から隠します。コントロールが自分の値を伝えるためです。ラベルに行の半分も残らなくなるときは、ラベルのあとの独立した行に移ります。ラベルを描いていない間は、値のテキストも描きません。`input` のたびに、スライダーの `shownValueText` から書き込みます。[スライダーフィールド](/ja/components/slider-field/)は、これを自分で行います。スライダーには、この完成したフィールドが使えます。
+
+<DemoFrame label="スライダーを入れたフィールド。ラベルの行の末尾に、値を言葉で示しています" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="文字の大きさ" supporting-text="すべてのページに適用されます。" value-text="120%"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120%"></tanrei-slider></tanrei-field>
+</DemoFrame>
+
+### セレクトを囲む
+
+[セレクト](/ja/components/select/)を囲んだフィールドは、[セレクトフィールド](/ja/components/select-field/)を自分で書いたものです。見た目も、名前、説明、状態も同じです。オプションは、セレクトの子として書きます。セレクトは、自分にしか分からないことをフィールドに伝え、フィールドはそれに従います。
+
+| セレクトが伝えること | フィールド |
+| --- | --- |
+| 値が端からどれだけ離れているか。パディングと、先頭のアイコンの分です | 補足の行をその位置で始め、その位置で終えます。補足は、値が始まる位置から始まります |
+| ラベルを自分で描くこと。Filled と Outlined のボックスの中で浮き上がるラベルです | ラベルの行と必須・任意のタグを描きません。セレクトに名前を与えることは変わりません。必須のセレクトでは、浮き上がるラベルのあとにアスタリスクが付きます |
+| リストが開いている間、フォーカスされた状態で描かれていること | その間、フィールドの中にフォーカスがあってもなくても、ラベルと補足をフォーカスされたときの色で描きます |
+
+<ComponentSpecs name="field" />
+
+## ガイドライン
+
+### フィールドを使うか、それ自体がフィールドであるコントロールを使うか
+
+| コントロール | 使うもの |
+| --- | --- |
+| 自分のラベル、補足、エラーを持たない：スライダー、スイッチ、独自に作ったコントロール | それを囲むフィールド。スライダーなら、2 つを 1 つのコンポーネントにしたフィールドである[スライダーフィールド](/ja/components/slider-field/)も使えます。 |
+| 入力するためのコントロールだけの部品：[テキスト入力欄](/ja/components/text-input/)、[カラー入力欄](/ja/components/color-input/)、[ワンタイムコード入力欄](/ja/components/one-time-code-input/) | それを囲むフィールド。または、2 つを 1 つのコンポーネントにしたフィールド：[テキストフィールド](/ja/components/text-field/)、[カラーフィールド](/ja/components/color-field/)、[ワンタイムコードフィールド](/ja/components/one-time-code-field/)。 |
+| 単独の[セレクト](/ja/components/select/) | それを囲むフィールド。または、2 つを 1 つのコンポーネントにしたもの：[セレクトフィールド](/ja/components/select-field/)。 |
+| すでにフィールドである：テキストフィールド、ワンタイムコードフィールド、スライダーフィールド、セレクトフィールドや、自分の `supportingText` を持つコントロール | コントロールだけ。フィールドの中には入れません。 |
+| 横に置いたラベルが自分の名前になる：[チェックボックス](/ja/components/checkbox/)、ラベル付きのスイッチ | 補足やエラーが必要なときに、`label` を空にしたフィールド。 |
+| 1 つの質問に答えるコントロールの集まり | [フィールドグループ](/ja/components/field-group/)。 |
+
+目安として、コントロールに `supportingText` プロパティがあれば、フィールドは要りません。
+
+### 必須と任意
+
+`requirement` は `none`、`required`、`optional` のいずれかです。コントロールが必須と任意の両方になることはないので、設定は 1 つです。
+
+- `required` は、コントロールが必須であることを支援技術に伝え、ラベルの横に必須の印を描きます。
+- `optional` は、控えめなタグを描き、そのテキストをコントロールの説明に加えます。
+- どちらも検証はしません。回答がないことは、利用者側で `error` と `errorText` を使って伝えます。
+
+必須のコントロールにどんな印を付けるかは、デザインシステムが、すべてのフィールドとコントロールの集まりについて 1 つだけ決めます。トークン `sys.behavior.requirement-mark` で、値は `tag`（「必須」と書いた Filled の小さなタグ）、`asterisk`、`none` のいずれかです。既定のシステムはタグを使います。デザインシステムは、このトークン 1 つを設定すれば、すべてのフォームを一度に変えられます。フィールドは、これに従う自身のトークン `comp.field.requirement.mark` を通して読みます。デザインシステムがこちらを設定するのは、1 つのコントロールのフィールドとコントロールの集まりとで印を変えるときだけです。`requiredMark` を使うと、1 つのフィールドだけ、どちらよりも優先して変えられます（`tag`、`asterisk`、`none`）。
+
+必須・任意のタグは、小さな[タグ](/ja/components/tag/)そのものです。必須は Filled、任意は Tonal で、フィールドはこのタグのためのトークンを持ちません。デザインシステムが小さなタグの見た目を変えれば、必須・任意のタグも一緒に変わります。フィールドがフォーカスされていても、エラーでも、無効でも、タグの見た目は同じです。タグの言葉はプロダクトのものです。`requiredText` と `optionalText` をフィールドに書くか、`setWords()` でプロダクト全体に一度だけ渡します。Tanrei は言葉を同梱しません。`requiredText` がなければタグの位置にアスタリスクを描き、`optionalText` がなければタグを描きません。
+
+印は、少ないほうに付けます。ほとんどが必須のフォームでは任意のものに、必須のものが少ないフォームでは必須のものに付けます。
+
+### 補足とエラー
+
+- `supportingText` では、答え方を伝えます。形式、範囲、値を何に使うかなどです。
+- `errorText` では、この回答の何が問題で、どう直せばよいかを言葉で伝えます。`error` が true の間、エラーテキストは補足の下に描かれ、補足は残ります。そのため、補足の内容をエラーテキストに繰り返す必要はありません。
+- 補足のあるフィールドは、エラーの間、エラーテキストと小さな間隔（`comp.field.error-text.gap`）の分だけ高くなります。エラーテキストより上にあるものは動きません。エラーになる前に、そのための場所を空けておくこともありません。補足のないフィールドでは、補足が入る位置にエラーテキストが出ます。
+- 文字数は、エラーテキストが現れても消えても、補足の横、1 行目の終わりにとどまります。
+- `error` は、検証を済ませてから設定します。回答の途中では設定しません。フィールドが自分で設定することはありません。
+
+### コントロールは 1 つ
+
+フィールドが囲むコントロールは、ちょうど 1 つです。既定のスロットに置いた 1 つの要素がそれにあたります。複数置いた場合は、最初の 1 つにだけ名前と説明を付け、デバッグビルドでそのことを報告します。コントロールの集まりには、フィールドグループを使います。
+
+囲んだコントロールを無効にするときは、コントロールではなくフィールドを無効にします。そうすると、ラベルと補足も無効の見た目になります。
+
+### 推奨
+
+- ラベルには、何を尋ねているかを数語で書き、見える状態にしておきます。`labelHidden` を使うのは、テーブルの列見出しのように、同じコントロールのための見えるラベルが別の場所にあるときだけです。
+- 1 つの列の中ではフィールドの幅をそろえ、ラベルどうし、コントロールどうしの位置が合うようにします。
+
+### 非推奨
+
+- テキストフィールドなど、自分でラベルと補足を描くコントロールをフィールドの中に入れない。ラベルが 2 つになり、デバッグビルドがそのことを報告します。フィールドが囲むのは、コントロールだけの部品であるテキスト入力欄です。
+- ラベルに指示を書かない。それは補足テキストの役割です。
+- エラーの色だけに頼らない。エラーは言葉で書きます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="field" />
+
+### コンポーネントが担うこと
+
+- ラベルは、描かれていても、`labelHidden` で隠されていても、コントロールのアクセシブルネームになります。自分の名前を持つコントロールは、その名前を保ちます。
+- コントロールの説明は、補足、フィールドがエラーの間のエラーテキスト、コントロールが任意の間の `optionalText` の順です。コントロールがすでに説明を持っていれば、その後に続きます。
+- `error` が true の間はコントロールが invalid であることを、`requirement` が `required` の間は必須であることを、`disabled` が true の間は無効であることを伝えます。スライダーのように、ロールに必須の状態がないコントロールでは、代わりに説明の中で `requiredText` を伝えます。
+- チェックボックスやラジオボタンのように自身のエラーの状態を持つコントロールは、その状態で描かれます。
+- フォーカスがフィールドの中にある間にエラーが現れるか、エラーの文言が変わると、1 度だけ、控えめに読み上げます。読み上げるのはエラーテキストだけで、補足をもう一度読むことはありません。エラーのためにフォーカスが動くことはありません。
+- ラベルを押すと、フォーカスがコントロールに移ります。コントロールが操作されることはありません。
+- フィールドは、フォーカスが止まる位置を増やさず、キーも処理しません。
+- 必須・任意のタグ、アスタリスク、ラベルのグリフは、支援技術から隠します。それらが示すことは、状態と説明がすでに伝えています。描いた文字数も隠します。コントロールが、自分の文字数を説明に含め、読み上げるためです。
+- テキストを 200% にすると、ラベルと補足テキストは折り返し、途中で切れるものはありません。
+- 強制カラーモードでは、すべてのテキストがシステムのテキストの色になり、必須・任意のタグには縁が付きます。このとき、エラーテキストと補足は同じに見え、言葉と順序（補足が先）で見分けることになります。エラーを言葉で書く必要があるのは、このためです。
+- 右から左のレイアウトでは、それぞれの行が右から始まり、グリフはラベルの右に、印はラベルの左に移ります。それぞれのテキストは、自身の方向を保ちます。
+
+Web では、属性はケバブケースです。`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`count-text` です。パーツは `label`、`label-icon`、`requirement-label`、`value-text`、`supporting-text`（補足）、`error-text`、`counter` です。
+
+Web でコントロールと結び付ける方法：id はシャドウルートをまたいで参照できないので、フィールドは自分のテキストを値として渡します。Tanrei のコントロールは、フィールドにそれを問い合わせ、自身の内側の要素に書き込みます。それ以外の要素は、`aria-label`（自分の名前を持たない場合だけ）、`aria-description`、`aria-invalid`、`aria-required`、`disabled` を受け取り、フィールドから離れるときには、受け取る前とまったく同じ状態に戻ります。
+
+Web での既知の制約：
+
+- 説明は `aria-description` で渡しますが、すべてのスクリーンリーダーで確認できてはいません。また、すでに自分の `aria-describedby` を持つ要素には、フィールドのテキストが伝わりません。
+- 要素が定義されるまでの間、コントロールはラベルと補足のない状態でページに置かれます。
+
+### 利用者側で行うこと
+
+- コントロールが自分の名前を持つ場合を除き、すべてのフィールドに `label` を指定します。
+- 値は利用者側で検証して `error` を設定し、どう直せばよいかが分かる `errorText` を書きます。
+- 送信に失敗した後は、受け付けられなかった回答がいくつあるかをフォームの上でも伝え、それぞれへのリンクを置きます。これには、ステータスが error の、ライブの[コールアウト](/ja/components/callout/)を使います。フォームのすべてのエラーを知っているのはフォームだけなので、フィールドがこれを作ることはできません。
+- 必須・任意の言葉を渡します。`required-text` と `optional-text` をフィールドに書くか、`setWords({ requiredText, optionalText })` でプロダクト全体に一度だけ渡します。Tanrei は言葉を同梱しません。足りない言葉は開発時に報告されます。[プロダクトの言葉](/ja/foundations/words/)を参照してください。
+- 必須のコントロールにアスタリスクを付ける場合は、その意味をフォームの上のほうで 1 度説明します。
+- 独自に作ったコントロールでは、そのセマンティクスを持つ要素に名前と状態が届くようにします。コントロール自身の要素にロールを持たせて、フィールドが書く属性がそのまま効くようにするか、コントロールの側でそれらを受け取ります（Web パッケージの README の「Field」を参照）。

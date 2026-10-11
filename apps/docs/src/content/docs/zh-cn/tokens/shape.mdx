@@ -1,0 +1,19 @@
+---
+title: 形状令牌
+description: 圆角半径的阶梯，以及决定圆角如何弯曲的那一个数值。
+translationOf: tokens/shape.mdx
+sourceHash: 17940569b85fa7a8afc9a514a82b9a0400042b33
+---
+
+import ShapeScale from '../../../../components/tokens/ShapeScale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+`tanrei.sys.shape.corner` 下的圆角半径。使用指引请阅读[形状](/zh-cn/foundations/shape/)。
+
+<ShapeScale />
+
+## 圆角平滑
+
+`tanrei.sys.shape.corner-smoothing` 是一个 0 到 1 之间的量，含义与 Figma 相同：0 是四分之一圆，0.6 是 Figma 所说的 iOS 圆角，1 是最平缓的过渡。半径不随它改变。这个量的含义就是 Figma 的构造法；Compose 和 Flutter 按这种构造绘制，Web 绘制最接近的超椭圆，SwiftUI 和 iOS 上的 React Native 绘制操作系统自己的曲线（各自的差距见[形状](/zh-cn/foundations/shape/#圆角平滑)）。各内置系统的取值：
+
+<SystemValues tokens={['sys.shape.corner-smoothing']} />

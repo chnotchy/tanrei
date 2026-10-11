@@ -1,0 +1,216 @@
+---
+title: اللوحة المنبثقة
+description: تعرض محتوى يقرؤه الشخص ويعمل فيه على سطح صغير يُفتح بجانب عنصر التحكم الذي ضغطه ويبقى معه، من دون تعتيم بقية الصفحة أو حجبها.
+translationOf: components/popover.mdx
+sourceHash: 19cb5fd0f6cb90c5f432216ae31e97068033e853
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="popover" />
+
+<DemoFrame label="اضغط زرًّا: ملاحظة فيها رابط، ونموذج قصير له إجراءات">
+  <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">التخزين</tanrei-button>
+  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="التخزين" closable close-label="إغلاق لوحة التخزين" arrow placement="bottom" onclose="this.open = false">
+    الملفات في المهملات تبقى محسوبة من مساحة تخزينك إلى أن تُحذف. <a class="tanrei-link" href="#الإرشادات">كيف تُحسب مساحة التخزين</a>
+  </tanrei-popover>
+  <tanrei-button id="popover-demo-form-opener" variant="outlined" onclick="document.getElementById('popover-demo-form').open = !document.getElementById('popover-demo-form').open">إعادة تسمية</tanrei-button>
+  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="إعادة تسمية المجلد" onclose="this.open = false">
+    <tanrei-text-field label="الاسم" value="التقارير" autofocus></tanrei-text-field>
+    <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">إلغاء</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">إعادة تسمية</tanrei-button>
+  </tanrei-popover>
+</DemoFrame>
+
+استخدم اللوحة المنبثقة (popover) لمحتوى يعمل فيه الشخص بجانب عنصر التحكم الذي فتحها: بضعة إعدادات، أو نموذج قصير، أو لوحة مشاركة، أو ملاحظة تحتاج إلى رابط أو زر. وتبقى بقية الصفحة حولها صالحة للاستخدام.
+
+### الاستخدام
+
+عنصر التحكم من عندك. على الويب تسمّيه بالخاصية `anchor`، وهي المعرّف `id` للعنصر الذي تقف اللوحة المنبثقة بجانبه. وذلك العنصر هو عنصر الفتح (opener) أيضًا: تخبر اللوحة المنبثقة التقنيات المساعدة بأنه يفتح مربع حوار وهل ذلك المربع مفتوح، وتعيد التركيز إليه. وحيث يكون حقلٌ عنصرَ ارتكاز السطح وزرٌّ داخل الحقل هو ما يفتحه، سمِّ الزر بالخاصية `opener`.
+
+اللوحة المنبثقة مُتحكَّم بها (controlled)، كما هي قائمة الخيارات. أنت تضبط `open` حين يُضغط عنصر الفتح، وتعيدها إلى false حين تُصدر اللوحة المنبثقة الحدث `close`. ولا تُفتح من تلقاء نفسها أبدًا، لا بالتحويم ولا بالتركيز ولا بعد مدة. ويحمل الحدث `close` سببًا: `escape`، أو `outside`، أو `focus-out`، أو `close` (زر الإغلاق فيها)، أو `anchor-hidden`. والإجراء لا يغلق اللوحة المنبثقة أبدًا؛ معالج الحدث عندك هو الذي يغلقها.
+
+أعطها اسمًا: بالخاصية `headline` حيث ترسم عنوانًا رئيسيًّا، وبالخاصية `label` حيث لا ترسمه.
+
+أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: الأسماء التي بجانب كل منصة في أعلى هذه الصفحة هي ما تعطيها إياه المواصفة، ولا شيء منها متاح هناك بعد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="share" variant="outlined">مشاركة</tanrei-button>
+
+    <!-- anchor هي المعرّف id لعنصر التحكم الذي تقف بجانبه. -->
+    <tanrei-popover id="share-panel" anchor="share" headline="مشاركة هذه الصفحة" closable close-label="إغلاق المشاركة">
+      يستطيع قراءتها كل من لديه الرابط.
+      <tanrei-button slot="actions" dismissive>إيقاف المشاركة</tanrei-button>
+      <tanrei-button slot="actions" confirming>نسخ الرابط</tanrei-button>
+    </tanrei-popover>
+
+    <!-- سطح تحت حقل: بعرض الحقل، والتركيز يبقى في الحقل. -->
+    <tanrei-text-field id="city" label="المدينة"></tanrei-text-field>
+    <tanrei-popover anchor="city" label="الاقتراحات" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
+
+    <script type="module">
+      import '@tanrei/web/components/popover';
+
+      const opener = document.querySelector('#share');
+      const panel = document.querySelector('#share-panel');
+      // عنصر الفتح يبدّلها. الضغط على عنصر الفتح ليس «خارجها» أبدًا، فلا تغلقها ضغطة واحدة ثم تفتحها من جديد.
+      opener.addEventListener('click', () => (panel.open = !panel.open));
+      // المفتاح Escape، أو ضغط في الخارج، أو خروج التركيز، أو زر الإغلاق، أو غياب عنصر الارتكاز عن النظر.
+      panel.addEventListener('close', (e) => {
+        console.log(e.detail.reason);
+        panel.open = false;
+      });
+      // الإجراء لا يغلقها: يغلقها المعالج، حين ينتهي العمل.
+      panel.querySelector('[confirming]').addEventListener('click', async () => {
+        await navigator.clipboard.writeText(location.href);
+        panel.open = false;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useState } from 'react';
+    import { Button, Popover } from '@tanrei/react';
+
+    const [open, setOpen] = useState(false);
+
+    <Button id="share" variant="outlined" onClick={() => setOpen(!open)}>مشاركة</Button>
+    <Popover anchor="share" open={open} headline="مشاركة هذه الصفحة" closable closeLabel="إغلاق المشاركة" onClose={() => setOpen(false)}>
+      يستطيع قراءتها كل من لديه الرابط.
+      <Button slot="actions" dismissive onClick={stopSharing}>إيقاف المشاركة</Button>
+      <Button slot="actions" confirming onClick={copyLink}>نسخ الرابط</Button>
+    </Popover>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الموضع، وسهم، ولوحة منبثقة بعرض عنصر ارتكازها" plain>
+  <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">فوق، في الوسط</tanrei-button>
+  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="التخزين" placement="top" arrow onclose="this.open = false">المهملات تبقى محسوبة من مساحة التخزين.</tanrei-popover>
+  <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">بجانبه، عند النهاية</tanrei-button>
+  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="التخزين" placement="end-top" onclose="this.open = false">المهملات تبقى محسوبة من مساحة التخزين.</tanrei-popover>
+  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">بعرض هذا الزر</tanrei-button>
+  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="التخزين" width="anchor" onclose="this.open = false">المهملات تبقى محسوبة من مساحة التخزين.</tanrei-popover>
+</DemoFrame>
+
+### أين تقف
+
+الخاصية `placement` تسمّي جهة من عنصر الارتكاز وكيف تُحاذى اللوحة المنبثقة على امتداد تلك الجهة. والقيم الثلاث عشرة هي قيم التلميح، وتُقرأ بالطريقة نفسها.
+
+| القيمة | أين |
+| --- | --- |
+| `bottom-start` (الافتراضية)، `bottom`، `bottom-end` | تحت عنصر الارتكاز: مع تطابق حافتي البداية، أو في الوسط، أو مع تطابق حافتي النهاية |
+| `top-start`، `top`، `top-end` | فوق عنصر الارتكاز، بالطرق الثلاث نفسها |
+| `start`، `start-top`، `start-bottom` | بجانب عنصر الارتكاز عند بدايته: في الوسط، أو مع تطابق الحافتين العلويتين، أو مع تطابق الحافتين السفليتين |
+| `end`، `end-top`، `end-bottom` | بجانب عنصر الارتكاز عند نهايته، بالطرق الثلاث نفسها |
+| `auto` | أول جهة فيها متّسع من الأسفل ثم الأعلى ثم النهاية ثم البداية |
+
+البداية والنهاية تتبعان اتجاه التخطيط. والخاصية `offset` هي المسافة إلى عنصر الارتكاز بوحدات التخطيط في المنصة، وتأخذ قيمة `comp.popover.offset` حين تتركها. والخاصية `crossOffset` تحرّك اللوحة المنبثقة على امتداد جهتها، ولا تُخرجها أبدًا عن جهة عنصر الارتكاز.
+
+تُبقي اللوحة المنبثقة المسافة `comp.popover.window-margin` بينها وبين حواف النافذة من الداخل بهذه الخطوات، وبهذا الترتيب:
+
+1. تنقلب إلى الجهة المقابلة حين لا يكون في الجهة المفضَّلة متّسع، وتحتفظ بمحاذاتها.
+2. حيث لا متّسع في أي من الجهتين، تأخذ الجهة الأوسع وتُحدّ بذلك المتّسع. وعندئذ يُمرَّر محتواها.
+3. تنزاح على امتداد جهتها بقدر ما يطلبه الهامش.
+4. في نافذة أصغر من أدنى حجم لها، تغطي عنصر الارتكاز ولا تخرج من النافذة.
+
+تتبع عنصر الارتكاز حين يتحرك، وتحتفظ بالجهة التي هي فيها ما دام في تلك الجهة متّسع. وحين لا يبقى أي جزء من عنصر الارتكاز مرئيًّا، تُصدر الحدث `close` بالسبب `anchor-hidden`.
+
+### الحجم
+
+عرض اللوحة المنبثقة عرض محتواها، بين `comp.popover.container.min-width` (160) و `container.max-width` (400). ومع `width="anchor"` يكون عرضها عرض عنصر الارتكاز، لسطح ينسدل من حقل. ولا تزيد أبدًا على عرض النافذة ناقصًا الهامشين.
+
+ارتفاعها ارتفاع أجزائها، إلى حدّ `container.max-height` (480) وإلى حدّ المتّسع الذي في جهتها. وما زاد على ذلك يُمرَّر فيه المحتوى بين الترويسة والإجراءات، وهما تبقيان في مكانهما. ويظهر فاصل تحت الترويسة بعد أن يُمرَّر المحتوى، وفوق الإجراءات ما دام تحتها محتوى آخر.
+
+اضبط `inset` على false (على الويب: `no-inset`) لمحتوى له حشو من عنده أو يبلغ الحواف، كالقائمة.
+
+### الأجزاء
+
+| الجزء | ما هو |
+| --- | --- |
+| الترويسة | العنوان الرئيسي، وزر الإغلاق ما دامت `closable` بالقيمة true. تبقى في مكانها حين يُمرَّر المحتوى |
+| المحتوى | المنفذ الافتراضي. أي شيء، ومنه الروابط والحقول وعناصر التحكم الأخرى |
+| الإجراءات | أزرار Tanrei في المنفذ `actions`، يُعلَّم كل منها بالخاصية `confirming` أو `dismissive` حيث يكون كذلك. توضع كما تضعها مجموعة الأزرار، وتتراصّ عموديًّا حين لا تعود تسمية تتّسع |
+| السهم | مثلث اختياري يشير إلى عنصر الارتكاز. الخاصية `arrow` تفعّله للوحة منبثقة واحدة، والرمز `comp.popover.arrow.visible` يفعّله لنظام تصميم كامل |
+
+الإجراء الذي بلا `variant` يأخذ قيمة `comp.popover.actions.variant` (وهي tonal في النظام الافتراضي). وزر الإغلاق زر صغير بأيقونة فقط، طرازه قيمة `comp.popover.close-button.variant`.
+
+### الحركة
+
+تظهر اللوحة المنبثقة تدريجيًّا وهي تكبر من الحافة المواجهة لعنصر الارتكاز، وتختفي تدريجيًّا. والحركة التي تُقاطَع تنعكس من حيث هي. وحيث الحركة مقلَّلة تظهر وتختفي فورًا.
+
+<ComponentSpecs name="popover" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- اللوحة المنبثقة عنصر له `popover="manual"` في الطبقة العليا (top layer). وداخل عنصر `<dialog>` نمطي يجب أن تكون من فروع ذلك العنصر ليمكن العمل فيها هناك.
+- الضغط في الخارج يغلق اللوحة المنبثقة ويصل أيضًا إلى العنصر الذي تحته.
+- ليس للويب إيماءة رجوع خاصة به، فلا يحمل الحدث `close` السبب `back` أبدًا.
+- الخاصيتان `anchorElement` و `openerElement` هما لعنصر لا يبلغه معرّف `id`، كعنصر في جذر ظل (shadow root) آخر.
+- الخاصية `arrow` قيمتها غير مضبوطة أو true أو false: تغيب خاصية HTML (attribute)، أو تُكتب `arrow`، أو تُكتب `arrow="false"`.
+- علِّم العنصر الذي يأخذ التركيز عند الفتح بالخاصية `autofocus`.
+- في الألوان المفروضة (forced colors) تكتسب الحاوية وسهمها حدًّا بلون النص.
+
+## الإرشادات
+
+### تلميح أم لوحة منبثقة أم قائمة خيارات أم مربع حوار
+
+| الجانب | التلميح | اللوحة المنبثقة | قائمة الخيارات | مربع الحوار |
+| --- | --- | --- | --- | --- |
+| ما يفتحه | التحويم، أو تركيز لوحة المفاتيح، أو الضغط المطوَّل | ضغط على عنصر الفتح | ضغط على عنصر الارتكاز | المنتج |
+| ما يحمله | وصف لعنصر ارتكازه | محتوى يعمل فيه الشخص | عناصر فقط | قرار |
+| هل يأخذ التركيز | لا، أبدًا | نعم، وتعيده | نعم، وتعيده | نعم، ويحتفظ به |
+| هل يحجب الصفحة | لا | لا | لا | نعم |
+
+1. إن كان يقول ما هو عنصر التحكم فقط، ولا شيء فيه يُضغط، فهو تلميح.
+2. إن كان قائمة أوامر أو خيارات، فهو قائمة خيارات.
+3. إن كان الشخص لا يستطيع أن يكمل من دون أن يجيب عنه، فهو مربع حوار.
+4. وإلا فهو لوحة منبثقة.
+
+### افعل
+
+- افتحها بضغط على عنصر تحكم، وأغلقها حين يُضغط ذلك العنصر مرة أخرى.
+- أبقِ المحتوى قصيرًا. مهمة واحدة، وبضعة حقول على الأكثر.
+- أضف `closable` حين تكون اللوحة المنبثقة كبيرة حتى تغطي ما كان الشخص سيضغطه خارجها، وفي اللمس، حيث لا مفتاح Escape.
+- استخدم `width="anchor"` و `initialFocus="anchor"` لسطح تحت حقل يكتب فيه الشخص.
+- أبقِ تسميات الإجراءات قصيرة. التسمية الأعرض من اللوحة المنبثقة لا تلتفّ.
+
+### لا تفعل
+
+- لا تفتح لوحة منبثقة بالتحويم أو بالتركيز. لا يمكن بلوغها باللمس، والسطح الذي يأخذ التركيز لأن المؤشر مرّ به فخّ.
+- لا تضع في لوحة منبثقة ما يضيع على الشخص بضغطة شاردة واحدة خارجها. النموذج الطويل مكانه مربع حوار أو لوحة سفلية أو جانبية.
+- لا تضع داخل لوحة منبثقة أكثر من لوحة منبثقة واحدة. كل مستوى ضغطة أخرى على المفتاح Escape.
+- لا تستخدم لوحة منبثقة لشيء يجب أن يجيب عنه الشخص قبل أن يكمل. ذاك مربع حوار.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="popover" />
+
+### ما يتكفل به المكوّن
+
+- الحاوية مربع حوار غير نمطي، اسمه قيمة `headline` أو قيمة `label`. ولا يُخفى شيء خارجها ولا يُجعل خاملًا (inert).
+- عنصر الفتح يعرض للتقنيات المساعدة أنه يفتح مربع حوار وهل ذلك المربع مفتوح. واسمه ودوره لا يتغيران.
+- الفتح ينقل التركيز إلى العنصر الذي علّمته، أو إلى الحاوية، فيُقرأ اسم اللوحة المنبثقة أولًا. ولا يظهر مؤشر التركيز على الحاوية إلا حين تُفتح اللوحة المنبثقة من لوحة المفاتيح.
+- تأتي اللوحة المنبثقة بعد عنصر الفتح مباشرة في ترتيب المفتاح Tab، أينما كانت في المستند. والمفتاح Tab من آخر عنصر فيها ينتقل إلى ما يلي عنصر الفتح، فتُغلق. ولا يُحصر التركيز فيها أبدًا.
+- المفتاح Escape يغلق التراكب الأعلى فقط، ولا يذهب أبعد من ذلك: مربع الحوار الذي تقف فيه اللوحة المنبثقة يبقى مفتوحًا.
+- الإغلاق يعيد التركيز إلى عنصر الفتح إن كان التركيز داخل اللوحة المنبثقة. وإن نقل الشخص التركيز إلى مكان آخر، بقي هناك.
+- التراكب الذي يُفتح من داخل اللوحة المنبثقة، كقائمة خيارات أو تلميح، تابع لها: الضغط أو التركيز فيه لا يغلق اللوحة المنبثقة.
+- عند تكبير النص إلى 200% يلتفّ نص اللوحة المنبثقة، وتكبر إلى حدودها، ويُمرَّر محتواها. وفي نافذة عرضها 320 يكون عرضها عرض النافذة ناقصًا الهامشين.
+
+### ما عليك فعله
+
+- أعطِ اللوحة المنبثقة `headline` أو `label`، وأعطها `closeLabel` ما دامت `closable` مفعَّلة.
+- اضبط `open` عند الضغط على عنصر الفتح، واضبطها على false عند الحدث `close`.
+- على الويب، ضع عنصر اللوحة المنبثقة بعد عنصر الفتح مباشرة في المستند حيث تستطيع، فيتبع ترتيب القراءة في قارئ الشاشة ترتيب المفتاح Tab.
+- علِّم الحقل الأول في نموذج قصير ليأخذ التركيز الأول. واترك اللوحة المنبثقة التي محتواها نص بلا تعليم.

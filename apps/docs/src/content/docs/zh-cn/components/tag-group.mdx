@@ -1,0 +1,215 @@
+---
+title: "标签组（Tag group）"
+description: "把一组 Tag 或纸片排成会换行的若干行，按其中的内容留出间距，并把这一组作为一个有名称的列表暴露出来。成员保持原样；纸片被移除之后，焦点会移到下一个纸片上。"
+translationOf: components/tag-group.mdx
+sourceHash: 8d6af56bf72c101aa98470342704cf2202d0d379
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="tag-group" />
+
+<DemoFrame label="一组 Tag，和一行筛选条件" column>
+  <tanrei-tag-group class="not-content" label="标签">
+    <tanrei-tag label="设计令牌"></tanrei-tag>
+    <tanrei-tag label="无障碍"></tanrei-tag>
+    <tanrei-tag label="从右到左"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="筛选条件">
+    <tanrei-chip kind="filter" label="未完成" selected></tanrei-chip>
+    <tanrei-chip kind="filter" label="分配给我"></tanrei-chip>
+    <tanrei-chip kind="filter" label="待审核"></tanrei-chip>
+    <tanrei-chip kind="filter" label="受阻"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+一个[标签（Tag）](/zh-cn/components/tag/)、一个[纸片（Chip）](/zh-cn/components/chip/)，各自都只是一样东西。标签组用来容纳好几个这样的东西：一篇文章的标签、列表上方的筛选条件、字段下方的几条建议。它把它们排成会换行的若干行，让它们之间保持合适的距离，并告诉辅助技术它们是一个列表。
+
+标签组自己什么也不绘制。它没有容器，没有边线，没有内边距，也没有可见的标签。每个成员的绘制、聚焦和按下，都与它在别处时完全一样。
+
+在 Web 上它是 `<tanrei-tag-group>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag-group label="标签">
+      <tanrei-tag label="设计令牌"></tanrei-tag>
+      <tanrei-tag label="无障碍"></tanrei-tag>
+    </tanrei-tag-group>
+
+    <!-- 一组纸片要说明自己是纸片：它的各行之间离得更远。 -->
+    <tanrei-tag-group id="recipients" spacing="chips" label="收件人">
+      <tanrei-chip kind="input" label="李华" remove-label="移除李华"></tanrei-chip>
+      <tanrei-chip kind="input" label="王芳" remove-label="移除王芳"></tanrei-chip>
+    </tanrei-tag-group>
+
+    <script type="module">
+      import '@tanrei/web/components/tag-group';
+      import '@tanrei/web/components/tag';
+      import '@tanrei/web/components/chip';
+
+      const recipients = document.querySelector('#recipients');
+      // 纸片绝不会移除自己。由你把它取出；标签组会把焦点移到下一个纸片上。
+      recipients.addEventListener('remove', (event) => {
+        event.target.remove();
+        // 最后一个也移除之后，标签组就没有地方可以放焦点了。请把焦点放到这一组所属的控件上。
+        if (!recipients.children.length) document.querySelector('#add-recipient').focus();
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip, TagGroup } from '@tanrei/react';
+
+    <TagGroup spacing="chips" label="收件人">
+      {recipients.map((person) => (
+        <Chip key={person.id} kind="input" label={person.name} removeLabel={`移除${person.name}`} onRemove={() => remove(person.id)} />
+      ))}
+    </TagGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="会换行的 Tag、表示状态的 Tag、通往每个标签对应页面的链接，以及已输入的项" plain column>
+  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="标签">
+    <tanrei-tag label="设计令牌"></tanrei-tag>
+    <tanrei-tag label="无障碍"></tanrei-tag>
+    <tanrei-tag label="从右到左"></tanrei-tag>
+    <tanrei-tag label="字体排印"></tanrei-tag>
+    <tanrei-tag label="颜色"></tanrei-tag>
+    <tanrei-tag label="动效"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" label="平台">
+    <tanrei-tag label="Web：Stable" status="success" size="small"></tanrei-tag>
+    <tanrei-tag label="SwiftUI：Beta" size="small"></tanrei-tag>
+    <tanrei-tag label="Flutter：待跟进" status="warning" variant="outlined" size="small"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="标签">
+    <tanrei-chip label="设计令牌" href="#规格"></tanrei-chip>
+    <tanrei-chip label="无障碍" href="#规格"></tanrei-chip>
+    <tanrei-chip label="从右到左" href="#规格"></tanrei-chip>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="收件人">
+    <tanrei-chip kind="input" label="李华" remove-label="移除李华"></tanrei-chip>
+    <tanrei-chip kind="input" label="王芳" remove-label="移除王芳"></tanrei-chip>
+    <tanrei-chip kind="input" label="张伟" remove-label="移除张伟"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+<ComponentSpecs name="tag-group" />
+
+## 指南
+
+### 标签组用来做什么
+
+| 这一组是什么 | 使用 |
+| --- | --- |
+| 静态的 Tag：文章的类别、一项设置可以取的值、一行状态 | 标签组。 |
+| 通往每个标签对应页面的标签 | 设置了 `spacing="chips"` 的标签组，里面放带 `href` 的纸片。Tag 是文本，不能成为链接。 |
+| 列表上方的筛选条件、字段下方的建议、用户输入的项 | 设置了 `spacing="chips"` 的标签组。 |
+| 两到四个不同的操作 | [按钮组](/zh-cn/components/button-group/)。 |
+| 几个当中选一个 | [单选组](/zh-cn/components/radio-group/)、[标签页](/zh-cn/components/tabs/)或[分段按钮](/zh-cn/components/segmented-button/)。 |
+| 需要可见标签、必填和选填标记和错误信息的控件 | [字段组](/zh-cn/components/field-group/)。 |
+| 字段里面已输入的值 | 由字段自己处理。[组合框](/zh-cn/components/combobox/)会自己排布它的纸片。 |
+
+### 间距
+
+`spacing` 说明这一组里放的是什么，并决定两个距离：同一行上两个成员之间的距离，以及两行之间的距离。
+
+- `tags`（默认）用于静态的 Tag。行与行之间的距离和一行上 Tag 之间的距离一样近，所以换了行的一组读起来仍是一整块。
+- `chips` 用于纸片。纸片在可见边缘之外也接收按下，范围最大到一个触摸目标。行与行之间离得足够远，让每个中号纸片都保有完整的触摸目标；两个纸片的区域会重叠的地方，它们在间隙的正中相接。
+
+留在 `tags` 的一组纸片仍然可以工作。它的行距小于触摸目标的高度，调试构建会报告这一点。
+
+小号纸片用于密集、并且这一组只占一行的地方。换行之后，它们的触摸目标还没有达到完整大小，就已经在两行之间相接了。在触摸屏上会换行的一组，请使用中号纸片。
+
+设计系统可以为 `spacing` 添加取值。
+
+### 布局
+
+- 成员按你给出的顺序排列。标签组从不对它们排序，也从不把选中的纸片移到前面。
+- 放不下的成员会整个移到下一行。不截断、不缩小、不隐藏，也不滚动，更没有“还有 3 个”。想少显示一些，就少给标签组几个成员，并把最后一个做成显示其余成员的操作纸片。
+- 比标签组还宽的单个成员，宽度等于标签组的宽度，并用省略号截断它自己的标签。
+- 这一组从起始边开始排列。要把它放在一行的末尾或中间，请用它周围的布局来摆放标签组。
+- 给每个成员相同的尺寸。尺寸不同的成员会在所在的行上居中对齐。
+- 没有成员的标签组什么也不绘制，也不占空间。没有标签的帖子不需要特殊处理。
+
+### 组的标签
+
+`label` 为辅助技术给这一组命名：“标签”“筛选条件”。它不会被绘制。这一组需要可见的名称时，请在它前面写上你自己的标题或文字，同时仍然提供 `label`。
+
+### 选择
+
+标签组不持有值。每个筛选纸片持有自己的 `selected`，可以同时打开好几个。如果一次只允许一个筛选条件，请在打开其中一个时自己把其余的关掉。
+
+### 移除纸片
+
+纸片请求被移除，由你来移除它。如果当时焦点在这个纸片上，或在它的移除操作上，标签组会把焦点放到它后面的那个纸片上；后面没有纸片时，放到前面的那个上。连续移除好几项的人，可以从原来的位置接着做下去。
+
+有两件事仍然由你负责：
+
+- 没有纸片可以接收焦点时，请把焦点移到这一组所属的控件上：用来添加项的字段，或者打开筛选条件的按钮。否则浏览器会把焦点丢掉。
+- 标签组不朗读任何内容。移除必须被听到时，例如被移除的筛选条件离它所改变的列表很远，请用实时区域（live region）或[消息条（Snackbar）](/zh-cn/components/snackbar/)来报告。
+
+### 推荐
+
+- 一组纸片请设置 `spacing="chips"`。
+- 给这一组一个 `label`，使用页面的语言。
+- 一组里只放一种成员。已输入的项后面跟一个“添加”纸片是例外。
+
+### 避免
+
+- 不要把标签组用于对话框或表单的操作。请使用按钮组。
+- 不要在里面放 Tag 和纸片以外的东西。其他内容会照样排布，并在调试构建中报告。
+- 不要从标签组去改成员的样式。请改为在层里更改标签组的令牌。
+
+## 无障碍
+
+<ComponentAccessibility name="tag-group" />
+
+### 组件负责的部分
+
+- 这一组作为一个列表暴露出来，由 `label` 命名。每个成员是其中的一项：Tag 作为它的文本朗读；纸片作为它的按钮或链接朗读，并带上状态；输入纸片旁边还有它的移除操作。
+- 列表会告诉用户一共有多少个成员，以及自己正在其中的哪一个：“列表，4 项”。
+- 成员按给出的顺序朗读和获得焦点，在从右到左的布局中也是如此。
+- 每个纸片在焦点顺序中各是一个停靠点，输入纸片则是两个：先是纸片，然后是它的移除操作。标签组不获得焦点，也不处理任何按键。
+- 获得焦点的纸片被移除之后，焦点会移到下一个纸片上，绝不会移到移除操作上。
+- 空的标签组不暴露任何东西：没有空列表，也没有名称。
+- 文本放大到 200% 时，成员变大，并换到更多的行上。不截断任何内容，也不出现横向滚动。
+- 在强制颜色模式下，标签组和平时一样什么也不绘制。成员绘制各自的边线。
+- 在从右到左的布局中，每一行都从右侧开始。
+
+它在 Web 上的构建方式：列表是标签组 shadow root 里的一个元素，包在插槽外面。成员在标签组里的时候，标签组会给每个成员写上 `role="listitem"`，成员离开时再把它拿掉。自己已有 `role` 的成员，或者本身就有含义的原生元素（链接、按钮），会保留原有的角色，不算作列表项。请把这样的元素包在 `span` 里。
+
+Web 上的已知差距：
+
+- 在元素定义之前，成员按顺序出现在页面上，彼此之间只隔着它们之间的空白，没有间距，也没有列表。想让页面从首次绘制起就有这个布局，请添加：
+
+  ```css
+  tanrei-tag-group:not(:defined) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+  }
+  ```
+
+- 一组纸片之间不提供方向键导航。应当只占一个停靠点的一长行筛选条件，是由纸片组成的[工具栏](/zh-cn/components/toolbar/)。
+
+### 需要你做的事
+
+- 给标签组一个 `label`。组件不自带任何文字。
+- 给每个输入纸片一个说出其项目名称的 `removeLabel`。
+- 纸片触发 `remove` 时移除它；最后一个也移除之后，自己移动焦点。
+- 用每个 Tag 自己的文字说出状态。只靠颜色永远说不出状态。

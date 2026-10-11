@@ -1,0 +1,57 @@
+{
+  "tanrei": {
+    "comp": {
+      "tag-group": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows several tags or chips as one set — the tags of an article, the filters above a list, a few suggestions under a field — and decides once how far apart the members of such a set stand along a line and how far apart its lines stand when the set wraps: closer for static tags, and for chips far enough that each keeps its whole touch target.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.axes": {
+            "spacing": {
+              "default": "tags",
+              "values": [
+                "tags",
+                "chips"
+              ],
+              "members": [
+                "gap",
+                "row-gap"
+              ]
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a tag group reads: for each spacing (tags, chips) the distance between two members on a line and the distance between two lines. The tags and chips inside keep their own tokens.",
+            "rules": [
+              "A tag group lays out a set of tags or chips in lines that wrap, and exposes it as one list. It draws nothing of its own: no container, no label, no divider.",
+              "Set spacing to chips for a set whose members take input; row-gap.chips is what keeps each chip's touch target whole between two lines.",
+              "Give every member of a group the same size; the group has no size of its own.",
+              "The group keeps no selection and handles no key: each chip is its own Tab stop and holds its own state. One choice among several is a radio group, tabs or a segmented button.",
+              "Restyle through these tokens in a layer; never restyle the members from the group."
+            ]
+          }
+        },
+        "gap": {
+          "$type": "dimension",
+          "$description": "Distance between the visible bounds of two neighbouring members on one line, per spacing. Neighbouring hit areas meet at the middle of it (TGR-5).",
+          "tags": {
+            "$value": "{tanrei.sys.space.space100}"
+          },
+          "chips": {
+            "$value": "{tanrei.sys.space.space100}"
+          }
+        },
+        "row-gap": {
+          "$type": "dimension",
+          "$description": "Distance between two lines of a group that wraps, per spacing. For tags it is the gap along the line, so that a wrapped set reads as one block. For chips it is what keeps each chip's target whole between two lines: at sys.target.touch minus a chip's height or more, no hit areas overlap. The default system's 16 is 48 minus a medium chip's 32.",
+          "tags": {
+            "$value": "{tanrei.sys.space.space100}"
+          },
+          "chips": {
+            "$value": "{tanrei.sys.space.space200}"
+          }
+        }
+      }
+    }
+  }
+}

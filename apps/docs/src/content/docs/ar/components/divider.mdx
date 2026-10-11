@@ -1,0 +1,275 @@
+---
+title: الفاصل
+description: يفصل بخط رفيع بين مجموعات المحتوى في قائمة أو تخطيط أو شريط أدوات.
+translationOf: components/divider.mdx
+sourceHash: a900ff2d8bf8a75bc9b74c35a5e534d81fd620fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="divider" />
+
+<DemoFrame label="في قائمة وفي شريط أدوات">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
+    <span>الوارد</span>
+    <tanrei-divider></tanrei-divider>
+    <span>الأرشيف</span>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <span>المهملات</span>
+  </div>
+  <div role="toolbar" aria-label="التنسيق" style="display: flex; align-items: stretch; gap: var(--tanrei-sys-space-space50)">
+    <tanrei-button variant="text" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="مائل"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+    <tanrei-button variant="text" label="إدراج رابط"><span slot="icon">link</span></tanrei-button>
+  </div>
+</DemoFrame>
+
+### الاستخدام
+
+تعرض عيّنتا Web و React المواصفة الحالية. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: ما زالت تقدّم المراجعة السابقة من الفاصل، وهي ترسم خطوطًا متصلة فقط ولا تقبل أطوالًا ولا سماكة خاصة بفاصل واحد، وتعرض عيّناتها تلك المراجعة إلى أن تلحق بالبقية.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+
+    <!-- محاذاة مع قائمة يبدأ نصها بعد 72 px. -->
+    <tanrei-divider inset="start" inset-length="72"></tanrei-divider>
+
+    <!-- خط قطع فوق قسيمة، وفاصل خفيف بين قسمين. -->
+    <tanrei-divider line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+
+    <!-- خط أسمك لهذا الفاصل وحده: تحتفظ نقاطه وشرطاته وموجته بنسبها. -->
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider line-style="dotted" line-cap="round" thickness="4"></tanrei-divider>
+
+    <!-- لمجموعات شريط الأدوات معنى: اعرض الفاصل بدور separator. -->
+    <div role="toolbar" aria-label="التنسيق" style="display: flex">
+      <tanrei-button variant="text" label="غامق"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+      <tanrei-button variant="text" label="إدراج رابط"><span slot="icon">link</span></tanrei-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/divider';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Divider } from '@tanrei/react';
+
+    <Divider />
+    <Divider inset="start" insetLength={72} />
+    <Divider lineStyle="dashed" lineCap="round" />
+    <Divider lineStyle="wavy" amplitude={4} wavelength={24} />
+    <Divider lineStyle="dotted" lineCap="round" thickness={4} />
+    <Divider orientation="vertical" decorative={false} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    VStack(spacing: 0) {
+      inboxRow
+      TanreiDivider(inset: .start)
+      archiveRow
+    }
+
+    // المحور يُذكر صراحة، ولا يؤخذ من الحاوية المحيطة.
+    HStack { formattingButtons; TanreiDivider(axis: .vertical, isDecorative: false); insertLinkButton }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.gestures.Orientation
+    import io.github.chnotchy.tanrei.components.TanreiDivider
+    import io.github.chnotchy.tanrei.components.TanreiDividerInset
+
+    Column {
+        InboxRow()
+        TanreiDivider(inset = TanreiDividerInset.Start)
+        ArchiveRow()
+    }
+
+    // الفاصل العمودي يملأ ارتفاع الصف، فأعطِ الصف ارتفاعًا.
+    Row(Modifier.height(IntrinsicSize.Min)) {
+        FormattingButtons()
+        TanreiDivider(orientation = Orientation.Vertical, decorative = false)
+        InsertLinkButton()
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    Column(
+      children: <Widget>[
+        inboxRow,
+        const TanreiDivider(inset: TanreiDividerInset.start),
+        archiveRow,
+      ],
+    );
+
+    // IntrinsicHeight يعطي الفاصل العمودي ارتفاع الصف.
+    IntrinsicHeight(
+      child: Row(
+        children: <Widget>[
+          ...formattingButtons,
+          const TanreiDivider(axis: Axis.vertical, excludeFromSemantics: false),
+          insertLinkButton,
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Divider, IconButton } from '@tanrei/react-native';
+
+    <Divider />
+    <Divider inset="start" />
+
+    <View style={{ flexDirection: 'row' }}>
+      <IconButton accessibilityLabel="غامق" onPress={toggleBold}>format_bold</IconButton>
+      <Divider orientation="vertical" decorative={false} />
+      <IconButton accessibilityLabel="إدراج رابط" onPress={insertLink}>link</IconButton>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الاتجاهات والإزاحات" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <tanrei-divider inset="both"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="أنماط الخط" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider line-style="dotted"></tanrei-divider>
+    <tanrei-divider line-style="dashed"></tanrei-divider>
+    <tanrei-divider line-style="dashed" dash-length="12" gap="6"></tanrei-divider>
+    <tanrei-divider line-style="wavy"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
+    <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="السماكة: سماكة خاصة بفاصل واحد، مع نهايات مستديرة على الأنماط الأسمك" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+للخط المنقّط أو المتقطع دائمًا نقطة كاملة أو شرطة كاملة عند كل من طرفيه: يرسم الفاصل أكبر عدد يتّسع له الطول مع ترك الفجوة على الأقل بين كل اثنتين، ثم يوسّع الفجوات كلها بالمقدار نفسه. فيبدو الخط واحدًا عند الطرفين، في أي من الاتجاهين وبأي طول. والموجة مؤلفة من أقواس دائرية، تُمَدّ إلى عدد صحيح من الموجات لتبدأ وتنتهي على خط المنتصف. والفاصل المتموّج أعلى من غيره: ضعف السعة مضافًا إليه سماكة الخط، أي 5 افتراضيًّا بدل 1.
+
+أطوال النقاط والشرطات والموجة رموز (tokens) مشتقة من سماكة الخط، فنظام التصميم الذي يرسم فواصل أسمك يحصل على نمط أكبر بالمظهر نفسه. والخاصية `thickness` تفعل الشيء نفسه لفاصل واحد: تحلّ محل الرمز حيثما تُقرأ السماكة، وتحتفظ النقاط والشرطات والموجة بنسبها إليها. أما الإزاحة فلا يتغيّر مقاسها. والخصائص الخاصة بفاصل واحد (`insetLength` و `thickness` و `dashLength` و `gap` و `amplitude` و `wavelength`) تُستخدم كما أُعطيت، بوحدة المنصة، ولا يغيّر مقاسها أي قرص ضبط (dial). القيمة السالبة أو غير المنتهية، والقيمة 0 للخاصية `thickness` أو `dashLength` أو `wavelength`، تُستبدل بها قيمة الرمز ويُبلَّغ عنها في بنيات التنقيح (debug). والخاصية التي لا يرسمها النمط الحالي تُهمَل.
+
+<ComponentSpecs name="divider" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم الفاصل حيث لا تكفي المسافة وحدها لتوضيح حدّ: بين صفوف قائمة كثيفة، بين أقسام صفحة إعدادات، بين مجموعات الإجراءات في شريط أدوات. وحيث تبيّن الفجوة بين مجموعتين، أو تغيّر السطح، أين تنتهي إحداهما، اترك الخط. التخطيط الذي فيه خطوط أقل أسهل في التصفح.
+
+### خط رفيع واحد
+
+خط الفاصل هو الخط الرفيع في نظام التصميم: `sys.color.outline-variant`، بعرض الخط الرفيع. في النظام الافتراضي تأخذ الخطوط الرفيعة الأخرى التي يراها الشخص ذلك اللون نفسه: حافة الزر من الطراز (variant) outlined، وحدّ الرقاقة، والخط بين مجموعات قائمة الخيارات، وحافة شريط التنقل أو درج التنقل، والخط تحت صف القائمة (list). تحتفظ هذه برموزها الخاصة، ويعطيها النظام الافتراضي قيمة واحدة، ليكون في الشاشة نوع واحد من الخطوط. والفاصل الذي تضعه أنت لا يحتاج إلى لون خاص به ليطابقها.
+
+### حيث يفصل المكوّن بين أجزائه
+
+بعض المكوّنات تفصل بين أجزائها بنفسها، وهناك لا تضف فاصلًا:
+
+- [قائمة الخيارات](/ar/components/menu/) تفصل المجموعة عمّا يجاورها.
+- [مجموعة الأزرار](/ar/components/button-group/) المتصلة و[الزر مع قائمة](/ar/components/button-with-menu/) يفصلان بين نصفيهما.
+- [درج التنقل](/ar/components/navigation-drawer/) يرسم فاصلًا قبل القسم الذي يطلبه (`divider`).
+- صف [القائمة (list)](/ar/components/list/) يرسم الخط تحته (`divider`)، ويبدأ الخط حيث يبدأ نص الصف.
+
+طريقة التمييز بين الأجزاء داخل المكوّن الواحد اختيار واحد لنظام التصميم كله: بخط حيث تتلامس، وهو الافتراضي، أو بفجوة من الفراغ. يستطيع المكوّن أن يخرج عن اختيار النظام برمزه الخاص، وتستطيع النسخة الواحدة ذلك بالخاصية `separation`: وهي موجودة في قائمة الخيارات ومجموعة الأزرار والزر مع قائمة ومؤشر التقدم. مع الفجوة لا ترسم تلك المكوّنات أي خط، فيصير الفاصل الذي أضفته بيدك الخط الوحيد الباقي، ولا يطابق شيئًا بعد ذلك.
+
+أما مكوّن الفاصل نفسه فليس جزءًا من ذلك الاختيار. العنصر `<tanrei-divider>` الذي تضعه بين محتواك أنت خط دائمًا.
+
+### اختيار الإزاحة
+
+| الإزاحة (inset) | يُستخدم لـ |
+| --- | --- |
+| بلا إزاحة | حدّ يمتد على الحاوية كلها: بين الأقسام، تحت ترويسة. |
+| من البداية | بين صفوف قائمة تبدأ صفوفها بأيقونة أو صورة رمزية. يبدأ الخط حيث يبدأ النص، فيُقرأ عمود البداية كتلة واحدة. |
+| من الجهتين | فاصل داخل مجموعة لا ينبغي أن يبدو حدًّا للحاوية: فاصل أوسط. |
+
+اضبط `insetLength` فقط على الفاصل الذي يجب أن يحاذي محتوى تختلف إزاحته عن بقية قوائم المنتج. تسري القيمة حيثما تطبّق الخاصية `inset` الإزاحة، ولا تفعل شيئًا ما دامت `inset` بلا إزاحة.
+
+### اختيار نمط الخط
+
+| نمط الخط | يُستخدم لـ |
+| --- | --- |
+| متصل | كل فاصل تقريبًا. وهو الافتراضي. |
+| متقطع | حدّ من نوع مختلف في المنتج نفسه: خط قطع فوق قسيمة، حافة شيء مؤقت. |
+| منقّط | فاصل أخف من الخط المتصل. يغطي نحو ثلث طوله، فيبدو أبهت باللون نفسه. |
+| متموّج | فاصل بين قسمين ينبغي أن يُقرأ حدًّا من نوع يختلف عن الخطوط المتصلة حوله. يأخذ حيّزًا عرضيًّا على محوره أكبر من غيره. |
+
+النهايات المستديرة (`lineCap="round"`) تجعل كل نقطة قرصًا وكل شرطة قضيبًا مستدير الطرفين، وتدوّر طرفي الخط المتصل أو المتموّج. تبقى الأطراف المستديرة داخل طول الخط، فتبقى الإزاحة دقيقة. على الخط الرفيع الافتراضي لا تُرى النهاية المستديرة: فهي موضوعة للفاصل الذي له قيمة `thickness` خاصة به، ولأنظمة التصميم التي ترسم خطوطًا أسمك.
+
+### افعل
+
+- ضع المسافة حول الفاصل في التخطيط: تباعد الحاوية التي ترصّ عناصرها، فجوة القائمة. الفاصل لا يضيف مسافة من عنده، فلا يضاعف فجوة أبدًا.
+- أبقِه زخرفيًّا (وهو الافتراضي) في القوائم والبطاقات. الصفوف تقول أصلًا أين تبدأ وأين تنتهي.
+- اضبط `decorative` على القيمة false فقط حيث يعني التجميع شيئًا للشخص، كمجموعات شريط أدوات أو قائمة خيارات.
+- التزم نمط خط واحدًا لنوع واحد من الحدود في المنتج كله، ليعني الخط المتقطع الشيء نفسه دائمًا.
+
+### لا تفعل
+
+- لا ترسم خطًّا بين كل عنصرين. استخدم التباعد أولًا، والفاصل حيث لا يكفي التباعد.
+- لا تستخدم الفاصل إطارًا أو حدًّا لحاوية. ليست له حاوية ولا شكل.
+- لا تجعله أسمك أو ملوّنًا لتعطيه معنى. الخاصية `thickness` موضوعة لنمط يحتاج إلى الحيّز ليُرى، أو لخط يطابق خطوطًا أسمك حوله. ولون الفاصل غير مقيَّد بنسبة تباين، لأن المحتوى الذي يفصله يجب أن يُفهم من دونه.
+- لا تضف فاصلًا داخل مكوّن يفصل بين أجزائه بنفسه، كما بين مجموعات قائمة خيارات أو صفوف قائمة (list). استخدم خاصية المكوّن نفسه.
+- لا تدع نمط الخط يحمل معنى وحده. إن كان الخط المتقطع يعني «اقطع هنا» فقل ذلك نصًّا أيضًا.
+- لا تعتمد عليه مكان عنوان. «— أو —» بين نموذجين فاصلان وتسمية، والتسمية هي التي تحمل المعنى.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="divider" />
+
+### ما يتكفل به المكوّن
+
+- حين يكون زخرفيًّا (وهو الافتراضي) يُخفى عن التقنيات المساعدة على كل المنصات.
+- حين لا يكون زخرفيًّا يُعرَض على الويب بدور الفاصل (separator) مع اتجاهه. منصات Apple و Android و Flutter لا دور فاصل فيها: هناك يبقى في شجرة إمكانية الوصول بلا اسم، ويقول ما تستطيع كل منصة أن تقوله.
+- لا يقبل التركيز أبدًا ولا يستقبل إدخالًا، فلا يعترض أبدًا عناصر التحكم على جانبيه.
+- سماكة خطه بكسل واحد من بكسلات الجهاز على الأقل. الخط المتصل أو المنقّط أو المتقطع يُحاذى إلى شبكة البكسلات عرضيًّا على محوره، فلا يظهر مغبَّشًا أبدًا؛ أما الموجة فتُرسم بتنعيم الحواف (antialiasing).
+- نمط الخط لا يقول شيئًا للتقنيات المساعدة: الفاصل المنقّط أو المتقطع أو المتموّج غير الزخرفي هو الفاصل نفسه الذي يكونه المتصل.
+- على الويب، يعيد وضع الألوان المفروضة (forced colors) رسم كل أنماط الخط بلون نص النظام.
+
+### ما عليك فعله
+
+- اذكر نصًّا أي معنى تعطيه لنمط خط، كخط القطع. التقنيات المساعدة لا تنقل النمط، والخط المنقّط أو المتقطع يبدو أبهت من المتصل.
+- أعطِ كل مجموعة اسمها الخاص حين يكون التجميع مهمًّا. الفاصل بلا اسم، فلا يستطيع أن يقول ما هي المجموعات.
+- لا تستخدم الفاصل ليحمل بنية الصفحة. العناوين والمعالم (landmarks) تفعل ذلك؛ أما الخط فيُرى فقط.

@@ -1,0 +1,157 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "height": 320,
+      "width": 320
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "bottom": 16,
+          "end": 16,
+          "position": "absolute"
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "style": {
+              "alignItems": "flex-end"
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityLabel": "Create",
+                "accessibilityRole": "button",
+                "accessibilityState": {
+                  "disabled": false,
+                  "expanded": false
+                },
+                "accessibilityValue": {},
+                "accessible": true,
+                "collapsable": false,
+                "focusable": true,
+                "hitSlop": {
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "top": 0
+                },
+                "style": {
+                  "alignItems": "center",
+                  "alignSelf": "flex-end",
+                  "backgroundColor": "rgb(238, 238, 238)",
+                  "borderRadius": 12,
+                  "boxShadow": [
+                    {
+                      "blurRadius": 1,
+                      "color": "rgba(0, 0, 0, 0.04)",
+                      "offsetX": 0,
+                      "offsetY": 1,
+                      "spreadDistance": 0
+                    },
+                    {
+                      "blurRadius": 8,
+                      "color": "rgba(0, 0, 0, 0.04)",
+                      "offsetX": 0,
+                      "offsetY": 4,
+                      "spreadDistance": -4
+                    },
+                    {
+                      "blurRadius": 24,
+                      "color": "rgba(0, 0, 0, 0.06)",
+                      "offsetX": 0,
+                      "offsetY": 16,
+                      "spreadDistance": -8
+                    }
+                  ],
+                  "height": 48,
+                  "justifyContent": "center",
+                  "opacity": 1,
+                  "width": 48
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessible": false,
+                    "importantForAccessibility": "no",
+                    "style": {
+                      "borderColor": "rgba(0, 0, 0, 0.08)",
+                      "borderRadius": 13,
+                      "borderWidth": 1,
+                      "bottom": -1,
+                      "left": -1,
+                      "pointerEvents": "none",
+                      "position": "absolute",
+                      "right": -1,
+                      "top": -1
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "height": 24,
+                      "width": 24
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "collapsable": false,
+                        "style": {
+                          "alignItems": "center",
+                          "bottom": 0,
+                          "justifyContent": "center",
+                          "left": 0,
+                          "position": "absolute",
+                          "right": 0,
+                          "top": 0
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": false,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(38, 38, 38)",
+                              "fontFamily": "Material Symbols Rounded",
+                              "fontSize": 24,
+                              "fontWeight": "300",
+                              "lineHeight": 24,
+                              "textAlign": "center"
+                            }
+                          },
+                          "children": [
+                            "add"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

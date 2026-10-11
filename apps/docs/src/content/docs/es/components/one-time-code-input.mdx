@@ -1,0 +1,211 @@
+---
+title: Entrada de código de un solo uso
+description: Recibe un código corto enviado a la persona (un código de inicio de sesión o de verificación) como un único valor de texto dibujado en celdas separadas, de modo que se ven su longitud y lo que aún falta, y la plataforma puede rellenarlo en un solo paso.
+translationOf: components/one-time-code-input.mdx
+sourceHash: 175113d67562d2edbe7ef3a1d76bd1851bb3e2aa
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="one-time-code-input" />
+
+<DemoFrame label="Una entrada de código de un solo uso dentro de un campo, y otra cuyo código rechazó el producto" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono.">
+    <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
+  </tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Código de verificación" supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono." error error-text="El código no es correcto. Revisa el mensaje e inténtalo de nuevo.">
+    <tanrei-one-time-code-input group-size="3" value="123456"></tanrei-one-time-code-input>
+  </tanrei-field>
+</DemoFrame>
+
+Usa una entrada de código de un solo uso para un código corto que un producto envió a la persona y que le pide de vuelta una sola vez: para iniciar sesión, para confirmar una dirección de correo electrónico o un número de teléfono, para aprobar un pago. Las celdas muestran la longitud del código y cuánto falta todavía.
+
+Es una sola entrada para todo el código, no una entrada por carácter. Hay un único valor de texto, una única parada para la tecla Tab y un único cuadro de texto para la tecnología de apoyo; las celdas son un dibujo de ese valor. Por eso el autorrelleno de códigos de la plataforma lo rellena en un solo paso, un texto pegado llega entero y un lector de pantalla lee un único cuadro de texto con nombre.
+
+Es un componente **avanzado**: el control sin nada más, para un producto que compone el suyo. No tiene etiqueta, ayuda ni texto de error propios. La mayoría de los productos quieren el [campo de código de un solo uso](/es/components/one-time-code-field/), que es esta entrada dentro de un campo, listo para usarse.
+
+**Se usa en** el [campo de código de un solo uso](/es/components/one-time-code-field/). Para componer el tuyo, ponla dentro de un [campo](/es/components/field/), que le da nombre, la describe, la marca como obligatoria y la pone en su estado de error; los ejemplos de esta página están escritos así, un nivel por debajo del campo de código de un solo uso. Donde la etiqueta visible está en otro lugar (el título de un diálogo), úsala sola y da `label`, que nunca se dibuja.
+
+En la web es `<tanrei-one-time-code-input>`. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+`value` es el código introducido hasta el momento: como máximo `length` caracteres, que son dígitos o, con `alphanumeric`, dígitos y letras mayúsculas, sin separador, sean cuales sean los grupos dibujados.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-field label="Código de verificación"
+        supporting-text="Introduce el código de 6 dígitos que enviamos a tu teléfono."
+        error-text="El código no es correcto. Revisa el mensaje e inténtalo de nuevo."
+        requirement="required" required-text="Obligatorio">
+        <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
+      </tanrei-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+      import '@tanrei/web/components/one-time-code-input';
+
+      const field = document.querySelector('tanrei-field');
+      const code = document.querySelector('tanrei-one-time-code-input');
+      // La persona cambió el valor. Ya es el nuevo.
+      code.addEventListener('input', () => (field.error = false));
+      // Se rellenó la última celda, o se pegó o se rellenó un código entero. Nada más ocurre por sí solo.
+      code.addEventListener('complete', async (e) => {
+        code.readOnly = true;
+        const right = await verify(e.detail.value);
+        code.readOnly = false;
+        field.error = !right;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Field, OneTimeCodeInput } from '@tanrei/react';
+
+    <Field label="Código de verificación" error={wrong}
+      supportingText="Introduce el código de 6 dígitos que enviamos a tu teléfono."
+      errorText="El código no es correcto. Revisa el mensaje e inténtalo de nuevo.">
+      <OneTimeCodeInput name="code" groupSize={3} value={code}
+        onInput={(event) => setCode(event.detail.value)}
+        onComplete={(event) => verify(event.detail.value)} />
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Cuatro celdas, ocho celdas en dos grupos, letras y dígitos, un código oculto, uno de solo lectura y uno deshabilitado" plain column>
+  <tanrei-one-time-code-input class="not-content" label="PIN de la carta" length="4" value="4821"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Código de vinculación" length="8" group-size="4" value="1234"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Código de inicio de sesión" type="alphanumeric" group-size="3" value="A7K93Q"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Código de verificación" mask value="1234"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Código de verificación" readonly value="123456"></tanrei-one-time-code-input>
+  <tanrei-one-time-code-input class="not-content" label="Código de verificación" disabled group-size="3" value="123456"></tanrei-one-time-code-input>
+</DemoFrame>
+
+### Las celdas
+
+| Parte | Qué es |
+| --- | --- |
+| Celda | Una caja por cada carácter del código, vacía o con un carácter. Una celda vacía y una rellena son la misma caja |
+| Carácter | El carácter de una celda rellena, en el estilo de entrada del campo de texto y con cifras tabulares. Con `mask`, ocupa su lugar la marca que dibuja un campo de contraseña |
+| Celda activa | Mientras la entrada tiene el foco, la celda a la que va el siguiente carácter: la primera celda vacía, o la última cuando todas están rellenas. Dibuja la línea de foco por dentro de su borde, que es a la vez el indicador de foco de la entrada y la marca de su posición |
+| Cursor de texto | En una celda activa vacía. Una celda activa rellena no dibuja ninguno: el siguiente carácter sustituye al que contiene |
+| Marca de grupo | Con `groupSize`, una línea corta cada tantas celdas. Es solo un dibujo: no forma parte del valor, ni de lo que se copia, ni de lo que envía un formulario |
+
+Una celda es tan alta como un campo de texto mediano, de modo que, en un mismo formulario, una entrada de código de un solo uso y un campo de texto tienen la misma altura. Hay un solo tamaño y un solo aspecto; un sistema de diseño define en su capa la altura, las esquinas y el relleno de la celda.
+
+La fila empieza en el borde de inicio y es tan ancha como necesitan sus celdas: seis celdas en dos grupos miden 284 de ancho en el sistema predeterminado, lo que cabe en una pantalla de 320. Donde hay menos sitio, las celdas se reparten el ancho y se estrechan, hasta quedar en un carácter con un pequeño margen interior a cada lado; después la fila salta de línea: primero entre dos grupos, sin la marca en el salto, y entre celdas donde no hay grupos. Una celda nunca se corta, y el código nunca se dibuja más pequeño para que quepa.
+
+### Escribir y leer
+
+| Cuándo | Qué ocurre |
+| --- | --- |
+| Se escribe un carácter permitido | Rellena la celda activa, sustituyendo lo que contiene, y la celda siguiente pasa a ser la activa. En la última celda, la celda activa no cambia, de modo que otro carácter sustituye al último |
+| Se escribe cualquier otro carácter | Nada. Una celda solo contiene lo que puede contener un código |
+| Retroceso | Una celda activa rellena pierde su carácter; una vacía pierde el carácter anterior. Lo que sigue se desplaza hacia el inicio: el valor no tiene huecos |
+| Flecha izquierda y Flecha derecha, Inicio, Fin | Mueven la celda activa entre las celdas rellenas y la primera vacía. Flecha arriba y Flecha abajo no hacen nada |
+| Seleccionar todo y, después, un carácter | Sustituye el código entero. No se puede seleccionar solo algunas celdas |
+| Pegar, soltar, autorrelleno, dictado | Todo el texto se lee como un solo código, esté donde esté la celda activa |
+
+Lo que se escribe o se pega se lee con tolerancia. Los dígitos de otras escrituras y los dígitos y letras de ancho completo se leen como sus formas ASCII, y las letras minúsculas como mayúsculas; el valor siempre es ASCII y se puede comparar tal cual con el código que se envió.
+
+Un texto pegado pierde sus espacios, guiones y rayas: `123 456` y `123-456` son `123456`. Con dígitos, en un texto más largo se busca exactamente una serie de exactamente `length` dígitos, de modo que se puede pegar un mensaje entero («Tu código es 123456.»). Lo que sea ambiguo no cambia nada.
+
+El texto que un método de entrada todavía no ha confirmado se dibuja en las celdas, subrayado, y no cambia ningún valor hasta que se confirma.
+
+### Eventos
+
+| Evento | Cuándo |
+| --- | --- |
+| `input` | Cada cambio que hace la persona. Lleva el valor nuevo |
+| `complete` | Un cambio hecho por la persona dejó el valor con `length` caracteres. Después del `input` de ese cambio, una vez |
+| `change` | El foco salió de la entrada, o se pulsó Enter, y el valor es distinto del último confirmado |
+| `action` | Enter. En un formulario en la web, el formulario se envía entonces como desde cualquier campo de entrada de texto |
+
+Ninguno se emite cuando el producto define `value`. Y no ocurre nada más cuando el código está completo: la entrada no envía el formulario, no mueve el foco, no se deshabilita ni anuncia nada. Lo que sigue a un código completo es cosa del producto.
+
+<ComponentSpecs name="one-time-code-input" />
+
+### Qué dibuja la web de otra manera
+
+- Es un elemento asociado a formularios. Recibe `name` y envía solo el código, o una cadena vacía. Se restablece al valor del atributo `value`, y notifica al formulario que falta un valor mientras su campo dice que es obligatorio y está vacío. Un código más corto que `length` no se notifica de ningún modo: rechazar un código sin terminar te corresponde a ti.
+- En el shadow root hay exactamente un `<input>`, con `autocomplete="one-time-code"` e `inputmode="numeric"` (`text`, con mayúsculas automáticas, para `alphanumeric`); con `mask` es un campo de entrada de contraseña. No tiene `maxlength` ni `pattern`: el navegador cortaría un código pegado con un espacio dentro antes de que se pudiera leer.
+- `input`, `change`, `complete` y `action` son CustomEvents con `detail.value`. Cancela `action` para impedir que el formulario se envíe.
+- El atributo de `readOnly` es `readonly`, y el de `groupSize` es `group-size`.
+- El cursor de texto es un dibujo propio del elemento. Donde un método de entrada muestra una ventana de candidatos, el navegador la coloca según el texto del campo de entrada nativo, al inicio de la fila, y no según la celda activa.
+- El elemento no lee los mensajes de la persona. Un producto puede pedir él mismo al navegador el código de un mensaje y definir `value`.
+- Antes de que el elemento esté definido no tiene tamaño. Reserva la altura de una celda. Una página que deba funcionar sin script usa un `<input autocomplete="one-time-code" inputmode="numeric">` sencillo, del que este elemento es un dibujo.
+
+## Pautas
+
+### Entrada de código de un solo uso o campo de texto
+
+| Aspecto | Entrada de código de un solo uso | Campo de texto |
+| --- | --- | --- |
+| Contiene | Un código corto de longitud conocida, enviado a la persona y que esta escribe de vuelta una vez | Cualquier texto |
+| Muestra | Una celda por cada carácter: la longitud del código y cuánto falta | El texto |
+| Acepta | Dígitos, o dígitos y letras mayúsculas | Cualquier cosa |
+
+Un campo de texto con `autocomplete="one-time-code"` también recibe un código correctamente, y es la elección adecuada donde no se quieren celdas. Una contraseña, un PIN que eligió la persona, una clave de recuperación o de licencia, un número de tarjeta y un código postal son [campos de texto](/es/components/text-field/): no tienen una longitud corta y fija que merezca dibujarse, o no deben mostrarse en celdas. Un número que el producto lee como número es un [campo numérico](/es/components/number-field/).
+
+### Recomendado
+
+- Usa el [campo de código de un solo uso](/es/components/one-time-code-field/) donde una etiqueta, las celdas, una ayuda y un error sean todo lo que necesitas. Escribe a mano un campo con esta entrada dentro solo para una organización que el campo de código de un solo uso no ofrezca.
+- Pon la entrada en un [campo](/es/components/field/) y di en su `supportingText` cuántos caracteres se esperan y adónde se envió el código.
+- Dibuja los grupos como los escribe el mensaje: `groupSize="3"` para un código enviado como «123 456».
+- Di con palabras que un código es incorrecto, con `error` y `errorText` del campo. Decide tú si un código incorrecto se borra: a menudo solo un dígito está mal.
+- Usa `readOnly`, no `disabled`, mientras se comprueba un código completo. Una entrada deshabilitada pierde el foco, y una persona que después deba corregir el código pierde su posición.
+- Pon junto a la entrada la forma de pedir un código nuevo y, si lo hay, el límite de tiempo. Son un botón y un texto tuyos.
+- Si compruebas o envías en `complete`, dilo antes de la entrada.
+
+### Evita
+
+- No construyas la entrada de un código con un campo de entrada por carácter. Un lector de pantalla se encuentra con varios cuadros de texto sin nombre, y el autorrelleno y el pegado no pueden rellenarlos.
+- No impidas pegar, esté el código oculto o no. Un código que hay que copiar a ojo es una prueba de memoria.
+- No muevas el foco a otro lugar ni envíes el formulario sin avisar antes a la persona.
+- No uses `mask` por costumbre. Un código que se usa una vez y caduca rara vez necesita ocultarse, y ocultarlo hace que un error sea más difícil de ver.
+- No uses `label` dentro de un campo. El campo da nombre al control.
+
+## Accesibilidad
+
+<ComponentAccessibility name="one-time-code-input" />
+
+### De qué se encarga el componente
+
+- Es un solo cuadro de texto. Su nombre es la etiqueta del campo, o su propio `label` donde ningún campo lo enmarca; su descripción es el texto de apoyo o de error que muestra el campo; su valor es el código entero como una sola cadena.
+- Se expone como no válido mientras está en error, como obligatorio mientras su campo lo dice, como de solo lectura mientras `readOnly` es true y como un campo de contraseña mientras `mask` es true.
+- Las celdas, el cursor de texto y las marcas de grupo quedan ocultos para la tecnología de apoyo y no reciben el foco.
+- El punto de inserción nativo está en la celda activa (antes de su carácter mientras la celda está rellena), de modo que un lector de pantalla que lee el carácter del punto de inserción lee la celda que se dibuja como activa.
+- Es una sola parada para la tecla Tab, dibuje las celdas que dibuje.
+- La entrada no anuncia nada por sí misma: ni un cambio ni un código completo. Un error que aparece lo anuncia el campo que la rodea.
+- La tecla que confirma o cancela el texto de un método de entrada no es la tecla de acción y no envía el formulario.
+- El área de pulsación cumple el objetivo mínimo. Una pulsación da el foco a la entrada y hace activa la celda pulsada mientras esa celda esté rellena.
+- Con el texto al 200%, las celdas crecen con sus caracteres, se estrechan y saltan de línea; nada se corta y nada se desplaza hacia los lados.
+- En colores forzados, cada celda gana un borde, y el borde de la celda activa es del color de resaltado. Ningún color propio de la entrada muestra un error.
+- En un diseño de derecha a izquierda, las celdas siguen siendo una serie de izquierda a derecha (los dígitos nunca se invierten) y la fila se sitúa en el borde derecho, bajo la etiqueta del campo.
+- No incluye textos propios, en ningún idioma.
+
+Carencias conocidas en la web:
+
+- Lo que dicen los lectores de pantalla mientras un código se escribe, se sustituye y se pega se ha leído en los árboles de accesibilidad de los navegadores, no se ha oído con un lector de pantalla.
+- Los métodos de entrada se han accionado de verdad en Chromium; en Firefox y Safari, solo a través de sus eventos.
+- Antes de que el elemento esté definido, no se dibuja nada.
+
+### Qué debes hacer tú
+
+- Da un nombre al control: la etiqueta del campo que lo rodea, o su propio `label` donde la etiqueta visible está en otro lugar, con las mismas palabras.
+- Di con palabras qué se espera: cuántos caracteres, y adónde se envió el código. Las celdas muestran la longitud solo a quienes las ven.
+- Di que un código es incorrecto, que ha caducado o que es obligatorio con `errorText`, `supportingText` y `requirement` del campo. El color nunca es la única señal.
+- Donde el tiempo para introducir un código sea limitado, dilo, y deja que la persona pida más tiempo o un código nuevo.

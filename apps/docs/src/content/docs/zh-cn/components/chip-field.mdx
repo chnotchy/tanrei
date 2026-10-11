@@ -1,0 +1,234 @@
+---
+title: "纸片字段"
+description: "在一个字段里收集一列简短的文本——电子邮件地址、电话号码、关键词——一个接一个地键入。通过你的检查的每段文本都变成一个纸片，可以移除，也可以放回键入部分去修改；这个列表就是字段唯一的值。"
+translationOf: components/chip-field.mdx
+sourceHash: 8a2a4fc47c38f0ca955bd6a42eb7db404d9675df
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="chip-field" />
+
+<DemoFrame label="一个带有两个地址的纸片字段，以及一个第三个地址被拒绝的纸片字段" column>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" separators='[",",";"," "]' remove-label="移除 {entry}" added-text="已添加 {entry}" removed-text="已移除 {entry}" supporting-text="用逗号分隔各个地址。" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" separators='[",",";"," "]' remove-label="移除 {entry}" added-text="已添加 {entry}" removed-text="已移除 {entry}" supporting-text="用逗号分隔各个地址。" error error-text="请输入完整的地址，例如 name@example.com。" value='["ada@example.com","grace.hopper@example.org"]' input-value="alan@"></tanrei-chip-field>
+</DemoFrame>
+
+用户要输入同一类的若干段简短文本时，就使用纸片字段：消息的收件人、文档共享给的人、接收提醒的号码、文章的关键词。每段文本单独检查，所以十二个地址里输错一个，不会连累其余的；每个条目也可以单独移除或修改。
+
+**组成部分**是一个[字段](/zh-cn/components/field/)、一个[文本输入框](/zh-cn/components/text-input/)和若干[纸片](/zh-cn/components/chip/)。字段是框架：标签、必填或选填标记、帮助文本和错误。文本输入框是方框，也是键入下一个条目的地方。每个条目是一个小号的输入纸片，位于方框里、键入的文本之前。纸片字段自己什么都不绘制，也没有令牌，所以在每个设计系统里，它看起来都与旁边的文本字段一样。
+
+它的宽度与所在的位置相同。条目和键入的文本排成可以换行的若干行，方框按整行增高。每个条目都显示出来：没有哪个被隐藏、被折叠成“+3”这样的计数，或者被滚动到看不见的地方。
+
+在 Web 上它是 `<tanrei-chip-field>`。其他平台尚未实现。
+
+### 用法
+
+`value` 是条目的列表，一个由文本组成的数组。`inputValue` 是已经键入、但还不是条目的文本。
+
+键入的文本在以下情况下成为条目：
+
+- 按下 Enter；
+- 键入你在 `separators` 里列出的分隔符。默认没有分隔符，因为逗号既能结束一个电子邮件地址，也是“Lovelace, Ada”的一部分；
+- 焦点离开字段；
+- 粘贴的文本里有分隔符或换行：每一段按顺序依次交给检查。
+
+Tanrei 不知道什么是电子邮件地址或电话号码。`type` 只选择键盘，什么都不检查。每个候选条目都通过 `check` 交给你：你拒绝它，它就作为键入的文本留在方框里，同时字段显示错误。重复的文本和超出 `maxEntries` 的文本，不问你就会被拒绝。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-chip-field name="to" label="收件人" type="email"
+        supporting-text="用逗号分隔各个地址。"
+        invalid-text="请输入完整的地址，例如 name@example.com。"
+        duplicate-text="这个地址已经在列表里了。"
+        remove-label="移除 {entry}"
+        added-text="已添加 {entry}" added-count-text="已添加 {count} 项" removed-text="已移除 {entry}"></tanrei-chip-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/chip-field';
+
+      const to = document.querySelector('tanrei-chip-field');
+      to.separators = [',', ';', ' '];
+      // 你对一个条目的检查，只要一行。请在事件返回之前作出回答。
+      to.addEventListener('check', (e) => {
+        if (!/^\S+@\S+\.\S+$/.test(e.detail.text)) e.preventDefault();
+      });
+      // 用户改变了列表。`value` 已经是新的列表。
+      to.addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ChipField } from '@tanrei/react';
+
+    <ChipField name="to" label="收件人" type="email" separators={[',', ';', ' ']}
+      supportingText="用逗号分隔各个地址。"
+      invalidText="请输入完整的地址，例如 name@example.com。"
+      removeLabel="移除 {entry}" addedText="已添加 {entry}" removedText="已移除 {entry}"
+      value={recipients}
+      onCheck={(event) => { if (!isAddress(event.detail.text)) event.preventDefault(); }}
+      onChange={(event) => setRecipients(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+要用你自己的话说明某一次拒绝的原因，就在 `check` 的监听器里设置 `event.detail.reason`。否则，字段按原因显示 `invalidText`、`duplicateText` 或 `limitText`；对应的那一项为空时，显示 `errorText`。`reject` 把每段被拒绝的文本、原因和显示出来的文字告诉你。
+
+事后才发现有问题的条目——例如服务器报告为未知的地址——要由你来报告：设置 `error` 和 `errorText`，并在文字里点出是哪个条目。用户可以把它移除，或者把它的文本放回键入部分来修改。
+
+### 修改条目
+
+| 要做的事 | 操作 |
+| --- | --- |
+| 从键入部分到达条目 | 插入点在文本开头时，按 Backspace 或指向行首的方向键 |
+| 在条目之间移动 | 左方向键和右方向键、Home 和 End |
+| 移除条目 | 在条目上按 Backspace 或 Delete，或者使用它的移除操作 |
+| 修改条目 | 在条目上按 Enter 或 Space，或者按下纸片：它的文本回到键入部分 |
+| 回到键入部分 | Escape、Tab，或者键入一个字符 |
+
+第一次按 Backspace 只是到达最后一个条目。再按一次才会移除它，而按住不放只算一次，所以删除键入的文本时，绝不会一路删到列表里去。
+
+### 下一层
+
+用它的成员手写出来的同一个字段，画面是一样的：
+
+```html
+<tanrei-field label="收件人" supporting-text="用逗号分隔各个地址。">
+  <tanrei-text-input type="email">
+    <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com"
+      remove-label="移除 ada@example.com"></tanrei-chip>
+    <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org"
+      remove-label="移除 grace.hopper@example.org"></tanrei-chip>
+  </tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="手写出来的同一个字段：一个字段、一个文本输入框，以及放在它的 entries 插槽里的两个纸片" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" supporting-text="用逗号分隔各个地址。">
+    <tanrei-text-input type="email">
+      <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="移除 ada@example.com"></tanrei-chip>
+      <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org" remove-label="移除 grace.hopper@example.org"></tanrei-chip>
+    </tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+手写的这几个成员没有做的事，正是纸片字段添加的东西：
+
+| 纸片字段添加的 | 手写时 |
+| --- | --- |
+| 生成条目：Enter、分隔符、离开字段、粘贴的列表 | 由你监听文本输入框，并切分文本 |
+| 各项检查和条目错误 | 由你在字段上设置 `error` 和 `errorText` |
+| 一个 Tab 停靠点，以及在条目之间移动的按键 | 每个纸片和每个移除操作各是一个停靠点；由你移除纸片并移动焦点 |
+| 把条目作为一个列表暴露出来，以及三种朗读 | 由你自己编写 |
+| 把列表作为表单里的一个值 | 隐藏的 input，或者你自己的提交方式 |
+
+需要纸片字段没有提供的排布方式时，例如条目不是纸片，或者方框里要有图标，就往下走一层。
+
+## 规格
+
+<DemoFrame label="必填、只读、禁用，以及只靠 Enter 生成的关键词" plain column>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" requirement="required" required-text="必填" remove-label="移除 {entry}" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" readonly remove-label="移除 {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="收件人" type="email" disabled remove-label="移除 {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="作者" remove-label="移除 {entry}" supporting-text="每输入一个姓名后按 Enter。" value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
+</DemoFrame>
+
+### 各个成员提供什么
+
+| 方面 | 来自字段 | 来自文本输入框 | 纸片字段自己的 |
+| --- | --- | --- | --- |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `type`, `placeholder`, `readOnly`, `autocomplete`，以及 `inputValue`（文本输入框的 `value`） | `value`, `separators`, `maxEntries`, `invalidText`, `duplicateText`, `limitText`, `removeLabel`, `addedText`, `addedCountText`, `removedText` |
+| 事件 | — | `input`, `action` | `change`, `check`, `reject` |
+| 插槽 | `label-icon` | — | — |
+| 令牌 | `comp.field.*` | 方框用 `comp.input-box.*`；放条目的地方用 `comp.text-input.*` | 没有；条目读取 `comp.chip.*` |
+
+- **条目是小号纸片**，方框的两种尺寸下都是如此。很长的条目独占一行，并由纸片截断；它的完整文本仍然是它的名称和它的值。
+- **占位符**只在列表为空时显示。
+- **只读**：条目可以到达、可以阅读，也会提交。但不能生成或移除任何条目，也不能把条目放回键入部分，每个纸片也都不画移除操作。
+- **禁用**：字段、方框和每个纸片都被禁用，什么都不提交。
+- **`maxEntries`**：再多一个条目就会被拒绝，并显示 `limitText`。事先不会禁用或标记任何东西：请在 `supportingText` 里说明这个上限。
+- **`type`**：可以是 `text`、`email`、`tel` 或 `url`。其他任何类型都按 `text` 处理。
+
+### 单独调整某一个字段
+
+纸片字段没有自己的令牌。要改动某一个实例，就在它上面设置成员的令牌：
+
+```html
+<tanrei-chip-field label="收件人"
+  style="--tanrei-comp-text-input-entries-row-gap: 12px"></tanrei-chip-field>
+```
+
+<ComponentSpecs name="chip-field" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-text-input>`；每个条目对应一个 `<tanrei-chip>`，放在文本输入框的 `entries` 插槽里。导入这个元素，三个成员也随之完成定义。
+- `value` 是一个数组属性（property）：要改变它，就赋给它一个新数组。`value` 属性（attribute）只读取一次，按字符串的 JSON 数组解读，表单重置时回到的就是它。`separators` 也是数组；它的属性（attribute）是一个 JSON 数组。
+- 这个元素是与表单关联的元素。它在 `name` 之下按顺序为每个条目提交一个值；列表为空或字段被禁用时什么都不提交。键入的文本绝不会被提交。它跟随被禁用的 `<fieldset>`，在导航返回时恢复，并在 `requirement` 为 `required` 而列表为空时报告缺少值。
+- `change`、`check` 和 `reject` 是这个元素派发的 CustomEvent：它们的 `detail` 分别是 `{ value, added, removed }`、`{ text, values }` 和 `{ text, reason, message }`。`check` 可以取消，并在它返回时读取结果：之后才给出的回答不会被读取。
+- `input` 和 `action` 是文本输入框自己的事件。只有在空的键入部分上按 Enter 才会触发 `action`，随后请求表单提交。在有文本时按 Enter 会生成一个条目：这次按键在文本输入框收到之前就被拦下，所以冒泡阶段的 `keydown` 监听器收不到它。
+- 部件：`field`、`text-input` 和 `chip` 是各个成员。字段和文本输入框自己的部件保留原来的名称（`label`、`supporting-text`、`container`、`input`、`entries` 等等）。纸片的部件是 `entry-container`、`entry-label` 和 `entry-remove`。
+- 这个元素本身不能获得焦点，也没有角色：`focus()` 会把焦点交给键入部分。用 `label` 为它命名，绝不要用 `aria-label`。
+- 文本是在它发生变化时检查分隔符的，绝不看按下的是哪个键，所以触摸键盘和听写同样能结束一个条目。输入法正在组合输入时，不生成任何条目：确认组合的那个键只是确认它，之后才会读取文本。
+- 属性（attribute）用 kebab-case 书写，例如 `input-value`、`max-entries`、`remove-label` 和 `added-count-text`。`readonly` 和 `autocomplete` 沿用 HTML 的名称。
+- 在元素完成定义之前，它没有尺寸，什么都不显示。请预留方框的高度。必须在没有脚本时也能接收列表的页面，使用普通的 `<input>` 或 `<textarea>`，并在服务器上切分文本。
+
+## 指南
+
+### 纸片字段、组合框，还是标签组
+
+| 你需要 | 使用 |
+| --- | --- |
+| 用户键入的一列文本，每段单独检查 | 纸片字段 |
+| 从产品已有的选项中选择 | [组合框](/zh-cn/components/combobox/)。纸片字段没有建议列表 |
+| 独立存在的一组 Tag 或纸片，不需要键入，也没有表单值 | [标签组](/zh-cn/components/tag-group/) |
+| 少数几个各自需要标签的较长条目 | 由文本字段组成的[字段组](/zh-cn/components/field-group/) |
+| 一段文本，无论多长 | [文本字段](/zh-cn/components/text-field/) |
+
+### 推荐
+
+- 在 `supportingText` 里说明什么算一个条目，以及怎样生成条目：“用逗号分隔各个地址。”
+- 只把绝不可能出现在条目里的字符列进 `separators`。对“Lovelace, Ada”这样的姓名，一个都不要列。
+- 编写 `removeLabel` 时带上占位标记 `{entry}`，这样两个移除操作绝不会同名。
+- 给出 `invalidText`，用文字说明正确的条目是什么样子。
+- 在 `supportingText` 里说明上限，在 `limitText` 里说明到达上限时会怎样。
+
+### 避免
+
+- 不要把纸片字段放进字段。它本身已经是字段。
+- 不要指望 `type="email"` 来检查地址。它只选择键盘，别的什么都不做。
+- 不要事后才回答 `check`。服务器拒绝的条目，用 `error` 和 `errorText` 来报告。
+- 不要把键入的文本当作值的一部分来读取。焦点离开时它才成为条目；在字段有焦点时用脚本提交的产品，要读取 `inputValue`。
+
+## 无障碍
+
+<ComponentAccessibility name="chip-field" />
+
+### 组件负责的部分
+
+- 辅助技术遇到的是一个以标签命名的列表，每个条目是其中一项：一个以条目完整文本命名的按钮，以及它的移除操作——一个以 `removeLabel` 命名、名称里带有这个条目的按钮。列表之后是键入部分，一个以标签命名、以帮助文本或错误作为描述的文本框。
+- 无论有多少个条目，字段都只是一个 Tab 停靠点。条目用方向键或 Backspace 到达，也可以用指针、触摸和屏幕阅读器自己的导航方式到达。
+- 被拒绝的条目作为文本留在插入点所在的键入部分，原因用文字写在字段的错误里，朗读一次。绝不靠颜色来区分被拒绝的条目和已接受的条目。
+- 生成了一个条目、一次生成了好几个、移除了一个条目，都各自在一个礼貌（polite）的实时区域里用你的句子说出来。
+- 移除是有意为之的操作：Backspace 要按两次，按住不放只算一次。
+- 方向跟随字段所在的位置。在从右到左的布局中，各行从右边开始，方向键仍然朝它们所指的方向移动。里面的地址保持它自己的方向。
+- 文本放大到 200%、位置又很窄时，每个条目仍然都显示出来；最后一行留给键入部分的空间太小时，键入部分自己另占一行。
+
+Web 上的已知差距：屏幕阅读器会说什么，是从各浏览器的无障碍树里读出来的，还没有用屏幕阅读器实际听过。
+
+### 需要你做的事
+
+- 始终给出 `label`。
+- 给出 `removeLabel`、`addedText` 和 `removedText`：写在元素上，或者随产品的文字只给一次。没有它们，移除操作就没有名称，也不朗读任何内容。
+- 在 `supportingText` 里说明怎样生成条目。如果用户需要知道在条目上按 Enter 可以修改它，也要说明。
+- 说明条目被拒绝的原因时，要用能告诉用户怎样改正的文字。

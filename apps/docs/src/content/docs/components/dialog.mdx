@@ -1,0 +1,309 @@
+---
+title: Dialog
+description: Stops a person for a decision or a few details that the task cannot go on without, in a surface that dims and blocks everything behind it until it is answered or dismissed.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="dialog" />
+
+:::note[A revised spec, not yet on every platform]
+This page describes the dialog as the spec has it now: every dialog offers at least one action, the actions are a full-width row of tonal Buttons placed by their task, the icon sits beside a start-aligned headline, and on a compact window the dialog sits at the bottom. The web component implements the revision, and the demos on this page are the web component as it ships today; it stays marked lagging above until the revision has been reviewed and its baselines recorded. SwiftUI, Compose, Flutter and React Native ship the previous revision until they catch up: the icon above a centred headline, text actions in a row at the end in the order given, optional actions, and a centred dialog in every window.
+:::
+
+<DemoFrame label="A confirmation: open it with the button">
+  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-basic').open = true">Discard draft</tanrei-button>
+  <tanrei-dialog id="dialog-demo-basic" headline="Discard draft?" supporting-text="The message you were writing will be deleted from this device.">
+    <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">Cancel</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Discard</tanrei-button>
+  </tanrei-dialog>
+</DemoFrame>
+
+### Usage
+
+A dialog is controlled. You open it by setting `open` and close it by setting `open` back to false, from an action's handler or in answer to `dismiss`. An action never closes the dialog by itself, so you can validate first, show progress, or keep it open on an error.
+
+The dialog has an optional icon, a headline, optional supporting text, optional content of your own, and its actions. A dialog is a dialogue: it always offers at least one answer. The actions are Tanrei Buttons, each marked `confirming` (it completes the task: Save, Delete, Allow) or `dismissive` (it backs out: Cancel, Not now). The dialog places them by those marks, so you give them in any order, and it draws an action whose `variant` you did not set as tonal.
+
+Mark the element that should get focus when the dialog opens with the platform's own mark: `autofocus` on the web, `.defaultFocus` or an `@AccessibilityFocusState` on SwiftUI, a `FocusRequester` passed as `initialFocus` on Compose, `autofocus: true` on Flutter, and `initialFocusRef` on React Native. Without a mark, focus goes to the dialog itself, so its headline is read first.
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision of the dialog, which has no `confirming` or `dismissive` marks and no tonal default, so their samples give each action the text variant and put the confirming one last, and show that revision until they catch up.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="discard-draft" variant="text">Discard draft</tanrei-button>
+
+    <!-- closedby="none" is dismissible set to false. -->
+    <tanrei-dialog headline="Discard draft?"
+                   supporting-text="The message you were writing will be deleted from this device.">
+      <!-- dismissive goes at the start, confirming at the end. Without a variant, both are tonal. -->
+      <!-- autofocus marks initial focus: the least destructive action. -->
+      <tanrei-button slot="actions" dismissive autofocus>Cancel</tanrei-button>
+      <tanrei-button slot="actions" confirming>Discard</tanrei-button>
+    </tanrei-dialog>
+
+    <!-- An icon beside the headline, and one action given its own variant. -->
+    <tanrei-dialog headline="Delete project?" alert>
+      <span slot="icon">delete</span>
+      <tanrei-button slot="actions" dismissive variant="text">Cancel</tanrei-button>
+      <tanrei-button slot="actions" confirming variant="filled">Delete</tanrei-button>
+    </tanrei-dialog>
+
+    <script type="module">
+      import '@tanrei/web/components/dialog';
+      const dialog = document.querySelector('tanrei-dialog');
+      const cancel = dialog.querySelector('[dismissive]');
+      const discard = dialog.querySelector('[confirming]');
+      document.querySelector('#discard-draft').addEventListener('click', () => (dialog.open = true));
+      // An action never closes the dialog: you do, from its handler.
+      cancel.addEventListener('click', () => (dialog.open = false));
+      discard.addEventListener('click', () => { discardDraft(); dialog.open = false; });
+      // Escape and a press on the backdrop fire cancel, as on a native <dialog>.
+      // The dialog then closes itself, unless you cancel the event.
+      dialog.addEventListener('cancel', (e) => { if (unsaved()) e.preventDefault(); });
+      // close follows every close.
+      dialog.addEventListener('close', onDialogClosed);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Dialog } from '@tanrei/react';
+
+    // Escape and the backdrop close the dialog themselves (onCancel, then onClose): keep open in step from onClose.
+    <Dialog
+      open={open}
+      headline="Discard draft?"
+      supportingText="The message you were writing will be deleted from this device."
+      onClose={() => setOpen(false)}
+    >
+      <Button slot="actions" dismissive onClick={() => setOpen(false)}>Cancel</Button>
+      <Button slot="actions" confirming onClick={discard}>Discard</Button>
+    </Dialog>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // A modifier, as .alert and .sheet are. Dismissal writes false to the binding.
+    TanreiButton("Discard draft", variant: .text) { showDiscard = true }
+        .tanreiDialog("Discard draft?", isPresented: $showDiscard,
+                      supportingText: "The message you were writing will be deleted from this device.",
+                      actions: {
+                          TanreiButton("Cancel", variant: .text) { showDiscard = false }
+                          TanreiButton("Discard", variant: .text) { discardDraft(); showDiscard = false }
+                      })
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiDialog
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+
+    // visible rather than calling it only while open, so that the exit motion can run.
+    val cancel = remember { FocusRequester() }
+    TanreiDialog(
+        visible = open,
+        onDismissRequest = { open = false },
+        headline = "Discard draft?",
+        supportingText = "The message you were writing will be deleted from this device.",
+        initialFocus = cancel,
+        actions = {
+            TanreiButton(text = "Cancel", onClick = { open = false }, modifier = Modifier.focusRequester(cancel), variant = TanreiButtonVariant.Text)
+            TanreiButton(text = "Discard", onClick = { discardDraft(); open = false }, variant = TanreiButtonVariant.Text)
+        },
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // showTanreiDialog pushes a modal route. Navigator.pop closes it; a dismissal completes the future with null.
+    final bool? discard = await showTanreiDialog<bool>(
+      context: context,
+      barrierDismissible: true, // the spec's dismissible: Escape, back and the scrim
+      builder: (BuildContext context) => TanreiDialog(
+        headline: 'Discard draft?',
+        supportingText: 'The message you were writing will be deleted from this device.',
+        actions: <Widget>[
+          TanreiButton(
+            variant: TanreiButtonVariant.text,
+            autofocus: true,
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TanreiButton(
+            variant: TanreiButtonVariant.text,
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Discard'),
+          ),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { Button, Dialog } from '@tanrei/react-native';
+
+    const cancel = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // Named as React Native's Modal: controlled by visible, and onRequestClose is the spec's dismiss.
+    <Dialog
+      visible={open}
+      headline="Discard draft?"
+      supportingText="The message you were writing will be deleted from this device."
+      onRequestClose={() => setOpen(false)}
+      initialFocusRef={cancel}
+      actions={
+        <>
+          <Button ref={cancel} variant="text" onPress={() => setOpen(false)}>Cancel</Button>
+          <Button variant="text" onPress={discard}>Discard</Button>
+        </>
+      }
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="An alert dialog: a destructive confirmation read out as it opens" plain>
+  <tanrei-button variant="outlined" onclick="document.getElementById('dialog-demo-alert').open = true">Delete project</tanrei-button>
+  <tanrei-dialog id="dialog-demo-alert" alert headline="Delete project?" supporting-text="Everything in the project, including its history, will be deleted. This cannot be undone.">
+    <span slot="icon">delete</span>
+    <tanrei-button slot="actions" dismissive autofocus onclick="this.closest('tanrei-dialog').open = false">Cancel</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-dialog').open = false">Delete</tanrei-button>
+  </tanrei-dialog>
+</DemoFrame>
+
+<ComponentSpecs name="dialog" />
+
+## Guidelines
+
+### When to use
+
+Use a dialog when the task cannot go on without an answer: confirming something that cannot be undone, asking for a permission, or collecting two or three details without leaving the page. It stops the person, so use it only when stopping them is worth it.
+
+Use a snackbar to report what just happened, with an optional Undo, instead of asking "Are you sure?" for something that can be undone. Use a menu for a short choice that does not block the screen. Put longer forms and complex tasks on a page of their own.
+
+### Parts
+
+| Part | Set with | Notes |
+| --- | --- | --- |
+| Icon | the icon slot | Optional. A glyph that marks the kind of decision, such as `delete`. It sits at the start of the headline's first line, 12 before it, and stays beside that line when the headline wraps. |
+| Headline | `headline` | Required. The question or statement, such as "Discard draft?". Always aligned to the start. It is the dialog's accessible name. |
+| Supporting text | `supportingText` | What will happen, or what the person needs to know to decide. Always aligned to the start. It is the dialog's description. |
+| Content | the default slot | Whatever else the decision needs: a list to choose from, a field. The dialog insets it and gives it a content color; it does not lay it out. |
+| Actions | the actions slot | Required: one Tanrei Button at least, each marked `confirming` or `dismissive`. The dialog places them as a full-width Button group and draws those without a variant as tonal. |
+
+When the parts do not fit in the window, the header and the actions stay in place and the supporting text and the content scroll between them, with a hairline divider while something is scrolled out of view. When large text leaves no room even for that, the whole dialog scrolls.
+
+A headline with no supporting text is allowed: a question in the headline, with its answers, is a dialogue. What a dialog cannot be is a statement with nothing to answer.
+
+### The actions
+
+The actions share the container's inner width equally, with 16 between them.
+
+- **Placed by task.** In a row, the dismissive action is at the start and the confirming one at the end. In a column, the confirming one is on top and the dismissive one at the bottom. An action with neither mark keeps its given place between the two. Focus and screen readers follow the placed order, so you never order the Buttons by hand.
+- **Row or column by fit.** The actions stay in a row while every label fits its share on one line. When one would wrap, they stack into a column, each as wide as the dialog. The dialog decides again when its width or the text size changes.
+- **Tonal by default.** An action whose `variant` you did not set is drawn tonal. The marks decide the place only, never the look.
+- **Another look.** Set one Button's `variant` to give that action another look, such as a text Cancel beside a filled Delete. The dialog never overwrites a variant you set. A product that wants another look for every dialog sets it once in its layer (`actions.variant`, and `actions.arrangement` for actions at their own widths aligned to the end), not on each Button.
+- **At least one.** A dialog with no action still opens, and debug builds report it as an error. Where a platform's API can require actions, the spec says it does: SwiftUI's `actions:` builder, Compose's `actions` parameter, Flutter's `actions` list and React Native's `actions` prop. Of the four, only SwiftUI's is required today; the others still take a dialog without actions until they catch up. Debug builds also report a dialog whose actions are all disabled while `dismissible` is false, since that leaves no way out.
+
+### On a compact window
+
+When the window is narrower than 600, the dialog sits at the bottom of the window's safe area instead of in the centre: 16 from the bottom and side edges (or above the on-screen keyboard), as wide as the window less those margins up to 560, with all four corners rounded. Only width counts, so a phone in landscape is not compact and its dialog is centred.
+
+It is still a dialog there, not a bottom sheet. It has no drag handle, does not follow a drag and does not close on a swipe. Its role, focus, inertness and dismissal are those of any dialog. When the window crosses 600 while the dialog is open, it moves to the other placement at once, without motion, and focus stays where it is.
+
+A system that keeps dialogs centred everywhere sets the compact width to 0. The `m3-like` and `cupertino` presets do, as both originals centre their dialogs. They also keep their originals' text actions.
+
+### Opening, focus and closing
+
+A dialog is a modal overlay. It moves focus in, keeps it in, and returns it when it closes.
+
+- **Opening.** When `open` becomes true, the dialog is presented above everything in its window, centred (or at the bottom of a compact window), over a scrim that dims the whole window. Everything outside it becomes inert: it cannot be focused or pressed, and assistive technology cannot reach it. The content behind it stops scrolling.
+- **Focus in.** Focus moves to the element you marked, or to the dialog itself, so assistive technology reads the headline first and the next Tab reaches the first focusable element. Focus moves when the dialog opens, not when its motion ends.
+- **Focus kept in.** Tab from the last focusable element goes to the first, and Shift+Tab from the first goes to the last. Screen-reader navigation does not leave the dialog.
+- **Dismissing.** While `dismissible` is true, Escape, the platform's back (Android's back button or gesture, the iOS accessibility escape gesture) and a press on the scrim emit `dismiss` once, and you close the dialog. On the web the dialog closes itself unless you cancel `cancel`, as a native `<dialog>` does. While `dismissible` is false these do nothing, and only an action closes the dialog. A dialog at the bottom of a compact window does not close on a swipe.
+- **Focus back.** When it closes, focus returns to the element that had it when the dialog opened. The content behind it is restored as it was.
+- **Stacking.** A dialog opened from a dialog stacks above it with its own scrim and makes the first one inert too. Escape dismisses only the topmost, and closing it returns focus to the element inside the first dialog that had it.
+- **Announcement.** The dialog is announced as a dialog, named by its headline and described by its supporting text. With `alert`, it is an alert dialog, and assistive technology reads the headline and the supporting text as soon as it opens.
+- **Motion.** The scrim fades in. A centred container fades in while growing from slightly smaller than its size. A container at the bottom of a compact window fades in while rising 32 into place, without growing, and sinks by 32 as it fades out. Where motion is reduced it fades without growing or moving; on Android, whose setting removes every animation, it appears at once.
+
+How each platform presents it: a native `<dialog>` opened with `showModal()` on the web, `.fullScreenCover` with a clear background on SwiftUI for iOS (on macOS, which has no full-screen cover, an overlay on the view the modifier is attached to), a `Dialog` window on Compose, a modal route on Flutter, and a transparent `Modal` on React Native. Each switches off its own dim and transition, so every platform draws the same scrim and motion from the tokens.
+
+A snackbar that has not been shown yet waits while a Tanrei dialog is open, and one already showing pauses its timeout. A tooltip inside a dialog is drawn above it.
+
+### Do
+
+- Write the headline as the question or the statement itself: "Discard draft?", "Delete project?". Avoid "Are you sure?".
+- Name actions after what they do: "Discard", "Delete", "Sign out". Avoid "Yes" and "No".
+- Mark every action `confirming` or `dismissive`, and let the dialog place them.
+- Give every dialog an answer. A dialog that only informs is a snackbar or a line on the page.
+- In a destructive confirmation, mark Cancel for initial focus. In a form, mark the first field. In a dialog whose text must be read first, mark nothing.
+- Set `alert` for urgent interruptions only: a destructive confirmation, a lost connection.
+
+### Don't
+
+- Don't open a dialog the person did not ask for, unless the task truly cannot go on.
+- Don't set `dismissible` to false unless the person must choose one of the actions. Switch and screen-reader users rely on Escape and back. A dialog that cannot be dismissed still needs a visible way out, such as Cancel.
+- Don't put more than a few details in a dialog. Put a long form on a page.
+- Don't order the actions by hand to put the confirming one last, or set a variant on every Button to get tonal: the dialog does both.
+- Don't restyle the buttons beyond their `variant`, or add controls to the dialog's frame.
+- Don't treat the dialog at the bottom of a compact window as a bottom sheet. Use a bottom sheet when the person should be able to swipe it away.
+
+## Accessibility
+
+<ComponentAccessibility name="dialog" />
+
+### What the component handles
+
+- The dialog is exposed as a modal dialog, or an alert dialog while `alert` is true, named by its headline and described by its supporting text. With `alert`, the headline and supporting text are read as soon as it opens.
+- Everything outside it is inert and hidden from assistive technology while it is open.
+- Opening moves focus to the element you marked, or to the dialog itself. Tab and Shift+Tab wrap inside it. Closing returns focus to the element that had it when it opened.
+- Escape, the platform's back and a press on the scrim emit `dismiss` while `dismissible` is true. With stacked dialogs, only the topmost is dismissed.
+- Enter and Space activate the focused button. The dialog adds no default action to Enter.
+- The actions are Tanrei Buttons, which meet the minimum target themselves. The 16 between stacked actions keeps each whole target.
+- Focus and screen readers meet the actions in the placed order, the same order a sighted person sees.
+- At the bottom of a compact window the dialog keeps the same role, focus, inertness and dismissal. A person who expects a bottom sheet's swipe closes it with Escape, back, the scrim or a dismissive action.
+- At 200% text size the dialog grows up to the window, its actions stack when a label no longer fits its share, the supporting text and the content scroll, and on a very short window everything scrolls together, so nothing is cut off or unreachable.
+- A dialog without a headline or without an action still opens, and debug builds report the missing name or the missing answer. They also report a dialog whose actions are all disabled while `dismissible` is false.
+
+Known platform gaps:
+
+- Web: Firefox cannot keep a closing dialog in the top layer while it fades, so there the dialog disappears at once when it closes, without the exit fade.
+- Web: keeping clear of the on-screen keyboard has not yet been checked on a device that has one.
+- SwiftUI has no dialog or alert dialog role. The container carries the modal trait, is named by the headline and described by the supporting text as its hint, and the headline carries the heading trait. With `alert`, VoiceOver reads the headline and the supporting text as the dialog opens.
+- SwiftUI on macOS has no full-screen cover: the dialog covers only the view the modifier is attached to, so attach it to the window's root. That view is disabled while the dialog is open, and its controls draw their disabled state under the scrim.
+- SwiftUI cannot move keyboard focus to the dialog itself. Without a mark, VoiceOver starts at the headline. On closing, iOS returns VoiceOver focus to the presenting element, but keyboard focus is not given back on either iOS or macOS.
+- Compose has no alert dialog role. The window is a dialog named by the headline, and an `alert` dialog announces its headline and supporting text as it opens, through an Android API that Android 16 deprecates.
+- Compose: the real dialog window, Tab wrapping, focus coming back to the opener, the back gesture and TalkBack have been tested on Robolectric only, not yet on a device.
+- Flutter: when even the headline and the actions leave no room and the whole dialog scrolls together, that switch is decided after a layout and shows one frame later. Flutter has no description property, so the supporting text is the container's hint. The scrim has no accessible label unless you pass `barrierLabel`.
+- React Native cannot tell which element had focus, so closing does not return focus to the element that opened the dialog: focus goes where iOS and Android put it for a closed window. Without `initialFocusRef`, only the screen reader moves (to the headline); a hardware keyboard's focus is left where the platform puts it in the new window.
+- React Native: whether Tab wraps inside the dialog is the platform's. That, screen-reader focus, back, the iOS escape gesture and nested dialogs have not yet been checked on a device.
+- React Native: the dialog keeps inside the safe area only when you pass the window's insets to `TanreiProvider`.
+
+### What you need to do
+
+- Give every dialog a headline. It is the dialog's name.
+- Give every dialog at least one action, and mark each one `confirming` or `dismissive`. On the platforms that still ship the previous revision, put the confirming action last yourself.
+- Close the dialog yourself: from each action's handler, and in answer to `dismiss` (`onRequestClose`, `onDismissRequest`, the binding or the route, depending on the platform).
+- Mark initial focus where it helps: Cancel in a destructive confirmation, the first field in a form.
+- Give every dialog a visible way out, a dismissive action such as Cancel, even when `dismissible` is false.
+- On React Native, pass `initialFocusRef`. After the dialog closes, move focus back to its opener yourself if the platform does not.
+- On SwiftUI for macOS, attach `.tanreiDialog` to the window's root view, so the scrim covers the whole window.

@@ -1,0 +1,494 @@
+---
+title: Menú
+description: Un conjunto corto de acciones u opciones en una superficie temporal que se abre desde el elemento que lo pidió.
+translationOf: components/menu.mdx
+sourceHash: 740ced78f44526a9b305909b0ad3023504f4cc05
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="menu" />
+
+<DemoFrame label="Acciones, un elemento de casilla de verificación, un grupo de opciones y una acción destructiva">
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="Copiar" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+    <tanrei-menu-item label="Pegar" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
+    <tanrei-menu-group label="Vista">
+      <tanrei-menu-checkbox-item label="Mostrar cuadrícula" checked></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Ordenar por" value="name">
+      <tanrei-menu-radio-item label="Nombre" value="name"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="Fecha de modificación" value="date"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+    <tanrei-menu-item label="Eliminar" leading-icon="delete" destructive></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="Un submenú: un elemento que abre otro nivel a su lado" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="Archivo nuevo" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
+    <tanrei-submenu label="Abrir recientes" leading-icon="history" open>
+      <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+      <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      <tanrei-menu-item label="Budget.xlsx"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-submenu label="Compartir" leading-icon="share">
+      <tanrei-menu-item label="Copiar enlace" leading-icon="link"></tanrei-menu-item>
+      <tanrei-menu-item label="Enviar por correo" leading-icon="mail"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-menu-item label="Imprimir" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="Un menú de enlaces: cada fila lleva a algún sitio, y una abre una pestaña nueva" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="Botón" href="/es/components/button/"></tanrei-menu-item>
+    <tanrei-menu-item label="Lista" href="/es/components/list/"></tanrei-menu-item>
+    <tanrei-menu-item label="Sitio de ejemplo" href="https://example.com/" target="new" target-label="se abre en una pestaña nueva"></tanrei-menu-item>
+    <tanrei-menu-item label="Archivo" href="/archive/" disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+### Uso
+
+El ancla es tu propio botón, botón de icono o campo. El menú no la dibuja: lee la posición del ancla, coloca su superficie junto a ella y le devuelve el foco. Tú abres el menú desde el ancla y lo cierras cuando el menú lo pide.
+
+Un menú tiene cinco tipos de elemento: `item` (una acción), `checkbox-item`, `radio-item`, `submenu` (un elemento que abre otro nivel del menú a su lado) y `group`, que contiene elementos de los otros tipos. Cada plataforma los recibe como recibe cualquier conjunto de hijos repetidos: elementos hijos en la web, vistas en un view builder en SwiftUI, llamadas en una lambda de contenido en Compose, widgets en `menuChildren` en Flutter y, en React Native, un array `items` de objetos planos que se distinguen por `kind`. El `checked` de un elemento de casilla de verificación es suyo. Cuál de los elementos de opción está marcado pertenece a su grupo, por valor.
+
+El atajo de teclado de un elemento es su propiedad `shortcut`, escrita con los nombres de tecla neutros del [atajo de teclado](/es/components/keyboard-shortcut/) (`mod+c`). El menú lo dibuja al final de la fila con el componente de atajo de teclado, como ⌘C en los teclados de Apple y Ctrl+C en los demás, y lo expone como el atajo de teclado del elemento. No hace que las teclas funcionen: las vincula tu producto. `trailingText` es para todo lo que no sea un atajo, como un recuento o «Beta». La web dibuja todo esto, y el aspecto actual. SwiftUI, Compose, Flutter y React Native van rezagados: hasta que se pongan al día, no tienen la propiedad `shortcut` y escriben el atajo en `trailingText`, como hacen sus ejemplos de abajo. Tampoco tienen submenús, `separation` ni `markIcon`, y todavía dibujan la marca de verificación como una marca propia en un recuadro de 16, no rellenan ninguna fila marcada y empiezan el título de un grupo donde empiezan las etiquetas.
+
+Un elemento con un `href` es un elemento de enlace: el enlace propio de la plataforma, que se dibuja exactamente igual que una acción y al que se llega con las mismas teclas. Una activación corriente emite el `click` del elemento, cierra el menú y después abre el destino. `target` y `targetLabel` son los del [botón](/es/components/button/). La web incluye los elementos de enlace; SwiftUI, Compose, Flutter y React Native todavía no los tienen.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="more" label="Más"><span slot="icon">more_vert</span></tanrei-button>
+
+    <!-- anchor es el id del elemento desde el que se abre el menú. -->
+    <tanrei-menu anchor="more">
+      <!-- shortcut se escribe con nombres de tecla neutros: se dibuja como ⌘C o Ctrl+C según el teclado de la persona. -->
+      <tanrei-menu-item label="Copiar" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+      <!-- El título de un grupo es su atributo label, como en <optgroup label>. -->
+      <tanrei-menu-group label="Vista">
+        <tanrei-menu-checkbox-item label="Mostrar cuadrícula" checked></tanrei-menu-checkbox-item>
+      </tanrei-menu-group>
+      <!-- mark-icon="check" en un grupo, o en un elemento, marca los que están marcados con una simple marca de verificación. -->
+      <tanrei-menu-group label="Ordenar por" value="name" mark-icon="check">
+        <tanrei-menu-radio-item label="Nombre" value="name"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="Fecha de modificación" value="date"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+      <!-- Un submenú: sus hijos son el nivel siguiente. Emite toggle, nunca close. -->
+      <tanrei-submenu label="Abrir recientes" leading-icon="history">
+        <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+        <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-item label="Eliminar" leading-icon="delete" destructive></tanrei-menu-item>
+      <!-- Con href, un elemento es un enlace: primero su click, después el cierre y, por último, el navegador lo sigue. -->
+      <tanrei-menu-item label="Atajos de teclado" href="/help/shortcuts/"></tanrei-menu-item>
+      <tanrei-menu-item label="Código fuente" href="https://example.com/tanrei" target="new" target-label="se abre en una pestaña nueva"></tanrei-menu-item>
+    </tanrei-menu>
+
+    <!-- separation="gap" separa los grupos con espacio vacío en este menú y en sus submenús, elija lo que elija el sistema de diseño. -->
+    <tanrei-menu anchor="more" separation="gap">…</tanrei-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/menu';
+      const menu = document.querySelector('tanrei-menu');
+      // Una pulsación en el ancla es cosa del ancla: no cierra el menú, así que ábrelo o ciérralo aquí.
+      document.querySelector('#more').addEventListener('click', () => (menu.open = !menu.open));
+      // close lleva su motivo: escape, outside, tab, focus-out o item.
+      menu.addEventListener('close', () => (menu.open = false));
+      // click, change y toggle se emiten en el elemento o en el grupo y se propagan, así que un solo listener en el menú puede recibirlos todos.
+      menu.querySelector('[label="Copiar"]').addEventListener('click', copy);
+      menu.querySelector('[label="Mostrar cuadrícula"]').addEventListener('change', (e) => setGrid(e.detail.checked));
+      menu.querySelector('[label="Ordenar por"]').addEventListener('change', (e) => sortBy(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioItem, Submenu } from '@tanrei/react';
+
+    <Button variant="text" id="more" label="Más" onClick={() => setOpen(!open)}><span slot="icon">more_vert</span></Button>
+    <Menu anchor="more" open={open} onClose={() => setOpen(false)}>
+      <MenuItem label="Copiar" leadingIcon="content_copy" shortcut={['mod+c']} onClick={copy} />
+      <MenuGroup label="Vista">
+        <MenuCheckboxItem label="Mostrar cuadrícula" checked={grid} onChange={(e) => setGrid(e.detail.checked)} />
+      </MenuGroup>
+      <MenuGroup label="Ordenar por" value={sort} onChange={(e) => setSort(e.detail.value)}>
+        <MenuRadioItem label="Nombre" value="name" />
+        <MenuRadioItem label="Fecha de modificación" value="date" />
+      </MenuGroup>
+      <Submenu label="Abrir recientes" leadingIcon="history">
+        <MenuItem label="Report.pdf" onClick={() => openFile('Report.pdf')} />
+        <MenuItem label="Notes.txt" onClick={() => openFile('Notes.txt')} />
+      </Submenu>
+      <MenuItem label="Eliminar" leadingIcon="delete" destructive onClick={remove} />
+      {/* Un elemento de enlace. Un enrutador cancela el click y va él mismo al destino; el menú se cierra igualmente. */}
+      <MenuItem label="Atajos de teclado" href="/help/shortcuts/" onClick={(e) => { e.preventDefault(); navigate('/help/shortcuts/'); }} />
+    </Menu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Un modificador sobre el ancla, como .popover. Al cerrarse escribe false en isPresented.
+    TanreiIconButton("Más", action: { showMenu = true }) { Image(systemName: "ellipsis") }
+        .tanreiMenu(isPresented: $showMenu, placement: .bottomStart) {
+            TanreiMenuItem("Copiar", action: copy)
+            TanreiMenuSection("Vista") {
+                TanreiMenuToggle("Mostrar cuadrícula", isOn: $showGrid)
+            }
+            TanreiMenuSection("Ordenar por", selection: $sort) {
+                // Aplica .tag(_:) al propio TanreiMenuOption.
+                TanreiMenuOption("Nombre").tag("name")
+                TanreiMenuOption("Fecha de modificación").tag("date")
+            }
+            TanreiMenuItem("Eliminar", role: .destructive, action: delete)
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiCheckboxMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiMenu
+    import io.github.chnotchy.tanrei.components.TanreiMenuGroup
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiRadioMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // Como DropdownMenu: llama al menú dentro del Box del ancla. Lo cierras tú: onDismissRequest lleva el motivo.
+    Box {
+        TanreiIconButton(onClick = { expanded = true }, contentDescription = "Más") { TanreiText("more_vert") }
+        TanreiMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            TanreiMenuItem(text = "Copiar", onClick = ::copy, trailingText = "⌘C", leadingIcon = { TanreiText("content_copy") })
+            TanreiMenuGroup(title = "Vista") {
+                TanreiCheckboxMenuItem(text = "Mostrar cuadrícula", checked = showGrid, onCheckedChange = { showGrid = it })
+            }
+            TanreiMenuGroup(title = "Ordenar por", selectedValue = sort, onSelectedValueChange = { sort = it }) {
+                TanreiRadioMenuItem(text = "Nombre", value = "name")
+                TanreiRadioMenuItem(text = "Fecha de modificación", value = "date")
+            }
+            TanreiMenuItem(text = "Eliminar", onClick = ::delete, destructive = true, leadingIcon = { TanreiText("delete") })
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Como MenuAnchor: lo abre un controlador. Cuando el menú pide cerrarse, llama a onClose con el motivo y se cierra solo.
+    final TanreiMenuController menu = TanreiMenuController();
+
+    TanreiMenuAnchor(
+      controller: menu,
+      onClose: (TanreiMenuCloseReason reason) {},
+      menuChildren: <Widget>[
+        TanreiMenuItem(
+          onPressed: copy,
+          leadingIcon: const Icon(AppSymbols.contentCopy),
+          trailingText: '⌘C',
+          child: const Text('Copiar'),
+        ),
+        TanreiMenuGroup<String>(
+          title: 'Vista',
+          children: <Widget>[
+            TanreiCheckboxMenuItem(
+              value: showGrid,
+              onChanged: (bool value) => setState(() => showGrid = value),
+              child: const Text('Mostrar cuadrícula'),
+            ),
+          ],
+        ),
+        TanreiMenuGroup<String>(
+          title: 'Ordenar por',
+          groupValue: sort,
+          onChanged: (String value) => setState(() => sort = value),
+          children: const <Widget>[
+            TanreiRadioMenuItem<String>(value: 'name', child: Text('Nombre')),
+            TanreiRadioMenuItem<String>(value: 'date', child: Text('Fecha de modificación')),
+          ],
+        ),
+        // Un onPressed nulo deshabilita un elemento.
+        TanreiMenuItem(onPressed: delete, destructive: true, child: const Text('Eliminar')),
+      ],
+      builder: (BuildContext context, TanreiMenuController controller, Widget? child) =>
+          TanreiIconButton(onPressed: controller.open, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'Más'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { IconButton, Menu } from '@tanrei/react-native';
+
+    const more = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // Indica a la tecnología de apoyo si el menú del ancla está abierto: aquí el menú no puede definirlo.
+    <IconButton ref={more} accessibilityLabel="Más" accessibilityState={{ expanded: open }} onPress={() => setOpen(true)}>
+      more_vert
+    </IconButton>
+    // Controlado: define visible como false desde onDismiss, que recibe el motivo.
+    <Menu
+      visible={open}
+      anchorRef={more}
+      accessibilityLabel="Más"
+      onDismiss={() => setOpen(false)}
+      items={[
+        { label: 'Copiar', leadingIcon: 'content_copy', trailingText: '⌘C', onPress: copy },
+        { kind: 'group', title: 'Vista', items: [{ kind: 'checkbox-item', label: 'Mostrar cuadrícula', checked: grid, onCheckedChange: setGrid }] },
+        { kind: 'group', title: 'Ordenar por', value: sort, onValueChange: setSort, items: [
+          { kind: 'radio-item', label: 'Nombre', value: 'name' },
+          { kind: 'radio-item', label: 'Fecha de modificación', value: 'date' },
+        ] },
+        { label: 'Eliminar', leadingIcon: 'delete', destructive: true, onPress: remove },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Texto de apoyo, icono final y elementos deshabilitados" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="Compartir" supporting-text="Envía un enlace a este archivo" leading-icon="share"></tanrei-menu-item>
+    <tanrei-menu-item label="Disponible sin conexión" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
+    <tanrei-menu-item label="Cambiar nombre" leading-icon="edit" disabled></tanrei-menu-item>
+    <tanrei-menu-item label="Eliminar" leading-icon="delete" destructive disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="Títulos de grupo sobre las columnas de la marca y del icono" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="Estilo de texto">
+      <tanrei-menu-checkbox-item label="Negrita" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Cursiva" leading-icon="format_italic"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Alinear" value="start">
+      <tanrei-menu-radio-item label="Al inicio" value="start" leading-icon="format_align_left"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="Al centro" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="Marcas: el recuadro y el anillo del sistema predeterminado, y una simple marca de verificación indicada con mark-icon" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="Mostrar">
+      <tanrei-menu-checkbox-item label="Reglas" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Guías"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Zoom" value="fit">
+      <tanrei-menu-radio-item label="Ajustar a la ventana" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="Tamaño real" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="Mostrar" mark-icon="check">
+      <tanrei-menu-checkbox-item label="Reglas" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Guías"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Zoom" value="fit" mark-icon="check">
+      <tanrei-menu-radio-item label="Ajustar a la ventana" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="Tamaño real" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="Separación: un divisor entre grupos y una separación de espacio vacío" plain>
+  <tanrei-menu inline open separation="divider">
+    <tanrei-menu-item label="Deshacer" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="Rehacer" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="Cortar" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="Copiar" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Buscar">
+      <tanrei-menu-item label="Buscar en la página" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open separation="gap">
+    <tanrei-menu-item label="Deshacer" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="Rehacer" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="Cortar" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="Copiar" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="Buscar">
+      <tanrei-menu-item label="Buscar en la página" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+En el sistema predeterminado, un elemento de casilla de verificación se marca como una casilla de verificación y un elemento de opción como un botón de opción, que se dibujan tanto si el elemento está marcado como si no: un recuadro vacío y un recuadro relleno con una marca de verificación, un anillo fino y un anillo grueso con su relleno. Así, una opción que está desactivada se sigue viendo como una opción. Son dibujos en la columna de la marca, no controles: la fila es lo único que se pulsa y que recibe el foco. La marca de verificación del recuadro se dibuja con el peso mayor de la marca propia de un control, como la de la [casilla de verificación](/es/components/checkbox/).
+
+`markIcon`, en un elemento o en un grupo para todos sus elementos, nombra un glifo del conjunto de iconos con el que marcar en su lugar un elemento marcado. `check` dibuja una simple marca de verificación del tamaño del icono inicial que tiene al lado (24 en el sistema predeterminado), y nada mientras el elemento no está marcado. Un sistema de diseño elige sus propias marcas: `m3-like` y `cupertino` usan la marca de verificación simple. La marca de verificación no se refleja en un diseño de derecha a izquierda. Cuando el estado marcado de un elemento cambia mientras el menú está abierto, la marca cambia sin moverse, y de inmediato donde el movimiento está reducido.
+
+Una fila marcada, además, se rellena. En el sistema predeterminado, el relleno es una capa del propio color del contenido de la fila sobre la superficie del menú, un paso más intensa que la de una fila con el cursor encima, tanto en el tema claro como en el oscuro, de modo que una fila marcada, una fila con el cursor encima y una fila en reposo se distinguen sobre una superficie elevada. El elemento cuyo submenú está abierto conserva el relleno del paso del cursor mientras su submenú está abierto, lo que señala el camino hasta el nivel en uso, y nunca parece una fila marcada.
+
+El título de un grupo empieza donde empieza el contenido de las filas: sobre la marca o el icono inicial cuando el menú dibuja esas columnas, y sobre las etiquetas cuando no dibuja ninguna de las dos. Termina a la misma distancia del otro borde, salta de línea, crece con un texto más grande y se refleja en un diseño de derecha a izquierda.
+
+<ComponentSpecs name="menu" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un menú para acciones secundarias y ajustes que no necesitan un lugar en la pantalla: «Más» en una fila, el desbordamiento de una barra de herramientas, un criterio de ordenación, las opciones de una vista. Las personas lo abren, eligen una cosa y vuelven a lo que estaban haciendo.
+
+Usa botones para las acciones principales de una pantalla, porque un menú las oculta. Usa una lista, botones de opción o un select cuando la elección sea la tarea principal de la pantalla. Usa un diálogo cuando las personas deban responder antes de continuar. Un menú solo contiene sus elementos: ni campos, ni controles deslizantes, ni interruptores, que se quedarían con las teclas que el menú necesita.
+
+Una fila que lleva a algún sitio es un elemento de enlace: da al elemento un `href`. Úsalo para un conjunto corto de lugares que no ocupa sitio hasta que se pide, como los niveles plegados de una ruta de navegación, una elección de idioma o «Más». Las páginas principales de un sitio, siempre a la vista, son navegación: ponlas en una [barra de navegación](/es/components/navigation-bar/), en un [panel de navegación](/es/components/navigation-drawer/) o en una [lista](/es/components/list/) de enlaces.
+
+### Cómo elegir un tipo de elemento
+
+| Tipo | Qué es | Después de activarlo | Úsalo para |
+| --- | --- | --- | --- |
+| Elemento | Una acción o, con un `href`, un enlace | Emite su clic y luego el menú se cierra. El destino de un elemento de enlace se abre después. | «Copiar», «Cambiar nombre», «Compartir». Activa `destructive` para «Eliminar» o «Descartar»: se dibuja en el color de error. Dale un `href` para un lugar al que ir. |
+| Elemento de casilla de verificación | Una opción que se activa o se desactiva por sí sola | Conmuta su `checked` y emite su change. | «Mostrar cuadrícula», «Mostrar reglas»: ajustes que no se afectan entre sí. |
+| Elemento de opción | Una elección entre varias dentro de su grupo | Define el `value` de su grupo y el grupo emite su change. Un elemento de opción ya marcado no emite nada. | «Ordenar por nombre», «Ordenar por fecha»: una respuesta a una pregunta. |
+| Submenú | Un elemento que abre otro nivel a su lado | Abre su submenú y emite su toggle. El menú sigue abierto. | «Abrir recientes», «Compartir», «Mover a»: un segundo conjunto de elementos que alargaría demasiado el menú. |
+| Grupo | Una serie de elementos relacionados, opcionalmente con un título | Nada: no recibe el foco. | Separar elementos relacionados y contener los elementos de opción de una misma pregunta. |
+
+Un elemento de casilla de verificación o de opción que se activa con un toque, un clic o Enter cierra el menú, como una acción. Si se activa con Espacio, deja el menú abierto, de modo que quien usa el teclado puede cambiar varios ajustes de una vez.
+
+### Grupos, títulos y separación
+
+- El menú separa un grupo de lo que tenga al lado, nunca en la parte superior ni en la inferior: con un divisor o con una separación de espacio vacío. Tú no colocas los divisores.
+- Cuál de los dos se usa lo elige el sistema de diseño, una sola elección para todos los componentes que separan sus propias partes: un divisor en el sistema predeterminado. `separation` decide para un menú y sus submenús: `auto` (el valor predeterminado) sigue al sistema de diseño, y `divider` o `gap` indican uno de los dos, elija lo que elija el sistema. Con una separación de espacio no se expone ningún separador, y los grupos se siguen exponiendo como grupos.
+- Un grupo con un `title` lo dibuja como un título discreto encima de sus elementos, que empieza donde empieza el contenido de las filas, y recibe de él su nombre. Da al grupo de elementos de opción un título que haga la pregunta, como «Ordenar por».
+- Los elementos de opción van dentro de un grupo. Un elemento de opción fuera de un grupo nunca está marcado, y las compilaciones de depuración lo notifican.
+- Un grupo no puede contener otro grupo. Los elementos del grupo interior se dibujan como si fueran del grupo exterior.
+
+### Enlaces
+
+Un elemento de enlace es el enlace propio de la plataforma, así que funcionan el menú contextual del navegador, la apertura en una pestaña nueva y la dirección que se muestra al pasar el cursor. No tiene aspecto propio: se dibuja igual que la acción de la fila de al lado, en todos los estados.
+
+- **Activación.** Un clic, un toque, Enter o Espacio emiten el `click` del elemento; después el menú se cierra, y después se abre el destino. Espacio activa un elemento de enlace, igual que activa cualquier otra fila de un menú. En cualquier otro lugar, Espacio no activa un enlace.
+- **Un enrutador.** Cancela el `click` del elemento para hacerte cargo tú de la navegación. El menú se cierra igualmente, y no se abre nada más.
+- **Otras pestañas.** Un clic o Enter con una tecla modificadora, y un clic con el botón central, son cosa del navegador. El menú no emite ningún `close` y sigue abierto, de modo que varios de sus enlaces se pueden abrir uno tras otro.
+- **Un contexto nuevo.** `target: new` abre una pestaña o una ventana nueva. El elemento termina con el `open_in_new` del conjunto de iconos en la columna del icono final, salvo que `trailingIcon` nombre un glifo tuyo, y `targetLabel` se lo dice a la tecnología de apoyo. Un atajo o un texto final conserva su propia columna, antes de la marca.
+- **Deshabilitado.** Un elemento de enlace deshabilitado no se puede seguir de ninguna manera. Se sigue alcanzando con las teclas de flecha, como cualquier elemento deshabilitado.
+- **Solo el tipo «elemento».** Un elemento de casilla de verificación, un elemento de opción y un elemento de submenú no admiten un destino: guardan un estado o abren otro nivel.
+
+### Submenús
+
+Un elemento de submenú es una fila que termina con el `chevron_right` del conjunto de iconos, y sus hijos son el nivel siguiente: elementos de cualquier tipo, incluidos los grupos. No es una acción y no tiene atajo.
+
+- **Apertura.** Una pulsación, un toque, Enter, Espacio o la tecla de flecha que apunta hacia el fin de la línea abren el submenú de inmediato y mueven el foco a su primer elemento habilitado. Un puntero que se detiene sobre el elemento lo abre tras una breve espera y deja el foco en el elemento.
+- **De camino a él.** Mientras el puntero se mueve desde el elemento hacia su submenú abierto, los elementos que cruza no pasan al estado con el cursor encima ni reciben el foco, de modo que un recorrido en diagonal no cierra el submenú.
+- **Cerrar un nivel.** La tecla de flecha que apunta hacia el inicio de la línea, o Escape, cierra el nivel que tiene el foco y devuelve el foco a su elemento. Escape cierra todo el menú solo cuando no hay ningún submenú abierto. Pasar a otro elemento del nivel superior también cierra el submenú. En una superficie hay como máximo un submenú abierto.
+- **Cerrarlo todo.** Una acción en cualquier nivel, Tab, una pulsación fuera de todas las superficies y que el foco salga de todas ellas cierran todo el menú con un solo `close`.
+- **Dónde se coloca.** Junto a la superficie que contiene su elemento, en el lado de fin, con su primera fila a la altura de la fila del elemento; en el otro lado cuando en ese no hay sitio. En una ventana demasiado estrecha para cualquiera de los dos, se coloca encima de su nivel superior y deja una franja de este sin cubrir: una pulsación en la franja cierra el submenú. El menú nunca sustituye su propio contenido por el del submenú.
+- **`open` y `toggle`.** El `open` de un elemento de submenú es suyo. El menú lo define y el elemento emite `toggle` cuando la persona abre o cierra el submenú. Un cambio de `open` hecho por ti, y el cierre de todo el menú, no emiten ningún `toggle`.
+- **Profundidad.** No pases de dos niveles de submenú por debajo del menú. Un tercero se sigue dibujando, y las compilaciones de depuración lo notifican, igual que notifican un submenú sin elementos.
+- El `value` de un grupo solo llega a los elementos de opción de su propia superficie, y cada superficie dibuja sus propias columnas de marca y de icono.
+
+### Apertura, foco y cierre
+
+Un menú es una superposición que la persona maneja y que no es modal. Las personas actúan dentro de él, así que toma el foco y lo devuelve. No se bloquea nada más en la pantalla.
+
+- **Apertura.** Tú defines `open` cuando se activa el ancla. La superficie aparece en la capa de superposición de la plataforma, colocada junto al ancla según indique `placement`: de forma predeterminada debajo de ella, con los bordes de inicio alineados. Pasa al otro lado cuando en ese no hay sitio, se desplaza para quedarse dentro de la pantalla, permite el desplazamiento de su contenido cuando es demasiado alta y sigue al ancla mientras esta se mueve.
+- **Entrada del foco.** El foco pasa al primer elemento habilitado. Las teclas de flecha, Inicio, Fin y la escritura anticipada recorren entonces los elementos, dando la vuelta en los extremos y atravesando los grupos. Un puntero que se mueve sobre un elemento también lleva ahí el foco, de modo que las teclas continúan desde donde estaba el puntero.
+- **No modal.** El menú no retiene el foco, no deja inerte el resto de la pantalla y no dibuja ningún velo. Tab sale del menú y lo cierra.
+- **Cierre.** El menú pide que lo cierren y dice por qué. Los motivos tienen los mismos nombres en todas las plataformas, con el uso de mayúsculas propio de cada una:
+
+| Motivo | Cuándo |
+| --- | --- |
+| `escape` | Se pulsó Escape. |
+| `back` | La acción de retroceso de la plataforma, como el botón o el gesto de retroceso de Android. |
+| `outside` | Una pulsación cayó fuera de la superficie y del ancla. |
+| `tab` | Se pulsó Tab o Mayús+Tab. El foco sigue entonces adelante desde el ancla, como habría hecho desde ella. |
+| `focus-out` | El foco salió del menú de alguna otra forma. |
+| `item` | Se activó un elemento. |
+
+- **Vuelta del foco.** Cuando el menú se cierra y el foco estaba dentro de él, el foco vuelve al ancla.
+
+Quién cierra el menú depende de la plataforma. En la web y en React Native, vuelves a poner `open` (`visible`) en false desde el evento de cierre. En Compose, pones `expanded` en false desde `onDismissRequest`, que lleva un `TanreiMenuCloseReason`. En Flutter, el menú llama a `onClose` con el motivo y se cierra solo mediante su controlador. En SwiftUI, el menú escribe `false` en `isPresented`, así que el motivo no se transmite.
+
+También depende de la plataforma que una pulsación fuera llegue además a lo que hay debajo. En la web y en Flutter llega. En SwiftUI, Compose y React Native la pulsación solo cierra el menú.
+
+### Recomendado
+
+- Mantén cortas las etiquetas y, en las acciones, empiézalas con un verbo: «Copiar enlace», «Eliminar archivo».
+- Indica el atajo de teclado de una acción en `shortcut`, con nombres de tecla neutros (`mod+c`), y vincula las teclas en tu producto. Reserva `trailingText` para todo lo demás: el texto final nunca se expone como un atajo.
+- Pon una acción destructiva en último lugar, separada en su propio grupo o después de uno.
+- Mantén en su sitio un elemento deshabilitado cuando a veces está disponible, para que el menú no cambie de forma. Las personas pueden seguir llegando a él con las teclas de flecha.
+
+### Evita
+
+- No pongas en un menú la acción principal de una pantalla.
+- No uses elementos de casilla de verificación para opciones que se excluyen entre sí. Usa elementos de opción en un grupo.
+- No hagas un menú de un solo elemento. Muestra la acción como un botón.
+- No pongas en un submenú una acción que las personas usan a menudo, y no pases de dos niveles de submenú.
+- No uses un `chevron_right` final en una acción. Es la marca de un elemento de submenú.
+- No construyas la navegación principal de un sitio como un menú de enlaces. Un menú se pide y desaparece.
+
+## Accesibilidad
+
+<ComponentAccessibility name="menu" />
+
+### De qué se encarga el componente
+
+- La superficie se expone como un menú. Las acciones son elementos de menú, los elementos de casilla de verificación son elementos de menú de casilla de verificación y los elementos de opción son elementos de menú de opción, cada uno con su estado marcado, su posición y el tamaño del menú.
+- Cada elemento recibe su nombre de su etiqueta y su descripción de su texto de apoyo. El `shortcut` de un elemento se expone como su atajo de teclado donde la plataforma tiene esa propiedad (`aria-keyshortcuts` en la web); donde no, sus teclas escritas con todas las letras forman parte de su descripción. El texto final solo forma parte de la descripción. Los iconos y las marcas quedan ocultos: el recuadro, el anillo y la marca de verificación son dibujos, y el estado marcado es del propio elemento.
+- Un elemento de enlace se expone como un elemento de menú, no como un enlace: un menú se lee por sus elementos, por su número y con las teclas de flecha, y eso solo se cumple mientras todas las filas son elementos de menú. Por debajo sigue siendo el enlace de la plataforma. Mientras abre un contexto nuevo, su `targetLabel` cierra su descripción, y su marca queda oculta.
+- Un grupo se expone como un grupo que recibe su nombre de su título. Los divisores son separadores que no reciben el foco; donde los grupos se separan con espacio vacío, no hay separador. Los títulos no reciben el foco y no se leen como elementos.
+- Un elemento de submenú se expone como un elemento que abre un menú, con su estado expandido, también mientras está deshabilitado. Su superficie es un menú por sí misma, que recibe su nombre de la etiqueta del elemento, y cada superficie cuenta sus propias posiciones.
+- Al ancla se le indica que abre un menú y si el menú está abierto, donde la plataforma tiene esa propiedad (en la web, `aria-haspopup`, `aria-controls` y `aria-expanded`).
+- Al abrirse, el foco pasa al primer elemento habilitado. Al cerrarse, el foco vuelve al ancla si estaba dentro del menú. Flecha arriba y Flecha abajo dan la vuelta, Inicio y Fin van a los extremos, y al escribir el foco pasa al siguiente elemento cuya etiqueta empieza por las letras escritas. Enter activa y cierra. Espacio en un elemento de casilla de verificación o de opción deja el menú abierto. Escape cierra y devuelve el foco. Tab cierra y sigue adelante desde el ancla. En un submenú, la tecla de flecha hacia el inicio de la línea y Escape cierran solo ese nivel y devuelven el foco a su elemento; las teclas de flecha a lo largo de la línea que no hacen nada nunca llegan a la página que hay detrás del menú.
+- Los elementos deshabilitados se siguen alcanzando con las teclas de flecha, pero no se activan.
+- El anillo de foco se dibuja dentro del elemento, así que la superficie no puede recortarlo. Solo se muestra para el foco del teclado. Un puntero que se mueve sobre un elemento lo muestra con el cursor encima, no con foco.
+- Cada elemento tiene como mínimo la altura del objetivo mínimo, y toda la fila es su área de pulsación.
+- Los elementos crecen con un texto más grande, y la superficie permite el desplazamiento cuando ya no cabe en la pantalla.
+- Mientras la fuente de iconos todavía no puede dibujar una marca que es un glifo, como la marca de verificación, el menú no dibuja nada en su lugar, nunca la palabra «check». Conserva el ancho de la columna y sigue exponiendo el estado marcado, y muestra la marca cuando la fuente se ha cargado.
+- Las compilaciones de depuración notifican un elemento sin etiqueta, un elemento de opción fuera de un grupo, un valor de grupo que no nombra ninguno de sus elementos de opción, dos elementos de opción que comparten un valor, un grupo dentro de un grupo, un elemento con atajo y texto final a la vez, un `separation` que el menú no define, un tercer nivel de submenú y un submenú sin elementos. También notifican un elemento de enlace que abre un contexto nuevo sin `targetLabel`, un `href` en un elemento de casilla de verificación, de opción o de submenú, un `href` que nombra un script o que no se puede leer, y un `target` que el menú no define.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native no tienen elementos de enlace: ahí un elemento todavía no admite `href`.
+- SwiftUI, Compose, Flutter y React Native no tienen submenús, `separation`, `markIcon` ni relleno en una fila marcada. Todavía dibujan la marca de verificación como una marca propia en un recuadro de 16, y empiezan el título de un grupo donde empiezan las etiquetas.
+- El punto donde empieza el título con `m3-like` y `cupertino` sigue la regla de Tanrei y no se ha medido frente a los originales.
+- Web: el menú no escucha la petición de cierre de la plataforma, como el gesto de retroceso de Android, así que `back` nunca se envía.
+- Web: `aria-haspopup` y `aria-expanded` se definen en el ancla. En un ancla que es un elemento personalizado, como un `<tanrei-button>` de solo icono, van en el botón que está dentro de su shadow root. `aria-controls` y el nombre del menú, que procede del ancla, no pueden cruzar un shadow root.
+- Web: la superficie se coloca mediante un script, no con el posicionamiento por anclas de CSS.
+- Web: un elemento de submenú no puede apuntar a su superficie con `aria-controls`, que no puede llegar al interior de un shadow root. En su lugar, la superficie es descendiente del elemento en el árbol de accesibilidad.
+- Web, WebKit en macOS: el elemento de un submenú abierto conserva su color de cursor encima bajo una pulsación en lugar de tomar el de pulsado.
+- SwiftUI no tiene rol de menú, de elemento de menú ni de separador, ni propiedad de atajo, ni forma de decir que el ancla abre un menú o que el menú está abierto. Cada elemento es un botón con su posición como valor («2 of 3», solo en inglés), un elemento de casilla de verificación es un conmutador, y un elemento de opción está seleccionado mientras está marcado.
+- SwiftUI nunca da el foco del teclado a un botón deshabilitado, así que las teclas de flecha pasan por alto un elemento deshabilitado en lugar de llegar a él.
+- SwiftUI presenta el menú como un popover, que se coloca solo. Los tokens solo eligen el lado: el popover mantiene su propia distancia respecto al ancla y a los bordes de la ventana, se alinea solo y se cierra con su propio movimiento. En iOS 26 recorta la superficie a sus propias esquinas, más grandes, y dibuja su propia sombra. Todavía no se ha comprobado cómo se ve esto en un dispositivo.
+- SwiftUI: Tab cierra el menú y devuelve el foco al ancla, pero el foco no puede seguir adelante desde ella en la misma pulsación de tecla.
+- SwiftUI lee el valor de un elemento de opción solo de un `.tag(_:)` aplicado al propio `TanreiMenuOption`.
+- SwiftUI: las teclas de flecha, Inicio, Fin, la escritura anticipada, Escape y Tab se prueban como reglas, todavía no con un teclado real.
+- React Native dibuja el menú en la capa de superposición de `TanreiProvider`, así que debe haber un `TanreiProvider` por encima de él. Tab cierra el menú y devuelve el foco al ancla, pero no puede seguir adelante desde ella en la misma pulsación de tecla. El siguiente Tab sí sigue adelante.
+- React Native: qué hace un lector de pantalla con un elemento que está detrás del menú abierto, y la salida del foco del menú, aún no se han comprobado en un dispositivo.
+- React Native no tiene rol de elemento de menú de casilla de verificación ni de elemento de menú de opción, ni propiedad de atajo. Todos los elementos son elementos de menú, los elementos de casilla de verificación y de opción llevan un estado marcado, y el texto final se lee como parte de la descripción.
+- React Native no puede definir propiedades en tu ancla. Dale tú `accessibilityState={{ expanded: open }}`.
+- React Native no sigue a un ancla que se mueve mientras el menú está abierto. Mide el ancla cuando el menú se abre y cuando la ventana cambia de tamaño.
+- React Native: las teclas de flecha, la escritura anticipada, Escape, Tab y la diferencia entre Espacio y Enter aún no se han comprobado en un dispositivo con teclado físico.
+- Compose no tiene rol de menú, de elemento de menú ni de separador, ni propiedad de atajo. La superficie es una colección, una acción no tiene rol, un elemento de casilla de verificación es una casilla de verificación y un elemento de opción es un botón de opción, y el texto final se lee como parte de la descripción. El menú no puede definir el estado expandido del ancla.
+- Compose: una pulsación en el ancla mientras el menú está abierto cuenta como una pulsación fuera. Cierra el menú con `outside` y no llega al ancla.
+- Compose: el foco de ventana del popup, una pulsación real fuera, el botón de retroceso, la vuelta del foco al ancla, que Tab siga adelante desde ella y TalkBack en el menú solo se han probado con Robolectric, todavía no en un dispositivo.
+- Flutter no tiene rol de grupo ni de separador, no puede dar nombre al menú a partir de su ancla ni decir que el ancla abre un menú, y no da a los elementos posición ni tamaño del conjunto. Un grupo es un contenedor que recibe su nombre de su título. El ancla sí recibe el estado expandido.
+- Flutter: qué anuncian TalkBack, VoiceOver y un lector de pantalla web para el menú, y el gesto de retroceso de Android con un menú abierto, aún no se han comprobado en un dispositivo.
+
+### Qué debes hacer tú
+
+- Da nombre al menú mediante su ancla. Da a un ancla que es un botón de icono una etiqueta como «Más» u «Ordenar». En React Native, pasa el mismo nombre como `accessibilityLabel` del menú.
+- En Compose y React Native, expón en el ancla si el menú está abierto. El menú no puede definirlo ahí.
+- Cierra el menú cuando lo pida y no muevas tú el foco cuando se cierre. El menú devuelve el foco al ancla.
+- Da una etiqueta a todos los elementos, incluidos los que muestran un icono. La etiqueta es el nombre y lo que busca la escritura anticipada.
+- Da al grupo de elementos de opción un título que diga de qué trata la elección.
+- Da una etiqueta a todos los elementos de submenú: da nombre al elemento y al submenú que abre.
+- Da a un elemento de enlace que abre una pestaña nueva un `targetLabel`, en el idioma de tu producto, como «se abre en una pestaña nueva». Tanrei no incluye textos propios.

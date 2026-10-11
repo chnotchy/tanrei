@@ -1,0 +1,238 @@
+---
+title: "下拉选择字段"
+description: "以表单里一个完整字段的形式，让用户从一个封闭的列表中选择一个值——一个可以说明字段必填或选填的标签，一个显示选中的选项并打开选项列表的触发器，以及下方的一行帮助文本或错误——它们为辅助技术关联在一起，并作为一个控件参与表单。"
+translationOf: components/select-field.mdx
+sourceHash: 5623cc0f00e2618e6c0495cbfb3ff9ec11643515
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="select-field" />
+
+<DemoFrame label="一个必填的下拉选择字段，以及一个分了组、并用一个字形代表这个字段的下拉选择字段" column>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" requirement="required" required-text="必填" placeholder="请选择国家/地区" supporting-text="发票将寄往该国家/地区。">
+    <tanrei-option value="ca">加拿大</tanrei-option>
+    <tanrei-option value="fr">法国</tanrei-option>
+    <tanrei-option value="jp">日本</tanrei-option>
+    <tanrei-option value="ke">肯尼亚</tanrei-option>
+    <tanrei-option value="nz">新西兰</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="时区" value="Europe/Lisbon">
+    <span slot="leading-icon">public</span>
+    <tanrei-option-group label="亚洲"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">东京</tanrei-option><tanrei-option value="Asia/Seoul" supporting-text="UTC+9">首尔</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="欧洲"><tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">里斯本</tanrei-option><tanrei-option value="Europe/Berlin" supporting-text="UTC+1">柏林</tanrei-option></tanrei-option-group>
+  </tanrei-select-field>
+</DemoFrame>
+
+在表单里，要从一个已知且封闭的列表中选出一个值时，就使用下拉选择字段：国家/地区、时区、套餐。它对应的是最常见的情况，可以直接使用：一个标签、一个显示选中的选项并打开列表的方框、一行帮助文本，以及值被拒绝时的文字。
+
+**组成部分**是一个[字段](/zh-cn/components/field/)和一个[下拉选择框](/zh-cn/components/select/)。字段是框架：标签、必填或选填标记、帮助文本和错误。下拉选择框是控件：触发器、列表，以及用户在其中做的一切。下拉选择字段自己什么都不绘制，也没有令牌：它的每个属性都是这两者之一的属性，原样交给那一个成员；你给它的选项，就是它里面那个下拉选择框的选项。
+
+它的宽度与所在的位置相同，方框填满这个宽度。想要窄一些的方框，就给它一个窄一些的位置。
+
+在 Web 上它是 `<tanrei-select-field>`，子元素是 `<tanrei-option>`。其他平台尚未实现。
+
+### 用法
+
+选项是下拉选择字段的子元素：每个选项有一个值和一个标签。`value` 指明选中的是哪一个。`change` 和 `toggle` 是下拉选择框自己的事件；监听到其中任何一个时，字段的 `value` 和 `open` 都已经是新的值。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-select-field name="country" label="国家/地区" value="jp" requirement="required" required-text="必填"
+        supporting-text="发票将寄往该国家/地区。">
+        <tanrei-option value="ca">加拿大</tanrei-option>
+        <tanrei-option value="jp">日本</tanrei-option>
+      </tanrei-select-field>
+    </form>
+
+    <!-- 分组，标签下方带一行文字，并用一个字形代表这个字段。 -->
+    <tanrei-select-field label="时区" value="Europe/Lisbon">
+      <span slot="leading-icon">public</span>
+      <tanrei-option-group label="亚洲">
+        <tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">东京</tanrei-option>
+      </tanrei-option-group>
+      <tanrei-option-group label="欧洲">
+        <tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">里斯本</tanrei-option>
+      </tanrei-option-group>
+    </tanrei-select-field>
+
+    <script type="module">
+      import '@tanrei/web/components/select-field';
+
+      const country = document.querySelector('[name="country"]');
+      // 用户选择了另一个选项。value 已经是新的值。
+      country.addEventListener('change', () => save(country.value));
+      // 由用户打开或关闭；关闭时带有原因。
+      country.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+      // 校验由你来做：下拉选择字段自己绝不会设置 error。
+      country.error = submitted && !ships(country.value);
+      country.errorText = '暂不支持配送到该国家/地区。请选择其他国家/地区。';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Option, SelectField } from '@tanrei/react';
+
+    <SelectField label="国家/地区" value={country} requirement="required" requiredText="必填" onChange={(event) => setCountry(event.currentTarget.value)}>
+      <Option value="ca">加拿大</Option>
+      <Option value="jp">日本</Option>
+    </SelectField>
+    ```
+  </TabItem>
+</Tabs>
+
+### 下一层
+
+用它的两个成员手写出来的同一个字段，画面是一样的，对辅助技术来说也是同一个控件：
+
+```html
+<tanrei-field label="国家/地区" requirement="required" required-text="必填"
+  supporting-text="发票将寄往该国家/地区。">
+  <tanrei-select name="country" placeholder="请选择国家/地区">
+    <tanrei-option value="jp">日本</tanrei-option>
+    <tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select>
+</tanrei-field>
+```
+
+<DemoFrame label="手写出来的同一个字段：一个字段，里面有一个下拉选择框" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" requirement="required" required-text="必填" supporting-text="发票将寄往该国家/地区。">
+    <tanrei-select placeholder="请选择国家/地区">
+      <tanrei-option value="jp">日本</tanrei-option>
+      <tanrei-option value="ke">肯尼亚</tanrei-option>
+    </tanrei-select>
+  </tanrei-field>
+</DemoFrame>
+
+当你需要下拉选择字段没有提供的排布方式时，就往下走一层：
+
+| 你需要 | 使用 |
+| --- | --- |
+| 标签、方框、帮助文本和错误 | 下拉选择字段 |
+| 在框架里面、方框旁边或下方放你自己的东西 | 一个[字段](/zh-cn/components/field/)，里面放一个[下拉选择框](/zh-cn/components/select/)和你自己的元素 |
+| 只要方框，标签位于别处：栏里的主题、工具栏里的排序方式、表格的单元格 | 单独使用的[下拉选择框](/zh-cn/components/select/)，由它自己的 `label` 命名 |
+| 列表长到用户宁愿键入也不愿滚动 | [组合框](/zh-cn/components/combobox/) |
+
+下到这一层之后，变的是各样东西写在哪里。`name`、`value` 和选项写在下拉选择框上，这时它就是表单面对的控件，它的事件也在它上面监听。`label`、`error` 和 `disabled` 仍然写在字段上，由字段转交给控件：不要设置下拉选择框自己的这几项。
+
+## 规格
+
+<DemoFrame label="带辅助文本和一个禁用选项、选填、错误、只读和禁用" plain column>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="套餐" value="team">
+    <tanrei-option value="free" supporting-text="1 个项目，社区支持">免费版</tanrei-option>
+    <tanrei-option value="team" supporting-text="项目数量不限，共享角色">团队版</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="单点登录和审计日志" disabled>企业版</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="区域" requirement="optional" optional-text="选填" placeholder="不限区域">
+    <tanrei-option value="emea">欧洲、中东和非洲</tanrei-option><tanrei-option value="apac">亚太地区</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" value="ke" error error-text="暂不支持配送到该国家/地区。请选择其他国家/地区。">
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" value="jp" readonly>
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" value="jp" disabled>
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select-field>
+</DemoFrame>
+
+<DemoFrame label="filled 和 outlined：字段的标签浮在下拉选择框的方框里，必填的字段带一个星号" system="m3-like" plain column>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="国家/地区" value="jp" supporting-text="发票将寄往该国家/地区。">
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="国家/地区" requirement="required" required-text="必填">
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select-field>
+</DemoFrame>
+
+### 各个成员提供什么
+
+| 方面 | 来自字段 | 来自下拉选择框 |
+| --- | --- | --- |
+| 属性 | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` |
+| 事件 | — | `change`, `toggle` |
+| 插槽 | `label-icon` | `leading-icon`，以及选项 |
+| 令牌 | `comp.field.*` | 方框用 `comp.input-box.*`，每一种输入方框都读取它；列表用 `comp.select.*` |
+
+下拉选择框有它自己的 `label`、`labelHidden`、`error` 和 `disabled`。它们不是下拉选择字段的属性：字段的 `label` 为控件命名，字段的 `error` 让方框进入错误状态，字段的 `disabled` 禁用它。所以每一项你都只设置一次，设置在下拉选择字段上，它的标签也随控件一起变化。
+
+在 `stacked` 外观下，标签是字段位于方框上方的那一行。在 `filled` 和 `outlined` 外观下，下拉选择框自己画出同一个标签，让它浮在方框里，字段不绘制标签行；这时，无论设计系统指定的是哪一种标记，必填的字段都用标签后面的一个星号来标记。帮助文本从值开始的位置开始，也就是越过前置图标之后。列表打开期间，标签和帮助文本与方框一样，画成聚焦的样子。
+
+触发器和列表做什么，也就是打开、方向键、键入、选择和分组，写在[下拉选择框的页面](/zh-cn/components/select/)上。框架做什么，也就是必填标记、帮助文本、错误以及错误怎样朗读，写在[字段的页面](/zh-cn/components/field/)上。
+
+### 单独调整某一个字段
+
+下拉选择字段没有自己的令牌。它的框架读取字段的令牌，它的方框和列表读取下拉选择框的令牌，无论这些令牌设置在哪里。要改动某一个实例，就在它上面设置成员的令牌：
+
+```html
+<tanrei-select-field label="国家/地区"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-select-field>
+```
+
+<ComponentSpecs name="select-field" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-select>`，此外什么都没有。导入这个元素，两个成员也随之完成定义。
+- 选项仍然是你写在 `<tanrei-select-field>` 里的子元素。它们绝不会被移动或复制：它们通过一个插槽到达里面的下拉选择框，一有变化，下拉选择框就会重新读取。手动替换它们（`replaceChildren()`）的效果与在下拉选择框上相同。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`；提交的只有值，禁用时什么都不提交，只读时照常提交；重置为 `value` 属性（attribute）的值；跟随被禁用的 `<fieldset>`；`requirement` 为 `required` 而值为空时，报告缺少值。它的两个成员不向表单添加任何条目。
+- `change` 是下拉选择框的事件，composed 并且冒泡。`toggle` 是下拉选择框的 CustomEvent，带有 `detail.open` 和 `detail.reason`：它是 composed 的，但不冒泡，所以要在这个元素上监听，`<details>` 之类的祖先绝不会收到它。它们的 target 是这个元素，在每个监听器里，`event.target.value` 和 `event.target.open` 都已经是新的值。
+- 部件：`field` 和 `select` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`；`container`、`outline`、`active-indicator`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`。`label` 和 `requirement-label` 指两者之中画出来的那一个——字段的标签行，或者下拉选择框的浮动标签——而 `field-label`、`select-label`、`field-requirement-label` 和 `select-requirement-label` 只指其中一个成员的。
+- 这个元素本身不能获得焦点：`focus()` 会把焦点交给触发器，页面自己的 `<label for>` 也会把焦点移到那里。按下标签行会让触发器获得焦点，不打开任何东西；按下触发器会打开列表；按下帮助文本什么都不会发生。
+- 这个元素没有角色。用 `label` 为它命名，标签绘制在别处时再加上 `label-hidden`；绝不要用 `aria-label`，它在这里不为任何东西命名。
+- 属性（attribute）就是成员自己的那些：`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text`、`readonly`。
+- 既不是选项、不是选项组，也不是 `label-icon` 或 `leading-icon` 的字形的子元素，不会绘制；调试构建会报告这一点。
+- 在元素完成定义之前，它的选项是连续文本。请隐藏 `tanrei-select-field:not(:defined) > *`，并预留高度。必须在没有脚本时也能工作的页面，使用原生的 `<select>` 和它自己的 `<label>`。
+
+## 指南
+
+### 推荐
+
+- 写一个标签，说明选择的是什么，并让它在表单中保持可见。
+- 按用户查找的方式排列选项：按字母顺序、按数字顺序，或者把常用的放在前面。
+- 给长列表分组，并给每个组一个简短的标题。
+- 只有在大多数用户都会选择某个值时，才预先选中它。
+- 让字段靠所在的位置得到宽度：表单的一列。方框会填满它。
+
+### 避免
+
+- 不要在栏或工具栏里使用带 `labelHidden` 的下拉选择字段。那里该用的是单独的[下拉选择框](/zh-cn/components/select/)，由它自己的 `label` 命名。
+- 不要把占位符当作标签。一旦选择了某个选项，它就消失了。
+- 不要在没有说明的情况下，在 `change` 时跳转、提交或删除。用户在列表中移动，是为了阅读它。
+- 不要把下拉选择字段放进字段。它本身已经是字段；调试构建会报告这一点。字段框住的控件是下拉选择框。
+- 不要用 `aria-label` 为它命名。不该绘制标签的地方，给出 `label` 和 `labelHidden`。
+
+## 无障碍
+
+<ComponentAccessibility name="select-field" />
+
+### 组件负责的部分
+
+- 它是一个不可编辑的组合框，也就是下拉选择框的那一个。它的名称是 `label`，无论标签是否绘制；它的描述是显示出来的辅助文本或错误文本，字段为选填时还加上选填文字。
+- `error` 为 true 时，它暴露为无效；`requirement` 为 `required` 时，暴露为必填；`disabled` 为 true 时，暴露为禁用；`readOnly` 为 true 时，暴露为只读；列表打开时，暴露为已展开。
+- 名称、描述和状态的关联方式，与字段把它们关联到它框住的任何控件时完全一样。在下一层手写的字段，是同一个控件。
+- 画出来的标签、必填和选填标记以及字形，不会再暴露第二次。
+- 它只是一个 Tab 停靠点。按下标签会把焦点移到触发器上，不打开任何东西；按下帮助文本什么都不会发生。
+- 焦点在下拉选择字段里时出现的错误，由它的字段成员以礼貌（polite）的方式朗读一次。
+- 列表里的一切——活动选项，选项的名称、描述和状态，以及各个组——都是下拉选择框的，见[下拉选择框的页面](/zh-cn/components/select/#无障碍)。
+- 方向、放大的文本和强制颜色模式，由各个成员各自应对。
+- 它没有自己的文字。`requiredText` 和 `optionalText` 留空时，由字段从产品的文字里读取。
+
+Web 上的已知差距都是它的成员的差距：两个组之间的分隔线没有作为分隔符暴露；键入查找按 JavaScript 的方式比较标签；在元素完成定义之前，除了作为文本的选项之外什么都不绘制。
+
+### 需要你做的事
+
+- 为每个下拉选择字段提供 `label`，并为每个选项提供标签。
+- 自己校验值，设置 `error`，并编写说明如何改正的 `errorText`。
+- 给出必填和选填的文字：把 `required-text` 和 `optional-text` 写在下拉选择字段上，或者用 `setWords({ requiredText, optionalText })` 为整个产品只给一次。Tanrei 不自带任何文字：没有 `requiredText` 时，小标签的位置上是一个星号；没有 `optionalText` 时，不绘制小标签，也不朗读任何内容。参见[产品的文字](/zh-cn/foundations/words/)。
+- 在同一个下拉选择字段里，让各个选项的值保持唯一。

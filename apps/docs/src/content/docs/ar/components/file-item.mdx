@@ -1,0 +1,339 @@
+---
+title: عنصر الملف
+description: يعرض ملفًا واحدًا، برسم أيقونة يقول صيغته أو صورة صغيرة له، وباسمه، وبما يقوله المنتج عنه، ومعه إجراءا إزالته وإعادة المحاولة، في هيئة صف من عمود ملفات أو بلاطة من سلسلة صور. ويمكن ضغطه لفتح الملف. وهو لا يقرأ الملف ولا يحتفظ به ولا يرسله بنفسه أبدًا.
+translationOf: components/file-item.mdx
+sourceHash: 7d87ffe88f4c926c993c8b2d399a647f70ab8368
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## نظرة عامة
+
+<ComponentAvailability name="file-item" />
+
+<DemoFrame label="ملف واحد في هيئة صف، وملفات في هيئة بلاطات" column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 كيلوبايت" remove-label="إزالة"></tanrei-file-item>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="إزالة"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="إزالة"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+عنصر الملف (file item) ملف واحد معروض. قبل اسمه رسم أيقونة (glyph) يقول صيغة الملف، أو صورة صغيرة للملف. وتحت اسمه سطر واحد فيه ما يقوله منتجك عنه: صيغته، أو حجمه، أو إلى أين وصل إرساله، أو ما الذي تعثّر. وفي نهايته الإجراءان الخاصان بالملف: إزالته، وإعادة المحاولة.
+
+له هيئتان:
+
+- القيمة `row`، وهي الافتراضية: سطر واحد بالعرض الذي يعطيه مكانه. لعمود من الملفات.
+- القيمة `tile`: صندوق بعرض وارتفاع تعطيهما، والاسم تحته. وهي البلاطة (tile)، لسلسلة من الصور.
+
+<Callout type="caution" title="يعرض، ولا يفعل شيئًا آخر">
+عنصر الملف لا يقرأ بايتًا واحدًا من ملف، ولا يحتفظ بأي ملف، ولا يرسل شيئًا. وهو لا يزيل شيئًا كذلك: فإجراء الإزالة فيه يخبرك بأن الشخص طلب ذلك، وأنت من يُخرج العنصر. وما يعرضه هو ما تقوله خصائصه.
+</Callout>
+
+**يُستخدم في** [مكوّن رفع الملفات](/ar/components/file-upload/)، حيث كل ملف مختار عنصر ملف. واستخدمه وحده حيثما يعرض منتجك ملفات يحتفظ بها: مرفقات رسالة، أو مستندات سجل، أو ملفات طلب سبق إرساله.
+
+استخدم شيئًا آخر حين:
+
+- يختار الأشخاص ملفات وأنت تسردها. فذلك [مكوّن رفع الملفات](/ar/components/file-upload/)، وهو يحتفظ بعناصر الملفات عنك.
+- يضع الأشخاص الملفات في ترتيب. فتلك [قائمة](/ar/components/list/) تعرض صفوفها الملفات؛ انظر [ملفات بترتيب يغيّره الأشخاص](#ملفات-بترتيب-يغيّره-الأشخاص).
+- يحدّد الأشخاص من بين ملفات. فتلك [قائمة](/ar/components/list/) فيها تحديد. وليس لعنصر الملف حالة «محدَّد».
+- تكون الصورة هي المحتوى الذي يُنظر إليه. فصورة عنصر الملف تقف حيث يقف الرسم، وليس لها نص بديل.
+
+على الويب هو `<tanrei-file-item>`. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+أعطِ `name`، والنصوص التي عندك. والخاصية `value` هي ما تعيده إليك الأحداث `click` و `remove` و `retry`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <ul class="attachments" aria-label="المرفقات">
+      <li>
+        <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 كيلوبايت"
+                          href="/files/brief.pdf" remove-label="إزالة"></tanrei-file-item>
+      </li>
+      <li>
+        <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 ميغابايت"
+                          status="uploading" status-text="جارٍ الرفع" progress="0.4"
+                          remove-label="إزالة" retry-label="إعادة المحاولة"></tanrei-file-item>
+      </li>
+    </ul>
+
+    <script type="module">
+      import '@tanrei/web/components/file-item';
+
+      const list = document.querySelector('.attachments');
+      // عنصر الملف لا يزيل نفسه أبدًا. أنت تُخرجه، وتوقف إرسال الملف، وتنقل التركيز.
+      list.addEventListener('remove', (event) => {
+        cancel(event.detail.value);
+        event.target.closest('li').remove();
+      });
+      list.addEventListener('retry', (event) => send(event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FileItem } from '@tanrei/react';
+
+    <ul aria-label="المرفقات">
+      {files.map((file) => (
+        <li key={file.id}>
+          <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
+            status={file.status} statusText={file.statusText} progress={file.progress}
+            errorText={file.errorText} retryable={file.retryable}
+            removeLabel="إزالة" retryLabel="إعادة المحاولة"
+            onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
+        </li>
+      ))}
+    </ul>
+    ```
+  </TabItem>
+</Tabs>
+
+الخاصيتان `removeLabel` و `retryLabel` يمكن أن تُعطيا مرة واحدة للمنتج كله بالدالة `setWords()`. وكل نص آخر يخص المثيل وحده.
+
+## المواصفات
+
+<DemoFrame label="صف في كل حالة: في الانتظار، وأُرسل منه 40%، وجارٍ إرساله، ومكتمل، وفشل ويمكن إعادة محاولته، وفشل نهائيًّا" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 كيلوبايت" status-text="في الانتظار" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 ميغابايت" status="uploading" status-text="جارٍ الرفع" progress="0.4" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 ميغابايت" status="uploading" status-text="جارٍ الرفع" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 ميغابايت" status="done" status-text="تم الرفع" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 ميغابايت" status="error" error-text="انقطع الاتصال." retryable remove-label="إزالة" retry-label="إعادة المحاولة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 ميغابايت" status="error" error-text="الحجم أكبر من 10 ميغابايت." remove-label="إزالة"></tanrei-file-item>
+</DemoFrame>
+
+<ComponentSpecs name="file-item" />
+
+## الإرشادات
+
+### هيئتان
+
+<DemoFrame label="الملفات الثلاثة نفسها صفوفًا ثم بلاطات" plain column>
+  <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 ميغابايت" preview preview-src={demoPicture} remove-label="إزالة"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 ميغابايت" preview preview-src={demoPicture} remove-label="إزالة"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 ميغابايت" preview remove-label="إزالة"></tanrei-file-item>
+  </div>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="إزالة"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="إزالة"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="إزالة"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| الجانب | `row` (الافتراضية) | `tile` |
+| --- | --- | --- |
+| تُستخدم لـ | عمود من ملفات من أي صنف. | سلسلة من الصور. |
+| العرض | العرض الذي يعطيه مكانه. | عرض الصندوق: `width`، ولا يزيد أبدًا على عرض مكانه. |
+| الرسم أو الصورة | قبل الاسم. ومع `preview` مربع صغير. | الصندوق كله، بمقاس `width` في `height`. |
+| الاسم | يلتفّ، ولا يُقصّ أبدًا. | سطر واحد تحت الصندوق، يُقصّ من وسطه لتبقى نهايته. |
+| السطر الثاني | تحت الاسم. | تحت الصندوق، ويلتفّ ضمن عرضه. |
+| الشريط | تحت النصوص. | على امتداد الحافة السفلى للصندوق. |
+| الإجراءات | في النهاية: إعادة المحاولة، ثم الإزالة. | داخل الصندوق، في زاويته العليا من جهة النهاية. |
+
+الخاصيتان `width` و `height` رقمان، ولا تُقرآن إلا في هيئة البلاطة. من دون `height` يكون ارتفاع الصندوق ما يقوله الرمز `comp.file-item.tile.media.height`؛ ومن دون `width` يكون مربعًا. اختر التناسب الذي يوافق صورك: `width="160" height="90"` للقطات الشاشة، ومربعًا لصور الأشخاص. ولا يكون الصندوق أبدًا أضيق مما يحتاج إليه إجراءاه.
+
+لا توجد هيئة ثالثة مضغوطة. فالملف الذي في سطر واحد صف لا شيء في سطره الثاني.
+
+### ما الذي يُعرض
+
+كل جزء يُعرض حين تعطيه. وخاصيتا التشغيل والإيقاف `preview` و `nameHidden` تغيّران ما يُعرض. ولا توجد خاصية تسرد الأجزاء التي تُعرض.
+
+| الجزء | يُعرض حين |
+| --- | --- |
+| الرسم | دائمًا، حيث لا تُرسم صورة. |
+| الصورة | تكون `preview` معيَّنة، وتوجد صورة تُرسم. |
+| الاسم | دائمًا في الصف. وفي البلاطة كذلك، إلا إذا كانت `nameHidden` معيَّنة ورُسمت صورة. |
+| الصيغة بالكلمات | تعطي `formatText`. فليس عند Tanrei كلمة لأي صيغة. |
+| الحجم | تعطي `sizeText`، منسَّقًا بما يوافق لغة القارئ. |
+| الحالة بالكلمات | تعطي `statusText`. |
+| الخطأ | تكون `status` بالقيمة `error` وتعطي `errorText`. يقف في مكان الحالة، في كل هيئة، ولا يُقصّ أبدًا. |
+| الشريط | تكون `status` بالقيمة `uploading`. يمتلئ حتى `progress`، أو يكون غير محدَّد المقدار ما دامت `progress` غير معيَّنة. |
+
+للملف المكتمل والملف الفاشل علامة قبل كلمات الحالة: علامة صح، وعلامة خطأ. أما الرسم الذي قبل الاسم فلا يتغيّر بتغيّر الحالة. وهكذا يتعلّم الشخص مكانًا واحدًا لكل أمر: قبل الاسم ما هو الملف، وقبل الحالة كيف حاله.
+
+الخاصية `nameHidden` لسلسلة صور متراصّة. وهي لا تخفي الاسم إلا خلف صورة مرسومة. والبلاطة التي تعرض رسمًا تحتفظ باسمها، لأن رسم الصيغة لا يميّز ملفين من صيغة واحدة. ويبقى الاسم اسم العنصر عند التقنيات المساعدة في كل الأحوال.
+
+### الرسم يقول الصيغة
+
+هناك عشرة أصناف من الرسوم. ولكل صنف قائمة بأنواع الوسائط (media types) وقائمة بامتدادات الملفات. يُختار الرسم من `mediaType`. وحيث يكون نوع الوسائط فارغًا، أو يكون `application/octet-stream`، أو لا يرد في أي من هذه القوائم، يُختار من امتداد `name`. والأصناف تُطابَق بهذا الترتيب. والقوائم ثابتة وهي نفسها على كل منصة، فللملف الواحد رسم واحد أينما عُرض.
+
+<DemoFrame label="الأصناف العشرة" plain column>
+  <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
+    <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
+    <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
+    <tanrei-file-item name="kickoff.pptx" readonly></tanrei-file-item>
+    <tanrei-file-item name="photos.zip" readonly></tanrei-file-item>
+    <tanrei-file-item name="tokens.json" readonly></tanrei-file-item>
+    <tanrei-file-item name="entrance.jpeg" readonly></tanrei-file-item>
+    <tanrei-file-item name="walkthrough.mp4" readonly></tanrei-file-item>
+    <tanrei-file-item name="interview.mp3" readonly></tanrei-file-item>
+    <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
+    <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| الصنف | الرسم | أنواع الوسائط | النهايات |
+| --- | --- | --- | --- |
+| pdf | `picture_as_pdf` | `application/pdf` | pdf |
+| spreadsheet | `table` | `text/csv`, `text/tab-separated-values`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `application/vnd.oasis.opendocument.spreadsheet`, `application/vnd.apple.numbers`, `application/x-iwork-numbers-sffnumbers` | xls, xlsx, ods, numbers, csv, tsv |
+| presentation | `slideshow` | `application/vnd.ms-powerpoint`, `application/vnd.openxmlformats-officedocument.presentationml.presentation`, `application/vnd.oasis.opendocument.presentation`, `application/vnd.apple.keynote`, `application/x-iwork-keynote-sffkey` | ppt, pptx, odp, key |
+| archive | `folder_zip` | `application/zip`, `application/x-zip-compressed`, `application/x-tar`, `application/gzip`, `application/x-gzip`, `application/x-bzip2`, `application/x-xz`, `application/x-7z-compressed`, `application/vnd.rar`, `application/x-rar-compressed` | zip, tar, gz, tgz, bz2, xz, 7z, rar |
+| code | `code` | `text/html`, `text/css`, `text/javascript`, `application/javascript`, `application/x-javascript`, `text/typescript`, `application/typescript`, `text/jsx`, `text/tsx`, `application/json`, `application/xml`, `text/xml`, `text/yaml`, `text/x-yaml`, `application/yaml`, `application/x-yaml`, `application/x-sh`, `text/x-sh`, `text/x-shellscript`, `text/x-python`, `text/x-script.python`, `text/x-ruby`, `application/x-ruby`, `text/x-go`, `text/x-rust`, `text/x-java`, `text/x-java-source`, `text/x-kotlin`, `text/x-swift`, `text/x-c`, `text/x-chdr`, `text/x-csrc`, `text/x-c++`, `text/x-c++src`, `text/x-csharp`, `text/x-php`, `application/x-php`, `application/x-httpd-php`, `application/sql`, `text/x-sql` | html, css, js, mjs, ts, tsx, jsx, json, xml, yaml, yml, sh, py, rb, go, rs, java, kt, swift, c, h, cpp, cs, php, sql |
+| image | `image` | كل نوع يبدأ بالمقطع `image/` | png, jpg, jpeg, gif, webp, avif, svg, bmp, tif, tiff, heic, heif, ico |
+| video | `movie` | كل نوع يبدأ بالمقطع `video/` | mp4, mov, m4v, webm, mkv, avi |
+| audio | `music_note` | كل نوع يبدأ بالمقطع `audio/` | mp3, wav, m4a, aac, ogg, oga, flac, opus |
+| document | `description` | كل نوع آخر يبدأ بالمقطع `text/`، ومعه `application/rtf`، `application/msword`، `application/vnd.openxmlformats-officedocument.wordprocessingml.document`، `application/vnd.oasis.opendocument.text`، `application/vnd.apple.pages`، `application/x-iwork-pages-sffpages` | txt, md, rtf, doc, docx, odt, pages |
+| other | `draft` | — | كل ما عدا ذلك، والاسم الذي بلا نقطة |
+
+- نوع الوسائط مقدَّم على نهاية الاسم. فالملف الذي يرد نوع وسائطه في قائمة هو من ذلك الصنف أيًّا كانت نهاية اسمه.
+- الملف لا يُفتح أبدًا لمعرفة صيغته.
+- لصيغة من عندك، سمِّ رسمًا من مجموعة الأيقونات بالخاصية `glyph`، أو ضع رسمك في المنفذ `icon`.
+- لكل الرسوم لون واحد. وليس للصيغة لون خاص بها: فاللون يعني شيئًا واحدًا أينما استُخدم، والصيغة ليست حالة.
+- قل الصيغة بالكلمات بالخاصية `formatText` حيث يكون ذلك مهمًّا. فالرسم محجوب عن التقنيات المساعدة.
+
+### المعاينة وكلفتها
+
+الخاصية `preview` ترسم صورة للملف في مكان الرسم. ولها مصدران:
+
+- الخاصية `previewSrc`: عنوان نسخة صغيرة من الملف صنعها خادمك. وتُرسم لملف من أي صيغة.
+- الملف نفسه، حيث تكون `previewSrc` فارغة ويكون الملف صورة. وعلى الويب تعيّن الخاصية `file` بكائن `File`.
+
+الخاصية `fit` تقول كيف تملأ الصورة صندوقها. القيمة `cover`، وهي الافتراضية، تملأ الصندوق وتقصّ ما لا يتسع له؛ استخدمها للصور الفوتوغرافية. والقيمة `contain` تعرض الصورة كاملة على أرضية الصندوق؛ استخدمها للمستندات الممسوحة ضوئيًّا والتواقيع والمخططات، حيث تكون الحواف مهمة.
+
+<DemoFrame label="صندوق مقاسه 160 في 90: القيمة cover، والقيمة contain، والاسم المخفي" plain>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="إزالة"></tanrei-file-item>
+</DemoFrame>
+
+ما تكلّفه المعاينة:
+
+| مصدر الصورة | الكلفة |
+| --- | --- |
+| من دون `preview`، وهو الوضع الافتراضي | لا شيء. فمئة عنصر ملف تكلّف ما تكلّفه نصوصها. |
+| مع `previewSrc` | طلب صورة واحد لكل عنصر، يجريه تحميل الصور الخاص بالمنصة. |
+| مع الملف نفسه | عنوان واحد للملف، ينشئه العنصر حين يدخل مجال الرؤية أو يقترب منه أول مرة، ويحرّره حين يغادر العنصر الصفحة، وحين تعطيه ملفًا آخر أو لا تعطيه ملفًا، وحين لا تعود المعاينة مطلوبة. ومفكّك ترميز الصور في المنصة يقرأ الملف ليرسمه. أما العنصر فلا يقرأ شيئًا بنفسه. |
+
+- الصور وحدها تُرسم من الملف نفسه. أما إطار من فيديو أو صفحة من مستند فيقتضيان فتح الملف وقراءته، وهذا ما لا يفعله أي مكوّن في Tanrei. أعطِ `previewSrc` لتلك الملفات.
+- إلى أن يمكن رسم الصورة، وإذا تعذّر رسمها، يُرسم رسم الصيغة. فلا يوجد مؤشر دوّار ولا علامة صورة معطوبة، ولا تُمسّ الخاصية `status`: فالصورة المصغّرة التي لم تُحمَّل ليست فشلًا للملف.
+- الصورة ليس لها نص بديل. فهي تقف حيث كان الرسم، والملف يسمّيه `name`.
+
+### قابل للضغط، أو رابط، أو للقراءة فقط
+
+في الوضع الافتراضي لا يأخذ جسم عنصر الملف تركيزًا ولا يستجيب لشيء. فالعنصر يحمل إجراءيه لا غير.
+
+<DemoFrame label="جسم هو زر، ورابط يُفتح في تبويب جديد، وملف للقراءة فقط" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 ميغابايت" interactive remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 ميغابايت" href="#قابل-للضغط-أو-رابط-أو-للقراءة-فقط" target="new" target-label="يُفتح في تبويب جديد" remove-label="إزالة"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 كيلوبايت" status="done" status-text="أُرسل في 4 ديسمبر" readonly></tanrei-file-item>
+</DemoFrame>
+
+| الخاصية | الجسم يكون | تُستخدم لـ |
+| --- | --- | --- |
+| `interactive` | زرًّا. يصدر عنه الحدث `click` ومعه `value`. | فتح الملف حيث يكون الشخص: صورة في عارض من عندك، أو مستند في لوحة. |
+| `href` | رابطًا إلى الملف. يصدر عنه الحدث `click` أولًا؛ ألغِه لتتولى التنقل بنفسك. | ملف موجود سلفًا عند خادمك. ومع `target="new"` أعطِ `targetLabel`. |
+| لا هذه ولا تلك | غير قابل للضغط. | ملف مسرود فقط. |
+
+الجسم هو الرسم أو الصورة، ومعهما النصوص. والإجراءان يقفان بجانبه ولا يكونان داخله أبدًا، فلعنصر الملف القابل للضغط ثلاثة مواضع توقف للتركيز على الأكثر: الجسم، وإعادة المحاولة، والإزالة.
+
+الخاصية `readOnly` لا ترسم أيًّا من الإجراءين ولا تُبقي لهما مكانًا. استخدمها لملفات سجل يُقرأ فقط. ويظل الجسم قابلًا للضغط.
+
+الخاصية `disabled` تعطّل الإجراءين والجسم. وما يعرضه العنصر يبقى كما هو ويبقى مقروءًا.
+
+### ملفات بترتيب يغيّره الأشخاص
+
+ليس لعنصر الملف مقبض ولا أزرار نقل ولا ترتيب. فإعادة الترتيب شأن [القائمة (list)](/ar/components/list/). اعرض كل ملف صفًّا في قائمة قابلة لإعادة الترتيب: الاسم عنوانًا رئيسيًّا، والحجم نصًّا مساعدًا، ورسم أو صورة في موضع البداية، وزر من عندك لإزالته في موضع النهاية.
+
+<ListReorderProduct />
+
+<DemoFrame label="ملفات بترتيب يغيّره الأشخاص: قائمة قابلة لإعادة الترتيب تعرض صفوفها الملفات" plain>
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="نقل لأعلى" move-down-label="نقل لأسفل" moved-text="تم نقل {headline} إلى الموضع {position} من {count}" style="inline-size: 26rem">
+    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 كيلوبايت" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="إزالة cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="resume.docx" supporting-text="مستند · 88 كيلوبايت" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="إزالة resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="portfolio.zip" supporting-text="أرشيف · 14 ميغابايت" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="إزالة portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+```html
+<tanrei-list reorder="buttons" move-up-label="نقل لأعلى" move-down-label="نقل لأسفل"
+             moved-text="تم نقل {headline} إلى الموضع {position} من {count}">
+  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 كيلوبايت" leading-icon="picture_as_pdf">
+    <tanrei-button slot="trailing" variant="text" label="إزالة cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
+  </tanrei-list-item>
+  …
+</tanrei-list>
+```
+
+هذا يرسم صف القائمة لا عنصر الملف: فأنت تسمّي الرسم بنفسك، والصف لا شريط له ولا علامة حالة. والقائمة تنقل الصفوف، وتعلن كل نقل، وتحفظ التركيز؛ انظر [إعادة الترتيب](/ar/components/list/#إعادة-الترتيب) في صفحة القائمة. أما عنصر الملف بوصفه محتوى صف في قائمة، وسلسلة البلاطات التي يغيّر الأشخاص ترتيبها، فلم يُبنيا بعد.
+
+### الكلمات
+
+ليست لعنصر الملف كلمات من عنده. اثنتان منها يمكن أن تُعطيا مرة واحدة للمنتج كله بالدالة `setWords()`؛ وكل نص آخر خاصية للمثيل.
+
+| الخاصية | المفتاح في كلمات المنتج | من دونها |
+| --- | --- | --- |
+| `removeLabel` | `removeLabel` | يُرسم إجراء الإزالة ولا اسم له. وتبلّغ عنه بنيات التنقيح (debug). |
+| `retryLabel` | `retryLabel` | يُرسم إجراء إعادة المحاولة ولا اسم له. وتبلّغ عنه بنيات التنقيح. |
+
+كل إجراء يصفه اسم ملفه. فكلمة واحدة، «إزالة»، تكفي لكل الملفات: يسمع الشخص «إزالة، زر، brief.pdf».
+
+### من اليمين إلى اليسار
+
+في تخطيط من اليمين إلى اليسار يقف الرسم أو الصورة عند اليمين والإجراءان عند اليسار، والإزالة في أقصى الطرف؛ والشريط يمتلئ من اليمين، وإجراءا البلاطة في زاويتها العليا اليسرى. والصورة لا تُعكس أبدًا. واسم الملف المكتوب بأحرف لاتينية يحتفظ بترتيبه، بنقطته وامتداده. ومن رسوم الصيغ العشرة لا يُعكس إلا رسم الصنف `other`، لأن مجموعة الأيقونات تعلّمه بذلك.
+
+### افعل
+
+- أعطِ الملف المكتمل `statusText` والملف الفاشل `errorText`. فالحالة لا تُبلَّغ أبدًا بعلامة وحدها ولا بلون وحده.
+- عيِّن `retryable` فقط لفشل قد تعالجه إعادة المحاولة. فالملف الأكبر من الحد سيبقى أكبر من الحد.
+- نسِّق الحجم بنفسك. أما كون الميغابايت 1000 كيلوبايت أو 1024 فقرار منتجك.
+- ضع عناصر الملفات التي ينتمي بعضها إلى بعض في قائمة من عندك، أي عنصر `<ul>` له اسم، أو في مكوّن رفع الملفات.
+- انقل التركيز بنفسك بعد أن تزيل عنصرًا. فعنصر الملف وحده لا يستطيع أن يعرف ما الذي بجواره.
+
+### لا تفعل
+
+- لا تنتظر من العنصر أن يزيل نفسه أو يغيّر حالته أو يحرّك شريطه. فهو يرسم ما تعيّنه.
+- لا تستخدم `nameHidden` لملفات ليست صورًا. فبلاطاتها تحتفظ بالاسم على أي حال.
+- لا تضع داخله قائمة خيارات ولا خانة اختيار ولا شرحًا. فمنفذه الوحيد هو منفذ الرسم. والإجراءات الأخرى على الملف تقف بجانب العنصر.
+- لا تستخدمه صفًّا في قائمة يحدّد الأشخاص منها أو يعيدون ترتيبها. فذلك صف القائمة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="file-item" />
+
+### ما يتكفل به المكوّن
+
+- عنصر الملف وحده مجموعة يسمّيها اسم الملف. وفي مكوّن رفع الملفات هو عنصر من عناصر قائمة ذلك المكوّن.
+- الجسم القابل للضغط زر واحد أو رابط واحد، يسمّيه اسم الملف ويصفه السطر الثاني. ويأتي قبل الإجراءين في ترتيب التركيز. والرابط يُفعَّل بالمفتاح Enter لا بالمفتاح Space، والرابط الذي يُفتح في تبويب جديد يقول `targetLabel` بعد اسمه.
+- الإجراءان زران تسمّيهما `removeLabel` و `retryLabel` ويصفهما اسم الملف. وإعادة المحاولة تأتي قبل الإزالة.
+- الشريط شريط تقدم (progress bar) يسمّيه الملف. والخطأ هو نص السطر الثاني، ويُقرأ في مكان الحالة.
+- الرسم والصورة وعلامة الحالة محجوبة عن التقنيات المساعدة. والكلمات تقول ما تعرضه.
+- عنصر الملف لا يعلن شيئًا. فمن يضم عناصر كثيرة منه تكون له منطقة حيّة (live region) واحدة لها كلها، كما هي حال مكوّن رفع الملفات.
+- الاسم الكامل يصل دائمًا إلى التقنيات المساعدة، حتى حيث تقصّه البلاطة وحيث تخفيه `nameHidden`.
+- عند تكبير النص إلى 200% يلتفّ الصف ولا يفقد شيئًا. وصندوق البلاطة يحتفظ بمقاسه ونصوصها تكبر تحته.
+- في الألوان المفروضة (forced colors) يحتفظ الصندوق وأقراص إجراءات البلاطة بحافة، ويبقى الشريط مرئيًّا. والصورة تُترك كما هي.
+- تغيّرات اللون بين الحالات تُحرَّك في وقت قصير، وتحدث فورًا حيث تكون الحركة مقلَّلة.
+
+فجوات معروفة على الويب:
+
+- الصورة المتحركة، كصورة GIF متحركة، يشغّلها عنصر الصورة في المتصفح. وعنصر الملف لا يستطيع إيقافها. أعطِ نسخة ثابتة من الصورة في `previewSrc` حيث يكون ذلك مهمًّا.
+- قبل أن يُعرَّف العنصر لا يُرسم شيء، لأن الاسم خاصية HTML (attribute) وليس نصًّا في المستند. والصفحة التي يجب أن تسرد الملفات حيث لا يعمل السكربت تكتب روابطها بنفسها.
+
+### ما عليك فعله
+
+- أعطِ `name` دائمًا.
+- أعطِ `removeLabel` و `retryLabel`، على العنصر أو مرة واحدة بالدالة `setWords()`.
+- قل كل حالة وكل فشل بالكلمات: `statusText` و `errorText`.
+- مع `target="new"` أعطِ `targetLabel`.
+- أعطِ مجموعة عناصر الملفات قائمة واسمًا من عندك، وأعلن ما أُضيف وما اكتمل وما فشل في منطقة حيّة واحدة من عندك. ومكوّن رفع الملفات يفعل الأمرين عنك.
+- بعد إزالة عنصر، انقل التركيز إلى إجراء الإزالة في الملف التالي، أو إلى ما أضاف الملفات.

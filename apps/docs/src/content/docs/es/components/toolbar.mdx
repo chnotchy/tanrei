@@ -1,0 +1,319 @@
+---
+title: Barra de herramientas
+description: Contiene una fila corta de acciones para la pantalla o la selección actual, acoplada a lo largo del borde inferior o flotando sobre el contenido. Es una sola parada de tabulación, y las teclas de flecha mueven el foco entre sus acciones.
+translationOf: components/toolbar.mdx
+sourceHash: 208b8298cc2fa085a6bfd76cf0992d8e087dc579
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="toolbar" />
+
+<DemoFrame label="Acoplada y flotante" column>
+  <tanrei-toolbar label="Acciones del mensaje" style="inline-size: 22rem">
+    <tanrei-button variant="text" label="Archivar"><span slot="icon">archive</span></tanrei-button>
+    <tanrei-button variant="text" label="Eliminar"><span slot="icon">delete</span></tanrei-button>
+    <tanrei-button variant="text" label="Marcar como no leído"><span slot="icon">mark_email_unread</span></tanrei-button>
+    <tanrei-button variant="text" label="Mover"><span slot="icon">drive_file_move</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Formato">
+    <tanrei-button variant="text" toggle selected label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" toggle label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" toggle label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+    <tanrei-button variant="text" label="Insertar enlace"><span slot="icon">link</span></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+### Uso
+
+Una barra de herramientas contiene dos tipos de elemento: `action`, que es un [Button](/es/components/button/) de Tanrei con un icono y sin etiqueta (un conmutador como Negrita es uno con `toggle` activado), y `button`, que es un Button de Tanrei con etiqueta. Son tus propios componentes, cada uno con su etiqueta, su clic y su estado. La barra de herramientas los dispone en el orden de lectura y mueve el foco del teclado entre ellos. Nunca les cambia el estilo, así que un Button de solo icono en una barra de herramientas se ve y se comporta como en cualquier otro lugar. Cada plataforma los recibe como recibe los hijos repetidos: elementos hijos en la web, un constructor de vistas en SwiftUI, llamadas en una lambda de contenido en Compose, una lista `children` en Flutter y elementos hijos en React Native.
+
+**Acoplada.** Una barra de herramientas acoplada abarca el borde inferior de la pantalla. Su color llega por debajo del indicador de inicio o de la barra de gestos, y sus elementos quedan por encima de él y dentro de los márgenes interiores laterales. La web lee `env(safe-area-inset-bottom)`, SwiftUI coloca la barra con `.safeAreaInset(edge: .bottom)`, Compose recibe `windowInsets` (las barras de navegación de forma predeterminada) y Flutter lee el margen interior inferior de `MediaQuery`. React Native toma sus márgenes interiores de la propiedad `insets` de la barra de herramientas o de `TanreiProvider`, ya que Tanrei no depende de ninguna biblioteca de área segura.
+
+**Flotante.** Una barra de herramientas flotante no se coloca sola, como tampoco lo hace un [botón de acción principal](/es/components/main-action-button/). La pone tu diseño, normalmente centrada sobre la parte inferior del contenido, o junto al borde de fin del contenido cuando es vertical.
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native van rezagados: todavía ofrecen la revisión anterior de la barra de herramientas y del botón, en la que una acción de solo icono es un botón de icono aparte, y sus ejemplos muestran esa revisión hasta que se pongan al día.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-toolbar label="Acciones del mensaje">
+      <tanrei-button variant="text" label="Archivar"><span slot="icon">archive</span></tanrei-button>
+      <tanrei-button variant="text" label="Eliminar"><span slot="icon">delete</span></tanrei-button>
+      <tanrei-button variant="text" label="Mover"><span slot="icon">drive_file_move</span></tanrei-button>
+      <tanrei-button variant="filled">Responder</tanrei-button>
+    </tanrei-toolbar>
+
+    <!-- Flotante y vertical: la página la coloca. -->
+    <tanrei-toolbar variant="floating" orientation="vertical" label="Controles del mapa" class="map-controls">
+      <tanrei-button variant="text" label="Acercar"><span slot="icon">add</span></tanrei-button>
+      <tanrei-button variant="text" label="Alejar"><span slot="icon">remove</span></tanrei-button>
+    </tanrei-toolbar>
+
+    <script type="module">
+      import '@tanrei/web/components/toolbar';
+      import '@tanrei/web/components/button';
+      // Los elementos son tuyos: la barra de herramientas no añade eventos propios.
+      document.querySelector('[label="Archivar"]').addEventListener('click', archive);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Toolbar } from '@tanrei/react';
+
+    <Toolbar label="Acciones del mensaje">
+      <Button variant="text" label="Archivar" onClick={archive}><span slot="icon">archive</span></Button>
+      <Button variant="text" label="Eliminar" onClick={remove}><span slot="icon">delete</span></Button>
+      <Button variant="text" label="Mover" onClick={move}><span slot="icon">drive_file_move</span></Button>
+      <Button variant="filled" onClick={reply}>Responder</Button>
+    </Toolbar>
+
+    <Toolbar variant="floating" label="Formato">
+      <Button variant="text" toggle selected={bold} label="Negrita" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+      <Button variant="text" label="Insertar enlace" onClick={insertLink}><span slot="icon">link</span></Button>
+    </Toolbar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Una barra de herramientas acoplada se sitúa en el margen inferior del área segura; su fondo llega por debajo de él.
+    MessageView()
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TanreiToolbar("Acciones del mensaje") {
+                TanreiIconButton("Archivar", action: archive) { Image(systemName: "archivebox") }
+                TanreiIconButton("Eliminar", action: delete) { Image(systemName: "trash") }
+                TanreiButton("Responder", action: reply)
+            }
+        }
+
+    TanreiToolbar("Formato", variant: .floating) {
+        TanreiIconButton("Negrita", isSelected: $bold) { Image(systemName: "bold") }
+        TanreiIconButton("Insertar enlace", action: insertLink) { Image(systemName: "link") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.gestures.Orientation
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiToolbar
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiToolbarVariant
+
+    // Una barra de herramientas acoplada aplica a sus elementos el margen interior de WindowInsets.navigationBars salvo que pases windowInsets.
+    TanreiToolbar(contentDescription = "Acciones del mensaje") {
+        TanreiIconButton(onClick = ::archive, contentDescription = "Archivar") { TanreiText("archive") }
+        TanreiIconButton(onClick = ::delete, contentDescription = "Eliminar") { TanreiText("delete") }
+        TanreiButton(text = "Responder", onClick = ::reply)
+    }
+
+    TanreiToolbar(contentDescription = "Formato", variant = TanreiToolbarVariant.Floating) {
+        TanreiIconButton(onClick = {}, contentDescription = "Negrita", checked = bold, onCheckedChange = { bold = it }) {
+            TanreiText("format_bold")
+        }
+        TanreiIconButton(onClick = ::insertLink, contentDescription = "Insertar enlace") { TanreiText("link") }
+    }
+
+    // La orientación vertical es para una barra de herramientas flotante; tu diseño la coloca.
+    TanreiToolbar(
+        contentDescription = "Controles del mapa",
+        variant = TanreiToolbarVariant.Floating,
+        orientation = Orientation.Vertical,
+    ) {
+        TanreiIconButton(onClick = ::zoomIn, contentDescription = "Acercar") { TanreiText("add") }
+        TanreiIconButton(onClick = ::zoomOut, contentDescription = "Alejar") { TanreiText("remove") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiToolbar(
+      semanticLabel: 'Acciones del mensaje',
+      children: <Widget>[
+        TanreiIconButton(onPressed: archive, semanticLabel: 'Archivar', icon: const Icon(AppSymbols.archive)),
+        TanreiIconButton(onPressed: delete, semanticLabel: 'Eliminar', icon: const Icon(AppSymbols.delete)),
+        TanreiButton(onPressed: reply, child: const Text('Responder')),
+      ],
+    );
+
+    TanreiToolbar(
+      semanticLabel: 'Controles del mapa',
+      variant: TanreiToolbarVariant.floating,
+      orientation: Axis.vertical,
+      children: <Widget>[
+        TanreiIconButton(onPressed: zoomIn, semanticLabel: 'Acercar', icon: const Icon(AppSymbols.add)),
+        TanreiIconButton(onPressed: zoomOut, semanticLabel: 'Alejar', icon: const Icon(AppSymbols.remove)),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button, IconButton, Toolbar } from '@tanrei/react-native';
+
+    // Los márgenes interiores inferior y laterales vienen de los insets de TanreiProvider; la propiedad insets de la propia barra de herramientas sustituye los lados que nombra.
+    <Toolbar accessibilityLabel="Acciones del mensaje">
+      <IconButton accessibilityLabel="Archivar" onPress={archive}>archive</IconButton>
+      <IconButton accessibilityLabel="Eliminar" onPress={remove}>delete</IconButton>
+      <Button variant="filled" onPress={reply}>Responder</Button>
+    </Toolbar>
+
+    <Toolbar variant="floating" accessibilityLabel="Formato">
+      <IconButton accessibilityLabel="Negrita" toggle selected={bold} onSelectedChange={setBold}>format_bold</IconButton>
+      <IconButton accessibilityLabel="Insertar enlace" onPress={insertLink}>link</IconButton>
+    </Toolbar>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Un elemento de botón, un solo elemento, un elemento deshabilitado, una acción filled y vertical" plain column>
+  <tanrei-toolbar label="Redactar" style="inline-size: 22rem">
+    <tanrei-button variant="text" label="Adjuntar archivo"><span slot="icon">attach_file</span></tanrei-button>
+    <tanrei-button variant="text" label="Insertar foto"><span slot="icon">image</span></tanrei-button>
+    <tanrei-button variant="text" label="Insertar enlace"><span slot="icon">link</span></tanrei-button>
+    <tanrei-button variant="filled">Enviar</tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="Responder" style="inline-size: 22rem">
+    <tanrei-button variant="tonal">Responder</tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="Acciones del mensaje" style="inline-size: 22rem">
+    <tanrei-button variant="text" label="Archivar"><span slot="icon">archive</span></tanrei-button>
+    <tanrei-button variant="text" label="Eliminar" disabled><span slot="icon">delete</span></tanrei-button>
+    <tanrei-button variant="text" label="Marcar como no leído"><span slot="icon">mark_email_unread</span></tanrei-button>
+    <tanrei-button variant="text" label="Mover"><span slot="icon">drive_file_move</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Herramientas de dibujo">
+    <tanrei-button variant="text" label="Lápiz"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="Resaltador"><span slot="icon">ink_highlighter</span></tanrei-button>
+    <tanrei-button variant="text" label="Goma de borrar"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-button variant="filled" label="Listo"><span slot="icon">check</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" orientation="vertical" label="Controles del mapa">
+    <tanrei-button variant="text" label="Acercar"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="text" label="Alejar"><span slot="icon">remove</span></tanrei-button>
+    <tanrei-button variant="text" label="Mi ubicación"><span slot="icon">my_location</span></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+<ComponentSpecs name="toolbar" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa una barra de herramientas para unas pocas acciones sobre lo que la persona tiene delante: Archivar, Eliminar y Mover para un mensaje abierto; Negrita, Cursiva y Enlace en un editor; un lápiz y una goma de borrar en una aplicación de dibujo; el zoom y la ubicación en un mapa. Las acciones actúan sobre la pantalla o la selección actual, no sobre adónde va la persona después.
+
+Para el título de la pantalla, el camino de vuelta y una o dos acciones globales, usa la [barra de la aplicación](/es/components/app-bar/) en la parte superior. Para moverte entre los destinos de primer nivel de una aplicación, usa la [barra de navegación](/es/components/navigation-bar/). Una barra de herramientas acoplada y una barra de navegación nunca comparten pantalla: ambas reclaman el borde inferior.
+
+### Acoplada o flotante
+
+| Variante | Dónde se sitúa | Elementos | Úsala para |
+| --- | --- | --- | --- |
+| Acoplada (predeterminada) | A lo largo del borde inferior, pegada a él, con su color llegando por debajo de la barra del sistema | Repartidos a lo ancho, con el mismo espacio entre ellos | Las acciones de una pantalla de detalle: un mensaje abierto, una foto, un documento |
+| Flotante | Una superficie redondeada y elevada sobre el contenido, colocada por tu diseño | Juntos, tan larga como necesiten, y cada uno con sitio para su propio objetivo táctil | Herramientas sobre un contenido que debe seguir visible a su alrededor: un editor, un lienzo, un mapa |
+
+Una barra de herramientas acoplada siempre es horizontal. Una flotante puede ser vertical, junto al contenido en una pantalla grande, como los controles de un mapa. Un mismo producto puede acoplar su barra de herramientas en unas pantallas y hacerla flotar en otras. Una variante que añade un sistema de diseño toma la estructura de la acoplada con sus propios valores.
+
+Una barra de herramientas acoplada reparte sus elementos a lo ancho y nunca los acerca más que su separación (16 en el sistema predeterminado). Una barra de herramientas flotante junta sus elementos: en el sistema predeterminado su separación es 0, y dos vecinos se separan solo lo que cada uno necesita para conservar un objetivo táctil propio a lo largo de la fila. Los botones grandes se tocan, los medianos quedan a 8 y los pequeños a 16. La barra de herramientas nunca ensancha un elemento ni le cambia el estilo para lograrlo, y el espaciado es el mismo para un ratón y para el tacto.
+
+<DemoFrame label="Flotante: elementos small, medium y large, y elementos narrow y wide" plain column>
+  <tanrei-toolbar variant="floating" label="Formato, small">
+    <tanrei-button variant="text" size="small" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" size="small" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" size="small" label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Formato, medium">
+    <tanrei-button variant="text" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Formato, large">
+    <tanrei-button variant="text" size="large" label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" size="large" label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" size="large" label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="Herramientas de dibujo">
+    <tanrei-button variant="text" width="narrow" label="Deshacer"><span slot="icon">undo</span></tanrei-button>
+    <tanrei-button variant="text" width="narrow" label="Rehacer"><span slot="icon">redo</span></tanrei-button>
+    <tanrei-button variant="text" label="Lápiz"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="Goma de borrar"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-button variant="filled" width="wide" label="Listo"><span slot="icon">check</span></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+### Elementos
+
+- Usa [Buttons](/es/components/button/) de solo icono de la variante `text` para la mayoría de las acciones. Da más peso a la única acción a la que conduce la barra de herramientas, como Enviar o Listo: un botón filled de solo icono, quizá con el ancho `wide`, o un botón filled con etiqueta cuando una palabra se lee mejor que un icono.
+- Un botón de solo icono `narrow` conviene a una barra de herramientas con muchas acciones pequeñas. Se dibuja más estrecho que su objetivo, y la barra de herramientas reserva sitio para el objetivo entre sus vecinos.
+- Haz de una acción que activa y desactiva algo (Negrita, Silenciar) un botón de solo icono con `toggle`. Conserva su propio estado seleccionado y su propio anuncio.
+- Mantén estable el orden. Las personas encuentran las acciones por su posición, y una barra de herramientas cuyos elementos se mueven de una pantalla a otra es difícil de aprender.
+- Una barra de herramientas con un solo elemento lo centra. Piensa si ese elemento no debería estar más bien en el contenido.
+
+### Cuando los elementos no caben
+
+La barra de herramientas nunca hace saltar de línea, encoge ni oculta un elemento. Si los elementos necesitan más sitio del que hay, la fila se desplaza para que todos sigan siendo accesibles, y las compilaciones de depuración te lo dicen. Pon las acciones que sobran en un [menú](/es/components/menu/) de desbordamiento propio, anclado a un botón de icono «Más opciones» al final de la barra de herramientas.
+
+### Recomendado
+
+- Da nombre a la barra de herramientas según lo que hacen sus acciones: «Formato», «Acciones del mensaje».
+- Deshabilita una acción que no se puede aplicar en ese momento en lugar de quitarla, para que las demás no se muevan.
+- Coloca una barra de herramientas flotante de modo que no tape el contenido que las personas necesitan ver mientras la usan, ni una barra de navegación ni el margen interior del sistema.
+
+### Evita
+
+- No pongas un campo de texto, un control deslizante ni un conjunto de chips en una barra de herramientas. Cada uno necesita las teclas de flecha que la barra de herramientas usa para mover el foco. La búsqueda va en la barra de la aplicación o en la página.
+- No uses una barra de herramientas acoplada y una barra de navegación en la misma pantalla.
+- No cambies el estilo de los elementos para que la barra de herramientas parezca destacada. Elige en su lugar la variante tonal o filled para los botones.
+- No pongas destinos de navegación en una barra de herramientas. Sus elementos son acciones.
+
+## Accesibilidad
+
+<ComponentAccessibility name="toolbar" />
+
+### De qué se encarga el componente
+
+- La barra de herramientas es una sola parada de tabulación, según el patrón de barra de herramientas de WAI-ARIA. Tab entra en ella por el elemento que tuvo el foco del teclado por última vez o, si no, por el primer elemento que no esté deshabilitado, y el siguiente Tab sale de ella. Cruzar una barra de formato de ocho conmutadores cuesta una pulsación de Tab, no ocho.
+- Dentro, las teclas de flecha de su eje llevan al elemento siguiente o al anterior y pasan de un extremo al otro: Flecha derecha y Flecha izquierda en una barra de herramientas horizontal, Flecha abajo y Flecha arriba en una vertical. Inicio y Fin llevan al primer y al último elemento. En un diseño de derecha a izquierda, Flecha izquierda lleva al elemento siguiente.
+- Mover el foco nunca activa un elemento. Enter y Espacio actúan sobre el elemento con foco como lo hace ese elemento, así que un conmutador sigue conmutando.
+- Las teclas de flecha se saltan los elementos deshabilitados, que nunca son la parada de tabulación, porque un botón deshabilitado no puede recibir el foco.
+- El foco itinerante es el mismo que usan la lista, el menú y las pestañas en cada plataforma.
+- La barra de herramientas se expone como una barra de herramientas que recibe su nombre de `label`, con su orientación, donde la plataforma tiene un rol de barra de herramientas (la web, React Native). SwiftUI, Compose y Flutter no lo tienen: allí es un grupo que recibe su nombre de `label` y contiene sus elementos en orden.
+- Cada elemento conserva su propio nombre, rol, estado y objetivo. La barra de herramientas no les añade nada y nunca les cambia el estilo.
+- Entre dos elementos, las áreas de pulsación nunca se solapan. En una barra de herramientas acoplada se encuentran en la mitad de la separación, y la separación del sistema predeterminado (16) es lo bastante ancha para que cada elemento conserve también allí su objetivo táctil completo de 48; un sistema de diseño con una separación más estrecha estrecha los objetivos entre elementos. En una barra de herramientas flotante, los elementos se separan justo lo necesario para que cada uno conserve a lo largo de la fila la longitud de un objetivo táctil propio, sea cual sea el puntero, de modo que sus vecinos nunca aprietan un botón estrecho o pequeño. En un lado sin vecino, un elemento conserva su objetivo completo.
+- Cuando un elemento que recibe el foco del teclado está fuera de la vista por el desplazamiento, la barra de herramientas lo desplaza hasta dejarlo completamente a la vista.
+- Con tamaños de texto mayores, la barra de herramientas crece en perpendicular a su eje para contener sus elementos. No los escala.
+- Las compilaciones de depuración notifican un `label` que falta, una barra de herramientas sin elementos, un elemento que no es un Button de Tanrei, una barra de herramientas acoplada definida como vertical, elementos que no caben y una variante o una orientación desconocidas.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose y Flutter no tienen rol de barra de herramientas. Un lector de pantalla oye un grupo con nombre, no una barra de herramientas, y el README de cada paquete lo dice. El grupo no expone su orientación.
+- Web: una barra de herramientas acoplada lee `env(safe-area-inset-bottom)`, que es cero salvo que la etiqueta meta viewport de la página tenga `viewport-fit=cover`.
+- Web: mientras los elementos se desplazan, se recorta todo lo que un elemento sobresale de la barra de herramientas en perpendicular a su eje: su área de pulsación, su anillo de foco o su resplandor, la sombra de un botón elevated. No se muestra ninguna barra de desplazamiento.
+- En SwiftUI, la única parada de tabulación es un grupo de foco para el teclado: Acceso total por teclado se mueve entre sus elementos con las teclas de flecha y sale de él con Tab. Las teclas están probadas como reglas, todavía no con un teclado real.
+- SwiftUI: mientras los elementos se desplazan, el área de pulsación de un elemento del extremo termina en el borde de la barra de herramientas. Cuando un cambio de tamaño hace que los elementos empiecen a desplazarse o dejen de hacerlo, se vuelven a crear, así que un elemento pierde su foco del teclado o una pulsación en curso.
+- En React Native, la parada de tabulación y las teclas de flecha funcionan solo donde hay un teclado físico conectado, como en la fila de pestañas.
+- React Native tiene el rol de barra de herramientas pero no tiene forma de exponer una orientación, así que una barra de herramientas vertical no se anuncia como vertical.
+- React Native: el ancho de la barra de herramientas flotante, las teclas en un teclado físico, el desplazamiento de un elemento con foco hasta dejarlo a la vista y si VoiceOver y TalkBack anuncian la barra de herramientas se han comprobado solo en Jest, no en un dispositivo.
+- Con `m3-like`, la barra de herramientas dibuja los valores del sistema predeterminado: los valores de la barra de herramientas de Material esperan a que la referencia de fidelidad la cubra. La barra de herramientas vibrante de Material, que cambia el color de sus elementos, no se puede dibujar, porque la barra de herramientas nunca cambia el estilo de sus elementos (laguna de imitación `toolbar-vibrant-color`).
+
+### Qué debes hacer tú
+
+- Da a la barra de herramientas un `label`, y a cada elemento su propia etiqueta en el idioma de tu producto, incluidas las acciones de solo icono.
+- Pon en ella solo Buttons de Tanrei, de solo icono o con etiqueta.
+- Cuando una acción no se pueda aplicar, deshabilítala, y di por qué cerca de ella cuando el motivo no sea evidente.
+- Proporciona tú el menú de desbordamiento cuando las acciones no quepan.
+- Coloca una barra de herramientas flotante de modo que no tape contenido que todavía se necesita mientras la barra de herramientas está abierta.

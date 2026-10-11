@@ -1,0 +1,15 @@
+---
+title: ステータス
+description: どのコンポーネントがどのプラットフォームにあるか。リポジトリから自動生成しています。
+translationOf: status.mdx
+sourceHash: 4fa1412c15c5add9d5bcf34096d42c42daf3616e
+tableOfContents: false
+---
+
+import StatusMatrix from '../../../components/StatusMatrix.astro';
+
+このページは手で書いていません。下の表は `pnpm generate` が、コンポーネント仕様と、各プラットフォームのパッケージに実在するもの（実装、テスト、スナップショット、ドキュメントページ）から生成します。セルが「計画中」であれば、どんな意図があったとしても、提供できるものはまだそこにありません。
+
+あるプラットフォームでコンポーネントが「計画中」より先へ進めるのは、パリティチェッカーがこれらすべてを確認できたときだけです。そのため、この表がリポジトリの実態以上のことを主張することはありません。
+
+<StatusMatrix headingLevel={2} />

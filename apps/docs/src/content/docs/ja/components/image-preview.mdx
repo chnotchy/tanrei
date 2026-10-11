@@ -1,0 +1,248 @@
+---
+title: 画像プレビュー
+description: ユーザーがサムネイルを押すと、一連の画像のうち 1 枚をウィンドウ全体に表示します。拡大して元に戻す、拡大したまま動かす、次の画像や前の画像へ移るといった操作で細部まで見られ、閉じるまで表示が続きます。
+translationOf: components/image-preview.mdx
+sourceHash: caadfe986913a18784dba1d60a26a868a2370960
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import landscape from '../../../../../../../packages/web/test/fixtures/image-preview-landscape.png?url';
+import landscapeSmall from '../../../../../../../packages/web/test/fixtures/image-preview-landscape-thumbnail.png?url';
+import portrait from '../../../../../../../packages/web/test/fixtures/image-preview-portrait.png?url';
+import square from '../../../../../../../packages/web/test/fixtures/image-preview-square.png?url';
+
+## 概要
+
+<ComponentAvailability name="image-preview" />
+
+<DemoFrame label="ページにある 3 枚の画像。どれかを押すと、細部まで見られます">
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="拡大: 幅 1600、高さ 1000 の図" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 0, open: true })"><img src={landscapeSmall} alt="" width="160" height="100" style="display: block" /></tanrei-card>
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="拡大: 幅 1000、高さ 1500 の図" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 1, open: true })"><img src={portrait} alt="" width="67" height="100" style="display: block" /></tanrei-card>
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="拡大: 幅 1200、高さ 1200 の図" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 2, open: true })"><img src={square} alt="" width="100" height="100" style="display: block" /></tanrei-card>
+  <tanrei-image-preview id="image-preview-demo" label="3 枚の図" close-label="閉じる" zoom-in-label="拡大" zoom-out-label="縮小" previous-label="前の画像" next-label="次の画像" count-text="{count}枚中{position}枚目" loading-label="画像を読み込んでいます" error-text="この画像を読み込めませんでした" onclose="this.open = false">
+    <tanrei-image-preview-item src={landscape} thumbnail-src={landscapeSmall} width="1600" height="1000" alt="幅 1600、高さ 1000 の図。枠と 2 本の対角線と輪が描かれています" caption="どの図にも、その図の大きさ、縁、四隅の印が描かれています。全体が見えていることを確かめられます。"></tanrei-image-preview-item>
+    <tanrei-image-preview-item src={portrait} width="1000" height="1500" alt="幅 1000、高さ 1500 の図。枠と 2 本の対角線と輪が描かれています"></tanrei-image-preview-item>
+    <tanrei-image-preview-item src={square} width="1200" height="1200" alt="幅 1200、高さ 1200 の図。枠と 2 本の対角線と輪が描かれています"></tanrei-image-preview-item>
+  </tanrei-image-preview>
+</DemoFrame>
+
+画像プレビューは、ページの主題がほかにあるために画像を小さく表示していて、ユーザーがそれを少しの間だけ大きく見たい場面で使います。記事の中の写真、商品の画像、会話の添付ファイル、ガイドの中のスクリーンショットなどです。ユーザーはサムネイルを押し、画像を見て、元の場所に戻ります。
+
+表示するのは静止画像だけです。ユーザーに何も尋ねないので、[ダイアログ](/ja/components/dialog/)ではありません。画像は見るもので、押すものではないので、[カルーセル](/ja/components/carousel/)でもありません。ただし、カルーセルの項目や[フィギュア](/ja/components/figure/)の中の画像は、画像プレビューを開くきっかけとして自然です。
+
+**使っている部品**は、縮小、拡大、閉じる、前へ、次への[ボタン](/ja/components/button/)と、届く途中の画像の代わりに置く[スケルトン](/ja/components/skeleton/)です。どちらも本物のコンポーネントで、それぞれ自分のトークンを読みます。画像を拡大して動かすステージと、画像から画像へ移る仕組みは画像プレビュー自身のもので、ほかのどこにもありません。
+
+Web では `<tanrei-image-preview>` で、子に `<tanrei-image-preview-item>` を置きます。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+開くきっかけは、利用者側で用意します。自分の画像を囲むボタンです。単独でも、フィギュアの中でも、グリッドの中でもかまいません。ダイアログを開くことを伝え、何をするのか、どの画像なのかを名前にします。たとえば「拡大: 庭に面した窓のある寝室」です。画像の `alt` だけでは画像の名前にしかならず、動作を伝えません。ボタンが押されたら、`index` をその画像に、`open` を true に設定します。上のデモのサムネイルは、`label` で名前を付けた、操作できる[カード](/ja/components/card/)です。下のサンプルのように画像を囲むネイティブのボタンが基本の形で、ダイアログを開くことも伝えられます。
+
+プレビューは自分では閉じません。`close` を発行して理由（`button`、`escape`、`back`、`swipe`）を伝えるので、利用者側で `open` を false に設定します。フォーカスは開いたボタンへ戻ります。
+
+各画像には `src` と `alt` を指定します。`src` はプレビューが表示する画像で、たいていはサムネイルより大きなファイルです。`alt` は必須です。`thumbnailSrc` にページがすでに読み込んだ小さな画像を指定すると、`src` が届くまでそれを拡大して描くので、開いた直後に何も表示されないということがありません。`width` と `height` がわかっていれば指定してください。画像が届く前から、その場所が確保されます。画像が何枚あっても、要求するのは表示中の画像とその前後の 1 枚ずつだけです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <button type="button" class="thumbnail" aria-haspopup="dialog"
+            aria-label="拡大: 庭に面した窓のある寝室" data-index="0">
+      <img src="room-small.jpg" alt="" width="320" height="200" />
+    </button>
+    <button type="button" class="thumbnail" aria-haspopup="dialog"
+            aria-label="拡大: 窓のそばの机" data-index="1">
+      <img src="desk-small.jpg" alt="" width="320" height="200" />
+    </button>
+
+    <tanrei-image-preview label="部屋の写真"
+      close-label="閉じる" zoom-in-label="拡大" zoom-out-label="縮小"
+      previous-label="前の画像" next-label="次の画像"
+      count-text="{count}枚中{position}枚目"
+      loading-label="画像を読み込んでいます" error-text="この画像を読み込めませんでした">
+      <tanrei-image-preview-item src="room-large.jpg" thumbnail-src="room-small.jpg"
+        width="1600" height="1000" alt="庭に面した窓のある寝室"
+        caption="朝の東の寝室。"></tanrei-image-preview-item>
+      <tanrei-image-preview-item src="desk-large.jpg" thumbnail-src="desk-small.jpg"
+        width="1600" height="1000" alt="窓のそばの机"></tanrei-image-preview-item>
+    </tanrei-image-preview>
+
+    <script type="module">
+      import '@tanrei/web/components/image-preview';
+
+      const preview = document.querySelector('tanrei-image-preview');
+      for (const thumbnail of document.querySelectorAll('.thumbnail')) {
+        thumbnail.addEventListener('click', () => {
+          preview.index = Number(thumbnail.dataset.index);
+          preview.open = true;
+        });
+      }
+      // ユーザーが閉じる操作をしました。閉じるコントロール、Escape、戻る、下向きのドラッグのいずれかです。
+      preview.addEventListener('close', () => (preview.open = false));
+      // ユーザーが別の画像へ移りました。preview.index はすでに新しい値です。
+      preview.addEventListener('indexchange', (e) => markAsSeen(e.detail.index));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ImagePreview, ImagePreviewItem } from '@tanrei/react';
+
+    const [shown, setShown] = useState<number | null>(null);
+
+    {photos.map((photo, at) => (
+      <button key={photo.id} type="button" aria-haspopup="dialog"
+              aria-label={`拡大: ${photo.alt}`} onClick={() => setShown(at)}>
+        <img src={photo.small} alt="" width={320} height={200} />
+      </button>
+    ))}
+
+    <ImagePreview label="部屋の写真" open={shown !== null} index={shown ?? 0}
+      closeLabel="閉じる" zoomInLabel="拡大" zoomOutLabel="縮小"
+      previousLabel="前の画像" nextLabel="次の画像" countText="{count}枚中{position}枚目"
+      loadingLabel="画像を読み込んでいます" errorText="この画像を読み込めませんでした"
+      onIndexchange={(event) => setShown(event.detail.index)}
+      onClose={() => setShown(null)}>
+      {photos.map((photo) => (
+        <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}
+          width={photo.width} height={photo.height} alt={photo.alt} caption={photo.caption} />
+      ))}
+    </ImagePreview>
+    ```
+  </TabItem>
+</Tabs>
+
+言葉は利用者側のものです。5 つのコントロールの名前、枚数を伝える文、画像の読み込み中と失敗したときに伝える言葉を用意します。要素に指定するか、プロダクトの言葉（`setWords()`）ですべてのプレビューに一度で指定します。枚数の文は、利用者側の言語で書いた 1 つの文で、`{position}` と `{count}` の 2 か所に印を付けます。語順はその言語のものになります。日本語なら、たとえば `{count}枚中{position}枚目` です。
+
+### すべての操作に 3 通りの方法
+
+ジェスチャーだけでできる操作はありません。どの操作にも、1 回押せば届くコントロールとキーがあります。
+
+| 操作 | ジェスチャー | コントロール | キー |
+| --- | --- | --- | --- |
+| 拡大する、全体表示に戻す | ある点を 2 回タップまたは 2 回クリック。ピンチ。トラックパッドのピンチ。Ctrl または Command を押しながらホイール | 拡大、縮小 | `+` または `=`、`−`、`0` |
+| 拡大した画像を動かす | ドラッグ。ホイール | — | 矢印キー |
+| 次の画像、前の画像へ移る | 横向きのドラッグ | 次へ、前へ | 全体表示のときの左右の矢印キー。Page Up と Page Down。Home と End で最初と最後の画像へ |
+| 閉じる | 全体表示のときの、タッチによる下向きのドラッグ | 閉じる | Escape |
+| コントロールを隠す、表示する | 画像を 1 回タップまたはクリック | — | どのキーでも表示されます |
+
+- **ズーム**は数値です。1 は、ウィンドウの空いている領域に画像全体が収まる大きさで、画像そのものの大きさを超えることはありません。ふつうの画像では、段階は 1、2、4 です。とても横長または縦長で、全体表示では小さくなる画像は、最初の段階で空いている領域いっぱいになります。
+- **ドラッグで画像を切り替えられるのは、全体表示のとき**か、拡大した画像がすでにその側の端にある状態でドラッグを始めたときだけです。ドラッグの途中で端に届いた場合は、そこで止まります。画像を動かしているユーザーが、意図せずその画像を離れることはありません。指やペンでは、ステージの半分を超えるドラッグか、フリックで次の画像へ移ります。マウスでは、どれだけ速く動かしても、ステージの半分を超えるドラッグでだけ移ります。
+- **画像を切り替えると、ズームは 1 に戻ります。** ズームは 1 枚の画像のもので、一連の画像のものではありません。
+- **コントロールが自動で隠れることはありません。** ユーザーが画像を 1 回タップして隠します。隠れている間も、フォーカスの順序に残り、支援技術にも伝わります。
+- `index`、`zoom`、`controlsHidden` は利用者側で設定できます。ユーザーが変えたときはプレビュー自身が書き込み、そのあとで `indexchange`、`zoomchange`、`controlshiddenchange` を発行します。
+
+### 必要になったときに大きな画像を渡す
+
+表示中の画像の `src` を変えると、プレビューは新しい画像が読み込まれるまで、それまでの画像を同じズームと位置で描き続けます。そのため、`zoomchange` に応えてそのズームに十分な大きさのファイルを渡せば、ユーザーには細部が増えたようにしか見えません。
+
+```js
+preview.addEventListener('zoomchange', (e) => {
+  if (e.detail.zoom > 2) preview.children[preview.index].src = largest(preview.index);
+});
+```
+
+届かなかった画像は、印と `errorText` で描かれ、`loaderror` がどの画像かを伝えます。その画像の `src` を変えると、プレビューはもう一度要求します。
+
+### 1 つ下の階層
+
+画像プレビューには構成要素がないので、「構成要素から組み立てれば同じものになる」という形がありません。1 つ下の階層にあるのは、プラットフォーム自身のモーダルな表示、Tanrei のボタン、スケルトン、そして利用者側で書く画像の扱いです。
+
+```html
+<dialog class="viewer" aria-label="部屋の写真">
+  <tanrei-button variant="text" label="縮小"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="text" label="拡大"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="text" label="閉じる"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" label="前の画像"><span slot="icon">chevron_left</span></tanrei-button>
+  <img alt="庭に面した窓のある寝室" src="room-large.jpg" tabindex="0">
+  <tanrei-button variant="tonal" label="次の画像"><span slot="icon">chevron_right</span></tanrei-button>
+  <p>朝の東の寝室。</p>
+</dialog>
+```
+
+**これは、ほぼ同じものではありません。** 別々に取り出せるのは、5 つのボタンとスケルトンです。同じ要素で、同じトークンを読みます。取り出せないのは、画像プレビューそのものです。ズームとその段階、拡大した画像の移動とその端、画像の切り替え、ドラッグが拡大した画像を動かすのか、別の画像へ切り替えるのかを決める規則、コントロールを隠す仕組み、前後の画像だけを読み込むこと、支援技術に伝える内容です。階層を 1 つ下りるプロダクトは、すべてのジェスチャーに対するコントロールとキーも含めて、これらをすべて自分で書くことになります。
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| 一連の画像のうち 1 枚を大きく表示し、細部を見て、元に戻る | 画像プレビュー |
+| ページの上で項目を並べて見せ、押してもらう | [カルーセル](/ja/components/carousel/)。その項目から画像プレビューを開けます |
+| ページの上の 1 枚の画像とキャプション | [フィギュア](/ja/components/figure/)。その画像から画像プレビューを開けます |
+| 答えが必要な問い | [ダイアログ](/ja/components/dialog/) |
+| 動画、文書、地図、回転や切り抜きの道具 | プラットフォームのモーダルな表示の上に作る、利用者側のビューアー |
+
+## 仕様
+
+### 1 つのプレビューだけを変える
+
+サーフェスは、ライトでもダークでもテーマ自身のものです。スクリムはありません。プレビューはウィンドウを残らず覆うからです。画像をどちらのテーマでも暗いステージに置きたいプロダクトは、レイヤーで塗りと内容の色の参照先を変えます。1 つのインスタンスだけを変えるときは、要素に指定します。
+
+```html
+<tanrei-image-preview label="図面"
+  style="--tanrei-comp-image-preview-layout-page-gap: 32px"></tanrei-image-preview>
+```
+
+ボタンの 2 つのバリアントもトークンです。`comp.image-preview.bar.button.variant`（text）と `comp.image-preview.navigation.button.variant`（tonal）です。ボタンとスケルトンは、それぞれ自分のトークン `comp.button.*` と `comp.skeleton.*` を読みます。
+
+<ComponentSpecs name="image-preview" />
+
+### Web での描き方の違い
+
+- 要素は、シャドウルートの中のネイティブの `<dialog>` で、モーダルで開きます。背後のページは操作できず、スクロールもしません。履歴には何も書き込みません。ブラウザーの「戻る」で閉じたいプロダクトは、開くときに自分で履歴の項目を追加し、その項目を離れたときに `open` を false に設定します。
+- `<tanrei-image-preview-item>` はデータで、`<img>` ではありません。プレビューが要求していない画像を、ブラウザーが要求することはありません。`src` のない項目は何も要求されず、待つ状態になります。
+- イベントはバブルする CustomEvent です。`close`（`detail.reason`）、`indexchange`（`detail.index`）、`zoomchange`（`detail.zoom`）、`controlshiddenchange`（`detail.hidden`）、`loaderror`（`detail.index`）です。ボタン自身の `click` は要素の外へ出ません。
+- パーツは `container`、`bar`、`count`、`stage`、`image`、`placeholder`、`error`、`caption` です。各ボタンはその名前（`zoom-out`、`zoom-in`、`close`、`previous`、`next`）のパーツで、ボタン自身のパーツはその名前を前に付けたものです。たとえば `close-container`、`next-icon` です。
+- 属性はプロパティのケバブケースです。`max-zoom`、`controls-hidden`、`close-label`、`previous-label`、`next-label`、`zoom-in-label`、`zoom-out-label`、`count-text`、`loading-label`、`error-text`、項目では `thumbnail-src` です。
+- ステージはピンチとスクロールのジェスチャーを自分で受け取ります。プレビューが開いている間、ブラウザー自身のピンチでページが拡大されることはありません。キーボードによるブラウザーのページ拡大はそのまま使えます。閉じたプレビューは、ページのホイールもタッチも受け取りません。
+- トラックパッドのピンチは、Ctrl を伴うホイールとして届くか、ブラウザーが独自のジェスチャーイベントを持つ場合はそのイベントとして届きます。トラックパッドの横スクロールによる画像の切り替えは提供していません。
+- プレビューが開くとき、画像はフェードインしながら少し大きくなります。閉じたダイアログをフェードの間保持できないブラウザーでは、閉じるとすぐに消えます。どちらの場合も、フォーカスとページは同じ時点で戻ります。
+- Android の「戻る」は、理由 `back` で閉じます。「戻る」と Escape を区別して伝えないブラウザーでは `escape` になります。
+
+## ガイドライン
+
+### 推奨
+
+- 開くきっかけは画像を囲むボタンにし、ダイアログを開くことを伝え、動作と画像を名前にします。
+- `open` を設定する前に、`index` を押された画像に設定します。
+- `close` が届くたびに閉じます。下向きのドラッグのあとも開いたままにしたいときは、`open` を変えずにおきます。画像は元の位置に戻ります。
+- すべての画像に、何が写っているかを伝える `alt` を指定します。`caption` は、クレジット、日付、1 文など、その画像について伝えたいことに使います。
+- `thumbnailSrc`、`width`、`height` は、わかっていれば指定します。
+- 失敗は、`loaderror` を受けて利用者側の言葉で伝えます。`errorText` は、どの画像にも共通の 1 文です。
+
+### 非推奨
+
+- 問い、フォーム、ユーザーが答えなければならないものには使いません。アクションがなく、閉じる手段をなくす設定もありません。
+- タイマーでコントロールを隠しません。また、1 回のタップで表示されることがプロダクトの中で明らかでないかぎり、コントロールを隠した状態で開きません。
+- ある操作をする唯一の方法を、プレビューの上に重ねた独自のジェスチャーにしません。ここにある操作には、どれもコントロールとキーがあります。
+- プレビューが開いている間にアドレスや履歴の項目を書き込む場合は、その項目を離れたときに必ず閉じます。
+- 子に `<img>` を使いません。ブラウザーが一連の画像をすべて一度に読み込んでしまいます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="image-preview" />
+
+### コンポーネントが担うこと
+
+- `label` を名前とするモーダルダイアログです。開いている間、その外にあるものはすべて支援技術から隠され、フォーカスも押すこともできません。
+- 開くとフォーカスはステージへ移り、内側にとどまります。Tab は縮小、拡大、閉じる、前へ、ステージ、次へ、スクロールするキャプションの順に移り、端で折り返します。閉じると、開いたときにフォーカスがあった要素へ戻ります。
+- ステージは 1 枚の画像です。名前は表示中の画像の `alt`、説明は枚数の文とそれに続くキャプションです。一連のほかの画像は公開されず、ズームはだれにも伝えません。
+- 画像が切り替わると、枚数の文と新しい画像の `alt` を、控えめに 1 回だけ伝えます。
+- 5 つのコントロールは、利用者側の名前を持つボタンです。範囲の端に達したコントロールは無効になり、そこにあったフォーカスはステージへ移ります。
+- すべてのジェスチャーに、コントロールとキーがあります。コントロールは 1 回のタップで隠せますが、タイマーで隠れることはありません。隠れている間もフォーカスでき、公開されています。どのキーでも、どれかにフォーカスが移っても、マウスを動かしても表示されます。
+- 画像の読み込み中は、スケルトンが `loadingLabel` の名前で処理中であることを伝えます。失敗したときは `errorText` を描き、伝え、ステージの説明に加えます。
+- 長いキャプションは、最大でウィンドウの 3 分の 1 を占め、自分の領域の中でスクロールします。そのとき、この領域はフォーカスが止まる場所になり、キーでスクロールできます。
+- 右から左のレイアウトでは、バー、前へと次への位置、そのグリフ、次の画像がある側、左右の矢印キーが反転します。画像そのものと、拡大した画像の動く向きは反転しません。
+- 幅 320 のウィンドウで文字を 200% にすると、枚数の文は 1 行を占めてバーが高くなり、キャプションは 3 分の 1 まで広がってスクロールし、画像は残った領域に収まります。強制カラーモードでは、塗りと文字はシステムの色になり、画像はそのまま描かれます。
+- 動きを減らす設定では、プレビューは大きくならずにフェードで開閉し、ズームの段階と画像の切り替えはすぐに行われます。指で動かしている画像は、そのまま指に付いてきます。
+
+Web での既知の不足があります。スクリーンリーダーが何を読むかは、ブラウザーのアクセシビリティツリーから読み取ったもので、スクリーンリーダーで聞いて確かめたものではありません。ジェスチャーはテストで動かして確かめたもので、スマートフォンやトラックパッドを手で操作して確かめてはいません。
+
+### 利用者側で行うこと
+
+- `label`、5 つのコントロールの名前、枚数の文、`loadingLabel`、`errorText` を、利用者側の言語で指定します。要素に指定するか、プロダクトの言葉として一度で指定します。
+- すべての画像に `alt` を指定します。ユーザーが細部まで見ようと選んだ画像は、装飾ではありません。
+- 開くきっかけには、動作と画像を名前として付け、`aria-haspopup="dialog"` を指定します。
+- ユーザーが別の画像へ移り、ページにそのサムネイルがある場合は、`close` のあとでフォーカスをそのサムネイルへ移してもかまいません。プレビューは利用者側のページを知りません。
+- キーボードのないタッチ画面では、拡大した画像を動かすのに 1 本指のドラッグが必要です。縮小のコントロールに届くようにしておきます。ドラッグができないユーザーに対して、コントロールを隠した状態でプレビューを開かないでください。

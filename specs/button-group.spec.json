@@ -1,0 +1,1377 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "button-group",
+  "title": "Button group",
+  "summary": "Lays out a few related Buttons in a row or a column, spaced apart or joined into one shape by a divider or a gap, places the completing and the backing-out actions where people expect them, and names the Buttons as a group.",
+  "category": "actions",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "group",
+      "description": "The row or column that holds the Buttons. It places and spaces the Buttons, joins them in the connected variant, and names them as a group. It draws nothing of its own but the dividers of a connected group."
+    },
+    {
+      "id": "button",
+      "description": "A Tanrei Button placed in the group: icon-only, label-only or both, its icon on either side, a toggle or not. It is drawn from its own tokens and keeps its own states, focus, events and semantics."
+    },
+    {
+      "id": "inner-corner",
+      "description": "In the connected variant, a corner of a Button that faces its neighbour. The group sets it.",
+      "optional": true
+    },
+    {
+      "id": "outer-corner",
+      "description": "In the connected variant, a corner at an end of the joined shape: the start corners of the first Button and the end corners of the last in a row, the top corners of the first and the bottom corners of the last in a column. The group sets it.",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "In the connected variant under divider, the line on the seam between two Buttons that touch. The group draws it; under gap there is none.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "standard",
+        "connected"
+      ],
+      "default": "standard",
+      "description": "standard spaces the Buttons apart. connected joins them into one shape with rounded outer ends, by a divider or by a narrow gap (separation), for a closely related set (Bold, Italic, Underline; Previous, Today, Next)."
+    },
+    {
+      "name": "orientation",
+      "type": "enum",
+      "values": [
+        "horizontal",
+        "vertical"
+      ],
+      "default": "horizontal",
+      "description": "horizontal lays the Buttons out in one row; vertical stacks them in one column, every Button as wide as the column. The confirming and dismissive Buttons change places with the orientation (BGR-13, BGR-14)."
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How the Buttons of a connected group are joined. divider: they touch, and a line is drawn on each seam. gap: they stand a narrow gap apart, with tighter corners where they face each other. Auto takes comp.button-group.connected.separation, the design system's answer (divider in the default system). Ignored while variant is standard."
+    },
+    {
+      "name": "fullWidth",
+      "type": "boolean",
+      "default": false,
+      "description": "The group fills its container's width and its Buttons share it equally (in a column, each is the container's width). For the actions at the foot of a dialog, a picker or a side sheet."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the group (\"Text style\"). Optional: a group of actions that are each named by their own label needs none."
+    }
+  ],
+  "items": [
+    {
+      "name": "button",
+      "summary": "A Button in the group: the button component, placed, spaced and (when connected) given its corners and minimum size by the group, otherwise drawn and behaving as it does anywhere.",
+      "component": "button",
+      "props": [
+        {
+          "name": "variant",
+          "type": "enum",
+          "values": [
+            "filled",
+            "tonal",
+            "elevated",
+            "outlined",
+            "text"
+          ],
+          "default": "filled",
+          "description": "Its emphasis, as the Button's variant."
+        },
+        {
+          "name": "size",
+          "type": "enum",
+          "values": [
+            "small",
+            "medium",
+            "large"
+          ],
+          "default": "medium",
+          "description": "Its height, as the Button's size. Give every Button of a group the same size."
+        },
+        {
+          "name": "width",
+          "type": "enum",
+          "values": [
+            "default",
+            "narrow",
+            "wide"
+          ],
+          "default": "default",
+          "description": "An icon-only Button's width, as the Button's width. A connected group still widens it to its minimum (BGR-3)."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The glyph in the Button's icon slot, by its name in the system's icon set. Empty for a label-only Button. It is how a fixture fills that slot; in an application the icon slot is filled as the Button's own spec says."
+        },
+        {
+          "name": "iconPosition",
+          "type": "enum",
+          "values": [
+            "leading",
+            "trailing"
+          ],
+          "default": "leading",
+          "description": "Which side of the label the icon is on, as the Button's iconPosition."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its accessible name, as the Button's label prop. Required for an icon-only Button."
+        },
+        {
+          "name": "toggle",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's toggle."
+        },
+        {
+          "name": "selected",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's selected."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's disabled."
+        },
+        {
+          "name": "confirming",
+          "type": "boolean",
+          "default": false,
+          "description": "The Button completes the task (OK, Save, Next, Delete). The group places it at the end of a row and at the top of a column (BGR-13, BGR-14). It changes the Button's place only, never its look (BGR-19)."
+        },
+        {
+          "name": "dismissive",
+          "type": "boolean",
+          "default": false,
+          "description": "The Button backs out of the task (Cancel, Back, Not now). The group places it at the start of a row and at the bottom of a column (BGR-13, BGR-14). It changes the Button's place only, never its look (BGR-19)."
+        }
+      ],
+      "slots": [
+        {
+          "name": "label",
+          "description": "Its label, as the Button's default slot. A fixture item's content is this label; an icon-only item has none."
+        },
+        {
+          "name": "icon",
+          "description": "Its glyph, as the Button's icon slot. A fixture fills it through the icon prop."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The Button was activated, as the Button's click."
+        },
+        {
+          "name": "change",
+          "description": "A toggle Button was switched, as the Button's change."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "BGR-1",
+      "text": "WHILE orientation is horizontal THE button group SHALL lay out its items in one row, in the order BGR-13 gives, each at its own size and width unless fullWidth is true (BGR-17): WHILE variant is standard comp.button-group.standard.gap apart and centred on the row's middle; WHILE variant is connected joined as its separation names (BGR-21) — comp.button-group.connected.gap apart under gap, touching under divider — and each stretched to the height of the tallest item (a Button's height is a minimum), so that the joined shape stays even when a label wraps or text is enlarged.",
+      "verify": "Fixtures: a horizontal fixture renders the group start-aligned and vertically centred on a 400 × 96 stage, at its natural width, or at the stage's 400 when fullWidth is true; a vertical fixture renders it start-aligned at the top of a 400 × 240 stage. The icon-only items of a connected fixture are drawn at the width of the harness's input type (BGR-3): the touch target where the harness cannot tell the input type, and the pointer target in a harness on a fine pointer: the web's (its browser reports a fine pointer) and SwiftUI's, whose snapshots run on macOS."
+    },
+    {
+      "id": "BGR-2",
+      "text": "WHILE variant is connected and orientation is horizontal THE button group SHALL give the start corners of the first item and the end corners of the last the radius comp.button-group.connected.horizontal.outer-shape, and each corner that faces a neighbouring item the radius comp.button-group.connected.inner-shape WHILE its separation is gap and no radius, a square corner, WHILE its separation is divider (BGR-21), each capped at half the item's height and eased by sys.shape.corner-smoothing; the item's fill, outline, state layer, ripple and focus ring SHALL follow the resulting shape. WHILE variant is standard THE button group SHALL leave every corner of every item as the item draws it."
+    },
+    {
+      "id": "BGR-3",
+      "text": "WHILE variant is connected THE button group SHALL make each item at least sys.target.touch for touch input and sys.target.pointer for fine pointers along the direction in which it meets its neighbours — wide in a row, high in a column — because joined items cannot extend a hit area over each other: an icon-only Button narrower than that widens its container around its centred icon, and a Button lower than that in a column grows its container around its centred content. Across the other direction the items SHALL extend their hit areas as BTN-5 says. A platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "BGR-4",
+      "text": "WHILE variant is standard and the hit areas that two neighbouring items extend (BTN-5) overlap THE button group SHALL give every press on an item's visible bounds to that item, and a press in the gap between two items to the nearer one, so that neighbouring hit areas meet at the middle of the gap. comp.button-group.standard.gap is what keeps each item's target whole there: at sys.target.touch minus an item's width (in a row) or height (in a column) or more, no hit areas overlap and every item keeps its full target between its neighbours, as the default system's gap does for every Button size; a layer that narrows the gap narrows the targets between items.",
+      "verify": "Under the default system comp.button-group.standard.gap is 16, sys.target.touch (48) minus the narrowest and lowest item, a small icon-only Button (32): in standard-icon-only every item's hit area is at least 48 wide and 48 high, in order-three-runs-vertical every item keeps 48 high between its neighbours, and Android's touch-target check (48 dp, an error for the default system) passes on each of them."
+    },
+    {
+      "id": "BGR-5",
+      "text": "THE button group SHALL NOT restyle its items beyond BGR-2, BGR-3, BGR-12, BGR-16, BGR-17, BGR-22 and BGR-23: each item SHALL render from its own tokens, answer hover, focus and press itself, switch itself WHILE its toggle is true, emit its own events, keep its own semantics and be its own Tab stop in the order BGR-15 gives; the group itself SHALL NOT take focus, SHALL NOT handle arrow keys and SHALL keep no selection of its own."
+    },
+    {
+      "id": "BGR-6",
+      "text": "WHILE label is not empty THE button group SHALL expose itself to assistive technology as a group named by label that contains its items; WHILE label is empty THE button group SHALL expose no element of its own, only its items."
+    },
+    {
+      "id": "BGR-7",
+      "text": "WHERE orientation is horizontal, fullWidth is false and the row is wider than the space its layout gives it THE button group SHALL narrow its labelled Buttons in proportion to their widths, down to the width of their longest word, letting their labels wrap as a Button's label does when its layout gives it less width, and SHALL keep icon-only Buttons at their width; it SHALL NOT wrap the row onto a second line or scroll it, and in debug builds SHALL report a row that still does not fit."
+    },
+    {
+      "id": "BGR-8",
+      "text": "WHEN the layout direction is right-to-left THE button group SHALL, in a row, put its start at the right — the dismissive items at the right and the confirming items at the left (BGR-13), the first placed item's outer corners on its right — and mirror which corners are inner corners; in a column it SHALL keep the top-to-bottom order of BGR-14. Each item's content SHALL follow the layout direction as the Button's does.",
+      "verify": "The fixture order-rtl sets direction to rtl (a fixture's `direction`), so every harness, baseline and gallery draws it in a right-to-left layout direction; every other fixture is drawn in left-to-right."
+    },
+    {
+      "id": "BGR-9",
+      "text": "WHEN variant, orientation or separation names a value the button group does not define THE button group SHALL render with that prop's default (standard, horizontal, auto), and in debug builds report the unknown value."
+    },
+    {
+      "id": "BGR-10",
+      "text": "WHILE the group holds fewer than two items, or content that is not a Tanrei Button, THE button group SHALL still render it, a single item keeping every corner as it draws it, and in debug builds report it; a platform that cannot inspect its content SHALL state the rule in its README and docs page."
+    },
+    {
+      "id": "BGR-11",
+      "text": "WHEN an item becomes disabled, is added or is removed, or its confirming or dismissive changes, THE button group SHALL place its items again by BGR-13 and BGR-14 and recompute which corners are inner and outer corners, where its dividers are (BGR-24) and which items carry the outer padding of BGR-23, at once, without animation; a disabled item SHALL keep its place, its gap or its dividers, and its corners, and an item that has focus while it moves SHALL keep it."
+    },
+    {
+      "id": "BGR-12",
+      "text": "WHILE orientation is vertical THE button group SHALL lay out its items in one column, top to bottom in the order BGR-14 gives, comp.button-group.standard.gap apart WHILE variant is standard and, WHILE variant is connected, comp.button-group.connected.gap apart under gap and touching under divider (BGR-21), and SHALL make every item as wide as the column — the widest item's width, or the container's width WHILE fullWidth is true — its content centred as a Button centres it in a wider container. WHERE the column is given less width than its widest item every item SHALL take that width and its label SHALL wrap as BGR-7 says; the column SHALL NOT scroll.",
+      "verify": "Every vertical fixture (connected-vertical, connected-vertical-gap, connected-vertical-toggles, vertical-unflagged, order-cancel-ok-vertical, order-back-next-vertical, order-three-runs-vertical, full-width-vertical) is drawn as one column on its 400 × 240 stage: each item's top edge is below the bottom edge of the item before it, and every item has the same left and right edge. A harness or a gallery that draws any of them as a row has not implemented orientation."
+    },
+    {
+      "id": "BGR-13",
+      "text": "WHILE orientation is horizontal THE button group SHALL place its items from start to end in three runs: first the items whose dismissive is true, then the items with neither flag, then the items whose confirming is true; within each run the items SHALL keep the order they were given in. The start is the left in a left-to-right layout and the right in a right-to-left one (BGR-8)."
+    },
+    {
+      "id": "BGR-14",
+      "text": "WHILE orientation is vertical THE button group SHALL place its items from top to bottom in three runs: first the items whose confirming is true, then the items with neither flag, then the items whose dismissive is true; within each run the items SHALL keep the order they were given in, the first on top, in either layout direction."
+    },
+    {
+      "id": "BGR-15",
+      "text": "THE button group SHALL make the focus order, and the order in which assistive technology reads its items, the placed order of BGR-13 and BGR-14 — start to end in a row, top to bottom in a column — whatever order the items were given in; a platform whose visual reordering the focus order does not follow (the web's CSS order) SHALL reorder the items themselves in the tree that focus and assistive technology walk."
+    },
+    {
+      "id": "BGR-16",
+      "text": "WHILE variant is connected and orientation is vertical THE button group SHALL give the top corners of the first item and the bottom corners of the last the radius comp.button-group.connected.vertical.outer-shape, and every other corner of every item comp.button-group.connected.inner-shape WHILE its separation is gap and no radius, a square corner, WHILE its separation is divider (BGR-21), each capped at half the item's height and eased by sys.shape.corner-smoothing; the item's fill, outline, state layer, ripple and focus ring SHALL follow the resulting shape."
+    },
+    {
+      "id": "BGR-17",
+      "text": "WHILE fullWidth is true and orientation is horizontal THE button group SHALL take the whole width its container gives it and divide it, less the gaps (none under divider), into equal shares, one per item, whatever each item holds: a label shorter than its share SHALL be centred in it, a label longer SHALL wrap as BGR-7 says, and an icon-only Button SHALL widen its container around its centred icon. WHERE a share is narrower than an item's minimum width (BGR-3, or an icon-only Button's own width) THE button group SHALL give that item its minimum, share the rest equally among the others, and in debug builds report it. WHILE fullWidth is false THE button group SHALL take its natural width."
+    },
+    {
+      "id": "BGR-18",
+      "text": "IF an item's confirming and dismissive are both true THE button group SHALL place it among the items with neither flag and in debug builds report it."
+    },
+    {
+      "id": "BGR-19",
+      "text": "THE button group SHALL NOT change an item's look, emphasis or semantics for its confirming or dismissive: the flags decide its place only. A destructive confirming action (Delete) takes its look from its own variant, and a Button is not made filled by being confirming."
+    },
+    {
+      "id": "BGR-20",
+      "text": "THE button group SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the button group is shown THE button group SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows and its state.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "BGR-21",
+      "text": "WHILE variant is connected THE button group SHALL join its items as its separation names: WHILE separation is auto, as comp.button-group.connected.separation names, which follows sys.behavior.separation unless a design system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say. Under gap the items SHALL stand comp.button-group.connected.gap apart with nothing drawn between them and the inner corners of BGR-2 and BGR-16; under divider the items SHALL touch, with square inner corners and the divider of BGR-22 on each seam. WHILE variant is standard THE button group SHALL ignore separation and space its items by comp.button-group.standard.gap. WHEN separation, or the token it follows, changes THE button group SHALL draw the other form at once, without animation, keeping the order, the focus and the state of its items. A platform that cannot draw a choice SHALL fall back to the first value, divider, and state that in its README.",
+      "verify": "Fixtures connected-divider and connected-gap set the prop, so they draw the same under every design system; connected and the other connected fixtures leave it auto and draw divider under the default system and gap under m3-like. Test auto under a system that sets comp.button-group.connected.separation apart from sys.behavior.separation, and each explicit value under a system whose tokens say the other."
+    },
+    {
+      "id": "BGR-22",
+      "text": "WHILE variant is connected and its separation is divider THE button group SHALL draw, on each seam between two neighbouring items that BGR-24 says carries one, a line comp.button-group.connected.divider.thickness thick, in the color BGR-24 names (comp.button-group.connected.divider.color, or comp.button-group.connected.divider.on-fill.color between two emphasis fills), centred on the seam, over the items' fills and state layers, running along the seam — top to bottom in a row, start to end in a column — and stopping comp.button-group.connected.divider.inset short of each end of it. The line SHALL take no space of its own, SHALL NOT take a press (a press on it goes to the item under the point), SHALL NOT be exposed to assistive technology and SHALL keep its color whatever state its neighbours are in. Each item SHALL draw neither its outline nor the ring of its elevation along an edge that meets a seam, whether or not a line is drawn on it, so that the divider is the only line a seam can carry and the outline of an outlined group runs once around the joined shape, in the color of its rules in the default system; an item's state layer, ripple and focus ring SHALL still follow that item's own shape.",
+      "verify": "Fixtures connected-divider (outlined: one outline around the row and two rules, 8 short of the top and the bottom under the default system; a pixel of the outline and a pixel of a rule have the same color), connected-divider-tonal and connected-divider-elevated (the same rule on a tonal and an elevated container), connected-divider-filled (the rule in the on-fill color), connected-vertical (horizontal rules, 8 short of each side). A column of pixels through a seam that carries a line shows the divider color in the middle and no outline color above or below it."
+    },
+    {
+      "id": "BGR-23",
+      "text": "WHILE variant is connected and orientation is horizontal THE button group SHALL add comp.button-group.connected.horizontal.outer-inset to the inline padding of the first item at its start and of the last item at its end, under either separation, so that content beside a rounded outer end looks as far from it as from the tighter corner on its other side: a labelled Button SHALL be wider by that amount with its content moved inward by it, and an icon-only Button SHALL be wider by that amount with its glyph centred in what is left, half of it nearer its neighbour. A single item (BGR-10) SHALL get none; a column SHALL add none, its ends not being full (BGR-16); WHILE fullWidth is true the shares of BGR-17 SHALL be divided first and the padding taken inside the end items' shares. In a right-to-left layout the start is the right, as BGR-8 says.",
+      "verify": "Fixture connected under the default system: the first item's label is 20 from the row's start edge and 16 from its own end edge, the last item's the mirror, and the middle item's 16 on both sides. Fixture connected-toggles: the glyph of each end item sits 2 nearer its neighbour than the middle of its container."
+    },
+    {
+      "id": "BGR-24",
+      "text": "WHILE variant is connected and its separation is divider THE button group SHALL draw the line of BGR-22 on a seam only WHILE the two items it joins rest on the same fill: the colors from which they render their containers at rest — comp.button.outlined.container.color for an outlined Button, and so on for each variant, and for a toggle the selected or the unselected part of its variant (BTN-15) — are the same color in the active scheme, two containers that have no fill counting as the same. WHILE the two fills differ (a selected toggle beside an unselected one, a filled Button beside an outlined one) THE button group SHALL draw no line on that seam, because the edge of the fill already marks it, and the two items SHALL still draw neither outline nor elevation ring along it (BGR-22). A toggle of the text variant has no fill, selected or not, so its seams keep their lines. THE button group SHALL draw the line in comp.button-group.connected.divider.color, and in comp.button-group.connected.divider.on-fill.color WHILE both items rest on an emphasis fill: a filled Button that is not a toggle, or a selected toggle of the filled, tonal, elevated or outlined variant. It SHALL compare the fills the items have at rest: hover, focus and press SHALL neither add nor remove a line nor change its color, and a disabled item SHALL be compared by the look it has when enabled, so that disabling an item moves no line (BGR-11). WHEN an item's selected, toggle or variant changes THE button group SHALL add, remove or recolor the lines beside it at once, without animation.",
+      "verify": "Fixtures connected-toggles (tonal: no line between the selected Bold and Italic, a line in the divider color between Italic and Underline), connected-outlined-toggles (outlined: Bold unselected, Italic and Underline selected: no line between Bold and Italic, a line in the on-fill color between the two selected items) and connected-divider-filled (three filled Buttons: two lines in the on-fill color). Unit: switching a toggle adds or removes the lines beside it in the same frame; hovering, pressing or disabling an item changes no line; two text toggles, one selected, keep their line."
+    }
+  ],
+  "accessibility": {
+    "role": "group",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to each enabled item in turn in the placed order (BGR-15): start to end in a row, top to bottom in a column."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activates the focused item, as the Button itself says (a toggle switches)."
+      }
+    ],
+    "labeling": "label, when given, names the group (\"Text style\"). Each item is named as it is anywhere: a Button by its label text, an icon-only Button by its label prop.",
+    "minimumTarget": true,
+    "notes": [
+      "A button group is a layout of actions: each item is its own Tab stop with its own semantics. A row that should be one Tab stop with arrow keys is a toolbar; one choice among several is a single-selection control: tabs where it changes the content below, a radio group where it sets a value, or a segmented button in a system that ships one.",
+      "A toggle Button in a group keeps its own on/off state; the group does not make its toggles exclusive. One choice among several is a single-selection control: tabs where it changes the content below, a radio group where it sets a value, or a segmented button in a system that ships one.",
+      "confirming and dismissive are not announced: they decide where a Button is, and focus and reading follow that place, so a screen-reader user meets the actions in the same order a sighted user sees them.",
+      "The two flags describe the task, not the tone: in \"Cancel · Delete\" Delete is confirming. A destructive action is told apart by its own look, not by its place.",
+      "Compose has no group role: the group is a traversal group whose content description is label, and each item keeps its own role.",
+      "Text size: Buttons in a group grow as they do anywhere; a connected row stretches every item to the tallest, and a column makes every item as wide as the widest.",
+      "A divider is decoration: it is not exposed, takes no press and is no boundary a person must find. What tells two joined Buttons apart for assistive technology is that each is its own button with its own name; for sight, their content and the line or the gap between them.",
+      "A seam between a selected and an unselected toggle carries no line: the fill of the selected item ends there, at a contrast far above 3:1 against its neighbour, and that edge is the boundary. The selected state itself is exposed by the toggle (BTN-14), never by the line.",
+      "In the default system the outline of an outlined group and its rules are the hairline (the divider's color), far below 3:1 against the surface. That is within WCAG 1.4.11: each Button is identified by its label or its icon, not by its edge."
+    ]
+  },
+  "tokens": "comp.button-group",
+  "fixtures": [
+    {
+      "id": "standard",
+      "props": {
+        "variant": "standard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal"
+          },
+          "content": "Save draft"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled"
+          },
+          "content": "Publish"
+        }
+      ]
+    },
+    {
+      "id": "standard-icon-only",
+      "props": {
+        "variant": "standard",
+        "label": "Post actions"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "text",
+            "icon": "edit",
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "text",
+            "icon": "share",
+            "label": "Share"
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "text",
+            "icon": "delete",
+            "label": "Delete"
+          }
+        }
+      ]
+    },
+    {
+      "id": "standard-mixed",
+      "props": {
+        "variant": "standard",
+        "label": "Message actions"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "star",
+            "label": "Star",
+            "toggle": true,
+            "selected": true
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "reply"
+          },
+          "content": "Reply"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "expand_more",
+            "iconPosition": "trailing"
+          },
+          "content": "Move"
+        }
+      ]
+    },
+    {
+      "id": "connected",
+      "props": {
+        "variant": "connected",
+        "label": "Clipboard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Cut"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Copy"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Paste"
+        }
+      ]
+    },
+    {
+      "id": "connected-divider",
+      "props": {
+        "variant": "connected",
+        "separation": "divider",
+        "label": "Clipboard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Cut"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Copy"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Paste"
+        }
+      ]
+    },
+    {
+      "id": "connected-gap",
+      "props": {
+        "variant": "connected",
+        "separation": "gap",
+        "label": "Clipboard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Cut"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Copy"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Paste"
+        }
+      ]
+    },
+    {
+      "id": "connected-divider-filled",
+      "props": {
+        "variant": "connected",
+        "separation": "divider",
+        "label": "Clipboard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled"
+          },
+          "content": "Cut"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled"
+          },
+          "content": "Copy"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled"
+          },
+          "content": "Paste"
+        }
+      ]
+    },
+    {
+      "id": "connected-gap-filled",
+      "props": {
+        "variant": "connected",
+        "separation": "gap",
+        "label": "Clipboard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled"
+          },
+          "content": "Cut"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled"
+          },
+          "content": "Copy"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled"
+          },
+          "content": "Paste"
+        }
+      ]
+    },
+    {
+      "id": "connected-divider-tonal",
+      "props": {
+        "variant": "connected",
+        "separation": "divider",
+        "label": "Clipboard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal"
+          },
+          "content": "Cut"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal"
+          },
+          "content": "Copy"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal"
+          },
+          "content": "Paste"
+        }
+      ]
+    },
+    {
+      "id": "connected-divider-elevated",
+      "props": {
+        "variant": "connected",
+        "separation": "divider",
+        "label": "Clipboard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "elevated"
+          },
+          "content": "Cut"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "elevated"
+          },
+          "content": "Copy"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "elevated"
+          },
+          "content": "Paste"
+        }
+      ]
+    },
+    {
+      "id": "connected-toggles",
+      "props": {
+        "variant": "connected",
+        "label": "Text style"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "format_bold",
+            "label": "Bold",
+            "toggle": true,
+            "selected": true
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "format_italic",
+            "label": "Italic",
+            "toggle": true,
+            "selected": false
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "format_underlined",
+            "label": "Underline",
+            "toggle": true,
+            "selected": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "connected-gap-toggles",
+      "props": {
+        "variant": "connected",
+        "label": "Text style",
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "format_bold",
+            "label": "Bold",
+            "toggle": true,
+            "selected": true
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "format_italic",
+            "label": "Italic",
+            "toggle": true,
+            "selected": false
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "format_underlined",
+            "label": "Underline",
+            "toggle": true,
+            "selected": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "connected-outlined-toggles",
+      "props": {
+        "variant": "connected",
+        "separation": "divider",
+        "label": "Text style"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "icon": "format_bold",
+            "label": "Bold",
+            "toggle": true,
+            "selected": false
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "icon": "format_italic",
+            "label": "Italic",
+            "toggle": true,
+            "selected": true
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "icon": "format_underlined",
+            "label": "Underline",
+            "toggle": true,
+            "selected": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "connected-mixed",
+      "props": {
+        "variant": "connected",
+        "label": "Date"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "icon": "chevron_left"
+          },
+          "content": "Previous"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Today"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "icon": "chevron_right",
+            "iconPosition": "trailing"
+          },
+          "content": "Next"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "icon": "calendar_month",
+            "label": "Pick a date"
+          }
+        }
+      ]
+    },
+    {
+      "id": "connected-large",
+      "props": {
+        "variant": "connected",
+        "label": "Date"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "size": "large"
+          },
+          "content": "Previous"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "size": "large"
+          },
+          "content": "Today"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "size": "large"
+          },
+          "content": "Next"
+        }
+      ]
+    },
+    {
+      "id": "connected-disabled",
+      "props": {
+        "variant": "connected",
+        "label": "Clipboard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Cut"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "disabled": true
+          },
+          "content": "Copy"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Paste"
+        }
+      ]
+    },
+    {
+      "id": "connected-vertical",
+      "props": {
+        "variant": "connected",
+        "orientation": "vertical",
+        "label": "Calendar view"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Day"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Week"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Month"
+        }
+      ]
+    },
+    {
+      "id": "connected-vertical-gap",
+      "props": {
+        "variant": "connected",
+        "orientation": "vertical",
+        "label": "Calendar view",
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Day"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Week"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined"
+          },
+          "content": "Month"
+        }
+      ]
+    },
+    {
+      "id": "connected-vertical-toggles",
+      "props": {
+        "variant": "connected",
+        "orientation": "vertical",
+        "label": "Zoom"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "add",
+            "label": "Zoom in"
+          }
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "icon": "remove",
+            "label": "Zoom out"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vertical-unflagged",
+      "props": {
+        "variant": "standard",
+        "orientation": "vertical"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal"
+          },
+          "content": "1"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal"
+          },
+          "content": "2"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal"
+          },
+          "content": "3"
+        }
+      ]
+    },
+    {
+      "id": "order-cancel-ok",
+      "props": {
+        "variant": "standard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "confirming": true
+          },
+          "content": "OK"
+        }
+      ]
+    },
+    {
+      "id": "order-cancel-ok-vertical",
+      "props": {
+        "variant": "standard",
+        "orientation": "vertical"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "confirming": true
+          },
+          "content": "OK"
+        }
+      ]
+    },
+    {
+      "id": "order-back-next",
+      "props": {
+        "variant": "standard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled",
+            "confirming": true
+          },
+          "content": "Next"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "dismissive": true
+          },
+          "content": "Back"
+        }
+      ]
+    },
+    {
+      "id": "order-back-next-vertical",
+      "props": {
+        "variant": "standard",
+        "orientation": "vertical"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled",
+            "confirming": true
+          },
+          "content": "Next"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "outlined",
+            "dismissive": true
+          },
+          "content": "Back"
+        }
+      ]
+    },
+    {
+      "id": "order-three-runs-vertical",
+      "props": {
+        "variant": "standard",
+        "orientation": "vertical"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "text",
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal"
+          },
+          "content": "Save draft"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "filled",
+            "confirming": true
+          },
+          "content": "Publish"
+        }
+      ]
+    },
+    {
+      "id": "order-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "standard"
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "confirming": true
+          },
+          "content": "OK"
+        }
+      ]
+    },
+    {
+      "id": "full-width",
+      "props": {
+        "variant": "standard",
+        "fullWidth": true
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "confirming": true
+          },
+          "content": "OK"
+        }
+      ]
+    },
+    {
+      "id": "full-width-vertical",
+      "props": {
+        "variant": "standard",
+        "orientation": "vertical",
+        "fullWidth": true
+      },
+      "items": [
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "dismissive": true
+          },
+          "content": "Not now"
+        },
+        {
+          "kind": "button",
+          "props": {
+            "variant": "tonal",
+            "confirming": true
+          },
+          "content": "Allow"
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-button-group",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "separation": "separation",
+        "fullWidth": "fullWidth",
+        "label": "label"
+      },
+      "items": {
+        "button": {
+          "name": "tanrei-button",
+          "props": {
+            "variant": "variant",
+            "size": "size",
+            "width": "width",
+            "icon": "slot=\"icon\"",
+            "iconPosition": "iconPosition",
+            "label": "label",
+            "toggle": "toggle",
+            "selected": "selected",
+            "disabled": "disabled",
+            "confirming": "confirming",
+            "dismissive": "dismissive"
+          },
+          "events": {
+            "click": "click",
+            "change": "change"
+          },
+          "notes": "A `tanrei-button` child, as anywhere: its label is its content and its glyph a `tanrei-icon` in its `icon` slot. `confirming` and `dismissive` are boolean attributes on the child that the group reads (a MutationObserver re-places the items when they change, BGR-11); the Button itself draws nothing for them."
+        }
+      },
+      "notes": "`<tanrei-button-group variant=\"connected\" orientation=\"vertical\" full-width label=\"Text style\">` holds `tanrei-button` children. It places them without moving them in the author's DOM: its shadow root has three slots in the order of the orientation (dismissive, unflagged, confirming in a row; confirming, unflagged, dismissive in a column) and assigns each child to one with manual slot assignment, so focus and the accessibility tree, which walk the flat tree, follow the placed order (BGR-15) and CSS `order` is not used. It sets role group and `aria-label` on its own element only while label is not empty (ElementInternals is not used for the role: axe-core does not see semantics set through it). It gives a connected item its corners and minimum size through CSS custom properties that Button reads on its container (`--tanrei-group-start-radius`, `--tanrei-group-end-radius`, and in a column the top and bottom radii, `--tanrei-group-min-width`, `--tanrei-group-min-height`); these are an internal contract between Tanrei elements, not a styling API. Each item also learns its place in the group through an internal controller, because three things cannot be done with custom properties alone: a label that may wrap (BGR-7, BGR-17), corners that never animate and pill ends held to half the measured height (BGR-11), and a hit area that stops at half the gap (BGR-4). It reports other children in debug builds (BGR-10). `separation` is an attribute (`auto`, `divider`, `gap`); auto reads the name in `--tanrei-comp-button-group-connected-separation`. Under divider the group draws each rule itself, in its shadow root over the seam, and tells each item through the same internal controller which of its edges meet a seam (no outline, no ring) and how much padding to add at an outer end (BGR-22, BGR-23). Owed on the web: `orientation=\"vertical\"` must really stack the items (BGR-12, BGR-14, BGR-16) — today the element and the review gallery draw every vertical fixture as a row — and its fixtures must be drawn as columns in the gallery and the baselines."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiButtonGroup",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "separation": "separation",
+        "fullWidth": "fullWidth",
+        "label": "label"
+      },
+      "items": {
+        "button": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "size": "size",
+            "width": "width",
+            "icon": "icon",
+            "iconPosition": "iconPosition",
+            "label": "label",
+            "toggle": "isSelected",
+            "selected": "isSelected",
+            "disabled": "disabled",
+            "confirming": "tanreiGroupPlacement(.confirming)",
+            "dismissive": "tanreiGroupPlacement(.dismissive)"
+          },
+          "events": {
+            "click": "action",
+            "change": "isSelected"
+          },
+          "notes": "A `TanreiButton` child, as anywhere. A toggle is a Button given an `isSelected` binding. The two flags are one modifier, `.tanreiGroupPlacement(.confirming)` or `(.dismissive)`, a `LayoutValueKey` the group's layout reads, as `.layoutPriority` is read by a stack; one enum cannot be both (BGR-18 cannot arise)."
+        }
+      },
+      "notes": "Lagging: ships an earlier revision, a row of Buttons and the retired icon-only kind with no orientation, placement flags or full width. The target: `TanreiButtonGroup(variant:, orientation:, fullWidth:, label:) { TanreiButton … }`, a custom `Layout` that places its subviews by BGR-13 and BGR-14 and gives them `.accessibilitySortPriority` in that order so VoiceOver and keyboard focus follow it (BGR-15). The group passes a connected item its corners and minimum size through an environment value that `TanreiButton` reads (internal to the package). With a label it is `.accessibilityElement(children: .contain)` with `.accessibilityLabel(label)`. The group reads its content through a variadic view, as the menu and tabs do, so it reports fewer than two items and content that is not a Tanrei Button in debug builds (BGR-10). Also owed: `separation` (auto, divider, gap), the divider of BGR-22, the outer padding of BGR-23 and the nine new fixtures; reading comp.button-group.connected.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiButtonGroup",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "separation": "separation",
+        "fullWidth": "fullWidth",
+        "label": "contentDescription"
+      },
+      "items": {
+        "button": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "size": "size",
+            "width": "width",
+            "icon": "icon",
+            "iconPosition": "iconPosition",
+            "label": "contentDescription",
+            "toggle": "onCheckedChange",
+            "selected": "checked",
+            "disabled": "enabled",
+            "confirming": "Modifier.confirming()",
+            "dismissive": "Modifier.dismissive()"
+          },
+          "events": {
+            "click": "onClick",
+            "change": "onCheckedChange"
+          },
+          "notes": "A `TanreiButton` child, as anywhere; a toggle is a Button given `checked` and `onCheckedChange`, and `enabled` is disabled's inverse. The two flags are modifiers of the group's scope, `Modifier.confirming()` and `Modifier.dismissive()`, parent data the group's layout reads, as `RowScope.weight` is."
+        }
+      },
+      "notes": "Lagging: ships an earlier revision, a row of Buttons and the retired icon-only kind with no orientation, placement flags or full width. The target: `TanreiButtonGroup(variant, orientation, fullWidth, contentDescription) { TanreiButton(…) }`, a custom `Layout` whose items read a `CompositionLocal` for their corners and minimum size (internal to the library). It places the items by BGR-13 and BGR-14 and sets `traversalIndex` in that order so TalkBack and focus follow it (BGR-15). With a content description it is `semantics { isTraversalGroup = true; contentDescription = … }`; Compose has no group role. Debug builds report content that is not a Tanrei Button, and a group of fewer than two items (BGR-10). Also owed: `separation` (auto, divider, gap), the divider of BGR-22, the outer padding of BGR-23 and the nine new fixtures; reading comp.button-group.connected.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiButtonGroup",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "separation": "separation",
+        "fullWidth": "fullWidth",
+        "label": "semanticLabel"
+      },
+      "items": {
+        "button": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "size": "size",
+            "width": "width",
+            "icon": "icon",
+            "iconPosition": "iconAlignment",
+            "label": "semanticLabel",
+            "toggle": "isSelected",
+            "selected": "isSelected",
+            "disabled": "onPressed",
+            "confirming": "TanreiButtonGroupItem.placement",
+            "dismissive": "TanreiButtonGroupItem.placement"
+          },
+          "events": {
+            "click": "onPressed",
+            "change": "onPressed"
+          },
+          "notes": "A `TanreiButton` child, as anywhere; a null `onPressed` disables it, and a non-null `isSelected` makes it a toggle. The two flags are one `ParentDataWidget`, `TanreiButtonGroupItem(placement: TanreiGroupPlacement.confirming | .dismissive, child:)`, as `Flexible` is for a `Flex`; one enum cannot be both (BGR-18 cannot arise)."
+        }
+      },
+      "notes": "Lagging: ships an earlier revision, a row of Buttons and the retired icon-only kind with no orientation, placement flags or full width. The target: `TanreiButtonGroup(variant:, orientation:, fullWidth:, semanticLabel:, children: [TanreiButton(…)])`, a `MultiChildRenderObjectWidget` that places its children by BGR-13 and BGR-14 and wraps each in a `FocusTraversalOrder` and `Semantics(sortKey:)` in that order (BGR-15); the items read an `InheritedWidget` for their corners and minimum size (internal to the package). With a label it is `Semantics(container: true, label:, explicitChildNodes: true)`. Children of another type are reported in debug builds (BGR-10). Also owed: `separation` (auto, divider, gap), the divider of BGR-22, the outer padding of BGR-23 and the nine new fixtures; reading comp.button-group.connected.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "ButtonGroup",
+      "props": {
+        "variant": "variant",
+        "orientation": "orientation",
+        "separation": "separation",
+        "fullWidth": "fullWidth",
+        "label": "accessibilityLabel"
+      },
+      "items": {
+        "button": {
+          "name": "Button",
+          "props": {
+            "variant": "variant",
+            "size": "size",
+            "width": "width",
+            "icon": "icon",
+            "iconPosition": "iconPosition",
+            "label": "accessibilityLabel",
+            "toggle": "toggle",
+            "selected": "selected",
+            "disabled": "disabled",
+            "confirming": "confirming",
+            "dismissive": "dismissive"
+          },
+          "events": {
+            "click": "onPress",
+            "change": "onSelectedChange"
+          },
+          "notes": "A `Button` child, as anywhere. `confirming` and `dismissive` are props on the child that the group reads from its children; the Button itself draws nothing for them."
+        }
+      },
+      "notes": "Lagging: ships an earlier revision, a row of Buttons and the retired icon-only kind with no orientation, placement flags or full width. The target: `<ButtonGroup variant orientation fullWidth accessibilityLabel>{…}</ButtonGroup>` with `Button` children, which it renders in the order of BGR-13 and BGR-14 (reordering the children themselves, so focus and the screen reader follow it, BGR-15) and which read a React context for their corners and minimum size (internal to the package). With a label it has `role=\"group\"` and `accessibilityLabel`; without one it adds no accessibility element. Children of another type are reported in development builds (BGR-10). Also owed: `separation` (auto, divider, gap), the divider of BGR-22, the outer padding of BGR-23 and the nine new fixtures; reading comp.button-group.connected.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+    }
+  }
+}

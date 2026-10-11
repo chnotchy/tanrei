@@ -1,0 +1,189 @@
+---
+title: Atajo de teclado
+description: Muestra las teclas que ejecutan un comando, como teclas o como texto, con los símbolos y los nombres de modificadores del teclado que la persona está usando, y las lee en voz alta por su nombre.
+translationOf: components/keyboard-shortcut.mdx
+sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="keyboard-shortcut" />
+
+Un atajo de teclado muestra las teclas que ejecutan un comando: dibujadas como capuchones de tecla, o como texto simple junto al nombre de un comando, en tamaño pequeño o mediano. Las teclas se escriben con nombres neutros (`mod`, `shift`, `k`) y se dibujan según la convención del teclado que la persona está usando: los símbolos de Apple (⇧⌘K) o los nombres estándar (Ctrl+Shift+K). Un producto puede definir la convención para una región, o dejársela a la plataforma. Un atajo formado por varias combinaciones seguidas (Ctrl+K Ctrl+C) es una sola secuencia.
+
+<DemoFrame label="Capuchones de tecla, una secuencia de dos combinaciones y la forma simple, para el teclado que estás usando">
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="Comando o Control, Mayúsculas, K"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Comando o Control y K, después Comando o Control y C"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="Comando o Control, Mayúsculas, K" variant="plain"></tanrei-keyboard-shortcut>
+</DemoFrame>
+
+Sus teclas se dibujan solo para la vista: la tecnología de apoyo lee el `label` que da el producto (el atajo dicho con tus propias palabras) y, si no hay ninguno, la notación de `aria-keyshortcuts` (`Meta+Shift+K`). Tanrei no tiene nombres para las teclas en ningún idioma. Muestra las teclas y nada más: no recibe foco ni entrada, y no hace que las teclas funcionen. Es tu producto quien las vincula.
+
+Tres componentes dibujan un atajo con él, a partir de una propiedad `shortcut` propia: el [menú](/es/components/menu/) al final de la fila de un elemento, un [tooltip](/es/components/tooltip/) simple después de su texto, y la [búsqueda](/es/components/search/) como una pista en su barra o en su activador. Ahí usa esas propiedades, no un elemento tuyo: el anfitrión dibuja las teclas con su propio estilo de texto y las expone como el atajo de teclado del control.
+
+### Uso
+
+`keys` contiene una combinación por cadena, y las combinaciones se pulsan en orden. Una combinación consta de nombres de teclas unidos por `+`, y los nombres no distinguen mayúsculas de minúsculas.
+
+- **Modificadores:** `mod` (Comando en las plataformas de Apple, Control en las demás), `ctrl`, `alt`, `shift`.
+- **Teclas con nombre:** `enter`, `escape`, `tab`, `backspace`, `delete`, `space`, `arrow-up`, `arrow-down`, `arrow-left`, `arrow-right`, `home`, `end`, `page-up`, `page-down`, `caps-lock`, de `f1` a `f24`, y `plus` para la tecla +.
+- **Cualquier otro carácter suelto** es la tecla de ese carácter: `k`, `/`, `,`.
+
+En la web, el atributo `keys` contiene las combinaciones separadas por espacios (`keys="mod+k mod+c"`), y la propiedad es un array. SwiftUI, Compose, Flutter y React Native todavía no han implementado el componente. Hasta que lo hagan, sus menús escriben un atajo en el texto final del elemento, como muestra la página del [menú](/es/components/menu/).
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- El tamaño small cabe en una línea de texto de cuerpo sin hacerla más alta. -->
+    <p>Busca con <tanrei-keyboard-shortcut keys="mod+k" label="Comando o Control y K" size="small"></tanrei-keyboard-shortcut>.</p>
+
+    <!-- Dos combinaciones pulsadas una después de la otra. -->
+    <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Comando o Control y K, después Comando o Control y C"></tanrei-keyboard-shortcut>
+
+    <!-- Texto simple, leído en el idioma de tu producto. -->
+    <tanrei-keyboard-shortcut keys="mod+shift+k" variant="plain" label="Befehl Umschalt K"></tanrei-keyboard-shortcut>
+
+    <!-- Una región escrita para un solo teclado, sea cual sea la plataforma de la persona. -->
+    <section data-tanrei-keyboard-convention="standard">
+      <tanrei-keyboard-shortcut keys="mod+s" label="Control S"></tanrei-keyboard-shortcut>
+    </section>
+
+    <script type="module">
+      import '@tanrei/web/components/keyboard-shortcut';
+      // El elemento solo muestra las teclas. Vincúlalas tú y decláralo en el control al que pertenecen.
+      const shown = document.querySelector('tanrei-keyboard-shortcut');
+      searchButton.setAttribute('aria-keyshortcuts', shown.ariaKeyShortcuts); // "Meta+K" o "Control+K"
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { KeyboardShortcut } from '@tanrei/react';
+
+    <p>Busca con <KeyboardShortcut keys={['mod+k']} label="Comando o Control y K" size="small" />.</p>
+
+    <KeyboardShortcut keys={['mod+k', 'mod+c']} label="Comando o Control y K, después Comando o Control y C" />
+
+    <KeyboardShortcut keys={['mod+shift+k']} variant="plain" label="Befehl Umschalt K" />
+
+    // Una región escrita para un solo teclado, sea cual sea la plataforma de la persona.
+    <section data-tanrei-keyboard-convention="standard">
+      <KeyboardShortcut keys={['mod+s']} label="Control S" />
+    </section>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Las mismas teclas para un teclado de Apple y para uno estándar; small dentro de una frase; teclas con nombre; deshabilitado" plain column>
+  <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Mayúsculas Comando K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Mayúsculas Comando K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Mayúsculas Comando K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+mod+escape" label="Opción Comando Escape" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <div data-tanrei-keyboard-convention="standard" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control Mayúsculas K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control Mayúsculas K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control Mayúsculas K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="ctrl+alt+delete" label="Control Alt Suprimir" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <p style="font: var(--tanrei-sys-typescale-body-font); margin: 0">Pulsa <tanrei-keyboard-shortcut keys="mod+k" label="Comando o Control y K" size="small"></tanrei-keyboard-shortcut> para buscar, o <tanrei-keyboard-shortcut keys="/" label="Barra" size="small"></tanrei-keyboard-shortcut> desde cualquier lugar de la página.</p>
+  <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="shift+enter" label="Mayúsculas Enter"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+arrow-up" label="Opción o Alt, Flecha arriba"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+plus" label="Comando o Control, Más"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="f2" label="F2"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="Comando o Control, Z" disabled></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="Comando o Control, Z" variant="plain" disabled></tanrei-keyboard-shortcut>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="keyboard-shortcut" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un atajo de teclado dondequiera que tu producto le diga a una persona qué teclas ejecutan un comando: en una frase de ayuda, en una lista de atajos, en un estado vacío, junto al nombre de un comando en una paleta.
+
+En un elemento de menú, un tooltip simple o una búsqueda, usa en su lugar la propiedad `shortcut` de ese componente. No uses el capuchón de tecla para texto que una persona escribe, como un comando o un nombre de archivo: un capuchón significa una tecla que hay que pulsar.
+
+### Capuchón o texto simple, pequeño o mediano
+
+| Opción | Qué dibuja | Úsala para |
+| --- | --- | --- |
+| `keycap` (predeterminada) | Cada tecla en su propio capuchón, con un + entre los capuchones en la convención estándar. | La ayuda y la documentación, donde las teclas son el tema. |
+| `plain` | El atajo como un solo tramo de texto: ⌥⌘⎋, o Ctrl+Alt+Delete. Sin capuchón, relleno ni borde. | Junto al nombre de un comando, donde una fila de capuchones competiría con él: como lo escribe un menú. |
+| `medium` (predeterminada) | Capuchones de 24 con texto de 14. | Solo, o junto a un texto más grande. |
+| `small` | Capuchones de 20 con texto de 12. | En una línea de texto de cuerpo o en una fila densa, sin hacer la línea más alta. |
+
+En el sistema predeterminado, un capuchón es un relleno tenue sin borde, y su leyenda tiene el color de texto discreto. Un sistema de diseño puede dar a los capuchones un borde, con la parte inferior más gruesa, y puede añadir variantes y tamaños.
+
+### Cómo escribir las teclas
+
+- **Escribe `mod` para el modificador principal,** no `ctrl`: es Comando en un teclado de Apple y Control en los demás. Escribe `ctrl` solo para un atajo que sea Control en todos los teclados.
+- **En cualquier orden.** El componente escribe los modificadores en el orden propio del teclado: ⌃ ⌥ ⇧ ⌘ para Apple, y Ctrl, Alt, Shift para los nombres estándar.
+- **Una letra se dibuja en mayúscula,** y no añade Shift: `mod+k` y `mod+K` dibujan ambos ⌘K. Shift solo se dibuja donde lo nombras.
+- **Una tecla por combinación,** además de sus modificadores. Una combinación sin tecla, o con dos, se dibuja como se pueda, y las compilaciones de depuración lo notifican.
+- **Una secuencia son varias combinaciones:** `mod+k` y luego `mod+c`. Se dibujan con una separación entre ellas, sin nada en medio.
+- **Las teclas con nombre también siguen al teclado.** `enter` es ↩ en un teclado de Apple y Enter en uno estándar; `escape` es ⎋ o Esc; `backspace` es ⌫ o Backspace; `page-down` es ⇟ o PgDn. Las flechas son ↑ ↓ ← → en ambos.
+
+### La convención
+
+`convention` dice para qué teclado están escritas las teclas. Déjala en `auto`: el componente usa entonces la convención que define un ancestro y, si no hay ninguna, la de la plataforma: la de Apple en macOS, iOS, iPadOS y visionOS, y los nombres estándar en todas las demás.
+
+Defínela para una región cuando tu producto sepa más que la plataforma: un ajuste que deja elegir a la persona, una documentación que muestra los dos teclados uno al lado del otro, una sesión remota en otro sistema. En la web es el atributo `data-tanrei-keyboard-convention` (`apple` o `standard`) en cualquier ancestro; los menús, los tooltips y las búsquedas que haya dentro también lo siguen. Define `convention` en un solo atajo únicamente para una excepción.
+
+La convención nunca procede del sistema de diseño. Las teclas siguen al teclado que la persona pulsa, no al aspecto del producto.
+
+### Recomendado
+
+- Muestra el atajo que funciona de verdad. Vincula las teclas en tu producto y mantén ambas cosas sincronizadas.
+- Da un `label` a cada atajo que se lea en voz alta: el atajo dicho con las palabras de tu producto («Mayúsculas Comando K»). Sin él, un lector de pantalla lee la notación `Meta+Shift+K`.
+- Con `convention="auto"`, las teclas dibujadas siguen al teclado de la persona, y un `label` que has escrito tú no puede hacerlo. Escribe uno que sea cierto en los dos teclados («Comando o Control, Mayúsculas, K»), como hacen los ejemplos de esta página, o define el `label` cuando ya conozcas el teclado.
+- Usa `disabled` para el atajo de un comando que ahora no está disponible, junto a ese comando. Las teclas se siguen mostrando, atenuadas.
+- Mantén un atajo en una sola línea. Una combinación nunca se parte; una secuencia puede saltar de línea entre combinaciones.
+
+### Evita
+
+- No escribas tú los símbolos (⌘K en el texto). Serían incorrectos en otro teclado, y un lector de pantalla puede leer un símbolo por el nombre de su carácter.
+- No hagas de un atajo la única forma de llegar a un comando. Es un acelerador de algo a lo que la persona también puede llegar con el puntero y con el foco.
+- No coloques tu propio elemento de atajo de teclado dentro de un elemento de menú o de un tooltip. Usa la propiedad `shortcut` del anfitrión.
+- No elijas la convención según la marca o el tema.
+
+## Accesibilidad
+
+<ComponentAccessibility name="keyboard-shortcut" />
+
+### De qué se encarga el componente
+
+- Los capuchones, las leyendas y los separadores quedan ocultos para la tecnología de apoyo. En su lugar se lee un único texto, allí donde está el atajo: `label`, de modo que ⇧⌘K se lee «Mayúsculas Comando K» y nunca los nombres de carácter de los símbolos. Sin un `label`, es el atajo en la notación de `aria-keyshortcuts` (`Meta+Shift+K`, o `Control+K Control+C` para una secuencia), que pertenece a un estándar y es la misma en todos los idiomas, y el componente lo notifica una vez en desarrollo.
+- El componente no tiene nombres para las teclas: no escribe con su nombre un modificador, una flecha ni una tecla de puntuación en ningún idioma. Un lector de pantalla puede saltarse un carácter suelto, como una coma, y esa es una razón más para escribir el `label`.
+- No tiene rol, no recibe foco ni entrada, y no es un objetivo: es texto.
+- Dentro de un anfitrión (un elemento de menú, un tooltip simple, una búsqueda) no expone nada por sí mismo. El anfitrión expone el atajo como el atajo de teclado de su control: `aria-keyshortcuts` en la web.
+- `disabled` atenúa las leyendas y no expone ningún estado. El comando al que pertenece el atajo dice si está disponible.
+- Las teclas conservan el orden de izquierda a derecha en un diseño de derecha a izquierda, aisladas del texto que las rodea, como las escriben los teclados y los menús de las propias plataformas.
+- Se apoya en la línea base del texto que lo rodea y crece con el texto ampliado; la altura del capuchón es un mínimo.
+- Un símbolo que le falta al tipo de letra del producto (⌘, ⎋) se dibuja con una fuente del sistema al mismo tamaño, nunca como un recuadro de glifo ausente.
+- En el sistema predeterminado, la leyenda sobre el capuchón cumple el contraste exigido al texto. El relleno del capuchón es decorativo: solo la leyenda transmite el significado.
+- Las compilaciones de depuración notifican una combinación vacía, una combinación solo de modificadores, una combinación con dos teclas, una tecla nombrada dos veces una vez escrita (`ctrl+mod` en la convención estándar), un nombre de tecla desconocido y una convención desconocida.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native no han implementado el atajo de teclado.
+- Web: es probable que una comprobación automática de contraste señale un atajo deshabilitado que está solo, fuera de un comando que a su vez se exponga como deshabilitado: su leyenda está atenuada, y el elemento no expone ningún estado deshabilitado propio.
+
+### Qué debes hacer tú
+
+- Haz que las teclas funcionen: el componente solo las muestra.
+- En el control al que pertenecen las teclas, exponlas como su atajo de teclado. En la web, define `aria-keyshortcuts` a partir de la propiedad de solo lectura `ariaKeyShortcuts` del elemento, que da la forma que admite ese atributo.
+- Pasa `label`, el atajo dicho con las palabras de tu producto, dondequiera que el atajo se lea en voz alta. Tanrei no incluye textos propios ni nombres para las teclas.
+- Mantén todos los comandos accesibles sin su atajo.

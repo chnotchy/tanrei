@@ -1,0 +1,372 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Hand-written and kept small on purpose (no xcodegen / tuist on the machines that build this).
+   App/ and UITests/ are file-system-synchronized groups: a new .swift file there needs no edit here.
+   Two things come from elsewhere in the repository: the `specs/` directory (a FOLDER reference copied
+   into both bundles as `specs/`: the gallery reads every spec's fixtures from it, the UI tests check them
+   against the screen, and a new spec needs no edit here) and the generated `acme` system (compiled as
+   a product compiles its own). */
+
+/* Begin PBXBuildFile section */
+		7A0000000000000000000A01 /* Tanrei in Frameworks */ = {isa = PBXBuildFile; productRef = 7A0000000000000000000A02 /* Tanrei */; };
+		7A0000000000000000000A03 /* specs in Resources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000B03 /* specs */; };
+		7A0000000000000000000A05 /* specs in Resources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000B03 /* specs */; };
+		7A0000000000000000000A04 /* TanreiSystem+Acme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000B04 /* TanreiSystem+Acme.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7A0000000000000000000C01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7A0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7A0000000000000000000D01;
+			remoteInfo = TanreiGallery;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		7A0000000000000000000B01 /* TanreiGallery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TanreiGallery.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A0000000000000000000B02 /* TanreiGalleryUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TanreiGalleryUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A0000000000000000000B03 /* specs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = specs; path = ../../../specs; sourceTree = "<group>"; };
+		7A0000000000000000000B04 /* TanreiSystem+Acme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "TanreiSystem+Acme.swift"; path = "../Tests/AcmeFixture/TanreiSystem+Acme.swift"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		7A0000000000000000000E01 /* App */ = {isa = PBXFileSystemSynchronizedRootGroup; path = App; sourceTree = "<group>"; };
+		7A0000000000000000000E02 /* UITests */ = {isa = PBXFileSystemSynchronizedRootGroup; path = UITests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7A0000000000000000000F01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A0000000000000000000A01 /* Tanrei in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A0000000000000000000F02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7A0000000000000000000101 = {
+			isa = PBXGroup;
+			children = (
+				7A0000000000000000000E01 /* App */,
+				7A0000000000000000000E02 /* UITests */,
+				7A0000000000000000000102 /* From the repository */,
+				7A0000000000000000000103 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7A0000000000000000000102 /* From the repository */ = {
+			isa = PBXGroup;
+			children = (
+				7A0000000000000000000B03 /* specs */,
+				7A0000000000000000000B04 /* TanreiSystem+Acme.swift */,
+			);
+			name = "From the repository";
+			sourceTree = "<group>";
+		};
+		7A0000000000000000000103 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7A0000000000000000000B01 /* TanreiGallery.app */,
+				7A0000000000000000000B02 /* TanreiGalleryUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7A0000000000000000000D01 /* TanreiGallery */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7A0000000000000000000202 /* Build configuration list for PBXNativeTarget "TanreiGallery" */;
+			buildPhases = (
+				7A0000000000000000000301 /* Sources */,
+				7A0000000000000000000F01 /* Frameworks */,
+				7A0000000000000000000303 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7A0000000000000000000E01 /* App */,
+			);
+			name = TanreiGallery;
+			packageProductDependencies = (
+				7A0000000000000000000A02 /* Tanrei */,
+			);
+			productName = TanreiGallery;
+			productReference = 7A0000000000000000000B01 /* TanreiGallery.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7A0000000000000000000D02 /* TanreiGalleryUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7A0000000000000000000203 /* Build configuration list for PBXNativeTarget "TanreiGalleryUITests" */;
+			buildPhases = (
+				7A0000000000000000000302 /* Sources */,
+				7A0000000000000000000F02 /* Frameworks */,
+				7A0000000000000000000304 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7A0000000000000000000C02 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				7A0000000000000000000E02 /* UITests */,
+			);
+			name = TanreiGalleryUITests;
+			productName = TanreiGalleryUITests;
+			productReference = 7A0000000000000000000B02 /* TanreiGalleryUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7A0000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					7A0000000000000000000D01 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					7A0000000000000000000D02 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 7A0000000000000000000D01;
+					};
+				};
+			};
+			buildConfigurationList = 7A0000000000000000000201 /* Build configuration list for PBXProject "TanreiGallery" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7A0000000000000000000101;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7A0000000000000000000401 /* XCLocalSwiftPackageReference "../../.." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7A0000000000000000000103 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7A0000000000000000000D01 /* TanreiGallery */,
+				7A0000000000000000000D02 /* TanreiGalleryUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7A0000000000000000000303 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A0000000000000000000A03 /* specs in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A0000000000000000000304 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A0000000000000000000A05 /* specs in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7A0000000000000000000301 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7A0000000000000000000A04 /* TanreiSystem+Acme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A0000000000000000000302 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7A0000000000000000000C02 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7A0000000000000000000D01 /* TanreiGallery */;
+			targetProxy = 7A0000000000000000000C01 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		7A0000000000000000000501 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		7A0000000000000000000502 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7A0000000000000000000503 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Tanrei Gallery";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				MARKETING_VERSION = 0.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tanrei.gallery;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7A0000000000000000000504 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Tanrei Gallery";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				MARKETING_VERSION = 0.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tanrei.gallery;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		7A0000000000000000000505 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tanrei.gallery.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TanreiGallery;
+			};
+			name = Debug;
+		};
+		7A0000000000000000000506 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tanrei.gallery.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TanreiGallery;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7A0000000000000000000201 /* Build configuration list for PBXProject "TanreiGallery" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A0000000000000000000501 /* Debug */,
+				7A0000000000000000000502 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7A0000000000000000000202 /* Build configuration list for PBXNativeTarget "TanreiGallery" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A0000000000000000000503 /* Debug */,
+				7A0000000000000000000504 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7A0000000000000000000203 /* Build configuration list for PBXNativeTarget "TanreiGalleryUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7A0000000000000000000505 /* Debug */,
+				7A0000000000000000000506 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		7A0000000000000000000401 /* XCLocalSwiftPackageReference "../../.." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7A0000000000000000000A02 /* Tanrei */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Tanrei;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 7A0000000000000000000001 /* Project object */;
+}

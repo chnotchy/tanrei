@@ -1,0 +1,189 @@
+---
+title: اختصار لوحة المفاتيح
+description: يعرض المفاتيح التي تنفّذ أمرًا، في صورة مفاتيح أو نص، برموز المفاتيح المعدِّلة وأسمائها في لوحة المفاتيح التي يستخدمها الشخص، وينطقها بأسمائها.
+translationOf: components/keyboard-shortcut.mdx
+sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="keyboard-shortcut" />
+
+يعرض اختصار لوحة المفاتيح المفاتيح التي تنفّذ أمرًا: مرسومة أغطية مفاتيح (keycaps)، أو نصًّا بسيطًا بجانب اسم الأمر، بحجم صغير أو متوسط. تُكتب المفاتيح بأسماء محايدة، هي `mod` و `shift` و `k`، وتُرسم بعُرف لوحة المفاتيح التي يستخدمها الشخص: رموز Apple (`⇧⌘K`) أو الأسماء القياسية (Ctrl+Shift+K). يستطيع المنتج أن يعيّن العُرف لمنطقة، أو أن يتركه للمنصة. والاختصار المكوَّن من عدة تآلفات مفاتيح (chords) متتالية (Ctrl+K Ctrl+C) تسلسل واحد.
+
+<DemoFrame label="أغطية مفاتيح، وتسلسل من تآلفين، والهيئة البسيطة، للوحة المفاتيح التي تستخدمها">
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command أو Control مع Shift و K"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Command أو Control مع K، ثم Command أو Control مع C"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="Command أو Control مع Shift و K" variant="plain"></tanrei-keyboard-shortcut>
+</DemoFrame>
+
+مفاتيحه مرسومة للنظر فقط: التقنيات المساعدة تقرأ القيمة `label` التي يعطيها المنتج، وهي الاختصار بكلماتك أنت، ومن دونها تقرأ صيغة `aria-keyshortcuts` (`Meta+Shift+K`). وليست عند Tanrei أسماء للمفاتيح بأي لغة. وهو يعرض المفاتيح ولا شيء غير ذلك: لا يأخذ تركيزًا ولا إدخالًا، ولا يجعل المفاتيح تعمل. منتجك هو الذي يربطها.
+
+ثلاثة مكوّنات ترسم به اختصارًا، من خاصية `shortcut` خاصة بكل منها: [قائمة الخيارات](/ar/components/menu/) في نهاية صف العنصر، و[التلميح](/ar/components/tooltip/) البسيط بعد نصه، و[البحث](/ar/components/search/) تلميحًا في شريطه أو في مُشغِّله. استخدم تلك الخصائص هناك، لا عنصرًا من عندك: المكوّن المضيف يرسم المفاتيح بنمط نصه هو ويعرضها على أنها اختصار لوحة المفاتيح لعنصر التحكم.
+
+### الاستخدام
+
+تحمل الخاصية `keys` تآلفًا واحدًا في كل سلسلة نصية، تُضغط بالترتيب. التآلف أسماء مفاتيح موصولة بالعلامة `+`، والأسماء لا تفرّق بين الأحرف الكبيرة والصغيرة.
+
+- **المفاتيح المعدِّلة:** `mod` (وهو Command على منصات Apple و Control في غيرها)، و `ctrl` و `alt` و `shift`.
+- **المفاتيح المسمّاة:** `enter` و `escape` و `tab` و `backspace` و `delete` و `space` و `arrow-up` و `arrow-down` و `arrow-left` و `arrow-right` و `home` و `end` و `page-up` و `page-down` و `caps-lock`، ومن `f1` إلى `f24`، و `plus` للمفتاح `+`.
+- **أي محرف مفرد آخر** هو مفتاح ذلك المحرف: `k` و `/` و `,`.
+
+على الويب تحمل خاصية HTML (attribute) المسمّاة `keys` التآلفات مفصولة بمسافات (`keys="mod+k mod+c"`)، أما خاصية العنصر في JavaScript فمصفوفة. لم تنفّذ SwiftUI و Compose و Flutter و React Native المكوّن بعد. وإلى أن تنفّذه، تكتب قوائم الخيارات فيها الاختصار في النص الواقع في نهاية العنصر، كما تبيّن صفحة [قائمة الخيارات](/ar/components/menu/).
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- الحجم small يقع في سطر من نص المتن من دون أن يزيد ارتفاعه. -->
+    <p>ابحث بالاختصار <tanrei-keyboard-shortcut keys="mod+k" label="Command أو Control مع K" size="small"></tanrei-keyboard-shortcut>.</p>
+
+    <!-- تآلفان يُضغطان واحدًا بعد الآخر. -->
+    <tanrei-keyboard-shortcut keys="mod+k mod+c" label="Command أو Control مع K، ثم Command أو Control مع C"></tanrei-keyboard-shortcut>
+
+    <!-- نص بسيط، يُقرأ بلغة منتجك. -->
+    <tanrei-keyboard-shortcut keys="mod+shift+k" variant="plain" label="Befehl Umschalt K"></tanrei-keyboard-shortcut>
+
+    <!-- منطقة مكتوبة للوحة مفاتيح واحدة، أيًّا كانت منصة الشخص. -->
+    <section data-tanrei-keyboard-convention="standard">
+      <tanrei-keyboard-shortcut keys="mod+s" label="Control و S"></tanrei-keyboard-shortcut>
+    </section>
+
+    <script type="module">
+      import '@tanrei/web/components/keyboard-shortcut';
+      // العنصر يعرض المفاتيح فقط. اربطها بنفسك، وصرِّح بها على عنصر التحكم الذي تخصه.
+      const shown = document.querySelector('tanrei-keyboard-shortcut');
+      searchButton.setAttribute('aria-keyshortcuts', shown.ariaKeyShortcuts); // "Meta+K" أو "Control+K"
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { KeyboardShortcut } from '@tanrei/react';
+
+    <p>ابحث بالاختصار <KeyboardShortcut keys={['mod+k']} label="Command أو Control مع K" size="small" />.</p>
+
+    <KeyboardShortcut keys={['mod+k', 'mod+c']} label="Command أو Control مع K، ثم Command أو Control مع C" />
+
+    <KeyboardShortcut keys={['mod+shift+k']} variant="plain" label="Befehl Umschalt K" />
+
+    // منطقة مكتوبة للوحة مفاتيح واحدة، أيًّا كانت منصة الشخص.
+    <section data-tanrei-keyboard-convention="standard">
+      <KeyboardShortcut keys={['mod+s']} label="Control و S" />
+    </section>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="المفاتيح نفسها للوحة مفاتيح Apple وللوحة قياسية؛ الحجم الصغير داخل جملة؛ مفاتيح مسمّاة؛ معطَّل" plain column>
+  <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift و Command و K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift و Command و K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Shift و Command و K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+mod+escape" label="Option و Command و Escape" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <div data-tanrei-keyboard-convention="standard" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control و Shift و K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control و Shift و K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="Control و Shift و K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="ctrl+alt+delete" label="Control و Alt و Delete" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <p style="font: var(--tanrei-sys-typescale-body-font); margin: 0">اضغط <tanrei-keyboard-shortcut keys="mod+k" label="Command أو Control مع K" size="small"></tanrei-keyboard-shortcut> للبحث، أو <tanrei-keyboard-shortcut keys="/" label="الشرطة المائلة" size="small"></tanrei-keyboard-shortcut> من أي موضع في الصفحة.</p>
+  <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="shift+enter" label="Shift و Enter"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+arrow-up" label="Option أو Alt مع السهم للأعلى"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+plus" label="Command أو Control مع علامة الجمع"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="f2" label="F2"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="Command أو Control مع Z" disabled></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="Command أو Control مع Z" variant="plain" disabled></tanrei-keyboard-shortcut>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="keyboard-shortcut" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم اختصار لوحة المفاتيح حيثما أخبر منتجك الشخص بالمفاتيح التي تنفّذ أمرًا: في جملة مساعدة، في قائمة اختصارات، في حالة فارغة، بجانب اسم أمر في لوحة أوامر.
+
+في عنصر قائمة خيارات أو تلميح بسيط أو بحث، أعطِ ذلك المكوّن خاصيته `shortcut` بدلًا من ذلك. ولا تستخدم غطاء المفتاح لنص يكتبه الشخص، كأمر أو اسم ملف: الغطاء يعني مفتاحًا يُضغط.
+
+### غطاء مفتاح أم نص بسيط، صغير أم متوسط
+
+| الاختيار | ما يرسمه | يُستخدم لـ |
+| --- | --- | --- |
+| `keycap` (الافتراضي) | كل مفتاح في غطائه، مع علامة + بين الأغطية في العُرف القياسي. | المساعدة والتوثيق، حيث المفاتيح هي الموضوع. |
+| `plain` | الاختصار في صورة نص متصل واحد: `⌥⌘⎋` أو Ctrl+Alt+Delete. بلا غطاء ولا تعبئة ولا حافة. | بجانب اسم أمر، حيث ينافسه صف من الأغطية: كما تكتبه قائمة الخيارات. |
+| `medium` (الافتراضي) | أغطية بمقاس 24 مع نص بمقاس 14. | وحده، أو بجانب نص أكبر. |
+| `small` | أغطية بمقاس 20 مع نص بمقاس 12. | في سطر من نص المتن أو في صف كثيف، من دون أن يزيد ارتفاع السطر. |
+
+في النظام الافتراضي الغطاء تعبئة باهتة بلا حافة، والمكتوب عليه بلون النص الهادئ. يستطيع نظام التصميم أن يعطي الأغطية حافة، قاعها أثقل، وأن يضيف طُرُزًا (variants) وأحجامًا.
+
+### كتابة المفاتيح
+
+- **اكتب `mod` للمفتاح المعدِّل الرئيسي،** لا `ctrl`: هو Command على لوحة مفاتيح Apple و Control في غيرها. ولا تكتب `ctrl` إلا لاختصار يكون Control على كل لوحة مفاتيح.
+- **بأي ترتيب.** يكتب المكوّن المفاتيح المعدِّلة بترتيب لوحة المفاتيح نفسها: `⌃ ⌥ ⇧ ⌘` في لوحات Apple، و Ctrl ثم Alt ثم Shift في الأسماء القياسية.
+- **الحرف يُرسم بصورته الكبيرة،** ولا يضيف Shift: `mod+k` و `mod+K` كلاهما يرسم `⌘K`. ولا يُرسم Shift إلا حيث تسمّيه.
+- **مفتاح واحد في كل تآلف،** عدا مفاتيحه المعدِّلة. التآلف الذي بلا مفتاح، أو بمفتاحين، يُرسم على قدر المستطاع، وتبلّغ عنه بنيات التنقيح (debug).
+- **التسلسل عدة تآلفات:** `mod+k` ثم `mod+c`. تُرسم وبينها فجوة، ولا شيء بينها.
+- **المفاتيح المسمّاة تتبع لوحة المفاتيح أيضًا.** المفتاح `enter` هو `↩` على لوحة مفاتيح Apple و Enter على اللوحة القياسية؛ و `escape` هو `⎋` أو Esc؛ و `backspace` هو `⌫` أو Backspace؛ و `page-down` هو `⇟` أو PgDn. والأسهم `↑ ↓ ← →` في الاثنتين.
+
+### العُرف
+
+تقول الخاصية `convention` للوحة مفاتيح مَن كُتبت المفاتيح. اتركها على `auto`: فيستخدم المكوّن العُرف الذي يعيّنه عنصر سلف، وفي غيابه عُرف المنصة: عُرف Apple على macOS و iOS و iPadOS و visionOS، والأسماء القياسية في كل مكان آخر.
+
+عيِّنه لمنطقة حين يعرف منتجك أكثر من المنصة: إعداد يتيح للشخص أن يختار، توثيق يعرض اللوحتين جنبًا إلى جنب، جلسة عن بُعد إلى نظام آخر. على الويب هو خاصية HTML `data-tanrei-keyboard-convention` (بالقيمة `apple` أو `standard`) على أي عنصر سلف؛ وقوائم الخيارات والتلميحات ومكوّنات البحث داخله تتبعه أيضًا. ولا تعيِّن `convention` على اختصار واحد إلا لاستثناء.
+
+لا يأتي العُرف من نظام التصميم أبدًا. المفاتيح تتبع لوحة المفاتيح التي يضغطها الشخص، لا مظهر المنتج.
+
+### افعل
+
+- اعرض الاختصار الذي يعمل فعلًا. اربط المفاتيح في منتجك، وأبقِ الاثنين متوافقين.
+- أعطِ كل اختصار يُقرأ بصوت مسموع `label`: الاختصار بكلمات منتجك («Shift و Command و K»). ومن دونها يقرأ قارئ الشاشة الصيغة `Meta+Shift+K`.
+- مع `convention="auto"` تتبع المفاتيح المرسومة لوحة مفاتيح الشخص، والقيمة `label` التي كتبتها لا تستطيع ذلك. اكتب تسمية تصحّ على اللوحتين («Command أو Control مع Shift و K»)، كما تفعل عيّنات هذه الصفحة، أو عيِّن التسمية بعد أن تعرف لوحة المفاتيح.
+- استخدم `disabled` لاختصار أمر غير متاح الآن، بجانب ذلك الأمر. تظل المفاتيح ظاهرة، باهتة.
+- أبقِ الاختصار على سطر واحد. التآلف لا ينكسر أبدًا؛ والتسلسل يجوز أن يلتفّ بين التآلفات.
+
+### لا تفعل
+
+- لا تكتب الرموز بنفسك (`⌘K` في النص). ستكون خاطئة على لوحة مفاتيح أخرى، وقد يقرأ قارئ الشاشة الرمز باسم محرفه.
+- لا تجعل الاختصار الطريق الوحيد إلى أمر. هو مُسرِّع لشيء يستطيع الشخص أن يصل إليه أيضًا بالمؤشر وبالتركيز.
+- لا تضع عنصر اختصار لوحة مفاتيح من عندك داخل عنصر قائمة خيارات أو تلميح. استخدم الخاصية `shortcut` للمكوّن المضيف.
+- لا تختر العُرف بحسب العلامة التجارية ولا بحسب السمة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="keyboard-shortcut" />
+
+### ما يتكفل به المكوّن
+
+- الأغطية والمكتوب عليها والفواصل مخفيّة عن التقنيات المساعدة. ويُقرأ مكانها نص واحد، حيث يقع الاختصار: القيمة `label`، فيُقرأ `⇧⌘K` هكذا: «Shift و Command و K»، ولا تُقرأ أسماء محارف الرموز أبدًا. ومن دون `label` يُقرأ الاختصار بصيغة `aria-keyshortcuts`، أي `Meta+Shift+K`، أو `Control+K Control+C` لتسلسل. وهي صيغة معيار، واحدة في كل اللغات، ويبلّغ المكوّن عن ذلك مرة واحدة أثناء التطوير.
+- ليست عند المكوّن أسماء للمفاتيح: لا يكتب اسم مفتاح معدِّل ولا سهم ولا مفتاح علامة ترقيم بأي لغة. وقد يتخطى قارئ الشاشة محرفًا مجرّدًا كالفاصلة، وهذا سبب آخر لكتابة `label`.
+- ليس له دور، ولا يأخذ تركيزًا ولا إدخالًا، وليس هدفًا: هو نص.
+- داخل مكوّن مضيف (عنصر قائمة خيارات، تلميح بسيط، بحث) لا يعرض هو شيئًا. المكوّن المضيف يعرض الاختصار على أنه اختصار لوحة المفاتيح لعنصر تحكمه: `aria-keyshortcuts` على الويب.
+- القيمة `disabled` تبهّت المكتوب على الأغطية ولا تعرض حالة. الأمر الذي يخصه الاختصار هو الذي يقول هل هو متاح.
+- تبقى المفاتيح بترتيب من اليسار إلى اليمين في التخطيط من اليمين إلى اليسار، معزولة عن النص المحيط بها، كما تكتبها لوحات المفاتيح وقوائم المنصات نفسها.
+- يقع على خط الأساس للنص المحيط به ويكبر مع النص المكبَّر؛ وارتفاع الغطاء حد أدنى.
+- الرمز الذي ينقص خط المنتج (`⌘` أو `⎋`) يُرسم من خط النظام بالمقاس نفسه، ولا يُرسم أبدًا مربعَ محرف مفقود.
+- في النظام الافتراضي يستوفي المكتوب على الغطاء تباين النص. تعبئة الغطاء زينة: المكتوب وحده يحمل المعنى.
+- تبلّغ بنيات التنقيح (debug) عن التآلف الفارغ، والتآلف المكوَّن من مفاتيح معدِّلة فقط، والتآلف بمفتاحين، والمفتاح المسمّى مرتين بعد كتابته (`ctrl+mod` في العُرف القياسي)، واسم المفتاح غير المعروف، والعُرف غير المعروف.
+
+فجوات معروفة في المنصات:
+
+- لم تنفّذ SwiftUI و Compose و Flutter و React Native اختصار لوحة المفاتيح.
+- الويب: الاختصار المعطَّل الذي يقف وحده، خارج أمر معروض هو نفسه على أنه معطَّل، يُرجَّح أن يبلّغ عنه فحص تباين آلي: المكتوب عليه باهت، والعنصر لا يعرض حالة تعطيل خاصة به.
+
+### ما عليك فعله
+
+- اجعل المفاتيح تعمل: المكوّن يعرضها فقط.
+- على عنصر التحكم الذي تخصه المفاتيح، اعرضها على أنها اختصار لوحة المفاتيح له. على الويب عيِّن `aria-keyshortcuts` من الخاصية `ariaKeyShortcuts` للعنصر، وهي للقراءة فقط وتعطي الصيغة التي تأخذها تلك السمة.
+- مرِّر `label`، وهي الاختصار بكلمات منتجك، حيثما يُقرأ الاختصار بصوت مسموع. لا يتضمن Tanrei أي كلمة ولا أي اسم لمفتاح.
+- أبقِ كل أمر قابلًا للوصول إليه من دون اختصاره.

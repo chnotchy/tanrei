@@ -1,0 +1,566 @@
+---
+title: Table
+description: Presents data that has rows and columns, with named columns, optional row headers, a caption and footer rows. It scrolls in its own box when it does not fit. A column's header can ask for the rows in its order and rows can be chosen; the table itself never sorts.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import SortedByThePage from '../../../components/SortedByThePage.astro';
+import CountedByThePage from '../../../components/CountedByThePage.astro';
+
+## Overview
+
+<ComponentAvailability name="table" />
+
+<DemoFrame label="Row headers, numbers at the end, a footer row">
+  <tanrei-table class="tanrei-not-prose" row-headers>
+    <table>
+      <caption>Components by status and platform</caption>
+      <thead>
+        <tr><th scope="col">Status</th><th scope="col" data-align="end" data-wrap="false">Web</th><th scope="col" data-align="end" data-wrap="false">SwiftUI</th><th scope="col" data-align="end" data-wrap="false">Compose</th><th scope="col" data-align="end" data-wrap="false">Flutter</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Planned</th><td data-align="end">2</td><td data-align="end">6</td><td data-align="end">6</td><td data-align="end">6</td></tr>
+        <tr><th scope="row">Alpha</th><td data-align="end">31</td><td data-align="end">30</td><td data-align="end">30</td><td data-align="end">29</td></tr>
+        <tr><th scope="row">Beta</th><td data-align="end">4</td><td data-align="end">1</td><td data-align="end">1</td><td data-align="end">2</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><th scope="row">Total</th><td data-align="end">37</td><td data-align="end">37</td><td data-align="end">37</td><td data-align="end">37</td></tr>
+      </tfoot>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+A table is for data that has two dimensions: a price list, a comparison of plans, a list of settings with their types and defaults, the status of several things on several platforms, the records a person works with. A column's header can ask for the rows in its order, a table without rows shows your Empty state, and a status line under the rows holds your sentence and your pagination. Rows can be chosen with a checkbox each, and a table that waits for its rows says that it is busy. The table itself never sorts, filters, fetches or pages: it draws the rows it is given, in the order it is given them. It does not resize columns.
+
+On the web it is `<tanrei-table>` around your own native `<table>`. The element has no shadow root and the table is never given another `display`, so a crawler, copy and paste into a spreadsheet and a screen reader's table navigation all meet an ordinary HTML table. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/table.css" />
+
+    <tanrei-table row-headers>
+      <table>
+        <caption>Visits by region</caption>
+        <thead>
+          <tr>
+            <th scope="col">Region</th>
+            <th scope="col" data-align="end" data-wrap="false">January</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Islands</th><td data-align="end">212</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><th scope="row">All regions</th><td data-align="end">6,846</td></tr>
+        </tfoot>
+      </table>
+    </tanrei-table>
+
+    <script type="module">
+      import '@tanrei/web/components/table';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Table } from '@tanrei/react';
+    import '@tanrei/web/table.css';
+
+    <Table density="compact" striped label="Tokens of the table">
+      <table>
+        <thead>
+          <tr><th scope="col">Token</th><th scope="col">Type</th></tr>
+        </thead>
+        <tbody>
+          {tokens.map((token) => (
+            <tr key={token.name}><td data-wrap="false">{token.name}</td><td>{token.type}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </Table>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/table.css` draws the whole table before any script runs. The element adds the same stylesheet to the page by itself, so a page that loads only the script still gets a drawn table, a moment later.
+
+### What you write
+
+| Part | On the web |
+| --- | --- |
+| A column | A `<th scope="col">` in the one row of `<thead>`. Its text is the header. |
+| A column's alignment | `data-align="start"`, `"center"` or `"end"` on the header cell. `end` is for numbers that are compared. |
+| A column whose text does not wrap | `data-wrap="false"` on the header cell, for identifiers, dates and numbers. |
+| A row | A `<tr>` in `<tbody>`. A footer row is a `<tr>` in `<tfoot>`. |
+| A cell | A `<td>`. It holds text, a component, or nothing. |
+| A row header | A `<th scope="row">` as the first cell, with `row-headers` on the element. |
+| The name | A `<caption>`, or `label` on the element where a heading above the table already names it. |
+| A column that can be sorted | `aria-sort="none"`, `"ascending"` or `"descending"` on the header cell, and a `<button type="button">` around its text. `data-value` on the cell is the name the `sort` event carries. |
+| No rows | A `<tr data-part="empty">` of one `<td colspan>` in `<tbody>`, holding your Empty state. |
+| The status line | A `<div data-part="status">` after the table, holding a `<p role="status">` and your pagination. `status` on the element writes the paragraph where you write none. |
+| Rows that can be chosen | `selection="multiple"` on the element, and a first cell `<td data-part="selection">` in every row. |
+| A row that can be chosen | `data-value` on the `<tr>`, and a `<tanrei-checkbox label-hidden>` in its selection cell. `data-selected` on the `<tr>` says that it is chosen. |
+| The checkbox for every row | A `<tanrei-checkbox label-hidden>` in the selection cell of the header row. `select-all-label` on the element names it. |
+| A loading table | `loading` on the element. |
+| A placeholder row, for a row that has not arrived | A `<tr data-placeholder aria-hidden="true">`, its cells empty or holding a Skeleton placeholder. |
+
+The element takes a column's alignment and wrapping from its header cell to every cell of the column. To have them drawn before the script runs, repeat `data-align` and `data-wrap` on each cell, as the demos on this page do.
+
+### Sorting
+
+<SortedByThePage />
+
+<DemoFrame label="Press a header: the table asks, and this page orders the rows" plain>
+  <tanrei-table class="tanrei-not-prose" data-docs-sorts>
+    <table>
+      <caption>Products</caption>
+      <thead>
+        <tr><th scope="col" aria-sort="ascending" data-value="name"><button type="button">Name</button></th><th scope="col" aria-sort="none" data-value="stock" data-align="end" data-wrap="false"><button type="button">Stock</button></th><th scope="col" aria-sort="none" data-value="price" data-align="end" data-wrap="false"><button type="button">Price</button></th><th scope="col">Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Filter paper</td><td data-align="end" data-wrap="false">120</td><td data-align="end" data-wrap="false">4.50</td><td>Sold in packs of one hundred</td></tr>
+        <tr><td>Hand grinder</td><td data-align="end" data-wrap="false">8</td><td data-align="end" data-wrap="false">64.00</td><td></td></tr>
+        <tr><td>Kettle</td><td data-align="end" data-wrap="false">15</td><td data-align="end" data-wrap="false">38.00</td><td>Induction and gas</td></tr>
+        <tr><td>Scale</td><td data-align="end" data-wrap="false">0</td><td data-align="end" data-wrap="false">29.50</td><td></td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+A column that can be sorted is a header cell that says the order the rows are in, with your own button around its text:
+
+```html
+<th scope="col" aria-sort="ascending" data-value="name"><button type="button">Name</button></th>
+<th scope="col" aria-sort="none" data-value="price" data-align="end"><button type="button">Price</button></th>
+```
+
+The stylesheet makes the whole header cell the button and draws the mark from `aria-sort`: a two-way arrow while the rows are not in the column's order, an arrow up while they ascend by it, an arrow down while they descend. You write no icon. Load `@tanrei/web/icons.css` and the icon font, because the marks are glyphs of the icon set.
+
+The table never sorts. A press emits `sort` and changes nothing on the screen; you order your rows and write the new `aria-sort`:
+
+```js
+table.addEventListener('sort', (event) => {
+  const { column, index, direction } = event.detail; // 'price', 2, 'ascending' | 'descending'
+  showRows(sortedBy(column, direction));              // your data, your comparison, or your server
+  for (const th of headerCells) th.setAttribute('aria-sort', th.dataset.value === column ? direction : 'none');
+});
+```
+
+`direction` is what the person asked for: `ascending`, or `descending` where the rows already ascend by that column. There is no third press that clears the order. You do not have to give the order that was asked for: you may put the rows in another order, or leave them in no order.
+
+For a table ordered by the server, put a link in place of the button: `<a href="?sort=price&order=asc">Price</a>`, to the same table in the other order. It works without script. `sort` is then emitted before the browser follows the link, and `event.preventDefault()` keeps the page.
+
+### No rows
+
+<DemoFrame label="No rows: your Empty state under the header row" plain>
+  <tanrei-table class="tanrei-not-prose">
+    <table>
+      <caption>Products that match</caption>
+      <thead>
+        <tr><th scope="col">Name</th><th scope="col" data-align="end" data-wrap="false">Stock</th><th scope="col" data-align="end" data-wrap="false">Price</th></tr>
+      </thead>
+      <tbody>
+        <tr data-part="empty"><td colspan="3"><tanrei-empty-state headline="No products match these filters"><span slot="media">search_off</span>Remove a filter, or search for a shorter word.</tanrei-empty-state></td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+Write one row of one cell that spans the columns, and put your Empty state in it:
+
+```html
+<tbody>
+  <tr data-part="empty">
+    <td colspan="3"><tanrei-empty-state headline="No products match these filters">…</tanrei-empty-state></td>
+  </tr>
+</tbody>
+```
+
+The table gives it room above and below and the width of its box, and keeps it in view while the columns scroll sideways. It adds no word of its own. With no such row, a table without rows is its header alone.
+
+### The status line
+
+<DemoFrame label="Your sentence and your pagination, under the rows" plain>
+  <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
+    <table>
+      <caption>Releases, newest first</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">Version</th><th scope="col" data-wrap="false">Released</th><th scope="col">Changes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">2.4.0</td><td data-wrap="false">12 May</td><td>Tables keep their header in view.</td></tr>
+        <tr><td data-wrap="false">2.3.2</td><td data-wrap="false">28 April</td><td>A fix for dates typed with two-digit years.</td></tr>
+        <tr><td data-wrap="false">2.3.1</td><td data-wrap="false">20 April</td><td>A fix for a menu that opened off the screen.</td></tr>
+        <tr><td data-wrap="false">2.3.0</td><td data-wrap="false">2 April</td><td>Side sheets, and a quieter focus ring.</td></tr>
+        <tr><td data-wrap="false">2.2.1</td><td data-wrap="false">18 March</td><td>A fix for a tooltip that stayed open.</td></tr>
+        <tr><td data-wrap="false">2.2.0</td><td data-wrap="false">4 March</td><td>Right-to-left layouts.</td></tr>
+      </tbody>
+    </table>
+    <div data-part="status">
+      <p role="status">1–6 of 42 releases</p>
+      <nav class="tanrei-pagination" aria-label="Pages of the releases">
+        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#the-status-line">
+          <span class="tanrei-pagination-label">Next</span>
+          <span class="tanrei-pagination-title">Releases 7 to 12</span>
+        </a>
+      </nav>
+    </div>
+  </tanrei-table>
+</DemoFrame>
+
+After the table, inside the element, write the status line: your sentence in a paragraph that is a status, and your pagination.
+
+```html
+<tanrei-table>
+  <table>…</table>
+  <div data-part="status">
+    <p role="status">1–20 of 132</p>
+    <nav class="tanrei-pagination" aria-label="Pages of the products">…</nav>
+  </div>
+</tanrei-table>
+```
+
+The sentence stands at the start edge and the pagination at the end; where the two do not fit side by side, the pagination goes under the sentence. The status line does not scroll sideways with the columns, and it stays at the bottom of a table whose rows scroll in its own box. The table counts nothing and writes no word: "1–20 of 132" is yours, in your language. When you change the paragraph's text, assistive technology is told politely. The `status` attribute on the element writes that paragraph for you where your markup has none. A paragraph you wrote yourself is the one that is read, and the attribute then changes nothing.
+
+### Choosing rows
+
+<CountedByThePage />
+
+<DemoFrame label="Choose rows: the table holds the selection, and this page counts it" plain>
+  <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="Select all products" data-docs-counts="{count} of 4 selected">
+    <table>
+      <caption>Products to reorder</caption>
+      <thead>
+        <tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">Name</th><th scope="col" data-align="end" data-wrap="false">Stock</th><th scope="col" data-align="end" data-wrap="false">Price</th></tr>
+      </thead>
+      <tbody>
+        <tr data-value="paper"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="row">Filter paper</th><td data-align="end" data-wrap="false">120</td><td data-align="end" data-wrap="false">4.50</td></tr>
+        <tr data-value="grinder" data-selected><td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope="row">Hand grinder</th><td data-align="end" data-wrap="false">8</td><td data-align="end" data-wrap="false">64.00</td></tr>
+        <tr data-value="kettle"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="row">Kettle</th><td data-align="end" data-wrap="false">15</td><td data-align="end" data-wrap="false">38.00</td></tr>
+        <tr data-value="scale" data-selected><td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope="row">Scale</th><td data-align="end" data-wrap="false">0</td><td data-align="end" data-wrap="false">29.50</td></tr>
+      </tbody>
+    </table>
+    <div data-part="status"><p role="status">2 of 4 selected</p></div>
+  </tanrei-table>
+</DemoFrame>
+
+Set `selection="multiple"` on the element and begin every row with a selection cell. In the header row the cell holds the checkbox for every row. In a body row it holds that row's checkbox, and the row carries the name you know the record by in `data-value`:
+
+```html
+<tanrei-table selection="multiple" row-headers select-all-label="Select all products">
+  <table>
+    <caption>Products to reorder</caption>
+    <thead>
+      <tr>
+        <td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td>
+        <th scope="col">Name</th>
+        <th scope="col" data-align="end">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-value="grinder" data-selected>
+        <td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td>
+        <th scope="row">Hand grinder</th>
+        <td data-align="end">64.00</td>
+      </tr>
+    </tbody>
+  </table>
+  <div data-part="status"><p role="status">1 of 4 selected</p></div>
+</tanrei-table>
+```
+
+The table holds the selection. When a person changes a checkbox, the element writes `data-selected` on that row, keeps the header's checkbox in step, and emits `selectionchange` once with the values of every chosen row, in row order:
+
+```js
+table.addEventListener('selectionchange', (event) => {
+  if (!(event instanceof CustomEvent)) return;       // see the note below
+  const { values } = event.detail;                   // ['grinder', 'scale']
+  // your sentence, in your language, in the paragraph you wrote
+  table.querySelector('[role="status"]').textContent = `${values.length} of ${total} selected`;
+});
+```
+
+- To choose a row yourself, write `data-selected` on its `<tr>`; remove the attribute and the row is no longer chosen. The element checks or unchecks the row's checkbox and emits nothing.
+- Whether a row is chosen is written on the row itself (`data-selected`). Rows that you give again in another order stay chosen or not, and a row the table is given for the first time is chosen only where it says so itself.
+- A row without `data-value` cannot be chosen. Leave its selection cell empty, as in a footer row.
+- The header's checkbox is checked while every row is chosen, indeterminate while some are, and disabled while there is no row to choose. It stands for the rows the table was given, never for the rows of other pages.
+- The selection column is not a column of data. `row-headers` and `sticky-first-column` mean the column after it, and the `index` of a `sort` event does not count it.
+- A press on a row outside its selection cell chooses nothing.
+
+The browser has its own event named `selectionchange`, for a change of the text selection, and a text field in a cell sends it through the table. The table's event is a `CustomEvent` that carries `detail.values`; the browser's is not. Check for that, as the example does.
+
+For a page that must work without script, use native checkboxes. A row whose checkbox is `checked` is drawn as chosen by the stylesheet alone, and the checkboxes are submitted with your form:
+
+```html
+<tr data-value="grinder">
+  <td data-part="selection"><input type="checkbox" name="product" value="grinder" checked aria-label="Select Hand grinder" /></td>
+  <th scope="row">Hand grinder</th>
+</tr>
+```
+
+### Loading
+
+<DemoFrame label="Loading: placeholder rows, and the status line says so" plain>
+  <tanrei-table class="tanrei-not-prose" loading>
+    <table>
+      <caption>Orders of this week</caption>
+      <thead>
+        <tr><th scope="col">Customer</th><th scope="col" data-wrap="false">Placed</th><th scope="col" data-align="end" data-wrap="false">Total</th></tr>
+      </thead>
+      <tbody>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 9rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 12rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 7rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+      </tbody>
+    </table>
+    <div data-part="status"><p role="status">Loading</p></div>
+  </tanrei-table>
+</DemoFrame>
+
+Set `loading` while you fetch rows. The table is exposed as busy and draws what you give it meanwhile. It fetches nothing and waits for nothing: it is loading for as long as you say so.
+
+```html
+<tanrei-table loading>
+  <table>
+    <thead>…</thead>
+    <tbody>
+      <tr data-placeholder aria-hidden="true">
+        <td><span class="tanrei-skeleton-placeholder"></span></td>
+        <td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div data-part="status"><p role="status">Loading</p></div>
+</tanrei-table>
+```
+
+- For a first load, give placeholder rows: `<tr data-placeholder aria-hidden="true">`. A placeholder row is at least one line of text tall, has no checkbox, and is hidden from assistive technology.
+- Leave a placeholder row's cells empty, or put a Skeleton placeholder in each (`class="tanrei-skeleton-placeholder"`, from `@tanrei/web/skeleton.css`). A placeholder is as tall as one line of the cell's text, so the row is as tall as the row that replaces it. The class alone is enough here: the table already says that it is busy.
+- For another page or another order, keep the rows the table had and set `loading`. Rows that a person was reading stay readable.
+- Nothing is dimmed and nothing is disabled. The headers and the checkboxes work while the table loads.
+- While `loading` is set, the Empty state's row is not drawn, even with no other row.
+
+### Markdown
+
+A Markdown renderer writes a bare `<table>`. Wrap it at build time; Tanrei does not move your content at run time. With rehype it is one small step:
+
+```js
+import { visit, SKIP } from 'unist-util-visit';
+
+/** Wraps every table of the document in <tanrei-table>. */
+export function rehypeTanreiTable() {
+  return (tree) =>
+    visit(tree, 'element', (node, index, parent) => {
+      if (node.tagName !== 'table' || parent?.tagName === 'tanrei-table') return;
+      parent.children[index] = { type: 'element', tagName: 'tanrei-table', properties: {}, children: [node] };
+      return SKIP;
+    });
+}
+```
+
+A renderer's own `align="right"` on a cell is read as `end`, and `align="left"` as `start`, so "numbers to the right" becomes "numbers to the end" on a right-to-left page.
+
+## Specs
+
+<DemoFrame label="Compact and striped, for a table a person scans" plain>
+  <tanrei-table class="tanrei-not-prose" density="compact" striped label="Tokens of the table">
+    <table>
+      <thead>
+        <tr><th scope="col" data-wrap="false">Token</th><th scope="col" data-wrap="false">Aliases</th><th scope="col" data-wrap="false">Type</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">comp.table.separation</td><td data-wrap="false">sys.behavior.separation</td><td data-wrap="false">number</td></tr>
+        <tr><td data-wrap="false">comp.table.divider.color</td><td data-wrap="false">sys.color.outline-variant</td><td data-wrap="false">color</td></tr>
+        <tr><td data-wrap="false">comp.table.divider.thickness</td><td data-wrap="false">sys.border.hairline</td><td data-wrap="false">dimension</td></tr>
+        <tr><td data-wrap="false">comp.table.row.gap</td><td data-wrap="false">sys.space.space50</td><td data-wrap="false">dimension</td></tr>
+        <tr><td data-wrap="false">comp.table.stripe.container.color</td><td data-wrap="false">sys.color.surface-container-low</td><td data-wrap="false">color</td></tr>
+        <tr><td data-wrap="false">comp.table.caption.gap</td><td data-wrap="false">sys.space.space100</td><td data-wrap="false">dimension</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<DemoFrame label="Wider than its box: it scrolls there, and the first column stays" plain>
+  <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
+    <table>
+      <caption>Visits by region</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">Region</th><th scope="col" data-align="end" data-wrap="false">January</th><th scope="col" data-align="end" data-wrap="false">February</th><th scope="col" data-align="end" data-wrap="false">March</th><th scope="col" data-align="end" data-wrap="false">April</th><th scope="col" data-align="end" data-wrap="false">May</th><th scope="col" data-align="end" data-wrap="false">June</th><th scope="col" data-align="end" data-wrap="false">July</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row" data-wrap="false">Northern region</th><td data-align="end">1,204</td><td data-align="end">1,310</td><td data-align="end">1,288</td><td data-align="end">1,402</td><td data-align="end">1,396</td><td data-align="end">1,450</td><td data-align="end">1,512</td></tr>
+        <tr><th scope="row" data-wrap="false">Central region</th><td data-align="end">3,020</td><td data-align="end">2,985</td><td data-align="end">3,110</td><td data-align="end">3,204</td><td data-align="end">3,190</td><td data-align="end">3,275</td><td data-align="end">3,301</td></tr>
+        <tr><th scope="row" data-wrap="false">Southern region</th><td data-align="end">870</td><td data-align="end">902</td><td data-align="end">915</td><td data-align="end">899</td><td data-align="end">940</td><td data-align="end">968</td><td data-align="end">1,002</td></tr>
+        <tr><th scope="row" data-wrap="false">Islands</th><td data-align="end">212</td><td data-align="end">220</td><td data-align="end">198</td><td data-align="end">240</td><td data-align="end">251</td><td data-align="end">263</td><td data-align="end">270</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<DemoFrame label="A height from the layout: the rows scroll, and the header stays" plain>
+  <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
+    <table>
+      <caption>Releases</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">Version</th><th scope="col" data-wrap="false">Released</th><th scope="col">Changes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">2.4.0</td><td data-wrap="false">12 May</td><td>Tables keep their header in view.</td></tr>
+        <tr><td data-wrap="false">2.3.2</td><td data-wrap="false">28 April</td><td>A fix for dates typed with two-digit years.</td></tr>
+        <tr><td data-wrap="false">2.3.1</td><td data-wrap="false">20 April</td><td>A fix for a menu that opened off the screen.</td></tr>
+        <tr><td data-wrap="false">2.3.0</td><td data-wrap="false">2 April</td><td>Side sheets, and a quieter focus ring.</td></tr>
+        <tr><td data-wrap="false">2.2.1</td><td data-wrap="false">18 March</td><td>A fix for a tooltip that stayed open.</td></tr>
+        <tr><td data-wrap="false">2.2.0</td><td data-wrap="false">4 March</td><td>Right-to-left layouts.</td></tr>
+        <tr><td data-wrap="false">2.1.0</td><td data-wrap="false">11 February</td><td>The date and time picker.</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<ComponentSpecs name="table" />
+
+## Guidelines
+
+### Is it a table
+
+Use a table for data that has rows and columns. Do not use one to place things side by side: assistive technology announces rows, columns and headers for every cell, which is noise around content that is not tabular. Use the layout for that.
+
+A list of keys and values with no second dimension is closer to a description list than to a table.
+
+### Density
+
+| `density` | A row with one line of text | Use for |
+| --- | --- | --- |
+| `regular` (default) | 46 | A table a person reads: a few rows, cells that wrap. |
+| `compact` | 32 | A table a person scans: hundreds of rows, identifiers and values. |
+
+A row has no height of its own. It is as tall as its tallest cell.
+
+### Telling rows apart
+
+| `separation` | Draws |
+| --- | --- |
+| `auto` (default) | What the design system chose: a hairline in the default system. |
+| `divider` | One hairline between rows, under the header row and above the footer rows. |
+| `gap` | Empty space and no line. |
+
+`striped` fills every second body row with a quiet color. Use it for a wide table of many similar rows, where the eye loses its row on the way across. It can be combined with either separation.
+
+### Columns
+
+- Columns size themselves from their content. A column is never narrower than what cannot break in it, and a column of long text takes what the short ones leave.
+- Text wraps and is never cut. An identifier does not break inside; it widens its column.
+- Align a column of numbers to the end, so that the digits line up. Leave text at the start. Center only a mark or a single word that is the same kind of answer in every row.
+- Give a column a width yourself only where you must (`style="width: …"` on its header cell). It replaces what the content would give.
+
+### When it does not fit
+
+- The table scrolls in its own box, never the page. A hairline along an edge of the box says that columns lie beyond it.
+- `sticky-first-column` keeps the first column in view while the others scroll under it. It lets go by itself where it would take more than half of the box, so a phone is never filled by the column that stays.
+- `sticky-header` keeps the header row in view while the rows scroll. It works where your layout limits the table's height (`max-block-size` on the element); it does not follow the page.
+- A table on a surface other than the page's (a card, a dialog) sets `--tanrei-comp-table-sticky-container-color` to that surface's color where it keeps its header row or first column in view, or has a status line. Those parts are filled with that color, so that the rows and columns that pass under them do not show through.
+
+### Guidance for sorting
+
+- Make a column sortable where a person would look for a row by it: a name, a date, an amount, a category. A column of notes is not one.
+- The mark is drawn on every sortable column, also at rest, so that a touch screen shows which headers can be pressed.
+- One column is sorted at a time. A second sort key is a control of your own.
+- Say the new order in the status line where you want it spoken ("Sorted by price, highest first"). The table announces nothing itself.
+- The header row of a table with a sortable column is at least 44 high at the regular density, and 48 for touch at both densities.
+
+### Guidance for choosing rows
+
+- Let people choose rows where they act on several records at once: delete, export, move. For one record, put the action in its row.
+- Say how many rows are chosen in the status line ("3 of 132 selected"). The table counts nothing.
+- Put the buttons that act on the chosen rows above the table. They are yours; the table tells you what is chosen.
+- Offer "all 132" with a control of your own. The header's checkbox chooses the rows the table was given, never the rows of other pages.
+- Each checkbox is a stop in the focus order. Keep a page of rows to a number a person can tab through, and page the rest.
+- A row that holds a checkbox is at least 44 high at the regular density, and 48 for touch at both densities. A compact row stays compact for a pointer.
+- A [tag](/components/tag/) and [inline code](/components/inline-code/) are tonal unless you choose another variant, and the tonal fill is nearly the fill of a chosen row in the default system, so on a chosen row their shape is lost. Their text stays readable. Use the outlined tag in a table whose rows are chosen.
+
+### Guidance for loading
+
+- Use placeholder rows for a first load, about as many as the rows you expect.
+- Keep the rows for a change of order or of page. Do not replace rows that a person is reading with placeholder rows or a [loading indicator](/components/loading-indicator/).
+- Say "Loading" in the status line, and say what arrived when it is over ("1–20 of 132").
+- Remove the placeholder rows when you clear `loading`. One that is left is still drawn, and reported in debug builds.
+
+### No rows and the status line
+
+- Use the Empty state for a table without rows, and say why there are none and what to do next. An Empty state that answers a search or a filter is `live`, so that the result is told.
+- Keep the status line for what the table shows now: how many rows there are and which of them are shown. Buttons that act on rows belong above the table.
+
+### Do
+
+- Give every table a name: a caption that everyone sees, or `label` where the heading above it already says what it is.
+- Write the first column as row headers (`<th scope="row">` and `row-headers`) whenever it says what each row is.
+- Leave a cell empty where there is nothing to say. Where the absence itself is information ("not available"), write it.
+
+### Don't
+
+- Don't use a table to lay out a screen.
+- Don't rely on stripes or color to carry meaning. A status in a cell is a word, or a tag whose label says it.
+- Don't put a dash in an empty cell to fill it.
+- Don't make a row pressable, and don't write a sort mark or an order of your own into a header. A header becomes pressable by the markup above and by nothing else. A row is chosen by its checkbox, and rows that open are not part of the table.
+- Don't dim or disable a table while it loads.
+
+## Accessibility
+
+<ComponentAccessibility name="table" />
+
+### What the component handles
+
+- The native table stays a table: rows, column headers, row headers and cells are the browser's own, with or without stripes, at either density, while it scrolls and while a column or the header is kept in view.
+- The caption names the table. Without one, `label` becomes the table's `aria-label` and is not drawn. With both, the caption is the name.
+- While the table scrolls in its own box, that box is one stop in the focus order, before anything in its cells, and a region with the table's name. The arrow keys, Page Up, Page Down, Home and End scroll it. A table that does not scroll adds no stop.
+- The focus ring is drawn inside the box's edge, so nothing clips it.
+- Where the first cells of a table are plain `<td>` (rendered Markdown) and `row-headers` is set, the element gives them the row header role.
+- In a right-to-left layout the columns run from the right, the scroll begins at the right, a first column that stays is at the right, and each cell's text keeps its own direction: a number is never reversed.
+- At 200% text the columns are sized again and the table scrolls in its own box where they no longer fit.
+- In forced colors every line is the text color, and a striped table draws its row lines whatever its separation, because the mode removes fills.
+- A sortable column's header cell is a column header that carries the order (`aria-sort`), and your button in it is named by the header's text. The mark is hidden from assistive technology.
+- A sort button is one stop in the focus order. Enter and Space press it; where it is a link, Enter alone. Focus is still on it after the press. Where you replace the header row together with the rows, focus goes to the new button of the same column.
+- The focus indicator of a sort button is drawn inside its header cell, and a button focused by keyboard is brought out from under a first column or a status line that stays in view.
+- The Empty state's row is one row of one cell. The table adds no role and no word to it.
+- The paragraph of the status line is a status: a change of its text is told politely, without moving focus, and nothing is told when it is first drawn.
+- In forced colors a sort button's label and mark take the button's text color, and the sorted column is told by its arrow alone.
+- Without script the sort buttons, their marks, the Empty state's row and the status line are drawn all the same, and a sort link works. The `sort` event needs script.
+- A table whose rows can be chosen is still a table. It gets no grid role, a row gets no selected state, and no key moves focus from cell to cell. The checked state of a row's checkbox says that the row is chosen.
+- The header's checkbox says checked, not checked, or mixed while it is indeterminate, and is disabled while there is no row to choose.
+- Each checkbox is its own stop in the focus order: the header row's checkbox and sort buttons first, then each row's checkbox. Space checks or unchecks it.
+- A row's checkbox that has no name of its own is named by the row's header cell.
+- A press anywhere in a selection cell presses its checkbox. When you replace or reorder the rows while a checkbox has focus, focus goes to the checkbox of the row with the same `data-value`.
+- In forced colors the fill of a chosen row is gone, and the checkbox still says that the row is chosen.
+- While `loading` is set, the table is exposed as busy (`aria-busy`). Placeholder rows are hidden from assistive technology, so a person hears that the table is busy and not rows of nothing. The table announces nothing itself when loading begins or ends.
+- Without script the selection column, a chosen row (`data-selected`, or a native checkbox that is checked) and placeholder rows are drawn all the same, and native checkboxes work in your form. The header's checkbox kept in step and the `selectionchange` event need script.
+- A table with no name, an unknown density, separation or selection, a footer row given before the body, a row with more or fewer cells than columns, a sortable column without a header, two columns sorted at once, a row's checkbox without a name and a placeholder row in a table that is not loading are reported in debug builds.
+
+### What you need to do
+
+- Name the table. A table that scrolls and has no name is a focus stop a person cannot tell from any other.
+- Give every column a header cell, and mark row headers as row headers. Headers are structure, not style.
+- Keep a table that needs two levels of column headers, or cells that span, as simple as you can. They work as HTML does, but no part of this component is designed around them; splitting the table is usually clearer.
+- What is pressable inside a cell (a link, a button) keeps its own name, focus and target size. Give it room.
+- After you order the rows, write the new `aria-sort` on the header cells: `ascending` or `descending` on one, `none` on the other sortable ones. Do not leave the attribute on a header that has no button.
+- Keep the paragraph of the status line in the page while it has no text, so that the next text you give it is told.
+- Name the header's checkbox with `select-all-label`, and each row's checkbox with its `label` where the table has no row headers.
+- Say in the status line when loading begins and when it ends. That is the one place where the change is told.
+
+### The words
+
+Tanrei ships no words. The table asks you for one, the name of the header's checkbox: `select-all-label` on the element, or `selectAllLabel` with `setWords()`. The other two you write in your own markup.
+
+| Word | Where you give it |
+| --- | --- |
+| The name of the header's checkbox ("Select all products") | `select-all-label` on the element, or once for every table with `setWords({ selectAllLabel: 'Select all rows' })`. |
+| The name of a row's checkbox ("Select Hand grinder") | `label` on the row's `<tanrei-checkbox>`, or `aria-label` on a native checkbox. With row headers you can leave it out: the row's header names the checkbox. |
+| The sentence of the status line ("2 of 4 selected", "Loading") | The paragraph of the status line, or `status` on the element where you write no paragraph. |
+
+Without a name for the header's checkbox, the checkbox is still drawn and works, it has no accessible name, and a debug build reports the missing word.

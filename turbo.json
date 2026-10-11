@@ -1,0 +1,82 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "tanrei.config.json",
+    "tokens/**",
+    "specs/**"
+  ],
+  "tasks": {
+    "validate": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "../../tokens/**",
+        "../../specs/**",
+        "../../tanrei.config.json"
+      ],
+      "outputs": []
+    },
+    "generate": {
+      "dependsOn": [
+        "^generate"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "../../tokens/**",
+        "../../specs/**",
+        "../../tanrei.config.json"
+      ],
+      "outputs": [
+        "generated/**",
+        "src/generated/**",
+        "custom-elements.json"
+      ]
+    },
+    "build": {
+      "dependsOn": [
+        "generate",
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        "lib/**",
+        ".build/**",
+        "build/**"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": []
+    },
+    "@tanrei/web#test:node": {
+      "dependsOn": [
+        "build"
+      ],
+      "outputs": []
+    },
+    "@tanrei/web#test": {
+      "dependsOn": [
+        "build",
+        "test:node"
+      ],
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "@tanrei/tools#validate": {
+      "cache": false
+    },
+    "@tanrei/tools#generate": {
+      "cache": false,
+      "dependsOn": [
+        "^generate"
+      ]
+    }
+  }
+}

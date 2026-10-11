@@ -1,0 +1,339 @@
+---
+title: "文件项"
+description: "显示一个文件，包括表示格式的字形或文件的小图、文件名，以及产品对它的说明，并带有移除和重试两个操作；它可以是一列文件中的一行，也可以是一排图片中的一个图块。可以按下它来打开文件。它自己绝不读取、保留或发送文件。"
+translationOf: components/file-item.mdx
+sourceHash: 7d87ffe88f4c926c993c8b2d399a647f70ab8368
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## 概览
+
+<ComponentAvailability name="file-item" />
+
+<DemoFrame label="一个文件显示为行，几个文件显示为图块" column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="移除"></tanrei-file-item>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="移除"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="移除"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+文件项就是把一个文件显示出来。文件名前面是一个表示文件格式的字形，或者是文件的一张小图。文件名下面有一行，写的是你的产品对它的说明：格式、大小、发送进行到哪里，或者出了什么问题。末尾是文件都有的两个操作：移除它，以及重试。
+
+它有两种形式：
+
+- `row`，默认值：一行，宽度由它所在的位置决定。用于一列文件。
+- `tile`：一个方框，宽度和高度由你给出，名称在方框下方。用于一排图片。
+
+<Callout type="caution" title="它只负责显示，别的什么都不做">
+文件项不读取文件的任何一个字节，不保留任何文件，也不发送任何东西。它也不移除任何东西：它的移除操作只是告诉你用户提出了这个要求，由你把这个文件项拿掉。它显示的内容就是它的属性所给出的内容。
+</Callout>
+
+**使用它的组件**是[文件上传](/zh-cn/components/file-upload/)，那里每个已选的文件都是一个文件项。只要你的产品要显示它已经持有的文件，就可以单独使用文件项：消息的附件、一条记录下的文档、已经发出的请求里的文件。
+
+以下情况请使用别的组件：
+
+- 用户选择文件，由你把它们列出来。那是[文件上传](/zh-cn/components/file-upload/)，它替你持有文件项。
+- 用户要给文件排顺序。那是各行显示文件的[列表](/zh-cn/components/list/)；参见[顺序可由用户调整的文件](#顺序可由用户调整的文件)。
+- 用户要在文件中选择。那是带选择功能的[列表](/zh-cn/components/list/)。文件项没有选中状态。
+- 图片本身就是供人观看的内容。文件项的图片占的是字形的位置，没有替代文本。
+
+在 Web 上它是 `<tanrei-file-item>`。其他平台尚未实现。
+
+### 用法
+
+给出 `name`，以及你手头有的各项文本。`value` 是 `click`、`remove` 和 `retry` 交还给你的值。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <ul class="attachments" aria-label="附件">
+      <li>
+        <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 KB"
+                          href="/files/brief.pdf" remove-label="移除"></tanrei-file-item>
+      </li>
+      <li>
+        <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB"
+                          status="uploading" status-text="正在上传" progress="0.4"
+                          remove-label="移除" retry-label="重试"></tanrei-file-item>
+      </li>
+    </ul>
+
+    <script type="module">
+      import '@tanrei/web/components/file-item';
+
+      const list = document.querySelector('.attachments');
+      // 文件项绝不会自己移除自己。由你把它拿掉、停止发送这个文件，并移动焦点。
+      list.addEventListener('remove', (event) => {
+        cancel(event.detail.value);
+        event.target.closest('li').remove();
+      });
+      list.addEventListener('retry', (event) => send(event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FileItem } from '@tanrei/react';
+
+    <ul aria-label="附件">
+      {files.map((file) => (
+        <li key={file.id}>
+          <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
+            status={file.status} statusText={file.statusText} progress={file.progress}
+            errorText={file.errorText} retryable={file.retryable}
+            removeLabel="移除" retryLabel="重试"
+            onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
+        </li>
+      ))}
+    </ul>
+    ```
+  </TabItem>
+</Tabs>
+
+`removeLabel` 和 `retryLabel` 可以用 `setWords()` 为整个产品只给一次。其余的文本都属于各个实例。
+
+## 规格
+
+<DemoFrame label="每种状态一行：等待中、已发送 40%、进行中、已完成、失败但可重试、彻底失败" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="等待中" remove-label="移除"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="正在上传" progress="0.4" remove-label="移除"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="正在上传" remove-label="移除"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="已上传" remove-label="移除"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="连接已断开。" retryable remove-label="移除" retry-label="重试"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="超过 10 MB。" remove-label="移除"></tanrei-file-item>
+</DemoFrame>
+
+<ComponentSpecs name="file-item" />
+
+## 指南
+
+### 两种形式
+
+<DemoFrame label="同样的三个文件，分别显示为行和图块" plain column>
+  <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="移除"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="移除"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" preview remove-label="移除"></tanrei-file-item>
+  </div>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="移除"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="移除"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="移除"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| 方面 | `row`（默认） | `tile` |
+| --- | --- | --- |
+| 用在哪里 | 一列任意种类的文件。 | 一排图片。 |
+| 宽度 | 由它所在的位置决定。 | 方框的宽度：`width`，绝不超过它所在位置的宽度。 |
+| 字形或图片 | 在名称前面。设置 `preview` 时，是一个小正方形。 | 占满整个方框，宽 `width`、高 `height`。 |
+| 名称 | 换行，绝不截断。 | 方框下方的一行，从中间截断，以便保留末尾。 |
+| 第二行 | 在名称下面。 | 在方框下方，在方框的宽度内换行。 |
+| 进度条 | 在各项文本下面。 | 沿着方框的底边。 |
+| 操作 | 在末尾：先是重试，再是移除。 | 在方框内，位于顶部靠末尾侧的角上。 |
+
+`width` 和 `height` 是数字，只在图块形式下读取。没有 `height` 时，方框的高度由令牌 `comp.file-item.tile.media.height` 决定；没有 `width` 时，方框是正方形。请按你手头图片的比例来选：屏幕截图用 `width="160" height="90"`，人物肖像用正方形。方框的宽度绝不会小于它的两个操作所需的宽度。
+
+没有第三种紧凑形式。只占一行的文件，就是第二行什么都没有的行。
+
+### 显示哪些内容
+
+每个部分在你给出它时才显示。`preview` 和 `nameHidden` 这两个只有开和关的属性会改变显示的内容。没有哪个属性用来列出要显示的部分。
+
+| 部分 | 何时显示 |
+| --- | --- |
+| 字形 | 只要没有绘制图片，就始终显示。 |
+| 图片 | 设置了 `preview`，并且有图片可以绘制。 |
+| 名称 | 在行里始终显示。在图块里也显示，只有设置了 `nameHidden` 并且绘制了图片时除外。 |
+| 用文字写出的格式 | 你给出了 `formatText`。Tanrei 没有表示任何格式的文字。 |
+| 大小 | 你给出了 `sizeText`，也就是按读者的语言格式化好的大小。 |
+| 用文字写出的状态 | 你给出了 `statusText`。 |
+| 错误 | `status` 是 `error`，并且你给出了 `errorText`。它在任何形式下都占据状态的位置，绝不截断。 |
+| 进度条 | `status` 是 `uploading`。填充到 `progress`；未设置 `progress` 时是不确定的形式。 |
+
+已完成的文件和失败的文件，在状态文字前面各有一个标记：对勾和错误标记。名称前面的字形不随状态变化。这样用户只需记住两个位置：名称前面说明文件是什么；状态前面说明它现在怎么样。
+
+`nameHidden` 用于排得很密的一排图片。只有在绘制了图片时，它才隐藏名称。显示字形的图块会保留名称，因为表示格式的字形分辨不了同一格式的两个文件。无论哪种情况，对辅助技术来说，这个名称始终是文件项的名称。
+
+### 字形表示格式
+
+字形共有十个种类。每个种类都有一份媒体类型清单和一份文件扩展名清单。字形根据 `mediaType` 选定。媒体类型为空、是 `application/octet-stream`，或者不在这些清单的任何一份里时，则根据 `name` 的扩展名选定。各个种类按下表的顺序匹配。这些清单是固定的，在每个平台上都相同，所以同一个文件无论显示在哪里，画出的都是同一个字形。
+
+<DemoFrame label="十个种类" plain column>
+  <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
+    <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
+    <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
+    <tanrei-file-item name="kickoff.pptx" readonly></tanrei-file-item>
+    <tanrei-file-item name="photos.zip" readonly></tanrei-file-item>
+    <tanrei-file-item name="tokens.json" readonly></tanrei-file-item>
+    <tanrei-file-item name="entrance.jpeg" readonly></tanrei-file-item>
+    <tanrei-file-item name="walkthrough.mp4" readonly></tanrei-file-item>
+    <tanrei-file-item name="interview.mp3" readonly></tanrei-file-item>
+    <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
+    <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| 种类 | 字形 | 媒体类型 | 后缀 |
+| --- | --- | --- | --- |
+| pdf | `picture_as_pdf` | `application/pdf` | pdf |
+| spreadsheet | `table` | `text/csv`, `text/tab-separated-values`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `application/vnd.oasis.opendocument.spreadsheet`, `application/vnd.apple.numbers`, `application/x-iwork-numbers-sffnumbers` | xls, xlsx, ods, numbers, csv, tsv |
+| presentation | `slideshow` | `application/vnd.ms-powerpoint`, `application/vnd.openxmlformats-officedocument.presentationml.presentation`, `application/vnd.oasis.opendocument.presentation`, `application/vnd.apple.keynote`, `application/x-iwork-keynote-sffkey` | ppt, pptx, odp, key |
+| archive | `folder_zip` | `application/zip`, `application/x-zip-compressed`, `application/x-tar`, `application/gzip`, `application/x-gzip`, `application/x-bzip2`, `application/x-xz`, `application/x-7z-compressed`, `application/vnd.rar`, `application/x-rar-compressed` | zip, tar, gz, tgz, bz2, xz, 7z, rar |
+| code | `code` | `text/html`, `text/css`, `text/javascript`, `application/javascript`, `application/x-javascript`, `text/typescript`, `application/typescript`, `text/jsx`, `text/tsx`, `application/json`, `application/xml`, `text/xml`, `text/yaml`, `text/x-yaml`, `application/yaml`, `application/x-yaml`, `application/x-sh`, `text/x-sh`, `text/x-shellscript`, `text/x-python`, `text/x-script.python`, `text/x-ruby`, `application/x-ruby`, `text/x-go`, `text/x-rust`, `text/x-java`, `text/x-java-source`, `text/x-kotlin`, `text/x-swift`, `text/x-c`, `text/x-chdr`, `text/x-csrc`, `text/x-c++`, `text/x-c++src`, `text/x-csharp`, `text/x-php`, `application/x-php`, `application/x-httpd-php`, `application/sql`, `text/x-sql` | html, css, js, mjs, ts, tsx, jsx, json, xml, yaml, yml, sh, py, rb, go, rs, java, kt, swift, c, h, cpp, cs, php, sql |
+| image | `image` | 所有以 `image/` 开头的类型 | png, jpg, jpeg, gif, webp, avif, svg, bmp, tif, tiff, heic, heif, ico |
+| video | `movie` | 所有以 `video/` 开头的类型 | mp4, mov, m4v, webm, mkv, avi |
+| audio | `music_note` | 所有以 `audio/` 开头的类型 | mp3, wav, m4a, aac, ogg, oga, flac, opus |
+| document | `description` | 其余所有以 `text/` 开头的类型，以及 `application/rtf`, `application/msword`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `application/vnd.oasis.opendocument.text`, `application/vnd.apple.pages`, `application/x-iwork-pages-sffpages` | txt, md, rtf, doc, docx, odt, pages |
+| other | `draft` | — | 其余的一切，以及不带点的名称 |
+
+- 媒体类型先于后缀起决定作用。只要文件的媒体类型在某个清单里，它就属于那个种类，不管它的名称以什么结尾。
+- 绝不会为了弄清格式而打开文件。
+- 对于你自己的格式，用 `glyph` 指定图标集里的一个字形，或者把你自己的字形放进 `icon` 插槽。
+- 所有字形都只有一种颜色。格式没有自己的颜色：一种颜色无论用在哪里都只表示一个意思，而格式不是状态。
+- 格式要紧的地方，用 `formatText` 把它写成文字。字形对辅助技术是隐藏的。
+
+### 预览及其代价
+
+`preview` 在字形的位置绘制文件的一张图片。图片有两个来源：
+
+- `previewSrc`：你的服务器为这个文件生成的小尺寸版本的地址。任何格式的文件都可以这样绘制。
+- 文件本身：`previewSrc` 为空，并且文件是图片时。在 Web 上，你把 `File` 赋给 `file` 属性。
+
+`fit` 决定图片怎样填充它的方框。默认值 `cover` 填满方框，裁掉放不下的部分，适合照片。`contain` 在方框的底色上显示完整的图片，适合扫描件、签名和示意图这类边缘也要紧的图。
+
+<DemoFrame label="160 × 90 的方框：cover、contain，以及隐藏名称" plain>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="移除"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="移除"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="移除"></tanrei-file-item>
+</DemoFrame>
+
+预览的代价：
+
+| 图片的来源 | 代价 |
+| --- | --- |
+| 不设置 `preview`（默认） | 没有代价。一百个文件项的开销只是它们的文本的开销。 |
+| 使用 `previewSrc` | 每个文件项一次图片请求，由平台自己的图片加载机制发出。 |
+| 使用文件本身 | 为文件生成一个地址。文件项在第一次进入视口或接近视口时生成它；在文件项离开页面、你给了它另一个文件或不再给文件，以及不再需要预览时释放它。平台的图片解码器读取文件来绘制它。文件项自己什么都不读。 |
+
+- 只有图片才会直接由文件本身绘制。视频的一帧或文档的一页都需要打开并读取文件，而 Tanrei 的任何组件都不做这件事。这类文件请给出 `previewSrc`。
+- 在图片可以绘制之前，以及图片无法绘制时，绘制的是表示格式的字形。没有加载指示器，也没有图片损坏的标记，`status` 也不会改动：缩略图没有加载出来，并不是文件的失败。
+- 图片没有替代文本。它占的是原来字形的位置，而文件由 `name` 命名。
+
+### 可按下、链接或只读
+
+默认情况下，文件项的主体不接收焦点，也不响应任何操作。文件项只是承载着它的操作。
+
+<DemoFrame label="主体是按钮、主体是在新标签页中打开的链接，以及只读的文件" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="移除"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#可按下链接或只读" target="new" target-label="在新标签页中打开" remove-label="移除"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="已于 12 月 4 日发送" readonly></tanrei-file-item>
+</DemoFrame>
+
+| 属性 | 主体是 | 用在哪里 |
+| --- | --- | --- |
+| `interactive` | 一个按钮。它触发带有 `value` 的 `click`。 | 在用户所在的地方打开文件：在你自己的查看器里打开图片，在面板里打开文档。 |
+| `href` | 指向文件的链接。它先触发 `click`；取消这个事件，就可以由你自己来处理导航。 | 你的服务器已经持有的文件。设置 `target="new"` 时，要给出 `targetLabel`。 |
+| 两者都没有 | 不可按下。 | 只是列出来的文件。 |
+
+主体是字形或图片，再加上各项文本。操作在主体旁边，绝不在主体里面，所以可按下的文件项最多有三个焦点停靠点：主体、重试、移除。
+
+`readOnly` 不绘制这两个操作，也不为它们留出位置。它用于只供阅读的记录里的文件。主体仍然可以按下。
+
+`disabled` 禁用操作和主体。文件项显示的内容保持原样，并且仍然可读。
+
+### 顺序可由用户调整的文件
+
+文件项没有手柄，没有移动按钮，也没有顺序。调整顺序是[列表](/zh-cn/components/list/)的事。请把每个文件显示为可调整顺序的列表中的一行：名称作为标题，大小作为辅助文本，前置位置放一个字形或一张图片，后置位置放一个你自己的按钮，用来移除它。
+
+<ListReorderProduct />
+
+<DemoFrame label="顺序可由用户调整的文件：一个可调整顺序的列表，它的各行显示文件" plain>
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="上移" move-down-label="下移" moved-text="“{headline}”已移到第 {position} 位，共 {count} 项" style="inline-size: 26rem">
+    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="移除 cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="resume.docx" supporting-text="文档 · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="移除 resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="portfolio.zip" supporting-text="压缩包 · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="移除 portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+```html
+<tanrei-list reorder="buttons" move-up-label="上移" move-down-label="下移"
+             moved-text="“{headline}”已移到第 {position} 位，共 {count} 项">
+  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
+    <tanrei-button slot="trailing" variant="text" label="移除 cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
+  </tanrei-list-item>
+  …
+</tanrei-list>
+```
+
+这样绘制的是列表的行，而不是文件项：字形由你自己指定，行没有进度条，也没有状态标记。列表负责移动行、朗读每一次移动，并保持焦点；参见列表页面上的[调整顺序](/zh-cn/components/list/#调整顺序)。把文件项作为列表行的内容，以及顺序可由用户调整的一排图块，都还没有实现。
+
+### 文字
+
+文件项没有自己的文字。其中两项可以用 `setWords()` 为整个产品只给一次；其余的文本都是实例的属性。
+
+| 属性 | 产品文字的键 | 没有它时 |
+| --- | --- | --- |
+| `removeLabel` | `removeLabel` | 移除操作照样绘制，但没有名称。调试构建会报告这一点。 |
+| `retryLabel` | `retryLabel` | 重试操作照样绘制，但没有名称。调试构建会报告这一点。 |
+
+每个操作都由它的文件名来描述。“移除”这一个词对每个文件都够用：用户听到的是“移除，按钮，brief.pdf”。
+
+### 从右到左
+
+在从右到左的布局中，字形或图片位于右侧，操作位于左侧，其中移除在最外侧；进度条从右侧开始填充，图块的操作位于它的左上角。图片绝不镜像。用拉丁字母写的文件名保持自己的顺序，连同它的点和扩展名。十个格式字形中，只有 `other` 的字形会镜像，因为图标集是这样标记它的。
+
+### 推荐
+
+- 给已完成的文件写 `statusText`，给失败的文件写 `errorText`。状态绝不能只靠标记或颜色来表达。
+- 只有重试可能解决的失败才设置 `retryable`。过大的文件再试一次还是过大。
+- 大小由你自己格式化。1 MB 是 1000 KB 还是 1024 KB，由你的产品决定。
+- 把属于同一组的文件项放进你自己的列表（一个带名称的 `<ul>`），或者放进文件上传。
+- 移除一个文件项之后，由你自己移动焦点。文件项单独存在时，无从知道它旁边是什么。
+
+### 避免
+
+- 不要指望文件项自己移除自己、改变自己的状态或移动自己的进度条。它只绘制你设置的内容。
+- 不要对不是图片的文件使用 `nameHidden`。它们的图块无论如何都会保留名称。
+- 不要在它里面放菜单、复选框或说明文字。它唯一的插槽是字形。对文件的其他操作放在文件项旁边。
+- 不要把它用作供用户选择或调整顺序的列表中的行。那是列表的行。
+
+## 无障碍
+
+<ComponentAccessibility name="file-item" />
+
+### 组件负责的部分
+
+- 单独使用时，文件项是一个组，以文件名命名。在文件上传里，它是文件上传的列表中的一项。
+- 可按下的主体是一个按钮或一个链接，以文件名命名，以第二行作为描述。在焦点顺序中，它排在操作前面。链接用 Enter 激活，不用空格键；在新标签页中打开的链接，会在名称后面说出 `targetLabel`。
+- 操作是按钮，以 `removeLabel` 和 `retryLabel` 命名，以文件名作为描述。重试排在移除前面。
+- 进度条具有进度条角色，并以文件命名。错误是第二行的文本，在状态的位置读出。
+- 字形、图片和状态标记对辅助技术隐藏。它们表示的内容由文字说出。
+- 文件项什么都不朗读。持有许多文件项的一方，为它们全体提供一个实时区域，文件上传就是这样做的。
+- 完整的名称始终会传给辅助技术，即使图块把它截断了，或者 `nameHidden` 把它隐藏了。
+- 文本放大到 200% 时，行会换行，不丢失任何内容。图块的方框保持原来的大小，它的文本在方框下方随之变大。
+- 在强制颜色模式下，方框和图块上操作的圆形底板保留一道边线，进度条仍然可见。图片保持原样。
+- 状态之间的颜色变化会用很短的时间过渡；在减弱动态效果的环境中则立即完成。
+
+Web 上的已知差距：
+
+- 会动的图片（例如 GIF 动图）由浏览器的图片元素播放。文件项无法让它静止。如果这一点要紧，请把这张图片的静态版本作为 `previewSrc` 给出。
+- 在元素完成定义之前，什么都不会绘制，因为名称是一个属性，而不是文档里的文本。必须在不运行脚本的地方列出文件的页面，要自己写链接。
+
+### 需要你做的事
+
+- 始终给出 `name`。
+- 给出 `removeLabel` 和 `retryLabel`：写在元素上，或者用 `setWords()` 只给一次。
+- 每一种状态、每一次失败，都要用文字说明：`statusText` 和 `errorText`。
+- 设置 `target="new"` 时，要给出 `targetLabel`。
+- 给一组文件项配上你自己的列表和名称，并在你自己的一个实时区域里朗读添加了什么、完成了什么、什么失败了。文件上传会替你做这两件事。
+- 移除一个文件项之后，把焦点移到下一个文件的移除操作上，或者移到添加文件的那个控件上。

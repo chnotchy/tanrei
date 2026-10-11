@@ -1,0 +1,246 @@
+---
+title: コールアウト
+description: コンテンツの一部としてその場に残る通知です。注記、注意、理由の説明、問題の要約などを、控えめな塗りまたは枠線で、ステータスがあればその色とグリフで描きます。タイトル、アクション、閉じるボタンを付けられます。
+translationOf: components/callout.mdx
+sourceHash: 320f2641050ceff2eca3845c2bce486e1bb800a0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="callout" />
+
+<DemoFrame label="注記、タイトル付きの注意、アクションと閉じるボタンのある通知" column>
+  <tanrei-callout status="info" status-label="情報" style="inline-size: min(100%, 34rem)">Web はこの改訂を描画しています。ほかのプラットフォームは後から続きます。</tanrei-callout>
+  <tanrei-callout status="warning" headline="プレリリース：まだ公開されていません" style="inline-size: min(100%, 34rem)">パッケージはまだレジストリにありません。以下のインストール手順は、最初のリリース後の使い方を示しています。</tanrei-callout>
+  <tanrei-callout id="callout-demo-overview" variant="outlined" headline="このページの新しい版があります" closable close-label="閉じる" style="inline-size: min(100%, 34rem)">再読み込みすると読めます。入力した内容は失われません。<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-callout').open = false">再読み込み</tanrei-button></tanrei-callout>
+  <tanrei-button variant="text" onclick="document.getElementById('callout-demo-overview').open = true">最後のコールアウトをもう一度表示</tanrei-button>
+</DemoFrame>
+
+コールアウトは、ページの流れの中にある通知です。置いた場所に、その場所の幅いっぱいで、コンテンツがある限り残ります。既定では注記であり、前の段落と同じように、ある場所で読まれます。フォーカスを取ることはありません。
+
+Web では `<tanrei-callout>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+本文は要素自身の内容です。タイトルは `headline` 属性で渡すか、独自の内容や見出しにする場合は `title` スロットに入れます。アイコンセットのグリフは `icon` スロットに、独自のボタンやリンクは `actions` スロットに入れます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 注記。ステータスはタイトルの言葉で伝わっています。 -->
+    <tanrei-callout status="info">
+      <p slot="title">注記</p>
+      テキストスタイルの名前は、サイズではなくレベルで付けます。
+    </tanrei-callout>
+
+    <!-- タイトルがステータスを伝えていない場合：status-label を先に読み上げます（「警告、…」）。描画はしません。 -->
+    <tanrei-callout status="warning" status-label="警告" headline="アクセシビリティ">
+      プリセットは元のデザインに合わせるもので、このコントラストのしきい値には合わせません。
+    </tanrei-callout>
+
+    <!-- ヒント：ステータスなし、独自のグリフ、言葉はタイトルに。 -->
+    <tanrei-callout headline="ヒント">
+      <span slot="icon">lightbulb</span>
+      アクションは有効なままにして、使われたときに何が足りないかを説明します。
+    </tanrei-callout>
+
+    <!-- 長文の内容はプローズです。コールアウトのサイズで、行長の制限なしにします。 -->
+    <tanrei-callout size="large" status="warning">
+      <h3 slot="title">プレリリース：まだ公開されていません</h3>
+      <div class="tanrei-prose" data-size="large" data-measure="false">
+        <p>パッケージはまだレジストリにありません。<a href="/ja/status/">ステータスを見る</a>。</p>
+        <ul><li>…</li></ul>
+      </div>
+    </tanrei-callout>
+
+    <script type="module">
+      import '@tanrei/web/components/callout';
+      import '@tanrei/web/callout.css'; // サーバーで描画したコールアウトが、要素の定義前に保つボックス
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Callout } from '@tanrei/react';
+
+    <Callout status="warning" headline="ディスク上のファイルが変更されました" live open={conflict} closable closeLabel="閉じる" onDismiss={() => setConflict(false)}>
+      ここには、そのファイルにない編集があります。選ぶまで何も上書きされません。
+      <Button slot="actions" variant="outlined" onClick={reload}>ディスクから再読み込み</Button>
+      <Button slot="actions" variant="text" onClick={keep}>自分の編集を残す</Button>
+    </Callout>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="2 つの見た目と、それぞれのステータス" plain column>
+  <tanrei-callout style="inline-size: min(100%, 34rem)">サイズは最小値です。文字を拡大すると、コントロールも大きくなります。</tanrei-callout>
+  <tanrei-callout status="info" status-label="情報" style="inline-size: min(100%, 34rem)">Web はこの改訂を描画しています。ほかのプラットフォームは後から続きます。</tanrei-callout>
+  <tanrei-callout status="warning" status-label="警告" style="inline-size: min(100%, 34rem)">コントロールの存在を示す唯一の手がかりである枠線は、サーフェスに対して 3:1 を保つ必要があります。</tanrei-callout>
+  <tanrei-callout status="error" status-label="エラー" style="inline-size: min(100%, 34rem)">ファイルを読み込めませんでした。何も変更されていません。</tanrei-callout>
+  <tanrei-callout status="success" status-label="成功" style="inline-size: min(100%, 34rem)">6 つのスキームすべてで、コントラストの検査に合格しました。</tanrei-callout>
+  <tanrei-callout variant="outlined" style="inline-size: min(100%, 34rem)">サイズは最小値です。文字を拡大すると、コントロールも大きくなります。</tanrei-callout>
+  <tanrei-callout variant="outlined" status="info" status-label="情報" style="inline-size: min(100%, 34rem)">Web はこの改訂を描画しています。ほかのプラットフォームは後から続きます。</tanrei-callout>
+  <tanrei-callout variant="outlined" status="warning" status-label="警告" style="inline-size: min(100%, 34rem)">コントロールの存在を示す唯一の手がかりである枠線は、サーフェスに対して 3:1 を保つ必要があります。</tanrei-callout>
+  <tanrei-callout variant="outlined" status="error" status-label="エラー" style="inline-size: min(100%, 34rem)">ファイルを読み込めませんでした。何も変更されていません。</tanrei-callout>
+  <tanrei-callout variant="outlined" status="success" status-label="成功" style="inline-size: min(100%, 34rem)">6 つのスキームすべてで、コントラストの検査に合格しました。</tanrei-callout>
+</DemoFrame>
+
+<DemoFrame label="タイトル、独自のグリフ、アクション、閉じるボタン、large サイズ" plain column>
+  <tanrei-callout headline="ヒント" style="inline-size: min(100%, 34rem)"><span slot="icon">lightbulb</span>アクションは有効なままにして、使われたときに何が足りないかを説明します。</tanrei-callout>
+  <tanrei-callout status="info" headline="実験的" style="inline-size: min(100%, 34rem)"><span slot="icon">science</span>この振る舞いは、最初のリリースまでに変わる可能性があります。</tanrei-callout>
+  <tanrei-callout status="warning" headline="ディスク上のファイルが変更されました" style="inline-size: min(100%, 34rem)">ここには、そのファイルにない編集があります。選ぶまで何も上書きされません。<tanrei-button slot="actions" variant="outlined">ディスクから再読み込み</tanrei-button><tanrei-button slot="actions" variant="text">自分の編集を残す</tanrei-button></tanrei-callout>
+  <tanrei-callout id="callout-demo-closable" headline="検索の対象にリリースノートが加わりました" closable close-label="閉じる" style="inline-size: min(100%, 34rem)">閉じるボタンを押すと、コールアウトはすぐに消え、フォーカスは元の場所に戻ります。</tanrei-callout>
+  <tanrei-button variant="text" onclick="document.getElementById('callout-demo-closable').open = true">もう一度表示</tanrei-button>
+  <tanrei-callout size="large" status="error" headline="危険" style="inline-size: min(100%, 34rem)">このコマンドは生成されたファイルをすべて削除します。元に戻せません。</tanrei-callout>
+</DemoFrame>
+
+<ComponentSpecs name="callout" />
+
+## ガイドライン
+
+### スナックバー、コールアウト、ダイアログ
+
+この 3 つは、どこに置かれ、どれだけ残るかで区別します。
+
+| 種類 | 何であるか | 置かれる場所 | 残る時間 | 読み上げ |
+| --- | --- | --- | --- | --- |
+| [スナックバー](../snackbar/) | アプリがいま行ったこと、いま起きたことの結果。 | コンテンツの上、ウィンドウの端。 | 短い間、または閉じるまで。 | 常に読み上げます。 |
+| コールアウト | コンテンツの一部である通知。 | 流れの中、置いた場所。 | コンテンツがある限り。 | 何かへの応答として現れたときだけ（`live`）。 |
+| [ダイアログ](../dialog/) | 先へ進む前に答える必要のある問い。 | すべての上、スクリム付き。 | 答えるまで。 | フォーカスを取ることで伝えます。 |
+
+**バナー**（ページや画面全体に向けた、コンテンツの上の通知）は、4 つ目のものではありません。その領域のコンテンツの上に置いたコールアウトです。多くは `live` で、アクションか閉じるボタンを持ちます。関係する領域の読み上げ順で最初に来る場所に置きます。
+
+1 つのフィールドの下に出すメッセージ（この値は日付ではありません、など）も、コールアウトではありません。フィールド自身の補足テキストです。
+
+### 見た目の選び方
+
+| `variant` | 描画 | 用途 |
+| --- | --- | --- |
+| `tonal`（既定） | 控えめな塗り。 | ほとんどのコールアウト。 |
+| `outlined` | 塗りなし、細い線 1 本。 | 色の付いたサーフェスの上や、塗りのあるカードの中など、塗りが見えなくなる場所。コールアウトが近くに多く並ぶ場合。 |
+
+線は、どのステータスでもシステムの細い線 1 本です。ステータスの色は付きません。
+
+### ステータス
+
+`status` は `default`、`info`、`warning`、`error`、`success` のいずれかです。スナックバーとタグが使う名前であり、システムのどこでも同じ意味で使います。ステータスは、色とグリフ（`info`、`warning`、`error`、`check_circle`）を描き、ライブのコールアウトの読み上げ方を決めます。それ以外は何も変えません。
+
+| 書いているもの | 使うもの |
+| --- | --- |
+| 注記：知っておくとよいこと | `status="info"` |
+| 注意：気を付ける必要があること | `status="warning"` |
+| 危険：うまくいかなくなること | `status="error"` |
+| ヒント：読み手が採用できる助言 | `status="default"`、`icon` スロットにグリフ `lightbulb`、タイトルに「ヒント」 |
+
+ヒントは成功ではありません。何も成功していないからです。`icon` スロットは、ステータスの有無にかかわらずアイコンセットのどのグリフも受け取るので、「実験的」や「このバージョンの新機能」にも新しい値は要りません。言葉はタイトルに書きます。
+
+### サイズ
+
+| `size` | タイトル | 本文 | 用途 |
+| --- | --- | --- | --- |
+| `medium`（既定） | 文字サイズ 14 / 行の高さ 20 | 14 / 22 | コントロールの間にあるコールアウト。フォーム、パネル、ダイアログ。 |
+| `large` | 16 / 24 | 16 / 26 | 文章を読むことが目的のページにあるコールアウト。 |
+
+これはプローズの 2 つのサイズです。変わるのはテキストスタイルだけで、パディング、グリフ、閉じるボタンは同じです。
+
+### タイトル
+
+`headline` はプレーンテキストであり、見出しにはなりません。ほとんどのタイトルは注記のラベルです。アウトラインに「注記」が 5 回並ぶページは、かえって使いにくくなります。コールアウトが、人が移動してくるページの一部を始める場合は、アウトラインに合ったレベルの見出しを `title` スロットに入れます。コールアウトはそれをほかのタイトルと同じように描き、ロールもレベルも変えません。
+
+サーバーで描画するページでは、タイトルを `title` スロットで渡します。`headline` 属性は要素が描くため、要素が定義されるまで表示されません。
+
+### 本文
+
+要素に直接置いたテキストは、コールアウトのテキストスタイルと色になります。長文のブロック（段落、リスト、表、コードブロック）は、コールアウトのサイズで行長の制限のないプローズに入れます。
+
+```html
+<tanrei-callout status="info">
+  <div class="tanrei-prose" data-measure="false">…描画済みの Markdown…</div>
+</tanrei-callout>
+```
+
+プローズは色を持たないので、どの塗りの上でも読めます。リンクには下線が付きます。本文に置いたコンポーネントは、自身のスタイルを保ちます。行長を制限しているプローズの中のコールアウトは、テキストのブロックと同じようにその行長に収まります。それ以外の場所では、与えられた幅いっぱいに広がります。
+
+### アクションと閉じる操作
+
+アクションは、独自の[ボタン](../button/)またはリンクで、1 つか 2 つです。`outlined` か `text` のボタンを使います。`tonal` のボタンは、ステータスのない `tonal` のコールアウトと同じ塗りなので、そこではボタンに見えません。コールアウトはアクションを折り返す行に並べるだけです。アクションが押されても閉じません。
+
+`closable` は閉じるボタンを描きます。名前は `close-label` で付けます。押すと `open` が false になり、`dismiss` が発火します。コールアウトが自分から閉じることはなく、Escape にも応えません。人が閉じたら、そのことを記憶してください。訪れるたびに戻ってくる閉じられるコールアウトは、雑音です。隣のコンテンツに条件を付ける注意は、閉じられるようにしません。
+
+### 何かへの応答として現れる
+
+`live` は、人が作業している間に現れたり変わったりするコールアウトのためのものです。送信後のフォームのエラーの要約や、ファイルが手元で変更されたという通知などです。`open="false"` でページに置いておき、必要になったら `open` を設定します。
+
+<DemoFrame label="押したことへの応答として表示される、ライブのコールアウト" plain column>
+  <tanrei-button variant="outlined" onclick="document.getElementById('callout-demo-live').open = true">フォームを送信</tanrei-button>
+  <tanrei-callout id="callout-demo-live" live open="false" status="error" headline="3 つのフィールドを確認してください" closable close-label="閉じる" style="inline-size: min(100%, 34rem)">名前を入力し、開始日を選び、メールを受け取れるアドレスを指定してください。</tanrei-callout>
+</DemoFrame>
+
+```html
+<tanrei-callout id="errors" live open="false" status="error" headline="3 つのフィールドを確認してください">
+  名前を入力し、開始日を選び、メールを受け取れるアドレスを指定してください。
+</tanrei-callout>
+
+<script type="module">
+  form.addEventListener('submit', (event) => {
+    if (!form.checkValidity()) {
+      event.preventDefault();
+      document.querySelector('#errors').open = true; // 1 回、割り込んで読み上げます
+    }
+  });
+</script>
+```
+
+ライブのコールアウトは、表示されたときと、タイトル、本文、ステータスが変わったときに、1 回読み上げられます。`default`、`info`、`success` では控えめに、`warning` と `error` では割り込んで読み上げます。ページの読み込み時にマークアップにあったものは、そのときには読み上げません。
+
+Web では、ページの読み込み後にスクリプトが追加したライブのコールアウトは読み上げられます。要素には、何かへの応答として追加されたコールアウトと、シングルページアプリケーションの新しいビューと一緒に追加されたコールアウトの区別が付きません。新しいビューの一部にすぎない通知には、`live` を付けないでください。
+
+### 要素が定義される前
+
+本文、タイトルのスロット、アクションは要素自身の子なので、ドキュメントの中にあります。ページ内検索で見つかり、翻訳され、選択でき、スクリプトなしで読めます。`@tanrei/web/callout.css` は、まだ定義されていないコールアウトに、定義後と同じボックスを与えます。パディング、テキストスタイル、グリフと閉じるボタンのための余白です。`open="false"` のものには何も描きません。そのため、要素が定義されても何も動きません。定義されるまでは、塗り、グリフ、閉じるボタンなしで表示されます。
+
+### 推奨
+
+- ステータスは言葉で伝えます。「警告：まだ公開されていません」ならそれで十分です。警告に付けた「アクセシビリティ」というタイトルには `status-label="警告"` が必要です。
+- ステータスは、どこでも同じ意味で使います。助言は成功ではありません。
+- コールアウトをいくつも並べるのではなく、1 つのコールアウトに要点のリストを 1 つ入れます。
+
+### 非推奨
+
+- ページに書かれた注記に、ライブのコールアウトを使わない。静的なコンテンツはアラートではありません。
+- コールアウトを入れ子にしない。ページの先頭にいくつも積むこともしません。同じ重さの通知が並ぶと、互いを打ち消します。
+- エラーの要約にフォーカスを移すことと、それを読み上げることを両方は行わない。最初のエラーが画面外にあるかもしれない長いフォームには、要約へのフォーカス移動が向いています。短いフォームには、読み上げたうえで最初のエラーのフィールドへフォーカスを移す方法が向いています。
+- ステータスを色だけに頼らない。強制カラーモードでは、どのコールアウトも文字色の縁とテキストになります。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="callout" />
+
+### コンポーネントが担うこと
+
+- 注記（`role="note"`）であり、タイトルで名前が付きます。タイトルがなければ `status-label` で付きます。`live` を付けると、代わりにライブリージョンになります。`role="status"`、警告とエラーでは `role="alert"` です。
+- `status-label` は、タイトルと本文の前に別の語句として読まれます（「警告、…」）。描画はしません。`status` が `default` の間は無視します。
+- グリフは支援技術から隠します。
+- テキストで渡したタイトルはプレーンテキストです。`title` スロットの見出しはレベルを保ちます。
+- フォーカスが止まる位置にはならず、フォーカスを動かすこともありません。Tab は、本文のリンクとコントロール、アクション、閉じるボタンの順に進みます。
+- フォーカスが中にある状態で閉じると、フォーカスは、コールアウトに入る前にあった要素に戻ります。次の Tab は、コールアウトの後にあったものに進みます。
+- 閉じるボタンのヒット領域は最小ターゲットに届き、フォーカスリングはコールアウトの塗りの上で見える色で描きます。
+- 文字を拡大すると、すべてが折り返して大きくなります。グリフと閉じるボタンは 1 行目に残ります。
+- 強制カラーモードでは、どの見た目にも文字色の縁が付き、グリフは不透明度なしで描きます。
+- 右から左のレイアウトでは、グリフが右に、閉じるボタンが左に移ります。アイコンセットが指定するグリフは左右反転し、左から右のタイトルは自身の語順を保ちます。
+- 未知のバリアント、サイズ、ステータス、タイトルも本文もないコールアウト、言葉で伝えられていないステータス、名前のない閉じるボタン、ステータスのない `status-label` は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- それぞれのコールアウトの言葉がステータスを伝えているかを確かめます。タイトルが伝えているかどうかは、コンポーネントには分かりません。
+- `status-label` と `close-label` はページの言語で書きます。
+- `live` は、何かへの応答として現れたり変わったりするコールアウトにだけ使います。
+- アクションには、収まる長さのラベルを付けます。ボタンのラベルは 1 行なので、文字を拡大した狭い画面では、長いラベルがコールアウトより広くなることがあります。

@@ -1,0 +1,155 @@
+---
+title: الشيفرة المضمَّنة
+description: مقطع من الشيفرة داخل جملة، بخط الشيفرة وبمقاس النص الذي حوله، على تعبئة خافتة أو بلا تعبئة. هي نص، وليست عنصر تحكم أبدًا.
+translationOf: components/inline-code.mdx
+sourceHash: a781f6f71d206aae52e9b17504a2139e3ab309d7
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="inline-code" />
+
+<DemoFrame label="في جملة، وفي عنوان، وبالطراز plain" column>
+  <div class="tanrei-not-prose" style="max-inline-size: 32rem">
+    <p style="margin: 0">
+      شغِّل <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> في المجلد الذي فيه
+      <code class="tanrei-code" translate="no" spellcheck="false">package.json</code>، ثم شغِّل الخادم بالأمر
+      <code class="tanrei-code" translate="no" spellcheck="false">{'npm run dev -- --port 4000'}</code>.
+    </p>
+    <p style="margin: 0.75rem 0 0; font: var(--tanrei-sys-typescale-heading-2-font)">
+      تعيين <code class="tanrei-code" translate="no" spellcheck="false">size</code> على مجموعة
+    </p>
+    <p style="margin: 0.75rem 0 0">
+      الطراز plain: <code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
+    </p>
+  </div>
+</DemoFrame>
+
+الشيفرة المضمَّنة (inline code) تسمّي شيئًا من الشيفرة داخل جملة: أمرًا، أو خاصية، أو ملفًّا، أو قيمة. أما أسطر الشيفرة التي تُقرأ وتُنسخ فهي [كتلة شيفرة](../code-block/). والمفاتيح التي تُضغط هي [اختصار لوحة مفاتيح](../keyboard-shortcut/)، وهو ينطق أسماء المفاتيح المعدِّلة.
+
+### الاستخدام
+
+على الويب، الشيفرة المضمَّنة صنف (class) على عنصر `code` الذي تكتبه أنت، لا عنصر مستقل. والنص موجود في المستند، فيعمل البحث، والبحث في الصفحة، والنسخ، قبل أن يعمل أي سكربت. وكل عنصر `code` داخل `.tanrei-prose` ليس في عنصر `pre` يُرسم بالطريقة نفسها من دون الصنف، فلا يحتاج ما يُولَّد من Markdown إلى شيء.
+
+أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: الأسماء التي بجانب كل منصة في أعلى هذه الصفحة هي ما تعطيها إياه المواصفة، ولا شيء منها متاح هناك بعد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <!-- الطراز tonal: الافتراضي. -->
+    <p>شغِّل <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> أولًا.</p>
+
+    <!-- الطراز plain: الخط وحده، بلون النص الذي حوله. -->
+    <code class="tanrei-code" data-variant="plain">comp.button.container.shape</code>
+
+    <!-- عنصر سلف يختار لكل مقطع بداخله. -->
+    <table data-tanrei-code="plain">
+      <tr><td><code class="tanrei-code">variant</code></td><td><code class="tanrei-code">filled</code></td></tr>
+    </table>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/code.css';
+
+    <p>شغِّل <code className="tanrei-code" translate="no" spellCheck={false}>npm install</code> أولًا.</p>
+    ```
+  </TabItem>
+</Tabs>
+
+| الخاصية | على الويب |
+| --- | --- |
+| `text` | محتوى العنصر نفسه |
+| `variant: tonal` | `data-variant="tonal"` |
+| `variant: plain` | `data-variant="plain"` |
+| `variant: auto` (الافتراضي) | بلا خاصية HTML (attribute). يختار أقرب عنصر سلف له `data-tanrei-code="plain"` أو `"tonal"`، والطراز tonal حيث لا سلف يختار |
+
+## المواصفات
+
+<DemoFrame label="تلتفّ، وكل قطعة تحتفظ بتعبئتها" plain>
+  <div class="tanrei-not-prose" style="max-inline-size: 22rem">
+    <p style="margin: 0">
+      الرمز <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> أطول من هذا السطر. ينكسر حيث ينتهي السطر ولا يُقصّ أبدًا.
+    </p>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="في رابط، وفي نص مؤكَّد، وعمود من الشيفرة" plain column>
+  <div class="tanrei-not-prose">
+    <p style="margin: 0">
+      راجع <a class="tanrei-link" href="../button/">مرجع المكوّن <code class="tanrei-code">Button</code></a>. <strong>لا تعيِّن <code class="tanrei-code">disabled</code> أبدًا على المخرج الوحيد.</strong>
+    </p>
+    <div data-tanrei-code="plain" style="display: grid; grid-template-columns: auto auto; gap: 0.25rem 1.5rem; justify-content: start; margin-block-start: 0.75rem">
+      <span>الخاصية</span><span>القيمة الافتراضية</span>
+      <code class="tanrei-code">variant</code><code class="tanrei-code">filled</code>
+      <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
+    </div>
+  </div>
+</DemoFrame>
+
+ليس للشيفرة المضمَّنة مقاس خاص بها. مقاس خطها هو مقاس النص الذي تقع فيه، مضروبًا في نسبة واحدة (`comp.inline-code.label.scale`) تسوّي بين خط الشيفرة وخط النص. في نص المتن يكون ذلك 13 بجانب 14. وفي العنوان هو مقاس العنوان نفسه.
+
+لا تجعل سطرها أعلى أبدًا. ارتفاع التعبئة هو ارتفاع صندوق النص لخط الشيفرة نفسه، ولا حشو فوقها ولا تحتها.
+
+يلتفّ المقطع مع سطره. ينكسر عند مسافاته أولًا. والجزء الذي لا مسافة فيه وهو أطول من السطر ينكسر بين الأحرف، ولا تُضاف واصلة، لأن الواصلة كانت ستغيّر الشيفرة. ولا يُقصّ أبدًا ولا يُمرَّر.
+
+داخل الرابط تأخذ لون الرابط، ويمرّ خط الرابط السفلي تحتها. وداخل النص المؤكَّد (strong) تكون أثقل بدرجة وزن واحدة. ولا تُكتب مائلة أبدًا.
+
+تُرتَّب دائمًا من اليسار إلى اليمين، مقطعًا مستقلًّا، وفي الجملة التي من اليمين إلى اليسار أيضًا.
+
+<ComponentSpecs name="inline-code" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- خاصيتا HTML `translate="no"` و `spellcheck="false"` تكتبهما أنت، أو يكتبهما محوِّل Markdown الذي تستخدمه. لا تستطيع ورقة أنماط أن تعيّنهما.
+- الواصلة في الشيفرة موضع يجوز أن ينتهي عنده السطر، قبل أن يُكسر المقطع بين الأحرف.
+- المحرّك WebKit يرسم التعبئة والزوايا لكل قطعة من مقطع يلتفّ، ولا يرسم الحيّز الذي عند كل طرف: القطع التي بعد الأولى تبدأ عند حافة التعبئة.
+- فاصل السطر داخل المقطع يُرسم مسافة واحدة فقط في المتصفحات التي تدعم `white-space-collapse: preserve-spaces`. اكتب المقطع على سطر واحد.
+- القيمة غير المعروفة للخاصية `data-variant` تُرسم كما تُرسم `auto`، ولا يُبلَّغ عن شيء في بنيات التنقيح.
+
+## الإرشادات
+
+### الطراز tonal أم plain
+
+| الطراز | ما يرسمه | استخدمه حين |
+| --- | --- | --- |
+| **الطراز tonal** | خط الشيفرة على تعبئة خافتة | يكون اسمًا في نص جارٍ |
+| **الطراز plain** | خط الشيفرة وحده، بلون النص الذي حوله | يكون عمودًا أو قائمة كل مدخل فيها شيفرة، أو نصًّا على حاوية ملوَّنة |
+
+### افعل
+
+- اكتب الجملة بحيث تُقرأ حين تُنطق الشيفرة كلمات. قارئات الشاشة لا تُعلن دور الشيفرة افتراضيًّا.
+- استخدم الطراز plain على حاوية ملوَّنة، كحاوية حالة أو سطح معكوس. تعبئة الطراز tonal دور من أدوار السطح، ولا تُقرَن إلا بالأسطح.
+- عيِّن الطراز مرة واحدة على العنصر السلف (`data-tanrei-code="plain"`) لجدول أو قائمة من الأسماء.
+
+### لا تفعل
+
+- لا تستخدم الشيفرة المضمَّنة للتوكيد. هي تقول «هذه شيفرة».
+- لا تضع المفاتيح التي تُضغط في شيفرة مضمَّنة. استخدم اختصار لوحة المفاتيح.
+- لا تضع فيها أكثر من سطر. استخدم كتلة الشيفرة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="inline-code" />
+
+### ما يتكفل به المكوّن
+
+- هي عنصر `code`، فلها دور الشيفرة، ويُقرأ نصها حيث تقع في الجملة.
+- تتميّز من الكلمات التي حولها بخطها، لا باللون. وفي الألوان المفروضة (forced colors) تزول التعبئة ولا يضيع شيء.
+- لا تأخذ تركيزًا ولا إدخالًا. وداخل رابط أو زر، يصل الضغط فوقها إلى ذلك العنصر.
+- الاسم الطويل ينكسر بدل أن يمرّر الصفحة، بأي مقاس للنص.
+- تحديد جملة ونسخها ينسخ أحرف الشيفرة بالضبط.
+
+### ما عليك فعله
+
+- اكتب الاسم بالكلمات في الجملة حيث تهمّ تهجئته، لأن العلامات تُقرأ كما تقول إعدادات الشخص.
+- علِّم المقطع بالخاصية `translate="no"` لتتركه ترجمة المتصفح على حاله.

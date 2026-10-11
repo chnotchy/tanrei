@@ -1,0 +1,23 @@
+---
+title: رموز الألوان
+description: كل دور لون في النظام مع قيمته المحلولة في الفاتح والداكن عند كل مستوى تباين.
+translationOf: tokens/color.mdx
+sourceHash: 268c3b3086d0f6139384b59c01acca9c79c5fa8e
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ColorRoles from '../../../../components/tokens/ColorRoles.astro';
+
+جميع أدوار ألوان النظام تحت `tanrei.sys.color`، محلولة للفاتح والداكن. تعرض العيّنات القيم المحلولة الحرفية، فتظهر السمتان كلتاهما أيًّا كانت السمة التي تقرأ بها؛ والأدوار شبه الشفافة مرسومة فوق الخلفية المخصصة لها. لمعرفة معاني الأدوار وطريقة استخدامها، اقرأ [اللون](/ar/foundations/color/).
+
+<Tabs syncKey="contrast">
+  <TabItem label="قياسي" value="standard">
+    <ColorRoles contrast="standard" />
+  </TabItem>
+  <TabItem label="متوسط" value="medium">
+    <ColorRoles contrast="medium" />
+  </TabItem>
+  <TabItem label="عالٍ" value="high">
+    <ColorRoles contrast="high" />
+  </TabItem>
+</Tabs>

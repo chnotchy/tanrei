@@ -1,0 +1,848 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "app-shell",
+  "title": "App shell",
+  "summary": "Frames a page or an app: places a header, the navigation, the main content, an aside and a footer, decides from the window's width how each of them is shown, and lets a keyboard reach the content in one step; it draws the frame and none of what stands in it.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button",
+    "link"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The frame itself: the whole window (or the whole page), filled with the product's surface color. It carries no state and takes no input."
+    },
+    {
+      "id": "skip-link",
+      "description": "A Link the product gives (\"Skip to content\") that the shell keeps out of sight until the keyboard reaches it, then shows in a small raised box at the top start corner of the window. The first thing the keyboard reaches; following it moves focus to the main region.",
+      "optional": true
+    },
+    {
+      "id": "announcement",
+      "description": "A strip across the top of the frame, above the header, for a notice that concerns the whole product (a callout the product places there: an outage, a new version, a page that is not translated).",
+      "optional": true
+    },
+    {
+      "id": "header",
+      "description": "The region across the top that names the product or the screen and holds its search and its actions: the product's app bar. The page's banner landmark.",
+      "optional": true
+    },
+    {
+      "id": "menu-button",
+      "description": "An icon-only Button the product puts in its header and marks as the shell's. The shell shows it only while the navigation has no place in the layout, and it opens the navigation over the content.",
+      "optional": true
+    },
+    {
+      "id": "navigation",
+      "description": "The region at the start edge that holds the product's destinations: a navigation drawer. Beside the main content in a wide window, its column of icons in a narrower one, over the content in a narrow one.",
+      "optional": true
+    },
+    {
+      "id": "main",
+      "description": "The content the page is for, and the page's one main landmark. Inset from the frame by a gutter and, by default, no wider than a readable width."
+    },
+    {
+      "id": "aside",
+      "description": "Content that supports the main content: an outline of the page, details of the selected thing, related links. Beside the main content at the end edge in a wide window, above or below it in a narrower one. A complementary landmark.",
+      "optional": true
+    },
+    {
+      "id": "footer",
+      "description": "The region at the end of the page for what belongs to the whole site: its links, its legal line, its language and theme controls. The page's content-information landmark.",
+      "optional": true
+    },
+    {
+      "id": "navigation-bar",
+      "description": "The place at the bottom edge for a navigation bar, shown only in a narrow window, for a product whose three to five top-level destinations stay in reach of the thumb.",
+      "optional": true
+    },
+    {
+      "id": "outline",
+      "description": "The hairline the shell draws between two regions that touch, where the system parts things with a line and the region's own component draws none: above the footer, and at the edge of an aside that is not a side sheet.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "scroll",
+      "type": "enum",
+      "values": [
+        "page",
+        "main"
+      ],
+      "default": "page",
+      "description": "What scrolls. page: the whole page scrolls in the window, the header stays at the top (headerPosition) and the navigation and the aside stay in view beside the content; the default, because it is what find-in-page, anchors, the back button's return to where the reader was, and a phone browser's collapsing bars are built for. main: the frame is exactly as tall as the window and only the main region scrolls inside it, for an app whose panes scroll apart from each other (a mail client, an editor)."
+    },
+    {
+      "name": "headerPosition",
+      "type": "enum",
+      "values": [
+        "sticky",
+        "static"
+      ],
+      "default": "sticky",
+      "description": "Whether the header stays at the top of the window while the page scrolls (sticky) or scrolls away with it (static: an article that should have the whole window). Ignored while scroll is main, where the header never moves."
+    },
+    {
+      "name": "mainWidth",
+      "type": "enum",
+      "values": [
+        "contained",
+        "full"
+      ],
+      "default": "contained",
+      "description": "contained: the main region's content is no wider than the shell's readable width and is centred in the room the region has, for pages that are read. full: it takes all the room inside the gutters, for a table, a board, an editor."
+    },
+    {
+      "name": "asideOrder",
+      "type": "enum",
+      "values": [
+        "after",
+        "before"
+      ],
+      "default": "after",
+      "description": "Where the aside stands in reading and focus order, and so where it is drawn when it is not beside the main content. after: it follows the main content and is drawn below it (related links, details). before: it precedes the main content and is drawn above it (an outline of the page, which is of use only before the page is read). Beside the main content it is drawn at the end edge either way."
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How regions that touch are told apart. auto takes the design system's choice through comp.app-shell.separation; divider draws the one hairline; gap draws nothing and leaves the regions' own spaces. It concerns only the edges the shell draws: a component in a region that has an edge of its own (an app bar, a navigation drawer, a side sheet) keeps it."
+    },
+    {
+      "name": "navigationOpen",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the navigation is presented over the content, while it has no place of its own in the layout (or only its column). The menu button asks for true; closing the navigation, and any change of the window's class, makes it false. Ignored while the navigation stands beside the content."
+    },
+    {
+      "name": "asideLabel",
+      "type": "string",
+      "default": "",
+      "description": "Names the aside for assistive technology, in the product's language (\"On this page\"). Required where the aside is filled and what it holds does not name itself (a side sheet is named by its headline)."
+    }
+  ],
+  "items": [
+    {
+      "name": "menu-button",
+      "summary": "The one icon-only Button in the header that opens the navigation: a Button of the text variant and the medium size with the menu glyph and no label, unless the product sets otherwise, which the shell shows and hides and does not restyle.",
+      "component": "button",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its accessible name (\"Menu\"), as the Button's label. Required."
+        }
+      ],
+      "slots": [
+        {
+          "name": "icon",
+          "description": "Its glyph, as the Button's icon slot. A fixture item's content is this glyph."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The button was activated, as the Button's click. The shell answers it itself (APS-7); a product need not."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The main region: the page's content. A fixture's content string is plain text.",
+      "fixture": "text"
+    },
+    {
+      "name": "skip-link",
+      "description": "The skip link: a standalone Link whose destination is the main region, with the product's words (\"Skip to content\"). More than one may be given (\"Skip to navigation\"); each is shown while it has focus.",
+      "fixture": "text"
+    },
+    {
+      "name": "announcement",
+      "description": "The notice above the header: a callout the product places, drawn across the frame's width.",
+      "fixture": "text"
+    },
+    {
+      "name": "header",
+      "description": "The header: the product's app bar, with its search and its actions, and the menu button in its navigation slot.",
+      "fixture": "text"
+    },
+    {
+      "name": "navigation",
+      "description": "The navigation: a navigation drawer, which draws each of the three presentations itself. Anything else is placed beside the content where the navigation has a place and is not shown where it has none.",
+      "fixture": "text"
+    },
+    {
+      "name": "aside",
+      "description": "The aside: the product's supporting content, or a side sheet.",
+      "fixture": "text"
+    },
+    {
+      "name": "footer",
+      "description": "The footer: the product's own layout of links, a legal line and controls. The shell gives it a place and an inset and no anatomy.",
+      "fixture": "text"
+    },
+    {
+      "name": "navigation-bar",
+      "description": "A navigation bar for the bottom edge of a narrow window.",
+      "fixture": "text"
+    }
+  ],
+  "events": [
+    {
+      "name": "windowClassChange",
+      "description": "The shell decided the window's class for the first time, or the window's width changed it; carries compact, medium or expanded. A product switches what follows the class and has no setting of its own for it: a search's presentation, a side sheet's variant, the form of an outline."
+    },
+    {
+      "name": "navigationOpenChange",
+      "description": "The navigation asks to be presented over the content or to be put away: the menu button was activated (true), or the open navigation closed — by its scrim, Escape, the platform's back, a drag, a destination that was activated, or a change of the window's class (false). Carries the value asked for."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "APS-1",
+      "text": "THE app shell SHALL fill the window with comp.app-shell.container.color, hand everything it holds comp.app-shell.content.color as the platform's inherited foreground, and place its regions in this order: the announcement across the top; the header across the top below it; then a row that holds the navigation at the start edge, the main region, and the aside at the end edge; the footer across the bottom of the page; and the navigation bar across the bottom edge of the window. A region that holds nothing SHALL take no space, draw nothing and add no landmark, and the regions beside it SHALL take its room. THE app shell SHALL draw no elevation and no corner of its own."
+    },
+    {
+      "id": "APS-2",
+      "text": "THE app shell SHALL give the window one of three classes by its width alone: compact WHILE the window is narrower than comp.app-shell.breakpoint.medium, medium WHILE it is at least that wide and narrower than comp.app-shell.breakpoint.expanded, and expanded WHILE it is at least comp.app-shell.breakpoint.expanded wide. It SHALL derive the class anew whenever the width changes, SHALL never store it, and SHALL NOT read the window's height, the device, the pointer or the orientation for it. WHERE the platform measures a window in a unit that grows with the reader's text size (the web's rem) the two widths SHALL be compared in that unit, so that enlarged text moves the frame to a narrower class before its columns become too narrow to read.",
+      "verify": "Under the default system the two widths are 600 and 1024. Fixtures whose id begins with `expanded` are drawn in a window 1280 wide and 800 high, those that begin with `medium` in one 800 by 800, those that begin with `compact` in one 400 by 800, and `compact-narrowest` in one 320 by 640 (the schema has no stage size yet). Test a window exactly 1024 wide (expanded) and 1023 (medium), 600 (medium) and 599 (compact); on the web, a window 1280 wide with the root font size doubled is medium."
+    },
+    {
+      "id": "APS-3",
+      "text": "WHEN the app shell first decides the window's class, and WHEN a change of the window's width changes it, THE app shell SHALL emit windowClassChange exactly once with the class, and SHALL make the present class known to everything it holds through the platform's own channel for inherited values, so that a component inside it can follow the class without measuring the window itself. A change of width inside one class SHALL emit nothing.",
+      "verify": "Test: a shell created at 1280 emits one windowClassChange with expanded; resized to 1100 it emits nothing; resized to 500 it emits one with compact."
+    },
+    {
+      "id": "APS-4",
+      "text": "THE app shell SHALL choose how the navigation is presented from the window's class: WHILE the class is expanded, beside the main region (the standard presentation); WHILE it is medium and what the navigation region holds has a collapsed form (a collapsible navigation drawer), as that collapsed form beside the main region, widening over the content WHILE navigationOpen is true (the column presentation); and otherwise with no place in the layout, presented over the content WHILE navigationOpen is true (the modal presentation). A navigation drawer in the region SHALL be drawn in each presentation exactly as a responsive drawer draws it (NVD-53 to NVD-55), and the two SHALL never disagree, because comp.app-shell.breakpoint.medium and comp.app-shell.breakpoint.expanded and the two widths that drawer reads alias the same window classes of the system (sys.breakpoint.medium, sys.breakpoint.expanded). WHILE the presentation is modal and the region holds something that cannot present itself over the content THE app shell SHALL NOT show it, SHALL keep it from focus and from assistive technology, and in debug builds SHALL report that the navigation of a narrow window needs a navigation drawer.",
+      "verify": "Test with a responsive, collapsible navigation drawer in the region: at 1280 it is standard and Tab leaves it; at 800 its column is 72 wide beside the main region; at 400 nothing of it is in the layout. With a drawer that is not collapsible, 800 is modal."
+    },
+    {
+      "id": "APS-5",
+      "text": "WHILE the navigation has a place in the layout THE app shell SHALL put it at the start edge of the row, as wide as what it holds draws itself (a navigation drawer's width in its present form) and never wider than the window less sys.target.touch, SHALL give the main region all the room that is left, and SHALL add no padding, fill or edge to it. WHILE scroll is page THE app shell SHALL keep the navigation in view while the page scrolls — from below the header WHILE the header is sticky, else from the top of the window, to the window's bottom edge — and what it holds SHALL scroll inside that height by itself (NVD-61), never the page with it."
+    },
+    {
+      "id": "APS-6",
+      "text": "WHILE the navigation's presentation is modal and the navigation region holds something THE app shell SHALL show the menu button where the product put it in the header; WHILE the presentation is standard or column, or the navigation region is empty, THE app shell SHALL NOT show the menu button, SHALL keep it from focus and from assistive technology, and SHALL give its place to what is beside it. THE app shell SHALL NOT restyle the menu button: it SHALL render as the icon-only Button it is, from its own tokens, with its own press, focus ring and minimum target.",
+      "verify": "The fixtures `compact` and `medium` draw the menu button at the start of the header; `expanded` draws none. In the column presentation the drawer's own first header button is its menu button (NVD-37)."
+    },
+    {
+      "id": "APS-7",
+      "text": "WHEN the menu button is activated THE app shell SHALL emit navigationOpenChange exactly once with true and become open — by setting navigationOpen itself on the web, through its binding where navigationOpen is one, and by the product setting it elsewhere — and what the navigation region holds SHALL present itself over the content as a modal overlay (a navigation drawer as NVD-19 says), taking focus. WHEN the open navigation closes (NVD-20, NVD-21) THE app shell SHALL emit navigationOpenChange exactly once with false, navigationOpen SHALL become false the same way, and focus SHALL return to the menu button. THE app shell SHALL expose the menu button as collapsed or expanded, controlling the navigation. WHEN the window's class changes WHILE navigationOpen is true THE app shell SHALL close the navigation at once and emit navigationOpenChange once with false (NVD-54).",
+      "verify": "Test at 400 wide: activating the menu button opens the drawer with focus inside it and aria-expanded true on the button; Escape closes it, focus is on the menu button and one navigationOpenChange carried false. Opened at 400 and resized to 1280, the drawer is standard, nothing is inert and one navigationOpenChange carried false."
+    },
+    {
+      "id": "APS-8",
+      "text": "THE app shell SHALL inset the main region's content from the region's start and end by the gutter of the window's class — comp.app-shell.gutter.compact, comp.app-shell.gutter.medium or comp.app-shell.gutter.expanded — and from its top and bottom by comp.app-shell.main.padding-block. WHILE mainWidth is contained the content SHALL be no wider than comp.app-shell.main.max-width and SHALL be centred in the room the region has inside its gutters; WHILE mainWidth is full it SHALL take all of that room. THE main region SHALL never be wider than the room the row leaves it: content that cannot shrink (a table, a line of code) SHALL scroll inside its own box (PRS-15), and SHALL NOT widen the frame or make the page scroll sideways.",
+      "verify": "Under the default system at 1280 with a navigation 240 wide and no aside, a contained main region's content is 768 wide and centred in the 976 between the gutters of 32; at 400 it is 368 wide between gutters of 16. A table 2000 wide in the main region leaves the window's own width at 400."
+    },
+    {
+      "id": "APS-9",
+      "text": "WHILE the window's class is expanded THE app shell SHALL place the aside beside the main region at the end edge of the row, comp.app-shell.aside.width wide, its content inset by comp.app-shell.aside.padding-inline at the start and the end and by comp.app-shell.main.padding-block at the top and the bottom, so that its first line stands level with the main content's; WHILE scroll is page it SHALL keep the aside in view while the page scrolls, as APS-5 says of the navigation, and the aside SHALL scroll inside that height by itself when its content is taller. WHILE the class is medium or compact THE app shell SHALL place the aside in the main region's column, with the main region's gutters and, WHILE mainWidth is contained, its width and centring: above the main content WHILE asideOrder is before and below it WHILE asideOrder is after, comp.app-shell.aside.gap from it, scrolling with it.",
+      "verify": "`expanded` draws the aside 240 wide at the end edge; `medium` and `compact` draw it below the main content, `medium-aside-before` and `compact-aside-before` above it, 24 apart."
+    },
+    {
+      "id": "APS-10",
+      "text": "WHERE the aside holds a component that takes its own width in the layout and draws its own edge (a standard side sheet, SSH-1 and SSH-7) THE app shell SHALL give the aside that component's width in place of comp.app-shell.aside.width, SHALL add no inset to it and SHALL draw no edge beside it; WHERE it holds a component that presents itself over the content (a modal side sheet) the aside SHALL take no space in any class. THE app shell SHALL NOT change the variant of what the aside holds: a product that wants a sheet beside the content in an expanded window and over it in a narrower one sets the sheet's variant from windowClassChange."
+    },
+    {
+      "id": "APS-11",
+      "text": "WHILE scroll is page THE app shell SHALL place the footer after the row of the navigation, the main region and the aside, across the frame's whole width, so that it is reached at the end of the page and the navigation and the aside stop staying in view where it begins; WHILE scroll is main THE app shell SHALL keep the footer at the bottom of the frame, below the row and above the navigation bar, always in view. THE app shell SHALL inset the footer's content by the gutter of the window's class (APS-8) at the start and the end and by comp.app-shell.footer.padding-block at the top and the bottom, and SHALL lay out nothing inside it: the footer's columns, links and controls are the product's."
+    },
+    {
+      "id": "APS-12",
+      "text": "WHILE the announcement region holds something THE app shell SHALL place it across the frame's whole width above the header, with no inset of its own, in every class; WHILE scroll is page the announcement SHALL scroll away with the page and a sticky header SHALL then rest at the top of the window, and WHILE scroll is main it SHALL stay above the header. WHEN what the announcement holds is removed or closes (a callout whose open becomes false) THE app shell SHALL give its room back at once."
+    },
+    {
+      "id": "APS-13",
+      "text": "WHILE the window's class is compact and the navigation-bar region holds something THE app shell SHALL keep it at the bottom edge of the window across the frame's whole width, over the bottom system inset as the bar itself lays out (NVB-18), in view while the page scrolls, and SHALL end the page, or the frame, above it so that nothing is covered by it; WHILE the class is medium or expanded THE app shell SHALL NOT show the navigation-bar region, SHALL keep it from focus and from assistive technology, and SHALL give it no space. THE app shell SHALL NOT choose between the bar and the navigation for the product: a product whose bar is its navigation in a compact window gives no menu button."
+    },
+    {
+      "id": "APS-14",
+      "text": "WHILE scroll is page THE app shell SHALL be at least as tall as the window and as tall as its content, SHALL let the window's own scrolling view scroll the page, and SHALL make no region a scrolling view except the navigation and the aside where APS-5 and APS-9 keep them in view; so that the platform's find-in-page, a link to a place in the page, the return to where the reader was, and a browser's collapsing bars work as they do on a page without a shell."
+    },
+    {
+      "id": "APS-15",
+      "text": "WHILE scroll is main THE app shell SHALL be exactly as tall as the window, less the on-screen keyboard where one covers it, SHALL keep the announcement, the header, the footer and the navigation bar in place, and SHALL make the main region the one scrolling view of the frame, reachable and scrollable from the keyboard, with the aside scrolling inside its own height WHILE it is beside the main region and with the main region WHILE it is above or below it. THE window itself SHALL NOT scroll."
+    },
+    {
+      "id": "APS-16",
+      "text": "WHILE scroll is page and headerPosition is sticky THE app shell SHALL keep the header at the top of the window, above the main region, the navigation and the aside, while the page scrolls under it; WHILE headerPosition is static the header SHALL scroll away with the page. THE app shell SHALL NOT fill, raise or edge the header: an app bar in it draws its own scrolled condition from the scrolling view it is connected to (APB-9), which is the window WHILE scroll is page and the main region WHILE scroll is main."
+    },
+    {
+      "id": "APS-17",
+      "text": "THE app shell SHALL hold the height of what it keeps over the top of the scrolling view — a sticky header's present height, measured again whenever the header changes size, and nothing WHILE headerPosition is static — and SHALL make it known to the scrolling view and to everything it holds, so that a heading or any other place a link or the address moves the view to (PRS-23), and an element that takes keyboard focus, come to rest below the header and never under it; likewise for the navigation bar's height at the bottom. A heading's own space before it (PRS-6) is added to that distance by the prose, not by the shell.",
+      "verify": "Test at 1280 with a small app bar as the header: following a link to a heading in the middle of a long page leaves the heading's top 64 plus its own space below the top of the window; Tab to a link that is under the header scrolls it out from under it. With text enlarged so the bar is 80 high, the distance is 80."
+    },
+    {
+      "id": "APS-18",
+      "text": "WHILE separation is auto THE app shell SHALL part its regions as comp.app-shell.separation names, and WHILE separation is divider or gap as that value says, whatever the token says: divider draws a line comp.app-shell.outline.width thick in comp.app-shell.outline.color along the footer's top edge, along the start edge of an aside that stands beside the main region, and between the main content and an aside that stands above or below it, in the middle of comp.app-shell.aside.gap; gap draws no line and leaves the same spaces. The lines SHALL take no room of their own. THE app shell SHALL draw no line beside a region whose component draws its own edge (APS-10, APS-16) and none around the navigation, the announcement or the navigation bar. WHEN separation names a value the app shell does not define it SHALL be treated as auto.",
+      "verify": "`expanded` follows the system (a hairline above the footer and at the aside's start edge under the default system); `expanded-divider` and `expanded-gap` draw the same under every design system."
+    },
+    {
+      "id": "APS-19",
+      "text": "WHILE the skip-link region holds a Link THE app shell SHALL make it the first element the keyboard reaches in the frame, before the announcement and the header, SHALL draw nothing of it while it does not have keyboard focus and still keep it in the focus order and exposed to assistive technology, and WHILE it has keyboard focus SHALL draw it comp.app-shell.skip-link.offset from the top and the start edges of the window, inside the system insets, above every region and every sticky part: in a box filled with comp.app-shell.skip-link.container.color and raised by comp.app-shell.skip-link.container.elevation, with corners comp.app-shell.skip-link.container.shape eased by sys.shape.corner-smoothing, padded by comp.app-shell.skip-link.container.padding-inline and comp.app-shell.skip-link.container.padding-block, its text in comp.app-shell.skip-link.label.typescale; the Link SHALL keep its own color, underline, focus ring and states (LNK-1). The box SHALL appear and go at once, without motion, and SHALL move no other part of the frame."
+    },
+    {
+      "id": "APS-20",
+      "text": "WHEN the skip link is followed THE app shell SHALL move keyboard focus to the main region itself — not to the first control in it — and bring the region's top into view below the header (APS-17) at once, without a scrolling motion, so that the next Tab reaches the first focusable element of the content and a screen reader starts reading there; the main region SHALL take focus only this way and SHALL NOT be a stop of the Tab order.",
+      "verify": "Test: from a fresh page, Tab then Enter leaves `document.activeElement` on the main element; the next Tab lands on the first link inside it; Shift+Tab from there returns to the last focusable element before the main region, not to the region."
+    },
+    {
+      "id": "APS-21",
+      "text": "THE app shell SHALL expose each filled region as the landmark it is: the header as the page's banner, the navigation and the navigation bar as what they hold expose (a navigation landmark named by its own label), the main region as the page's one main landmark, the aside as a complementary landmark named by asideLabel (or by what it holds, where that names itself), and the footer as the page's content information; the announcement and the skip link SHALL add no landmark. IF the frame holds no main region, or more than one, or an aside that has no name, THE app shell SHALL still lay out what it holds, and in debug builds SHALL report it."
+    },
+    {
+      "id": "APS-22",
+      "text": "THE app shell SHALL NOT be focusable and SHALL move focus through its regions in reading order, the same in every class and in either layout direction: the skip link, the announcement, the header, the navigation, the aside WHILE asideOrder is before, the main region's content, the aside WHILE asideOrder is after, the footer, the navigation bar. A region that is not shown (APS-4, APS-6, APS-13) SHALL have no stop in that order. THE app shell SHALL NOT keep focus inside a region that has a place in the layout: only a region presented over the content holds it."
+    },
+    {
+      "id": "APS-23",
+      "text": "WHEN the window's class changes THE app shell SHALL draw the new arrangement at once, without a motion of its own; SHALL keep scroll, headerPosition, mainWidth, asideOrder and separation as they are; SHALL keep the reader at the same place in the main content as far as the new arrangement allows; and IF keyboard focus is on something the new arrangement does not show (the menu button, a navigation bar's destination) SHALL move it to the main region, unless the navigation it holds has already moved it (NVD-54)."
+    },
+    {
+      "id": "APS-24",
+      "text": "WHERE the app shell is rendered before the window's width is known or before its own code runs (a page rendered on a server) THE app shell SHALL already be laid out for the window's class by the platform's layout alone — every region in its place, the regions that the class does not show taking no space, the skip link first and working — SHALL present nothing over the content, SHALL make nothing inert, and SHALL emit no event until the class is decided; its own code SHALL then add only what layout cannot: the events, the menu button's opening of the navigation, and the measured distance of APS-17, without moving anything that was already drawn.",
+      "verify": "Test on the web: with scripts disabled the fixtures `expanded`, `medium` and `compact` are drawn as with scripts, and following the skip link moves focus to the main element. With scripts enabled, no layout shift is recorded when the element is defined."
+    },
+    {
+      "id": "APS-25",
+      "text": "WHILE the text size is enlarged THE app shell SHALL keep its gutters and insets, let every region grow with its text, and SHALL need no scrolling in two directions at any width down to 320 points: in a compact window the frame is one column, the main region never narrower than the window less two gutters, and only a block that scrolls in its own box (APS-8) scrolls sideways. THE app shell SHALL NOT fix the height of any region."
+    },
+    {
+      "id": "APS-26",
+      "text": "WHERE the platform's forced-colors or increased-contrast mode replaces the product's colors THE app shell SHALL let the system's colors fill its frame, SHALL draw the lines of APS-18 in the system's text color WHILE they are drawn, and SHALL draw an edge comp.app-shell.outline.width thick in the system's text color around the skip link's box, because the mode removes the fill and the elevation that set it apart."
+    },
+    {
+      "id": "APS-27",
+      "text": "THE app shell SHALL extend its fill under every system inset (status bar, camera cutout, home indicator, window caption) and SHALL keep the main region's, the aside's and the footer's content inside the start, end and bottom insets; the header, the navigation and the navigation bar lay themselves out over the insets at their own edges (APB-10, NVD-25, NVB-18), and the app shell SHALL NOT inset them a second time."
+    },
+    {
+      "id": "APS-28",
+      "text": "THE app shell SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the app shell is shown THE app shell SHALL draw itself for the new direction at once, without a motion of its own, keeping the window's class, navigationOpen and the reader's place in the content. WHERE the layout direction is right-to-left the navigation SHALL stand at the right edge and the aside at the left, the skip link's box at the top right, the menu button where the header puts its start, and the lines of APS-18 on the mirrored edges; the order of APS-22 SHALL NOT change, and nothing a region holds SHALL be mirrored by the shell.",
+      "verify": "`expanded-rtl` draws the navigation at the right and the aside at the left; `compact-rtl` draws the menu button at the right end of the header."
+    },
+    {
+      "id": "APS-29",
+      "text": "WHEN scroll, headerPosition, mainWidth or asideOrder names a value the app shell does not define THE app shell SHALL render with that prop's default, and in debug builds report the unknown value."
+    },
+    {
+      "id": "APS-30",
+      "text": "THE app shell SHALL NOT restyle, resize or re-order what the product puts in a region beyond the place and the insets this spec gives, SHALL NOT decide which page is shown, follow a link, load anything, remember anything beyond its own lifetime (which page, how far a region was scrolled, whether the navigation was collapsed) or set the document's title or language; and SHALL NOT scroll anything with motion: every movement it causes (APS-17, APS-20, APS-23) is at once, whether or not motion is reduced."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves through the frame in reading order: the skip link, the announcement, the header, the navigation, the main content and the aside in the order asideOrder gives, the footer, the navigation bar. The shell itself is not a stop."
+      },
+      {
+        "keys": "Enter, on the skip link",
+        "action": "Moves focus to the main region and brings its top into view below the header."
+      },
+      {
+        "keys": "Enter or Space, on the menu button",
+        "action": "Opens the navigation over the content and moves focus into it; Escape there closes it and returns focus to the menu button (the navigation drawer's own keys)."
+      }
+    ],
+    "labeling": "The shell has no role and no name. Its regions are the page's landmarks: banner (the header), navigation (named by the label of the navigation drawer or the navigation bar it holds), main (exactly one, unnamed), complementary (the aside, named by asideLabel or by the side sheet's headline) and content information (the footer). The skip link is named by its own text and the menu button by its label, both in the product's language: Tanrei ships no words.",
+    "minimumTarget": true,
+    "notes": [
+      "The shell takes no input: the skip link is a Link and the menu button an icon-only Button, and each meets the minimum target by its own spec (LNK-17, BTN-5).",
+      "The skip link is what lets a keyboard pass the header and the navigation in one step (WCAG 2.4.1); the landmarks let a screen reader do the same. Both are needed: a sighted keyboard user has no landmark list.",
+      "Focus is never hidden by the frame (WCAG 2.4.11): the scrolling view keeps the height of the sticky header and of the navigation bar clear when it brings a focused element into view (APS-17).",
+      "Reading order, focus order and the order of the markup are one order in every window class (APS-22), which is why the aside's place is a setting (asideOrder) and not something the layout rearranges by width.",
+      "Reflow (WCAG 1.4.10): at 320 points the frame is one column; the widths that decide the class grow with the text on the web (APS-2), so 200 % text in a 1280 window is laid out as a medium one.",
+      "A second navigation landmark is not an error: a navigation drawer, a navigation bar, breadcrumbs and a pagination each name themselves, and only one of the drawer and the bar is shown at a time unless the product keeps both.",
+      "On SwiftUI, Compose, Flutter and React Native there is no skip link: each platform's assistive technology moves between regions by its own gesture or rotor, and the shell marks the regions for it."
+    ]
+  },
+  "tokens": "comp.app-shell",
+  "fixtures": [
+    {
+      "id": "expanded",
+      "props": {
+        "asideLabel": "On this page"
+      },
+      "content": "Main",
+      "slots": {
+        "skip-link": "Skip to content",
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      },
+      "items": [
+        {
+          "kind": "menu-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        }
+      ]
+    },
+    {
+      "id": "expanded-main-only",
+      "props": {},
+      "content": "Main",
+      "slots": {
+        "header": "Header"
+      }
+    },
+    {
+      "id": "expanded-no-aside",
+      "props": {},
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "footer": "Footer"
+      }
+    },
+    {
+      "id": "expanded-no-navigation",
+      "props": {
+        "asideLabel": "On this page"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "aside": "Aside",
+        "footer": "Footer"
+      }
+    },
+    {
+      "id": "expanded-announcement",
+      "props": {
+        "asideLabel": "On this page"
+      },
+      "content": "Main",
+      "slots": {
+        "announcement": "Announcement",
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      }
+    },
+    {
+      "id": "expanded-full",
+      "props": {
+        "mainWidth": "full"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "footer": "Footer"
+      }
+    },
+    {
+      "id": "expanded-divider",
+      "props": {
+        "separation": "divider",
+        "asideLabel": "On this page"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      }
+    },
+    {
+      "id": "expanded-gap",
+      "props": {
+        "separation": "gap",
+        "asideLabel": "On this page"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      }
+    },
+    {
+      "id": "expanded-scroll-main",
+      "props": {
+        "scroll": "main",
+        "asideLabel": "Details"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      }
+    },
+    {
+      "id": "expanded-rtl",
+      "props": {
+        "asideLabel": "في هذه الصفحة"
+      },
+      "content": "المحتوى",
+      "slots": {
+        "header": "الترويسة",
+        "navigation": "التنقل",
+        "aside": "جانبي",
+        "footer": "التذييل"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "medium",
+      "props": {
+        "asideLabel": "Related"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      },
+      "items": [
+        {
+          "kind": "menu-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        }
+      ]
+    },
+    {
+      "id": "medium-aside-before",
+      "props": {
+        "asideOrder": "before",
+        "asideLabel": "On this page"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      },
+      "items": [
+        {
+          "kind": "menu-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        }
+      ]
+    },
+    {
+      "id": "compact",
+      "props": {
+        "asideLabel": "Related"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      },
+      "items": [
+        {
+          "kind": "menu-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        }
+      ]
+    },
+    {
+      "id": "compact-aside-before",
+      "props": {
+        "asideOrder": "before",
+        "asideLabel": "On this page"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      },
+      "items": [
+        {
+          "kind": "menu-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        }
+      ]
+    },
+    {
+      "id": "compact-announcement",
+      "props": {},
+      "content": "Main",
+      "slots": {
+        "announcement": "Announcement",
+        "header": "Header",
+        "navigation": "Navigation",
+        "footer": "Footer"
+      },
+      "items": [
+        {
+          "kind": "menu-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        }
+      ]
+    },
+    {
+      "id": "compact-navigation-bar",
+      "props": {},
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "footer": "Footer",
+        "navigation-bar": "Navigation bar"
+      }
+    },
+    {
+      "id": "compact-scroll-main",
+      "props": {
+        "scroll": "main"
+      },
+      "content": "Main",
+      "slots": {
+        "header": "Header",
+        "navigation": "Navigation",
+        "footer": "Footer",
+        "navigation-bar": "Navigation bar"
+      }
+    },
+    {
+      "id": "compact-rtl",
+      "props": {
+        "asideOrder": "before",
+        "asideLabel": "في هذه الصفحة"
+      },
+      "content": "المحتوى",
+      "slots": {
+        "header": "الترويسة",
+        "navigation": "التنقل",
+        "aside": "جانبي",
+        "footer": "التذييل"
+      },
+      "items": [
+        {
+          "kind": "menu-button",
+          "props": {
+            "label": "القائمة"
+          },
+          "content": "menu"
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "compact-narrowest",
+      "props": {
+        "asideLabel": "Related"
+      },
+      "content": "Main",
+      "slots": {
+        "announcement": "Announcement",
+        "header": "Header",
+        "navigation": "Navigation",
+        "aside": "Aside",
+        "footer": "Footer"
+      },
+      "items": [
+        {
+          "kind": "menu-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-app-shell",
+      "props": {
+        "scroll": "scroll",
+        "headerPosition": "headerPosition",
+        "mainWidth": "mainWidth",
+        "asideOrder": "asideOrder",
+        "separation": "separation",
+        "navigationOpen": "navigationOpen",
+        "asideLabel": "asideLabel"
+      },
+      "events": {
+        "windowClassChange": "windowclasschange",
+        "navigationOpenChange": "navigationopenchange"
+      },
+      "items": {
+        "menu-button": {
+          "name": "tanrei-button",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "An icon-only `<tanrei-button>` anywhere inside the header region, marked with the `data-app-shell-menu` attribute: usually the app bar's `slot=\"navigation\"` child. The glyph is its content."
+        }
+      },
+      "notes": "An element and a stylesheet: `<tanrei-app-shell>` attaches no shadow root, and the package's `@tanrei/web/app-shell.css` lays out its light-DOM children from the element's name, its attributes and each child's `slot` attribute alone, so a page rendered on a server is laid out before the element is defined and with scripts off (APS-24). The regions are the product's own semantic elements: `<a class=\"tanrei-link\" data-standalone slot=\"skip-link\" href=\"#main\">`, `<div slot=\"announcement\">`, `<header slot=\"header\">` around a `<tanrei-app-bar>`, `<tanrei-navigation-drawer slot=\"navigation\" responsive>`, the one `<main id=\"main\" tabindex=\"-1\">` child without a `slot` (the default region), `<aside slot=\"aside\" aria-label=\"…\">`, `<footer slot=\"footer\">` and `<tanrei-navigation-bar slot=\"navigation-bar\">`, written in the order of APS-22; the stylesheet places them on a grid by name and never reorders focus. Attributes: `scroll`, `header-position`, `main-width`, `aside-order`, `separation`, `navigation-open`, `aside-label`. The window's class is chosen by `@media` conditions in `rem`; a custom property cannot stand in a media condition, so the generator writes the two widths into the stylesheet from the active system's tokens (one stylesheet per system that changes them). The menu button is hidden by the same conditions, with `:has(> [slot=\"navigation\"][collapsible])` telling the column presentation from the modal one. Sticky parts are `position: sticky`; the navigation and the aside are `align-self: start` with a maximum block size of the dynamic viewport height less the scroll offset and `overflow: auto` with `overscroll-behavior: contain`. `scroll=\"main\"` makes the host `100dvh` high and the `<main>` the scroller. The stylesheet defines `--tanrei-app-shell-scroll-offset` on the document's root (until the element is defined: the small app bar's height while the header is sticky, else 0) and sets the root's `scroll-padding-block-start` from it — or the main element's while `scroll` is `main`; once defined, the element measures the header with a `ResizeObserver` and rewrites the property. The product's own sticky parts (a table's header row) read the same property. `--tanrei-prose-scroll-offset` stays 0 inside a shell: the scroll padding already clears the header, and prose adds only a heading's own space. The upgraded element adds: the read-only `windowClass` property, reflected as the `data-window-class` state attribute, and `windowclasschange` with `detail.windowClass`, from two `matchMedia` listeners (no resize listener and no frame loop); the menu button's `click`, which sets `navigationOpen` and the `open` of a `<tanrei-navigation-drawer>` in the navigation region, follows that drawer's `close`, and writes `aria-expanded` and `aria-controls` through the Button's element properties; `role` and `aria-label` on a region whose element does not already give the landmark (a `<tanrei-app-bar slot=\"header\">` with no `<header>` around it; an aside without a name takes `aside-label`); `tabindex=\"-1\"` on a `<main>` that lacks it; and the debug reports of APS-4, APS-21 and APS-29. It listens to nothing while no region needs it. With `scroll=\"main\"` the product names the main element's id in the app bar's `scroll-target`. The skip link is hidden with a clip, never `display: none`, and shown on `:focus-visible`; under `forced-colors: active` its box gains a `CanvasText` border. Insets are `env(safe-area-inset-*)`. The React wrapper renders the same light DOM on a server."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiAppShell",
+      "props": {
+        "scroll": "scroll",
+        "headerPosition": "headerPosition",
+        "mainWidth": "mainWidth",
+        "asideOrder": "asideOrder",
+        "separation": "separation",
+        "navigationOpen": "isNavigationPresented",
+        "asideLabel": "asideLabel"
+      },
+      "events": {
+        "windowClassChange": "onWindowClassChange",
+        "navigationOpenChange": "isNavigationPresented"
+      },
+      "items": {
+        "menu-button": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "An icon-only `TanreiButton` in the header, marked `.tanreiAppShellMenuButton()`; the shell reads the mark from the environment and hides the button outside the modal presentation."
+        }
+      },
+      "notes": "`TanreiAppShell(scroll:, headerPosition:, mainWidth:, asideOrder:, separation:, isNavigationPresented: Binding<Bool>, asideLabel:) { main } header: { … } navigation: { … } aside: { … } footer: { … } announcement: { … } navigationBar: { … }`. A layout of its own, not `NavigationSplitView`, whose column widths and collapsing cannot be set from the tokens. The window's class comes from the width of the scene (a `GeometryReader` at the root, in points; Dynamic Type does not change it) and is published as the environment value `\\.tanreiWindowClass`, which a search or a side sheet inside the shell reads. `scroll: .page` is one `ScrollView` holding the announcement, the main content, a stacked aside and the footer, with the header in `.safeAreaInset(edge: .top)` and the navigation and the aside beside it; `.main` keeps the footer in `.safeAreaInset(edge: .bottom)`. The header's height is published as `\\.tanreiAppShellScrollOffset` and applied as the scroll view's content margin, so `ScrollViewReader.scrollTo` rests below it. Regions are exposed with `accessibilityElement(children: .contain)` and one entry each in a custom rotor, the aside labelled by `asideLabel`. No skip link: VoiceOver's rotor and Full Keyboard Access's group navigation move between regions."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiAppShell",
+      "props": {
+        "scroll": "scroll",
+        "headerPosition": "headerPosition",
+        "mainWidth": "mainWidth",
+        "asideOrder": "asideOrder",
+        "separation": "separation",
+        "navigationOpen": "navigationOpen",
+        "asideLabel": "asideLabel"
+      },
+      "events": {
+        "windowClassChange": "onWindowClassChange",
+        "navigationOpenChange": "onNavigationOpenChange"
+      },
+      "items": {
+        "menu-button": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "contentDescription"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "An icon-only `TanreiButton` in the header with `Modifier.tanreiAppShellMenuButton()`; the shell draws it only in the modal presentation."
+        }
+      },
+      "notes": "`TanreiAppShell(navigationOpen, onNavigationOpenChange, modifier, scroll, headerPosition, mainWidth, asideOrder, separation, asideLabel, onWindowClassChange, announcement = {}, header = {}, navigation = {}, aside = {}, footer = {}, navigationBar = {}) { contentPadding -> main }`, in the manner of a scaffold with a custom `Layout`. The window's class comes from `LocalWindowInfo.current.containerSize` in dp and is provided as `LocalTanreiWindowClass`. `scroll = Page` nests the main content, a stacked aside and the footer in one vertical scroll with the header pinned through a nested-scroll connection; the measured header height is provided as `LocalTanreiAppShellScrollOffset` and as `contentPadding`. Regions are exposed with `Modifier.semantics { isTraversalGroup = true; paneTitle = … }`, the aside's from `asideLabel`. System insets through `WindowInsets.safeDrawing`. No skip link: TalkBack and keyboard traversal groups move between regions."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiAppShell",
+      "props": {
+        "scroll": "scroll",
+        "headerPosition": "headerPosition",
+        "mainWidth": "mainWidth",
+        "asideOrder": "asideOrder",
+        "separation": "separation",
+        "navigationOpen": "navigationOpen",
+        "asideLabel": "asideSemanticLabel"
+      },
+      "events": {
+        "windowClassChange": "onWindowClassChanged",
+        "navigationOpenChange": "onNavigationOpenChanged"
+      },
+      "items": {
+        "menu-button": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "semanticLabel"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "An icon-only `TanreiButton` wrapped in `TanreiAppShellMenuButton`, placed in the header; the wrapper builds nothing outside the modal presentation."
+        }
+      },
+      "notes": "`TanreiAppShell({ required Widget main, Widget? announcement, header, navigation, aside, footer, navigationBar, bool navigationOpen, ValueChanged<bool>? onNavigationOpenChanged, … })`, a widget of its own in the manner of a scaffold (`CustomMultiChildLayout`), not `Scaffold`, whose drawer and bar slots draw Material's own. The window's class comes from `MediaQuery.sizeOf(context).width` in logical pixels and is inherited as `TanreiWindowClass.of(context)`. `scroll: page` is a `CustomScrollView` with a pinned header sliver; the header's height is inherited as `TanreiAppShellScrollOffset.of(context)` and applied as scroll padding for `Scrollable.ensureVisible`. Regions are `Semantics(container: true, explicitChildNodes: true, label: …)` in a `FocusTraversalGroup` with an ordered policy (APS-22). Insets from `MediaQuery.viewPaddingOf`. No skip link, except on Flutter for the web, which is not a target of this package."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "AppShell",
+      "props": {
+        "scroll": "scroll",
+        "headerPosition": "headerPosition",
+        "mainWidth": "mainWidth",
+        "asideOrder": "asideOrder",
+        "separation": "separation",
+        "navigationOpen": "navigationOpen",
+        "asideLabel": "asideLabel"
+      },
+      "events": {
+        "windowClassChange": "onWindowClassChange",
+        "navigationOpenChange": "onNavigationOpenChange"
+      },
+      "items": {
+        "menu-button": {
+          "name": "Button",
+          "props": {
+            "label": "accessibilityLabel"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "An icon-only `Button` element passed as `menuButton`; the shell hands it to the header through context (`useAppShellMenuButton()`) and renders it only in the modal presentation."
+        }
+      },
+      "notes": "`<AppShell navigationOpen onNavigationOpenChange header={…} navigation={…} aside={…} footer={…} announcement={…} navigationBar={…} menuButton={…}>{main}</AppShell>`. The window's class comes from `useWindowDimensions().width` and is given by context (`useWindowClass()`). `scroll=\"page\"` is one `ScrollView` with `stickyHeaderIndices` for the header; the header's height is measured with `onLayout` and given by context (`useAppShellScrollOffset()`). Regions carry `accessibilityRole` where the platform has one (`header`, `menu`, `summary`) and `accessibilityLabel`; the order of APS-22 is the order of the rendered views. Insets from the safe-area context the package already depends on. The layout direction is the app's. No skip link."
+    }
+  }
+}

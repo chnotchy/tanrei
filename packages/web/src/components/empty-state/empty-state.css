@@ -1,0 +1,70 @@
+/*
+ * Empty state before its element is defined (specs/empty-state.spec.json; EMP-1, EMP-2): `<tanrei-empty-state>` holds
+ * its title, its description and its actions as its own children, so a page that is rendered on a server shows them
+ * before any script runs — as plain blocks in the page's text. This stylesheet gives that first paint the place the
+ * element will have, so that the words are readable where they will stand and the block keeps most of its height:
+ *
+ *   <tanrei-empty-state size="large">
+ *     <h1 slot="title">This page does not exist</h1>
+ *     The address may be mistyped, or the page may have moved.
+ *   </tanrei-empty-state>
+ *
+ * - a block with the paddings of its size, in the description's text style and color;
+ * - its lines centred, or at the start for `align="start"`;
+ * - the title slot in the title's text style and color, the title's gap above the description;
+ * - a glyph's name in the `media` slot is not shown as text (a picture is, centred or at the start).
+ *
+ * What it cannot give: a title in the `headline` attribute (it is drawn by the element — a page that must read without
+ * script gives the title in the slot), the glyph, the measure of the text, and the row of the `actions` slot (its
+ * Buttons are elements that are not defined yet either).
+ *
+ * Every value is a `--tanrei-comp-empty-state-*` token. Every selector has no specificity (`:where()`), and none
+ * matches once the element is defined.
+ */
+@layer tanrei.components {
+  :where(tanrei-empty-state:not(:defined)) {
+    display: block;
+    box-sizing: border-box;
+    padding-block: var(--tanrei-comp-empty-state-container-padding-block-medium);
+    padding-inline: var(--tanrei-comp-empty-state-container-padding-inline);
+    font: var(--tanrei-comp-empty-state-description-typescale-medium-font);
+    letter-spacing: var(--tanrei-comp-empty-state-description-typescale-medium-letter-spacing);
+    color: var(--tanrei-comp-empty-state-description-color);
+    text-align: center;
+    overflow-wrap: break-word;
+  }
+  :where(tanrei-empty-state[size='large']:not(:defined)) {
+    padding-block: var(--tanrei-comp-empty-state-container-padding-block-large);
+    font: var(--tanrei-comp-empty-state-description-typescale-large-font);
+    letter-spacing: var(--tanrei-comp-empty-state-description-typescale-large-letter-spacing);
+  }
+  :where(tanrei-empty-state[align='start']:not(:defined)) {
+    text-align: start;
+  }
+  /* A glyph is a name until its element draws it: the name is not shown. A picture is the product's own and is. */
+  :where(tanrei-empty-state:not(:defined)) > :where([slot='media']:not(img, svg, picture, video, canvas)) {
+    display: none;
+  }
+  :where(tanrei-empty-state:not(:defined)) > :where([slot='media']:is(img, svg, picture, video, canvas)) {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+    margin-block-end: var(--tanrei-comp-empty-state-media-gap);
+    margin-inline: auto;
+  }
+  :where(tanrei-empty-state[align='start']:not(:defined)) > :where([slot='media']:is(img, svg, picture, video, canvas)) {
+    margin-inline: 0 auto;
+  }
+  :where(tanrei-empty-state:not(:defined)) > :where([slot='title']) {
+    display: block;
+    margin: 0;
+    margin-block-end: var(--tanrei-comp-empty-state-title-gap);
+    font: var(--tanrei-comp-empty-state-title-typescale-medium-font);
+    letter-spacing: var(--tanrei-comp-empty-state-title-typescale-medium-letter-spacing);
+    color: var(--tanrei-comp-empty-state-title-color);
+  }
+  :where(tanrei-empty-state[size='large']:not(:defined)) > :where([slot='title']) {
+    font: var(--tanrei-comp-empty-state-title-typescale-large-font);
+    letter-spacing: var(--tanrei-comp-empty-state-title-typescale-large-letter-spacing);
+  }
+}

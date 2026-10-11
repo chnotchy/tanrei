@@ -1,0 +1,58 @@
+{
+  "$comment": "The core color roles: the vocabulary every system must value. Values never live here — each system's layer file says which tone of which palette a role takes. A role is core because ONE PRODUCT may need that distinction; a role that only one design system has is a declared palette instead (see `palettes` in tokens/systems/*.system.json).",
+  "llm": {
+    "usage": "Color ROLES. Components and product UI bind to a role, never to a palette tone or a literal. Roles come in pairs that are contrast-checked together: draw `on-x` content on `x`, and `on-x-container` on `x-container`. Surfaces step from surface-container-lowest to -highest to separate regions without borders.",
+    "rules": [
+      "Choose a role by MEANING (error, success, warning, info, link, focus-ring, outline…), not by the color you expect it to have — a design system may give it any color.",
+      "A product-specific meaning (brand, correct/incorrect, a category) is a declared palette in the layer's \"palettes\" with \"roles\": \"intent\": it yields x, on-x, x-container, on-x-container. Do not reuse error/success for it and do not add tokens.",
+      "Never hardcode hex values in a product using Tanrei; they will not follow the scheme, the contrast level or the design system."
+    ]
+  },
+  "sets": {
+    "intent": {
+      "rationale": "One product fills a container with this color, puts content on it, and also uses a quieter container of the same intent.",
+      "roles": [
+        "{name}",
+        "on-{name}",
+        "{name}-container",
+        "on-{name}-container"
+      ]
+    }
+  },
+  "intents": {
+    "primary": "The product's main action and brand emphasis. Separate from every other intent because a product's brand color is rarely its error, success or link color.",
+    "secondary": "Lower-emphasis actions and selections (tonal buttons, chips) that must not compete with the primary action.",
+    "error": "Something failed or is destructive. Every product with a form or a delete button needs it.",
+    "success": "Something succeeded or is valid: form validation, completed steps, positive status.",
+    "warning": "Something needs attention before it becomes an error: caution banners, risky choices.",
+    "info": "Neutral, non-urgent system information, distinct from the brand color so notices do not read as calls to action."
+  },
+  "roles": {
+    "surface": "The default background of a view.",
+    "surface-dim": "A background that recedes behind `surface` (wells, the area around a sheet).",
+    "surface-bright": "A background that stays bright in dark schemes (bars that must separate from a dark canvas).",
+    "surface-container-lowest": "The lowest of five container steps. One product nests cards in panels in pages, so it needs several distinguishable steps at once.",
+    "surface-container-low": "Container step 2 of 5.",
+    "surface-container": "Container step 3 of 5: the default container.",
+    "surface-container-high": "Container step 4 of 5.",
+    "surface-container-highest": "Container step 5 of 5: inputs and chips that sit on other containers.",
+    "surface-variant": "A differently weighted surface for low-emphasis fills such as tracks.",
+    "on-surface": "Primary text and icons on any surface.",
+    "on-surface-variant": "Secondary text and icons: supporting copy, placeholders, inactive icons.",
+    "outline": "A boundary people must be able to see to identify a control (an input's border, an unchecked checkbox): at least 3:1.",
+    "outline-variant": "A decorative hairline (dividers, card edges). Separate from `outline` because a product wants quiet dividers without losing visible input borders.",
+    "focus-ring": "The keyboard focus indicator (its outer stroke). Separate from `primary` because a product may want a saturated brand color and a calmer, or more visible, focus ring.",
+    "focus-ring-inner": "The optional inner stroke of the focus indicator: a second tone that keeps the indicator visible where the outer one would blend into the background.",
+    "link": "Inline text links. Separate from `primary` because links sit in running text and must read as links, whatever the brand color is.",
+    "inverse-link": "Inline text links on `inverse-surface`. Separate from `inverse-primary` for the reason `link` is separate from `primary`: a product whose links are not its brand color needs them told as links on a surface of the opposite theme too, and a layer that re-points `link` and `inverse-link` has recolored every text link and nothing else.",
+    "inverse-surface": "A surface of the opposite theme inside the current one (snackbars, tooltips).",
+    "inverse-on-surface": "Content on `inverse-surface`.",
+    "inverse-primary": "A primary-colored action on `inverse-surface`.",
+    "scrim": "Dims content behind a modal surface.",
+    "shadow": "The color shadows are cast in.",
+    "elevation-ring": "The hairline ring that edges an elevated surface. Separate from `outline-variant` so a product can outline elevated surfaces more or less strongly than it draws dividers.",
+    "elevation-shadow-1": "The faintest shadow layer.",
+    "elevation-shadow-2": "The middle shadow layer.",
+    "elevation-shadow-3": "The strongest shadow layer."
+  }
+}

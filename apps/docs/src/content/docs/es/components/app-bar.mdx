@@ -1,0 +1,303 @@
+---
+title: Barra de la aplicación
+description: Da nombre a la pantalla actual en su borde superior y contiene el camino de vuelta y algunas de las acciones de la pantalla. Permanece plana mientras el contenido está en su inicio y se distingue en cuanto el contenido se desplaza por debajo de ella.
+translationOf: components/app-bar.mdx
+sourceHash: 6673ce3102bb145461ac7483ffda05f1bee1ab9c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="app-bar" />
+
+Los ejemplos de Web y React muestran la especificación actual, en la que los elementos de la barra son [botones](/es/components/button/) de solo icono. SwiftUI, Compose, Flutter y React Native van rezagados: todavía ofrecen la revisión anterior, con un componente de botón de icono propio, y sus ejemplos muestran esa revisión hasta que se pongan al día.
+
+<DemoFrame label="Una barra de la aplicación pequeña con un botón para volver y dos acciones">
+  <tanrei-app-bar headline="Bandeja de entrada" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="Atrás"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="Buscar"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="Más opciones"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+### Uso
+
+Una barra de la aplicación es una región del diseño de página, no una superposición. Ocupa su altura en la parte superior de la pantalla, el contenido empieza debajo de ella y la barra en sí nunca recibe el foco.
+
+Contiene dos tipos de elemento: un elemento `navigation` al inicio (atrás, menú o cerrar) y hasta tres elementos `action` al final. Ambos son tus propios [botones](/es/components/button/) de solo icono, cada uno con su etiqueta y su clic o, cuando lleva a algún sitio, su `href`. La barra los dispone y nunca les cambia el estilo. Cada plataforma los recibe en sus propios slots: hijos con `slot="navigation"` y `slot="actions"` en la web, los constructores de vistas `navigation` y `actions` en SwiftUI, las lambdas `navigationIcon` y `actions` en Compose, `leading` y `actions:` en Flutter, y los nodos `navigation` y `actions` en React Native.
+
+El título es el nombre de la pantalla y su encabezado. En la web es `headline`, porque el atributo global `title` de HTML pondría un tooltip sobre toda la barra.
+
+**Desplazada.** Mientras haya contenido bajo la barra, esta toma su aspecto desplazado. Conecta la vista con desplazamiento de la pantalla y la barra define `scrolled` por sí misma: `scroll-target` en la web (el documento de forma predeterminada), `.tanreiAppBarScrollSource()` en SwiftUI (aplicado después del `.safeAreaInset` que contiene la barra), un `scrollBehavior` conectado con `Modifier.nestedScroll` en Compose, las notificaciones de desplazamiento de la página en Flutter y `useAppBarScroll()` en React Native. Sin conexión, define `scrolled` tú.
+
+**Barras del sistema.** El color de la barra llega hasta debajo de la barra de estado, del recorte de la cámara o de la barra de título de la ventana que tenga encima. Su contenido queda por debajo de ellas y dentro de los márgenes interiores laterales. La web lee `env(safe-area-inset-*)`, Compose recibe `windowInsets` (de forma predeterminada, las barras de estado y el recorte horizontal de la pantalla), Flutter lee el margen interior de `MediaQuery` y SwiftUI coloca la barra con `.safeAreaInset(edge: .top)`. React Native no tiene una API de área segura, y Tanrei no añade ninguna dependencia para ello, así que los márgenes interiores llegan solo por las propiedades. Dale a `TanreiProvider` los `insets` de la ventana (si usas `react-native-safe-area-context`, pásale su `useSafeAreaInsets()`). La propiedad `insets` de una barra sustituye los lados que nombra, de modo que una barra que no está en la parte superior de la ventana pasa `{ top: 0 }`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- El título es headline: el atributo title de HTML mostraría un tooltip sobre la barra. -->
+    <tanrei-app-bar headline="Bandeja de entrada">
+      <tanrei-button variant="text" slot="navigation" label="Atrás"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="Buscar"><span slot="icon">search</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="Más opciones"><span slot="icon">more_vert</span></tanrei-button>
+    </tanrei-app-bar>
+
+    <!-- Un título grande que se contrae a medida que #inbox se desplaza. El título es un h1 salvo que heading-level diga otra cosa. -->
+    <div style="display: flex; flex-direction: column; block-size: 100dvh">
+      <tanrei-app-bar size="large" headline="Bandeja de entrada" scroll-target="inbox">
+        <tanrei-button variant="text" slot="navigation" label="Menú"><span slot="icon">menu</span></tanrei-button>
+      </tanrei-app-bar>
+      <main id="inbox" style="flex: 1; overflow: auto">…</main>
+    </div>
+
+    <!-- Un botón que lleva a una página es un enlace: dale un href. Una búsqueda puede ser una acción: su activador de icono. -->
+    <tanrei-app-bar headline="Pestañas">
+      <tanrei-button variant="text" slot="navigation" href="/components/" label="Todos los componentes"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-search slot="actions" bar="icon" presentation="dialog" label="Buscar en la documentación" placeholder="Buscar"
+        clear-label="Borrar búsqueda" back-label="Atrás"></tanrei-search>
+    </tanrei-app-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/app-bar';
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/search';
+      // Los botones son tuyos: la barra no añade eventos propios.
+      document.querySelector('[label="Atrás"]').addEventListener('click', () => history.back());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { AppBar, Button, Search } from '@tanrei/react';
+
+    <AppBar headline="Bandeja de entrada">
+      <Button variant="text" slot="navigation" label="Atrás" onClick={goBack}><span slot="icon">arrow_back</span></Button>
+      <Button variant="text" slot="actions" label="Buscar" onClick={search}><span slot="icon">search</span></Button>
+      <Button variant="text" slot="actions" label="Más opciones" onClick={openMore}><span slot="icon">more_vert</span></Button>
+    </AppBar>
+
+    // Un botón que lleva a una página es un enlace: dale un href. Una búsqueda puede ser una acción: su activador de icono.
+    <AppBar headline="Pestañas">
+      <Button variant="text" slot="navigation" href="/components/" label="Todos los componentes"><span slot="icon">arrow_back</span></Button>
+      <Search slot="actions" bar="icon" presentation="dialog" label="Buscar en la documentación" placeholder="Buscar" clearLabel="Borrar búsqueda" backLabel="Atrás" />
+    </AppBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // La barra se coloca en el margen superior del área segura de un NavigationStack cuya barra del sistema está oculta.
+    // Si isScrolled se deja en nil, sigue a la vista de desplazamiento marcada con .tanreiAppBarScrollSource().
+    NavigationStack {
+        ScrollView { InboxRows() }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                TanreiAppBar("Bandeja de entrada", size: .large) {
+                    TanreiIconButton("Menú", action: openMenu) { Image(systemName: "line.3.horizontal") }
+                } actions: {
+                    TanreiIconButton("Buscar", action: search) { Image(systemName: "magnifyingglass") }
+                }
+            }
+            // Después del margen que contiene la barra: un modificador aplicado dentro de él no puede alcanzar la barra.
+            .tanreiAppBarScrollSource()
+            .toolbar(.hidden, for: .navigationBar)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiAppBar
+    import io.github.chnotchy.tanrei.components.TanreiAppBarDefaults
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiAppBarSize
+
+    // Una barra pequeña. Sin scrollBehavior permanece plana.
+    TanreiAppBar(
+        title = "Bandeja de entrada",
+        navigationIcon = { TanreiIconButton(onClick = onBack, contentDescription = "Atrás") { TanreiText("arrow_back") } },
+        actions = {
+            TanreiIconButton(onClick = onSearch, contentDescription = "Buscar") { TanreiText("search") }
+            TanreiIconButton(onClick = onMore, contentDescription = "Más opciones") { TanreiText("more_vert") }
+        },
+    )
+
+    // Una barra grande que se contrae a medida que la lista se desplaza: conecta el comportamiento en un padre de la vista con desplazamiento.
+    // pinnedScrollBehavior() es el de una barra pequeña: nunca se contrae, y pasa a scrolled mientras haya contenido debajo.
+    val scrollBehavior = TanreiAppBarDefaults.collapseScrollBehavior()
+    Column(Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)) {
+        TanreiAppBar(title = "Bandeja de entrada", size = TanreiAppBarSize.Large, scrollBehavior = scrollBehavior)
+        LazyColumn { /* el contenido de la pantalla */ }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Una barra pequeña, en el slot de barra de la aplicación de un scaffold o como primer elemento de un Column.
+    // Si scrolledUnder se deja en null, sigue al ScrollNotificationObserver más cercano, como hace AppBar.
+    TanreiAppBar(
+      leading: TanreiIconButton(onPressed: () => Navigator.of(context).maybePop(), icon: const Icon(AppSymbols.arrowBack), semanticLabel: 'Atrás'),
+      title: 'Bandeja de entrada',
+      actions: <Widget>[
+        TanreiIconButton(onPressed: search, icon: const Icon(AppSymbols.search), semanticLabel: 'Buscar'),
+        TanreiIconButton(onPressed: openMore, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'Más opciones'),
+      ],
+    ),
+
+    // Una barra grande que se contrae con su contenido es un sliver, fijado en la parte superior de su CustomScrollView.
+    CustomScrollView(
+      slivers: <Widget>[
+        TanreiSliverAppBar(title: 'Bandeja de entrada', size: TanreiAppBarSize.large, leading: menuButton),
+        SliverList.list(children: messages),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { ScrollView, View } from 'react-native';
+    import { AppBar, IconButton, useAppBarScroll } from '@tanrei/react-native';
+
+    // Los márgenes interiores vienen de la propiedad insets de TanreiProvider, o de la de la propia barra.
+    <AppBar
+      title="Bandeja de entrada"
+      navigation={<IconButton accessibilityLabel="Atrás" onPress={goBack}>arrow_back</IconButton>}
+      actions={
+        <>
+          <IconButton accessibilityLabel="Buscar" onPress={search}>search</IconButton>
+          <IconButton accessibilityLabel="Más opciones" onPress={openMore}>more_vert</IconButton>
+        </>
+      }
+    />
+
+    // Una barra grande que se contrae: conecta la vista de desplazamiento, coloca la barra sobre ella y añade al contenido un relleno igual a la altura de la barra.
+    const scroll = useAppBarScroll();
+    const [barHeight, setBarHeight] = useState(0);
+    <View style={{ flex: 1 }}>
+      <ScrollView onScroll={scroll.onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: barHeight }}>
+        {messages}
+      </ScrollView>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }} onLayout={(e) => setBarHeight((h) => Math.max(h, e.nativeEvent.layout.height))}>
+        <AppBar size="large" title="Bandeja de entrada" scrollState={scroll.state} navigation={menuButton} />
+      </View>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Una barra grande con subtítulo y un título centrado" plain column>
+  <tanrei-app-bar size="large" headline="Bandeja de entrada" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="Menú"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="Buscar"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="Cuenta"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-app-bar>
+  <tanrei-app-bar headline="Bandeja de entrada" title-alignment="center" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="Atrás"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="Buscar"><span slot="icon">search</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<DemoFrame label="Un botón de navegación que es un enlace y un activador de búsqueda entre las acciones" plain>
+  <tanrei-app-bar headline="Pestañas" subtitle="Componentes" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" href="/es/components/" label="Todos los componentes"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-search slot="actions" bar="icon" presentation="dialog" label="Buscar en la documentación" placeholder="Buscar" clear-label="Borrar búsqueda" back-label="Atrás"></tanrei-search>
+    <tanrei-button variant="text" slot="actions" label="Más opciones"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<ComponentSpecs name="app-bar" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa una barra de la aplicación en la parte superior de una pantalla para decir dónde está la persona, para llevarla atrás o abrir el menú, y para dar acceso a las pocas acciones que pertenecen a toda la pantalla: buscar, compartir, la cuenta. Una pantalla tiene una sola barra de la aplicación.
+
+Usa una barra de navegación o un panel de navegación para moverte entre los destinos de nivel superior de una aplicación. El botón de menú de la barra de la aplicación puede abrir un [panel de navegación modal](/es/components/navigation-drawer/). Tanrei no tiene barra de la aplicación inferior: las acciones en la parte inferior de una pantalla compacta son tarea de la [barra de herramientas](/es/components/toolbar/).
+
+### Cómo elegir un tamaño y una posición del título
+
+| Opción | Qué hace | Úsala para |
+| --- | --- | --- |
+| Small (predeterminado) | Una fila: el botón de navegación, el título y las acciones. | La mayoría de las pantallas, y toda pantalla a la que se llega desde otra. |
+| Large | Un título más grande en una fila propia bajo la fila superior. A medida que el contenido se desplaza, se contrae dentro de la fila superior, al mismo ritmo que el desplazamiento, y el título de la fila superior aparece con un fundido. Vuelve a expandirse cuando el contenido regresa a su inicio. | Las pantallas de nivel superior de un producto, donde el título es también el punto de referencia de la pantalla. |
+| `titleAlignment` start (predeterminado) | El título sigue al botón de navegación. | La mayoría de las barras. |
+| `titleAlignment` center | El título se centra respecto a toda la barra y se estrecha por igual a ambos lados, de modo que nunca queda debajo de los botones. | Productos que siguen los títulos centrados de iOS. Un título grande expandido siempre empieza en el inicio. |
+
+Un sistema de diseño puede añadir tamaños. En SwiftUI, Compose, Flutter y React Native, un tamaño más alto que small recibe una fila de título propia, como large. En la web, la recibe cada tamaño que añade el sistema de diseño. El preajuste `m3-like` todavía no tiene el tamaño medium de Material.
+
+### Desplazamiento
+
+- **Plana y desplazada.** Mientras el contenido está en su inicio, la barra permanece plana. En cuanto hay contenido debajo, la barra toma su aspecto desplazado: en el sistema predeterminado, una línea fina en el borde inferior; en `m3-like`, un contenedor teñido. El cambio se suaviza con el movimiento de condición de la barra y ocurre de inmediato cuando el movimiento está reducido.
+- **Una barra grande solo está desplazada cuando se ha contraído del todo.** Hasta entonces, la propia contracción muestra que el contenido se ha movido.
+- **La barra se queda en su sitio.** No se oculta mientras el contenido se desplaza hacia abajo. Ese es un comportamiento de desplazamiento de la pantalla, no de la barra.
+
+### Elementos
+
+- Dale a la barra un solo botón de navegación como máximo: atrás en una pantalla a la que se llegó desde otra, menú en una pantalla de nivel superior, cerrar en una tarea a pantalla completa.
+- No pases de tres acciones. Pon el resto en un menú de desbordamiento: un botón de icono «Más opciones» que abre un menú de Tanrei. Las compilaciones de depuración avisan de una cuarta acción y de un segundo botón de navegación, y aun así los dibujan.
+- Los botones se ven como en cualquier otro lugar. La barra los dispone y nunca les cambia el color.
+- Un botón que lleva a algún sitio es un enlace: dale un `href`. Un botón para volver que lleva a la página superior, o una acción de ayuda que abre una página, es entonces un enlace real, dibujado como el mismo botón. Un botón para volver que retrocede por el historial sigue siendo un botón.
+- En la web, una [búsqueda](/es/components/search/) puede ser una de las acciones en forma de activador de icono (`bar` en `icon`): un botón de solo icono que abre el diálogo o la vista a pantalla completa de la búsqueda.
+
+### Recomendado
+
+- Escribe el título como el nombre de la pantalla, por ejemplo «Bandeja de entrada» o «Informe trimestral». Que sea corto: ocupa una sola línea y se corta con puntos suspensivos.
+- Usa el subtítulo para un contexto que ayude a distinguir dos pantallas parecidas: una cuenta, un estado, cuándo se editó.
+- Elige un tamaño para todas las pantallas de nivel superior y otro para todas las demás.
+
+### Evita
+
+- No pongas en los slots nada que no sean botones de icono: ni un campo de texto, ni un campo de búsqueda, ni pestañas, ni un control segmentado. Una fila de pestañas va debajo de la barra, y una [vista de pestañas](/es/components/tab-view/) situada más abajo puede vincularse a ella.
+- No pongas en la barra una acción principal como «Crear». Usa un botón de acción principal.
+- No le des al título una segunda línea ni lo conviertas en un enlace.
+
+## Accesibilidad
+
+<ComponentAccessibility name="app-bar" />
+
+### De qué se encarga el componente
+
+- La barra no tiene un rol propio y nunca puede recibir el foco. Tab pasa del botón de navegación a las acciones y las recorre en el orden de lectura. Cada botón conserva su rol, su nombre y su objetivo mínimo, y un botón con `href` se expone como un enlace.
+- El título se expone como el encabezado de la pantalla: un encabezado de nivel 1 en la web, salvo que `heading-level` diga otra cosa. El subtítulo se lee después. Un título vacío no dibuja nada y no expone ningún encabezado.
+- Una barra grande dibuja dos títulos mientras se contrae, pero solo expone uno: el título expandido mientras alguna parte de él sea visible, y el de la fila superior cuando la barra se ha contraído. El encabezado nunca se lee dos veces.
+- La barra no es una región de referencia (landmark). Solo tú sabes si es el banner de la página.
+- Un texto más grande hace crecer las filas de la barra, cuyas alturas son mínimas. El título y el subtítulo se mantienen en una línea y se truncan en lugar de saltar de línea, incluso al 200%, de modo que la barra nunca empuja el contenido. El título completo sigue disponible para la tecnología de apoyo. Los botones de icono no se escalan.
+- La barra toma su dirección del lugar donde se usa. En un diseño de derecha a izquierda se refleja: el botón de navegación queda a la derecha y las acciones, a la izquierda. Un glifo que el conjunto de iconos marca como reflejado, como una flecha de retroceso, lo refleja su propio botón, no la barra.
+- El título y el subtítulo se componen como texto con su propia dirección, aislado del texto que lo rodea. Un nombre de izquierda a derecha en un diseño de derecha a izquierda conserva su orden, y se corta por su propio final, nunca por su principio.
+- Las compilaciones de depuración avisan de más de tres acciones, de más de un botón de navegación y de un tamaño que el sistema de diseño no tiene.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native: las reglas de derecha a izquierda (un glifo reflejado donde el conjunto de iconos lo marca, un título compuesto en su propia dirección) esperan a que esas plataformas se pongan al día, igual que un botón con `href`.
+- Web: todos los tamaños siguen a `rem`, así que un tamaño de texto mayor en el navegador hace crecer los botones de icono junto con el texto. Ampliar solo la tipografía de Tanrei no lo hace.
+- Web: una barra grande que sigue el desplazamiento del propio documento y está en `position: sticky` dentro del flujo del documento mueve el contenido tanto por su contracción como por el desplazamiento, de modo que el contenido se mueve el doble de rápido mientras la barra se contrae. Coloca una barra que se contrae encima de un elemento con desplazamiento (`scroll-target`) o en una cabecera fija.
+- Web: cada botón de icono ocupa una celda del objetivo mínimo del puntero en uso, 44 para un ratón, así que dos acciones quedan a 52 de centro a centro donde Compose y Flutter, que miden el objetivo táctil de 48, las dibujan a 56.
+- SwiftUI: la barra sigue a su vista de desplazamiento solo a partir de iOS 18 y macOS 15. Antes de eso no hay nada conectado, y la barra dibuja lo que dice `isScrolled`.
+- SwiftUI: `isScrolled: true` en una barra grande conectada la dibuja contraída, pero conserva su altura expandida en el diseño, así que se ve un hueco encima del contenido mientras este está en su inicio.
+- SwiftUI: con la barra del sistema oculta, la barra mantiene en funcionamiento el gesto de deslizar desde el borde para volver sustituyendo el delegado del gesto de retroceso del controlador de navegación. Esto solo se ha comprobado en iOS 26.5. Que una barra grande expone un solo título a la vez todavía no se ha comprobado con VoiceOver.
+- Flutter: un `TanreiAppBar` grande no se contrae con su contenido, porque un widget de caja no puede encogerse con la vista de desplazamiento que tiene debajo. Ignora las notificaciones de desplazamiento, permanece expandido y solo se dibuja contraído mientras `scrolledUnder` es true. Usa `TanreiSliverAppBar` para una barra que se contrae.
+- Flutter: `preferredSize` informa de una altura ilimitada, porque no puede leer el tema. Un scaffold deja que la barra se dimensione sola, pero tu propio diseño no puede usar ese número.
+- Compose: la contracción se detiene donde se detiene el desplazamiento, así que una barra grande puede quedar a medio contraer. No se abre ni se cierra de golpe tras un lanzamiento, como hace la de Material. La especificación no pide ese ajuste.
+- React Native: para que una barra grande se contraiga al mismo ritmo que su contenido, colocas la barra sobre la vista de desplazamiento y añades al contenido un margen interior igual a la altura de la barra, como hace el ejemplo anterior. La contracción, los márgenes interiores y lo que anuncian los lectores de pantalla todavía no se han comprobado en un dispositivo.
+- Todas las plataformas: con `cupertino`, la fila superior de 44 puntos crece hasta 48 cuando contiene botones de icono, porque su objetivo táctil es 48 y el objetivo mínimo prevalece. En la web solo crece con un puntero grueso, ya que el objetivo de un ratón es 44. La fila expandida de una barra grande es además 1 punto más alta que la altura del contenedor de cupertino.
+- Todas las plataformas: con subtítulo, el título expandido queda cubierto antes de que la barra se haya contraído del todo. La especificación todavía no dice qué título se expone entretanto. Todas las plataformas pasan el encabezado a la fila superior en cuanto el título expandido queda cubierto.
+
+### Qué debes hacer tú
+
+- Dale un título a cada barra. Es el encabezado de la pantalla.
+- Dale una etiqueta a cada botón de icono, como «Atrás» o «Buscar».
+- En la web, define `heading-level` cuando la página ya tenga un encabezado de nivel 1, y envuelve la barra en un `<header>` cuando sea el banner de la página.
+- Conecta la vista con desplazamiento de la pantalla, o define `scrolled` tú, para que la barra muestre cuándo hay contenido debajo.
+- En React Native, pasa los márgenes interiores de la ventana a `TanreiProvider`. En React Native y Compose, una barra que no está en la parte superior de la ventana recibe márgenes interiores distintos (`insets={{ top: 0 }}`, o tus propios `windowInsets`).
+- Escribe títulos cortos. Un título cortado con puntos suspensivos se sigue leyendo completo, pero quienes ven la pantalla solo ven su comienzo.

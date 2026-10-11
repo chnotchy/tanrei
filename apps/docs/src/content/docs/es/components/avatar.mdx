@@ -1,0 +1,223 @@
+---
+title: Avatar
+description: Representa a una persona, un equipo o un proyecto con una imagen pequeña, o con iniciales o un glifo donde no la hay, en un círculo o en un cuadrado redondeado de tres tamaños. Varios se muestran como un solo grupo superpuesto que cuenta el resto. Es una imagen, nunca un control.
+translationOf: components/avatar.mdx
+sourceHash: 3fba4dba17faacf3912404f2c65a411b7cfa585a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="avatar" />
+
+<DemoFrame label="Iniciales, un glifo, un cuadrado y un grupo">
+  <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar label="Alguien sin imagen"></tanrei-avatar>
+  <tanrei-avatar label="Equipo de diseño" initials="ED" shape="square"></tanrei-avatar>
+  <tanrei-avatar-group label="Revisores" max="4" overflow-label="y 3 más">
+    <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+    <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
+    <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
+    <tanrei-avatar label="Hedy Lamarr" initials="HL"></tanrei-avatar>
+    <tanrei-avatar label="Annie Easley" initials="AE"></tanrei-avatar>
+    <tanrei-avatar label="Mary Jackson" initials="MJ"></tanrei-avatar>
+  </tanrei-avatar-group>
+</DemoFrame>
+
+Un avatar muestra de quién es algo: el autor de una publicación, las personas de una conversación, el responsable de una tarea. Dibuja una imagen, y siempre tiene algo que dibujar cuando no la hay. Nunca responde a un puntero, a una tecla ni al foco.
+
+En la web es `<tanrei-avatar>`, y varios juntos son `<tanrei-avatar-group>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Solo: recibe su nombre de su etiqueta. -->
+    <tanrei-avatar label="Ada Lovelace" initials="AL" src="/people/ada.jpg"></tanrei-avatar>
+
+    <!-- Junto al mismo nombre en texto: decorativo, para que el nombre se lea una sola vez. -->
+    <p>
+      <tanrei-avatar decorative size="small" initials="AL" src="/people/ada.jpg"></tanrei-avatar>
+      Ada Lovelace
+    </p>
+
+    <!-- No es una sola persona: un cuadrado, con un glifo tuyo. -->
+    <tanrei-avatar label="Servicio de compilación" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
+
+    <!-- Seis miembros y cuatro cajas como máximo: tres miembros y «+3». -->
+    <tanrei-avatar-group label="Revisores" max="4" overflow-label="y 3 más">
+      <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+      <tanrei-avatar label="Grace Hopper" initials="GH"></tanrei-avatar>
+      <!-- … -->
+    </tanrei-avatar-group>
+
+    <!-- Antes de que llegue el script, esta hoja de estilos guarda el sitio de cada avatar. -->
+    <link rel="stylesheet" href="@tanrei/web/avatar.css" />
+    <script type="module">
+      import '@tanrei/web/components/avatar';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Avatar, AvatarGroup } from '@tanrei/react';
+
+    <Avatar label={person.name} initials={person.initials} src={person.picture} />
+
+    <AvatarGroup label="Revisores" max={4} total={reviewerCount} overflowLabel={`y ${reviewerCount - 3} más`}>
+      {reviewers.slice(0, 3).map((person) => (
+        <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
+      ))}
+    </AvatarGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Tres tamaños, dos formas" plain>
+  <tanrei-avatar size="small" label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar size="large" label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar size="small" shape="square" label="Equipo de diseño" initials="ED"></tanrei-avatar>
+  <tanrei-avatar shape="square" label="Equipo de diseño" initials="ED"></tanrei-avatar>
+  <tanrei-avatar size="large" shape="square" label="Un proyecto"></tanrei-avatar>
+</DemoFrame>
+
+<ComponentSpecs name="avatar" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un avatar donde una imagen pequeña diga de quién o de qué es algo más deprisa que un nombre solo: una línea de autor, un comentario, una fila de una lista de personas, la cabecera de un perfil. Es una imagen y nada más. No tiene paso del cursor, ni foco, ni pulsación, ni ningún evento.
+
+| Necesitas | Usa |
+| --- | --- |
+| Un punto o un número sobre una persona («3 sin leer») | Una [insignia](/es/components/badge/) alrededor del avatar. |
+| Un avatar que lleva a un perfil | Un [enlace](/es/components/link/) que contiene el avatar. |
+| Un avatar que abre un menú | Un [botón](/es/components/button/) que contiene el avatar. |
+| Una persona que se puede elegir o quitar | Un [chip](/es/components/chip/). |
+| Presencia (en línea, ausente) | Palabras junto al nombre, con un [tag](/es/components/tag/) donde necesite una marca. |
+
+### Qué dibuja
+
+El avatar dibuja lo primero que tenga de esta lista:
+
+1. La imagen de `src`, una vez cargada.
+2. Las `initials` que le das.
+3. El glifo de su slot `icon`.
+4. El glifo propio del sistema: una persona para un círculo, una marca neutra para un cuadrado.
+
+La caja conserva su tamaño desde el primer pintado. Mientras una imagen se carga, en su lugar se dibuja el respaldo, y la imagen lo sustituye cuando llega. Nada de lo que rodea al avatar se mueve. Una imagen que no se puede cargar deja el respaldo: no hay marca de imagen rota, y el avatar no vuelve a pedirla.
+
+### Iniciales
+
+El avatar no forma las iniciales a partir del nombre. Qué caracteres representan un nombre depende de su sistema de escritura y de qué parte va primero, y tu producto ya lo sabe. Dáselas en `initials`:
+
+| Nombre | `initials` |
+| --- | --- |
+| Ada Lovelace | `AL` |
+| 山田 花子 | `山` o `山田` |
+| 王小明 | `王` |
+| ليلى حسن | `لح` |
+| किरण राव | `किरा` |
+
+El avatar dibuja dos caracteres como máximo, contados como los cuenta quien lee, de modo que una letra con sus marcas o una sílaba ligada nunca se parte por la mitad. Los dibuja tal como están escritos y no cambia sus mayúsculas ni sus minúsculas.
+
+<DemoFrame label="Iniciales en varios sistemas de escritura" plain>
+  <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+  <tanrei-avatar label="山田 花子" initials="山田" lang="ja"></tanrei-avatar>
+  <tanrei-avatar label="王小明" initials="王" lang="zh-Hans"></tanrei-avatar>
+  <tanrei-avatar label="ليلى حسن" initials="لح" lang="ar"></tanrei-avatar>
+  <tanrei-avatar label="किरण राव" initials="किरा" lang="hi"></tanrei-avatar>
+</DemoFrame>
+
+### Tamaños y formas
+
+| `size` | Lado | Úsalo para |
+| --- | --- | --- |
+| `small` | 24 | Junto a una línea de texto: una línea de autor, una celda de una tabla, una mención. |
+| `medium` (predeterminado) | 40 | Una fila de una lista, un comentario. |
+| `large` | 56 | La cabecera de la página o de la tarjeta de una persona. |
+
+| `shape` | Úsalo para |
+| --- | --- |
+| `circle` (predeterminado) | Una persona. |
+| `square` | Algo que no es una sola persona: un equipo, un proyecto, una organización, un bot. |
+
+Todos los respaldos tienen el mismo relleno discreto. No hay un color por persona: un color que no significa nada no está en el sistema.
+
+### La imagen
+
+- Da una imagen cuadrada que mida al menos el doble del lado del avatar, para que siga nítida en una pantalla de alta densidad. Una imagen de otras proporciones se recorta alrededor de su centro.
+- `loading="lazy"` espera a pedir la imagen hasta que el avatar está cerca de la ventana. Úsalo en listas largas.
+- `referrerpolicy` y `crossorigin` se pasan a la imagen tal como los escribes. El avatar no elige ninguno de los dos: qué se le dice de tu página al servidor de una imagen es decisión tuya.
+
+### Grupos
+
+Un grupo dibuja sus miembros en una sola fila. Cada uno se superpone al anterior un cuarto de su lado, con una separación del color de la superficie alrededor de cada uno.
+
+<DemoFrame label="Un grupo que cuenta lo que no se le dio" plain>
+  <tanrei-avatar-group label="Miembros" max="4" total="240" overflow-label="y 237 más">
+    <tanrei-avatar label="Ada Lovelace" initials="AL"></tanrei-avatar>
+    <tanrei-avatar label="Grace Hopper"></tanrei-avatar>
+    <tanrei-avatar label="Katherine Johnson" initials="KJ"></tanrei-avatar>
+  </tanrei-avatar-group>
+</DemoFrame>
+
+- `max` es el número máximo de cajas que dibuja el grupo, incluida la caja de desbordamiento. Seis miembros con `max="4"` son tres miembros y «+3». El grupo nunca dibuja «+1»: gastaría una caja en ocultar una sola cara.
+- `total` es el número real donde das al grupo menos miembros de los que existen. Tres miembros, `max="4"` y `total="240"` son tres miembros y «+237».
+- El grupo da su `size` y su `shape` a todos los miembros.
+- Sobre una superficie que no sea la de la página, define `--tanrei-comp-avatar-group-outline-color` con el color de esa superficie.
+- La caja de desbordamiento es texto, no un control. Donde las personas necesiten ver quién más hay, pon un enlace o un botón junto al grupo.
+
+### Antes de que llegue el script
+
+`<tanrei-avatar>` dibuja en su shadow root, así que una página renderizada en un servidor no muestra nada en su lugar hasta que se ejecuta el script. Carga `@tanrei/web/avatar.css` y cada avatar conserva una caja de su tamaño y de su forma, de modo que la página no se mueve. Hasta entonces no se muestra ninguna imagen, ni iniciales, ni nombre. Para una página que deba poder leerse sin script, escribe el nombre como texto junto a un avatar decorativo.
+
+Un grupo con `max` muestra todos los miembros que le diste hasta que el script los cuenta. Si eso no debe mover la página, da al grupo solo los miembros que dibuja, y el resto como `total`.
+
+### Recomendado
+
+- Da un `label` a todo avatar que esté solo: el nombre completo.
+- Define `decorative` en un avatar que esté junto al mismo nombre en texto.
+- Da `initials` a todas las personas, para que una imagen que falta o que tarda siga mostrando quién es.
+- Mantén una misma forma para una misma clase de cosa en todo el producto.
+
+### Evita
+
+- No pongas un controlador en un avatar. Ponlo dentro de un enlace o de un botón, que tienen los estados y el indicador de foco.
+- No escribas «Foto de» en la etiqueta. La etiqueta es el nombre.
+- No uses un color, un anillo o un punto tuyos para mostrar un estado. Un número es una insignia, y la presencia se dice con palabras.
+- No uses un avatar para una imagen decorativa ni para un logotipo en un encabezado. Representa a alguien o a algo en cuyo nombre actúan las personas.
+
+## Accesibilidad
+
+<ComponentAccessibility name="avatar" />
+
+### De qué se encarga el componente
+
+- Solo, es una única imagen que recibe su nombre de `label`, tanto si dibuja una imagen como si dibuja iniciales o un glifo. Las iniciales, el nombre del glifo y la dirección de la imagen nunca se leen.
+- Con `decorative`, queda oculto para la tecnología de apoyo.
+- Dentro de un enlace o de un botón, su etiqueta pasa a ser el nombre de ese elemento, y una pulsación en el avatar llega a ese elemento.
+- Una insignia a su alrededor añade la etiqueta de la insignia después del nombre del avatar.
+- Un grupo es un solo grupo que recibe su nombre de su `label`. Contiene una imagen con nombre por cada miembro que dibuja, en el orden dado, y después el texto del desbordamiento. Los miembros que no dibuja no se exponen.
+- No recibe ninguna entrada ni el foco, así que no añade ninguna parada al orden del foco.
+- Con el texto ampliado conserva su caja, como hace un icono.
+- Con colores forzados, todos los respaldos ganan un borde del color del texto. Una imagen conserva sus propios colores.
+- En un diseño de derecha a izquierda, un grupo empieza por la derecha. Una imagen y unas iniciales nunca se reflejan, y el signo más de «+3» se queda delante de los dígitos.
+- Las compilaciones de depuración notifican un avatar sin nombre, unas iniciales de más de dos caracteres, una imagen que falla y un tamaño o una forma desconocidos.
+
+### Qué debes hacer tú
+
+- Decide para cada avatar si tiene nombre o es decorativo. La regla: si al eliminar el avatar se pierde un nombre, tiene nombre. Si no, es decorativo.
+- Escribe `overflowLabel` en el idioma de la página, con el número dentro («y 3 más»). Sin él, «+3» se lee tal como se dibuja.
+- Da a un avatar pequeño que esté dentro de un enlace sitio suficiente para pulsarlo. El avatar mide 24 de ancho; el enlace debe cumplir por sí mismo el objetivo mínimo.
+- Una imagen trae sus propios colores. Donde las imágenes suelan ser pálidas en el borde, da un tono a la superficie que tienen detrás.

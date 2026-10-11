@@ -1,0 +1,80 @@
+---
+title: SwiftUI
+description: Swift Package Manager से किसी iOS या macOS ऐप में Tanrei जोड़ें।
+translationOf: getting-started/swiftui.mdx
+sourceHash: 02740f9c5f67946f91b0fceca00e160f25a1ad9d
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`Tanrei` Swift पैकेज में SwiftUI व्यू, एक थीम एनवायरनमेंट और जनरेट किए गए टोकन कॉन्स्टेंट मिलते हैं। यह iOS 17 और macOS 14 या उसके बाद के वर्शन पर चलता है, और Swift 6 लैंग्वेज मोड के लिए लिखा गया है।
+
+<PreReleaseNotice registry="Swift Package Manager" pkg="Tanrei" />
+
+## इंस्टॉल करें
+
+### सोर्स से
+
+<Callout type="caution" title="आज बिल्ड नहीं होता">
+  SwiftUI पैकेज अभी मौजूदा स्पेक और टोकन तक नहीं पहुँचा है: उसका सोर्स जनरेट किए गए टोकन कोड के एक पुराने वर्ज़न के हिसाब से लिखा गया था, और आज के कोड के साथ कंपाइल नहीं होता। जब तक वह बराबरी पर नहीं आता, उसका CI रुका हुआ है, और [स्थिति पेज](/hi/status/) उसके कंपोनेंट को *पीछे* के रूप में दिखाता है। नीचे के चरण बताते हैं कि उसे किसी ऐप में कैसे जोड़ा जाता है; पैकेज के बराबरी पर आने के बाद ये काम करेंगे।
+</Callout>
+
+रिपॉज़िटरी को अपने ऐप के बग़ल में क्लोन करें और क्लोन को लोकल पैकेज के रूप में जोड़ें: Xcode में **File → Add Package Dependencies… → Add Local…** चुनें और वह फ़ोल्डर चुनें जिसमें `Package.swift` है, या अपने `Package.swift` में:
+
+```swift
+dependencies: [
+  .package(path: "../tanrei")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+`.package(url: "https://github.com/chnotchy/tanrei", branch: "main")` लोकल क्लोन की जगह सीधे रिपॉज़िटरी से जुड़ता है और उसके साथ अपडेट होता है।
+
+### पहली रिलीज़ के बाद
+
+Xcode में **File → Add Package Dependencies…** चुनें और रिपॉज़िटरी का URL डालें, या इसे `Package.swift` में जोड़ें:
+
+```swift
+dependencies: [
+  .package(url: "https://github.com/chnotchy/tanrei", from: "<version>")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+पैकेज मैनिफ़ेस्ट रिपॉज़िटरी के रूट में है, क्योंकि Swift Package Manager Git डिपेंडेंसी वहीं से रिज़ॉल्व करता है। Swift की रिलीज़ सादे सिमैंटिक वर्शन से टैग की जाएँगी।
+
+## इस्तेमाल
+
+```swift
+import SwiftUI
+import Tanrei
+
+struct DeployView: View {
+  @State private var isDeploying = false
+
+  var body: some View {
+    TanreiButton("डिप्लॉय करें", variant: .filled, action: { isDeploying = true })
+      .disabled(isDeploying)
+  }
+}
+```
+
+`action:` स्पेक का `click` है; ट्रेलिंग क्लोज़र `icon:` स्लॉट है (`TanreiButton("डिप्लॉय करें", action: deploy) { Image(systemName: "arrow.up") }`)। `disabled` नाम का कोई पैरामीटर नहीं है। Tanrei, SwiftUI के अपने `.disabled(_:)` एनवायरनमेंट के अनुसार चलता है, इसलिए किसी कंटेनर को अक्षम करने पर उसके भीतर के बटन भी अक्षम हो जाते हैं, जैसा किसी सिस्टम कंट्रोल के साथ होता।
+
+## थीम और कंट्रास्ट
+
+डिफ़ॉल्ट रूप से Tanrei सिस्टम की कलर स्कीम और सुलभता की **Increase Contrast** सेटिंग के अनुसार चलता है। दोनों में से किसी को भी थीम मॉडिफ़ायर से बदला जा सकता है:
+
+```swift
+ContentView()
+  .tanreiTheme(TanreiTheme(appearance: .dark, contrast: .high))
+```
+
+## फ़ॉन्ट
+
+जब फ़ॉन्ट आपके ऐप में रजिस्टर हों, तो टाइप स्केल Inter इस्तेमाल करता है (जापानी के लिए Noto Sans JP, कोड के लिए Roboto Mono), वरना सिस्टम फ़ॉन्ट पर आ जाता है। टेक्स्ट स्टाइल के नाम उनके स्तर पर रखे गए हैं और वे एनवायरनमेंट में मौजूद सिस्टम पर मिलते हैं (`@Environment(\.tanreiSystem) private var system`): सेक्शन के शीर्षक के लिए `.tanreiTextStyle(system.typescale.heading2)`, चलते टेक्स्ट के लिए `system.typescale.body`, किसी कंट्रोल के लिए `system.typescale.label` — और ये Dynamic Type के साथ स्केल होते हैं; `.tanreiTextStyle(system.typescale.heading1, emphasized: true)` वेट में हेडिंग फ़ैमिली का एम्फ़ेसिस स्टेप जोड़ता है। कोने `system.shape.cornerSmoothing` के अनुसार बनते हैं: 0 पर `.circular`, और 0 से ऊपर किसी भी मात्रा पर OS का `.continuous` कोना।

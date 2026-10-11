@@ -1,0 +1,1396 @@
+{
+  "tanrei": {
+    "comp": {
+      "snackbar": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product confirms what it just did (saved, archived, sent) with a brief message at the edge of the screen, some messages with one way to undo or follow up and some with a way to close them, and it lets short messages go by themselves while messages that ask for an action stay. The same product also reports, in the same place, that something is worth knowing, needs attention, failed or succeeded, and gives such a message a title and a description that a person can expand when it is longer. It draws most of these as a raised surface of its own theme, and may draw one in the opposite theme's colors where it must stand apart from a busy screen.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "action",
+              "close"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "content.color": "color",
+              "state-layer.color": "color",
+              "info.container.color": "color",
+              "info.content.color": "color",
+              "info.state-layer.color": "color",
+              "warning.container.color": "color",
+              "warning.content.color": "color",
+              "warning.state-layer.color": "color",
+              "error.container.color": "color",
+              "error.content.color": "color",
+              "error.state-layer.color": "color",
+              "success.container.color": "color",
+              "success.content.color": "color",
+              "success.state-layer.color": "color",
+              "inverse.container.color": "color",
+              "inverse.content.color": "color",
+              "inverse.state-layer.color": "color",
+              "inverse-info.container.color": "color",
+              "inverse-info.content.color": "color",
+              "inverse-info.state-layer.color": "color",
+              "inverse-warning.container.color": "color",
+              "inverse-warning.content.color": "color",
+              "inverse-warning.state-layer.color": "color",
+              "inverse-error.container.color": "color",
+              "inverse-error.content.color": "color",
+              "inverse-error.state-layer.color": "color",
+              "inverse-success.container.color": "color",
+              "inverse-success.content.color": "color",
+              "inverse-success.state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a snackbar reads. It has ten forms: the default form and four status forms (info, warning, error, success), each drawn on a surface of the scheme or, inverse, in the opposite scheme's colors; container.inverse says which of the two a snackbar takes when the product did not say. For every form: the bar's color, the title's and the message's colors, the status glyph's color, the color of a status form's edge and the color of the focus indicator on that bar; and, for its controls (the action, drawn as a tonal button, and the close button, whose tokens the expand button also reads), in each state, their container color, content color and state-layer color. Four opacities are shared by every form and say how far a part steps back from its color: the message under a title (supporting-text.under-title.opacity), the status glyph (icon.opacity), a status form's edge (outline.opacity) and the action's tonal layer (action.tonal-layer.opacity). Also shared: the bar's elevation, shape, padding and size limits; the text styles and line limits; the glyph's size and gap; the edge's width; the controls' size, shape, text style and glyph size; how far the bar sits from the window's edges; how it enters, leaves and expands; and the two timeouts.",
+            "rules": [
+              "One message, at most one action. A second choice belongs in a dialog.",
+              "The action is a tonal button by default, because it is usually an undo that must be seen at once. Tonal means one quiet step away from the bar it sits on, the same step in every form: the action's container is the bar's own color, and the tonal layer (the action's content color at action.tonal-layer.opacity) is drawn over it. Never give the action a fill that outweighs the message. A product that wants a text action sets action.tonal-layer.opacity to 0. An action important enough to seem to want a filled button does not belong in a snackbar: put a Main Action Button in a bottom sheet instead.",
+              "The action, the close button and the expand button are the snackbar's own controls, drawn on its bar with these tokens; do not place Tanrei Buttons in a snackbar.",
+              "A form's tokens carry its prefix: none for the default form, the status for a status form (info.container.color), inverse for the inverse form (inverse.container.color), and inverse-<status> for an inverse status form (inverse-info.container.color). Inside a control the prefix follows the state (action.hovered.inverse.container.color).",
+              "Which form a product's snackbars take by default is one choice, container.inverse. Change that choice in a layer; do not copy the inverse values over the unprefixed tokens.",
+              "A status form takes its colors from the status's own color roles and always draws the status's glyph; its status is also given in words (statusLabel) for assistive technology. Never show a status by color alone. Its bar is quiet (the status's container pair); the status's own color is kept for the glyph and the edge.",
+              "An inverse status form is the same status's form of the other theme, part for part (SNK-30): light's inverse info bar is dark's info bar, with dark's text, glyph and edge colors, and the reverse. The default system writes that as one rule per part beside the roles in its layer. To recolor a status, change its palette or its roles and the inverse rules that restate their tones together; never give an inverse status form a color its other theme does not draw.",
+              "A status form's edge is its outline.color at outline.opacity, drawn over the ring of the bar's elevation. The default form and the inverse form have no outline tokens: they keep the elevation's ring, which every raised surface has.",
+              "An opacity here is applied to one part's color where that part is drawn; it never fades the bar or a whole control. Text drawn at an opacity must still reach 4.5:1 on its bar, and the glyph 3:1: check both when changing supporting-text.under-title.opacity, icon.opacity or a form's colors.",
+              "Each control's state-layer.color is the color hover, focus and press mix into its container; it aliases the control's content color, in every form.",
+              "A form's focus-ring.color must keep 3:1 against that form's container.color. On a bar that is not a surface role it is the bar's content color, never sys.color.focus-ring.",
+              "A snackbar with an action does not time out by default (duration auto). A product that times one out must offer the action somewhere else too.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "control": {
+              "default": "action",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.surface-bright}",
+            "$description": "The bar in the default form: the bright surface that floating bars and dialogs stand on, which separates from a dark page by its tone and from a light one by its elevation."
+          },
+          "inverse": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "Whether a snackbar whose inverse the product did not set is drawn inverse (SNK-30). off: on a surface of the scheme, from the unprefixed and the status tokens. on: in the opposite scheme's colors, from the inverse tokens. A snackbar whose inverse is set keeps what it was given. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once, for all its snackbars, whether a message is a raised surface of its own theme or a bar of the opposite theme, and still draws a single one the other way where a screen calls for it.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "off",
+                  "on"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "Fidelity: the reference's snackbar is an inverse bar (the default system's is a surface)."
+              }
+            }
+          },
+          "elevation": {
+            "$type": "shadow",
+            "$value": "{tanrei.sys.elevation.level3}"
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.extra-small}",
+            "$description": "The bar's corners: the step of the rich tooltip and the card, one above a menu's, so that a bar holding pill controls does not read as a box.",
+            "$extensions": {}
+          },
+          "min-height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 48,
+              "unit": "px"
+            },
+            "$description": "A minimum: the bar grows with a wrapped message, an action on its own row, or enlarged text.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              }
+            }
+          },
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 344,
+              "unit": "px"
+            },
+            "$description": "The narrowest a snackbar draws, so that a one-word message still reads as a bar. Never wider than the host less the margins.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 86
+              }
+            }
+          },
+          "max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 672,
+              "unit": "px"
+            },
+            "$description": "The widest a snackbar draws on a large window; a longer message wraps.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 168
+              }
+            }
+          },
+          "margin": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "The least distance between the snackbar and the edges of its host's safe area (and the on-screen keyboard)."
+          },
+          "padding-inline-start": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Before the message."
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "After the message, when the snackbar has no action and no close button."
+          },
+          "padding-inline-end-with-controls": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "After the last control. Tighter than the text padding, because a control's own padding already surrounds its label or icon."
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Above and below the message. Heights are minimums, so this shows when the message wraps."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between the message and the first control, and between the message and an action moved to its own row."
+          }
+        },
+        "title": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product gives some messages a short title above a longer description, and styles the title apart from the description (heavier, or a line limit of its own).",
+              "since": "0.1.0"
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.comp.snackbar.supporting-text.color}",
+            "$description": "The title's color in the default form. It aliases the message's color, so a layer that recolors the message recolors the title too unless it sets this."
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.heading-6}",
+            "$description": "As the rich tooltip's title: the message's size, heavier."
+          },
+          "max-lines": {
+            "$type": "number",
+            "$value": 3,
+            "$description": "The most lines the title shows while the snackbar is collapsed; a longer title ends with an ellipsis and the expand button appears.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A count of lines, not a size; no dial scales it."
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Between the title and the message below it."
+          }
+        },
+        "supporting-text": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface}"
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body}"
+          },
+          "max-lines": {
+            "$type": "number",
+            "$value": 3,
+            "$description": "The most lines the message shows while the snackbar is collapsed; a longer message ends with an ellipsis and the expand button appears. Its whole text still reaches assistive technology.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A count of lines, not a size; no dial scales it."
+              }
+            }
+          },
+          "under-title": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product draws the description under a title a little quieter than the title, so that the two read as a heading and its text, and still draws a message that stands alone at full strength.",
+                "since": "0.1.0"
+              }
+            },
+            "opacity": {
+              "$type": "number",
+              "$value": 1,
+              "$description": "The opacity the message is drawn at while a title stands above it, applied to the message color of the form (SNK-32). A message without a title is drawn whole. Chosen so that the quieter text keeps 4.5:1 on its bar in every form and scheme of the default system, and 7:1 in the high-contrast schemes.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The message under a title is drawn whole in this preset."
+                }
+              }
+            }
+          }
+        },
+        "icon": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product marks a status message with a glyph of its icon set before the text, so that the status is seen by its shape and not by color alone, and sizes and spaces that glyph for its bars.",
+              "since": "0.1.0"
+            }
+          },
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.medium}",
+            "$description": "The status glyph (info, warning, error, check_circle). Drawn only in a status form."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Between the status glyph and the title or message after it."
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "The opacity the status glyph is drawn at, applied to the glyph color of the form (SNK-21): a mark beside the text, a little softer than the text. Chosen so that the glyph keeps 3:1 against its bar in every status form and scheme of the default system.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product softens the status glyph beside its text, by one amount for every status, without recoloring it.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fixed": "The status glyph is drawn whole in this preset."
+              }
+            }
+          }
+        },
+        "focus-ring": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product whose focus color is tuned for its surfaces still shows keyboard focus on a bar that is not one of them (a status's color, the opposite theme), so the indicator's color on each bar is the snackbar's to say.",
+              "since": "0.1.0"
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.focus-ring}",
+            "$description": "The outer stroke of the focus indicator on the default form's bar: the system's own, since that bar is a surface role the invariants hold it against."
+          }
+        },
+        "outline": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product edges a status message with a line of that status, where its neutral messages keep the hairline every raised surface has, and decides once how thin and how faint that line is.",
+              "since": "0.1.0"
+            }
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The width of a status form's edge: the hairline, the width of the ring of the bar's elevation, which the edge is drawn over (SNK-31)."
+          },
+          "opacity": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "The opacity a status form's edge is drawn at, applied to the outline color of the form (SNK-31). 0 draws no edge of the status, so the elevation's ring shows as on the default form.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "No status edge. This preset's status bars keep the ring of their elevation alone."
+              }
+            }
+          }
+        },
+        "info": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product reports an info message in its own form, in the info color roles, beside its neutral messages; each part keeps a token so that a product can quiet or strengthen one of them.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.info-container}",
+              "$description": "The bar in the info form: a faint tint of the status on the scheme's surface, raised by the same elevation as the default form's. The default system values this role from the status's quiet palette, so the bar carries the hue and not its full chroma."
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.info.supporting-text.color}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-info-container}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.info.supporting-text.color}",
+              "$description": "The glyph takes the status's own color, the one chromatic mark on a quiet bar, drawn at icon.opacity. Its shape, not its color, tells the status apart (SNK-21).",
+              "$extensions": {}
+            }
+          },
+          "focus-ring": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-info-container}",
+              "$description": "The focus indicator on the info bar: the bar's content color, which the invariants hold against the bar in every scheme."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.info}",
+              "$description": "The edge of the info bar: the status's own color, drawn at outline.opacity over the ring of the bar's elevation (SNK-31)."
+            }
+          }
+        },
+        "warning": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product reports a warning message in its own form, in the warning color roles, beside its neutral messages; each part keeps a token so that a product can quiet or strengthen one of them.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.warning-container}",
+              "$description": "The bar in the warning form: a faint tint of the status on the scheme's surface, raised by the same elevation as the default form's. The default system values this role from the status's quiet palette, so the bar carries the hue and not its full chroma."
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.warning.supporting-text.color}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-warning-container}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.warning.supporting-text.color}",
+              "$description": "The glyph takes the status's own color, the one chromatic mark on a quiet bar, drawn at icon.opacity. Its shape, not its color, tells the status apart (SNK-21).",
+              "$extensions": {}
+            }
+          },
+          "focus-ring": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-warning-container}",
+              "$description": "The focus indicator on the warning bar: the bar's content color, which the invariants hold against the bar in every scheme."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.warning}",
+              "$description": "The edge of the warning bar: the status's own color, drawn at outline.opacity over the ring of the bar's elevation (SNK-31)."
+            }
+          }
+        },
+        "error": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product reports an error message in its own form, in the error color roles, beside its neutral messages; each part keeps a token so that a product can quiet or strengthen one of them.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error-container}",
+              "$description": "The bar in the error form: a faint tint of the status on the scheme's surface, raised by the same elevation as the default form's. The default system values this role from the status's quiet palette, so the bar carries the hue and not its full chroma."
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.error.supporting-text.color}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-error-container}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.error.supporting-text.color}",
+              "$description": "The glyph takes the status's own color, the one chromatic mark on a quiet bar, drawn at icon.opacity. Its shape, not its color, tells the status apart (SNK-21).",
+              "$extensions": {}
+            }
+          },
+          "focus-ring": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-error-container}",
+              "$description": "The focus indicator on the error bar: the bar's content color, which the invariants hold against the bar in every scheme."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}",
+              "$description": "The edge of the error bar: the status's own color, drawn at outline.opacity over the ring of the bar's elevation (SNK-31)."
+            }
+          }
+        },
+        "success": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product reports a success message in its own form, in the success color roles, beside its neutral messages; each part keeps a token so that a product can quiet or strengthen one of them.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.success-container}",
+              "$description": "The bar in the success form: a faint tint of the status on the scheme's surface, raised by the same elevation as the default form's. The default system values this role from the status's quiet palette, so the bar carries the hue and not its full chroma."
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.success.supporting-text.color}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-success-container}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.success.supporting-text.color}",
+              "$description": "The glyph takes the status's own color, the one chromatic mark on a quiet bar, drawn at icon.opacity. Its shape, not its color, tells the status apart (SNK-21).",
+              "$extensions": {}
+            }
+          },
+          "focus-ring": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-success-container}",
+              "$description": "The focus indicator on the success bar: the bar's content color, which the invariants hold against the bar in every scheme."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.success}",
+              "$description": "The edge of the success bar: the status's own color, drawn at outline.opacity over the ring of the bar's elevation (SNK-31)."
+            }
+          }
+        },
+        "inverse": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product draws some messages, or all of them, as a bar of the opposite theme, so that the message stands apart from whatever screen it lands on; each part keeps a token so that the inverse bar can be tuned apart from the default one.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-surface}",
+              "$description": "The bar in the inverse form: the opposite scheme's surface."
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.inverse.supporting-text.color}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-on-surface}"
+            }
+          },
+          "focus-ring": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-on-surface}",
+              "$description": "The focus indicator on the inverse bar: the bar's content color. sys.color.focus-ring is made for surfaces and does not reach 3:1 on the inverse surface in most schemes."
+            }
+          }
+        },
+        "inverse-info": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product that draws its messages inverse reports an info message as its other theme draws one on a surface: that theme's tint of the status under that theme's text, glyph and edge, so that the two themes' status messages are one pair seen from either side; each part keeps a token so that a product can quiet or strengthen one of them.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.info}",
+              "$description": "The bar in the inverse info form: the bar of the info form in the other theme. The default system values it by rule as the tone info.container.color has in the scheme of the other theme at the same contrast level (tokens/systems/tanrei.system.json). The role named here is the nearest one a single scheme has, and is what a system draws when it sets no such rule. A design system that sets this token draws what it sets.",
+              "$extensions": {}
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.inverse-info.supporting-text.color}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-info}",
+              "$description": "The message on the inverse info bar: the message color of the info form in the other theme, valued by rule in the default system as the bar is. The title, the focus indicator, the action's label and the close button follow it by alias.",
+              "$extensions": {}
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.inverse-info.supporting-text.color}",
+              "$description": "The glyph on the inverse info bar, drawn at icon.opacity: the glyph color of the info form in the other theme, which is that theme's status color, valued by rule in the default system. The alias written here is the text's color, which is what a system without that rule draws: the status color of the scheme itself does not reach 3:1 against this bar.",
+              "$extensions": {}
+            }
+          },
+          "focus-ring": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-info}",
+              "$description": "The focus indicator on the inverse info bar: the bar's content color, by alias, so that it follows whatever the message color of this form is. sys.color.focus-ring is made for surfaces and is not held against this bar.",
+              "$extensions": {}
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.info}",
+              "$description": "The edge of the inverse info bar, drawn at outline.opacity over the ring of the bar's elevation (SNK-31): the edge color of the info form in the other theme, valued by rule in the default system, so that one bar carries one status color in its glyph and its edge.",
+              "$extensions": {}
+            }
+          }
+        },
+        "inverse-warning": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product that draws its messages inverse reports a warning message as its other theme draws one on a surface: that theme's tint of the status under that theme's text, glyph and edge, so that the two themes' status messages are one pair seen from either side; each part keeps a token so that a product can quiet or strengthen one of them.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.warning}",
+              "$description": "The bar in the inverse warning form: the bar of the warning form in the other theme. The default system values it by rule as the tone warning.container.color has in the scheme of the other theme at the same contrast level (tokens/systems/tanrei.system.json). The role named here is the nearest one a single scheme has, and is what a system draws when it sets no such rule. A design system that sets this token draws what it sets.",
+              "$extensions": {}
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.inverse-warning.supporting-text.color}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-warning}",
+              "$description": "The message on the inverse warning bar: the message color of the warning form in the other theme, valued by rule in the default system as the bar is. The title, the focus indicator, the action's label and the close button follow it by alias.",
+              "$extensions": {}
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.inverse-warning.supporting-text.color}",
+              "$description": "The glyph on the inverse warning bar, drawn at icon.opacity: the glyph color of the warning form in the other theme, which is that theme's status color, valued by rule in the default system. The alias written here is the text's color, which is what a system without that rule draws: the status color of the scheme itself does not reach 3:1 against this bar.",
+              "$extensions": {}
+            }
+          },
+          "focus-ring": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-warning}",
+              "$description": "The focus indicator on the inverse warning bar: the bar's content color, by alias, so that it follows whatever the message color of this form is. sys.color.focus-ring is made for surfaces and is not held against this bar.",
+              "$extensions": {}
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.warning}",
+              "$description": "The edge of the inverse warning bar, drawn at outline.opacity over the ring of the bar's elevation (SNK-31): the edge color of the warning form in the other theme, valued by rule in the default system, so that one bar carries one status color in its glyph and its edge.",
+              "$extensions": {}
+            }
+          }
+        },
+        "inverse-error": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product that draws its messages inverse reports an error message as its other theme draws one on a surface: that theme's tint of the status under that theme's text, glyph and edge, so that the two themes' status messages are one pair seen from either side; each part keeps a token so that a product can quiet or strengthen one of them.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}",
+              "$description": "The bar in the inverse error form: the bar of the error form in the other theme. The default system values it by rule as the tone error.container.color has in the scheme of the other theme at the same contrast level (tokens/systems/tanrei.system.json). The role named here is the nearest one a single scheme has, and is what a system draws when it sets no such rule. A design system that sets this token draws what it sets.",
+              "$extensions": {}
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.inverse-error.supporting-text.color}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-error}",
+              "$description": "The message on the inverse error bar: the message color of the error form in the other theme, valued by rule in the default system as the bar is. The title, the focus indicator, the action's label and the close button follow it by alias.",
+              "$extensions": {}
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.inverse-error.supporting-text.color}",
+              "$description": "The glyph on the inverse error bar, drawn at icon.opacity: the glyph color of the error form in the other theme, which is that theme's status color, valued by rule in the default system. The alias written here is the text's color, which is what a system without that rule draws: the status color of the scheme itself does not reach 3:1 against this bar.",
+              "$extensions": {}
+            }
+          },
+          "focus-ring": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-error}",
+              "$description": "The focus indicator on the inverse error bar: the bar's content color, by alias, so that it follows whatever the message color of this form is. sys.color.focus-ring is made for surfaces and is not held against this bar.",
+              "$extensions": {}
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}",
+              "$description": "The edge of the inverse error bar, drawn at outline.opacity over the ring of the bar's elevation (SNK-31): the edge color of the error form in the other theme, valued by rule in the default system, so that one bar carries one status color in its glyph and its edge.",
+              "$extensions": {}
+            }
+          }
+        },
+        "inverse-success": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product that draws its messages inverse reports a success message as its other theme draws one on a surface: that theme's tint of the status under that theme's text, glyph and edge, so that the two themes' status messages are one pair seen from either side; each part keeps a token so that a product can quiet or strengthen one of them.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.success}",
+              "$description": "The bar in the inverse success form: the bar of the success form in the other theme. The default system values it by rule as the tone success.container.color has in the scheme of the other theme at the same contrast level (tokens/systems/tanrei.system.json). The role named here is the nearest one a single scheme has, and is what a system draws when it sets no such rule. A design system that sets this token draws what it sets.",
+              "$extensions": {}
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.inverse-success.supporting-text.color}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-success}",
+              "$description": "The message on the inverse success bar: the message color of the success form in the other theme, valued by rule in the default system as the bar is. The title, the focus indicator, the action's label and the close button follow it by alias.",
+              "$extensions": {}
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.inverse-success.supporting-text.color}",
+              "$description": "The glyph on the inverse success bar, drawn at icon.opacity: the glyph color of the success form in the other theme, which is that theme's status color, valued by rule in the default system. The alias written here is the text's color, which is what a system without that rule draws: the status color of the scheme itself does not reach 3:1 against this bar.",
+              "$extensions": {}
+            }
+          },
+          "focus-ring": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-success}",
+              "$description": "The focus indicator on the inverse success bar: the bar's content color, by alias, so that it follows whatever the message color of this form is. sys.color.focus-ring is made for surfaces and is not held against this bar.",
+              "$extensions": {}
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.success}",
+              "$description": "The edge of the inverse success bar, drawn at outline.opacity over the ring of the bar's elevation (SNK-31): the edge color of the success form in the other theme, valued by rule in the default system, so that one bar carries one status color in its glyph and its edge.",
+              "$extensions": {}
+            }
+          }
+        },
+        "controls": {
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 36,
+              "unit": "px"
+            },
+            "$description": "The height of the action and the side of the close and expand buttons' squares: the three share a row. A minimum for the action, which grows with enlarged text. Every hit area meets the minimum target.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 9
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space175}",
+            "$description": "Before and after the action's label: a medium tonal Button's padding, since the action is drawn as one."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The corners of the action's container and of the close and expand buttons' state layers. Full in the default system: the action is a pill and an icon-only button a circle."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Between the action, the expand button and the close button."
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.label}"
+            }
+          },
+          "icon": {
+            "size": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.icon.medium}",
+              "$description": "The close and expand glyphs: an icon-only button's medium glyph."
+            }
+          }
+        },
+        "action": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "$description": "The action is a tonal button: its container starts from the color of its own bar, and the tonal layer drawn over it (action.tonal-layer.opacity) sets it off by the same amount in every form. A hover, a focus and a press mix the state layer into this color as into any container.",
+              "$extensions": {}
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "The label takes the color of the text on its bar, in every form.",
+              "$extensions": {}
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.action.content.color}"
+            }
+          },
+          "tonal-layer": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product draws the action of its messages as a quiet step off whatever bar it sits on, by one amount for every bar, so that the action weighs the same on a neutral message, a status message and an inverse one.",
+                "since": "0.1.0"
+              }
+            },
+            "opacity": {
+              "$type": "number",
+              "$value": 0,
+              "$description": "The opacity of the tonal layer: the action's content color, of its form and state, drawn at this opacity over the action's container, under the label (SNK-15). It is what makes the action a tonal button: the same step toward the content color on every bar. 0 draws no layer, so the action is its container alone (a text action where the container is the bar's color or transparent).",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "No tonal layer. This preset's action keeps the container its own tokens give it."
+                }
+              }
+            }
+          },
+          "info": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-bright}",
+                "$description": "The action starts from the color of its own bar; the tonal layer (action.tonal-layer.opacity) sets it off, by the same amount in every form.",
+                "$extensions": {}
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.action.info.content.color}"
+              }
+            }
+          },
+          "warning": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-bright}",
+                "$description": "The action starts from the color of its own bar; the tonal layer (action.tonal-layer.opacity) sets it off, by the same amount in every form.",
+                "$extensions": {}
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.action.warning.content.color}"
+              }
+            }
+          },
+          "error": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-bright}",
+                "$description": "The action starts from the color of its own bar; the tonal layer (action.tonal-layer.opacity) sets it off, by the same amount in every form.",
+                "$extensions": {}
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.action.error.content.color}"
+              }
+            }
+          },
+          "success": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-bright}",
+                "$description": "The action starts from the color of its own bar; the tonal layer (action.tonal-layer.opacity) sets it off, by the same amount in every form.",
+                "$extensions": {}
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.action.success.content.color}"
+              }
+            }
+          },
+          "inverse": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The action starts from the color of its own bar; the tonal layer (action.tonal-layer.opacity) sets it off, by the same amount in every form.",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Fidelity: the reference's snackbar action is a text button (the default system's is tonal, and the inverse bar's action has its own tokens)."
+                  }
+                }
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.inverse-primary}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.action.inverse.content.color}"
+              }
+            }
+          },
+          "inverse-info": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-info-container}",
+                "$description": "The action starts from the color of its own bar; the tonal layer (action.tonal-layer.opacity) sets it off, by the same amount in every form.",
+                "$extensions": {}
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.info-container}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.action.inverse-info.content.color}"
+              }
+            }
+          },
+          "inverse-warning": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-warning-container}",
+                "$description": "The action starts from the color of its own bar; the tonal layer (action.tonal-layer.opacity) sets it off, by the same amount in every form.",
+                "$extensions": {}
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.warning-container}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.action.inverse-warning.content.color}"
+              }
+            }
+          },
+          "inverse-error": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-error-container}",
+                "$description": "The action starts from the color of its own bar; the tonal layer (action.tonal-layer.opacity) sets it off, by the same amount in every form.",
+                "$extensions": {}
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error-container}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.action.inverse-error.content.color}"
+              }
+            }
+          },
+          "inverse-success": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-success-container}",
+                "$description": "The action starts from the color of its own bar; the tonal layer (action.tonal-layer.opacity) sets it off, by the same amount in every form.",
+                "$extensions": {}
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.success-container}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.action.inverse-success.content.color}"
+              }
+            }
+          }
+        },
+        "close": {
+          "$description": "The close button, and the expand button, which reads the same tokens: both are icon-only buttons on the bar.",
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The close button draws no fill at rest; its states draw the state layer."
+                }
+              }
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "A glyph beside the text, quieter than the text, as an icon-only button on a surface."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.snackbar.close.content.color}"
+            }
+          },
+          "info": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.container.color}",
+                "$description": "No fill at rest, as in the default form."
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-info-container}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.info.content.color}"
+              }
+            }
+          },
+          "warning": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.container.color}",
+                "$description": "No fill at rest, as in the default form."
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-warning-container}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.warning.content.color}"
+              }
+            }
+          },
+          "error": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.container.color}",
+                "$description": "No fill at rest, as in the default form."
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-error-container}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.error.content.color}"
+              }
+            }
+          },
+          "success": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.container.color}",
+                "$description": "No fill at rest, as in the default form."
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-success-container}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.success.content.color}"
+              }
+            }
+          },
+          "inverse": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.container.color}",
+                "$description": "No fill at rest, as in the default form."
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.inverse-on-surface}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.inverse.content.color}"
+              }
+            }
+          },
+          "inverse-info": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.container.color}",
+                "$description": "No fill at rest, as in the default form."
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-info}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.inverse-info.content.color}"
+              }
+            }
+          },
+          "inverse-warning": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.container.color}",
+                "$description": "No fill at rest, as in the default form."
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-warning}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.inverse-warning.content.color}"
+              }
+            }
+          },
+          "inverse-error": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.container.color}",
+                "$description": "No fill at rest, as in the default form."
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-error}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.inverse-error.content.color}"
+              }
+            }
+          },
+          "inverse-success": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.container.color}",
+                "$description": "No fill at rest, as in the default form."
+              }
+            },
+            "content": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-success}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.snackbar.close.inverse-success.content.color}"
+              }
+            }
+          }
+        },
+        "motion": {
+          "enter-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium1}"
+          },
+          "enter-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+          },
+          "exit-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "exit-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard-accelerate}"
+          },
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press on a control takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "expand-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$description": "How long the bar takes to grow to its expanded height or shrink back.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets a longer message open in place, at a pace of its own that is not the pace at which the bar enters or leaves.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "expand-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "As expand-duration: expanding in place moves by its own curve.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
+        "timeout": {
+          "$type": "duration",
+          "short": {
+            "$value": {
+              "value": 4000,
+              "unit": "ms"
+            },
+            "$description": "How long a short snackbar stays, unless it is hovered, focused or covered.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A reading time, not an animation: the motion dial, which speeds or slows animation, must not shorten it."
+              }
+            }
+          },
+          "long": {
+            "$value": {
+              "value": 10000,
+              "unit": "ms"
+            },
+            "$description": "How long a long snackbar stays, for a message that takes longer to read.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A reading time, not an animation: the motion dial, which speeds or slows animation, must not shorten it."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

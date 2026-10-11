@@ -1,0 +1,239 @@
+---
+title: "组合框"
+description: "用户在里面键入以找到一个值的那个方框，以及它打开的选项列表——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
+translationOf: components/combobox.mdx
+sourceHash: 8b063acb7cfd1c1829ee3980f804abae028a383a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="combobox" />
+
+<DemoFrame label="单独使用：工具栏里的一个筛选框，以及标签位于组合框旁边的一行" column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="查找令牌" placeholder="查找令牌" no-chevron empty-text="无匹配项">
+    <span slot="leading-icon">search</span>
+    <tanrei-option value="primary" supporting-text="sys.color.primary">primary</tanrei-option>
+    <tanrei-option value="secondary" supporting-text="sys.color.secondary">secondary</tanrei-option>
+    <tanrei-option value="surface" supporting-text="sys.color.surface">surface</tanrei-option>
+  </tanrei-combobox>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>时区</span>
+    <tanrei-combobox label="时区" value="Europe/Lisbon" empty-text="无匹配项">
+      <tanrei-option value="Asia/Tokyo">东京</tanrei-option>
+      <tanrei-option value="Europe/Lisbon">里斯本</tanrei-option>
+      <tanrei-option value="Europe/Berlin">柏林</tanrei-option>
+    </tanrei-combobox>
+  </div>
+</DemoFrame>
+
+组合框就是[组合框字段](/zh-cn/components/combobox-field/)里的那个控件，单独拿出来：方框、在里面键入的文本、前置字形、清除按钮和 V 形箭头，以及带有选项、组和状态行的列表。它上方没有标签行，下方没有帮助文本和错误文本。
+
+用户读到的标签位于别处时，就单独使用它：
+
+| 位置 | 用户读到的标签 | 组合框的 `label` |
+| --- | --- | --- |
+| 工具栏里的筛选框 | 占位符和字形说明它是做什么的 | 它查找的是什么：“查找令牌” |
+| 表格的单元格 | 列标题 | 列和行：“负责人，发布说明” |
+| 标签位于方框旁边的一行 | 旁边的文本 | 同样的词 |
+
+单独使用时，组合框需要它自己的 `label`。它就是输入框和列表的无障碍名称。stacked 的组合框绝不会把它画出来；filled 或 outlined 的组合框把它画成浮在方框里的标签。
+
+它是一个**高级**组件：一个不带任何附加功能的控件，供自己动手组合的产品使用。大多数表单需要的是[组合框字段](/zh-cn/components/combobox-field/)，也就是放在字段里的这个组合框，可以直接使用。
+
+**使用它的组件**是[组合框字段](/zh-cn/components/combobox-field/)。要自己用字段框住它，就把它放进[字段](/zh-cn/components/field/)，由字段为它命名、描述它、把它标记为必填，并让它进入错误状态。
+
+它是一个块，宽度与所在的位置相同，单独使用和放在字段里都是如此。它没有自己的宽度，它的宽度也绝不随选项或值变化：想要窄一些的方框，就给它一个窄一些的位置。
+
+在 Web 上它是 `<tanrei-combobox>`，子元素是 `<tanrei-option>`，也就是[下拉选择框](/zh-cn/components/select/)所包含的那种元素。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 工具栏里的筛选框：宽度由工具栏给它。没有 V 形箭头：只有键入了内容，它才有建议。 -->
+    <tanrei-combobox id="token" label="查找令牌" placeholder="查找令牌" no-chevron filter="none"
+      style="inline-size: 16rem">
+      <span slot="leading-icon">search</span>
+    </tanrei-combobox>
+
+    <!-- 表格的单元格：列标题就是可见的标签。 -->
+    <td>
+      <tanrei-combobox name="assignee-release-notes" label="负责人，发布说明" value="aiko">
+        <tanrei-option value="aiko">田中爱子</tanrei-option>
+        <tanrei-option value="bao">阮宝</tanrei-option>
+      </tanrei-combobox>
+    </td>
+
+    <script type="module">
+      import '@tanrei/web/components/combobox';
+
+      const token = document.querySelector('#token');
+      // 用户改变了文本：由你来筛选，再把选项交回来。
+      token.addEventListener('input', async () => {
+        const found = await find(token.inputValue);
+        token.replaceChildren(token.querySelector('[slot="leading-icon"]'), ...found.map(option));
+      });
+      // 已确认的值变了。它已经是新的值。
+      token.addEventListener('change', (e) => open(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Combobox, Option } from '@tanrei/react';
+
+    <Combobox label="负责人，发布说明" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
+      <Option value="aiko">田中爱子</Option>
+      <Option value="bao">阮宝</Option>
+    </Combobox>
+    ```
+  </TabItem>
+</Tabs>
+
+方框里和列表里发生的事，在单独使用、放在字段里和用在组合框字段里时都一样，只在组合框字段的页面上写一次：[列表](/zh-cn/components/combobox-field/#列表)，以及[键入、移动和选择](/zh-cn/components/combobox-field/#键入移动和选择)。
+
+### 手写在字段里
+
+用字段包住一个组合框，就是把组合框字段拆开来写。组合框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填设置写在字段上；`name`、`value`、选项以及与键入有关的一切写在组合框上。
+
+```html
+<tanrei-field label="城市" requirement="required" required-text="必填"
+  supporting-text="订单将寄往该城市。">
+  <tanrei-combobox name="city" value="tokyo">
+    <tanrei-option value="kyoto">京都</tanrei-option>
+    <tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+```
+
+<DemoFrame label="里面放着一个组合框的字段：画面与组合框字段相同" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" requirement="required" required-text="必填" supporting-text="订单将寄往该城市。">
+    <tanrei-combobox value="tokyo" empty-text="无匹配项">
+      <tanrei-option value="kyoto">京都</tanrei-option>
+      <tanrei-option value="tokyo">东京</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</DemoFrame>
+
+只有组合框知道的事，由它告诉所在的字段。字段的帮助文本从组合框里文本开始的位置开始，也就是越过内边距和前置字形之后。filled 或 outlined 的组合框自己画出字段的标签，让它浮在方框里，所以字段不绘制标签行。列表打开期间，组合框画成聚焦的样子，所以无论输入框是否有焦点，字段的标签和帮助文本也随它画成聚焦的样子。
+
+按下字段的标签会把焦点移到输入框，不打开任何东西。列表打开时，标签位于组合框之外：这次按下会关闭列表，焦点留在输入框里。
+
+## 规格
+
+<DemoFrame label="单独使用的组合框：错误、禁用、只读、可清除，以及大号" plain column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="nairobi" error empty-text="无匹配项">
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="tokyo" disabled>
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="tokyo" readonly>
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="城市" value="tokyo" clearable clear-label="清除城市" empty-text="无匹配项">
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="城市" value="tokyo" empty-text="无匹配项">
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox>
+</DemoFrame>
+
+<DemoFrame label="单独使用的 filled 和 outlined：组合框自己的标签浮在方框里" system="m3-like" plain column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="城市" value="tokyo" empty-text="无匹配项">
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="城市" empty-text="无匹配项">
+    <tanrei-option value="nairobi">内罗毕</tanrei-option><tanrei-option value="tokyo">东京</tanrei-option>
+  </tanrei-combobox>
+</DemoFrame>
+
+### 哪些属于组合框，哪些属于字段
+
+| 方面 | 组合框 | 包着它的字段 |
+| --- | --- | --- |
+| 绘制 | 方框、文本、占位符、前置字形、清除按钮和 V 形箭头、带有选项、组和状态行的列表，以及浮在 filled 或 outlined 方框里的标签 | stacked 组合框上方的标签行、必填或选填标记、帮助文本、错误文本 |
+| 保存 | 值、文本、列表是否打开、它在表单中的位置、事件 | 什么都不保存 |
+| 告诉辅助技术 | 它是一个带列表的组合框，是否已展开，以及哪个选项是活动选项 | 名称、帮助文本或错误文本、必填、无效、禁用 |
+
+三种变体和两种尺寸——`medium`（48）和 `large`（56）——都是文本输入框的：组合框和文本输入框并排时，每一条线都对齐。默认系统只提供 `stacked`。
+
+### 单独使用，没有字段
+
+- **名称**是 `label`。`labelHidden` 让 filled 或 outlined 的组合框不把它画出来。
+- **错误**是 `error`，由你来设置：方框画成错误状态，并暴露为无效。组合框没有错误文本。请在它旁边用文字说明哪里不对，或者用字段框住它。
+- **必填**要由字段来说明。单独使用的组合框没有必填设置：表单需要回答的地方，请自己校验。
+- **不对应任何选项的文本**在用户离开时会被放弃，除非设置了 `allowCustomValue`。它绝不是组合框自己的错误。
+
+<ComponentSpecs name="combobox" />
+
+### Web 上绘制方式的不同之处
+
+- `<tanrei-option>` 和 `<tanrei-option-group>` 是数据：它们什么都不画。它们就是下拉选择框所包含的那种元素。值为空字符串的选项会画出来，但不能选择，因为空值表示什么都没有选。
+- 组合框的子元素里的 `<slot>` 元素，代表分配给它的那些元素。你自己的元素如果在 shadow root 里放了一个组合框，就可以用这种方式把自己的子元素作为选项转交过去；这些子元素一有变化，就会重新读取。
+- 这个元素是与表单关联的元素。有 `name` 时，它提交 `value`，绝不提交尚未确认的编辑文本；它重置为 `value` 属性（attribute）的值，在导航返回时恢复，跟随被禁用的 `<fieldset>`，并在所在的字段说明它必填而它为空时报告缺少值。
+- 这个元素是一个块。`focus()` 会把焦点交给输入框；在方框上、按钮之外的任何地方按下，也会让它获得焦点。
+- `chevron` 对应的是含义相反的属性（attribute）`no-chevron`，`readOnly` 对应的是 `readonly`。
+- `input` 是文本元素的原生事件。`change` 和 `action` 是 composed 的 CustomEvent，带有 `detail.value` 和 `detail.inputValue`；取消 `action`，Enter 就不会提交表单。`toggle` 带有 `detail.open`，关闭时还带有 `detail.reason`；它是 composed 的，并且不冒泡。
+- 列表是顶层（top layer）中的 `popover="manual"` 元素。在外部按下会关闭它，这次按下也会传到它下方的元素。
+- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`leading-icon`、`clear-button`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`、`status`。
+- `empty-text` 和 `clear-label` 留空时，从产品的文字里读取（`setWords()`）。
+- 在元素完成定义之前，它的选项是连续文本。请隐藏 `tanrei-combobox:not(:defined) > *`，并预留高度。
+
+## 指南
+
+### 组合框、组合框字段，还是手写的字段
+
+| 你需要 | 使用 |
+| --- | --- |
+| 标签、带列表的方框、帮助文本和错误 | [组合框字段](/zh-cn/components/combobox-field/) |
+| 只要方框，标签位于别处：工具栏里的筛选框、表格的单元格、标签在旁边的一行 | 组合框，由它自己的 `label` 命名 |
+| 在框架里面、方框旁边或下方放你自己的东西 | 一个[字段](/zh-cn/components/field/)，里面放一个组合框和你自己的元素 |
+| 不需要键入的封闭列表 | [下拉选择框](/zh-cn/components/select/) |
+| 键入之后通向的是可以前往的去处，而不是一个值 | [搜索](/zh-cn/components/search/) |
+
+### 推荐
+
+- 给单独使用的组合框一个 `label`，措辞与可见的标签相同，或者把可见的标签和它所在的位置合起来表达的意思说出来：“负责人，发布说明”。
+- 让单独使用的组合框靠所在的位置得到宽度：网格的一列、一个单元格、工具栏里有宽度的一项。
+- 只有键入了内容才有建议的地方，去掉 V 形箭头（`no-chevron`）。
+- 只要你需要的是方框上方的标签、帮助文本和错误，就使用组合框字段。
+
+### 避免
+
+- 不要为了省下标签的位置，在表单里使用单独的组合框。
+- 不要把占位符当作标签。一有人键入它就消失，而且它绝不是名称。
+- 不要在字段里的组合框上设置 `label`、`error` 或 `disabled`。把它们写在字段上，标签和帮助文本才会随之变化。
+- 不要把组合框字段放进字段。它本身已经是字段；字段框住的控件是组合框。
+- 不要在组合框上写 `supporting-text`、`error-text` 或 `requirement`。它们是字段的，组合框一样都不绘制。
+
+## 无障碍
+
+<ComponentAccessibility name="combobox" />
+
+### 组件负责的部分
+
+- 输入框是一个带列表框的可编辑组合框。它的名称是它自己的 `label`；它没有 `label` 时，是包着它的字段的标签。占位符绝不是名称。
+- 它的描述是字段给它的内容：帮助文本或错误文本，以及选填文字。
+- 处于错误状态时，它暴露为无效；所在的字段说明它必填时，暴露为必填；只读和禁用时，也分别暴露出来；列表打开时，暴露为已展开。
+- 列表打开期间，焦点留在输入框里。活动选项是输入框的活动后代，所以键入时对文本的编辑绝不会中断。
+- 列表是一个同名的列表框。每个选项都有自己的名称、描述、是否选中、是否禁用，以及它在所显示的选项中的位置。组以它的标题命名。
+- 状态行是一个实时区域：它的文本变化时以礼貌（polite）的方式朗读，数据源失败时则立即朗读。
+- V 形箭头是一个同名的按钮，不在焦点顺序里。清除按钮以 `clearLabel` 命名，是输入框之后的下一个焦点停靠点。
+- 焦点由方框自己的边缘来显示，无论来自键盘还是指针。点击区域满足最小目标。
+- 浮动标签后面的星号对辅助技术隐藏：必填状态已经说明了这一点。
+- 缺少名称会在调试构建中报告。
+
+### 需要你做的事
+
+- 用 `label` 为每个单独使用的组合框命名。它旁边可见的文本并不能为它命名。
+- 单独使用的组合框可能出错的地方，要用辅助技术读得到的文字说明哪里不对：一条与页面关联的、你自己的消息，或者包着组合框的字段。
+- 给每个选项一个标签和一个非空的值，并让各个值保持唯一。
+- 给可清除的组合框一个 `clearLabel`，并写上 `emptyText` 和 `statusText`。

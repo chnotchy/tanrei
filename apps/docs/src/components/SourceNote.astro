@@ -1,0 +1,25 @@
+---
+// "Generated from <file>" footnote under every data-driven block.
+import { contentLang, strings } from '../lib/i18n';
+interface Props {
+  files: string[];
+}
+const t = strings(contentLang(Astro));
+---
+
+<p class="docs-source not-content" data-tanrei-code="plain">
+  {t.generatedFrom}{' '}
+  {Astro.props.files.map((file, i) => (
+    <>
+      {i > 0 && ', '}
+      <code>{file}</code>
+    </>
+  ))}
+</p>
+
+<style>
+  /* The note is set in the code face already: a file's name in it is inline code in its plain form, at the note's own size. */
+  .docs-source code {
+    font-size: inherit;
+  }
+</style>

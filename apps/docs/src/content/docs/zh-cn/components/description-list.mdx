@@ -1,0 +1,202 @@
+---
+title: "描述列表"
+description: "把关于一件事物的已知信息呈现为一项项有名称的信息：一个低调的项名，加上回答它的值。项名可以在值的旁边、值的上方，或者在一个大数字的下方。它按自身的宽度布局，从不是控件。"
+translationOf: components/description-list.mdx
+sourceHash: 1289656e657a4f0fc8fcc2c50310af62690aea86
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="description-list" />
+
+<DemoFrame label="一份订单的各项信息" column>
+  <tanrei-description-list style="inline-size: min(100%, 30rem)">
+    <dl>
+      <div><dt>订单号</dt><dd>A-20418</dd></div>
+      <div><dt>下单时间</dt><dd>2026 年 10 月 6 日</dd></div>
+      <div><dt>收货地址</dt><dd>东京都港区芝公园 4-2-8</dd></div>
+      <div><dt>状态</dt><dd><tanrei-tag size="small" status="success" label="已发货"></tanrei-tag></dd></div>
+      <div><dt>合计</dt><dd>12,800 日元</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+描述列表展示一件事物的各项信息：一份订单、一个文件、一个账户、一个组件。每项信息由一个项名和回答它的值组成。项名是低调的标签，值才是用户要找的内容。
+
+同样的信息可以用三种布局来绘制：
+
+| `layout` | 绘制什么 | 用于 |
+| --- | --- | --- |
+| `inline`（默认） | 项名在值的旁边。所有项名排在同一列，列宽与最宽的项名相同。 | 供人查阅的一组信息。 |
+| `stacked` | 项名在值的上方。 | 值或项名较长的情况，以及分成多列的信息。 |
+| `stat` | 值在前，画成一个大数字，项名在它下方作为标签。 | 屏幕开头的少数几个数字。 |
+
+在 Web 上，它是包在你自己的原生 `<dl>` 外面的 `<tanrei-description-list>`。这个元素没有 shadow root，也不给列表任何角色，所以屏幕阅读器、爬虫和不运行脚本的页面遇到的都是一个普通的 HTML 描述列表。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/description-list.css" />
+
+    <tanrei-description-list>
+      <dl>
+        <div><dt>订单号</dt><dd>A-20418</dd></div>
+        <div><dt>负责人</dt><dd>田中爱子</dd><dd>萨米尔·哈达德</dd></div>
+        <div>
+          <dt>状态</dt>
+          <dd><tanrei-tag size="small" status="success" label="已发货"></tanrei-tag></dd>
+        </div>
+      </dl>
+    </tanrei-description-list>
+
+    <script type="module">
+      import '@tanrei/web/components/description-list';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { DescriptionList } from '@tanrei/react';
+    import '@tanrei/web/description-list.css';
+
+    <DescriptionList layout="stat" columns={3}>
+      <dl>
+        {figures.map((figure) => (
+          <div key={figure.label}>
+            <dt>{figure.label}</dt>
+            <dd>{figure.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </DescriptionList>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/description-list.css` 在任何脚本运行之前就画出整个列表。元素自己也会把同一份样式表加进页面，所以只加载了脚本的页面同样能得到画好的列表，只是晚一会儿。
+
+### 你要写的内容
+
+| 部件 | 在 Web 上 |
+| --- | --- |
+| 一项信息 | `<dl>` 里的一个 `<div>`，包住一个 `<dt>` 和它的各个 `<dd>`。 |
+| 项名 | `<dt>`。里面是文本，或者一个由值来解释的组件（图例里的 Tag）。不要写冒号。 |
+| 值 | 一个 `<dd>`。里面是文本、组件，或者什么都没有。 |
+| 多个值 | 同一项信息里的多个 `<dd>`。每个值单独占一行。 |
+
+有些 Markdown 渲染器输出的 `<dl>` 没有用 `<div>` 分组，这样的列表仍然会以单列绘制，采用 inline 或 stacked 布局。`columns` 和 stat 布局需要分组。
+
+## 规格
+
+<DemoFrame label="Stat：屏幕开头的几个数字" plain column>
+  <tanrei-description-list layout="stat" columns="3" separation="gap" style="inline-size: 100%">
+    <dl>
+      <div><dt>本周订单</dt><dd>1,284</dd><dd>比上周增长 12%</dd></div>
+      <div><dt>准时送达</dt><dd>98.6%</dd></div>
+      <div><dt>构建时间中位数</dt><dd>4 分 12 秒</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<DemoFrame label="Stacked 分列：列表变窄时，列数随之减少" plain column>
+  <tanrei-description-list layout="stacked" columns="3" style="inline-size: 100%">
+    <dl>
+      <div><dt>计划中</dt><dd>已有规格，在这个平台上尚未实现。</dd></div>
+      <div><dt>待跟进</dt><dd>已实现，但落后于当前规格。</dd></div>
+      <div><dt>Alpha</dt><dd>已实现并经过测试；API 仍可能变动。</dd></div>
+      <div><dt>Beta</dt><dd>API 已经确定；希望收到来自实际使用的反馈。</dd></div>
+      <div><dt>Stable</dt><dd>受版本承诺的约束。</dd></div>
+      <div><dt>已弃用</dt><dd>仍在提供；已指明替代方案。</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<DemoFrame label="Compact，用留白分隔：供人扫读的信息" plain column>
+  <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
+    <dl>
+      <div><dt>值</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
+      <div><dt>种类</dt><dd>别名 · color</dd></div>
+      <div><dt>说明</dt><dd>任何表面或表面容器上的文本和字形。</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<ComponentSpecs name="description-list" />
+
+## 指南
+
+### 它是不是描述列表
+
+- 用它来呈现**一件**事物的各项信息。几件事物共用同一组名称时，应该用[表格](/zh-cn/components/table/)，由表头为各列命名。
+- 夹在段落之间、按顺序阅读的词语解释属于长文排版：让它在你的内容里保持为一个裸的 `<dl>`。长文排版把它排成连续文本，突出的是词语。这个组件是同一种列表经过布局的形态，突出的是值。
+- 供人从中选择或按下的列表，是[列表](/zh-cn/components/list/)。
+
+### 它如何适应空间
+
+列表的一切都由它自身的宽度决定，而不是窗口的宽度。同一个列表放在页面、卡片、侧边面板和对话框里都合适。
+
+- **Inline 会自行改为上下排列。** 当最宽的项名旁边留给值的宽度不足 144 时，所有信息项会一起改为项名在上、值在下，等空间足够时再恢复成两列。不要因为窗口小就自己切换布局。
+- **列数会自行减少。** `columns` 是 stacked 和 stat 布局最多绘制的列数。每列至少宽 144，所以四个数字在宽页面上是四列，在窄页面上是两行各两列，在手机上是一列。列表的列数绝不会多于信息项的数量。
+- **Inline 列表只有一列。** `columns` 对它不起作用。
+- **什么都不截断。** 值会换行。无法断开的标识符或地址会在列的边缘断开。列表绝不横向滚动。
+
+### 密度
+
+| `density` | 项名和值 | 信息项之间 | 用于 |
+| --- | --- | --- | --- |
+| `regular`（默认） | 14，行高 20；以及 14，行高 22 | 12；有线时，线的两侧各 12 | 供人阅读的信息：页面、卡片、对话框。 |
+| `compact` | 12，行高 16；以及 13，行高 20 | 6；有线时，线的两侧各 6 | 供人扫读的信息：侧边面板、检查器。 |
+
+stat 的数字在 `regular` 时是 32，行高 40；在 `compact` 时是 20，行高 28。
+
+### 区分各项信息
+
+| `separation` | 绘制什么 |
+| --- | --- |
+| `auto`（默认） | 设计系统选定的方式：在默认系统中是一道细线。 |
+| `divider` | 每项信息与它下面那一项之间一道细线。 |
+| `gap` | 留空，不画线。 |
+
+第一行上方、最后一行下方、两列之间以及项名和它的值之间都没有线。需要外框的列表，就把列表放进一张带轮廓的[卡片](/zh-cn/components/card/)。
+
+### 推荐
+
+- 项名越短越好：写“收货地址”，而不是“这份订单寄往的地址”。
+- 如果“没有”本身就是信息，就用文字把它写出来：“无”“未设置”“不限”。
+- 用文字说明变化：在数字下方加第二个值，写“比上周增长 12%”。
+- 值里的状态用小号 Tag（`size="small"`），这样它不会把所在的行撑高。
+
+### 避免
+
+- 不要在项名后面加冒号。标点属于语言，而项名靠样式和位置就已经与它的值区分开了。
+- 不要在空值里放破折号。让它留空，或者把“没有”写出来。
+- 不要用颜色来表示一个数字是好是坏。方向用一个词来说，或者用一个标签文字说出了它的 Tag。
+- 不要用这个列表把互不相关的东西并排摆放。那是布局的事。
+
+## 无障碍
+
+<ComponentAccessibility name="description-list" />
+
+### 组件负责的部分
+
+- 原生列表始终是描述列表：项名和它们的定义都是浏览器自己的，无论采用哪种布局、哪种密度、有没有线。
+- 朗读的顺序从不改变。stat 布局把数字画在它的标签上方，但向辅助技术提供时仍然是项名在前。
+- 列表里没有任何东西会获得焦点或接受输入。值里的链接或按钮保留自己的目标尺寸和在焦点顺序中的位置。
+- 文本放大到 200% 时，以及在宽 320 的窗口里，同样的宽度规则会让列表改为上下排列并减少列数。最小宽度随文本一起变大。
+- 在从右到左的布局中，项名那一列位于右侧，各列从右侧排起。每个项名和值保持自己的方向，所以版本号、地址和金额绝不会被颠倒。
+- 在强制颜色模式下，线和文本都是文本颜色。列表没有会被去掉的填充。
+- 没有项名的值、写在 inline 列表上的 `columns`、不是整数的列数、在没有分组的列表上使用 stat 布局或多列，以及未知的布局、密度或分隔方式，会在调试构建中报告。
+
+### 需要你做的事
+
+- 在列表上方放一个标题，说明这些信息是关于什么的。列表没有自己的名称，项名也从不是标题。
+- 给每个值一个项名。
+- 如果某个数字会在用户注视时变化，并且这个变化必须让人听到，请把列表或那一项信息放进你自己的实时区域（live region）。列表不会朗读变化。

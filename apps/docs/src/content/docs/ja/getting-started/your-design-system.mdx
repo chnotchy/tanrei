@@ -1,0 +1,132 @@
+---
+title: 自分のデザインシステムを作る
+description: プロダクトに置くのはレイヤファイル 1 つ。コマンド 1 つで、出荷する全プラットフォーム分のトークンとコードが 1 つのプルリクエストに揃います。
+translationOf: getting-started/your-design-system.mdx
+sourceHash: ca7d8543d03438d79076685ff1ecb02f31b87cfb
+---
+
+import Steps from '../../../../components/Steps.astro';
+import Callout from '../../../../components/Callout.astro';
+
+プロダクトの見た目を変えても、Tanrei のコンポーネントは変わりません。変わるのは**レイヤ**です — 共通の語彙の「値」を決め、自分のパレットを宣言する小さな JSON ファイル。`@tanrei/cli` がその 1 ファイルを、各プラットフォームが必要とするものすべてに変換します。
+
+<Callout type="caution" title="最初のリリースまで">
+  `@tanrei/cli` と `@tanrei/mcp` は、まだ npm にありません。公開されるまでは、ソースからビルドし、パックしたファイルをプロダクトに開発用の依存としてインストールしてください。このページの `npx tanrei …` のコマンドは、どれもインストールしたものを実行します。
+
+  ```sh
+  git clone https://github.com/chnotchy/tanrei.git
+  cd tanrei
+  pnpm install
+  pnpm --filter @tanrei/studio build:app   # `tanrei studio` が配信する Theme Studio
+  pnpm --filter @tanrei/cli --filter @tanrei/mcp build
+  pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
+  ```
+
+  ```sh
+  # プロダクトで：パッケージを書き出したフォルダーへのパス
+  npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
+  ```
+
+  MCP サーバーは、インストールしたものを登録します。プロダクトのフォルダーで `claude mcp add tanrei -- npx tanrei-mcp` を実行してください。
+</Callout>
+
+<Steps>
+
+1. **レイヤを作る** — 既定のシステムか、プリセットから始めます。
+
+   ```bash
+   npx tanrei init acme --extends tanrei
+   ```
+
+   `design/acme.system.json` と `tanrei.json` が作られます。スライダーで作りたい場合は [Theme Studio](/ja/foundations/theme-studio/) で形を決めてダウンロードしてください。
+
+2. **出力先を決める** — `tanrei.json` に、出荷するものだけを書きます。
+
+   ```json
+   {
+     "system": "design/acme.system.json",
+     "kotlinPackage": "com.acme.design",
+     "outputs": {
+       "tokens": "design/tokens/acme",
+       "web": "apps/web/src/styles",
+       "swiftui": "apps/ios/Acme/Design",
+       "compose": "apps/android/app/src/main/kotlin/com/acme/design",
+       "flutter": "apps/flutter/lib/design",
+       "react-native": "apps/mobile/src/design"
+     }
+   }
+   ```
+
+3. **ビルドする。**
+
+   ```bash
+   npx tanrei build
+   ```
+
+   結果をコミットします。CI には `npx tanrei build --check` を入れてください。何も書き込まず、コミット済みの出力が古ければ失敗します。
+
+4. **使う。** 生成されるのはあなたのシステムの「値」だけで、型はライブラリ側にあります。語彙が変わったときは、黙ってずれるのではなくビルドが壊れます。
+
+   | プラットフォーム | 生成物 | 書くコード |
+   |---|---|---|
+   | Web | `acme.css` | `<html data-tanrei-system="acme">` |
+   | SwiftUI | `TanreiSystem+Acme.swift` | `.tanreiTheme(TanreiTheme(system: .acme))` |
+   | Compose | `TanreiSystemAcme.kt` | `TanreiTheme(system = TanreiSystem.Acme) { … }` |
+   | Flutter | `acme_system.g.dart` | `TanreiTheme(data: TanreiThemeData.platform(context, system: acmeSystem), …)` |
+   | React Native | `acme.ts` | `<TanreiProvider system={acme}>` |
+
+</Steps>
+
+## 1 つの変更は、1 つのプルリクエスト
+
+レイヤの値を 1 つ変えて `tanrei build` を実行すると、全プラットフォームのファイルが同じコミットで変わります。文字を全体的に少し大きくするのは 1 行です。
+
+```json
+"tanrei.dial.type.base": { "$value": { "value": 17, "unit": "px" }, "reason": "腕を伸ばした距離で読まれるため。" }
+```
+
+レイヤにできる 4 つのこと（ダイヤルを設定する／トークンを倍率で変える／参照先を差し替える／理由を添えて値を固定する）と、ブランドカラーやクイズの「正解・不正解」のようなパレットの宣言、そして値だけでは足りないときに[トークンを足す](/ja/foundations/design-systems/#語彙に足す)方法は、[デザインシステムとカスタマイズ](/ja/foundations/design-systems/)を参照してください。
+
+## 好きな深さまで — いつも同じ 1 ファイル
+
+カスタマイズは階層になっていて、どの階層も同じ `<id>.system.json` を編集します。
+
+| やりたいこと | 使うもの |
+|---|---|
+| 手早くセットアップ | **Theme Studio → かんたん**：ベースのシステム、ブランドカラー、スライダー 4 本（文字の大きさ・余白・角の丸み・見出しの強さ） |
+| グループ単位で調整 | **Studio → グループ**：7 つのダイヤル、パレット、コンポーネント別のサマリ |
+| トークンを 1 つずつ GUI で | **Studio → 全トークン**：語彙全体を検索。各トークンには「そのトークンに合法な編集」だけが提示され、何が追従するかも分かります |
+| ソースを編集 | **Studio → ソース**、またはお使いのエディター：JSON をスキーマとエンジンの両方で検証 |
+| 存在しないトークンが欲しい | [足します](/ja/foundations/design-systems/#語彙に足す)：系列の段、Button のサイズや variant を 1 行で、あるいは自分のトークン |
+
+```bash
+npx tanrei studio
+```
+
+は Theme Studio を**あなたのレイヤファイルに対して**開きます。編集はそのままファイルに保存され（他の変更と同じく git でレビューできます）、同時にエディターで行った編集を上書きすることはなく、「ビルド」で `tanrei build` が走ります。`127.0.0.1` だけで待ち受け、表示されるリンクには使い捨てのキーが入っています。このサイトの Studio は同じツールで、ファイルの代わりに読み込み／書き出しを使います。
+
+## Tailwind CSS と shadcn/ui
+
+`outputs` に `"tailwind"` や `"shadcn"` を足します。どちらのファイルも Tanrei のカスタムプロパティへ**名前を対応づけるだけ**なので、テーマ、コントラスト、実行時のダイヤルはそのまま機能します。
+
+```css
+@import "tailwindcss";
+@import "@tanrei/web/tokens.css";
+@import "./styles/acme.css";
+@import "./styles/acme.tailwind.css"; /* bg-primary · text-on-primary · rounded-medium · p-200 · text-heading-4 */
+```
+
+## システムを共有する — 人・ツール・AI エージェントと
+
+- `tokens` の出力は、標準のリゾルバを備えた自己完結の **DTCG 2025.10** バンドルです。どのデザイントークンツールでも読めます。生成元のレイヤファイルも中に入っており、各グループには AI エージェント向けの使い方（`$extensions["dev.tanrei.llm"]`）が付いています。
+- `@tanrei/mcp` は [Model Context Protocol](https://modelcontextprotocol.io) のサーバーです。あなたのリポジトリで作業するエージェントは、語彙を検索し、値がどこから来たかを調べ、システム同士を比較し、**拡張を提案**（新しい Button サイズ、系列の段、自分のトークン）してその結果の値を確かめ、**レイヤの編集を書き込む前に検証**できます。エージェントにはルールも伝えられます — 値はレイヤで変える、語彙の拡張は追加のみ・理由つき、固定する値には理由を書く、閾値には触れない。
+
+  最初のリリース後は、npm から登録します（それまでは、このページの冒頭の「最初のリリースまで」を参照してください）。
+
+  ```bash
+  claude mcp add tanrei -- npx -y @tanrei/mcp
+  ```
+
+<Callout type="caution" title="アクセシビリティ">
+  コントラストの閾値と構造チェックは定数です。あなたのレイヤでの違反は警告になりますが、黙殺はされません — `tanrei build` が表示し、`a11y-report.json` に書き込み、生成ファイルの先頭にも記されます。中・高コントラストは利用者がコントラストを求めた結果なので、そこでは 0 件を目指してください。なお、同梱のプリセットそのものは模倣元への忠実さで評価し、どのスキームでも Tanrei のアクセシビリティ基準は適用しません。その計測値は参考情報です。プリセットの上に作ったレイヤはあなたのプロダクトなので、継承した分も警告されます。
+</Callout>

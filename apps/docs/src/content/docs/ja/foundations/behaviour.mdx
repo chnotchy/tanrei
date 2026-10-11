@@ -1,0 +1,79 @@
+---
+title: 振る舞い
+description: 押下への応え方と、キーボードフォーカスの見せ方。量ではなく「種類」の違いを、デザインシステムが他のトークンと同じように選びます。
+translationOf: foundations/behaviour.mdx
+sourceHash: 376f1e0da1eea1c76edf02d9d79d443ef4fe2688
+---
+
+import Callout from '../../../../components/Callout.astro';
+import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+import SystemButtons from '../../../../components/SystemButtons.astro';
+
+デザインシステム同士の違いは、ほとんどが「量」の違いです。角丸の半径、色のトーン、アニメーションの時間。量は値なので、[レイヤ](/ja/foundations/design-systems/)で変えられます。
+
+ところが、量では表せない違いが少しだけあります。押したときにリップルが広がるシステムもあれば、コントロール全体が暗くなるシステムもある。フォーカスを硬いリングで示すシステムもあれば、柔らかなグローで示すシステムもある。既存のトークンの数値をどう変えても、一方を他方にすることはできません。Tanrei はこれを**種類の選択**と呼び、`sys.behavior` の下に 2 つのトークンとして持っています。それぞれが、短く閉じた選択肢の一覧を持ち、デザインシステムはその中から 1 つを選びます。
+
+<SystemValues tokens={['sys.behavior.pressed-feedback', 'sys.behavior.focus-style']} />
+
+コンポーネントはこのトークンを読むだけです。いまどのデザインシステムが有効かを調べることはありません。
+
+## 押下への応え方
+
+<BehaviorChoice choice="pressed-feedback" />
+
+| 値 | 押している間にコンポーネントが描くもの |
+|---|---|
+| `overlay` | pressed 状態のトークンを、コンテナ全体に一度に適用します。 |
+| `ripple` | pressed のステートレイヤーが、触れた位置から広がります。キーボードで押した場合は中央から。コンテナの形で切り抜かれます。 |
+| `dim` | コンポーネントの pressed の不透明度をコントロール全体に適用します。ステートレイヤーは描きません。 |
+| `none` | 何も描きません。hover とフォーカスの表示は残ります。 |
+
+この選択が決めるのは、pressed のレイヤーが**どう現れるか**だけです。その色と不透明度は、これまでどおりコンポーネントの状態別トークンが決め、レイヤがその値を与えます。
+
+どれを選んでも、pressed 状態は遅延なく現れ、少なくとも `sys.motion.duration.press-hold`（既定では 100ms。モーションのダイヤルに追従します）の間は表示され続けます。タップやキー入力は 1 フレームで終わってしまうので、この下限がなければ応答は目に見えません。Button ではこれを要件 BTN-8・BTN-9 として定めています。
+
+## 種類の選択ではないもの：角の曲がり方
+
+角が直線部分へどうつながるか（四分円か、連続曲率か）は種類の選択に見えますが、**量**です。Figma の角のスムージングと同じ 0〜1 の値で、0.6 が iOS の角にあたります。半径と同じ場所、`sys.shape.corner-smoothing` にあり、[形状](/ja/foundations/shape/#角のスムージング)のページで説明しています。
+
+## フォーカスの見せ方
+
+<BehaviorChoice choice="focus-style" />
+
+`glow` も、リングと同じ 2 色・同じオフセット・同じ幅で描かれます。そのため[フォーカスのコントラスト不変条件](/ja/foundations/accessibility/)はそのまま適用されます。変わるのは表示の輪郭の硬さであって、表示の有無ではありません。
+
+## 同梱システムでの選択
+
+同じ Button を、同梱の各システムのもとで描いています（インストールされている Web ビルドによる描画です）。それぞれ押してみて、次に <kbd>Tab</kbd> でフォーカスを当ててみてください。
+
+<SystemButtons label="押して、Tab で移動" tokens={['sys.behavior.pressed-feedback', 'sys.behavior.focus-style']} />
+
+## レイヤで選択を変える
+
+選択も、他の値と同じように変えます。`tokens` の下に、`reason` を添えて書きます。
+
+```json
+{
+  "id": "acme",
+  "extends": "tanrei",
+  "tokens": {
+    "tanrei.sys.behavior.pressed-feedback": { "$value": 1, "reason": "Acme は押下にリップルで応える。" },
+    "tanrei.sys.behavior.focus-style":      { "$value": 1, "reason": "Acme はキーボードフォーカスをグローで示す。" }
+  }
+}
+```
+
+`$value` は**数値**です。そのトークンの一覧の中での位置を、0 から数えたものです。`pressed-feedback` の一覧は `overlay`・`ripple`・`dim`・`none` なので、`1` は `ripple` を指します。Tanrei のトークンファイルの形式（DTCG 2025.10）には文字列型がないため、ファイルには番号を書きます。一覧の範囲外の番号はビルドが拒否します。
+
+番号が現れるのはレイヤファイルの中だけです。生成される CSS には名前が入り（`--tanrei-sys-behavior-pressed-feedback: ripple`）、SwiftUI・Compose・Flutter・React Native はシステムインスタンス上の型付き列挙として受け取ります。
+
+一覧そのものはコアの語彙です。レイヤは名前の中から選ぶことはできますが、名前を足すことはできません。新しい振る舞いはすべてのプラットフォームが描けなければならないので、他の語彙の変更と同じく、コアへの提案として扱います。
+
+## プラットフォームがその選択を描けないとき
+
+各一覧の先頭の名前が既定値であり、フォールバックでもあります。ある選択を描けないプラットフォームは、代わりに先頭の値で描き、そのことをパッケージの README に明記します。
+
+<Callout>
+  番号を手で書くのは扱いにくいので、Theme Studio（「ふるまい」グループ）、`tanrei explain`、MCP サーバーが名前を表示し、名前で受け付けます。
+</Callout>

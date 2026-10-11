@@ -1,0 +1,284 @@
+{
+  "javascript": [
+    {
+      "code": "const a = 1, b = 0x1F, c = 1_000n, d = .5e-3;",
+      "marked": "‹kw:const› a = ‹cn:1›‹pn:,› b = ‹cn:0x1F›‹pn:,› c = ‹cn:1_000n›‹pn:,› d = ‹cn:.5e-3›‹pn:;›"
+    },
+    {
+      "code": "// line\n/* block\n   two */ let x = null;",
+      "marked": "‹co:// line›\n‹co:/* block\n   two */› ‹kw:let› x = ‹cn:null›‹pn:;›"
+    },
+    {
+      "code": "const s = \"a\\n\" + 'b\\'c' + `t ${a + `n ${b}`} $`;",
+      "marked": "‹kw:const› s = ‹st:\"a›‹cn:\\n›‹st:\"› + ‹st:'b›‹cn:\\'›‹st:c'› + ‹st:`t ›‹pn:${›a + ‹st:`n ›‹pn:${›b‹pn:}›‹st:`›‹pn:}›‹st: $`›‹pn:;›"
+    },
+    {
+      "code": "function* gen(a, b = 2) { yield a; }",
+      "marked": "‹kw:function›* ‹fn:gen›‹pn:(›a‹pn:,› b = ‹cn:2›‹pn:)› ‹pn:{› ‹kw:yield› a‹pn:;› ‹pn:}›"
+    },
+    {
+      "code": "class Foo extends Bar { #p = 1; static get x() { return this.#p; } }",
+      "marked": "‹kw:class› ‹ty:Foo› ‹kw:extends› ‹ty:Bar› ‹pn:{› #p = ‹cn:1›‹pn:;› ‹kw:static› ‹kw:get› ‹fn:x›‹pn:()› ‹pn:{› ‹kw:return› ‹kw:this›‹pn:.›‹pr:#p›‹pn:;› ‹pn:}› ‹pn:}›"
+    },
+    {
+      "code": "const re = /ab+c\\/d/gi, q = a / b / c;",
+      "marked": "‹kw:const› re = ‹st:/ab+c\\/d/gi›‹pn:,› q = a / b / c‹pn:;›"
+    },
+    {
+      "code": "items.map((x) => x.id).filter(Boolean)?.length ?? MAX_SIZE;",
+      "marked": "items‹pn:.›‹fn:map›‹pn:((›x‹pn:)› => x‹pn:.›‹pr:id›‹pn:).›‹fn:filter›‹pn:(›‹ty:Boolean›‹pn:)?.›‹pr:length› ?? ‹cn:MAX_SIZE›‹pn:;›"
+    },
+    {
+      "code": "import x, { y as z } from './m.js';\nexport default async function () { await f(); }",
+      "marked": "‹kw:import› x‹pn:,› ‹pn:{› y ‹kw:as› z ‹pn:}› ‹kw:from› ‹st:'./m.js'›‹pn:;›\n‹kw:export› ‹kw:default› ‹kw:async› ‹kw:function› ‹pn:()› ‹pn:{› ‹kw:await› ‹fn:f›‹pn:();› ‹pn:}›"
+    },
+    {
+      "code": "if (typeof a === 'undefined' || !(b instanceof Map)) throw new TypeError(`no`);",
+      "marked": "‹kw:if› ‹pn:(›‹kw:typeof› a === ‹st:'undefined'› || !‹pn:(›b ‹kw:instanceof› ‹ty:Map›‹pn:))› ‹kw:throw› ‹kw:new› ‹ty:TypeError›‹pn:(›‹st:`no`›‹pn:);›"
+    },
+    {
+      "code": "obj.delete(key); for (const k of keys) { if (k in obj) continue; }",
+      "marked": "obj‹pn:.›‹fn:delete›‹pn:(›key‹pn:);› ‹kw:for› ‹pn:(›‹kw:const› k ‹kw:of› keys‹pn:)› ‹pn:{› ‹kw:if› ‹pn:(›k ‹kw:in› obj‹pn:)› ‹kw:continue›‹pn:;› ‹pn:}›"
+    },
+    {
+      "code": "@decorator\nclass A {}",
+      "marked": "‹kw:@decorator›\n‹kw:class› ‹ty:A› ‹pn:{}›"
+    },
+    {
+      "code": "const unterminated = 'abc\nlet next = 1;",
+      "marked": "‹kw:const› unterminated = ‹st:'abc›\n‹kw:let› next = ‹cn:1›‹pn:;›"
+    }
+  ],
+  "jsx": [
+    {
+      "code": "const el = <div className=\"a\" onClick={() => go(1)}>Hi {name}! &amp; <br /></div>;",
+      "marked": "‹kw:const› el = ‹pn:<›‹tg:div› ‹pr:className›‹pn:=›‹st:\"a\"› ‹pr:onClick›‹pn:={()› => ‹fn:go›‹pn:(›‹cn:1›‹pn:)}>›Hi ‹pn:{›name‹pn:}›! ‹cn:&amp;› ‹pn:<›‹tg:br› ‹pn:/></›‹tg:div›‹pn:>;›"
+    },
+    {
+      "code": "return <><Item.Row key={i} {...rest} /></>;",
+      "marked": "‹kw:return› ‹pn:<><›‹tg:Item.Row› ‹pr:key›‹pn:={›i‹pn:}› ‹pn:{›...rest‹pn:}› ‹pn:/></>;›"
+    },
+    {
+      "code": "if (a < b && c > d) x = a <b;",
+      "marked": "‹kw:if› ‹pn:(›a < b && c > d‹pn:)› x = a <b‹pn:;›"
+    }
+  ],
+  "typescript": [
+    {
+      "code": "interface Props<T extends object = {}> { readonly id: string; items?: T[] }",
+      "marked": "‹kw:interface› ‹ty:Props›<‹ty:T› ‹kw:extends› ‹ty:object› = ‹pn:{}›> ‹pn:{› ‹kw:readonly› id‹pn::› ‹ty:string›‹pn:;› items?‹pn::› ‹ty:T›‹pn:[]› ‹pn:}›"
+    },
+    {
+      "code": "type Fn = (a: number, ...rest: unknown[]) => void;",
+      "marked": "‹kw:type› ‹ty:Fn› = ‹pn:(›a‹pn::› ‹ty:number›‹pn:,› ...rest‹pn::› ‹ty:unknown›‹pn:[])› => ‹kw:void›‹pn:;›"
+    },
+    {
+      "code": "const m = new Map<string, Array<number>>();\nconst v = useState<string | null>(null);",
+      "marked": "‹kw:const› m = ‹kw:new› ‹ty:Map›<‹ty:string›‹pn:,› ‹ty:Array›<‹ty:number›>>‹pn:();›\n‹kw:const› v = ‹fn:useState›<‹ty:string› | ‹cn:null›>‹pn:(›‹cn:null›‹pn:);›"
+    },
+    {
+      "code": "export abstract class Repo<T> implements Store<T> { private cache: Record<string, T> = {}; }",
+      "marked": "‹kw:export› ‹kw:abstract› ‹kw:class› ‹ty:Repo›<‹ty:T›> ‹kw:implements› ‹ty:Store›<‹ty:T›> ‹pn:{› ‹kw:private› cache‹pn::› ‹ty:Record›<‹ty:string›‹pn:,› ‹ty:T›> = ‹pn:{};› ‹pn:}›"
+    },
+    {
+      "code": "function is(x: unknown): x is Foo { return (x as Foo).kind === Kind.A; }",
+      "marked": "‹kw:function› ‹fn:is›‹pn:(›x‹pn::› ‹ty:unknown›‹pn:):› x ‹kw:is› ‹ty:Foo› ‹pn:{› ‹kw:return› ‹pn:(›x ‹kw:as› ‹ty:Foo›‹pn:).›‹pr:kind› === ‹ty:Kind›‹pn:.›‹pr:A›‹pn:;› ‹pn:}›"
+    },
+    {
+      "code": "enum Color { Red = 'RED', Green = 2 }\ndeclare namespace NS { const x: bigint; }",
+      "marked": "‹kw:enum› ‹ty:Color› ‹pn:{› ‹ty:Red› = ‹st:'RED'›‹pn:,› ‹ty:Green› = ‹cn:2› ‹pn:}›\n‹kw:declare› ‹kw:namespace› ‹ty:NS› ‹pn:{› ‹kw:const› x‹pn::› ‹ty:bigint›‹pn:;› ‹pn:}›"
+    },
+    {
+      "code": "let x = <T,>(v: T) => v satisfies unknown;",
+      "marked": "‹kw:let› x = <‹ty:T›‹pn:,›>‹pn:(›v‹pn::› ‹ty:T›‹pn:)› => v ‹kw:satisfies› ‹ty:unknown›‹pn:;›"
+    }
+  ],
+  "tsx": [
+    {
+      "code": "const C: React.FC<Props> = ({ a }) => <Box size=\"small\" on={a}>text</Box>;",
+      "marked": "‹kw:const› ‹ty:C›‹pn::› ‹ty:React›‹pn:.›‹ty:FC›<‹ty:Props›> = ‹pn:({› a ‹pn:})› => ‹pn:<›‹tg:Box› ‹pr:size›‹pn:=›‹st:\"small\"› ‹pr:on›‹pn:={›a‹pn:}>›text‹pn:</›‹tg:Box›‹pn:>;›"
+    },
+    {
+      "code": "export function F() { return <ul>{xs.map((x) => <li key={x}>{x}</li>)}</ul>; }",
+      "marked": "‹kw:export› ‹kw:function› ‹fn:F›‹pn:()› ‹pn:{› ‹kw:return› ‹pn:<›‹tg:ul›‹pn:>{›xs‹pn:.›‹fn:map›‹pn:((›x‹pn:)› => ‹pn:<›‹tg:li› ‹pr:key›‹pn:={›x‹pn:}>{›x‹pn:}</›‹tg:li›‹pn:>)}</›‹tg:ul›‹pn:>;› ‹pn:}›"
+    }
+  ],
+  "json": [
+    {
+      "code": "{ \"a\": [1, -2.5e3, true, null], \"b\\\"c\": \"x\\ny\" }",
+      "marked": "‹pn:{› ‹pr:\"a\"›‹pn::› ‹pn:[›‹cn:1›‹pn:,› ‹cn:-2.5e3›‹pn:,› ‹cn:true›‹pn:,› ‹cn:null›‹pn:],› ‹pr:\"b\\\"c\"›‹pn::› ‹st:\"x›‹cn:\\n›‹st:y\"› ‹pn:}›"
+    },
+    {
+      "code": "// jsonc\n{ /* c */ \"k\": \"v\", }",
+      "marked": "‹co:// jsonc›\n‹pn:{› ‹co:/* c */› ‹pr:\"k\"›‹pn::› ‹st:\"v\"›‹pn:,› ‹pn:}›"
+    }
+  ],
+  "css": [
+    {
+      "code": ":root { --gap: calc(1rem + 2px); color-scheme: light dark; }",
+      "marked": "‹tg::root› ‹pn:{› ‹pr:--gap›‹pn::› ‹fn:calc›‹pn:(›‹cn:1rem› + ‹cn:2px›‹pn:);› ‹pr:color-scheme›‹pn::› light dark‹pn:;› ‹pn:}›"
+    },
+    {
+      "code": "a:hover, .btn#id > li::before, [data-x=\"1\"] { color: rgb(0 0 0 / 50%) !important; content: 'a\\'b'; }",
+      "marked": "‹tg:a:hover›‹pn:,› ‹tg:.btn#id› > ‹tg:li::before›‹pn:,› ‹pn:[›‹pr:data-x›=‹st:\"1\"›‹pn:]› ‹pn:{› ‹pr:color›‹pn::› ‹fn:rgb›‹pn:(›‹cn:0› ‹cn:0› ‹cn:0› / ‹cn:50%›‹pn:)› ‹kw:!important›‹pn:;› ‹pr:content›‹pn::› ‹st:'a\\'b'›‹pn:;› ‹pn:}›"
+    },
+    {
+      "code": "@import url(\"x.css\") layer(base);\n@layer a, b;",
+      "marked": "‹kw:@import› ‹fn:url›‹pn:(›‹st:\"x.css\"›‹pn:)› ‹fn:layer›‹pn:(›base‹pn:);›\n‹kw:@layer› a‹pn:,› b‹pn:;›"
+    },
+    {
+      "code": "@media (width >= 600px) and (prefers-color-scheme: dark) { .a { margin: -0.5em auto; } }",
+      "marked": "‹kw:@media› ‹pn:(›width >= ‹cn:600px›‹pn:)› and ‹pn:(›‹pr:prefers-color-scheme›‹pn::› dark‹pn:)› ‹pn:{› ‹tg:.a› ‹pn:{› ‹pr:margin›‹pn::› ‹cn:-0.5em› auto‹pn:;› ‹pn:}› ‹pn:}›"
+    },
+    {
+      "code": ".card { & .title { font: 600 1rem/1.2 system-ui; } &:focus-visible { outline: 2px solid #09f } }",
+      "marked": "‹tg:.card› ‹pn:{› ‹tg:&› ‹tg:.title› ‹pn:{› ‹pr:font›‹pn::› ‹cn:600› ‹cn:1rem›/‹cn:1.2› system-ui‹pn:;› ‹pn:}› ‹tg:&:focus-visible› ‹pn:{› ‹pr:outline›‹pn::› ‹cn:2px› solid ‹cn:#09f› ‹pn:}› ‹pn:}›"
+    },
+    {
+      "code": "@keyframes spin { from { rotate: 0deg } to { rotate: 1turn } }",
+      "marked": "‹kw:@keyframes› spin ‹pn:{› ‹tg:from› ‹pn:{› ‹pr:rotate›‹pn::› ‹cn:0deg› ‹pn:}› ‹tg:to› ‹pn:{› ‹pr:rotate›‹pn::› ‹cn:1turn› ‹pn:}› ‹pn:}›"
+    },
+    {
+      "code": "li:nth-child(2n + 1) { transition: opacity .2s ease-in-out; }",
+      "marked": "‹tg:li:nth-child›‹pn:(›‹cn:2n› + ‹cn:1›‹pn:)› ‹pn:{› ‹pr:transition›‹pn::› opacity ‹cn:.2s› ease-in-out‹pn:;› ‹pn:}›"
+    }
+  ],
+  "html": [
+    {
+      "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<!-- c -->\n<body class=app data-x='1' hidden>Tom &amp; Jerry<br/></body></html>",
+      "marked": "‹kw:<!DOCTYPE html>›\n‹pn:<›‹tg:html› ‹pr:lang›‹pn:=›‹st:\"en\"›‹pn:>›\n‹co:<!-- c -->›\n‹pn:<›‹tg:body› ‹pr:class›‹pn:=›‹st:app› ‹pr:data-x›‹pn:=›‹st:'1'› ‹pr:hidden›‹pn:>›Tom ‹cn:&amp;› Jerry‹pn:<›‹tg:br›‹pn:/></›‹tg:body›‹pn:></›‹tg:html›‹pn:>›"
+    },
+    {
+      "code": "<script type=\"module\">if (a < b) { x = '</div>'; }</script><p>after</p>",
+      "marked": "‹pn:<›‹tg:script› ‹pr:type›‹pn:=›‹st:\"module\"›‹pn:>›if (a < b) { x = '</div>'; }‹pn:</›‹tg:script›‹pn:><›‹tg:p›‹pn:>›after‹pn:</›‹tg:p›‹pn:>›"
+    },
+    {
+      "code": "<style>a > b { color: red }</style>\n<svg:rect x=\"1\" />",
+      "marked": "‹pn:<›‹tg:style›‹pn:>›a > b { color: red }‹pn:</›‹tg:style›‹pn:>›\n‹pn:<›‹tg:svg:rect› ‹pr:x›‹pn:=›‹st:\"1\"› ‹pn:/>›"
+    },
+    {
+      "code": "<?xml version=\"1.0\"?><a><![CDATA[ <b> ]]></a>",
+      "marked": "‹kw:<?xml version=\"1.0\"?>›‹pn:<›‹tg:a›‹pn:><![CDATA[› <b> ‹pn:]]></›‹tg:a›‹pn:>›"
+    },
+    {
+      "code": "<input value=\"unterminated>\n<p>text",
+      "marked": "‹pn:<›‹tg:input› ‹pr:value›‹pn:=›‹st:\"unterminated>\n<p>text›"
+    }
+  ],
+  "shell": [
+    {
+      "code": "#!/bin/sh\nset -eu\ncd \"$HOME/src\" && git pull --rebase origin main || exit 1",
+      "marked": "‹co:#!/bin/sh›\n‹kw:set› ‹pr:-eu›\n‹fn:cd› ‹st:\"›$HOME‹st:/src\"› && ‹fn:git› pull ‹pr:--rebase› origin main || ‹kw:exit› ‹cn:1›"
+    },
+    {
+      "code": "FOO=bar\nexport PATH=\"$PATH:/usr/local/bin\"\necho 'single $x' \"double ${x:-y} \\\" $(date +%s)\" `pwd`",
+      "marked": "FOO=bar\n‹kw:export› PATH=‹st:\"›$PATH‹st::/usr/local/bin\"›\n‹fn:echo› ‹st:'single $x'› ‹st:\"double ›${x:-y}‹st: ›‹cn:\\\"›‹st: ›‹pn:$(›‹fn:date› +%s‹pn:)›‹st:\"› ‹st:`pwd`›"
+    },
+    {
+      "code": "if [ -f \"$f\" ]; then\n  cat \"$f\" | grep -v '^#' > out.txt 2>&1\nelse\n  echo none >&2\nfi",
+      "marked": "‹kw:if› ‹fn:[› ‹pr:-f› ‹st:\"›$f‹st:\"› ]‹pn:;› ‹kw:then›\n  ‹fn:cat› ‹st:\"›$f‹st:\"› | ‹fn:grep› ‹pr:-v› ‹st:'^#'› > out.txt ‹cn:2›>&‹cn:1›\n‹kw:else›\n  ‹fn:echo› none >&‹cn:2›\n‹kw:fi›"
+    },
+    {
+      "code": "for i in 1 2 3; do curl -fsSL https://example.com/$i -o \"$i.txt\"; done",
+      "marked": "‹kw:for› i ‹kw:in› ‹cn:1› ‹cn:2› ‹cn:3›‹pn:;› ‹kw:do› ‹fn:curl› ‹pr:-fsSL› https://example.com/$i ‹pr:-o› ‹st:\"›$i‹st:.txt\"›‹pn:;› ‹kw:done›"
+    },
+    {
+      "code": "case \"$1\" in\n  start) run ;;\n  *) echo usage ;;\nesac",
+      "marked": "‹kw:case› ‹st:\"›$1‹st:\"› ‹kw:in›\n  ‹fn:start›‹pn:)› run ‹pn:;;›\n  ‹fn:*›‹pn:)› echo usage ‹pn:;;›\n‹kw:esac›"
+    },
+    {
+      "code": "npm install --save-dev typescript@5 # dev only\nchmod 755 ./run.sh",
+      "marked": "‹fn:npm› install ‹pr:--save-dev› typescript@5 ‹co:# dev only›\n‹fn:chmod› ‹cn:755› ./run.sh"
+    },
+    {
+      "code": "greet() { local name=$1; printf '%s\\n' \"$name\"; }",
+      "marked": "‹fn:greet›‹pn:()› { ‹kw:local› name=$1‹pn:;› ‹fn:printf› ‹st:'%s\\n'› ‹st:\"›$name‹st:\"›‹pn:;› }"
+    }
+  ],
+  "swift": [
+    {
+      "code": "import Foundation\n\n/// Doc\nfinal class Store<T: Codable>: ObservableObject {\n  @Published private(set) var items: [T] = []\n}",
+      "marked": "‹kw:import› ‹ty:Foundation›\n\n‹co:/// Doc›\n‹kw:final› ‹kw:class› ‹ty:Store›<‹ty:T›‹pn::› ‹ty:Codable›>‹pn::› ‹ty:ObservableObject› ‹pn:{›\n  ‹kw:@Published› ‹kw:private›‹pn:(›‹kw:set›‹pn:)› ‹kw:var› items‹pn::› ‹pn:[›‹ty:T›‹pn:]› = ‹pn:[]›\n‹pn:}›"
+    },
+    {
+      "code": "func load(_ id: Int, from url: URL) async throws -> Data? {\n  guard id > 0 else { return nil }\n  return try await session.data(from: url).0\n}",
+      "marked": "‹kw:func› ‹fn:load›‹pn:(›_ id‹pn::› ‹ty:Int›‹pn:,› from url‹pn::› ‹ty:URL›‹pn:)› ‹kw:async› ‹kw:throws› -> ‹ty:Data›? ‹pn:{›\n  ‹kw:guard› id > ‹cn:0› ‹kw:else› ‹pn:{› ‹kw:return› ‹cn:nil› ‹pn:}›\n  ‹kw:return› ‹kw:try› ‹kw:await› session‹pn:.›‹fn:data›‹pn:(›from‹pn::› url‹pn:)›‹cn:.0›\n‹pn:}›"
+    },
+    {
+      "code": "let s = \"a \\(count + 1) b\\n\"; let m = \"\"\"\n  multi \\(x)\n  \"\"\"",
+      "marked": "‹kw:let› s = ‹st:\"a ›‹pn:\\(›count + ‹cn:1›‹pn:)›‹st: b›‹cn:\\n›‹st:\"›‹pn:;› ‹kw:let› m = ‹st:\"\"\"\n  multi ›‹pn:\\(›x‹pn:)›‹st:\n  \"\"\"›"
+    },
+    {
+      "code": "enum Kind: String { case a, b = \"bee\" }\nswitch kind { case .a: break; default: fatalError() }",
+      "marked": "‹kw:enum› ‹ty:Kind›‹pn::› ‹ty:String› ‹pn:{› ‹kw:case› a‹pn:,› b = ‹st:\"bee\"› ‹pn:}›\n‹kw:switch› kind ‹pn:{› ‹kw:case› ‹pn:.›‹pr:a›‹pn::› ‹kw:break›‹pn:;› ‹kw:default›‹pn::› ‹fn:fatalError›‹pn:()› ‹pn:}›"
+    },
+    {
+      "code": "/* outer /* inner */ still */ let x = 0xFF + 1_000.5e2",
+      "marked": "‹co:/* outer /* inner */ still */› ‹kw:let› x = ‹cn:0xFF› + ‹cn:1_000.5e2›"
+    },
+    {
+      "code": "#if DEBUG\nprint(\"debug\", #file)\n#endif\nextension Array where Element == Int { var total: Int { reduce(0, +) } }",
+      "marked": "‹kw:#if› ‹ty:DEBUG›\n‹fn:print›‹pn:(›‹st:\"debug\"›‹pn:,› ‹kw:#file›‹pn:)›\n‹kw:#endif›\n‹kw:extension› ‹ty:Array› ‹kw:where› ‹ty:Element› == ‹ty:Int› ‹pn:{› ‹kw:var› total‹pn::› ‹ty:Int› ‹pn:{› ‹fn:reduce›‹pn:(›‹cn:0›‹pn:,› +‹pn:)› ‹pn:}› ‹pn:}›"
+    },
+    {
+      "code": "struct V: View { var body: some View { Text(\"Hi\").padding(.all, 8).foregroundStyle(Color.red) } }",
+      "marked": "‹kw:struct› ‹ty:V›‹pn::› ‹ty:View› ‹pn:{› ‹kw:var› body‹pn::› ‹kw:some› ‹ty:View› ‹pn:{› ‹ty:Text›‹pn:(›‹st:\"Hi\"›‹pn:).›‹fn:padding›‹pn:(.›‹pr:all›‹pn:,› ‹cn:8›‹pn:).›‹fn:foregroundStyle›‹pn:(›‹ty:Color›‹pn:.›‹pr:red›‹pn:)› ‹pn:}› ‹pn:}›"
+    }
+  ],
+  "kotlin": [
+    {
+      "code": "package com.acme.app\nimport androidx.compose.runtime.*\n\ndata class User(val id: Long, val name: String?)",
+      "marked": "‹kw:package› com.acme.app\n‹kw:import› androidx.compose.runtime.*\n\n‹kw:data› ‹kw:class› ‹ty:User›‹pn:(›‹kw:val› id‹pn::› ‹ty:Long›‹pn:,› ‹kw:val› name‹pn::› ‹ty:String›?‹pn:)›"
+    },
+    {
+      "code": "suspend fun <T> fetch(url: String, retries: Int = 3): Result<T> = runCatching { client.get(url) }",
+      "marked": "‹kw:suspend› ‹kw:fun› <‹ty:T›> ‹fn:fetch›‹pn:(›url‹pn::› ‹ty:String›‹pn:,› retries‹pn::› ‹ty:Int› = ‹cn:3›‹pn:):› ‹ty:Result›<‹ty:T›> = ‹fn:runCatching› ‹pn:{› client‹pn:.›‹fn:get›‹pn:(›url‹pn:)› ‹pn:}›"
+    },
+    {
+      "code": "val s = \"Hi $name, ${items.size + 1}\\n\"; val r = \"\"\"raw $x ${y}\n\"\"\"; val c = 'c'",
+      "marked": "‹kw:val› s = ‹st:\"Hi ›$name‹st:, ›‹pn:${›items‹pn:.›‹pr:size› + ‹cn:1›‹pn:}›‹cn:\\n›‹st:\"›‹pn:;› ‹kw:val› r = ‹st:\"\"\"raw ›$x‹st: ›‹pn:${›y‹pn:}›‹st:\n\"\"\"›‹pn:;› ‹kw:val› c = ‹st:'c'›"
+    },
+    {
+      "code": "when (x) { is Int -> 1; in 1..9 -> 2; else -> null }",
+      "marked": "‹kw:when› ‹pn:(›x‹pn:)› ‹pn:{› ‹kw:is› ‹ty:Int› -> ‹cn:1›‹pn:;› ‹kw:in› ‹cn:1›‹pn:.›‹cn:.9› -> ‹cn:2›‹pn:;› ‹kw:else› -> ‹cn:null› ‹pn:}›"
+    },
+    {
+      "code": "/* a /* nested */ b */ object Config { const val MAX = 0xFFL; val ratio = 1.5f }",
+      "marked": "‹co:/* a /* nested */ b */› ‹kw:object› ‹ty:Config› ‹pn:{› ‹kw:const› ‹kw:val› ‹ty:MAX› = ‹cn:0xFFL›‹pn:;› ‹kw:val› ratio = ‹cn:1.5f› ‹pn:}›"
+    },
+    {
+      "code": "@Composable\nfun Screen(modifier: Modifier = Modifier) { Column(modifier.padding(16.dp)) { Text(text = \"Hi\") } }",
+      "marked": "‹kw:@Composable›\n‹kw:fun› ‹fn:Screen›‹pn:(›modifier‹pn::› ‹ty:Modifier› = ‹ty:Modifier›‹pn:)› ‹pn:{› ‹ty:Column›‹pn:(›modifier‹pn:.›‹fn:padding›‹pn:(›‹cn:16›‹pn:.›‹pr:dp›‹pn:))› ‹pn:{› ‹ty:Text›‹pn:(›text = ‹st:\"Hi\"›‹pn:)› ‹pn:}› ‹pn:}›"
+    },
+    {
+      "code": "class Repo(private val api: Api) : Base(), Store<Item> { override fun all(): List<Item> = api.list().filter { it.ok } }",
+      "marked": "‹kw:class› ‹ty:Repo›‹pn:(›‹kw:private› ‹kw:val› api‹pn::› ‹ty:Api›‹pn:)› ‹pn::› ‹ty:Base›‹pn:(),› ‹ty:Store›<‹ty:Item›> ‹pn:{› ‹kw:override› ‹kw:fun› ‹fn:all›‹pn:():› ‹ty:List›<‹ty:Item›> = api‹pn:.›‹fn:list›‹pn:().›‹fn:filter› ‹pn:{› it‹pn:.›‹pr:ok› ‹pn:}› ‹pn:}›"
+    }
+  ],
+  "dart": [
+    {
+      "code": "import 'package:flutter/material.dart';\n\nvoid main() => runApp(const App());",
+      "marked": "‹kw:import› ‹st:'package:flutter/material.dart'›‹pn:;›\n\n‹kw:void› ‹fn:main›‹pn:()› => ‹fn:runApp›‹pn:(›‹kw:const› ‹ty:App›‹pn:());›"
+    },
+    {
+      "code": "class App extends StatelessWidget {\n  const App({super.key});\n  @override\n  Widget build(BuildContext context) => const Text('Hi');\n}",
+      "marked": "‹kw:class› ‹ty:App› ‹kw:extends› ‹ty:StatelessWidget› ‹pn:{›\n  ‹kw:const› ‹ty:App›‹pn:({›‹kw:super›‹pn:.›‹pr:key›‹pn:});›\n  ‹kw:@override›\n  ‹ty:Widget› ‹fn:build›‹pn:(›‹ty:BuildContext› context‹pn:)› => ‹kw:const› ‹ty:Text›‹pn:(›‹st:'Hi'›‹pn:);›\n‹pn:}›"
+    },
+    {
+      "code": "final s = 'a $name ${items.length + 1}\\n'; final r = r'raw $x\\n'; var m = '''multi\n$x''';",
+      "marked": "‹kw:final› s = ‹st:'a ›$name‹st: ›‹pn:${›items‹pn:.›‹pr:length› + ‹cn:1›‹pn:}›‹cn:\\n›‹st:'›‹pn:;› ‹kw:final› r = ‹st:r'raw $x\\n'›‹pn:;› ‹kw:var› m = ‹st:'''multi\n›$x‹st:'''›‹pn:;›"
+    },
+    {
+      "code": "Future<List<int>> load(String url, {int retries = 3, required bool force}) async {\n  final res = await http.get(Uri.parse(url));\n  return [0x1F, 1.5e3];\n}",
+      "marked": "‹ty:Future›<‹ty:List›<‹ty:int›>> ‹fn:load›‹pn:(›‹ty:String› url‹pn:,› ‹pn:{›‹ty:int› retries = ‹cn:3›‹pn:,› ‹kw:required› ‹ty:bool› force‹pn:})› ‹kw:async› ‹pn:{›\n  ‹kw:final› res = ‹kw:await› http‹pn:.›‹fn:get›‹pn:(›‹ty:Uri›‹pn:.›‹fn:parse›‹pn:(›url‹pn:));›\n  ‹kw:return› ‹pn:[›‹cn:0x1F›‹pn:,› ‹cn:1.5e3›‹pn:];›\n‹pn:}›"
+    },
+    {
+      "code": "/// Doc\n/* a /* nested */ b */\nenum Kind { a, b }\nmixin M on Object {}",
+      "marked": "‹co:/// Doc›\n‹co:/* a /* nested */ b */›\n‹kw:enum› ‹ty:Kind› ‹pn:{› a‹pn:,› b ‹pn:}›\n‹kw:mixin› ‹ty:M› ‹kw:on› ‹ty:Object› ‹pn:{}›"
+    },
+    {
+      "code": "int? x; double y = x?.toDouble() ?? 0; if (x is! int) throw StateError(\"no\");",
+      "marked": "‹ty:int›? x‹pn:;› ‹ty:double› y = x‹pn:?.›‹fn:toDouble›‹pn:()› ?? ‹cn:0›‹pn:;› ‹kw:if› ‹pn:(›x ‹kw:is›! ‹ty:int›‹pn:)› ‹kw:throw› ‹ty:StateError›‹pn:(›‹st:\"no\"›‹pn:);›"
+    }
+  ]
+}

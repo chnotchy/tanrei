@@ -1,0 +1,71 @@
+---
+// The keys of the product's words, from `docs/status/words.json` — the list `pnpm generate` writes from the
+// `words` field of the specs' props, and the same one the web's `TanreiWords` type is generated from. Nothing here is
+// a hand-kept copy: a key a spec gains appears in this table when the site is built. A key whose word has places a
+// component fills shows them in the third column, each as the product writes it — `{count}`; a key without
+// places is a whole string, and its cell is empty.
+import wordsData from '../../../../docs/status/words.json';
+import Table from './Table.astro';
+import { contentLang, localeBase, strings } from '../lib/i18n';
+import { componentHref } from '../lib/repo';
+
+interface Reader {
+  component: string;
+  item?: string;
+  prop: string;
+}
+interface Place {
+  name: string;
+  kind: string;
+  description: string;
+  required?: boolean;
+}
+const keys = wordsData.keys as { key: string; readers: Reader[]; places?: Place[] }[];
+const t = strings(contentLang(Astro)).wordKeys;
+const base = localeBase(Astro);
+---
+
+<Table label={t.table} rowHeaders density="compact">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">{t.key}</th>
+        <th scope="col">{t.readBy}</th>
+        <th scope="col">{t.places}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        keys.map(({ key, readers, places }) => (
+          <tr>
+            <th scope="row">
+              <code>{key}</code>
+            </th>
+            <td>
+              {readers.map((reader, index) => (
+                <>
+                  {index > 0 && ', '}
+                  {componentHref(base, reader.component) ? (
+                    <a href={componentHref(base, reader.component)}>
+                      <code>{reader.item ? `${reader.component}/${reader.item}.${reader.prop}` : `${reader.component}.${reader.prop}`}</code>
+                    </a>
+                  ) : (
+                    <code>{reader.item ? `${reader.component}/${reader.item}.${reader.prop}` : `${reader.component}.${reader.prop}`}</code>
+                  )}
+                </>
+              ))}
+            </td>
+            <td>
+              {(places ?? []).map((place, index) => (
+                <>
+                  {index > 0 && ', '}
+                  <code>{`{${place.name}}`}</code>
+                </>
+              ))}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</Table>

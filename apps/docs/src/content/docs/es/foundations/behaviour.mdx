@@ -1,0 +1,79 @@
+---
+title: Comportamiento
+description: Dos elecciones de tipo (cómo se responde a una pulsación y qué aspecto tiene el foco del teclado) que un sistema de diseño define como cualquier otro token.
+translationOf: foundations/behaviour.mdx
+sourceHash: 376f1e0da1eea1c76edf02d9d79d443ef4fe2688
+---
+
+import Callout from '../../../../components/Callout.astro';
+import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+import SystemButtons from '../../../../components/SystemButtons.astro';
+
+Casi todo lo que separa a un sistema de diseño de otro es una *cantidad*: un radio, un tono, una duración. Las cantidades son valores, y una [capa](/es/foundations/design-systems/) los cambia.
+
+Unas pocas diferencias no son cantidades. Un sistema responde a una pulsación con una onda y otro atenúa el control; uno dibuja un anillo nítido alrededor del control enfocado y otro un resplandor suave. Ningún número en un token existente convierte lo uno en lo otro. Tanrei las llama **elecciones de tipo** y las mantiene como dos tokens bajo `sys.behavior`. Cada uno nombra una lista corta y cerrada de maneras de comportarse, y un sistema de diseño elige una.
+
+<SystemValues tokens={['sys.behavior.pressed-feedback', 'sys.behavior.focus-style']} />
+
+Los componentes leen estos tokens. Nunca miran qué sistema de diseño está activo.
+
+## Respuesta a la pulsación
+
+<BehaviorChoice choice="pressed-feedback" />
+
+| Valor | Qué dibuja un componente mientras está pulsado |
+|---|---|
+| `overlay` | Los tokens del estado pulsado se aplican a todo el contenedor a la vez. |
+| `ripple` | La capa de estado del estado pulsado crece desde el punto de contacto (desde el centro cuando la pulsación viene del teclado) y se recorta a la forma del contenedor. |
+| `dim` | La opacidad de pulsado del componente se aplica a todo el control. No se dibuja ninguna capa de estado. |
+| `none` | Nada. El paso del cursor y el foco se siguen mostrando. |
+
+La elección solo decide *cómo* aparece la capa del estado pulsado. Su color y su opacidad siguen saliendo de los tokens por estado del componente, a los que una capa da valor como antes.
+
+Sea cual sea la elección, el estado pulsado aparece sin demora y permanece visible al menos durante `sys.motion.duration.press-hold` (100ms de forma predeterminada, siguiendo el dial de movimiento). Un toque o una pulsación de tecla terminan en menos de un fotograma; sin ese mínimo, la respuesta no llegaría a verse. Button lo establece en los requisitos BTN-8 y BTN-9.
+
+## Lo que no es una elección: cómo se curva una esquina
+
+La manera en que una esquina se funde con el borde recto parece una elección de tipo (circular o continua), pero es una **cantidad**: el suavizado de esquinas de Figma, de 0 a 1, donde 0.6 es la esquina de iOS. Vive junto a los radios a los que da forma, como `sys.shape.corner-smoothing`, y se describe en la página [Forma](/es/foundations/shape/#suavizado-de-esquinas).
+
+## Estilo de foco
+
+<BehaviorChoice choice="focus-style" />
+
+`glow` se dibuja con los mismos dos colores de foco, el mismo desplazamiento y la misma anchura que el anillo, así que los [invariantes de contraste del foco](/es/foundations/accessibility/) se le aplican sin cambios. Cambia el borde del indicador, no el hecho de que haya uno.
+
+## Los sistemas incluidos
+
+El mismo Button bajo cada sistema, dibujado por la compilación web instalada. Pulsa cada uno y luego llega hasta él con <kbd>Tab</kbd>.
+
+<SystemButtons label="Pulsa y luego usa Tab" tokens={['sys.behavior.pressed-feedback', 'sys.behavior.focus-style']} />
+
+## Definir una elección en una capa
+
+Una elección se cambia como cualquier valor: bajo `tokens`, con un `reason`.
+
+```json
+{
+  "id": "acme",
+  "extends": "tanrei",
+  "tokens": {
+    "tanrei.sys.behavior.pressed-feedback": { "$value": 1, "reason": "Acme responde a una pulsación con una onda." },
+    "tanrei.sys.behavior.focus-style":      { "$value": 1, "reason": "Acme muestra el foco del teclado como un resplandor." }
+  }
+}
+```
+
+El `$value` es un **número**: la posición del nombre en la lista del token, contando desde 0. Para `pressed-feedback` la lista es `overlay`, `ripple`, `dim`, `none`, así que `1` es `ripple`. El formato que usan los archivos de tokens de Tanrei (DTCG 2025.10) no tiene un tipo de cadena, y por eso el archivo guarda un índice. La compilación rechaza un índice que esté fuera de la lista.
+
+El número se queda en el archivo de capa. El CSS generado lleva el nombre (`--tanrei-sys-behavior-pressed-feedback: ripple`), y SwiftUI, Compose, Flutter y React Native reciben una enumeración con tipo en la instancia del sistema.
+
+Las listas en sí forman parte del vocabulario del núcleo. Una capa elige entre los nombres; no puede añadir uno. Una nueva manera de comportarse tiene que dibujarla cada plataforma, así que se propone para el núcleo como cualquier otro cambio de vocabulario.
+
+## Cuando una plataforma no puede dibujar una elección
+
+El primer nombre de cada lista es el predeterminado, y también es el valor de reserva. Una plataforma que no puede dibujar una elección dibuja en su lugar el primer valor y lo indica en el README de su paquete.
+
+<Callout>
+  El índice es incómodo de escribir a mano, así que Theme Studio (el grupo Behaviour), `tanrei explain` y el servidor MCP muestran y aceptan los nombres.
+</Callout>

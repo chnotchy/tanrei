@@ -1,0 +1,201 @@
+---
+title: Línea de tiempo
+description: Eventos dispuestos en orden cronológico, cada uno con un marcador, su momento, un título y un cuerpo con tu contenido, unido al siguiente por una línea fina. Donde los eventos tienen un estado, la forma del marcador y tus palabras dicen cuáles están hechos, cuál está en curso y cuáles quedan por delante. Es una lista para leer, nunca un control.
+translationOf: components/timeline.mdx
+sourceHash: 0251491f2f4ffd11a3d50c86f7ebc160d900e2c7
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="timeline" />
+
+<DemoFrame label="Un registro de lo que ocurrió" column>
+  <ol class="tanrei-timeline" role="list" aria-label="Historial de versiones" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="2026-09-22">22 de septiembre de 2026</time><p class="tanrei-timeline-title">Estilos de texto por nivel</p><p>Los estilos de texto se nombran por su nivel, y todas las esquinas se pueden suavizar.</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-21">21 de septiembre de 2026</time><p class="tanrei-timeline-title">Un vocabulario que se puede extender</p><p>Una capa de diseño puede añadir un paso a una serie o un valor a un eje, con su motivo.</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-19">19 de septiembre de 2026</time><p class="tanrei-timeline-title">Comienza el desarrollo</p><p>Ya existen la cadena de tokens, el esquema de las especificaciones y la primera especificación.</p></li>
+  </ol>
+</DemoFrame>
+
+Hay tres cosas que se dibujan como marcas unidas por una línea. Se diferencian en lo que quien lee hace con ellas:
+
+| Componente | Qué es | El marcador | Qué dice del estado | Recibe entrada |
+| --- | --- | --- | --- | --- |
+| **Unos pasos** | Un procedimiento que hay que llevar a cabo | Un anillo con el número del paso | Nada | Nunca |
+| **Una línea de tiempo** | Un registro de lo que ocurrió y de lo que está por venir | Un punto o un glifo, nunca un número | Opcionalmente, en qué situación está cada evento | Nunca |
+| **Un indicador de pasos** (stepper) | En qué punto está una persona de un flujo que dirige el producto | Un número o una marca de verificación | El punto en que está la propia persona | Sí |
+
+Una línea de tiempo nunca numera, ordena ni oculta sus eventos, y no lee sus momentos. El orden es el que tú das.
+
+### Uso
+
+En la web la línea de tiempo es una clase en tu propia lista ordenada, no un elemento. La lista es la del documento, con sus elementos `<time>`, antes de que se ejecute ningún script, y sin la hoja de estilos es la lista numerada del navegador, hecha de párrafos con fecha.
+
+SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos. React tampoco tiene aún un componente `Timeline`, así que usa la lista con la clase.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/timeline.css" />
+
+    <!-- Un registro: eventos que simplemente ocurrieron. -->
+    <ol class="tanrei-timeline" role="list" aria-label="Historial de versiones">
+      <li>
+        <time class="tanrei-timeline-time" datetime="2026-09-19">19 de septiembre de 2026</time>
+        <p class="tanrei-timeline-title">Comienza el desarrollo</p>
+        <p>Ya existen la cadena de tokens, el esquema de las especificaciones y la primera especificación.</p>
+      </li>
+    </ol>
+
+    <!-- Un plan: cada evento tiene un estado, en una forma y en tus palabras. -->
+    <ol class="tanrei-timeline" role="list" data-size="large" aria-label="Hoja de ruta">
+      <li data-status="done" data-status-label="Completado">
+        <!-- No es un instante: un párrafo, no un elemento time. -->
+        <p class="tanrei-timeline-time">Wave 1</p>
+        <!-- Un título que es un encabezado de la página: conserva su rol y su nivel. -->
+        <h3 id="wave-1">Los controles del primer día</h3>
+        <p>Botones, campos, controles de selección y la lista.</p>
+      </li>
+      <li data-status="current" data-status-label="En curso">
+        <p class="tanrei-timeline-time">Wave 2</p>
+        <h3 id="wave-2">Navegación y superposiciones</h3>
+      </li>
+      <li data-status="upcoming" data-status-label="Sin empezar">
+        <!-- Tu propio glifo en el marcador. -->
+        <span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">flag</span>
+        <p class="tanrei-timeline-time">Wave 3</p>
+        <h3 id="wave-3">Las piezas especializadas</h3>
+      </li>
+    </ol>
+
+    <script type="module">
+      // Opcional: marca el único evento en curso como el elemento actual de la lista y añade los informes de depuración.
+      // `@tanrei/web` también lo carga.
+      import '@tanrei/web/timeline';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/timeline.css';
+    import '@tanrei/web/timeline';
+
+    <ol className="tanrei-timeline" role="list" aria-label="Historial de versiones">
+      <li>
+        <time className="tanrei-timeline-time" dateTime="2026-09-19">19 de septiembre de 2026</time>
+        <p className="tanrei-timeline-title">Comienza el desarrollo</p>
+        <p>Ya existen la cadena de tokens, el esquema de las especificaciones y la primera especificación.</p>
+      </li>
+    </ol>
+    ```
+  </TabItem>
+</Tabs>
+
+| Propiedad | En la web |
+| --- | --- |
+| `label` | `aria-label` (o `aria-labelledby` con el encabezado que precede a la lista) |
+| `size: large` | `data-size="large"` |
+| `density: compact` | `data-density="compact"` |
+| un evento | `<li>` |
+| `time` con `datetime` | `<time class="tanrei-timeline-time" datetime="…">`, que contiene las palabras que escribes tú |
+| un `time` que no es un instante | `<p class="tanrei-timeline-time">` |
+| `title` | un elemento con `class="tanrei-timeline-title"` (un `<p>`) |
+| el slot del título | un encabezado (de `h2` a `h6`) que abre el evento o que sigue a su momento |
+| `status` | `data-status="done"`, `"current"` o `"upcoming"` |
+| `statusLabel` | `data-status-label` |
+| `icon` | `<span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">` como primer hijo del elemento de lista |
+
+Escribe `role="list"` en la lista: un motor de navegador retira la semántica de lista de una lista a la que se le quitan los marcadores.
+
+El momento es tuyo. Escríbelo en el idioma, el calendario y el formato de quien lee, y pon ese mismo instante en `datetime` para las máquinas. La línea de tiempo no da formato a nada: «hace 2 horas» se queda como está escrito hasta que lo cambies tú.
+
+## Especificaciones
+
+<DemoFrame label="Un plan: hecho, hecho, en curso, por delante" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="Hoja de ruta" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="Completado"><p class="tanrei-timeline-time">Wave 0</p><p class="tanrei-timeline-title">Fundamentos</p><p>Tokens, temas, tipografía, iconos, superficies y las primitivas de estado.</p></li>
+    <li data-status="done" data-status-label="Completado"><p class="tanrei-timeline-time">Wave 1</p><p class="tanrei-timeline-title">Los controles del primer día</p><p>Botones, campos, controles de selección y la lista.</p></li>
+    <li data-status="current" data-status-label="En curso"><p class="tanrei-timeline-time">Wave 2</p><p class="tanrei-timeline-title">Navegación y superposiciones</p><p>El panel de navegación, las pestañas, los diálogos, los menús y las hojas.</p></li>
+    <li data-status="upcoming" data-status-label="Sin empezar"><p class="tanrei-timeline-time">Wave 3</p><p class="tanrei-timeline-title">Las piezas especializadas</p><p>Los selectores, el carrusel y lo que necesita un sitio de documentación.</p></li>
+  </ol>
+</DemoFrame>
+
+<DemoFrame label="Tus propios glifos, y un registro compacto" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="Pedido 1042" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="Completado"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">Lunes, 09:41</p><p class="tanrei-timeline-title">Pedido realizado</p></li>
+    <li data-status="current" data-status-label="En curso"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">Martes, 14:05</p><p class="tanrei-timeline-title">En camino</p></li>
+    <li data-status="upcoming" data-status-label="Sin empezar"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">Previsto para el jueves</p><p class="tanrei-timeline-title">Entregado</p></li>
+  </ol>
+  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="Actividad" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">Capa guardada</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">Contraste comprobado en seis esquemas</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">Color primario cambiado</p></li>
+  </ol>
+</DemoFrame>
+
+- **El marcador** está en una caja situada en el borde de inicio, de 24 de lado a lado en medium y de 28 en large, centrada en la primera línea del evento. Sin estado es un punto pequeño; con un glifo tuyo es un anillo de línea fina que contiene el glifo.
+- **Un estado** cambia la forma del marcador y nada más: un anillo con una marca de verificación para el evento hecho, un círculo relleno con un punto para el que está en curso y un anillo vacío para el que todavía queda por delante. El círculo relleno es el único color que aporta una línea de tiempo, aparte del color del momento.
+- **El conector** va de la caja de cada marcador a la siguiente y se detiene antes de tocar ninguna de las dos. El último evento no tiene, y es la misma línea entre eventos de cualquier estado.
+- **El momento** va primero en el evento, en un color discreto. **El título** lo sigue, con el tamaño del cuerpo y un peso de título. **El cuerpo** es tu contenido: dos bloques quedan a 8 uno de otro.
+- **La densidad**: regular pone 16 entre dos eventos, y compact, 8, para un registro largo de eventos de una línea. Solo cambia ese espacio.
+- **Los tamaños** son los dos de la prosa: medium entre controles, large en una página cuya finalidad es el texto. El marcador y el conector coinciden con los de los pasos, así que en una misma página los dos se leen como una sola familia.
+
+<ComponentSpecs name="timeline" />
+
+### En la prosa
+
+Dentro de `.tanrei-prose` la línea de tiempo no es una isla: los párrafos, las listas, los enlaces y el código en línea de cada cuerpo siguen siendo los de la prosa. La línea de tiempo ocupa toda la anchura de la prosa, así que un bloque de código dentro de un cuerpo ocupa la columna, y los párrafos de un cuerpo siguen deteniéndose en la medida. `@tanrei/web/prose.css` incluye las reglas de la línea de tiempo, así que una página de prosa no necesita una segunda hoja de estilos.
+
+### Qué dibuja la web de otra manera
+
+- Escribe el texto de un evento en elementos (`<p>`): al texto escrito directamente en un elemento de lista no se le puede dar la separación que va debajo de un momento o de un título.
+- La marca de verificación de un evento hecho es el `check` del conjunto de iconos, así que necesita `icons.css` y la fuente de iconos. Sin ellos, el anillo queda vacío.
+- Fuera de una prosa, un cuerpo de texto largo (listas, citas) se dispone como en cualquier otro lugar de tu página, no como prosa.
+- Un tamaño o una densidad que añade un sistema de diseño se dibuja como el predeterminado hasta que ese sistema incluya una regla para él.
+- Sin el script del paquete, ningún elemento se marca como el elemento actual de la lista. El estado se sigue leyendo en palabras.
+
+## Pautas
+
+### Recomendado
+
+- Da los eventos en el orden que espera quien lee: primero el más reciente en un registro de cambios, primero el más antiguo en un plan. La línea de tiempo lo conserva.
+- Da a cada evento que tenga un estado sus palabras en `data-status-label`, en el idioma de quien lee.
+- Donde el estado importe a todas las personas que leen, muéstralo también con palabras: un tag en el título o en el cuerpo.
+- Da a un momento relativo («hace 2 horas») su instante exacto en `datetime`.
+- Usa compact para un registro largo de eventos de una línea, y pon un botón después de la lista para mostrar los más antiguos.
+
+### Evita
+
+- No uses una línea de tiempo para un procedimiento. Los pasos numeran lo que quien lee tiene que hacer.
+- No la uses para mostrar en qué punto está una persona de un flujo en el que se encuentra: eso es un indicador de pasos, y un marcador no es un control.
+- No conviertas todos los títulos en encabezados. Un registro de cambios de cuarenta eventos llenaría el esquema de la página. Usa un encabezado donde cada evento sea una sección de la página.
+- No anides una línea de tiempo dentro de un evento. Los eventos que hay dentro de un evento son una lista en el cuerpo.
+- No confíes solo en el marcador para decir que algo falló. Dilo con las palabras del evento y con un tag.
+
+## Accesibilidad
+
+<ComponentAccessibility name="timeline" />
+
+### De qué se encarga el componente
+
+- Sigue siendo la lista ordenada del documento: una lista con tantos elementos como eventos, cada uno leído como su estado en palabras, su momento, su título y su cuerpo.
+- El estado en palabras se lee antes del momento y no se dibuja en ningún sitio. Los marcadores y el conector son decorativos y están ocultos.
+- Los tres estados son tres formas, no tres colores, y lo siguen siendo con colores forzados.
+- Donde hay exactamente un evento en curso, el script del paquete lo marca como el elemento actual de la lista.
+- Un momento con `datetime` es el propio elemento time del documento.
+- El texto crece con los ajustes de quien lee y salta de línea. Nada se corta, se contrae ni se pagina.
+
+### Qué debes hacer tú
+
+- Escribe `role="list"` en la lista, y dale nombre con un encabezado que la preceda o con `aria-label`.
+- Da `data-status-label` con cada estado, salvo que el propio texto del evento ya lo diga.
+- En las versiones actuales de los tres motores de navegador, las palabras llegan a un lector de pantalla a través de la hoja de estilos. Para un navegador más antiguo que se use sin el script del paquete, escríbelas tú como `<span class="tanrei-timeline-status">Completado, </span>` al principio del elemento de lista, en lugar de `data-status-label`.
+- Anuncia en una región activa (live region) propia un evento que se añade mientras una persona mira: la línea de tiempo no lo hace.

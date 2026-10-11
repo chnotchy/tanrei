@@ -1,0 +1,80 @@
+---
+title: SwiftUI
+description: Añade Tanrei a una aplicación de iOS o macOS con Swift Package Manager.
+translationOf: getting-started/swiftui.mdx
+sourceHash: 02740f9c5f67946f91b0fceca00e160f25a1ad9d
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+El paquete de Swift `Tanrei` proporciona vistas de SwiftUI, un entorno de tema y constantes de tokens generadas. Es compatible con iOS 17 y macOS 14 o posteriores, y está escrito para el modo de lenguaje de Swift 6.
+
+<PreReleaseNotice registry="Swift Package Manager" pkg="Tanrei" />
+
+## Instalación
+
+### Desde el código fuente
+
+<Callout type="caution" title="Hoy no se compila">
+  El paquete de SwiftUI todavía no se ha puesto al día con las especificaciones y los tokens actuales: su código fuente se escribió para una versión anterior del código de tokens generado y no compila con el de hoy. Su CI está en pausa hasta que se ponga al día, y la [página de estado](/es/status/) marca sus componentes como *rezagados*. Los pasos siguientes muestran cómo se añade a una aplicación; funcionarán cuando el paquete se haya puesto al día.
+</Callout>
+
+Clona el repositorio junto a tu aplicación y añade el clon como paquete local: en Xcode, **File → Add Package Dependencies… → Add Local…** y elige la carpeta que contiene `Package.swift`, o en tu propio `Package.swift`:
+
+```swift
+dependencies: [
+  .package(path: "../tanrei")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+`.package(url: "https://github.com/chnotchy/tanrei", branch: "main")` sigue al repositorio en lugar de a un clon local.
+
+### Después del primer lanzamiento
+
+En Xcode, elige **File → Add Package Dependencies…** e introduce la URL del repositorio, o añádela a `Package.swift`:
+
+```swift
+dependencies: [
+  .package(url: "https://github.com/chnotchy/tanrei", from: "<version>")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+El manifiesto del paquete está en la raíz del repositorio porque Swift Package Manager resuelve desde ahí las dependencias de Git. Las versiones de Swift se etiquetarán con versiones semánticas sin prefijo.
+
+## Uso
+
+```swift
+import SwiftUI
+import Tanrei
+
+struct DeployView: View {
+  @State private var isDeploying = false
+
+  var body: some View {
+    TanreiButton("Desplegar", variant: .filled, action: { isDeploying = true })
+      .disabled(isDeploying)
+  }
+}
+```
+
+`action:` es el `click` de la especificación; un cierre final es el slot `icon:` (`TanreiButton("Desplegar", action: deploy) { Image(systemName: "arrow.up") }`). No hay un parámetro `disabled`. Tanrei sigue el entorno `.disabled(_:)` del propio SwiftUI, de modo que deshabilitar un contenedor deshabilita los botones que contiene, igual que ocurriría con un control del sistema.
+
+## Tema y contraste
+
+De forma predeterminada, Tanrei sigue el esquema de color del sistema y el ajuste de accesibilidad **Aumentar contraste**. Puedes anular cualquiera de los dos con el modificador de tema:
+
+```swift
+ContentView()
+  .tanreiTheme(TanreiTheme(appearance: .dark, contrast: .high))
+```
+
+## Fuentes
+
+La escala tipográfica usa Inter (Noto Sans JP para el japonés, Roboto Mono para el código) cuando las fuentes están registradas en tu aplicación y, si no, recurre a la fuente del sistema. Los estilos de texto se nombran por nivel y se encuentran en el sistema que lleva el entorno (`@Environment(\.tanreiSystem) private var system`): `.tanreiTextStyle(system.typescale.heading2)` para el título de una sección, `system.typescale.body` para el texto corrido, `system.typescale.label` para un control; además, se adaptan a Dynamic Type. `.tanreiTextStyle(system.typescale.heading1, emphasized: true)` suma al peso el paso de énfasis de la familia de títulos. Las esquinas siguen `system.shape.cornerSmoothing`: `.circular` en 0, y la esquina `.continuous` del sistema operativo para cualquier valor superior a 0.

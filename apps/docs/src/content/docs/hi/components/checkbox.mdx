@@ -1,0 +1,218 @@
+---
+title: चेकबॉक्स
+description: लोगों को एक स्वतंत्र चुनाव चालू या बंद करने देता है, ऐसा पैरेंट चुनाव दिखाता है जो सिर्फ़ आंशिक रूप से चालू है, और उस ज़रूरी चुनाव को चिह्नित करता है जो किया नहीं गया।
+translationOf: components/checkbox.mdx
+sourceHash: ca7b2e0456302b1067eb231313b74e6591fc6fad
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="checkbox" />
+
+<DemoFrame label="चेक नहीं किया हुआ, चेक किया हुआ और अनिश्चित">
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox indeterminate label="सभी सूचनाएँ"></tanrei-checkbox>
+    <tanrei-checkbox checked label="संदेश"></tanrei-checkbox>
+    <tanrei-checkbox label="उल्लेख"></tanrei-checkbox>
+    <tanrei-checkbox checked label="रिमाइंडर"></tanrei-checkbox>
+  </div>
+</DemoFrame>
+
+### इस्तेमाल
+
+जिस संशोधन ने चेकबॉक्स को Material 3 के साइज़ और आइकन सेट के ग्लिफ़ दिए, उसने सिर्फ़ यह बदला कि वह कैसा दिखता और कैसे चलता है, इसलिए नीचे का हर उदाहरण मौजूदा है। वेब इसे वैसे ही बनाता और ऐनिमेट करता है जैसा स्पेक कहता है। SwiftUI, Compose, Flutter और React Native पीछे हैं: वे नए साइज़ पहले से लेते हैं, पर जब तक बराबरी पर नहीं आते, चेक और डैश को अपने ही निशानों के रूप में बनाते हैं और अपने तरीक़े से ऐनिमेट करते हैं। उसके बाद के दो सुधार अभी सिर्फ़ वेब पर हैं: चेक और डैश का अपना, ज़्यादा भारी वेट है, और बॉक्स की आउटलाइन और फ़िल एक ही शेप के रूप में बनते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-checkbox label="मुझे अपडेट ईमेल करें"></tanrei-checkbox>
+    <tanrei-checkbox checked label="मुझे अपडेट ईमेल करें"></tanrei-checkbox>
+
+    <!-- ऐसा पैरेंट जिसके चाइल्ड मिले-जुले हैं। सक्रिय करने पर यह चेक हो जाता है और indeterminate हट जाता है। -->
+    <tanrei-checkbox indeterminate label="सभी चुनें"></tanrei-checkbox>
+
+    <!-- फ़ॉर्म में, चेक रहने पर यह name के तहत value (डिफ़ॉल्ट "on") सबमिट करता है, और required का पालन करता है। -->
+    <form>
+      <tanrei-checkbox name="terms" required label="मुझे शर्तें स्वीकार हैं"></tanrei-checkbox>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox';
+      // एलिमेंट change फ़ायर करने से पहले अपना checked ख़ुद बदलता है।
+      document.querySelector('tanrei-checkbox').addEventListener('change', (e) => save(e.detail.checked));
+      const terms = document.querySelector('[name="terms"]');
+      terms.error = submitted && !terms.checked;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox } from '@tanrei/react';
+
+    <Checkbox checked={updates} label="मुझे अपडेट ईमेल करें" onChange={(e) => setUpdates(e.detail.checked)} />
+    <Checkbox checked={all} indeterminate={some && !all} label="सभी चुनें" onChange={(e) => selectAll(e.detail.checked)} />
+    <Checkbox checked={terms} error={submitted && !terms} label="मुझे शर्तें स्वीकार हैं" onChange={(e) => setTerms(e.detail.checked)} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCheckbox("मुझे अपडेट ईमेल करें", isOn: $updates)
+
+    // isIndeterminate आपके डेटा से आता है। सक्रिय करने पर isOn true हो जाता है; फिर आपका डेटा उसे हटा देता है।
+    TanreiCheckbox("सभी चुनें", isOn: $allSelected, isIndeterminate: someSelected)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.ui.state.ToggleableState
+    import io.github.chnotchy.tanrei.components.TanreiCheckbox
+
+    TanreiCheckbox(checked = updates, onCheckedChange = { updates = it }, label = "मुझे अपडेट ईमेल करें")
+
+    // जो पैरेंट आंशिक रूप से चालू हो सकता है, वह ToggleableState लेता है। अगला स्टेट कॉलर निकालता है:
+    // अनिश्चित चेकबॉक्स को सक्रिय करने पर वह On हो जाता है।
+    TanreiCheckbox(
+        state = allState,
+        onClick = { selectAll(allState != ToggleableState.On) },
+        label = "सभी चुनें",
+    )
+
+    TanreiCheckbox(
+        checked = terms,
+        onCheckedChange = { terms = it },
+        label = "मुझे शर्तें स्वीकार हैं",
+        isError = submitted && !terms,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCheckbox(
+      value: updates,
+      onChanged: (bool value) => setState(() => updates = value), // null इसे अक्षम कर देता है
+      label: 'मुझे अपडेट ईमेल करें',
+    );
+
+    // tristate के साथ null मान अनिश्चित है। सक्रिय करने पर onChanged(true) कॉल होता है।
+    TanreiCheckbox(
+      value: allSelected, // bool?: जब तक सिर्फ़ कुछ चुने हैं, null
+      tristate: true,
+      onChanged: (bool value) => setState(() => selectAll(value)),
+      label: 'सभी चुनें',
+    );
+
+    TanreiCheckbox(
+      value: terms,
+      onChanged: (bool value) => setState(() => terms = value),
+      isError: submitted && !terms,
+      label: 'मुझे शर्तें स्वीकार हैं',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Checkbox } from '@tanrei/react-native';
+
+    <Checkbox value={updates} onValueChange={setUpdates} label="मुझे अपडेट ईमेल करें" />
+    <Checkbox value={all} indeterminate={some && !all} onValueChange={selectAll} label="सभी चुनें" />
+    <Checkbox value={terms} onValueChange={setTerms} error={submitted && !terms} label="मुझे शर्तें स्वीकार हैं" />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="अवस्थाएँ, त्रुटि और अक्षम" plain>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox label="चेक नहीं किया हुआ"></tanrei-checkbox>
+    <tanrei-checkbox checked label="चेक किया हुआ"></tanrei-checkbox>
+    <tanrei-checkbox indeterminate label="अनिश्चित"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox error label="त्रुटि, चेक नहीं किया हुआ"></tanrei-checkbox>
+    <tanrei-checkbox error checked label="त्रुटि, चेक किया हुआ"></tanrei-checkbox>
+    <tanrei-checkbox error indeterminate label="त्रुटि, अनिश्चित"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox disabled label="अक्षम, चेक नहीं किया हुआ"></tanrei-checkbox>
+    <tanrei-checkbox disabled checked label="अक्षम, चेक किया हुआ"></tanrei-checkbox>
+    <tanrei-checkbox disabled indeterminate label="अक्षम, अनिश्चित"></tanrei-checkbox>
+  </div>
+  <tanrei-checkbox checked label-hidden label="पंक्ति चुनें"></tanrei-checkbox>
+</DemoFrame>
+
+डिफ़ॉल्ट सिस्टम में चेकबॉक्स Material 3 की नाप लेता है: 2 की आउटलाइन और 2 के कोने वाला 18 का बॉक्स, 40 की गोल स्टेट लेयर पर, 48 के टार्गेट के साथ। लेबल के साथ इसकी ऊँचाई 40 है। चेक और डैश सिस्टम के आइकन सेट के `check` और `remove` ग्लिफ़ हैं, जो बॉक्स के ऊपर 20 पर बनते हैं। उनका अपना वेट है, जो सिस्टम के बाक़ी आइकन से भारी है: डिफ़ॉल्ट सिस्टम में 500, जहाँ आइकन 300 के हैं। इस साइज़ पर आइकन के वेट वाला स्ट्रोक लगभग एक पिक्सल चौड़ा होता है और मुश्किल से दिखता है, इसलिए निशान भारी है जबकि उसका साइज़ वही रहता है। प्रीसेट अपना आइकन वेट बनाए रखता है। चेकबॉक्स अपना कोई निशान नहीं बनाता, इसलिए जो डिज़ाइन सिस्टम अपना आइकन सेट बदलता है, वह बाक़ी सभी ग्लिफ़ के साथ इन्हें भी बदल देता है। बॉक्स की आउटलाइन और फ़िल एक ही शेप हैं: किसी भी ज़ूम या डिस्प्ले डेंसिटी पर बॉक्स के पीछे की कोई चीज़ उनके बीच से नहीं झाँकती, और चेक किया हुआ बॉक्स अपने किनारे से अपने निशान तक एक ही समान रंग का होता है। `cupertino` में चेकबॉक्स अपना छोटा बॉक्स और 16 का ग्लिफ़ बनाए रखता है।
+
+जब चेकबॉक्स बदलता है, तो बॉक्स, आउटलाइन और ग्लिफ़ का रंग बदलता है, और जो ग्लिफ़ आता है वह अपने आधे साइज़ से बढ़ते हुए फ़ेड होकर आता है, और हल्के ओवरशूट के साथ टिकता है। जो ग्लिफ़ जाता है वह उसी तरह फ़ेड होकर सिकुड़ता है, और चेक किए हुए और अनिश्चित के बीच चेक जाता है जबकि डैश आता है। सिर्फ़ ग्लिफ़ चलता है: बॉक्स का साइज़ या जगह कभी नहीं बदलती। पहली बार बनाया गया चेकबॉक्स अपनी अवस्था तुरंत दिखाता है, इसलिए जो पेज टिक किए हुए बॉक्स के साथ लोड होता है, वह उन्हें ऐनिमेट नहीं करता। जहाँ मोशन कम किया गया है, वहाँ नई अवस्था अगले फ़्रेम में पूरी बना दी जाती है।
+
+<ComponentSpecs name="checkbox" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+चेकबॉक्स उस चुनाव के लिए इस्तेमाल करें जो अपने आप में स्वतंत्र है: ऐसी सूची जिसमें लोग कितने भी विकल्प चुन सकते हैं, चाहें तो एक भी नहीं, या एक अकेला हाँ-या-ना, जैसे शर्तों से सहमति। चुनाव तब लागू होता है जब व्यक्ति पुष्टि करता है, उदाहरण के लिए फ़ॉर्म सबमिट करके या सेव करके। चेकबॉक्स टेबल की पंक्तियाँ या लिस्ट के आइटम भी चुनता है।
+
+अनिश्चित स्टेट उस पैरेंट चेकबॉक्स का है जिसके चाइल्ड आंशिक रूप से चेक किए हुए हैं, जैसे किसी लिस्ट के ऊपर "सभी चुनें"। यह कोई तीसरा जवाब नहीं है जिसे व्यक्ति चुन सके।
+
+### चेकबॉक्स, रेडियो बटन या स्विच
+
+| कंट्रोल | चुनाव | कब लागू होता है | किसके लिए |
+| --- | --- | --- | --- |
+| चेकबॉक्स | कितने भी स्वतंत्र चुनाव, चाहें तो एक भी नहीं | जब व्यक्ति पुष्टि करता है | फ़ॉर्म के विकल्प, शर्तों से सहमति, पंक्तियाँ चुनना |
+| [रेडियो बटन](/hi/components/radio-button/) | एक छोटे ग्रुप में से ठीक एक, जिसमें सभी विकल्प दिखते हैं | आम तौर पर जब व्यक्ति पुष्टि करता है | एक सवाल का एक जवाब |
+| [स्विच](/hi/components/switch/) | एक सेटिंग, चालू या बंद | तुरंत | वे सेटिंग जो बदलते ही लागू हो जाती हैं |
+
+### करें
+
+- लेबल को चुनाव के रूप में, सकारात्मक ढंग से लिखें: "मुझे अपडेट ईमेल करें", न कि "मुझे ईमेल न करें"।
+- चेकबॉक्स की सूची को ऊपर-नीचे रखें, हर पंक्ति में एक, ताकि हर लेबल एक ही जगह से शुरू हो।
+- अनिश्चित स्टेट चाइल्ड से निकालें। पैरेंट सक्रिय किए जाने पर हर चाइल्ड को चेक करें।
+- जब कोई ज़रूरी चेकबॉक्स चेक किए बिना छोड़ दिया जाए, तो `error` सेट करें और फ़ॉर्म के संदेश में बताएँ कि क्यों।
+
+### न करें
+
+- तुरंत लागू होने वाले बदलाव के लिए चेकबॉक्स इस्तेमाल न करें। स्विच इस्तेमाल करें।
+- जिन चुनावों में से एक ही हो सकता है, उनके लिए चेकबॉक्स इस्तेमाल न करें। रेडियो बटन इस्तेमाल करें।
+- लेबल के भीतर लिंक या दूसरे कंट्रोल न रखें। लेबल पर क्लिक चेकबॉक्स को टॉगल करता है।
+- लेबल को तब तक न छिपाएँ जब तक चेकबॉक्स के आसपास की पंक्ति पहले से न बताती हो कि वह क्या चुनता है।
+
+## सुलभता
+
+<ComponentAccessibility name="checkbox" />
+
+### कंपोनेंट क्या सँभालता है
+
+- यह चेकबॉक्स का रोल, अपने स्टेट (चेक किया हुआ, चेक नहीं किया हुआ, या अनिश्चित रहने पर मिला-जुला), अपने अक्षम स्टेट, और `error` सेट रहने पर अमान्य स्टेट के साथ देता है। React Native में अमान्य स्टेट नहीं है, इसलिए वहाँ त्रुटि बनाई जाती है पर पढ़कर नहीं सुनाई जाती।
+- लेबल ही एक्सेसिबल नाम है, चाहे वह दिखाया गया हो या `labelHidden` से छिपाया गया हो। दिखने वाला टेक्स्ट सहायक तकनीक से छिपा रहता है, इसलिए नाम एक ही बार पढ़ा जाता है।
+- लेबल पर क्लिक या टैप चेकबॉक्स को टॉगल करता है। लेबल हिट एरिया का हिस्सा है, और हिट एरिया न्यूनतम टार्गेट पूरा करता है।
+- Space इसे टॉगल करती है। Enter इसे सिर्फ़ वहाँ टॉगल करती है जहाँ प्लैटफ़ॉर्म फ़ोकस वाले किसी भी कंट्रोल को Enter से सक्रिय करता है (Android, tvOS); वेब पर Enter फ़ॉर्म सबमिट करती है।
+- यह फ़ोकस इंडिकेटर बॉक्स के चारों ओर दिखाता है, सिर्फ़ कीबोर्ड फ़ोकस के लिए।
+- चेक और डैश सहायक तकनीक से छिपे रहते हैं। चेक किया हुआ और मिला-जुला स्टेट से पढ़कर सुनाए जाते हैं, ग्लिफ़ के नाम से कभी नहीं।
+- जहाँ मोशन कम किया गया है, वहाँ नई अवस्था बदलाव के बाद के पहले फ़्रेम में पूरी बना दी जाती है, कभी देर से या आधी-अधूरी नहीं। किसी बदलाव के दौरान हुआ बदलाव वहीं से आगे चलता है जो उस पल बना हुआ है।
+- जब तक आइकन फ़ॉन्ट ग्लिफ़ नहीं बना सकता, चेकबॉक्स उसकी जगह कुछ नहीं बनाता, "check" शब्द तो कभी नहीं, और तब भी अपना भरा हुआ बॉक्स बनाता है और अपना स्टेट देता है। फ़ॉन्ट लोड होते ही ग्लिफ़ दिखने लगता है।
+- वेब पर यह नेटिव चेकबॉक्स की तरह फ़ॉर्म में हिस्सा लेता है: `name`, `value`, `required` और रीसेट।
+- लेबल का न होना डीबग बिल्ड में रिपोर्ट किया जाता है।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- SwiftUI, Compose, Flutter और React Native अब भी चेक और डैश को अपने ही निशानों के रूप में बनाते हैं और अपने तरीक़े से ऐनिमेट करते हैं, निशान के अपने वेट और एक-शेप वाले बॉक्स के बिना।
+- `m3-like` में चेक आइकन सेट का ग्लिफ़ है और बढ़ते हुए फ़ेड होकर आता है, जबकि Material अपना चेक एक-एक स्ट्रोक करके बनाता है और उसे मोड़कर डैश बना देता है (मिमिक्री गैप `checkbox-mark-drawn-on`)।
+
+### आपको क्या करना है
+
+- आइकन फ़ॉन्ट लोड करें। जब तक वह लोड नहीं होता, चेक किया हुआ और अनिश्चित चेकबॉक्स एक जैसे दिखते हैं: दोनों बिना ग्लिफ़ के भरे हुए बॉक्स हैं। उनके स्टेट तब भी पढ़कर सुनाए जाते हैं।
+- अगर आपका डिज़ाइन सिस्टम निशान के लिए हल्का वेट सेट करता है (`comp.checkbox.mark.weight`), तो डैश को देखें: वह एक अकेला स्ट्रोक है, और देखकर अनिश्चित को चेक किए हुए से अलग बताने वाली चीज़ सिर्फ़ वही है।
+- ऐसा लेबल लिखें जो चुनाव का नाम बताए, और चेकबॉक्स चेक हो या न हो, उसे वही रखें। स्टेट प्लैटफ़ॉर्म पढ़कर सुनाता है।
+- जब `error` सेट हो, तो कारण को चेकबॉक्स के बग़ल में या फ़ॉर्म के सारांश में टेक्स्ट के रूप में दिखाएँ, और उसे चेकबॉक्स से जोड़ें। चेकबॉक्स यह बताता है कि वह अमान्य है, यह नहीं कि क्यों। React Native पर संदेश ही त्रुटि के सुनाई देने का अकेला तरीक़ा है।
+- जो चेकबॉक्स मिलकर एक सवाल का जवाब देते हैं, उनके ग्रुप को एक नाम दें: वेब पर `<legend>` वाला `<fieldset>`।

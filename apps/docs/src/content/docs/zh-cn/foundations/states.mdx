@@ -1,0 +1,53 @@
+---
+title: 交互状态
+description: 状态层、“先留间隙、再画圆环”的焦点指示，以及禁用状态的画法。
+translationOf: foundations/states.mdx
+sourceHash: 72082392521651e7f88cd4fd4707171e4d48f3d1
+---
+
+import Callout from '../../../../components/Callout.astro';
+import StateTokens from '../../../../components/tokens/StateTokens.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+可交互的组件共用一套状态词汇：enabled、hovered、focused、pressed、dragged、selected、activated、error、loading 和 disabled。组件的规格会列出它支持的状态，每个平台都必须全部实现。
+
+## 状态层
+
+悬停、聚焦、按下和拖动通过**状态层**来呈现：一层覆盖在组件容器之上的半透明浮层。
+
+- 状态层取**内容**的颜色，也就是它所覆盖对象的 `on-` 角色。在 filled 按钮上是 `on-primary`；在 text 按钮上是标签的颜色。
+- 它的不透明度来自令牌，而不是组件。
+- **同一时刻只显示一层。** 多个状态重叠时，最强的那个胜出：按下高于聚焦，聚焦高于悬停。
+- 它通过一段短促的效果过渡淡入，按下时则立即出现。
+
+<StateTokens />
+
+将指针悬停在下面的按钮上并按下它们，看看状态层在不同容器上的样子：
+
+<DemoFrame label="状态层">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+## 焦点：先留间隙，再画圆环
+
+键盘焦点的画法是：先是一圈 2px 的、表面颜色的间隙，外面再是一圈 2px 的、`focus-ring` 角色的圆环。有了这圈间隙，即使组件自身的填充色与圆环颜色相近，圆环也一定看得见；这个角色相对于表面的对比度会按 3:1 进行校验。
+
+- 圆环只在键盘和辅助技术聚焦时显示，指针点击时不显示。
+- 它从不带动画。
+- 它沿着组件的形状向外偏移绘制。
+
+## 默认没有涟漪
+
+Tanrei 不在按下时绘制向外扩散的涟漪。按下时的状态层就是反馈。主题可以选择启用涟漪，但没有任何组件依赖它。
+
+## 禁用
+
+禁用的组件以 `on-surface` 的 `disabled-container-opacity` 绘制容器，以 `disabled-content-opacity` 绘制内容，不显示状态层，并且不在焦点顺序之内。禁用的元素不受对比度要求的约束，这也正是应当少用它们的原因。
+
+<Callout type="tip">
+  更好的做法是让操作保持可用，并在用户使用它时说明还缺少什么。禁用的按钮没法告诉任何人它为什么被禁用。
+</Callout>

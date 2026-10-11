@@ -1,0 +1,337 @@
+---
+title: Navigation bar
+description: Moves between three to five top-level destinations from the bottom edge of a compact screen, and shows which one is current.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="navigation-bar" />
+
+:::note[A revised spec, not yet on every platform]
+This page describes the navigation bar as the spec has it now, on the model of the [tabs](/components/tabs/). The active indicator is the current destination's whole equal share of the bar, held in from the bar's edges, not a pill that hugs the icon and label. It slides to the new destination at its full size when the selection changes, and a drag along the bar carries it with the pointer. Hover, press and focus are drawn in that same box. `variant` chooses between tonal (the default) and filled. Every other prop and event is the same in both revisions. The platforms marked lagging above ship the first revision until they catch up: no `variant`, no drag, and an indicator behind the icon alone that grows in from its centre, and their samples show that revision. The demos on this page are the web component as it ships today.
+:::
+
+<DemoFrame label="Four destinations, one of them with a count">
+  <tanrei-navigation-bar value="inbox" label="Main" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="Inbox" icon="inbox" badge badge-count="3" badge-label="3 unread"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="Starred" icon="star"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="settings" label="Settings" icon="settings"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="The filled variant: press and drag along the bar to carry the indicator" plain>
+  <tanrei-navigation-bar variant="filled" value="chat" label="Media" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="home" label="Home" icon="home"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat" badge badge-label="New messages"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="Starred" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="A bar of links: the page names the current one by its address, and Help opens a new tab" plain>
+  <tanrei-navigation-bar value="/components/navigation-bar/" label="Components" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item href="/components/button/" label="Button" icon="smart_button"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/components/navigation-bar/" label="Bar" icon="bottom_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/components/navigation-drawer/" label="Drawer" icon="side_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="https://example.com/" label="Help" icon="help" target="new" target-label="opens in a new tab"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+### Usage
+
+A navigation bar has one kind of item, `destination`: an icon, a label under it, and an optional badge on the icon. Each platform takes the destinations the way it takes any repeated children: `<tanrei-navigation-bar-item>` child elements on the web, `TanreiNavigationBarItem` views in SwiftUI's view builder, `TanreiNavigationBarItem` calls in Compose's content lambda, `TanreiNavigationDestination` objects in Flutter's `destinations:` list, and a `destinations` array of plain objects on React Native.
+
+The selection belongs to the bar, by a destination's value. `value` names the current destination, `change` carries the one the person chose, and `reselect` fires when they choose the current one again, so you can scroll that screen back to its top. An empty value selects none, for a screen that is not one of the bar's destinations. SwiftUI writes the new value to the `selection` binding. Two platforms keep their own idiom, as their own navigation bars do. Compose has no bar-level value: you mark the current item `selected`, and its `onClick` serves as both change and reselect. Flutter selects by index: `selectedIndex`, and `onDestinationSelected`, which it calls for the current destination too.
+
+`variant` sets how strongly the current destination is marked: `tonal` (the default) fills its indicator softly, and `filled` fills it strongly, with the icon and label inverted on it. It is on the web today.
+
+A destination with an `href` is a link: the platform's own link, drawn exactly as a button destination. Enter activates it and Space does not. The bar does not select a link on a press: it emits `change` with the destination's value and its `href`, and then the link is followed. The page that arrives names the current destination through `value`, as in the [navigation drawer](/components/navigation-drawer/), and a link without a `value` takes its `href` as its value. `target` and `targetLabel` are the [Button](/components/button/)'s. The web builds link destinations; SwiftUI, Compose, Flutter and React Native do not have them yet.
+
+A destination's `icon` is the name of a glyph in the design system's icon font. The bar draws it outlined while unselected and filled while selected. `badge`, `badgeCount` and `badgeLabel` draw a Tanrei badge on the icon: a dot when there is no count, otherwise the number. SwiftUI, Compose and Flutter take them as one `TanreiNavigationBadge` value, and React Native as a `badge` object.
+
+The bar is a layout region, not an overlay. Its color reaches under the home indicator or gesture bar below it, and its destinations sit above them and inside the side insets. On React Native the insets come from props only, with no safe-area dependency: `TanreiProvider`'s `insets`, or the bar's own `insets`, whose sides replace the provider's.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- The host is a navigation landmark named by label. -->
+    <!-- variant="filled" inverts the current destination, for a bar over a busy screen. Tonal is the default. -->
+    <tanrei-navigation-bar label="Main" value="inbox">
+      <tanrei-navigation-bar-item value="inbox" label="Inbox" icon="inbox"
+                                  badge badge-count="3" badge-label="3 unread"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"
+                                  badge badge-label="New messages"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="starred" label="Starred" icon="star"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="settings" label="Settings" icon="settings" disabled></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-bar';
+      const bar = document.querySelector('tanrei-navigation-bar');
+      // The bar sets its own value before it fires change, which carries it.
+      bar.addEventListener('change', (e) => showScreen(e.detail.value));
+      bar.addEventListener('reselect', () => scrollTo({ top: 0 }));
+    </script>
+
+    <!-- A bar of links: each page sets value to its own address. A link without a value takes its href. -->
+    <tanrei-navigation-bar label="Main" value="/search/">
+      <tanrei-navigation-bar-item href="/" label="Home" icon="home"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/search/" label="Search" icon="search"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/library/" label="Library" icon="video_library"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="https://example.com/help" label="Help" icon="help"
+                                  target="new" target-label="opens in a new tab"></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      // A router takes the navigation: cancel change, go to detail.href, and say where the product is now.
+      bar.addEventListener('change', (e) => {
+        if (!e.detail.href) return;
+        e.preventDefault();
+        router.push(e.detail.href);
+        bar.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NavigationBar, NavigationBarItem } from '@tanrei/react';
+
+    // variant="filled" for a bar over a busy screen; tonal is the default.
+    <NavigationBar label="Main" value={screen} onChange={(e) => setScreen(e.detail.value)} onReselect={scrollToTop}>
+      <NavigationBarItem value="inbox" label="Inbox" icon="inbox" badge badgeCount={3} badgeLabel="3 unread" />
+      <NavigationBarItem value="chat" label="Chat" icon="chat" />
+      <NavigationBarItem value="starred" label="Starred" icon="star" />
+    </NavigationBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // A bar of its own in the bottom safe-area inset. Choosing a destination writes the binding (change).
+    ScreenView(screen)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TanreiNavigationBar(selection: $screen, accessibilityLabel: "Main", onReselect: { _ in scrollToTop() }) {
+                TanreiNavigationBarItem("Inbox", icon: "inbox", value: "inbox",
+                                        badge: TanreiNavigationBadge(count: 3, label: "3 unread"))
+                TanreiNavigationBarItem("Chat", icon: "chat", value: "chat")
+                TanreiNavigationBarItem("Starred", icon: "star", value: "starred")
+                // disabled is SwiftUI's own modifier.
+                TanreiNavigationBarItem("Settings", icon: "settings", value: "settings").disabled(true)
+            }
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBadge
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBar
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBarItem
+
+    // As Material's NavigationBar: no bar-level value. You mark the current item selected,
+    // and one onClick is both change and reselect.
+    var screen by rememberSaveable { mutableStateOf("inbox") }
+    TanreiNavigationBar(contentDescription = "Main") {
+        TanreiNavigationBarItem(
+            selected = screen == "inbox",
+            onClick = { if (screen == "inbox") { scrollToTop() } else { screen = "inbox" } },
+            icon = "inbox",
+            label = "Inbox",
+            badge = TanreiNavigationBadge(count = 3, contentDescription = "3 unread"),
+        )
+        TanreiNavigationBarItem(selected = screen == "chat", onClick = { screen = "chat" }, icon = "chat", label = "Chat")
+        // enabled is the inverse of the spec's disabled.
+        TanreiNavigationBarItem(selected = screen == "settings", onClick = { screen = "settings" }, icon = "settings", label = "Settings", enabled = false)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // As NavigationBar: a destination's value is its index. The bar keeps no selection of its own.
+    TanreiNavigationBar(
+      selectedIndex: current, // null selects none
+      onDestinationSelected: (int index) {
+        if (index == current) {
+          scrollToTop(); // reselect
+        } else {
+          setState(() => current = index); // change
+        }
+      },
+      semanticLabel: 'Main',
+      destinations: const <TanreiNavigationDestination>[
+        TanreiNavigationDestination(icon: 'inbox', label: 'Inbox', badge: TanreiNavigationBadge(count: 3, semanticLabel: '3 unread')),
+        TanreiNavigationDestination(icon: 'chat', label: 'Chat'),
+        TanreiNavigationDestination(icon: 'settings', label: 'Settings', enabled: false),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationBar } from '@tanrei/react-native';
+
+    const [screen, setScreen] = useState('inbox');
+
+    // Controlled: move value from onValueChange.
+    <NavigationBar
+      accessibilityLabel="Main"
+      value={screen}
+      onValueChange={setScreen}
+      onReselect={scrollToTop}
+      destinations={[
+        { value: 'inbox', label: 'Inbox', icon: 'inbox', badge: { count: 3, label: '3 unread' } },
+        { value: 'chat', label: 'Chat', icon: 'chat', badge: { label: 'New messages' } },
+        { value: 'settings', label: 'Settings', icon: 'settings', disabled: true },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Only the selected label, and no labels" plain column>
+  <tanrei-navigation-bar value="chat" label-visibility="selected" label="Main" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="Inbox" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="Starred" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+  <tanrei-navigation-bar value="inbox" label-visibility="never" label="Secondary" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="Inbox" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="Chat" icon="chat" badge badge-label="New messages"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="Starred" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-bar" />
+
+## Guidelines
+
+### When to use
+
+Use a navigation bar on a compact screen, such as a phone held upright, to move between three to five top-level destinations: the places a person returns to all day, such as Inbox, Search and Profile. The bar stays on every top-level screen and shows where the person is.
+
+Use tabs to switch between views of one subject within a screen. Use an app bar's back button to leave a screen a person reached from another one: detail screens usually hide the navigation bar.
+
+### Choosing between the bar and the drawer
+
+| Aspect | [Navigation bar](/components/navigation-bar/) | [Navigation drawer](/components/navigation-drawer/), collapsed | [Navigation drawer](/components/navigation-drawer/), expanded |
+| --- | --- | --- | --- |
+| Where it sits | Along the bottom edge | A column of icons along the start edge | In a panel at the start edge |
+| Window | Compact | Medium and wider | Expanded and wider (standard), or compact (modal) |
+| Destinations | Three to five | Its top-level destinations and groups, one cell each | As many as the product has, in sections and groups |
+| A destination | An icon over a one-line label, with a badge on the icon | The row cut after its icon: the icon alone, with a badge on it and its name in a tooltip | A row: an optional icon, a label that wraps, and trailing text or content at its end |
+| It also holds | Nothing else | A header: the menu button and the main action, collapsed to its icon | A header: the menu button, a title or an account switcher, and the main action |
+| On native platforms, a destination is | A tab of a tab bar | A button with a selected state | A button with a selected state |
+| What it is | A layout region | A layout region, or a column in the layout that a modal drawer widens from | Standard: a layout region. Modal: a modal overlay |
+
+- **The collapsed drawer is the navigation rail.** A collapsible drawer narrows to a column of icons where the content needs the width, and its menu button widens it again; every icon stays where it is. Tanrei's separate navigation rail is retired into this form.
+- **Bar and drawer are one set of destinations in two places.** They take the same destinations and the same selection, so a product that adapts to the window swaps the bar for the drawer at a breakpoint without touching its destinations. Show one of them at a time, never both.
+- **The drawer holds more.** Use it expanded when the product has more destinations than a bar can hold, or when they fall into groups, such as a mail app's folders and labels. On a large window a standard drawer sits beside the content. On a compact one a modal drawer slides over it from a menu button.
+- **A modal collapsible drawer** keeps its column of icons in the layout and widens over the content, above a scrim, when its menu button opens it.
+- On every platform, both select by a destination's value (Compose by a per-item flag, Flutter by index) and emit `change` and `reselect`.
+
+### Labels
+
+| `labelVisibility` | What it does | Use for |
+| --- | --- | --- |
+| `always` (default) | Every destination draws its label. | Most bars. Labels make destinations recognisable at a glance. |
+| `selected` | Only the current destination draws its label. An icon without a label sits in the middle of its destination. No destination changes size or place with the selection. | Bars where space is tight and the icons are well known. |
+| `never` | No destination draws its label. | Media and social products whose four or five icons are universally known. |
+
+A label that is not drawn is still the destination's accessible name, so every destination needs one.
+
+### Selection and badges
+
+- **The active indicator.** Every destination has one box: its equal share of the bar's width, held in from the bar's edges, above and below and at the two ends, by one inset (4 in the default system). Four destinations in a bar 360 wide and 64 high each have a box of 88 × 56, a capsule in the default system. The box is the same for every destination of a bar, whatever it holds, and is never sized to its icon and label. The current destination's box is filled, which makes it the active indicator, and its icon is filled. Hover, focus and press are drawn in that same box for every destination.
+- **The slide.** When the selection changes, the indicator slides from the old destination to the new one at its full size. The icons and labels are inverted only where the indicator covers them, so a destination it passes over changes colors under it for a moment, and the new destination is wholly inverted when the indicator lands. From no selection the indicator fades in on the new destination; to no selection it fades out. It never grows or shrinks. When the bar first appears, or the current destination changes size without a new selection (a font arriving, the text size changing), the indicator is put in place at once. Where motion is reduced, the change happens at once.
+- **The drag.** A press on the bar that moves sideways, with touch, a pen or a mouse, while a destination is selected, carries the indicator with the pointer. Nothing is chosen until the release: `value`, focus, each icon's fill and what is announced stay with the current destination. The release chooses the nearer of the two destinations the indicator lies between, or the one a fling is toward, and fires `change` once. Released back on the current destination, it fires nothing, `reselect` included. Escape cancels the drag. A drag is never the only way: a tap, a click, Enter and Space choose as before.
+- **Reselect.** Choosing the current destination again fires `reselect`, not `change`. The usual answer is to scroll that screen to its top, or to go back to its first page.
+- **Badges.** A badge with a count shows the number (999+ above 999), and one without a count shows a dot. `badgeLabel` is what a screen reader says after the destination's name, such as "3 unread". A dot has no number to read, so it always needs one. A badge stays while its destination is disabled.
+
+### Links
+
+In a site of separate pages, give every destination an `href` and set the bar's `value` to the page's own address. The current destination and the current page are then one thing, with one mark.
+
+- **Followed, not selected.** A plain activation of a link emits `change`, or `reselect` on the current one, with the destination's value and its `href`, and then the link is followed. The bar does not write `value`: the active indicator stays on the destination that `value` names and moves when `value` changes.
+- **A router.** Cancel the event to take the navigation yourself, go to `detail.href` and set `value`. The indicator then slides to the new destination.
+- **Other tabs.** A click or Enter with a modifier key, a middle click, a link whose `target` is `new` and a download are the browser's. The bar emits nothing and selects nothing.
+- **A new context.** `target: new` opens a new tab or window. A destination is an icon over a label, with no place for a mark, so none is drawn: `targetLabel` says it to assistive technology, after the badge's description.
+- **The drag.** A sideways drag that begins on a link moves the active indicator and does not drag the link's address. Released on a link, it is a plain press on that link: the indicator returns to the current destination until `value` changes.
+- **Disabled.** A disabled link cannot be followed by any means and leaves the focus order.
+
+### Tonal and filled
+
+| `variant` | The current destination | Use for |
+| --- | --- | --- |
+| `tonal` (default) | A soft indicator in the secondary container color, its icon and label in that container's content color. | Most bars. |
+| `filled` | A strong indicator in the primary color, its icon and label inverted on it. | A bar that must stand out from a busy screen: a map, a photo grid, a player. |
+
+Destinations the indicator does not cover look the same in both. The variant changes how strongly the selection is drawn, not what is announced: a tonal and a filled bar expose the same names, roles and states. A disabled current destination keeps its tonal indicator with disabled content on it; a filled indicator fades as a disabled filled Button does, since disabled content on the primary color would be hard to read.
+
+The `m3-like` and `cupertino` presets leave `filled` out, as Material's navigation bar and Apple's tab bar have one style. `m3-like` keeps Material's box behind the icon alone, with the label below it and no box around the destination, and `cupertino` marks the current tab with its tint only. Under both, a drag shows nothing moving, and its release still chooses.
+
+### Do
+
+- Keep labels to one short word: "Inbox", "Search", "Profile". A label that does not fit its destination is cut at its end with an ellipsis, and nothing wraps.
+- Use `filled` only where the tonal indicator would be lost against the screen behind the bar.
+- Keep the destinations and their order the same on every top-level screen.
+- Use the same icon style for every destination, and let the bar draw the filled form for the current one.
+
+### Don't
+
+- Don't use the bar for actions such as "Create" or "Share". Use a main action button or the app bar.
+- Don't put fewer than three or more than five destinations in it. Debug builds report the count. Move the rest to a navigation drawer.
+- Don't hide a destination that is sometimes unavailable. Disable it, so the bar keeps its shape.
+- Don't show a badge on every destination at once.
+
+## Accessibility
+
+<ComponentAccessibility name="navigation-bar" />
+
+### What the component handles
+
+- On the web the bar is a navigation landmark named by `label`. Each destination is a link (with `href`) or a button, and the current one carries `aria-current="page"`, on a link and on a button alike: there is no second state for a current page. It is not a tab list: a switch between whole screens has no tab panels and no arrow-key movement.
+- On iOS, Android, Flutter and React Native the bar is the platform's tab bar, as their own bottom bars are. Each destination is one element with the tab role (on SwiftUI, a button with the selected trait), its selected state and its position, named by its label whether or not the label is drawn. A screen reader says, for example, "Inbox, tab, 1 of 4, selected, 3 unread".
+- The icon is hidden from assistive technology. A badge adds its description (`badgeLabel`, or the number it shows) after the name and state, and a link that opens a new context adds its `targetLabel` after that.
+- Each destination that is not disabled is its own Tab stop, as the links of a navigation region are. Enter and Space activate the focused destination (Enter only, for a link on the web). Disabled destinations take no focus and are announced as disabled.
+- The focus ring is drawn around the destination's box and held inside the bar, for keyboard focus only.
+- A drag of the indicator changes nothing that is announced until it is released, and never moves focus.
+- The inverted copy of each icon and label that the indicator covers is decorative: assistive technology meets each destination once, and `variant` does not change what is announced.
+- The whole cell is the hit area: the bar's full height and an equal share of its width, at least the minimum target. A bar too narrow for its destinations still shares its width equally: the cells narrow below the target rather than make the bar wider than its space.
+- Larger text grows the bar, and every destination's box with it, so that the labels still fit on one line. The icons are not scaled. A label that is truncated stays whole as the destination's name. Where iOS offers the large-content viewer, a long press shows the destination's icon and label enlarged.
+- Debug builds report fewer than three or more than five destinations, a destination without a label, a value that names no destination, and a value used twice. They also report a link that opens a new context without a `targetLabel`, an `href` that names a script or cannot be read, and a `target` the bar does not define.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native have no link destinations: a destination takes no `href` there yet.
+- Web: every size follows `rem`, so a larger browser text size also grows the item containers and icons. Enlarging Tanrei's type alone does not.
+- SwiftUI: the cells' minimum is the platform's own target, 44 points on macOS, where the spec names the 48-point touch target.
+- SwiftUI: outside iOS, a destination carries its position as its value text ("2 of 4"), in English only. An image icon, such as an SF Symbol, does not follow the selection: pass the filled symbol for the selected destination yourself. The large-content viewer is built in but not yet exercised by a test.
+- Compose has no bar-level value, so a value that names no destination has nothing to report: mark no item selected to select none.
+- Flutter's semantics have no position in the set, so "1 of 4" is not announced.
+- SwiftUI, Flutter and React Native switch the icon's family and fill at once instead of over the selection motion.
+- React Native has no large-content viewer. A destination carries its position as its value text ("1 of 4"), in English unless you pass `positionText`.
+- React Native: the selection motion, the insets and what TalkBack and VoiceOver announce have not yet been checked on a device.
+- Every platform, default system: the tonal indicator stands about 1.15:1 against the bar, and the iOS accessibility audit flags it. The filled icon and the label's color also mark the selection, and `filled` gives an indicator of at least 3:1 where that matters.
+
+### What you need to do
+
+- Give every destination a label, including in a bar that draws none.
+- Name the bar with `label`, such as "Main", especially when the screen has another navigation region.
+- Give every badge a `badgeLabel` that says what it counts, and always one for a dot.
+- Keep each destination's value unique and stable.
+- In a site of separate pages, set `value` on every page to that page's destination. The bar does not select a link by itself.
+- Give a link that opens a new tab a `targetLabel`, in your product's language, such as "opens in a new tab". Tanrei ships no words of its own.
+- On Compose, mark exactly one item `selected`, or none. On Flutter, compare the index you receive with `selectedIndex` to tell a reselect from a change.
+- On React Native, pass `positionText` in your product's language, and give `TanreiProvider` the window's insets.

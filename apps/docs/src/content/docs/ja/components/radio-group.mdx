@@ -1,0 +1,245 @@
+---
+title: ラジオグループ
+description: すべて見えている少数の選択肢からちょうど 1 つを答える質問を尋ねます。選ばれた値を持つラジオボタンの集まりに、必須か任意かを示せるラベル、説明、集まり全体に対する 1 つのエラーを与えます。
+translationOf: components/radio-group.mdx
+sourceHash: a3b0be7452dc859db3012eadbd2af528ebb21eed
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="radio-group" />
+
+<DemoFrame label="名前、説明、必須の印を持つラジオボタンの集まり" column>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" supporting-text="発送されるまで変更できます。" requirement="required" required-text="必須" value="standard">
+    <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
+  </tanrei-radio-group>
+</DemoFrame>
+
+[ラジオボタン](/ja/components/radio-button/)を 1 つだけで使うことはありません。ラジオグループは、いくつかのラジオボタンを 1 つの質問にします。集まりに名前、答え方を伝える 1 行、回答が必須かどうかを示す語、回答が受け付けられなかったときの 1 つの理由を与え、答えを 1 つの値として持ちます。
+
+**構成要素**は、[フィールドグループ](/ja/components/field-group/)と[ラジオボタン](/ja/components/radio-button/)です。フィールドグループは枠で、ラジオグループとしての種類（`kind`）で使われます。ラベル、必須または任意の印、説明、エラー、縦または横の並びを受け持ち、支援技術に伝えられる 1 つのラジオグループにもなります。ラジオボタンは値を受け持ちます。1 つ 1 つが自分のラベルを持つ選択肢で、どれが選ばれているかが答えになります。ラジオグループが自分で描くものはなく、トークンもありません。2 つに加えるのは、プロダクトがいつも自分で書くことになる状態です。出し入れする 1 つの値とそのための 1 つの `change`、集まりのために保たれる矢印キーとフォーカスが止まる 1 つの位置、そしてフォームでの 1 つのコントロールとしての位置です。
+
+幅は、置かれた場所の幅になります。
+
+Web では `<tanrei-radio-group>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-radio-group label="配送方法" name="delivery" value="standard" requirement="required" required-text="必須"
+                        supporting-text="発送されるまで変更できます。">
+      <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
+      <tanrei-radio-button value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
+      <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
+    </tanrei-radio-group>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-group';
+
+      const group = document.querySelector('tanrei-radio-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value が新しい値です。group.value はすでにその値になっています。
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react';
+
+    <RadioGroup label="配送方法" value={delivery} onChange={(event) => setDelivery(event.detail.value)}
+                error={refused} errorText="この住所にはお急ぎ便を届けられません。ほかの方法を選んでください。">
+      <RadioButton value="standard" label="通常配送（3〜5 日）" />
+      <RadioButton value="express" label="お急ぎ便（翌日）" />
+      <RadioButton value="pickup" label="店舗受け取り" />
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+ラジオグループの中のラジオボタンには、`name` も `checked` も要りません。どれが選ばれているかは、グループの `value` が決めます。
+
+### 1 つ下の階層
+
+同じ集まりを 2 つの構成要素から自分で書いても、見た目は同じで、支援技術にとっても同じラジオグループになります。フィールドグループには `kind="radio-group"` で集まりが何であるかを伝え、ラジオボタンには同じ `name` を付けます。
+
+```html
+<tanrei-field-group kind="radio-group" label="配送方法"
+                    supporting-text="発送されるまで変更できます。"
+                    requirement="required" required-text="必須">
+  <tanrei-radio-button name="delivery" value="standard" label="通常配送（3〜5 日）" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="pickup" label="店舗受け取り"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="同じ集まりを自分で書いたもの。kind が radio-group のフィールドグループの中に、同じ名前のラジオボタンがあります" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方法" supporting-text="発送されるまで変更できます。" requirement="required" required-text="必須">
+    <tanrei-radio-button name="delivery-by-hand" value="standard" label="通常配送（3〜5 日）" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-by-hand" value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-by-hand" value="pickup" label="店舗受け取り"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+フィールドグループとラジオボタンを自分で書いたものにないのは、答えを持つことです。描かれるものと伝えられるものに違いはありません。
+
+| 観点 | 自分で書いた場合 | ラジオグループ |
+| --- | --- | --- |
+| 答え | プロダクトがラジオボタンから読む | `value` と、1 つの要素での 1 つの `change` |
+| 答えを設定する | 1 つのラジオボタンの `checked` | `value = "express"` |
+| フォームが送信するもの | 同じ項目を、選ばれているラジオボタンが送信する | 同じ項目を、グループが送信する |
+| 必須の集まりが未回答のまま | 必須として描かれ、伝えられる。フォームは受け付ける | フォーム自身の検証が受け付けない |
+| 選ばれている選択肢が取り除かれた、またはまだ表示されていない | 答えは失われる | `value` は残る |
+| 選ばれている選択肢を 1 つだけ無効にした | 何も送信しない | その値を送信する |
+| 矢印キー、Tab で止まる 1 つの位置、集まりの中での各ラジオボタンの位置 | 同じ。同じ名前のラジオボタンが受け持つ | 同じ。グループが受け持つ |
+
+1 つ下の階層で書くのは、グループが並べないものを選択肢の間に置くとき（選択肢ごとに自分の 1 行を添えるなど）や、スロットでは置けない形で選択肢を自分の要素の中に置くときです。
+
+## 仕様
+
+<DemoFrame label="未回答でエラーになった必須の集まり、受け付けられなかった回答、横並び、選択肢の 1 つが無効な集まり" plain column>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" requirement="required" required-text="必須" error error-text="配送方法を選んでください。">
+    <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" supporting-text="発送されるまで変更できます。" requirement="required" required-text="必須" value="express" error error-text="この住所にはお急ぎ便を届けられません。ほかの方法を選んでください。">
+    <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="サイズ" orientation="horizontal" value="m">
+    <tanrei-radio-button value="s" label="小"></tanrei-radio-button>
+    <tanrei-radio-button value="m" label="中"></tanrei-radio-button>
+    <tanrei-radio-button value="l" label="大"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="配送方法" requirement="optional" optional-text="任意" value="standard">
+    <tanrei-radio-button value="standard" label="通常配送（3〜5 日）"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="お急ぎ便（翌日）" disabled></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="店舗受け取り"></tanrei-radio-button>
+  </tanrei-radio-group>
+</DemoFrame>
+
+<ComponentSpecs name="radio-group" />
+
+ラジオグループには固有のトークンがありません。上の表に並ぶのはフィールドグループのトークンで、枠はフィールドグループが描きます。フィールドグループの見た目を変えたデザインシステムでは、すべてのラジオグループも一緒に変わります。各ラジオボタンは、ラジオボタン自身のトークンで描きます。
+
+### それぞれの構成要素が受け持つもの
+
+| 描かれるもの | 受け持つもの |
+| --- | --- |
+| ラベル、必須・任意の印、説明、エラーテキスト、行の間とラジオボタンの間の距離 | [フィールドグループ](/ja/components/field-group/)。`comp.field-group.*` から |
+| 各ラジオボタン: リング、塗り、ラベル、ステートレイヤー、フォーカスリング、無効の形 | [ラジオボタン](/ja/components/radio-button/)。`comp.radio-button.*` から |
+| それ以外 | なし。ラジオグループは何も描きません |
+
+### 1 つのグループだけを変える
+
+デザインシステムは、枠の見た目を 1 度だけ、すべてのフィールドグループ、ラジオグループ、チェックボックスグループに対して決めます。1 つだけ変えるには、その要素に設定します。Web では、ラジオグループに設定したフィールドグループのトークンが、中の枠に届きます。
+
+```html
+<tanrei-radio-group label="配送方法"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-radio-group>
+```
+
+### Web での描き方の違い
+
+- 要素のシャドウルートにあるのは `<tanrei-field-group kind="radio-group">` で、その中にスロットがあります。ラジオボタンは利用者側の子要素のままです。要素をインポートすると、2 つの構成要素も定義されます。
+- 要素はフォームに関連付けられます。`name` と `form` を受け取り、`value` を `name` で送信します。選ばれているラジオボタンを 1 つだけ無効にしている間も送信します。ラジオボタンは、どんな `name` を持っていても何も送信しません。リセットすると `value` 属性に戻り、無効な `<fieldset>` に従い、`requirement` が `required` で `value` が空の間は、値がないことを報告します。メッセージは、未回答のラジオボタンの集まりに対するブラウザー自身の言葉です。
+- `change` は CustomEvent で、`detail.value` は新しい値です。その前に `input` が発生します。グループの中のラジオボタンに付けたリスナーには、どちらも届きません。
+- パーツ: `field-group` が枠で、そのパーツは 1 つ下の階層と同じ名前です。`label`、`requirement-label`、`supporting-text`、`error-text` です。利用者側のラジオボタンは、ほかの場所と同じく `tanrei-radio-button::part(…)` でスタイルを変えます。
+- 要素そのものはフォーカスを受け取りません。`focus()` はフォーカスが止まる位置にあるラジオボタンに移り、ページの `<label for>` もフォーカスをそこに移します。
+- 要素にロールはありません。ラジオグループになるのは、中のフィールドグループです。名前は `label` で付けます。ラベルが別の場所に描かれているときは `label-hidden` を併せて指定します。`aria-label` はここでは何にも名前を付けないので、使いません。
+- 属性はケバブケースです。`label-hidden`、`supporting-text`、`error-text`、`required-mark`、`required-text`、`optional-text` です。
+- 要素が定義されるまでと、スクリプトがないときは、要素自身のものは何も描かれず、ラジオボタンがそのままの内容として表示されます。スクリプトなしで動く必要があるページでは、同じ `name` を持つ素のラジオボタンを素の `<fieldset>` に入れます。送信される項目は同じです。
+
+## ガイドライン
+
+### ラジオグループを使う場面と、ほかを使う場面
+
+| 利用者がすること | 使うもの |
+| --- | --- |
+| フォームや設定で、すべて見えていてほしい少数（5 個ほどまで）の選択肢から 1 つの値を答える | ラジオグループ。 |
+| 下に表示されるものを切り替える：どのビューか、どのサンプルか、どの期間か | [タブ](/ja/components/tabs/)。 |
+| 多くの選択肢から 1 つの値を答える、または場所が狭い | [セレクト](/ja/components/select/)。 |
+| 複数の値を 1 つの答えとして答える | [チェックボックスグループ](/ja/components/checkbox-group/)。 |
+| グループとは違う並べ方をするために、同じ集まりを自分で書く | `kind` が `radio-group` の[フィールドグループ](/ja/components/field-group/)に、同じ名前のラジオボタンを入れる（[1 つ下の階層](#1-つ下の階層)）。 |
+| 1 つのものを、その場でオンかオフにする | [スイッチ](/ja/components/switch/)。 |
+| 横に並び、それぞれが独立して切り替わるボタンを押す | [ボタングループ](/ja/components/button-group/)。 |
+
+ラジオグループとタブを分けるのは見た目ではなく、その選択が何をするかです。保存または送信される値ならラジオグループ、何を見るかの選択ならタブです。
+
+### 値
+
+- `value` は選ばれているラジオボタンの値で、どれも選ばれていない間は空文字列です。選ぶには `value` を設定し、利用者の選択は `change` で受け取ります。
+- `change` は、1 回の選択につき 1 度だけ、グループが発火します。そのときグループはすでに新しい値を持っています。`value` を設定したときや、選ばれている選択肢をもう 1 度操作したときには発火しません。
+- 利用者がラジオグループを「何も選んでいない」状態に戻すことはできません。答えないことも正しい答えになりうるなら、それを表す選択肢（「なし」「指定しない」）を加えるか、最初からどれか 1 つを選んだ状態にします。
+- 選択はフォーカスに従います。矢印キーは、移動すると同時に選びます。選択がその場で重い処理や目に見える変化を起こすなら、`change` ではなく、確定するボタンから答えを受け取ります。
+- どのラジオボタンにもない値を設定すると、どれも選ばれず、値はそのまま保たれます。その選択肢があとから加わるかもしれないからです。
+
+### レイアウト
+
+- `orientation="vertical"`（既定）は、選択肢を 1 列に積みます。こちらを優先してください。
+- `orientation="horizontal"` は、折り返す行に並べます。2、3 個の短い選択肢に限って使います。行が折り返すと、どのラベルがどのリングのものかが分かりにくくなります。
+
+矢印キーはどちらでも同じで、折り返した行での位置ではなく、与えられた順に動きます。
+
+### エラー
+
+`error` と `errorText` を設定するのは利用者側です。必須で未回答であっても、グループが自分でエラーになることはありません。エラーのグループは、選択肢の下にエラーテキストを描き、invalid として伝えられ、すべてのラジオボタンをエラーの形で描きます。チェックボックスグループのボックスと同じように、リングと中の丸がエラーの色になります。無効の選択肢は、エラーの色になりません。エラーを直す答えにはなれないからです。ラジオボタン自身が invalid として伝えられることはなく、グループが 1 度だけ伝えます。
+
+値が変わってもエラーは消えません。答えが受け付けられるようになったら、利用者側で消します。
+
+### 推奨
+
+- 選択肢が答える質問を、集まりの名前にします（「配送方法」）。
+- 各ラジオボタンに、グループの中で重複しない `value` と、それぞれのラベルを付けます。
+- 選択肢は少なくします。1 つならチェックボックス、多ければセレクトです。
+
+### 非推奨
+
+- 操作できるほかのものをラジオグループに入れない。チェックボックスも、ボタンも、フィールドも入れません。
+- ラジオグループの中のラジオボタンに `name` を付けない。無視されます。グループがそのラジオボタンの属するグループだからです。
+- ラベルを付けるために、ラジオグループをフィールドやフィールドグループで包まない。ラベルは自分で持っています。より大きな集まりに名前を付けるフィールドグループ（「配送」）の 1 つのメンバーにすることはできます。
+- 集まりを読み取り専用にするために、グループを無効にしない。無効なグループは何も送信しません。ラジオグループに読み取り専用の状態はありません。変えられない答えはテキストで示すか、ラジオボタンを 1 つずつ無効にします。その場合、値は保たれます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="radio-group" />
+
+### コンポーネントが担うこと
+
+- ラジオボタンを含む 1 つのラジオグループになり、描かれていても `labelHidden` で隠されていても `label` を名前とします。
+- `requirement` が `required` の間は必須の状態、`error` が true の間は invalid の状態、`disabled` が true の間は無効の状態を伝え、並びの向きも伝えます。
+- グループの説明は、`supportingText`、`error` が true の間の `errorText`、任意である間の `optionalText` の順です。`requiredText` は含みません。必須の状態がそれを伝えるからです。
+- 各ラジオボタンは、集まりの中での位置と集まりの大きさを伝えます。無効な選択肢も数に含みます。
+- フォーカス順の中でフォーカスが止まる位置は 1 つです。選ばれているラジオボタンか、なければ最初の有効なラジオボタンです。Tab はそこからグループに入り、グループを出ます。矢印キーはグループの中を動き、無効な選択肢を飛ばし、両端で折り返します。右から左のレイアウトでは、左矢印と右矢印が入れ替わります。
+- `disabled` はすべてのラジオボタンを無効にします。有効なグループが、利用者側で無効にしたラジオボタンを有効にすることはありません。そのラジオボタンは、矢印キーと Tab では飛ばされ、数には含まれ、`value` がその値である間は選ばれたままです。
+- フォーカスがラジオボタンのどれかにある間にエラーが現れたり文言が変わったりすると、1 度だけ、控えめに読み上げます。エラーを理由にフォーカスが動くことはありません。
+- 必須・任意のタグとアスタリスクは支援技術から隠します。
+- テキストを 200% にすると、すべてのテキストが折り返し、行は列になり、何も切れません。
+- 強制カラーモードでは、すべてのテキストがシステムの文字色になり、必須・任意のタグには縁が付きます。
+- 右から左のレイアウトでは、各行が右から始まり、選択肢の行は右から並び、それぞれのテキストは自分の方向を保ちます。
+- Web では、フォームの 1 つのコントロールです。`name` で `value` を送信し、リセットで最初の値に戻り、無効な `fieldset` に従い、必須で未回答の間はフォーム自身の検証に値の欠落を伝えます。
+- ラジオボタンのないグループ、ほかのコントロールを含むグループ、ラベルのないグループ、同じ値の選択肢が 2 つあるグループ、どの選択肢にもない値を持つグループは、デバッグビルドで報告します。
+
+Web での既知の制約：
+
+- フォーム自身の検証が表示するのは、未回答のラジオボタンの集まりに対するブラウザーのメッセージで、`errorText` ではありません。
+- 要素が定義されるまでは、ラジオボタンがグループのラベル、説明、レイアウト、選択のない状態でページに置かれます。
+
+### 利用者側で行うこと
+
+- グループに `label` を指定します。
+- 回答は利用者側で検証し、`error` を設定して、どう直せばよいかが分かる `errorText` を書きます。
+- 必須・任意の言葉を渡します。`required-text` と `optional-text` をグループに書くか、`setWords({ requiredText, optionalText })` でプロダクト全体に一度だけ渡します。Tanrei は言葉を同梱しません。`requiredText` がなければタグの位置にアスタリスクを描き、`optionalText` がなければタグを描かず、何も伝えません。[プロダクトの言葉](/ja/foundations/words/)を参照してください。
+- 送信に失敗したあとは、何が受け付けられなかったかをフォームの上でも伝え、グループへのリンクを置きます。エラーステータスのライブの[コールアウト](/ja/components/callout/)を使います。

@@ -1,0 +1,467 @@
+{
+  "tanrei": {
+    "comp": {
+      "list": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows columns of related items — one, two or three lines of text with icons, avatars or images — that people read, open one by one, or choose from, some of them selected and some disabled; and lets people put the items of one such column in another order.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "selected"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "headline.color": "color",
+              "overline.color": "color",
+              "supporting-text.color": "color",
+              "trailing-text.color": "color",
+              "leading-icon.color": "color",
+              "trailing-icon.color": "color",
+              "mark.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "container.shape": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a list reads: an item's minimum heights for one, two and three lines, its paddings and gap, the text styles of headline, overline, supporting and trailing text, the icon, avatar and image sizes and the glyph box of the check (the icon set's check), the divider, and for each condition (unselected, selected) the colors of the row and of every part in each state. For a list whose items a person can put in another order: the gap between the two move buttons, the size and color of the drag handle, the fill and the elevation of an item while it is dragged, and the motion of items changing place.",
+            "rules": [
+              "The list adds no space around its items and draws no background: place it on a surface, or in a card for a grouped look.",
+              "A selectable list is a listbox; a list of rows that each open something has interactive items; a list that only shows things has neither.",
+              "Never put a button, link or control inside an interactive item or an option; a row that needs its own control stays static.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "The check of a selected option is the icon set's check glyph, drawn at mark.size; to draw another mark, a system chooses another icon set. Never draw a check of your own.",
+              "Each condition's state-layer.color is the color hover, focus and press mix into the row; it aliases that condition's headline color.",
+              "A reorderable list (reorder buttons or drag) holds static items only and is never a listbox. The two move buttons are always drawn: the drag handle is an addition for a pointer, never the only way to move an item.",
+              "The move buttons are Tanrei Buttons and are drawn from Button's tokens; the list owns only the gap between them. The dragged tokens are a look of one item while it is carried, not an interaction state: no state rule values them."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.none}",
+            "$description": "The row's corners. Square by default: rows meet edge to edge and span the list's width."
+          },
+          "height": {
+            "$description": "Minimum heights by the number of text lines. They are minimums: the row grows with its content and with enlarged text.",
+            "one-line": {
+              "$type": "dimension",
+              "$value": {
+                "value": 44,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 11
+                }
+              }
+            },
+            "two-line": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 16
+                }
+              }
+            },
+            "three-line": {
+              "$type": "dimension",
+              "$value": {
+                "value": 80,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 20
+                }
+              }
+            }
+          },
+          "padding-inline-start": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Space between the row's start edge and its first element; it lines the text up with the page's."
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Space between the row's last element and its end edge, next to a scroll bar or the screen's edge.",
+            "$extensions": {}
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Space above and below the row's content; it shows once the content is taller than the minimum height."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Space between the leading element, the text column and each trailing element.",
+            "$extensions": {}
+          }
+        },
+        "headline": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-large}",
+            "$extensions": {}
+          }
+        },
+        "overline": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label-small}"
+          }
+        },
+        "supporting-text": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}"
+          }
+        },
+        "trailing-text": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label-small}"
+          }
+        },
+        "leading-icon": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.small}",
+            "$extensions": {}
+          }
+        },
+        "trailing-icon": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.small}",
+            "$extensions": {}
+          }
+        },
+        "avatar": {
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 40,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              }
+            },
+            "$description": "The side of the round box an avatar is fitted into."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}"
+          }
+        },
+        "image": {
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 48,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              }
+            },
+            "$description": "The side of the square box a leading image is fitted into."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.small}"
+          }
+        },
+        "media": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-highest}",
+              "$description": "Behind an avatar or an image: shows through a monogram, a transparent image, or an image still loading."
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The color handed to what the product puts in an avatar (a monogram, an icon)."
+            }
+          }
+        },
+        "mark": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.small}",
+            "$description": "The glyph box of the check (the icon set's check) of a selected option, reserved in every option of a selectable list. Medium, the size of the trailing icon beside it and of the menu's check: a glyph's ink fills less of its box than a drawn path of that size.",
+            "$extensions": {}
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.thick}",
+            "$description": "The stroke of the check drawn as a path. No behaviour of the current spec reads it: the check is a glyph of the icon set (LST-21). It stays only so that the platforms that still draw it as a path keep building; remove it in the commit that brings the last of them up to date."
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}"
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "unselected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A row has no fill at rest; the surface behind the list shows through."
+                }
+              }
+            }
+          },
+          "headline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "overline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "trailing-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "leading-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "trailing-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "An option that is not selected shows no check."
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.list.unselected.headline.color}",
+              "$description": "The color hover, focus and press mix into the row: the headline's color."
+            }
+          }
+        },
+        "selected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "Apple shows a chosen row by a check in the tint, with no fill."
+                }
+              }
+            }
+          },
+          "headline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}"
+            }
+          },
+          "overline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "trailing-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "leading-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}"
+            }
+          },
+          "trailing-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.list.selected.headline.color}",
+              "$description": "The color hover, focus and press mix into the row: the headline's color."
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "reorder-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$description": "How long an item takes to change place: the items that make room under a dragged one, the dropped item settling, and two items changing places after a move button (LST-43). Longer than a change of color: something crosses the height of a row."
+          },
+          "reorder-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          }
+        },
+        "move-buttons": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "Between the button that moves an item up and the one that moves it down. Nothing by default: each button already keeps the minimum target along the row, so two of them never stand closer than a finger needs (LST-37)."
+          }
+        },
+        "handle": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.medium}",
+            "$description": "The glyph box of the drag handle at the start of an item (reorder drag). The size of the leading icon beside it; its hit area is larger and takes no room (LST-44)."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}",
+            "$description": "The drag handle, at rest and while its item is dragged. The color of an item's icons: the handle is a mark on the row, not a control with states of its own."
+          }
+        },
+        "dragged": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-high}",
+              "$description": "The fill of an item while it is dragged. Opaque, where the row at rest has no fill: the item is carried over the others and they must not show through it."
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level3}",
+              "$description": "The shadow of an item while it is dragged: it is above the list for as long as it is carried, and comes down when it is dropped."
+            }
+          }
+        }
+      }
+    }
+  }
+}

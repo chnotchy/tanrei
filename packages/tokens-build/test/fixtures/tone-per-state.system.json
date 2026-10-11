@@ -1,0 +1,26 @@
+{
+  "id": "tone-per-state",
+  "name": "Tone per state",
+  "extends": "tanrei",
+  "description": "A fixture whose filled Button takes its hovered and pressed container colors from explicit, non-monotonic tones of a brand ramp, different in every scheme. Those two component colors reach the IR as paints of kind 'scheme'; every emitter's per-scheme test builds this layer.",
+  "palettes": {
+    "brand": {
+      "description": "The product's brand ramp, used tone by tone.",
+      "source": { "seed": "#0f6cbd" },
+      "roles": "intent"
+    }
+  },
+  "tokens": {
+    "tanrei.comp.button.filled.container.color": { "$value": "{tanrei.sys.color.brand}" }
+  },
+  "rules": [
+    {
+      "match": "tanrei.comp.button.filled.hovered.container.color",
+      "derive": { "fn": "tone", "palette": "brand", "tone": { "light": [35], "dark": [80] } }
+    },
+    {
+      "match": "tanrei.comp.button.filled.pressed.container.color",
+      "derive": { "fn": "tone", "palette": "brand", "tone": { "light": [20, 15, 10], "dark": [90] } }
+    }
+  ]
+}

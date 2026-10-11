@@ -1,0 +1,339 @@
+---
+title: Menubar
+description: Keeps an application's commands within reach in one persistent row of named menus (File, Edit, View…), each opening a menu below its title, with the arrow keys moving along the row and into each menu.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="menubar" />
+
+<DemoFrame label="The menus of an editor" column>
+  <tanrei-menubar label="Application menu" overflow-label="More menus" style="inline-size: 100%">
+    <tanrei-menubar-menu label="File">
+      <tanrei-menu-item label="New" shortcut="mod+n"></tanrei-menu-item>
+      <tanrei-menu-item label="Open…" shortcut="mod+o"></tanrei-menu-item>
+      <tanrei-submenu label="Open recent">
+        <tanrei-menu-item label="Quarterly report"></tanrei-menu-item>
+        <tanrei-menu-item label="Roadmap"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-group>
+        <tanrei-menu-item label="Save" shortcut="mod+s"></tanrei-menu-item>
+        <tanrei-menu-item label="Print…" shortcut="mod+p"></tanrei-menu-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Edit">
+      <tanrei-menu-item label="Undo" shortcut="mod+z"></tanrei-menu-item>
+      <tanrei-menu-item label="Redo" shortcut="mod+shift+z"></tanrei-menu-item>
+      <tanrei-menu-group>
+        <tanrei-menu-item label="Cut" shortcut="mod+x"></tanrei-menu-item>
+        <tanrei-menu-item label="Copy" shortcut="mod+c"></tanrei-menu-item>
+        <tanrei-menu-item label="Paste" shortcut="mod+v"></tanrei-menu-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="View">
+      <tanrei-menu-checkbox-item label="Ruler" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Comments"></tanrei-menu-checkbox-item>
+      <tanrei-menu-group label="Zoom" value="100">
+        <tanrei-menu-radio-item label="50%" value="50"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="100%" value="100"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="200%" value="200"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Format" disabled>
+      <tanrei-menu-item label="Bold"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Help">
+      <tanrei-menu-item label="Keyboard shortcuts"></tanrei-menu-item>
+      <tanrei-menu-item label="About"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+  </tanrei-menubar>
+</DemoFrame>
+
+### What a menubar is not
+
+Read this before you reach for it. A menubar is for the commands of an application, and for little else.
+
+- **It is not a site's navigation.** A row of sections with drop-downs is navigation: links, in a navigation landmark, reached with Tab. A menubar tells assistive technology that the arrow keys, not Tab, move through everything inside it, and that every entry is a command. A person who meets that on a set of page links is misled. Use an [app bar](/components/app-bar/), a [navigation bar](/components/navigation-bar/) or a [navigation drawer](/components/navigation-drawer/).
+- **It is not a toolbar.** A [toolbar](/components/toolbar/) holds buttons that act when pressed. A menubar is a row of menus. It may hold one or two entries that act by themselves ([below](#entries-that-act)), and a row of those alone is a toolbar. Moving along the bar never runs anything, so a person can explore it safely.
+- **It is not a row of buttons that each open a menu.** That row looks the same and fails in use: its arrow keys never carry an open menu along, a pointer does not move the open menu with it, and assistive technology hears separate buttons where there is one menu in two levels.
+- **It is not tabs.** No title is ever selected. Its menu closes and nothing stays chosen.
+- **It is not one menu.** A short set of options belongs in one [menu](/components/menu/) opened from a button.
+
+### What it is
+
+A product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons. A menubar is the place where every one of them is, under a few names a person learns once, each with its shortcut beside it.
+
+It is a row of titles that is always in view. Each title opens a Tanrei [Menu](/components/menu/) below it, with the menu's own items: actions, link items, checkbox and radio items, groups, submenus and shortcuts. Beside the titles the row may hold a bar item: an action that runs at once, or a link. The row is one stop in the focus order. The arrow keys move along it and into a menu, and from inside a menu they go straight on to the neighbouring entry.
+
+The bar has no fill, edge or elevation of its own. You place it, normally at the top of the window in chrome that is already there.
+
+On the web it is `<tanrei-menubar>` around `<tanrei-menubar-menu>` elements, with `<tanrei-menubar-item>` for an entry that acts. The other platforms have not implemented it yet.
+
+### Usage
+
+Give the bar a `label`, and each menu a `label` of one or two words. Put the menu's items inside it exactly as you would inside a menu. Listen for the items' own events: the bar adds none to them.
+
+Each menu has an `open` of its own. The bar sets it and fires `toggle`, so you do not keep track of which menu is open. You may set it yourself to open a menu from a key of your own.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-menubar label="Application menu" overflow-label="More menus">
+      <tanrei-menubar-menu label="File">
+        <tanrei-menu-item label="New" shortcut="mod+n"></tanrei-menu-item>
+        <tanrei-menu-item label="Open…" shortcut="mod+o"></tanrei-menu-item>
+        <tanrei-submenu label="Open recent">
+          <tanrei-menu-item label="Quarterly report"></tanrei-menu-item>
+        </tanrei-submenu>
+        <tanrei-menu-item label="Save" shortcut="mod+s"></tanrei-menu-item>
+      </tanrei-menubar-menu>
+      <tanrei-menubar-menu label="View">
+        <tanrei-menu-checkbox-item label="Ruler" checked></tanrei-menu-checkbox-item>
+      </tanrei-menubar-menu>
+      <tanrei-menubar-menu label="Format" disabled>…</tanrei-menubar-menu>
+    </tanrei-menubar>
+
+    <script type="module">
+      import '@tanrei/web/components/menubar';
+
+      const bar = document.querySelector('tanrei-menubar');
+      // One listener takes every item's click. After a command, move focus to what it acts on.
+      bar.addEventListener('click', (event) => {
+        if (event.target.localName !== 'tanrei-menu-item') return;
+        run(event.target.label);
+        editor.focus();
+      });
+      // The shortcuts an item shows are yours to bind. So is a key that opens a menu.
+      addEventListener('keydown', (event) => {
+        if (event.altKey && event.key === 'f') bar.querySelector('[label="File"]').open = true;
+      });
+    </script>
+
+    <!-- Reserve the bar's height before the element is defined, so the page does not move. -->
+    <style>
+      tanrei-menubar:not(:defined) {
+        display: block;
+        min-block-size: calc(var(--tanrei-comp-menubar-container-height) + 2 * var(--tanrei-comp-menubar-bar-padding-block));
+      }
+    </style>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Menubar, MenubarMenu, MenuItem, MenuCheckboxItem, Submenu } from '@tanrei/react';
+
+    <Menubar label="Application menu" overflowLabel="More menus">
+      <MenubarMenu label="File" onToggle={(event) => track('File', event.detail.open)}>
+        <MenuItem label="New" shortcut={['mod+n']} onClick={newDocument} />
+        <MenuItem label="Open…" shortcut={['mod+o']} onClick={openDocument} />
+        <Submenu label="Open recent">
+          {recent.map((file) => <MenuItem key={file.id} label={file.name} onClick={() => open(file)} />)}
+        </Submenu>
+      </MenubarMenu>
+      <MenubarMenu label="View">
+        <MenuCheckboxItem label="Ruler" checked={ruler} onChange={(event) => setRuler(event.detail.checked)} />
+      </MenubarMenu>
+      <MenubarMenu label="Format" disabled={!selection}>…</MenubarMenu>
+    </Menubar>
+    ```
+  </TabItem>
+</Tabs>
+
+On the web the titles and the actions are not drawn until the script has run: their words are attributes, and every command is your script. A link item is different. It is your own anchor, so it is a link that works before the script runs and where it never does.
+
+### Entries that act
+
+<DemoFrame label="Three menus, an action and two link items, drawn alike" column>
+  <tanrei-menubar label="Application menu with entries that act" overflow-label="More" style="inline-size: 100%">
+    <tanrei-menubar-menu label="File">
+      <tanrei-menu-item label="New"></tanrei-menu-item>
+      <tanrei-menu-item label="Open…"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Edit">
+      <tanrei-menu-item label="Undo"></tanrei-menu-item>
+      <tanrei-menu-item label="Redo"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="View">
+      <tanrei-menu-checkbox-item label="Ruler" checked></tanrei-menu-checkbox-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-item label="Run"></tanrei-menubar-item>
+    <tanrei-menubar-item><a href="#entries-that-act">Documentation</a></tanrei-menubar-item>
+    <tanrei-menubar-item target-label="opens in a new tab"><a href="#entries-that-act" target="_blank">Source</a></tanrei-menubar-item>
+  </tanrei-menubar>
+</DemoFrame>
+
+Before you use a bar item, read when not to use one. A bar item looks exactly like a title that opens a menu, so each one costs a person a moment of doubt about what a press will do.
+
+- **Not for most commands.** A command belongs in a menu, where it has a shortcut, an icon and neighbours that explain it. Keep a bar item for the one or two things a person wants in a single press ("Run", "Share") or the one or two places they go ("Documentation").
+- **Not for anything that cannot be undone.** A bar item asks nothing before it runs and has no destructive look. A command that deletes or discards belongs in a menu.
+- **Not for a choice that is switched on and off.** A title has no place for a check. Put it in a menu of the same bar, as a checkbox or a radio item.
+- **Not as the whole bar.** A row of actions alone is a [toolbar](/components/toolbar/), and a row of links alone is navigation. Either is drawn and works, and is reported in debug builds.
+- **Not with a word that hides what it does.** Nothing but the label tells a bar item from a title. Name an action with a verb, and a link with the place it leads to.
+
+An action is `<tanrei-menubar-item label="Run">`. A press, Enter or Space fires its `click` once. If a menu of the bar is open it closes first, so your handler runs with no menu shown. Focus stays on the bar item unless your handler moves it.
+
+A link item is the same element around your own anchor: `<tanrei-menubar-item><a href="/docs/">Documentation</a></tanrei-menubar-item>`. Everything that makes it a link belongs to the anchor: the anchor's text is the label, and `href`, `target`, `rel` and `aria-current="page"` are written on the anchor. The element draws a title around it and makes it one stop of the bar's keys.
+
+- `click` is the anchor's own click. Cancel it with `preventDefault()` and nothing is followed, which is all a client-side router needs. A router's own link component works as the child.
+- A click with a modifier key, a middle click and the link's context menu are the browser's, as on any link. Space follows a link item as Enter does, because every other entry of the row answers Space.
+- `target="_blank"` draws the icon set's `open_in_new` after the label and adds `noopener`. Say it in words with `target-label` on the element, or once for the product with `setWords({ targetLabel: … })`.
+- `aria-current="page"` on the anchor marks the page a person is on. Its label is drawn heavier and it gets no fill: nothing in a menubar is selected. You set it, and the bar never does.
+- A disabled link item is `disabled` on the element and an anchor without `href`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/menubar.css" />
+
+    <tanrei-menubar label="Application menu" overflow-label="More">
+      <tanrei-menubar-menu label="File">…</tanrei-menubar-menu>
+      <tanrei-menubar-menu label="Edit">…</tanrei-menubar-menu>
+      <tanrei-menubar-item label="Run"></tanrei-menubar-item>
+      <tanrei-menubar-item><a href="/docs/">Documentation</a></tanrei-menubar-item>
+      <tanrei-menubar-item target-label="opens in a new tab">
+        <a href="https://example.com/source" target="_blank">Source</a>
+      </tanrei-menubar-item>
+      <tanrei-menubar-item><a href="/history/" aria-current="page">History</a></tanrei-menubar-item>
+    </tanrei-menubar>
+
+    <script type="module">
+      import '@tanrei/web/components/menubar';
+
+      // An action: its own click, in the row or folded into the overflow item.
+      document.querySelector('tanrei-menubar-item[label="Run"]').addEventListener('click', run);
+      // A link item: the anchor's click. Cancel it and the navigation is yours.
+      document.querySelector('tanrei-menubar-item > a[href="/docs/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push('/docs/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Menubar, MenubarMenu, MenubarItem } from '@tanrei/react';
+    import { Link } from 'your-router';
+
+    <Menubar label="Application menu" overflowLabel="More">
+      <MenubarMenu label="File">…</MenubarMenu>
+      <MenubarItem label="Run" onClick={run} />
+      {/* The router's own link is the child: it renders the anchor and takes the navigation. */}
+      <MenubarItem><Link href="/docs/">Documentation</Link></MenubarItem>
+      <MenubarItem targetLabel="opens in a new tab">
+        <a href="https://example.com/source" target="_blank">Source</a>
+      </MenubarItem>
+    </Menubar>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/menubar.css` is for the time before the script runs, and for a reader whose browser runs none. It lays the link items out as a row in the bar's place, in a title's text style, and each is followed and reached with Tab as any link. The menus and the actions are not there yet. When the bar runs it takes the same anchors where they stand.
+
+## Specs
+
+<DemoFrame label="A row with no room for every title folds the rest into one overflow item" plain column>
+  <tanrei-menubar label="Application menu, narrow" overflow-label="More menus" style="inline-size: 13rem">
+    <tanrei-menubar-menu label="File"><tanrei-menu-item label="New"></tanrei-menu-item><tanrei-menu-item label="Open…"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Edit"><tanrei-menu-item label="Undo"></tanrei-menu-item><tanrei-menu-item label="Redo"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="View"><tanrei-menu-item label="Zoom in"></tanrei-menu-item><tanrei-menu-item label="Zoom out"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Format" disabled><tanrei-menu-item label="Bold"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Help"><tanrei-menu-item label="About"></tanrei-menu-item></tanrei-menubar-menu>
+  </tanrei-menubar>
+</DemoFrame>
+
+<ComponentSpecs name="menubar" />
+
+## Guidelines
+
+### Menus first, and what else the row takes
+
+A title opens a menu, and most of a bar is titles. An entry that acts by itself is the exception: one or two beside the menus, for the reasons under [Entries that act](#entries-that-act). A product with many commands that should be one press away has a toolbar or an app bar for them.
+
+The row takes menus and bar items, and nothing else. A Button, an anchor written straight into the bar, a field or a checkbox would take the keys the bar moves focus with, and would not be a menu item. It is given no place in the row and is reported in debug builds.
+
+### Moving along the bar runs nothing
+
+Focus arriving on a bar item, the arrow keys, Home, End, a typed letter and a pointer passing over it never activate it. Only a press, Enter or Space does. Down Arrow and Up Arrow on a bar item do nothing, and do not scroll the page: the same keys must not open a menu on one entry and move the page on the next.
+
+From inside a menu, the arrow key along the row goes on to the next entry. If that is a title, its menu opens. If it is a bar item, the open menu closes and focus lands on the bar item. Nothing opens and nothing runs, and from there the arrow keys move along the row without opening menus until you open one again.
+
+### The pointer
+
+A press on a title opens its menu. A press on the open title closes it. While one menu is open, a pointer that moves onto another title opens that one at once, without a delay and without a motion. While none is open, hovering only hovers: the bar opens nothing a person did not ask for.
+
+A pointer that moves onto a bar item while a menu is open only hovers it. The open menu stays, so a pointer travelling from File to View across Run does not lose the menu on the way. A press on the bar item closes the menu and then activates it.
+
+### After a command
+
+When an item is activated, its menu closes and focus returns to the menu's title. A command that acts on a document usually wants focus back in the document. Move it in your handler, and the bar leaves it where you put it.
+
+### Shortcuts and access keys
+
+A menu draws an item's shortcut and exposes it to assistive technology. Neither the menu nor the bar listens for the keys. You bind them, because only the product knows which shortcuts apply where focus is.
+
+The bar has no access keys: no underlined letter in a title, and no key that jumps to the bar. They differ by platform, collide with the browser's own on the web, and the letter is chosen per language. Once focus is on the bar, typing a letter moves to the next title that begins with it. To give a key of your own, set a menu's `open` or move focus to a title.
+
+### A narrow window
+
+Titles keep their size and are never cut. When the row has no room for all of them, the bar folds entries whole from the end, as few as it must, into one overflow item drawn as the icon set's `more_horiz`. Its menu holds each folded menu as a submenu with the same label and the same items, and each folded bar item as an item: an action as a menu item, a link item as a link item with the same address. When nothing fits, the row is that one item. The overflow item always opens a menu and never acts by itself.
+
+The keys, the roles and the order are the same at every width, and no command is lost. A folded menu's `open` and `toggle` mean what they mean in the row. A folded bar item's `click` is the same event on the same element: your listener on the bar item, or on your anchor, hears it once wherever the entry is shown. Folded, it hears it while the overflow item's menu is still open, and the menu closes after. Give the overflow item a name with `overflow-label`, or once for the product with `setWords({ menubarOverflowLabel: … })`.
+
+Whether to show a menubar at all on a phone is yours to decide. There, commands in an app bar's actions and its "more" menu are the idiom, and a product is right not to render the bar. The fold exists so that a bar which is rendered never loses a command.
+
+### Where the platform has a menu bar of its own
+
+A desktop system's bar outside the window, and a tablet's bar for a hardware keyboard, are drawn by the system from commands the product declares. Give your commands to that bar as well, with the platform's own API: people look for them there. Tanrei's menubar is the one inside your window, drawn from Tanrei's tokens. It does not fill or replace the system's.
+
+### Do
+
+- Use it for an application's commands, when there are enough of them to need several named menus.
+- Name each menu with one or two words that say what its commands act on.
+- Keep a menu in the bar when none of its commands apply, and disable it. A person still hears that it exists.
+- Show each command's shortcut in its item, and bind the keys yourself.
+- Move focus to what a command acts on when it has run.
+
+### Don't
+
+- Don't use it for a site's sections or pages.
+- Don't put a Button, a bare link, a toggle or a field in the row. An action or a link goes in as a bar item.
+- Don't make a bar of bar items alone, and don't put a command that cannot be undone on the bar.
+- Don't open a menu when a pointer merely passes over a title.
+- Don't mark a title as selected. The open title is marked only while its menu is shown.
+- Don't restyle a bar's menus apart from the product's other menus. They are Menus, and take the menu's tokens.
+
+## Accessibility
+
+<ComponentAccessibility name="menubar" />
+
+### What the component handles
+
+- The bar is exposed with the menubar role, named by `label`, horizontal. Each title is a menu item that opens a menu, named by its menu's label, with whether that menu is open, whether it is disabled, and its position among the entries. An open menu is a menu named by its title.
+- A bar item is a menu item named by its label. It does not say that it opens a menu and has no expanded state. A link item is your anchor with the menu item role, not the link role: assistive technology reads a menubar item by item, and the menubar role is valid only while every entry is a menu item. It says its `target-label` as its description and whether it is the current page.
+- The whole bar is one stop in the focus order: the entry focused or activated last or whose menu was opened last, or else the first. A link item is never a Tab stop of its own.
+- On a title or a bar item: the arrow keys along the row move to the next and previous entry and wrap; Home and End move to the first and last; a typed character moves to the next entry that begins with it. None of these opens a menu or runs anything. On a title, Enter, Space and Down Arrow open the menu with focus on its first enabled item; Up Arrow opens it with focus on its last enabled item. On a bar item, Enter and Space activate it, and Down Arrow and Up Arrow do nothing.
+- In a menu: the menu's own keys. The arrow key toward the end of the row opens a submenu on a submenu item and, on any other item at any depth, goes on to the next enabled entry: a title's menu opens, and a bar item takes focus. The arrow key toward the start closes a submenu, and in the menu's own surface goes to the previous entry. Escape closes the innermost open submenu. With no submenu open, it closes the menu and returns focus to its title. Tab closes the menu and leaves the bar.
+- Disabled titles are reached along the bar, so that a screen reader says the menu exists and is unavailable. With a menu open the same keys pass over them.
+- Keyboard focus shows the focus ring around the title. Focus gained by a pointer does not.
+- A title's hit area reaches the minimum target without changing what is drawn. A title narrower than the target keeps the target's length in the row.
+- An open menu is not modal. Focus is not trapped, nothing is made inert, and a press outside also reaches what is under it.
+- In a right-to-left layout the titles run from the right, the row folds at the left end, each menu opens with its right edge on its title's, and Left Arrow is "next". A title's label keeps its own direction.
+- With enlarged text each title grows with its label and the row folds what no longer fits. At a width of 320 with text at 200% every menu is still reached and nothing scrolls sideways.
+- In forced colors the labels take the button text color, the open title the highlight colors, and a hovered title a line around it. A link item takes the link color a person chose, and a disabled entry the disabled text color.
+- A bar, a menu or a bar item without a label, a menu without items, anything in the bar that is neither a menu nor a bar item, a bar of bar items alone, a link item that opens a new tab without saying so, and an overflow item without a name are reported in debug builds.
+
+### What you need to do
+
+- Give the bar a `label` in the language of the page ("Application menu"). It is never drawn.
+- Give every menu a `label`, every action a `label`, and every link item's anchor its text.
+- Give a link item that opens a new tab a `target-label`, and set `aria-current="page"` on the link item for the page a person is on.
+- Give the overflow item a name with `overflow-label` or with the product's words. The component supplies no words.
+- Bind the shortcuts your items show.
+- Where the system has a menu bar of its own, declare your commands to it as well.
+- Do not use a menubar for navigation.

@@ -1,0 +1,75 @@
+---
+title: Color
+description: Los roles de color, el primario monocromo, el único acento, y cómo se genera y se comprueba cada esquema.
+translationOf: foundations/color.mdx
+sourceHash: 6188eaa54a20c724a48e433b085dce1ebe056728
+---
+
+import Callout from '../../../../components/Callout.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+Tanrei nunca le pide a un componente que elija un color. Los componentes piden un **rol**, como `primary` o `surface-container`, y el tema activo decide qué color ocupa ese rol. Los roles los define el vocabulario de Tanrei, y sus valores, la capa de cada sistema de diseño.
+
+## Roles
+
+- **Intenciones:** `primary`, `secondary` y las cuatro intenciones de estado `error`, `success`, `warning` e `info`. Cada una viene como un conjunto de cuatro: el color, su color `on-` para el contenido que se coloca encima, un `-container` más discreto y `on-…-container`.
+- **Superficies:** `surface`, la escala de cinco pasos de `surface-container-lowest` a `surface-container-highest`, además de `surface-dim` y `surface-bright`. El contenido sobre cualquier superficie usa `on-surface` o el más discreto `on-surface-variant`.
+- **Contornos:** `outline` y `outline-variant` (véase más abajo).
+- Roles **inversos** para los elementos que invierten el tema a propósito, como un snackbar.
+- Roles **fijos**, que mantienen el mismo tono en claro y en oscuro.
+- **Utilidades:** `scrim`, `shadow`, `focus-ring` y los colores de anillo y de sombra que usa la elevación.
+
+Empareja siempre un relleno con su propio rol `on-`. Ese emparejamiento es lo que garantizan las comprobaciones de contraste.
+
+## Un primario monocromo
+
+En el tema predeterminado, `primary` es casi negro en el modo claro y casi blanco en el modo oscuro. Así, la acción más importante de una pantalla es el objeto con más contraste que hay en ella, y nunca compite con los colores propios del producto. `secondary` es un neutro más suave para las acciones de apoyo.
+
+## Un solo acento, usado con moderación
+
+El acento no forma parte del vocabulario del núcleo. Es una paleta que el sistema predeterminado de Tanrei *declara* (semilla `#30a3f0`), lo que le da los mismos cuatro roles que a cualquier intención: `accent`, `on-accent`, `accent-container` y `on-accent-container`. El rol del núcleo `focus-ring` toma su color de él, y nada más lo hace: en el sistema predeterminado, `link` toma el color del primario, y un enlace se distingue del texto que lo rodea por su subrayado. Un producto declara sus propias paletas de la misma manera (un color de marca que no debe recalcularse, o el «correcto» y el «incorrecto» de un cuestionario), y un preajuste que imita a Material Design 3 declara `tertiary` así, en lugar de que Tanrei cargue con ese hueco para todos. No uses el acento para decorar: cuando todo es azul, nada lo es.
+
+## Outline y outline-variant
+
+Los dos roles de contorno se parecen y cumplen funciones opuestas.
+
+| Rol | Propósito | Contraste |
+| --- | --- | --- |
+| `outline` | Un **límite funcional**: lo único que muestra dónde está un control, como en un campo de texto vacío, una casilla de verificación sin marcar o un botón con contorno. | Al menos 3:1 frente a todos los roles de superficie |
+| `outline-variant` | Una **línea fina decorativa**: divisores, bordes de tarjetas, el anillo de la elevación. Quitarla no debe ocultar ninguna información. | Sin requisito; es un negro o un blanco con poco alfa |
+
+<Callout type="caution">
+  Si un borde es la única señal de que existe un control, debe usar `outline`. Una línea fina con un 8% de alfa resulta agradable, y es invisible para muchas personas.
+</Callout>
+
+## Niveles de contraste
+
+Cada tema existe en tres niveles de contraste. **Estándar** es el predeterminado. **Medio** y **alto** llevan los roles de contenido hacia los extremos y refuerzan los dos roles de contorno. En la web, el contraste alto se aplica automáticamente con `prefers-contrast: more`; las plataformas nativas siguen su propio ajuste del sistema. Pruébalo aquí (el selector se aplica a toda la página):
+
+<DemoFrame label="Contraste">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+## Cómo se generan los esquemas
+
+Los colores no se eligen a mano. Un archivo de sistema (`tokens/systems/tanrei.system.json`) declara las paletas (un color semilla para el acento y para el error, y el matiz y el croma de los neutros) e indica, como datos, qué tono de qué paleta toma cada rol en claro y en oscuro, en cada nivel de contraste. Durante la compilación, un generador:
+
+1. convierte cada color clave en una **paleta tonal** en el espacio de color HCT con la biblioteca `material-color-utilities` (Apache-2.0), donde el tono se corresponde de forma predecible con el contraste;
+2. limita las paletas neutras al croma del tema, que de forma predeterminada es cero, para obtener grises puros;
+3. asigna un tono a cada rol para claro y oscuro en cada nivel de contraste;
+4. escribe el resultado como archivos DTCG en `tokens/generated/`.
+
+El algoritmo del generador lleva una versión (`specVersion`), de modo que un cambio en la asignación es un hecho deliberado y revisable, y no un desplazamiento silencioso de todos los colores.
+
+## Invariantes que impone la CI
+
+Para las seis combinaciones de tema y contraste, la compilación de los tokens falla a menos que:
+
+- cada par `(role, on-role)` alcance **4.5:1**;
+- `outline` alcance **3:1** frente a todos los roles de superficie;
+- `focus-ring` alcance **3:1** frente a las superficies sobre las que se dibuja.
+
+No se puede rebajar un umbral para que una compilación pase. Consulta la lista completa de roles y valores en la [referencia de tokens de color](/es/tokens/color/).

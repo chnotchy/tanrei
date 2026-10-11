@@ -1,0 +1,804 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "button-with-menu",
+  "title": "Button with menu",
+  "summary": "Performs a main action with one press, and reveals more options for it in a menu from a second button joined to it.",
+  "category": "actions",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "menu"
+  ],
+  "anatomy": [
+    {
+      "id": "leading",
+      "description": "The leading half: a button that performs the main action. It holds the optional icon and the label, and carries its own hover, focus and press."
+    },
+    {
+      "id": "trailing",
+      "description": "The trailing half: a button that opens and closes the menu of more options. It holds the chevron and carries its own hover, focus and press, at its default width or a narrow one. With hoverOpen on, a fine pointer resting on it opens the menu too."
+    },
+    {
+      "id": "container",
+      "description": "Each half's shape: its fill, outline, elevation and corners. The halves share one look and are joined by a divider or by a narrow gap (separation): round outer ends, and under gap tighter corners where they face each other. The trailing half keeps its shape while the menu is open in the default system."
+    },
+    {
+      "id": "icon",
+      "description": "A glyph before the label in the leading half, drawn in the label color; the padding on its side is a step tighter than without it, as Button's.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The leading half's text and its accessible name."
+    },
+    {
+      "id": "chevron",
+      "description": "The trailing half's glyph. By default it is the icon set's expand_more, turned half a turn while the menu is open. The chevron slot replaces it, and the chevron-open slot gives the trailing half a different glyph while the menu is open."
+    },
+    {
+      "id": "divider",
+      "description": "Under divider, the line on the seam where the two halves touch. Under gap there is none.",
+      "optional": true
+    },
+    {
+      "id": "menu",
+      "description": "The Tanrei Menu the trailing half opens, anchored to the whole button with menu. It keeps its own tokens and behaviour."
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus, around whichever half has it."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "filled",
+        "tonal",
+        "elevated",
+        "outlined"
+      ],
+      "axis": "tanrei.comp.button-with-menu.variant",
+      "default": "filled",
+      "description": "Emphasis, as Button's variants of the same names. A design system may add values."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "axis": "tanrei.comp.button-with-menu.size",
+      "default": "medium",
+      "description": "Visual height (32 / 40 / 56), matching Button's heights. The hit area always meets the minimum target. A design system may add values."
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How the two halves are joined. divider: they touch, and a line is drawn on the seam. gap: they stand a narrow gap apart, with tighter corners where they face each other. Auto takes comp.button-with-menu.container.separation, the design system's answer (divider in the default system). The halves always sit side by side: there is no vertical form."
+    },
+    {
+      "name": "trailingWidth",
+      "type": "enum",
+      "values": [
+        "default",
+        "narrow"
+      ],
+      "default": "default",
+      "description": "How wide the trailing half is. default holds the chevron in a square of the height (32 / 40 / 56); narrow makes the half as wide as a narrow icon-only Button of its size (28 / 32 / 32): the chevron with a small inset on each side and nothing more, a slim handle on the main action. The padding at the rounded outer end is added to the default width only. The hit area meets the minimum target at both."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The leading half's visible text and accessible name (\"Save\"). Required."
+    },
+    {
+      "name": "menuLabel",
+      "type": "string",
+      "default": "",
+      "description": "The trailing half's accessible name (\"More save options\"). Required: the chevron alone is not a name."
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the menu is shown. Where open is a plain value (web, Compose, React Native) the product sets it from toggle and sets it to false from close; where it is a binding or a controller (SwiftUI, Flutter) the button with menu opens and closes the menu through it (SPB-2, SPB-16)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents interaction with both halves and removes them from the focus order."
+    },
+    {
+      "name": "hoverOpen",
+      "type": "boolean",
+      "default": false,
+      "description": "Also opens the menu when a fine pointer rests on the trailing half for hoverDelay, and closes that menu when the pointer leaves the trailing half and the menu (SPB-22 to SPB-25). A press and the keyboard still open it as without. Never applies to touch."
+    },
+    {
+      "name": "hoverDelay",
+      "type": "number",
+      "default": null,
+      "description": "How long, in milliseconds, a fine pointer rests on the trailing half before the menu opens on hover. Null takes comp.button-with-menu.motion.hover-open-delay. Ignored unless hoverOpen is true."
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "description": "The leading half's icon (a glyph of the system's icon set).",
+      "fixture": "glyph"
+    },
+    {
+      "name": "chevron",
+      "description": "The trailing half's glyph in place of expand_more (one glyph of the system's icon set). Alone, it is turned half a turn while the menu is open, as the default is; with chevron-open it is the closed form only (SPB-21).",
+      "fixture": "glyph"
+    },
+    {
+      "name": "chevron-open",
+      "description": "The trailing half's glyph while the menu is open (one glyph of the system's icon set). When it is filled, the trailing half cross-fades between the closed glyph and this one instead of turning (SPB-21).",
+      "fixture": "glyph"
+    },
+    {
+      "name": "menu",
+      "description": "The menu's content: the menu's own item kinds (item, checkbox-item, radio-item and group, as the menu spec defines them), which the button with menu presents in a Tanrei Menu. Fixtures cannot fill it (SPB-15)."
+    }
+  ],
+  "events": [
+    {
+      "name": "click",
+      "description": "The leading half was activated by pointer, touch, keyboard or assistive technology."
+    },
+    {
+      "name": "toggle",
+      "description": "The trailing half asks to open or close the menu: by a press or a key on it (SPB-2), or, with hoverOpen on, by a fine pointer resting on it or leaving it and the menu (SPB-22, SPB-23). Carries the open value it asks for."
+    },
+    {
+      "name": "close",
+      "description": "The menu asks to be closed; carries the menu's reason: escape, back, outside, tab, focus-out or item (in the platform's casing)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "SPB-1",
+      "text": "WHEN the user activates the leading half by pointer, touch, Enter or Space THE button with menu SHALL emit click exactly once, and SHALL NOT open or close the menu."
+    },
+    {
+      "id": "SPB-2",
+      "text": "WHEN the user activates the trailing half by pointer, touch, Enter or Space THE button with menu SHALL emit toggle exactly once with the opposite of open, and WHEN the user presses Down Arrow on the trailing half while open is false it SHALL emit toggle with true; the menu SHALL then open or close through open: through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open where open is a plain value (web, Compose, React Native). A menu that is open from hover is the exception: activating the trailing half then keeps it open and emits no toggle (SPB-24)."
+    },
+    {
+      "id": "SPB-3",
+      "text": "WHILE disabled is true THE button with menu SHALL NOT emit click, toggle or close, SHALL NOT make either half focusable, SHALL expose the disabled state on both halves and SHALL present no menu, whatever open says; it SHALL NOT open the menu on hover, whatever hoverOpen says."
+    },
+    {
+      "id": "SPB-4",
+      "text": "WHILE a half is hovered, keyboard-focused or pressed THE button with menu SHALL render that half's container, label, icon or chevron, outline, elevation and opacity from the component tokens of its variant in that half's highest-precedence active state, with precedence pressed over focused over hovered, and SHALL keep the other half at its own state (neither half is hovered or pressed while the pointer or the press is on the other); focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "SPB-5",
+      "text": "WHEN a half receives keyboard focus THE button with menu SHALL show the focus ring around that half's own shape, without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "SPB-6",
+      "text": "WHERE a half is smaller than the minimum target THE button with menu SHALL extend that half's hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers without changing its visual size — above and below, and outward past the button with menu's start edge for the leading half and past its end edge for the trailing half — and toward the other half no further than the middle of the gap between them, or the seam where they touch, so that the two never overlap; a narrow trailing half SHALL reach its target the same way and SHALL NOT be drawn wider for it; a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "SPB-7",
+      "text": "WHILE disabled is true THE button with menu SHALL render both halves' containers, label, icon, chevron, outline, elevation and opacity from the disabled component tokens of its variant. A disabled button with menu SHALL draw its closed form (the trailing half's closed shape and the closed chevron: the chevron slot's glyph, or expand_more when that slot is empty, unturned), whatever open says."
+    },
+    {
+      "id": "SPB-8",
+      "text": "WHEN variant or size names a value that the active design system does not have THE button with menu SHALL render with the default value's tokens, and WHEN separation or trailingWidth names a value it does not define THE button with menu SHALL render with that prop's default (auto, default); in debug builds it SHALL report the unknown value."
+    },
+    {
+      "id": "SPB-9",
+      "text": "WHEN a half of the button with menu is pressed by pointer, touch, Enter or Space THE half SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "SPB-10",
+      "text": "WHILE pressed THE half SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, icon, chevron, outline, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.button-with-menu.motion.feedback-duration with comp.button-with-menu.motion.state-easing, fades over comp.button-with-menu.motion.state-duration with comp.button-with-menu.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "SPB-11",
+      "text": "THE half SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "SPB-12",
+      "text": "THE button with menu SHALL draw its two halves in one row, joined as its separation names (SPB-30): the leading half at least the height of its size (comp.button-with-menu.container.height.medium for medium, and so on) and as wide as its content, holding its icon, when it has one, and then its label, comp.button-with-menu.container.gap.medium apart, padded at the start by comp.button-with-menu.leading.padding-inline-start-with-icon.medium when it has an icon and by comp.button-with-menu.leading.padding-inline-start.medium when it has none, at the end by comp.button-with-menu.leading.padding-inline-end.medium, and above and below by at least comp.button-with-menu.container.padding-block.medium; and the trailing half as tall as the leading half, holding the chevron centred between comp.button-with-menu.trailing.padding-inline.medium on each side WHILE trailingWidth is default and between comp.button-with-menu.trailing.padding-inline-narrow.medium on each side WHILE trailingWidth is narrow (and so on for each size). Each half SHALL then take the outer padding of SPB-32. THE button with menu SHALL NOT stack its halves: it has no vertical form.",
+      "verify": "Fixtures: each renders the button with menu at its natural width, start-aligned and vertically centred on a 320 × 96 stage. `open` fixtures show the trailing half's open form and present no menu, because a fixture cannot fill the menu slot (SPB-15, SPB-20); the menu's own fixtures cover its surface. Under the default system the trailing half holds its chevron in 32, 40 and 56 at the default width (filled-small, filled-medium, filled-large) and is 4 wider than that for the outer padding; at the narrow width it is 28, 32 and 32 wide, the chevron and 4 on each side, with no outer padding (filled-narrow-small, filled-narrow, filled-narrow-large); with an icon the leading half's start padding is 12 at small and medium and 16 at large before the outer padding (filled-icon-small, filled-icon, filled-icon-large)."
+    },
+    {
+      "id": "SPB-13",
+      "text": "THE button with menu SHALL round the leading half's start corners and the trailing half's end corners by comp.button-with-menu.container.shape, capped at half that half's height (so that the default system's sys.shape.corner.full draws round ends) and eased by sys.shape.corner-smoothing. WHILE its separation is gap it SHALL round the corners where the halves face each other by comp.button-with-menu.container.inner-shape and, WHILE open is true, the trailing half's by comp.button-with-menu.container.inner-shape-open, each capped and eased the same way; WHILE its separation is divider those corners SHALL be square, open or not. WHILE open is true the chevron SHALL show its open form (SPB-21). WHEN open changes THE button with menu SHALL change the chevron, and the trailing half's inner corners where the two tokens differ, over comp.button-with-menu.motion.open-duration with comp.button-with-menu.motion.open-easing, and at once where motion is reduced. THE button with menu SHALL NOT change the shape of a half for any other reason: where comp.button-with-menu.container.inner-shape-open has the value of comp.button-with-menu.container.inner-shape, as in the default system, the trailing half keeps its shape while the menu is open and the chevron alone shows it. Each half SHALL clip its fill, state layer and ripple to its own shape, and draw its outline and its elevation's ring as SPB-26 says.",
+      "verify": "Under the default system: filled-medium and filled-open have the same outline, a pill with a rule in it, and differ in the chevron alone; filled-gap and filled-gap-open have round outer ends and sys.shape.corner.small where the halves face each other, in both. Under m3-like, which sets the open corners to the outer shape, the trailing half of filled-gap-open is round."
+    },
+    {
+      "id": "SPB-14",
+      "text": "THE button with menu SHALL set the label in the text style of its size (comp.button-with-menu.label.typescale.medium, and so on) and the label color of its variant and the leading half's state (comp.button-with-menu.filled.label.color for filled at rest, and so on), SHALL NOT truncate it (it stays on one line while it fits, wraps when the layout gives it less width, and the halves grow in height with it), and SHALL draw the icon and the chevron (expand_more, or a chevron slot's glyph, SPB-21) at the icon size of its size (comp.button-with-menu.icon.size.medium, and so on) through the icon helper, each in the label color of its own half's state, with the family and fill of an unselected icon, sys.icon.weight, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max."
+    },
+    {
+      "id": "SPB-15",
+      "text": "WHEN open becomes true THE button with menu SHALL present the items of its menu slot as a Tanrei Menu, which then behaves as MNU-1 to MNU-29 say, anchored to the whole button with menu with placement bottom-end (below it with the end edges aligned, flipping as MNU-2 says), with the trailing half as the element focus returns to when the menu closes: an operated overlay that is not modal, as the menu is; a menu that opens from hover SHALL NOT take focus (SPB-22). WHEN open becomes false THE button with menu SHALL remove the menu."
+    },
+    {
+      "id": "SPB-16",
+      "text": "WHEN the menu asks to be closed (MNU-5, MNU-6) THE button with menu SHALL emit close once with the menu's reason and SHALL be closed: through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open to false where open is a plain value (web, Compose, React Native); WHEN an action item of the menu is activated THE button with menu SHALL let the item emit its click first and then emit close with the reason item. A press on the trailing half while the menu is open is not a press outside: it SHALL emit toggle with false (SPB-2), or keep a menu that is open from hover open (SPB-24), and emit no close."
+    },
+    {
+      "id": "SPB-17",
+      "text": "THE button with menu SHALL expose two buttons in reading order, each its own Tab stop: the leading half named by label, and the trailing half named by menuLabel, exposing that it opens a menu and whether the menu is open where the platform has those properties, however it opened; the icon and the chevron (expand_more or a chevron slot's glyph) SHALL be hidden, and the button with menu SHALL expose no element of its own around them."
+    },
+    {
+      "id": "SPB-18",
+      "text": "THE button with menu SHALL cast the blurred layers of each half's elevation, of its variant and that half's state (comp.button-with-menu.elevated.container.elevation for elevated at rest, and so on), outside that half without clipping them, and draw the elevation's ring inside the half (SPB-26); WHEN the elevation or the colors of a half change between states THE button with menu SHALL animate the change over comp.button-with-menu.motion.state-duration with comp.button-with-menu.motion.state-easing, changing them at once where motion is reduced."
+    },
+    {
+      "id": "SPB-19",
+      "text": "WHEN the layout direction is right-to-left THE button with menu SHALL put the trailing half on the left, mirror the order of the leading half's icon and label and apply its paddings by logical start and end, SHALL present its menu with the end edges aligned at the left (the menu's left edge on the button with menu's left edge, below the trailing half: SPB-15 and MNU-2), SHALL NOT mirror the chevron expand_more or change the way it turns, SHALL leave a glyph of the icon slot or of a chevron slot to the icon helper (SPB-28), and SHALL grow a ripple from the point of contact as in left-to-right.",
+      "verify": "Fixture filled-narrow-rtl sets direction to rtl (a fixture's `direction`): the narrow trailing half is at the left with its round end at the left, the seam (a divider under the default system) on its right, and the label's outer padding at the right. Every other fixture is drawn in left-to-right."
+    },
+    {
+      "id": "SPB-20",
+      "text": "WHILE label or menuLabel is empty THE button with menu SHALL still render, and in debug builds report the half that has no accessible name; WHILE the menu slot holds no item THE button with menu SHALL still emit toggle and draw the trailing half's open form, SHALL present no menu, and in debug builds report the empty menu."
+    },
+    {
+      "id": "SPB-21",
+      "text": "WHILE neither the chevron slot nor the chevron-open slot holds a glyph THE button with menu SHALL draw the icon set's expand_more as the chevron, turned half a turn while open is true; WHILE only the chevron slot holds a glyph THE button with menu SHALL draw that glyph in its place, turned the same way; WHILE the chevron-open slot holds a glyph THE button with menu SHALL draw it unturned while open is true and, while open is false, the chevron slot's glyph (or expand_more when that slot is empty) unturned, and WHEN open changes SHALL cross-fade from one to the other instead of turning. Each slot SHALL hold at most one glyph: the button with menu SHALL draw the first and in debug builds report the rest.",
+      "verify": "Fixtures filled-medium and filled-open (expand_more, turned; the chevron is the only thing that differs between them under the default system), filled-chevron-turned-open (a chevron slot glyph alone, turned), filled-chevron-custom and filled-chevron-custom-open (the two slots' glyphs, unturned)."
+    },
+    {
+      "id": "SPB-22",
+      "text": "WHERE hoverOpen is true, WHEN a fine pointer (a mouse, a trackpad, or a pen that hovers) enters the trailing half while open is false and stays on it for hoverDelay milliseconds, or for comp.button-with-menu.motion.hover-open-delay when hoverDelay is null, THE button with menu SHALL emit toggle with true once, and WHEN open then becomes true the menu SHALL be open from hover: THE button with menu SHALL present it without moving focus into it (in place of MNU-1's move to the first item), focus staying where it was, and a pointer on an item SHALL render the item hovered without moving focus to it (in place of MNU-8). The pointer leaving the trailing half before the delay has passed, a press on either half, or open becoming true by other means SHALL cancel the wait. Touch, and pointer events a platform synthesises from touch, SHALL never open the menu on hover. WHERE hoverDelay is negative or not a number THE button with menu SHALL wait for comp.button-with-menu.motion.hover-open-delay, and in debug builds report the value.",
+      "verify": "Fixture filled-opens-on-hover renders as filled-medium: hoverOpen changes nothing at rest. Interaction tests with a mouse pointer and with touch; the wait is observable with a hoverDelay far from the token's value."
+    },
+    {
+      "id": "SPB-23",
+      "text": "WHILE the menu is open from hover, WHEN the pointer has been off both the trailing half and the menu's surface for comp.button-with-menu.motion.hover-close-delay THE button with menu SHALL emit toggle with false once and SHALL NOT move focus; a pointer that comes back onto either within that time SHALL keep the menu open, and a press outside both SHALL close it as MNU-5 says. WHILE the menu is open for any other reason (a press, a key, or the product setting open) THE button with menu SHALL NOT close it when the pointer leaves."
+    },
+    {
+      "id": "SPB-24",
+      "text": "WHEN the user activates the trailing half by pointer, touch, Enter, Space or Down Arrow while the menu is open from hover THE button with menu SHALL NOT emit toggle, SHALL keep the menu open and SHALL move focus to its first enabled item as MNU-1 says; from then on the menu SHALL be open as if that activation had opened it: the pointer leaving no longer closes it (SPB-23), MNU-8 applies again, and the next activation of the trailing half emits toggle with false (SPB-2)."
+    },
+    {
+      "id": "SPB-25",
+      "text": "WHILE the menu is open from hover, WHEN the user presses Escape or the platform's back, wherever focus is, THE button with menu SHALL emit close once with the reason escape or back, SHALL be closed as SPB-16 says, SHALL NOT move focus, and SHALL keep that key from reaching anything else, so that what hover showed can be dismissed without moving the pointer (WCAG 1.4.13); a later Escape reaches the page as usual."
+    },
+    {
+      "id": "SPB-26",
+      "text": "THE button with menu SHALL draw each half's outline (comp.button-with-menu.outline.width.medium wide at the medium size, and so on, in the outline color of its variant and that half's state) and the ring of its elevation (the layer with no offset, no blur and a positive spread, which the default system gives every level above sys.elevation.level0 and which a platform otherwise draws as a border) inside that half's own edge, the outline over the ring. WHILE its separation is gap neither SHALL reach into the comp.button-with-menu.container.inner-gap between the halves, so that the two halves' edges never meet, however narrow that gap is; WHILE its separation is divider each half SHALL draw neither along the edge where the halves touch, so that the outline and the ring run once around the joined shape and the divider (SPB-31) is the only line on the seam. Only the elevation's blurred layers SHALL fall outside a half (SPB-18).",
+      "verify": "Fixtures elevated-gap, elevated-gap-open and outlined-gap under the default system: a column of pixels through the middle of the gap between the halves shows no ring or outline color along its whole height (only the stage and the soft shadow). Fixtures outlined-medium and elevated-medium (divider): a column of pixels through the seam shows the divider color in its middle and neither outline nor ring above and below it. Where a platform exposes the geometry, a unit test reads it too (on the web, the ring is an inset shadow or a border and nothing spreads outward). Repeat for a hovered half, whose elevation differs."
+    },
+    {
+      "id": "SPB-27",
+      "text": "THE button with menu SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the button with menu is shown THE button with menu SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state and its focus, an open menu placed again by the new direction.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "SPB-28",
+      "text": "WHERE the layout direction is right-to-left THE button with menu SHALL draw the glyph of its icon slot and a glyph of its chevron or chevron-open slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order SPB-19 gives. THE button with menu SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The chevron it draws itself (expand_more) is not marked and is never mirrored, and a mirrored chevron-slot glyph is turned while open as an unmirrored one is (SPB-21).",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "SPB-29",
+      "text": "THE button with menu SHALL lay out its label as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE button with menu SHALL still place the label and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "SPB-30",
+      "text": "THE button with menu SHALL join its two halves as its separation names: WHILE separation is auto, as comp.button-with-menu.container.separation names, which follows sys.behavior.separation unless a design system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say. Under gap the halves SHALL stand comp.button-with-menu.container.inner-gap apart with nothing drawn between them and the inner corners of SPB-13; under divider the halves SHALL touch, with square inner corners and the divider of SPB-31 on the seam. WHEN separation, or the token it follows, changes THE button with menu SHALL draw the other form at once, without animation, keeping its open state and its focus. A platform that cannot draw a choice SHALL fall back to the first value, divider, and state that in its README.",
+      "verify": "The fixtures whose id has -gap set separation to gap and filled-divider sets divider, so they draw the same under every design system; every other fixture leaves it auto and draws divider under the default system and gap under m3-like. Test auto under a system that sets the component token apart from sys.behavior.separation, and each explicit value under a system whose tokens say the other."
+    },
+    {
+      "id": "SPB-31",
+      "text": "WHILE its separation is divider THE button with menu SHALL draw on the seam between its halves one line comp.button-with-menu.divider.thickness thick, in the divider color of its variant (comp.button-with-menu.filled.divider.color for filled at rest, and so on), centred on the seam, over the halves' fills and state layers, from comp.button-with-menu.divider.inset below the top of the seam to the same distance above its bottom. The line SHALL take no space of its own, SHALL NOT take a press (a press on it goes to the half under the point), SHALL NOT be exposed to assistive technology, and SHALL keep its resting color while either half is hovered, focused or pressed; WHILE disabled is true it SHALL take the disabled divider color of its variant. A half's state layer, ripple and focus ring SHALL still follow that half's own shape.",
+      "verify": "Fixtures filled-medium, tonal-medium, elevated-medium, outlined-medium and filled-disabled under the default system: one rule on the seam, 8 short of the top and of the bottom, in sys.color.outline (the outlined one in its own outline color; the disabled one faded as disabled content is)."
+    },
+    {
+      "id": "SPB-32",
+      "text": "THE button with menu SHALL add comp.button-with-menu.container.outer-inset to the leading half's start padding, under either separation and at either trailing width, and to the trailing half's end padding WHILE trailingWidth is default, under either separation, so that content beside a rounded outer end looks as far from it as from the tighter corner on its other side: the leading half SHALL be wider by that amount with its icon and label moved inward by it, and the trailing half SHALL be wider by that amount with its chevron centred in what is left, half of it nearer the leading half. WHILE trailingWidth is narrow THE trailing half SHALL take no outer padding: it SHALL be as wide as the chevron's box and comp.button-with-menu.trailing.padding-inline-narrow.medium on each side of it (of its own size) and no wider, with the chevron at its centre, so that where the two components' tokens agree, as in the default system, it is exactly as wide as a narrow icon-only Button of its size (BTN-12). In a right-to-left layout the start is the right, as SPB-19 says.",
+      "verify": "Fixture filled-medium under the default system: the label is 20 from the start edge and 16 from the leading half's end edge; the trailing half is 44 wide and its chevron's centre 20 from the seam and 24 from the end edge. Fixtures filled-narrow, outlined-narrow, filled-gap-narrow and outlined-gap-narrow: the trailing half is 32 wide, the width of the Button fixture filled-icon-narrow, and its chevron's centre is 16 from the seam (or from the gap) and 16 from the end edge; the leading half is as in filled-medium. Fixture filled-narrow-rtl: the same, mirrored."
+    }
+  ],
+  "accessibility": {
+    "role": "button",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the leading half, then to the trailing half."
+      },
+      {
+        "keys": "Enter or Space on the leading half",
+        "action": "Performs the main action (click)."
+      },
+      {
+        "keys": "Enter, Space or Down Arrow on the trailing half",
+        "action": "Opens the menu (Enter and Space also close it); focus moves to the first enabled item. On a menu that opened on hover, keeps it open and moves focus to its first enabled item."
+      },
+      {
+        "keys": "Escape (in the menu)",
+        "action": "Closes the menu and returns focus to the trailing half."
+      },
+      {
+        "keys": "Escape (a menu that opened on hover)",
+        "action": "Closes the menu wherever focus is, and leaves focus where it was."
+      }
+    ],
+    "labeling": "The leading half is named by label, the trailing half by menuLabel, which should say what more the menu offers (\"More save options\"). The trailing half exposes that it opens a menu and whether it is open (aria-haspopup and aria-expanded on the web), however it opened. The icon and the chevron, whether the default or a slot's glyph, are decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "Two buttons, two Tab stops: the trailing half is a menu button in the WAI-ARIA sense, and the menu is the Tanrei Menu with its own keyboard (MNU-7).",
+      "The menu's items are the menu's own item kinds; their events (an item's click, a checkbox item's change, a group's change) are the menu's, and reach the product as they do from a menu anywhere.",
+      "Opening on hover is an addition for fine pointers, never a replacement: every menu that hover opens can also be opened by a press and by the keyboard, and keyboard and screen reader use is unchanged. It meets WCAG 1.4.13: the pointer can move onto the menu (the close delay), Escape dismisses it without moving the pointer, and it stays until the pointer leaves or the person dismisses it. It does not take focus, so a person typing elsewhere is not interrupted.",
+      "Text must remain readable at 200% text size: both halves grow in height together and the label never truncates.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "The divider is decoration: it is not exposed and takes no press. The two halves are two buttons whether a line or a gap is between them.",
+      "A narrow trailing half is drawn narrower than the minimum target; its hit area is not (SPB-6). Its target reaches outward past the end edge, so leave room for it there.",
+      "In the default system the outline of the outlined variant, and the divider of the outlined, tonal and elevated variants, are the hairline (the divider's color), far below 3:1 against their ground. That is within WCAG 1.4.11: the leading half is identified by its label, the trailing half by its chevron, and each half answers hover, focus and press on its own shape. The divider of the filled variant keeps the functional outline role, because a hairline cannot be seen on that fill."
+    ]
+  },
+  "tokens": "comp.button-with-menu",
+  "fixtures": [
+    {
+      "id": "filled-medium",
+      "props": {
+        "variant": "filled",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "tonal-medium",
+      "props": {
+        "variant": "tonal",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "elevated-medium",
+      "props": {
+        "variant": "elevated",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "outlined-medium",
+      "props": {
+        "variant": "outlined",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-small",
+      "props": {
+        "variant": "filled",
+        "size": "small",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-icon",
+      "props": {
+        "variant": "filled",
+        "label": "Save",
+        "menuLabel": "More save options"
+      },
+      "slots": {
+        "icon": "save"
+      }
+    },
+    {
+      "id": "filled-icon-small",
+      "props": {
+        "variant": "filled",
+        "size": "small",
+        "label": "Save",
+        "menuLabel": "More save options"
+      },
+      "slots": {
+        "icon": "save"
+      }
+    },
+    {
+      "id": "filled-icon-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "Save",
+        "menuLabel": "More save options"
+      },
+      "slots": {
+        "icon": "save"
+      }
+    },
+    {
+      "id": "filled-open",
+      "props": {
+        "variant": "filled",
+        "open": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "outlined-open",
+      "props": {
+        "variant": "outlined",
+        "open": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "elevated-open",
+      "props": {
+        "variant": "elevated",
+        "open": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "disabled": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "disabled": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-chevron-custom",
+      "props": {
+        "variant": "filled",
+        "label": "Share",
+        "menuLabel": "More share options"
+      },
+      "slots": {
+        "chevron": "more_vert",
+        "chevron-open": "close"
+      }
+    },
+    {
+      "id": "filled-chevron-custom-open",
+      "props": {
+        "variant": "filled",
+        "open": true,
+        "label": "Share",
+        "menuLabel": "More share options"
+      },
+      "slots": {
+        "chevron": "more_vert",
+        "chevron-open": "close"
+      }
+    },
+    {
+      "id": "filled-chevron-turned-open",
+      "props": {
+        "variant": "filled",
+        "open": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      },
+      "slots": {
+        "chevron": "arrow_drop_down"
+      }
+    },
+    {
+      "id": "filled-opens-on-hover",
+      "props": {
+        "variant": "filled",
+        "hoverOpen": true,
+        "hoverDelay": 500,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-divider",
+      "props": {
+        "variant": "filled",
+        "separation": "divider",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-gap",
+      "props": {
+        "variant": "filled",
+        "separation": "gap",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "tonal-gap",
+      "props": {
+        "variant": "tonal",
+        "separation": "gap",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "elevated-gap",
+      "props": {
+        "variant": "elevated",
+        "separation": "gap",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "outlined-gap",
+      "props": {
+        "variant": "outlined",
+        "separation": "gap",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-gap-open",
+      "props": {
+        "variant": "filled",
+        "separation": "gap",
+        "open": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "elevated-gap-open",
+      "props": {
+        "variant": "elevated",
+        "separation": "gap",
+        "open": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-gap-disabled",
+      "props": {
+        "variant": "filled",
+        "separation": "gap",
+        "disabled": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-narrow",
+      "props": {
+        "variant": "filled",
+        "trailingWidth": "narrow",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-narrow-small",
+      "props": {
+        "variant": "filled",
+        "size": "small",
+        "trailingWidth": "narrow",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-narrow-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "trailingWidth": "narrow",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "outlined-narrow",
+      "props": {
+        "variant": "outlined",
+        "trailingWidth": "narrow",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-gap-narrow",
+      "props": {
+        "variant": "filled",
+        "separation": "gap",
+        "trailingWidth": "narrow",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-narrow-open",
+      "props": {
+        "variant": "filled",
+        "trailingWidth": "narrow",
+        "open": true,
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "outlined-gap-narrow",
+      "props": {
+        "variant": "outlined",
+        "separation": "gap",
+        "trailingWidth": "narrow",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    },
+    {
+      "id": "filled-narrow-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "filled",
+        "trailingWidth": "narrow",
+        "label": "Save",
+        "menuLabel": "More save options"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-button-with-menu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "trailingWidth": "trailingWidth",
+        "label": "label",
+        "menuLabel": "menuLabel",
+        "open": "open",
+        "disabled": "disabled",
+        "hoverOpen": "hoverOpen",
+        "hoverDelay": "hoverDelay"
+      },
+      "events": {
+        "click": "click",
+        "toggle": "toggle",
+        "close": "close"
+      },
+      "notes": "`<tanrei-button-with-menu label=\"Save\" menu-label=\"More save options\" hover-open hover-delay=\"400\">` with optional glyph elements in `slot=\"icon\"`, `slot=\"chevron\"` and `slot=\"chevron-open\"` (the trailing half draws `expand_more` through the icon helper when both chevron slots are empty), and the menu's item elements (`tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-menu-group`) as children with `slot=\"menu\"`, which it forwards into a `tanrei-menu` in its shadow root. Only the leading half's `click` reaches listeners on the element; the trailing half fires `toggle` (a CustomEvent whose `detail.open` is the value asked for, not the popover's ToggleEvent, which does not leave the shadow root), for a press, a key or a hover alike, and the menu's close fires `close` with `detail.reason`. The product sets `open` from both. `hoverDelay` is a number of milliseconds; unset (null) takes the token. Hover opening listens for `pointerenter` / `pointerleave` with `pointerType` `mouse` or `pen`, and opens the menu through the menu's internal no-focus channel (SPB-22); Escape for a menu open from hover is a capturing keydown on the document. Each half draws its outline as an inside border and its elevation ring as an inset box-shadow layer, the blurred layers staying outside (SPB-26). The trailing half carries `aria-haspopup=\"menu\"`, `aria-expanded` and `aria-controls`, and is the menu's focus-return target. `separation` (`auto`, `divider`, `gap`) and `trailing-width` (`default`, `narrow`) are attributes; auto reads the name in `--tanrei-comp-button-with-menu-container-separation`. Under divider the halves touch, the rule is drawn over the seam, and neither half draws a border or an inset ring on its inner edge."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiButtonWithMenu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "trailingWidth": "trailingWidth",
+        "label": "title",
+        "menuLabel": "menuLabel",
+        "open": "isMenuPresented",
+        "disabled": "disabled",
+        "hoverOpen": "opensOnHover",
+        "hoverDelay": "hoverDelay"
+      },
+      "events": {
+        "click": "action",
+        "toggle": "isMenuPresented",
+        "close": "isMenuPresented"
+      },
+      "notes": "`TanreiButtonWithMenu(_ title:, icon:, menuLabel:, isMenuPresented: Binding<Bool>, opensOnHover: Bool = false, hoverDelay: Duration? = nil, action:, chevron:, openChevron:) { TanreiMenuItem … }`: the title first, as `Button(_:action:)`; `chevron` and `openChevron` are optional glyph builders (the chevron and chevron-open slots); the trailing view builder is the menu's content, presented as `TanreiMenu` is. The trailing half writes the binding (toggle), and so does the menu when it closes (close); a product that needs the close reason reads the menu's. `disabled` follows `.disabled(_:)`. Hover uses `.onContinuousHover` (macOS, and iPadOS with a pointer); a nil `hoverDelay` takes the token. SwiftUI's `Menu(primaryAction:)` is not used: neither half can be tokenised. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiButtonWithMenu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "trailingWidth": "trailingWidth",
+        "label": "text",
+        "menuLabel": "menuContentDescription",
+        "open": "menuExpanded",
+        "disabled": "enabled",
+        "hoverOpen": "openOnHover",
+        "hoverDelay": "hoverDelayMillis"
+      },
+      "events": {
+        "click": "onClick",
+        "toggle": "onMenuExpandedChange",
+        "close": "onMenuDismissRequest"
+      },
+      "notes": "`TanreiButtonWithMenu(text, onClick, menuContentDescription, menuExpanded, onMenuExpandedChange, onMenuDismissRequest, variant, size, enabled, icon, chevron, openChevron, openOnHover = false, hoverDelayMillis: Long? = null) { TanreiMenuItem(…) }`: `chevron` and `openChevron` are optional glyph lambdas (the chevron and chevron-open slots); the content lambda is the menu's, shown in the `TanreiMenu` popup. State hoisting: the caller keeps `menuExpanded`, sets it from `onMenuExpandedChange` (a press, a key or a hover) and to false from `onMenuDismissRequest`, which carries the reason. Hover reads `PointerEventType.Enter` / `Exit` for `PointerType.Mouse` and `Stylus` only; a null delay takes the token. The trailing half is `Role.Button` with a content description, and its expanded state as `expand` / `collapse` semantics actions. `enabled` is the inverse flag. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiButtonWithMenu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "trailingWidth": "trailingWidth",
+        "label": "label",
+        "menuLabel": "menuSemanticLabel",
+        "open": "menuController",
+        "disabled": "onPressed",
+        "hoverOpen": "openOnHover",
+        "hoverDelay": "hoverDelay"
+      },
+      "events": {
+        "click": "onPressed",
+        "toggle": "onMenuToggle",
+        "close": "onMenuClose"
+      },
+      "notes": "`TanreiButtonWithMenu(label:, icon:, chevron:, openChevron:, menuSemanticLabel:, onPressed:, menuController:, menuChildren: [TanreiMenuItem(…)], onMenuToggle:, onMenuClose:, openOnHover: false, hoverDelay: null, variant:, size:)`, built with the widgets library: `chevron` and `openChevron` are optional glyph widgets (the chevron and chevron-open slots); `menuChildren` are the menu's items, shown through `TanreiMenuAnchor`. The controller is a `TanreiMenuController` (the Tanrei menu's own), passed or created internally; it is open, so the button with menu opens and closes the menu itself; `onMenuToggle` and `onMenuClose` report it. Hover uses a `MouseRegion` and ignores `PointerDeviceKind.touch`; `hoverDelay` is a `Duration?`, null taking the token. A null `onPressed` disables it. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "ButtonWithMenu",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "trailingWidth": "trailingWidth",
+        "label": "label",
+        "menuLabel": "menuAccessibilityLabel",
+        "open": "menuVisible",
+        "disabled": "disabled",
+        "hoverOpen": "hoverOpen",
+        "hoverDelay": "hoverDelay"
+      },
+      "events": {
+        "click": "onPress",
+        "toggle": "onMenuToggle",
+        "close": "onMenuDismiss"
+      },
+      "notes": "`<ButtonWithMenu label icon chevron openChevron menuAccessibilityLabel menuVisible hoverOpen hoverDelay onPress onMenuToggle onMenuDismiss menuItems={[…]} variant size>`: `chevron` and `openChevron` are optional glyph names (the chevron and chevron-open slots); `menuItems` is the `Menu`'s `items` array (the union of its four kinds), shown by a `Menu` on the overlay layer that `TanreiProvider` renders. Controlled: the caller sets `menuVisible` from `onMenuToggle` and to false from `onMenuDismiss`, which carries the reason. Hover uses `Pressable`'s `onHoverIn` / `onHoverOut`, which fire only for a pointer (iPadOS, Android with a mouse, web); `hoverDelay` is in milliseconds, undefined taking the token. The trailing half has the `button` role with `accessibilityState.expanded`. Ships the previous revision today (6 px corners, a fixed turning chevron, no hover opening); the rest is owed, including a check of SPB-26 on this platform. Also owed: the component's current name, `separation` and `trailingWidth`, the divider (SPB-31), the outer padding (SPB-32), a trailing half that keeps its shape while open (SPB-13), the tighter padding beside the icon, and the new fixtures; reading comp.button-with-menu.container.separation as a typed choice needs the native token emitters to write a component's choice of kind as a typed enumeration, which they do not yet."
+    }
+  }
+}

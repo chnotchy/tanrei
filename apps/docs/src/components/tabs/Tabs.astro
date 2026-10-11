@@ -1,0 +1,87 @@
+---
+// The docs' tabs, drawn by Tanrei's own Tab view with the authoring shape of Starlight's:
+//
+//   <Tabs syncKey="platform">
+//     <TabItem label="Web">…</TabItem>
+//     <TabItem label="React">…</TabItem>
+//   </Tabs>
+//
+// Sets with the same `syncKey` are one group (`group`): choosing a tab in one shows the tab of that value in every
+// other set that has it, on this page at once and on every other page from then on, remembered on the device under the
+// docs' own key (`remember-as`, components/tabs/keys.mjs). A set without a `syncKey` is its own.
+//
+// The row is the quiet one: the tonal variant, without its track, and
+// with no transition — a sample's panels are read, not watched, so the panel and the row's indicator change in one frame.
+//
+// The panels are plain HTML: before `tanrei-tab-view` is defined — or where no script runs — the set shows its first
+// panel (or the one the reader chose before, which the page's head finds), under the room its row of tabs will take.
+import { contentLang, strings } from '../../lib/i18n';
+import { tabsKey } from './keys.mjs';
+interface Props {
+  /** The shared choice this set belongs to (`platform`, `contrast`): lower-case letters, digits and hyphens. */
+  syncKey?: string;
+  /** The accessible name of the row of tabs: what the panels are views of. Named from `syncKey` where the docs know it. */
+  label?: string;
+}
+const { syncKey } = Astro.props;
+if (syncKey !== undefined && !/^[a-z0-9-]+$/.test(syncKey)) throw new Error(`Tabs: syncKey "${syncKey}" must be lower-case letters, digits and hyphens`);
+const t = strings(contentLang(Astro));
+const label = Astro.props.label ?? (syncKey === 'platform' ? t.platformChoice : syncKey === 'contrast' ? t.contrast : undefined);
+---
+
+<tanrei-tab-view class="docs-tabs" variant="tonal" track="false" transition="none" label={label} group={syncKey} remember-as={syncKey && tabsKey(syncKey)}>
+  <slot />
+</tanrei-tab-view>
+
+<script>
+  // The Tab view, the Tabs it draws and their panels — not the whole package: most pages hold no other element.
+  import '@tanrei/web/components/tab-view';
+</script>
+
+<style is:global>
+  /* The row of tabs is the view's own child, made in the browser: Starlight's flow spacing between siblings is not for
+     its tabs, and the panel starts right under the row. */
+  .docs-tabs > tanrei-tabs > tanrei-tab,
+  .docs-tabs > tanrei-tab-panel {
+    margin: 0;
+  }
+  .docs-tabs > tanrei-tab-panel {
+    padding-block-start: var(--tanrei-sys-space-space100);
+  }
+
+  /* Until the element is defined: the first panel, as plain content, under the room the row of tabs will take — a
+     medium tab's height (TAB-18, TAB-44) — so that nothing moves when the row is drawn. The page's head shows the panel a
+     reader chose before instead (keys.mjs). */
+  .docs-tabs:not(:defined) {
+    display: block;
+  }
+  .docs-tabs:not(:defined)::before {
+    content: '';
+    display: block;
+    block-size: var(--tanrei-comp-tabs-container-height-medium);
+  }
+  .docs-tabs:not(:defined) > tanrei-tab-panel {
+    display: block;
+  }
+  .docs-tabs:not(:defined) > tanrei-tab-panel:not(:first-of-type) {
+    display: none;
+  }
+  /* Where no script runs the element is never defined and there are no tabs to choose with: every panel is shown,
+     under its tab's label. */
+  @media (scripting: none) {
+    .docs-tabs:not(:defined)::before {
+      content: none;
+    }
+    .docs-tabs:not(:defined) > tanrei-tab-panel:not(:first-of-type) {
+      display: block;
+    }
+    .docs-tabs:not(:defined) > tanrei-tab-panel::before {
+      content: attr(label);
+      display: block;
+      margin-block: var(--tanrei-sys-space-space200) var(--tanrei-sys-space-space100);
+      font: var(--tanrei-sys-typescale-label-large-font);
+      letter-spacing: var(--tanrei-sys-typescale-label-large-letter-spacing);
+      color: var(--tanrei-sys-color-on-surface-variant);
+    }
+  }
+</style>

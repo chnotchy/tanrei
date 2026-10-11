@@ -1,0 +1,48 @@
+---
+title: Tanrei
+description: Web Components, SwiftUI, Jetpack Compose, Flutter और React Native के लिए एक डिज़ाइन सिस्टम, जो टोकन और स्पेक के एक ही सेट से बना है।
+translationOf: index.mdx
+sourceHash: 0a19eae7e744492d4ece696c3d93bdbcc1d0a23b
+template: splash
+hero:
+  title: एक सिस्टम।<br />पाँच प्लैटफ़ॉर्म।
+  tagline: Tanrei एक ओपन-सोर्स डिज़ाइन सिस्टम है, जो वेब, iOS, Android, Flutter और React Native तक वही टोकन, वही कंपोनेंट और सुलभता का वही कॉन्ट्रैक्ट पहुँचाता है, हर एक को उसके अपने तरीक़े से।
+  actions:
+    - text: शुरुआत करें
+      link: /hi/getting-started/
+      variant: primary
+    - text: कंपोनेंट
+      link: /hi/components/
+      variant: secondary
+    - text: स्थिति
+      link: /hi/status/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '../../../components/cards';
+
+## तालमेल में बने रहने के लिए बनाया गया
+
+<CardGrid>
+  <Card title="दो सोर्स ऑफ़ ट्रुथ" icon="description">
+    डिज़ाइन टोकन और कंपोनेंट स्पेक ही हाथ से लिखे गए कॉन्ट्रैक्ट हैं। प्लैटफ़ॉर्म का कोड, ये दस्तावेज़ और स्थिति मैट्रिक्स, सब इन्हीं से व्युत्पन्न हैं, और इनमें ड्रिफ़्ट आने पर CI विफल हो जाता है।
+  </Card>
+  <Card title="पैरिटी, एकरूपता नहीं" icon="extension">
+    हर प्लैटफ़ॉर्म को वही टोकन, स्टेट और सुलभता के सिमैंटिक्स मिलते हैं, पर API का रूप उसका अपना रहता है: Compose में `enabled`, Flutter में null `onPressed`, SwiftUI में `.disabled(_:)`।
+  </Card>
+  <Card title="परखी हुई बनावट" icon="menu_book">
+    रेफ़रेंस, सिस्टम और कंपोनेंट टोकन; कलर रोल; एक टाइप स्केल; हर थीम और कंट्रास्ट के हर स्तर के लिए जनरेट किए गए टोनल पैलेट। इसका रूप संयमित और लगभग मोनोक्रोम है।
+  </Card>
+  <Card title="बनावट से ही सुलभ" icon="verified">
+    कंट्रास्ट की जोड़ियाँ बिल्ड के समय हर थीम और कंट्रास्ट के हर स्तर के लिए जाँची जाती हैं। दिखने वाला साइज़ कभी हिट एरिया तय नहीं करता, और फ़ोकस रिंग हर इंटरैक्टिव स्पेक का हिस्सा है।
+  </Card>
+</CardGrid>
+
+## आगे कहाँ जाएँ
+
+<CardGrid>
+  <LinkCard title="शुरुआत करें" description="अपने प्लैटफ़ॉर्म पर Tanrei इंस्टॉल करें और इस्तेमाल करें।" href="/hi/getting-started/" />
+  <LinkCard title="बुनियादी बातें" description="सिद्धांत, टोकन, रंग, टाइप, शेप, एलिवेशन, मोशन और सुलभता।" href="/hi/foundations/principles/" />
+  <LinkCard title="स्थिति" description="हर प्लैटफ़ॉर्म पर आज क्या मौजूद है, रिपॉज़िटरी से जनरेट किया गया।" href="/hi/status/" />
+  <LinkCard title="Tanrei कैसे बनता है" description="स्पेक-फ़र्स्ट वर्कफ़्लो, जो पाँच प्लैटफ़ॉर्म को सच्चा बनाए रखता है।" href="/hi/project/how-tanrei-is-built/" />
+</CardGrid>

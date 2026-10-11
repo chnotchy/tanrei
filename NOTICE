@@ -1,0 +1,51 @@
+Tanrei
+Copyright 2026 The Tanrei Authors
+
+This product includes data derived from the following works, each licensed
+under the Apache License, Version 2.0:
+
+  material-design-icons
+  Copyright Google LLC
+  https://github.com/google/material-design-icons
+  The list of glyph names that are mirrored in a right-to-left layout
+  (tokens/icon-sets/material-symbols.icon-set.json and the files generated
+  from it) is taken from the android:autoMirrored flag of the vector
+  drawables at revision 737e3324305806514d7909874fa1818ae1808232.
+
+  material-web
+  Copyright Google LLC
+  https://github.com/material-components/material-web
+  The token names and resolved values in
+  tokens/fidelity/reference/material-web.json are taken from the published
+  token files, version v0_192. Values of the m3-like preset
+  (tokens/systems/m3-like.system.json and the files generated from it) are
+  taken from the same token files.
+
+  androidx.compose.material3
+  Copyright The Android Open Source Project
+  https://github.com/androidx/androidx
+  The token names and values in
+  tokens/fidelity/reference/androidx-material3-buttons.json are taken from
+  the published token files, version v0_11_0. Values of the m3-like and
+  m3-expressive-like presets (tokens/systems/ and the files generated from
+  them) are taken from the same token files.
+
+The source repository also contains the Gradle wrapper
+(packages/compose/gradlew, gradlew.bat and gradle/wrapper/) — Copyright 2015
+the original authors. Apache License, Version 2.0.
+https://github.com/gradle/gradle
+
+The design system presets other than tanrei (tokens/systems/) are independent
+approximations, named for what they resemble:
+
+  m3-like — resembles Material Design 3.
+  m3-expressive-like — resembles Material Design 3 Expressive.
+  cupertino — resembles what the Apple Human Interface Guidelines describe.
+
+Tanrei is not affiliated with, endorsed by, or sponsored by Google LLC,
+Apple Inc., or any other owner of what a preset resembles.
+
+Material Design is a trademark of Google LLC. Apple, iOS and Apple Human
+Interface Guidelines are trademarks of Apple Inc. They are used only to name
+what a preset approximates; Tanrei does not claim to follow them and includes
+none of their logos, and none of Apple's typefaces or symbols.

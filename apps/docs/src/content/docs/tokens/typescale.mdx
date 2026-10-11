@@ -1,0 +1,19 @@
+---
+title: Typescale tokens
+description: Every text style by level with a live specimen, its resolved metrics and the weight it takes when emphasized.
+---
+
+import Typescale from '../../../components/tokens/Typescale.astro';
+import SystemValues from '../../../components/tokens/SystemValues.astro';
+
+Specimens are set with the generated CSS custom properties, so what you see is what `@tanrei/web` ships. Each role exposes its parts as separate properties: `-font-family`, `-font-size`, `-line-height`, `-font-weight`, `-letter-spacing` and `-font-weight-emphasized`, plus a `-font` shorthand. For guidance — which role an `h2` or a `p` is, and why emphasis is a weight rather than a role — read [Typography](/foundations/typography/).
+
+## The sixteen roles
+
+<Typescale />
+
+## Emphasis steps
+
+Emphasized text is the role at its weight plus the step of its family. A role's family is the first segment of its name; `caption`, `code`, `code-small` and `eyebrow` take the label step. The four steps, per shipped system:
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />

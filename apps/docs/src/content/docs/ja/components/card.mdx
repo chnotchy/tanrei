@@ -1,0 +1,285 @@
+---
+title: カード
+description: 関連するコンテンツのまとまりを背景から区切ります。カード全体を、中身を開く 1 つのアクションや、そこへ移動する 1 つのリンクにもできます。
+translationOf: components/card.mdx
+sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="card" />
+
+<DemoFrame label="バリアント">
+  <tanrei-card style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">売上は前四半期から 12% 伸びました。</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Filled</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">売上は前四半期から 12% 伸びました。</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">売上は前四半期から 12% 伸びました。</div>
+  </tanrei-card>
+</DemoFrame>
+
+カードには 3 つの形があります。ふつうのカードはコンテナで、中身は自分のセマンティクスを保ち、ボタンやリンクを置けます。操作できるカードは 1 つのボタンです。リンクカード（`href` のあるカード）は 1 つのリンクです。押すと別のページやアドレスへ移動するならリンクカードを、その場で何かが起こるなら操作できるカードを使います。
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、ふつうのカードと操作できるカードは提供していますが、リンクカードはまだありません。これらの例は、いま提供しているものを示しています。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- アクションではないカード。中身は自分のセマンティクスを保ち、ボタンを置くこともできます。 -->
+    <tanrei-card>
+      <h3 class="tanrei-text-heading-5">四半期レポート</h3>
+      <p class="tanrei-text-body">売上は前四半期から 12% 伸びました。</p>
+      <tanrei-button variant="text">共有</tanrei-button>
+    </tanrei-card>
+
+    <!-- 1 つのアクション。カード全体が label を名前とするボタンになります。中に操作できる要素は置きません。 -->
+    <tanrei-card variant="elevated" interactive label="四半期レポート">…</tanrei-card>
+
+    <!-- 1 つのリンク。href があると、カード全体が label を名前とするアンカーになります。中に操作できる要素は置きません。 -->
+    <tanrei-card href="/reports/q3/" label="四半期レポート">…</tanrei-card>
+
+    <!-- 新しいタブで開くリンクは、そのことを自分の言葉で伝えます。カードは印を描かないので、グリフは中身に置きます。 -->
+    <tanrei-card href="https://example.com/reports/q3.pdf" target="new" target-label="新しいタブで開きます" label="四半期レポート">
+      <h3 class="tanrei-text-heading-5">四半期レポート</h3>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </tanrei-card>
+
+    <!-- inset の既定値は true なので、属性は逆の意味の flush です。写真を端まで広げられます。 -->
+    <tanrei-card flush>
+      <img src="cover.jpg" alt="" />
+      <div style="padding: var(--tanrei-comp-card-container-padding)">…</div>
+    </tanrei-card>
+
+    <script type="module">
+      import '@tanrei/web/components/card';
+      document.querySelector('[interactive]').addEventListener('click', openReport);
+
+      // リンクカードは、ブラウザーがアドレスへ移動する前に click を発火します。クライアントサイドのルーターはこれをキャンセルします。
+      document.querySelector('tanrei-card[href]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push(event.currentTarget.href);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Card } from '@tanrei/react';
+
+    <Card variant="filled">
+      <h3 className="tanrei-text-heading-5">四半期レポート</h3>
+      <p className="tanrei-text-body">売上は前四半期から 12% 伸びました。</p>
+    </Card>
+    <Card interactive label="四半期レポート" onClick={openReport}>…</Card>
+    <Card href="/reports/q3/" label="四半期レポート">…</Card>
+    <Card href="https://example.com/reports/q3.pdf" target="new" targetLabel="新しいタブで開きます" label="四半期レポート">…</Card>
+    <Card inset={false}>…</Card>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCard(variant: .filled) {
+        Text("四半期レポート")
+        Text("売上は前四半期から 12% 伸びました。")
+    }
+
+    // action: を取るイニシャライザーが、操作できるカードです。
+    TanreiCard(label: Text("四半期レポート"), action: openReport) { ReportSummary() }
+        .disabled(isLoading)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiCard
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiCardVariant
+
+    // onClick のないカードはアクションではないので、ボタンを置けます。
+    TanreiCard(variant = TanreiCardVariant.Filled) {
+        TanreiText("四半期レポート")
+        TanreiText("売上は前四半期から 12% 伸びました。")
+        TanreiButton(text = "共有", onClick = ::share)
+    }
+
+    // onClick を取るオーバーロードは 1 つのアクションです。enabled = false で無効になります。
+    TanreiCard(onClick = ::openReport, contentDescription = "四半期レポート") {
+        TanreiText("四半期レポート")
+        TanreiText("売上は前四半期から 12% 伸びました。")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCard(
+      variant: TanreiCardVariant.filled,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Text('四半期レポート'),
+          const Text('売上は前四半期から 12% 伸びました。'),
+          TanreiButton(onPressed: share, child: const Text('共有')),
+        ],
+      ),
+    );
+
+    // onTap が null でなければ、カード全体が 1 つのアクションになります。enabled: false で無効になります。
+    TanreiCard(
+      onTap: openReport,
+      semanticLabel: '四半期レポート',
+      child: const ReportSummary(),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Text } from 'react-native';
+    import { Card, useContentColor } from '@tanrei/react-native';
+
+    // 文字列をそのまま渡すと、body のスタイルとカードのコンテンツ色で描かれます。
+    <Card variant="filled">売上は前四半期から 12% 伸びました。</Card>
+
+    // onPress を渡すと 1 つのアクションになります。名前には見出しのテキストを使います。
+    <Card accessibilityLabel="四半期レポート" onPress={openReport}>
+      <ReportSummary />
+    </Card>
+
+    // React Native には文字色の継承がないため、自前のテキストはカードのコンテンツ色を読み取ります。
+    function ReportSummary() {
+      const color = useContentColor();
+      return <Text style={{ color }}>売上は前四半期から 12% 伸びました。</Text>;
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="端まで広げる、操作できる、無効" plain>
+  <tanrei-card flush style="width: 15rem">
+    <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
+    <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">flush：中身が端まで届きます。</div>
+  </tanrei-card>
+  <tanrei-card interactive label="四半期レポート" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">四半期レポート</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">操作できるカード。ホバー、Tab でのフォーカス、押下を試せます。</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" interactive disabled label="四半期レポート" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">四半期レポート</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">操作できるカードの無効状態。</div>
+  </tanrei-card>
+</DemoFrame>
+
+<DemoFrame label="リンクカード" plain>
+  <tanrei-card href="/ja/components/button/" label="ボタン" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">ボタン</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">リンクカード。Enter で移動でき、ブラウザーのリンクのメニューも使えます。</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" href="/ja/components/list/" target="new" target-label="新しいタブで開きます" label="リスト" style="width: 15rem">
+    <div style="display: flex; align-items: center; gap: var(--tanrei-sys-space-space200)">
+      <div style="flex: 1; font: var(--tanrei-sys-typescale-heading-5-font)">リスト</div>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">新しいタブで開きます。グリフは中身の一部です。</div>
+  </tanrei-card>
+  <tanrei-card href="/ja/components/button/" disabled label="ボタン" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">ボタン</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">無効なリンクカード。移動できません。</div>
+  </tanrei-card>
+</DemoFrame>
+
+<ComponentSpecs name="card" />
+
+## ガイドライン
+
+### 使う場面
+
+レポート、人物、商品、設定項目など、1 つの対象についての情報をまとめ、周りから区切りたいときに使います。カードがするのは、中身に余白を取り、角で切り抜き、色を渡すことだけです。中身のレイアウトは、Tanrei のテキストスタイル（カードのタイトルには `heading-5`）やコンポーネントを使って組み立てます。
+
+カードが「中身を開く」という 1 つのアクションなら、カード全体を操作できるようにします。アクションが複数あるなら、カードは操作できないままにして、中にボタンを置きます。
+
+### 移動先のあるカードはリンク
+
+移動先のあるコントロールはリンクです。カードも同じです。押すと別のページへ移動するだけなら、操作できるカードの click で移動させるのではなく、`href` を指定します。カードは本物のリンクになり、Web では中身を包むアンカーになります。新しいタブで開く、アドレスをコピーする、移動する前に行き先を確かめる、といったことができ、支援技術はボタンではなくリンクとして読み上げます。このサイトでページからページへ案内しているカードも、リンクカードです。
+
+- リンクカードの見た目は、どの状態でも操作できるカードとまったく同じです。リンク専用の見た目も、訪問済みの状態もありません。
+- `href` は `interactive` より優先されます。両方を指定したカードはリンクです。
+- リンクカードは Enter で移動します。Space では移動しません。Space はふつうのリンクと同じ働きをし、Web ではページをスクロールします。
+- 先に `click` が発火し、そのあとで移動先が開きます。クライアントサイドのルーターのように移動を自分で扱うなら、その click をキャンセルします。
+- `target` は `same`（既定）か `new` です。新しいタブやウィンドウで開くリンクには `targetLabel` が必要です。名前のあとに読まれる言葉で、「新しいタブで開きます」などと書きます。Tanrei はこの文言を用意していません。中身は利用者側のものなので、カードは印を描きません。示したい場合は、中身に `open_in_new` のグリフを置きます。
+- 無効なリンクカードは、どの方法でも移動できず、フォーカスの順序からも外れます。
+- 空白だけの `href` は移動先になりません。`javascript:` のアドレスや、アドレスとして読めない値は受け付けず、デバッグビルドで報告します。カードは `href` がないときと同じになります。
+
+移動先と独自のアクションの両方が必要なカードは、ふつうのカードのままにして、見出しをリンクにするか、`href` を指定した[ボタン](/ja/components/button/)を中に置きます。
+
+### バリアントの選び方
+
+重要度ではなく、置く背景で選びます。
+
+| バリアント | 区切り方 | 用途 |
+| --- | --- | --- |
+| Outlined（既定） | 輪郭線 | ほとんどのカード。Filled のカードと同じ色調のサーフェスに置くとき。 |
+| Filled | 色調 | 無地のサーフェスの上で、色調の違いだけでまとまりを示せるとき。同じ色調のサーフェスに置くと見えなくなります。 |
+| Elevated | 奥行き | ピン留めした項目やドラッグできる項目など、ページより手前にあるもの。 |
+
+### 推奨
+
+- 操作できるカードとリンクカードには `label` で名前を付けます。ふつうは見出しのテキストです。
+- 一緒に並べるカードは、バリアントをそろえます。
+- 端まで広げたい画像には `inset` を false（Web では `flush`）にし、その下のテキストにはカードの余白トークンで自分で余白を取ります。
+
+### 非推奨
+
+- 操作できるカードやリンクカードの中に、ボタン、リンク、入力欄、トグルなど、フォーカスを受ける要素を置かない。支援技術から届かず、押すとカードまで反応します。
+- 操作できるカードの click ハンドラーからページを移動しない。移動するカードには `href` を指定します。
+- ふつうのカードを無効にしない。無効にするアクションもリンクもないので、`disabled` は無視されます。
+- カードの重要度を奥行きで表さない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="card" />
+
+### コンポーネントが担うこと
+
+- 操作できないカードはロールを持たず、中身のセマンティクスに手を加えません。`label` があれば、それを名前とするグループになります。
+- 操作できるカードは、ボタンのロールを持つフォーカス可能な 1 つの要素になり、無効状態も伝えます。名前は `label` です。ない場合は中身全体が 1 つの文字列として読まれ、デバッグビルドで報告されます。
+- リンクカードは、リンクのロールを持つフォーカス可能な 1 つの要素になり、名前の決まり方は同じです。`target` が `new` のあいだは、`targetLabel` が説明として、名前とロールのあとに読まれます。無効なリンクカードはリンクのロールのまま無効状態を伝え、移動先を持ちません。
+- 操作できるカードは Enter と Space で、リンクカードは Enter だけで実行します。ヒット領域は最小ターゲットを満たし、フォーカスインジケーターはキーボードフォーカスのときだけ表示します。
+- 中身に合わせて伸びるので、文字を大きくしても切れません。
+- Web では、操作できるカードやリンクカードの中に操作できる要素があると、スロットが変わるたびにデバッグビルドで報告します。新しいタブで開くリンクカードに `targetLabel` がない場合も報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native には、まだリンクカードがありません。これらでは、移動するカードも、アクションの中で移動する操作できるカードのままです。
+- Web：カードに入れた要素の内側へ、後から操作できる要素を加えた場合は報告されません。
+- Web：操作できないカードが自分から click を出すことはありませんが、中身をクリックすると通常の DOM の click が発生し、カードを通ってバブリングします。
+- SwiftUI、Compose、Flutter、React Native は、入れ子になった操作できる要素を検出できないため、確認しません。このルールは利用者側で守ってください。
+- React Native では、`label` のある操作できないカードは group のロールになりますが、iOS はこのロールをどのトレイトにも対応付けません。VoiceOver がグループの名前を読み上げるかは、実機でまだ確かめていません。
+- Compose：プラットフォームのキー処理を通した Enter と Space での実行は Robolectric 上でしか確かめておらず、実機ではまだ試していません。
+- React Native には文字色の継承がありません。文字列はカードがコンテンツ色で描きますが、自前のテキストは `useContentColor()` で色を読み取ります。
+- SwiftUI：最小ターゲットより小さい操作できるカードは、見た目の大きさはそのままで、レイアウト上はターゲットの大きさを占めます。
+
+### 利用者側で行うこと
+
+- 操作できるカードとリンクカードには `label` を付けます。付けないと、中身全体が長い 1 つの名前として読まれます。
+- 新しいタブやウィンドウで開くリンクカードには、プロダクトの言語で `targetLabel` を付けます。
+- 操作できるカードとリンクカードに、ほかのコントロールを入れないでください。ボタンやリンクが必要なカードはふつうのカードにして、そのうちの 1 つを主なアクションや移動先にします。
+- 操作できないカードの中身には、代替テキストや見出しレベルなど、それぞれにセマンティクスを付けます。カードは何も補いません。

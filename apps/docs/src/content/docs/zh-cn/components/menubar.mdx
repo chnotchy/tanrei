@@ -1,0 +1,341 @@
+---
+title: "菜单栏"
+description: "把应用的命令放在一行常驻的、有名称的菜单（文件、编辑、视图……）里，让它们随时可用；每个菜单在自己的标题下方打开，方向键沿这一行移动，并进入各个菜单。"
+translationOf: components/menubar.mdx
+sourceHash: 3ab69d94e5684b573c7036f3ba3643141c1dec5b
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="menubar" />
+
+<DemoFrame label="编辑器的菜单" column>
+  <tanrei-menubar label="应用菜单" overflow-label="更多菜单" style="inline-size: 100%">
+    <tanrei-menubar-menu label="文件">
+      <tanrei-menu-item label="新建" shortcut="mod+n"></tanrei-menu-item>
+      <tanrei-menu-item label="打开…" shortcut="mod+o"></tanrei-menu-item>
+      <tanrei-submenu label="最近打开">
+        <tanrei-menu-item label="季度报告"></tanrei-menu-item>
+        <tanrei-menu-item label="路线图"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-group>
+        <tanrei-menu-item label="保存" shortcut="mod+s"></tanrei-menu-item>
+        <tanrei-menu-item label="打印…" shortcut="mod+p"></tanrei-menu-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="编辑">
+      <tanrei-menu-item label="撤销" shortcut="mod+z"></tanrei-menu-item>
+      <tanrei-menu-item label="重做" shortcut="mod+shift+z"></tanrei-menu-item>
+      <tanrei-menu-group>
+        <tanrei-menu-item label="剪切" shortcut="mod+x"></tanrei-menu-item>
+        <tanrei-menu-item label="复制" shortcut="mod+c"></tanrei-menu-item>
+        <tanrei-menu-item label="粘贴" shortcut="mod+v"></tanrei-menu-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="视图">
+      <tanrei-menu-checkbox-item label="标尺" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="批注"></tanrei-menu-checkbox-item>
+      <tanrei-menu-group label="缩放" value="100">
+        <tanrei-menu-radio-item label="50%" value="50"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="100%" value="100"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="200%" value="200"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="格式" disabled>
+      <tanrei-menu-item label="加粗"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="帮助">
+      <tanrei-menu-item label="键盘快捷键"></tanrei-menu-item>
+      <tanrei-menu-item label="关于"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+  </tanrei-menubar>
+</DemoFrame>
+
+### 菜单栏不是什么
+
+用它之前，请先读这一节。菜单栏用于应用的命令，除此之外几乎别无用途。
+
+- **它不是网站的导航。** 一排带下拉列表的栏目是导航：它们是链接，位于导航地标之内，用 Tab 到达。菜单栏则告诉辅助技术：在它里面的所有内容之间移动，用的是方向键而不是 Tab，而且每个条目都是命令。用户在一组页面链接上遇到这些，就会被误导。请使用[应用栏](/zh-cn/components/app-bar/)、[导航栏](/zh-cn/components/navigation-bar/)或[导航抽屉](/zh-cn/components/navigation-drawer/)。
+- **它不是工具栏。** [工具栏](/zh-cn/components/toolbar/)容纳的是一按就执行的按钮。菜单栏是一行菜单。它可以有一两个直接起作用的条目（[见下文](#直接起作用的条目)），而整行都是这种条目时，那就是工具栏。沿菜单栏移动绝不会执行任何操作，所以用户可以放心地四处查看。
+- **它不是一排各自打开菜单的按钮。** 那样的一排看起来一样，用起来却不行：方向键不会带着打开的菜单移到相邻的按钮，指针移过去时打开的菜单也不会跟着换，辅助技术读到的是一个个独立的按钮，而不是一个分两级的菜单。
+- **它不是标签页。** 没有哪个标题会处于选中状态。菜单关闭后，不会留下任何选中的东西。
+- **它不是单个菜单。** 为数不多的几个选项，应当放进由按钮打开的一个[菜单](/zh-cn/components/menu/)。
+
+### 菜单栏是什么
+
+编辑器、电子表格、绘图或规划工具这样的应用型产品，命令多得无法全部作为按钮显示在屏幕上。菜单栏就是容纳所有这些命令的地方：它们归在几个名称之下，这些名称用户学一次就能记住，每个命令旁边还带着自己的快捷键。
+
+它是始终可见的一行标题。每个标题在自己下方打开一个 Tanrei 的[菜单](/zh-cn/components/menu/)，里面是菜单自己的各种项：操作、链接项、复选项和单选项、组、子菜单和快捷键。在标题旁边，这一行还可以放栏项：一个立即执行的操作，或者一个链接。整行在焦点顺序中是一个停靠点。方向键沿这一行移动并进入菜单，在菜单里则可以直接前往相邻的条目。
+
+菜单栏自己没有填充、边线和层级（Elevation）。它放在哪里由你决定，通常是窗口顶部已有的界面外框里。
+
+在 Web 上，它是包着若干 `<tanrei-menubar-menu>` 元素的 `<tanrei-menubar>`，直接起作用的条目用 `<tanrei-menubar-item>`。其他平台尚未实现它。
+
+### 用法
+
+给菜单栏一个 `label`，给每个菜单一个一两个词的 `label`。菜单的项放在它里面，写法与放进菜单时完全相同。监听这些项自己的事件：菜单栏不会给它们添加任何事件。
+
+每个菜单都有自己的 `open`。菜单栏设置它并触发 `toggle`，所以你不用记录哪个菜单是打开的。你也可以自己设置它，用你自己的按键打开某个菜单。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-menubar label="应用菜单" overflow-label="更多菜单">
+      <tanrei-menubar-menu label="文件">
+        <tanrei-menu-item label="新建" shortcut="mod+n"></tanrei-menu-item>
+        <tanrei-menu-item label="打开…" shortcut="mod+o"></tanrei-menu-item>
+        <tanrei-submenu label="最近打开">
+          <tanrei-menu-item label="季度报告"></tanrei-menu-item>
+        </tanrei-submenu>
+        <tanrei-menu-item label="保存" shortcut="mod+s"></tanrei-menu-item>
+      </tanrei-menubar-menu>
+      <tanrei-menubar-menu label="视图">
+        <tanrei-menu-checkbox-item label="标尺" checked></tanrei-menu-checkbox-item>
+      </tanrei-menubar-menu>
+      <tanrei-menubar-menu label="格式" disabled>…</tanrei-menubar-menu>
+    </tanrei-menubar>
+
+    <script type="module">
+      import '@tanrei/web/components/menubar';
+
+      const bar = document.querySelector('tanrei-menubar');
+      // 一个监听器就能接收每一项的 click。命令执行之后，把焦点移到它所作用的对象上。
+      bar.addEventListener('click', (event) => {
+        if (event.target.localName !== 'tanrei-menu-item') return;
+        run(event.target.label);
+        editor.focus();
+      });
+      // 项上显示的快捷键由你来绑定。打开菜单的按键也一样。
+      addEventListener('keydown', (event) => {
+        if (event.altKey && event.key === 'f') bar.querySelector('[label="文件"]').open = true;
+      });
+    </script>
+
+    <!-- 在元素定义之前预留菜单栏的高度，这样页面不会跳动。 -->
+    <style>
+      tanrei-menubar:not(:defined) {
+        display: block;
+        min-block-size: calc(var(--tanrei-comp-menubar-container-height) + 2 * var(--tanrei-comp-menubar-bar-padding-block));
+      }
+    </style>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Menubar, MenubarMenu, MenuItem, MenuCheckboxItem, Submenu } from '@tanrei/react';
+
+    <Menubar label="应用菜单" overflowLabel="更多菜单">
+      <MenubarMenu label="文件" onToggle={(event) => track('File', event.detail.open)}>
+        <MenuItem label="新建" shortcut={['mod+n']} onClick={newDocument} />
+        <MenuItem label="打开…" shortcut={['mod+o']} onClick={openDocument} />
+        <Submenu label="最近打开">
+          {recent.map((file) => <MenuItem key={file.id} label={file.name} onClick={() => open(file)} />)}
+        </Submenu>
+      </MenubarMenu>
+      <MenubarMenu label="视图">
+        <MenuCheckboxItem label="标尺" checked={ruler} onChange={(event) => setRuler(event.detail.checked)} />
+      </MenubarMenu>
+      <MenubarMenu label="格式" disabled={!selection}>…</MenubarMenu>
+    </Menubar>
+    ```
+  </TabItem>
+</Tabs>
+
+在 Web 上，脚本运行之前，标题和操作不会被画出来：它们的文字是属性，每个命令也都是你的脚本。链接项则不同。它是你自己写的锚元素，所以在脚本运行之前，以及在脚本根本不运行的地方，它都是一个能用的链接。
+
+### 直接起作用的条目
+
+<DemoFrame label="三个菜单、一个操作和两个链接项，画得一样" column>
+  <tanrei-menubar label="带有直接起作用的条目的应用菜单" overflow-label="更多" style="inline-size: 100%">
+    <tanrei-menubar-menu label="文件">
+      <tanrei-menu-item label="新建"></tanrei-menu-item>
+      <tanrei-menu-item label="打开…"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="编辑">
+      <tanrei-menu-item label="撤销"></tanrei-menu-item>
+      <tanrei-menu-item label="重做"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="视图">
+      <tanrei-menu-checkbox-item label="标尺" checked></tanrei-menu-checkbox-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-item label="运行"></tanrei-menubar-item>
+    <tanrei-menubar-item><a href="#直接起作用的条目">文档</a></tanrei-menubar-item>
+    <tanrei-menubar-item target-label="在新标签页中打开"><a href="#直接起作用的条目" target="_blank">源代码</a></tanrei-menubar-item>
+  </tanrei-menubar>
+</DemoFrame>
+
+使用栏项之前，先看什么时候不该用它。栏项看起来与打开菜单的标题一模一样，所以每多一个栏项，用户就要多犹豫一次：按下去会发生什么。
+
+- **不用于大多数命令。** 命令应当放在菜单里，在那里它有快捷键、图标，还有帮助理解它的相邻项。栏项只留给用户希望一按就完成的一两件事（“运行”“分享”），或者他们要去的一两个地方（“文档”）。
+- **不用于任何无法撤销的操作。** 栏项在执行之前不做任何询问，也没有破坏性操作的外观。删除或放弃内容的命令应当放在菜单里。
+- **不用于可以打开和关闭的选项。** 标题上没有放对勾的位置。把它放进同一个菜单栏的某个菜单里，作为复选项或单选项。
+- **不要让整个菜单栏都是栏项。** 只有操作的一行是[工具栏](/zh-cn/components/toolbar/)，只有链接的一行是导航。这两种情况都会照常绘制、照常工作，并会在调试构建中报告。
+- **不要用看不出用途的词。** 能把栏项与标题区分开的只有标签。操作用动词命名，链接用它通向的地方命名。
+
+操作写作 `<tanrei-menubar-item label="运行">`。按下、Enter 或 Space 会触发一次它的 `click`。如果菜单栏有菜单正打开着，这个菜单会先关闭，所以你的处理函数运行时没有菜单显示。焦点留在栏项上，除非你的处理函数把它移走。
+
+链接项是同一个元素，里面包着你自己的锚元素：`<tanrei-menubar-item><a href="/docs/">文档</a></tanrei-menubar-item>`。链接之所以是链接的一切，都属于锚元素：锚元素的文本就是标签，`href`、`target`、`rel` 和 `aria-current="page"` 都写在锚元素上。这个元素在它周围画出一个标题，并让它成为菜单栏按键移动时的一个停靠点。
+
+- `click` 就是锚元素自己的 click。用 `preventDefault()` 取消它，链接就不会被跟随，客户端路由需要的仅此而已。路由自己的链接组件可以直接作为子元素使用。
+- 带修饰键的点击、中键点击和链接的上下文菜单都交给浏览器处理，与任何链接一样。Space 与 Enter 一样会跟随链接项，因为这一行的其他每个条目都响应 Space。
+- `target="_blank"` 会在标签之后画出图标集的 `open_in_new`，并加上 `noopener`。请用元素上的 `target-label` 把这一点用文字说出来，或者用 `setWords({ targetLabel: … })` 为整个产品只给一次。
+- 锚元素上的 `aria-current="page"` 标出用户当前所在的页面。它的标签用更粗的字重绘制，但不加填充：菜单栏里没有任何东西处于选中状态。它由你来设置，菜单栏从不设置。
+- 禁用的链接项，是在元素上写 `disabled`，并且锚元素不带 `href`。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/menubar.css" />
+
+    <tanrei-menubar label="应用菜单" overflow-label="更多">
+      <tanrei-menubar-menu label="文件">…</tanrei-menubar-menu>
+      <tanrei-menubar-menu label="编辑">…</tanrei-menubar-menu>
+      <tanrei-menubar-item label="运行"></tanrei-menubar-item>
+      <tanrei-menubar-item><a href="/docs/">文档</a></tanrei-menubar-item>
+      <tanrei-menubar-item target-label="在新标签页中打开">
+        <a href="https://example.com/source" target="_blank">源代码</a>
+      </tanrei-menubar-item>
+      <tanrei-menubar-item><a href="/history/" aria-current="page">历史记录</a></tanrei-menubar-item>
+    </tanrei-menubar>
+
+    <script type="module">
+      import '@tanrei/web/components/menubar';
+
+      // 操作：它自己的 click，无论它在行里，还是折叠进了溢出项。
+      document.querySelector('tanrei-menubar-item[label="运行"]').addEventListener('click', run);
+      // 链接项：锚元素的 click。取消它，导航就由你接管。
+      document.querySelector('tanrei-menubar-item > a[href="/docs/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push('/docs/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Menubar, MenubarMenu, MenubarItem } from '@tanrei/react';
+    import { Link } from 'your-router';
+
+    <Menubar label="应用菜单" overflowLabel="更多">
+      <MenubarMenu label="文件">…</MenubarMenu>
+      <MenubarItem label="运行" onClick={run} />
+      {/* 子元素是路由自己的链接：它渲染出锚元素，并接管导航。 */}
+      <MenubarItem><Link href="/docs/">文档</Link></MenubarItem>
+      <MenubarItem targetLabel="在新标签页中打开">
+        <a href="https://example.com/source" target="_blank">源代码</a>
+      </MenubarItem>
+    </Menubar>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/menubar.css` 用于脚本运行之前的那段时间，也用于浏览器不运行任何脚本的读者。它把链接项在菜单栏的位置上排成一行，用标题的文本样式绘制，每一个都像普通链接那样可以跟随，也可以用 Tab 到达。这时菜单和操作还不存在。菜单栏运行起来之后，会原地接管这些锚元素。
+
+## 规格
+
+<DemoFrame label="一行放不下所有标题时，把其余的折叠进一个溢出项" plain column>
+  <tanrei-menubar label="应用菜单（窄）" overflow-label="更多菜单" style="inline-size: 13rem">
+    <tanrei-menubar-menu label="文件"><tanrei-menu-item label="新建"></tanrei-menu-item><tanrei-menu-item label="打开…"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="编辑"><tanrei-menu-item label="撤销"></tanrei-menu-item><tanrei-menu-item label="重做"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="视图"><tanrei-menu-item label="放大"></tanrei-menu-item><tanrei-menu-item label="缩小"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="格式" disabled><tanrei-menu-item label="加粗"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="帮助"><tanrei-menu-item label="关于"></tanrei-menu-item></tanrei-menubar-menu>
+  </tanrei-menubar>
+</DemoFrame>
+
+<ComponentSpecs name="menubar" />
+
+## 指南
+
+### 以菜单为主，以及这一行还能放什么
+
+标题打开菜单，菜单栏的大部分都是标题。直接起作用的条目是例外：在菜单旁边放一两个，理由见[直接起作用的条目](#直接起作用的条目)。如果一个产品有许多命令需要一按即达，这些命令应当放在工具栏或应用栏里。
+
+这一行只接受菜单和栏项，别的都不接受。Button、直接写进菜单栏的锚元素、字段或复选框，会占用菜单栏用来移动焦点的按键，而且它们也不是菜单项。这样的内容在行里不占位置，并会在调试构建中报告。
+
+### 沿菜单栏移动不会执行任何操作
+
+焦点到达栏项、方向键、Home、End、键入字母，以及指针从它上面经过，都不会激活它。只有按下、Enter 或 Space 才会。在栏项上，向下方向键和向上方向键什么也不做，也不会滚动页面：同样的按键不能在一个条目上打开菜单，到了下一个条目却滚动页面。
+
+在菜单里，沿行方向的方向键会前往下一个条目。如果那是标题，它的菜单就打开。如果那是栏项，打开的菜单就关闭，焦点落在这个栏项上。什么也不会打开，什么也不会执行；从这里开始，方向键沿这一行移动而不打开菜单，直到你再次打开一个菜单。
+
+### 指针
+
+在标题上按下会打开它的菜单。在已打开的标题上按下则关闭它。有一个菜单打开时，指针移到另一个标题上，会立即打开那个标题的菜单，没有延迟，也没有动效。没有菜单打开时，悬停就只是悬停：用户没有要求的东西，菜单栏一概不打开。
+
+菜单打开时，指针移到栏项上，只会让它显示悬停。打开的菜单保持不动，所以指针从“文件”经过“运行”移向“视图”时，途中不会丢掉菜单。在栏项上按下，会先关闭菜单，再激活这个栏项。
+
+### 命令执行之后
+
+某一项被激活时，它所在的菜单关闭，焦点回到这个菜单的标题上。作用于文档的命令，通常需要让焦点回到文档中。请在你的处理函数里移动焦点，菜单栏会让它留在你放的地方。
+
+### 快捷键和访问键
+
+菜单会画出项的快捷键，并把它暴露给辅助技术。菜单和菜单栏都不监听这些按键。按键由你来绑定，因为只有产品知道，焦点所在的位置适用哪些快捷键。
+
+菜单栏没有访问键：标题里没有带下划线的字母，也没有跳到菜单栏的按键。访问键因平台而异，在 Web 上会与浏览器自己的访问键冲突，而且用哪个字母要按语言逐一选定。焦点一旦位于菜单栏上，键入一个字母就会移到以它开头的下一个标题。要提供你自己的按键，可以设置某个菜单的 `open`，或者把焦点移到某个标题上。
+
+### 窗口较窄时
+
+标题保持自己的大小，绝不会被截断。这一行放不下所有条目时，菜单栏从末尾开始把条目整个折叠起来，只折叠必须折叠的那几个，收进一个溢出项，这个溢出项画成图标集的 `more_horiz`。在溢出项的菜单里，每个被折叠的菜单是一个子菜单，标签相同，项也相同；每个被折叠的栏项是一个项：操作成为菜单项，链接项成为地址相同的链接项。什么都放不下时，这一行就只有这一个溢出项。溢出项始终打开菜单，从不直接起作用。
+
+在任何宽度下，按键、角色和顺序都相同，也不会丢失任何命令。被折叠的菜单，它的 `open` 和 `toggle` 的含义与在行里时相同。被折叠的栏项，它的 `click` 仍是同一个元素上的同一个事件：无论这个条目显示在哪里，你注册在栏项上或你的锚元素上的监听器都只会收到一次。条目被折叠时，监听器收到事件的那一刻，溢出项的菜单还开着，之后菜单才关闭。用 `overflow-label` 给溢出项一个名称，或者用 `setWords({ menubarOverflowLabel: … })` 为整个产品只给一次。
+
+在手机上要不要显示菜单栏，由你决定。在手机上，惯用方式是把命令放在应用栏的操作及其“更多”菜单里，产品不渲染菜单栏是合理的。之所以有折叠，是为了让已经渲染出来的菜单栏绝不丢失任何命令。
+
+### 平台有自己的菜单栏时
+
+桌面系统位于窗口之外的菜单栏，以及平板电脑为硬件键盘提供的菜单栏，是由系统根据产品声明的命令绘制的。请用平台自己的 API 把你的命令也交给那个菜单栏：用户会到那里去找。Tanrei 的菜单栏是你窗口之内的那一个，按 Tanrei 的令牌绘制。它不填充系统的菜单栏，也不取代它。
+
+### 推荐
+
+- 应用的命令多到需要分成几个有名称的菜单时，用它来容纳这些命令。
+- 用一两个词为每个菜单命名，说明其中的命令作用于什么。
+- 某个菜单里的命令全都不适用时，让它留在菜单栏里，并把它禁用。用户仍然能听到它的存在。
+- 在命令所在的项里显示它的快捷键，并自己绑定这些按键。
+- 命令执行之后，把焦点移到它所作用的对象上。
+
+### 避免
+
+- 不要把它用于网站的栏目或页面。
+- 不要把 Button、裸链接、切换开关或字段放进这一行。操作或链接要作为栏项放进去。
+- 不要做只有栏项的菜单栏，也不要把无法撤销的命令直接放在菜单栏上。
+- 不要在指针只是经过标题时打开菜单。
+- 不要把标题标记为选中。已打开的标题只在它的菜单显示期间带有标记。
+- 不要让菜单栏的菜单与产品的其他菜单样式不同。它们就是菜单，使用菜单的令牌。
+
+## 无障碍
+
+<ComponentAccessibility name="menubar" />
+
+### 组件负责的部分
+
+- 菜单栏以菜单栏角色暴露，由 `label` 命名，方向为水平。每个标题是一个会打开菜单的菜单项，以它的菜单的标签命名，并带有这个菜单是否打开、是否禁用，以及它在各条目中的位置。打开的菜单是一个以其标题命名的菜单。
+- 栏项是一个以其标签命名的菜单项。它不会说自己会打开菜单，也没有展开状态。链接项是你的锚元素，带的是菜单项角色，而不是链接角色：辅助技术逐项朗读菜单栏，而菜单栏角色只有在每个条目都是菜单项时才有效。它把自己的 `target-label` 作为描述朗读，并说明它是否是当前页面。
+- 整个菜单栏在焦点顺序中是一个停靠点：停在最近一次获得焦点、被激活或打开过菜单的那个条目上，没有这样的条目时停在第一个条目上。链接项绝不会自成一个 Tab 停靠点。
+- 在标题或栏项上：沿行方向的方向键移到下一个和上一个条目，到头时循环；Home 和 End 移到第一个和最后一个；键入字符会移到以它开头的下一个条目。这些按键都不会打开菜单，也不会执行任何操作。在标题上，Enter、Space 和向下方向键打开菜单，焦点落在其中第一个启用的项上；向上方向键也打开菜单，焦点落在其中最后一个启用的项上。在栏项上，Enter 和 Space 激活它，向下方向键和向上方向键什么也不做。
+- 在菜单里：菜单自己的按键照常可用。指向行末方向的方向键，在子菜单项上打开子菜单；在任何深度的其他项上，则前往下一个启用的条目：是标题就打开它的菜单，是栏项就让它获得焦点。指向行首方向的方向键关闭子菜单，在菜单自己的表面中则前往上一个条目。Escape 关闭最内层打开的子菜单；没有子菜单打开时，它关闭菜单，并把焦点交还给这个菜单的标题。Tab 关闭菜单并离开菜单栏。
+- 沿菜单栏移动时可以到达禁用的标题，这样屏幕阅读器会说出这个菜单存在但不可用。有菜单打开时，同样的按键会跳过它们。
+- 键盘焦点会在标题周围显示焦点环。通过指针获得的焦点不会。
+- 标题的点击区域达到最小目标，而画出来的样子不变。比目标更窄的标题，在行里仍占据目标的长度。
+- 打开的菜单不是模态的。焦点不会被限制在其中，没有任何内容变为惰性（inert），在外部的按下也会传到它下方的内容。
+- 在从右到左的布局中，标题从右侧排起，这一行在左端折叠，每个菜单打开时右边缘与标题的右边缘对齐，左方向键表示“下一个”。标题的标签保持它自己的方向。
+- 文本放大时，每个标题随标签一起变大，这一行会把放不下的条目折叠起来。在宽度为 320、文本为 200% 时，每个菜单仍然可以到达，也没有任何内容需要横向滚动。
+- 在强制颜色模式下，标签使用按钮文本颜色，已打开的标题使用高亮颜色，悬停的标题周围有一圈线。链接项使用用户所选的链接颜色，禁用的条目使用禁用文本颜色。
+- 调试构建会报告：没有标签的菜单栏、菜单或栏项，没有项的菜单，菜单栏里既不是菜单也不是栏项的任何内容，只有栏项的菜单栏，在新标签页中打开却没有说明这一点的链接项，以及没有名称的溢出项。
+
+### 需要你做的事
+
+- 用页面的语言给菜单栏一个 `label`（“应用菜单”）。它绝不会被画出来。
+- 给每个菜单一个 `label`，给每个操作一个 `label`，给每个链接项的锚元素写上文本。
+- 给在新标签页中打开的链接项一个 `target-label`，并在用户当前所在页面对应的链接项上设置 `aria-current="page"`。
+- 用 `overflow-label` 或产品的文字给溢出项一个名称。组件不提供任何文字。
+- 绑定你的项所显示的快捷键。
+- 系统有自己的菜单栏时，也向它声明你的命令。
+- 不要把菜单栏用于导航。

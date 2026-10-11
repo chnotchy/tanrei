@@ -1,0 +1,52 @@
+---
+// A name shown as a label — a state of a component, a value a choice may take — drawn with Tanrei's Tag at its small
+// size: text, never a control. A tag's word is its attribute, so the search index is given it by name
+// (`data-pagefind-index-attrs`), and until the element is defined — or where no script runs — the word is drawn from
+// the attribute in the tag's own box, so that a name is read and nothing moves when the tag is drawn. A row of them stands in Tanrei's Tag group.
+interface Props {
+  /** The name. */
+  label: string;
+  /** Outlined for a name among others; tonal for the one that is marked out (a default). */
+  variant?: 'outlined' | 'tonal';
+}
+const { label, variant = 'outlined' } = Astro.props;
+---
+
+<tanrei-tag class="docs-name-tag" size="small" variant={variant} label={label} data-pagefind-index-attrs="label" />
+
+<script>
+  import '../lib/register-web';
+</script>
+
+<style is:global>
+  .docs-name-tag:not(:defined) {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tanrei-comp-tag-container-height-small);
+    padding-inline: var(--tanrei-comp-tag-container-padding-inline-small);
+    border-radius: var(--tanrei-comp-tag-container-shape);
+    font: var(--tanrei-comp-tag-label-typescale-small-font);
+    letter-spacing: var(--tanrei-comp-tag-label-typescale-small-letter-spacing);
+    white-space: nowrap;
+    vertical-align: baseline;
+  }
+  .docs-name-tag[variant='outlined']:not(:defined) {
+    box-shadow: inset 0 0 0 var(--tanrei-comp-tag-outline-width) var(--tanrei-comp-tag-outline-color);
+    color: var(--tanrei-comp-tag-outlined-label-color);
+  }
+  .docs-name-tag[variant='tonal']:not(:defined) {
+    background: var(--tanrei-comp-tag-tonal-container-color);
+    color: var(--tanrei-comp-tag-tonal-label-color);
+  }
+  .docs-name-tag:not(:defined)::before {
+    content: attr(label);
+  }
+  /* A row of names, until the group is defined: the group's own row and gaps. */
+  tanrei-tag-group.docs-name-tags:not(:defined) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+  }
+</style>

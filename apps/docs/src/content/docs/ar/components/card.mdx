@@ -1,0 +1,285 @@
+---
+title: البطاقة
+description: تفصل مجموعة من المحتوى المترابط عن خلفيتها، ويمكن أن تكون إجراء واحدًا يفتح ما تعرضه أو رابطًا واحدًا إليه.
+translationOf: components/card.mdx
+sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="card" />
+
+<DemoFrame label="الطُرُز">
+  <tanrei-card style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">نمت الإيرادات 12% عن الربع السابق.</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Filled</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">نمت الإيرادات 12% عن الربع السابق.</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">نمت الإيرادات 12% عن الربع السابق.</div>
+  </tanrei-card>
+</DemoFrame>
+
+تأتي البطاقة في ثلاث هيئات. البطاقة البسيطة حاوية: يحتفظ محتواها بدلالاته ويجوز أن يضم أزرارًا وروابط. والبطاقة التفاعلية زر واحد. وبطاقة الرابط، أي البطاقة التي لها `href`، رابط واحد. استخدم بطاقة الرابط حين يأخذ تفعيلُ البطاقة الشخصَ إلى صفحة أخرى أو عنوان آخر، والبطاقة التفاعلية حين يحدث شيء في المكان الذي هو فيه.
+
+### الاستخدام
+
+عيّنتا Web و React تعرضان المواصفة الحالية. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: تقدّم البطاقة البسيطة والتفاعلية، ولا بطاقة رابط فيها بعد. وعيّناتها تعرض ما تقدّمه فعلًا.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- بطاقة ليست إجراء: يحتفظ محتواها بدلالاته ويجوز أن يضم أزرارًا. -->
+    <tanrei-card>
+      <h3 class="tanrei-text-heading-5">التقرير الفصلي</h3>
+      <p class="tanrei-text-body">نمت الإيرادات 12% عن الربع السابق.</p>
+      <tanrei-button variant="text">مشاركة</tanrei-button>
+    </tanrei-card>
+
+    <!-- إجراء واحد: البطاقة كلها زر، تسمّيه label. لا شيء تفاعليًّا في داخلها. -->
+    <tanrei-card variant="elevated" interactive label="التقرير الفصلي">…</tanrei-card>
+
+    <!-- رابط واحد: مع href تكون البطاقة كلها عنصر anchor، تسمّيه label. لا شيء تفاعليًّا في داخلها. -->
+    <tanrei-card href="/reports/q3/" label="التقرير الفصلي">…</tanrei-card>
+
+    <!-- الرابط الذي يفتح تبويبًا جديدًا يقول ذلك بكلماتك. البطاقة لا ترسم علامة: ضع الرسم في محتواك. -->
+    <tanrei-card href="https://example.com/reports/q3.pdf" target="new" target-label="يُفتح في تبويب جديد" label="التقرير الفصلي">
+      <h3 class="tanrei-text-heading-5">التقرير الفصلي</h3>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </tanrei-card>
+
+    <!-- القيمة الافتراضية لـ inset هي true، فسمتها هي العكس: flush تدع الصورة تبلغ الحواف. -->
+    <tanrei-card flush>
+      <img src="cover.jpg" alt="" />
+      <div style="padding: var(--tanrei-comp-card-container-padding)">…</div>
+    </tanrei-card>
+
+    <script type="module">
+      import '@tanrei/web/components/card';
+      document.querySelector('[interactive]').addEventListener('click', openReport);
+
+      // بطاقة الرابط تُصدر click قبل أن يتبع المتصفح العنوان. والموجِّه من جهة العميل يلغيه.
+      document.querySelector('tanrei-card[href]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push(event.currentTarget.href);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Card } from '@tanrei/react';
+
+    <Card variant="filled">
+      <h3 className="tanrei-text-heading-5">التقرير الفصلي</h3>
+      <p className="tanrei-text-body">نمت الإيرادات 12% عن الربع السابق.</p>
+    </Card>
+    <Card interactive label="التقرير الفصلي" onClick={openReport}>…</Card>
+    <Card href="/reports/q3/" label="التقرير الفصلي">…</Card>
+    <Card href="https://example.com/reports/q3.pdf" target="new" targetLabel="يُفتح في تبويب جديد" label="التقرير الفصلي">…</Card>
+    <Card inset={false}>…</Card>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCard(variant: .filled) {
+        Text("التقرير الفصلي")
+        Text("نمت الإيرادات 12% عن الربع السابق.")
+    }
+
+    // المُهيِّئ الذي يأخذ action: هو البطاقة التفاعلية.
+    TanreiCard(label: Text("التقرير الفصلي"), action: openReport) { ReportSummary() }
+        .disabled(isLoading)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiCard
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiCardVariant
+
+    // من دون onClick ليست البطاقة إجراء، فيجوز أن تضم أزرارًا.
+    TanreiCard(variant = TanreiCardVariant.Filled) {
+        TanreiText("التقرير الفصلي")
+        TanreiText("نمت الإيرادات 12% عن الربع السابق.")
+        TanreiButton(text = "مشاركة", onClick = ::share)
+    }
+
+    // الصيغة التي لها onClick إجراء واحد. و enabled = false تعطّلها.
+    TanreiCard(onClick = ::openReport, contentDescription = "التقرير الفصلي") {
+        TanreiText("التقرير الفصلي")
+        TanreiText("نمت الإيرادات 12% عن الربع السابق.")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCard(
+      variant: TanreiCardVariant.filled,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Text('التقرير الفصلي'),
+          const Text('نمت الإيرادات 12% عن الربع السابق.'),
+          TanreiButton(onPressed: share, child: const Text('مشاركة')),
+        ],
+      ),
+    );
+
+    // القيمة غير null لـ onTap تجعل البطاقة كلها إجراء واحدًا؛ و enabled: false تعطّلها.
+    TanreiCard(
+      onTap: openReport,
+      semanticLabel: 'التقرير الفصلي',
+      child: const ReportSummary(),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Text } from 'react-native';
+    import { Card, useContentColor } from '@tanrei/react-native';
+
+    // السلسلة النصية المجرّدة تُرسم بنمط المتن وبلون محتوى البطاقة.
+    <Card variant="filled">نمت الإيرادات 12% عن الربع السابق.</Card>
+
+    // مع onPress تكون البطاقة إجراء واحدًا، يسمّيه عنوانها.
+    <Card accessibilityLabel="التقرير الفصلي" onPress={openReport}>
+      <ReportSummary />
+    </Card>
+
+    // نصك أنت يقرأ لون محتوى البطاقة: ليس في React Native لون نص موروث.
+    function ReportSummary() {
+      const color = useContentColor();
+      return <Text style={{ color }}>نمت الإيرادات 12% عن الربع السابق.</Text>;
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="بلا حشو، وتفاعلية، ومعطَّلة" plain>
+  <tanrei-card flush style="width: 15rem">
+    <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
+    <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">بلا حشو: المحتوى يبلغ الحواف.</div>
+  </tanrei-card>
+  <tanrei-card interactive label="التقرير الفصلي" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">التقرير الفصلي</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">تفاعلية: حوِّم فوقها، وانتقل إليها بالمفتاح Tab، واضغطها.</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" interactive disabled label="التقرير الفصلي" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">التقرير الفصلي</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">تفاعلية ومعطَّلة.</div>
+  </tanrei-card>
+</DemoFrame>
+
+<DemoFrame label="بطاقات الرابط" plain>
+  <tanrei-card href="/ar/components/button/" label="الزر" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">الزر</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">بطاقة رابط. المفتاح Enter يتبعها، وقائمة الروابط في المتصفح تعمل عليها.</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" href="/ar/components/list/" target="new" target-label="يُفتح في تبويب جديد" label="القائمة" style="width: 15rem">
+    <div style="display: flex; align-items: center; gap: var(--tanrei-sys-space-space200)">
+      <div style="flex: 1; font: var(--tanrei-sys-typescale-heading-5-font)">القائمة</div>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">تفتح تبويبًا جديدًا. الرسم جزء من المحتوى.</div>
+  </tanrei-card>
+  <tanrei-card href="/ar/components/button/" disabled label="الزر" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">الزر</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">بطاقة رابط معطَّلة: لا شيء يُتبع.</div>
+  </tanrei-card>
+</DemoFrame>
+
+<ComponentSpecs name="card" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم البطاقة لتجمع محتوى عن موضوع واحد، كتقرير أو شخص أو منتج أو إعداد، وتفصله عمّا حوله. البطاقة لا تفعل إلا أن تحشو محتواها وتقصّه وتلوّنه. وأنت تخطّط المحتوى بأنماط النص في Tanrei (`heading-5` لعنوان البطاقة) وبمكوّناته.
+
+اجعل البطاقة كلها تفاعلية حين تكون إجراء واحدًا يفتح ما تعرضه. وإن احتاجت إلى عدة إجراءات فأبقِها غير تفاعلية وضع أزرارًا في داخلها.
+
+### البطاقة التي لها وجهة رابط
+
+عنصر التحكم الذي له وجهة رابط، ويصح ذلك على البطاقة أيضًا. حين لا يفعل تفعيل البطاقة إلا أن يأخذ الشخص إلى صفحة أخرى، أعطِها `href` بدل معالجة النقر على بطاقة تفاعلية. فتكون البطاقة رابطًا حقيقيًّا، وعلى الويب عنصر anchor حول محتواها. يستطيع الناس أن يفتحوها في تبويب جديد، وأن ينسخوا عنوانها، وأن يروا إلى أين تقود قبل أن يتبعوها، والتقنيات المساعدة تُعلِن رابطًا لا زرًّا. والبطاقات التي تقود من صفحة في هذا الموقع إلى أخرى بطاقات رابط.
+
+- بطاقة الرابط تبدو تمامًا كالبطاقة التفاعلية في كل حالة. لا مظهر خاصًّا بالرابط ولا حالة «تمت زيارته».
+- الخاصية `href` تغلب `interactive`: البطاقة التي لها الاثنتان رابط.
+- المفتاح Enter يتبع بطاقة الرابط. أما المفتاح Space فلا: يفعل ما يفعله على أي رابط، وهو على الويب تمرير الصفحة.
+- يصدر `click` أولًا، ثم تُفتح الوجهة. ألغِ النقرة لتتولى التنقل بنفسك، كما يفعل الموجِّه من جهة العميل.
+- الخاصية `target` قيمتها `same` (الافتراضية) أو `new`. الرابط الذي يفتح تبويبًا جديدًا أو نافذة جديدة يحتاج إلى `targetLabel`، وهي الكلمات التي تُقرأ بعد اسمه، مثل «يُفتح في تبويب جديد». لا يقدّم Tanrei كلمات من عنده. والبطاقة لا ترسم علامة لذلك، لأن المحتوى محتواك: ضع الرسم `open_in_new` في المحتوى إن أردت أن تعرض واحدًا.
+- بطاقة الرابط المعطَّلة لا يمكن اتباعها بأي وسيلة، وتخرج من ترتيب التركيز.
+- القيمة `href` المكوَّنة من مسافات بيضاء فقط ليست وجهة. والعنوان من النوع `javascript:`، أو الذي لا يمكن قراءته عنوانًا، يُرفض ويُبلَّغ عنه في بنيات التنقيح (debug)، وتكون البطاقة ما كانت ستكونه من دونه.
+
+حين تحتاج البطاقة إلى وجهة وإلى إجراءاتها الخاصة معًا، أبقِها بسيطة واجعل عنوانها رابطًا، أو ضع في داخلها [Button](/ar/components/button/) له `href`.
+
+### اختيار الطراز
+
+اختر بحسب الخلفية، لا بحسب الأهمية.
+
+| الطراز (variant) | يفصل بـ | يُستخدم لـ |
+| --- | --- | --- |
+| Outlined (الافتراضي) | حافة | معظم البطاقات، والبطاقات على سطح له درجة لون البطاقة filled نفسها. |
+| Filled | درجة لون | البطاقات على سطح بسيط، حيث تكفي درجة اللون وحدها لتعليم المجموعة. والبطاقة filled تختفي على سطح له الدرجة نفسها. |
+| Elevated | عمق | المحتوى الذي يعلو الصفحة، كعنصر مثبَّت أو قابل للسحب. |
+
+### افعل
+
+- سمِّ البطاقة التفاعلية أو بطاقة الرابط بالخاصية `label`، وهي في العادة نص عنوانها.
+- استخدم طرازًا واحدًا لمجموعة البطاقات المعروضة معًا.
+- استخدم القيمة false للخاصية `inset` (أي `flush` على الويب) للوسائط التي تمتد إلى الحواف، واحشُ النص تحتها بنفسك برمز حشو البطاقة.
+
+### لا تفعل
+
+- لا تضع زرًّا أو رابطًا أو حقلًا أو عنصر تبديل أو أي شيء آخر يقبل التركيز في بطاقة تفاعلية أو بطاقة رابط. لا تستطيع التقنيات المساعدة بلوغه، والضغط عليه يفعّل البطاقة أيضًا.
+- لا تتنقل من معالج النقر في بطاقة تفاعلية. البطاقة التي تذهب إلى مكان ما تأخذ `href`.
+- لا تعطّل بطاقة بسيطة. القيمة `disabled` تُتجاهل هناك، لأنه لا إجراء ولا رابط يُعطَّل.
+- لا تستخدم الارتفاع لترتيب البطاقات بحسب الأهمية.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="card" />
+
+### ما يتكفل به المكوّن
+
+- البطاقة غير التفاعلية لا دور لها، وتترك دلالات محتواها على حالها. ومع `label` تكون مجموعة (group) تسمّيها تلك القيمة.
+- البطاقة التفاعلية عنصر واحد يقبل التركيز وله دور الزر، وتعرض حالة تعطيلها. اسمها `label`، أو، في غيابها، محتواها كله مقروءًا سلسلة واحدة. وتبلّغ بنيات التنقيح (debug) عن التسمية الناقصة.
+- بطاقة الرابط عنصر واحد يقبل التركيز وله دور الرابط، ويُسمّى بالطريقة نفسها. وما دامت `target` تساوي `new` تكون `targetLabel` وصفه، ويُقرأ بعد اسمه ودوره. وبطاقة الرابط المعطَّلة تحتفظ بدور الرابط، وتعرض حالة التعطيل، ولا وجهة لها.
+- المفتاحان Enter و Space يفعّلان البطاقة التفاعلية، والمفتاح Enter وحده يفعّل بطاقة الرابط. ومساحة اللمس تستوفي الحد الأدنى للهدف، ومؤشر التركيز يظهر لتركيز لوحة المفاتيح فقط.
+- تكبر مع محتواها، فلا يُقصّ النص الكبير أبدًا.
+- على الويب تبلّغ بنيات التنقيح عن عنصر تفاعلي داخل بطاقة تفاعلية أو بطاقة رابط عند كل تغيّر في المنفذ (slot)، وعن بطاقة رابط تفتح تبويبًا جديدًا بلا `targetLabel`.
+
+فجوات معروفة في المنصات:
+
+- ليس في SwiftUI و Compose و Flutter و React Native بطاقة رابط بعد. فالبطاقة التي تذهب إلى مكان ما هناك ما زالت بطاقة تفاعلية تتنقل من إجرائها.
+- الويب: العنصر التفاعلي الذي يُضاف لاحقًا، في عمق عنصر موجود أصلًا في البطاقة، لا يُبلَّغ عنه.
+- الويب: البطاقة غير التفاعلية لا تُنتج نقرة خاصة بها أبدًا، لكن النقرة على محتواها نقرة DOM عادية وتصعد عبر البطاقة.
+- لا تستطيع SwiftUI و Compose و Flutter و React Native اكتشاف عنصر تفاعلي متداخل، فلا تفحص وجوده. والقاعدة عليك أنت أن تحفظها.
+- في React Native: البطاقة غير التفاعلية التي لها تسمية مجموعة، لكن iOS لا يقابل ذلك الدور بأي صفة (trait). ولم يُتحقق على جهاز من أن VoiceOver يُعلِن اسم المجموعة.
+- في Compose: التفعيل بالمفتاحين Enter و Space عبر معالجة المفاتيح في المنصة مختبَر تحت Robolectric فقط، لا على جهاز بعد.
+- ليس في React Native لون نص موروث. ترسم البطاقة السلسلة النصية المجرّدة بلون محتواها؛ ونصك أنت يقرؤه بالدالة `useContentColor()`.
+- في SwiftUI: البطاقة التفاعلية الأصغر من الحد الأدنى للهدف تحتفظ بمقاسها المرئي، لكنها تشغل مقاس الهدف في التخطيط.
+
+### ما عليك فعله
+
+- أعطِ البطاقة التفاعلية أو بطاقة الرابط `label`. من دونها يُقرأ المحتوى كله اسمًا واحدًا طويلًا.
+- أعطِ بطاقة الرابط التي تفتح تبويبًا جديدًا أو نافذة جديدة `targetLabel` بلغة منتجك.
+- أبقِ البطاقة التفاعلية وبطاقة الرابط خاليتين من عناصر التحكم الأخرى. حين تحتاج البطاقة إلى أزرارها أو روابطها الخاصة، أبقِها بسيطة ودع أحدها يكون إجراءها الرئيسي أو وجهتها.
+- أعطِ العناوين والصور وسائر المحتوى داخل البطاقة غير التفاعلية دلالاتها الخاصة: النص البديل، ومستويات العناوين. البطاقة لا تضيف شيئًا منها.

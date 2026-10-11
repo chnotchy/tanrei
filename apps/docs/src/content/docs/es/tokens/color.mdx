@@ -1,0 +1,23 @@
+---
+title: Tokens de color
+description: Todos los roles de color de sistema, con su valor resuelto en claro y en oscuro para cada nivel de contraste.
+translationOf: tokens/color.mdx
+sourceHash: 268c3b3086d0f6139384b59c01acca9c79c5fa8e
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ColorRoles from '../../../../components/tokens/ColorRoles.astro';
+
+Todos los roles de color de sistema bajo `tanrei.sys.color`, resueltos para claro y oscuro. Las muestras enseñan los valores resueltos literales, así que los dos temas se ven sea cual sea el tema en el que estés leyendo; los roles translúcidos se dibujan sobre el lienzo para el que están pensados. Para saber qué significan los roles y cómo usarlos, lee [Color](/es/foundations/color/).
+
+<Tabs syncKey="contrast">
+  <TabItem label="Estándar" value="standard">
+    <ColorRoles contrast="standard" />
+  </TabItem>
+  <TabItem label="Medio" value="medium">
+    <ColorRoles contrast="medium" />
+  </TabItem>
+  <TabItem label="Alto" value="high">
+    <ColorRoles contrast="high" />
+  </TabItem>
+</Tabs>

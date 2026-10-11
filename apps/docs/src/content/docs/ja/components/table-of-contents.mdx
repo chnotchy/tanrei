@@ -1,0 +1,236 @@
+---
+title: 目次
+description: 読んでいるページの見出しを、その見出しへのリンクとして並べ、いま読んでいるセクションの項目に印を付けます。テキストの横に置く場所がないときは、現在のセクションの名前を示す 1 行になり、押すと同じリストが開きます。
+translationOf: components/table-of-contents.mdx
+sourceHash: f5bfc3fe238e62fc88573224164e01b2942039f2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="table-of-contents" />
+
+<DemoFrame label="このページのセクション：スクロールすると、印が付いていきます" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="このページの内容" style="inline-size: 15rem; max-inline-size: 100%">
+    <ul>
+      <li>
+        <a href="#概要">概要</a>
+        <ul>
+          <li><a href="#使い方">使い方</a></li>
+          <li><a href="#書くもの">書くもの</a></li>
+        </ul>
+      </li>
+      <li><a href="#仕様">仕様</a></li>
+      <li>
+        <a href="#ガイドライン">ガイドライン</a>
+        <ul>
+          <li><a href="#現在の項目の決まり方">現在の項目の決まり方</a></li>
+          <li><a href="#コンパクトな形">コンパクトな形</a></li>
+        </ul>
+      </li>
+      <li><a href="#アクセシビリティ">アクセシビリティ</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+目次は、長いページに何があるかと、読み手がいまどこを読んでいるかを示します。それぞれの項目は見出しへのリンクで、下位の見出しは、親の見出しの下に字下げして並べます。現在の項目は、レールの上のマーカーと、太くしたラベルで示します。プロダクトの中でページからページへ移動するためのナビゲーションではありません。それはナビゲーションドロワーです。
+
+Web では、プロダクト側で書いた、アンカーの入れ子のリストを `<tanrei-table-of-contents>` で囲みます。アンカーは文書の中に残るので、スクリプトが動く前から、ページにはふつうにたどれるリンクのリストがあります。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/table-of-contents.css" />
+
+    <tanrei-table-of-contents label="このページの内容">
+      <ul>
+        <li><a href="#top">概要</a></li>
+        <li>
+          <a href="#install">インストール</a>
+          <ul>
+            <li><a href="#npm">npm</a></li>
+          </ul>
+        </li>
+        <li><a href="#configure">設定</a></li>
+      </ul>
+    </tanrei-table-of-contents>
+
+    <script type="module">
+      import '@tanrei/web/components/table-of-contents';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TableOfContents } from '@tanrei/react';
+    import '@tanrei/web/table-of-contents.css';
+
+    <TableOfContents label="このページの内容" density="compact">
+      <ul>
+        {headings.map((heading) => (
+          <li key={heading.id}>
+            <a href={`#${heading.id}`}>{heading.text}</a>
+          </li>
+        ))}
+      </ul>
+    </TableOfContents>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/table-of-contents.css` は、スクリプトが動く前にタイトルとリストを描きます。スクリプトが読み込まれても、リストは動きません。要素自身も、同じスタイルシートをページに加えます。コンパクトな形のシェブロンはアイコンセットのグリフなので、アイコンフォントが必要です。
+
+### 書くもの
+
+| パーツ | Web での書き方 |
+| --- | --- |
+| タイトル | `label` 属性。プロダクトの言語で書きます。ナビゲーションのランドマークの名前にもなります。 |
+| 項目 | 最初の子が `<a href>` である `<li>`。アンカーのテキストが、プレーンテキストとしてラベルになります。 |
+| 項目の下位の項目 | 同じ `<li>` の中で、アンカーの後ろに置く `<ul>`。 |
+| ページの先頭を指す項目 | `href` が `#top` か `#` の項目。最初の見出しに届くまでは、この項目が現在の項目です。 |
+| 見出しにするタイトル | `slot="title"` を付けた子。`<h2 slot="title">このページの内容</h2>` のように書きます。この場合も、ランドマークの名前は `label` です。 |
+| 現在の項目 | 何も書きません。要素が決めます。`tracking="manual"` のときは、`current` に項目の `href` を設定します。 |
+
+項目は利用者側で渡すもので、要素が探し出すものではありません。サイトジェネレーターやフレームワークで作るページでは、ビルドの時点で見出しが分かっています。そのため、リストは最初からページの中にあり、クローラーも読めます。
+
+| イベント | 発火するとき | `detail` |
+| --- | --- | --- |
+| `currentchange` | `tracking` が `auto` の間に、現在の項目が変わったとき。 | `href`：新しい項目の `href`。なければ空文字列 |
+| `select` | 項目が実行されたとき。ブラウザーがリンクをたどる前に発火します。キャンセルすれば、ビューを自分で動かせます。 | `href` |
+| `toggle` | コンパクトな形のリストを、利用者が表示したか隠したとき。 | `open` |
+
+## 仕様
+
+<DemoFrame label="密度が compact で 3 階層、3 階層目の項目が現在の項目" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="このページの内容" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
+    <ul>
+      <li>
+        <a href="#tokens-demo">トークン</a>
+        <ul>
+          <li>
+            <a href="#color-demo">色</a>
+            <ul>
+              <li><a href="#roles-demo">ロール</a></li>
+              <li><a href="#schemes-demo">スキーム</a></li>
+            </ul>
+          </li>
+          <li><a href="#space-demo">スペース</a></li>
+        </ul>
+      </li>
+      <li><a href="#components-demo">コンポーネント</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+<DemoFrame label="コンパクトな形：行を押してください" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="このページの内容" presentation="compact" tracking="manual" current="#configure-demo" style="inline-size: 20rem; max-inline-size: 100%">
+    <ul>
+      <li><a href="#install-demo">インストール</a></li>
+      <li><a href="#configure-demo">設定</a></li>
+      <li><a href="#build-demo">ビルド</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+<ComponentSpecs name="table-of-contents" />
+
+## ガイドライン
+
+### 目次にするかどうか
+
+1 画面より長く、見出しで区切られているページに使います。見出しのないページには要りません。項目がなければ、コンポーネントは何も描かず、空のランドマークも残しません。ページからページへの移動にはナビゲーションドロワーを、1 つの作業の手順にはステップを使います。
+
+### レイアウトが決めること
+
+コンポーネントは与えられた幅いっぱいに広がり、自分の置き場所については何も決めません。次のことは、目次を置くレイアウトの側で決めます。
+
+- どこに置くか。また、ページをスクロールしても見える位置にとどめること（たとえば sticky の列）。
+- どのウィンドウでどの形を見せるか。テキストの横に置く場所がないところでは、`presentation="compact"` を設定します。
+- 長いリストを囲む、スクロールする列。その場合、コンポーネントは現在の行がその列の中で見えているようにします。
+
+### 密度
+
+| `density` | 1 行に収まる行の高さ | 用途 |
+| --- | --- | --- |
+| `regular`（既定） | 44。ポインター用のターゲットの高さです | ほとんどのページ。 |
+| `compact` | 32 | ポインターで操作するプロダクトで、テキストの横に置く長い見出しのリスト。 |
+
+compact の行は、ポインター用のターゲットより低くなります。名前を指定して選ぶもので、既定になることはないので、これを認めています。タッチでは、どちらの密度でも行の高さはタッチターゲットの高さです。テキストスタイルと字下げは、どちらの密度でも同じです。
+
+### 現在の項目の決まり方
+
+リンクで見出しへ移動したとき、ブラウザーはその見出しを決まった位置に止めます。現在の項目は、見出しがその位置まで届いている項目のうち、ページの順で最後のものです。コンポーネントは、その位置を利用者側の CSS から読み取ります。
+
+```css
+html { scroll-padding-top: 4rem; }     /* 上部に固定しているものの高さ */
+h2, h3 { scroll-margin-top: 1.5rem; }  /* 見出しが自分の上に空けておく余白 */
+```
+
+| 場合 | 現在の項目 |
+| --- | --- |
+| 最初の見出しより前 | なし。ページの先頭を指す項目を渡していれば、その項目です。 |
+| ページの末尾 | 最後の項目。最後のセクションがウィンドウより短いと、その位置にはいつまでも届かないためです。 |
+| 項目が選ばれた | その項目。すぐに現在の項目になり、読み手が次に自分でスクロールするまで変わりません。 |
+| アドレスが見出しを指している | その項目。同じように保たれます。 |
+| 見出しより上のコンテンツが読み込まれた、または折りたたまれた | 決め直します。 |
+
+コンポーネントがページをスクロールすることも、アドレスを書き換えることもありません。見出しまで滑らかに動くか、一度に移るかは、利用者側の `scroll-behavior` で決まります。
+
+1 つずつ表示する手順のように、セクションが 1 つのスクロールするビューの中の場所ではないときは、`tracking="manual"` を設定し、`current` を自分で設定します。
+
+### コンパクトな形
+
+`presentation="compact"` は、塗りのある 1 つのブロックで、その中に行が 1 つあります。行には、タイトル、現在のセクションの名前、シェブロンが並びます。この行はボタンで、押すと、同じリストがその下に表示されます。
+
+- 項目を選ぶと、リストが閉じ、リンクをたどります。
+- Escape を押すとリストが閉じ、フォーカスは行に戻ります。
+- 要素に `max-block-size` を指定すると、リストはその中でスクロールし、行は動きません。
+- オーバーレイではありません。スクリムは描かず、外側を押しても閉じません。目次をテキストの上に重ねておき、外側を押したら閉じるようにしたいレイアウトでは、利用者側で `open` を `false` にします。
+
+スクリプトが読み込まれるまでの間、コンパクトな形はリスト全体を表示します。それを一瞬でも見せたくないレイアウトでは、`tanrei-table-of-contents[presentation="compact"]:not(:defined)` を隠します。
+
+### 推奨
+
+- `label` は、プロダクトの言語で書きます。1 つのページに目次が 2 つあるときは、それぞれに別の名前を付けます。
+- 目次に見せたい見出しを渡します。ふつうはレベル 2 とレベル 3 の見出しです。
+- 最初の見出しより前のテキストが長いときは、ページの先頭を指す項目を渡します。
+
+### 非推奨
+
+- 項目にコントロール、タグ、アイコンを置かない。ラベルは見出しのテキストです。
+- 3 階層より深く入れ子にしない。狭い列では、ラベルを置く場所がなくなります。
+- プロダクトのナビゲーションとして使わない。現在の項目が伝えるのは「このページのこの部分」であって、「このページ」ではありません。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="table-of-contents" />
+
+### コンポーネントが担うこと
+
+- `label` を名前とするナビゲーションのランドマークで、その中にリンクの入れ子のリストがあります。
+- 現在の項目には `aria-current="location"` が付きます。現在の項目が変わっても読み上げないので、スクロールのたびに読み上げが入ることはありません。
+- どの項目も、フォーカスの順序に入っているリンクで、それぞれが 1 つの止まる位置です。Enter でリンクをたどります。矢印キーでの移動はないので、覚えることもありません。
+- レール、マーカー、シェブロンは、支援技術から隠されます。
+- タイトルは、ランドマークの名前として 1 度だけ伝わります。見出しになるのは、`title` スロットに見出しを渡したときだけです。
+- コンパクトな形の行は、展開状態を持つボタンです。名前は `label` で、説明は現在のセクションの名前です。
+- 項目を選んだ後、フォーカスはページの側にあります。次に Tab を押すと、選んだ見出しから先へ進みます。
+- フォーカスリングは行の内側に描くので、スクロールする列に切り取られません。
+- 現在の項目を、色だけで示すことはありません。マーカーは線で、ラベルは太くなります。
+- 現在の項目が変わっても、リストは動きません。
+- テキストを 200% にすると、ラベルは折り返し、行は高くなります。途中で切れることがあるのは、コンパクトな形の行にある現在のセクションの名前だけです。
+- 強制カラーモードでは、項目はリンクの色に、現在の項目のラベル、レール、マーカーはテキストの色になります。
+- 空の `label`、ラベルのない項目、同じ `href` を持つ 2 つの項目、行き先のない `href`、未知の値、3 階層を超える入れ子は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- 目次に載せるすべての見出しに `id` を付け、項目の `href` に同じフラグメントを書きます。
+- 上部に固定しているものがあれば、その高さを `scroll-padding-top` で宣言します。リンクでページがそこへ動いたときに、見出しがその下に隠れないようにするためです。
+- 読み手が動きを減らす設定にしているときは、スムーズスクロールをオフにします。
+- 長い目次は、読む順序でコンテンツの後ろに置くか、その前にスキップリンクを置きます。

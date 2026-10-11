@@ -1,0 +1,409 @@
+{
+  "tanrei": {
+    "comp": {
+      "carousel": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets people browse a row of visual items (albums, places, products) that scrolls sideways around one item in focus, in the centre or at the start: the others narrower or drawn smaller or neither, always the same gap apart, snapping or free, endless or not, and, for a featured row, advancing by itself with its position shown in dots and a way to stop it.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "item",
+              "playback",
+              "indicator"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "content.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "container.shape": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a carousel reads: the row's height, the padding before the first and after the last item and the gap between items; an item's corner shape, the default width of the hero, the least and greatest width of a small item and the scale of an item away from the hero; the controls row below the items (its height, the playback control's size, shape and glyph size, the padding around the dots) and the dots (size, stretched width, gap, color); for the three pressable parts (`item`, `playback`, `indicator`) their container, content and state-layer colors in each state; the opacity and item shape per state; how long an item stays before autoplay moves on; and the state, scroll and autoplay motion.",
+            "rules": [
+              "An item's content (an image, a poster) is the product's; the carousel clips it to the item's shape and aligns it (centred, or toward the hero), so a narrowed item shows part of it.",
+              "Every item is one action with an accessible label; never put buttons or links inside an item.",
+              "Give items content whose middle (or, aligned toward the hero, whose near side) still says what it is: a small item shows only that.",
+              "A carousel that advances by itself shows its playback control. A product may hide it, but should keep it wherever it can: on touch there is no hover to hold the motion, so without the control the person cannot stop it (WCAG 2.2.2).",
+              "The dots show where the row is and move it; they are one control (a slider), not a row of buttons. Use them for a short featured row, not for a long list to browse.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "Each part's state-layer.color is the color hover, focus and press mix into its container; it aliases the part's content color."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "part": {
+              "default": "item",
+              "from": "states"
+            }
+          }
+        },
+        "layout": {
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 200,
+              "unit": "px"
+            },
+            "$description": "The height of the row of items, and so of the items, unless the product sizes the carousel through the platform's own sizing. The controls row, when drawn, is added below it.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 50
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "Between each of the carousel's edges and the inner width the slots are laid out in. Items scroll under it to the carousel's edges; it is not a clip, and with fluid widths nothing is drawn in it at rest. The playback control sits inside it."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between two neighbouring items, from drawn edge to drawn edge, at every scroll position and at every scale (CRL-40). Half of it on each side completes a small item's touch target (CRL-4)."
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.large}",
+            "$description": "An item's corners, which clip its content."
+          },
+          "large-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 200,
+              "unit": "px"
+            },
+            "$description": "The width the hero is laid out at, and every item's width while widths are fixed, unless the product gives the carousel another (itemWidth). With fluid widths the hero is kept between a floor and a cap (CRL-9).",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 50
+              }
+            }
+          },
+          "small-min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 40,
+              "unit": "px"
+            },
+            "$description": "With fluid widths, the narrowest a small slot may be: enough to show that more follows and, with the gap, to be pressed. An item is narrower only on its way in or out at an edge (CRL-12).",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              }
+            }
+          },
+          "small-max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 56,
+              "unit": "px"
+            },
+            "$description": "With fluid widths, the widest a small slot is made (CRL-10 lets it grow past this only in the cases it names); the hero's cap leaves one small slot this wide on each side where items follow.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14
+              }
+            }
+          },
+          "min-scale": {
+            "$type": "number",
+            "$value": 0.85,
+            "$description": "While the other items are drawn smaller (scaleOthers), the scale of an item one position or more from the hero; between the two the scale follows the scroll. The gap to its neighbours stays layout.gap, and its corners keep container.shape (CRL-26).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how far its carousels recede around the item in focus: a strong depth for a showcase, a hint for a row of covers. It is the carousel's own proportion, and a product sets it once.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A proportion of the item's own size; no dial scales it."
+              }
+            }
+          }
+        },
+        "controls": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product that shows dots or a playback control below its carousels sizes that row, the control and the space around the dots once, apart from its buttons elsewhere (a component that contains a control owns its tokens).",
+              "since": "0.1.0"
+            }
+          },
+          "height": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.target.touch}",
+            "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, so both controls keep their whole target inside it."
+          },
+          "button-size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 40,
+              "unit": "px"
+            },
+            "$description": "The playback control's square, and the height of the dots' container. Material Design 3's standard icon button is 40 with a 24 glyph.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The corners of the playback control and of the dots' container: a circle and a pill, as button-like controls are in the default system."
+          },
+          "icon": {
+            "size": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.icon.medium}",
+              "$description": "The pause and play glyphs: an icon-only button's medium glyph."
+            }
+          },
+          "indicator-padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Between the dots' ends and the ends of their container, which shows hover, focus and press."
+          }
+        },
+        "dot": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product draws the position of its featured carousels as dots, and decides once how large they are, how far the current one stretches, how far apart they sit and how quiet the others are.",
+              "since": "0.1.0"
+            }
+          },
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$description": "A dot's diameter, and the height of every dot, stretched or not.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 2
+              }
+            }
+          },
+          "active-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The width of the current dot, fully stretched. Its shape, not its color alone, tells it apart (WCAG 1.4.1); a width equal to size draws no stretch.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 6
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Between two dots."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline}",
+            "$description": "Every dot but the current one, and the unfilled part of the current dot while autoplay progress is shown. The functional outline role: the dots are a control, held to 3:1 against the surface."
+          }
+        },
+        "item": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-highest}",
+              "$description": "Behind an item's content: what shows while an image loads, around content that does not fill the item, and under the state layer."
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The foreground the carousel hands to an item's content, as the platform's inherited color."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.carousel.item.content.color}"
+            }
+          }
+        },
+        "playback": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product styles the control that stops and starts its carousels apart from its other icon buttons, for example quieter over a busy row.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The playback control has no fill at rest, as an icon-only text Button.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The playback control draws no fill at rest; its states draw the state layer."
+                }
+              }
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The pause and play glyphs: an icon-only text Button's glyph color."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.carousel.playback.content.color}"
+            }
+          }
+        },
+        "indicator": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product marks the current position of its carousels in a color of its choosing, and answers a press on the dots as it answers other controls.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "Behind the dots: no fill at rest; hover, focus and press show on it.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The dots' container draws no fill at rest; its states draw the state layer."
+                }
+              }
+            }
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$description": "The current dot, and the fill of autoplay progress. Other dots are dot.color."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.carousel.indicator.content.color}"
+            }
+          }
+        },
+        "autoplay": {
+          "interval": {
+            "$type": "duration",
+            "$value": {
+              "value": 5000,
+              "unit": "ms"
+            },
+            "$description": "How long the row rests at an item before autoplay moves on, unless the product gives the carousel another (autoplayInterval).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how long its featured items stay in view before the next: long enough to read what they say.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A reading time, not an animation: the motion dial, which speeds or slows animation, must not shorten it."
+              }
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "scroll-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$description": "How long the row takes to settle at an item after a drag, or to bring an item into place when it takes focus or the dots move it."
+          },
+          "scroll-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+          },
+          "autoplay-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long2}",
+            "$description": "How long an automatic advance takes (and the return to the first item when the row does not loop).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "A settle finishes the person's own gesture and should be quick; an advance moves the row when nobody asked, and one product may want it gentler than its settle.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "autoplay-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "As autoplay-duration: an advance starts from rest, where a settle continues a fling, so it takes an easing that starts and ends gently.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

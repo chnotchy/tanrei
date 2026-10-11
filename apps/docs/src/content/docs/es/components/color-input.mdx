@@ -1,0 +1,199 @@
+---
+title: Entrada de color
+description: La caja en la que se define un color (una muestra de él, el valor como texto que se puede leer, escribir y pegar, y un botón que pide un selector), sin fila de etiqueta, ayuda ni texto de error propios. Para una fila o una columna que ya da nombre al color, o dentro de un campo que el producto compone por su cuenta.
+translationOf: components/color-input.mdx
+sourceHash: c6a1f0d587f6be1fa38d747d9f53935365b8c4a9
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="color-input" />
+
+<DemoFrame label="Sin nada más: las filas de una lista de tonos, cada una con el nombre que le da su fila" column>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 14rem; align-items: center; gap: 0.5rem 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>Tono 40</span>
+    <tanrei-color-input label="Primario, tono 40" value="#0f766e" picker picker-label="Elegir el color de Primario, tono 40"></tanrei-color-input>
+    <span>Tono 80</span>
+    <tanrei-color-input label="Primario, tono 80" value="#5eead4" picker picker-label="Elegir el color de Primario, tono 80"></tanrei-color-input>
+  </div>
+</DemoFrame>
+
+Una entrada de color es la caja de un [campo de color](/es/components/color-field/), sola: el contenedor, la muestra, el valor como texto y el botón del selector. No tiene fila de etiqueta encima, ni ayuda ni texto de error debajo.
+
+Úsala sin nada más donde la etiqueta que lee la persona está en otro lugar:
+
+| Dónde | La etiqueta que lee la persona | El `label` de la entrada |
+| --- | --- | --- |
+| Una fila de una lista de colores, o de los tonos de una paleta | El propio texto de la fila | La lista y la fila: «Primario, tono 40» |
+| Una celda de una tabla | El encabezado de la columna | La columna y la fila: «Fondo, tema oscuro» |
+| Una barra de herramientas | Un texto o un glifo que tiene al lado | Para qué es el color: «Color de resaltado» |
+
+Sin nada más, la entrada necesita un `label` propio. Es el nombre accesible. Una entrada stacked nunca lo dibuja; una filled o una outlined lo dibuja como la etiqueta que flota en la caja.
+
+Es un componente **avanzado**: el control sin nada más, para un producto que compone el suyo. La mayoría de los formularios quieren el [campo de color](/es/components/color-field/), que es esta entrada dentro de un campo, listo para usarse.
+
+**Se usa en** el [campo de color](/es/components/color-field/). Para enmarcarla tú, ponla dentro de un [campo](/es/components/field/), que le da nombre, la describe, la marca como obligatoria y la pone en su estado de error.
+
+Es un bloque tan ancho como el lugar en el que se pone, tanto sin nada más como enmarcada. No tiene ancho propio: para una caja más estrecha, dale un lugar más estrecho.
+
+En la web es `<tanrei-color-input>`. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+`value` es un signo de número y seis dígitos hexadecimales en minúsculas (`#0f766e`), o una cadena vacía cuando no hay color. Nunca es un texto a medio escribir: mientras la entrada contiene algo que no es un color, `value` está vacío.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Una fila de los tonos de una paleta: la fila da nombre al tono, y da a la entrada su ancho. -->
+    <div class="tone-row">
+      <span>Tono 40</span>
+      <tanrei-color-input name="primary-40" label="Primario, tono 40" value="#0f766e"
+        picker picker-label="Elegir el color de Primario, tono 40"></tanrei-color-input>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/color-input';
+
+      const tone = document.querySelector('[name="primary-40"]');
+      // El valor cambió: un color, o una cadena vacía. Ya es el nuevo.
+      tone.addEventListener('input', () => preview(tone.value));
+      // La persona confirmó un valor distinto: el foco salió, pulsó Enter o se cerró el selector.
+      tone.addEventListener('change', () => save(tone.value));
+      // Se confirmó un texto que no es un color. La entrada lo conserva y se dibuja en error.
+      tone.addEventListener('entryerror', (e) => console.log(e.detail.text, e.detail.message));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ColorInput } from '@tanrei/react';
+
+    <ColorInput label="Primario, tono 40" value={tone} picker pickerLabel="Elegir el color de Primario, tono 40"
+      onChange={(event) => setTone(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### En un campo, a mano
+
+Un campo alrededor de una entrada de color es un campo de color escrito por extenso. Deja vacío el `label` de la entrada: el campo le da nombre. `label`, `error`, `disabled` y la obligatoriedad se indican en el campo; `name`, `value`, `invalidText` y el selector, en la entrada.
+
+```html
+<tanrei-field label="Color de marca" requirement="required" required-text="Obligatorio"
+  supporting-text="Seis dígitos hexadecimales, como #0f766e.">
+  <tanrei-color-input name="brand" value="#0f766e"
+    invalid-text="Introduce seis dígitos hexadecimales, como #0f766e."
+    picker picker-label="Elegir color"></tanrei-color-input>
+</tanrei-field>
+```
+
+<DemoFrame label="Un campo con una entrada de color dentro: la misma imagen que un campo de color" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" requirement="required" required-text="Obligatorio" supporting-text="Seis dígitos hexadecimales, como #0f766e.">
+    <tanrei-color-input value="#0f766e" invalid-text="Introduce seis dígitos hexadecimales, como #0f766e." picker picker-label="Elegir color"></tanrei-color-input>
+  </tanrei-field>
+</DemoFrame>
+
+La entrada le dice a su campo lo que solo ella sabe. La ayuda del campo empieza donde empieza el texto del valor, después de la muestra. Una entrada filled u outlined dibuja ella misma la etiqueta del campo, flotando en la caja, de modo que el campo no dibuja ninguna fila de etiqueta. Un texto confirmado que no es un color pone el campo en error con el `invalidText` de la entrada.
+
+## Especificaciones
+
+<DemoFrame label="Entradas sin nada más: vacía, blanca, negra, en error, deshabilitada, y grande con su botón del selector" plain column>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de acento"></tanrei-color-input>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Fondo de la página" value="#ffffff"></tanrei-color-input>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Texto" value="#000000"></tanrei-color-input>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" value="#fde047" error></tanrei-color-input>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Color de marca" value="#0f766e" disabled picker picker-label="Elegir color"></tanrei-color-input>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="Color de marca" value="#0f766e" picker picker-label="Elegir color"></tanrei-color-input>
+</DemoFrame>
+
+<DemoFrame label="Filled y outlined, sin nada más: la etiqueta de la propia entrada flota en la caja" system="m3-like" plain column>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="Color de marca" value="#0f766e"></tanrei-color-input>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="Color de marca"></tanrei-color-input>
+</DemoFrame>
+
+### Qué es de la entrada y qué es del campo
+
+| Aspecto | La entrada de color | El campo que la rodea |
+| --- | --- | --- |
+| Dibuja | La caja, la muestra, el valor como texto, el botón del selector y la etiqueta que flota en una caja filled u outlined | La fila de etiqueta sobre una entrada stacked, la marca de obligatorio o de opcional, la ayuda, el texto de error |
+| Contiene | El valor, su lugar en un formulario, los eventos, el selector que presenta | Nada |
+| Dice a la tecnología de apoyo | El valor como texto; el botón del selector, como un botón aparte | El nombre, la ayuda o el texto de error, obligatorio, no válido, deshabilitado |
+
+La caja en sí es la misma sin nada más, enmarcada y en un campo de color, y se describe una sola vez, en la página del campo de color: [las partes de la caja](/es/components/color-field/#el-campo), [el valor y el texto](/es/components/color-field/#el-valor-y-el-texto), y [el selector](/es/components/color-field/#el-selector).
+
+Las tres variantes y los dos tamaños, `medium` (48) y `large` (56), son los de la entrada de texto. El sistema predeterminado solo incluye `stacked`. La muestra está donde está el icono inicial de una entrada de texto, con el tamaño de ese icono, de modo que una entrada de color situada bajo una entrada de texto con icono inicial comparte con ella los bordes de inicio.
+
+### Sin nada más, sin un campo
+
+- **El nombre** es `label`. `labelHidden` impide que una entrada filled u outlined lo dibuje.
+- **Un error** es `error`, que defines tú: la caja se dibuja en su estado de error y se expone como no válida. La entrada no tiene texto de error. Di con palabras qué está mal junto a ella, o enmárcala.
+- **Un texto confirmado que no es un color** dibuja la caja en error y emite `entryError`. `invalidText` se añade a la descripción de la entrada; nada lo dibuja.
+- **La obligatoriedad** la dice un campo. Una entrada sin nada más no tiene ningún ajuste de obligatoriedad: donde el formulario necesite una respuesta, valídala tú.
+
+<ComponentSpecs name="color-input" />
+
+### Qué dibuja la web de otra manera
+
+- El elemento está asociado a formularios. Con un `name` envía `value` (el color, o una cadena vacía), se restablece al valor de su atributo `value`, se restaura al navegar, sigue a un `<fieldset>` deshabilitado, y notifica que falta un valor mientras su campo dice que es obligatorio, y que la entrada es incorrecta mientras dura un error de entrada.
+- El elemento es un bloque. `focus()` va al elemento de texto nativo, nunca al botón del selector; una pulsación en cualquier punto de la caja fuera de ese botón da el foco al texto.
+- `input` y `change` son eventos sencillos: lee `value` del elemento. `pickerrequest` es un CustomEvent cancelable con `detail.value`; `entryerror` es un CustomEvent con `detail.text` y `detail.message`, que es `invalidText`. Sus tipos son `TanreiColorInputPickerRequestDetail` y `TanreiColorInputEntryErrorDetail`.
+- Partes: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `swatch`, `input`, `picker-button`. No tiene ningún slot.
+- El elemento no tiene textos propios y no lee ninguno de los del producto: `label`, `invalidText` y `pickerLabel` están vacíos hasta que los das.
+- El selector del navegador varía según el navegador: una ventana emergente de la página en Chromium, la ventana de color del sistema en Firefox y Safari. Su aspecto, su colocación y sus teclas son los del navegador.
+- Un texto en caracteres de ancho completo (`＃０ｆ７６６ｅ`) no se lee como un color.
+- Antes de que el elemento esté definido no tiene tamaño. Reserva la altura de la caja.
+
+## Pautas
+
+### Entrada de color, campo de color o un campo a mano
+
+| Necesitas | Usa |
+| --- | --- |
+| Una etiqueta, la caja, ayuda y un error | Un [campo de color](/es/components/color-field/) |
+| La caja sin nada más, en una fila o una columna que ya da nombre al color | Una entrada de color, con su propio `label` como nombre |
+| Algo tuyo dentro del marco, junto a la caja o debajo de ella | Un [campo](/es/components/field/) con una entrada de color y tu propio elemento dentro |
+| Un color que se muestra y no se edita | Una muestra con su valor o su nombre en texto al lado |
+
+### Recomendado
+
+- Da a una entrada sin nada más un `label` que diga lo que la fila y su lugar dicen juntos: «Primario, tono 40».
+- Da nombre también al botón del selector según su fila: «Elegir el color de Primario, tono 40». De lo contrario, una página de filas tiene muchos botones con un mismo nombre.
+- Da a una entrada sin nada más su ancho con el lugar que ocupa: una columna de una cuadrícula, una celda, un elemento de una barra de herramientas que tiene un ancho.
+- Usa el campo de color siempre que lo que necesites sea una etiqueta sobre la caja, ayuda y un error.
+
+### Evita
+
+- No uses una entrada sin nada más en un formulario para ahorrarte el sitio de una etiqueta. Una entrada sin etiqueta visible en ninguna parte es una adivinanza para todo el que la ve.
+- No indiques un color solo con la muestra. El valor es texto; quien no distingue dos muestras lee dos valores distintos.
+- No definas `label`, `error` ni `disabled` en una entrada que está dentro de un campo. Indícalos en el campo, para que la etiqueta y la ayuda los sigan.
+- No pongas un campo de color dentro de un campo. Ya es un campo; el control que un campo enmarca es la entrada de color.
+
+## Accesibilidad
+
+<ComponentAccessibility name="color-input" />
+
+### De qué se encarga el componente
+
+- Es un solo cuadro de texto cuyo valor es el texto que muestra y, con `picker`, un botón aparte, que recibe su nombre de `pickerLabel` y se expone como un botón que abre un diálogo.
+- Su nombre es su propio `label`, o la etiqueta del campo que la rodea donde no tiene ninguno.
+- Su descripción es lo que da su campo: la ayuda o el texto de error. Donde ningún campo la enmarca, `invalidText` es su descripción mientras dura un error de entrada.
+- Se expone como no válida mientras está en error, como obligatoria mientras su campo lo dice, y como deshabilitada.
+- La muestra es decorativa y queda oculta para la tecnología de apoyo: el texto del valor dice el color.
+- No se anuncia nada cuando el valor cambia, y la entrada no añade ningún nombre del color.
+- El foco lo muestra el propio borde de la caja, tanto desde el teclado como desde un puntero. El área de pulsación cumple el objetivo mínimo.
+- Con colores forzados, la caja gana un borde y toma los colores de la persona. Solo la muestra conserva el color del valor; su borde es del color del texto.
+- En un diseño de derecha a izquierda, la caja se refleja: la muestra a la derecha, el botón del selector a la izquierda. El valor en sí sigue de izquierda a derecha.
+- Las compilaciones de depuración notifican que falta un nombre.
+
+### Qué debes hacer tú
+
+- Da nombre a toda entrada sin nada más con `label`. Un texto visible a su lado no le da nombre.
+- Da `pickerLabel` siempre que `picker` esté activado.
+- Donde una entrada sin nada más pueda estar mal, di qué está mal con palabras que lleguen a la tecnología de apoyo: escribe `invalidText` y pon un mensaje tuyo en la página, o enmarca la entrada con un campo, que dibuja las palabras.

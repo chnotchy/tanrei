@@ -1,0 +1,70 @@
+{
+  "tanrei": {
+    "sys": {
+      "state": {
+        "$type": "number",
+        "$description": "State layer opacities. The layer takes the color of the content (the on-* role), and only one layer is shown at a time.",
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows hover, focus, press, drag and disabled differently from each other.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Opacities used by a design system's RULES to compute state colors (hover, focus, press, drag, disabled). Components do not read these directly: they read their own per-state tokens.",
+            "rules": [
+              "To change how hover looks everywhere, change the opacity here or replace the pattern rule in your layer; do not restyle components."
+            ]
+          }
+        },
+        "hover-state-layer-opacity": {
+          "$value": 0.08,
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "An opacity is a proportion; no dial scales it."
+            }
+          }
+        },
+        "focus-state-layer-opacity": {
+          "$value": 0.1,
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "An opacity is a proportion; no dial scales it."
+            }
+          }
+        },
+        "pressed-state-layer-opacity": {
+          "$value": 0.1,
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "An opacity is a proportion; no dial scales it."
+            }
+          }
+        },
+        "dragged-state-layer-opacity": {
+          "$value": 0.16,
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "An opacity is a proportion; no dial scales it."
+            }
+          }
+        },
+        "disabled-content-opacity": {
+          "$value": 0.38,
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "An opacity is a proportion; no dial scales it."
+            }
+          }
+        },
+        "disabled-container-opacity": {
+          "$value": 0.12,
+          "$extensions": {
+            "dev.tanrei.derive": {
+              "fixed": "An opacity is a proportion; no dial scales it."
+            }
+          }
+        }
+      }
+    }
+  }
+}

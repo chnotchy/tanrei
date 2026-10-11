@@ -1,0 +1,234 @@
+---
+title: Table of contents
+description: Lists the headings of the page being read as links to them and marks the one whose section is being read. Where there is no room beside the text, one row names the current section and opens the same list.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="table-of-contents" />
+
+<DemoFrame label="The sections of this page: scroll, and the mark follows" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="On this page" style="inline-size: 15rem; max-inline-size: 100%">
+    <ul>
+      <li>
+        <a href="#overview">Overview</a>
+        <ul>
+          <li><a href="#usage">Usage</a></li>
+          <li><a href="#what-you-write">What you write</a></li>
+        </ul>
+      </li>
+      <li><a href="#specs">Specs</a></li>
+      <li>
+        <a href="#guidelines">Guidelines</a>
+        <ul>
+          <li><a href="#which-item-is-current">Which item is current</a></li>
+          <li><a href="#the-compact-form">The compact form</a></li>
+        </ul>
+      </li>
+      <li><a href="#accessibility">Accessibility</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+A table of contents shows what a long page holds and which part the reader is in. Each item is a link to a heading; sub-headings are set in under their heading. The current item has a marker on the rail and a heavier label. It is not the product's navigation between pages: that is a navigation drawer.
+
+On the web it is `<tanrei-table-of-contents>` around your own nested list of anchors. The anchors stay in the document, so before any script runs the page holds a plain list of links that work. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/table-of-contents.css" />
+
+    <tanrei-table-of-contents label="On this page">
+      <ul>
+        <li><a href="#top">Overview</a></li>
+        <li>
+          <a href="#install">Install</a>
+          <ul>
+            <li><a href="#npm">npm</a></li>
+          </ul>
+        </li>
+        <li><a href="#configure">Configure</a></li>
+      </ul>
+    </tanrei-table-of-contents>
+
+    <script type="module">
+      import '@tanrei/web/components/table-of-contents';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TableOfContents } from '@tanrei/react';
+    import '@tanrei/web/table-of-contents.css';
+
+    <TableOfContents label="On this page" density="compact">
+      <ul>
+        {headings.map((heading) => (
+          <li key={heading.id}>
+            <a href={`#${heading.id}`}>{heading.text}</a>
+          </li>
+        ))}
+      </ul>
+    </TableOfContents>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/table-of-contents.css` draws the title and the list before any script runs, and the list does not move when the script loads. The element adds the same stylesheet to the page by itself. The compact form's chevron is a glyph of the icon set and needs the icon font.
+
+### What you write
+
+| Part | On the web |
+| --- | --- |
+| The title | The `label` attribute, in your product's language. It also names the navigation landmark. |
+| An item | An `<li>` whose first child is its `<a href>`. The label is the anchor's text, as plain text. |
+| An item's own items | A `<ul>` after the anchor, inside the same `<li>`. |
+| The item for the top of the page | An item whose `href` is `#top` or `#`. It is current until the first heading is reached. |
+| A title that is a heading | A child with `slot="title"`, such as `<h2 slot="title">On this page</h2>`. `label` still names the landmark. |
+| Which item is current | Nothing: the element decides. With `tracking="manual"` you set `current` to an item's `href`. |
+
+The items are given, not discovered. A page built by a site generator or a framework knows its headings when it is built, so the list is in the page from the start and a crawler reads it.
+
+| Event | When | `detail` |
+| --- | --- | --- |
+| `currentchange` | The current item changed while `tracking` is `auto`. | `href`: the new item's, or an empty string |
+| `select` | An item was activated, before the browser follows the link. Cancel it to move the view yourself. | `href` |
+| `toggle` | The compact form's list was shown or hidden by the user. | `open` |
+
+## Specs
+
+<DemoFrame label="Compact density, three levels, the third item current" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="On this page" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
+    <ul>
+      <li>
+        <a href="#tokens-demo">Tokens</a>
+        <ul>
+          <li>
+            <a href="#color-demo">Color</a>
+            <ul>
+              <li><a href="#roles-demo">Roles</a></li>
+              <li><a href="#schemes-demo">Schemes</a></li>
+            </ul>
+          </li>
+          <li><a href="#space-demo">Space</a></li>
+        </ul>
+      </li>
+      <li><a href="#components-demo">Components</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+<DemoFrame label="The compact form: press the row" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="On this page" presentation="compact" tracking="manual" current="#configure-demo" style="inline-size: 20rem; max-inline-size: 100%">
+    <ul>
+      <li><a href="#install-demo">Install</a></li>
+      <li><a href="#configure-demo">Configure</a></li>
+      <li><a href="#build-demo">Build</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+<ComponentSpecs name="table-of-contents" />
+
+## Guidelines
+
+### Is it a table of contents
+
+Use it on a page longer than a screen that is divided by headings. A page with no headings gets none: with no items the component draws nothing and leaves no empty landmark. For moving between pages use a navigation drawer; for the steps of one task use steps.
+
+### What the layout decides
+
+The component fills the width it is given and decides nothing about its place. The layout that holds it decides:
+
+- where it stands, and that it stays in view while the page scrolls (a sticky column, for example);
+- which presentation a window gets: set `presentation="compact"` where there is no room beside the text;
+- a scrolling column around a long list. The component then keeps its current row in view inside that column.
+
+### Density
+
+| `density` | A row of one line | Use for |
+| --- | --- | --- |
+| `regular` (default) | 44, the pointer target | Most pages. |
+| `compact` | 32 | A long list of headings beside the text, in a product used with a pointer. |
+
+A compact row is lower than the pointer target. That is acceptable because it is asked for by name and is never the default. For touch a row is the touch target high in both densities. The text style and the indent are the same in both.
+
+### Which item is current
+
+The current item is the last one, in the page's order, whose heading has reached the place where the browser rests a heading it is sent to. The component reads that place from your CSS:
+
+```css
+html { scroll-padding-top: 4rem; }     /* what you keep fixed at the top */
+h2, h3 { scroll-margin-top: 1.5rem; }  /* the space a heading keeps above itself */
+```
+
+| Case | Current is |
+| --- | --- |
+| Before the first heading | None, or the item for the top of the page where you gave one. |
+| At the end of the page | The last item. A last section shorter than the window could never reach the line. |
+| An item was chosen | That item, at once, until the reader next scrolls by hand. |
+| The address names a heading | That item, held the same way. |
+| Content above a heading loads or folds | Decided again. |
+
+The component never scrolls the page and never writes the address. Whether the page glides or jumps to a heading is your `scroll-behavior`.
+
+Set `tracking="manual"` where the sections are not places in one scrolling view, such as steps shown one at a time, and set `current` yourself.
+
+### The compact form
+
+`presentation="compact"` is one filled block with a row: the title, the name of the current section and a chevron. The row is a button that shows the same list below it.
+
+- Choosing an item closes the list and follows the link.
+- Escape closes it and returns focus to the row.
+- Give the element a `max-block-size`: the list then scrolls inside and the row stays in place.
+- It is not an overlay. It draws no scrim and does not close on a press outside. A layout that keeps it over the text and wants that sets `open` to `false` itself.
+
+Until the script has loaded, the compact form shows its whole list. A layout that must not show that for a moment hides `tanrei-table-of-contents[presentation="compact"]:not(:defined)`.
+
+### Do
+
+- Write `label` in your product's language. A page with two tables of contents gives each its own name.
+- Give the headings you want shown: usually the second and third level.
+- Give an item for the top of the page where the text before the first heading is long.
+
+### Don't
+
+- Don't put a control, a tag or an icon in an item. A label is the heading's text.
+- Don't nest more than three levels: the labels of a narrow column run out of room.
+- Don't use it as the product's navigation. Its current state says "this part of this page", not "this page".
+
+## Accessibility
+
+<ComponentAccessibility name="table-of-contents" />
+
+### What the component handles
+
+- It is a navigation landmark named by `label`, holding nested lists of links.
+- The current item carries `aria-current="location"`. A change of it is not announced, so scrolling is not narrated.
+- Every item is a link in the focus order, one stop each. Enter follows it. There is no arrow-key movement to learn.
+- The rail, the marker and the chevron are hidden from assistive technology.
+- The title is exposed once, as the landmark's name. It is a heading only where you gave one in the `title` slot.
+- The compact row is a button named by `label` and described by the current section's name, with its expanded state.
+- After an item is chosen, focus stays with the page: the next Tab continues from the chosen heading.
+- The focus ring is drawn inside the row, so a scrolling column does not clip it.
+- Current is not told by color alone: the marker is a stroke and the label is heavier.
+- The list does not move when the current item changes.
+- At 200% text labels wrap and rows grow. Only the current section's name in the compact row is ever cut.
+- In forced colors items are the link color, and the current label, the rail and the marker are the text color.
+- An empty `label`, an item without a label, two items with one `href`, an `href` that leads nowhere, an unknown value and more than three levels are reported in debug builds.
+
+### What you need to do
+
+- Give every heading you list an `id`, and write the same fragment in the item's `href`.
+- Declare what you keep fixed at the top with `scroll-padding-top`, so that a heading is not hidden under it when a link moves the page there.
+- Turn smooth scrolling off where the reader asks for reduced motion.
+- Place a long table of contents after the content in the reading order, or give a skip link before it.

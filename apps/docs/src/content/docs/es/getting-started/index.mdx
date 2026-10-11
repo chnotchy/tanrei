@@ -1,0 +1,78 @@
+---
+title: Primeros pasos
+description: Qué incluye Tanrei, cómo encajan sus piezas y por dónde empezar en tu plataforma.
+translationOf: getting-started/index.mdx
+sourceHash: 29f0e96c7f768e4c4fac79e67bd59e1112e73709
+---
+
+import Callout from '../../../../components/Callout.astro';
+import { CardGrid, LinkCard } from '../../../../components/cards';
+import { Tabs, TabItem } from '../../../../components/tabs';
+
+Tanrei es un sistema de diseño que se distribuye como bibliotecas nativas. No adoptas un entorno de ejecución ni un framework multiplataforma: añades el paquete de la plataforma con la que ya trabajas y obtienes los mismos tokens, los mismos componentes y el mismo comportamiento de accesibilidad que en todas las demás.
+
+<Callout type="caution" title="Prelanzamiento">
+  Tanrei está en desarrollo activo y **todavía no se ha lanzado nada**: ningún paquete está en un registro de paquetes. La guía de cada plataforma muestra cómo compilarlo hoy desde el código fuente y cómo será la instalación después del primer lanzamiento. La API que muestran estas guías refleja las especificaciones y el código fuente actuales, y puede cambiar antes de entonces. La [página de estado](/es/status/) muestra exactamente qué existe hoy. Los paquetes de Web y React se compilan desde el código fuente; SwiftUI, Compose, Flutter y React Native todavía no se han puesto al día con las especificaciones actuales y aún no se compilan.
+</Callout>
+
+## Elige tu plataforma
+
+<CardGrid>
+  <LinkCard title="Web" description="Propiedades personalizadas de CSS y Web Components. Funciona con cualquier framework, o sin ninguno." href="/es/getting-started/web/" />
+  <LinkCard title="React" description="Componentes de React con tipos, generados a partir de los Web Components." href="/es/getting-started/react/" />
+  <LinkCard title="SwiftUI" description="Un paquete de Swift para iOS y macOS." href="/es/getting-started/swiftui/" />
+  <LinkCard title="Jetpack Compose" description="Una biblioteca de Android sobre Compose Foundation, sin dependencia de Material." href="/es/getting-started/compose/" />
+  <LinkCard title="Flutter" description="Un paquete escrito solo en Dart que funciona con MaterialApp o sin él." href="/es/getting-started/flutter/" />
+  <LinkCard title="React Native" description="Componentes escritos solo en TypeScript, sin módulos nativos." href="/es/getting-started/react-native/" />
+</CardGrid>
+
+## El mismo botón, de seis maneras
+
+Cada componente se define una sola vez, en una especificación independiente de la plataforma, y se implementa con el estilo propio de cada una. La pestaña que elijas se recuerda en todo el sitio.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="tonal">Guardar borrador</tanrei-button>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    <Button variant="tonal" onClick={saveDraft}>Guardar borrador</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    TanreiButton("Guardar borrador", variant: .tonal) { saveDraft() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    TanreiButton(text = "Guardar borrador", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('Guardar borrador'))
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    <Button variant="tonal" onPress={saveDraft}>Guardar borrador</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+## Qué obtienes en todas las plataformas
+
+- **Tokens.** Roles de color, escala tipográfica, forma, elevación, movimiento, estado y espaciado: valores generados desde una única fuente DTCG como propiedades personalizadas de CSS y como constantes de Swift, Kotlin, Dart y TypeScript.
+- **Temas.** Claro y oscuro, cada uno con contraste estándar, medio y alto. De forma predeterminada, el tema sigue al sistema operativo; puedes forzar cualquiera de los dos ajustes para toda la aplicación o para un subárbol.
+- **Componentes.** Implementaciones de las especificaciones compartidas, con las mismas variantes, los mismos estados y el mismo comportamiento de teclado en todas partes.
+- **Accesibilidad de serie.** El área de pulsación mínima, un anillo de foco visible, texto que resiste una ampliación al 200% y el respeto por la preferencia de reducir movimiento vienen incorporados, en lugar de quedar a cargo de cada pantalla.
+
+## Cómo leer esta documentación
+
+- Los [fundamentos](/es/foundations/principles/) explican las ideas y las reglas.
+- La [referencia de tokens](/es/tokens/color/) enumera todos los valores, representados directamente a partir de los archivos de tokens.
+- Los [componentes](/es/components/) siguen una misma plantilla: descripción general, especificaciones, pautas y accesibilidad. Las tablas de esas páginas salen de la especificación del componente, así que no pueden quedar desactualizadas.
+- El [estado](/es/status/) se genera a partir del repositorio.

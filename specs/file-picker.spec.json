@@ -1,0 +1,626 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "file-picker",
+  "title": "File picker",
+  "summary": "Lets people choose files through the platform's own picker — from a button and, where there is room, from a place files can also be dragged onto — states the limits in words before the choice, judges what was chosen against them, and hands the product what passed and what was refused; it keeps nothing, lists nothing and takes no part in a form, so whoever holds the files shows them.",
+  "category": "selection",
+  "level": "base",
+  "listing": "advanced",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "group",
+      "description": "The whole component: the trigger with its texts, or the drop area. Exposed as a named group while it has a name; it draws nothing of its own."
+    },
+    {
+      "id": "trigger",
+      "description": "The product's own Button in the trigger slot. Activating it opens the platform's own file picker. It is the one way to choose by keyboard, by touch and with assistive technology, in both layouts."
+    },
+    {
+      "id": "container",
+      "description": "The drop area, in the drop-area layout: a bounded place around the glyph, the prompt, the trigger and the line of limits, which takes files dragged onto it and opens the picker when pressed. It carries the state answer.",
+      "optional": true
+    },
+    {
+      "id": "outline",
+      "description": "The drop area's edge, dashed or solid as the system says.",
+      "optional": true
+    },
+    {
+      "id": "icon",
+      "description": "The glyph at the top of the drop area: the icon set's upload glyph, or the one in the icon slot. Decorative.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The drop area's prompt (dropText): the words that say files can be dragged here.",
+      "optional": true
+    },
+    {
+      "id": "supporting-text",
+      "description": "The line that states the limits in words (constraintsText): which kinds of file, how large, how many. In the area, or below the trigger.",
+      "optional": true
+    },
+    {
+      "id": "selection-text",
+      "description": "In the button layout, the text beside the trigger that says what is chosen now (selectionText). Whoever holds the files writes it.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "layout",
+      "type": "enum",
+      "values": [
+        "button",
+        "drop-area"
+      ],
+      "default": "button",
+      "description": "How choosing is offered. button: the trigger alone, with the line of limits below it; for a form among other fields, a narrow place, a phone, a toolbar. drop-area: a bounded place around the trigger that also takes files dragged onto it and opens the picker when pressed; for a screen whose main task is to hand over files, where a pointer is likely. Both open the same picker from the same trigger."
+    },
+    {
+      "name": "multiple",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether more than one file can be chosen at a time. False: the picker offers one file, and a drop of several is refused whole. True: the picker offers several. The file picker keeps nothing, so whether a second choice adds to the first or takes its place is decided by whoever keeps the files."
+    },
+    {
+      "name": "accept",
+      "type": "strings",
+      "default": [],
+      "description": "The kinds of file that are taken: file name extensions with their dot (\".pdf\") and media types, a whole family as \"image/*\". The picker is asked to offer these, and a file of another kind — dropped, or chosen in a picker that did not filter — is refused (reject, reason type). Empty takes every kind. It enforces the limit; constraintsText says it."
+    },
+    {
+      "name": "maxSize",
+      "type": "number",
+      "default": null,
+      "description": "The largest size of one file, in bytes. A larger file is refused (reject, reason size). Null sets no limit. It is judged from the size the platform reports; the file is not read."
+    },
+    {
+      "name": "maxFiles",
+      "type": "number",
+      "default": null,
+      "description": "The most files one choice or one drop may bring, while multiple is true. Files beyond it are refused (reject, reason count). Null sets no limit; ignored while multiple is false. The file picker counts nothing across choices: a product that keeps a list sets this to the room that is left — zero once the list is full, which refuses every file — or judges the room itself."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the file picker as a group (\"Photo\"). It is not drawn. Leave it empty inside a Field, whose label names the group and is drawn, and inside a component that names the whole; left empty elsewhere, no group is exposed and the trigger stands as the button it is."
+    },
+    {
+      "name": "constraintsText",
+      "type": "string",
+      "default": "",
+      "description": "The limits, in the product's words, shown before the choice (\"PDF or PNG, up to 10 MB each, 5 files at most\"). Drawn in the area, or below the trigger, and given to assistive technology as the trigger's description. Tanrei builds no such sentence from accept, maxSize and maxFiles: it has no words."
+    },
+    {
+      "name": "dropText",
+      "type": "string",
+      "default": "",
+      "description": "The drop area's prompt, in the product's words (\"Drag files here, or choose them\"). Drawn above the trigger in the drop-area layout; ignored in the button layout."
+    },
+    {
+      "name": "selectionText",
+      "type": "string",
+      "default": "",
+      "description": "What stands beside the trigger in the button layout: what is chosen now, in the product's words or the file's own name (\"No file chosen\", \"brief.pdf\", \"3 files\"). Read with the trigger, as part of its description. The file picker keeps nothing and so never writes or changes it: whoever holds what was chosen says it, and leaves it empty where a list below already does. Ignored in the drop-area layout."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Nothing can be chosen or dropped: the trigger is disabled and the area answers nothing. Inside a Field, disable the Field."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Puts the file picker in the error condition: the drop area's edge is drawn in the error role and the trigger is exposed as invalid. A Field sets it with its own error; the words are the Field's errorText. The file picker never sets it itself."
+    },
+    {
+      "name": "required",
+      "type": "boolean",
+      "default": false,
+      "description": "Exposes the trigger as required, where the platform's button has such a state. A Field sets it from its requirement. It draws nothing — the mark beside the label is the Field's — and it validates nothing: the file picker has no value that could be missing."
+    }
+  ],
+  "slots": [
+    {
+      "name": "trigger",
+      "description": "The product's own Button that opens the picker, with the product's own label (\"Choose files\"), variant and size. Exactly one. The file picker gives it the behaviour and never restyles it.",
+      "fixture": "button"
+    },
+    {
+      "name": "icon",
+      "description": "A glyph in place of the upload glyph at the top of the drop area (a picture for a photo, a table for a spreadsheet). Decorative; ignored in the button layout.",
+      "fixture": "glyph"
+    }
+  ],
+  "events": [
+    {
+      "name": "select",
+      "description": "Files were chosen in the picker or dropped on the area, and passed accept, maxSize and the count of one choice. Emitted once per choice, with those files as the platform's own handles, in the order the platform gave them. The file picker keeps none of them and reads none: the product, or the component that holds the file picker, does with them what it means to."
+    },
+    {
+      "name": "reject",
+      "description": "Files of one choice or one drop were refused. Emitted once, after select where both happen, with each refused file and its reason: type (not among accept, or a folder), size (larger than maxSize) or count (more than one while multiple is false, or more than maxFiles in one choice). The reasons are names for the product's code, not words: the product says what happened, in its own words and in a place of its own — a Field's errorText, a row of its list, a message it has announced. The file picker draws and says nothing for a refusal."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "pressed",
+    "dragged",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "FPK-1",
+      "text": "THE file picker SHALL lay out one part, from its start edge: the trigger with its texts WHILE layout is button (FPK-2), the drop area WHILE layout is drop-area (FPK-3). It SHALL be as wide as its layout gives it and as tall as its parts, SHALL draw no container, fill or edge around the whole, SHALL draw no list and no row for what was chosen, and SHALL draw no label, no help, no error text and no requirement mark of its own: those are the Field's (FPK-21)."
+    },
+    {
+      "id": "FPK-2",
+      "text": "WHILE layout is button THE file picker SHALL draw the trigger at its start edge at the size the product gave it and, WHILE selectionText is not empty, selectionText after it on the trigger's line, comp.file-picker.trigger.gap from it and centred on it, in comp.file-picker.selection-text.typescale and comp.file-picker.standard.selection-text.color, wrapping below the trigger where the line is too short; and WHILE constraintsText is not empty SHALL draw it comp.file-picker.supporting-text.gap below that line, from the start edge, in comp.file-picker.supporting-text.typescale and comp.file-picker.standard.supporting-text.color, on as many lines as it needs and never cut. WHILE layout is button THE file picker SHALL draw no area, edge or glyph, SHALL ignore dropText and the icon slot, and SHALL take no drop (FPK-13). THE file picker SHALL NOT write selectionText itself and SHALL NOT change it because of a choice: it keeps nothing (FPK-7), so what is chosen now is said by whoever holds it."
+    },
+    {
+      "id": "FPK-3",
+      "text": "WHILE layout is drop-area THE file picker SHALL draw the drop area across its whole width: a container with corners of comp.file-picker.container.shape, filled with comp.file-picker.standard.container.color, with an edge comp.file-picker.outline.width wide in comp.file-picker.standard.outline.color drawn inside its size, and inside it — comp.file-picker.container.padding-block from its top and bottom and comp.file-picker.container.padding-inline from its sides — one column, each part centred on the inline axis and comp.file-picker.container.gap from the next: the glyph (FPK-4), dropText WHILE it is not empty in comp.file-picker.label.typescale and comp.file-picker.standard.label.color, the trigger at the size the product gave it, and constraintsText WHILE it is not empty in comp.file-picker.supporting-text.typescale and comp.file-picker.standard.supporting-text.color. Each text SHALL be centred, wrap onto as many lines as it needs and never be cut. The area SHALL be as tall as its parts and paddings and have no height of its own. WHILE layout is drop-area THE file picker SHALL NOT draw selectionText: what was dropped on a place is shown below it, by whoever holds it."
+    },
+    {
+      "id": "FPK-4",
+      "text": "THE file picker SHALL draw the drop area's edge as comp.file-picker.outline.style names: dashed, as dashes comp.file-picker.outline.dash-length long with gaps of the same length, following the corners; solid, as one unbroken line. It SHALL draw at the top of the area the icon set's upload glyph, or the glyph in the icon slot WHILE that slot holds one, at comp.file-picker.icon.size in comp.file-picker.standard.icon.color, with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL keep it from assistive technology. A platform that cannot draw a dashed edge along eased corners SHALL draw it solid and state that in its README."
+    },
+    {
+      "id": "FPK-5",
+      "text": "THE file picker SHALL take as its trigger the one element in the trigger slot — a Button of the product's, with the product's label, variant and size — and SHALL leave it what it is: drawn from the Button's own tokens, answering hover, focus and press itself, named by its own label. WHEN the trigger is activated, by any input the Button takes, THE file picker SHALL open the platform's own file picker (FPK-6). IF the trigger slot is empty THE file picker SHALL still render and still take drops and presses on its area, and in debug builds SHALL report that files cannot be chosen by keyboard, by touch or with assistive technology, which is a functional failure; IF it holds more than one element THE file picker SHALL use the first and report the others."
+    },
+    {
+      "id": "FPK-6",
+      "text": "WHEN the picker is asked for THE file picker SHALL open the platform's own file picker — never a list of files it draws itself — asking it for one file WHILE multiple is false and for any number WHILE multiple is true, and to offer the kinds accept lists WHILE accept is not empty. WHEN the person chooses, THE file picker SHALL judge what was chosen (FPK-9) and leave focus on the trigger; WHEN the person leaves the picker without choosing THE file picker SHALL emit nothing, change nothing and leave focus on the trigger. WHILE a picker it opened is still open THE file picker SHALL NOT open a second."
+    },
+    {
+      "id": "FPK-7",
+      "text": "THE file picker SHALL keep nothing and send nothing: it SHALL open no connection and send no file or part of one to anyone, SHALL NOT read a file's bytes — not to check its kind, not to measure it, not to draw a picture of it — SHALL NOT copy or store a file, and SHALL NOT hold a file, or any record of an earlier choice, beyond the turn in which it hands the files of one choice over (FPK-9): a second choice SHALL be judged as if it were the first. What is known of a file SHALL be what the platform reports of it without opening it: its name, its size and its kind. THE file picker SHALL take no part in a form: it has no name and no value, submits nothing, reports no missing value, and has nothing to reset or to restore. The files of a form are submitted by the component that keeps them, or sent by the product.",
+      "verify": "On the web: with the network observed, choosing and dropping files makes no request; no FileReader, stream or object URL is created by the element; the element is not form-associated, and the FormData of a form around it holds no entry for it after a choice."
+    },
+    {
+      "id": "FPK-8",
+      "text": "WHEN the drop area of the file picker is pressed by pointer or touch THE file picker SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner. The area answers no key (FPK-12): Enter and Space press the trigger, which answers as a Button does (BTN-8)."
+    },
+    {
+      "id": "FPK-9",
+      "text": "WHEN files arrive — chosen in the picker or dropped on the area — THE file picker SHALL judge them in the order the platform gave them, by what the platform reports without opening them, and keep none: WHILE multiple is false and more than one arrived, it SHALL refuse them all with the reason count, choosing none for the person; otherwise it SHALL refuse with the reason type a file whose kind matches no entry of a non-empty accept — an extension compared with the end of its name without regard to case, a media type with the kind the platform reports, a family such as image/* with every kind of that family — and anything that is a folder; SHALL refuse with the reason size a file larger than maxSize WHILE maxSize is a number; and, WHILE multiple is true and maxFiles is a number, SHALL refuse with the reason count each remaining file beyond the first maxFiles of them. It SHALL then emit select once with the files that passed, WHERE there are any, and reject once with the refused files and their reasons, WHERE there are any, in that order. THE file picker SHALL judge each arrival by itself: it knows of no earlier choice, so the room that is left in a list is judged by whoever keeps the list. THE file picker SHALL draw no row and no error and say no word because of a choice."
+    },
+    {
+      "id": "FPK-10",
+      "text": "WHILE the drop area is pressed THE file picker SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact; dim applies the pressed opacity to the whole area and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; outline, glyph, texts, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.file-picker.motion.feedback-duration with comp.file-picker.motion.state-easing, fades over comp.file-picker.motion.state-duration with comp.file-picker.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "FPK-11",
+      "text": "THE file picker SHALL ease the corners of its drop area by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README. THE file picker SHALL draw no focus indicator of its own: keyboard focus is on the trigger, which shows it as sys.behavior.focus-style names, as every Button does (BTN-10).",
+      "verify": "`cupertino` is continuous."
+    },
+    {
+      "id": "FPK-12",
+      "text": "WHEN the person presses the drop area outside the trigger, by pointer or touch, WHILE disabled is false THE file picker SHALL do what activating the trigger does (FPK-6) and move focus to the trigger, so that the whole area is one large target for the one action. The area SHALL NOT be a stop in the focus order, SHALL have no role and no name of its own, and SHALL answer no key: Enter and Space are the trigger's. A press that begins on the trigger SHALL be the trigger's alone and open the picker once."
+    },
+    {
+      "id": "FPK-13",
+      "text": "WHILE something is dragged over the drop area and disabled is false THE file picker SHALL draw the area as receiving — filled with comp.file-picker.receiving.container.color, its edge in comp.file-picker.receiving.outline.color, its glyph, its prompt and its line of limits in comp.file-picker.receiving.content.color — and tell the platform that letting go here copies; or, WHERE the platform tells before the drop that nothing dragged can be taken — it holds no file, every file is of a kind accept refuses, or it holds more than one file while multiple is false — as refusing: the fill and the texts as at rest, the edge in comp.file-picker.refusing.outline.color, and the icon set's block glyph in the glyph's place in comp.file-picker.refusing.icon.color, telling the platform that letting go here does nothing. The condition SHALL begin when the drag enters the area's bounds and end when it leaves them or ends, not when it crosses a part inside the area; the trigger and the texts SHALL NOT answer the drag themselves; and a drag elsewhere on the page or the screen SHALL change nothing: the file picker watches no more than its own area. WHILE layout is button THE file picker SHALL take no drop and SHALL leave a drag over it to the platform and the product.",
+      "verify": "On the web, dispatch dragenter, dragover and dragleave with a DataTransfer holding a file of an accepted kind, then of a refused kind, then text only; a dragleave to a child of the area must not end the condition."
+    },
+    {
+      "id": "FPK-14",
+      "text": "WHEN files are let go over the drop area WHILE disabled is false THE file picker SHALL end the condition of FPK-13 at once, take the drop so that the platform does not open or navigate to the file, and judge what was dropped exactly as a choice in the picker (FPK-9): a drop over a refusing area SHALL emit reject with what it holds and no select, and a drop that holds no file SHALL emit nothing. It SHALL NOT move focus because of a drop. WHILE disabled is true THE file picker SHALL draw neither condition, tell the platform that letting go here does nothing, and still take a drop over its area so that a file let go by mistake does not replace the page."
+    },
+    {
+      "id": "FPK-15",
+      "text": "WHILE the pointer is over the drop area, or the area is pressed (FPK-12), THE file picker SHALL render the area's container, edge, glyph, prompt, line of limits and opacity from the component tokens of the highest-precedence active state, with precedence pressed over hovered, and the pointer over the trigger counts as over the area. THE drop area SHALL have no focused state: keyboard focus is on the trigger, which shows its own indicator. Among conditions, disabled SHALL win over refusing and receiving, which win over hovered and pressed; the error condition (FPK-16) SHALL change the edge alone and combine with every state.",
+      "verify": "Test under the `acme` fixture system, which values hovered and pressed differently."
+    },
+    {
+      "id": "FPK-16",
+      "text": "WHILE error is true THE file picker SHALL draw the drop area's edge in comp.file-picker.standard.error.outline.color, in every state, and every other part as without the error; SHALL expose the trigger as invalid; and WHILE layout is button SHALL draw nothing for it, because the error is said by the words of the Field around it. THE file picker SHALL never set error itself: not for a refused file and not for a picker that was left without a choice. WHILE something is dragged over the area the conditions of FPK-13 SHALL be drawn in the error edge's place."
+    },
+    {
+      "id": "FPK-17",
+      "text": "WHILE label is not empty, or a Field names it (FPK-21), THE file picker SHALL expose itself to assistive technology as a group of that name holding the trigger; WHILE neither gives a name THE file picker SHALL expose no group and no role of its own, and SHALL report nothing: its trigger is a button with a name of its own, and a component that holds the file picker names the whole itself. It SHALL give the trigger, after any description the trigger has of its own, a description made of constraintsText, then selectionText WHILE it is drawn (FPK-2), then what a Field or the component that holds it gives (FPK-21), and SHALL expose the trigger as required WHILE required is true and as invalid WHILE error is true. It SHALL NOT expose the drop area, its glyph or dropText as controls: dropText is read as the text it is, before the trigger. THE file picker SHALL have no live region and SHALL announce nothing: a choice is said by whoever keeps it."
+    },
+    {
+      "id": "FPK-18",
+      "text": "THE file picker SHALL have no words of its own: it SHALL take every word it draws or says — the trigger's label, label, constraintsText, dropText and selectionText — from the product alone, by the trigger and the props of the instance, and SHALL read none of them from the product's words by a key, because none is said the same way wherever a file picker stands. IF dropText or selectionText is not given THE file picker SHALL draw nothing in its place. IF accept is not empty, or maxSize or maxFiles is a number, WHILE constraintsText is empty THE file picker SHALL still render and in debug builds report that a limit is enforced and not said. THE file picker SHALL build no sentence from accept, maxSize, maxFiles, a count of files or a size in bytes."
+    },
+    {
+      "id": "FPK-19",
+      "text": "WHILE disabled is true THE file picker SHALL disable its trigger as that Button's own disabled does and give it back as it was WHEN disabled becomes false, never enabling a trigger the product disabled itself; SHALL render the drop area's container, edge, glyph, prompt and line of limits, and selectionText, from their disabled tokens; SHALL NOT answer a press on the area (FPK-12) or a drag over it (FPK-14); and SHALL emit neither select nor reject. The way of FPK-31 SHALL still answer: disabled stops the person, not the product."
+    },
+    {
+      "id": "FPK-20",
+      "text": "WHEN the colors of the drop area change between states or conditions THE file picker SHALL animate the change over comp.file-picker.motion.state-duration with comp.file-picker.motion.state-easing, and SHALL change them at once where motion is reduced. WHEN selectionText appears, changes or leaves THE file picker SHALL draw that at once, without a motion of its own."
+    },
+    {
+      "id": "FPK-21",
+      "text": "WHILE the file picker is the control of a Field THE file picker SHALL take from it what a Field gives its control (FLD-8, FLD-10, FLD-11, FLD-14): the Field's label as its group's name WHILE its own label is empty; the Field's supporting text with, in error, the error text after it and optional text as the last part of the trigger's description; the invalid state as its own error condition (FPK-16); the required state as required; and the disabled state as disabled. WHEN the label of the Field is pressed THE file picker SHALL move focus to its trigger and open nothing. WHILE another component holds the file picker as its member THE file picker SHALL take the same from that component by the same exchange — a name or none, a description, and the three states, each as a value — so that it is tied inside a component exactly as it is tied by hand."
+    },
+    {
+      "id": "FPK-22",
+      "text": "WHILE the text size is enlarged THE file picker SHALL grow with its texts: the prompt, the line of limits and selectionText wrap and are never cut; the glyph keeps its box; the area grows in height; and the trigger grows as the Button says. At 200 % in a width of 320 no text SHALL be lost or lie over another part, and nothing SHALL need scrolling in two directions."
+    },
+    {
+      "id": "FPK-23",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE file picker SHALL draw the drop area's edge and its texts in the platform's text color and no fill; SHALL draw the receiving area with an edge twice comp.file-picker.outline.width wide, solid, in the platform's highlight color, and the refusing area with its block glyph, so that neither rests on a fill the mode removes; and SHALL draw disabled parts in the platform's disabled text color.",
+      "verify": "On the web, with forced colors emulated: the edge is CanvasText, the receiving edge Highlight."
+    },
+    {
+      "id": "FPK-24",
+      "text": "WHERE the layout direction is right-to-left THE file picker SHALL mirror its layout: the trigger at the right, selectionText after it toward the left, and the line of limits from the right edge. The drop area's column stays centred. A ripple SHALL still grow from the point of contact."
+    },
+    {
+      "id": "FPK-25",
+      "text": "THE file picker SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the file picker is shown THE file picker SHALL draw itself for the new direction at once, without a motion of its own, keeping its focus."
+    },
+    {
+      "id": "FPK-26",
+      "text": "THE file picker SHALL lay out each text it draws — the prompt, the line of limits and selectionText — as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a file's name given as selectionText keeps its order, its dot and its extension in a right-to-left layout. WHERE the layout direction is right-to-left a glyph SHALL be mirrored exactly when the system's icon set marks its name as mirrored or the product forces it, by the icon helper and inside its own box; THE file picker SHALL mirror no glyph itself."
+    },
+    {
+      "id": "FPK-27",
+      "text": "WHEN layout names a value the file picker does not know THE file picker SHALL behave as button; IF maxSize is not a number above zero THE file picker SHALL set no limit of size; IF maxFiles is not a whole number of zero or more THE file picker SHALL set no limit of count; IF an entry of accept is neither an extension with its dot nor a media type THE file picker SHALL ignore that entry; and in each case debug builds SHALL report it. WHILE maxFiles is zero and multiple is true THE file picker SHALL refuse every file that arrives with the reason count and report nothing: zero is the room a full list has left, and to read it as no limit would open the list when it is full."
+    },
+    {
+      "id": "FPK-28",
+      "text": "WHEN a prop of the file picker changes while it is shown THE file picker SHALL draw and expose the new value at once, keeping its focus, and SHALL announce nothing. WHEN accept, maxSize, maxFiles or multiple changes THE file picker SHALL judge by the new value from the next arrival on. WHEN layout changes while something is dragged over the area THE file picker SHALL end the condition."
+    },
+    {
+      "id": "FPK-29",
+      "text": "WHILE the system's icon set cannot yet draw a glyph of the file picker (its font is still loading) THE file picker SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can."
+    },
+    {
+      "id": "FPK-30",
+      "text": "IF the trigger slot holds an element that is not a Button THE file picker SHALL still open the picker when that element is activated by a press or a click, and in debug builds report it; IF the file picker holds a child that is neither its trigger nor its glyph THE file picker SHALL NOT draw it and in debug builds report it. A platform that cannot inspect its content SHALL state the rule in its README and docs page."
+    },
+    {
+      "id": "FPK-31",
+      "text": "THE file picker SHALL offer the product, and a component that holds it, a way in the platform's idiom to have files judged that came neither through its picker nor onto its area — files pasted, dropped on another part of the product's screen, or made by the product: it SHALL judge them as one arrival by the rule of FPK-9 and answer with the files that passed and with the refused files and their reasons, each in the order given; SHALL emit neither select nor reject for them, as a control's events tell what a person did; and SHALL keep none of them (FPK-7).",
+      "verify": "On the web: `judge(files)` returns `{ accepted: File[], refused: { file, reason }[] }` and dispatches no event; it answers the same with `disabled` set."
+    }
+  ],
+  "accessibility": {
+    "role": "group",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the trigger. The drop area is not a stop."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "On the trigger: opens the platform's file picker, as the Button's own activation."
+      },
+      {
+        "keys": "The picker's own keys",
+        "action": "Inside the platform's picker everything is the platform's; leaving it without choosing returns focus to the trigger and changes nothing."
+      }
+    ],
+    "labeling": "A group named by label, or by the label of the Field around it; with neither, no group — the trigger alone, a button named by its own label. The trigger is described by constraintsText, by selectionText while it is drawn, and by what the Field or the component that holds the file picker gives; it is exposed as required, invalid and disabled as the props say. The drop area and its glyph are not exposed; dropText is read as text.",
+    "minimumTarget": true,
+    "notes": [
+      "Dragging is never the only way (WCAG 2.5.7): the trigger opens the same picker in both layouts and is the path for keyboard, touch, switch and voice. A drop area without a trigger is reported as a functional failure (FPK-5). The area adds a larger pointer target and takes drops; it adds no role, no stop and no key (FPK-12).",
+      "Without script, and until the component is defined, on the web: the trigger is a button that opens nothing. A custom element cannot open the platform's picker by markup alone, and the file picker does not pretend to: a page that must take files where script does not run writes a native file input in its own form, as it would without Tanrei, and loses only the drawing.",
+      "The limits are words before the choice (WCAG 3.3.2): constraintsText is drawn and is the trigger's description. accept, maxSize and maxFiles enforce what it says; a product that sets them and writes no words is told so in debug builds (FPK-18).",
+      "A refused file must be said (WCAG 3.3.1), and only the product has the words and the place. On reject the product sets the errorText of the Field around the file picker, marks the file in a list of its own, or announces a sentence through a live region of its own. The file picker draws and says nothing for a refusal by itself, because it has no sentence for it and no row to put one on; the component built from it that keeps files draws such a row.",
+      "What is dragged over the area is the pointer user's own act and is not announced. The conditions are told without color too: receiving by its fill and, under forced colors, a thicker solid edge; refusing by the block glyph (FPK-13, FPK-23).",
+      "The file picker has no live region (FPK-17): it holds nothing whose change it could say. What was chosen is said by whoever shows it — the text beside the trigger, which is part of the trigger's description, or a list the product draws.",
+      "A file picker alone is no form control (FPK-7). It keeps nothing, so a value it submitted would be a file nobody can see or take back, and a required check would ask for something it cannot hold. A plain form takes the component that keeps the files and lists them; a product that draws its own list holds the files and sends them itself, or gives them to a control of its own.",
+      "required is a state for assistive technology alone, and a button has none on the web: there it is said by the Field's required text in the trigger's description, as for every control whose role has no required state."
+    ]
+  },
+  "tokens": "comp.file-picker",
+  "fixtures": [
+    {
+      "id": "button",
+      "props": {
+        "label": "Attachment",
+        "constraintsText": "PDF, up to 10 MB",
+        "selectionText": "No file chosen",
+        "accept": [
+          ".pdf"
+        ],
+        "maxSize": 10000000
+      },
+      "slots": {
+        "trigger": "Choose a file"
+      }
+    },
+    {
+      "id": "button-chosen",
+      "props": {
+        "label": "Attachment",
+        "constraintsText": "PDF, up to 10 MB",
+        "selectionText": "brief.pdf",
+        "accept": [
+          ".pdf"
+        ],
+        "maxSize": 10000000
+      },
+      "slots": {
+        "trigger": "Choose a file"
+      }
+    },
+    {
+      "id": "button-constraints",
+      "props": {
+        "label": "Attachments",
+        "multiple": true,
+        "constraintsText": "PDF or PNG, up to 10 MB each"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      }
+    },
+    {
+      "id": "button-bare",
+      "props": {},
+      "slots": {
+        "trigger": "Choose a file"
+      }
+    },
+    {
+      "id": "button-disabled",
+      "props": {
+        "label": "Attachment",
+        "disabled": true,
+        "constraintsText": "PDF, up to 10 MB",
+        "selectionText": "No file chosen"
+      },
+      "slots": {
+        "trigger": "Choose a file"
+      }
+    },
+    {
+      "id": "drop-area",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each",
+        "accept": [
+          ".pdf",
+          "image/png"
+        ],
+        "maxSize": 10000000
+      },
+      "slots": {
+        "trigger": "Choose files"
+      }
+    },
+    {
+      "id": "drop-area-error",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "error": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      }
+    },
+    {
+      "id": "drop-area-disabled",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "disabled": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      }
+    },
+    {
+      "id": "drop-area-icon",
+      "props": {
+        "label": "Photo",
+        "layout": "drop-area",
+        "dropText": "Drag a photo here, or choose one",
+        "constraintsText": "JPEG or PNG, up to 5 MB",
+        "accept": [
+          "image/jpeg",
+          "image/png"
+        ]
+      },
+      "slots": {
+        "trigger": "Choose a photo",
+        "icon": "image"
+      }
+    },
+    {
+      "id": "drop-area-trigger-only",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true
+      },
+      "slots": {
+        "trigger": "Choose files"
+      }
+    },
+    {
+      "id": "long-text",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "dropText": "Drag the signed forms and every supporting document here, or choose them from this device",
+        "constraintsText": "PDF, PNG, JPEG, TIFF or a spreadsheet, up to 10 MB each and no more than twenty files in all"
+      },
+      "slots": {
+        "trigger": "Choose files from this device"
+      }
+    },
+    {
+      "id": "button-long-text",
+      "props": {
+        "label": "Attachment",
+        "constraintsText": "PDF, PNG, JPEG, TIFF or a spreadsheet, up to 10 MB each and no more than twenty files in all",
+        "selectionText": "municipal-planning-application-supporting-statement-revision-14-final-signed-by-all-parties.pdf"
+      },
+      "slots": {
+        "trigger": "Choose files from this device"
+      }
+    },
+    {
+      "id": "button-rtl",
+      "props": {
+        "label": "Attachment",
+        "constraintsText": "PDF, up to 10 MB",
+        "selectionText": "brief.pdf"
+      },
+      "slots": {
+        "trigger": "Choose a file"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "drop-area-rtl",
+      "props": {
+        "label": "Attachments",
+        "layout": "drop-area",
+        "multiple": true,
+        "dropText": "Drag files here, or choose them",
+        "constraintsText": "PDF or PNG, up to 10 MB each"
+      },
+      "slots": {
+        "trigger": "Choose files"
+      },
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-file-picker",
+      "props": {
+        "layout": "layout",
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "label",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "selectionText": "selectionText",
+        "disabled": "disabled",
+        "error": "error",
+        "required": "required"
+      },
+      "events": {
+        "select": "select",
+        "reject": "reject"
+      },
+      "notes": "The shadow-root form: a control whose parts and states are its own. `<tanrei-file-picker accept=\".json\" constraints-text=\"…\"><tanrei-button slot=\"trigger\" variant=\"outlined\">Choose a file</tanrei-button></tanrei-file-picker>`. Attributes are kebab-case (`max-size`, `max-files`, `constraints-text`, `drop-text`, `selection-text`); `accept` is a comma-separated list, the form a native file input takes. The trigger and the glyph stay in the product's light DOM (the `trigger` and `icon` slots); the area and the texts are in the shadow root. The picker is a real `<input type=\"file\">` in the shadow root — hidden from sight, from the focus order and from assistive technology — carrying `multiple` and `accept`, whose `click()` the trigger's `click` and a press on the area call (both are user activations); its `change` and the area's `drop` feed FPK-9, and its value is cleared after each choice so that the same file can be chosen twice. The area listens for `dragenter`, `dragover`, `dragleave` and `drop` on itself only, counts enters and leaves so that a child does not end the condition, sets `dropEffect` to `copy` or `none`, and during a drag knows what the browser tells: kinds and a count (`DataTransfer.items`), never names or sizes, so a file that is too large is refused at the drop. `select` and `reject` are CustomEvents that bubble: `detail.files` is a `File[]`, and `reject`'s `detail.files` is `{ file, reason }[]`. `judge(files: Iterable<File>): { accepted: File[], refused: { file: File, reason: 'type' | 'size' | 'count' }[] }` is FPK-31 and dispatches nothing. **Not form-associated**: no `name`, no value, no validity (FPK-7). It is a Field's control: it asks for the Field's connection as every Tanrei control does and takes the name, the description and the three states as values; a component that holds it gives the same values through the same connection. The description, `aria-invalid` and `disabled` are written on the slotted trigger's host — which a `tanrei-button` carries to its native button — and taken back when the trigger leaves the slot; the group's role and name are on an element of the shadow root, present only while there is a name (FPK-17). A button's role has no required state, so `required` is said only by a Field's required text in that description. Parts: `container`, `icon`, `label`, `supporting-text`, `selection-text`. Custom properties: `--<namespace>-comp-file-picker-…`. Without script, and until the element is defined, the trigger is a button that opens nothing. Class `TanreiFilePicker`. React: `FilePicker`, with `onSelect`, `onReject`, and a ref with `judge()`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiFilePicker",
+      "props": {
+        "layout": "layout",
+        "multiple": "allowsMultipleSelection",
+        "accept": "allowedContentTypes",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "label",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "selectionText": "selectionText",
+        "disabled": "disabled",
+        "error": "isError",
+        "required": "isRequired"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject"
+      },
+      "notes": "`TanreiFilePicker(layout: .dropArea, onSelect: { urls in … }) { TanreiButton(\"Choose files\") { } }`. The picker is `fileImporter(isPresented:allowedContentTypes:allowsMultipleSelection:)`; `accept` is a list of `UTType` (an extension or a media type is resolved to one), and the files are security-scoped `URL`s the product opens and releases — the view holds none after `onSelect` returns (FPK-7). The drop area is `dropDestination(for: URL.self)` with its `isTargeted` binding for the receiving condition; SwiftUI tells the kinds before the drop, not sizes. With VoiceOver the area is a drop point named by dropText. `disabled` follows `.disabled(_:)` and the environment; a Field's name, description and states arrive through the environment, and a view that holds the picker sets the same environment values. FPK-31 is `TanreiFilePicker.judge(_:accept:maxSize:maxFiles:multiple:)`, a static function of the limits, since a view has no instance to call. No form."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiFilePicker",
+      "props": {
+        "layout": "layout",
+        "multiple": "multiple",
+        "accept": "mimeTypes",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "contentDescription",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "selectionText": "selectionText",
+        "disabled": "enabled",
+        "error": "isError",
+        "required": "required"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject"
+      },
+      "notes": "`TanreiFilePicker(onSelect = { uris -> … }, trigger = { TanreiButton(onClick = {}) { Text(\"Choose files\") } })`. The picker is `rememberLauncherForActivityResult` with `OpenDocument` or `OpenMultipleDocuments`; `accept` is given as MIME types (an extension is resolved through `MimeTypeMap`), and the files are content `Uri`s whose name and size come from the resolver's metadata, not from reading them. The drop area is `Modifier.dragAndDropTarget`, which is meaningful on large screens and with a pointer; on a phone the drop-area layout is still drawn and still pressed. `disabled` is the inverse flag `enabled`. The group is `semantics(mergeDescendants = false) { contentDescription }`, set only while there is a name. FPK-31 is `rememberTanreiFilePickerState().judge(uris)`, or the top-level `judgeFiles(uris, limits)` it calls. No form."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiFilePicker",
+      "props": {
+        "layout": "layout",
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "semanticLabel",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "selectionText": "selectionText",
+        "disabled": "enabled",
+        "error": "isError",
+        "required": "required"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject"
+      },
+      "notes": "The framework has no file picker and no drop target for files; both are plugins, and the package depends on none. `TanreiFilePicker(trigger: TanreiButton(…), onPick: (request) async => …, onSelect: …)`: `onPick` is the product's function that opens whatever picker it uses with the request's `multiple` and `accept` and returns the files as `TanreiPickedFile(name, size, mimeType, handle)`; the file picker judges them by FPK-9 and emits. Drops arrive the same way: the product's drop plugin calls `TanreiFilePickerController.dragEntered / dragExited / dropped(files)`, and without it the drop-area layout is drawn and pressed and takes no drop — the README says so. `TanreiFilePickerController.judge(files)` is FPK-31. `disabled` is the inverse flag `enabled`. No form: it is no `FormField`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "FilePicker",
+      "props": {
+        "layout": "layout",
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "label": "accessibilityLabel",
+        "constraintsText": "constraintsText",
+        "dropText": "dropText",
+        "selectionText": "selectionText",
+        "disabled": "disabled",
+        "error": "error",
+        "required": "required"
+      },
+      "events": {
+        "select": "onSelect",
+        "reject": "onReject"
+      },
+      "notes": "React Native has no file picker of its own; the package depends on no picker library. `<FilePicker trigger={<Button label=\"Choose files\" />} onPick={async ({ multiple, accept }) => files} onSelect={…} />`: `onPick` is the product's function that opens its picker and returns `{ name, size, type, uri }[]`; the file picker judges them by FPK-9 and emits. No drop of files on phones: the drop-area layout is drawn and pressed and takes no drop, and the README says so. A ref holds `judge(files)` (FPK-31). No form."
+    }
+  }
+}

@@ -1,0 +1,130 @@
+---
+title: Your own design system
+description: Keep one layer file in your product. One command writes tokens and code for every platform you ship, in one pull request.
+---
+
+import Steps from '../../../components/Steps.astro';
+import Callout from '../../../components/Callout.astro';
+
+Tanrei's components never change when your product's look does. What changes is a **layer**: a small JSON file that sets values of the shared vocabulary and declares your palettes. `@tanrei/cli` turns that one file into everything each platform needs.
+
+<Callout type="caution" title="Before the first release">
+  `@tanrei/cli` and `@tanrei/mcp` are not on npm yet. Until they are, build them from the source and install the packed files in your product as development dependencies; every `npx tanrei …` command on this page then runs the installed copy.
+
+  ```sh
+  git clone https://github.com/chnotchy/tanrei.git
+  cd tanrei
+  pnpm install
+  pnpm --filter @tanrei/studio build:app   # Theme Studio, which `tanrei studio` serves
+  pnpm --filter @tanrei/cli --filter @tanrei/mcp build
+  pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
+  ```
+
+  ```sh
+  # in your product: the path to the folder the packages were written to
+  npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
+  ```
+
+  For the MCP server, register the installed copy: `claude mcp add tanrei -- npx tanrei-mcp`, run in your product's folder.
+</Callout>
+
+<Steps>
+
+1. **Start a layer** — from the default system or from a preset.
+
+   ```bash
+   npx tanrei init acme --extends tanrei
+   ```
+
+   This writes `design/acme.system.json` and `tanrei.json`. Prefer sliders? Shape the layer in the [Theme Studio](/foundations/theme-studio/) and download it instead.
+
+2. **Say where each output goes** in `tanrei.json`. List only what you ship.
+
+   ```json
+   {
+     "system": "design/acme.system.json",
+     "kotlinPackage": "com.acme.design",
+     "outputs": {
+       "tokens": "design/tokens/acme",
+       "web": "apps/web/src/styles",
+       "swiftui": "apps/ios/Acme/Design",
+       "compose": "apps/android/app/src/main/kotlin/com/acme/design",
+       "flutter": "apps/flutter/lib/design",
+       "react-native": "apps/mobile/src/design"
+     }
+   }
+   ```
+
+3. **Build.**
+
+   ```bash
+   npx tanrei build
+   ```
+
+   Commit the result. Add `npx tanrei build --check` to CI: it writes nothing and fails when a committed output is stale.
+
+4. **Use it.** The generated files contain your system's *values*; the types come from the library, so a vocabulary change breaks the build instead of drifting silently.
+
+   | Platform | You get | You write |
+   |---|---|---|
+   | Web | `acme.css` | `<html data-tanrei-system="acme">` |
+   | SwiftUI | `TanreiSystem+Acme.swift` | `.tanreiTheme(TanreiTheme(system: .acme))` |
+   | Compose | `TanreiSystemAcme.kt` | `TanreiTheme(system = TanreiSystem.Acme) { … }` |
+   | Flutter | `acme_system.g.dart` | `TanreiTheme(data: TanreiThemeData.platform(context, system: acmeSystem), …)` |
+   | React Native | `acme.ts` | `<TanreiProvider system={acme}>` |
+
+</Steps>
+
+## One change, one pull request
+
+Edit a value in the layer, run `tanrei build`, and every platform's file changes in the same commit. Making all text a little larger is one line:
+
+```json
+"tanrei.dial.type.base": { "$value": { "value": 17, "unit": "px" }, "reason": "Read at arm's length." }
+```
+
+See [Design systems and customization](/foundations/design-systems/) for the four things a layer can do to a value — set a dial, scale a token, re-point an alias, pin a value with a reason — for declaring palettes such as a brand color or a quiz's *correct* and *incorrect*, and for [adding tokens](/foundations/design-systems/#adding-to-the-vocabulary) when values are not enough.
+
+## As much control as you want — always the same file
+
+Customization is layered, and every level edits the one `<id>.system.json`:
+
+| You want | You use |
+|---|---|
+| A quick setup | **Theme Studio → Essentials**: a base system, your brand color and four sliders (text size, spacing, roundness, heading contrast) |
+| To tune groups | **Studio → Groups**: all seven dials, palettes, per-component summaries |
+| To touch one token at a time, in a GUI | **Studio → Every token**: search the whole vocabulary; each token offers only the edits that are legal for it, and shows what follows it |
+| To edit source | **Studio → Source**, or your editor: the JSON, validated against the schema and by the engine |
+| A token that does not exist | [Add it](/foundations/design-systems/#adding-to-the-vocabulary): a step in a series, a Button size or variant in one line, or tokens of your own |
+
+```bash
+npx tanrei studio
+```
+
+opens Theme Studio **on your layer file**: edits are saved to it as you make them (review them with git like any change), an edit made in your editor at the same time is never overwritten, and "Build" runs `tanrei build`. It listens on `127.0.0.1` only and the printed link carries a one-time key. The Studio on this site is the same tool with import and export instead of a file.
+
+## Tailwind CSS and shadcn/ui
+
+Add `"tailwind"` or `"shadcn"` to `outputs`. Both files only **map names** onto Tanrei's custom properties, so themes, contrast levels and the live dials keep working underneath.
+
+```css
+@import "tailwindcss";
+@import "@tanrei/web/tokens.css";
+@import "./styles/acme.css";
+@import "./styles/acme.tailwind.css"; /* bg-primary · text-on-primary · rounded-medium · p-200 · text-heading-4 */
+```
+
+## Sharing a system — with people, tools and AI agents
+
+- The `tokens` output is a self-contained **DTCG 2025.10** bundle with a standard resolver. Any design-token tool can read it; the layer files that produced it travel inside, and every group carries usage guidance for agents in `$extensions["dev.tanrei.llm"]`.
+- `@tanrei/mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server. An agent working in your repository can search the vocabulary, see where a value comes from, compare systems, **propose an extension** (a new Button size, a step, a token of your own) with its resulting values, and **validate a layer edit before it writes it** — and it is told the rules: change values through a layer, extend the vocabulary only by adding and with a rationale, give every pinned value a reason, never touch a threshold.
+
+  After the first release, register it from npm (until then, see "Before the first release" at the top of this page):
+
+  ```bash
+  claude mcp add tanrei -- npx -y @tanrei/mcp
+  ```
+
+<Callout type="caution" title="Accessibility">
+  Contrast thresholds and structural checks are constants. In your layer a violation is a warning, never silent: it is printed by `tanrei build`, written to `a11y-report.json`, and stamped at the top of every generated file. At medium and high contrast, aim for zero — those schemes exist because a person asked for contrast. The shipped presets themselves are held to fidelity to the systems they imitate, not to Tanrei's accessibility criteria, in every scheme; their measurements are information. A layer you build on a preset is still your product, and is warned about what it inherits too.
+</Callout>

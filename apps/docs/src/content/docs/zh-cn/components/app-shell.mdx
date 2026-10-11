@@ -1,0 +1,191 @@
+---
+title: "应用外壳"
+description: "为页面或应用搭起框架。它安放页眉、导航、主内容、侧栏和页脚，根据窗口的宽度决定各自的呈现方式，并让键盘一步就能到达内容。"
+translationOf: components/app-shell.mdx
+sourceHash: 2edf8f86601639e5c955456b820082161532f975
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+
+## 概览
+
+<ComponentAvailability name="app-shell" />
+
+应用外壳是窗口的框架。它只安放各个区域，不绘制其中的任何内容：页眉是你的应用栏，导航是你的导航抽屉，页脚是你自己的布局。外壳补上的，是手工搭建的框架容易遗漏的东西：地标、统一的一组窗口宽度、粘性页眉在链接目标上方占去的空间，以及让键盘越过框架的途径。
+
+框架就是整个窗口，所以本页没有它的实时示例：画在页面里的外壳，采用的会是那个页面的窗口类别。[规格](#规格)下的测试样例连同各自的属性一并列出；在测试中，每一个都单独画在它自己的窗口里。
+
+在 Web 上，它是包在你自己的各个区域外面的 `<tanrei-app-shell>`。这个元素没有 shadow root，所以 `<header>` 就是页面的横幅（banner），唯一的 `<main>` 就是页面的主内容地标，不运行脚本时和爬虫都能读到。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/app-shell.css" />
+
+    <tanrei-app-shell aside-order="before" aside-label="本页内容">
+      <a class="tanrei-link" data-standalone slot="skip-link" href="#main">跳到主要内容</a>
+      <header slot="header">
+        <tanrei-app-bar headline="Tanrei">
+          <tanrei-button slot="navigation" data-app-shell-menu variant="text" label="菜单">
+            <span slot="icon">menu</span>
+          </tanrei-button>
+        </tanrei-app-bar>
+      </header>
+      <tanrei-navigation-drawer slot="navigation" responsive collapsible label="文档">
+        …
+      </tanrei-navigation-drawer>
+      <aside slot="aside">…</aside>
+      <main id="main" tabindex="-1">…</main>
+      <footer slot="footer">…</footer>
+    </tanrei-app-shell>
+
+    <script type="module">
+      import '@tanrei/web/components/app-shell';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { AppBar, AppShell, Button, NavigationDrawer } from '@tanrei/react';
+    import '@tanrei/web/app-shell.css';
+
+    <AppShell asideLabel="本页内容" onWindowclasschange={(event) => setWindowClass(event.detail.windowClass)}>
+      <a className="tanrei-link" data-standalone slot="skip-link" href="#main">跳到主要内容</a>
+      <header slot="header">
+        <AppBar headline="Tanrei">
+          <Button slot="navigation" data-app-shell-menu variant="text" label="菜单"><span slot="icon">menu</span></Button>
+        </AppBar>
+      </header>
+      <NavigationDrawer slot="navigation" responsive collapsible label="文档">…</NavigationDrawer>
+      <main id="main" tabIndex={-1}>{children}</main>
+      <aside slot="aside">…</aside>
+      <footer slot="footer">…</footer>
+    </AppShell>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/app-shell.css` 在任何脚本运行之前就排好整个框架，所以服务器渲染的页面不会在脚本到达时发生位移，跳过链接在禁用脚本时也能工作。元素自己也会把同一份样式表加进页面。
+
+### 你要写的内容
+
+区域是带 `slot` 属性（attribute）的子元素。主内容区域是唯一的那个 `<main>`，它不带这个属性。
+
+| 区域 | 在 Web 上 | 外壳给它什么 |
+| --- | --- | --- |
+| 跳过链接 | `<a class="tanrei-link" data-standalone slot="skip-link" href="#main">` | 键盘的第一个停靠点。只有在它拥有键盘焦点时才画出来。 |
+| 公告 | 包着提示块的 `<div slot="announcement">` | 页眉上方，占满框架的整个宽度。 |
+| 页眉 | 包着你的应用栏的 `<header slot="header">` | 整个宽度。页面滚动时，它留在顶部。 |
+| 导航 | `<tanrei-navigation-drawer slot="navigation" responsive>` | 起始边，采用三种呈现方式之一。 |
+| 主内容 | `<main id="main" tabindex="-1">` | 两侧边距、宽度上限，以及跳过链接的目的地。 |
+| 侧栏 | `<aside slot="aside">`，或者一个侧边面板 | 宽窗口中位于末尾边。否则位于主内容的上方或下方。 |
+| 页脚 | `<footer slot="footer">` | 页面的末尾，以及两侧边距和间距。 |
+| 导航栏 | `<tanrei-navigation-bar slot="navigation-bar">` | 底边，只在窄窗口中出现。 |
+
+请按键盘经过的顺序书写各个区域：跳过链接、公告、页眉、导航、位于主内容之前的侧栏、主内容、位于主内容之后的侧栏、页脚、导航栏。样式表按名称安放它们，绝不改变焦点的顺序。你省略的区域不占空间，也不增加地标。
+
+## 规格
+
+<ComponentSpecs name="app-shell" />
+
+## 指南
+
+### 三种窗口类别
+
+外壳只根据窗口的宽度，把窗口归入三种类别之一。
+
+| 类别 | 宽度 | 导航 | 侧栏 | 菜单按钮 | 导航栏 | 两侧边距 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `compact` | 小于 600 | 打开时盖在内容之上 | 主内容的上方或下方 | 显示 | 显示 | 16 |
+| `medium` | 600 到 1023 | 抽屉为 `collapsible` 时，是它的那一列图标。否则与 compact 相同 | 上方或下方 | 显示，除非那一列图标已经显示 | 不显示 | 24 |
+| `expanded` | 1024 及更宽 | 位于内容旁边 | 位于内容旁边的末尾边 | 不显示 | 不显示 | 32 |
+
+- 这些宽度就是令牌 `sys.breakpoint.medium` 和 `sys.breakpoint.expanded`。设置了 `responsive` 的导航抽屉读取的是同样两个令牌，所以框架和抽屉一起变化。
+- 在 Web 上，宽度以 `rem` 为单位比较。读者放大页面时，在各列窄到无法阅读之前，就会得到更窄的那种排列。
+- `windowclasschange` 告诉你类别，`windowClass` 保存着它。外壳不负责切换的东西，由你根据它来切换：搜索的呈现方式、侧边面板的变体、大纲的形式。
+- 在 Web 上，框架里的一切还会继承 `--tanrei-app-shell-window-class`，所以样式表可以用样式容器查询来跟随类别，不需要脚本。
+
+### 菜单按钮
+
+在页眉里放一个纯图标的 Button，并用 `data-app-shell-menu` 标记它。只有当导航在布局中没有位置时，外壳才显示它。按下它，抽屉会在内容之上打开，焦点移入抽屉。关闭抽屉时，焦点回到这个按钮。按钮会说明导航是否已展开。
+
+`navigationOpen`（`navigation-open`）保存这个状态，`navigationopenchange` 在用户改变它时告诉你。窗口类别一变，导航就会关闭。
+
+### 滚动的是什么
+
+| `scroll` | 滚动的是什么 | 用于 |
+| --- | --- | --- |
+| `page`（默认） | 窗口滚动整个页面。页眉是粘性的，导航和侧栏留在内容旁边的视野之内。 | 供人阅读的页面：文档、文章、设置。 |
+| `main` | 框架正好是窗口的大小，只有主内容区域滚动。 | 各个窗格分别滚动的应用：邮件客户端、编辑器。 |
+
+- 优先使用 `page`。页面内查找、指向标题的链接、回到读者先前所在的位置，以及手机浏览器会收起的工具栏，都与没有外壳的页面一样工作。
+- `headerPosition: static` 让页眉随页面一起滚走。
+- 在 Web 上使用 `scroll: main` 时，请把主内容元素的 id 写进应用栏的 `scroll-target`。
+- 在 Web 上，对应的 JavaScript 属性是 `scrolls`，因为每个元素都已经有一个 `scroll()` 方法。属性（attribute）仍是 `scroll`。
+
+### 指向标题的链接停在页眉下方
+
+外壳会测量粘性页眉，并给页面的滚动视图留出同样大小的内边距。指向标题的链接，以及获得键盘焦点的元素，都停在页眉的下方，绝不会被它盖住。在 Web 上，同一段距离也是根元素上的 `--tanrei-app-shell-scroll-offset`，供你自己的粘性部分使用，例如表格的表头行。在外壳里，请让 `--tanrei-prose-scroll-offset` 保持为 0。
+
+### 主内容区域的宽度
+
+- `mainWidth: contained`（默认）让内容的宽度不超过 768，并让它在可用空间里居中。用于供人阅读的页面。
+- `mainWidth: full` 占满两侧边距之内的全部空间。用于表格、看板或编辑器。
+- 无法收窄的内容，例如很宽的表格或一行代码，在它自己的框内滚动。它绝不会把框架撑宽。
+
+### 侧栏
+
+- 在 expanded 窗口中，侧栏位于主内容旁边，宽 240，页面滚动时留在视野之内。
+- 在更窄的窗口中，它并入主内容所在的那一列。`asideOrder: before` 把它画在主内容上方，适合页面的大纲。`after`（默认）把它画在下方，适合相关链接。
+- `asideOrder` 同时也是阅读顺序。在 Web 上，请在标记中把 `<aside>` 写在 `<main>` 的那一侧。
+- 用 `asideLabel` 为侧栏命名，使用你的语言。
+- 放在侧栏里的侧边面板保有自己的宽度和边线。请根据 `windowclasschange` 设置它的变体。
+
+### 区域之间的线
+
+| `separation` | 绘制什么 |
+| --- | --- |
+| `auto`（默认） | 设计系统所选的方式：默认系统中是线。 |
+| `divider` | 一条细线，画在页脚上方、位于内容旁边的侧栏的起始边，以及主内容与上下排列的侧栏之间。 |
+| `gap` | 不画线。间距不变。 |
+
+这些线不占空间。外壳不在页眉、导航、公告或导航栏周围画线：这些组件自己绘制边线。
+
+### 推荐
+
+- 每个页面有一个 `<main>`，并给它跳过链接所指向的那个 id。
+- 用你的语言写跳过链接的文字。Tanrei 不提供任何文字。
+- 在导航区域使用设置了 `responsive` 的导航抽屉。
+
+### 避免
+
+- 不要把页面的标题、描述或操作放进外壳。它们属于[页头](/zh-cn/components/page-header/)，位于主内容区域的最前面。
+- 不要把文章的结尾部分（上一篇和下一篇、编辑链接）放进页脚区域。它是主内容的结尾。页脚区域留给属于整个网站的内容。
+- 不要用 CSS 调整区域的顺序。标记的顺序就是焦点的顺序。
+
+## 无障碍
+
+<ComponentAccessibility name="app-shell" />
+
+### 组件负责的部分
+
+- 每个有内容的区域就是它对应的地标：横幅（banner）、导航（navigation）、主内容（main）、补充内容（complementary）和内容信息（contentinfo）。区域所用的元素本身不提供这个地标时，外壳会给它相应的角色。
+- 跳过链接是键盘的第一个停靠点。沿着它前往，焦点会移到主内容区域本身，区域的顶部位于页眉下方的视野之内。再按一次 Tab，就到达内容里的第一个控件。
+- Tab 按阅读顺序经过各个区域；在每一种窗口类别下，无论布局方向是从左到右还是从右到左，这个顺序都一样。没有显示的区域没有停靠点。
+- 链接的目标和获得焦点的元素，绝不会留在粘性页眉或导航栏的下面。
+- 窗口类别改变时，如果焦点原先所在的东西不再显示（例如菜单按钮），焦点会移到主内容区域。
+- 在宽 320 的窗口里把文本放大到 200% 时，框架是单独一列，没有任何内容需要横向滚动。
+- 在强制颜色模式下，各条线和跳过链接的框以系统的文本颜色绘制。
+- 在从右到左的布局中，导航位于右侧，侧栏位于左侧。焦点的顺序不变。
+
+### 需要你做的事
+
+- 每个页面正好一个 `<main>`。一个都没有或者多于一个时，调试构建会报告。
+- 侧栏的名称（`asideLabel`），以及导航抽屉和导航栏上的 `label`。页面上有两个导航地标，就需要两个名称。
+- 跳过链接的文字和菜单按钮的标签。
+- 每个页面一个 1 级标题，位于主内容区域：也就是[页头](/zh-cn/components/page-header/)的标题。

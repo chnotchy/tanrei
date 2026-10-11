@@ -1,0 +1,26 @@
+name: tanrei
+description: >-
+  Tanrei design system for Flutter. Token-driven widgets with the same specs,
+  states and accessibility semantics as the Web, SwiftUI, Compose and React
+  Native packages.
+version: 0.0.0
+homepage: https://github.com/chnotchy/tanrei
+repository: https://github.com/chnotchy/tanrei
+issue_tracker: https://github.com/chnotchy/tanrei/issues
+topics:
+  - design-system
+  - ui
+  - widgets
+
+environment:
+  sdk: ^3.8.0
+  flutter: ">=3.32.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

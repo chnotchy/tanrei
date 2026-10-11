@@ -1,0 +1,11 @@
+{
+  "name": "@tanrei/token-engine",
+  "version": "0.0.0",
+  "description": "Tanrei's token derivation engine: layers, rules and palettes. Isomorphic — no filesystem access — so the build, the CLI and the docs Theme Studio compute identical values.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": { "type": "git", "url": "https://github.com/chnotchy/tanrei.git", "directory": "packages/token-engine" },
+  "exports": { ".": "./src/index.js" },
+  "files": ["src", "README.md"],
+  "scripts": { "test": "node --test" }
+}

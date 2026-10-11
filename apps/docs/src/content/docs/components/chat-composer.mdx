@@ -1,0 +1,205 @@
+---
+title: Chat composer
+description: Lets a person write a message and send it, in one capsule that holds everything. A typing area that grows with what is written, the files attached to the message, your own actions, and a send button that is enabled only while the message can be sent. It reports the message and never sends anything itself.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import Callout from '../../../components/Callout.astro';
+
+## Overview
+
+<ComponentAvailability name="chat-composer" />
+
+<DemoFrame label="A chat composer in each layout. Write a message, attach a file, and send. Nothing is sent anywhere." column>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" label="Message" placeholder="Write a message" send-label="Send" attachments="own" attach-label="Attach files" remove-label="Remove"></tanrei-chat-composer>
+  <tanrei-chat-composer class="not-content" style="inline-size: 30rem; max-inline-size: 100%" layout="stacked" label="Message" placeholder="Write a message" send-label="Send" attachments="own" attach-label="Attach files" remove-label="Remove" max-length="280" counter>
+    <tanrei-button slot="leading" variant="text" label="Mention someone"><span slot="icon">alternate_email</span></tanrei-button>
+    <tanrei-button slot="leading" variant="text" label="Add an emoji"><span slot="icon">mood</span></tanrei-button>
+  </tanrei-chat-composer>
+</DemoFrame>
+
+A chat composer is the one place where a message is written: in a conversation, in a thread under a piece of work, or in a request for help. It is drawn as one capsule. The capsule holds the typing area, the attachments, your own actions and the send button.
+
+**Built from** an [embedded text input](/components/embedded-text-input/), a [file picker](/components/file-picker/), [file items](/components/file-item/) and [buttons](/components/button/). The embedded text input is the typing. The file picker opens the platform's picker and judges what was chosen. A file item is one attachment. The buttons are the send button, the stop button, the attach button and your own. The chat composer draws none of them. It adds what ties them together: the capsule, whether the message can be sent, the files it keeps, the counter, one live region and the form's value.
+
+<Callout type="caution" title="It does not send">
+The chat composer opens no connection. When the person sends, it emits `send` with the text and the attachments, and your product does the sending. Whether the message arrived is yours to know and to say.
+</Callout>
+
+Use something else when:
+
+- People fill in a form field with a long text. That is a [text field](/components/text-field/) with `multiline`.
+- People only choose files. That is a [file upload](/components/file-upload/).
+- People search. That is a [search](/components/search/).
+
+On the web it is `<tanrei-chat-composer>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-chat-composer label="Message" placeholder="Write a message" send-label="Send"
+                          attachments="own" attach-label="Attach files" remove-label="Remove">
+    </tanrei-chat-composer>
+    ```
+
+    ```js
+    composer.addEventListener('send', (event) => {
+      const { value, attachments } = event.detail;
+      post(value, attachments);
+    });
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ChatComposer } from '@tanrei/react';
+
+    <ChatComposer
+      label="Message"
+      placeholder="Write a message"
+      sendLabel="Send"
+      attachments="own"
+      attachLabel="Attach files"
+      removeLabel="Remove"
+      onSend={(event) => post(event.detail.value, event.detail.attachments)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+Unless you set `keepAfterSend`, the composer empties itself as it hands the message over, and focus returns to the typing area.
+
+### Sending files yourself
+
+With `attachments="given"` your product gives the file items. Use it when you send each file as soon as it is attached and want every item to show its status and its progress. Add a `<tanrei-file-item>` child on `select`, and remove it on the item's `remove`. Nothing can be sent while an item is uploading, or has failed and can be tried again.
+
+```html
+<tanrei-chat-composer label="Message" send-label="Send" attachments="given"
+                      attach-label="Attach files" remove-label="Remove" retry-label="Try again">
+  <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" progress="0.4"></tanrei-file-item>
+</tanrei-chat-composer>
+```
+
+### One level down
+
+The capsule is the chat composer's own part and cannot be taken separately. One level down you place the members yourself and draw the box.
+
+```html
+<div class="my-composer" role="group" aria-label="Message">
+  <div class="row">
+    <tanrei-file-picker multiple>
+      <tanrei-button slot="trigger" variant="text" label="Attach files"><span slot="icon">attach_file</span></tanrei-button>
+    </tanrei-file-picker>
+    <tanrei-embedded-text-input label="Message" multiline max-rows="6" enter-key="action"></tanrei-embedded-text-input>
+    <tanrei-button label="Send" disabled><span slot="icon">send</span></tanrei-button>
+  </div>
+</div>
+```
+
+The members bring the typing with its growing height, the keys, each file item and the picker. Your code then does what the chat composer adds: it draws the box and shows the focus on it, decides whether the message can be sent, compares the text's length with a limit, takes a drop and a paste, keeps the files, and empties everything after sending.
+
+## Specs
+
+### The two layouts
+
+| Situation | `inline` (the default) | `stacked` |
+| --- | --- | --- |
+| One line of text | One row: the attach button, the leading actions, the typing area, the counter, the trailing actions, the send button | The typing area and the send button on one line. A row beneath holds everything else |
+| Several lines | Every button stays at the bottom edge | The send button stays at the bottom edge of the typing line |
+| For | Short messages, a narrow panel | Many actions, messages written in paragraphs |
+
+A capsule narrower than `comp.chat-composer.layout.inline-min-width` is laid out stacked whatever `layout` says. A stacked composer with nothing for the row beneath is drawn as an inline one. The number of lines never changes the layout.
+
+### What can be sent
+
+The send button is enabled only while all of these are true. For each one that is not, `sendablechange` carries a reason by name.
+
+| Reason | The message cannot be sent while |
+| --- | --- |
+| `disabled` | `disabled` is true |
+| `sending` | `sending` is true |
+| `blocked` | `blocked` is true |
+| `empty` | There is no character that is not white space, and no attachment |
+| `length` | The text is longer than `maxLength` |
+| `uploading` | A file item's status is `uploading` |
+| `failed` | A file item has failed and can be tried again |
+
+### The keys
+
+Enter sends and Shift+Enter begins a new line. With `sendKey="modifier"`, Enter begins a new line. Ctrl+Enter and Command+Enter send with either value of `sendKey`. An input method's Enter never sends.
+
+### Setting one chat composer apart
+
+A design system styles each member for every place it is used. To set one composer apart, set a token on that element. The capsule reads its own tokens, and a member's token reaches the member inside it.
+
+```html
+<tanrei-chat-composer style="--tanrei-comp-chat-composer-container-shape: 12px" …></tanrei-chat-composer>
+```
+
+<ComponentSpecs name="chat-composer" />
+
+### What the web draws differently
+
+- The text is submitted under `name`, and each kept file under `files-name`. After `send`, a composer in a form asks the form to submit and does not empty itself.
+- An on-screen keyboard cannot be told from a hardware one. Where the primary pointer is coarse and cannot hover, Enter begins a new line and the send button sends.
+- A file's size is not drawn on a file item the composer draws itself.
+- Without script, a `<textarea>` and a submit `<button>` you write as children are the form. When the element is defined it takes the text and hides both.
+
+## Guidelines
+
+### Words
+
+The chat composer has no words of its own. Give `label`, `placeholder`, `sendLabel`, and, where they are used, `stopLabel`, `attachLabel`, `removeLabel`, `retryLabel` and the three sentences for a refused file. Set them once for the product with `setWords()`, or on the element.
+
+### In a field
+
+Inside a [field](/components/field/) the composer takes the field's label as its name, the field's help or error text as the typing area's description, and the field's error and `disabled`.
+
+### Do
+
+- Say why a message cannot be sent in your own words, beside the composer or with `announcement`.
+- Put your own actions in the `leading` and the `trailing` slot as icon-only text buttons.
+- Set `maxFiles` to the number of files one message may carry.
+- Use `stoppable` where an answer arrives over time and can be cut short.
+- Keep the composer above an on-screen keyboard by the platform's own means. The composer does not fix itself to the screen.
+
+### Don't
+
+- Don't restyle the typing, the file items or the buttons through the composer. Style the member.
+- Don't replace the send or the attach button with anything but a button.
+- Don't cut the text at a limit. `maxLength` marks what is too long and waits for the person.
+- Don't make dragging the only way to attach a file.
+
+## Accessibility
+
+<ComponentAccessibility name="chat-composer" />
+
+### What the component handles
+
+- It is a group named by `label`. The typing area is a multi-line text box of the same name.
+- The capsule's edge is the focus indication of the typing area, for every focus of it. A button or a file item's action shows its own focus ring, and the capsule then draws no focus edge.
+- Tab moves through it in the order it is drawn. No key in the typing area removes an attachment.
+- A send button that cannot send is a disabled button. What holds the message back is shown on the counter and on the file item.
+- The counter is the first part of the typing area's description. It is not a live region.
+- One polite live region says your `announcement` and what changed among the attachments.
+- An input method's Enter never sends.
+- At 200% text in a width of 320 it is laid out stacked. Nothing is cut and nothing scrolls sideways.
+- In forced colors the capsule gains an edge, and its focused edge is the highlight color.
+- It has no words of its own, in any language.
+
+Known gaps on the web:
+
+- Input methods have been driven in Chromium and, in Firefox and Safari, by their events alone.
+- What screen readers say has been read from the browsers' accessibility trees, not heard with a screen reader.
+
+### What you need to do
+
+- Give it a `label`, or put it in a field.
+- Name the buttons it brings: `sendLabel`, `stopLabel`, `attachLabel`, `removeLabel`, `retryLabel`.
+- Say what became of a message. Set `announcement` in your `send` handler where a sentence helps.
+- Give each failed file item an `errorText` that says why it failed and what to do.

@@ -1,0 +1,9 @@
+{
+  "name": "@tanrei/swiftui",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "cd ../.. && swift build",
+    "test": "node scripts/check-emitter.mjs && node scripts/generate-acme-fixture.mjs --check && cd ../.. && swift test --no-parallel"
+  }
+}

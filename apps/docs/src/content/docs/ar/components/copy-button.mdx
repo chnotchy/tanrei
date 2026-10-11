@@ -1,0 +1,142 @@
+---
+title: زر النسخ
+description: زر ينسخ نصًّا معيَّنًا بضغطة واحدة ويؤكد ذلك، أو يقول إنه لم يستطع. يرسمه مكوّن Button، ولا يحرّك التخطيط أبدًا.
+translationOf: components/copy-button.mdx
+sourceHash: 11c3c4ca402e08be52105dad6861f24385f8af29
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="copy-button" />
+
+<DemoFrame label="اضغط واحدًا: يصير رسم الأيقونة علامة صح للحظة">
+  <tanrei-copy-button text="npm install @tanrei/web" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
+  <tanrei-copy-button variant="tonal" text="#30a3f0" label="نسخ اللون" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="نسخ الرابط" copied-label="نُسخ الرابط" failed-label="تعذّر النسخ"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="نسخ المفتاح" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
+</DemoFrame>
+
+استخدم زر النسخ بجانب شيء سيلصقه الشخص في مكان آخر: أمر، أو مفتاح، أو عنوان، أو قيمة لون. ينتظر جواب المتصفح، ويعرض علامة صح (أو علامة خطأ) ثانيتين، ويخبر التقنيات المساعدة بالكلمات. و[كتلة الشيفرة](../code-block/) تضع واحدًا لك.
+
+### الاستخدام
+
+زر النسخ [زر](../button/) بالطراز والحجم اللذين تسمّيهما. ليست له ألوان ولا مقاسات خاصة به، فنظام التصميم الذي يعيد تنسيق الزر يعيد معه تنسيق كل زر نسخ.
+
+الكلمات كلماتك. ليس للخصائص `label` و `copied-label` و `failed-label` قيم افتراضية، لأن Tanrei لا يقدّم نصًّا بأي لغة.
+
+أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: الأسماء التي بجانب كل منصة في أعلى هذه الصفحة هي ما تعطيها إياه المواصفة، ولا شيء منها متاح هناك بعد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- بأيقونة وحدها (الافتراضي): يسمّيه label. -->
+    <tanrei-copy-button
+      text="npm install @tanrei/web"
+      label="نسخ"
+      copied-label="تم النسخ"
+      failed-label="تعذّر النسخ"
+    ></tanrei-copy-button>
+
+    <!-- بتسمية: النص يتغير مع الهيئة، والعرض لا يتغير أبدًا. -->
+    <tanrei-copy-button
+      icon-only="false"
+      variant="tonal"
+      text="https://example.com/s/4f2a"
+      label="نسخ الرابط"
+      copied-label="نُسخ الرابط"
+      failed-label="تعذّر النسخ"
+    ></tanrei-copy-button>
+
+    <script type="module">
+      import '@tanrei/web';
+
+      document.querySelector('tanrei-copy-button').addEventListener('copyfailed', () => {
+        // قال الزر إنه لم يستطع. وما يحدث بعد ذلك شأنك.
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CopyButton } from '@tanrei/react';
+
+    <CopyButton text={command} label="نسخ" copiedLabel="تم النسخ" failedLabel="تعذّر النسخ" onCopyfailed={() => showHelp()} />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الأحجام والطُرُز هي أحجام الزر وطُرُزه" plain>
+  <tanrei-copy-button size="small" text="small" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
+  <tanrei-copy-button text="medium" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
+  <tanrei-copy-button size="large" text="large" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
+  <tanrei-copy-button variant="elevated" text="elevated" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
+  <tanrei-copy-button disabled text="disabled" label="نسخ" copied-label="تم النسخ" failed-label="تعذّر النسخ"></tanrei-copy-button>
+</DemoFrame>
+
+<DemoFrame label="العرض محفوظ لأطول النصوص الثلاثة" plain>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="نسخ" copied-label="تم النسخ إلى الحافظة" failed-label="تعذّر النسخ"></tanrei-copy-button>
+  <tanrei-button variant="text">جار لا يتحرك</tanrei-button>
+</DemoFrame>
+
+للزر ثلاث هيئات: السكون (رسم الأيقونة `content_copy`)، وتم النسخ (`check`)، وتعذّر النسخ (`error`). لا يعرض هيئة «تم النسخ» إلا بعد أن يؤكد المتصفح النسخ، ويعود إلى السكون بعد `comp.copy-button.confirmation.duration` (ثانيتان). والضغط عليه وهو يعرض تأكيدًا ينسخ ويؤكد من جديد.
+
+لا يتحرك شيء حين تتغير الهيئة. الرسوم الثلاثة تُرسم في صندوق واحد. والهيئة ذات التسمية تحتفظ بعرض أعرض نصوصها في كل وقت.
+
+يتغير الرسم فورًا، بلا حركة. والثانيتان وقت للملاحظة، فتبقيان حيث تكون الحركة مقلَّلة.
+
+إذا تغيّر النص والزر يعرض «تم النسخ»، عاد إلى السكون فورًا: ما نُسخ لم يعد هو ما سيُنسخ.
+
+الحدثان هما `copied` و `copyfailed`. ولم يُسمَّيا `copy`، لأن `copy` هو حدث الحافظة الخاص بالمستند نفسه.
+
+<ComponentSpecs name="copy-button" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- النسخ يستخدم `navigator.clipboard.writeText`. ويحتاج إلى صفحة آمنة (HTTPS أو localhost) وإلى ضغطة من الشخص. وحيث لا حافظة للمتصفح أو حيث يرفض، يأخذ الزر هيئة تعذّر النسخ. ولا بديل احتياطيًّا.
+- الحدثان يصعدان (bubble)، ولا يعبران جذر ظل (shadow root).
+
+## الإرشادات
+
+### بأيقونة وحدها أم بتسمية
+
+| الهيئة | ما يعرضه | استخدمه حين |
+| --- | --- | --- |
+| **بأيقونة وحدها** | رسم الأيقونة وحده. الشخص المبصر يرى علامة الصح بلا كلمات | يكون بجانب الشيء الذي ينسخه: أمر، أو كتلة شيفرة، أو قيمة في صف |
+| **بتسمية** | رسم الأيقونة والكلمات، وهي تتغير مع الهيئة | يكون النسخ أحد إجراءات العرض، أو تكون الكلمات مهمة للجميع |
+
+### افعل
+
+- قل في التسمية ما الذي يُنسخ حين لا يكون واضحًا من مكانه: «نسخ الرابط»، «نسخ JSON».
+- استمع للحدث `copyfailed` واعرض شيئًا يبقى، كالنص محدَّدًا في حقل، حين يجب أن يحصل الشخص على النص مع ذلك.
+- أبقِ الطراز text لزر نسخ بجانب محتواه. واختر طرازًا آخر حين يكون النسخ هو الإجراء الرئيسي في العرض.
+
+### لا تفعل
+
+- لا تعرض الزر عند التحويم فقط. لا يمكن العثور عليه باللمس عندئذ.
+- لا تفتح تلميحًا ولا شريط إشعار لنسخ ناجح. الزر يؤكده أصلًا.
+- لا تستخدمه لنسخ شيء غير النص.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="copy-button" />
+
+### ما يتكفل به المكوّن
+
+- هو زر، له مؤشر تركيز الزر، وحدّه الأدنى للهدف، ومفاتيحه (المفتاحان Enter و Space).
+- الهيئة ذات الأيقونة وحدها يسمّيها `label` في كل هيئة. والاسم لا يتغير حين يتغير الرسم.
+- النتيجة تُعلَن عبر منطقة حيّة (live region): النص `copied-label` بتهذيب، والنص `failed-label` بإلحاح، عند كل ضغطة، ومن دون نقل التركيز.
+- التأكيد شكل وكلمات، لا لون.
+- في التخطيط من اليمين إلى اليسار يُعكس رسم النسخ، كما تقول مجموعة الأيقونات. أما علامة الصح وعلامة الخطأ فلا تُعكسان.
+
+### ما عليك فعله
+
+- أعطِ التسميات الثلاث كلها، بلغة منتجك. الزر ذو الأيقونة وحدها الذي بلا `label` ليس له اسم متاح للتقنيات المساعدة.
+- تابِع الإخفاق بنفسك حيث يجب ألّا يفقد الشخص النص.

@@ -1,0 +1,303 @@
+---
+title: アプリバー
+description: 画面の上端で今いる画面の名前を示し、戻る操作と、その画面でよく使うアクションをまとめます。コンテンツが一番上にある間は平らで、コンテンツが下に潜り込むと境目を示します。
+translationOf: components/app-bar.mdx
+sourceHash: 6673ce3102bb145461ac7483ffda05f1bee1ab9c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="app-bar" />
+
+Web と React のサンプルは現在の仕様を示しています。現在の仕様では、バーの項目はアイコンだけの[ボタン](/ja/components/button/)です。SwiftUI、Compose、Flutter、React Native は追従待ちで、独立したアイコンボタンのコンポーネントを持つ以前の版を提供しています。追従するまで、これらのサンプルは以前の版を示します。
+
+<DemoFrame label="戻るボタンと 2 つのアクションを持つ小さいアプリバー">
+  <tanrei-app-bar headline="受信トレイ" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="戻る"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="検索"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="その他のオプション"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+### 使い方
+
+アプリバーはレイアウト領域で、オーバーレイではありません。画面の上端に自分の高さを確保し、コンテンツはその下から始まります。バー自体がフォーカスを受け取ることはありません。
+
+アプリバーが持つ項目は 2 種類です。先頭に置く 1 つの `navigation`（戻る、メニュー、閉じる）と、末尾に置く 3 つまでの `action` です。どちらも利用者側で用意する、アイコンだけの[ボタン](/ja/components/button/)です。それぞれが自分のラベルと、自分のクリック、または行き先がある場合は自分の `href` を持ちます。バーはこれらを並べるだけで、見た目を変えることはありません。受け取り方はプラットフォームごとのスロットに従います。Web では `slot="navigation"` と `slot="actions"` を付けた子要素、SwiftUI では `navigation` と `actions` のビュービルダー、Compose では `navigationIcon` と `actions` のラムダ、Flutter では `leading` と `actions:`、React Native では `navigation` と `actions` に渡すノードです。
+
+タイトルは画面の名前で、画面の見出しでもあります。Web では `headline` という名前です。HTML のグローバル属性 `title` を使うと、バー全体にツールチップが出てしまうためです。
+
+**スクロール状態。** コンテンツがバーの下に潜り込んでいる間、バーはスクロール時の見た目になります。画面のスクロールするビューをつなげば、バーが自分で `scrolled` を切り替えます。つなぎ方は、Web では `scroll-target`（既定はドキュメント）、SwiftUI ではバーを収めた `.safeAreaInset` の後に付ける `.tanreiAppBarScrollSource()`、Compose では `Modifier.nestedScroll` でつなぐ `scrollBehavior`、Flutter ではページのスクロール通知、React Native では `useAppBarScroll()` です。つながないときは、利用者側で `scrolled` を設定します。
+
+**システムバー。** バーの色は、上にあるステータスバー、カメラの切り欠き、ウィンドウのキャプションの下まで広がります。中身はそれらより下、左右のインセットの内側に収まります。Web は `env(safe-area-inset-*)` を読み、Compose は `windowInsets`（既定はステータスバーと左右の切り欠き）を受け取り、Flutter は `MediaQuery` のパディングを読み、SwiftUI では `.safeAreaInset(edge: .top)` でバーを置きます。React Native にはセーフエリアの API がなく、Tanrei もセーフエリアのライブラリには依存しないので、インセットはプロパティからだけ受け取ります。`TanreiProvider` にウィンドウの `insets` を渡してください（`react-native-safe-area-context` を使っているなら、その `useSafeAreaInsets()` をそのまま渡します）。バー自身の `insets` プロパティは、指定した辺だけ provider の値を置き換えます。ウィンドウの一番上にないバーには `{ top: 0 }` を渡します。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- タイトルは headline です。HTML の title 属性ではバーの上にツールチップが出てしまいます。 -->
+    <tanrei-app-bar headline="受信トレイ">
+      <tanrei-button variant="text" slot="navigation" label="戻る"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="検索"><span slot="icon">search</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="その他のオプション"><span slot="icon">more_vert</span></tanrei-button>
+    </tanrei-app-bar>
+
+    <!-- #inbox のスクロールに合わせて畳まれる大きいタイトル。heading-level を指定しなければタイトルは h1 です。 -->
+    <div style="display: flex; flex-direction: column; block-size: 100dvh">
+      <tanrei-app-bar size="large" headline="受信トレイ" scroll-target="inbox">
+        <tanrei-button variant="text" slot="navigation" label="メニュー"><span slot="icon">menu</span></tanrei-button>
+      </tanrei-app-bar>
+      <main id="inbox" style="flex: 1; overflow: auto">…</main>
+    </div>
+
+    <!-- ページへ移動するボタンはリンクです。href を指定します。検索は、アイコンのトリガーとしてアクションにできます。 -->
+    <tanrei-app-bar headline="タブ">
+      <tanrei-button variant="text" slot="navigation" href="/components/" label="すべてのコンポーネント"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-search slot="actions" bar="icon" presentation="dialog" label="ドキュメントを検索" placeholder="検索"
+        clear-label="検索語を消去" back-label="戻る"></tanrei-search>
+    </tanrei-app-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/app-bar';
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/search';
+      // ボタンは利用者側のものです。バー自身はイベントを持ちません。
+      document.querySelector('[label="戻る"]').addEventListener('click', () => history.back());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { AppBar, Button, Search } from '@tanrei/react';
+
+    <AppBar headline="受信トレイ">
+      <Button variant="text" slot="navigation" label="戻る" onClick={goBack}><span slot="icon">arrow_back</span></Button>
+      <Button variant="text" slot="actions" label="検索" onClick={search}><span slot="icon">search</span></Button>
+      <Button variant="text" slot="actions" label="その他のオプション" onClick={openMore}><span slot="icon">more_vert</span></Button>
+    </AppBar>
+
+    // ページへ移動するボタンはリンクです。href を指定します。検索は、アイコンのトリガーとしてアクションにできます。
+    <AppBar headline="タブ">
+      <Button variant="text" slot="navigation" href="/components/" label="すべてのコンポーネント"><span slot="icon">arrow_back</span></Button>
+      <Search slot="actions" bar="icon" presentation="dialog" label="ドキュメントを検索" placeholder="検索" clearLabel="検索語を消去" backLabel="戻る" />
+    </AppBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // システムのバーを隠した NavigationStack の、上側のセーフエリアのインセットに置きます。
+    // isScrolled を nil のままにすると、.tanreiAppBarScrollSource() を付けたスクロールビューに従います。
+    NavigationStack {
+        ScrollView { InboxRows() }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                TanreiAppBar("受信トレイ", size: .large) {
+                    TanreiIconButton("メニュー", action: openMenu) { Image(systemName: "line.3.horizontal") }
+                } actions: {
+                    TanreiIconButton("検索", action: search) { Image(systemName: "magnifyingglass") }
+                }
+            }
+            // バーを収めた inset の後に付けます。inset の内側に付けたモディファイアーはバーに届きません。
+            .tanreiAppBarScrollSource()
+            .toolbar(.hidden, for: .navigationBar)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiAppBar
+    import io.github.chnotchy.tanrei.components.TanreiAppBarDefaults
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiAppBarSize
+
+    // 小さいバーです。scrollBehavior を渡さなければ平らなままです。
+    TanreiAppBar(
+        title = "受信トレイ",
+        navigationIcon = { TanreiIconButton(onClick = onBack, contentDescription = "戻る") { TanreiText("arrow_back") } },
+        actions = {
+            TanreiIconButton(onClick = onSearch, contentDescription = "検索") { TanreiText("search") }
+            TanreiIconButton(onClick = onMore, contentDescription = "その他のオプション") { TanreiText("more_vert") }
+        },
+    )
+
+    // リストのスクロールに合わせて畳まれる大きいバーです。スクロールするビューの親で behavior をつなぎます。
+    // pinnedScrollBehavior() は小さいバー向けで、畳まれず、下にコンテンツがある間だけスクロール状態になります。
+    val scrollBehavior = TanreiAppBarDefaults.collapseScrollBehavior()
+    Column(Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)) {
+        TanreiAppBar(title = "受信トレイ", size = TanreiAppBarSize.Large, scrollBehavior = scrollBehavior)
+        LazyColumn { /* 画面のコンテンツ */ }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 小さいバーです。Scaffold のアプリバーのスロットか、Column の先頭に置きます。
+    // scrolledUnder を null のままにすると、AppBar と同じく一番近い ScrollNotificationObserver に従います。
+    TanreiAppBar(
+      leading: TanreiIconButton(onPressed: () => Navigator.of(context).maybePop(), icon: const Icon(AppSymbols.arrowBack), semanticLabel: '戻る'),
+      title: '受信トレイ',
+      actions: <Widget>[
+        TanreiIconButton(onPressed: search, icon: const Icon(AppSymbols.search), semanticLabel: '検索'),
+        TanreiIconButton(onPressed: openMore, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'その他のオプション'),
+      ],
+    ),
+
+    // コンテンツと一緒に畳まれる大きいバーはスライバーです。CustomScrollView の上端に固定されます。
+    CustomScrollView(
+      slivers: <Widget>[
+        TanreiSliverAppBar(title: '受信トレイ', size: TanreiAppBarSize.large, leading: menuButton),
+        SliverList.list(children: messages),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { ScrollView, View } from 'react-native';
+    import { AppBar, IconButton, useAppBarScroll } from '@tanrei/react-native';
+
+    // インセットは TanreiProvider の insets か、バー自身の insets から受け取ります。
+    <AppBar
+      title="受信トレイ"
+      navigation={<IconButton accessibilityLabel="戻る" onPress={goBack}>arrow_back</IconButton>}
+      actions={
+        <>
+          <IconButton accessibilityLabel="検索" onPress={search}>search</IconButton>
+          <IconButton accessibilityLabel="その他のオプション" onPress={openMore}>more_vert</IconButton>
+        </>
+      }
+    />
+
+    // 畳まれる大きいバー：スクロールビューをつなぎ、バーをその上に重ね、コンテンツにバーの高さぶんの余白を付けます。
+    const scroll = useAppBarScroll();
+    const [barHeight, setBarHeight] = useState(0);
+    <View style={{ flex: 1 }}>
+      <ScrollView onScroll={scroll.onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: barHeight }}>
+        {messages}
+      </ScrollView>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }} onLayout={(e) => setBarHeight((h) => Math.max(h, e.nativeEvent.layout.height))}>
+        <AppBar size="large" title="受信トレイ" scrollState={scroll.state} navigation={menuButton} />
+      </View>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="サブタイトル付きの大きいバーと、中央揃えのタイトル" plain column>
+  <tanrei-app-bar size="large" headline="受信トレイ" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="メニュー"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="検索"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="アカウント"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-app-bar>
+  <tanrei-app-bar headline="受信トレイ" title-alignment="center" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="戻る"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="検索"><span slot="icon">search</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<DemoFrame label="リンクであるナビゲーションボタンと、アクションに置いた検索のトリガー" plain>
+  <tanrei-app-bar headline="タブ" subtitle="コンポーネント" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" href="/ja/components/" label="すべてのコンポーネント"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-search slot="actions" bar="icon" presentation="dialog" label="ドキュメントを検索" placeholder="検索" clear-label="検索語を消去" back-label="戻る"></tanrei-search>
+    <tanrei-button variant="text" slot="actions" label="その他のオプション"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<ComponentSpecs name="app-bar" />
+
+## ガイドライン
+
+### 使う場面
+
+画面の上端に置き、今どこにいるかを伝え、前の画面に戻ったりメニューを開いたりする手段と、検索、共有、アカウントのように画面全体に関わる少数のアクションをまとめます。1 つの画面に置くアプリバーは 1 つです。
+
+アプリの最上位の行き先の間を移動するには、ナビゲーションバーかドロワーを使います。アプリバーのメニューボタンから[モーダルなナビゲーションドロワー](/ja/components/navigation-drawer/)を開くこともできます。Tanrei には画面下端のアプリバーはありません。コンパクトな画面の下端にアクションを並べる役割は、[ツールバー](/ja/components/toolbar/)が担います。
+
+### サイズとタイトルの位置の選び方
+
+| 選択肢 | どうなるか | 用途 |
+| --- | --- | --- |
+| Small（既定） | 1 行に、ナビゲーションボタン、タイトル、アクションが並びます。 | ほとんどの画面。別の画面からたどり着く画面はすべてこちらです。 |
+| Large | 上の行の下に、専用の行で大きなタイトルを描きます。コンテンツのスクロールに 1 対 1 で合わせて上の行へ畳まれ、上の行のタイトルがフェードインします。コンテンツが一番上に戻ると、同じように広がります。 | プロダクトの最上位の画面。タイトルがその画面の目印にもなる場所です。 |
+| `titleAlignment` が start（既定） | タイトルはナビゲーションボタンの後ろに続きます。 | ほとんどのバー。 |
+| `titleAlignment` が center | タイトルをバー全体の中央に置き、ボタンの下に入り込まないよう左右を同じだけ詰めます。 | iOS のような中央揃えのタイトルに合わせるプロダクト。広がった大きいタイトルは常に先頭側から始まります。 |
+
+デザインシステムはサイズを追加できます。SwiftUI、Compose、Flutter、React Native では、small より高いサイズは large と同じく専用のタイトル行を持ちます。Web では、デザインシステムが追加したサイズはどれも専用のタイトル行を持ちます。`m3-like` のプリセットには、Material の medium サイズはまだありません。
+
+### スクロール
+
+- **平らな状態とスクロール状態。** コンテンツが一番上にある間、バーは平らです。コンテンツが下に潜り込むとスクロール時の見た目になります。既定のシステムでは下端に細い線が引かれ、`m3-like` ではコンテナに色が付きます。切り替えはバーの状態用のモーションで行い、動きを減らす設定では瞬時に変わります。
+- **大きいバーがスクロール状態になるのは、畳み終えてからです。** それまでは、畳まれていく動き自体がコンテンツの移動を伝えます。
+- **バーは動きません。** 下へスクロールしてもバーは隠れません。それは画面のスクロールの振る舞いで、バーの役割ではありません。
+
+### 項目
+
+- ナビゲーションボタンは多くても 1 つにします。別の画面からたどり着いた画面では「戻る」、最上位の画面では「メニュー」、全画面の作業では「閉じる」です。
+- アクションは 3 つまでにします。残りは、Tanrei のメニューを開く「その他のオプション」のアイコンボタンの中にまとめます。4 つ目のアクションや 2 つ目のナビゲーションボタンも描かれますが、デバッグビルドで報告します。
+- ボタンの見た目は、ほかの場所と同じです。バーは並べるだけで、色を変えることはありません。
+- どこかへ移動するボタンはリンクです。`href` を指定します。親のページへ戻るボタンや、ページを開くヘルプのアクションは、見た目は同じボタンのまま、本物のリンクになります。履歴をたどって戻るボタンは、ボタンのままです。
+- Web では、[検索](/ja/components/search/)をアイコンのトリガー（`bar` を `icon` に設定）として、アクションの 1 つにできます。検索のダイアログまたは全画面のビューを開く、アイコンだけのボタンです。
+
+### 推奨
+
+- タイトルには「受信トレイ」「四半期レポート」のように画面の名前を書きます。1 行に収まらなければ省略記号で切られるので、短くします。
+- サブタイトルには、似た画面を見分けるのに役立つ情報を書きます。アカウント、状態、最終更新の時刻などです。
+- 最上位の画面すべてで同じサイズを使い、それ以外の画面にはもう一方のサイズを使います。
+
+### 非推奨
+
+- スロットにアイコンボタン以外のものを入れない。テキストフィールド、検索フィールド、タブ、セグメントコントロールは入れません。タブの並びはバーの下に置きます。その下にある[タブビュー](/ja/components/tab-view/)を、その並びとつなぐことができます。
+- 「作成」のような主要なアクションをバーに置かない。メインアクションボタンを使います。
+- タイトルを 2 行にしたり、リンクにしたりしない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="app-bar" />
+
+### コンポーネントが担うこと
+
+- バー自体はロールを持たず、フォーカスも受け取りません。Tab はナビゲーションボタンからアクションへ、読み上げ順に進みます。各ボタンは自分のロール、名前、最小ターゲットをそのまま保ち、`href` を持つボタンはリンクとして伝わります。
+- タイトルは画面の見出しとして伝えます。Web では、`heading-level` を指定しなければレベル 1 の見出しです。サブタイトルはその後に読み上げます。タイトルが空なら何も描かず、見出しも伝えません。
+- 大きいバーは畳まれる途中で 2 つのタイトルを描きますが、伝えるのは 1 つだけです。広がったタイトルが少しでも見えている間はそちらを、畳み終えたら上の行のタイトルを伝えます。見出しが 2 回読まれることはありません。
+- バーはランドマークではありません。ページのバナーにあたるかどうかは、利用者側にしか分からないためです。
+- 文字を大きくすると、最小の高さとして決めてあるバーの行が伸びます。タイトルとサブタイトルは 200% でも 1 行のままで、折り返さずに省略します。バーがコンテンツを押しのけないためです。支援技術には全文が伝わります。アイコンボタンは拡大しません。
+- バーの向きは、使われている場所の向きに従います。右から左（RTL）のレイアウトでは左右が反転し、ナビゲーションボタンが右、アクションが左に並びます。戻る矢印のように、アイコンセットが反転の対象としているグリフは、バーではなく、そのボタン自身が反転します。
+- タイトルとサブタイトルは、周りのテキストから切り離し、それぞれのテキスト自身の方向で配置します。右から左のレイアウトの中にある左から右への名前も、語順を保ち、省略されるのは先頭ではなく、そのテキスト自身の末尾です。
+- アクションが 4 つ以上あるとき、ナビゲーションボタンが 2 つ以上あるとき、デザインシステムにないサイズを指定したときは、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native：右から左のレイアウトの決まり（アイコンセットが対象とするグリフの反転、タイトル自身の方向での配置）と、`href` を持つボタンは、これらのプラットフォームの追従を待っています。
+- Web：すべての寸法が `rem` に従うので、ブラウザーの文字サイズを大きくすると、文字と一緒にアイコンボタンも大きくなります。Tanrei の文字の大きさだけを変えたときは大きくなりません。
+- Web：ドキュメント自身のスクロールに従う大きいバーを、ドキュメントの流れの中に `position: sticky` で置くと、コンテンツがスクロールの分に加えてバーが畳まれた分も動くので、畳まれている間はコンテンツが 2 倍の速さで動きます。畳まれるバーは、スクロールする要素（`scroll-target`）の上か、固定したヘッダーに置いてください。
+- Web：アイコンボタンはそれぞれ、使っているポインターの最小ターゲット（マウスなら 44）の枠に収まります。そのため 2 つのアクションの中心どうしの間隔は 52 で、48 のタッチターゲットで測る Compose と Flutter の 56 より狭くなります。
+- SwiftUI：バーがスクロールビューに従うのは iOS 18 と macOS 15 以降です。それより前は何もつながらず、バーは `isScrolled` のとおりに描かれます。
+- SwiftUI：つながった大きいバーに `isScrolled: true` を渡すと、畳まれた姿で描かれますが、レイアウト上は広がった高さのままなので、コンテンツが先頭にある間はその上に隙間が見えます。
+- SwiftUI：システムのバーを隠している間も、バーは端からのスワイプで戻る操作を保ちます。そのためにナビゲーションコントローラーの pop ジェスチャーの delegate を差し替えており、確かめたのは iOS 26.5 だけです。大きいバーがタイトルを一度に 1 つだけ伝えることは、VoiceOver ではまだ確かめていません。
+- Flutter：大きい `TanreiAppBar` はコンテンツと一緒に畳まれません。ボックスのウィジェットは、下のスクロールビューに合わせて縮むことができないためです。スクロール通知を無視して広がったままになり、`scrolledUnder` が true の間だけ畳まれた姿で描かれます。畳まれるバーには `TanreiSliverAppBar` を使います。
+- Flutter：`preferredSize` はテーマを読めないため、上限のない高さを返します。Scaffold はバー自身に大きさを決めさせますが、利用者側のレイアウトではこの値を使えません。
+- Compose：畳む動きはスクロールが止まったところで止まるので、大きいバーが半分畳まれたままになることがあります。Material のバーのように、フリングの後で開き切るか閉じ切るかに寄せることはしません。仕様もそれを求めていません。
+- React Native：大きいバーをコンテンツに 1 対 1 で合わせて畳むには、上の例のように、バーをスクロールビューの上に重ね、コンテンツにバーの高さぶんの余白を付けます。畳む動き、インセット、スクリーンリーダーの読み上げは、実機ではまだ確かめていません。
+- すべてのプラットフォーム：`cupertino` では、アイコンボタンを置くと 44 ポイントの上の行が 48 に伸びます。アイコンボタンのタッチターゲットが 48 で、最小ターゲットが優先されるからです。Web で伸びるのは粗いポインターのときだけで、マウスのターゲットは 44 です。大きいバーの広がった行も、cupertino のコンテナの高さより 1 ポイント高くなります。
+- すべてのプラットフォーム：サブタイトルがあると、バーが畳み終える前に広がったタイトルが隠れます。その間どちらのタイトルを伝えるかは、仕様ではまだ決まっていません。どのプラットフォームも、広がったタイトルが隠れた時点で見出しを上の行へ移します。
+
+### 利用者側で行うこと
+
+- どのバーにもタイトルを付けます。タイトルが画面の見出しになります。
+- どのアイコンボタンにも「戻る」「検索」のようなラベルを付けます。
+- Web では、ページにすでにレベル 1 の見出しがあるなら `heading-level` を設定します。バーがページのバナーにあたるなら `<header>` で包みます。
+- 画面のスクロールするビューをつなぐか、利用者側で `scrolled` を設定して、コンテンツが下にあることがバーに表れるようにします。
+- React Native では、ウィンドウのインセットを `TanreiProvider` に渡します。React Native と Compose では、ウィンドウの一番上にないバーに別のインセットを渡します（`insets={{ top: 0 }}`、または利用者側の `windowInsets`）。
+- タイトルは短くします。省略記号で切られても全文は読み上げられますが、目で見る人には先頭しか見えません。

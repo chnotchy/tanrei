@@ -1,0 +1,202 @@
+---
+title: Lista de descripciones
+description: Presenta lo que se sabe de una cosa como datos con nombre, un término discreto y el valor que le responde, con los términos al lado de sus valores, encima de ellos o debajo de una cifra grande. Se dispone según su propia anchura y nunca es un control.
+translationOf: components/description-list.mdx
+sourceHash: 1289656e657a4f0fc8fcc2c50310af62690aea86
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="description-list" />
+
+<DemoFrame label="Los datos de un pedido" column>
+  <tanrei-description-list style="inline-size: min(100%, 30rem)">
+    <dl>
+      <div><dt>Pedido</dt><dd>A-20418</dd></div>
+      <div><dt>Realizado</dt><dd>6 de octubre de 2026</dd></div>
+      <div><dt>Enviar a</dt><dd>4-2-8 Shibakoen, Minato, Tokio</dd></div>
+      <div><dt>Estado</dt><dd><tanrei-tag size="small" status="success" label="Enviado"></tanrei-tag></dd></div>
+      <div><dt>Total</dt><dd>12&nbsp;800&nbsp;¥</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+Una lista de descripciones muestra los datos de una sola cosa: un pedido, un archivo, una cuenta, un componente. Cada dato es un término y el valor que le responde. El término es una etiqueta discreta; el valor es lo que la persona venía a buscar.
+
+Tres disposiciones dibujan los mismos datos:
+
+| `layout` | Qué dibuja | Úsalo para |
+| --- | --- | --- |
+| `inline` (predeterminado) | El término al lado de su valor. Todos los términos están en una sola columna, tan ancha como el término más ancho. | Un bloque de datos en el que una persona consulta cosas. |
+| `stacked` | El término encima de su valor. | Valores largos o términos largos, y datos en varias columnas. |
+| `stat` | Primero el valor, como una cifra grande, con el término debajo como su etiqueta. | Los pocos números con los que se abre una pantalla. |
+
+En la web es `<tanrei-description-list>` alrededor de tu propia `<dl>` nativa. El elemento no tiene shadow root y no da ningún rol a la lista, así que un lector de pantalla, un rastreador y una página sin script se encuentran con una lista de descripciones HTML corriente. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/description-list.css" />
+
+    <tanrei-description-list>
+      <dl>
+        <div><dt>Pedido</dt><dd>A-20418</dd></div>
+        <div><dt>Responsables</dt><dd>Aiko Tanaka</dd><dd>Samir Haddad</dd></div>
+        <div>
+          <dt>Estado</dt>
+          <dd><tanrei-tag size="small" status="success" label="Enviado"></tanrei-tag></dd>
+        </div>
+      </dl>
+    </tanrei-description-list>
+
+    <script type="module">
+      import '@tanrei/web/components/description-list';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { DescriptionList } from '@tanrei/react';
+    import '@tanrei/web/description-list.css';
+
+    <DescriptionList layout="stat" columns={3}>
+      <dl>
+        {figures.map((figure) => (
+          <div key={figure.label}>
+            <dt>{figure.label}</dt>
+            <dd>{figure.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </DescriptionList>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/description-list.css` dibuja toda la lista antes de que se ejecute ningún script. El elemento añade por sí solo la misma hoja de estilos a la página, así que una página que solo carga el script también obtiene una lista dibujada, un momento después.
+
+### Qué escribes tú
+
+| Parte | En la web |
+| --- | --- |
+| Un dato | Un `<div>` dentro de la `<dl>`, alrededor de un `<dt>` y sus `<dd>`. |
+| Un término | El `<dt>`. Texto, o un componente que el valor explica (un tag en una leyenda). No escribas dos puntos. |
+| Un valor | Un `<dd>`. Texto, un componente o nada. |
+| Varios valores | Varios `<dd>` en un mismo dato. Cada uno se dibuja en una línea propia. |
+
+Una `<dl>` sin los grupos `<div>`, como la escriben algunos renderizadores de Markdown, se dibuja igualmente en una columna, en línea o apilada. `columns` y la disposición stat necesitan los grupos.
+
+## Especificaciones
+
+<DemoFrame label="Stat: los números con los que se abre una pantalla" plain column>
+  <tanrei-description-list layout="stat" columns="3" separation="gap" style="inline-size: 100%">
+    <dl>
+      <div><dt>pedidos esta semana</dt><dd>1284</dd><dd>un 12% más que la semana pasada</dd></div>
+      <div><dt>entregados a tiempo</dt><dd>98.6%</dd></div>
+      <div><dt>mediana del tiempo de compilación</dt><dd>4 min 12 s</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<DemoFrame label="Apilada en columnas: menos columnas cuando la lista es estrecha" plain column>
+  <tanrei-description-list layout="stacked" columns="3" style="inline-size: 100%">
+    <dl>
+      <div><dt>Planificado</dt><dd>Especificado; todavía no implementado en esta plataforma.</dd></div>
+      <div><dt>Rezagado</dt><dd>Implementado, pero por detrás de la especificación actual.</dd></div>
+      <div><dt>Alpha</dt><dd>Implementado y con pruebas; la API todavía puede cambiar.</dd></div>
+      <div><dt>Beta</dt><dd>La API está asentada; se piden informes del uso real.</dd></div>
+      <div><dt>Stable</dt><dd>Cubierto por el compromiso de versionado.</dd></div>
+      <div><dt>Obsoleto</dt><dd>Se sigue distribuyendo; se indica qué lo sustituye.</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<DemoFrame label="Compacta y separada por espacio: datos que se recorren con la vista" plain column>
+  <tanrei-description-list density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
+    <dl>
+      <div><dt>Valor</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
+      <div><dt>Tipo</dt><dd>alias · color</dd></div>
+      <div><dt>Descripción</dt><dd>Texto y glifos sobre cualquier superficie o contenedor de superficie.</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<ComponentSpecs name="description-list" />
+
+## Pautas
+
+### ¿Es una lista de descripciones?
+
+- Úsala para los datos de **una sola** cosa. Varias cosas que comparten los mismos nombres son una [tabla](/es/components/table/), cuyos encabezados dan nombre a las columnas.
+- El texto que explica palabras y se lee en orden entre párrafos es prosa: déjalo como una `<dl>` sin más en tu contenido. La prosa la compone como texto corrido, con el término destacado. Este componente es la forma dispuesta de la misma lista, con el valor destacado.
+- Una lista de la que una persona elige o que pulsa es una [lista](/es/components/list/).
+
+### Cómo se adapta
+
+La lista lo decide todo a partir de su propia anchura, nunca de la de la ventana. La misma lista queda bien en una página, una tarjeta, un panel lateral y un diálogo.
+
+- **La disposición en línea se apila por sí sola.** Cuando a los valores les quedaría menos de 144 al lado del término más ancho, todos los datos se dibujan con el término encima de su valor, todos a la vez, y la lista vuelve a las dos columnas cuando hay sitio. No cambies tú la disposición para una ventana pequeña.
+- **Las columnas se reducen por sí solas.** `columns` es el máximo de columnas que dibujan las disposiciones apilada y stat. Cada columna tiene al menos 144 de ancho, así que cuatro cifras son cuatro columnas en una página ancha, dos y dos en una estrecha y una sola columna en un teléfono. Una lista nunca dibuja más columnas que datos tiene.
+- **Una lista en línea es una sola columna.** `columns` no tiene efecto en ella.
+- **Nada se corta.** Los valores saltan de línea. Un identificador o una dirección que no pueden partirse se parten en el borde de la columna. La lista nunca se desplaza hacia los lados.
+
+### Densidad
+
+| `density` | Término y valor | Entre datos | Úsalo para |
+| --- | --- | --- | --- |
+| `regular` (predeterminado) | 14 sobre un interlineado de 20, y 14 sobre 22 | 12; con una línea, 12 a cada lado de ella | Datos que se leen: una página, una tarjeta, un diálogo. |
+| `compact` | 12 sobre 16, y 13 sobre 20 | 6; con una línea, 6 a cada lado de ella | Datos que se recorren con la vista: un panel lateral, un inspector. |
+
+La cifra de la disposición stat es de 32 sobre 40 en `regular` y de 20 sobre 28 en `compact`.
+
+### Cómo distinguir los datos
+
+| `separation` | Qué dibuja |
+| --- | --- |
+| `auto` (predeterminado) | Lo que eligió el sistema de diseño: una línea fina en el sistema predeterminado. |
+| `divider` | Una línea fina entre un dato y el que tiene debajo. |
+| `gap` | Espacio vacío y ninguna línea. |
+
+No hay línea encima de la primera fila, debajo de la última, entre dos columnas ni entre un término y su valor. Una lista enmarcada es una lista dentro de una [tarjeta](/es/components/card/) con contorno.
+
+### Recomendado
+
+- Haz que un término sea tan corto como pueda ser: «Enviar a», no «La dirección a la que se envía este pedido».
+- Escribe una ausencia con palabras donde sea información: «Ninguno», «Sin definir», «Sin límite».
+- Di un cambio con palabras: «un 12% más que la semana pasada» como segundo valor debajo de una cifra.
+- Usa un tag pequeño (`size="small"`) para un estado dentro de un valor, de modo que no haga más alta su línea.
+
+### Evita
+
+- No pongas dos puntos después de un término. La puntuación es cosa del idioma, y el término ya se distingue de su valor por el estilo y el lugar.
+- No pongas un guion en un valor vacío. Déjalo vacío o escribe la ausencia.
+- No des color a una cifra para decir que es buena o mala. Una tendencia es una palabra, o un tag cuya etiqueta la dice.
+- No uses la lista para colocar una al lado de otra cosas que no guardan relación. Eso es diseño de página.
+
+## Accesibilidad
+
+<ComponentAccessibility name="description-list" />
+
+### De qué se encarga el componente
+
+- La lista nativa sigue siendo una lista de descripciones: los términos y sus definiciones son los del propio navegador, en todas las disposiciones, con cualquiera de las dos densidades, con líneas o sin ellas.
+- El orden en que se lee nunca cambia. La disposición stat dibuja la cifra encima de su etiqueta y aun así expone primero el término.
+- Nada de la lista recibe el foco ni entrada. Un enlace o un botón dentro de un valor conserva su propio objetivo y su lugar en el orden del foco.
+- Con el texto al 200% y en una ventana de 320 de ancho, las mismas reglas de anchura apilan la lista y reducen sus columnas. La anchura mínima crece con el texto.
+- En un diseño de derecha a izquierda, la columna de términos está a la derecha y las columnas se llenan desde la derecha. Cada término y cada valor conserva su propia dirección, de modo que una versión, una dirección postal y un importe nunca se invierten.
+- Con colores forzados, las líneas y el texto tienen el color del texto. La lista no tiene ningún relleno que perder.
+- Las compilaciones de depuración notifican un valor sin término, `columns` en una lista en línea, un número de columnas que no es entero, la disposición stat o las columnas en una lista sin grupos, y una disposición, una densidad o una separación desconocidas.
+
+### Qué debes hacer tú
+
+- Pon encima de la lista un encabezado que diga de qué tratan los datos. La lista no tiene nombre propio, y un término nunca es un encabezado.
+- Da un término a cada valor.
+- Donde una cifra cambie mientras una persona la mira y el cambio deba oírse, pon la lista o ese único dato en una región activa (live region) propia. La lista no anuncia los cambios.

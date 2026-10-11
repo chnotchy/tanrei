@@ -1,0 +1,48 @@
+---
+title: Tanrei
+description: Un sistema de diseño para Web Components, SwiftUI, Jetpack Compose, Flutter y React Native, construido a partir de un único conjunto de tokens y especificaciones.
+translationOf: index.mdx
+sourceHash: 0a19eae7e744492d4ece696c3d93bdbcc1d0a23b
+template: splash
+hero:
+  title: Un sistema.<br />Cinco plataformas.
+  tagline: Tanrei es un sistema de diseño de código abierto que lleva los mismos tokens, los mismos componentes y el mismo contrato de accesibilidad a la web, iOS, Android, Flutter y React Native, a cada una con su estilo propio.
+  actions:
+    - text: Empezar
+      link: /es/getting-started/
+      variant: primary
+    - text: Componentes
+      link: /es/components/
+      variant: secondary
+    - text: Estado
+      link: /es/status/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '../../../components/cards';
+
+## Hecho para mantenerse sincronizado
+
+<CardGrid>
+  <Card title="Dos fuentes de verdad" icon="description">
+    Los tokens de diseño y las especificaciones de los componentes son los únicos contratos escritos a mano. El código de las plataformas, esta documentación y la matriz de estado se derivan de ellos, y la CI falla cuando se desvían.
+  </Card>
+  <Card title="Paridad, no uniformidad" icon="extension">
+    Cada plataforma recibe los mismos tokens, los mismos estados y la misma semántica de accesibilidad, pero conserva la forma de su propia API: `enabled` en Compose, un `onPressed` nulo en Flutter, `.disabled(_:)` en SwiftUI.
+  </Card>
+  <Card title="Una estructura probada" icon="menu_book">
+    Tokens de referencia, de sistema y de componente; roles de color; una escala tipográfica; paletas tonales generadas por tema y por nivel de contraste. Su aspecto es contenido, casi monocromo.
+  </Card>
+  <Card title="Accesible por construcción" icon="verified">
+    Los pares de contraste se comprueban para cada tema y cada nivel de contraste durante la compilación. El tamaño visual nunca decide el área de pulsación, y el anillo de foco forma parte de toda especificación interactiva.
+  </Card>
+</CardGrid>
+
+## Adónde ir después
+
+<CardGrid>
+  <LinkCard title="Primeros pasos" description="Instala y usa Tanrei en tu plataforma." href="/es/getting-started/" />
+  <LinkCard title="Fundamentos" description="Principios, tokens, color, tipografía, forma, elevación, movimiento y accesibilidad." href="/es/foundations/principles/" />
+  <LinkCard title="Estado" description="Qué existe hoy en cada plataforma, generado a partir del repositorio." href="/es/status/" />
+  <LinkCard title="Cómo se construye Tanrei" description="El flujo de trabajo con la especificación primero, que mantiene fieles a la realidad a cinco plataformas." href="/es/project/how-tanrei-is-built/" />
+</CardGrid>

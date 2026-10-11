@@ -1,0 +1,78 @@
+---
+title: البدء
+description: ما الذي يقدّمه Tanrei، وكيف تترابط أجزاؤه، ومن أين تبدأ على منصتك.
+translationOf: getting-started/index.mdx
+sourceHash: 29f0e96c7f768e4c4fac79e67bd59e1112e73709
+---
+
+import Callout from '../../../../components/Callout.astro';
+import { CardGrid, LinkCard } from '../../../../components/cards';
+import { Tabs, TabItem } from '../../../../components/tabs';
+
+نظام التصميم Tanrei يُقدَّم في صورة مكتبات أصلية لكل منصة. لا تحتاج إلى بيئة تشغيل خاصة ولا إلى إطار عمل متعدد المنصات؛ يكفي أن تضيف الحزمة الخاصة بالمنصة التي تبني عليها أصلًا، فتحصل على الرموز (tokens) والمكوّنات وسلوك إمكانية الوصول نفسها الموجودة على سائر المنصات.
+
+<Callout type="caution" title="إصدار تمهيدي">
+  ما زال Tanrei قيد التطوير النشط، و**لم يُصدَر أي شيء حتى الآن**: لا توجد أي حزمة في أي سجل حزم. يبيّن دليل كل منصة كيف تبنيها من الشيفرة المصدرية اليوم، وكيف سيجري التثبيت بعد الإصدار الأول. الواجهة البرمجية المعروضة في هذه الأدلة تعكس المواصفات والشيفرة المصدرية الحالية، وقد تتغير قبل ذلك. تعرض [صفحة الحالة](/ar/status/) ما هو موجود اليوم بالضبط. حزمتا Web و React تُبنيان من الشيفرة المصدرية؛ أما SwiftUI و Compose و Flutter و React Native فلم تلحق بعد بالمواصفات الحالية ولا تُبنى حتى الآن.
+</Callout>
+
+## اختر منصتك
+
+<CardGrid>
+  <LinkCard title="Web" description="خصائص CSS المخصصة و Web Components. تعمل مع أي إطار عمل، أو من دون إطار." href="/ar/getting-started/web/" />
+  <LinkCard title="React" description="مكوّنات React محدَّدة الأنواع، مولَّدة من Web Components." href="/ar/getting-started/react/" />
+  <LinkCard title="SwiftUI" description="حزمة Swift لنظامي iOS و macOS." href="/ar/getting-started/swiftui/" />
+  <LinkCard title="Jetpack Compose" description="مكتبة Android مبنية على Compose Foundation، بلا اعتماد على Material." href="/ar/getting-started/compose/" />
+  <LinkCard title="Flutter" description="حزمة مكتوبة بلغة Dart وحدها، تعمل مع MaterialApp أو من دونه." href="/ar/getting-started/flutter/" />
+  <LinkCard title="React Native" description="مكوّنات مكتوبة بلغة TypeScript وحدها، بلا وحدات أصلية." href="/ar/getting-started/react-native/" />
+</CardGrid>
+
+## الزر نفسه بست طرق
+
+يُعرَّف كل مكوّن مرة واحدة في مواصفة محايدة تجاه المنصات، ثم يُنفَّذ بأسلوب كل منصة. يحتفظ الموقع بعلامة التبويب التي تختارها في جميع صفحاته.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="tonal">حفظ المسودة</tanrei-button>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    <Button variant="tonal" onClick={saveDraft}>حفظ المسودة</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    TanreiButton("حفظ المسودة", variant: .tonal) { saveDraft() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    TanreiButton(text = "حفظ المسودة", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('حفظ المسودة'))
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    <Button variant="tonal" onPress={saveDraft}>حفظ المسودة</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+## ما تحصل عليه في كل منصة
+
+- **الرموز.** قيم أدوار الألوان والسلّم الطباعي والشكل والارتفاع والحركة والحالة والتباعد، مولَّدة من مصدر DTCG واحد إلى خصائص CSS مخصصة وثوابت بلغات Swift و Kotlin و Dart و TypeScript.
+- **السمات.** فاتحة وداكنة، ولكل منهما تباين قياسي ومتوسط وعالٍ. تتبع السمة نظام التشغيل افتراضيًّا، ويمكنك فرض أيٍّ من الإعدادين على التطبيق كله أو على شجرة فرعية منه.
+- **المكوّنات.** تنفيذات للمواصفات المشتركة، بالطُرُز (variants) والحالات وسلوك لوحة المفاتيح نفسها في كل مكان.
+- **إعدادات إمكانية الوصول الافتراضية.** الحد الأدنى لهدف اللمس، وحلقة تركيز مرئية، ونص يتحمّل التكبير حتى 200%، واحترام إعداد تقليل الحركة: كلها مبنية في النظام وليست متروكة لكل شاشة.
+
+## كيف تقرأ هذه الوثائق
+
+- [الأسس](/ar/foundations/principles/) تشرح الأفكار والقواعد.
+- [مرجع الرموز](/ar/tokens/color/) يسرد كل قيمة، معروضة مباشرة من ملفات الرموز.
+- [المكوّنات](/ar/components/) تتبع قالبًا واحدًا: نظرة عامة، ثم المواصفات، ثم الإرشادات، ثم إمكانية الوصول. الجداول في تلك الصفحات مصدرها مواصفة المكوّن، فلا يمكن أن تتقادم.
+- [الحالة](/ar/status/) مولَّدة من المستودع.

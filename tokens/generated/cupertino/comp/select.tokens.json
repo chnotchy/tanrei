@@ -1,0 +1,582 @@
+{
+  "tanrei": {
+    "comp": {
+      "select": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product asks people to choose one value from a closed list — a country, a unit, a role — in a box that stands beside its text inputs and is the same box, and it opens a list drawn as its menus are, with the chosen option marked: a surface with its corners, lift and paddings, rows with a text, a second line and a glyph, groups with a title and a divider or a gap between them, each row at rest, hovered, focused, pressed, chosen or disabled. The box has the one box's tokens; the rows around it are the Field's.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "stacked",
+              "filled",
+              "outlined"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "option.container.color": "color",
+              "option.label.color": "color",
+              "option.supporting-text.color": "color",
+              "option.leading-icon.color": "color",
+              "option.state-layer.color": "color",
+              "selected-option.container.color": "color",
+              "selected-option.label.color": "color",
+              "selected-option.supporting-text.color": "color",
+              "selected-option.leading-icon.color": "color",
+              "selected-option.mark.color": "color",
+              "selected-option.state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.axes": {
+            "variant": {
+              "default": "stacked",
+              "from": "states"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "What a select draws that is its own: the list it opens. Its surface, corners, lift, paddings, offset from the box, margin to the window's edge, least width and greatest height; an option's row, text styles, glyph and check sizes; a group's title, the divider or the gap between groups; the motion of opening and closing and of a row's state change, and a row's opacity in each state; and an option's colors at rest and chosen, in each state. The box is comp.input-box.*.",
+            "rules": [
+              "A select chooses exactly one value from a closed list and holds it as a form value. For actions use a menu; for several values use checkboxes or a list with multiple selection; for a list a person filters by typing use a combobox.",
+              "With up to about five options that fit on the screen, radio buttons or tabs show every choice at once and cost one press less; use a select where the options are many or the space is small.",
+              "A select is the bare box and its list: it has no label row, no requirement tag, no help and no error text. In a form use the select field, which is a Field around a select; the tokens of those rows are comp.field.*.",
+              "The box — container, edges, floating label, the line that shows the chosen value (input), the chevron (trailing-icon, at icon.size), heights and paddings at small, medium and large, and the colors of each look in each state — is comp.input-box.*, shared with the text input, the combobox, the number input and the color input. This group holds only the list.",
+              "Every value of the list and of an option equals the menu's (comp.menu.surface.color, …). Change them together in a layer, or a product's lists stop reading as one kind.",
+              "The list's parts are list.*, option.*, group-title.*, divider.* and group.gap; an option's colors are each variant's option.* and selected-option.* parts, the same under every variant.",
+              "The chosen option is the quiet selection: the selected-option fill with a check at the end of its row. The fill never carries the choice alone.",
+              "list.max-height caps a long list, which then scrolls.",
+              "option.state-layer.color and selected-option.state-layer.color are the colors the state layers mix into a row. motion.state-duration, motion.state-easing and the four opacity tokens are the rows'; the box has its own in comp.input-box.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          }
+        },
+        "list": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.surface-container-lowest}",
+            "$description": "The list's surface: the raised sheet a menu and a popover are drawn on.",
+            "$extensions": {}
+          },
+          "elevation": {
+            "$type": "shadow",
+            "$value": "{tanrei.sys.elevation.level2}",
+            "$description": "The list's lift."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.extra-large}",
+            "$description": "The list's corners.",
+            "$extensions": {}
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Inset above the first option and below the last."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Inset at the sides of the options. With an option's own padding it puts an option's label under the value the trigger shows."
+          },
+          "min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 160,
+              "unit": "px"
+            },
+            "$description": "The least width of the list where the trigger is narrower than this (a small select in a bar); otherwise the list is as wide as its trigger.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 40
+              }
+            }
+          },
+          "max-height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 320,
+              "unit": "px"
+            },
+            "$description": "The tallest the list grows before its options scroll: six rows and most of a seventh at the default row height, so that a cut row shows there is more. The room left in the window limits it further.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how much of a long list of choices — countries, time zones, tokens — it shows at once before the list scrolls, so that an open list does not cover the form it belongs to.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 80
+              }
+            }
+          },
+          "offset": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Distance between the trigger and its list."
+          },
+          "viewport-margin": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "How close the list may come to the window's edge."
+          }
+        },
+        "option": {
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 44,
+              "unit": "px"
+            },
+            "$description": "An option's minimum height.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 11
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.small}",
+            "$description": "The corners of an option's row."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Padding at the sides of an option's row."
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Padding above and below an option's content."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Distance between an option's glyph, its text and its check."
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-large}",
+              "$description": "An option's label.",
+              "$extensions": {}
+            }
+          },
+          "supporting-text": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-small}",
+              "$description": "The line below an option's label."
+            }
+          },
+          "leading-icon": {
+            "size": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "$description": "An option's glyph.",
+              "$extensions": {}
+            }
+          },
+          "mark": {
+            "size": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "$description": "The box of the check at the end of the chosen option's row, kept in every row so that labels wrap alike.",
+              "$extensions": {}
+            }
+          }
+        },
+        "group-title": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label-small}",
+            "$description": "A group's heading."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.comp.select.option.padding-inline}",
+            "$description": "Inset of a group's heading from the rows' edges."
+          }
+        },
+        "group": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "The space between two groups while separation is gap."
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.surface-container-high}",
+            "$description": "The one hairline, between two groups while separation is divider.",
+            "$extensions": {}
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": {
+              "value": 8,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 2
+              }
+            }
+          },
+          "space": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "Space above and below the divider.",
+            "$extensions": {}
+          }
+        },
+        "separation": {
+          "$type": "number",
+          "$value": "{tanrei.sys.behavior.separation}",
+          "$description": "How a group of options is told from what is next to it: divider or gap. Follows the system's choice; a select's separation prop overrides it. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product parts the groups of its selects' lists as it parts the rest, and must be able to set the lists of its forms apart.",
+              "since": "0.1.0"
+            },
+            "dev.tanrei.enum": {
+              "values": [
+                "divider",
+                "gap"
+              ]
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long a change of colors and edge widths takes."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long a ripple takes to grow over a pressed option."
+          },
+          "open-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$description": "How long the list takes to appear."
+          },
+          "open-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+          },
+          "close-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short2}",
+            "$description": "How long the list takes to go."
+          },
+          "close-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+          }
+        },
+        "stacked": {
+          "$description": "The stacked select. Every part of the trigger holds the value the stacked text input's part of the same name holds; an option holds the menu item's, at rest and chosen.",
+          "option": {
+            "$description": "An option's row that is not the chosen one: the menu item's colors at rest. Declared under each variant because the state mechanism values parts per variant; the three hold the same values.",
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "An item has no fill at rest; the menu's surface shows through."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}"
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.select.stacked.option.label.color}"
+              }
+            }
+          },
+          "selected-option": {
+            "$description": "The chosen option's row: the quiet selection's role under its own content color, and the check in the mark color. The default system values the fill as a layer of the row's content color, as it does the menu's checked row (tokens.md, \"Rules\").",
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.select.stacked.option.container.color}",
+                "$extensions": {}
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$extensions": {}
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.primary}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.select.stacked.selected-option.label.color}"
+              }
+            }
+          }
+        },
+        "filled": {
+          "$description": "The filled select. Every part of the trigger holds the value the filled text input's part of the same name holds; an option holds the menu item's, at rest and chosen.",
+          "option": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "An item has no fill at rest; the menu's surface shows through."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}"
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.select.filled.option.label.color}"
+              }
+            }
+          },
+          "selected-option": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.select.filled.option.container.color}",
+                "$extensions": {}
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$extensions": {}
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.primary}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.select.filled.selected-option.label.color}"
+              }
+            }
+          }
+        },
+        "outlined": {
+          "$description": "The outlined select. Every part of the trigger holds the value the outlined text input's part of the same name holds; an option holds the menu item's, at rest and chosen.",
+          "option": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "An item has no fill at rest; the menu's surface shows through."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}"
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.select.outlined.option.label.color}"
+              }
+            }
+          },
+          "selected-option": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.select.outlined.option.container.color}",
+                "$extensions": {}
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$extensions": {}
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$extensions": {}
+              }
+            },
+            "mark": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.primary}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.select.outlined.selected-option.label.color}"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

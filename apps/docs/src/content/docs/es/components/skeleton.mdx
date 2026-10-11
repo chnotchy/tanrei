@@ -1,0 +1,228 @@
+---
+title: Esqueleto
+description: Ocupa el lugar del contenido mientras se carga, con marcadores de posición discretos que tienen la forma de lo que va a llegar (líneas de texto, un bloque, un círculo), y reserva la caja que ocupará el contenido, para que nada se mueva cuando llegue.
+translationOf: components/skeleton.mdx
+sourceHash: fd87c49099a85cb9c01317779b10a50e0116860c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="skeleton" />
+
+<DemoFrame label="Los datos de una persona y una tarjeta, mientras se cargan" column>
+  <tanrei-skeleton label="Cargando los datos del autor" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
+  <tanrei-skeleton label="Cargando el proyecto" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+Una vista suele llegar antes que su contenido. Un esqueleto reserva la forma de lo que va a llegar en el lugar donde estará: líneas de texto, un bloque para una imagen o un control, un círculo para la foto de una persona. Cuando el contenido llega, ocupa las cajas que se le habían reservado, y nada de lo que la persona estaba mirando, o a punto de pulsar, se mueve.
+
+Es una región y sus marcadores de posición. La región se dice una sola vez a la tecnología de apoyo («Cargando proyectos», ocupada), y los marcadores de posición no dicen nada por sí mismos. Espera un momento antes de mostrarse, de modo que una espera breve muestra un hueco del tamaño correcto en lugar de formas que parpadean.
+
+En la web es `<tanrei-skeleton>` alrededor de tus propios elementos con `class="tanrei-skeleton-placeholder"`. Las demás plataformas todavía no lo han implementado.
+
+### Un esqueleto, un indicador de carga, un indicador de progreso, un estado vacío
+
+Cuatro componentes responden a «aquí todavía no hay nada». Cuál usar depende de lo que se sabe de la espera y de lo que va a llegar.
+
+| La situación | Usa | Por qué |
+| --- | --- | --- |
+| Un contenido de forma conocida va a llenar una región de una vista, y la espera es lo bastante larga para verse. | Un esqueleto | Reserva el diseño, así que nada se mueve cuando el contenido llega, y muestra dónde estará cada cosa. |
+| Una espera breve de duración desconocida cuyo resultado no tiene una forma que reservar, o es pequeño: en un botón, una fila, un campo, una línea de estado. Una acción en curso, como guardar o enviar. | Un [indicador de carga](/es/components/loading-indicator/) | Basta con una marca. Las formas para una sola fila o un solo icono son ruido. |
+| Una tarea cuyo progreso se puede medir, o que tarda muchos segundos. | Un [indicador de progreso](/es/components/progress-indicator/) | Un esqueleto no dice nada sobre cuánto se ha avanzado, y al cabo de unos segundos la persona necesita saberlo. |
+| No va a llegar nada: la lista está vacía, la búsqueda no encontró nada. | Un [estado vacío](/es/components/empty-state/) | Un esqueleto promete contenido. |
+| La carga falló. | Un [callout](/es/components/callout/) con el estado de error, en ese mismo lugar. | Un esqueleto que nunca termina es una mentira. |
+| El contenido ya está ahí, y solo llega tarde su script, su imagen o su fuente. | Ninguno de los cuatro. El componente reserva su propia caja. | Un esqueleto no conoce el tamaño de otro componente. Ese componente sí. |
+
+### Uso
+
+Pon el esqueleto donde estará el contenido cuando empiece la espera, y sustitúyelo por el contenido cuando termine. Dale un `label` que diga qué se está cargando. Un marcador de posición es un elemento vacío tuyo con la clase: un `<span>` en cualquier lugar, o un `<div>` donde es hijo de un bloque, como otro `<div>`. Dentro de un encabezado o de un párrafo es un `<span>`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/skeleton.css" />
+
+    <!-- Los marcadores de posición que son hijos directos del esqueleto se apilan, con una separación. -->
+    <tanrei-skeleton label="Cargando el proyecto">
+      <span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span>
+      <span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span>
+      <span class="tanrei-skeleton-placeholder" data-lines="3"></span>
+    </tanrei-skeleton>
+
+    <!-- Todo lo demás es tu propio diseño, con los marcadores de posición dentro, donde estará el contenido. -->
+    <tanrei-skeleton label="Cargando los datos del autor">
+      <div class="byline">
+        <span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span>
+        <div>
+          <h3><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span></h3>
+          <p><span class="tanrei-skeleton-placeholder" data-lines="2"></span></p>
+        </div>
+      </div>
+    </tanrei-skeleton>
+
+    <!-- Parte de la primera presentación de una página, escrita por el servidor: se muestra de inmediato y es correcta antes de cualquier script. -->
+    <tanrei-skeleton show-delay="0" role="progressbar" aria-busy="true" aria-label="Cargando el panel">
+      …
+    </tanrei-skeleton>
+    <noscript>El panel necesita JavaScript.</noscript>
+
+    <script type="module">
+      import '@tanrei/web/components/skeleton';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Skeleton } from '@tanrei/react';
+    import '@tanrei/web/skeleton.css';
+
+    {project ? (
+      <ProjectCard project={project} />
+    ) : (
+      <Skeleton label="Cargando el proyecto">
+        <span className="tanrei-skeleton-placeholder" data-shape="block" style={{ blockSize: 160 }} />
+        <span className="tanrei-skeleton-placeholder" style={{ inlineSize: '12.5rem' }} />
+        <span className="tanrei-skeleton-placeholder" data-lines={3} />
+      </Skeleton>
+    )}
+    ```
+  </TabItem>
+</Tabs>
+
+En la web, la hoja de estilos es todo el componente antes de que se ejecute ningún script: las formas, la espera antes de mostrarse, el pulso, la quietud donde el movimiento está reducido y los contornos de los colores forzados. El elemento añade lo que una hoja de estilos no puede: el rol y el nombre para la tecnología de apoyo, mantener fuera del orden del foco lo que el esqueleto contiene, y detenerse mientras no se puede ver.
+
+## Especificaciones
+
+<DemoFrame label="Las tres formas: texto, un bloque, un círculo" plain column>
+  <tanrei-skeleton label="Cargando el texto" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
+  <tanrei-skeleton label="Cargando la imagen" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
+  <tanrei-skeleton label="Cargando los datos de la persona" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+<DemoFrame label="Un marcador de posición de texto toma el estilo de texto del lugar donde está: en un encabezado, en un párrafo" plain column>
+  <tanrei-skeleton label="Cargando el artículo" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
+</DemoFrame>
+
+<ComponentSpecs name="skeleton" />
+
+## Pautas
+
+### El esqueleto reserva la caja
+
+Lo que importa de un esqueleto es que nada se mueve. Su caja, y la de cada marcador de posición, es la misma desde el momento en que se inserta hasta el momento en que se quita: mientras espera para mostrarse, cuando aparece y mientras se anima.
+
+El esqueleto no adivina nada. Dibuja los marcadores de posición que le diste, con los tamaños que les diste. Que el contenido ocupe la caja que reservaron sus marcadores de posición depende de ti: pon cada marcador donde estará su contenido, colocado como estará colocado ese contenido.
+
+- Un marcador de posición de texto va dentro del encabezado, el párrafo o la celda donde estará el texto. Toma ese estilo de texto y es exactamente tan alto como ese número de líneas, también cuando quien lee amplía el texto.
+- Di cuántas líneas ocupará el texto con `data-lines`. Acertarás tanto como regular sea tu contenido. Un esqueleto al que le falta una línea mueve la página una línea, que sigue siendo menos de lo que la mueve un hueco en blanco.
+- Da a un bloque el tamaño de la imagen o del control: un número, una proporción o el tamaño que le da tu diseño. Un círculo recibe un solo número, su lado.
+
+<DemoFrame label="Pulsa Cargar: el esqueleto reserva el lugar durante dos segundos y medio, y el contenido ocupa su caja" plain column>
+  <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">Cargar</tanrei-button>
+  <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Tokens en tres niveles</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">Los tokens de referencia guardan los valores en bruto. Los tokens de sistema nombran para qué sirve un valor. Los tokens de componente vinculan una parte a uno de ellos.</p></div>
+  <template><tanrei-skeleton label="Cargando el artículo"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
+  <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Tokens en tres niveles</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">Los tokens de referencia guardan los valores en bruto. Los tokens de sistema nombran para qué sirve un valor. Los tokens de componente vinculan una parte a uno de ellos.</p></template>
+  <p style="margin: 0">Esta línea está debajo del artículo y no se mueve.</p>
+</DemoFrame>
+
+### Formas
+
+| `data-shape` | Ocupa el lugar de | Su tamaño |
+| --- | --- | --- |
+| `text` (predeterminado) | Una o más líneas de texto. | `data-lines` cajas de línea del estilo de texto en el que está. Cada línea es una barra tan alta como el tamaño de la fuente. La última de varias líneas es más corta, porque un párrafo rara vez termina en el borde. `inline-size` define la longitud de las barras. |
+| `block` | Una imagen, una tarjeta, un control, una fila. | `inline-size` y `block-size`, o el tamaño que le da tu diseño: una celda estirada, un `aspect-ratio`. Sin tamaño, es tan ancho como su lugar y tiene una línea de alto. |
+| `circle` | La foto de una persona, una marca redonda. | Un lado: `block-size` o `inline-size`. Sin tamaño, tiene una línea de alto. |
+
+Los marcadores de posición que son hijos directos del esqueleto se apilan uno debajo de otro, con una separación de 8. Cualquier otra cosa (un círculo junto a dos líneas, una cuadrícula de tarjetas) es tu propio diseño dentro del esqueleto. No hay esqueletos de tarjeta ni de lista ya hechos: tus pantallas son tuyas, y solo tú las conoces.
+
+En una fila tuya, un marcador de posición de texto o un bloque necesita que esa fila le dé una anchura, como la necesitará el contenido: `flex: 1`, una pista de una cuadrícula o un `inline-size`.
+
+### Una espera, una señal
+
+Pon todos los marcadores de posición de una región en un solo esqueleto, con un solo `label`. Un esqueleto dentro de otro esqueleto no dice nada.
+
+Donde otra cosa ya dice la misma espera (un indicador de carga en una línea de estado, un texto de estado, una región que tú marcas como ocupada y a la que das nombre), define `decorative`. El esqueleto se dibuja igual y queda oculto para la tecnología de apoyo, de modo que la espera no se lee dos veces.
+
+<DemoFrame label="Una línea de estado ya dice la espera, así que los marcadores de posición que tiene debajo son decorativos" plain column>
+  <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="Buscando" show-delay="0"></tanrei-loading-indicator>Buscando…</span>
+  <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
+</DemoFrame>
+
+### Espera antes de mostrarse
+
+Desde el momento en que se inserta, un esqueleto espera 300 ms antes de dibujarse y exponerse, con su caja ya reservada. Una espera que termina antes muestra un hueco que tenía el tamaño correcto desde el principio.
+
+- Inserta el esqueleto cuando empiece la espera y quítalo cuando llegue el contenido. El retardo cuenta desde la inserción. Ocultar el esqueleto no lo reinicia.
+- Define `show-delay="0"` donde el esqueleto forma parte de la primera presentación de una página o de una vista, que no tiene nada más que mostrar.
+- El retardo es una espera, no movimiento: se conserva donde el movimiento está reducido.
+
+### Siempre termina en algo
+
+Sustituye el esqueleto por el contenido, por un [estado vacío](/es/components/empty-state/) donde no llegó nada, o por un [callout](/es/components/callout/) con el estado de error donde la carga falló. Nunca caduca por sí solo: cuándo darse por vencido lo sabes tú.
+
+El esqueleto no anuncia que el contenido ha llegado. Donde la llegada deba oírse (los resultados que responden a una búsqueda, una lista que se pidió), dilo con tu propia región activa o con el texto de estado del componente que lo pidió. Una vista que simplemente se abre con su contenido no necesita ningún anuncio.
+
+### Movimiento
+
+De forma predeterminada, los marcadores de posición muestran un pulso: el relleno se atenúa hasta la mitad y vuelve, en todos a la vez, con un pulso cada dos segundos. Solo cambia la opacidad. Nada se mueve, y nada se dibuja más brillante que el relleno en reposo.
+
+Un sistema de diseño puede elegir otra manera para todos sus esqueletos con el token `comp.skeleton.motion.animation`: `pulse`, `wave` (la misma atenuación, que recorre todo el esqueleto de su borde de inicio a su borde de fin como una sola banda) o `none`. No hay ningún ajuste para una sola instancia.
+
+Donde el movimiento está reducido, los marcadores de posición se quedan quietos. Las formas, la etiqueta y el estado ocupado ya dicen que el lugar está esperando. Mientras el esqueleto no se puede ver, su animación no se ejecuta.
+
+### En la web, antes del script
+
+Un esqueleto es lo que una página muestra antes de que se haya ejecutado su script, así que `@tanrei/web/skeleton.css` lo dibuja entero sin el elemento. Unas pocas cosas necesitan el elemento, y son distintas hasta que este se define o donde nunca se ejecuta ningún script:
+
+- El rol y el nombre. Una página que debe ser correcta antes de que se ejecute su script escribe `role="progressbar"`, `aria-busy="true"` y `aria-label` en el propio elemento, y el elemento deja lo que encuentra.
+- Un `show-delay` distinto de `0`. La hoja de estilos espera el retardo del sistema de diseño.
+- Más de 24 líneas en un solo marcador de posición de texto.
+- La manera `wave`, que se dibuja como un pulso.
+- Un esqueleto dentro de una vista que no se muestra empieza su espera cuando la vista se muestra.
+
+Donde nunca se ejecuta ningún script, un esqueleto no termina nunca salvo que el servidor lo sustituya. Un contenido que solo llega mediante un script necesita un `<noscript>` junto a su esqueleto.
+
+### Recomendado
+
+- Da a los marcadores de posición la forma y el tamaño de lo que va a llegar.
+- Pon los marcadores de posición de texto dentro del elemento donde estará el texto.
+- Usa un solo esqueleto, con una sola etiqueta, para una sola espera.
+- Sustitúyelo cuando la espera termine, termine en lo que termine.
+
+### Evita
+
+- No pongas dentro de un esqueleto nada que una persona deba leer o usar. Lo que contiene no recibe ninguna entrada y queda oculto para la tecnología de apoyo. Un encabezado que ya se conoce o un botón que ya funciona van fuera de él.
+- No lo uses para una espera breve en un control o en una fila, ni para una acción en curso. Eso es un indicador de carga.
+- No cubras con él un contenido que ya está ahí.
+- No dibujes cajas grises a mano.
+
+## Accesibilidad
+
+<ComponentAccessibility name="skeleton" />
+
+### De qué se encarga el componente
+
+- Una vez mostrado, el esqueleto es un solo elemento para la tecnología de apoyo: una barra de progreso sin valor, ocupada, que recibe su nombre de `label`. Se expone igual que un indicador de carga, porque dice lo mismo.
+- Sus marcadores de posición, cuántos son y sus líneas no se exponen, y tampoco un diseño que coloques dentro de él.
+- Mientras espera para mostrarse no se expone en absoluto. Una espera más corta que el retardo no muestra ninguna barra de progreso que aparezca y desaparezca.
+- Con `decorative`, o dentro de otro esqueleto, queda oculto para la tecnología de apoyo.
+- No puede recibir el foco ni es una parada en el orden del foco, y tampoco nada de lo que contiene. No se anuncia a sí mismo y nunca mueve el foco.
+- Donde el movimiento está reducido se queda quieto. El retardo se conserva.
+- Con colores forzados, cada marcador de posición, y cada línea de texto, se dibuja como el contorno de su forma en el color del texto. En ese modo no se dibuja ningún relleno, y un marcador de posición que desapareciera dejaría un hueco en blanco.
+- Con el texto ampliado, un marcador de posición de texto crece con su estilo de texto, así que el esqueleto sigue reservando la caja que ocupa el contenido ampliado. Un tamaño dado como número se mantiene. Nada es más ancho que su lugar; con una anchura de 320 y el texto al 200%, nada se desplaza en horizontal.
+- En un diseño de derecha a izquierda, los marcadores de posición quedan a la derecha, la última línea, más corta, empieza por la derecha, y una ola va de derecha a izquierda.
+- Las compilaciones de depuración notifican una forma desconocida, un número de líneas o un tamaño que no se pueden usar, un esqueleto sin marcadores de posición y un esqueleto sin etiqueta.
+
+### Qué debes hacer tú
+
+- Da un `label` en el idioma de la página que diga qué se está cargando («Cargando proyectos»), o da el texto una sola vez para todos los esqueletos con `setWords({ loadingLabel: … })`. El componente no aporta ningún texto.
+- Define `decorative` donde otra cosa ya dice la espera.
+- Di que el contenido ha llegado donde eso sea una novedad.
+- Nunca dejes un esqueleto para siempre. Sustitúyelo por el contenido, por un estado vacío o por un error.
+- El relleno es decoración y no está sujeto a ninguna relación de contraste. Sobre una superficie con el tono de contenedor más alto cuesta verlo. No dependas solo de él para decir que un lugar está esperando.

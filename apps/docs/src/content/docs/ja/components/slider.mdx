@@ -1,0 +1,308 @@
+---
+title: スライダー
+description: トラックに沿ってハンドルをドラッグし、値または値の範囲を選びます。連続的にも、刻みごとにも選べます。
+translationOf: components/slider.mdx
+sourceHash: 39176fadfe7f25e466cebc49d5889a32184219cc
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="slider" />
+
+<DemoFrame label="連続、刻みと目盛り、範囲" column>
+  <tanrei-slider label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="明るさ" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider range label="上限価格" start-label="下限価格" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
+</DemoFrame>
+
+### 使い方
+
+スライダーは `min` から `max`（既定は 0 から 100）の間で 1 つの値を選びます。`range` を付けるとハンドルが 2 つになり、`startValue` から `value` までの範囲を選びます。`step` が 0 なら連続的に動き、0 より大きければ `min` に `step` の整数倍を足した値に吸着します。
+
+スライダーはラベルを描きません。`label` は支援技術に向けた名前で、目に見えるラベルは利用者側でスライダーの隣に同じ言葉で置きます。範囲を選ぶスライダーでは、始点側のハンドルにも `startLabel` が必要です。
+
+値の変化は 2 つのイベントで伝わります。`input` はドラッグ中に値が変わるたびに発火し、`change` は変更が終わったとき、つまり押していた指やポインターが離れたとき、またはキーや支援技術で値を変えたときに 1 回だけ発火します。利用者側のコードで値を設定したときは、どちらも発火しません。名前はプラットフォームごとに違い、Compose では `onValueChange` と `onValueChangeFinished`、Flutter では `onChanged` と `onChangeEnd`、React Native では `onValueChange` と `onSlidingComplete`、SwiftUI ではバインディングと `onCommit` です。
+
+スライダーのハンドルを丸くした改訂と、そのリングを太くした見直しで変わったのは見た目だけなので、以下の例はどれも現在の仕様に沿っています。Web は現在の見た目で描きます。SwiftUI、Compose、Flutter、React Native は追従待ちで、追従するまでは以前の見た目、つまり塗りつぶしの丸いハンドル、ハンドルの縁で切れるトラック、どのサイズでも同じ大きさの目盛りの点で描きます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- スライダーはラベルを描きません。目に見えるラベルは、同じ言葉で隣に置きます。 -->
+    <tanrei-slider name="volume" label="音量" value="40" value-indicator="active"></tanrei-slider>
+
+    <!-- 刻みごとに動き、刻みの位置に点を描きます。 -->
+    <tanrei-slider label="明るさ" value="30" step="10" stops></tanrei-slider>
+
+    <!-- 範囲は、同じ name で start-value、value の順に送信されます。 -->
+    <tanrei-slider name="price" range min="0" max="500" step="10" start-value="100" value="300"
+      label="上限価格" start-label="下限価格"></tanrei-slider>
+
+    <script type="module">
+      import '@tanrei/web/components/slider';
+      const volume = document.querySelector('[name="volume"]');
+      // 要素は input と change を発火する前に、自分の value を更新します。
+      volume.addEventListener('input', () => preview(volume.value));
+      volume.addEventListener('change', () => save(volume.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Slider } from '@tanrei/react';
+
+    <Slider
+      label="音量"
+      value={volume}
+      valueIndicator="active"
+      onInput={(e) => setVolume(e.currentTarget.value)}
+      onChange={(e) => save(e.detail.value)}
+    />
+
+    <Slider
+      range
+      min={0}
+      max={500}
+      step={10}
+      startValue={minPrice}
+      value={maxPrice}
+      label="上限価格"
+      startLabel="下限価格"
+      onInput={(e) => setPrices(e.currentTarget.startValue, e.currentTarget.value)}
+    />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 値が変わるたびにバインディングへ書き込み、変更が終わると onCommit を呼びます。
+    TanreiSlider("音量", value: $volume, in: 0...100, onCommit: save)
+
+    TanreiSlider("明るさ", value: $brightness, in: 0...100, step: 10)
+
+    // 範囲は、バインディングが ClosedRange のイニシャライザーです。lowerBound が始点側のハンドルです。
+    TanreiSlider("上限価格", startLabel: "下限価格", value: $prices, in: 0...500, step: 10)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSlider
+
+    // 状態ホイスティング：onValueChange で受け取った値を value に反映します。
+    TanreiSlider(
+        value = volume,
+        onValueChange = { volume = it },
+        contentDescription = "音量",
+        onValueChangeFinished = ::save, // foundation のものと違い、値を受け取ります
+    )
+
+    // step は刻みの大きさです。Material の steps のような刻みの数ではありません。
+    TanreiSlider(value = brightness, onValueChange = { brightness = it }, step = 10f, contentDescription = "明るさ")
+
+    // 範囲は、value が ClosedFloatingPointRange のオーバーロードです。
+    TanreiSlider(
+        value = prices,
+        onValueChange = { prices = it },
+        valueRange = 0f..500f,
+        step = 10f,
+        contentDescription = "上限価格",
+        startContentDescription = "下限価格",
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiSlider(
+      value: volume,
+      onChanged: (double value) => setState(() => volume = value), // null で無効になります
+      onChangeEnd: save,
+      semanticLabel: '音量',
+    );
+
+    // step は刻みの大きさです。Material の divisions のような刻みの数ではありません。
+    TanreiSlider(value: brightness, step: 10, onChanged: (double value) => setState(() => brightness = value), semanticLabel: '明るさ');
+
+    TanreiSlider.range(
+      start: minPrice,
+      end: maxPrice,
+      max: 500,
+      step: 10,
+      onChanged: (double start, double end) => setState(() {
+        minPrice = start;
+        maxPrice = end;
+      }),
+      semanticLabel: '上限価格',
+      startSemanticLabel: '下限価格',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Slider } from '@tanrei/react-native';
+
+    <Slider value={volume} onValueChange={setVolume} onSlidingComplete={save} accessibilityLabel="音量" />
+
+    <Slider value={brightness} step={10} stops onValueChange={setBrightness} accessibilityLabel="明るさ" />
+
+    // 範囲：どちらのコールバックも (value, startValue) を受け取ります。
+    <Slider
+      range
+      minimumValue={0}
+      maximumValue={500}
+      step={10}
+      startValue={minPrice}
+      value={maxPrice}
+      onValueChange={(value, startValue) => setPrices(startValue, value)}
+      accessibilityLabel="上限価格"
+      startAccessibilityLabel="下限価格"
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="サイズ、中央起点、値の表示、縦向き、無効状態" plain column>
+  <tanrei-slider size="medium" label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider size="large" label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="バランス" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="音量" value="40" value-indicator="always" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="音量" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="明るさ" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider orientation="vertical" label="音量" value="60" style="block-size: 12rem"></tanrei-slider>
+</DemoFrame>
+
+既定のシステムでは、ハンドルはリング形です。サーフェスの色で塗った直径 20 の円を、アクティブトラックと同じ色の輪郭線が囲みます。輪郭線は太さ 3 で、円の縁の内側に描くので、ハンドルの大きさは変わりません。内側にはサーフェスの色の直径 14 の円が残り、輪郭線を太くすれば、その円が小さくなります。トラックとアクティブトラックはハンドルの下まで伸びてその中心で出会うので、アクティブトラックはリングで終わる 1 本の線に見えます。ハンドルはどのサイズでも 20 で、トラックの太さは 4、6、8 です。
+
+目盛りの点と、移動範囲の端を示す点は、トラックの半分の太さです。small、medium、large でそれぞれ 2、3、4 になります。値の表示はリングの上端の少し上に、リングの中心に揃えて出ます。無効状態では、リングは塗りを保ち、輪郭線はアクティブトラックと一緒に薄くなります。
+
+デザインシステムは、同じトークンでハンドルを別の形に描けます。輪郭線を 0 にすれば塗りだけのハンドルになり、トラックとハンドルの間に隙間を取れば、トラックはハンドルの手前で止まり、そこで丸くなります。`m3-like` は、この方法で Material の縦長のバーを描きます。
+
+<ComponentSpecs name="slider" />
+
+## ガイドライン
+
+### 使う場面
+
+感覚で値を決め、動かしながらその効果を確かめたいときに使います。音量、明るさ、写真の露出、地図の検索半径などです。範囲を選ぶスライダーは、価格のように下限と上限のある絞り込みに向いています。
+
+位置よりも正確な数字が大事な値、たとえば金額や個数には、[テキストフィールド](/ja/components/text-field/)を使うか、スライダーの隣にテキストフィールドを置いてどちらでも入力できるようにします。「低・中・高」のように名前の付いた選択肢が数個しかないなら、[ラジオボタン](/ja/components/radio-button/)で一つひとつに名前を見せます。セグメントボタンを提供するシステムなら、[セグメントボタン](/ja/components/segmented-button/)も使えます。
+
+### 連続か刻みか
+
+- **連続**（`step` が 0）は、`min` と `max` の間の好きな値を取ります。途中の値にも意味があり、効果がすぐに見えるときに使います。
+- **刻み**（`step` が 0 より大きい）は、`min` に `step` の整数倍を足した値に吸着します。星の数、ポイント単位の文字サイズ、10% 刻みの割合など、区切りのよい値だけが意味を持つときに使います。
+- `stops` を付けると、刻みのスライダーが取りうる値すべてに点を描きます。刻みが少なく、数えられるくらいのときに使います。刻みが多いと点が詰まってトラックが見づらくなるので、付けません。
+
+矢印キーは 1 刻みずつ動かします。連続のスライダーでは範囲の 100 分の 1 ずつです。Page Up と Page Down はその 10 倍ずつ動かします。
+
+### 範囲
+
+`range` を付けると、`startValue` から `value` までの 2 つのハンドルを描きます。2 つのハンドルは重なることはあっても、入れ替わることはありません。それぞれが Tab で止まる位置になり、スクリーンリーダーからはそれぞれ独立したコントロールとして扱われ、そのハンドルがまだ動ける範囲も読み上げられます。両方のハンドルに名前を付けます。`startLabel`（「下限価格」）と `label`（「上限価格」）です。
+
+### 中央起点のスライダー
+
+`origin` は、アクティブトラックがどこから伸びるかを決めます。空なら `min` から伸びます。範囲の途中の値、たとえば -50 から 50 のバランス調整で 0 を指定すると、アクティブトラックはそこから左右どちらへも伸びます。トラックの両端には目盛りの点が残るので、両方の限界が見えたままです。
+
+### 値の表示
+
+`valueIndicator` を設定すると、ハンドルの横に小さなラベルで値を表示します。
+
+| 値 | 表示するとき | 用途 |
+| --- | --- | --- |
+| `none`（既定） | 表示しない | 効果が画面のほかの場所に表れるスライダー。音量、明るさなど |
+| `active` | ハンドルを押している間と、キーボードフォーカスがある間 | 指でハンドルが隠れても、動かしながら数値を読みたい値 |
+| `always` | 常に表示する | 常に読める必要があるが、スライダーの隣に自分でテキストを置く余地がない値 |
+
+表示は、横向きのスライダーではハンドルの上に、縦向きではハンドルの先頭側に出ます。`valueText` があればそれを、なければプラットフォームのロケールで書式化した数値を、キーボードの 1 刻みと同じ桁数（最大で小数第 2 位まで）で表示します。これは値を見せるためだけのもので、フォーカスも入力も受け取りません。スクリーンリーダーは、この表示ではなくハンドルから値を読みます。
+
+### 値のテキスト
+
+数字だけでは意味が伝わりにくいときは、`valueText` に今の値を表す言葉を設定します。「40%」「星 3 つ」「300 ドル」などです。値の表示にも、スクリーンリーダーの読み上げにも、数字の代わりにこの言葉が使われます。範囲では、始点側のハンドルに `startValueText` を使います。値が変わるたびに更新してください。
+
+1 回だけ書いた言葉は、最初のドラッグのあと、実際の値と合わなくなります。そのためスライダーは、値からその言葉を作る関数を 1 つ、1 回だけ受け取ることもできます。スライダーは、値が変わるたびに、ハンドルごとにこの関数を呼びます。`valueText` と `startValueText` を設定していれば、そちらが優先されます。Web では `formatValue` で、プロパティであり、属性はありません。ほかのプラットフォームはまだ実装していません。
+
+```js
+const yen = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' });
+document.querySelector('[name="price"]').formatValue = (value) => yen.format(value);
+```
+
+**使われている場所**は、[スライダーフィールド](/ja/components/slider-field/)です。フィールドとスライダーを 1 つのコンポーネントにしたもので、この言葉をラベルの行の末尾に描きます。スライダーに、描かれるラベル、補足、エラーが必要なときに使います。
+
+### サイズと向き
+
+`small` はふだん使いのスライダーです。`medium` と `large` はトラックが太くなり、メディア画面の音量や明るさのように目立たせたいコントロールに向いています。どのサイズでも、最小ターゲットは満たします。
+
+縦向きのスライダーは、書字方向にかかわらず下（`min`）から上（`max`）へ伸びます。横向きのスライダーは行頭から伸びるので、右から左のレイアウトでは `min` が右側になります。
+
+### 推奨
+
+- スライダーの隣に、`label` と同じ言葉で目に見えるラベルを置きます。
+- ドラッグ中は効果をその場で見せ、保存は `input` のたびではなく `change` で行います。
+- スライダーの取りうる値がどれも意味のある値になるように、`min`、`max`、`step` を選びます。
+- 数字だけでは何の数か分からないときは、`valueText` に単位を含めます。
+
+### 非推奨
+
+- 日付や金額など、正確に指定する必要がある値にスライダーを使わない。
+- オンとオフしかない設定にスライダーを使わない。[スイッチ](/ja/components/switch/)を使います。
+- 刻みの多いスライダーに目盛りの点を描かない。
+- スライダーを[ツールバー](/ja/components/toolbar/)に入れない。ツールバーがフォーカスの移動に使う矢印キーを、スライダーも必要とします。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="slider" />
+
+### コンポーネントが担うこと
+
+- 各ハンドルは、支援技術からはスライダーとして扱われます。名前は `label`（範囲の始点側は `startLabel`）で、値、値のテキスト、取りうる最小値と最大値、向き、無効状態を伝えます。Apple のプラットフォームでは調整可能な要素になり、上下のスワイプで 1 刻みずつ動きます。
+- 範囲は 2 つのスライダーです（WAI-ARIA のマルチサム・パターン）。各ハンドルの限界はもう一方のハンドルで区切られるので、スクリーンリーダーはそのハンドルがまだ動ける範囲を読み上げます。
+- トラック、目盛りの点、ステートレイヤー、値の表示は、支援技術から隠します。
+- 各ハンドルが Tab で止まる位置になり、始点側のハンドルが先です。矢印キーで 1 刻み、Page Up と Page Down で 10 刻み、Home と End で最小値と最大値へ動きます。右から左のレイアウトの横向きのスライダーでは、右矢印と左矢印の向きが入れ替わります。
+- スクリーンリーダーの増減のアクションでは 1 刻みずつ動きます。プラットフォームが値の直接指定を許す場合は、その値を範囲内に収め、刻みに合わせます。
+- スライダーのどこを押しても、近いほうのハンドルがそこへ動き、そのままドラッグで追従します。タッチでは、最初にトラックと直交する方向へ動いた操作は周りのスクロールビューに任せるので、スクロールしようとした指をスライダーが奪うことはありません。
+- スライダー全体がヒット領域で、トラックと直交する方向に最小ターゲットまで広がります。ハンドルは最小ターゲットより小さく描かれますが、それでヒット領域が小さくなることはないので、範囲を選ぶスライダーの 2 つのハンドルも、それぞれターゲット全体を持ちます。
+- フォーカスインジケーターは、キーボードフォーカスのあるハンドルの周りにだけ表示します。
+- 既定のシステムでは、ハンドルは、重なるどの部分とも 3:1 以上で見分けられます。トラックとページに対しては輪郭線で、アクティブトラックに対しては塗りで見分けます。アクティブトラックはトラックとページに対して 3:1 以上を保ち、薄いトラックでも、目盛りの点で端が見えます。
+- 無効なスライダーはフォーカスを受け取らず、値の表示も出さず、無効状態を伝えます。
+- 文字サイズを変えて大きくなるのは値の表示だけです。
+- `label` や `startLabel` がない場合、値、始点の値、起点が範囲外か刻みから外れている場合、始点の値が終点の値より大きい場合、`max` が `min` より大きくない場合、刻みが負の場合、サイズ・向き・値の表示に知らない値が指定された場合は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- Web では、各ハンドルのスライダーのロールを `ElementInternals` ではなくシャドウルートの中の要素に付けます。`ElementInternals` で設定したセマンティクスは axe-core から見えないためです。`<input type="range">` も使いません。ハンドルが 1 つしかなく、パーツの見た目をどのエンジンでもそろえることができないためです。
+- Web：支援技術は、ブラウザーが送る矢印キーを通じて ARIA のスライダーを動かします。そのため、値を直接設定することはできません。
+- Web：値の表示はトップレイヤーにありません。`overflow: hidden` の祖先要素には切り取られ、後に置かれた `z-index` が 1 より大きい配置済みの兄弟要素には覆われます。
+- SwiftUI では、ハンドルの最小値と最大値、向きを伝えられません。また macOS では、ハンドルは支援技術にとってスライダーになりません。
+- SwiftUI はタッチとポインターを区別できません。iOS では iPad のポインターも含めてすべての押下をタッチとして、macOS ではすべての押下をポインターとして扱います。iOS 18 より前では、タッチのドラッグは SwiftUI のジェスチャーになるため、スライダーを囲むスクロールビューが操作を引き継げないことがあります。
+- SwiftUI：値の表示は、ウィンドウではなくスライダーの内側に収まるように置かれ、スライダーより後に描かれるビューに覆われることがあります。
+- SwiftUI：シミュレーターは自動操作中にキーボードフォーカスを渡さないため、キー操作は規則としてテストしているだけで、実際のキーボードではまだ確かめていません。
+- Compose のスライダーのセマンティクスには向きがないため、ハンドルの向きは伝わりません。
+- Flutter では、ハンドルの最小値と最大値、向きを伝えられず、値を直接設定するアクションもありません。
+- Flutter は、どのロケールでも小数点に `.` を使って数値を書きます。問題になる場合は `valueText` を設定してください。
+- Flutter：ヒット領域がトラックと交わる方向に広がるのは、スライダーの親がスライダーより大きい場合だけです。親がスライダーとちょうど同じ大きさだと、広がった分は切り取られます。
+- React Native には、値を直接設定するアクションも向きのプロパティもないため、どちらも伝わりません。
+- React Native では、矢印キーはタブの列と同じく、ハードウェアキーボードをつないだときだけ働きます。
+- React Native は、すべての押下をタッチとして扱います。マウスやスタイラスで押しても、動かすか離すまでハンドルは動きません。
+- React Native は値の表示をオーバーレイ層ではなくスライダーの中に描きます。そのため、ウィンドウではなくスライダーの内側に収まり、スライダーより後に描かれるビューに覆われることがあります。
+- React Native：レイアウト、ドラッグとスクロールビューへの譲り方、調整可能なハンドルは、実機ではまだ確かめていません。
+- SwiftUI、Compose、Flutter、React Native は、まだ以前の見た目で描きます。塗りつぶしのハンドル、どのサイズでも同じ大きさの目盛りの点、そしてハンドルの下で出会うのではなくハンドルのところで切れるトラックです。切れ目の描き方もプラットフォームによって異なり、SwiftUI は四角く切り、Flutter と React Native は丸めて切れ込みを残し、Compose はハンドルの形で切り抜きます。
+- `cupertino` のライトスキームでは、白いハンドルが白いページの上で 1.0:1 になり、値を示すパーツに必要な 3:1 に届きません。Apple の描き方にならって輪郭線はなく、影と、隣にある色付きのアクティブトラックで見分けます。ハンドルとページのコントラストを確かめる不変条件はありません。この 1.0:1 は参考として残す計測値で、模倣プリセットには Tanrei のアクセシビリティ基準を適用しません。また `cupertino` では、トラックの両端も含めて目盛りの点を描きません。
+- `m3-like` では、スライダーは Material が公開している寸法から、縦長のバーのハンドルで描かれます。この値は、忠実度の参照データではまだ確かめていません。`m3-expressive-like` では、Material が太いトラックの中に描くアイコンを置く場所がありません（mimicry-gaps 台帳 `slider-inset-icon`）。アイコンはスライダーの横に置いてください。
+
+### 利用者側で行うこと
+
+- すべてのスライダーに、プロダクトの言語で `label` を付け、範囲なら `startLabel` も付けます。同じ言葉を、目に見えるラベルとして隣に置きます。
+- 数字だけでは分かりにくいときは `valueText` を設定し、値に合わせて更新します。
+- 変更の結果は見える場所に表し、変更を反映できなかったときはテキストで知らせます。スライダーが読み上げるのは自分の値だけです。
+- `cupertino` では、ハンドルが白く、トラックの端に目盛りの点もないので、できれば真っ白なサーフェスの上にスライダーを置かないようにします。
+- Web でフォームと一緒に値を送るときは、スライダーに `name` を付けます。

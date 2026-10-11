@@ -1,0 +1,1142 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "image-preview",
+  "title": "Image preview",
+  "summary": "Shows one picture of a set over the whole window when the person presses its thumbnail, to be looked at closely — enlarged and back by a double tap, a pinch, a control or a key, moved about while enlarged — and moved on to the next picture or back, until it is closed.",
+  "category": "containment",
+  "level": "feature",
+  "listing": "default",
+  "uses": [
+    "button",
+    "skeleton"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The surface that fills the window and holds everything else. It is the modal layer: everything behind it is inert. No scrim is drawn, because it leaves nothing uncovered."
+    },
+    {
+      "id": "stage",
+      "description": "The whole of the container as the place the image is shown, zoomed and moved. The preview's own part: it takes the gestures and the keys, it is the one focus stop that is not a Button, and it is exposed as the image shown."
+    },
+    {
+      "id": "image",
+      "description": "The picture shown, at fit or enlarged, and its neighbour beside it while one replaces the other. Never cropped, mirrored or recolored."
+    },
+    {
+      "id": "placeholder",
+      "description": "What stands in the image's place while it is on its way: its thumbnail enlarged, or a Skeleton's block.",
+      "optional": true
+    },
+    {
+      "id": "error",
+      "description": "The mark and the product's sentence in place of an image that did not arrive.",
+      "optional": true
+    },
+    {
+      "id": "bar",
+      "description": "The row across the top: the count at its start and the zoom-out, zoom-in and close controls at its end. A zoomed image passes under it."
+    },
+    {
+      "id": "count",
+      "description": "The product's sentence that says which image of how many is shown. Drawn only while there are two or more.",
+      "optional": true
+    },
+    {
+      "id": "zoom-out",
+      "description": "An icon-only Button that takes the zoom one step down; disabled at fit."
+    },
+    {
+      "id": "zoom-in",
+      "description": "An icon-only Button that takes the zoom one step up; disabled at the greatest zoom."
+    },
+    {
+      "id": "close",
+      "description": "An icon-only Button at the end of the bar that asks to close the preview."
+    },
+    {
+      "id": "previous",
+      "description": "An icon-only Button at the inline start of the stage that shows the image before; disabled at the first. Drawn only while there are two or more images.",
+      "optional": true
+    },
+    {
+      "id": "next",
+      "description": "An icon-only Button at the inline end of the stage that shows the image after; disabled at the last. Drawn only while there are two or more images.",
+      "optional": true
+    },
+    {
+      "id": "caption",
+      "description": "The text the product gives about the image shown, across the bottom on its own fill; it scrolls inside itself where it is long.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The system's focus indicator, inside the edge of the fit area while the stage has keyboard focus and inside the caption's region while that scrolls and has it.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the preview is presented. The product opens it — from its own thumbnail, with index set to that image — and closes it in answer to close; on SwiftUI, where it is a binding, the preview writes false itself."
+    },
+    {
+      "name": "index",
+      "type": "number",
+      "default": 0,
+      "description": "Which image is shown, counted from 0 in the order the images are given. The person changes it by a drag, the previous and next controls and the keys, and the preview then emits indexChange; a product that sets it emits nothing. A number outside the images is taken as the nearest that exists (IMP-20)."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "default": 1,
+      "description": "How far the image shown is enlarged: 1 is its fit in the window, 2 twice that. The person changes it by a double tap, a pinch, the zoom controls and the keys, and the preview then emits zoomChange; it returns to 1 whenever the image shown changes. Kept between 1 and the greatest zoom (IMP-12)."
+    },
+    {
+      "name": "maxZoom",
+      "type": "number",
+      "default": null,
+      "description": "The greatest zoom. null takes the greater of 4 and twice the zoom at which the image fills the window's free area, so that a very wide or very tall image can still be read (IMP-12). A product whose pictures hold fine detail — a map, a plan — gives more; one whose pictures are small gives less."
+    },
+    {
+      "name": "controlsHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the bar, the count, the previous and next controls and the caption are not drawn, so that nothing stands over the picture. The person changes it by one tap on the picture, and the preview then emits controlsHiddenChange; any key, keyboard or assistive-technology focus on a control, or a moving mouse shows them again (IMP-25). Hidden controls stay in the focus order and exposed to assistive technology. The preview never hides them by itself."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the preview, in the product's language (\"Photos of the room\", \"Attachment\"). Never drawn. Required."
+    },
+    {
+      "name": "closeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The close control's accessible name (\"Close\"). Required.",
+      "words": "closeLabel"
+    },
+    {
+      "name": "previousLabel",
+      "type": "string",
+      "default": "",
+      "description": "The previous control's accessible name (\"Previous image\"). Required while there are two or more images.",
+      "words": "previousImageLabel"
+    },
+    {
+      "name": "nextLabel",
+      "type": "string",
+      "default": "",
+      "description": "The next control's accessible name (\"Next image\"). Required while there are two or more images.",
+      "words": "nextImageLabel"
+    },
+    {
+      "name": "zoomInLabel",
+      "type": "string",
+      "default": "",
+      "description": "The zoom-in control's accessible name (\"Zoom in\"). Required.",
+      "words": "zoomInLabel"
+    },
+    {
+      "name": "zoomOutLabel",
+      "type": "string",
+      "default": "",
+      "description": "The zoom-out control's accessible name (\"Zoom out\"). Required.",
+      "words": "zoomOutLabel"
+    },
+    {
+      "name": "countText",
+      "type": "string",
+      "default": "",
+      "description": "The sentence that says which image of how many is shown, drawn in the bar and told to assistive technology. The product writes the whole sentence in its own language and marks two places in it, which the preview fills: {position} with the place of the image shown, counted from 1, and {count} with the number of images (\"{position} of {count}\", \"{count}枚中{position}枚目\"). The product's: Tanrei has no sentence for it. Empty reads the product's words. Required while there are two or more images.",
+      "words": "imageCountText",
+      "places": [
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place of the image shown, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of images."
+        }
+      ]
+    },
+    {
+      "name": "loadingLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology is told while the image shown is on its way (\"Loading image\"): the name of the Skeleton that stands in its place. Required where an image may be shown before it has loaded and has no thumbnailSrc.",
+      "words": "loadingLabel"
+    },
+    {
+      "name": "errorText",
+      "type": "string",
+      "default": "",
+      "description": "The sentence drawn, and told to assistive technology, in place of an image that did not arrive (\"This image could not be loaded\"). The same for every image of the set; what failed and why is the product's to report elsewhere, from loadError. Required.",
+      "words": "imageErrorText"
+    }
+  ],
+  "items": [
+    {
+      "name": "image",
+      "summary": "One picture of the set: where it is, what it shows in words, and optionally what the product says about it.",
+      "props": [
+        {
+          "name": "src",
+          "type": "string",
+          "default": "",
+          "description": "The address of the picture as the preview shows it — usually a larger file than the thumbnail on the page. Required. Changed while the image is shown, the new picture replaces the old one in place once it has loaded (IMP-30)."
+        },
+        {
+          "name": "alt",
+          "type": "string",
+          "default": "",
+          "description": "What the picture shows, in the product's language: the name assistive technology reads for it. Required for every image; a preview holds no decoration (IMP-27). Never drawn."
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "default": "",
+          "description": "What the product says about the picture, drawn below it and read as its description: a credit, a date, a sentence. Plain text of any length; a long one scrolls in its own region (IMP-26). Empty draws no caption."
+        },
+        {
+          "name": "thumbnailSrc",
+          "type": "string",
+          "default": "",
+          "description": "The address of a smaller picture of the same image that the page has usually loaded already — the thumbnail the person pressed. Drawn enlarged in the image's place until src has loaded, in place of the Skeleton (IMP-29)."
+        },
+        {
+          "name": "width",
+          "type": "number",
+          "default": null,
+          "description": "The picture's own width in pixels, where the product knows it. With height it lets the preview hold the image's place, and size the thumbnail or the Skeleton, before the picture has loaded. null: learned when it loads."
+        },
+        {
+          "name": "height",
+          "type": "number",
+          "default": null,
+          "description": "The picture's own height in pixels; see width."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "close",
+      "description": "The person asked to close the preview: the close control, Escape, the platform's back, or a downward drag by touch. Carries which, named button, escape, back or swipe (in the platform's casing). The product closes it by setting open to false; on SwiftUI the binding is written first."
+    },
+    {
+      "name": "indexChange",
+      "description": "The person moved to another image; carries the new index. Not emitted when the product sets index."
+    },
+    {
+      "name": "zoomChange",
+      "description": "The zoom changed by the person's gesture, control or key, or returned to 1 because the image changed; carries the new zoom, once the change has ended. Not emitted when the product sets zoom. A product may answer it by giving the image a larger src (IMP-30)."
+    },
+    {
+      "name": "controlsHiddenChange",
+      "description": "The person hid or showed the controls; carries the new controlsHidden. Not emitted when the product sets it."
+    },
+    {
+      "name": "loadError",
+      "description": "The source of an image the preview asked for did not load; carries that image's index. Emitted once for each source that fails."
+    }
+  ],
+  "states": [
+    "enabled",
+    "focused",
+    "dragged",
+    "loading",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "IMP-1",
+      "text": "WHEN open becomes true and there is at least one image THE image preview SHALL present its container above everything in its window and over the whole of it, filled with comp.image-preview.container.color, SHALL make everything outside it inert (not focusable, not pressable, hidden from assistive technology) and SHALL keep the content behind it from scrolling, until it closes; it SHALL be presented by the platform's own modal presentation, and it draws no scrim, because nothing of the window is left uncovered."
+    },
+    {
+      "id": "IMP-2",
+      "text": "WHEN the image preview opens THE image preview SHALL move focus to its stage, so that assistive technology reads the image shown (IMP-27) first and the keys of IMP-23 act at once; a preview mounted with open true SHALL move focus in as if it had just opened. Focus SHALL move when the preview opens, not when its motion ends."
+    },
+    {
+      "id": "IMP-3",
+      "text": "WHILE the image preview is open THE image preview SHALL keep focus inside it: Tab SHALL move through the zoom-out control, the zoom-in control, the close control, the previous control, the stage, the next control and the caption where it scrolls (IMP-26), in that order in either layout direction, leaving out what is not drawn for want of a second image or of a caption; Tab from the last SHALL move to the first and Shift+Tab from the first to the last, and screen-reader navigation SHALL NOT leave it."
+    },
+    {
+      "id": "IMP-4",
+      "text": "WHEN the image preview closes THE image preview SHALL return focus to the element that had it when the preview opened or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay, and SHALL restore the content behind it to what it was before; it SHALL NOT look for the product's thumbnail of the image last shown, which it does not know — a product that wants focus there moves it after the preview has closed. Focus SHALL move when the preview closes, not when its motion ends."
+    },
+    {
+      "id": "IMP-5",
+      "text": "WHEN the user activates the close control, presses Escape, uses the platform's back (Android's back gesture or button, the iOS accessibility escape gesture) or completes the downward drag of IMP-22 THE image preview SHALL emit close exactly once with the reason button, escape, back or swipe, whatever the zoom is; it SHALL then be closed through its binding where open is one (SwiftUI), and by the product setting open to false where open is a plain value (web, Compose, Flutter, React Native). THE image preview SHALL have no setting that takes these ways out away from the person: it asks nothing of the person."
+    },
+    {
+      "id": "IMP-6",
+      "text": "WHEN the image preview opens while a dialog or a modal sheet is open THE image preview SHALL stack above it, make it inert as well, and on closing return focus to the element inside it that had focus; WHEN another overlay opens from the image preview THE image preview SHALL stay below it and receive back the focus that overlay returns; Escape SHALL close only the topmost overlay."
+    },
+    {
+      "id": "IMP-7",
+      "text": "THE image preview SHALL expose its container as a modal dialog named by label; WHILE label is empty it SHALL still open, and in debug builds SHALL report that it has no accessible name. THE image preview SHALL NOT add to, replace or read the window's navigation history or its address: where a product wants its own Back control to close the preview, the product writes that entry and sets open to false when it is left."
+    },
+    {
+      "id": "IMP-8",
+      "text": "THE image preview SHALL draw a bar across the top of its container, inside the window's safe area, at least comp.image-preview.bar.height tall and filled with comp.image-preview.bar.container.color, holding at its start the count (IMP-9) and at its end, in this order toward the end edge, the zoom-out control, the zoom-in control and the close control, comp.image-preview.bar.gap apart, the first and the last control comp.image-preview.bar.padding-inline from the safe area's side edges, all centred on the bar's height. Each control SHALL be an icon-only Button of the medium size in the variant comp.image-preview.bar.button.variant names, given through the channel a Button reads from the component that places it and otherwise unrestyled, showing the icon set's zoom_out, zoom_in and close glyphs and named by zoomOutLabel, zoomInLabel and closeLabel; WHILE one of those names is empty it SHALL still draw the control, and in debug builds report that the control has no accessible name.",
+      "verify": "The variant a control takes is seen with a fixture system that sets comp.image-preview.bar.button.variant to tonal."
+    },
+    {
+      "id": "IMP-9",
+      "text": "WHILE there are two or more images THE image preview SHALL draw the count at the start of the bar: countText with the place marked {position} filled with the place of the image shown, counted from 1, and the place marked {count} with the number of images, each written as the platform writes a whole number in the language of the image preview, in comp.image-preview.count.typescale and comp.image-preview.count.color, with comp.image-preview.count.padding-inline before and after it; the count SHALL wrap onto more lines, growing the bar, rather than be cut, and SHALL NOT take focus. WHILE there is one image THE image preview SHALL draw no count; WHILE there are two or more and countText is empty it SHALL draw none and in debug builds report that the count has no words. Any other text between braces in countText, and a brace that opens or closes nothing, SHALL be drawn as it is written and in debug builds reported; a brace written twice SHALL be drawn as one brace."
+    },
+    {
+      "id": "IMP-10",
+      "text": "WHILE there are two or more images THE image preview SHALL draw a previous control at the inline start of its stage and a next control at its inline end, each comp.image-preview.navigation.margin-inline from the safe area's side edge and centred on the height of the fit area (IMP-11): icon-only Buttons of the medium size in the variant comp.image-preview.navigation.button.variant names, given through the same channel and otherwise unrestyled, showing the icon set's chevron_left and chevron_right glyphs and named by previousLabel and nextLabel, with the debug report of IMP-8 for an empty name. WHILE the first image is shown the previous control SHALL be disabled, and WHILE the last is shown the next control SHALL be: the set does not go round. WHILE there is one image THE image preview SHALL draw neither.",
+      "verify": "The variant is seen with a fixture system that sets comp.image-preview.navigation.button.variant to elevated."
+    },
+    {
+      "id": "IMP-11",
+      "text": "THE image preview SHALL make its stage the whole of its container, and SHALL call fit area the part of the stage inside the window's safe area, below the bar and above the caption where one is drawn (IMP-26). WHILE zoom is 1 it SHALL draw the image shown at the largest size at which the whole of it lies inside the fit area with its proportions kept, never above the image's own size, centred in the fit area; it SHALL NOT crop, stretch, mirror or recolor an image at any zoom, and where an image has clear parts comp.image-preview.container.color shows through them."
+    },
+    {
+      "id": "IMP-12",
+      "text": "THE image preview SHALL hold a zoom for the image shown: a number, 1 being the size of IMP-11 and every other value that many times it. Its greatest value SHALL be maxZoom or, WHILE maxZoom is null, the greater of 4 and twice the fill zoom — the fill zoom being the least zoom at which the image covers the whole fit area. Its steps SHALL be 1, then the greater of 2 and the fill zoom, then each step twice the one before, none above the greatest value, which is itself the last step: so that an ordinary picture steps 1, 2, 4, and a very wide or very tall one, small at fit, fills the fit area across at its first step. WHEN the product sets zoom to a value outside 1 and the greatest value THE image preview SHALL use the nearer of the two, and WHEN maxZoom is less than 1 it SHALL treat it as null, and in debug builds report either."
+    },
+    {
+      "id": "IMP-13",
+      "text": "WHEN the user activates the zoom-in control or presses + or = THE image preview SHALL move the zoom to the next step above it, and WHEN the user activates the zoom-out control or presses − to the next step below it, and WHEN the user presses 0 to 1, each about the centre of the fit area — the point of the image there stays there, as far as IMP-17 allows — over comp.image-preview.motion.zoom-duration with comp.image-preview.motion.zoom-easing. WHILE zoom is 1 the zoom-out control SHALL be disabled; WHILE zoom is the greatest value, or the image shown has not loaded or has failed (IMP-29, IMP-31), the zoom-in control SHALL be disabled."
+    },
+    {
+      "id": "IMP-14",
+      "text": "WHEN the user taps the stage twice, or presses it twice with a mouse, within the platform's own interval for a double tap THE image preview SHALL, WHILE zoom is 1, move the zoom to its first step above 1 with the point of the image under the tap kept under it, as far as IMP-17 allows, and, WHILE zoom is above 1, move it to 1, over comp.image-preview.motion.zoom-duration with comp.image-preview.motion.zoom-easing; the two taps SHALL NOT also answer as single taps (IMP-24)."
+    },
+    {
+      "id": "IMP-15",
+      "text": "WHEN the user pinches the stage with two fingers, pinches on a trackpad, or turns a wheel while holding Ctrl (Command on Apple platforms) THE image preview SHALL change the zoom with the gesture, without a duration of its own, about the point midway between the fingers or under the pointer, never below 1 and never above the greatest value; two fingers that move together SHALL also move the image (IMP-16). WHEN the gesture ends the zoom SHALL stay where it is, not move to a step."
+    },
+    {
+      "id": "IMP-16",
+      "text": "WHILE zoom is above 1, WHEN the user drags the stage with one finger, a pen or a mouse's main button past the platform's touch slop THE image preview SHALL move the image with the pointer, and continue and slow a fling as the platform's scrolling does; a wheel or a two-finger scroll on a trackpad without Ctrl or Command SHALL move it likewise, up and down and, with a sideways wheel or Shift, sideways. WHILE zoom is 1 a wheel SHALL do nothing."
+    },
+    {
+      "id": "IMP-17",
+      "text": "THE image preview SHALL limit where a zoomed image can be moved so that each edge of the image can be brought to the matching edge of the fit area and no farther — so that no part of it stays under the bar or the caption — and SHALL keep the image centred in the fit area along an axis on which it is not larger than the fit area; WHEN a zoom would leave the image outside those limits THE image preview SHALL bring it inside them as part of the same motion."
+    },
+    {
+      "id": "IMP-18",
+      "text": "WHILE there are two or more images and zoom is 1, WHEN the user drags the stage sideways with one finger, a pen or a mouse's main button, the drag having begun more sideways than up or down, THE image preview SHALL move the image with the pointer and draw its neighbour following it comp.image-preview.layout.page-gap away; WHEN the drag is released past half the stage's width it SHALL show that neighbour (IMP-20); WHEN a drag by a finger or a pen is released sooner but flung toward that side (the platform's own fling speed and touch slop, or 0.5 points per millisecond and 8 points where the platform names none) it SHALL show that neighbour likewise; a drag by a mouse SHALL NOT show a neighbour for its speed, whatever that is — a mouse's drag shows one by its distance alone — because a mouse moves at a fling's speed in ordinary use and is dragged in repeated strokes; and a drag that shows no neighbour SHALL bring the image back, either over comp.image-preview.motion.page-duration with comp.image-preview.motion.page-easing. Where there is no neighbour on that side the image SHALL follow the pointer by no more than the platform's own overscroll allows, and come back. A drag is a mouse's where the platform says that the pointer that makes it is a mouse — a mouse, or a trackpad that moves a cursor and presses; where the platform does not tell the kind of a pointer the drag SHALL be taken as a finger's."
+    },
+    {
+      "id": "IMP-19",
+      "text": "WHILE zoom is above 1, WHEN a sideways drag begins while the image already stands at its limit (IMP-17) on the side the drag would uncover THE image preview SHALL treat that drag as the drag of IMP-18, with the release rule IMP-18 gives its kind of pointer — a finger's or a pen's past half the stage's width or flung, a mouse's past half the stage's width alone, the distance counted from where the drag began — and move to the neighbour without first returning to fit; a drag that reaches the limit while it is under way SHALL stop the image there and SHALL NOT move to another image, so that a person moving about a picture never leaves it by accident."
+    },
+    {
+      "id": "IMP-20",
+      "text": "WHEN the user activates the previous or the next control, presses a key of IMP-23 that moves between images, or releases the drag of IMP-18, THE image preview SHALL show the image before or after the one shown — the one arriving sliding in from its side as the one leaving slides out, comp.image-preview.layout.page-gap apart, over comp.image-preview.motion.page-duration with comp.image-preview.motion.page-easing — set index to its place and emit indexChange once with the new index. WHEN the image shown changes, by the person or by the product setting index, THE image preview SHALL return the zoom to 1 and the image that was left to its fit, emit zoomChange where the zoom was not 1, and say the new image (IMP-28). WHEN the product sets index it SHALL show that image at once, without the slide, and emit no indexChange; an index outside the images SHALL be taken as the nearest one that exists, with a debug report."
+    },
+    {
+      "id": "IMP-21",
+      "text": "WHEN the person changes the zoom THE image preview SHALL set zoom and emit zoomChange with the new value once the gesture, the step or the return has ended, not for each frame of it; WHEN the person hides or shows the controls (IMP-24, IMP-25) it SHALL set controlsHidden and emit controlsHiddenChange with the new value. WHEN the product sets zoom or controlsHidden THE image preview SHALL take the value at once and emit nothing."
+    },
+    {
+      "id": "IMP-22",
+      "text": "WHILE zoom is 1, WHEN the user drags the stage downward by touch, the drag having begun more downward than sideways, THE image preview SHALL move the image with the finger and make its container, bar, controls and caption clearer in proportion to the distance, so that the page behind shows; WHEN the drag is released past a quarter of the stage's height, or flung downward, it SHALL emit close with the reason swipe (IMP-5), hold the image where it was left for one frame, and then close from there IF open has become false, or bring everything back IF open is still true; a drag released sooner SHALL bring everything back over comp.image-preview.motion.page-duration with comp.image-preview.motion.page-easing. An upward drag, and a downward drag by a mouse, SHALL NOT close it."
+    },
+    {
+      "id": "IMP-23",
+      "text": "WHILE focus is anywhere in the image preview, except in a part that uses the key itself (the scrolling caption of IMP-26), THE image preview SHALL answer these keys: WHILE zoom is 1, Left Arrow and Right Arrow SHALL show the image that lies on that side — the one before on the left and the one after on the right in a left-to-right layout, and the reverse in a right-to-left one — and Up Arrow and Down Arrow SHALL do nothing; WHILE zoom is above 1 the four arrow keys SHALL move the view over the image toward that side by a quarter of the fit area's width or height, within the limits of IMP-17; at any zoom Page Up SHALL show the image before and Page Down the image after, Home the first and End the last; + or = , − and 0 SHALL change the zoom (IMP-13); and Escape SHALL ask to close (IMP-5). A key that has nothing to do — an arrow at the first or the last image — SHALL do nothing and SHALL NOT leave the preview."
+    },
+    {
+      "id": "IMP-24",
+      "text": "WHEN the user taps the stage once, or presses it once with a mouse, without dragging and without a second tap within the platform's interval for a double tap, THE image preview SHALL hide its controls where they are shown and show them where they are hidden (IMP-25). THE image preview SHALL NOT hide its controls by itself: not after a time without input, and not when the zoom changes."
+    },
+    {
+      "id": "IMP-25",
+      "text": "WHILE controlsHidden is true THE image preview SHALL draw neither the bar, the count, the previous and next controls nor the caption, fading them over comp.image-preview.motion.controls-duration with comp.image-preview.motion.controls-easing, and SHALL NOT move or resize the image for it: the fit area stays as IMP-11 measures it with the controls shown. The controls SHALL stay in the focus order of IMP-3 and exposed to assistive technology with their names and states, and the keys of IMP-23 SHALL act as before. WHEN a key is pressed, focus moves to any of the controls by the keyboard or by assistive technology, a pointer that can hover moves over the preview, or the stage is tapped (IMP-24), THE image preview SHALL show them again, fading in over the same duration, before the control answers."
+    },
+    {
+      "id": "IMP-26",
+      "text": "WHILE the image shown has a caption THE image preview SHALL draw it at the bottom of its container, across its width and inside the window's safe area, on a fill of comp.image-preview.caption.container.color: the text in comp.image-preview.caption.typescale and comp.image-preview.caption.color, wrapping and never cut, its lines beginning at the start of a column at most comp.image-preview.caption.max-width wide that is centred in the container, with comp.image-preview.caption.padding-block above and below and at least comp.image-preview.caption.padding-inline before and after. The caption's region SHALL be no taller than a third of the container; WHILE the text needs more it SHALL scroll inside the region, which is then one stop in the focus order, exposed as a group, scrolled by the arrow keys, Page Up, Page Down, Home and End as the platform scrolls a region, and drawn WHILE it has keyboard focus with the system's focus indicator inside its edge — sys.focus.outer-width wide in the color role focus-ring, set in by sys.focus.offset, never animated. WHILE the image shown has no caption THE image preview SHALL draw no region, and the fit area reaches the bottom of the safe area."
+    },
+    {
+      "id": "IMP-27",
+      "text": "THE image preview SHALL expose its stage as one image that takes focus, named by the alt of the image shown and described by its caption, with the count's sentence (IMP-9) as the stage's position where the platform has a place for one and at the beginning of its description where it has none; it SHALL expose no other image of the set, SHALL expose the zoom and the place within the image to no one, and WHILE the stage has keyboard focus SHALL draw the system's focus indicator inside the edge of the fit area as IMP-26 draws the caption's; focus gained by pointer or touch SHALL NOT show it. WHILE an image's alt is empty THE image preview SHALL still show it, and in debug builds report that the image has no accessible name: a picture a person chose to look at closely is never decoration."
+    },
+    {
+      "id": "IMP-28",
+      "text": "WHEN the image shown changes while the image preview is open THE image preview SHALL have assistive technology told, politely and once, the count's sentence and then the new image's alt, whether or not focus is on the stage, and SHALL keep focus where it is — but WHEN the control that has focus becomes disabled by the change (the previous control at the first image, the next at the last, a zoom control at the end of its range) THE image preview SHALL move focus to the stage, so that focus is never on a control that cannot be reached again."
+    },
+    {
+      "id": "IMP-29",
+      "text": "WHILE the source of the image shown has not loaded THE image preview SHALL draw in its place, WHERE the image has a thumbnailSrc, that picture at the size the image will have at fit — from the image's width and height where they are given, and from the thumbnail's own proportions where they are not — and, WHERE it has none, a Skeleton holding one block placeholder of that size, or of the whole fit area where neither width nor height is given, named by loadingLabel and otherwise unrestyled: it reads the Skeleton's own tokens and waits, moves and says that it is busy as a Skeleton does (SKL-2, SKL-4). The zoom SHALL stay 1 while it waits; moving to another image and closing SHALL work as ever."
+    },
+    {
+      "id": "IMP-30",
+      "text": "WHEN the source of the image shown has loaded THE image preview SHALL draw it in place of the thumbnail or the Skeleton at once, without moving what the person sees where the proportions are the same. WHEN the src of the image shown changes after it has loaded THE image preview SHALL keep drawing the earlier picture, at its zoom and its place, until the new one has loaded, and then draw the new one at the same zoom and place — so that a product may answer zoomChange with a larger source and the person sees only more detail."
+    },
+    {
+      "id": "IMP-31",
+      "text": "IF the source of the image shown fails to load THE image preview SHALL draw in the middle of the fit area the icon set's broken_image glyph at comp.image-preview.error.icon.size in comp.image-preview.error.icon.color — with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max — and, comp.image-preview.error.gap below it, errorText in comp.image-preview.error.text.typescale and comp.image-preview.error.text.color, centred and wrapping; it SHALL keep the stage named by the image's alt, add errorText to its description, have assistive technology told errorText politely, and emit loadError once for that source with the image's index. The zoom SHALL stay 1; moving to another image and closing SHALL work as ever; WHEN that image's src changes THE image preview SHALL ask for it again. WHILE errorText is empty it SHALL draw the glyph alone and in debug builds report that the failure has no words."
+    },
+    {
+      "id": "IMP-32",
+      "text": "THE image preview SHALL ask for the source of the image shown and of the one before and the one after it, and of no other image of the set, however many there are, so that a neighbour is ready when the person moves to it; it SHALL be free to let go of a source that is no longer one of those three, and SHALL ask again when it becomes one."
+    },
+    {
+      "id": "IMP-33",
+      "text": "WHEN the image preview opens THE image preview SHALL fade its container, bar, controls and caption in while the image grows about its centre from comp.image-preview.motion.enter-scale of its size at fit to that size, over comp.image-preview.motion.enter-duration with comp.image-preview.motion.enter-easing; WHEN it closes it SHALL fade all of it out over comp.image-preview.motion.exit-duration with comp.image-preview.motion.exit-easing. It SHALL NOT fly the image from or to the place of the product's thumbnail."
+    },
+    {
+      "id": "IMP-34",
+      "text": "WHERE motion is reduced THE image preview SHALL open and close by fading without growing — or at once on a platform whose reduced-motion setting removes every animation (Android's) — SHALL change the zoom of IMP-13 and IMP-14 and the image of IMP-20 at once, without a slide, SHALL show and hide its controls at once, and SHALL still let the image follow a finger or a pointer in a pinch or a drag, which is the person's own motion; the settle of a released drag SHALL then be at once."
+    },
+    {
+      "id": "IMP-35",
+      "text": "WHEN the layout direction is right-to-left THE image preview SHALL mirror the order of its parts: the count at the right of the bar and its controls at the left, the close control leftmost; the previous control at the right of the stage and the next at the left; the image after the one shown lying to the left, so that a drag toward the right brings it and Left Arrow shows it (IMP-23); and the caption's lines beginning at the right. It SHALL NOT mirror an image, the direction a zoomed image moves under a drag or an arrow key, or the point a double tap or a pinch keeps in place."
+    },
+    {
+      "id": "IMP-36",
+      "text": "WHERE the layout direction is right-to-left THE image preview SHALL have the chevron_left and chevron_right glyphs of its previous and next controls drawn mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, changing neither its place, size, color nor the order IMP-35 gives; THE image preview SHALL NOT mirror a glyph itself, and SHALL NOT mirror the zoom_in, zoom_out, close and broken_image glyphs, which point nowhere."
+    },
+    {
+      "id": "IMP-37",
+      "text": "THE image preview SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the image preview is shown THE image preview SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state, its image, its zoom and its focus."
+    },
+    {
+      "id": "IMP-38",
+      "text": "THE image preview SHALL lay out its count, its caption and its error text as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE image preview SHALL still place each and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "IMP-39",
+      "text": "WHILE the text size is enlarged THE image preview SHALL grow its count, its caption and its error text with it, grow the bar where the count wraps and the caption's region up to its limit (IMP-26), measure the fit area anew and draw the image to fit it, and SHALL NOT scale its controls beyond what a Button does itself; in a window 320 wide with text at twice its size nothing SHALL be cut or need scrolling sideways, a zoomed image apart, which is moved by IMP-16 and IMP-23."
+    },
+    {
+      "id": "IMP-40",
+      "text": "WHEN the size of its container or of the safe area changes — a window resized, a device turned, an on-screen bar shown — THE image preview SHALL measure the fit area anew and, WHILE zoom is 1, draw the image to fit it, and, WHILE zoom is above 1, keep the zoom and the point of the image at the middle of the fit area there, within the limits of IMP-17, without a motion."
+    },
+    {
+      "id": "IMP-41",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE image preview SHALL fill its container, bar and caption with the platform's background color, draw its count, caption and error text and the broken_image glyph in the platform's text color and the focus indicators of IMP-26 and IMP-27 in the platform's own color for focus, and SHALL leave every image exactly as it is; its controls are Buttons and adapt as Buttons do."
+    },
+    {
+      "id": "IMP-42",
+      "text": "THE image preview SHALL let each of its controls answer hover, keyboard focus and a press as any Button does — its states, its minimum target, its pressed feedback and its focus indicator are the Button's (BTN-5, BTN-8, BTN-9, BTN-10) — and SHALL draw on its stage no state layer, no ripple and no pressed or hovered look of its own: a pointer over an image, or a press on it, changes nothing that is drawn but what the gesture itself moves."
+    },
+    {
+      "id": "IMP-43",
+      "text": "IF open becomes true while there is no image THE image preview SHALL present nothing, leave the window as it is, and in debug builds report as an error that a preview was opened with nothing to show. WHEN the images change while the image preview is open THE image preview SHALL keep index within them (IMP-20), return the zoom to 1 where the image shown is no longer the same one, and draw or drop the count and the previous and next controls as IMP-9 and IMP-10 say for the new number."
+    }
+  ],
+  "accessibility": {
+    "role": "dialog",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Move through zoom out, zoom in, close, previous, the stage, next and the caption where it scrolls, wrapping; focus never leaves the preview (IMP-3). Focus starts on the stage (IMP-2). A hidden control shows itself, with the others, when focus reaches it (IMP-25)."
+      },
+      {
+        "keys": "Left Arrow / Right Arrow",
+        "action": "At fit: show the image on that side (the one before is on the left in a left-to-right layout, on the right in a right-to-left one). Zoomed: move the view over the image toward that side (IMP-23)."
+      },
+      {
+        "keys": "Up Arrow / Down Arrow",
+        "action": "Zoomed: move the view over the image up or down. At fit: nothing."
+      },
+      {
+        "keys": "Page Up / Page Down",
+        "action": "Show the image before / after, at any zoom."
+      },
+      {
+        "keys": "Home / End",
+        "action": "Show the first / the last image."
+      },
+      {
+        "keys": "+ or = / − / 0",
+        "action": "Zoom in one step / zoom out one step / return to fit (IMP-13)."
+      },
+      {
+        "keys": "Escape",
+        "action": "Asks to close (emits close with the reason escape); with other overlays above it, only the topmost closes."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activate the focused control. On the stage they do nothing."
+      }
+    ],
+    "labeling": "The preview is a modal dialog named by label. Its stage is one image, named by the alt of the image shown and described by its caption; the count's sentence is its position. A change of image is told politely: the count, then the alt (IMP-28). The five controls are Buttons named by closeLabel, previousLabel, nextLabel, zoomInLabel and zoomOutLabel; a control at the end of its range is disabled, and focus on it moves to the stage. The zoom is told to no one: it changes what is seen, not what the picture is. While an image loads the Skeleton says it is busy under loadingLabel; when one fails, errorText is told. Everything outside the preview is hidden from assistive technology while it is open.",
+    "minimumTarget": true,
+    "notes": [
+      "Nothing is done by a gesture alone (WCAG 2.5.1, 2.5.7). A pinch and a double tap have the zoom controls and + / − / 0; a drag between images has the previous and next controls and the arrow, Page and Home / End keys; a drag over a zoomed image has the arrow keys; the downward drag has the close control and Escape. On a touch screen without a keyboard, moving about a zoomed image needs a one-finger drag, which is the single-pointer way, and zooming out brings every part back into view.",
+      "The opener is the product's, not the preview's: a button around the product's own picture — standing alone, in a Figure's stage, in a grid — that says it opens a dialog and is named for what it does and which picture (\"Enlarge: a bedroom with a window onto a garden\"), in the product's words. It is a button, not a link: it has no destination. A picture's alt alone names the picture and not the action.",
+      "Focus returns to the element that opened the preview (IMP-4). Where the person moved to another image and the product's page shows its thumbnail, the product may move focus to it after close; the preview does not know the page.",
+      "Alt text is each image's own and is required: the preview shows the pictures a person chose to look at. The caption is what the product says about the picture and is not a substitute for the alt.",
+      "The controls can be hidden by one tap, never by a timer (IMP-24), and never from the keyboard or from assistive technology: hidden, they are only not drawn. This holds WCAG 2.2.1 and 2.4.7 without a setting.",
+      "The controls are Tanrei Buttons and meet the minimum target themselves (BTN-5); comp.image-preview.bar.gap keeps their targets apart in the default system. The stage is the whole window.",
+      "Text size: at 200% in a window 320 wide the count wraps and the bar grows, the caption grows to a third of the window and then scrolls, and the image is fitted to what is left (IMP-39). Only a zoomed image is ever moved in two directions.",
+      "Reduced motion removes the growth on opening, the slide between images and the eased zoom step; an image still follows the finger that moves it (IMP-34).",
+      "Web: the browser's own page zoom still works on the preview; the stage takes pinch and scroll gestures for itself (`touch-action: none`), so the zoom controls and keys are the guaranteed way to enlarge."
+    ]
+  },
+  "tokens": "comp.image-preview",
+  "fixtures": [
+    {
+      "id": "single",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded"
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-landscape.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000
+          }
+        }
+      ]
+    },
+    {
+      "id": "several",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded",
+        "previousLabel": "Previous image",
+        "nextLabel": "Next image",
+        "countText": "{position} of {count}",
+        "index": 1
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-landscape.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-portrait.png",
+            "alt": "The desk beside the window, seen from the door",
+            "width": 1000,
+            "height": 1500
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-square.png",
+            "alt": "A reading chair under a lamp",
+            "width": 1200,
+            "height": 1200
+          }
+        }
+      ]
+    },
+    {
+      "id": "first-of-several",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded",
+        "previousLabel": "Previous image",
+        "nextLabel": "Next image",
+        "countText": "{position} of {count}"
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-landscape.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-portrait.png",
+            "alt": "The desk beside the window, seen from the door",
+            "width": 1000,
+            "height": 1500
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-square.png",
+            "alt": "A reading chair under a lamp",
+            "width": 1200,
+            "height": 1200
+          }
+        }
+      ]
+    },
+    {
+      "id": "zoomed",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded",
+        "previousLabel": "Previous image",
+        "nextLabel": "Next image",
+        "countText": "{position} of {count}",
+        "index": 1,
+        "zoom": 2
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-landscape.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-portrait.png",
+            "alt": "The desk beside the window, seen from the door",
+            "width": 1000,
+            "height": 1500
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-square.png",
+            "alt": "A reading chair under a lamp",
+            "width": 1200,
+            "height": 1200
+          }
+        }
+      ]
+    },
+    {
+      "id": "caption",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded"
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-landscape.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000,
+            "caption": "The east bedroom in the morning. Photograph by the owner, May."
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-caption",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded",
+        "previousLabel": "Previous image",
+        "nextLabel": "Next image",
+        "countText": "{position} of {count}"
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-landscape.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000,
+            "caption": "The east bedroom in the morning, before the shutters are opened: the bed is against the north wall, the desk stands under the window, and the door at the left leads to the landing. The east bedroom in the morning, before the shutters are opened: the bed is against the north wall, the desk stands under the window, and the door at the left leads to the landing. The east bedroom in the morning, before the shutters are opened: the bed is against the north wall, the desk stands under the window, and the door at the left leads to the landing. The east bedroom in the morning, before the shutters are opened: the bed is against the north wall, the desk stands under the window, and the door at the left leads to the landing. The east bedroom in the morning, before the shutters are opened: the bed is against the north wall, the desk stands under the window, and the door at the left leads to the landing. The east bedroom in the morning, before the shutters are opened: the bed is against the north wall, the desk stands under the window, and the door at the left leads to the landing."
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-portrait.png",
+            "alt": "The desk beside the window, seen from the door",
+            "width": 1000,
+            "height": 1500
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-square.png",
+            "alt": "A reading chair under a lamp",
+            "width": 1200,
+            "height": 1200
+          }
+        }
+      ]
+    },
+    {
+      "id": "tall-image",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded"
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-tall.png",
+            "alt": "A screenshot of a whole page, from its header to its footer",
+            "width": 600,
+            "height": 4800
+          }
+        }
+      ]
+    },
+    {
+      "id": "small-image",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded"
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-small.png",
+            "alt": "The product's mark",
+            "width": 96,
+            "height": 96
+          }
+        }
+      ]
+    },
+    {
+      "id": "loading",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded",
+        "loadingLabel": "Loading image"
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/pending.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000
+          }
+        }
+      ]
+    },
+    {
+      "id": "loading-thumbnail",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded"
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/pending.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000,
+            "thumbnailSrc": "fixtures/image-preview-landscape-thumbnail.png"
+          }
+        }
+      ]
+    },
+    {
+      "id": "error",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded",
+        "previousLabel": "Previous image",
+        "nextLabel": "Next image",
+        "countText": "{position} of {count}",
+        "index": 1
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-landscape.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/missing.png",
+            "alt": "The desk beside the window, seen from the door"
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-square.png",
+            "alt": "A reading chair under a lamp",
+            "width": 1200,
+            "height": 1200
+          }
+        }
+      ]
+    },
+    {
+      "id": "controls-hidden",
+      "props": {
+        "open": true,
+        "label": "Photos of the room",
+        "closeLabel": "Close",
+        "zoomInLabel": "Zoom in",
+        "zoomOutLabel": "Zoom out",
+        "errorText": "This image could not be loaded",
+        "previousLabel": "Previous image",
+        "nextLabel": "Next image",
+        "countText": "{position} of {count}",
+        "index": 1,
+        "controlsHidden": true
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-landscape.png",
+            "alt": "A bedroom with a window onto a garden",
+            "width": 1600,
+            "height": 1000
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-portrait.png",
+            "alt": "The desk beside the window, seen from the door",
+            "width": 1000,
+            "height": 1500
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-square.png",
+            "alt": "A reading chair under a lamp",
+            "width": 1200,
+            "height": 1200
+          }
+        }
+      ]
+    },
+    {
+      "id": "several-rtl",
+      "direction": "rtl",
+      "props": {
+        "open": true,
+        "label": "صور الغرفة",
+        "closeLabel": "إغلاق",
+        "zoomInLabel": "تكبير",
+        "zoomOutLabel": "تصغير",
+        "errorText": "تعذّر تحميل هذه الصورة",
+        "previousLabel": "الصورة السابقة",
+        "nextLabel": "الصورة التالية",
+        "countText": "{position} من {count}",
+        "index": 1
+      },
+      "items": [
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-landscape.png",
+            "alt": "غرفة نوم بنافذة تطل على حديقة",
+            "width": 1600,
+            "height": 1000
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-portrait.png",
+            "alt": "المكتب بجانب النافذة",
+            "width": 1000,
+            "height": 1500,
+            "caption": "الغرفة الشرقية في الصباح."
+          }
+        },
+        {
+          "kind": "image",
+          "props": {
+            "src": "fixtures/image-preview-square.png",
+            "alt": "كرسي للقراءة تحت مصباح",
+            "width": 1200,
+            "height": 1200
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-image-preview",
+      "props": {
+        "open": "open",
+        "index": "index",
+        "zoom": "zoom",
+        "maxZoom": "maxZoom",
+        "controlsHidden": "controlsHidden",
+        "label": "label",
+        "closeLabel": "closeLabel",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
+        "zoomInLabel": "zoomInLabel",
+        "zoomOutLabel": "zoomOutLabel",
+        "countText": "countText",
+        "loadingLabel": "loadingLabel",
+        "errorText": "errorText"
+      },
+      "events": {
+        "close": "close",
+        "indexChange": "indexchange",
+        "zoomChange": "zoomchange",
+        "controlsHiddenChange": "controlshiddenchange",
+        "loadError": "loaderror"
+      },
+      "items": {
+        "image": {
+          "name": "tanrei-image-preview-item",
+          "props": {
+            "src": "src",
+            "alt": "alt",
+            "caption": "caption",
+            "thumbnailSrc": "thumbnailSrc",
+            "width": "width",
+            "height": "height"
+          },
+          "notes": "A data element, a child of the preview: it draws nothing and holds one image's props as attributes (`thumbnail-src`). The preview reads its children in order and watches them for change. It is not an `<img>`, so that the browser asks for no picture the preview has not asked for (IMP-32)."
+        }
+      },
+      "notes": "A custom element with a shadow root: class `TanreiImagePreview`, React `ImagePreview`. Attributes are the kebab-case of the props (`max-zoom`, `controls-hidden`, `close-label`, `previous-label`, `next-label`, `zoom-in-label`, `zoom-out-label`, `count-text`, `loading-label`, `error-text`). Inside the shadow root: a native `<dialog>` opened with `showModal()` — the same modal layer the Dialog and the modal sheets stand on (`primitives/modal.ts`, `primitives/overlay-focus.ts`), not a `<tanrei-dialog>`, whose surface, headline and actions it has no use for — holding five real `<tanrei-button>` elements (the channel of BTN-10 gives each its variant), a `<tanrei-skeleton>` while an image without a thumbnail loads, and the preview's own stage: `<img>` elements for the image shown and its two neighbours and no other (IMP-32), moved and scaled with a transform. The dialog has `max-width` and `max-height` none and fills the viewport (`100dvh`); `::backdrop` is clear. Parts: `container`, `bar`, `count`, `stage`, `image`, `caption`, `error`; the Buttons' parts are exported as `close`, `zoom-in`, `zoom-out`, `previous`, `next` followed by the Button's own part names (`exportparts`). Events are CustomEvents that bubble and leave the shadow root: `close` carries `detail.reason` and is not the native dialog's `close`; `indexchange`, `zoomchange`, `controlshiddenchange` and `loaderror` carry `detail.index`, `detail.zoom`, `detail.hidden` and `detail.index`. `open`, `index`, `zoom` and `controlsHidden` are plain values the element writes itself on a person's change, before the event, except `open`, which the product sets to false in answer to `close`. Gestures: pointer events with `touch-action: none` on the stage, so that the browser's own pinch zoom and scroll do not take them — which is why the zoom buttons and keys must always work (WCAG 2.5.1, 2.5.7); `wheel` with `ctrlKey` is both Ctrl+wheel and a trackpad pinch; a double tap is two `pointerup`s within 300 ms and the touch slop, since `dblclick` does not come on touch. The kind of a pointer is the `pointerType` of its `pointerdown`: `mouse` is the mouse of IMP-18 and IMP-19 (a trackpad's press and drag arrives as one), `touch` and `pen` are the finger and the pen, and an empty or unknown one is taken as `touch`. Android's back closes it through the dialog's own close request (`cancel`), reported as `back` where the platform tells it from Escape and as `escape` where it does not. No history entry is written (IMP-7). The stage is `role=\"img\"` with `tabindex=\"0\"`, `aria-label` the alt and `aria-describedby` the count and the caption; the announcement of IMP-28 is a polite live region. Hidden controls are `opacity: 0`, never `display: none`, `visibility: hidden` or `inert`. Forced colors: `forced-color-adjust: none` on the images only. The opener is the product's: a native `<button type=\"button\" aria-haspopup=\"dialog\">` around its own `<img>` — in a `<tanrei-figure>` or not — named for what it does (\"Enlarge: \" and the alt, in the product's words), whose click sets `index` and `open`; the element ships no opener helper. Snapshot harness: a 640 × 640 viewport, and 360 × 640 for a `compact-` run of `several` and `caption`; the screenshot is the viewport, since the dialog is in the top layer; The fixtures' pictures are the package's own copies under `packages/web/test/fixtures/`, which the harness gives a page as `data:` addresses (`test/pictures.ts`, `fixturePicture`), so that no fixture asks the network for anything; `fixtures/missing.png` is the picture that fails at once, and `fixtures/pending.png` is the picture that never arrives — the harness gives that one name an address that is asked for and never answered, where every other name without a file fails at once."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "tanreiImagePreview",
+      "props": {
+        "open": "isPresented",
+        "index": "index",
+        "zoom": "zoom",
+        "maxZoom": "maxZoom",
+        "controlsHidden": "controlsHidden",
+        "label": "label",
+        "closeLabel": "closeLabel",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
+        "zoomInLabel": "zoomInLabel",
+        "zoomOutLabel": "zoomOutLabel",
+        "countText": "countText",
+        "loadingLabel": "loadingLabel",
+        "errorText": "errorText"
+      },
+      "events": {
+        "close": "onClose",
+        "indexChange": "index",
+        "zoomChange": "zoom",
+        "controlsHiddenChange": "controlsHidden",
+        "loadError": "onLoadError"
+      },
+      "items": {
+        "image": {
+          "name": "TanreiPreviewImage",
+          "props": {
+            "src": "url",
+            "alt": "alt",
+            "caption": "caption",
+            "thumbnailSrc": "thumbnailURL",
+            "width": "width",
+            "height": "height"
+          },
+          "notes": "A value (`struct`, `Identifiable`) in the `images` array."
+        }
+      },
+      "notes": "Planned. A view modifier, as `.tanreiDialog` is: `.tanreiImagePreview(_ label:, isPresented: Binding<Bool>, images: [TanreiPreviewImage], index: Binding<Int>, zoom: Binding<Double>?, maxZoom:, controlsHidden: Binding<Bool>?, onClose:, onLoadError:)`; the word props default to the product's words in the environment. indexChange, zoomChange and controlsHiddenChange are writes to the bindings, SwiftUI's idiom; closing writes false to `isPresented` and then calls `onClose` with the reason. Presented with `.fullScreenCover` with the system transition off (Tanrei draws the fade), which makes the rest of the app unreachable to VoiceOver. The stage is the preview's own view: `MagnifyGesture`, `DragGesture` and a double `TapGesture` composed so that the single tap waits for the double one; a pointer's scroll and pinch on iPadOS and macOS through the platform's own events. The kind of the pointer that drags (IMP-18, IMP-19): `DragGesture` does not tell it, so the pager's drag reads it from the platform beneath — on iPadOS and visionOS a touch of the type `indirectPointer` is the mouse, `direct` the finger and `pencil` the pen; on macOS every drag is a mouse's; on a phone every drag is a finger's. The stage carries `.accessibilityAddTraits(.isImage)`, the alt as its label, the caption as its hint and the count as its value, with `.accessibilityAdjustableAction` moving between images and `.accessibilityAction(.escape)` closing. Images load through `AsyncImage`'s machinery or the product's loader given in the environment."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiImagePreview",
+      "props": {
+        "open": "visible",
+        "index": "index",
+        "zoom": "zoom",
+        "maxZoom": "maxZoom",
+        "controlsHidden": "controlsHidden",
+        "label": "label",
+        "closeLabel": "closeLabel",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
+        "zoomInLabel": "zoomInLabel",
+        "zoomOutLabel": "zoomOutLabel",
+        "countText": "countText",
+        "loadingLabel": "loadingLabel",
+        "errorText": "errorText"
+      },
+      "events": {
+        "close": "onCloseRequest",
+        "indexChange": "onIndexChange",
+        "zoomChange": "onZoomChange",
+        "controlsHiddenChange": "onControlsHiddenChange",
+        "loadError": "onLoadError"
+      },
+      "items": {
+        "image": {
+          "name": "TanreiPreviewImage",
+          "props": {
+            "src": "model",
+            "alt": "alt",
+            "caption": "caption",
+            "thumbnailSrc": "thumbnailModel",
+            "width": "width",
+            "height": "height"
+          },
+          "notes": "A data class in the `images` list. `model` and `thumbnailModel` are what the product's image loader takes (a URL string by default)."
+        }
+      },
+      "notes": "Planned. `TanreiImagePreview(visible, onCloseRequest: (TanreiPreviewCloseReason) -> Unit, images: List<TanreiPreviewImage>, index, onIndexChange, zoom, onZoomChange, maxZoom, controlsHidden, onControlsHiddenChange, onLoadError, label, …)`: state is hoisted, Compose's idiom, so the preview calls the callback and the caller writes the value. `visible` rather than calling it only while open, so that the exit motion can run. Presented in a `Dialog` window with `usePlatformDefaultWidth = false`, `decorFitsSystemWindows = false` and the window's dim off; `dismissOnBackPress` reports `back`. The stage is the preview's own composable: `detectTransformGestures`, `detectTapGestures(onDoubleTap, onTap)` and a horizontal drag that it hands over by the rule of IMP-19; it does not use a pager whose scroll would take a zoomed image's drag. The kind of the pointer that drags (IMP-18, IMP-19) is the `type` of its `PointerInputChange`: `PointerType.Mouse` is the mouse, `Touch` the finger, `Stylus` and `Eraser` the pen, and `Unknown` is taken as the finger. Semantics: `Role.Image`, `contentDescription` the alt, `stateDescription` the count, the caption as its text; `paneTitle` the label. Tanrei loads no picture itself on Android: the product gives a painter loader (a `TanreiImageLoader` composition local), since the platform has none; `model` is what that loader takes."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiImagePreview",
+      "props": {
+        "open": "open",
+        "index": "index",
+        "zoom": "zoom",
+        "maxZoom": "maxZoom",
+        "controlsHidden": "controlsHidden",
+        "label": "semanticLabel",
+        "closeLabel": "closeButtonSemanticLabel",
+        "previousLabel": "previousButtonSemanticLabel",
+        "nextLabel": "nextButtonSemanticLabel",
+        "zoomInLabel": "zoomInButtonSemanticLabel",
+        "zoomOutLabel": "zoomOutButtonSemanticLabel",
+        "countText": "countText",
+        "loadingLabel": "loadingSemanticLabel",
+        "errorText": "errorText"
+      },
+      "events": {
+        "close": "onClose",
+        "indexChange": "onIndexChanged",
+        "zoomChange": "onZoomChanged",
+        "controlsHiddenChange": "onControlsHiddenChanged",
+        "loadError": "onLoadError"
+      },
+      "items": {
+        "image": {
+          "name": "TanreiPreviewImage",
+          "props": {
+            "src": "image",
+            "alt": "semanticLabel",
+            "caption": "caption",
+            "thumbnailSrc": "thumbnail",
+            "width": "width",
+            "height": "height"
+          },
+          "notes": "A value in the `images` list. `image` and `thumbnail` are `ImageProvider`s, Flutter's idiom for an address (a `NetworkImage`); the preview resolves only the shown image's and its neighbours' (IMP-32)."
+        }
+      },
+      "notes": "Planned. `TanreiImagePreview(open:, onClose: ValueChanged<TanreiPreviewCloseReason>, images: [...], index:, onIndexChanged:, zoom:, onZoomChanged:, maxZoom:, controlsHidden:, onControlsHiddenChanged:, onLoadError:, semanticLabel:, …)`, controlled: the caller sets each value from its callback. A controlled overlay in a `Stack` over the page, as the modal side sheet is, with a `FocusScope` that keeps focus in, the page's semantics blocked, back through `PopScope` and the keys through `Shortcuts`/`Actions`. The stage is the preview's own render object with a `ScaleGestureRecognizer`, a `DoubleTapGestureRecognizer` and a horizontal drag recognizer in one arena, resolved by the rule of IMP-19; it is not an `InteractiveViewer` inside a `PageView`, which cannot hand a drag at the edge to the page. The kind of the pointer that drags (IMP-18, IMP-19) is the `kind` of its pointer events: `PointerDeviceKind.mouse` is the mouse, `touch` the finger, `stylus` and `invertedStylus` the pen, and `unknown` is taken as the finger; a `trackpad` pointer drags nothing — its two-finger movement is the scroll of IMP-16. `Semantics(image: true, label:, value:, hint:)`; the announcement is `SemanticsService.announce`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "ImagePreview",
+      "props": {
+        "open": "open",
+        "index": "index",
+        "zoom": "zoom",
+        "maxZoom": "maxZoom",
+        "controlsHidden": "controlsHidden",
+        "label": "label",
+        "closeLabel": "closeLabel",
+        "previousLabel": "previousLabel",
+        "nextLabel": "nextLabel",
+        "zoomInLabel": "zoomInLabel",
+        "zoomOutLabel": "zoomOutLabel",
+        "countText": "countText",
+        "loadingLabel": "loadingLabel",
+        "errorText": "errorText"
+      },
+      "events": {
+        "close": "onClose",
+        "indexChange": "onIndexChange",
+        "zoomChange": "onZoomChange",
+        "controlsHiddenChange": "onControlsHiddenChange",
+        "loadError": "onLoadError"
+      },
+      "items": {
+        "image": {
+          "name": "ImagePreviewImage",
+          "props": {
+            "src": "source",
+            "alt": "alt",
+            "caption": "caption",
+            "thumbnailSrc": "thumbnailSource",
+            "width": "width",
+            "height": "height"
+          },
+          "notes": "An object in the `images` array. `source` and `thumbnailSource` are React Native's image sources (`{ uri }` or a `require`)."
+        }
+      },
+      "notes": "Planned. Controlled: `open`, `onClose(reason)`, `images`, `index`, `onIndexChange`, `zoom`, `onZoomChange`, `controlsHidden`, `onControlsHiddenChange`, `onLoadError`; the caller sets each value from its callback. Presented in a transparent `Modal` with `animationType=\"none\"`, `statusBarTranslucent` and `navigationBarTranslucent`; `onRequestClose` is close with the reason `back` (or `escape` from a hardware keyboard). The stage is the preview's own view on `PanResponder` with the two-touch distance for a pinch, on the core library alone, as the package's other gestures are; whether a pinch that follows the fingers at the display's rate needs a gesture library the package does not have today is for the platform's agent to measure before it builds (the device check). The kind of the pointer that drags (IMP-18, IMP-19): `PanResponder` does not tell it, so on the core library every drag is taken as a finger's, which is what a phone has; where the build runs with a mouse (a tablet or a desktop target) and the platform's pointer events are on, `nativeEvent.pointerType` of `onPointerDown` tells it, and `mouse` is the mouse — which of the two the package can rely on is part of the same device check. `accessibilityRole=\"image\"`, `accessibilityLabel` the alt, `accessibilityValue.text` the count, `accessibilityHint` the caption; `AccessibilityInfo.announceForAccessibility` for IMP-28."
+    }
+  }
+}

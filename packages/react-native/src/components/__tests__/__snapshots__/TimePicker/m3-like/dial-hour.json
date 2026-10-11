@@ -1,0 +1,1653 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "backgroundColor": "rgb(254, 247, 255)",
+      "height": 640,
+      "width": 480
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "alignItems": "center",
+          "bottom": 0,
+          "justifyContent": "center",
+          "left": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "paddingRight": 0,
+          "paddingTop": 0,
+          "position": "absolute",
+          "right": 0,
+          "top": 0
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "collapsable": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "backgroundColor": "rgba(0, 0, 0, 0.32)",
+              "bottom": 0,
+              "left": 0,
+              "opacity": 1,
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityState": {},
+                "accessibilityValue": {},
+                "accessible": false,
+                "collapsable": false,
+                "focusable": false,
+                "style": {
+                  "flex": 1
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "accessibilityLabel": "Select time",
+            "aria-modal": true,
+            "collapsable": false,
+            "role": "dialog",
+            "style": {
+              "backgroundColor": "rgb(236, 230, 240)",
+              "borderRadius": 28,
+              "boxShadow": [
+                {
+                  "blurRadius": 3,
+                  "color": "rgba(0, 0, 0, 0.3)",
+                  "offsetX": 0,
+                  "offsetY": 1,
+                  "spreadDistance": 0
+                },
+                {
+                  "blurRadius": 8,
+                  "color": "rgba(0, 0, 0, 0.15)",
+                  "offsetX": 0,
+                  "offsetY": 4,
+                  "spreadDistance": 3
+                }
+              ],
+              "opacity": 1,
+              "transform": [
+                {
+                  "scale": 1
+                }
+              ]
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "borderRadius": 28,
+                  "flexShrink": 1,
+                  "overflow": "hidden"
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "paddingBottom": 16,
+                      "paddingHorizontal": 24,
+                      "paddingTop": 24
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {},
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": true,
+                            "style": {
+                              "color": "rgb(73, 69, 79)",
+                              "fontFamily": "Roboto",
+                              "fontSize": 12,
+                              "fontWeight": "500",
+                              "letterSpacing": 0.5004,
+                              "lineHeight": 16
+                            }
+                          },
+                          "children": [
+                            "Select time"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "RCTScrollView",
+                  "props": {
+                    "bounces": false,
+                    "style": {
+                      "flexGrow": 0,
+                      "flexShrink": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {},
+                      "children": [
+                        {
+                          "type": "View",
+                          "props": {
+                            "style": {
+                              "alignItems": "center",
+                              "paddingHorizontal": 24
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "View",
+                              "props": {
+                                "style": {
+                                  "alignItems": "center",
+                                  "gap": 16
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "View",
+                                  "props": {},
+                                  "children": [
+                                    {
+                                      "type": "View",
+                                      "props": {
+                                        "style": {
+                                          "alignItems": "center",
+                                          "flexDirection": "row"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "View",
+                                          "props": {
+                                            "style": {
+                                              "alignItems": "center",
+                                              "direction": "ltr",
+                                              "flexDirection": "row",
+                                              "gap": 4
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "accessibilityActions": [
+                                                  {
+                                                    "name": "increment"
+                                                  },
+                                                  {
+                                                    "name": "decrement"
+                                                  }
+                                                ],
+                                                "accessibilityLabel": "Hour",
+                                                "accessibilityRole": "adjustable",
+                                                "accessibilityState": {},
+                                                "accessibilityValue": {
+                                                  "text": "7 AM"
+                                                },
+                                                "accessible": true,
+                                                "collapsable": false,
+                                                "focusable": true,
+                                                "hitSlop": {
+                                                  "bottom": 0,
+                                                  "left": 0,
+                                                  "right": 0,
+                                                  "top": 0
+                                                },
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "backgroundColor": "rgb(234, 221, 255)",
+                                                  "borderRadius": 8,
+                                                  "justifyContent": "center",
+                                                  "minHeight": 80,
+                                                  "minWidth": 96,
+                                                  "opacity": 1
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "collapsable": false,
+                                                    "style": {
+                                                      "color": "rgb(33, 0, 93)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 57,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": -0.25,
+                                                      "lineHeight": 64,
+                                                      "textAlign": "center"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "7"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "Text",
+                                              "props": {
+                                                "accessibilityElementsHidden": true,
+                                                "accessible": false,
+                                                "allowFontScaling": true,
+                                                "importantForAccessibility": "no-hide-descendants",
+                                                "style": {
+                                                  "color": "rgb(29, 27, 32)",
+                                                  "fontFamily": "Roboto",
+                                                  "fontSize": 57,
+                                                  "fontWeight": "400",
+                                                  "letterSpacing": -0.25,
+                                                  "lineHeight": 64
+                                                }
+                                              },
+                                              "children": [
+                                                ":"
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "accessibilityActions": [
+                                                  {
+                                                    "name": "increment"
+                                                  },
+                                                  {
+                                                    "name": "decrement"
+                                                  }
+                                                ],
+                                                "accessibilityLabel": "Minute",
+                                                "accessibilityRole": "adjustable",
+                                                "accessibilityState": {},
+                                                "accessibilityValue": {
+                                                  "text": "30"
+                                                },
+                                                "accessible": true,
+                                                "collapsable": false,
+                                                "focusable": true,
+                                                "hitSlop": {
+                                                  "bottom": 0,
+                                                  "left": 0,
+                                                  "right": 0,
+                                                  "top": 0
+                                                },
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "backgroundColor": "rgb(230, 224, 233)",
+                                                  "borderRadius": 8,
+                                                  "justifyContent": "center",
+                                                  "minHeight": 80,
+                                                  "minWidth": 96,
+                                                  "opacity": 1
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "collapsable": false,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 57,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": -0.25,
+                                                      "lineHeight": 64,
+                                                      "textAlign": "center"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "30"
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "View",
+                                          "props": {
+                                            "role": "radiogroup",
+                                            "style": {
+                                              "alignSelf": "stretch",
+                                              "borderRadius": 8,
+                                              "flexDirection": "row",
+                                              "marginStart": 12,
+                                              "minHeight": 80
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "accessibilityLabel": "AM",
+                                                "accessibilityState": {
+                                                  "checked": true
+                                                },
+                                                "accessibilityValue": {},
+                                                "accessible": true,
+                                                "collapsable": false,
+                                                "focusable": true,
+                                                "hitSlop": {
+                                                  "bottom": 0,
+                                                  "left": 0,
+                                                  "right": 0,
+                                                  "top": 0
+                                                },
+                                                "role": "radio",
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "backgroundColor": "rgb(255, 216, 228)",
+                                                  "borderBottomEndRadius": 0,
+                                                  "borderBottomStartRadius": 8,
+                                                  "borderTopEndRadius": 0,
+                                                  "borderTopStartRadius": 8,
+                                                  "justifyContent": "center",
+                                                  "minHeight": 80,
+                                                  "minWidth": 52,
+                                                  "opacity": 1
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "collapsable": false,
+                                                    "style": {
+                                                      "color": "rgb(49, 17, 29)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "500",
+                                                      "letterSpacing": 0.1504,
+                                                      "lineHeight": 24,
+                                                      "textAlign": "center"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "AM"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "accessibilityLabel": "PM",
+                                                "accessibilityState": {
+                                                  "checked": false
+                                                },
+                                                "accessibilityValue": {},
+                                                "accessible": true,
+                                                "collapsable": false,
+                                                "focusable": false,
+                                                "hitSlop": {
+                                                  "bottom": 0,
+                                                  "left": 0,
+                                                  "right": 0,
+                                                  "top": 0
+                                                },
+                                                "role": "radio",
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "borderBottomEndRadius": 8,
+                                                  "borderBottomStartRadius": 0,
+                                                  "borderTopEndRadius": 8,
+                                                  "borderTopStartRadius": 0,
+                                                  "justifyContent": "center",
+                                                  "minHeight": 80,
+                                                  "minWidth": 52,
+                                                  "opacity": 1
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "collapsable": false,
+                                                    "style": {
+                                                      "color": "rgb(73, 69, 79)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "500",
+                                                      "letterSpacing": 0.1504,
+                                                      "lineHeight": 24,
+                                                      "textAlign": "center"
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "PM"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "accessible": false,
+                                                "importantForAccessibility": "no",
+                                                "style": {
+                                                  "borderColor": "rgb(121, 116, 126)",
+                                                  "borderRadius": 8,
+                                                  "borderWidth": 1,
+                                                  "bottom": 0,
+                                                  "left": 0,
+                                                  "pointerEvents": "none",
+                                                  "position": "absolute",
+                                                  "right": 0,
+                                                  "top": 0
+                                                }
+                                              },
+                                              "children": []
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "accessibilityElementsHidden": true,
+                                                "accessible": false,
+                                                "importantForAccessibility": "no-hide-descendants",
+                                                "style": {
+                                                  "backgroundColor": "rgb(121, 116, 126)",
+                                                  "bottom": 0,
+                                                  "marginStart": -0.5,
+                                                  "position": "absolute",
+                                                  "start": "50%",
+                                                  "top": 0,
+                                                  "width": 1
+                                                }
+                                              },
+                                              "children": []
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "View",
+                                  "props": {
+                                    "accessibilityElementsHidden": true,
+                                    "accessible": false,
+                                    "importantForAccessibility": "no-hide-descendants",
+                                    "pointerEvents": "box-only",
+                                    "style": {
+                                      "backgroundColor": "rgb(230, 224, 233)",
+                                      "borderRadius": 128,
+                                      "direction": "ltr",
+                                      "height": 256,
+                                      "width": 256
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "View",
+                                      "props": {
+                                        "collapsable": false,
+                                        "style": {
+                                          "backgroundColor": "rgb(103, 80, 164)",
+                                          "height": 2,
+                                          "left": 128,
+                                          "position": "absolute",
+                                          "top": 127,
+                                          "transform": [
+                                            {
+                                              "rotate": "120deg"
+                                            }
+                                          ],
+                                          "transformOrigin": "left",
+                                          "width": 96
+                                        }
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "type": "View",
+                                      "props": {
+                                        "style": {
+                                          "backgroundColor": "rgb(103, 80, 164)",
+                                          "borderRadius": 4,
+                                          "height": 8,
+                                          "left": 124,
+                                          "position": "absolute",
+                                          "top": 124,
+                                          "width": 8
+                                        }
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "type": "View",
+                                      "props": {
+                                        "collapsable": false,
+                                        "style": {
+                                          "left": 0,
+                                          "opacity": 1,
+                                          "position": "absolute",
+                                          "top": 0
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "View",
+                                          "props": {
+                                            "pointerEvents": "none",
+                                            "style": {
+                                              "height": 256,
+                                              "left": 0,
+                                              "position": "absolute",
+                                              "top": 0,
+                                              "width": 256
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 104,
+                                                  "position": "absolute",
+                                                  "top": 8,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "12"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 152,
+                                                  "position": "absolute",
+                                                  "top": 20.862,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "1"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 187.138,
+                                                  "position": "absolute",
+                                                  "top": 56,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "2"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 200,
+                                                  "position": "absolute",
+                                                  "top": 104,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "3"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 187.138,
+                                                  "position": "absolute",
+                                                  "top": 152,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "4"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 152,
+                                                  "position": "absolute",
+                                                  "top": 187.138,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "5"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 104,
+                                                  "position": "absolute",
+                                                  "top": 200,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "6"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 56,
+                                                  "position": "absolute",
+                                                  "top": 187.138,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "7"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 20.862,
+                                                  "position": "absolute",
+                                                  "top": 152,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "8"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 8,
+                                                  "position": "absolute",
+                                                  "top": 104,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "9"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 20.862,
+                                                  "position": "absolute",
+                                                  "top": 56,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "10"
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "style": {
+                                                  "alignItems": "center",
+                                                  "height": 48,
+                                                  "justifyContent": "center",
+                                                  "left": 56,
+                                                  "position": "absolute",
+                                                  "top": 20.862,
+                                                  "width": 48
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "Text",
+                                                  "props": {
+                                                    "allowFontScaling": true,
+                                                    "style": {
+                                                      "color": "rgb(29, 27, 32)",
+                                                      "fontFamily": "Roboto",
+                                                      "fontSize": 16,
+                                                      "fontWeight": "400",
+                                                      "letterSpacing": 0.5,
+                                                      "lineHeight": 24
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    "11"
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "View",
+                                      "props": {
+                                        "collapsable": false,
+                                        "style": {
+                                          "backgroundColor": "rgb(103, 80, 164)",
+                                          "borderRadius": 24,
+                                          "height": 48,
+                                          "left": 56,
+                                          "overflow": "hidden",
+                                          "position": "absolute",
+                                          "top": 187.138,
+                                          "width": 48
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "View",
+                                          "props": {
+                                            "collapsable": false,
+                                            "style": {
+                                              "left": -56,
+                                              "position": "absolute",
+                                              "top": -187.138
+                                            }
+                                          },
+                                          "children": [
+                                            {
+                                              "type": "View",
+                                              "props": {
+                                                "pointerEvents": "none",
+                                                "style": {
+                                                  "height": 256,
+                                                  "left": 0,
+                                                  "position": "absolute",
+                                                  "top": 0,
+                                                  "width": 256
+                                                }
+                                              },
+                                              "children": [
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 104,
+                                                      "position": "absolute",
+                                                      "top": 8,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "12"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 152,
+                                                      "position": "absolute",
+                                                      "top": 20.862,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "1"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 187.138,
+                                                      "position": "absolute",
+                                                      "top": 56,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "2"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 200,
+                                                      "position": "absolute",
+                                                      "top": 104,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "3"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 187.138,
+                                                      "position": "absolute",
+                                                      "top": 152,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "4"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 152,
+                                                      "position": "absolute",
+                                                      "top": 187.138,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "5"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 104,
+                                                      "position": "absolute",
+                                                      "top": 200,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "6"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 56,
+                                                      "position": "absolute",
+                                                      "top": 187.138,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "7"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 20.862,
+                                                      "position": "absolute",
+                                                      "top": 152,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "8"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 8,
+                                                      "position": "absolute",
+                                                      "top": 104,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "9"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 20.862,
+                                                      "position": "absolute",
+                                                      "top": 56,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "10"
+                                                      ]
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "View",
+                                                  "props": {
+                                                    "style": {
+                                                      "alignItems": "center",
+                                                      "height": 48,
+                                                      "justifyContent": "center",
+                                                      "left": 56,
+                                                      "position": "absolute",
+                                                      "top": 20.862,
+                                                      "width": 48
+                                                    }
+                                                  },
+                                                  "children": [
+                                                    {
+                                                      "type": "Text",
+                                                      "props": {
+                                                        "allowFontScaling": true,
+                                                        "style": {
+                                                          "color": "rgb(255, 255, 255)",
+                                                          "fontFamily": "Roboto",
+                                                          "fontSize": 16,
+                                                          "fontWeight": "400",
+                                                          "letterSpacing": 0.5,
+                                                          "lineHeight": 24
+                                                        }
+                                                      },
+                                                      "children": [
+                                                        "11"
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "paddingBottom": 24,
+                      "paddingHorizontal": 24,
+                      "paddingTop": 24
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {},
+                      "children": [
+                        {
+                          "type": "View",
+                          "props": {
+                            "style": {
+                              "alignItems": "center",
+                              "alignSelf": "stretch",
+                              "flexDirection": "row",
+                              "gap": 8,
+                              "justifyContent": "space-between"
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "View",
+                              "props": {
+                                "accessibilityLabel": "Switch to text entry",
+                                "accessibilityRole": "button",
+                                "accessibilityState": {
+                                  "disabled": false
+                                },
+                                "accessibilityValue": {},
+                                "accessible": true,
+                                "collapsable": false,
+                                "focusable": true,
+                                "hitSlop": {
+                                  "bottom": 4,
+                                  "left": 4,
+                                  "right": 4,
+                                  "top": 4
+                                },
+                                "style": {
+                                  "alignItems": "center",
+                                  "alignSelf": "flex-start",
+                                  "borderRadius": 9999,
+                                  "height": 40,
+                                  "justifyContent": "center",
+                                  "opacity": 1,
+                                  "width": 40
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "View",
+                                  "props": {
+                                    "accessibilityElementsHidden": true,
+                                    "accessible": false,
+                                    "importantForAccessibility": "no-hide-descendants",
+                                    "style": {
+                                      "alignItems": "center",
+                                      "height": 24,
+                                      "justifyContent": "center",
+                                      "width": 24
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "Text",
+                                      "props": {
+                                        "allowFontScaling": false,
+                                        "collapsable": false,
+                                        "style": {
+                                          "color": "rgb(73, 69, 79)",
+                                          "fontFamily": "Material Symbols Outlined",
+                                          "fontSize": 24,
+                                          "fontWeight": "400",
+                                          "lineHeight": 24,
+                                          "textAlign": "center"
+                                        }
+                                      },
+                                      "children": [
+                                        "keyboard"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "View",
+                              "props": {
+                                "style": {
+                                  "flexDirection": "row",
+                                  "gap": 8
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "View",
+                                  "props": {
+                                    "accessibilityLabel": "Cancel",
+                                    "accessibilityRole": "button",
+                                    "accessibilityState": {
+                                      "disabled": false
+                                    },
+                                    "accessibilityValue": {},
+                                    "accessible": true,
+                                    "collapsable": false,
+                                    "focusable": true,
+                                    "hitSlop": {
+                                      "bottom": 4,
+                                      "left": 4,
+                                      "right": 4,
+                                      "top": 4
+                                    },
+                                    "style": {
+                                      "alignItems": "center",
+                                      "alignSelf": "flex-start",
+                                      "borderRadius": 9999,
+                                      "flexDirection": "row",
+                                      "gap": 8,
+                                      "justifyContent": "center",
+                                      "minHeight": 40,
+                                      "opacity": 1,
+                                      "paddingEnd": 16,
+                                      "paddingStart": 16,
+                                      "paddingVertical": 6
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "Text",
+                                      "props": {
+                                        "allowFontScaling": true,
+                                        "collapsable": false,
+                                        "style": {
+                                          "color": "rgb(103, 80, 164)",
+                                          "flexShrink": 1,
+                                          "fontFamily": "Roboto",
+                                          "fontSize": 14,
+                                          "fontWeight": "500",
+                                          "letterSpacing": 0.1,
+                                          "lineHeight": 20,
+                                          "textAlign": "center"
+                                        }
+                                      },
+                                      "children": [
+                                        "Cancel"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "View",
+                                  "props": {
+                                    "accessibilityLabel": "OK",
+                                    "accessibilityRole": "button",
+                                    "accessibilityState": {
+                                      "disabled": false
+                                    },
+                                    "accessibilityValue": {},
+                                    "accessible": true,
+                                    "collapsable": false,
+                                    "focusable": true,
+                                    "hitSlop": {
+                                      "bottom": 4,
+                                      "left": 4,
+                                      "right": 4,
+                                      "top": 4
+                                    },
+                                    "style": {
+                                      "alignItems": "center",
+                                      "alignSelf": "flex-start",
+                                      "borderRadius": 9999,
+                                      "flexDirection": "row",
+                                      "gap": 8,
+                                      "justifyContent": "center",
+                                      "minHeight": 40,
+                                      "opacity": 1,
+                                      "paddingEnd": 16,
+                                      "paddingStart": 16,
+                                      "paddingVertical": 6
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "Text",
+                                      "props": {
+                                        "allowFontScaling": true,
+                                        "collapsable": false,
+                                        "style": {
+                                          "color": "rgb(103, 80, 164)",
+                                          "flexShrink": 1,
+                                          "fontFamily": "Roboto",
+                                          "fontSize": 14,
+                                          "fontWeight": "500",
+                                          "letterSpacing": 0.1,
+                                          "lineHeight": 20,
+                                          "textAlign": "center"
+                                        }
+                                      },
+                                      "children": [
+                                        "OK"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

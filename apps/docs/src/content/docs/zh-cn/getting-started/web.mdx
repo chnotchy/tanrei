@@ -1,0 +1,159 @@
+---
+title: Web
+description: 在任何 Web 项目中使用 Tanrei 的 CSS 令牌和 Web Components。
+translationOf: getting-started/web.mdx
+sourceHash: f90530af900eada26b7ea7f446e046888fcdf091
+---
+
+import Steps from '../../../../components/Steps.astro';
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+`@tanrei/web` 包含两样东西：一份以 CSS 自定义属性提供设计令牌的样式表，以及用 Lit 构建的、基于标准的自定义元素。它不要求使用任何框架。
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+
+## 安装
+
+### 从源码
+
+你需要 Git、Node 22.12 或更高版本，以及 pnpm 12（`corepack enable` 会给你仓库固定的那个版本）。在仓库的克隆中构建这个包并打包，再把打包出的文件安装到你的项目里：
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/web build
+pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
+```
+
+```sh
+# 在你的项目中：路径指向写入这些包的文件夹
+npm install path/to/tanrei-packages/tanrei-web-*.tgz
+```
+
+打包出的文件包含的正是发布时会发布的内容，所以下面的一切用法都完全相同。要取用更新的源码，就拉取、重新构建并打包，然后安装新的文件。
+
+### 首次发布之后
+
+```sh
+npm install @tanrei/web
+```
+
+## 使用
+
+<Steps>
+
+1. 尽早加载一次令牌。令牌被包在一个级联层（`tanrei.tokens`）中，因此你自己的样式始终优先。
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   ```
+
+2. 注册组件。可以全部导入，也可以只导入用到的元素。
+
+   ```js
+   import '@tanrei/web';
+   // 或者，一次导入一个元素：
+   import '@tanrei/web/components/button';
+   ```
+
+   `@tanrei/web/…` 这类说明符是包的导出，由打包工具（Vite、webpack、esbuild）解析。没有打包工具时，浏览器无法解析 `<link>` 或 `<script src>` 中的裸说明符，这时请直接提供包的 `dist/` 目录并指向其中的文件：样式表原样使用，脚本使用 `tanrei.bundle.js`，它包含 Lit 和所有元素：
+
+   ```html
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
+   ```
+
+3. 像使用其他 HTML 一样使用这些元素。
+
+   ```html
+   <tanrei-button variant="filled">部署</tanrei-button>
+   <tanrei-button variant="outlined" size="small" disabled>取消</tanrei-button>
+   ```
+
+4. 给出你的产品的文字。Tanrei 不自带任何文字：必填和选填小标签上的字、关闭按钮的名称等等，都是你的。可以按语言一次说完，也可以写在每个元素上。
+
+   ```js
+   import { setWords } from '@tanrei/web';
+
+   setWords({ requiredText: '必填', optionalText: '选填', closeLabel: '关闭' });
+   ```
+
+   缺少某个文字时，组件仍然可以工作，并在控制台里告诉你缺的是哪一个。参见[文字](/zh-cn/foundations/words/)。
+
+</Steps>
+
+<DemoFrame>
+  <tanrei-button variant="filled">部署</tanrei-button>
+  <tanrei-button variant="outlined" size="small" disabled>取消</tanrei-button>
+</DemoFrame>
+
+## 主题与对比度
+
+令牌的值使用了 `light-dark()`，因此会跟随所在元素的 `color-scheme`。开箱即用时，这意味着跟随操作系统的设置，并且在 `prefers-contrast: more` 时切换到高对比度方案。
+
+如果想自己控制，可以设置属性：
+
+```html
+<!-- 为整个页面或任意子树强制指定主题 -->
+<html data-tanrei-theme="dark">
+
+<!-- 为页面强制指定对比度级别："medium" 或 "high" -->
+<html data-tanrei-contrast="high">
+```
+
+<Callout>
+  这两个属性既可以用在 `<html>` 上，也可以用在任意子树上。生成的样式表把整套令牌声明在 `:root, [data-tanrei-contrast]` 上，因此在嵌套元素上设置 `data-tanrei-contrast` 时，其中的组件令牌也会按该对比度级别重新解析，而不只是系统颜色。
+</Callout>
+
+## 在自己的 CSS 中使用令牌
+
+每个令牌都是一个以其路径命名的自定义属性：`tanrei.sys.color.primary` 对应 `--tanrei-sys-color-primary`。
+
+```css
+.panel {
+  background: var(--tanrei-sys-color-surface-container-low);
+  border-radius: var(--tanrei-sys-shape-corner-medium);
+  box-shadow: var(--tanrei-sys-elevation-level1);
+  font: var(--tanrei-sys-typescale-body-font);
+}
+```
+
+## 文本样式
+
+文本样式按层级命名（`heading-2` 对应 `h2`，`body` 对应 `p`，`label` 对应控件上的文字），每个样式都是一组自定义属性：简写属性 `--tanrei-sys-typescale-<role>-font`，以及 `-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing` 和 `-font-weight-emphasized`。另有两份可选的样式表，可以替你把它们应用到元素上：
+
+```js
+import '@tanrei/web/text.css';   // .tanrei-text-<role>、.tanrei-text-emphasized
+import '@tanrei/web/prose.css';  // .tanrei-prose 内的 h1–h6、p、small、code、pre
+```
+
+```html
+<h2 class="tanrei-text-heading-2">章节</h2>
+<p class="tanrei-text-body">带有<strong class="tanrei-text-emphasized">强调</strong>的连续文本。</p>
+<article class="tanrei-prose"><!-- 渲染后的 Markdown --></article>
+```
+
+`.tanrei-text-emphasized` 会以所在角色的字重加上该系列的强调级差来绘制文本；它是一种字重，而不是另一个角色。十六个角色及其与元素的对应关系见[字体排印](/zh-cn/foundations/typography/)。
+
+## 字体
+
+字阶指定的字体是 Inter、Noto Sans JP、Noto Sans 和 Roboto Mono（`tokens.css` 中的 `--tanrei-ref-typeface-{brand,plain,mono}`；`tanrei build` 会为任何系统打印这份列表），图标指定的是 Material Symbols Rounded，并且全部回退到系统字体。Tanrei 不打包字体文件；请自行加载，并使用完全相同的字体族名称。可以从 Google Fonts 加载，也可以使用 `@fontsource-variable/*` 包（它们注册的名称是 `Inter Variable` 之类，因此需要像本站一样，自己声明一条 `@font-face`，用不带后缀的名称指向它们的文件）。
+
+## 图标
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>添加</tanrei-button>
+```
+
+`.tanrei-icon` 以系统的图标字重绘制一个 [Material Symbols](https://fonts.google.com/icons) 名称，尺寸取决于它所在的位置。你无需选择线框还是填充：参见[图标](/zh-cn/foundations/icons/)。
+
+## 浏览器支持
+
+令牌依赖 `light-dark()` 和级联层，Chrome、Edge、Firefox 和 Safari 的当前版本均已支持。

@@ -1,0 +1,97 @@
+/*
+ * A menu drawn in place before its elements are defined (specs/menu.spec.json; MNU-19's verify, MNU-20, MNU-23, MNU-28,
+ * MNU-36). `<tanrei-menu inline open>` — the form tests and documentation draw a menu in — holds its rows as child
+ * elements whose words are attributes, so until the elements are defined nothing of it is laid out and it has no size:
+ * a page that draws one moves by the menu's whole height when the script arrives. This stylesheet gives that first
+ * paint the block size the surface will have, so that what is under it stays where it is:
+ *
+ *   <tanrei-menu inline open>
+ *     <tanrei-menu-item label="Copy"></tanrei-menu-item>
+ *     <tanrei-menu-group label="View"><tanrei-menu-checkbox-item label="Show grid"></tanrei-menu-checkbox-item></tanrei-menu-group>
+ *   </tanrei-menu>
+ *
+ * - the surface's padding above and below;
+ * - each row — an item of any kind, a submenu's item — at the container's height or the pointer's target, whichever is
+ *   more, with a line of the label, and a line of the supporting text where the row has one;
+ * - a group's title, and between a group and what is next to it the divider's space or, where the separation is gap
+ *   (the attribute over comp.menu.separation), the group's gap.
+ *
+ * What it does not give: anything drawn (no fill, no word, no glyph — the words are attributes until the elements
+ * draw them); the surface's inline size, which is as wide as its widest row's words; a label or a supporting text
+ * that wraps onto more lines; a submenu's own surface. A menu that is not drawn in place opens in the top layer and
+ * has no size to hold.
+ *
+ * Every value is a `--tanrei-comp-menu-*` token. Every selector has no specificity (`:where()`), and none matches
+ * once the menu is defined.
+ */
+@layer tanrei.components {
+  :where(tanrei-menu[inline][open]:not(:defined)) {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding-block: var(--tanrei-comp-menu-surface-padding-block);
+  }
+  :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-group) {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+  }
+  /* A row: at least the container's height and the pointer's target, padded, a line of the label. */
+  :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu) {
+    display: block;
+    flex: none;
+    box-sizing: border-box;
+    min-block-size: max(var(--tanrei-comp-menu-container-height), var(--tanrei-sys-target-pointer));
+    padding-block: var(--tanrei-comp-menu-container-padding-block);
+    font: var(--tanrei-comp-menu-label-typescale-font);
+  }
+  :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)::before {
+    content: '';
+    display: block;
+    /* The label's line, moved down by half of what it is shorter than the tallest glyph beside it. */
+    block-size: calc((max(1lh, var(--tanrei-comp-menu-mark-size), var(--tanrei-comp-menu-leading-icon-size), var(--tanrei-comp-menu-trailing-icon-size)) + 1lh) / 2);
+  }
+  :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu):where([supporting-text]:not([supporting-text='']))::after {
+    content: '';
+    display: block;
+    font: var(--tanrei-comp-menu-supporting-text-typescale-font);
+    block-size: 1lh;
+  }
+  /* A submenu is a row; its own items are another surface's. (Every element these rules style for the sake of the
+     menu's :defined has a name: an engine goes through what is under an element that is defined for the elements such
+     rules can style, and a rule for any element makes that everything — src/styles/has.test.ts.) */
+  :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-submenu) > :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu, tanrei-menu-group) {
+    display: none;
+  }
+  /* A group's title (not a group's inside a group, MNU-29). */
+  :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group[label]:not([label='']))::before {
+    content: '';
+    display: block;
+    flex: none;
+    box-sizing: content-box;
+    padding-block: var(--tanrei-comp-menu-container-padding-block);
+    font: var(--tanrei-comp-menu-group-title-typescale-font);
+    block-size: 1lh;
+  }
+  /* MNU-23: between a group and what is next to it. */
+  :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group:not(:first-child), tanrei-menu-group + :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)) {
+    margin-block-start: calc(2 * var(--tanrei-comp-menu-divider-space) + var(--tanrei-comp-menu-divider-thickness));
+  }
+  /* MNU-35, MNU-36: the gap form — the token's, then the attribute's. */
+  @container style(--tanrei-comp-menu-separation: gap) {
+    :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group:not(:first-child), tanrei-menu-group + :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)) {
+      margin-block-start: var(--tanrei-comp-menu-group-gap);
+    }
+  }
+  :where(tanrei-menu[inline][open][separation='divider']:not(:defined)) > :where(tanrei-menu-group:not(:first-child), tanrei-menu-group + :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)) {
+    margin-block-start: calc(2 * var(--tanrei-comp-menu-divider-space) + var(--tanrei-comp-menu-divider-thickness));
+  }
+  :where(tanrei-menu[inline][open][separation='gap']:not(:defined)) > :where(tanrei-menu-group:not(:first-child), tanrei-menu-group + :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)) {
+    margin-block-start: var(--tanrei-comp-menu-group-gap);
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu) {
+      min-block-size: max(var(--tanrei-comp-menu-container-height), var(--tanrei-sys-target-touch));
+    }
+  }
+}

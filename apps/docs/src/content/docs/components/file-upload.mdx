@@ -1,0 +1,462 @@
+---
+title: File upload
+description: Lets people choose files through a file picker and shows what was chosen as file items, in a column of rows or a strip of tiles. Placed in a form it keeps the chosen files and submits them with no code; a product that sends files itself gives the file items. It never uploads anything itself.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import Callout from '../../../components/Callout.astro';
+import { demoPicture } from '../../../lib/demo-picture';
+
+## Overview
+
+<ComponentAvailability name="file-upload" />
+
+<DemoFrame label="A file upload in each layout. Choose a file: it is listed, and can be removed. Nothing is sent." column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Attachment" accept=".pdf" constraints-text="PDF, up to 10 MB" max-size="10000000" empty-text="No file chosen" remove-label="Remove" type-error-text="Only PDF files can be added." size-error-text="Larger than 10 MB.">
+    <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
+  </tanrei-file-upload>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Attachments" accept=".pdf,image/png" max-size="10000000" drop-text="Drag files here, or choose them" constraints-text="PDF or PNG, up to 10 MB each" remove-label="Remove" type-error-text="Only PDF and PNG files can be added." size-error-text="Larger than 10 MB.">
+    <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+A file upload is two things in one place: the way to choose files, and the list of what was chosen. It is the ordinary case, ready to use in a form.
+
+**Built from** a [file picker](/components/file-picker/) and [file items](/components/file-item/). The file picker is the way to choose: your own [button](/components/button/), which opens the platform's file picker, the drop area around it, the limits in words, and the judging of what was chosen. A file item is one chosen file: its glyph or picture, its name, its size, its status and the actions to remove it and to try it again. The file upload draws neither. It adds what ties them together: which files are kept, how many more files fit, the same form (row or tile) for every file, one message for many changes, where focus goes after a removal, and the form's value.
+
+Who holds the rows is the `rows` prop:
+
+- `own`, the default. The file upload keeps the chosen files and draws their rows itself. Place it in a form and it works: people choose, see the list, remove, and submit. You write no code.
+- `given`. Your product gives the rows. Use it when you send each file as soon as it is chosen and want every row to show its status, its progress and a retry action.
+
+<Callout type="caution" title="It does not upload">
+The file upload opens no connection and reads no byte of a file. With `rows="own"` it keeps the browser's handle of each chosen file, and the form sends the files when it is submitted. With `rows="given"` it keeps nothing. Where the files go, with what credentials, in what pieces and with what retries is your form's or your product's code. The samples on this page send nothing.
+</Callout>
+
+Use something else when:
+
+- The files are already stored, and people open or select them. That is a [list](/components/list/).
+- People enter values, such as recipients or labels. Those are input chips in a [tag group](/components/tag-group/).
+- You only show how far one task has come. That is a [progress indicator](/components/progress-indicator/).
+- The files go somewhere a list below the picker is not: inside a message being written, onto a canvas, or read immediately and not kept. That is a [file picker](/components/file-picker/) alone, with [file items](/components/file-item/) wherever you show them; see [One level down](#one-level-down).
+- The page must take files where script does not run. Write a native `<input type="file">` in your own form. A custom element cannot open the picker or carry a file without script.
+
+On the web it is `<tanrei-file-upload>`. The other platforms have not implemented it yet.
+
+### Usage
+
+Place the element in your form and give it a `name` and a trigger. That is all. The chosen files are listed, each row has a remove action, and the form submits the files that are kept.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form method="post" enctype="multipart/form-data" action="/requests">
+      <tanrei-file-upload name="attachments" multiple
+                          accept=".pdf,image/png" max-size="10000000"
+                          label="Attachments"
+                          constraints-text="PDF or PNG, up to 10 MB each"
+                          remove-label="Remove"
+                          type-error-text="Only PDF and PNG files can be added."
+                          size-error-text="Larger than 10 MB.">
+        <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+      </tanrei-file-upload>
+      <button type="submit">Send</button>
+    </form>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload } from '@tanrei/react';
+
+    <form method="post" encType="multipart/form-data" action="/requests">
+      <FileUpload
+        name="attachments"
+        multiple
+        accept={['.pdf', 'image/png']}
+        maxSize={10_000_000}
+        label="Attachments"
+        constraintsText="PDF or PNG, up to 10 MB each"
+        removeLabel="Remove"
+        typeErrorText="Only PDF and PNG files can be added."
+        sizeErrorText="Larger than 10 MB."
+      >
+        <Button slot="trigger" variant="outlined">Choose files</Button>
+      </FileUpload>
+      <button type="submit">Send</button>
+    </form>
+    ```
+  </TabItem>
+</Tabs>
+
+What happens with nothing written:
+
+- With `multiple`, a second choice adds to the first. `maxFiles` counts every file that is kept. Without `multiple`, a new file takes the place of the one kept.
+- The same file chosen twice is kept once.
+- A file that breaks a limit is not kept. It is drawn as a failed row with your sentence for the reason, and leaves when the person removes it or chooses again.
+- The remove action removes the row. Focus moves to the next row.
+- The form submits the kept files under `name`. A reset empties the list.
+
+Three optional lines of code add what markup cannot say:
+
+```js
+const upload = document.querySelector('tanrei-file-upload');
+
+// A file's size, in your product's words. Without it no size is drawn.
+const megabytes = new Intl.NumberFormat('en', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+upload.formatSize = (bytes) => megabytes.format(bytes / 1e6);
+
+// The kept files changed by what a person did.
+upload.addEventListener('change', ({ detail }) => console.log(detail.files));
+
+// From your code: read the kept files, hand files over, and clear.
+upload.files;          // File[], a new array on each read
+upload.add(files);     // judged as a choice is; returns the refused files with their reasons
+upload.clear();
+```
+
+In React the same three are a ref: `ref.current.files`, `ref.current.add(files)` and `ref.current.clear()`, with `formatSize` and `onChange` as props.
+
+### Sending files yourself
+
+Say `rows="given"` when your product sends each file itself and reports on it. On `select` you add a [file item](/components/file-item/) for each file you keep. On a file item's `remove` you take it out. The component then adds and removes nothing by itself, and keeps no file.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-file-upload id="attachments" rows="given" layout="drop-area" multiple
+                        accept=".pdf,image/png" max-size="10000000"
+                        label="Attachments"
+                        drop-text="Drag files here, or choose them"
+                        constraints-text="PDF or PNG, up to 10 MB each"
+                        remove-label="Remove" retry-label="Try again">
+      <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+    </tanrei-file-upload>
+
+    <script type="module">
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const upload = document.querySelector('#attachments');
+      const size = new Intl.NumberFormat('en', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+
+      upload.addEventListener('select', ({ detail }) => {
+        for (const file of detail.files) {
+          const row = document.createElement('tanrei-file-item');
+          Object.assign(row, { value: crypto.randomUUID(), name: file.name, sizeText: size.format(file.size / 1e6), status: 'uploading', statusText: 'Uploading', progress: 0 });
+          upload.append(row);
+          // Your code sends the file and reports back. The component only draws what you set.
+          send(file, {
+            onProgress: (share) => (row.progress = share),
+            onDone: () => Object.assign(row, { status: 'done', statusText: 'Uploaded' }),
+            onError: () => Object.assign(row, { status: 'error', errorText: 'The connection was lost.', retryable: true }),
+          });
+        }
+      });
+
+      // A refused file has a reason that is a name, not a sentence. Say it in your own words.
+      upload.addEventListener('reject', ({ detail }) => {
+        const tooLarge = detail.files.filter((refused) => refused.reason === 'size').length;
+        if (tooLarge) upload.announcement = `${tooLarge} files were larger than 10 MB.`;
+      });
+
+      // A row never removes itself. You take it out, and focus moves on to the next row.
+      upload.addEventListener('remove', (event) => event.target.remove());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload, FileItem } from '@tanrei/react';
+
+    <FileUpload
+      rows="given"
+      layout="drop-area"
+      multiple
+      accept={['.pdf', 'image/png']}
+      maxSize={10_000_000}
+      label="Attachments"
+      dropText="Drag files here, or choose them"
+      constraintsText="PDF or PNG, up to 10 MB each"
+      removeLabel="Remove"
+      retryLabel="Try again"
+      onSelect={(event) => start(event.detail.files)}
+      onReject={(event) => explain(event.detail.files)}
+    >
+      <Button slot="trigger" variant="outlined">Choose files</Button>
+      {rows.map((row) => (
+        <FileItem key={row.id} value={row.id} name={row.name} sizeText={row.sizeText} status={row.status} statusText={row.statusText} progress={row.progress} errorText={row.errorText} retryable={row.retryable} onRemove={() => remove(row.id)} onRetry={() => retry(row.id)} />
+      ))}
+    </FileUpload>
+    ```
+  </TabItem>
+</Tabs>
+
+<Callout type="caution" title="Rows are drawn only when given">
+A `<tanrei-file-item>` you write inside a file upload is drawn only with `rows="given"`. Without the attribute the file upload keeps its own files, your rows are not drawn, and a debug build says so.
+</Callout>
+
+### One level down
+
+The same thing written by hand from its two members is the same picture, with the same names, descriptions and states:
+
+```html
+<!-- the file upload -->
+<tanrei-field label="Attachments">
+  <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
+      constraints-text="PDF, 5 files at most" empty-text="No file chosen" remove-label="Remove" retry-label="Try again">
+    <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Uploading" progress="0.4"></tanrei-file-item>
+  </tanrei-file-upload>
+</tanrei-field>
+
+<!-- one level down: the two members, arranged by the product -->
+<tanrei-field label="Attachments">
+  <tanrei-file-picker multiple accept=".pdf" max-files="5"
+      constraints-text="PDF, 5 files at most" selection-text="No file chosen">
+    <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+<ul class="my-files" aria-label="Attachments">
+  <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Uploading" progress="0.4"
+        remove-label="Remove" retry-label="Try again"></tanrei-file-item></li>
+</ul>
+```
+
+<DemoFrame label="The same thing written by hand: a file picker, and a list of the page's own with one file item" column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Attachments" multiple accept=".pdf" max-files="5" constraints-text="PDF, 5 files at most">
+    <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+  </tanrei-file-picker>
+  <ul class="not-content" aria-label="Attachments" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status="uploading" status-text="Uploading" progress="0.4" remove-label="Remove" retry-label="Try again"></tanrei-file-item></li>
+  </ul>
+</DemoFrame>
+
+A file's row is the same element alone and inside a file upload. What the hand-made version does not get is the state the file upload holds:
+
+- One polite message for many changes.
+- Focus that goes on to the next file after a removal.
+- The form's value, its reset and its validation.
+- Passing over a file that was chosen twice, and judging how many more files fit.
+- The same form (row or tile), the same fit (`cover` or `contain`) and the same two action names for every file.
+- The list around the items, and the group around the whole.
+
+Go one level down when you need an arrangement the file upload does not offer:
+
+| You need | Use |
+| --- | --- |
+| A way to choose, a list below it, and a form's value | The file upload |
+| The chosen files somewhere else than below the picker: inside a message, beside a preview, in a table | A [file picker](/components/file-picker/), and [file items](/components/file-item/) where you show them |
+| One file that is read immediately and not kept | A [file picker](/components/file-picker/) alone |
+| Files your product already has, with nothing to choose | [File items](/components/file-item/) alone |
+| Files in an order people change | A [list](/components/list/) whose rows show the files; see the [file item's page](/components/file-item/#files-in-an-order-people-change) |
+
+## Specs
+
+<DemoFrame label="Rows given by the product, one of each status: waiting, sent to 40%, under way, done, failed and retryable, failed for good" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="Attachments" constraints-text="PDF or PNG, up to 10 MB each" remove-label="Remove" retry-label="Try again">
+    <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 KB" status-text="Waiting"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="Uploading" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="Uploading"></tanrei-file-item>
+    <tanrei-file-item value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="Uploaded"></tanrei-file-item>
+    <tanrei-file-item value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="The connection was lost." retryable></tanrei-file-item>
+    <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 MB" status="error" error-text="Larger than 10 MB."></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+<DemoFrame label="The same file upload with tiles: every file a box with its picture, and the name beneath" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="Photos" constraints-text="Pictures, up to 5 MB each" remove-label="Remove" retry-label="Try again">
+    <tanrei-button slot="trigger" variant="outlined">Choose photos</tanrei-button>
+    <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+### What each member gives
+
+| Aspect | From the file picker | From the file item | The file upload's own |
+| --- | --- | --- | --- |
+| Properties | `layout`, `multiple`, `accept`, `maxSize`, `constraintsText`, `dropText`, `disabled`, `error`, `required` | `itemForm`, `itemPreview`, `itemFit`, `itemNameHidden`, `itemWidth`, `itemHeight` (the item's `form`, `preview`, `fit`, `nameHidden`, `width`, `height`), `removeLabel`, `retryLabel` | `rows`, `maxFiles`, `label`, `emptyText`, `typeErrorText`, `sizeErrorText`, `countErrorText`, `announcement` |
+| Events | — | `click`, `remove`, `retry`, of the file items you give | `select`, `reject`, `change` |
+| Slots | `trigger`, `icon` | — | The default slot: your file items, with `rows="given"` |
+| Tokens | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`, `comp.file-upload.list.item-gap` |
+
+The file picker has a `label`, a `maxFiles` and a `selectionText` of its own. They are not forwarded: the file upload's `label` names the picker and the list together, its `maxFiles` counts every file of the list, and it writes the picker's `selectionText` from `emptyText` while the list is empty.
+
+The eight properties from the file item are given to every file item of the file upload, so that every file is drawn the same way. A file item of yours that says one of them otherwise is overruled, and a debug build reports it. `disabled` is given to every file item too.
+
+What choosing does — the trigger, the drop area, `accept` and the limits — is on the [file picker's page](/components/file-picker/). What a file's row or tile shows — the glyph by format, the picture, the statuses, a pressable body — is on the [file item's page](/components/file-item/).
+
+### Setting one file upload apart
+
+The file upload has two tokens of its own, the two distances of its list. Everything else it draws reads the file picker's tokens and the file item's, wherever they are set. To change one instance, set the member's token on it:
+
+```html
+<tanrei-file-upload label="Attachments" style="--tanrei-comp-file-item-row-container-gap: 16px">…</tanrei-file-upload>
+```
+
+<ComponentSpecs name="file-upload" />
+
+### What the web draws differently
+
+- The element's shadow root holds one `<tanrei-file-picker>`, the list and one live region. With `rows="own"` the list holds the `<tanrei-file-item>`s the file upload makes; with `rows="given"` your file items stay in your DOM, in the default slot. Importing the element defines both members.
+- The trigger and the glyph you slot are passed on to the file picker and stay in your DOM. The trigger is still your own button, focusable where it stands.
+- The element is form-associated, and its two members are not: they add no entry to the form.
+- `select`, `reject` and `change` are the file upload's own CustomEvents. The file picker's `select` and `reject` do not leave it. The `click`, `remove` and `retry` of file items you give bubble to your listeners; those of the items the file upload makes are answered inside.
+- Parts: `file-picker`, `list`, and `file-item` for each item the file upload makes; the file picker's `container`, `icon`, `label`, `supporting-text` and `selection-text` under their own names; and the parts of an item the file upload makes under the prefix `item-`: `item-container`, `item-media`, `item-icon`, `item-preview`, `item-headline`, `item-supporting-text`, `item-status-icon`, `item-progress`, `item-action`. A file item you give is styled as itself: `tanrei-file-item::part(icon)`.
+- With `item-preview` and `rows="own"`, each file item makes the address of its own picture and releases it. The file upload makes none.
+- The element is not focusable itself: every stop is your trigger or inside a file item.
+
+## Guidelines
+
+### Choosing, and the limits
+
+The way to choose is the [file picker's](/components/file-picker/): the two layouts `button` and `drop-area`, your own button in the `trigger` slot, a glyph in the `icon` slot, and the limits `accept`, `maxSize` and `multiple` with `constraintsText` to say them. Its page has them in full. They are props of the file upload under the same names.
+
+What the file upload adds to the limits:
+
+- `maxFiles` is the most files of the whole list, not of one choice. With `rows="own"` it counts the files that are kept; with `rows="given"` the file items you gave. A choice is judged against the number of files that still fit.
+- The same file chosen twice is kept once, with `rows="own"`.
+- With `rows="own"` each refused file is drawn as a failed row with your sentence for its reason: `typeErrorText`, `sizeErrorText` or `countErrorText`. Give them on the element, or once for the whole product with `setWords()`.
+- With `rows="given"` nothing is drawn for a refusal. `reject` gives you each refused file with a reason: `type`, `size` or `count`. Say what happened in your own words, with the field's error text, a failed row, or `announcement`.
+- `emptyText` is what stands beside the trigger, in the button layout, while no file is chosen.
+
+### Who holds the rows
+
+| What | `rows="own"` (the default) | `rows="given"` |
+| --- | --- | --- |
+| Use it for | A form that is submitted as one. | A product that sends each file itself. |
+| The rows | File items the file upload makes, one for each kept file and each refused file. | `<tanrei-file-item>` children you add and remove. |
+| A second choice | Adds with `multiple`; replaces without it. The same file is kept once. | Yours to decide. |
+| A refused file | A failed row with your sentence. | `reject` only. |
+| A row shows | Name, size, remove. No status and no progress: nothing is being sent. | Name, size, status, progress, error, retry, remove. |
+| Remove | Removes the row and emits `change`. | Emits the row's `remove`. You remove it. |
+| The form's value | The kept files. | The `file` of each row you gave one to. |
+| A form reset | Empties the list. | Changes nothing. |
+
+The file upload never guesses the mode from its children. A product that owns its rows has none before the first choice, so it says `rows="given"`.
+
+Changing `rows` while the file upload is shown lets go of every kept file without an event. Read `files` first if you need them.
+
+### Rows or tiles
+
+`itemForm` chooses the form of every file: `row`, the default, a column of rows; or `tile`, a strip of boxes that wraps. Every file of one file upload is drawn in the same form.
+
+| Prop | Every file item's | What it does |
+| --- | --- | --- |
+| `itemForm` | `form` | `row` or `tile`. |
+| `itemPreview` | `preview` | Draws a picture in the glyph's place: the picture at the item's `previewSrc` address, or the file itself where it is an image. |
+| `itemFit` | `fit` | `cover` or `contain`. |
+| `itemNameHidden` | `nameHidden` | In a tile that draws a picture, the name is not drawn. |
+| `itemWidth`, `itemHeight` | `width`, `height` | The box of a tile. |
+
+With `rows="own"` and `itemPreview`, a kept file that is an image shows its own picture. Each picture has a cost, which is the file item's and is said on [its page](/components/file-item/#the-preview-and-what-it-costs). Without `itemPreview`, the default, a hundred kept files cost a hundred handles and nothing more.
+
+The files of a file upload have no order a person can change. For that, see [Files in an order people change](/components/file-item/#files-in-an-order-people-change).
+
+### Rows you give
+
+With `rows="given"` each row is a [file item](/components/file-item/) you write, with its own props: `value`, `name`, `mediaType`, `formatText`, `sizeText`, `status`, `statusText`, `progress`, `errorText`, `retryable`, `previewSrc`, `interactive`, `href` and `readOnly`. Its page says what each draws. A row the file upload makes itself is a `pending` file item for a kept file, and an `error` one without retry for a refused file.
+
+| `status` | Before the name | Second line | Bar | Actions |
+| --- | --- | --- | --- | --- |
+| `pending` | The format's glyph | Size, then `statusText` | None | Remove |
+| `uploading` | The format's glyph | Size, then `statusText` | Filled to `progress`, or indeterminate while `progress` is not set | Remove |
+| `done` | The format's glyph | Size, then a check and `statusText` | None | Remove |
+| `error` | The format's glyph | Size, then an error mark and `errorText` | None | Retry where `retryable`, then remove |
+
+- Format the size yourself and give it as `sizeText`, or as the `formatSize` function with `rows="own"`. Whether a megabyte is 1000 or 1024 kilobytes is your product's decision.
+- `progress` is your report of your own sending. The component never moves the bar by itself.
+- Don't set on a row what the file upload gives every row: its form, its preview, the two action names, `disabled`.
+
+### In a field
+
+Put the file upload in a [field](/components/field/) when the form shows a label, help, an error or a required mark. The field draws them and gives them to the file upload.
+
+```html
+<tanrei-field label="Attachment" requirement="required" required-text="Required"
+              error error-text="Choose a PDF of 10 MB or less.">
+  <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
+                      constraints-text="PDF, up to 10 MB" remove-label="Remove">
+    <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
+  </tanrei-file-upload>
+</tanrei-field>
+```
+
+- With a `name`, the file upload submits every kept file, in order. A refused file is never submitted. While no file is kept it submits no entry at all; a native file input submits one empty entry, so a server that reads the field checks for both.
+- `required` reports a missing value to the form while no file is kept. The message is the browser's own. The sentence a person reads is the field's `errorText`. A button has no required state, so put a required file upload in a field: the field says it before the form is submitted.
+- A form reset empties the list. After a submission the files and the rows stay; reset the form or call `clear()`.
+- Nothing is restored when a page comes back through history. The file upload begins empty.
+- Without a `name` the file upload submits nothing and still keeps and lists its files. Read `files` in your own submit handler to send them yourself.
+- With `rows="given"` the value is the `file` of every row that has one: `row.file = file`. A reset changes nothing there, because the rows are yours.
+- The file upload never sets `error` itself. You set it, on the field, with the words that say what is wrong.
+
+### Words
+
+The file upload has no words of its own. Six can be given once for the whole product with `setWords()`; everything else is a prop of the instance.
+
+| Prop | Key of the product's words | Without it |
+| --- | --- | --- |
+| `emptyText` | `noFileText` | Nothing is drawn beside the trigger. |
+| `removeLabel` | `removeLabel` | The remove action is drawn and has no name. A debug build reports it. |
+| `retryLabel` | `retryLabel` | The retry action is drawn and has no name. A debug build reports it. Only rows you give have one. |
+| `typeErrorText` | `fileTypeErrorText` | A file refused for its kind is drawn as a failed row with no sentence. A debug build reports it. |
+| `sizeErrorText` | `fileSizeErrorText` | The same, for a file that is too large. |
+| `countErrorText` | `fileCountErrorText` | The same, for a file that no longer fits. |
+
+The three sentences are read only with `rows="own"`, and only once a file was refused for that reason. A file's size is not a word key: it is the `formatSize` function, a property of the instance.
+
+Each action is described by its file's name. One word, "Remove", is enough for every row: a person hears "Remove, button, brief.pdf".
+
+### Right to left
+
+In a right-to-left layout the trigger and the row glyphs stand at the right, the row actions at the left with remove outermost, and a bar fills from the right; a strip of tiles starts at the right. A file name in Latin letters keeps its own order, with its dot and its extension. A glyph is mirrored only where the icon set marks it, and a picture never is.
+
+### Do
+
+- Place the file upload in the form and let it keep the files, unless your product sends each file itself.
+- Keep the row list short and in the order people chose the files.
+- Say a refusal where the person is looking: the field's error text, or a failed row.
+- Summarise many changes in one sentence with `announcement`: "40 files added".
+
+### Don't
+
+- Don't use the drop area as the only way to choose. It always holds the trigger.
+- Don't put anything but the trigger, an icon and file items inside it. Other content is not drawn, and a debug build reports it.
+- Don't write rows without `rows="given"`. They are not drawn.
+- Don't use `rows="own"` to show an upload's progress. A kept file's row has no status, because the file upload sends nothing.
+- Don't show a count, a total size or an overall bar inside it. Draw those beside it, in your own words.
+
+## Accessibility
+
+<ComponentAccessibility name="file-upload" />
+
+### What the component handles
+
+- The whole is a group named by `label`, or by the field around it. The trigger is your button. It is described by the limits, by the text that says nothing is chosen, and by the field's help or error.
+- The drop area is one large pointer target for that same button. It has no role, no name, no stop in the focus order and no key.
+- The rows are a list, and each file item is an item of it. Each reads the name, the format, the size and the status or the error. A file being sent has a progress bar named by its file.
+- Tab reaches the trigger, then each file in order: its body where you made it pressable, then retry, then remove.
+- One polite live region says a row that was added, a row that finished and a row that failed, in your words. Changes that arrive together are one message. Progress is never announced.
+- With `rows="own"` one choice is one message: the name of each file that was kept, then each refused file's name with your sentence. The file upload adds no word and no count. Set `announcement` in your `change` listener to say one sentence of your own instead.
+- A removal is not announced. After a row is removed, focus goes to the next row's remove action, to the previous row's where none follows, or to the trigger when no row is left. With `rows="own"` the file upload does this itself.
+- At 200% text every text wraps and nothing is cut. In forced colors the area keeps an edge, a receiving area has a thicker one, and a row's bar stays visible.
+
+How it is built on the web: the file picker is the file upload's member, in its shadow root, and the picker inside it is a real `<input type="file">`, kept from sight, from the focus order and from assistive technology. The trigger stays in your DOM, and so do the file items you give. The group, the list, the live region and the file items the file upload makes itself are in the shadow root.
+
+The known gaps on the web are those of its members: a button has no required state, a browser delivers no drop to an area that refuses the drag, Safari gives a clicked button no focus, and a dashed edge cannot follow smoothed corners (the [file picker's page](/components/file-picker/#accessibility)); a picture that moves is played by the browser (the [file item's page](/components/file-item/#accessibility)). With `required` alone and no field around the file upload, only the form's validation says that a file is missing.
+
+### What you need to do
+
+- Put one button in the `trigger` slot, with a label that says what it does.
+- Give the group a `label`, or put the file upload in a field.
+- Give `constraintsText` whenever you set `accept`, `maxSize` or `maxFiles`.
+- Give `removeLabel`, on the element or once with `setWords()`. Give `retryLabel` too when you give rows that can be retried.
+- With `rows="own"`, give the three sentences for a refused file: `typeErrorText`, `sizeErrorText` and `countErrorText`, for the limits you set.
+- Say every refusal and every failure in words.
+- Set `announcement` when many rows change at once, and when you remove rows in a way a person must hear.

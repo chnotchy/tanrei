@@ -1,0 +1,341 @@
+---
+title: Barra de menús
+description: Mantiene a mano los comandos de una aplicación en una fila permanente de menús con nombre (Archivo, Editar, Ver…); cada uno abre un menú debajo de su título, y las teclas de flecha recorren la fila y entran en cada menú.
+translationOf: components/menubar.mdx
+sourceHash: 3ab69d94e5684b573c7036f3ba3643141c1dec5b
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="menubar" />
+
+<DemoFrame label="Los menús de un editor" column>
+  <tanrei-menubar label="Menú de la aplicación" overflow-label="Más menús" style="inline-size: 100%">
+    <tanrei-menubar-menu label="Archivo">
+      <tanrei-menu-item label="Nuevo" shortcut="mod+n"></tanrei-menu-item>
+      <tanrei-menu-item label="Abrir…" shortcut="mod+o"></tanrei-menu-item>
+      <tanrei-submenu label="Abrir recientes">
+        <tanrei-menu-item label="Informe trimestral"></tanrei-menu-item>
+        <tanrei-menu-item label="Hoja de ruta"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-group>
+        <tanrei-menu-item label="Guardar" shortcut="mod+s"></tanrei-menu-item>
+        <tanrei-menu-item label="Imprimir…" shortcut="mod+p"></tanrei-menu-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Editar">
+      <tanrei-menu-item label="Deshacer" shortcut="mod+z"></tanrei-menu-item>
+      <tanrei-menu-item label="Rehacer" shortcut="mod+shift+z"></tanrei-menu-item>
+      <tanrei-menu-group>
+        <tanrei-menu-item label="Cortar" shortcut="mod+x"></tanrei-menu-item>
+        <tanrei-menu-item label="Copiar" shortcut="mod+c"></tanrei-menu-item>
+        <tanrei-menu-item label="Pegar" shortcut="mod+v"></tanrei-menu-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Ver">
+      <tanrei-menu-checkbox-item label="Regla" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="Comentarios"></tanrei-menu-checkbox-item>
+      <tanrei-menu-group label="Zoom" value="100">
+        <tanrei-menu-radio-item label="50%" value="50"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="100%" value="100"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="200%" value="200"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Formato" disabled>
+      <tanrei-menu-item label="Negrita"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Ayuda">
+      <tanrei-menu-item label="Atajos de teclado"></tanrei-menu-item>
+      <tanrei-menu-item label="Acerca de"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+  </tanrei-menubar>
+</DemoFrame>
+
+### Qué no es una barra de menús
+
+Lee esto antes de recurrir a ella. Una barra de menús es para los comandos de una aplicación, y para poco más.
+
+- **No es la navegación de un sitio.** Una fila de secciones con desplegables es navegación: enlaces, dentro de una región de referencia (landmark) de navegación, a los que se llega con Tab. Una barra de menús le dice a la tecnología de apoyo que por todo lo que contiene se pasa con las teclas de flecha, no con Tab, y que cada entrada es un comando. A quien se encuentra eso en un conjunto de enlaces a páginas se le da una idea equivocada. Usa una [barra de la aplicación](/es/components/app-bar/), una [barra de navegación](/es/components/navigation-bar/) o un [panel de navegación](/es/components/navigation-drawer/).
+- **No es una barra de herramientas.** Una [barra de herramientas](/es/components/toolbar/) contiene botones que actúan al pulsarlos. Una barra de menús es una fila de menús. Puede contener una o dos entradas que actúan por sí solas ([más abajo](#entradas-que-actúan)), y una fila hecha solo de ellas es una barra de herramientas. Recorrer la barra nunca ejecuta nada, así que una persona puede explorarla sin riesgo.
+- **No es una fila de botones que abren cada uno un menú.** Esa fila se ve igual y falla al usarla: sus teclas de flecha nunca llevan consigo un menú abierto, el puntero no mueve consigo el menú abierto, y la tecnología de apoyo oye botones separados donde hay un solo menú de dos niveles.
+- **No son pestañas.** Ningún título queda nunca seleccionado. Su menú se cierra y nada queda elegido.
+- **No es un solo menú.** Un conjunto corto de opciones va en un solo [menú](/es/components/menu/) que se abre desde un botón.
+
+### Qué es
+
+Un producto que es una aplicación, como un editor, una hoja de cálculo o una herramienta de dibujo o de planificación, tiene más comandos de los que su pantalla puede mostrar como botones. Una barra de menús es el lugar donde están todos, bajo unos pocos nombres que una persona aprende una vez, cada uno con su atajo al lado.
+
+Es una fila de títulos que está siempre a la vista. Cada título abre debajo un [menú](/es/components/menu/) de Tanrei, con los elementos propios del menú: acciones, elementos de enlace, elementos de casilla de verificación y de opción, grupos, submenús y atajos. Junto a los títulos, la fila puede contener un elemento de barra: una acción que se ejecuta de inmediato, o un enlace. La fila es una sola parada en el orden del foco. Las teclas de flecha la recorren y entran en un menú, y desde dentro de un menú pasan directamente a la entrada vecina.
+
+La barra no tiene relleno, borde ni elevación propios. La colocas tú, normalmente en la parte superior de la ventana, dentro del marco de la interfaz que ya está ahí.
+
+En la web es `<tanrei-menubar>` alrededor de elementos `<tanrei-menubar-menu>`, con `<tanrei-menubar-item>` para una entrada que actúa. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+Da a la barra un `label`, y a cada menú un `label` de una o dos palabras. Pon dentro los elementos del menú exactamente como lo harías dentro de un menú. Escucha los eventos propios de los elementos: la barra no les añade ninguno.
+
+Cada menú tiene su propio `open`. La barra lo define y emite `toggle`, así que no llevas la cuenta de qué menú está abierto. Puedes definirlo tú para abrir un menú con una tecla tuya.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-menubar label="Menú de la aplicación" overflow-label="Más menús">
+      <tanrei-menubar-menu label="Archivo">
+        <tanrei-menu-item label="Nuevo" shortcut="mod+n"></tanrei-menu-item>
+        <tanrei-menu-item label="Abrir…" shortcut="mod+o"></tanrei-menu-item>
+        <tanrei-submenu label="Abrir recientes">
+          <tanrei-menu-item label="Informe trimestral"></tanrei-menu-item>
+        </tanrei-submenu>
+        <tanrei-menu-item label="Guardar" shortcut="mod+s"></tanrei-menu-item>
+      </tanrei-menubar-menu>
+      <tanrei-menubar-menu label="Ver">
+        <tanrei-menu-checkbox-item label="Regla" checked></tanrei-menu-checkbox-item>
+      </tanrei-menubar-menu>
+      <tanrei-menubar-menu label="Formato" disabled>…</tanrei-menubar-menu>
+    </tanrei-menubar>
+
+    <script type="module">
+      import '@tanrei/web/components/menubar';
+
+      const bar = document.querySelector('tanrei-menubar');
+      // Un solo listener recibe el clic de todos los elementos. Después de un comando, mueve el foco a aquello sobre lo que actúa.
+      bar.addEventListener('click', (event) => {
+        if (event.target.localName !== 'tanrei-menu-item') return;
+        run(event.target.label);
+        editor.focus();
+      });
+      // Los atajos que muestra un elemento los vinculas tú. También una tecla que abra un menú.
+      addEventListener('keydown', (event) => {
+        if (event.altKey && event.key === 'f') bar.querySelector('[label="Archivo"]').open = true;
+      });
+    </script>
+
+    <!-- Reserva la altura de la barra antes de que el elemento esté definido, para que la página no se mueva. -->
+    <style>
+      tanrei-menubar:not(:defined) {
+        display: block;
+        min-block-size: calc(var(--tanrei-comp-menubar-container-height) + 2 * var(--tanrei-comp-menubar-bar-padding-block));
+      }
+    </style>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Menubar, MenubarMenu, MenuItem, MenuCheckboxItem, Submenu } from '@tanrei/react';
+
+    <Menubar label="Menú de la aplicación" overflowLabel="Más menús">
+      <MenubarMenu label="Archivo" onToggle={(event) => track('file', event.detail.open)}>
+        <MenuItem label="Nuevo" shortcut={['mod+n']} onClick={newDocument} />
+        <MenuItem label="Abrir…" shortcut={['mod+o']} onClick={openDocument} />
+        <Submenu label="Abrir recientes">
+          {recent.map((file) => <MenuItem key={file.id} label={file.name} onClick={() => open(file)} />)}
+        </Submenu>
+      </MenubarMenu>
+      <MenubarMenu label="Ver">
+        <MenuCheckboxItem label="Regla" checked={ruler} onChange={(event) => setRuler(event.detail.checked)} />
+      </MenubarMenu>
+      <MenubarMenu label="Formato" disabled={!selection}>…</MenubarMenu>
+    </Menubar>
+    ```
+  </TabItem>
+</Tabs>
+
+En la web, los títulos y las acciones no se dibujan hasta que el script se ha ejecutado: sus palabras son atributos, y cada comando es tu script. Un elemento de enlace es distinto. Es tu propia ancla, así que es un enlace que funciona antes de que el script se ejecute y donde no se ejecuta nunca.
+
+### Entradas que actúan
+
+<DemoFrame label="Tres menús, una acción y dos elementos de enlace, dibujados igual" column>
+  <tanrei-menubar label="Menú de la aplicación con entradas que actúan" overflow-label="Más" style="inline-size: 100%">
+    <tanrei-menubar-menu label="Archivo">
+      <tanrei-menu-item label="Nuevo"></tanrei-menu-item>
+      <tanrei-menu-item label="Abrir…"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Editar">
+      <tanrei-menu-item label="Deshacer"></tanrei-menu-item>
+      <tanrei-menu-item label="Rehacer"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Ver">
+      <tanrei-menu-checkbox-item label="Regla" checked></tanrei-menu-checkbox-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-item label="Ejecutar"></tanrei-menubar-item>
+    <tanrei-menubar-item><a href="#entradas-que-actúan">Documentación</a></tanrei-menubar-item>
+    <tanrei-menubar-item target-label="se abre en una pestaña nueva"><a href="#entradas-que-actúan" target="_blank">Código fuente</a></tanrei-menubar-item>
+  </tanrei-menubar>
+</DemoFrame>
+
+Antes de usar un elemento de barra, lee cuándo no usar uno. Un elemento de barra se ve exactamente igual que un título que abre un menú, así que cada uno le cuesta a la persona un momento de duda sobre qué hará una pulsación.
+
+- **No para la mayoría de los comandos.** Un comando va en un menú, donde tiene un atajo, un icono y vecinos que lo explican. Reserva el elemento de barra para una o dos cosas que la persona quiere hacer con una sola pulsación («Ejecutar», «Compartir») o para uno o dos lugares a los que va («Documentación»).
+- **No para nada que no se pueda deshacer.** Un elemento de barra no pregunta nada antes de ejecutarse y no tiene aspecto destructivo. Un comando que elimina o descarta va en un menú.
+- **No para una opción que se activa y se desactiva.** Un título no tiene sitio para una marca. Ponla en un menú de la misma barra, como elemento de casilla de verificación o de opción.
+- **No como toda la barra.** Una fila hecha solo de acciones es una [barra de herramientas](/es/components/toolbar/), y una fila hecha solo de enlaces es navegación. Cualquiera de las dos se dibuja y funciona, y las compilaciones de depuración la notifican.
+- **No con una palabra que oculte lo que hace.** Nada, salvo la etiqueta, distingue un elemento de barra de un título. Nombra una acción con un verbo, y un enlace con el lugar al que lleva.
+
+Una acción es `<tanrei-menubar-item label="Ejecutar">`. Una pulsación, Enter o Espacio emiten su `click` una vez. Si hay un menú de la barra abierto, se cierra antes, de modo que tu controlador se ejecuta sin ningún menú a la vista. El foco se queda en el elemento de barra, salvo que tu controlador lo mueva.
+
+Un elemento de enlace es el mismo elemento alrededor de tu propia ancla: `<tanrei-menubar-item><a href="/docs/">Documentación</a></tanrei-menubar-item>`. Todo lo que hace de él un enlace pertenece al ancla: el texto del ancla es la etiqueta, y `href`, `target`, `rel` y `aria-current="page"` se escriben en el ancla. El elemento dibuja un título a su alrededor y la convierte en una parada de las teclas de la barra.
+
+- `click` es el clic propio del ancla. Cancélalo con `preventDefault()` y no se sigue nada, que es todo lo que necesita un enrutador del lado del cliente. El componente de enlace propio de un enrutador funciona como hijo.
+- Un clic con una tecla modificadora, un clic con el botón central y el menú contextual del enlace son cosa del navegador, como en cualquier enlace. Espacio sigue un elemento de enlace igual que Enter, porque todas las demás entradas de la fila responden a Espacio.
+- `target="_blank"` dibuja el `open_in_new` del conjunto de iconos después de la etiqueta y añade `noopener`. Dilo con palabras mediante `target-label` en el elemento, o una sola vez para todo el producto con `setWords({ targetLabel: … })`.
+- `aria-current="page"` en el ancla marca la página en la que está la persona. Su etiqueta se dibuja con más peso y no recibe relleno: en una barra de menús no hay nada seleccionado. Lo defines tú; la barra nunca lo hace.
+- Un elemento de enlace deshabilitado es `disabled` en el elemento y un ancla sin `href`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/menubar.css" />
+
+    <tanrei-menubar label="Menú de la aplicación" overflow-label="Más">
+      <tanrei-menubar-menu label="Archivo">…</tanrei-menubar-menu>
+      <tanrei-menubar-menu label="Editar">…</tanrei-menubar-menu>
+      <tanrei-menubar-item label="Ejecutar"></tanrei-menubar-item>
+      <tanrei-menubar-item><a href="/docs/">Documentación</a></tanrei-menubar-item>
+      <tanrei-menubar-item target-label="se abre en una pestaña nueva">
+        <a href="https://example.com/source" target="_blank">Código fuente</a>
+      </tanrei-menubar-item>
+      <tanrei-menubar-item><a href="/history/" aria-current="page">Historial</a></tanrei-menubar-item>
+    </tanrei-menubar>
+
+    <script type="module">
+      import '@tanrei/web/components/menubar';
+
+      // Una acción: su propio click, en la fila o plegada dentro del elemento de desbordamiento.
+      document.querySelector('tanrei-menubar-item[label="Ejecutar"]').addEventListener('click', run);
+      // Un elemento de enlace: el click del ancla. Cancélalo y la navegación es tuya.
+      document.querySelector('tanrei-menubar-item > a[href="/docs/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push('/docs/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Menubar, MenubarMenu, MenubarItem } from '@tanrei/react';
+    import { Link } from 'your-router';
+
+    <Menubar label="Menú de la aplicación" overflowLabel="Más">
+      <MenubarMenu label="Archivo">…</MenubarMenu>
+      <MenubarItem label="Ejecutar" onClick={run} />
+      {/* El enlace propio del enrutador es el hijo: genera el ancla y se encarga de la navegación. */}
+      <MenubarItem><Link href="/docs/">Documentación</Link></MenubarItem>
+      <MenubarItem targetLabel="se abre en una pestaña nueva">
+        <a href="https://example.com/source" target="_blank">Código fuente</a>
+      </MenubarItem>
+    </Menubar>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/menubar.css` es para el tiempo anterior a que el script se ejecute, y para quien lee con un navegador que no ejecuta ninguno. Dispone los elementos de enlace en una fila en el lugar de la barra, con el estilo de texto de un título, y cada uno se sigue y se alcanza con Tab como cualquier enlace. Los menús y las acciones todavía no están ahí. Cuando la barra se ejecuta, toma esas mismas anclas donde están.
+
+## Especificaciones
+
+<DemoFrame label="Una fila sin sitio para todos los títulos pliega el resto en un solo elemento de desbordamiento" plain column>
+  <tanrei-menubar label="Menú de la aplicación, estrecho" overflow-label="Más menús" style="inline-size: 13rem">
+    <tanrei-menubar-menu label="Archivo"><tanrei-menu-item label="Nuevo"></tanrei-menu-item><tanrei-menu-item label="Abrir…"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Editar"><tanrei-menu-item label="Deshacer"></tanrei-menu-item><tanrei-menu-item label="Rehacer"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Ver"><tanrei-menu-item label="Acercar"></tanrei-menu-item><tanrei-menu-item label="Alejar"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Formato" disabled><tanrei-menu-item label="Negrita"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="Ayuda"><tanrei-menu-item label="Acerca de"></tanrei-menu-item></tanrei-menubar-menu>
+  </tanrei-menubar>
+</DemoFrame>
+
+<ComponentSpecs name="menubar" />
+
+## Pautas
+
+### Primero los menús, y qué más admite la fila
+
+Un título abre un menú, y la mayor parte de una barra son títulos. Una entrada que actúa por sí sola es la excepción: una o dos junto a los menús, por los motivos que se dan en [Entradas que actúan](#entradas-que-actúan). Un producto con muchos comandos que deben estar a una sola pulsación tiene para ellos una barra de herramientas o una barra de la aplicación.
+
+La fila admite menús y elementos de barra, y nada más. Un Button, un ancla escrita directamente en la barra, un campo o una casilla de verificación se quedarían con las teclas con las que la barra mueve el foco, y no serían un elemento de menú. No reciben ningún lugar en la fila, y las compilaciones de depuración lo notifican.
+
+### Recorrer la barra no ejecuta nada
+
+Que el foco llegue a un elemento de barra, las teclas de flecha, Inicio, Fin, una letra escrita y un puntero que pasa por encima nunca lo activan. Solo lo hacen una pulsación, Enter o Espacio. Flecha abajo y Flecha arriba en un elemento de barra no hacen nada, y no desplazan la página: las mismas teclas no deben abrir un menú en una entrada y mover la página en la siguiente.
+
+Desde dentro de un menú, la tecla de flecha a lo largo de la fila pasa a la entrada siguiente. Si es un título, su menú se abre. Si es un elemento de barra, el menú abierto se cierra y el foco se posa en el elemento de barra. No se abre nada ni se ejecuta nada, y a partir de ahí las teclas de flecha recorren la fila sin abrir menús hasta que vuelvas a abrir uno.
+
+### El puntero
+
+Una pulsación en un título abre su menú. Una pulsación en el título abierto lo cierra. Mientras hay un menú abierto, un puntero que pasa a otro título abre ese de inmediato, sin espera y sin movimiento. Mientras no hay ninguno abierto, pasar el cursor por encima no hace nada más: la barra no abre nada que la persona no haya pedido.
+
+Un puntero que pasa a un elemento de barra mientras hay un menú abierto solo lo deja con el cursor encima. El menú abierto se queda, de modo que un puntero que va de Archivo a Ver cruzando Ejecutar no pierde el menú por el camino. Una pulsación en el elemento de barra cierra el menú y después lo activa.
+
+### Después de un comando
+
+Cuando se activa un elemento, su menú se cierra y el foco vuelve al título del menú. Un comando que actúa sobre un documento suele querer el foco de vuelta en el documento. Muévelo en tu controlador, y la barra lo deja donde lo pongas.
+
+### Atajos y teclas de acceso
+
+Un menú dibuja el atajo de un elemento y lo expone a la tecnología de apoyo. Ni el menú ni la barra escuchan las teclas. Las vinculas tú, porque solo el producto sabe qué atajos se aplican donde está el foco.
+
+La barra no tiene teclas de acceso: ni una letra subrayada en un título, ni una tecla que salte a la barra. Varían según la plataforma, en la web chocan con las del propio navegador, y la letra se elige en cada idioma. Una vez que el foco está en la barra, escribir una letra lleva al siguiente título que empieza por ella. Para dar una tecla tuya, define el `open` de un menú o mueve el foco a un título.
+
+### Una ventana estrecha
+
+Los títulos conservan su tamaño y nunca se cortan. Cuando en la fila no hay sitio para todos, la barra pliega entradas enteras desde el final, las menos posibles, en un solo elemento de desbordamiento que se dibuja como el `more_horiz` del conjunto de iconos. Su menú contiene cada menú plegado como un submenú con la misma etiqueta y los mismos elementos, y cada elemento de barra plegado como un elemento: una acción como un elemento de menú, un elemento de enlace como un elemento de enlace con la misma dirección. Cuando no cabe nada, la fila es ese único elemento. El elemento de desbordamiento siempre abre un menú y nunca actúa por sí solo.
+
+Las teclas, los roles y el orden son los mismos con cualquier ancho, y no se pierde ningún comando. El `open` y el `toggle` de un menú plegado significan lo mismo que en la fila. El `click` de un elemento de barra plegado es el mismo evento en el mismo elemento: tu listener en el elemento de barra, o en tu ancla, lo oye una vez, se muestre donde se muestre la entrada. Plegado, lo oye mientras el menú del elemento de desbordamiento sigue abierto, y el menú se cierra después. Da un nombre al elemento de desbordamiento con `overflow-label`, o una sola vez para todo el producto con `setWords({ menubarOverflowLabel: … })`.
+
+Mostrar o no una barra de menús en un teléfono lo decides tú. Ahí el estilo propio de la plataforma son los comandos en las acciones de una barra de la aplicación y en su menú «más», y un producto hace bien en no dibujar la barra. El pliegue existe para que una barra que sí se dibuja nunca pierda un comando.
+
+### Donde la plataforma tiene su propia barra de menús
+
+La barra de un sistema de escritorio, fuera de la ventana, y la barra de una tableta para un teclado físico las dibuja el sistema a partir de los comandos que el producto declara. Da tus comandos también a esa barra, con la API propia de la plataforma: las personas los buscan ahí. La barra de menús de Tanrei es la que está dentro de tu ventana, dibujada con los tokens de Tanrei. No llena ni sustituye la del sistema.
+
+### Recomendado
+
+- Úsala para los comandos de una aplicación, cuando haya suficientes para necesitar varios menús con nombre.
+- Nombra cada menú con una o dos palabras que digan sobre qué actúan sus comandos.
+- Mantén un menú en la barra cuando ninguno de sus comandos se pueda aplicar, y deshabilítalo. La persona sigue oyendo que existe.
+- Muestra el atajo de cada comando en su elemento, y vincula tú las teclas.
+- Mueve el foco a aquello sobre lo que actúa un comando cuando se haya ejecutado.
+
+### Evita
+
+- No la uses para las secciones o las páginas de un sitio.
+- No pongas en la fila un Button, un enlace suelto, un conmutador ni un campo. Una acción o un enlace entran como un elemento de barra.
+- No hagas una barra solo de elementos de barra, y no pongas en la barra un comando que no se pueda deshacer.
+- No abras un menú cuando un puntero simplemente pasa por encima de un título.
+- No marques un título como seleccionado. El título abierto se marca solo mientras su menú se muestra.
+- No des a los menús de una barra un estilo distinto del de los demás menús del producto. Son menús de Tanrei, y toman los tokens del menú.
+
+## Accesibilidad
+
+<ComponentAccessibility name="menubar" />
+
+### De qué se encarga el componente
+
+- La barra se expone con el rol de barra de menús, con el nombre que le da `label`, horizontal. Cada título es un elemento de menú que abre un menú y que recibe su nombre de la etiqueta de su menú, e indica si ese menú está abierto, si está deshabilitado y su posición entre las entradas. Un menú abierto es un menú que recibe su nombre de su título.
+- Un elemento de barra es un elemento de menú que recibe su nombre de su etiqueta. No dice que abra un menú y no tiene estado expandido. Un elemento de enlace es tu ancla con el rol de elemento de menú, no con el de enlace: la tecnología de apoyo lee una barra de menús elemento por elemento, y el rol de barra de menús solo es válido mientras todas las entradas son elementos de menú. Dice su `target-label` como descripción, y si es la página actual.
+- Toda la barra es una sola parada en el orden del foco: la entrada que recibió el foco o se activó por última vez, o cuyo menú se abrió por última vez; si no hay ninguna, la primera. Un elemento de enlace nunca es una parada de tabulación por sí mismo.
+- En un título o en un elemento de barra: las teclas de flecha a lo largo de la fila pasan a la entrada siguiente y a la anterior, y dan la vuelta en los extremos; Inicio y Fin van a la primera y a la última; un carácter escrito lleva a la siguiente entrada que empieza por él. Nada de esto abre un menú ni ejecuta nada. En un título, Enter, Espacio y Flecha abajo abren el menú con el foco en su primer elemento habilitado; Flecha arriba lo abre con el foco en su último elemento habilitado. En un elemento de barra, Enter y Espacio lo activan, y Flecha abajo y Flecha arriba no hacen nada.
+- En un menú: las teclas propias del menú. La tecla de flecha hacia el final de la fila abre un submenú en un elemento de submenú y, en cualquier otro elemento a cualquier profundidad, pasa a la siguiente entrada habilitada: el menú de un título se abre, y un elemento de barra recibe el foco. La tecla de flecha hacia el inicio cierra un submenú y, en la superficie propia del menú, va a la entrada anterior. Escape cierra el submenú abierto más interior. Si no hay ningún submenú abierto, cierra el menú y devuelve el foco a su título. Tab cierra el menú y sale de la barra.
+- A los títulos deshabilitados se llega al recorrer la barra, para que un lector de pantalla diga que el menú existe y que no está disponible. Con un menú abierto, las mismas teclas los pasan por alto.
+- El foco del teclado muestra el anillo de foco alrededor del título. El foco que se obtiene con un puntero, no.
+- El área de pulsación de un título alcanza el objetivo mínimo sin cambiar lo que se dibuja. Un título más estrecho que el objetivo ocupa en la fila la longitud del objetivo.
+- Un menú abierto no es modal. El foco no queda retenido, nada queda inerte, y una pulsación fuera llega también a lo que hay debajo.
+- En un diseño de derecha a izquierda, los títulos corren desde la derecha, la fila se pliega por el extremo izquierdo, cada menú se abre con su borde derecho sobre el de su título, y Flecha izquierda es «siguiente». La etiqueta de un título conserva su propia dirección.
+- Con un texto más grande, cada título crece con su etiqueta y la fila pliega lo que ya no cabe. Con un ancho de 320 y el texto al 200%, se sigue llegando a todos los menús y nada se desplaza hacia los lados.
+- Con colores forzados, las etiquetas toman el color del texto de botón, el título abierto los colores de resaltado, y un título con el cursor encima una línea a su alrededor. Un elemento de enlace toma el color de enlace que la persona eligió, y una entrada deshabilitada el color del texto deshabilitado.
+- Las compilaciones de depuración notifican una barra, un menú o un elemento de barra sin etiqueta, un menú sin elementos, cualquier cosa en la barra que no sea ni un menú ni un elemento de barra, una barra solo de elementos de barra, un elemento de enlace que abre una pestaña nueva sin decirlo y un elemento de desbordamiento sin nombre.
+
+### Qué debes hacer tú
+
+- Da a la barra un `label` en el idioma de la página («Menú de la aplicación»). Nunca se dibuja.
+- Da un `label` a cada menú, un `label` a cada acción y su texto al ancla de cada elemento de enlace.
+- Da un `target-label` a un elemento de enlace que abre una pestaña nueva, y define `aria-current="page"` en el elemento de enlace de la página en la que está la persona.
+- Da un nombre al elemento de desbordamiento con `overflow-label` o con los textos del producto. El componente no aporta ningún texto.
+- Vincula los atajos que muestran tus elementos.
+- Donde el sistema tenga su propia barra de menús, declárale también tus comandos.
+- No uses una barra de menús para la navegación.

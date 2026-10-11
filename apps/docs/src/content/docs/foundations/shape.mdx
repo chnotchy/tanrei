@@ -1,0 +1,51 @@
+---
+title: Shape
+description: A small-radius corner scale, with 6px as the default for controls, and one number for how a corner curves.
+---
+
+import ShapeScale from '../../../components/tokens/ShapeScale.astro';
+import SystemValues from '../../../components/tokens/SystemValues.astro';
+
+Shape tokens define corner radii. The scale keeps the familiar step names, `none`, `extra-small`, `small`, `medium`, `large`, `extra-large` and `full`, and assigns them deliberately small values, because Tanrei's layouts are dense and its borders are thin. Large radii next to hairlines look soft and imprecise; small ones look machined.
+
+<ShapeScale />
+
+## Applying shape
+
+- **Controls use `small` (6px):** buttons, text fields, menu items, tooltips.
+- **Containers step up with size:** `medium` for cards and menus, `large` and above for dialogs and sheets.
+- **`full` is opt-in.** Pills and circles are reserved for things that are naturally round or need to stand apart: avatars, badges, segmented controls.
+- **`-increased` steps** belong to the expressive layer. They enlarge corners without changing the default scale.
+
+## Nested corners
+
+When a rounded element sits inside a rounded container, the inner radius should equal the outer radius minus the padding between them. Two concentric curves with the same radius look mismatched; subtracting the gap makes them parallel. If the result is zero or less, use `none`.
+
+## Corner smoothing
+
+A radius says how large a corner is. A second token, `sys.shape.corner-smoothing`, says how its curve *eases* into the straight edge: a number from 0 to 1 with the meaning Figma gives its corner-smoothing slider. At 0 the corner is a quarter circle. At **0.6 it is what Figma calls the iOS corner** — close to the continuous corner Apple draws on every rounded rectangle, but not the same curve (see below). At 1 the arc has all but disappeared into two long eased legs. The radius does not change; only the quality of the curve does, and the difference is easiest to see on large radii and on pills.
+
+<SystemValues tokens={['sys.shape.corner-smoothing']} />
+
+It is one number for the whole system — a brand is as much in how a corner eases as in how large it is — and no dial scales it. `cupertino` sets 0.6; the default system stays at 0. A layer sets it like any pinned value:
+
+```json
+"tokens": {
+  "tanrei.sys.shape.corner-smoothing": { "$value": 0.6, "reason": "Our native apps draw continuous corners." }
+}
+```
+
+In Theme Studio it is the slider under Groups → Shape. In Figma the same number is applied to every node's corner smoothing, so the file shows what the preset draws.
+
+### What each platform draws
+
+| Platform | At 0 | Above 0 |
+|---|---|---|
+| Jetpack Compose, Flutter | a quarter circle | Figma's corner-smoothing construction, which is what the amount means: three cubic Béziers per corner whose arc shrinks and whose eased legs grow with the amount. What a designer sees in the Figma file is what these two draw. Apple's continuous corner is a *different* curve: at 0.6 the two are 5.1 px² apart on a 180×80 box at radius 20 — 0.035% of the area, not visible, but three times the rasterizers' own disagreement, and no amount makes them coincide. The tests pin the construction, not Apple. |
+| Web | a quarter circle | the nearest superellipse a box can have: `corner-shape: superellipse(2 + s)` with the radius scaled by (1 + 0.4 s) — 9.5 px² from Figma's construction and 5.7 from Apple's on the same box at 0.6. Browsers without `corner-shape` draw circular corners. |
+| SwiftUI | `.circular` | `.continuous`: the OS's own curve for any amount above 0. The amount is rounded to the OS's, and the package README says so; at 0.6 it is the ~5 px² from Figma's construction above, within what parity tolerates. |
+| React Native | `borderCurve: "circular"` | iOS `borderCurve: "continuous"`, likewise the OS curve for any amount above 0. Android has no such curve and stays circular. |
+
+Every place a component rounds itself reads the amount: the container, the focus ring, the elevation ring, the ripple's clip. Button states this as requirement BTN-10.
+
+Corner smoothing is a number and not a choice of kind such as `circular` or `continuous`, because the one place designers set this every day, Figma, has a slider — and because three different curves under one name would not be parity.

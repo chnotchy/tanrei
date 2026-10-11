@@ -1,0 +1,117 @@
+{
+  "tanrei": {
+    "comp": {
+      "badge": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product marks icons, navigation items and avatars with a dot when something is new and with a small count when it knows how many.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a badge reads: the dot's size and offset, the count pill's minimum height, padding, offset, shape and colors, the number's text style, and the outline that separates the badge from its anchor.",
+            "rules": [
+              "A badge decorates an anchor; always give it a label that reads well after the anchor's own name (\"3 unread\").",
+              "Use the dot for \"something is new\" and a count for \"how many\"; a count of 0 hides the badge.",
+              "container.height is a minimum: the pill grows with enlarged text.",
+              "Restyle through these tokens in a layer; never position a badge by hand."
+            ]
+          }
+        },
+        "dot": {
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 6,
+              "unit": "px"
+            },
+            "$description": "The diameter of the dot shown when there is no count.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 1.5
+              }
+            }
+          },
+          "offset": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space25}",
+            "$description": "How far the dot's center sits inside the anchor's top-end corner, on both axes."
+          }
+        },
+        "container": {
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 18,
+              "unit": "px"
+            },
+            "$description": "The count pill's minimum height; also its minimum width, so a single digit sits in a circle.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 4.5
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space75}",
+            "$extensions": {}
+          },
+          "offset": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "How far the center of the pill's leading circle (a container.height square at its start) sits inside the anchor's top-end corner, on both axes. A longer count grows toward the end, away from the anchor."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}"
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.error}",
+            "$extensions": {}
+          }
+        },
+        "label": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-error}",
+            "$extensions": {}
+          },
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label-small}"
+          }
+        },
+        "outline": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "hex": "#000000"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "Apple's badges have no outline."
+              }
+            }
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.thick}",
+            "$description": "Drawn outside the container (dot or pill), so it does not change the badge's size or where it sits."
+          }
+        }
+      }
+    }
+  }
+}

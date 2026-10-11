@@ -1,0 +1,159 @@
+---
+title: Web
+description: Usa los tokens CSS y los Web Components de Tanrei en cualquier proyecto web.
+translationOf: getting-started/web.mdx
+sourceHash: f90530af900eada26b7ea7f446e046888fcdf091
+---
+
+import Steps from '../../../../components/Steps.astro';
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+`@tanrei/web` contiene dos cosas: una hoja de estilos con los tokens de diseño como propiedades personalizadas de CSS, y elementos personalizados basados en estándares, construidos con Lit. No requiere ningún framework.
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+
+## Instalación
+
+### Desde el código fuente
+
+Necesitas Git, Node 22.12 o posterior y pnpm 12 (`corepack enable` te da la versión que fija el repositorio). Compila el paquete en un clon del repositorio, empaquétalo e instala el archivo empaquetado en tu proyecto:
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/web build
+pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
+```
+
+```sh
+# en tu proyecto: la ruta a la carpeta en la que se escribieron los paquetes
+npm install path/to/tanrei-packages/tanrei-web-*.tgz
+```
+
+El archivo empaquetado contiene lo mismo que publicará un lanzamiento, así que todo lo que sigue funciona igual. Para usar un estado más reciente del código fuente, haz pull, compila y empaqueta de nuevo, y luego instala el archivo nuevo.
+
+### Después del primer lanzamiento
+
+```sh
+npm install @tanrei/web
+```
+
+## Uso
+
+<Steps>
+
+1. Carga los tokens una sola vez, lo antes posible. Están envueltos en una capa de cascada (`tanrei.tokens`), así que tus propios estilos siempre prevalecen.
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   ```
+
+2. Registra los componentes. Importa todo, o solo los elementos que uses.
+
+   ```js
+   import '@tanrei/web';
+   // o bien, un elemento cada vez:
+   import '@tanrei/web/components/button';
+   ```
+
+   Los especificadores `@tanrei/web/…` son exportaciones del paquete: los resuelve un empaquetador (Vite, webpack, esbuild). Sin él, un navegador no puede resolver un especificador desnudo en `<link>` ni en `<script src>`, así que sirve el directorio `dist/` del paquete y apunta a los archivos: las hojas de estilos tal como están, y `tanrei.bundle.js`, que incluye Lit y todos los elementos:
+
+   ```html
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
+   ```
+
+3. Usa los elementos como cualquier otro HTML.
+
+   ```html
+   <tanrei-button variant="filled">Desplegar</tanrei-button>
+   <tanrei-button variant="outlined" size="small" disabled>Cancelar</tanrei-button>
+   ```
+
+4. Da los textos de tu producto. Tanrei no incluye textos propios: el texto de un tag de obligatoriedad, el nombre de un botón de cerrar y otros parecidos son tuyos. Dilos una sola vez, por idioma, o en cada elemento.
+
+   ```js
+   import { setWords } from '@tanrei/web';
+
+   setWords({ requiredText: 'Obligatorio', optionalText: 'Opcional', closeLabel: 'Cerrar' });
+   ```
+
+   Un componente sigue funcionando sin un texto, y te dice en la consola cuál le falta. Consulta [Textos](/es/foundations/words/).
+
+</Steps>
+
+<DemoFrame>
+  <tanrei-button variant="filled">Desplegar</tanrei-button>
+  <tanrei-button variant="outlined" size="small" disabled>Cancelar</tanrei-button>
+</DemoFrame>
+
+## Tema y contraste
+
+Los valores de los tokens usan `light-dark()`, de modo que siguen el `color-scheme` del elemento en el que se usan. Sin configurar nada, eso equivale al ajuste del sistema operativo, y `prefers-contrast: more` cambia al esquema de contraste alto.
+
+Para tomar el control, define estos atributos:
+
+```html
+<!-- Fuerza un tema para la página o para cualquier subárbol -->
+<html data-tanrei-theme="dark">
+
+<!-- Fuerza un nivel de contraste para la página: "medium" o "high" -->
+<html data-tanrei-contrast="high">
+```
+
+<Callout>
+  Ambos atributos funcionan en `<html>` o en cualquier subárbol. La hoja de estilos generada declara el conjunto completo de tokens en `:root, [data-tanrei-contrast]`, de modo que un `data-tanrei-contrast` en un elemento anidado vuelve a resolver, para ese nivel de contraste, los tokens de componente que hay dentro, y no solo los colores de sistema.
+</Callout>
+
+## Tokens en tu propio CSS
+
+Cada token es una propiedad personalizada que lleva el nombre de su ruta: `tanrei.sys.color.primary` se convierte en `--tanrei-sys-color-primary`.
+
+```css
+.panel {
+  background: var(--tanrei-sys-color-surface-container-low);
+  border-radius: var(--tanrei-sys-shape-corner-medium);
+  box-shadow: var(--tanrei-sys-elevation-level1);
+  font: var(--tanrei-sys-typescale-body-font);
+}
+```
+
+## Estilos de texto
+
+Los estilos de texto se nombran por nivel (`heading-2` es un `h2`, `body` un `p`, `label` el texto de un control), y cada uno es un conjunto de propiedades personalizadas: `--tanrei-sys-typescale-<role>-font` como forma abreviada, además de `-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` y `-font-weight-emphasized`. Dos hojas de estilos opcionales los aplican a los elementos por ti:
+
+```js
+import '@tanrei/web/text.css';   // .tanrei-text-<role>, .tanrei-text-emphasized
+import '@tanrei/web/prose.css';  // h1–h6, p, small, code, pre dentro de .tanrei-prose
+```
+
+```html
+<h2 class="tanrei-text-heading-2">Sección</h2>
+<p class="tanrei-text-body">Texto corrido con <strong class="tanrei-text-emphasized">énfasis</strong>.</p>
+<article class="tanrei-prose"><!-- Markdown ya convertido a HTML --></article>
+```
+
+`.tanrei-text-emphasized` dibuja el rol en el que se encuentra con su peso más el paso de énfasis de la familia; es un peso, no otro rol. Los dieciséis roles y su correspondencia con los elementos están en [Tipografía](/es/foundations/typography/).
+
+## Fuentes
+
+La escala tipográfica pide Inter, Noto Sans JP, Noto Sans y Roboto Mono (`--tanrei-ref-typeface-{brand,plain,mono}` en `tokens.css`; `tanrei build` imprime la lista de cualquier sistema), los iconos piden Material Symbols Rounded, y todo recurre a las fuentes del sistema si faltan. Tanrei no incluye archivos de fuentes: cárgalos tú con exactamente esos nombres de familia, desde Google Fonts o desde los paquetes `@fontsource-variable/*` (que registran `Inter Variable`, etc.: declara tu propio `@font-face` con el nombre simple apuntando a sus archivos, como hace este sitio).
+
+## Iconos
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>Añadir</tanrei-button>
+```
+
+`.tanrei-icon` dibuja un nombre de [Material Symbols](https://fonts.google.com/icons) con el peso de icono del sistema y toma su tamaño del lugar donde se encuentra. Nunca eliges entre contorno y relleno: consulta [Iconos](/es/foundations/icons/).
+
+## Compatibilidad con navegadores
+
+Los tokens dependen de `light-dark()` y de las capas de cascada, que están disponibles en las versiones actuales de Chrome, Edge, Firefox y Safari.

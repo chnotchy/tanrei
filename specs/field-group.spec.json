@@ -1,0 +1,2363 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "field-group",
+  "title": "Field group",
+  "summary": "Names a set of controls that belong together — checkboxes that each have a name of their own, switches, or fields — with a label that can say the set is required or optional, a description, and one error for the set, and lays the controls out in a column or a row; it frames the set and never selects, moves focus or holds a value. Told that the set is the radio buttons of one group, it is their radio group for assistive technology, and is so the frame the Radio group is built from.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "tag",
+    "checkbox",
+    "switch",
+    "text-field",
+    "radio-button"
+  ],
+  "anatomy": [
+    {
+      "id": "label",
+      "description": "Names the set (a legend on the web): above the controls, from the start edge, in the style of a field's label, and never cut. The requirement mark follows it."
+    },
+    {
+      "id": "requirement-label",
+      "description": "After the label: the Tag component at its small size, drawn as every small tag is and never a control, saying the set is required or optional; or, for required, an asterisk after the label.",
+      "optional": true
+    },
+    {
+      "id": "supporting-text",
+      "description": "The description: a line under the label, before the controls, that says how to answer. It stays while the group is in error.",
+      "optional": true
+    },
+    {
+      "id": "controls",
+      "description": "The controls of the set, in the order given, in a column or in a row that wraps: checkboxes or switches, each with its own label beside it, the radio buttons of one group while kind is radio-group, or fields (a radio group or a checkbox group among them is one member, as a field is). Each keeps its own tokens, states, keyboard, events and value."
+    },
+    {
+      "id": "error-text",
+      "description": "The reason the set as a whole was refused, below the last control, where a field's error text is.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the set, visibly and to assistive technology: the question its controls answer (\"Notify me by\"). Required."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Does not draw the label, which stays the accessible name of the group. For a set whose visible heading is elsewhere."
+    },
+    {
+      "name": "supportingText",
+      "type": "string",
+      "default": "",
+      "description": "The description: how to answer (\"Choose all that apply\"), drawn under the label and given to assistive technology as the group's description."
+    },
+    {
+      "name": "errorText",
+      "type": "string",
+      "default": "",
+      "description": "What is wrong with the set as a whole and how to put it right (\"Choose at least one\"), drawn below the controls while error is true."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Puts the set in the error condition: the error text is drawn, and each selection control that has an error condition of its own (a checkbox, a radio button) is drawn in it. What an answer means is the product's to validate; the group never sets this itself. One control of a valid group may still be in error by itself."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Disables every control of the set and draws the frame as disabled."
+    },
+    {
+      "name": "requirement",
+      "type": "enum",
+      "values": [
+        "none",
+        "required",
+        "optional"
+      ],
+      "default": "none",
+      "description": "What the form asks of the set. required exposes it as required and draws the required mark beside the label; optional draws the optional tag; none says and draws nothing. One setting with three states, because a set is never both. It never validates: a missing answer is the product's to report with error."
+    },
+    {
+      "name": "requiredMark",
+      "type": "enum",
+      "values": [
+        "auto",
+        "tag",
+        "asterisk",
+        "none"
+      ],
+      "default": "auto",
+      "description": "How this set shows that it is required: tag is a small filled Tag with requiredText, asterisk is \"*\" after the label, none draws nothing and keeps the semantics. Auto takes comp.field-group.requirement.mark, which follows sys.behavior.requirement-mark, the system's one answer. Ignored unless requirement is required."
+    },
+    {
+      "name": "requiredText",
+      "type": "string",
+      "default": "",
+      "description": "The text of the required tag, in the product's language (\"Required\", \"必須\"). The product's: Tanrei has no word for it. Empty reads the product's words; with neither, FGR-24 says what is drawn.",
+      "words": "requiredText"
+    },
+    {
+      "name": "optionalText",
+      "type": "string",
+      "default": "",
+      "description": "The text of the optional tag, in the product's language (\"Optional\", \"任意\"); also read to assistive technology as part of the description. The product's: Tanrei has no word for it. Empty reads the product's words.",
+      "words": "optionalText"
+    },
+    {
+      "name": "orientation",
+      "type": "enum",
+      "values": [
+        "vertical",
+        "horizontal"
+      ],
+      "default": "vertical",
+      "description": "vertical stacks the controls in one column, the default and the form to prefer: every label starts on one edge and is read down. horizontal lays them out in a row that wraps, for two or three short options or a row of fields."
+    },
+    {
+      "name": "spacing",
+      "type": "enum",
+      "values": [
+        "controls",
+        "fields"
+      ],
+      "default": "controls",
+      "description": "What the set holds, which decides the distance between its members. controls: checkboxes or switches, a touch target apart. fields: text fields and other fields that belong together (an address, a date in parts), the distance a form keeps between two fields. A design system may add values.",
+      "axis": "tanrei.comp.field-group.spacing"
+    },
+    {
+      "name": "kind",
+      "type": "enum",
+      "values": [
+        "group",
+        "radio-group"
+      ],
+      "default": "group",
+      "description": "What the set is to assistive technology. group: a named group of controls that each answer for themselves. radio-group: the radio group of the radio buttons it holds, which is required and invalid as a whole and says its orientation. It changes what is exposed and nothing that is drawn, and the field group still holds no value: the radio buttons keep their selection, their arrow keys and their tab stop, which their own group gives them — the Radio group they stand in, or their name. The Radio group sets it; a product sets it where it writes that set by hand."
+    }
+  ],
+  "items": [
+    {
+      "name": "checkbox",
+      "summary": "A Checkbox of the set: the checkbox component with its own label, placed and spaced by the group, put in its error condition and disabled with the group, otherwise drawn and behaving as it does anywhere.",
+      "component": "checkbox",
+      "props": [
+        {
+          "name": "checked",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether it is on, as the Checkbox's checked."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its own label, as the Checkbox's label."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Checkbox's disabled: one control of an enabled group may be disabled by itself."
+        },
+        {
+          "name": "indeterminate",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Checkbox's indeterminate: a parent checkbox written by hand over a set that is partly checked."
+        }
+      ]
+    },
+    {
+      "name": "switch",
+      "summary": "A Switch of the set: the switch component with its own label, placed, spaced and disabled by the group.",
+      "component": "switch",
+      "props": [
+        {
+          "name": "selected",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether it is on, as the Switch's selected."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its own label, as the Switch's label."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Switch's disabled."
+        }
+      ]
+    },
+    {
+      "name": "text-field",
+      "summary": "A Text field of the set, with its own label, help and error: the group places it, spaces it as a field and disables it, and leaves its error to it.",
+      "component": "text-field",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its own label, as the Text field's label."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Its value, as the Text field's value."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "Its own help, as the Text field's supportingText."
+        },
+        {
+          "name": "requirement",
+          "type": "enum",
+          "values": [
+            "none",
+            "required",
+            "optional"
+          ],
+          "default": "none",
+          "description": "As the Text field's requirement."
+        },
+        {
+          "name": "requiredText",
+          "type": "string",
+          "default": "",
+          "description": "The Text field's requiredText: the words of its requirement tag, the product's."
+        },
+        {
+          "name": "optionalText",
+          "type": "string",
+          "default": "",
+          "description": "The Text field's optionalText: the words of its requirement tag, the product's."
+        }
+      ]
+    },
+    {
+      "name": "radio-button",
+      "summary": "A Radio button of the set, while kind is radio-group: the radio button component with its own label, placed, spaced and disabled by the group. Its selection, its arrow keys, its tab stop and its position stay its own group's — the Radio group it stands in, or its name.",
+      "component": "radio-button",
+      "props": [
+        {
+          "name": "selected",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether it is the chosen one, as the Radio button's selected."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What it stands for, as the Radio button's value."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "default": "",
+          "description": "The group it belongs to, as the Radio button's name. Every radio button of one field group carries one name; inside a Radio group it carries none."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its own label, as the Radio button's label."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Radio button's disabled: one option of an enabled group may be disabled by itself."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "FGR-1",
+      "text": "THE field group SHALL lay out, from top to bottom and from its start edge: its label row (FGR-2), its description (FGR-7) comp.field-group.supporting-text.gap below the last line of the label row, its controls (FGR-3, FGR-13) comp.field-group.label.gap below whichever of the two is drawn last, and its error text (FGR-8) comp.field-group.error-text.gap below the last control. It SHALL be as wide as its layout gives it and as tall as its rows and its controls together, SHALL draw no container, edge, fill or elevation of its own, SHALL add no padding around its rows, and SHALL place each control by the control's own bounds: it SHALL NOT shift, restyle or change the behaviour of a control.",
+      "verify": "Under the default system: a one-line label (20), 4, one line of description (16), 8, the controls, 4, one line of error text (16). The mark of a checkbox or a switch stands inside its own container, so it starts further in than the label above it; the group does not pull it out."
+    },
+    {
+      "id": "FGR-2",
+      "text": "WHILE label is not empty and labelHidden is false THE field group SHALL draw label above its controls, from the group's start edge, in comp.field-group.label.typescale and comp.field-group.standard.label.color (comp.field-group.standard.error.label.color WHILE error is true). The label SHALL wrap onto as many lines as it needs, and SHALL never be cut with an ellipsis or drawn over a control, because text enlarged to 200% must lose no content. WHILE labelHidden is true or label is empty THE field group SHALL draw neither the label row nor a gap below it, and SHALL draw no requirement mark (FGR-6)."
+    },
+    {
+      "id": "FGR-3",
+      "text": "WHILE orientation is vertical THE field group SHALL lay out its controls in one column in the order given, each from the group's start edge and given the group's whole width to lay itself out in — a field fills it; a checkbox, a radio button or a switch takes what its mark and its label need and wraps its label inside it — comp.field-group.gap.controls apart WHILE spacing is controls and comp.field-group.gap.fields apart WHILE spacing is fields.",
+      "verify": "Under the default system the containers of two checkboxes are 8 apart, which puts their marks 48 apart; two text fields are 24 apart, measured from the bottom of the first one's supporting row, or of its container where it has none, to the top of the second one's label."
+    },
+    {
+      "id": "FGR-4",
+      "text": "THE field group SHALL take from requirement what the form asks of the set: none says nothing and draws nothing; required draws the required mark (FGR-5, FGR-6) and exposes the requirement (FGR-10, FGR-11); optional draws the optional tag (FGR-5) and adds optionalText to the group's description (FGR-11), because assistive technology has no state for it. THE field group SHALL NOT validate because of requirement: it SHALL NOT set the error condition for a missing answer or show an error text of its own; what a missing answer means is the product's to say with error and errorText. WHILE disabled is true THE field group SHALL keep its mark: an asterisk drawn from the group's disabled tokens (FGR-14), a requirement tag drawn as it is at rest (FGR-5)."
+    },
+    {
+      "id": "FGR-5",
+      "text": "WHILE the label is drawn and requirement is optional, or requirement is required and the required mark is tag (FGR-6), THE field group SHALL draw after the label's text, comp.field-group.requirement.gap from it and centred on the label's last line, a requirement tag: the Tag component, drawn as every tag is — size small, variant filled for required and tonal for optional, status default, no glyph and no dot, its label requiredText or optionalText on one line (TAG-1, TAG-2, TAG-5) — from the Tag's own tokens (comp.tag.container.height.small, comp.tag.label.typescale.small, comp.tag.filled.container.color, comp.tag.tonal.container.color and the others those sentences name). THE field group SHALL have no token for the requirement tag's fill, lettering, text style, paddings or corners and SHALL set none of the Tag's for it, so that a design system or a product that restyles its small tags restyles the requirement tag with them and nothing restyles the requirement tag alone. THE field group SHALL draw the requirement tag the same at rest, WHILE error is true and WHILE disabled is true, because a tag has no states (TAG-9) and what the form asks has not changed. The requirement tag is text, never a control: it SHALL take no focus and no hover, focus or press answer of its own (FGR-12). It SHALL NOT make the label's row taller: where it is taller than the label's line it SHALL reach equally above and below that line. WHEN the label and the requirement tag do not fit on one line THE field group SHALL wrap the label (FGR-2) and move the tag whole to a line of its own after the label's last line, never cutting or splitting it. WHILE requiredText or optionalText is empty THE field group SHALL NOT draw the tag of that kind and in debug builds SHALL report it. THE field group SHALL keep both tags from assistive technology as drawn parts: what they say reaches it as FGR-10 and FGR-11 say.",
+      "verify": "Fixtures checkboxes-required, checkboxes-optional, checkboxes-required-ja and checkboxes-rtl. The tags overlay those of the field (slider-required, slider-optional) pixel for pixel, and in checkboxes-disabled and radio-buttons-disabled the tag is the picture of the tag fixture small-filled; no token of comp.field-group names a tag's fill, lettering, text style, padding or corner."
+    },
+    {
+      "id": "FGR-6",
+      "text": "WHILE requirement is required and the label is drawn THE field group SHALL draw the required mark that requiredMark names — tag (FGR-5), asterisk or none — and WHILE requiredMark is auto, the one comp.field-group.requirement.mark names: that token follows sys.behavior.requirement-mark, the design system's one answer for every field and every set of controls, unless a layer gives comp.field-group.requirement.mark a value of its own. As asterisk it SHALL draw the character \"*\" after the label's text, comp.field-group.requirement.asterisk-gap from it, in the label's text style, in comp.field-group.standard.required-asterisk.color (comp.field-group.standard.error.required-asterisk.color WHILE error is true), and SHALL keep it from assistive technology; as none it SHALL draw no mark. Whichever mark is drawn, and WHILE the label is not drawn, THE field group SHALL still expose the requirement (FGR-10, FGR-11).",
+      "verify": "Fixture checkboxes-required-asterisk. Under the default system the mark is tag. Unit: with sys.behavior.requirement-mark set to asterisk and to none a set under auto follows it, as a field beside it does; with comp.field-group.requirement.mark set against the system's choice the group's token wins and the field beside it still follows the system; requiredMark tag, asterisk and none each win over both."
+    },
+    {
+      "id": "FGR-7",
+      "text": "WHILE supportingText is not empty THE field group SHALL draw it below the label row — at the group's top WHILE the label is not drawn — and above the controls, from the start edge, in comp.field-group.supporting-text.typescale and comp.field-group.standard.supporting-text.color (comp.field-group.standard.error.supporting-text.color WHILE error is true), wrapping onto as many lines as it needs and never cut. It SHALL keep its place and its words WHILE error is true, because it says how to answer; WHILE supportingText is empty THE field group SHALL draw neither the row nor its gap."
+    },
+    {
+      "id": "FGR-8",
+      "text": "WHILE error is true THE field group SHALL draw errorText, WHILE it is not empty, in a row below its last control, from the start edge, in comp.field-group.supporting-text.typescale and comp.field-group.standard.error-text.color, wrapping and never cut; SHALL draw its label, its asterisk and its description from the error parts of its tokens (FGR-2, FGR-6, FGR-7); and SHALL put each selection control it holds in that control's own error condition where the control has one (a checkbox's error, CHK-4; a radio button's error form, RAD-26), so that the controls themselves are marked and not only the text. A control with no error condition (a switch) SHALL stay as it is drawn, and a control that reports its own errors in words (a text field, a field) SHALL keep the error the product gave it. WHILE error is false THE field group SHALL draw no error row and keep no room for it, and SHALL leave each control the error condition the product gave it: one control of a valid group may be in error by itself. THE field group SHALL never set error itself.",
+      "verify": "Fixtures checkboxes-error (every box in its error form), radio-buttons-required-error (every ring in its error form), radio-buttons-error-one-disabled (the disabled option drawn as disabled) and fields (no error passed down). Under the default system the error text takes the error role, and each checkbox and each radio button its own error form; the label and the description keep their resting colors."
+    },
+    {
+      "id": "FGR-9",
+      "text": "WHEN error becomes true, or errorText changes while error is true, and focus is inside the field group THE field group SHALL have assistive technology announce errorText once, politely; an error set while focus is elsewhere SHALL be read as part of the group's description when focus next enters the group (FGR-11). THE field group SHALL NOT move focus because of an error, and SHALL announce no other change of its texts."
+    },
+    {
+      "id": "FGR-10",
+      "text": "THE field group SHALL expose itself to assistive technology as a group that contains its controls and is named by label, whether or not the label is drawn. WHILE kind is radio-group it SHALL be exposed as a radio group in that group's place, with a radio group's states (FGR-25). WHILE kind is group the group has neither a required nor an invalid state: each checkbox the field group put in its error condition (FGR-8) is exposed as invalid by that checkbox, and the requirement is given in words (FGR-11). WHILE label is empty THE field group SHALL still render and in debug builds report that the set has no accessible name.",
+      "verify": "Unit: role and name with labelHidden false and true; requirement required and error true expose neither state on the group, the invalid state on each checkbox, and the required text in the group's description."
+    },
+    {
+      "id": "FGR-11",
+      "text": "THE field group SHALL make these the description of the group, in this order: supportingText; errorText WHILE error is true; requiredText WHILE requirement is required and kind is group, because a group has no required state to carry it and a radio group has one; optionalText WHILE requirement is optional. WHILE error is true it SHALL also make errorText part of the description of each control it put in its error condition (FGR-8) that is exposed as invalid by itself (a checkbox), after any description the control has of its own, so that a control exposed as invalid says why; a radio button in its error form SHALL be given neither the state nor the words, because its radio group carries both (FGR-25, RAD-26). WHEN one of these texts changes THE field group SHALL expose the new text at once. The requirement tag and the asterisk SHALL NOT be exposed as drawn parts."
+    },
+    {
+      "id": "FGR-12",
+      "text": "THE field group SHALL NOT answer a press: a press on its label, its requirement mark, its description or its error text SHALL do nothing, and SHALL NOT move focus, because a set has no one control to receive it. THE field group SHALL add no stop to the focus order and handle no key: Tab reaches its controls as it would outside the group, and each control's keys are that control's."
+    },
+    {
+      "id": "FGR-13",
+      "text": "WHILE orientation is horizontal THE field group SHALL lay out its controls in a row from the start edge in the order given, comp.field-group.gap-inline apart, their first lines aligned — each selection control as wide as its mark and its label need WHILE spacing is controls; each field given an equal share of the row and never less than its own minimum width WHILE spacing is fields, the fields aligned at their tops so that their labels start on one line. WHEN the controls do not fit in one row THE field group SHALL wrap the row onto further lines, comp.field-group.gap.controls apart WHILE spacing is controls and comp.field-group.gap.fields apart WHILE spacing is fields, and SHALL NOT cut, scroll or narrow a control below what its content needs; a control wider than the group SHALL take a line of its own and wrap its own label.",
+      "verify": "Fixture checkboxes-horizontal-many wraps in every harness's stage. Unit: in a group 200 wide three checkboxes with one-word labels take two lines, 8 apart; at 200% text the same row becomes a column without overlap."
+    },
+    {
+      "id": "FGR-14",
+      "text": "WHILE disabled is true THE field group SHALL draw its label, its asterisk, its description and its error text from its disabled tokens and its requirement tag as it is at rest (FGR-5), SHALL make every control it holds disabled as that control's own disabled does — not focusable, not operable, exposed as disabled — and SHALL expose the group as disabled where the platform has that state for a group; WHILE disabled is false THE field group SHALL NOT enable a control the product disabled itself. A disabled group SHALL keep its texts readable by assistive technology."
+    },
+    {
+      "id": "FGR-15",
+      "text": "IF the field group holds radio buttons WHILE kind is group THEN THE field group SHALL frame them as it frames any control and SHALL add nothing that a set of radio buttons needs — no value, no required or invalid state, no radio group for assistive technology — and in debug builds SHALL report that a set of radio buttons is a radio group (RGP-1), or, written by hand, a field group whose kind is radio-group (FGR-25). WHERE a control it holds is a radio group or a checkbox group THE field group SHALL treat it as one member, as it treats a field group inside it (FGR-20): place and space it as a field, pass it disabled (FGR-14), and pass it neither its error nor its requirement. THE field group SHALL select nothing, hold no value, move no focus and emit no event.",
+      "verify": "Unit: a field group with spacing fields that holds a text field and a radio group exposes one group that contains a text field and a radio group; disabling the field group disables both, and its error reaches neither."
+    },
+    {
+      "id": "FGR-16",
+      "text": "WHILE the text size is enlarged THE field group SHALL grow with its texts: the label, the description and the error text wrap and never clip, the requirement tag grows with its text and keeps its paddings, a horizontal row wraps (FGR-13), and the rows keep their order and their gaps; at 200% no text SHALL be lost, lie over another part or need scrolling in two directions."
+    },
+    {
+      "id": "FGR-17",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE field group SHALL draw its label, its asterisk, its description and its error text in the platform's text color and its requirement tag as a tag is drawn there (an edge and a label in the text color, TAG-14), and SHALL rely on no color of its own to show an error: the error is carried by the words of errorText, by the invalid state (FGR-10) and by each control's own error condition."
+    },
+    {
+      "id": "FGR-18",
+      "text": "WHERE the layout direction is right-to-left THE field group SHALL mirror its layout: the label row, the description, the controls and the error text start at the right edge, the requirement mark stands at the left of the label, and a horizontal row runs from right to left, the first control at the right. A column keeps its order from top to bottom in either direction."
+    },
+    {
+      "id": "FGR-19",
+      "text": "THE field group SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the field group is shown THE field group SHALL draw itself for the new direction at once, without a motion of its own, keeping its controls, with their values, their selection and their focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "FGR-20",
+      "text": "IF the field group holds no control THE field group SHALL draw its rows without one and in debug builds report it. WHERE a control it holds is itself a field group THE field group SHALL treat it as one member: place and space it as a field, expose it as a group inside the group, pass it disabled (FGR-14), and pass it nothing else — neither its error nor its requirement."
+    },
+    {
+      "id": "FGR-21",
+      "text": "THE field group SHALL lay out its label, its description, its error text and the text of its requirement tag as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE field group SHALL still place each and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "FGR-22",
+      "text": "WHEN requirement names a value the field group does not know THE field group SHALL behave as none; WHEN requiredMark, orientation or kind names a value it does not know THE field group SHALL render with that prop's default (auto, vertical, group); WHEN spacing names a value that the active design system does not have THE field group SHALL render with the default value's tokens; and in debug builds THE field group SHALL report the unknown value."
+    },
+    {
+      "id": "FGR-23",
+      "text": "THE field group SHALL leave its controls what they are: each keeps its own tokens, states, keyboard, events, value and place in a form, and THE field group SHALL emit no event, hold no value and take no part in form submission. WHEN a control is added, removed or moved while the group is shown THE field group SHALL lay out its controls again at once, without a motion, give the error condition and the disabled state it holds (FGR-8, FGR-14) to a control that came, take back from one that left everything it gave it, and leave focus on the control that has it."
+    },
+    {
+      "id": "FGR-24",
+      "text": "THE field group SHALL have no words of its own: it SHALL take requiredText and optionalText from the instance's prop and, WHILE that is empty, from the product's words of the same name — the words a product sets once for all its components — and from nowhere else. IF neither gives requiredText WHILE requirement is required THE field group SHALL draw the asterisk of FGR-6 in the tag's place WHILE the required mark is tag, so that the requirement is still shown without a word, SHALL say nothing of the requirement to assistive technology WHILE kind is group, because a group has no required state and FGR-11 has no words to give it, whichever mark is drawn — WHILE kind is radio-group the required state says it without a word (FGR-25) — and in debug builds SHALL report the missing words once. IF neither gives optionalText WHILE requirement is optional THE field group SHALL draw no tag, SHALL add nothing to the description for it, and in debug builds SHALL report the missing words once.",
+      "verify": "Unit, with no product's words set: requirement required and no requiredText draws the asterisk and no tag, and the report names requiredText; requirement optional and no optionalText draws no tag and adds nothing to the description. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
+    },
+    {
+      "id": "FGR-25",
+      "text": "WHILE kind is radio-group THE field group SHALL be exposed to assistive technology as one radio group in the place of the group of FGR-10 — never a radio group inside a group, nor a group inside a radio group — that contains its radio buttons: named by label, whether or not the label is drawn; required WHILE requirement is required; invalid WHILE error is true; disabled WHILE disabled is true (FGR-14); saying its orientation where the platform's radio group has one; and described as FGR-11 says, without requiredText, because the required state carries it. It SHALL change nothing that is drawn: its rows, its tokens, its measures and its layout are those of the same field group whose kind is group (FGR-1 to FGR-8, FGR-13). It SHALL hold the radio buttons of one group and no other control, and in debug builds SHALL report another control, radio buttons of more than one group, and a spacing other than controls. The radio buttons SHALL keep what their own group gives them — exclusion, the arrow keys, the single tab stop and each one's position in the set (RAD-3, RAD-4, RAD-5, RAD-16), from the radio group they stand in (RGP-3 to RGP-6) or, written by hand, from their name (RAD-25) — and THE field group SHALL still select nothing, hold no value, move no focus, handle no key and emit no event (FGR-12, FGR-15). WHERE the platform forms a radio group with a container of its own THE field group SHALL be the frame of that container and SHALL NOT expose a second group around it.",
+      "verify": "Unit: with kind radio-group and three radio buttons of one name, exactly one radio group and no other group is in the accessibility tree, named by label with labelHidden false and true; requirement required and error true expose both states on it, and requiredText is not in its description; the radio buttons say 1, 2 and 3 of 3. Each fixture radio-buttons-* is the same picture as the same fixture with kind group, and as the radio group's fixture that names it as its twin."
+    }
+  ],
+  "accessibility": {
+    "role": "group",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to each enabled control of the set in the order given, and once into a radio group it holds and out of it (RGP-6). The group itself is not a stop."
+      },
+      {
+        "keys": "Space, the arrow keys and every other key",
+        "action": "The focused control's own, as its spec says: the group handles none (FGR-12, FGR-15)."
+      }
+    ],
+    "labeling": "label names the group, drawn or not (labelHidden). Each control keeps its own name, its own label beside it. The group's description is supportingText, then errorText while error is true, then requiredText while the group is required, then optionalText while it is optional. A checkbox the group put in its error condition is exposed as invalid by itself and is described by errorText; a radio button is drawn in its error form and says neither, because the radio group it is in says both. The requirement tag and the asterisk are hidden. While kind is radio-group the group is a radio group: it carries the required and the invalid state itself, so requiredText is not said in its description (FGR-25).",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive by itself: the group takes no focus, no key and no press (FGR-12), so it has no target of its own and minimumTarget holds through its controls. The distance between two selection controls (FGR-3) leaves each a whole touch target.",
+      "The frame is the field's, for a set: the label (FGR-2), the requirement (FGR-4 to FGR-6) and the error (FGR-8, FGR-9) carry the numbers and the token names of FLD-2, FLD-4 to FLD-6, FLD-8 and FLD-9, with the same values. Two things differ, and both because a set is tall and is read from the top: the description stands under the label, before the controls, and stays while the group is in error; and the error text is a row of its own below the controls.",
+      "On the web the group is a `fieldset` with a `legend`. A group role has no required and no invalid state, which is why the group says requiredText in its description and marks its checkboxes invalid one by one. A set of radio buttons has both states: kind radio-group makes the same element their radio group (FGR-25). It also has a value, which a field group never holds: the Radio group does.",
+      "A set of radio buttons is the Radio group component: this field group in its radio-group kind, around the radio buttons, with what a frame cannot have added — the chosen value, one change event, the arrow keys and the single tab stop kept for the set, and a place in a form as one control (RGP-3 to RGP-9). The same set written by hand, one level down, is a field group whose kind is radio-group around radio buttons of one name: the same picture and the same radio group, without the value (FGR-25). A radio group may stand in a field group among fields, as one member (FGR-15). A set of checkboxes that is one answer under one name is a checkbox group, which holds the list of what is checked (CKG-1); checkboxes that each have a name of their own, and switches, need none of that and are a field group.",
+      "Prefer a column. A row of options is read across and then down once it wraps, and a wrapped row hides which label belongs to which mark; keep horizontal for two or three short options and for fields that are read as one line (a city and its postal code).",
+      "Errors are words (WCAG 3.3.1, 1.4.1): errorText says what is wrong with the set and how to put it right. It is announced when it appears under the person's focus and is otherwise read with the group and with each control marked invalid (FGR-9, FGR-11); it never takes focus away. A summary of every refused answer above the form is a live Callout in its error status, built by the product.",
+      "A group of fields (spacing fields) gives the fields a shared name — \"Shipping address\" before \"Street\" — which matters where two sets repeat the same labels. It passes them no error: each field says its own.",
+      "Heights are the texts' and the controls': at 200% text size every text wraps, a row becomes a column, and nothing is cut (WCAG 1.4.4, 1.4.10).",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.field-group",
+  "fixtures": [
+    {
+      "id": "checkboxes",
+      "props": {
+        "label": "Notify me by"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-supporting",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply."
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-required",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply.",
+        "requirement": "required",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-optional",
+      "props": {
+        "label": "Notify me by",
+        "requirement": "optional",
+        "optionalText": "Optional"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-required-asterisk",
+      "props": {
+        "label": "Notify me by",
+        "requirement": "required",
+        "requiredMark": "asterisk",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-error",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply.",
+        "requirement": "required",
+        "error": true,
+        "errorText": "Choose at least one way to reach you.",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-horizontal",
+      "props": {
+        "label": "Notify me by",
+        "orientation": "horizontal"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-horizontal-many",
+      "props": {
+        "label": "Days",
+        "supportingText": "The days the report is sent.",
+        "orientation": "horizontal"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Monday",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Tuesday",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Wednesday",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Thursday",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Friday",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Saturday"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Sunday"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Public holidays"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "The last working day of the month"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "The first working day after a release"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-disabled",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply.",
+        "requirement": "required",
+        "disabled": true,
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-one-disabled",
+      "props": {
+        "label": "Notify me by"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-label-hidden",
+      "props": {
+        "label": "Notify me by",
+        "labelHidden": true,
+        "supportingText": "Choose all that apply."
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "switches",
+      "props": {
+        "label": "Privacy",
+        "supportingText": "These apply to this device only."
+      },
+      "items": [
+        {
+          "kind": "switch",
+          "props": {
+            "label": "Share usage data",
+            "selected": true
+          }
+        },
+        {
+          "kind": "switch",
+          "props": {
+            "label": "Show my status"
+          }
+        },
+        {
+          "kind": "switch",
+          "props": {
+            "label": "Personalized suggestions",
+            "selected": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "switches-optional",
+      "props": {
+        "label": "Privacy",
+        "requirement": "optional",
+        "optionalText": "Optional"
+      },
+      "items": [
+        {
+          "kind": "switch",
+          "props": {
+            "label": "Share usage data"
+          }
+        },
+        {
+          "kind": "switch",
+          "props": {
+            "label": "Show my status"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fields",
+      "props": {
+        "label": "Shipping address",
+        "spacing": "fields"
+      },
+      "items": [
+        {
+          "kind": "text-field",
+          "props": {
+            "label": "Street",
+            "value": "12 Harbour Road",
+            "requirement": "required",
+            "requiredText": "Required"
+          }
+        },
+        {
+          "kind": "text-field",
+          "props": {
+            "label": "Apartment, suite",
+            "requirement": "optional",
+            "optionalText": "Optional"
+          }
+        },
+        {
+          "kind": "text-field",
+          "props": {
+            "label": "City",
+            "value": "Lisbon",
+            "supportingText": "As written on your mail."
+          }
+        }
+      ]
+    },
+    {
+      "id": "fields-horizontal",
+      "props": {
+        "label": "City and postal code",
+        "spacing": "fields",
+        "orientation": "horizontal"
+      },
+      "items": [
+        {
+          "kind": "text-field",
+          "props": {
+            "label": "City",
+            "value": "Kyoto"
+          }
+        },
+        {
+          "kind": "text-field",
+          "props": {
+            "label": "Postal code",
+            "value": "604-8571"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fields-supporting",
+      "props": {
+        "label": "Billing address",
+        "spacing": "fields",
+        "supportingText": "Where the invoice is sent.",
+        "requirement": "optional",
+        "optionalText": "Optional"
+      },
+      "items": [
+        {
+          "kind": "text-field",
+          "props": {
+            "label": "Street"
+          }
+        },
+        {
+          "kind": "text-field",
+          "props": {
+            "label": "City"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-label",
+      "props": {
+        "label": "Which of these ways may we use to reach you when a delivery is late, damaged or returned to the depot before you have seen it",
+        "requirement": "required",
+        "supportingText": "Choose all that apply. We use the first one that answers, and we never use a way you have not chosen here, whatever the reason.",
+        "error": true,
+        "errorText": "Choose at least one way to reach you, or tell us below that you do not want to be reached about deliveries at all.",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "An email to the address on the order, sent as soon as the carrier reports the delay"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "A text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "A call from the depot during its opening hours"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-required-ja",
+      "props": {
+        "label": "連絡方法",
+        "supportingText": "当てはまるものをすべて選んでください。",
+        "requirement": "required",
+        "requiredText": "必須"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "メール",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "電話"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "郵送"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fields-optional-ja",
+      "props": {
+        "label": "お届け先",
+        "spacing": "fields",
+        "requirement": "optional",
+        "optionalText": "任意"
+      },
+      "items": [
+        {
+          "kind": "text-field",
+          "props": {
+            "label": "郵便番号",
+            "value": "604-8571"
+          }
+        },
+        {
+          "kind": "text-field",
+          "props": {
+            "label": "住所",
+            "value": "京都市中京区"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "طرق الإشعار",
+        "supportingText": "اختر كل ما ينطبق.",
+        "requirement": "required",
+        "requiredText": "مطلوب"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "البريد الإلكتروني",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "رسالة نصية"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "إشعار فوري"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-horizontal-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "ימים",
+        "orientation": "horizontal",
+        "error": true,
+        "errorText": "יש לבחור יום אחד לפחות."
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "ראשון"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "שני"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "שלישי"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ltr-label-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "Wi-Fi 6E",
+        "supportingText": "2.4 GHz, 5 GHz, 6 GHz"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "2.4 GHz",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "5 GHz",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "6 GHz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-error-selected",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply.",
+        "requirement": "required",
+        "requiredText": "Required",
+        "error": true,
+        "errorText": "This number cannot receive text messages. Choose another way, or change the number."
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-parent-none",
+      "props": {
+        "label": "Notify me by"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "All of these"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-parent-some",
+      "props": {
+        "label": "Notify me by"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "All of these",
+            "indeterminate": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-parent-all",
+      "props": {
+        "label": "Notify me by"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "All of these",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification",
+            "checked": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "checkboxes-parent-one-disabled",
+      "props": {
+        "label": "Notify me by"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "All of these",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Email",
+            "checked": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Text message",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "label": "Push notification",
+            "checked": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-default",
+      "props": {
+        "label": "Delivery",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-default",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-default",
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-default",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-none-selected",
+      "props": {
+        "label": "Delivery",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-none-selected",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-none-selected",
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-none-selected",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-supporting",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-supporting",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-supporting",
+            "value": "express",
+            "label": "Express, next day",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-supporting",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-label-hidden",
+      "props": {
+        "label": "Delivery",
+        "labelHidden": true,
+        "supportingText": "You can change this until the order ships.",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-label-hidden",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-label-hidden",
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-label-hidden",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-required",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "requirement": "required",
+        "requiredText": "Required",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required",
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-optional",
+      "props": {
+        "label": "Delivery",
+        "requirement": "optional",
+        "optionalText": "Optional",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-optional",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-optional",
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-optional",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-required-asterisk",
+      "props": {
+        "label": "Delivery",
+        "requirement": "required",
+        "requiredMark": "asterisk",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required-asterisk",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required-asterisk",
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required-asterisk",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-required-error",
+      "props": {
+        "label": "Delivery",
+        "requirement": "required",
+        "error": true,
+        "errorText": "Choose how the order reaches you.",
+        "requiredText": "Required",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required-error",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required-error",
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required-error",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-error-selected",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "requirement": "required",
+        "error": true,
+        "errorText": "Express delivery does not reach this address. Choose another way.",
+        "requiredText": "Required",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-error-selected",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-error-selected",
+            "value": "express",
+            "label": "Express, next day",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-error-selected",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-error-one-disabled",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "requirement": "required",
+        "requiredText": "Required",
+        "error": true,
+        "errorText": "Express delivery does not reach this address. Choose another way.",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-error-one-disabled",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-error-one-disabled",
+            "value": "express",
+            "label": "Express, next day",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-error-one-disabled",
+            "value": "pickup",
+            "label": "Pick up in store",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-horizontal",
+      "props": {
+        "label": "Size",
+        "orientation": "horizontal",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal",
+            "value": "s",
+            "label": "Small"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal",
+            "value": "m",
+            "label": "Medium",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal",
+            "value": "l",
+            "label": "Large"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-horizontal-many",
+      "props": {
+        "label": "Send the report",
+        "supportingText": "One report, on the day you choose.",
+        "orientation": "horizontal",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-many",
+            "value": "mon",
+            "label": "Monday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-many",
+            "value": "tue",
+            "label": "Tuesday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-many",
+            "value": "wed",
+            "label": "Wednesday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-many",
+            "value": "thu",
+            "label": "Thursday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-many",
+            "value": "fri",
+            "label": "Friday",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-many",
+            "value": "sat",
+            "label": "Saturday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-many",
+            "value": "sun",
+            "label": "Sunday"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-many",
+            "value": "month-end",
+            "label": "The last working day of the month"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-many",
+            "value": "release",
+            "label": "The first working day after a release"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-disabled",
+      "props": {
+        "label": "Delivery",
+        "supportingText": "You can change this until the order ships.",
+        "requirement": "required",
+        "disabled": true,
+        "requiredText": "Required",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-disabled",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-disabled",
+            "value": "express",
+            "label": "Express, next day"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-disabled",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-one-disabled",
+      "props": {
+        "label": "Delivery",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-one-disabled",
+            "value": "standard",
+            "label": "Standard, 3 to 5 days",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-one-disabled",
+            "value": "express",
+            "label": "Express, next day",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-one-disabled",
+            "value": "pickup",
+            "label": "Pick up in store"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-long-label",
+      "props": {
+        "label": "How should we deliver the parts of this order that are in stock today, given that the rest will follow when they arrive from the supplier",
+        "requirement": "required",
+        "supportingText": "You can change this until the first parcel ships. After that the choice holds for every parcel of the order, whatever is in it.",
+        "error": true,
+        "errorText": "Choose how the order reaches you, or go back one step and remove the parts that are not in stock yet.",
+        "requiredText": "Required",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-long-label",
+            "value": "split",
+            "label": "Send what is in stock now and the rest later, in as many parcels as it takes"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-long-label",
+            "value": "together",
+            "label": "Wait and send everything together"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-long-label",
+            "value": "pickup",
+            "label": "Hold everything at the store nearest to the delivery address until I collect it"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-required-ja",
+      "props": {
+        "label": "配送方法",
+        "supportingText": "発送されるまで変更できます。",
+        "requirement": "required",
+        "requiredText": "必須",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required-ja",
+            "value": "standard",
+            "label": "通常配送（3〜5日）",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required-ja",
+            "value": "express",
+            "label": "お急ぎ便（翌日）"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-required-ja",
+            "value": "pickup",
+            "label": "店舗で受け取る"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-error-ja",
+      "props": {
+        "label": "配送方法",
+        "requirement": "required",
+        "requiredText": "必須",
+        "error": true,
+        "errorText": "配送方法を選んでください。",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-error-ja",
+            "value": "standard",
+            "label": "通常配送（3〜5日）"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-error-ja",
+            "value": "express",
+            "label": "お急ぎ便（翌日）"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-error-ja",
+            "value": "pickup",
+            "label": "店舗で受け取る"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "طريقة التوصيل",
+        "supportingText": "يمكنك تغيير هذا حتى يُشحن الطلب.",
+        "requirement": "required",
+        "requiredText": "مطلوب",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-rtl",
+            "value": "standard",
+            "label": "عادي، من 3 إلى 5 أيام"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-rtl",
+            "value": "express",
+            "label": "سريع، في اليوم التالي",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-rtl",
+            "value": "pickup",
+            "label": "الاستلام من المتجر"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-horizontal-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "גודל",
+        "orientation": "horizontal",
+        "requirement": "required",
+        "requiredText": "חובה",
+        "error": true,
+        "errorText": "יש לבחור גודל.",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-rtl",
+            "value": "s",
+            "label": "קטן"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-rtl",
+            "value": "m",
+            "label": "בינוני"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-horizontal-rtl",
+            "value": "l",
+            "label": "גדול"
+          }
+        }
+      ]
+    },
+    {
+      "id": "radio-buttons-ltr-label-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "Wi-Fi 6E",
+        "supportingText": "2.4 GHz, 5 GHz, 6 GHz",
+        "kind": "radio-group"
+      },
+      "items": [
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-ltr-label-rtl",
+            "value": "2.4",
+            "label": "2.4 GHz"
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-ltr-label-rtl",
+            "value": "5",
+            "label": "5 GHz",
+            "selected": true
+          }
+        },
+        {
+          "kind": "radio-button",
+          "props": {
+            "name": "radio-buttons-ltr-label-rtl",
+            "value": "6",
+            "label": "6 GHz"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-field-group",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "spacing": "spacing",
+        "kind": "kind"
+      },
+      "items": {
+        "checkbox": {
+          "name": "tanrei-checkbox",
+          "props": {
+            "checked": "checked",
+            "label": "label",
+            "disabled": "disabled",
+            "indeterminate": "indeterminate"
+          }
+        },
+        "switch": {
+          "name": "tanrei-switch",
+          "props": {
+            "selected": "selected",
+            "label": "label",
+            "disabled": "disabled"
+          }
+        },
+        "text-field": {
+          "name": "tanrei-text-field",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "requirement": "requirement",
+            "requiredText": "requiredText",
+            "optionalText": "optionalText"
+          }
+        },
+        "radio-button": {
+          "name": "tanrei-radio-button",
+          "props": {
+            "selected": "checked",
+            "value": "value",
+            "name": "name",
+            "label": "label",
+            "disabled": "disabled"
+          }
+        }
+      },
+      "notes": "`<tanrei-field-group label=\"Notify me by\"><tanrei-checkbox label=\"Email\"></tanrei-checkbox>…</tanrei-field-group>`: the controls are the elements of the default slot. They stay in the product's light DOM, so each keeps its place in a `<form>`, its `name` and `value` and its events; the group is not form-associated and holds no value. The shadow root holds a `<fieldset>` with a `<legend>` around the slot — the accessibility tree is built from the flattened tree, so the slotted controls are inside the group it names; every id it refers to is in the same shadow root. The description and the error text are referenced by `aria-describedby` on the fieldset, with visually hidden text for `requiredText` or `optionalText` where FGR-11 asks for them; `labelHidden` hides the legend visually and keeps it as the name. A `disabled` attribute on a fieldset in a shadow root does not reach slotted controls, so the group gives `disabled`, the error condition and the error text to each control itself: a Tanrei control asks for them with the composed `tanrei-field-connect` event a field answers, and any other element receives `disabled`, `aria-invalid` and `aria-description`; the group removes exactly what it set when an element leaves the slot (`slotchange`, FGR-23). The announcement of FGR-9 is a visually hidden `aria-live=\"polite\"` element in the shadow root, written only while `:focus-within` holds. The controls are laid out by a flex container with `gap`, `flex-direction` by `orientation` and `flex-wrap: wrap` in a row. Attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`. The requirement tag is a `<tanrei-tag size=\"small\">`, `filled` or `tonal`, with nothing set on it: it reads the Tag's tokens as every tag where the group stands does. The host is `display: block`. Words: the element has no words of its own. `required-text` and `optional-text` left empty read the product's words, set once with `setWords()` from `@tanrei/web`; the element draws again when they change. While `kind=\"radio-group\"` the element that is the group — the same `fieldset`, with its `legend` — carries `role=\"radiogroup\"`, `aria-labelledby` the legend (which stays in the tree while `label-hidden`), `aria-required` while `requirement=\"required\"`, `aria-invalid` while `error`, and `aria-orientation` as `orientation` says; the hidden text for `requiredText` is left out of `aria-describedby`. The states are attributes on that element and not ElementInternals, which the accessibility checks cannot see. Nothing else in the shadow root differs, so the two kinds are the same picture; whether an engine takes the role on a `fieldset`, or the build puts a `div` in its place for this kind, is held by the test that reads one radio group in the accessibility tree in three engines. `kind` is reflected. The radio buttons are slotted as any control: those of a `tanrei-radio-group` around the field group reach it through that element's slot, and those a product writes by hand carry one `name` (RAD-25). A `tanrei-radio-button` asks the group as a checkbox does and says that it draws an error condition; while `error` the group gives it `invalid` and nothing else — no description — and the radio button draws its error form and writes no `aria-invalid` (FGR-8, FGR-11, RAD-26). The radio group's `aria-invalid` stays on the `fieldset`. The tag's element carries no custom property and is centred on the label's line without its height being read; `required-mark` takes `tag`; and `--tanrei-comp-field-group-requirement-mark` is `var(--tanrei-sys-behavior-requirement-mark)` until a layer sets it."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiFieldGroup",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "spacing": "spacing",
+        "kind": "kind"
+      },
+      "items": {
+        "checkbox": {
+          "name": "TanreiCheckbox",
+          "props": {
+            "checked": "isOn",
+            "label": "title",
+            "disabled": "disabled",
+            "indeterminate": "isIndeterminate"
+          }
+        },
+        "switch": {
+          "name": "TanreiSwitch",
+          "props": {
+            "selected": "isOn",
+            "label": "title",
+            "disabled": "disabled"
+          }
+        },
+        "text-field": {
+          "name": "TanreiTextField",
+          "props": {
+            "label": "label",
+            "value": "text",
+            "supportingText": "supportingText",
+            "requirement": "requirement",
+            "requiredText": "requiredText",
+            "optionalText": "optionalText"
+          }
+        },
+        "radio-button": {
+          "name": "TanreiRadioButton",
+          "props": {
+            "selected": "selection",
+            "value": "value",
+            "name": "TanreiRadioGroup",
+            "label": "title",
+            "disabled": "disabled"
+          }
+        }
+      },
+      "notes": "`TanreiFieldGroup(\"Notify me by\", supportingText:, errorText:, error:, requirement:, orientation:, spacing:) { TanreiCheckbox(…) … }`. `labelHidden` follows the `.labelsHidden()` environment and `disabled` follows `.disabled(_:)`, which disables the content. The content is laid out by a custom `Layout` (a column, or a row that wraps); the container is `.accessibilityElement(children: .contain)` with the label and the description as its label and hint, and the error condition reaches the controls through the environment (`\\.tanreiField`). The product's words are read from the `\\.tanreiWords` environment value. `kind: .radioGroup` makes the same container the radio group of the `TanreiRadioButton`s in it: iOS has no radio group trait, so the container keeps `.accessibilityElement(children: .contain)` with the label and the description, and required and invalid are added to its hint in words (FGR-25). Not built on this platform yet: in error it also puts each `TanreiRadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiFieldGroup",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "spacing": "spacing",
+        "kind": "kind"
+      },
+      "items": {
+        "checkbox": {
+          "name": "TanreiCheckbox",
+          "props": {
+            "checked": "checked",
+            "label": "label",
+            "disabled": "enabled",
+            "indeterminate": "state"
+          }
+        },
+        "switch": {
+          "name": "TanreiSwitch",
+          "props": {
+            "selected": "checked",
+            "label": "label",
+            "disabled": "enabled"
+          }
+        },
+        "text-field": {
+          "name": "TanreiTextField",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "requirement": "requirement",
+            "requiredText": "requiredText",
+            "optionalText": "optionalText"
+          }
+        },
+        "radio-button": {
+          "name": "TanreiRadioButton",
+          "props": {
+            "selected": "selected",
+            "value": "onClick",
+            "name": "selectableGroup",
+            "label": "label",
+            "disabled": "enabled"
+          }
+        }
+      },
+      "notes": "`TanreiFieldGroup(label = \"Notify me by\", supportingText = …, isError = …, requirement = …, orientation = …, spacing = …) { TanreiCheckbox(…) … }`. `enabled` is the inverse flag and reaches the content through `LocalTanreiFieldState`, with `isError` and the error text. A `Column` or a `FlowRow`; the container sets `semantics { contentDescription; stateDescription }` without merging its descendants. The product's words are read from `LocalTanreiWords`. `kind = TanreiFieldGroupKind.RadioGroup` applies `Modifier.selectableGroup()` to the container and adds the error to its semantics (FGR-25); the bare `TanreiRadioButton(selected, onClick)` is what stands in it one level down. Not built on this platform yet: in error it also puts each `TanreiRadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiFieldGroup",
+      "props": {
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "supportingText": "helperText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "spacing": "spacing",
+        "kind": "kind"
+      },
+      "items": {
+        "checkbox": {
+          "name": "TanreiCheckbox",
+          "props": {
+            "checked": "value",
+            "label": "label",
+            "disabled": "onChanged",
+            "indeterminate": "tristate"
+          }
+        },
+        "switch": {
+          "name": "TanreiSwitch",
+          "props": {
+            "selected": "value",
+            "label": "label",
+            "disabled": "onChanged"
+          }
+        },
+        "text-field": {
+          "name": "TanreiTextField",
+          "props": {
+            "label": "labelText",
+            "value": "controller",
+            "supportingText": "helperText",
+            "requirement": "requirement",
+            "requiredText": "requiredText",
+            "optionalText": "optionalText"
+          }
+        },
+        "radio-button": {
+          "name": "TanreiRadioButton",
+          "props": {
+            "selected": "groupValue",
+            "value": "value",
+            "name": "TanreiRadioGroup",
+            "label": "label",
+            "disabled": "enabled"
+          }
+        }
+      },
+      "notes": "`TanreiFieldGroup(labelText: 'Notify me by', helperText: …, errorText: …, isError: …, requirement: …, orientation: …, spacing: …, children: […])`. `enabled` is the inverse flag. A `Column` or a `Wrap`; a `Semantics(container: true, label:, hint:)` node around the children, and an inherited `TanreiFieldScope` that gives the children the error condition and the disabled state. The product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. `kind: TanreiFieldGroupKind.radioGroup` makes the `Semantics` node the radio group of the radio buttons in it (FGR-25). Not built on this platform yet: in error it also puts each `TanreiRadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "FieldGroup",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "spacing": "spacing",
+        "kind": "kind"
+      },
+      "items": {
+        "checkbox": {
+          "name": "Checkbox",
+          "props": {
+            "checked": "value",
+            "label": "label",
+            "disabled": "disabled",
+            "indeterminate": "indeterminate"
+          }
+        },
+        "switch": {
+          "name": "Switch",
+          "props": {
+            "selected": "value",
+            "label": "label",
+            "disabled": "disabled"
+          }
+        },
+        "text-field": {
+          "name": "TextField",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "requirement": "requirement",
+            "requiredText": "requiredText",
+            "optionalText": "optionalText"
+          }
+        },
+        "radio-button": {
+          "name": "RadioButton",
+          "props": {
+            "selected": "selected",
+            "value": "value",
+            "name": "RadioGroup",
+            "label": "label",
+            "disabled": "disabled"
+          }
+        }
+      },
+      "notes": "`<FieldGroup label=\"Notify me by\" supportingText=\"…\">{children}</FieldGroup>`. A `View` with no role (React Native has no group role on iOS; the label is read as a header before the controls), `accessibilityLabel` and `accessibilityHint`; the children receive the error condition and the disabled state through `FieldContext`. A column, or a row with `flexWrap`. Follows the app's direction where an ancestor's is not known. The product's words are read from the `TanreiWordsProvider` context. `kind=\"radio-group\"` gives the `View` `accessibilityRole=\"radiogroup\"`; required and invalid are said in the hint, because React Native has neither state for a group (FGR-25). Not built on this platform yet: in error it also puts each `RadioButton` it holds in its error form (FGR-8, RAD-26). Not built on this platform yet: the requirement tag as this platform's Tag at its small size with nothing of the field group's set on it (FGR-5); generated tokens with none of the field group's values for it and with the system's choice of mark, which the field group's own token follows (FGR-6); the first mark named tag."
+    }
+  }
+}

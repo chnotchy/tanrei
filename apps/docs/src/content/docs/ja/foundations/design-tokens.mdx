@@ -1,0 +1,73 @@
+---
+title: デザイントークン
+description: いくつかのダイヤルから導かれる 4 つの層。コンテキストごとに解決され、DTCG 形式で一度だけ書かれ、すべてのプラットフォーム向けに生成されます。
+translationOf: foundations/design-tokens.mdx
+sourceHash: 556e1a52c075e10f7e3d783fcb96a5377bb4a3a4
+---
+
+import FileTree from '../../../../components/FileTree.astro';
+import Callout from '../../../../components/Callout.astro';
+
+デザイントークンは、名前の付いたデザイン上の決定です。Tanrei は、色、サイズ、テキストスタイル、半径、影、時間、不透明度のすべてを、[Design Tokens Community Group の形式](https://www.designtokens.org/)（バージョン 2025.10）のトークンとして、リポジトリの `tokens/` に保存しています。このディレクトリは、プロジェクトの 2 つの信頼できる情報源の 1 つです。
+
+## 層
+
+以下の 3 つの層の下に、4 つ目の層 `dial` があります。導出されるすべての値の元になる、7 つの数値です。ダイヤル、レイヤ、プロダクトが Tanrei をカスタマイズする方法については、[デザインシステムとカスタマイズ](/ja/foundations/design-systems/)を参照してください。
+
+| 層 | 接頭辞 | 持つもの | 例 |
+| --- | --- | --- | --- |
+| リファレンス | `tanrei.ref.*` | 素材。トーナルパレット、アルファの段階、書体と太さ。 | `tanrei.ref.palette.neutral.10` |
+| システム | `tanrei.sys.*` | ロールを持つ決定。その色やサイズが**何のため**のものか。テーマが変えるのはこの層です。 | `tanrei.sys.color.primary` |
+| コンポーネント | `tanrei.comp.*` | コンポーネントのパーツからシステムトークンへの結び付け。 | `tanrei.comp.button.filled.container.color` |
+
+各層が参照できるのは、下の層だけです。コンポーネントトークンはシステムトークンを参照し、システムトークンはリファレンストークンを参照します。
+
+層を役立つものに保つ規則が 2 つあり、どちらも `pnpm validate` が強制します。
+
+- **コンポーネントトークンは、リテラルを含まない。** 色、タイポグラフィ、形状、モーション、不透明度のいずれについてもです。コンポーネントトークンは常にエイリアスなので、テーマはシステムの層を変えるだけで、すべてのコンポーネントの見た目を変えられます。
+- **コンポーネントは、ハードコードされたデザイン値を含まない。** 値が足りないときの対処は新しいトークンであり、マジックナンバーではありません。
+
+## コンテキスト
+
+トークンの値は 1 つではありません。コンテキストごとに値があります。現在、Tanrei は 2 つのコンテキストの軸を解決します。
+
+- **テーマ：** ライトまたはダーク。
+- **コントラスト：** 標準、中、高。
+
+組み合わせは 6 通りになります。これらは DTCG のリゾルバーファイル（`tokens/tanrei.resolver.json`）に記述され、完全に解決されたファイルとして `design/tokens/` に書き出されます。このサイトの[トークンリファレンス](/ja/tokens/color/)が描画しているのは、このファイルです。
+
+## 名前
+
+トークンの名前は、そのパスです。同じパスを、各プラットフォームが自分の規約で表記します。
+
+| プラットフォーム | `tanrei.sys.color.primary` の表記 |
+| --- | --- |
+| CSS | `--tanrei-sys-color-primary` |
+| Swift、Kotlin、Dart、TypeScript | パッケージのトークン名前空間の下に生成される定数 |
+
+名前空間、CSS の接頭辞、タグの接頭辞は、`tanrei.config.json` という 1 つのファイルから取ります。リポジトリのほかの場所にこれらをハードコードすることは認められていません。
+
+## ソースからプラットフォームへ
+
+<FileTree>
+- tokens/ 信頼できる情報源。手で編集します
+  - ref/
+  - sys/
+  - comp/
+  - themes/ カラースキームのジェネレーターへの入力
+  - generated/ ジェネレーターが書き出すパレットとスキーム
+  - tanrei.resolver.json
+- design/tokens/ 解決済みの 6 通りの組み合わせ
+- packages/
+  - web/src/generated/tokens.css
+  - swiftui/…/Generated/TanreiTokens.swift
+  - compose/…/tokens/
+  - flutter/lib/src/generated/tokens.g.dart
+  - react-native/src/generated/tokens.ts
+</FileTree>
+
+`pnpm generate` は、導出されるすべてのファイルを作り直します。CI は再生成を行い、少しでも差があれば失敗します。そのため、生成されたファイルを手で編集しても、その変更が残ることはありません。
+
+<Callout>
+  CSS では、カラートークンは `light-dark()` の組として出力されます。1 枚のスタイルシートが両方のテーマをまかない、サブツリーは `color-scheme` を変えるだけでテーマを切り替えられます。
+</Callout>

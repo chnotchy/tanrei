@@ -1,0 +1,285 @@
+---
+title: कार्ड
+description: आपस में जुड़े कॉन्टेंट के एक ग्रुप को उसके बैकग्राउंड से अलग करता है, और वह एक क्रिया हो सकता है जो उसकी दिखाई चीज़ खोलती है, या उस तक ले जाने वाला एक लिंक।
+translationOf: components/card.mdx
+sourceHash: b6fcbfc849d4b1691f4876da47689bf1ed2bb7fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="card" />
+
+<DemoFrame label="वेरिएंट">
+  <tanrei-card style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Filled</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।</div>
+  </tanrei-card>
+</DemoFrame>
+
+कार्ड के तीन रूप हैं। सादा कार्ड एक कंटेनर है: उसका कॉन्टेंट अपने सिमैंटिक्स बनाए रखता है और उसमें बटन और लिंक हो सकते हैं। इंटरैक्टिव कार्ड एक बटन है। लिंक कार्ड, यानी `href` वाला कार्ड, एक लिंक है। जब कार्ड को सक्रिय करने से व्यक्ति किसी दूसरे पेज या पते पर पहुँचता हो, तब लिंक कार्ड इस्तेमाल करें, और जब कुछ वहीं होता हो जहाँ व्यक्ति है, तब इंटरैक्टिव कार्ड।
+
+### इस्तेमाल
+
+Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं। SwiftUI, Compose, Flutter और React Native पीछे हैं: वे सादा और इंटरैक्टिव कार्ड देते हैं, और लिंक कार्ड अभी नहीं देते। उनके उदाहरण वही दिखाते हैं जो वे देते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- ऐसा कार्ड जो क्रिया नहीं है: उसका कॉन्टेंट अपने सिमैंटिक्स बनाए रखता है और उसमें बटन हो सकते हैं। -->
+    <tanrei-card>
+      <h3 class="tanrei-text-heading-5">तिमाही रिपोर्ट</h3>
+      <p class="tanrei-text-body">पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।</p>
+      <tanrei-button variant="text">शेयर करें</tanrei-button>
+    </tanrei-card>
+
+    <!-- एक क्रिया: पूरा कार्ड एक बटन है, जिसका नाम label से आता है। भीतर कुछ भी इंटरैक्टिव नहीं। -->
+    <tanrei-card variant="elevated" interactive label="तिमाही रिपोर्ट">…</tanrei-card>
+
+    <!-- एक लिंक: href के साथ पूरा कार्ड एक ऐंकर है, जिसका नाम label से आता है। भीतर कुछ भी इंटरैक्टिव नहीं। -->
+    <tanrei-card href="/reports/q3/" label="तिमाही रिपोर्ट">…</tanrei-card>
+
+    <!-- नया टैब खोलने वाला लिंक यह बात आपके शब्दों में कहता है। कार्ड कोई निशान नहीं बनाता: ग्लिफ़ अपने कॉन्टेंट में रखें। -->
+    <tanrei-card href="https://example.com/reports/q3.pdf" target="new" target-label="नए टैब में खुलता है" label="तिमाही रिपोर्ट">
+      <h3 class="tanrei-text-heading-5">तिमाही रिपोर्ट</h3>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </tanrei-card>
+
+    <!-- inset का डिफ़ॉल्ट true है, इसलिए उसका ऐट्रिब्यूट उलटा है: flush फ़ोटो को किनारों तक पहुँचने देता है। -->
+    <tanrei-card flush>
+      <img src="cover.jpg" alt="" />
+      <div style="padding: var(--tanrei-comp-card-container-padding)">…</div>
+    </tanrei-card>
+
+    <script type="module">
+      import '@tanrei/web/components/card';
+      document.querySelector('[interactive]').addEventListener('click', openReport);
+
+      // लिंक कार्ड ब्राउज़र के पता खोलने से पहले click फ़ायर करता है। क्लाइंट-साइड राउटर उसे रद्द करता है।
+      document.querySelector('tanrei-card[href]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push(event.currentTarget.href);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Card } from '@tanrei/react';
+
+    <Card variant="filled">
+      <h3 className="tanrei-text-heading-5">तिमाही रिपोर्ट</h3>
+      <p className="tanrei-text-body">पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।</p>
+    </Card>
+    <Card interactive label="तिमाही रिपोर्ट" onClick={openReport}>…</Card>
+    <Card href="/reports/q3/" label="तिमाही रिपोर्ट">…</Card>
+    <Card href="https://example.com/reports/q3.pdf" target="new" targetLabel="नए टैब में खुलता है" label="तिमाही रिपोर्ट">…</Card>
+    <Card inset={false}>…</Card>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCard(variant: .filled) {
+        Text("तिमाही रिपोर्ट")
+        Text("पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।")
+    }
+
+    // action: लेने वाला इनिशियलाइज़र ही इंटरैक्टिव कार्ड है।
+    TanreiCard(label: Text("तिमाही रिपोर्ट"), action: openReport) { ReportSummary() }
+        .disabled(isLoading)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiCard
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiCardVariant
+
+    // onClick के बिना कार्ड कोई क्रिया नहीं है, इसलिए उसमें बटन हो सकते हैं।
+    TanreiCard(variant = TanreiCardVariant.Filled) {
+        TanreiText("तिमाही रिपोर्ट")
+        TanreiText("पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।")
+        TanreiButton(text = "शेयर करें", onClick = ::share)
+    }
+
+    // onClick वाला ओवरलोड एक क्रिया है। enabled = false उसे अक्षम करता है।
+    TanreiCard(onClick = ::openReport, contentDescription = "तिमाही रिपोर्ट") {
+        TanreiText("तिमाही रिपोर्ट")
+        TanreiText("पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCard(
+      variant: TanreiCardVariant.filled,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Text('तिमाही रिपोर्ट'),
+          const Text('पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।'),
+          TanreiButton(onPressed: share, child: const Text('शेयर करें')),
+        ],
+      ),
+    );
+
+    // onTap का null न होना पूरे कार्ड को एक क्रिया बना देता है; enabled: false उसे अक्षम करता है।
+    TanreiCard(
+      onTap: openReport,
+      semanticLabel: 'तिमाही रिपोर्ट',
+      child: const ReportSummary(),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Text } from 'react-native';
+    import { Card, useContentColor } from '@tanrei/react-native';
+
+    // सादी स्ट्रिंग बॉडी स्टाइल और कार्ड के कॉन्टेंट के रंग में बनती है।
+    <Card variant="filled">पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।</Card>
+
+    // onPress के साथ कार्ड एक क्रिया है, जिसका नाम उसकी हेडिंग से आता है।
+    <Card accessibilityLabel="तिमाही रिपोर्ट" onPress={openReport}>
+      <ReportSummary />
+    </Card>
+
+    // आपका अपना टेक्स्ट कार्ड के कॉन्टेंट का रंग पढ़ता है: React Native में टेक्स्ट का रंग इनहेरिट नहीं होता।
+    function ReportSummary() {
+      const color = useContentColor();
+      return <Text style={{ color }}>पिछली तिमाही के मुक़ाबले राजस्व 12% बढ़ा।</Text>;
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="फ़्लश, इंटरैक्टिव और अक्षम" plain>
+  <tanrei-card flush style="width: 15rem">
+    <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
+    <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">फ़्लश: कॉन्टेंट किनारों तक पहुँचता है।</div>
+  </tanrei-card>
+  <tanrei-card interactive label="तिमाही रिपोर्ट" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">तिमाही रिपोर्ट</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">इंटरैक्टिव: इस पर होवर करें, Tab से इस तक आएँ, इसे दबाएँ।</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" interactive disabled label="तिमाही रिपोर्ट" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">तिमाही रिपोर्ट</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">इंटरैक्टिव और अक्षम।</div>
+  </tanrei-card>
+</DemoFrame>
+
+<DemoFrame label="लिंक कार्ड" plain>
+  <tanrei-card href="/hi/components/button/" label="बटन" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">बटन</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">एक लिंक कार्ड। Enter इसका लिंक खोलती है, और ब्राउज़र का लिंक मेन्यू इस पर काम करता है।</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" href="/hi/components/list/" target="new" target-label="नए टैब में खुलता है" label="लिस्ट" style="width: 15rem">
+    <div style="display: flex; align-items: center; gap: var(--tanrei-sys-space-space200)">
+      <div style="flex: 1; font: var(--tanrei-sys-typescale-heading-5-font)">लिस्ट</div>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">नया टैब खोलता है। ग्लिफ़ कॉन्टेंट का हिस्सा है।</div>
+  </tanrei-card>
+  <tanrei-card href="/hi/components/button/" disabled label="बटन" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">बटन</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">एक अक्षम लिंक कार्ड: खोलने के लिए कुछ नहीं।</div>
+  </tanrei-card>
+</DemoFrame>
+
+<ComponentSpecs name="card" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+कार्ड का इस्तेमाल एक ही विषय के कॉन्टेंट को ग्रुप करने के लिए करें, जैसे कोई रिपोर्ट, व्यक्ति, प्रॉडक्ट या सेटिंग, और उसे आस-पास की चीज़ों से अलग करने के लिए। कार्ड अपने कॉन्टेंट को सिर्फ़ इनसेट देता है, क्लिप करता है और रंग देता है। कॉन्टेंट का लेआउट आप Tanrei के टेक्स्ट स्टाइल (कार्ड के शीर्षक के लिए `heading-5`) और कंपोनेंट से बनाते हैं।
+
+पूरे कार्ड को इंटरैक्टिव तब बनाएँ जब वह एक ऐसी क्रिया हो जो उसकी दिखाई चीज़ खोलती है। अगर उसे कई क्रियाएँ चाहिए, तो उसे नॉन-इंटरैक्टिव रखें और बटन भीतर रखें।
+
+### गंतव्य वाला कार्ड एक लिंक है
+
+गंतव्य वाला कंट्रोल एक लिंक है, और यह बात कार्ड पर भी लागू होती है। जब कार्ड को सक्रिय करने से व्यक्ति सिर्फ़ किसी दूसरे पेज पर पहुँचता हो, तो इंटरैक्टिव कार्ड पर क्लिक सँभालने की जगह उसे `href` दें। तब कार्ड एक असली लिंक है, वेब पर अपने कॉन्टेंट के चारों ओर एक ऐंकर। लोग उसे नए टैब में खोल सकते हैं, उसका पता कॉपी कर सकते हैं और जाने से पहले देख सकते हैं कि वह कहाँ ले जाता है, और सहायक तकनीक उसे लिंक के रूप में पढ़कर सुनाती है, बटन के रूप में नहीं। इस साइट के एक पेज से दूसरे पर ले जाने वाले कार्ड लिंक कार्ड हैं।
+
+- लिंक कार्ड हर स्टेट में ठीक इंटरैक्टिव कार्ड जैसा दिखता है। लिंक का कोई अलग रूप नहीं है, और "देखा जा चुका" वाला कोई स्टेट नहीं है।
+- `href` को `interactive` पर तरजीह मिलती है: जिस कार्ड में दोनों हों, वह लिंक है।
+- Enter लिंक कार्ड का लिंक खोलती है। Space नहीं खोलती: वह वही करती है जो किसी भी लिंक पर करती है, यानी वेब पर पेज स्क्रॉल करती है।
+- पहले `click` फ़ायर होता है, फिर गंतव्य खुलता है। नेविगेशन ख़ुद सँभालने के लिए click को रद्द करें, जैसा क्लाइंट-साइड राउटर करता है।
+- `target` का मान `same` (डिफ़ॉल्ट) या `new` होता है। जो लिंक नया टैब या विंडो खोलता है, उसे `targetLabel` चाहिए, यानी वे शब्द जो उसके नाम के बाद पढ़े जाते हैं, जैसे "नए टैब में खुलता है"। Tanrei अपना कोई शब्द साथ नहीं देता। कार्ड इसके लिए कोई निशान नहीं बनाता, क्योंकि कॉन्टेंट आपका है: अगर निशान दिखाना चाहते हैं, तो `open_in_new` ग्लिफ़ कॉन्टेंट में रखें।
+- अक्षम लिंक कार्ड का लिंक किसी भी तरीक़े से नहीं खोला जा सकता, और वह फ़ोकस के क्रम से बाहर हो जाता है।
+- सिर्फ़ व्हाइट स्पेस वाला `href` कोई गंतव्य नहीं है। `javascript:` पता, या ऐसा पता जो पते के रूप में पढ़ा नहीं जा सकता, अस्वीकार किया जाता है और डीबग बिल्ड में रिपोर्ट किया जाता है, और कार्ड वही रहता है जो वह उसके बिना होता।
+
+जब कार्ड को गंतव्य के साथ अपनी क्रियाएँ भी चाहिए, तो उसे सादा रखें और उसकी हेडिंग को लिंक बनाएँ, या भीतर `href` वाला [बटन](/hi/components/button/) रखें।
+
+### वेरिएंट चुनना
+
+बैकग्राउंड के हिसाब से चुनें, महत्व के हिसाब से नहीं।
+
+| वेरिएंट | किससे अलग करता है | किसके लिए |
+| --- | --- | --- |
+| Outlined (डिफ़ॉल्ट) | किनारे से | ज़्यादातर कार्ड, और वे कार्ड जो ऐसी सरफ़ेस पर हों जिसका टोन filled कार्ड जैसा है। |
+| Filled | टोन से | सादी सरफ़ेस पर के कार्ड, जहाँ सिर्फ़ टोन ग्रुप को चिह्नित करता है। filled कार्ड उसी टोन की सरफ़ेस पर ग़ायब हो जाता है। |
+| Elevated | गहराई से | वह कॉन्टेंट जो पेज के ऊपर रहता है, जैसे पिन किया हुआ या ड्रैग किया जा सकने वाला आइटम। |
+
+### करें
+
+- इंटरैक्टिव कार्ड या लिंक कार्ड को `label` से नाम दें, आम तौर पर उसकी हेडिंग का टेक्स्ट।
+- साथ दिखाए जाने वाले कार्ड के एक सेट के लिए एक ही वेरिएंट इस्तेमाल करें।
+- किनारों तक फैलने वाले मीडिया के लिए `inset` को false करें (वेब पर `flush`), और उसके नीचे के टेक्स्ट को कार्ड के पैडिंग टोकन से ख़ुद पैडिंग दें।
+
+### न करें
+
+- इंटरैक्टिव कार्ड या लिंक कार्ड में बटन, लिंक, फ़ील्ड, टॉगल या कोई और फ़ोकस करने लायक़ चीज़ न रखें। सहायक तकनीक उस तक नहीं पहुँच सकती, और उस पर दबाने से कार्ड भी सक्रिय हो जाएगा।
+- इंटरैक्टिव कार्ड के click हैंडलर से नेविगेट न करें। जो कार्ड कहीं ले जाता है, वह `href` लेता है।
+- सादे कार्ड को अक्षम न करें। वहाँ `disabled` को अनदेखा किया जाता है, क्योंकि अक्षम करने के लिए कोई क्रिया या लिंक नहीं है।
+- कार्ड को महत्व के क्रम में रखने के लिए एलिवेशन का इस्तेमाल न करें।
+
+## सुलभता
+
+<ComponentAccessibility name="card" />
+
+### कंपोनेंट क्या सँभालता है
+
+- जो कार्ड इंटरैक्टिव नहीं है, उसका कोई रोल नहीं होता और वह अपने कॉन्टेंट के सिमैंटिक्स को नहीं छूता। `label` के साथ वह एक ग्रुप है जिसका नाम उसी से आता है।
+- इंटरैक्टिव कार्ड बटन के रोल वाला एक फ़ोकस करने लायक़ एलिमेंट है, और अपना अक्षम स्टेट देता है। उसका नाम `label` है, या उसके बिना, एक स्ट्रिंग के रूप में पढ़ा गया उसका पूरा कॉन्टेंट। डीबग बिल्ड लेबल न होने की रिपोर्ट करते हैं।
+- लिंक कार्ड लिंक के रोल वाला एक फ़ोकस करने लायक़ एलिमेंट है, जिसका नाम उसी तरह आता है। जब तक `target` का मान `new` है, `targetLabel` उसका विवरण है, जो उसके नाम और रोल के बाद पढ़ा जाता है। अक्षम लिंक कार्ड लिंक का रोल बनाए रखता है, अक्षम स्टेट देता है और उसका कोई गंतव्य नहीं होता।
+- Enter और Space इंटरैक्टिव कार्ड को सक्रिय करती हैं, और लिंक कार्ड को सिर्फ़ Enter। हिट एरिया न्यूनतम टार्गेट पूरा करता है, और फ़ोकस इंडिकेटर सिर्फ़ कीबोर्ड फ़ोकस के लिए दिखता है।
+- यह अपने कॉन्टेंट के साथ बढ़ता है, इसलिए बड़ा टेक्स्ट कभी नहीं कटता।
+- वेब पर डीबग बिल्ड स्लॉट के हर बदलाव पर इंटरैक्टिव कार्ड या लिंक कार्ड के भीतर के इंटरैक्टिव एलिमेंट की रिपोर्ट करते हैं, और उस लिंक कार्ड की भी जो `targetLabel` के बिना नया टैब खोलता है।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- SwiftUI, Compose, Flutter और React Native में अभी लिंक कार्ड नहीं है। वहाँ कहीं ले जाने वाला कार्ड अब भी एक इंटरैक्टिव कार्ड है जो अपनी क्रिया से नेविगेट करता है।
+- Web: जो इंटरैक्टिव एलिमेंट बाद में, कार्ड में पहले से मौजूद किसी एलिमेंट के भीतर गहराई में जोड़ा जाता है, उसकी रिपोर्ट नहीं होती।
+- Web: जो कार्ड इंटरैक्टिव नहीं है, वह कभी अपना कोई click पैदा नहीं करता, पर उसके कॉन्टेंट पर हुआ क्लिक एक साधारण DOM click है और कार्ड से होकर बबल होता है।
+- SwiftUI, Compose, Flutter और React Native भीतर रखे इंटरैक्टिव एलिमेंट को पहचान नहीं सकते, इसलिए वे इसकी जाँच नहीं करते। यह नियम निभाना आपका काम है।
+- React Native: लेबल वाला नॉन-इंटरैक्टिव कार्ड एक ग्रुप है, पर iOS उस रोल को किसी ट्रेट से नहीं जोड़ता। VoiceOver ग्रुप का नाम पढ़कर सुनाता है या नहीं, यह किसी डिवाइस पर नहीं जाँचा गया है।
+- Compose: प्लैटफ़ॉर्म की कुंजी हैंडलिंग के ज़रिए Enter और Space से सक्रिय करना सिर्फ़ Robolectric में जाँचा गया है, अभी किसी डिवाइस पर नहीं।
+- React Native में टेक्स्ट का रंग इनहेरिट नहीं होता। कार्ड सादी स्ट्रिंग को अपने कॉन्टेंट के रंग में बनाता है; आपका अपना टेक्स्ट उसे `useContentColor()` से पढ़ता है।
+- SwiftUI: न्यूनतम टार्गेट से छोटा इंटरैक्टिव कार्ड अपना दिखने वाला साइज़ बनाए रखता है, पर लेआउट में टार्गेट जितनी जगह लेता है।
+
+### आपको क्या करना है
+
+- इंटरैक्टिव कार्ड या लिंक कार्ड को `label` दें। उसके बिना पूरा कॉन्टेंट एक लंबे नाम के रूप में पढ़ा जाता है।
+- जो लिंक कार्ड नया टैब या विंडो खोलता है, उसे अपने प्रॉडक्ट की भाषा में `targetLabel` दें।
+- इंटरैक्टिव कार्ड और लिंक कार्ड में दूसरे कंट्रोल न रखें। जब कार्ड को अपने बटन या लिंक चाहिए, तो उसे सादा रखें और उनमें से एक को उसकी मुख्य क्रिया या गंतव्य बनने दें।
+- नॉन-इंटरैक्टिव कार्ड के भीतर की हेडिंग, इमेज और दूसरे कॉन्टेंट को उनके अपने सिमैंटिक्स दें: alt टेक्स्ट, हेडिंग के स्तर। कार्ड कोई सिमैंटिक्स नहीं जोड़ता।

@@ -1,0 +1,237 @@
+---
+title: "链接"
+description: "通向某个地方的文本：句子里的一个短语、单独的一行，或者只有一个字形。文本样式随所在位置而定，下划线按你的设计系统的选择绘制，离开本站的链接会带上标记。"
+translationOf: components/link.mdx
+sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="link" />
+
+<DemoFrame label="在句子里、单独一行、只有一个字形" column>
+  <p style="margin: 0; max-inline-size: 32rem">
+    令牌会为每个平台生成。请阅读<a class="tanrei-link" href="../../foundations/design-tokens/">令牌是如何推导出来的</a>，或者查看<a class="tanrei-link" href="https://example.com/tanrei" target="_blank" aria-description="在新标签页中打开">源代码</a>。
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="../button/">下一篇：按钮<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" href="#概览" aria-label="指向“概览”的链接"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+  </p>
+</DemoFrame>
+
+有一条规则，产品不用查表就能照着做：**有地址的是链接，没有地址的是按钮。** 在页面上执行某件事、不通向任何地方的控件是[按钮](../button/)；如果它应该像文本一样低调，就用 text 变体。应该看起来像按钮的目的地，是带 `href` 的按钮。
+
+### 用法
+
+在 Web 上，链接不是一个元素，而是加在你自己的锚元素（`<a>`）上的一个类。锚元素就在文档里，所以在任何脚本运行之前它就已经是链接，爬虫、搜索索引和处理页面上锚元素的路由都能找到它。路由自带的链接组件也可以加上这个类。`.tanrei-prose` 里的每个锚元素不加类也会以同样的方式绘制，所以渲染出来的 Markdown 什么都不用加。
+
+SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。React 也还没有 `Link` 组件，请使用加了这个类的锚元素。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link.css" />
+
+    <!-- 在句子里。 -->
+    <p>请先阅读<a class="tanrei-link" href="/guides/accessibility/">无障碍指南</a>。</p>
+
+    <!-- 单独一行：点击区域会扩展到最小目标。 -->
+    <a class="tanrei-link" data-standalone href="/getting-started/">开始使用</a>
+
+    <!-- 新标签页：标记会自动绘制。同时也要用文字说明。 -->
+    <a class="tanrei-link" href="https://example.com/" target="_blank" aria-description="在新标签页中打开">源代码</a>
+
+    <!-- 另一个网站，在用户当前所在的地方打开：标签之后有一个箭头，同时用文字说明。 -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="外部链接">标准文档</a>
+
+    <!-- 带上那个网站的图标：由你自己的网站提供的图片，写成锚元素的第一个子元素。 -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="外部链接"><img
+      class="tanrei-link-site-icon" src="/icons/example-com.png" alt="" width="32" height="32"
+      loading="lazy" decoding="async" referrerpolicy="no-referrer">标准文档</a>
+
+    <!-- 让一个链接不跟随设计系统的下划线选择：always、hover 或 never。 -->
+    <a class="tanrei-link" data-standalone data-underline="hover" href="/about/">关于</a>
+
+    <!-- 有自己选择的区域：里面的每个链接都跟随它。 -->
+    <footer style="--tanrei-comp-link-underline-visibility: never">…</footer>
+
+    <!-- 字形：紧贴文字书写，两者之间不留空格。 -->
+    <a class="tanrei-link" data-standalone href="/tokens.zip"><span class="tanrei-icon" aria-hidden="true">download</span>下载令牌</a>
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="/tokens/">下一篇：令牌<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+
+    <!-- 只有一个字形：用 aria-label 命名。 -->
+    <a class="tanrei-link" href="#installation" aria-label="指向“安装”的链接"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+
+    <!-- 当前页面、此刻无法前往的链接，以及反色表面上的链接。 -->
+    <a class="tanrei-link" data-standalone href="/components/" aria-current="page">组件</a>
+    <a class="tanrei-link" data-standalone role="link" aria-disabled="true">上一页</a>
+    <a class="tanrei-link" data-variant="inverse" href="/changes/">更改内容</a>
+
+    <script type="module">
+      // 可选：涟漪和 dim 按下反馈、noopener、拒绝和调试报告。`@tanrei/web` 也会加载它。
+      // 页面生成时没有标记的地方，它还会标出离开本站的链接。
+      import { setSiteOrigins, setExternalLabel } from '@tanrei/web/link';
+      setSiteOrigins(['https://docs.example.com']); // 属于你自己网站的源
+      setExternalLabel('外部链接');                 // 这段文字，整个页面设置一次，用你的语言
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/link.css';
+    import '@tanrei/web/link';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <a className="tanrei-link" href="/guides/accessibility/">无障碍指南</a>
+
+    {/* 路由的链接组件会渲染它自己的锚元素：把这个类交给它。 */}
+    <RouterLink className="tanrei-link" data-standalone to="/getting-started/">开始使用</RouterLink>
+    ```
+  </TabItem>
+</Tabs>
+
+| 属性 | 在 Web 上 |
+| --- | --- |
+| `href` | `href` |
+| `target: new` | `target="_blank"` |
+| `targetLabel` | `aria-description` |
+| `variant: inverse` | `data-variant="inverse"` |
+| `standalone` | `data-standalone` |
+| `iconPosition: trailing` | `data-icon-position="trailing"` |
+| `current` | `aria-current="page"`（或它的其他取值） |
+| `disabled` | `role="link" aria-disabled="true"`，并且不带 `href` |
+| `label` | `aria-label` |
+| `underline` | `data-underline="always"`、`"hover"` 或 `"never"`；不写时由设计系统的选择决定 |
+| `external: on`、`off` | `data-external="true"`、`data-external="false"`；不写时由地址决定 |
+| `externalLabel` | `aria-description` |
+| `siteIcon` | 你自己写的 `<img class="tanrei-link-site-icon" alt="">`，作为锚元素的第一个子元素 |
+
+## 规格
+
+<DemoFrame label="换行：下划线、状态层和焦点环跟随每一行" plain>
+  <p style="margin: 0; max-inline-size: 22rem">
+    <a class="tanrei-link" href="../../foundations/accessibility/">无障碍指南，其中说明了每个组件如何命名、如何用键盘到达和操作，以及状态变化时各个平台会朗读什么</a>
+  </p>
+</DemoFrame>
+
+<DemoFrame label="字形和新标签页标记" plain column>
+  <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>下载令牌</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="在新标签页中打开">查看源代码</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="在新标签页中打开"><span class="tanrei-icon" aria-hidden="true">code</span>查看源代码</a>
+  <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="在新标签页中打开">查看源代码<span class="tanrei-icon" aria-hidden="true">code</span></a>
+</DemoFrame>
+
+<DemoFrame label="当前和禁用" plain>
+  <a class="tanrei-link" data-standalone href="../">概览</a>
+  <a class="tanrei-link" data-standalone href="./" aria-current="page">组件</a>
+  <a class="tanrei-link" data-standalone role="link" aria-disabled="true">上一页</a>
+</DemoFrame>
+
+<DemoFrame label="下划线：始终、悬停时、从不" plain>
+  <a class="tanrei-link" data-standalone data-underline="always" href="../button/">始终</a>
+  <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">悬停时</a>
+  <a class="tanrei-link" data-standalone data-underline="never" href="../button/">从不</a>
+</DemoFrame>
+
+<DemoFrame label="离开本站的链接" plain column>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="外部链接">规格说明</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="外部链接"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />规格说明</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="在新标签页中打开"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />规格说明</a>
+</DemoFrame>
+
+<DemoFrame label="在反色表面上" plain>
+  <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
+    页面已保存。查看<a class="tanrei-link" data-variant="inverse" href="../snackbar/">更改内容</a>。
+  </div>
+</DemoFrame>
+
+链接不带自己的文本样式：无论在段落、标题、说明文字还是表格单元格里，它都沿用所在文本的字体族、字号、字重和行高。悬停、聚焦和按下画在它所经过的每一行的文字背后，不占空间，所以链接周围的任何东西都不会移动。字形、网站的图标和标记与文字一样大，并与旁边的词留在同一行。
+
+**下划线何时绘制是一种选择**，有三个取值。`always` 在静止时和每一种状态下都绘制。`hover` 在链接被悬停、从键盘获得焦点或被按下时绘制。`never` 不绘制，这时悬停、聚焦和按下仍由状态层、标签颜色和焦点环来表示。这个选择在三个层级上设置：`sys.behavior.link-underline` 针对一个设计系统的所有文本链接，`comp.link.underline.visibility` 只针对链接这一个组件，`underline` 属性针对单个链接。默认系统选择 `always`。在 Web 上，这个组件令牌是一个自定义属性，所以页脚这样的区域可以带有自己的取值。当前链接和只有一个字形的链接在任何选择下都没有下划线；强制颜色模式下，无论哪种选择都会绘制下划线。
+
+**离开本站的链接会说明这一点。** 外部链接在标签之后显示字形 `arrow_outward`；如果你给出了图标，还会在标签之前显示那个网站的图标。`external` 的取值是 `auto`、`on` 或 `off`。在 `auto` 下，与页面不同源（origin）的 `http` 或 `https` 地址是外部链接；路径、片段、邮件地址、电话号码和下载从来不是。把属于你自己网站的其他源声明一次，它们也就不算外部链接。`comp.link.external.marks` 为整个产品关掉图标（`arrow`），或者把两种标记都关掉（`none`）。
+
+离开本站和在新标签页中打开是两件事。标签之后的位置只放一个字形：带 `target="_blank"` 的链接放 `open_in_new`，无论它是不是外部链接；除此之外，外部链接放 `arrow_outward`。后置一侧放着你自己的字形时，它会取代这两者；只有一个字形的链接则两者都没有。
+
+**链接从不自己去取图标。** `siteIcon` 是你给出的图片：它由你自己的网站提供，在构建网站时生成。如果组件向目的地或某个图标服务去要这个图标，就等于告诉对方每位读者正在看哪个页面。没有给出图标时，链接只显示箭头。加载不出来的图标会保留它的位置，什么都不画。
+
+<ComponentSpecs name="link" />
+
+### Web 上绘制方式的不同之处
+
+- 链接文字背后的容器是文字本身的框（字体自身的高度），而不是整个行高。
+- 带字形或标记的链接换行时，绘制成在行末切开的一个框。不带它们的链接在每一行上都有完整的四个角。
+- 带有字形、标记或外部链接标记的独立链接按布局的方向排列标签，而不是按标签自己第一个字母的方向。
+- 样式表不对地址做任何计算：它只为 `data-external` 绘制标记。在生成页面的地方写上这个属性（对渲染出来的 Markdown，`@tanrei/web/links` 的构建步骤 `markExternalLinks()` 会替你写），标记就在首次绘制里。
+- 有包里的脚本时，没有 `data-external`、而地址离开本站的锚元素会在浏览器里被标出。这些标记在首次绘制之后才出现，每一个都会把同一行上它后面的内容推开文字大小加间距那么远。既没有这个属性也没有脚本的页面不显示任何外部链接的标记。
+- 在不支持样式容器查询的浏览器里，脚本为整个页面读取这两个选择。区域自己的取值在那里不会被看到；没有脚本时，每个选择都取它的第一个值：`always`，以及两种标记都显示。
+- 在按下反馈为涟漪的设计系统下，跨越多行的链接改用叠加层来回应。
+- 没有包里的脚本时，样式表会绘制每一种状态，按下反馈为叠加层。
+
+## 指南
+
+### 链接还是按钮
+
+| 组件 | 它是什么 | 何时使用 |
+| --- | --- | --- |
+| **链接** | 通向某个地方的文本，采用周围的文本样式，下划线按设计系统的选择绘制 | 句子里的一个短语、本身就是目的地的一行文字、标题旁边的一个字形 |
+| **有目的地的按钮** | 绘制成按钮的链接 | 目的地是屏幕上的操作之一：“开始使用”“查看源代码” |
+| **Text 按钮** | 一个按钮 | 它执行某件事，不通向任何地方，无论它多么应该看起来像文本 |
+
+### 在句子里还是单独一行
+
+`data-standalone` 不改变用户看到的任何东西。它说明这个链接不属于某一行文字，于是它的点击区域可以扩展到最小目标，而不会抢走本该落在上下两行的按下操作。段落下方的链接、表格单元格里的链接和一排链接都用它。在句子里则不要加。
+
+`hover` 和 `never` 是为独立放置的链接准备的：导航列表、页脚、一排相关页面。它们在列表里的位置就说明了它们是什么。在这些链接上设置 `data-underline`，或者给这个区域一个它自己的组件令牌取值，并让句子里的链接保留下划线。
+
+### 推荐
+
+- 标签要写得脱离周围的句子也能说明链接通向哪里：写“安装指南”，不写“这里”。
+- 只在 `sys.color.inverse-surface` 上使用 `data-variant="inverse"`。在柔和的容器（语义状态的容器、`secondary-container`）上，用标准链接就对了。
+- 一组导航里最多只把一个链接标为当前，由这组导航决定是哪一个。
+- 两个独立链接之间留出 `sys.target.spacing`，或者让它们所在的行有一个目标那么高。
+- 网站的图标要以你自己的网站提供的文件给出。`@tanrei/web/links` 的 `resolveSiteIcons()` 会在构建网站时生成它们，所以没有哪位读者的浏览器会向其他任何一方发出请求。
+- 外部链接的文字只设置一次（`setExternalLabel()`，或构建步骤的 `externalLabel`），用你的产品的语言。它就是[产品的文字](/zh-cn/foundations/words/)里的键 `externalLabel`：`setWords({ externalLabel: '…' })` 给出的是同一段文字，加上 `{ lang }` 就可以按语言分别给出。
+
+### 避免
+
+- 在链接颜色就是文本颜色的层里，不要去掉静止时的下划线。在默认系统里，链接颜色就是文本颜色本身，在全部六种配色方案里两者的对比度都是 1.00:1，所以表明“这是链接”的只有下划线。如果选择是 `hover` 或 `never`，而链接颜色与文本颜色的对比度不到 3:1，构建对默认系统会失败，对产品的层则给出警告。
+- 不要指望 `hover` 在触摸屏上让链接显现出来。那里没有悬停，所以 `hover` 与 `never` 适用同一条规则。
+- 不要在浏览器里从那个网站或某个图标服务加载它的图标。那样每位读者的浏览器都会告诉对方正在阅读的是哪个页面。
+- 不要用点击处理函数代替目的地。没有地址的锚元素会绘制成普通文本，并在调试构建中报告。
+- 不要把链接放进整体可按下的控件（链接卡片、有目的地的列表项），也不要把控件放进链接。
+- 不要给访问过的链接加样式。需要表示“已打开过”的产品，应根据自己的数据用 Tag 或字形来标出。
+
+## 无障碍
+
+<ComponentAccessibility name="link" />
+
+### 组件负责的部分
+
+- 它就是浏览器自己的链接：链接角色、用 Enter 前往、上下文菜单、在新标签页中打开，以及没有脚本也能用的链接。
+- 在默认系统里，下划线把它与旁边的文本区分开，不依赖颜色，在每种配色方案下都是如此。在强制颜色模式下，无论选择了什么都会绘制下划线。
+- 外部链接只有一条描述，在名称之后朗读：新标签页用 `aria-description`，否则用外部链接的那段文字。箭头和网站的图标对辅助技术隐藏。
+- 键盘焦点环画在链接在每一行上的那一段周围。
+- 独立链接和只有一个字形的链接会把点击区域扩展到最小目标。句子里的链接只占自己的文字。
+- 标记以及标签旁边的字形对辅助技术隐藏。
+- 有包里的脚本时，在新标签页中打开的链接会得到 `noopener`，调试构建会报告缺少名称、缺少描述，以及不是目的地的地址。它还会报告句子里静止时没有下划线、且与所在文本的对比度不到 3:1 的链接，没有文字的外部链接（每个页面报告一次），以及从另一个源加载的网站图标。
+
+### 需要你做的事
+
+- 用 `aria-label` 给只有一个字形的链接命名，并给每个字形加上 `aria-hidden="true"`。
+- 用 `aria-description` 以你的产品的语言说明链接会在新标签页中打开。Tanrei 不自带任何文字。
+- 禁用的链接写成不带 `href` 的锚元素，并加上 `role="link"` 和 `aria-disabled="true"`。它会离开焦点顺序，所以请在旁边用文字说明为什么这个地方无法到达。
+- 在指明用户当前所在页面或章节的链接上设置 `aria-current`。
+- 在连续文本里，只有当链接颜色与文本颜色的对比度达到 3:1 或更高、并且与表面的对比度仍有 4.5:1 时，才使用 `hover` 和 `never`。文本接近黑色、表面接近白色时，这只是中间色调里很窄的一段。
+- 用文字说明链接会离开本站：在链接上写 `aria-description`，或者使用你为所有外部链接设置一次的那段文字。Tanrei 不自带任何文字。对于既是外部链接又在新标签页中打开的链接，要让这一条描述把两件事都说到。
+- 网站的图标写成 `alt=""`。它是装饰：给链接命名的是标签，标出它的是箭头。

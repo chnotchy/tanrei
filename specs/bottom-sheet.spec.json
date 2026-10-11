@@ -1,0 +1,409 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "bottom-sheet",
+  "title": "Bottom sheet",
+  "summary": "Shows supplementary content or a short task in a surface that rises from the bottom edge, either over the lower part of the content while the rest stays usable, or as a modal step that dims and blocks everything else until it is dismissed.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "scrim",
+      "description": "The dim over everything behind a modal sheet. It blocks presses and, while the sheet is dismissible, a press on it asks the sheet to close. A standard sheet draws none.",
+      "optional": true
+    },
+    {
+      "id": "container",
+      "description": "The raised surface docked to the bottom edge of the area it covers, centred and no wider than its maximum width, its top corners rounded and its bottom corners square. Its color reaches under the bottom system inset."
+    },
+    {
+      "id": "drag-handle",
+      "description": "The control at the top of the sheet: a box that carries hover, focus and press, with the grip centred in it. Activating it moves the sheet between its two heights.",
+      "optional": true
+    },
+    {
+      "id": "drag-handle.grip",
+      "description": "The short rounded bar drawn in the handle's box that says the sheet can be dragged.",
+      "optional": true
+    },
+    {
+      "id": "content",
+      "description": "Whatever the product puts in the sheet: a list of choices, a form, details. The sheet insets it (unless inset is false), clips it, hands it a content color and scrolls it; it does not lay it out."
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator around the drag handle's box, shown for keyboard focus.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "standard",
+        "modal"
+      ],
+      "default": "modal",
+      "description": "Standard sits over the lower part of the content while the content above stays usable (a layout region); modal dims and blocks everything else and holds focus until it closes (a modal overlay). Both read the same container tokens: the scrim and the behaviour set them apart. Not a token axis."
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the sheet is shown. The product opens it, and closes it in answer to close (or from its own controls); on SwiftUI, where it is a binding, the sheet writes false itself."
+    },
+    {
+      "name": "detent",
+      "type": "enum",
+      "values": [
+        "partial",
+        "full"
+      ],
+      "default": "partial",
+      "description": "The height the sheet rests at while its content is taller than it: partial takes comp.bottom-sheet.container.partial-fraction of the area; full reaches up to comp.bottom-sheet.container.margin-block-start below the area's top. A sheet whose content is shorter than its partial height has one height, and detent changes nothing. The person moves between the two by dragging or with the drag handle (detentChange)."
+    },
+    {
+      "name": "dismissible",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether a drag below the sheet's lowest height asks it to close and, for a modal sheet, whether Escape, the platform's back and a press on the scrim do too. Set it to false only when the person must finish the sheet's task with one of its own controls."
+    },
+    {
+      "name": "handle",
+      "type": "boolean",
+      "default": true,
+      "description": "Draws the drag handle at the top of the sheet. Without it the sheet can still be dragged by its padding and content (BSH-9), but a keyboard or switch user has no way to change its height, so leave it on for a sheet whose content can be taller than its partial height."
+    },
+    {
+      "name": "handleLabel",
+      "type": "string",
+      "default": "",
+      "description": "The drag handle's accessible name (\"Resize sheet\"); its expanded state is exposed with it. Required while the handle is interactive (BSH-11).",
+      "words": "handleLabel"
+    },
+    {
+      "name": "inset",
+      "type": "boolean",
+      "default": true,
+      "description": "Insets the content by comp.bottom-sheet.container.padding. Set it to false for content that pads itself or reaches the edges (a list whose rows carry their own padding)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the sheet for assistive technology (\"Share photo\"): the modal dialog, or the standard sheet's region. Required."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The content. A fixture's content string is plain text, which takes sys.typescale.body in the content color (BSH-8)."
+    }
+  ],
+  "events": [
+    {
+      "name": "close",
+      "description": "The sheet asks to be closed: a released drag below its lowest height, or for a modal sheet a press on the scrim, Escape or the platform's back. Carries which of these it was, named drag, scrim, escape or back (in the platform's casing). Emitted only while dismissible is true."
+    },
+    {
+      "name": "detentChange",
+      "description": "The person moved the sheet to its other height, by a drag or with the drag handle. Carries the new detent (partial or full). Not emitted when the product sets detent."
+    }
+  ],
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "BSH-1",
+      "text": "WHEN open becomes true THE bottom sheet SHALL slide its container up from below the bottom edge of the area it covers to its height (BSH-6) — WHILE variant is modal over the whole window, fading in a scrim of comp.bottom-sheet.scrim.color behind it; WHILE variant is standard over the bottom of the parent the product placed it in, with no scrim — over comp.bottom-sheet.motion.enter-duration with comp.bottom-sheet.motion.enter-easing; WHEN open becomes false THE bottom sheet SHALL slide it down out of view from wherever it is and fade the scrim out, over comp.bottom-sheet.motion.exit-duration with comp.bottom-sheet.motion.exit-easing. WHERE motion is reduced it SHALL fade in and out in place without sliding, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). A sheet that is mounted with open true SHALL appear in place without motion."
+    },
+    {
+      "id": "BSH-2",
+      "text": "WHILE variant is modal and the sheet is open THE bottom sheet SHALL make everything outside it inert (not focusable, not pressable, hidden from assistive technology), keep the content behind it from scrolling, and keep focus inside it: Tab from its last focusable element SHALL move to its first, Shift+Tab from its first SHALL move to its last, and screen-reader navigation SHALL NOT leave it (a modal overlay)."
+    },
+    {
+      "id": "BSH-3",
+      "text": "WHEN open changes from false to true THE bottom sheet SHALL move focus to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads its label first; WHEN it closes while focus is inside it THE bottom sheet SHALL return focus to the element that had it when the sheet opened or, where that element no longer exists or cannot take focus, to the platform's default for a closed overlay. Focus SHALL move when the sheet opens or closes, not when its motion ends. This holds for both variants; a standard sheet mounted with open true SHALL NOT move focus, and a modal sheet mounted with open true SHALL move focus in as if it had just opened, because it makes everything behind it unfocusable and focus must be somewhere it can reach."
+    },
+    {
+      "id": "BSH-4",
+      "text": "WHILE variant is standard THE bottom sheet SHALL draw no scrim, SHALL NOT make anything inert, SHALL NOT keep focus inside it, SHALL let Tab and Shift+Tab move focus between it and the content it covers without closing it, and SHALL ignore Escape and the platform's back: a standard sheet is a layout region, not an overlay. The product places it over the content it covers, in a parent that holds both; the sheet SHALL dock to that parent's bottom edge, SHALL NOT resize or pad the content, and SHALL let presses on the part of the parent above it reach the content."
+    },
+    {
+      "id": "BSH-5",
+      "text": "WHILE dismissible is true, WHEN the user presses the scrim, presses Escape or uses the platform's back (Android's back gesture or button, the iOS accessibility escape gesture) WHILE variant is modal, or releases a drag that asks to close (BSH-9) in either variant, THE bottom sheet SHALL emit close exactly once with the reason scrim, escape, back or drag, and SHALL then be closed: through its binding where open is one (SwiftUI), and by the product setting open to false where open is a plain value (web, Compose, Flutter, React Native). WHILE dismissible is false THE bottom sheet SHALL ignore these inputs and emit nothing; a press on the scrim SHALL still reach nothing behind it."
+    },
+    {
+      "id": "BSH-6",
+      "text": "THE bottom sheet SHALL be as tall as its drag handle's row and its content (with its insets), but no taller than its detent allows: WHILE detent is partial, comp.bottom-sheet.container.partial-fraction of the height of the area it covers; WHILE detent is full, that height less comp.bottom-sheet.container.margin-block-start. The area is the window below its top system inset for a modal sheet, and the parent the product placed it in for a standard sheet; WHILE the on-screen keyboard is shown the area SHALL end at the keyboard's top edge, so that the sheet sits on the keyboard and both heights are taken from the smaller area. The sheet has two heights only WHILE its content is taller than its partial height; otherwise it has one, and detent changes nothing."
+    },
+    {
+      "id": "BSH-7",
+      "text": "THE bottom sheet SHALL draw its container at the bottom edge of the area, as wide as the area but no wider than comp.bottom-sheet.container.max-width and centred in it, filled with comp.bottom-sheet.container.color, raised by comp.bottom-sheet.container.elevation, with its top corners rounded by comp.bottom-sheet.container.shape and its bottom corners square; it SHALL extend its color under the bottom system inset and keep its content above that inset, and WHILE the on-screen keyboard is shown it SHALL sit on the keyboard (BSH-6) with its content above it."
+    },
+    {
+      "id": "BSH-8",
+      "text": "THE bottom sheet SHALL lay out, top to bottom, the drag handle's row WHILE handle is true (BSH-12) and then its content. WHILE inset is true it SHALL inset the content by comp.bottom-sheet.container.padding from its start, end and bottom edges, and from its top edge WHILE handle is false; WHILE inset is false the content SHALL reach the container's edges, below the handle's row. It SHALL clip the content to the container's shape, SHALL hand it comp.bottom-sheet.content.color as the platform's inherited foreground (the web's inherited color, SwiftUI's foreground style, Compose's content color, Flutter's default text and icon style, React Native's Tanrei text context), and plain text given as content, where the platform must style it, SHALL take sys.typescale.body."
+    },
+    {
+      "id": "BSH-9",
+      "text": "WHEN the user drags the sheet vertically — by its handle's row, by the padding around its content, or by its content where BSH-10 lets the drag reach the sheet — beyond the platform's touch slop THE bottom sheet SHALL follow the finger or pointer, never above its full height; WHEN the drag is released it SHALL settle at the next height in the direction of a fling, or else at the height nearest to where it was released, over comp.bottom-sheet.motion.enter-duration with comp.bottom-sheet.motion.enter-easing (at once where motion is reduced). A release below half of the sheet's lowest height, or a downward fling from its lowest height, SHALL ask to close WHILE dismissible is true (BSH-5, BSH-20); WHILE dismissible is false the sheet SHALL settle at its lowest height instead. A fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond; the touch slop is the platform's own (Android's ViewConfiguration.getScaledTouchSlop, Flutter's kTouchSlop) or, where the platform names none, 8 points. WHEN a drag ends at the height it did not start from THE bottom sheet SHALL set detent to it and emit detentChange exactly once with it."
+    },
+    {
+      "id": "BSH-10",
+      "text": "WHILE the content is taller than the room the sheet gives it THE bottom sheet SHALL scroll the content inside the container, below the handle's row, and SHALL let assistive technology and keyboard focus scroll it at either height; a drag upward on the content SHALL first raise the sheet to its full height and then scroll the content, and a drag downward on the content SHALL first scroll the content to its top and then lower the sheet."
+    },
+    {
+      "id": "BSH-11",
+      "text": "WHILE handle is true and the sheet has two heights THE bottom sheet SHALL expose the drag handle as one focusable button named by handleLabel, with the expanded state WHILE detent is full, and WHEN the user activates it by pointer, touch, Enter or Space THE bottom sheet SHALL move to its other height as BSH-9 settles and emit detentChange exactly once with the new detent; WHILE the sheet has one height the handle SHALL still be drawn at rest but SHALL NOT be focusable, pressable or exposed to assistive technology. WHILE the handle is interactive and handleLabel is empty it SHALL still render, and in debug builds report that the handle has no accessible name."
+    },
+    {
+      "id": "BSH-12",
+      "text": "WHILE handle is true THE bottom sheet SHALL draw at its top a row holding the drag handle's box, comp.bottom-sheet.handle.container-width wide and comp.bottom-sheet.handle.container-height high with comp.bottom-sheet.handle.container-shape corners, centred across the sheet with comp.bottom-sheet.handle.margin-block above and below it, filled with comp.bottom-sheet.drag-handle.container.color, and centred in the box the grip, comp.bottom-sheet.handle.grip-width wide and comp.bottom-sheet.handle.grip-height high with comp.bottom-sheet.handle.grip-shape corners, filled with comp.bottom-sheet.drag-handle.grip.color. The row SHALL stay in place while the content scrolls."
+    },
+    {
+      "id": "BSH-13",
+      "text": "WHILE the drag handle is hovered, keyboard-focused or pressed THE bottom sheet SHALL render the handle's box, grip and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. A drag that starts on the handle SHALL NOT leave it pressed once the sheet follows the drag.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "BSH-14",
+      "text": "WHEN the drag handle receives keyboard focus THE bottom sheet SHALL show the focus ring around the handle's box without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "BSH-15",
+      "text": "THE bottom sheet SHALL make the drag handle's hit area its whole row across the handle's box and at least sys.target.touch wide and high for touch input and sys.target.pointer for fine pointers, without changing its drawn size (with the default tokens the row is sys.target.touch high); a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "BSH-16",
+      "text": "WHEN the drag handle is pressed by pointer, touch, Enter or Space THE drag handle SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "BSH-17",
+      "text": "WHILE pressed THE drag handle SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; grip and opacity still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.bottom-sheet.motion.feedback-duration with comp.bottom-sheet.motion.state-easing, fades over comp.bottom-sheet.motion.state-duration with comp.bottom-sheet.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "BSH-18",
+      "text": "THE bottom sheet SHALL ease its container's top corners and the drag handle's box corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show the handle's keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "BSH-19",
+      "text": "WHEN the drag handle's colors change between states THE bottom sheet SHALL animate them over comp.bottom-sheet.motion.state-duration with comp.bottom-sheet.motion.state-easing, and SHALL change them at once where motion is reduced."
+    },
+    {
+      "id": "BSH-20",
+      "text": "WHEN a released drag asks to close THE bottom sheet SHALL emit close (BSH-5), hold where the drag left it for one frame, and then slide out from there as BSH-1 says IF open has become false, or settle back at its lowest height as BSH-9 says IF open is still true (the product declined to close it)."
+    },
+    {
+      "id": "BSH-21",
+      "text": "WHEN the product changes detent while the sheet is open THE bottom sheet SHALL move to the new height over comp.bottom-sheet.motion.enter-duration with comp.bottom-sheet.motion.enter-easing (at once where motion is reduced) and SHALL NOT emit detentChange; where detent is a plain value (web, Compose, Flutter, React Native), a height the person chose (BSH-9, BSH-11) SHALL stay until the product sets detent again, and where it is a binding (SwiftUI) the sheet SHALL write the new detent to it."
+    },
+    {
+      "id": "BSH-22",
+      "text": "THE bottom sheet SHALL expose its container, WHILE variant is modal, as a modal dialog named by label and, WHILE variant is standard, as a region named by label (a landmark on the web); WHILE label is empty it SHALL still render, and in debug builds report that it has no accessible name. The drag handle's grip SHALL be hidden from assistive technology; the handle itself is exposed only as BSH-11 says."
+    },
+    {
+      "id": "BSH-23",
+      "text": "WHEN a dialog, a menu or another modal sheet opens from a modal bottom sheet THE bottom sheet SHALL stay below it, become inert with the rest of the window, and on the other overlay's closing receive back the focus that overlay returns; Escape SHALL dismiss only the topmost overlay."
+    },
+    {
+      "id": "BSH-24",
+      "text": "WHILE the text size is enlarged THE bottom sheet SHALL grow with its content up to the height its detent allows and scroll the content beyond it (BSH-10), and SHALL NOT scale the drag handle."
+    },
+    {
+      "id": "BSH-25",
+      "text": "WHEN variant or detent names a value the bottom sheet does not define THE bottom sheet SHALL render with the default value, and in debug builds report the unknown value."
+    },
+    {
+      "id": "BSH-26",
+      "text": "WHEN the layout direction is right-to-left THE bottom sheet SHALL keep its container and its drag handle centred, and its content SHALL follow the layout direction."
+    },
+    {
+      "id": "BSH-27",
+      "text": "THE bottom sheet SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the bottom sheet is shown THE bottom sheet SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state, its height and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    }
+  ],
+  "accessibility": {
+    "role": "dialog",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus through the drag handle (while it is interactive) and the content's focusable elements. In an open modal sheet it wraps and never leaves the sheet; from a standard sheet it moves on to the content, and the sheet stays open."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "On the drag handle, moves the sheet to its other height (partial or full)."
+      },
+      {
+        "keys": "Escape",
+        "action": "Asks an open modal sheet to close (close, reason escape) while dismissible is true; with stacked overlays, only the topmost. A standard sheet ignores it."
+      }
+    ],
+    "labeling": "The sheet is named by label: a modal dialog while variant is modal, a region while it is standard. The drag handle, while the sheet has two heights, is a button named by handleLabel with the expanded state (true at full height); at one height it is hidden. The grip is decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "Dragging is never the only way (WCAG 2.5.7): the drag handle changes the height with a single press or from the keyboard, and a modal sheet closes with Escape, back or a press on the scrim. A standard sheet, and a modal one whose dismissible is false, closes only by a drag or by the product; put a Close or Done button in its content.",
+      "The standard form is a layout region, although it covers the bottom of the content rather than pushing it aside: the person works in the content and in the sheet at once, so focus leaving it never closes it. The modal form is a modal overlay.",
+      "Web: the modal form is a native <dialog> opened with showModal() inside the shadow root, so the rest of the page is inert and the sheet is in the top layer; ::backdrop draws the scrim. Its cancel event (Escape) is cancelled and becomes close with the reason escape; the product then sets open to false. The standard form is a region (a <section> named by label) positioned at the bottom of its containing block. The `autofocus` attribute on a slotted element marks initial focus.",
+      "Where a platform presents the modal sheet in a window of its own (Compose's Dialog, React Native's Modal), the window's own dim and transition are switched off and Tanrei draws the scrim and the motion, so every platform draws the same color.",
+      "The sheet does not move or pad the content a standard sheet covers; a product whose content must stay visible above the sheet pads its scrolling content by the sheet's partial height.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.bottom-sheet",
+  "fixtures": [
+    {
+      "id": "modal",
+      "props": {
+        "open": true,
+        "label": "Save photo",
+        "handleLabel": "Resize sheet"
+      },
+      "content": "Choose where to save the photo. You can change this later in Settings."
+    },
+    {
+      "id": "modal-partial",
+      "props": {
+        "open": true,
+        "detent": "partial",
+        "label": "Terms of service",
+        "handleLabel": "Resize sheet"
+      },
+      "content": "Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change."
+    },
+    {
+      "id": "modal-full",
+      "props": {
+        "open": true,
+        "detent": "full",
+        "label": "Terms of service",
+        "handleLabel": "Resize sheet"
+      },
+      "content": "Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. By continuing you agree to them. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change. Please read these terms before you continue. They describe what the service does, what it does not do, how your data is stored and for how long, how you can export or delete it, what happens when you close your account, how disputes are resolved, and how these terms may change."
+    },
+    {
+      "id": "no-handle",
+      "props": {
+        "open": true,
+        "handle": false,
+        "label": "Save photo"
+      },
+      "content": "Choose where to save the photo. You can change this later in Settings."
+    },
+    {
+      "id": "standard",
+      "props": {
+        "variant": "standard",
+        "open": true,
+        "label": "Nearby places",
+        "handleLabel": "Resize sheet"
+      },
+      "content": "Three cafés and a bakery are open within a ten-minute walk."
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-bottom-sheet",
+      "props": {
+        "variant": "variant",
+        "open": "open",
+        "detent": "detent",
+        "dismissible": "closedby",
+        "handle": "handle",
+        "handleLabel": "handleLabel",
+        "inset": "inset",
+        "label": "label"
+      },
+      "events": {
+        "close": "close",
+        "detentChange": "detentchange"
+      },
+      "notes": "`dismissible` is HTML's own `closedby` attribute, as on `<tanrei-dialog>`: `any` (the default) or `none`. `handle` and `inset` are boolean properties that default to true; their attributes are the inverses `no-handle` and `flush` (an HTML boolean attribute cannot default to true). `handleLabel` is the `handle-label` attribute. `close` is a CustomEvent whose `detail.reason` is `drag`, `scrim`, `escape` or `back` (`back` when a modal sheet's native `cancel` arrives without an Escape key, as Android's back gesture sends it), and `detentchange` one whose `detail.detent` is the new detent; the element sets `detent` itself before firing it. The product sets `open` to false from `close`. The content is the default slot. Drags use pointer events with `touch-action: none` on the handle's row and the top edge; the content scrolls natively and hands the drag over at its top (BSH-10). Fling 0.5 px/ms, slop 8 px. Insets are `env(safe-area-inset-bottom)`; the on-screen keyboard is read from `visualViewport`. Snapshot harness: a 400 × 720 viewport with a `surface` page; the sheet opened by `open`; the screenshot is the viewport, since a modal sheet and its backdrop are in the top layer."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "tanreiBottomSheet",
+      "props": {
+        "variant": "variant",
+        "open": "isPresented",
+        "detent": "detent",
+        "dismissible": "dismissible",
+        "handle": "handle",
+        "handleLabel": "handleLabel",
+        "inset": "inset",
+        "label": "label"
+      },
+      "events": {
+        "close": "onClose",
+        "detentChange": "detent"
+      },
+      "notes": "A view modifier on the view the sheet covers, as `.sheet` is: `.tanreiBottomSheet(isPresented: Binding<Bool>, variant:, detent: Binding<TanreiBottomSheetDetent>, dismissible:, handle:, handleLabel:, inset:, label:, onClose: ((TanreiSheetCloseReason) -> Void)?, content:)`. Closing writes false to `isPresented` and then calls `onClose` with the reason; a height the person chose is written to `detent` (detentChange). Modal: on iOS presented with `.fullScreenCover`, a clear presentation background and the system transition off, as `tanreiDialog` is (that presentation hides the rest of the app from VoiceOver); Tanrei draws the scrim, the sheet and the drag with a `DragGesture` (fling from its `velocity`, 0.5 pt/ms). Not the native `.sheet`: its dim cannot take the scrim token, and on iPad in a regular width it becomes a centred form, not a bottom sheet. macOS, which has no full-screen cover, draws the modal sheet as an overlay of the modified view with the modal trait. Standard: `.overlay(alignment: .bottom)` of the modified view. Initial focus is `.defaultFocus` or an `@AccessibilityFocusState` the product passes; Escape is `.onKeyPress(.escape)` and the escape gesture `.accessibilityAction(.escape)`. Snapshot harness: renders `TanreiBottomSheetSurface` (the sheet and, for a modal sheet, the scrim) in place in a 400 × 720 frame over a `surface` page, because a snapshot of the presenting view does not include a presented window."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiBottomSheet",
+      "props": {
+        "variant": "variant",
+        "open": "visible",
+        "detent": "detent",
+        "dismissible": "dismissible",
+        "handle": "handle",
+        "handleLabel": "handleLabel",
+        "inset": "inset",
+        "label": "contentDescription"
+      },
+      "events": {
+        "close": "onClose",
+        "detentChange": "onDetentChange"
+      },
+      "notes": "`TanreiBottomSheet(visible, onClose: (TanreiSheetCloseReason) -> Unit, variant, detent, onDetentChange, dismissible, handle, handleLabel, inset, contentDescription, initialFocus: FocusRequester?, content)`. `visible` rather than calling it only while open, so that the exit motion can run before the sheet goes; the caller sets `visible` to false from `onClose`. The sheet keeps a height the person chose until `detent` changes (BSH-21). Modal: drawn in a `Dialog` window of its own, as `TanreiDialog` and the modal drawer are, with `usePlatformDefaultWidth = false`, `decorFitsSystemWindows = false` and the window's own dim off (Tanrei draws the scrim); the window traps focus, answers back and hides the content behind from TalkBack; the sheet sets a pane title from `contentDescription`. Standard: fills its parent (a `Box` over the content) and draws the sheet at its bottom edge; the part above takes no touches. Drag with `Modifier.draggable` and nested scroll for BSH-10; fling and slop from `ViewConfiguration`. Snapshot harness: renders `TanreiBottomSheetContent` (the sheet and, for a modal sheet, the scrim) in place in a 400 × 720 dp box over a `surface` page; the window itself is covered by instrumented tests."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiBottomSheet",
+      "props": {
+        "variant": "variant",
+        "open": "open",
+        "detent": "detent",
+        "dismissible": "dismissible",
+        "handle": "showHandle",
+        "handleLabel": "handleSemanticLabel",
+        "inset": "inset",
+        "label": "semanticLabel"
+      },
+      "events": {
+        "close": "onClose",
+        "detentChange": "onDetentChanged"
+      },
+      "notes": "`TanreiBottomSheet(variant:, open:, onClose: ValueChanged<TanreiSheetCloseReason>, detent:, onDetentChanged:, dismissible:, showHandle:, handleSemanticLabel:, inset:, semanticLabel:, child:)`, controlled: the caller sets `open` to false from `onClose`. The product places it in a `Stack` over what it covers — for a modal sheet, a `Stack` over the whole page, as the modal navigation drawer — not `showModalBottomSheet`, which needs Material. The modal form draws its scrim over the whole `Stack`, keeps focus in a `FocusScope`, blocks the page's semantics (`BlockSemantics`), names itself with `Semantics(scopesRoute: true, namesRoute: true)`, answers back through `PopScope` and Escape through `Shortcuts`/`Actions`. Initial focus is `autofocus: true` on a focusable widget. Drag with a vertical drag recogniser; fling `kMinFlingVelocity`, slop `kTouchSlop`. Snapshot harness: a golden of the whole 400 × 720 surface with the sheet in a `Stack` over a `surface` page."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "BottomSheet",
+      "props": {
+        "variant": "variant",
+        "open": "open",
+        "detent": "detent",
+        "dismissible": "dismissible",
+        "handle": "handle",
+        "handleLabel": "handleLabel",
+        "inset": "inset",
+        "label": "accessibilityLabel"
+      },
+      "events": {
+        "close": "onClose",
+        "detentChange": "onDetentChange"
+      },
+      "notes": "Controlled: `open`, `onClose(reason)`, `detent`, `onDetentChange`; the caller sets `open` to false from `onClose`. Modal: presented in a transparent `Modal` with `animationType=\"none\"`, `statusBarTranslucent` and `navigationBarTranslucent` (Tanrei draws the scrim and the motion); `onRequestClose` (Android back, and Escape on a hardware keyboard) is close with the reason `back` or `escape`. Standard: a `View` positioned absolutely at the bottom of its parent. Drags with `PanResponder` (no gesture-handler dependency): slop 8 pt, fling 0.5 pt/ms. The on-screen keyboard is read from `Keyboard` events. Initial focus is an `initialFocusRef` the product passes, moved with `AccessibilityInfo.setAccessibilityFocus`. Insets come from the sheet's own `insets` prop, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency. Snapshot harness: renders `BottomSheetSurface` (the sheet and, for a modal sheet, the scrim) in place in a 400 × 720 view over a `surface` page, since a `Modal` is a native window the snapshot does not include. React Native cannot hand one gesture from the sheet to the content's native scroll view partway through, so BSH-10's hand-off takes two gestures there; the package takes no gesture-handler dependency (as it takes no safe-area one)."
+    }
+  }
+}

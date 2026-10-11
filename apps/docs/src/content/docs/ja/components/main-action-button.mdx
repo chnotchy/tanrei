@@ -1,0 +1,208 @@
+---
+title: メインアクションボタン
+description: 画面でいちばん大切なアクションを、コンテンツの上に浮かぶ持ち上がったコンテナで実行します。名前を書き添えた形か、アイコンだけに縮めた形で表示します。
+translationOf: components/main-action-button.mdx
+sourceHash: ff82dd77880b90c7becab88915c0e91b8fea6fda
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="main-action-button" />
+
+<DemoFrame label="伸ばした形と縮めた形">
+  <tanrei-main-action-button label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="作成" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+メインアクションボタンは、その画面が何のためにあるかを表す、ただ 1 つのアクションです。メールボックスの「作成」、カレンダーの「新しい予定」、リストの「追加」などです。コンテンツの上に浮かぶ持ち上がったコンテナに載るので、下のコンテンツがスクロールしても、いつでも押せる場所にあります。
+
+1 つのボタンが 2 つの形を持ちます。**伸ばした形**（extended、既定）は、アイコンとラベルを表示します。**縮めた形**（collapsed）はアイコンだけを表示します。伸ばした形と同じ高さの正方形で、既定のシステムでは円になります。2 つの形の間を動かすのはプロダクトです。たとえば、コンテンツをスクロールしている間は縮め、先頭に戻ったらまた伸ばします。トグルではなくアクションです。縮めても変わるのは形だけで意味は変わらず、ラベルはどちらの形でもアクセシブルネームのままです。
+
+Web では `<tanrei-main-action-button>`、React では `MainActionButton` です。SwiftUI、Compose、Flutter、React Native はまだ実装していません。
+
+### 使い方
+
+ラベルは子要素ではなくプロパティです。伸ばした形では表示され、どちらの形でもアクセシブルネームになるので、いつでも必要だからです。アイコンはアイコンセットのグリフです。ボタンは自分では位置を決めません。置くのはレイアウトの役目で、ふつうは画面の末尾側の下の角に、[ナビゲーションバー](/ja/components/navigation-bar/)と重ならないように置きます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-main-action-button class="primary-action" label="作成">
+      <span slot="icon">edit</span>
+    </tanrei-main-action-button>
+
+    <!-- 縮めた形。属性は extended プロパティの逆です。 -->
+    <tanrei-main-action-button label="作成" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+
+    <!-- アクションの進む先を指すグリフは、ラベルの後ろに置きます。 -->
+    <tanrei-main-action-button label="次へ" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+
+    <style>
+      /* 要素は自分では位置を決めません。ページが末尾側の下の角に置きます。 */
+      tanrei-main-action-button.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/main-action-button';
+      const compose = document.querySelector('tanrei-main-action-button.primary-action');
+      compose.addEventListener('click', newMessage);
+      // extended は既定が true のプロパティです。ページをスクロールしている間など、外から縮めます。
+      addEventListener('scroll', () => (compose.extended = scrollY === 0), { passive: true });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { MainActionButton } from '@tanrei/react';
+
+    <MainActionButton className="primary-action" label="作成" extended={atTop} onClick={newMessage}>
+      <span slot="icon">edit</span>
+    </MainActionButton>
+
+    <MainActionButton variant="tonal" label="次へ" iconPosition="trailing" onClick={next}>
+      <span slot="icon">arrow_forward</span>
+    </MainActionButton>
+    ```
+  </TabItem>
+</Tabs>
+
+### FAB と拡張 FAB の移り先
+
+メインアクションボタンは、フローティングアクションボタンと拡張 FAB を 1 つにまとめたものです。プロダクトが入れ替えて使っていた 2 つのコンポーネントが、1 つのコンポーネントの 2 つの形になりました。
+
+| 以前 | 現在 |
+| --- | --- |
+| フローティングアクションボタン（`fab`） | 縮めたメインアクションボタン：`extended` を false にする |
+| 拡張 FAB（`extended-fab`） | 伸ばしたメインアクションボタン（既定） |
+| 拡張 FAB の `expanded` | `extended` |
+| `comp.fab.*`、`comp.extended-fab.*` | `comp.main-action-button.*` |
+
+### Material 3 の名前との対応
+
+- Material 3 の FAB、small FAB、large FAB は、medium、small、large のサイズで縮めたメインアクションボタンです。extended FAB は伸ばした形です。
+- Compose の `expanded`（`ExtendedFloatingActionButton`）と Flutter の `isExtended`（`FloatingActionButton.extended`）は `extended` にあたります。
+- Material 3 の primary、secondary、tertiary、surface の FAB の色は、`filled`、`tonal`、`surface` のバリアントと、プリセットが加える値に対応します。m3-like プリセットは、Material の角丸の四角と 56 / 96 の高さを、このコンポーネントのトークンで描きます。
+
+## 仕様
+
+<DemoFrame label="バリアント" plain>
+  <tanrei-main-action-button label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="tonal" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="surface" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="サイズ（伸ばした形と縮めた形）" plain>
+  <tanrei-main-action-button size="small" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="作成"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="small" label="作成" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="作成" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="作成" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="末尾のアイコン、アイコンなし、無効状態" plain>
+  <tanrei-main-action-button label="次へ" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="開始"></tanrei-main-action-button>
+  <tanrei-main-action-button label="作成" disabled><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="作成" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<ComponentSpecs name="main-action-button" />
+
+## ガイドライン
+
+### 使う場面
+
+その画面に来た人の多くが行うアクションで、どこまでスクロールしてもすぐ押せるようにしておきたいものに使います。メッセージを書く、項目を追加する、録音を始める、などです。1 つの画面に置くのは多くても 1 つです。必要のない画面も多くあります。設定のページや読むための画面には、上に浮かべるほどのアクションはありません。
+
+- フォーム、ダイアログ、コンテンツの中の特定の項目に属するアクションには、そのコンテンツのある場所に[ボタン](/ja/components/button/)を置きます。
+- いまの画面や選択に対するアクションがいくつかあるなら、[ツールバー](/ja/components/toolbar/)を使います。
+- 主なアクションに関連するいくつかの形（新しいドキュメント、フォルダー、アップロード）があるときは、メインアクションボタンから、それらを並べた[ボトムシート](/ja/components/bottom-sheet/)を開きます。[FAB メニュー](/ja/components/fab-menu/)は、これを提供するプリセットでその役目を果たしますが、既定のシステムでは提供しません。
+- メインアクションボタンはアクションを実行するもので、移動先は持ちません。別の場所へ移動するだけのコントロールはリンクです。`href` を付けた[ボタン](/ja/components/button/)を使います。
+
+### 伸ばすか、縮めるか
+
+最初は伸ばした形にします。ボタンが何をするかを伝えるのは書かれた名前で、アイコンだけで通じるのは、人がそれを覚えた後です。
+
+ラベルの得より損が大きいときに縮めます。コンテンツをスクロールしていてボタンが内容を隠してしまうときや、幅の狭いウィンドウなどです。リストの先頭に戻ったときなど、余裕ができたらまた伸ばします。形を変えるのは利用者側で、`extended` を設定します。ボタンを押しても形は変わりません。
+
+- 形が変わる間も、高さと角はそのままです。どの端を固定するかはレイアウトが決めます。末尾側に固定してあれば、その端に向かって縮みます。
+- アイコンのないボタンは、縮める先がないので伸ばした形のままです。ラベルのないボタンは縮めた形で描かれ、名前がないことをデバッグビルドが報告します。
+- 動きを減らす設定では、形は瞬時に切り替わります。
+
+### バリアントの選び方
+
+| バリアント | 強調 | 用途 |
+| --- | --- | --- |
+| Filled（既定） | 最も強い | 画面の主なアクションを、最も目立つ形で示すとき。 |
+| Tonal | 強い | 主役はあくまでコンテンツ、という画面の主なアクション。 |
+| Surface | ニュートラル | 地図や写真など、すでに色のあるコンテンツの上に置く主なアクション。色の付いたコンテナでは内容と競合してしまうときに使います。 |
+
+デザインシステムは独自のバリアントを加えられます。
+
+### サイズの選び方
+
+| サイズ | 既定のシステムでの高さ | 用途 |
+| --- | --- | --- |
+| Small | 40 | medium の隣に置く、関連する 2 つ目のアクション。または密度の高いレイアウト。 |
+| Medium（既定） | 56 | ほとんどの画面の主なアクション。 |
+| Large | 96 | 広い画面や、ほとんど何もない画面のアクション。medium では埋もれてしまうときに使います。 |
+
+高さは縮めた形の 1 辺でもあるので、1 つのボタンは縮めても伸ばしても同じ高さを保ちます。
+
+### 配置
+
+ボタンはスクリムを描かず、コンテンツも動かしません。コンテンツの上に、ふつうは末尾側の下の角に置き、ナビゲーションバー、ドックのツールバー、システムのインセットと重ならないようにします。スクロールするコンテンツの末尾に余白を取り、ボタンが最後の項目をずっと隠したままにならないようにします。影はコンテナの外側に落ちます。ボタンを入れる要素がはみ出しを切り取るなら、影の分の余裕を取ってください。
+
+### 推奨
+
+- ラベルには、アクションを表す動詞、または動詞と名詞の組み合わせを使います。**作成**、**新しい予定**、**写真を追加** など。
+- 人がそのアクションとすでに結び付けているグリフを選びます。書くことには `edit`、作ることには `add` などです。
+- 「次へ」の矢印のように、アクションの進む先を指すグリフには、`iconPosition` を `trailing` にします。
+- メインアクションボタンのあるどの画面でも、同じ位置に置きます。
+- その画面でアクションが使えないときは、ボタンを隠します。無効なボタンをコンテンツの上に浮かべておくより、たいていはそのほうが親切です。
+
+### 非推奨
+
+- 同じサイズのメインアクションボタンを 1 つの画面に 2 つ置かない。2 つのアクションが同じくらい重要に思えるなら、どちらも主なアクションではありません。コンテンツの中のボタンにします。
+- 「削除」「設定」「戻る」のような、重要度の低いアクション、破壊的なアクション、移動するだけのアクションに使わない。
+- トグルとして使わない。状態を示すためにラベルやアイコンを変えることもしません。
+- 初めて見る画面で、アイコンの意味を伝えるものがほかにないのに縮めない。
+- 押すかどうかを判断するのに必要なコンテンツを、ボタンで隠さない。
+
+### 文言
+
+ラベルは簡潔に、句読点なしで書き、1〜2 語を目安にします。英語ではセンテンスケース（先頭のみ大文字）にします。ラベルは途中で切れません。収まる間は 1 行のままで、レイアウトから与えられる幅が足りなくなると折り返します。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="main-action-button" />
+
+### コンポーネントが担うこと
+
+- どちらの形でも、`label` を名前とするボタンです。アイコンは支援技術から隠されます。
+- 縮めたり伸ばしたりして変わるのは描かれるものだけで、読み上げられる内容は変わりません。ロール、名前、フォーカスはそのままで、何も読み上げず、押された状態や展開状態もありません。
+- Enter と Space で実行します。無効のときは、何も発火せず、フォーカス順から外れ、無効として伝わります。
+- small を含むどのサイズでも、ヒット領域は最小ターゲットを満たします。
+- フォーカスインジケーターは、キーボードフォーカスのときだけ、アニメーションなしで表示します。
+- 伸ばした形では、文字サイズに合わせてコンテナが大きくなり、ラベルは途中で切れません。縮めた形のアイコンは文字ではありません。Web では Tanrei のサイズはすべてルートのフォントサイズに従うので、正方形とアイコンは一緒に大きくなり、正方形のままです。
+- 右から左（RTL）のレイアウトでは、アイコンとラベルの位置が入れ替わり、パディングもそれに従います。グリフ自体を反転するのは、アイコンセットが向きを示すグリフとして印を付けているときだけです。
+- デバッグビルドは、ラベルのないボタンと、アイコンがないのに縮めたボタンを報告します。
+
+### 利用者側で行うこと
+
+- 縮めた形でしか使わない場合でも、必ずプロダクトの言語で `label` を付けます。
+- 要素ツリーの中で、そのアクションが属する場所に置きます。対象のコンテンツの後ろか、画面の存在理由そのものなら先頭です。支援技術と Tab キーは、描かれる位置ではなくツリーの順にたどり着きます。
+- 縮めているときは、ポインターを使う人のために、同じ文言の[ツールチップ](/ja/components/tooltip/)を検討します。ツールチップは `label` の代わりにはなりません。
+- キーボードフォーカスのあるコンテンツやコントロールを、ボタンが隠さないようにします。コンテンツの末尾に余白を取るか、ボタンをよけます。
+- 意味をバリアントの色だけで伝えないでください。ラベルの言葉で示します。

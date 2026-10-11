@@ -1,0 +1,238 @@
+---
+title: Calendar
+description: Shows one month as a grid of days, in the page or inside a picker, lets a person choose one date or one range of dates from it, and moves from month to month as one column of weeks that follows a scroll and a drag.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import ProductWords from '../../../components/ProductWords.astro';
+
+export const words = {
+  previousMonthLabel: 'Previous month',
+  nextMonthLabel: 'Next month',
+  yearViewLabel: 'Choose a year',
+  todayLabel: 'Today',
+  startLabel: 'Start date',
+  endLabel: 'End date',
+};
+
+## Overview
+
+<ComponentAvailability name="calendar" />
+
+A calendar is an inline month grid. It has no surface, padding or elevation of its own, so it sits in a page beside other content — a booking form, a report's filter — or inside a [DateTimePicker](/components/date-time-picker/), which composes it unchanged. It chooses one date (`mode` `single`) or one contiguous range of dates (`mode` `range`).
+
+:::note[On the web today; planned elsewhere]
+The web component implements the calendar as this page describes it: the months are one column of weeks that follows a scroll and a drag. The demos are that component. SwiftUI, Compose, Flutter and React Native have not built it yet. Their packages still hold the code of the retired date picker, which this page does not document.
+:::
+
+<DemoFrame label="One date. Scroll or drag the days, or use the buttons, to change the month">
+  <tanrei-calendar label="Check-in date" locale="en-US" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+</DemoFrame>
+
+### Usage
+
+The calendar sets its own `value` (or `start` and `end`) when a person chooses a day, and then emits `change`. You may also set them: a date outside the month on screen brings its month into view.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-calendar id="check-in" label="Check-in date" value="2026-09-17" min="2026-09-01"></tanrei-calendar>
+
+    <!-- A range, with the neighbouring months' days in the spare cells. -->
+    <tanrei-calendar id="stay" mode="range" label="Stay" show-adjacent-days
+      disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
+
+    <script type="module">
+      import '@tanrei/web/components/calendar';
+      const checkIn = document.querySelector('#check-in');
+      // A rule no list can hold is a property: a function from an ISO date to a boolean.
+      checkIn.isDateDisabled = (iso) => bookedDays.has(iso);
+      // The element already holds the new date when change fires.
+      checkIn.addEventListener('change', (e) => save(e.detail.value));
+
+      // A range fires change after each choice; end is "" after a start alone.
+      document.querySelector('#stay').addEventListener('change', (e) => show(e.detail.start, e.detail.end));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Calendar } from '@tanrei/react';
+
+    <Calendar
+      label="Check-in date"
+      value={checkIn}
+      min="2026-09-01"
+      isDateDisabled={(iso) => bookedDays.has(iso)}
+      onChange={(e) => setCheckIn(e.detail.value)}
+    />
+
+    <Calendar
+      mode="range"
+      label="Stay"
+      start={stay.start}
+      end={stay.end}
+      showAdjacentDays
+      disabledDates={['2026-09-21', '2026-09-22']}
+      onChange={(e) => setStay({ start: e.detail.start, end: e.detail.end })}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+There are no SwiftUI, Compose, Flutter or React Native samples, because those platforms have not built the calendar. The names it will have there are in the platform mapping under [Specs](#specs).
+
+### Where the date picker went
+
+Dates and times are chosen with two components: this calendar, and the [DateTimePicker](/components/date-time-picker/) that holds it.
+
+| Before | Now |
+| --- | --- |
+| Date picker, modal or docked | A DateTimePicker in `date` mode, `modal` or `docked` |
+| A month grid laid in the page | A calendar |
+| Date picker with a range | A calendar with `mode` `range`, or a DateTimePicker with `range` |
+| The date picker's text-entry form | A [Text field](/components/text-field/) of `type` `date`, whose picker button opens a DateTimePicker |
+| The date picker's tokens | `comp.calendar.*` for the grid, `comp.date-time-picker.*` for the surface, header and actions |
+
+On the web, the earlier element that picked a date is gone. A page that drew its grid in place uses `<tanrei-calendar>` with the same `value`, `min`, `max`, `disabled-dates`, `today`, `locale` and `first-day-of-week`; a page that opened it uses `<tanrei-date-time-picker>`.
+
+### Material 3's and Apple's names
+
+- Material 3's docked and modal date pickers are a DateTimePicker in `date` mode. Its date range picker is the same with `range`. The m3-like preset draws them with Material's containers and corners, pages months sideways and puts text actions at the end.
+- A calendar laid in a page is Flutter's `CalendarDatePicker` and SwiftUI's graphical date picker style: `TanreiCalendar` on SwiftUI, Compose and Flutter, and `Calendar` on React Native.
+- Material's pencil and keyboard toggles to text entry have no counterpart: a date is typed in the Text field.
+- Apple's graphical date picker is a calendar with a horizontal axis, which the cupertino preset sets.
+
+## Specs
+
+<ComponentSpecs name="calendar" />
+
+## Guidelines
+
+### When to use
+
+Use a calendar when the dates around the one being chosen matter: a stay, a booking, a range for a report, a date whose weekday counts. Lay it in the page when the choice is part of the page's task. When a date is one field among others, use a [Text field](/components/text-field/) of `type` `date`, and open a [DateTimePicker](/components/date-time-picker/) from its picker button. A person who knows the date types it faster than they find it.
+
+### Choosing
+
+- **One date.** In `single` mode, a press or Enter on an available day makes it `value` and emits `change`.
+- **A range.** In `range` mode, the first choice is the start and the second the end. A day before the start, or a choice after both ends are set, starts again. `change` is emitted after every choice, with `end` empty after a start alone, so the product can show the half-chosen range. A start and end on the same day make a one-day range.
+- **Values** are ISO 8601 calendar dates (`2026-09-17`), with no time and no time zone. `today` is the device's current date unless you set it, for a venue's time zone or for tests.
+
+<DemoFrame label="A range. Choose a start, then an end; a third choice starts again" plain>
+  <tanrei-calendar mode="range" label="Stay" locale="en-US" today="2026-09-24" start="2026-09-10" end="2026-09-16"></tanrei-calendar>
+</DemoFrame>
+
+The range is one band from the start to the end. It breaks at the end of a week's row and carries on in the next.
+
+### Unavailable days
+
+Unavailable days come from `min`, `max`, `disabledDates` and the platform's `isDateDisabled` predicate, for a rule no list can hold, such as every weekend. They are drawn quieter, cannot be chosen, and stay reachable by the arrow keys so a person learns that the date exists. The previous and next buttons stop at `min`'s and `max`'s months, and so do a scroll and a drag.
+
+A range that spans an unavailable day keeps it inside; if your product cannot accept that, say so after `change`.
+
+<DemoFrame label="From the 7th of September to the 20th of October, with the 21st and 22nd of September taken" plain>
+  <tanrei-calendar label="Appointment" locale="en-US" today="2026-09-24" value="2026-09-17" min="2026-09-07" max="2026-10-20" disabled-dates="2026-09-21 2026-09-22"></tanrei-calendar>
+</DemoFrame>
+
+### Moving between months
+
+The navigation row holds the view toggle ("September 2026" and a chevron) at the start and the previous and next buttons at the end. Four things move the month, and they all move the same thing, so any of them can take over from another without a jump:
+
+- **The buttons** and **the keys** (Page Up and Page Down, or an arrow key that leaves the month) play the change as a short motion.
+- **A scroll** of a trackpad or a wheel over the days moves them by what it scrolls, through month after month for as long as it goes on. When it stops, the calendar settles on a month: the neighbour once the days are a quarter of the way there, and otherwise the month it left. A wheel that reports whole steps moves one month a step.
+- **A drag** of the days with a finger, a pen or a mouse does the same. A release settles by the same quarter, or toward the side of a fling. A press that does not move still chooses the day under it.
+
+In the default system the months lie along a vertical axis and are one unbroken column of weeks. A month is a window of six rows on that column. A week that two months share is one row that travels from its place in the one to its place in the other, the days coming into view fade in, and a neighbouring month's day turns into one of the month's own as the weeks move. Two separate month grids are never drawn, and the calendar keeps its height whatever the month.
+
+Where motion is reduced, a button or a key changes the month at once. The days still follow a scroll and a drag, which the person's own hand moves, and land at once when it ends.
+
+The axis is a product setting, `comp.calendar.navigation.axis`, not a prop, so every calendar in a product moves the same way:
+
+| Axis | Buttons | Months | Scroll and drag |
+| --- | --- | --- | --- |
+| `vertical` (the default) | Up and down arrows | One column of weeks | Vertical ones move the days; horizontal ones go to the page |
+| `horizontal` | Back and forward arrows | Two pages side by side, a later month toward the end | Horizontal ones move the days; vertical ones go to the page |
+
+The keys never change with the axis.
+
+<DemoFrame label="A horizontal axis: the months are pages" system="m3-like" plain>
+  <tanrei-calendar label="Check-in date" locale="en-US" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+</DemoFrame>
+
+A scroll along the axis is the calendar's while the pointer is over the days, also at the first and last month, where the days stop. On a page that scrolls the same way, the page does not scroll from there: leave room beside or around a calendar on a long page, where a scroll reaches the page. The weekday row, the navigation row and everything around the calendar scroll the page as usual.
+
+### The year view
+
+The view toggle switches to the year view, a scrolling list from `min`'s year to `max`'s (1900 to 2100 without them). Choosing a year shows the same month in that year and changes no choice. `startView` `year` opens there first, for a date far from today such as a birthday.
+
+<DemoFrame label="Opening on the years, for a birthday" plain>
+  <tanrei-calendar label="Date of birth" locale="en-US" today="2026-09-24" start-view="year" max="2026-09-24"></tanrei-calendar>
+</DemoFrame>
+
+### Days of the neighbouring months
+
+`showAdjacentDays` fills the grid's spare cells with the neighbouring months' days, drawn quieter. They can be chosen when they are available, and a range may start or end on one. Choosing one with a pointer chooses it and then shows its month, where it is one of the month's own days. Without it those cells are empty and take no press.
+
+<DemoFrame label="With the neighbouring months' days: choosing the 1st of October shows October" plain>
+  <tanrei-calendar label="Delivery date" locale="en-US" today="2026-09-24" value="2026-09-29" show-adjacent-days></tanrei-calendar>
+</DemoFrame>
+
+### Locale
+
+The weekday names, the month title and the digits are the locale's (`locale`, or the platform's). `firstDayOfWeek` is the locale's unless you name a weekday. The calendar is Gregorian in every locale. The words that are not locale data — the navigation buttons' names, the view toggle's description, the range's start and end — are yours: Tanrei ships none. Give them on the calendar, or once for the whole product, per language, as this page does:
+
+<ProductWords words={words} label="The calendar's words, set once for the product" />
+
+That call is the one this page runs: every calendar on it is named by those words, and the samples carry none of them. A calendar says its own where it differs — the Japanese one below gives its four as attributes, and an attribute always wins. Without any of them the navigation buttons still work and have no name, and a debug build reports each missing word. Only the word for the present day comes from the browser's locale data where you give none.
+
+<DemoFrame label="A week that begins on Monday, and the Japanese locale" plain>
+  <tanrei-calendar label="Check-in date" locale="en-US" first-day-of-week="monday" today="2026-09-24" value="2026-09-17"></tanrei-calendar>
+  <tanrei-calendar label="チェックイン日" locale="ja-JP" today="2026-09-24" value="2026-09-17" previous-month-label="前の月" next-month-label="次の月" year-view-label="年を選ぶ" today-label="今日"></tanrei-calendar>
+</DemoFrame>
+
+### Do
+
+- Give the calendar a `label` when a page has more than one, or nothing near it says what the date is for ("Check-in date").
+- Keep `min` and `max` to the dates that can really be chosen, so the navigation stops where the choice does.
+- Offer a Text field beside or instead of the calendar for dates a person already knows.
+- Keep the buttons in reach: a scroll and a drag are shortcuts, and not everyone can use them.
+
+### Don't
+
+- Don't set the axis per screen. It is one decision for the whole product.
+- Don't hide unavailable days. Show them unavailable, so the calendar's grid stays whole.
+- Don't put a calendar with a vertical axis edge to edge in a page that scrolls vertically. A scroll that begins over its days would never reach the page.
+- Don't treat a month coming into view as a choice. A scroll and a drag change what is shown, never `value`, and emit nothing.
+
+## Accessibility
+
+<ComponentAccessibility name="calendar" />
+
+### What the component handles
+
+- The calendar is a group named by `label`. The grid is named by the month it shows, its column headers are the weekdays' full names, and each day is named by its full date and exposes whether it is selected, unavailable or today. A range's ends are described by `startLabel` and `endLabel`.
+- One day is the active day in the tab order. The arrow keys move it by a day or a week, Home and End to the ends of the week, Page Up and Page Down by a month, and with Shift by a year, changing the month as needed. Enter or Space chooses it.
+- The view toggle is a button named by the month and year it shows, described by `yearViewLabel`, that says whether the year view is open. The year list is one Tab stop too: the arrow keys move by a year or a row, and Home and End go to its ends.
+- The month is announced once, politely, when it changes. While a scroll runs through several months the title follows each one, but only the month it ends on is announced, and a scroll or a drag that returns announces nothing.
+- While a drag holds the days between two months, nothing the calendar exposes changes: the title, the active day and focus stay, and the days coming into view take no focus and no press until their month is the one shown.
+- Scrolling and dragging are shortcuts: the buttons and Page Up and Page Down do the same, so nothing depends on a gesture.
+- Every cell is at least the minimum target, and stays so with enlarged text. In a space narrower than seven targets the cells narrow equally and the numbers keep their size, so the calendar is never wider than the space it is given. The navigation buttons are Tanrei Buttons.
+- Right-to-left layouts mirror the grid, the navigation, the horizontal arrows and the side the next page lies on. A vertical scroll of the weeks is not mirrored, and a drag always moves the days where the pointer goes.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native have not built the calendar: each builds it from this spec when it catches up.
+- Web: a year's selected state is `aria-current` on its button, which has no selected state of its own.
+- Web: the browser reports neither the end of a scroll nor its momentum, so the calendar reads the end from a short silence or a slow-down. A wheel mouse that the browser reports a few pixels at a time, turned slowly, returns to the month it left after each notch.
+- Web: the drag has not yet been checked with a finger on a device, and some tests fail in Firefox and WebKit.
+
+### What you need to do
+
+- Set `label`, and give the words the calendar uses (`previousMonthLabel`, `nextMonthLabel`, `yearViewLabel`, `todayLabel`, `startLabel`, `endLabel`): on the calendar, or once for the whole product with `setWords()`. Tanrei ships none. Without them the navigation buttons work and have no name, a range's ends have no description, and each is reported in development; only the word for the present day comes from the browser's locale data. See [The product's words](/foundations/words/).
+- Offer a way to type the date, such as a Text field of `type` `date`. It is the most direct route for many people.
+- If your product cannot accept a range that spans an unavailable day, say so after `change`.

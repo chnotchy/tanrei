@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "types": ["jest", "node"],
+    // A generated product system imports and augments the package BY NAME; the acme test fixture is one.
+    // In this repository the name means the sources, not a previously built `lib/`.
+    "paths": { "@tanrei/react-native": ["./src/index.ts"] }
+  },
+  "include": ["src"]
+}

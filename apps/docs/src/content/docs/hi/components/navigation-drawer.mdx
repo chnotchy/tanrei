@@ -1,0 +1,517 @@
+---
+title: नेविगेशन ड्रॉअर
+description: प्रॉडक्ट के गंतव्यों को शुरुआती किनारे के एक पैनल में, सेक्शन और ग्रुप में बाँटकर दिखाता है; बड़ी स्क्रीन पर कॉन्टेंट के बग़ल में और छोटी स्क्रीन पर उसके ऊपर, और सिमटकर आइकन का एक कॉलम बन सकता है।
+translationOf: components/navigation-drawer.mdx
+sourceHash: 99562d926c109200b21007f7db10ca4597cbb7da
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="navigation-drawer" />
+
+:::note[संशोधित स्पेक, जो अभी हर प्लैटफ़ॉर्म पर नहीं है]
+यह पेज नेविगेशन ड्रॉअर को वैसा बताता है जैसा स्पेक में वह अभी है। `collapsible` ड्रॉअर सिमटकर आइकन का एक कॉलम बन जाता है, जो नेविगेशन रेल की जगह लेता है: समेटा हुआ ड्रॉअर वही फैला हुआ ड्रॉअर है जिसके लेबल हट गए हैं और जिसकी हर पंक्ति अपने आइकन के बाद काट दी गई है, और उसका मेन्यू बटन उसे फिर चौड़ा कर देता है, जबकि हर आइकन अपनी जगह रहता है। गंतव्य का `badge` टेक्स्ट अब `trailingText` है, जो ज़्यादा हल्का बनता है, और `trailing` स्लॉट में एक ग्लिफ़ या Badge रखा जाता है; `badge` अब आइकन पर लगा बैज है। `group` आइटम अपने भीतर के गंतव्यों को खोलते और बंद करते हैं। पंक्तियों की ऊँचाई 48 है, जो मेन्यू के आइटम की ऊँचाई है। `responsive` के साथ विंडो की चौड़ाई तय करती है कि ड्रॉअर किस रूप में पेश हो। `href` वाला गंतव्य एक लिंक है, और `revealSelected` और `scrollOffset` ड्रॉअर को किसी साइट का साइडबार बनाते हैं। वेब कंपोनेंट यह सब पहले से करता है, और डेमो भी। SwiftUI, Compose, Flutter और React Native ऊपर "पीछे" के रूप में चिह्नित हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला संशोधन देते हैं, जिसमें पंक्तियाँ 44 की हैं, `badge` पंक्ति के अंत का टेक्स्ट है, समेटा हुआ रूप, ग्रुप, लिंक वाले गंतव्य और रिस्पॉन्सिव प्रस्तुति नहीं हैं, और नेविगेशन रेल एक अलग कंपोनेंट है। उनके उदाहरण वही संशोधन दिखाते हैं।
+:::
+
+<DemoFrame label="दो सेक्शन वाला standard ड्रॉअर">
+  <tanrei-navigation-drawer open value="inbox" label="मेल" style="block-size: 26rem">
+    <tanrei-navigation-drawer-section heading="मेल">
+      <tanrei-navigation-drawer-item value="inbox" label="इनबॉक्स" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="sent" label="भेजे गए" icon="send"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="drafts" label="ड्राफ़्ट" icon="draft"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-section heading="लेबल" divider>
+      <tanrei-navigation-drawer-item value="work" label="काम" icon="label" trailing-text="नया"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="family" label="परिवार" icon="label"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="समेटने योग्य ड्रॉअर: इसका मेन्यू बटन इसे आइकन के कॉलम में समेट देता है, जहाँ हर सेल अपना नाम टूलटिप में दिखाता है" plain>
+  <tanrei-navigation-drawer open collapsible value="home" label="वर्कस्पेस" style="block-size: 30rem">
+    <tanrei-button slot="header-button" variant="text" label="मेन्यू"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-main-action-button slot="main-action" label="नया प्रोजेक्ट"><span slot="icon">add</span></tanrei-main-action-button>
+    <tanrei-navigation-drawer-item value="home" label="होम" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="inbox" label="इनबॉक्स" icon="inbox" badge badge-count="3" badge-label="3 अपठित"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="प्रोजेक्ट" icon="folder" open>
+      <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="beacon" label="Beacon" icon="deployed_code"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item value="settings" label="सेटिंग" icon="settings" trailing-text="नया"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="लिंक वाले गंतव्य: ड्रॉअर का value मौजूदा पेज का नाम लेता है, और reveal-selected उस ग्रुप को खोल देता है जिसमें वह है" plain>
+  <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="दस्तावेज़" style="block-size: 24rem">
+    <tanrei-navigation-drawer-item label="शुरुआत करें" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="बुनियादी बातें">
+      <tanrei-navigation-drawer-item label="रंग" href="#sidebar-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="टाइपोग्राफ़ी" href="#sidebar-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="कंपोनेंट">
+      <tanrei-navigation-drawer-item label="बटन" href="#sidebar-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="टैब" href="#sidebar-demo-tabs" trailing-text="नया"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item label="सोर्स कोड" href="#sidebar-demo-source" target="new" target-label="नए टैब में खुलता है"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+### इस्तेमाल
+
+नेविगेशन ड्रॉअर में पाँच तरह के आइटम होते हैं। `destination` एक पंक्ति है, जिसमें एक वैकल्पिक आइकन, एक लेबल और अंत में वैकल्पिक अंतिम कॉन्टेंट होता है; `href` के साथ यह एक लिंक है। `group` वह पंक्ति है जो अपने भीतर के गंतव्यों और ग्रुप को खोलती और बंद करती है। `section` गंतव्यों और ग्रुप को एक वैकल्पिक `heading` के नीचे इकट्ठा करता है, और उसके पहले एक वैकल्पिक `divider` हो सकता है; सेक्शन एक-दूसरे के भीतर नहीं रखे जाते, और ग्रुप में सेक्शन नहीं रखे जाते। `header-button` (पहला वाला मेन्यू बटन है) और `main-action` हेडर में रहते हैं। वेब पर ये `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` और `<tanrei-navigation-drawer-section>` चाइल्ड हैं, और `header-button` और `main-action` स्लॉट में सिर्फ़ आइकन वाले `<tanrei-button>` और एक `<tanrei-main-action-button>`। जो प्लैटफ़ॉर्म पीछे हैं, वे गंतव्य और सेक्शन अपने तरीक़े से लेते हैं: SwiftUI पर `TanreiNavigationDrawerItem` और `TanreiNavigationDrawerSection` व्यू और Compose पर इन्हीं नामों के कॉल, Flutter के `children:` में `TanreiNavigationDrawerDestination` और `TanreiNavigationDrawerSection` ऑब्जेक्ट, और React Native पर `items` ऐरे की गंतव्य और सेक्शन वाली एंट्री, जहाँ सेक्शन की पहचान उसके अपने `items` से होती है।
+
+चयन ड्रॉअर का होता है, गंतव्य के मान के आधार पर, गंतव्य चाहे जहाँ भी हो। `change` और `reselect` वैसे ही काम करते हैं जैसे नेविगेशन बार में। Compose में ड्रॉअर के स्तर का कोई मान नहीं है: मौजूदा आइटम को आप `selected` चिह्नित करते हैं, और उसका `onClick` change और reselect दोनों का काम करता है। Flutter इंडेक्स से चुनता है, जो सेक्शन के पार पढ़ने के क्रम में गिना जाता है।
+
+`href` वाला गंतव्य एक लिंक है, बटन नहीं। ब्राउज़र उसे वैसे ही खोलता है जैसे किसी भी लिंक को, और ड्रॉअर उसे दबाने भर से नहीं चुनता: जो पेज खुलता है वही बताता है कि कौन-सा गंतव्य मौजूदा है, ड्रॉअर के `value` को उस गंतव्य के मान पर सेट करके, या जहाँ उसका कोई मान नहीं है वहाँ उसके `href` पर, जैसा वह लिखा गया है। लिंक को सादे ढंग से सक्रिय करने पर `change` और `reselect` तब भी फ़ायर होते हैं। उनके साथ उसका `href` आता है और उन्हें रद्द किया जा सकता है; क्लाइंट-साइड राउटर इसी तरह नेविगेशन अपने हाथ में लेता है। लिंक वाले गंतव्य आज वेब पर हैं।
+
+ड्रॉअर के दो वेरिएंट हैं, और एक ही प्रॉडक्ट आम तौर पर दोनों इस्तेमाल करता है: जहाँ विंडो काफ़ी चौड़ी है वहाँ standard, और जहाँ नहीं है वहाँ modal।
+
+- **Standard** एक लेआउट रीजन है, ओवरले नहीं। खुला होने पर यह कॉन्टेंट के बग़ल में अपनी चौड़ाई लेता है, और बंद होने पर कुछ नहीं लेता। यह कोई स्क्रिम नहीं बनाता और फ़ोकस को कभी अपने भीतर नहीं रोकता।
+- **Modal** एक ऑपरेट किया जाने वाला ओवरले है, और वह भी मोडल। यह स्क्रिम के साथ कॉन्टेंट के ऊपर सरककर आता है, बंद होने तक फ़ोकस को भीतर रखता है, और व्यक्ति के कोई गंतव्य चुनने के बाद अपने आप बंद हो जाता है।
+
+`responsive` के साथ ड्रॉअर यह चुनाव विंडो की चौड़ाई से ख़ुद करता है (नीचे "विंडो की चौड़ाई के अनुसार चलना" देखें)।
+
+`open` दोनों वेरिएंट को दिखाता या छिपाता है। मोडल ड्रॉअर तब भी बंद होता है जब व्यक्ति स्क्रिम या Escape दबाता है, प्लैटफ़ॉर्म की बैक क्रिया इस्तेमाल करता है, या उसे उसके किनारे की ओर ड्रैग करता है, और तब वह `close` एमिट करता है। वेब पर ड्रॉअर `open` को ख़ुद वापस false कर देता है, जैसे डायलॉग करता है। बाक़ी जगहों पर आप बंद होने की सूचना से उसे सिंक में रखते हैं: Flutter और React Native पर `onClose`, SwiftUI पर `isPresented` बाइंडिंग, और Compose पर ड्रॉअर स्टेट, जिसका `confirmValueChange` हर बंद होने की ख़बर पाता है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="menu" label="मेन्यू"><span slot="icon">menu</span></tanrei-button>
+
+    <!-- Modal: शैडो रूट में एक <dialog>, जो showModal() से खुलता है। Standard एक <nav> है, जिसका नाम label से आता है। -->
+    <tanrei-navigation-drawer variant="modal" label="मेल" value="inbox">
+      <tanrei-navigation-drawer-section heading="मेल">
+        <tanrei-navigation-drawer-item value="inbox" label="इनबॉक्स" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item value="sent" label="भेजे गए" icon="send"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+      <tanrei-navigation-drawer-section heading="लेबल" divider>
+        <tanrei-navigation-drawer-item value="work" label="काम" icon="label" trailing-text="नया"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+    </tanrei-navigation-drawer>
+
+    <!-- समेटने योग्य: पहला हेडर बटन मेन्यू बटन है। ड्रॉअर उसका जवाब ख़ुद देता है और expandedchange फ़ायर करता है। -->
+    <tanrei-navigation-drawer collapsible open label="वर्कस्पेस" value="home">
+      <tanrei-button slot="header-button" variant="text" label="मेन्यू"><span slot="icon">menu</span></tanrei-button>
+      <tanrei-main-action-button slot="main-action" label="नया प्रोजेक्ट"><span slot="icon">add</span></tanrei-main-action-button>
+      <span slot="header">वर्कस्पेस</span>
+      <tanrei-navigation-drawer-item value="home" label="होम" icon="home"></tanrei-navigation-drawer-item>
+      <!-- ग्रुप: उसकी पंक्ति उसे खोलती और बंद करती है, और toggle फ़ायर करती है। -->
+      <tanrei-navigation-drawer-group label="प्रोजेक्ट" icon="folder">
+        <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+      <!-- आइकन पर बैज, दोनों रूपों में; अंतिम कॉन्टेंट सिर्फ़ फैले हुए रूप में। -->
+      <tanrei-navigation-drawer-item value="inbox" label="इनबॉक्स" icon="inbox" badge badge-count="3" badge-label="3 अपठित"></tanrei-navigation-drawer-item>
+      <!-- नया टैब खोलने वाला लिंक: फैली हुई पंक्ति open_in_new पर ख़त्म होती है, और target-label उसके नाम के बाद पढ़ा जाता है। -->
+      <tanrei-navigation-drawer-item label="सहायता केंद्र" icon="help" href="/help" target="new" target-label="नए टैब में खुलता है"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer>
+
+    <!-- साइट का साइडबार: हर गंतव्य एक लिंक है, और हर पेज ड्रॉअर को value के रूप में अपना पता देता है।
+         responsive के साथ विंडो की चौड़ाई प्रस्तुति चुनती है; reveal-selected उन ग्रुप को खोलता है जिनमें वह पेज है। -->
+    <tanrei-navigation-drawer id="sidebar" label="दस्तावेज़" value="/components/tabs/" reveal-selected responsive open>
+      <tanrei-navigation-drawer-item label="शुरुआत करें" href="/getting-started/"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-group label="कंपोनेंट">
+        <tanrei-navigation-drawer-item label="बटन" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="टैब" href="/components/tabs/" trailing-text="नया"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-drawer';
+      import '@tanrei/web/components/button';
+      const drawer = document.querySelector('tanrei-navigation-drawer');
+      document.querySelector('#menu').addEventListener('click', () => (drawer.open = true));
+      // ड्रॉअर change फ़ायर करने से पहले अपना value ख़ुद सेट करता है। फिर मोडल ड्रॉअर अपने आप बंद हो जाता है।
+      drawer.addEventListener('change', (e) => showFolder(e.detail.value));
+      // close मोडल ड्रॉअर के हर बंद होने के बाद आता है: स्क्रिम, Escape, ड्रैग या कोई गंतव्य।
+      drawer.addEventListener('close', onDrawerClosed);
+      // समेटने योग्य ड्रॉअर तब तक वह रूप ले चुका होता है जो उसके मेन्यू बटन ने माँगा।
+      document.querySelector('[collapsible]').addEventListener('expandedchange', (e) => savePreference(e.detail.expanded));
+
+      const sidebar = document.querySelector('#sidebar');
+      // लिंक का change रद्द किया जा सकता है और अपने साथ उसका href लाता है: क्लाइंट-साइड राउटर यहाँ नेविगेशन अपने हाथ में लेता है।
+      // अलग-अलग दस्तावेज़ों वाली साइट कुछ नहीं सुनती, और अगला पेज value बताता है।
+      sidebar.addEventListener('change', (e) => {
+        e.preventDefault();
+        router.navigate(e.detail.href);
+      });
+      // रिस्पॉन्सिव ड्रॉअर बताता है कि विंडो की चौड़ाई ने उसे क्या बनाया: standard, column या modal।
+      sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import {
+      NavigationDrawer,
+      NavigationDrawerGroup,
+      NavigationDrawerItem,
+      NavigationDrawerSection,
+    } from '@tanrei/react';
+
+    // मोडल ड्रॉअर अपने आप बंद होता है (onClose): open को वहीं सिंक में रखें।
+    <NavigationDrawer
+      variant="modal"
+      label="मेल"
+      open={open}
+      value={folder}
+      onChange={(e) => setFolder(e.detail.value)}
+      onClose={() => setOpen(false)}
+    >
+      <NavigationDrawerSection heading="मेल">
+        <NavigationDrawerItem value="inbox" label="इनबॉक्स" icon="inbox" trailingText="24" />
+        <NavigationDrawerItem value="sent" label="भेजे गए" icon="send" />
+      </NavigationDrawerSection>
+    </NavigationDrawer>
+
+    // साइट का साइडबार: गंतव्य लिंक हैं, और पेज बताता है कि कौन-सा मौजूदा है।
+    <NavigationDrawer
+      label="दस्तावेज़"
+      open
+      responsive
+      revealSelected
+      value={pathname}
+      onChange={(e) => {
+        e.preventDefault(); // क्लाइंट-साइड राउटर नेविगेशन अपने हाथ में लेता है
+        navigate(e.detail.href);
+      }}
+      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+    >
+      <NavigationDrawerGroup label="कंपोनेंट">
+        <NavigationDrawerItem label="बटन" href="/components/button/" />
+        <NavigationDrawerItem label="टैब" href="/components/tabs/" trailingText="नया" />
+      </NavigationDrawerGroup>
+      <NavigationDrawerItem label="सोर्स कोड" href="https://example.com/tanrei" target="new" targetLabel="नए टैब में खुलता है" />
+    </NavigationDrawer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Standard: कॉन्टेंट के बग़ल में। isPresented इसे दिखाता और छिपाता है; गंतव्य चुनने पर selection लिखा जाता है।
+    HStack(spacing: 0) {
+        TanreiNavigationDrawer(variant: .standard, isPresented: $sidebarShown, selection: $folder,
+                               accessibilityLabel: "मेल", onReselect: { _ in scrollToTop() }) {
+            TanreiNavigationDrawerSection("मेल") {
+                TanreiNavigationDrawerItem("इनबॉक्स", icon: "inbox", value: "inbox", badge: "24")
+                TanreiNavigationDrawerItem("भेजे गए", icon: "send", value: "sent")
+            }
+            TanreiNavigationDrawerSection("लेबल", divider: true) {
+                TanreiNavigationDrawerItem("काम", icon: "label", value: "work")
+            }
+        } header: {
+            Text("मेल")
+        }
+        FolderView(folder)
+    }
+
+    // Modal: जिस कॉन्टेंट को यह ढकता है, उस पर एक मॉडिफ़ायर। बंद होने पर बाइंडिंग में false लिखा जाता है।
+    FolderView(folder)
+        .tanreiNavigationDrawer(isPresented: $menuShown, selection: $folder, accessibilityLabel: "मेल") { … }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawer
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerItem
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerSection
+    import io.github.chnotchy.tanrei.components.rememberTanreiDrawerState
+    import io.github.chnotchy.tanrei.tokens.TanreiNavigationDrawerVariant
+
+    // ड्रॉअर स्क्रीन को लपेटता है। drawerState स्पेक का open है; confirmValueChange स्पेक का close सुनता है।
+    val drawerState = rememberTanreiDrawerState()
+    TanreiNavigationDrawer(
+        variant = if (wide) TanreiNavigationDrawerVariant.Standard else TanreiNavigationDrawerVariant.Modal,
+        drawerState = drawerState,
+        contentDescription = "मेल",
+        drawerContent = {
+            // मौजूदा आइटम को आप selected चिह्नित करते हैं। मोडल ड्रॉअर onClick के बाद अपने आप बंद हो जाता है।
+            TanreiNavigationDrawerSection(heading = "मेल") {
+                TanreiNavigationDrawerItem(selected = folder == "inbox", onClick = { folder = "inbox" }, label = "इनबॉक्स", icon = "inbox", badge = "24")
+                TanreiNavigationDrawerItem(selected = folder == "sent", onClick = { folder = "sent" }, label = "भेजे गए", icon = "send")
+            }
+            TanreiNavigationDrawerSection(heading = "लेबल", divider = true) {
+                TanreiNavigationDrawerItem(selected = folder == "work", onClick = { folder = "work" }, label = "काम", icon = "label", badge = "नया")
+            }
+        },
+    ) {
+        FolderScreen(folder, onMenu = { drawerState.open() })
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Standard: एक लेआउट रीजन, Row में कॉन्टेंट के बग़ल में सबसे पहले।
+    Row(
+      children: <Widget>[
+        TanreiNavigationDrawer(
+          open: sidebarOpen,
+          selectedIndex: current, // सेक्शन के पार पढ़ने के क्रम में गिना जाता है
+          onDestinationSelected: (int index) => setState(() => current = index), // change और reselect
+          semanticLabel: 'मेल',
+          children: const <TanreiNavigationDrawerChild>[
+            TanreiNavigationDrawerSection(
+              heading: 'मेल',
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'inbox', label: 'इनबॉक्स', badge: '24'),
+                TanreiNavigationDrawerDestination(icon: 'send', label: 'भेजे गए'),
+              ],
+            ),
+            TanreiNavigationDrawerSection(
+              heading: 'लेबल',
+              divider: true,
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'label', label: 'काम', badge: 'नया'),
+              ],
+            ),
+          ],
+        ),
+        const Expanded(child: Page()),
+      ],
+    ),
+
+    // Modal: विंडो को भरने वाले Stack का आख़िरी चाइल्ड। onClose से open को false करें।
+    Stack(
+      children: <Widget>[
+        const Positioned.fill(child: Page()),
+        TanreiNavigationDrawer(
+          variant: TanreiNavigationDrawerVariant.modal,
+          open: menuOpen,
+          onClose: () => setState(() => menuOpen = false),
+          selectedIndex: current,
+          onDestinationSelected: (int index) => setState(() => current = index),
+          semanticLabel: 'मेल',
+          children: destinations,
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationDrawer } from '@tanrei/react-native';
+
+    const [open, setOpen] = useState(false);
+    const [folder, setFolder] = useState('inbox');
+
+    // कंट्रोल्ड: onClose से open को false करें। मोडल ड्रॉअर एक पारदर्शी Modal में पेश किया जाता है।
+    <NavigationDrawer
+      variant={wide ? 'standard' : 'modal'}
+      open={open}
+      onClose={() => setOpen(false)}
+      accessibilityLabel="मेल"
+      value={folder}
+      onValueChange={setFolder}
+      items={[
+        { heading: 'मेल', items: [
+          { value: 'inbox', label: 'इनबॉक्स', icon: 'inbox', badge: '24' },
+          { value: 'sent', label: 'भेजे गए', icon: 'send' },
+        ] },
+        { heading: 'लेबल', divider: true, items: [{ value: 'work', label: 'काम', icon: 'label', badge: 'नया' }] },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="बिना आइकन के गंतव्य, किसी सेक्शन के बाहर" plain>
+  <tanrei-navigation-drawer open value="deployments" label="प्रोजेक्ट" style="block-size: 20rem">
+    <tanrei-navigation-drawer-item value="overview" label="अवलोकन"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="deployments" label="डिप्लॉयमेंट" trailing-text="3"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="settings" label="सेटिंग"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-drawer" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+नेविगेशन ड्रॉअर तब इस्तेमाल करें जब प्रॉडक्ट में उससे ज़्यादा गंतव्य हों जितने नेविगेशन बार में समा सकते हैं, या जब उसके गंतव्य ग्रुप में बँटते हों: मेल ऐप के फ़ोल्डर और लेबल, किसी प्रोजेक्ट के सेक्शन, एडमिन का हिस्सा। बड़ी विंडो पर standard ड्रॉअर साइडबार के रूप में कॉन्टेंट के बग़ल में रहता है। कॉम्पैक्ट विंडो पर मोडल ड्रॉअर मेन्यू बटन से कॉन्टेंट के ऊपर सरककर आता है और गंतव्य चुने जाते ही हट जाता है।
+
+### बार और ड्रॉअर के बीच चुनाव
+
+| पहलू | [नेविगेशन बार](/hi/components/navigation-bar/) | [नेविगेशन ड्रॉअर](/hi/components/navigation-drawer/), समेटा हुआ | [नेविगेशन ड्रॉअर](/hi/components/navigation-drawer/), फैला हुआ |
+| --- | --- | --- | --- |
+| कहाँ रहता है | निचले किनारे के साथ | शुरुआती किनारे के साथ आइकन का एक कॉलम | शुरुआती किनारे के एक पैनल में |
+| विंडो | कॉम्पैक्ट | मीडियम और उससे चौड़ी | एक्सपैंडेड और उससे चौड़ी (standard), या कॉम्पैक्ट (modal) |
+| गंतव्य | तीन से पाँच | इसके सबसे ऊपरी स्तर के गंतव्य और ग्रुप, हर एक का एक सेल | जितने प्रॉडक्ट में हैं, सेक्शन और ग्रुप में |
+| एक गंतव्य | एक पंक्ति के लेबल के ऊपर आइकन, आइकन पर बैज के साथ | आइकन के बाद काटी गई पंक्ति: सिर्फ़ आइकन, उस पर बैज और टूलटिप में उसका नाम | एक पंक्ति: एक वैकल्पिक आइकन, अगली पंक्ति में जाने वाला लेबल, और अंत में अंतिम टेक्स्ट या कॉन्टेंट |
+| इसमें और क्या रहता है | कुछ नहीं | एक हेडर: मेन्यू बटन और अपने आइकन में समेटी हुई मुख्य क्रिया | एक हेडर: मेन्यू बटन, एक शीर्षक या अकाउंट स्विचर, और मुख्य क्रिया |
+| नेटिव प्लैटफ़ॉर्म पर एक गंतव्य | टैब बार का एक टैब है | चयनित स्टेट वाला एक बटन है | चयनित स्टेट वाला एक बटन है |
+| यह क्या है | एक लेआउट रीजन | एक लेआउट रीजन, या लेआउट का वह कॉलम जिससे मोडल ड्रॉअर चौड़ा होता है | Standard: एक लेआउट रीजन। Modal: एक मोडल ओवरले |
+
+- **समेटा हुआ ड्रॉअर ही नेविगेशन रेल है।** समेटने योग्य ड्रॉअर वहाँ सिमटकर आइकन का एक कॉलम बन जाता है जहाँ कॉन्टेंट को चौड़ाई चाहिए, और उसका मेन्यू बटन उसे फिर चौड़ा कर देता है; हर आइकन वहीं रहता है जहाँ वह है। Tanrei की अलग नेविगेशन रेल को हटाकर इसी रूप में मिला दिया गया है।
+- **बार और ड्रॉअर गंतव्यों का एक ही सेट हैं, दो जगहों पर।** दोनों वही गंतव्य और वही चयन लेते हैं, इसलिए विंडो के अनुसार ढलने वाला प्रॉडक्ट किसी ब्रेकपॉइंट पर बार की जगह ड्रॉअर रख देता है और अपने गंतव्यों को छूता तक नहीं। एक समय में इनमें से एक ही दिखाएँ, दोनों कभी नहीं।
+- **ड्रॉअर में ज़्यादा समाता है।** इसे फैले हुए रूप में तब इस्तेमाल करें जब प्रॉडक्ट में उससे ज़्यादा गंतव्य हों जितने बार में समा सकते हैं, या जब वे ग्रुप में बँटते हों, जैसे मेल ऐप के फ़ोल्डर और लेबल। बड़ी विंडो पर standard ड्रॉअर कॉन्टेंट के बग़ल में रहता है। कॉम्पैक्ट विंडो पर मोडल ड्रॉअर मेन्यू बटन से उसके ऊपर सरककर आता है।
+- **मोडल, समेटने योग्य ड्रॉअर** अपना आइकन का कॉलम लेआउट में बनाए रखता है, और जब उसका मेन्यू बटन उसे खोलता है तो वह स्क्रिम के ऊपर, कॉन्टेंट पर चौड़ा हो जाता है।
+- हर प्लैटफ़ॉर्म पर दोनों गंतव्य के मान से चुनते हैं (Compose हर आइटम के फ़्लैग से, Flutter इंडेक्स से) और `change` और `reselect` एमिट करते हैं।
+
+### नेविगेशन रेल कहाँ गई
+
+Tanrei में अपनी कोई अलग नेविगेशन रेल नहीं है: रेल एक समेटने योग्य ड्रॉअर है, समेटा हुआ।
+
+| पहले | अब |
+| --- | --- |
+| नेविगेशन रेल | `collapsible` वाला नेविगेशन ड्रॉअर, जिसका `expanded` false है |
+| रेल का गंतव्य, अपने लेबल के ऊपर एक आइकन | एक गंतव्य, जो समेटे हुए रूप में आइकन के बाद काटी गई अपनी पंक्ति के रूप में बनता है: सिर्फ़ आइकन, जिसका नाम टूलटिप में है |
+| रेल के लेबल का दिखना | `collapsedLabels`: `never` (डिफ़ॉल्ट), `selected` या `always`। आख़िरी दो आइकन के नीचे `shortLabel` बनाते हैं |
+| आइकन पर रेल का बैज | गंतव्य का `badge`, `badgeCount` और `badgeLabel`, जो दोनों रूपों में बनते हैं |
+| रेल का मेन्यू बटन और FAB | ड्रॉअर का पहला `header-button`, जो उसका मेन्यू बटन है, और उसका `main-action`, अपने आइकन में समेटा हुआ |
+| पंक्ति के अंत में ड्रॉअर का `badge` टेक्स्ट | `trailingText`, या `trailing` स्लॉट |
+| रेल के टोकन | `comp.navigation-drawer.collapsed.*` और समेटे हुए रूप की शर्तें |
+
+वेब इसे इम्प्लीमेंट करता है; SwiftUI, Compose, Flutter और React Native, जब तक वे बराबरी पर नहीं आते, अब भी अपनी अलग नेविगेशन रेल देते हैं, जिसका विवरण अब इन पेजों में नहीं है।
+
+### Material 3 के नाम
+
+| Material 3 | Tanrei |
+| --- | --- |
+| Navigation rail | समेटने योग्य नेविगेशन ड्रॉअर, समेटा हुआ |
+| Expanded navigation rail | समेटने योग्य नेविगेशन ड्रॉअर, फैला हुआ |
+| Modal expanded navigation rail | मोडल, समेटने योग्य नेविगेशन ड्रॉअर |
+| Navigation drawer | वह नेविगेशन ड्रॉअर जो समेटने योग्य नहीं है |
+
+### वेरिएंट चुनना
+
+| वेरिएंट | यह क्या है | किसके लिए |
+| --- | --- | --- |
+| Standard (डिफ़ॉल्ट) | लेआउट में एक पैनल, जिसके अंतिम किनारे पर एक बारीक रेखा है। इसके खुलने और बंद होने पर बग़ल के कॉन्टेंट का साइज़ बदलता है। यह कोई स्क्रिम नहीं बनाता और व्यक्ति के कॉन्टेंट में काम करते समय खुला रहता है। | चौड़ी विंडो, जहाँ ड्रॉअर साइडबार के रूप में खुला रह सकता है। |
+| Modal | गोल अंतिम कोनों वाला एक उठा हुआ पैनल, जो स्क्रिम के ऊपर, कॉन्टेंट पर सरककर आता है। बंद होने तक यह फ़ोकस को अपने भीतर रखता है, और गंतव्य चुने जाने के बाद अपने आप बंद हो जाता है। | कॉम्पैक्ट विंडो, जहाँ इसे ऐप बार के या समेटे हुए ड्रॉअर के हेडर के मेन्यू बटन से खोला जाता है। |
+
+डिज़ाइन सिस्टम वेरिएंट जोड़ सकता है। उसका जोड़ा हुआ वेरिएंट standard की तरह व्यवहार करता है।
+
+### खुलना, फ़ोकस और बंद होना
+
+- **standard ड्रॉअर का खुलना।** यह सरककर भीतर आता है और बग़ल का कॉन्टेंट उसके लिए जगह बनाता है। जब आप इसे व्यक्ति की किसी क्रिया के जवाब में खोलते हैं, जैसे मेन्यू बटन से, तो फ़ोकस मौजूदा गंतव्य पर जाता है, या फिर ड्रॉअर के पहले फ़ोकस किए जा सकने वाले एलिमेंट पर। जो ड्रॉअर शुरू से खुला है, वह फ़ोकस को कहीं नहीं ले जाता।
+- **standard ड्रॉअर के बग़ल में काम करना।** Tab ड्रॉअर से कॉन्टेंट में जाती है, और ड्रॉअर खुला रहता है। फ़ोकस के भीतर रहते हुए इसे बंद करने पर फ़ोकस वहीं लौटता है जहाँ वह इसके खुलने से पहले था।
+- **मोडल ड्रॉअर का खुलना।** यह शुरुआती किनारे से सरककर भीतर आता है और स्क्रिम बाक़ी विंडो पर फ़ेड होकर आता है। फ़ोकस मौजूदा गंतव्य पर जाता है, या फिर पहले फ़ोकस किए जा सकने वाले एलिमेंट पर, और ड्रॉअर के भीतर बँधा रहता है। उसके पीछे की हर चीज़ पॉइंटर, टच, कीबोर्ड और सहायक तकनीक के लिए निष्क्रिय रहती है।
+- **मोडल ड्रॉअर का बंद होना।** स्क्रिम पर दबाना, Escape, प्लैटफ़ॉर्म की बैक क्रिया, शुरुआती किनारे की ओर उसकी आधी चौड़ाई से आगे तक का ड्रैग या उस ओर का फ़्लिंग, और कोई गंतव्य चुनना, इनमें से हर एक इसे एक बार बंद करता है। यह सरककर बाहर जाता है, स्क्रिम फ़ेड हो जाता है, और फ़ोकस उस एलिमेंट पर लौटता है जिस पर वह था।
+- **खोलने के लिए किनारे से स्वाइप नहीं।** iOS पर स्क्रीन का शुरुआती किनारा बैक जेस्चर का है, इसलिए ड्रॉअर वहाँ से कभी नहीं खुलता। इसे दिखने वाले मेन्यू बटन से खोलें।
+- जहाँ मोशन कम किया गया है, वहाँ ड्रॉअर तुरंत खुलता और बंद होता है।
+
+### समेटना
+
+- **`collapsible`** ड्रॉअर को उसका समेटा हुआ रूप देता है, 72 चौड़ा: वही फैला हुआ ड्रॉअर, जिसके लेबल हट गए हैं। सबसे ऊपरी स्तर का हर गंतव्य और ग्रुप आइकन के बाद काटी गई अपनी पंक्ति है, 48 गुणा 48 और पंक्ति के ही कोनों के साथ, और चयनित वाला ठीक वैसे ही भरा होता है जैसे उसकी पंक्ति। हेडर के बटन कॉलम में एक के ऊपर एक रखे जाते हैं और मुख्य क्रिया अपने आइकन में समेट दी जाती है। सेक्शन की हेडिंग अपनी पंक्तियाँ बिना टेक्स्ट के बनाए रखती हैं, और हेडर स्लॉट और अंतिम कॉन्टेंट नहीं दिखाए जाते।
+- **समेटा हुआ सेल अपना नाम टूलटिप में दिखाता है**, कॉन्टेंट की ओर: जब पॉइंटर सेल पर ठहरा हो तो टूलटिप की देरी के बाद, कीबोर्ड फ़ोकस पर तुरंत, और टच के लिए कभी नहीं। लेबल पहले से ही सेल का एक्सेसिबल नाम है, इसलिए टूलटिप पढ़ी जाने वाली चीज़ में कुछ नहीं जोड़ता।
+- **`expanded`** standard, समेटने योग्य ड्रॉअर का रूप चुनता है। मोडल, समेटने योग्य ड्रॉअर बंद रहते हुए अपना कॉलम लेआउट में बनाए रखता है, और `open` उसे स्क्रिम के ऊपर, कॉन्टेंट पर चौड़ा कर देता है।
+- **मेन्यू बटन** पहला `header-button` है। जब तक ड्रॉअर समेटने योग्य है, यह फैले हुए या समेटे हुए स्टेट के साथ, सहायक तकनीक को ड्रॉअर को नियंत्रित करने वाले बटन के रूप में मिलता है, और इसे सक्रिय करने पर माँगे गए रूप के साथ `expandedChange` एमिट होता है। वेब इसे ख़ुद लागू करता है; बाक़ी जगहों पर आप इससे `expanded` या `open` सेट करते हैं। इसका ग्लिफ़ और नाम आप चुनते हैं।
+- **`collapsedLabels`** चुनता है कि कौन-से सेल आइकन के नीचे छोटा लेबल बनाएँ: `never`, जो डिफ़ॉल्ट है, सिर्फ़ `selected` वाला, या `always`। लेबल वाला कॉलम उस प्रॉडक्ट या डिज़ाइन सिस्टम के लिए है जिसे वह चाहिए। तब सेल अपना `shortLabel` बनाता है, या अगर आपने वह नहीं दिया तो अपना लेबल, और कोई टूलटिप नहीं दिखाता। दोनों ही सूरतों में लेबल एक्सेसिबल नाम बना रहता है।
+- **हर आइकन अपनी जगह रहता है।** दोनों रूपों में आइकन एक ही कॉलम और एक ही रेखा पर रहते हैं, और हर सेल अपनी ऊँचाई बनाए रखता है, इसलिए रूप बदलने पर सिर्फ़ अंतिम किनारा खिसकता है: जैसे-जैसे किनारा लेबल के पार जाता है, लेबल फ़ेड होकर हट जाते हैं, और लेबल वाले कॉलम में छोटे लेबल फ़ेड होकर आ जाते हैं। खुला हुआ ग्रुप इसका अकेला अपवाद है: समेटा हुआ ड्रॉअर उसके आइटम नहीं बनाता, इसलिए नीचे के सेल ऊपर खिसक जाते हैं।
+- **चयन अपनी जगह पर ही रंग बदलता है।** नया चयन पंक्तियों का रंग वहीं बदलता है जहाँ वे हैं, फैले हुए रूप में भी और समेटे हुए रूप में भी। उसे दिखाने के लिए कुछ भी बढ़ता, घटता या सरकता नहीं।
+
+### विंडो की चौड़ाई के अनुसार चलना
+
+`responsive` के साथ विंडो की चौड़ाई तय करती है कि ड्रॉअर किस रूप में पेश हो, उसके डिज़ाइन सिस्टम के दो ब्रेकपॉइंट के आधार पर (डिफ़ॉल्ट सिस्टम में 1024 और 600)। तब `variant` को अनदेखा किया जाता है।
+
+| विंडो | प्रस्तुति | ड्रॉअर क्या है |
+| --- | --- | --- |
+| कम से कम चौड़े वाले ब्रेकपॉइंट जितनी | `standard` | कॉन्टेंट के बग़ल में एक standard ड्रॉअर, जो `open` चाहे जो कहे दिखता है, और जो समेटने योग्य है, उस रूप में जो `expanded` चुनता है |
+| कम से कम सँकरे वाले जितनी, जब `collapsible` हो | `column` | एक मोडल, समेटने योग्य ड्रॉअर: लेआउट में उसका आइकन का कॉलम, जो `open` रहते हुए कॉन्टेंट पर चौड़ा हो जाता है |
+| उससे सँकरी | `modal` | एक मोडल ड्रॉअर, जो समेटने योग्य नहीं है |
+
+- **प्रस्तुति निकाली जाती है, कभी सँजोकर नहीं रखी जाती।** वह सिर्फ़ चौड़ाई के अनुसार चलती है: ड्रॉअर उसे `variant`, `open` या `expanded` में नहीं लिखता। `presentationChange` बताता है कि वह क्या है, पहली बार और जब भी चौड़ाई उसे बदलती है।
+- **नई प्रस्तुति बंद अवस्था में शुरू होती है।** वह तुरंत, बिना मोशन के बनती है। जो ओवरले खुला था वह हट जाता है और `close` एक बार फ़ायर होता है। `expanded`, `value` और हर ग्रुप का `open` बने रहते हैं, इसलिए standard प्रस्तुति उसी रूप में लौटती है जिसमें उसे छोड़ा गया था।
+- **`modal` प्रस्तुति में मेन्यू बटन आपका है।** जब तक प्रस्तुति `modal` है, अपना एक मेन्यू बटन दिखाएँ, उदाहरण के लिए ऐप बार में, और उससे `open` सेट करें। ड्रॉअर का अपना मेन्यू बटन वहाँ उसे सिर्फ़ बंद करता है।
+- **ड्रॉअर एक विज़िट से दूसरी विज़िट तक कुछ याद नहीं रखता।** व्यक्ति का चुना हुआ रूप बनाए रखने के लिए, `expandedChange` जो लाता है उसे स्टोर करें और उसी से `expanded` सेट करें।
+
+### साइट के साइडबार के रूप में
+
+हर गंतव्य को एक `href` दें और ड्रॉअर को उसके `value` के रूप में पेज का अपना पता, और ड्रॉअर दस्तावेज़ों वाली साइट का साइडबार बन जाता है।
+
+- **पेज बताता है कि वह कहाँ है।** दबाने से लिंक कभी नहीं चुना जाता। हर पेज `value` को अपने गंतव्य पर सेट करता है: उस गंतव्य के `value` पर, या जहाँ उसका कोई मान नहीं है वहाँ उसके `href` पर, जैसा वह लिखा गया है।
+- **`revealSelected`** उन ग्रुप को खोलता है जिनमें चयनित गंतव्य है: जब ड्रॉअर पहली बार दिखता है, उसके पहले फ़्रेम में और बिना मोशन के, और फिर जब भी `value` बदलता है। जिस ग्रुप को व्यक्ति उसके बाद बंद करता है, वह `value` के बदलने तक बंद रहता है।
+- **पहुँचते ही चयन नज़र में होता है।** जब ड्रॉअर दिखता है, और जब भी `value` बदलता है, तो चयन दिखाने वाली पंक्ति को स्क्रॉल होने वाली पंक्तियों के बीच में लाया जाता है, अगर वह पूरी तरह नज़र में नहीं थी, और अगर थी तो उसे बिलकुल नहीं हिलाया जाता। इसलिए जिस साइडबार का मौजूदा पेज पहले से नज़र में है, वह एक पेज से दूसरे पेज तक वहीं रहता है जहाँ है। फ़ोकस नहीं हिलता।
+- **`scrollOffset`** पढ़ता और सेट करता है कि पंक्तियाँ कितनी दूर तक स्क्रॉल की गई हैं। ड्रॉअर कुछ स्टोर नहीं करता। जो साइट चाहती है कि लंबा ट्री वहीं रहे जहाँ पाठक ने उसे छोड़ा था, वह ऑफ़सेट और हर ग्रुप का `open` ख़ुद रखती है, उदाहरण के लिए सेशन के स्टोरेज में, और पहले फ़्रेम से पहले उन्हें वापस देती है। जिस ग्रुप में मौजूदा पेज है वह फिर भी खुलता है, और चयन उस ऑफ़सेट पर भारी पड़ता है जो उसे नज़र से बाहर छोड़ देता।
+- **साइट से बाहर ले जाने वाला लिंक** `target` `new` लेता है। वह नए टैब में खुलता है, उसकी फैली हुई पंक्ति आइकन सेट के `open_in_new` पर ख़त्म होती है, बशर्ते आपने वहाँ अंतिम कॉन्टेंट न रखा हो, और `targetLabel` उसके नाम के बाद पढ़ा जाता है। शब्द आपके हैं ("नए टैब में खुलता है"): Tanrei अपना कोई शब्द साथ नहीं देता।
+- **राउटर `change` को सुनता है।** वह ब्राउज़र के लिंक खोलने से पहले फ़ायर होता है, और सिर्फ़ सादे ढंग से सक्रिय करने पर: बिना किसी मॉडिफ़ायर कुंजी के प्राइमरी बटन, टच या Enter, उस लिंक पर जिसका `target` `same` है। उसे रद्द करें और उस `href` पर जाएँ जो वह लाता है। दूसरे टैब में खोला गया लिंक कुछ फ़ायर नहीं करता, और मोडल ड्रॉअर को खुला छोड़ देता है।
+
+### पंक्तियाँ, ग्रुप और सेक्शन
+
+- पंक्ति का लेबल काटे जाने की जगह अगली पंक्ति में जाता है, और पंक्ति उसके साथ बढ़ती है। पंक्तियाँ कम से कम 48 ऊँची होती हैं, जो [मेन्यू](/hi/components/menu/) के आइटम की ऊँचाई है, और उसी के कोनों के साथ।
+- हर गंतव्य को आइकन दें, या किसी को नहीं, ताकि लेबल एक सीध में रहें। समेटने योग्य ड्रॉअर समेटे हुए रूप में सबसे ऊपरी स्तर के हर गंतव्य और ग्रुप को उसके आइकन से बनाता है, इसलिए हर एक को आइकन दें।
+- `trailingText` पंक्ति के अंत का छोटा टेक्स्ट है, लेबल से ज़्यादा हल्का: कोई गिनती ("24") या कोई शब्द ("नया")। `trailing` स्लॉट में बाक़ी सब कुछ आता है, जैसे कोई ग्लिफ़ या Badge; वह `trailingText` पर भारी पड़ता है और कभी इंटरैक्टिव नहीं होता। `target` `new` वाला लिंक अपनी पंक्ति को अपने आप `open_in_new` पर ख़त्म करता है, इसलिए वह ग्लिफ़ आप नहीं रखते। अंतिम कॉन्टेंट लेबल के बाद पढ़ा जाता है, और समेटे हुए रूप में नहीं दिखाया जाता।
+- `badge` आइकन पर एक Badge बनाता है, दोनों रूपों में: एक बिंदु, या `badgeCount`, जिसका नाम `badgeLabel` से आता है।
+- ग्रुप की पंक्ति अपने भीतर के गंतव्यों और ग्रुप को खोलती और बंद करती है, और खुला होने पर आइकन सेट का `expand_more` आधा चक्कर घूमा हुआ रहता है। हर स्तर पूरा का पूरा एक इंडेंट और भीतर से शुरू होता है: उसका फ़िल, उसकी स्टेट लेयर और उसकी फ़ोकस रिंग, सिर्फ़ उसका टेक्स्ट नहीं। जिस बंद ग्रुप में चयनित गंतव्य है वह चयनित के रूप में बनता है, और समेटे हुए रूप में सबसे ऊपरी स्तर का ग्रुप भी; समेटे हुए रूप में ग्रुप को सक्रिय करने पर ड्रॉअर फैल जाता है और ग्रुप खुल जाता है। तीन स्तरों तक ही रहें।
+- सेक्शन की हेडिंग अपने नीचे के गंतव्यों को नाम देती है। वह एक हेडिंग है, कंट्रोल नहीं। सेक्शन बिना हेडिंग का भी हो सकता है, बिना शीर्षक के एक अलग किए गए ग्रुप के रूप में।
+- सेक्शन का `divider` उसके पहले एक डिवाइडर बनाता है, ताकि वह ऊपर की चीज़ों से अलग दिखे। डिवाइडर आप ख़ुद कभी नहीं रखते।
+- हेडर में हेडर बटन रहते हैं, जो आइकन के कॉलम में एक के ऊपर एक रखे जाते हैं, और उनके नीचे मुख्य क्रिया। फैले हुए रूप में हेडर स्लॉट मेन्यू बटन के बग़ल में रहता है, किसी शीर्षक या अकाउंट स्विचर के लिए, और समेटे हुए रूप में नहीं दिखाया जाता। ड्रॉअर उसकी स्टाइल नहीं बदलता।
+- जब पंक्तियाँ हेडर के नीचे की जगह से ज़्यादा ऊँची हों, तो वे स्क्रॉल होती हैं और हेडर अपनी जगह रहता है। किसी भी सिरे तक पहुँचा स्क्रॉल आगे बढ़कर ड्रॉअर के पीछे के पेज को स्क्रॉल नहीं करता।
+
+### करें
+
+- सबसे ज़्यादा इस्तेमाल होने वाले गंतव्यों को सबसे पहले रखें, सेक्शन के बाहर या पहले सेक्शन में।
+- जब गंतव्य का अपना पता हो तो उसे `href` दें, ताकि वह असली लिंक हो: उसे नए टैब में खोला जा सकता है, कॉपी किया जा सकता है और क्रॉलर उस पर जा सकता है।
+- सेक्शन का नाम उस बात पर रखें जो उसके गंतव्यों में साझा है: "लेबल", "एडमिन"।
+- मोडल और standard रूपों में वही गंतव्य और वही मान इस्तेमाल करें, ताकि प्रॉडक्ट सिर्फ़ विंडो की चौड़ाई के आधार पर एक से दूसरे में जा सके।
+
+### न करें
+
+- ड्रॉअर को "साइन आउट करें" या "लिखें" जैसी क्रियाओं के लिए इस्तेमाल न करें। उसकी पंक्तियाँ जगहें हैं।
+- सेक्शन के भीतर सेक्शन न रखें, और ग्रुप में सेक्शन न रखें। डीबग बिल्ड इसकी रिपोर्ट करते हैं और भीतरी सेक्शन के गंतव्यों को उसकी जगह बना देते हैं।
+- ग्रुप की पंक्ति को गंतव्य की तरह इस्तेमाल न करें। वह सिर्फ़ खोलती और बंद करती है।
+- जिस विंडो में standard ड्रॉअर के लिए काफ़ी चौड़ाई है, वहाँ मोडल ड्रॉअर इस्तेमाल न करें।
+
+## सुलभता
+
+<ComponentAccessibility name="navigation-drawer" />
+
+### कंपोनेंट क्या सँभालता है
+
+- वेब पर ड्रॉअर एक नेविगेशन लैंडमार्क है, जिसका नाम `label` से आता है। हर गंतव्य एक लिंक (`href` के साथ) या एक बटन है, और मौजूदा गंतव्य पर `aria-current="page"` रहता है। मोडल ड्रॉअर इसके साथ एक मोडल `<dialog>` भी है, जिसका नाम `label` से आता है।
+- iOS, Android, Flutter और React Native पर हर गंतव्य एक बटन है, अपने चयनित स्टेट और गंतव्यों के बीच अपनी जगह के साथ, जैसे उन प्लैटफ़ॉर्म पर साइडबार और ड्रॉअर के आइटम पढ़े जाते हैं। मोडल ड्रॉअर एक मोडल कंटेनर है, जिसका नाम `label` से आता है: मोडल ट्रेट, या पेन का शीर्षक।
+- गंतव्य दोनों रूपों में एक ही एलिमेंट है, जिसका नाम उसके लेबल से आता है। उसका आइकन छिपा रहता है; उसके नाम और स्टेट के बाद आइकन के बैज का विवरण और फिर उसका अंतिम कॉन्टेंट पढ़ा जाता है।
+- लिंक वाला गंतव्य हर स्टेट में ठीक बटन वाले गंतव्य की तरह बनता है, और "देखा जा चुका" वाला कोई रूप नहीं है। वह सब कुछ उसके पास रहता है जो ब्राउज़र किसी लिंक को देता है: उसका कॉन्टेक्स्ट मेन्यू, नए टैब में खुलना, ड्रैग करना और होवर पर पता। नया टैब खोलने वाला लिंक अपने विवरण के अंत में अपना `targetLabel` पढ़ता है।
+- समेटे हुए सेल का टूलटिप उन लोगों के लिए है जो देख सकते हैं और पॉइंटर या कीबोर्ड इस्तेमाल करते हैं। वह सहायक तकनीक से छिपा रहता है, जो लेबल को पहले से ही सेल के नाम के रूप में पढ़ती है।
+- ग्रुप की पंक्ति फैले हुए स्टेट वाला एक बटन है, जो अपनी भीतरी लिस्ट को नियंत्रित करता है। Right (बाएँ से दाएँ वाले लेआउट में) बंद ग्रुप को खोलती है, Left खुले ग्रुप को बंद करती है, और ग्रुप के भीतर Left उसकी पंक्ति पर ले जाती है। Tab दिखाई गई हर पंक्ति से होकर चलती है।
+- जब तक ड्रॉअर समेटने योग्य है, उसका मेन्यू बटन फैले हुए या समेटे हुए स्टेट के साथ, सहायक तकनीक को ड्रॉअर को नियंत्रित करने वाले बटन के रूप में मिलता है। रूप बदलने पर फ़ोकस उसी सेल पर रहता है जिस पर वह था।
+- सेक्शन की हेडिंग हेडिंग का रोल देती है और उस पर फ़ोकस नहीं जा सकता।
+- Tab हेडर के कॉन्टेंट और हर उस गंतव्य से होकर चलती है जो अक्षम नहीं है। Enter और Space फ़ोकस वाले गंतव्य को सक्रिय करती हैं (वेब पर लिंक के लिए सिर्फ़ Enter)। अक्षम गंतव्य फ़ोकस नहीं लेते और अक्षम के रूप में पढ़कर सुनाए जाते हैं।
+- standard ड्रॉअर में, खोलने पर फ़ोकस भीतर जाता है और बंद करने पर लौटता है, और Tab उसे बंद किए बिना कॉन्टेंट में आगे बढ़ जाती है। मोडल ड्रॉअर में Tab और Shift+Tab ड्रॉअर के भीतर ही घूमती रहती हैं, और Escape और प्लैटफ़ॉर्म की बैक क्रिया उसे बंद करके फ़ोकस लौटा देती हैं।
+- फ़ोकस रिंग पंक्ति के चारों ओर बनती है, सिर्फ़ कीबोर्ड फ़ोकस के लिए। जो पंक्ति पूरी तरह नज़र में नहीं है, उस पर कीबोर्ड फ़ोकस आने से वह कम से कम दूरी स्क्रॉल होकर नज़र में आ जाती है।
+- हिट एरिया दोनों रूपों में पूरा सेल है, और कभी न्यूनतम टार्गेट से कम नहीं।
+- बड़ा टेक्स्ट दोनों रूपों की चौड़ाई वही रखता है और पंक्तियों और हेडिंग को ऊँचा कर देता है। लेबल अगली पंक्ति में जाते हैं; छोटे लेबल काट दिए जाते हैं। आइकन का साइज़ नहीं बदलता।
+- डीबग बिल्ड इन बातों की रिपोर्ट करते हैं: बिना लेबल का गंतव्य, बिना `label` का मोडल ड्रॉअर, ऐसा मान जो किसी गंतव्य का नाम नहीं लेता, दो बार इस्तेमाल हुआ मान, सेक्शन के भीतर सेक्शन, ग्रुप में सेक्शन, तीन स्तरों से गहरी नेस्टिंग, ऐसा वेरिएंट जो डिज़ाइन सिस्टम में नहीं है, बिना मेन्यू बटन का समेटने योग्य ड्रॉअर, `trailing` स्लॉट में फ़ोकस किया जा सकने वाला एलिमेंट, ऐसा `href` जो `javascript:` पता है या पढ़ा नहीं जा सकता, अनजान `target`, और `target` `new` वाला लिंक जिसका `targetLabel` नहीं है।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- Web: Firefox टॉप लेयर से हटते हुए एलिमेंट को ऐनिमेट नहीं कर सकता, इसलिए वहाँ मोडल ड्रॉअर सरककर बाहर जाने की जगह तुरंत ग़ायब हो जाता है।
+- Web: हर साइज़ `rem` के अनुसार चलता है, इसलिए ब्राउज़र का बड़ा टेक्स्ट साइज़ आइकन को भी बढ़ा देता है, पर ड्रॉअर की चौड़ाई को कभी नहीं। सिर्फ़ Tanrei का टाइप बढ़ाने पर ऐसा नहीं होता।
+- Web: यह जाँचा गया है कि Tab खुले standard ड्रॉअर से बाहर जाती है, पर यह अभी नहीं कि वह कॉन्टेंट में कहाँ पहुँचती है, जो लोड के दौरान अस्थिर था।
+- SwiftUI यह नहीं जान सकता कि फ़ोकस किस व्यू पर था, इसलिए ड्रॉअर बंद करने पर कीबोर्ड फ़ोकस किसी एलिमेंट पर नहीं लौटता: प्लैटफ़ॉर्म उसे वहाँ रखता है जहाँ वह डिफ़ॉल्ट रूप से रखता है। ड्रॉअर खोलने पर फ़ोकस मौजूदा गंतव्य पर जाता है, या फिर पहले सक्षम गंतव्य पर, हेडर के किसी कंट्रोल पर कभी नहीं। Mac पर मोडल ड्रॉअर सिर्फ़ उसी व्यू को ढकता और अक्षम करता है जिससे वह जुड़ा है, इसलिए उसे विंडो के रूट से जोड़ें।
+- SwiftUI: Escape, एक्सेसिबिलिटी का एस्केप जेस्चर और खुलने पर फ़ोकस का भीतर जाना अभी शुरू से अंत तक नहीं जाँचे गए हैं। गंतव्य अपनी जगह अपने मान टेक्स्ट के रूप में रखता है ("2 of 6"), सिर्फ़ अंग्रेज़ी में।
+- Compose मोडल ड्रॉअर को उसकी अपनी `Dialog` विंडो में पेश करता है, जैसे `TanreiDialog` को, न कि ऐप की विंडो के भीतर, जैसे Material का ड्रॉअर करता है। देखने में वह वैसा ही है, और वह विंडो फ़ोकस को भीतर रखती है, बैक का जवाब देती है और पीछे की चीज़ों को छिपा देती है।
+- Compose में ड्रॉअर के स्तर का कोई मान नहीं है, इसलिए ऐसे मान के लिए रिपोर्ट करने को कुछ नहीं है जो किसी गंतव्य का नाम नहीं लेता।
+- Flutter का मोडल ड्रॉअर `Scaffold.drawer` नहीं है। आप उसे विंडो को भरने वाले `Stack` के आख़िरी चाइल्ड के रूप में रखते हैं और `open` से नियंत्रित करते हैं। उसके गंतव्य सेट में अपनी जगह नहीं रखते।
+- Flutter: जहाँ पंक्ति और उसका गैप टच टार्गेट से छोटे हों, जैसे छोटी पंक्ति वाले डिज़ाइन सिस्टम में, वहाँ सिर्फ़ हिट एरिया के बढ़ने की जगह पंक्तियाँ एक-दूसरे से दूर हो जाती हैं।
+- React Native यह नहीं जान सकता कि फ़ोकस किस एलिमेंट पर था, इसलिए ड्रॉअर बंद करने पर फ़ोकस उस एलिमेंट पर नहीं लौटता जिसने उसे खोला था। मोडल ड्रॉअर फ़ोकस को वहीं छोड़ देता है जहाँ प्लैटफ़ॉर्म उसे रखता है, और standard ड्रॉअर कुछ नहीं करता।
+- React Native के ड्रॉअर का अभी अपनी कोई `insets` प्रॉपर्टी नहीं है: वह सिर्फ़ `TanreiProvider` के इनसेट पढ़ता है। गंतव्य अपनी जगह अपने मान टेक्स्ट के रूप में रखता है, अंग्रेज़ी में, जब तक आप `positionText` न दें।
+- React Native: मोडल ड्रॉअर का ड्रैग और फ़्लिंग, उसके फ़ोकस का जाना और एस्केप जेस्चर अभी किसी डिवाइस पर नहीं जाँचे गए हैं।
+- SwiftUI, Compose, Flutter और React Native, जो पिछला संशोधन देते हैं: पहली पंक्ति ड्रॉअर की पैडिंग से आधा गैप नीचे रहती है, और रैप हुए लेबल वाली पंक्ति हर एक पर एक ही तरह से नहीं बढ़ती (SwiftUI और Compose पंक्ति की न्यूनतम ऊँचाई तब तक बनाए रखते हैं जब तक टेक्स्ट उसमें समाता है)। बराबरी पर आने पर हर एक पहले सेल तक की पैडिंग नापेगा और पंक्ति की ऊँचाई को न्यूनतम मानेगा।
+- Web: मोडल, समेटने योग्य ड्रॉअर फ़ोकस तभी लौटाता है जब वह सिमटकर वापस अपने कॉलम जितना हो चुका हो, ड्रैग पूरे पैनल को खिसकाता है, और उसका डायलॉग कॉलम के उस बॉक्स पर रखा जाता है जो खुलते समय नापा गया था।
+
+### आपको क्या करना है
+
+- हर गंतव्य को एक लेबल दें। जहाँ समेटा हुआ कॉलम लेबल बनाता है (`collapsedLabels`), वहाँ उन गंतव्यों को `shortLabel` दें जिनका लेबल उसके लिए बहुत लंबा है।
+- `target` `new` वाले लिंक को अपने प्रॉडक्ट की भाषा में `targetLabel` दें।
+- साइट पर, हर पेज पर `value` को उस पेज के अपने गंतव्य पर सेट करें।
+- जब तक रिस्पॉन्सिव ड्रॉअर की प्रस्तुति `modal` है, अपना एक मेन्यू बटन दिखाएँ जो उसे खोले।
+- मेन्यू बटन को एक नाम दें, जैसे "मेन्यू", और वेब के अलावा बाक़ी प्लैटफ़ॉर्म पर `expandedChange` से `expanded` या `open` सेट करें।
+- ड्रॉअर को एक `label` दें, जैसे "मेल"। मोडल ड्रॉअर एक डायलॉग है, और लेबल उसका नाम है।
+- मोडल ड्रॉअर को ऐसे दिखने वाले मेन्यू बटन से खोलें जिसका अपना लेबल हो, जैसे "मेन्यू"।
+- `open` को सिंक में रखें: मोडल ड्रॉअर के बंद होने पर उसे false करें (प्लैटफ़ॉर्म के अनुसार `onClose`, बाइंडिंग या ड्रॉअर स्टेट से)।
+- SwiftUI पर, ड्रॉअर बंद होने के बाद कीबोर्ड फ़ोकस ख़ुद मेन्यू बटन को वापस दें।
+- React Native पर, ड्रॉअर बंद होने के बाद फ़ोकस ख़ुद मेन्यू बटन पर वापस ले जाएँ, अपने प्रॉडक्ट की भाषा में `positionText` दें, और `TanreiProvider` को विंडो के इनसेट दें।
+- हर गंतव्य का मान अनूठा रखें, और standard और मोडल रूपों में एक जैसा बनाए रखें।

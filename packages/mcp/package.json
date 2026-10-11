@@ -1,0 +1,38 @@
+{
+  "name": "@tanrei/mcp",
+  "version": "0.0.0",
+  "description": "Model Context Protocol server for Tanrei: lets an AI agent discover the token vocabulary, see where a value comes from, and write a valid design-system layer.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chnotchy/tanrei.git",
+    "directory": "packages/mcp"
+  },
+  "bin": {
+    "tanrei-mcp": "./bin/tanrei-mcp.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@material/material-color-utilities": "^0.4.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@terrazzo/parser": "^2.0.0",
+    "ajv": "^8.20.0"
+  },
+  "devDependencies": {
+    "@tanrei/token-engine": "workspace:*",
+    "@tanrei/tokens-build": "workspace:*",
+    "esbuild": "^0.28.2"
+  }
+}

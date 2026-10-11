@@ -1,0 +1,39 @@
+---
+title: Elevation
+description: Six levels of z-order, drawn as a hairline ring plus a very soft shadow, with no surface tint.
+---
+
+import ElevationScale from '../../../components/tokens/ElevationScale.astro';
+
+Elevation describes which surface is above which. Tanrei keeps the six semantic levels, 0 to 5, and draws them in a restrained way.
+
+<ElevationScale />
+
+## Ring, then shadow
+
+Each level above zero is a composite shadow token with two kinds of layer:
+
+1. a **1px ring** in the `elevation-ring` role, which defines the edge crisply on any background;
+2. one or two **very soft, low-opacity shadows** that grow with the level.
+
+The ring is always the first layer. A platform that cannot draw shadow spread renders it as a one-pixel border and keeps the rest.
+
+## No tint
+
+Raised surfaces are not tinted with the primary color. Depth is expressed by the ring, the shadow and, where needed, a step on the surface-container ladder. This keeps neutral surfaces neutral.
+
+## In dark themes
+
+Shadows are hard to see against a near-black canvas, so in dark themes the ring does most of the work and raised surfaces also step to a lighter container role.
+
+## Applying elevation
+
+| Level | Typical use |
+| --- | --- |
+| 0 | The page and anything flush with it |
+| 1 | Cards at rest, selected segmented options |
+| 2 | Elevated buttons, raised cards on hover |
+| 3 | Menus, popovers, snackbars |
+| 4–5 | Dialogs, sheets and other modal surfaces |
+
+Use as few levels as a screen can manage. If two neighbours need separating and neither floats, use a hairline instead.

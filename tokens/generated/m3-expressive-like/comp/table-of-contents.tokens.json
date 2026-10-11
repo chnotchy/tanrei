@@ -1,0 +1,404 @@
+{
+  "tanrei": {
+    "comp": {
+      "table-of-contents": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product has pages longer than a screen, divided by headings, and shows beside the text what the page holds and which part of it the reader is in: the headings as links, the current one marked, the sub-headings set in under their heading. On a narrow window, where there is no room beside the text, it folds the same list behind one row that names the current part.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "item",
+              "current",
+              "disclosure"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "label.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.axes": {
+            "part": {
+              "default": "item",
+              "from": "states"
+            },
+            "density": {
+              "default": "regular",
+              "values": [
+                "regular",
+                "compact"
+              ],
+              "members": [
+                "row.height",
+                "row.padding-block"
+              ]
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a table of contents reads: the text style and color of its title, the text style of its items, per density (regular, compact) a row's least height and the room above and below its label, a row's inline padding and corners, how far each level of nesting sets a label in, the rail along the list's start edge and the marker of the current item on it, the compact form's fill, corners, row height, paddings, glyph and the text of the current section it shows, the timing of a state change and of the compact form opening, and for each pressable part (an item, the current item, the compact form's row) its fill, label and state-layer colors at rest and in each state.",
+            "rules": [
+              "A table of contents lists the headings of the page the person is on, as links to them. It is not the product's navigation between pages: that is a navigation drawer, a navigation bar or tabs.",
+              "Its items are links and are not underlined: they are rows of a list in a navigation landmark, not phrases in a sentence. Never give an item a press handler in place of a destination.",
+              "At most one item is current. It is told from the others by its marker on the rail and its heavier weight, never by color alone. Do not fill the current row: the quiet selection fill is the navigation drawer's, and two filled selections on one screen would compete.",
+              "Do not mark the ancestors of the current item, and do not hide sub-levels until their heading is current: the list must not move while the reader scrolls.",
+              "Where the list stands, that it stays in view while the page scrolls, and which presentation a window width gets are the layout's that places it, not this component's.",
+              "Use presentation compact where there is no room beside the text. Do not build the compact form from an accordion and a list by hand.",
+              "density is how tall a row is, and is not the compact presentation. regular, the default, holds the pointer target; compact is lower than it, for a long list beside text read with a pointer. Choose compact explicitly, never by default, and never to fit a touch layout: for touch a row is the touch target in both.",
+              "The title and every label are the product's words; Tanrei ships none.",
+              "State tokens are valued by the design system's pattern rules; override one token or replace the rule.",
+              "Restyle through these tokens in a layer; never style the anchors by hand."
+            ]
+          }
+        },
+        "container": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Space between the title and the list."
+          }
+        },
+        "title": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label}",
+            "$description": "The text style of the title (\"On this page\"), in the list and in the compact form's row."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface}",
+            "$description": "The title in the list presentation. In the compact form the title is the row's label and takes the row's label color."
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}",
+            "$description": "The text style of every item, at every level: a step under the text the list describes, so that the list stays quieter than the page. The current item adds the system's emphasis for body text to its weight."
+          }
+        },
+        "row": {
+          "height": {
+            "$type": "dimension",
+            "$description": "An item's least height for a fine pointer, per density: one line of its label and its density's padding-block twice in the default system. Regular is the pointer target (sys.target.pointer), derived from the same dial by the same multiple, so that a row of the default density is never a smaller target than any other control. Compact is a table's compact row, lower than the pointer target: the density a product asks for by name, for a long list beside the text. A minimum in both: a row grows with a label that wraps and with enlarged text, and for touch it is never lower than the touch target.",
+            "regular": {
+              "$value": {
+                "value": 44,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 11
+                }
+              }
+            },
+            "compact": {
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Inside a row: between the rail and a first-level label, and after every label. The same in both densities: density changes how tall a row is, not where its label starts."
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "Above and below a row's label, per density. With one line of the label it gives the density's height exactly in the default system; it holds the room when the label wraps or the text is enlarged.",
+            "regular": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "compact": {
+              "$value": "{tanrei.sys.space.space75}"
+            }
+          },
+          "indent": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "How much further from the rail a label starts for each level of nesting. Only the label moves: the row, its state layer and its marker keep the list's full width.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product shows two or three levels of headings in a column about a quarter as wide as its text, and sets each level in by a step small enough that a third-level label still has room for a few words a line; another, with a wider column, sets them in further.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.extra-small}",
+            "$description": "The corners of a row's container, where hover, focus and press are drawn, and of the focus ring inside it."
+          }
+        },
+        "rail": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The thickness of the line along the list's start edge."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}",
+            "$description": "The rail: the system's one hairline. It is the track the marker of the current item sits on. Decorative."
+          }
+        },
+        "marker": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.thick}",
+            "$description": "The thickness of the current item's marker on the rail: the heavier of the system's two strokes, so that it is told from the rail by its width as well as its color.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product marks the section the reader is in with a stroke heavier than the line it sits on; how heavy is its own choice, apart from the rail's.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.primary}",
+            "$description": "The marker of the current item: primary, the one chosen now, as a tab's active indicator is. It is not the accent, which is keyboard focus alone."
+          }
+        },
+        "compact": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container}",
+              "$description": "The fill of the compact form: its row and, when open, its list. A fill, because a compact table of contents is often kept over the text it describes."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.small}",
+              "$description": "The corners of the compact form."
+            }
+          },
+          "row": {
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
+              },
+              "$description": "The least height of the compact form's row: the touch target, because the compact form is the form of narrow windows. A minimum: it grows with enlarged text."
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space200}",
+              "$description": "Inside the compact form's row, before the title and after the chevron."
+            },
+            "gap": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space100}",
+              "$description": "Between the title, the name of the current section and the chevron."
+            }
+          },
+          "supporting-text": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-small}",
+              "$description": "The text style of the current section's name in the compact form's row: an item's."
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The current section's name in the compact form's row: secondary text beside the title."
+            }
+          },
+          "icon": {
+            "size": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.icon.small}",
+              "$description": "The chevron's box."
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The chevron of the compact form's row."
+            }
+          },
+          "list": {
+            "padding-block": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space100}",
+              "$description": "Below the open list, inside the compact form's fill."
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space200}",
+              "$description": "Between the compact form's edge and the open list's rail, and after its rows: the row's inline padding, so the rail stands under the title's first letter."
+            }
+          }
+        },
+        "item": {
+          "$type": "color",
+          "container": {
+            "color": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A row has no fill at rest; the surface behind the list shows through."
+                }
+              },
+              "$description": "The fill of an item's row. None at rest: it is where hover, focus and press are drawn."
+            }
+          },
+          "label": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "An item that is not current: secondary text. The list is a quiet companion of the page, and its rows are told as links by being rows of a navigation list."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$value": "{tanrei.comp.table-of-contents.item.label.color}",
+              "$description": "The color hover, focus and press mix into the row."
+            }
+          }
+        },
+        "current": {
+          "$type": "color",
+          "container": {
+            "color": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The current row has no fill either: it is marked on the rail, not filled."
+                }
+              },
+              "$description": "The fill of the current item's row. None: the quiet selection fill belongs to the product's navigation, and a fill that moves as the page scrolls would pull the eye from the text."
+            }
+          },
+          "label": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The current item: the color of the page's own text, because it names where the reader is."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$value": "{tanrei.comp.table-of-contents.current.label.color}",
+              "$description": "The color hover, focus and press mix into the current row."
+            }
+          }
+        },
+        "disclosure": {
+          "$type": "color",
+          "container": {
+            "color": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The compact form's row draws no fill of its own; the compact form's fill is behind it, and its states draw the state layer."
+                }
+              },
+              "$description": "The fill of the compact form's row, over compact.container.color."
+            }
+          },
+          "label": {
+            "color": {
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The title in the compact form's row."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$value": "{tanrei.comp.table-of-contents.disclosure.label.color}",
+              "$description": "The color hover, focus and press mix into the compact form's row."
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long a state change of a row takes, and how long the marker and the weight of the current item take to change."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "disclosure-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$description": "How long the compact form takes to open or close: its list revealed or hidden, what follows moving, and its chevron turning. The name and the value of an accordion item's and of a navigation drawer group's.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product opens the folded list of a page's sections as a small local change, faster or slower than it answers a press, and may time it apart from the folds in its content and the groups in its drawer.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "disclosure-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "The curve of disclosure-duration.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,770 @@
+{
+  "tanrei": {
+    "comp": {
+      "navigation-drawer": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lists its destinations in a panel at the start edge: beside the content on a large screen and over it on a compact one, narrowed to a column of icons where the content needs the width and widened again on request or with the window, grouped under headings and in groups that open and close, with the current one marked, a count or a mark at the end of some, and some unavailable.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "selected",
+              "collapsed-unselected",
+              "collapsed-selected"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "item.container.color": "color",
+              "item.icon-indicator.color": "color",
+              "item.icon.color": "color",
+              "item.label.color": "color",
+              "item.trailing-text.color": "color",
+              "item.trailing-icon.color": "color",
+              "item.badge.color": "color",
+              "item.state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a navigation drawer reads, expanded and collapsed: per variant (standard: beside the content; modal: over it) the container color, elevation, shape and end-edge color; its two widths (expanded, and collapsed to the icon column), padding and the gaps of its header; the two window widths at which a responsive drawer changes its presentation; the scrim; the section heading's style, color and height; the geometry of a destination in each form (the expanded row, and the collapsed item container around the icon), the indent of a nested destination, the trailing text and glyph; the selection, expand and disclosure motion; and for each condition (unselected, selected, and their collapsed- forms) the colors of the item container, icon indicator, icon, label and trailing content in each state.",
+            "rules": [
+              "The selected destination is drawn from the selected parts; every other destination from the unselected parts. While the drawer is collapsed they are the collapsed-selected and collapsed-unselected parts. Never pick a look by hand.",
+              "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
+              "Hover, focus and press show on the item container: the row while expanded, the box around the icon while collapsed. It is also the active indicator, and it changes color in place: it never grows in width to show a selection.",
+              "A collapsed destination is its expanded row with the label gone: the same height, the same corners, the icon at the same point. Keep collapsed.item.container.shape aliased to item.container.shape, and collapsed.item.container.width equal to the icon plus item.padding-inline on each side, unless the system's collapsed column is a different design (Material's).",
+              "A row is a menu item's size and shape: item.container.height, item.padding-inline, item.gap and item.container.shape take the values the menu's item has. A drawer destination is never a capsule in the default system.",
+              "The icon indicator is a box behind the glyph alone. The default system leaves it transparent in every condition; a layer that marks a collapsed destination behind its glyph only (Material's) fills it in the collapsed conditions and clears the collapsed item container.",
+              "Every icon sits on the same point in both forms: its center is half the collapsed width from the drawer's start edge (plus the nesting indent), and its row keeps its height. Change collapsed.container.width, not a padding, to move the icon column; in the default system it is container.padding-inline, item.padding-inline and half the icon, twice.",
+              "A nested destination's whole row starts item.nest-indent further in, its fill and state layer included, not its text alone.",
+              "A look that draws no item container at rest draws none when disabled.",
+              "A modal drawer is set apart by its elevation and the scrim; a standard one by its end edge.",
+              "The trailing text is quieter than the label: a regular weight in the supporting-text color.",
+              "breakpoint.expanded and breakpoint.collapsed are widths of the window, read only by a responsive drawer. They are not sizes of anything drawn, and alias the system's window classes (sys.breakpoint.expanded, sys.breakpoint.medium); set them here only to part this one component from the rest.",
+              "item.badge.color and item.badge.typescale are kept only for platforms that still draw a destination's trailing string as a badge; nothing in the current spec reads them.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "Each condition's item.state-layer.color is the color hover, focus and press mix into its item container; it aliases the color of the content drawn on that container."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "variant": {
+              "default": "standard",
+              "values": [
+                "standard",
+                "modal"
+              ],
+              "members": [
+                "container.color",
+                "container.elevation",
+                "container.shape",
+                "outline.color"
+              ]
+            },
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "color": {
+            "$type": "color",
+            "standard": {
+              "$value": "{tanrei.sys.color.surface}"
+            },
+            "modal": {
+              "$value": "{tanrei.sys.color.surface-container-low}"
+            }
+          },
+          "elevation": {
+            "$type": "shadow",
+            "standard": {
+              "$value": "{tanrei.sys.elevation.level0}"
+            },
+            "modal": {
+              "$value": "{tanrei.sys.elevation.level2}"
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$description": "The corners at the drawer's end edge; the corners at its start edge meet the screen edge and stay square.",
+            "standard": {
+              "$value": "{tanrei.sys.shape.corner.none}"
+            },
+            "modal": {
+              "$value": "{tanrei.sys.shape.corner.large}"
+            }
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 240,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 60
+              }
+            },
+            "$description": "The expanded drawer's width, not counting the system inset at its start. With the default padding a row is 216 wide: room for an icon, a name of some twenty characters and a short count."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "From the drawer's edges to its item containers, headings, dividers and header, in both forms. Kept small, so that a row's fill and the area that answers hover reach nearly the drawer's whole width.",
+            "$value": "{tanrei.sys.space.space150}"
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "Above the header (or the first cell) and below the last cell, in both forms.",
+            "$value": "{tanrei.sys.space.space150}"
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Between two cells (a destination's or a group's), so that a selected row and a hovered neighbour stay two shapes. Each cell's hit area reaches half of it above and below.",
+            "$value": "{tanrei.sys.space.space50}"
+          }
+        },
+        "collapsed": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product narrows its drawer to a column of icons where the content needs the width, and sizes that column apart from the expanded drawer; one design system draws a collapsed destination as its expanded row with the label gone, another as a compact mark behind the glyph with a short label under it.",
+              "since": "0.1.0"
+            }
+          },
+          "container": {
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 72,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 18
+                }
+              },
+              "$description": "The collapsed drawer's width, not counting the system inset at its start: the icon column. Every icon's center is half of it from the start edge, in both forms. In the default system it is container.padding-inline, item.padding-inline and the icon, mirrored: 12 + 12 + 24 + 12 + 12, so that a collapsed row is the expanded one cut after its icon's padding."
+            }
+          },
+          "item": {
+            "container": {
+              "width": {
+                "$type": "dimension",
+                "$value": {
+                  "value": 48,
+                  "unit": "px"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fn": "mul",
+                    "of": "{tanrei.dial.size.unit}",
+                    "by": 12
+                  }
+                },
+                "$description": "The collapsed item container's width, centered in the icon column: the box around the icon, which carries hover, focus and press and is the active indicator while the destination is selected. In the default system it is the icon with item.padding-inline on each side, a square as high as the row."
+              },
+              "padding-inline": {
+                "$type": "dimension",
+                "$description": "Inside the collapsed item container, on each side of a short label, which is truncated inside it. Read only where collapsedLabels draws a label.",
+                "$value": "{tanrei.sys.space.space50}"
+              },
+              "padding-block": {
+                "$type": "dimension",
+                "$description": "Inside the collapsed item container, above the icon indicator and below it (below the short label where one is drawn). In the default system it equals item.padding-inline, so the icon has the same space on every side and the collapsed cell is as high as the expanded row.",
+                "$value": "{tanrei.sys.space.space150}"
+              },
+              "shape": {
+                "$type": "dimension",
+                "$description": "The collapsed item container's corners, at most half its height. The expanded row's own corners: collapsing a drawer removes its labels and changes no shape.",
+                "$value": "{tanrei.comp.navigation-drawer.item.container.shape}"
+              }
+            },
+            "gap": {
+              "$type": "dimension",
+              "$description": "From the icon indicator to the short label below it, where collapsedLabels draws one.",
+              "$value": "{tanrei.sys.space.space50}"
+            },
+            "label": {
+              "typescale": {
+                "$type": "typography",
+                "$description": "The short label under the icon, on one line, where collapsedLabels draws one.",
+                "$value": "{tanrei.sys.typescale.label-small}"
+              }
+            }
+          }
+        },
+        "header": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product puts a menu button and its main action at the top of its drawer and sets them apart from the destinations by a space of their own, tighter between the two controls than below them.",
+              "since": "0.1.0"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "From the header (its buttons, its slot and the main action) to the first cell.",
+            "$value": "{tanrei.sys.space.space300}"
+          },
+          "item-gap": {
+            "$type": "dimension",
+            "$description": "Between two rows of the header: two header buttons, or a header button and the main action.",
+            "$value": "{tanrei.sys.space.space100}"
+          }
+        },
+        "breakpoint": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product shows its drawer beside the content in a wide window, narrows it to its column in a narrower one and presents it over the content in a narrow one, and sets the two widths where that happens to suit its own content.",
+              "since": "0.1.0"
+            }
+          },
+          "expanded": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.breakpoint.expanded}",
+            "$description": "The window width from which a responsive drawer is beside the content (the standard presentation). Below it the drawer is its column, or over the content."
+          },
+          "collapsed": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.breakpoint.medium}",
+            "$description": "The window width from which a responsive, collapsible drawer keeps its column beside the content (the column presentation). Below it nothing of the drawer is in the layout."
+          }
+        },
+        "outline": {
+          "color": {
+            "$type": "color",
+            "$description": "The drawer's end edge.",
+            "standard": {
+              "$value": "{tanrei.sys.color.outline-variant}"
+            },
+            "modal": {
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A modal drawer is set apart by its elevation and the scrim, not by an edge."
+                }
+              }
+            }
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "scrim": {
+          "color": {
+            "$type": "color",
+            "$description": "Dims the content behind a modal drawer.",
+            "$value": "{tanrei.sys.color.scrim}"
+          }
+        },
+        "heading": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "A section heading.",
+            "$value": "{tanrei.sys.typescale.label-small}"
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}"
+          },
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 36,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 9
+              }
+            },
+            "$description": "A section heading's minimum height; its text is centered in it. The row keeps this height while the drawer is collapsed, so the cells below it do not move."
+          }
+        },
+        "item": {
+          "container": {
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
+              },
+              "$description": "The expanded item container's least height: the destination's row, which is also its active indicator and carries hover, focus and press. A menu item's height, so that a list of places and a list of commands are rows of one size; with the default icon it leaves item.padding-inline above and below the glyph."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$description": "The row's corners, in both forms: a menu item's. A row that is one choice among many keeps its step of the scale and is never a capsule.",
+              "$value": "{tanrei.sys.shape.corner.small}"
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "Inside the row: before the label of a destination without an icon, and after the trailing content; a menu item's. In the default system it is also the space an icon has on its start side, because the icon column is placed by it (collapsed.container.width).",
+            "$value": "{tanrei.sys.space.space150}"
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Between the icon, the label and the trailing content of an expanded row.",
+            "$value": "{tanrei.sys.space.space150}"
+          },
+          "nest-indent": {
+            "$type": "dimension",
+            "$description": "How much further toward the end a nested destination's row starts, per level of nesting: its item container, with its fill, state layer and focus indicator, and its content with it. With the default icon and gap, a nested destination's label starts under its group's label.",
+            "$value": "{tanrei.sys.space.space450}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product nests destinations in groups and shows the depth by indenting them; another indents them less to keep long labels on one line in a narrow drawer.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "icon": {
+            "size": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.icon.medium}"
+            }
+          },
+          "icon-indicator": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product marks a collapsed destination with a compact box behind its glyph alone and leaves its short label on the drawer's surface, to keep the column quiet. A layer cannot add a part the component draws, so the part is core, and the default system leaves it transparent.",
+                "since": "0.1.0"
+              }
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.navigation-drawer.item.icon.size}",
+              "$description": "The icon indicator's width, centered on the icon. It is laid out in every system, transparent or not; in the default system it is the icon's own box."
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": "{tanrei.comp.navigation-drawer.item.icon.size}",
+              "$description": "The icon indicator's height; while collapsed, the short label sits collapsed.item.gap below it."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "The radius of the icon indicator's four corners, at most half its height."
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.label}"
+            }
+          },
+          "trailing-text": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product puts a count or a short word at the end of some rows (24 unread, New), quieter than the destination's name so the names still lead the eye.",
+                "since": "0.1.0"
+              }
+            },
+            "typescale": {
+              "$type": "typography",
+              "$description": "The trailing count or short word: a regular weight, one step quieter than the medium-weight label.",
+              "$value": "{tanrei.sys.typescale.body-small}"
+            }
+          },
+          "trailing-icon": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product marks some rows with a glyph at their end — a destination that opens elsewhere, the chevron of a group — smaller than the destination's own icon so it reads as a mark, not a second destination.",
+                "since": "0.1.0"
+              }
+            },
+            "size": {
+              "$type": "dimension",
+              "$description": "A glyph at the row's end: the trailing slot's glyph, and a group's chevron.",
+              "$value": "{tanrei.sys.icon.small}"
+            }
+          },
+          "badge": {
+            "typescale": {
+              "$type": "typography",
+              "$description": "Kept for the platforms that still draw a destination's trailing string as a badge, which draw it with this; the current spec reads item.trailing-text.typescale. Dropped once the last platform catches up.",
+              "$value": "{tanrei.sys.typescale.label-small}"
+            }
+          }
+        },
+        "unselected": {
+          "item": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "An unselected destination draws no active indicator; hover, focus and press mix into it."
+                  }
+                }
+              }
+            },
+            "icon-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "An expanded row is marked by its item container; nothing is drawn behind its glyph."
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "badge": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-text.color}",
+                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.label.color}"
+              }
+            }
+          }
+        },
+        "selected": {
+          "item": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.secondary-container}",
+                "$description": "The active indicator: the selected row, in both forms."
+              }
+            },
+            "icon-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon-indicator.color}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}"
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}"
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}",
+                "$description": "On the active indicator the trailing text takes the indicator's content color; its regular weight keeps it quieter than the label."
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}"
+              }
+            },
+            "badge": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-text.color}",
+                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.selected.item.label.color}"
+              }
+            }
+          }
+        },
+        "collapsed-unselected": {
+          "item": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.container.color}",
+                "$description": "A collapsed destination that is not selected: as an expanded one's."
+              }
+            },
+            "icon-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon-indicator.color}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.icon.color}"
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.label.color}",
+                "$description": "The short label under the icon, where collapsedLabels draws one."
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-text.color}",
+                "$description": "Seen only while the drawer collapses: the trailing text fades out with the expanded label."
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.unselected.item.trailing-icon.color}",
+                "$description": "Seen only while the drawer collapses."
+              }
+            },
+            "badge": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.trailing-text.color}",
+                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.collapsed-unselected.item.icon.color}"
+              }
+            }
+          }
+        },
+        "collapsed-selected": {
+          "item": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.selected.item.container.color}",
+                "$description": "The active indicator of a collapsed drawer: the selected row with its label gone, in the expanded row's color."
+              }
+            },
+            "icon-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.selected.item.icon-indicator.color}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.selected.item.icon.color}"
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.selected.item.label.color}",
+                "$description": "The short label on the collapsed active indicator, where collapsedLabels draws one."
+              }
+            },
+            "trailing-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-text.color}",
+                "$description": "Seen only while the drawer collapses."
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.selected.item.trailing-icon.color}",
+                "$description": "Seen only while the drawer collapses."
+              }
+            },
+            "badge": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.trailing-text.color}",
+                "$description": "Kept for the platforms that still draw a destination's trailing string as a badge."
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-drawer.collapsed-selected.item.icon.color}"
+              }
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long a state change takes, and how long the item containers take to change color when the selection changes."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "enter-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$description": "How long a drawer takes to slide in (and its scrim to fade in), or a standard drawer to open in the layout."
+          },
+          "enter-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+          },
+          "exit-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$description": "How long a drawer takes to slide out (and its scrim to fade out), or a standard drawer to close in the layout."
+          },
+          "exit-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+          },
+          "selection-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$description": "How long an icon indicator takes to grow in (and the previous one to fade out), and short labels to appear and disappear, when the selection changes. The item container does not use it: it changes color in place over state-duration.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product animates a change of the current destination at its own pace, apart from how its presses are answered and how its drawer opens.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "selection-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "The curve of selection-duration.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "expand-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.duration}",
+            "$description": "How long the drawer takes to widen from the icon column to its full width, or to narrow back, with every part that changes on the way (the edge, the labels, the active indicator, the header).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product widens and narrows its drawer in place, a change of the whole panel's size that it times apart from sliding a closed drawer in or out.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "expand-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.easing}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "The curve of expand-duration.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "disclosure-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$description": "How long a group takes to open or close: its destinations revealed or hidden, the rows below moving, and its chevron turning.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product opens a group of destinations as a small local change, faster or slower than a change of the current destination or of the drawer's width.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "disclosure-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "The curve of disclosure-duration.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

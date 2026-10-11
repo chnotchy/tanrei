@@ -1,0 +1,227 @@
+---
+title: Link card
+description: One link drawn as a block. The destination's title, a sentence about it, its picture and the site it is on, from values the card is given and never loads.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import picture from '../../../../../../packages/web/test/fixtures/link-card.png?inline';
+import icon from '../../../../../../packages/web/test/fixtures/site-icon.png?inline';
+
+## Overview
+
+<ComponentAvailability name="link-card" />
+
+<DemoFrame label="A link card with every part" plain column>
+  <tanrei-link-card class="not-content" style="inline-size: 100%" href="https://example.com/articles/designing-with-tokens" headline="Designing with tokens" description="How a handful of dials becomes a whole system." site-name="Example Journal" image={picture} site-icon={icon} external="on" external-label="external link"></tanrei-link-card>
+</DemoFrame>
+
+A link card shows a destination as a thing in itself: its title, a sentence about it, a picture where it has one, and the site it is on. It is one link. The whole block is pressed, and nothing inside it is pressed by itself.
+
+- A phrase in a sentence that leads somewhere is a [Link](/components/link/).
+- A group of your own content that leads somewhere is a [Card](/components/card/) with a destination.
+- A preview with its own buttons (save, share, dismiss) is a Card that holds a Link and those buttons.
+
+**The component fetches nothing.** It draws the values you give it and never asks the destination, a proxy or any service for anything about `href`. The only requests it makes are for the picture and the site icon you hand it. How a site gets the values is under [Getting the values](#getting-the-values).
+
+On the web it is `<tanrei-link-card>` around your own anchor. The element has no shadow root, so the card is a link before any script runs. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link-card.css" />
+
+    <tanrei-link-card>
+      <a href="https://example.com/articles/designing-with-tokens" data-external="true">
+        <span data-part="body">
+          <span data-part="title" dir="auto">Designing with tokens</span>
+          <span data-part="description" dir="auto">How a handful of dials becomes a whole system.</span>
+          <span data-part="site">
+            <img data-part="site-icon" src="/link-pictures/icon.png" alt=""
+                 loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+            <span data-part="site-name"><span dir="auto">Example Journal</span></span>
+            <span data-part="address"><bdi data-part="host" dir="ltr"><span>example.</span><span>com</span></bdi></span>
+          </span>
+          <span data-part="words">external link</span>
+        </span>
+        <img data-part="media" src="/link-pictures/picture.png" alt="" width="1200" height="630"
+             loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+      </a>
+    </tanrei-link-card>
+
+    <script type="module">
+      import '@tanrei/web/components/link-card';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LinkCard } from '@tanrei/react';
+    import '@tanrei/web/icons.css';
+    import '@tanrei/web/link-card.css';
+
+    <LinkCard
+      href={link.href}
+      headline={link.title}
+      description={link.description}
+      siteName={link.siteName}
+      image={link.image?.src}
+      siteIcon={link.siteIcon?.src}
+      external="on"
+      externalLabel="external link"
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+You do not write that markup by hand. `linkCardToHtml()` and `linkCardToNodes()` of `@tanrei/web/links` write it from the values, so the card is whole in the first paint and with scripting off.
+
+### A card built by script
+
+A `<tanrei-link-card>` that holds no anchor builds one from its attributes. Each value is written as text, never as markup.
+
+```html
+<tanrei-link-card
+  href="https://example.com/articles/designing-with-tokens"
+  headline="Designing with tokens"
+  description="How a handful of dials becomes a whole system."
+  site-name="Example Journal"
+></tanrei-link-card>
+```
+
+The title's attribute is `headline`, because HTML's own `title` would show a tooltip over the card. This form is drawn only once the script has run. Write the markup at build time on a content page.
+
+## Specs
+
+<DemoFrame label="Two looks" plain column>
+  <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
+    <tanrei-link-card href="/components/link/" headline="Link" description="Text that leads somewhere: a phrase in a sentence, a line by itself, a glyph alone."></tanrei-link-card>
+    <tanrei-link-card variant="filled" href="/components/card/" headline="Card" description="A surface that groups related content and actions about one subject."></tanrei-link-card>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="link-card" />
+
+## Guidelines
+
+### What you give it
+
+| Value | Attribute | Drawn as |
+| --- | --- | --- |
+| `href` | `href` | The destination. The host under the text is read from it and from nothing else. |
+| `title` | `headline` | The title, on two lines at most. The card's accessible name. |
+| `description` | `description` | A sentence or two, on two lines at most. |
+| `image`, `imageAlt` | `image`, `image-alt` | A picture that covers its box, cropped at its centre. `imageAlt` is read, never drawn. |
+| `siteName` | `site-name` | What the site calls itself, before the host. |
+| `siteIcon` | `site-icon` | The site's small icon, at the start of the site line. |
+| `target`, `targetLabel` | `target`, `target-label` | `new` opens a new tab and draws its mark. Give the words. |
+| `external`, `externalLabel` | `external`, `external-label` | `auto` (default), `on` or `off`, as for the Link. |
+| `variant` | `variant` | `outlined` (default) or `filled`. |
+
+### Where it leads
+
+Everything else in the card is what the destination says about itself, and a destination can say anything. So one part is not the destination's to say.
+
+- The host is computed from `href`. No value sets it, replaces it or hides it. A host written in the markup that differs is replaced when the element is defined, and a debug build reports it.
+- The site's name stands before the host, never in its place. It is left out where it only repeats the host.
+- The host is never cut. In a short line the site's name gives way first, and a host longer than the line wraps.
+- An internationalised host is shown in its own script only when that is safe: every such label in one script, or in the scripts Japanese, Korean or Chinese are written in together. A Latin name with one borrowed letter, and a Cyrillic or Greek word under an ASCII ending, stay in the `xn--` form.
+- The host is read to assistive technology as part of the card's description.
+
+A card does not judge its destination. A page may still describe itself falsely; the host beside the description is the reader's check. Look-alike letters inside one script are not caught.
+
+### Missing parts
+
+<DemoFrame label="A title only, and a path of your own" plain column>
+  <div class="not-content" style="display: grid; gap: 1rem; inline-size: 100%">
+    <tanrei-link-card href="https://example.com/articles/designing-with-tokens" headline="Designing with tokens" external="off"></tanrei-link-card>
+    <tanrei-link-card href="/foundations/design-tokens/" headline="Tokens" description="The dials, the system roles and the component bindings."></tanrei-link-card>
+  </div>
+</DemoFrame>
+
+| Given | Drawn |
+| --- | --- |
+| No picture, or a picture that fails | The same card without the picture box. Nothing stands in its place. |
+| No description | The title and the site line. |
+| A title only | The title, and the host from the address. |
+| An address only | The address in the title's place. Give a title: a debug build reports its absence. |
+| A path of your own (`/guides/`) | No host, so no site line. A title and a sentence. |
+| No destination, or a script | Not a link and not drawn as a card. The title as plain text. |
+
+### Layout
+
+- The card is a block. It takes the width its container gives it and is as tall as what it holds. It brings no space of its own around it.
+- From 480 wide the picture stands beside the text, at the end edge. Narrower, it stands above the text. The card decides from its own width, not the window's, and the boundary grows with the text size.
+- The element is a size container, so it needs a width from its layout. In a flex row or a grid cell, give it one.
+- In long-form text it is a block like a figure. It never sits inside a sentence.
+
+### A new tab, and another site
+
+- `target="new"` draws `open_in_new` at the end of the site line. Give `target-label` ("opens in a new tab"); the mark alone is not read.
+- A destination on another site that opens where the person is draws `arrow_outward`. Whether it is external is the Link's rule: `external="auto"` reads the address against the page's origin and `setSiteOrigins()`. The words are `external-label`, or the ones you set once with `setExternalLabel()`.
+- Never two marks. A new tab wins.
+
+Tanrei ships no words. Give them in your product's language.
+
+### Getting the values
+
+The card draws what it is given. Read a destination **where your site is built**, not while a page is read.
+
+`@tanrei/web/links/node` is a Node module for that. `resolveLinkData()` reads a page once, on the machine that builds the site, and returns the values in the shape the card takes.
+
+```js
+import { linkCardToHtml, resolveLinkData } from '@tanrei/web/links/node';
+
+const result = await resolveLinkData(href, { site: ['docs.example.com'], lock: 'link-data.lock.json', pictureDirectory: 'public/link-pictures' });
+const html = result.ok ? linkCardToHtml(result.data) : `<a href="${href}">${href}</a>`;
+```
+
+- What was read is kept in `link-data.lock.json`, a file you commit. A build reads that file and never the network. `tanrei-links update` refreshes it, and the change is a diff a person reviews.
+- Pictures are stored among your site's own files, after your own image step has encoded them anew. A reader's browser then asks only the site it is already on.
+- The helper reads public `https` addresses only, checks every redirect, bounds time and size, and takes every field as text.
+- An address that fails gives no card. Draw an ordinary link.
+
+The package's README has the whole of it under "Reading a destination where the site is built".
+
+If your product looks destinations up while people use it (a message with an address in it), do that in a service of your own, and feed the card the same values. Such a service must refuse any address that is not a public one, check again after every redirect and at the moment of connecting, bound the time and the size of every answer, return text and never markup, serve pictures from your own origin, and never return a host: the card computes it. Tanrei ships no such service.
+
+### Do
+
+- Give the destination's real title. Never put a host or an address into the title.
+- Keep pictures among your own files. A picture loaded from another site tells that site who is reading.
+- Use `outlined` in running text. Use `filled` where the page already has many lines.
+
+### Don't
+
+- Don't put a button or a second link inside a link card. It is made inert and reported.
+- Don't put text a reader must have into a link card. Its text is a preview and may be cut.
+- Don't give `image-alt` unless the picture says something the title does not.
+
+## Accessibility
+
+<ComponentAccessibility name="link-card" />
+
+### What the component handles
+
+- The card is one link and one stop of the keyboard. Enter follows it. Space scrolls the page, as on any link.
+- Its name is the title, or the address where there is none. Nothing is added to the name.
+- Its description is, in order: the description, the picture's alternative text, the site's name, the host, and last the words for a new tab or for another site.
+- A title or a description that is cut on the screen is exposed whole.
+- The picture, the site icon, the dot and the marks are decoration and are not read.
+- The focus ring is drawn outside the card, so a picture cannot hide it.
+- With text at 200% in a place 320 wide the picture moves above the text, the host stays whole and nothing scrolls sideways.
+- In forced colors both looks have an edge and the title takes the system's link color.
+- In a right-to-left layout the picture stands at the left and the text starts at the right. A left-to-right title keeps its own order. The host is always left to right.
+- Text you give is drawn as plain text. Characters that reverse the order of text are dropped.
+
+### What you need to do
+
+- Give `target-label` whenever `target` is `new`, and words for external links.
+- Give a title. An address is a poor name.
+- Give the card a width from its layout.

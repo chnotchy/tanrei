@@ -1,0 +1,196 @@
+---
+title: 空の状態
+description: あるはずのコンテンツがない場所に置くものです。結果のない検索、まだ何も追加されていないリスト、最初の項目ができる前のページなどで、何がないのか、なぜないのか、何をすればよいのかを伝え、そのためのアクションを示します。
+translationOf: components/empty-state.mdx
+sourceHash: 26030d545cec035e6eea1eee4b315425bdb08acd
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="empty-state" />
+
+<DemoFrame label="まだ何も追加されていないリストと、何も見つからなかった検索" column>
+  <tanrei-empty-state headline="プロジェクトはまだありません" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>プロジェクトは、1 つのデザインシステムのレイヤ、エクスポート、メンバーをまとめます。<tanrei-button slot="actions">新しいプロジェクト</tanrei-button><tanrei-button slot="actions" variant="text">レイヤをインポート</tanrei-button></tanrei-empty-state>
+  <tanrei-empty-state headline="「tokne」に一致する結果はありません" style="inline-size: min(100%, 30rem)"><span slot="media">search_off</span>つづりを確認するか、もっと短い言葉で検索してください。<tanrei-button slot="actions" variant="outlined">検索語を消去</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+空の状態は、コンテンツがあるはずの場所に何もないときに、その場所に置きます。リスト、行、検索結果の代わりになります。何がないのかを短い言葉で、なぜないのか、何をすればよいのかを 1 文で伝え、そのためのコントロールを示します。控えめで平らです。塗りも縁もありません。コンテンツとして、ある場所で読まれます。フォーカスを受けず、状態も持ちません。
+
+Web では `<tanrei-empty-state>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+説明は要素自身の内容です。タイトルは `headline` 属性で渡すか、見出しやプロダクト側のコンテンツにする場合は `title` スロットに入れます。アイコンセットのグリフやプロダクト側の画像は `media` スロットに、プロダクト側のボタンやリンクは `actions` スロットに入れます。文言はすべて利用者側で用意します。コンポーネントは文言を持ちません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- ビューの中の領域：グリフ、タイトル、1 文、アクション。 -->
+    <tanrei-empty-state headline="プロジェクトはまだありません">
+      <span slot="media">folder_open</span>
+      プロジェクトは、1 つのデザインシステムのレイヤ、エクスポート、メンバーをまとめます。
+      <tanrei-button slot="actions">新しいプロジェクト</tanrei-button>
+      <tanrei-button slot="actions" variant="text">レイヤをインポート</tanrei-button>
+    </tanrei-empty-state>
+
+    <!-- 全体が空のページ：large にして、タイトルをページの見出しにします。 -->
+    <tanrei-empty-state size="large">
+      <h1 slot="title">このページは存在しません</h1>
+      アドレスの入力が間違っているか、ページが移動した可能性があります。
+      <a slot="actions" class="tanrei-link" href="/">トップページへ</a>
+    </tanrei-empty-state>
+
+    <!-- サイドパネルの中：リストが始まるはずだった先頭側の端に寄せます。 -->
+    <tanrei-empty-state align="start" headline="ベースとの違いはまだありません">
+      左側で値を変更すると、ここに一覧表示されます。
+    </tanrei-empty-state>
+
+    <!-- 絞り込みの結果として現れる場合：表示されたときに 1 回、控えめに読み上げます。 -->
+    <tanrei-empty-state id="no-rows" live hidden headline="条件に一致する項目はありません">
+      3 つの条件で絞り込んでいます。1 つ外すと、表示される項目が増えます。
+      <tanrei-button slot="actions" variant="outlined">絞り込みを解除</tanrei-button>
+    </tanrei-empty-state>
+
+    <script type="module">
+      import '@tanrei/web/components/empty-state';
+      import '@tanrei/web/empty-state.css'; // サーバーで描画した空の状態が、要素の定義前に保つ場所
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, EmptyState } from '@tanrei/react';
+
+    {rows.length === 0 && (
+      <EmptyState live headline="条件に一致する項目はありません">
+        3 つの条件で絞り込んでいます。1 つ外すと、表示される項目が増えます。
+        <Button slot="actions" variant="outlined" onClick={clearFilters}>絞り込みを解除</Button>
+      </EmptyState>
+    )}
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="パーツを 1 つずつ加えたもの" plain column>
+  <tanrei-empty-state headline="プロジェクトはまだありません" style="inline-size: min(100%, 30rem)"></tanrei-empty-state>
+  <tanrei-empty-state headline="プロジェクトはまだありません" style="inline-size: min(100%, 30rem)">プロジェクトは、1 つのデザインシステムのレイヤ、エクスポート、メンバーをまとめます。</tanrei-empty-state>
+  <tanrei-empty-state headline="プロジェクトはまだありません" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>プロジェクトは、1 つのデザインシステムのレイヤ、エクスポート、メンバーをまとめます。</tanrei-empty-state>
+  <tanrei-empty-state headline="プロジェクトはまだありません" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>プロジェクトは、1 つのデザインシステムのレイヤ、エクスポート、メンバーをまとめます。<tanrei-button slot="actions">新しいプロジェクト</tanrei-button><tanrei-button slot="actions" variant="text">レイヤをインポート</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+<DemoFrame label="先頭側の端に寄せたものと、large のサイズ" plain column>
+  <tanrei-empty-state align="start" headline="ベースとの違いはまだありません" style="inline-size: min(100%, 30rem)">左側で値を変更すると、ここに一覧表示されます。</tanrei-empty-state>
+  <tanrei-empty-state size="large" headline="このページは存在しません" style="inline-size: min(100%, 30rem)"><span slot="media">explore_off</span>アドレスの入力が間違っているか、ページが移動した可能性があります。<tanrei-button slot="actions" variant="outlined">トップページへ</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+<ComponentSpecs name="empty-state" />
+
+## ガイドライン
+
+### 空の状態、コールアウト、スナックバー、ステータステキスト
+
+| 種類 | 何であるか | どこにあるか |
+| --- | --- | --- |
+| 空の状態 | ないコンテンツの場所に置くもの。 | リスト、行、検索結果があるはずの場所。 |
+| [コールアウト](/ja/components/callout/) | そこにあるコンテンツについての通知。 | そのコンテンツのそば、流れの中。 |
+| [スナックバー](/ja/components/snackbar/) | たった今起きたことの結果。 | コンテンツの上に、短い間。 |
+| 検索のステータステキスト | 見つかった件数（「tokne に一致する結果はありません」）。 | 検索自身のステータス行。 |
+
+空の場所はエラーではありません。読み込みに失敗したコンテンツは、同じ場所に置くエラーステータスのコールアウトです。まだ読み込み中のコンテンツはローディングインジケーターです。読み込み中、空、失敗という領域の 3 つの状態を切り替えるのは、その領域です。空の状態が自分で現れたり隠れたりすることはありません。
+
+### サイズ
+
+| `size` | 上下の余白 | グリフ | タイトル | 説明 | 用途 |
+| --- | --- | --- | --- | --- | --- |
+| `medium`（既定） | 32 | 32 | 16 | 14 | ビューの中の領域。リスト、表の本体、カード、パネル、検索結果。 |
+| `large` | 64 | 48 | 20 | 16 | 全体が空のビュー。最初の項目ができる前のページ、見つからなかったページ。 |
+
+ブロックの幅は領域の幅で、高さは内容とパディングの分です。領域のほうが高い場合に、その中でブロックをどこに置くか（中央に置く、表の最小の高さを保つなど）は、領域が決めます。テキストは 1 行あたり欧文でおよそ 60 文字、和文でおよそ 30 文字（説明の文字サイズの 30 倍）までに収めます。幅の広い表の中央に置いた 1 文が、端から端まで伸びることはありません。
+
+### 配置
+
+`align` の `center`（既定）は、ほかに何もない領域のためのものです。`start` は、幅の狭い列、サイドパネルのリスト、ヘッダーが見えたままの表のためのものです。メッセージは、コンテンツが始まるはずだった位置から始まります。
+
+### タイトル
+
+`headline` はプレーンテキストであり、見出しにはなりません。空の状態がページの主要な領域のすべてである場合、ページにはふつう見出しが必要です。アウトラインに合うレベルの見出しを `title` スロットに入れます。空の状態はそれをほかのタイトルと同じように描き、ロールもレベルも変えません。すでにタイトルのあるカードの中では、テキストで十分です。
+
+サーバーで描画するページでは、タイトルを `title` スロットで渡します。`headline` 属性は要素が描くため、要素が定義されるまで表示されません。
+
+### メディア
+
+グリフは、要素に入れた名前で渡します。`<span slot="media">folder_open</span>` のように書きます。メディアのサイズで、控えめな色で描かれます。スロットに入れたそれ以外のもの（`<img>`、`<svg>`、プロダクト側の要素）は画像です。自身のサイズと色を保ち、ブロックより広くなることはなく、左右反転もしません。メディアは装飾であり、支援技術からは隠されます。先へ進む唯一の手段を画像の中に置かないでください。Tanrei はイラストを同梱しません。
+
+### アクション
+
+アクションは、プロダクト側の[ボタン](/ja/components/button/)またはリンクで、1 つか 2 つです。主となるものを先に置きます。空の状態はそれらを折り返す行に並べるだけで、ほかには何もしません。ラベルが行より長いアクションは、その行の幅になります。このときボタンはラベルを折り返すので、途中で切れるものも、ブロックからはみ出すものもありません。
+
+<DemoFrame label="幅の狭い列では、アクションが 1 行ずつになり、長いラベルは折り返す" plain column>
+  <tanrei-empty-state headline="結果はありません" style="inline-size: 14rem"><span slot="media">search_off</span>つづりを確認してください。<tanrei-button slot="actions" variant="outlined">検索語を消去</tanrei-button><tanrei-button slot="actions" variant="text">ドキュメントの目次の一覧を開く</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+### 何かへの応答として現れる
+
+`live` は、人がたった今行ったことの結果として現れる空の状態のためのものです。どの行にも一致しない絞り込みや、最後の項目の削除などです。表示されたときと、テキストが変わったときに、1 回、控えめに読み上げられます。読み上げるのはタイトル、次に説明で、アクションは読み上げません。`hidden` を付けてページに置いておくか、必要になったときに追加します。
+
+<DemoFrame label="押したことへの応答として表示される、ライブの空の状態" plain column>
+  <tanrei-button variant="outlined" onclick="document.getElementById('empty-state-demo-live').hidden = false">3 つの条件で絞り込む</tanrei-button>
+  <tanrei-empty-state id="empty-state-demo-live" live hidden headline="条件に一致する項目はありません" style="inline-size: min(100%, 30rem)">3 つの条件で絞り込んでいます。1 つ外すと、表示される項目が増えます。<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-empty-state').hidden = true">絞り込みを解除</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+ページのマークアップにあり、ページの読み込み時に表示されているものは、そのときには読み上げられません。Web では、ページの読み込み後にスクリプトが追加したライブの空の状態は読み上げられます。要素は、何かへの応答として追加されたものと、シングルページアプリケーションの新しいビューとともに追加されたものを区別できません。新しいビューの一部であるだけの空の状態には、`live` を付けないでください。
+
+[検索](/ja/components/search/)では、結果の件数は検索自身のステータステキストであり、すでに読み上げられます。検索のビューに空の状態も表示する場合は、`live` を付けないでください。同じ言葉が 2 回読み上げられてしまいます。
+
+### 表とリストの中
+
+行のない表は、キャプションとヘッダー行を保ちます。空の状態は、本体の行があるはずの場所に置きます。列全体にまたがる 1 つのセルの中か、表のすぐ後です。項目のないリストは、項目が 1 つのリストではありません。空の状態はリストの代わりに置きます。
+
+### 要素が定義される前
+
+説明、タイトルのスロット、アクションは要素自身の子なので、文書の中にあります。ページ内検索で見つかり、翻訳され、選択でき、スクリプトなしで読めます。`@tanrei/web/empty-state.css` は、まだ定義されていない空の状態に、パディング、テキストスタイル、配置を与えます。そのため、言葉は定義後と同じ場所で読めます。定義されるまでは、グリフなしで表示されます。
+
+### 推奨
+
+- 何がないのかをタイトルに平易な言葉で書き、何をすればよいのかを説明に書きます。
+- その場所を埋めるアクションか、求めた条件を変えるアクションを示します。
+- 結果のない検索では、人が入力した言葉をタイトルに引用します。
+
+### 非推奨
+
+- ステータスの色やアラートのロールを与えない。空の場所は、コンテンツについての事実です。
+- ビューを開いたときから空である場所に `live` を使わない。
+- 中央に置いた灰色の文を手で描かない。項目ではないものを 1 つだけ入れたリストも作りません。
+- オプションのないメニューのような、コントロールの中の 1 行の「何もありません」には使わない。それはコントロール自身のテキストです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="empty-state" />
+
+### コンポーネントが担うこと
+
+- ロールも名前もない、ふつうのコンテンツです。タイトル、説明、アクションの順に、ある場所で読まれます。
+- `live` を付けると、自身のステータス領域を通じて、1 回、控えめに読み上げられます。ページの表示後に現れたときと、タイトルまたは説明が変わったときです。割り込んで読み上げることはありません。
+- グリフや画像は支援技術から隠されます。
+- テキストで渡したタイトルはプレーンテキストです。`title` スロットの見出しはレベルを保ちます。
+- フォーカスが止まる位置にはならず、フォーカスを動かすこともありません。Tab は説明の中のリンク、次にアクションへ進みます。
+- 文字を拡大すると、すべてが折り返されて大きくなります。幅 320 で文字が 200% のときも横スクロールは起きず、アクションは 1 行ずつに並びます。
+- 強制カラーモードでは、グリフ、タイトル、説明を文字色で描きます。塗りに頼るものはありません。
+- 右から左のレイアウトでは、先頭側は右端になり、最初のアクションが右に来ます。アイコンセットが反転の対象にしているグリフは左右反転し、左から右の検索語を引用したタイトルでは、検索語の中の並びが保たれます。
+- 未知のサイズや配置、タイトルも説明もない空の状態、説明だけがあってタイトルのない空の状態は、デバッグビルドで報告されます。
+
+### 利用者側で行うこと
+
+- すべての文言をページの言語で書きます。コンポーネントは文言を用意しません。
+- ページに見出しが必要な場合は、`title` スロットに見出しを入れます。
+- `live` は、何かへの応答として現れる空の状態にだけ使います。同じことを伝える別のライブリージョンのそばでは使いません。
+- `media` スロットにコントロールを入れないでください。支援技術から隠されます。
+- アクションには収まるラベルを付けます。行が短ければラベルは折り返されますが、行より長い 1 語は折り返せません。

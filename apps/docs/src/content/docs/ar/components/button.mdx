@@ -1,0 +1,377 @@
+---
+title: الزر
+description: يتيح للأشخاص تنفيذ إجراء، أو تشغيل شيء وإيقافه، أو الذهاب إلى وجهة، بنقرة واحدة.
+translationOf: components/button.mdx
+sourceHash: d3c82e9e9c52acaafaa279ddf1b5083da7264b09
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="button" />
+
+<DemoFrame label="الطُرُز">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+### الاستخدام
+
+تعرض عيّنتا Web و React المواصفة الحالية. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: ما زالت تقدّم المراجعة السابقة من الزر، وفيها تكون هيئة الأيقونة وحدها والتبديل زر أيقونة منفصلًا، وليس فيها عروض للزر ذي الأيقونة وحدها ولا هيئة الرابط. وتعرض عيّناتها تلك المراجعة إلى أن تلحق بالمواصفة.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="filled">نشر</tanrei-button>
+    <tanrei-button variant="outlined" size="small">إلغاء</tanrei-button>
+    <tanrei-button disabled>جارٍ النشر…</tanrei-button>
+
+    <!-- مع href يكون رابطًا، مرسومًا بهيئة الزر نفسه. -->
+    <tanrei-button variant="tonal" href="/pricing/">عرض الأسعار</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      document.querySelector('tanrei-button').addEventListener('click', deploy);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button variant="filled" onClick={deploy}>نشر</Button>
+    <Button variant="outlined" size="small" onClick={cancel}>إلغاء</Button>
+    <Button disabled>جارٍ النشر…</Button>
+
+    // مع href يكون رابطًا، مرسومًا بهيئة الزر نفسه.
+    <Button variant="tonal" href="/pricing/">عرض الأسعار</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButton("نشر", variant: .filled) { deploy() }
+    TanreiButton("إلغاء", variant: .outlined, size: .small) { cancel() }
+
+    // التعطيل يتبع بيئة SwiftUI.
+    TanreiButton("جارٍ النشر…") {}
+      .disabled(true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.*
+
+    TanreiButton(text = "نشر", onClick = ::deploy, variant = TanreiButtonVariant.Filled)
+    TanreiButton(text = "إلغاء", onClick = ::cancel, variant = TanreiButtonVariant.Outlined, size = TanreiButtonSize.Small)
+
+    // يستخدم Compose الراية المعاكسة.
+    TanreiButton(text = "جارٍ النشر…", onClick = {}, enabled = false)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButton(variant: TanreiButtonVariant.filled, onPressed: deploy, child: const Text('نشر'));
+    TanreiButton(variant: TanreiButtonVariant.outlined, size: TanreiButtonSize.small, onPressed: cancel, child: const Text('إلغاء'));
+
+    // القيمة null في onPressed تعطّل الزر.
+    TanreiButton(onPressed: null, child: const Text('جارٍ النشر…'));
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button } from '@tanrei/react-native';
+
+    <Button variant="filled" onPress={deploy}>نشر</Button>
+    <Button variant="outlined" size="small" onPress={cancel}>إلغاء</Button>
+    <Button disabled>جارٍ النشر…</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+### أيقونة، وأيقونة وحدها، وأزرار التبديل
+
+يمكن أن يحمل الزر أيقونة بجانب تسميته، في البداية، أو في النهاية حين تُضبط الخاصية `iconPosition` على القيمة `trailing`. الحشو من جهة الأيقونة أضيق بدرجة من الحشو من جهة التسمية، فيبدو الاثنان متوازنين. ومن دون تسمية يكون الزر أيقونة وحدها: دائرة عرضها يساوي ارتفاع الزر، تسمّيها الخاصية `label`، وهي عندئذ مطلوبة. وحين تُضبط الخاصية `toggle` يبدّل الزر قيمة `selected` الخاصة به عند كل ضغطة، ويُظهر الحالة بألوانه وبتعبئة رسم الأيقونة (glyph)، ويُعلِنها حالةَ ضغط.
+
+<DemoFrame label="أزرار بأيقونة وحدها وزر تبديل">
+  <tanrei-button variant="text" label="بحث"><span slot="icon">search</span></tanrei-button>
+  <tanrei-button variant="tonal" label="تعديل"><span slot="icon">edit</span></tanrei-button>
+  <tanrei-button variant="outlined" toggle selected label="المفضلة"><span slot="icon">favorite</span></tanrei-button>
+  <tanrei-button variant="filled" icon-position="trailing">التالي<span slot="icon">arrow_forward</span></tanrei-button>
+</DemoFrame>
+
+زر الأيقونة ليس مكوّنًا منفصلًا في Tanrei. إن كنت تعرف أسماء Material، فهذا ما آلت إليه:
+
+| Material | Tanrei |
+| --- | --- |
+| زر الأيقونة (Icon button) | زر له أيقونة وليست له تسمية |
+| زر الأيقونة القياسي (Standard icon button) | الطراز `text` |
+| أزرار الأيقونة Filled و Tonal و Outlined | الطُرُز `filled` و `tonal` و `outlined` |
+| زر تبديل الأيقونة (Icon toggle button) | `toggle` و `selected` |
+
+أعطِ زر التبديل من الطراز text أيقونة. فمن دون حاوية، لا يُظهر زر التبديل من الطراز text الذي له تسمية فقط حالته إلا بتغيّر لون النص؛ أما تعبئة رسم الأيقونة فتجعل الحالة مرئية.
+
+### عروض الزر ذي الأيقونة وحدها
+
+للزر ذي الأيقونة وحدها ثلاثة عروض. لا يتغيّر ارتفاعه معها أبدًا، والزر الذي له تسمية يتجاهل الخاصية `width`.
+
+| `width` | في النظام الافتراضي (small و medium و large) | يُستخدم لـ |
+| --- | --- | --- |
+| `default` | عرضه يساوي ارتفاعه: 32 و 40 و 56، دائرة | معظم إجراءات الأيقونات. |
+| `narrow` | رسم الأيقونة وهامش داخلي صغير من كل جهة: 28 و 32 و 32، كبسولة | صف متراصّ من إجراءات الأيقونات، كالأدوات في نهاية حقل أو صف في جدول كثيف. |
+| `wide` | 40 و 52 و 72، كبسولة | الإجراء الوحيد في صف الذي ينبغي أن يكون أثقل وزنًا من جيرانه. |
+
+<DemoFrame label="عروض الأيقونة وحدها: default و narrow و wide" plain>
+  <tanrei-button variant="tonal" label="إضافة"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="narrow" label="إضافة"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="wide" label="إضافة"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="outlined" size="small" width="narrow" label="خيارات إضافية"><span slot="icon">more_vert</span></tanrei-button>
+  <tanrei-button variant="filled" size="large" width="wide" label="تشغيل"><span slot="icon">play_arrow</span></tanrei-button>
+</DemoFrame>
+
+الزر الضيق هو رسم أيقونته والهامش الداخلي من كل جهة بالضبط، فيبقى الرسم دائمًا بعيدًا عن حافة الكبسولة، ويتبع الزر الرسم حيثما غيّر نظام تصميم حجمه. يُرسم الزر أضيق من الحد الأدنى للهدف، لكن مساحة اللمس ليست كذلك: فالهدف يمتد إلى ما وراء حوافه المرئية. اترك له فسحة بجانب الزر، أو ضع الأزرار الضيقة في [شريط أدوات](/ar/components/toolbar/) أو في [مجموعة أزرار](/ar/components/button-group/)، فكلاهما يباعد بين عناصره.
+
+### الزر الذي له وجهة رابط
+
+أعطِ الزر الخاصية `href` فيصير رابطًا لا زرًّا: عنصر التحكم نفسه، مرسومًا من الرموز (tokens) نفسها في كل حالة، لكن بدور الرابط وبكل ما تمنحه المنصة للرابط. على الويب هو عنصر anchor حقيقي، فيستطيع الأشخاص فتحه في تبويب جديد، ونسخ عنوانه، ورؤية وجهته قبل أن يتبعوه. استخدم هذه الهيئة كلما كان تفعيل عنصر التحكم لا يفعل إلا نقل الشخص إلى مكان آخر. لا تنفّذ التنقل من معالج النقر على زر عادي.
+
+<DemoFrame label="روابط: في المكان نفسه، في تبويب جديد، بأيقونة وحدها، ومعطَّل" plain>
+  <tanrei-button href="/ar/components/button-group/">مجموعة الأزرار</tanrei-button>
+  <tanrei-button variant="outlined" href="/ar/components/toolbar/" target="new" target-label="يُفتح في تبويب جديد">شريط الأدوات</tanrei-button>
+  <tanrei-button variant="text" href="/ar/components/" label="كل المكوّنات"><span slot="icon">apps</span></tanrei-button>
+  <tanrei-button variant="tonal" href="/ar/components/button-group/" disabled>مجموعة الأزرار</tanrei-button>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button href="/getting-started/">البدء</tanrei-button>
+
+    <!-- تبويب جديد: العلامة التي بعد التسمية تُرسم لك؛ و target-label هو ما يسمعه قارئ الشاشة. -->
+    <tanrei-button variant="outlined" href="https://example.com/source" target="new" target-label="يُفتح في تبويب جديد">
+      عرض المصدر
+    </tanrei-button>
+
+    <!-- على الويب فقط: rel و download يذهبان إلى عنصر anchor. -->
+    <tanrei-button variant="tonal" href="/report.pdf" download="report.pdf"><span slot="icon">download</span>تنزيل التقرير</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      // الحدث click يصدر أولًا. الموجِّه من جهة العميل يلغيه ويتولى التنقل بنفسه.
+      document.querySelector('[href="/getting-started/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button href="/getting-started/">البدء</Button>
+
+    <Button variant="outlined" href="https://example.com/source" target="new" targetLabel="يُفتح في تبويب جديد">
+      عرض المصدر
+    </Button>
+
+    // الحدث click يصدر أولًا. الموجِّه من جهة العميل يلغيه ويتولى التنقل بنفسه.
+    <Button
+      href="/getting-started/"
+      onClick={(event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      }}
+    >
+      البدء
+    </Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **المفاتيح.** المفتاح Enter يتبع الرابط. والمفتاح Space يفعل ما يفعله على أي رابط (على الويب يمرّر الصفحة)، لا ما يفعله على زر.
+- **الخاصية `target`.** القيمة `same` (الافتراضية) تفتح الوجهة حيث يكون الشخص. والقيمة `new` تفتح تبويبًا جديدًا أو نافذة جديدة. عندئذ يعرض الزر الذي له تسمية رسم الأيقونة `open_in_new` بعد تسميته، ما لم تكن أيقونتك الخاصة في النهاية هناك، وتصير الخاصية `targetLabel` مطلوبة: لا يقدّم Tanrei كلمات من عنده، فتقول أنت «يُفتح في تبويب جديد» بلغة منتجك.
+- **التعطيل.** زر الرابط المعطَّل لا يمكن اتباعه ولا نسخه ولا سحبه، ويُعرَّف للتقنيات المساعدة رابطًا معطَّلًا.
+- **أزرار التبديل.** زر التبديل يحمل حالة، فلا يأخذ وجهة: تُتجاهل الخاصية `href` ما دامت الخاصية `toggle` مضبوطة.
+- **على الويب فقط**، تُمرَّر الخاصيتان `rel` و `download` إلى عنصر anchor. وضبط `target` على القيمة `new` يضيف دائمًا `noopener` إلى `rel`.
+- لا مظهر خاصًّا للرابط الذي سبقت زيارته. لون زر الرابط يقول مقدار توكيده وحالته، كما يفعل لون أي زر.
+
+### في نموذج
+
+على الويب يكون الزر واحدًا من عناصر التحكم في نموذجه، والخاصية `type` تقول ما تفعله الضغطة بالنموذج. أما المنصات الأخرى فليس فيها عنصر نموذج: هناك تستدعي دالة واحدة من ضغطة الزر ومن `action` الخاصة بالحقل.
+
+| `type` | ما تفعله الضغطة |
+| --- | --- |
+| `button` (الافتراضية) | لا تفعل شيئًا بالنموذج. يستطيع زر في نموذج أن يفتح منتقيًا أو يضيف صفًّا من دون أن يرسل شيئًا. |
+| `submit` | تطلب من النموذج أن يُرسَل، كما يفعل زر الإرسال الخاص بالمتصفح: الحدث `click` أولًا، ثم تحقق النموذج، ثم حدثه `submit`. |
+| `reset` | تعيد كل عنصر تحكم في النموذج إلى قيمته الأولى، بعد الحدث `click` وحدث `reset` الخاص بالنموذج. |
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form id="profile">
+      <tanrei-text-field label="الاسم" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-button type="reset" variant="text">مسح</tanrei-button>
+      <tanrei-button type="submit" variant="outlined" name="intent" value="draft">حفظ المسودة</tanrei-button>
+      <tanrei-button type="submit" name="intent" value="publish">نشر</tanrei-button>
+    </form>
+
+    <!-- خارج النموذج: الخاصية form تسمّيه بمعرّفه (id). -->
+    <tanrei-button type="submit" form="profile" name="intent" value="publish">نشر</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/text-field';
+      document.querySelector('#profile').addEventListener('submit', (event) => {
+        event.preventDefault();
+        // اسم الزر المضغوط وقيمته في البيانات: "draft" أو "publish".
+        const data = new FormData(event.target, event.submitter);
+        save(data.get('name'), data.get('intent'));
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, TextField } from '@tanrei/react';
+
+    <form
+      id="profile"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget, (event.nativeEvent as SubmitEvent).submitter);
+        save(data.get('name'), data.get('intent'));
+      }}
+    >
+      <TextField label="الاسم" name="name" requirement="required" />
+      <Button type="reset" variant="text">مسح</Button>
+      <Button type="submit" variant="outlined" name="intent" value="draft">حفظ المسودة</Button>
+      <Button type="submit" name="intent" value="publish">نشر</Button>
+    </form>
+
+    // خارج النموذج: قيمة form هي معرّف النموذج (id).
+    <Button type="submit" form="profile" name="intent" value="publish">نشر</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **أي نموذج.** النموذج الذي يحيط بالزر، أو الذي تسمّيه خاصية HTML `form` بمعرّفه (id)، وبهذا يرسل زر في إجراءات مربع حوار أو في رأس صفحة نموذجًا لا يقع داخله. أما خاصية العنصر `form` فتعيد ذلك النموذج ولا يمكن ضبطها.
+- **المفتاح Enter في حقل.** أول زر إرسال في النموذج هو زره الافتراضي، سواء أكان زرًّا من Tanrei أم زر المتصفح نفسه. والمفتاح Enter في حقل من حقول النموذج يضغطه: في حقل النص وحقل العدد وحقل اللون ومربع التحرير والسرد وحقل إدخال الرمز لمرة واحدة والبحث من Tanrei، وعلى خانة الاختيار وزر الاختيار ومفتاح التبديل من Tanrei، وفي حقول الإدخال ذات السطر الواحد الخاصة بالمتصفح. ويُصدر الزر الحدث `click` كما في أي ضغطة، وإلغاء ذلك الحدث يلغي الإرسال.
+- **التعطيل.** زر الإرسال المعطَّل لا يرسل شيئًا، وما دام هو الزر الافتراضي للنموذج فهو يوقف المفتاح Enter أيضًا، فلا يُرسَل نموذج غير جاهز من وراء زره. والزر داخل `<fieldset disabled>` يتعطّل معه، أيًّا كانت قيمة `type`. أما زر الرابط داخل `<fieldset disabled>` فلا يتعطّل.
+- **أي زر ضُغط.** لا تُرسَل `name` و `value` إلا حين يكون ذلك الزر هو الذي أرسل النموذج. اقرأهما في مستمع الحدث `submit` من `event.submitter.value` أو من `new FormData(form, event.submitter)`. والمُرسِل (submitter) `event.submitter` ليس عنصر Tanrei. إنه زر `<button>` أصلي يضعه العنصر في مكانه هو أثناء إصدار الحدث `submit`، فلا تقارن `event.submitter` بالعنصر.
+- **طريقة إرسال النموذج** شأن النموذج وحده. الخصائص `formaction` و `formmethod` و `formenctype` و `formtarget` و `formnovalidate` لا تُقرأ. ولحفظ مسودة بلا تحقق، اضبط `noValidate` للنموذج في مستمع الحدث `click` لذلك الزر، فهو يعمل قبل التحقق.
+- **الإرسال مرتين.** الزر لا يحمي من ضغطة ثانية. عطّله ما دام طلبك جاريًا، أو تجاهل الحدث `submit` الثاني.
+- **زر التبديل وزر الرابط** يتجاهلان `type`: الضغطة التي تبدّل حالة أو تذهب إلى مكان لا ترسل نموذجًا. وقيمة `type` التي ليست واحدة من الثلاث تسلك مسلك `button`.
+
+### اسم أطول من التسمية
+
+حين تُرسم الكلمة نفسها على عدة أزرار، مثل «إزالة» في كل صف من قائمة، لا تقول الكلمة وحدها لمستخدم قارئ الشاشة إلى أي صف ينتمي الزر. أعطِ كل زر `label`: فتصير عندئذ هي الاسم المتاح للتقنيات المساعدة كاملًا، مكان النص المرسوم، ويُرسم الزر تمامًا كما كان.
+
+<DemoFrame label="الكلمة نفسها في كل صف، وكل زر مسمًّى بصفه" plain>
+  <tanrei-button variant="text" size="small" label="إزالة: Inter">إزالة</tanrei-button>
+  <tanrei-button variant="text" size="small" label="إزالة: Noto Sans JP">إزالة</tanrei-button>
+  <tanrei-button variant="text" size="small" label="إزالة: Roboto Mono">إزالة</tanrei-button>
+</DemoFrame>
+
+| `label` | التسمية المرسومة | الاسم المتاح للتقنيات المساعدة |
+| --- | --- | --- |
+| معطاة | لا شيء (أيقونة وحدها) | `label` |
+| فارغة | مرسومة | النص المرسوم |
+| معطاة | مرسومة | `label`، كاملةً ووحدها |
+
+- **يجب أن يحتوي الاسم على النص المرسوم.** من يستخدم الإدخال الصوتي ينطق الكلمة التي يراها على الزر. ابدأ الاسم بتلك الكلمة حيث تسمح لغتك: «إزالة: Inter» لزر رُسمت عليه «إزالة». ولا أثر لحالة الأحرف ولا للمسافات الزائدة.
+- **تبلّغ بنيات التنقيح (debug)** عن `label` لا تحتوي على النص المرسوم. ويبقى الزر يستخدم الاسم الذي أعطيته. لا يرجع أبدًا إلى النص المرسوم ولا يضمّ الاثنين، لأن ترتيب العبارة شأن لغتك.
+- **الوصف ليس اسمًا.** ما يفرّق الزر من جيرانه هو اسمه. أما ما يحدث حين يُضغط، مثل «يُفتح في تبويب جديد»، فوصف يُقرأ بعد الاسم والدور.
+
+## المواصفات
+
+<DemoFrame label="الأحجام والتعطيل" plain>
+  <tanrei-button size="small">Small</tanrei-button>
+  <tanrei-button size="medium">Medium</tanrei-button>
+  <tanrei-button size="large">Large</tanrei-button>
+  <tanrei-button disabled>Disabled</tanrei-button>
+  <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
+</DemoFrame>
+
+<ComponentSpecs name="button" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم الزر لإجراء يحدث حيث يكون الشخص: إرسال نموذج، الحفظ، بدء عملية، تأكيد مربع حوار. وعلى الويب، الزر الذي يرسل نموذجه يقول ذلك بالخاصية `type` (انظر [في نموذج](#في-نموذج)).
+
+إن كان تفعيله لا يفعل إلا نقل الشخص إلى مكان آخر فهو رابط. وحين تستحق تلك الوجهة توكيد الزر، مثل «البدء» في صفحة هبوط أو «عرض الكل» في نهاية قائمة، أبقِ الزر وأعطِه الخاصية `href`: فيكون عندئذ رابطًا، له دور الرابط ومفاتيحه وسلوكه في المتصفح (انظر [الزر الذي له وجهة رابط](#الزر-الذي-له-وجهة-رابط)). أما الوجهة التي داخل جملة فتبقى رابطًا نصيًّا عاديًّا.
+
+### اختيار الطراز
+
+تعبّر الطُرُز (variants) عن التوكيد، والتوكيد ميزانية. أنفقها مرة واحدة في كل عرض.
+
+| الطراز | التوكيد | يُستخدم لـ |
+| --- | --- | --- |
+| Filled | الأعلى | الإجراء الأهم الوحيد في عرض أو مربع حوار. |
+| Tonal | عالٍ | إجراء مهم لا ينبغي أن ينافس زرًّا من الطراز filled، أو الإجراء الرئيسي في منطقة ثانوية. |
+| Elevated | متوسط | إجراء يجب أن ينفصل عن خلفية مزدحمة أو منقوشة. |
+| Outlined | متوسط | إجراءات متساوية الوزن بجانب زر من الطراز filled، مثل «إلغاء». |
+| Text | منخفض | أقل الإجراءات إلحاحًا، والإجراءات ضمن السطر في البطاقات ومربعات الحوار وأشرطة الأدوات. |
+
+الزر الذي بلا `variant` يكون من الطراز filled، مع استثناء واحد: حين يوضع إجراءً في [مربع حوار](/ar/components/dialog/) أو في [لوحة جانبية](/ar/components/side-sheet/) يأخذ طراز ذلك المضيف، وهو tonal في النظام الافتراضي، فلا تضبط الطراز إلا على الإجراء الذي ينبغي أن يبدو مختلفًا. وزر الإغلاق في اللوحة الجانبية يأخذ بالطريقة نفسها طراز زر الإغلاق الخاص باللوحة.
+
+### افعل
+
+- اكتب التسميات بصيغة الفعل، أو الفعل والاسم، بحيث تقول ما سيحدث: **نشر**، **حفظ المسودة**، **إضافة عضو**.
+- اكتفِ بزر واحد من الطراز filled في كل عرض. إن بدا إجراءان أساسيين بالقدر نفسه، فالأرجح أن العرض يؤدي مهمتين.
+- ضع الإجراء الأساسي حيث يتوقعه مستخدمو المنصة، وحافظ على ذلك الترتيب في المنتج كله.
+- استخدم `small` (32) في أشرطة الأدوات والجداول الكثيفة، و `medium` (40) افتراضيًّا، و `large` (56) للواجهات التي تعتمد اللمس أولًا أو للمواضع البارزة (hero). مساحة اللمس آمنة في كل حجم.
+- استخدم منفذ الأيقونة لتعزيز التسمية. لا تحذف التسمية إلا حيث يكون رسم الأيقونة مفهومًا على نطاق واسع (البحث، الإغلاق، المزيد)، وسمِّ الزر بالخاصية `label`.
+
+### لا تفعل
+
+- لا تنفّذ التنقل من معالج النقر على زر. عنصر التحكم الذي له وجهة رابط: اضبط الخاصية `href`، ليمكن فتحه في تبويب جديد ونسخه وإعلانه رابطًا.
+- لا تعطِ الخاصية `href` لما ينفّذ فعلًا في الصفحة، مثل «حفظ» أو «حذف»، ولا تفتح تبويبًا جديدًا من دون أن تقول ذلك في `targetLabel`.
+- لا تضع زرًّا من الطراز filled في كل صف من قائمة. الأفضل أزرار من الطراز text، أو إجراء واحد في الأعلى ينطبق على التحديد.
+- لا تجعل تعطيل الزر الطريقة الوحيدة للإبلاغ عن مشكلة في التحقق. أبقِه مفعَّلًا واشرح ما ينقص عند ضغطه.
+- لا تقتطع التسميات. دع الزر يكبر، أو اكتب تسمية أقصر.
+- لا تترك زرًّا بأيقونة وحدها من دون `label`: رسم الأيقونة ليس اسمًا.
+- لا ترصّ بيدك الأزرار الضيقة ذات الأيقونة وحدها حافةً إلى حافة. أهدافها تمتد إلى ما وراء حوافها فتتداخل.
+
+### المحتوى النصي
+
+تُكتب التسميات من دون علامة ترقيم في آخرها. اجعلها كلمة أو كلمتين. اكتبها كما تكتب كل لغة من لغات منتجك التسمية: بأسلوب الجملة (sentence case) في الإنجليزية؛ وفي اليابانية بصيغة الاسم أو الاسم الفعلي مثل 保存 أو デプロイ لا بنهاية جملة مهذبة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="button" />
+
+### ما يتكفل به المكوّن
+
+- يعرّف التقنيات المساعدة بدور الزر وبحالة تعطيله على كل منصة. ومع الخاصية `href` يعرّفها بدور الرابط بدلًا من ذلك، ولا يفعّله إلا المفتاح Enter.
+- زر التبديل زر له حالة ضغط، لا خانة اختيار ولا مفتاح تبديل، واسمه لا يتغيّر بتغيّر حالته.
+- الرابط الذي يفتح سياقًا جديدًا يقول ذلك مرتين: بالعلامة `open_in_new` لمن يرونها، وبالخاصية `targetLabel` وصفًا للرابط لمن لا يرونها. والعلامة نفسها مخفية عن التقنيات المساعدة.
+- مع الخاصية `label` بجانب تسمية مرسومة يعرّف التقنيات المساعدة باسم واحد، هو `label`، على عنصر تحكم واحد. والنص المرسوم لا يُقرأ مرة ثانية.
+- على الويب، المفتاح Enter في حقل يضغط الزر الافتراضي للنموذج، والزر الافتراضي المعطَّل يوقف ذلك المفتاح، والزر في عنصر `fieldset` معطَّل يتعطّل معه.
+- مساحة اللمس تستوفي الحد الأدنى للهدف حتى في الحجم small وفي العرض narrow، من دون أن يُرسم الزر أكبر.
+- يعرض مؤشر التركيز المكوَّن من فجوة ثم حلقة عند التركيز بلوحة المفاتيح، بلا حركة.
+- ألوانه تأتي من أزواج أدوار يُتحقق من تباينها عند كل مستوى تباين. حدّ الزر من الطراز outlined هو الخط الرفيع في النظام الافتراضي، وهو هادئ عن قصد: التسمية والأيقونة هما ما يعرّف بعنصر التحكم، لا حافته. والمنتج الذي يحتاج إلى حافة أقوى يضبط الرمز `comp.button.outlined.outline.color` على `sys.color.outline` في طبقة.
+- عند أحجام النص الأكبر تكبر الحاوية ولا تُقتطع التسمية أبدًا.
+
+### ما عليك فعله
+
+- اكتب تسمية مفهومة خارج سياقها. «حذف المشروع» أفضل من «حذف» بجانب اسم مشروع، لأن مستخدم قارئ الشاشة قد يسمع الزر وحده.
+- إن كان الإجراء يبدأ عملية طويلة، فانقل التركيز أو أعلن التقدم. تعطيل الزر وحده لا يقول شيئًا لمستخدم قارئ الشاشة.
+- لا تعتمد على لون الطراز لإيصال معنى، مثل أن الإجراء لا رجعة فيه. قل ذلك في التسمية.
+- سمِّ زر الرابط بالمكان الذي يذهب إليه: «عرض الفاتورة»، لا «انقر هنا». وحين تكون قيمة `target` هي `new`، اكتب `targetLabel`.
+- حيث ترسم عدة أزرار الكلمة نفسها، أعطِ كل زر `label` تحتوي على الكلمة وتقول ما يعمل عليه الزر (انظر [اسم أطول من التسمية](#اسم-أطول-من-التسمية)).
+- حين يكون زر الإرسال في نموذج معطَّلًا، قل في الصفحة ما الذي ما زال ناقصًا. فالزر المعطَّل يوقف المفتاح Enter أيضًا، ولا يشرح بنفسه شيئًا.
+- سمِّ كل زر بأيقونة وحدها بالخاصية `label`. قد يعرض [التلميح](/ar/components/tooltip/) النص نفسه لمن يستخدمون مؤشرًا، لكنه لا يغني أبدًا عن `label`.

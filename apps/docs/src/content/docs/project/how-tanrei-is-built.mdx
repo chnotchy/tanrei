@@ -1,0 +1,73 @@
+---
+title: How Tanrei is built
+description: Two sources of truth, a spec-first workflow and drift checks that keep five platforms, the docs and the status matrix in agreement.
+---
+
+import Steps from '../../../components/Steps.astro';
+import Callout from '../../../components/Callout.astro';
+
+Tanrei ships one design system to five platforms from one repository. That only works if the repository itself makes it hard to be wrong: a change made in one place must either propagate everywhere or fail loudly. This page describes the machinery that does that.
+
+## Two sources of truth
+
+Only two directories contain decisions:
+
+| Directory | Holds | Format |
+| --- | --- | --- |
+| `tokens/` | Every design value | Design Tokens Community Group format, 2025.10 |
+| `specs/` | Every component's contract | JSON, validated by `specs/component.schema.json` |
+
+Everything else is derived: generated token files for each platform, the platform implementations, the tables in these docs and the status matrix. When a derived thing disagrees with a source of truth, the derived thing is wrong by definition.
+
+## What a spec contains
+
+A component spec is platform-neutral. It records the component's anatomy, properties, slots, events and states; its behaviour as numbered requirements; its accessibility contract, including the role, a keyboard table and labelling; the token group it binds to; a set of **fixtures**, which are canonical renderings that every platform snapshots under the same id; and a **platforms** block that maps the neutral names to each platform's idiom.
+
+Behaviour is written in EARS form, a constrained sentence pattern that is easy to test against:
+
+```text
+WHEN the user activates the button by pointer, touch, Enter or Space
+THE button SHALL emit click exactly once.
+```
+
+Each requirement has an id such as `BTN-1`, and tests on every platform refer to those ids.
+
+## The workflow
+
+<Steps>
+
+1. **Propose.** Write or change the spec, and tokens if needed. New components and breaking changes start as an issue, and the maintainers decide.
+2. **Validate.** `pnpm validate` checks schemas, lints tokens and verifies the contrast invariants for every theme and contrast level.
+3. **Generate.** `pnpm generate` rebuilds token outputs, scaffolds and the status matrix.
+4. **Implement** on each platform the spec lists, with unit, snapshot and accessibility tests.
+5. **Check.** `pnpm check` runs everything in order, including the drift check, and must be green.
+6. **Record.** Add a changeset. All packages are versioned in lockstep, because parity is the product.
+
+</Steps>
+
+A platform's public surface may never change without the same change to the spec in the same commit.
+
+## Drift is a build failure
+
+- **Regeneration diff.** CI regenerates every derived file and fails if the result differs from what is committed. A hand edit to a generated file cannot survive.
+- **Parity check.** For every platform a spec declares, the checker requires an implementation, a test, a snapshot for each fixture, and the component's documentation page in English and in Japanese. Which pages each of the site's other languages must have is a separate check of the docs site. The status matrix is computed from the same facts, so it cannot claim more than exists.
+- **Contrast invariants.** A scheme that fails contrast is never emitted.
+- **Snapshot discipline.** A snapshot difference is a finding. Baselines change only when the visual change is the intended result of a spec or token change.
+
+## Definition of parity
+
+Parity means the **same tokens**, an **equivalent visual result**, the **same states** and the **same accessibility semantics**. It does not mean an identical API. Compose takes `enabled`, Flutter disables a button with a null `onPressed`, SwiftUI uses `.disabled(_:)`. Each mapping is written down in the spec's platforms block and shown on every component page.
+
+## A workflow that is safe for agents
+
+The same rules bind people and AI agents, and as many of them as possible are enforced by tools rather than by trust.
+
+- **Layered rules.** A short root `AGENTS.md` states the project's constitution; nested files add local rules for tokens, specs and each package. Nested rules can add to the root rules and never weaken them.
+- **Lanes.** Platform work is confined to that platform's package. An agent implementing SwiftUI has no reason to touch Compose.
+- **Hooks.** Edits to generated directories, `--no-verify` and snapshot-baseline updates are blocked at the tool level, and the drift check runs when a session ends.
+- **Skills.** Recurring procedures such as adding a component or a token are written down as step-by-step skills, so they are performed the same way each time.
+- **No publishing.** Releasing to a registry is the maintainers' decision. No automated actor may do it.
+
+<Callout>
+  These docs follow the same rules. Status, token references and component spec tables are rendered from repository data at build time. Only the prose is written by hand.
+</Callout>

@@ -1,0 +1,23 @@
+---
+title: 颜色令牌
+description: 每个系统颜色角色，以及它在各对比度级别下解析出的浅色值和深色值。
+translationOf: tokens/color.mdx
+sourceHash: 268c3b3086d0f6139384b59c01acca9c79c5fa8e
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ColorRoles from '../../../../components/tokens/ColorRoles.astro';
+
+`tanrei.sys.color` 下的所有系统颜色角色，分别按浅色和深色解析。色块显示的是解析后的实际值，因此无论你正在用哪个主题阅读，两个主题都能看到；半透明的角色则画在它们预期所处的背景之上。关于这些角色的含义和用法，请阅读[颜色](/zh-cn/foundations/color/)。
+
+<Tabs syncKey="contrast">
+  <TabItem label="标准" value="standard">
+    <ColorRoles contrast="standard" />
+  </TabItem>
+  <TabItem label="中" value="medium">
+    <ColorRoles contrast="medium" />
+  </TabItem>
+  <TabItem label="高" value="high">
+    <ColorRoles contrast="high" />
+  </TabItem>
+</Tabs>

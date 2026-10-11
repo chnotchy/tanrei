@@ -1,0 +1,515 @@
+---
+title: Navigation drawer
+description: Lists a product's destinations in a panel at the start edge, in sections and groups, beside the content on a large screen or over it on a compact one, and can collapse to a column of icons.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="navigation-drawer" />
+
+:::note[A revised spec, not yet on every platform]
+This page describes the navigation drawer as the spec has it now. A `collapsible` drawer narrows to a column of icons, which replaces the navigation rail: the collapsed drawer is the expanded one with its labels gone, each row cut after its icon, and its menu button widens it again with every icon in place. A destination's `badge` text becomes `trailingText`, drawn quieter, and a `trailing` slot holds a glyph or a Badge; `badge` is now a badge on the icon. `group` items open and close nested destinations. Rows are 48 high, the height of a menu's item. `responsive` lets the window's width choose how the drawer is presented. A destination with an `href` is a link, and `revealSelected` and `scrollOffset` make the drawer a site's sidebar. The web component already does all of this, and so do the demos. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, with 44 rows, `badge` as text at the row's end, no collapsed form, groups, link destinations or responsive presentation, and a separate navigation rail, and their samples show that revision.
+:::
+
+<DemoFrame label="A standard drawer with two sections">
+  <tanrei-navigation-drawer open value="inbox" label="Mail" style="block-size: 26rem">
+    <tanrei-navigation-drawer-section heading="Mail">
+      <tanrei-navigation-drawer-item value="inbox" label="Inbox" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="sent" label="Sent" icon="send"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="drafts" label="Drafts" icon="draft"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+    <tanrei-navigation-drawer-section heading="Labels" divider>
+      <tanrei-navigation-drawer-item value="work" label="Work" icon="label" trailing-text="New"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="family" label="Family" icon="label"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-section>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="A collapsible drawer: its menu button collapses it to the column of icons, where a cell shows its name in a tooltip" plain>
+  <tanrei-navigation-drawer open collapsible value="home" label="Workspace" style="block-size: 30rem">
+    <tanrei-button slot="header-button" variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-main-action-button slot="main-action" label="New project"><span slot="icon">add</span></tanrei-main-action-button>
+    <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="inbox" label="Inbox" icon="inbox" badge badge-count="3" badge-label="3 unread"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="Projects" icon="folder" open>
+      <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item value="beacon" label="Beacon" icon="deployed_code"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item value="settings" label="Settings" icon="settings" trailing-text="New"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<DemoFrame label="Destinations that are links: the drawer's value names the current page, and reveal-selected opens the group that holds it" plain>
+  <tanrei-navigation-drawer open reveal-selected value="#sidebar-demo-tabs" label="Documentation" style="block-size: 24rem">
+    <tanrei-navigation-drawer-item label="Getting started" href="#sidebar-demo-start"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-group label="Foundations">
+      <tanrei-navigation-drawer-item label="Color" href="#sidebar-demo-color"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Typography" href="#sidebar-demo-typography"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-group label="Components">
+      <tanrei-navigation-drawer-item label="Button" href="#sidebar-demo-button"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-item label="Tabs" href="#sidebar-demo-tabs" trailing-text="New"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer-group>
+    <tanrei-navigation-drawer-item label="Source code" href="#sidebar-demo-source" target="new" target-label="opens in a new tab"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+### Usage
+
+A navigation drawer has five kinds of item. A `destination` is a row with an optional icon, a label and optional trailing content at its end; with an `href` it is a link. A `group` is a row that opens and closes the destinations and groups inside it. A `section` groups destinations and groups under an optional `heading`, with an optional `divider` before it; sections do not nest, and groups do not hold sections. A `header-button` (the first is the menu button) and a `main-action` sit in the header. On the web they are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` children, and icon-only `<tanrei-button>`s and a `<tanrei-main-action-button>` in the `header-button` and `main-action` slots. The lagging platforms take destinations and sections in their own idiom: `TanreiNavigationDrawerItem` and `TanreiNavigationDrawerSection` views on SwiftUI and calls on Compose, `TanreiNavigationDrawerDestination` and `TanreiNavigationDrawerSection` objects in Flutter's `children:`, and destination and section entries of an `items` array on React Native, where a section is told apart by its own `items`.
+
+The selection belongs to the drawer, by a destination's value, wherever the destination stands. `change` and `reselect` work as for the navigation bar. Compose has no drawer-level value: you mark the current item `selected`, and its `onClick` serves as both change and reselect. Flutter selects by index, counted through the sections in reading order.
+
+A destination with an `href` is a link and not a button. The browser follows it as it follows any link, and the drawer does not select it by a press: the page that arrives says which destination is current, by setting the drawer's `value` to that destination's value, or to its `href` as written where it has no value. `change` and `reselect` still fire for a plain activation of a link. They carry its `href` and can be cancelled, which is how a client-side router takes the navigation. Link destinations are on the web today.
+
+The drawer has two variants, and one product usually uses both: standard where the window is wide enough, modal where it is not.
+
+- **Standard** is a layout region, not an overlay. While open it takes its width beside the content, and while closed it takes none. It draws no scrim and never keeps focus.
+- **Modal** is an operated overlay, and a modal one. It slides over the content with a scrim, keeps focus inside until it closes, and closes itself after the person chooses a destination.
+
+With `responsive` the drawer makes that choice itself, from the window's width (see "Following the window's width" below).
+
+`open` shows or hides either variant. A modal drawer also closes when the person presses the scrim or Escape, uses the platform's back action, or drags it toward its edge, and then emits `close`. On the web the drawer sets `open` back to false itself, as a dialog does. Elsewhere you keep it in step from the close: `onClose` on Flutter and React Native, the `isPresented` binding on SwiftUI, and the drawer state on Compose, whose `confirmValueChange` hears each close.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="menu" label="Menu"><span slot="icon">menu</span></tanrei-button>
+
+    <!-- Modal: a <dialog> in the shadow root, opened with showModal(). Standard is a <nav> named by label. -->
+    <tanrei-navigation-drawer variant="modal" label="Mail" value="inbox">
+      <tanrei-navigation-drawer-section heading="Mail">
+        <tanrei-navigation-drawer-item value="inbox" label="Inbox" icon="inbox" trailing-text="24"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item value="sent" label="Sent" icon="send"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+      <tanrei-navigation-drawer-section heading="Labels" divider>
+        <tanrei-navigation-drawer-item value="work" label="Work" icon="label" trailing-text="New"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-section>
+    </tanrei-navigation-drawer>
+
+    <!-- Collapsible: the first header button is the menu button. The drawer answers it itself and fires expandedchange. -->
+    <tanrei-navigation-drawer collapsible open label="Workspace" value="home">
+      <tanrei-button slot="header-button" variant="text" label="Menu"><span slot="icon">menu</span></tanrei-button>
+      <tanrei-main-action-button slot="main-action" label="New project"><span slot="icon">add</span></tanrei-main-action-button>
+      <span slot="header">Workspace</span>
+      <tanrei-navigation-drawer-item value="home" label="Home" icon="home"></tanrei-navigation-drawer-item>
+      <!-- A group: its row opens and closes it, and fires toggle. -->
+      <tanrei-navigation-drawer-group label="Projects" icon="folder">
+        <tanrei-navigation-drawer-item value="atlas" label="Atlas" icon="deployed_code"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+      <!-- A badge on the icon, in both forms; trailing content only while expanded. -->
+      <tanrei-navigation-drawer-item value="inbox" label="Inbox" icon="inbox" badge badge-count="3" badge-label="3 unread"></tanrei-navigation-drawer-item>
+      <!-- A link that opens a new tab: the expanded row ends with open_in_new, and target-label is read after its name. -->
+      <tanrei-navigation-drawer-item label="Help center" icon="help" href="/help" target="new" target-label="opens in a new tab"></tanrei-navigation-drawer-item>
+    </tanrei-navigation-drawer>
+
+    <!-- A site's sidebar: every destination is a link, and each page gives the drawer its own address as value.
+         responsive lets the window's width choose the presentation; reveal-selected opens the groups that hold the page. -->
+    <tanrei-navigation-drawer id="sidebar" label="Documentation" value="/components/tabs/" reveal-selected responsive open>
+      <tanrei-navigation-drawer-item label="Getting started" href="/getting-started/"></tanrei-navigation-drawer-item>
+      <tanrei-navigation-drawer-group label="Components">
+        <tanrei-navigation-drawer-item label="Button" href="/components/button/"></tanrei-navigation-drawer-item>
+        <tanrei-navigation-drawer-item label="Tabs" href="/components/tabs/" trailing-text="New"></tanrei-navigation-drawer-item>
+      </tanrei-navigation-drawer-group>
+    </tanrei-navigation-drawer>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-drawer';
+      import '@tanrei/web/components/button';
+      const drawer = document.querySelector('tanrei-navigation-drawer');
+      document.querySelector('#menu').addEventListener('click', () => (drawer.open = true));
+      // The drawer sets its own value before it fires change. A modal drawer then closes itself.
+      drawer.addEventListener('change', (e) => showFolder(e.detail.value));
+      // close follows every close of a modal drawer: the scrim, Escape, a drag or a destination.
+      drawer.addEventListener('close', onDrawerClosed);
+      // A collapsible drawer has already taken the form its menu button asked for.
+      document.querySelector('[collapsible]').addEventListener('expandedchange', (e) => savePreference(e.detail.expanded));
+
+      const sidebar = document.querySelector('#sidebar');
+      // A link's change is cancelable and carries its href: a client-side router takes the navigation here.
+      // A site of separate documents listens to nothing, and the next page says value.
+      sidebar.addEventListener('change', (e) => {
+        e.preventDefault();
+        router.navigate(e.detail.href);
+      });
+      // A responsive drawer says what the window's width made it: standard, column or modal.
+      sidebar.addEventListener('presentationchange', (e) => showMenuButton(e.detail.presentation === 'modal'));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import {
+      NavigationDrawer,
+      NavigationDrawerGroup,
+      NavigationDrawerItem,
+      NavigationDrawerSection,
+    } from '@tanrei/react';
+
+    // A modal drawer closes itself (onClose): keep open in step there.
+    <NavigationDrawer
+      variant="modal"
+      label="Mail"
+      open={open}
+      value={folder}
+      onChange={(e) => setFolder(e.detail.value)}
+      onClose={() => setOpen(false)}
+    >
+      <NavigationDrawerSection heading="Mail">
+        <NavigationDrawerItem value="inbox" label="Inbox" icon="inbox" trailingText="24" />
+        <NavigationDrawerItem value="sent" label="Sent" icon="send" />
+      </NavigationDrawerSection>
+    </NavigationDrawer>
+
+    // A site's sidebar: destinations are links, and the page says which one is current.
+    <NavigationDrawer
+      label="Documentation"
+      open
+      responsive
+      revealSelected
+      value={pathname}
+      onChange={(e) => {
+        e.preventDefault(); // a client-side router takes the navigation
+        navigate(e.detail.href);
+      }}
+      onPresentationchange={(e) => setPresentation(e.detail.presentation)}
+    >
+      <NavigationDrawerGroup label="Components">
+        <NavigationDrawerItem label="Button" href="/components/button/" />
+        <NavigationDrawerItem label="Tabs" href="/components/tabs/" trailingText="New" />
+      </NavigationDrawerGroup>
+      <NavigationDrawerItem label="Source code" href="https://example.com/tanrei" target="new" targetLabel="opens in a new tab" />
+    </NavigationDrawer>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Standard: beside the content. isPresented shows and hides it; choosing a destination writes selection.
+    HStack(spacing: 0) {
+        TanreiNavigationDrawer(variant: .standard, isPresented: $sidebarShown, selection: $folder,
+                               accessibilityLabel: "Mail", onReselect: { _ in scrollToTop() }) {
+            TanreiNavigationDrawerSection("Mail") {
+                TanreiNavigationDrawerItem("Inbox", icon: "inbox", value: "inbox", badge: "24")
+                TanreiNavigationDrawerItem("Sent", icon: "send", value: "sent")
+            }
+            TanreiNavigationDrawerSection("Labels", divider: true) {
+                TanreiNavigationDrawerItem("Work", icon: "label", value: "work")
+            }
+        } header: {
+            Text("Mail")
+        }
+        FolderView(folder)
+    }
+
+    // Modal: a modifier on the content it covers. Closing writes false to the binding.
+    FolderView(folder)
+        .tanreiNavigationDrawer(isPresented: $menuShown, selection: $folder, accessibilityLabel: "Mail") { … }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawer
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerItem
+    import io.github.chnotchy.tanrei.components.TanreiNavigationDrawerSection
+    import io.github.chnotchy.tanrei.components.rememberTanreiDrawerState
+    import io.github.chnotchy.tanrei.tokens.TanreiNavigationDrawerVariant
+
+    // The drawer wraps the screen. drawerState is the spec's open; confirmValueChange hears the spec's close.
+    val drawerState = rememberTanreiDrawerState()
+    TanreiNavigationDrawer(
+        variant = if (wide) TanreiNavigationDrawerVariant.Standard else TanreiNavigationDrawerVariant.Modal,
+        drawerState = drawerState,
+        contentDescription = "Mail",
+        drawerContent = {
+            // You mark the current item selected. A modal drawer closes itself after onClick.
+            TanreiNavigationDrawerSection(heading = "Mail") {
+                TanreiNavigationDrawerItem(selected = folder == "inbox", onClick = { folder = "inbox" }, label = "Inbox", icon = "inbox", badge = "24")
+                TanreiNavigationDrawerItem(selected = folder == "sent", onClick = { folder = "sent" }, label = "Sent", icon = "send")
+            }
+            TanreiNavigationDrawerSection(heading = "Labels", divider = true) {
+                TanreiNavigationDrawerItem(selected = folder == "work", onClick = { folder = "work" }, label = "Work", icon = "label", badge = "New")
+            }
+        },
+    ) {
+        FolderScreen(folder, onMenu = { drawerState.open() })
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Standard: a layout region, first in a Row beside the content.
+    Row(
+      children: <Widget>[
+        TanreiNavigationDrawer(
+          open: sidebarOpen,
+          selectedIndex: current, // counted through the sections in reading order
+          onDestinationSelected: (int index) => setState(() => current = index), // change and reselect
+          semanticLabel: 'Mail',
+          children: const <TanreiNavigationDrawerChild>[
+            TanreiNavigationDrawerSection(
+              heading: 'Mail',
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'inbox', label: 'Inbox', badge: '24'),
+                TanreiNavigationDrawerDestination(icon: 'send', label: 'Sent'),
+              ],
+            ),
+            TanreiNavigationDrawerSection(
+              heading: 'Labels',
+              divider: true,
+              children: <TanreiNavigationDrawerChild>[
+                TanreiNavigationDrawerDestination(icon: 'label', label: 'Work', badge: 'New'),
+              ],
+            ),
+          ],
+        ),
+        const Expanded(child: Page()),
+      ],
+    ),
+
+    // Modal: the last child of a Stack that fills the window. Set open to false from onClose.
+    Stack(
+      children: <Widget>[
+        const Positioned.fill(child: Page()),
+        TanreiNavigationDrawer(
+          variant: TanreiNavigationDrawerVariant.modal,
+          open: menuOpen,
+          onClose: () => setState(() => menuOpen = false),
+          selectedIndex: current,
+          onDestinationSelected: (int index) => setState(() => current = index),
+          semanticLabel: 'Mail',
+          children: destinations,
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationDrawer } from '@tanrei/react-native';
+
+    const [open, setOpen] = useState(false);
+    const [folder, setFolder] = useState('inbox');
+
+    // Controlled: set open to false from onClose. A modal drawer is presented in a transparent Modal.
+    <NavigationDrawer
+      variant={wide ? 'standard' : 'modal'}
+      open={open}
+      onClose={() => setOpen(false)}
+      accessibilityLabel="Mail"
+      value={folder}
+      onValueChange={setFolder}
+      items={[
+        { heading: 'Mail', items: [
+          { value: 'inbox', label: 'Inbox', icon: 'inbox', badge: '24' },
+          { value: 'sent', label: 'Sent', icon: 'send' },
+        ] },
+        { heading: 'Labels', divider: true, items: [{ value: 'work', label: 'Work', icon: 'label', badge: 'New' }] },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Destinations without icons, outside any section" plain>
+  <tanrei-navigation-drawer open value="deployments" label="Project" style="block-size: 20rem">
+    <tanrei-navigation-drawer-item value="overview" label="Overview"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="deployments" label="Deployments" trailing-text="3"></tanrei-navigation-drawer-item>
+    <tanrei-navigation-drawer-item value="settings" label="Settings"></tanrei-navigation-drawer-item>
+  </tanrei-navigation-drawer>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-drawer" />
+
+## Guidelines
+
+### When to use
+
+Use a navigation drawer when a product has more destinations than a navigation bar can hold, or when its destinations fall into groups: a mail app's folders and labels, a project's sections, an admin area. On a large window, a standard drawer sits beside the content as a sidebar. On a compact window, a modal drawer slides over the content from a menu button and goes away once a destination is chosen.
+
+### Choosing between the bar and the drawer
+
+| Aspect | [Navigation bar](/components/navigation-bar/) | [Navigation drawer](/components/navigation-drawer/), collapsed | [Navigation drawer](/components/navigation-drawer/), expanded |
+| --- | --- | --- | --- |
+| Where it sits | Along the bottom edge | A column of icons along the start edge | In a panel at the start edge |
+| Window | Compact | Medium and wider | Expanded and wider (standard), or compact (modal) |
+| Destinations | Three to five | Its top-level destinations and groups, one cell each | As many as the product has, in sections and groups |
+| A destination | An icon over a one-line label, with a badge on the icon | The row cut after its icon: the icon alone, with a badge on it and its name in a tooltip | A row: an optional icon, a label that wraps, and trailing text or content at its end |
+| It also holds | Nothing else | A header: the menu button and the main action, collapsed to its icon | A header: the menu button, a title or an account switcher, and the main action |
+| On native platforms, a destination is | A tab of a tab bar | A button with a selected state | A button with a selected state |
+| What it is | A layout region | A layout region, or a column in the layout that a modal drawer widens from | Standard: a layout region. Modal: a modal overlay |
+
+- **The collapsed drawer is the navigation rail.** A collapsible drawer narrows to a column of icons where the content needs the width, and its menu button widens it again; every icon stays where it is. Tanrei's separate navigation rail is retired into this form.
+- **Bar and drawer are one set of destinations in two places.** They take the same destinations and the same selection, so a product that adapts to the window swaps the bar for the drawer at a breakpoint without touching its destinations. Show one of them at a time, never both.
+- **The drawer holds more.** Use it expanded when the product has more destinations than a bar can hold, or when they fall into groups, such as a mail app's folders and labels. On a large window a standard drawer sits beside the content. On a compact one a modal drawer slides over it from a menu button.
+- **A modal collapsible drawer** keeps its column of icons in the layout and widens over the content, above a scrim, when its menu button opens it.
+- On every platform, both select by a destination's value (Compose by a per-item flag, Flutter by index) and emit `change` and `reselect`.
+
+### Where the navigation rail went
+
+Tanrei has no navigation rail of its own: the rail is a collapsible drawer, collapsed.
+
+| Before | Now |
+| --- | --- |
+| Navigation rail | A navigation drawer with `collapsible`, and `expanded` set to false |
+| The rail's destination, an icon over its label | A destination, drawn collapsed as its row cut after its icon: the icon alone, named in a tooltip |
+| The rail's label visibility | `collapsedLabels`: `never` (the default), `selected` or `always`. The last two draw the `shortLabel` under the icon |
+| The rail's badge on the icon | A destination's `badge`, `badgeCount` and `badgeLabel`, drawn in both forms |
+| The rail's menu button and FAB | The drawer's first `header-button`, which is its menu button, and its `main-action`, collapsed to its icon |
+| The drawer's `badge` text at the row's end | `trailingText`, or the `trailing` slot |
+| The rail's tokens | `comp.navigation-drawer.collapsed.*` and the collapsed conditions |
+
+The web implements it; SwiftUI, Compose, Flutter and React Native still ship their separate navigation rail, which these pages no longer document, until they catch up.
+
+### Material 3's names
+
+| Material 3 | Tanrei |
+| --- | --- |
+| Navigation rail | A collapsible navigation drawer, collapsed |
+| Expanded navigation rail | A collapsible navigation drawer, expanded |
+| Modal expanded navigation rail | A modal collapsible navigation drawer |
+| Navigation drawer | A navigation drawer that is not collapsible |
+
+### Choosing a variant
+
+| Variant | What it is | Use for |
+| --- | --- | --- |
+| Standard (default) | A panel in the layout, with a hairline at its end edge. The content beside it resizes as it opens and closes. It draws no scrim and stays open while the person works in the content. | Wide windows, where the drawer can stay open as a sidebar. |
+| Modal | A raised panel with rounded end corners that slides over the content, above a scrim. It keeps focus until it closes, and closes itself after a destination is chosen. | Compact windows, opened from a menu button in the app bar or in a collapsed drawer's header. |
+
+A design system may add variants. A variant it adds behaves as standard.
+
+### Opening, focus and closing
+
+- **Opening a standard drawer.** It slides in while the content beside it makes room. When you open it in answer to the person, such as from a menu button, focus moves to the current destination, or else to the drawer's first focusable element. A drawer that is open from the start moves no focus.
+- **Working beside a standard drawer.** Tab moves from the drawer into the content, and the drawer stays open. Closing it while focus is inside returns focus to where it was before it opened.
+- **Opening a modal drawer.** It slides in from the start edge while the scrim fades in over the rest of the window. Focus moves to the current destination, or else to the first focusable element, and stays in the drawer. Everything behind it is inert to pointer, touch, keyboard and assistive technology.
+- **Closing a modal drawer.** A press on the scrim, Escape, the platform's back action, a drag toward the start edge past half its width or a fling that way, and choosing a destination each close it once. It slides out, the scrim fades, and focus returns to the element that had it.
+- **No edge swipe to open.** On iOS the start edge of the screen is the back gesture, so a drawer never opens from it. Open it from a visible menu button.
+- Where motion is reduced, the drawer opens and closes at once.
+
+### Collapsing
+
+- **`collapsible`** gives the drawer its collapsed form, 72 wide: the expanded drawer with its labels gone. Each top-level destination and group is its row cut after its icon, 48 by 48 with the row's corners, and the selected one is filled exactly as its row is. The header's buttons are stacked in the column and the main action is collapsed to its icon. Section headings keep their rows with no text, and the header slot and trailing content are not drawn.
+- **A collapsed cell shows its name in a tooltip**, toward the content: after the tooltip's delay while a pointer rests on the cell, at once on keyboard focus, and never for touch. The label is already the cell's accessible name, so the tooltip adds nothing to what is read.
+- **`expanded`** chooses the form of a standard collapsible drawer. A modal collapsible drawer keeps its column in the layout while closed, and `open` widens it over the content, above a scrim.
+- **The menu button** is the first `header-button`. While the drawer is collapsible, it is exposed as expanded or collapsed, controlling the drawer, and activating it emits `expandedChange` with the form asked for. The web applies it itself; elsewhere you set `expanded` or `open` from it. You choose its glyph and name.
+- **`collapsedLabels`** chooses which cells draw a short label under the icon: `never`, which is the default, the `selected` one, or `always`. A labelled column is for a product or a design system that wants one. A cell then draws its `shortLabel`, or its label if you give none, and shows no tooltip. The label stays the accessible name either way.
+- **Every icon stays in place.** The icons sit on one column and one line in both forms, and every cell keeps its height, so the change of form moves only the end edge: the labels fade out as the edge passes them, and in a labelled column the short labels fade in. An open group is the one exception: the collapsed drawer does not draw its items, so the cells below move up.
+- **The selection changes color in place.** A new selection recolors the rows where they stand, expanded or collapsed. Nothing grows, shrinks or slides to show it.
+
+### Following the window's width
+
+`responsive` lets the window's width choose how the drawer is presented, from the two breakpoints of its design system (1024 and 600 in the default system). `variant` is then ignored.
+
+| Window | Presentation | What the drawer is |
+| --- | --- | --- |
+| At least the wider breakpoint | `standard` | A standard drawer beside the content, shown whatever `open` says, and collapsible in the form `expanded` chooses |
+| At least the narrower one, while `collapsible` | `column` | A modal collapsible drawer: its column of icons in the layout, widening over the content while `open` |
+| Narrower than that | `modal` | A modal drawer that is not collapsible |
+
+- **The presentation is derived, never stored.** It follows the width alone: the drawer does not write it to `variant`, `open` or `expanded`. `presentationChange` says what it is, the first time and whenever the width changes it.
+- **A new presentation is entered closed.** It is drawn at once, without motion. An overlay that was open comes down and `close` fires once. `expanded`, `value` and each group's `open` are kept, so the standard presentation comes back in the form it was left in.
+- **In the `modal` presentation, the menu button is yours.** Show a menu button of your own, in the app bar for example, while the presentation is `modal`, and set `open` from it. The drawer's own menu button only closes it there.
+- **The drawer remembers nothing between visits.** To keep a person's choice of form, store what `expandedChange` carries and set `expanded` from it.
+
+### As a site's sidebar
+
+Give every destination an `href` and the drawer the page's own address as its `value`, and the drawer is the sidebar of a site of documents.
+
+- **The page says where it is.** A press never selects a link. Each page sets `value` to its own destination: to that destination's `value`, or to its `href` as written where it has none.
+- **`revealSelected`** opens the groups that hold the selected destination when the drawer first appears, in its first frame and without motion, and again whenever `value` changes. A group the person closes afterwards stays closed until `value` changes.
+- **The selection is in view on arrival.** When the drawer appears, and whenever `value` changes, the row that shows the selection is brought to the middle of the scrolling rows if it was not wholly in view, and is not moved at all if it was. So a sidebar whose current page is already in view stays where it is from page to page. Focus does not move.
+- **`scrollOffset`** reads and sets how far the rows are scrolled. The drawer stores nothing. A site that wants a long tree to stay where the reader left it keeps the offset and each group's `open` itself, in the session's storage for example, and gives them back before the first frame. A group that holds the current page opens all the same, and the selection wins over an offset that would leave it out of view.
+- **A link that leaves the site** takes `target` `new`. It opens in a new tab, its expanded row ends with the icon set's `open_in_new` unless you put trailing content there, and `targetLabel` is read after its name. The words are yours ("opens in a new tab"): Tanrei ships none.
+- **A router listens to `change`.** It fires before the browser follows a link, for a plain activation only: the primary button without a modifier key, a touch or Enter, on a link whose `target` is `same`. Cancel it and go to the `href` it carries. A link opened in another tab fires nothing, and leaves a modal drawer open.
+
+### Rows, groups and sections
+
+- A row's label wraps rather than being cut, and the row grows with it. Rows are at least 48 high, the height of a [menu](/components/menu/)'s item, with its corners.
+- Give every destination an icon, or none, so the labels line up. A collapsible drawer draws each top-level destination and group by its icon while collapsed, so give each one an icon.
+- `trailingText` is short text at the row's end, quieter than the label: a count ("24") or a word ("New"). The `trailing` slot holds anything else, such as a glyph or a Badge; it wins over `trailingText` and is never interactive. A link with `target` `new` ends its row with `open_in_new` by itself, so you do not place that glyph. Trailing content is read after the label, and is not drawn while collapsed.
+- `badge` draws a Badge on the icon, in both forms: a dot, or `badgeCount`, named by `badgeLabel`.
+- A group's row opens and closes the destinations and groups inside it, with the icon set's `expand_more` turned half a turn while open. Each level starts one indent further in as a whole: its fill, its state layer and its focus ring, not its text alone. A closed group that holds the selected destination is drawn selected, and so is a top-level group while collapsed; activating a group while collapsed expands the drawer and opens it. Keep to three levels.
+- A section's heading names the destinations under it. It is a heading, not a control. A section may have no heading, as a divided group without a title.
+- A section's `divider` draws a divider before it, to set it apart from what is above. You never place a divider yourself.
+- The header holds the header buttons, stacked in the icon column, and the main action below them. The header slot sits beside the menu button while expanded, for a title or an account switcher, and is not drawn while collapsed. The drawer does not restyle it.
+- When the rows are taller than the space below the header, they scroll and the header stays in place. A scroll that reaches either end does not go on to scroll the page behind the drawer.
+
+### Do
+
+- Put the most used destinations first, outside or in the first section.
+- Give a destination an `href` when it has an address of its own, so that it is a real link: it can be opened in a new tab, copied and followed by a crawler.
+- Name sections for what their destinations have in common: "Labels", "Admin".
+- Use the same destinations and values in the modal and standard forms, so a product switches between them by window width alone.
+
+### Don't
+
+- Don't use the drawer for actions such as "Sign out" or "Compose". Its rows are places.
+- Don't nest a section in a section, or put a section in a group. Debug builds report it and draw the inner section's destinations in its place.
+- Don't use a group's row as a destination. It only opens and closes.
+- Don't use a modal drawer on a window wide enough for a standard one.
+
+## Accessibility
+
+<ComponentAccessibility name="navigation-drawer" />
+
+### What the component handles
+
+- On the web, the drawer is a navigation landmark named by `label`. Each destination is a link (with `href`) or a button, and the current one carries `aria-current="page"`. A modal drawer is also a modal `<dialog>` named by `label`.
+- On iOS, Android, Flutter and React Native, each destination is a button with its selected state and its position among the destinations, as sidebars and drawer items are read on those platforms. A modal drawer is a modal container named by `label`: the modal trait, or a pane title.
+- A destination is one element named by its label, in both forms. Its icon is hidden; its icon badge's description and then its trailing content are read after its name and state.
+- A link destination is drawn exactly as a button destination, in every state, with no visited look. It keeps everything a browser gives a link: its context menu, opening in a new tab, dragging and the address on hover. One that opens a new tab reads its `targetLabel` at the end of its description.
+- A collapsed cell's tooltip is for sighted pointer and keyboard users. It is hidden from assistive technology, which already reads the label as the cell's name.
+- A group's row is a button with an expanded state that controls its nested list. Right (in a left-to-right layout) opens a closed group, Left closes an open one, and Left inside a group moves to its row. Tab moves through every shown row.
+- While the drawer is collapsible, its menu button is exposed as expanded or collapsed, controlling the drawer. Focus stays on the cell it was on when the form changes.
+- A section's heading is exposed as a heading and is not focusable.
+- Tab moves through the header's content and every destination that is not disabled. Enter and Space activate the focused destination (Enter only, for a link on the web). Disabled destinations take no focus and are announced as disabled.
+- In a standard drawer, focus moves in when you open it and returns when you close it, and Tab moves on to the content without closing it. In a modal drawer, Tab and Shift+Tab wrap inside the drawer, and Escape and the platform's back close it and return focus.
+- The focus ring is drawn around the row, for keyboard focus only. Keyboard focus on a row that is not wholly in view scrolls it into view by the least distance.
+- The hit area is the whole cell, in both forms, and never less than the minimum target.
+- Larger text keeps both forms' widths and makes rows and headings taller. Labels wrap; short labels are cut. Icons are not scaled.
+- Debug builds report a destination without a label, a modal drawer without a `label`, a value that names no destination, a value used twice, a nested section, a section in a group, nesting deeper than three levels, a variant the design system does not have, a collapsible drawer without a menu button, a focusable element in the `trailing` slot, an `href` that is a `javascript:` address or cannot be read, an unknown `target`, and a link with `target` `new` and no `targetLabel`.
+
+Known platform gaps:
+
+- Web: Firefox cannot animate an element leaving the top layer, so there a modal drawer disappears at once instead of sliding out.
+- Web: every size follows `rem`, so a larger browser text size also grows the icons, though never the drawer's width. Enlarging Tanrei's type alone does not.
+- Web: that Tab leaves an open standard drawer is tested, but not yet where it lands in the content, which was unstable under load.
+- SwiftUI cannot tell which view had focus, so closing a drawer returns keyboard focus to no element: the platform puts it where it does by default. Opening one focuses the current destination, or else the first enabled destination, never a control in the header. On a Mac, a modal drawer covers and disables only the view it is attached to, so attach it to the window's root.
+- SwiftUI: Escape, the accessibility escape gesture and focus moving in on opening have not yet been tested end to end. A destination carries its position as its value text ("2 of 6"), in English only.
+- Compose presents the modal drawer in a `Dialog` window of its own, as `TanreiDialog` is, rather than inside the app's window as Material's drawer does. It looks the same, and the window keeps focus in, answers back and hides what is behind it.
+- Compose has no drawer-level value, so a value that names no destination has nothing to report.
+- Flutter's modal drawer is not a `Scaffold.drawer`. You place it as the last child of a `Stack` that fills the window and control it with `open`. Its destinations carry no position in the set.
+- Flutter: where a row and its gap are shorter than the touch target, as in a design system with a short row, the rows move apart instead of only the hit area growing.
+- React Native cannot tell which element had focus, so closing the drawer does not return focus to the element that opened it. A modal drawer leaves focus where the platform puts it, and a standard drawer does nothing.
+- React Native's drawer has no `insets` prop of its own yet: it reads only `TanreiProvider`'s insets. A destination carries its position as its value text, in English unless you pass `positionText`.
+- React Native: the modal drawer's drag and fling, its focus move and the escape gesture have not yet been checked on a device.
+- SwiftUI, Compose, Flutter and React Native, which ship the previous revision: the first row sits half a gap below the drawer's padding, and a row with a wrapped label does not grow the same way on each (SwiftUI and Compose keep the row's minimum height until the text no longer fits in it). Each measures the padding to the first cell and treats the row's height as a minimum when it catches up.
+- Web: a modal collapsible drawer returns focus only once it has narrowed back to its column, a drag moves the whole panel, and its dialog is placed on the column's box as measured when it opened.
+
+### What you need to do
+
+- Give every destination a label. Where the collapsed column draws labels (`collapsedLabels`), give a `shortLabel` where the label is too long for it.
+- Give a link with `target` `new` a `targetLabel` in your product's language.
+- On a site, set `value` on each page to that page's own destination.
+- While a responsive drawer's presentation is `modal`, show a menu button of your own that opens it.
+- Give the menu button a name, such as "Menu", and on the platforms other than the web, set `expanded` or `open` from `expandedChange`.
+- Give the drawer a `label`, such as "Mail". A modal drawer is a dialog, and the label is its name.
+- Open a modal drawer from a visible menu button with its own label, such as "Menu".
+- Keep `open` in step: set it to false when a modal drawer closes (from `onClose`, the binding or the drawer state, depending on the platform).
+- On SwiftUI, give keyboard focus back to the menu button yourself after the drawer closes.
+- On React Native, move focus back to the menu button yourself after the drawer closes, pass `positionText` in your product's language, and give `TanreiProvider` the window's insets.
+- Keep each destination's value unique and stable across the standard and modal forms.

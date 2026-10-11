@@ -1,0 +1,339 @@
+---
+title: "导航栏"
+description: "位于 compact 屏幕的底边，用来在三到五个顶级目的地之间切换，并标明当前所在的是哪一个。"
+translationOf: components/navigation-bar.mdx
+sourceHash: ebead3b29a3b730640d2ca80309b0a7ea07178d8
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="navigation-bar" />
+
+:::note[规格已修订，尚未覆盖所有平台]
+本页描述的是规格当前所定的导航栏，它以[标签页](/zh-cn/components/tabs/)为样板。活动指示器是当前目的地在导航栏中平分到的整块区域，从导航栏的边缘向内收进一些，而不是紧贴图标和标签的胶囊形。选择改变时，它保持完整的大小滑到新的目的地；沿导航栏拖动时，它跟着指针移动。悬停、按下和聚焦也画在同一个框里。`variant` 在 tonal（默认）和 filled 之间选择。其他属性和事件在两个版本中都相同。上方标记为“待跟进”的平台在跟上之前提供的仍是第一次修订的版本：没有 `variant`，不能拖动，指示器只在图标背后，并且从中心向外展开；这些平台的示例展示的也是那个版本。本页的演示是目前提供的 Web 组件。
+:::
+
+<DemoFrame label="四个目的地，其中一个带有计数">
+  <tanrei-navigation-bar value="inbox" label="主导航" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="收件箱" icon="inbox" badge badge-count="3" badge-label="3 封未读"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="聊天" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="星标" icon="star"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="settings" label="设置" icon="settings"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="filled 变体：按住并沿导航栏拖动，指示器会跟着移动" plain>
+  <tanrei-navigation-bar variant="filled" value="chat" label="媒体" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="home" label="首页" icon="home"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="聊天" icon="chat" badge badge-label="有新消息"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="星标" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<DemoFrame label="由链接组成的导航栏：页面用自己的地址指明当前目的地，“帮助”在新标签页中打开" plain>
+  <tanrei-navigation-bar value="/zh-cn/components/navigation-bar/" label="组件" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item href="/zh-cn/components/button/" label="按钮" icon="smart_button"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/zh-cn/components/navigation-bar/" label="导航栏" icon="bottom_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="/zh-cn/components/navigation-drawer/" label="抽屉" icon="side_navigation"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item href="https://example.com/" label="帮助" icon="help" target="new" target-label="在新标签页中打开"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+### 用法
+
+导航栏只有一种项，即 `destination`（目的地）：一个图标，图标下方的标签，以及图标上可选的徽标。每个平台都按自己接收重复子项的方式来接收目的地：在 Web 上是 `<tanrei-navigation-bar-item>` 子元素，在 SwiftUI 上是视图构建器中的 `TanreiNavigationBarItem` 视图，在 Compose 上是内容 lambda 中的 `TanreiNavigationBarItem` 调用，在 Flutter 上是 `destinations:` 列表中的 `TanreiNavigationDestination` 对象，在 React Native 上是由普通对象组成的 `destinations` 数组。
+
+选择属于导航栏，以目的地的值来表示。`value` 指明当前目的地，`change` 带着用户选中的那个目的地触发；用户再次选择当前目的地时触发 `reselect`，你可以借此把那个屏幕滚回顶端。空值表示不选中任何一个，用于不属于导航栏任何目的地的屏幕。SwiftUI 把新值写入 `selection` 绑定。有两个平台保留了自己的惯用方式，与它们自带的导航栏一致。Compose 没有导航栏级别的值：由你把当前项标记为 `selected`，它的 `onClick` 同时充当 change 和 reselect。Flutter 按索引选择：`selectedIndex` 和 `onDestinationSelected`，选择当前目的地时它同样会调用后者。
+
+`variant` 决定当前目的地标示得有多强：`tonal`（默认）以柔和的颜色填充指示器，`filled` 以强烈的颜色填充，其上的图标和标签反色显示。目前只有 Web 提供它。
+
+带 `href` 的目的地是链接：它是平台自己的链接，画法与按钮目的地完全相同。Enter 激活它，Space 不会。按下时导航栏不会选中链接：它带着目的地的值和它的 `href` 触发 `change`，随后浏览器才跟随链接。由到达的页面通过 `value` 指明当前目的地，与[导航抽屉](/zh-cn/components/navigation-drawer/)一样；没有 `value` 的链接以它的 `href` 作为值。`target` 和 `targetLabel` 与 [Button](/zh-cn/components/button/) 的相同。目前只有 Web 提供链接目的地；SwiftUI、Compose、Flutter 和 React Native 还没有。
+
+目的地的 `icon` 是设计系统图标字体中一个图标的名称。未选中时导航栏以轮廓样式绘制它，选中时以填充样式绘制。`badge`、`badgeCount` 和 `badgeLabel` 在图标上绘制一个 Tanrei 徽标：没有计数时是圆点，否则是数字。SwiftUI、Compose 和 Flutter 以一个 `TanreiNavigationBadge` 值接收它们，React Native 则以一个 `badge` 对象接收。
+
+导航栏是一块布局区域，不是浮层。它的颜色会延伸到它下方的主屏幕指示条或手势条之下，它的目的地则位于这些区域的上方，并在两侧的边衬区（insets）之内。在 React Native 上，边衬区只来自属性，不依赖任何安全区域库：`TanreiProvider` 的 `insets`，或导航栏自己的 `insets`，后者指定的边会替换 provider 的对应值。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 宿主元素是一个导航地标，由 label 命名。 -->
+    <!-- variant="filled" 让当前目的地反色显示，适合位于内容繁杂的屏幕之上的导航栏。默认是 tonal。 -->
+    <tanrei-navigation-bar label="主导航" value="inbox">
+      <tanrei-navigation-bar-item value="inbox" label="收件箱" icon="inbox"
+                                  badge badge-count="3" badge-label="3 封未读"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="chat" label="聊天" icon="chat"
+                                  badge badge-label="有新消息"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="starred" label="星标" icon="star"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item value="settings" label="设置" icon="settings" disabled></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/navigation-bar';
+      const bar = document.querySelector('tanrei-navigation-bar');
+      // 导航栏先设置自己的 value，再触发携带该值的 change。
+      bar.addEventListener('change', (e) => showScreen(e.detail.value));
+      bar.addEventListener('reselect', () => scrollTo({ top: 0 }));
+    </script>
+
+    <!-- 由链接组成的导航栏：每个页面把 value 设为自己的地址。没有 value 的链接以它的 href 作为值。 -->
+    <tanrei-navigation-bar label="主导航" value="/search/">
+      <tanrei-navigation-bar-item href="/" label="首页" icon="home"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/search/" label="搜索" icon="search"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="/library/" label="媒体库" icon="video_library"></tanrei-navigation-bar-item>
+      <tanrei-navigation-bar-item href="https://example.com/help" label="帮助" icon="help"
+                                  target="new" target-label="在新标签页中打开"></tanrei-navigation-bar-item>
+    </tanrei-navigation-bar>
+
+    <script type="module">
+      // 由路由接管导航：取消 change，前往 detail.href，并说明产品现在位于哪里。
+      bar.addEventListener('change', (e) => {
+        if (!e.detail.href) return;
+        e.preventDefault();
+        router.push(e.detail.href);
+        bar.value = e.detail.value;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { NavigationBar, NavigationBarItem } from '@tanrei/react';
+
+    // variant="filled" 适合位于内容繁杂的屏幕之上的导航栏；默认是 tonal。
+    <NavigationBar label="主导航" value={screen} onChange={(e) => setScreen(e.detail.value)} onReselect={scrollToTop}>
+      <NavigationBarItem value="inbox" label="收件箱" icon="inbox" badge badgeCount={3} badgeLabel="3 封未读" />
+      <NavigationBarItem value="chat" label="聊天" icon="chat" />
+      <NavigationBarItem value="starred" label="星标" icon="star" />
+    </NavigationBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 放在底部安全区域 inset 中的独立导航栏。选择目的地时会写入绑定（change）。
+    ScreenView(screen)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TanreiNavigationBar(selection: $screen, accessibilityLabel: "主导航", onReselect: { _ in scrollToTop() }) {
+                TanreiNavigationBarItem("收件箱", icon: "inbox", value: "inbox",
+                                        badge: TanreiNavigationBadge(count: 3, label: "3 封未读"))
+                TanreiNavigationBarItem("聊天", icon: "chat", value: "chat")
+                TanreiNavigationBarItem("星标", icon: "star", value: "starred")
+                // disabled 是 SwiftUI 自己的修饰符。
+                TanreiNavigationBarItem("设置", icon: "settings", value: "settings").disabled(true)
+            }
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBadge
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBar
+    import io.github.chnotchy.tanrei.components.TanreiNavigationBarItem
+
+    // 与 Material 的 NavigationBar 一样：没有导航栏级别的值。由你把当前项标记为 selected，
+    // 同一个 onClick 既是 change 也是 reselect。
+    var screen by rememberSaveable { mutableStateOf("inbox") }
+    TanreiNavigationBar(contentDescription = "主导航") {
+        TanreiNavigationBarItem(
+            selected = screen == "inbox",
+            onClick = { if (screen == "inbox") { scrollToTop() } else { screen = "inbox" } },
+            icon = "inbox",
+            label = "收件箱",
+            badge = TanreiNavigationBadge(count = 3, contentDescription = "3 封未读"),
+        )
+        TanreiNavigationBarItem(selected = screen == "chat", onClick = { screen = "chat" }, icon = "chat", label = "聊天")
+        // enabled 与规格中的 disabled 相反。
+        TanreiNavigationBarItem(selected = screen == "settings", onClick = { screen = "settings" }, icon = "settings", label = "设置", enabled = false)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 与 NavigationBar 一样：目的地的值就是它的索引。导航栏自己不保存选择。
+    TanreiNavigationBar(
+      selectedIndex: current, // null 表示不选中任何一个
+      onDestinationSelected: (int index) {
+        if (index == current) {
+          scrollToTop(); // reselect
+        } else {
+          setState(() => current = index); // change
+        }
+      },
+      semanticLabel: '主导航',
+      destinations: const <TanreiNavigationDestination>[
+        TanreiNavigationDestination(icon: 'inbox', label: '收件箱', badge: TanreiNavigationBadge(count: 3, semanticLabel: '3 封未读')),
+        TanreiNavigationDestination(icon: 'chat', label: '聊天'),
+        TanreiNavigationDestination(icon: 'settings', label: '设置', enabled: false),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { NavigationBar } from '@tanrei/react-native';
+
+    const [screen, setScreen] = useState('inbox');
+
+    // 受控：在 onValueChange 中更新 value。
+    <NavigationBar
+      accessibilityLabel="主导航"
+      value={screen}
+      onValueChange={setScreen}
+      onReselect={scrollToTop}
+      destinations={[
+        { value: 'inbox', label: '收件箱', icon: 'inbox', badge: { count: 3, label: '3 封未读' } },
+        { value: 'chat', label: '聊天', icon: 'chat', badge: { label: '有新消息' } },
+        { value: 'settings', label: '设置', icon: 'settings', disabled: true },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="只显示选中项的标签，以及不显示标签" plain column>
+  <tanrei-navigation-bar value="chat" label-visibility="selected" label="主导航" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="收件箱" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="聊天" icon="chat"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="星标" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+  <tanrei-navigation-bar value="inbox" label-visibility="never" label="次级导航" style="inline-size: 24rem">
+    <tanrei-navigation-bar-item value="inbox" label="收件箱" icon="inbox"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="chat" label="聊天" icon="chat" badge badge-label="有新消息"></tanrei-navigation-bar-item>
+    <tanrei-navigation-bar-item value="starred" label="星标" icon="star"></tanrei-navigation-bar-item>
+  </tanrei-navigation-bar>
+</DemoFrame>
+
+<ComponentSpecs name="navigation-bar" />
+
+## 指南
+
+### 何时使用
+
+在 compact 屏幕（例如竖持的手机）上使用导航栏，在三到五个顶级目的地之间切换：也就是用户一整天都会反复回到的地方，例如收件箱、搜索和个人资料。导航栏留在每一个顶级屏幕上，并标明用户身在何处。
+
+要在一个屏幕之内切换同一主题的不同视图，请使用标签页。要离开一个从另一个屏幕进入的屏幕，请使用应用栏的返回按钮：详情屏幕通常会隐藏导航栏。
+
+### 在导航栏与导航抽屉之间选择
+
+| 方面 | [导航栏](/zh-cn/components/navigation-bar/) | 收起的[导航抽屉](/zh-cn/components/navigation-drawer/) | 展开的[导航抽屉](/zh-cn/components/navigation-drawer/) |
+| --- | --- | --- | --- |
+| 所在位置 | 沿底边 | 沿起始侧边缘的一列图标 | 起始侧边缘的一块面板里 |
+| 窗口 | Compact | Medium 及更宽 | Expanded 及更宽（标准），或 compact（模态） |
+| 目的地 | 三到五个 | 它的顶级目的地和分组，各占一个单元格 | 产品有多少就放多少，按分区和分组组织 |
+| 一个目的地 | 图标在上，单行标签在下，图标上可带徽标 | 在图标之后截断的行：只有图标，图标上可带徽标，名称放在工具提示里 | 一行：可选的图标、可换行的标签，以及末尾的后置文本或内容 |
+| 它还容纳 | 没有别的 | 页眉：菜单按钮和主操作，后者收起为它的图标 | 页眉：菜单按钮、标题或账户切换器，以及主操作 |
+| 在原生平台上，目的地是 | 标签栏的一个标签 | 带选中状态的按钮 | 带选中状态的按钮 |
+| 它是什么 | 布局区域 | 布局区域，或布局中的一列，模态抽屉从这一列展宽 | 标准：布局区域。模态：模态浮层 |
+
+- **收起的导航抽屉就是导航轨道（navigation rail）。** 可收起的抽屉在内容需要宽度时收窄为一列图标，它的菜单按钮再把它展宽；每个图标都留在原位。Tanrei 原先独立的导航轨道已并入这种形态。
+- **导航栏和导航抽屉是同一组目的地的两种摆放位置。** 它们接收相同的目的地和相同的选择，所以随窗口自适应的产品可以在某个断点把导航栏换成导航抽屉，而不必改动目的地。一次只显示其中一个，绝不同时显示。
+- **导航抽屉容纳得更多。** 当产品的目的地多到导航栏放不下，或者它们可以归成几组（例如邮件应用的文件夹和标签）时，使用展开的导航抽屉。在大窗口上，标准抽屉位于内容旁边。在 compact 窗口上，模态抽屉由菜单按钮唤出，从内容上方滑入。
+- **可收起的模态抽屉**把它那一列图标留在布局中；菜单按钮打开它时，它在遮罩之上、内容上方展宽。
+- 在每个平台上，两者都按目的地的值选择（Compose 用每个项上的标志，Flutter 用索引），并触发 `change` 和 `reselect`。
+
+### 标签
+
+| `labelVisibility` | 效果 | 适用于 |
+| --- | --- | --- |
+| `always`（默认） | 每个目的地都绘制标签。 | 大多数导航栏。有了标签，目的地一眼就能认出来。 |
+| `selected` | 只有当前目的地绘制标签。没有标签的图标位于其目的地的正中。任何目的地都不会随选择改变大小或位置。 | 空间紧张、图标又广为人知的导航栏。 |
+| `never` | 所有目的地都不绘制标签。 | 媒体和社交类产品，它们的四五个图标人人都认识。 |
+
+没有绘制出来的标签仍然是目的地的无障碍名称，所以每个目的地都需要标签。
+
+### 选择与徽标
+
+- **活动指示器。** 每个目的地都有一个框：它在导航栏宽度中平分到的那一份，并以同一个内缩量（默认系统中为 4）从导航栏的边缘——上、下和两端——向内收进。在一个宽 360、高 64 的导航栏里，四个目的地各有一个 88 × 56 的框，在默认系统中是胶囊形。同一个导航栏中，无论里面放了什么，每个目的地的框都一样大，绝不按图标和标签来决定大小。当前目的地的框会被填充，它就成了活动指示器，其图标也以填充样式显示。每个目的地的悬停、聚焦和按下都画在这同一个框里。
+- **滑动。** 选择改变时，指示器保持完整的大小，从旧目的地滑到新目的地。图标和标签只在被指示器盖住的地方反色，所以指示器途经的目的地会在它下面短暂变色，而指示器到位时，新目的地已完全反色。从没有选择变为有选择时，指示器在新目的地上淡入；变为没有选择时，它淡出。它从不放大或缩小。导航栏初次出现时，或者当前目的地在没有新选择的情况下改变了大小（字体加载完成、文本大小变化），指示器会立即就位。在减弱动态效果时，变化立即完成。
+- **拖动。** 在某个目的地处于选中状态时，用触摸、触控笔或鼠标按住导航栏并横向移动，指示器就会跟着指针走。松开之前不会选中任何东西：`value`、焦点、各图标的填充样式以及朗读的内容都留在当前目的地上。松开时，会选中指示器所处的两个目的地中较近的那个，或快速滑动所朝向的那个，并触发一次 `change`。如果松开时回到了当前目的地，则什么都不触发，`reselect` 也不触发。Escape 取消拖动。拖动永远不是唯一的方式：轻点、点击、Enter 和 Space 仍像以前一样进行选择。
+- **再次选择。** 再次选择当前目的地会触发 `reselect`，而不是 `change`。通常的响应是把那个屏幕滚动到顶端，或回到它的第一页。
+- **徽标。** 带计数的徽标显示数字（超过 999 时显示 999+），不带计数的显示圆点。`badgeLabel` 是屏幕阅读器在目的地名称之后朗读的内容，例如“3 封未读”。圆点没有数字可读，所以它总是需要这个标签。目的地被禁用时，徽标仍然保留。
+
+### 链接
+
+在由一个个独立页面组成的网站里，给每个目的地一个 `href`，并把导航栏的 `value` 设为页面自己的地址。这样，当前目的地和当前页面就是同一件事，只用一个标记。
+
+- **跟随，而不是选中。** 对链接的普通激活会触发 `change`（在当前目的地上则是 `reselect`），带着目的地的值和它的 `href`，随后浏览器才跟随链接。导航栏不写入 `value`：活动指示器留在 `value` 所指的目的地上，`value` 改变时才移动。
+- **路由。** 取消这个事件，就可以自己接管导航：前往 `detail.href`，并设置 `value`。指示器随即滑到新的目的地。
+- **其他标签页。** 带修饰键的点击或 Enter、中键点击、`target` 为 `new` 的链接，以及下载，都交给浏览器处理。导航栏什么也不触发，什么也不选中。
+- **新上下文。** `target: new` 打开新的标签页或窗口。目的地是图标在上、标签在下，没有放标记的位置，所以不绘制标记：`targetLabel` 把这一点告诉辅助技术，位于徽标的描述之后。
+- **拖动。** 从链接上开始的横向拖动移动的是活动指示器，不会把链接的地址拖出来。在某个链接上松开，就等于在那个链接上的一次普通按下：指示器回到当前目的地，直到 `value` 改变。
+- **禁用。** 禁用的链接无论用什么方式都无法打开，并且退出焦点顺序。
+
+### tonal 与 filled
+
+| `variant` | 当前目的地 | 适用于 |
+| --- | --- | --- |
+| `tonal`（默认） | 柔和的指示器，使用 secondary container 颜色，图标和标签使用该容器的内容颜色。 | 大多数导航栏。 |
+| `filled` | 强烈的指示器，使用 primary 颜色，其上的图标和标签反色显示。 | 必须从内容繁杂的屏幕中凸显出来的导航栏：地图、照片网格、播放器。 |
+
+没有被指示器盖住的目的地在两种变体中外观相同。变体改变的是选择标示得有多强，而不是朗读的内容：tonal 和 filled 的导航栏暴露相同的名称、角色和状态。被禁用的当前目的地保留它的 tonal 指示器，其上是禁用样式的内容；filled 指示器则像禁用的 filled `Button` 那样变淡，因为 primary 颜色上的禁用内容会难以辨认。
+
+`m3-like` 和 `cupertino` 预设不包含 `filled`，因为 Material 的导航栏和 Apple 的标签栏都只有一种样式。`m3-like` 保留 Material 的做法：框只在图标背后，标签在它下方，目的地四周没有框；`cupertino` 只用它的着色来标示当前标签。在这两个预设下，拖动时看不到任何东西移动，但松开时仍会进行选择。
+
+### 推荐
+
+- 标签只用一个简短的词：“收件箱”“搜索”“个人资料”。目的地容纳不下的标签会在末尾以省略号截断，任何内容都不换行。
+- 只有当 tonal 指示器会淹没在导航栏背后的屏幕中时，才使用 `filled`。
+- 在每个顶级屏幕上保持相同的目的地和相同的顺序。
+- 每个目的地使用相同的图标风格，并让导航栏为当前目的地绘制填充样式。
+
+### 避免
+
+- 不要用导航栏放“新建”或“分享”这样的操作。请使用主操作按钮或应用栏。
+- 不要在里面放少于三个或多于五个目的地。调试构建会报告这个数量。把其余的移到导航抽屉里。
+- 不要隐藏有时不可用的目的地。请禁用它，让导航栏保持原有的形态。
+- 不要同时在每个目的地上都显示徽标。
+
+## 无障碍
+
+<ComponentAccessibility name="navigation-bar" />
+
+### 组件负责的部分
+
+- 在 Web 上，导航栏是一个由 `label` 命名的导航地标。每个目的地是链接（带 `href`）或按钮，当前目的地带有 `aria-current="page"`，链接和按钮都是如此：“当前页面”没有第二种状态。它不是标签页列表：在整屏之间切换，既没有标签面板，也不用方向键移动。
+- 在 iOS、Android、Flutter 和 React Native 上，导航栏就是平台的标签栏，与它们自带的底部栏一样。每个目的地是一个元素，带有标签角色（在 SwiftUI 上是带选中特征的按钮）、选中状态和所在位置，无论标签是否绘制，都以标签命名。屏幕阅读器会朗读，例如：“收件箱，标签，第 1 个，共 4 个，已选中，3 封未读”。
+- 图标对辅助技术隐藏。徽标会在名称和状态之后加上它的描述（`badgeLabel`，或它显示的数字），会打开新上下文的链接再在其后加上它的 `targetLabel`。
+- 每个未禁用的目的地都是独立的 Tab 停靠点，与导航区域中的链接一样。Enter 和 Space 激活获得焦点的目的地（对 Web 上的链接只有 Enter）。禁用的目的地不接受焦点，并朗读为已禁用。
+- 焦点环绘制在目的地的框周围，并限制在导航栏之内，只在键盘聚焦时显示。
+- 拖动指示器在松开之前不会改变任何朗读的内容，也从不移动焦点。
+- 指示器盖住的每个图标和标签的反色副本只是装饰：辅助技术对每个目的地只会遇到一次，`variant` 也不改变朗读的内容。
+- 整个单元格都是点击区域：导航栏的全部高度和平分到的宽度，至少达到最小目标。导航栏如果窄到放不下它的目的地，仍会平分宽度：单元格会收窄到目标尺寸以下，而不是让导航栏超出它所在的空间。
+- 文本变大时，导航栏会随之变大，每个目的地的框也一样，使标签仍能排在一行里。图标不会缩放。被截断的标签仍完整地作为目的地的名称。在 iOS 提供大内容查看器（large content viewer）的地方，长按会放大显示目的地的图标和标签。
+- 调试构建会报告：目的地少于三个或多于五个，目的地没有标签，值不对应任何目的地，以及同一个值被使用了两次。它们还会报告：会打开新上下文却没有 `targetLabel` 的链接、指向脚本或无法解析的 `href`，以及导航栏没有定义的 `target`。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 没有链接目的地：在这些平台上，目的地还不接受 `href`。
+- Web：所有尺寸都跟随 `rem`，因此调大浏览器的文本大小时，项的容器和图标也会变大。只放大 Tanrei 的文字则不会。
+- SwiftUI：单元格的最小尺寸是平台自己的目标尺寸，在 macOS 上是 44 点，而规格指定的是 48 点的触摸目标。
+- SwiftUI：在 iOS 以外，目的地把它的位置作为值文本（“2 of 4”）携带，而且只有英文。图像图标（例如 SF Symbol）不会跟随选择变化：请自己为选中的目的地传入填充样式的符号。大内容查看器已经内建，但还没有测试覆盖它。
+- Compose 没有导航栏级别的值，所以“值不对应任何目的地”这种情况无从报告：不把任何项标记为 selected，就是不选中任何一个。
+- Flutter 的语义中没有“在集合中的位置”，所以不会朗读“第 1 个，共 4 个”。
+- SwiftUI、Flutter 和 React Native 会立即切换图标的字体族和填充样式，而不是随选择动效逐渐过渡。
+- React Native 没有大内容查看器。目的地把它的位置作为值文本（“1 of 4”）携带，除非你传入 `positionText`，否则是英文。
+- React Native：选择动效、边衬区以及 TalkBack 和 VoiceOver 朗读的内容，尚未在真机上验证。
+- 所有平台，默认系统：tonal 指示器相对于导航栏的对比度约为 1.15:1，iOS 的无障碍审计会把它标出来。填充样式的图标和标签的颜色同样标示着选择；在这一点要紧的地方，`filled` 提供对比度至少 3:1 的指示器。
+
+### 需要你做的事
+
+- 给每个目的地一个标签，即使导航栏不绘制任何标签。
+- 用 `label` 给导航栏命名，例如“主导航”，屏幕上还有别的导航区域时尤其如此。
+- 给每个徽标一个 `badgeLabel`，说明它统计的是什么；圆点则一定要有。
+- 让每个目的地的值保持唯一且稳定。
+- 在由一个个独立页面组成的网站里，在每个页面上把 `value` 设为该页面对应的目的地。导航栏不会自己选中链接。
+- 给在新标签页中打开的链接一个用你的产品语言写的 `targetLabel`，例如“在新标签页中打开”。Tanrei 不自带任何文字。
+- 在 Compose 上，只把一个项标记为 `selected`，或者一个也不标记。在 Flutter 上，把收到的索引与 `selectedIndex` 比较，以区分再次选择和选择变更。
+- 在 React Native 上，传入用你的产品语言写的 `positionText`，并把窗口的边衬区交给 `TanreiProvider`。

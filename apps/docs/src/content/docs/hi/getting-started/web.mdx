@@ -1,0 +1,159 @@
+---
+title: Web
+description: किसी भी वेब प्रोजेक्ट में Tanrei के CSS टोकन और Web Components इस्तेमाल करें।
+translationOf: getting-started/web.mdx
+sourceHash: f90530af900eada26b7ea7f446e046888fcdf091
+---
+
+import Steps from '../../../../components/Steps.astro';
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+`@tanrei/web` में दो चीज़ें हैं: डिज़ाइन टोकन की एक स्टाइलशीट, जिसमें टोकन CSS कस्टम प्रॉपर्टी के रूप में हैं, और Lit से बने, वेब मानकों पर आधारित कस्टम एलिमेंट। इसके लिए किसी फ़्रेमवर्क की ज़रूरत नहीं है।
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+
+## इंस्टॉल करें
+
+### सोर्स से
+
+आपको Git, Node 22.12 या उसके बाद का वर्शन और pnpm 12 चाहिए (`corepack enable` से आपको वही वर्शन मिलता है जो रिपॉज़िटरी में तय है)। रिपॉज़िटरी के क्लोन में पैकेज बिल्ड करें, उसे पैक करें, और पैक की गई फ़ाइल अपने प्रोजेक्ट में इंस्टॉल करें:
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/web build
+pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
+```
+
+```sh
+# अपने प्रोजेक्ट में: उस फ़ोल्डर का पाथ जिसमें पैकेज लिखे गए
+npm install path/to/tanrei-packages/tanrei-web-*.tgz
+```
+
+पैक की गई फ़ाइल में वही है जो कोई रिलीज़ प्रकाशित करेगी, इसलिए नीचे का सब कुछ उसी तरह काम करता है। सोर्स की नई स्थिति लेने के लिए pull करें, फिर से बिल्ड और पैक करें, और नई फ़ाइल इंस्टॉल करें।
+
+### पहली रिलीज़ के बाद
+
+```sh
+npm install @tanrei/web
+```
+
+## इस्तेमाल
+
+<Steps>
+
+1. टोकन एक बार लोड करें, जितना पहले हो सके। वे एक कैस्केड लेयर (`tanrei.tokens`) में लिपटे हैं, इसलिए आपकी अपनी स्टाइल हमेशा उन पर भारी पड़ती हैं।
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   ```
+
+2. कंपोनेंट रजिस्टर करें। सब कुछ इंपोर्ट करें, या सिर्फ़ वे एलिमेंट जो आप इस्तेमाल करते हैं।
+
+   ```js
+   import '@tanrei/web';
+   // या, एक-एक एलिमेंट:
+   import '@tanrei/web/components/button';
+   ```
+
+   `@tanrei/web/…` वाले स्पेसिफ़ायर पैकेज के एक्सपोर्ट हैं: इन्हें कोई बंडलर (Vite, webpack, esbuild) रिज़ॉल्व करता है। बंडलर के बिना ब्राउज़र `<link>` या `<script src>` में बेयर स्पेसिफ़ायर रिज़ॉल्व नहीं कर सकता, इसलिए पैकेज का `dist/` सर्व करें और सीधे फ़ाइलों की ओर इशारा करें — स्टाइलशीट जैसी हैं वैसी ही, और `tanrei.bundle.js`, जिसमें Lit और हर एलिमेंट शामिल है:
+
+   ```html
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
+   ```
+
+3. एलिमेंट को किसी भी दूसरे HTML की तरह इस्तेमाल करें।
+
+   ```html
+   <tanrei-button variant="filled">डिप्लॉय करें</tanrei-button>
+   <tanrei-button variant="outlined" size="small" disabled>रद्द करें</tanrei-button>
+   ```
+
+4. अपने प्रॉडक्ट के शब्द दें। Tanrei अपना कोई शब्द साथ नहीं देता: ज़रूरी या वैकल्पिक के टैग का टेक्स्ट, बंद करने वाले बटन का नाम और ऐसे दूसरे शब्द आपके हैं। उन्हें हर भाषा के लिए एक बार दें, या हर एलिमेंट पर लिखें।
+
+   ```js
+   import { setWords } from '@tanrei/web';
+
+   setWords({ requiredText: 'ज़रूरी', optionalText: 'वैकल्पिक', closeLabel: 'बंद करें' });
+   ```
+
+   शब्द के बिना भी कंपोनेंट काम करता है, और कंसोल में बताता है कि कौन-सा शब्द नहीं मिला। देखें [शब्द](/hi/foundations/words/)।
+
+</Steps>
+
+<DemoFrame>
+  <tanrei-button variant="filled">डिप्लॉय करें</tanrei-button>
+  <tanrei-button variant="outlined" size="small" disabled>रद्द करें</tanrei-button>
+</DemoFrame>
+
+## थीम और कंट्रास्ट
+
+टोकन के मान `light-dark()` इस्तेमाल करते हैं, इसलिए वे उस एलिमेंट की `color-scheme` के अनुसार चलते हैं जिस पर उनका इस्तेमाल हुआ है। बिना कुछ किए इसका मतलब है ऑपरेटिंग सिस्टम की सेटिंग, और `prefers-contrast: more` होने पर उच्च कंट्रास्ट वाली स्कीम लागू हो जाती है।
+
+नियंत्रण अपने हाथ में लेने के लिए ऐट्रिब्यूट सेट करें:
+
+```html
+<!-- पूरे पेज या किसी भी सबट्री के लिए थीम तय करें -->
+<html data-tanrei-theme="dark">
+
+<!-- पूरे पेज के लिए कंट्रास्ट का स्तर तय करें: "medium" या "high" -->
+<html data-tanrei-contrast="high">
+```
+
+<Callout>
+  दोनों ऐट्रिब्यूट `<html>` पर या किसी भी सबट्री पर काम करते हैं। जनरेट की गई स्टाइलशीट पूरा टोकन सेट `:root, [data-tanrei-contrast]` पर घोषित करती है, इसलिए किसी नेस्टेड एलिमेंट पर लगा `data-tanrei-contrast` उसके भीतर सिर्फ़ सिस्टम के रंग ही नहीं, कंपोनेंट टोकन भी उसी कंट्रास्ट स्तर के हिसाब से दोबारा रिज़ॉल्व करता है।
+</Callout>
+
+## अपनी CSS में टोकन
+
+हर टोकन एक कस्टम प्रॉपर्टी है, जिसका नाम उसके पाथ से बनता है: `tanrei.sys.color.primary` का नाम `--tanrei-sys-color-primary` बन जाता है।
+
+```css
+.panel {
+  background: var(--tanrei-sys-color-surface-container-low);
+  border-radius: var(--tanrei-sys-shape-corner-medium);
+  box-shadow: var(--tanrei-sys-elevation-level1);
+  font: var(--tanrei-sys-typescale-body-font);
+}
+```
+
+## टेक्स्ट स्टाइल
+
+टेक्स्ट स्टाइल के नाम उनके स्तर पर रखे गए हैं (`heading-2` एक `h2` है, `body` एक `p`, और `label` किसी कंट्रोल पर लिखा टेक्स्ट), और हर स्टाइल कस्टम प्रॉपर्टी का एक सेट है: शॉर्टहैंड के रूप में `--tanrei-sys-typescale-<role>-font`, और साथ में `-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` और `-font-weight-emphasized`। दो वैकल्पिक स्टाइलशीट इन्हें आपके लिए एलिमेंट पर लगा देती हैं:
+
+```js
+import '@tanrei/web/text.css';   // .tanrei-text-<role>, .tanrei-text-emphasized
+import '@tanrei/web/prose.css';  // .tanrei-prose के भीतर h1–h6, p, small, code, pre
+```
+
+```html
+<h2 class="tanrei-text-heading-2">सेक्शन</h2>
+<p class="tanrei-text-body">चलता टेक्स्ट, जिसमें <strong class="tanrei-text-emphasized">ज़ोर</strong> भी है।</p>
+<article class="tanrei-prose"><!-- रेंडर किया गया Markdown --></article>
+```
+
+`.tanrei-text-emphasized` जिस रोल के भीतर है, उसी रोल को उसके वेट में फ़ैमिली का एम्फ़ेसिस स्टेप जोड़कर दिखाता है; यह एक वेट है, कोई अलग रोल नहीं। सोलह रोल और एलिमेंट से उनका मिलान [टाइपोग्राफ़ी](/hi/foundations/typography/) पेज पर है।
+
+## फ़ॉन्ट
+
+टाइप स्केल Inter, Noto Sans JP, Noto Sans और Roboto Mono माँगता है (`tokens.css` में `--tanrei-ref-typeface-{brand,plain,mono}`; `tanrei build` किसी भी सिस्टम के लिए यह सूची छापता है), आइकन Material Symbols Rounded माँगते हैं, और हर चीज़ का फ़ॉलबैक सिस्टम फ़ॉन्ट है। Tanrei फ़ॉन्ट फ़ाइलें साथ में नहीं देता; इन्हें ठीक इन्हीं फ़ैमिली नामों से ख़ुद लोड करें — Google Fonts से, या `@fontsource-variable/*` पैकेजों से (ये `Inter Variable` जैसे नाम रजिस्टर करते हैं: सादे नाम के साथ अपना `@font-face` घोषित करें जो उनकी फ़ाइलों की ओर इशारा करे, जैसा यह साइट करती है)।
+
+## आइकन
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>जोड़ें</tanrei-button>
+```
+
+`.tanrei-icon` किसी [Material Symbols](https://fonts.google.com/icons) नाम को सिस्टम के आइकन वेट के साथ बनाता है और अपना साइज़ उस जगह से लेता है जहाँ वह रखा गया है। आउटलाइन वाला या भरा हुआ, यह आप कभी नहीं चुनते: [आइकन](/hi/foundations/icons/) देखें।
+
+## ब्राउज़र सपोर्ट
+
+टोकन `light-dark()` और कैस्केड लेयर पर निर्भर हैं, जो Chrome, Edge, Firefox और Safari के मौजूदा वर्शन में उपलब्ध हैं।

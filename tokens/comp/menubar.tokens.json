@@ -1,0 +1,228 @@
+{
+  "tanrei": {
+    "comp": {
+      "menubar": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product that is an application — an editor, a spreadsheet, a drawing or planning tool — has more commands than its screen can show as buttons, and keeps all of them within reach in one persistent row of named menus across the top of its window (File, Edit, View…). It styles that row and its titles apart from the rows inside the menus the titles open: how tall a title is, how it is padded and rounded, how far titles stand apart, whether the row has a fill, and how the title of the open menu stays marked. One or two commands or places it wants in one press — \"Run\", \"Documentation\" — stand in the same row as entries that act by themselves and are drawn as the titles are.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "expanded"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "label.color": "color",
+              "icon.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "container.shape": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a menubar draws of its own: the bar (its fill, paddings and the gap between titles), a title or a bar item (its height, padding, corners, text style, the size of the glyph an entry may draw — the overflow item's, a link item's new-context mark — and the gap between a label and that mark), the colors of a title in each condition (unselected, expanded = the title whose menu is open) and state, and the motion of a title's state change and press. The surfaces the titles open are Menus and read comp.menu.* — nothing here restyles them.",
+            "rules": [
+              "A menubar holds menus and, beside them, a few bar items that act by themselves: an action that runs at once, or a link. It holds no field, no toggle and no checkbox or radio entry: a choice that is switched belongs in a menu. A row of bar items with no menu is not a menubar: actions alone are a toolbar, and a row of links to a site's pages is navigation.",
+              "A bar item is drawn from the unselected condition, exactly as a title: no token sets an action, a link item or the current link item apart. The current link item is told by its label's weight (sys.typescale.emphasis.label), never by a fill or a color of its own; a link item that opens a new context is told by the mark open_in_new, container.gap after its label, at icon.size in the condition's icon.color.",
+              "Use a menubar only for an application's commands, and only when there are enough of them to need several named menus. A short set of options belongs in one Menu opened from a button.",
+              "Each condition's state-layer.color is the color hover, focus and press mix into a title's container; it aliases that condition's label color.",
+              "The title of the open menu is drawn from the expanded condition. Never mark it by color alone in a way that could be read as a selection: nothing in a menubar is selected.",
+              "bar.color is transparent in the default system: the bar takes the color of the chrome it stands on. A design system that fills its bar sets bar.color and checks each condition's label color against it.",
+              "The menus a bar opens are Menus: restyle them through comp.menu.* and every menu of the product changes with them. There is no token here that sets a bar's menus apart from the product's other menus.",
+              "A title's height is a visual size; its hit area extends to the minimum target (MBR-17). bar.gap is what neighbouring hit areas meet in the middle of.",
+              "Restyle through these tokens in a layer; never fork the component."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            }
+          }
+        },
+        "bar": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "hex": "#000000"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "The bar has no fill of its own in the default system; the chrome it stands on shows through."
+              },
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product draws its menu row as part of the window's chrome, in the chrome's color; another sets it off as a strip of its own tone above the content. The token is the place where the second product says so, and where a design system that fills its bar is checked for the contrast of the titles on it.",
+                "since": "0.1.0"
+              }
+            },
+            "$description": "The fill of the whole bar, behind every title and across its full width."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Space between the bar's start and end edges and its first and last titles."
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Space above and below the titles. With container.height it gives the bar's height: 4 + 40 + 4 = 48 in the default system, which is sys.target.touch, so that a title's touch target lies inside the bar."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space25}",
+            "$description": "Distance between the visible bounds of two neighbouring titles. Their hit areas meet at the middle of it (MBR-17). It is small because the titles of one bar are read as one row of words, and not zero so that the open title's fill and a hovered neighbour's stay two shapes."
+          }
+        },
+        "container": {
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 40,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 10
+              }
+            },
+            "$description": "Minimum height of a title's container: the medium Button's 40, because a title is pressed as a button is. It grows with enlarged text; the hit area extends to the minimum target."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Space between a title's container edge and its label, on each side: 12, the inset of a menu's own rows (comp.menu.container.padding-inline), so that a title's label stands over the labels of the menu it opens once the menu's own inset is added."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Distance between a bar item's label and the mark after it: the glyph open_in_new of a link item that opens a new context (MBR-37). 4 in the default system, so that the word and its mark read as one entry: the mark stands much nearer its own word than the next entry's, which is two paddings and bar.gap away."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.small}",
+            "$description": "The corners of a title's container, which the state layer and the open title's fill take: the step a menu's own row has, because a title is one choice among several in a row and not a button that stands alone."
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label}",
+            "$description": "A title's text style: the style of a menu's own item labels, so that the bar and its menus read as one list in two directions."
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.medium}",
+            "$description": "The glyph box of a glyph an entry draws: the overflow item's more_horiz, and the new-context mark open_in_new after a link item's label (MBR-37)."
+          }
+        },
+        "unselected": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A title has no fill at rest; the bar, or what the bar stands on, shows through."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The glyph of the overflow item (more_horiz), the one entry that is a glyph and not a word, and the new-context mark after a link item's label: each takes the color a title's label has, so that it reads as part of the row of words."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.menubar.unselected.label.color}",
+              "$description": "The color hover, focus and press mix into the title's container: the label's color."
+            }
+          }
+        },
+        "expanded": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-high}",
+              "$description": "The title of the menu that is open: a quiet fill that stays while the pointer and focus are in the menu below it, so that the bar keeps saying which menu is shown (MBR-9). The default system does not draw this tone: it values this token as the hover layer (expanded.state-layer.color at sys.state.hover-state-layer-opacity, in tokens/systems/tanrei.system.json), as it does for the menu's own item whose submenu is open, because the bar has no fill of its own and a tone chosen against one surface may not show on another. A design system that sets this token draws what it sets."
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The glyph of the overflow item (more_horiz), the one title that is a glyph and not a word: it takes the color a title's label has, so that it reads as one more title."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.menubar.expanded.label.color}",
+              "$description": "The color hover, focus and press mix into the title's container: the label's color."
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+# @tanrei/studio — Theme Studio
+
+> **Pre-release.** Nothing has been released. Theme Studio runs on the docs site, <https://tanrei.chnotchy.com/foundations/theme-studio/>, and locally through `tanrei studio` once `@tanrei/cli` is built from source: <https://tanrei.chnotchy.com/getting-started/your-design-system/>.
+
+Theme Studio is a GUI over **one layer file**, `<id>.system.json` (the file [`tanrei init`](../cli/README.md) writes). Its state *is* that file: every level reads and writes the same JSON object, so switching levels loses nothing and nothing is kept on the side. What it shows is what `tanrei build` will generate — values come from [`@tanrei/token-engine`](../token-engine/README.md), the preview's CSS from the build's own emitter and the warnings from the build's own invariants (`@tanrei/tokens-build`), and the tests build Studio layers with the real pipeline and compare whole sheets.
+
+The package is private: it is not published on its own. It ships two ways —
+
+- as the **standalone app** in `dist-app/`, which `tanrei studio` (`@tanrei/cli`) serves next to its HTTP API;
+- as a **module** any Vite-bundled page can mount (`mountStudio`), which is how the docs site hosts it at `/foundations/theme-studio/` with the layer kept in the browser.
+
+## Four levels
+
+| Level | What it shows |
+|---|---|
+| **Essentials** | A base, a brand color and four sliders. Enough for a quick setup; everything else follows. |
+| **Groups** | All seven dials, every palette, each component, and what the layer adds to the vocabulary. Typefaces, Icons, Shape (the corner-smoothing slider) and Behaviour write pins, each asking for one reason. |
+| **Every token** | Every token of the system, in two panes: a tree that only chooses (`<tanrei-tree-view>`, one stop of the Tab key; a group's rows are written when it opens) and, beside it — under it where the panel is narrow — the chosen token's editor. Each token offers exactly the operations a layer may write for it (`legalOperations` of the engine): a choice of kind is picked by name, never typed as a number. |
+| **Source** | The layer file itself. The other three levels are views of this JSON. |
+
+A control left at its base value writes nothing, so an untouched Studio exports `{ "id", "extends" }`.
+
+## Run it
+
+**In a product**, from the directory that holds `tanrei.json`:
+
+```sh
+npx tanrei studio [--config tanrei.json] [--port <n>] [--no-open]
+```
+
+The server binds to `127.0.0.1` on a random free port (or `--port`), prints a link that carries a one-time key, opens it (unless `--no-open`), and edits the layer file in place: saves are atomic, conditional (`If-Match`) and refused when the engine would refuse the layer, so what `tanrei build` would reject is never written. Its **Build** writes the outputs `tanrei.json` names. Ctrl+C stops it. The server is `packages/cli/src/studio-server.js`; the security notes are at the top of that file.
+
+**In this repository:**
+
+```sh
+pnpm --filter @tanrei/studio build:app     # → dist-app/ (what the CLI serves; a stale one makes `tanrei studio` show an old Studio)
+pnpm --filter @tanrei/studio dev:app       # Vite dev server over app/ — no file attached: the layer stays in browser storage
+```
+
+To develop the app against a real file, run the mock server (`test/mock-server.mjs`, the same HTTP contract as the CLI's, without its hardening) and point Vite's `/api` proxy at it:
+
+```sh
+node test/mock-server.mjs --file /tmp/acme.system.json --port 4400 --token dev   # creates the file if it is missing
+TANREI_STUDIO_API=http://127.0.0.1:4400 pnpm --filter @tanrei/studio dev:app        # then open the Vite URL with `#token=dev`
+```
+
+`--app dist-app` makes the mock server serve a built app itself (no Vite), the way the CLI does.
+
+## Mount it in a page
+
+```ts
+import { createHttpAdapter, mountStudio, takeToken } from '@tanrei/studio';
+import '@tanrei/web/tokens.css';   // the Studio's chrome is drawn with the default system's tokens on :root
+
+mountStudio(document.querySelector('#studio')!, { lang: 'en' });                          // browser storage, import/export
+mountStudio(root, { lang: 'ja', adapter: createHttpAdapter({ token: takeToken() }) });    // edits a file through a server
+```
+
+`StudioOptions`: `lang` (a BCP 47 tag, case-insensitive — the Studio speaks `en`, `ja`, `zh-CN`, `hi`, `es` and `ar`, and takes a longer tag by its language (`es-MX` → `es`); any other language is hosted in English; `studioLanguages()` lists the translated ones, each with its own name, and `studioDirection()` says which are written right-to-left — the Studio's root then gets `dir="rtl"` unless its host already is), `adapter` (a `StudioAdapter`; without one the layer lives in `localStorage`), `links.layers` (where the prose links to the design-systems page; a host without that page leaves it out), `saveDelay` (autosave delay in ms, adapter only). The host bundles with Vite and the plugin from `@tanrei/studio/vite`, which compiles the layer schema to a validator at build time (the CLI serves the app under a CSP without `unsafe-eval`) and swaps the build's filesystem-bound imports for their pure halves. The Studio's controls are Tanrei's own components (tree view, color field, number field, combobox, select, radio group, text field, text input, field group, tag group, chips, empty state, callout). A value is shown while it is typed, stepped or picked and saved when it is committed. The words those components read come from the same dictionary (`src/strings/`, `words`): the Studio gives them once with `setWords()` for its own language tag (`<lang>-x-studio`, the `lang` of its root), so the host page's words are neither needed nor written over; `window.<namespace>Studio.missingWords()` lists a word a component lacked. The host also loads the fonts the tokens name; `@tanrei/studio/studio.css` is the Studio's own stylesheet, imported by the entry module.
+
+The HTTP contract an adapter speaks (`src/adapter-http.js`): `GET /api/session`, `GET|PUT /api/layer` (with `If-Match`; `409` hands back the current file, `422` the problems), `GET /api/parents`, `POST /api/build[?dry=1]`, and an event stream (`POST /api/events/ticket`, then `GET /api/events?ticket=…`) that says when the file, or a layer next to it, changed on disk. The token travels in the `X-Tanrei-Token` header, never in a URL.
+
+## Layout and tests
+
+| Path | What |
+|---|---|
+| `src/core.js` | the pure half: layer → documents, scoped CSS, warnings; every edit is a function `layer → layer` |
+| `src/data.ts` | browser wiring: the repository's own `tokens/` and `tanrei.config.json`, bundled — never a hand-kept copy |
+| `src/ui/`, `src/ui.ts` | the page |
+| `src/strings/` | its words: one file per language — English (the source), Japanese, Simplified Chinese, Hindi, Spanish, Arabic — each with exactly the keys of `en.ts` (the type check and `test/strings.test.js` hold them to it); `index.ts` is the registry. A leaf is a string, a pair, or a function: a sentence that holds a count, a name or a value is a function of it, and what stands between two pieces of text (`labelled`, `withCount`, `named`, `listed`, `sentences`) is the language's too — the code under `src/ui/` writes no separator of its own, and puts an element into a sentence with `rich()` (`src/ui/dom.ts`). A file that exports `UNTRANSLATED` is still English, and that language is neither spoken nor offered (none is today) |
+| `src/adapter-http.js` | the HTTP adapter and the token handling |
+| `app/` | the standalone app (`index.html`, `main.ts`, Vite config) |
+| `test/*.test.js` | Node tests, including `parity.test.js` (Studio output = `tanrei build` output) and `adapter.test.js` (against `test/mock-server.mjs`) |
+| `test/browser/` | the page in a real browser: `pnpm test:browser` builds the app into a temporary directory and starts a mock server per test |
+
+`pnpm --filter @tanrei/studio test` runs both suites. The docs page ([Theme Studio](https://github.com/chnotchy/tanrei/blob/main/apps/docs/src/content/docs/foundations/theme-studio.mdx)) describes what each control writes into the layer.

@@ -1,0 +1,24 @@
+---
+title: رموز الحركة
+description: رموز النوابض والمدد ومنحنيات التسارع.
+translationOf: tokens/motion.mdx
+sourceHash: c524fce45805382c2430560ed82dd0e9036683a0
+---
+
+import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
+
+رموز الحركة (tokens) تحت `tanrei.sys.motion`. للإرشادات، اقرأ [الحركة](/ar/foundations/motion/).
+
+## النوابض
+
+لكل نابض أربعة رموز فرعية. الرمزان `stiffness` و `damping` يحرّكان المنصات التي فيها حركة نابضية؛ والرمزان `duration` و `easing` هما التقريب المستخدم حيث لا تتوفر النوابض، كما في CSS.
+
+<MotionTokens part="spring" />
+
+## المدد
+
+<MotionTokens part="duration" />
+
+## منحنيات التسارع
+
+<MotionTokens part="easing" />

@@ -1,0 +1,24 @@
+---
+title: Tokens de movimiento
+description: Tokens de muelle, de duración y de curva de aceleración.
+translationOf: tokens/motion.mdx
+sourceHash: c524fce45805382c2430560ed82dd0e9036683a0
+---
+
+import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
+
+Tokens de movimiento bajo `tanrei.sys.motion`. Para las pautas de uso, lee [Movimiento](/es/foundations/motion/).
+
+## Muelles
+
+Cada muelle tiene cuatro subtokens. `stiffness` y `damping` gobiernan las plataformas con animación de muelles; `duration` y `easing` son la aproximación que se usa donde no hay muelles, como en CSS.
+
+<MotionTokens part="spring" />
+
+## Duraciones
+
+<MotionTokens part="duration" />
+
+## Curvas de aceleración
+
+<MotionTokens part="easing" />

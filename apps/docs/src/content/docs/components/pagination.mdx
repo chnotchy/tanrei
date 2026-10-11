@@ -1,0 +1,172 @@
+---
+title: Pagination
+description: The page before and the page after the one a person is on, in a sequence of pages. Two links, each named by a direction and the title of where it leads.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="pagination" />
+
+<DemoFrame label="Previous and next" column>
+  <nav class="tanrei-pagination" aria-label="Pages of this demo" style="inline-size: 100%">
+    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-pagination-label">Previous</span>
+      <span class="tanrei-pagination-title">Link</span>
+    </a>
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-pagination-label">Next</span>
+      <span class="tanrei-pagination-title">Steps</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+The pagination at the foot of this page is the same component.
+
+It pages a sequence whose pages have titles: chapters of a guide, articles of a series. Paging by number (the pages of a result set) is a later form of the same component and is not specified yet.
+
+### Usage
+
+On the web the pagination is classes on your own `nav` and anchors, not an element. The anchors are in the document, so they are links before any script runs, and a crawler and a router that works on the page's anchors find them. The stylesheet alone draws the whole component.
+
+SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet. React has no `Pagination` component yet either, so use the markup with the classes.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/pagination.css" />
+
+    <nav class="tanrei-pagination" aria-label="Pages">
+      <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="https://example.com/guide/installation/">
+        <span class="tanrei-pagination-label">Previous</span>
+        <span class="tanrei-pagination-title">Installation</span>
+      </a>
+      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/design-tokens/">
+        <span class="tanrei-pagination-label">Next</span>
+        <span class="tanrei-pagination-title">Design tokens</span>
+      </a>
+    </nav>
+
+    <!-- The first page: write the previous item without href, or leave it out. Next keeps its place. -->
+    <nav class="tanrei-pagination" aria-label="Pages">
+      <a class="tanrei-pagination-item" data-direction="previous"></a>
+      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/installation/">
+        <span class="tanrei-pagination-label">Next</span>
+        <span class="tanrei-pagination-title">Installation</span>
+      </a>
+    </nav>
+
+    <script type="module">
+      // Optional: ripple and dim feedback, the order of items given next-first, and debug reports. `@tanrei/web` loads it too.
+      import '@tanrei/web/pagination';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/pagination.css';
+    import '@tanrei/web/pagination';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <nav className="tanrei-pagination" aria-label="Pages">
+      {/* A router's link renders its own anchor: give it the class. */}
+      <RouterLink className="tanrei-pagination-item" data-direction="next" rel="next" to="/guide/design-tokens/">
+        <span className="tanrei-pagination-label">Next</span>
+        <span className="tanrei-pagination-title">Design tokens</span>
+      </RouterLink>
+    </nav>
+    ```
+  </TabItem>
+</Tabs>
+
+| Prop | On the web |
+| --- | --- |
+| `label` | `aria-label` on the `nav` |
+| an item | `<a class="tanrei-pagination-item">` |
+| `direction` | `data-direction="previous"` or `"next"`, with `rel="prev"` or `rel="next"` |
+| `label` of an item | `<span class="tanrei-pagination-label">` |
+| `title` | `<span class="tanrei-pagination-title">`, after the label |
+| `href` | `href` |
+| `click` | the anchor's own `click` |
+
+## Specs
+
+<DemoFrame label="Next alone keeps its place; labels alone" plain column>
+  <nav class="tanrei-pagination" aria-label="First page of this demo" style="inline-size: 100%">
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-pagination-label">Next</span>
+      <span class="tanrei-pagination-title">Steps</span>
+    </a>
+  </nav>
+  <nav class="tanrei-pagination" aria-label="Posts of this demo" style="inline-size: 100%">
+    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-pagination-label">Newer</span></a>
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-pagination-label">Older</span></a>
+  </nav>
+</DemoFrame>
+
+<DemoFrame label="In a narrow column the items stack" plain>
+  <nav class="tanrei-pagination" aria-label="Narrow column of this demo" style="inline-size: 20rem">
+    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-pagination-label">Previous</span>
+      <span class="tanrei-pagination-title">How the tokens of a design system are derived from a handful of dials</span>
+    </a>
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-pagination-label">Next</span>
+      <span class="tanrei-pagination-title">Right-to-left layouts</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+- **An item is one link**, pressed as a whole, drawn as an outlined container: the one hairline, no fill, the title in the text color. It is not underlined, because its edge, its arrow and its place tell it from the text around it.
+- **The arrows are the component's**: `arrow_back` at the start edge of the previous item, `arrow_forward` at the end edge of the next. They need `icons.css`.
+- **Two equal columns.** On the first page the start column is empty and the next item is exactly where it is on every other page.
+- **Stacking.** Where the pagination is given less than two minimum item widths and the gap (496 under the default system), the items stack, previous above next. It is decided by the component's own width, not the window's.
+- **A title wraps and is never cut.** Both items of a row take the height of the taller. Without a title an item shows its direction alone, in the title's style.
+- **Right to left**, previous stands at the right with an arrow pointing right and next at the left with an arrow pointing left. The reading and focus order stay previous, then next.
+
+<ComponentSpecs name="pagination" />
+
+### What the web draws differently
+
+- The stacked form is drawn by the grid's own column count, from the width the `nav` has. No container query and no media query is involved.
+- Without the package's script the stylesheet draws every state, with the overlay as the press feedback, and items given next-first are drawn in the right order but stay next-first in the focus order. Write the previous item first.
+- The stylesheet mirrors both arrows in a right-to-left layout. Under a design system whose icon set marks neither name as mirrored, the script takes the mirroring off; without the script, write `data-mirror="never"` on the items.
+- Keep the pagination outside `.tanrei-prose`, or inside a part marked `tanrei-not-prose`: prose draws its own anchors as text links.
+
+## Guidelines
+
+### Do
+
+- Put it after the content it pages, once per page.
+- Give both items on every page and leave the one without a destination without `href`. It is not drawn.
+- Write the direction in your product's words: "Previous" and "Next", or "Newer" and "Older".
+
+### Don't
+
+- Don't use it for buttons that change what is shown without an address. An item is a link.
+- Don't open a neighbouring page in a new tab. The pages of one sequence replace one another.
+- Don't give the items glyphs of your own.
+
+## Accessibility
+
+<ComponentAccessibility name="pagination" />
+
+### What the component handles
+
+- Each item is the browser's own link, named by its label and then its title ("Next Design tokens"), both of which are drawn.
+- The arrows are decorative and hidden from assistive technology.
+- The visual order follows the reading order: previous, then next, in both directions and when the items stack.
+- The keyboard focus ring is drawn around the item. Titles wrap and the items grow with the reader's text size.
+
+### What you need to do
+
+- Name the landmark with `aria-label`, in your product's language. A page has other navigation, and the name tells this one apart. Tanrei ships no words of its own.
+- Write `rel="prev"` and `rel="next"` on the anchors.
+- Write the previous item before the next item.

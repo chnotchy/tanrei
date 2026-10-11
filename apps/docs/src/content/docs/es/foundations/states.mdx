@@ -1,0 +1,53 @@
+---
+title: Estados de interacción
+description: Las capas de estado, el indicador de foco de separación y anillo, y cómo se dibuja el estado deshabilitado.
+translationOf: foundations/states.mdx
+sourceHash: 72082392521651e7f88cd4fd4707171e4d48f3d1
+---
+
+import Callout from '../../../../components/Callout.astro';
+import StateTokens from '../../../../components/tokens/StateTokens.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+Los componentes interactivos comparten un mismo vocabulario de estados: habilitado, con el cursor encima, con foco, pulsado, arrastrado, seleccionado, activado, error, cargando y deshabilitado. La especificación de un componente enumera los estados que admite, y cada plataforma debe implementarlos todos.
+
+## Capas de estado
+
+El paso del cursor, el foco, la pulsación y el arrastre se muestran con una **capa de estado**: una superposición translúcida que cubre el contenedor del componente.
+
+- La capa toma el color del **contenido**, es decir, el rol `on-` de aquello que cubre. En un botón con relleno es `on-primary`; en un botón de texto es el color de la etiqueta.
+- Su opacidad sale de un token, no del componente.
+- **Solo se ve una capa a la vez.** Cuando los estados se solapan, gana el más fuerte: pulsado sobre con foco, y con foco sobre con el cursor encima.
+- Aparece con un fundido, en una transición breve de efectos, y de inmediato al pulsar.
+
+<StateTokens />
+
+Pasa el cursor por los botones siguientes y púlsalos para ver la capa sobre distintos contenedores:
+
+<DemoFrame label="Capas de estado">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+## Foco: una separación y luego un anillo
+
+El foco del teclado se dibuja como una separación de 2px en el color de la superficie, seguida de un anillo de 2px en el rol `focus-ring`. La separación garantiza que el anillo se vea incluso cuando el relleno del propio componente es parecido al color del anillo, y se comprueba que el rol tenga un contraste de 3:1 frente a las superficies.
+
+- El anillo se muestra para el foco del teclado y de la tecnología de apoyo, no para los clics del puntero.
+- Nunca se anima.
+- Sigue la forma del componente, desplazado hacia fuera.
+
+## Sin onda de forma predeterminada
+
+Tanrei no dibuja una onda que se expande al pulsar. La capa del estado pulsado es la respuesta. Un tema puede activar la onda de forma explícita, pero ningún componente depende de ella.
+
+## Deshabilitado
+
+Un componente deshabilitado dibuja su contenedor con `disabled-container-opacity` y su contenido con `disabled-content-opacity` de `on-surface`, no muestra ninguna capa de estado y sale del orden del foco. Los elementos deshabilitados están exentos de los requisitos de contraste, lo cual es un motivo para usarlos con moderación.
+
+<Callout type="tip">
+  Es preferible mantener habilitada una acción y explicar qué falta cuando se usa. Un botón deshabilitado no puede decirle a nadie por qué lo está.
+</Callout>

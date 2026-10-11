@@ -1,0 +1,196 @@
+---
+title: パンくずリスト
+description: ページが階層のどこにあるかを示し、上の階層へ戻る道になります。上の階層はいちばん上から順に並ぶリンクで、最後がそのページ自身です。
+translationOf: components/breadcrumbs.mdx
+sourceHash: 05f7e32b5c5664f5cdf25c871df7f7a46deee3f0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="breadcrumbs" />
+
+<DemoFrame label="3 階層のパンくずリスト" column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモのパンくずリスト" overflow-label="隠れた階層を表示">
+    <a href="#概要">ホーム</a>
+    <a href="#概要">コンポーネント</a>
+    <span aria-current="page">パンくずリスト</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+パンくずリストが示すのは、ページが階層のどこにあるかです。その人がたどってきた道ではありません。ページがほかのページの中にあり、3 階層以上の深さがあるところで使います。
+
+### 使い方
+
+Web では、パンくずリストはプロダクト側のアンカーを囲む要素です。アンカーは文書の中に残るので、スクリプトが動く前からリンクとして働き、クローラーからも、ページ内のアンカーを扱うルーターからも、ルーター自身のリンクコンポーネントからも見つけられます。
+
+行き先のある階層は `<a href>` です。行き先のない階層は `<span>` です。現在のページか、対応するページのない階層がこれにあたります。
+
+SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/breadcrumbs.css" />
+
+    <tanrei-breadcrumbs label="パンくずリスト" overflow-label="隠れた階層を表示">
+      <a href="/">ホーム</a>
+      <a href="/components/">コンポーネント</a>
+      <span aria-current="page">ボタン</span>
+    </tanrei-breadcrumbs>
+
+    <!-- 最初のラベルの前にグリフを置くか、グリフだけにします。テキストは階層の名前のままです。 -->
+    <tanrei-breadcrumbs label="パンくずリスト" overflow-label="隠れた階層を表示">
+      <a href="/" data-icon="home" data-icon-only>ホーム</a>
+      <a href="/components/">コンポーネント</a>
+      <span aria-current="page">ボタン</span>
+    </tanrei-breadcrumbs>
+
+    <script type="module">
+      import '@tanrei/web';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Breadcrumbs } from '@tanrei/react';
+    import '@tanrei/web/breadcrumbs.css';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <Breadcrumbs label="パンくずリスト" overflowLabel="隠れた階層を表示">
+      {/* ルーターのリンクは自分でアンカーを描き、その click を受けて移動を引き受けます。 */}
+      <RouterLink to="/">ホーム</RouterLink>
+      <RouterLink to="/components/">コンポーネント</RouterLink>
+      <span aria-current="page">ボタン</span>
+    </Breadcrumbs>
+    ```
+  </TabItem>
+</Tabs>
+
+| プロパティ | Web での書き方 |
+| --- | --- |
+| `label` | `label` 属性。ナビゲーションのランドマークの名前です |
+| `overflow` | `overflow="collapse"`（既定）または `overflow="wrap"` |
+| `overflowLabel` | `overflow-label`。オーバーフローボタンの名前です |
+| `underline` | `underline="always"`、`"hover"`、`"never"`。書かなければデザインシステムに従います |
+| 階層 | 子の `<a href>`。行き先のない階層は子の `<span>` |
+| 階層の `label` | そのテキスト |
+| `current` | 最後の子に付ける `aria-current="page"` |
+| `icon` | `data-icon="home"` |
+| `iconOnly` | `data-icon-only` |
+| `click` | アンカー自身の `click` |
+
+## 仕様
+
+<DemoFrame label="ページのない階層、リンクにした現在のページ、親で終わるパンくずリスト" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、ページのない階層" overflow-label="隠れた階層を表示">
+    <a href="#仕様">ホーム</a>
+    <span>基礎</span>
+    <span aria-current="page">タイポグラフィ</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、リンクにした現在のページ" overflow-label="隠れた階層を表示">
+    <a href="#仕様">ホーム</a>
+    <a href="#仕様">コンポーネント</a>
+    <a href="#仕様" aria-current="page">ボタン</a>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、親で終わるパンくずリスト" overflow-label="隠れた階層を表示">
+    <a href="#仕様" data-icon="home" data-icon-only>ホーム</a>
+    <a href="#仕様">コンポーネント</a>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+<DemoFrame label="ホバー、フォーカス、押下の間だけの下線と、下線なし" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、状態の間だけ下線が付くパンくずリスト" overflow-label="隠れた階層を表示" underline="hover">
+    <a href="#仕様">ホーム</a>
+    <a href="#仕様">コンポーネント</a>
+    <span aria-current="page">パンくずリスト</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、下線のないパンくずリスト" overflow-label="隠れた階層を表示" underline="never">
+    <a href="#仕様">ホーム</a>
+    <a href="#仕様">コンポーネント</a>
+    <span aria-current="page">パンくずリスト</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+<DemoFrame label="狭い列の中の長いパンくずリスト：折りたたんだ形と、折り返した形" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、折りたたんだパンくずリスト" overflow-label="隠れた階層を表示" style="inline-size: 24rem; max-inline-size: 100%">
+    <a href="#仕様">ホーム</a>
+    <a href="#仕様">ドキュメント</a>
+    <a href="#仕様">基礎</a>
+    <a href="#仕様">デザイントークン</a>
+    <a href="#仕様">コンポーネントトークン</a>
+    <span aria-current="page">無効なコンテナがどう導出されるか</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="このデモの、折り返したパンくずリスト" overflow="wrap" style="inline-size: 24rem; max-inline-size: 100%">
+    <a href="#仕様">ホーム</a>
+    <a href="#仕様">ドキュメント</a>
+    <a href="#仕様">基礎</a>
+    <a href="#仕様">デザイントークン</a>
+    <a href="#仕様">コンポーネントトークン</a>
+    <span aria-current="page">無効なコンテナがどう導出されるか</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+- **行き先のある階層には下線が付きます。** 既定のシステムでのことです。既定のシステムでは、文の中のリンクと同じく、階層がリンクであることを色ではなく下線で伝えます。行き先のない階層は、補助的なテキストとして描きます。現在のページはそれより太く、テキストの色で描き、下線は付きません。
+- **下線をいつ描くかは選択です。** `underline="hover"` は、階層にホバーしている間、キーボードでフォーカスしている間、押している間だけ描きます。`underline="never"` は描きません。属性がなければ、パンくずリストは `comp.breadcrumbs.underline.visibility` に従います。このトークンは、すべてのテキストリンクについてのデザインシステムの選択に従います。`hover` と `never` は、リンクの色がテキストの色とはっきり違う場合にだけ選んでください。強制カラーモードでは、常に下線を描きます。
+- **現在のページはテキストです。** いまいるページへのリンクはどこへも移動せず、すべてのページに Tab で止まる位置を 1 つ増やします。`href` を指定するのは、1 つのアドレスのままページの表示が切り替わる場合だけにしてください。その場合は、見た目の変わらないリンクになります。ページの見出しがパンくずリストのすぐ下にあるなら、現在のページを省いてもかまいません。
+- **区切りはコンポーネントが描きます**。隣り合う 2 つの階層の間に `chevron_right` を描きます。ラベルに区切りを書き込まないでください。
+- **長いパンくずリストは中ほどを折りたたみます。** `collapse` では 1 行のままです。階層は、最初の階層の隣から順に、幅に収めるのに必要な数だけオーバーフローボタンの中に入り、それでも足りなければ最初の階層も入ります。最後の階層が取り除かれることはありません。最後の階層のラベルが途中で切れるのは、ボタンとその階層だけでも収まらないときに限ります。
+- **オーバーフローボタンはメニューを開きます。** メニューには、取り除かれた階層がパンくずリストでの順に並びます。行き先のある階層は、そこでもリンクです。メニューの行に下線が付くことはありません。
+- **`wrap` はすべての階層を残し**、パンくずリストを複数の行に折り返します。行が区切りで始まることはなく、ラベルも途中で切れません。
+- **折りたたむかどうかは、コンポーネント自身の幅で決まります。** ウィンドウの幅ではありません。幅、ラベル、文字サイズが変わると決め直します。
+- **右から左**のレイアウトでは、パンくずリストは右から始まり、区切りは左を指します。左から右の名前は、その中の並びを保ちます。
+
+<ComponentSpecs name="breadcrumbs" />
+
+### Web での描き方の違い
+
+- 要素が定義される前と、スクリプトが無効なときは、スタイルシートが折り返した形を描きます。すべての階層と、その区切りです。幅に収まるパンくずリストは、要素が定義されても動きません。ランドマーク、リスト、折りたたみは、要素が定義されてから加わります。
+- メニューで階層を選ぶと、プロダクト側のアンカーで `click` が 1 回発火し、その click をキャンセルしない限り、ブラウザーがそのアンカーの行き先へ移動します。ルーターのリンクコンポーネントは、パンくずリストの中にあるときとまったく同じように、そこで移動を引き受けます。
+- 折り返したラベルは 1 つのボックスです。フォーカスリングは、各行にある部分ごとにではなく、ボックスの周りに描きます。
+- グリフのある階層は、レイアウトの方向に沿って配置します。そのため、右から左のパンくずリストの中では、グリフの付いた左から右のラベルも、自身の方向にはなりません。
+- 階層のグリフと、スタイルシートが描く区切りには `icons.css` が必要です。なければ、その場所は空いたままで、何も描かれません。
+- パンくずリストは `.tanrei-prose` の外に置くか、`tanrei-not-prose` を付けてください。プローズは、その中のアンカーをテキストリンクとして描きます。
+
+## ガイドライン
+
+### 推奨
+
+- ページの見出しの上に、1 ページに 1 つだけ置きます。
+- 階層のいちばん上からそのページまでを、それぞれのページ自身の名前で並べます。
+- 対応するページのない階層は、テキストのままにします。
+
+### 非推奨
+
+- その人がたどってきた道筋を示すために使わない。パンくずリストが示すのは、ページのある場所です。
+- 最後の階層以外を現在のページにしない。
+- 階層を新しいタブで開かない。同じ階層構造のページは、いまいるページと入れ替わるものです。
+- 階層を手作業で隠さない。すべての階層を常に見せる必要がある場合は、`overflow="wrap"` を使います。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="breadcrumbs" />
+
+### コンポーネントが担うこと
+
+- パンくずリストは 1 つのナビゲーションのランドマークで、順序付きリストを 1 つ持ちます。各階層はリストの項目で、各リンクはブラウザー自身のリンクです。
+- 現在のページは、利用者側で書いた `aria-current="page"` をそのまま持ちます。名前には何も足しません。
+- 区切りとグリフは、支援技術からは隠されます。
+- 取り除かれた階層は読み上げられず、フォーカスの順序にも入りません。その階層はメニューの中にあり、ボタンを 1 回押せば届きます。アンカーも文書の中に残ります。
+- オーバーフローボタンは、メニューを開くことと、メニューが開いているかどうかを伝えます。
+- リンクのヒット領域は、描かれるものを変えずに、最小ターゲットを満たします。
+- フォーカスのある階層が取り除かれると、フォーカスはオーバーフローボタンへ移ります。ボタンがなくなると、戻ってきた階層のうち最初のものへ移ります。
+
+### 利用者側で行うこと
+
+- ランドマークには、`label` でプロダクトの言語の名前を付けます。ページにはほかのナビゲーションもあるので、名前で区別できるようにします。Tanrei は文言を持ちません。
+- `overflow` が `collapse` の間は、`overflow-label` でオーバーフローボタンに名前を付けます。`setWords({ breadcrumbsOverflowLabel })` でプロダクト全体に一度だけ渡すこともできます。
+- 現在のページの印として、最後の階層にだけ `aria-current="page"` を付けます。
+- グリフだけで見せる階層にも、テキストを書きます。そのテキストが名前になります。

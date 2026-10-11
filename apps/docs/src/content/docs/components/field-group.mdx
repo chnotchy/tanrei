@@ -1,0 +1,186 @@
+---
+title: Field group
+description: Names a set of controls that answer one question — checkboxes, switches, or fields that belong together — with a label that can say the set is required or optional, a description, and one error for the set, and lays the controls out in a column or a row.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="field-group" />
+
+<DemoFrame label="A set of checkboxes with a name, a description and a requirement" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required">
+    <tanrei-checkbox label="Email" checked></tanrei-checkbox>
+    <tanrei-checkbox label="Text message"></tanrei-checkbox>
+    <tanrei-checkbox label="Push notification"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+Some questions are answered with several controls: which of these, these settings, an address in five fields. A field group gives the set one name, a line that says how to answer, a word that says whether it must be answered, and one reason when the answer is refused. It is a [field](/components/field/) whose control is a set.
+
+The group frames the set and lays it out. It selects nothing, holds no value, moves no focus and handles no key: each control keeps its own.
+
+On the web it is `<tanrei-field-group>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field-group label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required"
+                        error error-text="Choose at least one way to reach you.">
+      <tanrei-checkbox name="notify" value="email" label="Email"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="text" label="Text message"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="push" label="Push notification"></tanrei-checkbox>
+    </tanrei-field-group>
+
+    <!-- Fields that belong together. -->
+    <tanrei-field-group label="Shipping address" spacing="fields">
+      <tanrei-text-field label="Street" requirement="required" required-text="Required"></tanrei-text-field>
+      <tanrei-text-field label="City" requirement="required" required-text="Required"></tanrei-text-field>
+    </tanrei-field-group>
+
+    <script type="module">
+      import '@tanrei/web/components/field-group';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, FieldGroup } from '@tanrei/react';
+
+    <FieldGroup label="Notify me by" supportingText="Choose all that apply." error={none} errorText="Choose at least one way to reach you.">
+      <Checkbox label="Email" checked={email} onChange={(event) => setEmail(event.detail.checked)} />
+      <Checkbox label="Text message" checked={text} onChange={(event) => setText(event.detail.checked)} />
+    </FieldGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="An error for the set, a row, switches, and fields that belong together" plain column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" supporting-text="Choose all that apply." requirement="required" required-text="Required" error error-text="Choose at least one way to reach you.">
+    <tanrei-checkbox label="Email"></tanrei-checkbox>
+    <tanrei-checkbox label="Text message"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notify me by" orientation="horizontal">
+    <tanrei-checkbox label="Email" checked></tanrei-checkbox>
+    <tanrei-checkbox label="Text"></tanrei-checkbox>
+    <tanrei-checkbox label="Push"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Privacy" supporting-text="These apply to this device only." requirement="optional" optional-text="Optional">
+    <tanrei-switch label="Share usage data" selected></tanrei-switch>
+    <tanrei-switch label="Show my status"></tanrei-switch>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="City and postal code" spacing="fields" orientation="horizontal">
+    <tanrei-text-field label="City" value="Kyoto"></tanrei-text-field>
+    <tanrei-text-field label="Postal code" value="604-8571"></tanrei-text-field>
+  </tanrei-field-group>
+</DemoFrame>
+
+<ComponentSpecs name="field-group" />
+
+## Guidelines
+
+### What a field group is for
+
+| The set | Use |
+| --- | --- |
+| Checkboxes that answer one question, or switches that are one set of settings | A field group. |
+| Fields that belong together: an address, a date in parts | A field group with `spacing="fields"`. |
+| Radio buttons | A [radio group](/components/radio-group/), which is a field group around them that also holds their one value. Written by hand, a field group with `kind="radio-group"` (below). |
+| One control | A [field](/components/field/). |
+
+### A set of radio buttons: `kind`
+
+A group has neither a required nor an invalid state, so a field group says the requirement in words and marks its checkboxes invalid one by one. A set of radio buttons is different: it is required and invalid as a whole. `kind="radio-group"` tells the field group that its set is the radio buttons of one group, and it is then their radio group to assistive technology — required while `requirement` is `required`, invalid while `error` is true, saying its orientation — and `requiredText` is no longer part of its description, because the state says it.
+
+```html
+<tanrei-field-group kind="radio-group" label="Delivery" requirement="required" required-text="Required">
+  <tanrei-radio-button name="delivery" value="standard" label="Standard, 3 to 5 days" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="Express, next day"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="A field group whose kind is radio-group, around radio buttons of one name" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Delivery" requirement="required" required-text="Required">
+    <tanrei-radio-button name="delivery-kind" value="standard" label="Standard, 3 to 5 days" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-kind" value="express" label="Express, next day"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+`kind` changes what is exposed and nothing that is drawn, and the field group still holds no value, moves no focus and handles no key: the radio buttons keep their selection, their arrow keys and their one stop by their `name`. This is the [radio group](/components/radio-group/) one level down. Use the radio group unless you need to arrange the set as it does not: it adds the one value, one `change`, and a place in a form as one control.
+
+In this kind the group holds the radio buttons of one group and nothing else that can be operated, and `spacing` stays `controls`. A debug build reports another control, radio buttons of two names, and another spacing.
+
+### How it differs from a field
+
+A set is tall and is read from the top, so two things stand elsewhere than in a field:
+
+- The description is under the label, before the controls, and it stays while the group is in error. "Choose all that apply" must be read before the options, and it is what a person needs again when the answer is refused.
+- The error text is a row of its own, below the last control.
+
+The label, the requirement tag and the asterisk are the field's.
+
+### Layout
+
+- `orientation="vertical"` (the default) stacks the controls in one column. Prefer it: every label starts on one edge and is read down.
+- `orientation="horizontal"` lays them out in a row that wraps. Keep it for two or three short options, or for fields that are read as one line, such as a city and its postal code. A wrapped row hides which label belongs to which mark.
+- `spacing` says what the set holds. `controls` puts checkboxes and switches a touch target apart; `fields` puts fields the distance a form keeps between two fields, and lets each fill the width. A design system may add values.
+
+The mark of a checkbox or a switch stands inside its own container, so it starts a little further in than the group's label. The group does not pull it out: the container is where the control draws its hover and its focus ring.
+
+### Errors
+
+`error` puts the set in the error condition: the error text is drawn, each checkbox is drawn in its own error form and exposed as invalid, and each radio button is drawn in its error form. A radio button is not exposed as invalid: its role has no such state, and the radio group says it. A switch has no error form and stays as it is drawn. A field in the group keeps the error you gave it: each field says its own in words, and the group's error is for the set as a whole ("Choose at least one").
+
+One control of a valid group may still be in error by itself.
+
+### Do
+
+- Name the set with the question its controls answer: "Notify me by".
+- Give each control its own label. The group's label does not replace them.
+- Use a group of fields to tell two sets with the same labels apart: "Shipping address" and "Billing address".
+
+### Don't
+
+- Don't put radio buttons in a field group without saying so: use a [radio group](/components/radio-group/), or set `kind="radio-group"`. In a plain group they have no required and no invalid state, and a debug build reports it.
+- Don't use a field group for layout alone. Without a shared name, lay the fields out yourself, with the same spacing token (`comp.field-group.gap.fields`).
+- Don't nest groups more than one level deep. A group inside a group is one member of it and is read as a group within a group.
+
+## Accessibility
+
+<ComponentAccessibility name="field-group" />
+
+### What the component handles
+
+- On the web the group is a `fieldset` with a `legend`: a group that contains its controls and is named by `label`, drawn or hidden with `labelHidden`.
+- The group's description is `supportingText`, then `errorText` while `error` is true, then `requiredText` or `optionalText`. A group has no required and no invalid state, which is why the requirement is said in words.
+- Each checkbox the group put in error is exposed as invalid by itself, with the error text as its description.
+- With `kind="radio-group"` the same element is a radio group: it carries the required state, the invalid state and its orientation itself, and `requiredText` is left out of its description. On the web it is the same `fieldset`, with the radio group's role.
+- `disabled` disables every control and exposes the group as disabled. An enabled group never enables a control you disabled yourself.
+- An error that appears, or changes its words, while focus is inside the group is announced once, politely. Focus never moves because of an error.
+- The group is not a stop in the focus order, takes no key and answers no press: Tab reaches each enabled control in the order given.
+- The requirement tag and the asterisk are hidden from assistive technology.
+- At 200% text every text wraps, a row becomes a column, and nothing is cut.
+- In forced colors every text takes the system's text color and the requirement tag gains an edge.
+- In a right-to-left layout the rows start at the right, a row of controls runs from the right, and each text keeps its own direction.
+- Radio buttons in a field group whose `kind` is `group`, a group with no control and a group with no label are reported in debug builds.
+
+Known gaps on the web:
+
+- A checkbox's description is given with `aria-description`, which has not been checked with every screen reader.
+- Before the element is defined, the controls are on the page without the group's label, description and layout.
+
+### What you need to do
+
+- Give the group a `label`.
+- Validate the answer yourself, set `error`, and write `errorText` so that it says how to put the answer right.
+- Give the words of the requirement: `required-text` and `optional-text` on the group, or once for the whole product with `setWords({ requiredText, optionalText })`. They are read as part of the group's description, and a group has no required state: without `requiredText`, nothing tells assistive technology that an answer is required. Tanrei ships no words; a missing one is reported in development. See [The product's words](/foundations/words/).
+- After a failed submission, also say above the form what was refused and link to each control: a live [callout](/components/callout/) in its error status.

@@ -1,0 +1,965 @@
+{
+  "tanrei": {
+    "comp": {
+      "input-box": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product has one drawing for every box a value is entered or chosen in — the box a person types in, the box that shows a chosen option, the box of a number, the box of a color — so that a form reads as one form: the same corners, the same height at a size, the same edge at rest, hovered, focused, invalid, read-only and disabled, the same label floating inside a tinted or an outlined box, the same text, placeholder, caret and selection, the same place and size for a glyph at either end. It decides that drawing once. A product that wants the corners of its input boxes at another radius says so in one place, and no control of a form is left behind.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.shared": {
+            "readers": [
+              "text-input",
+              "select",
+              "combobox",
+              "number-input",
+              "color-input"
+            ],
+            "alsoIn": {
+              "select": [
+                "motion.state-duration",
+                "motion.state-easing"
+              ],
+              "combobox": [
+                "motion.state-duration",
+                "motion.state-easing"
+              ]
+            },
+            "note": "A set of tokens that is no component: the box these components are drawn on. Each says so in its spec."
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "stacked",
+              "filled",
+              "outlined"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "active-indicator.color": "color",
+              "outline.color": "color",
+              "label.color": "color",
+              "input.color": "color",
+              "placeholder.color": "color",
+              "affix.color": "color",
+              "leading-icon.color": "color",
+              "trailing-icon.color": "color",
+              "caret.color": "color",
+              "required-asterisk.color": "color",
+              "state-layer.color": "color",
+              "error.container.color": "color",
+              "error.active-indicator.color": "color",
+              "error.outline.color": "color",
+              "error.label.color": "color",
+              "error.input.color": "color",
+              "error.placeholder.color": "color",
+              "error.affix.color": "color",
+              "error.leading-icon.color": "color",
+              "error.trailing-icon.color": "color",
+              "error.caret.color": "color",
+              "error.required-asterisk.color": "color",
+              "error.state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "outline.width": "dimension",
+              "active-indicator.width": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "The box of every control that is drawn as one: the text input, the select, the combobox, the number input and the color input read these tokens and have none of their own for the box. Per size its height, paddings, gap, glyph size and the text styles of the value and of the label that floats in it (resting in the line, and floated); the asterisk's gap from that label; the gap of a prefix or a suffix; its corner shapes, its outline and indicator widths per state; the highlight of selected text; the motion of the floating label and of a state change; and for each look (stacked, filled, outlined) the colors of every part of the box, plain and under the error condition (error.), at rest and in each state.",
+            "rules": [
+              "This is a set of tokens and not a component: there is no element, view or widget of this name, and nothing to place. The five controls that read it are named in dev.tanrei.shared; each keeps a group of its own for what only it draws (a list and its options, the steppers, the swatch, the resize grip, the entries).",
+              "Change the box here and every control of a form follows. To set one control apart, set the token on that one element or subtree; to set one kind apart in a product, do the same for every element of that kind. A design system cannot give one kind of control a different box: that is the point of the set.",
+              "small, medium and large are the sizes of the box. A control offers the sizes its spec lists: today small is offered by the select alone, for bars and toolbars.",
+              "The box has no pressed state: a press on a box is answered by what it opens and by its focused edge. The rows of a list have one, in their own groups.",
+              "stacked, the default, is a filled box with no label of its own that marks focus and error with a line inside its edge, which takes no layout space; filled and outlined float the name inside the box. The Tanrei system does not ship filled and outlined; the presets that have those looks do.",
+              "label.color and required-asterisk.color are the floating label's. A stacked box draws no label, so those two of the stacked look are read by nothing that ships; they stand for the uniform shape of a look. The label above a box, the requirement tag, the help and the error are the Field's (comp.field.*).",
+              "input is the line that shows the value, whether it was typed or chosen; leading-icon and trailing-icon are whatever glyph a control draws at that end (a select's chevron is a trailing icon, a color input's swatch stands where a leading icon stands and has icon.size); affix is a prefix or a suffix beside the value.",
+              "Heights are minimums: a box grows with enlarged text, with several lines, and to hold a floated label above the value's line.",
+              "The focused look (the inner line, indicator or outline color and width, the floating label's color) is valued by the focused state tokens; no separate focus ring is drawn on a box.",
+              "Each look's state-layer.color (and its error. twin) is the color the hover state layer mixes into the container; it aliases the input color. An outlined box and a focused box draw no state layer.",
+              "Restyle through these tokens in a layer; never fork a component."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "members": [
+                "container.height",
+                "container.padding-inline",
+                "container.padding-inline-with-icon",
+                "container.padding-block",
+                "container.padding-block-with-label",
+                "container.gap",
+                "label.typescale",
+                "label.floated-typescale",
+                "input.typescale",
+                "icon.size"
+              ]
+            },
+            "variant": {
+              "default": "stacked",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.extra-small}",
+            "$description": "The corners of the container: all four of a stacked or an outlined box, the top two of a filled box.",
+            "$extensions": {}
+          },
+          "shape-bottom": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.none}",
+            "$description": "The bottom corners of a filled box, along its active indicator. An outlined box rounds all four corners by container.shape."
+          },
+          "height": {
+            "$type": "dimension",
+            "$description": "Minimum height of the container of a box of one line, per size (40 / 48 / 56). Medium is the height of the touch target, because the label of a stacked box stands above its container, in the Field's row; large gives a floating label its room; small is for a bar or a toolbar, where the target reaches beyond the drawn box. This is the one literal of the set: no other group holds a height of the box.",
+            "small": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 56,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 14
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 56,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 14
+                }
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "Padding between the container's edge and the text on a side without a glyph.",
+            "small": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space200}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space200}"
+            }
+          },
+          "padding-inline-with-icon": {
+            "$type": "dimension",
+            "$description": "Padding between the container's edge and a glyph at that end (an icon, a chevron, a swatch).",
+            "small": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space150}"
+            }
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "Vertical padding around the value's line. Heights are minimums, so this shows only for several lines or enlarged text.",
+            "small": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space200}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space200}",
+              "$extensions": {}
+            }
+          },
+          "padding-block-with-label": {
+            "$type": "dimension",
+            "$description": "Vertical padding of a filled box whose label is shown: the floated label and the value's line stack inside it.",
+            "small": {
+              "$value": "{tanrei.sys.space.space25}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space100}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space100}",
+              "$extensions": {}
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Distance between a glyph and the text, and between two things that stand at the end of the box.",
+            "small": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space200}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space200}",
+              "$extensions": {}
+            }
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The floating label at its full size: resting in the value's line of a filled or an outlined box.",
+            "small": {
+              "$value": "{tanrei.sys.typescale.body-large}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.typescale.body-large}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.body-large}",
+              "$extensions": {}
+            }
+          },
+          "floated-typescale": {
+            "$type": "typography",
+            "$description": "The label once it has floated (focused or filled).",
+            "small": {
+              "$value": "{tanrei.sys.typescale.body-small}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.typescale.body-small}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.body-small}",
+              "$extensions": {}
+            }
+          }
+        },
+        "requirement": {
+          "asterisk-gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "Distance between the floating label's text and the asterisk: it belongs to the word it follows.",
+            "$extensions": {}
+          },
+          "$description": "What the floating label's required mark reads. Which mark a required control gets is the Field's choice (comp.field.requirement.mark); a floating label shows it as an asterisk."
+        },
+        "input": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The value — typed or chosen — the placeholder, the prefix and the suffix. 16 px at medium and large, so that a touch browser does not zoom into a box a person types in; small is body text one step down, the size of the labels of the buttons a small box stands beside.",
+            "small": {
+              "$value": "{tanrei.sys.typescale.body}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.typescale.body-large}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.body-large}"
+            }
+          }
+        },
+        "affix": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space25}",
+            "$description": "Distance between the prefix or suffix and the value: a currency sign sits tight against the amount, closer than an icon sits to text."
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The glyph at either end of the box: a leading or a trailing icon, a select's or a combobox's chevron, a color input's swatch.",
+            "small": {
+              "$value": "{tanrei.sys.icon.small}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.icon.medium}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.icon.medium}"
+            }
+          }
+        },
+        "selection": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.primary-container}",
+            "$description": "The highlight behind selected text and under the focused segment of a date or time, in every look and state. Without it each platform draws its own default. Selected text, and the segment that is being set, are the one that is chosen now, and the system marks that with a primary fill under on-primary content wherever it appears (the tabs' thumb, the calendar's selected day, the filled button, the required chip); the accent stays the focus ring's alone. Pair: selection.content.color.",
+            "$extensions": {}
+          },
+          "content": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The text on the highlight: selected text, and the number or the placeholder of the focused segment of a date or time. on-primary on primary, the pair that means the one that is chosen now; a layer whose highlight is a tint that keeps the value's color readable sets this to that color.",
+              "$extensions": {}
+            }
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The outlined box's border at rest; the focused width is a state token."
+          },
+          "notch-padding": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "The gap left in the outline on each side of a floated label."
+          }
+        },
+        "active-indicator": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The filled box's bottom line at rest; the focused width is a state token."
+          }
+        },
+        "stacked": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-highest}"
+            }
+          },
+          "active-indicator": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no active indicator; a line inside its edge marks focus and error."
+                }
+              }
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "At rest this variant has no edge; it draws a line inside its container's edge while focused."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "input": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "placeholder": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "affix": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "leading-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "trailing-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "caret": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "required-asterisk": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.input-box.stacked.label.color}",
+              "$description": "The asterisk of a required control: the color the required chip is filled with, not the error color, which is kept for errors.",
+              "$extensions": {}
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.input-box.stacked.input.color}"
+            }
+          },
+          "error": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-container-highest}"
+              }
+            },
+            "active-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This variant has no active indicator; a line inside its edge marks focus and error."
+                  }
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$description": "The label keeps naming the control; the inner line, the error text and the trailing icon show the error."
+              }
+            },
+            "input": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}"
+              }
+            },
+            "placeholder": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "affix": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "caret": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "required-asterisk": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.input-box.stacked.error.label.color}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.input-box.stacked.error.input.color}"
+              }
+            }
+          }
+        },
+        "filled": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-highest}"
+            }
+          },
+          "active-indicator": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$extensions": {}
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no outline; its active indicator marks the box."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "input": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "placeholder": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "affix": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "leading-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "trailing-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "caret": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "required-asterisk": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.input-box.filled.label.color}",
+              "$description": "The asterisk of a required control: the color the required chip is filled with, not the error color, which is kept for errors.",
+              "$extensions": {}
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.input-box.filled.input.color}"
+            }
+          },
+          "error": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-container-highest}"
+              }
+            },
+            "active-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This variant has no outline; its active indicator marks the box."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "input": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}"
+              }
+            },
+            "placeholder": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "affix": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "caret": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "required-asterisk": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.input-box.filled.error.label.color}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.input-box.filled.error.input.color}"
+              }
+            }
+          }
+        },
+        "outlined": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no fill; the surface behind shows through."
+                }
+              }
+            }
+          },
+          "active-indicator": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no active indicator; its outline marks the box."
+                }
+              }
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "input": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "placeholder": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "affix": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "leading-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "trailing-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "caret": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "required-asterisk": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.input-box.outlined.label.color}",
+              "$description": "The asterisk of a required control: the color the required chip is filled with, not the error color, which is kept for errors.",
+              "$extensions": {}
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.input-box.outlined.input.color}"
+            }
+          },
+          "error": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This variant has no fill; the surface behind shows through."
+                  }
+                }
+              }
+            },
+            "active-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This variant has no active indicator; its outline marks the box."
+                  }
+                }
+              }
+            },
+            "outline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "input": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}"
+              }
+            },
+            "placeholder": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "affix": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "trailing-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "caret": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.error}"
+              }
+            },
+            "required-asterisk": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.input-box.outlined.error.label.color}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.input-box.outlined.error.input.color}"
+              }
+            }
+          }
+        },
+        "motion": {
+          "label-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long the label takes to float or rest."
+          },
+          "label-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,243 @@
+---
+title: Radio group
+description: Asks one question that has exactly one answer among a few options shown all at once — a set of radio buttons that holds the chosen value, under a label that can say the answer is required or optional, with a description and one error for the set.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="radio-group" />
+
+<DemoFrame label="A set of radio buttons with a name, a description and a requirement" column>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Delivery" supporting-text="You can change this until the order ships." requirement="required" required-text="Required" value="standard">
+    <tanrei-radio-button value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Express, next day"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Pick up in store"></tanrei-radio-button>
+  </tanrei-radio-group>
+</DemoFrame>
+
+A [radio button](/components/radio-button/) is never used alone. A radio group makes several of them one question: it gives the set a name, a line that says how to answer, a word that says whether it must be answered, and one reason when the answer is refused — and it holds the answer as one value.
+
+**Built from** a [field group](/components/field-group/) and [radio buttons](/components/radio-button/). The field group is the frame, in its radio-group kind: the label, the required or optional mark, the description, the error, the layout in a column or a row — and the one radio group that assistive technology is told of. The radio buttons hold the value: each is an option with its own label, and which of them is selected is the answer. The radio group draws nothing of its own and has no token. What it adds to the two is the state every product otherwise writes: one value in and out and one `change` for it, the arrow keys and the one stop in the focus order kept for the set, and a place in a form as one control.
+
+It is as wide as the place it is put in.
+
+On the web it is `<tanrei-radio-group>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-radio-group label="Delivery" name="delivery" value="standard" requirement="required" required-text="Required"
+                        supporting-text="You can change this until the order ships.">
+      <tanrei-radio-button value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
+      <tanrei-radio-button value="express" label="Express, next day"></tanrei-radio-button>
+      <tanrei-radio-button value="pickup" label="Pick up in store"></tanrei-radio-button>
+    </tanrei-radio-group>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-group';
+
+      const group = document.querySelector('tanrei-radio-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value is the new value; group.value already holds it.
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react';
+
+    <RadioGroup label="Delivery" value={delivery} onChange={(event) => setDelivery(event.detail.value)}
+                error={refused} errorText="Express delivery does not reach this address. Choose another way.">
+      <RadioButton value="standard" label="Standard, 3 to 5 days" />
+      <RadioButton value="express" label="Express, next day" />
+      <RadioButton value="pickup" label="Pick up in store" />
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+Inside a radio group a radio button needs no `name` and no `checked`: the group's `value` says which one is selected.
+
+### One level down
+
+The same set, written by hand from its two members, is the same picture and the same radio group to assistive technology. The field group is told what its set is with `kind="radio-group"`, and the radio buttons carry one `name`:
+
+```html
+<tanrei-field-group kind="radio-group" label="Delivery"
+                    supporting-text="You can change this until the order ships."
+                    requirement="required" required-text="Required">
+  <tanrei-radio-button name="delivery" value="standard" label="Standard, 3 to 5 days" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="Express, next day"></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="pickup" label="Pick up in store"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="The same set written by hand: a field group whose kind is radio-group, with radio buttons of one name in it" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Delivery" supporting-text="You can change this until the order ships." requirement="required" required-text="Required">
+    <tanrei-radio-button name="delivery-by-hand" value="standard" label="Standard, 3 to 5 days" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-by-hand" value="express" label="Express, next day"></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-by-hand" value="pickup" label="Pick up in store"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+What the field group and the radio buttons written by hand do not do is hold the answer. Nothing that is drawn or said differs.
+
+| Aspect | Written by hand | The radio group |
+| --- | --- | --- |
+| The answer | Read from the radio buttons by the product | `value`, and one `change` on one element |
+| Setting the answer | `checked` on one radio button | `value = "express"` |
+| What a form submits | The same entry, by the selected radio button | The same entry, by the group |
+| A required set left unanswered | Drawn and said as required; the form does not refuse it | The form's own validation refuses it |
+| The selected option is removed, or not shown yet | The answer is lost | `value` is kept |
+| A selected option you disabled by itself | Submits nothing | Its value is submitted |
+| Arrow keys, one stop for the Tab key, each radio button's position in the set | The same, by the radio buttons of one name | The same, by the group |
+
+Write the field group and the radio buttons by hand where the set holds something between its options that the group does not lay out — a line of your own under each option — or where the options must stand in your own elements in a way a slot does not allow.
+
+## Specs
+
+<DemoFrame label="An unanswered required set in error, a refused answer, a row, and a set with one option disabled" plain column>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Delivery" requirement="required" required-text="Required" error error-text="Choose how the order reaches you.">
+    <tanrei-radio-button value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Express, next day"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Pick up in store"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Delivery" supporting-text="You can change this until the order ships." requirement="required" required-text="Required" value="express" error error-text="Express delivery does not reach this address. Choose another way.">
+    <tanrei-radio-button value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Express, next day"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Pick up in store"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Size" orientation="horizontal" value="m">
+    <tanrei-radio-button value="s" label="Small"></tanrei-radio-button>
+    <tanrei-radio-button value="m" label="Medium"></tanrei-radio-button>
+    <tanrei-radio-button value="l" label="Large"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Delivery" requirement="optional" optional-text="Optional" value="standard">
+    <tanrei-radio-button value="standard" label="Standard, 3 to 5 days"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Express, next day" disabled></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Pick up in store"></tanrei-radio-button>
+  </tanrei-radio-group>
+</DemoFrame>
+
+<ComponentSpecs name="radio-group" />
+
+The radio group has no tokens of its own. The table above lists the field group's, which draws its frame: a design system that restyles the field group restyles every radio group with it. Each radio button is drawn from the radio button's own tokens.
+
+### What each member gives
+
+| What is drawn | Whose |
+| --- | --- |
+| The label, the requirement mark, the description, the error text, the distances between the rows and between the radio buttons | The [field group](/components/field-group/)'s, from `comp.field-group.*` |
+| Each radio button: the ring, the fill, the label, the state layer, the focus ring, the disabled form | The [radio button](/components/radio-button/)'s, from `comp.radio-button.*` |
+| Anything else | Nothing: the radio group draws nothing |
+
+### Setting one group apart
+
+A design system styles the frame once, for every field group, radio group and checkbox group. One instance is set apart on the instance: on the web, a field group token set on the radio group reaches the frame inside it.
+
+```html
+<tanrei-radio-group label="Delivery"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-radio-group>
+```
+
+### What the web draws differently
+
+- The element's shadow root holds a `<tanrei-field-group kind="radio-group">` around a slot. The radio buttons stay your own children. Importing the element defines both members.
+- The element is form-associated. It takes `name` and `form`, and submits `value` under `name` — also while the selected radio button is one you disabled by itself. Its radio buttons submit nothing, whatever `name` they carry. It resets to its `value` attribute, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and `value` is empty, in the browser's own words for an unanswered set of radio buttons.
+- `change` is a CustomEvent whose `detail.value` is the new value; `input` is fired before it. A listener on a radio button inside the group hears neither.
+- Parts: `field-group` is the frame, and its parts have the same names here as one level down: `label`, `requirement-label`, `supporting-text`, `error-text`. Your own radio buttons are styled as they are anywhere, with `tanrei-radio-button::part(…)`.
+- The element is not focusable itself. `focus()` goes to the radio button that is the stop, and a page's own `<label for>` moves focus there.
+- The element has no role: the radio group is the field group inside it. Name it with `label` — with `label-hidden` where the label is drawn elsewhere — and never with `aria-label`, which names nothing here.
+- The attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`.
+- Before the element is defined, and without script, nothing of its own is drawn: the radio buttons show as plain content. A page that must work without script writes a native `<fieldset>` of native radio buttons of one `name`, which submits the same entry.
+
+## Guidelines
+
+### When a radio group, and when something else
+
+| The person | Use |
+| --- | --- |
+| Gives one value from a few options that are all worth seeing at once — up to about five — in a form or a setting | A radio group. |
+| Changes what is shown below: which view, which sample, which period | [Tabs](/components/tabs/). |
+| Gives one value from many options, or there is little room | A [select](/components/select/). |
+| Gives several values as one answer | A [checkbox group](/components/checkbox-group/). |
+| Writes the same set by hand, to arrange it as the group does not | A [field group](/components/field-group/) whose `kind` is `radio-group`, around radio buttons of one name ([one level down](#one-level-down)). |
+| Turns one thing on or off, at once | A [switch](/components/switch/). |
+| Presses buttons that stand side by side and each toggle on their own | A [button group](/components/button-group/). |
+
+The test between a radio group and tabs is what the choice does, not how it looks: a value that is stored or submitted is a radio group; a choice of what to look at is tabs.
+
+### The value
+
+- `value` is the value of the selected radio button, and the empty string while none is selected. Set it to select; listen to `change` to hear a person's selection.
+- `change` is emitted once per selection, by the group, with the value the group already holds. It is not emitted when you set `value`, or when the selected option is activated again.
+- A person cannot return a radio group to "nothing selected". Where no answer is a real answer, add an option that says so ("None", "No preference"), or start with one option selected.
+- Selection follows focus: an arrow key selects as it moves. If a selection has an expensive or a visible effect at once, take the answer from a button that confirms it, not from `change`.
+- A value that no radio button has shows none selected and is kept: the option may arrive later.
+
+### Layout
+
+- `orientation="vertical"` (the default) stacks the options in one column. Prefer it.
+- `orientation="horizontal"` lays them out in a row that wraps. Keep it for two or three short options: once a row wraps, which label belongs to which ring is harder to see.
+
+The arrow keys are the same in both, and go by the order given, not by where a wrapped row put an option.
+
+### Errors
+
+`error` and `errorText` are yours to set: the group never puts itself in error, not even when it is required and unanswered. A group in error draws the error text below the options, is exposed as invalid, and draws every radio button in its error form: the ring and the dot take the error color, as the boxes of a checkbox group do. A disabled option shows no error color, because it cannot be the answer that puts the error right. The radio buttons themselves are not exposed as invalid; the group says it once.
+
+A change of value does not clear the error. Clear it when the answer is acceptable.
+
+### Do
+
+- Name the set with the question its options answer: "Delivery".
+- Give each radio button a `value` that is unique in the group, and its own label.
+- Keep the options few. One option is a checkbox; many are a select.
+
+### Don't
+
+- Don't put anything else that can be operated in a radio group: no checkbox, no button, no field.
+- Don't give the radio buttons of a radio group a `name`. It is ignored: the group is their group.
+- Don't wrap a radio group in a field or a field group to give it a label. It has its own. A radio group may be one member of a field group that names a larger set ("Shipping").
+- Don't make a set read-only by disabling the group: a disabled group submits nothing. A radio group has no read-only state; show an answer that cannot be changed as text, or disable each radio button by itself, which keeps the value.
+
+## Accessibility
+
+<ComponentAccessibility name="radio-group" />
+
+### What the component handles
+
+- One radio group that contains its radio buttons, named by `label`, drawn or hidden with `labelHidden`.
+- The required state while `requirement` is `required`, the invalid state while `error` is true, the disabled state while `disabled` is true, and its orientation.
+- The group's description is `supportingText`, then `errorText` while `error` is true, then `optionalText` while it is optional. `requiredText` is not part of it: the required state says it.
+- Each radio button says its position in the set and the set's size, disabled options counted.
+- One stop in the focus order: the selected radio button, or the first enabled one. Tab enters the group there and leaves it; the arrow keys move within it, skip a disabled option and wrap at both ends. In a right-to-left layout Left Arrow and Right Arrow exchange.
+- `disabled` disables every radio button. An enabled group never enables a radio button you disabled yourself: that one is passed over by the arrow keys and Tab, keeps its place in the count, and stays selected while `value` is its value.
+- An error that appears, or changes its words, while focus is on one of the radio buttons is announced once, politely. Focus never moves because of an error.
+- The requirement tag and the asterisk are hidden from assistive technology.
+- At 200% text every text wraps, a row becomes a column, and nothing is cut.
+- In forced colors every text takes the system's text color and the requirement tag gains an edge.
+- In a right-to-left layout the rows start at the right, a row of options runs from the right, and each text keeps its own direction.
+- On the web it is one control of its form: it submits `value` under `name`, returns to its first value on reset, follows a disabled `fieldset`, and reports a missing value to the form's own validation while it is required and unanswered.
+- A group with no radio button, with another control, with no label, with two options of one value, or with a value no option has, is reported in debug builds.
+
+Known gaps on the web:
+
+- The form's own validation shows the browser's message for an unanswered set of radio buttons, not `errorText`.
+- Before the element is defined, the radio buttons are on the page without the group's label, description, layout and selection.
+
+### What you need to do
+
+- Give the group a `label`.
+- Validate the answer yourself, set `error`, and write `errorText` so that it says how to put the answer right.
+- Give the words of the requirement: `required-text` and `optional-text` on the group, or once for the whole product with `setWords({ requiredText, optionalText })`. Tanrei ships none: without `requiredText` an asterisk stands in the tag's place, and without `optionalText` no tag is drawn and nothing is said. See [The product's words](/foundations/words/).
+- After a failed submission, also say above the form what was refused and link to the group: a live [callout](/components/callout/) in its error status.

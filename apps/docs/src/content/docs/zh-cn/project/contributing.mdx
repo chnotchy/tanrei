@@ -1,0 +1,38 @@
+---
+title: 参与贡献
+description: 如何向 Tanrei 报告问题或提出修改，以及规则写在哪里。
+translationOf: project/contributing.mdx
+sourceHash: 7795aad349f2be975531197c5bf333ed64f2fb63
+---
+
+import Callout from '../../../../components/Callout.astro';
+
+<Callout title="欢迎提交 issue；目前不接受拉取请求">
+  仓库已在 [github.com/chnotchy/tanrei](https://github.com/chnotchy/tanrei) 公开。报告 bug、提问或提出修改，请[新建一个 issue](https://github.com/chnotchy/tanrei/issues)。目前不接受拉取请求（Pull Request）：修改由维护者按照下面的规则进行。安全问题请按仓库中 `SECURITY.md` 的说明私下报告，切勿写在 issue 里。
+</Callout>
+
+## 规则写在哪里
+
+仓库根目录的 `AGENTS.md` 是贡献者（无论是人还是 AI）的权威指南。它很短，先读一遍可以节省时间。每个包和源码目录都可以再放一份嵌套的 `AGENTS.md` 来补充本地规则；以最近的那份为准，但任何一份都不得削弱根目录的规则。根目录的 `CONTRIBUTING.md` 是它的详细版本。
+
+篇幅更长的资料放在仓库的 `docs/` 目录下：架构概览，以及说明谁决定什么的治理规则。
+
+## 一次修改的形态
+
+每一次修改都遵循以下步骤，无论由谁来做。
+
+1. **从唯一可信来源开始。** 对组件公开接口的修改从 `specs/` 开始，对设计值的修改从 `tokens/` 开始。平台代码随后跟进。
+2. **在本地运行检查。** 依次运行 `pnpm validate`、`pnpm generate` 和 `pnpm check`。如果漂移检查失败，请重新生成；不要去编辑生成的文件。
+3. **如实反映各平台的状态。** 如果某个平台没能完成，就让它的状态保持真实情况。状态矩阵由仓库生成，不得声称比实际存在的更多。
+4. **添加 changeset。** 凡是用户看得到的修改都要添加，并使用 Conventional Commits（`feat(web): …`、`fix(tokens): …`、`docs: …`）。
+
+## 不会被接受的修改
+
+- 在组件内部硬编码颜色、半径、字体排印、间距、动效或不透明度。
+- 为了让测试通过而更新快照基准图。
+- 放宽对比度或无障碍阈值。
+- 从其他设计系统抄来的文档文字。Tanrei 的所有文字都是原创的。
+
+## 文档的修改
+
+本站位于 `apps/docs/`。正文是手写的 MDX：英文是源文，每个页面都翻译成本站的其他语言（语言列表，以及译文如何记录自己译自哪个版本的源文，见 `apps/docs/i18n/README.md`）。凡是能由规格、令牌文件或状态矩阵提供的表格，都从这些数据渲染而来，绝不手工录入。本地规则见 `apps/docs/AGENTS.md`。

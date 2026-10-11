@@ -1,0 +1,319 @@
+---
+title: "工具栏"
+description: "容纳针对当前屏幕或当前选择的一小排操作，停靠在底边，或悬浮在内容之上。它是一个 Tab 停靠点，方向键在它的各个操作之间移动。"
+translationOf: components/toolbar.mdx
+sourceHash: 208b8298cc2fa085a6bfd76cf0992d8e087dc579
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="toolbar" />
+
+<DemoFrame label="停靠与悬浮" column>
+  <tanrei-toolbar label="邮件操作" style="inline-size: 22rem">
+    <tanrei-button variant="text" label="归档"><span slot="icon">archive</span></tanrei-button>
+    <tanrei-button variant="text" label="删除"><span slot="icon">delete</span></tanrei-button>
+    <tanrei-button variant="text" label="标为未读"><span slot="icon">mark_email_unread</span></tanrei-button>
+    <tanrei-button variant="text" label="移动"><span slot="icon">drive_file_move</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="格式">
+    <tanrei-button variant="text" toggle selected label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" toggle label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" toggle label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
+    <tanrei-button variant="text" label="插入链接"><span slot="icon">link</span></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+### 用法
+
+工具栏容纳两类项：`action` 是带图标、不带标签的 Tanrei [`Button`](/zh-cn/components/button/)（“粗体”这样的切换按钮就是设置了 `toggle` 的 action）；`button` 是带标签的 Tanrei `Button`。它们是你自己的组件，各有自己的标签、点击处理和状态。工具栏按阅读顺序排列它们，并在它们之间移动键盘焦点。它从不改变它们的样式，所以工具栏里的纯图标 `Button`，外观和行为与在其他任何地方相同。每个平台都按自己接收重复子项的方式来接收它们：在 Web 上是子元素，在 SwiftUI 上是视图构建器，在 Compose 上是内容 lambda 中的调用，在 Flutter 上是 `children` 列表，在 React Native 上是子元素。
+
+**停靠。** 停靠的工具栏横跨屏幕的底边。它的颜色会延伸到主屏幕指示条或手势条之下，它的项则留在其上方，并位于两侧的边衬区（insets）之内。Web 读取 `env(safe-area-inset-bottom)`，SwiftUI 用 `.safeAreaInset(edge: .bottom)` 放置工具栏，Compose 接收 `windowInsets`（默认是导航栏），Flutter 读取 `MediaQuery` 底部的 padding。React Native 从工具栏的 `insets` 属性或从 `TanreiProvider` 获得边衬区，因为 Tanrei 不引入安全区域方面的依赖。
+
+**悬浮。** 悬浮的工具栏不会自己定位，[主操作按钮](/zh-cn/components/main-action-button/)也是这样。由你的布局来放置它：通常居中放在内容底部的上方；纵向时则放在内容末尾侧边缘的旁边。
+
+Web 和 React 的示例展示的是当前规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们提供的仍是工具栏和按钮的上一版，其中纯图标的操作是一个独立的图标按钮；在跟上之前，这些平台的示例展示的是上一版。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-toolbar label="邮件操作">
+      <tanrei-button variant="text" label="归档"><span slot="icon">archive</span></tanrei-button>
+      <tanrei-button variant="text" label="删除"><span slot="icon">delete</span></tanrei-button>
+      <tanrei-button variant="text" label="移动"><span slot="icon">drive_file_move</span></tanrei-button>
+      <tanrei-button variant="filled">回复</tanrei-button>
+    </tanrei-toolbar>
+
+    <!-- 悬浮且纵向：由页面来放置它。 -->
+    <tanrei-toolbar variant="floating" orientation="vertical" label="地图控件" class="map-controls">
+      <tanrei-button variant="text" label="放大"><span slot="icon">add</span></tanrei-button>
+      <tanrei-button variant="text" label="缩小"><span slot="icon">remove</span></tanrei-button>
+    </tanrei-toolbar>
+
+    <script type="module">
+      import '@tanrei/web/components/toolbar';
+      import '@tanrei/web/components/button';
+      // 这些项是你自己的：工具栏不添加任何自己的事件。
+      document.querySelector('[label="归档"]').addEventListener('click', archive);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Toolbar } from '@tanrei/react';
+
+    <Toolbar label="邮件操作">
+      <Button variant="text" label="归档" onClick={archive}><span slot="icon">archive</span></Button>
+      <Button variant="text" label="删除" onClick={remove}><span slot="icon">delete</span></Button>
+      <Button variant="text" label="移动" onClick={move}><span slot="icon">drive_file_move</span></Button>
+      <Button variant="filled" onClick={reply}>回复</Button>
+    </Toolbar>
+
+    <Toolbar variant="floating" label="格式">
+      <Button variant="text" toggle selected={bold} label="粗体" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+      <Button variant="text" label="插入链接" onClick={insertLink}><span slot="icon">link</span></Button>
+    </Toolbar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 停靠的工具栏位于底部安全区域 inset 中；它的背景会延伸到 inset 之下。
+    MessageView()
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TanreiToolbar("邮件操作") {
+                TanreiIconButton("归档", action: archive) { Image(systemName: "archivebox") }
+                TanreiIconButton("删除", action: delete) { Image(systemName: "trash") }
+                TanreiButton("回复", action: reply)
+            }
+        }
+
+    TanreiToolbar("格式", variant: .floating) {
+        TanreiIconButton("粗体", isSelected: $bold) { Image(systemName: "bold") }
+        TanreiIconButton("插入链接", action: insertLink) { Image(systemName: "link") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.gestures.Orientation
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiToolbar
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiToolbarVariant
+
+    // 除非你传入 windowInsets，停靠的工具栏按 WindowInsets.navigationBars 给它的项留出内边距。
+    TanreiToolbar(contentDescription = "邮件操作") {
+        TanreiIconButton(onClick = ::archive, contentDescription = "归档") { TanreiText("archive") }
+        TanreiIconButton(onClick = ::delete, contentDescription = "删除") { TanreiText("delete") }
+        TanreiButton(text = "回复", onClick = ::reply)
+    }
+
+    TanreiToolbar(contentDescription = "格式", variant = TanreiToolbarVariant.Floating) {
+        TanreiIconButton(onClick = {}, contentDescription = "粗体", checked = bold, onCheckedChange = { bold = it }) {
+            TanreiText("format_bold")
+        }
+        TanreiIconButton(onClick = ::insertLink, contentDescription = "插入链接") { TanreiText("link") }
+    }
+
+    // 纵向用于悬浮的工具栏；由你的布局来放置它。
+    TanreiToolbar(
+        contentDescription = "地图控件",
+        variant = TanreiToolbarVariant.Floating,
+        orientation = Orientation.Vertical,
+    ) {
+        TanreiIconButton(onClick = ::zoomIn, contentDescription = "放大") { TanreiText("add") }
+        TanreiIconButton(onClick = ::zoomOut, contentDescription = "缩小") { TanreiText("remove") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiToolbar(
+      semanticLabel: '邮件操作',
+      children: <Widget>[
+        TanreiIconButton(onPressed: archive, semanticLabel: '归档', icon: const Icon(AppSymbols.archive)),
+        TanreiIconButton(onPressed: delete, semanticLabel: '删除', icon: const Icon(AppSymbols.delete)),
+        TanreiButton(onPressed: reply, child: const Text('回复')),
+      ],
+    );
+
+    TanreiToolbar(
+      semanticLabel: '地图控件',
+      variant: TanreiToolbarVariant.floating,
+      orientation: Axis.vertical,
+      children: <Widget>[
+        TanreiIconButton(onPressed: zoomIn, semanticLabel: '放大', icon: const Icon(AppSymbols.add)),
+        TanreiIconButton(onPressed: zoomOut, semanticLabel: '缩小', icon: const Icon(AppSymbols.remove)),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button, IconButton, Toolbar } from '@tanrei/react-native';
+
+    // 底部和两侧的边衬区来自 TanreiProvider 的 insets；工具栏自己的 insets 属性会替换它所指定的那几条边。
+    <Toolbar accessibilityLabel="邮件操作">
+      <IconButton accessibilityLabel="归档" onPress={archive}>archive</IconButton>
+      <IconButton accessibilityLabel="删除" onPress={remove}>delete</IconButton>
+      <Button variant="filled" onPress={reply}>回复</Button>
+    </Toolbar>
+
+    <Toolbar variant="floating" accessibilityLabel="格式">
+      <IconButton accessibilityLabel="粗体" toggle selected={bold} onSelectedChange={setBold}>format_bold</IconButton>
+      <IconButton accessibilityLabel="插入链接" onPress={insertLink}>link</IconButton>
+    </Toolbar>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="带标签的按钮项、只有一个项、禁用的项、filled 的操作、纵向" plain column>
+  <tanrei-toolbar label="写邮件" style="inline-size: 22rem">
+    <tanrei-button variant="text" label="添加附件"><span slot="icon">attach_file</span></tanrei-button>
+    <tanrei-button variant="text" label="插入照片"><span slot="icon">image</span></tanrei-button>
+    <tanrei-button variant="text" label="插入链接"><span slot="icon">link</span></tanrei-button>
+    <tanrei-button variant="filled">发送</tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="回复" style="inline-size: 22rem">
+    <tanrei-button variant="tonal">回复</tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar label="邮件操作" style="inline-size: 22rem">
+    <tanrei-button variant="text" label="归档"><span slot="icon">archive</span></tanrei-button>
+    <tanrei-button variant="text" label="删除" disabled><span slot="icon">delete</span></tanrei-button>
+    <tanrei-button variant="text" label="标为未读"><span slot="icon">mark_email_unread</span></tanrei-button>
+    <tanrei-button variant="text" label="移动"><span slot="icon">drive_file_move</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="绘图工具">
+    <tanrei-button variant="text" label="画笔"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="荧光笔"><span slot="icon">ink_highlighter</span></tanrei-button>
+    <tanrei-button variant="text" label="橡皮擦"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-button variant="filled" label="完成"><span slot="icon">check</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" orientation="vertical" label="地图控件">
+    <tanrei-button variant="text" label="放大"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="text" label="缩小"><span slot="icon">remove</span></tanrei-button>
+    <tanrei-button variant="text" label="我的位置"><span slot="icon">my_location</span></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+<ComponentSpecs name="toolbar" />
+
+## 指南
+
+### 何时使用
+
+工具栏用来放置针对用户眼前内容的少量操作：对一封打开的邮件是“归档”“删除”和“移动”；在编辑器里是“粗体”“斜体”和“链接”；在绘图应用里是画笔和橡皮擦；在地图上是缩放和定位。这些操作作用于当前屏幕或当前选择，而不决定用户接下来去哪里。
+
+屏幕的标题、返回入口以及一两个全局操作，请使用顶部的[应用栏](/zh-cn/components/app-bar/)。要在应用的各个顶级目的地之间切换，请使用[导航栏](/zh-cn/components/navigation-bar/)。停靠的工具栏和导航栏绝不出现在同一个屏幕上：两者都要占用底边。
+
+### 停靠还是悬浮
+
+| 变体 | 所在位置 | 项 | 适用于 |
+| --- | --- | --- | --- |
+| Docked（默认） | 横跨底边并与之齐平，颜色延伸到系统栏之下 | 沿宽度铺开，彼此间距相等 | 详情屏幕的操作：一封打开的邮件、一张照片、一份文档 |
+| Floating | 内容之上一块圆角、抬升的表面，由你的布局放置 | 彼此靠拢，需要多长就多长，每个项都为自己的触摸目标留出空间 | 位于内容之上的工具，而周围的内容应保持可见：编辑器、画布、地图 |
+
+停靠的工具栏始终是横向的。悬浮的工具栏可以是纵向的，在大屏幕上位于内容旁边，就像地图控件那样。同一个产品可以在某些屏幕上让工具栏停靠，在另一些屏幕上让它悬浮。设计系统增加的变体采用停靠的结构，并使用自己的值。
+
+停靠的工具栏把它的项沿宽度铺开，项与项之间的距离绝不小于它的间隙（默认系统中为 16）。悬浮的工具栏让它的项彼此靠拢：在默认系统中它的间隙为 0，相邻两项之间隔开的距离，只够让每个项沿这一排保有自己的触摸目标。大号按钮彼此相接，中号按钮相隔 8，小号按钮相隔 16。工具栏绝不会为此把某个项加宽或改变它的样式，而且无论用鼠标还是触摸，间距都相同。
+
+<DemoFrame label="悬浮：small、medium 和 large 的项，以及 narrow 和 wide 的项" plain column>
+  <tanrei-toolbar variant="floating" label="格式（small）">
+    <tanrei-button variant="text" size="small" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" size="small" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" size="small" label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="格式（medium）">
+    <tanrei-button variant="text" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="格式（large）">
+    <tanrei-button variant="text" size="large" label="粗体"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" size="large" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="text" size="large" label="下划线"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-toolbar>
+  <tanrei-toolbar variant="floating" label="绘图工具">
+    <tanrei-button variant="text" width="narrow" label="撤销"><span slot="icon">undo</span></tanrei-button>
+    <tanrei-button variant="text" width="narrow" label="重做"><span slot="icon">redo</span></tanrei-button>
+    <tanrei-button variant="text" label="画笔"><span slot="icon">edit</span></tanrei-button>
+    <tanrei-button variant="text" label="橡皮擦"><span slot="icon">ink_eraser</span></tanrei-button>
+    <tanrei-button variant="filled" width="wide" label="完成"><span slot="icon">check</span></tanrei-button>
+  </tanrei-toolbar>
+</DemoFrame>
+
+### 项
+
+- 大多数操作使用 `text` 变体的纯图标[按钮](/zh-cn/components/button/)。工具栏最终要引向的那个操作（例如“发送”或“完成”）应当更醒目：用 filled 的纯图标按钮，也可以配上 `wide` 宽度；如果文字比图标更容易理解，就用带标签的 filled 按钮。
+- `narrow` 的纯图标按钮适合有许多小操作的工具栏。它画出来比它的目标窄，工具栏会在它与相邻项之间为这个目标留出空间。
+- 用来开启和关闭某项功能的操作（“粗体”“静音”），做成带 `toggle` 的纯图标按钮。它保有自己的选中状态和自己的朗读内容。
+- 保持顺序稳定。用户靠位置寻找操作，各个屏幕上项的位置变来变去的工具栏很难学会。
+- 只有一个项的工具栏会把它居中。请考虑一下，这个项是不是更应该放在内容里。
+
+### 项放不下时
+
+工具栏绝不会让项换行、缩小或隐藏。如果这些项需要的空间超过了工具栏所拥有的，这一排就会滚动，使每个项仍然够得着，并且调试构建会把这一点告诉你。请把多出来的操作放进你自己提供的溢出[菜单](/zh-cn/components/menu/)，并把它锚定到工具栏末尾的“更多选项”图标按钮上。
+
+### 推荐
+
+- 按工具栏中的操作所做的事来给它命名：“格式”“邮件操作”。
+- 对眼下不适用的操作，请禁用它而不是移除它，这样其他操作就不会移位。
+- 放置悬浮的工具栏时，避开用户在使用它时需要看到的内容，也避开导航栏和系统边衬区。
+
+### 避免
+
+- 不要在工具栏里放文本字段、滑块或一组纸片（Chip）。它们各自都需要方向键，而工具栏正是用方向键来移动焦点的。搜索应当放在应用栏或页面里。
+- 不要在同一个屏幕上同时使用停靠的工具栏和导航栏。
+- 不要为了让工具栏显得突出而改变项的样式。请改为给按钮选用 tonal 或 filled 变体。
+- 不要在工具栏里放导航目的地。它的项是操作。
+
+## 无障碍
+
+<ComponentAccessibility name="toolbar" />
+
+### 组件负责的部分
+
+- 工具栏是一个 Tab 停靠点，遵循 WAI-ARIA 的 toolbar 模式。Tab 进入工具栏时，落在上次拥有键盘焦点的项上，否则落在第一个未禁用的项上；再按一次 Tab 就离开工具栏。一个有八个切换按钮的格式工具栏，按一次 Tab 就能越过，而不是八次。
+- 在工具栏内部，沿其轴向的方向键移动到下一项或上一项，并在两端循环：横向工具栏用右、左方向键，纵向工具栏用下、上方向键。Home 和 End 移动到第一项和最后一项。在从右到左的布局中，左方向键移动到下一项。
+- 移动焦点绝不会激活某个项。Enter 和 Space 对获得焦点的项起作用，效果与该项自身的行为一致，所以切换按钮照常切换。
+- 方向键会跳过禁用的项，禁用的项也永远不会成为 Tab 停靠点，因为禁用的按钮不可聚焦。
+- 这里的游动焦点与列表、菜单和标签页在各平台上使用的是同一套。
+- 在有 toolbar 角色的平台（Web、React Native）上，工具栏暴露为一个由 `label` 命名的 toolbar，并带有它的方向。SwiftUI、Compose 和 Flutter 没有这个角色：在这些平台上，它是一个由 `label` 命名的组，按顺序包含它的各个项。
+- 每个项保留自己的名称、角色、状态和目标。工具栏不给它们添加任何东西，也从不改变它们的样式。
+- 相邻两项的点击区域绝不重叠。在停靠的工具栏中，它们在间隙的正中相接；默认系统的间隙（16）足够宽，每个项在那里同样能保有完整的 48 触摸目标；间隙更窄的设计系统会让项与项之间的目标变窄。在悬浮的工具栏中，无论使用哪种指针，各项之间的距离都恰好够每个项沿这一排保有一个触摸目标的长度，所以窄的或小的按钮绝不会被相邻项挤占。在没有相邻项的一侧，项保有完整的目标。
+- 获得键盘焦点的项如果已滚出可见范围，工具栏会把它完整地滚入可见范围。
+- 文本变大时，工具栏沿垂直于其轴向的方向变大，以容纳它的项。它不会缩放这些项。
+- 调试构建会报告：缺少 `label`、工具栏没有任何项、某个项不是 Tanrei `Button`、停靠的工具栏被设为纵向、项放不下，以及未知的变体或方向。
+
+已知的平台差距：
+
+- SwiftUI、Compose 和 Flutter 没有 toolbar 角色。屏幕阅读器读到的是一个有名称的组，而不是工具栏，各个包的 README 都说明了这一点。这个组不暴露它的方向。
+- Web：停靠的工具栏读取 `env(safe-area-inset-bottom)`，除非页面的 viewport meta 带有 `viewport-fit=cover`，否则它的值是零。
+- Web：项在滚动时，某个项在垂直于工具栏轴向的方向上超出工具栏的部分都会被裁掉：它的点击区域、它的焦点环或光晕、elevated 按钮的阴影。不显示滚动条。
+- 在 SwiftUI 上，这一个 Tab 停靠点是面向键盘的焦点组：全键盘控制（Full Keyboard Access）用方向键在它的各项之间移动，用 Tab 离开它。这些按键是作为规则测试的，尚未用真实键盘验证。
+- SwiftUI：项在滚动时，末端项的点击区域止于工具栏的边缘。尺寸变化使这些项开始滚动或不再滚动时，它们会被重新创建，所以项会失去键盘焦点，或中断正在进行的按下。
+- 在 React Native 上，Tab 停靠点和方向键只在连接了硬件键盘时才起作用，与标签页那一排的情况相同。
+- React Native 有 toolbar 角色，但没有办法暴露方向，所以纵向的工具栏不会朗读为纵向。
+- React Native：悬浮工具栏的宽度、硬件键盘上的按键、把获得焦点的项滚入可见范围，以及 VoiceOver 和 TalkBack 是否朗读工具栏，都只在 Jest 中验证过，没有在真机上验证。
+- 在 `m3-like` 下，工具栏绘制的是默认系统的值：Material 的工具栏取值要等保真度参考覆盖到它。Material 的 vibrant 工具栏会给它的项改色，这无法绘制，因为工具栏从不改变项的样式（模仿差距 `toolbar-vibrant-color`）。
+
+### 需要你做的事
+
+- 给工具栏一个 `label`，并用你的产品语言给每个项各自的标签，纯图标的操作也不例外。
+- 里面只放 Tanrei `Button`，纯图标的或带标签的都可以。
+- 操作不适用时，请禁用它；原因不明显时，在附近说明原因。
+- 操作放不下时，由你自己提供溢出菜单。
+- 放置悬浮的工具栏时，不要让它盖住工具栏打开期间仍然需要的内容。

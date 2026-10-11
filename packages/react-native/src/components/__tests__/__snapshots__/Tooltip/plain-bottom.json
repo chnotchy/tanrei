@@ -1,0 +1,142 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "alignItems": "center",
+      "height": 200,
+      "justifyContent": "center",
+      "width": 320
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "alignItems": "center",
+          "flexDirection": "column",
+          "gap": 4
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {},
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityHint": "Move to trash",
+                "accessibilityLabel": "delete",
+                "accessibilityRole": "button",
+                "accessibilityState": {
+                  "disabled": false
+                },
+                "accessibilityValue": {},
+                "accessible": true,
+                "collapsable": false,
+                "focusable": true,
+                "hitSlop": {
+                  "bottom": 6,
+                  "left": 6,
+                  "right": 6,
+                  "top": 6
+                },
+                "style": {
+                  "alignItems": "center",
+                  "alignSelf": "flex-start",
+                  "borderRadius": 6,
+                  "height": 36,
+                  "justifyContent": "center",
+                  "opacity": 1,
+                  "width": 36
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "alignItems": "center",
+                      "height": 20,
+                      "justifyContent": "center",
+                      "width": 20
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": false,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(75, 75, 75)",
+                          "fontFamily": "Material Symbols Rounded",
+                          "fontSize": 20,
+                          "fontWeight": "300",
+                          "lineHeight": 20,
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        "delete"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "importantForAccessibility": "no-hide-descendants"
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignSelf": "flex-start",
+                  "backgroundColor": "rgb(31, 31, 31)",
+                  "borderRadius": 6,
+                  "justifyContent": "center",
+                  "maxWidth": 200,
+                  "minHeight": 24,
+                  "paddingHorizontal": 8,
+                  "paddingVertical": 4
+                }
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "style": {
+                      "color": "rgb(241, 241, 241)",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "400",
+                      "letterSpacing": 0.065,
+                      "lineHeight": 20
+                    }
+                  },
+                  "children": [
+                    "Move to trash"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+---
+title: ライセンスと帰属
+description: Tanrei のライセンスと、Tanrei が土台にしている成果物。
+translationOf: project/license.mdx
+sourceHash: 64a9e67b7cca12f0e8ac1917c1709e11e9dab49e
+---
+
+import { config } from '../../../../lib/repo';
+
+## ライセンス
+
+Tanrei は **{config.license}** ライセンスのもとで提供されます。このライセンスの条件に従って、商用・非商用のプロダクトで使用し、改変し、再配布できます。全文はリポジトリの `LICENSE` ファイルに、必要な告知は `NOTICE` にあります。
+
+## 第三者の成果物
+
+| 成果物 | Tanrei での用途 | ライセンス |
+| --- | --- | --- |
+| material-color-utilities | HCT 色空間でのトーナルパレットとカラースキームの、ビルド時の生成 | Apache-2.0 |
+| Inter | ラテン文字の既定の書体。タイプスケールが名前で参照します | SIL Open Font License 1.1 |
+| Noto Sans JP、Noto Sans | 日本語とその他の文字体系の既定の書体 | SIL Open Font License 1.1 |
+| Roboto Mono | 既定の等幅書体 | Apache-2.0 |
+| Material Symbols (Rounded) | 既定のアイコンフォント。`ref.typeface.icon` が名前で参照します | Apache-2.0 |
+| Material Symbols のベクタードローアブル | 右から左のレイアウトで反転するグリフ名の一覧の出典（`tokens/icon-sets/`、名前のみ） | Apache-2.0 |
+| material-web と androidx.compose.material3 のトークン | プリセット `m3-like` と `m3-expressive-like` の忠実度を計測する際の参照値（`tokens/fidelity/`、値のみ） | Apache-2.0 |
+| Lit | Web Components の基盤ライブラリ | BSD-3-Clause |
+| Astro と Starlight | このドキュメントサイト | MIT |
+
+## 商標
+
+ほかの製品名や会社名は、それぞれの所有者に帰属します。プリセットが何に似せたものか、ライブラリが何と互換性を持つかを示す目的でのみ使用しています。Tanrei は独立したプロジェクトであり、そのいずれとも提携しておらず、承認や支援も受けていません。
+
+Material Design は Google LLC の商標です。Apple、iOS、Apple Human Interface Guidelines は Apple Inc. の商標です。これらは、`m3-like`、`m3-expressive-like`、`cupertino` の各プリセットが何に近づけたものかを示すためにだけ使っています。Tanrei がこれらに準拠しているとは主張しません。また、これらのロゴも、Apple の書体やシンボルも含めていません。

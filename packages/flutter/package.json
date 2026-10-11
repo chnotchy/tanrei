@@ -1,0 +1,9 @@
+{
+  "name": "@tanrei/flutter",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "flutter analyze",
+    "test": "flutter test && node --test tool/emit_dart.test.mjs"
+  }
+}

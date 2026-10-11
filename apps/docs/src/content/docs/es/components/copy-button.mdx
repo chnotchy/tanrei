@@ -1,0 +1,142 @@
+---
+title: Botón de copiar
+description: Un botón que copia un texto dado con una sola pulsación y lo confirma, o dice que no ha podido. Lo dibuja Button y nunca mueve el diseño.
+translationOf: components/copy-button.mdx
+sourceHash: 11c3c4ca402e08be52105dad6861f24385f8af29
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="copy-button" />
+
+<DemoFrame label="Pulsa uno: el glifo se convierte por un momento en una marca de verificación">
+  <tanrei-copy-button text="npm install @tanrei/web" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
+  <tanrei-copy-button variant="tonal" text="#30a3f0" label="Copiar color" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="Copiar enlace" copied-label="Enlace copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="Copiar clave" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
+</DemoFrame>
+
+Usa un botón de copiar junto a algo que una persona va a pegar en otro lugar: un comando, una clave, una dirección, un valor de color. Espera la respuesta del navegador, muestra una marca de verificación (o una marca de error) durante dos segundos y se lo dice con palabras a la tecnología de apoyo. Un [bloque de código](/es/components/code-block/) coloca uno por ti.
+
+### Uso
+
+El botón de copiar es un [botón](/es/components/button/) de la variante y el tamaño que indiques. No tiene colores ni medidas propios, así que un sistema de diseño que cambia el estilo de Button cambia con él el de todos los botones de copiar.
+
+Las palabras son tuyas. `label`, `copied-label` y `failed-label` no tienen valores predeterminados, porque Tanrei no incluye textos en ningún idioma.
+
+SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- De solo icono (el valor predeterminado): recibe su nombre de label. -->
+    <tanrei-copy-button
+      text="npm install @tanrei/web"
+      label="Copiar"
+      copied-label="Copiado"
+      failed-label="No se pudo copiar"
+    ></tanrei-copy-button>
+
+    <!-- Con etiqueta: el texto cambia con la forma, y la anchura nunca. -->
+    <tanrei-copy-button
+      icon-only="false"
+      variant="tonal"
+      text="https://example.com/s/4f2a"
+      label="Copiar enlace"
+      copied-label="Enlace copiado"
+      failed-label="No se pudo copiar"
+    ></tanrei-copy-button>
+
+    <script type="module">
+      import '@tanrei/web';
+
+      document.querySelector('tanrei-copy-button').addEventListener('copyfailed', () => {
+        // El botón ya ha dicho que no ha podido. Lo que ocurra además es cosa tuya.
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CopyButton } from '@tanrei/react';
+
+    <CopyButton text={command} label="Copiar" copiedLabel="Copiado" failedLabel="No se pudo copiar" onCopyfailed={() => showHelp()} />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Los tamaños y las variantes son los de Button" plain>
+  <tanrei-copy-button size="small" text="small" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
+  <tanrei-copy-button text="medium" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
+  <tanrei-copy-button size="large" text="large" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
+  <tanrei-copy-button variant="elevated" text="elevated" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
+  <tanrei-copy-button disabled text="disabled" label="Copiar" copied-label="Copiado" failed-label="No se pudo copiar"></tanrei-copy-button>
+</DemoFrame>
+
+<DemoFrame label="La anchura se reserva para el más largo de los tres textos" plain>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="Copiar" copied-label="Copiado en el portapapeles" failed-label="No se pudo copiar"></tanrei-copy-button>
+  <tanrei-button variant="text">Un vecino que no se mueve</tanrei-button>
+</DemoFrame>
+
+El botón tiene tres formas: en reposo (el glifo `content_copy`), copiado (`check`) y fallido (`error`). Muestra la forma de copiado solo después de que el navegador haya confirmado la copia, y vuelve al reposo tras `comp.copy-button.confirmation.duration` (2 segundos). Una pulsación mientras muestra una confirmación copia y confirma de nuevo.
+
+Nada se mueve cuando cambia la forma. Los tres glifos se dibujan en una misma caja. La forma con etiqueta conserva en todo momento la anchura de su texto más ancho.
+
+El glifo cambia de inmediato, sin movimiento. Los dos segundos son un tiempo para darse cuenta, así que se mantienen donde el movimiento está reducido.
+
+Si el texto cambia mientras el botón muestra «copiado», vuelve al reposo de inmediato: lo que se copió ya no es lo que se copiaría.
+
+Los eventos son `copied` y `copyfailed`. No se llaman `copy`, porque `copy` es el evento del portapapeles del propio documento.
+
+<ComponentSpecs name="copy-button" />
+
+### Qué dibuja la web de otra manera
+
+- La copia usa `navigator.clipboard.writeText`. Necesita una página segura (HTTPS o localhost) y una pulsación de la persona. Donde el navegador no tiene portapapeles o se niega, el botón toma la forma de fallido. No hay ningún mecanismo alternativo.
+- Los dos eventos se propagan hacia arriba y no cruzan un shadow root.
+
+## Pautas
+
+### De solo icono o con etiqueta
+
+| Forma | Qué muestra | Úsalo cuando |
+| --- | --- | --- |
+| **De solo icono** | Solo el glifo. Una persona que ve percibe la marca de verificación y ninguna palabra | Junto a lo que copia: un comando, un bloque de código, un valor en una fila |
+| **Con etiqueta** | El glifo y las palabras, que cambian con la forma | La copia es una de las acciones de la vista, o las palabras importan a todo el mundo |
+
+### Recomendado
+
+- Di en la etiqueta qué se copia cuando no resulte obvio por su lugar: «Copiar enlace», «Copiar JSON».
+- Escucha `copyfailed` y muestra algo que permanezca, como el texto seleccionado en un campo, cuando la persona necesite conseguir el texto de todos modos.
+- Conserva la variante `text` para un botón de copiar situado junto a su contenido. Elige otra variante cuando copiar sea la acción principal de la vista.
+
+### Evita
+
+- No muestres el botón solo al pasar el cursor. Así no se puede encontrar con el tacto.
+- No abras un tooltip ni un snackbar por una copia correcta. El botón ya la confirma.
+- No lo uses para copiar nada que no sea texto.
+
+## Accesibilidad
+
+<ComponentAccessibility name="copy-button" />
+
+### De qué se encarga el componente
+
+- Es un botón, con el indicador de foco de Button, su objetivo mínimo y sus teclas (Enter y Espacio).
+- La forma de solo icono recibe su nombre de `label` en todas las formas. El nombre no cambia cuando cambia el glifo.
+- El resultado se anuncia mediante una región activa: `copied-label` de forma cortés y `failed-label` de forma asertiva, en cada pulsación y sin mover el foco.
+- La confirmación es una figura y unas palabras, no un color.
+- En un diseño de derecha a izquierda, el glifo de copiar se refleja, como indica el conjunto de iconos. La marca de verificación y la marca de error, no.
+
+### Qué debes hacer tú
+
+- Da las tres etiquetas, en el idioma de tu producto. Un botón de solo icono sin `label` no tiene nombre accesible.
+- Ocúpate tú de lo que sigue a un fallo cuando la persona no deba perder el texto.

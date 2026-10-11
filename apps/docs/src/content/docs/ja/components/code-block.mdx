@@ -1,0 +1,296 @@
+---
+title: コードブロック
+description: 読み、比べ、コピーするための複数行のコードです。コード用の書体で描き、ブロックの中でスクロールするか折り返します。ヘッダー、行番号、行のマーク、プロンプト、コピーボタンを付けられます。コードとその言語を渡すと、コードブロックが自分でハイライトします。
+translationOf: components/code-block.mdx
+sourceHash: 3f2cb34d6a6385776faace656f870690072e864d
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+export const runs = (list) => list.map(([text, syntax]) => (syntax ? <span data-syntax={syntax}>{text}</span> : text));
+
+export const footer = `// フォームのフッター：主なアクションを 1 つ、引き返す手段を 1 つ。
+import { Button } from '@tanrei/react';
+
+type FooterProps = { onSave: () => void; busy: boolean };
+
+export function Footer({ onSave, busy }: FooterProps) {
+  const retries = 3;
+  return (
+    <footer className="footer">
+      <Button variant="text">キャンセル</Button>
+      <Button disabled={busy} onClick={onSave}>保存</Button>
+    </footer>
+  );
+}`;
+
+export const given = [
+  ['{', 'punctuation'], ['\n  '], ['"name"', 'property'], [':', 'punctuation'], [' '], ['"acme"', 'string'], [',', 'punctuation'], ['\n  '],
+  ['"dials"', 'property'], [':', 'punctuation'], [' '], ['{', 'punctuation'], [' '], ['"size.unit"', 'property'], [':', 'punctuation'], [' '], ['4', 'constant'], [' '], ['},', 'punctuation'], ['\n  '],
+  ['"compact"', 'property'], [':', 'punctuation'], [' '], ['false', 'constant'], ['\n'],
+  ['}', 'punctuation'],
+];
+
+## 概要
+
+<ComponentAvailability name="code-block" />
+
+<DemoFrame label="タイトル、言語のラベル、コピーボタン。コードは言語をもとにハイライトされます" column>
+  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした">
+    <pre><code>{footer}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+コードブロックは、読み、比べ、コピーするためのコードを表示します。文の中の名前やコマンドは[インラインコード](../inline-code/)です。
+
+**コードブロックは、自分でコードをハイライトします。** コードとその `language` を渡すと、トークンの色でコードを描きます。ハイライターを入れる必要も、テーマやスタイルシートを書く必要もありません。そのため、コードの色も、ページのほかの部分と同じように、スキーム、コントラストレベル、デザインシステムに従います。ハイライトが変えるのは色と太さだけです。文字、行、選択される内容、コピーされる内容、スクリーンリーダーが読み上げる内容は、ハイライトの有無で変わりません。
+
+### 使い方
+
+Web では、コードは通常の `<pre><code>` として文書の中に残ります。スクリプトがなくても文書にあるので、スクリプトの読み込みに失敗した読み手にも、検索エンジンにも、ページ内検索にも届きます。要素は、そのまわりに枠を描きます。`@tanrei/web/code.css` を読み込むと、要素が定義される前から、塗り、角丸、パディング、書体が付きます。
+
+SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <tanrei-code-block
+      title="sizes.js"
+      language="js"
+      language-label="JavaScript"
+      copy
+      copy-label="コピー"
+      copied-label="コピーしました"
+      copy-failed-label="コピーできませんでした"
+    >
+      <pre><code>const sizes = ['small', 'medium', 'large'];</code></pre>
+    </tanrei-code-block>
+
+    <!-- 行番号、行のマーク、プロンプト。 -->
+    <tanrei-code-block label="例" line-numbers start-line="96" highlighted-lines="98, 100-101" highlighted-label="強調">
+      <pre><code>…</code></pre>
+    </tanrei-code-block>
+
+    <tanrei-code-block label="インストール" prompt="$" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした">
+      <pre><code>npm install @tanrei/web</code></pre>
+    </tanrei-code-block>
+
+    <script type="module">
+      import '@tanrei/web';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CodeBlock } from '@tanrei/react';
+    import '@tanrei/web/code.css';
+
+    {/* 要素がコードを行に分けるので、コードは要素に任せます。テキストを渡してください。 */}
+    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="コピー" copiedLabel="コピーしました" copyFailedLabel="コピーできませんでした" />
+    ```
+  </TabItem>
+</Tabs>
+
+`language` は識別子です（`tsx`、`css`、`sh`）。コードブロックはこれをもとにハイライトし、画面には描きません。ヘッダーに出す言葉は `language-label` です。スクリプトで組み立てるブロックでは、`<pre><code>` を持たせる代わりに `code` プロパティを設定します。このとき、`<pre><code>` は要素が書きます。
+
+## 仕様
+
+<DemoFrame label="Filled と Outlined、medium と small" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" label="例"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="行番号、強調した行、追加した行と削除した行" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="強調" removed-lines="4" added-lines="5" removed-label="削除" added-label="追加" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="長い行は、ブロックの中でスクロールするか、折り返します" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="例" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした"><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>キャンセル</tanrei-button><tanrei-button variant="filled" @click=\${save}>変更を保存</tanrei-button></footer>\`;\n\n// 上の行は 1 行です。収まりませんが、切られることはありません。`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" label="例" wrap line-numbers><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>キャンセル</tanrei-button><tanrei-button variant="filled" @click=\${save}>変更を保存</tanrei-button></footer>\`;\n\n// 上の行は 1 行です。収まりませんが、切られることはありません。`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="プロンプトと、表示する行数の上限" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="インストール" prompt="$" language="sh" language-label="Shell" copy copy-label="コピー" copied-label="コピーしました" copy-failed-label="コピーできませんでした"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+**2 つの見た目。** `filled` は控えめな塗りで、ページ上のコードに使います。`outlined` は塗りがなく、1 本の細い線で囲みます。すでに塗りのあるカードやパネルの中のコードに使います。
+
+**本体。** 既定では、行を折り返しません。収まらない行はブロックの中でスクロールし、ページが横にスクロールすることはありません。`wrap` を指定すると、スクロールの代わりに行を折り返します。続きの行は、行番号の下ではなく、コードの下から始まります。`max-lines` は高さを行数で制限し、残りはブロックの中でスクロールします。
+
+**コピーボタン**は常に表示します。ホバーしたときだけ表示することはありません。また、動かして避けることのできないコードを隠しません。スクロールする本体では、末尾にボタンの分の余白が加わります。折り返す行は、ボタンの列の手前で終わります。コピーされるのはプレーンテキストのコードで、行番号、プロンプト、記号、削除した行は含みません。手で選択した範囲をコピーしたときは、選択した文字がそのままコピーされます。
+
+**行のマーク**は、色だけでは伝えません。
+
+| 行 | 左端のバー | 帯 | 記号 | 行の前に読み上げる文言 |
+| --- | --- | --- | --- | --- |
+| 強調 | あり | あり | | `highlighted-label` |
+| 追加 | あり | | + | `added-label` |
+| 削除 | あり | | − | `removed-label` |
+
+行の指定は、コンマで区切った番号と範囲です（`"3, 7-9"`）。番号は、読み手に見える番号、つまり `start-line` から数えた番号です。
+
+**右から左。** コードは常に左から右です。行、行番号、スクロールの開始位置は、どのレイアウトでも左にあります。反転するのは枠だけで、タイトルが右に、コピーボタンが左に移ります。
+
+<ComponentSpecs name="code-block" />
+
+### ハイライト
+
+色は、次の 3 つのどれかから、この順で決まります。
+
+1. **プロダクトが渡すラン。** ページを作るときにハイライトしたコードや、プロダクトが選んだハイライターの結果です。渡されたとおりに描き、`language` や `highlight` が何であっても、コードブロックがそのコードをもう一度ハイライトすることはありません。
+2. **コードブロック自身のハイライター。** `highlight` が true で、`language` がハイライターの知っている言語を指し、コードの長さが `comp.code-block.syntax.max-length`（50,000 文字）以下のときに使います。
+3. **プレーン。** それ以外のすべての場合です。
+
+コードは、まずプレーンのまますぐに描かれます。色は少し遅れて 1 フレームで付き、何も動かしません。コードが変わると読み直し、末尾に伸びていくコードは、すでに付いている色を保ちます。
+
+| `language` | 動作 |
+| --- | --- |
+| `html`、`xml`、`svg`、`css`、`javascript`（`js`、`mjs`、`cjs`、`jsx`）、`typescript`（`ts`、`tsx`）、`json`（`jsonc`）、`shell`（`sh`、`bash`、`zsh`）、`swift`、`kotlin`（`kt`）、`dart` | ハイライトします。大文字と小文字は区別しません。 |
+| 空、`text`、`plain`、`plaintext` | プレーンです。何も報告しません。 |
+| それ以外 | プレーンです。デバッグビルドでは、知らない言語を 1 度だけ報告します。 |
+
+コードブロックは、コードからも、`title` からも、`language-label` からも、言語を推測しません。短いコードはどの言語にも見え、推測を誤るとコードに誤った色が付くためです。
+
+**オフにする。** `highlight="false"` は、そのブロックについて、コードブロック自身のハイライターをオフにします。プロダクトが渡したランは描かれます。
+
+**上限。** `comp.code-block.syntax.max-length` より長いコードは、全体をプレーンで描きます。途中までハイライトすることはありません。この値はデザインシステムで変更できます。
+
+**追加した行と削除した行があるとき**は、コードを、そこに含まれる 2 つのテキストとして読みます。変更後のコードが削除されていない行の色を決め、変更前のコードが削除した行の色を決めます。文字列を開いたままの削除行が、後ろの行の色を乱すことはありません。
+
+**失敗は表に出しません。** ハイライターを読み込めないとき、ハイライターが例外を投げたとき、ランをつなげてもコードと正確に一致しないときは、コードをプレーンのままにします。ヘッダー、コピーボタン、行、マークは、そのまま働き続けます。
+
+文法は、意図して小さく作っています。コードを編集するためではなく、見せるためのものです。難しい構文ではランの色を誤ることがありますが、文字を落とすことはありません。
+
+### ページを作るときにハイライトする
+
+ページをビルドするサイトでは、ビルドの中でハイライトできます。色は最初の描画から付いていて、ブラウザーはハイライターを読み込みません。`highlightToHtml` は要素が使うものと同じ関数で、Node で動きます。
+
+```js
+import { highlightToHtml } from '@tanrei/web/highlight';
+
+const html = await highlightToHtml(source, 'tsx');
+// <tanrei-code-block language="tsx"><pre><code data-syntax-of="tsx">${html}</code></pre></tanrei-code-block>
+```
+
+`<code>` の `data-syntax-of` は、そのコードがハイライト済みであることを示します。要素は渡されたとおりに描き、何も読み込みません。
+
+### プロダクトのハイライターを使う
+
+`@tanrei/web/highlight` は、依存のない独立したモジュールです。要素は、ブロックが初めて必要としたときにこのモジュールを読み込み、各言語の文法は、その言語が初めて使われたときに読み込みます。
+
+| エクスポート | 内容 |
+| --- | --- |
+| `highlight(code, language)` | ランを返します。知らない言語では `null` です。その言語を初めて使うときは Promise、それ以降は値を返します。 |
+| `highlightToHtml(code, language, { lines })` | `<code>` の中身の HTML を返します。`lines` を付けると、行ごとに `<span data-line>` を 1 つ書きます。 |
+| `registerLanguage(names, grammar)` | 言語を追加するか、置き換えます。文法はデータです。名前の付いた状態があり、それぞれがルールの並びで、ルールはパターン、ロール、入るまたは出る状態を持ちます。文法を読み込む関数も渡せます。 |
+| `loadLanguage(language)` | その言語の最初のコードより前に、文法を読み込みます。 |
+| `setHighlighter(fn)` | ハイライター全体を置き換えます。`null` を渡すと、ページ全体で自動のハイライトをオフにします。 |
+| `languages()` | 言語を指すすべての名前を返します。 |
+| `foldScope(scopes, text)` | ドット区切りのスコープ名に対するロールを、下の表に従って返します。 |
+| `tokenize(grammar, code)`、`checkGrammar(grammar)` | 自分で書いた文法をテストするためのものです。 |
+
+すでに信頼しているハイライターがあるプロダクトでは、`TanreiCodeBlock.highlighter` に関数 `(code, language, signal) => runs` を設定することもできます。コードブロックはその関数に尋ね、Tanrei のモジュールは読み込まれません。
+
+### 構文のロール
+
+| ロール（`data-syntax`） | 内容 | 既定のシステムでの描き方 |
+| --- | --- | --- |
+| `comment` | コメント、ドキュメントコメント | コードより控えめ |
+| `keyword` | 言語自身の語。キーワード、修飾子、アットルール、アノテーション、単語で書く演算子 | 紫で、太さが 1 段階太い |
+| `string` | コードに書かれたテキスト。文字列、文字、正規表現、マークアップの属性の値 | 緑 |
+| `constant` | テキストではない値。数値、真偽値、null、名前付きの定数、単位、色の値、エスケープ | オレンジ |
+| `function` | 関数やメソッドの名前。宣言と呼び出しの両方 | 青 |
+| `type` | 型の名前。クラス、構造体、インターフェース、組み込みの型、名前空間 | 青緑 |
+| `tag` | マークアップやスタイルシートが指す対象。要素の名前、マークアップの中のコンポーネントの名前、セレクター | 赤 |
+| `property` | 何かに属する名前。プロパティ、キー、マークアップの属性、スタイルのプロパティ、コマンドのオプション | 青で、コードの色に一段近いトーン |
+| `punctuation` | かっこ、区切り、マークアップの区切り記号 | コードより控えめ |
+| プレーン（span なし） | それ以外。変数、引数、記号で書く演算子、タグの間のテキスト | コードの色 |
+
+それぞれのロールには、色（`comp.code-block.syntax.color.*`）と太さの段階（`comp.code-block.syntax.emphasis.*`）の 2 つのトークンがあります。ロールはトークンの軸なので、デザインシステムはロールを追加できます。既定のシステムの緑と赤は構文専用のパレットの色で、色相は成功とエラーの色に近いものです。追加した行と削除した行は、バー、記号、ラベルで区別でき、色だけでは示しません。ロールが変えるのは色と太さだけなので、ハイライトしたコードとプレーンのコードで、行と桁は同じです。
+
+ランは、`<code>` の中の `<span data-syntax="…">` です。span の外のテキストはプレーンです。
+
+<DemoFrame label="プロダクトが渡したランは、渡されたとおりに描かれます" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="例">
+    <pre><code>{runs(given)}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+### ハイライターのスコープをロールにまとめる
+
+ハイライターの中には、見つけたものに、共通の語彙から取ったドット区切りのスコープ名を付けるものがあります。`foldScope` はこれをロールにまとめるので、プロダクトのハイライターと Tanrei のハイライターで同じ色になります。トークンのスコープは、最も具体的なものから外側へ順に調べます。1 つのスコープの中では、最初に一致した行を採用します。どの行にも一致しないスコープは飛ばし、何にも一致しないトークンはプレーンです。
+
+| # | スコープの先頭 | ロール |
+| --- | --- | --- |
+| 1 | `comment`、`punctuation.definition.comment` | `comment` |
+| 2 | `constant.character.escape`、`constant.numeric`、`constant.language`、`constant.other`、`keyword.other.unit`、`support.constant`、`variable.other.constant`、`variable.other.enummember` | `constant` |
+| 3 | `string`、`punctuation.definition.string`、`markup.inline.raw`、`markup.raw` | `string` |
+| 4 | `entity.name.tag`、`support.class.component`、`meta.selector`。スタイルシートでは `entity.other.attribute-name` も | `tag` |
+| 5 | `entity.other.attribute-name`、`support.type.property-name`、`meta.property-name`、`meta.object-literal.key`、`variable.other.property`、`variable.other.object.property`、`support.type.vendored.property-name`、`variable.parameter.option` | `property` |
+| 6 | `entity.name.function`、`support.function`、`variable.function`、`meta.function-call.generic` | `function` |
+| 7 | `entity.name.type`、`entity.name.class`、`entity.name.namespace`、`entity.other.inherited-class`、`support.type`、`support.class`、`storage.type.primitive`、`storage.type.built-in`、`keyword.type` | `type` |
+| 8 | `keyword.operator` のうち、文字で書くもの（`new`、`typeof`、`in`） | `keyword` |
+| 9 | それ以外の `keyword.operator` | プレーン |
+| 10 | `keyword`、`storage`、`variable.language`、`meta.decorator`、`punctuation.decorator`、`entity.name.function.decorator`、`markup.heading` | `keyword` |
+| 11 | `punctuation`、`meta.brace`、`meta.delimiter` | `punctuation` |
+| 12 | `variable`、`meta`、`source`、`text`、`markup`、`invalid` | プレーン |
+
+- 文字列の引用符は文字列の一部です。文字列の中のエスケープは定数です。
+- JSON のキーはプロパティ、その値は文字列と定数です。
+- デコレーターの名前はキーワードです。
+- `invalid` はプレーンです。コードの表示は、コードの正しさを判定しません。
+- 追加と削除はランではなく行の性質です（`added-lines`、`removed-lines`）。
+
+### Web での描き方の違い
+
+- 要素は、各行を `<span data-line>` で包んで、行ごとのボックスを作ります。ノードを移動し、テキストとランを改行の位置で分割しますが、コードに文字を足すことはありません。`<code>` の子を管理するフレームワークでは、代わりに `code` を渡すか、`[data-line]` を自分で描画してください。
+- マークした行のラベルは、その行のコードの前に置く、見えない `<span>` です。`<code>` の `textContent` には含まれますが、コピーされる内容には含まれません。
+- Outlined は、置かれた場所の上にそのまま描かれます。そこがサーフェスの色でないときは、`--tanrei-code-block-ground` にその色を指定してください。行番号とコピーボタンの下をコードがスクロールする間、行番号とコピーボタンをその色の上に描けるようにするためです。
+- 要素が定義される前は、`code.css` が塗り、角丸、パディング、ランの色を描きます。ヘッダー、コピーボタン、行番号、マークには要素が必要です。
+- `highlight` は既定で true なので、オフにするときに属性を書きます（`highlight="false"`）。プロパティには真偽値を渡します。
+- 要素は、自分のランを span として `<code>` の中に 1 行ずつ書き、自分が書いたものとして区別します。`<code>` の子を管理するフレームワークでは、`code` を渡して、要素に書かせてください。
+- 上限は、カスタムプロパティ `--tanrei-comp-code-block-syntax-max-length` から、そのブロックに届いた値を読みます。
+- 単一ファイルのバンドルを使うページでは、ハイライターはバンドルに含まれています。`@tanrei/web` をモジュールとして読み込むページでは、必要になったときに読み込みます。
+
+## ガイドライン
+
+### 推奨
+
+- スクロールできるブロックには `title` か `label` を付けます。スクロールする本体はフォーカスが止まる位置なので、名前が必要です。
+- カードやパネルの中では `outlined` を、ページ上や色の付いたコンテナの上では `filled` を使います。
+- 入力するコマンドのブロックにはプロンプトを使います。プロンプトはコピーされません。
+- すべてのブロックに `language` を指定します。構文のないテキストには `language="text"` を使います。
+- 複数のファイルや言語は、それぞれコードブロックを持つ[タブ](../tabs/)に入れます。
+
+### 非推奨
+
+- 文の中の名前にコードブロックを使わない。インラインコードを使います。
+- 構文の色に意味を持たせない。プレーンで描いた同じコードでも、同じ内容が伝わる必要があります。
+- 1 つのプロンプトの下に、コマンドとその出力を混ぜない。空でないすべての行にプロンプトが付きます。ブロックを 2 つに分けます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="code-block" />
+
+### コンポーネントが担うこと
+
+- コードは `code` 要素で、`title`（なければ `label`）を名前とするグループの中にあります。
+- スクロールできる本体は、フォーカスの順序の中で、コピーボタンの次にある 1 つの止まる位置で、矢印キーでスクロールできます。コードが収まっている本体には止まりません。そのため、短い例が並ぶページで、フォーカスが止まる位置が増えることはありません。
+- 行番号、記号、バー、プロンプトは支援技術から隠します。マークした行の前では、そのラベルを言葉で読み上げます。
+- 幅 320 でも、テキストサイズが 2 倍でも、コードブロックのためにページが横にスクロールすることはありません。
+- 強制カラーモードでは、どの見た目にも縁が付き、すべてのコードがテキストの色になります。バーと記号は残ります。
+- ハイライトは、支援技術に対して何も足しません。ロールは支援技術に伝わらず、色が付いたことも読み上げられません。選択、フォーカス、スクロール位置は保たれます。
+- 赤と緑を区別しにくい色覚では、6 つの色相のいくつかが近く見えます。まず、文字列の緑とタグの名前の赤です。キーワードは太さでも区別できます。
+
+### 利用者側で行うこと
+
+- `copy` を使うときは `copy-label`、`copied-label`、`copy-failed-label` を、マークを使うときはそのラベルを、プロダクトの言語で指定します。
+- 強調した行が何を示しているかは、ブロックのまわりの文章で説明します。ラベルが伝えるのは、強調されているということだけです。

@@ -1,0 +1,238 @@
+---
+title: Campo de selección
+description: Permite elegir un valor de una lista cerrada como un campo completo de un formulario. Una etiqueta que puede decir que el campo es obligatorio u opcional, un activador que muestra la opción elegida y abre una lista de opciones, y una línea de ayuda o un error debajo, todo ello vinculado para la tecnología de apoyo y presente en un formulario como un solo control.
+translationOf: components/select-field.mdx
+sourceHash: 5623cc0f00e2618e6c0495cbfb3ff9ec11643515
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="select-field" />
+
+<DemoFrame label="Un campo de selección obligatorio, y otro agrupado con un glifo que representa al campo" column>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" requirement="required" required-text="Obligatorio" placeholder="Elige un país" supporting-text="El país al que van dirigidas tus facturas.">
+    <tanrei-option value="ca">Canadá</tanrei-option>
+    <tanrei-option value="fr">Francia</tanrei-option>
+    <tanrei-option value="jp">Japón</tanrei-option>
+    <tanrei-option value="ke">Kenia</tanrei-option>
+    <tanrei-option value="nz">Nueva Zelanda</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Zona horaria" value="Europe/Lisbon">
+    <span slot="leading-icon">public</span>
+    <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">Tokio</tanrei-option><tanrei-option value="Asia/Seoul" supporting-text="UTC+9">Seúl</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="Europa"><tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">Lisboa</tanrei-option><tanrei-option value="Europe/Berlin" supporting-text="UTC+1">Berlín</tanrei-option></tanrei-option-group>
+  </tanrei-select-field>
+</DemoFrame>
+
+Usa un campo de selección en un formulario para elegir un valor de una lista conocida y cerrada: un país, una zona horaria, un plan. Es el caso corriente, listo para usarse: una etiqueta, la caja que muestra la opción elegida y abre la lista, una línea de ayuda y las palabras para un valor que se rechazó.
+
+**Se compone de** un [campo](/es/components/field/) y un [select](/es/components/select/). El campo es el marco: la etiqueta, la marca de obligatorio o de opcional, la ayuda y el error. El select es el control: el activador, la lista y todo lo que la persona hace en ellos. El campo de selección no dibuja nada propio y no tiene ningún token: cada propiedad que tiene es una propiedad de uno de los dos, que recibe sin cambios, y las opciones que le das son las de su select.
+
+Es tan ancho como el lugar en el que se pone, y su caja lo llena. Para una caja más estrecha, dale un lugar más estrecho.
+
+En la web es `<tanrei-select-field>`, con elementos `<tanrei-option>` como hijos. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+Las opciones son hijos del campo de selección: cada una tiene un valor y una etiqueta. `value` dice cuál es la elegida. `change` y `toggle` son los eventos del propio select, y cuando se oye cualquiera de los dos, el `value` y el `open` del campo ya son los nuevos.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-select-field name="country" label="País" value="jp" requirement="required" required-text="Obligatorio"
+        supporting-text="El país al que van dirigidas tus facturas.">
+        <tanrei-option value="ca">Canadá</tanrei-option>
+        <tanrei-option value="jp">Japón</tanrei-option>
+      </tanrei-select-field>
+    </form>
+
+    <!-- Agrupado, con una línea debajo de una etiqueta y un glifo que representa al campo. -->
+    <tanrei-select-field label="Zona horaria" value="Europe/Lisbon">
+      <span slot="leading-icon">public</span>
+      <tanrei-option-group label="Asia">
+        <tanrei-option value="Asia/Tokyo" supporting-text="UTC+9">Tokio</tanrei-option>
+      </tanrei-option-group>
+      <tanrei-option-group label="Europa">
+        <tanrei-option value="Europe/Lisbon" supporting-text="UTC+0">Lisboa</tanrei-option>
+      </tanrei-option-group>
+    </tanrei-select-field>
+
+    <script type="module">
+      import '@tanrei/web/components/select-field';
+
+      const country = document.querySelector('[name="country"]');
+      // La persona eligió otra opción. El valor ya es el nuevo.
+      country.addEventListener('change', () => save(country.value));
+      // La persona abrió o cerró la lista; un cierre dice por qué.
+      country.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+      // La validación es tuya: el campo de selección nunca define error por sí mismo.
+      country.error = submitted && !ships(country.value);
+      country.errorText = 'Todavía no hacemos envíos a ese país. Elige otro país.';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Option, SelectField } from '@tanrei/react';
+
+    <SelectField label="País" value={country} requirement="required" requiredText="Obligatorio" onChange={(event) => setCountry(event.currentTarget.value)}>
+      <Option value="ca">Canadá</Option>
+      <Option value="jp">Japón</Option>
+    </SelectField>
+    ```
+  </TabItem>
+</Tabs>
+
+### Un nivel más abajo
+
+El mismo campo, escrito a mano con sus dos miembros, es la misma imagen y el mismo control para la tecnología de apoyo:
+
+```html
+<tanrei-field label="País" requirement="required" required-text="Obligatorio"
+  supporting-text="El país al que van dirigidas tus facturas.">
+  <tanrei-select name="country" placeholder="Elige un país">
+    <tanrei-option value="jp">Japón</tanrei-option>
+    <tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select>
+</tanrei-field>
+```
+
+<DemoFrame label="El mismo campo escrito a mano: un campo con un select dentro" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" requirement="required" required-text="Obligatorio" supporting-text="El país al que van dirigidas tus facturas.">
+    <tanrei-select placeholder="Elige un país">
+      <tanrei-option value="jp">Japón</tanrei-option>
+      <tanrei-option value="ke">Kenia</tanrei-option>
+    </tanrei-select>
+  </tanrei-field>
+</DemoFrame>
+
+Baja a ese nivel cuando necesites una organización que el campo de selección no ofrezca:
+
+| Necesitas | Usa |
+| --- | --- |
+| Una etiqueta, la caja, ayuda y un error | El campo de selección |
+| Algo tuyo dentro del marco, junto a la caja o debajo de ella | Un [campo](/es/components/field/) con un [select](/es/components/select/) y tu propio elemento dentro |
+| La caja sin nada más, donde su etiqueta está en otro lugar: un tema en una barra, un criterio de ordenación en una barra de herramientas, una celda de una tabla | El [select](/es/components/select/) sin nada más, con su propio `label` como nombre |
+| Una lista tan larga que las personas prefieren escribir a desplazarse | Un [cuadro combinado](/es/components/combobox/) |
+
+Lo que cambia un nivel más abajo es dónde se dicen las cosas. `name`, `value` y las opciones están en el select, que es entonces el control que encuentra el formulario, y sus eventos se oyen en él. `label`, `error` y `disabled` se quedan en el campo, que los pasa al control: no definas los del propio select.
+
+## Especificaciones
+
+<DemoFrame label="Texto de apoyo con una opción deshabilitada, opcional, un error, de solo lectura y deshabilitado" plain column>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Plan" value="team">
+    <tanrei-option value="free" supporting-text="Un proyecto, ayuda de la comunidad">Gratis</tanrei-option>
+    <tanrei-option value="team" supporting-text="Proyectos ilimitados, roles compartidos">Equipo</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="Inicio de sesión único y registro de auditoría" disabled>Empresa</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Región" requirement="optional" optional-text="Opcional" placeholder="Cualquier región">
+    <tanrei-option value="emea">Europa, Oriente Medio y África</tanrei-option><tanrei-option value="apac">Asia y el Pacífico</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" value="ke" error error-text="Todavía no hacemos envíos a ese país. Elige otro país.">
+    <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" value="jp" readonly>
+    <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="País" value="jp" disabled>
+    <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select-field>
+</DemoFrame>
+
+<DemoFrame label="Filled y outlined: la etiqueta del campo flota en la caja del select, con un asterisco para un campo obligatorio" system="m3-like" plain column>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="País" value="jp" supporting-text="El país al que van dirigidas tus facturas.">
+    <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select-field>
+  <tanrei-select-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="País" requirement="required" required-text="Obligatorio">
+    <tanrei-option value="jp">Japón</tanrei-option><tanrei-option value="ke">Kenia</tanrei-option>
+  </tanrei-select-field>
+</DemoFrame>
+
+### Qué aporta cada miembro
+
+| Aspecto | Del campo | Del select |
+| --- | --- | --- |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation` |
+| Eventos | — | `change`, `toggle` |
+| Slots | `label-icon` | `leading-icon`, y las opciones |
+| Tokens | `comp.field.*` | `comp.input-box.*` para la caja, que leen todas las cajas de entrada; `comp.select.*` para la lista |
+
+El select tiene un `label`, un `labelHidden`, un `error` y un `disabled` propios. No son propiedades del campo de selección: el `label` del campo da nombre al control, su `error` pone la caja en su estado de error y su `disabled` la deshabilita. Así, defines cada uno una sola vez, en el campo de selección, y su etiqueta cambia con el control.
+
+En el aspecto `stacked`, la etiqueta es la fila del campo situada sobre la caja. En los aspectos `filled` y `outlined`, el select dibuja él mismo esa etiqueta, flotando en su caja, y el campo no dibuja ninguna fila de etiqueta; un campo obligatorio se marca entonces con un asterisco después de la etiqueta, sea cual sea la marca que indique el sistema de diseño. La ayuda empieza donde empieza el valor, después de un icono inicial. Mientras la lista está abierta, la etiqueta y la ayuda se dibujan con foco, igual que la caja.
+
+Lo que hacen el activador y la lista (abrirse, las teclas de flecha, la escritura, la elección, los grupos) está en la [página del select](/es/components/select/). Lo que hace el marco (la marca de obligatorio, la ayuda, el error y cómo se anuncia) está en la [página del campo](/es/components/field/).
+
+### Diferenciar un solo campo
+
+El campo de selección no tiene ningún token propio. Su marco lee los tokens del campo, y su caja y su lista leen los del select, se definan donde se definan. Para cambiar una sola instancia, define en ella el token del miembro:
+
+```html
+<tanrei-select-field label="País"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-select-field>
+```
+
+<ComponentSpecs name="select-field" />
+
+### Qué dibuja la web de otra manera
+
+- El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-select>` dentro, y nada más. Importar el elemento define los dos.
+- Las opciones siguen siendo tus hijos de `<tanrei-select-field>`. Nunca se mueven ni se copian: llegan al select de dentro a través de un slot, y el select las vuelve a leer cuando cambian. Sustituirlas a mano (`replaceChildren()`) funciona como en un select.
+- El elemento está asociado a formularios. Recibe `name` y `form`, envía solo el valor (nada mientras está deshabilitado, y lo sigue enviando mientras es de solo lectura), se restablece al valor del atributo `value`, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `requirement` es `required` y el valor está vacío. Sus dos miembros no añaden ninguna entrada al formulario.
+- `change` es el evento del select, compuesto y que se propaga. `toggle` es el CustomEvent del select, con `detail.open` y `detail.reason`: es compuesto y no se propaga, de modo que se oye en el elemento y nunca en un ancestro como un `<details>`. El destino de los dos es el elemento, y `event.target.value` y `event.target.open` son los nuevos en todos los listeners.
+- Partes: `field` y `select` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`. `label` y `requirement-label` son la que se dibuja de las dos (la fila del campo, o la etiqueta flotante del select), y `field-label`, `select-label`, `field-requirement-label` y `select-requirement-label` nombran la de un solo miembro.
+- El elemento no puede recibir el foco por sí mismo: `focus()` va al activador, y un `<label for>` propio de la página lleva el foco allí. Una pulsación en la fila de etiqueta da el foco al activador y no abre nada; una pulsación en el activador abre la lista; una pulsación en la ayuda no hace nada.
+- El elemento no tiene rol. Dale nombre con `label` —con `label-hidden` donde la etiqueta se dibuja en otro lugar— y nunca con `aria-label`, que aquí no nombra nada.
+- Los atributos son los de los propios miembros: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `readonly`.
+- Un hijo que no es una opción, ni un grupo de opciones, ni un glifo para `label-icon` o `leading-icon` no se dibuja; una compilación de depuración lo dice.
+- Antes de que el elemento esté definido, sus opciones son texto corrido. Oculta `tanrei-select-field:not(:defined) > *` y reserva la altura. Una página que deba funcionar sin script usa un `<select>` nativo con su propio `<label>`.
+
+## Pautas
+
+### Recomendado
+
+- Escribe una etiqueta que nombre lo que se elige, y mantenla visible en un formulario.
+- Ordena las opciones como las buscan las personas: por orden alfabético, por número o con las más habituales primero.
+- Agrupa una lista larga y da a cada grupo un título corto.
+- Preselecciona un valor solo donde la mayoría de las personas lo elegiría.
+- Da al campo un ancho con el lugar que ocupa: una columna de un formulario. La caja lo llena.
+
+### Evita
+
+- No uses un campo de selección con `labelHidden` en una barra o en una barra de herramientas. Eso es el [select](/es/components/select/) sin nada más, con su propio `label` como nombre.
+- No uses el marcador de posición como etiqueta. Desaparece en cuanto se elige algo.
+- No navegues, envíes ni elimines en `change` sin decirlo. Las personas recorren una lista para leerla.
+- No pongas un campo de selección dentro de un campo. Ya es un campo; una compilación de depuración lo dice. El control que un campo enmarca es el select.
+- No le des nombre con `aria-label`. Donde no deba dibujarse ninguna etiqueta, da `label` y `labelHidden`.
+
+## Accesibilidad
+
+<ComponentAccessibility name="select-field" />
+
+### De qué se encarga el componente
+
+- Es un solo cuadro combinado no editable, el del select. Su nombre es `label`, se dibuje o no; su descripción es el texto de apoyo o de error que se muestra, con el texto de opcional mientras el campo es opcional.
+- Se expone como no válido mientras `error` es true, como obligatorio mientras `requirement` es `required`, como deshabilitado mientras `disabled` es true, como de solo lectura mientras `readOnly` es true y como expandido mientras su lista está abierta.
+- El nombre, la descripción y los estados se vinculan exactamente como un campo los vincula a cualquier control que enmarca. El campo escrito a mano, un nivel más abajo, es el mismo control.
+- La etiqueta dibujada, la marca de obligatoriedad y los glifos no se exponen una segunda vez.
+- Es una sola parada para la tecla Tab. Una pulsación en la etiqueta lleva el foco al activador y no abre nada; una pulsación en la ayuda no hace nada.
+- Un error que aparece mientras el foco está en el campo de selección lo anuncia una vez, de forma cortés, su miembro campo.
+- Todo lo que hay en la lista (la opción activa, los nombres, las descripciones y los estados de las opciones, los grupos) es del select, como en la [página del select](/es/components/select/#accesibilidad).
+- La dirección, el texto ampliado y los colores forzados los resuelve cada miembro por su cuenta.
+- No tiene textos propios. `requiredText` y `optionalText`, si se dejan vacíos, los lee el campo de los textos del producto.
+
+Las carencias conocidas en la web son las de sus miembros: el divisor entre dos grupos no se expone como separador, la escritura compara las etiquetas como lo hace JavaScript, y antes de que el elemento esté definido no se dibuja nada más que las opciones como texto.
+
+### Qué debes hacer tú
+
+- Da un `label` a cada campo de selección, y una etiqueta a cada opción.
+- Valida tú el valor, activa `error` y escribe `errorText` de modo que diga cómo corregir la respuesta.
+- Da las palabras de la obligatoriedad: `required-text` y `optional-text` en el campo de selección, o una sola vez para todo el producto con `setWords({ requiredText, optionalText })`. Tanrei no incluye ninguna: sin `requiredText`, un asterisco ocupa el lugar del tag, y sin `optionalText` no se dibuja ningún tag y no se dice nada. Consulta [Los textos del producto](/es/foundations/words/).
+- Mantén únicos los valores de las opciones dentro de un campo de selección.

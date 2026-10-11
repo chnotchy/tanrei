@@ -1,0 +1,3159 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "select-field",
+  "title": "Select field",
+  "summary": "Lets people choose one value from a closed list as a field of a form: a label that can say the field is required or optional, a trigger that looks and measures like a text field's box and shows the chosen option, a list of options, optionally grouped, that opens from it, and a line of help or an error below.",
+  "category": "selection",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "field",
+    "select"
+  ],
+  "anatomy": [
+    {
+      "id": "field",
+      "description": "The Field: the label row with its glyph and its requirement mark, and the supporting row with the help and the error text. In a look whose select floats the label it draws no label row."
+    },
+    {
+      "id": "select",
+      "description": "The select, as the Field's one control: the trigger with the value it shows, its leading icon and its chevron, the label that floats in it in the looks that float one, and the list of options that opens from it."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "from": "select.variant"
+    },
+    {
+      "name": "size",
+      "from": "select.size"
+    },
+    {
+      "name": "value",
+      "from": "select.value"
+    },
+    {
+      "name": "label",
+      "from": "field.label",
+      "note": "Names the select. In a filled or outlined look the select draws it, floating in its box, and the Field draws no label row (FLD-25, SEL-15)."
+    },
+    {
+      "name": "labelHidden",
+      "from": "field.labelHidden",
+      "note": "Hides the label wherever it would be drawn: the Field's row, or the select's floating label (FLD-25)."
+    },
+    {
+      "name": "placeholder",
+      "from": "select.placeholder"
+    },
+    {
+      "name": "supportingText",
+      "from": "field.supportingText"
+    },
+    {
+      "name": "errorText",
+      "from": "field.errorText"
+    },
+    {
+      "name": "error",
+      "from": "field.error",
+      "note": "The Field puts its select in the select's own error condition (FLD-8, SEL-9)."
+    },
+    {
+      "name": "disabled",
+      "from": "field.disabled",
+      "note": "The Field disables its select (FLD-14, SEL-46); the select field is then left out of its form (SEF-2)."
+    },
+    {
+      "name": "readOnly",
+      "from": "select.readOnly"
+    },
+    {
+      "name": "requirement",
+      "from": "field.requirement",
+      "note": "The Field exposes its select as required (FLD-10, SEL-11)."
+    },
+    {
+      "name": "requiredMark",
+      "from": "field.requiredMark"
+    },
+    {
+      "name": "requiredText",
+      "from": "field.requiredText"
+    },
+    {
+      "name": "optionalText",
+      "from": "field.optionalText"
+    },
+    {
+      "name": "open",
+      "from": "select.open"
+    },
+    {
+      "name": "separation",
+      "from": "select.separation"
+    }
+  ],
+  "items": [
+    {
+      "name": "option",
+      "from": "select.option"
+    },
+    {
+      "name": "option-group",
+      "from": "select.option-group"
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading-icon",
+      "from": "select.leading-icon"
+    },
+    {
+      "name": "label-icon",
+      "from": "field.label-icon"
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "from": "select.change"
+    },
+    {
+      "name": "toggle",
+      "from": "select.toggle"
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "SEF-1",
+      "text": "THE select field SHALL be a Field that frames one select, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText to its Field and every other prop to its select, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon slot for its select; SHALL give its select every option and option group the product gives it, in the order given, as that select's own items, read, drawn and chosen by the select (SEL-17, SEL-31 to SEL-45); and SHALL emit its select's events as its own, each once. It SHALL draw no part of its own, hold no state of its own and have no token of its own: what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that select do when a product places the one in the other (FLD-1 to FLD-28; SEL-1 to SEL-64) — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, SEL-15, SEL-7); the supporting row and the error, started where the value starts (FLD-7 to FLD-9, FLD-26); the rows drawn focused while the list is open (FLD-13, SEL-20); the name, the description and the states (FLD-10, FLD-11, FLD-14, SEL-11); and the width, which is the Field's and which the select fills (FLD-1, SEL-49).",
+      "verify": "The twin test: every fixture of the select field has a twin, the Field's fixture select-<id>, a Field around a select written by hand with the same values and the same options; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (SEL-63), never a baseline to update."
+    },
+    {
+      "id": "SEF-2",
+      "text": "WHERE the platform has forms (the web) THE select field SHALL be the one control the form sees: it SHALL take name, submit its select's value, reset to the value it was first given, restore it on navigation, report to the form's constraint validation exactly what its select would report there (SEL-11), be submitted WHILE readOnly is true (SEL-47), and be left out WHILE disabled is true or a disabled group of the form holds it (SEL-46); its select and its Field SHALL take no part in the form themselves.",
+      "verify": "Unit, on the web: a form with one select field submits one entry under the field's name; reset and restore reach the select; requirement required with an empty value reports valueMissing on the select field and focuses its select's container when the form reports it."
+    },
+    {
+      "id": "SEF-3",
+      "text": "WHEN the select field is given focus — by the product, by a press on its label row (FLD-12), or by a form that reports its validity — THE select field SHALL pass the focus to its select's container and SHALL add no stop to the focus order: the one stop inside it is its select's (SEL-13). WHILE focus is anywhere inside it, or its select's list is open, THE select field SHALL count as focused for its Field (FLD-13)."
+    },
+    {
+      "id": "SEF-4",
+      "text": "IF the select field is placed in a Field THE select field SHALL in debug builds report that it is a field already and that the bare control is the select, and both SHALL still render (FLD-15). WHILE it stands in a field group THE select field SHALL follow that group's disabled, through its own Field, and take nothing else from the group (FGR-20)."
+    },
+    {
+      "id": "SEF-5",
+      "text": "THE select field SHALL have no words of its own and SHALL read none: requiredText and optionalText are read by its Field (FLD-24), each from the instance's prop and then from the product's words, and its select reads none (SEL-62)."
+    }
+  ],
+  "accessibility": {
+    "role": "combobox",
+    "keyboard": [
+      {
+        "keys": "Every key",
+        "action": "The select's (its accessibility block; SEL-23, SEL-27, SEL-28, SEL-31, SEL-33, SEL-34). The select field handles no key and adds no focus stop (SEF-3)."
+      }
+    ],
+    "labeling": "The select field adds nothing to what its members expose and coordinates nothing: the Field gives the select its name, its description and its required, invalid and disabled states (FLD-8, FLD-10, FLD-11, FLD-14), and the select carries them on its own trigger and names its list by the same name (SEL-11, SEL-48). Assistive technology meets one control that opens a list of choices, named by label, with the chosen option's label as its value — exactly as it meets a Field around a select written by hand.",
+    "minimumTarget": true,
+    "notes": [
+      "One level down is the same thing: a Field with a select in it, holding the same options. Every fixture has that pair as its twin, and the accessibility tree of the two is the same (SEF-1).",
+      "On the web the two members stand in the select field's own shadow root, so the form meets the select field and not the select (SEF-2), focus passes through to the trigger (SEF-3), and the options, which stay the product's children, reach the select through a slot and are read by it as data.",
+      "A select with no visible label of its own — in a header, a toolbar, a column of a table — is the bare select, named by its own label, not a select field with labelHidden."
+    ]
+  },
+  "tokens": "comp.field",
+  "fixtures": [
+    {
+      "id": "stacked-empty",
+      "props": {
+        "variant": "stacked",
+        "label": "Country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-empty"
+    },
+    {
+      "id": "stacked-value",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-value"
+    },
+    {
+      "id": "stacked-open",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "value": "jp",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-open"
+    },
+    {
+      "id": "stacked-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-large"
+    },
+    {
+      "id": "stacked-small",
+      "props": {
+        "variant": "stacked",
+        "size": "small",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-small"
+    },
+    {
+      "id": "stacked-error",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "error": true,
+        "errorText": "Choose a country."
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-error"
+    },
+    {
+      "id": "stacked-disabled",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "value": "jp",
+        "disabled": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-disabled"
+    },
+    {
+      "id": "filled-empty",
+      "props": {
+        "variant": "filled",
+        "label": "Country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-filled-empty"
+    },
+    {
+      "id": "filled-value",
+      "props": {
+        "variant": "filled",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-filled-value"
+    },
+    {
+      "id": "filled-open",
+      "props": {
+        "variant": "filled",
+        "label": "Country",
+        "value": "jp",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-filled-open"
+    },
+    {
+      "id": "filled-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-filled-large"
+    },
+    {
+      "id": "filled-small",
+      "props": {
+        "variant": "filled",
+        "size": "small",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-filled-small"
+    },
+    {
+      "id": "filled-error",
+      "props": {
+        "variant": "filled",
+        "label": "Country",
+        "error": true,
+        "errorText": "Choose a country."
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-filled-error"
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "label": "Country",
+        "value": "jp",
+        "disabled": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-filled-disabled"
+    },
+    {
+      "id": "outlined-empty",
+      "props": {
+        "variant": "outlined",
+        "label": "Country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-outlined-empty"
+    },
+    {
+      "id": "outlined-value",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-outlined-value"
+    },
+    {
+      "id": "outlined-open",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "value": "jp",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-outlined-open"
+    },
+    {
+      "id": "outlined-large",
+      "props": {
+        "variant": "outlined",
+        "size": "large",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-outlined-large"
+    },
+    {
+      "id": "outlined-small",
+      "props": {
+        "variant": "outlined",
+        "size": "small",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-outlined-small"
+    },
+    {
+      "id": "outlined-error",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "error": true,
+        "errorText": "Choose a country."
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-outlined-error"
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "value": "jp",
+        "disabled": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-outlined-disabled"
+    },
+    {
+      "id": "stacked-placeholder",
+      "props": {
+        "label": "Country",
+        "placeholder": "Choose a country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-placeholder"
+    },
+    {
+      "id": "stacked-open-none-chosen",
+      "props": {
+        "label": "Country",
+        "placeholder": "Choose a country",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-open-none-chosen"
+    },
+    {
+      "id": "stacked-label-hidden",
+      "props": {
+        "label": "Country",
+        "labelHidden": true,
+        "value": "fr"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-label-hidden"
+    },
+    {
+      "id": "stacked-supporting",
+      "props": {
+        "label": "Country",
+        "value": "jp",
+        "supportingText": "Where your invoices are addressed."
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-supporting"
+    },
+    {
+      "id": "stacked-error-value",
+      "props": {
+        "label": "Country",
+        "value": "ke",
+        "error": true,
+        "errorText": "We cannot ship there yet."
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-error-value"
+    },
+    {
+      "id": "stacked-read-only",
+      "props": {
+        "label": "Country",
+        "value": "jp",
+        "readOnly": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-read-only"
+    },
+    {
+      "id": "stacked-required",
+      "props": {
+        "label": "Country",
+        "requirement": "required",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-required"
+    },
+    {
+      "id": "stacked-optional",
+      "props": {
+        "label": "Country",
+        "requirement": "optional",
+        "placeholder": "Choose a country",
+        "optionalText": "Optional"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-optional"
+    },
+    {
+      "id": "stacked-required-asterisk",
+      "props": {
+        "label": "Country",
+        "requirement": "required",
+        "requiredMark": "asterisk"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-required-asterisk"
+    },
+    {
+      "id": "stacked-required-disabled",
+      "props": {
+        "label": "Country",
+        "requirement": "required",
+        "value": "jp",
+        "disabled": true,
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-required-disabled"
+    },
+    {
+      "id": "stacked-required-error",
+      "props": {
+        "label": "Country",
+        "requirement": "required",
+        "error": true,
+        "errorText": "Choose a country.",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-required-error"
+    },
+    {
+      "id": "stacked-required-ja",
+      "props": {
+        "label": "国",
+        "requirement": "required",
+        "requiredText": "必須",
+        "placeholder": "国を選択"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "日本",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "カナダ",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "フランス",
+            "value": "fr"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-required-ja"
+    },
+    {
+      "id": "stacked-optional-ja",
+      "props": {
+        "label": "国",
+        "requirement": "optional",
+        "optionalText": "任意",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "日本",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "カナダ",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "フランス",
+            "value": "fr"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-optional-ja"
+    },
+    {
+      "id": "outlined-required",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "requirement": "required",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-outlined-required"
+    },
+    {
+      "id": "stacked-label-icon",
+      "props": {
+        "label": "Time zone",
+        "value": "Asia/Tokyo"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ],
+      "slots": {
+        "label-icon": "schedule"
+      },
+      "twin": "field.select-stacked-label-icon"
+    },
+    {
+      "id": "stacked-option-icon",
+      "props": {
+        "label": "Theme",
+        "value": "dark"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Light",
+            "value": "light",
+            "leadingIcon": "light_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dark",
+            "value": "dark",
+            "leadingIcon": "dark_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Follow the device",
+            "value": "auto",
+            "leadingIcon": "computer"
+          }
+        }
+      ],
+      "twin": "field.select-stacked-option-icon"
+    },
+    {
+      "id": "stacked-leading-icon",
+      "props": {
+        "label": "Language",
+        "value": "ja"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "English",
+            "value": "en"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "日本語",
+            "value": "ja"
+          }
+        }
+      ],
+      "slots": {
+        "leading-icon": "translate"
+      },
+      "twin": "field.select-stacked-leading-icon"
+    },
+    {
+      "id": "open-icons",
+      "props": {
+        "label": "Theme",
+        "value": "dark",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Light",
+            "value": "light",
+            "leadingIcon": "light_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dark",
+            "value": "dark",
+            "leadingIcon": "dark_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Follow the device",
+            "value": "auto",
+            "leadingIcon": "computer"
+          }
+        }
+      ],
+      "twin": "field.select-open-icons"
+    },
+    {
+      "id": "open-supporting-text",
+      "props": {
+        "label": "Plan",
+        "value": "team",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Free",
+            "value": "free",
+            "supportingText": "One project, community help"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Team",
+            "value": "team",
+            "supportingText": "Unlimited projects, shared roles"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Enterprise",
+            "value": "enterprise",
+            "supportingText": "Single sign-on and an audit log",
+            "disabled": true
+          }
+        }
+      ],
+      "twin": "field.select-open-supporting-text"
+    },
+    {
+      "id": "open-disabled-chosen",
+      "props": {
+        "label": "Plan",
+        "value": "enterprise",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Free",
+            "value": "free",
+            "supportingText": "One project, community help"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Team",
+            "value": "team",
+            "supportingText": "Unlimited projects, shared roles"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Enterprise",
+            "value": "enterprise",
+            "supportingText": "Single sign-on and an audit log",
+            "disabled": true
+          }
+        }
+      ],
+      "twin": "field.select-open-disabled-chosen"
+    },
+    {
+      "id": "open-groups",
+      "props": {
+        "label": "Time zone",
+        "value": "Europe/Lisbon",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ],
+      "twin": "field.select-open-groups"
+    },
+    {
+      "id": "open-groups-divider",
+      "props": {
+        "label": "Time zone",
+        "value": "Europe/Lisbon",
+        "open": true,
+        "separation": "divider"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ],
+      "twin": "field.select-open-groups-divider"
+    },
+    {
+      "id": "open-groups-gap",
+      "props": {
+        "label": "Time zone",
+        "value": "Europe/Lisbon",
+        "open": true,
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ],
+      "twin": "field.select-open-groups-gap"
+    },
+    {
+      "id": "open-many",
+      "props": {
+        "label": "Token",
+        "value": "corner.small",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "space25",
+            "value": "space25"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space50",
+            "value": "space50"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space75",
+            "value": "space75"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space100",
+            "value": "space100"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space125",
+            "value": "space125"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space150",
+            "value": "space150"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space175",
+            "value": "space175"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space200",
+            "value": "space200"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space250",
+            "value": "space250"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space300",
+            "value": "space300"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space400",
+            "value": "space400"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space500",
+            "value": "space500"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space600",
+            "value": "space600"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space800",
+            "value": "space800"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space1000",
+            "value": "space1000"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.none",
+            "value": "corner.none"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.extra-small",
+            "value": "corner.extra-small"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.small",
+            "value": "corner.small"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.medium",
+            "value": "corner.medium"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.large",
+            "value": "corner.large"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.extra-large",
+            "value": "corner.extra-large"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.full",
+            "value": "corner.full"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "border.hairline",
+            "value": "border.hairline"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "border.thick",
+            "value": "border.thick"
+          }
+        }
+      ],
+      "twin": "field.select-open-many"
+    },
+    {
+      "id": "open-long-options",
+      "props": {
+        "label": "Email me",
+        "value": "weekly",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me a summary once a week, on Monday morning, in the time zone of my account",
+            "value": "weekly"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me every notification as it happens, including the ones about threads I only follow",
+            "value": "all"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Never",
+            "value": "never"
+          }
+        }
+      ],
+      "twin": "field.select-open-long-options"
+    },
+    {
+      "id": "long-value",
+      "props": {
+        "label": "Email me",
+        "value": "all"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me a summary once a week, on Monday morning, in the time zone of my account",
+            "value": "weekly"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me every notification as it happens, including the ones about threads I only follow",
+            "value": "all"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Never",
+            "value": "never"
+          }
+        }
+      ],
+      "twin": "field.select-long-value"
+    },
+    {
+      "id": "empty-value-option",
+      "props": {
+        "label": "Contrast",
+        "value": ""
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Standard",
+            "value": ""
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Medium",
+            "value": "medium"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "High",
+            "value": "high"
+          }
+        }
+      ],
+      "twin": "field.select-empty-value-option"
+    },
+    {
+      "id": "small-label-hidden",
+      "props": {
+        "size": "small",
+        "label": "Contrast",
+        "labelHidden": true,
+        "value": "high"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Standard",
+            "value": ""
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Medium",
+            "value": "medium"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "High",
+            "value": "high"
+          }
+        }
+      ],
+      "twin": "field.select-small-label-hidden"
+    },
+    {
+      "id": "small-label-hidden-icons",
+      "props": {
+        "size": "small",
+        "label": "Theme",
+        "labelHidden": true,
+        "value": "light"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Light",
+            "value": "light",
+            "leadingIcon": "light_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dark",
+            "value": "dark",
+            "leadingIcon": "dark_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Follow the device",
+            "value": "auto",
+            "leadingIcon": "computer"
+          }
+        }
+      ],
+      "twin": "field.select-small-label-hidden-icons"
+    },
+    {
+      "id": "small-label-hidden-leading-icon",
+      "props": {
+        "size": "small",
+        "label": "Language",
+        "labelHidden": true,
+        "value": "en"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "English",
+            "value": "en"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "日本語",
+            "value": "ja"
+          }
+        }
+      ],
+      "slots": {
+        "leading-icon": "translate"
+      },
+      "twin": "field.select-small-label-hidden-leading-icon"
+    },
+    {
+      "id": "small-label-hidden-open",
+      "props": {
+        "size": "small",
+        "label": "Theme",
+        "labelHidden": true,
+        "value": "light",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Light",
+            "value": "light",
+            "leadingIcon": "light_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dark",
+            "value": "dark",
+            "leadingIcon": "dark_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Follow the device",
+            "value": "auto",
+            "leadingIcon": "computer"
+          }
+        }
+      ],
+      "twin": "field.select-small-label-hidden-open"
+    },
+    {
+      "id": "small-open",
+      "props": {
+        "size": "small",
+        "label": "Country",
+        "value": "jp",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ],
+      "twin": "field.select-small-open"
+    },
+    {
+      "id": "stacked-required-rtl",
+      "props": {
+        "label": "المنطقة الزمنية",
+        "value": "Asia/Tokyo",
+        "requirement": "required",
+        "requiredText": "مطلوب",
+        "supportingText": "تُعرض المواعيد بهذا التوقيت."
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "آسيا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "طوكيو",
+                "value": "Asia/Tokyo",
+                "leadingIcon": "arrow_forward"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "سنغافورة",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "أوروبا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "برلين",
+                "value": "Europe/Berlin"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon (WET)",
+                "value": "Europe/Lisbon"
+              }
+            }
+          ]
+        }
+      ],
+      "direction": "rtl",
+      "slots": {
+        "label-icon": "schedule"
+      },
+      "twin": "field.select-stacked-required-rtl"
+    },
+    {
+      "id": "open-rtl",
+      "props": {
+        "label": "المنطقة الزمنية",
+        "value": "Asia/Tokyo",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "آسيا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "طوكيو",
+                "value": "Asia/Tokyo",
+                "leadingIcon": "arrow_forward"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "سنغافورة",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "أوروبا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "برلين",
+                "value": "Europe/Berlin"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon (WET)",
+                "value": "Europe/Lisbon"
+              }
+            }
+          ]
+        }
+      ],
+      "direction": "rtl",
+      "twin": "field.select-open-rtl"
+    },
+    {
+      "id": "long-value-rtl",
+      "props": {
+        "label": "Email me",
+        "value": "all"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me a summary once a week, on Monday morning, in the time zone of my account",
+            "value": "weekly"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me every notification as it happens, including the ones about threads I only follow",
+            "value": "all"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Never",
+            "value": "never"
+          }
+        }
+      ],
+      "direction": "rtl",
+      "twin": "field.select-long-value-rtl"
+    },
+    {
+      "id": "outlined-rtl",
+      "props": {
+        "variant": "outlined",
+        "label": "المنطقة الزمنية",
+        "value": "Europe/Lisbon"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "آسيا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "طوكيو",
+                "value": "Asia/Tokyo",
+                "leadingIcon": "arrow_forward"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "سنغافورة",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "أوروبا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "برلين",
+                "value": "Europe/Berlin"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon (WET)",
+                "value": "Europe/Lisbon"
+              }
+            }
+          ]
+        }
+      ],
+      "direction": "rtl",
+      "twin": "field.select-outlined-rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-select-field",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "open": "open",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "change",
+        "toggle": "toggle"
+      },
+      "items": {
+        "option": {
+          "name": "tanrei-option",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "disabled"
+          },
+          "notes": "`<tanrei-option>` children of `<tanrei-select-field>`, exactly as of `<tanrei-select>`: the product's elements in the light DOM, passed to the select inside through the default slot and read by it as data (web-options.md)."
+        },
+        "option-group": {
+          "name": "tanrei-option-group",
+          "props": {
+            "title": "label"
+          },
+          "notes": "As the option: the same element, the product's child, with its options inside it."
+        }
+      },
+      "notes": "The tag `tanrei-select-field`, the class `TanreiSelectField`, the React name `SelectField`. It takes every attribute, property, event and child of the select and of its Field, under the same names. The element is composed as every field element is; what follows is what is particular to it. Members: `<tanrei-field>` holding one `<tanrei-select>` in its default slot; the product places none, and gives the options. The host is `display: block`, as the Field is. Value member: `tanrei-select`. The host is the form's element — `name`, the value and its state, validity anchored on the select's trigger, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the select inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`. On the select: `variant`, `size`, `value`, `placeholder`, `readOnly`, `open`, `separation`, and `inline`, the select's attribute for tests and fixtures, which is no prop of the spec and is passed on so that an open fixture and its twin are staged alike. Attributes are the members' own: kebab-case, except `readonly`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the select's are never set by the element and reach the select through the connection. Events: `change` is the select's own composed, bubbling Event and leaves by itself with the host as its target. `toggle` is the select's CustomEvent, composed and not bubbling: it is heard on the host, as on any shadow host, and by no ancestor. Two props are the select's at every moment and are read through to it, never copied — `value` (the element's value is its value member's) and `open`, by the same accessor, as the combobox field reads its three — so each is already new in every listener of `change` and of `toggle`, capturing or bubbling, and when `open` is taken back with no event. No listener of the element's takes either. None is stopped and none is copied. Slots: `label-icon` is passed to the Field and `leading-icon` to the select, each by a slot element of the same name rendered only while the host has a child for it. The default slot is passed to the select — `<tanrei-select><slot></slot></tanrei-select>` — and is always rendered, where a field element otherwise has no default slot: the product's `<tanrei-option>` and `<tanrei-option-group>` children are assigned to it, and the select reads them through it. A child that is neither, and has no slot name the element has, is not rendered and is reported in a debug build. Parts: the member hosts are `field` and `select`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`, `counter` (never drawn here). Exported from the select: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `select-label`, `field-requirement-label`, `select-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it. Focus: the shadow root does not delegate. `focus()` and `blur()` call the select's; a press on the label row focuses the trigger by FLD-12 and opens nothing, a press on the trigger opens the list, and a press on the help does nothing. The list is the select's own popover in the top layer: it is placed against the trigger, both in the select's shadow tree, and a press on the Field's rows is a press outside it (SEL-27). The connection is the Field's with its control, with one value more upward, `drawnFocused` (SEL-63, FLD-13), the same value the combobox says; the element takes no part in it. Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-select-*` reach the members by inheritance, and one select field is set apart by setting any of them on the element. What its twin cannot do that it does: nothing. The twin: `<tanrei-field label=\"Country\" requirement=\"required\" supporting-text=\"Where your invoices are addressed.\"><tanrei-select name=\"country\" value=\"jp\"><tanrei-option value=\"jp\">Japan</tanrei-option></tanrei-select></tanrei-field>`. Before the element is defined its options are running text in the page, as a select's are: hide `tanrei-select-field:not(:defined) > *` and reserve the block size. Words: none of its own; `required-text` and `optional-text` left empty are read by the Field from the product's words."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiSelectField",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "selection",
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "placeholder": "prompt",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "open": "isPresented",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "selection",
+        "toggle": "isPresented"
+      },
+      "items": {
+        "option": {
+          "name": "TanreiSelectOption",
+          "props": {
+            "label": "title",
+            "value": "tag",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "disabled"
+          },
+          "notes": "The select's own option, under the same name: the select field passes it to its select and reads nothing of it."
+        },
+        "option-group": {
+          "name": "TanreiSelectSection",
+          "props": {
+            "title": "title"
+          },
+          "notes": "The select's own option group, under the same name: the select field passes it to its select and reads nothing of it."
+        }
+      },
+      "notes": "`TanreiSelectField(\"Country\", selection: $country, supportingText: \"…\") { TanreiSelectOption(\"Japan\").tag(\"jp\") … }`: a view whose body is `TanreiField(…) { TanreiSelect(selection:) { options } }` with each argument passed to the member it is from, and nothing else. The option content is the select's own, passed through as a view builder. `labelHidden` follows `.labelsHidden()` and `disabled` follows `.disabled(_:)`, both read by the Field. The product's words are read by the Field from the `\\.tanreiWords` environment value. Not built on this platform yet, nor is the select itself."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiSelectField",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "open": "expanded",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "onValueChange",
+        "toggle": "onExpandedChange"
+      },
+      "items": {
+        "option": {
+          "name": "TanreiSelectOption",
+          "props": {
+            "label": "text",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "enabled"
+          },
+          "notes": "The select's own option, under the same name: the select field passes it to its select and reads nothing of it."
+        },
+        "option-group": {
+          "name": "TanreiSelectGroup",
+          "props": {
+            "title": "title"
+          },
+          "notes": "The select's own option group, under the same name: the select field passes it to its select and reads nothing of it."
+        }
+      },
+      "notes": "`TanreiSelectField(value, onValueChange, label, supportingText = …) { TanreiSelectOption(\"Japan\", \"jp\") … }`: a composable that calls `TanreiField(…) { TanreiSelect(…) { content() } }` with each argument passed to the member it is from, and nothing else; the content lambda is the select's. `enabled` is the inverse flag and `isError` keeps Compose's name, both the Field's. The product's words are read by the Field from `LocalTanreiWords`. Not built on this platform yet, nor is the select itself."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiSelectField",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "placeholder": "hintText",
+        "supportingText": "helperText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "open": "controller",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "onChanged",
+        "toggle": "onOpenChanged"
+      },
+      "items": {
+        "option": {
+          "name": "TanreiSelectOption",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "enabled"
+          },
+          "notes": "The select's own option, under the same name: the select field passes it to its select and reads nothing of it."
+        },
+        "option-group": {
+          "name": "TanreiSelectGroup",
+          "props": {
+            "title": "title"
+          },
+          "notes": "The select's own option group, under the same name: the select field passes it to its select and reads nothing of it."
+        }
+      },
+      "notes": "`TanreiSelectField(value:, onChanged:, labelText:, helperText:, options: […])`: a widget that builds `TanreiField(child: TanreiSelect(…))` with each argument passed to the member it is from, and nothing else; `labelText`, `hintText`, `helperText`, `errorText` and `enabled` keep `InputDecoration`'s names. `TanreiSelectFormField` wraps it as a `FormField<String>` (`validator`, `onSaved`, `autovalidateMode`), which is how a Flutter form takes part, and its `errorText` is the Field's. The product's words are read by the Field from the `TanreiWords` inherited widget. Not built on this platform yet, nor is the select itself."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "SelectField",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "open": "open",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "onValueChange",
+        "toggle": "onOpenChange"
+      },
+      "items": {
+        "option": {
+          "name": "SelectOption",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "disabled"
+          },
+          "notes": "The select's own option, under the same name: the select field passes it to its select and reads nothing of it."
+        },
+        "option-group": {
+          "name": "SelectOptionGroup",
+          "props": {
+            "title": "title"
+          },
+          "notes": "The select's own option group, under the same name: the select field passes it to its select and reads nothing of it."
+        }
+      },
+      "notes": "`<SelectField label=\"Country\" value={value} onValueChange={setValue} supportingText=\"…\" options={[…]} />`: a component that renders `<Field …><Select … /></Field>` with each prop passed to the member it is from, and nothing else; `options` is the select's array. The product's words are read by the Field from the `TanreiWordsProvider` context. Not built on this platform yet, nor is the select itself."
+    }
+  }
+}

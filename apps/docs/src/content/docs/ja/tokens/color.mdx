@@ -1,0 +1,23 @@
+---
+title: カラートークン
+description: すべてのシステムのカラーロールと、各コントラストレベルでのライトとダークの解決値。
+translationOf: tokens/color.mdx
+sourceHash: 268c3b3086d0f6139384b59c01acca9c79c5fa8e
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ColorRoles from '../../../../components/tokens/ColorRoles.astro';
+
+`tanrei.sys.color` 以下にある、すべてのシステムのカラーロールを、ライトとダークについて解決したものです。色見本は解決済みの値そのものを表示するので、どちらのテーマで読んでいても、両方のテーマを確認できます。半透明のロールは、それが想定している背景の上に描いています。ロールの意味と使い方については、[カラー](/ja/foundations/color/)を参照してください。
+
+<Tabs syncKey="contrast">
+  <TabItem label="標準" value="standard">
+    <ColorRoles contrast="standard" />
+  </TabItem>
+  <TabItem label="中" value="medium">
+    <ColorRoles contrast="medium" />
+  </TabItem>
+  <TabItem label="高" value="high">
+    <ColorRoles contrast="high" />
+  </TabItem>
+</Tabs>

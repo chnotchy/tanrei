@@ -1,0 +1,296 @@
+{
+  "type": "View",
+  "props": {
+    "role": "menu",
+    "style": {
+      "alignSelf": "flex-start",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "borderCurve": "continuous",
+      "borderRadius": 20,
+      "boxShadow": [
+        {
+          "blurRadius": 8,
+          "color": "rgba(0, 0, 0, 0.12)",
+          "offsetX": 0,
+          "offsetY": 2,
+          "spreadDistance": 0
+        }
+      ],
+      "maxWidth": 320,
+      "minWidth": 160
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "borderCurve": "continuous",
+          "borderRadius": 20,
+          "flexShrink": 1,
+          "overflow": "hidden"
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "style": {
+              "paddingEnd": 4,
+              "paddingStart": 4,
+              "paddingVertical": 4
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityLabel": "Archive",
+                "accessibilityState": {
+                  "disabled": false
+                },
+                "accessibilityValue": {
+                  "text": "1 of 2"
+                },
+                "accessible": true,
+                "collapsable": false,
+                "focusable": true,
+                "hitSlop": {
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "top": 0
+                },
+                "role": "menuitem",
+                "style": {
+                  "alignItems": "center",
+                  "borderCurve": "continuous",
+                  "borderRadius": 8,
+                  "flexDirection": "row",
+                  "minHeight": 48,
+                  "opacity": 1,
+                  "paddingEnd": 12,
+                  "paddingStart": 12,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "alignItems": "flex-start",
+                      "flex": 1,
+                      "flexDirection": "row",
+                      "gap": 12
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "height": 22,
+                          "justifyContent": "center",
+                          "width": 16
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "View",
+                          "props": {
+                            "accessibilityElementsHidden": true,
+                            "accessible": false,
+                            "importantForAccessibility": "no-hide-descendants",
+                            "style": {
+                              "alignItems": "center",
+                              "height": 16,
+                              "justifyContent": "center",
+                              "width": 16
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "Text",
+                              "props": {
+                                "allowFontScaling": false,
+                                "collapsable": false,
+                                "style": {
+                                  "color": "rgb(107, 106, 108)",
+                                  "fontFamily": "Material Symbols Rounded",
+                                  "fontSize": 16,
+                                  "fontWeight": "300",
+                                  "lineHeight": 16,
+                                  "textAlign": "center"
+                                }
+                              },
+                              "children": [
+                                "archive"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "paddingTop": 0
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": true,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(0, 0, 0)",
+                              "fontSize": 17,
+                              "fontWeight": "400",
+                              "letterSpacing": 0,
+                              "lineHeight": 22
+                            }
+                          },
+                          "children": [
+                            "Archive"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "View",
+              "props": {
+                "accessibilityLabel": "Delete",
+                "accessibilityState": {
+                  "disabled": false
+                },
+                "accessibilityValue": {
+                  "text": "2 of 2"
+                },
+                "accessible": true,
+                "collapsable": false,
+                "focusable": false,
+                "hitSlop": {
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "top": 0
+                },
+                "role": "menuitem",
+                "style": {
+                  "alignItems": "center",
+                  "borderCurve": "continuous",
+                  "borderRadius": 8,
+                  "flexDirection": "row",
+                  "minHeight": 48,
+                  "opacity": 1,
+                  "paddingEnd": 12,
+                  "paddingStart": 12,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "alignItems": "flex-start",
+                      "flex": 1,
+                      "flexDirection": "row",
+                      "gap": 12
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "height": 22,
+                          "justifyContent": "center",
+                          "width": 16
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "View",
+                          "props": {
+                            "accessibilityElementsHidden": true,
+                            "accessible": false,
+                            "importantForAccessibility": "no-hide-descendants",
+                            "style": {
+                              "alignItems": "center",
+                              "height": 16,
+                              "justifyContent": "center",
+                              "width": 16
+                            }
+                          },
+                          "children": [
+                            {
+                              "type": "Text",
+                              "props": {
+                                "allowFontScaling": false,
+                                "collapsable": false,
+                                "style": {
+                                  "color": "rgb(238, 55, 43)",
+                                  "fontFamily": "Material Symbols Rounded",
+                                  "fontSize": 16,
+                                  "fontWeight": "300",
+                                  "lineHeight": 16,
+                                  "textAlign": "center"
+                                }
+                              },
+                              "children": [
+                                "delete"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "View",
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "paddingTop": 0
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "Text",
+                          "props": {
+                            "allowFontScaling": true,
+                            "collapsable": false,
+                            "style": {
+                              "color": "rgb(238, 55, 43)",
+                              "fontSize": 17,
+                              "fontWeight": "400",
+                              "letterSpacing": 0,
+                              "lineHeight": 22
+                            }
+                          },
+                          "children": [
+                            "Delete"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

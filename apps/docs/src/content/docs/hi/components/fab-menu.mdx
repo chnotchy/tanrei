@@ -1,0 +1,267 @@
+---
+title: FAB मेन्यू
+description: सिमटे हुए मुख्य ऐक्शन बटन के रूप में बने टॉगल से संबंधित क्रियाओं की एक छोटी लिस्ट खोलता है, और जब तक वे दिखती हैं, टॉगल उस लिस्ट का बंद करने वाला बटन बन जाता है।
+translationOf: components/fab-menu.mdx
+sourceHash: 58f96ca923cd7e3ad7e31daa132c68b5a1f378d2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="fab-menu" />
+
+:::note[Tanrei सिस्टम में नहीं]
+डिफ़ॉल्ट Tanrei सिस्टम FAB मेन्यू नहीं देता, और cupertino भी नहीं देता, क्योंकि Apple के पास कोई फ़्लोटिंग ऐक्शन बटन नहीं है; Material प्रीसेट इसे देते हैं। Tanrei में ऐसा [मुख्य ऐक्शन बटन](/hi/components/main-action-button/) इस्तेमाल करें जो क्रियाओं की एक [बॉटम शीट](/hi/components/bottom-sheet/) खोलता हो। कंपोनेंट फिर भी हर सिस्टम में काम करता है, और जहाँ सिस्टम इसे छोड़ देता है वहाँ डेवलपमेंट में एक चेतावनी देता है। इस पेज के डेमो `m3-like` प्रीसेट में बने हैं, जो इसे देने वाला एक सिस्टम है।
+:::
+
+<DemoFrame label="बंद और खुला" system="m3-like">
+  {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}
+  <div style="display: flex; align-items: end; gap: var(--tanrei-sys-space-space300); padding-block-start: calc(3 * max(var(--tanrei-comp-fab-menu-item-height), var(--tanrei-sys-target-touch)) + 2 * var(--tanrei-comp-fab-menu-list-gap) + var(--tanrei-comp-fab-menu-list-offset))">
+    <tanrei-fab-menu label="बनाएँ">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="दस्तावेज़" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="फ़ोल्डर" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="अपलोड" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+    <tanrei-fab-menu inline open label="बनाएँ">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="दस्तावेज़" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="फ़ोल्डर" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="अपलोड" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+  </div>
+</DemoFrame>
+
+### इस्तेमाल
+
+टॉगल एक सिमटे हुए [मुख्य ऐक्शन बटन](/hi/components/main-action-button/) के रूप में बनता है, एक लेबल और एक आइकन के साथ। आइटम क्रियाएँ हैं, हर एक में एक आइकन और एक लेबल, और वे उसी तरह दिए जाते हैं जैसे हर प्लैटफ़ॉर्म दोहराए जाने वाले चाइल्ड देता है। मुख्य ऐक्शन बटन की तरह FAB मेन्यू भी अपनी जगह ख़ुद तय नहीं करता: टॉगल को आपका लेआउट रखता है, आम तौर पर इनलाइन-एंड वाले निचले कोने में। आइटम उसके ऊपर दिखते हैं, प्लैटफ़ॉर्म की ओवरले लेयर में।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-fab-menu class="primary-action" label="बनाएँ">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="दस्तावेज़" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="फ़ोल्डर" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="अपलोड" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+
+    <style>
+      /* एलिमेंट ख़ुद कुछ नहीं रखता: पेज टॉगल को इनलाइन-एंड वाले निचले कोने में रखता है। */
+      tanrei-fab-menu.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/fab-menu';
+      const fabMenu = document.querySelector('tanrei-fab-menu');
+      // टॉगल खोलने या बंद करने को कहता है; open आप सेट करते हैं।
+      fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));
+      // close के साथ कारण आता है: escape, outside, tab, focus-out या item। वेब कभी back एमिट नहीं करता।
+      fabMenu.addEventListener('close', () => (fabMenu.open = false));
+      // आइटम का click बबल होता है, और close से पहले आता है।
+      fabMenu.querySelector('[label="अपलोड"]').addEventListener('click', upload);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FabMenu, FabMenuItem } from '@tanrei/react';
+
+    <FabMenu
+      className="primary-action"
+      label="बनाएँ"
+      open={open}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <span slot="icon">add</span>
+      <FabMenuItem label="दस्तावेज़" icon="description" onClick={newDocument} />
+      <FabMenuItem label="फ़ोल्डर" icon="create_new_folder" onClick={newFolder} />
+      <FabMenuItem label="अपलोड" icon="upload" onClick={upload} />
+    </FabMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // इसे FAB की तरह ही रखा जाता है। टॉगल और आइटम, दोनों बाइंडिंग में लिखते हैं।
+    DocumentList()
+        .overlay(alignment: .bottomTrailing) {
+            TanreiFabMenu("बनाएँ", icon: "add", isPresented: $showsCreate) {
+                TanreiFabMenuItem("दस्तावेज़", icon: "description", action: newDocument)
+                TanreiFabMenuItem("फ़ोल्डर", icon: "create_new_folder", action: newFolder)
+                TanreiFabMenuItem("अपलोड", icon: "upload", action: upload)
+            }
+            .padding()
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiFabMenu
+    import io.github.chnotchy.tanrei.components.TanreiFabMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // स्टेट होइस्टिंग: expanded आप रखते हैं। इसे scaffold के floatingActionButton स्लॉट में रखें, या ख़ुद जगह दें।
+    TanreiFabMenu(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        onDismissRequest = { expanded = false },
+        contentDescription = "बनाएँ",
+        icon = { TanreiText("add") },
+    ) {
+        TanreiFabMenuItem(text = "दस्तावेज़", icon = "description", onClick = ::newDocument)
+        TanreiFabMenuItem(text = "फ़ोल्डर", icon = "create_new_folder", onClick = ::newFolder)
+        TanreiFabMenuItem(text = "अपलोड", icon = "upload", onClick = ::upload)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // FAB मेन्यू कंट्रोलर के ज़रिए ख़ुद खुलता और बंद होता है; onToggle और onClose इसकी सूचना देते हैं।
+    Scaffold(
+      body: const DocumentList(),
+      floatingActionButton: TanreiFabMenu(
+        controller: createMenu,
+        semanticLabel: 'बनाएँ',
+        icon: const Icon(AppSymbols.add),
+        items: <TanreiFabMenuItem>[
+          TanreiFabMenuItem(label: 'दस्तावेज़', icon: const Icon(AppSymbols.description), onPressed: newDocument),
+          TanreiFabMenuItem(label: 'फ़ोल्डर', icon: const Icon(AppSymbols.createNewFolder), onPressed: newFolder),
+          TanreiFabMenuItem(label: 'अपलोड', icon: const Icon(AppSymbols.upload), onPressed: upload),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { View } from 'react-native';
+    import { FabMenu } from '@tanrei/react-native';
+
+    // कंट्रोल्ड: visible को onToggle से सेट करें, और onDismiss से false करें, जिसे कारण मिलता है।
+    // टॉगल अपनी जगह कभी ख़ुद तय नहीं करता: उसे style रखता है।
+    <View style={{ flex: 1 }}>
+      <DocumentList />
+      <FabMenu
+        icon="add"
+        accessibilityLabel="बनाएँ"
+        visible={open}
+        onToggle={setOpen}
+        onDismiss={() => setOpen(false)}
+        items={[
+          { label: 'दस्तावेज़', icon: 'description', onPress: newDocument },
+          { label: 'फ़ोल्डर', icon: 'create_new_folder', onPress: newFolder },
+          { label: 'अपलोड', icon: 'upload', onPress: upload },
+        ]}
+        style={styles.primaryAction}
+      />
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="वेरिएंट, साइज़ और अक्षम" system="m3-like" plain>
+  <tanrei-fab-menu variant="tonal" label="बनाएँ"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu variant="surface" label="बनाएँ"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="small" label="बनाएँ"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="large" label="बनाएँ"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu disabled label="बनाएँ"><span slot="icon">add</span></tanrei-fab-menu>
+</DemoFrame>
+
+<ComponentSpecs name="fab-menu" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+FAB मेन्यू तब इस्तेमाल करें जब स्क्रीन की मुख्य क्रिया कुछ संबंधित रूपों में आती हो: नया दस्तावेज़, फ़ोल्डर या अपलोड; फ़ोटो या नोट। टॉगल स्क्रीन की एक तैरती हुई क्रिया को पहुँच में रखता है, और उसे दबाने पर ये रूप ठीक उसके ऊपर लेबल वाली क्रियाओं के रूप में दिखते हैं।
+
+जब सिर्फ़ एक क्रिया हो, तो [मुख्य ऐक्शन बटन](/hi/components/main-action-button/) इस्तेमाल करें। जब विकल्प बहुत सारे हों, या उन्हें विवरण चाहिए, तो किसी बटन या शीट से खुलने वाला [मेन्यू](/hi/components/menu/) इस्तेमाल करें। जब कोई क्रिया पूरी स्क्रीन की नहीं, बल्कि किसी एक आइटम की हो, तो उस आइटम के बग़ल में एक बटन रखें।
+
+### वेरिएंट चुनना
+
+| वेरिएंट | एम्फ़ेसिस | किसके लिए |
+| --- | --- | --- |
+| Filled (डिफ़ॉल्ट) | सबसे ज़्यादा | पूरी ताक़त के साथ स्क्रीन की मुख्य क्रियाएँ। |
+| Tonal | ज़्यादा | वह स्क्रीन जिसका कॉन्टेंट आगे रहना चाहिए। |
+| Surface | तटस्थ | उस कॉन्टेंट के ऊपर का FAB मेन्यू जिसमें पहले से रंग है, जैसे नक़्शा या फ़ोटो। |
+
+वेरिएंट टॉगल और आइटम, दोनों को एक जैसा रंग देता है। खुला रहने पर टॉगल वेरिएंट का दूसरा रूप लेता है, गोल होकर एक गोला बन जाता है और बंद करने वाला ग्लिफ़ दिखाता है, इसलिए खुला कभी बंद जैसा नहीं दिखता। साइज़ सिर्फ़ टॉगल को तय करता है (40, 48 या 64): आइटम का एक ही साइज़ है।
+
+### खुलना और बंद होना
+
+FAB मेन्यू एक ऑपरेट किया जाने वाला ओवरले है, जो मोडल नहीं है, मेन्यू की तरह। लोग इसके भीतर काम करते हैं, इसलिए यह फ़ोकस लेता है और उसे लौटाता है, पर स्क्रीन पर और कुछ भी रोका नहीं जाता: न कोई स्क्रिम है, न कोई फ़ोकस ट्रैप।
+
+- **खुलना।** टॉगल `toggle` से खोलने को कहता है। आइटम उसके ऊपर दिखते हैं, उसके अंतिम किनारे की सीध में, सबसे नज़दीक वाले से शुरू करके एक के बाद एक, और फ़ोकस सबसे ऊपर के पहले आइटम पर जाता है। Up Arrow से खोलने पर फ़ोकस इसकी जगह आख़िरी आइटम पर जाता है, यानी टॉगल के ठीक पास वाले पर।
+- **बंद होना।** Escape, प्लैटफ़ॉर्म का बैक, आइटम और टॉगल के बाहर दबाना, Tab, या फ़ोकस का बाहर चले जाना, ये सब `close` और कारण के साथ बंद करने को कहते हैं। किसी आइटम को सक्रिय करने पर पहले उसका click एमिट होता है, फिर `item` कारण के साथ `close`। खुला रहने पर टॉगल पर दबाना एक टॉगल है, बाहर दबाना नहीं।
+- **फ़ोकस की वापसी।** जब आइटम बंद होते हैं और फ़ोकस उनके बीच था, तो फ़ोकस टॉगल पर लौटता है। किसी आइटम से Tab उन्हें बंद करती है और टॉगल से आगे बढ़ती है, जैसे वह टॉगल से बढ़ती।
+- **कौन बंद करता है।** वेब, Compose और React Native पर आप `open` (`expanded`, `visible`) को `toggle` से सेट करते हैं और `close` से वापस false करते हैं। SwiftUI और Flutter पर FAB मेन्यू अपनी बाइंडिंग या कंट्रोलर के ज़रिए ख़ुद खुलता और बंद होता है।
+
+### करें
+
+- टॉगल को ऐसा लेबल दें जो बताए कि उसकी क्रियाओं में क्या साझा है, जैसे "बनाएँ"। खुला रहने पर भी उसका यही नाम रहता है। उसका expanded स्टेट स्क्रीन रीडर को बताता है कि अब वह लिस्ट को बंद करता है।
+- हर आइटम को एक छोटा लेबल और एक आइकन दें। लेबल वह है जो लोग पढ़ते हैं; आइकन सिर्फ़ उसे ढूँढ़ने में मदद करता है।
+- दो से छह आइटम तक ही रखें। उन्हें उसी क्रम में रखें जिसमें लोग उन पर नज़र दौड़ाते हैं: पहला सबसे ऊपर बनता है, और आख़िरी टॉगल के ठीक ऊपर रहता है।
+- स्क्रॉल होने वाले कॉन्टेंट के अंत में जगह छोड़ें, ताकि टॉगल आख़िरी आइटम को कभी हमेशा के लिए न ढके।
+
+### न करें
+
+- किसी आइटम को अक्षम न करें। जो क्रिया उपलब्ध नहीं है, उसे लिस्ट से बाहर रखें। अक्षम आइटम जैसी कोई चीज़ नहीं है।
+- खुला रहने पर टॉगल का नाम बदलकर "बंद करें" न करें, और उसका आइकन ख़ुद न बदलें। ये दोनों काम कंपोनेंट करता है।
+- एक स्क्रीन पर एक ही साइज़ के FAB मेन्यू और मुख्य ऐक्शन बटन न रखें। एक स्क्रीन पर एक ही तैरती हुई क्रिया होती है।
+- FAB मेन्यू को छोटी-मोटी, विनाशकारी या सेटिंग वाली क्रियाओं के लिए इस्तेमाल न करें।
+
+## सुलभता
+
+<ComponentAccessibility name="fab-menu" />
+
+### कंपोनेंट क्या सँभालता है
+
+- टॉगल लेबल से नाम पाने वाला एक बटन है। वह यह बताता है कि वह एक मेन्यू खोलता है और मेन्यू खुला है या नहीं, जहाँ प्लैटफ़ॉर्म में ये प्रॉपर्टी हैं, और खुला रहने पर भी अपना नाम बनाए रखता है।
+- खुला रहने पर आइटम उसी लेबल के नाम वाला एक मेन्यू हैं, और हर एक अपने लेबल के नाम वाला मेन्यू आइटम है, अपनी जगह और आइटम की संख्या के साथ। आइकन छिपे रहते हैं।
+- टॉगल पर Enter, Space या Down Arrow मेन्यू खोलती हैं और फ़ोकस को पहले आइटम पर ले जाती हैं। Up Arrow उसे खोलती है और फ़ोकस को आख़िरी आइटम पर ले जाती है। Down और Up Arrow आइटम के बीच ले जाती हैं और सिरे से घूमकर दूसरे सिरे पर आ जाती हैं, और Home और End सिरों तक पहुँचाती हैं। किसी आइटम पर Enter या Space उसे सक्रिय करती है और मेन्यू बंद करती है। Escape मेन्यू बंद करती है और फ़ोकस को टॉगल पर लौटा देती है।
+- मेन्यू मोडल नहीं है: वह फ़ोकस को भीतर बाँधकर नहीं रखता, स्क्रीन के बाक़ी हिस्से को निष्क्रिय नहीं करता और कोई स्क्रिम नहीं बनाता। किसी आइटम से Tab उसे बंद कर देती है।
+- टॉगल का हिट एरिया हर साइज़ पर न्यूनतम टार्गेट तक पहुँचता है। हर आइटम कम से कम एक टार्गेट जितना ऊँचा है, और उसका पूरा कंटेनर उसका हिट एरिया है।
+- टॉगल टेक्स्ट साइज़ के साथ नहीं बढ़ता, क्योंकि आइकन टेक्स्ट नहीं है। आइटम बढ़ते हैं और उनके लेबल अगली पंक्ति में जाते हैं।
+- जहाँ मोशन कम किया गया है, वहाँ टॉगल तुरंत बदलता है और आइटम तुरंत आते और जाते हैं।
+- डीबग बिल्ड टॉगल के लेबल के न होने की, बिना लेबल या बिना आइकन वाले आइटम की, और दो से कम या छह से ज़्यादा आइटम की रिपोर्ट करते हैं।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- Web: वेब कभी `back` एमिट नहीं करता। Escape ही उसका बंद करने का अनुरोध है।
+- Web: आइटम को टॉगल के सापेक्ष स्क्रिप्ट से जगह दी जाती है, CSS ऐंकर पोज़िशनिंग से नहीं जैसा स्पेक का वेब नोट कहता है, ठीक वैसे ही जैसे मेन्यू को।
+- बाहर दबाने पर हर जगह आइटम बंद होते हैं। वेब और Flutter पर वह दबाना उस चीज़ तक भी पहुँचता है जो उसके नीचे है। SwiftUI, Compose और React Native पर नहीं पहुँचता।
+- SwiftUI में न मेन्यू या मेन्यू आइटम का रोल है, न यह कहने का कोई तरीक़ा कि टॉगल एक मेन्यू खोलता है या मेन्यू खुला है। आइटम लेबल के नाम वाले एक कंटेनर के भीतर बटन हैं, और हर एक का मान उसकी जगह है ("2 of 3", सिर्फ़ अंग्रेज़ी में)।
+- SwiftUI आइटम को एक पॉपओवर में पेश करता है, जो अपनी जगह ख़ुद तय करता है। वह आइटम के पीछे अपना बबल और तीर बनाता है, कॉलम को टॉगल के अंतिम किनारे की सीध में रखने की जगह टॉगल के कोने पर केंद्रित करता है, और डिफ़ॉल्ट सिस्टम में उसे क्लिप करता है; `list.offset` दूरी तय नहीं करता। पॉपओवर की जगह Tanrei की ओवरले लेयर आनी है।
+- SwiftUI: Tab आइटम को बंद करती है और फ़ोकस को टॉगल पर लौटाती है, पर फ़ोकस उसी कीस्ट्रोक में टॉगल से आगे नहीं बढ़ सकता।
+- SwiftUI: आइटम का एक्सेसिबिलिटी फ़्रेम उसकी बनी हुई शैडो को भी शामिल करता है, इसलिए पड़ोसी आइटम के फ़्रेम कुछ पॉइंट एक-दूसरे पर चढ़ जाते हैं।
+- SwiftUI: जो SF Symbol अपनी ऊँचाई से ज़्यादा चौड़ा है, जैसे `folder.badge.plus`, वह आइटम के आइकन बॉक्स से बाहर निकल जाता है।
+- SwiftUI: टॉगल और आइटम पर कुंजियाँ, और फ़ोकस का भीतर जाना और लौटना, नियमों के रूप में टेस्ट किए गए हैं, अभी असली कीबोर्ड से नहीं।
+- Compose में न मेन्यू का रोल है, न ऐसी कोई प्रॉपर्टी जो कहे कि बटन एक मेन्यू खोलता है। आइटम लेबल के नाम वाले एक ट्रैवर्सल ग्रुप के भीतर बटन हैं, जिनकी जगह उनकी कलेक्शन इन्फ़ो में है, और टॉगल की फैलाने और समेटने की क्रियाएँ बताती हैं कि वह उन्हें खोलता है या बंद करता है।
+- Flutter टॉगल पर कोई has-popup नहीं बताता, और न मेन्यू में जगह या आइटम की संख्या।
+- React Native में ऐसी कोई प्रॉपर्टी नहीं है जो कहे कि बटन एक मेन्यू खोलता है। टॉगल सिर्फ़ यह बताता है कि मेन्यू खुला है या नहीं।
+- React Native आइटम को `TanreiProvider` की ओवरले लेयर में बनाता है, इसलिए उसके ऊपर एक `TanreiProvider` होना ज़रूरी है। Tab आइटम को बंद करती है और फ़ोकस को टॉगल पर लौटाती है, और अगली Tab उससे आगे बढ़ती है।
+- React Native: आइटम की जगह, उनका एक-एक करके आना, फ़ोकस का भीतर जाना और बाहर आना, और बाहर दबाना अभी किसी डिवाइस पर जाँचे नहीं गए हैं।
+
+### आपको क्या करना है
+
+- टॉगल के लिए और हर आइटम के लिए लेबल लिखें। अकेला आइकन कोई नाम नहीं है।
+- FAB मेन्यू को एलिमेंट ट्री में वहाँ रखें जहाँ उसकी क्रियाओं की जगह है। सहायक तकनीक टॉगल को ट्री के क्रम में पढ़ती है, उस जगह के हिसाब से नहीं जहाँ वह बना है।
+- वेब, Compose और React Native पर `open` को `toggle` से सेट करें और `close` से false करें। FAB मेन्यू सिर्फ़ अनुरोध करता है।
+- बंद होने पर फ़ोकस ख़ुद न ले जाएँ। FAB मेन्यू फ़ोकस को टॉगल पर लौटा देता है।
+- टॉगल को नेविगेशन बार से हटाकर रखें, और उसके ऊपर आइटम के लिए जगह छोड़ें।

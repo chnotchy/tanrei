@@ -1,0 +1,108 @@
+# apps/docs — local rules
+
+The Tanrei documentation site: Astro + Starlight, English at `/`, Japanese at `/ja/`. The root `AGENTS.md` applies in full; this file only adds to it.
+
+## Generated content is never typed by hand
+
+If a spec, a token file, the status matrix or `tanrei.config.json` can supply a fact, render it from that file. Do not write it into MDX.
+
+| Content | Rendered by | Data |
+|---|---|---|
+| Status matrix, legend, totals | `src/components/StatusMatrix.astro` | `docs/status/status.json` |
+| A component page's facts under its head (category, token namespace, level); a post's date in its head | `src/components/frame/PageTitle.astro` | `specs/<name>.spec.json`; the page's `date` |
+| Component index | `src/components/ComponentIndex.astro` | `docs/status/status.json` |
+| The sidebar's Components group; which components a list shows by default | `astro.config.mjs`, `src/components/frame/Sidebar.astro` (`src/lib/listing.mjs`) | `docs/status/status.json` (`listing`, `category`, `docs`) |
+| "Used in" and the line an advanced component's page leads with | `src/components/frame/PageTitle.astro` (`src/lib/page-head.ts`) | `specs/*.spec.json` (`builtFrom`, `listing`) |
+| Component overview / specs / accessibility tables, fixtures, platform name mapping, component tokens | `src/components/Component{Availability,Specs,Accessibility}.astro` | `specs/<name>.spec.json`, `tokens/comp/`, `design/tokens/` |
+| Token reference tables and specimens | `src/components/tokens/*.astro` | `design/tokens/*.tokens.json` (resolved), `tokens/sys/` (descriptions) |
+| Hero platform list and figures | `src/components/Hero.astro` | status.json, specs, `tanrei.config.json` |
+| Token descriptions shown in prose pages | `src/components/tokens/TokenNotes.astro` | `tokens/{ref,sys}/*.tokens.json` (`$description`, verbatim) |
+| A choice of kind: description, allowed names | `src/components/tokens/BehaviorChoice.astro` | `tokens/sys/behavior.tokens.json` (`dev.tanrei.enum`) |
+| What each shipped system resolves a token to | `src/components/tokens/SystemValues.astro`, `src/components/SystemButtons.astro` | `tokens/systems/`, `design/tokens/<system>/` |
+
+All repository data is imported in `src/lib/repo.ts` and `src/lib/tokens.ts`. Add new data access there, not in pages. UI strings for generated blocks (table headers, legends) live in `src/lib/i18n.ts` in both languages.
+
+Hand-written: MDX prose, per-platform code samples, frontmatter `title`/`description`, and the styling in `src/styles/`.
+
+## Component pages
+
+- Prose lives in `src/content/docs/components/<name>.mdx` and `src/content/docs/ja/components/<name>.mdx`. The parity checker requires **both** files at exactly these paths.
+- Keep the four sections, in order: Overview, Specs, Guidelines, Accessibility. Place `<ComponentAvailability>`, `<ComponentSpecs>` and `<ComponentAccessibility>` under the matching heading; write only when-to-use, do/don't, content and guidance prose yourself.
+- Per-platform samples use `<Tabs syncKey="platform">` with the tabs Web, React, SwiftUI, Compose, Flutter, React Native, in that order, using the idiomatic names from `spec.platforms.*`. `Tabs` and `TabItem` are the docs' own (`import { Tabs, TabItem } from '…/components/tabs'`), drawn by Tanrei's Tab view: sets with one `syncKey` share a choice and remember it (`components/tabs/keys.mjs`); a tab whose label is not ASCII needs a `value`, the same in both languages.
+- The page is in the sidebar once the status file lists it (`pnpm generate`): the `Components` group of `astro.config.mjs` is made from `docs/status/status.json` (`src/lib/listing.mjs`), in groups by category. Do not write a component's slug there by hand.
+- What a list of components shows follows the spec's `listing`: the sidebar and the index show a component marked to be shown on request only to a reader who turned on "All components" (`src/components/ListingSwitch.astro`), its page is always built, found by the search and shown in the sidebar while it is open, and the head of its page says what it is a part of (`src/lib/page-head.ts`, `listingFacts`). Code asks `listings.listed` and `listings.onRequest` (`src/lib/repo.ts`) and never writes a listing's name.
+
+A generated block that writes headings (`StatusMatrix`, `Roadmap`, `Backlog`, `ComponentIndex`) takes `headingLevel` from the page that places it: 2 directly under the page's title, one more than the heading it stands under otherwise. A Markdown table's first header cell says what its column holds; it is never left empty.
+
+## Adding a page in both locales
+
+1. Create `src/content/docs/<path>.mdx` (English is the root locale) and add its slug to the sidebar in `astro.config.mjs`.
+2. For Japanese, create `src/content/docs/ja/<path>.mdx` with the same path. Relative imports need one more `../`. Internal links start with `/ja/`.
+3. A page without a Japanese file falls back to English with Starlight's notice. That is preferred over a partial or machine-quality translation: translate a page completely and naturally, or not at all.
+4. A page may carry a `date` in frontmatter; the page's head then shows it. Release notes are the packages' `CHANGELOG.md`, not pages of the site.
+
+## Writing
+
+- All prose is original. Never copy or closely paraphrase text from m3.material.io or any other design system's documentation.
+- Tanrei is independent, and is described by what it is. Another design system is named only for a preset, a fidelity note, a dependency or a data source.
+- Be honest about availability. Packages are unpublished until a maintainer releases them; install pages carry `<PreReleaseNotice>`, give the from-source steps that work today under "From source", and the registry steps under "After the first release".
+
+## Look and feel
+
+`src/styles/tanrei-theme.css` maps Starlight's `--sl-*` variables onto `--tanrei-*` tokens. Use tokens for every color, radius and type value; do not introduce literals. The file is unlayered on purpose so it overrides Starlight's layers. Starlight's `data-theme` drives `color-scheme`, which is all the `light-dark()` tokens need. The contrast switch sets `data-tanrei-contrast` on `<html>`.
+
+Tables and notices are Tanrei's Table and Callout. A Markdown table and a `:::note[Title]` directive (`tip`, `caution`, `danger`) are written as Markdown and converted at build time (`src/lib/markdown.mjs`); in MDX a notice is `<Callout type="caution" title="…">` from `src/components/Callout.astro`, and a table one of the docs' components writes goes inside `src/components/Table.astro` with a `label`. Do not style a table, a cell or a callout in the theme file: say it with the component's attributes (`data-align`, `data-wrap="false"`, `rowHeaders`, `stickyFirstColumn`, `density`). A column's `data-align` and `data-wrap="false"` go on its header cell and on each of its cells (the page is drawn before the element is defined, and without script); what the header cell says is the whole column's, so the header of a column whose cells wrap does not say `data-wrap="false"`.
+
+A tree of files is Tanrei's Tree view inside Tanrei's Figure: `<FileTree>` from `src/components/FileTree.astro` around a Markdown list. An item's first word is its name and the rest is a note in the page's language; a name that ends with a slash, or an item that holds a list, is a folder. Nothing in it can be chosen (`selection` is `none`), every folder is written open, and the list stays in the document, readable with scripting off. Pass `label` where "Files and folders" does not say what the tree is. Do not import the framework's `FileTree`.
+
+The page that was not found is the docs' own: `src/pages/404.astro` and `src/pages/[locale]/404.astro` draw `src/components/NotFound.astro` — Tanrei's Empty state at the large size, whose title is the page's `h1` — inside the page frame, with words from `src/lib/i18n.ts` (`notFound`). The framework's own is off (`disable404Route`). A language's page is built as `<language>/404/index.html` and copied to `<language>/404.html` (`src/lib/not-found-files.mjs`), which is what a host that answers with the nearest `404.html` serves.
+A frame around something to look at — a live example, a specimen, a row of systems — is Tanrei's Figure, written as its native parts (`<tanrei-figure><figure><div data-part="frame">…`), so `@tanrei/web/figure.css` draws it before the element is defined; a list of facts is Tanrei's Description list around the page's own `dl`. Do not draw a frame, a caption or a `dl` by hand: what a component of the docs adds is the arrangement inside the stage and, where the look must differ, a component token set on the element (the hero's larger corner). Every figure has a name before any script runs: `aria-labelledby` names its title, or its caption where it has no title, with an id from `src/lib/figure-id.ts`, and a figure that draws neither takes `aria-label` from `src/lib/i18n.ts`.
+
+Code is Tanrei's Code block and Inline code; the framework's code component and its highlighter are off (`expressiveCode: false`, `markdown.syntaxHighlight: false`).
+
+- **A fenced block** is written as Markdown and becomes `<tanrei-code-block>` at build time (`src/lib/markdown.mjs`), highlighted there by `@tanrei/web/highlight`, so its colors are in the first paint and the browser loads no highlighter. The fence's first word is the language (`html`, `css`, `js`, `jsx`, `ts`, `tsx`, `json`, `sh`/`bash`, `swift`, `kotlin`, `dart`; `text` for none — a language without a grammar is drawn plain and the build warns). Every block gets a copy button and a name for assistive technology (the heading above it and the language); a shell block gets the prompt `$`.
+- **The rest of the fence's first line is the element's attributes**, written as HTML: ```` ```ts title="sizes.ts" line-numbers highlighted-lines="3, 7-9" ````. There is no other fence vocabulary (no `{2}` marks, no `ins=`/`del=`, no frames); an attribute the step does not know fails the build. `copy="false"` and `prompt=""` remove what the step adds. The words of the copy button and of a marked line come from `src/lib/i18n.ts` (`code`), in the page's language.
+- **A block written by hand** in MDX — a demo, a block built from a string — is `<tanrei-code-block><pre><code>{source}</code></pre></tanrei-code-block>` and is left as written. Do not import a `Code` component from the framework.
+- **Inline code** is any `code` outside a `pre`: `MarkdownContent.astro` gives each one the class `tanrei-code` with `translate="no"` and `spellcheck="false"`. Its variant comes from the nearest ancestor's `data-tanrei-code`: the docs' own tables (`Table.astro`) and fact blocks say `plain`; running text says nothing (tonal). Do not style `code` or `pre` in the theme file.
+
+A control, a row of names and a measure the site draws are Tanrei's too; no component of the site and no page writes a native `input`, `select`, `button`, `details`, `fieldset`, `progress` or `meter` of its own (`test/adoption.test.mjs` names the places still owed — a key written as `kbd`, the icons page's example — each with what it waits for). A choice of one that switches what is drawn is the Tabs (`ContrastSwitch.astro`: the page's contrast, three secondary tabs after the word «Contrast», its help Tanrei's Tooltip around the row and each tab's description; its rows are the group `page-contrast` and keep the choice under the key the head's script reads), a choice of one that only sets a value the Radio group, a setting that is on or off the Switch (the typescale's flip), a measure the Progress indicator (the roadmap's bar), a row of names the Tag group of `NameTag.astro` (a component's states, the values of a choice of kind), a list of facts by platform the Description list. Three rules come with every such element, because its words are attributes and its box is drawn by script:
+
+- **It holds its room before it is defined.** A rule written with `:not(:defined)` on the element's own class gives it the box it will take, from the component's own tokens, with its words drawn from its attributes (`content: attr(label)`) where they decide the size — measured equal to the drawn box in the six languages at 1440 and 390 before it lands.
+- **Without script it is either readable or gone.** A name stays a word (the same `attr()` text); a control that can do nothing without script is not drawn (`@media (scripting: none)`, on the same `:not(:defined)` selector — a rule of the class alone loses to the one that holds the room).
+- **Its words come from `src/lib/i18n.ts`**, in the six languages, and a word that is only an attribute and should be found is given to the search index (`data-pagefind-index-attrs`).
+
+The search is Tanrei's Search (`src/components/frame/Search.astro`, in the app bar). The component searches nothing: the page's script loads the search index the framework's build writes (`/pagefind/`, one for each language, on the first use and never before), asks it, and gives the element a page as a result group, a section as a result, the excerpt as runs of text and the count as its status text; nothing found is Tanrei's Empty state in the view. What turns the index's answer into those values is `src/lib/search.mjs`, without a browser in it; every word is in `src/lib/i18n.ts` (`search`). Do not import the framework's `Search` component or the index's own interface, and never insert the index's excerpt as markup. The index answers a word it does not have with the pages of a shorter beginning of it and does not say so: the script shows them only where a marked word begins with a typed one, or the index has the word when asked for it alone, between quotation marks (`answersAsTyped`, `exactQuestions`); otherwise nothing was found.
+
+What the index reads is the built page's main region (`data-pagefind-body` on the framework's `<main>`), less what stands under `data-pagefind-ignore`. Three rules follow, for every component of the docs:
+
+- **A live example is not text of the page.** Its stage — `DemoFrame`'s, the Specs table's fixtures column, a row of systems — carries `data-pagefind-ignore`: «Save» in a sample button is not what the page says. A figure's title and caption are, and are read.
+- **A glyph's name is not a word.** A `span` that holds a ligature's name (`slot="icon"`, `slot="media"`, `class="tanrei-icon"`) carries `data-pagefind-ignore`; `test/search.test.mjs` reads the sources for it. A word that is only an attribute and should be found (a status tag's `label`) is given to the index with `data-pagefind-index-attrs`.
+- **Words that stand side by side need white space in the markup.** The build removes it between tags, and the index then reads one word. Terms, descriptions, cells and tab panels are parted for every page by `src/lib/index-text.mjs` (in `frame/TwoColumnContent.astro`); anything else a component writes side by side — the items of a flex row or a grid — gets `{' '}` between them, which is drawn nowhere. Not between inline boxes of one line: a space there is drawn. Two inline boxes that must be two words and stand with no space (a file's name and its note in a tree, which the Tree view sets apart by its own gap) get a hidden line break between them, `<br hidden>`: the index reads a break as the end of a word, and a hidden element makes no box. What the index reads is asked of the index itself in a test (`test/index-reads.mjs`), not of a model of it.
+
+## Running
+
+```
+pnpm --filter @tanrei/web build    # the docs load the built web package
+pnpm --filter @tanrei/docs dev
+pnpm --filter @tanrei/docs validate   # astro check: type errors and warnings in .astro / .ts fail
+pnpm --filter @tanrei/docs build      # astro check, then the site (`test` builds it again)
+pnpm --filter @tanrei/docs test:node  # Node's runner, no browser and no build of the site (about 3 s): test/*.test.mjs
+```
+
+What `test:node` holds, and where a change belongs:
+
+- `test/search.test.mjs` — `src/lib/search.mjs`: an excerpt of the search index as the runs a result takes, a page the index found as a result group, the count's sentence by the language's plural rule; and the search's words in the six languages (`src/lib/i18n.ts`, `search`). A word the search gains is added in every language, and the test says which is missing. Also whether an answer is for the words as typed, and what the index reads of a page: the space `src/lib/index-text.mjs` puts between terms and cells, and the ignore marks on stages and glyphs.
+- `test/page-toc.test.mjs` — `src/lib/page-toc.mjs`: the items of "On this page" — the item for the top of the page, which also stands for a first heading that says the same word (every component page's «Overview»), so that no list begins with one word twice.
+- `test/pages.test.mjs` — what the pages themselves keep, read from their sources in every language: a generated block's `headingLevel`, a table's first header cell (no page is excused; and the word each kind of table takes in each language — the component or the kind, the aspect several are compared by, a form, a variant: a word no wider at 390 than the widest cell of its column), the backlog's headers written plain, and the Skeleton page's "Load" demo, whose content is as many lines as its placeholders say.
+- `test/markdown.test.mjs` — the four Markdown passes of `src/lib/markdown.mjs` and the rewriting of `src/lib/markdown-content.mjs` (what `MarkdownContent.astro` does to a page). Pages of a few lines go through the processor `astro.config.mjs` configures (`test/site-pipeline.mjs` runs Astro's own configuration step; nothing of the pipeline is declared again), once with Tanrei's passes and once without. A pass that learns something gets a test there; what a pass does not claim must stay equal to the engine's output.
+- `test/fixtures.test.mjs` — `src/lib/fixtures.ts` renders every fixture of every spec; each attribute it writes on a `tanrei-*` element must be one the web package's manifest lists. A spec prop's attribute comes from the manifest (`webAttribute` in `src/lib/repo.ts`): do not map a prop to its attribute by hand in the renderer. `test/vite-shim.mjs` gives Node what `fixtures.ts` and `repo.ts` ask of Vite (TypeScript, JSON and `?inline` imports, an eager `import.meta.glob` over JSON).
+- `test/defined.test.mjs` — where `:defined` stands in the site's own stylesheets (every `.css` under `src/`, every `<style>` of an `.astro` or `.mdx` file): a rule that asks `:defined` of one element and styles another names that other — a tag, a class or an attribute, never `*` or a `:not()` alone — because one such rule makes every element that is defined have its whole subtree styled again. `:where()` around the name keeps the rule's weight. The rule and its three questions are the web package's (`packages/web/src/styles/has.test.ts`); a change of the rule is made in both.
+
+- `test/adoption.test.mjs` — what the site draws with Tanrei's components, read from the sources: no component and no page writes a native control, disclosure, dialog or meter outside a code sample and outside the native parts a Tanrei element takes (the Table's sort button, the Accordion's `details`), a native table stands only inside the Table and a `dl` only inside the Description list; each adoption's element, its words in the six languages, its room before it is defined and its rule for a page without script; and the theme file dresses no part of the framework's. A place that is still hand-made is on the test's list with what it waits for: it leaves the list when it is adopted, and none may join it.
+- `test/dated.test.mjs` — `src/lib/dated.ts`: a stage's status from the repository's counts, a list's current item, a date in the page's language with its `datetime`, and dated entries newest first.
+- `test/page-head.test.mjs` — `src/lib/page-head.ts`: which pages' heads carry a component's facts (the page of a component that has a spec, in every language), and the page that was not found: which page it is, its words in every language, its front matter, and its copy in each language's folder (`src/lib/not-found-files.mjs`).
+- `test/file-tree.test.mjs` — `src/lib/file-tree.mjs`: what a Markdown list between `<FileTree>` tags becomes for Tanrei's tree view (names, notes, folders, parents written open, nothing that can be chosen), what is refused, and that the pages that draw a tree say the same tree in every language; and what the search index reads of a row, asked of the index's own program (`test/index-reads.mjs`): a name and the note after it are two words.
+- `test/listing.test.mjs` — `src/lib/listing.mjs` and `listingFacts`: the sidebar's pages are the specs' (none is written into the configuration), a default list leaves out exactly what a spec marks to be shown on request and the switched one holds all, the open page stays in the sidebar, a member says where it is used, a result of the search says its level, and the switch's words in the six languages.
+- `test/frame.test.mjs` — `src/components/frame/frame.ts`: the address of the first page of the page's language ends with a slash in the six languages (`homeHref`), the three places that link to it ask the function, and no source reads the framework's own `siteTitleHref`. An internal link is written with its trailing slash: the site is built as folders, and a host answers the address without it with a redirect.
+
+Never deploy or publish the site from an agent session.

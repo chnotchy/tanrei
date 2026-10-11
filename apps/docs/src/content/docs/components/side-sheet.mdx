@@ -1,0 +1,314 @@
+---
+title: Side sheet
+description: Holds supplementary content or a secondary task in a panel at the end edge, with a headline, an optional close button and optional actions, beside the content on a wide window or over it on a compact one.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="side-sheet" />
+
+:::note[A revised spec, not yet on every platform]
+This page describes the side sheet's actions and close button as the spec has them now, the same as the dialog's. The actions are a full-width row of tonal Buttons placed by their task: each is marked `confirming` or `dismissive`, and a modal sheet must offer at least one. The close button is tonal. A divider appears below the header while the content is scrolled, and the actions stay above the on-screen keyboard. The web component already does all of this, and so do the demos; it stays marked lagging above until the revision has been reviewed. SwiftUI, Compose, Flutter and React Native are lagging too: until they catch up they ship the previous revision, with a standard icon button to close, the actions in a row from the start edge in the order given, optional in both forms and 8 apart.
+:::
+
+<DemoFrame label="A standard sheet at the end of a row">
+  <div style="display: flex; inline-size: 40rem; max-inline-size: 100%; block-size: 22rem; overflow-x: auto">
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100); padding: 1rem">
+      <p style="margin: 0">Search results</p>
+      <tanrei-button variant="outlined" onclick="const sheet = document.getElementById('side-sheet-demo-standard'); sheet.open = !sheet.open">Filters</tanrei-button>
+    </div>
+    <tanrei-side-sheet id="side-sheet-demo-standard" open headline="Filters" closable close-label="Close filters" onclose="this.open = false">
+      <p>Show results from the last 30 days with every selected label.</p>
+      <tanrei-button slot="actions">Reset</tanrei-button>
+      <tanrei-button slot="actions" confirming>Apply</tanrei-button>
+    </tanrei-side-sheet>
+  </div>
+</DemoFrame>
+
+### Usage
+
+A side sheet is controlled, and it never closes itself. You show it by setting `open`. When the person asks it to go, the sheet emits `close` with the reason, and you set `open` back to false. On SwiftUI, where `open` is a binding, the sheet writes false to it and then calls `onClose`. If you leave `open` true after a drag, the sheet slides back.
+
+`close` carries one of five reasons, in the platform's casing:
+
+| Reason | What the person did | Which form |
+| --- | --- | --- |
+| `close` | Activated the close button | Standard and modal |
+| `scrim` | Pressed the dim area beside a modal sheet | Modal |
+| `escape` | Pressed Escape | Modal |
+| `back` | Used the platform's back: Android's back button or gesture, the iOS accessibility escape gesture | Modal |
+| `drag` | Dragged the sheet toward its edge past half its width, or flung it that way | Modal |
+
+A standard sheet ignores Escape, back and drags. Its close button is the person's only way to close it, unless your own control does.
+
+The sheet has two forms on `variant`, and one product usually uses both: standard where the window is wide enough, modal where it is not.
+
+- **Standard**, the default, is a layout region, not an overlay. While open it takes its width at the end of the row you place it in, and the content beside it resizes. It draws no scrim and never keeps focus.
+- **Modal** is a modal overlay. It slides over the content from the end edge with a scrim, keeps focus inside, and returns it when it closes.
+
+The sheet draws a header with the `headline` and, while `closable` is true, a close button named by `closeLabel`. Your content goes below the header, and Tanrei Buttons in the actions slot go along the bottom, each marked `confirming` (it completes the task: Apply, Save) or `dismissive` (it backs out: Cancel). The sheet places them by those marks, so you give them in any order, and it draws an action whose `variant` you did not set as tonal. A modal sheet must offer at least one action; a standard sheet may have none. An action never closes the sheet by itself: close it from the action's handler.
+
+Mark the element that should get focus when the sheet opens with the platform's own mark: `autofocus` on the web, `.defaultFocus` or an `@AccessibilityFocusState` on SwiftUI, a `FocusRequester` passed as `initialFocus` on Compose, `autofocus: true` on Flutter, and `initialFocusRef` on React Native. On SwiftUI, `.defaultFocus` moves keyboard focus, and an `@AccessibilityFocusState` binding passed as `initialFocus` moves VoiceOver. Without a mark, focus goes to the sheet itself, so its headline is read first.
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision of the side sheet, which has no `confirming` or `dismissive` marks and no tonal default, so their samples give each action the text variant and put the main action first, and show that revision until they catch up.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="filters" variant="outlined">Filters</tanrei-button>
+
+    <!-- Standard: the last item of a flex row. It is an <aside> named by the headline. -->
+    <div style="display: flex">
+      <main style="flex: 1">…</main>
+      <tanrei-side-sheet headline="Filters" closable close-label="Close filters">
+        <p>Show results from the last 30 days with every selected label.</p>
+        <!-- confirming goes at the end of the row. Without a variant, both are tonal. -->
+        <tanrei-button slot="actions">Reset</tanrei-button>
+        <tanrei-button slot="actions" confirming>Apply</tanrei-button>
+      </tanrei-side-sheet>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/side-sheet';
+      const sheet = document.querySelector('tanrei-side-sheet');
+      document.querySelector('#filters').addEventListener('click', () => (sheet.open = true));
+      // The sheet never closes itself. detail.reason is close, scrim, escape, back or drag.
+      sheet.addEventListener('close', (e) => (sheet.open = false));
+      // On a window narrower than 840px, the same sheet as a modal <dialog> over a scrim.
+      matchMedia('(width < 840px)').addEventListener('change', (e) => (sheet.variant = e.matches ? 'modal' : 'standard'));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, SideSheet } from '@tanrei/react';
+
+    <SideSheet
+      variant={wide ? 'standard' : 'modal'}
+      open={open}
+      headline="Filters"
+      closable
+      closeLabel="Close filters"
+      onClose={() => setOpen(false)}
+    >
+      <p>Show results from the last 30 days with every selected label.</p>
+      <Button slot="actions" onClick={reset}>Reset</Button>
+      <Button slot="actions" confirming onClick={apply}>Apply</Button>
+    </SideSheet>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Standard: a view at the end of an HStack. Closing writes false to the binding, then calls onClose.
+    HStack(spacing: 0) {
+        ResultsView()
+        TanreiSideSheet("Filters", isPresented: $filtersShown, closable: true, closeLabel: "Close filters") {
+            FilterForm()
+        } actions: {
+            TanreiButton("Apply", variant: .text) { apply() }
+            TanreiButton("Reset", variant: .text) { reset() }
+        }
+    }
+
+    // Modal: a modifier on the view it covers, presented as tanreiDialog is.
+    ResultsView()
+        .tanreiSideSheet("Filters", isPresented: $filtersShown, closable: true, closeLabel: "Close filters") { … }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiSideSheet
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiSideSheetVariant
+
+    // Standard: the last child of a Row. Modal: drawn in a Dialog window of its own.
+    // Set visible to false from onClose, which receives the reason.
+    Row {
+        ResultsScreen(Modifier.weight(1f))
+        TanreiSideSheet(
+            visible = filtersShown,
+            onClose = { filtersShown = false },
+            headline = "Filters",
+            variant = if (wide) TanreiSideSheetVariant.Standard else TanreiSideSheetVariant.Modal,
+            closable = true,
+            closeLabel = "Close filters",
+            actions = {
+                TanreiButton(text = "Apply", onClick = apply, variant = TanreiButtonVariant.Text)
+                TanreiButton(text = "Reset", onClick = reset, variant = TanreiButtonVariant.Text)
+            },
+        ) {
+            FilterForm()
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Standard: at the end of a Row. A modal sheet goes in a Stack over the page instead.
+    Row(
+      children: <Widget>[
+        const Expanded(child: ResultsPage()),
+        TanreiSideSheet(
+          open: filtersShown,
+          onClose: (TanreiSheetCloseReason reason) => setState(() => filtersShown = false),
+          headline: 'Filters',
+          showCloseButton: true,
+          closeButtonSemanticLabel: 'Close filters',
+          actions: <Widget>[
+            TanreiButton(variant: TanreiButtonVariant.text, onPressed: apply, child: const Text('Apply')),
+            TanreiButton(variant: TanreiButtonVariant.text, onPressed: reset, child: const Text('Reset')),
+          ],
+          child: const FilterForm(),
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { View } from 'react-native';
+    import { Button, SideSheet } from '@tanrei/react-native';
+
+    // Standard: at the end of a row. A modal sheet is presented in a transparent Modal.
+    <View style={{ flex: 1, flexDirection: 'row' }}>
+      <Results style={{ flex: 1 }} />
+      <SideSheet
+        variant={wide ? 'standard' : 'modal'}
+        open={open}
+        onClose={(reason) => setOpen(false)}
+        headline="Filters"
+        closable
+        closeLabel="Close filters"
+        actions={
+          <>
+            <Button variant="text" onPress={apply}>Apply</Button>
+            <Button variant="text" onPress={reset}>Reset</Button>
+          </>
+        }
+      >
+        <FilterForm />
+      </SideSheet>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="A modal sheet: open it with the button" plain>
+  <tanrei-button variant="outlined" onclick="document.getElementById('side-sheet-demo-modal').open = true">Filters</tanrei-button>
+  <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="Filters" closable close-label="Close filters" onclose="this.open = false">
+    <p>Show results from the last 30 days with every selected label.</p>
+    <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-side-sheet').open = false">Cancel</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-side-sheet').open = false">Apply</tanrei-button>
+  </tanrei-side-sheet>
+</DemoFrame>
+
+<ComponentSpecs name="side-sheet" />
+
+## Guidelines
+
+### When to use
+
+Use a side sheet for content that supports what the person is working on without replacing it: filters for a list, the details of a selected row, the properties of a selected object. On a wide window it sits beside the content, so the person can change a filter and see the results change. On a compact window the same sheet slides over the content, and the person finishes with it or dismisses it before going back.
+
+On a phone, a [bottom sheet](/components/bottom-sheet/) often fits better: it rises from the edge within reach of the thumb. Use a [dialog](/components/dialog/) for a decision the task cannot go on without, and a [navigation drawer](/components/navigation-drawer/), at the start edge, for the product's destinations.
+
+### Standard or modal
+
+| Variant | What it is | Use for |
+| --- | --- | --- |
+| Standard (default) | A layout region: a panel at the end of the row, set apart from the content by a hairline at its start edge. The content beside it resizes as it opens and closes. It draws no scrim, and it stays open while the person works in the content. | Wide windows, where the sheet can stay open beside the content. |
+| Modal | A modal overlay: a raised panel with its corners toward the content rounded, sliding in from the end edge over a scrim. Everything behind it is inert, and focus stays inside until it closes. | Compact windows, and tasks that must be finished or dismissed before the person goes on. |
+
+A standard sheet is part of the layout, like a standard navigation drawer or an app bar: focus leaving it never closes it, because closing a panel whenever Tab moved on would make it unusable from the keyboard. Its modal form is an overlay, and everything a modal overlay promises applies.
+
+A modal sheet is never as wide as a narrow window. It stays at least one touch target narrower, so a strip of scrim is always there to press. A design system may add variants.
+
+### Parts
+
+| Part | Set with | Notes |
+| --- | --- | --- |
+| Headline | `headline` | Required. What the sheet is about, such as "Filters". It is the sheet's accessible name and a heading, and it wraps rather than being cut. |
+| Close button | `closable`, `closeLabel` | A medium icon-only Button with the `close` glyph at the end of the header, tonal in the default system. The sheet draws it and wires it to `close`; you give it a label. |
+| Content | the default slot | Whatever the sheet is for. The sheet insets it, hands it a content color and scrolls it between the header and the actions. |
+| Actions | the actions slot | Tanrei Buttons, each marked `confirming` or `dismissive`, under a divider. Required in a modal sheet, optional in a standard one. The sheet places them and draws those without a variant as tonal; it never restyles them otherwise. |
+
+The actions share the sheet's inner width equally, with 16 between them. In a row, the dismissive action is at the start and the confirming one at the end, with unmarked actions between them in the order given. When a label would wrap in its share, they stack into a column with the confirming action on top. Focus and screen readers follow the placed order. Set one Button's `variant` to give that action another look; a product that wants another look for every sheet sets it once in its layer (`actions.variant`, and `actions.arrangement` for a compact row at the start, or `close-button.variant` for the close button).
+
+The header and the actions stay in place while the content scrolls. The divider above the actions is always drawn; a matching divider appears below the header while the content is scrolled away from its top. While the on-screen keyboard covers the bottom of the sheet, the actions rise to sit just above it, and the content scrolls in the room left. The sheet's color reaches under the system insets at its end, top and bottom, and its header, content and actions stay inside them. In a right-to-left layout the sheet sits at the left edge, mirrored.
+
+### Opening, focus and closing
+
+- **Opening a standard sheet.** It slides in at the end edge while the content beside it makes room. Focus moves to the element you marked, or to the sheet, so its headline is read first. A sheet that is open from the start moves no focus.
+- **Working beside a standard sheet.** Tab moves from the sheet into the content, and the sheet stays open. Escape, back and drags do nothing to it.
+- **Opening a modal sheet.** It slides in from the end edge while the scrim fades in over the rest of the window. Focus moves in as for the standard sheet and stays inside: Tab from the last focusable element goes to the first, and Shift+Tab from the first goes to the last. Everything behind it is inert. A modal sheet that is open from the start moves focus in too, because nothing behind it can take focus.
+- **Closing.** The sheet slides out to the end edge and, for a modal sheet, the scrim fades. If focus was inside, it returns to the element that had it when the sheet opened.
+- **Dragging a modal sheet.** It follows the finger once it passes the platform's touch slop. A release past half its width toward the end edge, or a fling that way, asks it to close with the reason `drag`. A shorter, slower drag slides it back. The fling and the slop are those the [bottom sheet](/components/bottom-sheet/) uses.
+- **Stacking.** A dialog, a menu or another modal sheet opened from a modal side sheet stacks above it. Escape dismisses only the topmost.
+- **No edge swipe to open.** The sheet opens from a button, never from a swipe at the screen's edge.
+- Where motion is reduced, a standard sheet opens and closes at once, and a modal sheet fades without sliding.
+
+### Do
+
+- Write a short headline that names the sheet's content: "Filters", "Details", "Properties".
+- Give a standard sheet a close button, unless a control of your own, such as a toggled Filters button, closes it.
+- Use the same content in both forms, so the product switches between them by window width alone.
+- Mark every action `confirming` or `dismissive`, and let the sheet place them.
+- Give a modal sheet an action that finishes the task, such as Apply, not only ways out.
+
+### Don't
+
+- Don't use a modal side sheet on a window wide enough for a standard one.
+- Don't put the product's navigation in a side sheet. Use a [navigation drawer](/components/navigation-drawer/).
+- Don't restyle the close button or the buttons in the actions slot beyond their `variant`, or order the actions by hand.
+- Don't open a side sheet the person did not ask for.
+
+## Accessibility
+
+<ComponentAccessibility name="side-sheet" />
+
+### What the component handles
+
+- A modal sheet is exposed as a modal dialog named by its headline. A standard sheet is a complementary region named by its headline, the aside landmark on the web.
+- The headline is exposed as a heading. The divider is hidden from assistive technology.
+- Opening moves focus to the element you marked, or to the sheet. Closing returns focus to the element that had it when the sheet opened. This holds for both forms.
+- In a modal sheet, Tab and Shift+Tab wrap inside it, everything behind it is inert and hidden from assistive technology, and Escape, back and a press on the scrim ask it to close. With stacked overlays, only the topmost is dismissed.
+- From a standard sheet, Tab moves on to the content, and the sheet stays open. It ignores Escape and back.
+- The close button is a Tanrei icon-only Button named by `closeLabel`, and the actions are Tanrei Buttons. Each meets the minimum target itself, and the 16 between stacked actions keeps each whole target.
+- Focus and screen readers meet the actions in the placed order, the same order a sighted person sees. The actions stay above the on-screen keyboard, so they stay reachable while a person types in the sheet.
+- Enter and Space activate the focused close button or action. The sheet adds no default action to Enter.
+- A drag is never the only way to close: the close button, Escape, back and the scrim do it too.
+- Larger text keeps the sheet's width, grows its header with the headline, and scrolls the content.
+- Debug builds report a sheet without a headline, a close button without a `closeLabel`, a modal sheet opened with no action, and a variant the design system does not have.
+
+Known platform gaps:
+
+- Web: in Firefox a modal sheet leaves at once instead of sliding out, as the dialog does. Touch drags and the real safe-area insets are not covered by a test.
+- SwiftUI has neither a dialog nor a complementary-region role: the sheet is a container named by its headline, with the modal trait while modal. SwiftUI cannot give keyboard focus to the sheet itself: without a mark, VoiceOver moves to the headline and keyboard focus stays where it was. Closing gives keyboard focus back to nothing; on iOS the modal cover gives VoiceOver back, and a standard sheet lets it go. A standard sheet is not clipped while it slides, so place it at the trailing edge of the window's row. On macOS a modal sheet covers only the view the modifier is attached to, so attach it to the window's root.
+- SwiftUI: plain text in the content takes the body font without its line height, so it is not placed exactly where the other platforms place it. Escape and the iOS escape gesture are wired but no test presses them.
+- Compose: while a modal sheet closes, its window keeps focus until the exit motion ends. Until it catches up, the actions are called in a `RowScope`, but the sheet lays them out itself, so `weight` and the alignments do nothing. Its drags are verified under Robolectric only, not on a device.
+- Flutter: a standard sheet is a named container, not a complementary landmark, because Flutter 3.32 has no such role. The sheet has not yet been checked with TalkBack and VoiceOver on a device.
+- React Native cannot tell which element had focus, so when the sheet closes, focus goes where the platform puts it, not back to the element that opened it. The Modal, the drag, the width animation and the insets are verified in Jest only, never on a device.
+- Under `m3-like`, the sheet keeps the default system's width and the hairline edge of the standard form: Material's values wait for the fidelity reference to cover the side sheet.
+
+### What you need to do
+
+- Give every sheet a `headline`. It is the sheet's name.
+- While `closable` is true, give the close button a `closeLabel` that says what it closes, such as "Close filters".
+- Close the sheet yourself: set `open` to false in answer to `close` (the `close` event on the web, `onClose` on Compose, Flutter and React Native). On SwiftUI the sheet writes false to the binding for you.
+- Give a standard sheet a way to close it: its close button, or a control of your own with a label.
+- Give a modal sheet at least one action, mark each one `confirming` or `dismissive`, and close the sheet from its handler.
+- Open the sheet from a visible button with its own label.
+- Mark initial focus where it helps, such as the first filter.

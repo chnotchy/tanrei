@@ -1,0 +1,316 @@
+---
+title: "侧边面板"
+description: "在末尾侧边缘的面板中放置补充内容或次要任务，带有标题、可选的关闭按钮和可选的操作；在宽窗口中位于内容旁边，在 compact 窗口中盖在内容之上。"
+translationOf: components/side-sheet.mdx
+sourceHash: 5882e5c9679bb13517baa13179ee2fb6e066f749
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="side-sheet" />
+
+:::note[规格已修订，尚未覆盖所有平台]
+本页描述的是规格当前所定的侧边面板的操作和关闭按钮，与对话框的相同。操作是一行占满宽度的 tonal 按钮，按各自的任务放置：每个都标记为 `confirming` 或 `dismissive`，模态面板必须至少提供一个。关闭按钮是 tonal 的。内容被滚动时，页眉下方出现一条分隔线；操作保持在屏幕键盘上方。Web 组件已经做到了这一切，演示也是如此；在修订通过评审之前，它在上表中仍标记为“待跟进”。SwiftUI、Compose、Flutter 和 React Native 同样待跟进：在跟上之前，它们提供上一版，用 standard 图标按钮来关闭，操作按给定顺序从起始侧边缘排成一行，在两种形态中都可以省略，彼此相距 8。
+:::
+
+<DemoFrame label="位于一行末尾的标准面板">
+  <div style="display: flex; inline-size: 40rem; max-inline-size: 100%; block-size: 22rem; overflow-x: auto">
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100); padding: 1rem">
+      <p style="margin: 0">搜索结果</p>
+      <tanrei-button variant="outlined" onclick="const sheet = document.getElementById('side-sheet-demo-standard'); sheet.open = !sheet.open">筛选</tanrei-button>
+    </div>
+    <tanrei-side-sheet id="side-sheet-demo-standard" open headline="筛选" closable close-label="关闭筛选" onclose="this.open = false">
+      <p>显示最近 30 天内带有全部所选标签的结果。</p>
+      <tanrei-button slot="actions">重置</tanrei-button>
+      <tanrei-button slot="actions" confirming>应用</tanrei-button>
+    </tanrei-side-sheet>
+  </div>
+</DemoFrame>
+
+### 用法
+
+侧边面板是受控组件，它从不自行关闭。把 `open` 设为 true 即可显示它。当用户要求它离开时，面板触发 `close` 并带上原因，由你把 `open` 设回 false。在 SwiftUI 上，`open` 是一个绑定，面板先把 false 写入绑定，再调用 `onClose`。如果拖动之后你让 `open` 保持为 true，面板会滑回原位。
+
+`close` 带有以下五种原因之一，大小写遵循各平台的写法：
+
+| 原因 | 用户做了什么 | 适用的形态 |
+| --- | --- | --- |
+| `close` | 激活了关闭按钮 | 标准和模态 |
+| `scrim` | 按下了模态面板旁边变暗的区域 | 模态 |
+| `escape` | 按下了 Escape | 模态 |
+| `back` | 使用了平台的返回操作：Android 的返回按钮或返回手势、iOS 的无障碍“退出”手势 | 模态 |
+| `drag` | 把面板朝它所在的边缘拖过了自身宽度的一半，或朝那个方向快速滑动 | 模态 |
+
+标准面板忽略 Escape、返回操作和拖动。除非你自己的控件能关闭它，否则关闭按钮是用户关闭它的唯一方式。
+
+面板通过 `variant` 提供两种形态，一个产品通常两种都用：窗口足够宽时用标准形态，不够宽时用模态形态。
+
+- **标准**是默认形态，是一个布局区域，而不是浮层。打开时，它在你放置它的那一行的末尾占据自己的宽度，旁边的内容随之调整大小。它不绘制遮罩，也从不把焦点留在里面。
+- **模态**形态是一个模态浮层。它带着遮罩从末尾侧边缘滑到内容之上，把焦点留在里面，并在关闭时把焦点交还。
+
+面板会绘制一个页眉，其中有 `headline`；当 `closable` 为 true 时，还有一个以 `closeLabel` 命名的关闭按钮。你的内容位于页眉下方；放在 actions 插槽中的 Tanrei 按钮沿底部排列，每个都标记为 `confirming`（完成任务：应用、保存）或 `dismissive`（退出任务：取消）。面板按这些标记来放置操作，所以你可以按任意顺序给出它们；没有设置 `variant` 的操作，面板会把它画成 tonal。模态面板必须至少提供一个操作；标准面板可以没有。操作本身从不关闭面板：请在操作的处理函数中关闭它。
+
+面板打开时应当获得焦点的元素，用平台自己的方式标记：在 Web 上是 `autofocus`，在 SwiftUI 上是 `.defaultFocus` 或 `@AccessibilityFocusState`，在 Compose 上是作为 `initialFocus` 传入的 `FocusRequester`，在 Flutter 上是 `autofocus: true`，在 React Native 上是 `initialFocusRef`。在 SwiftUI 上，`.defaultFocus` 移动键盘焦点，作为 `initialFocus` 传入的 `@AccessibilityFocusState` 绑定移动 VoiceOver 焦点。没有标记时，焦点落在面板本身，因此最先朗读的是它的标题。
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们仍提供侧边面板的上一版，其中没有 `confirming` 和 `dismissive` 标记，也没有默认的 tonal。因此它们的示例为每个操作指定 text 变体，并把主要操作放在最前面；在这些平台跟上之前，示例展示的都是那一版。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="filters" variant="outlined">筛选</tanrei-button>
+
+    <!-- 标准形态：flex 行的最后一项。它是一个以标题命名的 <aside>。 -->
+    <div style="display: flex">
+      <main style="flex: 1">…</main>
+      <tanrei-side-sheet headline="筛选" closable close-label="关闭筛选">
+        <p>显示最近 30 天内带有全部所选标签的结果。</p>
+        <!-- confirming 放在行的末尾侧。没有 variant 时，两者都是 tonal。 -->
+        <tanrei-button slot="actions">重置</tanrei-button>
+        <tanrei-button slot="actions" confirming>应用</tanrei-button>
+      </tanrei-side-sheet>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/side-sheet';
+      const sheet = document.querySelector('tanrei-side-sheet');
+      document.querySelector('#filters').addEventListener('click', () => (sheet.open = true));
+      // 面板从不自行关闭。detail.reason 是 close、scrim、escape、back 或 drag。
+      sheet.addEventListener('close', (e) => (sheet.open = false));
+      // 在窄于 840px 的窗口中，同一个面板变成遮罩之上的模态 <dialog>。
+      matchMedia('(width < 840px)').addEventListener('change', (e) => (sheet.variant = e.matches ? 'modal' : 'standard'));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, SideSheet } from '@tanrei/react';
+
+    <SideSheet
+      variant={wide ? 'standard' : 'modal'}
+      open={open}
+      headline="筛选"
+      closable
+      closeLabel="关闭筛选"
+      onClose={() => setOpen(false)}
+    >
+      <p>显示最近 30 天内带有全部所选标签的结果。</p>
+      <Button slot="actions" onClick={reset}>重置</Button>
+      <Button slot="actions" confirming onClick={apply}>应用</Button>
+    </SideSheet>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 标准形态：HStack 末尾的一个视图。关闭时先把 false 写入绑定，再调用 onClose。
+    HStack(spacing: 0) {
+        ResultsView()
+        TanreiSideSheet("筛选", isPresented: $filtersShown, closable: true, closeLabel: "关闭筛选") {
+            FilterForm()
+        } actions: {
+            TanreiButton("应用", variant: .text) { apply() }
+            TanreiButton("重置", variant: .text) { reset() }
+        }
+    }
+
+    // 模态形态：加在被它覆盖的视图上的修饰符，呈现方式与 tanreiDialog 相同。
+    ResultsView()
+        .tanreiSideSheet("筛选", isPresented: $filtersShown, closable: true, closeLabel: "关闭筛选") { … }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiSideSheet
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiSideSheetVariant
+
+    // 标准形态：Row 的最后一个子元素。模态形态：绘制在它自己的 Dialog 窗口中。
+    // 在 onClose 中把 visible 设为 false；onClose 会收到原因。
+    Row {
+        ResultsScreen(Modifier.weight(1f))
+        TanreiSideSheet(
+            visible = filtersShown,
+            onClose = { filtersShown = false },
+            headline = "筛选",
+            variant = if (wide) TanreiSideSheetVariant.Standard else TanreiSideSheetVariant.Modal,
+            closable = true,
+            closeLabel = "关闭筛选",
+            actions = {
+                TanreiButton(text = "应用", onClick = apply, variant = TanreiButtonVariant.Text)
+                TanreiButton(text = "重置", onClick = reset, variant = TanreiButtonVariant.Text)
+            },
+        ) {
+            FilterForm()
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 标准形态：位于 Row 的末尾。模态面板则放在覆盖页面的 Stack 中。
+    Row(
+      children: <Widget>[
+        const Expanded(child: ResultsPage()),
+        TanreiSideSheet(
+          open: filtersShown,
+          onClose: (TanreiSheetCloseReason reason) => setState(() => filtersShown = false),
+          headline: '筛选',
+          showCloseButton: true,
+          closeButtonSemanticLabel: '关闭筛选',
+          actions: <Widget>[
+            TanreiButton(variant: TanreiButtonVariant.text, onPressed: apply, child: const Text('应用')),
+            TanreiButton(variant: TanreiButtonVariant.text, onPressed: reset, child: const Text('重置')),
+          ],
+          child: const FilterForm(),
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { View } from 'react-native';
+    import { Button, SideSheet } from '@tanrei/react-native';
+
+    // 标准形态：位于一行的末尾。模态面板呈现在一个透明的 Modal 中。
+    <View style={{ flex: 1, flexDirection: 'row' }}>
+      <Results style={{ flex: 1 }} />
+      <SideSheet
+        variant={wide ? 'standard' : 'modal'}
+        open={open}
+        onClose={(reason) => setOpen(false)}
+        headline="筛选"
+        closable
+        closeLabel="关闭筛选"
+        actions={
+          <>
+            <Button variant="text" onPress={apply}>应用</Button>
+            <Button variant="text" onPress={reset}>重置</Button>
+          </>
+        }
+      >
+        <FilterForm />
+      </SideSheet>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="模态面板：用按钮打开它" plain>
+  <tanrei-button variant="outlined" onclick="document.getElementById('side-sheet-demo-modal').open = true">筛选</tanrei-button>
+  <tanrei-side-sheet id="side-sheet-demo-modal" variant="modal" headline="筛选" closable close-label="关闭筛选" onclose="this.open = false">
+    <p>显示最近 30 天内带有全部所选标签的结果。</p>
+    <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-side-sheet').open = false">取消</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-side-sheet').open = false">应用</tanrei-button>
+  </tanrei-side-sheet>
+</DemoFrame>
+
+<ComponentSpecs name="side-sheet" />
+
+## 指南
+
+### 何时使用
+
+侧边面板用于放置辅助用户当前工作、但不取而代之的内容：列表的筛选条件、所选行的详情、所选对象的属性。在宽窗口中，它位于内容旁边，用户可以一边更改筛选条件，一边看到结果随之变化。在 compact 窗口中，同一个面板滑到内容之上，用户用完它或把它关闭之后再回去。
+
+在手机上，[底部面板](/zh-cn/components/bottom-sheet/)往往更合适：它从拇指够得着的那条边升起。任务缺了它就无法继续的决定，使用[对话框](/zh-cn/components/dialog/)；产品的各个目的地，使用位于起始侧边缘的[导航抽屉](/zh-cn/components/navigation-drawer/)。
+
+### 标准还是模态
+
+| 变体 | 它是什么 | 用于 |
+| --- | --- | --- |
+| 标准（默认） | 布局区域：位于行末尾的面板，起始侧边缘有一条细线把它与内容隔开。它打开和关闭时，旁边的内容随之调整大小。它不绘制遮罩，用户在内容中操作时它保持打开。 | 宽窗口，面板可以在内容旁边保持打开。 |
+| 模态 | 模态浮层：一个抬升的面板，朝向内容一侧的角是圆角，从末尾侧边缘滑到遮罩之上。它背后的一切都是惰性（inert）的，焦点留在里面，直到它关闭。 | compact 窗口，以及用户继续之前必须完成或关闭的任务。 |
+
+标准面板是布局的一部分，就像标准导航抽屉或应用栏：焦点离开它从不会把它关闭，因为如果 Tab 一移走面板就关闭，它就无法用键盘操作了。它的模态形态是一个浮层，模态浮层所承诺的一切都适用。
+
+模态面板从不会与窄窗口一样宽。它至少比窗口窄一个触摸目标的宽度，所以总有一条遮罩可供按下。设计系统可以添加变体。
+
+### 部件
+
+| 部件 | 设置方式 | 说明 |
+| --- | --- | --- |
+| 标题 | `headline` | 必填。说明面板是关于什么的，例如“筛选”。它是面板的无障碍名称，也是一个标题（heading）；它会换行，而不是被截断。 |
+| 关闭按钮 | `closable`、`closeLabel` | 位于页眉末尾的中号纯图标按钮，带有 `close` 图标，在默认系统中是 tonal 的。面板负责绘制它，并把它连接到 `close`；你为它提供标签。 |
+| 内容 | 默认插槽 | 面板的用途所在。面板为它留出内边距，为它提供内容颜色，并让它在页眉和操作之间滚动。 |
+| 操作 | actions 插槽 | Tanrei 按钮，每个都标记为 `confirming` 或 `dismissive`，位于一条分隔线之下。在模态面板中必填，在标准面板中可选。面板负责放置它们，并把没有 variant 的操作画成 tonal；除此之外，它从不改变它们的样式。 |
+
+各操作平分面板的内部宽度，彼此相距 16。排成一行时，取消类操作在起始侧，确认类操作在末尾侧，没有标记的操作按给定顺序排在两者之间。当某个标签在自己那一份宽度内需要换行时，它们叠成一列，确认类操作在最上面。焦点和屏幕阅读器遵循放置后的顺序。设置某个按钮的 `variant`，就能让那个操作换一种外观；如果产品希望所有面板都换一种外观，应在产品的层里设置一次（`actions.variant`；如果要让操作在起始侧排成紧凑的一行，则设置 `actions.arrangement`；关闭按钮则用 `close-button.variant`）。
+
+内容滚动时，页眉和操作留在原位。操作上方的分隔线始终绘制；当内容从顶部滚开时，页眉下方会出现一条相同的分隔线。屏幕键盘遮住面板底部时，操作上移到紧贴键盘上方的位置，内容在剩下的空间里滚动。面板的颜色延伸到末尾侧、顶部和底部的系统边衬区之下，它的页眉、内容和操作则保持在边衬区之内。在从右到左的布局中，面板位于左边缘，呈镜像。
+
+### 打开、焦点与关闭
+
+- **打开标准面板。** 它在末尾侧边缘滑入，旁边的内容同时让出空间。焦点移到你标记的元素上，否则移到面板，因此最先朗读的是它的标题。一开始就处于打开状态的面板不移动焦点。
+- **在标准面板旁边操作。** Tab 从面板移到内容中，面板保持打开。Escape、返回操作和拖动对它不起作用。
+- **打开模态面板。** 它从末尾侧边缘滑入，同时遮罩在窗口的其余部分之上淡入。焦点像标准面板那样移入，并留在里面：在最后一个可聚焦的元素上按 Tab 会回到第一个，在第一个上按 Shift+Tab 会到最后一个。它背后的一切都是惰性的。一开始就处于打开状态的模态面板也会把焦点移进来，因为它背后的任何东西都无法获得焦点。
+- **关闭。** 面板向末尾侧边缘滑出；如果是模态面板，遮罩同时淡出。如果焦点原先在面板里面，它就交还给面板打开时持有焦点的那个元素。
+- **拖动模态面板。** 手指移动超过平台的触摸容差（touch slop）之后，面板开始跟随。朝末尾侧边缘拖过自身宽度的一半后松开，或朝那个方向快速滑动，会请求它以原因 `drag` 关闭。更短、更慢的拖动会让它滑回原位。快速滑动和触摸容差与[底部面板](/zh-cn/components/bottom-sheet/)所用的相同。
+- **叠放。** 从模态侧边面板中打开的对话框、菜单或另一个模态面板叠在它上面。Escape 只关闭最上面的那个。
+- **不能从边缘轻扫打开。** 面板由按钮打开，从不由屏幕边缘的轻扫打开。
+- 在减弱动态效果时，标准面板立即打开和关闭，模态面板只淡入淡出，不滑动。
+
+### 推荐
+
+- 写一个简短的标题，点明面板的内容：“筛选”“详情”“属性”。
+- 为标准面板提供关闭按钮，除非你自己的某个控件（例如一个可切换的“筛选”按钮）能关闭它。
+- 在两种形态中使用相同的内容，让产品只凭窗口宽度在两者之间切换。
+- 把每个操作都标记为 `confirming` 或 `dismissive`，让面板来放置它们。
+- 为模态面板提供一个完成任务的操作，例如“应用”，而不只是退出的途径。
+
+### 避免
+
+- 不要在宽度足以容纳标准面板的窗口中使用模态侧边面板。
+- 不要把产品的导航放进侧边面板。请使用[导航抽屉](/zh-cn/components/navigation-drawer/)。
+- 不要在 `variant` 之外另行改变关闭按钮或 actions 插槽中按钮的样式，也不要手动给操作排序。
+- 不要打开用户没有要求的侧边面板。
+
+## 无障碍
+
+<ComponentAccessibility name="side-sheet" />
+
+### 组件负责的部分
+
+- 模态面板以模态对话框的身份提供给辅助技术，以标题为名称。标准面板是一个以标题为名称的补充区域（complementary），在 Web 上是 aside 地标。
+- 标题以标题（heading）的身份提供给辅助技术。分隔线对辅助技术隐藏。
+- 打开时，焦点移到你标记的元素上，否则移到面板。关闭时，焦点交还给面板打开时持有焦点的那个元素。两种形态都是如此。
+- 在模态面板中，Tab 和 Shift+Tab 在面板内循环，它背后的一切都是惰性的，并对辅助技术隐藏；Escape、返回操作以及在遮罩上的按下会请求它关闭。浮层叠放时，只关闭最上面的那个。
+- 从标准面板出发，Tab 会继续移到内容上，面板保持打开。它忽略 Escape 和返回操作。
+- 关闭按钮是一个以 `closeLabel` 命名的 Tanrei 纯图标按钮，操作是 Tanrei 按钮。它们各自都满足最小目标；叠成一列的操作之间相距 16，让每个目标保持完整。
+- 焦点和屏幕阅读器按放置后的顺序遇到各个操作，与视力正常的用户看到的顺序相同。操作保持在屏幕键盘上方，所以用户在面板中输入时仍然够得着它们。
+- Enter 和 Space 激活当前聚焦的关闭按钮或操作。面板不为 Enter 添加默认操作。
+- 拖动从来不是唯一的关闭方式：关闭按钮、Escape、返回操作和遮罩也都可以。
+- 文本变大时，面板的宽度不变，页眉随标题一起变高，内容可以滚动。
+- 调试构建会报告没有标题的面板、没有 `closeLabel` 的关闭按钮、打开时没有任何操作的模态面板，以及设计系统中不存在的变体。
+
+已知的平台差距：
+
+- Web：在 Firefox 中，模态面板立即离开，而不是滑出，与对话框的情况相同。触摸拖动和真实的安全区域边衬区尚未被测试覆盖。
+- SwiftUI 既没有对话框角色，也没有补充区域角色：面板是一个以标题为名称的容器，处于模态时带有模态特征。SwiftUI 无法把键盘焦点交给面板本身：没有标记时，VoiceOver 移到标题上，键盘焦点留在原处。关闭时，键盘焦点不会交还给任何元素；在 iOS 上，模态覆盖会把 VoiceOver 焦点交还，标准面板则不会。标准面板在滑动时不会被裁剪，所以请把它放在窗口那一行的末尾侧边缘。在 macOS 上，模态面板只覆盖修饰符所附着的视图，所以请把它附着在窗口的根视图上。
+- SwiftUI：内容中的纯文本采用正文字体，但不带它的行高，所以它的位置与其他平台并不完全一致。Escape 和 iOS 的“退出”手势已经接好，但没有测试实际按下它们。
+- Compose：模态面板关闭的过程中，它的窗口一直持有焦点，直到退出动效结束。在它跟上之前，操作是在 `RowScope` 中调用的，但面板自己为它们布局，所以 `weight` 和各种对齐方式都不起作用。它的拖动只在 Robolectric 下验证过，没有在设备上验证。
+- Flutter：标准面板是一个有名称的容器，而不是补充区域地标，因为 Flutter 3.32 没有这样的角色。面板尚未在设备上用 TalkBack 和 VoiceOver 检查过。
+- React Native 无法得知先前是哪个元素持有焦点，所以面板关闭时，焦点落在平台安排的位置，而不是回到打开它的元素。Modal、拖动、宽度动画和边衬区都只在 Jest 中验证过，从未在设备上验证。
+- 在 `m3-like` 下，面板保留默认系统的宽度和标准形态那道细线画出的边线：要等保真度参考覆盖到侧边面板之后，才会采用 Material 的值。
+
+### 需要你做的事
+
+- 为每个面板提供 `headline`。它是面板的名称。
+- 当 `closable` 为 true 时，为关闭按钮提供 `closeLabel`，说明它关闭的是什么，例如“关闭筛选”。
+- 自己关闭面板：在响应 `close` 时（Web 上的 `close` 事件，Compose、Flutter 和 React Native 上的 `onClose`）把 `open` 设为 false。在 SwiftUI 上，面板会替你把 false 写入绑定。
+- 为标准面板提供关闭它的方式：它的关闭按钮，或你自己的一个带标签的控件。
+- 为模态面板提供至少一个操作，把每个操作标记为 `confirming` 或 `dismissive`，并在操作的处理函数中关闭面板。
+- 用一个看得见的、有自己标签的按钮来打开面板。
+- 在有帮助的地方标记初始焦点，例如第一个筛选条件。

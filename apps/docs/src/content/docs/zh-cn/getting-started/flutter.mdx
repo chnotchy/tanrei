@@ -1,0 +1,80 @@
+---
+title: Flutter
+description: 把 Tanrei 添加到 Flutter 应用中。
+translationOf: getting-started/flutter.mdx
+sourceHash: 6acea5bb31fd86ae29f31dcab38bc245008b152b
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`tanrei` 包是纯 Dart 实现。它提供 widget、可继承的 `TanreiTheme` 和生成的令牌常量，并且不依赖 `MaterialApp` 或 `CupertinoApp`；它在这两者之中都能工作，在普通的 `WidgetsApp` 中也可以。
+
+<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+
+## 安装
+
+### 从源码
+
+<Callout type="caution" title="目前无法构建">
+  Flutter 包尚未跟上当前的规格和令牌：它的源码是针对较早版本的生成令牌代码编写的，无法与现在的令牌代码一起编译。在它跟上之前，它的 CI 处于暂停状态，[状态页面](/zh-cn/status/)把它的组件标记为“待跟进”。下面的步骤说明如何把它添加到应用中；等这个包跟上之后，这些步骤就能用了。
+</Callout>
+
+把仓库克隆到你的应用旁边，再按路径依赖这个包：
+
+```sh
+flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
+```
+
+使用 `flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"`，就会跟随仓库，而不是本地的克隆。
+
+### 首次发布之后
+
+```sh
+flutter pub add tanrei
+```
+
+## 使用
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:tanrei/tanrei.dart';
+
+class DeployButton extends StatelessWidget {
+  const DeployButton({super.key, required this.isDeploying, required this.onDeploy});
+
+  final bool isDeploying;
+  final VoidCallback onDeploy;
+
+  @override
+  Widget build(BuildContext context) {
+    return TanreiTheme(
+      data: TanreiThemeData.platform(context),
+      child: TanreiButton(
+        variant: TanreiButtonVariant.filled,
+        onPressed: isDeploying ? null : onDeploy,
+        child: const Text('部署'),
+      ),
+    );
+  }
+}
+```
+
+没有 `disabled` 标志。与 Flutter 自带的按钮一样，给 `onPressed` 传入 `null` 就会禁用按钮。
+
+## 主题与对比度
+
+`TanreiThemeData.platform(context)` 从 `MediaQuery` 读取亮度和高对比度标志。要固定它们，可以从一个常量出发再复制：
+
+```dart
+TanreiTheme(
+  data: TanreiThemeData.dark.copyWith(contrast: TanreiContrast.high),
+  child: const App(),
+)
+```
+
+请把 `TanreiTheme` 放在导航器之上，让每个路由都能访问到它。
+
+## 文本样式
+
+`TanreiTheme.of(context).system.typescale` 以 `TanreiTextStyle` 令牌的形式保存着按层级命名的十六个文本样式：章节标题用 `heading2`，连续文本用 `body`，控件用 `label`。`theme.textStyle(system.typescale.heading2)`（或 `token.toTextStyle()`）可以把它转换为 Flutter 的 `TextStyle`。`theme.textStyle(token, emphasized: true)` 是同一样式在其字重上加上该系列强调级差（`typescale.emphasis`）后的结果，手写的等价形式是 `token.emphasized(system.typescale.emphasis)`；强调是一种字重，而不是另一个角色。角色及其与元素的对应关系参见[字体排印](/zh-cn/foundations/typography/)。

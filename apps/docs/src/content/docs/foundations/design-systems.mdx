@@ -1,0 +1,142 @@
+---
+title: Design systems and customization
+description: One vocabulary, many design systems. Change a dial, declare a palette, re-point a token — and every platform follows in one commit.
+---
+
+import Callout from '../../../components/Callout.astro';
+import SystemGallery from '../../../components/SystemGallery.astro';
+
+Tanrei is built so that it can reproduce any design system — exactly, not approximately — while its own vocabulary stays small. Two rules make that possible: **design systems differ in values first**, and **what a value cannot express, a layer adds.**
+
+## What is a core token, and what is not
+
+Tanrei's core vocabulary is every state that *one design system can take inside one product*. That gives a test for every proposed token — the **one-product test**:
+
+- **It is a token** if a single product may need the distinction, by meaning or by place. `focus-ring` is separate from `primary` because a product may want a saturated brand color and a calm focus ring. That the default system gives them related values is a coincidence, not a reason to merge them. Button has sizes because one product uses several.
+- **It is not a token** if only one design system, or one unusual product, has it. Material Design 3's `tertiary` is a declared palette in the preset that reproduces it, and its `primary-fixed` roles are extensions of that preset — not slots everyone carries. Twenty button sizes for one exotic product are not core vocabulary either; that product adds them to its own layer.
+
+If some trait of a design system cannot be reproduced even so — a backdrop material, a text-size table of its own — that is a defect in Tanrei, filed in the mimicry-gaps registry (`docs/governance/mimicry-gaps.json` in the repository).
+
+## Dials: one change, everywhere
+
+A design system should feel right by default and follow you when you change one thing. Seven numeric **dials** sit under everything:
+
+| Dial | Default | Moves |
+|---|---|---|
+| `dial.type.base` | 16px | every text size |
+| `dial.type.contrast` | 1 | how far headings stand apart from body text |
+| `dial.space.unit` | 8px | every distance |
+| `dial.size.unit` | 4px | control heights, icon sizes, hit targets |
+| `dial.shape.unit` | 2px | every corner |
+| `dial.stroke.unit` | 1px | borders, rings, the focus indicator |
+| `dial.motion.unit` | 50ms | every duration |
+
+Each token is one of three kinds:
+
+- **derived** — a small rule, usually a coefficient on a dial: `display` is `type.base × 3`, `space175` is `space.unit × 1.75`. Real type ramps are not geometric, so every token has its *own* coefficient;
+- **fixed** — a literal with a stated reason, exempt from the dials (`corner.full`, an easing curve, a legally mandated footnote size);
+- **alias** — a reference that can be re-pointed (`button.container.gap` → `space100`).
+
+On the web the dials also work live: derived tokens are emitted as `calc()` expressions, so setting `--tanrei-dial-type-base` on any element rescales everything inside it. A test evaluates every derived token in a real browser under several dial settings and requires it to equal the build's result.
+
+## A design system is a layer
+
+A design system is a small JSON file that *extends* another. Mostly it changes values; where it must, it [adds to the vocabulary](#adding-to-the-vocabulary).
+
+```json
+{
+  "id": "acme",
+  "extends": "tanrei",
+  "palettes": {
+    "brand":   { "description": "Acme red is fixed by brand guidelines.", "source": { "seed": "#e60012" }, "roles": "intent" },
+    "correct": { "description": "A quiz marks right answers — neither success nor primary.", "source": { "seed": "#0f766e" }, "roles": "intent" }
+  },
+  "tokens": {
+    "tanrei.dial.type.base": { "$value": { "value": 17, "unit": "px" }, "reason": "Our audience reads at arm's length." },
+    "tanrei.comp.button.container.padding-inline-start.medium": { "scale": 2 },
+    "tanrei.comp.button.container.gap.medium": { "$value": "{tanrei.sys.space.space50}" },
+    "tanrei.sys.typescale.label-small": { "$value": { "fontSize": { "value": 11, "unit": "px" } }, "reason": "Legal footnote size is contractual." }
+  }
+}
+```
+
+| You want | You write |
+|---|---|
+| Everything a bit larger | set a dial |
+| Button padding twice the default — and still following the spacing dial | `"scale": 2` |
+| This token to use a different step | re-point the alias |
+| This one value to stay put whatever the dials do | pin `$value` with a `reason` |
+| A brand or domain color with its own `on-` and `-container` roles, contrast-checked | declare a palette with `"roles": "intent"` |
+
+Because every platform's code is generated from the same resolved system, one pull request changes the web, SwiftUI, Compose, Flutter and React Native together.
+
+## Adding to the vocabulary
+
+Values are not always enough. A reference system has button sizes the core does not; your product has a rating component of its own. So a layer can also **extend** the vocabulary — under `vocabulary`, always with a `rationale`, and only by adding:
+
+```json
+"vocabulary": {
+  "tanrei.sys.space.space1200":        { "$type": "dimension", "rationale": "Hero sections need a 96px rhythm step.",
+                                          "derive": { "fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 12 } },
+  "tanrei.comp.button.size.3x":        { "from": "large", "scale": 1.5, "rationale": "A hero call-to-action on the landing screen." },
+  "tanrei.comp.button.variant.danger": { "from": "filled", "rationale": "Destructive confirmation is a distinct emphasis here." },
+  "acme.comp.rating.star.size":        { "$type": "dimension", "rationale": "The rating component's star.",
+                                          "derive": { "fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 5 } }
+}
+```
+
+| You add | What happens |
+|---|---|
+| **A step in a series** — a spacing step, a corner, a text role, a color role with the role drawn on it (`onRole`) | It sits next to its neighbours, follows the same dial, and is contrast-checked like a core pair |
+| **A value on a component axis** — a Button size or variant | One line is enough. A size clones every member of the axis (height, paddings, label style, icon) from another size and scales it, still following the dials. A variant clones its resting colors; **the system's pattern rules value its hovered, focused, pressed and disabled tokens for you** |
+| **Your own tokens**, in your layer's namespace (`acme.…`) | For your own components. They may reference any `tanrei.*` token, follow dials and schemes, and become `--acme-…` on the web and a typed object on every other platform |
+
+`vocabulary` says that something *exists*; `tokens` and `rules` give it a *value*, exactly as for core tokens — so a child layer changes an extension like anything else. Extensions are inherited, never remove or retype the core, and cannot add interaction states (those belong to the platform). Every generated bundle lists them with who declared them and why.
+
+Components accept what you add. `<tanrei-button size="3x" variant="danger">` works on the web, and the native packages take the same keys; a value the active design system does not have renders as the default. **A system that adds nothing pays nothing**: its generated code does not mention extensions at all.
+
+This is how two ideals hold together: Tanrei's own vocabulary stays small and plainly named, *and* any design system can be matched exactly — because nothing has to be added to the core for someone else's sake.
+
+## How a state looks is a value too
+
+Components never compute hover or pressed appearance. Each state has its own tokens (`button.filled.hovered.container.color`, …), and a system's **pattern rules** value them:
+
+```json
+{ "match": "tanrei.comp.*.*.hovered.container.color",
+  "derive": { "fn": "mix", "base": "{tanrei.comp.$1.$2.container.color}", "with": "{tanrei.comp.$1.$2.label.color}", "amount": "{tanrei.sys.state.hover-state-layer-opacity}" } }
+```
+
+That is Tanrei's state layer. A system with explicit per-state colors writes aliases instead; one with no hover aliases the state to its resting value; one that dims on press sets `pressed.opacity`. Same vocabulary, different values.
+
+## Choices of kind
+
+A few differences are not amounts at all: a press answered by a ripple or by dimming the control, keyboard focus shown as a ring or as a glow. These are two tokens under `sys.behavior` (`pressed-feedback`, `focus-style`), each with a short closed list of names, and a layer picks one like any other value. How a corner curves is an amount, not a choice: `sys.shape.corner-smoothing` on [Shape](/foundations/shape/#corner-smoothing). [Behaviour](/foundations/behaviour/) describes them. The icon set and the typefaces are a layer's to change as well: see [Icons](/foundations/icons/#an-icon-set-per-design-system) and [Typography](/foundations/typography/#typefaces-per-design-system).
+
+## The systems that ship
+
+The same `<tanrei-button>`, the same markup. `m3-like` and `cupertino` are there to prove the mechanism against two systems with opposite characters, and as starting points for your own layer.
+
+**Exactness is measured, not claimed.** `m3-like` carries a fidelity map to the published tokens of material-web (Apache-2.0): every color role, every text style and every Button token of the reference must be equal, covered by another token, or listed with the mimicry gap that explains it. The number is shown with the preset below — equal out of the tokens that are not covered by another one, read from `tokens/generated/<id>/fidelity.json`. It is called "-like" for trademark reasons — not because it approximates.
+
+<SystemGallery />
+
+On the web a preset is one extra stylesheet, scoped to an attribute, so systems can even sit side by side:
+
+```js
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/cupertino.css';
+```
+
+```html
+<body data-tanrei-system="cupertino">
+```
+
+What neither values nor choices of kind can express yet — backdrop materials, uppercase labels as a matter of style — is listed as a defect of Tanrei in `docs/governance/mimicry-gaps.json`, not hidden.
+
+## Sharing a system
+
+Building a system produces a self-contained **DTCG 2025.10 bundle** — plain, fully valued token files with a standard resolver — so any tool that reads design tokens can consume it without Tanrei. The layer files that produced it travel inside the bundle, so Tanrei (or an AI agent) can rebuild or modify it.
+
+<Callout type="caution" title="Accessibility">
+  Contrast thresholds are constants nobody can change. In the default system a violation fails the build. In a product layer a violation is a **warning** — printed at build time and written into the generated artifacts, never silent. A preset that imitates another system is held to fidelity to that system instead: Tanrei's accessibility criteria do not apply to it, in standard, medium or high contrast, and the contrast ratios the build measures there are recorded as information, not as warnings. A functional failure — a control that cannot be operated, a missing name or state — is a defect in every system, an imitation preset included.
+</Callout>

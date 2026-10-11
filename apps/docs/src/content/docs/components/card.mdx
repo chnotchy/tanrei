@@ -1,0 +1,283 @@
+---
+title: Card
+description: Sets a group of related content apart from its background, and can be one action that opens what it shows or one link to it.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="card" />
+
+<DemoFrame label="Variants">
+  <tanrei-card style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Outlined</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Revenue grew 12% over the previous quarter.</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Filled</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Revenue grew 12% over the previous quarter.</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Elevated</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Revenue grew 12% over the previous quarter.</div>
+  </tanrei-card>
+</DemoFrame>
+
+A card comes in three forms. A plain card is a container: its content keeps its own semantics and may hold buttons and links. An interactive card is one button. A link card, a card with `href`, is one link. Use a link card when activating the card takes the person to another page or address, and an interactive card when something happens where they are.
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they ship the plain and the interactive card, and no link card yet. Their samples show what they ship.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- A card that is not an action: its content keeps its own semantics and may hold buttons. -->
+    <tanrei-card>
+      <h3 class="tanrei-text-heading-5">Quarterly report</h3>
+      <p class="tanrei-text-body">Revenue grew 12% over the previous quarter.</p>
+      <tanrei-button variant="text">Share</tanrei-button>
+    </tanrei-card>
+
+    <!-- One action: the whole card is a button, named by label. Nothing interactive inside. -->
+    <tanrei-card variant="elevated" interactive label="Quarterly report">…</tanrei-card>
+
+    <!-- One link: with href the whole card is an anchor, named by label. Nothing interactive inside. -->
+    <tanrei-card href="/reports/q3/" label="Quarterly report">…</tanrei-card>
+
+    <!-- A link that opens a new tab says so in your words. The card draws no mark: put the glyph in your content. -->
+    <tanrei-card href="https://example.com/reports/q3.pdf" target="new" target-label="opens in a new tab" label="Quarterly report">
+      <h3 class="tanrei-text-heading-5">Quarterly report</h3>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </tanrei-card>
+
+    <!-- inset defaults to true, so its attribute is the inverse: flush lets a photo reach the edges. -->
+    <tanrei-card flush>
+      <img src="cover.jpg" alt="" />
+      <div style="padding: var(--tanrei-comp-card-container-padding)">…</div>
+    </tanrei-card>
+
+    <script type="module">
+      import '@tanrei/web/components/card';
+      document.querySelector('[interactive]').addEventListener('click', openReport);
+
+      // A link card fires click before the browser follows the address. A client-side router cancels it.
+      document.querySelector('tanrei-card[href]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push(event.currentTarget.href);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Card } from '@tanrei/react';
+
+    <Card variant="filled">
+      <h3 className="tanrei-text-heading-5">Quarterly report</h3>
+      <p className="tanrei-text-body">Revenue grew 12% over the previous quarter.</p>
+    </Card>
+    <Card interactive label="Quarterly report" onClick={openReport}>…</Card>
+    <Card href="/reports/q3/" label="Quarterly report">…</Card>
+    <Card href="https://example.com/reports/q3.pdf" target="new" targetLabel="opens in a new tab" label="Quarterly report">…</Card>
+    <Card inset={false}>…</Card>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCard(variant: .filled) {
+        Text("Quarterly report")
+        Text("Revenue grew 12% over the previous quarter.")
+    }
+
+    // The initializer that takes action: is the interactive card.
+    TanreiCard(label: Text("Quarterly report"), action: openReport) { ReportSummary() }
+        .disabled(isLoading)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiCard
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiCardVariant
+
+    // Without onClick the card is not an action, so it may hold buttons.
+    TanreiCard(variant = TanreiCardVariant.Filled) {
+        TanreiText("Quarterly report")
+        TanreiText("Revenue grew 12% over the previous quarter.")
+        TanreiButton(text = "Share", onClick = ::share)
+    }
+
+    // The overload with onClick is one action. enabled = false disables it.
+    TanreiCard(onClick = ::openReport, contentDescription = "Quarterly report") {
+        TanreiText("Quarterly report")
+        TanreiText("Revenue grew 12% over the previous quarter.")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCard(
+      variant: TanreiCardVariant.filled,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const Text('Quarterly report'),
+          const Text('Revenue grew 12% over the previous quarter.'),
+          TanreiButton(onPressed: share, child: const Text('Share')),
+        ],
+      ),
+    );
+
+    // A non-null onTap makes the whole card one action; enabled: false disables it.
+    TanreiCard(
+      onTap: openReport,
+      semanticLabel: 'Quarterly report',
+      child: const ReportSummary(),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Text } from 'react-native';
+    import { Card, useContentColor } from '@tanrei/react-native';
+
+    // A plain string is drawn in the body style and the card's content color.
+    <Card variant="filled">Revenue grew 12% over the previous quarter.</Card>
+
+    // With onPress the card is one action, named by its heading.
+    <Card accessibilityLabel="Quarterly report" onPress={openReport}>
+      <ReportSummary />
+    </Card>
+
+    // Your own text reads the card's content color: React Native has no inherited text color.
+    function ReportSummary() {
+      const color = useContentColor();
+      return <Text style={{ color }}>Revenue grew 12% over the previous quarter.</Text>;
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Flush, interactive and disabled" plain>
+  <tanrei-card flush style="width: 15rem">
+    <div style="height: 5rem; background: var(--tanrei-sys-color-primary-container)"></div>
+    <div style="padding: var(--tanrei-comp-card-container-padding); font: var(--tanrei-sys-typescale-body-font)">Flush: the content reaches the edges.</div>
+  </tanrei-card>
+  <tanrei-card interactive label="Quarterly report" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Quarterly report</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Interactive: hover it, tab to it, press it.</div>
+  </tanrei-card>
+  <tanrei-card variant="elevated" interactive disabled label="Quarterly report" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Quarterly report</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Interactive and disabled.</div>
+  </tanrei-card>
+</DemoFrame>
+
+<DemoFrame label="Link cards" plain>
+  <tanrei-card href="/components/button/" label="Button" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Button</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">A link card. Enter follows it, and the browser's link menu works on it.</div>
+  </tanrei-card>
+  <tanrei-card variant="filled" href="/components/list/" target="new" target-label="opens in a new tab" label="List" style="width: 15rem">
+    <div style="display: flex; align-items: center; gap: var(--tanrei-sys-space-space200)">
+      <div style="flex: 1; font: var(--tanrei-sys-typescale-heading-5-font)">List</div>
+      <span class="tanrei-icon" aria-hidden="true">open_in_new</span>
+    </div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Opens a new tab. The glyph is part of the content.</div>
+  </tanrei-card>
+  <tanrei-card href="/components/button/" disabled label="Button" style="width: 15rem">
+    <div style="font: var(--tanrei-sys-typescale-heading-5-font)">Button</div>
+    <div style="font: var(--tanrei-sys-typescale-body-font)">A disabled link card: nothing to follow.</div>
+  </tanrei-card>
+</DemoFrame>
+
+<ComponentSpecs name="card" />
+
+## Guidelines
+
+### When to use
+
+Use a card to group content about one subject, such as a report, a person, a product or a setting, and set it apart from what is around it. The card only insets, clips and colors its content. You lay the content out with Tanrei's text styles (`heading-5` for a card's title) and components.
+
+Make the whole card interactive when it is one action that opens what it shows. If it needs several actions, keep it non-interactive and put buttons inside.
+
+### A card with a destination is a link
+
+A control with a destination is a link, and that holds for a card as well. When activating the card only takes the person to another page, give it `href` instead of handling a click on an interactive card. The card is then a real link, on the web an anchor around its content. People can open it in a new tab, copy its address and see where it leads before they follow it, and assistive technology announces a link, not a button. The cards that lead from one page of this site to another are link cards.
+
+- A link card looks exactly like an interactive card in every state. There is no link look and no visited state.
+- `href` wins over `interactive`: a card with both is a link.
+- Enter follows a link card. Space does not: it does what it does on any link, which on the web is to scroll the page.
+- `click` fires first, then the destination opens. Cancel the click to take the navigation yourself, as a client-side router does.
+- `target` is `same` (the default) or `new`. A link that opens a new tab or window needs `targetLabel`, the words read after its name, such as "opens in a new tab". Tanrei ships no words of its own. The card draws no mark for it, because the content is yours: put the `open_in_new` glyph in the content if you want to show one.
+- A disabled link card cannot be followed by any means and leaves the focus order.
+- An `href` of only white space is no destination. A `javascript:` address, or one that cannot be read as an address, is refused and reported in debug builds, and the card is what it would be without it.
+
+When a card needs a destination and its own actions as well, keep it plain and make its heading a link, or put a [Button](/components/button/) with `href` inside.
+
+### Choosing a variant
+
+Choose by the background, not by importance.
+
+| Variant | Separates by | Use for |
+| --- | --- | --- |
+| Outlined (default) | An edge | Most cards, and cards on a surface of the same tone as a filled card. |
+| Filled | A tone | Cards on a plain surface, where the tone alone marks the group. A filled card disappears on a surface of the same tone. |
+| Elevated | Depth | Content that sits above the page, such as a pinned or draggable item. |
+
+### Do
+
+- Name an interactive card or a link card with `label`, normally the text of its heading.
+- Use one variant for a set of cards shown together.
+- Use `inset` false (`flush` on the web) for media that bleeds to the edges, and pad the text below it yourself with the card's padding token.
+
+### Don't
+
+- Don't put a button, link, field, toggle or anything else focusable in an interactive card or a link card. Assistive technology cannot reach it, and a press on it would also activate the card.
+- Don't navigate from the click handler of an interactive card. A card that goes somewhere takes `href`.
+- Don't disable a plain card. `disabled` is ignored there, because there is no action or link to disable.
+- Don't use elevation to rank cards by importance.
+
+## Accessibility
+
+<ComponentAccessibility name="card" />
+
+### What the component handles
+
+- A card that is not interactive has no role and leaves its content's semantics alone. With a `label` it is a group named by it.
+- An interactive card is one focusable element with the button role, and exposes its disabled state. Its name is `label`, or, without one, its whole content read as one string. Debug builds report a missing label.
+- A link card is one focusable element with the link role, named the same way. While `target` is `new`, `targetLabel` is its description, read after its name and role. A disabled link card keeps the link role, exposes the disabled state and has no destination.
+- Enter and Space activate an interactive card, and Enter alone a link card. The hit area meets the minimum target, and the focus indicator shows for keyboard focus only.
+- It grows with its content, so large text never clips.
+- On the web, debug builds report an interactive element inside an interactive card or a link card on every slot change, and a link card that opens a new tab without a `targetLabel`.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native have no link card yet. There, a card that goes somewhere is still an interactive card that navigates from its action.
+- Web: an interactive element added later, deeper inside an element already in the card, is not reported.
+- Web: a card that is not interactive never produces a click of its own, but a click on its content is an ordinary DOM click and bubbles through the card.
+- SwiftUI, Compose, Flutter and React Native cannot detect a nested interactive element, so they do not check for one. The rule is yours to keep.
+- React Native: a non-interactive card with a label is a group, but iOS maps that role to no trait. Whether VoiceOver announces the group's name has not been verified on a device.
+- Compose: activation by Enter and Space through the platform's key handling is tested under Robolectric only, not yet on a device.
+- React Native has no inherited text color. The card draws a plain string in its content color; your own text reads it with `useContentColor()`.
+- SwiftUI: an interactive card smaller than the minimum target keeps its visible size, but takes up the target's size in the layout.
+
+### What you need to do
+
+- Give an interactive card or a link card a `label`. Without it, the whole content is read as one long name.
+- Give a link card that opens a new tab or window a `targetLabel` in the language of your product.
+- Keep an interactive card and a link card free of other controls. When a card needs its own buttons or links, keep it plain and let one of them be its main action or destination.
+- Give headings, images and other content inside a non-interactive card their own semantics: alt text, heading levels. The card does not add any.

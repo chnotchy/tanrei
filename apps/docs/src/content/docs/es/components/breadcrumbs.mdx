@@ -1,0 +1,196 @@
+---
+title: Ruta de navegación
+description: Dónde está una página dentro de una jerarquía de páginas, y el camino de vuelta hacia arriba. Los niveles superiores son enlaces, en orden desde el más alto, y la propia página es el último.
+translationOf: components/breadcrumbs.mdx
+sourceHash: 05f7e32b5c5664f5cdf25c871df7f7a46deee3f0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="breadcrumbs" />
+
+<DemoFrame label="Una ruta de tres niveles" column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Ruta de navegación de esta demostración" overflow-label="Mostrar niveles ocultos">
+    <a href="#descripción-general">Inicio</a>
+    <a href="#descripción-general">Componentes</a>
+    <span aria-current="page">Ruta de navegación</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+Una ruta muestra dónde está una página en la jerarquía, no el camino por el que una persona llegó a ella. Úsala donde hay páginas dentro de otras páginas, con tres o más niveles de profundidad.
+
+### Uso
+
+En la web la ruta de navegación es un elemento que rodea tus propias anclas. Las anclas se quedan en el documento, así que son enlaces antes de que se ejecute ningún script, y las encuentran un rastreador, un enrutador que trabaja sobre las anclas de la página y el componente de enlace propio de un enrutador.
+
+Un nivel con destino es un `<a href>`. Un nivel sin destino es un `<span>`: la página actual, o un nivel que no tiene página propia.
+
+SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/breadcrumbs.css" />
+
+    <tanrei-breadcrumbs label="Ruta de navegación" overflow-label="Mostrar niveles ocultos">
+      <a href="/">Inicio</a>
+      <a href="/components/">Componentes</a>
+      <span aria-current="page">Botón</span>
+    </tanrei-breadcrumbs>
+
+    <!-- Un glifo antes de la primera etiqueta, o solo. El texto sigue siendo el nombre del nivel. -->
+    <tanrei-breadcrumbs label="Ruta de navegación" overflow-label="Mostrar niveles ocultos">
+      <a href="/" data-icon="home" data-icon-only>Inicio</a>
+      <a href="/components/">Componentes</a>
+      <span aria-current="page">Botón</span>
+    </tanrei-breadcrumbs>
+
+    <script type="module">
+      import '@tanrei/web';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Breadcrumbs } from '@tanrei/react';
+    import '@tanrei/web/breadcrumbs.css';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <Breadcrumbs label="Ruta de navegación" overflowLabel="Mostrar niveles ocultos">
+      {/* El enlace de un enrutador renderiza su propia ancla y se hace cargo de la navegación a partir de su click. */}
+      <RouterLink to="/">Inicio</RouterLink>
+      <RouterLink to="/components/">Componentes</RouterLink>
+      <span aria-current="page">Botón</span>
+    </Breadcrumbs>
+    ```
+  </TabItem>
+</Tabs>
+
+| Propiedad | En la web |
+| --- | --- |
+| `label` | el atributo `label`: el nombre de la región de referencia (landmark) de navegación |
+| `overflow` | `overflow="collapse"` (el valor predeterminado) u `overflow="wrap"` |
+| `overflowLabel` | `overflow-label`: el nombre del botón de desbordamiento |
+| `underline` | `underline="always"`, `"hover"` o `"never"`. Sin él, la ruta sigue al sistema de diseño |
+| un nivel | un hijo `<a href>`, o un hijo `<span>` para un nivel sin destino |
+| el `label` de un nivel | su texto |
+| `current` | `aria-current="page"` en el último hijo |
+| `icon` | `data-icon="home"` |
+| `iconOnly` | `data-icon-only` |
+| `click` | el `click` de la propia ancla |
+
+## Especificaciones
+
+<DemoFrame label="Un nivel sin página; la página actual como enlace; una ruta que termina en el nivel superior" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Un nivel sin página, en esta demostración" overflow-label="Mostrar niveles ocultos">
+    <a href="#especificaciones">Inicio</a>
+    <span>Fundamentos</span>
+    <span aria-current="page">Tipografía</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="La página actual como enlace, en esta demostración" overflow-label="Mostrar niveles ocultos">
+    <a href="#especificaciones">Inicio</a>
+    <a href="#especificaciones">Componentes</a>
+    <a href="#especificaciones" aria-current="page">Botón</a>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Una ruta que termina en el nivel superior, en esta demostración" overflow-label="Mostrar niveles ocultos">
+    <a href="#especificaciones" data-icon="home" data-icon-only>Inicio</a>
+    <a href="#especificaciones">Componentes</a>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+<DemoFrame label="El subrayado solo con el cursor encima, con el foco o durante la pulsación; y nunca" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Subrayada en un estado, en esta demostración" overflow-label="Mostrar niveles ocultos" underline="hover">
+    <a href="#especificaciones">Inicio</a>
+    <a href="#especificaciones">Componentes</a>
+    <span aria-current="page">Ruta de navegación</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Nunca subrayada, en esta demostración" overflow-label="Mostrar niveles ocultos" underline="never">
+    <a href="#especificaciones">Inicio</a>
+    <a href="#especificaciones">Componentes</a>
+    <span aria-current="page">Ruta de navegación</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+<DemoFrame label="Una ruta larga en una columna estrecha: plegada, y en varias líneas" plain column>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Una ruta plegada, en esta demostración" overflow-label="Mostrar niveles ocultos" style="inline-size: 24rem; max-inline-size: 100%">
+    <a href="#especificaciones">Inicio</a>
+    <a href="#especificaciones">Documentación</a>
+    <a href="#especificaciones">Fundamentos</a>
+    <a href="#especificaciones">Tokens de diseño</a>
+    <a href="#especificaciones">Tokens de componente</a>
+    <span aria-current="page">Cómo se deriva un contenedor deshabilitado</span>
+  </tanrei-breadcrumbs>
+  <tanrei-breadcrumbs class="not-content tanrei-not-prose" label="Una ruta en varias líneas, en esta demostración" overflow="wrap" style="inline-size: 24rem; max-inline-size: 100%">
+    <a href="#especificaciones">Inicio</a>
+    <a href="#especificaciones">Documentación</a>
+    <a href="#especificaciones">Fundamentos</a>
+    <a href="#especificaciones">Tokens de diseño</a>
+    <a href="#especificaciones">Tokens de componente</a>
+    <span aria-current="page">Cómo se deriva un contenedor deshabilitado</span>
+  </tanrei-breadcrumbs>
+</DemoFrame>
+
+- **Un nivel que lleva a algún sitio está subrayado** en el sistema predeterminado. Ahí es el subrayado, y no el color, lo que dice que un nivel es un enlace, como ocurre con un enlace dentro de una frase. Un nivel sin destino es texto secundario. La página actual tiene más peso, va en el color del texto y nunca está subrayada.
+- **Cuándo se dibuja el subrayado es una elección.** `underline="hover"` lo dibuja solo mientras un nivel tiene el cursor encima, tiene el foco del teclado o está pulsado. `underline="never"` no dibuja ninguno. Sin el atributo, la ruta sigue a `comp.breadcrumbs.underline.visibility`, que sigue la elección del sistema de diseño para todos los enlaces de texto. Elige `hover` o `never` solo donde el color de enlace se distingue del color del texto. Con colores forzados, la línea se dibuja siempre.
+- **La página actual es texto.** Un enlace a la página en la que ya está una persona no lleva a ningún sitio y añade una parada de tabulación a todas las páginas. Dale `href` solo donde las vistas de la página cambian bajo una misma dirección. Es entonces un enlace con el mismo aspecto. Donde el encabezado de la página está justo debajo de la ruta, puedes omitir la página actual.
+- **Los separadores son del componente**: `chevron_right` entre dos niveles contiguos. Nunca escribas un separador dentro de una etiqueta.
+- **Una ruta larga pliega su parte central.** Con `collapse`, la ruta se queda en una sola línea. Los niveles pasan detrás del botón de desbordamiento a partir del que sigue al primero, solo tantos como pide la anchura, y después el primero. El último nivel nunca se retira. Su etiqueta solo se corta cuando ni siquiera caben el botón y él solos.
+- **El botón de desbordamiento abre un menú** con los niveles retirados, en el orden de la ruta. Un nivel con destino también es un enlace ahí. Una fila del menú nunca está subrayada.
+- **`wrap` conserva todos los niveles** y deja que la ruta ocupe varias líneas. Una línea nunca empieza con un separador, y ninguna etiqueta se corta.
+- **Se pliega según su propia anchura**, no la de la ventana, y vuelve a decidir cuando cambian su anchura, una etiqueta o el tamaño del texto.
+- **De derecha a izquierda**, la ruta empieza por la derecha y los separadores apuntan a la izquierda. Un nombre escrito de izquierda a derecha conserva su propio orden.
+
+<ComponentSpecs name="breadcrumbs" />
+
+### Qué dibuja la web de otra manera
+
+- Antes de que el elemento esté definido, y con los scripts desactivados, la hoja de estilos dibuja la forma en varias líneas: todos los niveles, con sus separadores. Una ruta que cabe en su anchura no se mueve cuando el elemento se define. La región de referencia, la lista y el plegado llegan con el elemento.
+- Un nivel elegido en el menú es un solo `click` en tu propia ancla, y el navegador sigue después esa ancla, salvo que hayas cancelado el clic. El componente de enlace de un enrutador se hace cargo ahí de la navegación exactamente igual que en la ruta.
+- Una etiqueta que salta de línea es una sola caja: el anillo de foco se dibuja alrededor de la caja, no alrededor de la parte que ocupa en cada línea.
+- Un nivel con un glifo se dispone en la dirección del diseño, así que una etiqueta escrita de izquierda a derecha con un glifo, en una ruta de derecha a izquierda, no toma su propia dirección.
+- El glifo de un nivel y los separadores que dibuja la hoja de estilos necesitan `icons.css`. Sin ella se conserva su sitio y no se dibuja nada en él.
+- Mantén la ruta de navegación fuera de `.tanrei-prose`, o márcala con `tanrei-not-prose`: la prosa dibuja sus propias anclas como enlaces de texto.
+
+## Pautas
+
+### Recomendado
+
+- Pon la ruta encima del encabezado de la página, una vez por página.
+- Enumera los niveles desde lo más alto de la jerarquía hasta la página, con los nombres que tienen las propias páginas.
+- Deja como texto un nivel que no tiene página propia.
+
+### Evita
+
+- No uses una ruta para mostrar los pasos que dio una persona. Muestra dónde está la página.
+- No marques como página actual ningún nivel que no sea el último.
+- No abras un nivel en una pestaña nueva. Los niveles de una jerarquía sustituyen a la página en la que está la persona.
+- No ocultes niveles a mano. Usa `overflow="wrap"` donde todos los niveles deban mostrarse siempre.
+
+## Accesibilidad
+
+<ComponentAccessibility name="breadcrumbs" />
+
+### De qué se encarga el componente
+
+- La ruta es una sola región de referencia de navegación que contiene una sola lista ordenada. Cada nivel es un elemento de lista, y cada enlace es el enlace propio del navegador.
+- La página actual lleva `aria-current="page"` tal como lo escribiste. No se añade nada a su nombre.
+- Los separadores y los glifos quedan ocultos para la tecnología de apoyo.
+- Un nivel retirado no se lee y no está en el orden del foco. Está en el menú, a una pulsación de distancia, y su ancla sigue en el documento.
+- El botón de desbordamiento dice que abre un menú y si el menú está abierto.
+- El área de pulsación de un enlace alcanza el objetivo mínimo sin cambiar lo que se dibuja.
+- Cuando se retira un nivel que tiene el foco, el foco pasa al botón de desbordamiento. Cuando el botón desaparece, el foco pasa al primer nivel que ha vuelto.
+
+### Qué debes hacer tú
+
+- Da nombre a la región de referencia con `label`, en el idioma de tu producto. Una página tiene otras regiones de navegación, y el nombre distingue esta de las demás. Tanrei no incluye textos propios.
+- Da nombre al botón de desbordamiento con `overflow-label` mientras `overflow` sea `collapse`, o una sola vez para todo el producto con `setWords({ breadcrumbsOverflowLabel })`.
+- Marca la página actual con `aria-current="page"`, solo en el último nivel.
+- Da su texto a un nivel que se muestra como un glifo solo. El texto es su nombre.

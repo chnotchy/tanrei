@@ -1,0 +1,18 @@
+---
+title: Components
+description: The full component inventory, grouped by category, with what is documented today.
+---
+
+import { inventory } from '../../../lib/repo';
+import ComponentIndex from '../../../components/ComponentIndex.astro';
+
+Tanrei's inventory covers {inventory.length} component families; the [status page](/status/) shows what each platform ships. A component gets a page here as soon as it has a spec. An entry marked Planned has no spec yet, and is not a link. The figure on each entry counts the platforms that have an implementation.
+
+Every component page has the same four sections:
+
+1. **Overview** — what the component is for and where it is available.
+2. **Specs** — anatomy, properties, states, behaviour, tokens and the per-platform name mapping, rendered from the component's spec file.
+3. **Guidelines** — when and how to use it.
+4. **Accessibility** — role, keyboard interaction and labelling.
+
+<ComponentIndex headingLevel={2} />

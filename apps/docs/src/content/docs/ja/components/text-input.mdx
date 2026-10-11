@@ -1,0 +1,231 @@
+---
+title: テキスト入力欄
+description: 文字を入力するボックスと、その中で入力するものすべてです。1 行または複数行のテキスト、日付や時刻、コードを扱います。ラベルの行、補足、エラーテキストは自分では持ちません。ラベルがほかの場所にあるところや、プロダクトが自分で組み立てるフィールドの中で使います。
+translationOf: components/text-input.mdx
+sourceHash: f696d67893933cf6b88d1d28aeb4216876f1ec36
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="text-input" />
+
+<DemoFrame label="単独で使う例：リストの上の絞り込みと、ラベルを横に置いた行" column>
+  <tanrei-text-input class="not-content" type="search" label="トークンを絞り込む" placeholder="トークンを絞り込む">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>表示名</span>
+    <tanrei-text-input label="表示名" value="山田 花子"></tanrei-text-input>
+  </div>
+</DemoFrame>
+
+テキスト入力欄は、[テキストフィールド](/ja/components/text-field/)のボックスだけを取り出したものです。コンテナ、テキスト、アイコン、接頭辞と接尾辞、日付のセグメント、ピッカーボタン、リサイズのグリップがあります。上にラベルの行はなく、下に補足もエラーテキストもなく、文字数も描きません。
+
+ユーザーが読むラベルがほかの場所にあるところで、単独で使います。
+
+| 場所 | ユーザーが読むラベル | 入力欄の `label` |
+| --- | --- | --- |
+| ツールバーやリストの上の絞り込み | プレースホルダーとグリフが、何をする欄かを伝えます | 何を絞り込むか。「トークンを絞り込む」 |
+| テーブルのセル | 列の見出し | 列と行。「数量、オーク材のデスク」 |
+| ラベルを横に置いた行 | 横にあるテキスト | それと同じ言葉 |
+
+単独で使う入力欄には、自身の `label` が必要です。これがアクセシブルネームになります。Stacked の入力欄が `label` を描くことはありません。Filled と Outlined の入力欄は、ボックスの中で浮き上がるラベルとして描きます。
+
+これは**上級者向け**のコンポーネントです。自分で組み立てるプロダクトのための、コントロールだけの部品です。ほとんどのフォームに合うのは、この入力欄をフィールドに入れてそのまま使える形にした[テキストフィールド](/ja/components/text-field/)です。
+
+**使われている場所**は、[テキストフィールド](/ja/components/text-field/)と[チップフィールド](/ja/components/chip-field/)です。自分で枠を付けるときは、[フィールド](/ja/components/field/)の中に入れます。フィールドが名前と説明を与え、必須であることを伝え、エラーの状態にします。
+
+単独でもフィールドの中でも、置かれた場所の幅いっぱいに広がるブロックです。自分の幅は持ちません。ボックスを狭くするには、置く場所を狭くします。
+
+Web では `<tanrei-text-input>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- ツールバーの絞り込み：幅はツールバーが与えます。 -->
+    <tanrei-text-input name="q" type="search" label="トークンを絞り込む" placeholder="トークンを絞り込む"
+      style="inline-size: 16rem">
+      <span slot="leading-icon">search</span>
+    </tanrei-text-input>
+
+    <!-- テーブルのセル：見えるラベルは列の見出しです。 -->
+    <td><tanrei-text-input name="quantity-oak-desk" type="number" label="数量、オーク材のデスク" value="2"></tanrei-text-input></td>
+
+    <!-- ラベルを横に置いた行。 -->
+    <div class="row">
+      <span>表示名</span>
+      <tanrei-text-input name="display-name" label="表示名" autocomplete="nickname"></tanrei-text-input>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/text-input';
+
+      const filter = document.querySelector('[name="q"]');
+      filter.addEventListener('input', () => show(filter.value)); // 編集のたび
+      filter.addEventListener('change', () => remember(filter.value)); // 値が変わった状態で、フォーカスが外れるか Enter
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TextInput } from '@tanrei/react';
+
+    <TextInput name="q" type="search" label="トークンを絞り込む" placeholder="トークンを絞り込む"
+      value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### フィールドの中に自分で入れる
+
+フィールドでテキスト入力欄を囲むと、テキストフィールドを自分で書いたものになります。入力欄の `label` は空のままにします。名前はフィールドが与えます。`label`、`error`、`disabled`、必須の指定はフィールドに、`name`、`value`、入力に関するすべては入力欄に指定します。
+
+```html
+<tanrei-field label="メールアドレス" requirement="required" required-text="必須"
+  supporting-text="サインインにだけ使います。">
+  <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="フィールドの中のテキスト入力欄。見た目はテキストフィールドと同じです" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="メールアドレス" requirement="required" required-text="必須" supporting-text="サインインにだけ使います。">
+    <tanrei-text-input type="email"></tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+入力欄は、自分にしか分からないことをフィールドに伝えます。補足は、パディングと先頭のアイコンを越えた、テキストが始まる位置から始まります。Filled と Outlined の入力欄は、フィールドのラベルをボックスの中で浮き上がるラベルとして自分で描くので、フィールドはラベルの行を描きません。日付や時刻を途中まで入力したまま離れると、フィールドがエラーになり、入力欄の `invalidText` または `unavailableText` を表示します。
+
+自分で書くときに利用者側で行うことが 1 つあります。文字数です。`counter` を付けると入力欄が文字数を数え、フィールドは `count-text` として渡されたものを描きます。値が変わるたびに渡します。
+
+```html
+<tanrei-field label="表示名">
+  <tanrei-text-input name="display-name" maxlength="40" counter></tanrei-text-input>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const input = field.querySelector('tanrei-text-input');
+  field.countText = input.countText;
+  input.addEventListener('input', () => (field.countText = input.countText));
+</script>
+```
+
+テキストフィールドは、これを自分で行います。テキストフィールドが行い、フィールドとテキスト入力欄を自分で書いたものが行わないのは、これだけです。
+
+## 仕様
+
+<DemoFrame label="単独の入力欄：エラー、無効、読み取り専用、接頭辞と接尾辞、large" plain column>
+  <tanrei-text-input class="not-content" label="メールアドレス" value="ada@" error></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="メールアドレス" value="ada@example.com" disabled></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="メールアドレス" value="ada@example.com" readonly></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="金額" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="large" label="メールアドレス" value="ada@example.com"></tanrei-text-input>
+</DemoFrame>
+
+<DemoFrame label="単独の Filled と Outlined：入力欄自身のラベルがボックスの中で浮き上がります" system="m3-like" plain column>
+  <tanrei-text-input class="not-content" variant="filled" label="メールアドレス" type="email" value="ada@example.com"></tanrei-text-input>
+  <tanrei-text-input class="not-content" variant="outlined" label="メールアドレス" type="email"></tanrei-text-input>
+</DemoFrame>
+
+### 入力欄が受け持つものと、フィールドが受け持つもの
+
+| 観点 | テキスト入力欄 | 囲んでいるフィールド |
+| --- | --- | --- |
+| 描くもの | ボックス、テキスト、プレースホルダー、接頭辞と接尾辞、アイコン、日付や時刻のセグメント、ピッカーボタン、リサイズのグリップ、Filled と Outlined のボックスの中で浮き上がるラベル | Stacked の入力欄の上のラベルの行、必須または任意の印、補足、エラーテキスト、文字数 |
+| 持つもの | 値、フォームの中での位置、イベント | なし |
+| 支援技術に伝えるもの | 自身の説明。接頭辞と接尾辞、文字数です | 名前、補足またはエラーテキスト、必須、invalid、無効 |
+
+ボックスの中で起こることは、単独でも、フィールドの中でも、テキストフィールドでも同じです。説明はテキストフィールドのページに 1 度だけあります。[入力の種類](/ja/components/text-field/#入力の種類)、[複数行](/ja/components/text-field/#複数行)とリサイズのグリップ、[コード](/ja/components/text-field/#コード)、[日付と時刻](/ja/components/text-field/#日付と時刻)とピッカーボタンです。
+
+### フィールドなしで、単独で使う
+
+- **名前**は `label` です。`labelHidden` を付けると、Filled と Outlined の入力欄はラベルを描きません。
+- **エラー**は `error` で、利用者側で設定します。ボックスがエラーの状態で描かれ、invalid として伝わります。入力欄にエラーテキストはありません。何が違うのかは、横に言葉で書くか、フィールドで囲んで伝えます。
+- **日付や時刻を途中まで入力したまま離れる**か、選べない値で離れると、ボックスがエラーの状態で描かれ、`entryError` が発行されます。`invalidText` または `unavailableText` は入力欄の説明に加わります。描かれることはありません。
+- **文字数**は数えられ、説明に含まれ、読み上げられますが、描かれません。`countText` は文字数をテキストにしたもの（「12/40」）で、利用者側で描くためのものです。
+- **必須**を伝えるのはフィールドです。単独の入力欄に必須の設定はありません。フォームが入力を求める箇所では、利用者側で検証します。
+
+### 入力済みのものを置く場所
+
+`entries` スロットは、ボックスの中、入力中のテキストの前にある場所で、すでに入力されたものを置きます。アドレスのリストのチップなどです。入力欄は、スロットの中身と入力部分を行に並べ、収まらなければ折り返して、ボックスを 1 行分ずつ高くします。スロットに中身がある間は、浮き上がるラベルは浮いたままになり、プレースホルダーは表示しません。
+
+```html
+<tanrei-text-input label="宛先" type="email">
+  <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com"
+    remove-label="ada@example.com を取り除く"></tanrei-chip>
+</tanrei-text-input>
+```
+
+入力欄は、ここに置いたものにロールも、フォーカスの順序も、キーも与えません。それらは利用者側のものです。ボックスの中で、置いたもの以外の場所を押すと、入力部分にフォーカスが移ります。キーの操作、チェック、フォームの値までそろった入力済みのリストが必要なら、この場所の上に作られた[チップフィールド](/ja/components/chip-field/)を使います。
+
+<ComponentSpecs name="text-input" />
+
+### Web での描き方の違い
+
+- 要素はフォームに関連付けられます。`name` があれば `value` を送信し、リセットすると `value` 属性の値に戻り、ページの移動で復元され、無効な `<fieldset>` に従い、フィールドが必須としている間は、値がないことを報告します。入力エラーになっている日付や時刻も報告します。
+- テキストは、シャドウルートのネイティブの `<input>` で編集します。`multiline` の間は `<textarea>` です。日付や時刻は、スピンボタンのグループです。
+- 要素はブロックです。`focus()` はネイティブの要素に移り、ボックスの上の、ボタン以外の場所を押してもフォーカスが移ります。
+- `input` と `change` は composed なイベントです。`action` はキャンセルできる CustomEvent で、キャンセルすると Enter でフォームが送信されません。`pickerrequest` と `entryerror` は、`detail` に `{ value, type, min, max }` と `{ reason, text }` を持つ CustomEvent です。型は `TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail`、`TanreiTextInputEntryErrorDetail` です。
+- `countText` は読み取り専用のプロパティで、値が変わるたびに新しくなります。属性はありません。
+- 属性はケバブケースです。`label-hidden`、`min-rows`、`prefix-text` などで、`no-wrap` は `wrap` を false にしたものです。`readonly`、`maxlength`、`autocomplete`、`min`、`max` は HTML の名前のままです。
+- パーツ: `container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-grip`。
+- スロット: `leading-icon`、`trailing-icon`、`entries`。末尾のアイコンには、自前のアイコンだけのボタンを置けます。`entries` のパーツは自分のボックスを持ちません。置いたものは、ボックスの行にそのまま並びます。
+- `resize-label` と `segment-empty-text` を空のままにすると、プロダクトの言葉（`setWords()`）から読みます。
+- 要素が定義されるまでは、大きさがありません。ボックスの高さを確保してください。
+
+## ガイドライン
+
+### テキスト入力欄、テキストフィールド、自分で書くフィールド
+
+| 必要なもの | 使うもの |
+| --- | --- |
+| ラベル、ボックス、補足、エラー、文字数 | [テキストフィールド](/ja/components/text-field/) |
+| ボックスだけ。ラベルは別の場所にある（ツールバーの絞り込み、テーブルのセル、ラベルを横に置いた行） | テキスト入力欄を単独で使い、入力欄の `label` で名前を付ける |
+| 枠の中、ボックスの横か下に置く自分の要素 | [フィールド](/ja/components/field/)に、テキスト入力欄と自分の要素を入れる |
+| 候補や結果がそこから開く検索 | [検索](/ja/components/search/) |
+| 増減でき、範囲の中に保たれる数 | [数値フィールド](/ja/components/number-field/) |
+
+### 推奨
+
+- 単独の入力欄には、見えるラベルと同じ言葉の `label` を付けます。見えるラベルとその場所が合わせて伝えていることを言葉にしても構いません。「数量、オーク材のデスク」のようにします。
+- 単独の入力欄の幅は、置く場所で決めます。グリッドの列、セル、幅を持つツールバーの項目などです。
+- 見えるラベルは、ページを見ているユーザーが 2 つを 1 つのものとして読める近さに置きます。
+- ボックスの上のラベル、補足、エラーがあれば足りるところでは、テキストフィールドを使います。
+
+### 非推奨
+
+- ラベルの場所を節約するために、フォームで単独の入力欄を使わない。グリフで示した絞り込みや検索を除けば、見えるラベルがどこにもない入力欄は、見ているユーザー全員にとって当て推量になります。
+- プレースホルダーをラベルの代わりにしない。入力を始めた途端に消え、名前にもなりません。
+- フィールドの中の入力欄に `label`、`error`、`disabled` を指定しない。フィールドに指定すれば、ラベルと補足も一緒に変わります。
+- テキストフィールドをフィールドの中に入れない。すでにフィールドです。フィールドが囲むコントロールは、テキスト入力欄です。
+- 文字数、補足、エラーを、自前のスタイルでボックスの中に描かない。これらはフィールドの行です。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="text-input" />
+
+### コンポーネントが担うこと
+
+- 1 つのテキストボックスです。`multiline` なら複数行のテキストボックスで、`type` が search なら、プラットフォームにそのロールがあれば検索ボックスです。日付や時刻は、スピンボタンのグループです。
+- 名前は自身の `label` で、それがなければ、囲んでいるフィールドのラベルです。プレースホルダーが名前になることはありません。
+- 説明は、表示中の接頭辞と接尾辞、文字数、フィールドが与えるもの（補足またはエラーテキスト）の順です。
+- エラーの間は invalid として、フィールドが必須としている間は必須として伝え、読み取り専用と無効の状態も伝えます。
+- 文字数は、入力が 1 秒止まったときに表示どおり（「12/40」）1 度だけ読み上げ、キーを打つたびには読みません。文字数が描かれていてもいなくても同じです。
+- フォーカスは、キーボードでもポインターでも、ボックス自身の縁で示します。ヒット領域は最小ターゲットを満たします。
+- 浮き上がるラベルのあとのアスタリスクは、支援技術から隠します。必須の状態がすでに伝えているためです。
+- 名前がない場合は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- 単独の入力欄には、必ず `label` で名前を付けます。横に見えるテキストがあっても、それは名前になりません。
+- 単独の入力欄の値が誤りになりうる場合は、何が違うのかを、支援技術に届く言葉で伝えます。ページに結び付けた自前のメッセージか、入力欄を囲むフィールドを使います。
+- 日付や時刻では `segmentEmptyText` を渡し、フィールドが表示しない場合でも `invalidText` と `unavailableText` を書きます。入力欄と一緒に読み上げられます。
+- リサイズのグリップには `resizeLabel` で、ピッカーボタンには `pickerLabel` で名前を付けます。

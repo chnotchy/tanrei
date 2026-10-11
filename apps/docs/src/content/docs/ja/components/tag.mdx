@@ -1,0 +1,172 @@
+---
+title: タグ
+description: カテゴリーや状態を、短い静的なラベルで示します。控えめな塗り、枠線、塗りつぶしの 3 つの見た目があり、ステータスがあればその色で描きます。テキストであり、操作できるコントロールではありません。
+translationOf: components/tag.mdx
+sourceHash: fe967cfb476e3d4571ebf0fdbe8939c0c7803905
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="tag" />
+
+<DemoFrame label="3 つの見た目と、ステータスの有無">
+  <tanrei-tag label="下書き"></tanrei-tag>
+  <tanrei-tag variant="outlined" label="下書き"></tanrei-tag>
+  <tanrei-tag variant="filled" label="既定"></tanrei-tag>
+  <tanrei-tag status="success" label="成功"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="期限間近"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="失敗"></tanrei-tag>
+</DemoFrame>
+
+タグは、それが何であるか、どんな状態にあるかを示す単語や短い語句です。記事のカテゴリー、ビルドの結果、リリースの段階、複数の値のうちの既定値などに使います。レイアウトの中に、隣のテキストと同じ行に並び、ポインター、キー、フォーカスのいずれにも反応しません。
+
+Web では `<tanrei-tag>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag label="ベータ"></tanrei-tag>
+    <tanrei-tag variant="outlined" label="デザイン"><span slot="icon">sell</span></tanrei-tag>
+
+    <!-- ラベルがステータスを言葉で伝えています。 -->
+    <tanrei-tag status="error" label="失敗"></tanrei-tag>
+
+    <!-- ラベルが伝えていない場合：status-label をラベルの前に読み上げます（「エラー、ビルド 3 件」）。描画はしません。 -->
+    <tanrei-tag status="error" status-label="エラー" label="ビルド 3 件"></tanrei-tag>
+
+    <script type="module">
+      import '@tanrei/web/components/tag';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tag } from '@tanrei/react';
+
+    <Tag label="ベータ" />
+    <Tag variant="outlined" label="デザイン"><span slot="icon">sell</span></Tag>
+    <Tag status="error" statusLabel="エラー" label={`ビルド ${failed} 件`} />
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="各見た目 × 各ステータス" plain>
+  <tanrei-tag status="info" label="レビュー中"></tanrei-tag>
+  <tanrei-tag status="warning" label="期限間近"></tanrei-tag>
+  <tanrei-tag status="error" label="失敗"></tanrei-tag>
+  <tanrei-tag status="success" label="成功"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="info" label="レビュー中"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="期限間近"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="error" label="失敗"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="success" label="成功"></tanrei-tag>
+  <tanrei-tag variant="filled" status="info" label="レビュー中"></tanrei-tag>
+  <tanrei-tag variant="filled" status="warning" label="期限間近"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="失敗"></tanrei-tag>
+  <tanrei-tag variant="filled" status="success" label="成功"></tanrei-tag>
+</DemoFrame>
+
+<DemoFrame label="2 つのサイズ、グリフ、ドット" plain>
+  <tanrei-tag size="small" label="任意"></tanrei-tag>
+  <tanrei-tag size="small" variant="filled" label="必須"></tanrei-tag>
+  <tanrei-tag label="デザイン"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag size="small" label="デザイン"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag dot label="アーカイブ済み"></tanrei-tag>
+  <tanrei-tag dot status="success" label="オンライン"></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="性能低下"></tanrei-tag>
+</DemoFrame>
+
+<ComponentSpecs name="tag" />
+
+## ガイドライン
+
+### バッジ、チップ、タグ
+
+この 3 つは、何をするものかで区別します。
+
+| 種類 | 何であるか | どこに置かれるか | 入力を受けるか |
+| --- | --- | --- | --- |
+| [バッジ](/ja/components/badge/) | ほかの要素に付くドットや数。 | アンカーの角の上。レイアウトの外です。 | 受けません。入力はアンカーに届きます。 |
+| [チップ](/ja/components/chip/) | コントロール。 | レイアウトの中。 | 受けます。押す、切り替える、取り除くことができ、フォーカスと状態を持ちます。 |
+| タグ | 静的なラベル。 | レイアウトの中、行内。 | 受けません。 |
+
+1. 押す、選ぶ、取り除くものは、チップです。どこかへ移動するものは、リンクです。
+2. 何かの上に載る数やドットは、バッジです。
+3. それが何であるか、どんな状態かを言葉で示すだけのものは、タグです。
+
+ハンドラーを付けても、タグはコントロールになりません。リンク、ボタン、リスト項目、全体を押せる行の中では、タグはその要素のテキストのままです。タグの上での入力はその要素に届き、ホバー、フォーカス、押下はその要素が描きます。
+
+### 見た目の選び方
+
+| `variant` | 描くもの | 用途 |
+| --- | --- | --- |
+| `tonal`（既定） | 控えめな塗り。 | ほとんどのタグ。 |
+| `outlined` | 塗りなしと 1 本の細い線。 | タグが密に並ぶ場所。表の列やカテゴリーの一覧など。 |
+| `filled` | 全面の塗り。 | 並んだ中で選ばれている 1 つ。複数の値のうちの既定値、項目のうちの必須など。見落とされてはならないステータスにも使います。 |
+
+### ステータス
+
+`status` は `default`、`info`、`warning`、`error`、`success` のいずれかです。変わるのは色だけです。枠線のタグは、どのステータスでもサーフェスの文字色と細い線のままなので、必ずドット（またはプロダクトが指定したグリフ）をステータスの色で描きます。ステータスが見えるのはその印だけだからです。
+
+タグが自分でステータスのグリフを描くことはありません。役に立つ場所では、グリフを名前で指定します。このサイトのステータス表にある 6 つのステータスは、次のように描いています。
+
+<DemoFrame label="このサイトの 6 つのステータス" plain>
+  <tanrei-tag size="small" variant="outlined" label="計画中"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="追従待ち"><span slot="icon">schedule</span></tanrei-tag>
+  <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
+  <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
+  <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
+  <tanrei-tag size="small" status="error" label="非推奨"><span slot="icon">block</span></tanrei-tag>
+</DemoFrame>
+
+### サイズ
+
+| `size` | 高さ | 文字 | 用途 |
+| --- | --- | --- | --- |
+| `small` | 20 | 12 | 入力欄のラベルの隣、表のセル、本文の行の中。行の高さを変えません。 |
+| `medium`（既定） | 24 | 14 | 見出しの隣、または単独で。 |
+
+[フィールド](/ja/components/field/)と[フィールドグループ](/ja/components/field-group/)の必須・任意のタグは、このコンポーネントの小さいサイズです。必須は Filled、任意は Tonal です。タグのトークンを読み、専用のトークンは持たないので、デザインシステムが小さなタグの見た目を変えれば、これらも一緒に変わります。
+
+### 推奨
+
+- ステータスは言葉で伝えます。「失敗」ならそれで十分です。エラーの色で「ビルド 3 件」と表示するタグには `statusLabel` が必要です。
+- ラベルが収まる幅を確保します。収まらないラベルは省略記号で切られます。タグにはホバーもフォーカスもないので、残りを見せる手段がありません。
+- 記事のカテゴリーのように 1 組のタグは、リスト（Web では `<ul>` と `<li>`）に入れ、リストに名前を付けます。
+
+### 非推奨
+
+- タグを押せるようにしない。押す、切り替える、取り除くラベルはチップで、どこかへ移動するものはリンクです。
+- ラベルのないタグを使わない。ドットやグリフだけではタグになりません。何も描かれません。
+- ステータスを色だけに頼らない。強制カラーモードでは、どのタグも文字色の縁とラベルになり、同じに見えます。
+- アイコンに載せる数にタグを使わない。それはバッジです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="tag" />
+
+### コンポーネントが担うこと
+
+- ロールも名前も持ちません。ラベルは、タグのある場所でテキストとして読まれます。リンク、ボタン、表のセルの中では、その要素の内容の一部になります。
+- `statusLabel` は、ラベルの前に別の語句として読まれます（「エラー、ビルド 3 件」）。描画はしません。`status` が `default` の間は無視します。
+- グリフとドットは支援技術から隠します。
+- 入力もフォーカスも受けないので、フォーカスが止まる位置を増やさず、行の中に別のターゲットも作りません。
+- 省略されたラベルも、全文が読まれます。
+- 強制カラーモードでは、どの見た目にも文字色の縁が付き、ラベル、グリフ、ドットもその色になります。
+- 右から左のレイアウトでは、グリフやドットがラベルの右に移り、アイコンセットが指定するグリフは左右反転します。左から右のラベルは自身の語順を保ち、自身の末尾で切られます。
+- 未知のバリアント、サイズ、ステータス、空のラベル、ステータスのない `statusLabel` は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- それぞれのタグの言葉がステータスを伝えているかを確かめます。「ビルド 3 件」が良い知らせか悪い知らせかは、コンポーネントには分かりません。
+- `statusLabel` はページの言語で書きます。
+- ビルドが目の前で完了する場合のように、変化をその場で読み上げる必要があるときは、タグをライブリージョンに入れるか、スナックバーで知らせます。タグ自身は読み上げません。

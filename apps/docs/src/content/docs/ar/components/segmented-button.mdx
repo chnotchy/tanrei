@@ -1,0 +1,315 @@
+---
+title: الزر المقسَّم
+description: يتيح للأشخاص اختيار خيار واحد، أو عدة خيارات، من خيارين إلى خمسة خيارات مترابطة مرسومة جنبًا إلى جنب مقاطعَ متصلة لعنصر تحكم واحد.
+translationOf: components/segmented-button.mdx
+sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="segmented-button" />
+
+:::note[ليس في نظام Tanrei]
+نظام Tanrei الافتراضي لا يتضمن الزر المقسَّم؛ أما إعدادات Material الجاهزة والإعداد الجاهز cupertino فتتضمنه. في Tanrei، الاختيار الواحد من بين عدة خيارات هو [علامات التبويب](/ar/components/tabs/) حيث يغيّر المحتوى الذي تحته، و[أزرار الاختيار](/ar/components/radio-button/) حيث يضبط قيمة؛ والأزرار التي يُبدَّل كل منها على حدة هي [مجموعة الأزرار](/ar/components/button-group/). ويبقى المكوّن يعمل تحت كل نظام، مع تحذير في أثناء التطوير حيث يستبعده النظام. العروض التوضيحية في هذه الصفحة مرسومة تحت الإعداد الجاهز `m3-like`، وهو نظام يتضمنه.
+:::
+
+<DemoFrame label="تحديد واحد، مع أيقونات، أيقونة فقط" system="m3-like">
+  <tanrei-segmented-button label="النطاق" value="week">
+    <tanrei-segment value="day" label="يوم"></tanrei-segment>
+    <tanrei-segment value="week" label="أسبوع"></tanrei-segment>
+    <tanrei-segment value="month" label="شهر"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="العرض" value="grid">
+    <tanrei-segment value="list" label="قائمة" icon="view_list"></tanrei-segment>
+    <tanrei-segment value="grid" label="شبكة" icon="grid_view"></tanrei-segment>
+    <tanrei-segment value="map" label="خريطة" icon="map"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="محاذاة النص" value="center">
+    <tanrei-segment value="start" label="محاذاة لليسار" icon="format_align_left" label-hidden></tanrei-segment>
+    <tanrei-segment value="center" label="توسيط" icon="format_align_center" label-hidden></tanrei-segment>
+    <tanrei-segment value="end" label="محاذاة لليمين" icon="format_align_right" label-hidden></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+### الاستخدام
+
+يحمل الزر المقسَّم مقاطعه بالطريقة التي تحمل بها كل منصة الأبناء المتكررين: عناصر أبناء على الويب، وعروض في view builder على SwiftUI، واستدعاءات في content lambda على Compose، وقائمة `segments` على Flutter، ومصفوفة `items` على React Native. التحديد يخص المجموعة، بالقيمة. والخاصية `selection` تقول هل هو قيمة واحدة أم عدة قيم.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-segmented-button label="النطاق" value="week">
+      <tanrei-segment value="day" label="يوم"></tanrei-segment>
+      <tanrei-segment value="week" label="أسبوع"></tanrei-segment>
+      <tanrei-segment value="month" label="شهر"></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <!-- عدة قيم معًا. values خاصية (مصفوفة)؛ والسمة تأخذ مصفوفة JSON أو قيمًا تفصل بينها مسافات. -->
+    <tanrei-segmented-button id="days" selection="multiple" size="small" label="الأيام" values="mon tue">
+      <tanrei-segment value="mon" label="الاثنين"></tanrei-segment>
+      <tanrei-segment value="tue" label="الثلاثاء"></tanrei-segment>
+      <tanrei-segment value="wed" label="الأربعاء" disabled></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <script type="module">
+      import '@tanrei/web/components/segmented-button';
+      // العنصر يحدّث value أو values الخاصة به، ثم يُصدر الحدث change.
+      document.querySelector('[label="النطاق"]').addEventListener('change', (e) => showRange(e.detail.value));
+      document.querySelector('#days').addEventListener('change', (e) => setDays(e.detail.values));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Segment, SegmentedButton } from '@tanrei/react';
+
+    // detail هو { value } للاختيار الواحد و { values } لعدة اختيارات.
+    <SegmentedButton label="النطاق" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>
+      <Segment value="day" label="يوم" />
+      <Segment value="week" label="أسبوع" />
+      <Segment value="month" label="شهر" />
+    </SegmentedButton>
+
+    <SegmentedButton selection="multiple" label="الأيام" values={days} onChange={(e) => 'values' in e.detail && setDays(e.detail.values)}>
+      <Segment value="mon" label="الاثنين" />
+      <Segment value="tue" label="الثلاثاء" />
+      <Segment value="wed" label="الأربعاء" disabled />
+    </SegmentedButton>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // نوع الربط (binding) هو التحديد: قيمة اختيارية لواحد، و Set لعدة.
+    // طبّق .tag و .labelStyle على TanreiSegment نفسه، قبل أي مُعدِّل آخر.
+    TanreiSegmentedButton("النطاق", selection: $range) {
+        TanreiSegment("يوم").tag("day")
+        TanreiSegment("أسبوع").tag("week")
+        TanreiSegment("شهر").tag("month")
+    }
+
+    // .labelStyle(.iconOnly) هو labelHidden: العنوان يبقى اسم المقطع.
+    TanreiSegmentedButton("محاذاة النص", selection: $alignment) {
+        TanreiSegment("محاذاة لليسار", icon: "format_align_left").tag("start").labelStyle(.iconOnly)
+        TanreiSegment("توسيط", icon: "format_align_center").tag("center").labelStyle(.iconOnly)
+        TanreiSegment("محاذاة لليمين", icon: "format_align_right").tag("end").labelStyle(.iconOnly)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSegment
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButton
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButtonSelectionMode
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSegmentedButtonSize
+
+    // رد نداء واحد لنوعَي التحديد. المجموعة ذات الاختيار الواحد تمرّر مجموعة من عنصر واحد.
+    TanreiSegmentedButton(
+        onSelectionChange = { range = it.single() },
+        contentDescription = "النطاق",
+        selectedValue = range,
+    ) {
+        TanreiSegment(value = "day", label = "يوم")
+        TanreiSegment(value = "week", label = "أسبوع")
+        TanreiSegment(value = "month", label = "شهر")
+    }
+
+    TanreiSegmentedButton(
+        onSelectionChange = { days = it },
+        contentDescription = "الأيام",
+        selectionMode = TanreiSegmentedButtonSelectionMode.Multiple,
+        selectedValues = days,
+        size = TanreiSegmentedButtonSize.Small,
+    ) {
+        TanreiSegment(value = "mon", label = "الاثنين")
+        TanreiSegment(value = "tue", label = "الثلاثاء")
+        // يستخدم Compose الراية المعاكسة.
+        TanreiSegment(value = "wed", label = "الأربعاء", enabled = false)
+    }
+
+    // labelHidden يرسم الأيقونة وحدها. والتسمية تبقى اسم المقطع.
+    TanreiSegment(value = "start", label = "محاذاة لليسار", labelHidden = true, icon = { TanreiText("format_align_left") })
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // على هيئة SegmentedButton: Set واحدة تحمل التحديد، وفيها عضو واحد على الأكثر في الاختيار الواحد.
+    TanreiSegmentedButton<String>(
+      semanticLabel: 'النطاق',
+      selected: <String>{range},
+      onSelectionChanged: (Set<String> value) => setState(() => range = value.single),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'day', label: 'يوم'),
+        TanreiSegment<String>(value: 'week', label: 'أسبوع'),
+        TanreiSegment<String>(value: 'month', label: 'شهر'),
+      ],
+    );
+
+    TanreiSegmentedButton<String>(
+      semanticLabel: 'الأيام',
+      multiSelectionEnabled: true,
+      size: TanreiSegmentedButtonSize.small,
+      selected: days,
+      onSelectionChanged: (Set<String> value) => setState(() => days = value),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'mon', label: 'الاثنين'),
+        TanreiSegment<String>(value: 'tue', label: 'الثلاثاء'),
+        TanreiSegment<String>(value: 'wed', label: 'الأربعاء', enabled: false),
+      ],
+    );
+
+    // labelHidden يرسم الأيقونة وحدها. والتسمية تبقى اسم المقطع.
+    const TanreiSegment<String>(value: 'start', label: 'محاذاة لليسار', icon: Icon(AppSymbols.formatAlignLeft), labelHidden: true);
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SegmentedButton } from '@tanrei/react-native';
+
+    // متحكَّم به: onSelectionChange يستقبل القيمة (single) أو القيم (multiple).
+    <SegmentedButton
+      accessibilityLabel="النطاق"
+      value={range}
+      onSelectionChange={setRange}
+      items={[
+        { value: 'day', label: 'يوم' },
+        { value: 'week', label: 'أسبوع' },
+        { value: 'month', label: 'شهر' },
+      ]}
+    />
+
+    <SegmentedButton
+      selectionMode="multiple"
+      accessibilityLabel="الأيام"
+      size="small"
+      values={days}
+      onSelectionChange={setDays}
+      items={[
+        { value: 'mon', label: 'الاثنين' },
+        { value: 'tue', label: 'الثلاثاء' },
+        { value: 'wed', label: 'الأربعاء', disabled: true },
+      ]}
+    />
+
+    // مقطع بأيقونة فقط: { value: 'start', label: 'محاذاة لليسار', icon: 'format_align_left', labelHidden: true }
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الأحجام والمقاطع المعطَّلة" system="m3-like" plain>
+  <tanrei-segmented-button label="النطاق" value="week" size="small">
+    <tanrei-segment value="day" label="يوم"></tanrei-segment>
+    <tanrei-segment value="week" label="أسبوع"></tanrei-segment>
+    <tanrei-segment value="month" label="شهر"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="النطاق" value="week" size="large">
+    <tanrei-segment value="day" label="يوم"></tanrei-segment>
+    <tanrei-segment value="week" label="أسبوع"></tanrei-segment>
+    <tanrei-segment value="month" label="شهر"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="النطاق" value="day">
+    <tanrei-segment value="day" label="يوم"></tanrei-segment>
+    <tanrei-segment value="week" label="أسبوع"></tanrei-segment>
+    <tanrei-segment value="month" label="شهر" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="النطاق" value="month">
+    <tanrei-segment value="day" label="يوم"></tanrei-segment>
+    <tanrei-segment value="week" label="أسبوع"></tanrei-segment>
+    <tanrei-segment value="month" label="شهر" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+<ComponentSpecs name="segmented-button" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم الزر المقسَّم حين يكون لسؤال صغير واحد بضع إجابات ثابتة وينبغي أن يراها الأشخاص كلها دفعة واحدة: نطاق مخطط بياني، تخطيط قائمة، محاذاة فقرة، الأيام التي يتكرر فيها تذكير. وينبغي أن يظهر الأثر فورًا، لأن مفاتيح الأسهم في التحديد الواحد تختار وهي تتحرك.
+
+يناسبه خياران إلى خمسة خيارات. وإن زادت الخيارات على خمسة فاستخدم قائمة خيارات أو قائمة. وحين يكون الاختيار هو المهمة الرئيسية في نموذج، تُقرأ أزرار الاختيار أفضل. وحين تغيّر الإجابة المحتوى الذي يملأ الشاشة، استخدم [علامات التبويب](/ar/components/tabs/).
+
+### زر مقسَّم أم مجموعة أزرار أم رقاقات أم علامات تبويب
+
+هذه الأربعة كلها تضع بضعة أشياء مترابطة في صف، فيسهل الخلط بينها. تختلف في ما تفعله الضغطة وفي طريقة تنقل لوحة المفاتيح خلالها.
+
+| المكوّن | ما هو | التحديد | لوحة المفاتيح | يُستخدم لـ |
+| --- | --- | --- | --- | --- |
+| [الزر المقسَّم](/ar/components/segmented-button/) | عنصر تحكم واحد: خياران إلى خمسة خيارات متصلة تجيب عن سؤال واحد. | خاص به، بالقيمة: خيار واحد، أو عدة خيارات. | موضع توقف واحد للمفتاح Tab. مفاتيح الأسهم تنتقل بين الخيارات، وفي التحديد الواحد تختار أيضًا. | إعداد له بضع إجابات ثابتة ويُطبَّق فورًا: يوم، أسبوع، شهر؛ اليسار، الوسط، اليمين. |
+| [مجموعة الأزرار](/ar/components/button-group/) | صف أو عمود من أزرار منفصلة، متباعدة أو متصلة في شكل واحد. | لا شيء. زر التبديل في المجموعة يحتفظ بحالة التشغيل أو الإيقاف الخاصة به. | كل زر موضع توقف مستقل للمفتاح Tab. | إجراءات مترابطة: «إلغاء»، «حفظ المسودة»، «نشر»؛ و«غامق» و«مائل» و«تسطير» أزرارَ تبديل مستقلة. |
+| [الرقاقات](/ar/components/chip/) | عناصر تحكم صغيرة منفصلة في صف يلتف أو يُمرَّر. | كل رقاقة تصفية تُشغَّل أو تُوقَف بمفردها. | كل رقاقة موضع توقف مستقل للمفتاح Tab. | عوامل تصفية فوق قائمة، ردود مقترحة، عناصر أدخلها المستخدم. |
+| [علامات التبويب](/ar/components/tabs/) | عروض لموضوع واحد، لكل منها لوحته الخاصة. | علامة تبويب واحدة: العرض الظاهر على الشاشة. | موضع توقف واحد للمفتاح Tab. مفاتيح الأسهم تنتقل وتحدّد. | تبديل المحتوى المعروض: «نظرة عامة»، «النشاط»، «الإعدادات». |
+
+اختبار سريع: إن كان ضغطه يفعل شيئًا فهو مجموعة أزرار. وإن كان يضبط قيمة فهو زر مقسَّم، أو رقاقات حين تكثر الخيارات أو تكون مستقلة. وإن كان يبدّل المحتوى الذي تحته فهو علامات تبويب.
+
+### اختيار واحد أم عدة اختيارات
+
+- **الاختيار الواحد** (`selection="single"`، وهو الافتراضي) مجموعة أزرار اختيار. اختيار مقطع يلغي المقطع الذي قبله. وضغط المقطع المختار مرة أخرى لا يفعل شيئًا، فلا يمكن إلغاء الاختيار الواحد من مقطعه نفسه. يجوز أن تبدأ المجموعة بلا شيء مختار (الخاصية `value` فارغة)، لنموذج يجب أن يُظهر أن شيئًا لم يُختر بعد.
+- **الاختيار المتعدد** مجموعة أزرار تبديل. كل مقطع يُشغَّل ويُوقَف، وقد تنتهي المجموعة بلا مقطع مختار. إن كان منتجك يحتاج إلى مقطع واحد على الأقل، فلا تطبّق تغييرًا يترك المجموعة فارغة.
+
+ليست للمجموعة خاصية `disabled` خاصة بها. عطّل المقاطع واحدًا واحدًا. المقطع المعطَّل يحتفظ بمكانه وبحدّه، ومفاتيح الأسهم تتخطاه.
+
+### التسميات والأيقونات وعلامة الاختيار
+
+- المقطع المحدَّد يعرض علامة اختيار قبل تسميته، مكان أيقونته حين تكون له أيقونة، فلا يُعرف التحديد بالتعبئة وحدها أبدًا. والمقطع ذو الأيقونة فقط يحتفظ بأيقونته ويرسمها معبَّأة. يجوز لنظام تصميم أن يضبط حجم علامة الاختيار على 0: فلا يرسم عندئذ علامة، ويُظهر التحديد بالتعبئة والارتفاع.
+- كل مقطع بعرض أعرض مقطع، مقيسًا كما لو كان محدَّدًا، فظهور علامة الاختيار لا يحرّك جارًا أبدًا. وإن ضاقت الفسحة التفّت التسميات على أسطر أكثر وكبر كل مقطع إلى ارتفاع أطولها. ولا تُقتطع أبدًا.
+- الخاصية `labelHidden` ترسم الأيقونة وحدها. والتسمية تبقى مطلوبة، لأنها تبقى الاسم المتاح للتقنيات المساعدة للمقطع.
+- الحجم يضبط ارتفاع المجموعة. والأحجام ليست ارتفاعات Button في كل درجة (في الإعداد الجاهز `m3-like` يطابق الحجمان small و medium ارتفاعَي Button والحجم large أقل)، فطابِق المجموعة مع الأزرار التي بجانبها بالارتفاع، لا باسم الحجم.
+
+### افعل
+
+- أعطِ المجموعة تسمية تطرح السؤال الذي تجيب عنه خياراتها: «النطاق»، «محاذاة النص».
+- اجعل التسميات كلمة أو كلمتين، ومتوازية في الصيغة: يوم، أسبوع، شهر.
+- أعطِ كل مقاطع المجموعة أيقونة، أو لا تعطِ أيًّا منها.
+- اختر قيمة ابتدائية حين يكون هناك افتراضي معقول، كي لا يبدو عنصر التحكم أبدًا بلا إجابة.
+
+### لا تفعل
+
+- لا تستخدم الزر المقسَّم للإجراءات. المقطع اختيار، ولا يُصدر الحدث click. استخدم مجموعة أزرار.
+- لا تستخدمه للتبديل بين عروض يملأ كل منها الشاشة. استخدم علامات التبويب.
+- لا تضع أكثر من خمسة مقاطع في مجموعة، ولا تسميات شديدة التفاوت في الطول. كل مقطع يأخذ عرض أعرضها.
+- لا تغيّر تسمية المقطع بتغيّر حالته. التحديد يُعلَن على حدة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="segmented-button" />
+
+### ما يتكفل به المكوّن
+
+- في التحديد الواحد تكون المجموعة مجموعة أزرار اختيار (radio group) تسمّيها تسميتها، وكل مقطع زر اختيار له حالة التحديد الخاصة به (checked). وفي التحديد المتعدد تكون المجموعة مجموعة (group) تسمّيها تسميتها، وكل مقطع زر تبديل له حالة الضغط الخاصة به.
+- كل مقطع تسمّيه تسميته الخاصة، مرسومةً كانت أو لا، ويعرّف بموضعه وبعدد المقاطع. الأيقونات وعلامة الاختيار والفواصل والحدّ مخفية. ولا تُعلَن الحالة من علامة الاختيار أبدًا.
+- المجموعة موضع توقف واحد للمفتاح Tab: المقطع المحدَّد، أو آخر مقطع نال التركيز في التحديد المتعدد، وإلا فأول مقطع مفعَّل. مفاتيح الأسهم تنتقل إلى المقطع المفعَّل التالي أو السابق وتدور عند الطرفين، والمفتاحان Home و End يصلان إلى الطرفين. في التحديد الواحد كل انتقال يحدّد أيضًا. وفي التحديد المتعدد يبدّل المفتاحان Space و Enter المقطع الذي عليه التركيز. في تخطيط من اليمين إلى اليسار ينتقل مفتاح السهم الأيسر إلى المقطع التالي.
+- المقاطع المعطَّلة تتخطاها مفاتيح الأسهم، ولا تكون موضع توقف المفتاح Tab أبدًا، وتُعرَّف للتقنيات المساعدة معطَّلة.
+- مساحة اللمس لكل مقطع تمتد فوق المجموعة وتحتها إلى الحد الأدنى للهدف، وعرض كل مقطع لا يقل عن هدف واحد، لأن الجيران لا يستطيع أحدهم أن يمتد فوق الآخر.
+- مؤشر التركيز يُرسم داخل المقطع الذي عليه التركيز، حيث لا يستطيع الحدّ ولا الجيران تغطيته. ويظهر عند التركيز بلوحة المفاتيح فقط.
+- عند أحجام النص الأكبر تلتف التسميات ويكبر كل مقطع إلى ارتفاع أطولها. والأيقونة تحتفظ بحجمها.
+- بنيات التنقيح (debug) تبلّغ عن غياب تسمية المجموعة أو المقطع، وعن تسمية مخفية بلا أيقونة، وعن قيمة أو قيم لا تسمّي أي مقطع، وعن قيمة مقطع فارغة أو مكررة، وعن مجموعة فيها أقل من مقطعين أو أكثر من خمسة مقاطع.
+
+فجوات معروفة في المنصات:
+
+- على الويب، تعطي المجموعة ذات الاختيار المتعدد كل مقطع موضعه عبر قائمة حول المقاطع، لأن زر التبديل لا يستطيع أن يحمل موضعًا خاصًّا به.
+- ليس في SwiftUI دور مجموعة أزرار اختيار. المجموعة حاوية تسمّيها تسميتها. المقطع في مجموعة ذات اختيار واحد زر له الصفة selected وموضعه («`2 of 3`») قيمةً له، بالإنجليزية فقط حاليًّا. والمقطع في مجموعة ذات اختيار متعدد عنصر تبديل (toggle) ولا يذكر موضعًا، لأن قيمة خاصة به كانت ستحل محل حالة التشغيل أو الإيقاف في عنصر التبديل.
+- في SwiftUI: تأخذ المجموعة العرض المعروض عليها، كما يفعل segmented picker في SwiftUI. والمُعدِّل `.fixedSize(horizontal: true, vertical: false)` يُبقي عرضها الطبيعي. ظل المقطع وحلقة التركيز فيه يستخدمان أكبر زواياه على كل زاوية. وأيقونة SF Symbol المعطاة للمقطع لا تتحول إلى هيئتها المعبَّأة عند التحديد: مرّر الهيئة `.fill` منها بنفسك. ومفاتيح الأسهم مختبَرة بوصفها قواعد، لا بلوحة مفاتيح على المحاكي.
+- ليس في Compose دور مجموعة أزرار اختيار. المجموعة مجموعة قابلة للتحديد (selectable group)، وكل مقطع زر اختيار (single) أو زر قابل للتبديل (multiple)، كما هي رقاقة التصفية.
+- لا يعرّف Flutter بموضع المقطع ولا بعدد المقاطع، والمجموعة ذات الاختيار المتعدد حاوية تسمّيها تسميتها لا مجموعة (group)، لأن دلالات Flutter تخلو من الخاصيتين كلتيهما.
+- في React Native: العروض المتساوية تأتي من قياس كل تسمية بعد التخطيط الأول، فالمجموعة التي يكون أبوها أضيق منها في الإطار الأول قد تأخذ عرضًا أضيق من أعرض تسمياتها. ومفاتيح الأسهم على لوحة مفاتيح فعلية، وظل التحديد المرتفع فوق جيرانه على Android، لم تُفحص على جهاز.
+- تحت النظام `cupertino`، يكون ارتفاع المجموعتين small و medium 30 و 34 بدلًا من 28 و 32، والزوايا الداخلية للمقطعين الطرفيين أكثر استدارة من زواياهما الخارجية. وكلا الأمرين ينتظر قرارًا في الرموز (tokens) أو في المواصفة.
+
+### ما عليك فعله
+
+- أعطِ المجموعة تسمية، وكل مقطع تسمية، ومنها المقاطع ذات الأيقونة فقط.
+- اجعل أثر الاختيار يظهر فورًا، قرب عنصر التحكم. في التحديد الواحد يختار مستخدم لوحة المفاتيح بالتحرك، فالأثر البطيء يجعل مفاتيح الأسهم تبدو عالقة. وإن وجب أن يستغرق وقتًا، فاعرض التقدم حيث ستظهر النتيجة.
+- أعطِ المقاطع المعطَّلة سببًا قريبًا منها حين لا يكون واضحًا لماذا لا يمكن اختيارها.
+- على الويب ليس الزر المقسَّم عنصر تحكم في نموذج. لإرسال قيمته مع نموذج، انسخها إلى حقل إدخال مخفي من الحدث `change`.

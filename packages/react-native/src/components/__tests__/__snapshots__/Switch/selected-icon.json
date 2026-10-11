@@ -1,0 +1,166 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Wi-Fi",
+    "accessibilityRole": "switch",
+    "accessibilityState": {
+      "checked": true,
+      "disabled": false
+    },
+    "accessibilityValue": {},
+    "accessible": true,
+    "collapsable": false,
+    "focusable": true,
+    "hitSlop": {
+      "bottom": 14,
+      "left": 6,
+      "right": 6,
+      "top": 14
+    },
+    "style": {
+      "alignItems": "flex-start",
+      "alignSelf": "flex-start",
+      "flexDirection": "row",
+      "gap": 8,
+      "opacity": 1
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "borderRadius": 9999,
+          "height": 20,
+          "marginTop": 1,
+          "width": 36
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "collapsable": false,
+            "style": {
+              "backgroundColor": "rgb(27, 27, 27)",
+              "borderRadius": 9998,
+              "bottom": 1,
+              "left": 1,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "right": 1,
+              "top": 1
+            }
+          },
+          "children": []
+        },
+        {
+          "type": "View",
+          "props": {
+            "accessible": false,
+            "importantForAccessibility": "no",
+            "style": {
+              "borderColor": "rgb(27, 27, 27)",
+              "borderRadius": 9999,
+              "borderWidth": 1,
+              "bottom": 0,
+              "left": 0,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "right": 0,
+              "top": 0
+            }
+          },
+          "children": []
+        },
+        {
+          "type": "View",
+          "props": {
+            "collapsable": false,
+            "style": {
+              "alignItems": "center",
+              "borderRadius": 9999,
+              "height": 28,
+              "justifyContent": "center",
+              "position": "absolute",
+              "start": 12,
+              "top": -4,
+              "width": 28
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "collapsable": false,
+                "style": {
+                  "alignItems": "center",
+                  "backgroundColor": "rgb(255, 255, 255)",
+                  "borderRadius": 8,
+                  "height": 16,
+                  "justifyContent": "center",
+                  "width": 16
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "alignItems": "center",
+                      "height": 16,
+                      "justifyContent": "center",
+                      "width": 16
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": false,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(27, 27, 27)",
+                          "fontFamily": "Material Symbols Rounded",
+                          "fontSize": 16,
+                          "fontWeight": "300",
+                          "lineHeight": 16,
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        "check"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Text",
+      "props": {
+        "allowFontScaling": true,
+        "collapsable": false,
+        "style": {
+          "color": "rgb(27, 27, 27)",
+          "flexShrink": 1,
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "400",
+          "letterSpacing": 0,
+          "lineHeight": 22
+        }
+      },
+      "children": [
+        "Wi-Fi"
+      ]
+    }
+  ]
+}

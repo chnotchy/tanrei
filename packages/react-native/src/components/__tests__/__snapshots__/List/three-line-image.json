@@ -1,0 +1,272 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "width": 360
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityRole": "list"
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "role": "listitem"
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "collapsable": false,
+                "style": {
+                  "alignItems": "flex-start",
+                  "borderRadius": 0,
+                  "flexDirection": "row",
+                  "gap": 12,
+                  "minHeight": 80,
+                  "paddingEnd": 16,
+                  "paddingStart": 16,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "alignItems": "center",
+                      "backgroundColor": "rgb(238, 238, 238)",
+                      "borderRadius": 6,
+                      "height": 48,
+                      "justifyContent": "center",
+                      "overflow": "hidden",
+                      "width": 48
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flex": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(75, 75, 75)",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "500",
+                          "letterSpacing": 0.12,
+                          "lineHeight": 16
+                        }
+                      },
+                      "children": [
+                        "Engineering"
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(27, 27, 27)",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 22
+                        }
+                      },
+                      "children": [
+                        "Roadmap"
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "numberOfLines": 2,
+                        "style": {
+                          "color": "rgb(75, 75, 75)",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "400",
+                          "letterSpacing": 0.065,
+                          "lineHeight": 20
+                        }
+                      },
+                      "children": [
+                        "The plan for the next quarter, with milestones, owners and the risks we already know about."
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "style": {
+                      "color": "rgb(75, 75, 75)",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500",
+                      "letterSpacing": 0.12,
+                      "lineHeight": 16
+                    }
+                  },
+                  "children": [
+                    "9:41"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "role": "listitem"
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "collapsable": false,
+                "style": {
+                  "alignItems": "flex-start",
+                  "borderRadius": 0,
+                  "flexDirection": "row",
+                  "gap": 12,
+                  "minHeight": 80,
+                  "paddingEnd": 16,
+                  "paddingStart": 16,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "alignItems": "center",
+                      "backgroundColor": "rgb(238, 238, 238)",
+                      "borderRadius": 6,
+                      "height": 48,
+                      "justifyContent": "center",
+                      "overflow": "hidden",
+                      "width": 48
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flex": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(75, 75, 75)",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "500",
+                          "letterSpacing": 0.12,
+                          "lineHeight": 16
+                        }
+                      },
+                      "children": [
+                        "Finance"
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(27, 27, 27)",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 22
+                        }
+                      },
+                      "children": [
+                        "Budget"
+                      ]
+                    },
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "numberOfLines": 2,
+                        "style": {
+                          "color": "rgb(75, 75, 75)",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "400",
+                          "letterSpacing": 0.065,
+                          "lineHeight": 20
+                        }
+                      },
+                      "children": [
+                        "Spending so far this year against the plan, by team, with the forecast for the rest of it."
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "style": {
+                      "color": "rgb(75, 75, 75)",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500",
+                      "letterSpacing": 0.12,
+                      "lineHeight": 16
+                    }
+                  },
+                  "children": [
+                    "Yesterday"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

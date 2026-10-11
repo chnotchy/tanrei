@@ -1,0 +1,201 @@
+---
+title: タイムライン
+description: イベントを時間の順に並べます。各イベントはマーカー、時刻、タイトル、内容の本文から成り、次のイベントと細い線でつながります。イベントに状態がある場合は、どれが完了し、どれが進行中で、どれがこれからなのかを、マーカーの形と言葉で伝えます。読むためのリストであり、コントロールではありません。
+translationOf: components/timeline.mdx
+sourceHash: 0251491f2f4ffd11a3d50c86f7ebc160d900e2c7
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="timeline" />
+
+<DemoFrame label="起きたことの記録" column>
+  <ol class="tanrei-timeline" role="list" aria-label="リリースの履歴" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="2026-09-22">2026年9月22日</time><p class="tanrei-timeline-title">レベルで呼ぶテキストスタイル</p><p>テキストスタイルをレベルで呼ぶようになり、すべての角をなめらかにできるようになりました。</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-21">2026年9月21日</time><p class="tanrei-timeline-title">拡張できる語彙</p><p>デザインのレイヤは、理由を添えて、系列に段階を、軸に値を追加できます。</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-19">2026年9月19日</time><p class="tanrei-timeline-title">開発開始</p><p>トークンのパイプライン、仕様のスキーマ、最初の仕様ができました。</p></li>
+  </ol>
+</DemoFrame>
+
+印を線でつないで描くものは 3 つあります。違いは、読み手がそれで何をするかです。
+
+| 種類 | 何であるか | マーカー | 状態について伝えること | 入力 |
+| --- | --- | --- | --- | --- |
+| **ステップ** | 順にこなしていく手順 | ステップの番号が入った輪 | なし | 受けない |
+| **タイムライン** | 起きたことと、これから起きることの記録 | 点かグリフ。番号は入らない | 必要なら、各イベントがいまどの段階か | 受けない |
+| **ステッパー** | プロダクトが進めるフローの中での現在地 | 番号かチェック | その人自身の現在地 | 受ける |
+
+タイムラインは、イベントに番号を振らず、並べ替えず、隠しません。時刻を読み取ることもありません。順序は、渡したとおりです。
+
+### 使い方
+
+Web では、タイムラインは要素ではなく、プロダクト側の順序付きリストに付けるクラスです。リストは、スクリプトが動く前から `<time>` 要素を含む文書のリストとして働きます。スタイルシートがなければ、日付の付いた段落が並ぶ、ブラウザー標準の番号付きリストになります。
+
+SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。React にもまだ `Timeline` コンポーネントはないので、クラスを付けたリストを使ってください。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/timeline.css" />
+
+    <!-- ログ：ただ起きたことを並べる場合。 -->
+    <ol class="tanrei-timeline" role="list" aria-label="リリースの履歴">
+      <li>
+        <time class="tanrei-timeline-time" datetime="2026-09-19">2026年9月19日</time>
+        <p class="tanrei-timeline-title">開発開始</p>
+        <p>トークンのパイプライン、仕様のスキーマ、最初の仕様ができました。</p>
+      </li>
+    </ol>
+
+    <!-- 計画：各イベントに状態があり、形と言葉で伝える場合。 -->
+    <ol class="tanrei-timeline" role="list" data-size="large" aria-label="ロードマップ">
+      <li data-status="done" data-status-label="完了">
+        <!-- 時点ではないので、time 要素ではなく段落にします。 -->
+        <p class="tanrei-timeline-time">Wave 1</p>
+        <!-- ページの見出しでもあるタイトル：見出しのロールとレベルを保ちます。 -->
+        <h3 id="wave-1">初日から必要なコントロール</h3>
+        <p>ボタン、フィールド、選択コントロール、リスト。</p>
+      </li>
+      <li data-status="current" data-status-label="進行中">
+        <p class="tanrei-timeline-time">Wave 2</p>
+        <h3 id="wave-2">ナビゲーションとオーバーレイ</h3>
+      </li>
+      <li data-status="upcoming" data-status-label="未着手">
+        <!-- マーカーに入れる、プロダクト側のグリフ。 -->
+        <span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">flag</span>
+        <p class="tanrei-timeline-time">Wave 3</p>
+        <h3 id="wave-3">特定の用途のコンポーネント</h3>
+      </li>
+    </ol>
+
+    <script type="module">
+      // 任意：進行中のイベントが 1 つだけのとき、それをリストの現在の項目として示します。デバッグ時の報告も加わります。
+      // `@tanrei/web` を読み込んでも入ります。
+      import '@tanrei/web/timeline';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/timeline.css';
+    import '@tanrei/web/timeline';
+
+    <ol className="tanrei-timeline" role="list" aria-label="リリースの履歴">
+      <li>
+        <time className="tanrei-timeline-time" dateTime="2026-09-19">2026年9月19日</time>
+        <p className="tanrei-timeline-title">開発開始</p>
+        <p>トークンのパイプライン、仕様のスキーマ、最初の仕様ができました。</p>
+      </li>
+    </ol>
+    ```
+  </TabItem>
+</Tabs>
+
+| プロパティ | Web での書き方 |
+| --- | --- |
+| `label` | `aria-label`（またはリストの前の見出しを指す `aria-labelledby`） |
+| `size: large` | `data-size="large"` |
+| `density: compact` | `data-density="compact"` |
+| イベント | `<li>` |
+| `datetime` のある `time` | `<time class="tanrei-timeline-time" datetime="…">`。中身は、利用者側で書く言葉 |
+| 時点ではない `time` | `<p class="tanrei-timeline-time">` |
+| `title` | `class="tanrei-timeline-title"` を持つ要素（`<p>`） |
+| タイトルのスロット | イベントの先頭か、時刻の直後に置く見出し（`h2` から `h6`） |
+| `status` | `data-status="done"`、`"current"`、`"upcoming"` |
+| `statusLabel` | `data-status-label` |
+| `icon` | 項目の最初の子として置く `<span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">` |
+
+リストには `role="list"` を書いてください。マーカーを消したリストを、リストとして伝えなくなるブラウザーエンジンが 1 つあるためです。
+
+時刻は、プロダクト側で書くものです。読み手の言語、暦、書式で書き、同じ時点を機械向けに `datetime` に入れます。タイムラインは何も整形しません。「2 時間前」は、書き換えるまでそのままです。
+
+## 仕様
+
+<DemoFrame label="計画：完了、完了、進行中、これから" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="ロードマップ" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="完了"><p class="tanrei-timeline-time">Wave 0</p><p class="tanrei-timeline-title">基礎</p><p>トークン、テーマ、タイポグラフィ、アイコン、サーフェス、状態のプリミティブ。</p></li>
+    <li data-status="done" data-status-label="完了"><p class="tanrei-timeline-time">Wave 1</p><p class="tanrei-timeline-title">初日から必要なコントロール</p><p>ボタン、フィールド、選択コントロール、リスト。</p></li>
+    <li data-status="current" data-status-label="進行中"><p class="tanrei-timeline-time">Wave 2</p><p class="tanrei-timeline-title">ナビゲーションとオーバーレイ</p><p>ドロワー、タブ、ダイアログ、メニュー、シート。</p></li>
+    <li data-status="upcoming" data-status-label="未着手"><p class="tanrei-timeline-time">Wave 3</p><p class="tanrei-timeline-title">特定の用途のコンポーネント</p><p>ピッカー、カルーセル、ドキュメントサイトに必要なもの。</p></li>
+  </ol>
+</DemoFrame>
+
+<DemoFrame label="プロダクト側のグリフと、compact のログ" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="注文 1042" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="完了"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">月曜日 09:41</p><p class="tanrei-timeline-title">注文を受け付けました</p></li>
+    <li data-status="current" data-status-label="進行中"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">火曜日 14:05</p><p class="tanrei-timeline-title">配送中</p></li>
+    <li data-status="upcoming" data-status-label="未着手"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">木曜日に到着予定</p><p class="tanrei-timeline-title">お届け</p></li>
+  </ol>
+  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="アクティビティ" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">レイヤを保存しました</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">6 つのスキームでコントラストを確認しました</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">プライマリの色を変更しました</p></li>
+  </ol>
+</DemoFrame>
+
+- **マーカー**は、先頭側の端にあるボックスの中に置かれます。ボックスの差し渡しは medium で 24、large で 28 で、イベントの 1 行目の中央にそろいます。状態がなければ小さな点で、プロダクト側のグリフがあれば、細い線の輪にそのグリフを入れたものになります。
+- **状態**が変えるのは、マーカーの形だけです。完了はチェックの入った輪、進行中は点の入った塗りつぶしの円、これからのイベントは空の輪です。時刻の色を除けば、タイムラインが持ち込む色は、この塗りつぶしの円だけです。
+- **コネクター**は、マーカーのボックスから次のボックスへ伸びる線で、どちらにも届く手前で止まります。最後のイベントにはありません。どの状態のイベントの間でも、同じ線です。
+- **時刻**はイベントの先頭に、控えめな色で置かれます。**タイトル**はその次に、本文と同じ大きさ、見出しの太さで置かれます。**本文**は、利用者側で用意するコンテンツです。ブロックどうしは 8 離れます。
+- **密度**：regular ではイベントどうしが 16、compact では 8 離れます。compact は、1 行のイベントが長く続くログのためのものです。変わるのはこの間隔だけです。
+- **サイズ**は、プローズと同じ 2 つです。コントロールの間に置くときは medium、文章を読むためのページでは large です。マーカーとコネクターはステップのものとそろえてあるので、同じページに並べても 1 つの仲間に見えます。
+
+<ComponentSpecs name="timeline" />
+
+### プローズの中で
+
+`.tanrei-prose` の中のタイムラインは、プローズから切り離されません。各本文の段落、リスト、リンク、インラインコードは、プローズのものとして描かれます。タイムラインはプローズの幅いっぱいに広がるので、本文の中のコードブロックはカラムの幅になり、本文の中の段落は行長の上限で止まります。`@tanrei/web/prose.css` にはタイムラインの規則も入っているので、プローズのページに 2 つ目のスタイルシートは要りません。
+
+### Web での描き方の違い
+
+- イベントのテキストは、要素（`<p>`）の中に書いてください。項目に直接書いたテキストには、時刻やタイトルとの間の余白を付けられません。
+- 完了のイベントのチェックは、アイコンセットの `check` です。そのため `icons.css` とアイコンフォントが必要で、なければ輪は空になります。
+- プローズの外では、長文の本文（リスト、引用）はプローズとしては組まれず、ページのほかの場所と同じように配置されます。
+- デザインシステムが追加したサイズや密度は、そのシステムが規則を用意するまで、既定のものとして描かれます。
+- パッケージのスクリプトがなければ、どの項目もリストの現在の項目として示されません。状態は、その場合も言葉で読み上げられます。
+
+## ガイドライン
+
+### 推奨
+
+- イベントは、読み手が期待する順で渡します。変更履歴なら新しい順、計画なら古い順です。タイムラインはその順を保ちます。
+- 状態のあるイベントには、読み手の言語で書いた言葉を `data-status-label` で必ず添えます。
+- 状態がすべての読み手にとって重要なら、タイトルか本文のタグとして、見える言葉でも示します。
+- 相対的な時刻（「2 時間前」）には、正確な時点を `datetime` で添えます。
+- 1 行のイベントが長く続くログには compact を使い、古いイベントを表示するボタンをリストの後に置きます。
+
+### 非推奨
+
+- 手順にタイムラインを使わない。読み手がすることに番号を振るのは、ステップです。
+- フローの中でのその人の現在地を示すために使わない。それはステッパーで、マーカーはコントロールではありません。
+- すべてのタイトルを見出しにしない。40 件のイベントがある変更履歴では、ページのアウトラインが埋まってしまいます。見出しにするのは、各イベントがページのセクションになっている場合です。
+- イベントの中にタイムラインを入れない。イベントの中のイベントは、本文の中のリストにします。
+- 失敗したことを、マーカーだけで伝えない。イベントの言葉とタグで伝えます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="timeline" />
+
+### コンポーネントが担うこと
+
+- 文書の順序付きリストのままです。イベントと同じ数の項目があり、それぞれが状態の言葉、時刻、タイトル、本文の順に読み上げられます。
+- 状態の言葉は時刻の前に読み上げられ、画面には描かれません。マーカーとコネクターは装飾で、支援技術からは隠されます。
+- 3 つの状態は、3 つの色ではなく 3 つの形で、強制カラーモードでも変わりません。
+- 進行中のイベントが 1 つだけのとき、パッケージのスクリプトがそれをリストの現在の項目として示します。
+- `datetime` のある時刻は、文書の time 要素そのものです。
+- テキストは読み手の設定に合わせて大きくなり、折り返します。切り詰めたり、折りたたんだり、ページに分けたりすることはありません。
+
+### 利用者側で行うこと
+
+- リストに `role="list"` を書き、その前の見出しか `aria-label` で名前を付けます。
+- イベント自身のテキストがすでに状態を伝えている場合を除き、状態には必ず `data-status-label` を添えます。
+- 状態の言葉は、3 つのブラウザーエンジンの現行版では、スタイルシートを通じてスクリーンリーダーに届きます。パッケージのスクリプトなしで古いブラウザーに対応するときは、`data-status-label` の代わりに、項目の先頭に `<span class="tanrei-timeline-status">完了、</span>` と利用者側で書いてください。
+- 人が見ている間にイベントを追加するときは、プロダクト側のライブリージョンで読み上げさせてください。タイムラインは読み上げません。

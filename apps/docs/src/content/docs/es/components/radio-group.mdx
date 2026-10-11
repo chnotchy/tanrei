@@ -1,0 +1,245 @@
+---
+title: Grupo de botones de opción
+description: Hace una pregunta que tiene exactamente una respuesta entre unas pocas opciones que se muestran todas a la vez. Es un conjunto de botones de opción que guarda el valor elegido, bajo una etiqueta que puede decir si la respuesta es obligatoria u opcional, con una descripción y un único error para el conjunto.
+translationOf: components/radio-group.mdx
+sourceHash: a3b0be7452dc859db3012eadbd2af528ebb21eed
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="radio-group" />
+
+<DemoFrame label="Un conjunto de botones de opción con un nombre, una descripción y una marca de obligatoriedad" column>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" supporting-text="Puedes cambiarla hasta que se envíe el pedido." requirement="required" required-text="Obligatorio" value="standard">
+    <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
+  </tanrei-radio-group>
+</DemoFrame>
+
+Un [botón de opción](/es/components/radio-button/) nunca se usa solo. Un grupo de botones de opción convierte varios en una sola pregunta: da al conjunto un nombre, una línea que dice cómo responder, una palabra que dice si hay que responderlo y un único motivo cuando la respuesta se rechaza, y guarda la respuesta como un solo valor.
+
+**Se compone de** un [grupo de campos](/es/components/field-group/) y [botones de opción](/es/components/radio-button/). El grupo de campos es el marco, en su tipo radio-group: la etiqueta, la marca de obligatorio o de opcional, la descripción, el error, la disposición en una columna o en una fila, y el único grupo de botones de opción del que se informa a la tecnología de apoyo. Los botones de opción guardan el valor: cada uno es una opción con su propia etiqueta, y cuál de ellos está seleccionado es la respuesta. El grupo de botones de opción no dibuja nada propio y no tiene ningún token. Lo que añade a los dos es el estado que, de otro modo, escribe cada producto: un solo valor de entrada y de salida y un solo `change` para él, las teclas de flecha y la única parada en el orden del foco que se mantiene para el conjunto, y un lugar en un formulario como un solo control.
+
+Es tan ancho como el lugar en el que se pone.
+
+En la web es `<tanrei-radio-group>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-radio-group label="Entrega" name="delivery" value="standard" requirement="required" required-text="Obligatorio"
+                        supporting-text="Puedes cambiarla hasta que se envíe el pedido.">
+      <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
+      <tanrei-radio-button value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
+      <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
+    </tanrei-radio-group>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-group';
+
+      const group = document.querySelector('tanrei-radio-group');
+      group.addEventListener('change', (event) => {
+        // event.detail.value es el nuevo valor; group.value ya lo contiene.
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react';
+
+    <RadioGroup label="Entrega" value={delivery} onChange={(event) => setDelivery(event.detail.value)}
+                error={refused} errorText="La entrega exprés no llega a esta dirección. Elige otra forma de entrega.">
+      <RadioButton value="standard" label="Estándar, de 3 a 5 días" />
+      <RadioButton value="express" label="Exprés, al día siguiente" />
+      <RadioButton value="pickup" label="Recogida en tienda" />
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+Dentro de un grupo de botones de opción, un botón de opción no necesita `name` ni `checked`: el `value` del grupo dice cuál está seleccionado.
+
+### Un nivel más abajo
+
+El mismo conjunto, escrito a mano con sus dos miembros, es la misma imagen y el mismo grupo de botones de opción para la tecnología de apoyo. Al grupo de campos se le dice qué es su conjunto con `kind="radio-group"`, y los botones de opción llevan un mismo `name`:
+
+```html
+<tanrei-field-group kind="radio-group" label="Entrega"
+                    supporting-text="Puedes cambiarla hasta que se envíe el pedido."
+                    requirement="required" required-text="Obligatorio">
+  <tanrei-radio-button name="delivery" value="standard" label="Estándar, de 3 a 5 días" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="pickup" label="Recogida en tienda"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="El mismo conjunto escrito a mano: un grupo de campos cuyo tipo es radio-group, con botones de opción de un mismo nombre dentro" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Entrega" supporting-text="Puedes cambiarla hasta que se envíe el pedido." requirement="required" required-text="Obligatorio">
+    <tanrei-radio-button name="delivery-by-hand" value="standard" label="Estándar, de 3 a 5 días" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-by-hand" value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-by-hand" value="pickup" label="Recogida en tienda"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+Lo que el grupo de campos y los botones de opción escritos a mano no hacen es guardar la respuesta. Nada de lo que se dibuja o se dice es distinto.
+
+| Aspecto | Escrito a mano | El grupo de botones de opción |
+| --- | --- | --- |
+| La respuesta | La lee el producto en los botones de opción | `value`, y un solo `change` en un solo elemento |
+| Definir la respuesta | `checked` en un botón de opción | `value = "express"` |
+| Lo que envía un formulario | La misma entrada, por el botón de opción seleccionado | La misma entrada, por el grupo |
+| Un conjunto obligatorio que se deja sin responder | Se dibuja y se dice como obligatorio; el formulario no lo rechaza | La validación propia del formulario lo rechaza |
+| La opción seleccionada se quita, o todavía no se muestra | La respuesta se pierde | `value` se conserva |
+| Una opción seleccionada que has deshabilitado por separado | No envía nada | Se envía su valor |
+| Teclas de flecha, una sola parada para la tecla Tab, la posición de cada botón de opción en el conjunto | Lo mismo, por los botones de opción de un mismo nombre | Lo mismo, por el grupo |
+
+Escribe a mano el grupo de campos y los botones de opción donde el conjunto contiene, entre sus opciones, algo que el grupo no dispone —una línea tuya debajo de cada opción— o donde las opciones deben estar en tus propios elementos de una manera que un slot no permite.
+
+## Especificaciones
+
+<DemoFrame label="Un conjunto obligatorio sin responder y en error, una respuesta rechazada, una fila y un conjunto con una opción deshabilitada" plain column>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" requirement="required" required-text="Obligatorio" error error-text="Elige cómo quieres recibir el pedido.">
+    <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" supporting-text="Puedes cambiarla hasta que se envíe el pedido." requirement="required" required-text="Obligatorio" value="express" error error-text="La entrega exprés no llega a esta dirección. Elige otra forma de entrega.">
+    <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Tamaño" orientation="horizontal" value="m">
+    <tanrei-radio-button value="s" label="Pequeño"></tanrei-radio-button>
+    <tanrei-radio-button value="m" label="Mediano"></tanrei-radio-button>
+    <tanrei-radio-button value="l" label="Grande"></tanrei-radio-button>
+  </tanrei-radio-group>
+  <tanrei-radio-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Entrega" requirement="optional" optional-text="Opcional" value="standard">
+    <tanrei-radio-button value="standard" label="Estándar, de 3 a 5 días"></tanrei-radio-button>
+    <tanrei-radio-button value="express" label="Exprés, al día siguiente" disabled></tanrei-radio-button>
+    <tanrei-radio-button value="pickup" label="Recogida en tienda"></tanrei-radio-button>
+  </tanrei-radio-group>
+</DemoFrame>
+
+<ComponentSpecs name="radio-group" />
+
+El grupo de botones de opción no tiene tokens propios. La tabla anterior enumera los del grupo de campos, que es el que dibuja su marco: un sistema de diseño que cambia el estilo del grupo de campos cambia con él el de todos los grupos de botones de opción. Cada botón de opción se dibuja con los tokens propios del botón de opción.
+
+### Qué aporta cada miembro
+
+| Qué se dibuja | De quién es |
+| --- | --- |
+| La etiqueta, la marca de obligatoriedad, la descripción, el texto de error, las distancias entre las filas y entre los botones de opción | Del [grupo de campos](/es/components/field-group/), con `comp.field-group.*` |
+| Cada botón de opción: el anillo, el relleno, la etiqueta, la capa de estado, el anillo de foco, la forma deshabilitada | Del [botón de opción](/es/components/radio-button/), con `comp.radio-button.*` |
+| Cualquier otra cosa | De nadie: el grupo de botones de opción no dibuja nada |
+
+### Diferenciar un solo grupo
+
+Un sistema de diseño da estilo al marco una sola vez, para todos los grupos de campos, grupos de botones de opción y grupos de casillas de verificación. Una sola instancia se diferencia en la propia instancia: en la web, un token del grupo de campos definido en el grupo de botones de opción llega al marco que hay dentro.
+
+```html
+<tanrei-radio-group label="Entrega"
+  style="--tanrei-comp-field-group-gap-controls: 12px">…</tanrei-radio-group>
+```
+
+### Qué dibuja la web de otra manera
+
+- El shadow root del elemento contiene un `<tanrei-field-group kind="radio-group">` alrededor de un slot. Los botones de opción siguen siendo tus propios hijos. Importar el elemento define los dos miembros.
+- El elemento está asociado a formularios. Recibe `name` y `form`, y envía `value` con el nombre `name`, también mientras el botón de opción seleccionado es uno que has deshabilitado por separado. Sus botones de opción no envían nada, lleven el `name` que lleven. Se restablece al valor de su atributo `value`, sigue a un `<fieldset>` deshabilitado y notifica que falta un valor mientras `requirement` es `required` y `value` está vacío, con las palabras propias del navegador para un conjunto de botones de opción sin responder.
+- `change` es un CustomEvent cuyo `detail.value` es el nuevo valor; antes de él se emite `input`. Un listener en un botón de opción dentro del grupo no oye ninguno de los dos.
+- Partes: `field-group` es el marco, y sus partes tienen aquí los mismos nombres que un nivel más abajo: `label`, `requirement-label`, `supporting-text`, `error-text`. A tus propios botones de opción se les da estilo como en cualquier otro lugar, con `tanrei-radio-button::part(…)`.
+- El elemento no puede recibir el foco por sí mismo. `focus()` va al botón de opción que es la parada, y un `<label for>` propio de la página lleva el foco allí.
+- El elemento no tiene rol: el grupo de botones de opción es el grupo de campos que hay dentro. Dale nombre con `label` —con `label-hidden` donde la etiqueta se dibuja en otro lugar— y nunca con `aria-label`, que aquí no nombra nada.
+- Los atributos van en kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`.
+- Antes de que el elemento esté definido, y sin script, no se dibuja nada propio: los botones de opción se muestran como contenido corriente. Una página que deba funcionar sin script escribe un `<fieldset>` nativo con botones de opción nativos de un mismo `name`, que envía la misma entrada.
+
+## Pautas
+
+### Cuándo un grupo de botones de opción y cuándo otra cosa
+
+| La persona | Usa |
+| --- | --- |
+| Da un solo valor entre unas pocas opciones que conviene ver todas a la vez (hasta unas cinco), en un formulario o en un ajuste | Un grupo de botones de opción. |
+| Cambia lo que se muestra debajo: qué vista, qué ejemplo, qué periodo | [Pestañas](/es/components/tabs/). |
+| Da un solo valor entre muchas opciones, o hay poco sitio | Un [select](/es/components/select/). |
+| Da varios valores como una sola respuesta | Un [grupo de casillas de verificación](/es/components/checkbox-group/). |
+| Escribe el mismo conjunto a mano, para organizarlo de una manera que el grupo no ofrece | Un [grupo de campos](/es/components/field-group/) cuyo `kind` es `radio-group`, alrededor de botones de opción de un mismo nombre ([un nivel más abajo](#un-nivel-más-abajo)). |
+| Activa o desactiva una sola cosa, de inmediato | Un [interruptor](/es/components/switch/). |
+| Pulsa botones que están uno al lado de otro y que se conmutan cada uno por su cuenta | Un [grupo de botones](/es/components/button-group/). |
+
+Lo que distingue un grupo de botones de opción de unas pestañas es lo que hace la elección, no su aspecto: un valor que se guarda o se envía es un grupo de botones de opción; una elección de qué mirar son pestañas.
+
+### El valor
+
+- `value` es el valor del botón de opción seleccionado, y la cadena vacía mientras no hay ninguno seleccionado. Defínelo para seleccionar; escucha `change` para saber qué selecciona una persona.
+- `change` lo emite el grupo, una vez por selección, con el valor que el grupo ya contiene. No se emite cuando defines `value` ni cuando se vuelve a activar la opción seleccionada.
+- Una persona no puede devolver un grupo de botones de opción a «nada seleccionado». Donde no responder sea una respuesta real, añade una opción que lo diga («Ninguno», «Sin preferencia») o empieza con una opción seleccionada.
+- La selección sigue al foco: una tecla de flecha selecciona a medida que se mueve. Si una selección tiene de inmediato un efecto costoso o visible, toma la respuesta de un botón que la confirme, no de `change`.
+- Un valor que no corresponde a ningún botón de opción no muestra ninguno seleccionado y se conserva: la opción puede llegar más tarde.
+
+### Disposición
+
+- `orientation="vertical"` (el valor predeterminado) apila las opciones en una columna. Prefiérelo.
+- `orientation="horizontal"` las dispone en una fila que salta de línea. Resérvalo para dos o tres opciones cortas: cuando una fila ha saltado de línea, cuesta más ver qué etiqueta corresponde a qué anillo.
+
+Las teclas de flecha funcionan igual en las dos orientaciones y siguen el orden dado, no el lugar donde una fila que ha saltado de línea dejó una opción.
+
+### Errores
+
+`error` y `errorText` los defines tú: el grupo nunca se pone en error por sí mismo, ni siquiera cuando es obligatorio y está sin responder. Un grupo en error dibuja el texto de error debajo de las opciones, se expone como no válido y dibuja todos los botones de opción en su forma de error: el anillo y el punto toman el color de error, como los recuadros de un grupo de casillas de verificación. Una opción deshabilitada no muestra el color de error, porque no puede ser la respuesta que corrija el error. Los botones de opción en sí no se exponen como no válidos; el grupo lo dice una sola vez.
+
+Un cambio de valor no quita el error. Quítalo cuando la respuesta sea aceptable.
+
+### Recomendado
+
+- Da al conjunto como nombre la pregunta a la que responden sus opciones: «Entrega».
+- Da a cada botón de opción un `value` que sea único en el grupo, y su propia etiqueta.
+- Mantén pocas opciones. Una sola opción es una casilla de verificación; muchas son un select.
+
+### Evita
+
+- No pongas en un grupo de botones de opción nada más que se pueda accionar: ni una casilla de verificación, ni un botón, ni un campo.
+- No des un `name` a los botones de opción de un grupo de botones de opción. Se ignora: su grupo es el propio grupo.
+- No envuelvas un grupo de botones de opción en un campo o en un grupo de campos para darle una etiqueta. Ya tiene la suya. Un grupo de botones de opción puede ser un miembro de un grupo de campos que da nombre a un conjunto mayor («Envío»).
+- No hagas que un conjunto sea de solo lectura deshabilitando el grupo: un grupo deshabilitado no envía nada. Un grupo de botones de opción no tiene estado de solo lectura; muestra como texto una respuesta que no se puede cambiar, o deshabilita cada botón de opción por separado, lo que conserva el valor.
+
+## Accesibilidad
+
+<ComponentAccessibility name="radio-group" />
+
+### De qué se encarga el componente
+
+- Un solo grupo de botones de opción que contiene sus botones de opción y recibe su nombre de `label`, tanto si se dibuja como si se oculta con `labelHidden`.
+- El estado obligatorio mientras `requirement` es `required`, el estado no válido mientras `error` es true, el estado deshabilitado mientras `disabled` es true, y su orientación.
+- La descripción del grupo es `supportingText`, después `errorText` mientras `error` es true y después `optionalText` mientras es opcional. `requiredText` no forma parte de ella: lo dice el estado obligatorio.
+- Cada botón de opción dice su posición en el conjunto y el tamaño del conjunto, contando las opciones deshabilitadas.
+- Una sola parada en el orden del foco: el botón de opción seleccionado o, si no hay ninguno, el primero habilitado. Tab entra en el grupo por ahí y sale de él; las teclas de flecha se mueven dentro del grupo, se saltan una opción deshabilitada y dan la vuelta en los dos extremos. En un diseño de derecha a izquierda, Flecha izquierda y Flecha derecha se intercambian.
+- `disabled` deshabilita todos los botones de opción. Un grupo habilitado nunca habilita un botón de opción que hayas deshabilitado tú: las teclas de flecha y Tab lo pasan por alto, conserva su lugar en el recuento y sigue seleccionado mientras `value` es su valor.
+- Un error que aparece, o cuyas palabras cambian, mientras el foco está en uno de los botones de opción se anuncia una vez, de forma cortés. El foco nunca se mueve por un error.
+- El tag de obligatoriedad y el asterisco quedan ocultos para la tecnología de apoyo.
+- Con el texto al 200%, todos los textos saltan de línea, una fila se convierte en una columna y nada se corta.
+- Con colores forzados, todos los textos toman el color de texto del sistema y el tag de obligatoriedad gana un borde.
+- En un diseño de derecha a izquierda, las filas empiezan por la derecha, una fila de opciones avanza desde la derecha y cada texto conserva su propia dirección.
+- En la web es un solo control de su formulario: envía `value` con el nombre `name`, vuelve a su primer valor cuando el formulario se restablece, sigue a un `fieldset` deshabilitado y, mientras es obligatorio y está sin responder, notifica a la validación propia del formulario que falta un valor.
+- Las compilaciones de depuración notifican un grupo sin ningún botón de opción, con otro control, sin etiqueta, con dos opciones del mismo valor o con un valor que no corresponde a ninguna opción.
+
+Carencias conocidas en la web:
+
+- La validación propia del formulario muestra el mensaje del navegador para un conjunto de botones de opción sin responder, no `errorText`.
+- Antes de que el elemento esté definido, los botones de opción están en la página sin la etiqueta, la descripción, la disposición ni la selección del grupo.
+
+### Qué debes hacer tú
+
+- Da un `label` al grupo.
+- Valida tú la respuesta, activa `error` y escribe `errorText` de modo que diga cómo corregir la respuesta.
+- Da los textos de la obligatoriedad: `required-text` y `optional-text` en el grupo, o una sola vez para todo el producto con `setWords({ requiredText, optionalText })`. Tanrei no incluye ninguno: sin `requiredText`, un asterisco ocupa el lugar del tag, y sin `optionalText` no se dibuja ningún tag ni se dice nada. Consulta [Los textos del producto](/es/foundations/words/).
+- Después de un envío fallido, di además, encima del formulario, qué se rechazó y enlaza al grupo: un [callout](/es/components/callout/) activo con el estado de error.

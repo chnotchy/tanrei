@@ -1,0 +1,140 @@
+---
+title: Copy button
+description: A Button that copies a given text with one press and confirms it, or says that it could not. It is drawn by Button and never moves the layout.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="copy-button" />
+
+<DemoFrame label="Press one: the glyph becomes a check for a moment">
+  <tanrei-copy-button text="npm install @tanrei/web" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
+  <tanrei-copy-button variant="tonal" text="#30a3f0" label="Copy color" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="https://example.com/s/4f2a" label="Copy link" copied-label="Link copied" failed-label="Could not copy"></tanrei-copy-button>
+  <tanrei-copy-button icon-only="false" variant="filled" text="sk-test-0000" label="Copy key" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
+</DemoFrame>
+
+Use a copy button beside something a person will paste elsewhere: a command, a key, an address, a color value. It waits for the browser's answer, shows a check (or an error mark) for two seconds, and tells assistive technology in words. A [Code block](../code-block/) places one for you.
+
+### Usage
+
+The copy button is a [Button](../button/) of the variant and size you name. It has no colors or measures of its own, so a design system that restyles Button restyles every copy button with it.
+
+The words are yours. `label`, `copied-label` and `failed-label` have no defaults, because Tanrei ships no text in any language.
+
+SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Icon-only (the default): named by label. -->
+    <tanrei-copy-button
+      text="npm install @tanrei/web"
+      label="Copy"
+      copied-label="Copied"
+      failed-label="Could not copy"
+    ></tanrei-copy-button>
+
+    <!-- Labelled: the text changes with the form, and the width never does. -->
+    <tanrei-copy-button
+      icon-only="false"
+      variant="tonal"
+      text="https://example.com/s/4f2a"
+      label="Copy link"
+      copied-label="Link copied"
+      failed-label="Could not copy"
+    ></tanrei-copy-button>
+
+    <script type="module">
+      import '@tanrei/web';
+
+      document.querySelector('tanrei-copy-button').addEventListener('copyfailed', () => {
+        // The button has said that it could not. What else happens is yours.
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CopyButton } from '@tanrei/react';
+
+    <CopyButton text={command} label="Copy" copiedLabel="Copied" failedLabel="Could not copy" onCopyfailed={() => showHelp()} />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Sizes and variants are the Button's" plain>
+  <tanrei-copy-button size="small" text="small" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
+  <tanrei-copy-button text="medium" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
+  <tanrei-copy-button size="large" text="large" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
+  <tanrei-copy-button variant="elevated" text="elevated" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
+  <tanrei-copy-button disabled text="disabled" label="Copy" copied-label="Copied" failed-label="Could not copy"></tanrei-copy-button>
+</DemoFrame>
+
+<DemoFrame label="The width is kept for the longest of the three texts" plain>
+  <tanrei-copy-button icon-only="false" variant="outlined" text="sk-test-0000" label="Copy" copied-label="Copied to the clipboard" failed-label="Could not copy"></tanrei-copy-button>
+  <tanrei-button variant="text">A neighbour that does not move</tanrei-button>
+</DemoFrame>
+
+The button has three forms: at rest (the glyph `content_copy`), copied (`check`) and failed (`error`). It shows the copied form only after the browser has confirmed the copy, and returns to rest after `comp.copy-button.confirmation.duration` (2 seconds). A press while it shows a confirmation copies and confirms again.
+
+Nothing moves when the form changes. The three glyphs are drawn in one box. The labelled form keeps the width of its widest text at all times.
+
+The glyph changes at once, with no motion. The two seconds are a time to notice, so they are kept where motion is reduced.
+
+If the text changes while the button shows "copied", it returns to rest at once: what was copied is no longer what would be.
+
+The events are `copied` and `copyfailed`. They are not named `copy`, because `copy` is the document's own clipboard event.
+
+<ComponentSpecs name="copy-button" />
+
+### What the web draws differently
+
+- Copying uses `navigator.clipboard.writeText`. It needs a secure page (HTTPS or localhost) and a press by the person. Where the browser has no clipboard or refuses, the button takes the failed form. There is no fallback.
+- The two events bubble and do not cross a shadow root.
+
+## Guidelines
+
+### Icon-only or labelled
+
+| Form | Shows | Use it when |
+| --- | --- | --- |
+| **Icon-only** | The glyph alone. A sighted person sees the check and no words | Beside the thing it copies: a command, a code block, a value in a row |
+| **Labelled** | The glyph and the words, which change with the form | The copy is one of the view's actions, or the words matter to everyone |
+
+### Do
+
+- Say what is copied in the label when it is not obvious from its place: "Copy link", "Copy JSON".
+- Listen for `copyfailed` and show something that stays, such as the text selected in a field, when the person must still get the text.
+- Keep the text variant for a copy button beside its content. Choose another variant when copying is the view's main action.
+
+### Don't
+
+- Don't show the button only on hover. It cannot be found by touch then.
+- Don't open a tooltip or a snackbar for a successful copy. The button already confirms it.
+- Don't use it to copy anything but text.
+
+## Accessibility
+
+<ComponentAccessibility name="copy-button" />
+
+### What the component handles
+
+- It is a button, with the Button's focus indicator, its minimum target and its keys (Enter and Space).
+- The icon-only form is named by `label` in every form. The name does not change when the glyph does.
+- The result is announced through a live region: `copied-label` politely, `failed-label` assertively, on every press, without moving focus.
+- The confirmation is a shape and words, not a color.
+- In a right-to-left layout the copy glyph is mirrored, as the icon set says. The check and the error mark are not.
+
+### What you need to do
+
+- Give all three labels, in your product's language. An icon-only button without `label` has no accessible name.
+- Follow up a failure yourself where the person must not lose the text.

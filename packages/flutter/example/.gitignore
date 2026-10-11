@@ -1,0 +1,9 @@
+# An application commits its lockfile; this one is an example of a library and follows the library.
+pubspec.lock
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+# Copies of the repository's specs/*.spec.json, made by tool/copy_specs.dart for `flutter run` /
+# `flutter build web`. The spec files are the source of truth; never commit a copy.
+/assets/specs/*.spec.json

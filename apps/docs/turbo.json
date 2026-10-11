@@ -1,0 +1,19 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "validate": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "../../tokens/**",
+        "../../specs/**",
+        "../../tanrei.config.json",
+        "../../design/tokens/**",
+        "../../docs/status/**",
+        "../../packages/web/custom-elements.json"
+      ],
+      "outputs": []
+    }
+  }
+}

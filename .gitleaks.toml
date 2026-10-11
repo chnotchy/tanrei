@@ -1,0 +1,17 @@
+# gitleaks configuration: the default rules, and the reviewed false positives of generic-api-key (an entropy heuristic)
+# allowed by what the line says, never by commit or path, so the same text is quiet in every scan and a real secret
+# beside it is still reported. gitleaks reads this file from the repository root (lefthook's pre-commit and CI).
+title = "Tanrei"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Reviewed: design-token names and prose, not secrets"
+regexTarget = "line"
+regexes = [
+  # A design token's name given to the MCP server's resolve tool: `token: 'tanrei.ref.palette.primary.40'`.
+  '''token['"]?\s*:\s*['"]tanrei\.(ref|sys|comp)\.[a-z0-9.-]+['"]''',
+  # The CLI README's table of what `tanrei` exports: "… any design-token tool, Figma/Penpot importers, AI agents |".
+  '''any design-token tool, Figma/Penpot importers''',
+]

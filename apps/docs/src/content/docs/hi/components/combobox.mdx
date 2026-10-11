@@ -1,0 +1,239 @@
+---
+title: कॉम्बोबॉक्स
+description: वह बॉक्स जिसमें लोग एक मान खोजने के लिए टाइप करते हैं, और विकल्पों की वह लिस्ट जो वह खोलता है — लेबल की अपनी पंक्ति, सहायता या त्रुटि टेक्स्ट के बिना। उस जगह के लिए जहाँ लेबल कहीं और है, या उस फ़ील्ड के भीतर जिसे प्रॉडक्ट ख़ुद जोड़कर बनाता है।
+translationOf: components/combobox.mdx
+sourceHash: 8b063acb7cfd1c1829ee3980f804abae028a383a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="combobox" />
+
+<DemoFrame label="अकेला कॉम्बोबॉक्स: टूलबार में एक फ़िल्टर, और एक पंक्ति जिसका लेबल कॉम्बोबॉक्स के बग़ल में है" column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टोकन खोजें" placeholder="टोकन खोजें" no-chevron empty-text="कोई नतीजा नहीं">
+    <span slot="leading-icon">search</span>
+    <tanrei-option value="primary" supporting-text="sys.color.primary">primary</tanrei-option>
+    <tanrei-option value="secondary" supporting-text="sys.color.secondary">secondary</tanrei-option>
+    <tanrei-option value="surface" supporting-text="sys.color.surface">surface</tanrei-option>
+  </tanrei-combobox>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>टाइम ज़ोन</span>
+    <tanrei-combobox label="टाइम ज़ोन" value="Europe/Lisbon" empty-text="कोई नतीजा नहीं">
+      <tanrei-option value="Asia/Tokyo">टोक्यो</tanrei-option>
+      <tanrei-option value="Europe/Lisbon">लिस्बन</tanrei-option>
+      <tanrei-option value="Europe/Berlin">बर्लिन</tanrei-option>
+    </tanrei-combobox>
+  </div>
+</DemoFrame>
+
+कॉम्बोबॉक्स किसी [कॉम्बोबॉक्स फ़ील्ड](/hi/components/combobox-field/) का कंट्रोल है, अकेला: बॉक्स, उसमें टाइप किया गया टेक्स्ट, शुरुआती ग्लिफ़, मिटाने का बटन और शेवरॉन, और अपने विकल्पों, ग्रुप और स्थिति पंक्ति के साथ लिस्ट। इसके ऊपर लेबल की कोई पंक्ति नहीं है, और इसके नीचे न सहायता है न त्रुटि टेक्स्ट।
+
+इसे अकेले वहाँ इस्तेमाल करें जहाँ व्यक्ति जो लेबल पढ़ता है वह कहीं और है:
+
+| कहाँ | व्यक्ति जो लेबल पढ़ता है | कॉम्बोबॉक्स का `label` |
+| --- | --- | --- |
+| टूलबार में एक फ़िल्टर | प्लेसहोल्डर और ग्लिफ़ बताते हैं कि यह क्या करता है | यह क्या खोजता है: "टोकन खोजें" |
+| टेबल का एक सेल | कॉलम का हेडर | कॉलम और पंक्ति: "किसे सौंपें, रिलीज़ नोट" |
+| एक पंक्ति जिसका लेबल बॉक्स के बग़ल में है | बग़ल का टेक्स्ट | वही शब्द |
+
+अकेले कॉम्बोबॉक्स को अपना `label` चाहिए। वही एक्सेसिबल नाम है, इनपुट का भी और लिस्ट का भी। stacked कॉम्बोबॉक्स इसे कभी नहीं दिखाता; filled या outlined कॉम्बोबॉक्स इसे उस लेबल के रूप में दिखाता है जो बॉक्स में फ़्लोट होता है।
+
+यह एक **ऐडवांस्ड** कंपोनेंट है: सिर्फ़ कंट्रोल, उस प्रॉडक्ट के लिए जो अपना फ़ील्ड ख़ुद जोड़कर बनाता है। ज़्यादातर फ़ॉर्म को [कॉम्बोबॉक्स फ़ील्ड](/hi/components/combobox-field/) चाहिए, जो फ़ील्ड के भीतर रखा यही कॉम्बोबॉक्स है, इस्तेमाल के लिए तैयार।
+
+**कहाँ इस्तेमाल होता है:** [कॉम्बोबॉक्स फ़ील्ड](/hi/components/combobox-field/) में। इसे ख़ुद फ़्रेम देने के लिए किसी [फ़ील्ड](/hi/components/field/) के भीतर रखें, जो इसे नाम देता है, इसका विवरण देता है, इसे ज़रूरी के रूप में चिह्नित करता है और इसे त्रुटि की अवस्था में लाता है।
+
+यह एक ब्लॉक है, उतना ही चौड़ा जितनी वह जगह जिसमें इसे रखा गया है, अकेले भी और फ़्रेम के भीतर भी। इसकी अपनी कोई चौड़ाई नहीं है, और इसकी चौड़ाई कभी इसके विकल्पों या इसके मान के हिसाब से नहीं बदलती: बॉक्स सँकरा चाहिए तो उसे सँकरी जगह दें।
+
+वेब पर यह `<tanrei-combobox>` है, जिसके चाइल्ड `<tanrei-option>` हैं, वही एलिमेंट जो [सिलेक्ट](/hi/components/select/) में रहते हैं। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
+
+### इस्तेमाल
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- टूलबार में एक फ़िल्टर: उसकी चौड़ाई टूलबार देता है। शेवरॉन नहीं है: उसके सुझाव सिर्फ़ टाइप किए गए टेक्स्ट के लिए होते हैं। -->
+    <tanrei-combobox id="token" label="टोकन खोजें" placeholder="टोकन खोजें" no-chevron filter="none"
+      style="inline-size: 16rem">
+      <span slot="leading-icon">search</span>
+    </tanrei-combobox>
+
+    <!-- टेबल का एक सेल: दिखने वाला लेबल कॉलम का हेडर है। -->
+    <td>
+      <tanrei-combobox name="assignee-release-notes" label="किसे सौंपें, रिलीज़ नोट" value="aiko">
+        <tanrei-option value="aiko">Aiko Tanaka</tanrei-option>
+        <tanrei-option value="bao">Bao Nguyen</tanrei-option>
+      </tanrei-combobox>
+    </td>
+
+    <script type="module">
+      import '@tanrei/web/components/combobox';
+
+      const token = document.querySelector('#token');
+      // व्यक्ति ने टेक्स्ट बदला: फ़िल्टर आप करते हैं, और विकल्प वापस देते हैं।
+      token.addEventListener('input', async () => {
+        const found = await find(token.inputValue);
+        token.replaceChildren(token.querySelector('[slot="leading-icon"]'), ...found.map(option));
+      });
+      // कमिट किया गया मान बदला। value में नया मान आ चुका है।
+      token.addEventListener('change', (e) => open(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Combobox, Option } from '@tanrei/react';
+
+    <Combobox label="किसे सौंपें, रिलीज़ नोट" value={assignee} onChange={(event) => setAssignee(event.detail.value)}>
+      <Option value="aiko">Aiko Tanaka</Option>
+      <Option value="bao">Bao Nguyen</Option>
+    </Combobox>
+    ```
+  </TabItem>
+</Tabs>
+
+बॉक्स में और लिस्ट में जो होता है, वह अकेले कॉम्बोबॉक्स में, फ़्रेम के भीतर और कॉम्बोबॉक्स फ़ील्ड में एक जैसा है, और एक ही जगह, कॉम्बोबॉक्स फ़ील्ड के पेज पर बताया गया है: [लिस्ट](/hi/components/combobox-field/#लिस्ट), और [टाइप करना, आगे-पीछे जाना और चुनना](/hi/components/combobox-field/#टाइप-करना-आगे-पीछे-जाना-और-चुनना)।
+
+### फ़ील्ड में, हाथ से
+
+कॉम्बोबॉक्स के चारों ओर का फ़ील्ड, हाथ से पूरा लिखा गया कॉम्बोबॉक्स फ़ील्ड है। कॉम्बोबॉक्स का अपना `label` ख़ाली छोड़ें: उसे नाम फ़ील्ड देता है। `label`, `error`, `disabled` और ज़रूरी या वैकल्पिक होना फ़ील्ड पर बताया जाता है; `name`, `value`, विकल्प और टाइप करने से जुड़ी हर बात कॉम्बोबॉक्स पर।
+
+```html
+<tanrei-field label="शहर" requirement="required" required-text="ज़रूरी"
+  supporting-text="ऑर्डर इसी शहर में भेजा जाता है।">
+  <tanrei-combobox name="city" value="tokyo">
+    <tanrei-option value="kyoto">क्योटो</tanrei-option>
+    <tanrei-option value="tokyo">टोक्यो</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+```
+
+<DemoFrame label="एक फ़ील्ड जिसके भीतर कॉम्बोबॉक्स है: वही तस्वीर जो कॉम्बोबॉक्स फ़ील्ड की है" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" requirement="required" required-text="ज़रूरी" supporting-text="ऑर्डर इसी शहर में भेजा जाता है।">
+    <tanrei-combobox value="tokyo" empty-text="कोई नतीजा नहीं">
+      <tanrei-option value="kyoto">क्योटो</tanrei-option>
+      <tanrei-option value="tokyo">टोक्यो</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</DemoFrame>
+
+कॉम्बोबॉक्स अपने फ़ील्ड को वह बताता है जो सिर्फ़ वही जानता है। उसकी सहायता वहीं से शुरू होती है जहाँ से टेक्स्ट शुरू होता है, पैडिंग और शुरुआती ग्लिफ़ के बाद। फ़ील्ड का लेबल filled या outlined कॉम्बोबॉक्स ख़ुद दिखाता है, बॉक्स में फ़्लोट होता हुआ, इसलिए फ़ील्ड लेबल की कोई पंक्ति नहीं दिखाता। और जब तक उसकी लिस्ट खुली है, वह फ़ोकस वाले रूप में दिखाया जाता है, इसलिए फ़ील्ड का लेबल और सहायता भी उसके साथ फ़ोकस वाले रूप में दिखाए जाते हैं, इनपुट पर फ़ोकस हो या नहीं।
+
+फ़ील्ड के लेबल पर दबाने से फ़ोकस इनपुट पर आता है और कुछ नहीं खुलता। जब तक लिस्ट खुली है, लेबल कॉम्बोबॉक्स के बाहर है: दबाने से लिस्ट बंद होती है, और फ़ोकस इनपुट में ही रहता है।
+
+## स्पेक
+
+<DemoFrame label="अकेले कॉम्बोबॉक्स: त्रुटि में, अक्षम, सिर्फ़ पढ़ने के लिए, मिटाने के बटन के साथ, और large" plain column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" value="nairobi" error empty-text="कोई नतीजा नहीं">
+    <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" value="tokyo" disabled>
+    <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" value="tokyo" readonly>
+    <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="शहर" value="tokyo" clearable clear-label="शहर मिटाएँ" empty-text="कोई नतीजा नहीं">
+    <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" size="large" label="शहर" value="tokyo" empty-text="कोई नतीजा नहीं">
+    <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
+  </tanrei-combobox>
+</DemoFrame>
+
+<DemoFrame label="अकेले filled और outlined कॉम्बोबॉक्स: कॉम्बोबॉक्स का अपना लेबल बॉक्स में फ़्लोट होता है" system="m3-like" plain column>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="filled" label="शहर" value="tokyo" empty-text="कोई नतीजा नहीं">
+    <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
+  </tanrei-combobox>
+  <tanrei-combobox class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" variant="outlined" label="शहर" empty-text="कोई नतीजा नहीं">
+    <tanrei-option value="nairobi">नैरोबी</tanrei-option><tanrei-option value="tokyo">टोक्यो</tanrei-option>
+  </tanrei-combobox>
+</DemoFrame>
+
+### क्या कॉम्बोबॉक्स का है, और क्या फ़ील्ड का
+
+| पहलू | कॉम्बोबॉक्स | उसके चारों ओर का फ़ील्ड |
+| --- | --- | --- |
+| क्या दिखाता है | बॉक्स, टेक्स्ट, प्लेसहोल्डर, शुरुआती ग्लिफ़, मिटाने का बटन और शेवरॉन, अपने विकल्पों, ग्रुप और स्थिति पंक्ति के साथ लिस्ट, और वह लेबल जो filled या outlined बॉक्स में फ़्लोट होता है | stacked कॉम्बोबॉक्स के ऊपर लेबल की पंक्ति, ज़रूरी या वैकल्पिक का निशान, सहायता, त्रुटि टेक्स्ट |
+| क्या रखता है | मान, टेक्स्ट, लिस्ट खुली है या नहीं, फ़ॉर्म में उसकी जगह, इवेंट | कुछ नहीं |
+| सहायक तकनीक को क्या बताता है | कि यह लिस्ट वाला कॉम्बोबॉक्स है, फैला हुआ है या नहीं, और कौन-सा विकल्प सक्रिय है | नाम, सहायता या त्रुटि टेक्स्ट, ज़रूरी, अमान्य, अक्षम |
+
+तीनों वेरिएंट और दोनों साइज़, `medium` (48) और `large` (56), टेक्स्ट इनपुट के हैं: साथ-साथ रखे कॉम्बोबॉक्स और टेक्स्ट इनपुट की हर रेखा एक सीध में रहती है। डिफ़ॉल्ट सिस्टम के साथ सिर्फ़ `stacked` आता है।
+
+### अकेला, बिना फ़ील्ड के
+
+- **नाम** `label` है। `labelHidden` के साथ filled या outlined कॉम्बोबॉक्स उसे नहीं दिखाता।
+- **त्रुटि** `error` है, जिसे आप सेट करते हैं: बॉक्स त्रुटि की अवस्था में दिखाया जाता है और सहायक तकनीक को अमान्य के रूप में दिया जाता है। कॉम्बोबॉक्स के पास कोई त्रुटि टेक्स्ट नहीं है। क्या ग़लत है, यह उसके बग़ल में शब्दों में बताएँ, या उसे फ़्रेम दें।
+- **ज़रूरी होना** बताना फ़ील्ड का काम है। अकेले कॉम्बोबॉक्स में ज़रूरी होने की कोई सेटिंग नहीं है: जहाँ फ़ॉर्म को जवाब चाहिए, वहाँ उसे ख़ुद जाँचें।
+- **जो टेक्स्ट किसी विकल्प का नाम नहीं है**, वह व्यक्ति के बाहर जाने पर छोड़ दिया जाता है, जब तक `allowCustomValue` सेट न हो। यह कभी कॉम्बोबॉक्स की अपनी त्रुटि नहीं है।
+
+<ComponentSpecs name="combobox" />
+
+### वेब क्या अलग ढंग से बनाता है
+
+- `<tanrei-option>` और `<tanrei-option-group>` डेटा हैं: वे कुछ नहीं बनाते। ये वही एलिमेंट हैं जो सिलेक्ट में रहते हैं। जिस विकल्प का मान ख़ाली स्ट्रिंग है, वह दिखाया जाता है पर चुना नहीं जा सकता, क्योंकि ख़ाली मान का मतलब है कि कुछ नहीं चुना गया।
+- कॉम्बोबॉक्स के चाइल्ड के बीच रखा `<slot>` एलिमेंट उन एलिमेंट की जगह लेता है जो उस स्लॉट को दिए गए हैं। आपका अपना कोई एलिमेंट, जिसके शैडो रूट में एक कॉम्बोबॉक्स है, इसी तरह अपने चाइल्ड को विकल्पों के रूप में आगे देता है, और जब भी वे बदलते हैं, वे दोबारा पढ़े जाते हैं।
+- यह फ़ॉर्म से जुड़ा एलिमेंट है। `name` के साथ वह `value` सबमिट करता है और उस संपादन का टेक्स्ट कभी नहीं जो कमिट नहीं हुआ, रीसेट होने पर अपने `value` ऐट्रिब्यूट पर लौटता है, नेविगेशन पर बहाल होता है, अक्षम `<fieldset>` के साथ अक्षम होता है, और जब तक उसका फ़ील्ड उसे ज़रूरी बताता है, तब तक मान न होने की बात फ़ॉर्म को बताता है।
+- एलिमेंट एक ब्लॉक है। `focus()` इनपुट पर जाता है, और बॉक्स पर किसी बटन से बाहर कहीं भी दबाने पर फ़ोकस उसी पर आता है।
+- `chevron` का ऐट्रिब्यूट उलटे अर्थ वाला `no-chevron` है, और `readOnly` का `readonly`।
+- `input` टेक्स्ट एलिमेंट का नेटिव इवेंट है। `change` और `action` composed CustomEvent हैं, जिनके साथ `detail.value` और `detail.inputValue` आते हैं; Enter से फ़ॉर्म को सबमिट होने से रोकने के लिए `action` को रद्द करें। `toggle` के साथ `detail.open` आता है और, बंद होने पर, `detail.reason`; वह composed है और बबल नहीं होता।
+- लिस्ट टॉप लेयर में एक `popover="manual"` एलिमेंट है। बाहर दबाना उसे बंद करता है और उसके नीचे के एलिमेंट तक भी पहुँचता है।
+- भाग: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `leading-icon`, `clear-button`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`, `status`।
+- `empty-text` और `clear-label` ख़ाली छोड़े जाएँ तो प्रॉडक्ट के शब्दों से पढ़े जाते हैं (`setWords()`)।
+- एलिमेंट के डिफ़ाइन होने से पहले उसके विकल्प चलता टेक्स्ट होते हैं। `tanrei-combobox:not(:defined) > *` को छिपाएँ और ऊँचाई के लिए जगह रखें।
+
+## दिशानिर्देश
+
+### कॉम्बोबॉक्स, कॉम्बोबॉक्स फ़ील्ड, या हाथ से बना फ़ील्ड
+
+| आपको चाहिए | इस्तेमाल करें |
+| --- | --- |
+| लेबल, अपनी लिस्ट के साथ बॉक्स, सहायता और त्रुटि | [कॉम्बोबॉक्स फ़ील्ड](/hi/components/combobox-field/) |
+| सिर्फ़ बॉक्स, ऐसे लेबल के नीचे जो कहीं और है: टूलबार का फ़िल्टर, टेबल का सेल, वह पंक्ति जिसका लेबल बग़ल में है | कॉम्बोबॉक्स, जिसे नाम उसका अपना `label` देता है |
+| फ़्रेम के भीतर, बॉक्स के बग़ल में या नीचे, अपनी कोई चीज़ | एक [फ़ील्ड](/hi/components/field/), जिसके भीतर कॉम्बोबॉक्स और आपका अपना एलिमेंट हो |
+| बंद लिस्ट, जिसमें टाइप नहीं करना होता | [सिलेक्ट](/hi/components/select/) |
+| ऐसा टाइप करना जो किसी मान तक नहीं, जाने की जगहों तक ले जाता है | [खोज](/hi/components/search/) |
+
+### करें
+
+- अकेले कॉम्बोबॉक्स को `label` दिखने वाले लेबल के शब्दों में दें, या ऐसे शब्दों में जो वह बात कहें जो दिखने वाला लेबल और उसकी जगह मिलकर कहते हैं: "किसे सौंपें, रिलीज़ नोट"।
+- अकेले कॉम्बोबॉक्स को चौड़ाई उसकी जगह से दें: ग्रिड का कॉलम, सेल, टूलबार का ऐसा आइटम जिसकी चौड़ाई तय है।
+- जहाँ सुझाव सिर्फ़ टाइप किए गए टेक्स्ट के लिए होते हैं, वहाँ शेवरॉन हटा दें (`no-chevron`)।
+- जहाँ आपको बॉक्स के ऊपर लेबल, सहायता और त्रुटि चाहिए, वहाँ कॉम्बोबॉक्स फ़ील्ड इस्तेमाल करें।
+
+### न करें
+
+- लेबल की जगह बचाने के लिए फ़ॉर्म में अकेला कॉम्बोबॉक्स इस्तेमाल न करें।
+- प्लेसहोल्डर को लेबल की तरह इस्तेमाल न करें। कोई टाइप करना शुरू करे तो वह चला जाता है, और वह कभी नाम नहीं होता।
+- फ़ील्ड के भीतर रखे कॉम्बोबॉक्स पर `label`, `error` या `disabled` सेट न करें। इन्हें फ़ील्ड पर बताएँ, ताकि लेबल और सहायता भी साथ बदलें।
+- कॉम्बोबॉक्स फ़ील्ड को फ़ील्ड के भीतर न रखें। वह पहले से एक फ़ील्ड है; फ़ील्ड जिस कंट्रोल को फ़्रेम देता है, वह कॉम्बोबॉक्स है।
+- कॉम्बोबॉक्स पर `supporting-text`, `error-text` या `requirement` न लिखें। वे फ़ील्ड के हैं, और कॉम्बोबॉक्स इनमें से कुछ नहीं दिखाता।
+
+## सुलभता
+
+<ComponentAccessibility name="combobox" />
+
+### कंपोनेंट क्या सँभालता है
+
+- इनपुट एक ऐसा कॉम्बोबॉक्स है जिसमें टाइप करके संपादन किया जा सकता है, और जिसके साथ एक लिस्टबॉक्स है। इसका नाम इसका अपना `label` है, या जहाँ वह नहीं है वहाँ इसके चारों ओर के फ़ील्ड का लेबल। प्लेसहोल्डर कभी नाम नहीं होता।
+- इसका विवरण वह है जो इसका फ़ील्ड देता है: सहायता या त्रुटि टेक्स्ट, और वैकल्पिक का टेक्स्ट।
+- त्रुटि में रहते हुए यह अमान्य के रूप में दिया जाता है, जब तक इसका फ़ील्ड ऐसा कहता है तब तक ज़रूरी के रूप में, सिर्फ़ पढ़ने वाले और अक्षम के रूप में, और जब तक इसकी लिस्ट खुली है, फैले हुए (expanded) के रूप में।
+- लिस्ट खुली रहते फ़ोकस इनपुट में ही रहता है। सक्रिय विकल्प उसका सक्रिय डिसेंडेंट है, इसलिए टाइप करने पर टेक्स्ट का संपादन कभी नहीं रुकता।
+- लिस्ट उसी नाम का एक लिस्टबॉक्स है। हर विकल्प का अपना नाम और अपना विवरण होता है, और यह भी कि वह चुना हुआ है या नहीं, अक्षम है या नहीं, और दिखाए जा रहे विकल्पों के बीच उसकी जगह क्या है। ग्रुप का नाम उसके शीर्षक से आता है।
+- स्थिति पंक्ति एक लाइव रीजन है: उसका टेक्स्ट बदलने पर बिना टोके (polite) पढ़कर सुनाया जाता है, और सोर्स के विफल होने पर तुरंत।
+- शेवरॉन उसी नाम का एक बटन है, जो फ़ोकस के क्रम से बाहर है। मिटाने के बटन का नाम `clearLabel` से आता है, और वह इनपुट के बाद फ़ोकस का अगला पड़ाव है।
+- फ़ोकस बॉक्स के अपने किनारे से दिखाया जाता है, कीबोर्ड से आए या पॉइंटर से। हिट एरिया न्यूनतम टार्गेट पूरा करता है।
+- फ़्लोट होते लेबल के बाद का तारांकन सहायक तकनीक से छिपा रहता है: ज़रूरी होने का स्टेट यह पहले ही बता देता है।
+- नाम न हो तो डीबग बिल्ड में इसकी रिपोर्ट होती है।
+
+### आपको क्या करना है
+
+- हर अकेले कॉम्बोबॉक्स को `label` से नाम दें। उसके बग़ल का दिखने वाला टेक्स्ट उसे नाम नहीं देता।
+- जहाँ अकेला कॉम्बोबॉक्स ग़लत हो सकता है, वहाँ क्या ग़लत है यह ऐसे शब्दों में बताएँ जो सहायक तकनीक तक पहुँचें: पेज से जुड़ा आपका अपना संदेश, या कॉम्बोबॉक्स के चारों ओर एक फ़ील्ड।
+- हर विकल्प को एक लेबल और ऐसा मान दें जो ख़ाली न हो, और मान अलग-अलग रखें।
+- मिटाने के बटन वाले कॉम्बोबॉक्स को `clearLabel` दें, और `emptyText` और `statusText` लिखें।

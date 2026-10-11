@@ -1,0 +1,206 @@
+---
+title: Field
+description: Frames one control with what a form gives every field — a label that can say the control is required or optional, a line of help, and the reason a value was refused — each tied to the control for assistive technology. It is a frame, never a control.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="field" />
+
+<DemoFrame label="A slider and a switch, each named, helped and marked by a field" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-text="Required" supporting-text="Applies to alerts and media."><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Notifications" requirement="optional" optional-text="Optional" supporting-text="Sent when a review is waiting for you."><tanrei-switch selected></tanrei-switch></tanrei-field>
+</DemoFrame>
+
+A text field can say what it is, whether it must be answered, how to answer it and why an answer was refused. A field gives the same four things to a control that cannot: a slider, a switch, a [text input](/components/text-input/), a [color input](/components/color-input/), a [one-time-code input](/components/one-time-code-input/), a control your product built. A text field is itself a field around a text input. The label stands above the control and the help below it. While the field is in error the help stays, and the error text is added below it.
+
+The field draws the frame and nothing else. It has no container, no value and no event; the control keeps its own look, keys, events and place in a form.
+
+On the web it is `<tanrei-field>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field label="Volume" supporting-text="Applies to alerts and media." requirement="optional" optional-text="Optional">
+      <tanrei-slider name="volume" value="40"></tanrei-slider>
+    </tanrei-field>
+
+    <!-- The product validates; the field shows the reason and marks the control invalid. -->
+    <tanrei-field label="Volume" requirement="required" required-text="Required" error error-text="Choose a level above 0.">
+      <tanrei-slider name="volume" value="0"></tanrei-slider>
+    </tanrei-field>
+
+    <!-- A text input: the field names it, its help starts where the text starts, and it draws the count it is given. -->
+    <tanrei-field label="Display name" supporting-text="Shown beside your comments." count-text="12/40">
+      <tanrei-text-input name="display-name" value="Ada Lovelace" maxlength="40" counter></tanrei-text-input>
+    </tanrei-field>
+
+    <!-- A control that names itself: leave the field's label empty. -->
+    <tanrei-field supporting-text="You can withdraw at any time.">
+      <tanrei-checkbox label="I accept the terms of use"></tanrei-checkbox>
+    </tanrei-field>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Field, Slider } from '@tanrei/react';
+
+    <Field label="Volume" supportingText="Applies to alerts and media." error={tooQuiet} errorText="Choose a level above 0.">
+      <Slider value={volume} onChange={(event) => setVolume(event.detail.value)} />
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="The three requirement marks, an error, a disabled field and a label glyph" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-text="Required"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="optional" optional-text="Optional"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-mark="asterisk"><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" requirement="required" required-text="Required" error error-text="Choose a level above 0."><tanrei-slider value="0"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume" supporting-text="Applies to alerts and media." disabled><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volume"><span slot="label-icon">volume_up</span><tanrei-slider value="40"></tanrei-slider></tanrei-field>
+</DemoFrame>
+
+<DemoFrame label="Help and an error together: the help stays, and the error text is added below it" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Password" supporting-text="At least 8 characters, with one number."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Password" supporting-text="At least 8 characters, with one number." error error-text="This password is too short."><tanrei-text-input type="password" value="tanrei"></tanrei-text-input></tanrei-field>
+</DemoFrame>
+
+<DemoFrame label="A text input in a field: with help and a count, and in error" plain column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Display name" supporting-text="Shown beside your comments." count-text="12/40"><tanrei-text-input value="Ada Lovelace" maxlength="40" counter></tanrei-text-input></tanrei-field>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" requirement="required" required-text="Required" error error-text="Enter a complete email address."><tanrei-text-input type="email" value="ada@"></tanrei-text-input></tanrei-field>
+</DemoFrame>
+
+### Around a text input
+
+A field around a [text input](/components/text-input/) is a [text field](/components/text-field/) written by hand: the same picture, name, description and states. The input says back to its field what only it knows, and the field follows:
+
+| The input says | The field |
+| --- | --- |
+| How far its text stands from its edges: its padding, and a leading icon | Starts and ends the supporting row there, so the help begins where the text begins |
+| That it draws the label itself, floating in a filled or an outlined box | Draws no label row and no requirement tag, and still names the input. A required input gets an asterisk after its floating label |
+| That it refused a date or a time: half-filled, or not available | Is in error as while `error` is true, and shows the input's words for it |
+
+`countText` is a count about the control's value, as it is to be drawn ("12/40"). The field draws it at the end of the supporting row and does nothing else with it: it does not count, and it keeps the drawn count from assistive technology, because the control says its own count. Write it from the input's `countText` at every `input`. The text field does this itself.
+
+`valueText` is the control's present value in words ("40 %", "$100 – $300"), for a control whose value cannot be read from the control itself: a slider. The field draws it at the end of the label row, on the label's first line, and does nothing else with it: it never reads or formats a value, and it keeps the drawn text from assistive technology, because the control says its own value. Where it would leave the label less than half of the row, it takes a line of its own after the label. It is not drawn while the label is not. Write it from the slider's `shownValueText` at every `input` — the [slider field](/components/slider-field/) does that by itself, and is the ready-made field for a slider.
+
+<DemoFrame label="A field with a slider in it and the value in words at the end of the label row" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Text size" supporting-text="Applies to every page." value-text="120 %"><tanrei-slider min="50" max="200" step="10" value="120" value-text="120 %"></tanrei-slider></tanrei-field>
+</DemoFrame>
+
+### Around a select
+
+A field around a [select](/components/select/) is a [select field](/components/select-field/) written by hand: the same picture, name, description and states. The select's options are its own children. It says back to its field what only it knows, and the field follows:
+
+| The select says | The field |
+| --- | --- |
+| How far its value stands from its edges: its padding, and a leading icon | Starts and ends the supporting row there, so the help begins where the value begins |
+| That it draws the label itself, floating in a filled or an outlined box | Draws no label row and no requirement tag, and still names the select. A required select gets an asterisk after its floating label |
+| That it is drawn focused, for as long as its list is open | Draws its label and its help from their focused colors for as long, whether or not focus is inside the field |
+
+<ComponentSpecs name="field" />
+
+## Guidelines
+
+### Field, or a control that is a field itself
+
+| The control | Use |
+| --- | --- |
+| Has no label, help and error of its own: a slider, a switch, a control you built | A field around it — or, for a slider, the field that is the two as one component: a [slider field](/components/slider-field/). |
+| Is a bare control that a person types in: a [text input](/components/text-input/), a [color input](/components/color-input/), a [one-time-code input](/components/one-time-code-input/) | A field around it — or the field that is the two as one component: a [text field](/components/text-field/), a [color field](/components/color-field/), a [one-time-code field](/components/one-time-code-field/). |
+| Is a bare [select](/components/select/) | A field around it — or the two as one component: a [select field](/components/select-field/). |
+| Is a field already: a text field, a one-time-code field, a slider field, a select field, and any control that has a `supportingText` of its own | The control alone. Never put it in a field. |
+| Names itself with a label beside it: a [checkbox](/components/checkbox/), a switch with its own label | A field with an empty `label`, when it needs help or an error. |
+| Is a set of controls that answer one question | A [field group](/components/field-group/). |
+
+The rule of thumb: if the control has a `supportingText` prop, it needs no field.
+
+### Required and optional
+
+`requirement` is `none`, `required` or `optional`: one setting, because a control is never both.
+
+- `required` exposes the control as required and draws the required mark beside the label.
+- `optional` draws a quiet tag and adds its text to the control's description.
+- Neither validates. A missing answer is yours to report, with `error` and `errorText`.
+
+How a required control is marked is one choice of the design system, for every field and every set of controls: the token `sys.behavior.requirement-mark`, whose values are `tag` (a small filled tag that says "Required"), `asterisk` and `none`. The default system marks with the tag. A design system sets that one token to change every form at once. The field reads it through its own token, `comp.field.requirement.mark`, which follows it; a design system sets that token only to mark single fields differently from sets of controls. `requiredMark` overrides both for one field (`tag`, `asterisk` or `none`).
+
+The requirement tag is a small [tag](/components/tag/), filled for required and tonal for optional, and nothing more: the field has no tokens for it. A design system that restyles its small tags restyles the requirement tag with them, and it looks the same while the field is focused, in error or disabled. The tag's words are yours: `requiredText` and `optionalText` on the field, or once for the whole product with `setWords()`. Tanrei ships no words: without `requiredText` an asterisk stands in the tag's place, and without `optionalText` no tag is drawn.
+
+Mark the smaller set. In a form where almost everything must be answered, mark what is optional; where little must be, mark what is required.
+
+### Help and errors
+
+- `supportingText` says how to answer: a format, a range, what the value is used for.
+- `errorText` says what is wrong with this answer and how to put it right, in words. While `error` is true it is drawn below the help, which stays. So do not repeat the help in it.
+- A field with help is taller while it is in error, by the error text and a small gap (`comp.field.error-text.gap`). Nothing above the error text moves, and no room is kept for an error before there is one. A field without help shows its error text where the help would be.
+- A count stays at the end of the first line, beside the help, when the error text comes or goes.
+- Set `error` when you have validated, not while the person is still answering. The field never sets it.
+
+### One control
+
+A field frames exactly one control, the one element in its default slot. With several, it names and describes only the first and says so in debug builds: a set of controls is a field group.
+
+Disable a framed control on the field, not on the control, so that the label and the help follow.
+
+### Do
+
+- Write a label that names what is asked for, in a few words, and keep it visible. Use `labelHidden` only where a visible label for the same control stands elsewhere, such as a table's column header.
+- Keep fields the same width in one column, so their labels and their controls line up.
+
+### Don't
+
+- Don't put a text field, or any control that draws its own label and help, inside a field. You would get two labels, and a debug build says so. The control a field frames is the bare one: the text input.
+- Don't use the label for instructions. That is what the supporting text is for.
+- Don't rely on the error color. Write the error.
+
+## Accessibility
+
+<ComponentAccessibility name="field" />
+
+### What the component handles
+
+- The label is the control's accessible name, drawn or hidden with `labelHidden`. A control that has a name of its own keeps it.
+- The control's description is the help, then the error text while the field is in error, then `optionalText` while the control is optional. They follow any description the control already has.
+- The control is exposed as invalid while `error` is true, as required while `requirement` is `required`, and as disabled while `disabled` is true. A control whose role has no required state, such as a slider, says `requiredText` in its description instead.
+- A control that has an error condition of its own, such as a checkbox or a radio button, is drawn in it.
+- An error that appears, or changes its words, while focus is inside the field is announced once, politely: the error text alone, not the help again. Focus never moves because of an error.
+- A press on the label moves focus to the control and does not operate it.
+- The field adds no stop to the focus order and handles no key.
+- The requirement tag, the asterisk and the label's glyph are hidden from assistive technology: the state and the description already say what they show. So is a drawn count: the control describes and announces its own.
+- At 200% text the label and the supporting text wrap and nothing is cut.
+- In forced colors every text takes the system's text color and the requirement tag gains an edge. The error text and the help then look alike and are told apart by their words and their order, the help first. That is why the error must be in words.
+- In a right-to-left layout the rows start at the right, the glyph moves to the right of the label and the mark to its left, and each text keeps its own direction.
+
+On the web the attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `count-text`. The parts are `label`, `label-icon`, `requirement-label`, `value-text`, `supporting-text` (the help), `error-text` and `counter`.
+
+How the web ties the control: an id cannot be referenced across a shadow root, so the field gives its texts as values. A Tanrei control asks its field for them and writes them on its own inner element. Any other element receives `aria-label` (only where it has no name of its own), `aria-description`, `aria-invalid`, `aria-required` and `disabled`, and gets back exactly what it had when it leaves the field.
+
+Known gaps on the web:
+
+- The description is given with `aria-description`, which has not been checked with every screen reader, and an element that already has `aria-describedby` of its own does not get the field's text.
+- Before the element is defined, the control is on the page without its label and help.
+
+### What you need to do
+
+- Give every field a `label`, unless the control names itself.
+- Validate the value yourself, set `error`, and write `errorText` so that it says how to put the answer right.
+- After a failed submission, also say above the form how many answers were refused and link to each one: a live [callout](/components/callout/) in its error status. The field cannot build it, because only the form knows all of its errors.
+- Give the words of the requirement: `required-text` and `optional-text` on the field, or once for the whole product with `setWords({ requiredText, optionalText })`. Tanrei ships none; a missing one is reported in development. See [The product's words](/foundations/words/).
+- If you mark required controls with an asterisk, say once, near the top of the form, what the asterisk means.
+- For a control you built, make sure it takes the name and the states where its semantics are: either it carries its role on its own element, so the attributes the field writes apply, or it listens for them (see the web package's README, "Field").

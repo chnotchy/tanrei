@@ -1,0 +1,304 @@
+---
+title: DateTimePicker
+description: Permite elegir una fecha, una hora o una fecha y hora (o un intervalo de cualquiera de ellas) con un calendario y unas ruedas de hora o la esfera de un reloj, en un diálogo o en una superficie que se despliega bajo un campo.
+translationOf: components/date-time-picker.mdx
+sourceHash: e11c3805d96885f8603d9d6672a2a6032c9a84c0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import ProductWords from '../../../../components/ProductWords.astro';
+
+export const words = {
+  confirmLabel: 'Aceptar',
+  cancelLabel: 'Cancelar',
+  dateLabel: 'Fecha',
+  startLabel: 'Inicio',
+  endLabel: 'Fin',
+  rangeLabel: 'Intervalo',
+  nextDayLabel: 'día siguiente',
+  rangeErrorText: 'El fin debe ser posterior al inicio',
+  hourLabel: 'Horas',
+  minuteLabel: 'Minutos',
+  periodLabel: 'AM o PM',
+  wheelsLabel: 'Ruedas',
+  dialLabel: 'Esfera',
+  entryModeLabel: 'Modo de entrada de la hora',
+  previousMonthLabel: 'Mes anterior',
+  nextMonthLabel: 'Mes siguiente',
+  yearViewLabel: 'Elegir año',
+  todayLabel: 'Hoy',
+};
+
+## Descripción general
+
+<ComponentAvailability name="date-time-picker" />
+
+Un DateTimePicker es una superficie que contiene un [calendario](/es/components/calendar/), una sección de hora o ambos. `mode` es `date`, `time` o `date-time`, y `range` añade un inicio y un fin a cualquiera de ellos. Se abre como un diálogo sobre un velo (`modal`) o como una superficie debajo del campo o del botón que lo abrió (`docked`). Sus valores son cadenas: `2026-09-17`, `19:30` o `2026-09-17T19:30`, sin segundos y sin zona horaria.
+
+:::note[Hoy en la web; planificado en las demás plataformas]
+El componente web implementa el selector tal como lo describe esta página: los dos extremos de un intervalo son dos campos unidos por una raya, AM y PM son una parte discreta de la hora, las pestañas del modo de entrada dibujan glifos y las ruedas aceptan dígitos escritos. Las demostraciones son ese componente. SwiftUI, Compose, Flutter y React Native todavía no lo han construido. Sus paquetes aún contienen el código del selector de fecha y del selector de hora retirados, que esta página no documenta.
+:::
+
+<DemoFrame label="Ábrelo con un botón: una fecha acoplada y una hora modal">
+  <tanrei-button id="dtp-demo-due" variant="outlined" onclick="document.getElementById('dtp-demo-due-picker').open = true">Fecha de entrega</tanrei-button>
+  <tanrei-date-time-picker id="dtp-demo-due-picker" presentation="docked" anchor="dtp-demo-due" label="Fecha de entrega" locale="es" today="2026-09-24" value="2026-09-28" onchange="document.getElementById('dtp-demo-due').textContent = 'Entrega ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
+  <tanrei-button id="dtp-demo-alarm" variant="outlined" onclick="document.getElementById('dtp-demo-alarm-picker').open = true">Alarma</tanrei-button>
+  <tanrei-date-time-picker id="dtp-demo-alarm-picker" mode="time" locale="es" value="07:30" minute-step="5" label="Alarma" onchange="document.getElementById('dtp-demo-alarm').textContent = 'Alarma ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
+</DemoFrame>
+
+### Uso
+
+El selector es un componente controlado: tú defines `open`, y él pide que lo cierren con `close`. Define su propio `value` (o `start` y `end`) antes de emitir `change`, y no escribe nada en el campo que lo abrió.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Un selector modal para una hora, abierto desde cualquier botón. -->
+    <tanrei-button id="alarm-button" variant="outlined">Alarma</tanrei-button>
+    <tanrei-date-time-picker id="alarm" mode="time" value="07:30" minute-step="5" label="Alarma"></tanrei-date-time-picker>
+
+    <!-- Un selector acoplado debajo de un campo de texto, abierto con el botón de selector del campo. -->
+    <tanrei-text-field id="due" label="Fecha de entrega" type="date" picker picker-label="Elegir fecha"></tanrei-text-field>
+    <tanrei-date-time-picker id="due-picker" presentation="docked" anchor="due" label="Fecha de entrega"></tanrei-date-time-picker>
+
+    <!-- Horario de apertura: un intervalo de horas. Un fin igual o anterior al inicio cae en el día siguiente. -->
+    <tanrei-date-time-picker id="hours" mode="time" range start="09:00" end="17:30" label="Horario de apertura"></tanrei-date-time-picker>
+
+    <script type="module">
+      import '@tanrei/web/components/date-time-picker';
+      const alarm = document.querySelector('#alarm');
+      document.querySelector('#alarm-button').addEventListener('click', () => (alarm.open = true));
+      alarm.addEventListener('change', (e) => save(e.detail.value)); // "07:35": alarm.value ya es el nuevo
+      // El selector nunca se cierra solo. e.detail.reason: escape, back, outside, tab, focus-out, cancel, confirm o select.
+      alarm.addEventListener('close', () => (alarm.open = false));
+
+      // El campo pide; el producto abre el selector y escribe el valor de vuelta.
+      const field = document.querySelector('#due');
+      const due = document.querySelector('#due-picker');
+      field.addEventListener('pickerrequest', (e) => {
+        Object.assign(due, { value: e.detail.value, min: e.detail.min, max: e.detail.max, open: true });
+      });
+      due.addEventListener('change', (e) => (field.value = e.detail.value));
+      due.addEventListener('close', () => (due.open = false));
+
+      const hours = document.querySelector('#hours');
+      hours.addEventListener('change', (e) => saveHours(e.detail.start, e.detail.end));
+      hours.addEventListener('close', () => (hours.open = false));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useState } from 'react';
+    import { DateTimePicker, TextField } from '@tanrei/react';
+
+    const [due, setDue] = useState('');
+    const [open, setOpen] = useState(false);
+
+    <TextField
+      id="due"
+      label="Fecha de entrega"
+      type="date"
+      value={due}
+      picker
+      pickerLabel="Elegir fecha"
+      onChange={(e) => setDue(e.currentTarget.value)}
+      onPickerrequest={() => setOpen(true)}
+    />
+    <DateTimePicker
+      presentation="docked"
+      anchor="due"
+      label="Fecha de entrega"
+      open={open}
+      value={due}
+      onChange={(e) => setDue(e.detail.value)}
+      onClose={() => setOpen(false)}
+    />
+
+    // Una fecha y hora modal, en pasos de 15 minutos.
+    <DateTimePicker
+      mode="date-time"
+      minuteStep={15}
+      label="Inicio de la reunión"
+      open={meetingOpen}
+      value={meeting}
+      onChange={(e) => setMeeting(e.detail.value)}
+      onClose={() => setMeetingOpen(false)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+No hay ejemplos de SwiftUI, Compose, Flutter ni React Native, porque esas plataformas no han construido el selector. Los nombres que tendrá en ellas están en la correspondencia entre plataformas, en [Especificaciones](#especificaciones).
+
+### Adónde fueron el selector de fecha y el selector de hora
+
+| Antes | Ahora |
+| --- | --- |
+| Selector de fecha, modal o acoplado | Un DateTimePicker en modo `date`, `modal` o `docked` |
+| Selector de fecha con un intervalo | `mode` `date` con `range` |
+| Selector de hora | Un DateTimePicker en modo `time`. La esfera es un modo de entrada; las ruedas son el otro, y el predeterminado |
+| Los segmentos AM y PM del selector de hora | El periodo: una tercera rueda corta junto a las ruedas de horas y de minutos, o una casilla junto a los minutos en el modo de esfera |
+| Escribir una fecha o una hora en el selector | Un [campo de texto](/es/components/text-field/) con `type` `date`, `time` o `date-time`, cuyo botón de selector pide al producto que abra este selector |
+| Una cuadrícula de mes en línea | Un [calendario](/es/components/calendar/) |
+| Los tokens de los dos selectores | `comp.date-time-picker.*` para la superficie, la cabecera, la sección de hora y las acciones, y `comp.calendar.*` para la cuadrícula |
+
+Lo nuevo de este componente: el modo `date-time`, los intervalos de horas (el fin puede caer en el día siguiente), las ruedas y `minuteStep`.
+
+En la web, los dos elementos anteriores, uno que elegía una fecha y otro que elegía una hora, ya no existen. Ambos son `<tanrei-date-time-picker>`, con `mode="date"` o `mode="time"`. Un selector acoplado sigue recibiendo `anchor` y `opener`, los id de los elementos bajo los que se coloca y que lo abren, y el selector se sigue abriendo con `open` y cerrando en respuesta a `close`. La esfera es `entry-mode="dial"`.
+
+### Los nombres de Material 3 y de Apple
+
+- Los selectores de fecha acoplado y modal de Material 3 son un DateTimePicker en modo `date`, y su selector de intervalo de fechas es lo mismo con `range`.
+- El selector de hora de Material 3 es un DateTimePicker en modo `time`. El preajuste m3-like ofrece solo la esfera, con las casillas y la esfera más grandes de Material y acciones de texto al final.
+- El selector de intervalo a pantalla completa de Material y los conmutadores de lápiz y de teclado que pasan a la introducción de texto no tienen equivalente: la introducción de texto corresponde al campo de texto.
+- El selector de hora de ruedas de Apple son las ruedas, que el preajuste cupertino ofrece como único modo, con la banda gris de Apple.
+- `showDatePicker` y `showTimePicker` de Flutter son `showTanreiDateTimePicker`, los selectores presentados de SwiftUI son el modificador `.tanreiDateTimePicker`, y los diálogos de selector de Compose son `TanreiDateTimePicker`. El de React Native es `DateTimePicker`, que no es el paquete de la comunidad del mismo nombre.
+
+## Especificaciones
+
+Las demostraciones siguientes dibujan la superficie abierta en su sitio, con el atributo `inline` de la web, que es para la documentación y las pruebas. En un producto, un selector se abre sobre la página.
+
+<DemoFrame label="Una fecha: modal, con su cabecera y sus acciones, y acoplada, que se confirma al elegir el día" plain>
+  <tanrei-date-time-picker inline open locale="es" today="2026-09-24" value="2026-09-17" label="Entrada"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open presentation="docked" locale="es" today="2026-09-24" value="2026-09-17" label="Entrada"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="Una hora: las ruedas, el modo predeterminado, y la esfera (reloj de 12 horas)" plain>
+  <tanrei-date-time-picker inline open mode="time" hour-cycle="h12" locale="es" value="19:30" label="Alarma"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open mode="time" entry-mode="dial" hour-cycle="h12" locale="es" value="19:30" label="Alarma"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="Un intervalo de horas que termina al día siguiente y un reloj de 24 horas en pasos de 15 minutos" plain>
+  <tanrei-date-time-picker inline open mode="time" range locale="es" start="22:00" end="06:00" label="Horas de silencio"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open mode="time" hour-cycle="h23" minute-step="15" locale="es" value="19:30" label="Salida"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="Una fecha y hora, y un intervalo de fechas" plain>
+  <tanrei-date-time-picker inline open mode="date-time" locale="es" today="2026-09-24" value="2026-09-17T19:30" minute-step="5" label="Inicio de la reunión"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open range locale="es" today="2026-09-24" start="2026-09-10" end="2026-09-16" label="Estancia"></tanrei-date-time-picker>
+</DemoFrame>
+
+<ComponentSpecs name="date-time-picker" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un DateTimePicker cuando una persona elige una fecha o una hora y ver el calendario o el reloj ayuda: qué día de la semana, cuánto falta, qué horas. Ábrelo desde el botón de selector de un [campo de texto](/es/components/text-field/), para que quien ya conoce el valor pueda seguir escribiéndolo, o desde cualquier botón. Si elegir fechas es la tarea de la página, coloca en ella un [calendario](/es/components/calendar/).
+
+### Cómo elegir una forma
+
+| Necesitas | Define |
+| --- | --- |
+| Una fecha | `mode` `date` (el valor predeterminado). `docked` debajo de un campo para una elección rápida; `modal` donde la fecha merece la pantalla |
+| Un intervalo de fechas | `mode` `date` con `range` |
+| Una hora | `mode` `time` |
+| Un horario de apertura, un turno, unas horas de silencio | `mode` `time` con `range`. Un fin igual o anterior al inicio cae en el día siguiente |
+| Una cita | `mode` `date-time` |
+| Una reserva de un momento a otro | `mode` `date-time` con `range` |
+
+`min`, `max`, `disabledDates`, `today`, `firstDayOfWeek`, `startView` y `showAdjacentDays` se pasan al calendario y significan lo mismo que [allí](/es/components/calendar/). Solo limitan las fechas: las horas no tienen límites.
+
+### Abrir y confirmar
+
+El selector es un componente controlado. Lo abres definiendo `open`, desde el `pickerRequest` del campo de texto o desde el controlador de un botón, y él emite `close` con un motivo. En la web, Compose y React Native vuelves a poner `open` en false; en SwiftUI y Flutter lo cierra el binding o la ruta.
+
+- **Modal, o cualquiera que incluya una hora.** El selector guarda una elección pendiente y la confirma con «Aceptar»: emite `change` si la elección es distinta y, después, `close` con `confirm`. «Aceptar» está deshabilitado mientras la elección esté incompleta. «Cancelar», Escape, la acción de retroceso y una pulsación en el velo lo cierran sin confirmar nada. Un valor que definas mientras está abierto no mueve la elección pendiente.
+- **Acoplado, solo fecha.** Elegir un día que completa la elección la confirma de inmediato y cierra el selector (`select`). No tiene acciones. Elegir el inicio de un intervalo lo mantiene abierto.
+- **La escritura de vuelta.** El selector no escribe nada en el campo. Define el `value` del campo a partir de `change`. Cuando se cierra, el foco vuelve a quien lo tenía, que suele ser el botón de selector del campo.
+
+El producto se queda entre el campo y el selector porque a menudo configura el selector a partir de cosas que el campo no conoce: un intervalo formado por dos campos, un paso de minutos, un predicado de días.
+
+En la web, un selector acoplado recibe `anchor`, el id del elemento bajo el que se coloca, y `opener` cuando lo abre otro elemento. Si su ancla es un campo de texto, marca el botón de selector del campo como el control que abre un diálogo.
+
+### Partes y disposición
+
+De arriba abajo: la cabecera, el cuerpo y las acciones.
+
+| Parte | Notas |
+| --- | --- |
+| Cabecera | Una fila de título alineada al inicio: `label`, que dice qué se está eligiendo («Entrada»), y, al final, las pestañas del modo de entrada cuando el selector define una hora. El selector no tiene ninguna palabra propia para `label`: sin él, la fila no dibuja ninguna palabra. Un selector modal con fecha muestra además, debajo, el valor pendiente («jue, 17 sept», «10 sept – 16 sept», y `dateLabel` para una fecha aún no elegida), con una línea fina bajo la cabecera. |
+| Calendario | Para `date` y `date-time`. El selector pasa sus propiedades al calendario y no le cambia el estilo. |
+| Sección de hora | Para `time` y `date-time`. De arriba abajo: la vista del intervalo, a todo lo ancho de la sección, cuando `range` está activado; la vista de la hora en el modo de esfera; y las ruedas o la esfera. El periodo está en la fila de las horas y los minutos. |
+| Acciones | «Cancelar» y «Aceptar», una fila a todo lo ancho de botones tonal colocados según su tarea, como en un [diálogo](/es/components/dialog/). |
+
+`layout` en `vertical` apila el calendario encima de la sección de hora, y `horizontal` los pone uno al lado del otro; para una hora sola en el modo de esfera, `horizontal` pone la vista de la hora junto a la esfera. `auto`, el valor predeterminado, elige la disposición horizontal solo cuando la ventana es demasiado baja para la vertical y lo bastante ancha para la horizontal. Cuando las partes no caben, la cabecera y las acciones se quedan en su sitio y el cuerpo se desplaza entre ellos.
+
+### Definir una hora
+
+- **Ruedas o esfera.** Las ruedas son el modo predeterminado y van primero. La esfera es la cara del reloj, con la vista de la hora (las casillas de horas y de minutos) como la fila contigua. `entryMode` elige en cuál se abre el selector, y la persona puede cambiar con las pestañas del modo de entrada: dos pestañas de solo icono al final de la fila de título, un glifo de teclado para las ruedas y un glifo de reloj para la esfera. Sus textos (`wheelsLabel`, `dialLabel`) son sus nombres accesibles. Un producto que ofrece un solo modo define `comp.date-time-picker.time.entry-modes`, y las pestañas no se dibujan.
+- **Escribir un número.** Una pulsación en el valor elegido de una rueda, o un dígito escrito mientras una rueda tiene el foco, inicia una entrada escrita: en un dispositivo táctil aparece el teclado numérico. Dos dígitos, o uno al que no podría unirse un segundo, terminan la entrada, y al completarse las horas se pasa a los minutos, de modo que `7` `3` `0` es 7:30. Las casillas del modo de esfera leen los dígitos de un teclado del mismo modo. Una fecha completa se sigue escribiendo en el campo de texto.
+- **El reloj.** `hourCycle` es de forma predeterminada el de la configuración regional, o bien `h12` o `h23`. Los valores son de 24 horas en todos los ciclos.
+- **El periodo.** Con un reloj de 12 horas, AM o PM es una parte de la hora, no un interruptor situado encima. En el modo de ruedas es una tercera rueda corta, y en el modo de esfera una casilla estrecha que cambia al otro valor cuando se pulsa. Va después de los minutos, o antes de las horas donde la configuración regional lo escribe primero, como en japonés. Cambiarlo conserva el número de las horas y cambia la mitad del día. Se dibuja de forma discreta y nunca lleva la marca de la unidad que se está definiendo.
+- **Paso de minutos.** `minuteStep` (1, 5, 10, 15 o 30) define las filas de la rueda de minutos y los números de la esfera. Una hora que no coincide con el paso, definida o escrita, se redondea hacia abajo hasta él.
+- **Una hora vacía** empieza en la hora actual.
+
+### Intervalos
+
+Un intervalo de fechas se elige en el calendario: un inicio y luego un fin.
+
+Un intervalo que incluye una hora muestra sus dos extremos como dos campos de intervalo unidos por una raya: «9:00 – 17:30». Ninguna palabra dice inicio o fin; lo dicen el orden y la raya. El campo que se está definiendo se marca como seleccionado, y las ruedas o la esfera de debajo muestran y definen su hora. Pulsar el otro campo pasa a definir ese extremo. El foco por sí solo no lo hace, así que Tab puede pasar por un campo sin cambiar qué extremo se está definiendo. En un intervalo de fecha y hora, elegir un inicio en el calendario selecciona el campo del inicio, y elegir un fin, el del fin.
+
+- Un intervalo de horas cuyo fin es igual o anterior a su inicio termina al día siguiente, y el campo del fin lo dice (`nextDayLabel`).
+- Un intervalo de fecha y hora cuyo fin es anterior a su inicio muestra `rangeErrorText` y mantiene «Aceptar» deshabilitado.
+
+### Textos
+
+Tanrei no incluye textos propios: todas las palabras que un selector muestra o anuncia son tuyas. `label` dice qué elige este selector en concreto, y se escribe en él. Las demás se dicen igual dondequiera que se dibuje un selector, así que dalas una sola vez para todo el producto, por idioma, como hace esta página:
+
+<ProductWords words={words} label="Las palabras del selector, dadas una sola vez para el producto" />
+
+Esa llamada es la que ejecuta esta página: los ejemplos de arriba llevan un `label` y ninguna de estas palabras. Un selector dice las suyas donde son distintas (`confirm-label="Reservar"`), y un atributo siempre tiene prioridad. Sin ellas, el selector sigue funcionando: «Cancelar» y «Aceptar» son botones de solo icono con los glifos de cerrar y de marca de verificación, un fin que cae en el día siguiente se lee `+1`, una fecha aún no elegida no dibuja nada, y una compilación de depuración notifica cada palabra que falta. Los nombres de las horas, de los minutos y del periodo, y la palabra para el día de hoy, proceden de los datos de configuración regional del navegador cuando no das ninguno.
+
+### Recomendado
+
+- Abre el selector desde el botón de selector de un campo de texto, para que el valor también se pueda escribir.
+- Define `label` con lo que se está eligiendo («Entrada», «Inicio de la reunión»), en el idioma de tu producto, y también los demás textos que muestra el selector.
+- Usa `minuteStep` cuando solo tengan sentido algunos minutos, como cada 15 minutos en una reserva.
+- Da al selector los mismos `min`, `max` y `disabledDates` que al campo al que sirve, para que ambos acepten las mismas fechas.
+
+### Evita
+
+- No uses un DateTimePicker como única forma de introducir una fecha que la persona ya conoce, como una fecha de nacimiento. Deja que la escriba.
+- No definas los modos de entrada ni el aspecto de las acciones en cada selector. Son ajustes del producto, y van en la capa.
+- No escribas el valor en el campo antes de `change`. El selector solo confirma con «Aceptar», o con el día en un selector de fecha acoplado.
+- No dejes `open` en true después de `close` en la web, Compose o React Native. Ahí el selector nunca se cierra solo.
+- No uses el atributo `inline` de la web en un producto. Dibuja la superficie sin el comportamiento de la superposición.
+
+## Accesibilidad
+
+<ComponentAccessibility name="date-time-picker" />
+
+### De qué se encarga el componente
+
+- La superficie es un diálogo cuyo nombre es `label`. Un selector modal mantiene el foco dentro y dibuja un velo; un selector acoplado recibe el foco y lo devuelve a su ancla, pero Tab sale de él y lo cierra. Al abrirse, el foco entra: va al día activo del calendario o a las horas.
+- El calendario, las pestañas y los botones toman su nombre de los textos que les da el selector. Las pestañas del modo de entrada son una lista de pestañas real, que se lee con sus nombres y posiciones («Ruedas, pestaña, 1 de 2») aunque solo dibujen glifos.
+- Los dos extremos de un intervalo son dos botones en un grupo cuyo nombre es `rangeLabel`, y cada uno se lee con su nombre, su hora y si es el que se está definiendo («Inicio, 9:00»). `startLabel` y `endLabel` nunca se dibujan: son lo que indica a la tecnología de apoyo qué extremo es cada uno. La raya queda oculta.
+- Las ruedas y las casillas de horas y de minutos son botones de incremento (spin buttons), que se manejan con las teclas de flecha, Re Pág y Av Pág, y Inicio y Fin, y se leen tal como se dibujan (las horas con su periodo en un reloj de 12 horas). Siguen siendo botones de incremento mientras se escribe un número en ellos. El periodo es un tercer botón de incremento de dos valores, cuyo nombre es `periodLabel`. La esfera queda oculta para la tecnología de apoyo: todo lo que hace, lo hacen también las casillas.
+- Escape termina primero una entrada escrita y conserva el valor anterior a ella. En cualquier otro caso, cierra el selector sin confirmar y devuelve el foco adonde estaba.
+- Un intervalo de fecha y hora cuyo fin es anterior a su inicio se anuncia una vez, de forma no intrusiva, y se describe en el campo de intervalo del fin.
+- Cada casilla, cada campo de intervalo y cada fila de rueda mide al menos el objetivo mínimo, y las ruedas, las casillas, el periodo y los números de la esfera crecen con el texto ampliado en lugar de recortarlo. En una ventana estrecha, el selector nunca es más ancho que la ventana: las celdas del calendario y los campos de intervalo se estrechan.
+- Los diseños de derecha a izquierda reflejan la fila de título, las columnas, la vista del intervalo, el lado en el que va el periodo y las acciones. Las horas, el separador y los minutos conservan ese orden, y la esfera sigue el sentido de las agujas del reloj.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native no han construido el DateTimePicker: cada una lo construirá a partir de esta especificación cuando se ponga al día.
+- Web: el campo de intervalo del fin es un botón, que no tiene estado no válido, así que un error de intervalo solo llega a la tecnología de apoyo como su descripción y su anuncio.
+- Web: el navegador no informa de si el dispositivo está configurado con el reloj de 12 o de 24 horas, así que `hourCycle` en `locale` sigue solo la configuración regional.
+- Web: una pulsación fuera de un selector acoplado lo cierra y llega también al elemento que hay debajo, como ocurre con un menú.
+- Web: el selector acoplado se coloca mediante un script, todavía no con el posicionamiento por anclas de CSS.
+- Web: las ruedas, la esfera y el arrastre del calendario todavía no se han comprobado con un dedo en un dispositivo, y algunas pruebas fallan en Firefox y WebKit.
+- Las ruedas no coinciden con el diámetro de la esfera ni con el ancho de las casillas; no está decidido si deberían.
+
+### Qué debes hacer tú
+
+- Da a cada selector un `label` que diga qué se está eligiendo («Entrada», «Hora de la reunión»). Es solo de ese selector: sin él, la fila de título no dibuja ninguna palabra y el diálogo no tiene nombre.
+- Da todas las demás palabras que el selector muestra o anuncia: en el selector, o una sola vez para todo el producto con `setWords()`, como hace esta página. Tanrei no incluye ninguna: las acciones (`confirmLabel`, `cancelLabel`), `dateLabel`, `nextDayLabel`, `rangeErrorText`, las seis del calendario y los nombres que solo se oyen (`wheelsLabel`, `dialLabel`, `entryModeLabel`, `rangeLabel`, `startLabel`, `endLabel`). Sin ellas, el selector dibuja marcas en su lugar donde una marca dice lo mismo (botones de cerrar y de marca de verificación de solo icono, `+1` después de un fin que cae en el día siguiente) y notifica en desarrollo cada palabra que falta. Los nombres de las horas, de los minutos y del periodo, y la palabra para el día de hoy, proceden de los datos de configuración regional del navegador cuando no das ninguno. Consulta [Los textos del producto](/es/foundations/words/).
+- Ábrelo desde un control que diga qué abre, como el botón de selector de un campo de texto, cuyo nombre es `pickerLabel` («Elegir fecha»).
+- Define el `value` del campo a partir de `change`, y cierra el selector desde `close` donde `open` sea un valor simple.
+- Ofrece también la escritura, mediante el campo de texto.

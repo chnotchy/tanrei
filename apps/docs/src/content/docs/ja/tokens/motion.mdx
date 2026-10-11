@@ -1,0 +1,24 @@
+---
+title: モーショントークン
+description: スプリング、時間、イージングのトークン。
+translationOf: tokens/motion.mdx
+sourceHash: c524fce45805382c2430560ed82dd0e9036683a0
+---
+
+import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
+
+`tanrei.sys.motion` 以下にあるモーションのトークンです。使い方の指針は、[モーション](/ja/foundations/motion/)を参照してください。
+
+## スプリング
+
+各スプリングには 4 つのサブトークンがあります。`stiffness` と `damping` は、スプリングアニメーションを持つプラットフォームで使います。`duration` と `easing` は、CSS のようにスプリングを使えない場所のための近似です。
+
+<MotionTokens part="spring" />
+
+## 時間
+
+<MotionTokens part="duration" />
+
+## イージング
+
+<MotionTokens part="easing" />

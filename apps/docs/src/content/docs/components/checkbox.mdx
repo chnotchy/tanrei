@@ -1,0 +1,216 @@
+---
+title: Checkbox
+description: Lets people turn one independent choice on or off, show a parent choice that is only partly on, and mark a required choice left unmade.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="checkbox" />
+
+<DemoFrame label="Unchecked, checked and indeterminate">
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox indeterminate label="All notifications"></tanrei-checkbox>
+    <tanrei-checkbox checked label="Messages"></tanrei-checkbox>
+    <tanrei-checkbox label="Mentions"></tanrei-checkbox>
+    <tanrei-checkbox checked label="Reminders"></tanrei-checkbox>
+  </div>
+</DemoFrame>
+
+### Usage
+
+The revision that gave the checkbox Material 3's sizes and the icon set's glyphs changed only how it looks and moves, so every sample below is current. The web draws and animates it as the spec says. SwiftUI, Compose, Flutter and React Native are lagging: they already take the new sizes, but still draw the check and the dash as marks of their own and animate them in their own way until they catch up. Two refinements since then are on the web only so far: the check and the dash have a heavier weight of their own, and the box's outline and fill are drawn as one shape.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-checkbox label="Email me updates"></tanrei-checkbox>
+    <tanrei-checkbox checked label="Email me updates"></tanrei-checkbox>
+
+    <!-- A parent whose children are mixed. Activating it checks it and clears indeterminate. -->
+    <tanrei-checkbox indeterminate label="Select all"></tanrei-checkbox>
+
+    <!-- In a form it submits value (default "on") under name while checked, and honours required. -->
+    <form>
+      <tanrei-checkbox name="terms" required label="I accept the terms"></tanrei-checkbox>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox';
+      // The element switches its own checked before it fires change.
+      document.querySelector('tanrei-checkbox').addEventListener('change', (e) => save(e.detail.checked));
+      const terms = document.querySelector('[name="terms"]');
+      terms.error = submitted && !terms.checked;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox } from '@tanrei/react';
+
+    <Checkbox checked={updates} label="Email me updates" onChange={(e) => setUpdates(e.detail.checked)} />
+    <Checkbox checked={all} indeterminate={some && !all} label="Select all" onChange={(e) => selectAll(e.detail.checked)} />
+    <Checkbox checked={terms} error={submitted && !terms} label="I accept the terms" onChange={(e) => setTerms(e.detail.checked)} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCheckbox("Email me updates", isOn: $updates)
+
+    // isIndeterminate comes from your data. Activating it sets isOn to true; your data then clears it.
+    TanreiCheckbox("Select all", isOn: $allSelected, isIndeterminate: someSelected)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.ui.state.ToggleableState
+    import io.github.chnotchy.tanrei.components.TanreiCheckbox
+
+    TanreiCheckbox(checked = updates, onCheckedChange = { updates = it }, label = "Email me updates")
+
+    // A parent that can be partly on takes a ToggleableState. The caller computes the next state:
+    // activating an indeterminate checkbox makes it On.
+    TanreiCheckbox(
+        state = allState,
+        onClick = { selectAll(allState != ToggleableState.On) },
+        label = "Select all",
+    )
+
+    TanreiCheckbox(
+        checked = terms,
+        onCheckedChange = { terms = it },
+        label = "I accept the terms",
+        isError = submitted && !terms,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCheckbox(
+      value: updates,
+      onChanged: (bool value) => setState(() => updates = value), // null disables it
+      label: 'Email me updates',
+    );
+
+    // With tristate, a null value is indeterminate. Activating it calls onChanged(true).
+    TanreiCheckbox(
+      value: allSelected, // bool?: null while only some are selected
+      tristate: true,
+      onChanged: (bool value) => setState(() => selectAll(value)),
+      label: 'Select all',
+    );
+
+    TanreiCheckbox(
+      value: terms,
+      onChanged: (bool value) => setState(() => terms = value),
+      isError: submitted && !terms,
+      label: 'I accept the terms',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Checkbox } from '@tanrei/react-native';
+
+    <Checkbox value={updates} onValueChange={setUpdates} label="Email me updates" />
+    <Checkbox value={all} indeterminate={some && !all} onValueChange={selectAll} label="Select all" />
+    <Checkbox value={terms} onValueChange={setTerms} error={submitted && !terms} label="I accept the terms" />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Conditions, error and disabled" plain>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox label="Unchecked"></tanrei-checkbox>
+    <tanrei-checkbox checked label="Checked"></tanrei-checkbox>
+    <tanrei-checkbox indeterminate label="Indeterminate"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox error label="Error, unchecked"></tanrei-checkbox>
+    <tanrei-checkbox error checked label="Error, checked"></tanrei-checkbox>
+    <tanrei-checkbox error indeterminate label="Error, indeterminate"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox disabled label="Disabled, unchecked"></tanrei-checkbox>
+    <tanrei-checkbox disabled checked label="Disabled, checked"></tanrei-checkbox>
+    <tanrei-checkbox disabled indeterminate label="Disabled, indeterminate"></tanrei-checkbox>
+  </div>
+  <tanrei-checkbox checked label-hidden label="Select row"></tanrei-checkbox>
+</DemoFrame>
+
+In the default system the checkbox takes Material 3's measurements: an 18 box with a 2 outline and a 2 corner, on a round 40 state layer, with a 48 target. With a label it is 40 tall. The check and the dash are the glyphs `check` and `remove` of the system's icon set, drawn at 20 over the box. They have a weight of their own, heavier than the system's other icons: 500 in the default system, where the icons are 300. At this size a stroke of the icons' weight is about one pixel wide and hard to see, so the mark is heavier while its size stays the same. A preset keeps its own icon weight. The checkbox draws no mark of its own, so a design system that changes its icon set changes these glyphs with every other. The outline and the fill of the box are one shape: nothing behind the box shows between them at any zoom or display density, and a checked box is one even color from its edge to its mark. Under `cupertino` the checkbox keeps its smaller box and a 16 glyph.
+
+When the checkbox changes, the box, the outline and the glyph change color, and a glyph that appears fades in while it grows from half its size, settling with a slight overshoot. A glyph that goes fades out and shrinks the same way, and between checked and indeterminate the check goes while the dash comes. Only the glyph moves: the box never changes size or position. A checkbox drawn for the first time shows its condition at once, so a page that loads with ticked boxes does not animate them. Where motion is reduced, the new condition is drawn whole in the next frame.
+
+<ComponentSpecs name="checkbox" />
+
+## Guidelines
+
+### When to use
+
+Use a checkbox for a choice that stands on its own: a list where people may pick any number of options, including none, or a single yes-or-no such as agreeing to terms. The choice takes effect when the person confirms, for example by submitting the form or saving. A checkbox also selects rows in a table or items in a list.
+
+The indeterminate state belongs to a parent checkbox whose children are partly checked, such as "Select all" above a list. It is not a third answer that a person can pick.
+
+### Checkbox, radio button or switch
+
+| Control | Choices | Takes effect | Use for |
+| --- | --- | --- | --- |
+| Checkbox | Any number of independent choices, including none | When the person confirms | Options in a form, agreeing to terms, selecting rows |
+| [Radio button](/components/radio-button/) | Exactly one from a small group, all shown | When the person confirms, usually | One answer to one question |
+| [Switch](/components/switch/) | One setting, on or off | At once | Settings that apply as soon as they change |
+
+### Do
+
+- Write the label as the choice, stated positively: "Email me updates", not "Don't email me".
+- Stack a list of checkboxes vertically, one per line, so each label starts in the same place.
+- Derive the indeterminate state from the children. When the parent is activated, check every child.
+- When a required checkbox is left unchecked, set `error` and say why in the form's message.
+
+### Don't
+
+- Don't use a checkbox for a change that applies at once. Use a switch.
+- Don't use checkboxes for choices that exclude each other. Use radio buttons.
+- Don't put links or other controls inside the label. A click on the label toggles the checkbox.
+- Don't hide the label unless the row around the checkbox already says what it selects.
+
+## Accessibility
+
+<ComponentAccessibility name="checkbox" />
+
+### What the component handles
+
+- It exposes the checkbox role with its state (checked, not checked, or mixed while indeterminate), its disabled state, and the invalid state while `error` is set. React Native has no invalid state, so there an error is drawn but not announced.
+- The label is the accessible name, whether it is drawn or hidden with `labelHidden`. The drawn text is hidden from assistive technology, so the name is read once.
+- A click or tap on the label toggles the checkbox. The label is part of the hit area, and the hit area meets the minimum target.
+- Space toggles it. Enter toggles it only where the platform activates any focused control with Enter (Android, tvOS); on the web, Enter submits the form.
+- It shows the focus indicator around the box, for keyboard focus only.
+- The check and the dash are hidden from assistive technology. Checked and mixed are announced from the state, never from the glyph's name.
+- Where motion is reduced, the new condition is drawn whole in the first frame after the change, never delayed or half-drawn. A change during a change continues from what is drawn at that moment.
+- While the icon font cannot draw the glyph yet, the checkbox draws nothing in its place, never the word "check", and still draws its filled box and exposes its state. The glyph appears once the font has loaded.
+- On the web it takes part in a form like a native checkbox: `name`, `value`, `required` and reset.
+- A missing label is reported in debug builds.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native still draw the check and the dash as marks of their own and animate them in their own way, without the mark's own weight and the one-shape box.
+- Under `m3-like`, the check is the icon set's glyph and fades and grows in, where Material draws its own check on stroke by stroke and bends it into the dash (mimicry gap `checkbox-mark-drawn-on`).
+
+### What you need to do
+
+- Load the icon font. Until it has loaded, a checked and an indeterminate checkbox look the same: both are filled boxes with no glyph. Their states are still announced.
+- If your design system sets a lighter weight for the mark (`comp.checkbox.mark.weight`), look at the dash: it is a single stroke, and it is all that tells indeterminate from checked by sight.
+- Write a label that names the choice, and keep it the same whether the checkbox is checked or not. The platform announces the state.
+- When `error` is set, show the reason as text next to the checkbox or in the form's summary, and associate it with the checkbox. The checkbox says that it is invalid, not why. On React Native, the message is the only way the error is heard.
+- Give a group of checkboxes that answer one question a name: on the web, a `<fieldset>` with a `<legend>`.

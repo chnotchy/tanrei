@@ -1,0 +1,494 @@
+---
+title: "菜单"
+description: "一小组操作或选项，显示在一个临时表面上，这个表面从请求它的元素处打开。"
+translationOf: components/menu.mdx
+sourceHash: 740ced78f44526a9b305909b0ad3023504f4cc05
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="menu" />
+
+<DemoFrame label="操作、复选项、单选组和破坏性操作">
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="复制" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+    <tanrei-menu-item label="粘贴" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
+    <tanrei-menu-group label="视图">
+      <tanrei-menu-checkbox-item label="显示网格" checked></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="排序方式" value="name">
+      <tanrei-menu-radio-item label="名称" value="name"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="修改日期" value="date"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+    <tanrei-menu-item label="删除" leading-icon="delete" destructive></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="子菜单：在旁边打开下一级的项" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="新建文件" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
+    <tanrei-submenu label="最近打开" leading-icon="history" open>
+      <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+      <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      <tanrei-menu-item label="Budget.xlsx"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-submenu label="分享" leading-icon="share">
+      <tanrei-menu-item label="复制链接" leading-icon="link"></tanrei-menu-item>
+      <tanrei-menu-item label="通过邮件发送" leading-icon="mail"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-menu-item label="打印" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="由链接组成的菜单：每一行都通向某个地方，其中一行在新标签页中打开" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="按钮" href="/zh-cn/components/button/"></tanrei-menu-item>
+    <tanrei-menu-item label="列表" href="/zh-cn/components/list/"></tanrei-menu-item>
+    <tanrei-menu-item label="示例网站" href="https://example.com/" target="new" target-label="在新标签页中打开"></tanrei-menu-item>
+    <tanrei-menu-item label="归档" href="/archive/" disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+### 用法
+
+锚点是你自己的按钮、图标按钮或输入框。菜单不绘制锚点：它读取锚点的位置，把自己的表面贴着锚点放置，并在关闭时把焦点交还给锚点。你从锚点打开菜单，并在菜单提出请求时关闭它。
+
+菜单有五种项：`item`（一个操作）、`checkbox-item`、`radio-item`、`submenu`（在旁边打开下一级菜单的项）和 `group`（容纳其他几种项）。每个平台接收它们的方式，与它接收任何重复子项的方式相同：在 Web 上是子元素，在 SwiftUI 上是视图构建器中的视图，在 Compose 上是内容 lambda 中的调用，在 Flutter 上是 `menuChildren` 中的 widget，在 React Native 上是一个由普通对象组成、以 `kind` 区分种类的 `items` 数组。复选项的 `checked` 属于它自己。哪个单选项被选中，则由它所在的组按值决定。
+
+项的键盘快捷键是它的 `shortcut` 属性，用[键盘快捷键](/zh-cn/components/keyboard-shortcut/)组件那套与平台无关的按键名称来写（`mod+c`）。菜单用键盘快捷键组件把它画在行的末尾：在 Apple 的键盘上是 ⌘C，在其他键盘上是 Ctrl+C；同时把它作为该项的键盘快捷键暴露出来。它并不会让这些按键生效：按键要由你的产品来绑定。`trailingText` 用于快捷键以外的任何内容，例如数量或“Beta”。Web 会画出这一切，以及当前的外观。SwiftUI、Compose、Flutter 和 React Native 待跟进：在跟上之前，它们没有 `shortcut` 属性，而是像下面的示例那样把快捷键写在 `trailingText` 里。它们也没有子菜单、`separation` 和 `markIcon`，并且仍然在 16 的方框里用各自的标记来画对勾，不给选中的行加填充，组的标题则从标签开始的位置画起。
+
+带 `href` 的项是链接项：它是平台自己的链接，画法与操作完全相同，也用同样的按键移到它上面。普通激活会触发该项的 `click`，关闭菜单，然后打开目的地。`target` 和 `targetLabel` 与 [Button](/zh-cn/components/button/) 的相同。目前只有 Web 提供链接项；SwiftUI、Compose、Flutter 和 React Native 还没有。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="more" label="更多"><span slot="icon">more_vert</span></tanrei-button>
+
+    <!-- anchor 是菜单从其打开的那个元素的 id。 -->
+    <tanrei-menu anchor="more">
+      <!-- shortcut 用与平台无关的按键名称来写：按用户的键盘画成 ⌘C 或 Ctrl+C。 -->
+      <tanrei-menu-item label="复制" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+      <!-- 组的标题是它的 label 属性，与 <optgroup label> 一样。 -->
+      <tanrei-menu-group label="视图">
+        <tanrei-menu-checkbox-item label="显示网格" checked></tanrei-menu-checkbox-item>
+      </tanrei-menu-group>
+      <!-- 在组上或在单个项上写 mark-icon="check"，选中的项就用一个单纯的对勾来标记。 -->
+      <tanrei-menu-group label="排序方式" value="name" mark-icon="check">
+        <tanrei-menu-radio-item label="名称" value="name"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="修改日期" value="date"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+      <!-- 子菜单：它的子项就是下一级。它触发 toggle，从不触发 close。 -->
+      <tanrei-submenu label="最近打开" leading-icon="history">
+        <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+        <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-item label="删除" leading-icon="delete" destructive></tanrei-menu-item>
+      <!-- 带 href 的项是链接：先触发它的 click，再关闭菜单，然后浏览器跟随链接。 -->
+      <tanrei-menu-item label="键盘快捷键" href="/help/shortcuts/"></tanrei-menu-item>
+      <tanrei-menu-item label="源代码" href="https://example.com/tanrei" target="new" target-label="在新标签页中打开"></tanrei-menu-item>
+    </tanrei-menu>
+
+    <!-- separation="gap" 让这个菜单及其子菜单用空白来分开各组，无论设计系统选的是什么。 -->
+    <tanrei-menu anchor="more" separation="gap">…</tanrei-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/menu';
+      const menu = document.querySelector('tanrei-menu');
+      // 在锚点上的按下属于锚点自己：它不会关闭菜单，所以在这里切换。
+      document.querySelector('#more').addEventListener('click', () => (menu.open = !menu.open));
+      // close 带有原因：escape、outside、tab、focus-out 或 item。
+      menu.addEventListener('close', () => (menu.open = false));
+      // click、change 和 toggle 在项或组上触发并冒泡，所以在菜单上放一个监听器就能全部接住。
+      menu.querySelector('[label="复制"]').addEventListener('click', copy);
+      menu.querySelector('[label="显示网格"]').addEventListener('change', (e) => setGrid(e.detail.checked));
+      menu.querySelector('[label="排序方式"]').addEventListener('change', (e) => sortBy(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioItem, Submenu } from '@tanrei/react';
+
+    <Button variant="text" id="more" label="更多" onClick={() => setOpen(!open)}><span slot="icon">more_vert</span></Button>
+    <Menu anchor="more" open={open} onClose={() => setOpen(false)}>
+      <MenuItem label="复制" leadingIcon="content_copy" shortcut={['mod+c']} onClick={copy} />
+      <MenuGroup label="视图">
+        <MenuCheckboxItem label="显示网格" checked={grid} onChange={(e) => setGrid(e.detail.checked)} />
+      </MenuGroup>
+      <MenuGroup label="排序方式" value={sort} onChange={(e) => setSort(e.detail.value)}>
+        <MenuRadioItem label="名称" value="name" />
+        <MenuRadioItem label="修改日期" value="date" />
+      </MenuGroup>
+      <Submenu label="最近打开" leadingIcon="history">
+        <MenuItem label="Report.pdf" onClick={() => openFile('Report.pdf')} />
+        <MenuItem label="Notes.txt" onClick={() => openFile('Notes.txt')} />
+      </Submenu>
+      <MenuItem label="删除" leadingIcon="delete" destructive onClick={remove} />
+      {/* 链接项。路由取消这次 click，自己前往目的地；菜单仍会关闭。 */}
+      <MenuItem label="键盘快捷键" href="/help/shortcuts/" onClick={(e) => { e.preventDefault(); navigate('/help/shortcuts/'); }} />
+    </Menu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 加在锚点上的修饰符，与 .popover 一样。关闭时会向 isPresented 写入 false。
+    TanreiIconButton("更多", action: { showMenu = true }) { Image(systemName: "ellipsis") }
+        .tanreiMenu(isPresented: $showMenu, placement: .bottomStart) {
+            TanreiMenuItem("复制", action: copy)
+            TanreiMenuSection("视图") {
+                TanreiMenuToggle("显示网格", isOn: $showGrid)
+            }
+            TanreiMenuSection("排序方式", selection: $sort) {
+                // 把 .tag(_:) 直接加在 TanreiMenuOption 上。
+                TanreiMenuOption("名称").tag("name")
+                TanreiMenuOption("修改日期").tag("date")
+            }
+            TanreiMenuItem("删除", role: .destructive, action: delete)
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiCheckboxMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiMenu
+    import io.github.chnotchy.tanrei.components.TanreiMenuGroup
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiRadioMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // 与 DropdownMenu 一样：在锚点所在的 Box 中调用菜单。由你来关闭它：onDismissRequest 带有原因。
+    Box {
+        TanreiIconButton(onClick = { expanded = true }, contentDescription = "更多") { TanreiText("more_vert") }
+        TanreiMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            TanreiMenuItem(text = "复制", onClick = ::copy, trailingText = "⌘C", leadingIcon = { TanreiText("content_copy") })
+            TanreiMenuGroup(title = "视图") {
+                TanreiCheckboxMenuItem(text = "显示网格", checked = showGrid, onCheckedChange = { showGrid = it })
+            }
+            TanreiMenuGroup(title = "排序方式", selectedValue = sort, onSelectedValueChange = { sort = it }) {
+                TanreiRadioMenuItem(text = "名称", value = "name")
+                TanreiRadioMenuItem(text = "修改日期", value = "date")
+            }
+            TanreiMenuItem(text = "删除", onClick = ::delete, destructive = true, leadingIcon = { TanreiText("delete") })
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 与 MenuAnchor 一样：由控制器打开它。菜单请求关闭时，会带着原因调用 onClose，并自行关闭。
+    final TanreiMenuController menu = TanreiMenuController();
+
+    TanreiMenuAnchor(
+      controller: menu,
+      onClose: (TanreiMenuCloseReason reason) {},
+      menuChildren: <Widget>[
+        TanreiMenuItem(
+          onPressed: copy,
+          leadingIcon: const Icon(AppSymbols.contentCopy),
+          trailingText: '⌘C',
+          child: const Text('复制'),
+        ),
+        TanreiMenuGroup<String>(
+          title: '视图',
+          children: <Widget>[
+            TanreiCheckboxMenuItem(
+              value: showGrid,
+              onChanged: (bool value) => setState(() => showGrid = value),
+              child: const Text('显示网格'),
+            ),
+          ],
+        ),
+        TanreiMenuGroup<String>(
+          title: '排序方式',
+          groupValue: sort,
+          onChanged: (String value) => setState(() => sort = value),
+          children: const <Widget>[
+            TanreiRadioMenuItem<String>(value: 'name', child: Text('名称')),
+            TanreiRadioMenuItem<String>(value: 'date', child: Text('修改日期')),
+          ],
+        ),
+        // onPressed 为 null 时，这一项被禁用。
+        TanreiMenuItem(onPressed: delete, destructive: true, child: const Text('删除')),
+      ],
+      builder: (BuildContext context, TanreiMenuController controller, Widget? child) =>
+          TanreiIconButton(onPressed: controller.open, icon: const Icon(AppSymbols.moreVert), semanticLabel: '更多'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { IconButton, Menu } from '@tanrei/react-native';
+
+    const more = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // 告诉辅助技术锚点的菜单是否打开：在这里菜单无法替你设置。
+    <IconButton ref={more} accessibilityLabel="更多" accessibilityState={{ expanded: open }} onPress={() => setOpen(true)}>
+      more_vert
+    </IconButton>
+    // 受控：在 onDismiss 中把 visible 设为 false，onDismiss 会收到原因。
+    <Menu
+      visible={open}
+      anchorRef={more}
+      accessibilityLabel="更多"
+      onDismiss={() => setOpen(false)}
+      items={[
+        { label: '复制', leadingIcon: 'content_copy', trailingText: '⌘C', onPress: copy },
+        { kind: 'group', title: '视图', items: [{ kind: 'checkbox-item', label: '显示网格', checked: grid, onCheckedChange: setGrid }] },
+        { kind: 'group', title: '排序方式', value: sort, onValueChange: setSort, items: [
+          { kind: 'radio-item', label: '名称', value: 'name' },
+          { kind: 'radio-item', label: '修改日期', value: 'date' },
+        ] },
+        { label: '删除', leadingIcon: 'delete', destructive: true, onPress: remove },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="辅助文本、后置图标和禁用的项" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="分享" supporting-text="发送此文件的链接" leading-icon="share"></tanrei-menu-item>
+    <tanrei-menu-item label="可离线使用" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
+    <tanrei-menu-item label="重命名" leading-icon="edit" disabled></tanrei-menu-item>
+    <tanrei-menu-item label="删除" leading-icon="delete" destructive disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="位于对勾列和图标列上方的组标题" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="文本样式">
+      <tanrei-menu-checkbox-item label="粗体" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="斜体" leading-icon="format_italic"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="对齐" value="start">
+      <tanrei-menu-radio-item label="起始对齐" value="start" leading-icon="format_align_left"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="居中" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="标记：默认系统的方框和圆环，以及用 mark-icon 指定的单纯对勾" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="显示">
+      <tanrei-menu-checkbox-item label="标尺" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="参考线"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="缩放" value="fit">
+      <tanrei-menu-radio-item label="适应窗口" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="实际大小" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="显示" mark-icon="check">
+      <tanrei-menu-checkbox-item label="标尺" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="参考线"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="缩放" value="fit" mark-icon="check">
+      <tanrei-menu-radio-item label="适应窗口" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="实际大小" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="分隔方式：组之间的分隔线，以及间隙" plain>
+  <tanrei-menu inline open separation="divider">
+    <tanrei-menu-item label="撤销" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="重做" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="剪切" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="复制" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="查找">
+      <tanrei-menu-item label="在页面中查找" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open separation="gap">
+    <tanrei-menu-item label="撤销" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="重做" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="剪切" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="复制" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="查找">
+      <tanrei-menu-item label="在页面中查找" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+在默认系统中，复选项被标记成复选框的样子，单选项被标记成单选按钮的样子，无论该项是否选中都会画出来：空的方框和带对勾的填充方框，细的圆环和带填充的粗圆环。这样，处于关闭状态的选项仍然看得出是一个选项。这些只是标记列中的图形，不是控件：可以按下和聚焦的只有行本身。方框中的对勾以控件自身标记所用的较粗字重绘制，与[复选框](/zh-cn/components/checkbox/)的对勾一样。
+
+`markIcon` 可以写在单个项上，也可以写在组上以作用于组内所有项，它指定图标集中的一个图标，改用它来标记选中的项。`check` 会画一个单纯的对勾，大小与旁边的前置图标相同（默认系统中是 24），项未选中时什么也不画。设计系统自行选择标记：`m3-like` 和 `cupertino` 使用单纯的对勾。对勾在从右到左的布局中不镜像。菜单打开期间某一项的选中状态改变时，标记在原地变化，不发生移动；在减弱动态效果时则立即变化。
+
+选中的行还会加上填充。在默认系统中，这个填充是覆盖在菜单表面之上的一层，用的是这一行自身的内容颜色，在浅色和深色主题中都比悬停的行强一档，所以在抬升的表面上，选中的行、悬停的行和静止的行可以相互区分。子菜单打开期间，打开它的那一项保持悬停填充，以此标出通往当前所用那一级的路径，而且它绝不会看起来像选中的行。
+
+组的标题从行内容开始的位置画起：菜单画出对勾列或前置图标列时，标题位于这些列的上方；两者都不画时，标题位于标签的上方。它在距另一侧边缘相同距离处结束，会换行，会随文本变大而增高，在从右到左的布局中会镜像。
+
+<ComponentSpecs name="menu" />
+
+## 指南
+
+### 何时使用
+
+菜单用于不需要在屏幕上占一席之地的次要操作和设置：行上的“更多”、工具栏的溢出菜单、排序方式、视图的选项。用户打开它，选一样东西，然后回到原先在做的事情上。
+
+屏幕的主要操作请使用按钮，因为菜单会把它们藏起来。当选择本身就是屏幕的主要任务时，请使用列表、单选按钮或下拉选择框。当用户必须先作答才能继续时，请使用对话框。菜单只容纳它的项：不放输入框、滑块或开关，它们会占用菜单所需要的按键。
+
+通向某个地方的行是链接项：给这一项一个 `href`。它适合一小组平时不占地方、需要时才唤出的去处，例如面包屑中折叠起来的层级、语言的选择，或“更多”。网站的主要页面始终可见，属于导航：请把它们放进[导航栏](/zh-cn/components/navigation-bar/)、[导航抽屉](/zh-cn/components/navigation-drawer/)或由链接组成的[列表](/zh-cn/components/list/)。
+
+### 如何选择项的种类
+
+| 种类 | 它是什么 | 激活之后 | 用途 |
+| --- | --- | --- | --- |
+| 项 | 一个操作；带 `href` 时是链接 | 触发自己的 click，然后菜单关闭。链接项的目的地在这之后打开。 | “复制”“重命名”“分享”。“删除”或“放弃”请设置 `destructive`：它会以错误颜色绘制。要通向某个地方时，给它一个 `href`。 |
+| 复选项 | 一个可以独立打开或关闭的选项 | 切换自己的 `checked`，并触发自己的 change。 | “显示网格”“显示标尺”：互不影响的设置。 |
+| 单选项 | 它所在组的几个选项之一 | 设置所在组的 `value`，并由组触发 change。已选中的单选项什么也不触发。 | “按名称排序”“按日期排序”：一个问题的一个答案。 |
+| 子菜单 | 在旁边打开下一级的项 | 打开它的子菜单，并触发自己的 toggle。菜单保持打开。 | “最近打开”“分享”“移动到”：另一组会让菜单变得太长的项。 |
+| 组 | 一串相关的项，可以带标题 | 什么也不发生：它不接受焦点。 | 把相关的项与其他项分开，以及容纳同一个问题的各个单选项。 |
+
+通过轻点、点击或 Enter 激活的复选项或单选项会关闭菜单，与操作一样。用 Space 激活时，菜单保持打开，这样键盘用户可以一次更改多项设置。
+
+### 组、标题和分隔方式
+
+- 菜单会把一个组与它旁边的任何内容分开，但绝不在顶部或底部分隔：用一条分隔线，或者用一段空白间隙。你不需要自己放置分隔线。
+- 用哪一种由设计系统选择，这是所有自行分隔部件的组件共用的一项选择：默认系统中是分隔线。`separation` 为单个菜单及其子菜单做决定：`auto`（默认）跟随设计系统，`divider` 或 `gap` 则指定其中一种，无论系统选的是什么。选择间隙时不暴露任何分隔符，而各个组仍然作为组暴露。
+- 带有 `title` 的组会把它画成各项上方的一个低调的标题，从行内容开始的位置画起，并以它命名。请给单选项所在的组一个提出问题的标题，例如“排序方式”。
+- 单选项应当放在组里。组外的单选项永远不会被选中，并会在调试构建中报告。
+- 组不能包含另一个组。内层组的项会被当作外层组的项来绘制。
+
+### 链接
+
+链接项是平台自己的链接，所以浏览器的上下文菜单、在新标签页中打开，以及悬停时显示的地址都照常可用。它没有自己的外观：在每一种状态下，它都画得与相邻行的操作一样。
+
+- **激活。** 点击、轻点、Enter 或 Space 会触发该项的 `click`，然后菜单关闭，然后目的地打开。Space 会激活链接项，就像它激活菜单的其他每一行一样。在别处，Space 不会激活链接。
+- **路由。** 取消该项的 `click`，就可以自己接管导航。菜单仍会关闭，其他什么也不会打开。
+- **其他标签页。** 带修饰键的点击或 Enter，以及中键点击，交给浏览器处理。菜单不触发 `close`，并保持打开，所以可以把其中的几个链接一个接一个地打开。
+- **新上下文。** `target: new` 打开新的标签页或窗口。该项在后置图标列中以图标集的 `open_in_new` 结尾，除非 `trailingIcon` 指定了你自己的字形；`targetLabel` 则把这一点告诉辅助技术。快捷键或后置文本保留自己的那一列，位于这个标记之前。
+- **禁用。** 禁用的链接项无论用什么方式都无法打开。与任何禁用的项一样，它仍然可以用方向键到达。
+- **只限“项”这一种。** 复选项、单选项和子菜单项不接受目的地：它们持有一个状态，或者打开下一级。
+
+### 子菜单
+
+子菜单项是一个以图标集的 `chevron_right` 结尾的行，它的子项就是下一级：任何种类的项，包括组。它不是操作，也没有快捷键。
+
+- **打开。** 按下、轻点、Enter、Space，或者指向行末方向的方向键，会立即打开子菜单，并把焦点移到其中第一个启用的项。指针停留在该项上时，会在短暂延迟后打开子菜单，而焦点留在该项上。
+- **前往子菜单的途中。** 指针从该项移向它已打开的子菜单时，途中经过的项既不显示悬停，也不获得焦点，所以沿斜线移动不会关闭子菜单。
+- **关闭一级。** 指向行首方向的方向键或 Escape，会关闭持有焦点的那一级，并把焦点交还给打开它的项。只有在没有子菜单打开时，Escape 才关闭整个菜单。移到父级的另一项上也会关闭子菜单。一个表面中最多只有一个子菜单处于打开状态。
+- **全部关闭。** 任何一级中的操作、Tab、在所有表面之外按下，以及焦点离开所有表面，都会关闭整个菜单，并且只触发一次 `close`。
+- **放在哪里。** 放在容纳该项的表面旁边，位于末尾侧，它的第一行与该项所在的行齐平；末尾侧没有空间时放在另一侧。窗口太窄、两侧都放不下时，它叠放在父级之上，并让父级露出一条窄边：在这条窄边上按下会关闭子菜单。菜单绝不会用子菜单的内容替换自己的内容。
+- **`open` 与 `toggle`。** 子菜单项的 `open` 属于它自己。用户打开或关闭子菜单时，由菜单设置它，并由该项触发 `toggle`。你自己对 `open` 的更改，以及整个菜单的关闭，都不触发 `toggle`。
+- **深度。** 菜单之下的子菜单请不要超过两级。第三级仍然会画出来，并会在调试构建中报告；没有项的子菜单也会被报告。
+- 组的 `value` 只作用于它自己所在表面中的单选项，每个表面各自绘制自己的标记列和图标列。
+
+### 打开、焦点和关闭
+
+菜单是供操作的浮层，但不是模态的。用户在其中进行操作，所以它会取得焦点，再把焦点交还回去。屏幕上的其他内容都不会被阻挡。
+
+- **打开。** 锚点被激活时，由你设置 `open`。表面出现在平台的浮层中，按 `placement` 所说的方式贴着锚点放置：默认在锚点下方，起始侧的边缘对齐。这一侧没有空间时，它翻到另一侧；它会平移以留在屏幕之内，太高时可以滚动，并在锚点移动时跟随锚点。
+- **焦点进入。** 焦点移到第一个启用的项。此后方向键、Home、End 和键入查找在各项之间移动，到头时循环，并且穿过各个组。指针移到某一项上时，焦点也移到那里，所以按键会从指针所在的位置继续。
+- **非模态。** 菜单不把焦点限制在自己之内，不让屏幕的其余部分变为惰性（inert），也不画遮罩。Tab 会离开菜单并关闭它。
+- **关闭。** 菜单会请求关闭，并说明原因。这些原因在每个平台上名称相同，只是大小写遵循各平台自己的写法：
+
+| 原因 | 何时 |
+| --- | --- |
+| `escape` | 按下了 Escape。 |
+| `back` | 平台的返回操作，例如 Android 的返回按钮或返回手势。 |
+| `outside` | 在表面和锚点之外按下。 |
+| `tab` | 按下了 Tab 或 Shift+Tab。焦点随后从锚点继续前进，就像原本从锚点出发一样。 |
+| `focus-out` | 焦点以其他方式移出了菜单。 |
+| `item` | 某一项被激活。 |
+
+- **焦点返回。** 菜单关闭时，如果焦点原本在菜单之内，就把焦点交还给锚点。
+
+由谁来关闭菜单，取决于平台。在 Web 和 React Native 上，你在 close 事件中把 `open`（`visible`）设回 false。在 Compose 上，你在 `onDismissRequest` 中把 `expanded` 设为 false，它带有一个 `TanreiMenuCloseReason`。在 Flutter 上，菜单带着原因调用 `onClose`，并通过它的控制器自行关闭。在 SwiftUI 上，菜单向 `isPresented` 写入 `false`，所以原因不会传递出来。
+
+在外部的按下是否也会传到它下方的内容，同样取决于平台。在 Web 和 Flutter 上会。在 SwiftUI、Compose 和 React Native 上，这次按下只关闭菜单。
+
+### 推荐
+
+- 标签保持简短，操作的标签以动词开头：“复制链接”“删除文件”。
+- 操作的键盘快捷键写在 `shortcut` 里，使用与平台无关的按键名称（`mod+c`），并在你的产品中绑定这些按键。`trailingText` 留给其他内容：后置文本绝不会作为快捷键暴露。
+- 把破坏性操作放在最后，让它单独成组，或放在一个组之后，与其他项分开。
+- 有时可用的项被禁用时，让它留在原位，这样菜单的形状不会改变。用户仍然可以用方向键到达它。
+
+### 避免
+
+- 不要把屏幕的主要操作放进菜单。
+- 不要把复选项用于互斥的选择。请使用组里的单选项。
+- 不要做只有一项的菜单。把这个操作直接显示为按钮。
+- 不要把用户常用的操作放进子菜单，子菜单也不要超过两级。
+- 不要在操作上使用后置的 `chevron_right`。它是子菜单项的标记。
+- 不要把网站的主导航做成由链接组成的菜单。菜单是唤出来的，用完就消失。
+
+## 无障碍
+
+<ComponentAccessibility name="menu" />
+
+### 组件负责的部分
+
+- 表面作为菜单暴露。操作是菜单项，复选项是菜单项复选框，单选项是菜单项单选按钮，各自带有选中状态、自己的位置和菜单的大小。
+- 每一项以它的标签命名，以它的辅助文本作为描述。平台有相应属性时（Web 上是 `aria-keyshortcuts`），项的 `shortcut` 作为它的键盘快捷键暴露；否则，逐个拼出的按键是它描述的一部分。后置文本只会是描述的一部分。图标和标记是隐藏的：方框、圆环和对勾只是图形，选中状态属于项本身。
+- 链接项作为菜单项暴露，而不是作为链接：菜单是按它的项、项的数量和方向键来朗读的，而这只有在每一行都是菜单项时才成立。在底层，它仍然是平台的链接。它会打开新上下文时，`targetLabel` 位于它描述的末尾，它的标记是隐藏的。
+- 组作为以其标题命名的组暴露。分隔线是不接受焦点的分隔符；用间隙分开各组时，没有分隔符。标题不接受焦点，也不会被当作项来朗读。
+- 子菜单项作为一个会打开菜单的项暴露，并带有展开状态，被禁用时也是如此。它的表面是一个独立的菜单，以该项的标签命名，每个表面各自计算自己的位置。
+- 平台有相应属性时（在 Web 上是 `aria-haspopup`、`aria-controls` 和 `aria-expanded`），锚点会被告知它会打开一个菜单，以及菜单是否打开。
+- 打开时焦点移到第一个启用的项。关闭时，如果焦点原本在菜单之内，就把焦点交还给锚点。上、下方向键到头时循环，Home 和 End 前往两端，键入字符会移到标签以所键入字母开头的下一项。Enter 激活并关闭。在复选项或单选项上按 Space，菜单保持打开。Escape 关闭菜单并交还焦点。Tab 关闭菜单，焦点从锚点继续前进。在子菜单中，指向行首方向的方向键和 Escape 只关闭那一级，并把焦点交还给打开它的项；沿行方向而不起作用的方向键，绝不会传到菜单后面的页面。
+- 禁用的项仍然可以用方向键到达，但不会被激活。
+- 焦点环画在项的内部，所以表面不会把它裁掉。它只在键盘聚焦时显示。指针移到某一项上时，该项显示为悬停，而不是聚焦。
+- 每一项的高度不小于最小目标，整行都是它的点击区域。
+- 文本变大时，项随之增高；表面在屏幕上放不下时可以滚动。
+- 图标字体还无法画出某个图标标记（例如对勾）时，菜单在它的位置上什么也不画，绝不会画出“check”这个单词。它保留这一列的宽度，仍然暴露选中状态，并在字体加载完成后显示标记。
+- 调试构建会报告：没有标签的项、组外的单选项、没有指向组内任何单选项的组值、两个值相同的单选项、组内的组、同时有快捷键和后置文本的项、菜单没有定义的 `separation`、第三级子菜单，以及没有项的子菜单。它们还会报告：会打开新上下文却没有 `targetLabel` 的链接项；复选项、单选项或子菜单项上的 `href`；指向脚本或无法解析的 `href`；以及菜单没有定义的 `target`。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 没有链接项：在这些平台上，项还不接受 `href`。
+- SwiftUI、Compose、Flutter 和 React Native 没有子菜单、`separation` 和 `markIcon`，选中的行也没有填充。它们仍然在 16 的方框里用各自的标记来画对勾，组的标题从标签开始的位置画起。
+- 在 `m3-like` 和 `cupertino` 下，标题从哪里开始遵循的是 Tanrei 的规则，还没有对照原版测量过。
+- Web：菜单不监听平台的关闭请求，例如 Android 的返回手势，所以从不发送 `back`。
+- Web：`aria-haspopup` 和 `aria-expanded` 设置在锚点上。锚点是自定义元素（例如只有图标的 `<tanrei-button>`）时，它们设置在其 shadow root 内的按钮上。`aria-controls` 以及来自锚点的菜单名称无法跨越 shadow root。
+- Web：表面由脚本定位，而不是用 CSS 锚点定位。
+- Web：子菜单项无法用 `aria-controls` 指向它的表面，因为 `aria-controls` 无法伸入 shadow root。作为替代，表面在无障碍树中是该项的后代。
+- Web，macOS 上的 WebKit：子菜单已打开的项在按下时保持悬停颜色，而不是换成按下颜色。
+- SwiftUI 没有菜单、菜单项或分隔符角色，没有快捷键属性，也无法表明锚点会打开菜单或菜单已经打开。每一项是一个按钮，把位置作为自己的值（“2 of 3”，只有英文），复选项是一个切换开关，单选项在选中时处于 selected 状态。
+- SwiftUI 从不把键盘焦点交给禁用的按钮，所以方向键会跳过禁用的项，而不是到达它。
+- SwiftUI 把菜单呈现为 popover，而 popover 会自行定位。令牌只能选择位于哪一侧：popover 与锚点、与窗口边缘的距离由它自己决定，对齐由它自己完成，关闭时用的也是它自己的动效。在 iOS 26 上，它把表面裁剪成自己更大的圆角，并画出自己的阴影。这在设备上看起来如何，还没有检查过。
+- SwiftUI：Tab 会关闭菜单并把焦点交还给锚点，但焦点无法在同一次按键中从锚点继续前进。
+- SwiftUI 只从直接加在 `TanreiMenuOption` 上的 `.tag(_:)` 读取单选项的值。
+- SwiftUI：方向键、Home、End、键入查找、Escape 和 Tab 是作为规则来测试的，还没有用真实键盘测试。
+- React Native 把菜单画在 `TanreiProvider` 的浮层中，所以它的上层必须有一个 `TanreiProvider`。Tab 会关闭菜单并把焦点交还给锚点，但无法在同一次按键中从锚点继续前进。下一次 Tab 才会继续前进。
+- React Native：屏幕阅读器如何对待打开的菜单后面的元素，以及焦点离开菜单时的情况，还没有在设备上检查过。
+- React Native 没有菜单项复选框或菜单项单选按钮角色，也没有快捷键属性。每一项都是菜单项，复选项和单选项带有选中状态，后置文本作为描述的一部分朗读。
+- React Native 无法在你的锚点上设置属性。请自己给它 `accessibilityState={{ expanded: open }}`。
+- React Native 不会跟随在菜单打开期间移动的锚点。它在菜单打开时和窗口大小改变时测量锚点。
+- React Native：方向键、键入查找、Escape、Tab，以及 Space 与 Enter 的区别，还没有在带硬件键盘的设备上检查过。
+- Compose 没有菜单、菜单项或分隔符角色，也没有快捷键属性。表面是一个集合，操作没有角色，复选项是复选框，单选项是单选按钮，后置文本作为描述的一部分朗读。菜单无法设置锚点的展开状态。
+- Compose：菜单打开期间在锚点上的按下，算作在外部的按下。它以 `outside` 关闭菜单，并且不会传到锚点。
+- Compose：弹出层的窗口焦点、真实的外部按下、返回按钮、焦点交还给锚点、Tab 从锚点继续前进，以及 TalkBack 在菜单上的表现，只在 Robolectric 下测试过，还没有在设备上测试。
+- Flutter 没有组或分隔符角色，无法用锚点为菜单命名，也无法表明锚点会打开菜单，并且不给项提供位置或集合大小。组是一个以其标题命名的容器。锚点确实会得到展开状态。
+- Flutter：TalkBack、VoiceOver 和 Web 屏幕阅读器对菜单朗读什么，以及 Android 的返回手势在打开的菜单上的表现，还没有在设备上检查过。
+
+### 需要你做的事
+
+- 通过锚点为菜单命名。给作为锚点的图标按钮一个标签，例如“更多”或“排序”。在 React Native 上，把同一个名称作为菜单的 `accessibilityLabel` 传入。
+- 在 Compose 和 React Native 上，在锚点上暴露菜单是否打开。菜单无法替你在那里设置。
+- 菜单请求关闭时就关闭它，并且在它关闭时不要自己移动焦点。菜单会把焦点交还给锚点。
+- 给每一项一个标签，包括显示图标的项。标签就是名称，也是键入查找所匹配的内容。
+- 给单选项所在的组加一个标题，说明这项选择是关于什么的。
+- 给每个子菜单项一个标签：它既为该项命名，也为它打开的子菜单命名。
+- 给在新标签页中打开的链接项一个用你的产品语言写的 `targetLabel`，例如“在新标签页中打开”。Tanrei 不自带任何文字。

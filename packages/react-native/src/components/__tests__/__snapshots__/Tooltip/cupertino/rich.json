@@ -1,0 +1,168 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "alignItems": "center",
+      "height": 200,
+      "justifyContent": "center",
+      "width": 320
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "alignItems": "center",
+          "flexDirection": "column",
+          "gap": 4
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessibilityElementsHidden": true,
+            "accessible": false,
+            "importantForAccessibility": "no-hide-descendants"
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "alignSelf": "flex-start",
+                  "backgroundColor": "rgb(255, 255, 255)",
+                  "borderCurve": "continuous",
+                  "borderRadius": 10,
+                  "boxShadow": [
+                    {
+                      "blurRadius": 8,
+                      "color": "rgba(0, 0, 0, 0.12)",
+                      "offsetX": 0,
+                      "offsetY": 2,
+                      "spreadDistance": 0
+                    }
+                  ],
+                  "gap": 4,
+                  "maxWidth": 320,
+                  "paddingHorizontal": 16,
+                  "paddingVertical": 12
+                }
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "style": {
+                      "color": "rgb(0, 0, 0)",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "letterSpacing": 0,
+                      "lineHeight": 20
+                    }
+                  },
+                  "children": [
+                    "Storage"
+                  ]
+                },
+                {
+                  "type": "Text",
+                  "props": {
+                    "allowFontScaling": true,
+                    "collapsable": false,
+                    "style": {
+                      "color": "rgb(107, 106, 108)",
+                      "fontSize": 15,
+                      "fontWeight": "400",
+                      "letterSpacing": 0,
+                      "lineHeight": 20
+                    }
+                  },
+                  "children": [
+                    "Trash still counts toward storage."
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {},
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "accessibilityHint": "Storage, Trash still counts toward storage.",
+                "accessibilityLabel": "info",
+                "accessibilityRole": "button",
+                "accessibilityState": {
+                  "disabled": false
+                },
+                "accessibilityValue": {},
+                "accessible": true,
+                "collapsable": false,
+                "focusable": true,
+                "hitSlop": {
+                  "bottom": 7,
+                  "left": 7,
+                  "right": 7,
+                  "top": 7
+                },
+                "style": {
+                  "alignItems": "center",
+                  "alignSelf": "flex-start",
+                  "borderCurve": "continuous",
+                  "borderRadius": 9999,
+                  "height": 34,
+                  "justifyContent": "center",
+                  "opacity": 1,
+                  "width": 34
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "accessibilityElementsHidden": true,
+                    "accessible": false,
+                    "importantForAccessibility": "no-hide-descendants",
+                    "style": {
+                      "alignItems": "center",
+                      "height": 20,
+                      "justifyContent": "center",
+                      "width": 20
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": false,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(8, 122, 255)",
+                          "fontFamily": "Material Symbols Rounded",
+                          "fontSize": 20,
+                          "fontWeight": "300",
+                          "lineHeight": 20,
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        "info"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

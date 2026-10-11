@@ -1,0 +1,201 @@
+---
+title: "时间线"
+description: "按时间顺序排列的事件：每个事件有一个标记、它的时间、一个标题和由你的内容构成的正文，并用一道细线与下一个事件相连。事件有状态时，由标记的形状和你写的文字说明哪些已经完成、哪个正在进行、哪些还在后面。它是供人阅读的列表，从不是控件。"
+translationOf: components/timeline.mdx
+sourceHash: 0251491f2f4ffd11a3d50c86f7ebc160d900e2c7
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="timeline" />
+
+<DemoFrame label="对已发生之事的记录" column>
+  <ol class="tanrei-timeline" role="list" aria-label="发布历史" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="2026-09-22">2026 年 9 月 22 日</time><p class="tanrei-timeline-title">按级别命名的文本样式</p><p>文本样式改为按级别命名，每个圆角都可以做平滑处理。</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-21">2026 年 9 月 21 日</time><p class="tanrei-timeline-title">可以扩展的词汇</p><p>设计层可以给一个序列加一级，或给一条轴加一个值，并写明理由。</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-19">2026 年 9 月 19 日</time><p class="tanrei-timeline-title">开发启动</p><p>令牌管线、规格的 schema 和第一份规格已经就绪。</p></li>
+  </ol>
+</DemoFrame>
+
+有三样东西都画成由一条线连起来的标记。它们的区别在于读者拿它们做什么：
+
+| 组件 | 它是什么 | 标记 | 关于状态说了什么 | 是否接受输入 |
+| --- | --- | --- | --- | --- |
+| **步骤** | 需要一步步照着做的一套操作流程 | 写着步骤编号的圆环 | 什么也不说 | 从不 |
+| **时间线** | 对已经发生和将要发生之事的记录 | 一个圆点或一个字形，从不是编号 | 可以说明每个事件进行到了哪里 | 从不 |
+| **步骤条**（stepper） | 用户在产品所运行的流程中走到了哪里 | 一个编号或一个对勾 | 用户自己所在的位置 | 是 |
+
+时间线从不给事件编号、排序或隐藏事件，也不读取事件的时间。顺序就是你给出的顺序。
+
+### 用法
+
+在 Web 上，时间线是加在你自己的有序列表上的一个类，而不是一个元素。在任何脚本运行之前，这个列表就是文档里的列表，带着它的 `<time>` 元素；没有样式表时，它就是浏览器的编号列表，里面是一段段带日期的文字。
+
+SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。React 也还没有 `Timeline` 组件，请使用加了这个类的列表。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/timeline.css" />
+
+    <!-- 日志：只是发生过的事件。 -->
+    <ol class="tanrei-timeline" role="list" aria-label="发布历史">
+      <li>
+        <time class="tanrei-timeline-time" datetime="2026-09-19">2026 年 9 月 19 日</time>
+        <p class="tanrei-timeline-title">开发启动</p>
+        <p>令牌管线、规格的 schema 和第一份规格已经就绪。</p>
+      </li>
+    </ol>
+
+    <!-- 计划：每个事件都有状态，用形状表示，也用你写的文字表示。 -->
+    <ol class="tanrei-timeline" role="list" data-size="large" aria-label="路线图">
+      <li data-status="done" data-status-label="已完成">
+        <!-- 不是一个时刻：用段落，而不是 time 元素。 -->
+        <p class="tanrei-timeline-time">Wave 1</p>
+        <!-- 标题同时是页面的标题元素：它保留自己的角色和级别。 -->
+        <h3 id="wave-1">第一天就需要的控件</h3>
+        <p>按钮、字段、选择控件和列表。</p>
+      </li>
+      <li data-status="current" data-status-label="进行中">
+        <p class="tanrei-timeline-time">Wave 2</p>
+        <h3 id="wave-2">导航和浮层</h3>
+      </li>
+      <li data-status="upcoming" data-status-label="未开始">
+        <!-- 标记里放你自己的字形。 -->
+        <span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">flag</span>
+        <p class="tanrei-timeline-time">Wave 3</p>
+        <h3 id="wave-3">专门用途的部件</h3>
+      </li>
+    </ol>
+
+    <script type="module">
+      // 可选：把唯一正在进行的那个事件标记为列表的当前项，并加上调试报告。
+      // `@tanrei/web` 也会加载它。
+      import '@tanrei/web/timeline';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/timeline.css';
+    import '@tanrei/web/timeline';
+
+    <ol className="tanrei-timeline" role="list" aria-label="发布历史">
+      <li>
+        <time className="tanrei-timeline-time" dateTime="2026-09-19">2026 年 9 月 19 日</time>
+        <p className="tanrei-timeline-title">开发启动</p>
+        <p>令牌管线、规格的 schema 和第一份规格已经就绪。</p>
+      </li>
+    </ol>
+    ```
+  </TabItem>
+</Tabs>
+
+| 属性 | 在 Web 上 |
+| --- | --- |
+| `label` | `aria-label`（或者用 `aria-labelledby` 指向列表前面的标题元素） |
+| `size: large` | `data-size="large"` |
+| `density: compact` | `data-density="compact"` |
+| 一个事件 | `<li>` |
+| 带 `datetime` 的 `time` | `<time class="tanrei-timeline-time" datetime="…">`，里面是你写的文字 |
+| 不是一个时刻的 `time` | `<p class="tanrei-timeline-time">` |
+| `title` | 带 `class="tanrei-timeline-title"` 的元素（一个 `<p>`） |
+| 标题插槽 | 位于事件开头或紧跟在时间之后的标题元素（`h2` 到 `h6`） |
+| `status` | `data-status="done"`、`"current"` 或 `"upcoming"` |
+| `statusLabel` | `data-status-label` |
+| `icon` | 作为列表项第一个子元素的 `<span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">` |
+
+请在列表上写 `role="list"`：有一种浏览器引擎会在列表的标记被去掉后丢掉它的列表语义。
+
+时间由你来写。用读者的语言、历法和格式来写，并把同一个时刻放进 `datetime`，供机器读取。时间线不做任何格式化：“2 小时前”会一直是写下的样子，直到你改动它。
+
+## 规格
+
+<DemoFrame label="计划：已完成、已完成、进行中、还在后面" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="路线图" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="已完成"><p class="tanrei-timeline-time">Wave 0</p><p class="tanrei-timeline-title">基础</p><p>令牌、主题、字体排印、图标、表面和状态的基础构件。</p></li>
+    <li data-status="done" data-status-label="已完成"><p class="tanrei-timeline-time">Wave 1</p><p class="tanrei-timeline-title">第一天就需要的控件</p><p>按钮、字段、选择控件和列表。</p></li>
+    <li data-status="current" data-status-label="进行中"><p class="tanrei-timeline-time">Wave 2</p><p class="tanrei-timeline-title">导航和浮层</p><p>抽屉、标签页、对话框、菜单和面板。</p></li>
+    <li data-status="upcoming" data-status-label="未开始"><p class="tanrei-timeline-time">Wave 3</p><p class="tanrei-timeline-title">专门用途的部件</p><p>选择器、轮播，以及文档网站需要的东西。</p></li>
+  </ol>
+</DemoFrame>
+
+<DemoFrame label="你自己的字形，以及紧凑的日志" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="订单 1042" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="已完成"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">周一 09:41</p><p class="tanrei-timeline-title">已下单</p></li>
+    <li data-status="current" data-status-label="进行中"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">周二 14:05</p><p class="tanrei-timeline-title">运输中</p></li>
+    <li data-status="upcoming" data-status-label="未开始"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">预计周四</p><p class="tanrei-timeline-title">送达</p></li>
+  </ol>
+  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="动态" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">已保存设计层</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">已在六种配色方案中检查对比度</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">已更改主色</p></li>
+  </ol>
+</DemoFrame>
+
+- **标记**位于起始侧边缘的一个框里，中号时宽 24，大号时宽 28，与事件的第一行居中对齐。没有状态时，它是一个小圆点；放了你自己的字形时，它是一个用细线画出的圆环，里面是这个字形。
+- **状态**只改变标记的形状，不改变别的：已完成是里面有对勾的圆环，正在进行的事件是里面有圆点的填充圆，还在后面的事件是空的圆环。除了时间的颜色之外，这个填充圆是时间线带来的唯一颜色。
+- **连接线**从每个标记的框通向下一个，两端都不与框相接。最后一个事件没有连接线；无论事件处于什么状态，事件之间都是同一种线。
+- **时间**位于事件的最前面，用低调的颜色。**标题**跟在后面，字号与正文相同，字重是标题的字重。**正文**是你的内容：两个块之间相距 8。
+- **密度**：regular 在两个事件之间留 16，compact 留 8，用于由单行事件组成的长日志。它只改变这一段间距。
+- **尺寸**就是长文排版的那两种：在控件之间用中号，在以文本为主的页面上用大号。标记和连接线与步骤的一致，所以两者在同一个页面上看起来同属一个系列。
+
+<ComponentSpecs name="timeline" />
+
+### 在长文排版中
+
+在 `.tanrei-prose` 内部，时间线不是一座孤岛：每段正文里的段落、列表、链接和行内代码仍然归长文排版管。时间线占满长文排版的整个宽度，所以正文里的代码块会占满整栏，而正文里的段落仍然受行长限制。`@tanrei/web/prose.css` 已经带有时间线的规则，所以长文排版的页面不需要第二份样式表。
+
+### Web 上绘制方式的不同之处
+
+- 请把事件的文本写在元素（`<p>`）里：直接写在列表项里的文本，无法得到时间或标题下方的那段间隙。
+- 已完成事件的对勾是图标集的 `check`，所以它需要 `icons.css` 和图标字体。没有它们时，圆环是空的。
+- 在长文排版之外，长篇的正文（列表、引文）按它在你页面上任何地方的样子排版，而不是按长文排版来排。
+- 设计系统新增的尺寸或密度，在该系统为它提供规则之前，按默认值绘制。
+- 没有这个包的脚本时，不会有任何项被标记为列表的当前项。状态仍然会用文字朗读出来。
+
+## 指南
+
+### 推荐
+
+- 按读者预期的顺序给出事件：更新日志从新到旧，计划从旧到新。时间线会保持这个顺序。
+- 给每个有状态的事件在 `data-status-label` 里写上状态的文字，用读者的语言。
+- 当状态对每一位读者都重要时，也用文字把它显示出来：在标题或正文里放一个标签（Tag）。
+- 给相对时间（“2 小时前”）在 `datetime` 里写上确切的时刻。
+- 由单行事件组成的长日志请使用 compact，并在列表后面放一个 Button，用来显示更早的事件。
+
+### 避免
+
+- 不要用时间线来写操作流程。步骤会给读者要做的事编号。
+- 不要用它来显示用户在自己正在走的流程中的位置：那是步骤条，而标记不是控件。
+- 不要把每个标题都写成标题元素。一份有四十个事件的更新日志会把页面大纲塞满。当每个事件都是页面的一个部分时，才使用标题元素。
+- 不要在事件里嵌套时间线。事件里的事件是正文里的一个列表。
+- 不要只靠标记来说明某件事失败了。请用事件的文字和一个标签（Tag）来说明。
+
+## 无障碍
+
+<ComponentAccessibility name="timeline" />
+
+### 组件负责的部分
+
+- 它始终是文档里的有序列表：一个项数与事件数相同的列表，每一项按状态的文字、时间、标题、正文的顺序朗读。
+- 状态的文字在时间之前朗读，不会画在任何地方。标记和连接线是装饰性的，并且是隐藏的。
+- 三种状态是三种形状，而不是三种颜色，在强制颜色模式下也是如此。
+- 恰好只有一个事件正在进行时，这个包的脚本会把它标记为列表的当前项。
+- 带 `datetime` 的时间就是文档自己的 time 元素。
+- 文本随读者的设置放大并换行。任何内容都不会被截断、折叠或分页。
+
+### 需要你做的事
+
+- 在列表上写 `role="list"`，并用它前面的标题或 `aria-label` 为它命名。
+- 每个状态都要给出 `data-status-label`，除非事件自己的文本已经说明了这一点。
+- 在三种浏览器引擎的当前版本中，这些文字是通过样式表传给屏幕阅读器的。如果要在没有这个包的脚本的情况下支持较旧的浏览器，请自己把它们写成列表项开头的 `<span class="tanrei-timeline-status">已完成，</span>`，以代替 `data-status-label`。
+- 用户正看着的时候新增的事件，要在你自己的实时区域（live region）里朗读出来：时间线不会替你做。

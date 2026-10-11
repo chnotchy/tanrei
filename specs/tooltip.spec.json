@@ -1,0 +1,590 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "tooltip",
+  "title": "Tooltip",
+  "summary": "Describes an element in a few words when a person points at it, focuses it with the keyboard or long-presses it, without taking focus or blocking anything.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "keyboard-shortcut"
+  ],
+  "anatomy": [
+    {
+      "id": "anchor",
+      "description": "The element the tooltip describes: the product's own (an icon-only Button, a truncated label, a chart mark). The tooltip adds a description to it and changes nothing else about it."
+    },
+    {
+      "id": "container",
+      "description": "The surface that holds the text, placed on one side of the anchor and aligned along it."
+    },
+    {
+      "id": "arrow",
+      "description": "A triangle on the container's edge that faces the anchor, pointing at it; one shape with the container.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "A short heading above the supporting text. Rich tooltips only.",
+      "optional": true
+    },
+    {
+      "id": "supporting-text",
+      "description": "The description. A plain tooltip holds nothing else."
+    },
+    {
+      "id": "shortcut",
+      "description": "The keys that perform the anchor's command, after the text. Plain tooltips only.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "plain",
+        "rich"
+      ],
+      "default": "plain",
+      "description": "Plain is one short phrase, by default on the inverse surface, for naming what an icon does. Rich is an optional title and a few sentences, by default on a raised surface, for explaining a term or a setting. A structural choice drawn by code, not a token axis: a design system cannot add a form by values."
+    },
+    {
+      "name": "text",
+      "type": "string",
+      "default": "",
+      "description": "The description. Required."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "default": "",
+      "description": "A heading for a rich tooltip. Ignored by a plain one."
+    },
+    {
+      "name": "shortcut",
+      "type": "strings",
+      "default": [],
+      "description": "The keyboard shortcut of the anchor's command, in the keyboard shortcut component's key names: one chord per string, pressed in order ([\"mod+b\"]). A plain tooltip draws it after the text for the keyboard the person uses and exposes it as the anchor's keyboard shortcut (TIP-27); a rich one ignores it. It does not make the keys work; the product binds them."
+    },
+    {
+      "name": "placement",
+      "type": "enum",
+      "values": [
+        "top",
+        "top-start",
+        "top-end",
+        "bottom",
+        "bottom-start",
+        "bottom-end",
+        "start",
+        "start-top",
+        "start-bottom",
+        "end",
+        "end-top",
+        "end-bottom",
+        "auto"
+      ],
+      "default": "top",
+      "description": "Where the tooltip prefers to stand: a side of the anchor, and how it lines up along that side (TIP-22). top and bottom centre it above or below the anchor; with -start or -end its start or end edge meets the anchor's. start and end centre it beside the anchor; with -top or -bottom its top or bottom edge meets the anchor's. auto takes the first side with room (TIP-23). Start and end follow the layout direction. The tooltip flips to the opposite side when the preferred one has no room, keeping the alignment (TIP-9)."
+    },
+    {
+      "name": "offset",
+      "type": "number",
+      "default": null,
+      "description": "The distance between the anchor's edge and the tooltip, in the platform's layout units; 0 lets them touch. Null takes comp.tooltip.offset, the system's answer for every tooltip. Set it only where one anchor's box is not what the eye takes for its edge (a control with a large invisible hit area, a mark of a chart)."
+    },
+    {
+      "name": "crossOffset",
+      "type": "number",
+      "default": 0,
+      "description": "How far the tooltip moves along the side it stands on, in the platform's layout units, from where placement puts it: positive towards the end for a tooltip above or below, towards the bottom for one beside. For lining an aligned tooltip up with what is drawn inside the anchor rather than with the anchor's box. It never moves the tooltip off the anchor's side (TIP-24)."
+    },
+    {
+      "name": "arrow",
+      "type": "boolean",
+      "default": null,
+      "description": "Whether the tooltip draws an arrow that points at the anchor. Null, the default, takes comp.tooltip.arrow.visible, the system's choice, which is off in the default system (TIP-25)."
+    },
+    {
+      "name": "inverse",
+      "type": "boolean",
+      "default": null,
+      "description": "Whether this tooltip is drawn inverse: in the opposite scheme's colors, so that it stands apart from whatever it lands on. False draws it on a surface of the scheme. Null, the default, takes its form's choice: comp.tooltip.plain.container.inverse (on in the default system) or comp.tooltip.rich.container.inverse (off). It changes colors and elevation only (TIP-26)."
+    },
+    {
+      "name": "describes",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether assistive technology reads the text as the anchor's description. Set it to false when the text repeats the anchor's own accessible name (an icon-only Button whose tooltip shows its label), so that it is not read twice."
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the tooltip is showing. The tooltip opens and closes itself on hover, focus and long-press and reports it (toggle). A product sets it to show a tooltip on its own (a first-run hint); a snapshot harness sets it to draw a fixture."
+    },
+    {
+      "name": "showDelay",
+      "type": "number",
+      "default": null,
+      "description": "How long, in milliseconds, a fine pointer rests on the anchor before this tooltip opens; 0 opens it at once. Null takes comp.tooltip.motion.show-delay, the system's answer for every tooltip. Set it only where one tooltip needs another pace than the rest (a dense toolbar that wants its names sooner, a chart whose marks the pointer sweeps across and should not flash). It applies to hover alone: keyboard focus still opens at once."
+    },
+    {
+      "name": "hideDelay",
+      "type": "number",
+      "default": null,
+      "description": "How long, in milliseconds, this tooltip waits after the pointer has left the anchor, the gap and the tooltip before it closes; 0 closes it at once. Null takes comp.tooltip.motion.hide-delay. The tooltip stays hoverable at any value, 0 included, because the gap between the anchor and the tooltip counts as hover (TIP-1)."
+    },
+    {
+      "name": "touchTimeout",
+      "type": "number",
+      "default": null,
+      "description": "How long, in milliseconds, a tooltip opened by a long-press stays after the finger lifts; 0 closes it as the finger lifts, so it shows for as long as the press lasts. Null takes comp.tooltip.timeout.touch. Set it only where one tooltip needs more or less reading time on touch than the rest (a rich tooltip of a few sentences, a one-word name)."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The anchor."
+    }
+  ],
+  "events": [
+    {
+      "name": "toggle",
+      "description": "The tooltip opened or closed by itself (hover, focus, long-press, Escape, the touch timeout, another tooltip opening); carries the new open value."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "TIP-1",
+      "text": "WHEN a fine pointer enters the anchor and stays on it for the show delay (TIP-17) THE tooltip SHALL open; WHEN the pointer leaves the anchor THE tooltip SHALL stay open while the pointer crosses the gap to the tooltip or moves onto the tooltip itself, and SHALL close once the pointer has been off the anchor, the gap and the tooltip for the hide delay (TIP-17). The gap is the strip between the anchor's edge and the container — the offset deep (TIP-24), and comp.tooltip.arrow.height deeper while an arrow is drawn (TIP-25) — as wide as the container along that side; it counts for hover alone, is not drawn and takes no press."
+    },
+    {
+      "id": "TIP-2",
+      "text": "WHEN the anchor receives keyboard focus THE tooltip SHALL open without delay, and WHEN the anchor loses focus THE tooltip SHALL close; focus gained by pointer or touch SHALL NOT open it."
+    },
+    {
+      "id": "TIP-3",
+      "text": "WHEN the user long-presses the anchor by touch THE tooltip SHALL open without activating the anchor, and WHEN the finger lifts SHALL stay open for the touch timeout (TIP-17) and then close; a touch anywhere else SHALL close it sooner."
+    },
+    {
+      "id": "TIP-4",
+      "text": "WHILE the tooltip is open, WHEN the user presses Escape THE tooltip SHALL close without moving focus and SHALL consume the key, so that it does not also close an enclosing dialog; it SHALL stay closed until the anchor is entered by the pointer or focused again."
+    },
+    {
+      "id": "TIP-5",
+      "text": "WHILE the pointer is over the anchor or the tooltip, or the anchor has keyboard focus, THE tooltip SHALL stay open with no time limit, until Escape (TIP-4), an activation of the anchor (TIP-6) or another tooltip opening (TIP-8) closes it."
+    },
+    {
+      "id": "TIP-6",
+      "text": "WHEN the anchor is activated (a click, a tap, Enter or Space) THE tooltip SHALL close, and SHALL NOT open again from the same hover until the pointer has left the anchor and entered it again."
+    },
+    {
+      "id": "TIP-7",
+      "text": "WHEN the tooltip opens or closes by itself (TIP-1 to TIP-6, TIP-8) THE tooltip SHALL emit toggle with the new value; WHEN the product sets open THE tooltip SHALL show or hide accordingly without emitting toggle, and SHALL then keep following TIP-1 to TIP-6."
+    },
+    {
+      "id": "TIP-8",
+      "text": "WHEN a tooltip opens while another tooltip is open THE other tooltip SHALL close at once, and the new one SHALL open without waiting for its show delay (TIP-17), because the person is already reading tooltips; at most one tooltip SHALL be open in a window."
+    },
+    {
+      "id": "TIP-9",
+      "text": "THE tooltip SHALL place its container on the side of the anchor and with the alignment that placement names (TIP-22, TIP-23), the offset away from the anchor's edge and moved along the side by crossOffset (TIP-24), and SHALL keep it at least comp.tooltip.window-margin inside the window's safe area by these steps, in this order: WHEN the preferred side has no room for the container and the opposite side has, it SHALL flip to the opposite side, keeping the alignment; WHEN neither has room it SHALL use the one of the two with more room; it SHALL then shift along the side as far as the margin asks and no farther; and WHERE the container is still larger than the room on its side (a window smaller than the tooltip) it SHALL move the container back into the margin over the anchor, its top and start edges first, rather than leave the window. It SHALL follow the anchor when the anchor moves (scrolling, resizing, layout), taking these steps again from the side it is on, which it SHALL keep for as long as that side has room, so that a page that scrolls does not throw the tooltip from side to side; and it SHALL close WHEN the anchor is removed, hidden, scrolled out of the window, or scrolled out of sight inside a scrolling ancestor so that no part of it can be seen.",
+      "verify": "Test the steps one by one with an anchor near each edge and each corner of the window, with every side and alignment, in both layout directions: the side taken, the alignment kept after a flip, the distance to the window's edge after a shift, and a window smaller than the container. Test following with an anchor that scrolls inside a scrolling ancestor until none of it shows while it is still inside the window."
+    },
+    {
+      "id": "TIP-10",
+      "text": "WHILE variant is plain THE tooltip SHALL draw text in comp.tooltip.plain.supporting-text.typescale and comp.tooltip.plain.supporting-text.color on a container of comp.tooltip.plain.container.color with comp.tooltip.plain.container.shape corners and comp.tooltip.plain.container.elevation — or, WHILE it is drawn on a surface, in the colors and the elevation TIP-26 names in their place — padded by comp.tooltip.plain.container.padding-inline and comp.tooltip.plain.container.padding-block, at least comp.tooltip.plain.container.min-height tall and at most comp.tooltip.plain.container.max-width wide, wrapping longer text onto further lines; it SHALL draw its shortcut as TIP-27 says and SHALL ignore title."
+    },
+    {
+      "id": "TIP-11",
+      "text": "WHILE variant is rich THE tooltip SHALL draw title in comp.tooltip.rich.title.typescale and comp.tooltip.rich.title.color above text in comp.tooltip.rich.supporting-text.typescale and comp.tooltip.rich.supporting-text.color, comp.tooltip.rich.container.gap apart, on a container of comp.tooltip.rich.container.color with comp.tooltip.rich.container.shape corners and comp.tooltip.rich.container.elevation — or, WHILE it is drawn inverse, in the colors and the elevation TIP-26 names in their place — padded by comp.tooltip.rich.container.padding-inline and comp.tooltip.rich.container.padding-block and at most comp.tooltip.rich.container.max-width wide; WHILE title is empty it SHALL draw the supporting text alone."
+    },
+    {
+      "id": "TIP-12",
+      "text": "THE tooltip SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0), SHALL grow with enlarged text without clipping it, and SHALL start-align its text by the layout direction."
+    },
+    {
+      "id": "TIP-13",
+      "text": "THE tooltip SHALL NOT take focus, SHALL hold nothing focusable or pressable, SHALL NOT make anything inert or dimmed, and SHALL be drawn above every other layer of its window, including an open dialog and its scrim; a press on the tooltip SHALL close it and SHALL NOT reach what lies under it."
+    },
+    {
+      "id": "TIP-14",
+      "text": "WHILE describes is true THE tooltip SHALL expose text — preceded by title for a rich tooltip — as the anchor's accessible description, whether or not the tooltip is open, and SHALL keep the drawn tooltip from being read a second time; WHILE describes is false it SHALL add nothing to the anchor's semantics. In both cases it SHALL NOT change the anchor's accessible name or role."
+    },
+    {
+      "id": "TIP-15",
+      "text": "WHEN the tooltip opens THE tooltip SHALL fade in over comp.tooltip.motion.enter-duration with comp.tooltip.motion.enter-easing while it grows from comp.tooltip.motion.enter-scale of its size to its full size and travels to its place from comp.tooltip.motion.enter-offset nearer the anchor, the growth fixed at the point of its edge facing the anchor where an arrow points or would point (TIP-25), so that it comes out of the anchor's side whichever side it is on; WHEN it closes it SHALL fade out over comp.tooltip.motion.exit-duration with comp.tooltip.motion.exit-easing while it shrinks and travels back the same way. The motion SHALL be drawn only: the place TIP-9 gives, the gap of TIP-1 and the room the tooltip is measured for are those of the tooltip at rest. WHERE motion is reduced it SHALL fade without growing or travelling, or appear and disappear at once on a platform whose reduced-motion setting removes every animation (Android's). A tooltip that takes over from another SHALL NOT move at all (TIP-28).",
+      "verify": "Test the first and the last frame of each motion on a top, a bottom, a start and an end placement and after a flip: the opacity, the size, the direction of the travel and the fixed point. The default system's values are small (0.95 and 4), so use a system that sets comp.tooltip.motion.enter-scale to 0.5 and comp.tooltip.motion.enter-offset to a larger step to see the direction; set the scale to 1 and the offset to 0 to see a fade alone."
+    },
+    {
+      "id": "TIP-16",
+      "text": "WHILE text is empty THE tooltip SHALL NOT open and SHALL add nothing to the anchor's semantics, and in debug builds SHALL report the empty text; WHILE variant is plain and title is set it SHALL report the ignored title in debug builds."
+    },
+    {
+      "id": "TIP-17",
+      "text": "THE tooltip SHALL take its show delay from showDelay, its hide delay from hideDelay and its touch timeout from touchTimeout, each a number of milliseconds used as given (the motion dial does not scale it), so that 0 opens or closes at once: a show delay of 0 opens as the pointer enters, a hide delay of 0 closes as the pointer leaves the anchor, the gap and the tooltip, and a touch timeout of 0 closes as the finger lifts, after the tooltip has shown for the whole long-press. WHILE one of them is null THE tooltip SHALL use comp.tooltip.motion.show-delay, comp.tooltip.motion.hide-delay or comp.tooltip.timeout.touch in its place, and IF one is negative or not a finite number THE tooltip SHALL use that token likewise and in debug builds report the value it ignored."
+    },
+    {
+      "id": "TIP-18",
+      "text": "THE tooltip SHALL treat its show delay, hide delay and touch timeout as waiting times, not motion: WHERE motion is reduced it SHALL keep them, on every platform, including one whose reduced-motion setting removes every animation. The show and hide delays SHALL govern hover alone (TIP-1), and the touch timeout the time after a long-press alone (TIP-3): keyboard focus (TIP-2), another tooltip being open (TIP-8) and the product setting open (TIP-7) SHALL NOT wait for any of them, and the long-press itself SHALL take the platform's own duration. WHEN showDelay, hideDelay or touchTimeout changes while that wait is running THE tooltip SHALL finish the running wait and use the new value from the next time that wait starts."
+    },
+    {
+      "id": "TIP-19",
+      "text": "THE tooltip SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the tooltip is shown THE tooltip SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state, the container placed again by the new direction (TIP-20).",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "TIP-20",
+      "text": "WHEN the layout direction is right-to-left THE tooltip SHALL take the side start as the anchor's right side and the side end as its left, SHALL take the alignments -start and -end of a tooltip above or below as the right and the left edges, and a positive crossOffset of such a tooltip as a move towards the left, flipping and shifting from there as TIP-9 says; it SHALL leave the sides top and bottom, the alignments -top and -bottom, a crossOffset beside the anchor and the centring on the anchor as they are, SHALL keep auto's order of sides by their names (TIP-23), SHALL start-align a rich tooltip's title and text at the right (TIP-12) and SHALL draw a plain tooltip's shortcut at the left of its text (TIP-27).",
+      "verify": "Test the sides start and end, the alignments top-start and bottom-end, and a positive crossOffset in both layout directions (the side of the anchor the container stands on, and which of its edges meets the anchor's), and the left and right insets of a rich tooltip's title and wrapped text."
+    },
+    {
+      "id": "TIP-21",
+      "text": "THE tooltip SHALL lay out its title and its text as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE tooltip SHALL still place each and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "TIP-22",
+      "text": "THE tooltip SHALL read placement as a side and an alignment along that side: top and bottom SHALL put the container above or below the anchor with its centre on the anchor's, top-start and bottom-start with its start edge on the anchor's start edge, and top-end and bottom-end with its end edge on the anchor's end edge; start and end SHALL put it beside the anchor, on the side the layout direction gives that name, with its centre on the anchor's, start-top and end-top with its top edge on the anchor's top edge, and start-bottom and end-bottom with its bottom edge on the anchor's bottom edge. WHEN placement names a value the tooltip does not define THE tooltip SHALL place itself as the default value says and in debug builds report the unknown value; WHEN placement changes while the tooltip is shown THE tooltip SHALL take its new place at once, without a motion."
+    },
+    {
+      "id": "TIP-23",
+      "text": "WHILE placement is auto THE tooltip SHALL try the sides in the order top, bottom, end, start and SHALL take the first that has room for the container within comp.tooltip.window-margin, or the one with the most room WHEN none has, with its centre on the anchor's, and SHALL then shift, hold and follow as TIP-9 says, keeping the side it took for as long as that side has room.",
+      "verify": "Test with an anchor near the top edge (bottom is taken), in the top corner of a window too short for the container above or below (end is taken, or start where end has no room either), and scrolled while open (the side is kept until it has no room)."
+    },
+    {
+      "id": "TIP-24",
+      "text": "THE tooltip SHALL take the distance between the anchor's edge and the nearest part of itself — the container's edge, or the arrow's tip while an arrow is drawn — from offset, a number of the platform's layout units used as given, so that 0 lets the two touch, and from comp.tooltip.offset WHILE offset is null; it SHALL then move the container along its side by crossOffset, before the shift of TIP-9, and by no more than leaves comp.tooltip.arrow.width of the container beside the anchor, so that the tooltip still stands on the anchor's side and an arrow can still reach the anchor. IF offset is negative or not a finite number THE tooltip SHALL use comp.tooltip.offset in its place, IF crossOffset is not a finite number THE tooltip SHALL use 0, and in debug builds it SHALL report the value it ignored."
+    },
+    {
+      "id": "TIP-25",
+      "text": "THE tooltip SHALL draw an arrow WHILE arrow is true, and WHILE arrow is null and comp.tooltip.arrow.visible is on, and none otherwise. WHILE it draws one THE tooltip SHALL draw a triangle comp.tooltip.arrow.width wide at its base and comp.tooltip.arrow.height tall on the container's edge that faces the anchor, as one shape with the container — the container's color and elevation, with no seam and no shadow between the two — its tip pointing at the middle of the part of the anchor's edge that the container stands beside, and SHALL keep its base at least comp.tooltip.arrow.inset, and at least the corner's radius, from each end of that edge, standing at the edge's middle where the edge is too short for both; the container SHALL stand comp.tooltip.arrow.height farther from the anchor, so that the tip keeps the offset (TIP-24). WHEN the container flips, shifts or follows the anchor (TIP-9) the arrow SHALL move with it to the edge that now faces the anchor and point at the anchor again, and WHILE the container covers the anchor (TIP-9) THE tooltip SHALL draw no arrow.",
+      "verify": "Test the tip's position against the anchor's centre for a centred, a start-aligned and an end-aligned placement, on each side, in both layout directions, after a flip and after a shift at the window's edge; and that the base stays off the corners with a system that sets comp.tooltip.plain.container.shape to a full corner."
+    },
+    {
+      "id": "TIP-26",
+      "text": "THE tooltip SHALL draw itself inverse — in the opposite scheme's colors — WHILE inverse is true, on a surface of the scheme WHILE inverse is false, and WHILE inverse is null as its form's choice says: comp.tooltip.plain.container.inverse for a plain tooltip and comp.tooltip.rich.container.inverse for a rich one. The tokens TIP-10 and TIP-27 name are a plain tooltip's inverse look: WHILE drawn on a surface a plain tooltip SHALL take comp.tooltip.plain.surface.container.color, comp.tooltip.plain.surface.container.elevation, comp.tooltip.plain.surface.supporting-text.color and comp.tooltip.plain.surface.shortcut.color in their place. The tokens TIP-11 names are a rich tooltip's surface look: WHILE drawn inverse a rich one SHALL take comp.tooltip.rich.inverse.container.color, comp.tooltip.rich.inverse.container.elevation, comp.tooltip.rich.inverse.title.color and comp.tooltip.rich.inverse.supporting-text.color in place of those TIP-11 names; its shape, padding, sizes, typescales, arrow, placement, motion and timing SHALL be the same either way, and WHEN inverse changes while the tooltip is shown THE tooltip SHALL draw the other look at once, keeping its open state.",
+      "verify": "The default system chooses inverse for plain and a surface for rich; test the choice itself with a system that sets comp.tooltip.plain.container.inverse to off and comp.tooltip.rich.container.inverse to on, and that a set inverse wins over either."
+    },
+    {
+      "id": "TIP-27",
+      "text": "WHILE variant is plain and shortcut is not empty THE tooltip SHALL draw the shortcut after the text, comp.tooltip.plain.container.gap from it and on the text's first line, with the keyboard shortcut component hosted as KBS-13 says: in its plain form, at size small, with convention auto, its legends and separators in comp.tooltip.plain.supporting-text.typescale and comp.tooltip.plain.shortcut.color; the shortcut SHALL stay whole on one line while the text wraps beside it, and the two with the gap SHALL fit within comp.tooltip.plain.container.max-width. THE tooltip SHALL expose the shortcut as the anchor's keyboard shortcut in the form KBS-12 gives (aria-keyshortcuts on the web) where the platform has that property and the anchor does not state one itself, and otherwise, WHILE describes is true, SHALL add the text KBS-10 gives to the end of the anchor's description; it SHALL NOT make the keys work. WHILE variant is rich THE tooltip SHALL ignore shortcut and in debug builds report it."
+    },
+    {
+      "id": "TIP-28",
+      "text": "WHEN a tooltip opens while another tooltip of its window is open or still fading out, or within comp.tooltip.motion.warm-duration after one closed because the pointer or the keyboard focus left its anchor THE tooltip SHALL appear whole in its place at once, without the motion of TIP-15, and the other SHALL disappear at once, without its own; WHEN it is a pointer that opens it within that time THE tooltip SHALL NOT wait for its show delay either, as TIP-8 says of a tooltip that opens while another is open. A tooltip closed by Escape (TIP-4), by an activation of its anchor (TIP-6) or by a press on it (TIP-13) SHALL start no such time, so that the next tooltip waits and moves as a first one does. The time is a waiting time: WHERE motion is reduced it SHALL still apply (TIP-18).",
+      "verify": "Test with two anchors side by side: the pointer moved from one to the other inside the hide delay, inside the warm time after the first closed, and after it; Tab from one to the other; and Escape on the first before the move. Observe the second tooltip's first frame (whole, or at the start of its motion) and when it opens."
+    },
+    {
+      "id": "TIP-29",
+      "text": "WHEN the tooltip is told to close while it is still entering, or to open while it is still leaving THE tooltip SHALL turn round from the opacity, the size and the position it has reached, without first jumping to the start or the end of either motion, and SHALL take no longer over the rest than the whole duration of the motion it turns to. WHILE the tooltip is closed or leaving THE tooltip SHALL take no pointer input — a press reaches what lies under it, and the pointer on it is not hover (TIP-1) — and WHILE it is closed it SHALL take no room in the layout and draw nothing, so that a tooltip nobody can see never stands in the way of what is under it.",
+      "verify": "Test by leaving and re-entering the anchor inside the exit motion and by leaving it inside the enter motion: the opacity of the frame after the turn is the opacity of the frame before it. Test a press at the tooltip's place during the exit motion and after it: it reaches the element under it."
+    }
+  ],
+  "accessibility": {
+    "role": "tooltip",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moving focus to the anchor opens its tooltip at once; moving focus away closes it. The tooltip itself is never a tab stop."
+      },
+      {
+        "keys": "Escape",
+        "action": "Closes an open tooltip without moving focus, and goes no further (an enclosing dialog stays open)."
+      }
+    ],
+    "labeling": "The tooltip names nothing. The anchor keeps its own accessible name and role; while describes is true the text (after the title, for a rich tooltip) is the anchor's description, available whether or not the tooltip is showing. An icon-only Button's label is its name (BTN-16) and is never replaced by a tooltip: a tooltip that shows the same words sets describes to false. A shortcut is the anchor's keyboard shortcut where the platform has that property, and the end of its description otherwise (TIP-27); the drawn keys and the arrow are hidden.",
+    "minimumTarget": true,
+    "notes": [
+      "The tooltip takes no input, so it has no target of its own: minimumTarget applies to the anchor, which keeps its own hit area.",
+      "WCAG 1.4.13 (content on hover or focus): the tooltip can be dismissed without moving the pointer or focus (Escape, TIP-4), can be hovered (TIP-1: the gap between the anchor and the tooltip counts as hover — at any offset, with or without an arrow — so this holds at any hideDelay, 0 included), and stays until hover or focus ends or it is dismissed (TIP-5). Placement, the arrow and the motion change none of the three: a tooltip that flips, shifts or follows its anchor is the same open tooltip, and the gap is measured to wherever it stands.",
+      "A tooltip is invisible to touch users until they long-press, and to screen-reader users it is only a description. Nothing a person needs to finish a task may live only in a tooltip. A note that needs a link or a button is not a tooltip; that form belongs to a separate non-modal popover component.",
+      "Do not put a tooltip on a disabled anchor to explain why it is disabled: a disabled control cannot be focused, and on the web it may receive no pointer events. Put the reason in visible text.",
+      "Web: the description reaches the anchor's focusable element as aria-description, because aria-describedby cannot point across shadow roots. The anchor is the first focusable element slotted into the tooltip; a Tanrei component forwards aria-description from its host to the native element in its shadow root. The drawn tooltip has role tooltip and aria-hidden while describes carries the text.",
+      "The motion is short, small and never the only sign of anything; where motion is reduced nothing grows or travels (TIP-15). A tooltip that is leaving is already closed for input (TIP-29), so nothing invisible is ever in the pointer's way.",
+      "The inverse look and the surface look are two looks of one thing, not two meanings: neither says that a tooltip matters more. Choose by what the tooltip lands on.",
+      "A shortcut in a tooltip is a reminder for people who see it. It must also work for those who do not: the product binds the keys, and the anchor carries the shortcut for assistive technology (TIP-27)."
+    ]
+  },
+  "tokens": "comp.tooltip",
+  "fixtures": [
+    {
+      "id": "plain",
+      "props": {
+        "text": "Move to trash",
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "plain-wrapped",
+      "props": {
+        "text": "Move the selected files to the trash. They are deleted after 30 days.",
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "plain-bottom",
+      "props": {
+        "text": "Move to trash",
+        "placement": "bottom",
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "rich",
+      "props": {
+        "variant": "rich",
+        "title": "Storage",
+        "text": "Trash still counts toward storage.",
+        "open": true
+      },
+      "content": "info"
+    },
+    {
+      "id": "rich-untitled",
+      "props": {
+        "variant": "rich",
+        "text": "Files in the trash still count toward your storage until they are deleted.",
+        "open": true
+      },
+      "content": "info"
+    },
+    {
+      "id": "plain-top-start",
+      "props": {
+        "text": "Move to trash",
+        "placement": "top-start",
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "plain-top-start-rtl",
+      "props": {
+        "text": "Move to trash",
+        "placement": "top-start",
+        "open": true
+      },
+      "content": "delete",
+      "direction": "rtl"
+    },
+    {
+      "id": "plain-bottom-end",
+      "props": {
+        "text": "Move to trash",
+        "placement": "bottom-end",
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "plain-end-top",
+      "props": {
+        "text": "Move the selected files to the trash.",
+        "placement": "end-top",
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "plain-start-bottom",
+      "props": {
+        "text": "Move the selected files to the trash.",
+        "placement": "start-bottom",
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "plain-arrow",
+      "props": {
+        "text": "Move to trash",
+        "arrow": true,
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "plain-arrow-top-start",
+      "props": {
+        "text": "Move to trash",
+        "placement": "top-start",
+        "arrow": true,
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "rich-arrow-bottom",
+      "props": {
+        "variant": "rich",
+        "title": "Storage",
+        "text": "Trash still counts toward storage.",
+        "placement": "bottom",
+        "arrow": true,
+        "open": true
+      },
+      "content": "info"
+    },
+    {
+      "id": "plain-surface",
+      "props": {
+        "text": "Move to trash",
+        "inverse": false,
+        "open": true
+      },
+      "content": "delete"
+    },
+    {
+      "id": "rich-inverse",
+      "props": {
+        "variant": "rich",
+        "title": "Storage",
+        "text": "Trash still counts toward storage.",
+        "inverse": true,
+        "open": true
+      },
+      "content": "info"
+    },
+    {
+      "id": "plain-shortcut",
+      "props": {
+        "text": "Move to trash",
+        "shortcut": [
+          "mod+backspace"
+        ],
+        "open": true
+      },
+      "content": "delete"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-tooltip",
+      "props": {
+        "variant": "variant",
+        "text": "text",
+        "title": "title",
+        "shortcut": "shortcut",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "inverse": "inverse",
+        "describes": "describes",
+        "open": "open",
+        "showDelay": "showDelay",
+        "hideDelay": "hideDelay",
+        "touchTimeout": "touchTimeout"
+      },
+      "events": {
+        "toggle": "toggle"
+      },
+      "notes": "Wraps its anchor (the default slot). `showDelay`, `hideDelay` and `touchTimeout` are number properties in milliseconds, null by default, set by the `show-delay`, `hide-delay` and `touch-timeout` attributes; an attribute that is empty or does not parse as a finite number is not a number (TIP-17), so `show-delay=\"\"` takes the token and does not open at once. The gap of TIP-1 is measured, not drawn: the document's pointer-move listener counts a point inside it as over the tooltip, so nothing in the top layer covers what lies under the gap. The drawn tooltip is a `popover=\"manual\"` element in the shadow root, so it is in the top layer (above an open modal `<dialog>`); it is placed with CSS anchor positioning and `position-try` flips where supported, and by measuring otherwise. `describes` is a boolean property that defaults to true; its attribute is the inverse `no-describe`, because an HTML boolean attribute cannot default to true. `toggle` is a CustomEvent whose `detail.open` is the new value. Snapshot harness: each fixture is a stage of 320 × 200 with a medium icon-only text `tanrei-button` labelled after the fixture's glyph at its centre, and the tooltip open beside it. `placement` takes the thirteen values as written (`top-start`, `end-bottom`, `auto`); `offset` and `crossOffset` are number properties in CSS pixels (attributes `offset`, `cross-offset`), parsed as the delays are, so an empty attribute is not a number. `arrow` and `inverse` are properties that are true, false or null: the attribute is absent for null, present for true and `=\"false\"` for false, as the snackbar's `inverse` is; null reads the choice from the cascade. `shortcut` is an array property; its attribute holds the chords separated by spaces, as the keyboard shortcut's `keys` does, and the shortcut reaches the anchor's focusable element as `aria-keyshortcuts` unless that element already has one. The container and the arrow are one painted shape, so the elevation's ring and shadows run round both. The enter and exit motion runs on a wrapper inside the popover whose transform origin is set from the placement that was taken; the popover element itself keeps its placed box, so the measured gap and the following do not see the motion. The time tooltips stay warm is kept per window, beside the one showing tooltip. Snapshot harness: the stage sets `data-tanrei-keyboard-convention=\"standard\"`, so `plain-shortcut` reads the same on every machine."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "tanreiTooltip",
+      "props": {
+        "variant": "variant",
+        "text": "text",
+        "title": "title",
+        "shortcut": "shortcut",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "inverse": "inverse",
+        "describes": "describes",
+        "open": "isPresented",
+        "showDelay": "showDelay",
+        "hideDelay": "hideDelay",
+        "touchTimeout": "touchTimeout"
+      },
+      "events": {
+        "toggle": "isPresented"
+      },
+      "notes": "Lagging: has no delay or timeout parameters and no hover gap; owes TIP-1 (the gap), TIP-3 and TIP-8's wording, TIP-17 and TIP-18. The target: a view modifier `.tanreiTooltip(_ text:, title:, variant:, placement:, describes:, showDelay: Duration? = nil, hideDelay: Duration? = nil, touchTimeout: Duration? = nil, isPresented: Binding<Bool>?)`; a `Duration` carries its own unit (`.milliseconds(300)`), nil takes the token, and a negative one takes the token and is reported in debug builds. The description is the anchor's `accessibilityHint`. The tooltip is drawn in an overlay above the window's content (anchored with anchor preferences), not with `.popover`, which is modal at compact widths and moves VoiceOver focus: a non-modal overlay must do neither. Hover is `onContinuousHover` (iPadOS and macOS pointers), keyboard focus is `focused` with full keyboard access, long-press is a `LongPressGesture` that does not fire the anchor's action. Snapshot harness: renders the anchor and the open tooltip in a fixed 320 × 200 frame. Also owed: the thirteen placement values, offset, crossOffset, arrow, inverse and shortcut; TIP-9 and TIP-15 as they read now and TIP-22 to TIP-29. `offset` and `crossOffset` are `CGFloat?` and `CGFloat` in points; `arrow` and `inverse` are `Bool?`, nil taking the system's choice; `shortcut` is `[String]`, exposed with the anchor's `keyboardShortcut` semantics where it has one and in the hint otherwise. The container and the arrow are one `Shape`. Snapshot harness: the stage sets the standard keyboard convention for `plain-shortcut`."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiTooltip",
+      "props": {
+        "variant": "variant",
+        "text": "text",
+        "title": "title",
+        "shortcut": "shortcut",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "inverse": "inverse",
+        "describes": "describes",
+        "open": "state",
+        "showDelay": "showDelayMillis",
+        "hideDelay": "hideDelayMillis",
+        "touchTimeout": "touchTimeoutMillis"
+      },
+      "events": {
+        "toggle": "state"
+      },
+      "notes": "Lagging: has no delay or timeout parameters and no hover gap; owes TIP-1 (the gap), TIP-3 and TIP-8's wording, TIP-17 and TIP-18. The target: `TanreiTooltip(text, modifier, variant, title, placement, describes, showDelayMillis: Long? = null, hideDelayMillis: Long? = null, touchTimeoutMillis: Long? = null, state = rememberTanreiTooltipState()) { anchor }`, shaped like Material's `TooltipBox`, the times named in milliseconds as `ViewConfiguration.longPressTimeoutMillis` is; null takes the token, a negative value takes the token and is reported in debug builds. The waits are coroutine delays, not animations, so the animator duration scale of 0 (Android's reduced motion) does not remove them (TIP-18); `state.isVisible` is open, and `state.show()` / `state.dismiss()` set it. The tooltip is a `Popup` with `PopupProperties(focusable = false)`. Compose has no separate description semantics: the text is appended to the anchor's merged semantics after its own name, as Android reads a View's tooltip text, and a test asserts the order. Snapshot harness: renders the anchor and the open tooltip in a fixed 320 × 200 frame. Also owed: the thirteen placement values, offset, crossOffset, arrow, inverse and shortcut; TIP-9 and TIP-15 as they read now and TIP-22 to TIP-29. `offset` and `crossOffset` are `Dp?` and `Dp`; `arrow` and `inverse` are `Boolean?`, null taking the system's choice; `shortcut` is `List<String>`. The container and the arrow are one `Shape`, so the shadow follows both. The warm time is a coroutine delay, kept at an animator duration scale of 0 (TIP-28). Snapshot harness: the stage sets the standard keyboard convention for `plain-shortcut`."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiTooltip",
+      "props": {
+        "variant": "variant",
+        "text": "message",
+        "title": "title",
+        "shortcut": "shortcut",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "inverse": "inverse",
+        "describes": "excludeFromSemantics",
+        "open": "controller",
+        "showDelay": "waitDuration",
+        "hideDelay": "exitDuration",
+        "touchTimeout": "showDuration"
+      },
+      "events": {
+        "toggle": "controller"
+      },
+      "notes": "Lagging: has no delay or timeout parameters and no hover gap; owes TIP-1 (the gap), TIP-3 and TIP-8's wording, TIP-17 and TIP-18. Named as Flutter's `Tooltip`: `message` is the text, `excludeFromSemantics` is the inverse of describes, the delays are `waitDuration` and `exitDuration`, and the touch timeout is `showDuration`, which Flutter's `Tooltip` uses for the time after a long-press is released (each a `Duration?`: null takes the token, a negative one takes the token and is reported in debug builds). The description is the anchor's `Semantics(tooltip:)`. The tooltip is drawn through an `OverlayPortal` (the overlay of the nearest `Overlay`, so above a dialog route opened earlier). `controller` is a `TanreiTooltipController` (a `ChangeNotifier` with `show()`, `hide()` and `isOpen`). Snapshot harness: a golden of the anchor and the open tooltip in a 320 × 200 surface. Also owed: the thirteen placement values, offset, crossOffset, arrow, inverse and shortcut; TIP-9 and TIP-15 as they read now and TIP-22 to TIP-29. `offset` and `crossOffset` are `double?` and `double` in logical pixels (Flutter's own `Tooltip` calls the first `verticalOffset`; this one is not vertical only); `arrow` and `inverse` are `bool?`, null taking the system's choice; `shortcut` is `List<String>`. The container and the arrow are one `ShapeBorder`. Snapshot harness: the stage sets the standard keyboard convention for `plain-shortcut`."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Tooltip",
+      "props": {
+        "variant": "variant",
+        "text": "text",
+        "title": "title",
+        "shortcut": "shortcut",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "inverse": "inverse",
+        "describes": "describes",
+        "open": "open",
+        "showDelay": "showDelay",
+        "hideDelay": "hideDelay",
+        "touchTimeout": "touchTimeout"
+      },
+      "events": {
+        "toggle": "onOpenChange"
+      },
+      "notes": "Lagging: has no delay or timeout props and no hover gap; owes TIP-1 (the gap), TIP-3 and TIP-8's wording, TIP-17 and TIP-18. The target: `showDelay`, `hideDelay` and `touchTimeout` are numbers of milliseconds, as `Pressable`'s `delayLongPress` is; undefined or null takes the token, and a negative or non-finite number takes the token and is reported in development builds. Wraps its anchor (`children`). The description is the anchor's `accessibilityHint`. The tooltip is drawn in the overlay layer that `TanreiProvider` renders at the root of the app, not in a `Modal`: a `Modal` is modal (it takes every touch and moves accessibility focus), which a non-modal overlay must not be. Hover comes from `onHoverIn`/`onHoverOut` on platforms with a pointer. Snapshot harness: renders the anchor and the open tooltip in a fixed 320 × 200 view. Also owed: the thirteen placement values, offset, crossOffset, arrow, inverse and shortcut; TIP-9 and TIP-15 as they read now and TIP-22 to TIP-29. `offset` and `crossOffset` are numbers of density-independent pixels; `arrow` and `inverse` are booleans, undefined or null taking the system's choice; `shortcut` is a string array. The container and the arrow are one drawn shape. Snapshot harness: the stage sets the standard keyboard convention for `plain-shortcut`."
+    }
+  }
+}

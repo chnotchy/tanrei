@@ -1,0 +1,202 @@
+---
+title: 説明リスト
+description: ひとつのものについて分かっていることを、名前の付いた項目として示します。項目は、控えめな項目名と、それに答える値の組です。項目名は値の横、値の上、または大きな数値の下に置きます。レイアウトは自身の幅から決まり、コントロールにはなりません。
+translationOf: components/description-list.mdx
+sourceHash: 1289656e657a4f0fc8fcc2c50310af62690aea86
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="description-list" />
+
+<DemoFrame label="注文の情報" column>
+  <tanrei-description-list lang="ja" style="inline-size: min(100%, 30rem)">
+    <dl>
+      <div><dt>注文番号</dt><dd>A-20418</dd></div>
+      <div><dt>注文日</dt><dd>2026年10月6日</dd></div>
+      <div><dt>お届け先</dt><dd>東京都港区芝公園4丁目2番8号</dd></div>
+      <div><dt>状態</dt><dd><tanrei-tag size="small" status="success" label="発送済み"></tanrei-tag></dd></div>
+      <div><dt>合計</dt><dd>12,800円</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+説明リストは、注文、ファイル、アカウント、コンポーネントなど、ひとつのものについての情報を示します。それぞれの項目は、項目名と、それに答える値の組です。項目名は控えめなラベルで、利用者が知りたいのは値のほうです。
+
+同じ項目を、3 つのレイアウトで描けます。
+
+| `layout` | 描き方 | 用途 |
+| --- | --- | --- |
+| `inline`（既定） | 項目名を値の横に置きます。項目名はすべて 1 つの列に並び、列の幅は最も長い項目名に合わせます。 | 利用者が調べものに使う、ひとまとまりの項目。 |
+| `stacked` | 項目名を値の上に置きます。 | 長い値や長い項目名、複数列に並べる項目。 |
+| `stat` | 値を先に大きな数値として描き、項目名をその下にラベルとして置きます。 | 画面の最初に見せる、少数の数値。 |
+
+Web では、プロダクト側のネイティブの `<dl>` を `<tanrei-description-list>` で囲みます。この要素はシャドウルートを持たず、リストにロールも付けません。そのため、スクリーンリーダーにも、クローラーにも、スクリプトのないページでも、通常の HTML の説明リストのままです。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/description-list.css" />
+
+    <tanrei-description-list>
+      <dl>
+        <div><dt>注文番号</dt><dd>A-20418</dd></div>
+        <div><dt>担当者</dt><dd>田中 愛子</dd><dd>サミール・ハッダード</dd></div>
+        <div>
+          <dt>状態</dt>
+          <dd><tanrei-tag size="small" status="success" label="発送済み"></tanrei-tag></dd>
+        </div>
+      </dl>
+    </tanrei-description-list>
+
+    <script type="module">
+      import '@tanrei/web/components/description-list';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { DescriptionList } from '@tanrei/react';
+    import '@tanrei/web/description-list.css';
+
+    <DescriptionList layout="stat" columns={3}>
+      <dl>
+        {figures.map((figure) => (
+          <div key={figure.label}>
+            <dt>{figure.label}</dt>
+            <dd>{figure.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </DescriptionList>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/description-list.css` は、スクリプトが動く前にリスト全体を描きます。要素自身も同じスタイルシートをページに加えるので、スクリプトだけを読み込んだページでも、少し遅れてリストが描かれます。
+
+### 書くもの
+
+| パーツ | Web での書き方 |
+| --- | --- |
+| 項目 | `<dl>` の中の `<div>`。1 つの `<dt>` と、その `<dd>` を囲みます。 |
+| 項目名 | `<dt>`。テキストか、値が説明する対象のコンポーネント（凡例の中のタグなど）です。コロンは書きません。 |
+| 値 | `<dd>`。テキストかコンポーネントで、空でもかまいません。 |
+| 複数の値 | 1 つの項目に書いた複数の `<dd>`。それぞれを別の行に描きます。 |
+
+一部の Markdown レンダラーが書き出すような、`<div>` でまとめていない `<dl>` も、`inline` または `stacked` の 1 列で描かれます。`columns` と `stat` のレイアウトには、`<div>` でのまとまりが必要です。
+
+## 仕様
+
+<DemoFrame label="stat：画面の最初に見せる数値" plain column>
+  <tanrei-description-list lang="ja" layout="stat" columns="3" separation="gap" style="inline-size: 100%">
+    <dl>
+      <div><dt>今週の注文</dt><dd>1,284</dd><dd>先週より 12% 増</dd></div>
+      <div><dt>期日内の配達</dt><dd>98.6%</dd></div>
+      <div><dt>ビルド時間の中央値</dt><dd>4 分 12 秒</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<DemoFrame label="複数列の stacked：リストが狭いと列が減ります" plain column>
+  <tanrei-description-list lang="ja" layout="stacked" columns="3" style="inline-size: 100%">
+    <dl>
+      <div><dt>Planned</dt><dd>仕様はありますが、このプラットフォームでは未実装です。</dd></div>
+      <div><dt>Lagging</dt><dd>実装済みですが、現在の仕様に追いついていません。</dd></div>
+      <div><dt>Alpha</dt><dd>実装とテストが済んでいます。API は変わる可能性があります。</dd></div>
+      <div><dt>Beta</dt><dd>API は固まっています。実際の利用からの報告を求めています。</dd></div>
+      <div><dt>Stable</dt><dd>バージョン管理の約束の対象です。</dd></div>
+      <div><dt>Deprecated</dt><dd>まだ提供していますが、代わりになるものを示しています。</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<DemoFrame label="compact、余白で区切る：ざっと目を通す項目" plain column>
+  <tanrei-description-list lang="ja" density="compact" separation="gap" style="inline-size: min(100%, 26rem)">
+    <dl>
+      <div><dt>値</dt><dd>#1b1c1e</dd><dd>→ ref.palette.neutral.10</dd></div>
+      <div><dt>種類</dt><dd>エイリアス · color</dd></div>
+      <div><dt>説明</dt><dd>サーフェスやサーフェスコンテナの上のテキストとグリフ。</dd></div>
+    </dl>
+  </tanrei-description-list>
+</DemoFrame>
+
+<ComponentSpecs name="description-list" />
+
+## ガイドライン
+
+### 説明リストを使う場面
+
+- **ひとつ**のものについての情報に使います。同じ項目名を持つものが複数あるなら、それは[テーブル](/ja/components/table/)です。テーブルでは、見出しが列に名前を付けます。
+- 段落の間で順に読む、言葉の説明はプローズです。コンテンツの中の `<dl>` には何も付けずにおきます。プローズはそれを、項目名を目立たせた本文として組みます。このコンポーネントは同じリストをレイアウトした形で、目立つのは値のほうです。
+- 利用者が選んだり押したりするリストは、[リスト](/ja/components/list/)です。
+
+### 収まり方
+
+リストは、ウィンドウの幅ではなく、自身の幅からすべてを決めます。同じリストが、ページでも、カードでも、サイドパネルでも、ダイアログでも正しく収まります。
+
+- **`inline` は自分で縦に並びます。** 最も長い項目名の横で値に残る幅が 144 を下回ると、すべての項目がそろって、項目名を値の上に置いた形になります。幅に余裕ができると 2 列に戻ります。小さいウィンドウのために、利用者側でレイアウトを切り替えないでください。
+- **列は自分で減ります。** `columns` は、`stacked` と `stat` のレイアウトが描く列の最大数です。各列の幅は 144 以上です。そのため 4 つの数値は、広いページでは 4 列、狭いページでは 2 列ずつ、スマートフォンでは 1 列になります。項目の数より多い列を描くことはありません。
+- **`inline` のリストは 1 列です。** `columns` を指定しても変わりません。
+- **何も途中で切りません。** 値は折り返します。途中で改行できない識別子やアドレスは、列の端で改行します。リストが横にスクロールすることはありません。
+
+### 密度
+
+| `density` | 項目名と値 | 項目の間 | 用途 |
+| --- | --- | --- | --- |
+| `regular`（既定） | 文字サイズ 14 / 行の高さ 20 と、14 / 22 | 12。線があるときは線の両側に 12 | 利用者が読む項目：ページ、カード、ダイアログ。 |
+| `compact` | 12 / 16 と 13 / 20 | 6。線があるときは線の両側に 6 | 利用者がざっと目を通す項目：サイドパネル、インスペクター。 |
+
+`stat` の数値は、`regular` で 32 / 40、`compact` で 20 / 28 です。
+
+### 項目の区切り方
+
+| `separation` | 描き方 |
+| --- | --- |
+| `auto`（既定） | デザインシステムが選んだもの。既定のシステムでは細い線です。 |
+| `divider` | 項目とその下の項目の間に、細い線を 1 本描きます。 |
+| `gap` | 余白だけで、線は描きません。 |
+
+最初の行の上、最後の行の下、列と列の間、項目名と値の間には線を描きません。枠で囲んだリストにしたいときは、Outlined の[カード](/ja/components/card/)の中にリストを置きます。
+
+### 推奨
+
+- 項目名はできるだけ短くします。「この注文のお届け先住所」ではなく「お届け先」です。
+- 値がないことが情報になる場合は、言葉で書きます。「なし」「未設定」「無制限」などです。
+- 変化は言葉で伝えます。「先週より 12% 増」のように、数値の下の 2 つ目の値として書きます。
+- 値の中でステータスを示すときは、小さいタグ（`size="small"`）を使います。行が高くなりません。
+
+### 非推奨
+
+- 項目名の後ろにコロンを付けない。句読点は言語ごとに決まるもので、項目名と値はスタイルと位置ですでに見分けられます。
+- 空の値にダッシュを入れない。空のままにするか、ないことを言葉で書きます。
+- 良し悪しを伝えるために数値に色を付けない。増減は、言葉か、ラベルでそれを伝えるタグで示します。
+- 関係のないものを横に並べるためにリストを使わない。それはレイアウトです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="description-list" />
+
+### コンポーネントが担うこと
+
+- ネイティブのリストは説明リストのままです。どのレイアウトでも、どちらの密度でも、線があってもなくても、項目名とその説明はブラウザー自身のものです。
+- 読み上げの順序は変わりません。`stat` のレイアウトは数値をラベルの上に描きますが、支援技術には項目名を先に伝えます。
+- リストの中に、フォーカスや入力を受け取るものはありません。値の中のリンクやボタンは、自身のターゲットと、フォーカスの順序での位置を保ちます。
+- テキストを 200% にしたときも、幅 320 のウィンドウでも、同じ幅の規則によってリストが縦に並び、列が減ります。最小の幅は、テキストとともに大きくなります。
+- 右から左のレイアウトでは、項目名の列が右に置かれ、列は右から埋まります。項目名と値はそれぞれ自身の方向を保つので、バージョン、アドレス、金額の並びが逆になることはありません。
+- 強制カラーモードでは、線とテキストがテキストの色になります。リストには、失われる塗りがありません。
+- 項目名のない値、`inline` のリストへの `columns`、整数でない列数、`<div>` でまとめていないリストでの `stat` のレイアウトや複数列、未知のレイアウト・密度・区切り方は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- リストの上に、何についての情報かを伝える見出しを置きます。リスト自身は名前を持たず、項目名が見出しになることもありません。
+- すべての値に項目名を付けます。
+- 利用者が見ている間に数値が変わり、その変化を読み上げさせる必要があるときは、リストかその項目を、プロダクト側のライブリージョンの中に置きます。リストは変化を読み上げません。

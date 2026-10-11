@@ -1,0 +1,187 @@
+{
+  "tanrei": {
+    "comp": {
+      "avatar": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows who something belongs to — the author of a post, the people in a conversation, the owner of a task — by a small picture, and still has something to show when a person has no picture or the picture does not arrive: their initials, or a glyph. It shows a person small beside a line of text, at a row's height in a list, and large at the top of that person's page; it tells a person from a team or a project by the box's shape; and it shows several people as one stack that says how many more there are.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "members": [
+                "container.size",
+                "label.typescale",
+                "icon.size",
+                "group.overlap"
+              ]
+            },
+            "shape": {
+              "default": "circle",
+              "values": [
+                "circle",
+                "square"
+              ],
+              "members": [
+                "container.shape"
+              ]
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything an avatar reads: per size, the side of its box, the text style of its initials, the size of its fallback glyph and how far the avatars of a group overlap; per shape, the box's corners; the quiet fill behind a fallback and a loading picture; the color of the initials and of the glyph; and the gap a group draws around each of its avatars.",
+            "rules": [
+              "An avatar stands for a person, or for a team, a project or another thing people act as. It is a picture, not a control: it takes no press and no focus and has no states. An avatar that goes somewhere or opens something is placed inside a link or a Button, which draws the states.",
+              "Give label the name it stands for. Beside a visible name set decorative, so the name is not read twice; alone, the label is its accessible name.",
+              "The avatar does not make initials from a name: writing systems and naming orders differ. The product gives initials; with neither a picture nor initials a glyph is drawn.",
+              "Every fallback has the same quiet fill and content color. Do not color avatars per person: a color that means nothing is not in the system.",
+              "A circle is a person; a square is something that is not one person (a team, a project, an organisation, a bot).",
+              "A dot or a count on an avatar is a badge wrapped around it, and means what a badge means everywhere: something is waiting.",
+              "Several avatars shown as one stack are a group: the group gives the size and the shape, and counts the ones it does not draw.",
+              "container.size is the box's exact side, not a minimum: an avatar does not grow with enlarged text, as a glyph's box does not.",
+              "Restyle through these tokens in a layer; never draw a round picture or a monogram by hand."
+            ]
+          }
+        },
+        "container": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The side of the avatar's square box, per size. Small stands beside one line of text (a byline, a table cell) and is the size a chip gives an avatar; medium is the size a list row gives a leading avatar; large heads a person's own page or card and is the size a list row gives a leading image. An exact side, not a minimum.",
+            "small": {
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 56,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 14
+                }
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$description": "The box's corners, per shape, never larger than half its side. What the picture is clipped to.",
+            "circle": {
+              "$value": "{tanrei.sys.shape.corner.full}"
+            },
+            "square": {
+              "$value": "{tanrei.sys.shape.corner.small}"
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.surface-container-highest}",
+            "$description": "The fill behind the initials, behind the glyph, behind a picture that is still loading and behind the transparent parts of a picture: the quiet tone a list row puts behind its leading avatar. The same for every person."
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The text style of the initials, per size: a label style small enough for two letters to stand in the box with room at their sides.",
+            "small": {
+              "$value": "{tanrei.sys.typescale.caption}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.typescale.label}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.heading-3}"
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}",
+            "$description": "The color of the initials and of a group's count: secondary content on the quiet fill."
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The box of the fallback glyph, per size: a step of the icon scale that leaves the glyph a clear margin inside the avatar.",
+            "small": {
+              "$value": "{tanrei.sys.icon.extra-small}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.icon.medium}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.icon.large}"
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}",
+            "$description": "The color of the fallback glyph: the initials' color."
+          }
+        },
+        "group": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product shows the people of one thing — the reviewers of a change, the members of a channel, the authors of a page — in the room of two or three avatars, and says how many more there are.",
+              "since": "0.1.0"
+            }
+          },
+          "overlap": {
+            "$type": "dimension",
+            "$description": "How far each avatar of a group lies over the one before it, per size: a quarter of the box's side in the default system, so three quarters of every face stays in view.",
+            "small": {
+              "$value": "{tanrei.sys.space.space75}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space125}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space175}"
+            }
+          },
+          "outline": {
+            "width": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.thick}",
+              "$description": "The width of the gap a group draws around each of its avatars, outside the avatar's edge, so two pictures that overlap are read as two."
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface}",
+              "$description": "The color of that gap: the surface the group sits on, as a badge's outline is. A product that places a group on another surface sets that surface's color here for that place."
+            }
+          }
+        }
+      }
+    }
+  }
+}

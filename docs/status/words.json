@@ -1,0 +1,831 @@
+{
+  "keys": [
+    {
+      "key": "addedLabel",
+      "readers": [
+        {
+          "component": "code-block",
+          "prop": "addedLabel"
+        }
+      ]
+    },
+    {
+      "key": "attachLabel",
+      "readers": [
+        {
+          "component": "chat-composer",
+          "prop": "attachLabel"
+        }
+      ]
+    },
+    {
+      "key": "backLabel",
+      "readers": [
+        {
+          "component": "search",
+          "prop": "backLabel"
+        }
+      ]
+    },
+    {
+      "key": "breadcrumbsOverflowLabel",
+      "readers": [
+        {
+          "component": "breadcrumbs",
+          "prop": "overflowLabel"
+        }
+      ]
+    },
+    {
+      "key": "cancelLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "cancelLabel"
+        }
+      ]
+    },
+    {
+      "key": "clearLabel",
+      "readers": [
+        {
+          "component": "combobox",
+          "prop": "clearLabel"
+        },
+        {
+          "component": "search",
+          "prop": "clearLabel"
+        }
+      ]
+    },
+    {
+      "key": "closeLabel",
+      "readers": [
+        {
+          "component": "callout",
+          "prop": "closeLabel"
+        },
+        {
+          "component": "image-preview",
+          "prop": "closeLabel"
+        },
+        {
+          "component": "popover",
+          "prop": "closeLabel"
+        },
+        {
+          "component": "side-sheet",
+          "prop": "closeLabel"
+        },
+        {
+          "component": "snackbar",
+          "prop": "closeLabel"
+        }
+      ]
+    },
+    {
+      "key": "confirmLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "confirmLabel"
+        }
+      ]
+    },
+    {
+      "key": "copiedLabel",
+      "readers": [
+        {
+          "component": "code-block",
+          "prop": "copiedLabel"
+        },
+        {
+          "component": "copy-button",
+          "prop": "copiedLabel"
+        }
+      ]
+    },
+    {
+      "key": "copyFailedLabel",
+      "readers": [
+        {
+          "component": "code-block",
+          "prop": "copyFailedLabel"
+        },
+        {
+          "component": "copy-button",
+          "prop": "failedLabel"
+        }
+      ]
+    },
+    {
+      "key": "copyLabel",
+      "readers": [
+        {
+          "component": "code-block",
+          "prop": "copyLabel"
+        },
+        {
+          "component": "copy-button",
+          "prop": "label"
+        }
+      ]
+    },
+    {
+      "key": "dateLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "dateLabel"
+        }
+      ]
+    },
+    {
+      "key": "decrementLabel",
+      "readers": [
+        {
+          "component": "number-input",
+          "prop": "decrementLabel"
+        }
+      ]
+    },
+    {
+      "key": "dialLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "dialLabel"
+        }
+      ]
+    },
+    {
+      "key": "duplicateEntryText",
+      "readers": [
+        {
+          "component": "chip-field",
+          "prop": "duplicateText"
+        }
+      ]
+    },
+    {
+      "key": "emptyText",
+      "readers": [
+        {
+          "component": "combobox",
+          "prop": "emptyText"
+        }
+      ]
+    },
+    {
+      "key": "endLabel",
+      "readers": [
+        {
+          "component": "calendar",
+          "prop": "endLabel"
+        },
+        {
+          "component": "date-time-picker",
+          "prop": "endLabel"
+        }
+      ]
+    },
+    {
+      "key": "entriesAddedText",
+      "readers": [
+        {
+          "component": "chip-field",
+          "prop": "addedCountText"
+        }
+      ],
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many entries were made at once."
+        }
+      ]
+    },
+    {
+      "key": "entryAddedText",
+      "readers": [
+        {
+          "component": "chip-field",
+          "prop": "addedText"
+        }
+      ],
+      "places": [
+        {
+          "name": "entry",
+          "kind": "text",
+          "description": "The text of the entry that was made."
+        }
+      ]
+    },
+    {
+      "key": "entryLimitText",
+      "readers": [
+        {
+          "component": "chip-field",
+          "prop": "limitText"
+        }
+      ]
+    },
+    {
+      "key": "entryModeLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "entryModeLabel"
+        }
+      ]
+    },
+    {
+      "key": "entryRemoveLabel",
+      "readers": [
+        {
+          "component": "chip-field",
+          "prop": "removeLabel"
+        }
+      ],
+      "places": [
+        {
+          "name": "entry",
+          "kind": "text",
+          "description": "The text of the entry the action removes.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "entryRemovedText",
+      "readers": [
+        {
+          "component": "chip-field",
+          "prop": "removedText"
+        }
+      ],
+      "places": [
+        {
+          "name": "entry",
+          "kind": "text",
+          "description": "The text of the entry that was removed."
+        }
+      ]
+    },
+    {
+      "key": "expandLabel",
+      "readers": [
+        {
+          "component": "snackbar",
+          "prop": "expandLabel"
+        }
+      ]
+    },
+    {
+      "key": "externalLabel",
+      "readers": [
+        {
+          "component": "link",
+          "prop": "externalLabel"
+        },
+        {
+          "component": "link-card",
+          "prop": "externalLabel"
+        }
+      ]
+    },
+    {
+      "key": "fileCountErrorText",
+      "readers": [
+        {
+          "component": "chat-composer",
+          "prop": "countErrorText"
+        },
+        {
+          "component": "file-upload",
+          "prop": "countErrorText"
+        }
+      ]
+    },
+    {
+      "key": "fileSizeErrorText",
+      "readers": [
+        {
+          "component": "chat-composer",
+          "prop": "sizeErrorText"
+        },
+        {
+          "component": "file-upload",
+          "prop": "sizeErrorText"
+        }
+      ]
+    },
+    {
+      "key": "fileTypeErrorText",
+      "readers": [
+        {
+          "component": "chat-composer",
+          "prop": "typeErrorText"
+        },
+        {
+          "component": "file-upload",
+          "prop": "typeErrorText"
+        }
+      ]
+    },
+    {
+      "key": "handleLabel",
+      "readers": [
+        {
+          "component": "bottom-sheet",
+          "prop": "handleLabel"
+        }
+      ]
+    },
+    {
+      "key": "highlightedLabel",
+      "readers": [
+        {
+          "component": "code-block",
+          "prop": "highlightedLabel"
+        }
+      ]
+    },
+    {
+      "key": "hourLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "hourLabel"
+        }
+      ]
+    },
+    {
+      "key": "imageCountText",
+      "readers": [
+        {
+          "component": "image-preview",
+          "prop": "countText"
+        }
+      ],
+      "places": [
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place of the image shown, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of images."
+        }
+      ]
+    },
+    {
+      "key": "imageErrorText",
+      "readers": [
+        {
+          "component": "image-preview",
+          "prop": "errorText"
+        }
+      ]
+    },
+    {
+      "key": "incrementLabel",
+      "readers": [
+        {
+          "component": "number-input",
+          "prop": "incrementLabel"
+        }
+      ]
+    },
+    {
+      "key": "loadingLabel",
+      "readers": [
+        {
+          "component": "image-preview",
+          "prop": "loadingLabel"
+        },
+        {
+          "component": "skeleton",
+          "prop": "label"
+        },
+        {
+          "component": "tree-view",
+          "prop": "loadingLabel"
+        }
+      ]
+    },
+    {
+      "key": "menubarOverflowLabel",
+      "readers": [
+        {
+          "component": "menubar",
+          "prop": "overflowLabel"
+        }
+      ]
+    },
+    {
+      "key": "minuteLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "minuteLabel"
+        }
+      ]
+    },
+    {
+      "key": "moveDownLabel",
+      "readers": [
+        {
+          "component": "list",
+          "prop": "moveDownLabel"
+        }
+      ]
+    },
+    {
+      "key": "moveUpLabel",
+      "readers": [
+        {
+          "component": "list",
+          "prop": "moveUpLabel"
+        }
+      ]
+    },
+    {
+      "key": "movedText",
+      "readers": [
+        {
+          "component": "list",
+          "prop": "movedText"
+        }
+      ],
+      "places": [
+        {
+          "name": "headline",
+          "kind": "text",
+          "description": "The moved item's headline."
+        },
+        {
+          "name": "position",
+          "kind": "number",
+          "description": "The place the moved item now has, counted from 1."
+        },
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "The number of items in the list."
+        }
+      ]
+    },
+    {
+      "key": "nextDayLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "nextDayLabel"
+        }
+      ]
+    },
+    {
+      "key": "nextImageLabel",
+      "readers": [
+        {
+          "component": "image-preview",
+          "prop": "nextLabel"
+        }
+      ]
+    },
+    {
+      "key": "nextMonthLabel",
+      "readers": [
+        {
+          "component": "calendar",
+          "prop": "nextMonthLabel"
+        },
+        {
+          "component": "date-time-picker",
+          "prop": "nextMonthLabel"
+        }
+      ]
+    },
+    {
+      "key": "noFileText",
+      "readers": [
+        {
+          "component": "file-upload",
+          "prop": "emptyText"
+        }
+      ]
+    },
+    {
+      "key": "optionalText",
+      "readers": [
+        {
+          "component": "field",
+          "prop": "optionalText"
+        },
+        {
+          "component": "field-group",
+          "prop": "optionalText"
+        }
+      ]
+    },
+    {
+      "key": "pauseLabel",
+      "readers": [
+        {
+          "component": "carousel",
+          "prop": "pauseLabel"
+        }
+      ]
+    },
+    {
+      "key": "periodLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "periodLabel"
+        }
+      ]
+    },
+    {
+      "key": "playLabel",
+      "readers": [
+        {
+          "component": "carousel",
+          "prop": "playLabel"
+        }
+      ]
+    },
+    {
+      "key": "previousImageLabel",
+      "readers": [
+        {
+          "component": "image-preview",
+          "prop": "previousLabel"
+        }
+      ]
+    },
+    {
+      "key": "previousMonthLabel",
+      "readers": [
+        {
+          "component": "calendar",
+          "prop": "previousMonthLabel"
+        },
+        {
+          "component": "date-time-picker",
+          "prop": "previousMonthLabel"
+        }
+      ]
+    },
+    {
+      "key": "rangeErrorText",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "rangeErrorText"
+        }
+      ]
+    },
+    {
+      "key": "rangeLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "rangeLabel"
+        }
+      ]
+    },
+    {
+      "key": "removeLabel",
+      "readers": [
+        {
+          "component": "file-item",
+          "prop": "removeLabel"
+        }
+      ]
+    },
+    {
+      "key": "removedLabel",
+      "readers": [
+        {
+          "component": "code-block",
+          "prop": "removedLabel"
+        }
+      ]
+    },
+    {
+      "key": "requiredText",
+      "readers": [
+        {
+          "component": "field",
+          "prop": "requiredText"
+        },
+        {
+          "component": "field-group",
+          "prop": "requiredText"
+        }
+      ]
+    },
+    {
+      "key": "resizeLabel",
+      "readers": [
+        {
+          "component": "text-input",
+          "prop": "resizeLabel"
+        }
+      ]
+    },
+    {
+      "key": "retryLabel",
+      "readers": [
+        {
+          "component": "file-item",
+          "prop": "retryLabel"
+        }
+      ]
+    },
+    {
+      "key": "segmentEmptyText",
+      "readers": [
+        {
+          "component": "text-input",
+          "prop": "segmentEmptyText"
+        }
+      ]
+    },
+    {
+      "key": "selectAllLabel",
+      "readers": [
+        {
+          "component": "table",
+          "prop": "selectAllLabel"
+        }
+      ]
+    },
+    {
+      "key": "sendLabel",
+      "readers": [
+        {
+          "component": "chat-composer",
+          "prop": "sendLabel"
+        }
+      ]
+    },
+    {
+      "key": "sortedAscendingLabel",
+      "readers": [
+        {
+          "component": "table",
+          "prop": "sortedAscendingLabel"
+        }
+      ]
+    },
+    {
+      "key": "sortedDescendingLabel",
+      "readers": [
+        {
+          "component": "table",
+          "prop": "sortedDescendingLabel"
+        }
+      ]
+    },
+    {
+      "key": "startLabel",
+      "readers": [
+        {
+          "component": "calendar",
+          "prop": "startLabel"
+        },
+        {
+          "component": "date-time-picker",
+          "prop": "startLabel"
+        }
+      ]
+    },
+    {
+      "key": "stopLabel",
+      "readers": [
+        {
+          "component": "chat-composer",
+          "prop": "stopLabel"
+        }
+      ]
+    },
+    {
+      "key": "targetLabel",
+      "readers": [
+        {
+          "component": "button",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "card",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "chip",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "link",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "link-card",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "list",
+          "item": "list-item",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "menu",
+          "item": "item",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "menubar",
+          "item": "item",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "navigation-bar",
+          "item": "destination",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "navigation-drawer",
+          "item": "destination",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "search",
+          "item": "result",
+          "prop": "targetLabel"
+        },
+        {
+          "component": "search",
+          "item": "result-group",
+          "prop": "targetLabel"
+        }
+      ]
+    },
+    {
+      "key": "todayLabel",
+      "readers": [
+        {
+          "component": "calendar",
+          "prop": "todayLabel"
+        },
+        {
+          "component": "date-time-picker",
+          "prop": "todayLabel"
+        }
+      ]
+    },
+    {
+      "key": "wheelsLabel",
+      "readers": [
+        {
+          "component": "date-time-picker",
+          "prop": "wheelsLabel"
+        }
+      ]
+    },
+    {
+      "key": "yearViewLabel",
+      "readers": [
+        {
+          "component": "calendar",
+          "prop": "yearViewLabel"
+        },
+        {
+          "component": "date-time-picker",
+          "prop": "yearViewLabel"
+        }
+      ]
+    },
+    {
+      "key": "zoomInLabel",
+      "readers": [
+        {
+          "component": "image-preview",
+          "prop": "zoomInLabel"
+        }
+      ]
+    },
+    {
+      "key": "zoomOutLabel",
+      "readers": [
+        {
+          "component": "image-preview",
+          "prop": "zoomOutLabel"
+        }
+      ]
+    }
+  ]
+}

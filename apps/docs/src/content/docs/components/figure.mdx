@@ -1,0 +1,247 @@
+---
+title: Figure
+description: Sets one thing to look at, a picture, a chart, a specimen or a live example, on a stage of its own, framed or not, with a caption that says what it shows, and optionally a title with your controls above and a joined block beneath.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="figure" />
+
+<DemoFrame label="Outlined, filled and plain" column>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
+    <tanrei-figure>
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Save</tanrei-button></div></div>
+        <figcaption>Outlined: the surface inside one hairline.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure variant="filled">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Save</tanrei-button></div></div>
+        <figcaption>Filled: a quiet tone and no edge.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure variant="plain">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Save</tanrei-button></div></div>
+        <figcaption>Plain: what is shown is its own frame.</figcaption>
+      </figure>
+    </tanrei-figure>
+  </div>
+</DemoFrame>
+
+A figure shows one thing that is looked at rather than read: a picture in an article, a chart in a report, a preview of what a setting will produce, a specimen. It sets that thing apart and says what it is. The frames around the live examples on this site are figures.
+
+It is not a card. A card groups content and actions about one subject and may be pressed as a whole. A figure shows one thing, is never pressed, and puts its caption outside its frame.
+
+On the web it is `<tanrei-figure>` around a native `<figure>`. The element has no shadow root, so the figure and its `<figcaption>` are the document's own: read without script, by a crawler and by a reader mode, and named by the browser. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/figure.css" />
+
+    <tanrei-figure>
+      <figure>
+        <div data-part="frame">
+          <header>
+            <p data-part="title">Revenue by quarter</p>
+            <div data-part="actions">
+              <tanrei-button variant="text" label="Open in a new tab"><span slot="icon">open_in_new</span></tanrei-button>
+            </div>
+          </header>
+          <div data-part="stage">
+            <img src="revenue.svg" alt="A bar chart: revenue rises in every quarter." />
+          </div>
+        </div>
+        <figcaption>Every region grew; the north grew fastest.</figcaption>
+      </figure>
+    </tanrei-figure>
+
+    <script type="module">
+      import '@tanrei/web/components/figure';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Figure } from '@tanrei/react';
+    import '@tanrei/web/figure.css';
+
+    <Figure variant="plain">
+      <figure>
+        <img src={photo.src} alt={photo.alt} />
+        <figcaption>{photo.caption}</figcaption>
+      </figure>
+    </Figure>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/figure.css` draws the whole figure before any script runs, so a page of figures does not move when the script arrives. The element adds the same stylesheet to the page by itself.
+
+### What you write
+
+| Part | On the web |
+| --- | --- |
+| The frame | `<div data-part="frame">`, the first child of the `<figure>`. It holds the header, the stage and the attachment. |
+| The title | An element with `data-part="title"` in the frame's `<header>`: a `<p>`, or the heading your page's outline needs. |
+| The actions | `<div data-part="actions">` in the `<header>`, around your own controls. |
+| The stage | `<div data-part="stage">`, around what is shown. |
+| The attachment | Any element with `data-part="attachment"` after the stage: a code block, a table, a description list. |
+| The caption | The `<figcaption>`, after the frame. |
+
+Every part but the stage is optional. A lone `<img>`, `<picture>`, `<video>`, `<svg>` or `<canvas>` can stand in place of the stage element, and a figure with no frame element at all, `<figure><img …><figcaption>…</figcaption></figure>` as a Markdown renderer writes it, is drawn too: the picture is then its own frame.
+
+### A figure the element builds
+
+A `<tanrei-figure>` that holds no `<figure>` is given one when the element is defined. Its children become the stage, except those that name a part with `slot` (`title`, `actions`, `caption`, `attachment`). The `headline` and `caption` attributes are written as the title and the caption.
+
+```html
+<tanrei-figure headline="Variants" caption="A filled button.">
+  <tanrei-button variant="filled">Save</tanrei-button>
+</tanrei-figure>
+```
+
+This form is shorter, and it is drawn only once the script has run. Write the parts yourself where the page must not move, and with a framework that owns the element's children (React), because the element moves them.
+
+## Specs
+
+<DemoFrame label="A title, a control, a joined block and a caption" plain column>
+  <tanrei-figure style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <header>
+          <p data-part="title">Variants</p>
+          <div data-part="actions">
+            <tanrei-button variant="text" label="Open in a new tab"><span slot="icon">open_in_new</span></tanrei-button>
+          </div>
+        </header>
+        <div data-part="stage">
+          <tanrei-button variant="filled">Filled</tanrei-button>
+        </div>
+        <tanrei-code-block data-part="attachment" label="Markup"><pre><code>&lt;tanrei-button variant="filled"&gt;Filled&lt;/tanrei-button&gt;</code></pre></tanrei-code-block>
+      </div>
+      <figcaption>A filled button and its markup.</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="Not inset: what is shown reaches the frame's edges" plain column>
+  <tanrei-figure flush style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="inline-size: 100%; block-size: 9rem; background: linear-gradient(135deg, var(--tanrei-sys-color-primary-container), var(--tanrei-sys-color-tertiary-container))"></div>
+        </div>
+      </div>
+      <figcaption>The frame clips what it holds to its corners.</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="Wider than its stage: it scrolls there, and the stage is a focus stop" plain column>
+  <tanrei-figure style="inline-size: min(100%, 24rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="display: flex; flex: none; gap: 0.75rem">
+            <tanrei-button variant="filled">Filled</tanrei-button>
+            <tanrei-button variant="tonal">Tonal</tanrei-button>
+            <tanrei-button variant="elevated">Elevated</tanrei-button>
+            <tanrei-button variant="outlined">Outlined</tanrei-button>
+            <tanrei-button variant="text">Text</tanrei-button>
+          </div>
+        </div>
+      </div>
+      <figcaption>Five buttons in a row that does not wrap.</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<ComponentSpecs name="figure" />
+
+## Guidelines
+
+### Three looks
+
+| `variant` | Draws | Use for |
+| --- | --- | --- |
+| `outlined` (default) | The surface inside one hairline. | A specimen, a live example, a diagram. |
+| `filled` | A quiet tone and no edge. | A page that already has many lines; a ground for things with shadows. |
+| `plain` | No fill, no edge, no padding, no line. | A picture that is its own frame; a specimen in a grid. |
+
+The outlined look is filled with the surface color, not left empty. Your own components keep the contrast their tokens were held to, whatever panel the figure is placed in.
+
+### Title above, caption below
+
+- `title` (the `headline` attribute on the web) is a short line in a header inside the frame. It names what is shown.
+- `caption` is below the frame, at the start edge, in secondary text. It wraps and is never cut.
+- There is no placement setting. Text above the stage is the title. A caption has one place.
+- The title is plain text, not a heading. Where your page's outline needs a heading there, write one with `data-part="title"`: the figure draws it in the title's style and keeps its role and level.
+
+### Controls and a joined block
+
+- The actions are your own controls at the end of the header: which variant, which theme, open it elsewhere. The figure lays them out in a row and does nothing else. They move below the title when the row is too narrow.
+- The attachment is your own block under the stage, inside the frame: the code an example was made from, the data of a chart.
+
+| `separation` | Draws |
+| --- | --- |
+| `auto` (default) | What the design system chose: lines in the default system. |
+| `divider` | A line under the header and above the attachment, which sits flush with the frame. |
+| `gap` | No line. The attachment stands inside the frame, set in by 8, with its own shape. |
+
+### The stage
+
+- `inset` (default true) pads the stage by 32 above and below and 24 at the sides. `flush` on the web removes the padding, so a picture, a chart or a map reaches the frame's edges and is clipped by its corners.
+- A picture scales down with its proportions kept, and never up.
+- Content that cannot shrink scrolls sideways inside the stage. The figure is never wider than its container.
+- Content narrower than a framed stage is centred. In the plain look it starts at the text's edge.
+- The stage is as tall as its content. How several examples are arranged in it is your layout.
+
+### In a page
+
+- A figure fills the width it is given and brings no outer space. In prose it is spaced as a block and runs the prose's full width, while its caption is kept to the measure like a text block.
+- Several figures side by side are a grid of yours. A figure fills its cell.
+
+### Do
+
+- Write a caption that says what the figure is for: "Revenue grew in every region", not "Chart".
+- Give a picture its own text alternative. The caption does not replace it.
+- Mark an example to follow or to avoid with a small tag at the start of the caption, with its word: "Do", "Don't".
+
+### Don't
+
+- Don't use a figure to group related content and actions. That is a [card](/components/card/).
+- Don't make a figure pressable. A picture that opens something is a link around the picture.
+- Don't color the frame to say that an example is right or wrong. The figure has no status.
+
+## Accessibility
+
+<ComponentAccessibility name="figure" />
+
+### What the component handles
+
+- The native figure stays a figure. It is named by its title, or by its caption where it has no title. With both, the title is the name and the caption the description, and the caption is still read in its place.
+- `label` names a figure that draws neither. It is never drawn, and it is ignored where a title or a caption is given.
+- While the stage scrolls sideways it is one stop in the focus order, before anything inside it, and a group with the figure's name. The arrow keys scroll it, and Home and End take it to either end. A stage that does not scroll adds no stop.
+- The focus ring is drawn inside the stage's edge, so nothing clips it.
+- Everything in the header, the stage, the attachment and the caption stays operable and keeps its focus order.
+- At 200% text the title and the caption grow and wrap, and the actions move below the title.
+- In a right-to-left layout the header is mirrored and the caption starts at the right. What is shown in the stage is never mirrored.
+- In forced colors the outlined and filled looks have an edge in the text color. The plain look has none.
+- A figure with no name, a figure whose stage is empty, and an unknown variant or separation are reported in debug builds.
+
+### What you need to do
+
+- Give every figure a title, a caption or a `label`.
+- Give a picture in the stage its own `alt`. Where the caption already says everything the picture does, mark the picture as decorative (`alt=""`).
+- Keep a live example operable. The figure does not hide its content or turn it into an image.

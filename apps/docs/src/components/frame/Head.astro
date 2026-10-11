@@ -1,0 +1,26 @@
+---
+// The document's head: the framework's own tags, and before them a preload for each font file the page's first
+// screen is set in (lib/first-faces.mjs says which, and why: text first drawn in a fallback family is drawn again when
+// the file arrives, and what stands under it moves).
+//
+// The families come from the tokens. The files are the ones styles/fonts.generated.css registers them from — the same
+// file, so the same address in the built site — and a family the tokens name that has no file here stops the build:
+// add its Latin file below (test/first-faces.test.mjs reads this list against the registered faces).
+import Default from '@astrojs/starlight/components/Head.astro';
+import inter from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import robotoMono from '@fontsource-variable/roboto-mono/files/roboto-mono-latin-wght-normal.woff2?url';
+import { firstFamilies } from '../../lib/first-faces.mjs';
+import { ns, tokensIn } from '../../lib/tokens';
+
+const FILES: Record<string, string> = { Inter: inter, 'Roboto Mono': robotoMono };
+
+const stacks = Object.fromEntries(tokensIn(`${ns}.ref.typeface`).filter((token) => token.type === 'fontFamily').map((token) => [token.path.at(-1), [token.value].flat() as string[]]));
+const files = firstFamilies(stacks).map((family) => {
+  const file = FILES[family];
+  if (!file) throw new Error(`Head.astro: the tokens set text in "${family}", and no file of it is preloaded. Add its Latin file.`);
+  return file;
+});
+---
+
+{files.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
+<Default />

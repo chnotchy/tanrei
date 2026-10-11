@@ -1,0 +1,78 @@
+---
+title: SwiftUI
+description: Add Tanrei to an iOS or macOS app with Swift Package Manager.
+---
+
+import Callout from '../../../components/Callout.astro';
+import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+
+The `Tanrei` Swift package provides SwiftUI views, a theme environment and generated token constants. It supports iOS 17 and macOS 14 or later, and is written for Swift 6 language mode.
+
+<PreReleaseNotice registry="Swift Package Manager" pkg="Tanrei" />
+
+## Install
+
+### From source
+
+<Callout type="caution" title="Does not build today">
+  The SwiftUI package has not caught up with the current specs and tokens: its sources were written against an earlier version of the generated token code and do not compile against today's. Its CI is paused until it catches up, and the [status page](/status/) marks its components *lagging*. The steps below are how it is added to an app; they work once the package has caught up.
+</Callout>
+
+Clone the repository next to your app and add the clone as a local package: in Xcode, **File → Add Package Dependencies… → Add Local…** and choose the folder that holds `Package.swift`, or in your own `Package.swift`:
+
+```swift
+dependencies: [
+  .package(path: "../tanrei")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+`.package(url: "https://github.com/chnotchy/tanrei", branch: "main")` follows the repository instead of a local clone.
+
+### After the first release
+
+In Xcode choose **File → Add Package Dependencies…** and enter the repository URL, or add it to `Package.swift`:
+
+```swift
+dependencies: [
+  .package(url: "https://github.com/chnotchy/tanrei", from: "<version>")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+The package manifest sits at the repository root because Swift Package Manager resolves Git dependencies from there. Swift releases will be tagged with plain semantic versions.
+
+## Use
+
+```swift
+import SwiftUI
+import Tanrei
+
+struct DeployView: View {
+  @State private var isDeploying = false
+
+  var body: some View {
+    TanreiButton("Deploy", variant: .filled, action: { isDeploying = true })
+      .disabled(isDeploying)
+  }
+}
+```
+
+`action:` is the spec's `click`; a trailing closure is the `icon:` slot (`TanreiButton("Deploy", action: deploy) { Image(systemName: "arrow.up") }`). There is no `disabled` parameter. Tanrei follows SwiftUI's own `.disabled(_:)` environment, so disabling a container disables the buttons inside it, as it would for a system control.
+
+## Theme and contrast
+
+By default Tanrei follows the system color scheme and the **Increase Contrast** accessibility setting. Override either with the theme modifier:
+
+```swift
+ContentView()
+  .tanreiTheme(TanreiTheme(appearance: .dark, contrast: .high))
+```
+
+## Fonts
+
+The typescale uses Inter (Noto Sans JP for Japanese, Roboto Mono for code) when the fonts are registered with your app and falls back to the system font otherwise. Text styles are named by level and live on the system in the environment (`@Environment(\.tanreiSystem) private var system`): `.tanreiTextStyle(system.typescale.heading2)` for a section title, `system.typescale.body` for running text, `system.typescale.label` for a control — and they scale with Dynamic Type; `.tanreiTextStyle(system.typescale.heading1, emphasized: true)` adds the heading family's emphasis step to the weight. Corners follow `system.shape.cornerSmoothing`: `.circular` at 0, the OS's `.continuous` corner for any amount above 0.

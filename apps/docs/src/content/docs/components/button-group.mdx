@@ -1,0 +1,376 @@
+---
+title: Button group
+description: Lays out a few related buttons in a row or a column, spaced apart or joined into one shape, places the completing and the backing-out actions where people expect them, and names the buttons as a group.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="button-group" />
+
+<DemoFrame label="Standard and connected">
+  <tanrei-button-group>
+    <tanrei-button variant="outlined">Cancel</tanrei-button>
+    <tanrei-button variant="tonal">Save draft</tanrei-button>
+    <tanrei-button variant="filled">Publish</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="Text style">
+    <tanrei-button variant="tonal" toggle selected label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+### Usage
+
+The items are the [Buttons](/components/button/) you already use, labelled or icon-only, with their own props and events. The group only places them, joins them when connected, and names them when it has a label.
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision of the button group, a single row with no `orientation`, `fullWidth`, `separation` or order flags, whose connected items always stand a narrow gap apart, and whose icon-only items are a separate icon button. Their samples show that revision until they catch up.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- dismissive goes to the start of a row, confirming to its end; in a column they change places. -->
+    <tanrei-button-group>
+      <tanrei-button variant="outlined" dismissive>Cancel</tanrei-button>
+      <tanrei-button variant="tonal">Save draft</tanrei-button>
+      <tanrei-button variant="filled" confirming>Publish</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- A column as wide as its container: Allow is drawn above Not now. -->
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>Not now</tanrei-button>
+      <tanrei-button variant="tonal" confirming>Allow</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- A label names the group. Each toggle keeps its own selected. -->
+    <tanrei-button-group variant="connected" label="Text style">
+      <tanrei-button variant="tonal" toggle label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-button-group>
+
+    <script type="module">
+      import '@tanrei/web/components/button-group';
+      import '@tanrei/web/components/button';
+      // The group fires no events of its own: listen on the buttons, as anywhere.
+      document.querySelector('[label="Bold"]').addEventListener('change', (e) => setBold(e.detail.selected));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, ButtonGroup } from '@tanrei/react';
+
+    // confirming and dismissive are attributes the group reads from its children.
+    <ButtonGroup>
+      <Button variant="outlined" dismissive onClick={cancel}>Cancel</Button>
+      <Button variant="tonal" onClick={saveDraft}>Save draft</Button>
+      <Button variant="filled" confirming onClick={publish}>Publish</Button>
+    </ButtonGroup>
+
+    <ButtonGroup orientation="vertical" fullWidth>
+      <Button variant="tonal" dismissive onClick={notNow}>Not now</Button>
+      <Button variant="tonal" confirming onClick={allow}>Allow</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" label="Text style">
+      <Button variant="tonal" toggle selected={bold} label="Bold" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+      <Button variant="tonal" toggle selected={italic} label="Italic" onChange={(e) => setItalic(e.detail.selected)}><span slot="icon">format_italic</span></Button>
+    </ButtonGroup>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButtonGroup {
+        TanreiButton("Cancel", variant: .outlined) { cancel() }
+        TanreiButton("Save draft", variant: .tonal) { saveDraft() }
+        TanreiButton("Publish") { publish() }
+    }
+
+    TanreiButtonGroup(variant: .connected, label: "Text style") {
+        TanreiIconButton("Bold", isSelected: $bold, variant: .tonal) { Image(systemName: "bold") }
+        TanreiIconButton("Italic", isSelected: $italic, variant: .tonal) { Image(systemName: "italic") }
+        TanreiIconButton("Underline", isSelected: $underline, variant: .tonal) { Image(systemName: "underline") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroup
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroupVariant
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiIconButtonVariant
+
+    TanreiButtonGroup {
+        TanreiButton(text = "Cancel", onClick = ::cancel, variant = TanreiButtonVariant.Outlined)
+        TanreiButton(text = "Save draft", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+        TanreiButton(text = "Publish", onClick = ::publish)
+    }
+
+    // contentDescription names the group. Compose has no group role: it is a traversal group.
+    TanreiButtonGroup(variant = TanreiButtonGroupVariant.Connected, contentDescription = "Text style") {
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "Bold",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = bold,
+            onCheckedChange = { bold = it },
+        ) { TanreiText("format_bold") }
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "Italic",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = italic,
+            onCheckedChange = { italic = it },
+        ) { TanreiText("format_italic") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButtonGroup(
+      children: <Widget>[
+        TanreiButton(variant: TanreiButtonVariant.outlined, onPressed: cancel, child: const Text('Cancel')),
+        TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('Save draft')),
+        TanreiButton(onPressed: publish, child: const Text('Publish')),
+      ],
+    );
+
+    TanreiButtonGroup(
+      variant: TanreiButtonGroupVariant.connected,
+      semanticLabel: 'Text style',
+      children: <Widget>[
+        TanreiIconButton(
+          isSelected: bold,
+          onPressed: () => setState(() => bold = !bold),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: 'Bold',
+          icon: const Icon(AppSymbols.formatBold),
+        ),
+        TanreiIconButton(
+          isSelected: italic,
+          onPressed: () => setState(() => italic = !italic),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: 'Italic',
+          icon: const Icon(AppSymbols.formatItalic),
+        ),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button, ButtonGroup, IconButton } from '@tanrei/react-native';
+
+    <ButtonGroup>
+      <Button variant="outlined" onPress={cancel}>Cancel</Button>
+      <Button variant="tonal" onPress={saveDraft}>Save draft</Button>
+      <Button onPress={publish}>Publish</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" accessibilityLabel="Text style">
+      <IconButton variant="tonal" accessibilityLabel="Bold" toggle selected={bold} onSelectedChange={setBold}>
+        format_bold
+      </IconButton>
+      <IconButton variant="tonal" accessibilityLabel="Italic" toggle selected={italic} onSelectedChange={setItalic}>
+        format_italic
+      </IconButton>
+    </ButtonGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+### A row or a column, and the order of actions
+
+`orientation` lays the buttons out in one row (`horizontal`, the default) or stacks them in one column (`vertical`), where every button is as wide as the column. `fullWidth` makes the group fill its container: a row's buttons share the width equally, and a column's buttons are each that wide. That is the form for the actions at the foot of a sheet or a narrow panel.
+
+Two flags on a button tell the group where it belongs, so that the two orientations stay consistent with each other:
+
+| Flag | The button | In a row | In a column |
+| --- | --- | --- | --- |
+| `confirming` | completes the task: OK, Save, Next, Delete | at the end | at the top |
+| `dismissive` | backs out of it: Cancel, Back, Not now | at the start | at the bottom |
+| neither | anything else | between the two, in the order given | between the two, in the order given |
+
+<DemoFrame label="The same three buttons in a row and in a column" plain>
+  <tanrei-button-group>
+    <tanrei-button variant="outlined" dismissive>Cancel</tanrei-button>
+    <tanrei-button variant="tonal">Save draft</tanrei-button>
+    <tanrei-button variant="filled" confirming>Publish</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group orientation="vertical">
+    <tanrei-button variant="outlined" dismissive>Cancel</tanrei-button>
+    <tanrei-button variant="tonal">Save draft</tanrei-button>
+    <tanrei-button variant="filled" confirming>Publish</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<DemoFrame label="Full width: a row that shares the width, and a column" plain column>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group full-width>
+      <tanrei-button variant="tonal" dismissive>Not now</tanrei-button>
+      <tanrei-button variant="tonal" confirming>Allow</tanrei-button>
+    </tanrei-button-group>
+  </div>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>Not now</tanrei-button>
+      <tanrei-button variant="tonal" confirming>Allow</tanrei-button>
+    </tanrei-button-group>
+  </div>
+</DemoFrame>
+
+Keyboard focus and screen readers follow the placed order, so everyone meets the actions in the order they are drawn. The flags describe the task, not the tone: in "Cancel · Delete", Delete is the confirming one. A destructive action is told apart by its own look and label, not by its place. A [dialog](/components/dialog/) and a [side sheet](/components/side-sheet/) place their own actions by the same two flags.
+
+### Joined by a divider or by a gap
+
+A connected group joins its buttons in one of two ways. With a **divider** the buttons touch, their corners are square where they meet, and a line marks each seam. With a **gap** they stand a narrow gap apart, with tighter corners where they face each other. The design system chooses once for every component that joins parts (the default system draws a divider), a design system can set the button group apart, and `separation` (`auto`, `divider`, `gap`) sets one group. A standard group ignores it.
+
+<DemoFrame label="Connected by a divider and by a gap, in a row and in a column" plain>
+  <tanrei-button-group variant="connected" separation="divider" label="Clipboard">
+    <tanrei-button variant="outlined">Cut</tanrei-button>
+    <tanrei-button variant="outlined">Copy</tanrei-button>
+    <tanrei-button variant="outlined">Paste</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" separation="gap" label="Clipboard">
+    <tanrei-button variant="outlined">Cut</tanrei-button>
+    <tanrei-button variant="outlined">Copy</tanrei-button>
+    <tanrei-button variant="outlined">Paste</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="divider" label="Zoom">
+    <tanrei-button variant="tonal" label="Zoom in"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="Zoom out"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="gap" label="Zoom">
+    <tanrei-button variant="tonal" label="Zoom in"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="Zoom out"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+Under a divider, a seam carries a line only where the two buttons rest on the same fill. Between a selected toggle and an unselected one, or a filled button and an outlined one, the edge of the fill already marks the seam, so no line is drawn there.
+
+<DemoFrame label="Toggles joined by a divider: no line beside the selected one" plain>
+  <tanrei-button-group variant="connected" label="Text style">
+    <tanrei-button variant="outlined" toggle label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle selected label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="Underline"><span slot="icon">format_underlined</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="Strikethrough"><span slot="icon">format_strikethrough</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+## Specs
+
+<DemoFrame label="Connected: outlined, large and with a disabled item" plain>
+  <tanrei-button-group variant="connected" label="Clipboard">
+    <tanrei-button variant="outlined">Cut</tanrei-button>
+    <tanrei-button variant="outlined">Copy</tanrei-button>
+    <tanrei-button variant="outlined">Paste</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="Date">
+    <tanrei-button variant="tonal" size="large">Previous</tanrei-button>
+    <tanrei-button variant="tonal" size="large">Today</tanrei-button>
+    <tanrei-button variant="tonal" size="large">Next</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="Clipboard">
+    <tanrei-button variant="outlined">Cut</tanrei-button>
+    <tanrei-button variant="outlined" disabled>Copy</tanrei-button>
+    <tanrei-button variant="outlined">Paste</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<ComponentSpecs name="button-group" />
+
+## Guidelines
+
+### When to use
+
+Use a button group when a few buttons belong together: the end of a form (Cancel, Save draft, Publish), an editor's formatting (Bold, Italic, Underline), a calendar's Previous, Today and Next. The group settles their spacing, joins them when they are one set, and names them when that helps. Each button stays a button.
+
+A row of actions for the current screen or selection, reached as one Tab stop with the arrow keys moving between them, is a [toolbar](/components/toolbar/). A main action joined to a menu of its variations is a [button with menu](/components/button-with-menu/): it looks like a connected group of two, but its second half always opens a menu.
+
+### Segmented button, button group, chips or tabs
+
+These four all put a few related things in a row, so they are easy to confuse. They differ in what a press does and in how the keyboard moves through them.
+
+| Component | What it is | Selection | Keyboard | Use it for |
+| --- | --- | --- | --- | --- |
+| [Segmented button](/components/segmented-button/) (the Material and cupertino presets; not in the Tanrei system) | One control: two to five joined options that answer one question. | Its own, by value: one option, or several. | One Tab stop. The arrow keys move between options, and with single selection they also choose. | A setting with a few fixed answers that applies at once: Day, Week, Month; left, center, right. |
+| [Button group](/components/button-group/) | A row or a column of separate buttons, spaced apart or joined into one shape. | None. A toggle button in the group keeps its own on or off state. | Every button is its own Tab stop. | Related actions: Cancel, Save draft, Publish; Bold, Italic and Underline as independent toggles. |
+| [Chips](/components/chip/) | Separate small controls in a row that wraps or scrolls. | Each filter chip is on or off by itself. | Every chip is its own Tab stop. | Filters above a list, suggested replies, items the user entered. |
+| [Tabs](/components/tabs/) | Views of one subject, each with its own panel. | One tab: the view on screen. | One Tab stop. The arrow keys move and select. | Switching which content is shown: Overview, Activity, Settings. |
+
+A quick test: if pressing it does something, it is a button group. If it changes the content below, it is tabs. If it sets one value, it is radio buttons, or a segmented button where the system ships one. Options that are many or independent are chips.
+
+### Choosing a variant
+
+| Variant | What it does | Use for |
+| --- | --- | --- |
+| Standard (default) | Spaces the buttons apart, far enough that each keeps its whole touch target between its neighbours. Each button keeps its own corners. | Actions that sit together but stand on their own, such as a form's Cancel and Save. |
+| Connected | Joins the buttons into one shape with rounded outer ends, by a divider or by a narrow gap (see [Joined by a divider or by a gap](#joined-by-a-divider-or-by-a-gap)). Every button is at least a target wide and stretched to the tallest. | A closely related set that reads as one control: Bold, Italic, Underline; Previous, Today, Next. |
+
+In a connected group only the corners that face a neighbour change: square under a divider, tighter under a gap. The fill, outline, state layer, ripple and focus ring follow the joined shape, and the rounded outer ends of a joined row get a little more padding, so the content of the end buttons looks evenly set. A small icon-only button widens around its centred icon to the target width, because joined buttons cannot reach over each other.
+
+### A row or a column
+
+Use a row by default. Use a column where the buttons would not fit side by side with their whole labels, such as the actions of a narrow sheet or a phone-width panel, or beside content that runs vertically, such as a map's zoom controls. Mark the buttons that complete the task and the ones that back out of it, so the order stays the one people expect when a layout changes between a row and a column.
+
+### Do
+
+- Give every button in a group the same size.
+- Spend emphasis as you would anywhere: one filled button at most, usually at the end.
+- Give the group a label when its buttons only make sense together, such as "Text style". Leave it out for a row of actions that each say what they do.
+- Use one variant for the buttons of a connected group, so the joined shape reads as one.
+- Mark the button that completes the task `confirming` and the one that backs out of it `dismissive`, and let the group place them. Write them in any order; the group does not move them in your markup.
+- Leave `separation` at `auto` unless one group must differ, so that every joined control in the product is told apart the same way.
+
+### Don't
+
+- Don't use toggle buttons in a group for choices that exclude each other, such as left, center and right alignment. The group does not make its toggles exclusive. Use tabs where the choice changes the content below, radio buttons where it sets a value, or a segmented button where the system ships one.
+- Don't put anything but Tanrei Buttons, labelled or icon-only, in a group: no fields, chips or menus. Debug builds report other content.
+- Don't use the flags for tone. A destructive Delete that completes the task is `confirming`; a button with both flags is placed as if it had neither, and reported.
+- Don't expect the row to wrap. A row that does not fit narrows its Buttons and wraps their labels. It never moves to a second line or scrolls.
+- Don't mix sizes in one group. The group does not resize its buttons.
+
+## Accessibility
+
+<ComponentAccessibility name="button-group" />
+
+### What the component handles
+
+- Every button keeps its own role, name, state and Tab stop. Tab moves through them in the placed order: start to end in a row, top to bottom in a column. The group takes no focus, handles no arrow keys and keeps no selection.
+- `confirming` and `dismissive` are not announced. They decide where a button is, and focus and reading follow that place.
+- A divider is decoration: it is hidden from assistive technology and takes no press. What tells two joined buttons apart is that each is its own button with its own name.
+- With a label, the group is exposed as a group named by it that contains its buttons. Without one, it adds nothing to the accessibility tree.
+- In a connected group every button is at least a target wide, and its hit area reaches above and below the row to the minimum target. In a standard group, a press on a button's visible bounds always goes to that button, and a press in the gap goes to the nearer one.
+- The focus indicator follows each button's shape, joined corners included.
+- At larger text sizes the buttons grow as they do anywhere. A connected row stretches every button to the tallest and a column makes every button as wide as the widest, so the joined shape stays even.
+- In the default system the outline of an outlined group and its dividers are the hairline, which is deliberately quiet: each button is identified by its label or its icon, not by its edge.
+- Debug builds report a group of fewer than two items, content that is not a Tanrei Button, a button with both flags, an unknown variant, orientation or separation, a full-width row whose buttons cannot share the width equally, and a row that still does not fit after its Buttons have narrowed.
+
+Known platform gaps:
+
+- Web: a connected icon button is the pointer target wide under a fine pointer, such as a mouse, and the touch target wide under a coarse one. Where an item's own shape is a pill, the corners it turns toward a neighbour are circular rather than eased by corner smoothing. Inside a group a Button's label may wrap; outside one it stays on one line. The report of a row that still does not fit is checked when the group resizes or its children change, not when an item's label changes.
+- SwiftUI has no group role. A labelled group is a container named by its label, holding its buttons. A Button whose title is a `LocalizedStringKey`, as a string literal is, can be narrowed below its longest word, which then breaks inside the word. The report of a row that still does not fit is an assertion failure in debug builds, so a layout that is too narrow for a moment, such as a container whose width animates, stops a debug app.
+- Compose has no group role. A labelled group is a traversal group whose content description is the label, and each button keeps its own role.
+- React Native: how iOS and Android divide a press in the gap between two buttons, the stretched buttons of a connected group at large text sizes, and whether VoiceOver and TalkBack announce the group's name when focus enters it, have not been checked on a device.
+- React Native: a narrowed Button can shrink below its longest word, whose letters then break across lines, because React Native's layout has no minimum content width for text.
+- In a standard group, hit areas meet at the middle of the gap. The default system's gap (16) is wide enough that every icon button, the small one included, keeps its whole 48 touch target between its neighbours. A design system with a narrower gap narrows the targets between buttons.
+
+### What you need to do
+
+- Name every icon button. The group's label does not name the buttons inside it.
+- Put the group where its buttons belong in the reading order. Assistive technology reaches them one by one, in the order they appear.
+- If a set of toggles must stay mutually exclusive, use a single-selection control: tabs where the choice changes the content below, radio buttons where it sets a value, or a segmented button where the system ships one. Each is announced as one choice; a row of toggle buttons is not.

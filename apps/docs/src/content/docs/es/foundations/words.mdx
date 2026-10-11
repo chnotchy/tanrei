@@ -1,0 +1,134 @@
+---
+title: Textos
+description: Tanrei no incluye textos propios. Cada etiqueta, cada nombre y cada mensaje que un componente dibuja o dice es de tu producto, dado en el componente o una sola vez para todo el producto.
+translationOf: foundations/words.mdx
+sourceHash: 2e2cdc9a6fac5336bbdea998f043a08a73daa2cb
+---
+
+import ProductWordKeys from '../../../../components/ProductWordKeys.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+**Tanrei no incluye textos propios.** Ningún componente tiene un texto predeterminado en ningún idioma: ni «Obligatorio», ni «Cerrar», ni «Aceptar». Un texto que un componente dibuja o dice es uno que escribió tu producto.
+
+Un valor predeterminado oculta el fallo que provoca. Un producto en japonés que olvida un texto muestra inglés junto a su propio texto, y nada lo notifica. Un producto en inglés también tiene su propia voz («Mandatory», «Done», «Nothing found»). Por eso un componente no tiene ningún texto al que recurrir, y te avisa cuando falta uno.
+
+## De dónde sale un texto
+
+Un componente mira en tres lugares, en este orden, y en ningún otro.
+
+| Lugar | Qué da | Ejemplo |
+| --- | --- | --- |
+| **El propio componente** | Los textos sobre esta única cosa, y cualquier texto que esta diga de otra manera | `label`, `error-text`; `close-label="Cerrar filtros"` |
+| **Los textos de tu producto** | Los textos que dices igual dondequiera que se dibuje la parte, dados una sola vez por idioma | `requiredText`, `closeLabel`, `previousMonthLabel` |
+| **La plataforma** | Lo que el navegador ya tiene en el idioma del lector | Los nombres de los meses y de los días de la semana, las cifras, «a. m.», el mensaje propio del navegador cuando falta un valor |
+
+Después de estos no hay nada: ningún idioma de reserva, y ningún inglés «por ahora».
+
+## Da los textos de tu producto una sola vez
+
+En la web, llama a `setWords()` una sola vez, antes o después de que se carguen los componentes. Los elementos que ya están en la página dibujan los textos de inmediato.
+
+```js
+import { setWords } from '@tanrei/web';
+
+setWords({
+  requiredText: 'Obligatorio',
+  optionalText: 'Opcional',
+  closeLabel: 'Cerrar',
+  clearLabel: 'Borrar',
+  targetLabel: 'se abre en una pestaña nueva',
+});
+```
+
+Da solo los textos de los componentes que usas. Una segunda llamada se suma a la primera, clave por clave; una clave dada como cadena vacía se retira. `@tanrei/web/words` exporta la misma función sin definir ningún elemento, y `@tanrei/react` también la exporta.
+
+Un atributo en un componente siempre tiene prioridad sobre los textos de tu producto:
+
+<DemoFrame label="El texto en el propio componente: un campo lo dice de otra manera" plain column>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Correo electrónico" requirement="required" required-text="Obligatorio"></tanrei-text-field>
+  <tanrei-text-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Empresa" requirement="required" required-text="Necesario para las facturas"></tanrei-text-field>
+</DemoFrame>
+
+```html
+<tanrei-text-field label="Correo electrónico" requirement="required" required-text="Obligatorio"></tanrei-text-field>
+<tanrei-text-field label="Empresa" requirement="required" required-text="Necesario para las facturas"></tanrei-text-field>
+```
+
+## Más de un idioma
+
+Da un conjunto por idioma. Un componente lee el conjunto del atributo `lang` más cercano que lo rodea, de modo que una página en japonés, o una parte en japonés de una página en inglés, lee los textos en japonés.
+
+```js
+setWords({ requiredText: 'Required', closeLabel: 'Close' }, { lang: 'en' });
+setWords({ requiredText: '必須', closeLabel: '閉じる' }, { lang: 'ja' });
+```
+
+- Un conjunto para `ja` sirve también para `ja-JP`, salvo que des a `ja-JP` un conjunto propio.
+- Una clave que el conjunto del idioma no tiene se lee del conjunto dado sin `lang`.
+- Los textos son cadenas simples. Si tu producto tiene una biblioteca de localización, toma de ella las cadenas que das: `setWords()` no es un sistema de traducción, y no tiene reglas de plural. Unos pocos textos tienen [huecos que rellena un componente](#un-texto-con-huecos), y en un texto no se lee nada más.
+
+## Un texto con huecos
+
+Algunas frases contienen un valor que solo el componente conoce, en el momento en que las dice: dónde queda una fila después de moverla, o cuántos elementos creó un pegado. Tu producto sigue escribiendo la frase entera. Marca dónde va el valor con un nombre entre llaves, y el componente pone ahí el valor.
+
+```js
+setWords({ movedText: '{headline}: {position} of {count}' }, { lang: 'en' });
+setWords({ movedText: '{headline}：{count} 件中 {position} 番目' }, { lang: 'ja' });
+```
+
+El orden de las palabras es el de tu idioma. El componente rellena los huecos y no le hace nada más a la frase.
+
+- **Los nombres los decide el componente.** Cada clave tiene sus propios huecos, que figuran en [la tabla de claves](#las-claves), y solo esos se rellenan. Puedes escribir un hueco una vez, varias o ninguna.
+- **Un número se escribe en el idioma del elemento.** `{count}` y `{position}` son números enteros, escritos con las cifras y la agrupación del `lang` más cercano.
+- **Un texto conserva su propia dirección.** `{headline}` y `{entry}` son textos que tiene el componente: el titular de una fila, un elemento que escribió una persona. Se insertan como texto sin formato, nunca como marcado. Donde la frase se dibuja o se anuncia, el texto queda aislado, de modo que un nombre en letras latinas dentro de una frase en árabe conserva su propio orden.
+- **Para escribir una llave, escríbela dos veces.** `{{` se dibuja como `{` y `}}` como `}`. Un texto sin huecos no se lee en absoluto, así que ahí una llave se escribe una sola vez.
+- **Un hueco es necesario.** `entryRemoveLabel` da nombre al botón de quitar de cada elemento de un campo de chips. Sin `{entry}`, todos los botones tienen el mismo nombre.
+
+En desarrollo, la consola notifica un hueco que la clave no tiene (`{entri}`), una llave suelta y la falta de `{entry}`. Aun así, la frase se usa exactamente como la escribiste. `setWords()` los notifica cuando das el texto, y el componente los notifica cuando usa un texto dado en el elemento.
+
+### Plurales
+
+El componente no tiene gramática: ni formas de plural, ni ordinales, ni elección entre dos frases. Tienes tres maneras de tratar un número, y ninguna necesita nada de Tanrei.
+
+1. Escribe una frase que sea correcta para cualquier número: `{position} de {count}`, `Añadidos: {count}`.
+2. Da el texto en el componente y cámbialo cuando cambie el recuento. Tu producto conoce el recuento, y un texto dado en el componente siempre tiene prioridad. Tus propias reglas de plural eligen la frase.
+3. Donde es tu producto el que tiene los números, el texto no tiene huecos: el estado de una tabla («1–20 de 132») es una cadena entera que escribes tú.
+
+## Sin un texto
+
+Un texto que falta es un defecto del producto, igual que un campo de texto sin etiqueta. El componente hace que sea pequeño para la persona y visible para ti.
+
+- **Los textos que se dibujarían no se dibujan.** Donde una marca dice lo mismo, la marca ocupa su lugar: un asterisco en lugar del tag de obligatoriedad de un campo obligatorio, los iconos de cerrar y de marca de verificación en lugar de «Cancelar» y «Aceptar» en un selector, `+1` en lugar de «día siguiente». Donde ninguna marca lo dice, no se dibuja nada y el lugar conserva su tamaño.
+- **Un control que necesita un nombre se dibuja igualmente y sigue funcionando.** Los botones de navegación de un calendario, el tirador de cambio de tamaño de un campo de texto y las acciones de un selector siguen funcionando sin nombre. La única excepción son los botones de paso de un campo numérico: uno sin nombre queda oculto para la tecnología de apoyo, porque el botón de número que tiene al lado da los pasos por sí mismo.
+- **Se notifica.** En desarrollo, la consola nombra el atributo, una vez por texto y por página: `<tanrei-field>: required-text is empty and the product's words have no requiredText`.
+
+Un control sin nombre accesible falla a las personas que usan un lector de pantalla. La notificación está ahí para que lo corrijas, no para que puedas dejarlo así.
+
+## Haz fallar una prueba cuando falte un texto
+
+`missingWords()` devuelve las claves que hicieron falta desde que se cargó la página y que nadie dio. Pregúntale al final de una prueba que recorra tu producto.
+
+```js
+import { missingWords } from '@tanrei/web';
+
+test('se dan todos los textos que necesita el producto', async () => {
+  // …renderiza las pantallas del producto…
+  expect(missingWords()).toEqual([]);
+});
+```
+
+## Qué no es un texto
+
+Un glifo, un asterisco, una raya, una cifra y un separador que da la configuración regional no son textos, y un componente los sigue dibujando. Tampoco lo son los nombres de la API (una propiedad, un valor), ni lo que la consola le dice a quien desarrolla, que está en inglés. Las leyendas que dibuja un atajo de teclado («Ctrl», «Enter», ⌘) son lo que llevan las propias teclas; lo que se lee en voz alta para un atajo es el `label` que le das.
+
+## Las claves
+
+Todas las claves, las propiedades que las leen y los huecos que el componente rellena en su frase. La mayoría de las claves tienen el nombre de su propiedad. Tres son distintas: `label` y `failedLabel` de un botón de copiar leen `copyLabel` y `copyFailedLabel`, y `overflowLabel` de la ruta de navegación lee `breadcrumbsOverflowLabel`.
+
+<ProductWordKeys />
+
+Los textos que tratan de una sola cosa (el `label` de un campo, el `label` de un selector de fecha y hora, el «Quitar a Ada Lovelace» de un botón de quitar, un texto de estado con un recuento) no tienen clave: dalos en el componente.
+
+## Otras plataformas
+
+La regla es la misma en todas las plataformas. Hasta ahora solo está construida la web; SwiftUI, Jetpack Compose, Flutter y React Native recibirán los textos del producto con su estilo propio.

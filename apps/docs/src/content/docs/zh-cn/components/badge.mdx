@@ -1,0 +1,216 @@
+---
+title: "徽标"
+description: "在图标、导航项或头像上加一个圆点或一个小数字，表示有内容等待处理。"
+translationOf: components/badge.mdx
+sourceHash: a4ece32edcc7d1571544b3c3cbf6afac6aa68eff
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="badge" />
+
+<DemoFrame label="圆点和数字">
+  <tanrei-badge label="有新消息">
+    <tanrei-button variant="text" label="聊天"><span slot="icon">chat</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="3" label="3 封未读">
+    <tanrei-button variant="text" label="收件箱"><span slot="icon">inbox</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 条通知">
+    <tanrei-button variant="text" label="通知"><span slot="icon">notifications</span></tanrei-button>
+  </tanrei-badge>
+</DemoFrame>
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 没有 count 就是圆点。圆点必须有标签。 -->
+    <tanrei-badge label="有新消息">
+      <tanrei-button variant="text" label="聊天"><span slot="icon">chat</span></tanrei-button>
+    </tanrei-badge>
+
+    <!-- 0 什么都不画；超过 max（999）的数字显示为 999+。 -->
+    <tanrei-badge count="3" label="3 封未读">
+      <tanrei-button variant="text" label="收件箱"><span slot="icon">inbox</span></tanrei-button>
+    </tanrei-badge>
+
+    <script type="module">
+      import '@tanrei/web/components/badge';
+      import '@tanrei/web/components/button';
+      const badge = document.querySelector('tanrei-badge[count]');
+      badge.count = unread;
+      badge.label = `${unread} 封未读`;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Badge, Button } from '@tanrei/react';
+
+    <Badge label="有新消息">
+      <Button variant="text" label="聊天" onClick={openChat}><span slot="icon">chat</span></Button>
+    </Badge>
+    <Badge count={unread} label={`${unread} 封未读`}>
+      <Button variant="text" label="收件箱" onClick={openInbox}><span slot="icon">inbox</span></Button>
+    </Badge>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // nil 就是圆点。
+    TanreiBadge(count: nil, label: "有新消息") {
+      TanreiIconButton("聊天", action: openChat) { Image(systemName: "bubble.left") }
+    }
+    TanreiBadge(count: unread, label: "\(unread) 封未读") {
+      TanreiIconButton("收件箱", action: openInbox) { Image(systemName: "tray") }
+    }
+
+    // 也可以作为修饰符加在任何视图上，效果相同。
+    Image(systemName: "bell").accessibilityLabel("通知").tanreiBadge(1200, label: "未读超过 999 条")
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiBadge
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // null 就是圆点。
+    TanreiBadge(count = null, contentDescription = "有新消息") {
+        TanreiIconButton(onClick = ::openChat, contentDescription = "聊天") { TanreiText("chat") }
+    }
+    TanreiBadge(count = unread, contentDescription = "$unread 封未读") {
+        TanreiIconButton(onClick = ::openInbox, contentDescription = "收件箱") { TanreiText("inbox") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 没有 count 就是圆点。
+    TanreiBadge(
+      semanticLabel: '有新消息',
+      child: TanreiIconButton(onPressed: openChat, semanticLabel: '聊天', icon: const Icon(AppSymbols.chat)),
+    );
+    TanreiBadge(
+      count: unread,
+      semanticLabel: '$unread 封未读',
+      child: TanreiIconButton(onPressed: openInbox, semanticLabel: '收件箱', icon: const Icon(AppSymbols.inbox)),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Badge, IconButton } from '@tanrei/react-native';
+
+    <Badge label="有新消息">
+      <IconButton accessibilityLabel="聊天" onPress={openChat}>chat</IconButton>
+    </Badge>
+    <Badge count={unread} label={`${unread} 封未读`}>
+      <IconButton accessibilityLabel="收件箱" onPress={openInbox}>inbox</IconButton>
+    </Badge>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="数字和上限" plain>
+  <tanrei-badge count="3" label="3 条未读">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 条未读">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="1200" label="未读超过 999 条">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="120" max="99" label="未读超过 99 条">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge label="有新消息">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="0" label="没有未读消息">
+    <span class="tanrei-icon" role="img" aria-label="通知">notifications</span>
+  </tanrei-badge>
+</DemoFrame>
+
+<ComponentSpecs name="badge" />
+
+## 指南
+
+### 何时使用
+
+当图标、导航项或头像背后有内容等待处理时，用徽标来提示：未读消息、新动态、待安装的更新。它把视线引向用户可以处理这些内容的地方。徽标不带文字，在布局中也没有自己的位置，所以它不是状态标签。要用一个词说明状态或类别，例如“New”“Beta”或“Pro”，请使用[标签（Tag）](/zh-cn/components/tag/)。
+
+### 徽标、纸片还是标签
+
+三者按各自的作用来区分：
+
+| 组件 | 它是什么 | 放在哪里 | 是否接受输入 |
+| --- | --- | --- | --- |
+| 徽标 | 附着在另一个元素上的圆点或数字。 | 在锚点的角上，布局之外。 | 否。输入会到达锚点。 |
+| [纸片（Chip）](/zh-cn/components/chip/) | 一个控件。 | 在布局之内。 | 是：它可以被按下、切换或移除，并且有焦点和状态。 |
+| [标签（Tag）](/zh-cn/components/tag/) | 一个静态的标签。 | 在布局之内，位于行内。 | 从不。 |
+
+1. 如果它是叠在别的东西上面的数字或圆点，它就是徽标。
+2. 如果它可以被按下、选中或移除，它就是纸片。如果它通向别处，它就是链接。
+3. 如果它是一个词，只说明某个东西是什么或处于什么状态，它就是 Tag。
+
+单独放在一行里的数字，例如标题旁边的结果数，同样不是徽标：徽标总有一个锚点。这样的数字写成文本；如果它说明的是一种状态，就写成 Tag。
+
+### 如何选择形态
+
+形态由 `count` 决定，所以没有变体可选。
+
+| 形态 | `count` | 用途 |
+| --- | --- | --- |
+| 圆点 | 无（null） | 有新内容，而数量未知或无关紧要。 |
+| 数字 | 大于 0 | 数量能帮助用户判断是否要现在查看：未读消息、待处理的请求。 |
+| 不显示 | 0 | 没有内容在等待。把徽标直接绑定到数量上即可，不需要在外面加条件判断。 |
+
+超过 `max` 的数字显示为 `max+`（默认为 999+），所以徽标永远不会超过 4 个字符。在锚点较小，或者精确数字更早失去意义的地方，可以把 `max` 调低（例如调到 99）。
+
+### 推荐
+
+- 给每个徽标一个接在锚点名称之后读起来通顺的标签：“收件箱”之后是“3 封未读”。圆点尤其需要标签，因为没有标签，圆点对屏幕阅读器来说什么也没说。
+- 在锚点周围留出空间。徽标位于锚点顶部末尾侧的角上，可能超出锚点的边界；它从不移动锚点，也不改变锚点的大小。
+- 用户看过徽标所指的内容之后，就清除徽标，这样它才始终有意义。
+
+### 避免
+
+- 不要给每一项都加徽标。全都做了标记，就没有哪一项显眼了。
+- 不要把徽标放在按钮的标签上或连续文本之中。它属于图标、导航项或头像。标签旁边或一行文字里的词是 Tag。
+- 不要用徽标的颜色来表示等待的是哪一类内容，或者有多紧急。这些信息写在标签里，或者写在它所指的内容里。
+- 不要让徽标可以交互。在徽标上的轻点和点击会到达锚点，操作发生在锚点上。
+
+## 无障碍
+
+<ComponentAccessibility name="badge" />
+
+### 组件负责的部分
+
+- 画出来的圆点和数字对辅助技术隐藏，所以数量不会被读两遍。
+- 标签（没有标签时，则是显示出来的数字，例如“999+”）成为锚点的一部分，所以锚点连同两者只朗读一次：“收件箱，按钮，3 封未读”。每个平台使用自己的惯用方式：在 Web 上是锚点上的 `aria-description`，在 Apple 平台、Flutter 和 React Native 上是无障碍值，在 Compose 上是状态描述。
+- 数量为 0 时不添加任何内容：锚点的朗读与没有徽标时相同。
+- 数量或标签变化时，锚点所表达的内容随之更新，但不会发出打断用户的朗读。
+- 它不接受输入，也不占空间，所以锚点的点击区域保持完整。
+- 没有标签的圆点、负的数量以及小于 1 的 `max` 会在调试构建中报告。
+
+### 需要你做的事
+
+- 写一个补全锚点名称而不是重复它的标签：写“3 封未读”，不写“收件箱有 3 封未读邮件”。
+- 让锚点成为一个自带名称的单一元素，例如带标签的图标按钮。在 Compose 上，如果一个普通图标不在会合并其后代的元素之内，就需要在它外面包一个这样的元素，名称和标签才会被一起读出。
+- 如果某个变化必须在发生时就朗读出来，例如在实时聊天中，请在你的产品里用实时区域（live region）来朗读。徽标本身不朗读。

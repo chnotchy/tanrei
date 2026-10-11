@@ -1,0 +1,223 @@
+---
+title: "头像"
+description: "用一张小图片代表一个人、一个团队或一个项目；没有图片时，用姓名缩写或一个字形；形状是圆形或圆角方形，有三种尺寸。多个头像可以显示成相互交叠的一组，并数出其余的数量。它是一张图片，从不是控件。"
+translationOf: components/avatar.mdx
+sourceHash: 3fba4dba17faacf3912404f2c65a411b7cfa585a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="avatar" />
+
+<DemoFrame label="姓名缩写、字形、方形，以及一组">
+  <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
+  <tanrei-avatar label="没有图片的用户"></tanrei-avatar>
+  <tanrei-avatar label="设计团队" initials="设" shape="square"></tanrei-avatar>
+  <tanrei-avatar-group label="评审人" max="4" overflow-label="还有 3 人">
+    <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
+    <tanrei-avatar label="王芳" initials="王"></tanrei-avatar>
+    <tanrei-avatar label="张伟" initials="张"></tanrei-avatar>
+    <tanrei-avatar label="刘洋" initials="刘"></tanrei-avatar>
+    <tanrei-avatar label="陈静" initials="陈"></tanrei-avatar>
+    <tanrei-avatar label="赵磊" initials="赵"></tanrei-avatar>
+  </tanrei-avatar-group>
+</DemoFrame>
+
+头像表明某样东西属于谁：帖子的作者、对话中的人、任务的负责人。它绘制一张图片，没有图片时也总有东西可画。它从不响应指针、按键或焦点。
+
+在 Web 上它是 `<tanrei-avatar>`，多个放在一起则是 `<tanrei-avatar-group>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 单独使用：由它的标签命名。 -->
+    <tanrei-avatar label="李华" initials="李" src="/people/lihua.jpg"></tanrei-avatar>
+
+    <!-- 在写着同一个姓名的文本旁边：设为装饰性的，这样姓名只读一次。 -->
+    <p>
+      <tanrei-avatar decorative size="small" initials="李" src="/people/lihua.jpg"></tanrei-avatar>
+      李华
+    </p>
+
+    <!-- 不是某一个人：用方形，并配上你自己的字形。 -->
+    <tanrei-avatar label="构建服务" shape="square"><span slot="icon">smart_toy</span></tanrei-avatar>
+
+    <!-- 六名成员，最多四个方框：三名成员和“+3”。 -->
+    <tanrei-avatar-group label="评审人" max="4" overflow-label="还有 3 人">
+      <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
+      <tanrei-avatar label="王芳" initials="王"></tanrei-avatar>
+      <!-- … -->
+    </tanrei-avatar-group>
+
+    <!-- 在脚本到达之前，这份样式表为每个头像保留位置。 -->
+    <link rel="stylesheet" href="@tanrei/web/avatar.css" />
+    <script type="module">
+      import '@tanrei/web/components/avatar';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Avatar, AvatarGroup } from '@tanrei/react';
+
+    <Avatar label={person.name} initials={person.initials} src={person.picture} />
+
+    <AvatarGroup label="评审人" max={4} total={reviewerCount} overflowLabel={`还有 ${reviewerCount - 3} 人`}>
+      {reviewers.slice(0, 3).map((person) => (
+        <Avatar key={person.id} label={person.name} initials={person.initials} src={person.picture} />
+      ))}
+    </AvatarGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="三种尺寸，两种形状" plain>
+  <tanrei-avatar size="small" label="李华" initials="李"></tanrei-avatar>
+  <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
+  <tanrei-avatar size="large" label="李华" initials="李"></tanrei-avatar>
+  <tanrei-avatar size="small" shape="square" label="设计团队" initials="设"></tanrei-avatar>
+  <tanrei-avatar shape="square" label="设计团队" initials="设"></tanrei-avatar>
+  <tanrei-avatar size="large" shape="square" label="某个项目"></tanrei-avatar>
+</DemoFrame>
+
+<ComponentSpecs name="avatar" />
+
+## 指南
+
+### 何时使用
+
+当一张小图片比单独的姓名更快地告诉用户某样东西属于谁、属于什么时，使用头像：署名行、评论、人员列表中的一行、个人资料的顶部。它是一张图片，仅此而已。它没有悬停，没有焦点，没有按下，也没有事件。
+
+| 你需要 | 使用 |
+| --- | --- |
+| 人身上的一个圆点或一个计数（“3 条未读”） | 围在头像外面的[徽标](/zh-cn/components/badge/)。 |
+| 通向个人资料的头像 | 里面放着头像的[链接](/zh-cn/components/link/)。 |
+| 打开菜单的头像 | 里面放着头像的[按钮](/zh-cn/components/button/)。 |
+| 可以被选中或移除的人 | [纸片](/zh-cn/components/chip/)。 |
+| 在线状态（在线、离开） | 姓名旁边的文字；需要标记的地方再加一个 [Tag](/zh-cn/components/tag/)。 |
+
+### 它绘制什么
+
+头像绘制下面这些东西里它拥有的第一样：
+
+1. `src` 的图片，在它加载完成之后。
+2. 你给出的 `initials`。
+3. 它的 `icon` 插槽里的字形。
+4. 系统自己的字形：圆形用一个人形，方形用一个中性的标记。
+
+方框从第一次绘制起就保持自己的尺寸。图片加载期间，在它的位置上绘制替代内容，图片到达后再由图片接替。头像周围的东西都不会移动。无法加载的图片会留下替代内容：没有图片损坏的标记，头像也不会再次请求。
+
+### 姓名缩写
+
+头像不会根据姓名生成缩写。用哪些字符代表一个姓名，取决于它的文字系统，也取决于哪一部分写在前面，而你的产品已经知道这些。请在 `initials` 中给出：
+
+| 姓名 | `initials` |
+| --- | --- |
+| Ada Lovelace | `AL` |
+| 山田 花子 | `山` 或 `山田` |
+| 王小明 | `王` |
+| ليلى حسن | `لح` |
+| किरण राव | `किरा` |
+
+头像最多绘制两个字符，按读者数字符的方式来数，所以带附加符号的字母或者连写的音节绝不会被切成两半。它按写下的样子绘制，不改变大小写。
+
+<DemoFrame label="几种文字系统的姓名缩写" plain>
+  <tanrei-avatar label="Ada Lovelace" initials="AL" lang="en"></tanrei-avatar>
+  <tanrei-avatar label="山田 花子" initials="山田" lang="ja"></tanrei-avatar>
+  <tanrei-avatar label="王小明" initials="王"></tanrei-avatar>
+  <tanrei-avatar label="ليلى حسن" initials="لح" lang="ar"></tanrei-avatar>
+  <tanrei-avatar label="किरण राव" initials="किरा" lang="hi"></tanrei-avatar>
+</DemoFrame>
+
+### 尺寸和形状
+
+| `size` | 边长 | 用于 |
+| --- | --- | --- |
+| `small` | 24 | 一行文本的旁边：署名行、表格单元格、提及。 |
+| `medium`（默认） | 40 | 列表中的一行、评论。 |
+| `large` | 56 | 某个人自己的页面或卡片的顶部。 |
+
+| `shape` | 用于 |
+| --- | --- |
+| `circle`（默认） | 一个人。 |
+| `square` | 不是某一个人的东西：团队、项目、组织、机器人。 |
+
+所有替代内容都使用同一种低调的填充。没有按人区分的颜色：不表达任何含义的颜色，系统里没有。
+
+### 图片
+
+- 提供一张方形图片，边长至少是头像边长的两倍，这样它在高密度屏幕上仍然清晰。其他比例的图片会围绕中心裁剪。
+- `loading="lazy"` 会等到头像靠近窗口时才请求图片。在很长的列表里使用它。
+- `referrerpolicy` 和 `crossorigin` 会按你写的原样传给图片。头像两样都不替你选：把你页面的哪些信息告诉图片所在的主机，由你决定。
+
+### 组
+
+组把它的成员画成一行。每个成员压在前一个成员上，压住的宽度是边长的四分之一，每个成员周围都有一圈表面颜色的间隙。
+
+<DemoFrame label="把没有交给它的成员也数进去的组" plain>
+  <tanrei-avatar-group label="成员" max="4" total="240" overflow-label="还有 237 人">
+    <tanrei-avatar label="李华" initials="李"></tanrei-avatar>
+    <tanrei-avatar label="王芳"></tanrei-avatar>
+    <tanrei-avatar label="张伟" initials="张"></tanrei-avatar>
+  </tanrei-avatar-group>
+</DemoFrame>
+
+- `max` 是组最多绘制的方框数，溢出框也算在内。六名成员加上 `max="4"`，是三名成员和“+3”。组绝不绘制“+1”：那等于花掉一个方框去藏起一张脸。
+- 交给组的成员比实际的少时，`total` 是真实的总数。三名成员、`max="4"` 和 `total="240"`，是三名成员和“+237”。
+- 组把自己的 `size` 和 `shape` 交给每一个成员。
+- 放在页面表面以外的其他表面上时，把 `--tanrei-comp-avatar-group-outline-color` 设为那个表面的颜色。
+- 溢出框是文本，不是控件。用户需要看到还有谁的地方，在组的旁边放一个链接或按钮。
+
+### 脚本到达之前
+
+`<tanrei-avatar>` 在自己的 shadow root 里绘制，所以服务器渲染的页面在脚本运行之前，它的位置上什么都不显示。加载 `@tanrei/web/avatar.css`，每个头像就会保留一个与它的尺寸和形状相符的方框，页面也就不会发生位移。在那之前，图片、姓名缩写和名称都不显示。对于不运行脚本也必须能读的页面，请在装饰性的头像旁边用文本写出姓名。
+
+带 `max` 的组在脚本数完成员之前，会显示你交给它的每一个成员。如果这绝不能让页面发生位移，就只把组要绘制的成员交给它，其余的用 `total` 表示。
+
+### 推荐
+
+- 给每个单独出现的头像一个 `label`：完整的姓名。
+- 头像位于写着同一个姓名的文本旁边时，给它设置 `decorative`。
+- 给每个人都提供 `initials`，这样图片缺失或加载缓慢时，仍然看得出是谁。
+- 在整个产品里，同一类东西使用同一种形状。
+
+### 避免
+
+- 不要在头像上放处理函数。把它放进链接或按钮，它们才有各种状态和焦点指示。
+- 不要在标签里写“……的照片”。标签就是姓名。
+- 不要用你自己的颜色、圆环或圆点来表示状态。计数用徽标，在线状态用文字说明。
+- 不要把头像用于装饰性的图片或标题里的标志（logo）。它代表的是某个人，或者用户以其身份行事的某样东西。
+
+## 无障碍
+
+<ComponentAccessibility name="avatar" />
+
+### 组件负责的部分
+
+- 单独使用时，它是一张由 `label` 命名的图像，无论它绘制的是图片、姓名缩写还是字形。姓名缩写、字形的名称和图片的地址绝不会被朗读。
+- 设置 `decorative` 后，它对辅助技术隐藏。
+- 在链接或按钮里面时，它的标签成为该元素的名称，按在头像上也会传到该元素。
+- 围在它外面的徽标，会把徽标的标签加在头像的名称之后。
+- 组是一个由它的 `label` 命名的组。它为自己绘制的每个成员各包含一张有名称的图像，按给定的顺序排列，然后是溢出框的文本。它没有绘制的成员不会暴露出来。
+- 它不接受任何输入，也不接受焦点，所以不在焦点顺序中增加停靠点。
+- 文本放大时，它像图标一样保持自己的方框大小。
+- 在强制颜色模式下，所有替代内容都会多出一道文本颜色的边线。图片保留自己的颜色。
+- 在从右到左的布局中，组从右侧开始。图片和姓名缩写绝不镜像，“+3”的加号仍然在数字之前。
+- 没有名称的头像、超过两个字符的姓名缩写、加载失败的图片，以及未知的尺寸或形状，都会在调试构建中报告。
+
+### 需要你做的事
+
+- 为每个头像决定它是有名称的，还是装饰性的。规则是：如果删掉这个头像会丢掉一个姓名，它就是有名称的；否则就是装饰性的。
+- 用页面所用的语言编写 `overflowLabel`，并把数字写在里面（“还有 3 人”）。没有它时，“+3”会按画出来的样子朗读。
+- 给链接里的小头像留出足够的按压空间。头像宽 24；链接自己必须满足最小目标。
+- 图片带有它自己的颜色。图片的边缘常常偏浅的地方，给它们背后的表面加一层色调。

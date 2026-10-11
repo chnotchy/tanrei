@@ -1,0 +1,303 @@
+---
+title: "应用栏"
+description: "位于屏幕顶部，标明当前屏幕的名称，并容纳返回入口和该屏幕的少量操作。内容停在顶端时它是平的；内容滚动到它下方后，它会与内容区分开来。"
+translationOf: components/app-bar.mdx
+sourceHash: 6673ce3102bb145461ac7483ffda05f1bee1ab9c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="app-bar" />
+
+Web 和 React 的示例展示的是当前规格：应用栏中的项是纯图标的[按钮](/zh-cn/components/button/)。SwiftUI、Compose、Flutter 和 React Native 待跟进，它们提供的仍是上一版，其中图标按钮是一个独立的组件；在跟上之前，这些平台的示例展示的是上一版。
+
+<DemoFrame label="带返回按钮和两个操作的小号应用栏">
+  <tanrei-app-bar headline="收件箱" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="返回"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="搜索"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="更多选项"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+### 用法
+
+应用栏是一块布局区域，不是浮层。它在屏幕顶部占据自己的高度，内容从它下方开始，应用栏本身从不获得焦点。
+
+它容纳两类项：起始侧的一个 `navigation` 项（返回、菜单或关闭），以及末尾侧最多三个 `action` 项。两者都是你自己提供的纯图标[按钮](/zh-cn/components/button/)，各有自己的标签和自己的点击处理；如果它通向某个地方，则有自己的 `href`。应用栏只负责排列它们，从不改变它们的样式。每个平台用各自的插槽接收这些项：在 Web 上是带 `slot="navigation"` 和 `slot="actions"` 的子元素，在 SwiftUI 上是 `navigation` 和 `actions` 视图构建器，在 Compose 上是 `navigationIcon` 和 `actions` lambda，在 Flutter 上是 `leading` 和 `actions:`，在 React Native 上是 `navigation` 和 `actions` 节点。
+
+标题是屏幕的名称，也是屏幕的标题元素（heading）。在 Web 上它叫 `headline`，因为 HTML 的全局属性 `title` 会让整个应用栏出现工具提示。
+
+**滚动后。** 只要有内容位于应用栏下方，应用栏就呈现滚动后的外观。把屏幕的滚动视图连接到应用栏，它就会自己设置 `scrolled`：在 Web 上用 `scroll-target`（默认是文档），在 SwiftUI 上用 `.tanreiAppBarScrollSource()`（加在容纳应用栏的 `.safeAreaInset` 之后），在 Compose 上用通过 `Modifier.nestedScroll` 连接的 `scrollBehavior`，在 Flutter 上靠页面的滚动通知，在 React Native 上用 `useAppBarScroll()`。没有连接时，请自己设置 `scrolled`。
+
+**系统栏。** 应用栏的颜色会延伸到它上方的状态栏、摄像头挖孔或窗口标题栏之下。它的内容则留在这些区域的下方，并位于两侧的边衬区（insets）之内。Web 读取 `env(safe-area-inset-*)`，Compose 接收 `windowInsets`（默认是状态栏和水平方向的屏幕挖孔），Flutter 读取 `MediaQuery` 的 padding，SwiftUI 则用 `.safeAreaInset(edge: .top)` 放置应用栏。React Native 没有安全区域 API，Tanrei 也不引入安全区域方面的依赖，所以边衬区只能来自属性。请把窗口的 `insets` 交给 `TanreiProvider`（如果你使用 `react-native-safe-area-context`，把它的 `useSafeAreaInsets()` 直接传过去）。应用栏自己的 `insets` 属性会替换它所指定的那几条边，因此不在窗口顶部的应用栏要传入 `{ top: 0 }`。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 标题用 headline：HTML 的 title 属性会在应用栏上显示工具提示。 -->
+    <tanrei-app-bar headline="收件箱">
+      <tanrei-button variant="text" slot="navigation" label="返回"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="搜索"><span slot="icon">search</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="更多选项"><span slot="icon">more_vert</span></tanrei-button>
+    </tanrei-app-bar>
+
+    <!-- 随 #inbox 滚动而折叠的大标题。除非 heading-level 另有指定，标题是 h1。 -->
+    <div style="display: flex; flex-direction: column; block-size: 100dvh">
+      <tanrei-app-bar size="large" headline="收件箱" scroll-target="inbox">
+        <tanrei-button variant="text" slot="navigation" label="菜单"><span slot="icon">menu</span></tanrei-button>
+      </tanrei-app-bar>
+      <main id="inbox" style="flex: 1; overflow: auto">…</main>
+    </div>
+
+    <!-- 通向某个页面的按钮是链接：给它一个 href。搜索可以作为一个操作：它的图标触发器。 -->
+    <tanrei-app-bar headline="标签页">
+      <tanrei-button variant="text" slot="navigation" href="/components/" label="所有组件"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-search slot="actions" bar="icon" presentation="dialog" label="搜索文档" placeholder="搜索"
+        clear-label="清除搜索内容" back-label="返回"></tanrei-search>
+    </tanrei-app-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/app-bar';
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/search';
+      // 按钮是你自己的：应用栏不添加任何自己的事件。
+      document.querySelector('[label="返回"]').addEventListener('click', () => history.back());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { AppBar, Button, Search } from '@tanrei/react';
+
+    <AppBar headline="收件箱">
+      <Button variant="text" slot="navigation" label="返回" onClick={goBack}><span slot="icon">arrow_back</span></Button>
+      <Button variant="text" slot="actions" label="搜索" onClick={search}><span slot="icon">search</span></Button>
+      <Button variant="text" slot="actions" label="更多选项" onClick={openMore}><span slot="icon">more_vert</span></Button>
+    </AppBar>
+
+    // 通向某个页面的按钮是链接：给它一个 href。搜索可以作为一个操作：它的图标触发器。
+    <AppBar headline="标签页">
+      <Button variant="text" slot="navigation" href="/components/" label="所有组件"><span slot="icon">arrow_back</span></Button>
+      <Search slot="actions" bar="icon" presentation="dialog" label="搜索文档" placeholder="搜索" clearLabel="清除搜索内容" backLabel="返回" />
+    </AppBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 应用栏放在 NavigationStack 顶部的安全区域 inset 中，该 NavigationStack 的系统栏已隐藏。
+    // isScrolled 保持 nil 时，跟随标记了 .tanreiAppBarScrollSource() 的滚动视图。
+    NavigationStack {
+        ScrollView { InboxRows() }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                TanreiAppBar("收件箱", size: .large) {
+                    TanreiIconButton("菜单", action: openMenu) { Image(systemName: "line.3.horizontal") }
+                } actions: {
+                    TanreiIconButton("搜索", action: search) { Image(systemName: "magnifyingglass") }
+                }
+            }
+            // 加在容纳应用栏的 inset 之后：加在 inset 内部的修饰符影响不到应用栏。
+            .tanreiAppBarScrollSource()
+            .toolbar(.hidden, for: .navigationBar)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiAppBar
+    import io.github.chnotchy.tanrei.components.TanreiAppBarDefaults
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiAppBarSize
+
+    // 小号应用栏。没有 scrollBehavior 时它保持平的外观。
+    TanreiAppBar(
+        title = "收件箱",
+        navigationIcon = { TanreiIconButton(onClick = onBack, contentDescription = "返回") { TanreiText("arrow_back") } },
+        actions = {
+            TanreiIconButton(onClick = onSearch, contentDescription = "搜索") { TanreiText("search") }
+            TanreiIconButton(onClick = onMore, contentDescription = "更多选项") { TanreiText("more_vert") }
+        },
+    )
+
+    // 随列表滚动而折叠的大号应用栏：在滚动视图的某个父级上连接 behavior。
+    // pinnedScrollBehavior() 用于小号应用栏：它从不折叠，只在内容位于其下方时变为滚动后的状态。
+    val scrollBehavior = TanreiAppBarDefaults.collapseScrollBehavior()
+    Column(Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)) {
+        TanreiAppBar(title = "收件箱", size = TanreiAppBarSize.Large, scrollBehavior = scrollBehavior)
+        LazyColumn { /* 屏幕的内容 */ }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 小号应用栏，放在 Scaffold 的应用栏插槽里，或放在 Column 的最前面。
+    // scrolledUnder 保持 null 时，和 AppBar 一样跟随最近的 ScrollNotificationObserver。
+    TanreiAppBar(
+      leading: TanreiIconButton(onPressed: () => Navigator.of(context).maybePop(), icon: const Icon(AppSymbols.arrowBack), semanticLabel: '返回'),
+      title: '收件箱',
+      actions: <Widget>[
+        TanreiIconButton(onPressed: search, icon: const Icon(AppSymbols.search), semanticLabel: '搜索'),
+        TanreiIconButton(onPressed: openMore, icon: const Icon(AppSymbols.moreVert), semanticLabel: '更多选项'),
+      ],
+    ),
+
+    // 随内容一起折叠的大号应用栏是一个 sliver，固定在其 CustomScrollView 的顶部。
+    CustomScrollView(
+      slivers: <Widget>[
+        TanreiSliverAppBar(title: '收件箱', size: TanreiAppBarSize.large, leading: menuButton),
+        SliverList.list(children: messages),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { ScrollView, View } from 'react-native';
+    import { AppBar, IconButton, useAppBarScroll } from '@tanrei/react-native';
+
+    // 边衬区来自 TanreiProvider 的 insets 属性，或来自应用栏自己的 insets 属性。
+    <AppBar
+      title="收件箱"
+      navigation={<IconButton accessibilityLabel="返回" onPress={goBack}>arrow_back</IconButton>}
+      actions={
+        <>
+          <IconButton accessibilityLabel="搜索" onPress={search}>search</IconButton>
+          <IconButton accessibilityLabel="更多选项" onPress={openMore}>more_vert</IconButton>
+        </>
+      }
+    />
+
+    // 会折叠的大号应用栏：连接滚动视图，把应用栏叠放在它上面，并给内容加上与应用栏等高的内边距。
+    const scroll = useAppBarScroll();
+    const [barHeight, setBarHeight] = useState(0);
+    <View style={{ flex: 1 }}>
+      <ScrollView onScroll={scroll.onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: barHeight }}>
+        {messages}
+      </ScrollView>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }} onLayout={(e) => setBarHeight((h) => Math.max(h, e.nativeEvent.layout.height))}>
+        <AppBar size="large" title="收件箱" scrollState={scroll.state} navigation={menuButton} />
+      </View>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="带副标题的大号应用栏，以及标题居中的应用栏" plain column>
+  <tanrei-app-bar size="large" headline="收件箱" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="菜单"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="搜索"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="账户"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-app-bar>
+  <tanrei-app-bar headline="收件箱" title-alignment="center" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="返回"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="搜索"><span slot="icon">search</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<DemoFrame label="作为链接的导航按钮，以及操作中的搜索触发器" plain>
+  <tanrei-app-bar headline="标签页" subtitle="组件" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" href="/zh-cn/components/" label="所有组件"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-search slot="actions" bar="icon" presentation="dialog" label="搜索文档" placeholder="搜索" clear-label="清除搜索内容" back-label="返回"></tanrei-search>
+    <tanrei-button variant="text" slot="actions" label="更多选项"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<ComponentSpecs name="app-bar" />
+
+## 指南
+
+### 何时使用
+
+在屏幕顶部使用应用栏，用来说明用户身在何处，带他们返回或打开菜单，并提供属于整个屏幕的少量操作：搜索、分享、账户。一个屏幕只有一个应用栏。
+
+要在应用的各个顶级目的地之间切换，请使用导航栏或导航抽屉。应用栏的菜单按钮可以打开[模态导航抽屉](/zh-cn/components/navigation-drawer/)。Tanrei 没有底部应用栏：在 compact 屏幕底部放置操作，是[工具栏](/zh-cn/components/toolbar/)的职责。
+
+### 如何选择尺寸和标题位置
+
+| 选项 | 效果 | 适用于 |
+| --- | --- | --- |
+| Small（默认） | 只有一行：导航按钮、标题和操作。 | 大多数屏幕，以及所有从另一个屏幕进入的屏幕。 |
+| Large | 在顶部一行的下方，用单独的一行显示更大的标题。内容滚动时，它随滚动距离一比一地折叠进顶部一行，顶部一行的标题同时淡入。内容回到顶端时，它重新展开。 | 产品的顶级屏幕，在那里标题也是这个屏幕的标志。 |
+| `titleAlignment` 为 start（默认） | 标题紧跟在导航按钮之后。 | 大多数应用栏。 |
+| `titleAlignment` 为 center | 标题相对于整个应用栏居中，并在两侧等量收窄，因此绝不会伸到按钮下面。 | 沿用 iOS 居中标题的产品。展开的大标题始终从起始侧开始。 |
+
+设计系统可以增加尺寸。在 SwiftUI、Compose、Flutter 和 React Native 上，比 small 更高的尺寸会像 large 一样拥有单独的标题行。在 Web 上，设计系统增加的每个尺寸都有单独的标题行。`m3-like` 预设目前还没有 Material 的 medium 尺寸。
+
+### 滚动
+
+- **平的外观与滚动后的外观。** 内容停在顶端时，应用栏是平的。一旦有内容位于它下方，应用栏就呈现滚动后的外观：在默认系统中是底边的一条细线，在 `m3-like` 中是带色调的容器。这一变化按应用栏的状态动效缓动完成；在减弱动态效果时则立即完成。
+- **大号应用栏只有在完全折叠之后才算滚动后的状态。** 在此之前，折叠本身已经表明内容移动了。
+- **应用栏留在原处。** 内容向下滚动时它不会隐藏。隐藏是屏幕的滚动行为，不是应用栏的。
+
+### 项
+
+- 一个应用栏最多放一个导航按钮：从另一个屏幕进入的屏幕用“返回”，顶级屏幕用“菜单”，全屏任务用“关闭”。
+- 操作不要超过三个。其余的放进溢出菜单：一个打开 Tanrei 菜单的“更多选项”图标按钮。第四个操作和第二个导航按钮会在调试构建中报告，但仍会绘制出来。
+- 按钮的外观与在其他任何地方相同。应用栏只负责排列它们，从不给它们改色。
+- 通向某个地方的按钮是链接：给它一个 `href`。这样，通向父页面的返回按钮，或打开某个页面的帮助操作，就是真正的链接，画出来仍是同样的按钮。沿历史记录返回的返回按钮仍然是按钮。
+- 在 Web 上，[搜索](/zh-cn/components/search/)可以以图标触发器的形式（`bar` 设为 `icon`）作为操作之一：一个纯图标按钮，用来打开搜索的对话框或全屏视图。
+
+### 推荐
+
+- 把标题写成屏幕的名称，例如“收件箱”或“季度报告”。保持简短：它只占一行，放不下时以省略号截断。
+- 副标题用来提供有助于区分两个相似屏幕的背景信息：账户、状态、编辑时间。
+- 为所有顶级屏幕选定一种尺寸，为其余屏幕选定另一种。
+
+### 避免
+
+- 不要在插槽里放图标按钮以外的任何东西：不放文本字段，不放搜索框，不放标签页，不放分段控件。一排标签页应放在应用栏下方，更下方的[标签页视图](/zh-cn/components/tab-view/)可以与它关联。
+- 不要把“新建”这样的主要操作放进应用栏。请使用主操作按钮。
+- 不要让标题出现第二行，也不要把它做成链接。
+
+## 无障碍
+
+<ComponentAccessibility name="app-bar" />
+
+### 组件负责的部分
+
+- 应用栏没有自己的角色，也永远不可聚焦。Tab 键按阅读顺序从导航按钮依次移到各个操作。每个按钮保留自己的角色、名称和最小目标，带 `href` 的按钮会暴露为链接。
+- 标题会暴露为屏幕的标题元素；在 Web 上，除非 `heading-level` 另有指定，它是一级标题。副标题紧随其后朗读。空标题什么也不绘制，也不暴露标题元素。
+- 大号应用栏在折叠过程中会绘制两个标题，但只暴露一个：展开的标题只要还有一部分可见，就暴露它；应用栏折叠完成后，暴露顶部一行的标题。标题元素绝不会被朗读两次。
+- 应用栏不是地标。它是不是页面的横幅（banner），只有你知道。
+- 文本变大时，应用栏的各行会随之变高，因为行高只是最小高度。标题和副标题始终只占一行，即使在 200% 时也是截断而不是换行，所以应用栏绝不会把内容挤走。辅助技术仍能获得完整的标题。图标按钮不会缩放。
+- 应用栏的方向取决于它所在的位置。在从右到左的布局中它会镜像：导航按钮在右，操作在左。图标集标记为需要镜像的图标（例如返回箭头）由它自己的按钮镜像，而不是由应用栏镜像。
+- 标题和副标题各自按自身文本的方向排布，与周围的文本相互隔离。从右到左的布局中，一个从左到右书写的名称会保持原有顺序，并且在它自己的末尾截断，绝不在开头截断。
+- 操作超过三个、导航按钮超过一个，以及使用了设计系统中没有的尺寸，都会在调试构建中报告。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native：从右到左的规则（在图标集标记之处镜像图标、标题按自身方向排布）要等这些平台跟上，带 `href` 的按钮也是如此。
+- Web：所有尺寸都跟随 `rem`，因此调大浏览器的文本大小时，图标按钮会随文本一起变大。只放大 Tanrei 的文字则不会。
+- Web：如果大号应用栏跟随文档自身的滚动，又以 `position: sticky` 位于文档流中，那么内容除了随滚动移动之外，还会因应用栏的折叠而移动，于是在应用栏折叠期间，内容的移动速度是平时的两倍。请把会折叠的应用栏放在某个滚动元素（`scroll-target`）的上方，或放在固定的页眉里。
+- Web：每个图标按钮都位于一个单元格中，其大小等于当前所用指针的最小目标，鼠标是 44；因此两个操作的中心间距是 52，而 Compose 和 Flutter 按 48 的触摸目标计算，画出来的间距是 56。
+- SwiftUI：应用栏只有在 iOS 18 和 macOS 15 及以上才会跟随它的滚动视图。在此之前什么都不会连接，应用栏按 `isScrolled` 的值绘制。
+- SwiftUI：对已连接的大号应用栏设置 `isScrolled: true`，它会按折叠后的样子绘制，但在布局中仍保留展开时的高度，所以内容停在顶端时，上方会露出一段空隙。
+- SwiftUI：系统栏隐藏时，应用栏通过替换导航控制器的 pop 手势 delegate，让边缘滑动返回继续可用。这一点只在 iOS 26.5 上验证过。大号应用栏一次只暴露一个标题这一点，尚未用 VoiceOver 验证。
+- Flutter：大号的 `TanreiAppBar` 不会随内容一起折叠，因为盒状 widget 无法随它下方的滚动视图收缩。它忽略滚动通知，保持展开，只有在 `scrolledUnder` 为 true 时才按折叠后的样子绘制。需要会折叠的应用栏时，请使用 `TanreiSliverAppBar`。
+- Flutter：`preferredSize` 读取不到主题，所以报告的是无界的高度。Scaffold 会让应用栏自行决定尺寸，但你自己的布局用不了这个数值。
+- Compose：滚动停在哪里，折叠就停在哪里，所以大号应用栏可能停在折叠到一半的位置。它不会像 Material 的应用栏那样，在快速滑动之后吸附到完全展开或完全折叠。规格并不要求吸附。
+- React Native：要让大号应用栏随内容一比一地折叠，需要像上面的示例那样，把应用栏叠放在滚动视图之上，并给内容加上与应用栏等高的内边距。折叠、边衬区以及屏幕阅读器朗读的内容，尚未在真机上验证。
+- 所有平台：在 `cupertino` 下，44 点高的顶部一行在容纳图标按钮时会变为 48，因为图标按钮的触摸目标是 48，而最小目标优先。在 Web 上，它只在粗略指针下才变高，因为鼠标的目标是 44。大号应用栏展开的那一行也比 cupertino 的容器高度高 1 点。
+- 所有平台：有副标题时，展开的标题在应用栏完全折叠之前就已被遮住。这段时间里暴露哪个标题，规格尚未说明。各平台都在展开的标题被遮住的那一刻，把标题元素移到顶部一行。
+
+### 需要你做的事
+
+- 给每个应用栏一个标题。它是屏幕的标题元素。
+- 给每个图标按钮一个标签，例如“返回”或“搜索”。
+- 在 Web 上，如果页面已经有一级标题，请设置 `heading-level`；如果应用栏是页面的横幅，请用 `<header>` 包住它。
+- 连接屏幕的滚动视图，或者自己设置 `scrolled`，让应用栏在内容位于其下方时有所体现。
+- 在 React Native 上，把窗口的边衬区传给 `TanreiProvider`。在 React Native 和 Compose 上，不在窗口顶部的应用栏要使用不同的边衬区（`insets={{ top: 0 }}`，或你自己的 `windowInsets`）。
+- 标题要简短。以省略号截断的标题仍会被完整朗读，但视力正常的用户只能看到它的开头。

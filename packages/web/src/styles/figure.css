@@ -1,0 +1,364 @@
+/*
+ * Figure (specs/figure.spec.json, FIG-1 to FIG-25): one thing to look at — a picture, a chart, a
+ * specimen, a live example — on a stage of its own, framed or not, with a caption below that says what it shows, and
+ * optionally a title with the product's controls above and a block joined beneath.
+ *
+ * `<tanrei-figure>` is an element with no shadow root around a native `figure`, which stays in the document: the
+ * figure and its `figcaption` are the document's own — read without script, by a crawler and by a reader mode, and
+ * named by the browser.
+ *
+ *   <tanrei-figure variant="filled" separation="gap">
+ *     <figure>
+ *       <div data-part="frame">
+ *         <header>
+ *           <p data-part="title">Variants</p>
+ *           <div data-part="actions">…the product's controls…</div>
+ *         </header>
+ *         <div data-part="stage">…what is shown…</div>
+ *         <div data-part="attachment">…the product's block…</div>
+ *       </div>
+ *       <figcaption>A filled button and an outlined one.</figcaption>
+ *     </figure>
+ *   </tanrei-figure>
+ *
+ * Every part but the stage is optional. The title is any element with `data-part="title"` (a `p`, or the heading the
+ * page's outline needs); the attachment any element with `data-part="attachment"` (the product's own component may
+ * carry it). A lone `img`, `picture`, `video`, `svg` or `canvas` in place of the stage element is its own stage, and
+ * a stage or such a picture that is a child of the `figure` itself, with no frame around it, is its own frame.
+ *
+ * Attributes of the wrapper: `variant` (outlined | filled | plain), `flush` (the stage is not padded), `separation`
+ * (auto | divider | gap), `label`, and — for a figure the element builds — `headline` and `caption`.
+ *
+ * This stylesheet draws everything, before and without script (an element that is not yet defined is still an
+ * element), so a page of figures does not move when the script arrives. The element
+ * (src/components/figure/figure.ts) adds what a stylesheet cannot and writes it here as attributes:
+ *
+ *   tabindex, role, aria-* (on the stage)   while the stage scrolls sideways it is a named focus stop (FIG-6)
+ *   aria-labelledby, aria-describedby, aria-label (on the figure)   its name and description (FIG-16)
+ *   data-separation (on the figure)   the separation the tokens name, where the browser has no style queries (FIG-12)
+ *   data-empty (on the wrapper)       the stage holds nothing but white space (FIG-25)
+ *
+ * Every value is a `--tanrei-comp-figure-*` token, or the system's focus tokens.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name and has no specificity (`:where()`), so one class of the product's
+ *   wins, and the ORDER of the rules decides between two of them.
+ * - A rule reaches the figure's own parts by child combinators only: a figure inside a stage is the product's.
+ * - The edge of a frame is an outline set inside it: it takes no room, so the three looks place what they hold alike
+ *   (FIG-2), it is drawn over a joined block's own fill (FIG-11), and forced colors keep it (FIG-20).
+ * - The build (scripts/build.js) writes the corner-smoothing rule (src/styles/shape.ts) in place of the
+ *   `figure:shape` mark, so the curve has one source.
+ * - Names that begin `--_figure-` are private.
+ */
+@layer tanrei.components {
+  /* ── The box (FIG-18): a block as wide as its layout, with no outer space, no width and no measure of its own ──── */
+  :where(tanrei-figure) {
+    /* FIG-2: the look's fill and edge (FIG-24: any other variant is the default's). */
+    --_figure-fill: var(--tanrei-comp-figure-outlined-container-color);
+    --_figure-edge: var(--tanrei-comp-figure-outline-width);
+    --_figure-edge-color: var(--tanrei-comp-figure-outline-color);
+    /* FIG-12: the separation this figure draws — its attribute's, else comp.figure.separation's. */
+    --_figure-separation: var(--tanrei-comp-figure-separation);
+    --_figure-line: var(--tanrei-comp-figure-divider-thickness);
+    --_figure-line-color: var(--tanrei-comp-figure-divider-color);
+    /* FIG-13: the attachment's distance from the stage and the frame — none where a line joins it. */
+    --_figure-attachment-gap: 0px;
+    /* FIG-3: the stage's padding, and what the look hands and gives a lone picture. */
+    --_figure-stage-padding-block: var(--tanrei-comp-figure-stage-padding-block);
+    --_figure-stage-padding-inline: var(--tanrei-comp-figure-stage-padding-inline);
+    --_figure-picture-margin: auto;
+    --_figure-content-color: var(--tanrei-comp-figure-content-color);
+    /* FIG-21, FIG-23: start as a side, by the layout direction — not by the title's or the caption's own text. */
+    --_figure-start: left;
+
+    /* No margin is written: an element has none of its own, and the space around a figure is its container's (PRS-15). */
+    display: block;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    /* What a figure's text must not take from where it is used. */
+    text-indent: 0;
+  }
+  :where(tanrei-figure[hidden]),
+  /* FIG-25: a figure that shows nothing draws nothing. */
+  :where(tanrei-figure[data-empty]),
+  :where(tanrei-figure:has(> figure):not(:has(> figure > :is([data-part='frame'], [data-part='stage'], img, picture, video, svg, canvas)))),
+  :where(tanrei-figure:has(> figure > [data-part='frame']):not(:has(> figure > [data-part='frame'] > :is([data-part='stage']:not(:empty), img, picture, video, svg, canvas)))),
+  :where(tanrei-figure:has(> figure > [data-part='stage']:empty)) {
+    display: none;
+  }
+  :where(tanrei-figure):dir(rtl) {
+    --_figure-start: right;
+  }
+  :where(tanrei-figure[variant='filled']) {
+    --_figure-fill: var(--tanrei-comp-figure-filled-container-color);
+    --_figure-edge: 0px;
+  }
+  /* FIG-2, FIG-14: plain — no fill, no edge, no padding and no line: what is shown is its own frame. */
+  :where(tanrei-figure[variant='plain']) {
+    --_figure-fill: var(--tanrei-comp-figure-plain-container-color);
+    --_figure-edge: 0px;
+    --_figure-line: 0px;
+    --_figure-stage-padding-block: 0px;
+    --_figure-stage-padding-inline: 0px;
+    --_figure-picture-margin: 0;
+    /* FIG-3: the plain look hands the content no color. */
+    --_figure-content-color: inherit;
+  }
+  /* FIG-3: `flush` is `inset` false — the content reaches the frame's edges. */
+  :where(tanrei-figure[flush]) {
+    --_figure-stage-padding-block: 0px;
+    --_figure-stage-padding-inline: 0px;
+  }
+  :where(tanrei-figure[separation='divider']) {
+    --_figure-separation: divider;
+  }
+  :where(tanrei-figure[separation='gap']) {
+    --_figure-separation: gap;
+  }
+
+  :where(tanrei-figure) > :where(figure) {
+    display: block;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+
+    /* ── The frame (FIG-1, FIG-2): the shape that holds the header, the stage and the attachment — or, where the
+       figure has no frame element, the stage or the picture itself ───────────────────────────────────────────── */
+    & > :where([data-part='frame'], [data-part='stage'], img, picture, video, svg, canvas) {
+      /* A formatting context of its own: an attachment's space below it stays inside the frame (FIG-13). */
+      display: flow-root;
+      box-sizing: border-box;
+      min-inline-size: 0;
+      margin: 0;
+      background-color: var(--_figure-fill);
+      /* FIG-2: the edge, inside the frame's size and over what it holds. */
+      outline: var(--_figure-edge) solid var(--_figure-edge-color);
+      outline-offset: calc(var(--_figure-edge) * -1);
+      /* FIG-1: what it holds is clipped to its corners. */
+      overflow: clip;
+    }
+
+    /* ── The header (FIG-7 to FIG-9): the title at the start, the product's controls at the end ───────────────── */
+    & > :where([data-part='frame']) > :where(header) {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--tanrei-comp-figure-header-gap);
+      box-sizing: border-box;
+      margin: 0;
+      padding-block: var(--tanrei-comp-figure-header-padding-block);
+      padding-inline: var(--tanrei-comp-figure-header-padding-inline);
+      /* FIG-13: the line between the header and the stage. */
+      border: 0 solid var(--_figure-line-color);
+      border-block-end-width: var(--_figure-line);
+
+      &:where(:has(> [data-part='actions']:not(:empty))) {
+        padding-inline-end: var(--tanrei-comp-figure-header-padding-inline-end-with-actions);
+      }
+      /* FIG-7: a header that holds neither a title nor actions is no header. */
+      &:where(:not(:has(> :is([data-part='title'], [data-part='actions']):not(:empty)))) {
+        display: none;
+      }
+
+      /* FIG-8: the title — it takes the room the actions leave and wraps in it; a heading keeps its role and level. */
+      & > :where([data-part='title']) {
+        flex: 1 1 0%;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font: var(--tanrei-comp-figure-title-typescale-font);
+        letter-spacing: var(--tanrei-comp-figure-title-typescale-letter-spacing);
+        color: var(--tanrei-comp-figure-title-color);
+        /* FIG-21, FIG-23: placed by the layout direction; the text itself is of its own direction. */
+        text-align: var(--_figure-start);
+        unicode-bidi: plaintext;
+        white-space: normal;
+        /* Never cut; a word is not broken while it fits a row of its own — the actions move below it first (FIG-7). */
+        overflow-wrap: break-word;
+      }
+      /* A heading inside a title the element built (the `title` slot) is drawn in the title's style too. */
+      & > :where([data-part='title']) > :where(h1, h2, h3, h4, h5, h6) {
+        margin: 0;
+        font: inherit;
+        letter-spacing: inherit;
+      }
+      /* FIG-9: the actions — one row, in the order given, each centred on the row's height, nothing else done to them. */
+      & > :where([data-part='actions']) {
+        display: flex;
+        flex: 0 1 auto;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--tanrei-comp-figure-header-gap);
+        box-sizing: border-box;
+        min-inline-size: 0;
+        max-inline-size: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      & > :where([data-part='title']:empty, [data-part='actions']:empty) {
+        display: none;
+      }
+      /* Without a title they are still at the end. */
+      & > :where([data-part='actions']:first-child),
+      & > :where([data-part='title']:empty + [data-part='actions']) {
+        margin-inline-start: auto;
+      }
+    }
+
+    /* ── The stage (FIG-3 to FIG-6): where the thing shown stands ─────────────────────────────────────────────── */
+    & > :where([data-part='frame']) > :where([data-part='stage']),
+    & > :where([data-part='stage']) {
+      /* Several pieces of content are stacked in the order given; one narrower than the stage stands at its centre,
+         or at its start edge in the plain look — and at the start edge whatever the look where it is wider (FIG-5). */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      align-items: safe center;
+      justify-content: center;
+      box-sizing: border-box;
+      min-inline-size: 0;
+      margin: 0;
+      padding-block: var(--_figure-stage-padding-block);
+      padding-inline: var(--_figure-stage-padding-inline);
+      /* FIG-3: the content's color, where the look hands one. */
+      color: var(--_figure-content-color);
+      /* FIG-5: content that cannot shrink scrolls sideways inside the stage, never up and down. */
+      overflow-x: auto;
+      overflow-y: hidden;
+      /* FIG-13: the line between the stage and the attachment. */
+      border: 0 solid var(--_figure-line-color);
+
+      /* FIG-6: while it scrolls the stage is a focus stop; the system's ring, inside its edge so that nothing clips it. */
+      &:focus-visible {
+        outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+        outline-offset: calc((var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-outer-width)) * -1);
+      }
+    }
+    & > :where([data-part='frame']) > :where([data-part='stage']:has(~ [data-part='attachment']:not(:empty))) {
+      border-block-end-width: var(--_figure-line);
+    }
+    /* A lone picture in place of the stage element is its own stage: it takes the stage's padding and place. */
+    & > :where([data-part='frame']) > :where(img, picture, video, svg, canvas),
+    & > :where(img, picture, video, svg, canvas) {
+      display: block;
+      box-sizing: border-box;
+      margin-inline: var(--_figure-picture-margin);
+      padding-block: var(--_figure-stage-padding-block);
+      padding-inline: var(--_figure-stage-padding-inline);
+    }
+    /* FIG-4: a picture scales down to the stage's inner width with its proportions kept, and never up. */
+    & > :where([data-part='frame']) > :where(img, video, svg, canvas),
+    & > :where(img, video, svg, canvas),
+    & > :where([data-part='frame']) > :where([data-part='stage'], picture) > :where(img, video, svg, canvas),
+    & > :where([data-part='stage'], picture) > :where(img, video, svg, canvas),
+    & > :where([data-part='frame']) > :where([data-part='stage']) > :where(picture) > :where(img),
+    & > :where([data-part='stage']) > :where(picture) > :where(img) {
+      max-inline-size: 100%;
+      block-size: auto;
+    }
+
+    /* ── The attachment (FIG-11, FIG-13): the product's block under the stage, placed and never styled ────────── */
+    & > :where([data-part='frame']) > :where([data-part='attachment']) {
+      margin: var(--_figure-attachment-gap);
+    }
+    & > :where([data-part='frame']) > :where([data-part='attachment']:empty) {
+      display: none;
+    }
+
+    /* ── The caption (FIG-10): below the frame, at the start edge, wrapping and never cut ──────────────────────── */
+    & > :where(figcaption) {
+      display: block;
+      box-sizing: border-box;
+      margin: 0;
+      margin-block-start: var(--tanrei-comp-figure-caption-gap);
+      padding: 0;
+      font: var(--tanrei-comp-figure-caption-typescale-font);
+      letter-spacing: var(--tanrei-comp-figure-caption-typescale-letter-spacing);
+      color: var(--tanrei-comp-figure-caption-color);
+      text-align: var(--_figure-start);
+      unicode-bidi: plaintext;
+      white-space: normal;
+      overflow-wrap: break-word;
+    }
+    & > :where(figcaption:empty) {
+      display: none;
+    }
+    /* A link in a caption is underlined at rest (PRS-17), also where a reset in an earlier layer took the underline off. */
+    & > :where(figcaption) :where(a:any-link) {
+      text-decoration-line: underline;
+    }
+  }
+
+  /* ── The corners (FIG-1, FIG-2), eased by sys.shape.corner-smoothing. In the plain look the header and the
+     attachment stand outside any shape, and the stage alone has it ──────────────────────────────────────────────── */
+  :where(tanrei-figure:not([variant='plain'])) > :where(figure) > :where([data-part='frame'], [data-part='stage'], img, picture, video, svg, canvas),
+  :where(tanrei-figure[variant='plain']) > :where(figure) > :where([data-part='frame']) > :where([data-part='stage'], img, picture, video, svg, canvas),
+  :where(tanrei-figure[variant='plain']) > :where(figure) > :where([data-part='stage'], img, picture, video, svg, canvas) {
+    /* figure:shape */
+    & {
+      --tanrei-corner-radius: var(--tanrei-comp-figure-container-shape);
+      --tanrei-corner-pill: var(--tanrei-comp-figure-container-shape-pill, 0);
+    }
+  }
+  /* FIG-6: the stage's focus ring follows the frame's corners where the stage meets them. */
+  :where(tanrei-figure:not([variant='plain'])) > :where(figure) > :where([data-part='frame']) > :where([data-part='stage']:first-child) {
+    border-start-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1));
+    border-start-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1));
+  }
+  :where(tanrei-figure:not([variant='plain'])) > :where(figure) > :where([data-part='frame']) > :where([data-part='stage']:last-child) {
+    border-end-start-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1));
+    border-end-end-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale, 1));
+  }
+
+  /* ── Plain (FIG-3): content narrower than the stage stands at its start edge, in line with the text around ─────── */
+  :where(tanrei-figure[variant='plain']) > :where(figure) > :where([data-part='frame']) > :where([data-part='stage']),
+  :where(tanrei-figure[variant='plain']) > :where(figure) > :where([data-part='stage']) {
+    align-items: flex-start;
+  }
+  /* ── Plain (FIG-14): the frame is no shape — its header, stage and attachment are stacked on the page ──────────── */
+  :where(tanrei-figure[variant='plain']) > :where(figure) > :where([data-part='frame']) {
+    overflow: visible;
+
+    /* No inline padding, so the title begins at the figure's start edge; caption.gap between it and the stage. */
+    & > :where(header) {
+      padding: 0;
+      padding-block-end: var(--tanrei-comp-figure-caption-gap);
+    }
+    /* attachment.gap below the stage, across the figure's whole inline size. */
+    & > :where([data-part='attachment']) {
+      margin: 0;
+      margin-block-start: var(--tanrei-comp-figure-attachment-gap);
+    }
+  }
+
+  /* ── Separation: gap (FIG-12, FIG-13) — by a style query, and by the element where the browser has none ────────── */
+  @container style(--_figure-separation: gap) {
+    :where(tanrei-figure:not([variant='plain'])) > :where(figure) {
+      --_figure-line: 0px;
+      --_figure-attachment-gap: var(--tanrei-comp-figure-attachment-gap);
+    }
+  }
+  :where(tanrei-figure:not([variant='plain'])) > :where(figure[data-separation='gap']) {
+    --_figure-line: 0px;
+    --_figure-attachment-gap: var(--tanrei-comp-figure-attachment-gap);
+  }
+
+  /* ── Forced colors (FIG-20): an edge in the text color in the outlined and the filled looks, none in the plain ── */
+  @media (forced-colors: active) {
+    :where(tanrei-figure) {
+      --_figure-edge: var(--tanrei-comp-figure-outline-width);
+      --_figure-edge-color: CanvasText;
+      --_figure-line-color: CanvasText;
+    }
+    :where(tanrei-figure[variant='plain']) {
+      --_figure-edge: 0px;
+    }
+    :where(tanrei-figure) > :where(figure) > :where([data-part='frame']) > :where([data-part='stage']):focus-visible,
+    :where(tanrei-figure) > :where(figure) > :where([data-part='stage']):focus-visible {
+      outline-color: Highlight;
+    }
+  }
+}

@@ -1,0 +1,80 @@
+---
+title: SwiftUI
+description: أضف Tanrei إلى تطبيق iOS أو macOS عبر Swift Package Manager.
+translationOf: getting-started/swiftui.mdx
+sourceHash: 02740f9c5f67946f91b0fceca00e160f25a1ad9d
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+توفّر حزمة Swift المسمّاة `Tanrei` عروض SwiftUI وبيئة للسمة وثوابت رموز (tokens) مولَّدة. تدعم iOS 17 و macOS 14 وما بعدهما، وهي مكتوبة لوضع اللغة Swift 6.
+
+<PreReleaseNotice registry="Swift Package Manager" pkg="Tanrei" />
+
+## التثبيت
+
+### من الشيفرة المصدرية
+
+<Callout type="caution" title="لا تُبنى اليوم">
+  لم تلحق حزمة SwiftUI بعد بالمواصفات والرموز (tokens) الحالية: كُتبت مصادرها على إصدار سابق من شيفرة الرموز المولَّدة، ولا تُترجَم (compile) على شيفرة اليوم. والتكامل المستمر (CI) الخاص بها متوقف إلى أن تلحق، و[صفحة الحالة](/ar/status/) تَسِم مكوّناتها بأنها *متأخرة*. الخطوات أدناه هي طريقة إضافتها إلى تطبيق، وتعمل حين تلحق الحزمة.
+</Callout>
+
+استنسخ المستودع بجانب تطبيقك وأضف النسخة المستنسخة حزمةً محلية: في Xcode اختر **File → Add Package Dependencies… → Add Local…**&lrm; ثم المجلد الذي يحمل `Package.swift`، أو في ملف `Package.swift` الخاص بك:
+
+```swift
+dependencies: [
+  .package(path: "../tanrei")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+والسطر `.package(url: "https://github.com/chnotchy/tanrei", branch: "main")` يتبع المستودع بدلًا من نسخة محلية مستنسخة.
+
+### بعد الإصدار الأول
+
+في Xcode اختر **File → Add Package Dependencies…**&lrm; وأدخل عنوان المستودع، أو أضفه إلى `Package.swift`:
+
+```swift
+dependencies: [
+  .package(url: "https://github.com/chnotchy/tanrei", from: "<version>")
+],
+targets: [
+  .target(name: "App", dependencies: [.product(name: "Tanrei", package: "tanrei")])
+]
+```
+
+يقع بيان الحزمة في جذر المستودع لأن Swift Package Manager يحلّ اعتماديات Git من هناك. وستُوسَم إصدارات Swift بأرقام إصدارات دلالية مجرّدة.
+
+## الاستخدام
+
+```swift
+import SwiftUI
+import Tanrei
+
+struct DeployView: View {
+  @State private var isDeploying = false
+
+  var body: some View {
+    TanreiButton("نشر", variant: .filled, action: { isDeploying = true })
+      .disabled(isDeploying)
+  }
+}
+```
+
+المعامل `action:` هو الحدث `click` في المواصفة؛ والإغلاق اللاحق (trailing closure) هو المنفذ `icon:` (`TanreiButton("نشر", action: deploy) { Image(systemName: "arrow.up") }`). لا يوجد معامل باسم `disabled`. يتبع Tanrei بيئة `.disabled(_:)` الخاصة بـ SwiftUI، فتعطيل حاوية يعطّل الأزرار التي بداخلها، كما يحدث مع عناصر تحكم النظام.
+
+## السمة والتباين
+
+يتبع Tanrei افتراضيًّا المخطط اللوني للنظام وإعداد إمكانية الوصول **Increase Contrast**. ويمكنك تجاوز أيٍّ منهما بمعدِّل السمة:
+
+```swift
+ContentView()
+  .tanreiTheme(TanreiTheme(appearance: .dark, contrast: .high))
+```
+
+## الخطوط
+
+يستخدم السلّم الطباعي الخط Inter (و Noto Sans JP لليابانية، و Roboto Mono للشيفرة) إذا كانت الخطوط مسجَّلة في تطبيقك، وإلا عاد إلى خط النظام. تُسمّى أنماط النص بحسب المستوى، وهي موجودة على النظام في البيئة (`@Environment(\.tanreiSystem) private var system`): `.tanreiTextStyle(system.typescale.heading2)` لعنوان قسم، و `system.typescale.body` للنص المتصل، و `system.typescale.label` لعنصر تحكم. وهي تتغير حجمًا مع Dynamic Type؛ أما `.tanreiTextStyle(system.typescale.heading1, emphasized: true)` فيضيف إلى الوزن درجة التوكيد الخاصة بفئة العناوين. وتتبع الزوايا القيمة `system.shape.cornerSmoothing`: الزاوية `.circular` عند 0، وزاوية `.continuous` التي يوفّرها نظام التشغيل لأي مقدار أكبر من 0.

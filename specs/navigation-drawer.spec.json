@@ -1,0 +1,3784 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "navigation-drawer",
+  "title": "Navigation drawer",
+  "summary": "Lists a product's destinations in a panel at the start edge, grouped under headings and in groups that open and close, beside the content or over it, and narrows to a column of icons where the content needs the width, on request or by the window's width. Its destinations are buttons, or links to the product's pages: it is then a site's sidebar, which marks the page being shown.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "badge",
+    "divider",
+    "tooltip",
+    "button",
+    "main-action-button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The panel at the start edge, the full height of its parent: expanded, the full drawer; collapsed, the icon column. Standard: part of the layout. Modal: above the content, its end corners rounded. Its color reaches under the system insets at its start, top and bottom."
+    },
+    {
+      "id": "outline",
+      "description": "The end edge of a standard drawer, and of a collapsible modal drawer's column, which sets it apart from the content beside it."
+    },
+    {
+      "id": "scrim",
+      "description": "Dims everything behind a modal drawer; a press on it closes the drawer.",
+      "optional": true
+    },
+    {
+      "id": "header",
+      "description": "The top of the drawer, which stays in place while the items scroll: the header buttons (a menu button first) stacked in the icon column, the header slot's content beside the first of them while expanded, and the main action below them.",
+      "optional": true
+    },
+    {
+      "id": "header-button",
+      "description": "An icon-only Button in the header (an item of the header-button kind), on the icon column. While the drawer is collapsible, the first one is its menu button: it widens and narrows the drawer, and carries its expanded state. It stays the Button it is in both forms, with the Button's own size and shape (a circle in the default system).",
+      "optional": true
+    },
+    {
+      "id": "main-action",
+      "description": "The screen's main action (an item of the main-action kind), below the header buttons: its icon alone while the drawer is collapsed, its icon and label while expanded, its glyph in the same place in both.",
+      "optional": true
+    },
+    {
+      "id": "section",
+      "description": "A group of items (an item of the section kind) under an optional heading: its divider, its heading and its items, in that order. Not interactive, and never collapsed away.",
+      "optional": true
+    },
+    {
+      "id": "heading",
+      "description": "A section's heading: text that names the items under it. Not interactive. Collapsed, its row keeps its height and its text is not drawn.",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "A divider component the drawer draws before a section whose divider is true, across the drawer's inner width in either form.",
+      "optional": true
+    },
+    {
+      "id": "group",
+      "description": "An expandable group of destinations (an item of the group kind): a row that opens and closes, and the destinations and groups it holds, whose rows start further in than its own while it is open. Collapsed, one cell.",
+      "optional": true
+    },
+    {
+      "id": "group.chevron",
+      "description": "The icon set's expand_more at the end of a group's row, turned half a turn while the group is open. Hidden from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "item",
+      "description": "One destination (an item of the destination kind), or a group's row: a cell across the drawer's width, which is its hit area and has the same height and place in both forms. A destination is a button, or a link while it has an href; the two are drawn alike."
+    },
+    {
+      "id": "item.container",
+      "description": "The destination's box: a row with the corners of a menu's item, never a capsule in the default system. Expanded, the row across the drawer's inner width, a nested one starting further in; collapsed, the same row with its label gone: the box around its icon, as tall as before and with the same corners. It carries hover, focus and press, and is filled as the active indicator while the destination is selected; the fill changes in place and never grows in width."
+    },
+    {
+      "id": "item.icon-indicator",
+      "description": "The box behind the icon alone, the icon centered in it. The default system leaves it transparent; a system that marks a collapsed destination behind its glyph only (Material's) fills it there and leaves the collapsed item container clear."
+    },
+    {
+      "id": "item.icon",
+      "description": "The destination's glyph (its icon), centered on the icon column in both forms. Outlined when unselected, filled when selected.",
+      "optional": true
+    },
+    {
+      "id": "item.label",
+      "description": "The destination's name: beside the icon while expanded (its label, wrapping). Collapsed, no label is drawn unless collapsedLabels asks for the short label under the icon, on one line. Its label is always its accessible name."
+    },
+    {
+      "id": "item.trailing",
+      "description": "The end of an expanded row: the trailing slot's content (a badge, a glyph such as open_in_new) or else the destination's trailing text (\"24\", \"New\"), quieter than the label. Not interactive; part of the destination's description.",
+      "optional": true
+    },
+    {
+      "id": "item.badge",
+      "description": "A Tanrei badge anchored to the icon in both forms, drawn from the destination's badge, badgeCount and badgeLabel: a dot or a count (the badge component).",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator around the item container, shown for keyboard focus."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "standard",
+        "modal"
+      ],
+      "default": "standard",
+      "description": "Standard sits beside the content and takes its width in the layout; modal lays itself over the content with a scrim and holds focus until it closes. One product uses both: standard where the window is wide enough, modal where it is not. A design system may add values. Ignored while responsive is true, when the window's width chooses.",
+      "axis": "tanrei.comp.navigation-drawer.variant"
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the drawer is shown: for a standard drawer, whether it takes its place in the layout (in the form collapsible and expanded choose); for a modal one, whether it is presented over the content (while collapsible, its collapsed column stays in the layout when it is not). While responsive is true it only says whether the drawer is shown over the content in the presentations that are modal, and every change of presentation sets it back to false."
+    },
+    {
+      "name": "collapsible",
+      "type": "boolean",
+      "default": false,
+      "description": "Gives the drawer a collapsed form, the icon column. A standard drawer then shows the form expanded chooses; a modal one shows its column in the layout while closed and widens over the content while open. While false the drawer is always expanded and lays its rows out for that form alone."
+    },
+    {
+      "name": "expanded",
+      "type": "boolean",
+      "default": true,
+      "description": "The form of a collapsible standard drawer: true for the full drawer, false for the icon column. Ignored while collapsible is false, and by a modal drawer, whose form follows open. It is the user's choice: a change of the window's width never writes it, so a responsive drawer returns to it when the window is wide again."
+    },
+    {
+      "name": "collapsedLabels",
+      "type": "enum",
+      "values": [
+        "always",
+        "selected",
+        "never"
+      ],
+      "default": "never",
+      "description": "Which cells draw their short label under the icon while the drawer is collapsed: none of them (the default: a collapsed drawer is the expanded one with its labels gone), only the selected one's, or all of them, for a product or a design system whose collapsed column is labelled. A label that is not drawn is still the destination's accessible name."
+    },
+    {
+      "name": "responsive",
+      "type": "boolean",
+      "default": false,
+      "description": "Lets the window's width choose the drawer's presentation (NVD-53): beside the content where the window is wide, its collapsed column beside the content where it is narrower (while collapsible), and over the content alone where it is narrow. While true the drawer ignores variant, shows itself in a wide window whatever open says, and closes whenever the width changes its presentation."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The value of the selected destination (selection is the drawer's, by a destination's value), wherever it stands, in a section, in a group or neither. Empty selects none. The selected destination is the place the product is showing, and it is exposed as the current page: in a product whose pages are separate documents nothing is selected by a press, and each page sets value to the destination that is that page (a link's href stands as its value while it has none, NVD-59)."
+    },
+    {
+      "name": "revealSelected",
+      "type": "boolean",
+      "default": false,
+      "description": "Opens the groups that hold the selected destination when the drawer first appears and whenever value changes, so that the place the product is showing is drawn and not only the closed group that holds it (NVD-58). A site's sidebar sets it; while false a closed group stays closed and its row shows the selection (NVD-47). The user may still close such a group afterwards."
+    },
+    {
+      "name": "scrollOffset",
+      "type": "number",
+      "default": 0,
+      "description": "How far the drawer's items are scrolled from their start, in the units of the layout. The product may set it, before the drawer first appears included, and the drawer scrolls there at once; reading it gives the present distance. It is the handle by which a product keeps a long drawer where the user left it from one page to the next (NVD-61, NVD-62); the drawer stores nothing itself."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the drawer for assistive technology (\"Mail\"): the navigation landmark on the web, and the modal drawer as a whole on every platform."
+    }
+  ],
+  "items": [
+    {
+      "name": "destination",
+      "summary": "One destination of the drawer: an icon, a label, optional trailing content at the end of its row and an optional badge on its icon. Collapsed, its icon alone. With an href it is a link to that address and not a button.",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What identifies the destination. The drawer's value selects the destination whose value equals it; change and reselect carry it. Unique within the drawer. Empty on a link, its href stands as its value."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The address the destination leads to. Not empty, the destination is a link and not a button (NVD-59): it is followed as the platform follows a link, and the drawer does not select it by itself (NVD-60). Empty, the destination is a button and the product moves on change. As the Button's href (a control with a destination is a link)."
+        },
+        {
+          "name": "target",
+          "type": "enum",
+          "values": [
+            "same",
+            "new"
+          ],
+          "default": "same",
+          "description": "Where a link opens, as the Button's target. same: where the person is. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which the expanded row marks with the glyph open_in_new at its end unless the product put trailing content there, and says through targetLabel (NVD-63). A link that opens elsewhere is never selected by a press (NVD-60). Ignored without href."
+        },
+        {
+          "name": "targetLabel",
+          "type": "string",
+          "default": "",
+          "description": "What assistive technology reads after the link's name while target is new (\"opens in a new tab\"), as the Button's targetLabel: Tanrei ships no words of its own. Required while target is new; ignored otherwise.",
+          "words": "targetLabel"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its name, drawn beside the icon while the drawer is expanded and always its accessible name. Required."
+        },
+        {
+          "name": "shortLabel",
+          "type": "string",
+          "default": "",
+          "description": "What the collapsed drawer draws under the icon, on one line (\"Files\" for \"My files\"), where collapsedLabels asks for labels. Empty draws the label, truncated if it does not fit. It should be a part of the label, which stays the accessible name."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of its glyph in the system's icon set, drawn in the destination's own icon style: outlined while unselected, filled while selected. Empty draws no icon; give every destination of a drawer an icon, or none, and every top-level one an icon in a collapsible drawer."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Makes it unavailable. It keeps its place, draws its disabled look, cannot be activated and leaves the focus order."
+        },
+        {
+          "name": "trailingText",
+          "type": "string",
+          "default": "",
+          "description": "Short text at the end of the expanded row, a count or a word (\"24\", \"New\"), quieter than the label. Empty draws none; the trailing slot's content, when there is any, is drawn instead."
+        },
+        {
+          "name": "badge",
+          "type": "boolean",
+          "default": false,
+          "description": "Draws a Tanrei badge (the badge component) on the icon, in both forms, from badgeCount and badgeLabel."
+        },
+        {
+          "name": "badgeCount",
+          "type": "number",
+          "default": null,
+          "description": "The badge's count, as the badge component's count: null draws the dot, 0 draws nothing, above 0 the number (above 999 as 999+). Ignored while badge is false."
+        },
+        {
+          "name": "badgeLabel",
+          "type": "string",
+          "default": "",
+          "description": "The badge's label, as the badge component's: what assistive technology reads after the destination's name and state (\"3 unread\"). A dot needs one. Ignored while badge is false."
+        }
+      ],
+      "slots": [
+        {
+          "name": "trailing",
+          "description": "Content at the end of the expanded row, in place of trailingText: a badge, a glyph (open_in_new for a destination that opens elsewhere), a short text. Not interactive. A fixture item's content is a glyph drawn here."
+        }
+      ]
+    },
+    {
+      "name": "group",
+      "summary": "A group of destinations under a row that opens and closes it: an icon, a label and a chevron. It holds destinations and groups, not sections, and their rows start further in than its own.",
+      "container": true,
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its name, drawn in its row and used as the accessible name of its row and of the list of its items. Required."
+        },
+        {
+          "name": "shortLabel",
+          "type": "string",
+          "default": "",
+          "description": "What the collapsed drawer draws under its icon where collapsedLabels asks for labels; empty draws the label, as a destination's."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of its glyph in the system's icon set, drawn as a destination's icon."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Makes its row unavailable: it keeps its place and its open state, draws its disabled look, cannot be toggled and leaves the focus order. Its items keep their own disabled."
+        },
+        {
+          "name": "open",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether its items are shown under its row while the drawer is expanded."
+        }
+      ],
+      "events": [
+        {
+          "name": "toggle",
+          "description": "The user opened or closed the group from its row, or from its cell in the collapsed drawer, or the drawer opened it to show the selected destination (NVD-58); carries its new open state."
+        }
+      ]
+    },
+    {
+      "name": "section",
+      "summary": "A group of destinations and groups under an optional heading, with an optional divider before it. It is not interactive and does not nest.",
+      "container": true,
+      "props": [
+        {
+          "name": "heading",
+          "type": "string",
+          "default": "",
+          "description": "The text that names the items under it, exposed as a heading. Empty draws no heading row."
+        },
+        {
+          "name": "divider",
+          "type": "boolean",
+          "default": false,
+          "description": "Draws a divider (the divider component) before the section, to set it apart from what is above it."
+        }
+      ]
+    },
+    {
+      "name": "header-button",
+      "summary": "An icon-only Button in the header, on the icon column (a menu button): a Button of the text variant and the medium size with an icon and no label, unless the product sets otherwise, which the drawer lays out and does not restyle, resize or reshape in either form. While the drawer is collapsible the first one is its menu button.",
+      "component": "button",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its accessible name, as the Button's label. Required."
+        }
+      ],
+      "slots": [
+        {
+          "name": "icon",
+          "description": "Its glyph, as the Button's icon slot. A fixture item's content is this glyph."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The button was activated, as the Button's click."
+        }
+      ]
+    },
+    {
+      "name": "main-action",
+      "summary": "The screen's main action, below the header buttons: the Main Action Button component, whose extended the drawer sets from its own form (collapsed to its icon while the drawer is collapsed). The drawer lays it out and does not restyle it.",
+      "component": "main-action-button",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its label, drawn while the drawer is expanded and always its accessible name, as the Main Action Button's. Required."
+        }
+      ],
+      "slots": [
+        {
+          "name": "icon",
+          "description": "Its glyph, as the Main Action Button's icon slot. A fixture item's content is this glyph."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The button was activated, as the Main Action Button's click."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "header",
+      "description": "Content the product puts in the header beside the first header button (a title, an account switcher); the drawer does not restyle it. Drawn only while the drawer is expanded; collapsed, its row keeps its height.",
+      "fixture": "text"
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The user activated a destination that is not the selected one; carries its value and, for a link, its href. For a link it comes before the link is followed, only for an activation that follows it in place (NVD-60), and a product that cancels it follows the link itself."
+    },
+    {
+      "name": "reselect",
+      "description": "The user activated the destination that is already selected; carries its value and, for a link, its href, as change does."
+    },
+    {
+      "name": "close",
+      "description": "A modal drawer closed, or asks its controlled owner to close it: by the scrim, Escape, the platform's back action, a drag toward its edge, its menu button, or after a destination was activated."
+    },
+    {
+      "name": "expandedChange",
+      "description": "The user asked a collapsible drawer for its other form, with its menu button or a group's cell in the collapsed drawer; carries true to expand and false to collapse. For a collapsible modal drawer, true asks it to open."
+    },
+    {
+      "name": "presentationChange",
+      "description": "A responsive drawer decided its presentation for the first time, or the window's width changed it; carries standard (beside the content), column (its collapsed column beside the content, widening over it) or modal (over the content alone). A product shows its own menu button while the presentation is modal."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected"
+  ],
+  "behavior": [
+    {
+      "id": "NVD-1",
+      "text": "WHEN the user activates a destination by pointer, touch, Enter or Space (Enter only for a destination that is a link, and for a link only an activation that NVD-60 counts) THE navigation drawer SHALL emit change exactly once with the destination's value WHILE it is not the selected destination, and reselect exactly once with its value WHILE it is."
+    },
+    {
+      "id": "NVD-2",
+      "text": "WHILE a destination's disabled is true THE navigation drawer SHALL NOT emit change or reselect for it, SHALL NOT make it focusable and SHALL expose it as disabled to assistive technology."
+    },
+    {
+      "id": "NVD-3",
+      "text": "THE navigation drawer SHALL draw the destination whose value equals the drawer's value, in a section, in a group or neither, from the selected parts and every other destination from the unselected parts: WHILE the drawer is expanded, from selected (comp.navigation-drawer.selected.item.container.color, comp.navigation-drawer.selected.item.icon-indicator.color, comp.navigation-drawer.selected.item.icon.color, comp.navigation-drawer.selected.item.label.color, comp.navigation-drawer.selected.item.trailing-text.color, comp.navigation-drawer.selected.item.trailing-icon.color) and unselected; WHILE it is collapsed, from collapsed-selected (comp.navigation-drawer.collapsed-selected.item.container.color, comp.navigation-drawer.collapsed-selected.item.icon-indicator.color, comp.navigation-drawer.collapsed-selected.item.icon.color, comp.navigation-drawer.collapsed-selected.item.label.color) and collapsed-unselected. IF no destination's value equals a value that is not empty THE navigation drawer SHALL draw every destination unselected, and in debug builds report the value."
+    },
+    {
+      "id": "NVD-4",
+      "text": "WHILE a destination or a group's row is hovered, keyboard-focused or pressed THE navigation drawer SHALL render its item container, icon indicator, icon, label, trailing content and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "NVD-5",
+      "text": "WHEN a destination or a group's row receives keyboard focus THE navigation drawer SHALL show the focus ring around its item container without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "NVD-6",
+      "text": "THE navigation drawer SHALL make each cell (a destination's or a group's row) its hit area, across the drawer's full width inside its insets, however far its item container is indented (NVD-13), and the cell's height with half of comp.navigation-drawer.container.gap above and below it, in both forms, and SHALL NOT let it fall below sys.target.pointer high for a fine pointer or sys.target.touch for touch; a system whose geometry gives less SHALL still extend the hit area without changing the drawn cell. Hover and press over any part of the hit area SHALL answer on the item container."
+    },
+    {
+      "id": "NVD-7",
+      "text": "WHILE a destination's or a group's disabled is true THE navigation drawer SHALL render its item container, icon indicator, icon, label, trailing content and opacity from the disabled component tokens of its condition."
+    },
+    {
+      "id": "NVD-8",
+      "text": "WHEN a destination or a group's row is pressed by pointer, touch, Enter or Space THE navigation drawer SHALL show its pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "NVD-9",
+      "text": "WHILE a destination or a group's row is pressed THE navigation drawer SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole item container at once; ripple grows the pressed state layer, clipped to the item container, from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole destination and draws no state layer; none draws no answer to the press. Under ripple and dim only the item container color stays with the state under the press; icon indicator, icon, label, trailing content and opacity still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.navigation-drawer.motion.feedback-duration with comp.navigation-drawer.motion.state-easing, fades over comp.navigation-drawer.motion.state-duration with comp.navigation-drawer.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "NVD-10",
+      "text": "THE navigation drawer SHALL ease its item container and icon indicator corners and a modal drawer's end corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "NVD-11",
+      "text": "THE navigation drawer SHALL be comp.navigation-drawer.container.width wide while expanded and comp.navigation-drawer.collapsed.container.width wide while collapsed, beside the start inset, and the full height of its parent, filled with its variant's container color (comp.navigation-drawer.container.color.standard or comp.navigation-drawer.container.color.modal), raised by its variant's elevation (comp.navigation-drawer.container.elevation.standard, comp.navigation-drawer.container.elevation.modal), with its end corners rounded by its variant's shape (comp.navigation-drawer.container.shape.standard, comp.navigation-drawer.container.shape.modal) and square start corners, and edged at its end by comp.navigation-drawer.outline.width of its variant's outline color (comp.navigation-drawer.outline.color.standard, comp.navigation-drawer.outline.color.modal); right-to-left layouts SHALL put it at the right edge, mirrored."
+    },
+    {
+      "id": "NVD-12",
+      "text": "THE navigation drawer SHALL lay out, comp.navigation-drawer.container.padding-inline from its start and end and comp.navigation-drawer.container.padding-block from its top and bottom (measured to the first and last cell, not to their hit areas), its header (NVD-38) and then, comp.navigation-drawer.header.gap below it (at the padding WHILE the header is empty), its items in reading order: destinations, groups and sections, a section laying out its divider, its heading and its items in that order, and an open group its row and then its items; it SHALL put comp.navigation-drawer.container.gap between two cells, and WHILE the items are taller than the space below the header it SHALL scroll them and keep the header in place, in both forms."
+    },
+    {
+      "id": "NVD-13",
+      "text": "WHILE the drawer is expanded THE navigation drawer SHALL draw each destination as an item container that starts comp.navigation-drawer.container.padding-inline inside the drawer's start edge, and comp.navigation-drawer.item.nest-indent further for each level of nesting (NVD-44), and ends comp.navigation-drawer.container.padding-inline inside the drawer's end edge, so that the fill, the state layer and the focus indicator of a nested destination start further in and not its content alone; comp.navigation-drawer.item.container.height high unless its label's lines need more, with corners comp.navigation-drawer.item.container.shape, holding in reading order: its icon, centered on the icon column's center line (half of comp.navigation-drawer.collapsed.container.width from the drawer's start edge, and comp.navigation-drawer.item.nest-indent further per level of nesting) and on the cell's icon line (NVD-31), with its icon indicator centered behind it and taking no space; its label in comp.navigation-drawer.item.label.typescale, comp.navigation-drawer.item.gap after the icon (or comp.navigation-drawer.item.padding-inline from the item container's start WHILE its icon is empty), wrapping rather than truncating; and its trailing content (NVD-43) at the end, comp.navigation-drawer.item.gap after the label and comp.navigation-drawer.item.padding-inline from the item container's end. Right-to-left layouts SHALL mirror it.",
+      "verify": "Under the default system a row is 48 high and the icon column's center line is 36 from the drawer's start edge, so a top-level icon has 12 on its start side inside its item container, as it has above and below it. In `groups-nested` a destination one level deep has its item container start 48 from the drawer's start edge and its label 60, under its group's label; two levels deep they are 84 and 96. In `nested-icons` a nested destination's icon is centered 72 from the start edge. A hovered nested destination shows a state layer that starts where its item container does, not at the drawer's padding."
+    },
+    {
+      "id": "NVD-14",
+      "text": "THE navigation drawer SHALL draw each icon at comp.navigation-drawer.item.icon.size with the family and fill of its condition (selected for the selected destination, unselected for every other), sys.icon.weight, and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max."
+    },
+    {
+      "id": "NVD-15",
+      "text": "WHILE a destination has trailing content (its trailingText, or its trailing slot's content) THE navigation drawer SHALL expose it as part of the destination's description, after its name, its state and its badge's description, and not as an element of its own, and SHALL keep drawing it WHILE the destination is disabled."
+    },
+    {
+      "id": "NVD-16",
+      "text": "WHILE a section's heading is not empty THE navigation drawer SHALL draw it in comp.navigation-drawer.heading.typescale and comp.navigation-drawer.heading.color, in a row at least comp.navigation-drawer.heading.height high with the text vertically centered and starting where the destinations' labels start WHILE they have no icon (comp.navigation-drawer.item.padding-inline inside the drawer's inner edge), and SHALL expose it as a heading that is not focusable; WHILE the drawer is collapsed it SHALL keep the row at its height, draw no text in it and hide it from assistive technology; WHILE the heading is empty the section SHALL draw no heading row."
+    },
+    {
+      "id": "NVD-17",
+      "text": "WHILE a section's divider is true THE navigation drawer SHALL draw a divider component before the section, across the drawer's inner width in either form, and leave it as the divider component draws it; IF a section holds a section, or a group holds a section, THE navigation drawer SHALL render the inner section's items in its place, and in debug builds report that sections do not nest and do not go inside a group."
+    },
+    {
+      "id": "NVD-18",
+      "text": "WHILE variant is standard THE navigation drawer SHALL take its width in the layout, in its current form (NVD-30), WHILE open is true and no width and no presence to assistive technology or focus WHILE open is false; WHEN open changes it SHALL slide in or out while the content beside it resizes, over comp.navigation-drawer.motion.enter-duration with comp.navigation-drawer.motion.enter-easing when opening and comp.navigation-drawer.motion.exit-duration with comp.navigation-drawer.motion.exit-easing when closing, and at once where motion is reduced. A standard drawer SHALL draw no scrim, SHALL NOT keep focus inside it and SHALL NOT emit close."
+    },
+    {
+      "id": "NVD-19",
+      "text": "WHEN open becomes true WHILE variant is modal THE navigation drawer SHALL, WHILE collapsible is false, slide in from its start edge over the content and fade in comp.navigation-drawer.scrim.color over the rest of the window, over comp.navigation-drawer.motion.enter-duration with comp.navigation-drawer.motion.enter-easing (at once where motion is reduced), and WHILE collapsible is true widen from its column as NVD-40 says; in both cases it SHALL move focus to the selected destination (or the group row that shows it, NVD-47) or else to its first focusable element, SHALL keep focus inside the drawer while it is open, and SHALL make everything behind it inert to pointer, touch, keyboard and assistive technology."
+    },
+    {
+      "id": "NVD-20",
+      "text": "WHEN the user presses the scrim, presses Escape, uses the platform's back action, activates the menu button (NVD-37), or drags the drawer toward its start edge past half its width or flings it that way, WHILE variant is modal and open is true, THE navigation drawer SHALL close and emit close exactly once; on the web it SHALL set open to false itself, as a dialog does, and a controlled platform SHALL leave open to the caller, who sets it from close. A fling is a release faster than the platform's minimum fling velocity (Android's ViewConfiguration.getScaledMinimumFlingVelocity, Flutter's kMinFlingVelocity) or, where the platform names none (the web, SwiftUI, React Native), 0.5 points per millisecond, and the drawer follows a drag only beyond the platform's touch slop (Android's ViewConfiguration.getScaledTouchSlop, Flutter's kTouchSlop) or, where the platform names none, 8 points, as BSH-9 says for the bottom sheet."
+    },
+    {
+      "id": "NVD-21",
+      "text": "WHEN the user activates a destination WHILE variant is modal THE navigation drawer SHALL emit change or reselect as NVD-1 says, and then close and emit close as NVD-20 says; an activation of a link that NVD-60 does not count, which opens the link somewhere else, SHALL leave the drawer open."
+    },
+    {
+      "id": "NVD-22",
+      "text": "WHEN a modal drawer closes THE navigation drawer SHALL, WHILE collapsible is false, slide out and fade its scrim out over comp.navigation-drawer.motion.exit-duration with comp.navigation-drawer.motion.exit-easing, and WHILE collapsible is true narrow back to its column as NVD-40 says (at once where motion is reduced), and SHALL return focus to the element that had it when the drawer opened, or, WHERE that element is gone, to where the platform puts focus by default."
+    },
+    {
+      "id": "NVD-23",
+      "text": "THE navigation drawer SHALL expose each destination as one element named by its label in both forms, with its selected state and its position among the items of its level, and its icon hidden: a link WHILE its href is not empty (NVD-59) and a button otherwise. On the web it is an anchor or a button inside a navigation landmark named by the drawer's label, the selected destination carrying aria-current=\"page\"; on Apple platforms, Android, Flutter and React Native a button, or a link, with the selected state. The selected destination is the place the product is showing, in a product of one screen and in a site of many pages alike: THE navigation drawer SHALL have no second state and no second mark for a current page, and SHALL expose exactly one destination, or none, as current. It SHALL expose groups as NVD-46 says. WHILE variant is modal and open is true THE navigation drawer SHALL also be a modal dialog named by the drawer's label (the web's dialog element; the modal trait or pane title elsewhere)."
+    },
+    {
+      "id": "NVD-24",
+      "text": "WHILE a destination's label is empty THE navigation drawer SHALL still render it, and in debug builds report that it has no accessible name; WHILE the drawer's label is empty and variant is modal it SHALL report that the dialog has no name."
+    },
+    {
+      "id": "NVD-25",
+      "text": "THE navigation drawer SHALL extend its container under the system insets at its start, top and bottom and SHALL place its header, destinations and sections inside them."
+    },
+    {
+      "id": "NVD-26",
+      "text": "WHEN variant names a value that the active design system does not have THE navigation drawer SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "NVD-27",
+      "text": "WHILE the text size is enlarged THE navigation drawer SHALL keep both its widths, grow each cell and section heading with its text in both forms alike (their heights are minimums, NVD-31), keep short labels on one line and truncate them, and SHALL NOT scale its icons, icon indicators or trailing glyphs; WHERE the platform offers a large-content viewer for bar items (iOS) a long press on a collapsed destination SHALL show its icon and label enlarged."
+    },
+    {
+      "id": "NVD-28",
+      "text": "WHEN open changes from false to true WHILE variant is standard THE navigation drawer SHALL move focus to the selected destination or else to its first focusable element, and WHEN open then changes to false while focus is inside it SHALL return focus to the element that had it when the drawer opened, or, WHERE that element is gone, to where the platform puts focus by default; Tab and Shift+Tab SHALL move focus out of an open standard drawer without closing it (a standard drawer is a layout region, not an overlay)."
+    },
+    {
+      "id": "NVD-29",
+      "text": "IF two destinations have the same value THE navigation drawer SHALL treat the first of them in reading order as the one the drawer's value selects, and in debug builds report the repeated value."
+    },
+    {
+      "id": "NVD-30",
+      "text": "WHILE collapsible is false THE navigation drawer SHALL be expanded and ignore expanded; WHILE collapsible is true and variant is standard it SHALL be expanded WHILE expanded is true and collapsed WHILE expanded is false; WHILE collapsible is true and variant is modal it SHALL be collapsed, in the layout, WHILE open is false, and expanded over the content WHILE open is true (NVD-40), ignoring expanded."
+    },
+    {
+      "id": "NVD-31",
+      "text": "WHILE collapsible is true THE navigation drawer SHALL give every cell the same height and the same place in both forms, so that each icon, each header button and the main action's glyph is drawn at exactly the same point expanded, collapsed and while moving between them: a cell's icon line SHALL lie below its top by the larger of half the expanded row's height (NVD-13) and comp.navigation-drawer.collapsed.item.container.padding-block plus half of comp.navigation-drawer.item.icon-indicator.height, and the cell SHALL reach below that line by the larger of half the expanded row's height and half of comp.navigation-drawer.item.icon-indicator.height plus, WHILE collapsedLabels is not never, comp.navigation-drawer.collapsed.item.gap and one line of comp.navigation-drawer.collapsed.item.label.typescale, plus comp.navigation-drawer.collapsed.item.container.padding-block; both forms SHALL center the icon on that line. A section heading's row, and the header slot's row, SHALL keep their heights in both forms. The one exception is an open group, whose items the collapsed drawer does not draw (NVD-47): the cells after it move up while the drawer collapses and back while it expands. WHILE collapsible is false a cell SHALL be the expanded row alone.",
+      "verify": "Under the default system, with collapsedLabels never, a cell is 48 high in both forms and its icon line is 24 below its top: `collapsed` and `collapsible-expanded` draw every icon, the menu button and the main action's glyph at the same points. With collapsedLabels always a cell grows to hold the short label in both forms alike (`collapsed-labels-always`)."
+    },
+    {
+      "id": "NVD-32",
+      "text": "WHILE the drawer is collapsed THE navigation drawer SHALL draw only the cells that are not inside a group (top-level destinations and groups, in a section or not), each as an item container comp.navigation-drawer.collapsed.item.container.width wide, centered in the icon column, with corners comp.navigation-drawer.collapsed.item.container.shape, each at most half its height, holding, comp.navigation-drawer.collapsed.item.container.padding-block below its top, the icon indicator, comp.navigation-drawer.item.icon-indicator.width wide and comp.navigation-drawer.item.icon-indicator.height high with corners comp.navigation-drawer.item.icon-indicator.shape, its icon centered in it on the cell's icon line; and WHILE its short label is drawn (NVD-33), comp.navigation-drawer.collapsed.item.gap below the icon indicator, the short label centered on one line in comp.navigation-drawer.collapsed.item.label.typescale, truncated at its end with an ellipsis inside comp.navigation-drawer.collapsed.item.container.padding-inline, and comp.navigation-drawer.collapsed.item.container.padding-block below it. It SHALL draw no trailing content. Every part is laid out in every system; a transparent color hides a part without changing the layout.",
+      "verify": "Under the default system, in `collapsed`: every cell's item container is 48 by 48 with the expanded row's corners (comp.navigation-drawer.item.container.shape), its icon at the point it has in `collapsible-expanded`, and no label is drawn; the selected one is filled exactly as the expanded row is, and none is a capsule. Under `m3-like`, in `collapsed-labels-always`, the cell is Material's: a 56 by 32 indicator behind the glyph and the short label under it."
+    },
+    {
+      "id": "NVD-33",
+      "text": "WHILE the drawer is collapsed and collapsedLabels is never THE navigation drawer SHALL draw no short label, so that a collapsed cell is its expanded row with the label and trailing content gone; WHILE it is selected it SHALL draw only the short label of the cell drawn selected (the selected destination, or the group that shows it, NVD-47); WHILE it is always it SHALL draw every cell's short label. Every destination's label SHALL remain its accessible name."
+    },
+    {
+      "id": "NVD-34",
+      "text": "THE navigation drawer SHALL draw a collapsed cell's shortLabel, or its label WHILE shortLabel is empty, and SHALL keep its label as its accessible name in both forms; IF shortLabel is not empty and is not a part of label (ignoring case) THE navigation drawer SHALL still draw it, and in debug builds report that the visible name is not part of the accessible name."
+    },
+    {
+      "id": "NVD-35",
+      "text": "WHEN the drawer changes form (NVD-30) THE navigation drawer SHALL, over comp.navigation-drawer.motion.expand-duration with comp.navigation-drawer.motion.expand-easing: move its end edge between comp.navigation-drawer.collapsed.container.width and comp.navigation-drawer.container.width, a standard drawer's content beside it resizing with it; keep every icon, header button and the main action's glyph in place (NVD-31); change each item container between its two sizes and corners as one shape around the same icon line (WHERE the two forms give it the same height and corners, as the default system does, its end edge alone moves), and cross-fade its color and those of its icon indicator, icon and label from one form's condition to the other's; clip the expanded labels, trailing content, headings' text and the header slot at the moving edge and fade them out over the first half of the change when collapsing, and in over the second half when expanding; and fade the short labels in over the second half when collapsing, and out over the first half when expanding. It SHALL NOT stretch, reshape or recolor a header button on the way (NVD-38). WHERE motion is reduced it SHALL change form at once."
+    },
+    {
+      "id": "NVD-36",
+      "text": "WHEN the drawer changes form THE navigation drawer SHALL keep focus where it is, and SHALL take what the collapsed form does not draw (the header slot's content, the headings' text, trailing content, the items inside groups) out of the focus order and away from assistive technology WHILE it is collapsed; IF focus is on such content when the drawer collapses THE navigation drawer SHALL move it to the menu button (NVD-37), or else to the first focusable element of the drawer. A destination's role, name and state SHALL be the same in both forms."
+    },
+    {
+      "id": "NVD-37",
+      "text": "WHILE collapsible is true THE navigation drawer SHALL treat its first header button as its menu button and expose it as expanded or collapsed, controlling the drawer (aria-expanded and aria-controls on the web; the expanded state elsewhere); WHEN the user activates it, after the button's own click, THE navigation drawer SHALL emit expandedChange exactly once with the form asked for (true to expand, false to collapse) WHILE variant is standard or the drawer is not open, and on the web apply it itself (expanded for a standard drawer, open for a modal one); WHILE a modal drawer is open it SHALL close as NVD-20 says instead. WHILE collapsible is true and the drawer has no header button it SHALL report in debug builds that its user cannot change its form."
+    },
+    {
+      "id": "NVD-38",
+      "text": "THE navigation drawer SHALL lay out its header from the top: its header buttons stacked in the icon column, each centered on its center line, comp.navigation-drawer.header.item-gap apart, and each drawn as the Button it is in both forms and while the drawer moves between them: the Button's own size, shape (a circle in the default system) and colors, never stretched to a row's width, never given an item container's shape and never filled as an active indicator; WHILE expanded, the header slot's content in the first header button's row, comp.navigation-drawer.item.gap after it (from comp.navigation-drawer.container.padding-inline WHILE there is no header button), vertically centered, the row as tall as the taller of the two; and then the main action (NVD-39), comp.navigation-drawer.header.item-gap below. A header-button or main-action item SHALL go to the header wherever it stands among the items, and the header's content SHALL come first in reading and focus order and keep its own semantics."
+    },
+    {
+      "id": "NVD-39",
+      "text": "WHILE the drawer holds a main-action item THE navigation drawer SHALL draw it as the Main Action Button it is, collapsed to its icon (extended false) WHILE the drawer is collapsed and extended with its label WHILE the drawer is expanded, changing with the drawer over comp.navigation-drawer.motion.expand-duration; it SHALL center it in the icon column while collapsed and start it at the same place while expanded, so that its glyph does not move WHERE the button's padding before its glyph is half the difference of its height and its glyph (as in the default system); its label SHALL remain its accessible name in both forms. IF the drawer holds more than one main-action item THE navigation drawer SHALL draw the first, and in debug builds report the rest."
+    },
+    {
+      "id": "NVD-40",
+      "text": "WHILE variant is modal and collapsible is true THE navigation drawer SHALL take its column's width in the layout and draw the column as a standard drawer's (comp.navigation-drawer.container.color.standard, comp.navigation-drawer.container.elevation.standard, comp.navigation-drawer.outline.color.standard) WHILE open is false; WHEN open becomes true it SHALL widen over the content, without resizing it, from the column to comp.navigation-drawer.container.width in the modal variant's container, elevation, shape and outline, and fade in comp.navigation-drawer.scrim.color over the rest of the window, both over comp.navigation-drawer.motion.expand-duration with comp.navigation-drawer.motion.expand-easing, changing its parts as NVD-35 says; WHEN it closes it SHALL narrow back to the column and fade the scrim out over the same time; WHERE motion is reduced it SHALL do both at once. NVD-19 to NVD-22 apply to it while it is open."
+    },
+    {
+      "id": "NVD-41",
+      "text": "WHEN the selected destination changes THE navigation drawer SHALL change the new destination's item container to its selected color and the previous one's to its unselected color in place, each at its full size and shape throughout, and change icon, label and trailing content colors and icon fill, over comp.navigation-drawer.motion.state-duration with comp.navigation-drawer.motion.state-easing, in either form; it SHALL NOT grow, shrink, slide or otherwise resize an item container to show a selection. THE icon indicator, which the default system leaves transparent, SHALL grow in width from its center to its full width, at its full height throughout, on the new destination and fade out on the previous one, over comp.navigation-drawer.motion.selection-duration with comp.navigation-drawer.motion.selection-easing; WHILE the drawer is collapsed and collapsedLabels is selected the short labels SHALL appear and disappear over the same time without moving any cell (NVD-31); WHERE motion is reduced it SHALL show the new selection at once.",
+      "verify": "Under the default system no frame between two selections shows an item container narrower than at rest, expanded or collapsed. Under `m3-like`, collapsed, the indicator behind the glyph still grows from its center, as Material's does."
+    },
+    {
+      "id": "NVD-42",
+      "text": "WHILE a destination's badge is true THE navigation drawer SHALL draw a Tanrei badge anchored to its icon in both forms, above the icon indicator, as the badge component draws one whose count is the destination's badgeCount and whose label is its badgeLabel, SHALL keep it while the destination is disabled, and SHALL expose the badge's description (badgeLabel, or the displayed count when it is empty) as part of the destination's own description, after its name and state."
+    },
+    {
+      "id": "NVD-43",
+      "text": "WHILE a destination's trailing slot holds content THE navigation drawer SHALL draw it at the end of the expanded row: a glyph at comp.navigation-drawer.item.trailing-icon.size in its condition's trailing icon color (comp.navigation-drawer.unselected.item.trailing-icon.color, comp.navigation-drawer.selected.item.trailing-icon.color), anything else as it draws itself; WHILE the slot is empty and trailingText is not empty it SHALL draw trailingText there, on one line and never truncated, in comp.navigation-drawer.item.trailing-text.typescale and its condition's trailing text color (comp.navigation-drawer.unselected.item.trailing-text.color, comp.navigation-drawer.selected.item.trailing-text.color); IF both are given it SHALL draw the slot's content and in debug builds report trailingText. IF the slot holds a focusable element THE navigation drawer SHALL keep it out of the focus order, and in debug builds report that trailing content is not interactive."
+    },
+    {
+      "id": "NVD-44",
+      "text": "THE navigation drawer SHALL draw a group's row as a destination's in either form (NVD-13, NVD-32), with its icon, label and short label, and in place of trailing content its chevron: the icon set's expand_more at comp.navigation-drawer.item.trailing-icon.size in its condition's trailing icon color, turned half a turn WHILE the group is open; WHILE the group is open and the drawer expanded it SHALL draw the group's items below its row, each one's item container and content comp.navigation-drawer.item.nest-indent further from the start than its group's (NVD-13); WHEN open changes it SHALL reveal or hide those items, moving the cells below, and turn the chevron, over comp.navigation-drawer.motion.disclosure-duration with comp.navigation-drawer.motion.disclosure-easing, at once where motion is reduced. A group's row SHALL answer hover, focus and press, show its focus ring, and follow press-hold, pressed-feedback, corner smoothing and focus style exactly as a destination does (NVD-4 to NVD-10), from the unselected condition unless NVD-47 says otherwise."
+    },
+    {
+      "id": "NVD-45",
+      "text": "WHEN the user activates a group's row by pointer, touch, Enter or Space WHILE the drawer is expanded THE navigation drawer SHALL emit the group's toggle exactly once with its new open state, SHALL NOT emit change, reselect or close, and on the web SHALL set the group's open itself (a controlled platform leaves it to the caller); WHEN focus is on a closed group's row and the user presses the arrow key toward the end of the line (Right in a left-to-right layout) it SHALL open the group, and on an open group's row the arrow key toward the start SHALL close it; WHEN focus is on an item inside an open group and the user presses the arrow key toward the start, it SHALL move focus to that group's row. WHILE a group's disabled is true THE navigation drawer SHALL NOT emit toggle for it, SHALL NOT make its row focusable and SHALL expose it as disabled."
+    },
+    {
+      "id": "NVD-46",
+      "text": "THE navigation drawer SHALL expose a group's row as one button named by its label, with its expanded or collapsed state and its icon and chevron hidden, controlling its items, and its items as a list named by the group's label inside the drawer's list: on the web a button with aria-expanded and aria-controls and a nested list labelled by it; on Apple platforms a button whose value is expanded or collapsed, as a disclosure group reads; on Android the expanded state with the expand and collapse actions; in Flutter the expanded semantics flag; in React Native accessibilityState.expanded. WHILE a group is closed, or the drawer collapsed, its items SHALL be neither exposed nor focusable. WHILE a group's label is empty THE navigation drawer SHALL still render it, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "NVD-47",
+      "text": "WHILE the selected destination is inside a closed group, or inside a group WHILE the drawer is collapsed, THE navigation drawer SHALL draw the row that shows it (the outermost closed group that holds it; collapsed, its top-level group) from its form's selected condition; WHILE the drawer is collapsed it SHALL draw each top-level group as one cell and none of its items; WHEN the user activates a group's cell WHILE the drawer is collapsed THE navigation drawer SHALL emit expandedChange with true, and the group's toggle with true WHILE it is closed, SHALL on the web apply both itself, and SHALL move focus to the group's row once the drawer is expanded."
+    },
+    {
+      "id": "NVD-48",
+      "text": "IF groups nest more than three levels deep THE navigation drawer SHALL still render them, indenting each level's item containers by comp.navigation-drawer.item.nest-indent, and in debug builds report the depth."
+    },
+    {
+      "id": "NVD-49",
+      "text": "WHILE the drawer is collapsed and a top-level destination or group has no icon THE navigation drawer SHALL still draw its cell, with an empty icon indicator and, WHERE NVD-33 draws one, its short label, and in debug builds report that a collapsible drawer needs an icon on every top-level destination and group."
+    },
+    {
+      "id": "NVD-50",
+      "text": "THE navigation drawer SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the navigation drawer is shown THE navigation drawer SHALL draw itself for the new direction at once, without a motion of its own, keeping its expanded or collapsed form, its open state, the selected destination and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "NVD-51",
+      "text": "WHERE the layout direction is right-to-left THE navigation drawer SHALL draw a destination's and a group's icon mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order NVD-13 gives. THE navigation drawer SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. A group's chevron (expand_more, NVD-44) is not marked and is never mirrored; the product's own content in a trailing slot is the product's to mirror, and a header button's and the main action's glyphs are mirrored by those components (BTN-19, MAB-22).",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "NVD-52",
+      "text": "THE navigation drawer SHALL lay out a destination's and a group's label and short label, a section's heading, a destination's trailing text and the header's text as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE navigation drawer SHALL still place each and align its lines by the layout direction, not by the text's own, and SHALL cut a short label that does not fit (NVD-32) at the end of its own direction, so that a left-to-right label in a right-to-left layout loses its right end and never its beginning."
+    },
+    {
+      "id": "NVD-53",
+      "text": "WHILE responsive is true THE navigation drawer SHALL choose its presentation from the width of the window it is in, and SHALL ignore variant: WHILE the window is at least comp.navigation-drawer.breakpoint.expanded wide it SHALL be a standard drawer that is shown whatever open says (the standard presentation: NVD-18's place in the layout, in the form NVD-30 gives a standard drawer); WHILE the window is narrower than that, at least comp.navigation-drawer.breakpoint.collapsed wide, and collapsible is true, it SHALL be a collapsible modal drawer (the column presentation: its column in the layout, widening over the content WHILE open is true, NVD-40); and otherwise it SHALL be a modal drawer that is not collapsible (the modal presentation: nothing in the layout, shown over the content WHILE open is true, NVD-19 to NVD-22). In each presentation THE navigation drawer SHALL draw and behave exactly as the drawer whose variant and collapsible it stands for, from that variant's tokens. WHILE responsive is false THE navigation drawer SHALL NOT read the window's width.",
+      "verify": "Fixtures: `responsive-wide` is drawn in a window 1280 wide, `responsive-medium` in one 800 wide and `responsive-narrow` in one 400 wide; under the default system the two widths are 1024 and 600. Test a window exactly 1024 wide (standard) and 1023 (column), 600 (column) and 599 (modal), and a drawer that is not collapsible at 800 (modal)."
+    },
+    {
+      "id": "NVD-54",
+      "text": "WHEN the window's width takes a responsive drawer from one presentation to another THE navigation drawer SHALL draw the new presentation at once, without the motions of NVD-18, NVD-35 and NVD-40; SHALL enter it closed — WHERE open is true it SHALL emit close exactly once, the web setting open to false itself and a controlled platform leaving it to the caller (NVD-20); SHALL keep expanded, which only the user's request (NVD-37) and the product change, so that the standard presentation returns in the form it was left in; SHALL keep value and every group's open; and SHALL emit presentationChange exactly once with the new presentation (standard, column or modal). It SHALL also emit presentationChange exactly once WHEN the presentation is first decided. IF keyboard focus is on something the new presentation does not show THE navigation drawer SHALL move it to the menu button (NVD-37), or else to the first focusable element it still shows, and WHERE it shows nothing SHALL leave focus to the platform; focus that an open modal presentation kept inside the drawer SHALL be free to leave once the drawer is standard.",
+      "verify": "Test: a responsive drawer open over the content at 800 wide, resized to 1280, is standard and expanded, has emitted one close and one presentationChange, and Tab leaves it; collapsed by its menu button at 1280, resized to 800 and back, it is collapsed again and no expandedChange was emitted by the resizes; resized from 1280 to 400 it draws nothing, in one frame, and an open group is still open when it is next shown."
+    },
+    {
+      "id": "NVD-55",
+      "text": "THE navigation drawer SHALL hold three things apart WHILE responsive is true: the presentation, which it derives from the window's width alone, never stores, never writes into variant, open or expanded, and exposes read-only; open, which is transient, false unless the product or the menu button has just asked, and false again after every change of presentation and every close (NVD-20, NVD-21); and expanded, the user's choice of form for the standard presentation, which THE navigation drawer SHALL NOT persist beyond its own lifetime — a product that wants the choice remembered stores what expandedChange carries and sets expanded from it. WHEN a responsive drawer first appears THE navigation drawer SHALL draw the presentation of the current width in its first frame, without motion and without emitting close; WHERE it is rendered before the width is known (a page rendered on a server) it SHALL render no modal presentation open, SHALL make nothing inert, and SHALL decide both only once the width is known.",
+      "verify": "Test: a responsive drawer created in a window 400 wide with open false shows nothing in its first frame and animates nothing; the same markup rendered without a window (the React wrapper on a server) contains no open dialog and no inert attribute."
+    },
+    {
+      "id": "NVD-56",
+      "text": "WHILE the drawer is collapsed and a cell draws no short label (NVD-33) THE navigation drawer SHALL show that cell's label, WHEN the cell is hovered with a fine pointer or receives keyboard focus, as the platform shows the name of a control that is an icon alone (a plain tooltip beside the cell, toward the content, on the web and on desktop; nothing more than the large-content viewer of NVD-27 on a touch platform), and SHALL NOT add it to the cell's accessible name or description, which already hold it.",
+      "verify": "Test in `collapsed`: hovering Sent shows \"Sent\" beside the cell and the accessibility tree is unchanged; in `collapsed-labels-always` nothing is shown, because the label is drawn."
+    },
+    {
+      "id": "NVD-57",
+      "text": "WHEN the navigation drawer first appears in the layout with a selected destination, and WHEN value changes while it is shown, THE navigation drawer SHALL bring the row that shows the selection (the selected destination, or the group's row NVD-47 names) into view: IF that row is not wholly inside the space its items scroll in THE navigation drawer SHALL scroll them so that the row is centered in that space, as far as the scroll range allows, and otherwise it SHALL NOT scroll at all, so that a drawer whose selection is already in view stays where it is from one page to the next. It SHALL do so at once, without motion, WHEN the drawer first appears in its first frame (in the order NVD-62 gives), and SHALL NOT move keyboard focus. A modal presentation is brought there WHEN it opens, by the focus NVD-19 gives.",
+      "verify": "Under the default system, in a frame 800 high: `site-sidebar-long` (77 cells, 4024 tall, the selected row 3496 from the start of the items) is drawn with its items scrolled by 3120 and the selected row centered; `site-sidebar-restored`, the same drawer given scrollOffset 2900, is drawn at 2900, because the row is in view there. Test that no frame before either shows the items at 0, and that focus is where it was."
+    },
+    {
+      "id": "NVD-58",
+      "text": "WHILE revealSelected is true THE navigation drawer SHALL, WHEN it first appears with a selected destination and WHEN value changes to a destination, draw every closed group that holds that destination open, whatever its open said (a state the product gave back included, NVD-62), and SHALL emit each such group's toggle exactly once with true, the web setting the group's open itself and a controlled platform leaving its open to the caller, as NVD-45 says; WHEN the drawer first appears it SHALL draw them open in its first frame, without the motion of NVD-44, and afterwards with it. It SHALL NOT emit change, reselect or close for it, and SHALL NOT open again a group the user closes afterwards until value changes: that group's row then shows the selection (NVD-47). WHILE the drawer is collapsed it SHALL open them all the same, for the form in which they are drawn. WHILE revealSelected is false THE navigation drawer SHALL leave every group as its open says.",
+      "verify": "`site-sidebar`: every group's open is false and the selected destination is inside Components; Components is drawn open with Navigation drawer selected in it, and the other groups closed. Test: closing Components by its row then draws its row selected, and it stays closed until value changes; `group-closed-selected` (revealSelected false) is drawn as before."
+    },
+    {
+      "id": "NVD-59",
+      "text": "WHILE a destination's href is not empty THE navigation drawer SHALL make it a link to that address and not a button. On the web it SHALL be an anchor element with that address, whose behaviours are the browser's own — following it on a plain click, a touch or Enter; opening it in another tab or window by a modified click or a middle click; the link's context menu; dragging it; copying its address; showing its address on hover — and THE navigation drawer SHALL NOT prevent, replace or imitate any of them; Space SHALL NOT activate a link. On other platforms it SHALL be the platform's own link (SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), as BTN-22 says for a link button. THE navigation drawer SHALL draw a link exactly as it draws a button destination, from the same tokens in every state and both forms (NVD-3, NVD-4, NVD-7 to NVD-9, NVD-13, NVD-32), SHALL draw no look of its own for a link the user has visited, and SHALL give its hit area (NVD-6) to the link. WHILE a link's value is empty THE navigation drawer SHALL take its href as its value, for value, change, reselect and NVD-29. WHILE a link's disabled is true it SHALL keep the link role with the disabled state and no destination, and SHALL open nothing by any means the platform gives a link (NVD-2; on the web the anchor carries no address).",
+      "verify": "Test on the web: a control-click, a command-click, a shift-click and a middle click on a link destination open what the browser opens for a plain anchor; the context menu is the link's; the drawer has called preventDefault on none of them."
+    },
+    {
+      "id": "NVD-60",
+      "text": "WHEN the user activates a link destination THE navigation drawer SHALL count it as an activation (NVD-1, NVD-21) only WHILE it follows the link in the place where the product is shown: a click with the primary button and no modifier key, a touch, Enter, or the default action of assistive technology, on a link whose target is same and that asks for no download. It SHALL then emit change or reselect exactly once, carrying the destination's value and its href, before the link is followed, and SHALL NOT hold the link back for sys.motion.duration.press-hold; SHALL NOT write value itself on any platform, because where the product is, is the product's to say, and the page or the route shown next sets value; and SHALL let the link be followed unless the product cancels the event (preventDefault on the web), as a product does that moves between its pages without loading a document. For every other activation of a link — a modified or a middle click, a link whose target is new, a download — THE navigation drawer SHALL emit neither change nor reselect, SHALL NOT close, and SHALL keep value and the drawn selection as they are.",
+      "verify": "Test on the web: a plain click on a link that is not selected emits one change with `detail.value` and `detail.href`, leaves the drawer's value as it was and navigates; with the event cancelled it does not navigate; a control-click emits nothing and an open modal drawer stays open; a plain click in an open modal drawer emits change and then close."
+    },
+    {
+      "id": "NVD-61",
+      "text": "THE navigation drawer SHALL hold how far its items are scrolled from their start as scrollOffset, in the units of its layout: it SHALL give the present distance whenever the product reads it, and WHEN the product sets it, before the drawer first appears included, SHALL scroll there at once and without motion, held inside the scroll range, the header staying in place (NVD-12). Scrolling by the user SHALL emit no event. WHILE the items can scroll, a scroll that reaches either end of them SHALL NOT go on to scroll what is beside or behind the drawer. WHEN a group opens or closes (NVD-44) THE navigation drawer SHALL keep that group's row where it is in view and move only the cells after it; WHEN keyboard focus moves to a cell that is not wholly in view it SHALL scroll that cell into view by the least distance that shows it whole.",
+      "verify": "Test in `site-sidebar-long`: setting scrollOffset to 5000 gives 3224, the end of the range in a frame 800 high; a wheel turned past the end of the items leaves the page behind where it was; closing Foundations with its row at 200 from the top leaves the row at 200."
+    },
+    {
+      "id": "NVD-62",
+      "text": "THE navigation drawer SHALL treat scrollOffset and every group's open as the state of one view, as NVD-55 treats expanded: it SHALL keep neither beyond its own lifetime and SHALL write neither to any storage. A product whose pages are separate documents keeps what each group's toggle carries, and what scrollOffset reads when a page is left, and gives them back as the groups' open and the drawer's scrollOffset when the next page is rendered. WHEN the drawer first appears THE navigation drawer SHALL build its first frame in this order — every group as its open says; then the groups NVD-58 opens; then the items at scrollOffset; then the selection brought into view (NVD-57) — and SHALL draw it without the motions of NVD-41 and NVD-44 and without emitting change, reselect or close.",
+      "verify": "Test: a drawer rendered with two groups' open set, a scrollOffset and a value shows all four in its first frame and animates nothing; nothing is read from or written to the browser's storage at any time."
+    },
+    {
+      "id": "NVD-63",
+      "text": "WHILE a destination is a link and its target is new THE navigation drawer SHALL open its href in a new context, as BTN-24 says for a link button (on the web a new tab or window that is given no handle to the page that opened it), and, WHILE the drawer is expanded and the destination has neither trailing slot content nor trailingText, SHALL draw the glyph open_in_new of the system's icon set as its trailing content, as NVD-43 draws a glyph: at comp.navigation-drawer.item.trailing-icon.size, in its condition's trailing icon color (comp.navigation-drawer.unselected.item.trailing-icon.color, comp.navigation-drawer.selected.item.trailing-icon.color), through the icon helper, which mirrors it in a right-to-left layout because the icon set marks its name, and hidden from assistive technology; WHILE the product has put trailing content there THE navigation drawer SHALL draw no mark of its own. Whether a mark is drawn or not, and in both forms, it SHALL expose targetLabel as part of the destination's description, after its badge's description and its trailing content (NVD-15), and WHILE targetLabel is empty SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE navigation drawer SHALL draw no mark and SHALL ignore targetLabel.",
+      "verify": "`site-sidebar`: Source code ends in open_in_new and is described as \"opens in a new tab\"; no other row has a mark."
+    },
+    {
+      "id": "NVD-64",
+      "text": "WHEN a destination's target names a value the navigation drawer does not define THE navigation drawer SHALL treat it as same, and in debug builds report the unknown value. IF a destination's href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE navigation drawer SHALL make the destination a button without a destination, and in the last two cases report it in debug builds, as BTN-26 says for a button. WHILE a destination's href is empty THE navigation drawer SHALL ignore its target and targetLabel."
+    }
+  ],
+  "accessibility": {
+    "role": "navigation",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus through the header's content, then the destinations and group rows that are shown and not disabled; inside an open modal drawer it wraps around and never leaves the drawer; from an open standard drawer, expanded or collapsed, it moves on to the content, and the drawer stays as it is."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activates the focused destination (Enter only for a destination that is a link: it follows the link, and Space is left to the platform), and a modal drawer then closes; on a group's row, opens or closes the group; on a group's cell in the collapsed drawer, expands the drawer with the group open; on the menu button, changes the drawer's form."
+      },
+      {
+        "keys": "Enter with a modifier key, on a link (the web)",
+        "action": "What the browser does with a link: another tab or window, a download. The drawer emits nothing, selects nothing and stays as it is (NVD-60)."
+      },
+      {
+        "keys": "Right arrow / Left arrow (mirrored in right-to-left layouts)",
+        "action": "On a closed group's row, the arrow toward the end of the line opens it; on an open group's row, the arrow toward the start closes it; on an item inside an open group, the arrow toward the start moves focus to the group's row. Elsewhere the keys do nothing."
+      },
+      {
+        "keys": "Escape",
+        "action": "Closes an open modal drawer (a collapsible one narrows back to its column) and returns focus to where it was."
+      }
+    ],
+    "labeling": "Each destination is named by its label in both forms, drawn or not, as a button or as a link; its icon is decorative; its badge's description and then its trailing content are part of its description. A group's row and the list of its items are named by the group's label. A section's heading is a heading. The drawer's label names the navigation landmark and, while the drawer is modal and open, the dialog. The menu button is named by its own label and carries the drawer's expanded state; the main action is named by its label in both forms. A collapsed drawer that draws no labels shows each cell's name where the platform shows a name for an icon alone (a tooltip on the web).",
+    "minimumTarget": true,
+    "notes": [
+      "The drawer is a list of places, not a tab bar, in both forms: on native platforms its destinations are buttons (or links) with the selected state (as iPadOS sidebars and Android's drawer items are read), and on the web links or buttons with aria-current in a navigation landmark. The collapsed form keeps these semantics; it does not become a tab bar.",
+      "Selected and the current page are one thing. The drawer lists the product's places and the selected one is the place being shown, which the web exposes as aria-current=\"page\" on a button and on a link alike. A site of separate pages changes who says which it is — the page, through value, not a press — and nothing else: no destination is ever selected and another current, so a second state would have no case to draw.",
+      "A drawer of links is a navigation landmark holding lists of links and disclosure buttons, the pattern assistive technology users know from site navigation: every link and every group's row is its own Tab stop, and the arrow keys only open, close and leave a group. It is deliberately not a choice per use. One Tab stop with roving arrow keys is a tree's or a menu's model, would hide links from the browser's own ways of listing and following them, and would make the same component answer the keyboard in two ways. A long tree is passed by the landmark, by the headings of its sections, by closing its groups, and by the page's skip link.",
+      "Showing the selection (NVD-57, NVD-58) scrolls the drawer and opens groups without moving focus and without an announcement: the page's own title and heading say where the user is, and the current destination carries its state for whoever reaches it.",
+      "Groups are disclosures, not a tree: a group's row is a button with an expanded state that shows or hides a named list, and every shown destination stays its own tab stop, as the links of a navigation region are. A tree's single tab stop and arrow-key roving would make the drawer's keyboard model depend on whether it has groups; the arrow keys here only open, close and leave a group.",
+      "Collapsing hides the header slot, the headings' text, trailing content and the items inside groups from assistive technology and focus; it changes no destination's role, name or state, and the menu button announces the change as its expanded state.",
+      "A responsive drawer (NVD-53 to NVD-55) changes what it is with the window's width — a layout region where the window is wide, a modal overlay where it is narrow — and each presentation has the semantics of the drawer it stands for. A change of presentation closes an open overlay, releases focus that was kept inside it and announces nothing by itself; the presentation is never the only way to reach a destination, because the product's menu button opens the modal presentation.",
+      "The standard form is a layout region, not an overlay, expanded or collapsed: opening it moves focus in, to the selected destination or else the first, closing it returns focus to where it was, and focus leaving it never closes it. The modal form is a modal overlay: it keeps focus in and draws a scrim; a collapsible modal drawer's column is a layout region while the drawer is closed. The web presents the open modal drawer with a modal <dialog> element (showModal gives inertness and Escape); Compose draws it in a window of its own (a Dialog, as TanreiDialog is) and Flutter as a controlled overlay in a Stack over the page, each with a scrim, trapping focus and answering back; SwiftUI, which has no side presentation, overlays it with the modal trait and the escape gesture; React Native presents it in a transparent Modal.",
+      "Opening a modal drawer by a swipe from the screen edge is left out: on iOS the same edge is the back gesture. The product opens it from a menu button.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.navigation-drawer",
+  "fixtures": [
+    {
+      "id": "standard",
+      "props": {
+        "open": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "section",
+          "props": {
+            "heading": "Mail"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "inbox",
+                "label": "Inbox",
+                "icon": "inbox",
+                "trailingText": "24"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "sent",
+                "label": "Sent",
+                "icon": "send"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "drafts",
+                "label": "Drafts",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "trash",
+                "label": "Trash",
+                "icon": "delete"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "section",
+          "props": {
+            "heading": "Labels",
+            "divider": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "family",
+                "label": "Family",
+                "icon": "label"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "work",
+                "label": "Work",
+                "icon": "label",
+                "trailingText": "New"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "standard-no-icons",
+      "props": {
+        "open": true,
+        "value": "deployments",
+        "label": "Project"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "overview",
+            "label": "Overview"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "deployments",
+            "label": "Deployments",
+            "trailingText": "3"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "analytics",
+            "label": "Analytics"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "standard-disabled",
+      "props": {
+        "open": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "drafts",
+            "label": "Drafts",
+            "icon": "draft",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "trash",
+            "label": "Trash",
+            "icon": "delete"
+          }
+        }
+      ]
+    },
+    {
+      "id": "modal",
+      "props": {
+        "variant": "modal",
+        "open": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "section",
+          "props": {
+            "heading": "Mail"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "inbox",
+                "label": "Inbox",
+                "icon": "inbox",
+                "trailingText": "24"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "sent",
+                "label": "Sent",
+                "icon": "send"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "drafts",
+                "label": "Drafts",
+                "icon": "draft"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "trash",
+                "label": "Trash",
+                "icon": "delete"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "section",
+          "props": {
+            "heading": "Labels",
+            "divider": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "family",
+                "label": "Family",
+                "icon": "label"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "work",
+                "label": "Work",
+                "icon": "label"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "collapsible-expanded",
+      "props": {
+        "open": true,
+        "collapsible": true,
+        "expanded": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "slots": {
+        "header": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu_open"
+        },
+        {
+          "kind": "main-action",
+          "props": {
+            "label": "Compose"
+          },
+          "content": "edit"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "trailingText": "24"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "collapsed",
+      "props": {
+        "open": true,
+        "collapsible": true,
+        "expanded": false,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "slots": {
+        "header": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "main-action",
+          "props": {
+            "label": "Compose"
+          },
+          "content": "edit"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "trailingText": "24"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "collapsed-labels-always",
+      "props": {
+        "open": true,
+        "collapsible": true,
+        "expanded": false,
+        "collapsedLabels": "always",
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "collapsed-labels-selected",
+      "props": {
+        "open": true,
+        "collapsible": true,
+        "expanded": false,
+        "collapsedLabels": "selected",
+        "value": "starred",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "collapsed-badges",
+      "props": {
+        "open": true,
+        "collapsible": true,
+        "expanded": false,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "badge": true,
+            "badgeCount": 3,
+            "badgeLabel": "3 unread"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "chat",
+            "label": "Chat",
+            "icon": "chat",
+            "badge": true,
+            "badgeLabel": "New messages"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "collapsed-disabled",
+      "props": {
+        "open": true,
+        "collapsible": true,
+        "expanded": false,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "collapsed-short-labels",
+      "props": {
+        "open": true,
+        "collapsible": true,
+        "expanded": false,
+        "collapsedLabels": "always",
+        "value": "shared-with-me",
+        "label": "Files"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "my-files",
+            "label": "My files",
+            "shortLabel": "Files",
+            "icon": "folder"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "shared-with-me",
+            "label": "Shared with me",
+            "shortLabel": "Shared",
+            "icon": "group"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "recent",
+            "label": "Recent",
+            "icon": "schedule"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "notifications",
+            "label": "Notifications",
+            "icon": "notifications"
+          }
+        }
+      ]
+    },
+    {
+      "id": "trailing",
+      "props": {
+        "open": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "trailingText": "24"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "updates",
+            "label": "Updates",
+            "icon": "info",
+            "trailingText": "1,280"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "drafts",
+            "label": "Drafts",
+            "icon": "draft",
+            "trailingText": "New"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "help",
+            "label": "Help center",
+            "icon": "help"
+          },
+          "content": "open_in_new"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "archive",
+            "label": "Archive",
+            "icon": "archive",
+            "trailingText": "7",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "groups",
+      "props": {
+        "open": true,
+        "value": "website",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei",
+                "trailingText": "12"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "website",
+                "label": "Website"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "handbook",
+                "label": "Handbook"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Archive",
+            "icon": "archive"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "2025",
+                "label": "2025"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "2024",
+                "label": "2024"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "groups-nested",
+      "props": {
+        "open": true,
+        "value": "tokens",
+        "label": "Docs"
+      },
+      "items": [
+        {
+          "kind": "section",
+          "props": {
+            "heading": "Guides"
+          },
+          "items": [
+            {
+              "kind": "group",
+              "props": {
+                "label": "Foundations",
+                "icon": "palette",
+                "open": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "color",
+                    "label": "Color"
+                  }
+                },
+                {
+                  "kind": "group",
+                  "props": {
+                    "label": "Design tokens",
+                    "open": true
+                  },
+                  "items": [
+                    {
+                      "kind": "destination",
+                      "props": {
+                        "value": "tokens",
+                        "label": "Overview"
+                      }
+                    },
+                    {
+                      "kind": "destination",
+                      "props": {
+                        "value": "tiers",
+                        "label": "Tiers"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "kind": "group",
+                  "props": {
+                    "label": "Typography"
+                  },
+                  "items": [
+                    {
+                      "kind": "destination",
+                      "props": {
+                        "value": "type-scale",
+                        "label": "Type scale"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "group",
+              "props": {
+                "label": "Components",
+                "icon": "widgets",
+                "disabled": true
+              },
+              "items": [
+                {
+                  "kind": "destination",
+                  "props": {
+                    "value": "button",
+                    "label": "Button"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nested-icons",
+      "props": {
+        "open": true,
+        "value": "website",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei",
+                "icon": "palette"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "website",
+                "label": "Website",
+                "icon": "language",
+                "trailingText": "3"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "archive",
+                "label": "Archive",
+                "icon": "inventory_2",
+                "disabled": true
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "group-closed-selected",
+      "props": {
+        "open": true,
+        "value": "website",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "website",
+                "label": "Website"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "collapsed-groups",
+      "props": {
+        "open": true,
+        "collapsible": true,
+        "expanded": false,
+        "value": "website",
+        "label": "Workspace"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "home",
+            "label": "Home",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Projects",
+            "icon": "folder",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "tanrei",
+                "label": "Tanrei"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "website",
+                "label": "Website"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "modal-collapsible-closed",
+      "props": {
+        "variant": "modal",
+        "open": false,
+        "collapsible": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "modal-collapsible-open",
+      "props": {
+        "variant": "modal",
+        "open": true,
+        "collapsible": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "slots": {
+        "header": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu_open"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "trailingText": "24"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "starred",
+            "label": "Starred",
+            "icon": "star"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "responsive-wide",
+      "props": {
+        "responsive": true,
+        "collapsible": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "slots": {
+        "header": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu_open"
+        },
+        {
+          "kind": "main-action",
+          "props": {
+            "label": "Compose"
+          },
+          "content": "edit"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "trailingText": "24"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Labels",
+            "icon": "label",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "work",
+                "label": "Work"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "travel",
+                "label": "Travel"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "responsive-medium",
+      "props": {
+        "responsive": true,
+        "collapsible": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "main-action",
+          "props": {
+            "label": "Compose"
+          },
+          "content": "edit"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "trailingText": "24"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Labels",
+            "icon": "label",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "work",
+                "label": "Work"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "travel",
+                "label": "Travel"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "responsive-narrow",
+      "props": {
+        "responsive": true,
+        "collapsible": true,
+        "open": true,
+        "value": "inbox",
+        "label": "Mail"
+      },
+      "slots": {
+        "header": "Mail"
+      },
+      "items": [
+        {
+          "kind": "header-button",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu_open"
+        },
+        {
+          "kind": "main-action",
+          "props": {
+            "label": "Compose"
+          },
+          "content": "edit"
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "inbox",
+            "label": "Inbox",
+            "icon": "inbox",
+            "trailingText": "24"
+          }
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "sent",
+            "label": "Sent",
+            "icon": "send"
+          }
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Labels",
+            "icon": "label",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "value": "work",
+                "label": "Work"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "value": "travel",
+                "label": "Travel"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "value": "settings",
+            "label": "Settings",
+            "icon": "settings"
+          }
+        }
+      ]
+    },
+    {
+      "id": "site-sidebar",
+      "props": {
+        "open": true,
+        "value": "/components/navigation-drawer/",
+        "label": "Documentation",
+        "revealSelected": true
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "label": "Getting started"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/",
+                "label": "Overview"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/web/",
+                "label": "Web"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/react/",
+                "label": "React"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Foundations"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/principles/",
+                "label": "Principles"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/color/",
+                "label": "Color"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/typography/",
+                "label": "Typography"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Components"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/button/",
+                "label": "Button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/navigation-bar/",
+                "label": "Navigation bar"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/navigation-drawer/",
+                "label": "Navigation drawer"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/tabs/",
+                "label": "Tabs",
+                "trailingText": "New"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Project"
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/status/",
+                "label": "Status"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/roadmap/",
+                "label": "Roadmap"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "destination",
+          "props": {
+            "href": "https://example.com/tanrei",
+            "label": "Source code",
+            "target": "new",
+            "targetLabel": "opens in a new tab"
+          }
+        }
+      ]
+    },
+    {
+      "id": "site-sidebar-long",
+      "props": {
+        "open": true,
+        "value": "/components/navigation-drawer/",
+        "label": "Documentation"
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "label": "Getting started",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/",
+                "label": "Overview"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/web/",
+                "label": "Web"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/react/",
+                "label": "React"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/swiftui/",
+                "label": "Swiftui"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/compose/",
+                "label": "Compose"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/flutter/",
+                "label": "Flutter"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/react-native/",
+                "label": "React native"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/your-design-system/",
+                "label": "Your design system"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Foundations",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/principles/",
+                "label": "Principles"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/design-tokens/",
+                "label": "Design tokens"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/design-systems/",
+                "label": "Design systems"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/theme-studio/",
+                "label": "Theme studio"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/color/",
+                "label": "Color"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/typography/",
+                "label": "Typography"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/icons/",
+                "label": "Icons"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/shape/",
+                "label": "Shape"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/elevation/",
+                "label": "Elevation"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/motion/",
+                "label": "Motion"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/states/",
+                "label": "States"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/behaviour/",
+                "label": "Behaviour"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/layout/",
+                "label": "Layout"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/accessibility/",
+                "label": "Accessibility"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Token reference",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/color/",
+                "label": "Color"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/typescale/",
+                "label": "Typescale"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/shape/",
+                "label": "Shape"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/elevation/",
+                "label": "Elevation"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/motion/",
+                "label": "Motion"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/state/",
+                "label": "State"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/space/",
+                "label": "Space"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Components",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/",
+                "label": "Overview"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/button/",
+                "label": "Button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/divider/",
+                "label": "Divider"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/badge/",
+                "label": "Badge"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/progress-indicator/",
+                "label": "Progress indicator"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/loading-indicator/",
+                "label": "Loading indicator"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/checkbox/",
+                "label": "Checkbox"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/radio-button/",
+                "label": "Radio button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/switch/",
+                "label": "Switch"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/slider/",
+                "label": "Slider"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/card/",
+                "label": "Card"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/carousel/",
+                "label": "Carousel"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/text-field/",
+                "label": "Text field"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/search/",
+                "label": "Search"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/calendar/",
+                "label": "Calendar"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/date-time-picker/",
+                "label": "Date time picker"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/main-action-button/",
+                "label": "Main action button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/chip/",
+                "label": "Chip"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/segmented-button/",
+                "label": "Segmented button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/button-group/",
+                "label": "Button group"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/button-with-menu/",
+                "label": "Button with menu"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/fab-menu/",
+                "label": "FAB menu"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/list/",
+                "label": "List"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/menu/",
+                "label": "Menu"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/keyboard-shortcut/",
+                "label": "Keyboard shortcut"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/tabs/",
+                "label": "Tabs"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/tab-view/",
+                "label": "Tab view"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/tooltip/",
+                "label": "Tooltip"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/snackbar/",
+                "label": "Snackbar"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/dialog/",
+                "label": "Dialog"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/bottom-sheet/",
+                "label": "Bottom sheet"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/side-sheet/",
+                "label": "Side sheet"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/app-bar/",
+                "label": "App bar"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/navigation-bar/",
+                "label": "Navigation bar"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/navigation-drawer/",
+                "label": "Navigation drawer"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/toolbar/",
+                "label": "Toolbar"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Project",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/status/",
+                "label": "Status"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/roadmap/",
+                "label": "Roadmap"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/backlog/",
+                "label": "Backlog"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/how-tanrei-is-built/",
+                "label": "How tanrei is built"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/contributing/",
+                "label": "Contributing"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/announcements/",
+                "label": "Announcements"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/license/",
+                "label": "License"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "site-sidebar-restored",
+      "props": {
+        "open": true,
+        "value": "/components/navigation-drawer/",
+        "label": "Documentation",
+        "scrollOffset": 2900
+      },
+      "items": [
+        {
+          "kind": "group",
+          "props": {
+            "label": "Getting started",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/",
+                "label": "Overview"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/web/",
+                "label": "Web"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/react/",
+                "label": "React"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/swiftui/",
+                "label": "Swiftui"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/compose/",
+                "label": "Compose"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/flutter/",
+                "label": "Flutter"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/react-native/",
+                "label": "React native"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/getting-started/your-design-system/",
+                "label": "Your design system"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Foundations",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/principles/",
+                "label": "Principles"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/design-tokens/",
+                "label": "Design tokens"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/design-systems/",
+                "label": "Design systems"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/theme-studio/",
+                "label": "Theme studio"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/color/",
+                "label": "Color"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/typography/",
+                "label": "Typography"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/icons/",
+                "label": "Icons"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/shape/",
+                "label": "Shape"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/elevation/",
+                "label": "Elevation"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/motion/",
+                "label": "Motion"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/states/",
+                "label": "States"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/behaviour/",
+                "label": "Behaviour"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/layout/",
+                "label": "Layout"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/foundations/accessibility/",
+                "label": "Accessibility"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Token reference",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/color/",
+                "label": "Color"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/typescale/",
+                "label": "Typescale"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/shape/",
+                "label": "Shape"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/elevation/",
+                "label": "Elevation"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/motion/",
+                "label": "Motion"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/state/",
+                "label": "State"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/tokens/space/",
+                "label": "Space"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Components",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/",
+                "label": "Overview"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/button/",
+                "label": "Button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/divider/",
+                "label": "Divider"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/badge/",
+                "label": "Badge"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/progress-indicator/",
+                "label": "Progress indicator"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/loading-indicator/",
+                "label": "Loading indicator"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/checkbox/",
+                "label": "Checkbox"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/radio-button/",
+                "label": "Radio button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/switch/",
+                "label": "Switch"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/slider/",
+                "label": "Slider"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/card/",
+                "label": "Card"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/carousel/",
+                "label": "Carousel"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/text-field/",
+                "label": "Text field"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/search/",
+                "label": "Search"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/calendar/",
+                "label": "Calendar"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/date-time-picker/",
+                "label": "Date time picker"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/main-action-button/",
+                "label": "Main action button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/chip/",
+                "label": "Chip"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/segmented-button/",
+                "label": "Segmented button"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/button-group/",
+                "label": "Button group"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/button-with-menu/",
+                "label": "Button with menu"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/fab-menu/",
+                "label": "FAB menu"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/list/",
+                "label": "List"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/menu/",
+                "label": "Menu"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/keyboard-shortcut/",
+                "label": "Keyboard shortcut"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/tabs/",
+                "label": "Tabs"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/tab-view/",
+                "label": "Tab view"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/tooltip/",
+                "label": "Tooltip"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/snackbar/",
+                "label": "Snackbar"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/dialog/",
+                "label": "Dialog"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/bottom-sheet/",
+                "label": "Bottom sheet"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/side-sheet/",
+                "label": "Side sheet"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/app-bar/",
+                "label": "App bar"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/navigation-bar/",
+                "label": "Navigation bar"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/navigation-drawer/",
+                "label": "Navigation drawer"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/components/toolbar/",
+                "label": "Toolbar"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "props": {
+            "label": "Project",
+            "open": true
+          },
+          "items": [
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/status/",
+                "label": "Status"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/roadmap/",
+                "label": "Roadmap"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/backlog/",
+                "label": "Backlog"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/how-tanrei-is-built/",
+                "label": "How tanrei is built"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/contributing/",
+                "label": "Contributing"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/announcements/",
+                "label": "Announcements"
+              }
+            },
+            {
+              "kind": "destination",
+              "props": {
+                "href": "/project/license/",
+                "label": "License"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-navigation-drawer",
+      "props": {
+        "variant": "variant",
+        "open": "open",
+        "collapsible": "collapsible",
+        "expanded": "expanded",
+        "collapsedLabels": "collapsedLabels",
+        "responsive": "responsive",
+        "value": "value",
+        "label": "label",
+        "revealSelected": "revealSelected",
+        "scrollOffset": "scrollOffset"
+      },
+      "events": {
+        "change": "change",
+        "reselect": "reselect",
+        "close": "close",
+        "expandedChange": "expandedchange",
+        "presentationChange": "presentationchange"
+      },
+      "notes": "Children are `<tanrei-navigation-drawer-item>`, `<tanrei-navigation-drawer-group>` and `<tanrei-navigation-drawer-section>` elements, in order; header buttons (icon-only `<tanrei-button>`s) and the main action (`<tanrei-main-action-button>`) are children with `slot=\"header-button\"` and `slot=\"main-action\"`, and the header slot is `header`. `collapsedLabels` is the `collapsed-labels` attribute; `expanded` is reflected, and so is a read-only `collapsed` state attribute for styling. Modal: a `<dialog>` in the shadow root opened with `showModal()`, its `::backdrop` the scrim; Escape and a press on the backdrop close it, the host sets `open` to false and fires `close`; a collapsible modal drawer keeps its column in the host's layout box and widens the dialog from it. Standard: a `<nav>` named by `label`. The drawer selects the activated destination itself (sets `value`) before firing `change`, sets `expanded` (or `open`) before firing `expandedchange`, and sets a group's `open` before the group fires `toggle`. It sets `aria-expanded` and `aria-controls` on its first header button's inner button through the Button's `ariaExpanded` / `ariaControlsElements` element properties, and the Main Action Button's `extended` from its own form. `responsive` is an attribute: the element reads its system's `breakpoint.expanded` and `breakpoint.collapsed` custom properties from its computed style, listens to the two widths with `matchMedia`, exposes the result as the read-only `presentation` property (reflected as a state attribute for styling) and fires `presentationchange` with `detail.presentation`; nothing about the presentation is written to `variant`, `open` or `expanded`, and nothing is kept in storage. Before the element is upgraded, and in the React wrapper on a server, no dialog is open and nothing is inert. A collapsed cell that draws no label shows its name in a plain tooltip. Insets are `env(safe-area-inset-*)`. It lags the spec: it ships an earlier form of the drawer, with a separate rail element beside it. It does not yet follow NVD-57 to NVD-64, nor the parts of NVD-1, NVD-21 and NVD-23 that go with them. `reveal-selected` is an attribute. `scroll-offset` is an attribute read once, for the first frame, and `scrollOffset` a property whose getter returns the scroller's present `scrollTop` and whose setter writes it; the scroller has `overscroll-behavior: contain` and `scroll-behavior: auto`, and bringing the selection into view is a write to `scrollTop`, never `scrollIntoView` (which would also scroll the page). For a link destination `change` and `reselect` are cancelable, carry `detail.href` beside `detail.value`, and are fired from the anchor's `click` only when `event.button` is 0, no modifier key is down, the click was not already cancelled, and the item's `target` is `same` and it has no `download`; cancelling one calls `preventDefault()` on that click. The drawer does not set `value` for a link. Nothing is read from or written to `sessionStorage` or `localStorage`: a site keeps the groups' `open` and `scrollOffset` itself (on `toggle` and on `pagehide`) and writes them back as attributes in the page's markup, or in an inline script placed after the drawer's markup, before the elements are upgraded.",
+      "items": {
+        "destination": {
+          "name": "tanrei-navigation-drawer-item",
+          "props": {
+            "value": "value",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "label": "label",
+            "shortLabel": "shortLabel",
+            "icon": "icon",
+            "disabled": "disabled",
+            "trailingText": "trailingText",
+            "badge": "badge",
+            "badgeCount": "badgeCount",
+            "badgeLabel": "badgeLabel"
+          },
+          "notes": "`icon` is the glyph's name; none, no icon. `short-label`, `trailing-text`, `badge-count` and `badge-label` are attributes; the trailing slot is `trailing`. `badge` is the boolean of the icon badge; a destination's trailing text is `trailing-text`. `href` makes the destination a link: the cell is an `<a href>` in the item's shadow root. `target` is the `target` attribute with the values `same` and `new` (the HTML spellings `_self` and `_blank` are read as those two), `targetLabel` the `target-label` attribute, and `rel` (to which `new` adds `noopener`) and `download` are web-only and forwarded to the anchor, all as `<tanrei-button>`'s. Space is not handled on it. With no `value` attribute the item's `value` property reads its `href` attribute as written (not the resolved URL)."
+        },
+        "group": {
+          "name": "tanrei-navigation-drawer-group",
+          "props": {
+            "label": "label",
+            "shortLabel": "shortLabel",
+            "icon": "icon",
+            "disabled": "disabled",
+            "open": "open"
+          },
+          "events": {
+            "toggle": "toggle"
+          },
+          "notes": "Holds `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children. Its row is a `<button aria-expanded aria-controls>` and its items a nested list labelled by it; `open` is reflected. `toggle` bubbles, with `detail.open`; the drawer's own `expandedchange` is a different event."
+        },
+        "section": {
+          "name": "tanrei-navigation-drawer-section",
+          "props": {
+            "heading": "heading",
+            "divider": "divider"
+          },
+          "notes": "Holds `<tanrei-navigation-drawer-item>` and `<tanrei-navigation-drawer-group>` children. It draws a `<tanrei-divider>` before itself while `divider` is set, and its heading as a heading element (`role=\"heading\"`, level 2 unless a web-only `heading-level` says otherwise)."
+        },
+        "header-button": {
+          "name": "tanrei-button",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "An icon-only `<tanrei-button>` child with `slot=\"header-button\"`; the glyph is its content."
+        },
+        "main-action": {
+          "name": "tanrei-main-action-button",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "A `<tanrei-main-action-button>` child with `slot=\"main-action\"`; the glyph is its `icon` slot. The drawer sets its `extended` (the inverse `collapsed` attribute)."
+        }
+      }
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiNavigationDrawer",
+      "props": {
+        "variant": "variant",
+        "open": "isPresented",
+        "collapsible": "isCollapsible",
+        "expanded": "isExpanded",
+        "collapsedLabels": "collapsedLabelVisibility",
+        "responsive": "isResponsive",
+        "value": "selection",
+        "label": "accessibilityLabel",
+        "revealSelected": "revealsSelection",
+        "scrollOffset": "scrollOffset"
+      },
+      "events": {
+        "change": "selection",
+        "reselect": "onReselect",
+        "close": "isPresented",
+        "expandedChange": "isExpanded",
+        "presentationChange": "onPresentationChange"
+      },
+      "notes": "`TanreiNavigationDrawer(variant:, isPresented: Binding<Bool>, selection: Binding<Value>, isCollapsible:, isExpanded: Binding<Bool>, collapsedLabelVisibility:, onReselect:) { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } } header: { … } headerButtons: { … } mainAction: { … }`, and for a modal drawer the modifier `.tanreiNavigationDrawer(isPresented:…)` on the content it covers. Closing writes `false` to `isPresented` (close); the menu button writes `isExpanded` (expandedChange). The modal drawer carries the modal trait and answers the escape gesture (`accessibilityAction(.escape)`). It lags the spec: it ships an earlier form of the drawer (no collapsed form, groups or trailing slot; its `badge:` string is the trailing text), with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose item containers start further in, a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from a `GeometryReader` on the window's scene, or `horizontalSizeClass` where the product prefers Apple's own classes; `onPresentationChange` is a closure. Also not built yet (NVD-57 to NVD-64): `revealsSelection: Bool`, and `scrollOffset: Binding<CGFloat>` over the items' `ScrollView` (a `ScrollPosition` where the deployment target has it), which the product may keep in `@SceneStorage`.",
+      "items": {
+        "destination": {
+          "name": "TanreiNavigationDrawerItem",
+          "props": {
+            "value": "value",
+            "href": "destination",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "label": "title",
+            "shortLabel": "shortTitle",
+            "icon": "icon",
+            "disabled": "disabled",
+            "trailingText": "trailingText",
+            "badge": "badge",
+            "badgeCount": "count",
+            "badgeLabel": "label"
+          },
+          "notes": "`TanreiNavigationDrawerItem(_ title: String, shortTitle: String = \"\", icon: String? = nil, value: Value, trailingText: String = \"\", badge: TanreiNavigationBadge? = nil) { trailing }`, with the bar's `TanreiNavigationBadge(count:, label:)`. `disabled` follows `.disabled(_:)`. `destination: URL? = nil` makes it a SwiftUI `Link` (the link trait), opened by the environment's `openURL` after the selection callback, which an app that routes addresses itself answers with its own `OpenURLAction`; `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint), as the Button's."
+        },
+        "group": {
+          "name": "TanreiNavigationDrawerGroup",
+          "props": {
+            "label": "title",
+            "shortLabel": "shortTitle",
+            "icon": "icon",
+            "disabled": "disabled",
+            "open": "isExpanded"
+          },
+          "events": {
+            "toggle": "isExpanded"
+          },
+          "notes": "`TanreiNavigationDrawerGroup(_ title: String, shortTitle: String = \"\", icon: String? = nil, isExpanded: Binding<Bool>) { items }`, as SwiftUI's `DisclosureGroup` binds its state; toggling writes the binding. `disabled` follows `.disabled(_:)`."
+        },
+        "section": {
+          "name": "TanreiNavigationDrawerSection",
+          "props": {
+            "heading": "heading",
+            "divider": "divider"
+          },
+          "notes": "`TanreiNavigationDrawerSection(_ heading: String = \"\", divider: Bool = false) { items }`, as SwiftUI's `Section`; the heading carries the header trait."
+        },
+        "header-button": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "An icon-only `TanreiButton` in the `headerButtons` view builder; the drawer adds the expanded value to the first."
+        },
+        "main-action": {
+          "name": "TanreiMainActionButton",
+          "props": {
+            "label": "title"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "A `TanreiMainActionButton` in the `mainAction` view builder; the drawer sets its `isExtended` from its own form."
+        }
+      }
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiNavigationDrawer",
+      "props": {
+        "variant": "variant",
+        "open": "drawerState",
+        "collapsible": "collapsible",
+        "expanded": "expanded",
+        "collapsedLabels": "collapsedLabelVisibility",
+        "responsive": "responsive",
+        "value": "selected",
+        "label": "contentDescription",
+        "revealSelected": "revealSelected",
+        "scrollOffset": "scrollState"
+      },
+      "events": {
+        "change": "onClick",
+        "reselect": "onClick",
+        "close": "drawerState",
+        "expandedChange": "onExpandedChange",
+        "presentationChange": "onPresentationChange"
+      },
+      "notes": "Compose idiom (as `ModalNavigationDrawer` and `DismissibleNavigationDrawer`, and Material 3 Expressive's `WideNavigationRail` for the collapsed form): `TanreiNavigationDrawer(variant, drawerState, collapsible, expanded, onExpandedChange, collapsedLabelVisibility, header = { … }, headerButtons = { … }, mainAction = { … }, drawerContent = { TanreiNavigationDrawerItem(…); TanreiNavigationDrawerGroup(…) { … }; TanreiNavigationDrawerSection(…) { … } }, content = { … })`. `drawerState` (`rememberTanreiDrawerState`) is open or closed; the drawer closes it itself on the scrim, back and drag, and its `confirmValueChange` sees the close. As for the bar, the drawer's `value` and a destination's `value` both map to the item's `selected`, and one `onClick` covers change and reselect. The modal sheet sets a pane title from `contentDescription` and is drawn in a window of its own (a `Dialog`), as `TanreiDialog` is, which traps focus, handles back and hides the content behind from TalkBack. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose item containers start further in, a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `LocalWindowInfo.current.containerSize` (or `currentWindowAdaptiveInfo()` where the product has it); `onPresentationChange` is a lambda and `drawerState` is closed by the drawer when the presentation changes. Also not built yet (NVD-57 to NVD-64): `revealSelected: Boolean`, and a hoisted `scrollState: ScrollState = rememberScrollState()`, which is saved and restored by `rememberSaveable` as any scroll state is; the drawer writes nothing itself.",
+      "items": {
+        "destination": {
+          "name": "TanreiNavigationDrawerItem",
+          "props": {
+            "value": "selected",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "label": "label",
+            "shortLabel": "shortLabel",
+            "icon": "icon",
+            "disabled": "enabled",
+            "trailingText": "trailingText",
+            "badge": "badge",
+            "badgeCount": "count",
+            "badgeLabel": "contentDescription"
+          },
+          "notes": "`TanreiNavigationDrawerItem(selected, onClick, label, shortLabel = \"\", icon = null, trailingText = \"\", badge = null, enabled = true, trailing = null)`; `icon` is the glyph's name, `null` for none; `badge` is the bar's `TanreiNavigationBadge(count, contentDescription)`; `trailing` is a composable slot. `enabled` is the inverse flag. `href: String? = null` makes it a link: opened through `LocalUriHandler.current` after `onClick` (an app that routes addresses itself provides its own `UriHandler`); Compose has no link role for a clickable element, so the node drops `Role.Button` and carries no role; `target: TanreiLinkTarget = TanreiLinkTarget.Same`, and `targetLabel` is appended to the state description, as the Button's."
+        },
+        "group": {
+          "name": "TanreiNavigationDrawerGroup",
+          "props": {
+            "label": "label",
+            "shortLabel": "shortLabel",
+            "icon": "icon",
+            "disabled": "enabled",
+            "open": "expanded"
+          },
+          "events": {
+            "toggle": "onExpandedChange"
+          },
+          "notes": "`TanreiNavigationDrawerGroup(label, expanded, onExpandedChange, shortLabel = \"\", icon = null, enabled = true) { … }`; the row has `Modifier.semantics { expand() / collapse() }` and the expanded state. `enabled` is the inverse flag."
+        },
+        "section": {
+          "name": "TanreiNavigationDrawerSection",
+          "props": {
+            "heading": "heading",
+            "divider": "divider"
+          },
+          "notes": "`TanreiNavigationDrawerSection(heading = \"\", divider = false) { … }`, a composable whose content lambda holds its items; the heading has `Modifier.semantics { heading() }` and the divider is a `TanreiDivider`."
+        },
+        "header-button": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "contentDescription"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "An icon-only `TanreiButton` in the `headerButtons` lambda; the drawer adds the expanded state to the first one's semantics."
+        },
+        "main-action": {
+          "name": "TanreiMainActionButton",
+          "props": {
+            "label": "text"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "A `TanreiMainActionButton` in the `mainAction` lambda; the drawer passes its form as `expanded`."
+        }
+      }
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiNavigationDrawer",
+      "props": {
+        "variant": "variant",
+        "open": "open",
+        "collapsible": "collapsible",
+        "expanded": "extended",
+        "collapsedLabels": "labelType",
+        "responsive": "responsive",
+        "value": "selectedIndex",
+        "label": "semanticLabel",
+        "revealSelected": "revealSelected",
+        "scrollOffset": "scrollController"
+      },
+      "events": {
+        "change": "onDestinationSelected",
+        "reselect": "onDestinationSelected",
+        "close": "onClose",
+        "expandedChange": "onExtendedChanged",
+        "presentationChange": "onPresentationChanged"
+      },
+      "notes": "Flutter idiom (as `NavigationDrawer`, with the rail widget's `extended` and `labelType` for the collapsed form): `TanreiNavigationDrawer(variant:, collapsible:, extended:, onExtendedChanged:, labelType:, selectedIndex:, onDestinationSelected:, headerButtons: [...], mainAction:, header:, children: [TanreiNavigationDrawerDestination(…), TanreiNavigationDrawerGroup(…), TanreiNavigationDrawerSection(…), …])`. A destination's value is its index among the destinations, counted in reading order through sections and groups, open or not, as `NavigationDrawer` counts its destinations. `labelType` is `all`, `selected` or `none`. `open` shows or hides the drawer in both variants. A modal drawer is a controlled overlay in a `Stack` over the page — not `Scaffold.drawer`, which would need Material — with its own scrim and motion, a `FocusScope` that keeps focus in, and the page's semantics blocked; Escape, back (`PopScope`), a drag or fling, the menu button and choosing a destination call `onClose` once. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose item containers start further in, a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `MediaQuery.sizeOf(context).width`; `onPresentationChanged` is a `ValueChanged<TanreiNavigationDrawerPresentation>` and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected: bool`, and `scrollController: ScrollController?` (its `initialScrollOffset` is the first frame's offset); a `PageStorageKey` or a `restorationId` on the product's side keeps the offset, the drawer writes nothing itself.",
+      "items": {
+        "destination": {
+          "name": "TanreiNavigationDrawerDestination",
+          "props": {
+            "value": "children",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetSemanticLabel",
+            "label": "label",
+            "shortLabel": "shortLabel",
+            "icon": "icon",
+            "disabled": "enabled",
+            "trailingText": "trailingText",
+            "badge": "badge",
+            "badgeCount": "count",
+            "badgeLabel": "semanticLabel"
+          },
+          "notes": "`TanreiNavigationDrawerDestination(icon:, label:, shortLabel: '', trailingText: '', trailing: null, badge: null, enabled: true)`; `icon` is the glyph's name, null for none; `badge: TanreiNavigationBadge(count:, semanticLabel:)`, as the bar's; `trailing` is a widget. Its value is its index among the destinations of `children`. `href: Uri? = null` makes it a link (`Semantics(link: true)` with the address as its `linkUrl`), opened by the nearest `TanreiLinkOpener` after `onDestinationSelected`; `target` is a `TanreiLinkTarget` and `targetSemanticLabel` the semantics hint, as the Button's."
+        },
+        "group": {
+          "name": "TanreiNavigationDrawerGroup",
+          "props": {
+            "label": "label",
+            "shortLabel": "shortLabel",
+            "icon": "icon",
+            "disabled": "enabled",
+            "open": "expanded"
+          },
+          "events": {
+            "toggle": "onExpansionChanged"
+          },
+          "notes": "`TanreiNavigationDrawerGroup(label:, icon:, shortLabel: '', expanded:, onExpansionChanged:, enabled: true, children: [...])`, controlled, with `ExpansionTile`'s callback name; its row carries `Semantics(expanded:)`."
+        },
+        "section": {
+          "name": "TanreiNavigationDrawerSection",
+          "props": {
+            "heading": "heading",
+            "divider": "divider"
+          },
+          "notes": "`TanreiNavigationDrawerSection(heading: '', divider: false, children: [...])`; the heading is wrapped in `Semantics(header: true)` and the divider is a `TanreiDivider`."
+        },
+        "header-button": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "semanticLabel"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "An icon-only `TanreiButton` in `headerButtons:`; the drawer wraps the first in `Semantics(expanded:)`."
+        },
+        "main-action": {
+          "name": "TanreiMainActionButton",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "A `TanreiMainActionButton` as `mainAction:`; the drawer sets its `isExtended` from its own form."
+        }
+      }
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "NavigationDrawer",
+      "props": {
+        "variant": "variant",
+        "open": "open",
+        "collapsible": "collapsible",
+        "expanded": "expanded",
+        "collapsedLabels": "collapsedLabelVisibility",
+        "responsive": "responsive",
+        "value": "value",
+        "label": "accessibilityLabel",
+        "revealSelected": "revealSelected",
+        "scrollOffset": "scrollOffset"
+      },
+      "events": {
+        "change": "onValueChange",
+        "reselect": "onReselect",
+        "close": "onClose",
+        "expandedChange": "onExpandedChange",
+        "presentationChange": "onPresentationChange"
+      },
+      "notes": "Controlled: `open`, `expanded`, `value`, `onValueChange`, `onExpandedChange`, `onClose`, an `items` data array, `headerButtons` and `mainAction` elements and a `header` node. A modal drawer is presented in a transparent `Modal` with its own motion and scrim; `onRequestClose` (Android back) calls `onClose`. Destinations have the `button` role with `accessibilityState.selected`; group rows the `button` role with `accessibilityState.expanded`; headings the `header` role. Insets come from its own `insets` prop, falling back to `TanreiProvider`'s. It lags the spec: it ships an earlier form of the drawer, with a separate rail component beside it. Not built on this platform yet: the 48 row with the menu item's corners in both forms, a collapsed cell that is the row without its label (`collapsedLabels` defaults to never), nested rows whose item containers start further in, a selection that changes color in place, and `responsive` with its event (NVD-53 to NVD-55): the width comes from `useWindowDimensions()`; `onPresentationChange` receives `'standard' | 'column' | 'modal'`, and `onClose` is called when a change of presentation closes the drawer. Also not built yet (NVD-57 to NVD-64): `revealSelected`, and `scrollOffset` as the first frame's offset with a ref method `getScrollOffset()` for reading it; the drawer writes to no storage.",
+      "items": {
+        "destination": {
+          "name": "NavigationDrawerDestination",
+          "props": {
+            "value": "value",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "label": "label",
+            "shortLabel": "shortLabel",
+            "icon": "icon",
+            "disabled": "disabled",
+            "trailingText": "trailingText",
+            "badge": "badge",
+            "badgeCount": "count",
+            "badgeLabel": "label"
+          },
+          "notes": "An entry of `items`: `{ value, label, shortLabel?, icon?, trailingText?, trailing?, badge?: { count?, label? }, disabled? }`, where `icon` is the glyph's name and `trailing` a React node; the badge has the navigation bar's shape. `href?: string` makes it a link (`accessibilityRole=\"link\"`); `onValueChange` receives the value and the href, and `Linking.openURL(href)` follows it unless the product handles it; `target` is `\"same\" | \"new\"` and `targetLabel` the `accessibilityHint`, as the Button's."
+        },
+        "group": {
+          "name": "NavigationDrawerGroup",
+          "props": {
+            "label": "label",
+            "shortLabel": "shortLabel",
+            "icon": "icon",
+            "disabled": "disabled",
+            "open": "open"
+          },
+          "events": {
+            "toggle": "onToggle"
+          },
+          "notes": "An entry `{ label, shortLabel?, icon?, disabled?, open, onToggle, groupItems: (NavigationDrawerDestination | NavigationDrawerGroup)[] }`; its `groupItems` array tells it from a section's `items`."
+        },
+        "section": {
+          "name": "NavigationDrawerSection",
+          "props": {
+            "heading": "heading",
+            "divider": "divider"
+          },
+          "notes": "An entry `{ heading?, divider?, items: (NavigationDrawerDestination | NavigationDrawerGroup)[] }`; its `items` array tells it from a destination."
+        },
+        "header-button": {
+          "name": "Button",
+          "props": {
+            "label": "accessibilityLabel"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "An icon-only `Button` element in `headerButtons`; the drawer adds `accessibilityState.expanded` to the first."
+        },
+        "main-action": {
+          "name": "MainActionButton",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "A `MainActionButton` element as `mainAction`; the drawer sets its `extended`."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,205 @@
+---
+title: ラジオボタン
+description: 一度にすべて見えている少数の選択肢から、ちょうど 1 つを選べるようにします。
+translationOf: components/radio-button.mdx
+sourceHash: daa79188285bc262a23e0fbc7f5abe067c3f98c3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="radio-button" />
+
+<DemoFrame label="グループ">
+  <div role="radiogroup" aria-label="頻度" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="overview-frequency" value="daily" label="毎日"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="weekly" checked label="毎週"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="monthly" label="毎月"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+### 使い方
+
+ラジオボタンに Material 3 の寸法と、太くなって塗りに変わるリングを取り入れた改訂で変わったのは見た目と動きだけなので、以下の例はどれも現在の仕様に沿っています。Web は仕様どおりに描きます。SwiftUI、Compose、Flutter、React Native は追従待ちで、追従するまでは以前のラジオボタン、つまり 28 のステートレイヤーの中に、細い線の 16 のリングと 8 の点を描き、48 のターゲットの高さもレイアウトで確保しません。その後の調整が 1 つ、いまのところ Web だけにあります。リングと塗りを 1 つの形として描くことです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 同じ name を持つ選択肢が 1 つのグループになります。グループの名前は、それを囲む要素で付けます。 -->
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">頻度</span>
+      <tanrei-radio-button name="frequency" value="daily" label="毎日"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="weekly" checked label="毎週"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="monthly" label="毎月"></tanrei-radio-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-button';
+      // change を発火するのは選ばれた選択肢だけです。選択が外れた側は発火しません。
+      document.querySelector('[role="radiogroup"]').addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton } from '@tanrei/react';
+
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">頻度</span>
+      {options.map(({ value, label }) => (
+        <RadioButton
+          key={value}
+          name="frequency"
+          value={value}
+          label={label}
+          checked={frequency === value}
+          onChange={(e) => setFrequency(e.detail.value)}
+        />
+      ))}
+    </div>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // selection は Binding<Frequency?> です。値が value と等しい選択肢が選ばれた状態になります。
+    TanreiRadioGroup("頻度") {
+      TanreiRadioButton("毎日", value: Frequency.daily, selection: $frequency)
+      TanreiRadioButton("毎週", value: Frequency.weekly, selection: $frequency)
+      TanreiRadioButton("毎月", value: Frequency.monthly, selection: $frequency)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.selection.selectableGroup
+    import io.github.chnotchy.tanrei.components.TanreiRadioButton
+
+    // グループは親が作ります。各選択肢の onClick が自分の値を持ちます。
+    Column(Modifier.selectableGroup()) {
+        for ((value, label) in listOf("daily" to "毎日", "weekly" to "毎週", "monthly" to "毎月")) {
+            TanreiRadioButton(selected = frequency == value, onClick = { frequency = value }, label = label)
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiRadioGroup<Frequency>(
+      groupValue: frequency,
+      onChanged: (Frequency value) => setState(() => frequency = value),
+      semanticLabel: '頻度',
+      child: Column(
+        children: <Widget>[
+          for (final Frequency option in Frequency.values)
+            TanreiRadioButton<Frequency>(value: option, label: option.label),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react-native';
+
+    <RadioGroup accessibilityLabel="頻度">
+      {options.map(({ value, label }) => (
+        <RadioButton key={value} value={value} label={label} selected={frequency === value} onSelect={setFrequency} />
+      ))}
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="選択、未選択、無効状態" plain>
+  <div role="radiogroup" aria-label="有効" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-enabled" value="unselected" label="未選択"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-enabled" value="selected" checked label="選択"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="無効" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="無効、未選択"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="無効、選択"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="ラベルを隠す">
+    <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="毎週"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+既定のシステムでは、ラジオボタンは Material 3 の寸法に従います。線の太さ 2 の 20 のリングを、直径 40 の丸いステートレイヤーの上に描きます。選ばれた選択肢に点は描きません。リングが内側へ半径の半分まで太くなり、内側に残った円を、リングの色の 50% の不透明度で塗ります。リングの外径は、どちらの状態でも変わりません。リングと塗りは 1 つの形です。どの拡大率や画面密度でも、また変化の途中のどのフレームでも、両者の間から背後が透けることはありません。選択が変わると、線が太くなるか細くなるのと同時に、リングの色が変わり、塗りがフェードインまたはフェードアウトします。塗りが中心から広がることはありません。動きの途中で再び変わったときは、その時点の姿から引き返します。動きを減らす設定では、新しい状態をすぐに、完全に示します。
+
+各選択肢は、レイアウトの中でターゲットと同じ 48 以上の高さを取り、ステートレイヤーはその中央に置かれます。そのため、隙間なく縦に並べても、選択肢どうしがターゲットを分け合うことはありません。もっと詰めて並べたいプロダクトは、自分のレイヤで `option.min-height` を下げ、ターゲットが重なることを受け入れます。
+
+`m3-like` では、選ばれた選択肢は Material のリング、隙間、点をそのまま描きますが、点は中心から拡大するのではなくフェードインします。`cupertino` では、ラジオボタンは小さめの寸法のままで、Apple の見た目を描きます。選ばれていないときは細いリングの中の明るい円、選ばれているときは明るい中心を囲む色付きの帯です。
+
+<ComponentSpecs name="radio-button" />
+
+## ガイドライン
+
+### 使う場面
+
+答えがちょうど 1 つに決まる問いで、選択肢が少なく、並べて見比べてほしいときに使います。配送の速さや、まとめを送る頻度などです。すべての選択肢が常に見えているぶん、場所を取ります。選択肢が多いときや場所が足りないときは、選んだものだけを表示するリストやメニューを使います。
+
+安全で、選ばれる見込みの高い選択肢があれば、最初からそれを選んだ状態にしておいてかまいません。利用者に意識して答えてほしいときは、どれも選ばない状態で始めます。一度どれかを選ぶと、グループを「何も選んでいない」状態には戻せません。ラジオボタンは自分自身の操作では選択が外れないからです。「なし」も正しい答えになりうるなら、選択肢の 1 つとして加えます。
+
+### チェックボックス、ラジオボタン、スイッチの使い分け
+
+| コントロール | 選択 | 反映されるとき | 用途 |
+| --- | --- | --- | --- |
+| [チェックボックス](/ja/components/checkbox/) | 独立した選択をいくつでも（0 個も可） | 利用者が確定したとき | フォームの選択肢、規約への同意、行の選択 |
+| ラジオボタン | すべて見えている少数の選択肢から 1 つだけ | 多くは、利用者が確定したとき | 1 つの問いへの 1 つの答え |
+| [スイッチ](/ja/components/switch/) | 1 つの設定のオンかオフ | すぐに | 切り替えた時点で反映される設定 |
+
+### 推奨
+
+- どのグループにも名前を付けます。選択肢が答える問いを、グループの前に見えるテキストとして置きます。
+- 選択肢は縦に並べ、小さい順など、問いに合った順序にします。各選択肢がターゲットの高さをすでに確保しているので、並べるときに隙間を足す必要はありません。
+- ラベルは短く、形をそろえて、見比べやすくします。
+- 1 つのグループの選択肢は、1 つのコンテナにまとめます。
+
+### 非推奨
+
+- ラジオボタンを 1 つだけで使わない。「はい」か「いいえ」かの 1 つの選択には、チェックボックスかスイッチを使います。
+- 互いに排他的でない選択にラジオボタンを使わない。チェックボックスを使います。
+- 選択肢を選んだ瞬間に、別の画面への移動のような大きなアクションを始めない。矢印キーは通過する選択肢を順に選んでいくので、キーボードの利用者は目的の選択肢にたどり着く前にそのアクションを起こしてしまいます。
+- 1 つのグループを、画面の離れた場所に分けて置かない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="radio-button" />
+
+### コンポーネントが担うこと
+
+- 各選択肢は、ラジオのロール、選ばれているかどうか、無効状態、グループ内での位置とグループの大きさ（「2 of 3」など）を伝えます。Apple のプラットフォームにはラジオのロールがないため、選択トレイトを持つボタンとして伝え、位置はアクセシビリティの値で伝えます。Flutter のセマンティクスでは、位置はまだ伝えられません。
+- ラベルは、描かれていても `labelHidden` で隠されていても、アクセシブルネームになります。描かれたテキストは支援技術から隠すので、名前が読まれるのは 1 度だけです。
+- グループの中で Tab で止まる位置は 1 つです。選ばれている選択肢、何も選ばれていなければ最初の有効な選択肢です。矢印キーは次または前の有効な選択肢に移ってそれを選び、端では反対側に戻ります。右から左のレイアウトでは、左右の矢印キーの向きが入れ替わります。
+- Space でフォーカスのある選択肢を選びます。Enter で選べるのは、フォーカスのあるコントロールを Enter で操作するのが慣習のプラットフォーム（Android、tvOS）だけです。Web では Enter はフォームを送信します。
+- 選択肢を選ぶと、ほかの選択肢の選択は外れます。変更を知らせるのは新しく選ばれた選択肢だけで、すでに選ばれている選択肢を操作しても何も起きません。
+- ラベルをクリックまたはタップすると、その選択肢が選ばれます。ラベルもヒット領域に含まれ、ヒット領域は最小ターゲットを満たします。各選択肢はターゲットの高さをレイアウトで確保するので、縦に並べた選択肢もそれぞれ独立したターゲット全体を持ちます。
+- 選択を伝えるのはリングだけです。既定のシステムでは、選ばれたリングはどのサーフェスに対しても 3:1 以上を保ち、選ばれていないリングの 2.5 倍の太さがあります。半透明の塗りは装飾で、数に入れません。
+- フォーカスインジケーターはキーボードフォーカスのときだけ表示します。
+- 動きを減らす設定では、新しい状態をすぐに、完全に示します。
+- ラベルがない場合は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native は、まだ以前の寸法で点のある以前のラジオボタンを描き、リングと塗りを 1 つの形として描くことにも対応しておらず、ターゲットの高さもレイアウトで確保しません。そのため、隙間なく並べた選択肢はターゲットを分け合います。
+- `m3-like` では、選ばれたときの点は元の大きさのままフェードインします。Material では中心から拡大して現れます（mimicry-gaps 台帳 `radio-dot-scale-in`）。
+
+### 利用者側で行うこと
+
+- グループに、答える問いを名前として付けます。Web では選択肢を `role="radiogroup"` と `aria-labelledby` を持つ要素、または `<legend>` を持つ `<fieldset>` で囲みます。Flutter では `TanreiRadioGroup` の `semanticLabel`、React Native では `RadioGroup` の `accessibilityLabel` を設定します。
+- キー操作と位置の読み上げが働くように、グループは各プラットフォームの方法で作ります。Web では同じ `name`、Compose では親の `Modifier.selectableGroup()`、Flutter では `TanreiRadioGroup`、React Native では `RadioGroup` です。
+- 必須の問いに答えがないときは、グループにメッセージを表示します。エラーの[ラジオグループ](/ja/components/radio-group/)は、エラーテキストを描き、すべてのラジオボタンをエラーの形にします。ラジオグループを使わずにまとめた選択肢では、それぞれのラジオボタンに `error` を設定します。チェックボックスのボックスと同じように、リングと中の丸がエラーの色になります。無効の選択肢は、エラーの色になりません。
+- エラーのラジオボタンが invalid として伝えられることはありません。ラジオボタンのロールには、その状態がないためです。伝えるのはグループです。ラジオグループは invalid になり、エラーテキストがその説明になります。選択肢を自分でまとめる場合は、そのそばにエラーを言葉で書きます。
+- 自分のレイヤでリングと塗りを変えるときは、リングだけで選択が分かる強さを保ちます。ビルドでは確かめません。
+- React Native では、英語以外のプロダクトなら `RadioGroup` に `positionText` を渡します。既定では、位置を英語で「2 of 3」のように読み上げます。

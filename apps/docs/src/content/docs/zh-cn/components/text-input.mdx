@@ -1,0 +1,231 @@
+---
+title: "文本输入框"
+description: "用户在里面键入的那个方框，以及在里面键入的一切——单行或多行、日期或时间、代码——它自己没有标签行、帮助文本和错误文本。用于标签位于别处的地方，或者放进产品自己组合的字段里。"
+translationOf: components/text-input.mdx
+sourceHash: f696d67893933cf6b88d1d28aeb4216876f1ec36
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="text-input" />
+
+<DemoFrame label="单独使用：列表上方的一个筛选框，以及标签位于输入框旁边的一行" column>
+  <tanrei-text-input class="not-content" type="search" label="筛选令牌" placeholder="筛选令牌">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>显示名称</span>
+    <tanrei-text-input label="显示名称" value="李华"></tanrei-text-input>
+  </div>
+</DemoFrame>
+
+文本输入框就是[文本字段](/zh-cn/components/text-field/)里的那个方框，单独拿出来：容器、文本、图标、前缀和后缀、日期的分段、选择器按钮和调整手柄。它上方没有标签行，下方没有帮助文本和错误文本，也不绘制计数。
+
+用户读到的标签位于别处时，就单独使用它：
+
+| 位置 | 用户读到的标签 | 输入框的 `label` |
+| --- | --- | --- |
+| 工具栏里或列表上方的筛选框 | 占位符和字形说明它是做什么的 | 它筛选的是什么：“筛选令牌” |
+| 表格的单元格 | 列标题 | 列和行：“数量，橡木书桌” |
+| 标签位于输入框旁边的一行 | 旁边的文本 | 同样的词 |
+
+单独使用时，输入框需要它自己的 `label`。它就是无障碍名称。stacked 的输入框绝不会把它画出来；filled 或 outlined 的输入框把它画成浮在方框里的标签。
+
+它是一个**高级**组件：一个不带任何附加功能的控件，供自己动手组合的产品使用。大多数表单需要的是[文本字段](/zh-cn/components/text-field/)，也就是放在字段里的这个输入框，可以直接使用。
+
+**使用它的组件**是[文本字段](/zh-cn/components/text-field/)和[纸片字段](/zh-cn/components/chip-field/)。要自己用字段框住它，就把它放进[字段](/zh-cn/components/field/)，由字段为它命名、描述它、把它标记为必填，并让它进入错误状态。
+
+它是一个块，宽度与所在的位置相同，单独使用和放在字段里都是如此。它没有自己的宽度：想要窄一些的方框，就给它一个窄一些的位置。
+
+在 Web 上它是 `<tanrei-text-input>`。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 工具栏里的筛选框：宽度由工具栏给它。 -->
+    <tanrei-text-input name="q" type="search" label="筛选令牌" placeholder="筛选令牌"
+      style="inline-size: 16rem">
+      <span slot="leading-icon">search</span>
+    </tanrei-text-input>
+
+    <!-- 表格的单元格：列标题就是可见的标签。 -->
+    <td><tanrei-text-input name="quantity-oak-desk" type="number" label="数量，橡木书桌" value="2"></tanrei-text-input></td>
+
+    <!-- 标签位于输入框旁边的一行。 -->
+    <div class="row">
+      <span>显示名称</span>
+      <tanrei-text-input name="display-name" label="显示名称" autocomplete="nickname"></tanrei-text-input>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/text-input';
+
+      const filter = document.querySelector('[name="q"]');
+      filter.addEventListener('input', () => show(filter.value)); // 每一次编辑
+      filter.addEventListener('change', () => remember(filter.value)); // 焦点离开或按下 Enter，并且值有变化
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TextInput } from '@tanrei/react';
+
+    <TextInput name="q" type="search" label="筛选令牌" placeholder="筛选令牌"
+      value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### 手写在字段里
+
+用字段包住一个文本输入框，就是把文本字段拆开来写。输入框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填设置写在字段上；`name`、`value` 以及与键入有关的一切写在输入框上。
+
+```html
+<tanrei-field label="邮箱" requirement="required" required-text="必填"
+  supporting-text="仅用于登录。">
+  <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="里面放着一个文本输入框的字段：画面与文本字段相同" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" requirement="required" required-text="必填" supporting-text="仅用于登录。">
+    <tanrei-text-input type="email"></tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+只有输入框知道的事，由它告诉所在的字段。字段的帮助文本从输入框里文本开始的位置开始，也就是越过内边距和前置图标之后。filled 或 outlined 的输入框自己画出字段的标签，让它浮在方框里，所以字段不绘制标签行。日期或时间只填了一半时，字段会进入错误状态，显示输入框的 `invalidText` 或 `unavailableText`。
+
+有一样东西要你自己动手：计数。设置 `counter` 后，计数由输入框来记，而字段只绘制作为 `count-text` 交给它的内容。请在每次变化时把它交给字段：
+
+```html
+<tanrei-field label="显示名称">
+  <tanrei-text-input name="display-name" maxlength="40" counter></tanrei-text-input>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const input = field.querySelector('tanrei-text-input');
+  field.countText = input.countText;
+  input.addEventListener('input', () => (field.countText = input.countText));
+</script>
+```
+
+文本字段会自己做这件事。文本字段做了、而手写的字段和文本输入框没有做的事，只有这一件。
+
+## 规格
+
+<DemoFrame label="单独使用的输入框：错误、禁用、只读、带前缀和后缀，以及大号" plain column>
+  <tanrei-text-input class="not-content" label="邮箱" value="ada@" error></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="邮箱" value="ada@example.com" disabled></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="邮箱" value="ada@example.com" readonly></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="金额" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="large" label="邮箱" value="ada@example.com"></tanrei-text-input>
+</DemoFrame>
+
+<DemoFrame label="单独使用的 filled 和 outlined：输入框自己的标签浮在方框里" system="m3-like" plain column>
+  <tanrei-text-input class="not-content" variant="filled" label="邮箱" type="email" value="ada@example.com"></tanrei-text-input>
+  <tanrei-text-input class="not-content" variant="outlined" label="邮箱" type="email"></tanrei-text-input>
+</DemoFrame>
+
+### 哪些属于输入框，哪些属于字段
+
+| 方面 | 文本输入框 | 包着它的字段 |
+| --- | --- | --- |
+| 绘制 | 方框、文本、占位符、前缀和后缀、图标、日期或时间的分段、选择器按钮、调整手柄，以及浮在 filled 或 outlined 方框里的标签 | stacked 输入框上方的标签行、必填或选填标记、帮助文本、错误文本、计数 |
+| 保存 | 值、它在表单中的位置、事件 | 什么都不保存 |
+| 告诉辅助技术 | 它自己的描述：前缀和后缀、计数 | 名称、帮助文本或错误文本、必填、无效、禁用 |
+
+方框里发生的事，在单独使用、放在字段里和用在文本字段里时都一样，只在文本字段的页面上写一次：[输入类型](/zh-cn/components/text-field/#输入类型)、[多行](/zh-cn/components/text-field/#多行)和调整手柄、[代码](/zh-cn/components/text-field/#代码)，以及带选择器按钮的[日期和时间](/zh-cn/components/text-field/#日期和时间)。
+
+### 单独使用，没有字段
+
+- **名称**是 `label`。`labelHidden` 让 filled 或 outlined 的输入框不把它画出来。
+- **错误**是 `error`，由你来设置：方框画成错误状态，并暴露为无效。输入框没有错误文本。请在它旁边用文字说明哪里不对，或者用字段框住它。
+- **日期或时间只填了一半**，或者填的值不可用时，方框画成错误状态，并触发 `entryError`。`invalidText` 或 `unavailableText` 会加进输入框的描述；没有任何东西把它画出来。
+- **计数**会被记录、写进描述并朗读，但不绘制。`countText` 是文本形式的计数（“12/40”），留给你来绘制。
+- **必填**要由字段来说明。单独使用的输入框没有必填设置：表单需要回答的地方，请自己校验。
+
+### 已经输入的内容
+
+`entries` 插槽是方框里位于键入文本之前的一个位置，用来放用户已经输入的内容：例如一列地址对应的纸片。输入框把插槽里的内容和键入部分排成可以换行的若干行，方框按整行增高。只要插槽里有内容，浮动标签就保持浮起，占位符也不显示。
+
+```html
+<tanrei-text-input label="收件人" type="email">
+  <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com"
+    remove-label="移除 ada@example.com"></tanrei-chip>
+</tanrei-text-input>
+```
+
+输入框不给这些项任何角色，不把它们排进焦点顺序，也不为它们处理任何按键：这些都由你负责。在方框里、所有项之外的地方按下，会让键入部分获得焦点。如果需要的是一列条目，连同它的按键、检查和表单值，请使用建立在这个位置之上的[纸片字段](/zh-cn/components/chip-field/)。
+
+<ComponentSpecs name="text-input" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素是与表单关联的元素。有 `name` 时，它提交 `value`，重置为 `value` 属性（attribute）的值，在导航返回时恢复，跟随被禁用的 `<fieldset>`，并在所在的字段说明它必填而它为空时报告缺少值。处于输入错误的日期或时间也会被报告。
+- 文本在 shadow root 里的原生 `<input>` 中编辑，`multiline` 时是 `<textarea>`。日期或时间是一组微调按钮（spin button）。
+- 这个元素是一个块。`focus()` 会把焦点交给原生元素；在方框上、按钮之外的任何地方按下，也会让它获得焦点。
+- `input` 和 `change` 是 composed 事件。`action` 是可以取消的 CustomEvent：取消它，Enter 就不会提交表单。`pickerrequest` 和 `entryerror` 是 CustomEvent，它们的 `detail` 分别是 `{ value, type, min, max }` 和 `{ reason, text }`。它们的类型是 `TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail` 和 `TanreiTextInputEntryErrorDetail`。
+- `countText` 是只读属性，值每次变化之后都是新的。它没有对应的属性（attribute）。
+- 属性（attribute）用 kebab-case 书写，例如 `label-hidden`、`min-rows`、`prefix-text`，以及表示 `wrap` 为 false 的 `no-wrap`。`readonly`、`maxlength`、`autocomplete`、`min` 和 `max` 沿用 HTML 的名称。
+- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`input`、`entries`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-grip`。
+- 插槽：`leading-icon`、`trailing-icon` 和 `entries`。后置图标可以是你自己的纯图标 Button。`entries` 部件没有自己的方框：它里面的项就排在方框自己的各行里。
+- `resize-label` 和 `segment-empty-text` 留空时，从产品的文字里读取（`setWords()`）。
+- 在元素完成定义之前，它没有尺寸。请预留方框的高度。
+
+## 指南
+
+### 文本输入框、文本字段，还是手写的字段
+
+| 你需要 | 使用 |
+| --- | --- |
+| 标签、方框、帮助文本、错误和计数 | [文本字段](/zh-cn/components/text-field/) |
+| 只要方框，标签位于别处：工具栏里的筛选框、表格的单元格、标签在旁边的一行 | 文本输入框，由它自己的 `label` 命名 |
+| 在框架里面、方框旁边或下方放你自己的东西 | 一个[字段](/zh-cn/components/field/)，里面放一个文本输入框和你自己的元素 |
+| 会展开建议或结果的搜索 | [搜索](/zh-cn/components/search/) |
+| 可以步进、并限制在范围之内的数字 | [数字字段](/zh-cn/components/number-field/) |
+
+### 推荐
+
+- 给单独使用的输入框一个 `label`，措辞与可见的标签相同，或者把可见的标签和它所在的位置合起来表达的意思说出来：“数量，橡木书桌”。
+- 让单独使用的输入框靠所在的位置得到宽度：网格的一列、一个单元格、工具栏里有宽度的一项。
+- 让可见的标签离得足够近，使看得见页面的人把两者读成一体。
+- 只要你需要的是方框上方的标签、帮助文本和错误，就使用文本字段。
+
+### 避免
+
+- 不要为了省下标签的位置，在表单里使用单独的输入框。除了靠字形标明的筛选框或搜索框之外，哪里都看不到标签的输入框，对每个看到它的人来说都只能靠猜。
+- 不要把占位符当作标签。一有人键入它就消失，而且它绝不是名称。
+- 不要在字段里的输入框上设置 `label`、`error` 或 `disabled`。把它们写在字段上，标签和帮助文本才会随之变化。
+- 不要把文本字段放进字段。它本身已经是字段；字段框住的控件是文本输入框。
+- 不要用自己的样式在方框里绘制计数、帮助文本或错误。它们是字段的行。
+
+## 无障碍
+
+<ComponentAccessibility name="text-input" />
+
+### 组件负责的部分
+
+- 它是一个文本框，`multiline` 时是多行文本框；`type` 为 search 时，在有这个角色的平台上是搜索框；日期或时间是一组微调按钮。
+- 它的名称是它自己的 `label`；它没有 `label` 时，是包着它的字段的标签。占位符绝不是名称。
+- 它的描述依次是：显示出来的前缀和后缀，计数，然后是字段给它的内容，也就是帮助文本或错误文本。
+- 处于错误状态时，它暴露为无效；所在的字段说明它必填时，暴露为必填；只读和禁用时，也分别暴露出来。
+- 键入停顿一秒之后，计数按当前的样子（“12/40”）朗读，绝不是每按一次键就朗读，也不管有没有东西把它画出来。
+- 焦点由方框自己的边缘来显示，无论来自键盘还是指针。点击区域满足最小目标。
+- 浮动标签后面的星号对辅助技术隐藏：必填状态已经说明了这一点。
+- 缺少名称会在调试构建中报告。
+
+### 需要你做的事
+
+- 用 `label` 为每个单独使用的输入框命名。它旁边可见的文本并不能为它命名。
+- 单独使用的输入框可能出错的地方，要用辅助技术读得到的文字说明哪里不对：一条与页面关联的、你自己的消息，或者包着输入框的字段。
+- 对日期或时间，给出 `segmentEmptyText`，并且即使没有字段显示它们，也要写上 `invalidText` 和 `unavailableText`：它们会随输入框一起朗读。
+- 用 `resizeLabel` 为调整手柄命名，用 `pickerLabel` 为选择器按钮命名。

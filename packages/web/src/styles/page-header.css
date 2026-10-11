@@ -1,0 +1,324 @@
+/*
+ * Page header (specs/page-header.spec.json, PGH-1 to PGH-24): the head of a page's
+ * content — the page's title as its heading, with a sentence that says what the page is, a line of facts about it,
+ * the actions for the whole page and the way back up above it. In the content, scrolling with it, laid out by its
+ * own width, and never a control.
+ *
+ * `<tanrei-page-header>` is an element with no shadow root around the page's own elements, which stay in the
+ * document: the title is the page's own `h1`, the one a crawler, a reader mode, a page without script and a screen
+ * reader all find (PGH-2, PGH-16).
+ *
+ *   <tanrei-page-header size="medium" actions-placement="end" divider>
+ *     <tanrei-breadcrumbs>…</tanrei-breadcrumbs>
+ *     <p data-part="eyebrow">Announcements</p>
+ *     <h1>Tokens are derived, and design systems are layers</h1>
+ *     <p>One value changes in one place, and everything built on it follows.</p>
+ *     <div data-part="meta">
+ *       <time datetime="2026-09-20">20 September 2026</time>
+ *       <span><tanrei-avatar size="small" decorative src="…"></tanrei-avatar> The Tanrei team</span>
+ *       <span>4 min read</span>
+ *     </div>
+ *     <div data-part="actions"><tanrei-button variant="outlined">Edit</tanrei-button><tanrei-button>Share</tanrei-button></div>
+ *   </tanrei-page-header>
+ *
+ * Parts are found by what they are, among the element's children: the title is the heading (`h1` to `h6`, or
+ * `[data-part="title"]` for one that is not a heading — which a debug build reports), the description the first `p`
+ * without a `data-part` (or `[data-part="description"]`), the breadcrumbs `tanrei-breadcrumbs` or
+ * `[data-part="breadcrumbs"]`; `[data-part="eyebrow"]`, `[data-part="meta"]` (each of whose element children is one
+ * item) and `[data-part="actions"]` the rest. They are written in the order they are read — breadcrumbs, eyebrow,
+ * title, description, meta, actions — which is the focus order at every width (PGH-11): the stylesheet places the
+ * actions beside the title by grid lines and never reorders.
+ *
+ * Attributes of the element: `size` (small | medium | large), `actions-placement` (end | below), `divider`.
+ * `headline`, `description`, `eyebrow` and `level` are conveniences for a head built by script: the element
+ * (src/components/page-header/page-header.ts) writes the heading, the paragraphs it names where the children have
+ * none. A content page writes the elements, and should.
+ *
+ * This stylesheet draws everything, before and without script: nothing is shown differently before the element is
+ * defined, and nothing moves when it is.
+ *
+ * THE WIDTH THAT DECIDES
+ *
+ * The head is a size container: the actions leave the title's side (PGH-10), and a large head takes the medium
+ * title (PGH-12), below `comp.page-header.wide.container-width`. A custom property cannot stand in a container
+ * condition either: the width is written here as `token(comp.page-header.wide.container-width)` and the build
+ * (scripts/build.js, scripts/conditions.js) writes its resolved value, in rem, in its place — so the step follows
+ * the head's own width and the reader's text size (PGH-18). src/components/page-header/page-header.test.ts fails if
+ * the condition drifts from the token.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name and has no specificity (`:where()`; a rule on `::before` has a
+ *   pseudo-element's), so one class of the product's wins, and the ORDER of the rules decides between two of them.
+ * - A rule reaches the head's own parts by the child combinator only: a heading inside a meta item is the product's.
+ * - A space between two parts is one part's margin, so an absent part takes none (PGH-1): the breadcrumbs and the
+ *   eyebrow keep theirs below, the description, the meta line and the actions theirs above.
+ * - The element is the container, so it cannot follow its own width: what changes at the wide width is written on
+ *   the parts — the title's text style, the description's space, the actions' place.
+ * - Beside the title the actions are a box one line of the title high, in the title's first row, with their row
+ *   centred in it: a Button taller than that line stands out of the box by the same amount above and below, and
+ *   stays centred on the title's first line (PGH-10).
+ * - Names that begin `--_pgh-` are private.
+ */
+@layer tanrei.components {
+  /* ── The block (PGH-1, PGH-14): as wide as its place, as tall as its parts, no fill, edge, shape or outer space ── */
+  :where(tanrei-page-header) {
+    /* PGH-2, PGH-7: the size's text styles and spaces (PGH-23: any other size is the default's). */
+    --_pgh-title-font: var(--tanrei-comp-page-header-title-typescale-medium-font);
+    --_pgh-title-tracking: var(--tanrei-comp-page-header-title-typescale-medium-letter-spacing);
+    --_pgh-title-line: calc(var(--tanrei-comp-page-header-title-typescale-medium-font-size) * var(--tanrei-comp-page-header-title-typescale-medium-line-height));
+    --_pgh-description-font: var(--tanrei-comp-page-header-description-typescale-medium-font);
+    --_pgh-description-tracking: var(--tanrei-comp-page-header-description-typescale-medium-letter-spacing);
+    --_pgh-description-gap: var(--tanrei-comp-page-header-description-gap-medium);
+    --_pgh-end: var(--tanrei-comp-page-header-container-padding-block-end-medium);
+    /* PGH-13: the line under the head, and its thickness: none unless `divider`. */
+    --_pgh-line: 0px;
+    --_pgh-line-color: var(--tanrei-comp-page-header-divider-color);
+    --_pgh-dot-color: var(--tanrei-comp-page-header-meta-separator-color);
+    /* PGH-20, PGH-22: start as a side, by the layout direction — not by a part's own text. */
+    --_pgh-start: left;
+
+    display: grid;
+    /* PGH-10: the text keeps at least half of the head; the actions beside it take what they need of the rest. */
+    grid-template-columns: [text-start] minmax(50%, 1fr) [text-end actions-start] auto [actions-end];
+    grid-template-rows: [breadcrumbs] auto [eyebrow] auto [title] auto [title-rest] auto [description] auto [meta] auto [actions] auto [end];
+    box-sizing: border-box;
+    min-inline-size: 0;
+    /* PGH-10, PGH-12: the head decides its layout from its own width. */
+    container-type: inline-size;
+    /* PGH-1: nothing above its first part; the size's space below its last, inside its own box. PGH-13: the line. */
+    padding-block-end: var(--_pgh-end);
+    border-block-end: var(--_pgh-line) solid var(--_pgh-line-color);
+    /* What a head's text must not take from where it is used. */
+    text-indent: 0;
+  }
+  :where(tanrei-page-header[hidden]),
+  /* PGH-24: a head with no part draws nothing and takes no space. */
+  :where(tanrei-page-header):where(:not(:has(> *))) {
+    display: none;
+  }
+  :where(tanrei-page-header):dir(rtl) {
+    --_pgh-start: right;
+  }
+  :where(tanrei-page-header[size='small']) {
+    --_pgh-title-font: var(--tanrei-comp-page-header-title-typescale-small-font);
+    --_pgh-title-tracking: var(--tanrei-comp-page-header-title-typescale-small-letter-spacing);
+    --_pgh-title-line: calc(var(--tanrei-comp-page-header-title-typescale-small-font-size) * var(--tanrei-comp-page-header-title-typescale-small-line-height));
+    --_pgh-description-font: var(--tanrei-comp-page-header-description-typescale-small-font);
+    --_pgh-description-tracking: var(--tanrei-comp-page-header-description-typescale-small-letter-spacing);
+    --_pgh-description-gap: var(--tanrei-comp-page-header-description-gap-small);
+    --_pgh-end: var(--tanrei-comp-page-header-container-padding-block-end-small);
+  }
+  /* PGH-12: a large head is everything a large head is, with the medium title and the medium space under it — until
+     it is wide (below). */
+  :where(tanrei-page-header[size='large']) {
+    --_pgh-description-font: var(--tanrei-comp-page-header-description-typescale-large-font);
+    --_pgh-description-tracking: var(--tanrei-comp-page-header-description-typescale-large-letter-spacing);
+    --_pgh-end: var(--tanrei-comp-page-header-container-padding-block-end-large);
+  }
+  :where(tanrei-page-header[divider]:not([divider='false'])) {
+    --_pgh-line: var(--tanrei-comp-page-header-divider-thickness);
+  }
+
+  /* ── The breadcrumbs slot (PGH-5): first, at the start edge, across the whole width; nothing else is done to it ── */
+  :where(tanrei-page-header) > :where(tanrei-breadcrumbs, [data-part='breadcrumbs']) {
+    grid-area: breadcrumbs / text-start / auto / actions-end;
+    min-inline-size: 0;
+    margin-block-end: var(--tanrei-comp-page-header-breadcrumbs-gap);
+  }
+
+  /* ── The eyebrow (PGH-6): small, tracked, in capitals that are drawn and not written ────────────────────────── */
+  :where(tanrei-page-header) > :where([data-part='eyebrow']) {
+    grid-area: eyebrow / text-start / auto / text-end;
+    min-inline-size: 0;
+    margin: 0;
+    margin-block-end: var(--tanrei-comp-page-header-eyebrow-gap);
+    font: var(--tanrei-comp-page-header-eyebrow-typescale-font);
+    letter-spacing: var(--tanrei-comp-page-header-eyebrow-typescale-letter-spacing);
+    color: var(--tanrei-comp-page-header-eyebrow-color);
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+    /* PGH-22: text of its own direction, placed and aligned by the layout's. */
+    unicode-bidi: plaintext;
+    text-align: var(--_pgh-start);
+  }
+
+  /* ── The title (PGH-2, PGH-3): the page's own heading, in the title's style; it wraps and is never cut ──────── */
+  :where(tanrei-page-header) > :where(h1, h2, h3, h4, h5, h6, [data-part='title']) {
+    /* Two rows: the first is one line of the title high while the actions stand beside it (below). */
+    grid-area: title / text-start / description / text-end;
+    min-inline-size: 0;
+    margin: 0;
+    font: var(--_pgh-title-font);
+    letter-spacing: var(--_pgh-title-tracking);
+    color: var(--tanrei-comp-page-header-title-color);
+    /* PGH-3: lines of balanced length, a string with no break opportunity broken anywhere, never hyphenated unasked. */
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+    hyphens: manual;
+    unicode-bidi: plaintext;
+    text-align: var(--_pgh-start);
+  }
+  /* PGH-3: the line-breaking rules of the title's language (PRS-19). */
+  :where(tanrei-page-header) > :where(h1, h2, h3, h4, h5, h6, [data-part='title'], p:not([data-part], p:not([data-part]) ~ p), [data-part='description']):where(:lang(ja), :lang(zh)) {
+    line-break: strict;
+  }
+  /* PGH-4: no tracking in a script a tracked word falls apart in — the title's negative one, and the eyebrow's. */
+  :where(tanrei-page-header) > :where(h1, h2, h3, h4, h5, h6, [data-part='title'], [data-part='eyebrow']):where(
+      :lang(ja),
+      :lang(zh),
+      :lang(ko),
+      :lang(ar),
+      :lang(fa),
+      :lang(ur),
+      :lang(ps),
+      :lang(hi),
+      :lang(mr),
+      :lang(ne),
+      :lang(bn),
+      :lang(pa),
+      :lang(gu),
+      :lang(ta),
+      :lang(te),
+      :lang(kn),
+      :lang(ml),
+      :lang(si),
+      :lang(th),
+      :lang(lo),
+      :lang(km),
+      :lang(my)
+    ) {
+    letter-spacing: 0;
+  }
+
+  /* ── The description (PGH-7): a lead under the title, no longer than a line of reading text ─────────────────── */
+  :where(tanrei-page-header) > :where(p:not([data-part], p:not([data-part]) ~ p), [data-part='description']) {
+    grid-area: description / text-start / auto / text-end;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    max-inline-size: calc(var(--tanrei-comp-page-header-description-measure) * 1em);
+    margin: 0;
+    margin-block-start: var(--_pgh-description-gap);
+    font: var(--_pgh-description-font);
+    letter-spacing: var(--_pgh-description-tracking);
+    color: var(--tanrei-comp-page-header-description-color);
+    overflow-wrap: break-word;
+    unicode-bidi: plaintext;
+    text-align: var(--_pgh-start);
+  }
+  /* PGH-7: a link in it is underlined at rest (PRS-17). */
+  :where(tanrei-page-header) > :where(p:not([data-part], p:not([data-part]) ~ p), [data-part='description']) :where(a:any-link) {
+    text-decoration-line: underline;
+  }
+
+  /* ── The meta line (PGH-8): the items in the order given, a row that wraps, each centred on its row ──────────── */
+  :where(tanrei-page-header) > :where([data-part='meta']) {
+    grid-area: meta / text-start / auto / text-end;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--tanrei-comp-page-header-meta-item-gap);
+    row-gap: var(--tanrei-comp-page-header-meta-row-gap);
+    min-inline-size: 0;
+    margin: 0;
+    margin-block-start: var(--tanrei-comp-page-header-meta-gap);
+    padding: 0;
+    list-style: none;
+    font: var(--tanrei-comp-page-header-meta-typescale-font);
+    letter-spacing: var(--tanrei-comp-page-header-meta-typescale-letter-spacing);
+    color: var(--tanrei-comp-page-header-meta-color);
+    /* PGH-9: the dot of an item that begins a row stands before the row's start, and is not seen: the row is cut
+       there, short of the dot, and nowhere else (a focus ring of an item keeps the room between). */
+    clip-path: inset(-100vmax -100vmax -100vmax calc((var(--tanrei-comp-page-header-meta-separator-size) - var(--tanrei-comp-page-header-meta-item-gap)) / 2));
+  }
+  :where(tanrei-page-header) > :where([data-part='meta']):dir(rtl) {
+    clip-path: inset(-100vmax calc((var(--tanrei-comp-page-header-meta-separator-size) - var(--tanrei-comp-page-header-meta-item-gap)) / 2) -100vmax -100vmax);
+  }
+  /* An item stays whole on its row while it is no wider than the head, and wraps inside itself when it is. */
+  :where(tanrei-page-header) > :where([data-part='meta']) > :where(*) {
+    position: relative;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+  /* PGH-22: an item of text is a run of its own, of its own direction. (A Tag, a Link or any other component placed
+     as an item is not touched.) */
+  :where(tanrei-page-header) > :where([data-part='meta']) > :where(span, time, data, li, div) {
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+  /* PGH-8: a glyph or an Avatar followed by text in one item, centred on one line, meta.icon.gap between. */
+  :where(tanrei-page-header) > :where([data-part='meta']) > :where(span, time, data, li, div):where(:has(> *)) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tanrei-comp-page-header-meta-icon-gap);
+  }
+  /* PGH-9: the dot between two items that share a row, in the middle of the space between them. Not text: it is
+     neither read nor copied, and it is the same dot in a right-to-left layout. */
+  :where(tanrei-page-header) > :where([data-part='meta']) > :where(* + *)::before {
+    content: '';
+    position: absolute;
+    inset-block-start: calc(50% - var(--tanrei-comp-page-header-meta-separator-size) / 2);
+    inset-inline-start: calc((var(--tanrei-comp-page-header-meta-item-gap) + var(--tanrei-comp-page-header-meta-separator-size)) / -2);
+    inline-size: var(--tanrei-comp-page-header-meta-separator-size);
+    block-size: var(--tanrei-comp-page-header-meta-separator-size);
+    border-radius: var(--tanrei-sys-shape-corner-full);
+    background-color: var(--_pgh-dot-color);
+    pointer-events: none;
+  }
+
+  /* ── The actions (PGH-10, PGH-11): a row in the order given, below the text at the start edge ───────────────── */
+  :where(tanrei-page-header) > :where([data-part='actions']) {
+    grid-area: actions / text-start / auto / actions-end;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--tanrei-comp-page-header-actions-item-gap);
+    min-inline-size: 0;
+    margin-block-start: var(--tanrei-comp-page-header-actions-gap);
+  }
+  /* PGH-1: a part that is the head's first has no space above it. */
+  :where(tanrei-page-header) > :where(p:not([data-part], p:not([data-part]) ~ p), [data-part='description'], [data-part='meta'], [data-part='actions']):where(:first-child) {
+    margin-block-start: 0;
+  }
+
+  /* ── PGH-10, PGH-12: a head at least wide.container-width wide ──────────────────────────────────────────────── */
+  @container (inline-size >= token(comp.page-header.wide.container-width)) {
+    /* PGH-10: the actions beside the text at the end edge, container.gap after it, centred on the title's first
+       line however many lines the title has; their row ends at the head's end edge. */
+    :where(tanrei-page-header:not([actions-placement='below'])) > :where([data-part='actions']) {
+      grid-area: title / actions-start / auto / actions-end;
+      align-self: start;
+      align-content: center;
+      justify-content: flex-end;
+      block-size: var(--_pgh-title-line);
+      margin-block-start: 0;
+      margin-inline-start: var(--tanrei-comp-page-header-container-gap);
+    }
+    /* PGH-12: a large head draws the large title, and the large space under it. */
+    :where(tanrei-page-header[size='large']) > :where(h1, h2, h3, h4, h5, h6, [data-part='title']) {
+      --_pgh-title-font: var(--tanrei-comp-page-header-title-typescale-large-font);
+      --_pgh-title-tracking: var(--tanrei-comp-page-header-title-typescale-large-letter-spacing);
+    }
+    :where(tanrei-page-header[size='large']) > :where(p:not([data-part], p:not([data-part]) ~ p), [data-part='description']) {
+      --_pgh-description-gap: var(--tanrei-comp-page-header-description-gap-large);
+    }
+    :where(tanrei-page-header[size='large']) > :where([data-part='actions']) {
+      --_pgh-title-line: calc(var(--tanrei-comp-page-header-title-typescale-large-font-size) * var(--tanrei-comp-page-header-title-typescale-large-line-height));
+    }
+  }
+
+  /* ── PGH-19: forced colors — the text, the dot and the line in the system's text color; no fill to rely on ──── */
+  @media (forced-colors: active) {
+    :where(tanrei-page-header) {
+      --_pgh-line-color: CanvasText;
+      --_pgh-dot-color: CanvasText;
+    }
+    :where(tanrei-page-header) > :where(h1, h2, h3, h4, h5, h6, [data-part='title'], [data-part='eyebrow'], p:not([data-part], p:not([data-part]) ~ p), [data-part='description'], [data-part='meta']) {
+      color: CanvasText;
+    }
+    :where(tanrei-page-header) > :where([data-part='meta']) > :where(* + *)::before {
+      forced-color-adjust: none;
+    }
+  }
+}

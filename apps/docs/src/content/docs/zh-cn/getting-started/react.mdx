@@ -1,0 +1,71 @@
+---
+title: React
+description: 由 Tanrei 的 Web Components 生成的、带类型的 React 组件。
+translationOf: getting-started/react.mdx
+sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`@tanrei/react` 把 `@tanrei/web` 中的每个自定义元素包装成真正的 React 组件，带有类型化的属性和事件处理函数。这些包装组件由自定义元素清单（custom elements manifest）生成，因此始终与它们包装的元素保持一致。
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+
+## 安装
+
+需要 React 18 或更高版本。
+
+### 从源码
+
+与 [Web 包](/zh-cn/getting-started/web/)一样（Git、Node 22.12 或更高版本、pnpm 12）：在仓库的克隆中构建这两个包并打包，
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/web --filter @tanrei/react build
+pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanrei-packages
+```
+
+然后用一条命令把两个打包出的文件都安装到你的项目里，这样 React 包就能在旁边找到 Web 包：
+
+```sh
+npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
+```
+
+### 首次发布之后
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
+## 使用
+
+```tsx
+import '@tanrei/web/tokens.css';
+import { Button } from '@tanrei/react';
+
+export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
+  return (
+    <>
+      <Button variant="filled" onClick={onDeploy}>
+        部署
+      </Button>
+      <Button variant="text" size="small" disabled>
+        回滚
+      </Button>
+    </>
+  );
+}
+```
+
+属性的名称与元素的 attribute 相同（`variant`、`size`、`disabled`）。事件就是普通的 React 处理函数。
+
+## 服务端渲染
+
+这些组件在服务端渲染出自定义元素的标签，然后在浏览器中升级。在区分服务端和客户端的框架里，请从客户端组件中导入 `@tanrei/react`，以便元素的定义在浏览器中完成注册。
+
+<Callout>
+  主题、对比度、令牌和字体的用法与 [Web 指南](/zh-cn/getting-started/web/)中的说明完全相同；React 包没有在此之上添加任何自己的东西。
+</Callout>

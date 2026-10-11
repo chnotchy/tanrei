@@ -1,0 +1,415 @@
+{
+  "tanrei": {
+    "comp": {
+      "tooltip": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product names its icon actions with a short phrase on hover and focus, and explains a term or a setting with a longer, titled note, without either one interrupting the person.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a tooltip reads: for each form (plain, rich) and each look of it (on a surface, inverse) its container color, elevation, corner shape, padding and size limits and its text styles and colors; the arrow; the gap to the anchor and to the window's edges; when it appears and disappears (delays, the touch timeout, the time tooltips stay warm) and how it moves.",
+            "rules": [
+              "A tooltip describes its anchor; it never names it. An icon button keeps its own label (ICB), and a tooltip that repeats that label sets describes to false.",
+              "Nothing in a tooltip is interactive. A note that needs a link or a button is not a tooltip.",
+              "Never put information only in a tooltip that a touch or screen-reader user needs to finish a task.",
+              "Restyle through these tokens in a layer; never position a tooltip by hand. Say where it goes with placement, offset and crossOffset.",
+              "The unprefixed color and elevation tokens of a form are its look on a surface; the tokens under inverse are its inverse look. Which one an untouched tooltip takes is the form's container.inverse choice."
+            ]
+          }
+        },
+        "offset": {
+          "$type": "dimension",
+          "$value": "{tanrei.sys.space.space50}",
+          "$description": "The gap between the anchor's edge and the nearest part of the tooltip, on the side the tooltip is placed: the container's edge, or the arrow's tip while an arrow is drawn. A tooltip whose offset prop is set uses that in its place."
+        },
+        "window-margin": {
+          "$type": "dimension",
+          "$value": "{tanrei.sys.space.space100}",
+          "$description": "The least distance between the tooltip and the edges of the window's safe area; the tooltip flips, shifts or, in a window smaller than itself, covers its anchor to keep it."
+        },
+        "arrow": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product points some of its tooltips, or all of them, at what they describe — a hint the product opens over a crowded toolbar, where the side alone does not say which control is meant — and tunes how large that pointer is.",
+              "since": "0.1.0"
+            }
+          },
+          "visible": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "Whether a tooltip whose arrow the product did not set draws one (TIP-25). off: the container alone. on: a triangle on the edge that faces the anchor. A tooltip whose arrow is set keeps what it was given. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once whether its tooltips point at their anchors, and still draws a single one the other way.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "off",
+                  "on"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A choice of kind; no dial scales it."
+              }
+            }
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "The arrow's base, along the container's edge."
+          },
+          "height": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space75}",
+            "$description": "From the container's edge to the arrow's tip. The container stands this much farther from the anchor while an arrow is drawn, so the tip keeps the offset."
+          },
+          "inset": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "The least distance between the arrow's base and either end of the edge it stands on. Where the form's corner radius is larger, the radius is the least distance, so the arrow never stands on a curve."
+          }
+        },
+        "plain": {
+          "container": {
+            "inverse": {
+              "$type": "number",
+              "$value": 1,
+              "$description": "Whether a plain tooltip whose inverse the product did not set is drawn inverse (TIP-26). on: in the opposite scheme's colors, from the unprefixed tokens. off: on a surface of the scheme, from the tokens under plain.surface. A tooltip whose inverse is set keeps what it was given. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product decides once whether the short names on its controls are labels of the opposite theme or small raised surfaces of its own, and still draws a single one the other way where it lands on a surface the usual one would vanish into.",
+                  "since": "0.1.0"
+                },
+                "dev.tanrei.enum": {
+                  "values": [
+                    "off",
+                    "on"
+                  ]
+                },
+                "dev.tanrei.derive": {
+                  "fixed": "A choice of kind; no dial scales it."
+                }
+              }
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-surface}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.small}"
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "padding-block": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space50}"
+            },
+            "min-height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$description": "A minimum: the container grows with wrapped or enlarged text.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "max-width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 200,
+                "unit": "px"
+              },
+              "$description": "Longer text wraps onto more lines at this width.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 50
+                }
+              }
+            },
+            "gap": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space100}",
+              "$description": "Between the text and the shortcut after it.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product writes the keys beside the name of a command and sets how far apart the two stand.",
+                  "since": "0.1.0"
+                }
+              }
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-on-surface}"
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-small}"
+            }
+          },
+          "shortcut": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product shows, beside the name of a command, the keys that perform it, and draws them quieter than the name.",
+                "since": "0.1.0"
+              }
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.inverse-on-surface}",
+              "$description": "The shortcut's legends and separators on the inverse container. The scheme has one content role for the inverse surface, so the shortcut takes the text's color and stands apart by the gap alone."
+            }
+          },
+          "surface": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product draws the short names on its controls, or some of them, as small raised surfaces of its own theme, where a label of the opposite theme would vanish into what it lands on; each part keeps a token so that the surface label can be tuned apart from the inverse one.",
+                "since": "0.1.0"
+              }
+            },
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.surface-bright}",
+                "$description": "The container of a plain tooltip on a surface: the raised surface the rich tooltip stands on."
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.sys.elevation.level2}",
+                "$description": "On a surface the container's edge is its elevation, as the rich tooltip's is."
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}"
+              }
+            },
+            "shortcut": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$description": "The shortcut's legends and separators on a surface: quieter than the text."
+              }
+            }
+          }
+        },
+        "rich": {
+          "container": {
+            "inverse": {
+              "$type": "number",
+              "$value": 0,
+              "$description": "Whether a rich tooltip whose inverse the product did not set is drawn inverse (TIP-26). off: on a surface of the scheme, from the unprefixed tokens. on: in the opposite scheme's colors, from the tokens under rich.inverse. A tooltip whose inverse is set keeps what it was given. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product decides once whether its longer notes are raised surfaces of its own theme or blocks of the opposite one, and still draws a single one the other way.",
+                  "since": "0.1.0"
+                },
+                "dev.tanrei.enum": {
+                  "values": [
+                    "off",
+                    "on"
+                  ]
+                },
+                "dev.tanrei.derive": {
+                  "fixed": "A choice of kind; no dial scales it."
+                }
+              }
+            },
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-bright}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level2}"
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.medium}"
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space200}"
+            },
+            "padding-block": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "gap": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space50}",
+              "$description": "Between the title and the supporting text."
+            },
+            "max-width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 320,
+                "unit": "px"
+              },
+              "$description": "Longer text wraps onto more lines at this width.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 80
+                }
+              }
+            }
+          },
+          "title": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.heading-6}"
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            },
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body}"
+            }
+          },
+          "inverse": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product draws a longer note in the opposite theme where it must stand apart from a busy or raised surface under it; each part keeps a token so that the inverse note can be tuned apart from the surface one.",
+                "since": "0.1.0"
+              }
+            },
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.inverse-surface}"
+              },
+              "elevation": {
+                "$type": "shadow",
+                "$value": "{tanrei.sys.elevation.level0}",
+                "$description": "As the inverse plain tooltip: apart by color, without a shadow."
+              }
+            },
+            "title": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.inverse-on-surface}"
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.inverse-on-surface}",
+                "$description": "The scheme has one content role for the inverse surface; the title stands above the text by its typescale."
+              }
+            }
+          }
+        },
+        "motion": {
+          "show-delay": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long2}",
+            "$description": "How long a fine pointer rests on the anchor before the tooltip opens, so that a pointer passing over it does not flash one."
+          },
+          "hide-delay": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short2}",
+            "$description": "How long the tooltip waits after the pointer has left both the anchor and the tooltip, so the pointer can cross the offset onto the tooltip (WCAG 1.4.13, hoverable)."
+          },
+          "warm-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$description": "How long after a tooltip closed, because the pointer or the focus left its anchor, the next tooltip still opens at once: without its show delay and without the enter motion (TIP-28). A waiting time, kept where motion is reduced.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides how long a person who has just read one tooltip is taken to be reading tooltips: long enough to cross from one control of a toolbar to the next, short enough that a later, unrelated pass of the pointer waits again.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "enter-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$description": "How long the tooltip takes to fade in, grow and travel to its place."
+          },
+          "enter-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+          },
+          "enter-scale": {
+            "$type": "number",
+            "$value": 0.95,
+            "$description": "The size the tooltip grows from as it fades in, and shrinks to as it fades out, as a fraction of its own; the growth is fixed at the point of its edge that faces the anchor. 1 fades without growing.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product tunes how much its tooltips seem to come out of the control they describe: a little, not at all, or plainly.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A proportion of the tooltip's own size; no dial scales it."
+              }
+            }
+          },
+          "enter-offset": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "How far towards the anchor from its place the tooltip starts as it fades in, and returns as it fades out. 0 fades without travelling.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product tunes how far a tooltip travels from its anchor as it appears: enough to say which control it came from, whatever the tooltip's size, or not at all.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "exit-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long the tooltip takes to fade out, shrink and travel back."
+          },
+          "exit-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard-accelerate}"
+          }
+        },
+        "timeout": {
+          "touch": {
+            "$type": "duration",
+            "$value": {
+              "value": 1500,
+              "unit": "ms"
+            },
+            "$description": "How long a tooltip opened by a long-press stays after the finger lifts. There is no hover on touch, so without it the tooltip would vanish as the finger that hid it moves away.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A reading time, not an animation: the motion dial, which speeds or slows animation, must not shorten it."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

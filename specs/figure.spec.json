@@ -1,0 +1,673 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "figure",
+  "title": "Figure",
+  "summary": "Sets one thing to look at — a picture, a chart, a specimen, a live example — on a stage of its own, framed or not, with a caption that says what it shows, and optionally a title with the product's controls above and a joined block beneath.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The frame: the shape that holds the header, the stage and the attachment, with a card's corners. Filled with the surface and edged in the outlined look, filled with a quiet tone in the filled look, and neither filled nor edged in the plain look. It carries no state: nothing about it answers a pointer, a press or focus."
+    },
+    {
+      "id": "outline",
+      "description": "The outlined look's edge: one hairline inside the frame.",
+      "optional": true
+    },
+    {
+      "id": "header",
+      "description": "The row at the top of the frame that holds the title and the actions. Drawn only where the figure has one of them.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "A short line that names what is shown, at the start of the header. Text, never a heading by itself.",
+      "optional": true
+    },
+    {
+      "id": "actions",
+      "description": "The product's own controls at the end of the header (which variant, which theme, open it elsewhere). The figure lays them out and nothing else.",
+      "optional": true
+    },
+    {
+      "id": "stage",
+      "description": "Where the thing shown stands: the product's content, padded inside the frame or reaching its edges, scaled down where it can shrink and scrolled sideways inside the stage where it cannot."
+    },
+    {
+      "id": "attachment",
+      "description": "The product's block joined under the stage, inside the frame: the code an example was made from, the data of a chart, the facts about a specimen.",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "The line between the header and the stage and between the stage and the attachment, while the separation is a divider and the look has a frame.",
+      "optional": true
+    },
+    {
+      "id": "caption",
+      "description": "The text below the frame that says what is shown, in secondary text on the surface the figure sits on.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The system's focus indicator inside the stage's edge, drawn only while the stage scrolls and has keyboard focus.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "title",
+      "type": "string",
+      "default": "",
+      "description": "The title: a short line above the stage that names what is shown (\"Variants\", \"Revenue by quarter\"). Plain text, never a heading; the title slot takes the product's own content in its place. It is the figure's accessible name where it is given."
+    },
+    {
+      "name": "caption",
+      "type": "string",
+      "default": "",
+      "description": "The caption: the text below the frame that says what is shown. The caption slot takes the product's own content in its place (a caption with a link, inline code or a tag). It is the figure's accessible name where there is no title, and its description where there is one."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of a figure that draws neither a title nor a caption, in the product's language. Never drawn. Ignored where a title or a caption is given."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "outlined",
+        "filled",
+        "plain"
+      ],
+      "default": "outlined",
+      "description": "How the stage is set apart. outlined: the surface inside one hairline, the default. filled: a quiet tone and no edge, where one more line would crowd the page. plain: no fill, no edge, no padding and no line, for a picture that is its own frame. A design system may add values.",
+      "axis": "tanrei.comp.figure.variant"
+    },
+    {
+      "name": "inset",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the stage is padded inside the frame. True for a specimen or a live example, which needs room around it; false for a picture, a chart or a map that should reach the frame's edges and be clipped by its corners. The plain look has no frame to be inset from and is never padded."
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How the parts inside the frame are told apart. auto takes comp.figure.separation, which follows the system's choice. divider draws a line between the header and the stage and between the stage and the attachment, the attachment flush with the frame. gap draws no line and stands the attachment inside the frame with its own shape. The plain look has no frame and draws neither."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "What is shown, in the stage: a picture, a video, a chart, a diagram, a specimen, a live example of the product's own components. The figure does not style, crop, mirror or operate it."
+    },
+    {
+      "name": "title",
+      "description": "The product's own title content in place of the title prop: text with inline content, or a heading of the level the page's outline needs. The figure draws it in the title's style and changes neither its role nor its level.",
+      "fixture": "text"
+    },
+    {
+      "name": "actions",
+      "description": "The controls at the end of the header: the product's own icon-only Buttons, tabs, a select or links. The figure lays them out in a row and does nothing else to them.",
+      "fixture": "icon-only-button"
+    },
+    {
+      "name": "caption",
+      "description": "The product's own caption content in place of the caption prop: text with links, inline code, a keyboard shortcut or a tag.",
+      "fixture": "text"
+    },
+    {
+      "name": "attachment",
+      "description": "The block joined under the stage, inside the frame: a code block, a table, a description of the specimen. It is the product's component and keeps its own styles.",
+      "fixture": "text"
+    }
+  ],
+  "states": [
+    "enabled",
+    "focused"
+  ],
+  "behavior": [
+    {
+      "id": "FIG-1",
+      "text": "THE figure SHALL draw, from top to bottom, a frame that holds its header where it has one (FIG-7), its stage and its attachment where it has one (FIG-11), and below the frame its caption where it has one (FIG-10); the frame SHALL have corners comp.figure.container.shape eased by sys.shape.corner-smoothing, SHALL clip what it holds to those corners, SHALL be exactly as tall as what it holds, with no height and no minimum height of its own, and SHALL draw no elevation.",
+      "verify": "Under the default system the frame's corners are 8. A picture placed with inset false has its four corners cut by the frame."
+    },
+    {
+      "id": "FIG-2",
+      "text": "WHILE variant is outlined THE figure SHALL fill its frame with comp.figure.outlined.container.color and draw an edge comp.figure.outline.width wide in comp.figure.outline.color inside the frame's size, following its corners, without changing the frame's size or the place of what it holds; WHILE variant is filled it SHALL fill the frame with comp.figure.filled.container.color and draw no edge; WHILE variant is plain it SHALL draw no fill (comp.figure.plain.container.color), no edge, no padding and no line, so that what is shown is its own frame, and SHALL still clip the stage to comp.figure.container.shape."
+    },
+    {
+      "id": "FIG-3",
+      "text": "THE figure SHALL place the content of its default slot in the stage and draw nothing of its own there, between the frame's fill and that content or over it. WHILE inset is true and variant is not plain THE stage SHALL be padded by comp.figure.stage.padding-block above and below and comp.figure.stage.padding-inline before and after; WHILE inset is false or variant is plain THE stage SHALL have no padding, so that the content reaches the frame's edges. WHILE variant is outlined or filled THE figure SHALL hand the content comp.figure.content.color as the platform's inherited foreground and SHALL place content narrower or shorter than the stage at the stage's centre; WHILE variant is plain it SHALL hand no color and SHALL place content narrower than the stage at the stage's start edge, in line with the text around the figure. Several pieces of content SHALL be stacked in the order given with no space of the figure's between them: how several specimens are arranged is the product's layout.",
+      "verify": "Under the default system an inset outlined figure has 32 above and below its content and 24 before and after. A test places a 40 wide box in a 400 wide figure of each look: its centre is the stage's centre in outlined and filled, and its start edge is the figure's start edge in plain."
+    },
+    {
+      "id": "FIG-4",
+      "text": "WHEN content that has proportions of its own and can shrink — a picture, a video, a drawing — is wider than the stage's inner width THE figure SHALL scale it down to that width with its proportions kept (PRS-15), and SHALL NOT scale any content above its own size, crop it or stretch it: an aspect ratio and how a picture fills a box are the content's own."
+    },
+    {
+      "id": "FIG-5",
+      "text": "WHEN content that cannot shrink is wider than the stage's inner width THE stage SHALL scroll it sideways inside its own box, beginning at the start edge and with that content placed at the start edge rather than at the centre, the stage's inline padding scrolling with the content so that its last part can be brought clear of the frame's edge; the header, the attachment and the caption SHALL NOT scroll with it, the figure SHALL never be wider than its layout and SHALL never make what holds it scroll sideways, and THE stage SHALL NOT scroll up and down: it is as tall as its content.",
+      "verify": "A test places a box 900 wide that cannot shrink in a figure 320 wide: the figure stays 320 wide, the stage scrolls from the start edge, and the document does not scroll sideways."
+    },
+    {
+      "id": "FIG-6",
+      "text": "WHILE the stage scrolls (FIG-5) THE stage SHALL be one stop in the focus order, before anything inside it that takes focus, exposed as a group that carries the figure's name (FIG-16); WHILE it has keyboard focus it SHALL draw the system's focus indicator inside its edge — sys.focus.outer-width wide in the color role focus-ring, set in from the edge by sys.focus.offset so that nothing clips it, following the frame's corners where the stage meets them, and never animated — and the left and right arrow keys, Home and End SHALL scroll it as the platform scrolls a region, the arrow keys moving the view left and right in either layout direction; focus gained by pointer or touch SHALL NOT show the indicator; WHILE the stage does not scroll it SHALL NOT be a stop in the focus order and SHALL expose no group of its own."
+    },
+    {
+      "id": "FIG-7",
+      "text": "WHERE the figure has a title (FIG-8) or content in its actions slot THE figure SHALL draw a header at the top of the frame: one row with the title at the start and the actions at the end, comp.figure.header.gap apart, padded by comp.figure.header.padding-block above and below, by comp.figure.header.padding-inline at the start, and at the end by comp.figure.header.padding-inline-end-with-actions where it holds actions and by comp.figure.header.padding-inline where it does not; the title SHALL take the room the actions leave and wrap inside it, the actions SHALL keep their own sizes, and WHEN the actions and one word of the title no longer fit in one row THE actions SHALL move to a row of their own below the title, at the start edge, comp.figure.header.gap below it. WHERE the figure has neither THE figure SHALL draw no header, no space for one and no line under one."
+    },
+    {
+      "id": "FIG-8",
+      "text": "THE figure SHALL draw its title — the content of the title slot where it holds any, and the title prop otherwise — in comp.figure.title.typescale and comp.figure.title.color, wrapping and never cut; the title prop SHALL be exposed as plain text and never as a heading, and content given in the title slot SHALL keep the role and the level the product gave it (a heading stays the heading it is) while it is drawn in the title's style. IF both the prop and the slot are given THE slot SHALL be drawn and the prop ignored.",
+      "verify": "The fixture title-slot draws the same as the fixture title. A test puts a level 3 heading in the slot and reads a level 3 heading from the accessibility tree, drawn at the title's size."
+    },
+    {
+      "id": "FIG-9",
+      "text": "THE figure SHALL lay out the content of its actions slot in one row at the end of the header, in the order given, comp.figure.header.gap apart, each centred on the height of that row, and SHALL do nothing else to it: the controls keep their own sizes, colors, states, focus indicators, targets and names, the figure listens to none of their events, and what they change in the stage — its theme, its direction, the variant on show — is the product's own doing."
+    },
+    {
+      "id": "FIG-10",
+      "text": "WHERE the figure has a caption — the content of the caption slot where it holds any, and the caption prop otherwise — THE figure SHALL draw it below the frame, comp.figure.caption.gap from it, at the figure's start edge, in comp.figure.caption.typescale and comp.figure.caption.color, wrapping inside the figure's inline size and never cut or limited to a number of lines; inline content the product gives in the slot (inline code, a keyboard shortcut, a tag) SHALL sit on the caption's baseline and keep its own styles, and a link in it SHALL be underlined at rest (PRS-17). IF both the prop and the slot are given THE slot SHALL be drawn and the prop ignored. THE caption SHALL be below the frame in every look and SHALL have no other place: text above the stage is the title."
+    },
+    {
+      "id": "FIG-11",
+      "text": "WHERE the attachment slot holds content THE figure SHALL place it inside the frame, below the stage, across the frame's whole inline size, with no padding of the figure's around it, clipped by the frame's lower corners, and joined to the stage as the separation names (FIG-13); THE figure SHALL add no style to anything inside it: a block there that has a frame of its own (a code block, a table) is the product's to give in the form that suits the join.",
+      "verify": "A test attaches a block with a fill of its own under an outlined figure whose separation is divider: one line of the divider's thickness lies between the stage and the block, the block's fill reaches the inside of the frame's edge on three sides, and no second line or edge is drawn by the figure."
+    },
+    {
+      "id": "FIG-12",
+      "text": "THE figure SHALL tell the parts inside its frame apart as its separation names: WHILE separation is auto, as comp.figure.separation names, which follows sys.behavior.separation unless a design system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say. WHEN separation, or the token it follows, changes THE figure SHALL draw the other form at once, without animation, keeping the stage's scroll position; WHEN separation names a value the figure does not define THE figure SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, divider, and state that in its README.",
+      "verify": "The fixtures separation-divider and separation-gap draw the same under every design system; the fixture attachment leaves separation auto and follows the system."
+    },
+    {
+      "id": "FIG-13",
+      "text": "WHILE the separation is divider and variant is not plain THE figure SHALL draw a line comp.figure.divider.thickness thick in comp.figure.divider.color across the frame's whole inline size between the header and the stage and between the stage and the attachment, wherever both parts of a pair are present, and SHALL place the attachment flush against that line and the frame's edges; WHILE the separation is gap and variant is not plain THE figure SHALL draw no line, SHALL leave the header's own padding as the only space between the header and the stage, and SHALL set the attachment in by comp.figure.attachment.gap from the stage above it and from the frame's inline and lower edges, where the attachment keeps the shape it has by itself."
+    },
+    {
+      "id": "FIG-14",
+      "text": "WHILE variant is plain THE figure SHALL draw no line whatever the separation is, SHALL draw the header without inline padding so that the title begins at the figure's start edge, comp.figure.caption.gap above the stage, and SHALL place the attachment comp.figure.attachment.gap below the stage across the figure's whole inline size, where it keeps the shape it has by itself."
+    },
+    {
+      "id": "FIG-15",
+      "text": "THE figure SHALL NOT take pointer, touch or keyboard input of its own, apart from the scrolling of FIG-5 and FIG-6, and SHALL NOT change anything it draws under a pointer, a press or focus: its frame, header, title and caption have no hovered, focused, pressed, selected or disabled state, it draws no state layer and no ripple, and it emits no event. Input over the stage, the actions and the attachment SHALL reach the content placed there, which stays as operable, as focusable and in the same focus order — the actions, then the stage's content, then the attachment's, then anything in the caption — as it would be outside a figure."
+    },
+    {
+      "id": "FIG-16",
+      "text": "THE figure SHALL be exposed to assistive technology as a figure, or as a named group where the platform has no such role, whose name is its title where it has one, its caption where it has a caption and no title, and label otherwise; WHERE it has both a title and a caption THE caption SHALL be exposed as the figure's description and still be read as text in its place; THE figure SHALL NOT draw label. Everything in the header, the stage, the attachment and the caption SHALL stay exposed in that reading order, and THE figure SHALL neither supply nor replace the text alternative of a picture placed in the stage: that is the picture's own. IF title, caption and label are all empty THE figure SHALL be exposed without a name and in debug builds report that a figure has no name."
+    },
+    {
+      "id": "FIG-17",
+      "text": "WHEN the title, the caption, the look, inset or the content of a slot changes THE figure SHALL draw and expose the new value at once, without a motion, keeping the stage's scroll position where the content still reaches it, and SHALL NOT announce the change by itself."
+    },
+    {
+      "id": "FIG-18",
+      "text": "THE figure SHALL lay itself out as a block in the flow of its container: it SHALL take the whole inline size the container gives it — a page, a column of prose, a cell of the product's grid, a card, a tab's panel alike — with its start edge on the start edge of the text around it; it SHALL bring no outer space of its own (PRS-15: the space between it and its neighbours is its container's), SHALL never be wider than its container, and SHALL have no minimum width, no maximum width and no measure of its own. THE figure SHALL NOT float beside the text, stick to an edge while the content scrolls or raise itself above the page: where it stands, and how several figures are arranged side by side, is the product's layout."
+    },
+    {
+      "id": "FIG-19",
+      "text": "WHILE the text size is enlarged THE figure SHALL grow its title and its caption with it, keep its paddings, gaps and lines, wrap, and grow in height; it SHALL cut nothing and set no fixed height, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no sideways scrolling of what holds it at a width of 320 points with text at 200 %: the actions move below the title (FIG-7) and content that cannot shrink scrolls inside the stage (FIG-5)."
+    },
+    {
+      "id": "FIG-20",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE figure SHALL draw an edge comp.figure.outline.width wide in the platform's text color inside its frame in the outlined and the filled looks, so that a look whose fill the mode removes is still a bounded stage, and no edge in the plain look, which has none to lose; it SHALL draw the lines of FIG-13 in that text color, its title and caption in that text color, links in the platform's link color and still underlined, and the focus indicator of FIG-6 in the platform's own color for focus; what is shown in the stage is the content's own to adapt.",
+      "verify": "On the web, with forced colors emulated: the fixtures outlined and filled have a visible edge in CanvasText, the fixture plain has none, and no part relies on a background color."
+    },
+    {
+      "id": "FIG-21",
+      "text": "WHERE the layout direction is right-to-left THE figure SHALL mirror the order of its header and apply its paddings by logical start and end, so that the title is at the right and the actions are at the left; SHALL draw the caption from the right edge; SHALL begin the stage's sideways scroll (FIG-5) at the right edge; and SHALL place a plain figure's narrow content (FIG-3) at the right edge. Top and bottom SHALL NOT change. THE figure SHALL NOT mirror, reorder or realign what is shown in the stage or in the attachment: a picture is never mirrored, and the direction of a live example is its own."
+    },
+    {
+      "id": "FIG-22",
+      "text": "THE figure SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the figure is shown THE figure SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows. A direction the product sets on the stage's content alone (a live example drawn right-to-left inside a left-to-right page) SHALL change that content and nothing of the figure's.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render; and with the direction set on a child of the stage, where the header and the caption stay as the page's direction puts them."
+    },
+    {
+      "id": "FIG-23",
+      "text": "THE figure SHALL lay out its title and its caption as text of their own direction, each isolated from the other and from the text around the figure: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name, an identifier, a number with its unit, a version and a date keep their own order in a right-to-left layout; THE figure SHALL still place each by the layout direction, not by the text's own, and SHALL wrap them, never cut them."
+    },
+    {
+      "id": "FIG-24",
+      "text": "WHEN variant names a value that the active design system does not have THE figure SHALL render with the default variant's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "FIG-25",
+      "text": "IF the default slot holds nothing THE figure SHALL draw nothing, take no space and expose nothing, and in debug builds report that a figure shows nothing: a title, a caption or an attachment alone is not a figure. IF label is not empty while a title or a caption is given THE figure SHALL ignore label."
+    }
+  ],
+  "accessibility": {
+    "role": "figure",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves through the product's controls in the header, then to the stage where it scrolls, then through what the stage, the attachment and the caption hold. The figure adds no stop of its own unless its stage scrolls."
+      },
+      {
+        "keys": "ArrowLeft / ArrowRight / Home / End",
+        "action": "While the scrolling stage has focus: scroll it sideways, as the platform scrolls a region."
+      }
+    ],
+    "labeling": "The figure is named by its title, or by its caption where it has no title, or by label where it draws neither. With both a title and a caption, the title is the name and the caption the description. A picture in the stage has its own text alternative, given by the product; the caption does not replace it. While the stage scrolls, it is a group with the figure's name, so that a person who reaches it by keyboard hears what scrolls.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the figure itself takes no press, so it has no target to size and minimumTarget holds trivially. The controls in its actions slot and anything operable in its stage are other components, each with its own target.",
+      "A caption is not a text alternative. The caption says what the figure is for a reader who sees it (\"Revenue grew in every region\"); the picture's own alternative says what the picture shows to a reader who does not. Where the caption already says everything the picture does, the product marks the picture as decorative rather than repeat the caption.",
+      "A live example in the stage stays fully operable and is read as what it is: the figure hides nothing from assistive technology and does not turn its content into an image. A purely decorative specimen (a swatch, a shape) is the product's to hide and to describe in the caption.",
+      "A figure with neither a title nor a caption needs label; the component reports a figure without any name in debug builds (FIG-16) and cannot tell whether a name is a good one.",
+      "A status such as do and don't is never given by a color on the frame: the figure has no status. A product that marks a figure as an example to follow or to avoid puts a tag with its glyph and its word at the start of the caption, where it is read as part of the figure's name or description.",
+      "The scrolling stage is a focus stop (FIG-6) so that a keyboard user can bring every part of wide content into view (WCAG 2.1.1); it is named, and it shows the system's focus indicator, which is held at 3:1 against every surface role, the two fills of this component among them.",
+      "Contrast in the default system: the title is on-surface on surface or surface-container and the caption is on-surface-variant on the surface the figure sits on, both role pairs held at 4.5:1 by the token invariants. The outlined look's edge and the dividers are decorative: the stage is told apart by its position and its caption, not by the line.",
+      "Forced colors (FIG-20): the filled look loses its fill and gains an edge in the text color. The plain look stays unframed."
+    ]
+  },
+  "tokens": "comp.figure",
+  "fixtures": [
+    {
+      "id": "outlined",
+      "props": {
+        "label": "A specimen"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "filled",
+      "props": {
+        "variant": "filled",
+        "label": "A specimen"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "plain",
+      "props": {
+        "variant": "plain",
+        "label": "A specimen"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "caption",
+      "props": {
+        "caption": "The medium corner, on a card."
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "filled-caption",
+      "props": {
+        "variant": "filled",
+        "caption": "The medium corner, on a card."
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "plain-caption",
+      "props": {
+        "variant": "plain",
+        "caption": "The medium corner, on a card."
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "title",
+      "props": {
+        "title": "Variants"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "title-caption",
+      "props": {
+        "title": "Revenue by quarter",
+        "caption": "Every region grew; the north grew fastest."
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "filled-title-caption",
+      "props": {
+        "variant": "filled",
+        "title": "Revenue by quarter",
+        "caption": "Every region grew; the north grew fastest."
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "title-slot",
+      "props": {},
+      "content": "Specimen",
+      "slots": {
+        "title": "Variants"
+      }
+    },
+    {
+      "id": "caption-slot",
+      "props": {},
+      "content": "Specimen",
+      "slots": {
+        "caption": "The medium corner, on a card."
+      }
+    },
+    {
+      "id": "actions",
+      "props": {
+        "title": "Variants"
+      },
+      "content": "Specimen",
+      "slots": {
+        "actions": [
+          "contrast",
+          "open_in_new"
+        ]
+      }
+    },
+    {
+      "id": "actions-only",
+      "props": {
+        "label": "A specimen"
+      },
+      "content": "Specimen",
+      "slots": {
+        "actions": "open_in_new"
+      }
+    },
+    {
+      "id": "flush",
+      "props": {
+        "inset": false,
+        "caption": "The harbour at low tide."
+      },
+      "content": "Picture"
+    },
+    {
+      "id": "filled-flush",
+      "props": {
+        "variant": "filled",
+        "inset": false,
+        "caption": "The harbour at low tide."
+      },
+      "content": "Picture"
+    },
+    {
+      "id": "title-flush",
+      "props": {
+        "inset": false,
+        "title": "Harbour",
+        "caption": "The harbour at low tide."
+      },
+      "content": "Picture"
+    },
+    {
+      "id": "attachment",
+      "props": {
+        "title": "Variants"
+      },
+      "content": "Specimen",
+      "slots": {
+        "attachment": "<tanrei-button variant=\"filled\">Save</tanrei-button>"
+      }
+    },
+    {
+      "id": "filled-attachment",
+      "props": {
+        "variant": "filled",
+        "caption": "A filled button and its markup."
+      },
+      "content": "Specimen",
+      "slots": {
+        "attachment": "<tanrei-button variant=\"filled\">Save</tanrei-button>"
+      }
+    },
+    {
+      "id": "separation-divider",
+      "props": {
+        "separation": "divider",
+        "title": "Variants",
+        "caption": "A filled button and its markup."
+      },
+      "content": "Specimen",
+      "slots": {
+        "actions": "contrast",
+        "attachment": "<tanrei-button variant=\"filled\">Save</tanrei-button>"
+      }
+    },
+    {
+      "id": "separation-gap",
+      "props": {
+        "separation": "gap",
+        "title": "Variants",
+        "caption": "A filled button and its markup."
+      },
+      "content": "Specimen",
+      "slots": {
+        "actions": "contrast",
+        "attachment": "<tanrei-button variant=\"filled\">Save</tanrei-button>"
+      }
+    },
+    {
+      "id": "filled-separation-gap",
+      "props": {
+        "variant": "filled",
+        "separation": "gap",
+        "title": "Variants"
+      },
+      "content": "Specimen",
+      "slots": {
+        "attachment": "<tanrei-button variant=\"filled\">Save</tanrei-button>"
+      }
+    },
+    {
+      "id": "plain-title-attachment",
+      "props": {
+        "variant": "plain",
+        "title": "Variants",
+        "caption": "A filled button and its markup."
+      },
+      "content": "Specimen",
+      "slots": {
+        "attachment": "<tanrei-button variant=\"filled\">Save</tanrei-button>"
+      }
+    },
+    {
+      "id": "long-caption",
+      "props": {
+        "caption": "Measured on the default system at standard contrast, with the window 1280 wide and the text at its default size; the same specimen is drawn again under each shipped preset further down the page, where the corner, the height and the text style each take that preset's own value."
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "long-title-actions",
+      "props": {
+        "title": "Every variant of the button at each of its five sizes, enabled and disabled, with and without a leading glyph"
+      },
+      "content": "Specimen",
+      "slots": {
+        "actions": [
+          "contrast",
+          "dark_mode",
+          "format_textdirection_r_to_l",
+          "open_in_new"
+        ]
+      }
+    },
+    {
+      "id": "actions-rtl",
+      "props": {
+        "title": "الأشكال",
+        "caption": "زرّ ممتلئ وزرّ محدَّد."
+      },
+      "content": "Specimen",
+      "slots": {
+        "actions": [
+          "contrast",
+          "open_in_new"
+        ]
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "plain-caption-rtl",
+      "props": {
+        "variant": "plain",
+        "caption": "الميناء عند الجزر."
+      },
+      "content": "Picture",
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-title-rtl",
+      "props": {
+        "title": "tanrei-button v0.1",
+        "caption": "comp.button.container.height.medium: 40px"
+      },
+      "content": "Specimen",
+      "direction": "rtl"
+    },
+    {
+      "id": "attachment-rtl",
+      "props": {
+        "separation": "divider",
+        "title": "الأشكال"
+      },
+      "content": "Specimen",
+      "slots": {
+        "attachment": "<tanrei-button variant=\"filled\">Save</tanrei-button>"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "docs-demo",
+      "props": {
+        "title": "Variants, sizes and disabled"
+      },
+      "content": "Filled Outlined Text",
+      "slots": {
+        "actions": [
+          "contrast",
+          "dark_mode",
+          "format_textdirection_r_to_l"
+        ]
+      }
+    },
+    {
+      "id": "docs-demo-code",
+      "props": {
+        "separation": "divider",
+        "title": "Variants"
+      },
+      "content": "Filled Outlined Text",
+      "slots": {
+        "actions": [
+          "contrast",
+          "dark_mode",
+          "format_textdirection_r_to_l"
+        ],
+        "attachment": "<tanrei-button variant=\"filled\">Filled</tanrei-button>"
+      }
+    },
+    {
+      "id": "docs-demo-system",
+      "props": {
+        "title": "Single choice, with glyphs, glyphs alone",
+        "caption": "Drawn under m3-like, a system that ships this component."
+      },
+      "content": "Day Week Month"
+    },
+    {
+      "id": "docs-specimen",
+      "props": {
+        "variant": "plain",
+        "caption": "medium · 8px"
+      },
+      "content": "Specimen"
+    },
+    {
+      "id": "docs-picture",
+      "props": {
+        "variant": "plain",
+        "caption": "The review gallery, with one component's fixtures drawn in both directions."
+      },
+      "content": "Picture"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-figure",
+      "props": {
+        "title": "headline",
+        "caption": "caption",
+        "label": "label",
+        "variant": "variant",
+        "inset": "inset",
+        "separation": "separation"
+      },
+      "notes": "Form: `<tanrei-figure>` is a custom element with **no shadow root**, wrapped around a native `<figure>` that stays in the light DOM, so that the figure and its caption are the document's own — read without script, by a crawler, by reader modes and by a screen reader as a figure with its `<figcaption>` (once the element is defined it names the figure by that caption itself, `aria-labelledby`, unless the product gave the `<figure>` an `aria-label`: one engine does not take the name from the caption): `<tanrei-figure><figure><div data-part=\"frame\"><header><p data-part=\"title\">…</p><div data-part=\"actions\">…</div></header><div data-part=\"stage\">…</div><div data-part=\"attachment\">…</div></div><figcaption>…</figcaption></figure></tanrei-figure>`; every part but the stage is optional, and a lone `<img>`, `<picture>`, `<video>`, `<svg>` or `<canvas>` in place of the stage element is its own stage. Everything drawn comes from one stylesheet, `@tanrei/web/figure.css`, whose selectors start at `tanrei-figure` and are wrapped in `:where()`; it styles the page before the element is defined and without script, so a page of figures does not move when the script arrives, and the element adopts the same sheet into the root it is connected to. Props are attributes of the wrapper: `variant`, `separation`, `label`; `inset` is a boolean property that defaults to true and its attribute is the inverse `flush`, as the card's (an HTML boolean attribute cannot default to true). The title is the `headline` attribute (HTML's global `title` would show a tooltip over the whole figure, as on the callout); `headline` and `caption` are conveniences for a figure built by script or by the React wrapper, for which the element writes the parts above itself around its children. What the element adds once defined: `aria-labelledby` on the native figure naming the title where there are both a title and a caption, and `aria-describedby` naming the caption; `aria-label` from `label`; `tabindex=\"0\"`, `role=\"group\"` and the same name on the stage while it scrolls sideways, removed when it does not (FIG-6); the resolved separation as a `data-separation` attribute where a container style query cannot be used; and the debug reports. A native `<figure>` with one `<figcaption>` and no title needs none of that. Under `forced-colors: active` the frame takes a `CanvasText` border in the outlined and filled looks (FIG-20). Pictures take `max-inline-size: 100%` and `block-size: auto` (FIG-4)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiFigure",
+      "props": {
+        "title": "title",
+        "caption": "caption",
+        "label": "accessibilityLabel",
+        "variant": "variant",
+        "inset": "isInset",
+        "separation": "separation"
+      },
+      "notes": "`TanreiFigure(title:caption:variant:isInset:separation:) { content } actions: { … } attachment: { … }`, with `titleContent:` and `captionContent:` view builders for the two slots. The stage is a horizontal `ScrollView` only while its content is wider than it. SwiftUI has no figure trait: the view is an accessibility container (`accessibilityElement(children: .contain)`) whose label is the title, or the caption, or `accessibilityLabel`, with the caption as its hint where there is a title. The content's foreground is set with `foregroundStyle` in the outlined and filled looks."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiFigure",
+      "props": {
+        "title": "title",
+        "caption": "caption",
+        "label": "contentDescription",
+        "variant": "variant",
+        "inset": "inset",
+        "separation": "separation"
+      },
+      "notes": "`TanreiFigure(title, caption, contentDescription, variant, inset, separation, actions = { … }, attachment = { … }) { content }`, with `titleContent` and `captionContent` lambdas for the two slots. No `clickable`. The stage takes `horizontalScroll` only while its content is wider than it. A traversal group (`semantics { isTraversalGroup = true }`) with the name as its content description; Compose has no figure role. The content color is provided through `LocalContentColor` in the outlined and filled looks."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiFigure",
+      "props": {
+        "title": "title",
+        "caption": "caption",
+        "label": "semanticLabel",
+        "variant": "variant",
+        "inset": "inset",
+        "separation": "separation"
+      },
+      "notes": "`TanreiFigure(title:, caption:, semanticLabel:, variant:, inset:, separation:, actions:, attachment:, child:)`, with `titleWidget:` and `captionWidget:` for the two slots. One `Semantics(container: true, label:)` around the parts, which stay in the tree. The stage is a horizontal `SingleChildScrollView` only while its child is wider than it. The content's default text and icon styles are set in the outlined and filled looks."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Figure",
+      "props": {
+        "title": "title",
+        "caption": "caption",
+        "label": "accessibilityLabel",
+        "variant": "variant",
+        "inset": "inset",
+        "separation": "separation"
+      },
+      "notes": "`<Figure title=\"Variants\" caption=\"…\" actions={…} attachment={…}>…</Figure>`; `title` and `caption` take a string or a node (the two slots). A `View` that is not itself `accessible`, so its children stay reachable, with `accessibilityLabel` on a wrapping group where the platform exposes one. The stage is a horizontal `ScrollView` only while its content is wider than it. Follows the app's direction where an ancestor's is not known. The content color is given through Tanrei's text context in the outlined and filled looks."
+    }
+  }
+}

@@ -1,0 +1,308 @@
+---
+title: "滑块"
+description: "让用户沿轨道拖动手柄，以连续或步进的方式选择一个值或一个取值范围。"
+translationOf: components/slider.mdx
+sourceHash: 39176fadfe7f25e466cebc49d5889a32184219cc
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="slider" />
+
+<DemoFrame label="连续、带刻度点的步进，以及范围" column>
+  <tanrei-slider label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="亮度" value="30" step="10" stops style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider range label="最高价格" start-label="最低价格" start-value="20" value="60" style="inline-size: 20rem"></tanrei-slider>
+</DemoFrame>
+
+### 用法
+
+滑块在 `min` 和 `max`（默认为 0 和 100）之间选择一个值。设置 `range` 后，滑块有两个手柄，选择的是从 `startValue` 到 `value` 的区间。`step` 为 0 时是连续的；大于 0 时，取值会吸附到 `min` 加上 `step` 的整数倍。
+
+滑块不绘制标签。`label` 为辅助技术给它命名；可见的标签是你自己放在滑块旁边的文本，用词与之相同。范围滑块还需要为起始手柄提供 `startLabel`。
+
+有两个事件报告变化。用户拖动期间，每次变化都会触发 `input`；变化结束时触发一次 `change`：按下结束了，或者进行了一次按键或辅助技术的调整。你自己设置的值两者都不触发。各平台按自己的方式为它们命名：Compose 上是 `onValueChange` 和 `onValueChangeFinished`，Flutter 上是 `onChanged` 和 `onChangeEnd`，React Native 上是 `onValueChange` 和 `onSlidingComplete`，SwiftUI 上则是绑定和 `onCommit`。
+
+让滑块的手柄变成圆形的那次修订，以及把它的圆环加粗的那次评审，改变的都只是外观，所以下面的示例全部适用于当前版本。Web 绘制的是当前的外观。SwiftUI、Compose、Flutter 和 React Native 待跟进：在跟上之前，它们仍然绘制以前的外观——一个实心的圆形手柄，轨道在手柄边缘处截断，所有尺寸都用同一种大小的刻度圆点。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 滑块不绘制标签：把可见的标签放在它旁边，用词相同。 -->
+    <tanrei-slider name="volume" label="音量" value="40" value-indicator="active"></tanrei-slider>
+
+    <!-- 步进，每一步上有一个圆点。 -->
+    <tanrei-slider label="亮度" value="30" step="10" stops></tanrei-slider>
+
+    <!-- 范围滑块以同一个 name 先提交 start-value，再提交 value。 -->
+    <tanrei-slider name="price" range min="0" max="500" step="10" start-value="100" value="300"
+      label="最高价格" start-label="最低价格"></tanrei-slider>
+
+    <script type="module">
+      import '@tanrei/web/components/slider';
+      const volume = document.querySelector('[name="volume"]');
+      // 元素先设置自己的 value，再触发 input 和 change。
+      volume.addEventListener('input', () => preview(volume.value));
+      volume.addEventListener('change', () => save(volume.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Slider } from '@tanrei/react';
+
+    <Slider
+      label="音量"
+      value={volume}
+      valueIndicator="active"
+      onInput={(e) => setVolume(e.currentTarget.value)}
+      onChange={(e) => save(e.detail.value)}
+    />
+
+    <Slider
+      range
+      min={0}
+      max={500}
+      step={10}
+      startValue={minPrice}
+      value={maxPrice}
+      label="最高价格"
+      startLabel="最低价格"
+      onInput={(e) => setPrices(e.currentTarget.startValue, e.currentTarget.value)}
+    />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 每次变化都会写入绑定；变化结束时运行 onCommit。
+    TanreiSlider("音量", value: $volume, in: 0...100, onCommit: save)
+
+    TanreiSlider("亮度", value: $brightness, in: 0...100, step: 10)
+
+    // 范围滑块使用绑定为 ClosedRange 的构造器：lowerBound 是起始手柄。
+    TanreiSlider("最高价格", startLabel: "最低价格", value: $prices, in: 0...500, step: 10)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSlider
+
+    // 状态提升：在 onValueChange 里更新 value。
+    TanreiSlider(
+        value = volume,
+        onValueChange = { volume = it },
+        contentDescription = "音量",
+        onValueChangeFinished = ::save, // 与 foundation 的不同，它带有值
+    )
+
+    // step 是步长，不是 Material 的步数。
+    TanreiSlider(value = brightness, onValueChange = { brightness = it }, step = 10f, contentDescription = "亮度")
+
+    // 范围滑块使用 value 为 ClosedFloatingPointRange 的重载。
+    TanreiSlider(
+        value = prices,
+        onValueChange = { prices = it },
+        valueRange = 0f..500f,
+        step = 10f,
+        contentDescription = "最高价格",
+        startContentDescription = "最低价格",
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiSlider(
+      value: volume,
+      onChanged: (double value) => setState(() => volume = value), // 传 null 则禁用
+      onChangeEnd: save,
+      semanticLabel: '音量',
+    );
+
+    // step 是步长，不是 Material 的 divisions。
+    TanreiSlider(value: brightness, step: 10, onChanged: (double value) => setState(() => brightness = value), semanticLabel: '亮度');
+
+    TanreiSlider.range(
+      start: minPrice,
+      end: maxPrice,
+      max: 500,
+      step: 10,
+      onChanged: (double start, double end) => setState(() {
+        minPrice = start;
+        maxPrice = end;
+      }),
+      semanticLabel: '最高价格',
+      startSemanticLabel: '最低价格',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Slider } from '@tanrei/react-native';
+
+    <Slider value={volume} onValueChange={setVolume} onSlidingComplete={save} accessibilityLabel="音量" />
+
+    <Slider value={brightness} step={10} stops onValueChange={setBrightness} accessibilityLabel="亮度" />
+
+    // 范围滑块：两个回调都接收 (value, startValue)。
+    <Slider
+      range
+      minimumValue={0}
+      maximumValue={500}
+      step={10}
+      startValue={minPrice}
+      value={maxPrice}
+      onValueChange={(value, startValue) => setPrices(startValue, value)}
+      accessibilityLabel="最高价格"
+      startAccessibilityLabel="最低价格"
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="尺寸、居中、数值指示器、纵向和禁用" plain column>
+  <tanrei-slider size="medium" label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider size="large" label="音量" value="40" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="平衡" min="-50" max="50" origin="0" value="20" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="音量" value="40" value-indicator="always" style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="音量" value="40" disabled style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider label="亮度" value="60" step="20" stops disabled style="inline-size: 20rem"></tanrei-slider>
+  <tanrei-slider orientation="vertical" label="音量" value="60" style="block-size: 12rem"></tanrei-slider>
+</DemoFrame>
+
+在默认系统中，滑块的手柄是一个圆环：一个直径 20、以表面颜色填充的圆，外面是一圈活动轨道颜色的轮廓。轮廓宽 3，画在圆的边缘以内，所以不改变手柄的大小：它留下一个直径 14 的表面颜色圆面，轮廓更宽，留下的圆面就更小。轨道和活动轨道从手柄下方穿过，在它的中心相接，所以活动轨道看起来是一条终止于圆环的线。在 4、6 和 8 的轨道上，也就是在每种尺寸下，手柄都是 20。
+
+刻度圆点，以及标记行程终点的那个圆点，粗细是轨道的一半：小号、中号和大号分别为 2、3 和 4。数值指示器位于圆环顶部略靠上的位置，与圆环居中对齐。禁用时，圆环保留它的填充，轮廓则随活动轨道一起变淡。
+
+设计系统可以用同一组令牌按自己的方式绘制手柄。轮廓为 0 时，手柄是一个实心的形状；轨道与手柄之间留有间隙时，轨道在到达手柄之前就终止，并在那里取圆角。`m3-like` 就是这样画出 Material 的竖条的。
+
+<ComponentSpecs name="slider" />
+
+## 指南
+
+### 何时使用
+
+当用户凭感觉选择一个值，并在移动的同时看到它的效果时，使用滑块：音量、亮度、照片的曝光、地图的搜索半径。范围滑块适合有下限和上限的筛选条件，例如价格。
+
+当确切的数字比它的位置更重要时，例如金额或数量，请使用[文本字段](/zh-cn/components/text-field/)，或者在滑块旁边放一个文本字段，让用户两种方式都能用。只有少数几个有名称的选项时，例如低、中、高，[单选按钮](/zh-cn/components/radio-button/)可以说出每一个的名称；系统提供[分段按钮](/zh-cn/components/segmented-button/)的话，也可以用它。
+
+### 连续还是步进
+
+- **连续**（`step` 为 0）可以取 `min` 和 `max` 之间的任何值。中间的值有意义、效果又立即可见时，使用它。
+- **步进**（`step` 大于 0）会吸附到 `min` 加上 `step` 的整数倍。只有整数单位才有意义时使用它：星级、以磅为单位的字号、以十为单位的百分比。
+- `stops` 在步进滑块可以取的每个值上画一个圆点。步数少时打开它，这样用户可以数出来。步数多时，圆点会挤满轨道，所以不要打开。
+
+方向键每次移动一步；在连续滑块上，每次移动范围的百分之一。Page Up 和 Page Down 每次移动十步。
+
+### 范围
+
+`range` 绘制两个手柄，从 `startValue` 到 `value`。两个手柄可以相遇，但绝不交叉。每个手柄都是独立的 Tab 停靠点，对屏幕阅读器来说也是独立的控件，屏幕阅读器读到的是这个手柄还能到达的范围。两个手柄都要命名：`startLabel`（“最低价格”）和 `label`（“最高价格”）。
+
+### 居中的滑块
+
+`origin` 设置活动轨道从哪里开始。留空时，从 `min` 开始。设为范围之内的一个值，例如在 -50 到 50 的平衡控件上设为 0，活动轨道就从那里向任意一侧伸展。轨道的两端保留各自的刻度圆点，所以两个极限都始终可见。
+
+### 数值指示器
+
+`valueIndicator` 在手柄旁边的一个小标签里显示它的值。
+
+| 值 | 何时显示数值 | 用途 |
+| --- | --- | --- |
+| `none`（默认） | 从不 | 效果显示在屏幕上其他地方的滑块：音量、亮度 |
+| `active` | 手柄被按下或获得键盘焦点时 | 用户在设置的同时需要读到的值，而手指会挡住手柄的场合 |
+| `always` | 始终 | 必须一直可读的值，而滑块旁边又没有地方放你自己的文本时 |
+
+指示器位于横向滑块的手柄上方，纵向滑块则位于行内起始侧。提供了 `valueText` 时，它显示 `valueText`；否则按平台的区域设置显示数字，小数位数与键盘步长的位数相同，最多两位。它只是值的一个视图：不获得焦点，也不接受输入，屏幕阅读器是从手柄读取值的。
+
+### 值文本
+
+当单独一个数字不够清楚时，把 `valueText` 设为描述当前值的文字：“40%”“3 星”“$300”。它会同时替换数值指示器里的数字和屏幕阅读器读出的内容。对于范围滑块，`startValueText` 对起始手柄起同样的作用。每当值变化时，都要更新它。
+
+只写一次的文字，第一次拖动之后就不对了。所以滑块还接受一个把值变成文字的函数，只需给一次：每次变化时，它都会为每个手柄调用这个函数；在你设置了 `valueText` 和 `startValueText` 的地方，仍以它们为准。在 Web 上它是 `formatValue`，是属性（property），绝不是属性（attribute）。其他平台尚未实现。
+
+```js
+const dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+document.querySelector('[name="price"]').formatValue = (value) => dollars.format(value);
+```
+
+**使用它的组件**是[滑块字段](/zh-cn/components/slider-field/)：字段和滑块合为一个组件，这些文字画在标签行的末尾。只要滑块需要画出来的标签、帮助文本或错误，就用它。
+
+### 尺寸和方向
+
+`small` 是日常使用的滑块。`medium` 和 `large` 给突出的控件一条更粗的轨道，例如媒体界面上的音量或亮度滑块。每种尺寸都满足最小目标。
+
+无论布局方向如何，纵向滑块都是从底部（`min`）到顶部（`max`）。横向滑块从行内起始侧开始，所以在从右到左的布局中，`min` 在右边。
+
+### 推荐
+
+- 把你自己的可见标签放在滑块旁边，用词与 `label` 相同。
+- 用户拖动时展示值的效果，并在 `change` 时保存，而不是在每次 `input` 时保存。
+- 选择合适的 `min`、`max` 和 `step`，让滑块能取的每个值都是用户可能想要的。
+- 数字本身说不清它计量的是什么时，给 `valueText` 加上单位。
+
+### 避免
+
+- 不要把滑块用于用户必须精确设置的值，例如日期或一笔金额。
+- 不要把滑块用于只有开或关的设置。请使用[开关](/zh-cn/components/switch/)。
+- 不要在步数很多的滑块上显示刻度圆点。
+- 不要把滑块放在[工具栏](/zh-cn/components/toolbar/)里。它需要方向键，而工具栏正是用方向键移动焦点的。
+
+## 无障碍
+
+<ComponentAccessibility name="slider" />
+
+### 组件负责的部分
+
+- 对辅助技术来说，每个手柄都是一个滑块，由 `label`（范围滑块的起始手柄则由 `startLabel`）命名，带有它的值、值文本、它能取的最小值和最大值、方向和禁用状态。在 Apple 的平台上，它是一个可调节元素：纵向轻扫使它移动一步。
+- 范围滑块是两个滑块，即 WAI-ARIA 的多手柄（multi-thumb）模式。每个手柄的极限受另一个手柄约束，所以屏幕阅读器朗读的是它还能到达的范围。
+- 轨道、刻度圆点、状态层和数值指示器对辅助技术隐藏。
+- 每个手柄都是一个 Tab 停靠点，起始手柄在前。方向键移动一步，Page Up 和 Page Down 移动十步，Home 和 End 移到最小值和最大值。在从右到左的横向滑块中，右方向键和左方向键互换。
+- 屏幕阅读器的增加和减少操作移动一步；在平台允许的地方直接设置值时，值会被限制在范围之内并吸附到步进上。
+- 在滑块的任意位置按下，都会把较近的手柄移到那里，手柄随后跟随拖动。触摸时，如果按下之后先是横穿轨道移动，这次按下就留给包裹滑块的滚动视图，所以滑块不会截住滚动。
+- 整个滑块都是点击区域，并且在垂直于轨道的方向上达到最小目标。手柄画得比目标小，但这并不会缩小点击区域，所以范围滑块的每个手柄也都保有完整的目标。
+- 它只在键盘聚焦时，围绕获得焦点的手柄显示焦点指示。
+- 在默认系统中，手柄与它下方的一切都以 3:1 或更高的对比度区分开来：靠轮廓区别于轨道和页面，靠填充区别于活动轨道。活动轨道相对于轨道和页面保持 3:1，颜色很淡的轨道的末端则靠刻度圆点保持可见。
+- 禁用的滑块不可聚焦，不显示数值指示器，并且暴露为禁用。
+- 文本大小只改变数值指示器，它随文本一起变大。
+- 调试构建会报告：缺少 `label` 或 `startLabel`；值、起始值或原点超出范围或不在步进上；起始值大于值；`max` 不大于 `min`；步长为负；以及未知的尺寸、方向或数值指示器设置。
+
+已知的平台差距：
+
+- 在 Web 上，每个手柄的滑块角色设在 shadow root 里，而不是通过 `ElementInternals`，因为 axe-core 看不到以那种方式设置的语义。它不是 `<input type="range">`：后者只有一个手柄，而且它的部件在任何两个引擎里的样式设置方式都不一样。
+- Web：辅助技术是通过浏览器发给 ARIA 滑块的方向键来调节它的，所以无法直接设置值。
+- Web：数值指示器不在顶层（top layer）。带有 `overflow: hidden` 的祖先元素会裁剪它，后面一个 `z-index` 大于 1 的定位兄弟元素会盖住它。
+- SwiftUI 无法暴露手柄的最小值和最大值，也无法暴露它的方向；在 macOS 上，手柄对辅助技术来说不是滑块。
+- SwiftUI 无法区分触摸和指针：在 iOS 上，每次按下都算触摸，iPad 的指针也是；在 macOS 上，每次按下都算指针。在 iOS 18 之前，触摸的拖动是一个 SwiftUI 手势，包裹滑块的滚动视图可能无法接管它。
+- SwiftUI：数值指示器被限制在滑块之内，而不是窗口之内，在滑块之后绘制的视图可能盖住它。
+- SwiftUI：按键是按规则测试的，还没有用真实的键盘测试，因为模拟器在自动化下不提供键盘焦点。
+- Compose 的滑块语义里没有方向，所以手柄的方向没有暴露。
+- Flutter 不暴露手柄的最小值、最大值和方向，也没有直接设置值的操作。
+- 在任何区域设置下，Flutter 都始终用 `.` 作为小数分隔符来书写数字。在这一点有影响的地方，请设置 `valueText`。
+- Flutter：只有当滑块的父级比滑块大时，点击区域才会在垂直于轨道的方向上扩大。与滑块大小完全相同的父级会把它截掉。
+- React Native 没有直接设置值的操作，也没有方向属性，所以两者都没有暴露。
+- 在 React Native 上，方向键只在连接了硬件键盘时有效，与标签页那一行的情况相同。
+- React Native 把每次按下都当作触摸：鼠标或触控笔的按下要等到它移动或结束之后，才会移动手柄。
+- React Native 把数值指示器画在滑块之内，而不是浮层里，所以它被限制在滑块之内，而不是窗口之内，在滑块之后绘制的视图可能盖住它。
+- React Native：布局、拖动及其让位给滚动视图的方式，以及可调节的手柄，都还没有在真机上验证过。
+- SwiftUI、Compose、Flutter 和 React Native 仍然绘制以前的外观：实心的手柄，所有尺寸都用同一种大小的刻度圆点，轨道在手柄处截断，而不是在它下方相接。在截断的地方，它们收尾的方式各不相同：SwiftUI 是平头，Flutter 和 React Native 是带缺口的圆头，Compose 则按手柄的形状截断。
+- 在 `cupertino` 下，浅色配色方案中白色手柄放在白色页面上的对比度为 1.0:1，低于显示数值的部件所需的 3:1。它按 Apple 的画法没有轮廓，靠阴影和旁边着色的活动轨道来区分；没有任何不变式检查手柄相对于页面的对比度。这个 1.0:1 是作为参考信息保留的测量值：Tanrei 的无障碍准则不适用于模仿预设。在 `cupertino` 下，滑块也不绘制刻度圆点，连轨道两端的也没有。
+- 在 `m3-like` 下，滑块按 Material 公布的尺寸绘制 Material 的竖条。这些尺寸还没有对照保真度参考验证过。在 `m3-expressive-like` 下，Material 画在粗轨道里的图标没有位置可放（模仿差距 `slider-inset-icon`）：请把你的图标放在滑块旁边。
+
+### 需要你做的事
+
+- 给每个滑块一个 `label`，范围滑块还要有 `startLabel`，使用你的产品所用的语言。把同样的文字作为可见标签显示在它旁边。
+- 数字本身不够清楚时设置 `valueText`，并让它与值保持同步。
+- 把变化的结果显示在用户看得到的地方；如果某次变化无法应用，用文本告诉用户。滑块只朗读它自己的值。
+- 在 `cupertino` 下，手柄是白色的，轨道末端也没有圆点，所以只要可以，就不要把滑块放在纯白的表面上。
+- 在 Web 上，给滑块一个 `name`，它的值才会随表单提交。

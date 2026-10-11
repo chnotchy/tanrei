@@ -1,0 +1,226 @@
+---
+title: Skeleton
+description: Stands where content will be while it loads — quiet placeholders in the shape of what is coming, lines of text, a block, a circle — and keeps the box the content will take, so that nothing moves when it arrives.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="skeleton" />
+
+<DemoFrame label="A person’s details and a card, while they load" column>
+  <tanrei-skeleton label="Loading the author's details" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
+  <tanrei-skeleton label="Loading the project" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+A view often arrives before its content. A skeleton holds the shape of what is coming in the place where it will be: lines of text, a block for a picture or a control, a circle for a person's picture. When the content arrives it takes the boxes that were held for it, and nothing a person was looking at, or about to press, moves.
+
+It is a region and its placeholders. The region is said once to assistive technology — "Loading projects", busy — and the placeholders say nothing by themselves. It waits a moment before it shows, so that a short wait shows a blank place of the right size instead of shapes that flash.
+
+On the web it is `<tanrei-skeleton>` around your own elements with `class="tanrei-skeleton-placeholder"`. The other platforms have not implemented it yet.
+
+### A skeleton, a loading indicator, a progress indicator, an empty state
+
+Four components answer "there is nothing here yet". Which one is decided by what is known about the wait and about what comes.
+
+| The situation | Use | Why |
+| --- | --- | --- |
+| Content of a known shape will fill a region of a view, and the wait is long enough to see. | Skeleton | It holds the layout, so nothing moves on arrival, and it shows where things will be. |
+| A short wait of unknown length whose result has no shape to hold, or is small: in a button, a row, a field, a status line. An action under way, such as saving or sending. | [Loading indicator](/components/loading-indicator/) | A mark is enough. Shapes for one row or one icon are noise. |
+| A task whose progress can be measured, or that takes many seconds. | [Progress indicator](/components/progress-indicator/) | A skeleton says nothing about how far, and after a few seconds a person needs to know. |
+| Nothing will come: the list is empty, the search found nothing. | [Empty state](/components/empty-state/) | A skeleton promises content. |
+| Loading failed. | A [callout](/components/callout/) with the error status, in the place. | A skeleton that never ends is a lie. |
+| The content is already there, and only its script, its picture or its font is late. | None of the four. The component holds its own box. | A skeleton does not know another component's size. That component does. |
+
+### Usage
+
+Put the skeleton where the content will be when the wait starts, and replace it with the content when the wait ends. Give it a `label` that says what is loading. A placeholder is an empty element of your own with the class: a `<span>` anywhere, or a `<div>` where it is the child of a block, such as another `<div>`. Inside a heading or a paragraph it is a `<span>`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/skeleton.css" />
+
+    <!-- Placeholders that are the skeleton's own children are stacked, with a gap. -->
+    <tanrei-skeleton label="Loading the project">
+      <span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span>
+      <span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span>
+      <span class="tanrei-skeleton-placeholder" data-lines="3"></span>
+    </tanrei-skeleton>
+
+    <!-- Anything more is your own layout, with the placeholders in it — where the content will be. -->
+    <tanrei-skeleton label="Loading the author's details">
+      <div class="byline">
+        <span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span>
+        <div>
+          <h3><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span></h3>
+          <p><span class="tanrei-skeleton-placeholder" data-lines="2"></span></p>
+        </div>
+      </div>
+    </tanrei-skeleton>
+
+    <!-- Part of the first presentation of a page, written by the server: shown at once, and right before any script. -->
+    <tanrei-skeleton show-delay="0" role="progressbar" aria-busy="true" aria-label="Loading the dashboard">
+      …
+    </tanrei-skeleton>
+    <noscript>The dashboard needs JavaScript.</noscript>
+
+    <script type="module">
+      import '@tanrei/web/components/skeleton';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Skeleton } from '@tanrei/react';
+    import '@tanrei/web/skeleton.css';
+
+    {project ? (
+      <ProjectCard project={project} />
+    ) : (
+      <Skeleton label="Loading the project">
+        <span className="tanrei-skeleton-placeholder" data-shape="block" style={{ blockSize: 160 }} />
+        <span className="tanrei-skeleton-placeholder" style={{ inlineSize: '12.5rem' }} />
+        <span className="tanrei-skeleton-placeholder" data-lines={3} />
+      </Skeleton>
+    )}
+    ```
+  </TabItem>
+</Tabs>
+
+On the web the stylesheet is the whole component before any script runs: the shapes, the wait before it shows, the pulse, stillness under reduced motion and the outlines of forced colors. The element adds what a stylesheet cannot: the role and the name for assistive technology, keeping what the skeleton holds out of the focus order, and pausing while it cannot be seen.
+
+## Specs
+
+<DemoFrame label="The three shapes: text, a block, a circle" plain column>
+  <tanrei-skeleton label="Loading the text" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
+  <tanrei-skeleton label="Loading the picture" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
+  <tanrei-skeleton label="Loading the person's details" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+<DemoFrame label="A text placeholder takes the text style of where it stands: in a heading, in a paragraph" plain column>
+  <tanrei-skeleton label="Loading the article" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
+</DemoFrame>
+
+<ComponentSpecs name="skeleton" />
+
+## Guidelines
+
+### It holds the box
+
+The point of a skeleton is that nothing moves. Its box, and the box of every placeholder, is the same from the moment it is inserted to the moment it is removed: while it waits to show, when it appears, while it stirs.
+
+The skeleton guesses nothing. It draws the placeholders you gave, in the sizes you gave. That the content takes the box its placeholders held is yours to arrange: put each placeholder where its content will be, placed as that content will be placed.
+
+- A text placeholder goes inside the heading, the paragraph or the cell the text will be in. It takes that text style, and is exactly as tall as that many lines of it, also when a reader enlarges the text.
+- Say how many lines the text will take with `data-lines`. You will be right as often as your content is regular. A skeleton that is one line short moves the page by one line, which is still less than a blank place moves it.
+- Give a block the size of the picture or the control: a number, a ratio, or the size your layout gives it. A circle takes one number, its side.
+
+<DemoFrame label="Press Load: the skeleton holds the place for two and a half seconds, and the content takes its box" plain column>
+  <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">Load</tanrei-button>
+  <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Tokens in three tiers</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">Reference tokens hold the raw values. System tokens name what a value is for. Component tokens bind one part to one of them.</p></div>
+  <template><tanrei-skeleton label="Loading the article"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
+  <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Tokens in three tiers</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">Reference tokens hold the raw values. System tokens name what a value is for. Component tokens bind one part to one of them.</p></template>
+  <p style="margin: 0">This line stands under the article, and does not move.</p>
+</DemoFrame>
+
+### Shapes
+
+| `data-shape` | Stands for | Its size |
+| --- | --- | --- |
+| `text` (default) | One or more lines of text. | `data-lines` line boxes of the text style it stands in. Each line is a bar as tall as the font size. The last of several lines is shorter, as a paragraph seldom ends at the edge. `inline-size` sets the bars' length. |
+| `block` | A picture, a card, a control, a row. | `inline-size` and `block-size`, or the size your layout gives it: a stretched cell, an `aspect-ratio`. With no size it is its place wide and one line high. |
+| `circle` | A person's picture, a round mark. | One side: `block-size`, or `inline-size`. With no size it is one line high. |
+
+Placeholders that are the skeleton's own children are stacked one under another, with a gap of 8. Anything else — a circle beside two lines, a grid of cards — is your own layout inside the skeleton. There is no ready-made card or list skeleton: your screens are yours, and only you know them.
+
+In a row of your own, a text placeholder or a block needs a width from that row, as the content will: `flex: 1`, a track of a grid, or an `inline-size`.
+
+### One wait, one sign
+
+Put every placeholder of a region in one skeleton, with one `label`. A skeleton inside another skeleton is silent.
+
+Where something else already says the same wait — a loading indicator in a status line, a status text, a region you mark busy and name yourself — set `decorative`. The skeleton is then drawn the same and kept from assistive technology, so that the wait is not read twice.
+
+<DemoFrame label="A status line already says the wait, so the placeholders under it are decorative" plain column>
+  <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="Searching" show-delay="0"></tanrei-loading-indicator>Searching…</span>
+  <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
+</DemoFrame>
+
+### It waits before it shows
+
+From the moment it is inserted, a skeleton waits 300 ms before it is drawn and exposed, with its box already held. A wait that ends sooner shows a blank place that was the right size all along.
+
+- Insert the skeleton when the wait starts and remove it when the content arrives. The delay counts from the insertion. Hiding the skeleton does not restart it.
+- Set `show-delay="0"` where the skeleton is part of the first presentation of a page or a view, which has nothing else to show.
+- The delay is a wait, not motion: reduced motion keeps it.
+
+### It always ends in something
+
+Replace the skeleton with the content, with an [empty state](/components/empty-state/) where nothing came, or with a [callout](/components/callout/) of the error status where loading failed. It never times out by itself: when to give up is yours to know.
+
+The skeleton does not announce that the content arrived. Where arrival should be heard — results in answer to a search, a list that was asked for — say so through your own live region or the status text of the component that asked. A view that simply opens with its content needs no announcement.
+
+### Motion
+
+By default the placeholders pulse: the fill dims to half and returns, all of them together, two seconds a pulse. Only the opacity changes. Nothing moves, and nothing is drawn brighter than the resting fill.
+
+A design system may choose another manner for all its skeletons with the token `comp.skeleton.motion.animation`: `pulse`, `wave` (the same dimming, travelling through the whole skeleton from its start edge to its end edge as one band) or `none`. There is no setting for one instance.
+
+Under reduced motion the placeholders are still. The shapes, the label and the busy state already say that the place is waiting. While the skeleton cannot be seen its animation does not run.
+
+### On the web, before the script
+
+A skeleton is what a page shows before its script has run, so `@tanrei/web/skeleton.css` draws it whole without the element. A few things need the element, and are different until it is defined or where script never runs:
+
+- The role and the name. A page that must be right before its script runs writes `role="progressbar"`, `aria-busy="true"` and `aria-label` on the element itself, and the element leaves what it finds.
+- A `show-delay` other than `0`. The stylesheet waits the design system's delay.
+- More than 24 lines in one text placeholder.
+- The `wave` manner, which is drawn as a pulse.
+- A skeleton inside a view that is not displayed starts its wait when the view is shown.
+
+Where script never runs, a skeleton never ends unless the server replaces it. Content that arrives only by script needs a `<noscript>` beside its skeleton.
+
+### Do
+
+- Give placeholders the shape and the size of what is coming.
+- Put text placeholders inside the element the text will be in.
+- Use one skeleton, with one label, for one wait.
+- Replace it when the wait ends, whatever the wait ends in.
+
+### Don't
+
+- Don't put anything a person should read or use inside a skeleton. What it holds takes no input and is hidden from assistive technology. A heading that is already known, a button that already works, stand outside it.
+- Don't use it for a short wait in a control or a row, or for an action under way. That is a loading indicator.
+- Don't cover content that is already there with it.
+- Don't draw grey boxes by hand.
+
+## Accessibility
+
+<ComponentAccessibility name="skeleton" />
+
+### What the component handles
+
+- Once shown, the skeleton is one element to assistive technology: a progressbar with no value, busy, named by `label`. It is exposed as a loading indicator is, because it says the same thing.
+- Its placeholders, their number and their lines are not exposed, and neither is a layout you place in it.
+- While it waits to show it is not exposed at all. A wait shorter than the delay shows no progressbar that appears and vanishes.
+- With `decorative`, or inside another skeleton, it is kept from assistive technology.
+- It is not focusable and not a stop in the focus order, and nothing inside it is. It does not announce itself and never moves focus.
+- Under reduced motion it is still. The delay is kept.
+- In forced colors each placeholder, and each line of text, is drawn as the outline of its shape in the text color. A fill is not drawn in that mode, and a placeholder that vanished would leave a blank place.
+- With enlarged text a text placeholder grows with its text style, so the skeleton still holds the box the enlarged content takes. A size given as a number stays. Nothing is wider than its place; at a width of 320 with text at 200% nothing scrolls sideways.
+- In a right-to-left layout the placeholders stand at the right, the short last line begins at the right, and a wave runs from right to left.
+- An unknown shape, a number of lines or a size that cannot be used, a skeleton with no placeholder and a skeleton with no label are reported in debug builds.
+
+### What you need to do
+
+- Give a `label` in the language of the page that says what is loading ("Loading projects"), or give the word once for every skeleton with `setWords({ loadingLabel: … })`. The component supplies no words.
+- Set `decorative` where something else already says the wait.
+- Say that the content arrived where that is news.
+- Never let a skeleton stand forever. Replace it with the content, an empty state or an error.
+- The fill is decoration and is held to no contrast ratio. On a surface of the highest container tone it is hard to see. Do not rely on it alone to say that a place is waiting.

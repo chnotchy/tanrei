@@ -1,0 +1,40 @@
+/*
+ * Tanrei's prose for the content column (components/MarkdownContent.astro), in a layer of the docs' own.
+ *
+ * `@tanrei/web/prose.css` is written in `@layer tanrei.components`, and on this site the `tanrei` layers come before
+ * Starlight's — so Starlight's reset (`* { margin: 0 }`, in `starlight.reset`) would win over prose's rhythm. The
+ * statement below is read before any of Starlight's styles and puts a layer of the docs' after all of Starlight's;
+ * prose is loaded into it. So prose wins over Starlight's layers, and still loses to the unlayered rules of
+ * `tanrei-theme.css`, which is where the docs say what is their own.
+ *
+ * A link in the content column is prose's own anchor, drawn by the Link's rules that `prose.css` carries. The docs'
+ * hand-written text links outside Markdown (a post's title, a component's name in the status table and the roadmap)
+ * take the class, `class="tanrei-link"`, from `@tanrei/web/link.css`, loaded into the same layer for the same reason.
+ *
+ * `docs.focus` is named here, before any component's stylesheet is loaded, so that it is the first of the docs'
+ * layers: it holds the site's focus ring for whatever has none of its own (`tanrei-theme.css`), and a component's
+ * stylesheet that draws its own indicator — or says that a thing draws none — is read after it and wins.
+ */
+@layer starlight, docs, docs.focus;
+@import '@tanrei/web/prose.css' layer(docs.prose);
+@import '@tanrei/web/link.css' layer(docs.link);
+/* Inline code outside prose (the class `tanrei-code`) and the code block: its fill, corners, padding and face, its
+   header, the room of its copy button, the colors of its runs and what stands beside its lines (the prompt, numbers,
+   marks) are drawn before the element is defined and with scripting off, where the element will draw them — every
+   fenced block of the site is one, its lines written and highlighted where the site is built (lib/markdown.mjs). */
+@import '@tanrei/web/code.css' layer(docs.code);
+/* The pagination at the foot of every page (components/Pagination.astro): classes on the site's own `nav` and anchors. */
+@import '@tanrei/web/pagination.css' layer(docs.pagination);
+/* The description list and the figure are drawn by their stylesheets before their elements are defined: the facts and
+   figures of the splash page and every live example's frame are in their final place when the page is first painted. */
+@import '@tanrei/web/description-list.css' layer(docs.description-list);
+@import '@tanrei/web/figure.css' layer(docs.figure);
+/* The skeleton is its stylesheet: what a page shows before its script has run (the shapes, the show delay, the pulse). */
+@import '@tanrei/web/skeleton.css' layer(docs.skeleton);
+/* The Table's one stylesheet (it has no shadow root), and the box a Callout has before its element is defined: both
+   are in the first frame, so nothing moves when the script arrives. */
+@import '@tanrei/web/table.css' layer(docs.table);
+@import '@tanrei/web/callout.css' layer(docs.callout);
+/* A menu a page draws in place (`inline open`, as the Menu's examples do) has no size until its elements are defined:
+   its stylesheet holds the block size its surface will have, so the examples under it do not move. */
+@import '@tanrei/web/menu.css' layer(docs.menu);

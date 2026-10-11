@@ -1,0 +1,32 @@
+---
+title: Principles
+description: The ideas that decide what Tanrei is and what it leaves out.
+---
+
+Tanrei (端麗) means clean and well-formed. The name is a brief for the system: interfaces that are quiet, precise and easy to read, on every platform a product ships to.
+
+A Tanrei design system is structured as tiered tokens, color roles, a typescale, generated tonal palettes and explicit accessibility rules. Tanrei is an independent project.
+
+## Content first, chrome last
+
+Surfaces are near-monochrome and borders are one-pixel hairlines, so the product's content is the most colorful thing on the screen. The primary action is black on white or white on black. A single blue accent exists, and it is reserved for the one thing that must be found at once: the keyboard focus ring. A link is told by its underline and the chosen item by the primary color, so nothing else on the screen is blue.
+
+## Structure you can see
+
+Hierarchy comes from alignment, spacing and hairlines rather than from heavy shadows or tinted panels. Elevation is a ring plus a very soft shadow. Corners are small (6px on controls) so that dense layouts stay crisp.
+
+## One contract, native idioms
+
+A component is specified once, in a platform-neutral file, and implemented with each platform's conventions. Parity means the same tokens, an equivalent visual result, the same states and the same accessibility semantics. It does not mean the same API. A SwiftUI developer should feel they are using a SwiftUI library.
+
+## Accessible without asking
+
+Contrast, target size, focus visibility, text scaling and reduced motion are properties of the system, enforced by the token build and the component specs. A team that uses Tanrei as intended should meet these requirements without an extra checklist.
+
+## Derived, never duplicated
+
+Anything that can be computed from the tokens or the specs is computed: platform constants, prop tables, the status matrix, this site's reference pages. Hand-copied facts go stale; generated ones cannot.
+
+## Additive expression
+
+The default is restrained. Expressive choices such as heavier emphasis steps, larger and smoother corners and springier motion are extra tokens layered on the same structure, never a fork of it.

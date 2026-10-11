@@ -1,0 +1,54 @@
+package io.github.chnotchy.tanrei.components
+
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.captureRoboImage
+import io.github.chnotchy.tanrei.theme.TanreiContrast
+import io.github.chnotchy.tanrei.theme.TanreiTheme
+import io.github.chnotchy.tanrei.theme.TanreiThemeMode
+import io.github.chnotchy.tanrei.tokens.Cupertino
+import io.github.chnotchy.tanrei.tokens.M3ExpressiveLike
+import io.github.chnotchy.tanrei.tokens.M3Like
+import io.github.chnotchy.tanrei.tokens.TanreiSystem
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+/**
+ * One representative fixture per shipped preset, at
+ * `src/test/snapshots/text-field/<system-id>/<fixture-id>.png` — apart from the default system's baselines, which belong
+ * to [TanreiTextFieldSnapshotTest] and the parity checker. The representative is picked for what the preset changes:
+ * `filled-filled` for m3-like (Material's 56 dp filled field: the floated label above the value, the 4 dp top corners,
+ * the on-surface-variant indicator), `outlined-filled` for m3-expressive-like (the outlined field with its label in the
+ * notch) and `outlined-label-hidden` for cupertino (how a product imitates iOS: no floating label, a placeholder, the
+ * rounded border at Apple's heights). Same harness as the default's.
+ */
+@RunWith(AndroidJUnit4::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = "w360dp-h640dp-xhdpi")
+class TanreiTextFieldPresetSnapshotTest {
+    @get:Rule
+    val rule = createComposeRule()
+
+    @Test
+    fun `m3-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3Like, "filled-filled")
+
+    @Test
+    fun `m3-expressive-like - the representative fixture matches its baseline`() = verify(TanreiSystem.M3ExpressiveLike, "outlined-filled")
+
+    @Test
+    fun `cupertino - the representative fixture matches its baseline`() = verify(TanreiSystem.Cupertino, "outlined-label-hidden")
+
+    private fun verify(system: TanreiSystem, representative: String) {
+        val fixture = loadTextFieldFixtures().single { it.id == representative }
+        rule.setContent {
+            TanreiTheme(system = system, theme = TanreiThemeMode.Light, contrast = TanreiContrast.Standard) {
+                TextFieldStage { TextFieldFixture(fixture) }
+            }
+        }
+        rule.onNodeWithTag(TEXT_FIELD_STAGE_TAG).captureRoboImage("$TEXT_FIELD_SNAPSHOTS/${system.id}/${fixture.id}.png", roborazziOptions = failureArtifactsIn("text-field/${system.id}"))
+    }
+}

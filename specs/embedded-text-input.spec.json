@@ -1,0 +1,651 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "embedded-text-input",
+  "title": "Embedded text input",
+  "summary": "The typing alone, for a box that something else draws: text, a placeholder, the caret and the selection, on one line or on lines that grow and shrink with a motion. It draws no container, edge, fill, label, message or state layer and no focus indication; whatever holds it draws the box and shows the focus, and decides what its action is.",
+  "category": "text-inputs",
+  "level": "base",
+  "listing": "advanced",
+  "anatomy": [
+    {
+      "id": "input",
+      "description": "The platform's own text element, which holds the value, the selection and any input-method composition, drawn with no box of the platform's or of Tanrei's. It is the whole component: as wide as its layout gives it and exactly as tall as its lines."
+    },
+    {
+      "id": "placeholder",
+      "description": "A hint in the empty input, where the first character will be typed; never the name.",
+      "optional": true
+    },
+    {
+      "id": "caret",
+      "description": "The insertion point, and the only thing the input itself shows of having focus."
+    },
+    {
+      "id": "selection",
+      "description": "The highlight behind selected text and the color of the text on it.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "type",
+      "type": "enum",
+      "values": [
+        "text",
+        "search",
+        "email",
+        "url",
+        "tel"
+      ],
+      "default": "text",
+      "description": "What the value is: chooses the keyboard, autocorrection and autocapitalization, and nothing else. It never validates and never obscures. search makes the action key of an on-screen keyboard read as search. The types that need a box around them are the Text input's: a password (its reveal action), a number (its steppers), a date or a time (its segments and its picker button), code (its face and its sideways scrolling)."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The text."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name. Required: the embedded text input draws no label and asks no Field for one, so this is the only name it has. Its holder gives it — a composed component from its own label, a product from the words that stand beside its box. Never drawn."
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "default": "",
+      "description": "The accessible description, as text: what a help line, an error text or a count that its holder draws says about what is typed. Never drawn."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "default": "",
+      "description": "A hint drawn while the value is empty. Never the name."
+    },
+    {
+      "name": "multiline",
+      "type": "boolean",
+      "default": false,
+      "description": "False: one line that scrolls sideways inside itself. True: lines that wrap, and a height that follows them between minRows and maxRows, changed with a motion."
+    },
+    {
+      "name": "minRows",
+      "type": "number",
+      "default": 1,
+      "description": "The fewest lines a multi-line input is tall. 1 by default — a holder's typing part begins as one line and grows — where the Text input, which is a box, begins at 2."
+    },
+    {
+      "name": "maxRows",
+      "type": "number",
+      "default": 0,
+      "description": "The most lines a multi-line input is tall; beyond it the text scrolls inside. 0 is no limit. A holder that stands at the bottom of a screen sets one."
+    },
+    {
+      "name": "enterKey",
+      "type": "enum",
+      "values": [
+        "line-break",
+        "action"
+      ],
+      "default": "line-break",
+      "description": "What the Enter key of a hardware keyboard does in a multi-line input. line-break: it begins a new line. action: it emits action and inserts nothing, and Shift+Enter begins a new line. Under both, Ctrl+Enter (and Command+Enter on Apple platforms) emits action, the return key of an on-screen keyboard begins a new line, and an input method's Enter does neither. A single-line input ignores it: its action key always emits action. What action means — send, add, search, save — is the holder's."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Exposes the input as invalid. It draws nothing: marking an error is the drawing of the holder's box."
+    },
+    {
+      "name": "required",
+      "type": "boolean",
+      "default": false,
+      "description": "Exposes the input as required and, on the web in a form of its own, reports a missing value. It draws nothing and validates nothing else."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Not focusable and not editable; the text and the placeholder read as disabled content. The disabled look of the box is its holder's."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "Focusable, selectable and copyable, not editable. Drawn as an enabled input."
+    },
+    {
+      "name": "autocomplete",
+      "type": "string",
+      "default": "",
+      "description": "The platform's autofill hint for the value (an HTML autocomplete token; mapped to the platform's content type where it has one). Empty: the platform decides."
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "description": "The person changed the value; carries the new value. Emitted for every change, never when value is set."
+    },
+    {
+      "name": "change",
+      "description": "The person committed a changed value: focus left the input, or action was emitted. Carries the value."
+    },
+    {
+      "name": "action",
+      "description": "The person asked for the action of whatever holds the input: the action key of a single-line input; in a multi-line input, Enter where enterKey is action, and Ctrl+Enter or Command+Enter always. Carries the value. The input does nothing more: it does not empty itself, does not move focus and, where it has several lines, asks no form to submit. Cancelable where the platform has that."
+    },
+    {
+      "name": "rowsChange",
+      "description": "The number of lines the input shows is about to change, or it was drawn for the first time; carries the number of lines it is going to show and whether text scrolls inside it. Emitted once per change, before the motion begins, so that a holder can change with it — a corner that is round for one line and less round for several, actions centred on one line and set at the bottom of several."
+    },
+    {
+      "name": "focusChange",
+      "description": "The input gained or lost focus; carries true or false. It is the state the holder reads to draw the focus indication on its own box, which the input never draws."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "focused",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "ETI-1",
+      "text": "THE embedded text input SHALL draw only what is typed and what stands for it: the value in comp.embedded-text-input.input.typescale and comp.embedded-text-input.standard.input.color, the placeholder while it is empty (ETI-22), the caret in comp.embedded-text-input.standard.caret.color and the selection highlighted in comp.embedded-text-input.selection.color under comp.embedded-text-input.selection.content.color. It SHALL draw no container, fill, edge, corner, shadow, label, requirement mark, help, error text, count, icon or state layer, and no focus indication (ETI-11), in any state; it SHALL have no padding of its own, be as wide as its layout gives it and exactly as tall as its lines (ETI-7), and leave whatever its holder draws behind it to show through.",
+      "verify": "Fixtures single-line and error are the same picture, and every pixel of either that is not text is the stage's. Unit: no part of the element has a background, a border, an outline, a shadow or a padding in any state, focused included."
+    },
+    {
+      "id": "ETI-2",
+      "text": "WHEN the person changes the value — by typing, deleting, pasting, cutting, dictating, autofill or an input method committing text — THE embedded text input SHALL emit input once per change with the new value; WHEN value is set by its holder or the product THE embedded text input SHALL show it and SHALL NOT emit input or change, and WHILE it has focus SHALL place the caret at the end of the new value unless the value is the one it already shows."
+    },
+    {
+      "id": "ETI-3",
+      "text": "WHEN the input loses focus, or emits action (ETI-6), with a value different from the one last committed (the value when it gained focus, or at the last change) THE embedded text input SHALL emit change once with the value, before the action."
+    },
+    {
+      "id": "ETI-4",
+      "text": "WHILE an input method is composing text THE embedded text input SHALL leave the composition, and every key pressed during it, to the platform's native text element: it SHALL NOT write the value back into the element, trim or reformat it, and SHALL NOT emit change; the Enter that chooses a candidate or commits the composition SHALL NOT emit action, SHALL insert no line break of the input's own and SHALL NOT be counted as a request for the action — also where the platform reports that key only after it has reported the composition ended; a committed composition SHALL always produce an input, a value set during a composition SHALL be applied when the composition ends, and the first Enter pressed after the composition has ended SHALL be read as ETI-6 says.",
+      "verify": "Unit, with a composition driven through the platform's own events in Japanese: Enter that commits emits one input and no action under both values of enterKey and in a single-line input; the next Enter emits action where ETI-6 says so. The same with the key event that arrives after the end of the composition and still carries the platform's mark of one."
+    },
+    {
+      "id": "ETI-5",
+      "text": "WHILE multiline is false THE embedded text input SHALL show its value on one line that never wraps: text wider than the input SHALL scroll sideways inside it, by pointer, touch and the caret, which is kept in view, and SHALL NOT widen the input; a line break in pasted, dropped or dictated text SHALL be taken as the platform's own single-line element takes it. WHILE multiline is true THE embedded text input SHALL wrap its text at its own width, break a run with no space that is wider than a line between any two characters, never scroll sideways, and count every line the text wraps onto as a line (ETI-7).",
+      "verify": "Fixtures single-line-long (one line, cut at the end edge, the input no wider) and multiline-long-unbroken (a run of 120 characters with no space on several full lines)."
+    },
+    {
+      "id": "ETI-6",
+      "text": "WHEN the person presses the keyboard's action key in a single-line input THE embedded text input SHALL emit action with the value, after any change it causes (ETI-3), and, on the web, WHILE it is a control of a form itself (ETI-19), SHALL then request that form's submission through its default button (BTN-30) unless action was cancelled. WHILE multiline is true: where enterKey is line-break, Enter on a hardware keyboard SHALL begin a new line and emit nothing; where enterKey is action, Enter with no modifier SHALL emit action and insert nothing, and Shift+Enter SHALL begin a new line; under both values Ctrl+Enter and, on Apple platforms, Command+Enter SHALL emit action and insert nothing; the return key of an on-screen keyboard SHALL begin a new line under both values, and the input SHALL ask that keyboard for a return key; and a multi-line input SHALL never request a form's submission. THE embedded text input SHALL do nothing else when it emits action — it SHALL keep its value, its selection and its focus — because what the action is belongs to its holder. WHEN enterKey names a value it does not know it SHALL behave as line-break and in debug builds report the unknown value; WHILE readOnly is true no key SHALL emit action.",
+      "verify": "Unit: each case this sentence names as one key press, read by the events emitted and the value afterwards; on the web in a form with a submit button, Enter in a single-line input presses that button once, and Enter in a multi-line input with enterKey action submits nothing."
+    },
+    {
+      "id": "ETI-7",
+      "text": "WHILE multiline is true THE embedded text input SHALL be exactly as tall as its lines of text, each one line height of its text style — never fewer than minRows lines and never more than maxRows lines; no upper limit while maxRows is 0, exactly minRows lines while maxRows is smaller than minRows, and a minRows below 1 is 1. WHILE the text has more lines than maxRows it SHALL scroll inside the input and keep the caret in view, and WHILE every line fits it SHALL show no scrollbar. THE height SHALL follow every cause of a changed number of lines — typing, deleting, pasting, a value that is set, a changed width, enlarged text. WHILE multiline is false THE embedded text input SHALL be exactly one line tall and ignore minRows, maxRows and enterKey.",
+      "verify": "Fixtures multiline-one-line (one line of text: one line tall), multiline-grown (four lines, no limit), multiline-at-maximum (six lines of text in maxRows 3: three lines tall, scrolled inside) and multiline-min-rows (minRows 3, empty)."
+    },
+    {
+      "id": "ETI-8",
+      "text": "WHEN the number of lines a multi-line input shows changes because its value changed — by the person, or because value was set — THE embedded text input SHALL change its height from the one shown to the new one over comp.embedded-text-input.motion.resize-duration with comp.embedded-text-input.motion.resize-easing, as one motion: however many lines arrive or leave at once — forty pasted lines, a value emptied after it was sent — the height SHALL go from the one shown straight to the end height, which maxRows bounds, and never through a height for each line; a change that arrives while a motion is running SHALL continue from the height then shown to the new end height, and changes SHALL never be queued one after another. At every frame of the motion the first line SHALL stay where it is at the input's top edge, the text SHALL keep its size and its line height, the line that holds the caret SHALL stay in view, and no scrollbar SHALL be shown WHILE the end height holds every line.",
+      "verify": "Unit: type a line break into an input of two lines and sample its height during the motion: it passes through heights between two and three lines and ends at three, and the first line's distance from the top edge is the same in every sample. Paste forty lines into an input with maxRows 6: the samples rise without a step from one line to six, once, and one rowsChange is emitted. Hold Enter down: no sample is lower than the one before it. Set value to empty at six lines: one motion down to minRows."
+    },
+    {
+      "id": "ETI-9",
+      "text": "THE embedded text input SHALL make a change of its height at once, without the motion of ETI-8, WHEN it is first drawn or drawn again after it was not shown; WHEN the height changes because its width, its text size, its text style, minRows, maxRows or multiline changed; WHILE a pointer or a touch is held down in its text, so that text under a selection being dragged never moves away from the finger; and WHERE motion is reduced.",
+      "verify": "Unit: a five-line value on the first render shows five lines in the first frame; with motion reduced a typed line break shows three lines in the next frame; value set from a script while a pointer is held down in the text changes the height in the next frame."
+    },
+    {
+      "id": "ETI-10",
+      "text": "THE embedded text input SHALL change the height it takes in its layout at every frame of a motion — the height its holder and whatever follows it are laid out against, not a drawing moved or scaled over a box that already has the end height — so that a holder that sizes itself to its content follows the motion with no jump at its start or its end, and SHALL add no motion of its own to anything outside itself. THE embedded text input SHALL emit rowsChange once when it is first drawn and once for every later change of the number of lines it shows, before any motion of that change begins, with the number it is going to show and whether text scrolls inside it; it SHALL NOT emit it for a height that changes with the text size alone.",
+      "verify": "Unit: in a holder whose height is its content's (the sample holder of the held- fixtures), sample the holder's height during a motion: at each sample it equals the input's height plus the holder's own paddings. One rowsChange per change, emitted before the first frame in which the height differs."
+    },
+    {
+      "id": "ETI-11",
+      "text": "THE embedded text input SHALL show that it has focus by its caret alone and SHALL draw no focus indication of its own — no ring, no line and no glow, whatever sys.behavior.focus-style is — because the box around it is its holder's, and the indication is drawn on the box. THE embedded text input SHALL report its focus so that the holder can draw it: it SHALL emit focusChange with true WHEN its text element gains focus — by the keyboard, a pointer, a touch or a script alike, because a place that is typed in shows where typing will go however it was focused — and with false WHEN it loses it, and on the web its host SHALL match :focus-within for exactly that time.",
+      "verify": "Unit: focus by Tab, by a press and by focus(): one focusChange true each, and no computed outline, shadow or border on any part. The holder's side is tested where the holder is: the sample holder of the held- fixtures draws its focused edge for exactly as long as focusChange is true."
+    },
+    {
+      "id": "ETI-12",
+      "text": "THE embedded text input SHALL take a press anywhere in an area at least sys.target.touch high for touch input and sys.target.pointer high for fine pointers — its own lines, and beyond them equally above the first and below the last where they are shorter than that — as a press on its text, without changing its drawn size or its layout; a platform that cannot tell the input type SHALL use sys.target.touch. A press there SHALL give the input focus and place the caret, SHALL NOT be answered with a pressed state, a ripple or any feedback, because a press on a place to type is not an action, and THE embedded text input SHALL offer its holder a way to give it focus, so that a press on the holder's box outside its other controls can be passed on to it."
+    },
+    {
+      "id": "ETI-13",
+      "text": "THE embedded text input SHALL be exposed to assistive technology as a text box — a multi-line one WHILE multiline is true — whose accessible name is label and whose description is description, invalid WHILE error is true, required WHILE required is true, read-only WHILE readOnly is true and disabled WHILE disabled is true. It SHALL never use placeholder as the name; IF label is empty it SHALL still render and work, and in debug builds SHALL report that it has no accessible name. THE embedded text input SHALL ask no Field for a name, a description or a state: it is not a control a Field frames — its holder is — and every one of them reaches it as a prop.",
+      "verify": "An accessibility test of fixture single-line reads the role, the name \"Message\" and no description; with description, error and required set it reads the description and both states. Unit: inside a Field, the input sends the Field no question (on the web, no tanrei-field-connect event leaves it)."
+    },
+    {
+      "id": "ETI-14",
+      "text": "WHILE error is true THE embedded text input SHALL draw exactly what it draws while error is false — the same text, placeholder and caret colors — and SHALL NOT set error itself or validate anything: an error is marked on the holder's box and said in the holder's or a Field's words."
+    },
+    {
+      "id": "ETI-15",
+      "text": "WHILE disabled is true THE embedded text input SHALL NOT be focusable or editable, SHALL NOT emit input, change, action or focusChange, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, and SHALL draw its value and its placeholder from the disabled tokens of those parts.",
+      "verify": "Fixture disabled."
+    },
+    {
+      "id": "ETI-16",
+      "text": "WHILE readOnly is true and disabled is false THE embedded text input SHALL stay focusable, selectable and copyable, SHALL NOT let the person change the value, SHALL NOT emit input, change or action, SHALL expose the read-only state to assistive technology, SHALL be submitted with its form on the web, and SHALL draw as an enabled input."
+    },
+    {
+      "id": "ETI-17",
+      "text": "THE embedded text input SHALL give its text element the keyboard and the semantics of type: text a general keyboard; search a general keyboard whose action key reads as search; email an email keyboard without autocapitalization or autocorrection; url a URL keyboard without autocapitalization or autocorrection; tel a phone keypad — in a multi-line input too, as far as the platform lets a multi-line element choose a keyboard. It SHALL NOT validate the value against the type. WHEN type names a value it does not know it SHALL behave as text and in debug builds report the unknown value."
+    },
+    {
+      "id": "ETI-18",
+      "text": "THE embedded text input SHALL pass autocomplete to the platform as its autofill hint, mapped to the platform's content type where it has one, and WHEN the platform autofills it SHALL emit input with the filled value."
+    },
+    {
+      "id": "ETI-19",
+      "text": "WHERE the platform has a form element (the web) THE embedded text input SHALL be a control of the form it stands in: it SHALL submit its value under its name, nothing while disabled or while it has no name, reset to the value it was first given, be restored when the page is, follow a disabled fieldset, and report a missing value WHILE required is true and it is empty. WHILE it stands in the shadow tree of a holder it has no form — the holder is the form's control and carries the value — and it SHALL do none of this.",
+      "verify": "Web: in a form, FormData holds the value under the name; form.reset() returns the first value; inside the shadow root of the sample holder element, FormData of a form around the holder has no entry of the input's."
+    },
+    {
+      "id": "ETI-20",
+      "text": "THE embedded text input SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own. It SHALL lay out the typed text by its own direction: the base direction of the value's first strong character and, WHILE the value is empty or holds no strong character, the layout direction, so that the caret of an empty input and its placeholder stand at the start edge; a single-line value SHALL be aligned to the start edge of its own direction, in a multi-line input each paragraph SHALL take the direction and the alignment of its own first strong character, and the values of email, url and tel inputs SHALL be laid out left-to-right, aligned to the start edge. The placeholder SHALL be laid out as text of its own direction, isolated from what is around it, and aligned to the start edge. WHEN the layout direction changes while the input is shown it SHALL draw itself for the new direction at once, keeping its value, its selection, its caret and its focus.",
+      "verify": "Fixtures rtl (a right-to-left paragraph and a left-to-right one in a right-to-left stage), rtl-placeholder and rtl-email (an address at the right, read left to right)."
+    },
+    {
+      "id": "ETI-21",
+      "text": "THE embedded text input SHALL let every key the person presses in it reach its holder before the input itself acts on it, and SHALL NOT act on a key the holder has cancelled where the platform lets a key be cancelled; and it SHALL let its holder read where the selection begins and ends and set it, and replace the selected text. With these a holder does what only it can know: an arrow or Backspace at the very start of the text that moves to something before it, text an action of the holder's inserts at the caret. THE embedded text input SHALL itself give no key a meaning beyond those of ETI-6: Tab and Shift+Tab SHALL move focus out of it and never insert a character, and Escape SHALL do nothing."
+    },
+    {
+      "id": "ETI-22",
+      "text": "WHILE the value is empty and no input method is composing THE embedded text input SHALL show placeholder in its text style and comp.embedded-text-input.standard.placeholder.color, starting where the first character will be typed; in a multi-line input a placeholder longer than a line SHALL wrap as text does and the input SHALL be as tall as the placeholder's lines, within minRows and maxRows, so that it is never cut; in a single-line input it SHALL be cut at the end edge. THE placeholder SHALL be kept from the accessible name and SHALL go with the first character typed, without a motion.",
+      "verify": "Fixtures placeholder, multiline-min-rows and held-capsule."
+    },
+    {
+      "id": "ETI-23",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE embedded text input SHALL draw its value in the platform's text color, its placeholder and a disabled value in the platform's color for text that is not available, its selection in the platform's highlight colors and its caret as the platform draws one, and SHALL draw nothing else, as everywhere: the edge of the box and the focus indication in those colors are its holder's."
+    },
+    {
+      "id": "ETI-24",
+      "text": "WHILE the text size is enlarged THE embedded text input SHALL grow with its text — a line is the enlarged line height, and minRows and maxRows still count lines — changing its height at once (ETI-9); at twice the text size in a holder 320 wide a multi-line input SHALL show every character, wrapped, with no sideways scrolling and nothing cut, and a single-line input SHALL keep its one line and scroll inside itself."
+    },
+    {
+      "id": "ETI-25",
+      "text": "WHEN a prop changes while the input is shown THE embedded text input SHALL draw the new state at once, keeping its value, its selection and caret, its focus and a composition in progress; WHEN multiline changes it SHALL keep the value as it is — a value with line breaks is shown on one line as the platform's single-line element shows it, and the line breaks are there again when multiline returns — and change its height at once (ETI-9)."
+    },
+    {
+      "id": "ETI-26",
+      "text": "THE embedded text input SHALL have no words of its own and read none of the product's words: label, description and placeholder are the instance's props and nothing stands in for an empty one."
+    },
+    {
+      "id": "ETI-27",
+      "text": "WHERE script does not run, or before the element is defined (the web), THE embedded text input SHALL leave the platform's own text element that the product wrote as its child — a textarea, or an input — as the control it is: named, typed in and submitted with its form. WHEN the element is defined it SHALL take that child's text as its first value where value was not given, and SHALL hide and disable the child so that the form submits the input alone.",
+      "verify": "Web: with the element undefined, the child textarea submits its text under its name; after definition the form submits one entry of that name, the same text."
+    },
+    {
+      "id": "ETI-28",
+      "text": "WHILE the embedded text input is drawn with nothing around it that marks a box THE embedded text input SHALL still render and work exactly as it does in one: it cannot see whether a box is drawn, reports nothing about it, and falls back to no look of its own. That a box is drawn, that it shows focus (ETI-11), marks an error and a disabled input, pads the text and passes a press on (ETI-12) are held where the holder is: in the spec and the tests of a Tanrei component that is built from it, and by the product for a box of its own."
+    }
+  ],
+  "accessibility": {
+    "role": "textbox",
+    "keyboard": [
+      {
+        "keys": "Tab, Shift+Tab",
+        "action": "Move focus to the input and out of it; never insert a character. The input is one stop."
+      },
+      {
+        "keys": "Typing, Backspace, Delete, arrows, Home, End, selection and clipboard shortcuts",
+        "action": "Edit the value as the platform's own text element does. The holder sees each key first and may take one (ETI-21)."
+      },
+      {
+        "keys": "Enter (the action key) in a single-line input",
+        "action": "Commits the value and emits action; in a form of its own on the web, then submits the form (ETI-6)."
+      },
+      {
+        "keys": "Enter in a multi-line input",
+        "action": "Begins a new line (enterKey line-break), or emits action and inserts nothing (enterKey action). Never while an input method is composing (ETI-4)."
+      },
+      {
+        "keys": "Shift+Enter in a multi-line input",
+        "action": "Begins a new line."
+      },
+      {
+        "keys": "Ctrl+Enter, Command+Enter in a multi-line input",
+        "action": "Emits action and inserts nothing, under both values of enterKey."
+      },
+      {
+        "keys": "The return key of an on-screen keyboard in a multi-line input",
+        "action": "Begins a new line, always."
+      },
+      {
+        "keys": "Escape",
+        "action": "Nothing: it is left to whatever holds the input."
+      }
+    ],
+    "labeling": "The accessible name is label, which is required because nothing is drawn that could name the input and it asks no Field. The description is description: the holder puts there, as text, what its own help, error text or count says. The placeholder is never the name. Invalid, required, read-only and disabled are exposed from the props of those names; error and required draw nothing.",
+    "minimumTarget": true,
+    "notes": [
+      "The holder's contract (H1 to H7). The input draws no box and no focus indication, so whatever holds it owes: H1 a visible box, or a place that reads as one; H2 a focus indication on that box for as long as the input has focus — however it was focused — that meets the contrast every Tanrei focus indicator is held to (WCAG 2.4.7, 2.4.13; on the web a rule on :focus-within, elsewhere the focusChange event); H3 the mark of an error and the look of a disabled box; H4 padding around the text, and a press on that padding passed on to the input (ETI-12); H5 the name, as label, and what its messages say, as description; H6 what action means; H7 in forced colors, an edge for the box and the focus indication in the platform's colors. A Tanrei component built from the input states each of these as sentences of its own and is tested there; a product's own box is the product's.",
+      "The caret is not accepted as the focus indication. It is one line a text style wide, it is not drawn while a selection is shown, and it does not say which box on the screen is the one being typed in. A holder that forgets H2 fails WCAG 2.4.7.",
+      "Text entry happens in the platform's native element, so input methods, autofill, dictation, selection and the platform's own text services work as they do everywhere. A composition's Enter never becomes an action (ETI-4): this is a functional requirement for every language written through candidates.",
+      "A height that follows the text changes with a short motion; where motion is reduced it changes at once (WCAG 2.3.3). The motion is the height's alone: text never slides, fades or scales.",
+      "At 200 % text in a width of 320 a multi-line input shows every character and scrolls in no direction but its own vertical one beyond maxRows (WCAG 1.4.4, 1.4.10). maxRows counts lines, so a holder at the bottom of a small screen should set one that leaves the conversation in view at that size.",
+      "Web: a touch browser zooms the page into a text element whose text is smaller than 16 px. The default text style is 16 px; a layer that sets a smaller one brings the zoom back."
+    ]
+  },
+  "tokens": "comp.embedded-text-input",
+  "fixtures": [
+    {
+      "id": "single-line",
+      "props": {
+        "label": "Message",
+        "value": "See you at ten."
+      }
+    },
+    {
+      "id": "placeholder",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message"
+      }
+    },
+    {
+      "id": "single-line-long",
+      "props": {
+        "label": "Message",
+        "value": "A single line that is longer than the room it is given and is cut at the end edge instead of wrapping"
+      }
+    },
+    {
+      "id": "multiline-one-line",
+      "props": {
+        "label": "Message",
+        "multiline": true,
+        "value": "See you at ten."
+      }
+    },
+    {
+      "id": "multiline-grown",
+      "props": {
+        "label": "Message",
+        "multiline": true,
+        "value": "Thanks for the draft.\nTwo things before it goes out:\nthe dates in section 3,\nand who signs it."
+      }
+    },
+    {
+      "id": "multiline-at-maximum",
+      "props": {
+        "label": "Message",
+        "multiline": true,
+        "maxRows": 3,
+        "value": "One\nTwo\nThree\nFour\nFive\nSix"
+      }
+    },
+    {
+      "id": "multiline-min-rows",
+      "props": {
+        "label": "Note",
+        "multiline": true,
+        "minRows": 3,
+        "placeholder": "Add a note"
+      }
+    },
+    {
+      "id": "multiline-long-unbroken",
+      "props": {
+        "label": "Message",
+        "multiline": true,
+        "value": "https://example.com/a-very-long-path-with-no-space-in-it/a-very-long-path-with-no-space-in-it/a-very-long-path-with-no-space-in-it/end"
+      }
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "label": "Message",
+        "multiline": true,
+        "disabled": true,
+        "value": "Sent from the meeting room.\nBack at two."
+      }
+    },
+    {
+      "id": "disabled-placeholder",
+      "props": {
+        "label": "Message",
+        "disabled": true,
+        "placeholder": "Write a message"
+      }
+    },
+    {
+      "id": "read-only",
+      "props": {
+        "label": "Message",
+        "readOnly": true,
+        "value": "See you at ten."
+      }
+    },
+    {
+      "id": "error",
+      "props": {
+        "label": "Message",
+        "error": true,
+        "value": "See you at ten."
+      }
+    },
+    {
+      "id": "search",
+      "props": {
+        "label": "Search the documentation",
+        "type": "search",
+        "placeholder": "Search"
+      }
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "label": "رسالة",
+        "multiline": true,
+        "value": "نلتقي في العاشرة.\nSee you at ten."
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-placeholder",
+      "props": {
+        "label": "رسالة",
+        "placeholder": "اكتب رسالة"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-email",
+      "props": {
+        "label": "البريد الإلكتروني",
+        "type": "email",
+        "value": "ada@example.com"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "held-capsule",
+      "props": {
+        "label": "Message",
+        "multiline": true,
+        "maxRows": 6,
+        "placeholder": "Write a message"
+      }
+    },
+    {
+      "id": "held-capsule-grown",
+      "props": {
+        "label": "Message",
+        "multiline": true,
+        "maxRows": 6,
+        "value": "Thanks for the draft.\nTwo things before it goes out:\nthe dates in section 3,\nand who signs it."
+      }
+    },
+    {
+      "id": "held-capsule-at-maximum",
+      "props": {
+        "label": "Message",
+        "multiline": true,
+        "maxRows": 3,
+        "value": "One\nTwo\nThree\nFour\nFive\nSix"
+      }
+    },
+    {
+      "id": "held-capsule-disabled",
+      "props": {
+        "label": "Message",
+        "multiline": true,
+        "disabled": true,
+        "value": "Sent from the meeting room."
+      }
+    },
+    {
+      "id": "held-capsule-rtl",
+      "props": {
+        "label": "رسالة",
+        "multiline": true,
+        "maxRows": 6,
+        "value": "نلتقي في العاشرة."
+      },
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-embedded-text-input",
+      "props": {
+        "type": "type",
+        "value": "value",
+        "label": "label",
+        "description": "description",
+        "placeholder": "placeholder",
+        "multiline": "multiline",
+        "minRows": "minRows",
+        "maxRows": "maxRows",
+        "enterKey": "enterKey",
+        "error": "error",
+        "required": "required",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "autocomplete": "autocomplete"
+      },
+      "events": {
+        "input": "input",
+        "change": "change",
+        "action": "action",
+        "rowsChange": "rowschange",
+        "focusChange": "focusin / focusout"
+      },
+      "notes": "Class `TanreiEmbeddedTextInput`, React `EmbeddedTextInput`. A form-associated custom element with a shadow root and `delegatesFocus` (every point of it is its text) that renders one `<textarea>` while `multiline` and one `<input>` otherwise, with `appearance: none`, no border, no outline, no background, no padding and no resize handle; the host is `display: block`. Attributes are kebab-case (`min-rows`, `max-rows`, `enter-key`) except `readonly` and `autocomplete`, which keep HTML's names; `name` is the form's. The name, the description (`aria-description`), `aria-invalid`, `aria-required` and `aria-readonly` are written on the inner element; the host has no role and a debug build reports an `aria-label` set on it. It dispatches no `tanrei-field-connect` (ETI-13). Focus: the platform's `focusin` and `focusout` are composed and are the spec's focusChange; a holder styles itself with `:focus-within` — also from inside its own shadow root, `:host(:focus-within)` — and needs no script for H2. Height: the host's block size is the animated one (a transition of `block-size` between two measured heights, from `scrollHeight` of the inner element at `block-size: auto`), `overflow: hidden` during a motion whose end fits; the routine is shared with the Text input (`src/primitives/auto-height.ts`) and holds no token. `rowschange` is a composed CustomEvent with `detail: { rows, scrolling }`; the read-only property `rows` gives the number at any time, for a listener added after the first draw. `action` is composed and cancelable, `detail: { value }`. Keys (ETI-21): `keydown` leaves the shadow root before the input acts; a `keydown` whose default was prevented is not read by ETI-6. A composition is recognised by `event.isComposing`, by key code 229, and by a `keydown` that follows `compositionend` in the same task (ETI-4). An on-screen keyboard cannot be told from a hardware one by any web API: a `keydown` of Enter is read as the return key of an on-screen keyboard while the primary pointer is coarse and cannot hover (`(pointer: coarse) and (hover: none)`), so a tablet with a keyboard attached begins a new line with Enter and acts with Ctrl+Enter or Command+Enter — safe, and a guess. `enterkeyhint` is `enter` while multiline and the browser's own otherwise (`search` for type search). Selection (ETI-21): `selectionStart`, `selectionEnd`, `setSelectionRange()`, `setRangeText()` and `select()` are passed through to the inner element. Types set `inputmode` on a `<textarea>`, which has no `type`. Parts: `input`. Custom properties: `--tanrei-comp-embedded-text-input-*`. Without script (ETI-27): the product writes `<textarea name aria-label>` or `<input>` as the element's child; it is not slotted, and after definition it is `hidden` and `disabled`. Fixtures whose id begins `held-` are staged by the harness inside its sample holder; every other fixture is drawn bare on the stage."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiEmbeddedTextInput",
+      "props": {
+        "type": "type",
+        "value": "text",
+        "label": "label",
+        "description": "hint",
+        "placeholder": "prompt",
+        "multiline": "axis",
+        "minRows": "lineLimit",
+        "maxRows": "lineLimit",
+        "enterKey": "enterKey",
+        "error": "error",
+        "required": "required",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "autocomplete": "textContentType"
+      },
+      "events": {
+        "input": "text",
+        "change": "onCommit",
+        "action": "onSubmit",
+        "rowsChange": "onRowsChange",
+        "focusChange": "focused"
+      },
+      "notes": "Not built on this platform yet. A `TextField` with `.plain` style and `axis: .vertical` (`lineLimit(minRows...maxRows)`), which draws no box; `text` and `focused` are bindings, and the holder reads `focused` (a `FocusState` it owns) for H2. The height is the view's own, so a holder laid out around it follows; the change is wrapped in an animation of the token's duration and curve, dropped when `accessibilityReduceMotion` is set. A hardware keyboard's Enter is told from the return key by `onKeyPress(.return)`, which only a hardware keyboard sends; a composition by the marked text of the underlying text view. `label` is `accessibilityLabel`, `description` `accessibilityHint`."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiEmbeddedTextInput",
+      "props": {
+        "type": "type",
+        "value": "value",
+        "label": "label",
+        "description": "stateDescription",
+        "placeholder": "placeholder",
+        "multiline": "singleLine",
+        "minRows": "minLines",
+        "maxRows": "maxLines",
+        "enterKey": "enterKey",
+        "error": "isError",
+        "required": "required",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "autocomplete": "contentType"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onCommit",
+        "action": "onAction",
+        "rowsChange": "onRowsChange",
+        "focusChange": "interactionSource"
+      },
+      "notes": "Not built on this platform yet. A `BasicTextField` with no decoration box. `singleLine` and `enabled` are the inverses of multiline and disabled. The holder gives a `MutableInteractionSource` and reads `collectIsFocusedAsState()` for H2. The height animates with `animateContentSize` given the token's duration and curve, skipped on the first composition and where the system's animator scale is 0. A hardware Enter is read in `onPreviewKeyEvent`; the on-screen keyboard's action is `ImeAction.None` while multiline; a composition is the `composition` range of the `TextFieldValue`."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiEmbeddedTextInput",
+      "props": {
+        "type": "type",
+        "value": "controller",
+        "label": "semanticsLabel",
+        "description": "semanticsHint",
+        "placeholder": "hintText",
+        "multiline": "multiline",
+        "minRows": "minLines",
+        "maxRows": "maxLines",
+        "enterKey": "enterKey",
+        "error": "isError",
+        "required": "required",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "autocomplete": "autofillHints"
+      },
+      "events": {
+        "input": "onChanged",
+        "change": "onCommit",
+        "action": "onAction",
+        "rowsChange": "onRowsChanged",
+        "focusChange": "focusNode"
+      },
+      "notes": "Not built on this platform yet. An `EditableText` with the placeholder painted by the widget, in no `InputDecorator`. `enabled` is the inverse of disabled. The holder gives a `FocusNode` and listens to it for H2. The height animates in an `AnimatedSize` with the token's duration and curve, with a zero duration on the first build and where `MediaQuery.disableAnimations` is true. A hardware Enter is read by the focus node's `onKeyEvent`; the on-screen action is `TextInputAction.newline` while multiline; a composition is `controller.value.composing`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "EmbeddedTextInput",
+      "props": {
+        "type": "type",
+        "value": "value",
+        "label": "accessibilityLabel",
+        "description": "accessibilityHint",
+        "placeholder": "placeholder",
+        "multiline": "multiline",
+        "minRows": "minRows",
+        "maxRows": "maxRows",
+        "enterKey": "enterKey",
+        "error": "error",
+        "required": "required",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "autocomplete": "autoComplete"
+      },
+      "events": {
+        "input": "onChangeText",
+        "change": "onEndEditing",
+        "action": "onAction",
+        "rowsChange": "onRowsChange",
+        "focusChange": "onFocus / onBlur"
+      },
+      "notes": "Not built on this platform yet. The platform's `TextInput` with no border and no padding, its height set from `onContentSizeChange` and animated with the token's duration and curve (`Animated`, not the native driver: the height is layout), at once where `AccessibilityInfo.isReduceMotionEnabled`. The holder keeps a focused state from `onFocus` and `onBlur` for H2. This platform has no signal that a composition is in progress: until one is found, enterKey action is not offered here — Enter always begins a new line and action comes from Ctrl+Enter, Command+Enter and the holder's own button — because ETI-4 is not negotiable."
+    }
+  }
+}

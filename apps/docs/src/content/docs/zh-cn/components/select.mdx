@@ -1,0 +1,283 @@
+---
+title: "下拉选择框"
+description: "让用户从一个封闭的列表里选择一个值——触发器的外观和尺寸与文本输入框的方框相同，显示选中的选项；选项列表从触发器展开，选项可以分组——它没有自己的标签行、帮助文本和错误文本。用于栏、工具栏或表格，或者放进产品自己组合的字段里。"
+translationOf: components/select.mdx
+sourceHash: b590963ddaa047a35f87209960b3ba6974490bfc
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="select" />
+
+<DemoFrame label="单独使用：放在栏里的主题下拉选择框，以及列表上方的排序方式" column>
+  <tanrei-select class="not-content" size="small" label="主题" value="auto">
+    <tanrei-option value="light" leading-icon="light_mode">浅色</tanrei-option>
+    <tanrei-option value="dark" leading-icon="dark_mode">深色</tanrei-option>
+    <tanrei-option value="auto" leading-icon="computer">跟随系统</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" size="small" label="排序方式" value="updated">
+    <tanrei-option value="updated">最近更新</tanrei-option>
+    <tanrei-option value="name">名称</tanrei-option>
+    <tanrei-option value="size">大小</tanrei-option>
+  </tanrei-select>
+</DemoFrame>
+
+下拉选择框就是[下拉选择字段](/zh-cn/components/select-field/)的方框，单独拿出来：触发器和它显示的值、它的前置图标和 V 形箭头，以及从它展开的选项列表。它上方没有标签行，没有必填和选填标记，下方也没有帮助文本和错误文本。
+
+在用户读到的标签位于别处的地方，或者从下拉选择框所在的位置和它显示的内容就能看明白的地方，单独使用它：
+
+| 位置 | 靠什么让用户知道它设置的是什么 | 下拉选择框的 `label` |
+| --- | --- | --- |
+| 应用栏里的主题或语言 | 它的位置、它的字形和它显示的值 | “主题”“语言” |
+| 工具栏里的排序方式或筛选条件 | 它下方的列表 | “排序方式” |
+| 表格某一列里的单元格；表格下方的每页行数下拉选择框 | 列标题；下拉选择框旁边的文字 | 列和行：“角色，李华” |
+
+单独使用时，下拉选择框需要自己的 `label`。它就是无障碍名称。stacked 的下拉选择框绝不绘制它；filled 或 outlined 的下拉选择框把它画成浮在方框里的标签。
+
+在表单里，请使用[下拉选择字段](/zh-cn/components/select-field/)：把这个下拉选择框放在一个[字段](/zh-cn/components/field/)里，上方有标签，还有必填或选填标记、帮助文本和错误。
+
+**使用它的组件**是[下拉选择字段](/zh-cn/components/select-field/)。要自己为它加上框架，就把它放进[字段](/zh-cn/components/field/)：字段为它命名、提供描述、把它标记为必填，并让它进入错误状态。
+
+不设置宽度时，单独使用的下拉选择框的宽度取它最宽的选项所需的宽度，所以选择不同的选项绝不会改变它的宽度。在字段里，它会填满字段。
+
+在 Web 上它是 `<tanrei-select>`，子元素是 `<tanrei-option>`。其他平台尚未实现。
+
+### 用法
+
+选项是下拉选择框的子元素：每个选项有一个值和一个标签。`value` 指明选中的是哪一个。用户选择另一个选项时，下拉选择框触发 `change`；用户打开或关闭列表时，触发 `toggle`。你自己设置 `value` 或 `open` 时，两者都不会触发。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 在应用栏里：小号，由它自己的 label 命名，这个 label 不画出来。 -->
+    <tanrei-select size="small" label="主题" value="dark">
+      <tanrei-option value="light" leading-icon="light_mode">浅色</tanrei-option>
+      <tanrei-option value="dark" leading-icon="dark_mode">深色</tanrei-option>
+    </tanrei-select>
+
+    <!-- 表格的一个单元格：列标题就是可见的标签。 -->
+    <td>
+      <tanrei-select name="role-ada" size="small" label="角色，李华" value="editor">
+        <tanrei-option value="viewer">查看者</tanrei-option>
+        <tanrei-option value="editor">编辑者</tanrei-option>
+      </tanrei-select>
+    </td>
+
+    <script type="module">
+      import '@tanrei/web/components/select';
+
+      const theme = document.querySelector('tanrei-select');
+      // 用户选择了另一个选项。value 已经是新的值。
+      theme.addEventListener('change', () => apply(theme.value));
+      // 由用户打开或关闭；关闭时带有原因。
+      theme.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Option, Select } from '@tanrei/react';
+
+    <Select size="small" label="主题" value={theme} onChange={(event) => setTheme(event.currentTarget.value)}>
+      <Option value="light" leadingIcon="light_mode">浅色</Option>
+      <Option value="dark" leadingIcon="dark_mode">深色</Option>
+    </Select>
+    ```
+  </TabItem>
+</Tabs>
+
+### 手写在字段里
+
+包住下拉选择框的字段，就是展开写出来的下拉选择字段。下拉选择框自己的 `label` 留空：由字段为它命名。`label`、`error`、`disabled` 和必填与否写在字段上；`name`、`value`、选项以及与选择有关的一切写在下拉选择框上。
+
+```html
+<tanrei-field label="国家/地区" requirement="required" required-text="必填"
+  supporting-text="发票将寄往该国家/地区。">
+  <tanrei-select name="country" placeholder="请选择国家/地区">
+    <tanrei-option value="jp">日本</tanrei-option>
+    <tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select>
+</tanrei-field>
+```
+
+<DemoFrame label="里面放着下拉选择框的字段：画面与下拉选择字段相同" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="国家/地区" requirement="required" required-text="必填" supporting-text="发票将寄往该国家/地区。">
+    <tanrei-select placeholder="请选择国家/地区">
+      <tanrei-option value="jp">日本</tanrei-option>
+      <tanrei-option value="ke">肯尼亚</tanrei-option>
+    </tanrei-select>
+  </tanrei-field>
+</DemoFrame>
+
+只有下拉选择框自己知道的事，由它告诉所在的字段。它的帮助文本从值开始的位置起笔，越过内边距和前置图标。filled 或 outlined 的下拉选择框自己绘制字段的标签，浮在方框里，所以字段不绘制标签行。列表打开期间，无论下拉选择框有没有焦点，它都画成聚焦的样子，所以字段在这段时间里也把标签和帮助文本画成聚焦的样子。
+
+## 规格
+
+<DemoFrame label="单独使用的下拉选择框：分组、带辅助文本和一个禁用选项、处于错误状态、只读，以及禁用" plain column>
+  <tanrei-select class="not-content" label="时区" value="Europe/Lisbon">
+    <tanrei-option-group label="亚洲"><tanrei-option value="Asia/Tokyo">东京</tanrei-option><tanrei-option value="Asia/Seoul">首尔</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="欧洲"><tanrei-option value="Europe/Lisbon">里斯本</tanrei-option><tanrei-option value="Europe/Berlin">柏林</tanrei-option></tanrei-option-group>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="套餐" value="team">
+    <tanrei-option value="free" supporting-text="1 个项目，社区支持">免费版</tanrei-option>
+    <tanrei-option value="team" supporting-text="项目数量不限，共享角色">团队版</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="单点登录和审计日志" disabled>企业版</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="国家/地区" value="ke" error>
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="国家/地区" value="jp" readonly>
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select>
+  <tanrei-select class="not-content" label="国家/地区" value="jp" disabled>
+    <tanrei-option value="jp">日本</tanrei-option><tanrei-option value="ke">肯尼亚</tanrei-option>
+  </tanrei-select>
+</DemoFrame>
+
+### 触发器
+
+| 部件 | 它是什么 |
+| --- | --- |
+| 值 | 选中选项的标签，保持在一行之内，放不下时以省略号截断 |
+| 占位符 | 尚未选择时显示的提示。它绝不是标签，也绝不是一个选项 |
+| 前置图标 | `leading-icon` 插槽里的字形；没有时，采用选中选项自己的字形 |
+| V 形箭头 | 表明这个方框会打开一个列表。它不会转动。只读的下拉选择框不画它 |
+| 浮动标签 | 只在 `filled` 或 `outlined` 的下拉选择框里：它的名称，尚未选择时停在输入行里，其余时候浮在值的上方。包住下拉选择框的字段说它必填时，后面跟一个星号 |
+
+三种变体就是文本输入框的那三种。默认系统只提供 `stacked`；`filled` 和 `outlined` 留给以这种方式绘制文本输入框的系统。一个表单只用一种样式。
+
+`medium`（48）和 `large`（56）是文本输入框的高度。`small`（40）用于栏、工具栏或一排紧凑的控件。
+
+### 哪些属于下拉选择框，哪些属于字段
+
+- **下拉选择框绘制**方框、值、占位符、图标、列表及其选项，以及浮在 filled 或 outlined 方框里的标签。它保存值、在表单中的位置和事件。它告诉辅助技术选中的是哪个选项、列表是否打开、哪个是活动选项，以及它是只读的。
+- **包住它的字段绘制** stacked 下拉选择框上方的标签行、必填或选填标记、帮助文本和错误文本。它什么都不保存。它把名称交给下拉选择框，把帮助文本或错误文本作为描述交给它，并告诉它是否必填、无效或禁用。
+
+单独使用、没有字段时：
+
+- **名称**是 `label`。`labelHidden` 让 filled 或 outlined 的下拉选择框不再绘制它；对 stacked 的下拉选择框没有任何影响。
+- **错误**是 `error`，由你来设置：方框画成错误状态，并暴露为无效。下拉选择框没有错误文本。请在它旁边用文字说明哪里错了，或者给它加上框架。
+- **必填**要由字段来说明。单独使用的下拉选择框没有必填与否的设置：表单需要回答的地方，请自己校验。
+
+### 列表
+
+列表在容器下方相距 `comp.select.list.offset` 处打开，起始边与容器对齐；下方没有空间时，在容器上方打开。它与容器一样宽，并且不小于 `list.min-width`（160）。它的高度等于各选项加起来的高度，上限是 `list.max-height`（320），超过时滚动。列表打开时，选中的选项位于视野之内。
+
+| 部件 | 它是什么 |
+| --- | --- |
+| 选项 | 一行，带有标签，还可以有一行辅助文本和一个字形。选中的那一个带有低调的填充和一个对勾 |
+| 组 | 一串选项，上方可以有一个标题。组与组之间用分隔线或间隙分开，由设计系统或 `separation` 决定 |
+| 禁用的选项 | 可以用方向键到达，让用户知道它存在，但绝不会被选中 |
+
+值为空字符串的选项与其他选项一样是一个选择，用于“无”或“不限”。下拉选择框自己没有回到“尚未选择”的办法：允许不作选择的地方，请提供一个表明这一点的选项。
+
+### 打开、移动和选择
+
+| 输入 | 发生什么 |
+| --- | --- |
+| 按下容器；Enter、Space、下方向键或上方向键 | 打开列表。活动选项是选中的那一个；没有选中的选项时，是第一个启用的选项 |
+| 一个可打印的字符 | 打开列表，并让下一个以所键入内容开头的选项成为活动选项 |
+| 下方向键、上方向键 | 下一个或上一个选项，可以跨组，到头时停住 |
+| Home、End；Page Down、Page Up | 第一个或最后一个选项；向下或向上移动十个选项 |
+| Enter 或 Space；按下某个选项 | 选择活动选项并关闭列表 |
+| Escape；Tab；在外部按下；按下容器 | 关闭列表，不选择任何选项 |
+
+只有用户在打开的列表中确认某个选项（按下它，或者按 Enter 或 Space）时，值才会改变。在关闭的下拉选择框上按方向键或键入字符，会打开列表，而不是在用户看不到的情况下改变值，因为一次 `change` 可能会保存数据、跳转或重建页面。
+
+`toggle` 带有关闭的原因：`select`、`escape`、`outside`、`focus-out`、`anchor-hidden`、`press` 或 `tab`。
+
+<ComponentSpecs name="select" />
+
+### Web 上绘制方式的不同之处
+
+- `<tanrei-option>` 和 `<tanrei-option-group>` 是数据：它们什么都不画。选项的标签是 `label` 属性（attribute）；没有这个属性时，是元素的文本。组的标题是它的 `label` 属性（attribute）。
+- 选项是下拉选择框的子元素。它的子元素中的 `<slot>` 代表分配给这个插槽的元素，所以你自己的元素可以把选项转交给它：在自己的 shadow root 里写 `<tanrei-select label="套餐"><slot></slot></tanrei-select>`。下拉选择字段正是这样做的。
+- 下拉选择框是与表单关联的元素。它接受 `name`，提交 `value`，重置时回到 `value` 属性（attribute）的值，并在包住它的字段说它必填且 `value` 为空时向表单报告缺少值。
+- 单独使用的下拉选择框是一个行内的方框；在字段里，它是一个填满字段的块。
+- `change` 是一个 composed 并且冒泡的事件。`toggle` 是 composed 的，但不冒泡：在下拉选择框上能监听到，在包住它的下拉选择字段上也能监听到，而 `<details>` 这样的祖先元素绝不会收到。
+- 列表是顶层（top layer）中的 `popover="manual"` 元素。在外部按下会关闭它，这次按下也会传到它下方的元素。
+- 浮动标签（`filled`、`outlined`）位于容器内部，所以按下它会打开列表。
+- `supporting-text`、`error-text`、`requirement`、`required-mark`、`required-text` 和 `optional-text`，以及给 `label-icon` 插槽的子元素，属于下拉选择字段和字段。写在下拉选择框上，它们什么都不绘制；调试构建会报告一次，并指出 `<tanrei-select-field>`。
+- 部件：`container`、`outline`、`active-indicator`、`label`、`requirement-label`、`value`、`placeholder`、`leading-icon`、`chevron`、`list`、`option`、`option-label`、`option-supporting-text`、`option-leading-icon`、`mark`、`group`、`group-title`、`divider`。
+- 在元素定义之前，它的选项是页面上的普通文本。请隐藏 `tanrei-select:not(:defined) > *`，并预留高度。
+- Web 没有自己的返回手势，所以 `toggle` 绝不会带有原因 `back`。
+- `readOnly` 对应 `readonly` 属性（attribute）。
+
+## 指南
+
+### 下拉选择框、下拉选择字段，还是手写的字段
+
+| 你需要 | 使用 |
+| --- | --- |
+| 标签、方框、帮助文本和错误 | [下拉选择字段](/zh-cn/components/select-field/) |
+| 只要方框，用在它的标签位于别处的地方：栏、工具栏、表格的单元格 | 下拉选择框，由它自己的 `label` 命名 |
+| 在框架里面、方框的旁边或下方放你自己的东西 | 一个[字段](/zh-cn/components/field/)，里面放一个下拉选择框和你自己的元素 |
+
+### 下拉选择框、单选按钮、菜单还是组合框
+
+| 方面 | 下拉选择框 | 单选按钮 | 菜单 | 组合框 |
+| --- | --- | --- | --- | --- |
+| 里面是什么 | 封闭列表中的一个值 | 少数几个值中的一个 | 操作 | 通过键入找到的一个值 |
+| 何时显示选项 | 按下之后 | 始终 | 按下之后 | 按下之后，经过筛选 |
+| 是否属于表单 | 是 | 是 | 否 | 是 |
+
+1. 选项不超过五个左右、都很短，并且有地方放时，把它们全部显示出来：用单选按钮；如果切换的是视图，用标签页。
+2. 如果各项是执行操作，而不是代表一个值，那是菜单。选项是一个值，绝不是一个去处：一列目的地应该是菜单或链接。
+3. 如果列表长到用户宁愿键入也不愿滚动，或者要接受列表之外的值，那是组合框。
+4. 要选多个值时，用复选框，或者用可以多选的列表。
+
+### 推荐
+
+- 给单独使用的下拉选择框一个说明选择的是什么的 `label`；有可见的标签时，用词与它相同。
+- 只有当看得见页面的用户能够分辨它设置的是什么时——凭它的位置、它的字形，或者它显示的值——才单独使用下拉选择框。
+- 按用户查找的方式排列选项：按字母顺序、按数字顺序，或者把常用的放在前面。
+- 给长列表分组，并给每个组一个简短的标题。
+- 选项的标签用几个词说不清楚的内容，写进这个选项的 `supportingText`。
+
+### 避免
+
+- 不要为了省下标签的位置而在表单里单独使用下拉选择框。请使用下拉选择字段。
+- 不要在下拉选择框上写了 `label`，就指望它出现在方框上方。stacked 的下拉选择框不绘制标签：那是下拉选择字段的那一行。
+- 不要把占位符当作标签。一旦选择了某个选项，它就消失了。
+- 不要在没有说明的情况下，在 `change` 时跳转、提交或删除。用户在列表中移动，是为了阅读它。
+- 不要在字段里的下拉选择框上设置 `label`、`error` 或 `disabled`。请把它们写在字段上，这样标签和帮助文本才会随之变化。
+- 不要禁用一个选项，却不让用户知道原因。请把原因写在它的辅助文本里。
+
+## 无障碍
+
+<ComponentAccessibility name="select" />
+
+### 组件负责的部分
+
+- 触发器是一个不可编辑的组合框。它的名称是它自己的 `label`；它没有 `label` 时，是包住它的字段的标签；绝不是占位符。它的值是选中选项的标签。
+- 它的描述是它的字段给的：帮助文本或错误文本，以及选填的文字。
+- 处于错误状态时，它暴露为无效；它的字段说它必填时，暴露为必填；只读时暴露为只读；禁用时暴露为禁用；列表打开时，暴露为已展开。
+- 列表打开期间，焦点留在触发器上。活动选项是触发器的活动后代，所以用户阅读选项时，方框仍然保有自己的名称和状态。
+- 列表是一个列表框，它的名称与下拉选择框的名称相同。每个选项都有自己的名称、描述、是否选中、是否禁用，以及它在所有选项中的位置。组以它的标题命名。
+- 选中的选项靠对勾与其他选项区分，绝不只靠填充。
+- 字形、V 形箭头、对勾、分隔线以及浮动标签后面的星号对辅助技术隐藏。
+- 下拉选择框在焦点顺序中是一个停靠点。Tab 会关闭打开的列表，并继续前进。
+- Escape 关闭列表，并且不再向外传递，所以包含下拉选择框的对话框保持打开。
+- 小号下拉选择框高 40，但触发器的点击区域仍然达到最小目标；每个选项的高度也不小于最小目标。
+- 文本放大到 200% 时，选项和标题会换行。只有容器里的值保持在一行之内，而列表和辅助技术仍然给出完整的值。
+- 在强制颜色模式下，触发器和列表会多出一道边线，活动选项采用系统的高亮颜色，选中的选项靠对勾来表示。
+- 在从右到左的布局中，触发器和每一行都会镜像，每段文本保持自己的方向。V 形箭头和对勾不镜像。
+- 它自己不带任何文字，也不朗读任何文字。
+
+Web 上的已知差距：
+
+- 两个组之间的分隔线没有作为分隔符暴露：列表框只能包含选项和组。
+- 键入查找按 JavaScript 的方式不区分大小写地比较标签，而不是按标签所用语言的规则。
+- 在元素定义之前，选项是页面上的文本，没有对应的控件。
+
+### 需要你做的事
+
+- 用 `label` 为每个单独使用的下拉选择框命名，并为每个选项提供标签。下拉选择框旁边的可见文字并不能为它命名。
+- 单独使用的下拉选择框可能出错的地方，请用辅助技术读得到的文字说明哪里错了：一条与页面关联的、你自己的消息，或者包住下拉选择框的一个字段。
+- 在同一个下拉选择框里，让各个选项的值保持唯一。

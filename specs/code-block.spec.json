@@ -1,0 +1,2865 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "code-block",
+  "title": "Code block",
+  "summary": "Shows lines of code to read, compare and copy: in the code face, on a quiet fill or inside one hairline, scrolling inside itself or wrapping, with an optional header, line numbers, marked lines, a prompt and a copy button; given the code and its language it highlights the code by itself, in the system's syntax colors.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "copy-button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The block: a quiet fill (filled) or no fill inside one hairline (outlined), with small corners. As wide as its layout gives it."
+    },
+    {
+      "id": "outline",
+      "description": "The outlined look's edge: one hairline inside the container.",
+      "optional": true
+    },
+    {
+      "id": "header",
+      "description": "A row above the code that holds the title, the language and, where there is one, the copy button. It has no fill and no line of its own: it is the top of the same container.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "What the code is: a file name or a few words. At the start of the header.",
+      "optional": true
+    },
+    {
+      "id": "language",
+      "description": "The language label: the language the code is in, in the product's words. At the end of the header, before the copy button.",
+      "optional": true
+    },
+    {
+      "id": "copy-button",
+      "description": "A Copy button (its own component) that copies the code: in the header where there is one, at the block's top end corner otherwise.",
+      "optional": true
+    },
+    {
+      "id": "body",
+      "description": "The part that holds the lines and scrolls inside the container when they do not fit."
+    },
+    {
+      "id": "code",
+      "description": "The code: its lines, each on one line of the code's text style, each run in the color and weight of its syntax role where the code is highlighted."
+    },
+    {
+      "id": "line-number",
+      "description": "A line's number, in the gutter at the left of the code. Drawn, not text.",
+      "optional": true
+    },
+    {
+      "id": "mark",
+      "description": "A bar at the left edge of a highlighted, an added or a removed line.",
+      "optional": true
+    },
+    {
+      "id": "sign",
+      "description": "A plus or a minus in the gutter of an added or a removed line. Drawn, not text.",
+      "optional": true
+    },
+    {
+      "id": "prompt",
+      "description": "A prompt drawn before each line of a block of commands. Drawn, not text.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "code",
+      "type": "string",
+      "default": "",
+      "description": "The code as plain text, lines separated by line breaks. It is what is drawn, what is highlighted and what is copied. Ignored where runs are given: their texts, joined, are the code."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "filled",
+        "outlined"
+      ],
+      "default": "filled",
+      "description": "filled: a quiet fill, for code on a page. outlined: no fill inside one hairline, for code inside a container that is already filled (a card, a panel). A design system may add values.",
+      "axis": "tanrei.comp.code-block.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium"
+      ],
+      "default": "medium",
+      "description": "medium sets the code in the code role (13), for a page and a panel. small sets it in the small code role (12) with less padding, for dense interfaces. A design system may add values.",
+      "axis": "tanrei.comp.code-block.size"
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "default": "",
+      "description": "A file name or a few words that say what the code is (\"button.tsx\", \"Response\"). Drawn in the header and used as the block's accessible name."
+    },
+    {
+      "name": "language",
+      "type": "string",
+      "default": "",
+      "description": "The language the code is written in, as an identifier (\"tsx\", \"css\", \"swift\", \"sh\"), read without regard to case. It is what the block highlights by (COD-19, COD-27); it is not drawn. Empty, \"text\" and \"plain\" mean code that has no syntax; a language the highlighter does not know is drawn plain."
+    },
+    {
+      "name": "languageLabel",
+      "type": "string",
+      "default": "",
+      "description": "The language in the product's words (\"TypeScript\", \"Shell\"), drawn in the header. A label only: the block does not highlight by it, and draws no label of its own for language."
+    },
+    {
+      "name": "highlight",
+      "type": "boolean",
+      "default": true,
+      "description": "True: the block highlights the code by itself where it can (COD-19). False: it never does, whatever language says; runs the product gives are still drawn in their colors."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The block's accessible name where it has no title (\"Example\", \"Request body\"), in the product's language. Not drawn. A block that can scroll needs a title or a label."
+    },
+    {
+      "name": "wrap",
+      "type": "boolean",
+      "default": false,
+      "description": "False: a line is never broken, and lines that do not fit scroll sideways inside the block. True: a line that does not fit continues on the next row, and nothing scrolls sideways."
+    },
+    {
+      "name": "lineNumbers",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws each line's number in a gutter at the left of the code."
+    },
+    {
+      "name": "startLine",
+      "type": "number",
+      "default": 1,
+      "description": "The number of the first line: an excerpt of a file keeps the file's numbers. A whole number of 1 or more."
+    },
+    {
+      "name": "highlightedLines",
+      "type": "string",
+      "default": "",
+      "description": "The lines the text around the block talks about, by number, as numbers and ranges separated by commas (\"3, 7-9\"). Numbers are the ones lineNumbers would draw (they count from startLine)."
+    },
+    {
+      "name": "addedLines",
+      "type": "string",
+      "default": "",
+      "description": "The lines a change adds, written as highlightedLines is."
+    },
+    {
+      "name": "removedLines",
+      "type": "string",
+      "default": "",
+      "description": "The lines a change takes away, written as highlightedLines is. They are drawn and are left out of what the copy button copies."
+    },
+    {
+      "name": "highlightedLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads before a highlighted line (\"Highlighted\"), in the product's language. Required while highlightedLines names a line.",
+      "words": "highlightedLabel"
+    },
+    {
+      "name": "addedLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads before an added line (\"Added\"). Required while addedLines names a line.",
+      "words": "addedLabel"
+    },
+    {
+      "name": "removedLabel",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads before a removed line (\"Removed\"). Required while removedLines names a line.",
+      "words": "removedLabel"
+    },
+    {
+      "name": "prompt",
+      "type": "string",
+      "default": "",
+      "description": "A prompt (\"$\", \">\") drawn before every line that is not empty, for a block of commands to type. It is not part of the code: it is not selected, not copied and not read."
+    },
+    {
+      "name": "maxLines",
+      "type": "number",
+      "default": null,
+      "description": "The most lines shown at once; more than that scroll up and down inside the block. Null shows every line."
+    },
+    {
+      "name": "copy",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws a copy button that copies the code."
+    },
+    {
+      "name": "copyLabel",
+      "type": "string",
+      "default": "",
+      "description": "The copy button's accessible name (\"Copy\"), in the product's language. Required while copy is true.",
+      "words": "copyLabel"
+    },
+    {
+      "name": "copiedLabel",
+      "type": "string",
+      "default": "",
+      "description": "What the copy button announces when the code has been copied (\"Copied\"). Required while copy is true.",
+      "words": "copiedLabel"
+    },
+    {
+      "name": "copyFailedLabel",
+      "type": "string",
+      "default": "",
+      "description": "What the copy button announces when the platform refuses the copy (\"Could not copy\"). Required while copy is true.",
+      "words": "copyFailedLabel"
+    }
+  ],
+  "items": [
+    {
+      "name": "run",
+      "summary": "A piece of the code that is one kind of thing — a comment, a keyword, a string, a function's name — as the block's highlighter found it, or as the product names it where the product gives the runs. The runs' texts, in order, are the code.",
+      "props": [
+        {
+          "name": "text",
+          "type": "string",
+          "default": "",
+          "description": "The run's characters, exactly as in the code. It may hold line breaks: a run may span lines."
+        },
+        {
+          "name": "syntax",
+          "type": "enum",
+          "values": [
+            "plain",
+            "comment",
+            "keyword",
+            "string",
+            "constant",
+            "function",
+            "type",
+            "tag",
+            "property",
+            "punctuation"
+          ],
+          "default": "plain",
+          "description": "What the run is. comment: a comment or a documentation comment. keyword: one of the language's own words (a keyword, a storage or modifier word, an at-rule, an annotation, an operator written as a word). string: text written in the code (a string, a character, a regular expression, the value of a markup attribute). constant: a value that is not text (a number, a boolean or null, a named constant, a unit, a color value, an escape inside a string). function: the name of a function or a method, declared or called. type: the name of a type (a class, a structure, an interface, an enumeration, a built-in type, a namespace). tag: what markup and style sheets address (an element's name, a component's name in markup, a selector). property: a name that belongs to something (a property, a key, a markup attribute, a style declaration's property, a command's option). punctuation: brackets, separators and the delimiters of markup. plain: none of these — variables, parameters, operators written as signs, text between tags. The values are those of the token axis comp.code-block.syntax and plain; a design system may add values to that axis."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "copied",
+      "description": "The code was copied by the block's copy button; carries the text that was copied."
+    },
+    {
+      "name": "copyfailed",
+      "description": "The platform refused the copy asked for by the block's copy button."
+    }
+  ],
+  "states": [
+    "enabled",
+    "focused"
+  ],
+  "behavior": [
+    {
+      "id": "COD-1",
+      "text": "THE code block SHALL draw a container filled with the container color of its variant (comp.code-block.filled.container.color for filled, comp.code-block.outlined.container.color for outlined), with corners comp.code-block.container.shape eased by sys.shape.corner-smoothing and no elevation, as wide as its layout gives it and never wider, and SHALL bring no space outside itself: the layout it sits in spaces it (PRS-15). WHILE variant is outlined it SHALL draw an edge comp.code-block.outline.width wide in comp.code-block.outline.color inside the container's size, following its corners; WHILE variant is filled it SHALL draw no edge."
+    },
+    {
+      "id": "COD-2",
+      "text": "THE code block SHALL set the code in the text style of its size, taken whole (comp.code-block.code.typescale.medium for medium, and so on), in comp.code-block.code.color where a run names no syntax role, every line of the code on one line of that style; it SHALL draw the characters as given — every space kept, a tab advancing to the next multiple of comp.code-block.code.tab-size columns, nothing hyphenated, transformed, translated or spell-checked — and SHALL draw no empty last line for one line break at the end of the code."
+    },
+    {
+      "id": "COD-3",
+      "text": "THE code block SHALL pad the code by the block padding of its size above the first line and below the last (comp.code-block.container.padding-block.medium for medium, and so on) and by the inline padding of its size (comp.code-block.container.padding-inline.medium for medium, and so on) before the start of the lines, or of the gutter where there is one (COD-13), and after the end of the longest line."
+    },
+    {
+      "id": "COD-4",
+      "text": "WHILE wrap is false THE code block SHALL NOT break a line; WHEN a line is wider than the body THE body SHALL scroll sideways inside the container, by pointer, touch, the wheel and the keyboard (COD-7), the page SHALL NOT scroll sideways for it, and the padding after the longest line SHALL scroll with the code, so that its last character can be brought clear of the container's edge. The header and the copy button SHALL NOT scroll with the code. A gesture or a wheel movement up or down over a body that cannot scroll that way SHALL scroll the page.",
+      "verify": "The fixture long-lines holds a line wider than any harness's stage. A test at a viewport 320 wide reads no horizontal overflow of the page and scrolls the body to its end."
+    },
+    {
+      "id": "COD-5",
+      "text": "WHILE wrap is true THE code block SHALL continue a line that does not fit on following rows: it breaks first at the spaces of the line and, where a part with no space is wider than the row, between any two characters; a following row SHALL begin at the column where the line's code begins (after the gutter and the prompt), draw no mark of its own and add no character; the body SHALL NOT scroll sideways; and what is selected or copied SHALL hold the line breaks of the code alone."
+    },
+    {
+      "id": "COD-6",
+      "text": "WHILE maxLines is a number and the code has more lines than that THE body SHALL be maxLines lines of the code's text style high plus its paddings and SHALL scroll up and down inside the container; the header and the copy button SHALL NOT scroll with it. WHILE maxLines is null, or the code has no more lines than it, THE code block SHALL be as tall as its lines."
+    },
+    {
+      "id": "COD-7",
+      "text": "WHILE the body can scroll, sideways or up and down, THE body SHALL be one stop in the focus order after the copy button, SHALL scroll by the arrow keys, Page Up, Page Down, Home and End as its platform scrolls any region, and, WHEN it has keyboard focus, SHALL show the focus indicator inside the container's edge, its corners following comp.code-block.container.shape, as sys.behavior.focus-style names (ring or glow), without animation; focus gained by pointer or touch SHALL NOT show it; a platform that cannot draw a choice SHALL fall back to the first value and state that in its README. WHILE the body cannot scroll it SHALL NOT be a stop in the focus order.",
+      "verify": "Test a block whose lines fit (Tab passes it by), the same block at 320 wide (one stop; ArrowRight scrolls it), and a block with maxLines (ArrowDown scrolls it)."
+    },
+    {
+      "id": "COD-8",
+      "text": "WHILE title or languageLabel is not empty THE code block SHALL draw a header above the code, in the same container, with no fill and no line of its own: the title at the start, in comp.code-block.title.typescale and comp.code-block.title.color, on one line, laid out as text of its own direction and cut with an ellipsis at the end of that direction when it does not fit; the language label (languageLabel) at the end, before the copy button where there is one, in comp.code-block.language.typescale and comp.code-block.language.color, never cut; its items comp.code-block.header.gap apart. The header's row SHALL begin comp.code-block.copy-button.inset from the container's top edge, be as tall as the copy button where there is one and as one line of the title's text style otherwise, with its items centred on it; the title SHALL begin at the inline padding of COD-3; and the code SHALL begin comp.code-block.header.padding-block-end below the row in place of the block padding of COD-3."
+    },
+    {
+      "id": "COD-9",
+      "text": "WHILE copy is true THE code block SHALL place a Copy button (CPY) — icon-only, of the text variant and the small size, named by copyLabel, with copiedLabel and copyFailedLabel as its two announcements — comp.code-block.copy-button.inset from the container's top edge and from its end edge: at the end of the header where there is one, and over the top end corner of the body otherwise. THE copy button SHALL be drawn whenever the block is, never only under a pointer or on focus; SHALL come before the body in the focus order and in reading order; and SHALL keep its place and size in every form it takes (CPY-7). THE container SHALL be at least as tall as the copy button plus twice that inset."
+    },
+    {
+      "id": "COD-10",
+      "text": "WHILE copy is true and there is no header THE code block SHALL keep code readable beside the button: WHILE wrap is false the padding after the longest line (COD-3, COD-4) SHALL be widened by the button's width and that inset, so that any line's end can be scrolled clear of the button; WHILE wrap is true every row SHALL end before the button's column. THE copy button SHALL stand on a patch of the container's own color where code can pass under it."
+    },
+    {
+      "id": "COD-11",
+      "text": "THE copy button of COD-9 SHALL copy the code as plain text: its lines in order, joined by line breaks, without line numbers, prompts, signs or labels, without the lines removedLines names, and with no line break that wrapping added. WHEN the Copy button emits copied or copyfailed THE code block SHALL emit its own event of that name, copied carrying the text.",
+      "verify": "A test of the fixture diff copies and reads back the code without its removed line; a test of terminal reads back the commands without the prompt."
+    },
+    {
+      "id": "COD-12",
+      "text": "WHEN a person selects in the body THE code block SHALL select characters of the code alone: line numbers, prompts, signs, bars and the labels of COD-15 and COD-16 SHALL NOT be selectable and SHALL NOT be part of what a copied selection holds; a copied selection SHALL hold the selected characters, removed lines included where they were selected, with the code's own line breaks."
+    },
+    {
+      "id": "COD-13",
+      "text": "WHILE lineNumbers is true THE code block SHALL draw before each line its number, counting from startLine, in the code's text style with digits of one width, in comp.code-block.line-number.color, right-aligned in a column as wide as the widest number drawn; a line that wraps SHALL carry its number on its first row only. The gutter — from the left: the bar's column (COD-15), the numbers, the signs (COD-16) — SHALL stand comp.code-block.line-number.gap from the start of the code, SHALL stay in view on the container's color while the code scrolls sideways under it, and SHALL be kept from assistive technology."
+    },
+    {
+      "id": "COD-14",
+      "text": "THE code block SHALL read highlightedLines, addedLines and removedLines as numbers and ranges separated by commas, each number being a line's number as COD-13 counts it whether or not numbers are drawn; it SHALL ignore a number outside the code and an entry it cannot read, and in debug builds report it. A line named as both added and removed SHALL be drawn removed, and in debug builds reported; a line named as highlighted and as added or removed SHALL be drawn as both."
+    },
+    {
+      "id": "COD-15",
+      "text": "WHILE a line is highlighted THE code block SHALL draw behind all of its rows a band of comp.code-block.line.highlighted.container.color from the container's left edge to its right, and at the container's left edge a bar comp.code-block.line.mark.width wide in comp.code-block.line.highlighted.mark.color as tall as the line; and SHALL expose highlightedLabel to assistive technology before the line's text, without drawing it. The line's code SHALL keep its colors.",
+      "verify": "A test reads the bar's and the band's colors from the tokens, and reads \"Highlighted\" before the line's text in the accessibility tree."
+    },
+    {
+      "id": "COD-16",
+      "text": "WHILE a line is added or removed THE code block SHALL draw at the container's left edge a bar comp.code-block.line.mark.width wide, as tall as the line, and in the gutter after the numbers a sign in the code's text style — a plus (+) for an added line, a minus (−) for a removed one — both in comp.code-block.line.added.mark.color for an added line and comp.code-block.line.removed.mark.color for a removed one; and SHALL expose addedLabel or removedLabel before the line's text, without drawing it. The line's code SHALL keep its colors, SHALL NOT be struck through and SHALL draw no band: the sign and the label say what the line is, never the color alone."
+    },
+    {
+      "id": "COD-17",
+      "text": "WHILE prompt is not empty THE code block SHALL draw the prompt and one space of the code's text style before the first row of every line that is not empty, in comp.code-block.prompt.color, after the gutter; following rows of a wrapped line SHALL begin under the code, not under the prompt; the prompt SHALL be kept from assistive technology and is not code (COD-11, COD-12)."
+    },
+    {
+      "id": "COD-18",
+      "text": "THE code block SHALL draw each run in the color of its syntax role — comp.code-block.syntax.color.comment for comment, comp.code-block.syntax.color.keyword for keyword, comp.code-block.syntax.color.string for string, comp.code-block.syntax.color.constant for constant, comp.code-block.syntax.color.function for function, comp.code-block.syntax.color.type for type, comp.code-block.syntax.color.tag for tag, comp.code-block.syntax.color.property for property, comp.code-block.syntax.color.punctuation for punctuation, and comp.code-block.code.color for plain — and with the weight of the code's text style plus the emphasis of its role (comp.code-block.syntax.emphasis.keyword for keyword, and so on; none for plain), whether the block's highlighter found the run (COD-19) or the product gave it (COD-29). A syntax role SHALL change a run's color and weight alone — never its size, family, spacing, slant, decoration or background — so that highlighted code and the same code drawn plain have the same lines, columns and size. A role a design system added to the axis SHALL be drawn from that role's two tokens in the same way.",
+      "verify": "A test draws the fixture auto-tsx, waits for its colors, and reads the same box for every line as the same code with highlight false; and reads the color of one run of each role from the tokens in the light and the dark scheme."
+    },
+    {
+      "id": "COD-19",
+      "text": "WHILE highlight is true, the product gives no runs (COD-29), language names a language the highlighter knows (COD-27) and the code is no longer than comp.code-block.syntax.max-length characters THE code block SHALL highlight the code by itself: its highlighter reads the code as that language and names the syntax role of every run, and the block draws the runs as COD-18 says. Highlighting SHALL change nothing but colors and weights: the code's characters, its lines, what is selected, what is copied (COD-11, COD-12) and what assistive technology reads (COD-22) are those of the code as given. In every other case THE code block SHALL draw all of the code in comp.code-block.code.color. WHEN a run names a syntax role the active design system does not have THE code block SHALL draw that run as plain, and in debug builds report the unknown role.",
+      "verify": "The fixtures auto-tsx, auto-html, auto-css, auto-json, auto-shell, auto-swift, auto-kotlin and auto-dart are drawn in the light and the dark scheme; a test reads, in each, at least one run of every role the language has, and reads back from the copy button the code as given."
+    },
+    {
+      "id": "COD-20",
+      "text": "THE code block SHALL lay out the body left to right in every layout direction (PRS-26): lines begin at the left, the gutter, the bars and the bands' start are at the left, the prompt is at the left of its line, and sideways scrolling starts at the left. WHERE the layout direction is right-to-left THE code block SHALL mirror the frame alone: the title at the right of the header, the language and the copy button at the left, and the copy button of a block without a header at the top left corner; the paddings of COD-10 SHALL then apply at the button's side. A comment written in a right-to-left script SHALL be laid out by the bidirectional algorithm inside its left-to-right line.",
+      "verify": "The fixture rtl draws a titled, numbered block in a right-to-left stage: the title is at the right, the copy button at the left, and the numbers and the first column of code at the left."
+    },
+    {
+      "id": "COD-21",
+      "text": "THE code block SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the code block is shown THE code block SHALL draw itself for the new direction at once, without a motion of its own, keeping its scroll offsets, its selection and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "COD-22",
+      "text": "THE code block SHALL expose its code to assistive technology as text in reading order, line after line, with the role of code where the platform has one, inside a group named by title where it is not empty and by label otherwise; the language label SHALL be read as text of the header and language itself SHALL NOT be read; a syntax role SHALL NOT be exposed, and colors arriving or changing (COD-28, COD-30) SHALL NOT be announced; and WHEN code, the runs or a marked line changes THE code block SHALL draw and expose the new content at once, without a motion, SHALL NOT announce the change, and SHALL keep the body's scroll offsets where the content still reaches them."
+    },
+    {
+      "id": "COD-23",
+      "text": "WHERE the platform draws with a person's own forced colors THE code block SHALL draw an edge comp.code-block.outline.width wide in the platform's text color inside its container in every variant; its code in the platform's text color whatever syntax role a run names, every run keeping the weight of its role; line numbers, prompts, signs and bars in that text color; and no band: a highlighted line is then marked by its bar, and an added or a removed line by its bar and its sign.",
+      "verify": "On the web, with forced colors emulated: the fixtures plain and diff have a visible edge in CanvasText, and no part relies on a background color."
+    },
+    {
+      "id": "COD-24",
+      "text": "WHILE the text size is enlarged THE code block SHALL grow its lines, its gutter and its header with the text, keeping its paddings and its corners, and the copy button SHALL keep the size and the target of its own spec; at twice the text size in a container 320 wide the body SHALL scroll inside the container (COD-4) or wrap (COD-5), the title SHALL be cut as COD-8 says, and the page SHALL NOT scroll sideways."
+    },
+    {
+      "id": "COD-25",
+      "text": "IF code is empty and no runs are given THE code block SHALL draw nothing, take no space and expose nothing, and in debug builds report that a code block has no code. WHILE copy is true and copyLabel, copiedLabel or copyFailedLabel is empty, WHILE a line is marked and the label of its mark (highlightedLabel, addedLabel, removedLabel) is empty, and WHILE the body can scroll and both title and label are empty THE code block SHALL still draw, and in debug builds report what is missing. WHEN variant or size names a value the active design system does not have THE code block SHALL render with the default value, and in debug builds report the unknown value; a startLine below 1 or not whole SHALL be taken as 1 and a maxLines below 1 as null."
+    },
+    {
+      "id": "COD-26",
+      "text": "THE code block SHALL NOT take a press itself and has no hovered, pressed, selected or disabled state: it draws no state layer and no ripple. What is pressed inside it is its Copy button, which answers a press as its own spec says (CPY-12 to CPY-14)."
+    },
+    {
+      "id": "COD-27",
+      "text": "THE code block SHALL read language as an identifier, without regard to case and to space around it, and match it against the names and the other names of the languages its highlighter knows. THE highlighter the code block brings SHALL know these languages: markup (html, xml, svg), css, javascript (js, mjs, cjs, jsx), typescript (ts, tsx), json (jsonc), shell (sh, bash, zsh), swift, kotlin (kt) and dart; a product SHALL be able to add a language, to replace one, and to replace the highlighter whole, once for all the code blocks it draws. WHILE language is empty, \"text\", \"plain\" or \"plaintext\" THE code block SHALL draw the code plain and report nothing; WHILE language names a language the highlighter does not know it SHALL draw the code plain, and in debug builds report the unknown language once for each name. THE code block SHALL NOT guess a language from the code, from title or from languageLabel.",
+      "verify": "A test draws the fixtures auto-text and auto-unknown-language and reads no run with a syntax role in either; another writes language as \"TSX\" and reads the colors of auto-tsx."
+    },
+    {
+      "id": "COD-28",
+      "text": "THE code block SHALL draw the code at once, plain, without waiting for its highlighter: no part of the highlighter is loaded for a block that will not use it, and a block that waits for it is complete in every other respect. WHEN the runs are ready THE code block SHALL draw every color and weight in one frame, without a motion and without a fade, moving no line and no character, changing the size of nothing, and keeping the body's scroll offsets, the selection and the focus. WHERE the runs are already with the code when the block is first drawn (code highlighted where the page was made) THE code block SHALL draw them in its first frame.",
+      "verify": "A test records layout shifts while the fixture auto-tsx is drawn with a highlighter held back by a second, and reads none; it selects a word before the colors arrive and reads the same selection after."
+    },
+    {
+      "id": "COD-29",
+      "text": "WHERE the product gives runs THE code block SHALL take the runs' texts, joined in order, as the code, SHALL draw them as COD-18 says, and SHALL NOT highlight the code itself, whatever language and highlight say: code that was highlighted where the page was made, or by a highlighter the product chose for one block, is drawn as it was given. Code given with the statement that it has been highlighted and has no run with a role SHALL be drawn plain in the same way.",
+      "verify": "A test draws the fixture syntax with language \"css\" and reads the runs' roles unchanged."
+    },
+    {
+      "id": "COD-30",
+      "text": "WHEN code, language or highlight changes while the block is shown THE code block SHALL draw the new code at once and highlight it again; a result for code that is no longer the code shown SHALL be dropped, never drawn. WHERE its highlighter can answer in the same frame THE code block SHALL draw the new code with its colors in that frame. Otherwise the lines before the first line that changed SHALL keep their colors until the new runs are ready, and the lines from there on SHALL be drawn plain until then, so that code that grows at its end does not lose and regain its colors with every piece.",
+      "verify": "A test appends a line to the fixture auto-javascript twenty times in a second and reads, after each, the colors of the first line unchanged and, at the end, colors on the last line; another changes the code twice in one task and reads that the first result is never drawn."
+    },
+    {
+      "id": "COD-31",
+      "text": "WHILE the code is longer than comp.code-block.syntax.max-length characters THE code block SHALL draw all of it plain — never a part of it highlighted — and in debug builds report that the code is too long to highlight. Runs the product gives are drawn whatever their length.",
+      "verify": "A test gives JavaScript one character longer than the token's value and reads no run with a syntax role, then removes a character and reads colors."
+    },
+    {
+      "id": "COD-32",
+      "text": "IF the highlighter cannot be loaded, fails while it reads the code, or answers with runs whose texts do not join to the code exactly THEN THE code block SHALL draw the code plain, SHALL keep everything else it draws and does — the header, the copy button, the lines, the marks, scrolling — and in debug builds report what failed. A failure in one block SHALL NOT change another block.",
+      "verify": "A test registers a language whose grammar throws, and one that drops a character, and reads in both the code plain, the copy button working and one report."
+    },
+    {
+      "id": "COD-33",
+      "text": "WHILE addedLines or removedLines names a line THE code block SHALL highlight the code as the two texts it holds: the lines that are not removed, in order, are read as one text — the code as it is after the change, which is what is copied (COD-11) — and color the lines that are not removed; the lines that are not added, in order, are read as another — the code as it was before — and color the removed lines. A highlighted line and an added or a removed line SHALL keep the colors of their runs over the band and beside the bar and the sign (COD-15, COD-16).",
+      "verify": "The fixture auto-marked removes a line that opens a string and adds the line that replaces it; a test reads the line after them in the colors it has in the code without the removed line."
+    }
+  ],
+  "accessibility": {
+    "role": "group",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the copy button where there is one, then to the body while it can scroll. A block that neither scrolls nor copies is not a stop."
+      },
+      {
+        "keys": "Arrow keys, Page Up, Page Down, Home, End",
+        "action": "Scroll the focused body, as the platform scrolls any region."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "On the copy button: copies the code (CPY-2)."
+      }
+    ],
+    "labeling": "The block is a group named by title, or by label where it has no title; inside it the code is text with the role of code where the platform has one. The copy button is named by copyLabel. Line numbers, prompts, signs and bars are hidden; a marked line is preceded by its label in words (highlightedLabel, addedLabel, removedLabel).",
+    "minimumTarget": true,
+    "notes": [
+      "The only target is the copy button, whose hit area meets the minimum target by its own spec (CPY-1, BTN-5) though it is drawn 32 high. The body is scrolled, not pressed.",
+      "A body that scrolls must be reachable by keyboard (WCAG 2.1.1) and so is a focus stop with a visible focus indicator (COD-7); one that does not scroll is not, so a page of short examples adds no stops. A group, not a landmark: a page may hold hundreds of blocks.",
+      "Reflow (WCAG 1.4.10): code is two-dimensional content, so sideways scrolling inside the block is allowed, and the page itself never scrolls sideways (COD-4, COD-24). wrap is for a product that prefers no sideways scrolling at all.",
+      "A marked line is never marked by color alone (WCAG 1.4.1): a highlighted line has a bar and a band and its label; an added or a removed line has a bar, a plus or a minus and its label (COD-15, COD-16). Syntax colors carry no meaning a reader needs: the same code drawn plain says the same thing, a role is never exposed (COD-22), and keywords are also told by weight. With a red-green color vision deficiency some of the default system's six hues draw together — the green of a string and the red of a tag's name first — beside the neutral tones and the keyword's weight; nothing is lost but a distinction between kinds of words.",
+      "Contrast: the code, the line numbers, the prompt and the signs are roles the token invariants hold at 4.5:1 on every surface (7:1 in the high-contrast schemes). Every syntax color is held by the build at the same ratios against the block's fill, against the band of a highlighted line and against every surface role, which is what an outlined block may stand on, in each system. The bars are primary, success and error, held at the same ratios, above the 3:1 a mark needs. The outlined look's edge is decorative.",
+      "An outlined block is read on whatever it is placed on. On a surface that is correct. On a colored container (a callout) the syntax colors are not paired with that container: use filled there, which brings its own surface.",
+      "The copy button is always drawn (COD-9): one that appears only under a pointer cannot be found by touch, and one that appears on focus moves under a keyboard user. Its confirmation is announced by the Copy button's own live region (CPY-5).",
+      "Highlighting adds nothing for assistive technology and takes nothing away: the code is the same text before and after the colors arrive, no live region speaks of them, and the body's scroll position, the selection and the focus are kept (COD-28). Colors arrive in one frame, without a motion, so nothing flashes more than once.",
+      "Screen readers read code as text, symbol by symbol as the person's settings say. The code block adds no line numbers or roles to that reading; the marks' labels are the only words it adds.",
+      "Code is not translated and not spell-checked (COD-2); comments in it are the author's language and are read with the page's voice unless the product marks their language."
+    ]
+  },
+  "tokens": "comp.code-block",
+  "fixtures": [
+    {
+      "id": "plain",
+      "props": {
+        "code": "<tanrei-button variant=\"filled\">Save</tanrei-button>\n<tanrei-button variant=\"text\">Cancel</tanrei-button>",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "outlined",
+      "props": {
+        "variant": "outlined",
+        "code": "<tanrei-button variant=\"filled\">Save</tanrei-button>\n<tanrei-button variant=\"text\">Cancel</tanrei-button>",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "small",
+      "props": {
+        "size": "small",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "small-outlined-titled",
+      "props": {
+        "size": "small",
+        "variant": "outlined",
+        "title": "sizes.js",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy",
+        "languageLabel": "JavaScript"
+      }
+    },
+    {
+      "id": "titled",
+      "props": {
+        "title": "sizes.js",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}"
+      }
+    },
+    {
+      "id": "titled-language-copy",
+      "props": {
+        "title": "sizes.js",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy",
+        "languageLabel": "JavaScript"
+      }
+    },
+    {
+      "id": "language-only",
+      "props": {
+        "code": "<tanrei-button variant=\"filled\">Save</tanrei-button>\n<tanrei-button variant=\"text\">Cancel</tanrei-button>",
+        "label": "Example",
+        "languageLabel": "HTML"
+      }
+    },
+    {
+      "id": "copy",
+      "props": {
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "label": "Example",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "one-line-copy",
+      "props": {
+        "code": "npm install @tanrei/web",
+        "label": "Install",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "syntax",
+      "props": {
+        "title": "Footer.tsx",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy",
+        "languageLabel": "TSX"
+      },
+      "items": [
+        {
+          "kind": "run",
+          "props": {
+            "text": "// A form's footer: one main action, one way out.",
+            "syntax": "comment"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "import",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "{",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " Button "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "from",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "'@tanrei/react'",
+            "syntax": "string"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ";",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "export",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "function",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Footer",
+            "syntax": "function"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "({",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " onSave"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ",",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " busy "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}:",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "FooterProps",
+            "syntax": "type"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ")",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "{",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "const",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " retries "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "="
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "3",
+            "syntax": "constant"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ";",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "return",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "(",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "    "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "<",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "footer",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "      "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "<",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Button",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "variant",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "=",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"text\"",
+            "syntax": "string"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Cancel"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "</",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Button",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "      "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "<",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Button",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "disabled",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "={",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "busy"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "onClick",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "={",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "onSave"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}>",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Save"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "</",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Button",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "    "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "</",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "footer",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ");",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}",
+            "syntax": "punctuation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "syntax-outlined",
+      "props": {
+        "variant": "outlined",
+        "label": "A layer file"
+      },
+      "items": [
+        {
+          "kind": "run",
+          "props": {
+            "text": "{",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"name\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"acme\"",
+            "syntax": "string"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ",",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"extends\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"tanrei\"",
+            "syntax": "string"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ",",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"dials\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "{",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"size.unit\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "4",
+            "syntax": "constant"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ",",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"motion.speed\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "1",
+            "syntax": "constant"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "},",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"compact\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "false",
+            "syntax": "constant"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}",
+            "syntax": "punctuation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "syntax-small",
+      "props": {
+        "size": "small",
+        "label": "A layer file"
+      },
+      "items": [
+        {
+          "kind": "run",
+          "props": {
+            "text": "{",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"name\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"acme\"",
+            "syntax": "string"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ",",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"extends\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"tanrei\"",
+            "syntax": "string"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ",",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"dials\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "{",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"size.unit\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "4",
+            "syntax": "constant"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ",",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"motion.speed\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "1",
+            "syntax": "constant"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "},",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"compact\"",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ":",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "false",
+            "syntax": "constant"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}",
+            "syntax": "punctuation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "line-numbers",
+      "props": {
+        "lineNumbers": true,
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "line-numbers-start",
+      "props": {
+        "lineNumbers": true,
+        "startLine": 96,
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "title": "sizes.js"
+      }
+    },
+    {
+      "id": "highlighted-lines",
+      "props": {
+        "lineNumbers": true,
+        "highlightedLines": "1, 4-5",
+        "highlightedLabel": "Highlighted",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "highlighted-outlined",
+      "props": {
+        "variant": "outlined",
+        "highlightedLines": "3",
+        "highlightedLabel": "Highlighted",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "diff",
+      "props": {
+        "lineNumbers": true,
+        "removedLines": "4",
+        "addedLines": "5-6",
+        "removedLabel": "Removed",
+        "addedLabel": "Added",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "title": "sizes.js",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "diff-without-numbers",
+      "props": {
+        "removedLines": "1",
+        "addedLines": "2",
+        "removedLabel": "Removed",
+        "addedLabel": "Added",
+        "code": "<tanrei-button variant=\"filled\">Save</tanrei-button>\n<tanrei-button variant=\"tonal\">Save</tanrei-button>\n<tanrei-button variant=\"text\">Cancel</tanrei-button>",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "syntax-marked",
+      "props": {
+        "title": "Footer.tsx",
+        "lineNumbers": true,
+        "highlightedLines": "5",
+        "addedLines": "9",
+        "highlightedLabel": "Highlighted",
+        "addedLabel": "Added",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      },
+      "items": [
+        {
+          "kind": "run",
+          "props": {
+            "text": "// A form's footer: one main action, one way out.",
+            "syntax": "comment"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "import",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "{",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " Button "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "from",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "'@tanrei/react'",
+            "syntax": "string"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ";",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "export",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "function",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Footer",
+            "syntax": "function"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "({",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " onSave"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ",",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " busy "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}:",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "FooterProps",
+            "syntax": "type"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ")",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "{",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "const",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " retries "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "="
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "3",
+            "syntax": "constant"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ";",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "return",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "(",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "    "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "<",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "footer",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "      "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "<",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Button",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "variant",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "=",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\"text\"",
+            "syntax": "string"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Cancel"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "</",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Button",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "      "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "<",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Button",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "disabled",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "={",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "busy"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "onClick",
+            "syntax": "property"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "={",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "onSave"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}>",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Save"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "</",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "Button",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "    "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "</",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "footer",
+            "syntax": "tag"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ">",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "  "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ");",
+            "syntax": "punctuation"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "}",
+            "syntax": "punctuation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-lines",
+      "props": {
+        "code": "export const footer = html`<footer class=\"form-footer\"><tanrei-button variant=\"text\" @click=${cancel}>Cancel</tanrei-button><tanrei-button variant=\"filled\" ?disabled=${busy} @click=${save}>Save changes</tanrei-button></footer>`;\n\n// The line above is one line: it does not fit and is never cut.\nrender(footer, document.querySelector('#form-footer-outlet-for-the-settings-page-of-the-account-section'));",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "long-lines-copy",
+      "props": {
+        "code": "export const footer = html`<footer class=\"form-footer\"><tanrei-button variant=\"text\" @click=${cancel}>Cancel</tanrei-button><tanrei-button variant=\"filled\" ?disabled=${busy} @click=${save}>Save changes</tanrei-button></footer>`;\n\n// The line above is one line: it does not fit and is never cut.\nrender(footer, document.querySelector('#form-footer-outlet-for-the-settings-page-of-the-account-section'));",
+        "label": "Example",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "long-lines-wrapped",
+      "props": {
+        "wrap": true,
+        "code": "export const footer = html`<footer class=\"form-footer\"><tanrei-button variant=\"text\" @click=${cancel}>Cancel</tanrei-button><tanrei-button variant=\"filled\" ?disabled=${busy} @click=${save}>Save changes</tanrei-button></footer>`;\n\n// The line above is one line: it does not fit and is never cut.\nrender(footer, document.querySelector('#form-footer-outlet-for-the-settings-page-of-the-account-section'));",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "long-lines-wrapped-numbered-copy",
+      "props": {
+        "wrap": true,
+        "lineNumbers": true,
+        "highlightedLines": "1",
+        "highlightedLabel": "Highlighted",
+        "code": "export const footer = html`<footer class=\"form-footer\"><tanrei-button variant=\"text\" @click=${cancel}>Cancel</tanrei-button><tanrei-button variant=\"filled\" ?disabled=${busy} @click=${save}>Save changes</tanrei-button></footer>`;\n\n// The line above is one line: it does not fit and is never cut.\nrender(footer, document.querySelector('#form-footer-outlet-for-the-settings-page-of-the-account-section'));",
+        "label": "Example",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "max-lines",
+      "props": {
+        "maxLines": 5,
+        "lineNumbers": true,
+        "title": "tide.log",
+        "code": "01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m\n09:00 tide high, gauge 2.60 m\n10:00 tide falling, gauge 1.20 m\n11:00 tide low, gauge 1.55 m\n12:00 tide rising, gauge 1.90 m",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "terminal",
+      "props": {
+        "prompt": "$",
+        "code": "npm install @tanrei/web\nnpx tanrei studio",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy",
+        "languageLabel": "Shell"
+      }
+    },
+    {
+      "id": "terminal-one-line",
+      "props": {
+        "prompt": "$",
+        "code": "flutter pub add tanrei",
+        "label": "Install",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "tabs",
+      "props": {
+        "title": "Makefile",
+        "code": "build:\n\tnode scripts/build.js\n\ntest: build\n\tnode --test\n\t\t# two tabs deep"
+      }
+    },
+    {
+      "id": "japanese-comment",
+      "props": {
+        "label": "例"
+      },
+      "items": [
+        {
+          "kind": "run",
+          "props": {
+            "text": "// 保存ボタンは 1 画面に 1 つだけ置く。",
+            "syntax": "comment"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "\n"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "const",
+            "syntax": "keyword"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " label "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "="
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": " "
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": "'保存'",
+            "syntax": "string"
+          }
+        },
+        {
+          "kind": "run",
+          "props": {
+            "text": ";",
+            "syntax": "punctuation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "title": "مثال",
+        "lineNumbers": true,
+        "highlightedLines": "3",
+        "highlightedLabel": "مميز",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}",
+        "copy": true,
+        "copyLabel": "نسخ",
+        "copiedLabel": "تم النسخ",
+        "copyFailedLabel": "تعذر النسخ",
+        "languageLabel": "JavaScript"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-copy-without-header",
+      "props": {
+        "code": "export const footer = html`<footer class=\"form-footer\"><tanrei-button variant=\"text\" @click=${cancel}>Cancel</tanrei-button><tanrei-button variant=\"filled\" ?disabled=${busy} @click=${save}>Save changes</tanrei-button></footer>`;\n\n// The line above is one line: it does not fit and is never cut.\nrender(footer, document.querySelector('#form-footer-outlet-for-the-settings-page-of-the-account-section'));",
+        "label": "مثال",
+        "copy": true,
+        "copyLabel": "نسخ",
+        "copiedLabel": "تم النسخ",
+        "copyFailedLabel": "تعذر النسخ"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-ltr-title",
+      "props": {
+        "title": "packages/web/src/components/button/button.styles.generated.with-a-very-long-file-name-that-cannot-fit-in-the-header-of-a-narrow-block.ts",
+        "code": "<tanrei-button variant=\"filled\">Save</tanrei-button>\n<tanrei-button variant=\"text\">Cancel</tanrei-button>",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "auto-tsx",
+      "props": {
+        "language": "tsx",
+        "code": "// A form's footer: one main action, one way out.\nimport { Button } from '@tanrei/react';\n\ntype FooterProps = { onSave: () => void; busy: boolean };\n\nexport function Footer({ onSave, busy }: FooterProps) {\n  const retries = 3;\n  return (\n    <footer className=\"footer\">\n      <Button variant=\"text\">Cancel</Button>\n      <Button disabled={busy} onClick={onSave}>Save</Button>\n    </footer>\n  );\n}",
+        "title": "Footer.tsx",
+        "languageLabel": "TSX",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "auto-html",
+      "props": {
+        "language": "html",
+        "code": "<!-- One main action, one way out -->\n<form class=\"footer\" method=\"post\">\n  <tanrei-button variant=\"text\">Cancel</tanrei-button>\n  <tanrei-button variant=\"filled\" disabled>Save</tanrei-button>\n</form>",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "auto-css",
+      "props": {
+        "language": "css",
+        "code": "/* The footer of a form */\n@media (min-width: 600px) {\n  .footer > tanrei-button:hover {\n    gap: var(--tanrei-sys-space-space100);\n    padding: 12px 16px;\n    color: #1b1b1b;\n    justify-content: flex-end;\n  }\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "auto-javascript",
+      "props": {
+        "language": "js",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button); // one of each\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "auto-json",
+      "props": {
+        "language": "json",
+        "code": "{\n  \"name\": \"acme\",\n  \"extends\": \"tanrei\",\n  \"dials\": { \"size.unit\": 4, \"motion.speed\": 1.25 },\n  \"compact\": false,\n  \"icons\": null\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "auto-shell",
+      "props": {
+        "language": "sh",
+        "code": "# Install and build\npnpm add @tanrei/web --save-exact\nexport NODE_ENV=production\nfor f in dist/*.js; do\n  echo \"built $f\"\ndone",
+        "label": "Example",
+        "prompt": "$"
+      }
+    },
+    {
+      "id": "auto-swift",
+      "props": {
+        "language": "swift",
+        "code": "import SwiftUI\n\n/// A form's footer.\nstruct Footer: View {\n  @State private var busy = false\n  let retries = 3\n\n  var body: some View {\n    HStack(spacing: 8) {\n      TanreiButton(\"Cancel\", variant: .text) { dismiss() }\n      TanreiButton(\"Save\") { save() }.disabled(busy)\n    }\n  }\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "auto-kotlin",
+      "props": {
+        "language": "kotlin",
+        "code": "@Composable\nfun Footer(busy: Boolean, onSave: () -> Unit) {\n  val retries = 3\n  Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {\n    // one main action, one way out\n    TanreiButton(onClick = onCancel, variant = ButtonVariant.Text) { Text(\"Cancel\") }\n    TanreiButton(onClick = onSave, enabled = !busy) { Text(\"Save\") }\n  }\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "auto-dart",
+      "props": {
+        "language": "dart",
+        "code": "class Footer extends StatelessWidget {\n  const Footer({super.key, required this.busy});\n  final bool busy;\n\n  @override\n  Widget build(BuildContext context) {\n    return Row(children: [\n      TanreiButton(label: 'Cancel', variant: TanreiButtonVariant.text),\n      TanreiButton(label: 'Save', onPressed: busy ? null : save),\n    ]);\n  }\n}",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "auto-outlined",
+      "props": {
+        "language": "tsx",
+        "code": "// A form's footer: one main action, one way out.\nimport { Button } from '@tanrei/react';\n\ntype FooterProps = { onSave: () => void; busy: boolean };\n\nexport function Footer({ onSave, busy }: FooterProps) {\n  const retries = 3;\n  return (\n    <footer className=\"footer\">\n      <Button variant=\"text\">Cancel</Button>\n      <Button disabled={busy} onClick={onSave}>Save</Button>\n    </footer>\n  );\n}",
+        "label": "Example",
+        "variant": "outlined"
+      }
+    },
+    {
+      "id": "auto-small",
+      "props": {
+        "language": "json",
+        "code": "{\n  \"name\": \"acme\",\n  \"extends\": \"tanrei\",\n  \"dials\": { \"size.unit\": 4, \"motion.speed\": 1.25 },\n  \"compact\": false,\n  \"icons\": null\n}",
+        "label": "Example",
+        "size": "small"
+      }
+    },
+    {
+      "id": "auto-highlighted-lines",
+      "props": {
+        "language": "js",
+        "code": "const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button); // one of each\n}",
+        "label": "Example",
+        "lineNumbers": true,
+        "highlightedLines": "4-5",
+        "highlightedLabel": "Highlighted"
+      }
+    },
+    {
+      "id": "auto-marked",
+      "props": {
+        "language": "js",
+        "code": "const sizes = ['small', 'medium', 'large'];\nconst label = `one of ${sizes.length}\nconst label = `one of ${sizes.length}`;\nfor (const size of sizes) {\n  console.log(label, size);\n}",
+        "label": "Example",
+        "lineNumbers": true,
+        "removedLines": "2",
+        "addedLines": "3",
+        "removedLabel": "Removed",
+        "addedLabel": "Added",
+        "copy": true,
+        "copyLabel": "Copy",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Could not copy"
+      }
+    },
+    {
+      "id": "auto-japanese-comment",
+      "props": {
+        "language": "js",
+        "code": "// 保存ボタンは 1 画面に 1 つだけ置く。\nconst label = '保存';",
+        "label": "例"
+      }
+    },
+    {
+      "id": "auto-off",
+      "props": {
+        "language": "tsx",
+        "code": "// A form's footer: one main action, one way out.\nimport { Button } from '@tanrei/react';\n\ntype FooterProps = { onSave: () => void; busy: boolean };\n\nexport function Footer({ onSave, busy }: FooterProps) {\n  const retries = 3;\n  return (\n    <footer className=\"footer\">\n      <Button variant=\"text\">Cancel</Button>\n      <Button disabled={busy} onClick={onSave}>Save</Button>\n    </footer>\n  );\n}",
+        "label": "Example",
+        "highlight": false
+      }
+    },
+    {
+      "id": "auto-text",
+      "props": {
+        "language": "text",
+        "code": "Tanrei 0.1.0\n  5 platforms, 36 components\n  no highlighting for plain text",
+        "label": "Example"
+      }
+    },
+    {
+      "id": "auto-unknown-language",
+      "props": {
+        "language": "cobol",
+        "code": "IDENTIFICATION DIVISION.\nPROGRAM-ID. HELLO.\nPROCEDURE DIVISION.\n    DISPLAY 'Hello'.\n    STOP RUN.",
+        "label": "Example"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-code-block",
+      "props": {
+        "code": "code",
+        "variant": "variant",
+        "size": "size",
+        "title": "title",
+        "language": "language",
+        "languageLabel": "languageLabel",
+        "highlight": "highlight",
+        "label": "label",
+        "wrap": "wrap",
+        "lineNumbers": "lineNumbers",
+        "startLine": "startLine",
+        "highlightedLines": "highlightedLines",
+        "addedLines": "addedLines",
+        "removedLines": "removedLines",
+        "highlightedLabel": "highlightedLabel",
+        "addedLabel": "addedLabel",
+        "removedLabel": "removedLabel",
+        "prompt": "prompt",
+        "maxLines": "maxLines",
+        "copy": "copy",
+        "copyLabel": "copyLabel",
+        "copiedLabel": "copiedLabel",
+        "copyFailedLabel": "copyFailedLabel"
+      },
+      "events": {
+        "copied": "copied",
+        "copyfailed": "copyfailed"
+      },
+      "items": {
+        "run": {
+          "name": "span",
+          "props": {
+            "text": "textContent",
+            "syntax": "data-syntax"
+          },
+          "notes": "A `<span data-syntax=\"keyword\">` inside the light-DOM `<code>`; text outside any such span is plain. Not a custom element. It is what the element's highlighter writes, what `highlightToHtml` writes where the page is made, and what a product's own highlighter writes — one form, so the stylesheet and the element cannot tell them apart and do not need to."
+        }
+      },
+      "notes": "`<tanrei-code-block title=\"sizes.js\" copy copy-label=\"Copy\" …><pre><code>…</code></pre></tanrei-code-block>`: the code stays in the light DOM as an ordinary `<pre><code>`, so it is in the document without script — for a reader whose script failed, for search engines and crawlers, for find-in-page and for the browser's own copy — and the element decorates it. The shadow root draws the header, the copy button (`<tanrei-copy-button>`), the focus ring and the scrolling body, and slots the `<pre>`; the code is read from the slotted `<code>`'s text, and the `code` attribute is for a block built by script (the element then writes the `<pre><code>` itself). Runs are `<span data-syntax=\"…\">` in that `<code>` (COD-18); the stylesheet colors them with `::slotted` being unable to reach them, so the rules live in the optional light-DOM stylesheet `@tanrei/web/code.css`, scoped to `tanrei-code-block`, which also gives a not-yet-upgraded or script-less block its fill, corners, padding, face and `overflow-x: auto` through `tanrei-code-block:not(:defined)` and a bare `.tanrei-prose pre` (the `pre` rules are there, not in `prose.css`). Lines: the element needs one box per line for numbers, marks, the prompt and wrapping; it uses `[data-line]` children of the `<code>` where the highlighter emitted them and otherwise wraps each line in a `<span data-line>` on upgrade, moving nodes and splitting text nodes and spans at line breaks without adding or removing a character, so `textContent` is unchanged. Line numbers, signs and the prompt are `::before` content of the line (`counter()`, with an empty alternative text so they are not read), `user-select: none`; the gutter is `position: sticky; left: 0` on the container's color. `highlighted-lines`, `added-lines` and `removed-lines` are attributes; the element sets `data-highlighted`, `data-added` or `data-removed` on the lines and puts each label in a visually hidden, unselectable prefix referenced from the line. The body is the scroll container with `tabindex=\"0\"`, `role=\"group\"` and `aria-label` only while it overflows (a `ResizeObserver` decides); `dir=\"ltr\"` on the body, and the host mirrors the header by `:dir()` (COD-20). `tab-size` from the token. COD-11 writes through the copy button with a text built from the lines, not from `innerText`. **Highlighting.** `highlight` is a boolean that is true by default, so its attribute is written to turn it off: `highlight=\"false\"` (the property takes a boolean). The highlighter is the module `@tanrei/web/highlight`: no dependency, no DOM, the same file in a browser and in Node. It exports `highlight(code, language)` (the runs, or null for a language it does not know), `highlightToHtml(code, language, { lines })` (the inner HTML of the `<code>`: escaped text, `<span data-syntax>` runs and, with `lines`, one `<span data-line>` per line), `registerLanguage(names, grammar)` (a grammar, or a function that imports one), `setHighlighter(fn)` (replace it whole; null turns automatic highlighting off for the page), `languages()` and `foldScope(scope)` (the table that folds a dotted scope name into a syntax role, for a product that brings a highlighter of dotted scope names). The element does not import the module: a block that needs it (COD-19) imports it with `import()` the first time, and each grammar is a chunk of its own imported the first time its language is asked for, so a page whose code was highlighted where it was made, or that shows no code, loads none of it. Budget, held by a test of the built files: the core of the module at most 3 kB and each grammar at most 3 kB, compressed; tsx and jsx are the typescript and javascript grammars with markup switched on, not grammars of their own. A grammar is data — named states, each an ordered list of rules (a pattern, the role of what it matches, and the state to enter or leave) — read by one small interpreter; patterns are sticky regular expressions without nested quantifiers, so the time to read a text grows with its length and no text can stall the page. The highlighter answers in the same task once its grammar is loaded, which is what lets COD-30 draw new code with its colors in one frame; the first answer for a language waits for the import and the block is plain until then (COD-28). **Code highlighted where the page is made is first-class**: `<code data-syntax-of=\"tsx\">` holding `<span data-syntax>` runs, written by `highlightToHtml` in a build, a server or a Markdown plugin, is the product's runs (COD-29) — the element reads the attribute or any `[data-syntax]` it did not write itself and never highlights that code again, so the first paint has its colors and nothing is imported. The element writes its own runs as spans into the same light-DOM `<code>`, splitting at line boundaries, in one synchronous pass that replaces the children of each changed `[data-line]` and touches no other line (COD-30); it marks the runs it wrote so that it can tell them from the product's. Spans, not the CSS Custom Highlight API: a highlight registered by script cannot be in the HTML a server sends, and `::highlight()` may set a color but not a weight, which is how keywords are told (COD-18); for assistive technology the two are the same, since neither adds a role. A framework that owns the children of the `<code>` (it renders them from state) should pass `code` as a property and let the element write the `<pre><code>`, or give the runs itself. `comp.code-block.syntax.max-length` is read from the generated tokens module, not from CSS. The colors are rules of `@tanrei/web/code.css`, one per value of the syntax axis, generated from the tokens so that a role a layer adds gets its rule."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiCodeBlock",
+      "props": {
+        "code": "code",
+        "variant": "variant",
+        "size": "size",
+        "title": "title",
+        "language": "language",
+        "languageLabel": "languageLabel",
+        "highlight": "highlightsSyntax",
+        "label": "label",
+        "wrap": "wrapsLines",
+        "lineNumbers": "showsLineNumbers",
+        "startLine": "startLine",
+        "highlightedLines": "highlightedLines",
+        "addedLines": "addedLines",
+        "removedLines": "removedLines",
+        "highlightedLabel": "highlightedLabel",
+        "addedLabel": "addedLabel",
+        "removedLabel": "removedLabel",
+        "prompt": "prompt",
+        "maxLines": "lineLimit",
+        "copy": "showsCopyButton",
+        "copyLabel": "copyLabel",
+        "copiedLabel": "copiedLabel",
+        "copyFailedLabel": "copyFailedLabel"
+      },
+      "events": {
+        "copied": "onCopied",
+        "copyfailed": "onCopyFailed"
+      },
+      "items": {
+        "run": {
+          "name": "TanreiCodeRun",
+          "props": {
+            "text": "text",
+            "syntax": "syntax"
+          },
+          "notes": "`TanreiCodeRun(_ text: String, _ syntax: TanreiSyntaxRole = .plain)`, given as `runs:`; `AttributedString` ranges carrying a `tanreiSyntax` attribute are accepted in its place, which is what a highlighter that returns an attributed string gives."
+        }
+      },
+      "notes": "`TanreiCodeBlock(code:, runs:, variant:, size:, title:, …)`. The body is a `ScrollView` (horizontal, and vertical under `lineLimit`) holding a `Text` per line with `textSelection(.enabled)`; the gutter is a separate, non-selectable column pinned beside it. The body's layout direction is forced to left-to-right in the environment (COD-20). The marks' labels are the line's accessibility label prefix. Automatic highlighting is not built on this platform yet; as specified, it is the same grammars, which are data, read by an interpreter written in Swift over `NSRegularExpression`, behind `TanreiCodeHighlighter` — a protocol the product may implement to bring its own — set once in the environment; `highlightsSyntax: Bool = true`. Until then this platform draws runs the product gives and code without runs plain, and says so in its README."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiCodeBlock",
+      "props": {
+        "code": "code",
+        "variant": "variant",
+        "size": "size",
+        "title": "title",
+        "language": "language",
+        "languageLabel": "languageLabel",
+        "highlight": "highlightSyntax",
+        "label": "label",
+        "wrap": "softWrap",
+        "lineNumbers": "showLineNumbers",
+        "startLine": "startLine",
+        "highlightedLines": "highlightedLines",
+        "addedLines": "addedLines",
+        "removedLines": "removedLines",
+        "highlightedLabel": "highlightedLabel",
+        "addedLabel": "addedLabel",
+        "removedLabel": "removedLabel",
+        "prompt": "prompt",
+        "maxLines": "maxLines",
+        "copy": "showCopyButton",
+        "copyLabel": "copyLabel",
+        "copiedLabel": "copiedLabel",
+        "copyFailedLabel": "copyFailedLabel"
+      },
+      "events": {
+        "copied": "onCopied",
+        "copyfailed": "onCopyFailed"
+      },
+      "items": {
+        "run": {
+          "name": "TanreiCodeRun",
+          "props": {
+            "text": "text",
+            "syntax": "syntax"
+          },
+          "notes": "`TanreiCodeRun(text, syntax = TanreiSyntaxRole.Plain)` in `runs`; an `AnnotatedString` whose ranges carry a `TanreiSyntaxRole` annotation is accepted in its place."
+        }
+      },
+      "notes": "`TanreiCodeBlock(code, runs, variant, size, title, …)`. The body is a `SelectionContainer` over a `BasicText` in `horizontalScroll` (and `verticalScroll` under `maxLines`), inside `CompositionLocalProvider(LocalLayoutDirection provides Ltr)` (COD-20); the gutter is drawn beside it and cleared from semantics. The body is `focusable` only while its scroll state reports a range. Automatic highlighting is not built on this platform yet; as specified, it is the same grammars read by an interpreter written in Kotlin over `kotlin.text.Regex`, behind a `TanreiCodeHighlighter` interface provided by a `CompositionLocal`; the runs are computed off the main thread in a `produceState` keyed by the code and the language, which is this platform's form of COD-30's cancellation. Until then this platform draws runs the product gives and code without runs plain, and says so in its README."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiCodeBlock",
+      "props": {
+        "code": "code",
+        "variant": "variant",
+        "size": "size",
+        "title": "title",
+        "language": "language",
+        "languageLabel": "languageLabel",
+        "highlight": "highlightSyntax",
+        "label": "label",
+        "wrap": "softWrap",
+        "lineNumbers": "showLineNumbers",
+        "startLine": "startLine",
+        "highlightedLines": "highlightedLines",
+        "addedLines": "addedLines",
+        "removedLines": "removedLines",
+        "highlightedLabel": "highlightedLabel",
+        "addedLabel": "addedLabel",
+        "removedLabel": "removedLabel",
+        "prompt": "prompt",
+        "maxLines": "maxLines",
+        "copy": "showCopyButton",
+        "copyLabel": "copyLabel",
+        "copiedLabel": "copiedLabel",
+        "copyFailedLabel": "copyFailedLabel"
+      },
+      "events": {
+        "copied": "onCopied",
+        "copyfailed": "onCopyFailed"
+      },
+      "items": {
+        "run": {
+          "name": "TanreiCodeRun",
+          "props": {
+            "text": "text",
+            "syntax": "syntax"
+          },
+          "notes": "`TanreiCodeRun(text, [TanreiSyntaxRole syntax = TanreiSyntaxRole.plain])` in `runs:`; `TanreiCodeBlock.fromSpans` takes the `TextSpan` tree of a highlighter with a function that names each span's role."
+        }
+      },
+      "notes": "`TanreiCodeBlock(code: …, runs: …, variant:, size:, title:, …)`. The body is a `SelectableText.rich` in a horizontal `SingleChildScrollView` with a `Scrollbar`, under `Directionality(textDirection: TextDirection.ltr)` (COD-20); the gutter is a column beside it wrapped in `ExcludeSemantics`. A `Focus` node on the body exists only while the scroll position has an extent. Automatic highlighting is not built on this platform yet; as specified, it is the same grammars read by an interpreter written in Dart over `RegExp`, behind a `TanreiCodeHighlighter` the theme carries; long code is read in an isolate. Until then this platform draws runs the product gives and code without runs plain, and says so in its README."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "CodeBlock",
+      "props": {
+        "code": "code",
+        "variant": "variant",
+        "size": "size",
+        "title": "title",
+        "language": "language",
+        "languageLabel": "languageLabel",
+        "highlight": "highlight",
+        "label": "label",
+        "wrap": "wrap",
+        "lineNumbers": "showLineNumbers",
+        "startLine": "startLine",
+        "highlightedLines": "highlightedLines",
+        "addedLines": "addedLines",
+        "removedLines": "removedLines",
+        "highlightedLabel": "highlightedLabel",
+        "addedLabel": "addedLabel",
+        "removedLabel": "removedLabel",
+        "prompt": "prompt",
+        "maxLines": "maxLines",
+        "copy": "copy",
+        "copyLabel": "copyLabel",
+        "copiedLabel": "copiedLabel",
+        "copyFailedLabel": "copyFailedLabel"
+      },
+      "events": {
+        "copied": "onCopied",
+        "copyfailed": "onCopyFailed"
+      },
+      "items": {
+        "run": {
+          "name": "CodeRun",
+          "props": {
+            "text": "text",
+            "syntax": "syntax"
+          },
+          "notes": "An entry of the `runs` prop: `{ text: 'const', syntax: 'keyword' }`."
+        }
+      },
+      "notes": "`<CodeBlock code=\"…\" runs={…} title=\"sizes.js\" />`. The body is a horizontal `ScrollView` holding `<Text selectable>` lines with `writingDirection: 'ltr'`; the gutter is a sibling column with `importantForAccessibility=\"no-hide-descendants\"` and `accessibilityElementsHidden`. Copying goes through the Copy button (see its note on the clipboard module). Follows the app's direction where an ancestor's is not known. Automatic highlighting is not built on this platform yet; as specified, it is the highlighter module of the web package, which has no DOM, imported as it is; a `highlighter` prop of the provider replaces it. Until then this platform draws runs the product gives and code without runs plain, and says so in its README."
+    }
+  }
+}

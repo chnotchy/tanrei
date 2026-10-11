@@ -1,0 +1,20 @@
+---
+// One tab of the docs' <Tabs> and its panel: a <tanrei-tab-panel> of the Tab view, which draws the tab from the panel's
+// `label` (TBV-16). Sets are matched by `value`, never by the label (TAB-36), so a translated label keeps a reader's
+// choice: the value is the label as a token (`React Native` → `react-native`) unless one is given.
+interface Props {
+  /** The tab's text and its accessible name. */
+  label: string;
+  /** What identifies the tab across sets and languages. Required where the label has no ASCII letters or digits. */
+  value?: string;
+  /** The name of a glyph of the icon set, drawn before the label. */
+  icon?: string;
+}
+const { label, icon } = Astro.props;
+const value = Astro.props.value ?? label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+if (!value) throw new Error(`TabItem: the label "${label}" makes no value; give the tab a \`value\` (the same one in every language)`);
+---
+
+{/* A panel is the Tab view's own content, which prose leaves alone (PRS-16) — and what a page writes in one is prose
+    again: the panel says so itself, at the page's reading size. */}
+<tanrei-tab-panel class="tanrei-prose" data-size="large" value={value} label={label} icon={icon}><slot /></tanrei-tab-panel>

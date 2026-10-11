@@ -1,0 +1,60 @@
+---
+// A tree of files in a page, drawn by Tanrei's Tree view inside Tanrei's Figure (specs/tree-view.spec.json, proposal
+// 0103; specs/figure.spec.json). The page writes a Markdown list between the tags — a name, then a note about it:
+//
+//   <FileTree>
+//
+//   - tokens/ source of truth, edited by hand
+//     - ref/
+//     - tanrei.resolver.json
+//
+//   </FileTree>
+//
+// — and `lib/file-tree.mjs` says it as the nested list the tree view is written around: a folder that holds a list is
+// a parent, written open; a name is in the code face and left to right; the note is the row's supporting text.
+//
+//   selection   none (the default, so the attribute is not written): the tree is a picture of the files, read and
+//               opened — nothing in it can be chosen, no row has a value, a file's row answers nothing and a folder's
+//               opens and closes;
+//   to assistive technology   a tree named by `label`, one stop in the focus order, walked with the arrow keys; a row
+//               is a tree item named by the file's name and described by its note; a folder says whether it is open;
+//   density     compact, with guides: a small tree inside a page of text;
+//   the edge    the figure's (outlined): the tree view draws no fill and no edge of its own. The figure has the tree's
+//               name; neither is drawn.
+//
+// The list stays in the document. `@tanrei/web/tree-view.css` draws all of it before the element is defined — nothing
+// moves when it is — and where no script runs: every level shown, no chevron, a nested list in the tree's type.
+import { contentLang, strings } from '../lib/i18n';
+import { fileTree } from '../lib/file-tree.mjs';
+
+interface Props {
+  /** What the hierarchy is, in the page's language ("Where the tokens live"). Without one: "Files and folders". */
+  label?: string;
+}
+const { label = strings(contentLang(Astro)).fileTree.label } = Astro.props;
+const html = fileTree(await Astro.slots.render('default'));
+---
+
+<tanrei-figure class="docs-file-tree not-content" label={label}>
+  <figure>
+    <div data-part="stage">
+      <tanrei-tree-view label={label} density="compact" guides data-tanrei-code="plain" set:html={html} />
+    </div>
+  </figure>
+</tanrei-figure>
+
+<script>
+  import '@tanrei/web/components/figure';
+  import '@tanrei/web/components/tree-view';
+</script>
+
+<style is:global>
+  /* The tree's one stylesheet, in a layer of the docs' own as the content column's other components are
+     (styles/prose.css says why): after the framework's layers, whose reset would otherwise win over the rows. */
+  @import '@tanrei/web/tree-view.css' layer(docs.tree-view);
+
+  /* The tree is as wide as the figure's stage, which would otherwise centre it at the width of its longest row. */
+  .docs-file-tree tanrei-tree-view {
+    inline-size: 100%;
+  }
+</style>

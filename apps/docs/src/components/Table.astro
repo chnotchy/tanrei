@@ -1,0 +1,36 @@
+---
+// The scroll box of one of the docs' own tables: Tanrei's Table (specs/table.spec.json) around the
+// native `<table>` the calling component writes as its child. The caller keeps its table — its header cells, its row
+// headers (`<th scope="row">`), its cells' `data-align` and `data-wrap="false"` — and this says how it is drawn.
+// A column's `data-align` and `data-wrap="false"` are written on its header cell AND on each of its cells: the element
+// gives the header's word to the column when it is defined, and a page is drawn before that, and without script
+// (specs/table.spec.json, the web's note on a column). What a header cell says is therefore its whole column's:
+// `data-wrap="false"` on the header of a column of running text puts that text on one line once the element is
+// defined, so such a header does not say it.
+// Markdown tables get the same wrapper at build time (lib/markdown.mjs). The stylesheet is loaded with the site's
+// other Tanrei sheets (styles/prose.css), so a table is drawn in the first frame; the element adds the focus stop of
+// a box that scrolls, the two "there is more" lines, and the table's name.
+//
+// Code in one of these tables is inline code in its plain form (`data-tanrei-code="plain"`: the code face, no fill): a
+// column of property names, token names or requirement ids is a column of names, not of chips. The class itself is
+// written by `MarkdownContent.astro`, for every `code` of a page.
+interface Props {
+  /** The table's accessible name (it has no caption): what the heading above it says. */
+  label: string;
+  density?: 'regular' | 'compact';
+  /** The first column names its rows. */
+  rowHeaders?: boolean;
+  /** The first column stays in view while the others scroll under it: for a wide table whose first column names the row. */
+  stickyFirstColumn?: boolean;
+  /** The page orders this table's rows when a header asks (lib/sort-table.ts, loaded by the caller): the Table itself never sorts. */
+  sorts?: boolean;
+  class?: string;
+}
+const { label, density, rowHeaders = false, stickyFirstColumn = false, sorts = false, class: className } = Astro.props;
+---
+
+<tanrei-table class={className} data-tanrei-code="plain" label={label} density={density} row-headers={rowHeaders ? '' : undefined} sticky-first-column={stickyFirstColumn ? '' : undefined} data-docs-sorts={sorts ? '' : undefined}><slot /></tanrei-table>
+
+<script>
+  import '@tanrei/web/components/table';
+</script>

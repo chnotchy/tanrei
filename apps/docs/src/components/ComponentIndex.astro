@@ -1,0 +1,125 @@
+---
+// All inventory components grouped by category, each category a Tanrei list whose items are links (`<tanrei-list-item
+// href>`); a link only where a page documents the component (`componentHref`) — an entry without one is a
+// plain item that says "Planned" at its end. Each item says its platforms and its level.
+//
+// The list follows the specs' `listing` as the sidebar does: a
+// component shown on request is marked — the word at the end of its row — and drawn only to a reader who asked for
+// everything with the switch above the list (ListingSwitch.astro), which is the sidebar's switch too. A category whose
+// components are all shown on request is marked with them, so that no heading stands over nothing. Without script
+// every item is drawn.
+import { statusComponents, platforms, componentHref, isImplemented, levelRole, listings } from '../lib/repo';
+import { contentLang, localeBase, strings } from '../lib/i18n';
+import { isOnRequest, ON_REQUEST_ATTR } from '../lib/listing.mjs';
+import ListingSwitch from './ListingSwitch.astro';
+import SourceNote from './SourceNote.astro';
+
+interface Props {
+  /**
+   * The level of the block's headings, from where the page places it: 2 where the block stands directly under the
+   * page's title, one more than the heading it stands under otherwise. A page says it; the block does not guess
+   * (a heading that skips a level is a broken outline to assistive technology).
+   */
+  headingLevel: 2 | 3 | 4;
+}
+const Heading = `h${Astro.props.headingLevel}` as 'h2';
+const lang = contentLang(Astro);
+const t = strings(lang);
+const base = localeBase(Astro);
+const categories = [...new Set(statusComponents.map((c) => c.category))];
+/** The attribute of a row, or of a category, drawn only to a reader who asked for everything. */
+const marked = (onRequest: boolean) => (onRequest ? { [ON_REQUEST_ATTR]: '' } : {});
+---
+
+<div class="not-content index">
+  <ListingSwitch lang={lang} />
+  {categories.map((category) => (
+    <section {...marked(statusComponents.filter((c) => c.category === category).every((c) => isOnRequest(c, listings)))}>
+      <Heading class="docs-eyebrow">{t.category[category] ?? category}</Heading>
+      <tanrei-list class="docs-index-list">
+        {statusComponents.filter((c) => c.category === category).map((c) => {
+          const shipped = platforms.filter((p) => isImplemented(c.platforms[p])).length;
+          const role = levelRole(c.level);
+          const meta = `${shipped}/${platforms.length} · ${(role && t.level[role]) ?? c.level}`;
+          const href = componentHref(base, c.name);
+          const onRequest = isOnRequest(c, listings);
+          // What the end of the row says: that nothing documents it yet, or that it is shown on request.
+          const end = href ? (onRequest ? t.listing.advanced : undefined) : t.status.planned;
+          const inner = (
+            <>
+              <span class="title">{c.title}</span>{' '}
+              <span class="meta">{meta}</span>
+            </>
+          );
+          // The item draws its row from its attributes and shows none of its children once it is defined: the plain
+          // anchor (or, for a component without a page yet, the plain row) is what the page holds for a crawler, the
+          // search index and a reader without script, and what is drawn until then. The spaces between its parts, and
+          // after each item, are for that index: a column of boxes draws none, and the index reads words, not one run.
+          return (
+            <>
+              <tanrei-list-item headline={c.title} supporting-text={meta} href={href} trailing-text={end} {...marked(onRequest)}>
+                {href ? <a href={href}>{inner}{onRequest && <>{' '}<span class="meta">{t.listing.advanced}</span></>}</a> : <span class="planned">{inner}{' '}<span class="meta">{t.status.planned}</span></span>}
+              </tanrei-list-item>{' '}
+            </>
+          );
+        })}
+      </tanrei-list>
+    </section>
+  ))}
+  <SourceNote files={['docs/status/status.json', 'specs/inventory.json']} />
+</div>
+
+<script>
+  // The list and its items alone — not the whole package.
+  import '@tanrei/web/components/list';
+</script>
+
+<style>
+  .index {
+    display: grid;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  /* A category's heading, at whatever level the page gave the block. */
+  section > :global(.docs-eyebrow) {
+    margin: 0 0 0.75rem;
+  }
+  /* The items run down a column and then into the next one, so the arrow keys follow the reading order. */
+  .docs-index-list {
+    display: block;
+    columns: 3 13rem;
+    column-gap: var(--tanrei-sys-space-space200);
+  }
+  tanrei-list-item {
+    break-inside: avoid;
+  }
+
+  /* Until the elements are defined: each row as plain content, in the room a two-line item takes
+     (comp.list.container.*), so that nothing moves when it is drawn. */
+  tanrei-list-item:not(:defined) {
+    display: block;
+  }
+  tanrei-list-item:not(:defined) > :is(a, .planned) {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-block-size: var(--tanrei-comp-list-container-height-two-line);
+    padding-block: var(--tanrei-comp-list-container-padding-block);
+    padding-inline: var(--tanrei-comp-list-container-padding-inline-start) var(--tanrei-comp-list-container-padding-inline-end);
+    text-decoration: none;
+    color: var(--tanrei-sys-color-on-surface);
+  }
+  .planned {
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+  .title {
+    font: var(--tanrei-comp-list-headline-typescale-font);
+    letter-spacing: var(--tanrei-comp-list-headline-typescale-letter-spacing);
+  }
+  .meta {
+    font: var(--tanrei-comp-list-supporting-text-typescale-font);
+    letter-spacing: var(--tanrei-comp-list-supporting-text-typescale-letter-spacing);
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+</style>

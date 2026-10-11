@@ -1,0 +1,71 @@
+---
+title: React
+description: Tanrei के Web Components से जनरेट किए गए, टाइप वाले React कंपोनेंट।
+translationOf: getting-started/react.mdx
+sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`@tanrei/react`, `@tanrei/web` के हर कस्टम एलिमेंट को एक असली React कंपोनेंट में लपेटता है, जिसकी प्रॉपर्टी और इवेंट हैंडलर टाइप किए हुए हैं। ये रैपर कस्टम एलिमेंट मैनिफ़ेस्ट से जनरेट होते हैं, इसलिए वे हमेशा उन एलिमेंट से मेल खाते हैं जिन्हें वे लपेटते हैं।
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+
+## इंस्टॉल करें
+
+React 18 या उसके बाद का वर्शन ज़रूरी है।
+
+### सोर्स से
+
+[Web पैकेज](/hi/getting-started/web/) की तरह (Git, Node 22.12 या उसके बाद का वर्शन, pnpm 12): रिपॉज़िटरी के क्लोन में दोनों पैकेज बिल्ड करें और उन्हें पैक करें,
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/web --filter @tanrei/react build
+pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanrei-packages
+```
+
+फिर पैक की गई दोनों फ़ाइलें एक ही कमांड से अपने प्रोजेक्ट में इंस्टॉल करें, ताकि React पैकेज को Web पैकेज अपने बग़ल में मिल जाए:
+
+```sh
+npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
+```
+
+### पहली रिलीज़ के बाद
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
+## इस्तेमाल
+
+```tsx
+import '@tanrei/web/tokens.css';
+import { Button } from '@tanrei/react';
+
+export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
+  return (
+    <>
+      <Button variant="filled" onClick={onDeploy}>
+        डिप्लॉय करें
+      </Button>
+      <Button variant="text" size="small" disabled>
+        रोल बैक करें
+      </Button>
+    </>
+  );
+}
+```
+
+प्रॉपर्टी के नाम वही हैं जो एलिमेंट के ऐट्रिब्यूट के हैं (`variant`, `size`, `disabled`)। इवेंट सामान्य React हैंडलर हैं।
+
+## सर्वर रेंडरिंग
+
+कंपोनेंट सर्वर पर कस्टम एलिमेंट का टैग रेंडर करते हैं और ब्राउज़र में अपग्रेड होते हैं। जिन फ़्रेमवर्क में सर्वर और क्लाइंट अलग-अलग हैं, उनमें `@tanrei/react` को किसी क्लाइंट कंपोनेंट से इंपोर्ट करें, ताकि एलिमेंट की परिभाषाएँ ब्राउज़र में रजिस्टर हों।
+
+<Callout>
+  थीम, कंट्रास्ट, टोकन और फ़ॉन्ट ठीक वैसे ही काम करते हैं जैसा [Web गाइड](/hi/getting-started/web/) में बताया गया है; React पैकेज इनके ऊपर अपनी ओर से कुछ नहीं जोड़ता।
+</Callout>

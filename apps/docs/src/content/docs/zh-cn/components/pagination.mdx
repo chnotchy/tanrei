@@ -1,0 +1,174 @@
+---
+title: "分页"
+description: "在一系列页面中，指向当前页的上一页和下一页。两个链接，各自以方向和目标页面的标题命名。"
+translationOf: components/pagination.mdx
+sourceHash: f8e943facb9fb849b2ff849fff9dfa64def11fc0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="pagination" />
+
+<DemoFrame label="上一页和下一页" column>
+  <nav class="tanrei-pagination" aria-label="本演示的页面" style="inline-size: 100%">
+    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-pagination-label">上一页</span>
+      <span class="tanrei-pagination-title">链接</span>
+    </a>
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-pagination-label">下一页</span>
+      <span class="tanrei-pagination-title">步骤</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+本页底部的分页就是这个组件。
+
+它用于在各页都有标题的一系列页面之间翻页：一份指南的各章、一个系列的各篇文章。按页码翻页（一组结果的各页）是同一个组件今后的另一种形态，目前还没有规格。
+
+### 用法
+
+在 Web 上，分页是加在你自己的 `nav` 和锚元素上的类，而不是一个元素。锚元素就在文档里，所以在任何脚本运行之前它们就是链接，爬虫和基于页面锚元素工作的路由都能找到它们。只靠样式表就能画出整个组件。
+
+SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。React 也还没有 `Pagination` 组件，请使用加了这些类的标记。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/pagination.css" />
+
+    <nav class="tanrei-pagination" aria-label="页面">
+      <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="https://example.com/guide/installation/">
+        <span class="tanrei-pagination-label">上一页</span>
+        <span class="tanrei-pagination-title">安装</span>
+      </a>
+      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/design-tokens/">
+        <span class="tanrei-pagination-label">下一页</span>
+        <span class="tanrei-pagination-title">设计令牌</span>
+      </a>
+    </nav>
+
+    <!-- 第一页：上一页那一项不写 href，或者干脆省略。下一页保持在原来的位置。 -->
+    <nav class="tanrei-pagination" aria-label="页面">
+      <a class="tanrei-pagination-item" data-direction="previous"></a>
+      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/installation/">
+        <span class="tanrei-pagination-label">下一页</span>
+        <span class="tanrei-pagination-title">安装</span>
+      </a>
+    </nav>
+
+    <script type="module">
+      // 可选：涟漪和变暗的按下反馈、把“下一页”写在前面时两项顺序的调整，以及调试报告。`@tanrei/web` 也会加载它。
+      import '@tanrei/web/pagination';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/pagination.css';
+    import '@tanrei/web/pagination';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <nav className="tanrei-pagination" aria-label="页面">
+      {/* 路由的链接会渲染自己的锚元素：把类加在它上面。 */}
+      <RouterLink className="tanrei-pagination-item" data-direction="next" rel="next" to="/guide/design-tokens/">
+        <span className="tanrei-pagination-label">下一页</span>
+        <span className="tanrei-pagination-title">设计令牌</span>
+      </RouterLink>
+    </nav>
+    ```
+  </TabItem>
+</Tabs>
+
+| 属性 | 在 Web 上 |
+| --- | --- |
+| `label` | `nav` 上的 `aria-label` |
+| 一个项 | `<a class="tanrei-pagination-item">` |
+| `direction` | `data-direction="previous"` 或 `"next"`，同时写 `rel="prev"` 或 `rel="next"` |
+| 项的 `label` | `<span class="tanrei-pagination-label">` |
+| `title` | `<span class="tanrei-pagination-title">`，写在标签之后 |
+| `href` | `href` |
+| `click` | 锚元素自己的 `click` |
+
+## 规格
+
+<DemoFrame label="只有下一页时，它保持在原来的位置；只有标签的项" plain column>
+  <nav class="tanrei-pagination" aria-label="本演示的第一页" style="inline-size: 100%">
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-pagination-label">下一页</span>
+      <span class="tanrei-pagination-title">步骤</span>
+    </a>
+  </nav>
+  <nav class="tanrei-pagination" aria-label="本演示的文章" style="inline-size: 100%">
+    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-pagination-label">较新的文章</span></a>
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-pagination-label">较早的文章</span></a>
+  </nav>
+</DemoFrame>
+
+<DemoFrame label="在窄栏中，两项上下排列" plain>
+  <nav class="tanrei-pagination" aria-label="本演示的窄栏" style="inline-size: 20rem">
+    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-pagination-label">上一页</span>
+      <span class="tanrei-pagination-title">设计系统的令牌如何由少数几个调节量推导出来</span>
+    </a>
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-pagination-label">下一页</span>
+      <span class="tanrei-pagination-title">从右到左的布局</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+- **一个项就是一个链接**，整体可以按下，画成带轮廓的容器：那唯一的一种细线，没有填充，标题用文本颜色。它不带下划线，因为它的边线、箭头和位置已经把它与周围的文本区分开。
+- **箭头由组件提供**：上一页那一项的起始边是 `arrow_back`，下一页那一项的末尾边是 `arrow_forward`。它们需要 `icons.css`。
+- **两列等宽。** 在第一页上，起始侧的那一列是空的，下一页那一项的位置与它在其他每一页上的位置完全相同。
+- **上下排列。** 当分页得到的宽度小于两个项的最小宽度加上间隙（默认系统下为 496）时，两项上下排列，上一页在上，下一页在下。这由组件自身的宽度决定，而不是窗口的宽度。
+- **标题会换行，绝不截断。** 同一行的两项都取较高那一项的高度。没有标题的项只显示方向，采用标题的样式。
+- **从右到左时**，上一页位于右侧，箭头指向右；下一页位于左侧，箭头指向左。阅读顺序和焦点顺序仍然是先上一页，后下一页。
+
+<ComponentSpecs name="pagination" />
+
+### Web 上绘制方式的不同之处
+
+- 上下排列的形态是由网格自己的列数画出来的，依据的是 `nav` 得到的宽度。其中不涉及容器查询，也不涉及媒体查询。
+- 没有这个包的脚本时，样式表会画出每一种状态，按下反馈用的是浮层；把下一页写在前面的两项会按正确的顺序绘制，但在焦点顺序中仍然是下一页在前。请把上一页那一项写在前面。
+- 在从右到左的布局中，样式表会把两个箭头都镜像。如果设计系统的图标集没有把这两个名称中的任何一个标记为需要镜像，脚本会取消镜像；没有脚本时，请在这两项上写 `data-mirror="never"`。
+- 请把分页放在 `.tanrei-prose` 之外，或者放在标记了 `tanrei-not-prose` 的部分之内：长文排版会把它自己的锚元素画成文本链接。
+
+## 指南
+
+### 推荐
+
+- 把它放在它所翻页的内容之后，每页一次。
+- 在每一页上都写出两项，没有目的地的那一项不写 `href`。它不会被绘制。
+- 用你的产品自己的说法来写方向：“上一页”和“下一页”，或者“较新的文章”和“较早的文章”。
+
+### 避免
+
+- 不要把它用于不改变地址、只改变显示内容的按钮。每一项都是链接。
+- 不要在新标签页中打开相邻的页面。同一个序列里的页面是相互替换的。
+- 不要给这两项加上你自己的字形。
+
+## 无障碍
+
+<ComponentAccessibility name="pagination" />
+
+### 组件负责的部分
+
+- 每一项都是浏览器自己的链接，以它的标签加上它的标题命名（“下一页 设计令牌”），两者都会绘制出来。
+- 箭头是装饰性的，并且对辅助技术隐藏。
+- 视觉顺序与阅读顺序一致：先上一页，后下一页；两种书写方向下、两项上下排列时都是如此。
+- 键盘焦点环画在项的周围。标题会换行，项会随读者的文字大小变高。
+
+### 需要你做的事
+
+- 用 `aria-label` 为这个地标命名，使用你的产品的语言。页面上还有别的导航，这个名称把它与它们区分开。Tanrei 自己不提供任何文字。
+- 在锚元素上写 `rel="prev"` 和 `rel="next"`。
+- 把上一页那一项写在下一页那一项之前。

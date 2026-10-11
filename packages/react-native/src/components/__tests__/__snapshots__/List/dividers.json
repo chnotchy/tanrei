@@ -1,0 +1,216 @@
+{
+  "type": "View",
+  "props": {
+    "style": {
+      "width": 360
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityRole": "list"
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "role": "listitem"
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "collapsable": false,
+                "style": {
+                  "alignItems": "center",
+                  "borderRadius": 0,
+                  "flexDirection": "row",
+                  "gap": 12,
+                  "minHeight": 48,
+                  "paddingEnd": 16,
+                  "paddingStart": 16,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flex": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(27, 27, 27)",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 22
+                        }
+                      },
+                      "children": [
+                        "Inbox"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "View",
+              "props": {
+                "accessibilityElementsHidden": true,
+                "accessible": false,
+                "importantForAccessibility": "no-hide-descendants",
+                "style": {
+                  "backgroundColor": "rgba(0, 0, 0, 0.08)",
+                  "bottom": 0,
+                  "end": 0,
+                  "height": 1,
+                  "pointerEvents": "none",
+                  "position": "absolute",
+                  "start": 16
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "role": "listitem"
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "collapsable": false,
+                "style": {
+                  "alignItems": "center",
+                  "borderRadius": 0,
+                  "flexDirection": "row",
+                  "gap": 12,
+                  "minHeight": 48,
+                  "paddingEnd": 16,
+                  "paddingStart": 16,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flex": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(27, 27, 27)",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 22
+                        }
+                      },
+                      "children": [
+                        "Starred"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "View",
+              "props": {
+                "accessibilityElementsHidden": true,
+                "accessible": false,
+                "importantForAccessibility": "no-hide-descendants",
+                "style": {
+                  "backgroundColor": "rgba(0, 0, 0, 0.08)",
+                  "bottom": 0,
+                  "end": 0,
+                  "height": 1,
+                  "pointerEvents": "none",
+                  "position": "absolute",
+                  "start": 16
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "View",
+          "props": {
+            "role": "listitem"
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "collapsable": false,
+                "style": {
+                  "alignItems": "center",
+                  "borderRadius": 0,
+                  "flexDirection": "row",
+                  "gap": 12,
+                  "minHeight": 48,
+                  "paddingEnd": 16,
+                  "paddingStart": 16,
+                  "paddingVertical": 8
+                }
+              },
+              "children": [
+                {
+                  "type": "View",
+                  "props": {
+                    "style": {
+                      "flex": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "Text",
+                      "props": {
+                        "allowFontScaling": true,
+                        "collapsable": false,
+                        "style": {
+                          "color": "rgb(27, 27, 27)",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "400",
+                          "letterSpacing": 0,
+                          "lineHeight": 22
+                        }
+                      },
+                      "children": [
+                        "Sent"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

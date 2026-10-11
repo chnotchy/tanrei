@@ -1,0 +1,48 @@
+---
+title: Tanrei
+description: Web Components、SwiftUI、Jetpack Compose、Flutter、React Native に、単一のトークンと仕様から同じデザインを届けるデザインシステム。
+translationOf: index.mdx
+sourceHash: 0a19eae7e744492d4ece696c3d93bdbcc1d0a23b
+template: splash
+hero:
+  title: ひとつの体系を、<br />5 つのプラットフォームへ。
+  tagline: Tanrei はオープンソースのデザインシステムです。同じトークン、同じコンポーネント、同じアクセシビリティの約束を、Web・iOS・Android・Flutter・React Native それぞれの流儀で届けます。
+  actions:
+    - text: はじめる
+      link: /ja/getting-started/
+      variant: primary
+    - text: コンポーネント
+      link: /ja/components/
+      variant: secondary
+    - text: ステータス
+      link: /ja/status/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '../../../components/cards';
+
+## ずれない仕組みを、最初から
+
+<CardGrid>
+  <Card title="信頼できる情報源は 2 つだけ" icon="description">
+    人が書く契約は、デザイントークンとコンポーネント仕様の 2 つだけです。各プラットフォームのコード、このドキュメント、ステータス表はすべてそこから導かれ、食い違いが生じれば CI が失敗します。
+  </Card>
+  <Card title="同一ではなく、パリティ" icon="extension">
+    どのプラットフォームでも、トークン・状態・アクセシビリティの意味は同じです。一方で API の形は各プラットフォームの慣習に従います。Compose なら `enabled`、Flutter なら `onPressed` に null、SwiftUI なら `.disabled(_:)` です。
+  </Card>
+  <Card title="実績のある構造" icon="menu_book">
+    リファレンス・システム・コンポーネントの 3 層トークン、カラーロール、タイプスケール、テーマとコントラストごとに生成するトーナルパレット。見た目は抑制が効いていて、ほぼモノクロームです。
+  </Card>
+  <Card title="構造で守るアクセシビリティ" icon="verified">
+    コントラストの組み合わせは、すべてのテーマとコントラストレベルについてビルド時に検証されます。見た目の大きさがヒット領域を決めることはなく、フォーカスリングはすべての操作可能なコンポーネントの仕様に含まれます。
+  </Card>
+</CardGrid>
+
+## 次に読む
+
+<CardGrid>
+  <LinkCard title="はじめに" description="お使いのプラットフォームでの導入と使い方。" href="/ja/getting-started/" />
+  <LinkCard title="基礎" description="原則、トークン、カラー、タイポグラフィ、形状、エレベーション、モーション、アクセシビリティ。" href="/ja/foundations/principles/" />
+  <LinkCard title="ステータス" description="各プラットフォームに今あるもの。リポジトリから自動生成しています。" href="/ja/status/" />
+  <LinkCard title="Tanrei の作り方" description="5 つのプラットフォームを正直に保つ、仕様起点のワークフロー。" href="/ja/project/how-tanrei-is-built/" />
+</CardGrid>

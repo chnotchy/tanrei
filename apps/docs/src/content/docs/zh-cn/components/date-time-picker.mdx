@@ -1,0 +1,304 @@
+---
+title: "DateTimePicker"
+description: "让用户通过日历和时间滚轮或时钟表盘选择日期、时间或日期加时间，也可以选择其中任何一种的范围；它显示为对话框，或显示为从文本字段下方展开的表面。"
+translationOf: components/date-time-picker.mdx
+sourceHash: e11c3805d96885f8603d9d6672a2a6032c9a84c0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import ProductWords from '../../../../components/ProductWords.astro';
+
+export const words = {
+  confirmLabel: '确定',
+  cancelLabel: '取消',
+  dateLabel: '日期',
+  startLabel: '开始',
+  endLabel: '结束',
+  rangeLabel: '范围',
+  nextDayLabel: '次日',
+  rangeErrorText: '结束时间必须晚于开始时间',
+  hourLabel: '小时',
+  minuteLabel: '分钟',
+  periodLabel: '上午或下午',
+  wheelsLabel: '滚轮',
+  dialLabel: '表盘',
+  entryModeLabel: '时间输入方式',
+  previousMonthLabel: '上个月',
+  nextMonthLabel: '下个月',
+  yearViewLabel: '选择年份',
+  todayLabel: '今天',
+};
+
+## 概览
+
+<ComponentAvailability name="date-time-picker" />
+
+日期时间选择器（DateTimePicker）是一个表面，里面容纳[日历](/zh-cn/components/calendar/)、时间区域，或两者兼有。`mode` 是 `date`、`time` 或 `date-time`，`range` 则为其中任何一种加上开始和结束。它可以作为遮罩之上的对话框打开（`modal`），也可以作为一个表面，在打开它的文本字段或按钮下方打开（`docked`）。它的值是字符串：`2026-09-17`、`19:30` 或 `2026-09-17T19:30`，不含秒和时区。
+
+:::note[目前仅在 Web 上；其他平台在计划中]
+Web 组件按本页的描述实现了选择器：范围的两端是由一条短横线连接的两个字段，AM 和 PM 是时间中不显眼的一部分，输入方式标签页只画图标，滚轮接受键入的数字。本页的演示就是这个组件。SwiftUI、Compose、Flutter 和 React Native 尚未实现它。它们的包里仍保留着已停用的日期选择器和时间选择器的代码，本页不对其作说明。
+:::
+
+<DemoFrame label="用按钮打开：停靠式的日期，以及模态的时间">
+  <tanrei-button id="dtp-demo-due" variant="outlined" onclick="document.getElementById('dtp-demo-due-picker').open = true">截止日期</tanrei-button>
+  <tanrei-date-time-picker id="dtp-demo-due-picker" presentation="docked" anchor="dtp-demo-due" label="截止日期" locale="zh-CN" today="2026-09-24" value="2026-09-28" onchange="document.getElementById('dtp-demo-due').textContent = '截止 ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
+  <tanrei-button id="dtp-demo-alarm" variant="outlined" onclick="document.getElementById('dtp-demo-alarm-picker').open = true">闹钟</tanrei-button>
+  <tanrei-date-time-picker id="dtp-demo-alarm-picker" mode="time" locale="zh-CN" value="07:30" minute-step="5" label="闹钟" onchange="document.getElementById('dtp-demo-alarm').textContent = '闹钟 ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
+</DemoFrame>
+
+### 用法
+
+选择器是受控的：由你设置 `open`，它通过 `close` 请求关闭。它在触发 `change` 之前先设置自己的 `value`（或 `start` 和 `end`），并且不会向打开它的文本字段写入任何内容。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 选择时间的模态选择器，可以从任何按钮打开。 -->
+    <tanrei-button id="alarm-button" variant="outlined">闹钟</tanrei-button>
+    <tanrei-date-time-picker id="alarm" mode="time" value="07:30" minute-step="5" label="闹钟"></tanrei-date-time-picker>
+
+    <!-- 文本字段下方的停靠式选择器，由文本字段的选择器按钮打开。 -->
+    <tanrei-text-field id="due" label="截止日期" type="date" picker picker-label="选择日期"></tanrei-text-field>
+    <tanrei-date-time-picker id="due-picker" presentation="docked" anchor="due" label="截止日期"></tanrei-date-time-picker>
+
+    <!-- 营业时间：一段时间范围。结束时间等于或早于开始时间时，表示在次日。 -->
+    <tanrei-date-time-picker id="hours" mode="time" range start="09:00" end="17:30" label="营业时间"></tanrei-date-time-picker>
+
+    <script type="module">
+      import '@tanrei/web/components/date-time-picker';
+      const alarm = document.querySelector('#alarm');
+      document.querySelector('#alarm-button').addEventListener('click', () => (alarm.open = true));
+      alarm.addEventListener('change', (e) => save(e.detail.value)); // "07:35"：alarm.value 已经是新的值
+      // 选择器从不自行关闭。e.detail.reason 为 escape、back、outside、tab、focus-out、cancel、confirm 或 select。
+      alarm.addEventListener('close', () => (alarm.open = false));
+
+      // 文本字段只提出请求；由产品打开选择器，并把值写回去。
+      const field = document.querySelector('#due');
+      const due = document.querySelector('#due-picker');
+      field.addEventListener('pickerrequest', (e) => {
+        Object.assign(due, { value: e.detail.value, min: e.detail.min, max: e.detail.max, open: true });
+      });
+      due.addEventListener('change', (e) => (field.value = e.detail.value));
+      due.addEventListener('close', () => (due.open = false));
+
+      const hours = document.querySelector('#hours');
+      hours.addEventListener('change', (e) => saveHours(e.detail.start, e.detail.end));
+      hours.addEventListener('close', () => (hours.open = false));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useState } from 'react';
+    import { DateTimePicker, TextField } from '@tanrei/react';
+
+    const [due, setDue] = useState('');
+    const [open, setOpen] = useState(false);
+
+    <TextField
+      id="due"
+      label="截止日期"
+      type="date"
+      value={due}
+      picker
+      pickerLabel="选择日期"
+      onChange={(e) => setDue(e.currentTarget.value)}
+      onPickerrequest={() => setOpen(true)}
+    />
+    <DateTimePicker
+      presentation="docked"
+      anchor="due"
+      label="截止日期"
+      open={open}
+      value={due}
+      onChange={(e) => setDue(e.detail.value)}
+      onClose={() => setOpen(false)}
+    />
+
+    // 模态的日期加时间，以 15 分钟为步长。
+    <DateTimePicker
+      mode="date-time"
+      minuteStep={15}
+      label="会议开始"
+      open={meetingOpen}
+      value={meeting}
+      onChange={(e) => setMeeting(e.detail.value)}
+      onClose={() => setMeetingOpen(false)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+这里没有 SwiftUI、Compose、Flutter 和 React Native 的示例，因为这些平台尚未实现选择器。它在这些平台上将使用的名称，见[规格](#规格)中的平台对照表。
+
+### 日期选择器和时间选择器的去向
+
+| 以前 | 现在 |
+| --- | --- |
+| 日期选择器，模态或停靠式 | `date` 模式的 DateTimePicker，`modal` 或 `docked` |
+| 带范围的日期选择器 | `mode` 为 `date`，加上 `range` |
+| 时间选择器 | `time` 模式的 DateTimePicker。表盘是一种输入方式；滚轮是另一种，也是默认的方式 |
+| 时间选择器的 AM 和 PM 分段 | 时段（上午或下午）：小时滚轮和分钟滚轮旁边的第三个短滚轮，或者表盘模式下分钟旁边的选择框 |
+| 在选择器里键入日期或时间 | `type` 为 `date`、`time` 或 `date-time` 的[文本字段](/zh-cn/components/text-field/)，它的选择器按钮请求产品打开这个选择器 |
+| 嵌在页面里的月份网格 | [日历](/zh-cn/components/calendar/) |
+| 两个选择器的令牌 | 表面、页眉、时间区域和操作使用 `comp.date-time-picker.*`，网格使用 `comp.calendar.*` |
+
+这个组件新增的内容：`date-time` 模式、时间范围（结束时间可以落在次日）、滚轮和 `minuteStep`。
+
+在 Web 上，以前的两个元素——一个选择日期，一个选择时间——已经不存在。两者都是 `<tanrei-date-time-picker>`，带 `mode="date"` 或 `mode="time"`。停靠式选择器仍然接受 `anchor` 和 `opener`，也就是它放在其下方的元素和打开它的元素的 id；选择器也仍然通过 `open` 打开，并在收到 `close` 后关闭。表盘是 `entry-mode="dial"`。
+
+### Material 3 和 Apple 的名称
+
+- Material 3 的停靠式和模态日期选择器，是 `date` 模式的 DateTimePicker；它的日期范围选择器是同一个组件加上 `range`。
+- Material 3 的时间选择器是 `time` 模式的 DateTimePicker。m3-like 预设只提供表盘，使用 Material 较大的选择框和表盘，并把文本操作放在末尾。
+- Material 的全屏范围选择器，以及用来切换到文本输入的铅笔和键盘切换按钮，没有对应物：文本输入由文本字段负责。
+- Apple 的滚轮式时间选择器就是滚轮；cupertino 预设只提供滚轮，并带有 Apple 的灰色条带。
+- Flutter 的 `showDatePicker` 和 `showTimePicker` 对应 `showTanreiDateTimePicker`，SwiftUI 中弹出显示的选择器对应 `.tanreiDateTimePicker` 修饰符，Compose 的选择器对话框对应 `TanreiDateTimePicker`。React Native 上是 `DateTimePicker`，它不是同名的社区包。
+
+## 规格
+
+下面的演示用 Web 的 `inline` 属性把打开的表面原地画出来，这个属性用于文档和测试。产品里的选择器在页面之上打开。
+
+<DemoFrame label="日期：模态，带页眉和操作；停靠式，选中某一天即提交" plain>
+  <tanrei-date-time-picker inline open locale="zh-CN" today="2026-09-24" value="2026-09-17" label="入住"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open presentation="docked" locale="zh-CN" today="2026-09-24" value="2026-09-17" label="入住"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="时间：默认的滚轮，以及表盘（12 小时制）" plain>
+  <tanrei-date-time-picker inline open mode="time" hour-cycle="h12" locale="zh-CN" value="19:30" label="闹钟"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open mode="time" entry-mode="dial" hour-cycle="h12" locale="zh-CN" value="19:30" label="闹钟"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="在次日结束的时间范围，以及以 15 分钟为步长的 24 小时制" plain>
+  <tanrei-date-time-picker inline open mode="time" range locale="zh-CN" start="22:00" end="06:00" label="免打扰时段"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open mode="time" hour-cycle="h23" minute-step="15" locale="zh-CN" value="19:30" label="出发时间"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="日期加时间，以及日期范围" plain>
+  <tanrei-date-time-picker inline open mode="date-time" locale="zh-CN" today="2026-09-24" value="2026-09-17T19:30" minute-step="5" label="会议开始"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open range locale="zh-CN" today="2026-09-24" start="2026-09-10" end="2026-09-16" label="住宿"></tanrei-date-time-picker>
+</DemoFrame>
+
+<ComponentSpecs name="date-time-picker" />
+
+## 指南
+
+### 何时使用
+
+当用户要选择日期或时间，而看到日历或时钟会有帮助时，使用日期时间选择器：星期几、还有多久、哪几个小时。从[文本字段](/zh-cn/components/text-field/)的选择器按钮打开它，这样已经知道值的用户仍然可以直接输入；也可以从任何按钮打开它。如果选择日期本身就是页面的任务，则改为把[日历](/zh-cn/components/calendar/)放在页面里。
+
+### 如何选择形态
+
+| 你需要 | 设置 |
+| --- | --- |
+| 一个日期 | `mode` 为 `date`（默认）。要快速选择，用文本字段下方的 `docked`；日期值得占用整个屏幕时，用 `modal` |
+| 一段日期范围 | `mode` 为 `date`，加上 `range` |
+| 一个时间 | `mode` 为 `time` |
+| 营业时间、班次、免打扰时段 | `mode` 为 `time`，加上 `range`。结束时间等于或早于开始时间时，落在次日 |
+| 一次预约 | `mode` 为 `date-time` |
+| 从某一时刻到另一时刻的预订 | `mode` 为 `date-time`，加上 `range` |
+
+`min`、`max`、`disabledDates`、`today`、`firstDayOfWeek`、`startView` 和 `showAdjacentDays` 会传给日历，含义与[日历](/zh-cn/components/calendar/)中相同。它们只限制日期：时间不受限制。
+
+### 打开和提交
+
+选择器是受控的。你在文本字段的 `pickerRequest` 或按钮的处理函数里设置 `open` 来打开它，它会带着原因触发 `close`。在 Web、Compose 和 React Native 上，由你把 `open` 设回 false；在 SwiftUI 和 Flutter 上，由绑定或路由来关闭它。
+
+- **模态，或任何带时间的选择器。** 选择器持有一个待定的选择，并在按下“确定”时提交：如果选择有变化，它先触发 `change`，再触发带 `confirm` 的 `close`。选择不完整时，“确定”处于禁用状态。“取消”、Escape、返回操作和在遮罩上按下都会关闭它，不提交任何内容。它打开期间你设置的值不会改变待定的选择。
+- **停靠式，仅日期。** 选中使选择完整的那一天时，选择器立即提交并关闭（`select`）。它没有操作按钮。选择范围的开始日期后，它保持打开。
+- **回写。** 选择器不向文本字段写入任何内容。请在 `change` 里设置文本字段的 `value`。选择器关闭时，会把焦点交还给之前持有焦点的元素，通常是文本字段的选择器按钮。
+
+产品之所以留在文本字段和选择器之间，是因为它常常要根据文本字段并不知道的信息来配置选择器：由两个文本字段组成的范围、分钟步长、判定日期的函数。
+
+在 Web 上，停靠式选择器接受 `anchor`，即它放在其下方的元素的 id；由另一个元素打开它时，还接受 `opener`。以文本字段作为锚点时，它会把文本字段的选择器按钮标记为打开对话框的控件。
+
+### 部件和布局
+
+从上到下依次是：页眉、主体和操作。
+
+| 部件 | 说明 |
+| --- | --- |
+| 页眉 | 向起始侧对齐的标题行：说明所选内容的 `label`（例如“入住”）；选择器要设置时间时，标题行末尾还有输入方式标签页。选择器自己没有可用作 `label` 的文字：没有它，标题行不绘制任何文字。带日期的模态选择器还会在它下面显示待定的值（“9月17日周四”“9月10日 – 9月16日”，尚未选择的日期则显示 `dateLabel`），页眉下方有一条细线。 |
+| 日历 | 用于 `date` 和 `date-time`。选择器把自己的属性传给日历，不改变它的样式。 |
+| 时间区域 | 用于 `time` 和 `date-time`。从上到下依次是：设置了 `range` 时横跨整个区域的范围显示；表盘模式下的时间显示；滚轮或表盘。时段与小时和分钟位于同一行。 |
+| 操作 | “取消”和“确定”，一行占满宽度的 tonal 按钮，按各自的任务排列，与[对话框](/zh-cn/components/dialog/)中相同。 |
+
+`layout` 为 `vertical` 时，日历叠在时间区域上方；为 `horizontal` 时，两者并排。对于表盘模式下只选时间的选择器，`horizontal` 把时间显示放在表盘旁边。默认值 `auto` 只在窗口的高度不足以容纳垂直布局、宽度又足以容纳水平布局时才选择水平布局。各部件放不下时，页眉和操作留在原位，主体在它们之间滚动。
+
+### 设置时间
+
+- **滚轮还是表盘。** 滚轮是默认方式，排在前面。表盘就是钟面，时间显示（小时选择框和分钟选择框）是它旁边的一行。`entryMode` 决定选择器打开时使用哪一种，用户可以用输入方式标签页切换：标题行末尾两个纯图标的标签页，滚轮是键盘图标，表盘是时钟图标。它们的文字（`wheelsLabel`、`dialLabel`）是它们的无障碍名称。只提供一种方式的产品设置 `comp.date-time-picker.time.entry-modes`，这时不绘制标签页。
+- **键入数字。** 在滚轮当前选中的值上按下，或者在滚轮持有焦点时键入一个数字，就开始一次键入：在触摸设备上会弹出数字键盘。键入两位数字，或者键入一位后面不可能再接第二位的数字，键入就结束；小时键入完成后会转到分钟，所以 `7` `3` `0` 就是 7:30。表盘模式的选择框以同样的方式读取键盘上的数字。完整的日期仍然在文本字段里输入。
+- **时制。** `hourCycle` 默认取自区域设置，也可以设为 `h12` 或 `h23`。无论哪种时制，值都是 24 小时制的。
+- **时段。** 在 12 小时制下，AM 或 PM 是时间的一部分，而不是时间上方的一个开关。在滚轮模式下，它是第三个短滚轮；在表盘模式下，它是一个窄的选择框，按下就换成另一个值。它位于分钟之后；在把它写在前面的区域设置中（例如日语），则位于小时之前。更改它时，小时的数字保持不变，变的是上半天还是下半天。它画得不显眼，从不带上“正在设置的单位”的标记。
+- **分钟步长。** `minuteStep`（1、5、10、15 或 30）决定分钟滚轮的行和表盘上的数字。不在步长上的时间，无论是设置的还是键入的，都向下舍入到步长。
+- **时间为空时**，从当前时间开始。
+
+### 范围
+
+日期范围在日历里选择：先选开始，再选结束。
+
+带时间的范围把两端显示为由一条短横线连接的两个范围字段：“上午9:00 – 下午5:30”。没有任何文字说明哪个是开始、哪个是结束；顺序和短横线说明了这一点。正在设置的字段被标记为选中，下方的滚轮或表盘显示并设置它的时间。按下另一个字段，就改为设置那一端。仅仅获得焦点不会切换，所以 Tab 可以经过一个字段而不改变正在设置的是哪一端。在日期加时间的范围里，在日历中选择开始日期会选中开始的字段，选择结束日期会选中结束的字段。
+
+- 结束时间等于或早于开始时间的时间范围在次日结束，结束的字段会说明这一点（`nextDayLabel`）。
+- 结束早于开始的日期加时间范围会显示 `rangeErrorText`，并让“确定”保持禁用。
+
+### 文字
+
+Tanrei 不自带任何文字：选择器显示或朗读的每一个词都是你的。`label` 说明这一个选择器选的是什么，写在它自己身上。其余的文字，无论选择器画在哪里，说法都一样，所以像本页这样，按语言为整个产品只给一次：
+
+<ProductWords words={words} label="为整个产品只给一次的选择器文字" />
+
+这段调用就是本页实际运行的那一段：上面的示例只带 `label`，这些文字一个也没有写。某个选择器的说法不同时，由它自己给出（`confirm-label="预订"`），而属性总是优先。没有这些文字时，选择器仍然可以使用：“取消”和“确定”是只有图标的按钮，分别画着关闭和对勾的字形；跨夜的结束时间读作 `+1`；尚未选择的日期什么都不画；调试构建会逐一报告缺少的文字。小时、分钟和时段的名称，以及表示今天的那个词，在你没有给出时取自浏览器的区域数据。
+
+### 推荐
+
+- 从文本字段的选择器按钮打开选择器，这样值也可以直接输入。
+- 用你的产品的语言，把 `label` 设置为所选的内容（“入住”“会议开始”），并设置选择器显示的其他文字。
+- 只有部分分钟有意义时使用 `minuteStep`，例如预订时每 15 分钟一档。
+- 给选择器设置与它所服务的文本字段相同的 `min`、`max` 和 `disabledDates`，让两者接受相同的日期。
+
+### 避免
+
+- 不要把日期时间选择器作为输入用户已知日期（例如出生日期）的唯一方式。让用户可以直接输入。
+- 不要按选择器分别设置输入方式或操作的外观。它们是产品级的设置，在层里定义。
+- 不要在 `change` 之前把值写入文本字段。选择器只在按下“确定”时提交，在停靠式日期选择器中则在选中某一天时提交。
+- 在 Web、Compose 或 React Native 上，不要在 `close` 之后让 `open` 保持为 true。在这些平台上，选择器从不自行关闭。
+- 不要在产品里使用 Web 的 `inline` 属性。它只绘制表面，不具备浮层的行为。
+
+## 无障碍
+
+<ComponentAccessibility name="date-time-picker" />
+
+### 组件负责的部分
+
+- 表面是一个以 `label` 命名的对话框。模态选择器把焦点限制在自身之内，并绘制遮罩；停靠式选择器会取得焦点，并把焦点交还给它的锚点，但 Tab 会离开它并将它关闭。打开时焦点移入：移到日历的活动日期，或移到小时。
+- 日历、标签页和按钮用选择器给它们的文字为自己命名。输入方式标签页是真正的标签页列表，虽然只画图标，朗读时仍带有名称和位置（“滚轮，标签页，第 1 个，共 2 个”）。
+- 范围的两端是一个以 `rangeLabel` 命名的组里的两个按钮，各自朗读名称、时间，以及它是否是正在设置的那一端（“开始，上午9:00”）。`startLabel` 和 `endLabel` 从不绘制：它们的作用是告诉辅助技术哪一端是哪一端。短横线是隐藏的。
+- 小时和分钟的滚轮与选择框是微调按钮，用方向键、Page Up 和 Page Down 以及 Home 和 End 操作，并按绘制的样子朗读（12 小时制下小时带着它的时段）。向其中键入数字时，它们仍然是微调按钮。时段是第三个微调按钮，有两个值，以 `periodLabel` 命名。表盘对辅助技术隐藏：它能做的一切，选择框也都能做。
+- Escape 首先结束正在进行的键入，保留键入之前的值。没有键入时，它关闭选择器而不提交，并把焦点交还给原来的位置。
+- 结束早于开始的日期加时间范围会以礼貌（polite）的方式朗读一次，并作为描述出现在结束的范围字段上。
+- 每个选择框、范围字段和滚轮的行都不小于最小目标；文本放大时，滚轮、选择框、时段和表盘上的数字会随之变大，而不是把文本裁掉。在窄窗口中，选择器永远不会比窗口更宽：日历的单元格和范围字段会变窄。
+- 从右到左的布局会镜像标题行、列、范围显示、时段所在的一侧，以及操作。小时、分隔符和分钟保持这个顺序，表盘仍按顺时针方向排列。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 尚未实现 DateTimePicker：各平台跟上时会按这份规格来实现。
+- Web：结束的范围字段是一个按钮，而按钮没有无效状态，所以范围错误只能以它的描述和朗读的形式到达辅助技术。
+- Web：浏览器不报告设备全局的 12 小时制或 24 小时制选择，所以 `hourCycle` 为 `locale` 时只依据区域设置。
+- Web：在停靠式选择器之外按下会关闭它，这次按下也会到达它下面的元素，与菜单的情况相同。
+- Web：停靠式选择器由脚本定位，尚未使用 CSS 锚点定位。
+- Web：滚轮、表盘和日历的拖动尚未在真机上用手指检查过，并且有一些测试在 Firefox 和 WebKit 中失败。
+- 滚轮与表盘的直径和选择框的宽度都不一致；是否应当一致尚未决定。
+
+### 需要你做的事
+
+- 给每个选择器一个说明所选内容的 `label`（“入住”“会议时间”）。它只属于这一个选择器：没有它，标题行不绘制任何文字，对话框也没有名称。
+- 给出选择器显示或朗读的其他每一个词：写在选择器上，或者像本页这样，用 `setWords()` 为整个产品只给一次。Tanrei 不自带任何文字：各个操作（`confirmLabel`、`cancelLabel`）、`dateLabel`、`nextDayLabel`、`rangeErrorText`、日历的六个文字，以及只会被听到的名称（`wheelsLabel`、`dialLabel`、`entryModeLabel`、`rangeLabel`、`startLabel`、`endLabel`）。没有这些文字时，凡是有标记能表达同样意思的地方，选择器就在原处画上标记——只有图标的关闭和对勾按钮、跨夜的结束时间后面的 `+1`——并在开发时逐一报告缺少的文字。小时、分钟和时段的名称，以及表示今天的那个词，在你没有给出时取自浏览器的区域数据。参见[产品的文字](/zh-cn/foundations/words/)。
+- 从一个说明了自己会打开什么的控件打开它，例如以 `pickerLabel`（“选择日期”）命名的文本字段选择器按钮。
+- 在 `change` 里设置文本字段的 `value`；在 `open` 只是普通值的平台上，在 `close` 里关闭选择器。
+- 同时通过文本字段提供键入的方式。

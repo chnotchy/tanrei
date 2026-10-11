@@ -1,0 +1,98 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Loading",
+    "accessibilityRole": "progressbar",
+    "accessibilityState": {
+      "busy": true
+    },
+    "accessible": true,
+    "focusable": false,
+    "style": {
+      "alignItems": "center",
+      "alignSelf": "flex-start",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "borderRadius": 9999,
+      "boxShadow": [
+        {
+          "blurRadius": 2,
+          "color": "rgba(0, 0, 0, 0.04)",
+          "offsetX": 0,
+          "offsetY": 1,
+          "spreadDistance": 0
+        }
+      ],
+      "height": 48,
+      "justifyContent": "center",
+      "width": 48
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessible": false,
+        "importantForAccessibility": "no",
+        "style": {
+          "borderColor": "rgba(0, 0, 0, 0.08)",
+          "borderRadius": 10000,
+          "borderWidth": 1,
+          "bottom": -1,
+          "left": -1,
+          "pointerEvents": "none",
+          "position": "absolute",
+          "right": -1,
+          "top": -1
+        }
+      },
+      "children": []
+    },
+    {
+      "type": "View",
+      "props": {
+        "collapsable": false,
+        "style": {
+          "height": 40,
+          "opacity": 1,
+          "width": 40
+        }
+      },
+      "children": [
+        {
+          "type": "View",
+          "props": {
+            "accessible": false,
+            "importantForAccessibility": "no-hide-descendants",
+            "style": {
+              "direction": "ltr",
+              "height": 40,
+              "left": 0,
+              "pointerEvents": "none",
+              "position": "absolute",
+              "top": 0,
+              "width": 40
+            }
+          },
+          "children": [
+            {
+              "type": "View",
+              "props": {
+                "style": {
+                  "borderColor": "rgb(75, 75, 75)",
+                  "borderRadius": 20,
+                  "borderWidth": 2,
+                  "height": 40,
+                  "left": 0,
+                  "position": "absolute",
+                  "top": 0,
+                  "width": 40
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

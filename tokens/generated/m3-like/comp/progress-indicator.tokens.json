@@ -1,0 +1,269 @@
+{
+  "tanrei": {
+    "comp": {
+      "progress-indicator": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows how far a task has come — or that it is under way when that is unknown — as a bar in content and as a ring in tight places, at several sizes.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a progress indicator reads: the bar's thickness and the ring's size and stroke per size, the track and indicator colors, the ends' shape, whether the indicator meets the track or stands a gap from it, that gap and the stop indicator at the track's end, and the motion of a value change and of an indeterminate cycle.",
+            "rules": [
+              "Use a determinate indicator whenever the fraction is known; indeterminate only when it is not.",
+              "Always give it a label (the accessible name); use valueText when a percentage is not the natural reading (\"3 of 10 files\").",
+              "indicator.color on track.color must stay distinguishable (3:1): the boundary between them is the value.",
+              "Restyle through these tokens in a layer; never draw a bar of your own.",
+              "track.separation follows sys.behavior.separation; track.gap and stop-indicator.size are drawn under gap only. Set them to 0 to keep one of the two out under gap."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "members": [
+                "linear.thickness",
+                "circular.size",
+                "circular.thickness"
+              ]
+            }
+          }
+        },
+        "linear": {
+          "thickness": {
+            "$type": "dimension",
+            "$description": "The bar's height: its container height, per size. The bar has no length of its own; it fills the inline size its layout gives it.",
+            "small": {
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 1
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 1
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 1
+                }
+              }
+            }
+          }
+        },
+        "circular": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The ring's square box (its container), per size: small fits in a control, medium next to text, large in a section.",
+            "small": {
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
+              }
+            }
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$description": "The ring's stroke width, per size. The same stroke at every size by default.",
+            "small": {
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 4
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 4
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 4,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 4
+                }
+              }
+            }
+          }
+        },
+        "track": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.secondary-container}",
+            "$extensions": {}
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The corner radius of the bar's ends and of the indicator's ends, clamped to half the thickness. The ring's caps are round unless this is sys.shape.corner.none."
+          },
+          "separation": {
+            "$type": "number",
+            "$value": "{tanrei.sys.behavior.separation}",
+            "$description": "How a determinate indicator is told from the rest of its track. divider: the indicator is drawn on the track with no space between them; the edge where its color ends is the line. gap: track.gap of empty space is left between them, and a bar draws the stop indicator at the track's end. Follows the system's choice; an instance's separation prop overrides it (PRG-17). The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product cuts its progress bars with a gap as it cuts its joined buttons, or keeps its bars solid while its buttons stand apart: the system-wide choice gives the common answer, and a component whose parts read better the other way must be able to leave it.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "divider",
+                  "gap"
+                ]
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "Under gap: empty space, measured along the track, between the end of a determinate indicator and the rest of the track. Not drawn under divider.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 1
+              }
+            }
+          }
+        },
+        "indicator": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.primary}"
+          }
+        },
+        "stop-indicator": {
+          "size": {
+            "$type": "dimension",
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$description": "Under gap: the diameter of the dot a determinate bar draws at the track's end, in the indicator color, to mark where the track ends; never drawn larger than the bar is thick. 0 draws none. Not drawn under divider.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 1
+              }
+            }
+          }
+        },
+        "motion": {
+          "value-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium2}"
+          },
+          "value-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "cycle-duration": {
+            "$type": "duration",
+            "$value": {
+              "value": 1750,
+              "unit": "ms"
+            },
+            "$description": "One cycle of the indeterminate animation (the bar's segment crossing the track once, the ring's arc turning once), and one pulse of its reduced-motion form.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.motion.unit}",
+                "by": 35
+              }
+            }
+          },
+          "cycle-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$description": "How the bar's indeterminate segment and the reduced-motion pulse move through a cycle. The ring always turns at constant speed."
+          }
+        }
+      }
+    }
+  }
+}

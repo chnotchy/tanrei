@@ -1,0 +1,196 @@
+---
+title: "空状态"
+description: "站在本该有内容却没有内容的位置上——没有结果的搜索、还没有人添加过东西的列表、第一项出现之前的页面——说明缺的是什么、为什么缺或该怎么做，并提供完成这件事的操作。"
+translationOf: components/empty-state.mdx
+sourceHash: 26030d545cec035e6eea1eee4b315425bdb08acd
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="empty-state" />
+
+<DemoFrame label="还没有人添加过东西的列表，以及什么也没找到的搜索" column>
+  <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>项目把一个设计系统的设计层、导出内容和成员放在一起。<tanrei-button slot="actions">新建项目</tanrei-button><tanrei-button slot="actions" variant="text">导入设计层</tanrei-button></tanrei-empty-state>
+  <tanrei-empty-state headline="没有找到“令排”的结果" style="inline-size: min(100%, 30rem)"><span slot="media">search_off</span>请检查输入是否有误，或者换一个更短的词搜索。<tanrei-button slot="actions" variant="outlined">清除搜索</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+空状态站在本该有内容、却什么也没有的位置上：它取代列表、行或结果。它用几个词说明缺的是什么，用一句话说明为什么缺或该怎么做，并提供完成这件事的控件。它低调而扁平——没有填充，没有边线——而且它是内容，在它所在的位置被读到：它不接受焦点，也没有状态。
+
+在 Web 上它是 `<tanrei-empty-state>`。其他平台尚未实现。
+
+### 用法
+
+描述是元素自己的内容。标题是 `headline` 属性；如果标题是一个标题元素或你自己的内容，则放进 `title` 插槽。图标集里的字形或你自己的图片放进 `media` 插槽，你自己的 Button 或链接放进 `actions` 插槽。每一个字都由你来写：组件自己不带任何文字。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 视图里的一块区域：一个字形、一个标题、一句话，以及操作。 -->
+    <tanrei-empty-state headline="还没有项目">
+      <span slot="media">folder_open</span>
+      项目把一个设计系统的设计层、导出内容和成员放在一起。
+      <tanrei-button slot="actions">新建项目</tanrei-button>
+      <tanrei-button slot="actions" variant="text">导入设计层</tanrei-button>
+    </tanrei-empty-state>
+
+    <!-- 整个页面都是空的：用大号，它的标题就是页面的标题元素。 -->
+    <tanrei-empty-state size="large">
+      <h1 slot="title">此页面不存在</h1>
+      地址可能输入有误，或者页面已被移走。
+      <a slot="actions" class="tanrei-link" href="/">前往首页</a>
+    </tanrei-empty-state>
+
+    <!-- 在侧边面板里：靠起始侧边缘，也就是列表本该开始的地方。 -->
+    <tanrei-empty-state align="start" headline="目前与基础值没有差异">
+      在左侧更改一个值，它就会列在这里。
+    </tanrei-empty-state>
+
+    <!-- 作为对筛选的回应：显示出来时，以礼貌的方式朗读一次。 -->
+    <tanrei-empty-state id="no-rows" live hidden headline="没有符合这些筛选条件的条目">
+      已启用三个筛选条件。移除其中一个，会显示更多条目。
+      <tanrei-button slot="actions" variant="outlined">清除筛选条件</tanrei-button>
+    </tanrei-empty-state>
+
+    <script type="module">
+      import '@tanrei/web/components/empty-state';
+      import '@tanrei/web/empty-state.css'; // 服务器渲染的空状态在元素定义之前所占的位置
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, EmptyState } from '@tanrei/react';
+
+    {rows.length === 0 && (
+      <EmptyState live headline="没有符合这些筛选条件的条目">
+        已启用三个筛选条件。移除其中一个，会显示更多条目。
+        <Button slot="actions" variant="outlined" onClick={clearFilters}>清除筛选条件</Button>
+      </EmptyState>
+    )}
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="各个部件，逐一加上" plain column>
+  <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)"></tanrei-empty-state>
+  <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)">项目把一个设计系统的设计层、导出内容和成员放在一起。</tanrei-empty-state>
+  <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>项目把一个设计系统的设计层、导出内容和成员放在一起。</tanrei-empty-state>
+  <tanrei-empty-state headline="还没有项目" style="inline-size: min(100%, 30rem)"><span slot="media">folder_open</span>项目把一个设计系统的设计层、导出内容和成员放在一起。<tanrei-button slot="actions">新建项目</tanrei-button><tanrei-button slot="actions" variant="text">导入设计层</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+<DemoFrame label="靠起始侧边缘，以及大号尺寸" plain column>
+  <tanrei-empty-state align="start" headline="目前与基础值没有差异" style="inline-size: min(100%, 30rem)">在左侧更改一个值，它就会列在这里。</tanrei-empty-state>
+  <tanrei-empty-state size="large" headline="此页面不存在" style="inline-size: min(100%, 30rem)"><span slot="media">explore_off</span>地址可能输入有误，或者页面已被移走。<tanrei-button slot="actions" variant="outlined">前往首页</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+<ComponentSpecs name="empty-state" />
+
+## 指南
+
+### 空状态、提示块、消息条、状态文本
+
+| 组件 | 它是什么 | 它在哪里 |
+| --- | --- | --- |
+| 空状态 | 没有内容时，站在内容位置上的东西。 | 列表、行或结果本该在的地方。 |
+| [提示块](/zh-cn/components/callout/) | 关于现有内容的一条通知。 | 在那些内容旁边，位于文档流中。 |
+| [消息条](/zh-cn/components/snackbar/) | 刚刚发生的某件事的结果。 | 在内容上方，短暂停留。 |
+| 搜索的状态文本 | 找到了多少条（“没有找到‘令排’的结果”）。 | 在搜索自己的状态行里。 |
+
+空着的地方不是错误。加载失败的内容，是同一位置上一个带错误状态的提示块；仍在加载的内容，是一个加载指示器。一块区域的三种状态——加载中、空、失败——由这块区域自己来切换；空状态既不显示自己，也不隐藏自己。
+
+### 尺寸
+
+| `size` | 上下留白 | 字形 | 标题 | 描述 | 用于 |
+| --- | --- | --- | --- | --- | --- |
+| `medium`（默认） | 32 | 32 | 16 | 14 | 视图里的一块区域：列表、表格的主体、卡片、面板、搜索的结果。 |
+| `large` | 64 | 48 | 20 | 16 | 整个都是空的视图：第一项出现之前的页面、没有找到的页面。 |
+
+这个块与它所在的区域一样宽，高度则等于它的内容加上内边距。区域比它高时，把这个块放在区域里的什么位置——让它居中、保持表格的最小高度——由区域决定。文本每行限制在大约 60 个拉丁字符（描述字号的 30 倍），所以宽表格中间的一句话不会从一边排到另一边。
+
+### 对齐
+
+`align` 为 `center`（默认）时，用于除此之外一片空白的区域；为 `start` 时，用于窄栏、侧边面板里的列表，或者表头始终可见的表格：这时消息从内容本该开始的地方开始。
+
+### 标题
+
+`headline` 是纯文本，从不是标题元素。当空状态就是页面主区域的全部内容时，页面通常需要一个标题元素：把一个级别符合页面大纲需要的标题元素放进 `title` 插槽。空状态会把它画成普通的标题，既不改变它的角色，也不改变它的级别。在已经有标题的卡片里，用文本就够了。
+
+在由服务器渲染的页面上，请把标题放进 `title` 插槽：`headline` 属性是由元素绘制的，所以在元素定义之前不会显示。
+
+### 媒体
+
+字形以它的名称给出，写在一个元素里：`<span slot="media">folder_open</span>`。它按媒体尺寸绘制，用低调的颜色。插槽里的其他任何东西——`<img>`、`<svg>`、你自己的元素——都是图片：它保持自己的尺寸和颜色，绝不会比这个块更宽，也绝不镜像。媒体是装饰性的，并且对辅助技术隐藏，所以不要把唯一的出路放在图片里。Tanrei 不自带任何插图。
+
+### 操作
+
+操作是你自己的 [Button](/zh-cn/components/button/) 或链接，一到两个，主要的那个放在前面。空状态把它们排成会换行的一行，除此之外不对它们做任何事。标签比所在的行还长的操作会独占这一行：这时 Button 会让标签换行，所以什么都不会被截断，也不会伸出这个块。
+
+<DemoFrame label="在窄栏里，每个操作各占一行，长标签会换行" plain column>
+  <tanrei-empty-state headline="没有结果" style="inline-size: 14rem"><span slot="media">search_off</span>请检查输入是否有误。<tanrei-button slot="actions" variant="outlined">清除搜索</tanrei-button><tanrei-button slot="actions" variant="text">打开这份文档全部内容的目录列表</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+### 作为对某件事的回应而出现
+
+`live` 用于由用户刚刚做的事所导致的空状态：没有任何行符合的筛选条件、最后一项被移除。它在显示出来时，以及文本变化时，会以礼貌（polite）的方式朗读一次——先是标题，再是描述，不包括操作。用 `hidden` 把它留在页面里，或者在适用的时候再添加它。
+
+<DemoFrame label="带 live 的空状态，作为对一次按下的回应而显示" plain column>
+  <tanrei-button variant="outlined" onclick="document.getElementById('empty-state-demo-live').hidden = false">应用三个筛选条件</tanrei-button>
+  <tanrei-empty-state id="empty-state-demo-live" live hidden headline="没有符合这些筛选条件的条目" style="inline-size: min(100%, 30rem)">已启用三个筛选条件。移除其中一个，会显示更多条目。<tanrei-button slot="actions" variant="outlined" onclick="this.closest('tanrei-empty-state').hidden = true">清除筛选条件</tanrei-button></tanrei-empty-state>
+</DemoFrame>
+
+写在页面标记里、并在页面加载时就显示的空状态，在那时不会被朗读。在 Web 上，页面加载之后由你的脚本添加进来的带 `live` 的空状态会被朗读；元素无法分辨一个空状态是作为对某件事的回应而添加的，还是随单页应用的新视图一起添加的，所以对于只是新视图一部分的空状态，请不要写 `live`。
+
+在[搜索](/zh-cn/components/search/)中，结果的数量是搜索自己的状态文本，本来就会被朗读。如果你还在搜索的视图里显示空状态，请不要写它的 `live`，否则同样的文字会读两遍。
+
+### 在表格和列表中
+
+没有行的表格保留它的说明文字和表头行；空状态站在表体的行本该在的地方——放在一个横跨各列的单元格里，或者紧跟在表格之后。没有项的列表并不是只有一项的列表：空状态取代的是整个列表。
+
+### 在元素定义之前
+
+描述、标题插槽和操作都是元素自己的子元素，所以它们就在文档里：页面内查找能找到，可以被翻译、被选中，没有脚本也能读到。`@tanrei/web/empty-state.css` 为尚未定义的空状态提供内边距、文本样式和对齐方式，所以这些文字在它们将来所在的位置上就是可读的。在此之前，它显示时不带字形。
+
+### 推荐
+
+- 在标题里用平实的话说明缺的是什么，在描述里说明该怎么做。
+- 提供能把这个位置填上、或者能改变所提要求的操作。
+- 搜索没有结果时，在标题里引用用户键入的内容。
+
+### 避免
+
+- 不要给它状态颜色或警报（alert）角色。空着的地方只是关于内容的一个事实。
+- 不要对视图打开时就是空的地方使用 `live`。
+- 不要手工画一句居中的灰色文字，也不要画一个只有一项、而这一项又不是项的列表。
+- 不要把它用于控件内部一行的“这里什么也没有”，例如没有选项的菜单：那是控件自己的文本。
+
+## 无障碍
+
+<ComponentAccessibility name="empty-state" />
+
+### 组件负责的部分
+
+- 它是没有角色、也没有名称的普通内容：标题、描述，然后是操作，在它们所在的位置被读到。
+- 带 `live` 时，它通过自己的状态区域以礼貌的方式朗读一次：在页面呈现之后它被显示出来时，以及它的标题或描述变化时。它从不以立即打断（assertive）的方式朗读。
+- 字形或图片对辅助技术隐藏。
+- 以文本给出的标题是纯文本。`title` 插槽里的标题元素保留它的级别。
+- 它不是焦点顺序中的停靠点，也从不移动焦点。Tab 先到达描述里的链接，再到达操作。
+- 文本放大时，所有内容都会换行并增高；在宽度为 320、文本为 200% 时，没有任何东西需要横向滚动，每个操作各占一行。
+- 在强制颜色模式下，字形、标题和描述都用文本颜色绘制。没有任何东西依赖填充。
+- 在从右到左的布局中，起始侧是右边缘，第一个操作在右边；图标集标明需要镜像的字形会镜像；标题里引用的从左到右的查询词保持它自己的顺序。
+- 调试构建会报告：未知的尺寸或对齐方式、既没有标题也没有描述的空状态，以及有描述却没有标题的空状态。
+
+### 需要你做的事
+
+- 每一个字都用页面的语言来写。组件不提供任何文字。
+- 页面需要标题元素时，把它放进 `title` 插槽。
+- 只对作为对某件事的回应而出现的空状态使用 `live`，并且绝不要放在另一个说着同样内容的实时区域旁边。
+- 不要把控件放进 `media` 插槽：它对辅助技术是隐藏的。
+- 给操作一个放得下的标签。行太短时标签会换行，但比一行还长的单个词无法换行。

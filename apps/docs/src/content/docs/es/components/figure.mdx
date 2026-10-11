@@ -1,0 +1,249 @@
+---
+title: Figura
+description: Coloca una cosa que se mira, una imagen, un gráfico, una muestra o un ejemplo en vivo, en un escenario propio, con marco o sin él, con una leyenda que dice qué muestra y, de forma opcional, un título con tus controles encima y un bloque unido debajo.
+translationOf: components/figure.mdx
+sourceHash: 73569d4fce0f2d7484ec464c4bd25f4c23fa4f05
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="figure" />
+
+<DemoFrame label="Outlined, filled y plain" column>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
+    <tanrei-figure>
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Guardar</tanrei-button></div></div>
+        <figcaption>Outlined: la superficie dentro de una sola línea fina.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure variant="filled">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Guardar</tanrei-button></div></div>
+        <figcaption>Filled: un tono discreto y ningún borde.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure variant="plain">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">Guardar</tanrei-button></div></div>
+        <figcaption>Plain: lo que se muestra es su propio marco.</figcaption>
+      </figure>
+    </tanrei-figure>
+  </div>
+</DemoFrame>
+
+Una figura muestra una cosa que se mira en lugar de leerse: una imagen en un artículo, un gráfico en un informe, una vista previa de lo que producirá un ajuste, una muestra. La separa de lo demás y dice qué es. Los marcos que rodean los ejemplos en vivo de este sitio son figuras.
+
+No es una tarjeta. Una tarjeta agrupa contenido y acciones sobre un mismo asunto y puede pulsarse entera. Una figura muestra una sola cosa, nunca se pulsa y pone su leyenda fuera de su marco.
+
+En la web es `<tanrei-figure>` alrededor de un `<figure>` nativo. El elemento no tiene shadow root, así que la figura y su `<figcaption>` son los del propio documento: se leen sin script, los leen un rastreador y un modo de lectura, y el navegador les da nombre. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/figure.css" />
+
+    <tanrei-figure>
+      <figure>
+        <div data-part="frame">
+          <header>
+            <p data-part="title">Ingresos por trimestre</p>
+            <div data-part="actions">
+              <tanrei-button variant="text" label="Abrir en una pestaña nueva"><span slot="icon">open_in_new</span></tanrei-button>
+            </div>
+          </header>
+          <div data-part="stage">
+            <img src="revenue.svg" alt="Un gráfico de barras: los ingresos suben en todos los trimestres." />
+          </div>
+        </div>
+        <figcaption>Todas las regiones crecieron; la región norte fue la que más creció.</figcaption>
+      </figure>
+    </tanrei-figure>
+
+    <script type="module">
+      import '@tanrei/web/components/figure';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Figure } from '@tanrei/react';
+    import '@tanrei/web/figure.css';
+
+    <Figure variant="plain">
+      <figure>
+        <img src={photo.src} alt={photo.alt} />
+        <figcaption>{photo.caption}</figcaption>
+      </figure>
+    </Figure>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/figure.css` dibuja toda la figura antes de que se ejecute ningún script, así que una página de figuras no se mueve cuando llega el script. El elemento añade por sí solo la misma hoja de estilos a la página.
+
+### Qué escribes tú
+
+| Parte | En la web |
+| --- | --- |
+| El marco | `<div data-part="frame">`, el primer hijo del `<figure>`. Contiene la cabecera, el escenario y el bloque adjunto. |
+| El título | Un elemento con `data-part="title"` en el `<header>` del marco: un `<p>`, o el encabezado que necesite el esquema de tu página. |
+| Las acciones | `<div data-part="actions">` en el `<header>`, alrededor de tus propios controles. |
+| El escenario | `<div data-part="stage">`, alrededor de lo que se muestra. |
+| El bloque adjunto | Cualquier elemento con `data-part="attachment"` después del escenario: un bloque de código, una tabla, una lista de descripciones. |
+| La leyenda | El `<figcaption>`, después del marco. |
+
+Todas las partes salvo el escenario son opcionales. Un `<img>`, `<picture>`, `<video>`, `<svg>` o `<canvas>` por sí solo puede ocupar el lugar del elemento del escenario, y también se dibuja una figura sin ningún elemento de marco, `<figure><img …><figcaption>…</figcaption></figure>`, como la escribe un renderizador de Markdown: la imagen es entonces su propio marco.
+
+### Una figura que construye el elemento
+
+A un `<tanrei-figure>` que no contiene ningún `<figure>` se le da uno cuando se define el elemento. Sus hijos pasan a ser el escenario, salvo los que nombran una parte con `slot` (`title`, `actions`, `caption`, `attachment`). Los atributos `headline` y `caption` se escriben como el título y la leyenda.
+
+```html
+<tanrei-figure headline="Variantes" caption="Un botón filled.">
+  <tanrei-button variant="filled">Guardar</tanrei-button>
+</tanrei-figure>
+```
+
+Esta forma es más corta, y solo se dibuja una vez que el script se ha ejecutado. Escribe tú las partes donde la página no deba moverse, y también con un framework que sea dueño de los hijos del elemento (React), porque el elemento los mueve.
+
+## Especificaciones
+
+<DemoFrame label="Un título, un control, un bloque unido y una leyenda" plain column>
+  <tanrei-figure style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <header>
+          <p data-part="title">Variantes</p>
+          <div data-part="actions">
+            <tanrei-button variant="text" label="Abrir en una pestaña nueva"><span slot="icon">open_in_new</span></tanrei-button>
+          </div>
+        </header>
+        <div data-part="stage">
+          <tanrei-button variant="filled">Filled</tanrei-button>
+        </div>
+        <tanrei-code-block data-part="attachment" label="Marcado"><pre><code>&lt;tanrei-button variant="filled"&gt;Filled&lt;/tanrei-button&gt;</code></pre></tanrei-code-block>
+      </div>
+      <figcaption>Un botón filled y su marcado.</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="Sin margen interior: lo que se muestra llega hasta los bordes del marco" plain column>
+  <tanrei-figure flush style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="inline-size: 100%; block-size: 9rem; background: linear-gradient(135deg, var(--tanrei-sys-color-primary-container), var(--tanrei-sys-color-tertiary-container))"></div>
+        </div>
+      </div>
+      <figcaption>El marco recorta lo que contiene según sus esquinas.</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="Más ancho que su escenario: se desplaza dentro de él, y el escenario es una parada de foco" plain column>
+  <tanrei-figure style="inline-size: min(100%, 24rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="display: flex; flex: none; gap: 0.75rem">
+            <tanrei-button variant="filled">Filled</tanrei-button>
+            <tanrei-button variant="tonal">Tonal</tanrei-button>
+            <tanrei-button variant="elevated">Elevated</tanrei-button>
+            <tanrei-button variant="outlined">Outlined</tanrei-button>
+            <tanrei-button variant="text">Text</tanrei-button>
+          </div>
+        </div>
+      </div>
+      <figcaption>Cinco botones en una fila que no salta de línea.</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<ComponentSpecs name="figure" />
+
+## Pautas
+
+### Tres aspectos
+
+| `variant` | Qué dibuja | Úsalo para |
+| --- | --- | --- |
+| `outlined` (predeterminado) | La superficie dentro de una sola línea fina. | Una muestra, un ejemplo en vivo, un diagrama. |
+| `filled` | Un tono discreto y ningún borde. | Una página que ya tiene muchas líneas; un fondo para cosas con sombra. |
+| `plain` | Sin relleno, sin borde, sin margen interior y sin línea. | Una imagen que es su propio marco; una muestra en una cuadrícula. |
+
+El aspecto outlined se rellena con el color de la superficie; no se deja vacío. Tus propios componentes conservan el contraste que se exigió a sus tokens, sea cual sea el panel en el que se coloque la figura.
+
+### El título encima, la leyenda debajo
+
+- `title` (el atributo `headline` en la web) es una línea corta en una cabecera situada dentro del marco. Da nombre a lo que se muestra.
+- `caption` está debajo del marco, en el borde de inicio, en texto secundario. Salta de línea y nunca se corta.
+- No hay ningún ajuste de posición. El texto que está encima del escenario es el título. Una leyenda tiene un único lugar.
+- El título es texto sin más, no un encabezado. Donde el esquema de tu página necesite un encabezado ahí, escribe uno con `data-part="title"`: la figura lo dibuja con el estilo del título y conserva su rol y su nivel.
+
+### Controles y un bloque unido
+
+- Las acciones son tus propios controles al final de la cabecera: qué variante, qué tema, abrirlo en otro lugar. La figura los dispone en una fila y no hace nada más. Pasan debajo del título cuando la fila es demasiado estrecha.
+- El bloque adjunto es tu propio bloque debajo del escenario, dentro del marco: el código a partir del cual se hizo un ejemplo, los datos de un gráfico.
+
+| `separation` | Qué dibuja |
+| --- | --- |
+| `auto` (predeterminado) | Lo que eligió el sistema de diseño: líneas en el sistema predeterminado. |
+| `divider` | Una línea debajo de la cabecera y otra encima del bloque adjunto, que queda a ras del marco. |
+| `gap` | Ninguna línea. El bloque adjunto queda dentro del marco, retirado 8 de sus bordes, con su propia forma. |
+
+### El escenario
+
+- `inset` (true de forma predeterminada) da al escenario un margen interior de 32 arriba y abajo y de 24 a los lados. En la web, `flush` quita el margen interior, de modo que una imagen, un gráfico o un mapa llegan hasta los bordes del marco y sus esquinas los recortan.
+- Una imagen se reduce conservando sus proporciones, y nunca se amplía.
+- El contenido que no puede encogerse se desplaza hacia los lados dentro del escenario. La figura nunca es más ancha que su contenedor.
+- El contenido más estrecho que un escenario con marco se centra. En el aspecto plain empieza en el borde del texto.
+- El escenario es tan alto como su contenido. Cómo se disponen en él varios ejemplos es cosa de tu diseño de página.
+
+### En una página
+
+- Una figura ocupa la anchura que se le da y no trae espacio exterior. En la prosa se espacia como un bloque y ocupa toda la anchura de la prosa, mientras que su leyenda se limita a la medida como un bloque de texto.
+- Varias figuras una al lado de otra son una cuadrícula tuya. Una figura llena su celda.
+
+### Recomendado
+
+- Escribe una leyenda que diga para qué está la figura: «Los ingresos crecieron en todas las regiones», no «Gráfico».
+- Da a una imagen su propio texto alternativo. La leyenda no lo sustituye.
+- Marca un ejemplo que hay que seguir o que hay que evitar con un tag pequeño al inicio de la leyenda, con su palabra: «Recomendado», «Evita».
+
+### Evita
+
+- No uses una figura para agrupar contenido y acciones relacionados. Eso es una [tarjeta](/es/components/card/).
+- No hagas que una figura se pueda pulsar. Una imagen que abre algo es un enlace alrededor de la imagen.
+- No des color al marco para decir que un ejemplo es correcto o incorrecto. La figura no tiene estado.
+
+## Accesibilidad
+
+<ComponentAccessibility name="figure" />
+
+### De qué se encarga el componente
+
+- La figura nativa sigue siendo una figura. Recibe su nombre de su título, o de su leyenda donde no tiene título. Con ambos, el título es el nombre y la leyenda la descripción, y la leyenda se sigue leyendo en su lugar.
+- `label` da nombre a una figura que no dibuja ninguno de los dos. Nunca se dibuja, y se ignora donde hay un título o una leyenda.
+- Mientras el escenario se desplaza hacia los lados, es una parada en el orden del foco, anterior a cualquier cosa que haya dentro de él, y un grupo con el nombre de la figura. Las teclas de flecha lo desplazan, e Inicio y Fin lo llevan a cada extremo. Un escenario que no se desplaza no añade ninguna parada.
+- El anillo de foco se dibuja por dentro del borde del escenario, así que nada lo recorta.
+- Todo lo que hay en la cabecera, el escenario, el bloque adjunto y la leyenda se puede seguir usando y conserva su orden de foco.
+- Con el texto al 200%, el título y la leyenda crecen y saltan de línea, y las acciones pasan debajo del título.
+- En un diseño de derecha a izquierda, la cabecera se refleja y la leyenda empieza a la derecha. Lo que se muestra en el escenario nunca se refleja.
+- Con colores forzados, los aspectos outlined y filled tienen un borde del color del texto. El aspecto plain no tiene ninguno.
+- Las compilaciones de depuración notifican una figura sin nombre, una figura cuyo escenario está vacío y una variante o una separación desconocidas.
+
+### Qué debes hacer tú
+
+- Da a cada figura un título, una leyenda o un `label`.
+- Da a una imagen del escenario su propio `alt`. Donde la leyenda ya diga todo lo que dice la imagen, marca la imagen como decorativa (`alt=""`).
+- Haz que un ejemplo en vivo se pueda seguir usando. La figura no oculta su contenido ni lo convierte en una imagen.

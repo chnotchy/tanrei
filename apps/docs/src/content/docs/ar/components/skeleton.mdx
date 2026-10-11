@@ -1,0 +1,228 @@
+---
+title: هيكل التحميل
+description: يقف حيث سيكون المحتوى ما دام يُحمَّل. عناصر نائبة هادئة في شكل ما سيأتي، أسطر نص أو كتلة أو دائرة، تحجز الصندوق الذي سيأخذه المحتوى، فلا يتحرك شيء حين يصل.
+translationOf: components/skeleton.mdx
+sourceHash: fd87c49099a85cb9c01317779b10a50e0116860c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="skeleton" />
+
+<DemoFrame label="بيانات شخص وبطاقة، في أثناء تحميلهما" column>
+  <tanrei-skeleton label="جارٍ تحميل بيانات الكاتب" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span><span class="tanrei-skeleton-placeholder" data-lines="2"></span></tanrei-skeleton>
+  <tanrei-skeleton label="جارٍ تحميل المشروع" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span><span class="tanrei-skeleton-placeholder" data-lines="3"></span><span class="tanrei-skeleton-placeholder" data-shape="block" style="inline-size: 6rem; block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+كثيرًا ما يصل العرض قبل محتواه. هيكل التحميل (skeleton) يحجز شكل ما سيأتي في المكان الذي سيكون فيه: أسطر نص، وكتلة لصورة أو لعنصر تحكم، ودائرة لصورة شخص. وحين يصل المحتوى يأخذ الصناديق التي حُجزت له، فلا يتحرك شيء كان الشخص ينظر إليه أو يوشك أن يضغطه.
+
+يتألف الهيكل من منطقة ومن عناصرها النائبة (placeholders). تُقال المنطقة للتقنيات المساعدة مرة واحدة، «جارٍ تحميل المشاريع» وهي مشغولة، والعناصر النائبة لا تقول شيئًا بنفسها. وينتظر الهيكل لحظة قبل أن يُعرض، فيعرض الانتظار القصير مكانًا فارغًا بالحجم الصحيح بدل أشكال تومض.
+
+على الويب هو `<tanrei-skeleton>` حول عناصرك أنت التي تحمل `class="tanrei-skeleton-placeholder"`. والمنصات الأخرى لم تنفّذه بعد.
+
+### هيكل التحميل ومؤشر التحميل ومؤشر التقدم والحالة الفارغة
+
+أربعة مكوّنات تجيب عن «لا شيء هنا بعد». ويحدّد أيَّها تستخدم ما يُعرف عن الانتظار وعمّا سيأتي.
+
+| الموقف | استخدم | السبب |
+| --- | --- | --- |
+| محتوى معروف الشكل سيملأ منطقة من العرض، والانتظار طويل بما يكفي ليُرى. | هيكل التحميل | يحجز التخطيط، فلا يتحرك شيء عند الوصول، ويبيّن أين ستكون الأشياء. |
+| انتظار قصير مجهول الطول ليس لنتيجته شكل يُحجز، أو نتيجته صغيرة: في زر أو صف أو حقل أو سطر حالة. أو إجراء جارٍ، كالحفظ أو الإرسال. | [مؤشر التحميل](/ar/components/loading-indicator/) | تكفي علامة. الأشكال لصف واحد أو لأيقونة واحدة ضجيج. |
+| مهمة يمكن قياس تقدمها، أو تستغرق ثواني كثيرة. | [مؤشر التقدم](/ar/components/progress-indicator/) | هيكل التحميل لا يقول شيئًا عن مقدار ما أُنجز، وبعد بضع ثوانٍ يحتاج الشخص إلى أن يعرفه. |
+| لن يأتي شيء: القائمة فارغة، أو البحث لم يجد شيئًا. | [الحالة الفارغة](/ar/components/empty-state/) | هيكل التحميل وعد بمحتوى. |
+| أخفق التحميل. | [تنويه](/ar/components/callout/) بحالة الخطأ، في المكان نفسه. | الهيكل الذي لا ينتهي كذب. |
+| المحتوى موجود أصلًا، والمتأخر هو السكربت أو الصورة أو الخط فقط. | ولا واحد من الأربعة. المكوّن يحجز صندوقه بنفسه. | هيكل التحميل لا يعرف حجم مكوّن آخر. ذلك المكوّن هو الذي يعرفه. |
+
+### الاستخدام
+
+ضع الهيكل حيث سيكون المحتوى حين يبدأ الانتظار، وضع المحتوى مكانه حين ينتهي الانتظار. أعطِه قيمة `label` تقول ما الذي يُحمَّل. والعنصر النائب عنصر فارغ من عندك يحمل الصنف (class): عنصر `<span>` في أي مكان، أو `<div>` حيث يكون ابنًا لكتلة، مثل `<div>` آخر. وداخل عنوان أو فقرة يكون `<span>`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/skeleton.css" />
+
+    <!-- العناصر النائبة التي هي أبناء الهيكل المباشرون تُرصّ واحدًا تحت الآخر، وبينها فجوة. -->
+    <tanrei-skeleton label="جارٍ تحميل المشروع">
+      <span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 160px"></span>
+      <span class="tanrei-skeleton-placeholder" style="inline-size: 12.5rem"></span>
+      <span class="tanrei-skeleton-placeholder" data-lines="3"></span>
+    </tanrei-skeleton>
+
+    <!-- كل ما زاد على ذلك تخطيطك أنت، وفيه العناصر النائبة، حيث سيكون المحتوى. -->
+    <tanrei-skeleton label="جارٍ تحميل بيانات الكاتب">
+      <div class="byline">
+        <span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span>
+        <div>
+          <h3><span class="tanrei-skeleton-placeholder" style="inline-size: 10rem"></span></h3>
+          <p><span class="tanrei-skeleton-placeholder" data-lines="2"></span></p>
+        </div>
+      </div>
+    </tanrei-skeleton>
+
+    <!-- جزء من الظهور الأول للصفحة، يكتبه الخادم: يُعرض فورًا، ويكون صحيحًا قبل أي سكربت. -->
+    <tanrei-skeleton show-delay="0" role="progressbar" aria-busy="true" aria-label="جارٍ تحميل لوحة المعلومات">
+      …
+    </tanrei-skeleton>
+    <noscript>تحتاج لوحة المعلومات إلى JavaScript.</noscript>
+
+    <script type="module">
+      import '@tanrei/web/components/skeleton';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Skeleton } from '@tanrei/react';
+    import '@tanrei/web/skeleton.css';
+
+    {project ? (
+      <ProjectCard project={project} />
+    ) : (
+      <Skeleton label="جارٍ تحميل المشروع">
+        <span className="tanrei-skeleton-placeholder" data-shape="block" style={{ blockSize: 160 }} />
+        <span className="tanrei-skeleton-placeholder" style={{ inlineSize: '12.5rem' }} />
+        <span className="tanrei-skeleton-placeholder" data-lines={3} />
+      </Skeleton>
+    )}
+    ```
+  </TabItem>
+</Tabs>
+
+على الويب، ورقة الأنماط هي المكوّن كله قبل أن يعمل أي سكربت: الأشكال، والانتظار قبل العرض، والنبض، والسكون عند تقليل الحركة، وحدود الأشكال في الألوان المفروضة (forced colors). والعنصر يضيف ما لا تستطيعه ورقة الأنماط: الدور والاسم للتقنيات المساعدة، وإبقاء ما يحمله الهيكل خارج ترتيب التركيز، والتوقف ما دام لا يُرى.
+
+## المواصفات
+
+<DemoFrame label="الأشكال الثلاثة: نص، وكتلة، ودائرة" plain column>
+  <tanrei-skeleton label="جارٍ تحميل النص" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></tanrei-skeleton>
+  <tanrei-skeleton label="جارٍ تحميل الصورة" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="block" style="block-size: 96px"></span></tanrei-skeleton>
+  <tanrei-skeleton label="جارٍ تحميل بيانات الشخص" show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder" data-shape="circle" style="block-size: 40px"></span></tanrei-skeleton>
+</DemoFrame>
+
+<DemoFrame label="العنصر النائب للنص يأخذ نمط النص في المكان الذي يقف فيه: في عنوان، وفي فقرة" plain column>
+  <tanrei-skeleton label="جارٍ تحميل المقالة" show-delay="0" style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton>
+</DemoFrame>
+
+<ComponentSpecs name="skeleton" />
+
+## الإرشادات
+
+### يحجز الصندوق
+
+الغاية من هيكل التحميل ألّا يتحرك شيء. صندوقه، وصندوق كل عنصر نائب، هو نفسه من لحظة إدراجه إلى لحظة إزالته: وهو ينتظر أن يُعرض، وحين يظهر، وما دام يتحرك.
+
+الهيكل لا يخمّن شيئًا. يرسم العناصر النائبة التي أعطيتها، بالأحجام التي أعطيتها. وأن يأخذ المحتوى الصندوق الذي حجزته عناصره النائبة أمر ترتّبه أنت: ضع كل عنصر نائب حيث سيكون محتواه، وموضوعًا كما سيوضع ذلك المحتوى.
+
+- العنصر النائب للنص يوضع داخل العنوان أو الفقرة أو الخلية التي سيكون فيها النص. يأخذ نمط ذلك النص، وارتفاعه ارتفاع ذلك العدد من أسطره تمامًا، وكذلك حين يكبّر القارئ النص.
+- قل كم سطرًا سيأخذ النص بالخاصية `data-lines`. ستصيب بقدر ما يكون محتواك منتظمًا. والهيكل الذي ينقصه سطر واحد يحرّك الصفحة سطرًا واحدًا، وهذا يبقى أقل مما يحرّكها مكان فارغ.
+- أعطِ الكتلة حجم الصورة أو عنصر التحكم: رقمًا، أو نسبة، أو الحجم الذي يعطيها إياه تخطيطك. والدائرة تأخذ رقمًا واحدًا، هو ضلعها.
+
+<DemoFrame label="اضغط «تحميل»: يحجز الهيكل المكان ثانيتين ونصف الثانية، ثم يأخذ المحتوى صندوقه" plain column>
+  <tanrei-button variant="outlined" onclick="const place = this.parentElement.querySelector('[data-skeleton-demo]'); const [waiting, arrived] = this.parentElement.querySelectorAll('template'); place.replaceChildren(waiting.content.cloneNode(true)); clearTimeout(place.timer); place.timer = setTimeout(() => place.replaceChildren(arrived.content.cloneNode(true)), 2500)">تحميل</tanrei-button>
+  <div data-skeleton-demo style="inline-size: min(100%, 24rem)"><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">الرموز في ثلاثة مستويات</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">رموز المرجع تحمل القيم الخام. رموز النظام تسمّي الغرض من القيمة. رموز المكوّن تربط جزءًا واحدًا بأحدها.</p></div>
+  <template><tanrei-skeleton label="جارٍ تحميل المقالة"><h3 style="margin: 0 0 0.5rem"><span class="tanrei-skeleton-placeholder" style="inline-size: 60%"></span></h3><p style="margin: 0"><span class="tanrei-skeleton-placeholder" data-lines="3"></span></p></tanrei-skeleton></template>
+  <template><h3 style="margin: 0 0 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">الرموز في ثلاثة مستويات</h3><p style="margin: 0; min-block-size: 3lh; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden">رموز المرجع تحمل القيم الخام. رموز النظام تسمّي الغرض من القيمة. رموز المكوّن تربط جزءًا واحدًا بأحدها.</p></template>
+  <p style="margin: 0">هذا السطر يقع تحت المقالة، ولا يتحرك.</p>
+</DemoFrame>
+
+### الأشكال
+
+| `data-shape` | ينوب عن | حجمه |
+| --- | --- | --- |
+| `text` (الافتراضي) | سطر أو أكثر من النص. | صناديق أسطر عددها `data-lines` من نمط النص الذي يقف فيه. كل سطر شريط ارتفاعه حجم الخط. وآخر الأسطر، حين تتعدد، أقصر، فقلّما تنتهي فقرة عند الحافة. والخاصية `inline-size` تحدّد طول الأشرطة. |
+| `block` | صورة، أو بطاقة، أو عنصر تحكم، أو صف. | الخاصيتان `inline-size` و `block-size`، أو الحجم الذي يعطيه إياه تخطيطك: خلية ممدودة، أو `aspect-ratio`. ومن دون حجم يكون بعرض مكانه وبارتفاع سطر واحد. |
+| `circle` | صورة شخص، أو علامة مستديرة. | ضلع واحد: `block-size`، أو `inline-size`. ومن دون حجم يكون بارتفاع سطر واحد. |
+
+العناصر النائبة التي هي أبناء الهيكل المباشرون تُرصّ واحدًا تحت الآخر، وبينها فجوة مقدارها 8. وكل ما عدا ذلك، كدائرة بجانب سطرين أو شبكة من البطاقات، تخطيطك أنت داخل الهيكل. ليس هناك هيكل جاهز لبطاقة أو لقائمة: شاشاتك لك، ولا يعرفها أحد سواك.
+
+في صف من عندك، يحتاج العنصر النائب للنص أو الكتلة إلى عرض من ذلك الصف، كما سيحتاج المحتوى: `flex: 1`، أو مسار في شبكة، أو قيمة `inline-size`.
+
+### انتظار واحد، إشارة واحدة
+
+ضع كل العناصر النائبة لمنطقة واحدة في هيكل واحد، له قيمة `label` واحدة. والهيكل الذي داخل هيكل آخر صامت.
+
+حيث يقول شيء آخر الانتظار نفسه أصلًا، كمؤشر تحميل في سطر حالة، أو نص حالة، أو منطقة تعلّمها أنت بأنها مشغولة وتسمّيها، عيِّن `decorative`. يُرسم الهيكل عندئذ كما هو ويُحجب عن التقنيات المساعدة، فلا يُقرأ الانتظار مرتين.
+
+<DemoFrame label="سطر حالة يقول الانتظار أصلًا، فالعناصر النائبة التي تحته زخرفية" plain column>
+  <span style="display: flex; align-items: center; gap: 0.5rem"><tanrei-loading-indicator size="small" label="جارٍ البحث" show-delay="0"></tanrei-loading-indicator>جارٍ البحث…</span>
+  <tanrei-skeleton decorative show-delay="0" style="inline-size: min(100%, 20rem)"><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder"></span><span class="tanrei-skeleton-placeholder" style="inline-size: 70%"></span></tanrei-skeleton>
+</DemoFrame>
+
+### ينتظر قبل أن يُعرض
+
+من لحظة إدراجه، ينتظر الهيكل 300 ms قبل أن يُرسم ويُعرَض للتقنيات المساعدة، وصندوقه محجوز من البداية. والانتظار الذي ينتهي قبل ذلك يعرض مكانًا فارغًا كان بالحجم الصحيح من أوله.
+
+- أدرِج الهيكل حين يبدأ الانتظار وأزِله حين يصل المحتوى. تُحسب المهلة من الإدراج. وإخفاء الهيكل لا يبدؤها من جديد.
+- عيِّن `show-delay="0"` حيث يكون الهيكل جزءًا من الظهور الأول لصفحة أو لعرض، وليس فيهما حينئذ شيء آخر يُرى.
+- المهلة انتظار لا حركة: تبقى عند تقليل الحركة.
+
+### ينتهي دائمًا إلى شيء
+
+ضع مكان الهيكل المحتوى، أو [حالة فارغة](/ar/components/empty-state/) حيث لم يأتِ شيء، أو [تنويهًا](/ar/components/callout/) بحالة الخطأ حيث أخفق التحميل. لا يتوقف من تلقاء نفسه بعد مدة أبدًا: أنت من يعرف متى يُكفّ عن الانتظار.
+
+الهيكل لا يُعلِن أن المحتوى وصل. وحيث ينبغي أن يُسمع الوصول، كنتائج جاءت جوابًا عن بحث أو قائمة طُلبت، فقله عبر منطقتك الحيّة (live region) أو عبر نص الحالة في المكوّن الذي طلب. والعرض الذي يُفتح بمحتواه لا يحتاج إلى إعلان.
+
+### الحركة
+
+تنبض العناصر النائبة افتراضيًّا: تخفت التعبئة إلى النصف ثم تعود، وكلها معًا، ومدة النبضة ثانيتان. لا تتغيّر إلا العتامة. لا يتحرك شيء، ولا يُرسم شيء أسطع من التعبئة في سكونها.
+
+يستطيع نظام التصميم أن يختار طريقة أخرى لكل هياكله بالرمز (token) `comp.skeleton.motion.animation`: القيمة `pulse`، أو `wave` (الخفوت نفسه، يعبر الهيكل كله من حافة بدايته إلى حافة نهايته شريطًا واحدًا)، أو `none`. وليس هناك إعداد لهيكل بعينه.
+
+عند تقليل الحركة تسكن العناصر النائبة. الأشكال والتسمية وحالة الانشغال تقول أصلًا إن المكان ينتظر. وما دام الهيكل لا يُرى لا تجري حركته.
+
+### على الويب، قبل السكربت
+
+هيكل التحميل هو ما تعرضه الصفحة قبل أن يعمل سكربتها، ولذلك يرسمه الملف `@tanrei/web/skeleton.css` كاملًا من دون العنصر. وأشياء قليلة تحتاج إلى العنصر، وتختلف إلى أن يُعرَّف أو حيث لا يعمل سكربت أبدًا:
+
+- الدور والاسم. الصفحة التي يجب أن تكون صحيحة قبل أن يعمل سكربتها تكتب `role="progressbar"` و `aria-busy="true"` و `aria-label` على العنصر نفسه، والعنصر يترك ما يجده.
+- قيمة للخاصية `show-delay` غير `0`. ورقة الأنماط تنتظر مهلة نظام التصميم.
+- أكثر من 24 سطرًا في عنصر نائب واحد للنص.
+- الطريقة `wave`، وتُرسم نبضًا.
+- الهيكل الذي داخل عرض مخفي يبدأ انتظاره حين يظهر ذلك العرض.
+
+حيث لا يعمل سكربت أبدًا، لا ينتهي الهيكل ما لم يضع الخادم شيئًا مكانه. والمحتوى الذي لا يصل إلا بسكربت يحتاج إلى عنصر `<noscript>` بجانب هيكله.
+
+### افعل
+
+- أعطِ العناصر النائبة شكل ما سيأتي وحجمه.
+- ضع العناصر النائبة للنص داخل العنصر الذي سيكون فيه النص.
+- استخدم هيكلًا واحدًا، بتسمية واحدة، لانتظار واحد.
+- ضع شيئًا مكانه حين ينتهي الانتظار، أيًّا كان ما انتهى إليه.
+
+### لا تفعل
+
+- لا تضع داخل الهيكل شيئًا ينبغي أن يقرأه الشخص أو يستخدمه. ما يحمله لا يأخذ إدخالًا ومخفيّ عن التقنيات المساعدة. العنوان المعروف أصلًا، والزر الذي يعمل أصلًا، يقفان خارجه.
+- لا تستخدمه لانتظار قصير في عنصر تحكم أو في صف، ولا لإجراء جارٍ. ذلك مؤشر التحميل.
+- لا تغطِّ به محتوى موجودًا أصلًا.
+- لا ترسم صناديق رمادية بيدك.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="skeleton" />
+
+### ما يتكفل به المكوّن
+
+- بعد أن يُعرض، يكون الهيكل عنصرًا واحدًا للتقنيات المساعدة: شريط تقدم (progress bar) بلا قيمة، مشغولًا، اسمه قيمة `label`. يُعرَض للتقنيات المساعدة كما يُعرَض مؤشر التحميل، لأنه يقول الشيء نفسه.
+- عناصره النائبة وعددها وأسطرها لا تُعرَض للتقنيات المساعدة، ولا يُعرَض تخطيط تضعه فيه.
+- ما دام ينتظر أن يُعرض لا يُعرَض للتقنيات المساعدة إطلاقًا. الانتظار الأقصر من المهلة لا يعرض شريط تقدم يظهر ثم يختفي.
+- مع `decorative`، أو داخل هيكل آخر، يُحجب عن التقنيات المساعدة.
+- لا يقبل التركيز وليس موضع توقف في ترتيب التركيز، ولا شيء بداخله كذلك. لا يُعلِن نفسه ولا ينقل التركيز أبدًا.
+- عند تقليل الحركة يسكن. وتبقى المهلة.
+- في الألوان المفروضة يُرسم كل عنصر نائب، وكل سطر نص، حدًّا لشكله بلون النص. التعبئة لا تُرسم في هذا الوضع، والعنصر النائب الذي يختفي كان سيترك مكانًا فارغًا.
+- مع النص المكبَّر يكبر العنصر النائب للنص مع نمط نصه، فيبقى الهيكل حاجزًا الصندوق الذي يأخذه المحتوى المكبَّر. والحجم المعطى رقمًا يبقى كما هو. لا شيء أعرض من مكانه؛ عند عرض 320 ونص مكبَّر إلى 200% لا يُمرَّر شيء أفقيًّا.
+- في التخطيط من اليمين إلى اليسار تقف العناصر النائبة في اليمين، ويبدأ السطر الأخير القصير من اليمين، وتجري الموجة من اليمين إلى اليسار.
+- يُبلَّغ في بنيات التنقيح عن شكل غير معروف، وعن عدد أسطر أو حجم لا يمكن استخدامه، وعن هيكل بلا عنصر نائب، وعن هيكل بلا تسمية.
+
+### ما عليك فعله
+
+- أعطِ قيمة `label` بلغة الصفحة تقول ما الذي يُحمَّل («جارٍ تحميل المشاريع»)، أو أعطِ الكلمة مرة واحدة لكل الهياكل بالاستدعاء `setWords({ loadingLabel: … })`. المكوّن لا يقدّم كلمات من عنده.
+- عيِّن `decorative` حيث يقول شيء آخر الانتظار أصلًا.
+- قل إن المحتوى وصل حيث يكون ذلك خبرًا.
+- لا تدع هيكلًا يقف إلى الأبد. ضع مكانه المحتوى، أو حالة فارغة، أو خطأ.
+- التعبئة زخرفة ولا تُلزَم بأي نسبة تباين. وهي صعبة الرؤية على سطح بأعلى درجات الحاوية. فلا تعتمد عليها وحدها لتقول إن مكانًا ينتظر.

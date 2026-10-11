@@ -1,0 +1,363 @@
+---
+title: Snackbar
+description: Tells a person briefly, at the bottom edge of the screen, what the app just did, with at most one action, without taking focus or interrupting their work.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="snackbar" />
+
+:::note[A revised spec, not yet on every platform]
+This page describes the snackbar as the spec has it now: a bar drawn on a surface of the scheme or inverse, a quiet tonal action, status forms in quiet tints, a title, and text that expands. The web draws all of it. It stays marked lagging above until its inverse status forms have been reviewed and their baselines recorded. SwiftUI, Compose, Flutter and React Native ship an earlier revision, with a text action, no status forms, no title, no expansion and no `inverse`, and their samples show that revision until they catch up. The demos are the web component as it ships today.
+:::
+
+<DemoFrame label="Drawn in place: a message with an action, and one with a close button" column>
+  <tanrei-snackbar message="Conversation archived" action="Undo"></tanrei-snackbar>
+  <tanrei-snackbar message="Connected to the office printer" closable close-label="Close"></tanrei-snackbar>
+</DemoFrame>
+
+### Usage
+
+You don't place a snackbar. You ask a host to show one, and the host queues it, places it at the bottom of its area, times it out and announces it. `show` resolves once that snackbar has closed: with `action` when its action was activated, or with `dismiss` and the reason. So "undo" code reads from top to bottom.
+
+| Platform | The host | Showing a snackbar |
+| --- | --- | --- |
+| Web | `<tanrei-snackbar-host>`, placed as the last element of the page | `host.show(options)`, a promise |
+| SwiftUI | a `TanreiSnackbarHost`, attached with `.tanreiSnackbarHost(_:)` | `await host.show(message:…)` |
+| Compose | `TanreiSnackbarHost(hostState)`, last in a `Box` with the content | `hostState.showSnackbar(message, …)`, a suspending call |
+| Flutter | `TanreiSnackbarMessenger`, around the page it reports on | `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(…))`, a controller whose `closed` is a future |
+| React Native | rendered by `TanreiProvider` in its overlay layer | `useSnackbar().show(options)`, a promise |
+
+Each host also closes the snackbar that is showing (`dismissCurrent`) and drops the waiting ones as well (`clear`), both with the reason `host`. A snackbar element drawn outside a host is drawn in place, centred across the width it is given as a host centres it: no timeout, queue, entrance or announcement. That form is for documentation pages and tests, like the demo above.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- Last on the page: the host's place in the focus order is where the snackbar's controls are. -->
+    <tanrei-snackbar-host></tanrei-snackbar-host>
+
+    <script type="module">
+      import '@tanrei/web/components/snackbar';
+      const snackbars = document.querySelector('tanrei-snackbar-host');
+
+      async function archive() {
+        await archiveConversation();
+        // Resolves once it has closed: { result: 'action' } or { result: 'dismiss', reason }.
+        const { result } = await snackbars.show({ message: 'Conversation archived', action: 'Undo' });
+        if (result === 'action') await restoreConversation();
+      }
+
+      // A status form: the glyph, and the status in words for assistive technology.
+      snackbars.show({
+        status: 'error',
+        statusLabel: 'Error',
+        title: 'Message not sent',
+        message: 'You are offline. The message will stay in Outbox.',
+        action: 'Retry',
+        expandLabel: 'Show full message',
+      });
+
+      // Drawn inverse, whatever the design system chooses. Leave `inverse` out to take the system's choice.
+      snackbars.show({ message: 'Link copied', inverse: true });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useRef } from 'react';
+    import { SnackbarHost } from '@tanrei/react';
+    import type { TanreiSnackbarHost } from '@tanrei/web';
+
+    // The ref is the element: show() is its method.
+    const snackbars = useRef<TanreiSnackbarHost>(null);
+
+    async function archive() {
+      await archiveConversation();
+      const { result } = await snackbars.current!.show({ message: 'Conversation archived', action: 'Undo' });
+      if (result === 'action') await restoreConversation();
+    }
+
+    // A status form, with a title above the message.
+    snackbars.current?.show({ status: 'error', statusLabel: 'Error', title: 'Message not sent', message: 'You are offline.', action: 'Retry' });
+
+    // Drawn inverse, whatever the design system chooses.
+    snackbars.current?.show({ message: 'Link copied', inverse: true });
+
+    // Last in the page, after the content.
+    <SnackbarHost ref={snackbars} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    @State private var snackbars = TanreiSnackbarHost()
+
+    // Attach the host to the view whose bottom edge it uses. It draws in an overlay, not a sheet.
+    ContentView()
+        .tanreiSnackbarHost(snackbars)
+
+    // Returns once the snackbar has closed: .action, or .dismissed(reason).
+    // A request to a host whose view is not on screen waits until it is.
+    let result = await snackbars.show(message: "Conversation archived", actionLabel: "Undo")
+    if case .action = result { restoreConversation() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarHost
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarHostState
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarResult
+
+    // As Material's SnackbarHostState: showSnackbar suspends until the snackbar has closed.
+    val snackbars = remember { TanreiSnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    Box(Modifier.fillMaxSize()) {
+        Content(onArchive = {
+            scope.launch {
+                when (snackbars.showSnackbar("Conversation archived", actionLabel = "Undo")) {
+                    TanreiSnackbarResult.ActionPerformed -> unarchive()
+                    is TanreiSnackbarResult.Dismissed -> Unit
+                }
+            }
+        })
+        // Last in the Box: drawn above the content, and last in the focus order.
+        TanreiSnackbarHost(snackbars, Modifier.fillMaxSize())
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // As ScaffoldMessenger. Put it around the page, inside its route, so a dialog opened above covers it.
+    TanreiSnackbarMessenger(child: page);
+
+    Future<void> archive(BuildContext context) async {
+      await archiveConversation();
+      final TanreiSnackbarController snackbar = TanreiSnackbarMessenger.of(context).show(
+        const TanreiSnackbar(message: 'Conversation archived', actionLabel: 'Undo'),
+      );
+      // Completes with action, close, escape, timeout or host.
+      if (await snackbar.closed == TanreiSnackbarClosedReason.action) {
+        await restoreConversation();
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useSnackbar } from '@tanrei/react-native';
+
+    // The host lives in TanreiProvider's overlay layer: put the provider at the root of your app.
+    const snackbar = useSnackbar();
+
+    async function archive() {
+      await archiveConversation();
+      const { result } = await snackbar.show({ message: 'Conversation archived', actionLabel: 'Undo' });
+      if (result === 'action') await restoreConversation();
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="A message that wraps, and an action on its own row" plain column>
+  <tanrei-snackbar message="Your changes were saved, but the shared copy could not be updated while you were offline." action="Retry"></tanrei-snackbar>
+  <tanrei-snackbar message="Three files could not be uploaded because they are larger than the limit for this folder." action="Review files that failed"></tanrei-snackbar>
+</DemoFrame>
+
+<ComponentSpecs name="snackbar" />
+
+## Guidelines
+
+### When to use
+
+Use a snackbar to confirm something the person just did, when it finished without a screen of its own: "Conversation archived", "Link copied", "Photo saved". Offer at most one action that undoes it or follows up on it.
+
+A snackbar reports; it does not ask. A choice between two actions, an error that blocks the person's work, or anything they must acknowledge belongs in a dialog or next to what it is about. The error form is for a failure the person can come back to, such as "Message not sent" with Retry.
+
+### Snackbar or dialog
+
+Both appear above the page, and they do opposite jobs.
+
+| Aspect | Snackbar | [Dialog](/components/dialog/) |
+| --- | --- | --- |
+| What it does | Reports something that has already happened. | Asks for a decision, or for something to be acknowledged, before the work goes on. |
+| Focus | Never moves. The person keeps working. | Moves into the dialog. The page behind it cannot be used. |
+| How long it stays | A few seconds, or until its action or its close button is used. | Until the person answers. |
+| Actions | One at most, and the message is complete without it. | The answers to its question. |
+
+If people can ignore the message and nothing goes wrong, it is a snackbar. If the app cannot go on without an answer, it is a dialog. A message that belongs to one part of the screen and has to stay visible, such as what is wrong with a field, goes in that place instead, for example as the field's supporting text.
+
+### Parts
+
+| Part | Set with | Notes |
+| --- | --- | --- |
+| Bar | `inverse` | A raised surface of the scheme by default, or the opposite scheme's colors; see [On a surface, or inverse](#on-a-surface-or-inverse). |
+| Status glyph | `status` and `statusLabel` | Optional. A status form draws its glyph before the text; see [Status forms](#status-forms). |
+| Title | `title` (`headline` on the web) | Optional. A short heading above the message, in a heavier style of the message's size. Without it the message stands alone. |
+| Message | `message` | Required. Plain text, one or two short sentences, announced whole. With a title, it is the description, and is drawn a little quieter than the title. |
+| Action | `action` (the label) | Optional: "Undo", "View", "Retry". Drawn as a tonal button: a pill one quiet step off its bar, with its label in the bar's text color. The snackbar draws it with its own tokens, not as a Button. It moves to its own row when the text would need more than two lines beside it, counting the title's and the message's lines together, or when its label would wrap. |
+| Expand button | `expandLabel`, `expanded` | Drawn only while the title or the message is longer than three lines. `expandLabel` is its accessible name, such as "Show full message". |
+| Close button | `closable` and `closeLabel` | Optional. For a message that stays until it is closed, or one people may want gone sooner. `closeLabel` is its accessible name, in your product's language. |
+
+The action, the expand button and the close button sit beside the text's first line. The expand and close buttons are icon-only buttons with the icon set's `expand_more`, `expand_less` and `close` glyphs, round when hovered or pressed.
+
+### The action
+
+The action is a tonal button that sits on its bar. Its container is the bar's own color with a faint layer of the label's color over it, so it is the same quiet step off the bar in every form: on a surface or inverse, with a status or without. The label is the color of the bar's text.
+
+It is tonal because it is usually an undo, and the person who just made the mistake has to see at once that there is a button. A bare text label is easy to miss on the bar.
+
+**Never make it a filled button.** An action important enough to seem to want a filled button does not belong in a snackbar, which disappears and is reached last in the focus order. Put it behind the screen's main action, in a [bottom sheet](/components/bottom-sheet/), instead.
+
+A product may give the action another look. It does that once, for every snackbar, in its design system layer, by giving the action's color tokens and the opacity of its tonal layer other values; there is no per-snackbar variant. The Material and Cupertino presets do exactly that, to keep the text action their originals have.
+
+### Status forms
+
+| `status` | Glyph | Announced | Use for |
+| --- | --- | --- | --- |
+| `default` | None | Politely | Most messages: what the app just did. |
+| `info` | `info` | Politely | Something worth knowing that is not the result of the person's action. |
+| `success` | `check_circle` | Politely | A task that finished well, where the person was waiting for it. |
+| `warning` | `warning` | Assertively | Something that may go wrong unless the person acts. |
+| `error` | `error` | Assertively | A failure the person can come back to, with an action that retries or explains. |
+
+<DemoFrame label="Status forms: info, success, warning and error" column>
+  <tanrei-snackbar status="info" status-label="Information" message="A new version is ready to install." action="Restart"></tanrei-snackbar>
+  <tanrei-snackbar status="success" status-label="Success" message="Backup finished" closable close-label="Close"></tanrei-snackbar>
+  <tanrei-snackbar status="warning" status-label="Warning" headline="Storage almost full" message="Uploads stop when the last 200 MB are used." action="Manage"></tanrei-snackbar>
+  <tanrei-snackbar status="error" status-label="Error" headline="Message not sent" message="You are offline. The message will stay in Outbox." action="Retry"></tanrei-snackbar>
+</DemoFrame>
+
+A status form draws its bar as a quiet tint of the status, with a hairline edge in the status's color around it and the status's glyph, in that color, before the text. The edge takes no space. The default form has no edge of its own, only the one its elevation draws. A status form is never told by color alone: the glyph's shape tells the forms apart, and `statusLabel` gives the status in words, in your product's language ("Error"). The label is read before the title and the message. Warning and error interrupt what is being read; the other forms wait for it.
+
+### On a surface, or inverse
+
+By default a snackbar is drawn on a raised surface of the scheme: the bright surface, lifted by its elevation, that dialogs also stand on, with the scheme's text color. Drawn inverse it takes the opposite scheme's colors, a dark bar in a light scheme, so that it stands apart from whatever it lands on.
+
+<DemoFrame label="Drawn inverse: the default form and the four status forms" plain column>
+  <tanrei-snackbar inverse message="Conversation archived" action="Undo"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="info" status-label="Information" message="A new version is ready to install." action="Restart"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="success" status-label="Success" message="Backup finished" closable close-label="Close"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="warning" status-label="Warning" headline="Storage almost full" message="Uploads stop when the last 200 MB are used." action="Manage"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="error" status-label="Error" headline="Message not sent" message="You are offline. The message will stay in Outbox." action="Retry"></tanrei-snackbar>
+</DemoFrame>
+
+| `inverse` | Drawn |
+| --- | --- |
+| Not set (`null`, the default) | As the design system chooses. The default system chooses a surface; the `m3-like` preset chooses inverse. |
+| `true` | Inverse. |
+| `false` | On a surface, also in a system whose choice is inverse. |
+
+On the web the attribute says which of the three it is: left out it is not set, `inverse` is true, and `inverse="false"` is false. `show()` takes `inverse` as an option.
+
+A status form drawn inverse is that status's form from the other theme, part for part. In a light theme the inverse info bar is the info bar a dark theme draws, with that theme's text, glyph, edge and action; in a dark theme it is the light theme's. The same holds at each contrast level. So an inverse status form uses no color the product does not already draw elsewhere, and its glyph and edge are as vivid as they are on a surface.
+
+Being drawn inverse changes colors and nothing else: the size, the corners, the elevation, the layout, the glyphs, the motion, the timing, the announcement and the keys stay the same. It is a look, not a meaning. Do not use it to say that a message is important; the status forms and `statusLabel` say that. Prefer to decide it once for the product, in its design system layer, so that every snackbar looks like the same kind of message.
+
+### Long text
+
+While collapsed, the title and the message each show at most three lines, and end with an ellipsis where they are cut. An expand button then appears between the action and the close button. Activating it shows the whole text, emits `toggle` with the new `expanded` value (`expandedchange` on the web), keeps focus on the button and does not close the snackbar. The bar grows upward from its bottom edge, at once where motion is reduced. Its content is aligned to the top, so the glyph, the first line and the controls beside it keep their distance from the top edge while the bar grows or shrinks, and an action on its own row keeps its distance from the bottom edge. Your code may also set `expanded`, which emits nothing.
+
+If the expanded text is still taller than the space the host has, the bar takes that height and its text scrolls inside it, while the glyph and the controls stay in place. Assistive technology always gets the whole text, whether it is cut or not.
+
+### Duration
+
+| `duration` | How long it stays by itself |
+| --- | --- |
+| `auto` (default) | `short` without an action. With an action it never times out, so nobody is timed out of it (WCAG 2.2.1). |
+| `short` | Closes after the short timeout (4 seconds in the default system). |
+| `long` | Closes after the long timeout (10 seconds in the default system). |
+| `indefinite` | Stays until the person or your code closes it. |
+
+A timed snackbar pauses while the pointer is over it, while focus is inside it, while it is expanded, while the app is hidden or in the background, and while a Tanrei modal dialog covers it. It then starts again from its whole length. Android's accessibility timeout lengthens it when that is longer, and a snackbar with an action never times out while a screen reader is running. If you time out a snackbar that has an action, also offer that action elsewhere, such as Undo in a menu. Debug builds remind you.
+
+### Showing, focus and closing
+
+A snackbar is a read overlay. People take in its message, so showing it never moves focus.
+
+- **One at a time.** The host shows snackbars in the order they were requested. The next one waits until the last one has faded out. A snackbar requested while a Tanrei modal dialog is open waits until the dialog closes.
+- **Placement.** Bottom centre, a margin above the bottom edge and from the sides, inside the safe area and above the on-screen keyboard. It is drawn above its area's content and below a modal dialog and its scrim.
+- **Announcement.** When it appears, assistive technology reads the status label, the title and the message once, followed by the action's label: politely, after what is being read, or assertively for warning and error. Nothing takes keyboard or screen-reader focus.
+- **Focus.** The action, the expand button and the close button are reached with Tab at the host's place in the focus order, which is why the host goes last. The bar itself is not a Tab stop, except its text while an expanded bar scrolls it.
+- **Closing.** The snackbar closes when its action is activated (`action`), or without it (`dismiss`), for one of these reasons:
+
+| Reason | When |
+| --- | --- |
+| `close` | The close button was activated. |
+| `escape` | Escape was pressed while focus was inside the snackbar. |
+| `timeout` | A `short` or `long` snackbar ran out of time. |
+| `host` | Your code closed it or cleared the queue. |
+
+- **Focus back.** When a snackbar closes while focus is inside it, focus returns to the element that had it before focus entered the snackbar.
+- **Motion.** It rises into place from below the bottom edge while fading in, and fades out in place. Where motion is reduced it fades without moving; on Android, whose setting removes every animation, it appears and disappears at once.
+
+### Do
+
+- Say what happened in the past tense: "Message sent", "3 files moved".
+- Give the action a short verb that people expect after the message: "Undo", "View", "Retry".
+- Choose the status that matches what happened, and give every status form a `statusLabel`.
+- Decide once, for the whole product, whether snackbars are drawn on a surface or inverse.
+- Keep the text short enough that it rarely needs the expand button.
+- Keep the default `auto` duration unless you have a reason. It never times anyone out of an action.
+- Put the host last on the page or in the layout, so its controls come last in the focus order.
+
+### Don't
+
+- Don't use a snackbar for errors that block the task or for questions. Use a dialog.
+- Don't put two actions in a snackbar. It has room for one.
+- Don't make the action a filled button, or put an action that seems to need one in a snackbar. Use a bottom sheet from the main action.
+- Don't use the warning or error form for routine confirmations. They interrupt the screen reader.
+- Don't draw a snackbar inverse to mark it as important. Inverse changes colors only; a status says what kind of message it is.
+- Don't show a snackbar for something the screen already shows clearly.
+- Don't move focus to a snackbar or its action. It must not take people away from their work.
+
+## Accessibility
+
+<ComponentAccessibility name="snackbar" />
+
+### What the component handles
+
+- The snackbar is announced through a live region: a polite one (the status role on the web) for the default, info and success forms, and an assertive one (the alert role) for warning and error. Its status label, title and message, then its action's label, are announced once when it appears, and always whole, even when the text is cut. On SwiftUI, Compose, Flutter and React Native the platform's own announcement is used, at high priority for warning and error, and none of them takes focus.
+- A status form is never told by color alone: it draws the status's glyph and exposes `statusLabel` as text before the title. The glyph itself is hidden from assistive technology, and so are the expand and close glyphs.
+- The action is named by its label, the expand button by `expandLabel` and the close button by `closeLabel`. All are reached with Tab at the host's place in the focus order, and activated with Enter or Space.
+- The expand button exposes whether the text is expanded, and keeps the same name in both states. An expanded bar whose text scrolls makes the text a focus stop, named by the title and scrolled with the arrow keys and Page Up and Page Down.
+- Escape closes the snackbar while focus is inside it. When it closes with focus inside, focus returns to where it was before.
+- A snackbar with an action does not time out by default. Timed snackbars pause while hovered, focused or expanded, lengthen to Android's accessibility timeout and, with an action, never time out while a screen reader runs.
+- The action and the close button meet the minimum target on both axes without changing their drawn size. Their focus ring shows for keyboard focus only, in a color of the snackbar's form, so that it is visible on every bar: a surface, a status's tint and an inverse bar.
+- The parts that are drawn softer keep their contrast against the bar in every scheme of the default system: the status glyph at least 3:1, and a message under a title at least 4.5:1, or 7:1 in the high-contrast schemes. The softening is a matter of color only; what assistive technology reads does not change, and neither does it when the snackbar is drawn inverse.
+- Larger text never hides text for good: a collapsed title or message ends with an ellipsis at three lines and the expand button shows the rest, the action moves to its own row, and an expanded bar taller than the window scrolls.
+- Before the icon font has loaded, no glyph's name is ever drawn as text: the glyph's place stays empty until the font can draw it.
+- Debug builds report an empty message, a close button without `closeLabel`, a status form without `statusLabel`, an expand button without `expandLabel`, and a timed snackbar that has an action.
+
+Known platform gaps:
+
+- Web: the browser does not say whether a screen reader is running and has no accessibility timeout, so neither lengthens a timed snackbar. The default `auto` duration is what keeps an action reachable.
+- Web: keeping clear of the on-screen keyboard has not yet been checked on a device that has one.
+- SwiftUI cannot return focus to the element that had it: when a snackbar closes with focus inside, focus goes where SwiftUI moves it for a removed view. A host inside a view you host outside a scene, such as your own `NSHostingView`, never runs its timeouts.
+- Compose cannot name the element that had focus before it entered the snackbar. When the snackbar closes around the focus, focus moves back out the way it came in: after tabbing in, to the element before the host. When your code closes it while focus is inside, focus does not move.
+- Compose: lengthening to Android's accessibility timeout and pausing while the window is hidden are not yet covered by a test.
+- Compose: the polite announcement, the pause while the window has no focus and the accessibility timeout have been tested on Robolectric only, not yet on a device.
+- Flutter does not yet lengthen a timed snackbar to Android's accessibility timeout, which Flutter does not expose.
+- React Native cannot tell which element had focus before. When a snackbar closes while focus is inside it, focus goes where the platform puts it.
+- React Native has no safe-area API of its own. The snackbar keeps inside the safe area only when you pass the window's insets to `TanreiProvider`; without them, on a phone with a home indicator it may sit partly over it.
+- React Native decides that the action moves to its own row from the laid-out lines, so the move happens after the first layout pass.
+- React Native: the polite announcement, keeping above the keyboard, and the pauses for the background and the pointer have not yet been checked on a device.
+
+### What you need to do
+
+- Write the message as plain text that makes sense on its own when read aloud.
+- Give the close button a `closeLabel`, a status form a `statusLabel`, and a snackbar whose text may run long an `expandLabel`, all in your product's language.
+- Place the host last on the page, or last in the layout on Compose.
+- On React Native, pass the window's `insets` to `TanreiProvider`, so the snackbar keeps clear of the system bars.
+- If you choose `short` or `long` for a snackbar with an action, offer the same action somewhere that does not time out.
+- Put anything people must act on in a dialog, not a snackbar.

@@ -1,0 +1,177 @@
+---
+title: Tipografía
+description: Dieciséis estilos de texto nombrados por nivel (un display, seis títulos, tres tamaños de cuerpo, etiquetas, código y un antetítulo), compuestos en Inter, con el énfasis como un paso de peso y no como un rol.
+translationOf: foundations/typography.mdx
+sourceHash: 38d922451dfd9cd1a80258e6c8a1dde715285f89
+---
+
+import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Los estilos de texto de Tanrei se nombran por el **nivel** que un texto tiene en una página, no por una clase de tamaño. Hay dieciséis roles: un `display`, de `heading-1` a `heading-6`, tres tamaños de texto corrido, tres roles para el texto que va dentro de los controles y junto a ellos, dos para código y un `eyebrow`. Un `h2` es `heading-2`; un párrafo es `body`; el texto de un botón es `label`. Nadie tiene que recordar cuál de tres roles de catorce píxeles corresponde al encabezado de una tabla.
+
+Un rol es un estilo tipográfico completo: familia, tamaño, peso, interlineado y espaciado entre letras. Los componentes se vinculan a roles, nunca a tamaños en bruto, y una [capa](/es/foundations/design-systems/) da nuevos valores a un rol sin cambiarle el nombre.
+
+## Los dieciséis roles
+
+| Rol | Valor predeterminado | Uso |
+| --- | --- | --- |
+| `display` | 48px · 450 · tipo de marca | El único tamaño de cabecera: el mensaje de una pantalla de inicio, una pantalla de bienvenida. No es un nivel de título. |
+| `heading-1` | 32px · 500 · tipo de marca | `h1`, el título de la página. |
+| `heading-2` | 24px · 500 · tipo de marca | `h2`, una sección. |
+| `heading-3` | 20px · 500 · tipo de marca | `h3`, una subsección. |
+| `heading-4` | 18px · 500 | `h4`, un grupo dentro de una sección. |
+| `heading-5` | 16px · 500 | `h5`, y el título de una tarjeta, de un diálogo o de un elemento de lista. |
+| `heading-6` | 14px · 500 | `h6`, y el encabezado de una tabla o de una sección de formulario. |
+| `body-large` | 16px · 400 | Texto de entrada y lectura larga. |
+| `body` | 14px · 400 | `p`: el texto predeterminado de una interfaz. |
+| `body-small` | 13px · 400 | `small`: texto secundario, un paso por debajo. |
+| `label` | 14px · 500 | Texto dentro de los controles y junto a ellos: botones, campos de entrada, navegación. |
+| `label-small` | 12px · 500 | Chips, insignias, controles densos. |
+| `caption` | 11px · 500 | Texto de ayuda, metadatos, marcas de tiempo. |
+| `code` | 13px · 400 · mono | `code` y `pre`. |
+| `code-small` | 12px · 400 · mono | Código dentro de una interfaz densa. |
+| `eyebrow` | 12px · 500 · con espaciado entre letras | El antetítulo de una sección, encima de un título; el componente lo pone en mayúsculas. |
+
+Cada familia es estrictamente monótona en tamaño: ningún título es más pequeño que el título del nivel siguiente, y ningún rol de cuerpo es más pequeño que el rol de cuerpo siguiente. Donde un título y un rol de cuerpo comparten tamaño (`heading-6` y `body` miden ambos 14px; `heading-5` y `body-large`, ambos 16px), la regla del sistema predeterminado cabe en una frase: **los títulos pesan 500, el cuerpo pesa 400.** Un preajuste define sus propios pesos (el `heading-1` de `m3-like` es el 400 de Material).
+
+Elige el nivel que tiene el texto, no el tamaño que quieres. Un `h2` que debe verse pequeño sigue siendo `heading-2`; un producto que quiere títulos de sección más pequeños da un nuevo valor a `heading-2` en su capa, y todos los `h2` lo siguen.
+
+### Elementos de HTML y Markdown → roles
+
+| Elemento | Rol |
+| --- | --- |
+| `h1` … `h6` | `heading-1` … `heading-6` |
+| `p`, `li`, `td` | `body` (`body-large` en la prosa con su tamaño de lectura) |
+| Un párrafo de entrada | `body-large` |
+| `small` | `body-small` |
+| `code`, `pre` | `code` |
+| `strong`, `b` | el rol en el que se encuentra, con el peso de énfasis |
+| `button`, `input`, `label` | `label` |
+| Un antetítulo encima de un título | `eyebrow` |
+
+En la web, `@tanrei/web/text.css` da a cada rol una clase de utilidad, `.tanrei-text-<role>`, que define los cinco campos del rol; `.tanrei-text-emphasized`, en el mismo elemento o en un descendiente, cambia al peso de énfasis. Lee las propiedades personalizadas del sistema activo, así que sigue a `data-tanrei-system`, a los diales y a un rol con nuevos valores.
+
+```html
+<h2 class="tanrei-text-heading-2">Sección</h2>
+<p class="tanrei-text-body">Texto corrido con <strong class="tanrei-text-emphasized">énfasis</strong>.</p>
+```
+
+### Prosa: el texto que no has maquetado tú
+
+Un artículo de ayuda, unas notas de versión, unas condiciones, un mensaje escrito en Markdown, una página de un CMS: el producto no coloca ese texto pieza a pieza, y aun así tiene que leerse como un mismo texto con el resto de la interfaz. La **prosa** es la parte del sistema que se ocupa de ello: la tabla anterior aplicada a lo que produzca un renderizador, con un único ritmo vertical y un límite para la longitud de línea. Da estilo y espacio; no analiza. Tanrei no incluye un analizador de Markdown en ninguna plataforma.
+
+En la web es una clase de `@tanrei/web/prose.css`. Esta página está dibujada con ella.
+
+```html
+<article class="tanrei-prose">…h1, p, ul, blockquote, hr…</article>
+<article class="tanrei-prose" data-size="large">…</article>
+```
+
+- **Dos tamaños.** `medium` compone el texto corrido en `body`, para la prosa entre controles: un panel, un diálogo, una tarjeta. `large` lo compone en `body-large`, para una página cuyo propósito es el texto. Los títulos son los mismos en ambos.
+- **Un solo espacio entre dos vecinos.** Los bloques están separados por un espacio; un título tiene más espacio antes que después, de modo que pertenece a lo que le sigue; un título que va justo debajo de otro toma el espacio del de arriba. Los espacios nunca se suman, y el primer bloque y el último no tienen ninguno.
+- **Una medida.** Los bloques de texto miden como máximo 36 em del texto corrido de ancho: entre unos 72 y 80 caracteres latinos, o 36 japoneses. Una tabla, un bloque de código, una figura o cualquier componente colocado en el flujo ocupa todo el ancho. `data-measure="false"` levanta el límite donde el contenedor ya es estrecho.
+- **Sin color de texto.** La prosa toma el color de contenido de la superficie sobre la que está, así que el mismo texto se lee en una página, en una tarjeta y en un aviso.
+- **Los componentes siguen siendo ellos mismos.** Lo que está dentro de un elemento de Tanrei, o dentro de una parte marcada con `tanrei-not-prose`, no recibe estilo de la prosa; la prosa solo lo espacia.
+- **Los enlaces van subrayados en reposo**, para que el color por sí solo nunca sea lo que distingue un enlace del texto que lo rodea.
+- **Idiomas.** Las líneas en japonés y en chino se dividen según sus propias reglas; el énfasis en chino, japonés y coreano es recto y con el peso de énfasis, porque esas escrituras no tienen cursiva; sus títulos se componen sin el espaciado entre letras negativo de los títulos latinos. La dirección es la del lugar: un diseño de derecha a izquierda pone a la derecha las sangrías de las listas, la línea de una cita y el borde del texto.
+
+Un título puede llevar un ancla: un enlace a sí mismo, después del final de su texto, que se muestra cuando el cursor pasa por el título o el enlace tiene el foco, y que se muestra siempre donde no hay cursor:
+
+```html
+<div class="tanrei-prose-heading">
+  <h2 id="install">Instalación</h2>
+  <a class="tanrei-prose-anchor" href="#install" aria-label="Enlace a: Instalación">…</a>
+</div>
+```
+
+Cada valor es un token `comp.prose.*`, así que una capa puede reorientar el ritmo sin tocar un margen. El comportamiento está escrito en `specs/prose.spec.json`; la web lo implementa primero, y las demás plataformas la siguen.
+
+## El énfasis es un peso, no un rol
+
+Para destacar un texto sin cambiar su nivel (la pestaña seleccionada, una cifra clave, un `strong` dentro de un párrafo), una plataforma dibuja el rol con su peso más un **paso** propio de su familia. Los cuatro pasos son tokens:
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />
+
+Tanrei suma 100 a todas las familias, así que un `heading-1` con énfasis es 600 y un `body` con énfasis es 500. Un sistema de diseño que destaca de forma distinta según la familia define los cuatro números: `m3-like` suma 200 a las etiquetas, como hacen los estilos de etiqueta con énfasis de Material; `cupertino` suma 200 a los títulos, al cuerpo y a las etiquetas. La familia de un rol es el primer segmento de su nombre; `caption`, `code`, `code-small` y `eyebrow` toman el paso de las etiquetas.
+
+Todas las plataformas exponen el mismo modificador: `emphasized` en la API de estilos de texto (`.tanreiTextStyle(system.typescale.heading1, emphasized: true)` en SwiftUI; `typescale.heading1.emphasized()` en Compose, o `emphasized(system.typescale.emphasis)` fuera de la composición; `theme.textStyle(system.typescale.heading1, emphasized: true)` en Flutter; `text('heading1', { emphasized: true })` de `useTanrei()` en React Native; `--tanrei-sys-typescale-<role>-font-weight-emphasized` y `.tanrei-text-emphasized` en la web). No hay roles con énfasis que nombrar ni una segunda escala que mantener al día.
+
+## Tipos de letra
+
+Las familias predeterminadas son **Inter** para el texto latino, **Noto Sans JP** para el japonés y **Roboto Mono** para el código, todas con licencia abierta (SIL OFL 1.1 y Apache-2.0). La pila continúa con Noto Sans para otras escrituras y después con la fuente de interfaz del sistema, así que el texto se degrada con elegancia donde las fuentes no están cargadas. Un producto que se publica en más escrituras añade a la pila, en su capa, la familia Noto de cada una (Noto Sans KR, SC, TC, Arabic, Devanagari, Thai); para el chino, el japonés y el coreano, define también `lang` en la página, porque los tres comparten puntos de código y el orden de las fuentes decide qué formas de glifo aparecen. Tanrei no incluye archivos de fuentes; [los aporta el producto](#referenciados-por-nombre-nunca-incluidos).
+
+<TokenNotes tokens={['ref.typeface.brand', 'ref.typeface.plain', 'ref.typeface.mono']} source={['tokens/ref/typeface.tokens.json']} />
+
+## Tipos de letra por sistema de diseño
+
+Los tipos de letra pertenecen al sistema de diseño. Los roles se construyen sobre tres pilas (`ref.typeface.brand` para `display` y de `heading-1` a `heading-3`; `plain` para los títulos más pequeños, el texto corrido, las etiquetas y el antetítulo; `mono` para el código), y una [capa](/es/foundations/design-systems/) cambia el tipo de letra en todas partes dando un nuevo valor a una pila. Esto es lo que resuelven los sistemas incluidos:
+
+<SystemValues tokens={['ref.typeface.brand', 'ref.typeface.plain', 'ref.typeface.mono']} />
+
+Así es como `m3-like` compone su texto en Roboto:
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.brand": { "$value": ["Roboto", "system-ui", "sans-serif"], "reason": "El tipo de letra predeterminado de Material Design 3; Roboto tiene licencia OFL." },
+  "tanrei.ref.typeface.plain": { "$value": ["Roboto", "system-ui", "sans-serif"], "reason": "El tipo de letra predeterminado de Material Design 3; Roboto tiene licencia OFL." },
+  "tanrei.ref.typeface.mono":  { "$value": ["Roboto Mono", "ui-monospace", "monospace"], "reason": "El compañero monoespaciado de Roboto (OFL)." }
+}
+```
+
+Los componentes no se tocan: se vinculan a roles, y los roles hacen referencia a las pilas.
+
+### Cómo se lee una pila
+
+Una pila se escribe como la escribe CSS, porque esa es la forma que entiende toda herramienta de diseño. Solo la web puede usarla tal como está escrita, así que la compilación lee cada pila una vez y entrega a todas las plataformas los mismos cuatro datos:
+
+| Campo | Significado |
+|---|---|
+| `stack` | la lista tal como está escrita |
+| `families` | las familias *con nombre*, en orden: las que un producto puede instalar o registrar |
+| `generic` | la clase de fuente a la que se recurre: `sans-serif`, `serif` o `monospace` |
+| `system` | `true` cuando la pila pide la fuente propia de la plataforma antes que cualquier familia con nombre |
+
+La pila `brand` predeterminada, `Inter, Noto Sans JP, Noto Sans, system-ui, sans-serif`, se lee como las familias Inter, Noto Sans JP y Noto Sans, `generic` `sans-serif` y `system` false: `system-ui` viene después de las familias con nombre, así que es solo el recurso final. La pila de `cupertino` empieza por `-apple-system`, así que se lee como `system` true con Inter como única familia con nombre: primero la fuente propia de la plataforma, e Inter donde una plataforma no tiene tal noción.
+
+Una plataforma usa las familias con nombre en orden y, después, su propia fuente de la clase `generic`; cuando `system` es true, su propia fuente va primero. Las plataformas no interpretan por sí mismas `system-ui`, `ui-monospace` ni las palabras clave genéricas.
+
+### Referenciados por nombre, nunca incluidos
+
+Tanrei no distribuye archivos de fuentes, para ningún sistema de diseño. Una pila es una lista de nombres, y el producto aporta las fuentes que hay detrás de los nombres que quiere. Una familia que no está se omite, así que el texto se sigue representando con la familia siguiente o con la fuente de la plataforma, sin cambios en el tamaño, el peso, el interlineado ni el espaciado entre letras del rol.
+
+| Plataforma | Cómo aporta un producto una familia con nombre |
+|---|---|
+| Web | Cárgala con exactamente ese nombre de familia: tu propio `@font-face`, Google Fonts o un paquete de fuentes. |
+| SwiftUI | Añade los archivos de fuentes a la aplicación y regístralos (`UIAppFonts` / `ATSApplicationFontsPath`, o `CTFontManagerRegisterFontsForURL`). |
+| Jetpack Compose | Coloca las fuentes en los recursos de fuentes de la aplicación y asócialas a los nombres con `TanreiFontFamilies`, que se pasa a `TanreiTheme`. |
+| Flutter | Declara los archivos de fuentes en el `pubspec.yaml` de la aplicación con los mismos nombres de familia. |
+| React Native | Enlaza los archivos de fuentes (`npx react-native-asset`, o `expo-font`). React Native no tiene lista de fuentes alternativas y elige un archivo por peso, así que pasa `resolveFont` a `TanreiProvider` cuando tus fuentes estén registradas con un nombre por peso. |
+
+Las guías de primeros pasos y el README de cada paquete tienen los detalles. Comprueba la licencia de un tipo de letra antes de distribuirlo: los predeterminados tienen licencia abierta, y `cupertino` se refiere a las fuentes de Apple solo por palabra clave o por nombre, porque no pueden incluirse ni usarse en otras plataformas; en las demás recurre a un tipo de letra con licencia abierta.
+
+## Cómo los preajustes dan nuevos valores a la escala y la extienden
+
+Un preajuste que imita otro sistema de diseño conserva los dieciséis nombres y les da los valores de ese sistema; donde su origen tiene un estilo que el núcleo no nombra, *extiende* el vocabulario con un rol propio. Los nombres nunca se mueven, así que un producto construido sobre `tanrei` pasa a `m3-like` sin tocar un solo título.
+
+- **`m3-like`** da nuevos valores a todos los roles a partir de la escala tipográfica de Material Design 3 (`heading-1` toma el *headline large* de Material, `body` su *body medium*, `label` su *label large*) y añade `display-large` (57px) y `display-small` (36px), porque Material tiene tres tamaños de display y un producto necesita uno. Sus pasos de énfasis son los de Material: 100 en display, títulos y cuerpo, y 200 en las etiquetas. El arnés de fidelidad mide todos los estilos de texto que publica Material, los treinta, incluidos los de énfasis, junto con los roles de color y Button: de 288 tokens medidos, 273 son iguales, 14 están cubiertos por otro token, 1 no tiene correspondencia y está amparado por una laguna de imitación registrada, y ninguno es distinto. En la [página de sistemas de diseño](/es/foundations/design-systems/) se muestra como 273 / 274, porque no cuenta los cubiertos. Las cifras se leen de `tokens/generated/m3-like/fidelity.json`, que la compilación reescribe.
+- **`cupertino`** da nuevos valores a todos los roles a partir de los once estilos de texto de iOS de Apple, de Large Title a Caption 2, y añade los tres que el núcleo no nombra: `body-callout`, `body-subhead` y `caption-small`. Sus pasos de énfasis son 100 en display y 200 en lo demás, que es la distancia entre los estilos normal y con énfasis de Apple.
+
+Un rol que añade un preajuste es un token corriente en todas las plataformas: el `display-large` de `m3-like` es `--tanrei-sys-typescale-display-large-font` en la web y un miembro de la escala tipográfica en cada paquete nativo. La vista previa de Theme Studio lo dibuja en la escala de tipos junto a los dieciséis.
+
+## Carácter
+
+- **El display y los títulos van apretados.** El texto grande se compone con espaciado entre letras negativo (−0.04em en `display`, −0.03em en `heading-1`, que se reduce hasta −0.01em en `heading-5`), lo que mantiene serenos los títulos grandes; `display`, con peso 450, se mantiene ligero.
+- **Los tamaños pequeños se abren.** `body-small`, `label-small`, `caption` y `eyebrow` llevan un ligero espaciado entre letras positivo para que el texto de 11–13px siga siendo legible.
+- **Los pesos son números.** Como Inter es una fuente variable, pesos como 450 son válidos y se conservan en todas las plataformas que admiten ejes variables. Los pasos de énfasis son números por la misma razón: 450 + 100 es un peso real.
+- **El tipo mono es para el código.** `code` y `code-small` usan Roboto Mono. El `eyebrow` se compone en el tipo plain: pequeño, con espaciado entre letras amplio y puesto en mayúsculas por el componente, nunca por el token.
+
+## Idiomas
+
+Los interlineados se eligen para que el texto que mezcla escritura latina y CJK no se recorte, y el japonés hereda los mismos roles. El espaciado entre letras negativo es un recurso de la escritura latina; cuando un título está sobre todo en japonés, es preferible un espaciado neutro, como hace este sitio.
+
+## Escalado
+
+Los tamaños de texto se expresan en unidades relativas en la web (`rem`) y se escalan con el ajuste de tamaño de texto del usuario en todas las plataformas. Los diseños deben tolerar el texto al 200%: los contenedores crecen, y las etiquetas se dividen en varias líneas antes de truncarse. Cada tamaño es un coeficiente sobre `dial.type.base` con `dial.type.contrast` como exponente, de modo que un dial mueve toda la escala y el otro separa los títulos del cuerpo.
+
+Consulta todos los roles con muestras en vivo en la [referencia de la escala tipográfica](/es/tokens/typescale/).

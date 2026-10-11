@@ -1,0 +1,296 @@
+---
+title: "代码块"
+description: "供人阅读、比较和复制的多行代码，使用代码字体，在自身内部滚动或换行，可带页眉、行号、带标记的行、提示符和复制按钮。给出代码和它的语言，它就会自己为代码做语法高亮。"
+translationOf: components/code-block.mdx
+sourceHash: 3f2cb34d6a6385776faace656f870690072e864d
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+export const runs = (list) => list.map(([text, syntax]) => (syntax ? <span data-syntax={syntax}>{text}</span> : text));
+
+export const footer = `// 表单的页脚：一个主操作，一条退路。
+import { Button } from '@tanrei/react';
+
+type FooterProps = { onSave: () => void; busy: boolean };
+
+export function Footer({ onSave, busy }: FooterProps) {
+  const retries = 3;
+  return (
+    <footer className="footer">
+      <Button variant="text">取消</Button>
+      <Button disabled={busy} onClick={onSave}>保存</Button>
+    </footer>
+  );
+}`;
+
+export const given = [
+  ['{', 'punctuation'], ['\n  '], ['"name"', 'property'], [':', 'punctuation'], [' '], ['"acme"', 'string'], [',', 'punctuation'], ['\n  '],
+  ['"dials"', 'property'], [':', 'punctuation'], [' '], ['{', 'punctuation'], [' '], ['"size.unit"', 'property'], [':', 'punctuation'], [' '], ['4', 'constant'], [' '], ['},', 'punctuation'], ['\n  '],
+  ['"compact"', 'property'], [':', 'punctuation'], [' '], ['false', 'constant'], ['\n'],
+  ['}', 'punctuation'],
+];
+
+## 概览
+
+<ComponentAvailability name="code-block" />
+
+<DemoFrame label="标题、语言标签和复制按钮；代码根据它的语言高亮" column>
+  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制">
+    <pre><code>{footer}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+代码块显示供人阅读、比较和复制的代码。句子里的一个名称或一条命令用[行内代码](../inline-code/)。
+
+**代码块自己做语法高亮。** 把代码和它的 `language` 交给代码块，它就根据令牌给代码上色：不用安装语法高亮器，也不用编写主题或样式表。所以代码和页面上的其他一切一样，跟随配色方案、对比度级别和设计系统。高亮只涉及颜色和字重，别无其他：字符、行、选中的内容、复制的内容，以及屏幕阅读器朗读的内容，有没有高亮都一样。
+
+### 用法
+
+在 Web 上，代码留在你的文档里，是一个普通的 `<pre><code>`。没有脚本它也在那里：脚本加载失败的读者、搜索引擎和页面内查找都读得到。元素负责绘制它周围的框。加载 `@tanrei/web/code.css`，可以在元素定义之前就给代码块加上填充、圆角、内边距和字体。
+
+SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <tanrei-code-block
+      title="sizes.js"
+      language="js"
+      language-label="JavaScript"
+      copy
+      copy-label="复制"
+      copied-label="已复制"
+      copy-failed-label="无法复制"
+    >
+      <pre><code>const sizes = ['small', 'medium', 'large'];</code></pre>
+    </tanrei-code-block>
+
+    <!-- 行号、带标记的行、提示符。 -->
+    <tanrei-code-block label="示例" line-numbers start-line="96" highlighted-lines="98, 100-101" highlighted-label="高亮">
+      <pre><code>…</code></pre>
+    </tanrei-code-block>
+
+    <tanrei-code-block label="安装" prompt="$" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制">
+      <pre><code>npm install @tanrei/web</code></pre>
+    </tanrei-code-block>
+
+    <script type="module">
+      import '@tanrei/web';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CodeBlock } from '@tanrei/react';
+    import '@tanrei/web/code.css';
+
+    {/* 元素会把代码排成一行一行，所以让它拥有代码：把文本传给它。 */}
+    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="复制" copiedLabel="已复制" copyFailedLabel="无法复制" />
+    ```
+  </TabItem>
+</Tabs>
+
+`language` 是一个标识符（`tsx`、`css`、`sh`）：代码块依据它来高亮，它本身不会被画出来。页眉里的文字是 `language-label`。由脚本构建的代码块不放 `<pre><code>`，而是设置 `code` 属性，元素会自己写出 `<pre><code>`。
+
+## 规格
+
+<DemoFrame label="Filled 和 outlined，medium 和 small" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" label="示例"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="行号、一行高亮，以及新增和删除的行" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="高亮" removed-lines="4" added-lines="5" removed-label="已删除" added-label="已新增" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="长行在代码块内部滚动，或者换行" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="示例" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>取消</tanrei-button><tanrei-button variant="filled" @click=\${save}>保存更改</tanrei-button></footer>\`;\n\n// 上面是一整行：它放不下，但绝不截断。`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" label="示例" wrap line-numbers><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>取消</tanrei-button><tanrei-button variant="filled" @click=\${save}>保存更改</tanrei-button></footer>\`;\n\n// 上面是一整行：它放不下，但绝不截断。`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="提示符，以及显示行数的上限" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="安装" prompt="$" language="sh" language-label="Shell" copy copy-label="复制" copied-label="已复制" copy-failed-label="无法复制"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+**两种外观。** `filled` 是柔和的填充，用于页面上的代码。`outlined` 没有填充，只有一道细线围着，用于已有填充的卡片或面板里的代码。
+
+**主体。** 默认情况下，行绝不会被折断。放不下的行在代码块内部滚动，页面绝不横向滚动。`wrap` 则改为折行，续行从代码下方开始，而不是从行号下方开始。`max-lines` 按行数限制高度，其余部分在代码块内部滚动。
+
+**复制按钮**始终绘制，绝不只在悬停时出现。它绝不会盖住无法从它下面移开的代码：滚动的主体会在末尾多出这么多空间，折行的各行则在它所在的那一列之前停下。它把代码复制为纯文本，不含行号、提示符、符号和已删除的行。手动选中后复制的，正是选中的那些字符。
+
+**带标记的行**绝不只靠颜色来标记。
+
+| 行 | 左边缘的竖条 | 色带 | 符号 | 在该行之前朗读 |
+| --- | --- | --- | --- | --- |
+| 高亮 | 有 | 有 | | `highlighted-label` |
+| 新增 | 有 | | + | `added-label` |
+| 删除 | 有 | | − | `removed-label` |
+
+行的列表由逗号分隔的数字和范围组成（`"3, 7-9"`）。它们按读者看到的行号计数，从 `start-line` 算起。
+
+**从右到左。** 代码始终从左到右：在任何布局中，行、行号和滚动的起点都在左侧。只有外框会镜像，所以标题移到右侧，复制按钮移到左侧。
+
+<ComponentSpecs name="code-block" />
+
+### 语法高亮
+
+颜色有三个来源，按以下顺序取用。
+
+1. **你提供的片段。** 在生成页面时已经高亮的代码，或者由你选定的语法高亮器高亮的代码。它们按原样绘制；无论 `language` 和 `highlight` 是什么，代码块都不会再次高亮这段代码。
+2. **代码块自己的语法高亮器**：`highlight` 为 true，`language` 指的是它认识的语言，并且代码长度不超过 `comp.code-block.syntax.max-length`（50,000 个字符）时使用。
+3. **普通文本**：其他所有情况。
+
+代码会立即以普通文本绘制。颜色稍后在同一帧里一次到位，不会移动任何东西。代码发生变化时会重新读取；在末尾不断增长的代码，保留已有的颜色。
+
+| `language` | 结果 |
+| --- | --- |
+| `html`、`xml`、`svg`、`css`、`javascript`（`js`、`mjs`、`cjs`、`jsx`）、`typescript`（`ts`、`tsx`）、`json`（`jsonc`）、`shell`（`sh`、`bash`、`zsh`）、`swift`、`kotlin`（`kt`）、`dart` | 高亮。不区分大小写。 |
+| 空、`text`、`plain`、`plaintext` | 普通文本。不报告任何内容。 |
+| 其他任何值 | 普通文本。调试构建会报告一次这个未知的语言。 |
+
+代码块绝不猜测语言：不根据代码，不根据 `title`，也不根据 `language-label`。简短的代码有歧义，猜错了就会给代码上错颜色。
+
+**关闭高亮。** `highlight="false"` 为单个代码块关闭它自己的语法高亮器。你提供的片段仍然会绘制。
+
+**长度上限。** 长度超过 `comp.code-block.syntax.max-length` 的代码整段以普通文本绘制，绝不只高亮一半。设计系统可以更改这个值。
+
+**有新增和删除的行时**，代码块把代码读作它包含的两段文本：更改之后的代码决定未删除各行的颜色，更改之前的代码决定已删除各行的颜色。一个开启了字符串的已删除行，不会让后面的内容上错颜色。
+
+**失败时不声张。** 语法高亮器无法加载、抛出异常，或者它的片段拼接起来与代码不完全一致时，代码保持普通文本。页眉、复制按钮、行和标记照常工作。
+
+这些文法是有意做小的。它们用于展示代码，而不是编辑代码。在语言本身难以解析的地方，它们可能把某个片段的颜色上错，但绝不会丢掉任何一个字符。
+
+### 在生成页面时高亮
+
+在构建阶段生成页面的网站，可以在构建时高亮。这样颜色在首次绘制时就已经在那里，浏览器也不用加载语法高亮器。`highlightToHtml` 就是元素使用的那个函数，它可以在 Node 中运行。
+
+```js
+import { highlightToHtml } from '@tanrei/web/highlight';
+
+const html = await highlightToHtml(source, 'tsx');
+// <tanrei-code-block language="tsx"><pre><code data-syntax-of="tsx">${html}</code></pre></tanrei-code-block>
+```
+
+`<code>` 上的 `data-syntax-of` 说明这段代码已经高亮过。元素按原样绘制它，不导入任何东西。
+
+### 使用你自己的语法高亮器
+
+`@tanrei/web/highlight` 是一个独立的模块，没有任何依赖。元素在某个代码块第一次需要它时导入它，并在某种语言第一次被用到时导入该语言的文法。
+
+| 导出 | 作用 |
+| --- | --- |
+| `highlight(code, language)` | 返回片段；语言不认识时返回 `null`。某种语言第一次使用时返回 Promise，之后返回值。 |
+| `highlightToHtml(code, language, { lines })` | 返回 `<code>` 的内部 HTML。带 `lines` 时，每行一个 `<span data-line>`。 |
+| `registerLanguage(names, grammar)` | 添加一种语言，或替换一种语言。文法是数据：若干具名的状态，每个状态是一组规则，每条规则有一个模式、一个角色，以及要进入或离开的状态。它也可以是一个导入文法的函数。 |
+| `loadLanguage(language)` | 赶在该语言的第一段代码出现之前加载文法。 |
+| `setHighlighter(fn)` | 整个替换语法高亮器。传入 `null` 会为整个页面关闭自动高亮。 |
+| `languages()` | 返回各种语言可用的全部名称。 |
+| `foldScope(scopes, text)` | 按下面的表格，返回带点号的作用域名称所对应的角色。 |
+| `tokenize(grammar, code)`、`checkGrammar(grammar)` | 用于测试你编写的文法。 |
+
+已经有一个信得过的语法高亮器的产品，也可以把 `TanreiCodeBlock.highlighter` 设为一个函数 `(code, language, signal) => runs`。这样代码块会去问这个函数，Tanrei 的模块则不会加载。
+
+### 语法角色
+
+| 角色（`data-syntax`） | 它是什么 | 在默认系统中 |
+| --- | --- | --- |
+| `comment` | 注释、文档注释 | 比代码更低调 |
+| `keyword` | 语言自身的词：关键字、修饰符、at 规则、注解、写成单词的运算符 | 紫色，加重一档字重 |
+| `string` | 写在代码里的文本：字符串、字符、正则表达式、标记语言中属性（attribute）的值 | 绿色 |
+| `constant` | 不是文本的值：数字、布尔值、null、具名常量、单位、颜色值、转义序列 | 橙色 |
+| `function` | 函数或方法的名称，无论是声明还是调用 | 蓝色 |
+| `type` | 类型的名称：类、结构体、接口、内置类型、命名空间 | 蓝绿色 |
+| `tag` | 标记语言和样式表所指向的对象：元素的名称、标记中组件的名称、选择器 | 红色 |
+| `property` | 属于某样东西的名称：属性（property）、键、标记语言的属性（attribute）、样式属性、命令的选项 | 蓝色，色调更接近代码的颜色 |
+| `punctuation` | 括号、分隔符、标记语言的定界符 | 比代码更低调 |
+| 普通（没有 span） | 其他任何内容：变量、参数、写成符号的运算符、标签之间的文本 | 代码的颜色 |
+
+每个角色有两个令牌：一个颜色（`comp.code-block.syntax.color.*`）和一个字重档位（`comp.code-block.syntax.emphasis.*`）。这些角色是一条令牌轴，所以设计系统可以添加新的角色。默认系统的绿色和红色来自语法专用的调色板，色相与成功色和错误色相近。新增的行和删除的行靠竖条、符号和标签来分辨，绝不只靠颜色。角色只改变颜色和字重，所以高亮的代码和普通代码有相同的行和列。
+
+片段是 `<code>` 里的一个 `<span data-syntax="…">`。span 之外的文本是普通文本。
+
+<DemoFrame label="你提供的片段按原样绘制" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="示例">
+    <pre><code>{runs(given)}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+### 把语法高亮器的作用域归并到角色
+
+有些语法高亮器用带点号的作用域（scope）名称来命名找到的东西，这些名称出自同一套通用词汇。`foldScope` 把它们归并到这些角色，让你的语法高亮器和 Tanrei 的语法高亮器给出相同的颜色。一个词法单元的各个作用域，从最具体的开始向外依次尝试。在同一个作用域内，第一个匹配的行生效。不匹配任何一行的作用域会被跳过，什么都没匹配到的词法单元是普通文本。
+
+| # | 作用域的开头 | 角色 |
+| --- | --- | --- |
+| 1 | `comment`、`punctuation.definition.comment` | `comment` |
+| 2 | `constant.character.escape`、`constant.numeric`、`constant.language`、`constant.other`、`keyword.other.unit`、`support.constant`、`variable.other.constant`、`variable.other.enummember` | `constant` |
+| 3 | `string`、`punctuation.definition.string`、`markup.inline.raw`、`markup.raw` | `string` |
+| 4 | `entity.name.tag`、`support.class.component`、`meta.selector`，以及样式表中的 `entity.other.attribute-name` | `tag` |
+| 5 | `entity.other.attribute-name`、`support.type.property-name`、`meta.property-name`、`meta.object-literal.key`、`variable.other.property`、`variable.other.object.property`、`support.type.vendored.property-name`、`variable.parameter.option` | `property` |
+| 6 | `entity.name.function`、`support.function`、`variable.function`、`meta.function-call.generic` | `function` |
+| 7 | `entity.name.type`、`entity.name.class`、`entity.name.namespace`、`entity.other.inherited-class`、`support.type`、`support.class`、`storage.type.primitive`、`storage.type.built-in`、`keyword.type` | `type` |
+| 8 | 文本由字母组成的 `keyword.operator`（`new`、`typeof`、`in`） | `keyword` |
+| 9 | 其余的 `keyword.operator` | 普通 |
+| 10 | `keyword`、`storage`、`variable.language`、`meta.decorator`、`punctuation.decorator`、`entity.name.function.decorator`、`markup.heading` | `keyword` |
+| 11 | `punctuation`、`meta.brace`、`meta.delimiter` | `punctuation` |
+| 12 | `variable`、`meta`、`source`、`text`、`markup`、`invalid` | 普通 |
+
+- 字符串的引号是字符串的一部分。字符串里的转义序列是常量。
+- JSON 的键是属性，它们的值是字符串和常量。
+- 装饰器的名称是关键字。
+- `invalid` 是普通文本。显示代码的组件不评判代码。
+- 新增和删除是行的属性（`added-lines`、`removed-lines`），不是片段的属性。
+
+### Web 上绘制方式的不同之处
+
+- 元素把每一行包进 `<span data-line>`，给它一个框。它会移动你的节点，在换行处拆开文本和片段，但不给代码添加任何字符。如果框架拥有 `<code>` 的子节点，就应该改为传入 `code`，或者自己渲染 `[data-line]`。
+- 带标记的行的标签是该行代码之前的一个隐藏 `<span>`。它是 `<code>` 的 `textContent` 的一部分，但不在复制的内容之内。
+- outlined 外观画在它所处的任何背景上。如果那不是表面颜色，请在 `--tanrei-code-block-ground` 里指明，这样代码从行号和复制按钮下面滚过时，它们才有底色可依。
+- 在元素定义之前，`code.css` 绘制填充、圆角、内边距和片段的颜色。页眉、复制按钮、行号和标记需要元素。
+- `highlight` 默认为 true，所以它的属性（attribute）是为了关闭它才写的：`highlight="false"`。属性（property）接受布尔值。
+- 元素把它自己的片段作为 span 逐行写进你的 `<code>`，并把它们标记为自己写的。如果框架拥有 `<code>` 的子节点，就应该传入 `code`，让元素来写。
+- 长度上限读取自自定义属性 `--tanrei-comp-code-block-syntax-max-length`，取层叠最终给到这个代码块的值。
+- 使用单文件包的页面，语法高亮器已经包含在其中。以模块形式导入 `@tanrei/web` 的页面，则按需加载它。
+
+## 指南
+
+### 推荐
+
+- 给可以滚动的代码块加上 `title` 或 `label`。滚动的主体是一个焦点停靠点，需要名称。
+- 在卡片或面板里使用 `outlined`，在页面上和有颜色的容器上使用 `filled`。
+- 一组需要用户输入的命令用提示符。提示符不会被复制。
+- 给每个代码块指定 `language`。没有语法的文本用 `language="text"`。
+- 多个文件或多种语言放进[标签页](../tabs/)，每个标签页里放一个代码块。
+
+### 避免
+
+- 不要用代码块表示句子里的一个名称。请使用行内代码。
+- 不要指望靠语法颜色来说明什么。同样的代码以普通文本绘制时，必须表达同样的意思。
+- 不要把命令和它们的输出混在同一个提示符下。每个非空行都会得到提示符。请用两个代码块。
+
+## 无障碍
+
+<ComponentAccessibility name="code-block" />
+
+### 组件负责的部分
+
+- 代码是 `code` 元素，位于一个由 `title` 或 `label` 命名的组里。
+- 可以滚动的主体是焦点顺序中的一个停靠点，排在复制按钮之后，用方向键滚动。放得下的主体不是停靠点，所以满是简短示例的页面不会增加任何停靠点。
+- 行号、符号、竖条和提示符对辅助技术隐藏。带标记的行之前有用文字写出的标签。
+- 在 320 宽和两倍文本大小下，页面都绝不会因为代码块而横向滚动。
+- 在强制颜色模式下，每种外观都会多出一道边线，所有代码都是文本颜色，竖条和符号保留。
+- 高亮不会给辅助技术增加任何东西。不暴露任何角色，颜色到位时也不朗读。选区、焦点和滚动位置都保持不变。
+- 对于红绿色觉异常的人，六种色相中有几种看起来会彼此接近，首先是字符串的绿色和标签（tag）名称的红色。关键字还可以靠字重来分辨。
+
+### 需要你做的事
+
+- 使用 `copy` 时，请提供 `copy-label`、`copied-label` 和 `copy-failed-label`，以及你用到的每种标记的标签，都用你的产品的语言来写。
+- 在代码块周围的文字里说明高亮的行展示了什么。标签只说明它被高亮了。

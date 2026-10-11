@@ -1,0 +1,240 @@
+---
+title: الرابط
+description: نص يقود إلى مكان ما، عبارةً في جملة أو سطرًا وحده أو رسم أيقونة وحده. يُرسم بنمط النص الذي يقع فيه، ويُسطَّر كما يختار نظام تصميمك، ويُعلَّم حيث يغادر الموقع.
+translationOf: components/link.mdx
+sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="link" />
+
+<DemoFrame label="في جملة، ووحده، ورسم أيقونة وحده" column>
+  <p style="margin: 0; max-inline-size: 32rem">
+    تُولَّد الرموز لكل منصة. اقرأ
+    <a class="tanrei-link" href="../../foundations/design-tokens/">كيف تُشتق الرموز</a>، أو اطّلع على
+    <a class="tanrei-link" href="https://example.com/tanrei" target="_blank" aria-description="يُفتح في تبويب جديد">الشيفرة المصدرية</a>.
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="../button/">التالي: الزر<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" href="#نظرة-عامة" aria-label="رابط إلى «نظرة عامة»"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+  </p>
+</DemoFrame>
+
+القاعدة التي يستطيع المنتج تطبيقها بلا جدول: **ما له عنوان وجهة فهو رابط، وما ليس له عنوان فهو زر.** عنصر التحكم الذي يفعل شيئًا في الصفحة ولا يقود إلى أي مكان هو [زر](../button/)، من الطراز text حيث ينبغي أن يُقرأ بهدوء النص. والوجهة التي ينبغي أن تبدو زرًّا هي زر له الخاصية `href`.
+
+### الاستخدام
+
+على الويب، الرابط صنف (class) على عنصر anchor الذي تكتبه أنت، لا عنصر مستقل. وعنصر anchor موجود في المستند، فهو رابط قبل أن يعمل أي سكربت، ويجده الزاحف وفهرس البحث والموجِّه الذي يعمل على عناصر anchor في الصفحة. ومكوّن الرابط الذي يقدّمه الموجِّه يأخذ الصنف نفسه. وكل عنصر anchor داخل `.tanrei-prose` يُرسم بالطريقة نفسها من دون صنف، فلا يحتاج ما يُولَّد من Markdown إلى شيء.
+
+أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: الأسماء التي بجانب كل منصة في أعلى هذه الصفحة هي ما تعطيها إياه المواصفة، ولا شيء منها متاح هناك بعد. وليس في React مكوّن `Link` بعد كذلك، فاستخدم عنصر anchor مع الصنف.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link.css" />
+
+    <!-- في جملة. -->
+    <p>اقرأ <a class="tanrei-link" href="/guides/accessibility/">دليل إمكانية الوصول</a> أولًا.</p>
+
+    <!-- وحده: مساحة اللمس تبلغ الحد الأدنى للهدف. -->
+    <a class="tanrei-link" data-standalone href="/getting-started/">البدء</a>
+
+    <!-- تبويب جديد: العلامة تُرسم لك. قل ذلك بالكلمات أيضًا. -->
+    <a class="tanrei-link" href="https://example.com/" target="_blank" aria-description="يُفتح في تبويب جديد">الشيفرة المصدرية</a>
+
+    <!-- موقع آخر، يُفتح حيث يكون الشخص: سهم بعد التسمية، والكلمات التي تقول ذلك. -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="رابط خارجي">المعيار</a>
+
+    <!-- مع أيقونة ذلك الموقع: صورة يقدّمها موقعك أنت، وهي الابن الأول لعنصر anchor. -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="رابط خارجي"><img
+      class="tanrei-link-site-icon" src="/icons/example-com.png" alt="" width="32" height="32"
+      loading="lazy" decoding="async" referrerpolicy="no-referrer">المعيار</a>
+
+    <!-- رابط واحد يُفرَد عن تسطير نظام التصميم: always أو hover أو never. -->
+    <a class="tanrei-link" data-standalone data-underline="hover" href="/about/">عن الموقع</a>
+
+    <!-- منطقة لها اختيارها الخاص: كل رابط داخلها يتبعه. -->
+    <footer style="--tanrei-comp-link-underline-visibility: never">…</footer>
+
+    <!-- رسم أيقونة، يُكتب ملاصقًا للنص بلا مسافة بينهما. -->
+    <a class="tanrei-link" data-standalone href="/tokens.zip"><span class="tanrei-icon" aria-hidden="true">download</span>تنزيل الرموز</a>
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="/tokens/">التالي: الرموز<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+
+    <!-- رسم أيقونة وحده، تسمّيه aria-label. -->
+    <a class="tanrei-link" href="#installation" aria-label="رابط إلى «التثبيت»"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+
+    <!-- الصفحة الحالية، ورابط لا يمكن اتباعه الآن، ورابط على سطح معكوس. -->
+    <a class="tanrei-link" data-standalone href="/components/" aria-current="page">المكوّنات</a>
+    <a class="tanrei-link" data-standalone role="link" aria-disabled="true">الصفحة السابقة</a>
+    <a class="tanrei-link" data-variant="inverse" href="/changes/">ما تغيّر</a>
+
+    <script type="module">
+      // اختياري: استجابة الضغط بالتموّج والتعتيم، و noopener، وحالات الرفض وتقارير التنقيح. والحزمة `@tanrei/web` تحمّله أيضًا.
+      // وهو يعلّم أيضًا الروابط التي تغادر الموقع، حيث لم تُعلَّم الصفحة عند إنشائها.
+      import { setSiteOrigins, setExternalLabel } from '@tanrei/web/link';
+      setSiteOrigins(['https://docs.example.com']); // الأصول (origins) التي هي جزء من موقعك أنت
+      setExternalLabel('رابط خارجي');               // الكلمات، مرة واحدة للصفحة، بلغتك
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/link.css';
+    import '@tanrei/web/link';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <a className="tanrei-link" href="/guides/accessibility/">دليل إمكانية الوصول</a>
+
+    {/* رابط الموجِّه يرسم عنصر anchor خاصًّا به: أعطِه الصنف. */}
+    <RouterLink className="tanrei-link" data-standalone to="/getting-started/">البدء</RouterLink>
+    ```
+  </TabItem>
+</Tabs>
+
+| الخاصية | على الويب |
+| --- | --- |
+| `href` | `href` |
+| `target: new` | `target="_blank"` |
+| `targetLabel` | `aria-description` |
+| `variant: inverse` | `data-variant="inverse"` |
+| `standalone` | `data-standalone` |
+| `iconPosition: trailing` | `data-icon-position="trailing"` |
+| `current` | `aria-current="page"` (أو قيمة أخرى من قيمها) |
+| `disabled` | `role="link" aria-disabled="true"`، وبلا `href` |
+| `label` | `aria-label` |
+| `underline` | `data-underline="always"` أو `"hover"` أو `"never"`؛ ومن دونها اختيار نظام التصميم |
+| `external: on`، `off` | `data-external="true"`، `data-external="false"`؛ ومن دونها يقرر العنوان |
+| `externalLabel` | `aria-description` |
+| `siteIcon` | عنصر `<img class="tanrei-link-site-icon" alt="">` تكتبه أنت، وهو الابن الأول لعنصر anchor |
+
+## المواصفات
+
+<DemoFrame label="الالتفاف: التسطير وطبقة الحالة وحلقة التركيز تتبع كل سطر" plain>
+  <p style="margin: 0; max-inline-size: 22rem">
+    <a class="tanrei-link" href="../../foundations/accessibility/">دليل إمكانية الوصول، الذي يشرح كيف يُسمّى كل مكوّن، وكيف يُبلَغ ويُشغَّل من لوحة المفاتيح، وما تُعلنه كل منصة حين تتغير حالته</a>
+  </p>
+</DemoFrame>
+
+<DemoFrame label="رسم أيقونة وعلامة التبويب الجديد" plain column>
+  <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>تنزيل الرموز</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="يُفتح في تبويب جديد">عرض المصدر</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="يُفتح في تبويب جديد"><span class="tanrei-icon" aria-hidden="true">code</span>عرض المصدر</a>
+  <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="يُفتح في تبويب جديد">عرض المصدر<span class="tanrei-icon" aria-hidden="true">code</span></a>
+</DemoFrame>
+
+<DemoFrame label="الحالي والمعطَّل" plain>
+  <a class="tanrei-link" data-standalone href="../">نظرة عامة</a>
+  <a class="tanrei-link" data-standalone href="./" aria-current="page">المكوّنات</a>
+  <a class="tanrei-link" data-standalone role="link" aria-disabled="true">الصفحة السابقة</a>
+</DemoFrame>
+
+<DemoFrame label="التسطير: دائمًا، وعند التحويم، وبلا تسطير أبدًا" plain>
+  <a class="tanrei-link" data-standalone data-underline="always" href="../button/">دائمًا</a>
+  <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">عند التحويم</a>
+  <a class="tanrei-link" data-standalone data-underline="never" href="../button/">أبدًا</a>
+</DemoFrame>
+
+<DemoFrame label="رابط يغادر الموقع" plain column>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="رابط خارجي">المواصفة</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="رابط خارجي"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />المواصفة</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="يُفتح في تبويب جديد"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />المواصفة</a>
+</DemoFrame>
+
+<DemoFrame label="على سطح معكوس" plain>
+  <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
+    حُفظت الصفحة. اطّلع على
+    <a class="tanrei-link" data-variant="inverse" href="../snackbar/">ما تغيّر</a>.
+  </div>
+</DemoFrame>
+
+لا يأتي الرابط بنمط نص خاص به: يأخذ خط النص الذي يقع فيه ومقاسه ووزنه وارتفاع سطره، في فقرة أو عنوان أو شرح أو خلية جدول على السواء. والتحويم والتركيز والضغط تُرسم خلف نصه على كل سطر يمرّ به، ولا تأخذ حيّزًا، فلا يتحرك شيء حول الرابط. ورسم الأيقونة (glyph) وأيقونة الموقع والعلامة بمقاس النص، وتبقى على سطر الكلمة التي بجانبها.
+
+**متى يُرسم التسطير اختيار** له ثلاث قيم. القيمة `always` ترسمه في السكون وفي كل حالة. والقيمة `hover` ترسمه ما دام على الرابط تحويم أو تركيز من لوحة المفاتيح أو ضغط. والقيمة `never` لا ترسمه، ويبقى التحويم والتركيز والضغط ظاهرة بطبقة الحالة ولون التسمية وحلقة التركيز. ويُضبط الاختيار في ثلاثة مستويات: الرمز `sys.behavior.link-underline` لكل رابط نصي في نظام التصميم، والرمز `comp.link.underline.visibility` لمكوّن الرابط وحده، والخاصية `underline` لرابط واحد. والنظام الافتراضي يختار `always`. وعلى الويب رمز المكوّن خاصية مخصصة (custom property)، فتستطيع منطقة مثل التذييل أن تحمل قيمتها الخاصة. والرابط الحالي والرسم وحده لا تسطير لهما تحت أي اختيار، والألوان المفروضة (forced colors) ترسمه تحت كل اختيار.
+
+**الرابط الذي يغادر الموقع يقول ذلك.** الرابط الخارجي يعرض الرسم `arrow_outward` بعد تسميته، ويعرض قبلها أيقونة ذلك الموقع حيث تعطي أيقونة. والخاصية `external` قيمتها `auto` أو `on` أو `off`. تحت القيمة `auto` يكون خارجيًّا كل عنوان `http` أو `https` من أصل (origin) غير أصل الصفحة؛ أما المسار والجزء (fragment) وعنوان البريد ورقم الهاتف والتنزيل فليست خارجية أبدًا. صرِّح مرة واحدة بالأصول الأخرى التي هي من موقعك أنت، فلا تكون خارجية كذلك. والرمز `comp.link.external.marks` يوقف الأيقونة (`arrow`) أو العلامتين معًا (`none`) للمنتج كله.
+
+مغادرة الموقع وفتح تبويب جديد حقيقتان اثنتان. والموضع الذي بعد التسمية يحمل رسمًا واحدًا: `open_in_new` للرابط الذي له `target="_blank"`، خارجيًّا كان أو غير خارجي، وفي غير ذلك `arrow_outward` للرابط الخارجي. ورسمك الخاص في جهة النهاية يحلّ محل أيٍّ منهما، والرسم وحده ليس له أيٌّ منهما.
+
+**الرابط لا يجلب أيقونة أبدًا.** الخاصية `siteIcon` صورة تعطيها أنت: صورة يقدّمها موقعك أنت، تُصنع عند بناء الموقع. ولو طلبها المكوّن من الوجهة، أو من خدمة أيقونات، لأخبر ذلك الطرف بالصفحة التي يوجد فيها كل قارئ. وحيث لا تُعطى أيقونة يعرض الرابط السهم وحده. والأيقونة التي يتعذّر تحميلها تحتفظ بحيّزها ولا ترسم شيئًا.
+
+<ComponentSpecs name="link" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- الحاوية التي خلف نص الرابط هي صندوق النص نفسه (ارتفاع الخط ذاته)، لا ارتفاع السطر كله.
+- الرابط الذي فيه رسم أو علامة ويلتفّ يُرسم صندوقًا واحدًا مقطوعًا عند نهايات الأسطر. والرابط الذي ليس فيه أي منهما له زواياه الأربع في كل سطر.
+- الرابط القائم وحده الذي فيه رسم أو علامة أو علامتا الرابط الخارجي يرتّب تسميته باتجاه التخطيط، لا باتجاه الحرف الأول من التسمية نفسها.
+- ورقة الأنماط لا تحسب شيئًا عن العنوان: هي ترسم العلامتين للخاصية `data-external`. اكتب هذه الخاصية حيث تُصنع الصفحة (خطوة البناء `markExternalLinks()` في `@tanrei/web/links` تكتبها لما يُولَّد من Markdown)، فتكون العلامتان في الرسم الأول.
+- مع سكربت الحزمة، يُعلَّم في المتصفح عنصر anchor الذي بلا `data-external` وعنوانه يغادر الموقع. هذه العلامات تصل بعد الرسم الأول، وكل واحدة منها تزيح ما يليها في سطرها بمقدار مقاس النص والفجوة. والصفحة التي ليس فيها الخاصية ولا السكربت لا تعرض أي علامة للروابط الخارجية.
+- في متصفح بلا استعلامات حاوية الأنماط (style container queries) يقرأ السكربت الاختيارين للصفحة كلها. فلا تُرى هناك قيمة خاصة بمنطقة، ومن دون السكربت يكون كل اختيار قيمته الأولى: `always`، والعلامتان معًا.
+- في نظام تصميم استجابة الضغط فيه تموّج، يجيب الرابط الذي يمتد على عدة أسطر بالتراكب بدلًا منه.
+- من دون سكربت الحزمة ترسم ورقة الأنماط كل الحالات، والتراكب فيها هو استجابة الضغط.
+
+## الإرشادات
+
+### رابط أم زر
+
+| المكوّن | ما هو | استخدمه حين |
+| --- | --- | --- |
+| **الرابط** | نص يقود إلى مكان ما، بنمط النص الذي حوله، ويُسطَّر كما يختار نظام التصميم | يكون عبارة في جملة، أو سطرًا من النص هو وجهة، أو رسمًا بجانب عنوان |
+| **زر له وجهة** | رابط مرسوم بهيئة زر | تكون الوجهة أحد إجراءات الشاشة: «البدء»، «عرض المصدر» |
+| **زر من الطراز text** | زر | يفعل شيئًا ولا يقود إلى أي مكان، مهما كان ينبغي أن يشبه النص |
+
+### في جملة أم وحده
+
+الخاصية `data-standalone` لا تغيّر شيئًا مما يراه الشخص. هي تقول إن الرابط ليس جزءًا من سطر نص، فتستطيع مساحة لمسه أن تبلغ الحد الأدنى للهدف من دون أن تأخذ ضغطات موجَّهة إلى السطرين اللذين فوقه وتحته. استخدمها لرابط تحت فقرة، أو في خلية جدول، أو في صف من الروابط. ولا تضعها على رابط داخل جملة.
+
+الروابط القائمة وحدها هي ما وُضعت له القيمتان `hover` و `never`: قائمة تنقل، أو تذييل، أو صف من الصفحات ذات الصلة. فموضعها في قائمة يقول ما هي. عيِّن `data-underline` على تلك الروابط، أو أعطِ المنطقة قيمتها الخاصة من رمز المكوّن، واترك روابط جملك مسطَّرة.
+
+### افعل
+
+- اكتب تسمية تقول إلى أين يذهب الرابط من دون الجملة التي حوله: «دليل التثبيت»، لا «هنا».
+- استخدم `data-variant="inverse"` على `sys.color.inverse-surface` فقط. وعلى الحاوية الهادئة (حاوية حالة، أو `secondary-container`) يصحّ الرابط القياسي.
+- علِّم رابطًا واحدًا على الأكثر من مجموعة روابط التنقل بأنه الحالي، ودع المجموعة تقرر أيها.
+- اترك `sys.target.spacing` بين رابطين قائمين وحدهما، أو اجعل ارتفاع صفّيهما ارتفاع هدف.
+- أعطِ أيقونة الموقع ملفًّا يقدّمه موقعك أنت. الدالة `resolveSiteIcons()` في `@tanrei/web/links` تصنع هذه الملفات عند بناء الموقع، فلا يتصل متصفح أي قارئ بطرف آخر.
+- عيِّن كلمات الروابط الخارجية مرة واحدة (بالدالة `setExternalLabel()`، أو بالخيار `externalLabel` في خطوة البناء)، بلغة منتجك. وهي المفتاح `externalLabel` من [كلمات منتجك](/ar/foundations/words/): الاستدعاء `setWords({ externalLabel: '…' })` يعطي الكلمات نفسها، ولكل لغة على حدة مع `{ lang }`.
+
+### لا تفعل
+
+- لا تُزل التسطير في السكون في طبقة لون الرابط فيها هو لون نصها. في النظام الافتراضي لون الرابط هو لون النص نفسه، والتباين بينهما 1.00:1 في المخططات اللونية الستة كلها، فالتسطير هو الشيء الوحيد الذي يقول «رابط». ويُخفق البناء في النظام الافتراضي، ويطبع تحذيرًا في طبقة المنتج، حيث يكون الاختيار `hover` أو `never` ولون الرابط دون 3:1 من لون النص.
+- لا تعتمد على `hover` ليكشف الرابط على شاشة لمس. لا تحويم هناك، فالقيمة `hover` تخضع للقاعدة نفسها التي تخضع لها `never`.
+- لا تحمّل أيقونة موقع من ذلك الموقع، ولا من خدمة أيقونات، في المتصفح. فمتصفح كل قارئ يخبر عندئذ ذلك الطرف بالصفحة التي تُقرأ.
+- لا تعطِ الرابط معالج نقر مكان الوجهة. عنصر anchor الذي بلا عنوان يُرسم نصًّا عاديًّا ويُبلَّغ عنه في بنيات التنقيح.
+- لا تضع رابطًا داخل عنصر تحكم يُضغط كله (بطاقة رابط، أو عنصر قائمة له وجهة)، ولا عنصر تحكم داخل رابط.
+- لا تنسّق الروابط التي سبقت زيارتها. المنتج الذي يحتاج إلى «سبق فتحه» يعلّمه من بياناته هو، بوسم أو برسم.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="link" />
+
+### ما يتكفل به المكوّن
+
+- هو رابط المتصفح نفسه: دور الرابط، والمفتاح Enter لاتباعه، وقائمة السياق، والفتح في تبويب جديد، ورابط يعمل بلا سكربت.
+- في النظام الافتراضي يميّزه التسطير من النص الذي بجانبه من دون الاعتماد على اللون، في كل مخطط لوني. وفي الألوان المفروضة يُرسم التسطير أيًّا كان الاختيار.
+- للرابط الخارجي وصف واحد، يُقرأ بعد اسمه: `aria-description` لتبويب جديد، وفي غير ذلك كلمات الرابط الخارجي. والسهم وأيقونة الموقع مخفيّان عن التقنيات المساعدة.
+- حلقة تركيز لوحة المفاتيح تُرسم حول جزء الرابط في كل سطر.
+- الرابط القائم وحده والرسم وحده يمدّان مساحة اللمس إلى الحد الأدنى للهدف. والرابط الذي في جملة يلزم نصه.
+- العلامة والرسم الذي بجانب تسمية مخفيّان عن التقنيات المساعدة.
+- مع سكربت الحزمة، يأخذ الرابط الذي يفتح تبويبًا جديدًا القيمة `noopener`، وتبلّغ بنية التنقيح عن اسم ناقص، ووصف ناقص، وعنوان ليس وجهة. وتبلّغ أيضًا عن رابط في جملة غير مسطَّر في السكون ويقف دون 3:1 من نصه، وعن روابط خارجية بلا كلمات (مرة واحدة للصفحة)، وعن أيقونة موقع تُحمَّل من أصل آخر.
+
+### ما عليك فعله
+
+- أعطِ الرسم القائم وحده اسمه بالخاصية `aria-label`، وضع `aria-hidden="true"` على كل رسم.
+- قل إن الرابط يفتح تبويبًا جديدًا بالخاصية `aria-description`، بلغة منتجك. لا يقدّم Tanrei كلمات من عنده.
+- اكتب الرابط المعطَّل عنصر anchor بلا `href`، مع `role="link"` و `aria-disabled="true"`. هو يخرج من ترتيب التركيز، فقل في نص بجانبه لماذا لا يمكن بلوغ المكان.
+- عيِّن `aria-current` على الرابط الذي يسمّي الصفحة أو القسم الذي يوجد فيه الشخص.
+- لا تستخدم `hover` و `never` داخل النص المتصل إلا حيث يبتعد لون الرابط عن لون النص 3:1 أو أكثر، ويبقى مع ذلك 4.5:1 من السطح. ومع نص قريب من الأسود على سطح قريب من الأبيض، ذلك نطاق ضيق من الدرجات المتوسطة.
+- قل بالكلمات إن الرابط يغادر الموقع: بالخاصية `aria-description` على الرابط، أو بالكلمات التي تعيّنها مرة واحدة لكل رابط خارجي. لا يقدّم Tanrei كلمات من عنده. وللرابط الخارجي الذي يفتح تبويبًا جديدًا، صُغ الوصف الواحد ليقول الحقيقتين.
+- اكتب أيقونة الموقع مع `alt=""`. هي زخرفة: التسمية تسمّي الرابط، والسهم يعلّمه.

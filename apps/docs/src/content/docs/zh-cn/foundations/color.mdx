@@ -1,0 +1,75 @@
+---
+title: 颜色
+description: 颜色角色、单色的主色、唯一的强调色，以及每个配色方案如何生成和校验。
+translationOf: foundations/color.mdx
+sourceHash: 6188eaa54a20c724a48e433b085dce1ebe056728
+---
+
+import Callout from '../../../../components/Callout.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+Tanrei 从不让组件自己挑选颜色。组件请求的是一个**角色**，例如 `primary` 或 `surface-container`，由当前生效的主题决定用哪种颜色来充当这个角色。角色由 Tanrei 的词汇定义，它们的值则由各个设计系统的层给出。
+
+## 角色
+
+- **意图：** `primary`、`secondary`，以及四个状态意图 `error`、`success`、`warning` 和 `info`。每个意图都是四个一组：颜色本身、用于其上内容的 `on-` 颜色、更低调的 `-container`，以及 `on-…-container`。
+- **表面：** `surface`，从 `surface-container-lowest` 到 `surface-container-highest` 的五级阶梯，以及 `surface-dim` 和 `surface-bright`。任何表面上的内容都使用 `on-surface`，或更低调的 `on-surface-variant`。
+- **轮廓：** `outline` 和 `outline-variant`（见下文）。
+- **反色**角色，用于有意翻转主题的元素，例如消息条。
+- **固定**角色，在浅色和深色下保持相同的色调。
+- **辅助：** `scrim`、`shadow`、`focus-ring`，以及层级所用的圆环和阴影颜色。
+
+填充色一定要与它自己的 `on-` 角色搭配使用。对比度检查所保证的，正是这种搭配。
+
+## 单色的主色
+
+在默认主题中，`primary` 在浅色模式下接近黑色，在深色模式下接近白色。因此，屏幕上最重要的操作就是对比度最高的那个对象，而且它绝不会与产品自身的颜色相争。`secondary` 是一种更柔和的中性色，用于辅助性的操作。
+
+## 只有一个强调色，且要少用
+
+强调色不属于核心词汇。它是默认的 Tanrei 系统**声明**的一个调色板（种子色为 `#30a3f0`），声明之后，它就拥有与任何意图相同的四个角色：`accent`、`on-accent`、`accent-container`、`on-accent-container`。核心角色 `focus-ring` 从它取色，此外再没有别的角色用它：在默认系统中，`link` 取主色的颜色，链接靠下划线与旁边的文本区分开来。产品也用同样的方式声明自己的调色板，例如不允许被重新计算的品牌色，或者测验中的“正确”与“错误”；模仿 Material Design 3 的预设也是这样声明 `tertiary` 的，而不是由 Tanrei 替所有人保留这个位置。不要用强调色来做装饰：当一切都是蓝色时，就没有什么能被注意到了。
+
+## outline 与 outline-variant
+
+这两个轮廓角色看起来相似，作用却正好相反。
+
+| 角色 | 用途 | 对比度 |
+| --- | --- | --- |
+| `outline` | **功能性边界**：它是表明控件所在位置的唯一依据，例如空的文本字段、未选中的复选框或 outlined 按钮。 | 相对于每个表面角色至少为 3:1 |
+| `outline-variant` | **装饰性细线**：分隔线、卡片边框、层级的圆环。去掉它不得隐藏任何信息。 | 没有要求；它是低透明度的黑色或白色 |
+
+<Callout type="caution">
+  如果边框是表明控件存在的唯一线索，就必须使用 `outline`。透明度为 8% 的细线看着舒服，但很多人根本看不见它。
+</Callout>
+
+## 对比度级别
+
+每个主题都有三个对比度级别。**标准**是默认级别。**中**和**高**会把内容角色推向两端，并同时加强两个轮廓角色。在 Web 上，`prefers-contrast: more` 时会自动应用高对比度；原生平台则遵循各自的系统设置。可以在这里试一试（开关作用于整个页面）：
+
+<DemoFrame label="对比度">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+## 配色方案如何生成
+
+颜色不是手工挑选的。系统文件（`tokens/systems/tanrei.system.json`）声明各个调色板：强调色和错误色各有一个种子色，中性色则给出色相和色度；它还以数据的形式写明，在浅色和深色的每个对比度级别下，每个角色取哪个调色板的哪个色调。构建时，生成器会：
+
+1. 使用 Apache-2.0 许可的 `material-color-utilities` 库，把每个关键色转换为 HCT 色彩空间中的**色调调色板**；在这个色彩空间里，色调与对比度之间的对应关系是可预测的；
+2. 把中性调色板的色度限制在主题规定的范围内，默认值为零，即纯灰色；
+3. 为浅色和深色的每个对比度级别下的每个角色分配一个色调；
+4. 把结果以 DTCG 文件的形式写入 `tokens/generated/`。
+
+生成器的算法带有版本号（`specVersion`），因此对映射的修改是一次可以评审的、有意为之的变更，而不是所有颜色悄悄发生的偏移。
+
+## CI 中强制执行的不变式
+
+对主题与对比度的全部六种组合，除非满足以下条件，否则令牌构建失败：
+
+- 每一对 `(role, on-role)` 达到 **4.5:1**；
+- `outline` 相对于每个表面角色达到 **3:1**；
+- `focus-ring` 相对于绘制它的表面达到 **3:1**。
+
+不得为了让构建通过而放宽阈值。角色和值的完整列表见[颜色令牌参考](/zh-cn/tokens/color/)。

@@ -1,0 +1,85 @@
+---
+// Color roles with light and dark swatches for one contrast level, from design/tokens/.
+import { tokensIn, colorCss, colorLabel, contexts, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import SourceNote from '../SourceNote.astro';
+import Table from '../Table.astro';
+
+interface Props {
+  contrast?: 'standard' | 'medium' | 'high';
+}
+const { contrast = 'standard' } = Astro.props;
+const suffix = contrast === 'standard' ? '' : `-${contrast}`;
+const lightId = `light${suffix}`;
+const darkId = `dark${suffix}`;
+if (!contexts[lightId] || !contexts[darkId]) throw new Error(`design/tokens/ is missing the ${lightId} / ${darkId} contexts.`);
+
+const t = strings(contentLang(Astro));
+const light = tokensIn(`${ns}.sys.color`, lightId);
+const dark = Object.fromEntries(tokensIn(`${ns}.sys.color`, darkId).map((tk) => [tk.name, tk]));
+
+// Grouping is by role-name pattern, so new roles land in a group without editing this file.
+const groupOf = (role: string) => {
+  if (/(^|-)inverse-/.test(role) || role.startsWith('inverse')) return 'inverse';
+  if (role.includes('primary')) return 'primary';
+  if (role.includes('secondary')) return 'secondary';
+  if (/(^|-)(error|success|warning|info)(-|$)/.test(role)) return 'status';
+  if (role.includes('accent')) return 'accent';
+  if (role.startsWith('outline')) return 'outline';
+  if (role.includes('surface') || role.includes('background')) return 'surface';
+  return 'utility';
+};
+const order = ['primary', 'secondary', 'status', 'surface', 'outline', 'inverse', 'utility', 'accent'];
+const groups = order
+  .map((id) => ({ id, tokens: light.filter((tk) => groupOf(tk.path.at(-1)!) === id) }))
+  .filter((g) => g.tokens.length > 0);
+---
+
+{groups.map((group) => (
+  <>
+    <h3>{t.group[group.id] ?? group.id}</h3>
+    <Table label={t.group[group.id] ?? group.id}><table class="roles">
+      <thead>
+        <tr><th scope="col" data-wrap="false">{t.role}</th><th scope="col" data-wrap="false">{t.light}</th><th scope="col" data-wrap="false">{t.dark}</th><th scope="col" data-wrap="false">{t.cssVariable}</th></tr>
+      </thead>
+      <tbody>
+        {group.tokens.map((tk) => {
+          const d = dark[tk.name];
+          return (
+            <tr>
+              <td data-wrap="false"><code>{tk.path.at(-1)}</code></td>
+              <td data-wrap="false"><span class="swatch light"><i style={`background:${colorCss(tk.value)}`} /></span><span class="docs-mono">{colorLabel(tk.value)}</span></td>
+              <td data-wrap="false">{d && (<><span class="swatch dark"><i style={`background:${colorCss(d.value)}`} /></span><span class="docs-mono">{colorLabel(d.value)}</span></>)}</td>
+              <td data-wrap="false"><code>{tk.cssVar}</code></td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table></Table>
+  </>
+))}
+<SourceNote files={[`design/tokens/${ns}.${lightId}.tokens.json`, `design/tokens/${ns}.${darkId}.tokens.json`]} />
+
+<style>
+  /* Translucent roles are shown over the canvas they are designed for. */
+  .swatch {
+    display: inline-block;
+    inline-size: 2.25rem;
+    block-size: 1.25rem;
+    margin-inline-end: 0.5rem;
+    border-radius: 4px;
+    vertical-align: middle;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--tanrei-sys-color-outline-variant);
+  }
+  .swatch.light {
+    background: #fff;
+  }
+  .swatch.dark {
+    background: #0a0a0a;
+  }
+  .swatch i {
+    display: block;
+    block-size: 100%;
+  }
+</style>

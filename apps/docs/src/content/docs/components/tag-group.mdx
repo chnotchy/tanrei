@@ -1,0 +1,213 @@
+---
+title: Tag group
+description: Lays out a set of tags or chips in lines that wrap, spaced for what it holds, and exposes the set as one named list. The members stay what they are, and after a chip is removed focus goes on to the next.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="tag-group" />
+
+<DemoFrame label="A set of tags, and a row of filters" column>
+  <tanrei-tag-group class="not-content" label="Tags">
+    <tanrei-tag label="Design tokens"></tanrei-tag>
+    <tanrei-tag label="Accessibility"></tanrei-tag>
+    <tanrei-tag label="Right-to-left"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="Filters">
+    <tanrei-chip kind="filter" label="Open" selected></tanrei-chip>
+    <tanrei-chip kind="filter" label="Assigned to me"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Needs review"></tanrei-chip>
+    <tanrei-chip kind="filter" label="Blocked"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+A [tag](/components/tag/) and a [chip](/components/chip/) are each one thing. A tag group is what holds several of them: the tags of an article, the filters above a list, a few suggestions under a field. It places them in lines that wrap, keeps the right distance between them, and tells assistive technology that they are one list.
+
+The group draws nothing of its own. It has no container, no edge, no padding and no visible label. Each member is drawn, focused and pressed exactly as it is anywhere else.
+
+On the web it is `<tanrei-tag-group>`. The other platforms have not implemented it yet.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag-group label="Tags">
+      <tanrei-tag label="Design tokens"></tanrei-tag>
+      <tanrei-tag label="Accessibility"></tanrei-tag>
+    </tanrei-tag-group>
+
+    <!-- A set of chips says so: its lines stand further apart. -->
+    <tanrei-tag-group id="recipients" spacing="chips" label="Recipients">
+      <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Remove Ada Lovelace"></tanrei-chip>
+      <tanrei-chip kind="input" label="Grace Hopper" remove-label="Remove Grace Hopper"></tanrei-chip>
+    </tanrei-tag-group>
+
+    <script type="module">
+      import '@tanrei/web/components/tag-group';
+      import '@tanrei/web/components/tag';
+      import '@tanrei/web/components/chip';
+
+      const recipients = document.querySelector('#recipients');
+      // A chip never removes itself. You take it out; the group moves focus to the next chip.
+      recipients.addEventListener('remove', (event) => {
+        event.target.remove();
+        // When the last one has gone, the group has nowhere to put focus. Put it on the control the set belongs to.
+        if (!recipients.children.length) document.querySelector('#add-recipient').focus();
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip, TagGroup } from '@tanrei/react';
+
+    <TagGroup spacing="chips" label="Recipients">
+      {recipients.map((person) => (
+        <Chip key={person.id} kind="input" label={person.name} removeLabel={`Remove ${person.name}`} onRemove={() => remove(person.id)} />
+      ))}
+    </TagGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Tags that wrap, status tags, links to each tag’s page, and entered items" plain column>
+  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="Tags">
+    <tanrei-tag label="Design tokens"></tanrei-tag>
+    <tanrei-tag label="Accessibility"></tanrei-tag>
+    <tanrei-tag label="Right-to-left"></tanrei-tag>
+    <tanrei-tag label="Typography"></tanrei-tag>
+    <tanrei-tag label="Color"></tanrei-tag>
+    <tanrei-tag label="Motion"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" label="Platforms">
+    <tanrei-tag label="Web: Stable" status="success" size="small"></tanrei-tag>
+    <tanrei-tag label="SwiftUI: Beta" size="small"></tanrei-tag>
+    <tanrei-tag label="Flutter: Lagging" status="warning" variant="outlined" size="small"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="Tags">
+    <tanrei-chip label="Design tokens" href="#specs"></tanrei-chip>
+    <tanrei-chip label="Accessibility" href="#specs"></tanrei-chip>
+    <tanrei-chip label="Right-to-left" href="#specs"></tanrei-chip>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="Recipients">
+    <tanrei-chip kind="input" label="Ada Lovelace" remove-label="Remove Ada Lovelace"></tanrei-chip>
+    <tanrei-chip kind="input" label="Grace Hopper" remove-label="Remove Grace Hopper"></tanrei-chip>
+    <tanrei-chip kind="input" label="Katherine Johnson" remove-label="Remove Katherine Johnson"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+<ComponentSpecs name="tag-group" />
+
+## Guidelines
+
+### What a tag group is for
+
+| The set | Use |
+| --- | --- |
+| Static tags: an article's categories, the values a setting can take, a row of statuses | A tag group. |
+| Tags that lead to each tag's page | A tag group with `spacing="chips"` of chips with `href`. A tag is text and cannot be a link. |
+| Filters above a list, suggestions under a field, items a person entered | A tag group with `spacing="chips"`. |
+| Two to four different actions | A [button group](/components/button-group/). |
+| One choice among several | A [radio group](/components/radio-group/), [tabs](/components/tabs/) or a [segmented button](/components/segmented-button/). |
+| Controls that need a visible label, a requirement and an error | A [field group](/components/field-group/). |
+| Entered values inside a field | The field's own. A [combobox](/components/combobox/) lays out its chips itself. |
+
+### Spacing
+
+`spacing` says what the set holds, and decides two distances: between two members on a line, and between two lines.
+
+- `tags` (the default) is for static tags. The lines stand as close as the tags along a line, so a wrapped set reads as one block.
+- `chips` is for chips. A chip takes a press beyond its visible edge, up to a touch target. The lines stand far enough apart that each medium chip keeps that whole target, and where two chips' areas would overlap they meet at the middle of the gap.
+
+A set of chips left at `tags` still works. Its lines are closer than a touch target is high, and a debug build says so.
+
+Small chips are for a dense place where the set stands on one line. On wrapped lines their touch targets meet between the lines before they reach full size. Use medium chips for a set that wraps on a touch screen.
+
+A design system may add values of `spacing`.
+
+### Layout
+
+- The members stand in the order you give them. The group never sorts them and never moves a selected chip forward.
+- A member that does not fit goes whole to the next line. Nothing is cut, shrunk, hidden or scrolled, and there is no "+3 more". To show fewer, give the group fewer members, and make the last one an action chip that shows the rest.
+- One member wider than the group gets the group's width and cuts its own label with an ellipsis.
+- The set starts at the start edge. To place it at the end or in the middle of a row, place the group with the layout around it.
+- Give every member the same size. Members of different sizes are centred on their line.
+- A group with no member draws nothing and takes no space. A post with no tags needs no special case.
+
+### The label
+
+`label` names the set for assistive technology: "Tags", "Filters". It is not drawn. Where the set needs a visible name, write your own heading or text before it, and still give `label`.
+
+### Selection
+
+The group holds no value. Each filter chip holds its own `selected`, and several may be on at once. For one filter at a time, switch the others off yourself when one is switched on.
+
+### Removing a chip
+
+A chip asks to be removed and you remove it. If focus was on that chip or on its remove action, the group puts focus on the chip that followed, or on the one before when none follows. A person who removes several items in a row goes on from where they were.
+
+Two things stay yours:
+
+- When no chip is left to take focus, move focus to the control the set belongs to: the field that adds items, or the button that opens the filters. Otherwise the browser drops it.
+- The group announces nothing. Where a removal must be heard, such as a filter removed far from the list it changes, report it in a live region or a [snackbar](/components/snackbar/).
+
+### Do
+
+- Set `spacing="chips"` for a set of chips.
+- Give the set a `label`, in the language of the page.
+- Keep one kind of member in a set. Entered items followed by one "Add" chip is the exception.
+
+### Don't
+
+- Don't use a tag group for the actions of a dialog or a form. Use a button group.
+- Don't put anything but tags and chips in it. Other content is laid out, and reported in debug builds.
+- Don't restyle the members from the group. Change the group's tokens in a layer instead.
+
+## Accessibility
+
+<ComponentAccessibility name="tag-group" />
+
+### What the component handles
+
+- The set is exposed as one list, named by `label`. Each member is one item of it: a tag is read as its text, a chip as its button or its link with its state, and an input chip with its remove action beside it.
+- A list tells a person how many members there are and where they are among them: "list, 4 items".
+- The members are read and focused in the order given, in a right-to-left layout too.
+- Each chip is its own stop in the focus order, and an input chip two: the chip, then its remove action. The group takes no focus and handles no key.
+- After a focused chip is removed, focus goes to the next chip, never to a remove action.
+- An empty group exposes nothing: no empty list and no name.
+- At 200% text the members grow and wrap onto more lines. Nothing is cut and nothing scrolls sideways.
+- In forced colors the group draws nothing, as before. The members draw their own edges.
+- In a right-to-left layout every line starts at the right.
+
+How it is built on the web: the list is one element in the group's shadow root, around the slot. The group writes `role="listitem"` on each member while it is in the group, and takes it back when the member leaves. A member that has a `role` of its own, or is a native element with a meaning of its own (a link, a button), keeps it and is not an item. Wrap such an element in a `span`.
+
+Known gaps on the web:
+
+- Before the element is defined the members are on the page in order, separated by the white space between them, without the gaps and without the list. A page that wants the layout from the first paint adds:
+
+  ```css
+  tanrei-tag-group:not(:defined) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+  }
+  ```
+
+- Arrow keys between the chips of a set are not provided. A long row of filters that should be one stop is a [toolbar](/components/toolbar/) of chips.
+
+### What you need to do
+
+- Give the group a `label`. The component supplies no words of its own.
+- Give each input chip a `removeLabel` that names the item.
+- Remove a chip when it fires `remove`, and move focus yourself when the last one has gone.
+- Say a status in each tag's words. Color alone never says it.

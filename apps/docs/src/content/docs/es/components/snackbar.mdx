@@ -1,0 +1,365 @@
+---
+title: Snackbar
+description: Informa brevemente a la persona, en el borde inferior de la pantalla, de lo que la aplicación acaba de hacer, con una acción como máximo, sin tomar el foco ni interrumpir su trabajo.
+translationOf: components/snackbar.mdx
+sourceHash: f61661ae48c71d10693c9c317c171876ce5a19d1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="snackbar" />
+
+:::note[Una especificación revisada que aún no está en todas las plataformas]
+Esta página describe el snackbar tal como lo define ahora la especificación: una barra dibujada sobre una superficie del esquema o en inverso, una acción tonal discreta, formas de estado en tintes discretos, un título y un texto que se expande. La web lo dibuja todo. Arriba sigue marcado como rezagado hasta que se revisen sus formas de estado en inverso y se registren sus imágenes de referencia. SwiftUI, Compose, Flutter y React Native ofrecen una revisión anterior, con una acción de texto y sin formas de estado, sin título, sin expansión y sin `inverse`, y sus ejemplos muestran esa revisión hasta que se pongan al día. Las demostraciones son el componente web tal como se distribuye hoy.
+:::
+
+<DemoFrame label="Dibujado dentro de la página: un mensaje con una acción y otro con un botón de cierre" column>
+  <tanrei-snackbar message="Conversación archivada" action="Deshacer"></tanrei-snackbar>
+  <tanrei-snackbar message="Conectado a la impresora de la oficina" closable close-label="Cerrar"></tanrei-snackbar>
+</DemoFrame>
+
+### Uso
+
+Un snackbar no se coloca. Le pides a un anfitrión que muestre uno, y el anfitrión lo pone en cola, lo sitúa en la parte inferior de su área, controla su tiempo de espera y lo anuncia. `show` se resuelve una vez que ese snackbar se ha cerrado: con `action` cuando se activó su acción, o con `dismiss` y el motivo. Así, el código de «deshacer» se lee de arriba abajo.
+
+| Plataforma | El anfitrión | Mostrar un snackbar |
+| --- | --- | --- |
+| Web | `<tanrei-snackbar-host>`, colocado como último elemento de la página | `host.show(options)`, una promesa |
+| SwiftUI | un `TanreiSnackbarHost`, unido con `.tanreiSnackbarHost(_:)` | `await host.show(message:…)` |
+| Compose | `TanreiSnackbarHost(hostState)`, el último en un `Box` junto con el contenido | `hostState.showSnackbar(message, …)`, una llamada de suspensión |
+| Flutter | `TanreiSnackbarMessenger`, alrededor de la página sobre la que informa | `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(…))`, un controlador cuyo `closed` es un future |
+| React Native | lo renderiza `TanreiProvider` en su capa de superposición | `useSnackbar().show(options)`, una promesa |
+
+Cada anfitrión también cierra el snackbar que se está mostrando (`dismissCurrent`) y además descarta los que esperan (`clear`), en ambos casos con el motivo `host`. Un elemento snackbar dibujado fuera de un anfitrión se dibuja allí donde está, centrado en el ancho que se le da, igual que lo centra un anfitrión: sin tiempo de espera, cola, entrada ni anuncio. Esa forma es para páginas de documentación y pruebas, como la demostración de arriba.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- El último de la página: el lugar del anfitrión en el orden del foco es donde están los controles del snackbar. -->
+    <tanrei-snackbar-host></tanrei-snackbar-host>
+
+    <script type="module">
+      import '@tanrei/web/components/snackbar';
+      const snackbars = document.querySelector('tanrei-snackbar-host');
+
+      async function archive() {
+        await archiveConversation();
+        // Se resuelve una vez cerrado: { result: 'action' } o { result: 'dismiss', reason }.
+        const { result } = await snackbars.show({ message: 'Conversación archivada', action: 'Deshacer' });
+        if (result === 'action') await restoreConversation();
+      }
+
+      // Una forma de estado: el glifo, y el estado en palabras para la tecnología de apoyo.
+      snackbars.show({
+        status: 'error',
+        statusLabel: 'Error',
+        title: 'Mensaje no enviado',
+        message: 'No tienes conexión. El mensaje se quedará en la Bandeja de salida.',
+        action: 'Reintentar',
+        expandLabel: 'Mostrar el mensaje completo',
+      });
+
+      // Dibujado en inverso, elija lo que elija el sistema de diseño. Omite `inverse` para tomar la elección del sistema.
+      snackbars.show({ message: 'Enlace copiado', inverse: true });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useRef } from 'react';
+    import { SnackbarHost } from '@tanrei/react';
+    import type { TanreiSnackbarHost } from '@tanrei/web';
+
+    // La ref es el elemento: show() es un método suyo.
+    const snackbars = useRef<TanreiSnackbarHost>(null);
+
+    async function archive() {
+      await archiveConversation();
+      const { result } = await snackbars.current!.show({ message: 'Conversación archivada', action: 'Deshacer' });
+      if (result === 'action') await restoreConversation();
+    }
+
+    // Una forma de estado, con un título encima del mensaje.
+    snackbars.current?.show({ status: 'error', statusLabel: 'Error', title: 'Mensaje no enviado', message: 'No tienes conexión.', action: 'Reintentar' });
+
+    // Dibujado en inverso, elija lo que elija el sistema de diseño.
+    snackbars.current?.show({ message: 'Enlace copiado', inverse: true });
+
+    // El último de la página, después del contenido.
+    <SnackbarHost ref={snackbars} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    @State private var snackbars = TanreiSnackbarHost()
+
+    // Une el anfitrión a la vista cuyo borde inferior usa. Se dibuja en una superposición, no en una hoja.
+    ContentView()
+        .tanreiSnackbarHost(snackbars)
+
+    // Devuelve el resultado una vez cerrado el snackbar: .action o .dismissed(reason).
+    // Una petición a un anfitrión cuya vista no está en pantalla espera hasta que lo esté.
+    let result = await snackbars.show(message: "Conversación archivada", actionLabel: "Deshacer")
+    if case .action = result { restoreConversation() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarHost
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarHostState
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarResult
+
+    // Como el SnackbarHostState de Material: showSnackbar se suspende hasta que el snackbar se ha cerrado.
+    val snackbars = remember { TanreiSnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    Box(Modifier.fillMaxSize()) {
+        Content(onArchive = {
+            scope.launch {
+                when (snackbars.showSnackbar("Conversación archivada", actionLabel = "Deshacer")) {
+                    TanreiSnackbarResult.ActionPerformed -> unarchive()
+                    is TanreiSnackbarResult.Dismissed -> Unit
+                }
+            }
+        })
+        // El último del Box: se dibuja por encima del contenido y queda el último en el orden del foco.
+        TanreiSnackbarHost(snackbars, Modifier.fillMaxSize())
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Como ScaffoldMessenger. Ponlo alrededor de la página, dentro de su ruta, para que un diálogo abierto encima lo cubra.
+    TanreiSnackbarMessenger(child: page);
+
+    Future<void> archive(BuildContext context) async {
+      await archiveConversation();
+      final TanreiSnackbarController snackbar = TanreiSnackbarMessenger.of(context).show(
+        const TanreiSnackbar(message: 'Conversación archivada', actionLabel: 'Deshacer'),
+      );
+      // Se completa con action, close, escape, timeout o host.
+      if (await snackbar.closed == TanreiSnackbarClosedReason.action) {
+        await restoreConversation();
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useSnackbar } from '@tanrei/react-native';
+
+    // El anfitrión vive en la capa de superposición de TanreiProvider: pon el proveedor en la raíz de tu aplicación.
+    const snackbar = useSnackbar();
+
+    async function archive() {
+      await archiveConversation();
+      const { result } = await snackbar.show({ message: 'Conversación archivada', actionLabel: 'Deshacer' });
+      if (result === 'action') await restoreConversation();
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Un mensaje que ocupa varias líneas y una acción en su propia fila" plain column>
+  <tanrei-snackbar message="Tus cambios se guardaron, pero la copia compartida no se pudo actualizar mientras no tenías conexión." action="Reintentar"></tanrei-snackbar>
+  <tanrei-snackbar message="No se pudieron subir tres archivos porque superan el límite de esta carpeta." action="Revisar los archivos con errores"></tanrei-snackbar>
+</DemoFrame>
+
+<ComponentSpecs name="snackbar" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un snackbar para confirmar algo que la persona acaba de hacer, cuando terminó sin una pantalla propia: «Conversación archivada», «Enlace copiado», «Foto guardada». Ofrece como máximo una acción que lo deshaga o le dé continuidad.
+
+Un snackbar informa; no pregunta. Una elección entre dos acciones, un error que bloquea el trabajo de la persona o cualquier cosa de la que deba darse por enterada van en un diálogo o junto a aquello de lo que tratan. La forma de error es para un fallo al que la persona puede volver, como «Mensaje no enviado» con Reintentar.
+
+### Snackbar o diálogo
+
+Los dos aparecen por encima de la página y hacen trabajos opuestos.
+
+| Aspecto | Snackbar | [Diálogo](/es/components/dialog/) |
+| --- | --- | --- |
+| Qué hace | Informa de algo que ya ha ocurrido. | Pide una decisión, o que la persona se dé por enterada de algo, antes de que el trabajo continúe. |
+| Foco | Nunca se mueve. La persona sigue trabajando. | Pasa al diálogo. La página que queda detrás no se puede usar. |
+| Cuánto permanece | Unos segundos, o hasta que se usa su acción o su botón de cierre. | Hasta que la persona responde. |
+| Acciones | Una como máximo, y el mensaje está completo sin ella. | Las respuestas a su pregunta. |
+
+Si las personas pueden ignorar el mensaje sin que nada vaya mal, es un snackbar. Si la aplicación no puede continuar sin una respuesta, es un diálogo. Un mensaje que pertenece a una parte de la pantalla y tiene que seguir a la vista, como lo que está mal en un campo, va en ese lugar, por ejemplo como texto de apoyo del campo.
+
+### Partes
+
+| Parte | Se define con | Notas |
+| --- | --- | --- |
+| Barra | `inverse` | Una superficie elevada del esquema de forma predeterminada, o los colores del esquema opuesto; consulta [Sobre una superficie o en inverso](#sobre-una-superficie-o-en-inverso). |
+| Glifo de estado | `status` y `statusLabel` | Opcional. Una forma de estado dibuja su glifo antes del texto; consulta [Formas de estado](#formas-de-estado). |
+| Título | `title` (`headline` en la web) | Opcional. Un encabezado corto encima del mensaje, en un estilo más grueso del mismo tamaño que el mensaje. Sin él, el mensaje va solo. |
+| Mensaje | `message` | Obligatorio. Texto sin formato, una o dos frases cortas, que se anuncia entero. Con un título, es la descripción y se dibuja algo más discreto que el título. |
+| Acción | `action` (la etiqueta) | Opcional: «Deshacer», «Ver», «Reintentar». Se dibuja como un botón tonal: una cápsula a un paso discreto de su barra, con la etiqueta en el color del texto de la barra. El snackbar la dibuja con sus propios tokens, no como un Button. Pasa a su propia fila cuando el texto necesitaría más de dos líneas a su lado, contando juntas las líneas del título y las del mensaje, o cuando su etiqueta tendría que saltar de línea. |
+| Botón de expandir | `expandLabel`, `expanded` | Solo se dibuja mientras el título o el mensaje ocupan más de tres líneas. `expandLabel` es su nombre accesible, como «Mostrar el mensaje completo». |
+| Botón de cierre | `closable` y `closeLabel` | Opcional. Para un mensaje que permanece hasta que se cierra, o uno que las personas pueden querer quitar antes. `closeLabel` es su nombre accesible, en el idioma de tu producto. |
+
+La acción, el botón de expandir y el botón de cierre se sitúan junto a la primera línea del texto. Los botones de expandir y de cierre son botones de solo icono con los glifos `expand_more`, `expand_less` y `close` del conjunto de iconos, redondos con el cursor encima o al pulsarlos.
+
+### La acción
+
+La acción es un botón tonal que se apoya en su barra. Su contenedor es el color de la propia barra con una capa tenue del color de la etiqueta por encima, de modo que queda al mismo paso discreto de la barra en todas las formas: sobre una superficie o en inverso, con estado o sin él. La etiqueta tiene el color del texto de la barra.
+
+Es tonal porque suele ser un deshacer, y la persona que acaba de equivocarse tiene que ver de inmediato que hay un botón. Una etiqueta de texto sin más pasa fácilmente inadvertida en la barra.
+
+**Nunca la conviertas en un botón filled.** Una acción lo bastante importante como para parecer que pide un botón filled no tiene sitio en un snackbar, que desaparece y es lo último a lo que se llega en el orden del foco. Ponla tras la acción principal de la pantalla, en una [hoja inferior](/es/components/bottom-sheet/).
+
+Un producto puede dar otro aspecto a la acción. Lo hace una sola vez, para todos los snackbars, en su capa de sistema de diseño, dando otros valores a los tokens de color de la acción y a la opacidad de su capa tonal; no hay una variante por snackbar. Los preajustes Material y Cupertino hacen exactamente eso, para conservar la acción de texto que tienen sus originales.
+
+### Formas de estado
+
+| `status` | Glifo | Se anuncia | Úsala para |
+| --- | --- | --- | --- |
+| `default` | Ninguno | De forma cortés | La mayoría de los mensajes: lo que la aplicación acaba de hacer. |
+| `info` | `info` | De forma cortés | Algo que vale la pena saber y que no es el resultado de una acción de la persona. |
+| `success` | `check_circle` | De forma cortés | Una tarea que terminó bien, cuando la persona la estaba esperando. |
+| `warning` | `warning` | De forma asertiva | Algo que puede ir mal si la persona no actúa. |
+| `error` | `error` | De forma asertiva | Un fallo al que la persona puede volver, con una acción que reintenta o explica. |
+
+<DemoFrame label="Formas de estado: info, success, warning y error" column>
+  <tanrei-snackbar status="info" status-label="Información" message="Hay una versión nueva lista para instalar." action="Reiniciar"></tanrei-snackbar>
+  <tanrei-snackbar status="success" status-label="Correcto" message="Copia de seguridad terminada" closable close-label="Cerrar"></tanrei-snackbar>
+  <tanrei-snackbar status="warning" status-label="Advertencia" headline="Almacenamiento casi lleno" message="Las subidas se detienen cuando se usen los últimos 200 MB." action="Administrar"></tanrei-snackbar>
+  <tanrei-snackbar status="error" status-label="Error" headline="Mensaje no enviado" message="No tienes conexión. El mensaje se quedará en la Bandeja de salida." action="Reintentar"></tanrei-snackbar>
+</DemoFrame>
+
+Una forma de estado dibuja su barra como un tinte discreto del estado, rodeada por un borde de línea fina en el color del estado y con el glifo del estado, en ese color, antes del texto. El borde no ocupa espacio. La forma predeterminada no tiene un borde propio, solo el que dibuja su elevación. Una forma de estado nunca se comunica solo con el color: la forma del glifo distingue unas formas de otras, y `statusLabel` da el estado en palabras, en el idioma de tu producto («Error»). La etiqueta se lee antes del título y del mensaje. Las formas warning y error interrumpen lo que se está leyendo; las demás esperan a que termine.
+
+### Sobre una superficie o en inverso
+
+De forma predeterminada, un snackbar se dibuja sobre una superficie elevada del esquema: la superficie clara, levantada por su elevación, sobre la que también se apoyan los diálogos, con el color de texto del esquema. Dibujado en inverso toma los colores del esquema opuesto, una barra oscura en un esquema claro, de modo que se distingue de aquello sobre lo que aparece.
+
+<DemoFrame label="Dibujado en inverso: la forma predeterminada y las cuatro formas de estado" plain column>
+  <tanrei-snackbar inverse message="Conversación archivada" action="Deshacer"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="info" status-label="Información" message="Hay una versión nueva lista para instalar." action="Reiniciar"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="success" status-label="Correcto" message="Copia de seguridad terminada" closable close-label="Cerrar"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="warning" status-label="Advertencia" headline="Almacenamiento casi lleno" message="Las subidas se detienen cuando se usen los últimos 200 MB." action="Administrar"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="error" status-label="Error" headline="Mensaje no enviado" message="No tienes conexión. El mensaje se quedará en la Bandeja de salida." action="Reintentar"></tanrei-snackbar>
+</DemoFrame>
+
+| `inverse` | Se dibuja |
+| --- | --- |
+| Sin definir (`null`, el valor predeterminado) | Como elija el sistema de diseño. El sistema predeterminado elige una superficie; el preajuste `m3-like` elige inverso. |
+| `true` | En inverso. |
+| `false` | Sobre una superficie, también en un sistema cuya elección es inverso. |
+
+En la web, el atributo indica cuál de los tres es: si se omite, está sin definir; `inverse` es true, e `inverse="false"` es false. `show()` admite `inverse` como opción.
+
+Una forma de estado dibujada en inverso es la forma de ese estado en el otro tema, parte por parte. En un tema claro, la barra info en inverso es la barra info que dibuja un tema oscuro, con el texto, el glifo, el borde y la acción de ese tema; en un tema oscuro, es la del tema claro. Lo mismo vale en cada nivel de contraste. Así, una forma de estado en inverso no usa ningún color que el producto no dibuje ya en otro lugar, y su glifo y su borde son tan vivos como sobre una superficie.
+
+Dibujarse en inverso cambia los colores y nada más: el tamaño, las esquinas, la elevación, la disposición, los glifos, el movimiento, los tiempos, el anuncio y las teclas siguen igual. Es un aspecto, no un significado. No lo uses para decir que un mensaje es importante; eso lo dicen las formas de estado y `statusLabel`. Es preferible decidirlo una sola vez para el producto, en su capa de sistema de diseño, para que todos los snackbars parezcan el mismo tipo de mensaje.
+
+### Texto largo
+
+Mientras están contraídos, el título y el mensaje muestran como máximo tres líneas cada uno, y terminan con puntos suspensivos donde se cortan. Entonces aparece un botón de expandir entre la acción y el botón de cierre. Al activarlo se muestra todo el texto, se emite `toggle` con el nuevo valor de `expanded` (`expandedchange` en la web), el foco se queda en el botón y el snackbar no se cierra. La barra crece hacia arriba desde su borde inferior, de inmediato donde el movimiento está reducido. Su contenido se alinea arriba, de modo que el glifo, la primera línea y los controles que tiene al lado mantienen su distancia al borde superior mientras la barra crece o se encoge, y una acción en su propia fila mantiene su distancia al borde inferior. Tu código también puede definir `expanded`, lo que no emite nada.
+
+Si el texto expandido sigue siendo más alto que el espacio que tiene el anfitrión, la barra toma esa altura y su texto se desplaza dentro de ella, mientras el glifo y los controles permanecen en su sitio. La tecnología de apoyo siempre recibe el texto entero, esté cortado o no.
+
+### Duración
+
+| `duration` | Cuánto permanece por sí solo |
+| --- | --- |
+| `auto` (predeterminado) | `short` sin acción. Con una acción nunca agota su tiempo, así que nadie se queda sin tiempo para usarla (WCAG 2.2.1). |
+| `short` | Se cierra tras el tiempo de espera corto (4 segundos en el sistema predeterminado). |
+| `long` | Se cierra tras el tiempo de espera largo (10 segundos en el sistema predeterminado). |
+| `indefinite` | Permanece hasta que la persona o tu código lo cierran. |
+
+Un snackbar temporizado se pausa mientras el puntero está sobre él, mientras el foco está dentro de él, mientras está expandido, mientras la aplicación está oculta o en segundo plano, y mientras lo cubre un diálogo modal de Tanrei. Después vuelve a empezar con su duración completa. El tiempo de espera de accesibilidad de Android lo alarga cuando es mayor, y un snackbar con una acción nunca agota su tiempo mientras hay un lector de pantalla en funcionamiento. Si pones un tiempo de espera a un snackbar que tiene una acción, ofrece también esa acción en otro lugar, como Deshacer en un menú. Las compilaciones de depuración te lo recuerdan.
+
+### Aparición, foco y cierre
+
+Un snackbar es una superposición de lectura. Las personas asimilan su mensaje, así que mostrarlo nunca mueve el foco.
+
+- **De uno en uno.** El anfitrión muestra los snackbars en el orden en que se pidieron. El siguiente espera hasta que el anterior se ha desvanecido. Un snackbar pedido mientras hay un diálogo modal de Tanrei abierto espera hasta que el diálogo se cierra.
+- **Ubicación.** Abajo y centrado, con un margen sobre el borde inferior y desde los lados, dentro del área segura y por encima del teclado en pantalla. Se dibuja por encima del contenido de su área y por debajo de un diálogo modal y su velo.
+- **Anuncio.** Cuando aparece, la tecnología de apoyo lee una vez la etiqueta de estado, el título y el mensaje, seguidos de la etiqueta de la acción: de forma cortés, después de lo que se está leyendo, o de forma asertiva para warning y error. Nada toma el foco del teclado ni el del lector de pantalla.
+- **Foco.** A la acción, al botón de expandir y al botón de cierre se llega con Tab en el lugar del anfitrión en el orden del foco, y por eso el anfitrión va el último. La barra en sí no es una parada de tabulación, salvo su texto mientras una barra expandida lo desplaza.
+- **Cierre.** El snackbar se cierra cuando se activa su acción (`action`), o sin ella (`dismiss`), por uno de estos motivos:
+
+| Motivo | Cuándo |
+| --- | --- |
+| `close` | Se activó el botón de cierre. |
+| `escape` | Se pulsó Escape mientras el foco estaba dentro del snackbar. |
+| `timeout` | A un snackbar `short` o `long` se le acabó el tiempo. |
+| `host` | Tu código lo cerró o vació la cola. |
+
+- **Devolución del foco.** Cuando un snackbar se cierra mientras el foco está dentro de él, el foco vuelve al elemento que lo tenía antes de que entrara en el snackbar.
+- **Movimiento.** Sube hasta su sitio desde debajo del borde inferior mientras aparece con un fundido, y se desvanece sin moverse de su sitio. Donde el movimiento está reducido, aparece y desaparece con un fundido, sin moverse; en Android, cuyo ajuste elimina todas las animaciones, aparece y desaparece de inmediato.
+
+### Recomendado
+
+- Di lo que ocurrió en pasado: «Mensaje enviado», «3 archivos movidos».
+- Da a la acción un verbo corto que las personas esperen después del mensaje: «Deshacer», «Ver», «Reintentar».
+- Elige el estado que corresponda a lo que ocurrió, y da un `statusLabel` a cada forma de estado.
+- Decide una sola vez, para todo el producto, si los snackbars se dibujan sobre una superficie o en inverso.
+- Mantén el texto lo bastante corto como para que rara vez necesite el botón de expandir.
+- Conserva la duración predeterminada `auto` a menos que tengas un motivo. Nunca deja a nadie sin tiempo para usar una acción.
+- Pon el anfitrión el último en la página o en el diseño, para que sus controles sean los últimos en el orden del foco.
+
+### Evita
+
+- No uses un snackbar para errores que bloquean la tarea ni para preguntas. Usa un diálogo.
+- No pongas dos acciones en un snackbar. Tiene sitio para una.
+- No conviertas la acción en un botón filled, ni pongas en un snackbar una acción que parezca necesitarlo. Usa una hoja inferior desde la acción principal.
+- No uses la forma warning o error para confirmaciones rutinarias. Interrumpen al lector de pantalla.
+- No dibujes un snackbar en inverso para marcarlo como importante. El inverso solo cambia los colores; un estado dice qué tipo de mensaje es.
+- No muestres un snackbar para algo que la pantalla ya muestra con claridad.
+- No muevas el foco a un snackbar ni a su acción. No debe apartar a las personas de su trabajo.
+
+## Accesibilidad
+
+<ComponentAccessibility name="snackbar" />
+
+### De qué se encarga el componente
+
+- El snackbar se anuncia mediante una región activa (live region): una cortés (el rol status en la web) para las formas default, info y success, y una asertiva (el rol alert) para warning y error. Su etiqueta de estado, su título y su mensaje, y después la etiqueta de su acción, se anuncian una vez cuando aparece, y siempre enteros, incluso cuando el texto está cortado. En SwiftUI, Compose, Flutter y React Native se usa el anuncio propio de la plataforma, con prioridad alta para warning y error, y ninguno de ellos toma el foco.
+- Una forma de estado nunca se comunica solo con el color: dibuja el glifo del estado y expone `statusLabel` como texto antes del título. El glifo en sí queda oculto para la tecnología de apoyo, igual que los glifos de expandir y de cierre.
+- La acción recibe su nombre de su etiqueta, el botón de expandir de `expandLabel` y el botón de cierre de `closeLabel`. A todos se llega con Tab en el lugar del anfitrión en el orden del foco, y se activan con Enter o Espacio.
+- El botón de expandir expone si el texto está expandido y conserva el mismo nombre en los dos estados. Una barra expandida cuyo texto se desplaza convierte el texto en una parada del foco, que recibe su nombre del título y se desplaza con las teclas de flecha y con Re Pág y Av Pág.
+- Escape cierra el snackbar mientras el foco está dentro de él. Cuando se cierra con el foco dentro, el foco vuelve adonde estaba antes.
+- Un snackbar con una acción no agota su tiempo de forma predeterminada. Los snackbars temporizados se pausan mientras tienen el cursor encima, el foco o están expandidos, se alargan hasta el tiempo de espera de accesibilidad de Android y, con una acción, nunca agotan su tiempo mientras hay un lector de pantalla en funcionamiento.
+- La acción y el botón de cierre cumplen el objetivo mínimo en los dos ejes sin cambiar su tamaño dibujado. Su anillo de foco se muestra solo para el foco del teclado, en un color de la forma del snackbar, de modo que se ve en cualquier barra: una superficie, el tinte de un estado y una barra en inverso.
+- Las partes que se dibujan más suaves mantienen su contraste frente a la barra en todos los esquemas del sistema predeterminado: el glifo de estado, al menos 3:1, y un mensaje bajo un título, al menos 4.5:1, o 7:1 en los esquemas de contraste alto. La suavización es solo cuestión de color; lo que lee la tecnología de apoyo no cambia, y tampoco cuando el snackbar se dibuja en inverso.
+- Un texto más grande nunca oculta texto de forma definitiva: un título o un mensaje contraídos terminan con puntos suspensivos a las tres líneas y el botón de expandir muestra el resto, la acción pasa a su propia fila, y una barra expandida más alta que la ventana se desplaza.
+- Antes de que se haya cargado la fuente de iconos, el nombre de un glifo nunca se dibuja como texto: el lugar del glifo queda vacío hasta que la fuente puede dibujarlo.
+- Las compilaciones de depuración notifican un mensaje vacío, un botón de cierre sin `closeLabel`, una forma de estado sin `statusLabel`, un botón de expandir sin `expandLabel` y un snackbar temporizado que tiene una acción.
+
+Carencias conocidas por plataforma:
+
+- Web: el navegador no dice si hay un lector de pantalla en funcionamiento y no tiene tiempo de espera de accesibilidad, así que ninguno de los dos alarga un snackbar temporizado. La duración predeterminada `auto` es lo que mantiene una acción al alcance.
+- Web: que se mantenga apartado del teclado en pantalla todavía no se ha comprobado en un dispositivo que lo tenga.
+- SwiftUI no puede devolver el foco al elemento que lo tenía: cuando un snackbar se cierra con el foco dentro, el foco va adonde SwiftUI lo mueve cuando se elimina una vista. Un anfitrión dentro de una vista que alojas fuera de una escena, como tu propio `NSHostingView`, nunca ejecuta sus tiempos de espera.
+- Compose no puede nombrar el elemento que tenía el foco antes de que entrara en el snackbar. Cuando el snackbar se cierra con el foco dentro, el foco sale por donde entró: después de entrar con Tab, va al elemento anterior al anfitrión. Cuando tu código lo cierra mientras el foco está dentro, el foco no se mueve.
+- Compose: el alargamiento hasta el tiempo de espera de accesibilidad de Android y la pausa mientras la ventana está oculta todavía no están cubiertos por ninguna prueba.
+- Compose: el anuncio cortés, la pausa mientras la ventana no tiene el foco y el tiempo de espera de accesibilidad se han probado solo con Robolectric, todavía no en un dispositivo.
+- Flutter todavía no alarga un snackbar temporizado hasta el tiempo de espera de accesibilidad de Android, que Flutter no expone.
+- React Native no puede saber qué elemento tenía antes el foco. Cuando un snackbar se cierra mientras el foco está dentro de él, el foco va adonde lo pone la plataforma.
+- React Native no tiene una API propia de área segura. El snackbar se mantiene dentro del área segura solo cuando pasas los márgenes interiores de la ventana a `TanreiProvider`; sin ellos, en un teléfono con indicador de inicio puede quedar en parte encima de él.
+- React Native decide que la acción pasa a su propia fila a partir de las líneas ya dispuestas, así que el cambio ocurre después de la primera pasada de diseño.
+- React Native: el anuncio cortés, que se mantenga por encima del teclado y las pausas por el segundo plano y por el puntero todavía no se han comprobado en un dispositivo.
+
+### Qué debes hacer tú
+
+- Escribe el mensaje como texto sin formato que tenga sentido por sí solo al leerse en voz alta.
+- Da un `closeLabel` al botón de cierre, un `statusLabel` a una forma de estado y un `expandLabel` a un snackbar cuyo texto pueda alargarse, todos en el idioma de tu producto.
+- Coloca el anfitrión el último en la página, o el último en el diseño en Compose.
+- En React Native, pasa los `insets` de la ventana a `TanreiProvider`, para que el snackbar se mantenga apartado de las barras del sistema.
+- Si eliges `short` o `long` para un snackbar con una acción, ofrece la misma acción en algún lugar que no agote su tiempo.
+- Pon en un diálogo, no en un snackbar, todo aquello sobre lo que las personas deban actuar.

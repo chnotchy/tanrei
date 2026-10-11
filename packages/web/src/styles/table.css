@@ -1,0 +1,902 @@
+/*
+ * Table (specs/table.spec.json, TBL-1 to TBL-57): data that has rows and columns — named
+ * columns, optional row headers, a caption, footer rows — that scrolls in its own box when it does not fit. A column's
+ * header can ask for the rows in its order, and rows can be chosen by a checkbox each; the table itself never sorts,
+ * filters, fetches or pages.
+ *
+ * `<tanrei-table>` is an element with no shadow root around the product's own native table, which stays in the
+ * document and is never given another `display`: its semantics, a crawler's reading, copy and paste as a table and a
+ * screen reader's table navigation are the browser's own.
+ *
+ *   <tanrei-table density="compact" striped row-headers sticky-first-column>
+ *     <table>
+ *       <caption>Visits by region</caption>
+ *       <thead><tr><th scope="col">Region</th><th scope="col" data-align="end" data-wrap="false">January</th></tr></thead>
+ *       <tbody><tr><th scope="row">Islands</th><td>212</td></tr></tbody>
+ *       <tfoot><tr><th scope="row">All regions</th><td>6,846</td></tr></tfoot>
+ *     </table>
+ *   </tanrei-table>
+ *
+ * Attributes of the wrapper: `density` (regular | compact), `separation` (auto | divider | gap), `striped`,
+ * `row-headers`, `sticky-header`, `sticky-first-column`, `selection` (none | multiple), `loading`, `label`, `caption`,
+ * `status`. Attributes of a cell:
+ * `data-align` (start | center | end) and `data-wrap="false"`; a renderer's own `align` (left, center, right) is read
+ * as start, center and end.
+ *
+ * A column that can be sorted (TBL-32): its header cell names the order the rows are in — `aria-sort="none"`,
+ * `"ascending"` or `"descending"` — and holds the product's own button around the header's text (or an anchor to the
+ * same table in the other order). The whole cell is the button; the mark is drawn from the attribute.
+ *
+ *   <th scope="col" aria-sort="ascending" data-value="name"><button type="button">Name</button></th>
+ *   <th scope="col" aria-sort="none" data-value="price" data-align="end"><a href="?sort=price">Price</a></th>
+ *
+ * No rows (TBL-48): one row of one cell that spans the columns, holding the product's Empty state or its sentence — in
+ * an element, which is what stays in view while the columns scroll.
+ *
+ *   <tbody><tr data-part="empty"><td colspan="3"><tanrei-empty-state …></tanrei-empty-state></td></tr></tbody>
+ *
+ * The status line (TBL-51), after the table and inside the wrapper: the product's sentence, told politely when it
+ * changes, and its pagination.
+ *
+ *   <div data-part="status"><p role="status">1–20 of 132</p><nav class="tanrei-pagination">…</nav></div>
+ *
+ * Rows that can be chosen (TBL-42), on a table whose `selection` is `multiple`: a first cell `data-part="selection"`
+ * in every row — in the header row holding the checkbox for every row, in a body row that has a `data-value` holding
+ * that row's checkbox, and empty in a row without one, in a placeholder row and in a footer row. A checkbox is a
+ * `<tanrei-checkbox label-hidden>` or a native one. A chosen row carries `data-selected`; a native checkbox that is
+ * checked draws its row as chosen too (TBL-57).
+ *
+ *   <thead><tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">Name</th></tr></thead>
+ *   <tbody><tr data-value="kettle" data-selected>
+ *     <td data-part="selection"><tanrei-checkbox label-hidden label="Select Kettle" checked></tanrei-checkbox></td>
+ *     <th scope="row">Kettle</th>
+ *   </tr></tbody>
+ *
+ * A row that stands for a record that has not arrived (TBL-50): `<tr data-placeholder aria-hidden="true">`, its cells
+ * empty or holding a Skeleton's placeholder (`<span class="tanrei-skeleton-placeholder"></span>`, skeleton.css).
+ *
+ * This stylesheet draws everything, before and without script (an element that is not yet defined is still an
+ * element). The element (src/components/table/table.ts) adds what a stylesheet cannot and writes it here as
+ * attributes of the wrapper:
+ *
+ *   data-more-start, data-more-end   columns lie beyond that inline edge of the box (TBL-21)
+ *   data-more-above                  rows have scrolled under the header row (TBL-19)
+ *   data-first-column-released       the first column is wider than half of the box, so it is not kept (TBL-20)
+ *   data-columns-end, -center, -nowrap   the columns whose header cell names an alignment or `data-wrap="false"`, by
+ *                                    position ("2 3 4"); one rule per position, in a sheet the element adds, aligns
+ *                                    their cells — no cell is written to
+ *   data-separation (on the table)   the separation the tokens name, where the browser has no style queries (TBL-9)
+ *   data-more-below                  rows lie under the status line (TBL-51)
+ *   data-selection-kept, and `--_table-selection-size` in the wrapper's style
+ *                                    the selection column is kept in view with the first column, which is held where
+ *                                    the selection column ends — a length that has to be measured (TBL-42)
+ *   data-selected (on a body row)    kept in step with the row's checkbox (TBL-44)
+ *   data-glyphs="pending"            the icon set cannot draw a sort mark yet: none is drawn, every box is kept (TBL-56)
+ *   data-pressed (on a sort button)  the answer to a press the system names: overlay, ripple, dim, none (TBL-38)
+ *   data-focus-style (on a sort button)   the focus style, where the browser has no style queries (TBL-39)
+ *
+ * Every value is a `--tanrei-comp-table-*` token, or the system's focus, target, icon and press-hold tokens.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name and has no specificity (`:where()`; a rule on `::before` or
+ *   `::after` has a pseudo-element's), so one class of the product's wins, and the ORDER of the rules decides between
+ *   two of them.
+ * - A rule reaches the table's own rows and cells by child combinators only: a table inside a cell is the product's.
+ * - Lines are cell borders (`border-collapse: separate`: a collapsed border does not travel with a cell that stays),
+ *   and a line never changes a row's height or a column's width: the padding on that side gives up what the line
+ *   takes. A line that is not drawn has no width — never a transparent one, which forced colors would paint.
+ * - The space of `separation: gap` is padding under the row's content; a fill (a stripe, a header's) stops short of it.
+ * - The wrapper is a grid of one cell that holds the table and the two "there is more" lines, which are as tall as
+ *   the table because they share its cell and stay at the box's edges because they are sticky.
+ * - `:has()` is asked only of the element a rule styles, and what it finds reaches other elements as an inherited
+ *   value (`--_table-last-body-line`). An element that `:has()` is asked of for the sake of ANOTHER element is one
+ *   whose subtree an engine may restyle whole at every change inside it; a table holds a product's components, which
+ *   write attributes on themselves as they are defined (src/styles/has.test.ts holds the shape, prose.perf.test.ts what it costs).
+ * - A sort button's container — its state layer, its focus indicator and its hit area — is the button's `::before`,
+ *   laid over the whole header cell (the cell is its containing block), so the cell keeps its paddings and the label
+ *   stays where a plain header's is. The state rules, the focus indicator and the ripple's layer say what
+ *   `stateRules()`, `focusRing()` and `rippleStyles()` (src/primitives) say for a shadow root; they are restated here
+ *   for an element of the document. Pressed: with the package's script it is `data-pressed` (the shared press
+ *   primitive). Without it, `:active` is the overlay, held for press-hold by a delayed step of two names (below).
+ * - Names that begin `--_table-` are private.
+ */
+/* The hold of a press that no script answers. While a sort button is held down, and for press-hold after, the pressed container
+   is drawn as a layer of its own — an image of that one color — and the state's color under it is not drawn: the
+   pressed color stands in the state's place, as it does with the script, and is not laid over it. Both are said by two
+   names that only a press changes, `--_table-held-image` and `--_table-held-clip` (the second layer of the image is there for
+   its clip alone: a background's color is clipped as its last layer is, and `text` leaves it behind the glyphs). No one
+   registers them — a registered custom property makes every transition of the page dear: each is a custom property like any other, which may change
+   in steps (`transition-behavior: allow-discrete`, said wherever the transition is), and a step after press-hold is all
+   the hold is; the two properties that read them have no transition, so they follow the names frame by frame. The
+   background's COLOR takes no part in the hold: mixed with the pressed one by a held number, it started its own
+   transition when the press ended — toward the value it has without the hold, which a transition's start does not
+   count — faded there while the press was being held, and came back. Where the browser does not know a step, the press
+   ends when the pointer is lifted. */
+
+@layer tanrei.components {
+  /* ── The box (TBL-1, TBL-17, TBL-18): as wide as its layout, the scroll box of its table, no look of its own ─── */
+  :where(tanrei-table) {
+    /* TBL-4, TBL-5: the density's paddings and text styles (TBL-31: any other density is the default's). */
+    --_table-pad-block: var(--tanrei-comp-table-cell-padding-block-regular);
+    --_table-pad-inline: var(--tanrei-comp-table-cell-padding-inline-regular);
+    --_table-cell-font: var(--tanrei-comp-table-cell-text-typescale-regular-font);
+    --_table-cell-tracking: var(--tanrei-comp-table-cell-text-typescale-regular-letter-spacing);
+    --_table-cell-emphasized: var(--tanrei-comp-table-cell-text-typescale-regular-font-weight-emphasized);
+    --_table-header-font: var(--tanrei-comp-table-header-text-typescale-regular-font);
+    --_table-header-tracking: var(--tanrei-comp-table-header-text-typescale-regular-letter-spacing);
+    /* The height of one line of a header's label, as a length: a sort mark is centred on the label's last line. */
+    --_table-header-leading: calc(var(--tanrei-comp-table-header-text-typescale-regular-line-height) * var(--tanrei-comp-table-header-text-typescale-regular-font-size));
+    /* TBL-40, TBL-47: the least height of a header cell that is a sort button and of a row that holds a checkbox — the
+       pointer's target, the touch target for a coarse pointer at both densities (below), and for a fine pointer at the
+       compact density what its density gives. */
+    --_table-sort-target: var(--tanrei-sys-target-pointer);
+    /* TBL-9: the separation this table draws — its attribute's, else comp.table.separation's. */
+    --_table-separation: var(--tanrei-comp-table-separation);
+    --_table-line: var(--tanrei-comp-table-divider-thickness);
+    --_table-line-color: var(--tanrei-comp-table-divider-color);
+    /* The line along the inner edge of a first column that is kept (TBL-20): none until a column is under it. */
+    --_table-column-line: 0px;
+    /* TBL-27, TBL-28: start and end as sides, by the layout direction — not by a cell's own text. */
+    --_table-start: left;
+    --_table-end: right;
+
+    /* One cell, as wide as the box or — where the columns need more — as the table, which then scrolls in the box. */
+    display: grid;
+    grid-template-columns: minmax(min-content, 1fr);
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    overflow: auto;
+    /* The caption is as wide as the box (100cqi). The box takes its width from its layout, never from its table. */
+    container-type: inline-size;
+    /* What stays in view is ordered inside the box alone. */
+    isolation: isolate;
+    /* What a table's text must not take from where it is used (prose breaks a long word anywhere: TBL-3 does not). */
+    overflow-wrap: normal;
+    word-break: normal;
+    text-indent: 0;
+  }
+  :where(tanrei-table[hidden]) {
+    display: none;
+  }
+  :where(tanrei-table):dir(rtl) {
+    --_table-start: right;
+    --_table-end: left;
+  }
+  :where(tanrei-table[density='compact']) {
+    --_table-pad-block: var(--tanrei-comp-table-cell-padding-block-compact);
+    --_table-pad-inline: var(--tanrei-comp-table-cell-padding-inline-compact);
+    --_table-cell-font: var(--tanrei-comp-table-cell-text-typescale-compact-font);
+    --_table-cell-tracking: var(--tanrei-comp-table-cell-text-typescale-compact-letter-spacing);
+    --_table-cell-emphasized: var(--tanrei-comp-table-cell-text-typescale-compact-font-weight-emphasized);
+    --_table-header-font: var(--tanrei-comp-table-header-text-typescale-compact-font);
+    --_table-header-tracking: var(--tanrei-comp-table-header-text-typescale-compact-letter-spacing);
+    --_table-header-leading: calc(var(--tanrei-comp-table-header-text-typescale-compact-line-height) * var(--tanrei-comp-table-header-text-typescale-compact-font-size));
+    --_table-sort-target: 0px;
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-table) {
+      --_table-sort-target: var(--tanrei-sys-target-touch);
+    }
+  }
+  :where(tanrei-table[separation='divider']) {
+    --_table-separation: divider;
+  }
+  :where(tanrei-table[separation='gap']) {
+    --_table-separation: gap;
+  }
+  /* TBL-20: the line of a first column that is kept, while a column is under it. */
+  :where(tanrei-table[sticky-first-column][data-more-start]:not([data-first-column-released])) {
+    --_table-column-line: var(--_table-line);
+  }
+
+  /* TBL-22: the box is a focus stop while it scrolls; the system's ring, inside its edge so that nothing clips it. */
+  :where(tanrei-table):focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: calc((var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-outer-width)) * -1);
+  }
+
+  /* TBL-21: the two lines that say there is more, at the box's inline edges, as tall as the table. A line has no
+     width until columns lie beyond its edge; the start line of a table whose first column is kept is that column's. */
+  :where(tanrei-table)::before,
+  :where(tanrei-table)::after {
+    content: '';
+    grid-area: 1 / 1;
+    position: sticky;
+    z-index: 4;
+    inline-size: 0;
+    border: 0 solid var(--_table-line-color);
+    pointer-events: none;
+  }
+  :where(tanrei-table)::before {
+    justify-self: start;
+    inset-inline-start: 0;
+  }
+  :where(tanrei-table)::after {
+    justify-self: end;
+    inset-inline-end: 0;
+  }
+  :where(tanrei-table[data-more-start]:not([sticky-first-column]))::before,
+  :where(tanrei-table[data-more-start][data-first-column-released])::before {
+    border-inline-start-width: var(--_table-line);
+  }
+  :where(tanrei-table[data-more-end])::after {
+    border-inline-end-width: var(--_table-line);
+  }
+
+  /* ── The table: a table still (TBL-24), sized by its content and never narrower than the box (TBL-1, TBL-2) ──── */
+  :where(tanrei-table) > :where(table) {
+    /* TBL-8, TBL-10: what tells two rows apart — a line (divider), or space and no line (gap). */
+    --_table-row-line: var(--_table-line);
+    --_table-row-gap: 0px;
+    --_table-header-line: var(--_table-line);
+    /* What the last body row draws under itself: nothing, unless footer rows follow it (below). */
+    --_table-last-body-line: 0px;
+    --_table-last-body-gap: 0px;
+    /* TBL-43: what a row gives its cells — a stripe's fill, a chosen row's fill and text color. None here, so that a
+       table inside a cell of a chosen row is not drawn as chosen. */
+    --_table-row-fill: initial;
+    --_table-row-text: initial;
+
+    grid-area: 1 / 1;
+    /* Under the box's own focus ring (TBL-22): a cell that stays in view is positioned, and would be drawn over it. */
+    z-index: -1;
+    box-sizing: border-box;
+    min-inline-size: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+
+    /* TBL-12: the caption — above the first row, at the start edge of the box, where it stays while the columns
+       scroll sideways, wrapping inside the box's width. */
+    & > :where(caption) {
+      caption-side: top;
+      /* As wide as the box and held at both of its edges: an engine places a caption narrower than its table at the
+         table's left in either direction, and the far edge brings it back. */
+      position: sticky;
+      inset-inline: 0;
+      box-sizing: border-box;
+      max-inline-size: 100cqi;
+      margin: 0;
+      padding: 0;
+      padding-block-end: var(--tanrei-comp-table-caption-gap);
+      font: var(--tanrei-comp-table-caption-text-typescale-font);
+      letter-spacing: var(--tanrei-comp-table-caption-text-typescale-letter-spacing);
+      color: var(--tanrei-comp-table-caption-text-color);
+      text-align: var(--_table-start);
+      unicode-bidi: plaintext;
+    }
+
+    /* TBL-5: a header row whose every cell is empty is no header row. */
+    & > :where(thead:not(:has(> tr > :not(:empty)))) {
+      display: none;
+    }
+
+    /* TBL-8, TBL-10: nothing under the last row — the last footer row, or the last body row of a table without one.
+       Whether footer rows follow is asked ON the table and handed down as a value: with the question in one compound
+       and the row in another (`table:not(:has(> tfoot > tr)) > tbody > tr`) the table is an element whose whole
+       subtree an engine restyles when anything inside it changes in a way some `:has()` of the page asks about —
+       every cell and everything in every cell, at each attribute a component in a cell writes (see HOW IT IS
+       WRITTEN). */
+    &:where(:has(> tfoot > tr)) {
+      --_table-last-body-line: var(--_table-row-line);
+      --_table-last-body-gap: var(--_table-row-gap);
+    }
+    & > :where(tfoot) > :where(tr:last-child) {
+      --_table-row-line: 0px;
+      --_table-row-gap: 0px;
+    }
+    & > :where(tbody:last-of-type) > :where(tr:last-child) {
+      --_table-row-line: var(--_table-last-body-line);
+      --_table-row-gap: var(--_table-last-body-gap);
+    }
+
+    /* ── A cell (TBL-3, TBL-4, TBL-7, TBL-14, TBL-28) ──────────────────────────────────────────────────────────── */
+    & > :where(thead, tbody, tfoot) > :where(tr) > :where(th, td) {
+      padding-block: var(--_table-pad-block) calc(var(--_table-pad-block) + var(--_table-row-gap) - var(--_table-row-line));
+      padding-inline: var(--_table-pad-inline);
+      border: 0 solid var(--_table-line-color);
+      border-block-end-width: var(--_table-row-line);
+      font: var(--_table-cell-font);
+      letter-spacing: var(--_table-cell-tracking);
+      /* TBL-4: figures of equal width, so the numbers of a column line up (after `font`, which resets it). */
+      font-variant-numeric: tabular-nums;
+      color: var(--tanrei-comp-table-cell-text-color);
+      /* TBL-7, TBL-28: by the column's alignment in the layout direction; the text itself is of its own direction. */
+      text-align: var(--_table-start);
+      unicode-bidi: plaintext;
+      vertical-align: top;
+      /* TBL-3: text wraps inside its column and a run with no break opportunity is never broken. */
+      white-space: normal;
+    }
+    & > :where(thead, tbody, tfoot) > :where(tr) > :where([data-align='center'], [align='center']) {
+      text-align: center;
+    }
+    & > :where(thead, tbody, tfoot) > :where(tr) > :where([data-align='end'], [align='right']) {
+      text-align: var(--_table-end);
+    }
+    & > :where(thead, tbody, tfoot) > :where(tr) > :where([data-wrap='false']) {
+      white-space: nowrap;
+    }
+    /* TBL-3: Japanese and Chinese lines break by their own rules. */
+    & > :where(thead, tbody, tfoot) > :where(tr) > :where(:lang(ja), :lang(zh)) {
+      line-break: strict;
+    }
+
+    /* TBL-5: a column's header — a label in a quieter color, on the last line of its cell, over the header's fill. */
+    & > :where(thead) > :where(tr) > :where(th, td) {
+      padding-block-end: calc(var(--_table-pad-block) + var(--_table-row-gap) - var(--_table-header-line));
+      border-block-end-width: var(--_table-header-line);
+      font: var(--_table-header-font);
+      letter-spacing: var(--_table-header-tracking);
+      font-variant-numeric: tabular-nums;
+      color: var(--tanrei-comp-table-header-text-color);
+      vertical-align: bottom;
+      background-image: linear-gradient(var(--tanrei-comp-table-header-container-color), var(--tanrei-comp-table-header-container-color));
+      background-repeat: no-repeat;
+      background-size: 100% calc(100% - var(--_table-row-gap));
+    }
+
+    /* TBL-6: a row's header, and TBL-13: a footer row — the cell's style at its emphasized weight. */
+    & > :where(tbody, tfoot) > :where(tr) > :where(th),
+    & > :where(tfoot) > :where(tr) > :where(td) {
+      font-weight: var(--_table-cell-emphasized);
+    }
+  }
+  /* TBL-6: the first cells of a table that is given its rows as plain cells (rendered Markdown). */
+  :where(tanrei-table[row-headers]) > :where(table) > :where(tbody, tfoot) > :where(tr) > :where(td:first-child) {
+    font-weight: var(--_table-cell-emphasized);
+  }
+  /* TBL-6, TBL-42: in a table whose rows can be chosen the first column is the one after the selection column. */
+  :where(tanrei-table[row-headers][selection='multiple']) > :where(table) > :where(tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child) {
+    font-weight: inherit;
+  }
+  :where(tanrei-table[row-headers][selection='multiple']) > :where(table) > :where(tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child + td) {
+    font-weight: var(--_table-cell-emphasized);
+  }
+
+  /* ── Separation: gap (TBL-9, TBL-10) — by a style query, and by the element where the browser has none ───────── */
+  @container style(--_table-separation: gap) {
+    :where(tanrei-table) > :where(table) {
+      --_table-row-line: 0px;
+      --_table-row-gap: var(--tanrei-comp-table-row-gap);
+      --_table-header-line: 0px;
+    }
+  }
+  :where(tanrei-table) > :where(table[data-separation='gap']) {
+    --_table-row-line: 0px;
+    --_table-row-gap: var(--tanrei-comp-table-row-gap);
+    --_table-header-line: 0px;
+  }
+
+  /* ── Stripes (TBL-11): every second body row that is shown, across the row, the gap left out ─────────────────── */
+  :where(tanrei-table[striped]) > :where(table) > :where(tbody) > :where(tr:nth-child(even of :not([hidden]))) > :where(th, td) {
+    background-image: linear-gradient(var(--tanrei-comp-table-stripe-container-color), var(--tanrei-comp-table-stripe-container-color));
+    background-repeat: no-repeat;
+    background-size: 100% calc(100% - var(--_table-row-gap));
+  }
+
+  /* ── Rows that can be chosen (TBL-42 to TBL-47): a selection column before the first column ──────────────────── */
+  /* TBL-42: while selection is none there is no such column and no checkbox, whatever the markup holds. */
+  :where(tanrei-table:not([selection='multiple'])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
+    display: none;
+  }
+  /* The selection cell: a cell's paddings around the checkbox, and no share of the width the columns of data are
+     given — the column is as wide as the checkbox and those paddings (a cell is never narrower than what it holds). */
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
+    box-sizing: border-box;
+    inline-size: 0;
+    white-space: nowrap;
+    /* The Checkbox's container is a size of its own, and taller than a compact row: what it draws beyond its row is
+       cut at the row's edges, so that the last row's does not make the box scroll (its focus indicator, around the
+       box, is inside the row at both densities). */
+    overflow-y: clip;
+  }
+  /* TBL-47: a row that holds a checkbox is at least the target high, drawn so (see `--_table-sort-target`), and for a
+     coarse pointer its selection cell at least the touch target wide. */
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead) > :where(tr) > :where([data-part='selection']),
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])) > :where([data-part='selection']) {
+    block-size: calc(var(--_table-sort-target) + var(--_table-row-gap));
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']) {
+      inline-size: var(--tanrei-sys-target-touch);
+    }
+  }
+  /* TBL-42: the checkbox is the Checkbox as it is drawn anywhere, at the start of its cell on the cell's first line:
+     its layout box is one line of the cell's text high and its container is centred on that line, so that a row is
+     no taller for it. (The host is a flex container of one item, which may be taller than it.) */
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody) > :where(tr) > :where([data-part='selection']) > :where(tanrei-checkbox) {
+    display: inline-flex;
+    align-items: center;
+    block-size: 1lh;
+    vertical-align: top;
+  }
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(thead, tbody) > :where(tr) > :where([data-part='selection']) > :where(input) {
+    margin: 0;
+    vertical-align: middle;
+  }
+  /* TBL-42, TBL-50: no checkbox in a body row without a value, in a placeholder row or in a footer row. */
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr:not([data-value]), tr[data-value=''], tr[data-placeholder]) > :where([data-part='selection']) > :where(*),
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tfoot) > :where(tr) > :where([data-part='selection']) > :where(*) {
+    display: none;
+  }
+  /* TBL-43: what a body row gives its cells — the stripe of a striped table, and in its place the quiet selection of a
+     row that is chosen: the row says so (`data-selected`), or its native checkbox is checked. Asked of the row, and
+     handed to its cells as values (see HOW IT IS WRITTEN). Never a row without a value or a placeholder row. */
+  :where(tanrei-table[selection='multiple'][striped]) > :where(table) > :where(tbody) > :where(tr:nth-child(even of :not([hidden]))) {
+    --_table-row-fill: var(--tanrei-comp-table-stripe-container-color);
+  }
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])):where([data-selected], :has(> [data-part='selection'] > input:checked)) {
+    --_table-row-fill: var(--tanrei-comp-table-row-selected-container-color);
+    --_table-row-text: var(--tanrei-comp-table-row-selected-text-color);
+  }
+  /* The fill is across the row, paddings and the selection cell included, short of the space of `separation: gap`,
+     over the fill of a cell kept in view; it changes at once. What a cell holds keeps its own colors (TBL-15). */
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr) > :where(th, td) {
+    background-image: linear-gradient(var(--_table-row-fill, transparent), var(--_table-row-fill, transparent));
+    background-repeat: no-repeat;
+    background-size: 100% calc(100% - var(--_table-row-gap));
+    color: var(--_table-row-text, var(--tanrei-comp-table-cell-text-color));
+  }
+  /* TBL-47: the checkbox's hit area is its whole selection cell (the element passes a press on the cell on). */
+  :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr[data-value]:not([data-value=''], [data-placeholder])) > :where([data-part='selection']) {
+    cursor: pointer;
+  }
+
+  /* ── A row that stands for a record that has not arrived (TBL-50): a body row at least one line of text tall,
+     however little its cells hold. (A text placeholder of the Skeleton's is one line of the cell's text style.) ─── */
+  :where(tanrei-table) > :where(table) > :where(tbody) > :where(tr[data-placeholder]) > :where(th, td) {
+    box-sizing: content-box;
+    block-size: 1lh;
+  }
+
+  /* ── A column that can be sorted (TBL-32 to TBL-41): the header cell names the order, its control is the button ─ */
+  /* TBL-33: the part `sort` while the rows are not in the column's order, `sorted` while they are. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) {
+    --_table-sort-container: var(--tanrei-comp-table-sort-container-color);
+    --_table-sort-label: var(--tanrei-comp-table-sort-label-color);
+    --_table-sort-icon: var(--tanrei-comp-table-sort-icon-color);
+    --_table-sort-hovered-container: var(--tanrei-comp-table-sort-hovered-container-color);
+    --_table-sort-hovered-label: var(--tanrei-comp-table-sort-hovered-label-color);
+    --_table-sort-hovered-icon: var(--tanrei-comp-table-sort-hovered-icon-color);
+    --_table-sort-focused-container: var(--tanrei-comp-table-sort-focused-container-color);
+    --_table-sort-focused-label: var(--tanrei-comp-table-sort-focused-label-color);
+    --_table-sort-focused-icon: var(--tanrei-comp-table-sort-focused-icon-color);
+    --_table-sort-pressed-container: var(--tanrei-comp-table-sort-pressed-container-color);
+    --_table-sort-pressed-label: var(--tanrei-comp-table-sort-pressed-label-color);
+    --_table-sort-pressed-icon: var(--tanrei-comp-table-sort-pressed-icon-color);
+    /* What the control's container is laid over (below). */
+    position: relative;
+  }
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]):where([aria-sort='ascending'], [aria-sort='descending']) {
+    --_table-sort-container: var(--tanrei-comp-table-sorted-container-color);
+    --_table-sort-label: var(--tanrei-comp-table-sorted-label-color);
+    --_table-sort-icon: var(--tanrei-comp-table-sorted-icon-color);
+    --_table-sort-hovered-container: var(--tanrei-comp-table-sorted-hovered-container-color);
+    --_table-sort-hovered-label: var(--tanrei-comp-table-sorted-hovered-label-color);
+    --_table-sort-hovered-icon: var(--tanrei-comp-table-sorted-hovered-icon-color);
+    --_table-sort-focused-container: var(--tanrei-comp-table-sorted-focused-container-color);
+    --_table-sort-focused-label: var(--tanrei-comp-table-sorted-focused-label-color);
+    --_table-sort-focused-icon: var(--tanrei-comp-table-sorted-focused-icon-color);
+    --_table-sort-pressed-container: var(--tanrei-comp-table-sorted-pressed-container-color);
+    --_table-sort-pressed-label: var(--tanrei-comp-table-sorted-pressed-label-color);
+    --_table-sort-pressed-icon: var(--tanrei-comp-table-sorted-pressed-icon-color);
+  }
+  /* TBL-32: the sort button — the header's text in the header's style, and its mark after it on the label's last
+     line. The cell keeps its paddings; the button's container is its `::before`, over the whole cell. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]) {
+    --_table-now-container: var(--_table-sort-container);
+    --_table-now-label: var(--_table-sort-label);
+    --_table-now-icon: var(--_table-sort-icon);
+    /* The container's fill now: the state's. (The pressed one, while a press without script is held, is a layer of
+       the container's own: TBL-37, and the two names below.) */
+    --_table-fill: var(--_table-now-container);
+    display: inline-flex;
+    align-items: end;
+    column-gap: var(--tanrei-comp-table-header-gap);
+    isolation: isolate;
+    box-sizing: border-box;
+    max-inline-size: 100%;
+    /* TBL-40: the header row is at least the target high, drawn so; the label stays on the cell's last line. */
+    min-block-size: calc(var(--_table-sort-target) - var(--_table-pad-block) * 2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    appearance: none;
+    background: none;
+    font: inherit;
+    letter-spacing: inherit;
+    font-variant-numeric: inherit;
+    color: var(--_table-now-label);
+    text-align: inherit;
+    text-decoration: none;
+    white-space: inherit;
+    unicode-bidi: plaintext;
+    /* By its bottom edge: a button made taller for its target adds what it lacks above its label, and nothing else. */
+    vertical-align: bottom;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    /* (The hold stands first: its delay is where the script reads sys.motion.duration.press-hold as a time.) */
+    --_table-held-image: none;
+    --_table-held-clip: border-box;
+    transition:
+      --_table-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+      --_table-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold),
+      color var(--tanrei-comp-table-motion-state-duration) var(--tanrei-comp-table-motion-state-easing),
+      opacity var(--tanrei-comp-table-motion-state-duration) var(--tanrei-comp-table-motion-state-easing);
+    transition-behavior: allow-discrete;
+  }
+  /* TBL-32: a control without a label is no sort button: the column is drawn as a plain one. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where(:empty) {
+    display: none;
+  }
+  /* In a column whose align is end the mark stands before the label, so the label ends where its numbers end. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]):where([data-align='end'], [align='right']) > :where(button, a[href]) {
+    flex-direction: row-reverse;
+  }
+  /* TBL-32, TBL-35, TBL-40: the container — the whole box of the header cell, paddings included, square, short of
+     the space of `separation: gap`; the state layer, the hit area, and the box the focus indicator is drawn in. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href])::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    inset-block-end: var(--_table-row-gap);
+    box-sizing: border-box;
+    background-color: var(--_table-fill);
+    /* The held press (the button says the two names, and this box, which has no text, reads them). */
+    background-image: var(--_table-held-image);
+    background-clip: var(--_table-held-clip);
+    transition: background-color var(--tanrei-comp-table-motion-state-duration) var(--tanrei-comp-table-motion-state-easing);
+  }
+  /* TBL-32, TBL-33: the mark — one glyph of the system's icon set in the header's icon box, at the mark weight,
+     outlined; its box is kept whatever the order is. Decorative: the order is the header cell's own state (TBL-41).
+     (It is not drawn where icons.css is not loaded.) It shows an order, not a direction of reading: never mirrored. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href])::after {
+    content: 'swap_vert';
+    content: 'swap_vert' / '';
+    flex: none;
+    display: block;
+    overflow: hidden;
+    inline-size: var(--tanrei-comp-table-header-icon-size);
+    block-size: var(--tanrei-comp-table-header-icon-size);
+    margin-block-end: calc((var(--_table-header-leading) - var(--tanrei-comp-table-header-icon-size)) / 2);
+    font-family: var(--tanrei-sys-icon-family-unselected);
+    font-size: var(--tanrei-comp-table-header-icon-size);
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    color: var(--_table-now-icon);
+    pointer-events: none;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    font-optical-sizing: auto;
+    font-variation-settings: 'FILL' var(--tanrei-sys-icon-fill-unselected), 'wght' var(--tanrei-comp-table-header-icon-weight), 'GRAD' 0;
+    opacity: var(--tanrei-icons, 0);
+    transition: color var(--tanrei-comp-table-motion-state-duration) var(--tanrei-comp-table-motion-state-easing);
+  }
+  /* The optical size is the box's, clamped to sys.icon.optical-size and written by hand wherever the engine can turn
+     the box size into a number (as src/styles/icons.ts does): one rule after the glyph's, so an engine that cannot
+     keeps fill and weight. */
+  @supports (font-variation-settings: 'opsz' tan(atan2(1em, 1px))) {
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href])::after {
+      font-variation-settings: 'FILL' var(--tanrei-sys-icon-fill-unselected), 'wght' var(--tanrei-comp-table-header-icon-weight), 'GRAD' 0, 'opsz' clamp(var(--tanrei-sys-icon-optical-size-min), tan(atan2(var(--tanrei-comp-table-header-icon-size), 1px)), var(--tanrei-sys-icon-optical-size-max));
+    }
+  }
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]):where([aria-sort='ascending']) > :where(button, a[href])::after {
+    content: 'arrow_upward';
+    content: 'arrow_upward' / '';
+  }
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]):where([aria-sort='descending']) > :where(button, a[href])::after {
+    content: 'arrow_downward';
+    content: 'arrow_downward' / '';
+  }
+  /* TBL-56: while the icon set cannot draw a glyph, none is drawn and the box is kept. */
+  :where(tanrei-table[data-glyphs='pending']) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href])::after {
+    visibility: hidden;
+  }
+
+  /* TBL-35: pressed over focused over hovered, each from the tokens of the button's part. */
+  @media (hover: hover) {
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where(:hover) {
+      --_table-now-container: var(--_table-sort-hovered-container);
+      --_table-now-label: var(--_table-sort-hovered-label);
+      --_table-now-icon: var(--_table-sort-hovered-icon);
+      opacity: var(--tanrei-comp-table-hovered-opacity);
+    }
+  }
+  /* TBL-36: the focus indicator, inside the edge of the header cell so that neither the next cell, the box's edge nor
+     a header kept in view clips it; never animated, never for a pointer. The outer stroke is set in by
+     sys.focus.offset, the inner stroke (where the system has one) within it. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where(:focus-visible) {
+    --_table-now-container: var(--_table-sort-focused-container);
+    --_table-now-label: var(--_table-sort-focused-label);
+    --_table-now-icon: var(--_table-sort-focused-icon);
+    opacity: var(--tanrei-comp-table-focused-opacity);
+    outline: none;
+  }
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where(:focus-visible)::before {
+    border: var(--tanrei-sys-focus-offset) solid transparent;
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: calc((var(--tanrei-sys-focus-offset) + var(--tanrei-sys-focus-outer-width)) * -1);
+    box-shadow: inset 0 0 0 calc(var(--tanrei-sys-focus-outer-width) + var(--tanrei-sys-focus-inner-width)) var(--tanrei-sys-color-focus-ring-inner);
+  }
+  /* TBL-39, focus-style: glow — the same two colors as a halo inside the cell; read by a style query, and from
+     data-focus-style (written by the element when focus arrives) where there are none. The container's box is drawn
+     in by the halo's reach, and its fill goes on to the cell's edge as the last layer under the halo. */
+  @container style(--tanrei-sys-behavior-focus-style: glow) {
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where(:focus-visible)::before {
+      --_table-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
+      inset: var(--_table-glow);
+      inset-block-end: calc(var(--_table-glow) + var(--_table-row-gap));
+      border: 0;
+      /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
+      outline-color: transparent;
+      box-shadow:
+        0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+        0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring),
+        0 0 0 var(--_table-glow) var(--_table-fill);
+    }
+  }
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where([data-focus-style='glow']:focus-visible)::before {
+    --_table-glow: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
+    inset: var(--_table-glow);
+    inset-block-end: calc(var(--_table-glow) + var(--_table-row-gap));
+    border: 0;
+    /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
+    outline-color: transparent;
+    box-shadow:
+      0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+      0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring),
+      0 0 0 var(--_table-glow) var(--_table-fill);
+  }
+  /* TBL-37, without script: the overlay at once, and the two names keep the container for press-hold after. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where(:active:not([data-pressed])) {
+    --_table-held-image: linear-gradient(var(--_table-sort-pressed-container), var(--_table-sort-pressed-container)), none;
+    --_table-held-clip: border-box, text;
+    --_table-now-label: var(--_table-sort-pressed-label);
+    --_table-now-icon: var(--_table-sort-pressed-icon);
+    opacity: var(--tanrei-comp-table-pressed-opacity);
+    transition-duration: 0s;
+    transition-delay: 0s;
+  }
+  /* TBL-37, TBL-38, with the script: `data-pressed` names the feedback. `none` changes nothing at all. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where([data-pressed]:not([data-pressed='none'])),
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where([data-pressed]:not([data-pressed='none']))::before,
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where([data-pressed]:not([data-pressed='none']))::after {
+    transition-duration: 0s;
+  }
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where([data-pressed='overlay']) {
+    --_table-now-container: var(--_table-sort-pressed-container);
+    --_table-now-label: var(--_table-sort-pressed-label);
+    --_table-now-icon: var(--_table-sort-pressed-icon);
+    opacity: var(--tanrei-comp-table-pressed-opacity);
+  }
+  /* ripple, dim: everything but the container color, which stays with the state under the press. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where([data-pressed='ripple'], [data-pressed='dim']) {
+    --_table-now-label: var(--_table-sort-pressed-label);
+    --_table-now-icon: var(--_table-sort-pressed-icon);
+    opacity: var(--tanrei-comp-table-pressed-opacity);
+  }
+  /* The ripple's layer (src/primitives/ripple.ts adds it and sets --_x, --_y, --_r): the pressed container color,
+     over the container and clipped to a circle around the point of contact, under the label and the mark. */
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]) > :where(.ripple) {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    inset-block-end: var(--_table-row-gap);
+    background: var(--_table-sort-pressed-container);
+    pointer-events: none;
+    clip-path: circle(var(--_r) at var(--_x) var(--_y));
+    animation: tanrei-table-ripple var(--tanrei-comp-table-motion-feedback-duration) var(--tanrei-comp-table-motion-state-easing) both;
+    transition: opacity var(--tanrei-comp-table-motion-state-duration) var(--tanrei-comp-table-motion-state-easing);
+  }
+  :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]) > :where(.ripple.leaving) {
+    opacity: 0;
+  }
+  @keyframes tanrei-table-ripple {
+    from {
+      clip-path: circle(0 at var(--_x) var(--_y));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]) {
+      transition:
+        --_table-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+        --_table-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold);
+      transition-behavior: allow-discrete;
+    }
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href])::before,
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href])::after {
+      transition: none;
+    }
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]) > :where(.ripple) {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  /* ── No rows (TBL-48): one row of one cell under the header row, holding the product's own content ───────────── */
+  :where(tanrei-table) > :where(table) > :where(tbody) > :where(tr[data-part='empty']) > :where(th, td) {
+    padding-block: var(--tanrei-comp-table-empty-padding-block) calc(var(--tanrei-comp-table-empty-padding-block) + var(--_table-row-gap) - var(--_table-row-line));
+    /* No stripe and no fill of the table's through it. */
+    background-image: none;
+  }
+  /* As wide as the box at most, and in view while the columns scroll sideways, as the caption is. That is said of the
+     element the cell holds — the Empty state, a paragraph: text written straight into the cell has no box to keep. */
+  :where(tanrei-table) > :where(table) > :where(tbody) > :where(tr[data-part='empty']) > :where(th, td) > :where(*) {
+    position: sticky;
+    inset-inline-start: var(--_table-pad-inline);
+    box-sizing: border-box;
+    max-inline-size: calc(100cqi - var(--_table-pad-inline) * 2);
+  }
+  /* While the table has a body row the empty content is not drawn. A placeholder row is no row for this (TBL-50). */
+  :where(tanrei-table) > :where(table) > :where(tbody) > :where(tr[data-part='empty']:not(:nth-child(1 of :not([data-placeholder])):nth-last-child(1 of :not([data-placeholder])))) {
+    display: none;
+  }
+  /* TBL-49: nor while the table is loading, even with no body row — the product says so on the element, or a server
+     on the table. */
+  :where(tanrei-table[loading]) > :where(table) > :where(tbody) > :where(tr[data-part='empty']),
+  :where(tanrei-table) > :where(table[aria-busy='true']) > :where(tbody) > :where(tr[data-part='empty']) {
+    display: none;
+  }
+
+  /* ── The status line (TBL-51, TBL-52): under the last row, outside the columns — the product's sentence at the
+     start edge, its pagination at the end. As wide as the box and held at its start edge while the columns scroll
+     sideways, and at the bottom of a box that scrolls its rows, opaque, as the header row is held at the top. Under
+     the box's own focus ring, as the table is, and over the table, which it follows. ───────────────────────────── */
+  :where(tanrei-table) > :where([data-part='status']) {
+    /* The line above it: the separation's, and whatever the separation is while a row is under it (below). */
+    --_table-status-line: var(--_table-line);
+    grid-area: 2 / 1;
+    justify-self: start;
+    position: sticky;
+    z-index: -1;
+    inset-inline-start: 0;
+    inset-block-end: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tanrei-comp-table-status-gap);
+    box-sizing: border-box;
+    inline-size: 100cqi;
+    margin: 0;
+    padding-block: calc(var(--tanrei-comp-table-status-padding-block) - var(--_table-status-line)) var(--tanrei-comp-table-status-padding-block);
+    padding-inline: var(--_table-pad-inline);
+    border: 0 solid var(--_table-line-color);
+    border-block-start-width: var(--_table-status-line);
+    background-color: var(--tanrei-comp-table-sticky-container-color);
+    font: var(--tanrei-comp-table-status-text-typescale-font);
+    letter-spacing: var(--tanrei-comp-table-status-text-typescale-letter-spacing);
+    color: var(--tanrei-comp-table-status-text-color);
+    text-align: var(--_table-start);
+  }
+  @container style(--_table-separation: gap) {
+    :where(tanrei-table) > :where([data-part='status']) {
+      --_table-status-line: 0px;
+    }
+  }
+  :where(tanrei-table) > :where(table[data-separation='gap']) ~ :where([data-part='status']) {
+    --_table-status-line: 0px;
+  }
+  :where(tanrei-table[data-more-below]) > :where([data-part='status']) {
+    --_table-status-line: var(--_table-line);
+  }
+  /* No status text and no pagination: no line and no room for one. The (empty) status stays in the tree, so that the
+     text it is given later is told. Asked of the line itself, which holds a sentence and a pagination. */
+  :where(tanrei-table) > :where([data-part='status']:not(:has(> :not(:empty)))) {
+    padding-block: 0;
+    border-block-start-width: 0;
+  }
+  /* The status text: it wraps and is never cut; text of its own direction, at the start edge (TBL-28, TBL-53). */
+  :where(tanrei-table) > :where([data-part='status']) > :where([role='status']) {
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    overflow-wrap: break-word;
+    unicode-bidi: plaintext;
+  }
+  /* The pagination is at the end edge where it stands alone; under the status text it is at the start (the wrap). */
+  :where(tanrei-table) > :where([data-part='status']) > :where(:only-child:not([role='status'])) {
+    margin-inline-start: auto;
+  }
+
+  /* ── What stays in view (TBL-19, TBL-20): opaque, in the color of the surface, under the fill its row gives it ─ */
+  :where(tanrei-table[sticky-header]) > :where(table) > :where(thead) > :where(tr) > :where(th, td) {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+    background-color: var(--tanrei-comp-table-sticky-container-color);
+  }
+  /* TBL-19: the line under a header row that is kept, whatever the separation, while a row is under it. */
+  :where(tanrei-table[sticky-header][data-more-above]) > :where(table) {
+    --_table-header-line: var(--_table-line);
+  }
+  :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where(:first-child) {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    padding-inline-end: calc(var(--_table-pad-inline) - var(--_table-column-line));
+    border-inline-end-width: var(--_table-column-line);
+    background-color: var(--tanrei-comp-table-sticky-container-color);
+  }
+  /* TBL-20: the first header cell stays above both. */
+  :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) > :where(thead) > :where(tr) > :where(:first-child) {
+    z-index: 3;
+  }
+  /* TBL-42: the first column of a table with a selection column is the one after it, and the two are kept together:
+     the selection column at the start edge, without the line, and the first column where the selection column ends —
+     a length the element measures (`--_table-selection-size`). Until it has, and without script, the selection column
+     scrolls with the others and the first column is kept at the edge. */
+  :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child) {
+    padding-inline-end: var(--_table-pad-inline);
+    border-inline-end-width: 0;
+  }
+  :where(tanrei-table[sticky-first-column]:not([data-first-column-released], [data-selection-kept])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child) {
+    position: static;
+    background-color: transparent;
+  }
+  :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) > :where(thead, tbody, tfoot) > :where(tr) > :where([data-part='selection']:first-child + *) {
+    position: sticky;
+    inset-inline-start: var(--_table-selection-size, 0px);
+    z-index: 1;
+    padding-inline-end: calc(var(--_table-pad-inline) - var(--_table-column-line));
+    border-inline-end-width: var(--_table-column-line);
+    background-color: var(--tanrei-comp-table-sticky-container-color);
+  }
+  :where(tanrei-table[sticky-first-column]:not([data-first-column-released])) > :where(table) > :where(thead) > :where(tr) > :where([data-part='selection']:first-child + *) {
+    z-index: 3;
+  }
+
+  /* ── Forced colors (TBL-30): every line in the text color; a striped table keeps its row lines, as fills are gone ─ */
+  @media (forced-colors: active) {
+    :where(tanrei-table) {
+      --_table-line-color: CanvasText;
+    }
+    :where(tanrei-table):focus-visible {
+      outline-color: Highlight;
+    }
+    :where(tanrei-table[striped]) > :where(table) {
+      --_table-row-line: var(--_table-line);
+      --_table-header-line: var(--_table-line);
+    }
+    /* TBL-54: the mode removes the fill of a chosen row, and the row's checkbox — which the Checkbox draws checked in
+       this mode — is what says that it is chosen. Said here too, for an engine that keeps a gradient. */
+    :where(tanrei-table[selection='multiple']) > :where(table) > :where(tbody) > :where(tr) > :where(th, td) {
+      background-image: none;
+    }
+    /* TBL-54: a sort button's label and mark in the button's text color, its focus indicator in the highlight; the
+       sorted column is told by its glyph alone. A border that is not a line has no width here. */
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]),
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href])::after {
+      color: ButtonText;
+    }
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href]):where(:focus-visible)::before {
+      inset: 0;
+      inset-block-end: var(--_table-row-gap);
+      border: 0;
+      outline-color: Highlight;
+      box-shadow: none;
+    }
+    /* A press is the platform's: no layer of the button's own, for an engine that keeps a gradient. */
+    :where(tanrei-table) > :where(table) > :where(thead) > :where(tr) > :where(th[aria-sort]) > :where(button, a[href])::before {
+      background-image: none;
+      background-clip: border-box;
+    }
+  }
+}

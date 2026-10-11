@@ -1,0 +1,284 @@
+{
+  "tanrei": {
+    "comp": {
+      "field": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product asks for more than text: a level on a slider, a setting on a switch, a value in a control of its own making. Each needs what its text fields have: a label above it, a word that says whether it must be answered, a line of help, and the reason it was refused. A form reads as one form only when those four are drawn alike around every control.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "standard"
+            ],
+            "states": [
+              "focused",
+              "disabled"
+            ],
+            "perVariant": {
+              "label.color": "color",
+              "label-icon.color": "color",
+              "supporting-text.color": "color",
+              "required-asterisk.color": "color",
+              "error.label.color": "color",
+              "error.label-icon.color": "color",
+              "error.supporting-text.color": "color",
+              "error.required-asterisk.color": "color",
+              "counter.color": "color",
+              "error.counter.color": "color",
+              "value-text.color": "color",
+              "error.value-text.color": "color",
+              "error-text.color": "color"
+            }
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "standard",
+              "from": "states"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything the frame around one control reads: the label's text style and its distance from the control; the label glyph's size and gap; the requirement tag's distance from the label, the asterisk's gap, and which mark a required control gets where the field does not say; the value text's text style and its least distance from the label; the supporting row's text style and its distance from the control, the distance between the help and the error text in it, and the least distance between its texts and a count at its end; the duration and curve of a change of state; and the colors of the label, the label glyph, the supporting text, the error text, the count, the value text and the asterisk, plain and under the error condition (error.), at rest, while focus is inside the field and while it is disabled.",
+            "rules": [
+              "A field frames exactly one control that has no label row, help or error of its own: a slider, a switch, a text input, a control the product built. A text field is this field around a text input: style its rows here, and never put a text field inside a field. A number field is this field around a number input, a color field around a color input, a select field around a select, a combobox field around a combobox. No component draws this frame from tokens of its own.",
+              "These tokens are the frame of every field: a design system styles the label row and the supporting row once, here. One field is set apart by setting a token on that element — on the web a custom property on it, elsewhere a theme around that one view.",
+              "A set of controls (checkboxes, radio buttons, switches) is a field group, not a field.",
+              "Say that a control is required or optional with requirement, never in the label's text. requirement.mark follows sys.behavior.requirement-mark, the system's one choice of mark (tag, asterisk or none): set the sys token to change every form at once, requirement.mark only to mark single fields differently from sets of controls, and requiredMark for one field.",
+              "The requirement tag is a small Tag — filled for required, tonal for optional — and nothing of it is here: its fill, its lettering, its text style, its paddings and its corners are comp.tag.*, so restyling small tags restyles it, and it cannot be restyled alone. It is drawn the same while the field is focused, in error or disabled, because a tag has no states. The asterisk is the field's own and has its colors here.",
+              "The help stays while the field is in error and the error text is drawn below it, error-text.gap away; the error text is the only part that takes the error color (standard.error-text.color), and the error color is for errors alone. Do not repeat the help in the error text.",
+              "The field draws no container, no hover and no press answer, so it has no state layer: there is nothing for one to mix into. Its one answer to input is the focused label color.",
+              "Restyle through these tokens in a layer; never draw a label and a help line by hand."
+            ]
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-large}",
+            "$description": "The label above the control: the text field's label style, so that a framed control and a text field in one form are named alike.",
+            "$extensions": {}
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Distance between the label's last line and the control."
+          }
+        },
+        "label-icon": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.small}",
+            "$description": "The glyph before the label: the icon scale's small step, one line of the label high."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Distance between the label glyph and the label."
+          }
+        },
+        "requirement": {
+          "mark": {
+            "$type": "number",
+            "$value": "{tanrei.sys.behavior.requirement-mark}",
+            "$description": "How a required control is marked beside its label when the field does not say (FLD-6). tag: a small filled Tag holding requiredText. asterisk: \"*\" after the label. none: no mark; the requirement is still exposed. Follows the system's choice; a field's requiredMark prop overrides it. A text field is this field around a text input, and a label that floats in the input shows tag as an asterisk (FLD-25). The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product marks the required answers of all its forms in one manner, and the system-wide choice gives it; the Field must be able to leave it, because one control under its label and a set of controls under one label are not the same decision: a product may mark its single fields with an asterisk, where the label is short and the asterisk is explained once, and still say \"Required\" in words above a set of checkboxes, where the mark speaks for several controls.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "tag",
+                  "asterisk",
+                  "none"
+                ]
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Distance between the label's text and the requirement tag: where the tag stands is the frame's; what the tag looks like is the Tag's (comp.tag.*)."
+          },
+          "asterisk-gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "Distance between the label's text and the asterisk: it belongs to the word it follows, closer than a tag stands.",
+            "$extensions": {}
+          }
+        },
+        "supporting-text": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.body-small}",
+            "$description": "The supporting text and the error text.",
+            "$extensions": {}
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Distance between the control and the supporting row."
+          }
+        },
+        "counter": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "The least distance between the help or the error text and the count at the end of the row's first line.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product shows, beside the help under a control, how much of a limit is used; the two share one row and must never touch when the help is long enough to reach the count."
+              }
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long a change of the frame's colors takes when focus enters or leaves, or the error or disabled condition changes: the text field's state duration."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$description": "The curve of that change."
+          }
+        },
+        "standard": {
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The label: the surface's text color, stronger than the supporting text, because it names the control."
+            }
+          },
+          "label-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The glyph before the label: one step quieter than the label it accompanies."
+            }
+          },
+          "supporting-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The help: secondary text."
+            }
+          },
+          "counter": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The count the field is given (countText: a text input's characters typed and the limit): secondary text, as the help is.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product shows a count under a control and keeps it quiet beside an error: the error color says what is wrong, and a count is not what is wrong unless the error text says so."
+                }
+              }
+            }
+          },
+          "required-asterisk": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.field.standard.label.color}",
+              "$description": "The asterisk of a required mark drawn as an asterisk: primary, the role a filled tag is drawn in, never the error color, because nothing is wrong yet.",
+              "$extensions": {}
+            }
+          },
+          "error": {
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$description": "The label keeps naming the control while it is in error; the error text and the control itself show the error."
+              }
+            },
+            "label-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$description": "The help while the field is in error: unchanged, as a field group's description. It says how to answer, which is what the person needs now; the error text below it takes the error color."
+              }
+            },
+            "counter": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$description": "The count while the field is in error: unchanged. The error text takes the error color; the count does not.",
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product shows a count under a control and keeps it quiet beside an error: the error color says what is wrong, and a count is not what is wrong unless the error text says so."
+                  }
+                }
+              }
+            },
+            "required-asterisk": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.field.standard.error.label.color}",
+                "$extensions": {}
+              }
+            },
+            "value-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$description": "The value text keeps its color while the field is in error: the error text alone takes the error color."
+              }
+            }
+          },
+          "value-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The value text: quieter than the label, which names the control, and as strong as the help, which it reads like."
+            }
+          },
+          "error-text": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}",
+              "$description": "The error text, below the help or directly below the control: the error role, used for errors and nothing else. The same id, with the same value, as a field group's.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product shows help and the reason an answer was refused at the same time, and the reason must read as an error while the help stays quiet: two texts in one row need two colors."
+                }
+              }
+            }
+          }
+        },
+        "value-text": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label}",
+            "$description": "The value in words at the end of the label row: the label's text style, so that the two share one baseline and read as one line."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "The least room between the end of the label and its requirement mark and the start of the value text; below it the value text moves to a line of its own."
+          }
+        },
+        "error-text": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Distance between the help's last line and the error text below it, while the field shows both: the frame's distance between two rows of small text, the one a field group keeps between its label and its description. A field without help has its error text supporting-text.gap below the control, and this token is not read.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product shows the reason an answer was refused under the help that says how to answer; the two are separate sentences and need a distance of their own, which a product that sets its help close under the control may still want wider, so that a wrapped help and a wrapped error do not read as one paragraph."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

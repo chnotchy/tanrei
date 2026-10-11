@@ -1,0 +1,378 @@
+---
+title: Grupo de botones
+description: Dispone unos pocos botones relacionados en una fila o en una columna, separados o unidos en una sola forma, coloca la acción que completa la tarea y la que la abandona donde las personas las esperan, y da nombre a los botones como grupo.
+translationOf: components/button-group.mdx
+sourceHash: c06ddd9b183514fe5cde84fd2dfb883e35f2c0ec
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="button-group" />
+
+<DemoFrame label="Standard y connected">
+  <tanrei-button-group>
+    <tanrei-button variant="outlined">Cancelar</tanrei-button>
+    <tanrei-button variant="tonal">Guardar borrador</tanrei-button>
+    <tanrei-button variant="filled">Publicar</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="Estilo de texto">
+    <tanrei-button variant="tonal" toggle selected label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+### Uso
+
+Los elementos son los [botones](/es/components/button/) que ya usas, con etiqueta o de solo icono, con sus propias propiedades y eventos. El grupo solo los coloca, los une cuando es connected y les da nombre cuando tiene una etiqueta.
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native van rezagados: todavía ofrecen la revisión anterior del grupo de botones, una sola fila sin `orientation`, `fullWidth`, `separation` ni indicadores de orden, cuyos elementos connected siempre quedan a una separación estrecha y cuyos elementos de solo icono son un botón de icono aparte. Sus ejemplos muestran esa revisión hasta que se pongan al día.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- dismissive va al inicio de una fila y confirming, al final; en una columna intercambian sus lugares. -->
+    <tanrei-button-group>
+      <tanrei-button variant="outlined" dismissive>Cancelar</tanrei-button>
+      <tanrei-button variant="tonal">Guardar borrador</tanrei-button>
+      <tanrei-button variant="filled" confirming>Publicar</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- Una columna tan ancha como su contenedor: Permitir se dibuja encima de Ahora no. -->
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>Ahora no</tanrei-button>
+      <tanrei-button variant="tonal" confirming>Permitir</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- Una etiqueta da nombre al grupo. Cada conmutador conserva su propio selected. -->
+    <tanrei-button-group variant="connected" label="Estilo de texto">
+      <tanrei-button variant="tonal" toggle label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-button-group>
+
+    <script type="module">
+      import '@tanrei/web/components/button-group';
+      import '@tanrei/web/components/button';
+      // El grupo no emite eventos propios: escucha en los botones, como en cualquier otro lugar.
+      document.querySelector('[label="Negrita"]').addEventListener('change', (e) => setBold(e.detail.selected));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, ButtonGroup } from '@tanrei/react';
+
+    // confirming y dismissive son atributos que el grupo lee de sus hijos.
+    <ButtonGroup>
+      <Button variant="outlined" dismissive onClick={cancel}>Cancelar</Button>
+      <Button variant="tonal" onClick={saveDraft}>Guardar borrador</Button>
+      <Button variant="filled" confirming onClick={publish}>Publicar</Button>
+    </ButtonGroup>
+
+    <ButtonGroup orientation="vertical" fullWidth>
+      <Button variant="tonal" dismissive onClick={notNow}>Ahora no</Button>
+      <Button variant="tonal" confirming onClick={allow}>Permitir</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" label="Estilo de texto">
+      <Button variant="tonal" toggle selected={bold} label="Negrita" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+      <Button variant="tonal" toggle selected={italic} label="Cursiva" onChange={(e) => setItalic(e.detail.selected)}><span slot="icon">format_italic</span></Button>
+    </ButtonGroup>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButtonGroup {
+        TanreiButton("Cancelar", variant: .outlined) { cancel() }
+        TanreiButton("Guardar borrador", variant: .tonal) { saveDraft() }
+        TanreiButton("Publicar") { publish() }
+    }
+
+    TanreiButtonGroup(variant: .connected, label: "Estilo de texto") {
+        TanreiIconButton("Negrita", isSelected: $bold, variant: .tonal) { Image(systemName: "bold") }
+        TanreiIconButton("Cursiva", isSelected: $italic, variant: .tonal) { Image(systemName: "italic") }
+        TanreiIconButton("Subrayado", isSelected: $underline, variant: .tonal) { Image(systemName: "underline") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroup
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroupVariant
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiIconButtonVariant
+
+    TanreiButtonGroup {
+        TanreiButton(text = "Cancelar", onClick = ::cancel, variant = TanreiButtonVariant.Outlined)
+        TanreiButton(text = "Guardar borrador", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+        TanreiButton(text = "Publicar", onClick = ::publish)
+    }
+
+    // contentDescription da nombre al grupo. Compose no tiene rol de grupo: es un grupo de recorrido.
+    TanreiButtonGroup(variant = TanreiButtonGroupVariant.Connected, contentDescription = "Estilo de texto") {
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "Negrita",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = bold,
+            onCheckedChange = { bold = it },
+        ) { TanreiText("format_bold") }
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "Cursiva",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = italic,
+            onCheckedChange = { italic = it },
+        ) { TanreiText("format_italic") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButtonGroup(
+      children: <Widget>[
+        TanreiButton(variant: TanreiButtonVariant.outlined, onPressed: cancel, child: const Text('Cancelar')),
+        TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('Guardar borrador')),
+        TanreiButton(onPressed: publish, child: const Text('Publicar')),
+      ],
+    );
+
+    TanreiButtonGroup(
+      variant: TanreiButtonGroupVariant.connected,
+      semanticLabel: 'Estilo de texto',
+      children: <Widget>[
+        TanreiIconButton(
+          isSelected: bold,
+          onPressed: () => setState(() => bold = !bold),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: 'Negrita',
+          icon: const Icon(AppSymbols.formatBold),
+        ),
+        TanreiIconButton(
+          isSelected: italic,
+          onPressed: () => setState(() => italic = !italic),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: 'Cursiva',
+          icon: const Icon(AppSymbols.formatItalic),
+        ),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button, ButtonGroup, IconButton } from '@tanrei/react-native';
+
+    <ButtonGroup>
+      <Button variant="outlined" onPress={cancel}>Cancelar</Button>
+      <Button variant="tonal" onPress={saveDraft}>Guardar borrador</Button>
+      <Button onPress={publish}>Publicar</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" accessibilityLabel="Estilo de texto">
+      <IconButton variant="tonal" accessibilityLabel="Negrita" toggle selected={bold} onSelectedChange={setBold}>
+        format_bold
+      </IconButton>
+      <IconButton variant="tonal" accessibilityLabel="Cursiva" toggle selected={italic} onSelectedChange={setItalic}>
+        format_italic
+      </IconButton>
+    </ButtonGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+### Una fila o una columna, y el orden de las acciones
+
+`orientation` dispone los botones en una fila (`horizontal`, el valor predeterminado) o los apila en una columna (`vertical`), donde cada botón es tan ancho como la columna. `fullWidth` hace que el grupo llene su contenedor: los botones de una fila se reparten el ancho a partes iguales, y cada botón de una columna tiene ese ancho. Esa es la forma adecuada para las acciones al pie de una hoja o de un panel estrecho.
+
+Dos indicadores en un botón le dicen al grupo cuál es su lugar, de modo que las dos orientaciones sean coherentes entre sí:
+
+| Indicador | El botón | En una fila | En una columna |
+| --- | --- | --- | --- |
+| `confirming` | completa la tarea: Aceptar, Guardar, Siguiente, Eliminar | al final | arriba |
+| `dismissive` | la abandona: Cancelar, Atrás, Ahora no | al inicio | abajo |
+| ninguno | cualquier otra cosa | entre los dos, en el orden dado | entre los dos, en el orden dado |
+
+<DemoFrame label="Los mismos tres botones en una fila y en una columna" plain>
+  <tanrei-button-group>
+    <tanrei-button variant="outlined" dismissive>Cancelar</tanrei-button>
+    <tanrei-button variant="tonal">Guardar borrador</tanrei-button>
+    <tanrei-button variant="filled" confirming>Publicar</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group orientation="vertical">
+    <tanrei-button variant="outlined" dismissive>Cancelar</tanrei-button>
+    <tanrei-button variant="tonal">Guardar borrador</tanrei-button>
+    <tanrei-button variant="filled" confirming>Publicar</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<DemoFrame label="Ancho completo: una fila que se reparte el ancho y una columna" plain column>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group full-width>
+      <tanrei-button variant="tonal" dismissive>Ahora no</tanrei-button>
+      <tanrei-button variant="tonal" confirming>Permitir</tanrei-button>
+    </tanrei-button-group>
+  </div>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>Ahora no</tanrei-button>
+      <tanrei-button variant="tonal" confirming>Permitir</tanrei-button>
+    </tanrei-button-group>
+  </div>
+</DemoFrame>
+
+El foco del teclado y los lectores de pantalla siguen el orden de colocación, de modo que todas las personas encuentran las acciones en el orden en que se dibujan. Los indicadores describen la tarea, no el tono: en «Cancelar · Eliminar», «Eliminar» es la acción que confirma. Una acción destructiva se distingue por su propio aspecto y su etiqueta, no por su lugar. Un [diálogo](/es/components/dialog/) y una [hoja lateral](/es/components/side-sheet/) colocan sus propias acciones con los mismos dos indicadores.
+
+### Unidos por un divisor o por una separación
+
+Un grupo connected une sus botones de una de dos maneras. Con un **divisor**, los botones se tocan, sus esquinas son rectas donde se encuentran y una línea marca cada unión. Con una **separación**, quedan a una distancia estrecha, con esquinas más cerradas donde se miran. El sistema de diseño elige una vez para todos los componentes que unen partes (el sistema predeterminado dibuja un divisor), un sistema de diseño puede tratar aparte el grupo de botones, y `separation` (`auto`, `divider`, `gap`) define un grupo concreto. Un grupo standard lo ignora.
+
+<DemoFrame label="Connected con un divisor y con una separación, en una fila y en una columna" plain>
+  <tanrei-button-group variant="connected" separation="divider" label="Portapapeles">
+    <tanrei-button variant="outlined">Cortar</tanrei-button>
+    <tanrei-button variant="outlined">Copiar</tanrei-button>
+    <tanrei-button variant="outlined">Pegar</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" separation="gap" label="Portapapeles">
+    <tanrei-button variant="outlined">Cortar</tanrei-button>
+    <tanrei-button variant="outlined">Copiar</tanrei-button>
+    <tanrei-button variant="outlined">Pegar</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="divider" label="Zoom">
+    <tanrei-button variant="tonal" label="Acercar"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="Alejar"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="gap" label="Zoom">
+    <tanrei-button variant="tonal" label="Acercar"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="Alejar"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+Con un divisor, una unión lleva una línea solo donde los dos botones descansan sobre el mismo relleno. Entre un conmutador seleccionado y uno sin seleccionar, o entre un botón filled y uno outlined, el borde del relleno ya marca la unión, así que ahí no se dibuja ninguna línea.
+
+<DemoFrame label="Conmutadores unidos por un divisor: no hay línea junto al seleccionado" plain>
+  <tanrei-button-group variant="connected" label="Estilo de texto">
+    <tanrei-button variant="outlined" toggle label="Negrita"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle selected label="Cursiva"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="Subrayado"><span slot="icon">format_underlined</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="Tachado"><span slot="icon">format_strikethrough</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+## Especificaciones
+
+<DemoFrame label="Connected: outlined, large y con un elemento deshabilitado" plain>
+  <tanrei-button-group variant="connected" label="Portapapeles">
+    <tanrei-button variant="outlined">Cortar</tanrei-button>
+    <tanrei-button variant="outlined">Copiar</tanrei-button>
+    <tanrei-button variant="outlined">Pegar</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="Fecha">
+    <tanrei-button variant="tonal" size="large">Anterior</tanrei-button>
+    <tanrei-button variant="tonal" size="large">Hoy</tanrei-button>
+    <tanrei-button variant="tonal" size="large">Siguiente</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="Portapapeles">
+    <tanrei-button variant="outlined">Cortar</tanrei-button>
+    <tanrei-button variant="outlined" disabled>Copiar</tanrei-button>
+    <tanrei-button variant="outlined">Pegar</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<ComponentSpecs name="button-group" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un grupo de botones cuando unos pocos botones van juntos: el final de un formulario (Cancelar, Guardar borrador, Publicar), el formato de un editor (Negrita, Cursiva, Subrayado), los botones Anterior, Hoy y Siguiente de un calendario. El grupo fija su espaciado, los une cuando forman un conjunto y les da nombre cuando eso ayuda. Cada botón sigue siendo un botón.
+
+Una fila de acciones para la pantalla o la selección actual, a la que se llega con una sola parada de tabulación y en la que las teclas de flecha se mueven entre ellas, es una [barra de herramientas](/es/components/toolbar/). Una acción principal unida a un menú con sus variaciones es un [botón con menú](/es/components/button-with-menu/): parece un grupo connected de dos, pero su segunda mitad siempre abre un menú.
+
+### Botón segmentado, grupo de botones, chips o pestañas
+
+Los cuatro ponen unas pocas cosas relacionadas en una fila, así que es fácil confundirlos. Se diferencian en lo que hace una pulsación y en cómo el teclado se mueve por ellos.
+
+| Componente | Qué es | Selección | Teclado | Úsalo para |
+| --- | --- | --- | --- | --- |
+| [Botón segmentado](/es/components/segmented-button/) (los preajustes de Material y cupertino; no está en el sistema Tanrei) | Un solo control: de dos a cinco opciones unidas que responden a una pregunta. | La suya propia, por valor: una opción o varias. | Una parada de tabulación. Las teclas de flecha se mueven entre las opciones, y con selección única también eligen. | Un ajuste con unas pocas respuestas fijas que se aplica de inmediato: Día, Semana, Mes; izquierda, centro, derecha. |
+| [Grupo de botones](/es/components/button-group/) | Una fila o una columna de botones independientes, separados o unidos en una sola forma. | Ninguna. Un botón conmutador del grupo conserva su propio estado de activado o desactivado. | Cada botón es su propia parada de tabulación. | Acciones relacionadas: Cancelar, Guardar borrador, Publicar; Negrita, Cursiva y Subrayado como conmutadores independientes. |
+| [Chips](/es/components/chip/) | Controles pequeños e independientes en una fila que salta de línea o se desplaza. | Cada chip de filtro está activado o desactivado por sí mismo. | Cada chip es su propia parada de tabulación. | Filtros encima de una lista, respuestas sugeridas, elementos que introdujo la persona. |
+| [Pestañas](/es/components/tabs/) | Vistas de un mismo tema, cada una con su propio panel. | Una pestaña: la vista que está en pantalla. | Una parada de tabulación. Las teclas de flecha mueven y seleccionan. | Cambiar el contenido que se muestra: Resumen, Actividad, Configuración. |
+
+Una prueba rápida: si al pulsarlo hace algo, es un grupo de botones. Si cambia el contenido de debajo, son pestañas. Si define un valor, son botones de opción, o un botón segmentado donde el sistema lo incluya. Las opciones que son muchas o independientes son chips.
+
+### Cómo elegir una variante
+
+| Variante | Qué hace | Úsala para |
+| --- | --- | --- |
+| Standard (predeterminada) | Separa los botones lo suficiente para que cada uno conserve entero su objetivo táctil entre sus vecinos. Cada botón conserva sus propias esquinas. | Acciones que están juntas pero se sostienen por sí solas, como Cancelar y Guardar en un formulario. |
+| Connected | Une los botones en una sola forma con extremos exteriores redondeados, mediante un divisor o una separación estrecha (consulta [Unidos por un divisor o por una separación](#unidos-por-un-divisor-o-por-una-separación)). Cada botón tiene como mínimo el ancho de un objetivo y se estira hasta la altura del más alto. | Un conjunto estrechamente relacionado que se lee como un solo control: Negrita, Cursiva, Subrayado; Anterior, Hoy, Siguiente. |
+
+En un grupo connected solo cambian las esquinas que dan a un vecino: rectas con un divisor, más cerradas con una separación. El relleno, el contorno, la capa de estado, la onda y el anillo de foco siguen la forma unida, y los extremos exteriores redondeados de una fila unida reciben un poco más de margen interior, de modo que el contenido de los botones de los extremos se ve equilibrado. Un botón pequeño de solo icono se ensancha alrededor de su icono centrado hasta el ancho del objetivo, porque los botones unidos no pueden extenderse unos sobre otros.
+
+### Una fila o una columna
+
+Usa una fila de forma predeterminada. Usa una columna donde los botones no cabrían uno al lado del otro con sus etiquetas completas, como las acciones de una hoja estrecha o de un panel del ancho de un teléfono, o junto a un contenido que discurre en vertical, como los controles de zoom de un mapa. Marca los botones que completan la tarea y los que la abandonan, para que el orden siga siendo el que las personas esperan cuando un diseño de página pasa de fila a columna.
+
+### Recomendado
+
+- Dales el mismo tamaño a todos los botones de un grupo.
+- Gasta el énfasis como en cualquier otro lugar: un solo botón filled como máximo, normalmente al final.
+- Dale una etiqueta al grupo cuando sus botones solo tengan sentido juntos, como «Estilo de texto». Omítela en una fila de acciones en la que cada una dice lo que hace.
+- Usa una sola variante para los botones de un grupo connected, para que la forma unida se lea como una sola.
+- Marca como `confirming` el botón que completa la tarea y como `dismissive` el que la abandona, y deja que el grupo los coloque. Escríbelos en cualquier orden; el grupo no los mueve en tu marcado.
+- Deja `separation` en `auto` salvo que un grupo deba ser distinto, para que todos los controles unidos del producto se distingan de la misma manera.
+
+### Evita
+
+- No uses botones conmutadores en un grupo para opciones que se excluyen entre sí, como la alineación a la izquierda, al centro y a la derecha. El grupo no hace que sus conmutadores sean excluyentes. Usa pestañas donde la elección cambia el contenido de debajo, botones de opción donde define un valor, o un botón segmentado donde el sistema lo incluya.
+- No pongas en un grupo nada que no sean Buttons de Tanrei, con etiqueta o de solo icono: ni campos, ni chips, ni menús. Las compilaciones de depuración avisan de cualquier otro contenido.
+- No uses los indicadores para el tono. Un «Eliminar» destructivo que completa la tarea es `confirming`; un botón con ambos indicadores se coloca como si no tuviera ninguno, y se avisa de ello.
+- No esperes que la fila salte de línea. Una fila que no cabe estrecha sus Buttons y ajusta sus etiquetas en varias líneas. Nunca pasa a una segunda línea ni se desplaza.
+- No mezcles tamaños en un mismo grupo. El grupo no cambia el tamaño de sus botones.
+
+## Accesibilidad
+
+<ComponentAccessibility name="button-group" />
+
+### De qué se encarga el componente
+
+- Cada botón conserva su propio rol, nombre, estado y parada de tabulación. Tab los recorre en el orden de colocación: de inicio a fin en una fila, de arriba abajo en una columna. El grupo no recibe el foco, no gestiona las teclas de flecha y no guarda ninguna selección.
+- `confirming` y `dismissive` no se anuncian. Deciden dónde está un botón, y el foco y la lectura siguen ese lugar.
+- Un divisor es decoración: queda oculto para la tecnología de apoyo y no recibe pulsaciones. Lo que distingue dos botones unidos es que cada uno es un botón propio con su propio nombre.
+- Con una etiqueta, el grupo se expone como un grupo que recibe de ella su nombre y que contiene sus botones. Sin ella, no añade nada al árbol de accesibilidad.
+- En un grupo connected cada botón tiene como mínimo el ancho de un objetivo, y su área de pulsación se extiende por encima y por debajo de la fila hasta el objetivo mínimo. En un grupo standard, una pulsación dentro de los límites visibles de un botón siempre va a ese botón, y una pulsación en la separación va al más cercano.
+- El indicador de foco sigue la forma de cada botón, incluidas las esquinas unidas.
+- Con tamaños de texto mayores, los botones crecen como en cualquier otro lugar. Una fila connected estira todos los botones hasta la altura del más alto y una columna hace que todos sean tan anchos como el más ancho, de modo que la forma unida se mantiene uniforme.
+- En el sistema predeterminado, el contorno de un grupo outlined y sus divisores son la línea fina, que es discreta a propósito: cada botón se identifica por su etiqueta o su icono, no por su borde.
+- Las compilaciones de depuración avisan de un grupo con menos de dos elementos, de contenido que no es un Button de Tanrei, de un botón con ambos indicadores, de una variante, una orientación o una separación desconocidas, de una fila de ancho completo cuyos botones no pueden repartirse el ancho a partes iguales, y de una fila que sigue sin caber después de que sus Buttons se hayan estrechado.
+
+Carencias conocidas por plataforma:
+
+- Web: un botón de icono connected tiene el ancho del objetivo del puntero con un puntero fino, como un ratón, y el del objetivo táctil con uno grueso. Cuando la forma propia de un elemento es una píldora, las esquinas que vuelve hacia un vecino son circulares en lugar de estar suavizadas por el suavizado de esquinas. Dentro de un grupo, la etiqueta de un Button puede ajustarse en varias líneas; fuera de él se mantiene en una línea. El aviso de una fila que sigue sin caber se comprueba cuando el grupo cambia de tamaño o cambian sus hijos, no cuando cambia la etiqueta de un elemento.
+- SwiftUI no tiene rol de grupo. Un grupo con etiqueta es un contenedor que recibe su nombre de la etiqueta y contiene sus botones. Un Button cuyo título es una `LocalizedStringKey`, como lo es un literal de cadena, puede estrecharse por debajo de su palabra más larga, que entonces se parte por dentro. El aviso de una fila que sigue sin caber es un fallo de aserción en las compilaciones de depuración, así que un diseño que es demasiado estrecho por un momento, como un contenedor cuyo ancho se anima, detiene una aplicación de depuración.
+- Compose no tiene rol de grupo. Un grupo con etiqueta es un grupo de recorrido cuya descripción de contenido es la etiqueta, y cada botón conserva su propio rol.
+- React Native: cómo reparten iOS y Android una pulsación en la separación entre dos botones, los botones estirados de un grupo connected con tamaños de texto grandes, y si VoiceOver y TalkBack anuncian el nombre del grupo cuando el foco entra en él, no se han comprobado en un dispositivo.
+- React Native: un Button estrechado puede encogerse por debajo de su palabra más larga, cuyas letras se parten entonces entre líneas, porque el diseño de React Native no tiene un ancho mínimo de contenido para el texto.
+- En un grupo standard, las áreas de pulsación se encuentran en el centro de la separación. La separación del sistema predeterminado (16) es lo bastante ancha para que cada botón de icono, incluido el pequeño, conserve entero su objetivo táctil de 48 entre sus vecinos. Un sistema de diseño con una separación menor reduce los objetivos entre los botones.
+
+### Qué debes hacer tú
+
+- Da nombre a todos los botones de icono. La etiqueta del grupo no da nombre a los botones que contiene.
+- Coloca el grupo donde corresponde a sus botones en el orden de lectura. La tecnología de apoyo llega a ellos uno por uno, en el orden en que aparecen.
+- Si un conjunto de conmutadores debe ser mutuamente excluyente, usa un control de selección única: pestañas donde la elección cambia el contenido de debajo, botones de opción donde define un valor, o un botón segmentado donde el sistema lo incluya. Cada uno de ellos se anuncia como una sola elección; una fila de botones conmutadores no.

@@ -1,0 +1,303 @@
+---
+title: ऐप बार
+description: मौजूदा स्क्रीन को उसके ऊपरी किनारे पर नाम देता है और पीछे जाने का रास्ता और स्क्रीन की कुछ क्रियाएँ रखता है। जब तक कॉन्टेंट अपने ऊपरी सिरे पर है यह सपाट रहता है, और कॉन्टेंट के इसके नीचे स्क्रॉल होते ही ख़ुद को अलग दिखाता है।
+translationOf: components/app-bar.mdx
+sourceHash: 6673ce3102bb145461ac7483ffda05f1bee1ab9c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="app-bar" />
+
+Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं, जिसमें बार के आइटम सिर्फ़ आइकन वाले [बटन](/hi/components/button/) हैं। SwiftUI, Compose, Flutter और React Native पीछे हैं: वे अभी पिछला संशोधन देते हैं, जिसमें आइकन बटन एक अलग कंपोनेंट है, और जब तक वे बराबरी पर नहीं आते, उनके उदाहरण वही संशोधन दिखाते हैं।
+
+<DemoFrame label="एक small ऐप बार, जिसमें पीछे जाने का बटन और दो क्रियाएँ हैं">
+  <tanrei-app-bar headline="इनबॉक्स" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="पीछे"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="खोजें"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="और विकल्प"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+### इस्तेमाल
+
+ऐप बार एक लेआउट रीजन है, ओवरले नहीं। यह स्क्रीन के सबसे ऊपर अपनी ऊँचाई लेता है, कॉन्टेंट इसके नीचे से शुरू होता है, और बार ख़ुद कभी फ़ोकस नहीं लेता।
+
+इसमें दो तरह के आइटम होते हैं: शुरू में एक `navigation` आइटम (पीछे, मेन्यू या बंद करना) और अंत में तीन तक `action` आइटम। दोनों आपके अपने सिर्फ़ आइकन वाले [बटन](/hi/components/button/) हैं, हर एक अपने लेबल और अपने click के साथ, या जहाँ वह कहीं ले जाता है, वहाँ अपने `href` के साथ। बार उन्हें लेआउट में रखता है और उनकी स्टाइल कभी नहीं बदलता। हर प्लैटफ़ॉर्म उन्हें अपने स्लॉट में लेता है: वेब पर `slot="navigation"` और `slot="actions"` वाले चाइल्ड, SwiftUI पर `navigation` और `actions` व्यू बिल्डर, Compose पर `navigationIcon` और `actions` लैम्ब्डा, Flutter पर `leading` और `actions:`, और React Native पर `navigation` और `actions` नोड।
+
+शीर्षक स्क्रीन का नाम और उसकी हेडिंग है। वेब पर यह `headline` है, क्योंकि HTML का ग्लोबल `title` ऐट्रिब्यूट पूरे बार पर एक टूलटिप लगा देता।
+
+**स्क्रॉल्ड।** जब तक कॉन्टेंट बार के नीचे है, बार अपना स्क्रॉल्ड रूप लेता है। स्क्रीन के स्क्रॉल होने वाले व्यू को जोड़ दें, तो बार `scrolled` ख़ुद सेट करता है: वेब पर `scroll-target` (डिफ़ॉल्ट रूप से डॉक्यूमेंट), SwiftUI पर `.tanreiAppBarScrollSource()` (उस `.safeAreaInset` के बाद लगाया गया जो बार को रखता है), Compose पर `Modifier.nestedScroll` से जोड़ा गया `scrollBehavior`, Flutter पर पेज के स्क्रॉल नोटिफ़िकेशन, और React Native पर `useAppBarScroll()`। जुड़ाव न हो, तो `scrolled` ख़ुद सेट करें।
+
+**सिस्टम बार।** बार का रंग अपने ऊपर के स्टेटस बार, कैमरा कटआउट या विंडो कैप्शन के नीचे तक पहुँचता है। उसका कॉन्टेंट उनके नीचे और बग़ल के इनसेट के भीतर रहता है। वेब `env(safe-area-inset-*)` पढ़ता है, Compose `windowInsets` लेता है (डिफ़ॉल्ट रूप से स्टेटस बार और आड़ा डिस्प्ले कटआउट), Flutter `MediaQuery` की पैडिंग पढ़ता है, और SwiftUI बार को `.safeAreaInset(edge: .top)` से रखता है। React Native में सेफ़ एरिया का कोई API नहीं है, और Tanrei सेफ़ एरिया की कोई डिपेंडेंसी नहीं लेता, इसलिए इनसेट सिर्फ़ प्रॉपर्टी से आते हैं। `TanreiProvider` को विंडो के `insets` दें (अगर आप `react-native-safe-area-context` इस्तेमाल करते हैं, तो उसका `useSafeAreaInsets()` आगे दे दें)। बार की अपनी `insets` प्रॉपर्टी में जो ओर दी गई हैं, उनके मान वह बदल देती है, इसलिए जो बार विंडो के सबसे ऊपर नहीं है वह `{ top: 0 }` देता है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- शीर्षक headline है: HTML का title ऐट्रिब्यूट बार के ऊपर एक टूलटिप दिखा देता। -->
+    <tanrei-app-bar headline="इनबॉक्स">
+      <tanrei-button variant="text" slot="navigation" label="पीछे"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="खोजें"><span slot="icon">search</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="और विकल्प"><span slot="icon">more_vert</span></tanrei-button>
+    </tanrei-app-bar>
+
+    <!-- एक large शीर्षक जो #inbox के स्क्रॉल होने पर सिमटता है। जब तक heading-level कुछ और न कहे, शीर्षक एक h1 है। -->
+    <div style="display: flex; flex-direction: column; block-size: 100dvh">
+      <tanrei-app-bar size="large" headline="इनबॉक्स" scroll-target="inbox">
+        <tanrei-button variant="text" slot="navigation" label="मेन्यू"><span slot="icon">menu</span></tanrei-button>
+      </tanrei-app-bar>
+      <main id="inbox" style="flex: 1; overflow: auto">…</main>
+    </div>
+
+    <!-- जो बटन किसी पेज पर ले जाता है, वह लिंक है: उसे href दें। खोज भी एक क्रिया हो सकती है: उसका आइकन ट्रिगर। -->
+    <tanrei-app-bar headline="टैब">
+      <tanrei-button variant="text" slot="navigation" href="/components/" label="सभी कंपोनेंट"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-search slot="actions" bar="icon" presentation="dialog" label="दस्तावेज़ों में खोजें" placeholder="खोजें"
+        clear-label="खोज मिटाएँ" back-label="पीछे"></tanrei-search>
+    </tanrei-app-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/app-bar';
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/search';
+      // बटन आपके हैं: बार अपना कोई इवेंट नहीं जोड़ता।
+      document.querySelector('[label="पीछे"]').addEventListener('click', () => history.back());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { AppBar, Button, Search } from '@tanrei/react';
+
+    <AppBar headline="इनबॉक्स">
+      <Button variant="text" slot="navigation" label="पीछे" onClick={goBack}><span slot="icon">arrow_back</span></Button>
+      <Button variant="text" slot="actions" label="खोजें" onClick={search}><span slot="icon">search</span></Button>
+      <Button variant="text" slot="actions" label="और विकल्प" onClick={openMore}><span slot="icon">more_vert</span></Button>
+    </AppBar>
+
+    // जो बटन किसी पेज पर ले जाता है, वह लिंक है: उसे href दें। खोज भी एक क्रिया हो सकती है: उसका आइकन ट्रिगर।
+    <AppBar headline="टैब">
+      <Button variant="text" slot="navigation" href="/components/" label="सभी कंपोनेंट"><span slot="icon">arrow_back</span></Button>
+      <Search slot="actions" bar="icon" presentation="dialog" label="दस्तावेज़ों में खोजें" placeholder="खोजें" clearLabel="खोज मिटाएँ" backLabel="पीछे" />
+    </AppBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // बार उस NavigationStack के ऊपरी सेफ़ एरिया इनसेट में रहता है जिसका सिस्टम बार छिपा है।
+    // isScrolled को nil छोड़ने पर वह .tanreiAppBarScrollSource() से चिह्नित स्क्रॉल व्यू के अनुसार चलता है।
+    NavigationStack {
+        ScrollView { InboxRows() }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                TanreiAppBar("इनबॉक्स", size: .large) {
+                    TanreiIconButton("मेन्यू", action: openMenu) { Image(systemName: "line.3.horizontal") }
+                } actions: {
+                    TanreiIconButton("खोजें", action: search) { Image(systemName: "magnifyingglass") }
+                }
+            }
+            // बार को रखने वाले इनसेट के बाद: उसके भीतर लगाया गया मॉडिफ़ायर बार तक नहीं पहुँच सकता।
+            .tanreiAppBarScrollSource()
+            .toolbar(.hidden, for: .navigationBar)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiAppBar
+    import io.github.chnotchy.tanrei.components.TanreiAppBarDefaults
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiAppBarSize
+
+    // एक small बार। scrollBehavior के बिना यह सपाट रहता है।
+    TanreiAppBar(
+        title = "इनबॉक्स",
+        navigationIcon = { TanreiIconButton(onClick = onBack, contentDescription = "पीछे") { TanreiText("arrow_back") } },
+        actions = {
+            TanreiIconButton(onClick = onSearch, contentDescription = "खोजें") { TanreiText("search") }
+            TanreiIconButton(onClick = onMore, contentDescription = "और विकल्प") { TanreiText("more_vert") }
+        },
+    )
+
+    // एक large बार जो लिस्ट के स्क्रॉल होने पर सिमटता है: behavior को स्क्रॉल होने वाले व्यू के किसी पैरेंट पर जोड़ें।
+    // pinnedScrollBehavior() small बार का है: वह कभी नहीं सिमटता, और जब तक कॉन्टेंट उसके नीचे है तब तक scrolled रहता है।
+    val scrollBehavior = TanreiAppBarDefaults.collapseScrollBehavior()
+    Column(Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)) {
+        TanreiAppBar(title = "इनबॉक्स", size = TanreiAppBarSize.Large, scrollBehavior = scrollBehavior)
+        LazyColumn { /* स्क्रीन का कॉन्टेंट */ }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // एक small बार, किसी scaffold के ऐप बार स्लॉट में या किसी Column में सबसे पहले।
+    // scrolledUnder को null छोड़ने पर वह सबसे पास के ScrollNotificationObserver के अनुसार चलता है, जैसे AppBar करता है।
+    TanreiAppBar(
+      leading: TanreiIconButton(onPressed: () => Navigator.of(context).maybePop(), icon: const Icon(AppSymbols.arrowBack), semanticLabel: 'पीछे'),
+      title: 'इनबॉक्स',
+      actions: <Widget>[
+        TanreiIconButton(onPressed: search, icon: const Icon(AppSymbols.search), semanticLabel: 'खोजें'),
+        TanreiIconButton(onPressed: openMore, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'और विकल्प'),
+      ],
+    ),
+
+    // जो large बार अपने कॉन्टेंट के साथ सिमटता है, वह एक sliver है, जो अपने CustomScrollView में सबसे ऊपर पिन किया गया है।
+    CustomScrollView(
+      slivers: <Widget>[
+        TanreiSliverAppBar(title: 'इनबॉक्स', size: TanreiAppBarSize.large, leading: menuButton),
+        SliverList.list(children: messages),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { ScrollView, View } from 'react-native';
+    import { AppBar, IconButton, useAppBarScroll } from '@tanrei/react-native';
+
+    // इनसेट TanreiProvider की insets प्रॉपर्टी से आते हैं, या बार की अपनी प्रॉपर्टी से।
+    <AppBar
+      title="इनबॉक्स"
+      navigation={<IconButton accessibilityLabel="पीछे" onPress={goBack}>arrow_back</IconButton>}
+      actions={
+        <>
+          <IconButton accessibilityLabel="खोजें" onPress={search}>search</IconButton>
+          <IconButton accessibilityLabel="और विकल्प" onPress={openMore}>more_vert</IconButton>
+        </>
+      }
+    />
+
+    // एक large बार जो सिमटता है: स्क्रॉल व्यू को जोड़ें, बार को उसके ऊपर रखें, और कॉन्टेंट को बार की ऊँचाई जितनी पैडिंग दें।
+    const scroll = useAppBarScroll();
+    const [barHeight, setBarHeight] = useState(0);
+    <View style={{ flex: 1 }}>
+      <ScrollView onScroll={scroll.onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: barHeight }}>
+        {messages}
+      </ScrollView>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }} onLayout={(e) => setBarHeight((h) => Math.max(h, e.nativeEvent.layout.height))}>
+        <AppBar size="large" title="इनबॉक्स" scrollState={scroll.state} navigation={menuButton} />
+      </View>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="उपशीर्षक वाला एक large बार, और बीच में रखा शीर्षक" plain column>
+  <tanrei-app-bar size="large" headline="इनबॉक्स" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="मेन्यू"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="खोजें"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="खाता"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-app-bar>
+  <tanrei-app-bar headline="इनबॉक्स" title-alignment="center" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="पीछे"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="खोजें"><span slot="icon">search</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<DemoFrame label="एक नेविगेशन बटन जो लिंक है, और क्रियाओं के बीच एक खोज ट्रिगर" plain>
+  <tanrei-app-bar headline="टैब" subtitle="कंपोनेंट" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" href="/hi/components/" label="सभी कंपोनेंट"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-search slot="actions" bar="icon" presentation="dialog" label="दस्तावेज़ों में खोजें" placeholder="खोजें" clear-label="खोज मिटाएँ" back-label="पीछे"></tanrei-search>
+    <tanrei-button variant="text" slot="actions" label="और विकल्प"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<ComponentSpecs name="app-bar" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+ऐप बार को स्क्रीन के सबसे ऊपर इस्तेमाल करें: यह बताने के लिए कि व्यक्ति कहाँ है, उसे पीछे ले जाने या मेन्यू खोलने के लिए, और उन कुछ क्रियाओं तक पहुँचने के लिए जो पूरी स्क्रीन की हैं: खोज, शेयर, खाता। एक स्क्रीन में एक ही ऐप बार होता है।
+
+ऐप के सबसे ऊपरी स्तर के गंतव्यों के बीच जाने के लिए नेविगेशन बार या ड्रॉअर इस्तेमाल करें। ऐप बार का मेन्यू बटन एक [मोडल नेविगेशन ड्रॉअर](/hi/components/navigation-drawer/) खोल सकता है। Tanrei में कोई बॉटम ऐप बार नहीं है: कॉम्पैक्ट स्क्रीन के नीचे की क्रियाएँ [टूलबार](/hi/components/toolbar/) का काम हैं।
+
+### साइज़ और शीर्षक की जगह चुनना
+
+| चुनाव | क्या करता है | किसके लिए |
+| --- | --- | --- |
+| Small (डिफ़ॉल्ट) | एक पंक्ति: नेविगेशन बटन, शीर्षक और क्रियाएँ। | ज़्यादातर स्क्रीन, और हर वह स्क्रीन जिस पर व्यक्ति किसी दूसरी स्क्रीन से पहुँचता है। |
+| Large | ऊपरी पंक्ति के नीचे अपनी अलग पंक्ति में एक बड़ा शीर्षक। कॉन्टेंट के स्क्रॉल होने पर वह ऊपरी पंक्ति में सिमट जाता है, ठीक उतना जितना स्क्रॉल हुआ, और ऊपरी पंक्ति का शीर्षक फ़ेड होकर आता है। कॉन्टेंट के अपने ऊपरी सिरे पर लौटने पर वह फिर फैल जाता है। | प्रॉडक्ट की सबसे ऊपरी स्तर की स्क्रीन, जहाँ शीर्षक स्क्रीन की पहचान भी है। |
+| `titleAlignment` start (डिफ़ॉल्ट) | शीर्षक नेविगेशन बटन के बाद आता है। | ज़्यादातर बार। |
+| `titleAlignment` center | शीर्षक पूरे बार के बीच में रहता है और दोनों ओर से बराबर सँकरा किया जाता है, इसलिए वह कभी बटनों के नीचे नहीं जाता। | वे प्रॉडक्ट जो iOS की तरह शीर्षक बीच में रखते हैं। फैला हुआ large शीर्षक हमेशा शुरू की ओर से शुरू होता है। |
+
+कोई डिज़ाइन सिस्टम साइज़ जोड़ सकता है। SwiftUI, Compose, Flutter और React Native पर small से ऊँचे साइज़ को शीर्षक की अपनी पंक्ति मिलती है, जैसे large को। वेब पर डिज़ाइन सिस्टम का जोड़ा हुआ हर साइज़ यह पंक्ति पाता है। `m3-like` प्रीसेट में अभी Material का medium साइज़ नहीं है।
+
+### स्क्रॉल करना
+
+- **सपाट और स्क्रॉल्ड।** जब तक कॉन्टेंट अपने ऊपरी सिरे पर है, बार सपाट रहता है। जैसे ही कॉन्टेंट उसके नीचे आता है, बार अपना स्क्रॉल्ड रूप लेता है: डिफ़ॉल्ट सिस्टम में निचले किनारे पर एक बारीक रेखा, `m3-like` में टिंट वाला कंटेनर। यह बदलाव बार के कंडीशन मोशन की अवधि में ईज़ होता है, और जहाँ मोशन कम किया गया है वहाँ तुरंत होता है।
+- **large बार तभी स्क्रॉल्ड होता है जब वह पूरी तरह सिमट चुका हो।** तब तक सिमटना ही दिखाता है कि कॉन्टेंट हिला है।
+- **बार अपनी जगह रहता है।** कॉन्टेंट के नीचे स्क्रॉल होने पर वह छिपता नहीं। वह स्क्रीन का स्क्रॉल व्यवहार है, बार का नहीं।
+
+### आइटम
+
+- बार को ज़्यादा से ज़्यादा एक नेविगेशन बटन दें: जिस स्क्रीन पर व्यक्ति दूसरी स्क्रीन से पहुँचा उस पर पीछे, सबसे ऊपरी स्तर की स्क्रीन पर मेन्यू, फ़ुल-स्क्रीन काम पर बंद करना।
+- तीन क्रियाओं तक सीमित रहें। बाक़ी को ओवरफ़्लो मेन्यू में रखें: "और विकल्प" का एक आइकन बटन जो Tanrei का मेन्यू खोलता है। चौथी क्रिया और दूसरा नेविगेशन बटन डीबग बिल्ड में रिपोर्ट किए जाते हैं, और फिर भी बनाए जाते हैं।
+- बटन वैसे ही दिखते हैं जैसे कहीं और। बार उन्हें लेआउट में रखता है और उनका रंग कभी नहीं बदलता।
+- जो बटन कहीं ले जाता है, वह लिंक है: उसे `href` दें। तब पैरेंट पेज पर ले जाने वाला पीछे का बटन, या कोई पेज खोलने वाली सहायता की क्रिया, एक असली लिंक है, जो उसी बटन के रूप में बनता है। जो पीछे का बटन हिस्ट्री से होकर लौटता है, वह बटन ही रहता है।
+- वेब पर [खोज](/hi/components/search/) अपने आइकन ट्रिगर के रूप में क्रियाओं में से एक हो सकती है (`bar` को `icon` पर सेट करके): सिर्फ़ आइकन वाला बटन जो खोज का डायलॉग या फ़ुल-स्क्रीन व्यू खोलता है।
+
+### करें
+
+- शीर्षक को स्क्रीन के नाम के रूप में लिखें, जैसे "इनबॉक्स" या "तिमाही रिपोर्ट"। उसे छोटा रखें: वह एक ही पंक्ति में रहता है और एलिप्सिस के साथ काटा जाता है।
+- उपशीर्षक का इस्तेमाल उस संदर्भ के लिए करें जो दो मिलती-जुलती स्क्रीन में फ़र्क़ करने में मदद करे: कोई खाता, कोई स्थिति, कब संपादित किया गया।
+- सबसे ऊपरी स्तर की सभी स्क्रीन के लिए एक साइज़ चुनें और बाक़ी सब के लिए एक।
+
+### न करें
+
+- स्लॉट में आइकन बटन के सिवा कुछ न रखें: न टेक्स्ट फ़ील्ड, न खोज फ़ील्ड, न टैब, न सेगमेंटेड कंट्रोल। टैब की पंक्ति बार के नीचे जाती है, और उससे और नीचे का [टैब व्यू](/hi/components/tab-view/) उससे जोड़ा जा सकता है।
+- "बनाएँ" जैसी मुख्य क्रिया को बार में न रखें। मुख्य ऐक्शन बटन इस्तेमाल करें।
+- शीर्षक को दूसरी पंक्ति न दें और उसे लिंक न बनाएँ।
+
+## सुलभता
+
+<ComponentAccessibility name="app-bar" />
+
+### कंपोनेंट क्या सँभालता है
+
+- बार का अपना कोई रोल नहीं है और उस पर कभी फ़ोकस नहीं जा सकता। Tab नेविगेशन बटन से क्रियाओं तक जाती है, पढ़ने के क्रम में। हर बटन अपना रोल, नाम और न्यूनतम टार्गेट रखता है, और `href` वाला बटन सहायक तकनीक को लिंक के रूप में मिलता है।
+- शीर्षक स्क्रीन की हेडिंग के रूप में दिया जाता है, वेब पर स्तर 1 की हेडिंग, जब तक `heading-level` कुछ और न कहे। उपशीर्षक उसके बाद पढ़ा जाता है। ख़ाली शीर्षक कुछ नहीं बनाता और कोई हेडिंग नहीं देता।
+- large बार सिमटते समय दो शीर्षक बनाता है, पर सहायक तकनीक को सिर्फ़ एक देता है: जब तक फैले हुए शीर्षक का कोई भी हिस्सा दिख रहा है तब तक वही, और बार के सिमट जाने पर ऊपरी पंक्ति का। हेडिंग कभी दो बार नहीं पढ़ी जाती।
+- बार कोई लैंडमार्क नहीं है। सिर्फ़ आप जानते हैं कि वह पेज का बैनर है या नहीं।
+- बड़ा टेक्स्ट बार की पंक्तियों को बढ़ाता है, जिनकी ऊँचाई सिर्फ़ न्यूनतम तय है। शीर्षक और उपशीर्षक एक ही पंक्ति में रहते हैं और अगली पंक्ति में जाने के बजाय काटे जाते हैं, 200% पर भी, इसलिए बार कभी कॉन्टेंट को दूर नहीं धकेलता। पूरा शीर्षक सहायक तकनीक के लिए उपलब्ध रहता है। आइकन बटन स्केल नहीं किए जाते।
+- बार अपनी दिशा वहाँ से लेता है जहाँ वह इस्तेमाल होता है। दाएँ से बाएँ वाले लेआउट में वह मिरर होता है: नेविगेशन बटन दाईं ओर होता है और क्रियाएँ बाईं ओर। जिस ग्लिफ़ को आइकन सेट मिरर होने वाला बताता है, जैसे पीछे का ऐरो, उसे उसका अपना बटन मिरर करता है, बार नहीं।
+- शीर्षक और उपशीर्षक अपनी दिशा वाले टेक्स्ट के रूप में रखे जाते हैं, आसपास के टेक्स्ट से अलग। दाएँ से बाएँ वाले लेआउट में बाएँ से दाएँ लिखा नाम अपना क्रम रखता है, और अपने अंत पर काटा जाता है, शुरुआत पर कभी नहीं।
+- तीन से ज़्यादा क्रियाएँ, एक से ज़्यादा नेविगेशन बटन, और ऐसा साइज़ जो डिज़ाइन सिस्टम में नहीं है, डीबग बिल्ड में रिपोर्ट किए जाते हैं।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- SwiftUI, Compose, Flutter और React Native: दाएँ से बाएँ वाले नियम (जहाँ आइकन सेट बताता है वहाँ मिरर किया गया ग्लिफ़, अपनी दिशा में रखा गया शीर्षक) इन प्लैटफ़ॉर्म के बराबरी पर आने का इंतज़ार कर रहे हैं, और `href` वाला बटन भी।
+- Web: हर साइज़ `rem` के अनुसार चलता है, इसलिए ब्राउज़र का बड़ा टेक्स्ट साइज़ आइकन बटनों को टेक्स्ट के साथ बढ़ाता है। अकेले Tanrei के टाइप को बड़ा करने से ऐसा नहीं होता।
+- Web: जो large बार डॉक्यूमेंट के अपने स्क्रॉल के अनुसार चलता है और डॉक्यूमेंट के फ़्लो में `position: sticky` रहता है, वह कॉन्टेंट को स्क्रॉल के साथ-साथ अपने सिमटने से भी खिसकाता है, इसलिए बार के सिमटते समय कॉन्टेंट दुगुनी तेज़ी से चलता है। सिमटने वाले बार को किसी स्क्रॉल होने वाले एलिमेंट के ऊपर (`scroll-target`) या किसी फ़िक्स्ड हेडर में रखें।
+- Web: हर आइकन बटन इस्तेमाल हो रहे पॉइंटर के न्यूनतम टार्गेट जितने सेल में रहता है, जो माउस के लिए 44 है, इसलिए दो क्रियाएँ केंद्र से केंद्र तक 52 की दूरी पर होती हैं, जबकि Compose और Flutter, जो 48 का टच टार्गेट नापते हैं, उन्हें 56 की दूरी पर बनाते हैं।
+- SwiftUI: बार अपने स्क्रॉल व्यू के अनुसार सिर्फ़ iOS 18 और macOS 15 से चलता है। उससे पहले कुछ नहीं जुड़ता, और बार वही बनाता है जो `isScrolled` कहता है।
+- SwiftUI: जुड़े हुए large बार पर `isScrolled: true` उसे सिमटा हुआ बनाता है पर लेआउट में उसकी फैली हुई ऊँचाई रखता है, इसलिए जब तक कॉन्टेंट अपने ऊपरी सिरे पर है, उसके ऊपर एक गैप दिखता है।
+- SwiftUI: सिस्टम बार छिपा होने पर बार नेविगेशन कंट्रोलर के pop-gesture delegate को बदलकर किनारे से स्वाइप करके पीछे जाना चालू रखता है। यह सिर्फ़ iOS 26.5 पर जाँचा गया है। large बार एक समय में एक ही शीर्षक देता है, यह अभी VoiceOver से जाँचा नहीं गया है।
+- Flutter: large `TanreiAppBar` अपने कॉन्टेंट के साथ नहीं सिमटता, क्योंकि बॉक्स विजेट अपने नीचे के स्क्रॉल व्यू के साथ सिकुड़ नहीं सकता। वह स्क्रॉल नोटिफ़िकेशन को अनदेखा करता है, फैला रहता है और सिर्फ़ तब सिमटा हुआ बनता है जब `scrolledUnder` true हो। सिमटने वाले बार के लिए `TanreiSliverAppBar` इस्तेमाल करें।
+- Flutter: `preferredSize` असीमित ऊँचाई बताता है, क्योंकि वह थीम नहीं पढ़ सकता। scaffold बार को अपना साइज़ ख़ुद तय करने देता है, पर आपका अपना लेआउट उस संख्या का इस्तेमाल नहीं कर सकता।
+- Compose: सिमटना वहीं रुकता है जहाँ स्क्रॉल रुकता है, इसलिए large बार आधा सिमटा हुआ रह सकता है। वह फ़्लिंग के बाद Material की तरह झटके से खुलता या बंद नहीं होता। स्पेक ऐसा स्नैप नहीं माँगता।
+- React Native: large बार अपने कॉन्टेंट के साथ ठीक उतना ही सिमटे, इसके लिए आप बार को स्क्रॉल व्यू के ऊपर रखते हैं और कॉन्टेंट को बार की ऊँचाई जितनी पैडिंग देते हैं, जैसा ऊपर का उदाहरण करता है। सिमटना, इनसेट और स्क्रीन रीडर जो पढ़कर सुनाते हैं, ये अभी किसी डिवाइस पर जाँचे नहीं गए हैं।
+- हर प्लैटफ़ॉर्म: `cupertino` में 44 पॉइंट की ऊपरी पंक्ति आइकन बटन रखने पर 48 की हो जाती है, क्योंकि उनका टच टार्गेट 48 है और न्यूनतम टार्गेट को तरजीह मिलती है। वेब पर वह सिर्फ़ मोटे पॉइंटर के साथ बढ़ती है, क्योंकि माउस का टार्गेट 44 है। large बार की फैली हुई पंक्ति भी cupertino की कंटेनर ऊँचाई से 1 पॉइंट ऊँची है।
+- हर प्लैटफ़ॉर्म: उपशीर्षक होने पर फैला हुआ शीर्षक बार के पूरी तरह सिमटने से पहले ही ढक जाता है। स्पेक अभी यह नहीं बताता कि बीच में कौन-सा शीर्षक दिया जाता है। हर प्लैटफ़ॉर्म फैले हुए शीर्षक के ढकते ही हेडिंग को ऊपरी पंक्ति में ले जाता है।
+
+### आपको क्या करना है
+
+- हर बार को एक शीर्षक दें। वह स्क्रीन की हेडिंग है।
+- हर आइकन बटन को एक लेबल दें, जैसे "पीछे" या "खोजें"।
+- वेब पर, जब पेज में पहले से स्तर 1 की हेडिंग हो तो `heading-level` सेट करें, और जब बार पेज का बैनर हो तो उसे `<header>` में रखें।
+- स्क्रीन के स्क्रॉल होने वाले व्यू को जोड़ें, या `scrolled` ख़ुद सेट करें, ताकि बार दिखाए कि कॉन्टेंट उसके नीचे है।
+- React Native पर विंडो के इनसेट `TanreiProvider` को दें। React Native और Compose पर जो बार विंडो के सबसे ऊपर नहीं है, वह अलग इनसेट लेता है (`insets={{ top: 0 }}`, या आपके अपने `windowInsets`)।
+- शीर्षक छोटे रखें। एलिप्सिस के साथ कटा हुआ शीर्षक अब भी पूरा पढ़ा जाता है, पर देखने वाले लोग सिर्फ़ उसकी शुरुआत देखते हैं।

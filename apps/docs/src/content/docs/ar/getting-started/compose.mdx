@@ -1,0 +1,86 @@
+---
+title: Jetpack Compose
+description: أضف Tanrei إلى تطبيق Android مبني بـ Jetpack Compose.
+translationOf: getting-started/compose.mdx
+sourceHash: e564c9d2bb7d382cd74d239b9c27e2fd46818c69
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+توفّر مكتبة Compose دوال composable و `TanreiTheme` وكائنات رموز (tokens) مولَّدة. تعتمد المكتبة على Compose Foundation لا على مكتبة مكوّنات Material، فلا تجلب إلى تطبيقك نظام تصميم ثانيًا.
+
+<PreReleaseNotice registry="Maven Central" pkg="io.github.chnotchy:tanrei" />
+
+## التثبيت
+
+### من الشيفرة المصدرية
+
+<Callout type="caution" title="لا تُبنى اليوم">
+  لم تلحق مكتبة Compose بعد بالمواصفات والرموز (tokens) الحالية: كُتبت مصادرها على إصدار سابق من شيفرة الرموز المولَّدة، ولا تُترجَم (compile) على شيفرة اليوم. والتكامل المستمر (CI) الخاص بها متوقف إلى أن تلحق، و[صفحة الحالة](/ar/status/) تَسِم مكوّناتها بأنها *متأخرة*. الخطوات أدناه هي طريقة إضافتها إلى تطبيق، وتعمل حين تلحق المكتبة.
+</Callout>
+
+استنسخ المستودع بجانب تطبيقك وضمِّن بناء Gradle الخاص به، الذي يحمل المكتبة بوصفها المشروع `:tanrei`:
+
+```kotlin
+// settings.gradle.kts
+includeBuild("../tanrei/packages/compose") {
+  dependencySubstitution {
+    substitute(module("io.github.chnotchy:tanrei")).using(project(":tanrei"))
+  }
+}
+```
+
+```kotlin
+// build.gradle.kts
+dependencies {
+  implementation("io.github.chnotchy:tanrei")
+}
+```
+
+### بعد الإصدار الأول
+
+```kotlin
+// build.gradle.kts
+dependencies {
+  implementation("io.github.chnotchy:tanrei:<version>")
+}
+```
+
+## الاستخدام
+
+ضع محتواك داخل `TanreiTheme` مرة واحدة قرب الجذر:
+
+```kotlin
+import io.github.chnotchy.tanrei.components.TanreiButton
+import io.github.chnotchy.tanrei.theme.TanreiTheme
+import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+
+@Composable
+fun DeployScreen(isDeploying: Boolean, onDeploy: () -> Unit) {
+  TanreiTheme {
+    TanreiButton(
+      text = "نشر",
+      onClick = onDeploy,
+      variant = TanreiButtonVariant.Filled,
+      enabled = !isDeploying,
+    )
+  }
+}
+```
+
+العرف في Compose هو الراية الإيجابية `enabled`، وهي ما يستخدمه Tanrei؛ والخاصية `disabled` في المواصفة تقابل عكسها. وتوجد صيغة أخرى للدالة ذات منفذ (slot) تأخذ دالة `content` حين تحتاج إلى أكثر من تسمية نصية.
+
+## السمة والتباين
+
+يتبع `TanreiTheme` افتراضيًّا السمة الداكنة للنظام وإعداد التباين فيه. ويمكن تثبيت الاثنين:
+
+```kotlin
+TanreiTheme(theme = TanreiThemeMode.Dark, contrast = TanreiContrast.High) {
+  App()
+}
+```
+
+## الخطوط
+
+يُحَلّ السلّم الطباعي افتراضيًّا إلى عائلة الخطوط الافتراضية للمنصة. مرِّر `TanreiFontFamilies` خاصًّا بك إلى `TanreiTheme` لاستخدام Inter (و Noto Sans JP و Roboto Mono) من موارد الخطوط في تطبيقك. تُسمّى أنماط النص بحسب المستوى (`TanreiTheme.tokens.typescale.heading2` و `.body` و `.label`؛ و `.toTextStyle()` يحوّل أحدها إلى `TextStyle` في Compose)، و `TanreiTheme.tokens.typescale.heading1.emphasized()` هو النمط نفسه بوزنه مضافًا إليه درجة التوكيد الخاصة بفئة العناوين (وخارج التركيب: `emphasized(system.typescale.emphasis)`).

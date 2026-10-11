@@ -1,0 +1,421 @@
+---
+title: Carrusel
+description: Una fila de elementos visuales que se desplaza hacia los lados en torno a un elemento en primer plano, cada uno de los cuales abre lo que muestra. Una fila destacada puede no tener fin, mostrar su posición con puntos y avanzar por sí sola.
+translationOf: components/carousel.mdx
+sourceHash: 2d83688f39ecd8ebca3c92ae6620428c4fb0310d
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="carousel" />
+
+:::note[Una especificación revisada, todavía no en todas las plataformas]
+Esta página describe el carrusel tal como lo define ahora la especificación. Varias elecciones independientes (dónde se sitúa el elemento principal, anchos fluidos o fijos, escala, ajuste, bucle) sustituyen a la propiedad `layout`, y una fila destacada puede mostrar puntos y avanzar por sí sola. Ahora el elemento principal se sitúa en el centro de forma predeterminada, y los elementos vecinos quedan a una separación de distancia en cualquier posición del desplazamiento. El componente web ya hace todo esto, y también las demostraciones. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagadas: hasta que se pongan al día ofrecen la revisión anterior, con `layout` y sin bucle, puntos ni reproducción automática. Consulta [El elemento principal está en el centro de forma predeterminada](#el-elemento-principal-está-en-el-centro-de-forma-predeterminada) y [Migrar desde `layout`](#migrar-desde-layout).
+:::
+
+<DemoFrame label="El valor predeterminado: el elemento principal en el centro y un elemento pequeño a su lado">
+  <tanrei-carousel label="Paseos cerca de ti" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Paseo del río, 14 fotos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+  </tanrei-carousel>
+</DemoFrame>
+
+### Uso
+
+Un carrusel tiene un solo tipo de elemento, `item`. Cada plataforma recibe los elementos como recibe cualquier conjunto de hijos repetidos: hijos `<tanrei-carousel-item>` en la web, vistas `TanreiCarouselItem` en un constructor de vistas en SwiftUI, llamadas a `TanreiCarouselItem` desde una lambda de elemento en Compose, widgets `TanreiCarouselItem` en `children` en Flutter e hijos `CarouselItem` en React Native.
+
+Cada elemento es una sola acción. Contiene tu contenido, normalmente una imagen, y emite `click` cuando la persona lo activa (`action`, `onClick`, `onTap` u `onPress`, según la plataforma). Su `label` es su nombre accesible: di qué muestra el contenido, por ejemplo «Sendero costero, 12 fotos». El contenido en sí queda oculto para la tecnología de apoyo, y no debe incluir ningún control propio.
+
+La fila se organiza en torno a un elemento en primer plano, el elemento principal (hero). Unas pocas propiedades independientes dicen cómo, y cada una tiene un valor predeterminado adecuado para una fila que se explora: el elemento principal en el centro, los elementos de al lado más estrechos y una fila que se asienta en un elemento entero. `itemWidth` es el ancho del elemento principal; déjalo sin definir para tomar el valor predeterminado del sistema de diseño. Una fila destacada puede añadir `loop`, los puntos (`indicator`) y `autoplay`. Sin `autoplay`, el carrusel no tiene ningún valor que controlar: se desplaza cuando la persona lo desplaza o mueve el foco.
+
+Los ejemplos de Web y React muestran la especificación actual. Los ejemplos de SwiftUI, Compose, Flutter y React Native muestran la revisión anterior, que es la que ofrecen esas plataformas: `layout` (varios elementos en una fila de forma predeterminada, `hero` o `uncontained`) e `itemWidth`, sin bucle, puntos ni reproducción automática.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-carousel label="Paseos cerca de ti">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><img src="coast.jpg" alt="" /></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><img src="town.jpg" alt="" /></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><img src="forest.jpg" alt="" /></tanrei-carousel-item>
+    </tanrei-carousel>
+
+    <!-- Una fila destacada: sin fin, con puntos, que avanza por sí sola. El elemento principal está en el centro de forma predeterminada. -->
+    <tanrei-carousel label="Paseos destacados" loop indicator autoplay
+                     play-label="Reproducir presentación" pause-label="Pausar presentación">…</tanrei-carousel>
+
+    <!-- Una fila sencilla desde el borde de inicio: cada elemento mide 120 de ancho (un número de píxeles CSS) y la fila
+         reposa donde termine el desplazamiento. fixed-width y free-scroll son los inversos de fluidWidth y snap, que son true de forma predeterminada. -->
+    <tanrei-carousel label="Vistos recientemente" hero-alignment="start" fixed-width free-scroll item-width="120">…</tanrei-carousel>
+
+    <script type="module">
+      import '@tanrei/web/components/carousel';
+      for (const item of document.querySelectorAll('tanrei-carousel-item')) {
+        item.addEventListener('click', () => openWalk(item.label));
+      }
+      // Solo lo emite el control de reproducción, no las pausas temporales, ni tampoco cuando defines paused.
+      document.querySelector('[label="Paseos destacados"]').addEventListener('pausedchange', (e) => savePaused(e.detail.paused));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Carousel, CarouselItem } from '@tanrei/react';
+
+    <Carousel label="Vistos recientemente" itemWidth={120} fluidWidth={false} snap={false}>
+      {walks.map((walk) => (
+        <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}>
+          <img src={walk.image} alt="" />
+        </CarouselItem>
+      ))}
+    </Carousel>
+
+    <Carousel label="Paseos destacados" loop indicator autoplay paused={paused}
+      onPausedchange={(e) => setPaused(e.detail.paused)}
+      playLabel="Reproducir presentación" pauseLabel="Pausar presentación">
+      {featured.map((walk) => <CarouselItem key={walk.id} label={walk.label} onClick={() => openWalk(walk)}><img src={walk.image} alt="" /></CarouselItem>)}
+    </Carousel>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // La revisión anterior: layout elige la disposición. .hero es un elemento destacado cada vez.
+    TanreiCarousel("Paseos destacados", layout: .hero) {
+        ForEach(walks) { walk in
+            TanreiCarouselItem(walk.label, action: { open(walk) }) {
+                WalkImage(walk)
+            }
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.ui.unit.dp
+    import io.github.chnotchy.tanrei.components.TanreiCarousel
+    import io.github.chnotchy.tanrei.components.TanreiCarouselItem
+    import io.github.chnotchy.tanrei.components.TanreiCarouselLayout
+
+    // La revisión anterior. Una lambda de elemento, como la que reciben los carruseles de Material. itemWidth es un Dp, o null para usar el token.
+    // Uncontained es una fila sencilla: todos los elementos del mismo ancho, cortados en el borde.
+    TanreiCarousel(
+        itemCount = walks.size,
+        contentDescription = "Vistos recientemente",
+        layout = TanreiCarouselLayout.Uncontained,
+        itemWidth = 120.dp,
+    ) { index ->
+        val walk = walks[index]
+        TanreiCarouselItem(label = walk.label, onClick = { open(walk) }) {
+            WalkImage(walk)
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // La revisión anterior: layout elige la disposición.
+    TanreiCarousel(
+      semanticLabel: 'Paseos destacados',
+      layout: TanreiCarouselLayout.hero,
+      children: [
+        for (final Walk walk in walks)
+          TanreiCarouselItem(label: walk.label, onTap: () => open(walk), child: WalkImage(walk)),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Image } from 'react-native';
+    import { Carousel, CarouselItem } from '@tanrei/react-native';
+
+    // El layout predeterminado de la revisión anterior: varios elementos en una fila.
+    <Carousel accessibilityLabel="Paseos cerca de ti">
+      {walks.map((walk) => (
+        <CarouselItem key={walk.id} label={walk.label} onPress={() => openWalk(walk)}>
+          <Image source={walk.image} style={{ flex: 1 }} />
+        </CarouselItem>
+      ))}
+    </Carousel>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Un elemento principal tan ancho como puede ser, y anchos fijos que se desplazan libremente desde el borde de inicio" plain column>
+  <tanrei-carousel item-width="400" label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+  </tanrei-carousel>
+  <tanrei-carousel hero-alignment="start" fixed-width free-scroll label="Paseos cerca de ti" style="inline-size: 25rem; max-inline-size: 100%">
+    <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+    <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+  </tanrei-carousel>
+</DemoFrame>
+
+<DemoFrame label="Organizar la fila: anchos fijos, escala, bucle y contenido hacia el elemento principal" plain column>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Anchos fijos, en reposo donde termine el desplazamiento: <code>fixed-width free-scroll</code></div>
+    <tanrei-carousel fixed-width free-scroll label="Paseos cerca de ti" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Los demás dibujados más pequeños, sin fin: <code>fixed-width scale-others loop</code></div>
+    <tanrei-carousel fixed-width scale-others loop label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Sin fin, con ambos lados siempre llenos: <code>loop</code></div>
+    <tanrei-carousel loop label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Los elementos estrechados muestran el lado más cercano al elemento principal: <code>item-width="120" content-alignment="toward-hero" loop</code></div>
+    <tanrei-carousel item-width="120" content-alignment="toward-hero" loop label="Paseos cerca de ti" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Paseo del río, 14 fotos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="Puntos, reproducción automática, progreso, en pausa y el control de reproducción solo" plain column>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Puntos: <code>indicator</code></div>
+    <tanrei-carousel indicator label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Paseo del río, 14 fotos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Reproducción automática con puntos y el control de reproducción: <code>indicator autoplay</code></div>
+    <tanrei-carousel indicator autoplay play-label="Reproducir presentación" pause-label="Pausar presentación" label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Paseo del río, 14 fotos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">El punto actual se llena hasta el elemento siguiente: <code>autoplay-progress</code></div>
+    <tanrei-carousel indicator autoplay autoplay-progress play-label="Reproducir presentación" pause-label="Pausar presentación" label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Paseo del río, 14 fotos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">En pausa, por la persona o por el producto: <code>paused</code></div>
+    <tanrei-carousel indicator autoplay paused autoplay-progress play-label="Reproducir presentación" pause-label="Pausar presentación" label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Fuerte de la colina, 9 fotos"><span class="tanrei-icon">terrain</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Paseo del río, 14 fotos"><span class="tanrei-icon">kayaking</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space100); max-inline-size: 100%">
+    <div style="font: var(--tanrei-sys-typescale-body-font)">Reproducción automática sin puntos: el control de reproducción solo</div>
+    <tanrei-carousel autoplay play-label="Reproducir presentación" pause-label="Pausar presentación" label="Paseos destacados" style="inline-size: 25rem; max-inline-size: 100%">
+      <tanrei-carousel-item label="Sendero costero, 12 fotos"><span class="tanrei-icon">landscape</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Casco antiguo, 8 fotos"><span class="tanrei-icon">location_city</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Circuito del bosque, 20 fotos"><span class="tanrei-icon">forest</span></tanrei-carousel-item>
+      <tanrei-carousel-item label="Orilla del lago, 5 fotos"><span class="tanrei-icon">water</span></tanrei-carousel-item>
+    </tanrei-carousel>
+  </div>
+</DemoFrame>
+
+La reproducción automática nunca se ejecuta donde el ajuste de reducir movimiento está activado: ahí las demostraciones de reproducción automática permanecen quietas, sin el control de reproducción ni el progreso.
+
+<ComponentSpecs name="carousel" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un carrusel para una fila de elementos visuales que las personas exploran y abren de uno en uno: álbumes, lugares, productos, episodios. Muestra que siguen más elementos sin ocupar la altura de una cuadrícula, y da más espacio a los elementos que están a la vista que a los que están a punto de llegar.
+
+Usa una [lista](/es/components/list/) cuando los elementos sean sobre todo texto, o cuando las personas los comparen o elijan entre ellos. Usa [tarjetas](/es/components/card/) en una cuadrícula cuando cada elemento necesite su propio texto y sus propias acciones. Haz que un carrusel avance por sí solo únicamente en una fila destacada corta, y conserva su control de reproducción.
+
+### Organizar la fila
+
+Cada propiedad responde a una pregunta, y se combinan libremente.
+
+| Propiedad | Valor predeterminado | Qué decide |
+| --- | --- | --- |
+| `heroAlignment` | `center` | Dónde se sitúa el elemento en primer plano: en el centro (`center`), con elementos a ambos lados, o en el borde interior de inicio (`start`), con elementos solo después de él. |
+| `itemWidth` | El del sistema de diseño | El ancho del elemento principal. Con anchos fijos, el ancho de todos los elementos. |
+| `fluidWidth` | `true` | Con true, los elementos situados junto al elemento principal se estrechan a un ancho mediano y a uno pequeño, y cada ancho sigue al desplazamiento. Con false, todos los elementos tienen el ancho del elemento principal, y el último que está a la vista queda cortado por el borde. |
+| `contentAlignment` | `center` | Con anchos fluidos, qué parte del contenido de un elemento estrechado se muestra: su centro, o el lado más cercano al elemento principal (`toward-hero`). |
+| `scaleOthers` | `false` | Dibuja más pequeños los elementos que no son el principal, siguiendo al desplazamiento, con anchos fluidos o fijos. La separación entre elementos no cambia: con anchos fijos, los elementos más pequeños se acercan a sus vecinos. |
+| `snap` | `true` | La fila se asienta en un elemento entero cuando termina un desplazamiento, o reposa donde este termine. |
+| `loop` | `false` | Hace que la fila no tenga fin: después del último elemento viene el primero. Solo con dos elementos o más. |
+
+En la web, `fluidWidth` es `fixed-width` y `snap` es `free-scroll`, por ser los inversos de propiedades que son true de forma predeterminada.
+
+Algunas filas habituales:
+
+| Para | Define |
+| --- | --- |
+| Explorar muchos elementos: álbumes, lugares | Nada: los valores predeterminados. |
+| Un elemento destacado cada vez, con un asomo del siguiente | Un `itemWidth` al menos tan ancho como el carrusel. El elemento principal toma el mayor ancho que puede tener. |
+| Una fila destacada con elementos a ambos lados | Nada más: el elemento principal está en el centro de forma predeterminada. A menudo con `loop`, para que ambos lados estén siempre llenos. |
+| Una fila que empieza en el borde, con el elemento principal primero | `heroAlignment` start. |
+| Una fila sencilla que se desplaza, como los elementos vistos recientemente | `heroAlignment` start, `fluidWidth` false y `snap` false. |
+
+Elige `itemWidth` según la forma de tu contenido: las portadas cuadradas, los carteles altos y las miniaturas anchas piden anchos distintos, incluso dentro de un mismo producto. Con anchos fluidos, el elemento principal deja sitio a los demás: nunca crece más allá del ancho que deja un elemento pequeño a cada lado donde siguen elementos, y nunca se encoge por debajo del ancho que mantiene al elemento siguiente no más ancho que él. En una fila demasiado estrecha para eso, el carrusel muestra un elemento cada vez, tan ancho como la fila.
+
+### El elemento principal está en el centro de forma predeterminada
+
+Dos cosas difieren de la revisión anterior. Hasta que las demás plataformas se pongan al día, este es el comportamiento de la web.
+
+- **El valor predeterminado de `heroAlignment` es ahora `center`.** Antes era `start`. Los dos valores se mantienen.
+- **Los elementos vecinos quedan a una separación de distancia en cualquier posición del desplazamiento**, no solo en reposo. Antes, la separación crecía cuando un elemento pasaba por el borde de la fila, y un elemento a escala reducida dejaba espacio de más a su alrededor.
+
+| Tenías | Ahora |
+| --- | --- |
+| Ningún `heroAlignment` | El elemento principal está en el centro, con un elemento más estrecho a cada lado. Para mantener la fila como estaba, define `heroAlignment` como `start` (`hero-alignment="start"` en la web). |
+| `heroAlignment` start | Nada que cambiar. |
+| `heroAlignment` center | Nada que cambiar. Puedes quitar la propiedad. |
+| `scaleOthers` con anchos fijos | Los elementos más pequeños quedan ahora a una separación de sus vecinos, más cerca que antes. Nada que cambiar. |
+| Un `itemWidth` más ancho que la fila, sin `heroAlignment` | El elemento principal es más estrecho que antes, porque queda un elemento pequeño a cada lado. Define `heroAlignment` como `start` para obtener el elemento principal más ancho. |
+
+Con anchos fluidos, un elemento entra ahora en la fila desde la nada en el borde y crece a medida que entra, en lugar de deslizarse hacia dentro con todo su ancho. En reposo, la fila se ve como antes.
+
+### Migrar desde `layout`
+
+La propiedad `layout` de la revisión anterior se ha eliminado. Cada uno de sus valores es ahora una combinación de las propiedades anteriores:
+
+| `layout` anterior | Ahora |
+| --- | --- |
+| Con su valor predeterminado | `heroAlignment` start. En una fila no más ancha que un teléfono, la imagen es la misma. En una fila más ancha, el elemento principal crece hasta su límite. |
+| `hero` | `heroAlignment` start y un `itemWidth` al menos tan ancho como el carrusel, para que el elemento principal tome el mayor ancho que puede tener. La misma imagen. |
+| `uncontained` | `heroAlignment` start, `fluidWidth` false y `snap` false (`hero-alignment="start" fixed-width free-scroll` en la web). La misma imagen. |
+
+### Puntos, reproducción automática y el control de reproducción
+
+- **Puntos.** `indicator` dibuja un punto por cada posición de reposo, en una fila debajo de los elementos, centrada respecto al carrusel. El punto actual está estirado, y el estiramiento pasa de un punto al siguiente a medida que la fila se desplaza. Los puntos son un solo control: pulsa o arrastra en cualquier lugar sobre ellos para mover la fila. Úsalos en una fila destacada corta. Si hay demasiados para caber junto al control de reproducción, no se dibujan, y las compilaciones de depuración lo indican.
+- **Reproducción automática.** `autoplay` hace avanzar la fila un elemento cada `autoplayInterval` milisegundos (5 segundos en el sistema predeterminado). Da más tiempo a los elementos con mucho texto que a las imágenes. Sin `loop`, vuelve al primer elemento después del último. Nunca mueve el foco y no anuncia nada.
+- **Pausas temporales.** La reproducción automática se detiene temporalmente mientras el puntero está sobre el carrusel, mientras el foco está en cualquier lugar dentro de él, mientras se pulsa o se arrastra y mientras la ventana está oculta. Cuando termina la última pausa temporal, continúa donde se detuvo; después de que la persona mueva la fila, el intervalo empieza de nuevo.
+- **Reducir movimiento.** Donde el ajuste de reducir movimiento de la plataforma está activado, la reproducción automática nunca se ejecuta, y el control de reproducción y el progreso no se dibujan. Los anchos, la escala y los puntos siguen acompañando al desplazamiento de la propia persona.
+- **El control de reproducción.** Mientras la reproducción automática está activada, un botón redondo al final de la fila de los puntos la pausa y la reanuda, mostrando `pause` o `play_arrow`. Recibe su nombre de `pauseLabel` o de `playLabel`, según lo que vaya a hacer. Cambia `paused` y emite `pausedChange` (`pausedchange` en la web); tu código también puede definir `paused`, lo cual no emite nada.
+- **Progreso.** Con `autoplayProgress`, el punto actual se llena a medida que pasa el tiempo que falta hasta el elemento siguiente.
+
+**Mantén la reproducción bajo control.** Un producto puede ocultar el control de reproducción con `playbackControl` en false, pero debería conservarlo siempre que pueda. Las pausas temporales no son una forma de detener el movimiento: en una pantalla táctil no hay cursor que pasar por encima, un dedo retiene la fila solo mientras descansa sobre ella, y un lector de pantalla que lee sin mover el foco no la retiene en absoluto. Sin el control, una persona con un teléfono solo puede detener un carrusel con reproducción automática mediante el ajuste de reducir movimiento del sistema. Ocúltalo solo donde tu producto ofrezca otra forma de detener el movimiento, como una pausa para todo el contenido en movimiento de la página (WCAG 2.2.2).
+
+### Los elementos y su contenido
+
+- **El contenido se dispone con el ancho del elemento principal.** Todos los elementos disponen su contenido con el ancho del elemento principal, de modo que un elemento estrechado muestra el centro de su imagen, o el lado más cercano al elemento principal con `contentAlignment` toward-hero, y la imagen se desliza dentro del elemento a medida que este crece y se encoge. Proporciona una imagen que se entienda bien a partir de la parte que se muestra.
+- **Sin texto sobre el elemento.** El elemento no dibuja ninguna leyenda, porque no se puede garantizar ningún contraste para un texto sobre una imagen. Pon una leyenda en tu contenido, sobre un velo propio, o muéstrala fuera del carrusel.
+- **Una sola acción por elemento.** Un elemento abre lo que muestra. Mantén los botones, los enlaces y otros controles fuera de su contenido.
+- **Ningún elemento deshabilitado.** Una fila para explorar no tiene nada que se muestre pero no esté disponible. Deja fuera un elemento así.
+- **Los elementos vacíos también se ven.** El contenedor del elemento se rellena, bajo su contenido, con su color de reposo, sea cual sea el estado del elemento, de modo que un elemento cuya imagen todavía no se ha cargado sigue siendo visible.
+- **Los estados se muestran sobre el contenido.** El paso del cursor, el foco y la pulsación se dibujan como una capa sobre el contenido, con la onda en esa misma capa, así que se ven sobre cualquier imagen.
+
+### Desplazamiento y asentamiento
+
+Las personas desplazan la fila con el tacto, un lápiz, un panel táctil, una rueda horizontal o Mayús con una rueda vertical. Con `snap`, la fila se asienta en un elemento entero cuando termina el desplazamiento: un lanzamiento avanza hasta el elemento siguiente en su dirección, y al soltar más despacio va al más cercano. Un lanzamiento es soltar a una velocidad mayor que la velocidad mínima de lanzamiento de la plataforma, o que 0.5 puntos por milisegundo donde la plataforma no indica ninguna. Sin `loop`, al final del recorrido el último elemento es el principal, y los huecos que le siguen quedan vacíos. Con `loop`, cada elemento se dibuja una sola vez, en el lugar que le corresponda alrededor del elemento principal, y la fila da vueltas sin fin. Cuando el movimiento está reducido, todo movimiento que el propio carrusel inicia ocurre de inmediato.
+
+Cuando cambian el ancho del carrusel o sus elementos, este vuelve a organizar sus huecos y mantiene donde estaba el elemento que se encontraba en primer plano, sin movimiento.
+
+### Recomendado
+
+- Etiqueta cada elemento con lo que muestra su contenido, en el idioma de tu producto.
+- Elige `itemWidth` de modo que se ajuste a la forma del contenido.
+- Dale al carrusel un `label` que dé nombre a la fila, como «Reproducido recientemente».
+- Conserva el control de reproducción siempre que el carrusel avance por sí solo, y dale un `playLabel` y un `pauseLabel`.
+
+### Evita
+
+- No pongas controles dentro del contenido de un elemento. El elemento ya es un botón.
+- No uses un carrusel para contenido que las personas deben ver entero, como unos pasos o unas condiciones. Los elementos que no están a la vista pasan inadvertidos con facilidad.
+- No actives la reproducción automática en una fila larga para explorar. Es adecuada para una fila destacada corta, con puntos.
+- No ocultes el control de reproducción salvo que tu producto ofrezca otra forma de detener el movimiento.
+
+## Accesibilidad
+
+<ComponentAccessibility name="carousel" />
+
+### De qué se encarga el componente
+
+- El carrusel es una lista que recibe su nombre de `label`. Cada elemento es un solo botón que recibe su nombre de su etiqueta, con su posición entre los elementos y el número de estos. Su contenido queda oculto para la tecnología de apoyo.
+- Los elementos que no están a la vista siguen expuestos, en orden, de modo que un lector de pantalla llega a todos. Al mover el foco del lector de pantalla a un elemento, este se desplaza hasta su lugar.
+- **Paradas de tabulación.** El carrusel tiene hasta tres: el control de reproducción, mientras se dibuja; los elementos, como una sola parada; y los puntos, mientras se dibujan. El control de reproducción va primero, antes de los elementos, para que quien usa el teclado pueda detener el movimiento antes de llegar a cualquier otra cosa. A los elementos se entra por el último que tuvo el foco del teclado o, si no lo hay, por el elemento que reposa en el lugar del elemento principal.
+- Flecha derecha y Flecha izquierda mueven el foco al elemento siguiente y al anterior. Se detienen en los extremos, y dan la vuelta solo mientras el carrusel esté en bucle. Inicio y Fin van al primer y al último elemento, incluso en una fila en bucle. En un diseño de derecha a izquierda, Flecha izquierda va al elemento siguiente.
+- Al mover el foco, el elemento con foco pasa al lugar del elemento principal, tan cerca como lo permita el final del recorrido, y por el camino más corto en una fila en bucle. En una fila con anchos fijos y desplazamiento libre desde el inicio, simplemente trae el elemento entero a la vista.
+- Enter y Espacio activan el elemento con foco. Una pulsación que se convierte en un desplazamiento no activa el elemento sobre el que empezó.
+- Los puntos son un solo control deslizante que recibe su nombre de `label` y cuyo valor es la etiqueta del elemento actual. Las teclas de flecha, Inicio y Fin, y las acciones de incrementar y disminuir de la plataforma mueven la fila una posición. El punto actual se distingue por su forma estirada, no solo por el color.
+- El control de reproducción es un botón que recibe su nombre de `pauseLabel` mientras reproduce y de `playLabel` mientras está en pausa. No tiene estado pulsado, así que nunca se lee como «Pausar, pulsado». Al activarlo, el foco permanece en él. Sus glifos de pausa y de reproducción no se reflejan, y antes de que se haya cargado la fuente de iconos no se dibuja como texto el nombre de ningún glifo.
+- La reproducción automática se detiene temporalmente mientras el foco está en cualquier lugar del carrusel, nunca mueve el foco, no anuncia nada y nunca se ejecuta cuando el movimiento está reducido.
+- El anillo de foco se dibuja dentro del elemento, donde la fila no puede recortarlo, y alrededor de los puntos y del control de reproducción. Se muestra solo para el foco del teclado.
+- El área de pulsación de cada elemento es su contenedor más la mitad de la separación a cada lado, y nunca es menor que el objetivo mínimo, ni siquiera en un elemento pequeño. Un elemento que todavía está entrando o saliendo por el borde es más estrecho que eso, y su área de pulsación nunca cubre la de su vecino. El área de pulsación del control de reproducción es el objetivo táctil, y la de los puntos es todo su contenedor y la altura de la fila.
+- El desplazamiento nunca es la única forma de llegar a un elemento: las teclas de flecha, los puntos y el foco del lector de pantalla llegan a todos.
+- El carrusel conserva su altura y sus elementos con tamaños de texto mayores. No contiene ningún texto propio, y tu contenido sigue por sí mismo el tamaño del texto.
+- Las compilaciones de depuración notifican un elemento sin etiqueta, un carrusel sin `label`, un control de reproducción sin `playLabel` o `pauseLabel`, unos puntos que no caben, un `heroAlignment` o un `contentAlignment` desconocidos, y un `itemWidth` o un `autoplayInterval` que no es un número positivo. La web notifica además un elemento interactivo dentro del contenido de un elemento.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI y React Native no tienen una propiedad de posición en el conjunto para un contenedor personalizado, así que el recuento de elementos del propio lector de pantalla hace las veces de la posición de cada elemento y del número de elementos. SwiftUI tampoco tiene rol de lista: el carrusel es un contenedor que recibe su nombre de `label`.
+- Compose no tiene rol de lista. La fila proporciona el tamaño de su colección y cada elemento su posición, con el rol de botón, así que TalkBack anuncia una colección y no una lista.
+- Solo la web puede inspeccionar el contenido de un elemento, así que solo la web notifica un control dentro de él. En las demás plataformas, cumplir la regla te corresponde a ti.
+- Web: la parada de tabulación pasa a cualquier elemento que reciba el foco, incluido el de un clic, mientras que la especificación indica el elemento que tuvo por última vez el foco del teclado. Un lanzamiento con el lápiz se asienta en el elemento más cercano, no en el siguiente. El cursor virtual de un lector de pantalla que no mueve el foco desplaza la fila como lo hace el navegador, sin llevar el elemento al lugar del elemento principal.
+- SwiftUI: el carrusel siempre es tan alto como su token de altura, porque SwiftUI no puede distinguir un marco de la propuesta de una pila. Dale tamaño mediante los tokens de una capa. El asentamiento se mueve con la desaceleración propia de la vista de desplazamiento, no con el movimiento de desplazamiento del carrusel, y no de inmediato cuando el movimiento está reducido. Construye todos los elementos y vuelve a colocar cada uno en cada fotograma del desplazamiento. Las teclas de flecha, la parada de tabulación y el foco de VoiceOver se prueban como reglas, no con un teclado ni con VoiceOver en un dispositivo.
+- Compose compone y dispone todos los elementos, incluidos los que no están a la vista. Una rueda, que no produce lanzamientos, se asienta en el elemento más cercano. El desplazamiento solo se ha verificado con Robolectric, no en un dispositivo.
+- Flutter asienta un carrusel con ajuste después de cada evento de la rueda del ratón, no cuando termina el gesto de la rueda. Todavía no se ha comprobado con TalkBack y VoiceOver en un dispositivo.
+- React Native vuelve a disponer todos los elementos en el hilo de JavaScript en cada fotograma del desplazamiento, y renderiza todos los elementos. Las teclas de flecha solo funcionan donde los eventos de un teclado físico llegan a la aplicación. La colocación guiada por el desplazamiento, el asentamiento, la diseño de derecha a izquierda y el foco del lector de pantalla solo se han verificado en Jest, nunca en un dispositivo.
+- Con `m3-like`, los elementos conservan el relleno predeterminado donde el carrusel de Material usa el color de la superficie, a propósito, para que un elemento cuya imagen no se ha cargado siga viéndose.
+
+### Qué debes hacer tú
+
+- Dale al carrusel un `label`, y a cada elemento una etiqueta que diga qué muestra su contenido. El contenido no se lee.
+- Con reproducción automática, dale al control de reproducción un `playLabel` y un `pauseLabel` que digan qué hace, y mantenlo dibujado.
+- Mantén los controles fuera del contenido de los elementos.
+- Si el contenido transmite un significado que su etiqueta no recoge, como un precio en un cartel, ponlo en la etiqueta.
+- En SwiftUI, Compose y React Native, mantén moderado el número de elementos: ahí el carrusel construye todos los elementos, incluidos los que no están a la vista.

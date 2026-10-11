@@ -1,0 +1,605 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "skeleton",
+  "title": "Skeleton",
+  "summary": "Stands where content will be while it loads: quiet placeholders in the shape of what is coming — lines of text, a block, a circle — that keep the box the content will take, in a region that says once that it is busy.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The region that stands in the content's place: a block as wide as the place it stands in and as tall as what it holds, with no fill, no edge, no padding and no elevation. It is what assistive technology is told about, once, and it carries no state: a skeleton takes no input."
+    },
+    {
+      "id": "placeholder",
+      "description": "A quiet filled shape in the place of one piece of the content: one or more lines of text, a block (a picture, a card, a control) or a circle (a person's picture, a round mark). It has the size the content will have and says nothing by itself."
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "What is loading, in the product's language (\"Loading projects\"): the name assistive technology is given for the whole skeleton, once. Never drawn. Left empty, it reads the product's words; Tanrei ships none of its own. Not read while decorative is true.",
+      "words": "loadingLabel"
+    },
+    {
+      "name": "decorative",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether something else already says this wait: a loading indicator beside it, a status text, a region the product itself exposes as busy and names. True keeps the whole skeleton from assistive technology, so that one wait is said once; it changes nothing that is drawn."
+    },
+    {
+      "name": "showDelay",
+      "type": "number",
+      "default": null,
+      "description": "How long, in milliseconds, this skeleton waits from the moment it is inserted before it is drawn and exposed to assistive technology; 0 shows it as it is inserted. Null takes comp.skeleton.motion.show-delay, the system's answer for every skeleton. Set it to 0 where the skeleton is part of the first presentation of a page or a view, which has nothing else to show; leave it where content is fetched in a view that is already there."
+    }
+  ],
+  "items": [
+    {
+      "name": "placeholder",
+      "summary": "One shape in the place of one piece of the content: lines of text, a block or a circle.",
+      "props": [
+        {
+          "name": "shape",
+          "type": "enum",
+          "values": [
+            "text",
+            "block",
+            "circle"
+          ],
+          "default": "text",
+          "description": "What the placeholder stands for. Text is one or more lines of the text style in effect where it stands. Block is a box: a picture, a card, a control, a row. Circle is a round box: a person's picture, a round mark."
+        },
+        {
+          "name": "lines",
+          "type": "number",
+          "default": 1,
+          "description": "For text: how many lines the text will take, a whole number of 1 or more. The placeholder is exactly that many line boxes high. Not read for a block or a circle."
+        },
+        {
+          "name": "inlineSize",
+          "type": "number",
+          "default": null,
+          "description": "The placeholder's size along the line, in points. Null leaves it to the layout: the whole inline size of its place for text and for a block, the side of the square for a circle. A size the product's own layout gives the placeholder (a share of a row, a track of a grid) is used as it is and needs no prop."
+        },
+        {
+          "name": "blockSize",
+          "type": "number",
+          "default": null,
+          "description": "The placeholder's size across the line, in points: the height of a block, and the side of a circle. Null is one line of the text style in effect, or the size the product's own layout gives. Not read for text, whose height is its lines."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "SKL-1",
+      "text": "THE skeleton SHALL lay itself out as a block that takes the whole inline size of the place it stands in and is as tall as what it holds: it SHALL lay out the placeholders that stand directly in it in one column, in the order given, each at its own size and at the start edge, comp.skeleton.container.gap apart, and SHALL leave placeholders that stand inside a layout of the product's own (a row, a grid, a card's own structure) to that layout, changing neither their place nor their size. THE skeleton SHALL draw no fill, no edge and no elevation, SHALL bring no padding and no outer space of its own, SHALL set no height of its own and SHALL NOT scroll or clip.",
+      "verify": "Under the default system a skeleton holding a circle of 40 and a text placeholder of two lines of the body style is 40 + 8 + 2 × 22 = 92 high, in a place of any width."
+    },
+    {
+      "id": "SKL-2",
+      "text": "THE skeleton SHALL draw each placeholder as one box, or for text one box a line, filled with comp.skeleton.placeholder.color, with the corners of its shape (comp.skeleton.placeholder.shape.text for each line of text, comp.skeleton.placeholder.shape.block for a block, comp.skeleton.placeholder.shape.circle for a circle), never larger than half the box's smaller side, and with no edge, no elevation, no shadow and nothing inside it. THE skeleton SHALL draw nothing else: no glyph, no mark, no text, and never its label."
+    },
+    {
+      "id": "SKL-3",
+      "text": "WHILE a placeholder's shape is text THE skeleton SHALL size it by the text style in effect where it stands — the style text placed there would be drawn in, and sys.typescale.body where the platform has no such style and the product gave none: the placeholder SHALL be exactly as tall as lines line boxes of that style, and in each line box THE skeleton SHALL draw one bar as tall as the style's font size, centred in the line box. Each bar SHALL be as long as the placeholder's inline size (inlineSize, else the whole inline size of its place), except that WHILE lines is 2 or more the last bar SHALL be comp.skeleton.placeholder.last-line-inline-size of that size, from the start edge. The placeholder SHALL NOT read blockSize.",
+      "verify": "Under the default system a text placeholder of 3 lines in the body style (14 on 22) is 66 high, the height of three lines of body text, with bars 14 high and 8 apart; in a place 300 wide the third bar is 180 long."
+    },
+    {
+      "id": "SKL-4",
+      "text": "WHILE a placeholder's shape is block THE skeleton SHALL draw one box whose inline size is inlineSize, else the size the product's layout gives it, else the whole inline size of its place, and whose block size is blockSize, else the size the product's layout gives it (a stretched cell, a ratio the product set), else one line box of the text style in effect where it stands (SKL-3). The block SHALL NOT read lines."
+    },
+    {
+      "id": "SKL-5",
+      "text": "WHILE a placeholder's shape is circle THE skeleton SHALL draw one square box whose side is blockSize, else inlineSize, else the size the product's layout gives it, else one line box of the text style in effect where it stands (SKL-3), and SHALL draw it round. WHERE the place is narrower than the side THE skeleton SHALL make the square as large as the place allows and keep it square: a circle is never drawn as an oval. The circle SHALL NOT read lines."
+    },
+    {
+      "id": "SKL-6",
+      "text": "THE skeleton SHALL keep the box of every placeholder, and so its own, unchanged from the moment it is inserted to the moment it is removed — while it waits to be shown (SKL-7), while it is shown and while it stirs (SKL-12) — and SHALL NOT guess what is coming: it draws the placeholders the product gave, in the sizes the product gave, and nothing of the content. That the content takes the box its placeholders held is the product's to arrange, by placing each placeholder where its content will be and as that content will be placed.",
+      "verify": "A test measures the skeleton's box at insertion, after its show delay and at two points of its animation, and reads the same four numbers each time."
+    },
+    {
+      "id": "SKL-7",
+      "text": "WHEN the skeleton is inserted into a view THE skeleton SHALL wait for its show delay (SKL-9) before it is shown, and WHILE it waits SHALL draw nothing, SHALL run no animation, SHALL be absent from the accessibility tree (no role, no name, no busy state), and SHALL still take the box it takes when shown (SKL-1 to SKL-5), so that nothing around it moves when it appears; a show delay of 0 SHALL show it as it is inserted."
+    },
+    {
+      "id": "SKL-8",
+      "text": "WHEN its show delay ends THE skeleton SHALL be shown: it SHALL draw its placeholders at once, at their resting opacity and without an entrance of their own, expose itself as SKL-15 says without announcing itself (SKL-16), and start the animation of SKL-12 at the beginning of a pulse."
+    },
+    {
+      "id": "SKL-9",
+      "text": "THE skeleton SHALL take its show delay from showDelay, a number of milliseconds used as given (the motion dial does not scale it). WHILE showDelay is null THE skeleton SHALL use comp.skeleton.motion.show-delay in its place; IF showDelay is negative or not a finite number THE skeleton SHALL use the token likewise and in debug builds report the value it ignored."
+    },
+    {
+      "id": "SKL-10",
+      "text": "THE skeleton SHALL treat its show delay as a waiting time, not motion: WHERE motion is reduced it SHALL keep it, on every platform, including one whose reduced-motion setting removes every animation; and it SHALL keep counting it while the skeleton cannot be seen (scrolled out of view, in a hidden view), because the delay measures the wait, not what is seen."
+    },
+    {
+      "id": "SKL-11",
+      "text": "WHEN the skeleton is removed before its show delay ends THE skeleton SHALL have drawn, exposed and announced nothing, and WHEN it is removed while shown it SHALL disappear at once, without a motion of its own: how the content enters is the content's. WHEN it is inserted again THE skeleton SHALL wait its whole show delay again; hiding it without removing it (a hidden ancestor, scrolling) SHALL neither restart nor pause the delay (SKL-10). WHEN showDelay changes while the delay is running THE skeleton SHALL finish the running delay as it started and use the new value from its next insertion."
+    },
+    {
+      "id": "SKL-12",
+      "text": "WHILE the skeleton is shown THE skeleton SHALL stir as comp.skeleton.motion.animation names, without end. pulse SHALL ease the opacity of every placeholder's fill from its resting value to comp.skeleton.placeholder.dim-opacity of it over comp.skeleton.motion.dim-duration with comp.skeleton.motion.dim-easing and back over the same time on the same curve, every placeholder of the skeleton in step with the others. wave SHALL put each point of each placeholder through the same fall and return, each point later than the skeleton's start edge by a share of one whole pulse equal to its distance from that edge over the skeleton's inline size, so that one dimmer band travels from the start edge to the end edge through all the placeholders as through one surface. none SHALL leave the placeholders still at their resting opacity. In every manner THE skeleton SHALL change the fill's opacity only: no box moves, grows or changes shape, and nothing brighter than the resting fill is drawn.",
+      "verify": "wave and none are observed under a fixture system that sets comp.skeleton.motion.animation; the default system shows pulse. Under the default system one whole pulse takes 2000 ms."
+    },
+    {
+      "id": "SKL-13",
+      "text": "WHERE reduced motion is requested THE skeleton SHALL NOT stir, whatever comp.skeleton.motion.animation names: it SHALL draw its placeholders still, at their resting opacity. The shapes, the label and the busy state still say that the place is waiting, and the show delay is kept (SKL-10)."
+    },
+    {
+      "id": "SKL-14",
+      "text": "WHILE the skeleton is not visible (scrolled out of view, in a hidden view, or in an app in the background) THE skeleton SHALL NOT run its animation, and SHALL resume it when it becomes visible."
+    },
+    {
+      "id": "SKL-15",
+      "text": "WHILE the skeleton is shown and decorative is false THE skeleton SHALL expose itself to assistive technology as one element: the progressbar role with label as its name, no current value, and the platform's busy or indeterminate state. THE skeleton SHALL expose nothing of what it holds: no placeholder, no count of placeholders or of lines, and nothing of a layout the product placed in it."
+    },
+    {
+      "id": "SKL-16",
+      "text": "THE skeleton SHALL NOT be focusable and SHALL NOT be a stop in the focus order, SHALL NOT announce itself when it is shown, when it changes or when it is removed, and SHALL NOT move keyboard or screen-reader focus. Saying that the content has arrived, where the product wants it said, is the product's, as it is beside a loading indicator."
+    },
+    {
+      "id": "SKL-17",
+      "text": "WHILE decorative is true THE skeleton SHALL keep itself and everything it holds from assistive technology — no role, no name, no busy state — and SHALL draw, wait and stir as it otherwise would. A skeleton that stands inside another skeleton SHALL behave as decorative whatever its prop says: one wait is said once.",
+      "verify": "A test nests one skeleton in another and finds one progressbar in the accessibility tree."
+    },
+    {
+      "id": "SKL-18",
+      "text": "THE skeleton SHALL take its name from label, and WHILE label is empty from the product's words (the key loadingLabel); it has no words of its own in any language. WHILE both are empty and decorative is false THE skeleton SHALL still be drawn and still be exposed as SKL-15 says, without a name, and in debug builds report once that a skeleton has no label, naming the prop."
+    },
+    {
+      "id": "SKL-19",
+      "text": "THE skeleton SHALL NOT take pointer, touch or keyboard input and SHALL NOT change anything it draws under a pointer, a press or focus: it has no hovered, focused, pressed, selected or disabled state and draws no state layer and no focus indicator. Whatever the product places in it besides placeholders SHALL be drawn as given, SHALL take no input and no focus, and SHALL NOT be exposed to assistive technology: a skeleton holds the shape of content, never content."
+    },
+    {
+      "id": "SKL-20",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE skeleton SHALL draw each placeholder, and each line of a text placeholder, as the outline of its shape, sys.border.hairline wide and inside its box, in the platform's text color, with no fill, and SHALL NOT stir: a fill is not drawn in that mode, and a placeholder that vanished would leave a blank place that says nothing."
+    },
+    {
+      "id": "SKL-21",
+      "text": "WHILE the text size is enlarged THE skeleton SHALL grow its text placeholders with the text style they stand in, and every placeholder whose size is a line box with them, so that the skeleton still holds the box the enlarged content will take; it SHALL keep a size given as inlineSize or blockSize as given, SHALL never draw a placeholder wider than its place, SHALL keep its gap, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %."
+    },
+    {
+      "id": "SKL-22",
+      "text": "WHERE the layout direction is right-to-left THE skeleton SHALL place its placeholders at the right edge, begin the shortened last bar of a text placeholder (SKL-3) and every placeholder narrower than its place at the right, and run a wave from the right edge to the left; a block and a circle are otherwise drawn as they are in a left-to-right layout."
+    },
+    {
+      "id": "SKL-23",
+      "text": "THE skeleton SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the skeleton is shown THE skeleton SHALL draw itself for the new direction at once, without a motion of its own, keeping its place in its animation.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "SKL-24",
+      "text": "WHEN label, decorative or a placeholder's shape, lines, inlineSize or blockSize changes, or a placeholder is added or removed, while the skeleton waits or is shown THE skeleton SHALL draw and expose the new value at once, without a motion, without an announcement, and without restarting its show delay or its animation. THE skeleton SHALL neither show nor hide itself and SHALL NOT know when the content arrives: the product puts the skeleton in the content's place when the wait starts and takes it away when the wait ends, whatever the wait ends in."
+    },
+    {
+      "id": "SKL-25",
+      "text": "WHEN a placeholder's shape names a value this spec does not have THE skeleton SHALL draw it as text; IF its lines is less than 1 or not a finite number THE skeleton SHALL use 1, and SHALL use the whole number below a lines that is not whole; IF its inlineSize or blockSize is negative or not a finite number THE skeleton SHALL treat it as null; WHEN comp.skeleton.motion.animation names a manner the skeleton does not know THE skeleton SHALL pulse. In each case it SHALL report the value it ignored in debug builds."
+    },
+    {
+      "id": "SKL-26",
+      "text": "IF the skeleton holds no placeholder THE skeleton SHALL draw nothing, take no space and expose nothing, and in debug builds report that a skeleton holds no placeholder: a busy region with no shape in it is a blank place, and a wait whose shape is not known is a loading indicator's."
+    }
+  ],
+  "accessibility": {
+    "role": "progressbar",
+    "keyboard": [],
+    "labeling": "label is the accessible name of the whole skeleton: what is loading. Once shown, the skeleton is one element — a progressbar with no value, in the platform's busy (indeterminate) state — and its placeholders are hidden; during its show delay, and while decorative is true, it is not exposed at all. It is exposed exactly as a loading indicator is, because it says the same thing: something is loading here.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the skeleton takes no input and is never focusable (SKL-16, SKL-19), so there is no target of its own to size and minimumTarget holds trivially.",
+      "One wait, said once. Every placeholder of a region belongs to one skeleton with one label; a skeleton inside another is silent (SKL-17). Where the same wait is already said — a loading indicator in a status row, a status text, a region the product itself marks busy and names — set decorative, or the wait is read twice.",
+      "The skeleton does not announce that it appeared, and does not announce that the content arrived (SKL-16): it is removed with its busy state. Where arrival should be heard (results in answer to a search, a list that was asked for), the product says so through its own live region or the status text of the component that asked; a view that simply opens with its content needs no announcement.",
+      "A wait shorter than the show delay shows and exposes nothing (SKL-7): no shapes that flash for a sighted person, and no progressbar that appears and vanishes for a screen-reader user.",
+      "Nothing a person should read or use goes inside a skeleton: what it holds is kept from input and from assistive technology (SKL-19). A heading that is already known, a button that already works, stand outside it.",
+      "The fill is decoration, held to no contrast ratio: comp.skeleton.placeholder.color is a low-emphasis fill, and in the default system it has the tone of the highest container step, so a placeholder on a surface of that tone is hard to see. The wait is never said by the fill alone: the label says it to assistive technology, and forced colors draw every placeholder as an outline (SKL-20).",
+      "Motion: a pulse dims the fill by half and returns in 2 seconds in the default system, far below the three-per-second flash threshold; nothing moves and nothing brightens. Reduced motion stops it entirely (SKL-13): a large region that pulses is more than a small mark that does, and the shapes already say that the place is waiting.",
+      "A skeleton that never ends tells a lie. The product replaces it with the content, with an empty state where nothing came, or with a callout of the error status where loading failed, and sets its own limit on the wait; a task that takes many seconds, or whose progress can be measured, is a progress indicator's.",
+      "Text size, text spacing and reflow: SKL-21. A text placeholder follows the text style it stands in, so it grows with the reader's text size; a size given in points does not."
+    ]
+  },
+  "tokens": "comp.skeleton",
+  "fixtures": [
+    {
+      "id": "text",
+      "props": {
+        "label": "Loading the title",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {}
+        }
+      ]
+    },
+    {
+      "id": "text-lines",
+      "props": {
+        "label": "Loading the article",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "lines": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "text-short",
+      "props": {
+        "label": "Loading the name",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "inlineSize": 120
+          }
+        }
+      ]
+    },
+    {
+      "id": "block",
+      "props": {
+        "label": "Loading the picture",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "shape": "block",
+            "blockSize": 160
+          }
+        }
+      ]
+    },
+    {
+      "id": "block-sized",
+      "props": {
+        "label": "Loading the action",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "shape": "block",
+            "inlineSize": 96,
+            "blockSize": 40
+          }
+        }
+      ]
+    },
+    {
+      "id": "block-line",
+      "props": {
+        "label": "Loading the row",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "shape": "block"
+          }
+        }
+      ]
+    },
+    {
+      "id": "circle",
+      "props": {
+        "label": "Loading the person",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "shape": "circle",
+            "blockSize": 40
+          }
+        }
+      ]
+    },
+    {
+      "id": "circle-line",
+      "props": {
+        "label": "Loading the mark",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "shape": "circle"
+          }
+        }
+      ]
+    },
+    {
+      "id": "person",
+      "props": {
+        "label": "Loading the author",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "shape": "circle",
+            "blockSize": 40
+          }
+        },
+        {
+          "kind": "placeholder",
+          "props": {
+            "inlineSize": 160
+          }
+        },
+        {
+          "kind": "placeholder",
+          "props": {
+            "lines": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "card",
+      "props": {
+        "label": "Loading the project",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "shape": "block",
+            "blockSize": 160
+          }
+        },
+        {
+          "kind": "placeholder",
+          "props": {
+            "inlineSize": 200
+          }
+        },
+        {
+          "kind": "placeholder",
+          "props": {
+            "lines": 3
+          }
+        },
+        {
+          "kind": "placeholder",
+          "props": {
+            "shape": "block",
+            "inlineSize": 96,
+            "blockSize": 40
+          }
+        }
+      ]
+    },
+    {
+      "id": "decorative",
+      "props": {
+        "decorative": true,
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "lines": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "waiting",
+      "props": {
+        "label": "Loading the article"
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "lines": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-text",
+      "props": {
+        "label": "Loading the whole of the release notes for the version that was published this morning, with every change to the tokens and to the components",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "inlineSize": 240
+          }
+        },
+        {
+          "kind": "placeholder",
+          "props": {
+            "lines": 12
+          }
+        }
+      ]
+    },
+    {
+      "id": "text-lines-rtl",
+      "props": {
+        "label": "جارٍ تحميل المقال",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "lines": 3
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "person-rtl",
+      "props": {
+        "label": "جارٍ تحميل الكاتب",
+        "showDelay": 0
+      },
+      "items": [
+        {
+          "kind": "placeholder",
+          "props": {
+            "shape": "circle",
+            "blockSize": 40
+          }
+        },
+        {
+          "kind": "placeholder",
+          "props": {
+            "inlineSize": 160
+          }
+        },
+        {
+          "kind": "placeholder",
+          "props": {
+            "lines": 2
+          }
+        }
+      ],
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-skeleton",
+      "props": {
+        "label": "label",
+        "decorative": "decorative",
+        "showDelay": "showDelay"
+      },
+      "items": {
+        "placeholder": {
+          "name": "span",
+          "props": {
+            "shape": "data-shape",
+            "lines": "data-lines",
+            "inlineSize": "inline-size",
+            "blockSize": "block-size"
+          },
+          "notes": "The product's own element with `class=\"tanrei-skeleton-placeholder\"` — a `<span>`, or a `<div>` where it is a block's child — empty, so that it has nothing to expose. `data-shape` is `text` (the default, and what a missing or unknown value draws), `block` or `circle`; `data-lines` the number of lines. `inlineSize` and `blockSize` are the CSS properties `inline-size` and `block-size` on the element (in its `style`, or by a rule of the product's): a number of the spec is that many CSS pixels, and any other length, a percentage or an `aspect-ratio` the product writes there is a size its layout gives (SKL-4). The text style is the inherited `font`, so the placeholder goes where the text will be — inside the heading, the paragraph or the cell — and is `1lh` high a line."
+        }
+      },
+      "notes": "Form: the light-DOM form a component around the product's own elements takes. `<tanrei-skeleton label=\"Loading projects\">` is a custom element with **no shadow root** around the product's own layout and its placeholders, and one stylesheet, `@tanrei/web/skeleton.css`, draws everything — the column and its gap, the placeholders, the show delay, the animation, reduced motion and forced colors — with selectors that start at `tanrei-skeleton` and at the placeholder's class, wrapped in `:where()`. **This is the point of the form: a skeleton is what a page shows before its script has run**, so it must be whole before the element is defined and where script never runs; a shadow root would draw nothing until the module arrived, which is the wait the skeleton is for. The show delay without script is an animation with a delay (`animation: <appear> 0s linear var(--tanrei-comp-skeleton-motion-show-delay) both` from `visibility: hidden`), so the box is held and nothing is drawn or exposed until it ends (SKL-7); the `show-delay` attribute sets a custom property the stylesheet reads, and attribute selectors cover `show-delay=\"0\"` before definition. pulse is an opacity animation of the placeholders with `animation-direction: alternate`; wave is one mask or background gradient sized to the host and positioned per placeholder (`background-attachment` does not serve here; the element measures the placeholders' offsets and writes them as custom properties once defined, and before definition a wave is drawn as a pulse — say so in the docs); `prefers-reduced-motion: reduce` removes the animation and keeps the delay (SKL-10, SKL-13); `forced-colors: active` replaces the fill with an outline in `CanvasText` (SKL-20). The choice of manner reaches the stylesheet as the custom property that carries its name, read by a style query or, where those are missing, by the element. A text placeholder of several lines is one element `calc(var(--lines) * 1lh)` high whose bars are drawn as backgrounds; whether the bars can have eased corners and a shortened last bar from CSS alone in three engines, or need the element to write one child a line once defined, is the build's to find out — the box must be the same either way. What the element adds once defined, and only then: `role=\"progressbar\"`, `aria-busy=\"true\"` and `aria-label` on the host when the delay ends, unless `decorative` or nested (then `aria-hidden=\"true\"`); `inert` on the host, so that nothing inside takes focus or is read (SKL-19); pausing the animation while the host is not visible (SKL-14); the debug reports. A page that must be right before its script runs, or without it, writes `role`, `aria-busy` and `aria-label` on the element itself, and the element leaves what it finds; the placeholders are empty elements and expose nothing either way. The React wrapper renders the element around its children. Where script never runs the skeleton never ends unless the server replaces it: a product whose content arrives only by script gives the content, or a sentence, in `<noscript>`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiSkeleton",
+      "props": {
+        "label": "label",
+        "decorative": "isDecorative",
+        "showDelay": "showDelay"
+      },
+      "items": {
+        "placeholder": {
+          "name": "TanreiSkeletonPlaceholder",
+          "props": {
+            "shape": "shape",
+            "lines": "lines",
+            "inlineSize": "width",
+            "blockSize": "height"
+          },
+          "notes": "`TanreiSkeletonPlaceholder(.text, lines: 3)`, `TanreiSkeletonPlaceholder(.circle, height: 40)`; a `.frame` or an `.aspectRatio` the product applies is a size its layout gives. The text style is the font of the environment (`.font(...)` on an ancestor), measured with the reader's text size."
+        }
+      },
+      "notes": "Proposed spelling, for the platform's agent to settle. `TanreiSkeleton(\"Loading projects\", isDecorative:, showDelay:) { … }`, a view builder that holds placeholders directly (stacked, SKL-1) or inside the product's own stacks and grids. Not the platform's own redaction of a view, whose look is the platform's and which needs the real view to exist: the same idea drawn from Tanrei's tokens. Exposed as one accessibility element with the label, the progress trait's indeterminate form (`updatesFrequently` is not set) and its children ignored; `accessibilityHidden` while decorative or waiting. `accessibilityReduceMotion` stops the animation; the show delay is a task, not an animation."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiSkeleton",
+      "props": {
+        "label": "label",
+        "decorative": "decorative",
+        "showDelay": "showDelay"
+      },
+      "items": {
+        "placeholder": {
+          "name": "TanreiSkeletonPlaceholder",
+          "props": {
+            "shape": "shape",
+            "lines": "lines",
+            "inlineSize": "width",
+            "blockSize": "height"
+          },
+          "notes": "`TanreiSkeletonPlaceholder(shape, lines, width, height, modifier)` inside the skeleton's scope; a size from `modifier` is a size the layout gives. The text style is `LocalTextStyle`, measured with the font scale."
+        }
+      },
+      "notes": "`TanreiSkeleton(label, decorative, showDelay) { … }`, a column scope. `clearAndSetSemantics { contentDescription = label; progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate }` once shown, and `clearAndSetSemantics { }` with `invisibleToUser()` while decorative or waiting. The animation reads the system's animator duration scale: where it is 0 the placeholders are still, and the show delay is a coroutine delay that the scale does not shorten (SKL-10)."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiSkeleton",
+      "props": {
+        "label": "label",
+        "decorative": "decorative",
+        "showDelay": "showDelay"
+      },
+      "items": {
+        "placeholder": {
+          "name": "TanreiSkeletonPlaceholder",
+          "props": {
+            "shape": "shape",
+            "lines": "lines",
+            "inlineSize": "width",
+            "blockSize": "height"
+          },
+          "notes": "`TanreiSkeletonPlaceholder.text(lines: 3)`, `.block(height: 160)`, `.circle(size: 40)`; inside an `Expanded`, a `SizedBox` or an `AspectRatio` it takes that size. The text style is `DefaultTextStyle`, with `MediaQuery.textScalerOf`."
+        }
+      },
+      "notes": "`TanreiSkeleton(label: …, decorative:, showDelay:, children: […])`, or `child:` for a layout of the product's own. `Semantics(label: label, excludeSemantics: true)` with the progress indicator's indeterminate semantics once shown; `ExcludeSemantics` and `IgnorePointer` around everything it holds. `MediaQuery.disableAnimationsOf` stops the animation; the show delay is a `Timer`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Skeleton",
+      "props": {
+        "label": "label",
+        "decorative": "decorative",
+        "showDelay": "showDelay"
+      },
+      "items": {
+        "placeholder": {
+          "name": "SkeletonPlaceholder",
+          "props": {
+            "shape": "shape",
+            "lines": "lines",
+            "inlineSize": "width",
+            "blockSize": "height"
+          },
+          "notes": "`<SkeletonPlaceholder shape=\"text\" lines={3} />`; `style` gives a size the layout gives (`flex`, a percentage, `aspectRatio`). React Native has no inherited text style, so the product passes one of Tanrei's text styles as `textStyle`, and the body style is used where it gives none (SKL-3)."
+        }
+      },
+      "notes": "`<Skeleton label=\"Loading projects\">…</Skeleton>`. `accessible`, `accessibilityRole=\"progressbar\"`, `accessibilityLabel` and `accessibilityState={{ busy: true }}` once shown; `importantForAccessibility=\"no-hide-descendants\"` and `accessibilityElementsHidden` while decorative or waiting; `pointerEvents=\"none\"`. `AccessibilityInfo.isReduceMotionEnabled` stops the animation. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

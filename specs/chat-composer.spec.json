@@ -1,0 +1,2107 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "chat-composer",
+  "title": "Chat composer",
+  "summary": "Lets a person write a message and send it, in one capsule that holds everything: a typing area that grows with what is written, the files attached to the message as a strip of File items above it, a product's own actions, and a send button that is enabled only while what is there can be sent; it reports the message when the person sends it and never sends anything itself.",
+  "category": "text-inputs",
+  "level": "feature",
+  "listing": "default",
+  "builtFrom": [
+    "embedded-text-input",
+    "file-picker",
+    "file-item",
+    "button"
+  ],
+  "fills": [
+    "embedded-text-input.multiline",
+    "embedded-text-input.maxRows",
+    "embedded-text-input.enterKey",
+    "embedded-text-input.description",
+    "embedded-text-input.error",
+    "embedded-text-input.disabled",
+    "file-picker.multiple",
+    "file-picker.disabled",
+    "file-item.form",
+    "file-item.preview",
+    "file-item.nameHidden"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The capsule: the one container the chat composer draws, behind everything it holds — its fill, its edge and its corners. The chat composer's own part. It carries the state answer: its edge is the focus indication of the typing area inside it, and it is drawn in its error condition and as receiving while files are dragged over it."
+    },
+    {
+      "id": "strip",
+      "description": "The attachments, one File item each, at the top of the capsule: an arrangement of the chat composer's own — where the items stand and how they wrap — holding File items that are drawn from their own tokens.",
+      "optional": true
+    },
+    {
+      "id": "input",
+      "description": "The typing area: the embedded text input — typing alone, with no container, edge or focus indication of its own — growing with its lines up to maxRows and scrolling inside itself beyond. A member, drawn from its own tokens."
+    },
+    {
+      "id": "attach-button",
+      "description": "The File picker's trigger: an icon-only Button the chat composer brings, or the product's own in the attach slot. Shown while attachments is not none.",
+      "optional": true
+    },
+    {
+      "id": "leading-actions",
+      "description": "The product's Buttons in the leading slot: before the typing area in the inline layout, and at the start of the row beneath it in the stacked one, after the attach button: laid out, never restyled.",
+      "optional": true
+    },
+    {
+      "id": "trailing-actions",
+      "description": "The product's Buttons in the trailing slot: before the send button in the inline layout, and at the end of the row beneath the typing area in the stacked one: laid out, never restyled.",
+      "optional": true
+    },
+    {
+      "id": "counter",
+      "description": "The number of characters, and the limit, before the trailing actions. The chat composer's own part.",
+      "optional": true
+    },
+    {
+      "id": "send-button",
+      "description": "The Button that sends, on the typing area's line in both layouts — at its end, and at its bottom edge once the text has more lines than one: one the chat composer brings, or the product's own in the send slot; while a stoppable sending is under way, the stop button in its place. A member, drawn from the Button's own tokens."
+    },
+    {
+      "id": "drop-indicator",
+      "description": "The capsule's own fill and edge while files are dragged over it: the receiving condition of the container, not a second shape. It takes no layout space.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "value",
+      "from": "embedded-text-input.value",
+      "note": "The chat composer shows what the product sets and reports what a person types with input; it never trims, shortens or rewrites it."
+    },
+    {
+      "name": "label",
+      "from": "embedded-text-input.label",
+      "note": "Also the name of the chat composer as a group. It is not drawn: a composer has a name and no label row. Required, unless a Field around the chat composer names it (CCM-28)."
+    },
+    {
+      "name": "placeholder",
+      "from": "embedded-text-input.placeholder"
+    },
+    {
+      "name": "layout",
+      "type": "enum",
+      "values": [
+        "inline",
+        "stacked"
+      ],
+      "default": "inline",
+      "description": "Where the actions stand in the capsule. inline, the default: on the typing area's line — the attach button and the leading actions before it, the counter, the trailing actions and the send button after it — and at the bottom of the capsule once the text has more lines than one. stacked: the typing area and the send button on one line — the send button at its end, and at the bottom edge of the typing area once the text has more lines than one — and everything else in one row beneath them, inside the capsule: the attach button and the leading actions at its start, the counter and the trailing actions at its end — for a composer with many actions, and for messages written in paragraphs. A capsule too narrow for inline is laid out stacked whatever this says; the number of lines never changes the layout (CCM-4)."
+    },
+    {
+      "name": "minRows",
+      "from": "embedded-text-input.minRows",
+      "note": "One line by default, at which the capsule is fully rounded."
+    },
+    {
+      "name": "maxRows",
+      "type": "number",
+      "default": 6,
+      "description": "The most lines the typing area grows to before it scrolls inside itself. Given to the embedded text input as its maxRows, with a default of the chat composer's own: six lines, where the embedded text input alone has no limit. 0 sets no limit, which a composer at the bottom of a screen should not choose."
+    },
+    {
+      "name": "maxLength",
+      "type": "number",
+      "default": 0,
+      "description": "The most user-perceived characters a message may hold; 0 is no limit. It refuses no edit and shortens no paste: text beyond it stays, is marked, and stops sending until the person has cut it (CCM-18)."
+    },
+    {
+      "name": "counter",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the number of characters, and maxLength where one is set, before the trailing actions."
+    },
+    {
+      "name": "sendKey",
+      "type": "enum",
+      "values": [
+        "enter",
+        "modifier"
+      ],
+      "default": "enter",
+      "description": "What Enter does on a hardware keyboard. enter: Enter sends and Shift+Enter begins a new line — for short messages sent often. modifier: Enter begins a new line and Ctrl+Enter or Command+Enter sends — for long messages written in paragraphs. Ctrl+Enter and Command+Enter send under both; the return key of an on-screen keyboard begins a new line under both (CCM-12)."
+    },
+    {
+      "name": "attachments",
+      "type": "enum",
+      "values": [
+        "none",
+        "own",
+        "given"
+      ],
+      "default": "none",
+      "description": "Whether files can be attached, and who holds them. none: text alone; no attach button, and files dropped or pasted are not taken. own: the chat composer keeps the files a person attached and draws a File item for each, and send carries them — nothing written by the product until then. given: the product gives the File items and the chat composer lays them out and keeps no file — for a product that begins sending a file the moment it is attached and reports each one's progress."
+    },
+    {
+      "name": "attachmentForm",
+      "type": "enum",
+      "values": [
+        "auto",
+        "tile",
+        "row"
+      ],
+      "default": "auto",
+      "description": "The form of the File items the chat composer draws itself, while attachments is own. auto: a tile with its picture for a file the platform can draw as an image, and a row — glyph, name and state on a line of the strip — for every other file. tile: every file a tile, a file that is no image by the glyph of its format and its name. row: every file a row, and no picture is drawn. A file the chat composer refused is a row under every value (CCM-44). While attachments is given the product sets each File item's own form, and this is not read."
+    },
+    {
+      "name": "multiple",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether more than one file can be attached. Given to the file picker as its multiple; the default is true, where a file picker alone offers one."
+    },
+    {
+      "name": "accept",
+      "from": "file-picker.accept"
+    },
+    {
+      "name": "maxSize",
+      "from": "file-picker.maxSize"
+    },
+    {
+      "name": "maxFiles",
+      "from": "file-picker.maxFiles",
+      "note": "The most files one message may carry while multiple is true; the room that is left is what the file picker is given (CCM-22)."
+    },
+    {
+      "name": "sending",
+      "type": "boolean",
+      "default": false,
+      "description": "What was sent is on its way, or its answer is still arriving: the product's to set and to clear. While it is true nothing more can be sent; the typing area stays open, so the next message can be written."
+    },
+    {
+      "name": "stoppable",
+      "type": "boolean",
+      "default": false,
+      "description": "While sending is true, puts a stop button in the send button's place, which asks the product to stop what is under way (stop) — for an answer that arrives over time and can be cut short. Ignored while sending is false."
+    },
+    {
+      "name": "blocked",
+      "type": "boolean",
+      "default": false,
+      "description": "The product's own reason that nothing can be sent now — no connection, a limit on how often, a check of its own. The send button is disabled and the send key sends nothing; the product says why in its own words, around the composer or with announcement."
+    },
+    {
+      "name": "keepAfterSend",
+      "type": "boolean",
+      "default": false,
+      "description": "Keeps the text and the attachments after send, for a product that clears them itself once it knows the message arrived. False: the chat composer empties itself as it hands the message over (CCM-15)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Nothing can be written, attached, removed or sent: every member and every Button in a slot is disabled. Inside a Field, disable the Field."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the capsule in its error condition and exposes the typing area as invalid. A Field sets it with its own error; the words are the Field's errorText. It does not stop sending by itself: blocked does."
+    },
+    {
+      "name": "sendLabel",
+      "type": "string",
+      "default": "",
+      "words": "sendLabel",
+      "description": "The accessible name of the send button the chat composer brings (\"Send\"). Empty reads the product's words; with neither, CCM-31 says what happens."
+    },
+    {
+      "name": "stopLabel",
+      "type": "string",
+      "default": "",
+      "words": "stopLabel",
+      "description": "The accessible name of the stop button the chat composer brings (\"Stop\"). Empty reads the product's words. Needed while stoppable is used."
+    },
+    {
+      "name": "attachLabel",
+      "type": "string",
+      "default": "",
+      "words": "attachLabel",
+      "description": "The accessible name of the attach button the chat composer brings (\"Attach files\"). Empty reads the product's words. Needed while attachments is not none."
+    },
+    {
+      "name": "removeLabel",
+      "from": "file-item.removeLabel",
+      "note": "Given to every File item the chat composer draws."
+    },
+    {
+      "name": "retryLabel",
+      "from": "file-item.retryLabel",
+      "note": "Given to every File item the chat composer draws."
+    },
+    {
+      "name": "typeErrorText",
+      "type": "string",
+      "default": "",
+      "words": "fileTypeErrorText",
+      "description": "While attachments is own: the sentence on the File item of a file refused for its kind (\"This kind of file cannot be added.\"). Empty reads the product's words. The key the file upload reads."
+    },
+    {
+      "name": "sizeErrorText",
+      "type": "string",
+      "default": "",
+      "words": "fileSizeErrorText",
+      "description": "While attachments is own: the sentence on the File item of a file refused for its size (\"This file is too large.\"). Empty reads the product's words. The key the file upload reads."
+    },
+    {
+      "name": "countErrorText",
+      "type": "string",
+      "default": "",
+      "words": "fileCountErrorText",
+      "description": "While attachments is own: the sentence on the File item of a file refused because no more can be added (\"No more files can be added.\"). Empty reads the product's words. The key the file upload reads."
+    },
+    {
+      "name": "announcement",
+      "type": "string",
+      "default": "",
+      "description": "A message the product has assistive technology hear through the chat composer's one live region when it sets or changes it (\"Message sent\", \"The message is 12 characters too long\"). It is not drawn."
+    }
+  ],
+  "items": [
+    {
+      "name": "file",
+      "summary": "One attachment, as a File item of the strip: its glyph by the file's format or its picture, its name, its size, where it stands — waiting, being sent, done or failed — and the actions to try it again and to remove it. The File item's own props and events, by the same names and with its own descriptions; fourteen of them are listed here, the ones a strip of attachments is drawn with, and a product may set any other on its items. While attachments is given the product adds it, changes it and removes it; while it is own the chat composer draws one itself for each file it keeps and for each file it refused, and the product gives none.",
+      "component": "file-item",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What identifies the item to the product: given back by remove and retry, and carried by send. Unique within one chat composer."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "default": "",
+          "description": "The file's name as the person knows it (\"report-2026.pdf\"). The file item's name for assistive technology in every form, also where it is not drawn."
+        },
+        {
+          "name": "sizeText",
+          "type": "string",
+          "default": "",
+          "description": "The file's size as text, formatted by the product for the reader's locale (\"1.2 MB\"). Empty draws none."
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "values": [
+            "pending",
+            "uploading",
+            "done",
+            "error"
+          ],
+          "default": "pending",
+          "description": "Where the file stands. pending: attached, and nothing is happening to it yet. uploading: the product is sending it; nothing can be sent until it has arrived. done: the product has it. error: it failed or was refused; errorText says why."
+        },
+        {
+          "name": "statusText",
+          "type": "string",
+          "default": "",
+          "description": "The status in the product's words (\"Waiting\", \"Uploading\", \"Uploaded\"), drawn last on the second line and read with the file. The mark and its color are never the only sign of a status."
+        },
+        {
+          "name": "progress",
+          "type": "number",
+          "default": null,
+          "description": "How far the sending has come, from 0 to 1, while status is uploading. Null draws the bar as under way without saying how far. Ignored in every other status."
+        },
+        {
+          "name": "errorText",
+          "type": "string",
+          "default": "",
+          "description": "Why the file failed and what to do, in the product's words (\"Larger than 10 MB\", \"The connection was lost\"). Drawn in the status's place while status is error, in every form, and never cut."
+        },
+        {
+          "name": "retryable",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether a failed item offers the retry action. A failed item that can be tried again holds the message back until it is retried or removed; one that cannot is left out of what is sent (CCM-9, CCM-11)."
+        },
+        {
+          "name": "form",
+          "type": "enum",
+          "values": [
+            "row",
+            "tile"
+          ],
+          "default": "row",
+          "description": "How the file is shown. row: one line across the width the layout gives — the glyph or a small picture, the name, the second line, the bar, the actions at the end — for a column of files. tile: a box of a width and a height, holding the picture or the glyph, with the texts beneath it and the actions at its corner — for a strip of attached pictures. The product chooses by where the file stands. A design system may add values."
+        },
+        {
+          "name": "preview",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether a picture of the file is drawn in the glyph's place, where the file is an image and the product gave an address (previewSrc) or the file itself in the platform's idiom. False draws the glyph, also for an image. The picture is drawn by the platform; the file item reads no file."
+        },
+        {
+          "name": "previewSrc",
+          "type": "string",
+          "default": "",
+          "description": "The address of a picture of the file, as the platform's images take one: a small rendition the product's server made of a file it already has. With preview it is drawn for a file of any format. Empty, the picture comes from the file itself where the product gave it."
+        },
+        {
+          "name": "nameHidden",
+          "type": "boolean",
+          "default": false,
+          "description": "In the tile form: the name is not drawn beneath a tile that draws a picture, for a dense strip of pictures. The name stays the file item's name for assistive technology, and is drawn all the same wherever no picture is (FIT-8). Not read in the row form."
+        },
+        {
+          "name": "width",
+          "type": "number",
+          "default": null,
+          "description": "In the tile form: the width of the box, in the platform's layout unit. Null makes it as wide as it is high."
+        },
+        {
+          "name": "height",
+          "type": "number",
+          "default": null,
+          "description": "In the tile form: the height of the box, in the platform's layout unit. Null reads the File item's own token for it."
+        }
+      ],
+      "events": [
+        {
+          "name": "remove",
+          "description": "The person asked to remove this item (the File item's remove). Carries the item's value. The product removes the item, and stops sending the file if it was. It reaches the product only while attachments is given: an item the chat composer drew for a file it keeps is removed by the chat composer, which emits attachmentsChange."
+        },
+        {
+          "name": "retry",
+          "description": "The person asked to try a failed item again (the File item's retry). Carries the item's value. The product sends the file again and sets the item's status. Only while attachments is given: an item the chat composer draws itself is never retryable."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading",
+      "description": "The product's own Buttons after the attach button: before the typing area in the inline layout, at the start of the row beneath it in the stacked one: what adds to the message (a mention, an emoji, formatting, a menu of further sources). Icon-only Buttons of the text variant are the quiet form; the chat composer lays them out inside the capsule and never restyles them.",
+      "fixture": "icon-only-button"
+    },
+    {
+      "name": "trailing",
+      "description": "The product's own Buttons before the send button in the inline layout, and at the end of the row beneath the typing area in the stacked one: what stands beside sending (a voice message, a time to send at). Laid out inside the capsule and never restyled.",
+      "fixture": "icon-only-button"
+    },
+    {
+      "name": "attach",
+      "description": "The product's own Button in place of the attach button the chat composer brings (another glyph, a labelled Button). Exactly one; the chat composer gives it the behaviour — it opens the platform's picker — and never restyles it. Ignored while attachments is none.",
+      "fixture": "icon-only-button"
+    },
+    {
+      "name": "send",
+      "description": "The product's own Button in place of the send button the chat composer brings (a labelled Button, another variant or size). Exactly one; the chat composer gives it the behaviour — it sends, and is disabled while nothing can be sent — and never restyles it.",
+      "fixture": "button"
+    },
+    {
+      "name": "stop",
+      "description": "The product's own Button in place of the stop button the chat composer brings, shown in the send button's place while sending and stoppable are true. Exactly one.",
+      "fixture": "button"
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "description": "The person changed the text; carries the new value (the embedded text input's input). Emitted for every change, not when the product sets value and not when the chat composer empties itself after send. A commit when focus leaves is not reported: a composer's text is committed by sending."
+    },
+    {
+      "name": "send",
+      "description": "The person sent what the chat composer holds, by the send button or the keyboard, while it could be sent. Carries the text exactly as written and the attachments in the order of the strip: the kept files as the platform's own handles while attachments is own, the values of the File items that have not failed while it is given. The product does the sending. Unless keepAfterSend is true the chat composer is empty once the event has been emitted."
+    },
+    {
+      "name": "stop",
+      "description": "The person activated the stop button while sending and stoppable were true. The product stops what is under way and sets sending."
+    },
+    {
+      "name": "sendableChange",
+      "description": "Whether what the chat composer holds can be sent changed, or the reasons it cannot did. Carries the answer and the reasons, by name: disabled, sending, blocked, empty, length, uploading, failed. For a product that says in its own words what holds a message back, or that mirrors the state elsewhere."
+    },
+    {
+      "name": "sendBlocked",
+      "description": "The person asked to send by the keyboard while it could not be sent for a reason other than being empty or disabled. Carries the reasons. For a product that answers the attempt, with announcement or with a Field's error text."
+    },
+    {
+      "name": "select",
+      "description": "Files were chosen in the picker, dropped on the capsule or pasted, and passed accept, maxSize and the count (the file picker's select). While attachments is given the product adds a File item for each; while it is own the chat composer has already kept them."
+    },
+    {
+      "name": "reject",
+      "description": "Files of one arrival were refused (the file picker's reject), each with its reason: type, size or count. The reasons are names for the product's code, not words."
+    },
+    {
+      "name": "attachmentsChange",
+      "description": "The files the chat composer keeps changed by what a person did: an arrival that kept at least one file, or a kept file removed by its File item. Carries the files now kept, in order. Emitted only while attachments is own, and never for what the product or the chat composer itself did (files handed over, the emptying after send, a form reset)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "dragged",
+    "error",
+    "loading"
+  ],
+  "behavior": [
+    {
+      "id": "CCM-1",
+      "text": "THE chat composer SHALL draw one container of its own, the capsule (CCM-41), and SHALL lay out inside it, from top to bottom: WHILE attachments is not none and it holds at least one File item, the strip of attachments (CCM-43); and below it the typing area, the actions and the send button, as layout says (CCM-2, CCM-3). It SHALL draw nothing outside the capsule; SHALL be as wide as its layout gives it and as tall as what it holds, never less than comp.chat-composer.container.height; SHALL draw no label, no help, no error text and no requirement mark of its own: those are a Field's (CCM-28) or the product's; and SHALL stand where the product places it — it SHALL NOT fix or stick itself to an edge of the screen, cover content, or reserve room outside its own box."
+    },
+    {
+      "id": "CCM-2",
+      "text": "WHILE it is laid out inline THE chat composer SHALL draw one row inside the capsule, in reading order: the attach button WHILE attachments is not none, the Buttons of the leading slot, the typing area, the counter WHILE it is drawn (CCM-19), the Buttons of the trailing slot, and the send button. The typing area SHALL take all the room the others leave; neighbours within the group before the typing area and within the group after it SHALL stand comp.chat-composer.actions.gap apart, and each group comp.chat-composer.container.gap from the typing area. The row SHALL stand comp.chat-composer.container.padding-block from the capsule's top edge, or comp.chat-composer.strip.offset below the strip, and comp.chat-composer.container.padding-block from its bottom edge; at each inline edge it SHALL stand comp.chat-composer.container.padding-inline-with-button from the capsule's edge WHERE a Button is the outermost part there and comp.chat-composer.container.padding-inline WHERE the typing area is. The typing area SHALL have comp.chat-composer.input.padding-block above its first line and below its last. WHILE the text has one line every Button and the counter SHALL be centred on that line; WHEN the text has more lines the row SHALL grow with the typing area and every Button and the counter SHALL stay at the bottom edge of the row, level with the last line, at the distance from the capsule's bottom edge they had with one line."
+    },
+    {
+      "id": "CCM-3",
+      "text": "WHILE it is laid out stacked THE chat composer SHALL draw, inside the capsule, the typing area and the send button on one line, and everything else in one row beneath that line. The line SHALL stand comp.chat-composer.container.padding-block from the capsule's top edge, or comp.chat-composer.strip.offset below the strip: the typing area from comp.chat-composer.container.padding-inline inside the capsule's start edge, taking all the room the send button leaves, with comp.chat-composer.input.padding-block above its first line and below its last; and the send button — or the stop button in its place (CCM-17) — after it, comp.chat-composer.container.gap from the typing area and comp.chat-composer.container.padding-inline-with-button from the capsule's end edge. WHILE the text has one line the send button SHALL be centred on that line; WHEN the text has more lines the line SHALL grow with the typing area and the send button SHALL stay at its bottom edge, level with the last line of the text, at the distance from the row beneath that it had with one line, as the Buttons of the inline layout stay at theirs (CCM-2). The row beneath SHALL stand comp.chat-composer.container.row-gap below that line, comp.chat-composer.container.padding-inline-with-button from each inline edge and comp.chat-composer.container.padding-block from the capsule's bottom edge, and SHALL hold: at its start the attach button WHILE attachments is not none and the Buttons of the leading slot, and at its end the counter WHILE it is drawn (CCM-19) and the Buttons of the trailing slot, neighbours comp.chat-composer.actions.gap apart and centred on one line. It SHALL never hold the send button: in both layouts the send button is on the line being written. WHERE the row is too short for all it holds THE chat composer SHALL wrap the start group onto further lines, comp.chat-composer.actions.gap apart, and keep the end group together at the end of the last line; it SHALL NOT cut, shrink, overlap or hide a Button. WHILE the row would hold nothing — no attach button, no Button in either slot and no counter — THE chat composer SHALL draw no row and keep no room for one, and is then drawn as it is laid out inline.",
+      "verify": "Fixtures stacked-typed (one line: the send button centred on it, at the capsule's end; the attach button alone in the row beneath), stacked-lines-at-maximum (the send button at the bottom edge of the grown typing area, level with the last line; the row beneath where it was), stacked-actions (both groups in the row beneath, the send button not among them) and stacked-rtl. Unit: with attachments none, no slotted Button and no counter, a stacked composer is the same box for box as an inline one; in a capsule 240 wide with six leading actions the start group wraps and the send button stays on the typing area's line."
+    },
+    {
+      "id": "CCM-4",
+      "text": "WHILE the capsule's own inline size is less than comp.chat-composer.layout.inline-min-width THE chat composer SHALL be laid out stacked whatever layout says, and inline again WHEN it is that wide and layout is inline — by its own width, never the window's. THE chat composer SHALL NOT change between the two layouts for the number of lines the text has or for the attachments it holds: a layout that changed as the second line began would move every Button from under the person's hand and, by giving the text another width, could give it one line again. WHEN layout names a value the chat composer does not know THE chat composer SHALL behave as inline, and in debug builds report the unknown value."
+    },
+    {
+      "id": "CCM-5",
+      "text": "THE chat composer SHALL hold exactly one embedded text input as its typing area, with multiline true, and leave it what it is: typing alone, with no container, no edge, no padding and no focus indication of its own (ETI-1, ETI-11); exactly as tall as its lines between minRows and maxRows, scrolling inside itself beyond maxRows with the caret kept in view (ETI-7); changing its height over its own motion (ETI-8); editing in the platform's own text element and reporting every change (ETI-2); given value and placeholder, named by label (ETI-13), and drawn from the embedded text input's own tokens in every state. THE chat composer SHALL give it no other look and SHALL draw nothing over it. WHEN the person presses a point of the capsule that no control covers — its padding, the room beside a short text, the gaps of the strip — THE chat composer SHALL pass the press on to the typing area by the way the embedded text input offers what holds it (ETI-12), so that the typing area has focus and the caret stands where a press on the nearest point of the text would put it, and SHALL show no pressed state (CCM-42). IF minRows is not a number of at least 1 THE chat composer SHALL use 1; IF maxRows is neither 0 nor a number of at least minRows THE chat composer SHALL use minRows."
+    },
+    {
+      "id": "CCM-6",
+      "text": "THE chat composer SHALL have exactly one send button: the one element in the send slot — a Button of the product's, with the product's own label, glyph, variant and size, left as it is — or, WHILE that slot is empty, a Button it brings: icon-only, of the medium size and of the variant comp.chat-composer.send-button.variant names, showing the send glyph of the system's icon set through the platform's icon helper, and named by sendLabel. Either one SHALL be drawn from the Button's own tokens and SHALL answer hover, focus and a press as the Button says (BTN-5, BTN-8, BTN-9, BTN-10); the chat composer SHALL give it its behaviour (CCM-10, CCM-11) and SHALL NOT restyle it."
+    },
+    {
+      "id": "CCM-7",
+      "text": "WHILE attachments is not none THE chat composer SHALL hold one File picker, given accept, multiple, maxSize and maxFiles, whose trigger is the one element in the attach slot — a Button of the product's, left as it is — or, WHILE that slot is empty, a Button it brings: icon-only, of the text variant and the medium size, showing the attach_file glyph of the system's icon set, and named by attachLabel. WHEN the trigger is activated THE chat composer SHALL have the file picker open the platform's own picker and judge what is chosen (FPK-6, FPK-9); the file picker draws nothing but its trigger (FPK-2). WHILE attachments is none THE chat composer SHALL hold no picker, draw no attach button and no strip, SHALL NOT draw an element in the attach slot, and in debug builds SHALL report one that is there."
+    },
+    {
+      "id": "CCM-8",
+      "text": "THE chat composer SHALL lay out the Buttons of the leading slot and of the trailing slot in the order given, at the places CCM-2 and CCM-3 name, each at the size, the variant and the width the product gave it; SHALL add to them no name, role, state or look; and SHALL NOT read what they do — a mention, an emoji, a recording and a menu of further actions are the product's, which writes into the message by setting value and hands over files as CCM-22 says. IF a slot holds an element that is not a Button THE chat composer SHALL lay it out in its place as it is and in debug builds report it."
+    },
+    {
+      "id": "CCM-9",
+      "text": "THE chat composer SHALL hold, as state of its own that no member holds, whether what it holds can be sent, and SHALL answer yes only WHILE all of these are true: disabled is false; sending is false; blocked is false; there is something to send — value holds at least one character that is not white space, or at least one attachment would be carried (CCM-11); WHILE maxLength is greater than 0, value is no longer than maxLength (CCM-18); no File item's status is uploading; and no File item's status is error WHILE its retryable is true. For each that is not true it SHALL hold a reason by name — disabled, sending, blocked, empty, length, uploading, failed — and the names are for the product's code, not words. WHEN the answer or the set of reasons changes, by what a person did or by what the product set, THE chat composer SHALL emit sendableChange exactly once with both; it SHALL NOT emit it when it is first presented."
+    },
+    {
+      "id": "CCM-10",
+      "text": "WHILE what it holds cannot be sent (CCM-9) THE chat composer SHALL disable the send button as that Button's own disabled does — drawn, exposed and left out of the focus order as the Button says — and enable it again WHEN it can be sent, never enabling a Button in the send slot that the product disabled itself. It SHALL add no state to the Button that a Button does not have: a send button that cannot send is a disabled Button and nothing else, and what holds the message back is shown where it is — on the counter (CCM-19), on the File item still on its way or failed (CCM-20), and in the product's own words."
+    },
+    {
+      "id": "CCM-11",
+      "text": "WHEN the person activates the send button by any means the Button has, or asks to send by the keyboard (CCM-12), WHILE what it holds can be sent THE chat composer SHALL emit send exactly once, carrying value exactly as it stands — no character trimmed, joined or replaced — and the attachments in the order of the strip: WHILE attachments is own, the files it keeps, as the platform's own handles; WHILE attachments is given, the value of every File item whose status is not error. THE chat composer SHALL NOT send: it SHALL open no connection and pass the text and the files to no one but the product, as its file picker passes them to no one (FPK-7)."
+    },
+    {
+      "id": "CCM-12",
+      "text": "THE chat composer SHALL decide what the embedded text input's action is (ETI-6): a request to send (CCM-11). It SHALL give the embedded text input enterKey action WHILE sendKey is enter and enterKey line-break WHILE sendKey is modifier, and SHALL ask to send WHEN the embedded text input emits action, so that on a hardware keyboard, WHILE no input method is composing (CCM-13): WHILE sendKey is enter, Enter with no modifier asks to send and inserts no line break, and Shift+Enter inserts a line break; WHILE sendKey is modifier, Enter, with or without Shift, inserts a line break; and under both values Ctrl+Enter and, on Apple platforms, Command+Enter ask to send and insert nothing. THE return key of an on-screen keyboard SHALL insert a line break under both values, and that keyboard SHALL be asked for a return key and not for a send or a done key (ETI-6): there the send button sends. WHEN sendKey names a value the chat composer does not know THE chat composer SHALL behave as enter, and in debug builds report the unknown value. No other key SHALL send, and Escape SHALL do nothing to the chat composer."
+    },
+    {
+      "id": "CCM-13",
+      "text": "WHILE an input method is composing text in the typing area THE chat composer SHALL leave every key to the input method and the platform's text element, as the embedded text input does (ETI-4): the Enter that chooses a candidate or commits the composition SHALL NOT send, SHALL NOT be counted as a request to send, and SHALL leave the committed text in the typing area; the first Enter pressed after the composition has ended SHALL be read as CCM-12 says. THE chat composer SHALL send for no key it reads itself: it has no key listener that could send beside the embedded text input's action."
+    },
+    {
+      "id": "CCM-14",
+      "text": "WHEN the person asks to send by the keyboard WHILE what it holds cannot be sent THE chat composer SHALL emit no send, SHALL insert no line break for a key that would have sent, and SHALL keep the text, the attachments and the focus as they are; and WHILE a reason other than empty and disabled holds, SHALL emit sendBlocked exactly once with the reasons (CCM-9), so that the product can say in its own words what holds the message back (announcement). A request to send WHILE the only reason is empty SHALL do nothing at all."
+    },
+    {
+      "id": "CCM-15",
+      "text": "WHEN send has been emitted WHILE keepAfterSend is false THE chat composer SHALL empty itself at once, without waiting to learn what became of the message: value becomes empty and, WHILE attachments is own, it lets go of every file it keeps and removes every File item it drew, those of refused files with them. It SHALL emit neither input nor attachmentsChange for this, since send has said it. WHILE attachments is given the File items are the product's and THE chat composer SHALL remove none: the product removes the items it gave. WHILE keepAfterSend is true THE chat composer SHALL keep everything as it is, and SHALL offer the product, in the platform's idiom, a way to empty it that does exactly what this sentence says for false. Whether the message arrived is the product's to know and to say; the chat composer never says it."
+    },
+    {
+      "id": "CCM-16",
+      "text": "WHEN send has been emitted THE chat composer SHALL move focus to the typing area, whether the person sent with the send button, with a key or through assistive technology, so that the next message can be written at once and an on-screen keyboard stays open; WHILE disabled is true it SHALL move focus nowhere."
+    },
+    {
+      "id": "CCM-17",
+      "text": "WHILE sending is true THE chat composer SHALL send nothing more (CCM-9), SHALL leave the typing area and the attachments as open to the person as they were, and SHALL expose itself as busy. WHILE sending and stoppable are both true THE chat composer SHALL put in the send button's place a stop button — the one element in the stop slot, or, WHILE that slot is empty, a Button it brings: icon-only, of the size and the variant of the send button it brings, showing the stop glyph of the system's icon set, and named by stopLabel — enabled WHILE disabled is false; WHEN it is activated THE chat composer SHALL emit stop exactly once and SHALL change nothing itself: the product stops what is under way and sets sending. No key SHALL stop. WHEN the button in that place changes while it has focus THE chat composer SHALL keep focus on the button now there, or move it to the typing area WHERE that button is disabled."
+    },
+    {
+      "id": "CCM-18",
+      "text": "WHILE maxLength is greater than 0 THE chat composer SHALL count the user-perceived characters of value (grapheme clusters: an emoji, or a letter with its accents, counts once) and SHALL keep the limit to itself — the embedded text input has none: it SHALL refuse no edit, shorten no paste and cut no value, during a composition or after it. WHILE the count is greater than maxLength THE chat composer SHALL hold the reason length (CCM-9), draw the capsule in its error condition and expose the typing area as invalid, as error does (CCM-27), and end both WHEN the count is within the limit again. IF maxLength is not a number above zero THE chat composer SHALL set no limit."
+    },
+    {
+      "id": "CCM-19",
+      "text": "WHILE counter is true and disabled is false THE chat composer SHALL draw the counter at the place CCM-2 and CCM-3 name: the count of user-perceived characters in value, followed by a slash and maxLength WHILE maxLength is greater than 0, on one line in comp.chat-composer.counter.typescale and comp.chat-composer.counter.color, as text of its own direction isolated from the text around it, with digits of equal width so that the row does not shift as the number changes. WHILE the count is greater than maxLength it SHALL draw it in comp.chat-composer.counter.error.color; the two numbers say it without the color. THE chat composer SHALL give what the counter shows to the embedded text input as the first part of its description (ETI-13), and the counter SHALL NOT be a live region."
+    },
+    {
+      "id": "CCM-20",
+      "text": "WHILE attachments is not none THE chat composer SHALL show each attachment as one File item in the strip, and as nothing else: the item's glyph by the file's format or its picture, its name, its second line, its bar while it is sent, and its retry and remove actions are drawn, exposed to assistive technology and answered as the File item says (FIT-1, FIT-4, FIT-5, FIT-6, FIT-10, FIT-11), from the File item's own tokens, with removeLabel and retryLabel as the names of its actions. THE chat composer SHALL decide only where the items stand (CCM-43) and, for the items it draws itself, which of the File item's own props they are given (CCM-44); it SHALL draw no second kind of attachment, SHALL NOT restyle an item, and SHALL NOT reorder the items or let a person reorder them: the order of the strip is the order given or kept, and reordering is a List's."
+    },
+    {
+      "id": "CCM-21",
+      "text": "WHILE attachments is given THE chat composer SHALL keep no file and SHALL lay out the File items the product gives, in the order given, each with the form, the picture and every other prop the product gave it, changing none: WHEN files arrive — chosen in the picker, dropped (CCM-23) or pasted (CCM-24) — it SHALL have its file picker judge them and emit select and reject (FPK-9, FPK-31), and draw of them only what the product gives back as File items; WHEN an item's remove or retry action is activated the item emits remove or retry with its value (FIT-11) and THE chat composer SHALL change nothing itself."
+    },
+    {
+      "id": "CCM-22",
+      "text": "WHILE attachments is own THE chat composer SHALL keep the files a person attaches itself. WHEN files arrive — chosen in its file picker and judged by it (FPK-9), or dropped on the capsule, pasted or handed over by the product, which it SHALL have its file picker judge by the same rule (FPK-31) — it SHALL first remove the File items of the files an earlier arrival refused; SHALL pass over, as if it had not arrived, a file that passed and that it already keeps; WHILE multiple is true SHALL keep each file that passed after the files it keeps, refusing with the reason count each one beyond the room maxFiles leaves, and WHILE multiple is false SHALL let go of the file it keeps and keep the new one in its place; SHALL draw each kept file as a File item given the file itself, whose name is the file's as the platform reports it (FIT-33) and whose status is pending, in the order it keeps them, and after them each file the arrival refused as a File item in error, not retryable and given no handle of the file, with the product's sentence for its reason as its errorText (typeErrorText, sizeErrorText or countErrorText); SHALL remove an item itself when its remove action is activated (FIT-11); SHALL hold of a file only the platform's own handle; and SHALL emit for one arrival select, then reject, then attachmentsChange, each once and only where it applies, and attachmentsChange once for a removal of a kept file. It SHALL offer the product, in the platform's idiom, the files it keeps, a way to hand it files — which it treats as an arrival, for a product whose own action in a slot makes a file (a photograph, a recording) — and a way to let go of them all. The file upload keeps its own files by the same rule, in sentences of its own: the chat composer holds no file upload and cites none of them."
+    },
+    {
+      "id": "CCM-23",
+      "text": "WHILE attachments is not none and disabled is false, WHILE files are dragged over any part of the capsule THE chat composer SHALL draw the capsule as receiving — filled with comp.chat-composer.receiving.container.color, its edge comp.chat-composer.receiving.outline.width wide in comp.chat-composer.receiving.outline.color, at the capsule's own shape and inside its own box, in place of its resting, hovered, focused and error drawing — so that nothing moves and no second shape is drawn; WHEN the files are let go over it THE chat composer SHALL end the condition at once, take the drop so that the platform does not open or navigate to a file, and have the files judged exactly as a choice in the picker (FPK-31, CCM-21, CCM-22). WHILE what is dragged holds no file THE chat composer SHALL draw nothing for it and leave the drag to the typing area and the platform. Dragging SHALL never be the only way to attach: the attach button opens the picker by keyboard, by touch and through assistive technology."
+    },
+    {
+      "id": "CCM-24",
+      "text": "WHEN the person pastes into the typing area WHILE attachments is not none and disabled is false, and what is pasted holds files and no plain text, THE chat composer SHALL take those files as an arrival (CCM-21, CCM-22) and insert nothing into the text. WHERE what is pasted holds plain text — with or without a file beside it, as a copied table carries a picture of itself — THE chat composer SHALL leave the paste to the typing area, which inserts the text, and SHALL take no file from it. WHILE attachments is none every paste SHALL be the typing area's."
+    },
+    {
+      "id": "CCM-25",
+      "text": "WHEN the platform's picker closes with at least one file kept (attachments own) or handed to the product (attachments given) THE chat composer SHALL move focus to the typing area; WHEN it closes with nothing chosen, or with every file refused, THE chat composer SHALL leave focus on the attach button. A drop and a paste SHALL move focus nowhere. WHEN a File item leaves the strip while focus is in it — which the File item leaves to what holds it (FIT-30) — THE chat composer SHALL move focus to the remove action of the item that followed it, or of the item before it WHERE none follows, or to the typing area WHERE no item is left, so that a person who removes several files in a row goes on from where they were."
+    },
+    {
+      "id": "CCM-26",
+      "text": "WHILE disabled is true THE chat composer SHALL disable every member as that member's own disabled does — the embedded text input (ETI-15), the attach button, the send or the stop button, and every File item (FIT-21) — and every Button in the leading and the trailing slot, giving each back as it was WHEN disabled becomes false and never enabling one the product disabled itself; SHALL draw the capsule from the disabled tokens of its condition (CCM-42); SHALL NOT draw the counter; SHALL take no drop and no paste of files and pass on no press on the capsule; SHALL emit no send, stop, sendBlocked, select, reject or attachmentsChange; and SHALL expose itself as disabled. The text, the File items and the files it keeps SHALL stay, readable by assistive technology."
+    },
+    {
+      "id": "CCM-27",
+      "text": "WHILE error is true THE chat composer SHALL draw the capsule in its error condition — every state from the error tokens, its edge at rest in comp.chat-composer.error.outline.color, so that the capsule itself is marked and not only a text beside it (CCM-42) — and SHALL give error to the embedded text input, which exposes the typing area as invalid and draws nothing for it (ETI-14); it SHALL draw nothing else: the words of the error are a Field's or the product's. THE chat composer SHALL enter that condition itself only for the limit (CCM-18), SHALL never set its own error prop, and SHALL NOT hold a message back for error alone."
+    },
+    {
+      "id": "CCM-28",
+      "text": "WHILE the chat composer is the control of a Field THE chat composer SHALL take from it what a Field gives its control (FLD-8, FLD-10, FLD-11, FLD-14) and pass it on to the embedded text input, which asks no Field itself (ETI-13): the Field's label as its own name and as the typing area's WHILE its own label is empty; the Field's supporting text with, in error, the error text after it as the last part of the typing area's description; error WHILE the Field is in error; and disabled WHILE the Field is disabled. It SHALL draw none of the Field's rows itself."
+    },
+    {
+      "id": "CCM-29",
+      "text": "THE chat composer SHALL expose itself to assistive technology as a group named by label, holding, in the order they are drawn: WHILE there are File items, one list of them, each exposed as an item of that list (FIT-19); then, WHILE it is laid out inline (CCM-2), the attach button, the Buttons of the leading slot, the typing area — a text box of several lines named by label and described by the counter WHILE it is drawn (ETI-13) — the Buttons of the trailing slot, and the send or the stop button; and WHILE it is laid out stacked (CCM-3), the typing area, the send or the stop button, and then what the row beneath them holds: the attach button, the Buttons of the leading slot and the Buttons of the trailing slot; each a button named as CCM-6, CCM-7 and CCM-17 say. Tab and Shift+Tab SHALL move through them in the order of the layout it is drawn in, which is the order a person reads them in, each control one stop — the actions of each File item among them, in the order of the strip — and THE chat composer SHALL add no stop, no roving focus and no key of its own: Backspace and Delete in an empty typing area SHALL remove no attachment, and the arrow keys SHALL stay the typing area's, though the embedded text input lets what holds it take a key first (ETI-21). WHERE the visual size of a Button it brings is below the minimum target THE chat composer SHALL leave the hit area the Button extends to sys.target.touch for touch input and sys.target.pointer for fine pointers (BTN-5) uncovered by a neighbour and inside the capsule."
+    },
+    {
+      "id": "CCM-30",
+      "text": "THE chat composer SHALL have exactly one live region, polite and never assertive, for itself and for every File item it holds, since a File item announces nothing (FIT-19), and SHALL announce through it, once each and in the product's words alone: announcement WHEN the product sets or changes it to a text that is not empty; WHILE attachments is given, WHEN a File item is added after the chat composer was first presented its name and its statusText, and WHEN an item's status becomes done or error its name and its statusText or errorText; WHILE attachments is own, for each arrival one message, in the order of the strip — the name of each file it newly kept and, for each refused file, its name and its sentence. It SHALL announce no progress and nothing of its own making — not that a message was sent, not why one cannot be, not a count: a sent message is told by the typing area standing empty under the focus (CCM-15, CCM-16), and anything more by the product's announcement."
+    },
+    {
+      "id": "CCM-31",
+      "text": "THE chat composer SHALL have no words of its own: it SHALL take sendLabel, stopLabel, attachLabel, removeLabel, retryLabel, typeErrorText, sizeErrorText and countErrorText from the instance's prop and, WHILE that is empty, from the product's words of the keys sendLabel, stopLabel, attachLabel, removeLabel, retryLabel, fileTypeErrorText, fileSizeErrorText and fileCountErrorText, and every other word — label, placeholder, announcement, a File item's texts, the names of the product's own Buttons — from the product, and from nowhere else. IF neither gives a name to a button the chat composer brings THE chat composer SHALL draw the button without a name and in debug builds report a control that assistive technology cannot name as a functional failure; IF label is empty and no Field names it, likewise."
+    },
+    {
+      "id": "CCM-32",
+      "text": "WHILE the text size is enlarged THE chat composer SHALL grow with its texts: the typing area and the File items as they say (ETI-24, FIT-24), the counter with its text, the Buttons as the Button says, the capsule with what it holds — its corners with the height of one line (CCM-41) — and comp.chat-composer.layout.inline-min-width with the text size, so that a composer whose text has doubled is laid out stacked sooner. At 200 % in a width of 320 CSS pixels, or the platform's equivalent, nothing SHALL be cut, overlap or need scrolling sideways: the typing area keeps the capsule's width but for the send button beside it, the row of actions beneath wraps (CCM-3), and the strip wraps, a row never wider than the strip and a tile never wider than it either (CCM-43)."
+    },
+    {
+      "id": "CCM-33",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE chat composer SHALL draw the capsule on the platform's own background with an edge in the platform's text color, comp.chat-composer.outline.width wide, at rest — so that the capsule is still seen where its fill is taken away; in the platform's highlight color, at the focused width of comp.chat-composer.outline.width (CCM-42), WHILE the typing area has focus; in the platform's highlight color at twice comp.chat-composer.receiving.outline.width WHILE it is receiving; and in the platform's disabled text color WHILE disabled. In its error condition the edge SHALL stay the platform's text color: the typing area is exposed as invalid and the counter's two numbers still say the limit. THE counter SHALL be drawn in the platform's text color, and every member SHALL draw as it says there (ETI-23, FIT-25)."
+    },
+    {
+      "id": "CCM-34",
+      "text": "WHERE the layout direction is right-to-left THE chat composer SHALL mirror its layout: the attach button and the leading actions at the right, the counter, the trailing actions and the send button at the left, with the send button outermost; in the stacked layout the send button at the left end of the typing area's line, and in the row beneath the attach button and the leading actions at the right and the counter and the trailing actions at the left; and the strip filled from the right, each line from right to left. It SHALL take its direction from where it is used and have no direction setting of its own; SHALL draw the send glyph through the icon helper, which mirrors a glyph the icon set marks as directional; and SHALL leave the direction of the text itself to the typing area, which sets each paragraph by its own first strong character (ETI-20)."
+    },
+    {
+      "id": "CCM-35",
+      "text": "WHEN the capsule's fill or edge changes — between rest, hover, focus, the error condition, disabled and receiving — or the counter changes color, THE chat composer SHALL animate the change over comp.chat-composer.motion.state-duration with comp.chat-composer.motion.state-easing, and SHALL make it at once where motion is reduced. THE capsule SHALL size itself to what it holds, so that its height follows the typing area's at every frame of the embedded text input's own change of height (ETI-8, ETI-10), with no duration, delay or curve of its own; its corners SHALL keep their radius throughout and its Buttons their distance from its bottom edge, or — the send button of the stacked layout — from the row beneath (CCM-2, CCM-3, CCM-41): the capsule's shape is never animated apart from its height, and nothing in it moves but what the growing text pushes. A File item that is added or removed, a change between the inline and the stacked layout, and the change between the send and the stop button SHALL take effect at once."
+    },
+    {
+      "id": "CCM-36",
+      "text": "WHERE the platform has forms that submit named values (the web) and the chat composer stands in one THE chat composer SHALL take part in it as one control: it SHALL submit value under its name and, WHILE attachments is own, every file it keeps under the name given for its files, WHILE it is not disabled; SHALL be disabled WHILE the form disables the set it is in; SHALL become empty WHEN the form is reset; and WHEN send has been emitted and the product has not cancelled it, SHALL ask the form to submit as a submit button of the platform's own does — the form's validation first, then its submit event, which the product may cancel (BTN-27). In a form THE chat composer SHALL NOT empty itself after send, whatever keepAfterSend says: a submission that leaves the page takes the composer with it, and a product that cancels the submission to send by itself empties the composer when it knows the message arrived (CCM-15)."
+    },
+    {
+      "id": "CCM-37",
+      "text": "WHERE the platform shows markup before a component is defined (the web) THE chat composer SHALL let a product write, as its children, the platform's own text area and submit button, so that a form holding it works with no script: the person writes in the text area and the button submits the form. WHEN the chat composer is defined THE chat composer SHALL take the text the text area holds as its value WHILE its own value is empty, SHALL take the text area and the button out of what is drawn, out of the focus order, out of what assistive technology reads and out of what the form submits, and SHALL submit under its own name (CCM-36) from then on."
+    },
+    {
+      "id": "CCM-38",
+      "text": "WHEN a prop of the chat composer or of a File item changes while it is shown THE chat composer SHALL draw and expose the new value at once, keeping its focus, the caret and the typing area's scroll position, and SHALL announce only what CCM-30 names. WHEN attachments names a value the chat composer does not know THE chat composer SHALL behave as none, and in debug builds report it; WHEN attachments changes between own and given THE chat composer SHALL let go of every file it keeps and remove every File item it drew itself, or stop drawing the product's items and begin with no kept file, emitting and announcing nothing for the change itself; and WHEN it becomes none SHALL let go of every file it keeps and draw no strip."
+    },
+    {
+      "id": "CCM-39",
+      "text": "WHEN an on-screen keyboard opens, closes or changes its height THE chat composer SHALL NOT move, resize or scroll itself or the page for it: keeping the composer above the keyboard is the screen's, by the platform's own means, and the product's where it places the composer. THE chat composer SHALL leave the caret kept in view to the typing area (ETI-7) and SHALL NOT close a keyboard a person opened, WHEN a message is sent (CCM-16) or at any other time."
+    },
+    {
+      "id": "CCM-40",
+      "text": "THE chat composer SHALL hold the text and the files it keeps for as long as it is shown and no longer: it SHALL NOT write a draft to any store, SHALL NOT restore one, and SHALL NOT read, copy or keep a file's content — the picture of a kept image is the File item's, made and let go of as it says (FIT-7). A product that keeps a draft across a reload or between conversations SHALL be able to do so from input and attachmentsChange and by setting value; WHERE the platform restores a form's controls itself (the web, on going back to a page) THE chat composer SHALL take the restored text and SHALL begin with no file."
+    },
+    {
+      "id": "CCM-41",
+      "text": "THE chat composer SHALL draw the capsule as one container behind everything it holds: filled with the container color of its condition (comp.chat-composer.standard.container.color, or comp.chat-composer.error.container.color in error), lifted by the container elevation of its condition (comp.chat-composer.standard.container.elevation, comp.chat-composer.error.container.elevation), with an edge comp.chat-composer.outline.width wide in the outline color of its condition (comp.chat-composer.standard.outline.color, comp.chat-composer.error.outline.color), drawn inside its box so that no state moves what it holds. Its four corners SHALL have one radius: comp.chat-composer.container.shape, and never more than half the height the capsule has WHILE it is laid out inline with one line of text and no attachment — half of comp.chat-composer.container.height, or of more where enlarged text makes that line taller. WHILE that token is the full step a capsule of one line is therefore fully rounded, and a capsule that has grown — by lines, by attachments or by the stacked layout — SHALL keep exactly that radius: it SHALL NOT round further as it grows taller, SHALL NOT take another radius for a grown form, and SHALL clip nothing it holds, since the paddings of CCM-2, CCM-3 and CCM-43 keep the text, the Buttons and the File items inside its corners. THE chat composer SHALL ease the corners by sys.shape.corner-smoothing as a Button eases its own (BTN-10)."
+    },
+    {
+      "id": "CCM-42",
+      "text": "THE chat composer SHALL answer focus with the capsule's edge, because the embedded text input draws no focus indication and leaves it to what holds it (ETI-11): WHILE the typing area has focus — given by the keyboard, a pointer, touch or the product alike — it SHALL draw the edge from the focused tokens of its condition — the focused width of comp.chat-composer.outline.width, in the focused color of comp.chat-composer.standard.outline.color (of comp.chat-composer.error.outline.color in error) — in place of a focus ring and with the container as at rest (the focused value of comp.chat-composer.standard.container.color), and WHERE sys.behavior.focus-style is glow SHALL also draw the glow around the capsule. WHILE focus is on a Button or inside a File item the capsule SHALL draw its resting edge and that control its own focus indication, so that focus is shown once. WHILE a pointer that can hover is over the capsule and disabled is false THE chat composer SHALL draw the capsule from the hovered tokens of its condition (the hovered value of comp.chat-composer.standard.container.color, in which the default system mixes comp.chat-composer.standard.state-layer.color into the fill, or of comp.chat-composer.error.container.color with comp.chat-composer.error.state-layer.color in error), as every box that is typed in answers hover; a Button or a File item under the pointer answers its own as well. THE capsule SHALL answer no press: it has no pressed tokens, draws no ripple and holds no pressed state, and a press on it only passes focus on (CCM-5). WHILE disabled is true it SHALL be drawn from the disabled tokens of its condition (the disabled values of comp.chat-composer.standard.container.color, comp.chat-composer.standard.outline.color and comp.chat-composer.outline.width, and the group's disabled opacity). WHERE more than one holds, the capsule SHALL be drawn as the first of: disabled, receiving (CCM-23), focused, hovered; the error condition recolors rest, hovered, focused and disabled alike."
+    },
+    {
+      "id": "CCM-43",
+      "text": "WHILE it holds at least one File item THE chat composer SHALL lay the items out as a strip at the top of the capsule — comp.chat-composer.container.padding-block and comp.chat-composer.strip.padding-block-start below the capsule's top edge, comp.chat-composer.container.padding-inline from each inline edge, and comp.chat-composer.strip.offset above what follows — in the order given (CCM-21) or kept (CCM-22), from the start edge, comp.chat-composer.strip.gap apart: a File item of the tile form at the width and the height the File item gives it (FIT-3), beside its neighbours and aligned to the top of its line; a File item of the row form across a whole line of the strip (FIT-2), so that its name and its sentence have the strip's width. WHERE a line is full THE chat composer SHALL wrap the next tile onto a further line, comp.chat-composer.strip.gap below; it SHALL NOT scroll the strip sideways, cut or shrink an item, fold items into a count, or hide one — every attachment and its state stays in view, since one that is still on its way or has failed is what holds the message back (CCM-9). The strip SHALL grow the capsule, which keeps its corners (CCM-41); how many attachments one message may carry is the product's, by maxFiles."
+    },
+    {
+      "id": "CCM-44",
+      "text": "WHILE attachments is own THE chat composer SHALL give each File item it draws the form attachmentForm names: tile; row; or, for auto, tile for a kept file whose kind the File item reads as image (FIT-5) and row for every other kept file. A file it refused (CCM-22) SHALL be a row whatever attachmentForm says: its sentence is why it is shown, and a row gives the sentence the strip's width. To a tile of an image it SHALL give preview and nameHidden, so that the File item draws the picture from the file on the person's own device and lets go of it itself (FIT-6, FIT-7, FIT-8) and the strip is one of pictures; to every other item it SHALL give neither, and THE chat composer SHALL itself read nothing of any file but what the platform reports. The File items it draws SHALL NOT be pressable and SHALL have the size the File item's own tokens give: a product that opens an attachment where it stands, or sizes its tiles, gives the items itself. WHILE attachments is given every prop of each item is the product's, set on the item, and attachmentForm SHALL NOT be read. WHEN attachmentForm names a value the chat composer does not know THE chat composer SHALL behave as auto, and in debug builds report the unknown value."
+    }
+  ],
+  "accessibility": {
+    "role": "group",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves through the chat composer in the order it is drawn: the actions of each File item in the strip's order, then — inline — the attach button, the leading actions, the typing area, the trailing actions and the send or the stop button; stacked, the typing area, the send or the stop button beside it, and then the row beneath: the attach button, the leading actions and the trailing actions. A disabled send button is not a stop, as no disabled Button is."
+      },
+      {
+        "keys": "Enter",
+        "action": "In the typing area, on a hardware keyboard: sends while sendKey is enter, and begins a new line while it is modifier. Never while an input method is composing: that Enter is the input method's. On an on-screen keyboard the return key begins a new line."
+      },
+      {
+        "keys": "Shift+Enter",
+        "action": "In the typing area: begins a new line under both values of sendKey."
+      },
+      {
+        "keys": "Ctrl+Enter / Command+Enter",
+        "action": "In the typing area: sends, under both values of sendKey."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "On a Button: what that Button does — sends, stops, opens the platform's file picker, removes or retries an attachment, or the product's own action."
+      },
+      {
+        "keys": "The typing area's own keys",
+        "action": "Everything else in the typing area — moving the caret, selecting, the input method, undo, Backspace and Delete — is the platform's text element's. No key in the typing area removes an attachment."
+      }
+    ],
+    "labeling": "A group named by label, or by the label of the Field around it. The typing area is a text box of several lines with the same name — the embedded text input has no name of its own and takes it from the chat composer — described by the counter while it is drawn and by the Field's help and, in error, its error text, and exposed as invalid while error is true or the text is over the limit. The send, stop and attach buttons the chat composer brings are named by sendLabel, stopLabel and attachLabel; a Button of the product's keeps its own name. The attachments are one list, each read as an item of that list (FIT-19), its actions named by removeLabel and retryLabel and described by the file's name. One polite live region says the product's announcement and what changed among the attachments; the chat composer has no words of its own.",
+    "minimumTarget": true,
+    "notes": [
+      "The capsule is the focus indication of the typing area (CCM-42): the embedded text input draws none (ETI-11), so the chat composer must, and it does so for every focus of the typing area — keyboard, pointer or touch — as a text box does. The focused edge is held to 3:1 against the capsule's fill and against the surface around it, as the search bar's is (WCAG 2.4.7, 1.4.11). A Button or a File item's action inside the capsule shows its own focus ring, and the capsule is then at rest: focus is never shown twice, and the ring is never clipped by the capsule, whose paddings leave it room.",
+      "A press on the capsule where no control is moves focus to the typing area and does nothing else (CCM-5): the capsule is the box of the text, as a text input's container is, and not a pressable control. It answers hover as every box that is typed in does and has no pressed state, and so the chat composer copies no press sentence of the Button for its own name. Every press that acts is on a Button or on a File item's action, and is answered as BTN-8, BTN-9 and BTN-10 and FIT-15 and FIT-16 say.",
+      "The group and the typing area carry the same name: a person who tabs to the typing area hears it once as the group is entered and once on the text box. A second name for the group is left out: it would be one more word for every product to write, for a group whose every other control names itself.",
+      "A send button that cannot send is a disabled Button, out of the focus order (CCM-10). What holds the message back is never said by the button: it is on the counter, whose two numbers say it without color (CCM-19); on the File item that is still on its way or has failed, in the product's words (CCM-20); and, for the product's own reasons, in the product's words beside the composer. A person on the keyboard who asks to send anyway is answered through sendBlocked and announcement (CCM-14).",
+      "Sending is told without a word of Tanrei's: the typing area stands empty and focus is in it (CCM-15, CCM-16). A product that wants a sentence sets announcement (\"Message sent\") in its send handler; one whose sending can fail says so itself, and with keepAfterSend the text is still there to send again.",
+      "While sending is true the group is exposed as busy; the typing area stays a text box that can be written in. The stop button is a Button with its own name, never a state of the send button.",
+      "An input method's Enter never sends (CCM-13). This is a functional requirement of every language written through composition, not a refinement: a composer that sends on the Enter that chooses a candidate cannot be written in.",
+      "The strip wraps and never scrolls sideways (CCM-43): no attachment is under an edge, every File item's actions are in view when focus reaches them (WCAG 2.4.7, 2.4.11), and at 200 % text in a width of 320 nothing needs scrolling in two directions (WCAG 1.4.10). The actions of the File items are Tab stops before the typing area, in the order drawn (WCAG 1.3.2, 2.4.3); a person who wants the text reaches it at once because focus() on the chat composer, a press on the capsule, sending and attaching all go to the typing area (CCM-5, CCM-16, CCM-25).",
+      "A tile of a picture does not draw the file's name (CCM-44, FIT-8); the name stays the item's name for assistive technology, is drawn wherever no picture is, and an error's sentence is drawn beneath a tile in every case (FIT-4). A file the chat composer refused is still always a row (CCM-44): a sentence under a tile has the tile's width, and a row gives it the strip's.",
+      "Dragging and pasting are never the only way to attach (WCAG 2.5.7): the attach button opens the same picker by keyboard, touch, switch and voice (CCM-23). What is dragged over the composer is the pointer user's own act and is not announced.",
+      "Status is never color alone (WCAG 1.4.1): a File item has its words and a glyph that changes shape; the counter over the limit has its two numbers; the capsule in error has its edge where at rest it has none, and the typing area is exposed as invalid.",
+      "The chat composer moves focus only where a control under the focus has gone or the person's act has ended: to the typing area after sending and after attaching, and to a neighbouring File item's remove action after an item is removed (CCM-25).",
+      "Without script, and until the component is defined, on the web: the product's own text area and submit button inside the element are a working form (CCM-37). The text area needs its own accessible name (aria-label, or a label element), since the composer's label is not yet read. The capsule is not drawn until then.",
+      "A fixture whose attachments is own and that holds file items cannot be drawn from props alone: each file item stands for one file the stage hands over, in order, by the platform's way of CCM-22, before anything is recorded — an image file of the stage's own for a name that ends in an image's extension. A file item of such a fixture sets no form: CCM-44 chooses it. A fixture's string in the attach slot is a glyph in an icon-only Button of the text variant; in the send and the stop slot, a labelled Button of the filled variant.",
+      "The members' sentences are cited by their ids: ETI (the embedded text input), FIT (the File item) and FPK (the File picker). No sentence of the file upload is cited: the chat composer keeps its own files by the rule the file upload keeps its own by, said here in sentences of its own (CCM-22, CCM-38), because the file upload is not held and a sentence is cited only from a member. The holder's contract of the embedded text input (H1 to H7) is met by sentences of this spec: H1 the box, CCM-41; H2 the focus indication, CCM-42; H3 the mark of an error and the disabled look, CCM-27 and CCM-42; H4 the padding and the press passed on, CCM-2, CCM-3 and CCM-5; H5 the name and the description, CCM-19, CCM-28 and CCM-29; H6 what the action is, CCM-12; H7 forced colors, CCM-33."
+    ]
+  },
+  "tokens": "comp.chat-composer",
+  "fixtures": [
+    {
+      "id": "inline-empty",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send"
+      }
+    },
+    {
+      "id": "stacked-empty",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "layout": "stacked",
+        "attachments": "own",
+        "attachLabel": "Attach files"
+      }
+    },
+    {
+      "id": "inline-typed",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "value": "Could you send the floor plan before Friday?"
+      }
+    },
+    {
+      "id": "stacked-typed",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "value": "Could you send the floor plan before Friday?",
+        "layout": "stacked",
+        "attachments": "own",
+        "attachLabel": "Attach files"
+      }
+    },
+    {
+      "id": "inline-lines-at-maximum",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "maxRows": 6,
+        "value": "Notes from the site visit:\n1. The north wall is two metres short of the drawing.\n2. The survey marks are missing on the east side.\n3. Access is through the yard until the gate is repaired.\n4. Power is on from Tuesday.\n5. The neighbour asked about working hours.\n6. Deliveries before nine only.\n7. Keys are with the caretaker.\n8. Next visit on the 14th."
+      }
+    },
+    {
+      "id": "stacked-lines-at-maximum",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "maxRows": 6,
+        "value": "Notes from the site visit:\n1. The north wall is two metres short of the drawing.\n2. The survey marks are missing on the east side.\n3. Access is through the yard until the gate is repaired.\n4. Power is on from Tuesday.\n5. The neighbour asked about working hours.\n6. Deliveries before nine only.\n7. Keys are with the caretaker.\n8. Next visit on the 14th.",
+        "layout": "stacked",
+        "attachments": "own",
+        "attachLabel": "Attach files"
+      }
+    },
+    {
+      "id": "inline-image-tiles",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "given",
+        "retryLabel": "Try again",
+        "value": "Three photographs from the site."
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "p1",
+            "name": "site-north.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-1.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p2",
+            "name": "site-east.png",
+            "sizeText": "1.8 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-2.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p3",
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-3.png"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-image-tiles",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "given",
+        "retryLabel": "Try again",
+        "value": "Three photographs from the site.",
+        "layout": "stacked"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "p1",
+            "name": "site-north.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-1.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p2",
+            "name": "site-east.png",
+            "sizeText": "1.8 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-2.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p3",
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-3.png"
+          }
+        }
+      ]
+    },
+    {
+      "id": "inline-file-rows",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "own",
+        "value": "The brief and the survey are attached."
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "survey.csv",
+            "sizeText": "64 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-file-rows",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "own",
+        "value": "The brief and the survey are attached.",
+        "layout": "stacked"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "survey.csv",
+            "sizeText": "64 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "inline-uploading",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "given",
+        "retryLabel": "Try again",
+        "value": "The two drawings are attached."
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB",
+            "status": "uploading",
+            "statusText": "Uploading",
+            "progress": 0.4,
+            "form": "tile",
+            "preview": true,
+            "previewSrc": "fixtures/chat-composer-photo-3.png"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-uploading",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "given",
+        "retryLabel": "Try again",
+        "value": "The two drawings are attached.",
+        "layout": "stacked"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB",
+            "status": "uploading",
+            "statusText": "Uploading",
+            "progress": 0.4,
+            "form": "tile",
+            "preview": true,
+            "previewSrc": "fixtures/chat-composer-photo-3.png"
+          }
+        }
+      ]
+    },
+    {
+      "id": "inline-failed",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "given",
+        "retryLabel": "Try again",
+        "value": "The two drawings are attached."
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "sizeText": "6.8 MB",
+            "status": "error",
+            "errorText": "The connection was lost",
+            "retryable": true
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "f",
+            "name": "survey.mov",
+            "sizeText": "48 MB",
+            "status": "error",
+            "errorText": "Larger than 10 MB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-failed",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "given",
+        "retryLabel": "Try again",
+        "value": "The two drawings are attached.",
+        "layout": "stacked"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "sizeText": "6.8 MB",
+            "status": "error",
+            "errorText": "The connection was lost",
+            "retryable": true
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "f",
+            "name": "survey.mov",
+            "sizeText": "48 MB",
+            "status": "error",
+            "errorText": "Larger than 10 MB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "inline-over-limit",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "maxLength": 80,
+        "counter": true,
+        "value": "Could you send the floor plan, the survey and the signed forms before Friday, and tell me who holds the keys to the yard?"
+      }
+    },
+    {
+      "id": "stacked-over-limit",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "maxLength": 80,
+        "counter": true,
+        "value": "Could you send the floor plan, the survey and the signed forms before Friday, and tell me who holds the keys to the yard?",
+        "layout": "stacked"
+      }
+    },
+    {
+      "id": "inline-disabled",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "disabled": true,
+        "attachments": "given",
+        "counter": true,
+        "value": "The two drawings are attached."
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        }
+      ],
+      "slots": {
+        "leading": [
+          "mood"
+        ]
+      }
+    },
+    {
+      "id": "stacked-disabled",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "disabled": true,
+        "attachments": "given",
+        "counter": true,
+        "value": "The two drawings are attached.",
+        "layout": "stacked"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        }
+      ],
+      "slots": {
+        "leading": [
+          "mood"
+        ]
+      }
+    },
+    {
+      "id": "inline-sending",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "sending": true,
+        "value": "And one more thing"
+      }
+    },
+    {
+      "id": "stacked-sending",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "sending": true,
+        "value": "And one more thing",
+        "layout": "stacked",
+        "attachments": "own",
+        "attachLabel": "Attach files"
+      }
+    },
+    {
+      "id": "inline-stoppable",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "stopLabel": "Stop",
+        "sending": true,
+        "stoppable": true
+      }
+    },
+    {
+      "id": "stacked-stoppable",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "stopLabel": "Stop",
+        "sending": true,
+        "stoppable": true,
+        "layout": "stacked",
+        "attachments": "own",
+        "attachLabel": "Attach files"
+      }
+    },
+    {
+      "id": "inline-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "given",
+        "retryLabel": "Try again",
+        "maxLength": 280,
+        "counter": true,
+        "value": "Could you send the floor plan before Friday?"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB",
+            "status": "uploading",
+            "statusText": "Uploading",
+            "progress": 0.4,
+            "form": "tile",
+            "preview": true,
+            "previewSrc": "fixtures/chat-composer-photo-3.png"
+          }
+        }
+      ],
+      "slots": {
+        "leading": [
+          "alternate_email"
+        ],
+        "trailing": [
+          "mic"
+        ]
+      }
+    },
+    {
+      "id": "stacked-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "given",
+        "retryLabel": "Try again",
+        "maxLength": 280,
+        "counter": true,
+        "value": "Could you send the floor plan before Friday?",
+        "layout": "stacked"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf",
+            "sizeText": "820 KB",
+            "status": "done",
+            "statusText": "Uploaded"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "b",
+            "name": "floor-plan.png",
+            "sizeText": "3.4 MB",
+            "status": "uploading",
+            "statusText": "Uploading",
+            "progress": 0.4,
+            "form": "tile",
+            "preview": true,
+            "previewSrc": "fixtures/chat-composer-photo-3.png"
+          }
+        }
+      ],
+      "slots": {
+        "leading": [
+          "alternate_email"
+        ],
+        "trailing": [
+          "mic"
+        ]
+      }
+    },
+    {
+      "id": "inline-actions",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachments": "own",
+        "attachLabel": "Attach files"
+      },
+      "slots": {
+        "leading": [
+          "alternate_email",
+          "mood"
+        ],
+        "trailing": [
+          "mic"
+        ]
+      }
+    },
+    {
+      "id": "stacked-actions",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachments": "own",
+        "attachLabel": "Attach files",
+        "layout": "stacked"
+      },
+      "slots": {
+        "leading": [
+          "alternate_email",
+          "mood"
+        ],
+        "trailing": [
+          "mic"
+        ]
+      }
+    },
+    {
+      "id": "counter",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "maxLength": 280,
+        "counter": true,
+        "value": "Could you send the floor plan before Friday?"
+      }
+    },
+    {
+      "id": "blocked",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "blocked": true,
+        "value": "Could you send the floor plan before Friday?"
+      }
+    },
+    {
+      "id": "error",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "error": true,
+        "value": "Could you send the floor plan before Friday?"
+      }
+    },
+    {
+      "id": "own-image-tiles",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "own",
+        "value": "Two photographs and the brief."
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "site-north.png",
+            "sizeText": "2.1 MB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "site-east.png",
+            "sizeText": "1.8 MB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "form-tile",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "own",
+        "attachmentForm": "tile"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "site-north.png",
+            "sizeText": "2.1 MB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "survey.csv",
+            "sizeText": "64 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "form-row",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "own",
+        "attachmentForm": "row"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "site-north.png",
+            "sizeText": "2.1 MB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "attachments-refused",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "own",
+        "accept": [
+          ".pdf",
+          ".png"
+        ],
+        "typeErrorText": "Only PDF and PNG files can be added.",
+        "value": "Here is the brief."
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "name": "brief.pdf",
+            "sizeText": "820 KB"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "name": "holiday.mov",
+            "sizeText": "48 MB"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tiles-wrapped",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "sendLabel": "Send",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "attachments": "given",
+        "retryLabel": "Try again",
+        "layout": "stacked"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "p1",
+            "name": "site-01.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-2.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p2",
+            "name": "site-02.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-3.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p3",
+            "name": "site-03.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-1.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p4",
+            "name": "site-04.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-2.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p5",
+            "name": "site-05.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-3.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p6",
+            "name": "site-06.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-1.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p7",
+            "name": "site-07.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-2.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p8",
+            "name": "site-08.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-3.png"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "p9",
+            "name": "site-09.png",
+            "sizeText": "2.1 MB",
+            "status": "done",
+            "statusText": "Uploaded",
+            "form": "tile",
+            "preview": true,
+            "nameHidden": true,
+            "previewSrc": "fixtures/chat-composer-photo-1.png"
+          }
+        }
+      ]
+    },
+    {
+      "id": "own-buttons",
+      "props": {
+        "label": "Message",
+        "placeholder": "Write a message",
+        "attachments": "own",
+        "layout": "stacked",
+        "value": "Could you send the floor plan before Friday?"
+      },
+      "slots": {
+        "attach": "add",
+        "send": "Send"
+      }
+    },
+    {
+      "id": "long-text",
+      "props": {
+        "label": "Message to everyone on the municipal planning application",
+        "placeholder": "Write what you want every member of the planning group to read before the meeting",
+        "sendLabel": "Send",
+        "attachments": "given",
+        "attachLabel": "Attach files",
+        "removeLabel": "Remove",
+        "retryLabel": "Try again",
+        "maxLength": 2000,
+        "counter": true,
+        "value": "Thesupportingstatementforthemunicipalplanningapplicationisattachedinitsfourteenthrevision, signed by all parties."
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "municipal-planning-application-supporting-statement-revision-14-final-signed-by-all-parties.pdf",
+            "sizeText": "9.6 MB",
+            "status": "uploading",
+            "statusText": "Uploading over a slow connection",
+            "progress": 0.72
+          }
+        }
+      ],
+      "slots": {
+        "leading": [
+          "alternate_email",
+          "mood",
+          "format_bold",
+          "format_list_bulleted"
+        ],
+        "trailing": [
+          "mic"
+        ]
+      }
+    },
+    {
+      "id": "without-words",
+      "props": {
+        "attachments": "given"
+      },
+      "items": [
+        {
+          "kind": "file",
+          "props": {
+            "value": "a",
+            "name": "brief.pdf"
+          }
+        },
+        {
+          "kind": "file",
+          "props": {
+            "value": "e",
+            "name": "site-photo.png",
+            "status": "error",
+            "retryable": true
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-chat-composer",
+      "props": {
+        "value": "value",
+        "label": "label",
+        "placeholder": "placeholder",
+        "layout": "layout",
+        "minRows": "minRows",
+        "maxRows": "maxRows",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "sendKey": "sendKey",
+        "attachments": "attachments",
+        "attachmentForm": "attachmentForm",
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "sending": "sending",
+        "stoppable": "stoppable",
+        "blocked": "blocked",
+        "keepAfterSend": "keepAfterSend",
+        "disabled": "disabled",
+        "error": "error",
+        "sendLabel": "sendLabel",
+        "stopLabel": "stopLabel",
+        "attachLabel": "attachLabel",
+        "removeLabel": "removeLabel",
+        "retryLabel": "retryLabel",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement"
+      },
+      "events": {
+        "input": "input",
+        "send": "send",
+        "stop": "stop",
+        "sendableChange": "sendablechange",
+        "sendBlocked": "sendblocked",
+        "select": "select",
+        "reject": "reject",
+        "attachmentsChange": "attachmentschange"
+      },
+      "items": {
+        "file": {
+          "name": "tanrei-file-item",
+          "props": {
+            "value": "value",
+            "name": "name",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "retryable",
+            "form": "form",
+            "preview": "preview",
+            "previewSrc": "previewSrc",
+            "nameHidden": "nameHidden",
+            "width": "width",
+            "height": "height"
+          },
+          "events": {
+            "remove": "remove",
+            "retry": "retry"
+          },
+          "notes": "The File item's own element, written by the product as a child of the chat composer in its default slot while `attachments=\"given\"`; it stays the product's light DOM and is laid out by the strip. Attributes as the File item's (`size-text`, `status-text`, `error-text`, `preview-src`, `name-hidden`, `form`; `progress` absent for null). `remove` and `retry` bubble and are composed, with `detail.value`. While `attachments` is `own` the chat composer renders the File items itself, in its shadow root, and sets each one's `file` property to the kept `File`."
+        }
+      },
+      "notes": "Planned; built after the embedded text input, the File picker and the File item. The shadow-root form, composed as every composed web element is: its members' own custom elements in its shadow root, beside its own parts. The shadow root holds the capsule — `<div part=\"container\">`, the chat composer's own — and inside it the strip (`part=\"strip\"`, a wrapping flex row holding a default `<slot>` for the product's File items and the `<tanrei-file-item>`s the composer renders itself), `<tanrei-file-picker>` around its trigger, `<tanrei-embedded-text-input multiline>`, the counter (`part=\"counter\"`), `<tanrei-button>` for send or stop, and the live region. `<tanrei-chat-composer label=\"Message\" placeholder=\"Write a message\" send-label=\"Send\" attachments=\"own\" attach-label=\"Attach files\" remove-label=\"Remove\" max-length=\"2000\" counter name=\"message\" files-name=\"files\"><tanrei-button slot=\"leading\" variant=\"text\" label=\"Mention someone\"><span slot=\"icon\">alternate_email</span></tanrei-button></tanrei-chat-composer>`. React: `ChatComposer` from the React package, `onSend`, `onStop`, `onSendableChange`, `onSendBlocked`, `onSelect`, `onReject`, `onAttachmentsChange`, `onInput`. Attributes are kebab-case (`send-key`, `max-rows`, `keep-after-send`, `attachment-form`); `accept` is a comma-separated list. Slots: `leading`, `trailing`, `attach`, `send`, `stop` are named slots and the default slot takes the File items (`attachments=\"given\"`); all stay in the product's light DOM. The capsule: `border-radius: min(var(--…-container-shape), calc(H / 2))` where `H` is the one-line height — `max(var(--…-container-height), 1lh + 2 * input.padding-block + 2 * container.padding-block)`, with `1lh` taken in the embedded text input's text style (the composer reads the member's computed line height, never its token) — so the radius does not depend on the capsule's present height; the edge is an inset `box-shadow` or an `outline` with a negative offset, never a border that changes width, so that no state moves the content. The focused edge is a state the composer sets from the embedded text input's own `focusin` and `focusout` (ETI-11), not `:host(:focus-within)` alone, which would also hold while a Button or a File item's action has focus. A `pointerdown` on the capsule whose target is the capsule itself, the strip's own gaps or the paddings is passed on to the embedded text input by the way it offers what holds it (ETI-12), and its default is prevented so that focus is not taken away again. Tokens reach the members by inheritance and the element writes none of a member's custom properties; a product sets one composer apart with a custom property on the element. Parts: `container`, `strip`, `counter` are its own; the members' documented parts are exported prefixed by the member (`input-…`, `attach-…`, `send-…`). Focus: the shadow root does not delegate focus (the capsule holds File items and a counter a press must not act on); `focus()` is overridden to go to the typing area. Keys (CCM-12, CCM-13): the composer has no `keydown` listener that sends. It sets `enter-key=\"action\"` on the embedded text input while `send-key` is `enter` and `enter-key=\"line-break\"` while it is `modifier`, and asks to send on the input's `action`; the composition, the engines that report the committing Enter late, and the guess that stands for an on-screen keyboard (`(pointer: coarse) and (hover: none)`) are all the embedded text input's (ETI-4, ETI-6), so a tablet with a keyboard attached sends with Ctrl+Enter or Command+Enter and with the send button. Where the message cannot be sent the composer still takes the `action` (CCM-14) and inserts nothing. Events are CustomEvents that bubble and are composed: `send` has `detail.value` and `detail.attachments` (a `File[]` while `own`, a `string[]` of item values while `given`) and is cancelable — cancelling it keeps the content for this one message and requests no form submission; `sendablechange` and `sendblocked` have `detail.sendable` and `detail.reasons`; `select`, `reject` as the file picker's; `attachmentschange` has `detail.files`. The embedded text input's `action`, `change` and `rowschange` are stopped at the shadow root; its `input` leaves as it is. Methods: `clear()`, `addFiles(files)` (answers the refused files and their reasons), the read-only `files`. Drop (CCM-23): `dragenter`, `dragover`, `dragleave` and `drop` on the host, counting enters and leaves, read only while `DataTransfer.types` holds `Files`; the files are handed to the file picker to judge (FPK-31). Paste (CCM-24): the `paste` event from the typing area; files are taken only while `clipboardData.files` is not empty and `clipboardData.getData(\"text/plain\")` is. Pictures (CCM-44): the composer makes no object URL; it sets `file`, `preview` and `name-hidden` on the File item of a kept image, and the File item makes and revokes the address itself (FIT-7). The strip is `role=\"list\"`, and each File item is told it is an item of a list by the channel the File upload uses for its own (FIT-19) — the product's slotted items too. A File item of the row form has `flex: 1 0 100%`; a tile `flex: none`. Form-associated (CCM-36): the composer has no single value member — it is a feature — so it sets its own form value: `setFormValue` receives a `FormData` with the text under `name` and one entry per kept file under `files-name`; `form.requestSubmit()` after `send`; `formResetCallback` empties; `formStateRestoreCallback` restores the text. Without script (CCM-37): `<form method=\"post\" action=\"/messages\"><tanrei-chat-composer name=\"message\" label=\"Message\" send-label=\"Send\"><textarea name=\"message\" aria-label=\"Message\" rows=\"3\"></textarea><button type=\"submit\">Send</button></tanrei-chat-composer></form>` — until the element is defined these two children are the form, drawn as the page's own styles draw them and with no capsule; once it is, they are not slotted (they are neither a File item nor in a named slot), the text area's text becomes the value, and both are set `disabled` and `hidden` so that the form submits the composer alone. A file cannot be attached without script: a page that must take files there adds the platform's own `<input type=\"file\" name=\"files\" multiple>` beside the text area, which the composer takes out in the same way. The layout of CCM-4 is a container query on the capsule. One level down, by hand — the product draws the box, since the capsule cannot be taken separately: `<div class=\"my-composer\" role=\"group\" aria-label=\"Message\"><ul class=\"strip\"><li><tanrei-file-item value=\"a\" name=\"brief.pdf\" size-text=\"820 KB\" remove-label=\"Remove\"></tanrei-file-item></li></ul><div class=\"row\"><tanrei-file-picker multiple><tanrei-button slot=\"trigger\" variant=\"text\" label=\"Attach files\"><span slot=\"icon\">attach_file</span></tanrei-button></tanrei-file-picker><tanrei-embedded-text-input label=\"Message\" multiline max-rows=\"6\" enter-key=\"action\"></tanrei-embedded-text-input><tanrei-button label=\"Send\" disabled><span slot=\"icon\">send</span></tanrei-button></div></div>`, with `.my-composer:has(tanrei-embedded-text-input:focus-within)` drawing the focus indication the embedded text input leaves to its holder, the row a flex row whose items align to its end edge, and a listener on the input's `action` that sends."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiChatComposer",
+      "props": {
+        "value": "text",
+        "label": "label",
+        "placeholder": "prompt",
+        "layout": "layout",
+        "minRows": "lineLimit",
+        "maxRows": "lineLimit",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "sendKey": "sendKey",
+        "attachments": "attachments",
+        "attachmentForm": "attachmentForm",
+        "multiple": "allowsMultipleSelection",
+        "accept": "allowedContentTypes",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "sending": "isSending",
+        "stoppable": "isStoppable",
+        "blocked": "isBlocked",
+        "keepAfterSend": "keepsContentAfterSend",
+        "disabled": "disabled",
+        "error": "isError",
+        "sendLabel": "sendLabel",
+        "stopLabel": "stopLabel",
+        "attachLabel": "attachLabel",
+        "removeLabel": "removeLabel",
+        "retryLabel": "retryLabel",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement"
+      },
+      "events": {
+        "input": "text",
+        "send": "onSend",
+        "stop": "onStop",
+        "sendableChange": "onSendableChange",
+        "sendBlocked": "onSendBlocked",
+        "select": "onSelect",
+        "reject": "onReject",
+        "attachmentsChange": "onAttachmentsChange"
+      },
+      "items": {
+        "file": {
+          "name": "TanreiFileItem",
+          "props": {
+            "value": "id",
+            "name": "name",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "isRetryable",
+            "form": "form",
+            "preview": "showsPreview",
+            "previewSrc": "previewURL",
+            "nameHidden": "isNameHidden",
+            "width": "width",
+            "height": "height"
+          },
+          "events": {
+            "remove": "onRemove",
+            "retry": "onRetry"
+          },
+          "notes": "A value in the `attachments` array, identified by `id`. Passed only while the product gives the File items."
+        }
+      },
+      "notes": "Planned. `TanreiChatComposer(\"Message\", text: $text, onSend: { message in … }) { leading } trailing: { … }`: a view that draws the capsule itself (a background shape whose corner radius is the lesser of the token and half the one-line height) and holds `TanreiEmbeddedTextInput`, `TanreiFilePicker`, `TanreiFileItem`s in a wrapping layout, and `TanreiButton`. `minRows` and `maxRows` are one `lineLimit(1...6)`. `attachments` is `.none`, `.own` or `.given([TanreiFileItem.Model])`. `sendKey` sets the embedded text input's `enterKey`, and its `onSubmit` is the request to send (ETI-6); marked text (`NSTextInputClient`, `UITextInput.markedTextRange`) is the composition of CCM-13. The focused edge follows a `@FocusState` of the typing area. The drop is `dropDestination(for: URL.self)` on the whole capsule with its `isTargeted` binding; the paste of files is `onPasteCommand(of:)` on macOS and the text view's paste configuration on iOS. A kept image's picture is the File item's to draw, from the file it is given (FIT-7). `keepAfterSend` with a `TanreiChatComposerState` whose `clear()`, `add(urls)` and `files` are CCM-15 and CCM-22. Keeping the composer above the keyboard is the screen's: `safeAreaInset(edge: .bottom)` and the system's keyboard avoidance. No form."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiChatComposer",
+      "props": {
+        "value": "value",
+        "label": "contentDescription",
+        "placeholder": "placeholder",
+        "layout": "layout",
+        "minRows": "minLines",
+        "maxRows": "maxLines",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "sendKey": "sendKey",
+        "attachments": "attachments",
+        "attachmentForm": "attachmentForm",
+        "multiple": "multiple",
+        "accept": "mimeTypes",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "sending": "sending",
+        "stoppable": "stoppable",
+        "blocked": "blocked",
+        "keepAfterSend": "keepAfterSend",
+        "disabled": "enabled",
+        "error": "isError",
+        "sendLabel": "sendContentDescription",
+        "stopLabel": "stopContentDescription",
+        "attachLabel": "attachContentDescription",
+        "removeLabel": "removeContentDescription",
+        "retryLabel": "retryContentDescription",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement"
+      },
+      "events": {
+        "input": "onValueChange",
+        "send": "onSend",
+        "stop": "onStop",
+        "sendableChange": "onSendableChange",
+        "sendBlocked": "onSendBlocked",
+        "select": "onSelect",
+        "reject": "onReject",
+        "attachmentsChange": "onAttachmentsChange"
+      },
+      "items": {
+        "file": {
+          "name": "TanreiFileItem",
+          "props": {
+            "value": "key",
+            "name": "name",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "retryable",
+            "form": "form",
+            "preview": "showPreview",
+            "previewSrc": "previewModel",
+            "nameHidden": "nameHidden",
+            "width": "width",
+            "height": "height"
+          },
+          "events": {
+            "remove": "onRemove",
+            "retry": "onRetry"
+          },
+          "notes": "A value in the `attachments` list, identified by `key`. Passed only while the product gives the File items."
+        }
+      },
+      "notes": "Planned. `TanreiChatComposer(value = text, onValueChange = { text = it }, onSend = { message -> … }, leading = { … }, trailing = { … })`: a composable that draws the capsule itself (a `Surface` whose shape's radius is the lesser of the token and half the one-line height) and holds `TanreiEmbeddedTextInput`, `TanreiFilePicker`, `TanreiFileItem`s in a `FlowRow`, and `TanreiButton`. `disabled` is the inverse flag `enabled`. `sendKey` sets the embedded text input's `enterKey`, and its `onAction` is the request to send (ETI-6); `TextFieldValue.composition` not null is the composition of CCM-13. The focused edge follows the typing area's `onFocusChanged`. The drop is `Modifier.dragAndDropTarget` on the whole capsule; the paste of files is the text field's `receiveContent`. A kept image's picture is the File item's to draw, from the file it is given (FIT-7). `rememberTanreiChatComposerState()` holds `files`, `add(uris)` and `clear()`. Keeping the composer above the keyboard is the screen's: `Modifier.imePadding()` where the product places it. No form."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiChatComposer",
+      "props": {
+        "value": "controller",
+        "label": "semanticLabel",
+        "placeholder": "hintText",
+        "layout": "layout",
+        "minRows": "minLines",
+        "maxRows": "maxLines",
+        "maxLength": "maxLength",
+        "counter": "showCounter",
+        "sendKey": "sendKey",
+        "attachments": "attachments",
+        "attachmentForm": "attachmentForm",
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "sending": "sending",
+        "stoppable": "stoppable",
+        "blocked": "blocked",
+        "keepAfterSend": "keepAfterSend",
+        "disabled": "enabled",
+        "error": "isError",
+        "sendLabel": "sendSemanticLabel",
+        "stopLabel": "stopSemanticLabel",
+        "attachLabel": "attachSemanticLabel",
+        "removeLabel": "removeSemanticLabel",
+        "retryLabel": "retrySemanticLabel",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement"
+      },
+      "events": {
+        "input": "onChanged",
+        "send": "onSend",
+        "stop": "onStop",
+        "sendableChange": "onSendableChanged",
+        "sendBlocked": "onSendBlocked",
+        "select": "onSelect",
+        "reject": "onReject",
+        "attachmentsChange": "onAttachmentsChanged"
+      },
+      "items": {
+        "file": {
+          "name": "TanreiFileItem",
+          "props": {
+            "value": "key",
+            "name": "name",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "retryable",
+            "form": "form",
+            "preview": "showPreview",
+            "previewSrc": "previewImage",
+            "nameHidden": "nameHidden",
+            "width": "width",
+            "height": "height"
+          },
+          "events": {
+            "remove": "onRemove",
+            "retry": "onRetry"
+          },
+          "notes": "A value in the `attachments` list, identified by `id`. Passed only while the product gives the File items."
+        }
+      },
+      "notes": "Planned. `TanreiChatComposer(controller: controller, semanticLabel: \"Message\", onSend: (message) { … }, leading: [ … ], trailing: [ … ])`: a widget that draws the capsule itself (a `DecoratedBox` whose radius is the lesser of the token and half the one-line height) and holds `TanreiEmbeddedTextInput`, `TanreiFilePicker`, `TanreiFileItem`s in a `Wrap`, and `TanreiButton`. `value` is the `TextEditingController`; `disabled` is the inverse flag `enabled`. `sendKey` sets the embedded text input's `enterKey`, and its `onAction` is the request to send (ETI-6); `controller.value.composing` valid is the composition of CCM-13. The focused edge follows the typing area's `FocusNode`. The framework has no picker and no drop target for files: `onPick` and the controller's `dragEntered / dragExited / dropped(files)` are the file picker's, as its notes say. A kept image's picture is the File item's to draw, from the file it is given (FIT-7). Keeping the composer above the keyboard is the screen's: a `Scaffold` that resizes for the inset, or `MediaQuery.viewInsetsOf`. No form."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "ChatComposer",
+      "props": {
+        "value": "value",
+        "label": "accessibilityLabel",
+        "placeholder": "placeholder",
+        "layout": "layout",
+        "minRows": "minRows",
+        "maxRows": "maxRows",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "sendKey": "sendKey",
+        "attachments": "attachments",
+        "attachmentForm": "attachmentForm",
+        "multiple": "multiple",
+        "accept": "accept",
+        "maxSize": "maxSize",
+        "maxFiles": "maxFiles",
+        "sending": "sending",
+        "stoppable": "stoppable",
+        "blocked": "blocked",
+        "keepAfterSend": "keepAfterSend",
+        "disabled": "disabled",
+        "error": "error",
+        "sendLabel": "sendAccessibilityLabel",
+        "stopLabel": "stopAccessibilityLabel",
+        "attachLabel": "attachAccessibilityLabel",
+        "removeLabel": "removeAccessibilityLabel",
+        "retryLabel": "retryAccessibilityLabel",
+        "typeErrorText": "typeErrorText",
+        "sizeErrorText": "sizeErrorText",
+        "countErrorText": "countErrorText",
+        "announcement": "announcement"
+      },
+      "events": {
+        "input": "onChangeText",
+        "send": "onSend",
+        "stop": "onStop",
+        "sendableChange": "onSendableChange",
+        "sendBlocked": "onSendBlocked",
+        "select": "onSelect",
+        "reject": "onReject",
+        "attachmentsChange": "onAttachmentsChange"
+      },
+      "items": {
+        "file": {
+          "name": "FileItem",
+          "props": {
+            "value": "value",
+            "name": "name",
+            "sizeText": "sizeText",
+            "status": "status",
+            "statusText": "statusText",
+            "progress": "progress",
+            "errorText": "errorText",
+            "retryable": "retryable",
+            "form": "form",
+            "preview": "preview",
+            "previewSrc": "previewSource",
+            "nameHidden": "nameHidden",
+            "width": "width",
+            "height": "height"
+          },
+          "events": {
+            "remove": "onRemove",
+            "retry": "onRetry"
+          },
+          "notes": "An object in the `attachments` array, identified by `id`. Passed only while the product gives the File items."
+        }
+      },
+      "notes": "Planned. `<ChatComposer value={text} onChangeText={setText} accessibilityLabel=\"Message\" onSend={({ value, attachments }) => …} leading={…} trailing={…} />`: a component that draws the capsule itself (a `View` whose `borderRadius` is the lesser of the token and half the one-line height) and holds `EmbeddedTextInput`, `FilePicker`, `FileItem`s in a wrapping row, and `Button`. `sendKey` sets the embedded text input's `enterKey`, and its `onAction` is the request to send (ETI-6); React Native gives JavaScript no signal that a composition is in progress, so how CCM-13 is held there is to be found when the platform is built, and until then the platform is to send with the send button alone. The focused edge follows the typing area's `onFocus` and `onBlur`. `onPick` is the product's function that opens its picker, as the file picker's notes say; no drop of files on phones. A kept image's picture is the File item's to draw, from the file it is given (FIT-7). A ref holds `files`, `add(files)` and `clear()`. Keeping the composer above the keyboard is the screen's: `KeyboardAvoidingView` or the product's own. No form."
+    }
+  }
+}

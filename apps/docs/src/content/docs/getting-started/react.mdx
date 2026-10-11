@@ -1,0 +1,69 @@
+---
+title: React
+description: Typed React components generated from Tanrei's Web Components.
+---
+
+import Callout from '../../../components/Callout.astro';
+import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+
+`@tanrei/react` wraps each custom element from `@tanrei/web` in a real React component with typed props and event handlers. The wrappers are generated from the custom elements manifest, so they always match the elements they wrap.
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+
+## Install
+
+React 18 or later is required.
+
+### From source
+
+As for the [Web package](/getting-started/web/) (Git, Node 22.12 or later, pnpm 12): build both packages in a clone of the repository and pack them,
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/web --filter @tanrei/react build
+pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanrei-packages
+```
+
+then install both packed files in your project with one command, so that the React package finds the Web package beside it:
+
+```sh
+npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
+```
+
+### After the first release
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
+## Use
+
+```tsx
+import '@tanrei/web/tokens.css';
+import { Button } from '@tanrei/react';
+
+export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
+  return (
+    <>
+      <Button variant="filled" onClick={onDeploy}>
+        Deploy
+      </Button>
+      <Button variant="text" size="small" disabled>
+        Roll back
+      </Button>
+    </>
+  );
+}
+```
+
+Props carry the same names as the element's attributes (`variant`, `size`, `disabled`). Events are ordinary React handlers.
+
+## Server rendering
+
+The components render a custom element tag on the server and upgrade in the browser. In frameworks with a server/client split, import `@tanrei/react` from a client component so the element definitions are registered in the browser.
+
+<Callout>
+  Theme, contrast, tokens and fonts work exactly as described in the [Web guide](/getting-started/web/); the React package adds nothing of its own on top.
+</Callout>

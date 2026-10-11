@@ -1,0 +1,106 @@
+---
+import { tokensIn, dimension, bezier, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import SourceNote from '../SourceNote.astro';
+import Table from '../Table.astro';
+
+interface Props {
+  part: 'duration' | 'easing' | 'spring';
+}
+const { part } = Astro.props;
+const t = strings(contentLang(Astro));
+const tokens = tokensIn(`${ns}.sys.motion.${part}`);
+const durations = part === 'duration' ? [...tokens].sort((a, b) => a.value.value - b.value.value) : [];
+const maxDuration = Math.max(1, ...durations.map((tk) => tk.value.value));
+
+// Springs: one row per scheme/speed-kind with its four sub-tokens.
+const springs = new Map<string, Record<string, (typeof tokens)[number]>>();
+if (part === 'spring') {
+  for (const tk of tokens) {
+    const key = tk.path.slice(4, -1).join('.');
+    springs.set(key, { ...(springs.get(key) ?? {}), [tk.path.at(-1)!]: tk });
+  }
+}
+// cubic-bezier → SVG path in a 0..1 box (y flipped; overshoot allowed).
+const curve = ([x1, y1, x2, y2]: number[]) => `M0,40 C${x1 * 40},${40 - y1 * 40} ${x2 * 40},${40 - y2 * 40} 40,0`;
+---
+
+{part === 'duration' && (
+  <Table label={`${ns}.sys.motion.duration`}><table>
+    <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">{t.value}</th><th scope="col" data-wrap="false">{t.preview}</th></tr></thead>
+    <tbody>
+      {durations.map((tk) => (
+        <tr>
+          <td data-wrap="false"><code>{tk.cssVar}</code></td>
+          <td class="docs-mono" data-wrap="false">{dimension(tk.value)}</td>
+          <td class="bar-cell"><span class="bar" style={`inline-size:${(tk.value.value / maxDuration) * 100}%`} /></td>
+        </tr>
+      ))}
+    </tbody>
+  </table></Table>
+)}
+
+{part === 'easing' && (
+  <Table label={`${ns}.sys.motion.easing`}><table>
+    <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">{t.value}</th><th scope="col" data-wrap="false">{t.curve}</th></tr></thead>
+    <tbody>
+      {tokens.map((tk) => (
+        <tr>
+          <td data-wrap="false"><code>{tk.cssVar}</code></td>
+          <td class="docs-mono" data-wrap="false">{bezier(tk.value)}</td>
+          <td><svg viewBox="-2 -14 44 68" width="44" height="68" aria-hidden="true"><path d="M0,40 L40,40 M0,40 L0,0" class="axis" /><path d={curve(tk.value)} class="curve" /></svg></td>
+        </tr>
+      ))}
+    </tbody>
+  </table></Table>
+)}
+
+{part === 'spring' && (
+  <Table label={`${ns}.sys.motion.spring`} stickyFirstColumn><table>
+    <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">stiffness</th><th scope="col" data-wrap="false">damping</th><th scope="col" data-wrap="false">duration</th><th scope="col" data-wrap="false">easing</th><th scope="col" data-wrap="false">{t.curve}</th></tr></thead>
+    <tbody>
+      {[...springs.entries()].map(([key, parts]) => (
+        <tr>
+          <td data-wrap="false"><code>{`${ns}.sys.motion.spring.${key}`}</code></td>
+          <td class="docs-mono" data-wrap="false">{parts.stiffness?.value}</td>
+          <td class="docs-mono" data-wrap="false">{parts.damping?.value}</td>
+          <td class="docs-mono" data-wrap="false">{parts.duration && dimension(parts.duration.value)}</td>
+          <td class="docs-mono" data-wrap="false">{parts.easing && bezier(parts.easing.value)}</td>
+          <td>{parts.easing && (<svg viewBox="-2 -34 44 88" width="44" height="88" aria-hidden="true"><path d="M0,40 L40,40 M0,40 L0,0" class="axis" /><path d={curve(parts.easing.value)} class="curve" /></svg>)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table></Table>
+)}
+<SourceNote files={[`design/tokens/${ns}.light.tokens.json`, 'tokens/sys/motion.tokens.json']} />
+
+<style>
+  .bar-cell {
+    inline-size: 12rem;
+    min-inline-size: 8rem;
+  }
+  /* The bar is centred on its cell's one line. */
+  .bar {
+    display: block;
+    block-size: 0.375rem;
+    margin-block: calc((1lh - 0.375rem) / 2);
+    min-inline-size: 2px;
+    border-radius: var(--tanrei-sys-shape-corner-full);
+    background: var(--tanrei-sys-color-on-surface);
+  }
+  svg {
+    display: block;
+    overflow: visible;
+  }
+  .axis {
+    fill: none;
+    stroke: var(--tanrei-sys-color-outline-variant);
+    stroke-width: 1;
+  }
+  .curve {
+    fill: none;
+    stroke: var(--tanrei-sys-color-on-surface);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+</style>

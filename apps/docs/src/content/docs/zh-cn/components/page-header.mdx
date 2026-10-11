@@ -1,0 +1,201 @@
+---
+title: "页头"
+description: "页面内容的开头部分。页面的标题作为标题元素，配有一句说明页面是什么的话、一行关于页面的信息、针对整个页面的操作，上方还有返回上级的途径。"
+translationOf: components/page-header.mdx
+sourceHash: a12c67657bb297bfa5b88a1a2b72e252c99db227
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="page-header" />
+
+<DemoFrame label="带有全部部件的页头" plain column>
+  <tanrei-page-header class="not-content" divider style="inline-size: 100%">
+    <div data-part="breadcrumbs"><a class="tanrei-link" data-standalone href="#概览">指南</a></div>
+    <p data-part="eyebrow">设计系统</p>
+    <h3>把设计系统作为一个层来添加</h3>
+    <p>层可以改变取值，也可以扩展词汇。它绝不会分叉出另一个组件。</p>
+    <div data-part="meta">
+      <time datetime="2026-10-07">2026 年 10 月 7 日</time>
+      <span>Tanrei 团队</span>
+      <span>阅读约 8 分钟</span>
+    </div>
+    <div data-part="actions">
+      <tanrei-button variant="outlined">编辑</tanrei-button>
+      <tanrei-button variant="filled">分享</tanrei-button>
+    </div>
+  </tanrei-page-header>
+</DemoFrame>
+
+页头是页面内容的开头。它包含页面的标题、一两句说明页面是什么的话、一行简短的信息、针对整个页面的操作，上方还有返回上级的途径。除标题以外，每个部件都是可选的。
+
+它不是应用栏。应用栏是窗口的栏：它留在顶边，容纳产品的名称和图标按钮。页头位于内容之中，随内容一起滚走，容纳的是带标签的 Button。
+
+在 Web 上，它是包在页面自己的元素外面的 `<tanrei-page-header>`。这个元素没有 shadow root。标题就是你自己的 `h1`：爬虫、阅读模式和不运行脚本的页面都能找到它，脚本到达时也不会有任何东西移动。其他平台尚未实现。
+
+（本页的示例使用 3 级标题，因为本页已经有自己的标题。）
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/page-header.css" />
+
+    <tanrei-page-header>
+      <p data-part="eyebrow">公告</p>
+      <h1>令牌由推导而来，设计系统是一个个层</h1>
+      <p>一个值只在一处改动，建立在它之上的一切随之改变。</p>
+      <div data-part="meta">
+        <time datetime="2026-09-20">2026 年 9 月 20 日</time>
+        <span>Tanrei 团队</span>
+        <span>阅读约 4 分钟</span>
+      </div>
+      <div data-part="actions">
+        <tanrei-button variant="outlined">编辑</tanrei-button>
+        <tanrei-button>分享</tanrei-button>
+      </div>
+    </tanrei-page-header>
+
+    <script type="module">
+      import '@tanrei/web/components/page-header';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, PageHeader } from '@tanrei/react';
+    import '@tanrei/web/page-header.css';
+
+    <PageHeader divider>
+      <h1>{project.name}</h1>
+      <p>{project.summary}</p>
+      <div data-part="actions">
+        <Button onClick={invite}>邀请</Button>
+      </div>
+    </PageHeader>
+    ```
+  </TabItem>
+</Tabs>
+
+### 你要写的内容
+
+请按阅读的顺序书写各个部件。在任何宽度下，这个顺序同时也是焦点顺序。
+
+| 部件 | 在 Web 上 |
+| --- | --- |
+| 面包屑导航 | `<tanrei-breadcrumbs>`，或者包着一个返回用的 Link 或你自己的路径的 `<div data-part="breadcrumbs">`。 |
+| 眉标 | `<p data-part="eyebrow">`。按平常的写法书写；大写字母是绘制时加上的。 |
+| 标题 | 标题元素：页面用 `h1`，页面的一部分用 `h2`，或者采用你的大纲所需要的级别。 |
+| 描述 | 第一个不带 `data-part` 的 `<p>`。 |
+| 元信息 | `<div data-part="meta">`。每个子元素是一项：一个 `<time>`、一个 `<span>`、一个 Link、一个 Tag。 |
+| 操作 | 包着你的 Button 和 Link 的 `<div data-part="actions">`。 |
+
+### 由脚本构建的页头
+
+子元素中没有相应的元素时，`headline`、`description` 和 `eyebrow` 会替你写出这些元素。`level` 设置标题的级别；0（默认）表示由尺寸决定。
+
+```html
+<tanrei-page-header headline="成员" description="可以打开此项目的人。"></tanrei-page-header>
+```
+
+这种形式要等脚本运行之后才会画出来。在内容页面上，请自己书写这些元素。
+
+## 规格
+
+<DemoFrame label="三种尺寸" plain column>
+  <div class="not-content" style="display: grid; gap: 1.5rem; inline-size: 100%">
+    <tanrei-page-header size="small"><h4>成员</h4><p>可以打开此项目的人。</p></tanrei-page-header>
+    <tanrei-page-header><h3>字体排印</h3><p>文本样式按层级命名，绝不按尺寸命名。</p></tanrei-page-header>
+    <tanrei-page-header size="large"><h3>一套系统，五个平台。</h3><p>同样的令牌、同样的组件和同样的无障碍契约，各以自己的惯用方式呈现。</p></tanrei-page-header>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="page-header" />
+
+## 指南
+
+### 三种尺寸
+
+| `size` | 标题 | 描述 | 用于 | 标题级别 |
+| --- | --- | --- | --- | --- |
+| `small` | 24 | 14 | 页面的一部分：设置中的一个分区、多条记录中的一条。 | 2 |
+| `medium`（默认） | 32 | 16 | 一个页面。 | 1 |
+| `large` | 48 | 16 | 落地页的主标语。 | 1 |
+
+大号页头放在狭窄的地方时，绘制的是中号的标题。这是一级跳变，而不是随宽度连续变化的尺寸。
+
+### 标题
+
+- 标题就是页面的标题元素。它以文本的形式显示一次，绝不会被截断、限制行数或缩小以适应空间。标题长，付出的是高度，而不是文字。
+- 一个页面只有一个 1 级标题，就是这个标题。页面的各个部分，请使用 `small` 页头或内容里的标题。
+- 不要在应用栏和页头里显示同一个标题。每种窗口类别下只选其中一处。
+
+### 眉标和面包屑导航
+
+- 面包屑导航沿着层级结构带用户返回上级。它排在最前面，占满页头的整个宽度。
+- 眉标说明页面属于什么：一个类别、一个产品、一个版本。它是文本，不是链接，也不是标题元素。
+- 一个页头可以两者都有。
+
+### 元信息行
+
+- 一项是一条不需要名称的简短信息：日期、作者、阅读时间、状态。
+- 同一行上的两项之间，页头会画一个小圆点。不要自己写分隔符。
+- 一项在它所在的行里保持完整。一行排满了就换行。
+- 作者是一项：一个装饰性的小头像加上姓名。
+- 多个 Tag 是一项，由这一项容纳整组 Tag，所以两个 Tag 之间不画圆点。
+- 带名称的信息（“类别：操作”）属于页头下方的[描述列表](/zh-cn/components/description-list/)，不是元信息项。
+
+### 操作
+
+| `actionsPlacement` | 页头宽度不小于 480 时 | 页头更窄时 |
+| --- | --- | --- |
+| `end`（默认） | 位于标题旁边的末尾边，与标题的第一行居中对齐。 | 位于文本下方的起始边。 |
+| `below` | 位于文本下方。 | 位于文本下方。 |
+
+- 起决定作用的是页头自己的宽度，不是窗口的宽度。窗格里的页头按这个窗格来排布自己。
+- 无论画在哪里，操作在阅读顺序和焦点顺序中始终排在最后。
+- 使用一到三个操作，主要的那个用 filled。
+
+### 下方的线
+
+`divider` 在页头下方画一条细线。页头下面是非文本内容时使用它，例如表格、记录列表或标签页。在文章上方则不需要。
+
+### 推荐
+
+- 把描述写成一两句话。更长的文本属于内容。
+- 日期请用 `<time>` 元素，并带上机器可读的 `datetime`。
+- 给其他语言的文本设置 `lang`。在中文、日文和韩文里，以及在字母相连或在字母上叠加符号的文字（阿拉伯文、天城文）里，标题和眉标以零字距绘制：在这些文字里，字母之间无论拉开还是收紧，词都会散开。
+
+### 避免
+
+- 不要把页头当作窗口的栏。那是[应用栏](/zh-cn/components/app-bar/)。
+- 不要用全大写书写眉标。有些屏幕阅读器会把大写字母逐个读出来。
+- 不要只靠颜色表示状态。请使用标签文字能说明状态的 Tag。
+
+## 无障碍
+
+<ComponentAccessibility name="page-header" />
+
+### 组件负责的部分
+
+- 标题仍然是你写的那个标题元素，级别不变。它的名称只是标题的文本。
+- 眉标在标题之前朗读，描述在标题之后朗读。两者都不是标题的一部分。
+- 元信息各项之间的圆点不会被朗读，也不会被复制。
+- 页头不增加地标，也不是键盘的停靠点。
+- 在任何宽度下，阅读顺序和焦点顺序都相同。
+- 在宽 320 的地方把文本放大到 200% 时，每个字、每一项和每个操作都会显示，没有任何内容需要横向滚动。
+- 在强制颜色模式下，文本、圆点和线以系统的文本颜色绘制。
+- 在从右到左的布局中，每个部件都从右侧开始，位于文本旁边的操作则在左侧。从左到右书写的标题保持自己的顺序。
+
+### 需要你做的事
+
+- 每个页面一个 1 级标题。
+- 文档的标题应当就是页面的标题，或者以页面的标题开头。
+- 为你的操作命名，并为你放进页头的任何图片提供替代文本。

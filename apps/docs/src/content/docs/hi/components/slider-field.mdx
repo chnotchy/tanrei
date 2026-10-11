@@ -1,0 +1,222 @@
+---
+title: स्लाइडर फ़ील्ड
+description: लोगों को किसी स्केल पर एक मान, या मानों की रेंज, चुनने देता है, एक पूरे फ़ील्ड के रूप में — लेबल के नीचे ट्रैक, लेबल की पंक्ति के अंत में शब्दों में मान, सहायता की एक पंक्ति, और वह कारण जिससे कोई मान माना नहीं गया।
+translationOf: components/slider-field.mdx
+sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="slider-field" />
+
+<DemoFrame label="एक स्लाइडर फ़ील्ड, एक स्टेप वाला, और एक रेंज" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="टेक्स्ट का साइज़" min="50" max="200" step="10" value="120"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="क़ीमत" supporting-text="प्रति रात, टैक्स से पहले।" range min="0" max="500" step="10" start-value="100" value="300" start-label="न्यूनतम क़ीमत" end-label="अधिकतम क़ीमत"></tanrei-slider-field>
+</DemoFrame>
+
+स्लाइडर फ़ील्ड उस मान के लिए इस्तेमाल करें जो अंदाज़ से चुना जाता है और शब्दों में वापस पढ़ा जाता है: 120 % का टेक्स्ट साइज़, 5 km की दूरी, $100 से $300 तक की क़ीमत। अकेले स्लाइडर का कोई दिखने वाला लेबल नहीं होता, और उसका ट्रैक यह नहीं बताता कि वह किस मान पर सेट है। स्लाइडर फ़ील्ड आम स्थिति के लिए है, इस्तेमाल के लिए तैयार: एक लेबल, शब्दों में मान, ट्रैक, सहायता की एक पंक्ति और त्रुटि।
+
+**किनसे बना है:** एक [फ़ील्ड](/hi/components/field/) और एक [स्लाइडर](/hi/components/slider/) से। फ़ील्ड फ़्रेम है: लेबल, ज़रूरी या वैकल्पिक का निशान, लेबल की पंक्ति के अंत में मान टेक्स्ट, सहायता और त्रुटि। स्लाइडर कंट्रोल है: ट्रैक, हैंडल और वह सब जो व्यक्ति उनके साथ करता है। स्लाइडर फ़ील्ड अपना कुछ नहीं बनाता और उसका कोई टोकन नहीं है: उसकी हर प्रॉपर्टी इन दोनों में से किसी एक की प्रॉपर्टी है, जो उसी को बिना बदले दे दी जाती है; अपवाद सिर्फ़ `valueHidden` है, जो उसकी अपनी है।
+
+यह उतना ही चौड़ा है जितनी वह जगह जिसमें इसे रखा गया है, और इसका ट्रैक उसे पूरा भरता है।
+
+वेब पर यह `<tanrei-slider-field>` है। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
+
+### इस्तेमाल
+
+`value` हैंडल का मान है, और रेंज में अंतिम हैंडल का; `startValue` रेंज का शुरुआती हैंडल है। दोनों इवेंट स्लाइडर के अपने हैं: `input` व्यक्ति के ड्रैग करते समय हर बदलाव पर, और `change` एक बार, जब बदलाव पूरा हो जाता है। जब इनमें से कोई सुना जाता है, तब फ़ील्ड के `value` और `startValue` में नए मान आ चुके होते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-slider-field name="text-size" label="टेक्स्ट का साइज़"
+        supporting-text="हर पेज पर लागू होता है।"
+        min="50" max="200" step="10" value="120"></tanrei-slider-field>
+
+      <!-- रेंज एक ही नाम से पहले start-value सबमिट करती है, फिर value। हर हैंडल को नाम दें। -->
+      <tanrei-slider-field name="price" label="क़ीमत" range
+        min="0" max="500" step="10" start-value="100" value="300"
+        start-label="न्यूनतम क़ीमत" end-label="अधिकतम क़ीमत"></tanrei-slider-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/slider-field';
+
+      // मान के शब्द, एक बार दिए गए: यह प्रॉपर्टी है, ऐट्रिब्यूट कभी नहीं।
+      const percent = new Intl.NumberFormat(document.documentElement.lang, { style: 'percent' });
+      const size = document.querySelector('[name="text-size"]');
+      size.formatValue = (value) => percent.format(value / 100);
+      size.addEventListener('input', () => applyTextSize(size.value));
+
+      const dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+      document.querySelector('[name="price"]').formatValue = (value) => dollars.format(value);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SliderField } from '@tanrei/react';
+
+    <SliderField name="text-size" label="टेक्स्ट का साइज़" supportingText="हर पेज पर लागू होता है।"
+      min={50} max={200} step={10} value={size}
+      formatValue={(value) => percent.format(value / 100)}
+      onInput={(event) => setSize(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### शब्दों में मान
+
+मान लेबल की पंक्ति के अंत में दिखाया जाता है, उन्हीं शब्दों में जो स्लाइडर अपने हैंडल को देता है: वही शब्द जो स्क्रीन रीडर सुनाता है और मान इंडिकेटर दिखाता है। वे इस क्रम में तय होते हैं:
+
+| शब्द | कब |
+| --- | --- |
+| `valueText`, और रेंज के शुरुआती हैंडल के लिए `startValueText` | शब्द आप ख़ुद लिखते हैं, और हर `input` पर दोबारा लिखते हैं। |
+| जो `formatValue` लिखता है | आप एक फ़ंक्शन एक बार देते हैं, जो मान से उसके शब्द बनाता है। स्लाइडर हर बदलाव पर हर हैंडल के लिए उससे शब्द माँगता है। |
+| पेज के लोकेल में संख्या | दोनों में से कुछ नहीं दिया गया। |
+
+रेंज के दोनों मान एक एन डैश से जोड़े जाते हैं, पढ़ने के क्रम में: दाएँ से बाएँ वाले लेआउट में शुरुआत के शब्द दाईं ओर रहते हैं, जहाँ शुरुआती हैंडल है। स्लाइडर फ़ील्ड ख़ुद कोई संख्या, इकाई या शब्द नहीं लिखता।
+
+<DemoFrame label="एक मान टेक्स्ट जो लेबल की पंक्ति में ही रहता है, एक जो अपनी अलग पंक्ति लेता है, और एक फ़ील्ड जो उसे छिपाता है" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" value="40" value-indicator="active"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="टैक्स से पहले की सालाना आय" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="सबसे कम सालाना आय" end-label="सबसे ज़्यादा सालाना आय"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="ब्राइटनेस" value="70" value-hidden></tanrei-slider-field>
+</DemoFrame>
+
+मान टेक्स्ट लेबल की पहली पंक्ति की बेसलाइन पर रहता है, और लेबल बची हुई जगह में रैप होता है। जहाँ इससे लेबल के लिए पंक्ति के आधे से कम जगह बचे, वहाँ मान टेक्स्ट लेबल के बाद अपनी अलग पंक्ति लेता है, और ज़रूरत हो तो वहीं रैप होता है। `valueHidden` उसे हटा देता है, उस स्लाइडर के लिए जिसकी संख्या व्यक्ति के लिए कोई मतलब नहीं रखती: वॉल्यूम, ब्राइटनेस। हैंडल फिर भी सहायक तकनीक को अपना मान बताता है।
+
+### एक स्तर नीचे
+
+वही फ़ील्ड, अपने दोनों सदस्यों से हाथ से लिखा हुआ, वही तस्वीर है और सहायक तकनीक के लिए वही स्लाइडर:
+
+```html
+<tanrei-field label="टेक्स्ट का साइज़" supporting-text="हर पेज पर लागू होता है।" value-text="120 %">
+  <tanrei-slider name="text-size" min="50" max="200" step="10" value="120"></tanrei-slider>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const slider = field.querySelector('tanrei-slider');
+  slider.formatValue = (value) => percent.format(value / 100);
+  // जो स्लाइडर फ़ील्ड ख़ुद करता है: हर बदलाव पर फ़ील्ड का मान टेक्स्ट स्लाइडर का मान टेक्स्ट होता है।
+  slider.addEventListener('input', () => (field.valueText = slider.shownValueText));
+</script>
+```
+
+<DemoFrame label="वही फ़ील्ड हाथ से लिखा हुआ: एक फ़ील्ड, जिसके भीतर एक स्लाइडर है और जिसे मान टेक्स्ट एक बार दिया गया है — ऊपर के लिसनर के बिना वह सिंक में नहीं रहता" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="टेक्स्ट का साइज़" supporting-text="हर पेज पर लागू होता है।" value-text="120">
+    <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
+  </tanrei-field>
+</DemoFrame>
+
+एक स्तर नीचे तब जाएँ जब आपको ऐसी व्यवस्था चाहिए जो स्लाइडर फ़ील्ड नहीं देता:
+
+| आपको चाहिए | इस्तेमाल करें |
+| --- | --- |
+| लेबल, शब्दों में मान, ट्रैक, सहायता और त्रुटि | स्लाइडर फ़ील्ड |
+| ऐसा मान टेक्स्ट जो स्लाइडर नहीं कहता, जैसे कोई वाक्य या "कोई भी क़ीमत", या फ़्रेम के भीतर अपनी कोई चीज़ | एक [फ़ील्ड](/hi/components/field/), जिसके भीतर एक [स्लाइडर](/hi/components/slider/) है, और आपका अपना `value-text` |
+| सिर्फ़ ट्रैक, जिसे नाम कहीं और दिखाई गई कोई चीज़ देती है: टेबल का कॉलम, टूलबार का ग्लिफ़, प्लेयर का वॉल्यूम कंट्रोल | अकेला [स्लाइडर](/hi/components/slider/), जिसे नाम उसके अपने `label` से मिलता है |
+| खड़ा स्लाइडर | अकेला [स्लाइडर](/hi/components/slider/): स्लाइडर फ़ील्ड का कोई ओरिएंटेशन नहीं है |
+| ऐसा मान जो पहले से पता है और टाइप किया जाता है | [नंबर फ़ील्ड](/hi/components/number-field/), अकेला या स्लाइडर के बग़ल में |
+
+एक स्तर नीचे जो बदलता है, वह यह है कि कौन-सी बात कहाँ कही जाती है। `name`, `value` और `startValue` स्लाइडर पर होते हैं, जो तब वह कंट्रोल है जो फ़ॉर्म को मिलता है, और उसके इवेंट उसी पर सुने जाते हैं। `label` और `disabled` फ़ील्ड पर ही रहते हैं, जो उन्हें स्लाइडर तक पहुँचाता है। रेंज के अंतिम हैंडल को नाम स्लाइडर का अपना `label` देता है, जिसे स्लाइडर फ़ील्ड `endLabel` कहता है।
+
+## स्पेक
+
+<DemoFrame label="प्रॉडक्ट के शब्द के साथ ज़रूरी, वैकल्पिक, त्रुटि में और अक्षम" plain column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="required" required-text="ज़रूरी" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" requirement="optional" optional-text="वैकल्पिक" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" error error-text="0 से ऊपर का स्तर चुनें।" value="0"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="वॉल्यूम" supporting-text="अलर्ट और मीडिया पर लागू होता है।" disabled value="40"></tanrei-slider-field>
+</DemoFrame>
+
+### हर सदस्य क्या देता है
+
+| पहलू | फ़ील्ड से | स्लाइडर से |
+| --- | --- | --- |
+| प्रॉपर्टी | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel`, और `endLabel`, जो स्लाइडर का `label` है |
+| इवेंट | — | `input`, `change` |
+| स्लॉट | `label-icon` | — |
+| टोकन | `comp.field.*` | `comp.slider.*` |
+
+एक प्रॉपर्टी स्लाइडर फ़ील्ड की अपनी है: `valueHidden`। और फ़ील्ड की एक प्रॉपर्टी स्लाइडर फ़ील्ड ख़ुद भरता है, और उसे सेट करना आपका काम नहीं है: फ़ील्ड का `valueText`, जो स्लाइडर के शब्दों से आता है।
+
+स्लाइडर के अपने `disabled` और `orientation` होते हैं। दोनों में से कोई स्लाइडर फ़ील्ड की प्रॉपर्टी नहीं है: फ़ील्ड का `disabled` स्लाइडर को अक्षम करता है, ताकि लेबल और मान टेक्स्ट भी साथ बदलें, और ट्रैक हमेशा इनलाइन दिशा में चलता है: स्लाइडर फ़ील्ड का कोई खड़ा ओरिएंटेशन नहीं होता।
+
+स्लाइडर में हमेशा कोई मान होता है, इसलिए यहाँ `requirement` का मतलब "ख़ाली नहीं" नहीं है। जो फ़ॉर्म हर कंट्रोल को ज़रूरी या वैकल्पिक के रूप में चिह्नित करता है, वह इसे भी करता है; वह क्या नहीं मानता, जैसे 0 का स्तर या बहुत सँकरी रेंज, यह `error` और `errorText` से बताना आपका काम है। त्रुटि ट्रैक में कुछ नहीं बदलती: उसे शब्द और अमान्य स्टेट बताते हैं।
+
+हैंडल क्या करते हैं, यानी ड्रैग करना, कुंजियाँ, स्टेप, मान इंडिकेटर, यह [स्लाइडर के पेज](/hi/components/slider/) पर है। फ़्रेम क्या करता है, यानी ज़रूरी का निशान, मान टेक्स्ट, सहायता, त्रुटि और वह कैसे पढ़कर सुनाई जाती है, यह [फ़ील्ड के पेज](/hi/components/field/) पर है।
+
+### किसी एक फ़ील्ड को अलग करना
+
+स्लाइडर फ़ील्ड का अपना कोई टोकन नहीं है। उसका फ़्रेम फ़ील्ड के टोकन पढ़ता है, और उसका ट्रैक स्लाइडर के, वे जहाँ भी सेट हों। किसी एक इंस्टेंस को बदलने के लिए, उस पर सदस्य का टोकन सेट करें:
+
+```html
+<tanrei-slider-field label="वॉल्यूम" value="40"
+  style="--tanrei-comp-field-standard-value-text-color: var(--tanrei-sys-color-on-surface)"></tanrei-slider-field>
+```
+
+<ComponentSpecs name="slider-field" />
+
+### वेब क्या अलग ढंग से बनाता है
+
+- एलिमेंट के शैडो रूट में एक `<tanrei-field>` रहता है, जिसके भीतर एक `<tanrei-slider>` है, और कुछ नहीं। एलिमेंट को इंपोर्ट करने से दोनों डिफ़ाइन हो जाते हैं।
+- यह फ़ॉर्म से जुड़ा एलिमेंट है। वह `name` और `form` लेता है, मान सबमिट करता है (रेंज में एक ही नाम से पहले शुरुआती मान, फिर मान; अक्षम रहते कुछ नहीं), रीसेट होने पर `value` और `start-value` ऐट्रिब्यूट पर लौटता है, और अक्षम `<fieldset>` के साथ अक्षम होता है। उसके दोनों सदस्य फ़ॉर्म में कोई एंट्री नहीं जोड़ते।
+- `input` और `change` स्लाइडर के CustomEvent हैं, जिनके साथ `detail.value` आता है (और रेंज के लिए `detail.startValue`)। इनका टार्गेट यही एलिमेंट है, और हर लिसनर में `event.target.value` नया मान होता है।
+- `formatValue` प्रॉपर्टी है, ऐट्रिब्यूट कभी नहीं: `(value: number) => string`, या `null`।
+- रेंज के दोनों मान टेक्स्ट, फ़ील्ड के `value-text` के एक ही टेक्स्ट में लिखे जाते हैं, बीच में एन डैश के साथ। हर एक अपनी दिशा वाला अलग टुकड़ा है, यानी फ़र्स्ट-स्ट्रॉन्ग आइसोलेट U+2068 और U+2069 के भीतर रखा हुआ, जब तक वह "$100" या "3,400,000" जैसी सादी संख्या न हो, जो दोनों दिशाओं में पहले से एक ही बाएँ से दाएँ वाला टुकड़ा है और जैसी है वैसी लिखी जाती है।
+- भाग: `field` और `slider` दोनों सदस्य हैं। उनके अपने भागों के नाम यहाँ वही हैं जो एक स्तर नीचे हैं: `label`, `label-icon`, `requirement-label`, `value-text`, `supporting-text`; `track`, `active-track`, `stop-indicator`, `container`, `handle`, `value-indicator`।
+- एलिमेंट पर ख़ुद फ़ोकस नहीं जा सकता: `focus()` हैंडल पर जाता है, रेंज में शुरुआती हैंडल पर, और पेज का अपना `<label for>` फ़ोकस वहीं ले जाता है।
+- एलिमेंट का कोई रोल नहीं है। उसे `label` से नाम दें, और जहाँ लेबल कहीं और दिखाया गया है वहाँ साथ में `label-hidden` दें। उसे `aria-label` से कभी नाम न दें, जो यहाँ किसी चीज़ को नाम नहीं देता।
+- ऐट्रिब्यूट सदस्यों के अपने हैं: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `start-value`, `value-indicator`, `value-text`, `start-value-text`, `start-label`; और `end-label`, `value-hidden`।
+- एलिमेंट के डिफ़ाइन होने से पहले उसका कोई साइज़ नहीं होता और वह सिर्फ़ `label-icon` वाला चाइल्ड दिखाता है। जिस पेज को स्क्रिप्ट के बिना काम करना है, वह सादे `<input type="range">` के चारों ओर एक `<label>` इस्तेमाल करता है।
+
+## दिशानिर्देश
+
+### करें
+
+- जहाँ अकेली संख्या साफ़ नहीं होगी, वहाँ मान के शब्द `formatValue` से दें: प्रतिशत, मुद्रा, इकाई।
+- रेंज के दोनों हैंडल को `startLabel` और `endLabel` से नाम दें, ऐसे शब्दों में जिनमें `label` के शब्द हों: "क़ीमत" के नीचे "न्यूनतम क़ीमत", "अधिकतम क़ीमत"।
+- मान से क्या बदलता है, यह `supportingText` में बताएँ, जहाँ लेबल यह नहीं बताता।
+- क्या नहीं माना गया, यह शब्दों में बताएँ, `error` और `errorText` से।
+- `valueHidden` उस मान के लिए इस्तेमाल करें जो अंदाज़ से सेट किया जाता है और जिसकी संख्या व्यक्ति को कुछ नहीं बताती।
+
+### न करें
+
+- जिस स्लाइडर को व्यक्ति चला सकता है, उसके लिए मार्कअप में `valueText` एक बार न लिखें: पहले ड्रैग के बाद शब्द ग़लत हो जाएँगे। `formatValue` दें, या हर `input` पर `valueText` दोबारा लिखें।
+- स्लाइडर फ़ील्ड को फ़ील्ड के भीतर न रखें। वह पहले से एक फ़ील्ड है; डीबग बिल्ड यह बताता है।
+- उसे `aria-label` से नाम न दें। जहाँ कोई लेबल नहीं दिखाना है, वहाँ `label` और `labelHidden` दें।
+- मान दिखाने के लिए `valueIndicator="always"` इस्तेमाल न करें: यह काम मान टेक्स्ट करता है, और इंडिकेटर लेबल की पंक्ति के ऊपर आ जाएगा।
+- जिस मान को बिलकुल सटीक होना है, उसके लिए स्लाइडर फ़ील्ड इस्तेमाल न करें। [नंबर फ़ील्ड](/hi/components/number-field/) इस्तेमाल करें, अकेला या इसके बग़ल में।
+
+## सुलभता
+
+<ComponentAccessibility name="slider-field" />
+
+### कंपोनेंट क्या सँभालता है
+
+- हर हैंडल एक स्लाइडर है। अकेले हैंडल का नाम `label` से आता है, चाहे वह दिखाया गया हो या नहीं; रेंज के दोनों हैंडल के नाम `startLabel` और `endLabel` से, और जहाँ कोई एक नहीं दिया गया वहाँ `label` से, जिसकी रिपोर्ट डीबग बिल्ड करता है।
+- हर हैंडल का विवरण दिखाया जा रहा सहायक या त्रुटि टेक्स्ट है, और जब तक फ़ील्ड वैकल्पिक है, उसके साथ वैकल्पिक का टेक्स्ट। जब तक `error` true है, वह अमान्य के रूप में दिया जाता है, और जब तक `disabled` true है, अक्षम के रूप में। वेब के slider रोल में ज़रूरी का कोई स्टेट नहीं है, इसलिए ज़रूरी स्लाइडर फ़ील्ड `requiredText` विवरण में कहता है।
+- हर हैंडल अपना मान शब्दों में बताता है। वही शब्द लेबल की पंक्ति के अंत में दिखाए जाते हैं, जहाँ वे सहायक तकनीक से छिपे रहते हैं, इसलिए मान एक ही बार पढ़ा जाता है।
+- दिखने वाला लेबल, ज़रूरी या वैकल्पिक का निशान और मान टेक्स्ट सहायक तकनीक को दूसरी बार नहीं दिए जाते, और मान टेक्स्ट का बदलना पढ़कर नहीं सुनाया जाता: हैंडल अपना मान ख़ुद बताता है।
+- फ़ोकस के क्रम में इसके पड़ाव स्लाइडर के हैंडल हैं, एक या रेंज के दो, और हर कुंजी स्लाइडर की है। लेबल की पंक्ति पर दबाने से फ़ोकस हैंडल पर आता है और कुछ नहीं बदलता; सहायता पर दबाने से कुछ नहीं होता।
+- अक्षम रहते हुए भी मान टेक्स्ट दिखता रहता है: अक्षम कंट्रोल किस मान पर सेट है, यह तब भी पढ़ा जाता है।
+- दिशा, बड़ा किया गया टेक्स्ट और फ़ोर्स्ड कलर्स, इन सबको हर सदस्य अपने ढंग से सँभालता है: दाएँ से बाएँ वाले लेआउट में फ़्रेम और ट्रैक साथ-साथ मिरर होते हैं और मान के शब्द अपना क्रम बनाए रखते हैं; 200% टेक्स्ट पर कुछ नहीं कटता और कुछ भी आड़ा स्क्रॉल नहीं होता।
+- इसके अपने कोई शब्द नहीं हैं। `requiredText` और `optionalText` ख़ाली छोड़े जाएँ तो फ़ील्ड उन्हें प्रॉडक्ट के शब्दों से पढ़ता है।
+
+वेब पर ज्ञात कमियाँ: एलिमेंट के डिफ़ाइन होने से पहले कुछ नहीं दिखता, और रेंज के दोनों हैंडल सहायक तकनीक को `label` के नाम वाले एक ग्रुप के रूप में नहीं दिए जाते।
+
+### आपको क्या करना है
+
+- `label` हमेशा दें, और रेंज के लिए `startLabel` और `endLabel` भी।
+- जहाँ अकेली संख्या समझ में नहीं आएगी, वहाँ मान के शब्द दें, और मान बदलते समय उन्हें सही रखें।
+- क्या नहीं माना गया, यह `errorText` से बताएँ। रंग कभी अकेला संकेत नहीं होता।
+- जहाँ व्यक्ति को सटीक मान दर्ज करना है, वहाँ स्लाइडर के बग़ल में एक नंबर फ़ील्ड दें: ड्रैग करना कभी हैंडल चलाने का अकेला तरीक़ा नहीं होता, पर वह मान टाइप करने का तरीक़ा फिर भी नहीं है।

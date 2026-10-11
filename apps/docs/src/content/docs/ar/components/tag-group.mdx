@@ -1,0 +1,215 @@
+---
+title: مجموعة الوسوم
+description: ترتّب مجموعة من الوسوم أو الرقاقات في أسطر تلتفّ، بتباعد يناسب ما تحمله، وتعرضها قائمةً واحدة لها اسم. تبقى الأعضاء على ما هي عليه، وبعد إزالة رقاقة ينتقل التركيز إلى التي تليها.
+translationOf: components/tag-group.mdx
+sourceHash: 8d6af56bf72c101aa98470342704cf2202d0d379
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="tag-group" />
+
+<DemoFrame label="مجموعة من الوسوم، ثم صف من عوامل التصفية" column>
+  <tanrei-tag-group class="not-content" label="الوسوم">
+    <tanrei-tag label="رموز التصميم"></tanrei-tag>
+    <tanrei-tag label="إمكانية الوصول"></tanrei-tag>
+    <tanrei-tag label="من اليمين إلى اليسار"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="عوامل التصفية">
+    <tanrei-chip kind="filter" label="مفتوحة" selected></tanrei-chip>
+    <tanrei-chip kind="filter" label="مسندة إليّ"></tanrei-chip>
+    <tanrei-chip kind="filter" label="تحتاج إلى مراجعة"></tanrei-chip>
+    <tanrei-chip kind="filter" label="متوقفة"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+[الوسم](/ar/components/tag/) و[الرقاقة](/ar/components/chip/) كل منهما شيء واحد. ومجموعة الوسوم هي ما يحمل عدة منها: وسوم مقال، أو عوامل التصفية فوق قائمة، أو بضعة اقتراحات تحت حقل. تضعها في أسطر تلتفّ، وتحفظ المسافة الصحيحة بينها، وتخبر التقنيات المساعدة بأنها قائمة واحدة.
+
+المجموعة لا ترسم شيئًا من عندها. ليست لها حاوية ولا حافة ولا حشو ولا تسمية مرئية. وكل عضو يُرسم ويُركَّز عليه ويُضغط تمامًا كما في أي مكان آخر.
+
+على الويب هي `<tanrei-tag-group>`. أما المنصات الأخرى فلم تنفّذها بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag-group label="الوسوم">
+      <tanrei-tag label="رموز التصميم"></tanrei-tag>
+      <tanrei-tag label="إمكانية الوصول"></tanrei-tag>
+    </tanrei-tag-group>
+
+    <!-- مجموعة الرقاقات تقول ذلك: أسطرها أكثر تباعدًا. -->
+    <tanrei-tag-group id="recipients" spacing="chips" label="المستلمون">
+      <tanrei-chip kind="input" label="Ada Lovelace" remove-label="إزالة Ada Lovelace"></tanrei-chip>
+      <tanrei-chip kind="input" label="Grace Hopper" remove-label="إزالة Grace Hopper"></tanrei-chip>
+    </tanrei-tag-group>
+
+    <script type="module">
+      import '@tanrei/web/components/tag-group';
+      import '@tanrei/web/components/tag';
+      import '@tanrei/web/components/chip';
+
+      const recipients = document.querySelector('#recipients');
+      // الرقاقة لا تزيل نفسها أبدًا. أنت تزيلها، والمجموعة تنقل التركيز إلى الرقاقة التالية.
+      recipients.addEventListener('remove', (event) => {
+        event.target.remove();
+        // حين تزول الأخيرة لا تجد المجموعة موضعًا تضع فيه التركيز. ضعه على عنصر التحكم الذي تتبعه المجموعة.
+        if (!recipients.children.length) document.querySelector('#add-recipient').focus();
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip, TagGroup } from '@tanrei/react';
+
+    <TagGroup spacing="chips" label="المستلمون">
+      {recipients.map((person) => (
+        <Chip key={person.id} kind="input" label={person.name} removeLabel={`إزالة ${person.name}`} onRemove={() => remove(person.id)} />
+      ))}
+    </TagGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="وسوم تلتفّ، ووسوم حالة، وروابط إلى صفحة كل وسم، وعناصر مُدخلة" plain column>
+  <tanrei-tag-group class="not-content" style="inline-size: 22rem; max-inline-size: 100%" label="الوسوم">
+    <tanrei-tag label="رموز التصميم"></tanrei-tag>
+    <tanrei-tag label="إمكانية الوصول"></tanrei-tag>
+    <tanrei-tag label="من اليمين إلى اليسار"></tanrei-tag>
+    <tanrei-tag label="الطباعة"></tanrei-tag>
+    <tanrei-tag label="اللون"></tanrei-tag>
+    <tanrei-tag label="الحركة"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" label="المنصات">
+    <tanrei-tag label="الويب: مستقر" status="success" size="small"></tanrei-tag>
+    <tanrei-tag label="منصة SwiftUI: بيتا" size="small"></tanrei-tag>
+    <tanrei-tag label="منصة Flutter: متأخرة" status="warning" variant="outlined" size="small"></tanrei-tag>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="الوسوم">
+    <tanrei-chip label="رموز التصميم" href="#المواصفات"></tanrei-chip>
+    <tanrei-chip label="إمكانية الوصول" href="#المواصفات"></tanrei-chip>
+    <tanrei-chip label="من اليمين إلى اليسار" href="#المواصفات"></tanrei-chip>
+  </tanrei-tag-group>
+  <tanrei-tag-group class="not-content" spacing="chips" label="المستلمون">
+    <tanrei-chip kind="input" label="Ada Lovelace" remove-label="إزالة Ada Lovelace"></tanrei-chip>
+    <tanrei-chip kind="input" label="Grace Hopper" remove-label="إزالة Grace Hopper"></tanrei-chip>
+    <tanrei-chip kind="input" label="Katherine Johnson" remove-label="إزالة Katherine Johnson"></tanrei-chip>
+  </tanrei-tag-group>
+</DemoFrame>
+
+<ComponentSpecs name="tag-group" />
+
+## الإرشادات
+
+### لأي شيء تُستخدم مجموعة الوسوم
+
+| المجموعة | استخدم |
+| --- | --- |
+| وسوم ثابتة: فئات مقال، القيم التي يقبلها إعداد، صف من الحالات | مجموعة وسوم. |
+| وسوم يقود كل منها إلى صفحته | مجموعة وسوم مع `spacing="chips"` من رقاقات لها `href`. الوسم نص ولا يمكن أن يكون رابطًا. |
+| عوامل تصفية فوق قائمة، اقتراحات تحت حقل، عناصر أدخلها الشخص | مجموعة وسوم مع `spacing="chips"`. |
+| إجراءان إلى أربعة إجراءات مختلفة | [مجموعة أزرار](/ar/components/button-group/). |
+| اختيار واحد من عدة | [مجموعة أزرار اختيار](/ar/components/radio-group/) أو [علامات تبويب](/ar/components/tabs/) أو [زر مقسَّم](/ar/components/segmented-button/). |
+| عناصر تحكم تحتاج إلى تسمية مرئية، وإلى ما يقول هل هي مطلوبة، وإلى خطأ | [مجموعة حقول](/ar/components/field-group/). |
+| قيم مُدخلة داخل حقل | ما للحقل نفسه. [مربع التحرير والسرد](/ar/components/combobox/) يرتّب رقاقاته بنفسه. |
+
+### التباعد
+
+الخاصية `spacing` تقول ما تحمله المجموعة، وتحدّد مسافتين: بين عضوين على سطر واحد، وبين سطرين.
+
+- القيمة `tags` (الافتراضية) للوسوم الثابتة. تتقارب الأسطر بقدر تقارب الوسوم على السطر، فتُقرأ المجموعة الملتفّة كتلةً واحدة.
+- القيمة `chips` للرقاقات. الرقاقة تستقبل الضغط خارج حافتها المرئية، إلى حدّ هدف اللمس. وتتباعد الأسطر بما يكفي لتحتفظ كل رقاقة متوسطة بذلك الهدف كاملًا، وحيث تتداخل مساحتا رقاقتين تلتقيان في منتصف الفجوة.
+
+مجموعة الرقاقات التي تُترك على `tags` تعمل مع ذلك. لكن أسطرها أقرب من ارتفاع هدف اللمس، وبنية التنقيح (debug) تقول ذلك.
+
+الرقاقات الصغيرة لموضع كثيف تقف فيه المجموعة على سطر واحد. وعلى الأسطر الملتفّة تلتقي أهداف اللمس الخاصة بها بين الأسطر قبل أن تبلغ حجمها الكامل. استخدم الرقاقات المتوسطة لمجموعة تلتفّ على شاشة لمس.
+
+يجوز لنظام تصميم أن يضيف قيمًا إلى `spacing`.
+
+### التخطيط
+
+- تقف الأعضاء بالترتيب الذي تعطيه. المجموعة لا تفرزها أبدًا ولا تقدّم رقاقة محدَّدة إلى الأمام.
+- العضو الذي لا يتسع له السطر ينتقل كاملًا إلى السطر التالي. لا يُقصّ شيء ولا يُصغَّر ولا يُخفى ولا يُمرَّر، وليس هناك «+3 أخرى». ولعرض عدد أقل، أعطِ المجموعة أعضاء أقل، واجعل آخرها رقاقة إجراء تعرض الباقي.
+- العضو الأعرض من المجموعة يأخذ عرض المجموعة ويقتطع تسميته بعلامة الحذف.
+- تبدأ الأعضاء من حافة البداية. ولوضعها في النهاية أو في وسط صف، ضع المجموعة بالتخطيط الذي حولها.
+- أعطِ كل الأعضاء الحجم نفسه. الأعضاء المختلفة الأحجام تُوسَّط على سطرها.
+- المجموعة التي بلا عضو لا ترسم شيئًا ولا تأخذ حيّزًا. فالمنشور الذي بلا وسوم لا يحتاج إلى معالجة خاصة.
+
+### التسمية
+
+الخاصية `label` تسمّي المجموعة للتقنيات المساعدة: «الوسوم»، «عوامل التصفية». وهي لا تُرسم. حيث تحتاج المجموعة إلى اسم مرئي، اكتب عنوانك أو نصك قبلها، وأعطِ `label` مع ذلك.
+
+### التحديد
+
+المجموعة لا تحمل قيمة. كل رقاقة تصفية تحمل `selected` الخاصة بها، ويجوز أن تكون عدة رقاقات مفعَّلة معًا. ولعامل تصفية واحد في كل مرة، أوقف الأخرى بنفسك حين تُفعَّل واحدة.
+
+### إزالة رقاقة
+
+الرقاقة تطلب أن تُزال، وأنت تزيلها. إن كان التركيز على تلك الرقاقة أو على إجراء الإزالة فيها، وضعت المجموعة التركيز على الرقاقة التي تليها، أو على التي قبلها إن لم تلها رقاقة. فمن يزيل عدة عناصر متتالية يكمل من حيث كان.
+
+يبقى عليك أمران:
+
+- حين لا تبقى رقاقة تأخذ التركيز، انقل التركيز إلى عنصر التحكم الذي تتبعه المجموعة: الحقل الذي يضيف العناصر، أو الزر الذي يفتح عوامل التصفية. وإلا أضاعه المتصفح.
+- المجموعة لا تُعلِن شيئًا. حيث يجب أن تُسمع الإزالة، كعامل تصفية يُزال بعيدًا عن القائمة التي يغيّرها، أبلغ عنها في منطقة حيّة (live region) أو في [شريط إشعار](/ar/components/snackbar/).
+
+### افعل
+
+- عيِّن `spacing="chips"` لمجموعة من الرقاقات.
+- أعطِ المجموعة `label`، بلغة الصفحة.
+- اجعل أعضاء المجموعة من نوع واحد. والاستثناء عناصر مُدخلة تليها رقاقة «إضافة» واحدة.
+
+### لا تفعل
+
+- لا تستخدم مجموعة الوسوم لإجراءات مربع حوار أو نموذج. استخدم مجموعة أزرار.
+- لا تضع فيها غير الوسوم والرقاقات. المحتوى الآخر يُرتَّب، ويُبلَّغ عنه في بنيات التنقيح (debug).
+- لا تُعِد تنسيق الأعضاء من المجموعة. غيّر رموز المجموعة في طبقة بدلًا من ذلك.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="tag-group" />
+
+### ما يتكفل به المكوّن
+
+- تُعرض المجموعة قائمةً واحدة تسمّيها `label`. وكل عضو عنصر واحد منها: الوسم يُقرأ نصًّا، والرقاقة تُقرأ زرًّا أو رابطًا مع حالتها، ورقاقة الإدخال تُقرأ وبجانبها إجراء الإزالة.
+- القائمة تخبر الشخص بعدد الأعضاء وبموضعه بينها: «قائمة، 4 عناصر».
+- تُقرأ الأعضاء ويُركَّز عليها بالترتيب المعطى، وفي التخطيط من اليمين إلى اليسار أيضًا.
+- كل رقاقة موضع توقف مستقل في ترتيب التركيز، ورقاقة الإدخال موضعان: الرقاقة، ثم إجراء الإزالة فيها. والمجموعة لا تأخذ تركيزًا ولا تعالج مفتاحًا.
+- بعد إزالة رقاقة عليها التركيز، ينتقل التركيز إلى الرقاقة التالية، لا إلى إجراء إزالة أبدًا.
+- المجموعة الفارغة لا تعرض شيئًا: لا قائمة فارغة ولا اسمًا.
+- عند تكبير النص إلى 200% تكبر الأعضاء وتلتفّ على أسطر أكثر. لا يُقصّ شيء ولا يُمرَّر شيء أفقيًّا.
+- في الألوان المفروضة (forced colors) لا ترسم المجموعة شيئًا، كما كانت. والأعضاء ترسم حوافها بنفسها.
+- في التخطيط من اليمين إلى اليسار يبدأ كل سطر من اليمين.
+
+كيف بُنيت على الويب: القائمة عنصر واحد في جذر الظل (shadow root) الخاص بالمجموعة، حول المنفذ (slot). تكتب المجموعة `role="listitem"` على كل عضو ما دام فيها، وتستردّه حين يغادرها العضو. والعضو الذي له `role` خاص به، أو الذي هو عنصر أصلي له معنى خاص به (رابط، زر)، يحتفظ به ولا يكون عنصرًا من القائمة. ضع عنصرًا كهذا داخل `span`.
+
+فجوات معروفة على الويب:
+
+- قبل أن يُعرَّف العنصر، تكون الأعضاء في الصفحة بالترتيب، تفصل بينها المسافة البيضاء التي بينها، بلا الفجوات وبلا القائمة. والصفحة التي تريد التخطيط من أول رسم تضيف:
+
+  ```css
+  tanrei-tag-group:not(:defined) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tanrei-comp-tag-group-row-gap-tags) var(--tanrei-comp-tag-group-gap-tags);
+  }
+  ```
+
+- مفاتيح الأسهم بين رقاقات المجموعة غير متوفرة. والصف الطويل من عوامل التصفية الذي ينبغي أن يكون موضع توقف واحدًا هو [شريط أدوات](/ar/components/toolbar/) من الرقاقات.
+
+### ما عليك فعله
+
+- أعطِ المجموعة `label`. المكوّن لا يقدّم كلمات من عنده.
+- أعطِ كل رقاقة إدخال `removeLabel` يسمّي العنصر.
+- أزِل الرقاقة حين تُصدر الحدث `remove`، وانقل التركيز بنفسك حين تزول الأخيرة.
+- قل الحالة بكلمات كل وسم. اللون وحده لا يقولها أبدًا.

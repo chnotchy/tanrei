@@ -1,0 +1,155 @@
+---
+title: インラインコード
+description: 文の中に置くコードです。まわりのテキストと同じ大きさで、コード用の書体を使い、薄い塗りの上または塗りなしで描きます。テキストであり、コントロールではありません。
+translationOf: components/inline-code.mdx
+sourceHash: a781f6f71d206aae52e9b17504a2139e3ab309d7
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="inline-code" />
+
+<DemoFrame label="文の中、見出しの中、プレーン" column>
+  <div class="tanrei-not-prose" style="max-inline-size: 32rem">
+    <p style="margin: 0">
+      <code class="tanrei-code" translate="no" spellcheck="false">package.json</code> と同じフォルダーで
+      <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> を実行し、
+      <code class="tanrei-code" translate="no" spellcheck="false">{'npm run dev -- --port 4000'}</code> でサーバーを起動します。
+    </p>
+    <p style="margin: 0.75rem 0 0; font: var(--tanrei-sys-typescale-heading-2-font)">
+      グループに <code class="tanrei-code" translate="no" spellcheck="false">size</code> を設定する
+    </p>
+    <p style="margin: 0.75rem 0 0">
+      Plain：<code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
+    </p>
+  </div>
+</DemoFrame>
+
+インラインコードは、文の中でコード上のものを指すために使います。コマンド、プロパティ、ファイル、値などです。読んでコピーするための複数行のコードは[コードブロック](../code-block/)です。押すキーは[キーボードショートカット](../keyboard-shortcut/)で、こちらは修飾キーの名前を読み上げます。
+
+### 使い方
+
+Web では、インラインコードは要素ではなく、プロダクト側の `code` 要素に付けるクラスです。テキストは文書の中にあるので、スクリプトが動く前から、検索、ページ内検索、コピーができます。`.tanrei-prose` の中にあって `pre` の中にない `code` は、クラスがなくても同じように描かれます。Markdown から生成した HTML には何も足す必要がありません。
+
+SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <!-- Tonal：既定です。 -->
+    <p>まず <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> を実行します。</p>
+
+    <!-- Plain：書体だけを変え、色はまわりのテキストと同じです。 -->
+    <code class="tanrei-code" data-variant="plain">comp.button.container.shape</code>
+
+    <!-- 祖先が、中にあるすべてのコードのバリアントを決めます。 -->
+    <table data-tanrei-code="plain">
+      <tr><td><code class="tanrei-code">variant</code></td><td><code class="tanrei-code">filled</code></td></tr>
+    </table>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/code.css';
+
+    <p>まず <code className="tanrei-code" translate="no" spellCheck={false}>npm install</code> を実行します。</p>
+    ```
+  </TabItem>
+</Tabs>
+
+| プロパティ | Web での書き方 |
+| --- | --- |
+| `text` | 要素の内容 |
+| `variant: tonal` | `data-variant="tonal"` |
+| `variant: plain` | `data-variant="plain"` |
+| `variant: auto`（既定） | 属性なし。`data-tanrei-code="plain"` または `"tonal"` を持つ最も近い祖先が決め、祖先がなければ Tonal です |
+
+## 仕様
+
+<DemoFrame label="折り返しても、それぞれの断片が塗りを保つ" plain>
+  <div class="tanrei-not-prose" style="max-inline-size: 22rem">
+    <p style="margin: 0">
+      トークン <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> はこの行より長いので、行の終わりで折り返します。切り詰めることはありません。
+    </p>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="リンクの中、強調の中、コードだけの列" plain column>
+  <div class="tanrei-not-prose">
+    <p style="margin: 0">
+      <a class="tanrei-link" href="../button/"><code class="tanrei-code">Button</code> のリファレンス</a>を参照してください。<strong>ダイアログを閉じる唯一の手段に <code class="tanrei-code">disabled</code> を設定してはいけません。</strong>
+    </p>
+    <div data-tanrei-code="plain" style="display: grid; grid-template-columns: auto auto; gap: 0.25rem 1.5rem; justify-content: start; margin-block-start: 0.75rem">
+      <span>プロパティ</span><span>既定値</span>
+      <code class="tanrei-code">variant</code><code class="tanrei-code">filled</code>
+      <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
+    </div>
+  </div>
+</DemoFrame>
+
+インラインコードには固有のサイズがありません。フォントサイズは、まわりのテキストのサイズに 1 つの比率（`comp.inline-code.label.scale`）を掛けた値です。この比率が、コード用の書体と本文の書体の見た目の大きさをそろえます。本文の 14 の横では 13 になり、見出しの中では見出しのサイズに従います。
+
+行を高くすることはありません。塗りの高さはコード用の書体のテキストボックスと同じで、上下にパディングはありません。
+
+コードは行と一緒に折り返します。まず空白で折り返します。空白のない部分が行より長いときは、文字の間で折り返します。ハイフンは足しません。ハイフンを足すとコードが変わってしまうからです。切り詰めることも、スクロールすることもありません。
+
+リンクの中ではリンクの色になり、リンクの下線がコードの下にも引かれます。強調（strong）の中では太さが 1 段階太くなります。斜体にはなりません。
+
+右から左に書く文の中でも、コードは独立した左から右の並びとして配置します。
+
+<ComponentSpecs name="inline-code" />
+
+### Web での描き方の違い
+
+- `translate="no"` と `spellcheck="false"` は、プロダクト側または Markdown レンダラーが付ける属性です。スタイルシートからは設定できません。
+- コードの中のハイフンは、文字の間で折り返す前に、行が終わってもよい位置として扱われます。
+- WebKit では、折り返した断片のそれぞれに塗りと角丸を描きますが、両端の余白は描きません。2 つ目以降の断片は塗りの端から始まります。
+- コードの中の改行が 1 つの空白として描かれるのは、`white-space-collapse: preserve-spaces` に対応したブラウザーだけです。コードは 1 行で書いてください。
+- 未知の `data-variant` は `auto` として描かれます。デバッグビルドでも報告はありません。
+
+## ガイドライン
+
+### Tonal と Plain
+
+| 種類 | 描き方 | 使う場面 |
+| --- | --- | --- |
+| **Tonal** | 薄い塗りの上にコード用の書体 | 文章の中の名前 |
+| **Plain** | コード用の書体だけ。色はまわりのテキストと同じ | すべての項目がコードである列やリスト、色の付いたコンテナの上のテキスト |
+
+### 推奨
+
+- コードを言葉として読み上げても意味が通るように文を書きます。スクリーンリーダーは、既定ではコードのロールを読み上げません。
+- ステータスのコンテナや反転したサーフェスなど、色の付いたコンテナの上では Plain を使います。Tonal の塗りはサーフェスのロールで、サーフェスとの組み合わせだけを保証しています。
+- 表や名前のリストでは、祖先に 1 度だけバリアントを指定します（`data-tanrei-code="plain"`）。
+
+### 非推奨
+
+- 強調のためにインラインコードを使わない。インラインコードは「これはコードです」という意味を持ちます。
+- 押すキーをインラインコードで書かない。キーボードショートカットを使います。
+- 1 行を超えるコードを入れない。コードブロックを使います。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="inline-code" />
+
+### コンポーネントが担うこと
+
+- `code` 要素なので、コードのロールを持ち、テキストは文の中の位置で読み上げられます。
+- まわりの言葉とは、色ではなく書体で区別できます。強制カラーモードでは塗りが消えますが、失われる情報はありません。
+- フォーカスも入力も受け取りません。リンクやボタンの中では、コードの上を押すとその要素に届きます。
+- 長い名前は、どのテキストサイズでも、ページを横にスクロールさせずに折り返します。
+- 文を選択してコピーすると、コードの文字がそのままコピーされます。
+
+### 利用者側で行うこと
+
+- つづりが重要な名前は、文の中でも言葉で書きます。記号の読み方はユーザーの設定によって変わるためです。
+- ブラウザーの翻訳がコードを書き換えないよう、`translate="no"` を付けます。

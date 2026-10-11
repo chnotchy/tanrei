@@ -1,0 +1,313 @@
+---
+title: ボトムシート
+description: 補足のコンテンツや短い作業を、画面の下端からせり上げて表示します。残りを使える状態のまま画面の下部に重ねるか、モーダルな手順として閉じるまでほかのすべてを暗くしてふさぎます。
+translationOf: components/bottom-sheet.mdx
+sourceHash: d330dd91e18b0b8796aafe0add3470ab96bfc4ad
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="bottom-sheet" />
+
+<DemoFrame label="モーダルのシート：ボタンで開きます">
+  <tanrei-button variant="outlined" onclick="document.getElementById('bottom-sheet-demo-modal').open = true">写真を保存</tanrei-button>
+  <tanrei-bottom-sheet id="bottom-sheet-demo-modal" label="写真を保存" handle-label="シートの高さを変更" onclose="this.open = false">
+    <p>写真の保存先を選んでください。あとから設定で変更できます。</p>
+    <tanrei-button variant="text" onclick="this.closest('tanrei-bottom-sheet').open = false">完了</tanrei-button>
+  </tanrei-bottom-sheet>
+</DemoFrame>
+
+### 使い方
+
+ボトムシートは制御コンポーネントで、自分で閉じることはありません。`open` を設定して開きます。人が閉じようとすると、シートはその理由を添えて `close` を発火するので、それを受けて利用者側で `open` を false に戻します。例外は SwiftUI だけです。SwiftUI では `open` がバインディングなので、シートが自分で false を書き込み、そのあとで `onClose` を呼びます。`open` を true のままにしておけばシートは閉じず、ドラッグのあとなら一番低い高さに戻ります。Web ではダイアログと動きが違う点に注意してください。シートはネイティブの `cancel` イベントをキャンセルして代わりに `close` を発火するので、Escape を押しても、利用者側で閉じるまでは閉じません。
+
+`close` が伝える理由は次の 4 つです（表記はプラットフォームの流儀に従います）。
+
+| 理由 | 人がしたこと | 対象 |
+| --- | --- | --- |
+| `drag` | 一番低い高さの半分より下でドラッグを離した、またはそこから下へフリングした | スタンダードとモーダル |
+| `scrim` | モーダルのシートのまわりの暗い部分を押した | モーダル |
+| `escape` | Escape を押した | モーダル |
+| `back` | プラットフォームの「戻る」を使った（Android の戻るボタンやジェスチャー、iOS のアクセシビリティの「戻る」ジェスチャー）。Web では、ブラウザーでの Android の戻るジェスチャーのように、キーを伴わない閉じる要求が `back` になります。 | モーダル |
+
+`close` を発火するのは `dismissible` が true の間だけで、1 回の求めにつき 1 回だけです。false の間は、スクリム、Escape、「戻る」では何も起きず、下へドラッグしても一番低い高さに戻るだけです。
+
+シートには `variant` で選ぶ 2 つの形があります。既定の**モーダル**はモーダルなオーバーレイです。ウィンドウ全体を暗くし、フォーカスを中にとどめ、閉じたらフォーカスを返します。**スタンダード**はレイアウト領域で、オーバーレイではありません。置いた親要素の下部に重なりますが、スクリムは描かず、上のコンテンツはそのまま使えます。
+
+シートに入れるものは利用者側で決めます。シートはコンテンツに余白を付け（行が自分で余白を持つリストなら `inset` を false にします）、はみ出しを切り取り、コンテンツの色を渡し、スクロールさせます。見出しや閉じるボタンは持たないので、タイトルと「閉じる」や「完了」のボタンはコンテンツの中に置いてください。
+
+開いたときにフォーカスを受け取る要素は、プラットフォームの印で指定します。Web では `autofocus`、SwiftUI では `.defaultFocus` か `@AccessibilityFocusState`、Compose では `initialFocus` に渡す `FocusRequester`、Flutter では `autofocus: true`、React Native では `initialFocusRef` です。指定しなければフォーカスはシートそのものへ移り、ラベルが最初に読み上げられます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="save" variant="outlined">写真を保存</tanrei-button>
+
+    <!-- 既定はモーダルです。closedby="none" は dismissible を false にします。 -->
+    <tanrei-bottom-sheet id="save-sheet" label="写真を保存" handle-label="シートの高さを変更">
+      <p>写真の保存先を選んでください。</p>
+      <tanrei-button variant="text" autofocus>完了</tanrei-button>
+    </tanrei-bottom-sheet>
+
+    <!-- スタンダード：包含ブロックの下部に重なります。flush は inset を false に、no-handle は handle を false にします。 -->
+    <div class="map" style="position: relative">
+      <tanrei-bottom-sheet variant="standard" open label="近くの場所" handle-label="シートの高さを変更" flush>
+        <tanrei-list>…</tanrei-list>
+      </tanrei-bottom-sheet>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/bottom-sheet';
+      const sheet = document.querySelector('#save-sheet');
+      document.querySelector('#save').addEventListener('click', () => (sheet.open = true));
+      sheet.querySelector('tanrei-button').addEventListener('click', () => (sheet.open = false));
+      // シートは自分では閉じません。detail.reason は drag、scrim、escape、back のどれかです。
+      sheet.addEventListener('close', (e) => (sheet.open = false));
+      // 人がもう一方の高さへ動かしました。detent はシートが更新済みです。
+      sheet.addEventListener('detentchange', (e) => console.log(e.detail.detent));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { BottomSheet, Button } from '@tanrei/react';
+
+    <BottomSheet
+      open={open}
+      label="写真を保存"
+      handleLabel="シートの高さを変更"
+      onClose={() => setOpen(false)}
+      onDetentchange={(e) => setDetent(e.detail.detent)}
+    >
+      <p>写真の保存先を選んでください。</p>
+      <Button variant="text" onClick={() => setOpen(false)}>完了</Button>
+    </BottomSheet>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // .sheet と同じく、覆うビューに付けるモディファイアーです。閉じるとバインディングに false が書き込まれ、
+    // そのあとで理由を添えて onClose が呼ばれます。人が選んだ高さは detent に書き込まれます。
+    PhotoView(photo)
+        .tanreiBottomSheet(isPresented: $saving, detent: $detent,
+                           handleLabel: "シートの高さを変更", label: "写真を保存") {
+            SaveTargets(photo)
+            TanreiButton("完了", variant: .text) { saving = false }
+        }
+
+    // スタンダード：覆うビューの下部に重ねるオーバーレイです。
+    MapView()
+        .tanreiBottomSheet(isPresented: $placesShown, variant: .standard,
+                           handleLabel: "シートの高さを変更", label: "近くの場所") {
+            PlacesList()
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiBottomSheet
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+
+    // 閉じるときの動きを再生できるよう、開いている間だけ呼ぶのではなく visible で切り替えます。
+    // 理由を受け取る onClose で visible を false にします。
+    TanreiBottomSheet(
+        visible = saving,
+        onClose = { saving = false },
+        detent = detent,
+        onDetentChange = { detent = it },
+        handleLabel = "シートの高さを変更",
+        contentDescription = "写真を保存",
+    ) {
+        SaveTargets(photo)
+        TanreiButton(text = "完了", onClick = { saving = false }, variant = TanreiButtonVariant.Text)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // モーダルのシートは、ページ全体を覆う Stack の最後の子として置きます。onClose を受けて open を false にします。
+    Stack(
+      children: <Widget>[
+        const Positioned.fill(child: PhotoPage()),
+        TanreiBottomSheet(
+          open: saving,
+          onClose: (TanreiSheetCloseReason reason) => setState(() => saving = false),
+          detent: detent,
+          onDetentChanged: (value) => setState(() => detent = value),
+          handleSemanticLabel: 'シートの高さを変更',
+          semanticLabel: '写真を保存',
+          child: const SaveTargets(),
+        ),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { BottomSheet, Button } from '@tanrei/react-native';
+
+    const done = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // 制御コンポーネントです。理由（'drag'、'scrim'、'escape'、'back'）を受け取る onClose で open を false にします。
+    // モーダルのシートは透明な Modal で表示します。シート自身の insets プロパティは、指定した辺だけ TanreiProvider の insets を置き換えます。
+    <BottomSheet
+      open={open}
+      onClose={(reason) => setOpen(false)}
+      detent={detent}
+      onDetentChange={setDetent}
+      handleLabel="シートの高さを変更"
+      accessibilityLabel="写真を保存"
+      initialFocusRef={done}
+    >
+      <SaveTargets />
+      <Button ref={done} variant="text" onPress={() => setOpen(false)}>完了</Button>
+    </BottomSheet>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="親要素の下部に重なるスタンダードのシート：下へドラッグすると閉じます" plain>
+  <div style="position: relative; inline-size: 22rem; max-inline-size: 100%; block-size: 20rem; overflow: hidden">
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space75); padding: 1rem">
+      <p>地図</p>
+      <tanrei-button variant="outlined" onclick="this.closest('[data-tanrei-demo]').querySelector('tanrei-bottom-sheet').open = true">近くの場所を表示</tanrei-button>
+    </div>
+    <tanrei-bottom-sheet variant="standard" open label="近くの場所" handle-label="シートの高さを変更" onclose="this.open = false">
+      <p>歩いて 10 分以内に、カフェが 3 軒とパン屋が 1 軒開いています。</p>
+    </tanrei-bottom-sheet>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="bottom-sheet" />
+
+## ガイドライン
+
+### 使う場面
+
+横に余裕のないコンパクトな画面で、その画面に属してはいるものの主題ではないものを見せるときに使います。地図上の地点の近くにある場所、写真の共有先、短い選択やフォームなどです。シートは、親指にいちばん近い下端からせり上がります。
+
+幅の広いウィンドウで同じ種類のコンテンツを見せるなら、コンテンツに重ねずに横へ置ける[サイドシート](/ja/components/side-sheet/)を使います。答えがないと作業を先に進められない判断には[ダイアログ](/ja/components/dialog/)を使います。プロダクトの行き先を並べるのはボトムシートではなく、[ナビゲーションドロワー](/ja/components/navigation-drawer/)の役目です。
+
+**メインアクションから複数のアクションを出す。** 画面のメインアクションが関連するいくつかの形（新しいドキュメント、フォルダー、アップロードなど）に分かれるときは、[メインアクションボタン](/ja/components/main-action-button/)からそれらを並べたモーダルのボトムシートを開きます。Tanrei システムでは、提供しない [FAB メニュー](/ja/components/fab-menu/)の代わりにこの形を使います。
+
+<DemoFrame label="メインアクションから複数のアクションを出す：ボタンでシートを開きます" plain>
+  <tanrei-main-action-button label="新規" onclick="document.getElementById('bottom-sheet-demo-actions').open = true"><span slot="icon">add</span></tanrei-main-action-button>
+  <tanrei-bottom-sheet id="bottom-sheet-demo-actions" label="新規" handle-label="シートの高さを変更" flush onclose="this.open = false">
+    <tanrei-list>
+      <tanrei-list-item headline="ドキュメント" leading-icon="description" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+      <tanrei-list-item headline="フォルダー" leading-icon="folder" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+      <tanrei-list-item headline="ファイルをアップロード" leading-icon="upload" interactive onclick="this.closest('tanrei-bottom-sheet').open = false"></tanrei-list-item>
+    </tanrei-list>
+  </tanrei-bottom-sheet>
+</DemoFrame>
+
+### モーダルかスタンダードか
+
+| 形 | どういうものか | 用途 |
+| --- | --- | --- |
+| モーダル（既定） | モーダルなオーバーレイです。ウィンドウ全体を暗くするスクリムの上にせり上がります。外側はすべて操作不能になり、閉じるまでフォーカスは中にとどまります。 | 終えるか閉じるかしてから元の画面に戻る手順。共有、選択、短いフォームなど。 |
+| スタンダード | レイアウト領域です。スクリムを描かずに親要素の下部に重なり、上のコンテンツはそのまま使えます。Tab でシートとコンテンツの間を行き来でき、フォーカスがシートから出ても閉じません。 | 画面と一緒に使うコンテンツ。地図の上に出す場所のリストなど。 |
+
+2 つの形は同じトークンを読みます。違いはスクリムと振る舞いだけなので、デザインシステムが両者の見た目を変えることはありません。
+
+レイアウト領域は、スタンダードのナビゲーションドロワー（折りたたんだ形を含みます）、アプリバー、スタンダードのサイドシートで、いずれもコンテンツの横か上に場所を取るものです。スタンダードのボトムシートは親要素の一部を覆う点で違いますが、これもレイアウト領域です。大事なのは形ではなく振る舞いだからです。モーダルではなく、スクリムを描かず、開いている間もコンテンツが使えます。フォーカスが出るたびに閉じてしまうシートでは、それが説明している地図と行き来しながらキーボードで使うことができません。
+
+スタンダードのシートは、覆っているものを動かしたり余白を足したりしません。スクロールするコンテンツの最後の部分をシートの上に見せておきたいときは、そのコンテンツにシートの partial の高さ分の余白を付けてください。
+
+### 高さ
+
+`detent` には 2 つの値があります。`partial` では、覆う領域の一定の割合（既定のトークンでは半分）の高さになります。`full` では、領域の上端から少し余白を残したところまで伸びます。領域とは、モーダルのシートならウィンドウの上側のインセットより下の部分、スタンダードのシートなら親要素です。オンスクリーンキーボードが出ている間は領域がキーボードの上端で終わるので、シートはキーボードの上に載ります。
+
+シートの高さはコンテンツの高さまでです。コンテンツが partial の高さに収まるシートは高さが 1 つしかなく、`detent` を変えても何も変わりません。コンテンツがそれより高いときはシートに 2 つの高さがあり、人はドラッグかドラッグハンドルで行き来できます。そのたびに新しい高さを添えて `detentChange` を発火します。Web、Compose、Flutter、React Native では、人が選んだ高さは、利用者側で `detent` を設定し直すまで保たれます。SwiftUI では `detent` のバインディングに書き込まれます。利用者側で `detent` を設定したときは、シートは動きますが何も発火しません。
+
+### ドラッグハンドルとジェスチャー
+
+ドラッグハンドルはシートの上端にある短いバーで、コンテンツがスクロールしても動かない行に置かれます。`handle` がオンなら、どのシートにも描かれます。
+
+- **動かせる先があるときだけコントロールになる。** シートに 2 つの高さがある間、ハンドルは `handleLabel` を名前とするボタンで、full の高さのときは展開状態になります。押すか Enter か Space で、シートはもう一方の高さへ動きます。高さが 1 つのときは、ドラッグできることを示す印として静止状態で描かれるだけで、フォーカスも押下もできず、支援技術からも見えません。
+- **ターゲット。** バー自体は小さくても、ハンドルを横切る行全体がヒット領域で、どの方向にも最小ターゲット以上あります。
+- **ドラッグ。** ハンドルの行、コンテンツのまわりの余白、コンテンツそのもののどこからでも、シートを上下にドラッグできます。指やポインターがプラットフォームのタッチスロップ（プラットフォームが定めていなければ 8 ポイント）を超えて動くとシートが追従し始め、full の高さより上には行きません。
+- **離したとき。** フリングならその向きの次の高さに、ゆっくり離したなら近いほうの高さに落ち着きます。フリングとは、プラットフォームの最小フリング速度（定めがなければ 1 ミリ秒あたり 0.5 ポイント）より速く離すことです。
+- **ドラッグで閉じる。** `dismissible` が true の間は、一番低い高さの半分より下で離すか、一番低い高さから下へフリングすると、理由 `drag` で閉じるよう求めます。シートはドラッグで置かれた位置に 1 フレームとどまり、利用者側で `open` を false にしていれば滑り出て、そうでなければ元の高さに戻ります。`dismissible` が false の間は、一番低い高さに戻ります。
+- **スクロールするコンテンツ。** コンテンツを上へドラッグすると、まずシートが full の高さまで上がり、それからコンテンツがスクロールします。下へドラッグすると、まずコンテンツが先頭までスクロールし、それからシートが下がります。1 つのジェスチャーをシートからコンテンツのスクロールへ途中で渡せないプラットフォームでは、後半にもう 1 回ドラッグが要ります（下の既知の制約を参照）。キーボードや支援技術からは、どちらの高さでもコンテンツをスクロールできます。
+
+ドラッグだけが唯一の手段になることはありません。ハンドルは 1 回押すかキーボードで高さを変えられ、モーダルのシートはスクリム、Escape、「戻る」でも閉じられます。スタンダードのシートと、`dismissible` が false のモーダルのシートには、ドラッグ以外に閉じる手段がないので、閉じるためのボタンを置いてください。
+
+### 開く、フォーカス、閉じる
+
+- **開く。** シートは下端の外からせり上がります。モーダルのシートは、同時にウィンドウ全体にスクリムをフェードインします。最初から `open` が true の状態で表示したシートは、動きなしでその場に現れます。スタンダードのシートはフォーカスをそのままにします。モーダルのシートは、開いた直後と同じようにフォーカスを中へ移します。後ろの要素はもうフォーカスを受け取れないからです。
+- **フォーカスが入る。** どちらの形でも、開くと、指定した要素か、指定がなければシートそのものへフォーカスが移ります。フォーカスは、動きが終わってからではなく、開いた時点で移ります。
+- **フォーカスをとどめる（モーダルのみ）。** モーダルのシートでは、最後のフォーカスできる要素で Tab を押すと最初へ、最初の要素で Shift+Tab を押すと最後へ移ります。スクリーンリーダーで移動しても外へは出ず、背後のコンテンツもスクロールしません。スタンダードのシートは何もとどめません。Tab でコンテンツへ進み、シートは開いたままです。
+- **閉じる。** フォーカスが中にある状態でシートが閉じると、開いたときにフォーカスを持っていた要素へフォーカスが戻ります。
+- **重ねる。** モーダルのシートから開いたダイアログ、メニュー、別のモーダルのシートは、その上に重なります。Escape で閉じるのは一番上のものだけで、それが閉じると、そのオーバーレイが返すフォーカスをシートが受け取ります。
+- **動き。** 動きを減らす設定では、滑らせずにその場でフェードイン、フェードアウトします。すべてのアニメーションを取り除く Android の設定では、瞬時に現れて消えます。
+
+### 推奨
+
+- シートで何をするのかがすぐ分かるようにします。コンテンツの一番上にタイトルを置き、ほかに閉じる手段がないシートには「完了」や「閉じる」のボタンを置きます。
+- 行が自分で余白を持つリストでは `inset` をオフにして、行が端まで届くようにします。
+- コンテンツが partial の高さを超えうるシートでは、キーボードやスイッチで操作する人も高さを変えられるよう、ハンドルをオンのままにします。
+- シートを開いている間も上のコンテンツが必要なら、スタンダードの形を使います。
+
+### 非推奨
+
+- シートの中のコントロールで作業を終えてもらう必要があるとき以外に、`dismissible` を false にしない。
+- 人の手を止めなければならない判断にモーダルのシートを使わない。[ダイアログ](/ja/components/dialog/)を使います。
+- プロダクトのナビゲーションをボトムシートに置かない。[ナビゲーションドロワー](/ja/components/navigation-drawer/)かナビゲーションバーを使います。
+- 手順のある作業のためにシートを何枚も重ねない。1 枚のシートの中身を切り替えます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="bottom-sheet" />
+
+### コンポーネントが担うこと
+
+- モーダルのシートは、`label` を名前とするモーダルなダイアログとして伝えます。スタンダードのシートは、`label` を名前とする領域（Web ではランドマーク）です。
+- モーダルのシートが開いている間は、外側のものをすべて操作不能にして支援技術から隠し、フォーカスとスクリーンリーダーの移動を中にとどめます。スタンダードのシートは何も操作不能にしません。
+- 開くと、指定した要素かシートへフォーカスを移します。閉じると、開いたときにフォーカスを持っていた要素へ戻します。どちらの形でも同じです。
+- `dismissible` が true の間は、Escape、プラットフォームの「戻る」、スクリムの押下でモーダルのシートに閉じるよう求めます。スタンダードのシートは Escape と「戻る」を無視します。
+- シートに 2 つの高さがある間、ドラッグハンドルは `handleLabel` を名前とするフォーカスできるボタンで、full の高さでは展開状態です。Enter と Space でもう一方の高さへ動かします。高さが 1 つのときは支援技術から隠します。つまみの部分は常に隠します。
+- ハンドルのヒット領域は最小ターゲット以上あり、フォーカスリングはキーボードフォーカスのときだけ表示します。
+- コンテンツはシートの中でスクロールし、どちらの高さでもキーボードフォーカスや支援技術からスクロールできます。
+- 文字を大きくすると、シートは detent が許す高さまでコンテンツとともに伸び、それを超える分はスクロールします。ハンドルは拡大しません。
+- シートの色は下側のシステムインセットの下まで届き、コンテンツはそのインセットとオンスクリーンキーボードの上に保ちます。
+- `label` のないシート、`handleLabel` のない操作できるハンドル、`variant` や `detent` の知らない値は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- マウスでコンテンツをドラッグすると、タッチと同じくシートが動きます。そのため、シートがまだ動ける間は、下へなぞってシートの中の文章を選択することはできません。
+- Web：タッチでは、ジェスチャーを誰が受け取るかをブラウザーが始まりの時点で決めるため、シートとコンテンツのスクロールの受け渡しにはもう 1 回のジェスチャーが要ります。マウスやペンでは 1 回のドラッグの中で受け渡します。タッチでのドラッグは、まだテストで確かめていません。Firefox では、ダイアログと同じく、シートは下へ滑らずにすぐ消えます。
+- SwiftUI には、ダイアログのロールも領域のロールもありません。シートは `label` を名前とするコンテナで、モーダルの間はモーダルのトレイトを持ちます。ハンドルには展開の状態がないため、値として「expanded」か「collapsed」を英語でだけ伝えます。印がないときにシートそのものへフォーカスを移すことができず、閉じてもキーボードのフォーカスをどこにも戻しません。iOS では、モーダルのカバーが VoiceOver のフォーカスを戻します。macOS では、モーダルのシートはモディファイアーを付けたビューしか覆わないので、ウィンドウのルートに付けてください。
+- iOS の SwiftUI：full の高さより下では、コンテンツをドラッグするとシートが上がり、スクロールは次のドラッグからになります。その高さではコンテンツはスクロールせず、VoiceOver やキーボードからもスクロールできません。コンテンツの素のテキストは本文のフォントになりますが行の高さは付かないため、2 行で 40 ポイントになり、ほかのプラットフォームの 44 より低くなります。
+- SwiftUI：下端のインセットとオンスクリーンキーボード、ハードウェアキーボード、Escape、iOS の「戻る」ジェスチャーは、実機で試しておらず、押して確かめるテストもありません。
+- Compose：シートはコンテンツを自分でスクロールさせるので、遅延リストではなく普通の列を渡してください。モーダルのシートが閉じるとき、そのウィンドウは退場の動きが終わるまでフォーカスを持ったままです。ドラッグは Robolectric でだけ確かめており、実機では試していません。
+- Flutter：スタンダードのシートは名前付きのコンテナで、領域のランドマークではありません。Flutter 3.32 にそのロールがないためです。実機の TalkBack と VoiceOver では、まだ確かめていません。
+- React Native は、どの要素がフォーカスを持っていたかを知ることができません。そのため、ダイアログやナビゲーションドロワーと同じく、シートが閉じるとフォーカスは開いた要素ではなく、プラットフォームが決める場所へ移ります。`initialFocusRef` を渡さないときは、開いてもスクリーンリーダーだけがシートへ移ります。
+- React Native は、1 つのジェスチャーをシートからコンテンツのスクロールへ途中で渡せないため、そのドラッグの残りは捨てられ、次のドラッグでスクロールします。Modal、ドラッグ、キーボードの回避、インセットは Jest でだけ確かめており、実機では試していません。
+- `cupertino` では、つまみを Apple の淡い輪郭の色で描くため、シートに対するコントラストはライトスキームで 1.8:1、ダークスキームで 2.2:1 となり、コントロールの境界に必要な 3:1 に届きません。コントラストを中または高にしたスキームでは 4.5:1 以上になります。3:1 に届かない 2 つの値は参考として残す計測値で、模倣プリセットには Tanrei のアクセシビリティ基準を適用しません。
+- `m3-like` では、full の高さでの上端の余白は既定のシステムの値のままです。Material の値は、忠実度の参照データがボトムシートを扱うようになるまで保留しています。
+
+### 利用者側で行うこと
+
+- すべてのシートに「写真を保存」のような `label` を付けます。ダイアログや領域の名前になります。
+- ハンドルには、プロダクトの言語で「シートの高さを変更」のような `handleLabel` を付けます。
+- シートは利用者側で閉じます。`close` を受けたとき（Web では `close` イベント、Compose、Flutter、React Native では `onClose`）と、自分で置いた「完了」や「閉じる」のボタンから、`open` を false にします。SwiftUI ではシートがバインディングに false を書き込みます。
+- スタンダードのシートと、`dismissible` が false のモーダルのシートには、目に見える閉じるボタンを置きます。ドラッグだけを出口にしてはいけません。
+- 短いフォームの最初の入力欄など、役に立つときは最初のフォーカスを指定します。
+- React Native では `initialFocusRef` を渡し、シートが閉じた後に開いた要素へのフォーカスの戻しを利用者側で行い、ウィンドウのインセットをシートの `insets` か `TanreiProvider` に渡します。

@@ -1,0 +1,174 @@
+---
+title: "步骤"
+description: "把一套操作流程写成带编号的步骤：每一步有一个写着编号的圆环、可选的标题和由你的内容构成的正文，并用一道细线与下一步相连。它是供人阅读的有序列表，从不是控件，也从不记录进度。"
+translationOf: components/steps.mdx
+sourceHash: c8264baa77c44eb546180291656f27740ecb7537
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="steps" />
+
+<DemoFrame label="标题和正文" column>
+  <ol class="tanrei-steps" role="list" aria-label="工作流程" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><p class="tanrei-steps-title">提案</p><p>编写或修改规格；改动需要令牌时，一并修改令牌。</p></li>
+    <li><p class="tanrei-steps-title">验证</p><p>检查各个 schema、令牌规则和每种配色方案的对比度。</p></li>
+    <li><p class="tanrei-steps-title">生成</p><p>重新生成令牌输出、脚手架和状态矩阵。</p></li>
+  </ol>
+</DemoFrame>
+
+有三样东西看起来相似，却并不相同：
+
+| 组件 | 它是什么 | 有没有状态 | 表达的意思 |
+| --- | --- | --- | --- |
+| **有序列表**（长文排版） | 按顺序排列的项，每项是一个短语或一句话 | 没有 | “这些，按这个顺序” |
+| **步骤** | 供人阅读、再到别处去执行的一套操作流程 | 没有 | “先做这个，再做这个” |
+| **步骤条**（stepper） | 用户在产品所运行的流程中走到了哪里 | 有 | “你在这里” |
+
+步骤没有当前步骤、已完成步骤或失败步骤，标记也不是控件。结账流程或设置向导需要的是步骤条，Tanrei 目前还没有这个组件。
+
+### 用法
+
+在 Web 上，步骤是加在你自己的有序列表上的一个类，而不是一个元素。在任何脚本运行之前，这个列表就是文档里的列表；Markdown 渲染器输出的 `<ol>` 只需要一个类，不需要包裹元素；没有样式表时，它就是浏览器的编号列表。
+
+SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。React 也还没有 `Steps` 组件，请使用加了这个类的列表。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/steps.css" />
+
+    <!-- 在控件之间：面板、对话框、卡片。 -->
+    <ol class="tanrei-steps" role="list">
+      <li>把文件保存到存放项目设置的文件夹中。</li>
+      <li>在设置中指定这个文件的名称。</li>
+      <li>运行构建，并提交它写出的内容。</li>
+    </ol>
+
+    <!-- 在阅读型页面上，带标题，接续前面的一组步骤。 -->
+    <ol class="tanrei-steps" role="list" data-size="large" start="4" aria-label="工作流程（续）">
+      <li>
+        <p class="tanrei-steps-title">实现</p>
+        <p>在规格列出的每个平台上完成这项改动。</p>
+      </li>
+      <li>
+        <!-- 标题同时是页面的标题元素：它保留自己的角色和级别。 -->
+        <h3 id="check">检查</h3>
+        <p>按顺序运行每一项检查。</p>
+        <pre><code>pnpm check</code></pre>
+      </li>
+    </ol>
+
+    <script type="module">
+      // 可选：编号达到三位数的一组步骤的标记列宽度、运行时 `start` 变化后的重新编号，
+      // 以及调试报告。`@tanrei/web` 也会加载它。
+      import '@tanrei/web/steps';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/steps.css';
+
+    <ol className="tanrei-steps" role="list" data-size="large">
+      <li>
+        <p className="tanrei-steps-title">安装</p>
+        <p>把这个包添加到项目中。</p>
+      </li>
+    </ol>
+    ```
+  </TabItem>
+</Tabs>
+
+| 属性 | 在 Web 上 |
+| --- | --- |
+| `label` | `aria-label`（或者用 `aria-labelledby` 指向列表前面的标题元素） |
+| `start` | 列表自己的 `start` |
+| `size: large` | `data-size="large"` |
+| 一个步骤 | `<li>` |
+| 步骤的 `title` | 列表项中带 `class="tanrei-steps-title"` 的第一个子元素（一个 `<p>`） |
+| 标题插槽 | 作为列表项第一个子元素的标题元素（`h2` 到 `h6`） |
+
+请在列表上写 `role="list"`：有一种浏览器引擎会在列表的标记被去掉后丢掉它的列表语义。
+
+## 规格
+
+<DemoFrame label="每步一行，以及一组接续的步骤" plain column>
+  <ol class="tanrei-steps" role="list" aria-label="接下来要做的事" style="inline-size: 100%; max-inline-size: 28rem">
+    <li>把文件保存到存放项目设置的文件夹中。</li>
+    <li>在设置中设计层对应的键下，指定这个文件的名称。</li>
+    <li>运行构建，并提交它写出的内容。</li>
+  </ol>
+  <ol class="tanrei-steps" role="list" start="9" aria-label="续" style="inline-size: 100%; max-inline-size: 28rem">
+    <li>9 仍然是圆形。</li>
+    <li>10 也是。</li>
+    <li>11 同样如此：三步的内容都从同一条边开始。</li>
+  </ol>
+</DemoFrame>
+
+<DemoFrame label="大尺寸，正文里有一个块" plain column>
+  <ol class="tanrei-steps" role="list" data-size="large" aria-label="使用" style="inline-size: 100%; max-inline-size: 32rem">
+    <li><p>把这个包添加到项目中。</p><tanrei-code-block label="安装命令"><pre><code>npm install @tanrei/web</code></pre></tanrei-code-block></li>
+    <li><p>在页面的其他任何样式之前，加载一次样式表。</p></li>
+  </ol>
+</DemoFrame>
+
+- **标记**是一个用系统细线画出的圆环，里面是步骤的编号；中号时直径 24，大号时 28。一位或两位数字时它保持圆形；更长的编号会把它撑宽成胶囊形，而每个步骤的内容仍然从同一条边开始。
+- **连接线**从每个圆环通向下一个圆环，两端都不与圆环相接。最后一步没有连接线。
+- **标题**是可选的。它是所在步骤的文本，而不是标题元素，除非你把一个标题元素作为列表项的第一个子元素：这时它会像任何标题一样绘制，并保留自己的角色和级别，于是这个步骤会出现在页面大纲里。
+- **正文**是你的内容。两个块之间相距 8，两个步骤之间相距 16。不是文本的块（代码块、表格、标签页、提示块）占满正文的整个宽度。
+- **尺寸**就是长文排版的那两种：在控件之间用中号，在以文本为主的页面上用大号。位于长文排版内部的步骤采用这段长文排版的尺寸。
+- **颜色**：编号、标题和正文采用步骤所在表面的内容颜色。圆环和连接线都用系统唯一的那种细线颜色绘制。没有任何部分带填充。
+
+<ComponentSpecs name="steps" />
+
+### 在长文排版中
+
+在 `.tanrei-prose` 内部，步骤不是一座孤岛：每个步骤里的段落、列表、链接和行内代码仍然归长文排版管。步骤占满长文排版的整个宽度，所以步骤里的代码块会占满整栏，而步骤里的段落仍然受行长限制。步骤里的列表用字母（有序列表）或圆环（无序列表）作标记，所以子步骤绝不会重复步骤的编号。`@tanrei/web/prose.css` 已经带有步骤的规则，所以长文排版的页面不需要第二份样式表。
+
+### Web 上绘制方式的不同之处
+
+- 有标题时，请把正文写在元素（`<p>`）里：直接写在标题后面的文本，无法得到标题下方的那段间隙。
+- 在限制行长的长文排版中，只有文本的步骤受行长限制。如果步骤里还有块，直接写在步骤里的文本就不受限制：请把它写在 `<p>` 里。
+- 以代码块或图片开头的步骤，标记的顶边与这个块的顶边对齐。直接写在这种块前面的文本（紧凑的 Markdown 列表项）样式表是看不到的：请把它写在 `<p>` 里。
+- 三位数及以上的编号会把标记撑宽成胶囊形。整组步骤的标记列只有在加载了这个包的脚本时才会跟着变宽，因为要由脚本来测量；没有脚本时，这样的标记会伸进它旁边的间隙。
+- 没有这个包的脚本时，在两种浏览器引擎中，运行时改变 `start` 不会重新绘制。
+
+## 指南
+
+### 推荐
+
+- 在步骤前面用一个标题或一句话说明这是什么流程。如果前面什么都没有，就给列表一个 `label`。
+- 一个步骤只写一个动作，以及读者完成它所需要的内容。
+- 当流程被一条说明或一组供选择的标签页打断时，用 `start` 把它接续下去。
+- 如果每一项只是一个短语，而不是一套流程，请使用不加这个类的长文排版有序列表。
+
+### 避免
+
+- 不要用步骤来显示某个流程的进度。没有哪一步是“当前”或“已完成”的。
+- 不要在步骤里嵌套步骤。子步骤是正文里的一个有序列表。
+- 不要把每个标题都写成标题元素：如果页面大纲里列出了每套流程的每一步，在页面中移动反而更难。
+
+## 无障碍
+
+<ComponentAccessibility name="steps" />
+
+### 组件负责的部分
+
+- 它始终是文档里的有序列表：一个项数与步骤数相同的列表，每一项按编号、标题、正文的顺序朗读。
+- 用户听到的编号就是看到的编号，用 `start` 接续另一组的步骤也是如此。
+- 圆环和连接线是装饰性的，并且对辅助技术隐藏。顺序由列表承载，所以在强制颜色模式下或没有样式表时都不会丢失任何信息。
+- 文本随读者的设置放大并换行。只有在自己的框内滚动的块（例如代码块）才会横向滚动。
+
+### 需要你做的事
+
+- 在列表上写 `role="list"`。
+- 用步骤前面的标题或 `aria-label` 为这套流程命名。
+- 只有当各个步骤就是页面的各个部分时，才把标题写成标题元素。

@@ -1,0 +1,2873 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "select",
+  "title": "Select",
+  "summary": "Lets people choose one value from a closed list: a trigger that looks and measures like a text input and shows the chosen option, and a list of options, optionally grouped, that opens from it. It has no label row and no message: a Field frames it — that pair is the select field — or the product names it where its label stands elsewhere, as in a header or a toolbar.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The trigger's box: it shows the chosen value and opens the list. It measures and is drawn as the text input's container of the same variant and size, carries the hover state layer and shows focus by its edge. A press anywhere on it opens the list."
+    },
+    {
+      "id": "outline",
+      "description": "The border of an outlined select, which opens a gap where the floated label crosses it; in a stacked select, the line drawn inside the container's edge while it is focused or in error, which takes no layout space.",
+      "optional": true
+    },
+    {
+      "id": "active-indicator",
+      "description": "The line along the bottom of a filled select; its focused state is thicker and colored.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "In a filled or outlined select, its name drawn inside the box: it rests in the line while nothing is chosen and the select is neither focused nor open, and floats above the value otherwise. A stacked select draws none: the label above it is the row of the Field that frames it.",
+      "optional": true
+    },
+    {
+      "id": "required-asterisk",
+      "description": "After the floating label's text, an asterisk, where the Field that frames the select says it is required and marks it (SEL-7). Kept from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "value",
+      "description": "The chosen option's label, on one line in the container, cut where it does not fit. It is drawn from the input part of the tokens: the text input's name for the same line."
+    },
+    {
+      "id": "placeholder",
+      "description": "A hint shown in the line while nothing is chosen; never a label.",
+      "optional": true
+    },
+    {
+      "id": "leading-icon",
+      "description": "A glyph at the start of the container: the one the product gives the select, or else the chosen option's own.",
+      "optional": true
+    },
+    {
+      "id": "chevron",
+      "description": "The glyph expand_more of the system's icon set at the end of the container: it says that the box opens a list. It is drawn from the trailing-icon part of the tokens, is not a target of its own, does not turn while the list is open and is never mirrored. A read-only select draws none."
+    },
+    {
+      "id": "list",
+      "description": "The floating surface that holds the options: the raised sheet a menu and a popover are drawn on, placed against the container as a popover is against its anchor, as wide as it, scrolling when its options do not fit."
+    },
+    {
+      "id": "option",
+      "description": "One choice: a row of the list, laid out and drawn as the menu's item. It carries hover, the active highlight and press and, while it is the chosen one, the quiet selection's fill."
+    },
+    {
+      "id": "option-label",
+      "description": "The option's text, its accessible name and what the container shows once the option is chosen."
+    },
+    {
+      "id": "option-supporting-text",
+      "description": "A line below an option's label that says more about the choice. It is shown in the list only.",
+      "optional": true
+    },
+    {
+      "id": "option-leading-icon",
+      "description": "A glyph before an option's label. Its column is kept in every row of a list where any option has one.",
+      "optional": true
+    },
+    {
+      "id": "mark",
+      "description": "The glyph check of the system's icon set at the end of the chosen option's row, in a box kept at the end of every row. With the row's fill it shows the choice; the fill never shows it alone.",
+      "optional": true
+    },
+    {
+      "id": "group",
+      "description": "A run of related options (an option group), optionally under a title, separated from what is next to it by a divider or by a gap.",
+      "optional": true
+    },
+    {
+      "id": "group-title",
+      "description": "The heading above a group's options. It names the group, takes no focus and is not a choice.",
+      "optional": true
+    },
+    {
+      "id": "divider",
+      "description": "The hairline between two groups while the separation is divider. Under gap there is none.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator inside an option's row while the option is the active one by the keyboard. The container itself draws no ring: its focused edge is its focus indicator."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "stacked",
+        "filled",
+        "outlined"
+      ],
+      "default": "stacked",
+      "description": "The text input's three looks, so that a select is drawn as the text inputs beside it. Stacked is a filled box that shows focus and error with a line inside its edge and draws no label: the label of the Field that frames it stands above it. Filled and outlined float the label inside the box. Use one style per form. A design system may leave some out (the Tanrei system ships stacked only) or add values.",
+      "axis": "tanrei.comp.input-box.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "Minimum height of the container (40 / 48 / 56). Medium and large are the text input's sizes, for forms; small is for a select in an app bar, a toolbar or a dense row of controls, where nothing frames it. The hit area always meets the minimum target. A design system may add values.",
+      "axis": "tanrei.comp.input-box.size"
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The value of the chosen option. The select shows that option's label; while value names no option it shows the placeholder. An option whose value is the empty string is a choice like any other (\"None\", \"Any\") and is the chosen one while value is empty."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the select for assistive technology where no Field frames it; a filled or outlined select also draws it, as the label that floats in its box. Inside a Field leave it empty: the Field's label names the select, and is what floats."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Does not draw the floating label of a filled or outlined select, which stays the accessible name. Inside a Field, hide the label on the Field. A stacked select draws no label, so this changes nothing there."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "default": "",
+      "description": "A hint shown while nothing is chosen and the label is not in the line (\"Choose a country\"). Never a replacement for label, and never a choice."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the select in its error condition and exposes it as invalid. A Field sets it from its own error; set it here only where no Field frames the select. What a value means is the product's to validate; the select never sets this itself."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Disables the select: it takes no focus, does not open and is left out of form submission. Inside a Field, disable the Field, so that its label follows."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "The value is shown, can be focused and is submitted, but cannot be changed: the list does not open and no chevron is drawn."
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the list is shown. The select opens and closes itself and emits toggle; the product may also set it. Ignored while the select is disabled or read-only or holds no option."
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How a group of options is told from what is next to it. divider: a line between them. gap: empty space and no line. Auto takes comp.select.separation, which follows the design system's choice."
+    }
+  ],
+  "items": [
+    {
+      "name": "option",
+      "summary": "One choice of the select: a label, the value it stands for, and optionally a supporting line and a glyph.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The option's text and its accessible name; the container shows it once the option is chosen. Required."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Identifies the choice: the option is the chosen one while the select's value equals it. Unique within the select. The empty string is a value like any other, for an option that stands for no choice (\"None\")."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A line below the label that says more about the choice. Shown in the list, not in the container."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon (a glyph of the system's icon set) before the label; the container shows it too while the option is chosen and the select has no leading icon of its own."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents the option from being chosen. It stays reachable with the arrow keys."
+        }
+      ]
+    },
+    {
+      "name": "option-group",
+      "summary": "A run of related options, optionally titled. The select separates a group from what is next to it by a divider or a gap.",
+      "container": true,
+      "props": [
+        {
+          "name": "title",
+          "type": "string",
+          "default": "",
+          "description": "A short heading drawn above the group's options, which also names the group; empty draws none and leaves the group unnamed."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading-icon",
+      "description": "A glyph at the start of the container that stands for the field whatever is chosen (a globe before a language). It takes the place of the chosen option's own glyph.",
+      "fixture": "glyph"
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The person chose an option whose value differs from the select's; carries the new value. Not emitted when the product sets value, when the chosen option is chosen again, or while the person only moves through the list."
+    },
+    {
+      "name": "toggle",
+      "description": "The list was opened or closed by the person; carries the new open and, for a close, the reason: select, escape, back, outside, focus-out, anchor-hidden, press or tab (in the platform's casing). After a choice it follows change."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "SEL-1",
+      "text": "THE select SHALL draw its container at least comp.input-box.container.height.medium tall for size medium (and so on for each size), with a stacked or outlined select's four corners and a filled select's top corners rounded by comp.input-box.container.shape, a filled select's bottom corners by comp.input-box.container.shape-bottom, all eased by sys.shape.corner-smoothing, and SHALL lay out in it one row, centred vertically: the leading icon where there is one (SEL-18), the value or the placeholder (SEL-16) taking the remaining width, and the chevron at the end (SEL-19), comp.input-box.container.gap.medium apart; text SHALL be comp.input-box.container.padding-inline.medium from the container's edge and a glyph comp.input-box.container.padding-inline-with-icon.medium, and the row's tallest item SHALL have at least comp.input-box.container.padding-block.medium above and below it (and so on for each size).",
+      "verify": "Under the default system a medium select is 48 high and a large one 56, with 16 before the value and 12 after the chevron, the chevron 24; a small one is 40 high with 12 and 8, the chevron 20."
+    },
+    {
+      "id": "SEL-2",
+      "text": "WHILE size is medium or large THE select SHALL measure as the text input of the same variant and size measures (TXI-16): the same container height, paddings and corners, and the same text style and start edge for the value as the text input's text, so that a select and a text input side by side share every horizontal line and a select below a text input shares its start edges. The two are drawn from one set of tokens (SEL-65): what a layer changes of the box, it changes for both. The label row above it and the supporting row below it are the rows of the Field that frames it (FLD-1, FLD-2, FLD-7), which are one frame for every control.",
+      "verify": "The select's trigger and the text input read one set of tokens (SEL-65), so no test holds two sets equal; a test places a select field and a text field of the same variant, size, label and supporting text in one row and compares the tops and bottoms of their labels, containers, value baselines and supporting rows."
+    },
+    {
+      "id": "SEL-7",
+      "text": "WHERE variant is filled or outlined, WHILE the floating label is drawn (SEL-15) and the Field that frames the select gives it an asterisk as its required mark (FLD-25) THE select SHALL draw the character \"*\" after the label's text, comp.input-box.requirement.asterisk-gap from it, in the label's text style and at the label's place, resting and floated with it, in the required-asterisk color of its variant (comp.input-box.outlined.required-asterisk.color for an outlined select; comp.input-box.outlined.error.required-asterisk.color WHILE the select is in error), and SHALL keep it from assistive technology, because the required state already says it (SEL-11). It SHALL draw no tag and no optional label: which mark a required control gets is the Field's to say (FLD-6), and a tag named there reaches a floating label as the asterisk. WHILE no Field frames it, or the Field gives no mark, or the label is not drawn, THE select SHALL draw no mark.",
+      "verify": "The select field's fixture outlined-required (twin field.select-outlined-required): the asterisk follows the floating label. Unit, a Field around an outlined select: requiredMark tag, asterisk and auto under a fixture system that names each mark draw the asterisk in the floating label; none draws nothing and keeps the required state; without a Field no mark is drawn."
+    },
+    {
+      "id": "SEL-9",
+      "text": "WHILE error is true — set by the product, or by the Field that frames it (FLD-8) — THE select SHALL draw every part of its trigger, in every state, from the error parts of its variant (comp.input-box.stacked.error.outline.color and the other error. parts), so that the select itself is marked and not only a text below it, and SHALL expose itself as invalid to assistive technology; its list and its options SHALL stay as they are drawn. THE select SHALL never set error itself and SHALL show no error text of its own: the words that say what is wrong are the errorText of the Field that frames it, which that Field draws and gives the select as its description (FLD-7, FLD-11).",
+      "verify": "Under the default system a stacked select in error draws the line inside its edge in the error role, and the chevron takes it as a text input's trailing glyph does; a floating label keeps its resting color."
+    },
+    {
+      "id": "SEL-11",
+      "text": "THE select SHALL take its name, its description and its required state from the Field that frames it, as every control a Field frames does (FLD-10, FLD-11): the Field's label is its accessible name and the name of its list (SEL-48), whether or not any label is drawn, and the Field's supporting text with, in error, the error text after it is its description. WHILE label is not empty THE select SHALL use it as the accessible name instead, for a select no Field frames or one whose visible label is elsewhere. It SHALL never use placeholder as the name, and IF it has neither name it SHALL still render and work, and in debug builds SHALL report that it has no accessible name. WHILE its Field says it is required THE select SHALL expose itself as required, whichever mark is drawn and where none is, and on the web SHALL report a missing value to the form's constraint validation WHILE value is the empty string; it has no requirement setting of its own and SHALL NOT validate because of one. WHILE an option's label is empty THE select SHALL still render the option and in debug builds report that it has no accessible name.",
+      "verify": "Unit: a bare select is named by its label; a select in a Field is named by the Field's label with the Field's labelHidden false and true, and by its own label where it has one; in a Field whose requirement is required it is exposed as required and, on the web, reports a missing value while value is empty."
+    },
+    {
+      "id": "SEL-13",
+      "text": "THE select SHALL add one stop to the focus order, its container, and no other. A press on the label row of the Field that frames it moves focus to the container and opens nothing: that press is the Field's (FLD-12). A label that floats in the container is part of the container, and a press on it is a press on the container (SEL-22, SEL-23)."
+    },
+    {
+      "id": "SEL-15",
+      "text": "WHERE variant is filled or outlined and the label is drawn THE select SHALL rest the label in the value's line, in comp.input-box.label.typescale.medium for size medium (and so on), WHILE no option is chosen and the select is neither focused nor open, and otherwise float it as the text input of that variant floats its label (TXI-13): to the top of a filled container, or onto an outlined container's top edge with a gap of comp.input-box.outline.notch-padding in the outline on each side of it, in comp.input-box.label.floated-typescale.medium for size medium (and so on); a filled select that draws its label SHALL be at least twice comp.input-box.container.padding-block-with-label.medium plus one line of each of those two text styles tall (and so on for each size), so that it does not change height when the label floats. WHEN the label floats or rests THE select SHALL move and resize it over comp.input-box.motion.label-duration with comp.input-box.motion.label-easing, and at once where motion is reduced. The label SHALL wrap rather than be cut and SHALL never be drawn over the value. The label it floats SHALL be its accessible name (SEL-11) — the label of the Field that frames it, or its own label where none does — in the label color of its variant (comp.input-box.outlined.label.color for an outlined select, its error. part WHILE the select is in error). WHILE labelHidden is true — its own, or that Field's (FLD-25) — or it has no name THE select SHALL draw no label. WHERE variant is stacked, or a variant laid out as stacked (SEL-60), THE select SHALL draw no label at all: the label above it is the Field's row (FLD-2)."
+    },
+    {
+      "id": "SEL-16",
+      "text": "THE select SHALL show in its container the label of the chosen option (SEL-17), on one line, in comp.input-box.input.typescale.medium for size medium (and so on) and the input color of its variant (comp.input-box.stacked.input.color for a stacked select, its error. part WHILE the select is in error); it SHALL NOT wrap it, and WHEN the container is narrower than the label needs SHALL cut it with an ellipsis, keeping the leading icon, the chevron and the paddings whole, the full label remaining what assistive technology reads. WHILE no option is chosen THE select SHALL show placeholder in the same place and style in the placeholder color of its variant (comp.input-box.stacked.placeholder.color for a stacked select), only while the label is not in the line — a stacked select, whose label is the row of its Field; floated; or not drawn — and nothing WHILE placeholder is empty. THE select SHALL NOT show an option's supporting text in its container.",
+      "verify": "The fixture long-value holds a chosen label wider than its container: it ends in an ellipsis before the chevron, and the accessibility tree holds the whole label."
+    },
+    {
+      "id": "SEL-17",
+      "text": "THE select SHALL treat as the chosen option the first option, in order and across groups, whose value equals value, a disabled option and an option whose value is the empty string included; WHILE no option's value equals value THE select SHALL draw itself with nothing chosen, SHALL keep value as the product set it, and in debug builds SHALL report a value that is not empty and names no option. WHEN two options share a value THE select SHALL treat the first as the one both stand for and in debug builds report it. WHEN the options change THE select SHALL find the chosen option again by value and SHALL NOT change value or emit change."
+    },
+    {
+      "id": "SEL-18",
+      "text": "WHERE the leading-icon slot holds a glyph THE select SHALL draw it at the start of its container; otherwise, WHILE the chosen option has a leadingIcon, THE select SHALL draw that glyph there; otherwise it SHALL draw none and start the value at the text padding. It SHALL draw the glyph at comp.input-box.icon.size.medium for size medium (and so on), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, in the leading-icon color of its variant (comp.input-box.stacked.leading-icon.color for a stacked select, its error. part WHILE the select is in error), and SHALL keep it from assistive technology. The slot's content SHALL be a glyph only: an interactive element there SHALL be reported in debug builds."
+    },
+    {
+      "id": "SEL-19",
+      "text": "WHILE readOnly is false THE select SHALL draw at the end of its container the glyph expand_more of the system's icon set, at comp.input-box.icon.size.medium for size medium (and so on), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, in the trailing-icon color of its variant (comp.input-box.stacked.trailing-icon.color for a stacked select, its error. part WHILE the select is in error). THE select SHALL draw the same glyph whether the list is closed or open and wherever the list is placed, without turning or exchanging it, SHALL NOT mirror it in a right-to-left layout, SHALL keep it from assistive technology, SHALL NOT make it a target or a focus stop of its own, and SHALL draw no mark of its own in its place. WHILE readOnly is true THE select SHALL draw no chevron, because nothing opens. IF the icon set cannot draw a glyph yet (its font is still loading or failed to load) THE select SHALL draw nothing in that glyph's place, never its name as text, and keep the glyph's box."
+    },
+    {
+      "id": "SEL-20",
+      "text": "WHILE hovered or focused THE select SHALL render its container, outline, active indicator, floating label and its asterisk, value, placeholder, leading icon, chevron and opacity, and the widths of its outline and active indicator, from the component tokens of the highest-precedence active state, with precedence focused over hovered; focus gained by pointer or touch SHALL select the focused state, as in a text input (TXI-6), and THE select SHALL be drawn focused for as long as its list is open, and SHALL say so to the Field that frames it, so that the rows of that Field are drawn focused with it (SEL-63, FLD-13). WHILE variant is stacked it SHALL draw no edge at rest (comp.input-box.stacked.outline.color is transparent), SHALL draw its focused outline color and width as a line inside the container's edge that takes no layout space, and WHILE in error SHALL draw that line at rest in comp.input-box.stacked.error.outline.color at comp.input-box.outline.width; a hovered stacked or filled select SHALL show the state layer on its container. WHEN its state changes THE select SHALL animate colors and widths over comp.input-box.motion.state-duration with comp.input-box.motion.state-easing, and SHALL change them at once where motion is reduced."
+    },
+    {
+      "id": "SEL-21",
+      "text": "THE select SHALL show focus by its focused tokens — the focused outline or active indicator is its focus indicator — and SHALL NOT draw the focus ring around its container; WHERE sys.behavior.focus-style is glow it SHALL also draw the glow around the container while focused."
+    },
+    {
+      "id": "SEL-22",
+      "text": "WHERE the container is shorter than the minimum target THE select SHALL extend its hit area vertically to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. The whole container — its paddings, the leading icon, the value and the chevron — SHALL be one target. THE select SHALL draw no press answer on its container (no pressed state layer, ripple or dim): a press on it is answered by the list, which opens with the press, and by the focused edge."
+    },
+    {
+      "id": "SEL-23",
+      "text": "WHEN the person presses the container by pointer or touch, or presses Enter, Space, Down Arrow or Up Arrow while the select has focus, WHILE the list is closed and the select is neither disabled nor read-only and holds at least one option, THE select SHALL take focus if it does not have it, set open to true, emit toggle once with open true, and present its list (SEL-24). The container is the list's anchor and its opener (POP-18): THE select SHALL NOT open or close its list when a pointer enters or leaves, when focus arrives, on a long-press or after a time, and SHALL expose on its container that it opens a list box, whether the list is open and which element it is (aria-haspopup with the value listbox, aria-expanded and aria-controls on the web). THE select SHALL NOT change value by opening, and SHALL NOT change value from the keyboard while its list is closed: the arrow keys and typing (SEL-33) open the list instead, so that a value never changes without the person seeing what it changed to and confirming it."
+    },
+    {
+      "id": "SEL-24",
+      "text": "WHILE open is true THE select SHALL present its list in the platform's overlay layer, the one a popover's container and the menu's surface use (POP-1), and SHALL place it against its container as a popover whose placement is bottom-start is placed against its anchor (POP-2, POP-4): comp.select.list.offset below the container with the start edges aligned, its own token in the place of the popover's offset. It SHALL keep the list at least comp.select.list.viewport-margin inside the window's safe area by the steps POP-5 gives, in that order — flipping above the container where below has no room and above has, limiting the list to the room where neither has, shifting along the container, and keeping its side while that side has room — SHALL follow the container as it moves or changes size, SHALL take the on-screen keyboard's top edge as an edge of that area (POP-36), and SHALL take the start edge as the right edge in a right-to-left layout (POP-34). It SHALL stay an anchored list at every window size and SHALL NOT turn into a sheet or a dialog (POP-31). WHEN the container is removed, hidden or scrolled out of sight so that no part of it can be seen THE select SHALL close the list with the reason anchor-hidden (SEL-27), as POP-5 says of a popover's anchor."
+    },
+    {
+      "id": "SEL-25",
+      "text": "THE select SHALL fill its list with comp.select.list.color, raise it by comp.select.list.elevation, round it by comp.select.list.shape eased by sys.shape.corner-smoothing, clip its options to that shape and inset them by comp.select.list.padding-block and comp.select.list.padding-inline. It SHALL make the list as wide as its container, as a popover whose width is anchor is (POP-7): at least comp.select.list.min-width where the container is narrower, following the container's width as it changes, and never wider than the window's safe area less comp.select.list.viewport-margin on each side; an option whose text needs more SHALL wrap (SEL-37). It SHALL make the list as tall as its options and its paddings, at most comp.select.list.max-height and at most the room its side leaves (POP-8), and SHALL scroll the options beyond that, vertically only, the list's paddings scrolling with them; the list has no header and no actions, so it draws no divider of a scrolling popover. WHEN the list opens with a chosen option THE select SHALL scroll it so that the whole of that option is in view.",
+      "verify": "The fixture open-many holds 24 options with the 18th chosen: the list is 320 high under the default system and the chosen row is fully inside it. The fixture small-label-hidden-open has a container narrower than 160: its list is 160 wide."
+    },
+    {
+      "id": "SEL-26",
+      "text": "WHILE the list is open THE select SHALL keep focus on its container, because the list is an operated overlay whose focus is the field it belongs to, as the search's docked view is: it SHALL NOT move focus into the list when it opens (this is the select's own rule, where a popover moves focus in, POP-19), SHALL NOT trap focus, make anything inert or draw a scrim; a press on an option, on a group title or on the list's surface SHALL NOT take focus from the container. One option at a time SHALL be the active option, which the keys act on and assistive technology is told of (SEL-48)."
+    },
+    {
+      "id": "SEL-27",
+      "text": "WHEN the person presses Escape or the platform's back while the list is open, presses outside the list and the container, moves focus out of the select, or WHEN the container goes out of sight (SEL-24), THE select SHALL close the list, set open to false and emit toggle once with open false and that reason — escape, back, outside, focus-out or anchor-hidden, the popover's reasons (POP-21); and it SHALL do the same with the select's own reasons WHEN the person presses the container while the list is open (press), presses Tab or Shift+Tab (tab), or chooses an option (select, SEL-34). Tab closes the list at once and moves focus on from the container as it would have, as the menu's rule is and not the popover's (POP-20), because the list holds one set of options and nothing a person could tab to. A close for any reason but select SHALL choose nothing, whatever option is active, and value SHALL stay as it is. Focus SHALL stay on the container, or where the person put it WHEN the close came from focus moving to, or a press landing on, another focusable element (POP-22). Focus leaving the window SHALL NOT count as focus leaving the select. Whether a press outside also reaches the element under it SHALL follow the platform and be stated in its README, as for the menu (MNU-5)."
+    },
+    {
+      "id": "SEL-28",
+      "text": "WHILE the list is open, WHEN the user presses Escape or the platform's back THE select SHALL take the key, close as SEL-27 says, and let it go no further, so that it does not also close a dialog, a sheet or a popover the select stands in (POP-23). WHILE the list is closed THE select SHALL NOT act on Escape and SHALL leave it to whatever holds the select."
+    },
+    {
+      "id": "SEL-29",
+      "text": "WHERE the select stands inside a popover or a modal overlay (a dialog, a modal sheet) THE select's list SHALL belong to that overlay as POP-24 and POP-25 say of an overlay opened from inside one: a press in the list is not a press outside it, the list is presented above it and is operable while the rest of the window is inert, and the list closes with it. THE select SHALL open no overlay from inside its list."
+    },
+    {
+      "id": "SEL-30",
+      "text": "WHEN the list opens THE select SHALL fade it in and grow it from the edge that faces the container, as a popover's container does (POP-26), over comp.select.motion.open-duration with comp.select.motion.open-easing, and WHEN it closes fade it out over comp.select.motion.close-duration with comp.select.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once. WHEN it is told to close while still opening, or to open while still closing, it SHALL turn round from where it is, and WHILE closed or closing it SHALL take no pointer input (POP-27). The value and the open state SHALL change when the list closes, not when its motion ends."
+    },
+    {
+      "id": "SEL-31",
+      "text": "WHEN the list opens THE select SHALL make the chosen option the active one, or the first option that is not disabled WHILE none is chosen. WHILE the list is open THE select SHALL make active the next option with Down Arrow and the previous one with Up Arrow, in order and across groups, stopping at the last and at the first without wrapping; the first and the last option with Home and End; and the option ten after or ten before, or the last or the first where fewer remain, with Page Down and Page Up. A disabled option SHALL be reached like any other, so that people learn it exists; a group title and a divider are never active. Making an option active SHALL NOT change value. WHEN an option becomes active while part of it is scrolled out of view THE select SHALL scroll it into view."
+    },
+    {
+      "id": "SEL-32",
+      "text": "WHILE an option is the active one by the keyboard THE select SHALL render it in the focused state and show the focus ring inside its row, which the list would otherwise clip, without animation; WHEN a pointer moves onto an option THE select SHALL make that option the active one, render it hovered and show no focus ring, so that the arrow keys continue from it; WHEN the pointer leaves the list the option SHALL stay active."
+    },
+    {
+      "id": "SEL-33",
+      "text": "WHEN the person types printable characters while the select has focus, each within one second of the one before, THE select SHALL treat them as one string and make active the next option after the active one, wrapping to the first, whose label begins with that string, compared without regard to case as the label's language compares; a string of one character typed again SHALL move on to the next option that begins with it. WHILE the list is closed the first character SHALL open it (SEL-23) and then do the same. Typing SHALL NOT change value, and a Space typed within that second SHALL be a character of the string and SHALL NOT choose."
+    },
+    {
+      "id": "SEL-34",
+      "text": "WHEN the person presses an option that is not disabled by pointer or touch, or presses Enter or Space while such an option is the active one, THE select SHALL, WHEN that option's value differs from value, set value to it, show its label in the container and emit change once with the new value; it SHALL then close the list with the reason select (SEL-27), so that toggle follows change. Choosing the option that is already chosen SHALL emit no change and still close the list. THE select SHALL NOT emit change when the product sets value, and SHALL have no way of its own to return to nothing chosen: a product that allows no choice gives an option that says so."
+    },
+    {
+      "id": "SEL-35",
+      "text": "WHILE an option's disabled is true THE select SHALL NOT choose it by any input, SHALL leave the list open when it is pressed or when Enter or Space is pressed on it, SHALL expose its disabled state to assistive technology, and SHALL render its container, label, supporting text, leading icon, mark and opacity from the disabled component tokens of its condition. A disabled option whose value equals value is still the chosen one: the container shows its label, and its row draws the fill and the check from the disabled tokens."
+    },
+    {
+      "id": "SEL-36",
+      "text": "WHEN the product sets open THE select SHALL show or remove its list without emitting toggle; WHEN the product sets value THE select SHALL show the chosen option's label and SHALL NOT emit change or toggle, and WHILE the list is open SHALL move the fill and the check to the new chosen option and leave the active option where it is. WHEN the options change while the list is open THE select SHALL keep the active option where an option of the same value still exists and otherwise make active the option SEL-31 names for an opening list. WHEN the select becomes disabled or read-only, or loses its last option, while its list is open THE select SHALL close the list without emitting toggle."
+    },
+    {
+      "id": "SEL-37",
+      "text": "THE select SHALL lay out an option as one row: comp.select.option.padding-inline from each edge, the leading icon column (while any option of the list has a leading icon), the label with the supporting text below it taking the remaining width, and at the end a box of side comp.select.option.mark.size for the check (SEL-39), each comp.select.option.gap from the next; an empty column or box SHALL keep its width in every row so that labels align and wrap alike. It SHALL make the row at least comp.select.option.height tall, and at least sys.target.touch tall for touch input and sys.target.pointer tall for fine pointers, because rows that touch cannot extend a hit area over each other (a platform that cannot tell the input type SHALL use sys.target.touch); pad its content by comp.select.option.padding-block above and below; draw the label in comp.select.option.label.typescale and the supporting text in comp.select.option.supporting-text.typescale; and wrap text and grow the row, with long labels and with enlarged text, rather than cut anything in the list. The whole row SHALL be the option's hit area.",
+      "verify": "Under the default system an option's label starts 16 from the list's edge (4 of the list's padding and 12 of the row's), which is where the value starts in a medium or large container of the same width."
+    },
+    {
+      "id": "SEL-38",
+      "text": "THE select SHALL draw an option from the condition it is in — selected-option for the chosen option, option for every other — and from the state it is in, with precedence pressed over focused over hovered: its row filled with the container color of that condition and state within the corners comp.select.option.shape gives, eased by sys.shape.corner-smoothing, over comp.select.list.color and under the row's content; its label, supporting text and leading icon in that condition's colors (comp.select.stacked.option.label.color, comp.select.stacked.selected-option.label.color and so on for a stacked select). The option parts hold the same values under every variant: a list does not change with the look of its field. WHEN the colors of an option change between states THE select SHALL animate them over comp.select.motion.state-duration with comp.select.motion.state-easing, and SHALL change them at once where motion is reduced.",
+      "verify": "A test resolves every option and selected-option token and the menu's unselected and selected token of the same part and state, and every token of the list and the row and the menu's surface and container token, in every scheme of the default system and of each preset, and requires them equal."
+    },
+    {
+      "id": "SEL-39",
+      "text": "WHILE an option is the chosen one THE select SHALL fill its row with the selected-option container color of its state (comp.select.stacked.selected-option.container.color at rest for a stacked select) and SHALL draw the glyph check of the system's icon set centred in the box at the end of the row, in the mark color of that condition and state (comp.select.stacked.selected-option.mark.color at rest), with sys.icon.family.selected, sys.icon.fill.selected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; it SHALL draw nothing in that box for any other option, SHALL NOT mirror the check in a right-to-left layout, and SHALL draw no mark of its own (no path, shape or character of its own for the check). THE select SHALL NOT show the choice by the fill alone: the check is always drawn with it, and a design system whose fill is none still marks the chosen option. WHEN the chosen option changes while the list is open THE select SHALL fade the check in or out over comp.select.motion.state-duration with comp.select.motion.state-easing without moving or scaling it."
+    },
+    {
+      "id": "SEL-40",
+      "text": "THE select SHALL draw an option's leadingIcon at comp.select.option.leading-icon.size through the icon helper, with the family and fill of the option's condition (sys.icon.family.selected and sys.icon.fill.selected for the chosen option, otherwise sys.icon.family.unselected and sys.icon.fill.unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, in the leading-icon color of its condition and state, hidden from assistive technology; an empty name SHALL draw nothing."
+    },
+    {
+      "id": "SEL-41",
+      "text": "WHEN the option is pressed by pointer, touch, Enter or Space THE option SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "SEL-42",
+      "text": "WHILE pressed THE option SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, supporting text, leading icon, mark, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.select.motion.feedback-duration with comp.select.motion.state-easing, fades over comp.select.motion.state-duration with comp.select.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced."
+    },
+    {
+      "id": "SEL-43",
+      "text": "THE option SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "SEL-44",
+      "text": "WHILE a group's title is not empty THE select SHALL draw it above the group's options in comp.select.group-title.typescale and comp.select.group-title.color, starting comp.select.group-title.padding-inline from the rows' start edge and ending comp.select.group-title.padding-inline from their end edge, with comp.select.option.padding-block above and below, wrapping and growing with enlarged text rather than clipping. The title SHALL take no focus, SHALL never be the active option, SHALL NOT be reached by typing and SHALL scroll with its options. WHEN a group holds another group THE select SHALL draw the inner group's options as the outer group's, with no title or separation of the inner group's own, and in debug builds report it."
+    },
+    {
+      "id": "SEL-45",
+      "text": "THE select SHALL separate a group from an adjacent group or an adjacent option outside any group as its separation names: WHILE separation is auto, as comp.select.separation names, which follows sys.behavior.separation unless a design system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say. Under divider it SHALL draw a line of comp.select.divider.thickness in comp.select.divider.color across the list's inner width, inside comp.select.list.padding-inline on each side, with comp.select.divider.space above and below it, exposed as a separator that takes no focus; under gap it SHALL leave comp.select.group.gap of empty space, draw no line and expose no separator. It SHALL draw neither before the first nor after the last element of the list. WHEN separation names a value the select does not define THE select SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, divider, and state that in its README."
+    },
+    {
+      "id": "SEL-46",
+      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE select SHALL NOT be focusable, SHALL NOT open, SHALL NOT emit change or toggle, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, and SHALL render every part of its trigger, the chevron, the floating label and its asterisk included, from the disabled component tokens of its variant (of its error parts WHILE error is true)."
+    },
+    {
+      "id": "SEL-47",
+      "text": "WHILE readOnly is true and disabled is false THE select SHALL stay focusable and show its value, SHALL NOT open by any input and SHALL NOT let the person change the value, SHALL NOT emit change or toggle, SHALL expose the read-only state to assistive technology, SHALL be submitted with its form on the web, and SHALL render as an enabled select without its chevron (SEL-19), including its hovered and focused states."
+    },
+    {
+      "id": "SEL-48",
+      "text": "THE select SHALL expose its container, on the web, as a combobox that is not editable: named by label (SEL-11), with the chosen option's label as its value (the placeholder is not a value), and WHILE the list is open aria-activedescendant naming the active option; and the list as a listbox named by label whose options are named by their label and described by their supporting text, each with its selected state — true for the chosen option alone — its disabled state, its position and the number of options, and whose groups are groups named by their title. On the other platforms THE select SHALL expose the container as the platform's control that opens a list of choices (a pop-up button, a drop-down list, a combo box) named by label with the chosen option's label as its value and its expanded state, and the options as selectable items in a list with the same names, states and positions. Icons, the chevron, the check and the divider SHALL be hidden from assistive technology."
+    },
+    {
+      "id": "SEL-49",
+      "text": "WHILE no Field frames it and the product gives it no width THE select SHALL be as wide as its widest option would make it — the widest option label in the value's text style, with the leading icon column where the select or any option has a leading icon, the chevron, the gaps and the paddings — so that choosing an option never changes its width, and at least as wide as its placeholder needs; it SHALL never be wider than its layout gives it, cutting the value instead (SEL-16), and WHERE the product gives it a width it SHALL fill that width. WHILE a Field frames it THE select SHALL fill the width that Field gives it (FLD-1), as a text input does, so that a field of a form is as wide as its column whatever control it holds; the width of such a pair is given to the Field.",
+      "verify": "The fixture small-label-hidden-icons holds options of unequal length: the container is as wide as with the longest of them chosen. Unit: the same select in a Field 280 wide has a container 280 wide, whichever option is chosen."
+    },
+    {
+      "id": "SEL-51",
+      "text": "WHILE the text size is enlarged THE select SHALL grow its container with the value's line, keeping the height of its size as a minimum and its glyphs at their sizes, SHALL keep the value on one line, SHALL wrap its options and its group titles rather than cut them, and SHALL scroll its list where the taller options no longer fit (SEL-25), so that text enlarged to 200% loses no content in the list and none but a cut value in the container, which the list and assistive technology still give in full."
+    },
+    {
+      "id": "SEL-52",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE select SHALL draw its floating label and that label's asterisk in the platform's text color, and SHALL rely on no color of its own to show an error: the error is carried by the invalid state (SEL-9) and by the words the Field that frames it shows, in that Field's own rows (FLD-17).",
+      "verify": "On the web, with forced colors emulated: the floating label of every filled and outlined fixture is CanvasText."
+    },
+    {
+      "id": "SEL-53",
+      "text": "WHERE the platform draws with a person's own forced colors THE select SHALL draw an edge comp.input-box.outline.width wide in the platform's control text color around its container in every variant, that edge in the platform's highlight color at the focused width while focused, an edge sys.border.hairline wide in the platform's text color round its list, as a popover's container has (POP-32), the active option in the platform's highlight colors, and a disabled select and a disabled option in the platform's disabled text color; the chosen option SHALL then be shown by its check alone.",
+      "verify": "On the web, with forced colors emulated: the container has a ButtonText border, a Highlight border while focused; the list has a CanvasText border; the active option is Highlight with HighlightText; the check is drawn."
+    },
+    {
+      "id": "SEL-55",
+      "text": "WHERE the layout direction is right-to-left THE select SHALL mirror its container and its list: the leading icon at the right of the container and the chevron at the left, a floating label from the right edge with its asterisk at its left, the list aligned to the container's right edge (SEL-24), and in each option the leading icon at the right and the check at the left, all paddings applied by logical start and end. The rows of the Field that frames it mirror by FLD-18."
+    },
+    {
+      "id": "SEL-56",
+      "text": "THE select SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the select is shown THE select SHALL draw itself for the new direction at once, without a motion of its own, keeping its value, its open state, its active option and its focus, the list placed again by the new direction (SEL-24).",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render, once with the list open."
+    },
+    {
+      "id": "SEL-57",
+      "text": "WHERE the layout direction is right-to-left THE select SHALL draw the glyph of its leading-icon slot and an option's leadingIcon mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order SEL-55 gives. THE select SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The chevron's expand_more and the check are not marked and are never mirrored. The glyph before the label of the Field that frames it is that Field's (FLD-20)."
+    },
+    {
+      "id": "SEL-58",
+      "text": "THE select SHALL lay out its floating label as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE select SHALL still place it and align its lines by the layout direction, not by the text's own. The texts of the rows of the Field that frames it are laid out by FLD-21."
+    },
+    {
+      "id": "SEL-59",
+      "text": "THE select SHALL lay out its placeholder, the value it shows, an option's label and supporting text and a group's title in the same way (SEL-58): each as text of its own direction, isolated, placed and aligned by the layout direction; and SHALL cut a value that does not fit (SEL-16) at the end of its own direction, so that a left-to-right value in a right-to-left layout loses its right end and never its beginning.",
+      "verify": "The fixture long-value-rtl draws a left-to-right value in a right-to-left stage: the chevron is at the left, the value begins with its first word and the ellipsis is at the value's right end."
+    },
+    {
+      "id": "SEL-60",
+      "text": "WHEN variant or size names a value that the active design system does not have THE select SHALL render with the default value's tokens, and in debug builds report the unknown value; WHEN variant names a value the active system has but the select does not know by name (one a layer added) it SHALL draw no label and draw its edge as a stacked select does (SEL-15, SEL-20), with that value's own tokens."
+    },
+    {
+      "id": "SEL-61",
+      "text": "WHILE the select holds no option THE select SHALL draw its trigger as it is, SHALL stay focusable, SHALL NOT open by any input or because open is true, and in debug builds SHALL report a select without options; it SHALL draw no empty list and no text of its own in one."
+    },
+    {
+      "id": "SEL-62",
+      "text": "THE select SHALL have no words of its own and SHALL read none: it shows its options' labels, its placeholder and its name, each given by the product, and nothing else in words, and draws no text of its own in a list (SEL-61). The words of a requirement are read by the Field that frames it (FLD-24).",
+      "verify": "No test finds in a select a word the test did not give."
+    },
+    {
+      "id": "SEL-63",
+      "text": "THE select SHALL say to the Field that frames it what only the select knows, and SHALL say it again WHEN it changes: that it draws the label itself WHILE its variant floats one (SEL-15), so that the Field draws no label row (FLD-25); how far its value stands from its own start edge — its inline padding and, beside a leading icon, that icon and its gap (SEL-1, SEL-18) — and the padding it keeps at its end edge (SEL-1), so that the Field's supporting row starts and ends there (FLD-26); and that it is drawn focused WHILE its list is open (SEL-20), so that the Field draws its rows from their focused tokens for as long, whether or not the select has focus (FLD-13). It SHALL take from that Field its name, its description and its required, invalid and disabled states (SEL-9, SEL-11, SEL-46), whether the label is hidden (SEL-15) and whether an asterisk follows it (SEL-7), so that a Field and a select placed by hand are drawn, named, described and marked exactly as a select field is. THE select SHALL keep no count and report no refusal of an entry (FLD-27, FLD-28): it holds only what its options offer.",
+      "verify": "The twin test of the select field: each fixture select-<id> of the Field — a Field around a select, written by hand — is the same picture and the same accessibility tree as the select field's fixture <id>. Unit: changing variant from stacked to outlined removes the Field's label row and floats the same text in the select; a leading icon moves the start of the Field's supporting row to the value; setting open without giving the select focus draws the Field's label from its focused tokens (seen under a preset whose primary is chromatic)."
+    },
+    {
+      "id": "SEL-64",
+      "text": "THE select SHALL draw no label row above itself, no requirement tag, no help and no error text: those are the rows of the Field that frames it (FLD-2 to FLD-7). WHILE no Field frames it THE select SHALL be complete as a bare control — its container, the label that floats in it where its variant floats one, the value it shows, its list and its options, its states and its events — named by its own label, and exactly as tall as its container."
+    },
+    {
+      "id": "SEL-65",
+      "text": "THE select SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the line that shows the chosen value and the placeholder, the leading icon and the chevron, the paddings, the gaps and the least height of its size — small, which the select alone offers, included, and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group are the list's — its surface, its options and their states, its groups, its motion (SEL-25, SEL-37 to SEL-42). WHEN a design system or a product sets a token of the box THE select SHALL follow it, as the text input, the combobox, the number input and the color input do, which read the same tokens; no token is held equal to another for this. WHERE one select is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE select SHALL draw itself from the value it finds there.",
+      "verify": "Every value of a select's box is the value of the comp.input-box token it reads, in every scheme of every shipped system. A build test fails if a token with the name of a token of the box stands in the select's own group. Unit, web: with the custom property of comp.input-box.container.shape set on one select's element, its corners change and those of a text input and a select beside it do not; set on an ancestor of the three, all three change."
+    }
+  ],
+  "accessibility": {
+    "role": "combobox",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the select, which is one stop, and on from it. With the list open, closes the list without choosing and moves focus on."
+      },
+      {
+        "keys": "Enter, Space, Down Arrow or Up Arrow, list closed",
+        "action": "Opens the list; the chosen option is the active one, or the first enabled option where none is chosen. The value does not change."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow, list open",
+        "action": "Makes the next or previous option active, across groups, stopping at the ends."
+      },
+      {
+        "keys": "Home / End, list open",
+        "action": "Makes the first or the last option active."
+      },
+      {
+        "keys": "Page Down / Page Up, list open",
+        "action": "Moves the active option by ten, stopping at the ends."
+      },
+      {
+        "keys": "Printable characters",
+        "action": "Opens the list while it is closed; makes active the next option whose label begins with the characters typed within a second of each other. The value does not change."
+      },
+      {
+        "keys": "Enter or Space, list open",
+        "action": "Chooses the active option, emits change if the value changed, and closes the list. On a disabled option, nothing. A Space typed while typing ahead is a character."
+      },
+      {
+        "keys": "Escape",
+        "action": "Closes the list without choosing; focus stays on the select. With the list closed the select does not act on it."
+      }
+    ],
+    "labeling": "The accessible name of the select and of its list is the label of the Field that frames it, or its own label where no Field does; a filled or outlined select draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name and never the value. The chosen option's label is the select's value. The description is what the Field gives: its supporting text with, in error, the error text after it and its optional text. The select is exposed as invalid while error is true or its Field is in error, required while its Field says so — whichever mark is drawn, and the mark itself is hidden — read-only while readOnly is true, and expanded while its list is open. An option is named by its label and described by its supporting text, and exposes whether it is the chosen one, whether it is disabled, and its position among the options; a group is named by its title. The leading icons, the chevron, the check and the divider are decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "The select is the bare control: it draws no label row, no requirement mark, no help and no error. In a form it stands in a Field, which is the select field; alone it is for a place where its label stands elsewhere or is plain from where it stands and what it shows — a theme or a language select in a header, a toolbar, a column of a table — and there its own label names it.",
+      "The pattern is the WAI-ARIA select-only combobox: focus stays on the field and the active option is its active descendant on the web, as the search's suggestions are (SRC-14), not moved into the list as the menu moves it. The field keeps its name, its description, its invalid and required states and its focused edge while the person reads the options, and typing keeps going to one place. SwiftUI, Compose, Flutter and React Native have no active descendant: there the list's options are focusable items that assistive technology moves through, and a hardware keyboard's arrow keys move the highlight as on the web.",
+      "The value changes only when the person confirms an option: a press, Enter or Space. Arrow keys and typing on a closed select open the list instead of changing the value unseen, and Tab, Escape and a press outside close it without choosing, as the menu and the docked picker close without committing (MNU-5, DTM-5). A change event may navigate, save or rebuild a page, so it must never follow a key the person pressed for something else.",
+      "A select holds one value from a closed list. Several values are checkboxes, or a list with multiple selection; a list long enough that people would rather type than scroll, or one that accepts a value not in it, is a combobox, which shares this box, this list and these options and adds a text input. A set of actions is a menu: a menu item does something, an option is a value.",
+      "With up to about five short options and room for them, a radio group or tabs show every choice at once and take one press; a select hides the choices behind a press and is for many options or little room.",
+      "Overlay: the list is an operated overlay that is not modal. It draws no scrim, traps nothing and makes nothing inert. It is placed, sized, dismissed and moved as a popover's container is, by the popover's rules cited by id, with three rules of its own: focus stays on the field, Tab closes at once, and what it opens is a list box.",
+      "Heights are minimums: at 200% text size the container and the options grow, labels and options wrap, and only the value in the container stays on one line (SEL-51). The list scrolls when it no longer fits; it never scrolls sideways.",
+      "The chosen option is told from the others by its check, never by its fill alone; the fill supports the mark and is not held to a contrast of its own. Content on it keeps at least 4.5:1 in every state, by the menu's tokens.",
+      "An error is never shown by color alone: the invalid state carries it and the error text of the Field that frames the select says it; the line inside a stacked select's edge supports them.",
+      "The hit area of the container meets the minimum target although a small select is 40 high, and options are at least the minimum target tall (WCAG 2.5.8).",
+      "A disabled option stays reachable by the arrow keys and is read as unavailable; a select with a single option, or none, is still a select and says so, rather than turning into text.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.select",
+  "fixtures": [
+    {
+      "id": "stacked-empty",
+      "props": {
+        "variant": "stacked",
+        "label": "Country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-value",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-open",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "value": "jp",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-small",
+      "props": {
+        "variant": "stacked",
+        "size": "small",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-error",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "error": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-disabled",
+      "props": {
+        "variant": "stacked",
+        "label": "Country",
+        "value": "jp",
+        "disabled": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-empty",
+      "props": {
+        "variant": "filled",
+        "label": "Country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-value",
+      "props": {
+        "variant": "filled",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-open",
+      "props": {
+        "variant": "filled",
+        "label": "Country",
+        "value": "jp",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-small",
+      "props": {
+        "variant": "filled",
+        "size": "small",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-error",
+      "props": {
+        "variant": "filled",
+        "label": "Country",
+        "error": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "label": "Country",
+        "value": "jp",
+        "disabled": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-empty",
+      "props": {
+        "variant": "outlined",
+        "label": "Country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-value",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-open",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "value": "jp",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-large",
+      "props": {
+        "variant": "outlined",
+        "size": "large",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-small",
+      "props": {
+        "variant": "outlined",
+        "size": "small",
+        "label": "Country",
+        "value": "jp"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-error",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "error": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "label": "Country",
+        "value": "jp",
+        "disabled": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-placeholder",
+      "props": {
+        "label": "Country",
+        "placeholder": "Choose a country"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-open-none-chosen",
+      "props": {
+        "label": "Country",
+        "placeholder": "Choose a country",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-error-value",
+      "props": {
+        "label": "Country",
+        "value": "ke",
+        "error": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-read-only",
+      "props": {
+        "label": "Country",
+        "value": "jp",
+        "readOnly": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-option-icon",
+      "props": {
+        "label": "Theme",
+        "value": "dark"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Light",
+            "value": "light",
+            "leadingIcon": "light_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dark",
+            "value": "dark",
+            "leadingIcon": "dark_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Follow the device",
+            "value": "auto",
+            "leadingIcon": "computer"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stacked-leading-icon",
+      "props": {
+        "label": "Language",
+        "value": "ja"
+      },
+      "slots": {
+        "leading-icon": "translate"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "English",
+            "value": "en"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "日本語",
+            "value": "ja"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-icons",
+      "props": {
+        "label": "Theme",
+        "value": "dark",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Light",
+            "value": "light",
+            "leadingIcon": "light_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dark",
+            "value": "dark",
+            "leadingIcon": "dark_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Follow the device",
+            "value": "auto",
+            "leadingIcon": "computer"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-supporting-text",
+      "props": {
+        "label": "Plan",
+        "value": "team",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Free",
+            "value": "free",
+            "supportingText": "One project, community help"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Team",
+            "value": "team",
+            "supportingText": "Unlimited projects, shared roles"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Enterprise",
+            "value": "enterprise",
+            "supportingText": "Single sign-on and an audit log",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-disabled-chosen",
+      "props": {
+        "label": "Plan",
+        "value": "enterprise",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Free",
+            "value": "free",
+            "supportingText": "One project, community help"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Team",
+            "value": "team",
+            "supportingText": "Unlimited projects, shared roles"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Enterprise",
+            "value": "enterprise",
+            "supportingText": "Single sign-on and an audit log",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-groups",
+      "props": {
+        "label": "Time zone",
+        "value": "Europe/Lisbon",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-groups-divider",
+      "props": {
+        "label": "Time zone",
+        "value": "Europe/Lisbon",
+        "open": true,
+        "separation": "divider"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-groups-gap",
+      "props": {
+        "label": "Time zone",
+        "value": "Europe/Lisbon",
+        "open": true,
+        "separation": "gap"
+      },
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Asia"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Tokyo",
+                "value": "Asia/Tokyo"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Seoul",
+                "value": "Asia/Seoul"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Singapore",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "Europe"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon",
+                "value": "Europe/Lisbon"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Berlin",
+                "value": "Europe/Berlin"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {},
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "Coordinated Universal Time",
+                "value": "UTC"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-many",
+      "props": {
+        "label": "Token",
+        "value": "corner.small",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "space25",
+            "value": "space25"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space50",
+            "value": "space50"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space75",
+            "value": "space75"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space100",
+            "value": "space100"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space125",
+            "value": "space125"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space150",
+            "value": "space150"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space175",
+            "value": "space175"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space200",
+            "value": "space200"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space250",
+            "value": "space250"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space300",
+            "value": "space300"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space400",
+            "value": "space400"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space500",
+            "value": "space500"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space600",
+            "value": "space600"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space800",
+            "value": "space800"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "space1000",
+            "value": "space1000"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.none",
+            "value": "corner.none"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.extra-small",
+            "value": "corner.extra-small"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.small",
+            "value": "corner.small"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.medium",
+            "value": "corner.medium"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.large",
+            "value": "corner.large"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.extra-large",
+            "value": "corner.extra-large"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "corner.full",
+            "value": "corner.full"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "border.hairline",
+            "value": "border.hairline"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "border.thick",
+            "value": "border.thick"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-long-options",
+      "props": {
+        "label": "Email me",
+        "value": "weekly",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me a summary once a week, on Monday morning, in the time zone of my account",
+            "value": "weekly"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me every notification as it happens, including the ones about threads I only follow",
+            "value": "all"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Never",
+            "value": "never"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-value",
+      "props": {
+        "label": "Email me",
+        "value": "all"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me a summary once a week, on Monday morning, in the time zone of my account",
+            "value": "weekly"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me every notification as it happens, including the ones about threads I only follow",
+            "value": "all"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Never",
+            "value": "never"
+          }
+        }
+      ]
+    },
+    {
+      "id": "empty-value-option",
+      "props": {
+        "label": "Contrast",
+        "value": ""
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Standard",
+            "value": ""
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Medium",
+            "value": "medium"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "High",
+            "value": "high"
+          }
+        }
+      ]
+    },
+    {
+      "id": "small-label-hidden",
+      "props": {
+        "size": "small",
+        "label": "Contrast",
+        "value": "high"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Standard",
+            "value": ""
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Medium",
+            "value": "medium"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "High",
+            "value": "high"
+          }
+        }
+      ]
+    },
+    {
+      "id": "small-label-hidden-icons",
+      "props": {
+        "size": "small",
+        "label": "Theme",
+        "value": "light"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Light",
+            "value": "light",
+            "leadingIcon": "light_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dark",
+            "value": "dark",
+            "leadingIcon": "dark_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Follow the device",
+            "value": "auto",
+            "leadingIcon": "computer"
+          }
+        }
+      ]
+    },
+    {
+      "id": "small-label-hidden-leading-icon",
+      "props": {
+        "size": "small",
+        "label": "Language",
+        "value": "en"
+      },
+      "slots": {
+        "leading-icon": "translate"
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "English",
+            "value": "en"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "日本語",
+            "value": "ja"
+          }
+        }
+      ]
+    },
+    {
+      "id": "small-label-hidden-open",
+      "props": {
+        "size": "small",
+        "label": "Theme",
+        "value": "light",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Light",
+            "value": "light",
+            "leadingIcon": "light_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Dark",
+            "value": "dark",
+            "leadingIcon": "dark_mode"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Follow the device",
+            "value": "auto",
+            "leadingIcon": "computer"
+          }
+        }
+      ]
+    },
+    {
+      "id": "small-open",
+      "props": {
+        "size": "small",
+        "label": "Country",
+        "value": "jp",
+        "open": true
+      },
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Canada",
+            "value": "ca"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "France",
+            "value": "fr"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Japan",
+            "value": "jp"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Kenya",
+            "value": "ke"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "New Zealand",
+            "value": "nz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-rtl",
+      "props": {
+        "label": "المنطقة الزمنية",
+        "value": "Asia/Tokyo",
+        "open": true
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "آسيا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "طوكيو",
+                "value": "Asia/Tokyo",
+                "leadingIcon": "arrow_forward"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "سنغافورة",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "أوروبا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "برلين",
+                "value": "Europe/Berlin"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon (WET)",
+                "value": "Europe/Lisbon"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "long-value-rtl",
+      "props": {
+        "label": "Email me",
+        "value": "all"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me a summary once a week, on Monday morning, in the time zone of my account",
+            "value": "weekly"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Send me every notification as it happens, including the ones about threads I only follow",
+            "value": "all"
+          }
+        },
+        {
+          "kind": "option",
+          "props": {
+            "label": "Never",
+            "value": "never"
+          }
+        }
+      ]
+    },
+    {
+      "id": "outlined-rtl",
+      "props": {
+        "variant": "outlined",
+        "label": "المنطقة الزمنية",
+        "value": "Europe/Lisbon"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "آسيا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "طوكيو",
+                "value": "Asia/Tokyo",
+                "leadingIcon": "arrow_forward"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "سنغافورة",
+                "value": "Asia/Singapore"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "option-group",
+          "props": {
+            "title": "أوروبا"
+          },
+          "items": [
+            {
+              "kind": "option",
+              "props": {
+                "label": "برلين",
+                "value": "Europe/Berlin"
+              }
+            },
+            {
+              "kind": "option",
+              "props": {
+                "label": "Lisbon (WET)",
+                "value": "Europe/Lisbon"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-select",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "open": "open",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "change",
+        "toggle": "toggle"
+      },
+      "items": {
+        "option": {
+          "name": "tanrei-option",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "disabled"
+          },
+          "notes": "`<tanrei-option value=\"jp\">Japan</tanrei-option>`: the label is the `label` attribute or, without one, the element's text, as `<option>`. Attributes `supporting-text`, `leading-icon`, `disabled`. The element is data for its select: it draws nothing itself. `tanrei-option` and `tanrei-option-group` are one pair of elements for the select and the combobox: a select that needs a filter becomes a combobox with the same children. Whether an option may have the empty value is each parent's rule (a select's may, SEL-17; a combobox's may not)."
+        },
+        "option-group": {
+          "name": "tanrei-option-group",
+          "props": {
+            "title": "label"
+          },
+          "notes": "The title is the `label` attribute, as `<optgroup label>` and `<tanrei-menu-group label>`: a `title` attribute would also draw the browser's tooltip."
+        }
+      },
+      "notes": "The tag `tanrei-select`, the class `TanreiSelect` and the React name `Select` are the bare control, without the frame. Lagging: the element still draws the label row, the requirement mark and the supporting row itself. A form-associated custom element (`static formAssociated = true`): it takes `name`, submits `value`, restores it on navigation (`formStateRestoreCallback`), resets to the value it was first given, follows `<fieldset disabled>` and reports `valueMissing` while the Field that frames it says it is required and `value` is empty. Its two calls on `ElementInternals` and its form go through the shared field primitives, so that a select field can repeat them. The trigger is a `<div role=\"combobox\" tabindex=\"0\">` in the shadow root carrying the name, the description, `aria-invalid`, `aria-required`, `aria-readonly`, `aria-haspopup=\"listbox\"`, `aria-expanded`, `aria-controls` and `aria-activedescendant` — set on that element, not through ElementInternals, which axe cannot see. The name and the description are values the Field gives (`tanrei-field-connect`, `src/primitives/field.ts`), written into the select's own shadow root, the select's own `label` winning; the connection runs in both directions (SEL-63): the control's side says `drawsLabel`, `inset: { start, end }` (lengths the select writes from its own tokens and its measured icon box) and `drawnFocused` (true while the list is open), and takes `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states. A select that a Field frames is a block that fills the Field's width (SEL-49); a bare one is an inline box as wide as its widest option, measured from a hidden grid cell that stacks every option's label in the value's style. The options are `<tanrei-option>` and `<tanrei-option-group>` elements, read as data and never drawn in place: the select renders the rows itself in its shadow root, so that the combobox, its `aria-controls` listbox and its `aria-activedescendant` option are in one tree. It reads them from its own children, and — in `src/primitives/option-list.ts`, for the combobox too — through any `<slot>` among its children: the elements assigned to that slot, flattened, stand in the slot's place, in order. That is how a select field's options, which are the product's children of `<tanrei-select-field>`, reach the select inside it, and how a product's own element can pass options on. Changes are observed on the children, on each such slot (`slotchange`) and on each element assigned through one. The list is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback and followed with the `FollowController` the menu uses, with the select's own light dismiss so that `toggle` carries a reason; a press outside also reaches the element under it. The select sets its own `value` before firing `change` (a composed, bubbling Event, as a native select's) and its own `open` before firing `toggle`, a CustomEvent whose `detail` holds `open` and `reason` — which is composed and not bubbling (the shipped element's is not yet): composed so that it is heard on a select field, not bubbling so that an ancestor's own `toggle` listener, a `<details>`'s, never hears a select's. Attributes: `label-hidden`, `readonly`, the rest as the properties. The `leading-icon` slot is a named slot. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `value`, `placeholder`, `leading-icon`, `chevron`, `list`, `option`, `option-label`, `option-supporting-text`, `option-leading-icon`, `mark`, `group`, `group-title`, `divider`. The `inline` attribute, for tests and fixtures, draws the open list in place below the trigger. What belongs to the frame and not to the element: the attributes `supporting-text`, `error-text`, `requirement`, `required-mark`, `required-text`, `optional-text`, the `label-icon` slot, the parts `label-icon` and `supporting-text`, and the label row of the stacked look. In a debug build the element reports any of those six attributes, or a child for `label-icon`, once, and names `tanrei-select-field`: nothing is kept for them in a production build, and no alias exists. Before the element is defined its options are running text in the page; what a server-rendered page shows then is the product's to guard today: hide `tanrei-select:not(:defined) > *` and reserve the block size of the select's size, and where the page must work without script put a native `<select>` or links in a `<noscript>` beside it. The native `<select>` is not used inside: its list cannot be drawn with the system's tokens, groups, glyphs and supporting text. The chevron is the icon helper's `expand_more` and the check its `check`. The element has no words and reads none."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiSelect",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "selection",
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "placeholder": "prompt",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "open": "isPresented",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "selection",
+        "toggle": "isPresented"
+      },
+      "items": {
+        "option": {
+          "name": "TanreiSelectOption",
+          "props": {
+            "label": "title",
+            "value": "tag",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "disabled"
+          },
+          "notes": "`TanreiSelectOption(_ title:, supportingText:, leadingIcon:).tag(value)`, as the content of a `Picker`; `disabled` follows `.disabled(_:)`."
+        },
+        "option-group": {
+          "name": "TanreiSelectSection",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`TanreiSelectSection(_ title:) { … }`, as `Section`."
+        }
+      },
+      "notes": "`TanreiSelect(_ label:, selection: Binding<String>) { TanreiSelectOption(\"Japan\").tag(\"jp\") … }`, shaped as `Picker`: the platform's control of this kind, whose call site and whose accessibility a product expects. SwiftUI's own `Picker` and `Menu` are not used to draw it, for the reason TanreiMenu gives: their lists cannot be drawn with the system's tokens. The trigger is Tanrei's own box; the list is presented as TanreiMenu presents its surface (`.popover` with `presentationCompactAdaptation(.popover)`, so it stays anchored on iPhone). Writing the binding is change; `isPresented` is an optional binding, and writing it is toggle. `labelHidden` follows `.labelsHidden()`, `disabled` follows `.disabled(_:)`. The trigger is one accessibility element with the button trait, the label as its label, the chosen option's label as its value and a pop-up hint; the options are buttons with the selected trait. A press outside does not reach what is under the list. With a hardware keyboard the arrow keys move the highlight and Return chooses, focus staying on the trigger. The bare control: `label` names it where no Field frames it and floats in a filled or outlined look; in a form it stands in `TanreiField`, which is `TanreiSelectField`."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiSelect",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "open": "expanded",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "onValueChange",
+        "toggle": "onExpandedChange"
+      },
+      "items": {
+        "option": {
+          "name": "TanreiSelectOption",
+          "props": {
+            "label": "text",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiSelectOption(text, value, supportingText, leadingIcon, enabled)`, called in the select's content lambda."
+        },
+        "option-group": {
+          "name": "TanreiSelectGroup",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`TanreiSelectGroup(title) { … }`."
+        }
+      },
+      "notes": "Compose idiom, as an exposed dropdown menu (`ExposedDropdownMenuBox` with a read-only field): `TanreiSelect(value, onValueChange, label) { TanreiSelectOption(\"Japan\", \"jp\") … }`; the caller keeps `value` (state hoisting). `expanded` and `onExpandedChange` are optional: left out, the select keeps its own open state. `enabled` is the inverse flag and `isError` keeps Compose's name. The trigger is Tanrei's own box with `Role.DropdownList`, the label as its content description, the chosen label as its state description and the expanded state; the list is shown in a `Popup` as TanreiMenu's is, its options `selectable` with their selected state inside a `selectableGroup`. Material's own exposed dropdown is not used to draw it: its field and its menu take Material's tokens. A press outside also reaches what is under the list. The bare control: `label` names it where no Field frames it; in a form it stands in `TanreiField`, which is `TanreiSelectField`."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiSelect",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "placeholder": "hintText",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "open": "controller",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "onChanged",
+        "toggle": "onOpenChanged"
+      },
+      "items": {
+        "option": {
+          "name": "TanreiSelectOption",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiSelectOption<String>(value:, label:, supportingText:, leadingIcon:, enabled:)`, in the select's `options` list, as `DropdownMenuEntry`."
+        },
+        "option-group": {
+          "name": "TanreiSelectGroup",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`TanreiSelectGroup(title:, options: […])`, in the same list."
+        }
+      },
+      "notes": "Flutter idiom, as `DropdownMenu` and `DropdownButtonFormField`: `TanreiSelect(value:, onChanged:, labelText:, options: […])`, with `hintText` and `enabled` keeping `InputDecoration`'s names, `enabled` the inverse flag. The list is shown in the `Overlay` with `OverlayPortal`, placed as TanreiMenuAnchor places its surface; an optional `TanreiSelectController` opens and closes it, and `onOpenChanged` is toggle. Semantics: the trigger is a button with `expanded`, the label as its label and the chosen label as its value; options carry `selected` and their index in the set. A press outside also reaches what is under the list. The bare control: `labelText` names it where no Field frames it; in a form it stands in `TanreiField`, which is `TanreiSelectField`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Select",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "open": "open",
+        "separation": "separation"
+      },
+      "events": {
+        "change": "onValueChange",
+        "toggle": "onOpenChange"
+      },
+      "items": {
+        "option": {
+          "name": "SelectOption",
+          "props": {
+            "label": "label",
+            "value": "value",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon",
+            "disabled": "disabled"
+          },
+          "notes": "`{ label, value, supportingText?, leadingIcon?, disabled? }`: an element of the `options` array."
+        },
+        "option-group": {
+          "name": "SelectOptionGroup",
+          "props": {
+            "title": "title"
+          },
+          "notes": "`{ kind: 'group', title?, options: SelectOption[] }` in the same array."
+        }
+      },
+      "notes": "`<Select label=\"Country\" value={value} onValueChange={setValue} options={[…]} />`: `options` is an array of options and groups, as Menu's `items`. `open` and `onOpenChange` are optional: left out, the select keeps its own open state. React Native has no select of its own on both platforms, so the list is Tanrei's on the overlay layer that `TanreiProvider` renders, placed by measuring the trigger, as Menu is. The trigger has `accessibilityRole=\"combobox\"`, `accessibilityState={{ expanded, disabled }}`, the label as `accessibilityLabel` and the chosen label as `accessibilityValue.text`; options are pressable rows with `accessibilityState={{ selected, disabled }}` and their position among the options in the label. Follows the app's direction where an ancestor's is not known. A press outside does not reach what is under the list. The bare control: `label` names it where no Field frames it; in a form it stands in `Field`, which is `SelectField`."
+    }
+  }
+}

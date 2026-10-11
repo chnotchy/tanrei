@@ -1,0 +1,236 @@
+---
+title: Tabla de contenido
+description: Enumera los encabezados de la página que se está leyendo como enlaces a ellos y marca aquel cuya sección se está leyendo. Donde no hay sitio junto al texto, una sola fila da el nombre de la sección actual y abre la misma lista.
+translationOf: components/table-of-contents.mdx
+sourceHash: f5bfc3fe238e62fc88573224164e01b2942039f2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="table-of-contents" />
+
+<DemoFrame label="Las secciones de esta página: desplázate y el marcador te sigue" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="En esta página" style="inline-size: 15rem; max-inline-size: 100%">
+    <ul>
+      <li>
+        <a href="#descripción-general">Descripción general</a>
+        <ul>
+          <li><a href="#uso">Uso</a></li>
+          <li><a href="#qué-escribes-tú">Qué escribes tú</a></li>
+        </ul>
+      </li>
+      <li><a href="#especificaciones">Especificaciones</a></li>
+      <li>
+        <a href="#pautas">Pautas</a>
+        <ul>
+          <li><a href="#cuál-es-el-elemento-actual">Cuál es el elemento actual</a></li>
+          <li><a href="#la-forma-compacta">La forma compacta</a></li>
+        </ul>
+      </li>
+      <li><a href="#accesibilidad">Accesibilidad</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+Una tabla de contenido muestra qué contiene una página larga y en qué parte está quien la lee. Cada elemento es un enlace a un encabezado; los subencabezados van con sangría bajo su encabezado. El elemento actual tiene un marcador en la línea guía y una etiqueta de más peso. No es la navegación del producto entre páginas: eso es un panel de navegación.
+
+En la web es `<tanrei-table-of-contents>` alrededor de tu propia lista anidada de anclas. Las anclas se quedan en el documento, así que, antes de que se ejecute ningún script, la página contiene una lista de enlaces sin más, y funcionan. Las demás plataformas todavía no la han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/table-of-contents.css" />
+
+    <tanrei-table-of-contents label="En esta página">
+      <ul>
+        <li><a href="#top">Descripción general</a></li>
+        <li>
+          <a href="#install">Instalar</a>
+          <ul>
+            <li><a href="#npm">npm</a></li>
+          </ul>
+        </li>
+        <li><a href="#configure">Configurar</a></li>
+      </ul>
+    </tanrei-table-of-contents>
+
+    <script type="module">
+      import '@tanrei/web/components/table-of-contents';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TableOfContents } from '@tanrei/react';
+    import '@tanrei/web/table-of-contents.css';
+
+    <TableOfContents label="En esta página" density="compact">
+      <ul>
+        {headings.map((heading) => (
+          <li key={heading.id}>
+            <a href={`#${heading.id}`}>{heading.text}</a>
+          </li>
+        ))}
+      </ul>
+    </TableOfContents>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/table-of-contents.css` dibuja el título y la lista antes de que se ejecute ningún script, y la lista no se mueve cuando el script se carga. El elemento personalizado añade por sí solo esa misma hoja de estilos a la página. El chevron de la forma compacta es un glifo del conjunto de iconos y necesita la fuente de iconos.
+
+### Qué escribes tú
+
+| Parte | En la web |
+| --- | --- |
+| El título | El atributo `label`, en el idioma de tu producto. También da nombre a la región de referencia (landmark) de navegación. |
+| Un elemento | Un `<li>` cuyo primer hijo es su `<a href>`. La etiqueta es el texto del ancla, como texto sin más. |
+| Los elementos propios de un elemento | Un `<ul>` después del ancla, dentro del mismo `<li>`. |
+| El elemento del principio de la página | Un elemento cuyo `href` es `#top` o `#`. Es el actual hasta que se llega al primer encabezado. |
+| Un título que es un encabezado | Un hijo con `slot="title"`, como `<h2 slot="title">En esta página</h2>`. `label` sigue dando nombre a la región de referencia. |
+| Cuál es el elemento actual | Nada: lo decide el elemento personalizado. Con `tracking="manual"`, pones tú en `current` el `href` de un elemento. |
+
+Los elementos se dan, no se descubren. Una página construida por un generador de sitios o por un framework conoce sus encabezados cuando se construye, así que la lista está en la página desde el principio y un rastreador la lee.
+
+| Evento | Cuándo | `detail` |
+| --- | --- | --- |
+| `currentchange` | El elemento actual cambió mientras `tracking` es `auto`. | `href`: el del nuevo elemento, o una cadena vacía |
+| `select` | Se activó un elemento, antes de que el navegador siga el enlace. Cancélalo para mover la vista por tu cuenta. | `href` |
+| `toggle` | Quien usa la página mostró u ocultó la lista de la forma compacta. | `open` |
+
+## Especificaciones
+
+<DemoFrame label="Densidad compact, tres niveles, con el tercer elemento como actual" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="En esta página" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
+    <ul>
+      <li>
+        <a href="#tokens-demo">Tokens</a>
+        <ul>
+          <li>
+            <a href="#color-demo">Color</a>
+            <ul>
+              <li><a href="#roles-demo">Roles</a></li>
+              <li><a href="#schemes-demo">Esquemas</a></li>
+            </ul>
+          </li>
+          <li><a href="#space-demo">Espacio</a></li>
+        </ul>
+      </li>
+      <li><a href="#components-demo">Componentes</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+<DemoFrame label="La forma compacta: pulsa la fila" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="En esta página" presentation="compact" tracking="manual" current="#configure-demo" style="inline-size: 20rem; max-inline-size: 100%">
+    <ul>
+      <li><a href="#install-demo">Instalar</a></li>
+      <li><a href="#configure-demo">Configurar</a></li>
+      <li><a href="#build-demo">Compilar</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+<ComponentSpecs name="table-of-contents" />
+
+## Pautas
+
+### ¿Es una tabla de contenido?
+
+Úsala en una página más larga que una pantalla y dividida por encabezados. Una página sin encabezados no lleva ninguna: sin elementos, el componente no dibuja nada y no deja una región de referencia vacía. Para moverse entre páginas, usa un panel de navegación; para los pasos de una misma tarea, usa unos pasos.
+
+### Qué decide el diseño de página
+
+El componente ocupa la anchura que recibe y no decide nada sobre su lugar. Lo decide el diseño de página que lo contiene:
+
+- dónde se sitúa, y que se mantenga a la vista mientras la página se desplaza (una columna adhesiva, o sticky, por ejemplo);
+- qué presentación recibe una ventana: pon `presentation="compact"` donde no haya sitio junto al texto;
+- una columna con desplazamiento alrededor de una lista larga. El componente mantiene entonces a la vista su fila actual dentro de esa columna.
+
+### Densidad
+
+| `density` | Una fila de una línea | Úsalo para |
+| --- | --- | --- |
+| `regular` (predeterminado) | 44, el objetivo del puntero | La mayoría de las páginas. |
+| `compact` | 32 | Una lista larga de encabezados junto al texto, en un producto que se usa con un puntero. |
+
+Una fila compact es más baja que el objetivo del puntero. Es aceptable porque se pide por su nombre y nunca es el valor predeterminado. Para el tacto, una fila tiene la altura del objetivo táctil en las dos densidades. El estilo de texto y la sangría son los mismos en las dos.
+
+### Cuál es el elemento actual
+
+El elemento actual es el último, en el orden de la página, cuyo encabezado ha llegado al lugar donde el navegador deja un encabezado al que se le envía. El componente lee ese lugar de tu CSS:
+
+```css
+html { scroll-padding-top: 4rem; }     /* lo que mantienes fijo en la parte superior */
+h2, h3 { scroll-margin-top: 1.5rem; }  /* el espacio que un encabezado mantiene por encima */
+```
+
+| Caso | El actual es |
+| --- | --- |
+| Antes del primer encabezado | Ninguno, o el elemento del principio de la página donde hayas dado uno. |
+| Al final de la página | El último elemento. Una última sección más corta que la ventana nunca podría llegar a la línea. |
+| Se eligió un elemento | Ese elemento, de inmediato, hasta que quien lee vuelva a desplazarse a mano. |
+| La dirección indica un encabezado | Ese elemento, que se mantiene del mismo modo. |
+| Un contenido situado encima de un encabezado se carga o se pliega | Se decide de nuevo. |
+
+El componente nunca desplaza la página y nunca escribe la dirección. Que la página se deslice o salte hasta un encabezado depende de tu `scroll-behavior`.
+
+Pon `tracking="manual"` donde las secciones no sean lugares de una misma vista con desplazamiento, como unos pasos que se muestran de uno en uno, y define `current` tú.
+
+### La forma compacta
+
+`presentation="compact"` es un solo bloque con relleno que tiene una fila: el título, el nombre de la sección actual y un chevron. La fila es un botón que muestra la misma lista debajo de ella.
+
+- Elegir un elemento cierra la lista y sigue el enlace.
+- Escape la cierra y devuelve el foco a la fila.
+- Da al elemento personalizado un `max-block-size`: la lista se desplaza entonces por dentro y la fila se queda en su lugar.
+- No es una superposición. No dibuja ningún velo y no se cierra con una pulsación fuera. Un diseño de página que la mantiene sobre el texto y quiere ese comportamiento pone `open` en `false` por su cuenta.
+
+Hasta que el script se ha cargado, la forma compacta muestra su lista entera. Un diseño de página que no deba mostrar eso ni un momento oculta `tanrei-table-of-contents[presentation="compact"]:not(:defined)`.
+
+### Recomendado
+
+- Escribe `label` en el idioma de tu producto. Una página con dos tablas de contenido da a cada una su propio nombre.
+- Da los encabezados que quieres que se muestren: normalmente, los de segundo y tercer nivel.
+- Da un elemento para el principio de la página donde el texto que precede al primer encabezado sea largo.
+
+### Evita
+
+- No pongas un control, un tag ni un icono en un elemento. Una etiqueta es el texto del encabezado.
+- No anides más de tres niveles: las etiquetas de una columna estrecha se quedan sin sitio.
+- No la uses como navegación del producto. Su estado actual dice «esta parte de esta página», no «esta página».
+
+## Accesibilidad
+
+<ComponentAccessibility name="table-of-contents" />
+
+### De qué se encarga el componente
+
+- Es una región de referencia (landmark) de navegación que recibe su nombre de `label` y contiene listas anidadas de enlaces.
+- El elemento actual lleva `aria-current="location"`. Su cambio no se anuncia, de modo que el desplazamiento no se narra.
+- Cada elemento es un enlace en el orden del foco, con una parada cada uno. Enter lo sigue. No hay ningún movimiento con las teclas de flecha que aprender.
+- La línea guía, el marcador y el chevron están ocultos para la tecnología de apoyo.
+- El título se expone una sola vez, como nombre de la región de referencia. Es un encabezado solo donde hayas dado uno en el slot `title`.
+- La fila compacta es un botón que recibe su nombre de `label` y su descripción del nombre de la sección actual, con su estado expandido.
+- Después de elegir un elemento, el foco se queda con la página: el siguiente Tab continúa desde el encabezado elegido.
+- El anillo de foco se dibuja dentro de la fila, así que una columna con desplazamiento no lo recorta.
+- Cuál es el actual no se comunica solo con el color: el marcador es un trazo y la etiqueta tiene más peso.
+- La lista no se mueve cuando cambia el elemento actual.
+- Con el texto al 200%, las etiquetas saltan de línea y las filas crecen. Lo único que llega a cortarse es el nombre de la sección actual en la fila compacta.
+- Con colores forzados, los elementos tienen el color de los enlaces, y la etiqueta actual, la línea guía y el marcador tienen el color del texto.
+- Las compilaciones de depuración notifican un `label` vacío, un elemento sin etiqueta, dos elementos con un mismo `href`, un `href` que no lleva a ningún sitio, un valor desconocido y más de tres niveles.
+
+### Qué debes hacer tú
+
+- Da un `id` a cada encabezado que enumeres, y escribe el mismo fragmento en el `href` del elemento.
+- Declara con `scroll-padding-top` lo que mantienes fijo en la parte superior, para que un encabezado no quede oculto debajo cuando un enlace lleve la página hasta él.
+- Desactiva el desplazamiento suave donde quien lee pida movimiento reducido.
+- Pon una tabla de contenido larga después del contenido en el orden de lectura, o da un enlace de salto antes de ella.

@@ -1,0 +1,259 @@
+{
+  "tanrei": {
+    "comp": {
+      "bottom-sheet": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product shows supplementary content in a surface that rises from the bottom edge: sometimes beside the task, while the content above stays usable (results over a map), sometimes as a modal step the person must finish or dismiss (share, choose, confirm), at half the screen or the whole of it.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "drag-handle"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "grip.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a bottom sheet reads: the scrim behind a modal sheet; the container's color, elevation, top-corner shape, maximum width, top margin at full height, the fraction of the area it takes at partial height and the padding of inset content; the content color it hands down; the drag handle's box, grip and margins; for the drag handle (the one pressable control, `drag-handle`) its box, grip and state-layer colors in each state; and the enter, exit, settle and state motion.",
+            "rules": [
+              "A standard sheet sits over the bottom of the content while the content stays usable; a modal sheet dims and blocks everything else until it is dismissed. Both read the same container tokens.",
+              "The drag handle is a control, not decoration: its grip is held to the functional 3:1 boundary, and its box carries hover, focus and press.",
+              "A sheet that can be dismissed only by dragging still needs a visible way out for people who cannot drag: a Close or Done button in the content.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "drag-handle.state-layer.color is the color hover, focus and press mix into the handle's box; it aliases the grip color."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "control": {
+              "default": "drag-handle",
+              "from": "states"
+            }
+          }
+        },
+        "scrim": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.scrim}",
+            "$description": "The dim over everything behind a modal sheet, alpha included (the scrim role is the overlay as drawn). A standard sheet draws none."
+          }
+        },
+        "container": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.surface-container-low}"
+          },
+          "elevation": {
+            "$type": "shadow",
+            "$value": "{tanrei.sys.elevation.level1}",
+            "$description": "The sheet's lift over the content it covers. Tanrei's level1 is only the hairline ring, so a sheet that must stand apart from a page with no scrim under it rests at level2; a system whose level1 is a real shadow may set level1.",
+            "$extensions": {}
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.extra-large}",
+            "$description": "The corners at the sheet's top edge; its bottom corners meet the screen's edge and stay square.",
+            "$extensions": {}
+          },
+          "max-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 640,
+              "unit": "px"
+            },
+            "$description": "The widest a sheet draws; on a wider area it is centred and the area shows at its sides.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 160
+              }
+            }
+          },
+          "margin-block-start": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space600}",
+            "$description": "At full height, the distance kept between the sheet's top edge and the top of the area it covers (below the top system inset), so that the page behind is still seen to be there."
+          },
+          "partial-fraction": {
+            "$type": "number",
+            "$value": 0.5,
+            "$description": "At partial height, the fraction of the area's height the sheet takes (when its content is taller than that).",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "A proportion of the area the sheet covers; no dial scales it."
+              }
+            }
+          },
+          "padding": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "While inset is true: the inset of the content from the sheet's start, end and bottom edges, and from its top edge when there is no drag handle."
+          }
+        },
+        "content": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface}",
+            "$description": "The foreground the sheet hands to its content, as the platform's inherited color."
+          }
+        },
+        "handle": {
+          "container-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 48,
+              "unit": "px"
+            },
+            "$description": "The drag handle's box: where its hover, focus and press are drawn, centred on the grip.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 12
+              }
+            }
+          },
+          "container-height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 24,
+              "unit": "px"
+            },
+            "$description": "The height of the drag handle's box. With the margins above and below it, the handle's row is the touch target's height.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 6
+              }
+            }
+          },
+          "container-shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}"
+          },
+          "margin-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "Above and below the drag handle's box: from the sheet's top edge, and to the content."
+          },
+          "grip-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 32,
+              "unit": "px"
+            },
+            "$description": "The drawn grip: the short bar that says the sheet can be dragged.",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 8
+              }
+            }
+          },
+          "grip-height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 4,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 1
+              }
+            }
+          },
+          "grip-shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}"
+          }
+        },
+        "drag-handle": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The handle's box at rest: nothing is drawn; its states draw the state layer.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The drag handle draws no fill at rest; its states draw the state layer."
+                }
+              }
+            }
+          },
+          "grip": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The grip is how a sighted person finds a control, so it takes the functional boundary role (3:1 on every surface), not the decorative hairline.",
+              "$extensions": {}
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.bottom-sheet.drag-handle.grip.color}"
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press on the drag handle takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "enter-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.medium2}",
+            "$description": "How long the sheet takes to rise into place (and a modal sheet's scrim to fade in), to move to another height, or to settle after a drag."
+          },
+          "enter-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+          },
+          "exit-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short4}",
+            "$description": "How long the sheet takes to leave below the bottom edge (and a modal sheet's scrim to fade out)."
+          },
+          "exit-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+          }
+        }
+      }
+    }
+  }
+}

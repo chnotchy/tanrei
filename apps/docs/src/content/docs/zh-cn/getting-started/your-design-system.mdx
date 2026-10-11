@@ -1,0 +1,132 @@
+---
+title: 你自己的设计系统
+description: 在你的产品中只保留一个层文件。一条命令就能为你发布的每个平台写出令牌和代码，并且都在同一个拉取请求里。
+translationOf: getting-started/your-design-system.mdx
+sourceHash: ca7d8543d03438d79076685ff1ecb02f31b87cfb
+---
+
+import Steps from '../../../../components/Steps.astro';
+import Callout from '../../../../components/Callout.astro';
+
+产品的外观改变时，Tanrei 的组件从不改变。改变的是一个**层**：一个小型 JSON 文件，它为共享词汇设定值，并声明你的调色板。`@tanrei/cli` 把这一个文件变成各平台所需的一切。
+
+<Callout type="caution" title="首次发布之前">
+  `@tanrei/cli` 和 `@tanrei/mcp` 还没有发布到 npm。在那之前，请从源码构建它们，并把打包出的文件作为开发依赖安装到你的产品中；这样本页上的每一条 `npx tanrei …` 命令运行的都是已安装的副本。
+
+  ```sh
+  git clone https://github.com/chnotchy/tanrei.git
+  cd tanrei
+  pnpm install
+  pnpm --filter @tanrei/studio build:app   # Theme Studio，由 `tanrei studio` 提供
+  pnpm --filter @tanrei/cli --filter @tanrei/mcp build
+  pnpm --filter @tanrei/cli --filter @tanrei/mcp pack --pack-destination ../tanrei-packages
+  ```
+
+  ```sh
+  # 在你的产品中：路径指向写入这些包的文件夹
+  npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-packages/tanrei-mcp-*.tgz
+  ```
+
+  至于 MCP 服务器，请注册已安装的副本：在你的产品文件夹中运行 `claude mcp add tanrei -- npx tanrei-mcp`。
+</Callout>
+
+<Steps>
+
+1. **创建一个层**，可以从默认系统出发，也可以从某个预设出发。
+
+   ```bash
+   npx tanrei init acme --extends tanrei
+   ```
+
+   这会写出 `design/acme.system.json` 和 `tanrei.json`。更喜欢用滑块？那就在 [Theme Studio](/zh-cn/foundations/theme-studio/) 里调整这个层，然后把它下载下来。
+
+2. **在 `tanrei.json` 中指明每项输出写到哪里。** 只列出你要发布的平台。
+
+   ```json
+   {
+     "system": "design/acme.system.json",
+     "kotlinPackage": "com.acme.design",
+     "outputs": {
+       "tokens": "design/tokens/acme",
+       "web": "apps/web/src/styles",
+       "swiftui": "apps/ios/Acme/Design",
+       "compose": "apps/android/app/src/main/kotlin/com/acme/design",
+       "flutter": "apps/flutter/lib/design",
+       "react-native": "apps/mobile/src/design"
+     }
+   }
+   ```
+
+3. **构建。**
+
+   ```bash
+   npx tanrei build
+   ```
+
+   提交生成的结果。把 `npx tanrei build --check` 加入 CI：它不写任何文件，只要已提交的输出过时就会失败。
+
+4. **使用。** 生成的文件包含的是你的系统的**值**；类型来自库本身，所以词汇一旦变化，构建就会失败，而不是悄悄地发生漂移。
+
+   | 平台 | 你得到 | 你要写 |
+   |---|---|---|
+   | Web | `acme.css` | `<html data-tanrei-system="acme">` |
+   | SwiftUI | `TanreiSystem+Acme.swift` | `.tanreiTheme(TanreiTheme(system: .acme))` |
+   | Compose | `TanreiSystemAcme.kt` | `TanreiTheme(system = TanreiSystem.Acme) { … }` |
+   | Flutter | `acme_system.g.dart` | `TanreiTheme(data: TanreiThemeData.platform(context, system: acmeSystem), …)` |
+   | React Native | `acme.ts` | `<TanreiProvider system={acme}>` |
+
+</Steps>
+
+## 一处修改，一个拉取请求
+
+在层中修改一个值，运行 `tanrei build`，每个平台的文件就在同一次提交中一起变化。把所有文字调大一点，只需要一行：
+
+```json
+"tanrei.dial.type.base": { "$value": { "value": 17, "unit": "px" }, "reason": "在一臂之外阅读。" }
+```
+
+层可以对一个值做四件事：设定调节量、缩放令牌、重新指向别名、附带理由地固定一个值。关于这四件事，关于如何声明调色板（例如品牌色，或测验中的“正确”与“错误”），以及在仅靠取值不够时如何添加令牌，参见[设计系统与定制](/zh-cn/foundations/design-systems/)。
+
+## 想控制多深都可以，始终是同一个文件
+
+定制是分层次的，每个层次编辑的都是同一个 `<id>.system.json`：
+
+| 你想要 | 你使用 |
+|---|---|
+| 快速完成设置 | **Theme Studio → Essentials**：一个基础系统、你的品牌色和四个滑块（字号、间距、圆润度、标题对比） |
+| 按组调整 | **Studio → Groups**：全部七个调节量、调色板、各组件的概要 |
+| 在图形界面中逐个调整令牌 | **Studio → Every token**：搜索整个词汇；每个令牌只提供对它合法的编辑，并显示有哪些值跟随它 |
+| 编辑源码 | **Studio → Source**，或你自己的编辑器：JSON 会依照 schema 并由引擎进行校验 |
+| 一个不存在的令牌 | 添加它（见[设计系统与定制](/zh-cn/foundations/design-systems/)）：序列中的一级、一行就能声明的 Button 尺寸或变体，或者你自己的令牌 |
+
+```bash
+npx tanrei studio
+```
+
+会**针对你的层文件**打开 Theme Studio：你所做的编辑会随时保存到该文件（可以像其他改动一样用 git 审阅），同时在编辑器中所做的修改绝不会被覆盖，“Build”则会运行 `tanrei build`。它只监听 `127.0.0.1`，打印出的链接带有一次性密钥。本站上的 Studio 是同一个工具，只是用导入和导出代替了文件。
+
+## Tailwind CSS 与 shadcn/ui
+
+在 `outputs` 中加入 `"tailwind"` 或 `"shadcn"`。这两个文件都只是把**名称映射**到 Tanrei 的自定义属性上，因此主题、对比度级别和实时调节量在底层照常工作。
+
+```css
+@import "tailwindcss";
+@import "@tanrei/web/tokens.css";
+@import "./styles/acme.css";
+@import "./styles/acme.tailwind.css"; /* bg-primary · text-on-primary · rounded-medium · p-200 · text-heading-4 */
+```
+
+## 分享一个系统：与人、与工具、与 AI 代理
+
+- `tokens` 输出是一个自包含的 **DTCG 2025.10** 打包文件，带有标准的解析器。任何设计令牌工具都能读取它；生成它的层文件随包一同携带，每个分组还在 `$extensions["dev.tanrei.llm"]` 中带有面向代理的使用指引。
+- `@tanrei/mcp` 是一个 [Model Context Protocol](https://modelcontextprotocol.io) 服务器。在你的仓库中工作的代理可以搜索词汇、查看某个值的来历、比较不同的系统、**提议一项扩展**（新的 Button 尺寸、新的一级、你自己的令牌）并看到由此得到的值，还可以**在写入之前校验对层的修改**。它同时会被告知规则：通过层来修改值；扩展词汇只能添加，并且要附带理由；每个固定的值都要给出原因；绝不触碰阈值。
+
+  首次发布之后，从 npm 注册它（在那之前，请看本页顶部的“首次发布之前”）：
+
+  ```bash
+  claude mcp add tanrei -- npx -y @tanrei/mcp
+  ```
+
+<Callout type="caution" title="无障碍">
+  对比度阈值和结构性检查都是常量。在你的层中，违反是一条警告，但绝不会悄无声息：它由 `tanrei build` 打印出来，写入 `a11y-report.json`，并标注在每个生成文件的顶部。在中、高对比度下，请以零警告为目标：这些方案之所以存在，是因为有人明确要求了更高的对比度。内置预设本身在任何方案下都以对其所模仿系统的保真度来衡量，而不是以 Tanrei 的无障碍准则来衡量；它们的测量值只是参考信息。你在预设之上构建的层仍然是你的产品，它继承来的问题同样会收到警告。
+</Callout>

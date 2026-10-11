@@ -1,0 +1,1802 @@
+{
+  "namespace": "tanrei",
+  "platforms": [
+    "web",
+    "swiftui",
+    "compose",
+    "flutter",
+    "react-native"
+  ],
+  "statuses": [
+    "planned",
+    "lagging",
+    "alpha",
+    "beta",
+    "stable",
+    "deprecated"
+  ],
+  "levels": {
+    "single": "base",
+    "completes": "composed",
+    "coordinates": "feature"
+  },
+  "listings": {
+    "listed": "default",
+    "onRequest": "advanced"
+  },
+  "components": [
+    {
+      "name": "button",
+      "title": "Button",
+      "category": "actions",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/button/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "checkbox",
+      "title": "Checkbox",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/checkbox/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "radio-button",
+      "title": "Radio button",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/radio-button/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "switch",
+      "title": "Switch",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/switch/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "text-input",
+      "title": "Text input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/text-input/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "text-field",
+      "title": "Text field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field",
+        "text-input"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/text-field/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "chip-field",
+      "title": "Chip field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field",
+        "text-input",
+        "chip"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/chip-field/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "card",
+      "title": "Card",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/card/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "divider",
+      "title": "Divider",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/divider/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "badge",
+      "title": "Badge",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/badge/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "progress-indicator",
+      "title": "Progress indicator",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/progress-indicator/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "loading-indicator",
+      "title": "Loading indicator",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/loading-indicator/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "chip",
+      "title": "Chip",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/chip/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "dialog",
+      "title": "Dialog",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/dialog/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "menu",
+      "title": "Menu",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "keyboard-shortcut"
+      ],
+      "hasSpec": true,
+      "docs": "/components/menu/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "list",
+      "title": "List",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/list/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "tabs",
+      "title": "Tabs",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "tooltip"
+      ],
+      "hasSpec": true,
+      "docs": "/components/tabs/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "tab-view",
+      "title": "Tab view",
+      "category": "navigation",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "tabs"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/tab-view/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "snackbar",
+      "title": "Snackbar",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/snackbar/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "tooltip",
+      "title": "Tooltip",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "keyboard-shortcut"
+      ],
+      "hasSpec": true,
+      "docs": "/components/tooltip/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "keyboard-shortcut",
+      "title": "Keyboard shortcut",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/keyboard-shortcut/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "main-action-button",
+      "title": "Main action button",
+      "category": "actions",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/main-action-button/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "app-bar",
+      "title": "App bar",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/app-bar/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "navigation-bar",
+      "title": "Navigation bar",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "badge"
+      ],
+      "hasSpec": true,
+      "docs": "/components/navigation-bar/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "navigation-drawer",
+      "title": "Navigation drawer",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "badge",
+        "divider",
+        "tooltip",
+        "button",
+        "main-action-button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/navigation-drawer/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "slider",
+      "title": "Slider",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/slider/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "slider-field",
+      "title": "Slider field",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field",
+        "slider"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/slider-field/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "search",
+      "title": "Search",
+      "category": "navigation",
+      "level": "feature",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button",
+        "keyboard-shortcut",
+        "loading-indicator"
+      ],
+      "hasSpec": true,
+      "docs": "/components/search/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "bottom-sheet",
+      "title": "Bottom sheet",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/bottom-sheet/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "side-sheet",
+      "title": "Side sheet",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/side-sheet/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "segmented-button",
+      "title": "Segmented button",
+      "category": "actions",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/segmented-button/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "button-group",
+      "title": "Button group",
+      "category": "actions",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/button-group/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "button-with-menu",
+      "title": "Button with menu",
+      "category": "actions",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "menu"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/button-with-menu/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "fab-menu",
+      "title": "FAB menu",
+      "category": "actions",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/fab-menu/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "toolbar",
+      "title": "Toolbar",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/toolbar/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "carousel",
+      "title": "Carousel",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/carousel/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "lagging",
+        "compose": "lagging",
+        "flutter": "lagging",
+        "react-native": "lagging"
+      }
+    },
+    {
+      "name": "calendar",
+      "title": "Calendar",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/calendar/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "date-time-picker",
+      "title": "DateTimePicker",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "calendar"
+      ],
+      "uses": [
+        "tabs",
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/date-time-picker/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "tag",
+      "title": "Tag",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/tag/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "prose",
+      "title": "Prose",
+      "category": "foundations",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "link"
+      ],
+      "hasSpec": true,
+      "docs": "/foundations/typography/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "link",
+      "title": "Link",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/link/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "inline-code",
+      "title": "Inline code",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/inline-code/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "code-block",
+      "title": "Code block",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "copy-button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/code-block/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "copy-button",
+      "title": "Copy button",
+      "category": "actions",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "button"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/copy-button/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "table",
+      "title": "Table",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "checkbox",
+        "tag",
+        "empty-state",
+        "pagination"
+      ],
+      "hasSpec": true,
+      "docs": "/components/table/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "callout",
+      "title": "Callout",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/callout/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "popover",
+      "title": "Popover",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/popover/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "steps",
+      "title": "Steps",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/steps/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "accordion",
+      "title": "Accordion",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/accordion/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "description-list",
+      "title": "Description list",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "tag"
+      ],
+      "hasSpec": true,
+      "docs": "/components/description-list/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "figure",
+      "title": "Figure",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/figure/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "pagination",
+      "title": "Pagination",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/pagination/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "breadcrumbs",
+      "title": "Breadcrumbs",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "menu"
+      ],
+      "hasSpec": true,
+      "docs": "/components/breadcrumbs/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "app-shell",
+      "title": "App shell",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button",
+        "link"
+      ],
+      "hasSpec": true,
+      "docs": "/components/app-shell/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "page-header",
+      "title": "Page header",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "breadcrumbs",
+        "link",
+        "button",
+        "tag",
+        "avatar"
+      ],
+      "hasSpec": true,
+      "docs": "/components/page-header/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "table-of-contents",
+      "title": "Table of contents",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/table-of-contents/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "tree-view",
+      "title": "Tree view",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "loading-indicator"
+      ],
+      "hasSpec": true,
+      "docs": "/components/tree-view/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "avatar",
+      "title": "Avatar",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/avatar/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "timeline",
+      "title": "Timeline",
+      "category": "containment",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/timeline/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "empty-state",
+      "title": "Empty state",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/empty-state/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "tag-group",
+      "title": "Tag group",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "tag",
+        "chip"
+      ],
+      "hasSpec": true,
+      "docs": "/components/tag-group/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "field",
+      "title": "Field",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "tag",
+        "slider",
+        "switch",
+        "checkbox",
+        "one-time-code-input",
+        "file-upload",
+        "file-picker",
+        "text-input",
+        "number-input",
+        "color-input",
+        "select",
+        "combobox",
+        "chat-composer"
+      ],
+      "hasSpec": true,
+      "docs": "/components/field/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "field-group",
+      "title": "Field group",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "tag",
+        "checkbox",
+        "switch",
+        "text-field",
+        "radio-button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/field-group/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "radio-group",
+      "title": "Radio group",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field-group",
+        "radio-button"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/radio-group/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "checkbox-group",
+      "title": "Checkbox group",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field-group",
+        "checkbox"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/checkbox-group/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "select",
+      "title": "Select",
+      "category": "selection",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/select/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "select-field",
+      "title": "Select field",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field",
+        "select"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/select-field/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "combobox",
+      "title": "Combobox",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced",
+      "builtFrom": [],
+      "uses": [
+        "button",
+        "loading-indicator"
+      ],
+      "hasSpec": true,
+      "docs": "/components/combobox/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "combobox-field",
+      "title": "Combobox field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field",
+        "combobox"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/combobox-field/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "number-input",
+      "title": "Number input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/number-input/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "number-field",
+      "title": "Number field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field",
+        "number-input"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/number-field/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "color-input",
+      "title": "Color input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/color-input/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "color-field",
+      "title": "Color field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field",
+        "color-input"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/color-field/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "link-card",
+      "title": "Link card",
+      "category": "navigation",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/link-card/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "skeleton",
+      "title": "Skeleton",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/skeleton/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "menubar",
+      "title": "Menubar",
+      "category": "selection",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "menu"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/menubar/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "one-time-code-input",
+      "title": "One-time-code input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/one-time-code-input/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "one-time-code-field",
+      "title": "One-time-code field",
+      "category": "text-inputs",
+      "level": "composed",
+      "listing": "default",
+      "builtFrom": [
+        "field",
+        "one-time-code-input"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/one-time-code-field/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "file-upload",
+      "title": "File upload",
+      "category": "selection",
+      "level": "feature",
+      "listing": "default",
+      "builtFrom": [
+        "file-picker",
+        "file-item"
+      ],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/file-upload/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "image-preview",
+      "title": "Image preview",
+      "category": "containment",
+      "level": "feature",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "button",
+        "skeleton"
+      ],
+      "hasSpec": true,
+      "docs": "/components/image-preview/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "file-picker",
+      "title": "File picker",
+      "category": "selection",
+      "level": "base",
+      "listing": "advanced",
+      "builtFrom": [],
+      "uses": [
+        "button"
+      ],
+      "hasSpec": true,
+      "docs": "/components/file-picker/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "file-item",
+      "title": "File item",
+      "category": "communication",
+      "level": "base",
+      "listing": "default",
+      "builtFrom": [],
+      "uses": [
+        "progress-indicator"
+      ],
+      "hasSpec": true,
+      "docs": "/components/file-item/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "embedded-text-input",
+      "title": "Embedded text input",
+      "category": "text-inputs",
+      "level": "base",
+      "listing": "advanced",
+      "builtFrom": [],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/embedded-text-input/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    },
+    {
+      "name": "chat-composer",
+      "title": "Chat composer",
+      "category": "text-inputs",
+      "level": "feature",
+      "listing": "default",
+      "builtFrom": [
+        "embedded-text-input",
+        "file-picker",
+        "file-item",
+        "button"
+      ],
+      "uses": [],
+      "hasSpec": true,
+      "docs": "/components/chat-composer/",
+      "platforms": {
+        "web": "lagging",
+        "swiftui": "planned",
+        "compose": "planned",
+        "flutter": "planned",
+        "react-native": "planned"
+      }
+    }
+  ],
+  "totals": {
+    "web": {
+      "planned": 0,
+      "lagging": 84,
+      "alpha": 0,
+      "beta": 0,
+      "stable": 0,
+      "deprecated": 0
+    },
+    "swiftui": {
+      "planned": 55,
+      "lagging": 29,
+      "alpha": 0,
+      "beta": 0,
+      "stable": 0,
+      "deprecated": 0
+    },
+    "compose": {
+      "planned": 55,
+      "lagging": 29,
+      "alpha": 0,
+      "beta": 0,
+      "stable": 0,
+      "deprecated": 0
+    },
+    "flutter": {
+      "planned": 55,
+      "lagging": 29,
+      "alpha": 0,
+      "beta": 0,
+      "stable": 0,
+      "deprecated": 0
+    },
+    "react-native": {
+      "planned": 55,
+      "lagging": 29,
+      "alpha": 0,
+      "beta": 0,
+      "stable": 0,
+      "deprecated": 0
+    }
+  },
+  "unavailable": {
+    "cupertino": {
+      "components": [
+        "fab-menu"
+      ],
+      "variants": {
+        "navigation-bar": [
+          "filled"
+        ]
+      }
+    },
+    "m3-expressive-like": {
+      "components": [],
+      "variants": {
+        "navigation-bar": [
+          "filled"
+        ],
+        "tabs": [
+          "tonal"
+        ]
+      }
+    },
+    "m3-like": {
+      "components": [],
+      "variants": {
+        "navigation-bar": [
+          "filled"
+        ],
+        "tabs": [
+          "tonal"
+        ]
+      }
+    },
+    "tanrei": {
+      "components": [
+        "segmented-button",
+        "fab-menu"
+      ],
+      "variants": {
+        "text-input": [
+          "filled",
+          "outlined"
+        ],
+        "select": [
+          "filled",
+          "outlined"
+        ],
+        "combobox": [
+          "filled",
+          "outlined"
+        ],
+        "number-input": [
+          "filled",
+          "outlined"
+        ],
+        "color-input": [
+          "filled",
+          "outlined"
+        ]
+      }
+    }
+  }
+}

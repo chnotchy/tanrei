@@ -1,0 +1,272 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "loading-indicator",
+  "title": "Loading indicator",
+  "summary": "Shows that a short wait of unknown length is under way, inline or over content.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "indicator",
+      "description": "The moving mark: an arc a quarter of a circle long that turns. It has no track, because there is no value to read."
+    },
+    {
+      "id": "container",
+      "description": "A filled, raised circle behind the indicator, drawn only when contained, so the indicator can be seen over content.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "The indicator's box (16 / 24 / 40): small replaces an icon in a control, medium sits next to text, large fills an empty section. Contained, the container is 24 / 32 / 48. A design system may add values.",
+      "axis": "tanrei.comp.loading-indicator.size"
+    },
+    {
+      "name": "contained",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the indicator on a raised container of its own, for places where it floats over content (pull to refresh, over an image or a list)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name: what is loading (\"Loading messages\"). Required: a moving mark alone is not a name."
+    },
+    {
+      "name": "showDelay",
+      "type": "number",
+      "default": null,
+      "description": "How long, in milliseconds, this indicator waits from the moment it is inserted before it is drawn and exposed to assistive technology; 0 shows it as it is inserted. Null takes comp.loading-indicator.motion.show-delay, the system's answer for every indicator. Set it only where one indicator needs another pace than the rest (a wait the product knows is never instant, a busy button that should answer the press at once)."
+    },
+    {
+      "name": "entrance",
+      "type": "enum",
+      "values": [
+        "auto",
+        "fade",
+        "grow"
+      ],
+      "default": "auto",
+      "description": "How this indicator enters once its show delay has passed: fade eases it in, grow eases it in while it grows from its center. Auto takes comp.loading-indicator.motion.entrance, the system's answer for every indicator. Under reduced motion grow enters as fade (LDG-13)."
+    },
+    {
+      "name": "enterDuration",
+      "type": "number",
+      "default": null,
+      "description": "How long, in milliseconds, this indicator's entrance lasts; 0 shows it whole at once. Null takes comp.loading-indicator.motion.enter-duration."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "LDG-1",
+      "text": "THE loading indicator SHALL draw, inside a comp.loading-indicator.indicator.size.medium square for medium (and so on for each size), an arc a quarter of the circle long with round caps and a stroke of comp.loading-indicator.indicator.thickness.medium for medium (and so on), whose outer edge touches the square, and SHALL turn it clockwise once per comp.loading-indicator.motion.cycle-duration at constant speed (sys.motion.easing.linear); it SHALL draw no track."
+    },
+    {
+      "id": "LDG-2",
+      "text": "WHILE contained is false THE loading indicator SHALL take exactly its indicator square, draw no container, and draw the arc in comp.loading-indicator.indicator.color."
+    },
+    {
+      "id": "LDG-3",
+      "text": "WHILE contained is true THE loading indicator SHALL draw a container of comp.loading-indicator.container.size.medium for medium (and so on for each size) with corners of comp.loading-indicator.container.shape, filled with comp.loading-indicator.contained.container.color and raised by comp.loading-indicator.contained.container.elevation, center the indicator in it, and draw the arc in comp.loading-indicator.contained.indicator.color."
+    },
+    {
+      "id": "LDG-4",
+      "text": "WHERE reduced motion is requested THE loading indicator SHALL NOT turn: it SHALL draw the whole circle at the indicator's size and stroke and ease its opacity from 1 to 0 and back to 1 once per comp.loading-indicator.motion.cycle-duration with sys.motion.easing.standard; a container, when contained, SHALL stay still and opaque.",
+      "verify": "Fixtures are recorded with reduced motion requested, at the start of a cycle (opacity 1), so their baselines are deterministic on every platform; the turning arc is tested by unit tests that read its angle at fixed times."
+    },
+    {
+      "id": "LDG-5",
+      "text": "WHILE the loading indicator is shown (LDG-12) THE loading indicator SHALL expose the progressbar role to assistive technology with label as its name, no current value, and the platform's busy or indeterminate state."
+    },
+    {
+      "id": "LDG-6",
+      "text": "THE loading indicator SHALL NOT be focusable and SHALL NOT announce itself when it appears or disappears; the region being loaded is marked busy, and its completion announced, by the product."
+    },
+    {
+      "id": "LDG-7",
+      "text": "WHILE the loading indicator is not visible (scrolled out of view, in a hidden view, or in an app in the background) THE loading indicator SHALL NOT run its animation, and SHALL resume it when it becomes visible."
+    },
+    {
+      "id": "LDG-8",
+      "text": "WHERE the layout direction is right-to-left THE loading indicator SHALL NOT be mirrored: it turns clockwise in every direction."
+    },
+    {
+      "id": "LDG-9",
+      "text": "WHEN size names a value that the active design system does not have THE loading indicator SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "LDG-10",
+      "text": "WHILE label is empty THE loading indicator SHALL still render, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "LDG-11",
+      "text": "WHEN the loading indicator is inserted into a view THE loading indicator SHALL wait for its show delay (LDG-14) before it is shown, and WHILE it waits SHALL draw nothing (no indicator, no container, no shadow), SHALL run no animation, SHALL be absent from the accessibility tree (no role, no name, no busy state), and SHALL still take the box it takes when shown (LDG-2, LDG-3), so that nothing around it moves when it appears; a show delay of 0 SHALL show it as it is inserted.",
+      "verify": "Fixtures show the indicator once its show delay and its entrance are over: a harness renders each fixture with showDelay 0 and enterDuration 0, so that its first frame is the shown indicator, and the baselines do not change. The wait, the kept box and the absent semantics are tested by unit tests on the platform's test clock."
+    },
+    {
+      "id": "LDG-12",
+      "text": "WHEN its show delay ends THE loading indicator SHALL be shown: it SHALL expose itself as LDG-5 says, without announcing itself (LDG-6), start its entrance (LDG-13), and start the turn of LDG-1, or the pulse of LDG-4, at the beginning of a cycle."
+    },
+    {
+      "id": "LDG-13",
+      "text": "WHEN the loading indicator is shown THE loading indicator SHALL enter over its enter duration (LDG-14) with comp.loading-indicator.motion.enter-easing, as its entrance names: fade SHALL ease the opacity of the whole component (the indicator and, when contained, the container and its shadow) from 0 to 1, and grow SHALL ease the opacity the same way while scaling the whole component from nothing to its full size about its center, on the same curve over the same time. The entrance SHALL be drawn only: the box SHALL keep its full size throughout, and the entrance SHALL run to its end whether or not the indicator is visible (LDG-7 pauses the cycle, not the entrance). An enter duration of 0 SHALL show the indicator whole at once. WHERE reduced motion is requested THE loading indicator SHALL NOT scale: grow SHALL enter as fade, and on a platform whose reduced-motion setting removes every animation (Android's) the indicator SHALL appear at once."
+    },
+    {
+      "id": "LDG-14",
+      "text": "THE loading indicator SHALL take its show delay from showDelay and its enter duration from enterDuration, each a number of milliseconds used as given (the motion dial does not scale it), and its kind of entrance from entrance. WHILE showDelay or enterDuration is null THE loading indicator SHALL use comp.loading-indicator.motion.show-delay or comp.loading-indicator.motion.enter-duration in its place, and WHILE entrance is auto it SHALL use comp.loading-indicator.motion.entrance; IF showDelay or enterDuration is negative or not a finite number, or entrance names a kind the indicator does not know, THE loading indicator SHALL use the token likewise and in debug builds report the value it ignored."
+    },
+    {
+      "id": "LDG-15",
+      "text": "THE loading indicator SHALL treat its show delay as a waiting time, not motion: WHERE motion is reduced it SHALL keep it, on every platform, including one whose reduced-motion setting removes every animation; and it SHALL keep counting it while the indicator cannot be seen (scrolled out of view, in a hidden view), because the delay measures the wait, not what is seen."
+    },
+    {
+      "id": "LDG-16",
+      "text": "WHEN the loading indicator is removed before its show delay ends THE loading indicator SHALL have drawn, exposed and announced nothing, and WHEN it is removed while shown, during its entrance included, it SHALL disappear at once. WHEN it is inserted again THE loading indicator SHALL wait its whole show delay again; hiding it without removing it (a hidden ancestor, scrolling) SHALL neither restart nor pause the delay (LDG-15). WHEN showDelay, entrance or enterDuration changes while the delay or the entrance is running THE loading indicator SHALL finish the running one as it started and use the new value from its next insertion."
+    },
+    {
+      "id": "LDG-17",
+      "text": "THE loading indicator SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the loading indicator is shown THE loading indicator SHALL draw itself for the new direction at once, without a motion of its own, keeping its place in its cycle.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    }
+  ],
+  "accessibility": {
+    "role": "progressbar",
+    "keyboard": [],
+    "labeling": "label is the accessible name. The indicator has no value: once shown, it is exposed as a progressbar in the platform's busy (indeterminate) state, never as a status message; during its show delay it is not exposed at all (LDG-11).",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the indicator takes no input and is never focusable (LDG-6), so the minimum target holds without extending anything.",
+      "comp.loading-indicator.indicator.color must stay at least 3:1 against the surface behind it, and comp.loading-indicator.contained.indicator.color against comp.loading-indicator.contained.container.color (non-text contrast): the moving mark is the only sign that something is happening.",
+      "Text size does not change the indicator: it is not text. Where it replaces an icon in a control, the control keeps its size.",
+      "A product marks the region it loads as busy (aria-busy on the web) and says when the content has arrived; a wait that may exceed a few seconds, or whose length can be measured, belongs to the progress indicator.",
+      "A wait shorter than the show delay shows and exposes nothing (LDG-11): no mark that flashes for a sighted person, and no progressbar that appears and vanishes for a screen-reader user. The product's own busy marking of the region does not wait for the delay; aria-busy and its equivalents announce nothing by themselves.",
+      "Reduced motion replaces the turning arc with an opacity pulse of at most one per second (LDG-4), below the three-per-second flash threshold, and turns a grow entrance into a fade (LDG-13). The show delay is kept: it is a wait, not motion (LDG-15)."
+    ]
+  },
+  "tokens": "comp.loading-indicator",
+  "fixtures": [
+    {
+      "id": "small",
+      "props": {
+        "size": "small",
+        "label": "Loading"
+      }
+    },
+    {
+      "id": "medium",
+      "props": {
+        "label": "Loading"
+      }
+    },
+    {
+      "id": "large",
+      "props": {
+        "size": "large",
+        "label": "Loading"
+      }
+    },
+    {
+      "id": "contained-small",
+      "props": {
+        "size": "small",
+        "contained": true,
+        "label": "Loading"
+      }
+    },
+    {
+      "id": "contained-medium",
+      "props": {
+        "contained": true,
+        "label": "Loading"
+      }
+    },
+    {
+      "id": "contained-large",
+      "props": {
+        "size": "large",
+        "contained": true,
+        "label": "Loading"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-loading-indicator",
+      "props": {
+        "size": "size",
+        "contained": "contained",
+        "label": "label",
+        "showDelay": "showDelay",
+        "entrance": "entrance",
+        "enterDuration": "enterDuration"
+      },
+      "notes": "The host carries `role=\"progressbar\"`, `aria-label` and `aria-busy=\"true\"` once shown, and no aria-value attributes; during the show delay it carries none of them and is `aria-hidden=\"true\"`, and its parts are `visibility: hidden` while the host keeps its size (LDG-11). The delay starts in `connectedCallback` and is cancelled in `disconnectedCallback`, so moving the element within the document starts a new delay; hiding it with `hidden` or CSS does not (LDG-16) — insert and remove it with the wait. `showDelay` and `enterDuration` are number properties in milliseconds, null by default, set by the `show-delay` and `enter-duration` attributes; an attribute that is empty or does not parse as a finite number is not a number (LDG-14), so `show-delay=\"\"` takes the token and does not show at once. `entrance` is a string property and attribute, `auto` by default; `auto` reads `--tanrei-comp-loading-indicator-motion-entrance` from the cascade, which carries the choice's name. The arc turns with a CSS animation that `@media (prefers-reduced-motion: reduce)` replaces, and pauses while the element is not intersecting the viewport. Snapshot harness: each fixture is rendered with `show-delay=\"0\"` and `enter-duration=\"0\"` (LDG-11)."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiLoadingIndicator",
+      "props": {
+        "size": "size",
+        "contained": "contained",
+        "label": "label",
+        "showDelay": "showDelay",
+        "entrance": "entrance",
+        "enterDuration": "enterDuration"
+      },
+      "notes": "Lagging: ships the earlier spec, drawn and exposed as it is inserted, with no delay or entrance; owes LDG-5's revision and LDG-11 to LDG-16. The target: `TanreiLoadingIndicator(_ label:, size:, contained:, showDelay: Duration? = nil, entrance: TanreiLoadingEntrance? = nil, enterDuration: Duration? = nil)`; a `Duration` carries its own unit (`.milliseconds(300)`), nil takes the token (nil is also `entrance`'s auto), and a negative one takes the token and is reported in debug builds. The delay is a `.task` bound to the view's identity (cancelled when the view leaves the hierarchy), and the view is `.accessibilityHidden(true)` and at zero opacity until it ends, keeping its frame. Reduced motion is `accessibilityReduceMotion` from the environment. Snapshot harness: renders each fixture with `showDelay: .zero` and `enterDuration: .zero`."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiLoadingIndicator",
+      "props": {
+        "size": "size",
+        "contained": "TanreiContainedLoadingIndicator",
+        "label": "contentDescription",
+        "showDelay": "showDelayMillis",
+        "entrance": "entrance",
+        "enterDuration": "enterDurationMillis"
+      },
+      "notes": "Lagging: ships the earlier spec, drawn and exposed as it is inserted, with no delay or entrance; owes LDG-5's revision and LDG-11 to LDG-16. The target adds `showDelayMillis: Long? = null`, `entrance: TanreiLoadingEntrance? = null` (null is auto) and `enterDurationMillis: Long? = null` to both composables, named in milliseconds as `ViewConfiguration.longPressTimeoutMillis` is; null takes the token, a negative value takes the token and is reported in debug builds. The delay is a coroutine `delay` in a `LaunchedEffect` started when the indicator enters the composition, not an animation, so the animator duration scale of 0 (Android's reduced motion) does not remove it (LDG-15); until it ends the layout keeps its size, draws nothing, and its semantics are cleared. Compose idiom, as Material's `LoadingIndicator` and `ContainedLoadingIndicator`: contained is a second composable, `TanreiContainedLoadingIndicator`, with the same parameters, not a flag. Snapshot harness: renders each fixture with `showDelayMillis = 0` and `enterDurationMillis = 0`."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiLoadingIndicator",
+      "props": {
+        "size": "size",
+        "contained": "contained",
+        "label": "semanticsLabel",
+        "showDelay": "showDelay",
+        "entrance": "entrance",
+        "enterDuration": "enterDuration"
+      },
+      "notes": "Lagging: ships the earlier spec, drawn and exposed as it is inserted, with no delay or entrance; owes LDG-5's revision and LDG-11 to LDG-16. The target adds `showDelay`, `entrance` (a `TanreiLoadingEntrance?`, null is auto) and `enterDuration`, the times as `Duration?`: null takes the token, a negative one takes the token and is reported in debug builds. The delay is a `Timer` started in `initState` and cancelled in `dispose`; until it ends the child keeps its size, paints nothing and is wrapped in `ExcludeSemantics`. `semanticsLabel` as Flutter's progress indicators name it. Reduced motion is `MediaQuery.disableAnimationsOf(context)`; the turning animation stops with `TickerMode`, which covers hidden routes, and the timer does not. Snapshot harness: a golden of each fixture with `showDelay: Duration.zero` and `enterDuration: Duration.zero`."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "LoadingIndicator",
+      "props": {
+        "size": "size",
+        "contained": "contained",
+        "label": "accessibilityLabel",
+        "showDelay": "showDelay",
+        "entrance": "entrance",
+        "enterDuration": "enterDuration"
+      },
+      "notes": "Lagging: ships the earlier spec, drawn and exposed as it is inserted, with no delay or entrance; owes LDG-5's revision and LDG-11 to LDG-16. The target: `showDelay` and `enterDuration` are numbers of milliseconds, as `Pressable`'s `delayLongPress` is; undefined or null takes the token, and a negative or non-finite number takes the token and is reported in development builds; `entrance` is `'auto' | 'fade' | 'grow'`, `'auto'` by default. The delay is a timer set when the component mounts and cleared when it unmounts; until it ends the view keeps its size at zero opacity with `accessibilityElementsHidden` and `importantForAccessibility=\"no-hide-descendants\"`, and once shown it takes `accessibilityRole=\"progressbar\"` with `accessibilityState={{ busy: true }}`. Reduced motion from `AccessibilityInfo.isReduceMotionEnabled()`. Not React Native's `ActivityIndicator`, which draws the platform's own spinner and cannot follow the tokens. Snapshot harness: renders each fixture with `showDelay={0}` and `enterDuration={0}`."
+    }
+  }
+}

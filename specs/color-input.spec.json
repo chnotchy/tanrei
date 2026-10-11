@@ -1,0 +1,682 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "color-input",
+  "title": "Color input",
+  "summary": "The box in which people set one color: a text value they can read, type and paste, a sample of it beside the text, a button that asks for a picker and, in the looks that float one, its label inside the box; it looks and measures like a text input. It has no label row and no message: a Field frames it, or the product names it.",
+  "category": "text-inputs",
+  "level": "base",
+  "listing": "advanced",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The input's box: it holds the swatch, the input and the picker button. It measures and is drawn as the text input's container of the same variant and size, carries the hover state layer and shows focus by its edge."
+    },
+    {
+      "id": "outline",
+      "description": "The border of an outlined color input, which opens a gap where the floated label crosses it; in a stacked color input, the line drawn inside the container's edge while it is focused or in error, which takes no layout space.",
+      "optional": true
+    },
+    {
+      "id": "active-indicator",
+      "description": "The line along the bottom of a filled color input; its focused state is thicker and colored.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "In a filled or outlined input, its name drawn inside the box: it rests in the input line, after the swatch, while the input is empty and unfocused, and floats above the value otherwise. A stacked input draws none: the label above it is the row of the Field that frames it.",
+      "optional": true
+    },
+    {
+      "id": "required-asterisk",
+      "description": "After the floating label's text, an asterisk, where the Field that frames the input says the control is required and marks it (CLI-7). Kept from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "swatch",
+      "description": "A sample of the value at the start of the container, where a text input's leading icon stands: a small square filled with exactly the value's color, with the one hairline inside its edge so that a color close to the box's own still shows where it ends. Empty, it is that edge alone. It is not a control, nothing opens from it, and it is hidden from assistive technology: the value's text says the color."
+    },
+    {
+      "id": "input",
+      "description": "The value as text, typed, pasted and read: a number sign and six hexadecimal digits. The platform's native text element."
+    },
+    {
+      "id": "picker-button",
+      "description": "An icon-only Button of the text variant at the end of the container, showing the palette glyph: it asks for a picker. It is a Button with Button's own tokens, named by pickerLabel.",
+      "optional": true
+    },
+    {
+      "id": "caret",
+      "description": "The text cursor of the input."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "stacked",
+        "filled",
+        "outlined"
+      ],
+      "default": "stacked",
+      "description": "The text input's three looks, so that a color input is drawn as the text inputs beside it. Stacked is a filled box that shows focus and error with a line inside its edge and draws no label: the label of the Field that frames it stands above it. Filled and outlined float the label inside the box. Use one style per form. A design system may leave some out (the Tanrei system ships stacked only) or add values.",
+      "axis": "tanrei.comp.input-box.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "Minimum height of the container (48 / 56): the text input's two sizes. The hit area always meets the minimum target. A design system may add values.",
+      "axis": "tanrei.comp.input-box.size"
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The color the input holds: a number sign and six hexadecimal digits in lowercase (\"#0f766e\"), an opaque sRGB color; or empty for no color. It is never a half-typed text: while the input holds something that is not a color, value is empty."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the input for assistive technology where no Field frames it; a filled or outlined input also draws it, as the label that floats in its box. Inside a Field leave it empty: the Field's label names the input, and is what floats."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Does not draw the floating label of a filled or outlined input, which stays the accessible name. Inside a Field, hide the label on the Field. A stacked input draws no label, so this changes nothing there."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the input in its error condition and exposes it as invalid. A Field sets it from its own error; set it here only where no Field frames the input. What a color means is the product's to validate (too light for its background, already taken); the input never sets this itself, and enters an error of its own only for a committed text that is not a color (CLI-20)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents focus, editing, the picker button and form submission. Inside a Field, disable the Field, so that its label follows."
+    },
+    {
+      "name": "invalidText",
+      "type": "string",
+      "default": "",
+      "description": "The words for an input committed with a text that is not a color (\"Enter six hexadecimal digits, like #0f766e\"), in the product's language: given to the Field that frames the input, which shows them as its error text (CLI-20). While it is empty that Field shows its own errorText."
+    },
+    {
+      "name": "picker",
+      "type": "boolean",
+      "default": false,
+      "description": "Shows the picker button. Activated, it emits pickerRequest, and where the platform has a color picker of its own the input presents that picker unless the product cancelled the request. The input draws no picker surface itself."
+    },
+    {
+      "name": "pickerLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the picker button (\"Choose color\"). Required while picker is shown."
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "description": "The person changed the value — by an edit of the text that made it a color, another color or no color, or by a pick in the platform's picker; carries the new value. Not emitted when the product sets value, nor for an edit that leaves value as it was."
+    },
+    {
+      "name": "change",
+      "description": "The person committed a changed value: focus left the input, the action key was pressed, or the platform's picker closed; carries the value."
+    },
+    {
+      "name": "pickerRequest",
+      "description": "The person activated the picker button; carries the value. Cancelling it keeps the input from presenting the platform's picker: the product then presents its own surface and sets value to what was picked."
+    },
+    {
+      "name": "entryError",
+      "description": "The person committed a text that is not empty and is not a color; carries the text as typed and invalidText, the words the input has for it (empty where the product gave none: the Field that frames the input then shows its own errorText)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "CLI-1",
+      "text": "THE color input SHALL draw its container at least comp.input-box.container.height.medium tall for size medium (and so on for each size), with a stacked or outlined color input's four corners and a filled color input's top corners rounded by comp.input-box.container.shape, a filled color input's bottom corners by comp.input-box.container.shape-bottom, all eased by sys.shape.corner-smoothing, and SHALL lay out in it one row, centred vertically: the swatch (CLI-25) at the start, comp.input-box.container.padding-inline-with-icon.medium from the container's start edge; the input (CLI-17) taking the remaining width, comp.input-box.container.gap.medium after the swatch; and WHILE the picker button is shown (CLI-27) that button at the end, the input ending comp.input-box.container.gap.medium before the button's glyph. WHILE the picker button is not shown the input SHALL end comp.input-box.container.padding-inline.medium from the container's end edge. The row's tallest item SHALL have at least comp.input-box.container.padding-block.medium above and below it (and so on for each size). THE color input SHALL be as wide as its layout gives it.",
+      "verify": "Under the default system a medium color input is 48 high and a large one 56; the swatch is 24, 12 from the start edge, and the value starts 16 after it, where the text of a text input with a leading icon starts."
+    },
+    {
+      "id": "CLI-2",
+      "text": "THE color input SHALL measure as the text input of the same variant and size measures (TXI-16): the same container height, paddings and corners, the swatch where a text input's leading icon stands and at that icon's size, the same text style and start edge for the value as the input text of a text input that has a leading icon, and the picker button where a date input's picker button stands (TXI-32), so that a color input and a text input side by side share every horizontal line and a color input below a text input shares its start edges. Framed, the two stand under the same label row and over the same supporting row without any token held equal for it, because both rows are the one Field's (FLD-1). The two are drawn from one set of tokens (CLI-45): what a layer changes of the box, it changes for both.",
+      "verify": "The color input and the text input read one set of tokens for the box, the swatch's size being the box's icon size (CLI-45), so no test holds two sets equal; a test places a color field and a text field of the same variant, size, label and supporting text in one row and compares the tops and bottoms of their labels, containers, text baselines and supporting rows."
+    },
+    {
+      "id": "CLI-7",
+      "text": "WHERE variant is filled or outlined, WHILE the floating label is drawn (CLI-15) and the Field that frames the input gives it an asterisk as its required mark (FLD-25) THE color input SHALL draw the character \"*\" after the label's text, comp.input-box.requirement.asterisk-gap from it, in the label's text style and at the label's place, resting and floated with it, colored by its required-asterisk part (comp.input-box.outlined.required-asterisk.color for an outlined input; its error. part WHILE the input is in error), and SHALL keep it from assistive technology, because the required state already says it (CLI-11). It SHALL draw no tag and no optional label: which mark a required control gets is the Field's to say (FLD-6), and a tag named there reaches a floating label as the asterisk, as it reaches a text input's (TXI-50). WHILE no Field frames it, or the Field gives no mark, or the label is not drawn, THE color input SHALL draw no mark.",
+      "verify": "The color field's fixture outlined-required (twin field.color-outlined-required): the asterisk follows the floating label. Unit, a Field around an outlined color input: requiredMark tag, asterisk and auto under a fixture system that names each mark draw the asterisk in the floating label; none draws nothing and keeps the required state; without a Field no mark is drawn."
+    },
+    {
+      "id": "CLI-9",
+      "text": "WHILE error is true — set by the product, or by the Field that frames it (FLD-8) — or the entry error of CLI-20 lasts THE color input SHALL draw every part of its container, in every state, from the error parts of its variant (comp.input-box.stacked.error.outline.color and the other error. parts), so that the box itself is marked and not only a text below it, and SHALL expose its input as invalid to assistive technology; the swatch SHALL stay as it is drawn (CLI-25). THE color input SHALL never set error itself — what a color means is the product's to validate, and the one error the color input raises by itself is the entry error — and SHALL show no error text of its own: the words that say what is wrong are the errorText of the Field that frames it, which that Field draws and gives the input as its description (FLD-7, FLD-11).",
+      "verify": "Under the default system a stacked color input draws the line inside its edge in the error role, and the swatch keeps its resting look."
+    },
+    {
+      "id": "CLI-11",
+      "text": "THE color input SHALL take its name, its description and its required state from the Field that frames it, as every control a Field frames does (FLD-10, FLD-11): the Field's label is the accessible name of its input, whether or not any label is drawn, and the Field's supporting text with, in error, the error text after it is its description; it has no description of its own but the words of an entry error where nothing frames it (CLI-20). WHILE label is not empty THE color input SHALL use it as the accessible name instead, for an input no Field frames or one whose visible label is elsewhere (a table column, a row of a list of colors that names each). IF it has neither name it SHALL still render and work, and in debug builds SHALL report that it has no accessible name. WHILE its Field says it is required THE color input SHALL expose its input as required, whichever mark is drawn and where none is, and on the web SHALL report a missing value to the form's constraint validation WHILE value is the empty string; it has no requirement setting of its own, SHALL NOT validate because of one, and SHALL raise no entry error for an empty text (CLI-20).",
+      "verify": "Unit: the accessible name of the input is the Field's label with labelHidden false and true; a color input no Field frames is named by its own label, and without one is reported."
+    },
+    {
+      "id": "CLI-13",
+      "text": "THE color input SHALL add to the focus order its input and, WHILE the picker button is shown, that button after it, and no other stop: the swatch is not one (CLI-25). A press on the label row of the Field that frames it moves focus to its input and does nothing else — it asks for no picker and changes no value — and is that Field's (FLD-12)."
+    },
+    {
+      "id": "CLI-15",
+      "text": "WHERE variant is filled or outlined, WHILE the input is empty and not focused THE color input SHALL rest its label in the input line, after the swatch, in comp.input-box.label.typescale.medium for size medium (and so on), and otherwise SHALL float it as the text input of that variant floats its label (TXI-13): to the top of a filled container, above the input line, or onto an outlined container's top edge with a gap of comp.input-box.outline.notch-padding in the outline on each side of it, in comp.input-box.label.floated-typescale.medium for size medium (and so on); a filled color input that draws its label SHALL be at least twice comp.input-box.container.padding-block-with-label.medium plus one line of each of those two text styles tall (and so on for each size), so that it does not change height when the label floats. WHEN the label floats or rests THE color input SHALL move and resize it over comp.input-box.motion.label-duration with comp.input-box.motion.label-easing, and at once where motion is reduced. The label SHALL wrap rather than be cut and SHALL never be drawn over the value or the swatch. The label it floats SHALL be its accessible name (CLI-11): the label of the Field that frames it, or its own label where none does. WHILE labelHidden is true — its own, or that Field's (FLD-25) — or it has no name THE color input SHALL draw no label. WHERE variant is stacked, or a variant laid out as stacked (CLI-41), THE color input SHALL draw no label at all: the label above it is the Field's row (FLD-2)."
+    },
+    {
+      "id": "CLI-16",
+      "text": "THE color input SHALL hold as its value an opaque sRGB color written as a number sign and six hexadecimal digits in lowercase, two each for red, green and blue (#0f766e), or the empty string for no color. It SHALL hold no other form: no alpha, no three-digit form, no color name, no functional notation and no other color space. value, and what input and change carry, SHALL always be one of those two.",
+      "verify": "Unit: after any sequence of edits, picks and product writes, value matches a number sign and six lowercase hexadecimal digits or is empty."
+    },
+    {
+      "id": "CLI-17",
+      "text": "THE color input SHALL show its value as text in its input, on one line, in comp.input-box.input.typescale.medium for size medium (and so on) and the input color of its variant (comp.input-box.stacked.input.color for a stacked color input; its error. part WHILE the color input is in error), and SHALL let the person edit that text freely, as the text of a text input: it SHALL NOT refuse, replace or reformat a character while the person types, SHALL NOT limit the text's length, and SHALL leave a composition to the platform's native text element (TXI-4). WHEN the user changes the text — by typing, deleting, pasting, cutting, dictating or an input method committing text — THE color input SHALL read the whole text as CLI-18 says and set value to the color it reads, or to the empty string WHILE it reads as no color; WHEN that changes value THE color input SHALL emit input once with the new value, and an edit that leaves value as it was SHALL emit nothing.",
+      "verify": "Unit: from the value #0f766e, deleting the last digit emits input once with the empty string and typing it back emits input once with #0f766e; typing a seventh digit emits input with the empty string and no error is shown while the input has focus."
+    },
+    {
+      "id": "CLI-18",
+      "text": "THE color input SHALL read a text as a color WHEN, with the white space before and after it left out, it is exactly six hexadecimal digits in either case, with or without one number sign before them (0F766E, #0f766e); the color is those digits in lowercase after a number sign. Every other text — an empty one, fewer or more digits, any other character — SHALL read as no color. WHEN the user pastes THE color input SHALL insert the pasted text as a text input does and read the whole text by the same rule, so that a color copied with a space around it, in capitals or without its number sign is taken.",
+      "verify": "Unit: \" #0F766E \", \"0f766e\" and \"#0f766e\" read as #0f766e; \"#0f7\", \"#0f766e80\", \"teal\" and \"rgb(15, 118, 110)\" read as no color."
+    },
+    {
+      "id": "CLI-19",
+      "text": "WHEN the input loses focus, or the user presses the keyboard's action key, THE color input SHALL commit: WHILE the text reads as a color it SHALL rewrite the text to the value's own form — the number sign added, the digits in lowercase, the white space gone — and WHILE the text is not empty and reads as no color it SHALL leave the text as typed and raise the entry error of CLI-20; in every case, WHEN value differs from the value last committed (the value when the input gained focus, or at the last change), it SHALL emit change once with value. On the web, inside a form, the action key SHALL then request the form's submission as a native input does. The submission SHALL be requested through the form's default button (BTN-30): WHILE the form has a submit button — the platform's own or a Button of type submit — the first of them in document order SHALL be pressed, so that its click is emitted and its name and value are sent, and WHILE that button is disabled nothing SHALL be submitted; only a form with no submit button is asked directly.",
+      "verify": "On the web, in a form whose first submit button is the platform's own with a name and a value: Enter in the field emits one click on that button and one submit whose data holds the pair; with the button disabled, no submit; in a form with no submit button, one submit as before."
+    },
+    {
+      "id": "CLI-20",
+      "text": "WHEN the color input commits (CLI-19) WHILE its text is not empty and reads as no color THE color input SHALL emit entryError once with the text as typed and invalidText, the words it has for the refusal, and enter an entry error: it SHALL render and be exposed exactly as WHILE error is true (CLI-9), and SHALL report the refusal to the Field that frames it with invalidText as its words, which that Field shows in its supporting row and announces (FLD-28: the Field's errorText while invalidText is empty); WHILE no Field frames it invalidText SHALL be the input's description. The entry error SHALL end with the next edit of the text, WHEN the product sets value (CLI-21) or WHEN a pick gives a color (CLI-29), and THE color input SHALL then withdraw its report; while it lasts, on the web, the color input SHALL report badInput to the form's constraint validation. WHILE invalidText is empty THE color input SHALL still mark itself, and WHILE no Field frames it SHALL in debug builds report an entry error that has no words; framed, the Field reports a refusal it has no words for (FLD-28). THE color input SHALL raise no entry error for an empty text, whether or not its Field says it is required (CLI-11), and none before a commit: a person who is still typing is not in error.",
+      "verify": "An entry error cannot be a snapshot fixture: it follows a commit. Unit, a Field around a color input: type \"#0f7\", leave the input: the text stays, the input is invalid, the Field shows and announces invalidText, entryError carries \"#0f7\"; type one more character: the error text is gone and the help of the Field is where it was. Unit, bare: the same commit makes invalidText the input's description."
+    },
+    {
+      "id": "CLI-21",
+      "text": "WHEN the product sets value THE color input SHALL show it in its input and its swatch, end any entry error, and SHALL NOT emit input, change or entryError. WHEN the product sets a text that CLI-18 reads as a color but that is not in the value's own form (capitals, no number sign) THE color input SHALL hold and show it in the value's own form; WHEN it sets a text that is not empty and reads as no color THE color input SHALL treat it as empty and in debug builds report it. WHEN the product sets value to what value already is THE color input SHALL leave the text as the person typed it, so that a product that echoes the empty value back while a person is half-way through a color does not clear what they entered."
+    },
+    {
+      "id": "CLI-22",
+      "text": "WHILE hovered or focused THE color input SHALL render its container, outline, active indicator, floating label and its asterisk, input, caret and opacity, and the widths of its outline and active indicator, from the component tokens of the highest-precedence active state, with precedence focused over hovered; unlike a button, focus gained by pointer or touch SHALL select the focused state, because a field shows where typing will go however it was focused. THE color input SHALL count as focused WHILE its input has focus, and not WHILE its picker button has it: the button shows its own focus. WHILE variant is stacked it SHALL draw no edge at rest (comp.input-box.stacked.outline.color is transparent), SHALL draw its focused outline color and width as a line inside the container's edge, following its corners, that takes no layout space, and WHILE in error SHALL draw that line at rest in comp.input-box.stacked.error.outline.color at comp.input-box.outline.width; a hovered stacked or filled color input SHALL show the state layer on its container, behind the swatch and never over it (CLI-25). WHEN its state changes THE color input SHALL animate colors and widths over comp.input-box.motion.state-duration with comp.input-box.motion.state-easing, and SHALL change them at once where motion is reduced. Selected text SHALL be highlighted in comp.input-box.selection.color and drawn in comp.input-box.selection.content.color in every variant and state, and the caret drawn in the caret color of its variant (comp.input-box.stacked.caret.color for a stacked color input; its error. part WHILE the color input is in error). The rows around it take their focused colors from the Field that frames it (FLD-13).",
+      "verify": "Focused cannot be a snapshot fixture. Unit: focus the input by pointer and by keyboard and read the resolved tokens: under the default system the focused line inside a stacked input's edge is thicker and takes the focus role; focus on the picker button leaves the container at rest."
+    },
+    {
+      "id": "CLI-23",
+      "text": "THE color input SHALL show the focus of its input by its focused tokens — the focused outline or active indicator is its focus indicator — and SHALL NOT draw the focus ring around its container; WHERE sys.behavior.focus-style is glow it SHALL also draw the glow around the container while focused."
+    },
+    {
+      "id": "CLI-24",
+      "text": "WHERE the container is shorter than the minimum target THE color input SHALL extend its hit area vertically to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. WHEN the user presses anywhere on the color input outside its picker button — the container's padding, the swatch, a floating label — THE color input SHALL focus the input; it SHALL draw no press answer, because a press on a field is not an action. A press on the label row of the Field that frames it focuses the input too, and is that Field's (FLD-12)."
+    },
+    {
+      "id": "CLI-25",
+      "text": "THE color input SHALL draw its swatch as a square of side comp.input-box.icon.size.medium for size medium (and so on), its corners comp.color-input.swatch.shape, never more than half its side, eased by sys.shape.corner-smoothing. WHILE value is a color the swatch SHALL be filled with exactly that color, in sRGB, and edged inside its size by a line comp.color-input.swatch.outline.width wide in comp.color-input.swatch.outline.color, drawn over the fill, so that a color close to the container's — white in a light field — still shows where it ends. WHILE value is empty — no text, or a text that reads as no color — the swatch SHALL have no fill, the container showing through it, and the same edge, which is then all it draws. THE color input SHALL mix nothing into the swatch's fill: no state layer, no tint of a state or of the error condition, no opacity WHILE the color input is enabled, and no elevation. The swatch SHALL NOT be a control: it takes no focus, has no hover, focus or press answer, and a press on it focuses the input (CLI-24); and THE color input SHALL keep it from assistive technology, because the value's text says the color and a sample alone says it to no one who cannot see it or tell it from another.",
+      "verify": "Fixtures stacked-white and stacked-black: the white swatch is bounded by its edge on the light scheme's container, the black one on the dark scheme's. Unit: the swatch's computed fill equals value while the field is hovered, focused and in error."
+    },
+    {
+      "id": "CLI-26",
+      "text": "WHEN value changes — by an edit of the text, by a pick or because the product set it — THE color input SHALL draw the swatch in the new value at once, without a motion, so that the sample and the text never disagree."
+    },
+    {
+      "id": "CLI-27",
+      "text": "WHILE picker is true THE color input SHALL draw a picker button at the end of its container: an icon-only Button of the text variant and of the Button size with the field's size name (Button's default size for a field size Button does not have), showing the palette glyph of the system's icon set, its glyph centred as far from the container's end edge as the swatch's centre is from the container's start edge. It SHALL be a Button in every respect — its own tokens, its press, focus ring and target (BTN-5, BTN-8, BTN-9, BTN-10) — named by pickerLabel (an empty pickerLabel reported in debug builds), exposed as opening a dialog, as the opener of a popover is (POP-18; aria-haspopup=\"dialog\" on the web), and a focus stop after the input; WHILE the color input is disabled it SHALL be disabled with it. The palette glyph is not marked as mirrored and is never mirrored. WHILE picker is false THE color input SHALL draw no picker button, SHALL ignore pickerLabel and SHALL end its input as CLI-1 says."
+    },
+    {
+      "id": "CLI-28",
+      "text": "WHEN the user activates the picker button THE color input SHALL emit pickerRequest once with value and then, unless the product cancelled that request, present the platform's own color picker WHERE the platform has one, showing value, or the picker's own starting color WHILE value is empty; it SHALL draw no picker surface of its own. WHERE the platform has no color picker of its own, or the product cancelled the request, THE color input SHALL present nothing, change nothing and move no focus: the product presents its own surface — anchored to the color input's container and opened by the picker button, as a popover is to its anchor and its opener (POP-18) — and sets value to what was picked (CLI-21), and that surface returns focus to the picker button when it closes (POP-22).",
+      "verify": "Unit: activation emits pickerRequest exactly once; with the request cancelled no platform picker opens and focus stays on the picker button."
+    },
+    {
+      "id": "CLI-29",
+      "text": "WHILE a platform picker that the color input presented is open, WHEN the person picks a color in it THE color input SHALL take the pick as an edit by the person: it SHALL write the color into its input in the value's own form, draw the swatch in it, end any entry error and emit input once with the new value, for every pick the platform reports, a drag across the picker included. A pick the value cannot hold exactly — one with an alpha, one outside sRGB — SHALL be held as the opaque sRGB color the platform converts it to. WHEN that picker closes THE color input SHALL emit change once WHEN value differs from the value last committed, and focus SHALL be on the picker button, as a popover returns focus to its opener (POP-22). THE color input SHALL leave the picker's look, placement, keys and dismissal to the platform."
+    },
+    {
+      "id": "CLI-30",
+      "text": "THE color input SHALL give its input a general keyboard without autocapitalization, autocorrection, spell checking or suggestions, SHALL offer it no autofill, and SHALL expose it as a text field named as CLI-11 says whose value is the text it shows. It SHALL announce nothing of its own WHEN the value changes and SHALL add no name of the color in words: the text is the value, and a product that wants a name beside it (\"Teal\") gives it in the supportingText of the Field that frames the input, or beside an input nothing frames."
+    },
+    {
+      "id": "CLI-31",
+      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE color input SHALL NOT be focusable or editable, nor its picker button, SHALL NOT emit input, change, pickerRequest or entryError, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, and SHALL render every part of its container, the floating label and its asterisk included, from the disabled component tokens of its variant (of its error parts WHILE the color input is in error). It SHALL draw the swatch's fill at sys.state.disabled-content-opacity, as a disabled chip draws its avatar (CHP-6), and keep the swatch's edge."
+    },
+    {
+      "id": "CLI-33",
+      "text": "WHILE the text size is enlarged THE color input SHALL grow its container with the input's line, keeping the height of its size as a minimum, SHALL keep the swatch at comp.input-box.icon.size.medium for size medium (and so on) and the picker button at its Button's size, both centred on the line, and SHALL keep the value on one line: WHERE the input is narrower than its text the text SHALL scroll inside the input, the caret kept in view, as in a single-line text input."
+    },
+    {
+      "id": "CLI-34",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE color input SHALL draw the label that floats in its box and that label's asterisk in the platform's text color, and SHALL rely on no color of its own to show an error: the error is carried by the invalid state (CLI-9) and by the words of the Field that frames it, which that Field draws in the platform's text color (FLD-17).",
+      "verify": "On the web, with forced colors emulated: the floating label of the fixtures filled-filled and outlined-filled is CanvasText."
+    },
+    {
+      "id": "CLI-35",
+      "text": "WHERE the platform draws with a person's own forced colors THE color input SHALL draw an edge comp.input-box.outline.width wide in the platform's control text color around its container in every variant, that edge in the platform's highlight color at the focused width while focused, its value in the platform's text color, and a disabled color input in the platform's disabled text color. It SHALL still fill the swatch with the value's own color, kept out of the forced palette, because that color is the content the field shows and not a decoration of it, and SHALL draw the swatch's edge in the platform's text color, so that the sample is bounded on any background.",
+      "verify": "On the web, with forced colors emulated: the container has a ButtonText border, a Highlight border while focused; the swatch's computed background is value (forced-color-adjust: none on the swatch alone) and its edge is CanvasText."
+    },
+    {
+      "id": "CLI-37",
+      "text": "WHERE the layout direction is right-to-left THE color input SHALL mirror its container: the swatch at the right and the picker button at the left, all paddings applied by logical start and end, and the label of a filled or outlined color input floating from the right edge. It SHALL lay out the value left to right in every layout direction, aligned to the field's start edge — the right in a right-to-left layout — as a text input lays out an address or a number (TXI-24), because a number sign and its digits are one left-to-right token whose order a right-to-left context must not change.",
+      "verify": "Fixture stacked-picker-rtl: the swatch is at the right and the picker button at the left, and the value #0f766e reads left to right and begins with its number sign, at the right of the input. The color field's fixture stacked-required-rtl shows the same box under the Field's mirrored label row."
+    },
+    {
+      "id": "CLI-38",
+      "text": "THE color input SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the color input is shown THE color input SHALL draw itself for the new direction at once, without a motion of its own, keeping its value, its text as typed, its selection and caret, and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "CLI-39",
+      "text": "WHERE the layout direction is right-to-left THE color input SHALL mirror no drawing of its own: the swatch is never mirrored, and the palette glyph of its picker button is not one the icon set marks as mirrored (CLI-27). What changes with the direction is where its parts stand (CLI-37). The glyph before the label is the Field's, and is mirrored as FLD-20 says."
+    },
+    {
+      "id": "CLI-40",
+      "text": "THE color input SHALL lay out the label that floats in its box as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word keeps its own order in a right-to-left layout and reorders nothing beside it; THE color input SHALL still place the label and align its lines by the layout direction, not by the text's own. The value is laid out as CLI-37 says. The texts of the rows around the input are the Field's and are laid out as FLD-21 says."
+    },
+    {
+      "id": "CLI-41",
+      "text": "WHEN variant or size names a value that the active design system does not have THE color input SHALL render with the default value's tokens, and in debug builds report the unknown value; WHEN variant names a value the active system has but the color input does not know by name (one a layer added) it SHALL draw no label and draw its edge as a stacked color input does (CLI-15, CLI-22), with that value's own tokens. A requirement or a required mark it does not know is the Field's to answer (FLD-22)."
+    },
+    {
+      "id": "CLI-42",
+      "text": "THE color input SHALL have no words of its own and SHALL read none of the product's words: invalidText and pickerLabel are said by the product for the one input they are set on, and WHILE either is empty THE color input SHALL draw and work as CLI-20 and CLI-27 say and SHALL put no word in its place. Its value is a number sign and digits, written the same in every language (CLI-16). The words of a requirement are the Field's (FLD-24).",
+      "verify": "Unit, with the product's words set and with none: a color input draws and exposes no word the instance did not give. No test finds an English word the test did not give."
+    },
+    {
+      "id": "CLI-43",
+      "text": "THE color input SHALL say to the Field that frames it what only the input knows, and SHALL say it again WHEN it changes: that it draws the label itself WHILE its variant floats one (CLI-15), so that the Field draws no label row (FLD-25); how far the value's text stands from the input's own start edge — comp.input-box.container.padding-inline-with-icon.medium, the swatch's side comp.input-box.icon.size.medium and comp.input-box.container.gap.medium for size medium (and so on for each size, CLI-1) — and, for its end edge, comp.input-box.container.padding-inline.medium (and so on), whether or not the picker button is shown, so that the Field's supporting row starts at the value's text, after the swatch, and ends at the container's text padding (FLD-26); and an entry error with its words (CLI-20, FLD-28). It SHALL give no count: a color has one length. It SHALL take from that Field its name, its description and its required, invalid and disabled states (CLI-9, CLI-11, CLI-31), whether the label is hidden (CLI-15) and whether an asterisk follows it (CLI-7), so that a Field and a color input placed by hand are drawn, named, described and marked exactly as a color field is.",
+      "verify": "The twin test of the color field: each fixture color-<id> of the Field — a Field around a color input, written by hand — is the same picture and the same accessibility tree as the color field's fixture <id>. Unit: changing variant from stacked to outlined removes the Field's label row and floats the same text in the input; a Field around a color input and a Field around a text input with a leading icon, of one width, start their supporting rows at the same place; showing the picker button does not move the end of the row."
+    },
+    {
+      "id": "CLI-44",
+      "text": "THE color input SHALL draw no label row above itself, no requirement tag, no help and no error text: those are the rows of the Field that frames it (FLD-2 to FLD-7). WHILE no Field frames it THE color input SHALL be complete as a bare control — its box, the swatch, the value as text, the picker button, the label that floats in the box where its variant floats one, its states and its events — and exactly as tall as its container. THE color input SHALL be block-level, framed and bare alike: exactly as wide as the place it stands in — the width its layout gives it, which inside a Field is the Field's whole width (FLD-1), so that the box fills its Field — with no width of its own and never the platform's default width for a text element, as the text input is (TXI-63). A product that wants a narrower box gives it a narrower place."
+    },
+    {
+      "id": "CLI-45",
+      "text": "THE color input SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the text of its value, the caret and the highlight of selected text, the paddings, the gaps and the least height of its size, and the size of its swatch, which is the size of the glyph at the start of a box (comp.input-box.icon.size.medium, and so on), and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group are the swatch's shape and the hairline around it. WHEN a design system or a product sets a token of the box THE color input SHALL follow it, as the text input, the select, the combobox and the number input do, which read the same tokens; no token is held equal to another for this. WHERE one color input is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE color input SHALL draw itself from the value it finds there.",
+      "verify": "Every value the box of a color input draws is the value of the comp.input-box token it reads, in every scheme of every shipped system. A build test fails if a token with the name of a token of the box stands in the color input's own group. Unit, web: with the custom property of comp.input-box.container.shape set on one color input's element, its corners change and those of a text input and a select beside it do not; set on an ancestor of the three, all three change."
+    }
+  ],
+  "accessibility": {
+    "role": "textbox",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the input, then to the picker button while it is shown, and on."
+      },
+      {
+        "keys": "Text editing keys",
+        "action": "Edit the text as in a text input; nothing is refused while typing."
+      },
+      {
+        "keys": "Enter (the action key)",
+        "action": "In the input: commits the text (change; an entry error for a text that is not a color) and, on the web inside a form, requests its submission."
+      },
+      {
+        "keys": "Enter or Space on the picker button",
+        "action": "Asks for a picker: emits pickerRequest and, unless cancelled, opens the platform's own color picker where there is one."
+      }
+    ],
+    "labeling": "The accessible name of the input is the label of the Field that frames it, or its own label where no Field does; a filled or outlined input draws that name floating, and labelHidden only stops the drawing. The input's value is the text it shows: the color as a number sign and six hexadecimal digits. Its description is what the Field gives — the supporting text with, in error, the error text after it and the optional text — and, where nothing frames it, invalidText while an entry error lasts. The input is exposed as invalid while error is true, its Field is in error or an entry error lasts; as required while its Field says so, whichever mark is drawn; and as disabled while it or its Field is disabled. The picker button is a separate button named by pickerLabel that opens a dialog. The swatch is decorative and hidden.",
+    "minimumTarget": true,
+    "notes": [
+      "The color is never told by the swatch alone (WCAG 1.4.1): the value is text, read and typed, and the swatch is a sample of it for those who can see it. A person who cannot tell two samples apart reads two different values.",
+      "A hexadecimal value says little about what the color looks like. Where that matters, the product names the color in the supportingText of the Field that frames the input (\"Teal\") or beside it; the color input ships no names, which would need a table in every language.",
+      "The color input checks the form of what is typed, not its meaning: a text that is not a color raises an entry error after the person commits, never while they type (CLI-20), and the words for it are shown by the Field that frames the input. Whether a color suits its use — its contrast against a background, a color already taken — is the product's to say with the Field's error and errorText.",
+      "The swatch's edge is the hairline, far below 3:1 against the container. That is within WCAG 1.4.11: the swatch is not a control and is not what identifies the value. The value's text is held to 4.5:1 as a text input's is.",
+      "The picker is the platform's own where it has one, with the platform's own accessibility; where it has none the product's surface is a popover opened by the picker button, which is why the button is exposed as opening a dialog and receives focus back (CLI-28, CLI-29).",
+      "The container extends its hit area to the minimum target (CLI-24), and the picker button is a Button with its own target (BTN-5). The swatch is not a target of its own: a press on it lands in the input.",
+      "Text size: at 200% the container grows with the value's line and the swatch keeps its size (CLI-33); a floating label wraps and is never cut (CLI-15).",
+      "Forced colors (CLI-34, CLI-35): the box and the value take the person's colors; the swatch alone keeps the value's color, because showing that color is what it is for.",
+      "The input has no label row and no message of its own: a Field frames it and draws them (FLD-2 to FLD-11, FLD-25, FLD-26, FLD-28), or the product names it with label where its visible label is elsewhere. Unframed and unnamed, it is reported (CLI-11).",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.color-input",
+  "fixtures": [
+    {
+      "id": "stacked-empty",
+      "props": {
+        "label": "Brand color"
+      }
+    },
+    {
+      "id": "stacked-filled",
+      "props": {
+        "label": "Brand color",
+        "value": "#0f766e"
+      }
+    },
+    {
+      "id": "stacked-large",
+      "props": {
+        "label": "Brand color",
+        "value": "#0f766e",
+        "size": "large"
+      }
+    },
+    {
+      "id": "stacked-white",
+      "props": {
+        "label": "Page background",
+        "value": "#ffffff"
+      }
+    },
+    {
+      "id": "stacked-black",
+      "props": {
+        "label": "Text",
+        "value": "#000000"
+      }
+    },
+    {
+      "id": "stacked-picker",
+      "props": {
+        "label": "Brand color",
+        "value": "#0f766e",
+        "picker": true,
+        "pickerLabel": "Choose color"
+      }
+    },
+    {
+      "id": "stacked-picker-empty",
+      "props": {
+        "label": "Brand color",
+        "picker": true,
+        "pickerLabel": "Choose color"
+      }
+    },
+    {
+      "id": "stacked-picker-large",
+      "props": {
+        "label": "Brand color",
+        "value": "#0f766e",
+        "size": "large",
+        "picker": true,
+        "pickerLabel": "Choose color"
+      }
+    },
+    {
+      "id": "stacked-error",
+      "props": {
+        "label": "Brand color",
+        "value": "#fde047",
+        "error": true
+      }
+    },
+    {
+      "id": "stacked-error-picker",
+      "props": {
+        "label": "Brand color",
+        "value": "#fde047",
+        "error": true,
+        "picker": true,
+        "pickerLabel": "Choose color"
+      }
+    },
+    {
+      "id": "stacked-disabled",
+      "props": {
+        "label": "Brand color",
+        "value": "#0f766e",
+        "disabled": true
+      }
+    },
+    {
+      "id": "stacked-picker-disabled",
+      "props": {
+        "label": "Brand color",
+        "value": "#0f766e",
+        "disabled": true,
+        "picker": true,
+        "pickerLabel": "Choose color"
+      }
+    },
+    {
+      "id": "stacked-error-rtl",
+      "props": {
+        "label": "צבע המותג",
+        "value": "#fde047",
+        "error": true
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "stacked-picker-rtl",
+      "props": {
+        "label": "لون العلامة",
+        "value": "#0f766e",
+        "picker": true,
+        "pickerLabel": "اختيار اللون"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "filled-empty",
+      "props": {
+        "variant": "filled",
+        "label": "Brand color"
+      }
+    },
+    {
+      "id": "filled-filled",
+      "props": {
+        "variant": "filled",
+        "label": "Brand color",
+        "value": "#0f766e"
+      }
+    },
+    {
+      "id": "filled-picker",
+      "props": {
+        "variant": "filled",
+        "label": "Brand color",
+        "value": "#0f766e",
+        "picker": true,
+        "pickerLabel": "Choose color"
+      }
+    },
+    {
+      "id": "filled-error",
+      "props": {
+        "variant": "filled",
+        "label": "Brand color",
+        "value": "#fde047",
+        "error": true
+      }
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "label": "Brand color",
+        "value": "#0f766e",
+        "disabled": true
+      }
+    },
+    {
+      "id": "outlined-empty",
+      "props": {
+        "variant": "outlined",
+        "label": "Brand color"
+      }
+    },
+    {
+      "id": "outlined-filled",
+      "props": {
+        "variant": "outlined",
+        "label": "Brand color",
+        "value": "#0f766e"
+      }
+    },
+    {
+      "id": "outlined-large",
+      "props": {
+        "variant": "outlined",
+        "label": "Brand color",
+        "value": "#0f766e",
+        "size": "large"
+      }
+    },
+    {
+      "id": "outlined-picker",
+      "props": {
+        "variant": "outlined",
+        "label": "Brand color",
+        "value": "#0f766e",
+        "picker": true,
+        "pickerLabel": "Choose color"
+      }
+    },
+    {
+      "id": "outlined-error",
+      "props": {
+        "variant": "outlined",
+        "label": "Brand color",
+        "value": "#fde047",
+        "error": true
+      }
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "label": "Brand color",
+        "value": "#0f766e",
+        "disabled": true
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-color-input",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "error": "error",
+        "disabled": "disabled",
+        "invalidText": "invalidText",
+        "picker": "picker",
+        "pickerLabel": "pickerLabel"
+      },
+      "events": {
+        "input": "input",
+        "change": "change",
+        "pickerRequest": "pickerrequest",
+        "entryError": "entryerror"
+      },
+      "notes": "The color field's control, without the frame: the class `TanreiColorInput`, React `ColorInput`. A form-associated custom element with a shadow root that takes `name`, submits `value` (the color in its own form; an empty string while empty), restores it on navigation, resets to the value it was first given, follows `<fieldset disabled>`, and reports `valueMissing` while its Field says it is required and `value` is empty, and `badInput` while an entry error lasts (CLI-20). The shadow root holds the container, the swatch and a real `<input type=\"text\" inputmode=\"text\" autocapitalize=\"none\" autocorrect=\"off\" spellcheck=\"false\" autocomplete=\"off\" dir=\"ltr\">`. The swatch is a `<span aria-hidden=\"true\">` whose background is the value, with `forced-color-adjust: none` on it alone and a `CanvasText` border under `forced-colors: active` (CLI-35). The picker button is a `<tanrei-button variant=\"text\">` whose `icon` slot holds the `palette` glyph, with `aria-haspopup=\"dialog\"`. The platform's picker is the browser's: the shadow root holds a visually hidden `<input type=\"color\" tabindex=\"-1\" aria-hidden=\"true\">` placed under the picker button, so that the browser anchors its picker there; activation dispatches a cancelable `pickerrequest` and, unless `preventDefault()` was called, sets that input's value (black while the color input is empty) and calls `showPicker()` inside the same user activation. Its `input` events are the picks of CLI-29 and its `change` the close; where a browser gives no close signal the next focus of the page counts as one. The shadow root does not delegate focus — it has two stops — and `focus()` focuses the inner input. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `swatch`, `input`, `picker-button`. The connection with a Field is `tanrei-field-connect` (`src/primitives/field.ts`), in both directions (CLI-43): the input says `drawsLabel` while its look floats the label, `inset: { start, end }` — lengths it writes from its own tokens: the padding beside the swatch, the swatch and the gap; and the text padding at the end — and `refusal: { text }` while an entry error lasts. It keeps no count. It takes `labelHidden` and `requiredMark` (`asterisk` or `none`) beside the name, the description and the three states. The name, the description, `aria-invalid` and `aria-required` are written on the inner input, the input's own `label` winning. Attributes are kebab-case: `label-hidden`, `invalid-text`, `picker-label`. `input` and `change` are composed events; `pickerrequest` and `entryerror` are composed `CustomEvent`s whose `detail` is `{ value }` (`TanreiColorInputPickerRequestDetail`) and `{ text, message }` (`TanreiColorInputEntryErrorDetail`; `message` is `invalid-text`). What the value reads and writes is one module with no DOM in it (`color-text.ts`), which lives beside the element. Before the element is defined its host is an empty inline box: a page that must work before its scripts load reserves the room or renders a native `<input>` in its place. The host is `display: block`. The element has no words and reads none (CLI-42)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiColorInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "hex",
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "error": "error",
+        "disabled": "disabled",
+        "invalidText": "invalidText",
+        "picker": "showsPicker",
+        "pickerLabel": "pickerLabel"
+      },
+      "events": {
+        "input": "hex",
+        "change": "onCommit",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Not built on this platform yet, nor is the color field. The input is a view of its own — `TanreiColorInput(hex: Binding<String>, showsPicker:, pickerLabel:, onCommit:, onPickerRequest:, onEntryError:)` — with a text element, the system color picker (`UIColorPickerViewController` presented as a popover from the picker button with `supportsAlpha = false`; `NSColorPanel` on macOS; SwiftUI's own `ColorPicker` is not used), the conversion of a pick to sRGB and the swatch as a decorative shape. `label` is its accessibility label where nothing frames it. The Field around it gives the name, the description and the states through the environment, and the input says back what it draws through a preference the Field reads (CLI-43); that upward channel is not tried yet."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiColorInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "error": "isError",
+        "disabled": "enabled",
+        "invalidText": "invalidText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerContentDescription"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onCommit",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Not built on this platform yet. The input is a composable of its own, as `BasicTextField`: `TanreiColorInput(value, onValueChange, …)`, the caller keeping `value`; `enabled` is the inverse flag and `isError` keeps Compose's name. `KeyboardOptions(capitalization = None, autoCorrectEnabled = false, keyboardType = Ascii)`. Android has no color picker of its own, so the input presents none (CLI-28): the picker button is shown when `onPickerRequest` is not null. The swatch is drawn in a `Canvas` and cleared from semantics. The Field around it gives the name, the description and the states through a composition local, and the input writes what it says of itself to a scope the Field provides (CLI-43); not tried yet."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiColorInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "controller",
+        "label": "semanticLabel",
+        "labelHidden": "labelHidden",
+        "error": "isError",
+        "disabled": "enabled",
+        "invalidText": "invalidText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerSemanticLabel"
+      },
+      "events": {
+        "input": "onChanged",
+        "change": "onCommit",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Not built on this platform yet. The input is a widget of its own, as `TextField`: the text lives in a `TextEditingController`, and `onChanged` receives the value (a color or the empty string), not the text as typed. `semanticLabel` is its name where nothing frames it; `enabled` is the inverse flag. `autocorrect: false`, `enableSuggestions: false`, `textCapitalization: none`, `textDirection: TextDirection.ltr`. Flutter has no color picker of its own, so the input presents none (CLI-28): the picker button is shown when `onPickerRequest` is not null. The swatch is a `DecoratedBox` inside `ExcludeSemantics`. The Field around it gives the name, the description and the states through an inherited widget, and the input says back what it draws through an inherited notifier (CLI-43); not tried yet."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "ColorInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "accessibilityLabel",
+        "labelHidden": "labelHidden",
+        "error": "error",
+        "disabled": "disabled",
+        "invalidText": "invalidText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerAccessibilityLabel"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onEndEditing",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Not built on this platform yet. `<ColorInput accessibilityLabel=\"Brand color\" value={value} onValueChange={setValue} />`, built on the platform's text element with `autoCapitalize=\"none\"`, `autoCorrect={false}`, `spellCheck={false}` and left-to-right text. `onValueChange` receives the value (a color or the empty string), not the text as typed; `onEndEditing` is the commit. React Native has no color picker of its own on both platforms, so the input presents none (CLI-28): the picker button is shown when `onPickerRequest` is given. The swatch is a `View` with `accessible={false}`. The Field around it gives the name, the description and the states through a context, and the input says back what it draws through that context's setter (CLI-43); not tried yet."
+    }
+  }
+}

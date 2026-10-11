@@ -1,0 +1,24 @@
+---
+title: 动效令牌
+description: 弹簧、时长和缓动令牌。
+translationOf: tokens/motion.mdx
+sourceHash: c524fce45805382c2430560ed82dd0e9036683a0
+---
+
+import MotionTokens from '../../../../components/tokens/MotionTokens.astro';
+
+`tanrei.sys.motion` 下的动效令牌。使用指引请阅读[动效](/zh-cn/foundations/motion/)。
+
+## 弹簧
+
+每个弹簧有四个子令牌。`stiffness` 和 `damping` 用于具备弹簧动画的平台；`duration` 和 `easing` 则是在无法使用弹簧的地方（例如 CSS）采用的近似值。
+
+<MotionTokens part="spring" />
+
+## 时长
+
+<MotionTokens part="duration" />
+
+## 缓动
+
+<MotionTokens part="easing" />

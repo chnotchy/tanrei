@@ -1,0 +1,92 @@
+---
+title: आइकन
+description: हर डिज़ाइन सिस्टम का एक आइकन सेट, एक वेट, और एक नियम — चयनित न हो तो आउटलाइन वाला, चयनित हो तो भरा हुआ।
+translationOf: foundations/icons.mdx
+sourceHash: 6905ea230fdb3955442d8050cf3af2f3fe852839
+---
+
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Tanrei के डिफ़ॉल्ट आइकन [Material Symbols](https://fonts.google.com/icons) हैं, **Rounded** शैली में, **वेट 300** पर। टेक्स्ट के टाइपफ़ेस की तरह इस फ़ॉन्ट का भी सिर्फ़ नाम से रेफ़रेंस लिया जाता है, इसे साथ में नहीं दिया जाता: इसे प्रॉडक्ट लोड करता है।
+
+आइकन कैसे बनता है, यह टोकन का एक छोटा ग्रुप तय करता है। आइकन बॉक्स तीन साइज़ में आता है, `sys.icon.small`, `medium` और `large` (डिफ़ॉल्ट रूप से 16, 20 और 24px), और फ़ॉन्ट का ऑप्टिकल साइज़ बॉक्स के अनुसार चलता है।
+
+<TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
+
+## फ़िल का नियम
+
+**चयनित नहीं है तो आउटलाइन। चयनित है तो भरा हुआ। हमेशा।** नेविगेशन आइटम, टैब, टॉगल, चिप, पसंदीदा: आइकन वही ग्लिफ़ रहता है और स्टेट के साथ सिर्फ़ उसका फ़िल बदलता है। भरे हुए और आउटलाइन वाले आइकन सजावट के लिए कभी मिलाए नहीं जाते, और कभी हाथ से चुने नहीं जाते — वेब पर फ़िल उस कंट्रोल के स्टेट के अनुसार चलता है जिसमें आइकन रखा है।
+
+<DemoFrame label="फ़िल चयन के अनुसार चलता है">
+  <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> पसंदीदा</button>
+  <span class="icon-demo" role="tablist">
+    <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> होम</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">search</span> खोज</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> सेटिंग</button>
+  </span>
+  <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>जोड़ें</tanrei-button>
+</DemoFrame>
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> पसंदीदा</button>
+```
+
+`.tanrei-icon` किसी भी पूर्वज एलिमेंट पर `aria-pressed`, `aria-selected`, `aria-checked` और `aria-current` पढ़ता है, या आइकन अथवा किसी पूर्वज पर `data-selected` (`data-selected="false"` किसी एक आइकन को इससे बाहर रखता है)। जब आइकन के पास का टेक्स्ट वही बात कहता हो, तो आइकन को `aria-hidden="true"` दें, और जब न कहता हो, तो कंट्रोल को एक्सेसिबल नाम दें।
+
+नेटिव प्लैटफ़ॉर्म पर यही मान डिज़ाइन सिस्टम के साथ आते हैं (`system.icon`), साथ में एक छोटा हेल्पर, जो **चयनित** होने की स्थिति और एक साइज़ को उस रूप में बदलता है जो फ़ॉन्ट को चाहिए। Tanrei अभी कोई आइकन कंपोनेंट शिप नहीं करता।
+
+## हर डिज़ाइन सिस्टम का अपना आइकन सेट
+
+आइकन सेट डिज़ाइन सिस्टम का होता है, इसलिए [लेयर](/hi/foundations/design-systems/) उसे बदल सकती है। साथ आने वाले सिस्टम इन मानों पर रिज़ॉल्व होते हैं:
+
+<SystemValues tokens={['sys.icon.family.unselected', 'sys.icon.family.selected', 'sys.icon.weight', 'sys.icon.fill.unselected', 'sys.icon.fill.selected']} />
+
+आइकन फ़ॉन्ट चयनित आइकन को अचयनित से दो में से किसी एक तरीक़े से अलग करता है, और टोकन दोनों को कवर करते हैं। चयनित आइकन हमेशा `family.selected` **और** `fill.selected` दोनों लेता है; दोनों में से कौन-सा वास्तव में बनने वाली चीज़ को बदलता है, यह सेट पर निर्भर है।
+
+### एक वेरिएबल फ़ैमिली
+
+वेरिएबल आइकन फ़ॉन्ट, जैसे Material Symbols, `FILL` अक्ष वाली एक ही फ़ैमिली है। फ़ैमिली के दोनों टोकन डिफ़ॉल्ट रूप से `ref.typeface.icon` की ओर इशारा करते हैं, इसलिए उस एक टोकन को दूसरी जगह मोड़ने से सेट बदल जाता है, और `fill.unselected` / `fill.selected` स्टेट को अलग करते हैं। `m3-like` बस इतना ही लिखता है:
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.icon": { "$value": ["Material Symbols Outlined"], "reason": "Material Design 3 draws Material Symbols in the Outlined style." },
+  "tanrei.sys.icon.weight":   { "$value": 400, "reason": "Material Symbols default weight in Material Design 3." }
+}
+```
+
+### दो स्टैटिक फ़ैमिली
+
+स्टैटिक आइकन फ़ॉन्ट में कोई अक्ष नहीं होता। वह आउटलाइन वाले और भरे हुए चित्र दो अलग फ़ैमिली के रूप में देता है, इसलिए लेयर हर स्टेट के लिए एक फ़ैमिली का नाम देती है:
+
+```json
+"tokens": {
+  "tanrei.sys.icon.family.unselected": { "$value": ["Material Icons Outlined"], "reason": "Acme uses the static Material Icons set: outlined when unselected." },
+  "tanrei.sys.icon.family.selected":   { "$value": ["Material Icons"], "reason": "Acme uses the static Material Icons set: filled when selected." },
+  "tanrei.sys.icon.weight":            { "$value": 400, "reason": "A static icon font has one weight; 400 is what Material Icons is drawn at." }
+}
+```
+
+फ़िल और वेट के टोकन जैसे हैं वैसे ही रहते हैं। स्टैटिक फ़ॉन्ट अक्षों को नज़रअंदाज़ कर देता है, इसलिए उनसे कोई नुक़सान नहीं होता, और कंपोनेंट को यह जानने की ज़रूरत नहीं कि किस तरह का सेट सक्रिय है। यह लेयर रिपॉज़िटरी का अपना टेस्ट फ़िक्स्चर है (`packages/tokens-build/test/fixtures/acme.system.json`)।
+
+### आइकन के नाम प्रॉडक्ट की ज़िम्मेदारी हैं
+
+Tanrei यह तय करता है कि आइकन कैसे बनता है, यह नहीं कि कौन-से आइकन मौजूद हैं। सेट अपने ग्लिफ़ को अलग-अलग नाम देते हैं, और हो सकता है किसी सेट में वह ग्लिफ़ न हो जो दूसरे में है। जो प्रॉडक्ट अपना आइकन सेट बदलता है, वह अपने इस्तेमाल किए हुए नाम जाँचता है। जो सिंबल सेट फ़ॉन्ट नहीं है, जैसे SF Symbols, उसे फ़ैमिली टोकन से नाम नहीं दिया जा सकता; यह मिमिक्री-गैप रजिस्ट्री में `platform-symbol-sets` के रूप में दर्ज है।
+
+### React Native
+
+React Native का `<Text>` फ़ॉन्ट-वेरिएशन अक्ष सेट नहीं कर सकता, इसलिए वेरिएबल आइकन फ़ॉन्ट के साथ `FILL` कभी ग्लिफ़ तक नहीं पहुँचता और आइकन दोनों स्टेट में एक जैसा दिखता है। वहाँ नियम बनाए रखने के लिए ऊपर की तरह दो स्टैटिक फ़ैमिली इस्तेमाल करें, या आइकन SVG के रूप में बनाएँ।
+
+चारों नेटिव पैकेजों के आइकन हेल्पर अभी "हर स्टेट की अपनी फ़ैमिली" वाले मॉडल पर ले जाए जा रहे हैं; जब तक किसी पैकेज का README इसका वर्णन न करे, मानकर चलें कि वह पैकेज एक ही फ़ैमिली पढ़ता है।
+
+<style>{`
+  .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }
+  .icon-demo[role='tablist'] { gap: 1rem; cursor: default; }
+  .icon-demo [role='tab'] { display: inline-flex; align-items: center; gap: 0.35rem; font: inherit; color: var(--tanrei-sys-color-on-surface-variant); background: none; border: 0; padding: 0.25rem; }
+  .icon-demo [aria-selected='true'] { color: var(--tanrei-sys-color-on-surface); }
+`}</style>

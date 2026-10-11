@@ -1,0 +1,296 @@
+---
+title: كتلة الشيفرة
+description: أسطر من الشيفرة تُقرأ وتُقارَن وتُنسخ، بخط الشيفرة، تُمرَّر داخل الكتلة أو تلتفّ، ومعها اختياريًّا ترويسة وأرقام أسطر وأسطر معلَّمة ومحثّ وزر نسخ. وإذا أُعطيت الشيفرة ولغتها ميّزت صيغتها بنفسها.
+translationOf: components/code-block.mdx
+sourceHash: 3f2cb34d6a6385776faace656f870690072e864d
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+export const runs = (list) => list.map(([text, syntax]) => (syntax ? <span data-syntax={syntax}>{text}</span> : text));
+
+export const footer = `// تذييل نموذج: إجراء رئيسي واحد، ومخرج واحد.
+import { Button } from '@tanrei/react';
+
+type FooterProps = { onSave: () => void; busy: boolean };
+
+export function Footer({ onSave, busy }: FooterProps) {
+  const retries = 3;
+  return (
+    <footer className="footer">
+      <Button variant="text">إلغاء</Button>
+      <Button disabled={busy} onClick={onSave}>حفظ</Button>
+    </footer>
+  );
+}`;
+
+export const given = [
+  ['{', 'punctuation'], ['\n  '], ['"name"', 'property'], [':', 'punctuation'], [' '], ['"acme"', 'string'], [',', 'punctuation'], ['\n  '],
+  ['"dials"', 'property'], [':', 'punctuation'], [' '], ['{', 'punctuation'], [' '], ['"size.unit"', 'property'], [':', 'punctuation'], [' '], ['4', 'constant'], [' '], ['},', 'punctuation'], ['\n  '],
+  ['"compact"', 'property'], [':', 'punctuation'], [' '], ['false', 'constant'], ['\n'],
+  ['}', 'punctuation'],
+];
+
+## نظرة عامة
+
+<ComponentAvailability name="code-block" />
+
+<DemoFrame label="عنوان، وتسمية للّغة، وزر نسخ؛ والشيفرة تُميَّز صيغتها بحسب لغتها" column>
+  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ">
+    <pre><code>{footer}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+كتلة الشيفرة (code block) تعرض شيفرة يقرؤها الناس ويقارنونها وينسخونها. أما الاسم أو الأمر داخل جملة فهو [شيفرة مضمَّنة](../inline-code/).
+
+**كتلة الشيفرة تميّز صيغة الشيفرة بنفسها.** أعطِها الشيفرة وقيمة `language`، فتلوّنها من الرموز (tokens): لا أداة لتمييز الصيغة (syntax highlighter) تثبّتها، ولا سمة ولا ورقة أنماط تكتبها. فتتبع الشيفرة المخطط اللوني ومستوى التباين ونظام التصميم ككل شيء آخر في الصفحة. وتمييز الصيغة لون ووزن لا غير: الأحرف والأسطر وما يُحدَّد وما يُنسخ وما يقرؤه قارئ الشاشة هي نفسها به ومن دونه.
+
+### الاستخدام
+
+على الويب تبقى الشيفرة في مستندك، في صورة `<pre><code>` عادي. هي هناك بلا سكربت: لقارئ أخفق السكربت عنده، ولمحركات البحث، وللبحث في الصفحة. والعنصر يرسم الإطار حولها. حمِّل `@tanrei/web/code.css` لتعطي الكتلة تعبئتها وزواياها وحشوها وخطها قبل أن يُعرَّف العنصر.
+
+أما SwiftUI و Compose و Flutter و React Native فمخطَّط لها: الأسماء التي بجانب كل منصة في أعلى هذه الصفحة هي ما تعطيها إياه المواصفة، ولا شيء منها متاح هناك بعد.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <tanrei-code-block
+      title="sizes.js"
+      language="js"
+      language-label="JavaScript"
+      copy
+      copy-label="نسخ"
+      copied-label="تم النسخ"
+      copy-failed-label="تعذّر النسخ"
+    >
+      <pre><code>const sizes = ['small', 'medium', 'large'];</code></pre>
+    </tanrei-code-block>
+
+    <!-- أرقام، وأسطر معلَّمة، ومحثّ. -->
+    <tanrei-code-block label="مثال" line-numbers start-line="96" highlighted-lines="98, 100-101" highlighted-label="مُبرَز">
+      <pre><code>…</code></pre>
+    </tanrei-code-block>
+
+    <tanrei-code-block label="التثبيت" prompt="$" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ">
+      <pre><code>npm install @tanrei/web</code></pre>
+    </tanrei-code-block>
+
+    <script type="module">
+      import '@tanrei/web';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CodeBlock } from '@tanrei/react';
+    import '@tanrei/web/code.css';
+
+    {/* العنصر يرتّب الشيفرة في أسطر، فدعه يملك الشيفرة: مرِّر النص. */}
+    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="نسخ" copiedLabel="تم النسخ" copyFailedLabel="تعذّر النسخ" />
+    ```
+  </TabItem>
+</Tabs>
+
+الخاصية `language` معرِّف (`tsx`، `css`، `sh`): هي ما تميّز الكتلة الصيغة بحسبه، ولا تُرسم. أما الكلمات التي في الترويسة فهي `language-label`. والكتلة التي يبنيها سكربت تعيّن خاصية العنصر `code` بدل أن تحمل `<pre><code>`، ويكتب العنصر `<pre><code>` بنفسه.
+
+## المواصفات
+
+<DemoFrame label="الطرازان filled و outlined، والحجمان medium و small" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" label="مثال"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="أرقام أسطر، وسطر مُبرَز، وأسطر مضافة ومحذوفة" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="مُبرَز" removed-lines="4" added-lines="5" removed-label="محذوف" added-label="مضاف" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="السطر الطويل يُمرَّر داخل الكتلة، أو يلتفّ" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="مثال" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ"><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>إلغاء</tanrei-button><tanrei-button variant="filled" @click=\${save}>حفظ التغييرات</tanrei-button></footer>\`;\n\n// السطر أعلاه سطر واحد: لا يتسع له المكان، ولا يُقصّ أبدًا.`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" label="مثال" wrap line-numbers><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>إلغاء</tanrei-button><tanrei-button variant="filled" @click=\${save}>حفظ التغييرات</tanrei-button></footer>\`;\n\n// السطر أعلاه سطر واحد: لا يتسع له المكان، ولا يُقصّ أبدًا.`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="محثّ، وحدّ أعلى لعدد الأسطر المعروضة" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="التثبيت" prompt="$" language="sh" language-label="Shell" copy copy-label="نسخ" copied-label="تم النسخ" copy-failed-label="تعذّر النسخ"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+**طرازان.** الطراز `filled` تعبئة هادئة، لشيفرة في صفحة. والطراز `outlined` بلا تعبئة داخل خط رفيع واحد، لشيفرة داخل بطاقة أو لوحة لها تعبئة أصلًا.
+
+**المتن.** لا يُكسر السطر افتراضيًّا أبدًا. السطر الذي لا يتسع له المكان يُمرَّر داخل الكتلة، ولا تُمرَّر الصفحة جانبيًّا أبدًا. والخاصية `wrap` تكسر الأسطر بدلًا من ذلك، والصف المكمِّل يبدأ تحت الشيفرة، لا تحت الأرقام. والخاصية `max-lines` تحدّ الارتفاع بعدد من الأسطر، والباقي يُمرَّر داخل الكتلة.
+
+**زر النسخ** يُرسم دائمًا، لا عند التحويم فقط أبدًا. ولا يغطي أبدًا شيفرة لا يمكن إبعادها عنه: المتن الذي يُمرَّر يكسب ذلك القدر من الحيّز في نهايته، والصفوف الملتفّة تتوقف قبل عموده. وهو ينسخ الشيفرة نصًّا عاديًّا، بلا أرقام الأسطر ولا المحثّ ولا الإشارات ولا الأسطر المحذوفة. أما التحديد باليد فينسخ الأحرف المحدَّدة بالضبط.
+
+**الأسطر المعلَّمة** لا تُعلَّم باللون وحده أبدًا.
+
+| العلامة | شريط عند الحافة اليسرى | خلفية بعرض السطر | الإشارة | ما يُقرأ قبل السطر |
+| --- | --- | --- | --- | --- |
+| مُبرَز | نعم | نعم | | `highlighted-label` |
+| مضاف | نعم | | `+` | `added-label` |
+| محذوف | نعم | | `−` | `removed-label` |
+
+قوائم الأسطر أرقام ومديات تفصل بينها فواصل (`"3, 7-9"`). وهي تُعدّ بالأرقام التي يراها القارئ، ابتداءً من `start-line`.
+
+**من اليمين إلى اليسار.** الشيفرة من اليسار إلى اليمين دائمًا: الأسطر والأرقام وبداية التمرير في اليسار في كل تخطيط. والإطار وحده ينعكس، فينتقل العنوان إلى اليمين وزر النسخ إلى اليسار.
+
+<ComponentSpecs name="code-block" />
+
+### تمييز الصيغة
+
+يأتي اللون من واحد من ثلاثة مصادر، بهذا الترتيب.
+
+1. **المقاطع (runs) التي تعطيها أنت.** شيفرة مُيِّزت صيغتها حيث صُنعت الصفحة، أو بأداة تمييز اخترتها. تُرسم كما أُعطيت، ولا تميّز الكتلة صيغة تلك الشيفرة مرة أخرى أبدًا، أيًّا كان ما تقوله `language` و `highlight`.
+2. **أداة التمييز الخاصة بالكتلة**، حين تكون `highlight` بالقيمة true، وتسمّي `language` لغة تعرفها الأداة، ولا تكون الشيفرة أطول من `comp.code-block.syntax.max-length` (50,000 حرف).
+3. **عادي**، في كل حالة أخرى.
+
+تُرسم الشيفرة فورًا، عاديةً. وتصل ألوانها بعد لحظة، في إطار رسم واحد، ولا تحرّك شيئًا. والشيفرة التي تتغيّر تُقرأ من جديد، والشيفرة التي تطول من آخرها تحتفظ بما لها من ألوان.
+
+| `language` | ما يحدث |
+| --- | --- |
+| `html`، `xml`، `svg`، `css`، `javascript` (`js`، `mjs`، `cjs`، `jsx`)، `typescript` (`ts`، `tsx`)، `json` (`jsonc`)، `shell` (`sh`، `bash`، `zsh`)، `swift`، `kotlin` (`kt`)، `dart` | تُميَّز صيغتها. ولا فرق بين الأحرف الكبيرة والصغيرة. |
+| فارغة، أو `text` أو `plain` أو `plaintext` | عادية. ولا يُبلَّغ عن شيء. |
+| أي قيمة أخرى | عادية. وبنية التنقيح (debug) تبلّغ عن اللغة المجهولة مرة واحدة. |
+
+لا تخمّن الكتلة اللغة أبدًا، لا من الشيفرة ولا من `title` ولا من `language-label`. فالشيفرة القصيرة ملتبسة، والتخمين الخاطئ يلوّن الشيفرة تلوينًا خاطئًا.
+
+**إيقافه.** القيمة `highlight="false"` توقف أداة التمييز الخاصة بالكتلة لكتلة واحدة. والمقاطع التي تعطيها أنت تظل تُرسم.
+
+**حدّ.** الشيفرة الأطول من `comp.code-block.syntax.max-length` تُرسم عادية، كلها، ولا تُميَّز صيغة نصفها أبدًا. ويستطيع نظام تصميم أن يغيّر القيمة.
+
+**مع الأسطر المضافة والمحذوفة** تقرأ الكتلة الشيفرة على أنها النصّان اللذان تحملهما: الشيفرة بعد التغيير تلوّن الأسطر غير المحذوفة، والشيفرة قبله تلوّن الأسطر المحذوفة. فالسطر المحذوف الذي يفتح سلسلة نصية لا يستطيع أن يفسد تلوين ما بعده.
+
+**الإخفاق صامت.** أداة التمييز التي يتعذّر تحميلها، أو التي ترمي خطأ، أو التي لا تطابق مقاطعها مجتمعةً الشيفرة تمامًا، تترك الشيفرة عادية. والترويسة وزر النسخ والأسطر والعلامات تظل تعمل.
+
+قواعد اللغات (grammars) صغيرة عن قصد. الغاية منها عرض الشيفرة، لا تحريرها. وحيث تكون اللغة صعبة قد تضع مقطعًا في اللون الخطأ، لكنها لا تُسقط حرفًا أبدًا.
+
+### تمييز الصيغة حيث تُصنع الصفحة
+
+الموقع الذي يبني صفحاته يستطيع أن يميّز الصيغة في عملية البناء. فتكون الألوان عندئذ في الرسم الأول، ولا يحمّل المتصفح أي أداة تمييز. والدالة `highlightToHtml` هي الدالة نفسها التي يستخدمها العنصر، وتعمل في Node.
+
+```js
+import { highlightToHtml } from '@tanrei/web/highlight';
+
+const html = await highlightToHtml(source, 'tsx');
+// <tanrei-code-block language="tsx"><pre><code data-syntax-of="tsx">${html}</code></pre></tanrei-code-block>
+```
+
+خاصية HTML `data-syntax-of` على عنصر `<code>` تقول إن الشيفرة مُيِّزت صيغتها. فيرسمها العنصر كما أُعطيت ولا يستورد شيئًا.
+
+### أداة التمييز الخاصة بك
+
+الوحدة `@tanrei/web/highlight` وحدة (module) قائمة بذاتها بلا أي اعتمادية. يستوردها العنصر أول مرة تحتاج إليها كتلة، ويستورد قواعد كل لغة أول مرة تُطلب تلك اللغة.
+
+| ما تصدّره الوحدة | ما يفعله |
+| --- | --- |
+| `highlight(code, language)` | المقاطع، أو `null` للغة غير معروفة. وهو وعد (Promise) أول مرة تُستخدم لغة، وقيمة بعد ذلك. |
+| `highlightToHtml(code, language, { lines })` | محتوى HTML الداخلي لعنصر `<code>`. ومع `lines` عنصر `<span data-line>` واحد لكل سطر. |
+| `registerLanguage(names, grammar)` | يضيف لغة أو يستبدل بها أخرى. وقواعد اللغة بيانات: حالات مسمّاة، كل منها قائمة قواعد لكل قاعدة نمط ودور والحالة التي تُدخل أو تُغادر. وقد تكون دالة تستورد القواعد. |
+| `loadLanguage(language)` | يحمّل قواعد لغة قبل أول شيفرة بها. |
+| `setHighlighter(fn)` | يستبدل أداة التمييز كلها. والقيمة `null` توقف التمييز التلقائي في الصفحة. |
+| `languages()` | كل اسم تُعرف به لغة. |
+| `foldScope(scopes, text)` | الدور المقابل لاسم نطاق منقَّط، بحسب الجدول أدناه. |
+| `tokenize(grammar, code)`، `checkGrammar(grammar)` | لاختبار قواعد لغة تكتبها أنت. |
+
+والمنتج الذي عنده سلفًا أداة تمييز يثق بها يستطيع أيضًا أن يعيّن `TanreiCodeBlock.highlighter` بدالة `(code, language, signal) => runs`. فتسأل الكتلة عندئذ تلك الدالة، ولا تُحمَّل وحدة Tanrei أبدًا.
+
+### أدوار الصيغة
+
+| الدور (`data-syntax`) | ما هو | في النظام الافتراضي |
+| --- | --- | --- |
+| `comment` | تعليق، أو تعليق توثيقي | أهدأ من الشيفرة |
+| `keyword` | كلمة من كلمات اللغة نفسها: كلمة مفتاحية، أو مُعدِّل، أو قاعدة تبدأ بالعلامة `@` (at-rule)، أو تعليق توضيحي (annotation)، أو عامل يُكتب كلمةً | أرجواني، أثقل بدرجة وزن واحدة |
+| `string` | نص مكتوب في الشيفرة: سلسلة نصية، أو حرف، أو تعبير نمطي، أو قيمة خاصية في لغة ترميز | أخضر |
+| `constant` | قيمة ليست نصًّا: عدد، أو قيمة منطقية، أو null، أو ثابت مسمّى، أو وحدة، أو قيمة لون، أو تسلسل هروب (escape) | برتقالي |
+| `function` | اسم دالة أو تابع (method)، عند التصريح به أو عند استدعائه | أزرق |
+| `type` | اسم نوع: صنف، أو بنية، أو واجهة، أو نوع مبني في اللغة، أو فضاء أسماء | أخضر مزرقّ |
+| `tag` | ما تستهدفه لغات الترميز وأوراق الأنماط: اسم عنصر، أو اسم مكوّن في لغة ترميز، أو محدِّد (selector) | أحمر |
+| `property` | اسم يتبع شيئًا: خاصية، أو مفتاح، أو خاصية عنصر في لغة ترميز، أو خاصية نمط، أو خيار أمر | أزرق، بدرجة أقرب إلى لون الشيفرة |
+| `punctuation` | الأقواس والفواصل ومحدِّدات لغة الترميز | أهدأ من الشيفرة |
+| عادي (بلا عنصر span) | أي شيء آخر: المتغيرات، والمعاملات، والعوامل المكتوبة علاماتٍ، والنص الذي بين الوسوم | لون الشيفرة |
+
+لكل دور رمزان: لون (`comp.code-block.syntax.color.*`) ودرجة وزن (`comp.code-block.syntax.emphasis.*`). والأدوار محور من محاور الرموز، فيستطيع نظام تصميم أن يضيف دورًا. والأخضر والأحمر في النظام الافتراضي يأتيان من لوحتي ألوان خاصتين بالصيغة، قريبتين في الصبغة من لوني النجاح والخطأ. والسطر المضاف أو المحذوف يُعرف بشريطه وإشارته وتسميته، لا باللون وحده أبدًا. والدور يغيّر اللون والوزن فقط، فتكون للشيفرة المميَّزة والشيفرة العادية الأسطر نفسها والأعمدة نفسها.
+
+المقطع عنصر `<span data-syntax="…">` داخل عنصر `<code>`. والنص الذي خارج أي عنصر span عادي.
+
+<DemoFrame label="المقاطع التي تعطيها أنت تُرسم كما أُعطيت" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="مثال">
+    <pre><code>{runs(given)}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+### طيّ نطاقات أداة التمييز في الأدوار
+
+بعض أدوات تمييز الصيغة تسمّي ما تجده بأسماء نطاقات (scopes) منقَّطة من مفردات واحدة مشتركة. والدالة `foldScope` تطويها في الأدوار، لتعطي أداتك وأداة Tanrei الألوان نفسها. تُجرَّب نطاقات الوحدة المعجمية (token) الواحدة من أخصّها إلى أعمّها. وفي النطاق الواحد يُؤخذ أول صف مطابق. والنطاق الذي لا يطابق أي صف يُتجاوز، والوحدة التي لا تطابق شيئًا عادية.
+
+| # | النطاق يبدأ بـ | الدور |
+| --- | --- | --- |
+| 1 | `comment`، `punctuation.definition.comment` | `comment` |
+| 2 | `constant.character.escape`، `constant.numeric`، `constant.language`، `constant.other`، `keyword.other.unit`، `support.constant`، `variable.other.constant`، `variable.other.enummember` | `constant` |
+| 3 | `string`، `punctuation.definition.string`، `markup.inline.raw`، `markup.raw` | `string` |
+| 4 | `entity.name.tag`، `support.class.component`، `meta.selector`، وفي أوراق الأنماط `entity.other.attribute-name` | `tag` |
+| 5 | `entity.other.attribute-name`، `support.type.property-name`، `meta.property-name`، `meta.object-literal.key`، `variable.other.property`، `variable.other.object.property`، `support.type.vendored.property-name`، `variable.parameter.option` | `property` |
+| 6 | `entity.name.function`، `support.function`، `variable.function`، `meta.function-call.generic` | `function` |
+| 7 | `entity.name.type`، `entity.name.class`، `entity.name.namespace`، `entity.other.inherited-class`، `support.type`، `support.class`، `storage.type.primitive`، `storage.type.built-in`، `keyword.type` | `type` |
+| 8 | `keyword.operator` حين يكون نصه من حروف (`new`، `typeof`، `in`) | `keyword` |
+| 9 | `keyword.operator` في غير ذلك | عادي |
+| 10 | `keyword`، `storage`، `variable.language`، `meta.decorator`، `punctuation.decorator`، `entity.name.function.decorator`، `markup.heading` | `keyword` |
+| 11 | `punctuation`، `meta.brace`، `meta.delimiter` | `punctuation` |
+| 12 | `variable`، `meta`، `source`، `text`، `markup`، `invalid` | عادي |
+
+- علامتا الاقتباس حول السلسلة النصية جزء من السلسلة. وتسلسل الهروب داخل السلسلة ثابت (`constant`).
+- مفاتيح JSON خصائص (`property`)، وقيمها سلاسل نصية وثوابت.
+- اسم المزخرِف (decorator) كلمة مفتاحية.
+- النطاق `invalid` عادي. عرض الشيفرة لا يحكم على الشيفرة.
+- الإضافة والحذف خاصيتان للسطر (`added-lines` و `removed-lines`)، لا للمقطع.
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- يعطي العنصر كل سطر صندوقًا بتغليفه في `<span data-line>`. هو ينقل عُقدك ويقسم النص والمقاطع عند فواصل الأسطر، ولا يضيف أي حرف إلى الشيفرة. وإطار العمل الذي يملك أبناء عنصر `<code>` ينبغي أن يمرّر `code` بدلًا من ذلك، أو أن يرسم `[data-line]` بنفسه.
+- تسمية السطر المعلَّم عنصر `<span>` مخفيّ قبل شيفرة السطر. وهي جزء من `textContent` لعنصر `<code>`، وتُستثنى مما يُنسخ.
+- الطراز outlined يُرسم على أي شيء يوضع عليه. وحيث لا يكون ذلك لون السطح، سمِّه في `--tanrei-code-block-ground`، لتستطيع أرقام الأسطر وزر النسخ أن تقف عليه والشيفرة تُمرَّر تحتها.
+- قبل أن يُعرَّف العنصر، يرسم الملف `code.css` التعبئة والزوايا والحشو وألوان المقاطع. أما الترويسة وزر النسخ والأرقام والعلامات فتحتاج إلى العنصر.
+- الخاصية `highlight` قيمتها true افتراضيًّا، ولذلك تُكتب خاصية HTML المقابلة لها لإيقافها: `highlight="false"`. أما خاصية العنصر فتأخذ قيمة منطقية.
+- يكتب العنصر مقاطعه هو عناصر span داخل عنصر `<code>` الذي عندك، سطرًا سطرًا، ويعلّمها بأنها له. وإطار العمل الذي يملك أبناء عنصر `<code>` ينبغي أن يمرّر `code` ويدع العنصر يكتبها.
+- يُقرأ الحد من الخاصية المخصَّصة `--tanrei-comp-code-block-syntax-max-length`، كما يعطيها التتالي (cascade) للكتلة.
+- الصفحة التي تستخدم الحزمة المجمَّعة في ملف واحد تجد أداة التمييز داخلها. والصفحة التي تستورد `@tanrei/web` وحداتٍ (modules) تحمّلها عند الحاجة.
+
+## الإرشادات
+
+### افعل
+
+- أعطِ الكتلة التي يمكن أن تُمرَّر `title` أو `label`. المتن الذي يُمرَّر موضع توقف للتركيز ويحتاج إلى اسم.
+- استخدم الطراز `outlined` داخل بطاقة أو لوحة، والطراز `filled` في صفحة وعلى حاوية ملوَّنة.
+- استخدم محثًّا لكتلة من الأوامر التي تُكتب. المحثّ لا يُنسخ.
+- أعطِ كل كتلة قيمة `language` الخاصة بها. واستخدم `language="text"` لنص لا صيغة له.
+- ضع الملفات المتعددة أو اللغات المتعددة في [علامات تبويب](../tabs/) تحمل كل منها كتلة شيفرة.
+
+### لا تفعل
+
+- لا تستخدم كتلة شيفرة لاسم في جملة. استخدم الشيفرة المضمَّنة.
+- لا تعتمد على ألوان الصيغة لقول شيء. الشيفرة نفسها مرسومةً عاديةً يجب أن تقول الشيء نفسه.
+- لا تخلط الأوامر ومخرجاتها تحت محثّ واحد. كل سطر غير فارغ يأخذ المحثّ. استخدم كتلتين.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="code-block" />
+
+### ما يتكفل به المكوّن
+
+- الشيفرة هي عنصر `code` داخل مجموعة يسمّيها `title`، أو `label`.
+- المتن الذي يمكن أن يُمرَّر موضع توقف واحد في ترتيب التركيز، بعد زر النسخ، ويُمرَّر بمفاتيح الأسهم. والمتن الذي يتسع له المكان ليس موضع توقف، فصفحة من الأمثلة القصيرة لا تضيف أي موضع.
+- أرقام الأسطر والإشارات والأشرطة والمحثّ مخفيّة عن التقنيات المساعدة. والسطر المعلَّم تسبقه تسميته بالكلمات.
+- لا تُمرَّر الصفحة جانبيًّا أبدًا من أجل كتلة شيفرة، عند عرض 320 وعند ضعف مقاس النص.
+- في الألوان المفروضة (forced colors) يكتسب كل طراز حدًّا، وتكون الشيفرة كلها بلون النص، وتبقى الأشرطة والإشارات.
+- تمييز الصيغة لا يضيف شيئًا للتقنيات المساعدة. لا يُعرض أي دور، والألوان التي تصل لا تُعلَن. ويُحفظ التحديد والتركيز وموضع التمرير.
+- مع قصور رؤية اللونين الأحمر والأخضر تتقارب بعض الصبغات الست، وأولها أخضر السلسلة النصية وأحمر اسم الوسم. والكلمات المفتاحية تتميّز بالوزن أيضًا.
+
+### ما عليك فعله
+
+- قدِّم `copy-label` و `copied-label` و `copy-failed-label` مع `copy`، وتسمية كل علامة تستخدمها، بلغة منتجك.
+- قل في النص الذي حول الكتلة ما الذي يعرضه السطر المُبرَز. التسمية تقول فقط إنه مُبرَز.

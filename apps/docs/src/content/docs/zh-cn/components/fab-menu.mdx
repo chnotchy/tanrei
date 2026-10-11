@@ -1,0 +1,267 @@
+---
+title: "FAB 菜单"
+description: "从一个画成收起的主操作按钮的切换按钮上，打开一小组相关的操作；这些操作显示期间，切换按钮变成这个列表的关闭按钮。"
+translationOf: components/fab-menu.mdx
+sourceHash: 58f96ca923cd7e3ad7e31daa132c68b5a1f378d2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="fab-menu" />
+
+:::note[Tanrei 系统中没有]
+默认的 Tanrei 系统不提供 FAB 菜单，cupertino 也不提供，因为 Apple 没有悬浮操作按钮；Material 预设提供它。在 Tanrei 中，请使用一个打开操作[底部面板](/zh-cn/components/bottom-sheet/)的[主操作按钮](/zh-cn/components/main-action-button/)。这个组件在每个系统下仍然可以工作，只是在不提供它的系统下，开发时会有一条警告。本页的演示是在提供它的 `m3-like` 预设下绘制的。
+:::
+
+<DemoFrame label="关闭与打开" system="m3-like">
+  {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}
+  <div style="display: flex; align-items: end; gap: var(--tanrei-sys-space-space300); padding-block-start: calc(3 * max(var(--tanrei-comp-fab-menu-item-height), var(--tanrei-sys-target-touch)) + 2 * var(--tanrei-comp-fab-menu-list-gap) + var(--tanrei-comp-fab-menu-list-offset))">
+    <tanrei-fab-menu label="新建">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="文档" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="文件夹" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="上传" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+    <tanrei-fab-menu inline open label="新建">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="文档" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="文件夹" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="上传" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+  </div>
+</DemoFrame>
+
+### 用法
+
+切换按钮画成一个收起的[主操作按钮](/zh-cn/components/main-action-button/)，带有标签和图标。菜单里的项都是操作，每一项有一个图标和一个标签，传入的方式与各平台传入重复子项的方式相同。和主操作按钮一样，FAB 菜单不会自己定位：由你的布局来放置切换按钮，通常放在末尾侧的底角。菜单项出现在它的上方，位于平台的浮层之中。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-fab-menu class="primary-action" label="新建">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="文档" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="文件夹" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="上传" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+
+    <style>
+      /* 元素自己不做任何定位：由页面把切换按钮放在末尾侧的底角。 */
+      tanrei-fab-menu.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/fab-menu';
+      const fabMenu = document.querySelector('tanrei-fab-menu');
+      // 切换按钮只是请求打开或关闭；open 由你来设置。
+      fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));
+      // close 带有关闭的原因：escape、outside、tab、focus-out 或 item。Web 从不发送 back。
+      fabMenu.addEventListener('close', () => (fabMenu.open = false));
+      // 菜单项的 click 会冒泡，并且先于 close 到达。
+      fabMenu.querySelector('[label="上传"]').addEventListener('click', upload);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FabMenu, FabMenuItem } from '@tanrei/react';
+
+    <FabMenu
+      className="primary-action"
+      label="新建"
+      open={open}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <span slot="icon">add</span>
+      <FabMenuItem label="文档" icon="description" onClick={newDocument} />
+      <FabMenuItem label="文件夹" icon="create_new_folder" onClick={newFolder} />
+      <FabMenuItem label="上传" icon="upload" onClick={upload} />
+    </FabMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 放置方式与 FAB 相同。切换按钮和菜单项都会写入这个绑定。
+    DocumentList()
+        .overlay(alignment: .bottomTrailing) {
+            TanreiFabMenu("新建", icon: "add", isPresented: $showsCreate) {
+                TanreiFabMenuItem("文档", icon: "description", action: newDocument)
+                TanreiFabMenuItem("文件夹", icon: "create_new_folder", action: newFolder)
+                TanreiFabMenuItem("上传", icon: "upload", action: upload)
+            }
+            .padding()
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiFabMenu
+    import io.github.chnotchy.tanrei.components.TanreiFabMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // 状态提升：expanded 由你保存。把它放进 scaffold 的 floatingActionButton 插槽，或者自己放置。
+    TanreiFabMenu(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        onDismissRequest = { expanded = false },
+        contentDescription = "新建",
+        icon = { TanreiText("add") },
+    ) {
+        TanreiFabMenuItem(text = "文档", icon = "description", onClick = ::newDocument)
+        TanreiFabMenuItem(text = "文件夹", icon = "create_new_folder", onClick = ::newFolder)
+        TanreiFabMenuItem(text = "上传", icon = "upload", onClick = ::upload)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // FAB 菜单通过控制器自己打开和关闭；onToggle 和 onClose 报告这一变化。
+    Scaffold(
+      body: const DocumentList(),
+      floatingActionButton: TanreiFabMenu(
+        controller: createMenu,
+        semanticLabel: '新建',
+        icon: const Icon(AppSymbols.add),
+        items: <TanreiFabMenuItem>[
+          TanreiFabMenuItem(label: '文档', icon: const Icon(AppSymbols.description), onPressed: newDocument),
+          TanreiFabMenuItem(label: '文件夹', icon: const Icon(AppSymbols.createNewFolder), onPressed: newFolder),
+          TanreiFabMenuItem(label: '上传', icon: const Icon(AppSymbols.upload), onPressed: upload),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { View } from 'react-native';
+    import { FabMenu } from '@tanrei/react-native';
+
+    // 受控：在 onToggle 中设置 visible，在 onDismiss 中把它设回 false；后者会收到关闭的原因。
+    // 切换按钮从不自己定位：由 style 来放置它。
+    <View style={{ flex: 1 }}>
+      <DocumentList />
+      <FabMenu
+        icon="add"
+        accessibilityLabel="新建"
+        visible={open}
+        onToggle={setOpen}
+        onDismiss={() => setOpen(false)}
+        items={[
+          { label: '文档', icon: 'description', onPress: newDocument },
+          { label: '文件夹', icon: 'create_new_folder', onPress: newFolder },
+          { label: '上传', icon: 'upload', onPress: upload },
+        ]}
+        style={styles.primaryAction}
+      />
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="变体、尺寸与禁用" system="m3-like" plain>
+  <tanrei-fab-menu variant="tonal" label="新建"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu variant="surface" label="新建"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="small" label="新建"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="large" label="新建"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu disabled label="新建"><span slot="icon">add</span></tanrei-fab-menu>
+</DemoFrame>
+
+<ComponentSpecs name="fab-menu" />
+
+## 指南
+
+### 何时使用
+
+当屏幕的主操作有几种相关的形式时，使用 FAB 菜单：新建文档、文件夹或上传；照片或笔记。切换按钮让屏幕上唯一的悬浮操作始终触手可及，按下它，这些形式就作为带标签的操作显示在它的正上方。
+
+只有一个操作时，使用[主操作按钮](/zh-cn/components/main-action-button/)。选项很多或需要说明文字时，使用从按钮或面板打开的[菜单](/zh-cn/components/menu/)。当操作属于某一项而不是整个屏幕时，把按钮放在那一项旁边。
+
+### 如何选择变体
+
+| 变体 | 强调程度 | 用于 |
+| --- | --- | --- |
+| Filled（默认） | 最高 | 以最强的力度呈现屏幕的主操作。 |
+| Tonal | 高 | 应当由内容唱主角的屏幕。 |
+| Surface | 中性 | 位于本身已有颜色的内容（例如地图或照片）之上的 FAB 菜单。 |
+
+变体同时决定切换按钮和菜单项的颜色。打开时，切换按钮采用该变体的另一种外观，变成圆形，并显示关闭图标，所以打开时看起来绝不会和关闭时一样。尺寸只决定切换按钮（40、48 或 64）：菜单项只有一种尺寸。
+
+### 打开与关闭
+
+FAB 菜单和菜单一样，是一个供操作的非模态浮层。用户要在其中操作，所以它接收焦点并把焦点交还，但屏幕上的其他部分都不会被阻挡：没有遮罩，焦点也不会被限制在其中。
+
+- **打开。** 切换按钮通过 `toggle` 请求打开。菜单项出现在它的上方，与它的末尾侧对齐，从离它最近的一项开始依次出现，焦点移到顶部的第一项上。用向上方向键打开时，焦点则移到最后一项，也就是紧挨切换按钮的那一项。
+- **关闭。** Escape、平台的返回操作、在菜单项和切换按钮之外按下、Tab，或者焦点离开，都会通过 `close` 连同原因请求关闭。激活某一项时，先触发该项的 click，然后是原因为 `item` 的 `close`。打开时在切换按钮上按下是切换，而不是在外部按下。
+- **交还焦点。** 菜单项关闭时，如果焦点原本在其中，焦点会交还给切换按钮。在某一项上按 Tab 会关闭菜单项，并从切换按钮继续向后移动，就像从切换按钮上按 Tab 一样。
+- **由谁关闭。** 在 Web、Compose 和 React Native 上，你根据 `toggle` 设置 `open`（`expanded`、`visible`），并根据 `close` 把它设回 false。在 SwiftUI 和 Flutter 上，FAB 菜单通过它的绑定或控制器自己打开和关闭。
+
+### 推荐
+
+- 给切换按钮一个说出这些操作共同点的标签，例如“新建”。打开时它保留这个名称。它的展开状态会告诉屏幕阅读器，它现在的作用是关闭这个列表。
+- 给每一项一个简短的标签和一个图标。用户读的是标签；图标只是帮他们找到它。
+- 保持在两到六项。按用户浏览的顺序排列：第一项画在顶部，最后一项紧挨在切换按钮的上方。
+- 在可滚动内容的末尾留出空间，让切换按钮不会一直遮住最后一项。
+
+### 避免
+
+- 不要禁用某一项。不可用的操作不要放进列表。没有“禁用的项”。
+- 不要在打开时把切换按钮改名为“关闭”，也不要自己更换它的图标。这两件事都由组件来做。
+- 不要在一个屏幕上放置相同尺寸的 FAB 菜单和主操作按钮。一个屏幕只有一个悬浮操作。
+- 不要把 FAB 菜单用于次要的、破坏性的或设置类的操作。
+
+## 无障碍
+
+<ComponentAccessibility name="fab-menu" />
+
+### 组件负责的部分
+
+- 切换按钮是一个以该标签命名的按钮。在平台有相应属性时，它暴露“它会打开菜单”以及菜单是否已打开，并在打开时保留自己的名称。
+- 打开时，这些项构成一个以同一标签命名的菜单，每一项是一个以自己的标签命名的菜单项，带有它的位置和项的总数。图标被隐藏。
+- 在切换按钮上按 Enter、Space 或向下方向键打开菜单，并把焦点移到第一项。向上方向键打开菜单，并把焦点移到最后一项。向下和向上方向键在各项之间移动并循环，Home 和 End 到达两端。在某一项上按 Enter 或 Space 激活它并关闭菜单。Escape 关闭菜单并把焦点交还给切换按钮。
+- 这个菜单是非模态的：它不把焦点限制在其中，不让屏幕的其余部分变为惰性（inert），也不画遮罩。在某一项上按 Tab 会关闭它。
+- 切换按钮的点击区域在每种尺寸下都达到最小目标。每一项的高度至少等于一个目标，它的整个容器都是点击区域。
+- 切换按钮不随文本大小变大，因为图标不是文本。菜单项会变大，并让标签换行。
+- 在减弱动态效果时，切换按钮的变化以及菜单项的出现和离开都立即完成。
+- 调试构建会报告缺少切换按钮的标签、某一项没有标签或图标，以及少于两项或多于六项。
+
+已知的平台差距：
+
+- Web：Web 从不发送 `back`。Escape 就是它的关闭请求。
+- Web：菜单项由脚本相对于切换按钮定位，而不是像规格的 Web 说明所写的那样用 CSS 锚点定位，这一点与菜单相同。
+- 在所有平台上，在外部按下都会关闭菜单项。在 Web 和 Flutter 上，这次按下还会到达它下方的东西。在 SwiftUI、Compose 和 React Native 上则不会。
+- SwiftUI 没有菜单角色和菜单项角色，也无法说明切换按钮会打开菜单，或菜单已经打开。菜单项是一个以该标签命名的容器里的按钮，各自以自己的位置（“2 of 3”，仅有英文）作为值。
+- SwiftUI 在一个弹出层里呈现菜单项，而弹出层自己决定位置。它在菜单项背后画出自己的气泡和箭头，把这一列对准切换按钮的角居中，而不是与切换按钮的末尾侧边缘对齐，并且在默认系统中会裁剪这一列；`list.offset` 不决定这段距离。这个弹出层将由 Tanrei 的浮层取代。
+- SwiftUI：Tab 关闭菜单项并把焦点交还给切换按钮，但焦点无法在同一次按键中从它继续向后移动。
+- SwiftUI：菜单项的无障碍框把它画出的阴影也包括在内，所以相邻菜单项的框会重叠几个点。
+- SwiftUI：宽大于高的 SF Symbol，例如 `folder.badge.plus`，会超出菜单项的图标框。
+- SwiftUI：切换按钮和菜单项上的按键，以及焦点的移入和交还，是作为规则来测试的，还没有用真实的键盘测试。
+- Compose 没有菜单角色，也没有说明“按钮会打开菜单”的属性。菜单项是一个以该标签命名的遍历组里的按钮，位置写在它们的集合信息中；切换按钮的展开和收起动作说明它是要打开还是关闭它们。
+- Flutter 不在切换按钮上暴露 has-popup，也不暴露菜单中的位置或项的总数。
+- React Native 没有说明“按钮会打开菜单”的属性。切换按钮只暴露菜单是否已打开。
+- React Native 在 `TanreiProvider` 的浮层中绘制菜单项，所以它的上层必须有一个 `TanreiProvider`。Tab 关闭菜单项并把焦点交还给切换按钮，下一次 Tab 才从它继续向后移动。
+- React Native：菜单项的位置、它们依次进入的动画、焦点的移入和移出，以及在外部按下，都还没有在真机上检查过。
+
+### 需要你做的事
+
+- 为切换按钮和每一项写标签。单独一个图标不是名称。
+- 把 FAB 菜单放在元素树中它的操作所属的位置。辅助技术按树中的顺序读到切换按钮，而不是按它画出来的位置。
+- 在 Web、Compose 和 React Native 上，根据 `toggle` 设置 `open`，并根据 `close` 把它设为 false。FAB 菜单只是发出请求。
+- 它关闭时不要自己移动焦点。FAB 菜单会把焦点交还给切换按钮。
+- 让切换按钮避开导航栏，并在它的上方为菜单项留出空间。

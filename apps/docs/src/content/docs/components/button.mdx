@@ -1,0 +1,375 @@
+---
+title: Button
+description: Lets people take an action, switch something on and off, or go to a destination, with one tap or click.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="button" />
+
+<DemoFrame label="Variants">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision of the button, where the icon-only form and the toggle are a separate icon button, and which has no icon-only widths and no link form. Their samples show that revision until they catch up.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="filled">Deploy</tanrei-button>
+    <tanrei-button variant="outlined" size="small">Cancel</tanrei-button>
+    <tanrei-button disabled>Deploying…</tanrei-button>
+
+    <!-- With href it is a link, drawn as the same button. -->
+    <tanrei-button variant="tonal" href="/pricing/">See pricing</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      document.querySelector('tanrei-button').addEventListener('click', deploy);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button variant="filled" onClick={deploy}>Deploy</Button>
+    <Button variant="outlined" size="small" onClick={cancel}>Cancel</Button>
+    <Button disabled>Deploying…</Button>
+
+    // With href it is a link, drawn as the same button.
+    <Button variant="tonal" href="/pricing/">See pricing</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButton("Deploy", variant: .filled) { deploy() }
+    TanreiButton("Cancel", variant: .outlined, size: .small) { cancel() }
+
+    // Disabled follows SwiftUI's environment.
+    TanreiButton("Deploying…") {}
+      .disabled(true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.*
+
+    TanreiButton(text = "Deploy", onClick = ::deploy, variant = TanreiButtonVariant.Filled)
+    TanreiButton(text = "Cancel", onClick = ::cancel, variant = TanreiButtonVariant.Outlined, size = TanreiButtonSize.Small)
+
+    // Compose uses the inverse flag.
+    TanreiButton(text = "Deploying…", onClick = {}, enabled = false)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButton(variant: TanreiButtonVariant.filled, onPressed: deploy, child: const Text('Deploy'));
+    TanreiButton(variant: TanreiButtonVariant.outlined, size: TanreiButtonSize.small, onPressed: cancel, child: const Text('Cancel'));
+
+    // A null onPressed disables the button.
+    TanreiButton(onPressed: null, child: const Text('Deploying…'));
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button } from '@tanrei/react-native';
+
+    <Button variant="filled" onPress={deploy}>Deploy</Button>
+    <Button variant="outlined" size="small" onPress={cancel}>Cancel</Button>
+    <Button disabled>Deploying…</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+### An icon, an icon alone, and toggles
+
+A button can carry an icon beside its label, at the start or, with `iconPosition` set to `trailing`, at the end. The padding on the icon's side is a step tighter than on the label's side, so the two look evenly set. Without a label it is icon-only: a circle as wide as the button is high, named by `label`, which is then required. With `toggle` set it switches its own `selected` on each press, shows the state through its colors and the glyph's fill, and announces it as a pressed state.
+
+<DemoFrame label="Icon-only buttons and a toggle">
+  <tanrei-button variant="text" label="Search"><span slot="icon">search</span></tanrei-button>
+  <tanrei-button variant="tonal" label="Edit"><span slot="icon">edit</span></tanrei-button>
+  <tanrei-button variant="outlined" toggle selected label="Favorite"><span slot="icon">favorite</span></tanrei-button>
+  <tanrei-button variant="filled" icon-position="trailing">Next<span slot="icon">arrow_forward</span></tanrei-button>
+</DemoFrame>
+
+Icon button is not a separate component in Tanrei. If you know Material's names, this is where they went:
+
+| Material | Tanrei |
+| --- | --- |
+| Icon button | Button with an icon and no label |
+| Standard icon button | the `text` variant |
+| Filled, tonal and outlined icon buttons | the `filled`, `tonal` and `outlined` variants |
+| Icon toggle button | `toggle` and `selected` |
+
+Give a text toggle an icon. Without a container, a text toggle with only a label shows its state by a change of text color alone; the glyph's fill makes the state visible.
+
+### Widths of an icon-only button
+
+An icon-only button has three widths. Its height never changes with them, and a button with a label ignores `width`.
+
+| `width` | In the default system (small / medium / large) | Use for |
+| --- | --- | --- |
+| `default` | As wide as it is high: 32 / 40 / 56, a circle | Most icon actions. |
+| `narrow` | The glyph and a small inset on each side: 28 / 32 / 32, a capsule | A tight row of icon actions, such as the tools at the end of a field or a dense table row. |
+| `wide` | 40 / 52 / 72, a capsule | The one action of a row that should weigh more than its neighbours. |
+
+<DemoFrame label="Icon-only widths: default, narrow and wide" plain>
+  <tanrei-button variant="tonal" label="Add"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="narrow" label="Add"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="wide" label="Add"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="outlined" size="small" width="narrow" label="More options"><span slot="icon">more_vert</span></tanrei-button>
+  <tanrei-button variant="filled" size="large" width="wide" label="Play"><span slot="icon">play_arrow</span></tanrei-button>
+</DemoFrame>
+
+A narrow button is exactly its glyph and the inset on each side, so the glyph always stays clear of the capsule's edge, and the button follows the glyph wherever a design system re-sizes it. It is drawn narrower than the minimum target, but its hit area is not: the target reaches past its visible edges. Leave room for it beside the button, or put narrow buttons in a [toolbar](/components/toolbar/) or a [button group](/components/button-group/), which space their items.
+
+### A button with a destination is a link
+
+Give a button an `href` and it is a link, not a button: the same control, drawn from the same tokens in every state, but with the link role and everything the platform gives a link. On the web that is a real anchor, so people can open it in a new tab, copy its address, and see where it goes before they follow it. Use this form whenever activating the control only takes the person somewhere else. Do not navigate from a click handler on a plain button.
+
+<DemoFrame label="Links: same place, a new tab, icon-only and disabled" plain>
+  <tanrei-button href="/components/button-group/">Button group</tanrei-button>
+  <tanrei-button variant="outlined" href="/components/toolbar/" target="new" target-label="opens in a new tab">Toolbar</tanrei-button>
+  <tanrei-button variant="text" href="/components/" label="All components"><span slot="icon">apps</span></tanrei-button>
+  <tanrei-button variant="tonal" href="/components/button-group/" disabled>Button group</tanrei-button>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button href="/getting-started/">Get started</tanrei-button>
+
+    <!-- A new tab: the mark after the label is drawn for you; target-label is what a screen reader hears. -->
+    <tanrei-button variant="outlined" href="https://example.com/source" target="new" target-label="opens in a new tab">
+      View source
+    </tanrei-button>
+
+    <!-- Web only: rel and download go to the anchor. -->
+    <tanrei-button variant="tonal" href="/report.pdf" download="report.pdf"><span slot="icon">download</span>Download report</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      // click fires first. A client-side router cancels it and takes the navigation itself.
+      document.querySelector('[href="/getting-started/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button href="/getting-started/">Get started</Button>
+
+    <Button variant="outlined" href="https://example.com/source" target="new" targetLabel="opens in a new tab">
+      View source
+    </Button>
+
+    // click fires first. A client-side router cancels it and takes the navigation itself.
+    <Button
+      href="/getting-started/"
+      onClick={(event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      }}
+    >
+      Get started
+    </Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **Keys.** Enter follows the link. Space does what it does on any link (on the web it scrolls the page), not what it does on a button.
+- **`target`.** `same` (the default) opens the destination where the person is. `new` opens a new tab or window. A labelled button then shows the `open_in_new` glyph after its label, unless your own trailing icon is there, and `targetLabel` is required: Tanrei ships no words of its own, so you say "opens in a new tab" in your product's language.
+- **Disabled.** A disabled link button cannot be followed, copied or dragged, and is exposed as a disabled link.
+- **Toggles.** A toggle holds a state, so it takes no destination: `href` is ignored while `toggle` is set.
+- **On the web only**, `rel` and `download` are passed to the anchor. `target` set to `new` always adds `noopener` to `rel`.
+- There is no visited look. A link button's color says its emphasis and its state, as any button's does.
+
+### In a form
+
+On the web a button is one of its form's controls, and `type` says what a press does to the form. The other platforms have no form element: there you call one function from the button's press and from a field's `action`.
+
+| `type` | A press |
+| --- | --- |
+| `button` (the default) | Does nothing to the form. A button in a form can open a picker or add a row without sending anything. |
+| `submit` | Asks the form to submit, as the browser's own submit button does: `click` first, then the form's validation, then its `submit` event. |
+| `reset` | Puts every control of the form back at its initial value, after `click` and the form's `reset` event. |
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form id="profile">
+      <tanrei-text-field label="Name" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-button type="reset" variant="text">Clear</tanrei-button>
+      <tanrei-button type="submit" variant="outlined" name="intent" value="draft">Save draft</tanrei-button>
+      <tanrei-button type="submit" name="intent" value="publish">Publish</tanrei-button>
+    </form>
+
+    <!-- Outside the form: the form attribute names it by id. -->
+    <tanrei-button type="submit" form="profile" name="intent" value="publish">Publish</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/text-field';
+      document.querySelector('#profile').addEventListener('submit', (event) => {
+        event.preventDefault();
+        // The pressed button's name and value are in the data: "draft" or "publish".
+        const data = new FormData(event.target, event.submitter);
+        save(data.get('name'), data.get('intent'));
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, TextField } from '@tanrei/react';
+
+    <form
+      id="profile"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget, (event.nativeEvent as SubmitEvent).submitter);
+        save(data.get('name'), data.get('intent'));
+      }}
+    >
+      <TextField label="Name" name="name" requirement="required" />
+      <Button type="reset" variant="text">Clear</Button>
+      <Button type="submit" variant="outlined" name="intent" value="draft">Save draft</Button>
+      <Button type="submit" name="intent" value="publish">Publish</Button>
+    </form>
+
+    // Outside the form: form is the form's id.
+    <Button type="submit" form="profile" name="intent" value="publish">Publish</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **Which form.** The form around the button, or the one the `form` attribute names by id, which is how a button in a dialog's actions or in a page header sends a form it does not stand in. The element's `form` property returns that form and cannot be set.
+- **Enter in a field.** A form's first submit button is its default button, whether it is a Tanrei button or the browser's own. Enter in a field of the form presses it: in a Tanrei text field, number field, color field, combobox, one-time-code input or search, on a Tanrei checkbox, radio button or switch, and in the browser's own single-line inputs. The button fires `click` as for any press, and cancelling that `click` cancels the submission.
+- **Disabled.** A disabled submit button sends nothing, and while it is the form's default button it also stops Enter, so a form that is not ready is not sent behind its button. A button inside a `<fieldset disabled>` is disabled with it, whatever its `type`. A link button inside a `<fieldset disabled>` is not disabled.
+- **Which button was pressed.** `name` and `value` are sent only when that button sent the form. Read them in your `submit` listener from `event.submitter.value` or from `new FormData(form, event.submitter)`. `event.submitter` is not the Tanrei element. It is a native `<button>` that the element puts in its own place while the `submit` event is dispatched, so do not compare `event.submitter` with the element.
+- **How the form is sent** is the form's alone. `formaction`, `formmethod`, `formenctype`, `formtarget` and `formnovalidate` are not read. To save a draft without validation, set the form's `noValidate` in that button's `click` listener, which runs before the validation.
+- **Sending twice.** The button does not guard against a second press. Disable it while your request is under way, or ignore the second `submit`.
+- **A toggle and a link** ignore `type`: a press that switches a state or goes somewhere does not send a form. A `type` that is none of the three behaves as `button`.
+
+### A name longer than the label
+
+When the same word is drawn on several buttons, such as "Remove" in every row of a list, the word alone does not tell a screen reader user which row a button belongs to. Give each button a `label`: it is then the button's whole accessible name, in place of the drawn text, and the button is drawn exactly as before.
+
+<DemoFrame label="The same word in every row, each button named for its row" plain>
+  <tanrei-button variant="text" size="small" label="Remove: Inter">Remove</tanrei-button>
+  <tanrei-button variant="text" size="small" label="Remove: Noto Sans JP">Remove</tanrei-button>
+  <tanrei-button variant="text" size="small" label="Remove: Roboto Mono">Remove</tanrei-button>
+</DemoFrame>
+
+| `label` | Drawn label | Accessible name |
+| --- | --- | --- |
+| Given | None (icon-only) | `label` |
+| Empty | Drawn | The drawn text |
+| Given | Drawn | `label`, whole and alone |
+
+- **The name must contain the drawn text.** A person who uses speech input says the word they see on the button. Start the name with that word where your language allows it: "Remove: Inter" for a button drawn "Remove". Letter case and extra spaces do not matter.
+- **A debug build reports** a `label` that does not contain the drawn text. The button still uses the name you gave. It never falls back to the drawn text and never joins the two, because the order of a phrase belongs to your language.
+- **A description is not a name.** What tells a button from its neighbours is its name. What happens when it is pressed, such as "opens in a new tab", is a description, which is read after the name and the role.
+
+## Specs
+
+<DemoFrame label="Sizes and disabled" plain>
+  <tanrei-button size="small">Small</tanrei-button>
+  <tanrei-button size="medium">Medium</tanrei-button>
+  <tanrei-button size="large">Large</tanrei-button>
+  <tanrei-button disabled>Disabled</tanrei-button>
+  <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
+</DemoFrame>
+
+<ComponentSpecs name="button" />
+
+## Guidelines
+
+### When to use
+
+Use a button for an action that happens where the person is: submitting a form, saving, starting a process, confirming a dialog. On the web, a button that sends its form says so with `type` (see [In a form](#in-a-form)).
+
+If activating it only takes the person somewhere else, it is a link. When that destination deserves a button's emphasis, such as "Get started" on a landing page or "View all" at the end of a list, keep the button and give it `href`: it then is a link, with a link's role, keys and browser behaviour (see [A button with a destination is a link](#a-button-with-a-destination-is-a-link)). A destination inside a sentence stays an ordinary text link.
+
+### Choosing a variant
+
+Variants express emphasis, and emphasis is a budget. Spend it once per view.
+
+| Variant | Emphasis | Use for |
+| --- | --- | --- |
+| Filled | Highest | The single most important action in a view or dialog. |
+| Tonal | High | An important action that should not compete with a filled button, or the main action in a secondary region. |
+| Elevated | Medium | An action that must separate from a busy or patterned background. |
+| Outlined | Medium | Actions of equal weight beside a filled button, such as Cancel. |
+| Text | Low | The least pressing actions, inline actions in cards, dialogs and toolbars. |
+
+A button without a `variant` is filled, with one exception: placed as a [dialog](/components/dialog/)'s or a [side sheet](/components/side-sheet/)'s action, it takes that host's variant, tonal in the default system, so you set a variant only on the action that should look different. A side sheet's close button takes the sheet's close-button variant the same way.
+
+### Do
+
+- Write labels as a verb, or a verb and a noun, that say what will happen: **Deploy**, **Save draft**, **Add member**.
+- Keep one filled button per view. If two actions feel equally primary, the view is probably doing two jobs.
+- Place the primary action where the platform's users expect it, and keep that order across the product.
+- Use `small` (32) in dense toolbars and tables, `medium` (40) by default, and `large` (56) for touch-first or hero placements. The hit area is safe at every size.
+- Use the icon slot to reinforce a label. Leave the label out only where the glyph is widely understood (search, close, more), and name the button with `label`.
+
+### Don't
+
+- Don't navigate from a button's click handler. A control with a destination is a link: set `href`, so that it can be opened in a new tab, copied and announced as a link.
+- Don't give `href` to something that acts on the page, such as Save or Delete, and don't open a new tab without saying so in `targetLabel`.
+- Don't put a filled button in every row of a list. Prefer text buttons, or one action at the top that applies to the selection.
+- Don't disable a button as the only way to communicate a validation problem. Keep it enabled and explain what is missing when it is pressed.
+- Don't truncate labels. Let the button grow, or write a shorter label.
+- Don't leave an icon-only button without `label`: the glyph is not a name.
+- Don't pack narrow icon-only buttons edge to edge by hand. Their targets reach past their edges and would overlap.
+
+### Content
+
+Labels have no trailing punctuation. Aim for one or two words. Write them as each language of your product writes a label: sentence case in English; in Japanese, a noun or verbal-noun form such as 保存 or デプロイ rather than a polite sentence ending.
+
+## Accessibility
+
+<ComponentAccessibility name="button" />
+
+### What the component handles
+
+- It exposes the button role and its disabled state to assistive technology on every platform. With `href` it exposes the link role instead, and Enter alone activates it.
+- A toggle is a button with a pressed state, not a checkbox or a switch, and its name does not change with its state.
+- A link that opens a new context says so twice: the `open_in_new` mark for people who see it, and `targetLabel` as the link's description for people who do not. The mark itself is hidden from assistive technology.
+- With `label` beside a drawn label it exposes one name, the `label`, on one control. The drawn text is not read a second time.
+- On the web, Enter in a field presses the form's default button, a disabled default button stops that key, and a button in a disabled fieldset is disabled with it.
+- Its hit area meets the minimum target even at the small size and at the narrow width, without the button being drawn any larger.
+- It shows the gap-then-ring focus indicator for keyboard focus, without animation.
+- Its colors come from role pairs whose contrast is verified at every contrast level. The outline of an outlined button is the default system's hairline, which is deliberately quiet: the label and the icon identify the control, not its edge. A product that needs a stronger edge sets `comp.button.outlined.outline.color` to `sys.color.outline` in a layer.
+- At larger text sizes the container grows and the label never truncates.
+
+### What you need to do
+
+- Write a label that makes sense out of context. "Delete project" is better than "Delete" beside a project name, because a screen reader user may hear the button alone.
+- If an action starts a long process, move focus or announce progress. Disabling the button on its own tells a screen reader user nothing.
+- Do not rely on the variant's color to convey meaning, such as destructive intent. Say it in the label.
+- Name a link button for where it goes: "View invoice", not "Click here". When `target` is `new`, write `targetLabel`.
+- Where several buttons draw the same word, give each a `label` that contains the word and says what the button acts on (see [A name longer than the label](#a-name-longer-than-the-label)).
+- When a form's submit button is disabled, say on the page what is still missing. The disabled button stops Enter as well, and by itself explains nothing.
+- Name every icon-only button with `label`. A [tooltip](/components/tooltip/) may show the same text to people who use a pointer, but it never replaces `label`.

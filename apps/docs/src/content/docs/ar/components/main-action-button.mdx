@@ -1,0 +1,208 @@
+---
+title: زر الإجراء الرئيسي
+description: ينفّذ الإجراء الأهم الوحيد في الشاشة على حاوية مرتفعة تطفو فوق المحتوى، واسمه مكتوب كاملًا، أو مطويًّا إلى أيقونته وحدها.
+translationOf: components/main-action-button.mdx
+sourceHash: ff82dd77880b90c7becab88915c0e91b8fea6fda
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="main-action-button" />
+
+<DemoFrame label="ممتد ومطويّ">
+  <tanrei-main-action-button label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="إنشاء" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+زر الإجراء الرئيسي هو الإجراء الوحيد الذي وُجدت الشاشة من أجله: «إنشاء» في صندوق بريد، «حدث جديد» في تقويم، «إضافة» في قائمة. يقع على حاوية مرتفعة تطفو فوق المحتوى، فيبقى في المتناول والمحتوى يُمرَّر تحته.
+
+هو زر واحد له هيئتان. الهيئة **الممتدة** (الافتراضية) تعرض أيقونته وتسميته. والهيئة **المطويّة** تعرض الأيقونة وحدها، في مربع ارتفاعه ارتفاع الهيئة الممتدة، وهو دائرة في النظام الافتراضي. ينقله المنتج بين الهيئتين، كأن يطويه والمحتوى يُمرَّر ثم يمدّه من جديد عند الأعلى. هو إجراء، وليس زر تبديل أبدًا: الطيّ يغيّر شكله لا معناه، وتبقى التسمية اسمه المتاح للتقنيات المساعدة في الهيئتين.
+
+على الويب هو `<tanrei-main-action-button>`، وفي React هو `MainActionButton`. أما SwiftUI و Compose و Flutter و React Native فلم تنفّذه بعد.
+
+### الاستخدام
+
+التسمية خاصية لا محتوى، لأنها لازمة في الهيئتين: تُرسم في الهيئة الممتدة، وهي الاسم المتاح للتقنيات المساعدة دائمًا. والأيقونة رسم (glyph) من مجموعة الأيقونات. الزر لا يضع نفسه: تخطيطك هو الذي يضعه، عادةً في الزاوية السفلى من جهة النهاية في الشاشة، بعيدًا عن [شريط التنقل](/ar/components/navigation-bar/).
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-main-action-button class="primary-action" label="إنشاء">
+      <span slot="icon">edit</span>
+    </tanrei-main-action-button>
+
+    <!-- مطويّ: السمة هي عكس الخاصية extended. -->
+    <tanrei-main-action-button label="إنشاء" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+
+    <!-- الرسم الذي يشير إلى حيث يذهب الإجراء يقع بعد التسمية. -->
+    <tanrei-main-action-button label="التالي" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+
+    <style>
+      /* العنصر لا يضع شيئًا: الصفحة تضعه في الزاوية السفلى من جهة النهاية. */
+      tanrei-main-action-button.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/main-action-button';
+      const compose = document.querySelector('tanrei-main-action-button.primary-action');
+      compose.addEventListener('click', newMessage);
+      // extended خاصية قيمتها الافتراضية true؛ اطوِه من الخارج، مثلًا حين تكون الصفحة ممرَّرة.
+      addEventListener('scroll', () => (compose.extended = scrollY === 0), { passive: true });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { MainActionButton } from '@tanrei/react';
+
+    <MainActionButton className="primary-action" label="إنشاء" extended={atTop} onClick={newMessage}>
+      <span slot="icon">edit</span>
+    </MainActionButton>
+
+    <MainActionButton variant="tonal" label="التالي" iconPosition="trailing" onClick={next}>
+      <span slot="icon">arrow_forward</span>
+    </MainActionButton>
+    ```
+  </TabItem>
+</Tabs>
+
+### ما آل إليه FAB و FAB الممتد
+
+يحل زر الإجراء الرئيسي محل زر الإجراء العائم (floating action button) و FAB الممتد. ما كانا مكوّنين يبدّل المنتج بينهما صارا هيئتين لمكوّن واحد.
+
+| قبل | الآن |
+| --- | --- |
+| زر الإجراء العائم (`fab`) | زر إجراء رئيسي مطويّ: الخاصية `extended` مضبوطة على false |
+| FAB الممتد (`extended-fab`) | زر إجراء رئيسي ممتد (الافتراضي) |
+| الخاصية `expanded` في FAB الممتد | `extended` |
+| `comp.fab.*` و `comp.extended-fab.*` | `comp.main-action-button.*` |
+
+### أسماء Material 3
+
+- الأسماء FAB و small FAB و large FAB في Material 3 هي زر إجراء رئيسي مطويّ بالأحجام medium و small و large. والاسم extended FAB فيه هو الهيئة الممتدة.
+- الخاصية `expanded` في Compose (على `ExtendedFloatingActionButton`) والخاصية `isExtended` في Flutter (على `FloatingActionButton.extended`) هما `extended`.
+- ألوان FAB في Material 3، وهي primary و secondary و tertiary و surface، تقابل الطُرُز `filled` و `tonal` و `surface` والقيم التي يضيفها إعداد جاهز. الإعداد الجاهز m3-like يرسم زوايا المربع المستدير والارتفاعين 56 و 96 الخاصة بنظام Material عبر رموز (tokens) هذا المكوّن.
+
+## المواصفات
+
+<DemoFrame label="الطُرُز" plain>
+  <tanrei-main-action-button label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="tonal" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="surface" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="الأحجام، ممتدة ومطويّة" plain>
+  <tanrei-main-action-button size="small" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="إنشاء"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="small" label="إنشاء" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="إنشاء" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="إنشاء" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="أيقونة في النهاية، وبلا أيقونة، ومعطَّل" plain>
+  <tanrei-main-action-button label="التالي" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="بدء"></tanrei-main-action-button>
+  <tanrei-main-action-button label="إنشاء" disabled><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="إنشاء" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<ComponentSpecs name="main-action-button" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم زر الإجراء الرئيسي للإجراء الذي يأتي معظم الأشخاص إلى الشاشة لتنفيذه، حين ينبغي أن يبقى في المتناول أينما وصل بهم التمرير: كتابة رسالة، إضافة عنصر، بدء تسجيل. للشاشة زر واحد، أو لا شيء. وشاشات كثيرة لا تحتاج إليه: صفحة الإعدادات أو عرض القراءة ليس فيهما إجراء وحيد يستحق أن يطفو فوقهما.
+
+- للإجراء الذي يخص نموذجًا أو مربع حوار أو عنصرًا واحدًا في المحتوى، استخدم [زرًّا](/ar/components/button/) حيث يكون ذلك المحتوى.
+- لعدة إجراءات على الشاشة الحالية أو على التحديد، استخدم [شريط أدوات](/ar/components/toolbar/).
+- حين يأتي الإجراء الرئيسي في بضع هيئات مترابطة (مستند جديد، أو مجلد، أو رفع ملف)، دع زر الإجراء الرئيسي يفتح [لوحة سفلية](/ar/components/bottom-sheet/) تسردها. و[قائمة FAB](/ar/components/fab-menu/) تؤدي هذه المهمة في الإعدادات الجاهزة التي تتضمنها؛ أما النظام الافتراضي فلا يتضمنها.
+- ينفّذ إجراء ولا يأخذ وجهة. عنصر التحكم الذي لا يفعل إلا نقل الأشخاص إلى مكان آخر رابط: [زر](/ar/components/button/) له الخاصية `href`.
+
+### ممتد أم مطويّ
+
+ابدأ به ممتدًّا. الاسم المكتوب هو ما يخبر الأشخاص بما يفعله الزر، والأيقونة وحدها لا تكون آمنة إلا بعد أن يتعلموها.
+
+اطوِه حين تكلّف التسمية أكثر مما تعطي: والمحتوى يُمرَّر والزر سيغطيه، أو في نافذة ضيقة. ومدّه من جديد حين تتوفر الفسحة، كما عند العودة إلى أعلى القائمة. التغيير قرارك أنت، بضبط الخاصية `extended`؛ وضغط الزر لا يغيّر هيئته أبدًا.
+
+- يحتفظ الزر بارتفاعه وبزواياه وهو يتغيّر، وأي حافة تبقى في مكانها قرار تخطيطك. فإن كان مثبَّتًا عند جهة النهاية انطوى نحو تلك الحافة.
+- الزر الذي بلا أيقونة يبقى ممتدًّا، لأنه لن يكون هناك ما ينطوي إليه. والزر الذي بلا تسمية يرسم الهيئة المطويّة ويُبلَّغ عنه في بنيات التنقيح (debug): لا اسم له.
+- حيث تكون الحركة مقلَّلة، تتغيّر الهيئة فورًا.
+
+### اختيار الطراز
+
+| الطراز | التوكيد | يُستخدم لـ |
+| --- | --- | --- |
+| Filled (الافتراضي) | الأعلى | الإجراء الرئيسي للشاشة بكامل قوته. |
+| Tonal | عالٍ | إجراء رئيسي في شاشة ينبغي أن يتصدرها محتواها. |
+| Surface | محايد | إجراء رئيسي فوق محتوى له لون أصلًا، كخريطة أو صورة، حيث تنافسه الحاوية الملوّنة. |
+
+يجوز لنظام تصميم أن يضيف طُرُزًا (variants) من عنده.
+
+### اختيار الحجم
+
+| الحجم | الارتفاع في النظام الافتراضي | يُستخدم لـ |
+| --- | --- | --- |
+| Small | 40 | إجراء ثانٍ مرتبط بجانب إجراء من الحجم medium، أو تخطيط كثيف. |
+| Medium (الافتراضي) | 56 | الإجراء الرئيسي في معظم الشاشات. |
+| Large | 96 | إجراء شاشة واسعة أو شبه فارغة، حيث يضيع زر من الحجم medium. |
+
+الارتفاع هو أيضًا ضلع الهيئة المطويّة، فيحتفظ الزر الواحد بارتفاعه وهو ينطوي ويمتد.
+
+### الموضع
+
+لا يرسم الزر حجابًا (scrim) ولا يحرّك محتوى. ضعه فوق المحتوى، عادةً في الزاوية السفلى من جهة النهاية، وأبعده عن شريط التنقل وعن شريط الأدوات المُرسى (docked) وعن الهوامش التي يحجزها النظام (insets). اترك فسحة في نهاية المحتوى الذي يُمرَّر، كي لا يغطي الزر العنصر الأخير تغطية دائمة. ظله يُلقى خارج حاويته: أعطِه فسحة إن كانت الحاوية التي تحمله تقصّ ما يتجاوزها.
+
+### افعل
+
+- سمِّه بالإجراء بصيغة الفعل، أو الفعل والاسم: **إنشاء**، **حدث جديد**، **إضافة صورة**.
+- اختر رسمًا يربطه الأشخاص أصلًا بالإجراء، مثل `edit` للكتابة أو `add` للإنشاء.
+- اضبط الخاصية `iconPosition` على القيمة `trailing` للرسم الذي يشير إلى حيث يذهب الإجراء، كسهم «التالي».
+- أبقِه في المكان نفسه في كل شاشة فيها زر كهذا.
+- أخفِه حين لا يكون إجراؤه متاحًا في شاشة ما. هذا يخدم الأشخاص عادةً أفضل من زر معطَّل يطفو فوق المحتوى.
+
+### لا تفعل
+
+- لا تضع زرَّي إجراء رئيسي من الحجم نفسه في شاشة واحدة. إن بدا إجراءان مهمَّين بالقدر نفسه فليس أي منهما الرئيسي: استخدم أزرارًا في المحتوى.
+- لا تستخدمه للإجراءات الثانوية، ولا للإجراءات التي لا رجعة فيها، ولا لإجراءات التنقل فقط، مثل «حذف» أو «الإعدادات» أو «رجوع».
+- لا تستخدمه زر تبديل، ولا تغيّر تسميته أو أيقونته لإظهار حالة.
+- لا تطوِه في شاشة يراها الأشخاص أول مرة، حين لا شيء آخر يقول ما تعنيه الأيقونة.
+- لا تدعه يغطي محتوى يحتاج إليه الأشخاص ليقرروا هل يضغطونه.
+
+### المحتوى النصي
+
+تُكتب التسميات بأسلوب الجملة (sentence case) ومن دون علامة ترقيم في آخرها. اجعلها كلمة أو كلمتين. التسمية لا تُقتطع: تبقى على سطر واحد ما دامت تتسع، وتلتف حين يعطيها التخطيط عرضًا أقل.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="main-action-button" />
+
+### ما يتكفل به المكوّن
+
+- هو زر تسمّيه الخاصية `label` في الهيئتين. والأيقونة مخفية عن التقنيات المساعدة.
+- الطيّ والمدّ يغيّران ما يُرسم لا ما يُعلَن: يبقى الدور والاسم والتركيز كما هي، ولا يُعلَن شيء، وليست هناك حالة ضغط ولا حالة توسيع.
+- المفتاحان Enter و Space يفعّلانه. وحين يكون معطَّلًا لا يُصدر شيئًا، ويخرج من ترتيب التركيز، ويُعرَّف للتقنيات المساعدة معطَّلًا.
+- مساحة اللمس تستوفي الحد الأدنى للهدف في كل حجم، ومنها الحجم small.
+- يعرض مؤشر التركيز عند التركيز بلوحة المفاتيح فقط، بلا حركة.
+- في الهيئة الممتدة تكبر الحاوية مع حجم النص ولا تُقتطع التسمية أبدًا. وفي الهيئة المطويّة ليست الأيقونة نصًّا. على الويب يتبع كل حجم في Tanrei حجم خط الجذر، فيكبر المربع وأيقونته معًا ويبقى مربعًا.
+- في تخطيط من اليمين إلى اليسار تتبادل الأيقونة والتسمية الجهتين، ويتبعهما الحشو. أما الرسم نفسه فلا يُعكس إلا حين تعلّمه مجموعة الأيقونات بأنه يدل على اتجاه.
+- بنيات التنقيح تبلّغ عن الزر الذي بلا تسمية، وعن الزر المطويّ الذي بلا أيقونة.
+
+### ما عليك فعله
+
+- أعطِه دائمًا الخاصية `label`، بلغة منتجك، حتى إن كان لن يظهر إلا مطويًّا.
+- ضعه في شجرة العناصر حيث ينتمي إجراؤه: بعد المحتوى الذي يعمل عليه، أو أولًا حين يكون هو سبب وجود الشاشة. التقنيات المساعدة والمفتاح Tab يصلان إليه بترتيب الشجرة، لا بحسب موضع رسمه.
+- حين يكون مطويًّا، فكّر في [تلميح](/ar/components/tooltip/) بالنص نفسه لمن يستخدمون مؤشرًا. التلميح لا يغني أبدًا عن `label`.
+- تأكد من أنه لا يحجب المحتوى أو عنصر التحكم الذي عليه تركيز لوحة المفاتيح. اترك فسحة في نهاية المحتوى، أو أزِح الزر عن الطريق.
+- لا تعتمد على لون الطراز لحمل معنى. قل ذلك في التسمية.

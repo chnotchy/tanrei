@@ -1,0 +1,240 @@
+---
+title: लिंक
+description: वह टेक्स्ट जो कहीं ले जाता है, वाक्य के भीतर एक वाक्यांश के रूप में, अपनी अलग पंक्ति के रूप में, या अकेले ग्लिफ़ के रूप में। यह जहाँ रखा हो वहाँ के टेक्स्ट स्टाइल में बनता है, इसकी अंडरलाइन आपके डिज़ाइन सिस्टम के चुनाव के अनुसार बनती है, और जहाँ यह साइट से बाहर ले जाता है वहाँ इस पर निशान लगता है।
+translationOf: components/link.mdx
+sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="link" />
+
+<DemoFrame label="वाक्य के भीतर, अकेला, और सिर्फ़ ग्लिफ़" column>
+  <p style="margin: 0; max-inline-size: 32rem">
+    टोकन हर प्लैटफ़ॉर्म के लिए जनरेट होते हैं। पढ़ें कि
+    <a class="tanrei-link" href="../../foundations/design-tokens/">टोकन कैसे डिराइव होते हैं</a>, या
+    <a class="tanrei-link" href="https://example.com/tanrei" target="_blank" aria-description="नए टैब में खुलता है">सोर्स कोड</a> देखें।
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="../button/">आगे: बटन<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" href="#अवलोकन" aria-label="अवलोकन का लिंक"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+  </p>
+</DemoFrame>
+
+एक नियम, जिसे प्रॉडक्ट बिना किसी टेबल के लागू कर सकता है: **जिसका कोई पता है वह लिंक है; जिसका कोई पता नहीं वह बटन है।** जो कंट्रोल पेज पर कुछ करता है और कहीं नहीं ले जाता, वह [बटन](/hi/components/button/) है, और जहाँ उसे टेक्स्ट जितना हल्का दिखना हो वहाँ text वेरिएंट। जिस गंतव्य को बटन जैसा दिखना हो, वह `href` वाला बटन है।
+
+### इस्तेमाल
+
+वेब पर लिंक कोई एलिमेंट नहीं, आपके अपने ऐंकर पर लगी एक क्लास है। ऐंकर दस्तावेज़ में ही है, इसलिए वह किसी स्क्रिप्ट के चलने से पहले ही लिंक है, और क्रॉलर, खोज का इंडेक्स और पेज के ऐंकर पर काम करने वाला राउटर, सब उसे पा लेते हैं। राउटर का अपना लिंक कंपोनेंट यह क्लास लेता है। `.tanrei-prose` के भीतर का हर ऐंकर बिना क्लास के उसी तरह बनता है, इसलिए रेंडर किए गए Markdown को कुछ नहीं चाहिए।
+
+SwiftUI, Compose, Flutter और React Native नियोजित हैं: इस पेज के शुरू में हर प्लैटफ़ॉर्म के साथ दिए गए नाम वे हैं जो स्पेक उन्हें देता है, और वहाँ अभी कुछ उपलब्ध नहीं है। React में भी अभी `Link` कंपोनेंट नहीं है, इसलिए क्लास वाला ऐंकर इस्तेमाल करें।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link.css" />
+
+    <!-- वाक्य के भीतर। -->
+    <p>पहले <a class="tanrei-link" href="/guides/accessibility/">सुलभता गाइड</a> पढ़ें।</p>
+
+    <!-- अकेला: हिट एरिया न्यूनतम टार्गेट तक पहुँचता है। -->
+    <a class="tanrei-link" data-standalone href="/getting-started/">शुरुआत करें</a>
+
+    <!-- नया टैब: निशान अपने आप बनता है। इसे शब्दों में भी कहें। -->
+    <a class="tanrei-link" href="https://example.com/" target="_blank" aria-description="नए टैब में खुलता है">सोर्स कोड</a>
+
+    <!-- दूसरी साइट, जो वहीं खुलती है जहाँ व्यक्ति है: लेबल के बाद एक तीर, और उसके लिए शब्द। -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="बाहरी लिंक">मानक</a>
+
+    <!-- उस साइट के आइकन के साथ: एक इमेज जो आपकी अपनी साइट सर्व करती है, ऐंकर का पहला चाइल्ड। -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="बाहरी लिंक"><img
+      class="tanrei-link-site-icon" src="/icons/example-com.png" alt="" width="32" height="32"
+      loading="lazy" decoding="async" referrerpolicy="no-referrer">मानक</a>
+
+    <!-- एक लिंक, जो डिज़ाइन सिस्टम की अंडरलाइन से अलग रखा गया है: always, hover या never। -->
+    <a class="tanrei-link" data-standalone data-underline="hover" href="/about/">इस साइट के बारे में</a>
+
+    <!-- एक हिस्सा जिसका अपना चुनाव है: भीतर का हर लिंक उसी के अनुसार चलता है। -->
+    <footer style="--tanrei-comp-link-underline-visibility: never">…</footer>
+
+    <!-- ग्लिफ़, जो टेक्स्ट से सटाकर लिखा जाता है, बीच में कोई स्पेस नहीं। -->
+    <a class="tanrei-link" data-standalone href="/tokens.zip"><span class="tanrei-icon" aria-hidden="true">download</span>टोकन डाउनलोड करें</a>
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="/tokens/">आगे: टोकन<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+
+    <!-- सिर्फ़ ग्लिफ़, जिसका नाम aria-label से आता है। -->
+    <a class="tanrei-link" href="#installation" aria-label="इंस्टॉलेशन का लिंक"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+
+    <!-- मौजूदा पेज, वह लिंक जो अभी खोला नहीं जा सकता, और इनवर्स सरफ़ेस पर एक लिंक। -->
+    <a class="tanrei-link" data-standalone href="/components/" aria-current="page">कंपोनेंट</a>
+    <a class="tanrei-link" data-standalone role="link" aria-disabled="true">पिछला पेज</a>
+    <a class="tanrei-link" data-variant="inverse" href="/changes/">क्या बदला</a>
+
+    <script type="module">
+      // वैकल्पिक: रिपल और dim फ़ीडबैक, noopener, इनकार और डीबग रिपोर्ट। `@tanrei/web` भी इसे लोड करता है।
+      // जहाँ पेज बनाते समय निशान नहीं लगाए गए, वहाँ यह साइट से बाहर ले जाने वाले लिंक पर निशान भी लगाती है।
+      import { setSiteOrigins, setExternalLabel } from '@tanrei/web/link';
+      setSiteOrigins(['https://docs.example.com']); // वे ओरिजिन जो आपकी अपनी साइट का हिस्सा हैं
+      setExternalLabel('बाहरी लिंक');                // शब्द, पेज के लिए एक बार, आपकी भाषा में
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/link.css';
+    import '@tanrei/web/link';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <a className="tanrei-link" href="/guides/accessibility/">सुलभता गाइड</a>
+
+    {/* राउटर का लिंक अपना ऐंकर ख़ुद रेंडर करता है: उसे यह क्लास दें। */}
+    <RouterLink className="tanrei-link" data-standalone to="/getting-started/">शुरुआत करें</RouterLink>
+    ```
+  </TabItem>
+</Tabs>
+
+| प्रॉपर्टी | वेब पर |
+| --- | --- |
+| `href` | `href` |
+| `target: new` | `target="_blank"` |
+| `targetLabel` | `aria-description` |
+| `variant: inverse` | `data-variant="inverse"` |
+| `standalone` | `data-standalone` |
+| `iconPosition: trailing` | `data-icon-position="trailing"` |
+| `current` | `aria-current="page"` (या उसका कोई और मान) |
+| `disabled` | `role="link" aria-disabled="true"`, और `href` नहीं |
+| `label` | `aria-label` |
+| `underline` | `data-underline="always"`, `"hover"` या `"never"`; इसके बिना, डिज़ाइन सिस्टम का चुनाव |
+| `external: on`, `off` | `data-external="true"`, `data-external="false"`; इसके बिना, पता तय करता है |
+| `externalLabel` | `aria-description` |
+| `siteIcon` | आपका अपना `<img class="tanrei-link-site-icon" alt="">`, ऐंकर का पहला चाइल्ड |
+
+## स्पेक
+
+<DemoFrame label="कई पंक्तियों में: अंडरलाइन, स्टेट लेयर और फ़ोकस रिंग हर पंक्ति के साथ चलते हैं" plain>
+  <p style="margin: 0; max-inline-size: 22rem">
+    <a class="tanrei-link" href="../../foundations/accessibility/">सुलभता गाइड, जो बताती है कि हर कंपोनेंट को नाम कैसे मिलता है, कीबोर्ड से उस तक कैसे पहुँचा और उसे कैसे चलाया जाता है, और स्टेट बदलने पर हर प्लैटफ़ॉर्म क्या पढ़कर सुनाता है</a>
+  </p>
+</DemoFrame>
+
+<DemoFrame label="ग्लिफ़, और नए टैब का निशान" plain column>
+  <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>टोकन डाउनलोड करें</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="नए टैब में खुलता है">सोर्स देखें</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="नए टैब में खुलता है"><span class="tanrei-icon" aria-hidden="true">code</span>सोर्स देखें</a>
+  <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="नए टैब में खुलता है">सोर्स देखें<span class="tanrei-icon" aria-hidden="true">code</span></a>
+</DemoFrame>
+
+<DemoFrame label="मौजूदा और अक्षम" plain>
+  <a class="tanrei-link" data-standalone href="../">अवलोकन</a>
+  <a class="tanrei-link" data-standalone href="./" aria-current="page">कंपोनेंट</a>
+  <a class="tanrei-link" data-standalone role="link" aria-disabled="true">पिछला पेज</a>
+</DemoFrame>
+
+<DemoFrame label="अंडरलाइन: हमेशा, होवर पर, कभी नहीं" plain>
+  <a class="tanrei-link" data-standalone data-underline="always" href="../button/">हमेशा</a>
+  <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">होवर पर</a>
+  <a class="tanrei-link" data-standalone data-underline="never" href="../button/">कभी नहीं</a>
+</DemoFrame>
+
+<DemoFrame label="साइट से बाहर ले जाने वाला लिंक" plain column>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="बाहरी लिंक">स्पेसिफ़िकेशन</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="बाहरी लिंक"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />स्पेसिफ़िकेशन</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="नए टैब में खुलता है"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />स्पेसिफ़िकेशन</a>
+</DemoFrame>
+
+<DemoFrame label="इनवर्स सरफ़ेस पर" plain>
+  <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
+    पेज सेव हो गया। देखें कि
+    <a class="tanrei-link" data-variant="inverse" href="../snackbar/">क्या बदला</a>।
+  </div>
+</DemoFrame>
+
+लिंक अपना कोई टेक्स्ट स्टाइल नहीं लाता: वह उस टेक्स्ट की फ़ैमिली, साइज़, वेट और लाइन हाइट लेता है जिसमें वह रखा है, चाहे वह पैराग्राफ़ हो, हेडिंग, कैप्शन या टेबल का सेल। होवर, फ़ोकस और दबाना उसके टेक्स्ट के पीछे बनते हैं, हर उस पंक्ति पर जिस पर वह चलता है, और कोई जगह नहीं लेते, इसलिए लिंक के आसपास कुछ नहीं हिलता। ग्लिफ़, साइट का आइकन और निशान टेक्स्ट के साइज़ के होते हैं और अपने बग़ल के शब्द वाली पंक्ति पर ही रहते हैं।
+
+**अंडरलाइन कब बने, यह एक चुनाव है**, जिसके तीन मान हैं। `always` उसे सामान्य स्टेट में और हर स्टेट में बनाता है। `hover` उसे तब बनाता है जब लिंक होवर किया हुआ हो, कीबोर्ड से फ़ोकस किया हुआ हो या दबाया हुआ हो। `never` कोई अंडरलाइन नहीं बनाता, और होवर, फ़ोकस और दबाना तब भी स्टेट लेयर, लेबल के रंग और फ़ोकस रिंग से दिखते हैं। यह चुनाव तीन स्तरों पर सेट होता है: किसी डिज़ाइन सिस्टम के हर टेक्स्ट लिंक के लिए `sys.behavior.link-underline`, सिर्फ़ लिंक के लिए `comp.link.underline.visibility`, और किसी एक लिंक के लिए `underline` प्रॉपर्टी। डिफ़ॉल्ट सिस्टम `always` चुनता है। वेब पर कंपोनेंट टोकन एक कस्टम प्रॉपर्टी है, इसलिए फ़ुटर जैसा कोई हिस्सा अपना अलग मान रख सकता है। मौजूदा लिंक और सिर्फ़ ग्लिफ़ वाले लिंक में किसी भी चुनाव में अंडरलाइन नहीं होती, और फ़ोर्स्ड कलर्स में वह हर चुनाव में बनती है।
+
+**जो लिंक साइट से बाहर ले जाता है, वह यह बताता है।** बाहरी लिंक अपने लेबल के बाद `arrow_outward` ग्लिफ़ दिखाता है और, जहाँ आप दें, लेबल से पहले उस साइट का आइकन। `external` का मान `auto`, `on` या `off` होता है। `auto` में वह `http` या `https` पता बाहरी है जिसका ओरिजिन पेज के ओरिजिन से अलग है; पाथ, फ़्रैगमेंट, ईमेल पता, टेलीफ़ोन नंबर और डाउनलोड कभी बाहरी नहीं होते। अपनी साइट के बाक़ी ओरिजिन एक बार घोषित कर दें, तो वे भी बाहरी नहीं रहते। `comp.link.external.marks` पूरे प्रॉडक्ट के लिए आइकन को (`arrow`) या दोनों निशानों को (`none`) बंद कर देता है।
+
+साइट से बाहर जाना और नया टैब खोलना दो अलग बातें हैं। लेबल के बाद की जगह में एक ही ग्लिफ़ रहता है: `target="_blank"` वाले लिंक के लिए `open_in_new`, चाहे वह बाहरी हो या नहीं, और नहीं तो बाहरी लिंक के लिए `arrow_outward`। अंत की ओर आपका अपना ग्लिफ़ इन दोनों की जगह ले लेता है, और सिर्फ़ ग्लिफ़ वाले लिंक में दोनों में से कोई नहीं होता।
+
+**लिंक कभी कोई आइकन ख़ुद नहीं मँगाता।** `siteIcon` वह इमेज है जो आप देते हैं: जिसे आपकी अपनी साइट सर्व करती है, और जो साइट के बिल्ड के समय बनती है। जो कंपोनेंट उसे गंतव्य से, या किसी आइकन सेवा से माँगता, वह उस पक्ष को बता देता कि हर पाठक किस पेज पर है। जहाँ कोई आइकन नहीं दिया गया, वहाँ लिंक सिर्फ़ तीर दिखाता है। जो आइकन लोड नहीं हो पाता, वह अपनी जगह बनाए रखता है और कुछ नहीं बनाता।
+
+<ComponentSpecs name="link" />
+
+### वेब क्या अलग ढंग से बनाता है
+
+- लिंक के टेक्स्ट के पीछे का कंटेनर ख़ुद टेक्स्ट का बॉक्स है (फ़ॉन्ट की अपनी ऊँचाई), पूरी लाइन हाइट नहीं।
+- ग्लिफ़ या निशान वाला लिंक जब कई पंक्तियों में जाता है, तो वह एक ही बॉक्स के रूप में बनता है जो पंक्तियों के सिरों पर कटा होता है। जिस लिंक में ये नहीं हैं, उसके चारों कोने हर पंक्ति पर होते हैं।
+- ग्लिफ़, निशान या बाहरी लिंक के निशानों वाला अकेला लिंक अपने लेबल को लेआउट की दिशा में रखता है, लेबल के अपने पहले अक्षर की दिशा में नहीं।
+- स्टाइलशीट पते के बारे में कोई गणना नहीं करती: वह `data-external` के लिए निशान बनाती है। यह ऐट्रिब्यूट वहीं लिखें जहाँ पेज बनता है (रेंडर किए गए Markdown के लिए `@tanrei/web/links` का बिल्ड चरण `markExternalLinks()` यह करता है), और निशान पहले पेंट में ही होते हैं।
+- पैकेज की स्क्रिप्ट के साथ, बिना `data-external` वाले उस ऐंकर पर जिसका पता साइट से बाहर ले जाता है, ब्राउज़र में निशान लगता है। ये निशान पहले पेंट के बाद आते हैं, और हर निशान अपनी पंक्ति में अपने बाद की चीज़ों को टेक्स्ट के साइज़ और गैप जितना खिसका देता है। जिस पेज में न ऐट्रिब्यूट है न स्क्रिप्ट, वह बाहरी लिंक का कोई निशान नहीं दिखाता।
+- जिस ब्राउज़र में स्टाइल कंटेनर क्वेरी नहीं हैं, उसमें स्क्रिप्ट दोनों चुनाव पूरे पेज के लिए पढ़ती है। किसी हिस्से का अपना मान वहाँ नहीं दिखता, और स्क्रिप्ट के बिना हर चुनाव अपना पहला मान होता है: `always`, और दोनों निशान।
+- जिस डिज़ाइन सिस्टम में दबाने पर फ़ीडबैक रिपल है, उसमें कई पंक्तियों पर चलने वाला लिंक उसकी जगह ओवरले से जवाब देता है।
+- पैकेज की स्क्रिप्ट के बिना स्टाइलशीट हर स्टेट बनाती है, और दबाने पर फ़ीडबैक ओवरले होता है।
+
+## दिशानिर्देश
+
+### लिंक, या बटन
+
+| कंपोनेंट | यह क्या है | कब इस्तेमाल करें |
+| --- | --- | --- |
+| **लिंक** | वह टेक्स्ट जो कहीं ले जाता है, अपने आसपास के टेक्स्ट स्टाइल में, डिज़ाइन सिस्टम के चुनाव के अनुसार अंडरलाइन के साथ | वाक्य के भीतर का वाक्यांश, टेक्स्ट की वह पंक्ति जो एक गंतव्य है, हेडिंग के बग़ल का ग्लिफ़ |
+| **गंतव्य वाला बटन** | वह लिंक जो बटन के रूप में बनता है | गंतव्य स्क्रीन की क्रियाओं में से एक है: "शुरुआत करें", "सोर्स देखें" |
+| **text बटन** | एक बटन | वह कुछ करता है और कहीं नहीं ले जाता, चाहे उसे कितना भी टेक्स्ट जैसा दिखना हो |
+
+### वाक्य के भीतर, या अकेला
+
+`data-standalone` से ऐसा कुछ नहीं बदलता जो व्यक्ति को दिखे। यह बताता है कि लिंक टेक्स्ट की किसी पंक्ति का हिस्सा नहीं है, इसलिए उसका हिट एरिया न्यूनतम टार्गेट तक पहुँच सकता है और ऊपर-नीचे की पंक्तियों के लिए किया गया दबाना नहीं छीनता। इसे पैराग्राफ़ के नीचे के लिंक, टेबल के सेल के लिंक या लिंक की पंक्ति के लिए इस्तेमाल करें। वाक्य के भीतर इसे न लगाएँ।
+
+`hover` और `never` उन्हीं लिंक के लिए हैं जो अकेले खड़े होते हैं: नेविगेशन की लिस्ट, फ़ुटर, संबंधित पेजों की पंक्ति। लिस्ट में उनकी जगह ही बता देती है कि वे क्या हैं। उन लिंक पर `data-underline` सेट करें, या उस हिस्से को कंपोनेंट टोकन का अपना मान दें, और अपने वाक्यों के लिंक अंडरलाइन के साथ रहने दें।
+
+### करें
+
+- ऐसा लेबल लिखें जो आसपास के वाक्य के बिना भी बताए कि लिंक कहाँ ले जाता है: "इंस्टॉलेशन गाइड", "यहाँ" नहीं।
+- `data-variant="inverse"` सिर्फ़ `sys.color.inverse-surface` पर इस्तेमाल करें। हल्के कंटेनर (स्थिति का कंटेनर, `secondary-container`) पर स्टैंडर्ड लिंक ही ठीक है।
+- नेविगेशन के एक सेट में ज़्यादा से ज़्यादा एक लिंक को मौजूदा के रूप में चिह्नित करें, और कौन-सा, यह उस सेट को तय करने दें।
+- दो अकेले लिंक के बीच `sys.target.spacing` छोड़ें, या उनकी पंक्तियों को एक टार्गेट जितना ऊँचा रखें।
+- किसी साइट का आइकन ऐसी फ़ाइल के रूप में दें जिसे आपकी अपनी साइट सर्व करती है। `@tanrei/web/links` का `resolveSiteIcons()` उन्हें साइट के बिल्ड के समय बनाता है, इसलिए किसी पाठक का ब्राउज़र किसी दूसरे पक्ष से कुछ नहीं माँगता।
+- बाहरी लिंक के शब्द एक बार सेट करें (`setExternalLabel()`, या बिल्ड चरण का `externalLabel`), अपने प्रॉडक्ट की भाषा में। ये शब्द [आपके प्रॉडक्ट के शब्दों](/hi/foundations/words/) की कुंजी `externalLabel` हैं: `setWords({ externalLabel: '…' })` यही शब्द देता है, और `{ lang }` के साथ हर भाषा के लिए अलग।
+
+### न करें
+
+- जिस लेयर में लिंक का रंग उसके टेक्स्ट का रंग है, उसमें सामान्य स्टेट की अंडरलाइन न हटाएँ। डिफ़ॉल्ट सिस्टम में लिंक का रंग ख़ुद टेक्स्ट का ही रंग है, सभी छह स्कीम में उसके मुक़ाबले 1.00:1, इसलिए सिर्फ़ अंडरलाइन ही बताती है कि यह लिंक है। जहाँ चुनाव `hover` या `never` है और लिंक का रंग टेक्स्ट के रंग से 3:1 से कम दूर है, वहाँ डिफ़ॉल्ट सिस्टम में बिल्ड विफल हो जाता है, और प्रॉडक्ट की लेयर में वह चेतावनी देता है।
+- टच स्क्रीन पर यह भरोसा न करें कि `hover` लिंक को ज़ाहिर कर देगा। वहाँ होवर नहीं होता, इसलिए `hover` पर वही नियम लागू होता है जो `never` पर।
+- किसी साइट का आइकन ब्राउज़र में उस साइट से, या किसी आइकन सेवा से, लोड न करें। तब हर पाठक का ब्राउज़र उस पक्ष को बता देगा कि कौन-सा पेज पढ़ा जा रहा है।
+- लिंक को गंतव्य की जगह click हैंडलर न दें। बिना पते वाला ऐंकर सादे टेक्स्ट के रूप में बनता है और डीबग बिल्ड में रिपोर्ट किया जाता है।
+- लिंक को ऐसे कंट्रोल के भीतर न रखें जो पूरा का पूरा दबाया जाता है (लिंक कार्ड, गंतव्य वाला लिस्ट आइटम), और न किसी कंट्रोल को लिंक के भीतर।
+- खोले जा चुके लिंक को अलग स्टाइल न दें। जिस प्रॉडक्ट को "पहले खोला जा चुका है" दिखाना हो, वह इसे अपने डेटा से, टैग या ग्लिफ़ के ज़रिए दिखाता है।
+
+## सुलभता
+
+<ComponentAccessibility name="link" />
+
+### कंपोनेंट क्या सँभालता है
+
+- यह ब्राउज़र का अपना लिंक है: लिंक का रोल, खोलने के लिए Enter, कॉन्टेक्स्ट मेन्यू, नए टैब में खोलना, और ऐसा लिंक जो स्क्रिप्ट के बिना काम करता है।
+- डिफ़ॉल्ट सिस्टम में अंडरलाइन इसे बग़ल के टेक्स्ट से अलग दिखाती है, रंग पर निर्भर हुए बिना, हर स्कीम में। फ़ोर्स्ड कलर्स में अंडरलाइन बनती है, चाहे जो भी चुना गया हो।
+- बाहरी लिंक का एक ही विवरण होता है, जो उसके नाम के बाद पढ़ा जाता है: नए टैब के लिए `aria-description`, नहीं तो बाहरी लिंक के शब्द। तीर और साइट का आइकन सहायक तकनीक से छिपे रहते हैं।
+- कीबोर्ड की फ़ोकस रिंग हर पंक्ति पर लिंक के हिस्से के चारों ओर बनती है।
+- अकेला लिंक और सिर्फ़ ग्लिफ़ वाला लिंक अपना हिट एरिया न्यूनतम टार्गेट तक बढ़ाते हैं। वाक्य के भीतर का लिंक अपने टेक्स्ट तक ही रहता है।
+- निशान, और लेबल के बग़ल का ग्लिफ़, सहायक तकनीक से छिपे रहते हैं।
+- पैकेज की स्क्रिप्ट के साथ, नया टैब खोलने वाले लिंक को `noopener` मिलता है, और डीबग बिल्ड बिना नाम, बिना विवरण और ऐसे पते की रिपोर्ट करता है जो गंतव्य नहीं है। वह वाक्य के भीतर के ऐसे लिंक की भी रिपोर्ट करता है जिसमें सामान्य स्टेट में अंडरलाइन नहीं है और जो अपने टेक्स्ट से 3:1 से कम दूर है, बिना शब्दों वाले बाहरी लिंक की (पेज के लिए एक बार), और साइट के ऐसे आइकन की जो किसी दूसरे ओरिजिन से लोड होता है।
+
+### आपको क्या करना है
+
+- सिर्फ़ ग्लिफ़ वाले लिंक को `aria-label` से नाम दें, और हर ग्लिफ़ पर `aria-hidden="true"` लगाएँ।
+- लिंक नया टैब खोलता है, यह `aria-description` से कहें, अपने प्रॉडक्ट की भाषा में। Tanrei अपना कोई शब्द साथ नहीं देता।
+- अक्षम लिंक को बिना `href` वाले ऐंकर के रूप में लिखें, `role="link"` और `aria-disabled="true"` के साथ। वह फ़ोकस के क्रम से बाहर हो जाता है, इसलिए उसके बग़ल के टेक्स्ट में बताएँ कि उस जगह क्यों नहीं पहुँचा जा सकता।
+- `aria-current` उस लिंक पर सेट करें जो उस पेज या सेक्शन का नाम लेता है जहाँ व्यक्ति अभी है।
+- चलते टेक्स्ट के भीतर `hover` और `never` सिर्फ़ वहाँ इस्तेमाल करें जहाँ लिंक का रंग टेक्स्ट के रंग से 3:1 या उससे ज़्यादा दूर हो, और फिर भी सरफ़ेस से 4.5:1 पर हो। लगभग सफ़ेद सरफ़ेस पर लगभग काले टेक्स्ट के साथ यह बीच के टोन की एक सँकरी पट्टी है।
+- लिंक साइट से बाहर ले जाता है, यह शब्दों में कहें: लिंक पर `aria-description` से, या उन शब्दों से जो आप हर बाहरी लिंक के लिए एक बार सेट करते हैं। Tanrei अपना कोई शब्द साथ नहीं देता। जो लिंक बाहरी है और नया टैब भी खोलता है, उसके एक ही विवरण में दोनों बातें कहें।
+- साइट का आइकन `alt=""` के साथ लिखें। वह सजावट है: लिंक का नाम लेबल देता है, और उस पर निशान तीर लगाता है।

@@ -1,0 +1,51 @@
+---
+title: Interaction states
+description: State layers, the gap-then-ring focus indicator, and how disabled is drawn.
+---
+
+import Callout from '../../../components/Callout.astro';
+import StateTokens from '../../../components/tokens/StateTokens.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+Interactive components share one vocabulary of states: enabled, hovered, focused, pressed, dragged, selected, activated, error, loading and disabled. A component's spec lists the states it supports, and every platform must implement all of them.
+
+## State layers
+
+Hover, focus, press and drag are shown with a **state layer**: a translucent overlay that covers the component's container.
+
+- The layer takes the color of the **content**, that is the `on-` role of whatever it covers. On a filled button it is `on-primary`; on a text button it is the label color.
+- Its opacity comes from a token, not from the component.
+- **Only one layer is visible at a time.** When states overlap, the strongest wins: pressed over focused over hovered.
+- It fades in over a short effects transition and appears immediately on press.
+
+<StateTokens />
+
+Hover and press the buttons below to see the layer on different containers:
+
+<DemoFrame label="State layers">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+## Focus: gap, then ring
+
+Keyboard focus is drawn as a 2px gap in the surface color followed by a 2px ring in the `focus-ring` role. The gap guarantees that the ring is visible even when the component's own fill is close to the ring color, and the role is checked for 3:1 contrast against surfaces.
+
+- The ring is shown for keyboard and assistive-technology focus, not for pointer clicks.
+- It is never animated.
+- It follows the component's shape, offset outward.
+
+## No ripple by default
+
+Tanrei does not draw an expanding ripple on press. The pressed state layer is the feedback. A theme may opt into ripple, but no component depends on it.
+
+## Disabled
+
+A disabled component draws its container at the `disabled-container-opacity` and its content at the `disabled-content-opacity` of `on-surface`, shows no state layer, and leaves the focus order. Disabled elements are exempt from contrast requirements, which is a reason to use them sparingly.
+
+<Callout type="tip">
+  Prefer keeping an action enabled and explaining what is missing when it is used. A disabled button cannot tell anyone why it is disabled.
+</Callout>

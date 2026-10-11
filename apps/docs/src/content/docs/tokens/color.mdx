@@ -1,0 +1,21 @@
+---
+title: Color tokens
+description: Every system color role with its resolved light and dark value at each contrast level.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ColorRoles from '../../../components/tokens/ColorRoles.astro';
+
+All system color roles under `tanrei.sys.color`, resolved for light and dark. Swatches show the literal resolved values, so both themes are visible whichever theme you are reading in; translucent roles are drawn over the canvas they are meant for. For what the roles mean and how to use them, read [Color](/foundations/color/).
+
+<Tabs syncKey="contrast">
+  <TabItem label="Standard">
+    <ColorRoles contrast="standard" />
+  </TabItem>
+  <TabItem label="Medium">
+    <ColorRoles contrast="medium" />
+  </TabItem>
+  <TabItem label="High">
+    <ColorRoles contrast="high" />
+  </TabItem>
+</Tabs>

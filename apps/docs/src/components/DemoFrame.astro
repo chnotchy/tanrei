@@ -1,0 +1,124 @@
+---
+// A framed stage for live Web Components: Tanrei's Figure, with the site's contrast control in its header and the
+// site's row of examples in its stage. Loads @tanrei/web once per page.
+//
+// The search index does not read the stage or the contrast control (`data-pagefind-ignore`): what an example draws is
+// sample text of a product — «Save», «Deploy», a glyph's name written as a ligature — not what the page says, and a
+// search for it would find every page that happens to draw it. The figure's title and caption are the page's words
+// and are read.
+import ContrastSwitch from './ContrastSwitch.astro';
+import { strings } from '../lib/i18n';
+import { figureId } from '../lib/figure-id';
+interface Props {
+  /** The figure's title, shown in its header. */
+  label?: string;
+  /** Lay children out in a column instead of a wrapping row. */
+  column?: boolean;
+  /** Hide the contrast switcher (e.g. for a second frame on the same screen). */
+  plain?: boolean;
+  /**
+   * Draw the demo under a shipped preset (a file in tokens/systems/, such as `m3-like`) instead of the default
+   * system: the stage is scoped to it, its stylesheet is loaded, and the figure's caption names it. For a component or a
+   * variant the default system leaves out, so the demo shows it where it ships, without the warning.
+   */
+  system?: string;
+}
+const { label, column = false, plain = false, system } = Astro.props;
+
+// One opt-in stylesheet per preset, each scoped to [data-tanrei-system="<id>"]; linked only by the frames that ask.
+const stylesheets = import.meta.glob<string>('../../../../packages/web/src/generated/systems/*.css', { eager: true, query: '?url', import: 'default' });
+const stylesheet = system ? Object.entries(stylesheets).find(([path]) => path.endsWith(`/${system}.css`))?.[1] : undefined;
+if (system && !stylesheet) throw new Error(`DemoFrame: no generated stylesheet for the system "${system}"`);
+// "Under <system>", in the page's words: the sentence around the system's id.
+const [before = '', after = ''] = strings(Astro.currentLocale).demoUnder.split('{system}');
+const under = { before, after };
+// The figure is named by its title, and described by its caption, before the element is defined (FIG-16).
+const id = figureId(Astro);
+---
+
+{stylesheet && <link rel="stylesheet" href={stylesheet} />}
+<tanrei-figure class="demo not-content" data-tanrei-demo>
+  <figure aria-labelledby={`${id}-title`} aria-describedby={system ? `${id}-caption` : undefined}>
+    <div data-part="frame">
+      <header>
+        <p data-part="title" id={`${id}-title`}>{label ?? 'Live'}</p>
+        {!plain && (
+          <div data-part="actions" data-pagefind-ignore>
+            <ContrastSwitch />
+          </div>
+        )}
+      </header>
+      <div data-part="stage" class:list={['stage', { column }]} data-tanrei-system={system} data-pagefind-ignore>
+        <slot />
+      </div>
+    </div>
+    {system && <figcaption id={`${id}-caption`}>{under.before}<code class="tanrei-code">{system}</code>{under.after}</figcaption>}
+  </figure>
+</tanrei-figure>
+
+<script>
+  import '../lib/register-web';
+</script>
+
+<style>
+  /* The frame, the header, the stage's box and the caption are the Figure's (`@tanrei/web/figure.css`, which draws them
+     before the element is defined). What follows is the site's own: how several examples are arranged in the stage,
+     the grid behind them, and the scope of a preset. */
+  .stage {
+    position: relative;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    justify-content: safe center;
+    gap: 1rem 0.75rem;
+  }
+  /* Structural grid: decoration only, drawn with the hairline token. */
+  .stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--tanrei-sys-color-outline-variant) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--tanrei-sys-color-outline-variant) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: center;
+    mask-image: radial-gradient(ellipse at center, transparent 30%, #000 100%);
+  }
+  .stage > :global(*) {
+    position: relative;
+  }
+  /* A preset's scope sets its own color-scheme (following the OS); the stage follows the site's theme instead,
+     and draws the preset's surface. */
+  .stage[data-tanrei-system] {
+    background: var(--tanrei-sys-color-surface);
+    color: var(--tanrei-sys-color-on-surface);
+  }
+  :global(:root[data-theme='light']) .stage[data-tanrei-system] {
+    color-scheme: light;
+  }
+  :global(:root[data-theme='dark']) .stage[data-tanrei-system] {
+    color-scheme: dark;
+  }
+  .stage.column {
+    flex-direction: column;
+  }
+  /* A column of examples: each centred at its own width, as in a row. A text field and a text input have no width of
+     their own to show — each is a block as wide as its place (TXF-62, TXI-63), and a centred item of the stage is
+     given no place — so the text fields and the text inputs of a column are given one, as the fields of a form are:
+     a form column's measure, and never more than the stage has. */
+  .stage.column > :global(tanrei-text-field),
+  .stage.column > :global(tanrei-text-input) {
+    inline-size: 20rem;
+    max-inline-size: 100%;
+  }
+  /* Custom elements have no meaningful rendering until they upgrade. */
+  .stage :global(:not(:defined)) {
+    visibility: hidden;
+  }
+  /* Decoration must not get louder when contrast is raised. */
+  :global(:root[data-tanrei-contrast]) .stage::before {
+    opacity: 0.3;
+  }
+</style>

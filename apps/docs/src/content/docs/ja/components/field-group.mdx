@@ -1,0 +1,188 @@
+---
+title: フィールドグループ
+description: 1 つの質問に答えるコントロールの集まり（チェックボックス、スイッチ、ひとまとまりのフィールド）に、必須か任意かを示せるラベル、説明、集まり全体に対する 1 つのエラーを添え、コントロールを縦または横に並べます。
+translationOf: components/field-group.mdx
+sourceHash: 0c05f716a744df37389e7c61de7327157afc78c5
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="field-group" />
+
+<DemoFrame label="名前、説明、必須の印を付けたチェックボックスの集まり" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須">
+    <tanrei-checkbox label="メール" checked></tanrei-checkbox>
+    <tanrei-checkbox label="SMS"></tanrei-checkbox>
+    <tanrei-checkbox label="プッシュ通知"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+質問の中には、複数のコントロールで答えるものがあります。いくつかの選択肢から当てはまるものを選ぶ、ひとまとまりの設定を決める、5 つのフィールドに分けて住所を入力する、といったものです。フィールドグループは、その集まりに、1 つの名前、答え方を伝える 1 行、回答が必須かどうかを示す言葉、回答が受け付けられなかったときの 1 つの理由を添えます。コントロールが集まりになった[フィールド](/ja/components/field/)です。
+
+グループは、集まりを囲み、並べるだけです。何かを選択することも、値を持つことも、フォーカスを動かすことも、キーを処理することもありません。それらは、それぞれのコントロールが自分で行います。
+
+Web では `<tanrei-field-group>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field-group label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須"
+                        error error-text="受け取り方法を 1 つ以上選んでください。">
+      <tanrei-checkbox name="notify" value="email" label="メール"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="text" label="SMS"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="push" label="プッシュ通知"></tanrei-checkbox>
+    </tanrei-field-group>
+
+    <!-- ひとまとまりのフィールド。 -->
+    <tanrei-field-group label="お届け先" spacing="fields">
+      <tanrei-text-field label="市区町村" requirement="required" required-text="必須"></tanrei-text-field>
+      <tanrei-text-field label="番地" requirement="required" required-text="必須"></tanrei-text-field>
+    </tanrei-field-group>
+
+    <script type="module">
+      import '@tanrei/web/components/field-group';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, FieldGroup } from '@tanrei/react';
+
+    <FieldGroup label="通知の受け取り方法" supportingText="当てはまるものをすべて選んでください。" error={none} errorText="受け取り方法を 1 つ以上選んでください。">
+      <Checkbox label="メール" checked={email} onChange={(event) => setEmail(event.detail.checked)} />
+      <Checkbox label="SMS" checked={text} onChange={(event) => setText(event.detail.checked)} />
+    </FieldGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="集まりに対するエラー、横並び、スイッチ、ひとまとまりのフィールド" plain column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" supporting-text="当てはまるものをすべて選んでください。" requirement="required" required-text="必須" error error-text="受け取り方法を 1 つ以上選んでください。">
+    <tanrei-checkbox label="メール"></tanrei-checkbox>
+    <tanrei-checkbox label="SMS"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="通知の受け取り方法" orientation="horizontal">
+    <tanrei-checkbox label="メール" checked></tanrei-checkbox>
+    <tanrei-checkbox label="SMS"></tanrei-checkbox>
+    <tanrei-checkbox label="プッシュ"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="プライバシー" supporting-text="このデバイスにだけ適用されます。" requirement="optional" optional-text="任意">
+    <tanrei-switch label="利用状況データを共有する" selected></tanrei-switch>
+    <tanrei-switch label="ステータスを表示する"></tanrei-switch>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="市区町村と郵便番号" spacing="fields" orientation="horizontal">
+    <tanrei-text-field label="市区町村" value="京都市"></tanrei-text-field>
+    <tanrei-text-field label="郵便番号" value="604-8571"></tanrei-text-field>
+  </tanrei-field-group>
+</DemoFrame>
+
+<ComponentSpecs name="field-group" />
+
+## ガイドライン
+
+### フィールドグループを使う場面
+
+| 集まり | 使うもの |
+| --- | --- |
+| 1 つの質問に答えるチェックボックス、ひとまとまりの設定であるスイッチ | フィールドグループ。 |
+| ひとまとまりのフィールド：住所、部分に分かれた日付 | `spacing="fields"` を指定したフィールドグループ。 |
+| ラジオボタン | [ラジオグループ](/ja/components/radio-group/)。ラジオボタンを囲むフィールドグループで、その 1 つの値も持ちます。自分で書くなら、`kind="radio-group"` のフィールドグループ（下記）。 |
+| 1 つのコントロール | [フィールド](/ja/components/field/)。 |
+
+### ラジオボタンの集まり: `kind`
+
+グループには必須の状態も invalid の状態もないので、フィールドグループは必須かどうかを言葉で伝え、チェックボックスを 1 つずつ invalid にします。ラジオボタンの集まりは違い、集まり全体として必須になり、invalid になります。`kind="radio-group"` は、集まりが 1 つのグループのラジオボタンであることをフィールドグループに伝えます。すると、フィールドグループは支援技術にとってそのラジオボタンのラジオグループになります。`requirement` が `required` の間は必須、`error` が true の間は invalid で、並びの向きも伝えます。`requiredText` は説明に含まれなくなります。状態がそれを伝えるためです。
+
+```html
+<tanrei-field-group kind="radio-group" label="配送方法" requirement="required" required-text="必須">
+  <tanrei-radio-button name="delivery" value="standard" label="通常配送（3〜5 日）" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="kind が radio-group のフィールドグループ。中に同じ名前のラジオボタンがあります" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="配送方法" requirement="required" required-text="必須">
+    <tanrei-radio-button name="delivery-kind" value="standard" label="通常配送（3〜5 日）" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-kind" value="express" label="お急ぎ便（翌日）"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+`kind` が変えるのは伝えられるものだけで、描かれるものは変わりません。フィールドグループは、値を持たず、フォーカスを動かさず、キーも受け取らないままです。ラジオボタンは、選択、矢印キー、フォーカスが止まる 1 つの位置を、自分の `name` によって保ちます。これは、[ラジオグループ](/ja/components/radio-group/)の 1 つ下の階層です。グループとは違う並べ方が必要でなければ、ラジオグループを使ってください。1 つの値、1 つの `change`、フォームでの 1 つのコントロールとしての位置が加わります。
+
+この種類のグループに入れるのは、1 つのグループのラジオボタンだけで、操作できるほかのものは入れません。`spacing` は `controls` のままにします。ほかのコントロール、名前が 2 つあるラジオボタン、ほかの `spacing` は、デバッグビルドが報告します。
+
+### フィールドとの違い
+
+集まりは縦に長く、上から順に読まれます。そのため、2 つのものがフィールドとは別の場所に置かれます。
+
+- 説明は、ラベルの下、コントロールの前に置かれ、グループがエラーの間も残ります。「当てはまるものをすべて選んでください」は、選択肢より先に読まれる必要があります。回答が受け付けられなかったときに、もう 1 度必要になるのもこの説明です。
+- エラーテキストは、最後のコントロールの下に、独立した行として置かれます。
+
+ラベル、必須・任意のタグ、アスタリスクは、フィールドのものと同じです。
+
+### レイアウト
+
+- `orientation="vertical"`（既定）は、コントロールを縦 1 列に並べます。ふつうはこちらを使います。どのラベルも同じ端から始まり、上から下へ読めます。
+- `orientation="horizontal"` は、コントロールを横に並べ、収まらなければ折り返します。2、3 個の短い選択肢か、市区町村と郵便番号のように 1 行として読まれるフィールドに限って使います。行が折り返すと、どのラベルがどの印のものかが分かりにくくなります。
+- `spacing` は、集まりの中身が何かを表します。`controls` は、チェックボックスやスイッチをタッチターゲット 1 つ分の間隔で並べます。`fields` は、フォームがフィールドとフィールドの間に空ける間隔で並べ、それぞれのフィールドを幅いっぱいに広げます。デザインシステムは、値を追加できます。
+
+チェックボックスやスイッチの印は、それぞれのコンテナの内側にあるので、グループのラベルより少し内側から始まります。グループがそれを外へ引き出すことはありません。コントロールは、ホバーの表示とフォーカスリングをそのコンテナに描くからです。
+
+### エラー
+
+`error` は、集まりをエラーの状態にします。エラーテキストが描かれ、それぞれのチェックボックスは自身のエラーの形で描かれて、invalid であることが伝わります。それぞれのラジオボタンも、エラーの形で描かれます。ただし、ラジオボタンが invalid として伝えられることはありません。ロールにその状態がなく、ラジオグループが伝えるためです。スイッチにはエラーの形がないので、見た目は変わりません。グループの中のフィールドは、利用者側で設定したエラーを保ちます。フィールドはそれぞれ自分のエラーを言葉で伝え、グループのエラーは集まり全体についてのものです（「1 つ以上選んでください」）。
+
+グループ全体は有効でも、その中の 1 つのコントロールだけがエラーになることはあります。
+
+### 推奨
+
+- 集まりには、コントロールが答える質問を名前として付けます。「通知の受け取り方法」のようにします。
+- コントロールには、それぞれのラベルを付けます。グループのラベルは、その代わりになりません。
+- 同じラベルのフィールドを持つ 2 つの集まりは、フィールドのグループにして区別します。「お届け先」と「請求先」などです。
+
+### 非推奨
+
+- 何も伝えずにラジオボタンをフィールドグループに入れない。[ラジオグループ](/ja/components/radio-group/)を使うか、`kind="radio-group"` を指定します。ただのグループの中では、必須の状態も invalid の状態もなく、デバッグビルドが報告します。
+- レイアウトのためだけにフィールドグループを使わない。共通の名前がないのなら、同じ間隔のトークン（`comp.field-group.gap.fields`）を使って、利用者側でフィールドを並べます。
+- グループの中のグループに、さらにグループを入れない。グループの中のグループは、外側のグループのメンバーの 1 つで、グループの中のグループとして読み上げられます。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="field-group" />
+
+### コンポーネントが担うこと
+
+- Web では、グループは `legend` を持つ `fieldset` です。コントロールを含むグループとして伝わり、名前は `label` です。`label` は、描かれていても、`labelHidden` で隠されていても名前になります。
+- グループの説明は、`supportingText`、`error` が true の間の `errorText`、`requiredText` または `optionalText` の順です。グループには必須の状態も invalid の状態もないので、必須かどうかは言葉で伝えます。
+- グループがエラーにしたチェックボックスは、それぞれが invalid であることを伝え、エラーテキストがその説明になります。
+- `kind="radio-group"` を指定すると、同じ要素がラジオグループになります。必須の状態、invalid の状態、並びの向きをグループ自身が伝え、`requiredText` は説明に含まれなくなります。Web では、ラジオグループのロールを持つ同じ `fieldset` です。
+- `disabled` は、すべてのコントロールを無効にし、グループが無効であることを伝えます。グループが有効だからといって、利用者側で無効にしたコントロールが有効になることはありません。
+- フォーカスがグループの中にある間にエラーが現れるか、エラーの文言が変わると、1 度だけ、控えめに読み上げます。エラーのためにフォーカスが動くことはありません。
+- グループは、フォーカスが止まる位置にならず、キーも押下も受け取りません。Tab は、有効なコントロールを、置かれた順にたどります。
+- 必須・任意のタグとアスタリスクは、支援技術から隠します。
+- テキストを 200% にすると、すべてのテキストが折り返し、横の並びは縦 1 列になり、途中で切れるものはありません。
+- 強制カラーモードでは、すべてのテキストがシステムのテキストの色になり、必須・任意のタグには縁が付きます。
+- 右から左のレイアウトでは、それぞれの行が右から始まり、横に並べたコントロールは右から並びます。それぞれのテキストは、自身の方向を保ちます。
+- `kind` が `group` のフィールドグループに入れたラジオボタン、コントロールのないグループ、ラベルのないグループは、デバッグビルドで報告します。
+
+Web での既知の制約：
+
+- チェックボックスの説明は `aria-description` で渡しますが、すべてのスクリーンリーダーで確認できてはいません。
+- 要素が定義されるまでの間、コントロールは、グループのラベル、説明、レイアウトのない状態でページに置かれます。
+
+### 利用者側で行うこと
+
+- グループに `label` を指定します。
+- 回答は利用者側で検証して `error` を設定し、どう直せばよいかが分かる `errorText` を書きます。
+- 必須・任意の言葉を渡します。`required-text` と `optional-text` をグループに書くか、`setWords({ requiredText, optionalText })` でプロダクト全体に一度だけ渡します。これらはグループの説明の一部として読み上げられます。グループには必須の状態がないので、`requiredText` がなければ、回答が必須であることは支援技術に伝わりません。Tanrei は言葉を同梱しません。足りない言葉は開発時に報告されます。[プロダクトの言葉](/ja/foundations/words/)を参照してください。
+- 送信に失敗した後は、何が受け付けられなかったかをフォームの上でも伝え、それぞれのコントロールへのリンクを置きます。これには、ステータスが error の、ライブの[コールアウト](/ja/components/callout/)を使います。

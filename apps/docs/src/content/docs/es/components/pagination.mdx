@@ -1,0 +1,175 @@
+---
+title: Paginación
+description: La página anterior y la página siguiente a aquella en la que está una persona, dentro de una secuencia de páginas. Dos enlaces, cada uno con un nombre formado por una dirección y el título del lugar al que lleva.
+translationOf: components/pagination.mdx
+sourceHash: f8e943facb9fb849b2ff849fff9dfa64def11fc0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="pagination" />
+
+<DemoFrame label="Anterior y siguiente" column>
+  <nav class="tanrei-pagination" aria-label="Páginas de esta demo" style="inline-size: 100%">
+    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-pagination-label">Anterior</span>
+      <span class="tanrei-pagination-title">Enlace</span>
+    </a>
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-pagination-label">Siguiente</span>
+      <span class="tanrei-pagination-title">Pasos</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+La paginación que hay al pie de esta página es el mismo componente.
+
+Pagina una secuencia cuyas páginas tienen título: los capítulos de una guía, los artículos de una serie. La paginación por número (las páginas de un conjunto de resultados) es una forma posterior del mismo componente y todavía no está especificada.
+
+### Uso
+
+En la web la paginación son clases en tu propio `nav` y en tus propias anclas, no un elemento. Las anclas están en el documento, así que son enlaces antes de que se ejecute ningún script, y las encuentran tanto un rastreador como un enrutador que trabaje sobre las anclas de la página. La hoja de estilos dibuja por sí sola el componente entero.
+
+SwiftUI, Compose, Flutter y React Native están planificados: los nombres que figuran junto a cada plataforma al principio de esta página son los que les da la especificación, y todavía no se distribuye nada para ellos. React tampoco tiene aún un componente `Pagination`, así que usa el marcado con las clases.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/pagination.css" />
+
+    <nav class="tanrei-pagination" aria-label="Páginas">
+      <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="https://example.com/guide/installation/">
+        <span class="tanrei-pagination-label">Anterior</span>
+        <span class="tanrei-pagination-title">Instalación</span>
+      </a>
+      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/design-tokens/">
+        <span class="tanrei-pagination-label">Siguiente</span>
+        <span class="tanrei-pagination-title">Tokens de diseño</span>
+      </a>
+    </nav>
+
+    <!-- La primera página: escribe el elemento anterior sin href, o no lo escribas. El siguiente conserva su lugar. -->
+    <nav class="tanrei-pagination" aria-label="Páginas">
+      <a class="tanrei-pagination-item" data-direction="previous"></a>
+      <a class="tanrei-pagination-item" data-direction="next" rel="next" href="https://example.com/guide/installation/">
+        <span class="tanrei-pagination-label">Siguiente</span>
+        <span class="tanrei-pagination-title">Instalación</span>
+      </a>
+    </nav>
+
+    <script type="module">
+      // Opcional: la onda y el atenuado como respuesta, el orden de los elementos escritos con el siguiente primero
+      // y los informes de depuración. `@tanrei/web` también lo carga.
+      import '@tanrei/web/pagination';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/pagination.css';
+    import '@tanrei/web/pagination';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <nav className="tanrei-pagination" aria-label="Páginas">
+      {/* El enlace de un enrutador renderiza su propia ancla: dale la clase. */}
+      <RouterLink className="tanrei-pagination-item" data-direction="next" rel="next" to="/guide/design-tokens/">
+        <span className="tanrei-pagination-label">Siguiente</span>
+        <span className="tanrei-pagination-title">Tokens de diseño</span>
+      </RouterLink>
+    </nav>
+    ```
+  </TabItem>
+</Tabs>
+
+| Propiedad | En la web |
+| --- | --- |
+| `label` | `aria-label` en el `nav` |
+| un elemento | `<a class="tanrei-pagination-item">` |
+| `direction` | `data-direction="previous"` o `"next"`, con `rel="prev"` o `rel="next"` |
+| el `label` de un elemento | `<span class="tanrei-pagination-label">` |
+| `title` | `<span class="tanrei-pagination-title">`, después de la etiqueta |
+| `href` | `href` |
+| `click` | el `click` de la propia ancla |
+
+## Especificaciones
+
+<DemoFrame label="El siguiente, cuando está solo, conserva su lugar; solo etiquetas" plain column>
+  <nav class="tanrei-pagination" aria-label="Primera página de esta demo" style="inline-size: 100%">
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-pagination-label">Siguiente</span>
+      <span class="tanrei-pagination-title">Pasos</span>
+    </a>
+  </nav>
+  <nav class="tanrei-pagination" aria-label="Entradas de esta demo" style="inline-size: 100%">
+    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/"><span class="tanrei-pagination-label">Más recientes</span></a>
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/"><span class="tanrei-pagination-label">Más antiguas</span></a>
+  </nav>
+</DemoFrame>
+
+<DemoFrame label="En una columna estrecha los elementos se apilan" plain>
+  <nav class="tanrei-pagination" aria-label="Columna estrecha de esta demo" style="inline-size: 20rem">
+    <a class="tanrei-pagination-item" data-direction="previous" rel="prev" href="../link/">
+      <span class="tanrei-pagination-label">Anterior</span>
+      <span class="tanrei-pagination-title">Cómo se derivan los tokens de un sistema de diseño a partir de unos pocos diales</span>
+    </a>
+    <a class="tanrei-pagination-item" data-direction="next" rel="next" href="../steps/">
+      <span class="tanrei-pagination-label">Siguiente</span>
+      <span class="tanrei-pagination-title">Diseños de derecha a izquierda</span>
+    </a>
+  </nav>
+</DemoFrame>
+
+- **Un elemento es un solo enlace**, que se pulsa entero y se dibuja como un contenedor con contorno: la única línea fina, sin relleno y con el título en el color del texto. No va subrayado, porque su borde, su flecha y su lugar lo distinguen del texto que lo rodea.
+- **Las flechas son del componente**: `arrow_back` en el borde de inicio del elemento anterior y `arrow_forward` en el borde de fin del siguiente. Necesitan `icons.css`.
+- **Dos columnas iguales.** En la primera página la columna de inicio queda vacía, y el elemento siguiente está exactamente donde está en todas las demás páginas.
+- **Apilado.** Donde la paginación recibe menos de dos anchuras mínimas de elemento más la separación (496 en el sistema predeterminado), los elementos se apilan, el anterior encima del siguiente. Lo decide la anchura del propio componente, no la de la ventana.
+- **Un título salta de línea y nunca se corta.** Los dos elementos de una fila toman la altura del más alto. Sin título, un elemento muestra solo su dirección, con el estilo del título.
+- **De derecha a izquierda**, el anterior queda a la derecha con una flecha que apunta a la derecha, y el siguiente a la izquierda con una flecha que apunta a la izquierda. El orden de lectura y el del foco siguen siendo el anterior y después el siguiente.
+
+<ComponentSpecs name="pagination" />
+
+### Qué dibuja la web de otra manera
+
+- La forma apilada la dibuja el número de columnas de la propia cuadrícula, a partir de la anchura que tiene el `nav`. No interviene ninguna consulta de contenedor ni ninguna consulta de medios.
+- Sin el script del paquete, la hoja de estilos dibuja todos los estados, con la superposición como respuesta a la pulsación, y los elementos escritos con el siguiente primero se dibujan en el orden correcto, pero conservan ese orden en el del foco. Escribe primero el elemento anterior.
+- La hoja de estilos refleja las dos flechas en un diseño de derecha a izquierda. En un sistema de diseño cuyo conjunto de iconos no marca ninguno de los dos nombres como reflejado, el script retira el reflejo; sin el script, escribe `data-mirror="never"` en los elementos.
+- Mantén la paginación fuera de `.tanrei-prose`, o dentro de una parte marcada con `tanrei-not-prose`: la prosa dibuja sus propias anclas como enlaces de texto.
+
+## Pautas
+
+### Recomendado
+
+- Ponla después del contenido que pagina, una vez por página.
+- Escribe los dos elementos en todas las páginas y deja sin `href` el que no tenga destino. No se dibuja.
+- Escribe la dirección con las palabras de tu producto: «Anterior» y «Siguiente», o «Más recientes» y «Más antiguas».
+
+### Evita
+
+- No la uses para botones que cambian lo que se muestra sin una dirección URL. Un elemento es un enlace.
+- No abras una página vecina en una pestaña nueva. Las páginas de una secuencia se sustituyen unas a otras.
+- No des a los elementos glifos propios.
+
+## Accesibilidad
+
+<ComponentAccessibility name="pagination" />
+
+### De qué se encarga el componente
+
+- Cada elemento es el enlace del propio navegador, y su nombre es su etiqueta seguida de su título («Siguiente Tokens de diseño»), que se dibujan los dos.
+- Las flechas son decorativas y están ocultas para la tecnología de apoyo.
+- El orden visual sigue el orden de lectura: el anterior y después el siguiente, en las dos direcciones y cuando los elementos se apilan.
+- El anillo de foco del teclado se dibuja alrededor del elemento. Los títulos saltan de línea y los elementos crecen con el tamaño de texto de quien lee.
+
+### Qué debes hacer tú
+
+- Da nombre a la región de referencia (landmark) con `aria-label`, en el idioma de tu producto. Una página tiene más navegación, y el nombre distingue esta de las demás. Tanrei no incluye textos propios.
+- Escribe `rel="prev"` y `rel="next"` en las anclas.
+- Escribe el elemento anterior antes que el siguiente.

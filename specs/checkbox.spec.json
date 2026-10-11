@@ -1,0 +1,380 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "checkbox",
+  "title": "Checkbox",
+  "summary": "Lets people turn one independent choice on or off, show a parent choice that is only partly on, and mark a required choice left unmade.",
+  "category": "selection",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The round state layer behind the box (Material Design 3's 40). It carries hover, focus and press and is invisible at rest."
+    },
+    {
+      "id": "box",
+      "description": "The small square that shows the condition (Material Design 3's 18, with a 2 corner): empty with an outline when unchecked, filled when checked or indeterminate."
+    },
+    {
+      "id": "outline",
+      "description": "The border of the box, drawn inside its edge. The fill sits inside the border, so a translucent fill and border never overlap; where the two meet they are drawn as one shape, so nothing behind the box shows between them."
+    },
+    {
+      "id": "mark",
+      "description": "The glyph check (checked) or the glyph remove (indeterminate) of the system's icon set, centered on the box and drawn with the icon set's family, fill and optical size at the mark's own weight, comp.checkbox.mark.weight: in the default system heavier than the system's icons, because the mark is a thin stroke on a small filled box and is what tells checked from indeterminate. The checkbox draws no mark of its own; a system that wants another check chooses another icon set. The glyph is decorative: the condition is announced from the state."
+    },
+    {
+      "id": "label",
+      "description": "The visible text that names the choice. A click on it toggles the checkbox.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus, following the box's shape."
+    }
+  ],
+  "props": [
+    {
+      "name": "checked",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the choice is on."
+    },
+    {
+      "name": "indeterminate",
+      "type": "boolean",
+      "default": false,
+      "description": "Shows the choice as partly on (a parent whose children are mixed). Wins over checked for what is drawn and announced; activation clears it."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Marks the choice as invalid (a required choice left unmade). Draws the error form of the condition and is exposed as invalid; the message itself belongs to the surrounding form."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents interaction and removes the checkbox from the focus order."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The text that names the choice: drawn next to the box and used as the accessible name."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws no visible label but keeps label as the accessible name (a row-selection checkbox in a table whose row already says what it is)."
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The user switched the checkbox; carries the new value of checked (indeterminate is then false)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "CHK-1",
+      "text": "WHEN the user activates the checkbox by pointer, touch, Space, assistive technology or a click on its label THE checkbox SHALL switch checked and emit change exactly once with the new value; Enter SHALL activate it only on a platform whose convention activates any focused control with Enter (Android, tvOS), and SHALL NOT on the web, where Enter submits the form."
+    },
+    {
+      "id": "CHK-2",
+      "text": "WHEN the user activates the checkbox while indeterminate is true THE checkbox SHALL set checked to true, clear indeterminate, and emit change with true."
+    },
+    {
+      "id": "CHK-3",
+      "text": "WHILE disabled is true THE checkbox SHALL NOT change or emit change, SHALL NOT be focusable, SHALL ignore clicks on its label and SHALL expose the disabled state to assistive technology."
+    },
+    {
+      "id": "CHK-4",
+      "text": "THE checkbox SHALL draw the condition its props select: indeterminate when indeterminate is true, otherwise selected when checked is true, otherwise unselected; and the error- form of that condition while error is true."
+    },
+    {
+      "id": "CHK-5",
+      "text": "WHILE hovered, keyboard-focused or pressed THE checkbox SHALL render its container, box, mark, outline, label and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. A part the interaction states recolor changes over the component's state motion, as the container does; only a change of condition uses the selection motion.",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "CHK-6",
+      "text": "WHEN the checkbox receives keyboard focus THE checkbox SHALL show the focus ring around its box without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "CHK-7",
+      "text": "WHERE the visual size is below the minimum target THE checkbox SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. The visible label SHALL be part of the hit area as well."
+    },
+    {
+      "id": "CHK-8",
+      "text": "WHILE disabled is true THE checkbox SHALL render its container, box, mark, outline, label and opacity from the disabled component tokens of its condition."
+    },
+    {
+      "id": "CHK-9",
+      "text": "WHEN the checkbox is pressed by pointer, touch or Space, or by Enter where Enter activates it (Android, tvOS; never on the web, where Enter submits the form) THE checkbox SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "CHK-10",
+      "text": "WHILE pressed THE checkbox SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation; a press outside the container (on the label) grows it from the container's center); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; box, mark, outline, label, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.checkbox.motion.feedback-duration with motion.state-easing, fades over motion.state-duration with motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "CHK-11",
+      "text": "THE checkbox SHALL ease its container and box corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow. A round container is unchanged by any amount; the box is where it shows."
+    },
+    {
+      "id": "CHK-12",
+      "text": "THE checkbox SHALL draw a box of side comp.checkbox.box.size with corners comp.checkbox.box.shape, centered in a round container of diameter comp.checkbox.container.size; its outline of width comp.checkbox.outline.width SHALL lie inside the box's edge and its fill inside the outline, never under it. Its mark SHALL be a glyph of the system's icon set, check while selected and remove while indeterminate, and SHALL NOT be drawn while unselected: centered on the box at comp.checkbox.mark.size, with sys.icon.family.selected, sys.icon.fill.selected, the weight comp.checkbox.mark.weight (not sys.icon.weight) and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, not clipped by the box, and hidden from assistive technology. THE checkbox SHALL draw no mark of its own (no path, shape or character of its own for the check or the dash). The weight SHALL change the stroke of the glyph only: the glyph box stays comp.checkbox.mark.size, and the box, the container and the place of the glyph are the same at every weight.",
+      "verify": "Under the `acme` fixture system, whose icon set is static (a family per selection state), the glyph is drawn in its selected family; in the default system the glyph's box is comp.checkbox.mark.size and its ink lies inside the box at comp.checkbox.mark.weight. In the default system the glyph's weight is the value of comp.checkbox.mark.weight, which is greater than sys.icon.weight, while an icon of the icon set drawn beside the checkbox keeps sys.icon.weight; under a layer that sets comp.checkbox.mark.weight alone the glyph follows it and the glyph box, the box and the container measure what they measured before."
+    },
+    {
+      "id": "CHK-13",
+      "text": "WHEN the condition changes after the checkbox was first drawn THE checkbox SHALL change the box, outline and mark colors over comp.checkbox.motion.selection-duration with comp.checkbox.motion.selection-easing; a glyph that appears SHALL fade in over the same duration and curve while growing about the box's center from comp.checkbox.motion.mark-enter-scale of its size to its full size over comp.checkbox.motion.mark-scale-duration with comp.checkbox.motion.mark-scale-easing, and a glyph that goes SHALL fade out and shrink to comp.checkbox.motion.mark-enter-scale the same way; between checked and indeterminate the check goes and the dash appears at the same time. A change of error alone SHALL only recolor, and the box and container SHALL NOT change size or move.",
+      "verify": "Sample the glyph midway through the selection motion (an opacity strictly between 0 and 1 and a scale between comp.checkbox.motion.mark-enter-scale and 1) and after it (opacity 1, scale 1); a checkbox mounted checked shows the check whole in its first frame."
+    },
+    {
+      "id": "CHK-14",
+      "text": "THE checkbox SHALL expose the role checkbox with the state checked, not checked or mixed (mixed while indeterminate is true), and SHALL expose the invalid state while error is true."
+    },
+    {
+      "id": "CHK-15",
+      "text": "WHILE label is not empty and labelHidden is false THE checkbox SHALL draw label at the inline end of the container, comp.checkbox.label.gap away, in comp.checkbox.label.typescale, wrapping rather than truncating, the control centered on the label's first line; right-to-left layouts SHALL mirror the order."
+    },
+    {
+      "id": "CHK-16",
+      "text": "WHILE labelHidden is true THE checkbox SHALL draw no label and SHALL still expose label as its accessible name; WHILE label is empty THE checkbox SHALL still render, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "CHK-17",
+      "text": "WHERE motion is reduced THE checkbox SHALL draw the new condition whole in the first frame after the change: the box, outline and mark colors of the new condition, the new glyph at its full size and full opacity, and the old glyph gone, with no frame in between; a change that arrives while a selection motion is running SHALL end that motion in the same frame. The change SHALL be neither delayed nor skipped.",
+      "verify": "Emulate the platform's reduced-motion setting and read the box color, the glyph and its opacity and scale in the first frame after activation."
+    },
+    {
+      "id": "CHK-18",
+      "text": "WHEN the condition changes again before the selection motion of CHK-13 has ended THE checkbox SHALL move from what it draws at that moment to the latest condition, never first jumping to the end of the earlier change, and SHALL end on the latest condition's colors and glyph alone."
+    },
+    {
+      "id": "CHK-19",
+      "text": "IF the icon set cannot draw the glyph yet (its font is still loading or failed to load) THE checkbox SHALL draw nothing in the glyph's place, never the glyph's name as text, SHALL still draw the box, its fill and its outline and expose its state, and SHALL show the glyph once the icon set can draw it, without the selection motion."
+    },
+    {
+      "id": "CHK-20",
+      "text": "THE checkbox SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the checkbox is shown THE checkbox SHALL draw itself for the new direction at once, without a motion of its own, keeping its selection and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "CHK-21",
+      "text": "THE checkbox SHALL lay out its label as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE checkbox SHALL still place the label and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "CHK-22",
+      "text": "THE checkbox SHALL draw the outline and the fill of its box as one shape: every point inside the box's outer edge SHALL be painted by the outline, by the fill, or, along the line where the two meet, by both in shares that add up to the whole, so that nothing behind the box shows between them at any zoom, display density or fractional position, in any frame of the selection motion (CHK-13), and so that a box whose outline and fill have the same color is that one color, evenly, from its edge to its mark; the two SHALL NOT be painted over one another either (CHK-12), so that a translucent outline or fill is nowhere darker than its token.",
+      "verify": "Draw `selected`, `indeterminate`, `error-selected` and `disabled-selected` on a background that contrasts with the box (the other scheme's surface, or a saturated color) at device pixel ratios 1, 1.25, 1.5, 2 and 3, each also offset by half a device pixel, and read every pixel of the box that lies more than one device pixel inside its outer edge and outside the glyph. In the default system a filled condition's outline and fill alias the same role, so each of those pixels is that color composited once on the background: none lighter (the background through a seam) and none darker (the two overlapping; `disabled-selected`, whose colors are translucent, is the fixture that shows an overlap). Read them again at several frames of a change of condition."
+    },
+    {
+      "id": "CHK-23",
+      "text": "WHILE the checkbox stands in a checkbox group THE checkbox SHALL take its checked from the group's value and from the value the group reads from it (CKG-2), SHALL be disabled WHILE the group is (CKG-6), SHALL have its switching by the person reported by the group's change and by no event of its own that a listener on the group would receive as well (CKG-4), and WHERE the platform has forms SHALL submit nothing of its own, whatever name it carries (CKG-8). WHERE the checkbox stands in no checkbox group it SHALL be as it is anywhere — in a field, in a field group, in a table's row or alone: checked is its own, change is its own, and on the web it submits its own entry under its own name.",
+      "verify": "Web unit: a checkbox with name and value inside a checkbox group adds no entry of its own to FormData and fires no change that a listener on the group, or a capture listener on the document, hears beside the group's; the same checkbox moved out of the group submits its entry and fires its own change again."
+    }
+  ],
+  "accessibility": {
+    "role": "checkbox",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the checkbox."
+      },
+      {
+        "keys": "Space",
+        "action": "Switches it (an indeterminate checkbox becomes checked)."
+      },
+      {
+        "keys": "Enter",
+        "action": "Nothing on the web (it submits the form); switches it where the platform activates any focused control with Enter (Android, tvOS)."
+      }
+    ],
+    "labeling": "label is the accessible name, visible or not (labelHidden). A click on the visible label toggles the checkbox, as a native label does. A checkbox with no label is reported in debug builds.",
+    "minimumTarget": true,
+    "notes": [
+      "The mixed state is announced as such (aria-checked=\"mixed\" on the web, a toggleable state of Indeterminate on Android, a Semantics mixed value in Flutter, accessibilityState checked \"mixed\" in React Native). SwiftUI has no mixed trait on iOS: the value is announced as \"mixed\" through accessibilityValue.",
+      "error is exposed as invalid (aria-invalid on the web, the error semantics on Android and Flutter). The reason is text the form shows and associates with the checkbox; the checkbox does not draw it.",
+      "Several checkboxes that answer one question are a checkbox group: it names the set, holds the list of the checked values under one name and says the set's error (CHK-23). A checkbox stands alone where it is one choice of its own — a consent, a setting — and in a field group where each checkbox of a set has a name of its own.",
+      "The check and the dash are decorative glyphs of the icon set, hidden from assistive technology: where a glyph is written as a ligature (the web), its name (\"check\", \"remove\") is never announced or shown as text (CHK-12, CHK-19). Checked and indeterminate differ by the glyph alone, and both are exposed as states (CHK-14).",
+      "The mark is drawn at its own weight (comp.checkbox.mark.weight, CHK-12), heavier than the system's icons in the default system. Its color already has the contrast of content on its fill; what a light weight loses is the stroke, which at this size is about one pixel wide and is drawn in a mix of the mark's color and the fill's. A system that sets a lighter weight should look at the dash in particular: it is one stroke, and it is all that tells indeterminate from checked.",
+      "The selection motion is decoration too: under reduced motion the new condition is drawn whole at once, never later (CHK-17).",
+      "The label wraps at 200% text size; the box does not grow with text, because it is a control, not text.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.checkbox",
+  "fixtures": [
+    {
+      "id": "unselected",
+      "props": {
+        "label": "Email me updates"
+      }
+    },
+    {
+      "id": "selected",
+      "props": {
+        "checked": true,
+        "label": "Email me updates"
+      }
+    },
+    {
+      "id": "indeterminate",
+      "props": {
+        "indeterminate": true,
+        "label": "Select all"
+      }
+    },
+    {
+      "id": "error-unselected",
+      "props": {
+        "error": true,
+        "label": "I accept the terms"
+      }
+    },
+    {
+      "id": "error-selected",
+      "props": {
+        "error": true,
+        "checked": true,
+        "label": "I accept the terms"
+      }
+    },
+    {
+      "id": "error-indeterminate",
+      "props": {
+        "error": true,
+        "indeterminate": true,
+        "label": "Select all"
+      }
+    },
+    {
+      "id": "disabled-unselected",
+      "props": {
+        "disabled": true,
+        "label": "Email me updates"
+      }
+    },
+    {
+      "id": "disabled-selected",
+      "props": {
+        "disabled": true,
+        "checked": true,
+        "label": "Email me updates"
+      }
+    },
+    {
+      "id": "disabled-indeterminate",
+      "props": {
+        "disabled": true,
+        "indeterminate": true,
+        "label": "Select all"
+      }
+    },
+    {
+      "id": "label-hidden",
+      "props": {
+        "checked": true,
+        "label": "Select row",
+        "labelHidden": true
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-checkbox",
+      "props": {
+        "checked": "checked",
+        "indeterminate": "indeterminate",
+        "error": "error",
+        "disabled": "disabled",
+        "label": "label",
+        "labelHidden": "labelHidden"
+      },
+      "events": {
+        "change": "change"
+      },
+      "notes": "Form-associated (ElementInternals): it takes part in a form with `name` and `value` (default \"on\"), resets with it, and honours `required` as the native checkbox does; those three are web attributes, not spec props. It switches its own `checked` before firing `change` (and `input`), as a native checkbox does. `labelHidden` is the `label-hidden` attribute. Inside a `tanrei-checkbox-group` (found with `closest()` when it connects) it takes `checked` from the group, ignores `name` and `required`, submits nothing and fires no `input` or `change` of its own (CHK-23); a `value` attribute it does not carry is no value there, not \"on\"."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiCheckbox",
+      "props": {
+        "checked": "isOn",
+        "indeterminate": "isIndeterminate",
+        "error": "isError",
+        "disabled": "disabled",
+        "label": "title",
+        "labelHidden": "labelsHidden"
+      },
+      "events": {
+        "change": "isOn"
+      },
+      "notes": "Toggle idiom: `TanreiCheckbox(_ title:, isOn: Binding<Bool>, isIndeterminate: Bool = false)`; activation writes the binding, which is the change event. `isIndeterminate` is a value the caller derives from its data (a select-all is derived state), so activation sets `isOn` to true and the caller's data clears it. `disabled` follows `.disabled(_:)`; `labelsHidden` follows `.labelsHidden()`."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiCheckbox",
+      "props": {
+        "checked": "checked",
+        "indeterminate": "state",
+        "error": "isError",
+        "disabled": "enabled",
+        "label": "label",
+        "labelHidden": "labelHidden"
+      },
+      "events": {
+        "change": "onCheckedChange"
+      },
+      "notes": "Two overloads, as Compose's own: `TanreiCheckbox(checked, onCheckedChange, …)` and, for a parent that can be indeterminate, `TanreiCheckbox(state: ToggleableState, onClick, …)` in the `TriStateCheckbox` idiom, where the caller computes the next state (CHK-2 says it is `On`). `enabled` is the inverse flag; a null `onCheckedChange` draws a checkbox that only displays."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiCheckbox",
+      "props": {
+        "checked": "value",
+        "indeterminate": "tristate",
+        "error": "isError",
+        "disabled": "onChanged",
+        "label": "label",
+        "labelHidden": "labelHidden"
+      },
+      "events": {
+        "change": "onChanged"
+      },
+      "notes": "Flutter idiom: `value` is `bool?`; with `tristate: true` a null `value` is indeterminate. Unlike Flutter's Material checkbox, which cycles null → false, activation from null calls `onChanged(true)` (CHK-2). A null `onChanged` disables it."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Checkbox",
+      "props": {
+        "checked": "value",
+        "indeterminate": "indeterminate",
+        "error": "error",
+        "disabled": "disabled",
+        "label": "label",
+        "labelHidden": "labelHidden"
+      },
+      "events": {
+        "change": "onValueChange"
+      },
+      "notes": "Controlled, in React Native's `value` / `onValueChange` idiom: the caller sets `value` from the callback."
+    }
+  }
+}

@@ -1,0 +1,45 @@
+---
+// "On this page", drawn by Tanrei's table of contents (specs/table-of-contents.spec.json) at the
+// compact density, in place of the framework's two: this component replaces Starlight's `PageSidebar`, and with it its
+// `TableOfContents` and `MobileTableOfContents`. The items are the headings the framework gives each page, written as
+// the component's own nested list of anchors: a list of links that work before the element is defined.
+//
+// Two elements, and one is shown: the list beside the content in an expanded window, the compact form — one row that
+// names the section being read and opens the same list — above the content in a narrower one. `presentation` is an
+// attribute and no media condition can change it, so the shell's window class chooses between the two in the
+// stylesheet (styles/frame.css); the one not shown has no box, and so no landmark.
+//
+// The first item is the top of the page (TOC-10): the framework's "Overview" entry, as a link to `#top`, which the
+// browser reads as the top of the document — and it stands for the page's first heading too where that heading says
+// the same word, as on every component page (lib/page-toc.mjs). The current item is the element's
+// (`aria-current="location"`).
+import { frameWords } from './frame';
+import { tocItems } from '../../lib/page-toc.mjs';
+
+interface Item {
+  depth: number;
+  slug: string;
+  text: string;
+  children: Item[];
+}
+const { toc } = Astro.locals.starlightRoute;
+const words = frameWords(Astro);
+const items: Item[] = tocItems(toc?.items ?? [], words.overview);
+
+const escape = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+const list = (entries: Item[]): string => `<ul>${entries.map((entry) => `<li><a href="#${escape(entry.slug)}">${escape(entry.text)}</a>${entry.children.length > 0 ? list(entry.children) : ''}</li>`).join('')}</ul>`;
+const html = list(items);
+---
+
+{
+  toc && (
+    <>
+      <tanrei-table-of-contents class="docs-toc-list" label={words.onThisPage} density="compact" set:html={html} />
+      <tanrei-table-of-contents class="docs-toc-compact" label={words.onThisPage} density="compact" presentation="compact" set:html={html} />
+    </>
+  )
+}
+
+<script>
+  import '@tanrei/web/components/table-of-contents';
+</script>

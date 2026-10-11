@@ -1,0 +1,88 @@
+---
+title: React Native
+description: أضف Tanrei إلى تطبيق React Native.
+translationOf: getting-started/react-native.mdx
+sourceHash: 79720aca2100185d961719b9ede0569a4ec3ab34
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+الحزمة `@tanrei/react-native` مكتوبة بلغة TypeScript بلا وحدات أصلية، فلا شيء يحتاج إلى ربط، وهي تعمل مع Expo. تستهدف المعمارية الجديدة (New Architecture) وتتطلب React 19 و React Native 0.78 أو أحدث.
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+
+## التثبيت
+
+### من الشيفرة المصدرية
+
+<Callout type="caution" title="لا تُبنى اليوم">
+  لم تلحق حزمة React Native بعد بالمواصفات والرموز (tokens) الحالية: كُتبت مصادرها على إصدار سابق من شيفرة الرموز المولَّدة، ويتوقف بناؤها بأخطاء في الأنواع على شيفرة اليوم. والتكامل المستمر (CI) الخاص بها متوقف إلى أن تلحق، و[صفحة الحالة](/ar/status/) تَسِم مكوّناتها بأنها *متأخرة*. الخطوات أدناه هي طريقة إضافتها إلى تطبيق، وتعمل حين تلحق الحزمة.
+</Callout>
+
+كما في [حزمة الويب](/ar/getting-started/web/) (Git، و Node 22.12 أو أحدث، و pnpm 12): ابنِ الحزمة في نسخة مستنسخة من المستودع واحزمها،
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/react-native build
+pnpm --filter @tanrei/react-native pack --pack-destination ../tanrei-packages
+```
+
+ثم ثبِّت الملف المحزوم في تطبيقك:
+
+```sh
+npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
+```
+
+### بعد الإصدار الأول
+
+```sh
+npm install @tanrei/react-native
+```
+
+## الاستخدام
+
+```tsx
+import { Button, TanreiProvider } from '@tanrei/react-native';
+
+export function App() {
+  return (
+    <TanreiProvider>
+      <Button variant="filled" onPress={deploy}>
+        نشر
+      </Button>
+      <Button variant="outlined" size="small" disabled>
+        إلغاء
+      </Button>
+    </TanreiProvider>
+  );
+}
+```
+
+اسم المكوّن `Button` بلا بادئة، لأن وحدات JavaScript تمنحه نطاق أسماء أصلًا. ويُبلَّغ عن التفعيل عبر `onPress`، وهو أسلوب React Native المقابل للحدث `click` في المواصفة.
+
+## السمة والتباين
+
+يتبع `TanreiProvider` المخطط اللوني للنظام افتراضيًّا. لتثبيت السمة والتباين، عيِّن `theme` إلى `"light"` أو `"dark"`، و `contrast` إلى `"standard"` أو `"medium"` أو `"high"`:
+
+```tsx
+<TanreiProvider theme="dark" contrast="high">
+  <App />
+</TanreiProvider>
+```
+
+داخل الشجرة، تُرجع الدالة `useTanrei()` الألوان وأنماط النص بعد حلّها لتستخدمها في عروضك الخاصة:
+
+```tsx
+const theme = useTanrei();
+<Text style={[theme.text('body'), { color: theme.color('onSurfaceVariant') }]}>آخر نشر قبل دقيقتين</Text>;
+<Text style={theme.text('heading2', { emphasized: true })}>عمليات النشر</Text>;
+```
+
+مفاتيح أنماط النص وأدوار الألوان على هذه المنصة مكتوبة بصيغة camelCase: `heading1` إلى `heading6` تقابل `h1` إلى `h6`، و `body` فقرة، و `label` النص على عنصر التحكم؛ والرمز (token) `sys.color.on-surface-variant` هو `onSurfaceVariant`. يضيف `emphasized` إلى الوزن درجة التوكيد الخاصة بالفئة؛ وليس دورًا مستقلًّا.
+
+## الخطوط
+
+حمِّل Inter (و Noto Sans JP و Roboto Mono) بطريقتك المعتادة في إعداد الخطوط (مثل `expo-font`). ولأن React Native يختار ملف خط لكل وزن، مرِّر دالة `resolveFont` إلى `TanreiProvider` لتقابل العائلة والوزن بأسماء الخطوط التي سجّلتها.

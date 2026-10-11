@@ -1,0 +1,1240 @@
+/* Theme Studio — the chrome. It reads Tanrei's DEFAULT tokens from :root (the host loads @tanrei/web/tokens.css),
+   so nothing the visitor edits can restyle it: edits apply inside .ts-scope only. A host may tune the chrome through
+   the --ts-* properties below; the docs site maps them to its Starlight variables. */
+
+/* The Studio needs the room a two-pane tool needs; the docs page turns its table of contents off.
+   (:root twice: the docs theme sets the width on :root[data-theme], and this sheet may load before it.)
+   The root says it with an attribute the Studio writes while it is mounted (`mountStudio`, ui.ts) — not with
+   `:has(.ts)`: this sheet is in the bundle of every page of a site that hosts the Studio on one, and a `:has()` on
+   the root makes every element of every such page one whose changes the root must be asked about again
+   (test/studio-css.test.js holds it). */
+:root:root[data-ts-mounted] {
+  --sl-content-width: 84rem;
+}
+
+.ts {
+  --ts-gap: 1rem;
+  --ts-hairline: var(--docs-hairline, var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant));
+  --ts-hairline-dashed: var(--docs-hairline-dashed, var(--tanrei-sys-border-hairline) dashed var(--tanrei-sys-color-outline-variant));
+  --ts-radius-control: var(--docs-radius-control, var(--tanrei-sys-shape-corner-small));
+  --ts-radius-container: var(--docs-radius-container, var(--tanrei-sys-shape-corner-medium));
+  --ts-text-sm: var(--sl-text-sm, 0.875rem);
+  --ts-text-xs: var(--sl-text-xs, 0.8125rem);
+  --ts-text-2xs: var(--sl-text-2xs, 0.75rem);
+  --ts-font-mono: var(--sl-font-mono, var(--tanrei-ref-typeface-mono));
+  --ts-sticky-top: var(--sl-nav-height, 0rem);
+  margin-block: 1.5rem 0;
+  font-size: var(--ts-text-sm);
+  line-height: 1.5;
+  color: var(--tanrei-sys-color-on-surface);
+}
+.ts *,
+.ts *::before {
+  box-sizing: border-box;
+}
+.ts [hidden] {
+  display: none;
+}
+.ts-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ts-gap);
+  align-items: start;
+}
+.ts-controls {
+  display: grid;
+  gap: var(--ts-gap);
+  min-inline-size: 0;
+}
+@media (min-width: 64rem) {
+  .ts-layout {
+    grid-template-columns: minmax(19rem, 24rem) minmax(0, 1fr);
+  }
+  .ts[data-level='source'] .ts-layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+  /* Two panes — the tree and the chosen token's editor — and the preview beside them. */
+  .ts[data-level='tokens'] .ts-layout {
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+  }
+}
+
+/* ── Panels ─────────────────────────────────────────────────────────── */
+.ts-panel {
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-container);
+  background: var(--tanrei-sys-color-surface-container-lowest);
+  padding: 1rem;
+  min-inline-size: 0;
+}
+.ts-panel > header,
+.ts-preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.ts-panel > header {
+  margin-block-end: 0.5rem;
+}
+/* The switch above the list of components: a row of its own, as wide as the panel. */
+.ts-components-everything {
+  display: flex;
+  margin-block-end: 0.5rem;
+}
+/* A field that stands in a panel by itself is as wide as the panel (a text field is an inline box by itself). */
+.ts-panel > tanrei-text-field {
+  display: flex;
+}
+.ts h2.ts-eyebrow {
+  margin: 0;
+  font: var(--tanrei-sys-typescale-eyebrow-font);
+  letter-spacing: var(--tanrei-sys-typescale-eyebrow-letter-spacing);
+  text-transform: uppercase;
+  color: var(--tanrei-sys-color-on-surface);
+}
+.ts code {
+  font-family: var(--ts-font-mono);
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+/* ── Direction ────────────────────────────────────────── */
+/* A token id, a value, a ratio, a path and JSON are left-to-right runs whatever language stands around them, and
+   reorder nothing beside them. (A name or a value put into a sentence by script is a <bdi>, and the Studio's own
+   fields for ids, numbers and JSON carry dir="ltr": ui/dom.ts.) None of this changes a left-to-right page; it has
+   not been seen right-to-left in a browser yet. */
+.ts code,
+.ts-value,
+.ts-writes b {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+/* The layer as text is a code block: read from the left in every language, its line numbers before it. */
+.ts-json,
+.ts-source {
+  direction: ltr;
+}
+/* The run is left-to-right; its place is still the layout's (§3.2): a value keeps the end edge of its row, a line of
+   CSS and an id typed into a field keep the start edge. */
+.ts-value:dir(rtl) {
+  text-align: start;
+}
+.ts-stack-css:dir(rtl) {
+  text-align: right;
+}
+.ts-help {
+  margin: 0 0 0.75rem;
+  font-size: var(--ts-text-xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-subhead {
+  margin: 0 0 0.5rem;
+  font-size: var(--ts-text-xs);
+  font-weight: 500;
+}
+.ts-rows {
+  display: grid;
+}
+.ts-row {
+  display: grid;
+  gap: 0.375rem;
+  padding-block: 0.75rem;
+  border-block-start: var(--ts-hairline);
+  min-inline-size: 0;
+}
+.ts-row-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-inline-size: 0;
+}
+.ts-row-title {
+  flex: 1;
+  min-inline-size: 0;
+  font-weight: 500;
+}
+.ts-row-title small {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: var(--ts-text-2xs);
+  font-weight: 400;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-row-title small code {
+  display: inline-block;
+  margin-inline-end: 0.25rem;
+}
+.ts-row-note {
+  margin: 0;
+  font-size: var(--ts-text-xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-writes {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--ts-font-mono);
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-writes b {
+  font-weight: 500;
+  color: var(--tanrei-sys-color-on-surface);
+}
+
+/* (JSON and a rule's pattern are text fields that hold code — `type="code"` — and need no rule here:
+   the face, the direction and the error are the field's own. The one native text control left is the Source editor.) */
+/* A number beside its slider, in a row's head: as wide as a few digits and the unit. The slider takes the rest. */
+.ts-edit-control > tanrei-number-field,
+.ts-num {
+  inline-size: 7rem;
+  flex: none;
+}
+.ts-edit-control > tanrei-slider {
+  flex: 1 1 8rem;
+}
+/* In the table the three share the pane: as wide as that at most, and narrower where the pane is (a phone). */
+.ts-tones tanrei-number-field {
+  inline-size: 100%;
+  max-inline-size: 7rem;
+}
+.ts-field {
+  display: grid;
+  gap: 0.25rem;
+  min-inline-size: 0;
+}
+
+/* The Studio's actions are Tanrei's buttons. One that is hidden is out of the page (the host's own display would keep it). */
+.ts tanrei-button[hidden],
+.ts tanrei-chip[hidden] {
+  display: none;
+}
+/* An action in a row of text — «Reset» in a row's head, a token's id inside a sentence — stands on the text's line. */
+.ts-link {
+  vertical-align: middle;
+}
+.ts-error {
+  margin: 0.5rem 0 0;
+  font-size: var(--ts-text-xs);
+  color: var(--tanrei-sys-color-error);
+  white-space: pre-wrap;
+}
+.ts-error:empty {
+  display: none;
+}
+
+/* ── Color rows ─────────────────────────────────────────────────────── */
+.ts-palette {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.625rem;
+}
+.ts-palette .ts-row-title small {
+  font-family: inherit;
+}
+.ts-palette[data-dropped] .ts-row-title > span {
+  text-decoration: line-through;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-palette > .ts-field {
+  grid-column: 2 / -1;
+}
+/* A palette's rationale is a sentence: the row's whole width. */
+.ts-palette > tanrei-text-field {
+  grid-column: 1 / -1;
+}
+.ts-swatch {
+  inline-size: 2rem;
+  block-size: 2rem;
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-control);
+  background: repeating-linear-gradient(135deg, var(--tanrei-sys-color-surface-container-high) 0 4px, transparent 4px 8px);
+}
+.ts-row-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+.ts-add {
+  margin-block-start: 0.25rem;
+  padding-block-start: 0.75rem;
+  border-block-start: var(--ts-hairline);
+}
+.ts-add-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: end;
+}
+.ts-field-wide {
+  grid-column: 1;
+}
+/* The name and the seed take a row each: a color field is as wide as its row, and beside it the name had no room
+   left. The reason shares the last row with the button. */
+.ts-add-grid > tanrei-text-field:not(.ts-field-wide),
+.ts-add-grid > tanrei-color-field {
+  grid-column: 1 / -1;
+}
+
+/* ── Per-token rows ─────────────────────────────────────────────────── */
+.ts-edit-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Preview ────────────────────────────────────────────────────────── */
+.ts-preview {
+  /* The panes lay themselves out by the room THE PREVIEW has — next to a tree, under a sidebar, on a phone — never by
+     the viewport. */
+  container: ts-preview / inline-size;
+  position: sticky;
+  inset-block-start: calc(var(--ts-sticky-top) + 0.5rem);
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  max-block-size: min(46vh, 30rem);
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-container);
+  background: var(--tanrei-sys-color-surface-container-lowest);
+  box-shadow: var(--tanrei-sys-elevation-level2);
+  overflow: hidden;
+  min-inline-size: 0;
+}
+@media (max-width: 63.999rem) {
+  .ts-layout > .ts-preview {
+    order: -1;
+  }
+  /* The sticky preview is short on a phone: components first, the type ramp after them. */
+  .ts-pane .ts-ramp {
+    order: 1;
+  }
+  .ts-pane .ts-card,
+  .ts-pane .ts-intents,
+  .ts-pane .ts-measures {
+    order: 2;
+  }
+}
+@media (min-width: 64rem) {
+  .ts-preview {
+    max-block-size: calc(100vh - var(--ts-sticky-top) - 1.5rem);
+    box-shadow: none;
+  }
+}
+.ts-preview-bar {
+  min-block-size: 2.75rem;
+  padding: 0.375rem 0.5rem 0.375rem 0.875rem;
+  border-block-end: var(--ts-hairline-dashed);
+}
+.ts-stale {
+  margin: 0;
+  padding: 0.375rem 0.875rem;
+  border-block-end: var(--ts-hairline);
+  font-size: var(--ts-text-xs);
+  color: var(--tanrei-sys-color-error);
+}
+.ts-scope {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+/* Light and dark side by side only when each pane is a readable column (a headline wraps in words, a row of buttons
+   fits); otherwise one above the other, each at the preview's full width. */
+@container ts-preview (min-width: 42rem) {
+  .ts-scope {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.ts-scope :not(:defined) {
+  visibility: hidden;
+}
+
+/* Everything inside a pane is drawn with tokens of the system being edited — no docs chrome in here. */
+.ts-pane {
+  display: grid;
+  align-content: start;
+  gap: var(--tanrei-sys-space-space200);
+  padding: var(--tanrei-sys-space-space250);
+  background: var(--tanrei-sys-color-surface);
+  color: var(--tanrei-sys-color-on-surface);
+  min-inline-size: 0;
+}
+.ts-pane p {
+  margin: 0;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.ts-pane-label {
+  text-transform: uppercase;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-ramp {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--tanrei-sys-space-space50);
+}
+.ts-ramp [data-sample='body'],
+.ts-ramp [data-sample='label'] {
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-buttons,
+.ts-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space100);
+}
+.ts-card {
+  display: grid;
+  gap: var(--tanrei-sys-space-space100);
+  padding: var(--tanrei-sys-space-space200);
+  border: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-outline-variant);
+  border-radius: var(--tanrei-sys-shape-corner-medium);
+  background: var(--tanrei-sys-color-surface-container-low);
+}
+.ts-card-body {
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-card-actions {
+  justify-content: flex-end;
+}
+.ts-sample-link {
+  color: var(--tanrei-sys-color-link);
+  text-underline-offset: 0.2em;
+}
+.ts-intents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tanrei-sys-space-space75);
+}
+.ts-intent {
+  display: inline-flex;
+  overflow: hidden;
+  border-radius: var(--tanrei-sys-shape-corner-small);
+  font: var(--tanrei-sys-typescale-label-small-font);
+  letter-spacing: var(--tanrei-sys-typescale-label-small-letter-spacing);
+}
+.ts-intent span {
+  padding: var(--tanrei-sys-space-space50) var(--tanrei-sys-space-space100);
+}
+.ts-measures {
+  display: grid;
+  gap: var(--tanrei-sys-space-space100);
+}
+.ts-spaces,
+.ts-corners {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--tanrei-sys-space-space100);
+}
+.ts-spaces i {
+  block-size: var(--tanrei-sys-space-space100);
+  background: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-corners i {
+  inline-size: var(--tanrei-sys-space-space400);
+  block-size: var(--tanrei-sys-space-space400);
+  border: var(--tanrei-sys-border-thick) solid var(--tanrei-sys-color-outline);
+  background: var(--tanrei-sys-color-surface-container-high);
+}
+
+/* ── Accessibility ──────────────────────────────────────────────────── */
+.ts-a11y,
+.ts-export {
+  margin-block-start: var(--ts-gap);
+}
+.ts-pairs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 0.5rem;
+}
+.ts-pair {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.125rem 0.625rem;
+  align-items: center;
+  padding: 0.5rem;
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-control);
+}
+.ts-pair-chip {
+  grid-row: span 2;
+  display: flex;
+  overflow: hidden;
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-control);
+  font-size: var(--ts-text-xs);
+  font-weight: 600;
+}
+.ts-pair-chip span {
+  display: grid;
+  place-items: center;
+  inline-size: 1.875rem;
+  block-size: 2.25rem;
+}
+.ts-pair-chip span i {
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+}
+.ts-pair-name {
+  overflow-wrap: anywhere;
+  font-family: var(--ts-font-mono);
+  font-size: var(--ts-text-2xs);
+}
+.ts-pair-ratios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.625rem;
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-pair-ratios b {
+  font-family: var(--ts-font-mono);
+  font-weight: 500;
+  color: var(--tanrei-sys-color-on-surface);
+}
+.ts-pair-ratios [data-fail] b {
+  color: var(--tanrei-sys-color-error);
+}
+/* What opens and closes is an accordion (the component draws it). A name written in code face is still the row's
+   label: it takes the label's size and color. */
+.ts tanrei-accordion > details > summary > code {
+  font-size: inherit;
+  color: inherit;
+}
+.ts-warnings {
+  margin: 0.5rem 0 0;
+  padding-inline-start: 1.1rem;
+  font-family: var(--ts-font-mono);
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+/* A list grows with what it holds. The three that can be long — everything the build reports, the warnings of a
+   build that ran, the rules a layer inherits — scroll in a box of their own instead, and that box is a focus stop
+   while it scrolls (ui/dom.ts `scrollingList`). */
+.ts-warnings-long {
+  max-block-size: 16rem;
+  overflow: auto;
+}
+
+/* ── Export ─────────────────────────────────────────────────────────── */
+.ts-export-grid {
+  display: grid;
+  gap: var(--ts-gap);
+  align-items: start;
+}
+@media (min-width: 50rem) {
+  .ts-export-grid {
+    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  }
+}
+.ts-export-side {
+  display: grid;
+  gap: 0.75rem;
+  min-inline-size: 0;
+}
+.ts-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ts-checks {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--ts-text-xs);
+}
+.ts-checks li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.ts-checks li::before {
+  content: '';
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  margin-block-start: 0.4em;
+  border-radius: var(--tanrei-sys-shape-corner-full);
+  background: var(--tanrei-sys-color-success);
+}
+.ts-checks li[data-state='problem']::before {
+  background: var(--tanrei-sys-color-error);
+}
+.ts-checks li[data-state='pending']::before {
+  background: var(--tanrei-sys-color-warning);
+}
+.ts-next ol {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0 0 0.75rem;
+  padding-inline-start: 1.25rem;
+  font-size: var(--ts-text-xs);
+}
+.ts-next code {
+  color: var(--tanrei-sys-color-on-surface);
+}
+.ts-json {
+  margin: 0;
+  max-block-size: 32rem;
+  overflow: auto;
+  padding: 0.875rem 1rem;
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-control);
+  background: var(--tanrei-sys-color-surface-container-low);
+}
+.ts-json code {
+  font-size: var(--ts-text-xs);
+  line-height: 1.6;
+  color: var(--tanrei-sys-color-on-surface);
+  white-space: pre;
+}
+.ts-import .ts-actions {
+  margin-block-start: 0.5rem;
+}
+.ts-status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Levels and the file ────────────────────────────────────────────── */
+.ts-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-block-end: var(--ts-gap);
+}
+.ts-levels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.375rem;
+  min-inline-size: 0;
+}
+/* A row of tabs is as wide as its tabs and stands at the start edge (the component scrolls them where they do not fit). */
+.ts-levels > tanrei-tabs,
+.ts-tree-bar > tanrei-tabs,
+.ts-panel tanrei-tabs {
+  justify-self: start;
+  max-inline-size: 100%;
+}
+.ts .ts-level-help {
+  margin: 0;
+  max-inline-size: 44rem;
+}
+.ts-file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem 0.75rem;
+  min-inline-size: 0;
+}
+.ts-file:empty {
+  display: none;
+}
+.ts-file .ts-error,
+.ts-build {
+  flex-basis: 100%;
+  margin: 0;
+}
+.ts-build:empty {
+  display: none;
+}
+.ts-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: var(--ts-text-xs);
+  font-weight: 500;
+}
+.ts-save i {
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: var(--tanrei-sys-shape-corner-full);
+  background: var(--tanrei-sys-color-success);
+}
+.ts-save[data-save-state='unsaved'] i,
+.ts-save[data-save-state='saving'] i,
+.ts-save[data-save-state='loading'] i {
+  background: var(--tanrei-sys-color-warning);
+}
+.ts-save[data-save-state='invalid'] i,
+.ts-save[data-save-state='conflict'] i,
+.ts-save[data-save-state='error'] i {
+  background: var(--tanrei-sys-color-error);
+}
+/* The conflict is a callout (the component draws it): only its place is the Studio's. */
+.ts-banner {
+  margin-block-end: var(--ts-gap);
+}
+
+/* ── Small layout pieces ────────────────────────────────────────────── */
+.ts-stack {
+  display: grid;
+  gap: 0.5rem;
+  min-inline-size: 0;
+}
+.ts-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  align-items: end;
+}
+.ts-row-first {
+  border-block-start: 0;
+  padding-block-start: 0.25rem;
+}
+.ts-row-actions {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+}
+.ts-hint {
+  margin: 0;
+  padding: 0.5rem 0.625rem;
+  border-inline-start: 2px solid var(--tanrei-sys-color-outline-variant);
+  background: var(--tanrei-sys-color-surface-container-low);
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-more {
+  margin: 0;
+  font-size: var(--ts-text-xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-common .ts-row-head {
+  flex-wrap: wrap;
+}
+.ts-common .ts-row-head .ts-subhead {
+  margin: 0;
+}
+.ts-common > .ts-help {
+  margin-block: 0.375rem 0.5rem;
+}
+.ts-palette[data-fixed-tones] .ts-row-title small {
+  cursor: help;
+}
+.ts-dot {
+  display: inline-block;
+  flex: none;
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  border: 1px solid var(--tanrei-sys-color-outline-variant);
+  border-radius: var(--tanrei-sys-shape-corner-full);
+}
+.ts-warnings-long:focus-visible,
+.ts-token:focus-visible,
+.ts .ts-source-text:focus-visible {
+  outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+  outline-offset: var(--tanrei-sys-focus-offset);
+}
+
+/* ── Every token ────────────────────────────────────────────────────── */
+.ts-tokens {
+  /* The panes lay themselves out by the room the PANEL has, never by the viewport. */
+  container: ts-tokens / inline-size;
+}
+.ts-tokens-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ts-gap);
+  align-items: start;
+}
+.ts-tokens-tree {
+  display: grid;
+  gap: 0.5rem;
+  min-inline-size: 0;
+}
+.ts-tree-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ts-tree-bar > tanrei-text-input {
+  flex: 1 1 14rem;
+}
+/* The tree scrolls in a box of a height that is its own whatever it holds, and the editor's pane is at least as
+   tall: choosing a token, opening a tier or typing a search moves nothing around the two. */
+.ts-tree,
+.ts-tree-none {
+  block-size: min(70vh, 34rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-control);
+}
+.ts-tree .ts-value {
+  font-family: var(--ts-font-mono);
+}
+.ts-token-pane {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  min-inline-size: 0;
+  min-block-size: min(70vh, 34rem);
+  padding: 0.75rem;
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-control);
+  background: var(--tanrei-sys-color-surface);
+  scroll-margin-block-start: calc(var(--ts-sticky-top) + 1rem);
+}
+.ts-token-head {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: start;
+}
+.ts h3.ts-token-name {
+  margin: 0;
+  font-size: var(--ts-text-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.ts-token-name:focus-visible {
+  outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+  outline-offset: var(--tanrei-sys-focus-offset);
+  border-radius: var(--ts-radius-control);
+}
+@container ts-tokens (min-width: 40rem) {
+  .ts-tokens-grid {
+    grid-template-columns: minmax(14rem, 20rem) minmax(0, 1fr);
+  }
+  /* Beside the tree the way back is the tree itself. */
+  .ts .ts-token-back {
+    display: none;
+  }
+}
+.ts-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: var(--ts-font-mono);
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+  text-align: end;
+}
+.ts-mark {
+  flex: none;
+  align-self: center;
+  inline-size: 0.375rem;
+  block-size: 0.375rem;
+  border-radius: var(--tanrei-sys-shape-corner-full);
+  background: var(--tanrei-sys-color-on-surface);
+}
+.ts-detail {
+  display: grid;
+  gap: 0.75rem;
+  min-inline-size: 0;
+}
+.ts-fact dd b {
+  font-weight: 500;
+}
+.ts-fact ul {
+  margin: 0.25rem 0 0;
+  padding-inline-start: 1rem;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-schemes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.25rem 0.5rem;
+}
+.ts-scheme {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-inline-size: 0;
+}
+.ts-scheme i {
+  flex: none;
+  inline-size: 1rem;
+  block-size: 1rem;
+  border: 1px solid var(--tanrei-sys-color-outline-variant);
+  border-radius: var(--tanrei-sys-shape-corner-extra-small);
+}
+.ts-scheme small {
+  font-family: var(--ts-font-mono);
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+.ts-followers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+.ts-editor {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-control);
+  background: var(--tanrei-sys-color-surface-container-lowest);
+  min-inline-size: 0;
+}
+/* The operations of one token: the row of tabs, then the chosen operation's form. */
+.ts-tabs {
+  display: block;
+  min-inline-size: 0;
+}
+.ts-pointers {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-inline-start: 1rem;
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-pointers b {
+  font-weight: 500;
+  color: var(--tanrei-sys-color-on-surface);
+}
+.ts-recipes {
+  justify-content: flex-start;
+}
+.ts .ts-recipes .ts-help {
+  margin: 0;
+}
+.ts-tones {
+  inline-size: 100%;
+  /* The columns are the pane's, not their fields': three number fields at their own width are wider than a phone. */
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: var(--ts-text-2xs);
+}
+.ts-tones :is(th, td):first-child {
+  inline-size: 3.5rem;
+}
+.ts-tones th {
+  padding: 0.125rem 0.25rem;
+  font-weight: 400;
+  text-align: start;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-tones td {
+  padding: 0.125rem;
+}
+
+/* ── Add… ───────────────────────────────────────────────────────────── */
+.ts-members {
+  display: grid;
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-control);
+  max-block-size: 22rem;
+  overflow: auto;
+}
+.ts-member {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 0.5rem;
+  align-items: baseline;
+  padding: 0.25rem 0.625rem;
+  border-block-end: var(--ts-hairline);
+}
+.ts-member small {
+  grid-column: 1 / -1;
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-member code {
+  color: var(--tanrei-sys-color-on-surface);
+  overflow-wrap: anywhere;
+}
+.ts-warnings-inline {
+  margin: 0;
+  color: var(--tanrei-sys-color-error);
+}
+.ts-warnings-inline:empty {
+  display: none;
+}
+
+/* ── Source ─────────────────────────────────────────────────────────── */
+.ts-source {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  block-size: min(70vh, 40rem);
+  border: var(--ts-hairline);
+  border-color: var(--tanrei-sys-color-outline);
+  border-radius: var(--ts-radius-control);
+  overflow: hidden;
+  background: var(--tanrei-sys-color-surface);
+}
+/* The Source editor is the Studio's own native text area: an editor — line numbers, error marks by line, Tab that
+   indents — which a text field that holds code is not. */
+.ts .ts-source-text {
+  min-inline-size: 0;
+  color: var(--tanrei-sys-color-on-surface);
+  font: inherit;
+}
+.ts-source-gutter,
+.ts .ts-source-text {
+  margin: 0;
+  padding: 0.75rem 0.5rem;
+  font-family: var(--ts-font-mono);
+  font-size: var(--ts-text-xs);
+  line-height: 1.6;
+}
+.ts-source-gutter {
+  display: grid;
+  align-content: start;
+  overflow: hidden;
+  min-inline-size: 2.75rem;
+  border-inline-end: var(--ts-hairline);
+  background: var(--tanrei-sys-color-surface-container-low);
+  color: var(--tanrei-sys-color-on-surface-variant);
+  text-align: end;
+  user-select: none;
+}
+.ts-source-gutter span[data-error] {
+  background: var(--tanrei-sys-color-error-container);
+  color: var(--tanrei-sys-color-on-error-container);
+  font-weight: 600;
+}
+.ts .ts-source-text {
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  resize: none;
+  white-space: pre;
+  overflow: auto;
+  tab-size: 2;
+}
+.ts .ts-source-text:focus-visible {
+  outline-offset: -2px;
+}
+.ts-checks li > span {
+  min-inline-size: 0;
+}
+
+/* ── Export, compact ────────────────────────────────────────────────── */
+.ts-export-compact {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+.ts-export-compact .ts-export-side {
+  max-inline-size: 44rem;
+}
+
+/* ── Preview: a layer's own tokens ──────────────────────────────────── */
+.ts-own {
+  display: grid;
+  gap: var(--tanrei-sys-space-space50);
+}
+.ts-own-row {
+  display: grid;
+  grid-template-columns: var(--tanrei-sys-space-space500, 2.5rem) minmax(0, 1fr) auto;
+  gap: var(--tanrei-sys-space-space100);
+  align-items: center;
+  color: var(--tanrei-sys-color-on-surface-variant);
+  overflow-wrap: anywhere;
+}
+.ts-own-swatch {
+  inline-size: var(--tanrei-sys-space-space200);
+  block-size: var(--tanrei-sys-space-space200);
+  border-radius: var(--tanrei-sys-shape-corner-full);
+}
+.ts-own-bar {
+  max-inline-size: 100%;
+  block-size: var(--tanrei-sys-space-space50);
+  background: var(--tanrei-sys-color-on-surface-variant);
+}
+
+@media (max-width: 40rem) {
+  .ts-schemes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ts [data-add-body] {
+  margin-block-start: 0.75rem;
+}
+.ts-build {
+  text-align: end;
+}
+.ts-build .ts-checks,
+.ts-build .ts-warnings {
+  text-align: start;
+}
+.ts [data-panel='a11y'],
+.ts [data-panel='export'] {
+  margin-block-start: var(--ts-gap);
+}
+
+/* ── Source: a draft that does not parse ────────────────────────────── */
+.ts-levels .ts-draft-badge {
+  justify-self: start;
+}
+.ts-draft-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.625rem 0.75rem;
+  border: var(--tanrei-sys-border-hairline) solid var(--tanrei-sys-color-warning);
+  border-radius: var(--ts-radius-control);
+  background: var(--tanrei-sys-color-warning-container);
+  color: var(--tanrei-sys-color-on-warning-container);
+  font-size: var(--ts-text-xs);
+}
+.ts-draft-note[hidden] {
+  display: none;
+}
+.ts-draft-note p {
+  flex: 1 1 18rem;
+  margin: 0;
+}
+
+/* ── Tabs with a panel (the operations of one token) ────────────────── */
+.ts-tabpanel {
+  min-inline-size: 0;
+}
+
+/* ── Fixed tones of a palette ───────────────────────────────────────── */
+.ts-palette > .ts-tones-fold {
+  grid-column: 1 / -1;
+}
+.ts-tone-rows {
+  display: grid;
+  gap: 0.375rem;
+}
+.ts-tone-row,
+.ts-tone-add {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ts-tone-add {
+  grid-template-columns: 4.5rem auto;
+  justify-content: start;
+}
+
+/* ── Typefaces: a font stack as a reorderable list ──────────────────── */
+/* The rows, their move buttons and where the buttons stand are the List's (LST-36 to LST-52). The Studio's part is
+   the box around them and one thing inside: a family's name is drawn in that family (the item's `headline` part). */
+.ts-stack-list,
+.ts-stack-empty {
+  border: var(--ts-hairline);
+  border-radius: var(--ts-radius-control);
+  background: var(--tanrei-sys-color-surface-container-lowest);
+}
+.ts-stack-list {
+  display: block;
+  min-inline-size: 0;
+}
+.ts-stack-list[hidden],
+.ts-stack-empty[hidden] {
+  display: none;
+}
+.ts-stack-list > tanrei-list-item::part(headline) {
+  font-family: var(--ts-stack-face);
+}
+.ts-stack-empty {
+  display: flex;
+  align-items: center;
+  min-block-size: 2.5rem;
+  margin: 0;
+  padding: 0.25rem 0.625rem;
+  font-size: var(--ts-text-xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-font-note {
+  margin: 0;
+  padding: 0.375rem 0.625rem;
+  border-inline-start: 2px solid var(--tanrei-sys-color-warning);
+  background: var(--tanrei-sys-color-warning-container);
+  color: var(--tanrei-sys-color-on-warning-container);
+  font-size: var(--ts-text-xs);
+}
+.ts-font-note[hidden] {
+  display: none;
+}
+.ts-stack-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+.ts-stack-sample {
+  margin: 0;
+  overflow: hidden;
+  font-size: 1.125rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ts-stack-css {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: var(--ts-text-2xs);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-group-reason {
+  padding-block-start: 0.75rem;
+  border-block-start: var(--ts-hairline);
+}
+
+/* ── Preview: the icon set, unselected and selected ─────────────────── */
+.ts-icon-set {
+  display: grid;
+  gap: var(--tanrei-sys-space-space50);
+}
+.ts-icon-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tanrei-sys-space-space150);
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-icon-row[data-selected] {
+  color: var(--tanrei-sys-color-primary);
+}
+.ts-icon-row-label {
+  flex: 0 0 5.5rem;
+  text-transform: uppercase;
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-ramp [data-sample='code'] {
+  color: var(--tanrei-sys-color-on-surface-variant);
+}
+.ts-mark {
+  display: inline-block;
+  margin-inline-start: 0.375rem;
+  vertical-align: 0.1em;
+}
+.ts-mark[hidden] {
+  display: none;
+}
+
+/* A panel scrolled to (a level link, the draft badge, "Go to Color") lands BELOW what is stuck to the top: the site's
+   bar, and on a phone the sticky preview as well. */
+.ts-panel {
+  scroll-margin-block-start: calc(var(--ts-sticky-top) + 0.75rem);
+}
+@media (max-width: 63.999rem) {
+  .ts-layout .ts-panel {
+    scroll-margin-block-start: calc(var(--ts-sticky-top) + min(46vh, 30rem) + 1.25rem);
+  }
+}

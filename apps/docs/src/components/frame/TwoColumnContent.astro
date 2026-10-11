@@ -1,0 +1,25 @@
+---
+// The aside and the main region of the app shell (PageFrame.astro), in place of the framework's two columns: this
+// component replaces Starlight's `TwoColumnContent`. It adds no element of its own, so that the `<aside>` and the
+// framework's `<main>` are the shell's own children — a region is a child of the shell (APS-1).
+//
+// The aside holds "On this page" (PageSidebar.astro), on pages that have headings to list. It is written before the
+// main region and the shell is told `aside-order="before"`: below the expanded width the shell stacks it above the
+// content, where a list of the page's sections belongs, and a keyboard reaches it before the content (APS-22).
+//
+// The framework writes `<main>` itself, without the id the skip link leads to. It arrives here rendered, so the id and
+// `tabindex="-1"` (APS-20: the main region takes focus when the skip link is followed, and is no stop of the Tab
+// order) are written into its start tag as text — once, on the first `<main`, which is the frame's. The mark that
+// scopes the framework's own rule for `main` (a padding of its own, unlayered, which would win over the shell's
+// gutters and padding, APS-8) is taken off the same tag: the main region is laid out by the shell alone.
+//
+// The main region is also what the search index reads (`data-pagefind-body` is the framework's, on `<main>`): its
+// terms, descriptions and cells are parted by a space here, once for every page (lib/index-text.mjs).
+import { indexSeparated } from '../../lib/index-text.mjs';
+
+const main = indexSeparated(await Astro.slots.render('default')).replace(/<main\b([^>]*)>/, (_, attributes: string) => `<main id="main" tabindex="-1"${attributes.replace(/\sdata-astro-cid-[a-z0-9]+(="")?/g, '').replace(/\sclass="astro-[a-z0-9]+"/, '')}>`);
+const hasToc = Boolean(Astro.locals.starlightRoute.toc);
+---
+
+{hasToc && <aside slot="aside" class="print:hidden"><slot name="right-sidebar" /></aside>}
+<Fragment set:html={main} />

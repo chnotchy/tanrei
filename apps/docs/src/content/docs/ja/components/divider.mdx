@@ -1,0 +1,275 @@
+---
+title: 区切り線
+description: リスト、レイアウト、ツールバーの中のコンテンツのまとまりを、細い線で区切ります。
+translationOf: components/divider.mdx
+sourceHash: a900ff2d8bf8a75bc9b74c35a5e534d81fd620fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="divider" />
+
+<DemoFrame label="リストとツールバーの中">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
+    <span>受信トレイ</span>
+    <tanrei-divider></tanrei-divider>
+    <span>アーカイブ</span>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <span>ゴミ箱</span>
+  </div>
+  <div role="toolbar" aria-label="書式" style="display: flex; align-items: stretch; gap: var(--tanrei-sys-space-space50)">
+    <tanrei-button variant="text" label="太字"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="斜体"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+    <tanrei-button variant="text" label="リンクを挿入"><span slot="icon">link</span></tanrei-button>
+  </div>
+</DemoFrame>
+
+### 使い方
+
+Web と React の例は現在の仕様に沿っています。SwiftUI、Compose、Flutter、React Native は追従待ちで、実線だけを描き、区切り線ごとの長さや太さを受け取らない以前の版の区切り線をまだ提供しています。これらの例は、追従するまでその版のものです。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+
+    <!-- テキストが 72 px 内側から始まるリストに揃えます。 -->
+    <tanrei-divider inset="start" inset-length="72"></tanrei-divider>
+
+    <!-- クーポンの上の切り取り線と、軽いセクションの区切り。 -->
+    <tanrei-divider line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+
+    <!-- この区切り線だけを太くします。点、線分、波は、太さに対する比率を保ちます。 -->
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider line-style="dotted" line-cap="round" thickness="4"></tanrei-divider>
+
+    <!-- ツールバーのグループには意味があるので、区切り線を separator として公開します。 -->
+    <div role="toolbar" aria-label="書式" style="display: flex">
+      <tanrei-button variant="text" label="太字"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+      <tanrei-button variant="text" label="リンクを挿入"><span slot="icon">link</span></tanrei-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/divider';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Divider } from '@tanrei/react';
+
+    <Divider />
+    <Divider inset="start" insetLength={72} />
+    <Divider lineStyle="dashed" lineCap="round" />
+    <Divider lineStyle="wavy" amplitude={4} wavelength={24} />
+    <Divider lineStyle="dotted" lineCap="round" thickness={4} />
+    <Divider orientation="vertical" decorative={false} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    VStack(spacing: 0) {
+      inboxRow
+      TanreiDivider(inset: .start)
+      archiveRow
+    }
+
+    // 向きは囲んでいるスタックから取らず、明示します。
+    HStack { formattingButtons; TanreiDivider(axis: .vertical, isDecorative: false); insertLinkButton }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.gestures.Orientation
+    import io.github.chnotchy.tanrei.components.TanreiDivider
+    import io.github.chnotchy.tanrei.components.TanreiDividerInset
+
+    Column {
+        InboxRow()
+        TanreiDivider(inset = TanreiDividerInset.Start)
+        ArchiveRow()
+    }
+
+    // 縦の区切り線は行の高さいっぱいに伸びるので、行に高さを与えます。
+    Row(Modifier.height(IntrinsicSize.Min)) {
+        FormattingButtons()
+        TanreiDivider(orientation = Orientation.Vertical, decorative = false)
+        InsertLinkButton()
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    Column(
+      children: <Widget>[
+        inboxRow,
+        const TanreiDivider(inset: TanreiDividerInset.start),
+        archiveRow,
+      ],
+    );
+
+    // IntrinsicHeight で、縦の区切り線に行の高さを与えます。
+    IntrinsicHeight(
+      child: Row(
+        children: <Widget>[
+          ...formattingButtons,
+          const TanreiDivider(axis: Axis.vertical, excludeFromSemantics: false),
+          insertLinkButton,
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Divider, IconButton } from '@tanrei/react-native';
+
+    <Divider />
+    <Divider inset="start" />
+
+    <View style={{ flexDirection: 'row' }}>
+      <IconButton accessibilityLabel="太字" onPress={toggleBold}>format_bold</IconButton>
+      <Divider orientation="vertical" decorative={false} />
+      <IconButton accessibilityLabel="リンクを挿入" onPress={insertLink}>link</IconButton>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="向きとインセット" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <tanrei-divider inset="both"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="線の種類" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider line-style="dotted"></tanrei-divider>
+    <tanrei-divider line-style="dashed"></tanrei-divider>
+    <tanrei-divider line-style="dashed" dash-length="12" gap="6"></tanrei-divider>
+    <tanrei-divider line-style="wavy"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
+    <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="太さ：区切り線ごとの太さと、太い模様に付けた丸い端" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+点線と破線は、両端がかならず欠けのない点や線分になります。区切り線は、少なくとも間隔を空けて収まるだけの数を描き、すべての間隔を同じだけ広げます。そのため、長さや向きにかかわらず、両端が同じ見え方になります。波線は円弧をつないだもので、波の数が整数になるよう伸縮させるので、中心線から始まり中心線で終わります。波線の区切り線はほかより高さがあり、振幅の 2 倍に線の太さを足した大きさ、既定では 1 ではなく 5 になります。
+
+点、線分、波の長さは、線の太さから導いたトークンです。太い区切り線を描くデザインシステムでは、同じ見え方のまま模様も大きくなります。`thickness` は、1 つの区切り線について同じことをします。太さを読むすべての場所でトークンの代わりになり、点、線分、波は太さに対する比率を保ちます。インセットは拡大縮小しません。区切り線ごとのプロパティ（`insetLength`、`thickness`、`dashLength`、`gap`、`amplitude`、`wavelength`）は、プラットフォームの単位でそのまま使い、どのダイヤルでも拡大縮小しません。負の値や有限でない値、0 の `thickness`、`dashLength`、`wavelength` はトークンの値に戻り、デバッグビルドで報告されます。いまの線の種類が描かないプロパティは無視されます。
+
+<ComponentSpecs name="divider" />
+
+## ガイドライン
+
+### 使う場面
+
+余白だけでは境界がはっきりしない場所に使います。密度の高いリストの行と行の間、設定画面のセクションの間、ツールバーのアクションのグループの間などです。グループ間の余白やサーフェスの違いですでに境目が分かるなら、線は引きません。線の少ないレイアウトのほうが、目で追いやすくなります。
+
+### 1 つの細い線
+
+区切り線の線は、デザインシステムの細い線です。色は `sys.color.outline-variant`、太さは細い線の幅です。既定のシステムでは、目に入るほかの細い線も同じ色です。アウトラインのボタンの縁、チップの枠線、メニューのグループの間の線、ナビゲーションバーやナビゲーションドロワーの端、リストの行の下の線がそうです。それぞれが自分のトークンを持ったまま、既定のシステムが同じ 1 つの値を与えているので、画面にある線は 1 種類に見えます。利用者側で置く区切り線も、それらに合わせるための色を持つ必要はありません。
+
+### コンポーネントが自分のパーツを分ける場所
+
+自分のパーツを自分で分けるコンポーネントがあり、そこには区切り線を足しません。
+
+- [メニュー](/ja/components/menu/)は、グループとその隣にあるものを分けます。
+- つながった[ボタングループ](/ja/components/button-group/)と[メニュー付きボタン](/ja/components/button-with-menu/)は、自分の 2 つの部分を分けます。
+- [ナビゲーションドロワー](/ja/components/navigation-drawer/)は、`divider` を付けたセクションの前に区切り線を描きます。
+- [リスト](/ja/components/list/)の行は、自分の下の線を、テキストの開始位置から描きます（`divider`）。
+
+1 つのコンポーネントの中で隣り合うパーツをどう見分けるかは、デザインシステム全体で 1 つの選択です。接するところに線を引くか（既定）、余白を空けるかです。コンポーネントは自分のトークンで、個々のインスタンスは `separation` プロパティで、システムの選択から外れられます。`separation` を持つのは、メニュー、ボタングループ、メニュー付きボタン、プログレスインジケーターです。余白で分けるとき、これらのコンポーネントは線をまったく描きません。そこに手で足した区切り線は、残る唯一の線になり、まわりと合わなくなります。
+
+区切り線のコンポーネント自体は、この選択に含まれません。自分のコンテンツの間に置いた `<tanrei-divider>` は、いつも線です。
+
+### インセットの選び方
+
+| インセット | 用途 |
+| --- | --- |
+| None | コンテナ全体にわたる境界。セクションの間や、ヘッダーの下。 |
+| Start | 行の先頭にアイコンやアバターがあるリストの、行と行の間。線がテキストの位置から始まるので、先頭の列がひと続きに見えます。 |
+| Both | コンテナの境界には見せたくない、グループ内の区切り（ミドルディバイダー）。 |
+
+`insetLength` を設定するのは、プロダクトのほかのリストとインセットが違うコンテンツに揃える区切り線だけです。`inset` がインセットを取る側に効き、`inset` が none の間は何もしません。
+
+### 線の種類の選び方
+
+| 線の種類 | 用途 |
+| --- | --- |
+| Solid | ほとんどの区切り線。既定値です。 |
+| Dashed | 同じプロダクトの中で種類の違う境界。クーポンの上の切り取り線や、仮の内容の端など。 |
+| Dotted | 実線より軽い区切り。長さの 3 分の 1 ほどしか覆わないので、同じ色でも薄く見えます。 |
+| Wavy | まわりの実線とは種類の違う境界として見せたいセクションの区切り。ほかの種類より、線と直交する方向に場所を取ります。 |
+
+丸い端（`lineCap="round"`）にすると、点は円に、線分は角の丸い棒になり、実線や波線の両端も丸くなります。丸い端は線の長さの内側に収まるので、インセットはずれません。既定の細い線では丸い端は見えません。自分の `thickness` を持つ区切り線と、太い線を描くデザインシステム向けです。
+
+### 推奨
+
+- 区切り線の周りの余白は、レイアウト側で取ります（スタックの間隔やリストの gap）。区切り線自体は余白を持たないので、間隔が二重になることはありません。
+- リストやカードでは、装飾（既定値）のままにします。行の始まりと終わりは、行そのものが伝えています。
+- `decorative` を false にするのは、グループ分けそのものに意味がある場所だけです。ツールバーやメニューのグループなどです。
+- 1 種類の境界には、プロダクト全体で 1 つの線の種類を使います。そうすれば、破線はいつも同じ意味になります。
+
+### 非推奨
+
+- すべての要素の間に線を引かない。まず余白で区切り、それで足りない所にだけ区切り線を使います。
+- コンテナの枠線や輪郭として使わない。区切り線にはコンテナも形もありません。
+- 意味を持たせるために太くしたり色を付けたりしない。`thickness` は、見えるだけの太さが要る模様や、まわりの太い線に合わせる線のためのものです。区切り線の色はコントラスト比の対象外です。区切られた内容は、線がなくても理解できなければならないからです。
+- メニューのグループの間やリストの行の間など、自分のパーツを自分で分けるコンポーネントの中に区切り線を足さない。そのコンポーネント自身のプロパティを使います。
+- 線の種類だけに意味を持たせない。破線が「ここで切り取る」ことを表すなら、テキストでもそう伝えます。
+- 見出しの代わりにしない。2 つのフォームの間の「── または ──」は、2 本の区切り線とラベルの組み合わせで、意味を伝えるのはラベルです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="divider" />
+
+### コンポーネントが担うこと
+
+- 装飾（既定値）のときは、すべてのプラットフォームで支援技術から隠れます。
+- 装飾でないときは、Web では向きを持つ separator として公開します。Apple のプラットフォーム、Android、Flutter には separator のロールがないため、名前のない要素としてアクセシビリティツリーに残り、各プラットフォームで伝えられる範囲のことを伝えます。
+- フォーカスを受けず、入力も受け取りません。両側のコントロールの操作を妨げることはありません。
+- 線は少なくとも 1 デバイスピクセルの太さです。実線、点線、破線は線と直交する方向をピクセルグリッドに揃えて描くので、にじみません。波線はアンチエイリアスをかけて描きます。
+- 線の種類は支援技術には伝わりません。装飾でない点線、破線、波線の区切り線は、実線と同じ separator です。
+- Web の強制カラーモードでは、どの線の種類もシステムのテキスト色で描き直されます。
+
+### 利用者側で行うこと
+
+- 線の種類に持たせた意味（切り取り線など）は、テキストで伝えます。支援技術は線の種類を伝えず、点線や破線は実線より薄く見えます。
+- グループ分けに意味があるときは、それぞれのグループに名前を付けます。separator には名前がないので、グループが何なのかは伝えられません。
+- ページの構造を区切り線に担わせない。構造を伝えるのは見出しとランドマークで、線は目に見えるだけです。

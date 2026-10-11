@@ -1,0 +1,341 @@
+---
+title: メニューバー
+description: アプリケーションのコマンドを、名前の付いたメニュー（ファイル、編集、表示…）が並ぶ 1 本の常設の行にまとめます。各タイトルの下にメニューが開き、矢印キーで行に沿って、また各メニューの中へ移動できます。
+translationOf: components/menubar.mdx
+sourceHash: 3ab69d94e5684b573c7036f3ba3643141c1dec5b
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="menubar" />
+
+<DemoFrame label="エディターのメニュー" column>
+  <tanrei-menubar label="アプリケーションメニュー" overflow-label="その他のメニュー" style="inline-size: 100%">
+    <tanrei-menubar-menu label="ファイル">
+      <tanrei-menu-item label="新規" shortcut="mod+n"></tanrei-menu-item>
+      <tanrei-menu-item label="開く…" shortcut="mod+o"></tanrei-menu-item>
+      <tanrei-submenu label="最近使った項目">
+        <tanrei-menu-item label="四半期レポート"></tanrei-menu-item>
+        <tanrei-menu-item label="ロードマップ"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-group>
+        <tanrei-menu-item label="保存" shortcut="mod+s"></tanrei-menu-item>
+        <tanrei-menu-item label="印刷…" shortcut="mod+p"></tanrei-menu-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="編集">
+      <tanrei-menu-item label="元に戻す" shortcut="mod+z"></tanrei-menu-item>
+      <tanrei-menu-item label="やり直す" shortcut="mod+shift+z"></tanrei-menu-item>
+      <tanrei-menu-group>
+        <tanrei-menu-item label="切り取り" shortcut="mod+x"></tanrei-menu-item>
+        <tanrei-menu-item label="コピー" shortcut="mod+c"></tanrei-menu-item>
+        <tanrei-menu-item label="貼り付け" shortcut="mod+v"></tanrei-menu-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="表示">
+      <tanrei-menu-checkbox-item label="ルーラー" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="コメント"></tanrei-menu-checkbox-item>
+      <tanrei-menu-group label="ズーム" value="100">
+        <tanrei-menu-radio-item label="50%" value="50"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="100%" value="100"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="200%" value="200"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="書式" disabled>
+      <tanrei-menu-item label="太字"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="ヘルプ">
+      <tanrei-menu-item label="キーボードショートカット"></tanrei-menu-item>
+      <tanrei-menu-item label="このアプリについて"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+  </tanrei-menubar>
+</DemoFrame>
+
+### メニューバーではないもの
+
+使う前に、まずここを読んでください。メニューバーはアプリケーションのコマンドのためのもので、それ以外にはほとんど使いません。
+
+- **サイトのナビゲーションではありません。** ドロップダウンの付いたセクションの行はナビゲーションです。ナビゲーションのランドマークの中に置くリンクで、Tab で移動します。メニューバーは支援技術に、中のものすべてを Tab ではなく矢印キーで移動すること、どの項目もコマンドであることを伝えます。ページへのリンクの並びでそれに出会った人は、誤った案内を受けることになります。[アプリバー](/ja/components/app-bar/)、[ナビゲーションバー](/ja/components/navigation-bar/)、[ナビゲーションドロワー](/ja/components/navigation-drawer/)を使います。
+- **ツールバーではありません。** [ツールバー](/ja/components/toolbar/)は、押すと実行されるボタンを並べます。メニューバーはメニューの行です。それだけで動作する項目を 1 つか 2 つ置けますが（[後述](#それだけで動作する項目)）、そればかりを並べた行はツールバーです。バーに沿って移動するだけでは何も実行されないので、安心して見て回れます。
+- **メニューを開くボタンを並べた行ではありません。** 見た目は同じでも、使うと違いが出ます。矢印キーで開いたメニューを隣へ運べず、ポインターを動かしても開いたメニューは付いてこず、支援技術には 2 階層の 1 つのメニューではなく、別々のボタンとして伝わります。
+- **タブではありません。** タイトルが選択されることはありません。メニューを閉じれば、何も選ばれたままになりません。
+- **1 つのメニューではありません。** 少数の選択肢は、ボタンから開く 1 つの[メニュー](/ja/components/menu/)に入れます。
+
+### メニューバーとは
+
+エディター、表計算、作図や計画のツールのようなアプリケーションには、ボタンとして画面に並べきれない数のコマンドがあります。メニューバーは、そのすべてがある場所です。一度覚えれば済むいくつかの名前の下に、それぞれのショートカットと一緒に並びます。
+
+常に見えているタイトルの行です。各タイトルは、その下に Tanrei の[メニュー](/ja/components/menu/)を開きます。中身はメニュー自身の項目で、アクション、リンク項目、チェックボックス項目とラジオ項目、グループ、サブメニュー、ショートカットを置けます。タイトルの隣には、バー項目を置けます。すぐに実行されるアクションか、リンクです。行全体がフォーカス順の 1 つの停止位置です。矢印キーで行に沿って移動し、メニューの中へ入り、メニューの中からはそのまま隣の項目へ進めます。
+
+バー自身は塗りも縁もエレベーションも持ちません。置き場所は利用者側で決めます。通常はウィンドウの上端、すでにあるクロームの中です。
+
+Web では `<tanrei-menubar>` で、その中に `<tanrei-menubar-menu>` 要素を置きます。それだけで動作する項目は `<tanrei-menubar-item>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+バーに `label` を、各メニューに 1〜2 語の `label` を指定します。メニューの項目は、メニューの中に置くときとまったく同じように、その中に置きます。イベントは項目自身のものを受け取ります。バーが項目にイベントを足すことはありません。
+
+各メニューは自分の `open` を持ちます。バーがそれを設定して `toggle` を発火するので、どのメニューが開いているかを利用者側で管理する必要はありません。独自のキーからメニューを開きたいときは、自分で設定できます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-menubar label="アプリケーションメニュー" overflow-label="その他のメニュー">
+      <tanrei-menubar-menu label="ファイル">
+        <tanrei-menu-item label="新規" shortcut="mod+n"></tanrei-menu-item>
+        <tanrei-menu-item label="開く…" shortcut="mod+o"></tanrei-menu-item>
+        <tanrei-submenu label="最近使った項目">
+          <tanrei-menu-item label="四半期レポート"></tanrei-menu-item>
+        </tanrei-submenu>
+        <tanrei-menu-item label="保存" shortcut="mod+s"></tanrei-menu-item>
+      </tanrei-menubar-menu>
+      <tanrei-menubar-menu label="表示">
+        <tanrei-menu-checkbox-item label="ルーラー" checked></tanrei-menu-checkbox-item>
+      </tanrei-menubar-menu>
+      <tanrei-menubar-menu label="書式" disabled>…</tanrei-menubar-menu>
+    </tanrei-menubar>
+
+    <script type="module">
+      import '@tanrei/web/components/menubar';
+
+      const bar = document.querySelector('tanrei-menubar');
+      // 1 つのリスナーで、すべての項目の click を受け取れます。コマンドの後は、その対象へフォーカスを移します。
+      bar.addEventListener('click', (event) => {
+        if (event.target.localName !== 'tanrei-menu-item') return;
+        run(event.target.label);
+        editor.focus();
+      });
+      // 項目に表示するショートカットを結び付けるのは利用者側です。メニューを開くキーも同じです。
+      addEventListener('keydown', (event) => {
+        if (event.altKey && event.key === 'f') bar.querySelector('[label="ファイル"]').open = true;
+      });
+    </script>
+
+    <!-- 要素が定義される前にバーの高さを確保して、ページが動かないようにします。 -->
+    <style>
+      tanrei-menubar:not(:defined) {
+        display: block;
+        min-block-size: calc(var(--tanrei-comp-menubar-container-height) + 2 * var(--tanrei-comp-menubar-bar-padding-block));
+      }
+    </style>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Menubar, MenubarMenu, MenuItem, MenuCheckboxItem, Submenu } from '@tanrei/react';
+
+    <Menubar label="アプリケーションメニュー" overflowLabel="その他のメニュー">
+      <MenubarMenu label="ファイル" onToggle={(event) => track('file', event.detail.open)}>
+        <MenuItem label="新規" shortcut={['mod+n']} onClick={newDocument} />
+        <MenuItem label="開く…" shortcut={['mod+o']} onClick={openDocument} />
+        <Submenu label="最近使った項目">
+          {recent.map((file) => <MenuItem key={file.id} label={file.name} onClick={() => open(file)} />)}
+        </Submenu>
+      </MenubarMenu>
+      <MenubarMenu label="表示">
+        <MenuCheckboxItem label="ルーラー" checked={ruler} onChange={(event) => setRuler(event.detail.checked)} />
+      </MenubarMenu>
+      <MenubarMenu label="書式" disabled={!selection}>…</MenubarMenu>
+    </Menubar>
+    ```
+  </TabItem>
+</Tabs>
+
+Web では、スクリプトが動くまでタイトルとアクションは描かれません。その言葉は属性で、コマンドはすべて利用者側のスクリプトだからです。リンク項目は違います。利用者側が書いたアンカーそのものなので、スクリプトが動く前でも、動かない環境でも、リンクとして働きます。
+
+### それだけで動作する項目
+
+<DemoFrame label="3 つのメニューと、アクション 1 つ、リンク項目 2 つ。どれも同じ見た目です" column>
+  <tanrei-menubar label="それだけで動作する項目のあるアプリケーションメニュー" overflow-label="その他" style="inline-size: 100%">
+    <tanrei-menubar-menu label="ファイル">
+      <tanrei-menu-item label="新規"></tanrei-menu-item>
+      <tanrei-menu-item label="開く…"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="編集">
+      <tanrei-menu-item label="元に戻す"></tanrei-menu-item>
+      <tanrei-menu-item label="やり直す"></tanrei-menu-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-menu label="表示">
+      <tanrei-menu-checkbox-item label="ルーラー" checked></tanrei-menu-checkbox-item>
+    </tanrei-menubar-menu>
+    <tanrei-menubar-item label="実行"></tanrei-menubar-item>
+    <tanrei-menubar-item><a href="#それだけで動作する項目">ドキュメント</a></tanrei-menubar-item>
+    <tanrei-menubar-item target-label="新しいタブで開きます"><a href="#それだけで動作する項目" target="_blank">ソース</a></tanrei-menubar-item>
+  </tanrei-menubar>
+</DemoFrame>
+
+まず、使わない場合から読んでください。バー項目は、メニューを開くタイトルとまったく同じ見た目です。1 つ置くごとに、押すと何が起きるのかを人が一瞬迷うことになります。
+
+- **ほとんどのコマンドには使いません。** コマンドはメニューに置きます。そこにはショートカットとアイコンがあり、隣の項目が意味を補います。バー項目は、1 回押すだけで届いてほしい 1 つか 2 つのこと（「実行」「共有」）と、1 つか 2 つの行き先（「ドキュメント」）のために取っておきます。
+- **元に戻せないことには使いません。** バー項目は実行の前に何も確かめず、破壊的な操作を示す見た目も持ちません。削除や破棄のコマンドはメニューに置きます。
+- **オンとオフを切り替える選択には使いません。** タイトルにはチェックを置く場所がありません。同じバーのメニューに、チェックボックス項目かラジオ項目として入れます。
+- **バーの全体にはしません。** アクションだけの行は[ツールバー](/ja/components/toolbar/)で、リンクだけの行はナビゲーションです。どちらも描かれて動きますが、デバッグビルドで報告します。
+- **何をするのかわからない言葉を付けません。** バー項目とタイトルを見分ける手がかりはラベルだけです。アクションには動詞を、リンクには行き先の名前を付けます。
+
+アクションは `<tanrei-menubar-item label="実行">` です。押すか、Enter か Space で、その `click` が 1 回発火します。バーのメニューが開いていれば先に閉じるので、ハンドラーが動くときにメニューは表示されていません。ハンドラーが移さない限り、フォーカスはバー項目に残ります。
+
+リンク項目は、同じ要素で利用者側のアンカーを囲んだものです。`<tanrei-menubar-item><a href="/docs/">ドキュメント</a></tanrei-menubar-item>` のように書きます。リンクとしての中身はアンカーのものです。テキストがラベルになり、`href`、`target`、`rel`、`aria-current="page"` はアンカーに書きます。要素はその周りにタイトルを描き、バーのキーで移動できる停止位置の 1 つにします。
+
+- `click` はアンカー自身の click です。`preventDefault()` で取り消せば移動は起きません。クライアント側のルーターに必要なのはそれだけです。ルーター自身のリンクコンポーネントも、子としてそのまま使えます。
+- 修飾キーを押しながらのクリック、中ボタンのクリック、リンクのコンテキストメニューは、どのリンクとも同じくブラウザーのものです。Space は Enter と同じようにリンク項目をたどります。行のほかの項目はどれも Space に応えるからです。
+- `target="_blank"` を指定すると、ラベルの後にアイコンセットの `open_in_new` を描き、`noopener` を加えます。言葉では、要素の `target-label` で、または製品全体に一度だけ `setWords({ targetLabel: … })` で伝えます。
+- アンカーの `aria-current="page"` は、人が今いるページを示します。ラベルを太く描き、塗りは付けません。メニューバーでは何も選択されないからです。設定するのは利用者側で、バーが設定することはありません。
+- 無効なリンク項目は、要素に `disabled` を指定し、アンカーから `href` を外して書きます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/menubar.css" />
+
+    <tanrei-menubar label="アプリケーションメニュー" overflow-label="その他">
+      <tanrei-menubar-menu label="ファイル">…</tanrei-menubar-menu>
+      <tanrei-menubar-menu label="編集">…</tanrei-menubar-menu>
+      <tanrei-menubar-item label="実行"></tanrei-menubar-item>
+      <tanrei-menubar-item><a href="/docs/">ドキュメント</a></tanrei-menubar-item>
+      <tanrei-menubar-item target-label="新しいタブで開きます">
+        <a href="https://example.com/source" target="_blank">ソース</a>
+      </tanrei-menubar-item>
+      <tanrei-menubar-item><a href="/history/" aria-current="page">履歴</a></tanrei-menubar-item>
+    </tanrei-menubar>
+
+    <script type="module">
+      import '@tanrei/web/components/menubar';
+
+      // アクション：自分自身の click です。行にあっても、オーバーフロー項目に畳まれていても同じです。
+      document.querySelector('tanrei-menubar-item[label="実行"]').addEventListener('click', run);
+      // リンク項目：アンカーの click です。取り消せば、移動は利用者側のものになります。
+      document.querySelector('tanrei-menubar-item > a[href="/docs/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.push('/docs/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Menubar, MenubarMenu, MenubarItem } from '@tanrei/react';
+    import { Link } from 'your-router';
+
+    <Menubar label="アプリケーションメニュー" overflowLabel="その他">
+      <MenubarMenu label="ファイル">…</MenubarMenu>
+      <MenubarItem label="実行" onClick={run} />
+      {/* ルーター自身のリンクを子にします。アンカーを描き、移動を引き受けます。 */}
+      <MenubarItem><Link href="/docs/">ドキュメント</Link></MenubarItem>
+      <MenubarItem targetLabel="新しいタブで開きます">
+        <a href="https://example.com/source" target="_blank">ソース</a>
+      </MenubarItem>
+    </Menubar>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/menubar.css` は、スクリプトが動く前と、スクリプトが動かないブラウザーのためのものです。バーの場所にリンク項目をタイトルのテキストスタイルで 1 行に並べ、それぞれをふつうのリンクと同じようにたどれ、Tab で到達できるようにします。メニューとアクションは、まだそこにありません。バーが動き始めると、同じアンカーをその場所のまま受け取ります。
+
+## 仕様
+
+<DemoFrame label="すべてのタイトルが入らない行は、残りを 1 つのオーバーフロー項目に畳みます" plain column>
+  <tanrei-menubar label="アプリケーションメニュー（狭い）" overflow-label="その他のメニュー" style="inline-size: 13rem">
+    <tanrei-menubar-menu label="ファイル"><tanrei-menu-item label="新規"></tanrei-menu-item><tanrei-menu-item label="開く…"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="編集"><tanrei-menu-item label="元に戻す"></tanrei-menu-item><tanrei-menu-item label="やり直す"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="表示"><tanrei-menu-item label="拡大"></tanrei-menu-item><tanrei-menu-item label="縮小"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="書式" disabled><tanrei-menu-item label="太字"></tanrei-menu-item></tanrei-menubar-menu>
+    <tanrei-menubar-menu label="ヘルプ"><tanrei-menu-item label="このアプリについて"></tanrei-menu-item></tanrei-menubar-menu>
+  </tanrei-menubar>
+</DemoFrame>
+
+<ComponentSpecs name="menubar" />
+
+## ガイドライン
+
+### まずメニュー、そして行が受け取るもの
+
+タイトルはメニューを開き、バーのほとんどはタイトルです。それだけで動作する項目は例外で、メニューの隣に 1 つか 2 つ置きます。理由は[それだけで動作する項目](#それだけで動作する項目)に書いたとおりです。1 回押すだけで届いてほしいコマンドがたくさんある製品には、そのためのツールバーかアプリバーがあります。
+
+行が受け取るのはメニューとバー項目だけです。ボタン、バーに直接書いたアンカー、フィールド、チェックボックスは、バーがフォーカスの移動に使うキーを取ってしまい、メニュー項目にもなりません。行の中に場所は与えられず、デバッグビルドで報告します。
+
+### バーに沿って移動しても何も実行されない
+
+バー項目にフォーカスが届いても、矢印キー、Home、End、文字の入力で移動しても、ポインターが上を通っても、バー項目は実行されません。実行するのは、押すことと、Enter と Space だけです。バー項目の上で下矢印と上矢印は何もせず、ページもスクロールしません。同じキーが、ある項目ではメニューを開き、隣の項目ではページを動かす、ということがあってはならないからです。
+
+メニューの中からは、行に沿った矢印キーで次の項目へ進みます。それがタイトルなら、そのメニューが開きます。バー項目なら、開いていたメニューが閉じ、フォーカスがバー項目に移ります。何も開かず、何も実行されません。そこから先は、もう一度メニューを開くまで、矢印キーはメニューを開かずに行に沿って移動します。
+
+### ポインター
+
+タイトルを押すと、そのメニューが開きます。開いているタイトルを押すと閉じます。メニューが 1 つ開いている間は、ポインターを別のタイトルに移すと、そちらが遅れもモーションもなくすぐに開きます。何も開いていない間は、ホバーしてもホバーの表示になるだけです。人が求めていないものを、バーが開くことはありません。
+
+メニューが開いている間にポインターをバー項目に移しても、ホバーの表示になるだけです。開いているメニューはそのまま残るので、「ファイル」から「表示」へ「実行」の上を通って移る途中で、メニューを失うことはありません。バー項目を押すと、メニューが閉じてから、バー項目が実行されます。
+
+### コマンドの後
+
+項目が実行されると、そのメニューが閉じ、フォーカスはメニューのタイトルに戻ります。ドキュメントに作用するコマンドでは、ふつうフォーカスをドキュメントに戻したいはずです。ハンドラーの中で移してください。バーは、移された先からフォーカスを取り戻しません。
+
+### ショートカットとアクセスキー
+
+メニューは項目のショートカットを描き、支援技術に伝えます。メニューもバーも、そのキーを待ち受けません。結び付けるのは利用者側です。フォーカスのある場所でどのショートカットが有効かを知っているのは、製品だけだからです。
+
+バーにアクセスキーはありません。タイトルの下線付きの文字も、バーへ跳ぶキーもありません。プラットフォームごとに異なり、Web ではブラウザー自身のキーと衝突し、どの文字にするかは言語ごとに決まるからです。フォーカスがバーにあれば、文字を打つと、その文字で始まる次のタイトルへ移ります。独自のキーを用意するには、メニューの `open` を設定するか、タイトルへフォーカスを移します。
+
+### 狭いウィンドウ
+
+タイトルは自分の大きさを保ち、切り詰められることはありません。行にすべてが入らないとき、バーは末尾から項目を丸ごと、必要なだけ、1 つのオーバーフロー項目に畳みます。オーバーフロー項目はアイコンセットの `more_horiz` で描きます。そのメニューには、畳まれたメニューが、同じラベルと同じ項目を持つサブメニューとして並びます。畳まれたバー項目は項目として並びます。アクションはメニュー項目に、リンク項目は同じアドレスを持つリンク項目になります。何も入らないときは、行はその 1 項目だけになります。オーバーフロー項目は必ずメニューを開き、それだけで動作することはありません。
+
+キーもロールも順序も、どの幅でも同じで、コマンドが失われることはありません。畳まれたメニューの `open` と `toggle` は、行にあるときと同じ意味です。畳まれたバー項目の `click` は、同じ要素の同じイベントです。バー項目か、利用者側のアンカーに付けたリスナーは、項目がどこに表示されていても 1 回だけ受け取ります。畳まれているときは、オーバーフロー項目のメニューがまだ開いている間に受け取り、メニューはその後で閉じます。オーバーフロー項目の名前は `overflow-label` で、または製品全体に一度だけ `setWords({ menubarOverflowLabel: … })` で指定します。
+
+スマートフォンでメニューバーを表示するかどうかは、利用者側で決めることです。そこでは、アプリバーのアクションとその「その他」メニューにコマンドを置くのが慣用で、バーを描かないのは正しい判断です。畳む仕組みは、描かれたバーがコマンドを失わないためにあります。
+
+### プラットフォームが自前のメニューバーを持つ場合
+
+デスクトップのシステムがウィンドウの外に持つバーや、タブレットがハードウェアキーボード用に持つバーは、製品が宣言したコマンドからシステムが描きます。コマンドは、プラットフォーム自身の API でそのバーにも渡してください。人はそこを探します。Tanrei のメニューバーは、ウィンドウの中に、Tanrei のトークンから描くバーです。システムのバーを埋めたり置き換えたりはしません。
+
+### 推奨
+
+- アプリケーションのコマンドに使います。名前の付いたメニューがいくつも必要になるだけの数があるときです。
+- 各メニューには、そのコマンドが何に作用するかを表す 1〜2 語の名前を付けます。
+- コマンドがどれも使えないメニューは、バーに残して無効にします。そのメニューがあることは伝わります。
+- 各コマンドのショートカットを項目に表示し、キーは自分で結び付けます。
+- コマンドを実行したら、その対象へフォーカスを移します。
+
+### 非推奨
+
+- サイトのセクションやページに使わない。
+- 行にボタン、裸のリンク、トグル、フィールドを置かない。アクションとリンクは、バー項目として置きます。
+- バー項目だけのバーを作らない。元に戻せないコマンドをバーに置かない。
+- ポインターがタイトルの上を通っただけでメニューを開かない。
+- タイトルを選択済みとして示さない。開いているタイトルは、そのメニューが表示されている間だけ示されます。
+- バーのメニューを、製品のほかのメニューと別の見た目にしない。バーのメニューはメニューであり、メニューのトークンを使います。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="menubar" />
+
+### コンポーネントが担うこと
+
+- バーは menubar ロールで、`label` を名前とし、水平方向として伝えます。各タイトルはメニューを開くメニュー項目で、そのメニューのラベルを名前とし、メニューが開いているか、無効か、行の項目の中での位置を伝えます。開いたメニューは、タイトルを名前とするメニューです。
+- バー項目は、ラベルを名前とするメニュー項目です。メニューを開くとは伝えず、展開の状態も持ちません。リンク項目は利用者側のアンカーで、リンクのロールではなくメニュー項目のロールで伝えます。支援技術はメニューバーを項目ごとに読み、メニューバーのロールは、すべての項目がメニュー項目である間だけ有効だからです。`target-label` を説明として伝え、現在のページかどうかも伝えます。
+- バー全体が、フォーカス順の 1 つの停止位置です。最後にフォーカスのあった項目、最後に実行した項目、最後にメニューを開いたタイトルのいずれかで、どれもなければ最初の項目です。リンク項目が、それだけで Tab の停止位置になることはありません。
+- タイトルとバー項目の上では、行に沿った矢印キーで次と前の項目へ移り、端で折り返します。Home と End は最初と最後へ移り、打った文字はその文字で始まる次の項目へ移ります。これらはメニューを開かず、何も実行しません。タイトルの上では、Enter、Space、下矢印がメニューを開き、最初の有効な項目へフォーカスを移します。上矢印もメニューを開き、最後の有効な項目へフォーカスを移します。バー項目の上では、Enter と Space がそれを実行し、下矢印と上矢印は何もしません。
+- メニューの中では、メニュー自身のキーが使えます。行の終わりの方を指す矢印キーは、サブメニュー項目ではサブメニューを開き、それ以外の項目では、どの階層からでも、次の有効な項目へ進みます。タイトルならそのメニューが開き、バー項目ならフォーカスがそこへ移ります。行の始まりの方を指す矢印キーは、サブメニューを閉じ、メニュー自身のサーフェスでは前の項目へ進みます。Escape は、開いているいちばん内側のサブメニューを閉じます。サブメニューが開いていなければ、メニューを閉じて、フォーカスをそのタイトルへ戻します。Tab はメニューを閉じてバーを離れます。
+- 無効なタイトルにも、バーに沿って到達できます。スクリーンリーダーは、そのメニューがあり、使えないことを伝えます。メニューが開いている間は、同じキーが無効なタイトルを飛ばします。
+- キーボードのフォーカスでは、タイトルの周りにフォーカスリングを表示します。ポインターで得たフォーカスでは表示しません。
+- タイトルのヒット領域は、描かれるものを変えずに最小ターゲットまで広がります。ターゲットより狭いタイトルは、行の中でターゲットの長さを保ちます。
+- 開いたメニューはモーダルではありません。フォーカスを閉じ込めず、何も不活性にせず、外側を押すと、その下にあるものにも届きます。
+- 右から左のレイアウトでは、タイトルは右から並び、行は左端で畳まれ、各メニューは右端をタイトルの右端に合わせて開き、左矢印が「次」になります。タイトルのラベルは自分の方向を保ちます。
+- テキストを拡大すると、各タイトルはラベルに合わせて大きくなり、入らなくなったものを行が畳みます。幅 320 でテキストが 200% のときも、すべてのメニューに到達でき、横にスクロールしません。
+- 強制カラーでは、ラベルはボタンのテキスト色、開いているタイトルはハイライトの色、ホバー中のタイトルは周りの線で示します。リンク項目は人が選んだリンクの色で、無効な項目は無効なテキストの色で描きます。
+- ラベルのないバー、メニュー、バー項目、項目のないメニュー、バーの中のメニューでもバー項目でもないもの、バー項目だけのバー、新しいタブで開くことを伝えないリンク項目、名前のないオーバーフロー項目は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- バーに、ページの言語で `label`（「アプリケーションメニュー」など）を指定します。描かれることはありません。
+- すべてのメニューとアクションに `label` を指定し、リンク項目のアンカーにはテキストを書きます。
+- 新しいタブで開くリンク項目には `target-label` を指定します。人が今いるページのリンク項目には、`aria-current="page"` を設定します。
+- オーバーフロー項目に、`overflow-label` か製品の言葉で名前を付けます。コンポーネントは言葉を持ちません。
+- 項目に表示するショートカットを結び付けます。
+- システムが自前のメニューバーを持つ場合は、そこにもコマンドを宣言します。
+- メニューバーをナビゲーションに使わない。

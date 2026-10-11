@@ -1,0 +1,795 @@
+/*
+ * Accordion (specs/accordion.spec.json, ACC-1 to ACC-35): content that a row shows and hides in
+ * place — one item is a single disclosure, several are a set.
+ *
+ * `<tanrei-accordion>` is an element with no shadow root around the product's own native `details` elements, which
+ * stay in the document: they open and close, keep their place in the tab order, carry the expanded state and are
+ * found, read, translated and printed as the page's content before any script runs and without it.
+ *
+ *   <tanrei-accordion variant="outlined" density="compact" separation="gap" exclusive>
+ *     <details open>
+ *       <summary>
+ *         <span class="tanrei-icon" aria-hidden="true">palette</span>
+ *         Colors
+ *         <span data-supporting-text>Roles, palettes and the six schemes</span>
+ *         <span data-trailing-text>48 roles</span>
+ *       </summary>
+ *       <p>Every color a component reads is a role.</p>
+ *     </details>
+ *     <details>
+ *       <summary><h3>A label that is a heading</h3></summary>
+ *       …
+ *     </details>
+ *     <details>
+ *       <summary aria-disabled="true" tabindex="-1">A disabled item</summary>
+ *       …
+ *     </details>
+ *   </tanrei-accordion>
+ *
+ * Attributes of the wrapper: `variant` (plain | outlined), `density` (regular | compact), `separation` (auto |
+ * divider | gap), `exclusive`. An item is a `<details>` (its own `open`, its own `toggle`, and `name` for one open
+ * at a time without script). The label is the summary's text, or ONE element in its place (a heading of the page's
+ * outline, or a span around text with inline content). The chevron is drawn by this stylesheet and the icon font
+ * (icons.css): without them it is not drawn and its box is kept.
+ *
+ * This stylesheet draws everything, before and without script (an element that is not yet defined is still an
+ * element). The element (src/components/accordion/accordion.ts) adds what a stylesheet cannot, and writes here:
+ *
+ *   data-pressed (on a summary)        the answer to a press the system names: overlay, ripple, dim, none (ACC-22)
+ *   data-focus-style (on a summary)    the focus style, where the browser has no style queries (ACC-23)
+ *   data-separation (on the wrapper)   the separation the tokens name, where the browser has no style queries (ACC-10)
+ *   data-glyphs="pending" (wrapper)    the icon set cannot draw a glyph yet: none is drawn, every box is kept (ACC-33)
+ *   data-tanrei-moving (on a details)  a pose of the height motion, where the browser cannot animate to `auto` in
+ *                                      CSS (ACC-13): measure, opening-from, opening, closing; with --_acc-size, the
+ *                                      content's height from ONE measurement
+ *   data-tanrei-at-once (on a details) this change of open is drawn without motion (ACC-12's first frame, ACC-16)
+ *
+ * Every value is a `--tanrei-comp-accordion-*` token, or the system's focus, target, icon and press-hold tokens.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name and has no specificity (`:where()`; a rule on a pseudo-element has a
+ *   pseudo-element's), so one class of the product's wins, and the ORDER of the rules decides between two of them.
+ *   The one exception is the icon, which must win over icons.css's own class.
+ * - A rule reaches the accordion's own items by child combinators only: an accordion inside an item's content is
+ *   drawn by its own attributes (ACC-32), and nothing else in the content is styled at all (ACC-8).
+ * - The header is a grid: [icon] [text] [trailing] [chevron]. A label of text is the grid's anonymous item and falls
+ *   into the first free cell of the first row, which is the text column; the supporting text is the second row of
+ *   that column.
+ * - The edge of the outlined look and the line between two items are drawn OVER the items they bound (an item's
+ *   `::after` and `::before`, out of the flow, under the header): they take no room, so the two looks and the two
+ *   separations lay everything out alike (ACC-9, ACC-10). They are borders, which forced colors keep, and their
+ *   widths are properties of the item, so that a style query on the wrapper changes them (a pseudo-element of the
+ *   wrapper itself is not drawn again by every engine when the answer changes).
+ * - The content's box is the browser's own `::details-content`: its inset, the space under it and its height motion
+ *   are set there, so nothing wraps the product's content. Open, it is not clipped: a focus ring inside it may reach
+ *   past its edge. It is clipped only while its height moves.
+ * - The state rules, the focus indicator and the ripple's layer say what `stateRules()`, `focusRing()` and
+ *   `rippleStyles()` (src/primitives) say for a shadow root; they are restated here for an element of the document.
+ * - Pressed: with the package's script it is `data-pressed` (the shared press primitive). Without it, `:active` is
+ *   the overlay, held for press-hold by a delayed step of `--_acc-held-image` and `--_acc-held-clip`.
+ * - The corner rule (src/styles/shape.ts) is written by the build in place of the `accordion:shape` mark.
+ * - Names that begin `--_acc-` are private.
+ */
+/* No custom property is registered by this stylesheet: one registered name in a document makes every element on which
+   a transition starts cost Chromium 0.7 ms a restyle on a page of the tokens (src/styles/registered-properties.ts).
+   What a registered name once did here is done without one:
+   - A header's part whose font is its own (the icon, the chevron, the trailing text) centres itself on the label's
+     first line by saying `1lh` in its own `line-height` — there the unit is the PARENT's line, the summary's, as a
+     length — and reading it back as its own `1lh`. A glyph's one line of text, then taller than its box, is centred
+     on the box by a flex container; the trailing text is one line, and stands in the middle of that line.
+   - The press no script answers is held by two names that step (see the header).
+   - `--_acc-open` is the item's own clock: 0 closed, 1 open, changed over the disclosure motion — in one step, being
+     no number to the browser. Nothing is drawn from it; its transition is how the script knows that the motion runs,
+     and when it ends (a transition of `::details-content` is not told to the page by any engine). */
+
+@layer tanrei.components {
+  /* ── The corners (ACC-23): an item's in the outlined look, and a header's ───────────────────────────────────── */
+  :where(tanrei-accordion) > :where(details),
+  :where(tanrei-accordion) > :where(details) > :where(summary) {
+    /* accordion:shape */
+  }
+
+  /* ── The column (ACC-1): as wide as its layout, no space, no size and no look of its own ────────────────────── */
+  :where(tanrei-accordion) {
+    /* ACC-3 to ACC-6, ACC-17, ACC-20: the look's colors in each state (ACC-34: any other variant is the default's). */
+    --_acc-container: var(--tanrei-comp-accordion-plain-container-color);
+    --_acc-label: var(--tanrei-comp-accordion-plain-label-color);
+    --_acc-supporting: var(--tanrei-comp-accordion-plain-supporting-text-color);
+    --_acc-trailing: var(--tanrei-comp-accordion-plain-trailing-text-color);
+    --_acc-icon: var(--tanrei-comp-accordion-plain-icon-color);
+    --_acc-chevron: var(--tanrei-comp-accordion-plain-chevron-color);
+    --_acc-hovered-container: var(--tanrei-comp-accordion-plain-hovered-container-color);
+    --_acc-hovered-label: var(--tanrei-comp-accordion-plain-hovered-label-color);
+    --_acc-hovered-supporting: var(--tanrei-comp-accordion-plain-hovered-supporting-text-color);
+    --_acc-hovered-trailing: var(--tanrei-comp-accordion-plain-hovered-trailing-text-color);
+    --_acc-hovered-icon: var(--tanrei-comp-accordion-plain-hovered-icon-color);
+    --_acc-hovered-chevron: var(--tanrei-comp-accordion-plain-hovered-chevron-color);
+    --_acc-focused-container: var(--tanrei-comp-accordion-plain-focused-container-color);
+    --_acc-focused-label: var(--tanrei-comp-accordion-plain-focused-label-color);
+    --_acc-focused-supporting: var(--tanrei-comp-accordion-plain-focused-supporting-text-color);
+    --_acc-focused-trailing: var(--tanrei-comp-accordion-plain-focused-trailing-text-color);
+    --_acc-focused-icon: var(--tanrei-comp-accordion-plain-focused-icon-color);
+    --_acc-focused-chevron: var(--tanrei-comp-accordion-plain-focused-chevron-color);
+    --_acc-pressed-container: var(--tanrei-comp-accordion-plain-pressed-container-color);
+    --_acc-pressed-label: var(--tanrei-comp-accordion-plain-pressed-label-color);
+    --_acc-pressed-supporting: var(--tanrei-comp-accordion-plain-pressed-supporting-text-color);
+    --_acc-pressed-trailing: var(--tanrei-comp-accordion-plain-pressed-trailing-text-color);
+    --_acc-pressed-icon: var(--tanrei-comp-accordion-plain-pressed-icon-color);
+    --_acc-pressed-chevron: var(--tanrei-comp-accordion-plain-pressed-chevron-color);
+    --_acc-disabled-container: var(--tanrei-comp-accordion-plain-disabled-container-color);
+    --_acc-disabled-label: var(--tanrei-comp-accordion-plain-disabled-label-color);
+    --_acc-disabled-supporting: var(--tanrei-comp-accordion-plain-disabled-supporting-text-color);
+    --_acc-disabled-trailing: var(--tanrei-comp-accordion-plain-disabled-trailing-text-color);
+    --_acc-disabled-icon: var(--tanrei-comp-accordion-plain-disabled-icon-color);
+    --_acc-disabled-chevron: var(--tanrei-comp-accordion-plain-disabled-chevron-color);
+    /* ACC-2 to ACC-8: the density's sizes and text styles (ACC-34: any other density is the default's). */
+    --_acc-height: var(--tanrei-comp-accordion-container-height-regular);
+    --_acc-pad-block: var(--tanrei-comp-accordion-container-padding-block-regular);
+    --_acc-pad-inline: var(--tanrei-comp-accordion-container-padding-inline-regular);
+    --_acc-label-font: var(--tanrei-comp-accordion-label-typescale-regular-font);
+    --_acc-label-tracking: var(--tanrei-comp-accordion-label-typescale-regular-letter-spacing);
+    --_acc-supporting-font: var(--tanrei-comp-accordion-supporting-text-typescale-regular-font);
+    --_acc-supporting-tracking: var(--tanrei-comp-accordion-supporting-text-typescale-regular-letter-spacing);
+    --_acc-trailing-font: var(--tanrei-comp-accordion-trailing-text-typescale-regular-font);
+    --_acc-trailing-tracking: var(--tanrei-comp-accordion-trailing-text-typescale-regular-letter-spacing);
+    --_acc-icon-size: var(--tanrei-comp-accordion-icon-size-regular);
+    --_acc-chevron-size: var(--tanrei-comp-accordion-chevron-size-regular);
+    --_acc-content-end: var(--tanrei-comp-accordion-content-padding-block-end-regular);
+    /* ACC-10: the separation this accordion draws — its attribute's, else comp.accordion.separation's. */
+    --_acc-separation: var(--tanrei-comp-accordion-separation);
+    --_acc-line-color: var(--tanrei-comp-accordion-divider-color);
+    --_acc-edge-color: var(--tanrei-comp-accordion-outline-color);
+    /* ACC-28, ACC-31: start as a side, by the layout direction — not by a text's own. */
+    --_acc-start: left;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  /* ACC-35: no items — nothing is drawn, no space is taken. */
+  :where(tanrei-accordion[hidden], tanrei-accordion:not(:has(> details))) {
+    display: none;
+  }
+  :where(tanrei-accordion):dir(rtl) {
+    --_acc-start: right;
+  }
+  :where(tanrei-accordion[density='compact']) {
+    --_acc-height: var(--tanrei-comp-accordion-container-height-compact);
+    --_acc-pad-block: var(--tanrei-comp-accordion-container-padding-block-compact);
+    --_acc-pad-inline: var(--tanrei-comp-accordion-container-padding-inline-compact);
+    --_acc-label-font: var(--tanrei-comp-accordion-label-typescale-compact-font);
+    --_acc-label-tracking: var(--tanrei-comp-accordion-label-typescale-compact-letter-spacing);
+    --_acc-supporting-font: var(--tanrei-comp-accordion-supporting-text-typescale-compact-font);
+    --_acc-supporting-tracking: var(--tanrei-comp-accordion-supporting-text-typescale-compact-letter-spacing);
+    --_acc-trailing-font: var(--tanrei-comp-accordion-trailing-text-typescale-compact-font);
+    --_acc-trailing-tracking: var(--tanrei-comp-accordion-trailing-text-typescale-compact-letter-spacing);
+    --_acc-icon-size: var(--tanrei-comp-accordion-icon-size-compact);
+    --_acc-chevron-size: var(--tanrei-comp-accordion-chevron-size-compact);
+    --_acc-content-end: var(--tanrei-comp-accordion-content-padding-block-end-compact);
+  }
+  :where(tanrei-accordion[separation='divider']) {
+    --_acc-separation: divider;
+  }
+  :where(tanrei-accordion[separation='gap']) {
+    --_acc-separation: gap;
+  }
+
+  /* ── The outlined look (ACC-9): its colors (its edge is drawn by its items, below) ──────────────────────────── */
+  :where(tanrei-accordion[variant='outlined']) {
+    --_acc-container: var(--tanrei-comp-accordion-outlined-container-color);
+    --_acc-label: var(--tanrei-comp-accordion-outlined-label-color);
+    --_acc-supporting: var(--tanrei-comp-accordion-outlined-supporting-text-color);
+    --_acc-trailing: var(--tanrei-comp-accordion-outlined-trailing-text-color);
+    --_acc-icon: var(--tanrei-comp-accordion-outlined-icon-color);
+    --_acc-chevron: var(--tanrei-comp-accordion-outlined-chevron-color);
+    --_acc-hovered-container: var(--tanrei-comp-accordion-outlined-hovered-container-color);
+    --_acc-hovered-label: var(--tanrei-comp-accordion-outlined-hovered-label-color);
+    --_acc-hovered-supporting: var(--tanrei-comp-accordion-outlined-hovered-supporting-text-color);
+    --_acc-hovered-trailing: var(--tanrei-comp-accordion-outlined-hovered-trailing-text-color);
+    --_acc-hovered-icon: var(--tanrei-comp-accordion-outlined-hovered-icon-color);
+    --_acc-hovered-chevron: var(--tanrei-comp-accordion-outlined-hovered-chevron-color);
+    --_acc-focused-container: var(--tanrei-comp-accordion-outlined-focused-container-color);
+    --_acc-focused-label: var(--tanrei-comp-accordion-outlined-focused-label-color);
+    --_acc-focused-supporting: var(--tanrei-comp-accordion-outlined-focused-supporting-text-color);
+    --_acc-focused-trailing: var(--tanrei-comp-accordion-outlined-focused-trailing-text-color);
+    --_acc-focused-icon: var(--tanrei-comp-accordion-outlined-focused-icon-color);
+    --_acc-focused-chevron: var(--tanrei-comp-accordion-outlined-focused-chevron-color);
+    --_acc-pressed-container: var(--tanrei-comp-accordion-outlined-pressed-container-color);
+    --_acc-pressed-label: var(--tanrei-comp-accordion-outlined-pressed-label-color);
+    --_acc-pressed-supporting: var(--tanrei-comp-accordion-outlined-pressed-supporting-text-color);
+    --_acc-pressed-trailing: var(--tanrei-comp-accordion-outlined-pressed-trailing-text-color);
+    --_acc-pressed-icon: var(--tanrei-comp-accordion-outlined-pressed-icon-color);
+    --_acc-pressed-chevron: var(--tanrei-comp-accordion-outlined-pressed-chevron-color);
+    --_acc-disabled-container: var(--tanrei-comp-accordion-outlined-disabled-container-color);
+    --_acc-disabled-label: var(--tanrei-comp-accordion-outlined-disabled-label-color);
+    --_acc-disabled-supporting: var(--tanrei-comp-accordion-outlined-disabled-supporting-text-color);
+    --_acc-disabled-trailing: var(--tanrei-comp-accordion-outlined-disabled-trailing-text-color);
+    --_acc-disabled-icon: var(--tanrei-comp-accordion-outlined-disabled-icon-color);
+    --_acc-disabled-chevron: var(--tanrei-comp-accordion-outlined-disabled-chevron-color);
+  }
+
+  /* ── An item (ACC-2, ACC-7): a header and, while open, its content ──────────────────────────────────────────── */
+  :where(tanrei-accordion) > :where(details) {
+    --tanrei-corner-radius: 0px;
+    --tanrei-corner-pill: 0;
+    --_acc-open: 0;
+    /* ACC-10: the line above this item — none above the first. */
+    --_acc-line-width: 0px;
+    position: relative;
+    isolation: isolate;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    transition: --_acc-open var(--tanrei-comp-accordion-motion-disclosure-duration) var(--tanrei-comp-accordion-motion-disclosure-easing) allow-discrete;
+  }
+  :where(tanrei-accordion) > :where(details[open]) {
+    --_acc-open: 1;
+  }
+  /* ACC-10, divider: one line between two items that follow each other, over the item's first pixels, so that no
+     item is taller for it. (Its width is the item's own property: a line that is not drawn has no width — never a
+     transparent one, which forced colors would paint — and what a style query changes is the item, not this.) */
+  :where(tanrei-accordion) > :where(details ~ details) {
+    --_acc-line-width: var(--tanrei-comp-accordion-divider-thickness);
+  }
+  :where(tanrei-accordion) > :where(details)::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset-inline: 0;
+    inset-block-start: 0;
+    border-block-start: var(--_acc-line-width) solid var(--_acc-line-color);
+    pointer-events: none;
+  }
+
+  /* ── The outlined look's edge (ACC-9): one hairline around the set, to whose corners everything is cut ──────── */
+  /* Each item draws its part of it: the two sides, the top where it is the first and the bottom where it is the
+     last, with the set's corners there. Where the items stand apart (below) every item draws all of it. */
+  :where(tanrei-accordion[variant='outlined']) > :where(details) {
+    --tanrei-corner-radius: var(--tanrei-comp-accordion-outline-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-accordion-outline-shape-pill, 0);
+    --_acc-edge: var(--tanrei-comp-accordion-outline-width);
+    --_acc-edge-start: 0px;
+    --_acc-edge-end: 0px;
+    /* The set's corner, as this item's header follows it where the header lies in one (ACC-18: the focus ring is the
+       header's, and is not cut by the edge). */
+    --_acc-corner: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+    --_acc-corner-start: 0px;
+    --_acc-corner-end: 0px;
+    overflow: clip;
+  }
+  :where(tanrei-accordion[variant='outlined']) > :where(details:first-of-type) {
+    --_acc-edge-start: var(--_acc-edge);
+    --_acc-corner-start: var(--_acc-corner);
+  }
+  :where(tanrei-accordion[variant='outlined']) > :where(details:last-of-type) {
+    --_acc-edge-end: var(--_acc-edge);
+    --_acc-corner-end: var(--_acc-corner);
+  }
+  :where(tanrei-accordion[variant='outlined']) > :where(details:not(:first-of-type)) {
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
+  }
+  :where(tanrei-accordion[variant='outlined']) > :where(details:not(:last-of-type)) {
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+  :where(tanrei-accordion[variant='outlined']) > :where(details)::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border: 0 solid var(--_acc-edge-color);
+    border-inline-width: var(--_acc-edge);
+    border-block-start-width: var(--_acc-edge-start);
+    border-block-end-width: var(--_acc-edge-end);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* ── Separation: gap (ACC-10) — by a style query, and by the element where the browser has none ─────────────── */
+  @container style(--_acc-separation: gap) {
+    :where(tanrei-accordion) > :where(details ~ details) {
+      --_acc-line-width: 0px;
+      margin-block-start: var(--tanrei-comp-accordion-item-gap);
+    }
+    :where(tanrei-accordion[variant='outlined']) > :where(details) {
+      --_acc-edge-start: var(--_acc-edge);
+      --_acc-edge-end: var(--_acc-edge);
+      --_acc-corner-start: var(--_acc-corner);
+      --_acc-corner-end: var(--_acc-corner);
+      border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+    }
+  }
+  :where(tanrei-accordion[data-separation='gap']) > :where(details ~ details) {
+    --_acc-line-width: 0px;
+    margin-block-start: var(--tanrei-comp-accordion-item-gap);
+  }
+  :where(tanrei-accordion[data-separation='gap'][variant='outlined']) > :where(details) {
+    --_acc-edge-start: var(--_acc-edge);
+    --_acc-edge-end: var(--_acc-edge);
+    --_acc-corner-start: var(--_acc-corner);
+    --_acc-corner-end: var(--_acc-corner);
+    border-radius: calc(var(--tanrei-corner-radius) * var(--_corner-scale));
+  }
+
+  /* ── The header (ACC-2): one row, at least the density's height and the minimum target (ACC-19) ─────────────── */
+  :where(tanrei-accordion) > :where(details) > :where(summary) {
+    --_acc-now-container: var(--_acc-container);
+    --_acc-now-label: var(--_acc-label);
+    --_acc-now-supporting: var(--_acc-supporting);
+    --_acc-now-trailing: var(--_acc-trailing);
+    --_acc-now-icon: var(--_acc-icon);
+    --_acc-now-chevron: var(--_acc-chevron);
+    --_acc-target: var(--tanrei-sys-target-pointer);
+    --tanrei-corner-radius: var(--tanrei-comp-accordion-container-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-accordion-container-shape-pill, 0);
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: [text] minmax(0, 1fr) [chevron] auto;
+    column-gap: var(--tanrei-comp-accordion-container-gap);
+    align-content: center;
+    align-items: start;
+    box-sizing: border-box;
+    min-block-size: max(var(--_acc-height), var(--_acc-target));
+    margin: 0;
+    padding-block: var(--_acc-pad-block);
+    padding-inline: var(--_acc-pad-inline);
+    list-style: none;
+    /* ACC-3: the label's text style and color; it wraps and is never cut. */
+    font: var(--_acc-label-font);
+    letter-spacing: var(--_acc-label-tracking);
+    color: var(--_acc-now-label);
+    text-align: var(--_acc-start);
+    overflow-wrap: break-word;
+    background-color: var(--_acc-now-container);
+    /* The hold of a press that no script answers (ACC-21). While the header is held down, and for press-hold after,
+       the pressed container is drawn as a layer of its own — an image of that one color — and the state's color
+       under it is not drawn: the pressed color stands in the state's place, as it does with the script. Both are
+       said by two names that only a press changes; each steps back after press-hold, and the two properties that
+       read them have no transition, so they follow the names frame by frame. The background's COLOR is never part
+       of the hold: it would start its own transition when the press ends, toward the value it has without the hold,
+       and fade the pressed color while it is being held. The second layer is there for its clip alone:
+       a background's color is clipped as its last layer is, and `text` leaves it behind the header's own glyphs. */
+    --_acc-held-image: none;
+    --_acc-held-clip: border-box;
+    background-image: var(--_acc-held-image);
+    background-clip: var(--_acc-held-clip);
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    /* (The hold stands first: its delay is where the script reads sys.motion.duration.press-hold as a time.) */
+    transition:
+      --_acc-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+      --_acc-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold),
+      background-color var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing),
+      color var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing),
+      opacity var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing);
+    transition-behavior: allow-discrete;
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-accordion) > :where(details) > :where(summary) {
+      --_acc-target: var(--tanrei-sys-target-touch);
+    }
+  }
+  /* A header that lies in a corner of the outlined look's edge has that corner, where it is rounder than its own:
+     the top corners of the item's, and the bottom ones while the item is closed. */
+  :where(tanrei-accordion[variant='outlined']) > :where(details) > :where(summary) {
+    border-start-start-radius: max(calc(var(--tanrei-corner-radius) * var(--_corner-scale)), var(--_acc-corner-start));
+    border-start-end-radius: max(calc(var(--tanrei-corner-radius) * var(--_corner-scale)), var(--_acc-corner-start));
+  }
+  :where(tanrei-accordion[variant='outlined']) > :where(details:not([open])) > :where(summary) {
+    border-end-start-radius: max(calc(var(--tanrei-corner-radius) * var(--_corner-scale)), var(--_acc-corner-end));
+    border-end-end-radius: max(calc(var(--tanrei-corner-radius) * var(--_corner-scale)), var(--_acc-corner-end));
+  }
+  /* The browser's own marker is not drawn: the chevron is the mark. */
+  :where(tanrei-accordion) > :where(details) > :where(summary)::-webkit-details-marker {
+    display: none;
+  }
+  :where(tanrei-accordion) > :where(details) > :where(summary)::marker {
+    content: '';
+  }
+  /* The columns a header has: an icon's and a trailing text's only where it has one (no room is kept for either). */
+  :where(tanrei-accordion) > :where(details) > :where(summary:has(> .tanrei-icon)) {
+    grid-template-columns: [icon] auto [text] minmax(0, 1fr) [chevron] auto;
+  }
+  /* ACC-4: the trailing text's column is as wide as its text and never more than half of the width the header's
+     other parts leave, so that the label keeps at least as much as it takes. */
+  :where(tanrei-accordion) > :where(details) > :where(summary:has(> [data-trailing-text])) {
+    grid-template-columns: [text] minmax(0, 1fr) [trailing] fit-content(calc((100% - var(--_acc-chevron-size) - var(--tanrei-comp-accordion-container-gap) * 2) / 2)) [chevron] auto;
+  }
+  :where(tanrei-accordion) > :where(details) > :where(summary:has(> .tanrei-icon):has(> [data-trailing-text])) {
+    grid-template-columns:
+      [icon] auto [text] minmax(0, 1fr) [trailing] fit-content(calc((100% - var(--_acc-icon-size) - var(--_acc-chevron-size) - var(--tanrei-comp-accordion-container-gap) * 3) / 2))
+      [chevron] auto;
+  }
+
+  /* ACC-3: the product's own label — a heading, or a span around inline content — in the label's place, style and
+     color; its role and its level are its own. ACC-31: text of its own direction. */
+  :where(tanrei-accordion) > :where(details) > :where(summary) > :where(:not(.tanrei-icon, [data-supporting-text], [data-trailing-text], .ripple)) {
+    grid-column: text;
+    grid-row: 1;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    text-align: inherit;
+    unicode-bidi: plaintext;
+  }
+  /* ACC-4: the supporting text, under the label; it wraps. */
+  :where(tanrei-accordion) > :where(details) > :where(summary) > :where([data-supporting-text]) {
+    grid-column: text;
+    grid-row: 2;
+    min-inline-size: 0;
+    font: var(--_acc-supporting-font);
+    letter-spacing: var(--_acc-supporting-tracking);
+    color: var(--_acc-now-supporting);
+    text-align: var(--_acc-start);
+    unicode-bidi: plaintext;
+    transition: color var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing);
+  }
+  /* ACC-4: the trailing text, one line on the label's first line, cut with an ellipsis where its column ends. */
+  :where(tanrei-accordion) > :where(details) > :where(summary) > :where([data-trailing-text]) {
+    grid-column: trailing;
+    grid-row: 1;
+    min-inline-size: 0;
+    overflow: hidden;
+    font: var(--_acc-trailing-font);
+    /* One line, as tall as the label's (the summary's `1lh`, which the unit means here): its text stands in the
+       middle of the label's first line, as a line of its own height moved down by half the difference did. */
+    line-height: 1lh;
+    letter-spacing: var(--_acc-trailing-tracking);
+    color: var(--_acc-now-trailing);
+    text-align: var(--_acc-start);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    unicode-bidi: plaintext;
+    transition: color var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing);
+  }
+  /* ACC-5: the icon — a glyph of icons.css in the density's box, on the label's first line, outlined whatever an
+     ancestor says of a selection. (The glyph's declarations, and its mirroring, are icons.css's: ACC-30.) */
+  :where(tanrei-accordion) > :where(details) > :where(summary) > .tanrei-icon.tanrei-icon {
+    --_size: var(--_acc-icon-size);
+    --_fill: var(--tanrei-sys-icon-fill-unselected);
+    --_family: var(--tanrei-sys-icon-family-unselected);
+    grid-column: icon;
+    grid-row: 1;
+    /* The label's line is this box's `1lh` (said in `line-height`, where the unit is the summary's line); the glyph's
+       one line, that tall, is centred on its box. */
+    display: flex;
+    align-items: center;
+    line-height: 1lh;
+    margin-block-start: calc((1lh - var(--_acc-icon-size)) / 2);
+    color: var(--_acc-now-icon);
+    vertical-align: baseline;
+  }
+  /* ACC-6: the chevron — expand_more at the end, turned half a turn while the item is open. Decorative: the state
+     is the summary's own. (The glyph's declarations are icons.css's; it is not drawn where icons.css is not loaded.) */
+  :where(tanrei-accordion) > :where(details) > :where(summary)::after {
+    content: 'expand_more';
+    content: 'expand_more' / '';
+    grid-column: chevron;
+    grid-row: 1;
+    /* (As the icon: a flex box whose one line is the label's line high, centred on a box the size of the glyph.) */
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    inline-size: var(--_acc-chevron-size);
+    block-size: var(--_acc-chevron-size);
+    margin-block-start: calc((1lh - var(--_acc-chevron-size)) / 2);
+    font-family: var(--tanrei-sys-icon-family-unselected);
+    font-size: var(--_acc-chevron-size);
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1lh;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    color: var(--_acc-now-chevron);
+    pointer-events: none;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    font-optical-sizing: auto;
+    font-variation-settings:
+      'FILL' var(--tanrei-sys-icon-fill-unselected),
+      'wght' var(--tanrei-sys-icon-weight),
+      'GRAD' 0;
+    opacity: var(--tanrei-icons, 0);
+    transition:
+      rotate var(--tanrei-comp-accordion-motion-disclosure-duration) var(--tanrei-comp-accordion-motion-disclosure-easing),
+      color var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing);
+  }
+  /* The optical size is the box's, written by hand where the engine can turn the box's size into a number: the
+     arithmetic and the condition are src/styles/icons.ts's, written in place by the build (writeGlyphAxes). */
+  @supports glyph-optical-size {
+    :where(tanrei-accordion) > :where(details) > :where(summary)::after {
+      font-variation-settings: glyph-axes(var(--_acc-chevron-size));
+    }
+  }
+  :where(tanrei-accordion) > :where(details[open]) > :where(summary)::after {
+    rotate: 0.5turn;
+  }
+  /* ACC-33: while the icon set cannot draw a glyph, none is drawn and every box is kept. */
+  :where(tanrei-accordion[data-glyphs='pending']) > :where(details) > :where(summary)::after,
+  :where(tanrei-accordion[data-glyphs='pending']) > :where(details) > :where(summary) > :where(.tanrei-icon) {
+    visibility: hidden;
+  }
+
+  /* ── The content (ACC-8): inset to the header's first part, nothing above it, the density's space under it ──── */
+  @supports selector(::details-content) {
+    :where(tanrei-accordion) > :where(details)::details-content {
+      box-sizing: border-box;
+      block-size: 0;
+      padding-inline: var(--_acc-pad-inline);
+      padding-block-end: 0;
+      /* ACC-13: closed, and while it closes, it is out of the focus order and of assistive technology at once. */
+      interactivity: inert;
+      overflow: clip;
+    }
+    :where(tanrei-accordion) > :where(details[open])::details-content {
+      /* (Without `calc-size()` the declaration is not valid where --_acc-size is not set, and the height is auto.) */
+      block-size: var(--_acc-size, calc-size(auto, size));
+      padding-block-end: var(--_acc-content-end);
+      interactivity: auto;
+      overflow: visible;
+    }
+    /* ACC-13, in CSS, where the browser can move a height to `auto`: the content is laid out once, at its size, and
+       only how much of it is seen changes. It stays drawn while it closes (content-visibility is held to the end),
+       clipped from the first frame of closing (step-start) to the last frame of opening (step-end). */
+    @supports (block-size: calc-size(auto, size)) {
+      :where(tanrei-accordion) > :where(details)::details-content {
+        transition:
+          block-size var(--tanrei-comp-accordion-motion-disclosure-duration) var(--tanrei-comp-accordion-motion-disclosure-easing),
+          padding-block-end var(--tanrei-comp-accordion-motion-disclosure-duration) var(--tanrei-comp-accordion-motion-disclosure-easing),
+          content-visibility var(--tanrei-comp-accordion-motion-disclosure-duration) allow-discrete,
+          overflow var(--tanrei-comp-accordion-motion-disclosure-duration) step-start allow-discrete;
+      }
+      :where(tanrei-accordion) > :where(details[open])::details-content {
+        transition:
+          block-size var(--tanrei-comp-accordion-motion-disclosure-duration) var(--tanrei-comp-accordion-motion-disclosure-easing),
+          padding-block-end var(--tanrei-comp-accordion-motion-disclosure-duration) var(--tanrei-comp-accordion-motion-disclosure-easing),
+          content-visibility var(--tanrei-comp-accordion-motion-disclosure-duration) allow-discrete,
+          overflow var(--tanrei-comp-accordion-motion-disclosure-duration) step-end allow-discrete;
+      }
+    }
+    /* ACC-13, by the element, elsewhere: four poses. `measure` shows the content at its size, once, to be read;
+       `opening-from` is the closed box of an item that is open; `opening` and `closing` move between 0 and
+       --_acc-size, the content drawn and clipped throughout. */
+    :where(tanrei-accordion) > :where(details[data-tanrei-moving='measure'])::details-content {
+      block-size: var(--_acc-size, auto);
+      padding-block-end: var(--_acc-content-end);
+      content-visibility: visible;
+      overflow: clip;
+    }
+    :where(tanrei-accordion) > :where(details[data-tanrei-moving='opening-from'])::details-content {
+      block-size: 0;
+      padding-block-end: 0;
+      overflow: clip;
+    }
+    :where(tanrei-accordion) > :where(details[data-tanrei-moving='opening'])::details-content,
+    :where(tanrei-accordion) > :where(details[data-tanrei-moving='closing'])::details-content {
+      content-visibility: visible;
+      overflow: clip;
+      transition:
+        block-size var(--tanrei-comp-accordion-motion-disclosure-duration) var(--tanrei-comp-accordion-motion-disclosure-easing),
+        padding-block-end var(--tanrei-comp-accordion-motion-disclosure-duration) var(--tanrei-comp-accordion-motion-disclosure-easing);
+    }
+  }
+  /* A browser without `::details-content`: the inset is the item's own padding, with the header pulled back out. */
+  @supports not selector(::details-content) {
+    :where(tanrei-accordion) > :where(details) {
+      padding-inline: var(--_acc-pad-inline);
+    }
+    :where(tanrei-accordion) > :where(details[open]) {
+      padding-block-end: var(--_acc-content-end);
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary) {
+      margin-inline: calc(var(--_acc-pad-inline) * -1);
+    }
+  }
+
+  /* ── States (ACC-17): pressed over focused over hovered, each from its own tokens ───────────────────────────── */
+  @media (hover: hover) {
+    :where(tanrei-accordion) > :where(details) > :where(summary:hover) {
+      --_acc-now-container: var(--_acc-hovered-container);
+      --_acc-now-label: var(--_acc-hovered-label);
+      --_acc-now-supporting: var(--_acc-hovered-supporting);
+      --_acc-now-trailing: var(--_acc-hovered-trailing);
+      --_acc-now-icon: var(--_acc-hovered-icon);
+      --_acc-now-chevron: var(--_acc-hovered-chevron);
+      opacity: var(--tanrei-comp-accordion-hovered-opacity);
+    }
+  }
+  /* ACC-18: the focus indicator, inside the header's row, so that nothing around it cuts it; never animated, never
+     for a pointer. The outer stroke on the row's edge, the inner stroke (where the system has one) within it. */
+  :where(tanrei-accordion) > :where(details) > :where(summary:focus-visible) {
+    --_acc-now-container: var(--_acc-focused-container);
+    --_acc-now-label: var(--_acc-focused-label);
+    --_acc-now-supporting: var(--_acc-focused-supporting);
+    --_acc-now-trailing: var(--_acc-focused-trailing);
+    --_acc-now-icon: var(--_acc-focused-icon);
+    --_acc-now-chevron: var(--_acc-focused-chevron);
+    opacity: var(--tanrei-comp-accordion-focused-opacity);
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: calc(var(--tanrei-sys-focus-outer-width) * -1);
+  }
+  :where(tanrei-accordion) > :where(details) > :where(summary:focus-visible)::before {
+    content: '';
+    position: absolute;
+    inset: var(--tanrei-sys-focus-outer-width);
+    border: var(--tanrei-sys-focus-inner-width) solid var(--tanrei-sys-color-focus-ring-inner);
+    border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--tanrei-sys-focus-outer-width)));
+    pointer-events: none;
+  }
+  /* ACC-23, focus-style: glow — the same two colors as a halo inside the row; read by a style query, and from
+     data-focus-style (written by the element when focus arrives) where there are none. */
+  @container style(--tanrei-sys-behavior-focus-style: glow) {
+    :where(tanrei-accordion) > :where(details) > :where(summary:focus-visible) {
+      /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
+      outline-color: transparent;
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary:focus-visible)::before {
+      --_acc-glow-inset: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
+      inset: var(--_acc-glow-inset);
+      border: 0;
+      border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--_acc-glow-inset)));
+      box-shadow:
+        0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+        0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+    }
+  }
+  :where(tanrei-accordion) > :where(details) > :where(summary[data-focus-style='glow']:focus-visible) {
+    /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
+    outline-color: transparent;
+  }
+  :where(tanrei-accordion) > :where(details) > :where(summary[data-focus-style='glow']:focus-visible)::before {
+    --_acc-glow-inset: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
+    inset: var(--_acc-glow-inset);
+    border: 0;
+    border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--_acc-glow-inset)));
+    box-shadow:
+      0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+      0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+  }
+  /* ACC-21, without script: the overlay at once, and the two names keep the container for press-hold after. */
+  :where(tanrei-accordion) > :where(details) > :where(summary:active:not([data-pressed])) {
+    --_acc-held-image: linear-gradient(var(--_acc-pressed-container), var(--_acc-pressed-container)), none;
+    --_acc-held-clip: border-box, text;
+    --_acc-now-label: var(--_acc-pressed-label);
+    --_acc-now-supporting: var(--_acc-pressed-supporting);
+    --_acc-now-trailing: var(--_acc-pressed-trailing);
+    --_acc-now-icon: var(--_acc-pressed-icon);
+    --_acc-now-chevron: var(--_acc-pressed-chevron);
+    opacity: var(--tanrei-comp-accordion-pressed-opacity);
+    transition-duration: 0s;
+    transition-delay: 0s;
+  }
+  /* ACC-21, ACC-22, with the script: `data-pressed` names the feedback. `none` changes nothing at all. */
+  :where(tanrei-accordion) > :where(details) > :where(summary[data-pressed]:not([data-pressed='none'])) {
+    transition-duration: 0s;
+  }
+  :where(tanrei-accordion) > :where(details) > :where(summary[data-pressed='overlay']) {
+    --_acc-now-container: var(--_acc-pressed-container);
+    --_acc-now-label: var(--_acc-pressed-label);
+    --_acc-now-supporting: var(--_acc-pressed-supporting);
+    --_acc-now-trailing: var(--_acc-pressed-trailing);
+    --_acc-now-icon: var(--_acc-pressed-icon);
+    --_acc-now-chevron: var(--_acc-pressed-chevron);
+    opacity: var(--tanrei-comp-accordion-pressed-opacity);
+  }
+  /* ripple, dim: everything but the container color, which stays with the state under the press. */
+  :where(tanrei-accordion) > :where(details) > :where(summary[data-pressed='ripple'], summary[data-pressed='dim']) {
+    --_acc-now-label: var(--_acc-pressed-label);
+    --_acc-now-supporting: var(--_acc-pressed-supporting);
+    --_acc-now-trailing: var(--_acc-pressed-trailing);
+    --_acc-now-icon: var(--_acc-pressed-icon);
+    --_acc-now-chevron: var(--_acc-pressed-chevron);
+    opacity: var(--tanrei-comp-accordion-pressed-opacity);
+  }
+  /* The ripple's layer (src/primitives/ripple.ts adds it and sets --_x, --_y, --_r): the pressed container color,
+     clipped to the container and to a circle around the point of contact, under the header's parts. */
+  :where(tanrei-accordion) > :where(details) > :where(summary) > :where(.ripple) {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    background: var(--_acc-pressed-container);
+    pointer-events: none;
+    clip-path: circle(var(--_r) at var(--_x) var(--_y));
+    animation: tanrei-accordion-ripple var(--tanrei-comp-accordion-motion-feedback-duration) var(--tanrei-comp-accordion-motion-state-easing) both;
+    transition: opacity var(--tanrei-comp-accordion-motion-state-duration) var(--tanrei-comp-accordion-motion-state-easing);
+  }
+  :where(tanrei-accordion) > :where(details) > :where(summary) > :where(.ripple.leaving) {
+    opacity: 0;
+  }
+  @keyframes tanrei-accordion-ripple {
+    from {
+      clip-path: circle(0 at var(--_x) var(--_y));
+    }
+  }
+
+  /* ── Disabled (ACC-20): `<summary aria-disabled="true" tabindex="-1">` — its look, and no pointer ───────────── */
+  :where(tanrei-accordion) > :where(details) > :where(summary[aria-disabled='true']) {
+    --_acc-now-container: var(--_acc-disabled-container);
+    --_acc-now-label: var(--_acc-disabled-label);
+    --_acc-now-supporting: var(--_acc-disabled-supporting);
+    --_acc-now-trailing: var(--_acc-disabled-trailing);
+    --_acc-now-icon: var(--_acc-disabled-icon);
+    --_acc-now-chevron: var(--_acc-disabled-chevron);
+    opacity: var(--tanrei-comp-accordion-disabled-opacity);
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* ── Drawn at once (ACC-12, ACC-16), and where motion is reduced (ACC-13) ───────────────────────────────────── */
+  :where(tanrei-accordion) > :where(details[data-tanrei-at-once]),
+  :where(tanrei-accordion) > :where(details[data-tanrei-at-once])::details-content,
+  :where(tanrei-accordion) > :where(details[data-tanrei-at-once]) > :where(summary)::after {
+    transition: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :where(tanrei-accordion) > :where(details),
+    :where(tanrei-accordion) > :where(details)::details-content,
+    :where(tanrei-accordion) > :where(details[data-tanrei-moving])::details-content,
+    :where(tanrei-accordion) > :where(details) > :where(summary)::after {
+      transition: none;
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary) {
+      transition:
+        --_acc-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+        --_acc-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold);
+      transition-behavior: allow-discrete;
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary) > :where([data-supporting-text], [data-trailing-text]) {
+      transition: none;
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary) > :where(.ripple) {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  /* ── Forced colors (ACC-27): the edge and the lines in the text color, a disabled header in the disabled text's,
+     hover and press in a button's, focus in the highlight ────────────────────────────────────────────────────── */
+  @media (forced-colors: active) {
+    :where(tanrei-accordion) {
+      --_acc-line-color: CanvasText;
+      --_acc-edge-color: CanvasText;
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary) {
+      --_acc-forced: CanvasText;
+      color: var(--_acc-forced);
+      /* A press is the platform's button face (below): no layer of the header's own. */
+      background-image: none;
+      background-clip: border-box;
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary) > :where([data-supporting-text], [data-trailing-text]),
+    :where(tanrei-accordion) > :where(details) > :where(summary) > .tanrei-icon.tanrei-icon,
+    :where(tanrei-accordion) > :where(details) > :where(summary)::after {
+      color: var(--_acc-forced);
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary:hover),
+    :where(tanrei-accordion) > :where(details) > :where(summary:active),
+    :where(tanrei-accordion) > :where(details) > :where(summary[data-pressed]:not([data-pressed='none'])) {
+      --_acc-forced: ButtonText;
+      background-color: ButtonFace;
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary[aria-disabled='true']) {
+      --_acc-forced: GrayText;
+    }
+    :where(tanrei-accordion) > :where(details) > :where(summary:focus-visible) {
+      outline-color: Highlight;
+    }
+  }
+}

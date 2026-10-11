@@ -1,0 +1,90 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Compose",
+    "accessibilityRole": "button",
+    "accessibilityState": {
+      "disabled": true
+    },
+    "accessibilityValue": {},
+    "accessible": true,
+    "collapsable": false,
+    "focusable": false,
+    "hitSlop": {
+      "bottom": 0,
+      "left": 0,
+      "right": 0,
+      "top": 0
+    },
+    "style": {
+      "alignItems": "center",
+      "alignSelf": "flex-start",
+      "backgroundColor": "rgba(27, 27, 27, 0.12)",
+      "borderRadius": 12,
+      "flexDirection": "row",
+      "gap": 8,
+      "justifyContent": "center",
+      "minHeight": 48,
+      "opacity": 1,
+      "paddingEnd": 20,
+      "paddingStart": 16,
+      "paddingVertical": 6
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessibilityElementsHidden": true,
+        "accessible": false,
+        "importantForAccessibility": "no-hide-descendants",
+        "style": {
+          "alignItems": "center",
+          "height": 24,
+          "justifyContent": "center",
+          "width": 24
+        }
+      },
+      "children": [
+        {
+          "type": "Text",
+          "props": {
+            "allowFontScaling": false,
+            "collapsable": false,
+            "style": {
+              "color": "rgba(27, 27, 27, 0.38)",
+              "fontFamily": "Material Symbols Rounded",
+              "fontSize": 24,
+              "fontWeight": "300",
+              "lineHeight": 24,
+              "textAlign": "center"
+            }
+          },
+          "children": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Text",
+      "props": {
+        "allowFontScaling": true,
+        "collapsable": false,
+        "style": {
+          "color": "rgba(27, 27, 27, 0.38)",
+          "flexShrink": 1,
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "500",
+          "letterSpacing": 0,
+          "lineHeight": 20,
+          "textAlign": "center"
+        }
+      },
+      "children": [
+        "Compose"
+      ]
+    }
+  ]
+}

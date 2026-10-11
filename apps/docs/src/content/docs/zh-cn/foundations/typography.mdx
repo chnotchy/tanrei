@@ -1,0 +1,177 @@
+---
+title: "字体排印"
+description: "十六种按层级命名的文本样式——一种 display、六级标题、三种正文尺寸、标签、代码和一个眉标——以 Inter 排印；强调是字重上的一个级差，而不是一个角色。"
+translationOf: foundations/typography.mdx
+sourceHash: 38d922451dfd9cd1a80258e6c8a1dde715285f89
+---
+
+import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Tanrei 的文本样式按一段文字在页面中的**层级**命名，而不是按尺寸档位命名。一共十六个角色：一个 `display`，`heading-1` 到 `heading-6`，三种尺寸的连续文本，三个用于控件内部和周围文字的角色，两个用于代码的角色，以及一个 `eyebrow`。`h2` 就是 `heading-2`；段落就是 `body`；按钮上的文字就是 `label`。谁也不必去记表格标题是三个 14 像素角色中的哪一个。
+
+一个角色就是一套完整的文字样式：字体族、字号、字重、行高和字距。组件绑定的是角色，从不是具体的字号；[层](/zh-cn/foundations/design-systems/)可以为角色重新赋值，而不必给它改名。
+
+## 十六个角色
+
+| 角色 | 默认值 | 用途 |
+| --- | --- | --- |
+| `display` | 48px · 450 · 品牌字体 | 唯一的主视觉字号：落地页上的主张、启动画面。不是标题层级。 |
+| `heading-1` | 32px · 500 · 品牌字体 | `h1`，页面的标题。 |
+| `heading-2` | 24px · 500 · 品牌字体 | `h2`，一个章节。 |
+| `heading-3` | 20px · 500 · 品牌字体 | `h3`，一个小节。 |
+| `heading-4` | 18px · 500 | `h4`，章节内的一个分组。 |
+| `heading-5` | 16px · 500 | `h5`，以及卡片、对话框或列表项的标题。 |
+| `heading-6` | 14px · 500 | `h6`，以及表格或表单分区的标题。 |
+| `body-large` | 16px · 400 | 导语和长篇阅读。 |
+| `body` | 14px · 400 | `p`：界面的默认文本。 |
+| `body-small` | 13px · 400 | `small`：次要文本，小一级。 |
+| `label` | 14px · 500 | 控件内部和旁边的文字：按钮、输入框、导航。 |
+| `label-small` | 12px · 500 | 纸片、徽标、紧凑的控件。 |
+| `caption` | 11px · 500 | 帮助文本、元数据、时间戳。 |
+| `code` | 13px · 400 · 等宽 | `code` 和 `pre`。 |
+| `code-small` | 12px · 400 · 等宽 | 紧凑界面中的代码。 |
+| `eyebrow` | 12px · 500 · 加宽字距 | 标题上方的章节引题，由组件转为大写。 |
+
+每个系列的字号都严格单调：没有哪一级标题比下一级标题小，也没有哪个正文角色比下一个正文角色小。标题角色和正文角色字号相同时——`heading-6` 和 `body` 都是 14px，`heading-5` 和 `body-large` 都是 16px——默认系统的规则只有一句话：**标题字重 500，正文字重 400。** 预设会设置自己的字重（`m3-like` 的 `heading-1` 是 Material 的 400）。
+
+按文字所处的层级来选，而不是按你想要的字号来选。必须显得小一些的 `h2` 仍然是 `heading-2`；想要更小的章节标题的产品，在自己的层里为 `heading-2` 重新赋值，所有 `h2` 都会跟着变。
+
+### HTML 和 Markdown 元素 → 角色
+
+| 元素 | 角色 |
+| --- | --- |
+| `h1` … `h6` | `heading-1` … `heading-6` |
+| `p`、`li`、`td` | `body`（在以阅读尺寸排印的长文排版中是 `body-large`） |
+| 导语段落 | `body-large` |
+| `small` | `body-small` |
+| `code`、`pre` | `code` |
+| `strong`、`b` | 它所在的角色，采用强调字重 |
+| `button`、`input`、`label` | `label` |
+| 标题上方的引题 | `eyebrow` |
+
+在 Web 上，`@tanrei/web/text.css` 为每个角色提供一个工具类 `.tanrei-text-<role>`，一次设置该角色的全部五个字段；在同一元素或其后代上加 `.tanrei-text-emphasized`，则切换为强调字重。它读取当前启用的系统的自定义属性，所以会跟随 `data-tanrei-system`、调节量以及重新赋值的角色。
+
+```html
+<h2 class="tanrei-text-heading-2">章节</h2>
+<p class="tanrei-text-body">带有<strong class="tanrei-text-emphasized">强调</strong>的连续文本。</p>
+```
+
+### 长文排版（Prose）：不由你逐块布局的文本
+
+帮助文章、发布说明、条款、用 Markdown 写的消息、来自 CMS 的页面：产品不会一块一块地安放这些文本，而它们仍然要和界面的其余部分读起来像同一份文本。**长文排版**就是系统中负责这件事的部分——把上面的对照表应用到渲染器产出的任何内容上，采用统一的纵向节奏，并限制行长。它只管样式和间距，不做解析。Tanrei 在任何平台上都不提供 Markdown 解析器。
+
+在 Web 上，它是 `@tanrei/web/prose.css` 中的一个类。本页就是用它绘制的。
+
+```html
+<article class="tanrei-prose">…h1, p, ul, blockquote, hr…</article>
+<article class="tanrei-prose" data-size="large">…</article>
+```
+
+- **两种尺寸。** `medium` 以 `body` 排印连续文本，用于控件之间的长文：面板、对话框、卡片。`large` 以 `body-large` 排印，用于以文本为目的的页面。两种尺寸下标题相同。
+- **相邻两块之间只有一段间距。** 块与块之间相隔一个间隙；标题前面的间距比后面的大，所以它属于后面的内容；紧跟在标题下面的标题，采用上面那个标题的间距。间距从不叠加，第一块和最后一块没有外侧间距。
+- **行长限制。** 文本块的宽度最多为连续文本的 36 em——大约 72 到 80 个拉丁字符，或 36 个日文字符。表格、代码块、图片或任何放在文本流中的组件占满整个宽度。容器本来就窄的地方，可以用 `data-measure="false"` 取消限制。
+- **不设文本颜色。** 长文排版采用它所在表面的内容颜色，所以同一段文本在页面上、卡片里和提示块里都能阅读。
+- **组件保持原样。** 在 Tanrei 元素内部、或在标有 `tanrei-not-prose` 的部分内部的内容，不由长文排版设置样式；长文排版只为它安排间距。
+- **链接在静止状态下带下划线**，这样就不会只靠颜色来区分链接和旁边的文本。
+- **语言。** 日文和中文按各自的规则换行；中文、日文和韩文中的强调以强调字重、直立字形呈现，因为这些文字没有斜体；它们的标题不采用拉丁文标题的负字距。方向取决于所在位置：从右到左的布局把列表缩进、引文的竖线和文本的边缘放在右侧。
+
+标题可以带一个锚点——一个指向它自己的链接，位于标题文字的末尾之后，在悬停于标题或聚焦到链接时显示，在没有悬停的环境中始终显示：
+
+```html
+<div class="tanrei-prose-heading">
+  <h2 id="install">安装</h2>
+  <a class="tanrei-prose-anchor" href="#install" aria-label="链接到：安装">…</a>
+</div>
+```
+
+每个取值都是一个 `comp.prose.*` 令牌，所以层可以重新指向这套节奏，而不必碰任何外边距。它的行为写在 `specs/prose.spec.json` 中；Web 最先实现，其他平台随后跟进。
+
+## 强调是字重，不是角色
+
+要在不改变层级的前提下突出文本——选中的标签页、一个关键数字、段落中的 `strong`——平台会以该角色的字重加上其所属系列的一个**级差**来绘制。四个级差都是令牌：
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />
+
+Tanrei 给每个系列都加 100，所以强调的 `heading-1` 是 600，强调的 `body` 是 500。各系列强调幅度不同的设计系统，分别设置这四个数：`m3-like` 给标签加 200，与 Material 的强调标签样式一致；`cupertino` 给标题、正文和标签加 200。角色所属的系列是其名称的第一段；`caption`、`code`、`code-small` 和 `eyebrow` 采用 label 的级差。
+
+每个平台都提供同一个修饰方式：文本样式 API 上的 `emphasized`（SwiftUI 中是 `.tanreiTextStyle(system.typescale.heading1, emphasized: true)`；Compose 中是 `typescale.heading1.emphasized()`，在组合之外则是 `emphasized(system.typescale.emphasis)`；Flutter 中是 `theme.textStyle(system.typescale.heading1, emphasized: true)`；React Native 中是来自 `useTanrei()` 的 `text('heading1', { emphasized: true })`；Web 上是 `--tanrei-sys-typescale-<role>-font-weight-emphasized` 和 `.tanrei-text-emphasized`）。没有需要另外命名的强调角色，也没有需要保持同步的第二套字阶。
+
+## 字体
+
+默认的字体族是用于拉丁文的 **Inter**、用于日文的 **Noto Sans JP** 和用于代码的 **Roboto Mono**，全部采用开放许可（SIL OFL 1.1 和 Apache-2.0）。字体栈之后依次是用于其他文字的 Noto Sans，再是系统界面字体，所以在字体没有加载的地方，文本也能平稳降级。支持更多文字的产品，在自己的层里把相应的 Noto 字体族——Noto Sans KR、SC、TC、Arabic、Devanagari、Thai——加入字体栈；对于中文、日文和韩文，还要在页面上设置 `lang`，因为这三种文字共用码位，字体的顺序决定了显示哪一种字形。Tanrei 不打包字体文件；[字体由产品提供](#按名称引用而不打包)。
+
+<TokenNotes tokens={['ref.typeface.brand', 'ref.typeface.plain', 'ref.typeface.mono']} source={['tokens/ref/typeface.tokens.json']} />
+
+## 每个设计系统的字体
+
+字体属于设计系统。各个角色建立在三个字体栈之上——`ref.typeface.brand` 用于 `display` 和 `heading-1` 到 `heading-3`，`plain` 用于较小的标题、连续文本、标签和眉标，`mono` 用于代码——[层](/zh-cn/foundations/design-systems/)只要给某个字体栈一个新的取值，就能在所有地方更换字体。各内置系统解析出的结果如下：
+
+<SystemValues tokens={['ref.typeface.brand', 'ref.typeface.plain', 'ref.typeface.mono']} />
+
+`m3-like` 就是这样把文本设为 Roboto 的：
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.brand": { "$value": ["Roboto", "system-ui", "sans-serif"], "reason": "Material Design 3 的默认字体；Roboto 采用 OFL 许可。" },
+  "tanrei.ref.typeface.plain": { "$value": ["Roboto", "system-ui", "sans-serif"], "reason": "Material Design 3 的默认字体；Roboto 采用 OFL 许可。" },
+  "tanrei.ref.typeface.mono":  { "$value": ["Roboto Mono", "ui-monospace", "monospace"], "reason": "与 Roboto 配套的等宽字体（OFL）。" }
+}
+```
+
+组件不受影响：它们绑定角色，而角色引用字体栈。
+
+### 字体栈如何解读
+
+字体栈按 CSS 的写法书写，因为这是每种设计工具都懂的形式。只有 Web 能原样使用它，所以构建会把每个字体栈解读一次，交给每个平台同样的四项信息：
+
+| 字段 | 含义 |
+|---|---|
+| `stack` | 原样的列表 |
+| `families` | **具名的**字体族，按顺序排列——也就是产品可以安装或注册的那些 |
+| `generic` | 回退时采用的字体类别：`sans-serif`、`serif` 或 `monospace` |
+| `system` | 当字体栈要求把平台自己的字体排在所有具名字体族之前时为 `true` |
+
+默认的 `brand` 字体栈 `Inter, Noto Sans JP, Noto Sans, system-ui, sans-serif` 解读为：字体族 Inter、Noto Sans JP 和 Noto Sans，generic 为 `sans-serif`，`system` 为 false——`system-ui` 排在具名字体族之后，所以它只是回退。`cupertino` 的字体栈以 `-apple-system` 开头，所以解读为 `system` 为 true，Inter 是唯一的具名字体族：平台自己的字体优先，在没有这个概念的平台上则用 Inter。
+
+平台按顺序使用具名字体族，然后使用自己的 `generic` 类别字体；`system` 为 true 时，它自己的字体排在最前。平台不会自行解释 `system-ui`、`ui-monospace` 或通用关键字。
+
+### 按名称引用而不打包
+
+Tanrei 不为任何设计系统提供字体文件。字体栈是一份名称列表，由产品为它想用的名称提供背后的字体。不存在的字体族会被跳过，所以文本仍然会以下一个字体族或平台字体渲染，角色的字号、字重、行高和字距保持不变。
+
+| 平台 | 产品如何提供具名字体族 |
+|---|---|
+| Web | 以完全相同的字体族名称加载它：你自己的 `@font-face`、Google Fonts，或者一个字体包。 |
+| SwiftUI | 把字体文件加入应用并注册（`UIAppFonts` / `ATSApplicationFontsPath`，或 `CTFontManagerRegisterFontsForURL`）。 |
+| Jetpack Compose | 把字体放进应用的字体资源，用 `TanreiFontFamilies` 把名称映射到它们，并传给 `TanreiTheme`。 |
+| Flutter | 在应用的 `pubspec.yaml` 中以相同的字体族名称声明字体文件。 |
+| React Native | 链接字体文件（`npx react-native-asset`，或 `expo-font`）。React Native 没有回退列表，并且按字重选取文件，所以当你的字体是按“每个字重一个名称”注册的时候，要向 `TanreiProvider` 传入 `resolveFont`。 |
+
+入门指南和各软件包的 README 中有详细说明。在随产品分发某款字体之前，请先核对它的许可：默认字体都采用开放许可，而 `cupertino` 只通过关键字或名称引用 Apple 的字体，因为这些字体不得打包，也不得在其他平台上使用；在别处它会回退到一款开放许可的字体。
+
+## 预设如何为字阶重新赋值并扩展它
+
+模仿另一个设计系统的预设保留这十六个名称，并给它们那个系统的取值；如果参照对象有核心没有命名的样式，预设就用一个自己的角色来**扩展**词汇。名称从不变动，所以基于 `tanrei` 构建的产品换到 `m3-like` 时，不必改动任何一个标题。
+
+- **`m3-like`** 按 Material Design 3 的字阶为每个角色重新赋值——`heading-1` 取 Material 的 headline large，`body` 取 body medium，`label` 取 label large——并添加了 `display-large`（57px）和 `display-small`（36px），因为 Material 有三种 display 尺寸，而一个产品只需要一种。它的强调级差就是 Material 的：display、标题和正文加 100，标签加 200。保真度测量工具会测量 Material 发布的每一种文本样式（包括强调样式在内共三十种），连同颜色角色和 Button 一起：在 288 个被测量的令牌中，273 个相等，14 个被另一个令牌覆盖，1 个在一条已登记的模仿差距之下列为未映射，没有一个不同——在[设计系统页面](/zh-cn/foundations/design-systems/)上显示为 273 / 274，那里不把被覆盖的令牌计算在内。这些数字读取自 `tokens/generated/m3-like/fidelity.json`，该文件由构建重写。
+- **`cupertino`** 按 Apple 的十一种 iOS 文本样式——从 Large Title 到 Caption 2——为每个角色重新赋值，并添加了核心没有命名的三种：`body-callout`、`body-subhead` 和 `caption-small`。它的强调级差是 display 加 100，其余加 200，这正是 Apple 的常规样式与强调样式之间的差距。
+
+预设添加的角色在每个平台上都是普通的令牌：`m3-like` 的 `display-large` 在 Web 上是 `--tanrei-sys-typescale-display-large-font`，在每个原生软件包中则是字阶的一个成员。Theme Studio 的预览会把它画在字阶预览里，与那十六个角色并列。
+
+## 性格
+
+- **display 和标题收得紧。** 大号文字采用负字距——`display` 为 −0.04em，`heading-1` 为 −0.03em，到 `heading-5` 逐渐放宽到 −0.01em——让大标题显得沉稳；字重 450 的 `display` 保持轻盈。
+- **小字号放得开。** `body-small`、`label-small`、`caption` 和 `eyebrow` 带有轻微的正字距，让 11–13px 的文字保持清晰可读。
+- **字重是数值。** Inter 是可变字体，所以 450 这样的字重是有效的，并在每个支持可变轴的平台上得到保留。强调级差之所以是数值，也是同样的原因：450 + 100 是一个真实存在的字重。
+- **等宽字体用于代码。** `code` 和 `code-small` 使用 Roboto Mono。`eyebrow` 以 plain 字体排印——字号小、字距宽，并由组件转为大写，而绝不是由令牌。
+
+## 语言
+
+行高的选取保证了拉丁文与中日韩文字混排时不会被裁切，日文沿用同样的角色。负字距是拉丁文字的手法；标题以日文为主时，最好采用中性字距，本站就是这样做的。
+
+## 缩放
+
+字号在 Web 上以相对单位（`rem`）表示，并在每个平台上随用户的文字大小设置缩放。布局必须能承受 200% 的文字：容器会变大，标签先换行，然后才截断。每个字号都是 `dial.type.base` 上的一个系数，并以 `dial.type.contrast` 为指数，所以一个调节量带动整套字阶，另一个把标题与正文拉开。
+
+在[字阶参考](/zh-cn/tokens/typescale/)中可以看到每个角色的实时样张。

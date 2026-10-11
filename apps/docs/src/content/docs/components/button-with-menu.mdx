@@ -1,0 +1,406 @@
+---
+title: Button with menu
+description: Performs a main action with one press, and offers related actions in a menu from a second, joined button beside it.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="button-with-menu" />
+
+:::note[Where the split button went]
+This component is not called a split button. "Split button" says how it looks, a button cut in two, and so does a connected [button group](/components/button-group/); what sets this component apart is the menu its second half reveals. Its behaviour ids carry the `SPB` prefix of that name.
+
+| Before | Now |
+| --- | --- |
+| Split button (`split-button`) | Button with menu (`button-with-menu`) |
+| `comp.split-button.*`, `--tanrei-comp-split-button-*` | `comp.button-with-menu.*`, `--tanrei-comp-button-with-menu-*` |
+| `<tanrei-split-button>`, `TanreiSplitButton` (web class) | `<tanrei-button-with-menu>`, `TanreiButtonWithMenu` |
+| `SplitButton` (React, React Native) | `ButtonWithMenu` |
+| `TanreiSplitButton` (SwiftUI, Compose, Flutter) | `TanreiButtonWithMenu` |
+
+Material 3 calls its counterpart a split button; in the m3-like presets the button with menu is that component.
+:::
+
+:::caution[The native platforms have not renamed it yet]
+The specification, the tokens, the web element (`<tanrei-button-with-menu>`) and the React wrapper (`ButtonWithMenu`) carry the name button with menu, and the web draws this revision. SwiftUI, Compose, Flutter and React Native still ship the previous revision under the name split button, so their code on this page uses `TanreiSplitButton` and `SplitButton`; it changes when each platform renames the component.
+
+This revision brings the following, which only the web draws so far:
+
+- The two halves are joined by a divider line or by a gap. The design system chooses once for every component, a design system can set this component apart, and `separation` (`auto`, `divider`, `gap`) sets one instance. The default system draws a divider.
+- The padding on the icon's side of the leading half is a step tighter, and both rounded outer ends get a little more padding.
+- The trailing half keeps its shape while the menu is open; the chevron alone shows the open state.
+- `trailingWidth` (`default`, `narrow`) draws a slimmer trailing half: as wide as a narrow icon-only [Button](/components/button/) of the same size, the chevron with a small inset on each side.
+:::
+
+<DemoFrame label="Variants">
+  <tanrei-button-with-menu label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+</DemoFrame>
+
+<DemoFrame label="With its menu: press the trailing half" plain>
+  <tanrei-button-with-menu label="Save" menu-label="More save options" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    <span slot="icon">save</span>
+    <tanrei-menu-item slot="menu" label="Save as…"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="Save a copy"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="Save as template"></tanrei-menu-item>
+  </tanrei-button-with-menu>
+</DemoFrame>
+
+### Usage
+
+A button with menu is two buttons joined into one shape. The leading half performs the main action. The trailing half, with the chevron, opens a [menu](/components/menu/) of related actions. The menu's content is the menu's own item kinds (actions, checkbox items, radio items and groups), passed the way each platform passes a menu's items.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button-with-menu label="Save" menu-label="More save options">
+      <span slot="icon">save</span>
+      <tanrei-menu-item slot="menu" label="Save as…"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="Save a copy"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/button-with-menu';
+      import '@tanrei/web/components/menu';
+      const split = document.querySelector('tanrei-button-with-menu');
+      // Only the leading half's click reaches the element.
+      split.addEventListener('click', save);
+      // The trailing half asks to open or close; you set open.
+      split.addEventListener('toggle', (e) => (split.open = e.detail.open));
+      // close carries the menu's reason: escape, outside, tab, focus-out or item (the web has no back).
+      split.addEventListener('close', () => (split.open = false));
+      // An item's click stops at the button with menu: listen on the item itself.
+      split.querySelector('[label="Save as…"]').addEventListener('click', saveAs);
+    </script>
+
+    <!-- One instance joined by a gap, with a slim trailing half. Leave separation out to follow the design system. -->
+    <tanrei-button-with-menu variant="tonal" separation="gap" trailing-width="narrow" label="Merge" menu-label="More merge options">
+      <tanrei-menu-item slot="menu" label="Squash and merge"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="Rebase and merge"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <!-- Opens on hover after 400 ms, as well as on a press; its own glyph, closed and open. -->
+    <tanrei-button-with-menu label="Share" menu-label="More share options" hover-open hover-delay="400">
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <tanrei-menu-item slot="menu" label="Copy link"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="Email"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ButtonWithMenu, MenuItem } from '@tanrei/react';
+
+    // onClick is the leading half's. A MenuItem's onClick is a listener on the item element,
+    // so it fires inside a ButtonWithMenu; it receives the native MouseEvent.
+    <ButtonWithMenu
+      label="Save"
+      menuLabel="More save options"
+      open={open}
+      onClick={save}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <MenuItem slot="menu" label="Save as…" onClick={saveAs} />
+      <MenuItem slot="menu" label="Save a copy" onClick={saveCopy} />
+    </ButtonWithMenu>
+
+    // One instance joined by a gap, with a slim trailing half.
+    <ButtonWithMenu variant="tonal" separation="gap" trailingWidth="narrow" label="Merge" menuLabel="More merge options"
+      open={mergeOpen} onClick={merge} onToggle={(e) => setMergeOpen(e.detail.open)} onClose={() => setMergeOpen(false)}>
+      <MenuItem slot="menu" label="Squash and merge" onClick={squash} />
+      <MenuItem slot="menu" label="Rebase and merge" onClick={rebase} />
+    </ButtonWithMenu>
+
+    // Opens on hover too; a null hoverDelay takes the system's delay.
+    <ButtonWithMenu label="Share" menuLabel="More share options" hoverOpen hoverDelay={400} open={shareOpen}
+      onToggle={(e) => setShareOpen(e.detail.open)} onClose={() => setShareOpen(false)}>
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <MenuItem slot="menu" label="Copy link" onClick={copyLink} />
+    </ButtonWithMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // The title first, as Button. The trailing half and the menu both write the binding.
+    TanreiSplitButton("Save", menuLabel: "More save options", isMenuPresented: $showsSaveOptions, action: save) {
+        TanreiMenuItem("Save as…", action: saveAs)
+        TanreiMenuItem("Save a copy", action: saveCopy)
+    }
+
+    // Opens on hover too (macOS, and iPadOS with a pointer); a nil hoverDelay takes the system's delay.
+    // chevron: and openChevron: take a glyph builder each, for the chevron and chevron-open slots.
+    TanreiSplitButton("Share", menuLabel: "More share options", isMenuPresented: $showsShareOptions,
+                      opensOnHover: true, hoverDelay: .milliseconds(400), action: share) {
+        TanreiMenuItem("Copy link", action: copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiSplitButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSplitButtonVariant
+
+    // State hoisting, as the menu: you keep menuExpanded.
+    TanreiSplitButton(
+        text = "Save",
+        onClick = ::save,
+        menuContentDescription = "More save options",
+        menuExpanded = expanded,
+        onMenuExpandedChange = { expanded = it },
+        onMenuDismissRequest = { expanded = false }, // receives a TanreiMenuCloseReason
+        variant = TanreiSplitButtonVariant.Tonal,
+        icon = { TanreiText("save") },
+    ) {
+        TanreiMenuItem(text = "Save as…", onClick = ::saveAs)
+        TanreiMenuItem(text = "Save a copy", onClick = ::saveCopy)
+    }
+
+    // Opens on hover too, for a mouse or a stylus; a null hoverDelayMillis takes the system's delay.
+    TanreiSplitButton(
+        text = "Share",
+        onClick = ::share,
+        menuContentDescription = "More share options",
+        menuExpanded = shareExpanded,
+        onMenuExpandedChange = { shareExpanded = it }, // a press, a key or a hover
+        onMenuDismissRequest = { shareExpanded = false },
+        chevron = { TanreiText("more_vert") },
+        openChevron = { TanreiText("close") },
+        openOnHover = true,
+        hoverDelayMillis = 400,
+    ) {
+        TanreiMenuItem(text = "Copy link", onClick = ::copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // The button with menu opens and closes the menu through the controller; onMenuToggle and onMenuClose report it.
+    TanreiSplitButton(
+      label: 'Save',
+      menuSemanticLabel: 'More save options',
+      onPressed: save, // a null onPressed disables both halves
+      menuController: saveOptions,
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: saveAs, child: const Text('Save as…')),
+        TanreiMenuItem(onPressed: saveCopy, child: const Text('Save a copy')),
+      ],
+    );
+
+    // Opens on hover too, never for touch; chevron and openChevron take a glyph widget each.
+    TanreiSplitButton(
+      label: 'Share',
+      menuSemanticLabel: 'More share options',
+      onPressed: share,
+      openOnHover: true,
+      hoverDelay: const Duration(milliseconds: 400), // null takes the system's delay
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: copyLink, child: const Text('Copy link')),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SplitButton } from '@tanrei/react-native';
+
+    // Controlled: set menuVisible from onMenuToggle, and to false from onMenuDismiss, which receives the reason.
+    <SplitButton
+      label="Save"
+      icon="save"
+      menuAccessibilityLabel="More save options"
+      menuVisible={open}
+      onPress={save}
+      onMenuToggle={setOpen}
+      onMenuDismiss={() => setOpen(false)}
+      menuItems={[
+        { label: 'Save as…', onPress: saveAs },
+        { label: 'Save a copy', onPress: saveCopy },
+      ]}
+    />
+
+    // Opens on hover too, for a pointer only; chevron and openChevron are glyph names.
+    <SplitButton
+      label="Share"
+      menuAccessibilityLabel="More share options"
+      chevron="more_vert"
+      openChevron="close"
+      hoverOpen
+      hoverDelay={400}
+      menuVisible={shareOpen}
+      onPress={share}
+      onMenuToggle={setShareOpen}
+      onMenuDismiss={() => setShareOpen(false)}
+      menuItems={[{ label: 'Copy link', onPress: copyLink }]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+### Joined by a divider or by a gap
+
+The two halves are joined in one of two ways. With a **divider** they touch, the corners where they meet are square, and a line marks the seam. With a **gap** they stand a narrow gap apart, with tighter corners where they face each other. The design system chooses once for every component that joins parts (the default system draws a divider), a design system can set this component apart, and `separation` (`auto`, `divider`, `gap`) sets one instance. The halves always sit side by side: there is no vertical form.
+
+<DemoFrame label="Joined by a divider and by a gap" plain>
+  <tanrei-button-with-menu separation="divider" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="divider" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="gap" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="divider" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+</DemoFrame>
+
+### A narrow trailing half
+
+By default the trailing half holds the chevron in a square of the button's height, with a little more padding at its rounded outer end. With `trailingWidth` set to `narrow` it is a slim handle on the main action: exactly as wide as a narrow icon-only [Button](/components/button/) of the same size (28 / 32 / 32 in the default system), the chevron centred with a small inset on each side and no outer padding. The leading half is the same at either width.
+
+<DemoFrame label="Trailing width: default and narrow, at each size" plain>
+  <tanrei-button-with-menu size="small" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="small" trailing-width="narrow" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu trailing-width="narrow" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" trailing-width="narrow" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+</DemoFrame>
+
+A narrow trailing half is drawn narrower than the minimum target, but its hit area is not: the target reaches outward, past the end edge. Leave room for it there, as beside a narrow icon-only Button.
+
+## Specs
+
+<DemoFrame label="Sizes, an icon, open and disabled" plain>
+  <tanrei-button-with-menu size="small" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="Save" menu-label="More save options"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu disabled label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" disabled label="Save" menu-label="More save options"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="Share" menu-label="More share options"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="Share" menu-label="More share options"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+</DemoFrame>
+
+<ComponentSpecs name="button-with-menu" />
+
+## Guidelines
+
+### When to use
+
+Use a button with menu for an action that has a usual form and a few variations: Save and "Save as…", Merge and "Squash and merge", Send and "Schedule send". The usual form takes one press, and the variations stay one press further away.
+
+If none of the options is clearly the usual one, use a button or an icon button that opens a menu. If there are no variations, use a plain [button](/components/button/). For a set of separate actions side by side, use a [button group](/components/button-group/).
+
+### Choosing a variant
+
+The variants carry the same emphasis as Button's, and the same budget applies: one strong action per view.
+
+| Variant | Emphasis | Use for |
+| --- | --- | --- |
+| Filled (default) | Highest | The main action of a view. |
+| Tonal | High | An important action that should not compete with a filled button. |
+| Elevated | Medium | A button with menu over a busy or patterned background. |
+| Outlined | Medium | A secondary action beside a filled button. |
+
+There is no text variant. Without a fill or a border, nothing would show where the two halves meet, and the split would disappear.
+
+The sizes have Button's heights, so a button with menu can share a row with buttons of the same size. The outer ends are fully round in the default system. Where the halves meet depends on the separation: under a divider they touch at square corners with a line on the seam, and neither half draws its outline along it, so the outline of an outlined button with menu is one line all round; under a gap each half draws its outline, and the ring an elevated surface has, inside its own edge, so the two never touch.
+
+### The chevron
+
+The trailing half draws `expand_more` from the icon set and turns it half a turn while the menu is open. In the default system the trailing half keeps its shape while open, so the chevron alone shows the open state. A design system can give the open half its own inner corners: the m3-like presets round it into a circle while open.
+
+Two slots change the glyph. Each takes one glyph of the icon set:
+
+| Slots you fill | Closed | Open |
+| --- | --- | --- |
+| Neither | `expand_more` | `expand_more`, turned |
+| `chevron` only | Your glyph | Your glyph, turned |
+| `chevron-open` (with or without `chevron`) | The `chevron` glyph, or `expand_more` | The `chevron-open` glyph; the two cross-fade instead of turning |
+
+A glyph without a direction, such as `more_vert`, should not turn: give it with a `chevron-open` glyph, or put the same glyph in both slots.
+
+### Opening on hover
+
+With `hoverOpen`, the menu also opens when a mouse, a trackpad or a hovering pen rests on the trailing half for `hoverDelay` milliseconds. Leave `hoverDelay` unset to take the system's delay, 300 ms in the default system. A press and the keyboard still open the menu as before, and touch never opens it on hover.
+
+- A menu opened by hover does not take focus: focus stays where the person was, for example in a text field. Items still show hover, and a click on one still activates it.
+- It closes once the pointer has been off both the trailing half and the menu for a short grace, so the pointer can cross onto the menu or slip off an edge and come back. A menu opened any other way never closes when the pointer leaves.
+- A press or a key on the trailing half while a hover-opened menu shows keeps it open and moves focus into it. From then on it is a menu opened by a press: the next press closes it.
+- Escape closes a hover-opened menu wherever focus is.
+- Hover asks through the same toggle event as a press, so the code that sets `open` needs no change.
+
+Use hover opening where a pointer is common and a menu that appears on its own is welcome, such as a toolbar in a desktop editor. It never replaces the press.
+
+### The menu
+
+- The menu is a Tanrei Menu, with everything the menu gives: focus moves into it, the arrow keys and typeahead move through it, and it flips and shifts to stay on screen. It opens below the whole button with menu, aligned with its end edge.
+- While the menu is open, the chevron shows its open form (see [The chevron](#the-chevron)).
+- When the menu closes and focus was inside it, focus returns to the trailing half, the button that opened it.
+- A press on the trailing half while the menu is open is a toggle, not a press outside: it asks to close with `toggle` and sends no `close`. When an action item closes the menu, the item's click comes first, then `close` with the reason `item`.
+- Who closes the menu follows the platform. On the web, Compose and React Native you set `open` (`menuExpanded`, `menuVisible`) from the toggle event and back to false from the close event. On SwiftUI and Flutter the button with menu opens and closes the menu itself through its binding or controller.
+
+### Do
+
+- Label the leading half with the usual action, as a verb: "Save", "Merge", "Send".
+- Give the trailing half a label that says what the menu offers: "More save options", not "More" or "Menu".
+- Fill the menu with variations of the main action. The main action itself does not need to repeat there.
+- Keep the menu short. A few items suit it; a long list suggests the options are not variations of one action.
+- Leave `separation` at `auto` unless one instance must differ, so that every joined control in the product is told apart the same way.
+- Use the narrow trailing half where the menu is secondary and width is tight, such as a table row or a dense header.
+
+### Don't
+
+- Don't put unrelated actions in the menu, such as Settings or Help. Use an icon button with its own menu for those.
+- Don't use a button with menu whose menu has a single item. Show both actions as buttons.
+- Don't try to disable one half. `disabled` applies to both. If the variations are unavailable, disable those menu items.
+- Don't use a button with menu where the trailing half does something other than open its menu. Its semantics always say that it opens a menu.
+
+## Accessibility
+
+<ComponentAccessibility name="button-with-menu" />
+
+### What the component handles
+
+- The button with menu is two buttons in reading order, each its own Tab stop. The leading half is named by its label. The trailing half is named by its menu label and exposes that it opens a menu and whether the menu is open, where the platform has those properties. No element wraps the two, so a screen reader hears two buttons and nothing more.
+- The icon and the chevron, including a glyph in the `chevron` or `chevron-open` slot, are hidden from assistive technology. The trailing half exposes whether the menu is open however it opened, by a press, a key or hover.
+- Enter and Space on the leading half perform the main action. Enter, Space or Down Arrow on the trailing half open the menu and move focus to its first enabled item. The menu then works as it does anywhere, and Escape closes it and returns focus to the trailing half.
+- A menu opened by hover leaves focus where it was, and Escape closes it wherever focus is, without the pointer moving, so what hover showed can always be dismissed (WCAG 1.4.13). That Escape goes no further; the next one reaches the page as usual.
+- Each half answers hover, press and focus on its own. The other half never shows a state that is not its own.
+- Each half's hit area reaches outward and above and below to the minimum target. Toward the other half it stops at the seam, or at the middle of the gap, so the two never overlap. What a narrow trailing half cannot reach toward the leading half it reaches outward instead, so it has its whole target without being drawn wider.
+- The divider is decoration: it is hidden from assistive technology and takes no press. The two halves are two buttons whether a line or a gap is between them.
+- In the default system the outline of the outlined variant, and the divider of the outlined, tonal and elevated variants, are the hairline, which is deliberately quiet: the leading half is identified by its label and the trailing half by its chevron. The divider on the filled variant is stronger, because a hairline cannot be seen on that fill.
+- The label never truncates. At larger text sizes it wraps, and both halves grow in height together.
+- A disabled button with menu exposes both halves as disabled, takes them out of the focus order, presents no menu and draws its closed form, whatever `open` says.
+- Debug builds report a missing label or menu label, and a menu with no items.
+
+Known platform gaps:
+
+- Web: only the leading half's click reaches listeners on the button with menu. A menu item's click stops at the button with menu, so a listener on an ancestor never hears it: listen on the item. The React wrappers of the menu items attach `onClick` to the element for this reason.
+- SwiftUI has no property that says a button opens a menu, and no expanded state. The menu's popover is attached to the trailing half; because the halves share one height and the trailing half ends the row, its bottom end is the whole button with menu's. The binding is both the toggle and the close, so the close reason is not passed on. A menu slot that is empty even for a moment, such as a `ForEach` over items that load later, is an assertion failure in debug builds and stops a debug app. Enter, Space and Down Arrow on the halves, focus returning to the trailing half, and a click on the trailing half on macOS while the menu is open are not tested end to end.
+- Flutter has no property that says a button opens a menu. The trailing half exposes whether the menu is open, but not that it opens one.
+- Compose has no property that says a button opens a menu. The trailing half is a button with expand and collapse actions for its state. The menu itself carries the Compose gaps listed on the [menu](/components/menu/) page.
+- React Native has no property that says a button opens a menu either. The trailing half exposes whether the menu is open, but not that it opens one.
+- React Native: a press on the trailing half while the menu is open, focus returning to it, and the chevron's turn have been tested without a device only.
+
+### What you need to do
+
+- Write both labels. A chevron alone is not a name, and "More" beside "Save" does not say what the menu holds.
+- On the web, Compose and React Native, set `open` from the toggle event and to false from the close event. The button with menu only asks. With `hoverOpen`, hover asks through the same toggle event.
+- Do not move focus yourself when the menu closes. The button with menu returns it to the trailing half.
+- Give every menu item a label, including items that show an icon.
+- Leave room past the end edge of a narrow trailing half, so that its target does not overlap the next control.

@@ -1,0 +1,216 @@
+---
+title: "弹出框"
+description: "在一小块表面上显示可供阅读和操作的内容；它在用户按下的控件旁边打开并跟随这个控件，既不让页面的其余部分变暗，也不阻挡它。"
+translationOf: components/popover.mdx
+sourceHash: 19cb5fd0f6cb90c5f432216ae31e97068033e853
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="popover" />
+
+<DemoFrame label="按下按钮：一条带链接的说明，以及一个带操作的简短表单">
+  <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">存储空间</tanrei-button>
+  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="存储空间" closable close-label="关闭存储空间说明" arrow placement="bottom" onclose="this.open = false">
+    回收站里的文件在删除之前仍会占用你的存储空间。<a class="tanrei-link" href="#指南">存储空间如何计算</a>
+  </tanrei-popover>
+  <tanrei-button id="popover-demo-form-opener" variant="outlined" onclick="document.getElementById('popover-demo-form').open = !document.getElementById('popover-demo-form').open">重命名</tanrei-button>
+  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="重命名文件夹" onclose="this.open = false">
+    <tanrei-text-field label="名称" value="报告" autofocus></tanrei-text-field>
+    <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">取消</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">重命名</tanrei-button>
+  </tanrei-popover>
+</DemoFrame>
+
+弹出框用于用户要在打开它的控件旁边处理的内容：几项设置、一个简短的表单、一个分享面板、一条需要链接或按钮的说明。它周围的页面其余部分仍然可以使用。
+
+### 用法
+
+控件是你自己的。在 Web 上，你用 `anchor` 指明它：弹出框贴着哪个元素放置，就写哪个元素的 id。这个元素同时也是打开弹出框的控件（opener）：弹出框会告诉辅助技术，这个控件会打开一个对话框，以及这个对话框当前是否打开；关闭时也把焦点交还给它。如果表面以一个输入框为锚点，而打开它的是输入框里的一个按钮，就用 `opener` 指明这个按钮。
+
+弹出框与菜单一样，是受控组件。打开它的控件被按下时，由你设置 `open`；弹出框触发 `close` 时，由你把它设回 false。它从不自行打开：悬停、聚焦或经过一段时间都不会打开它。`close` 带有原因：`escape`、`outside`、`focus-out`、`close`（它的关闭按钮）或 `anchor-hidden`。操作从不关闭弹出框，关闭它的是你的处理函数。
+
+请给它一个名称：画出标题时用 `headline`，不画标题时用 `label`。
+
+SwiftUI、Compose、Flutter 和 React Native 尚在计划中：本页开头各平台旁边的名称是规格为它们定下的，这些平台目前还没有提供任何实现。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="share" variant="outlined">分享</tanrei-button>
+
+    <!-- anchor 是弹出框贴着放置的那个控件的 id。 -->
+    <tanrei-popover id="share-panel" anchor="share" headline="分享此页面" closable close-label="关闭分享">
+      知道链接的任何人都可以查看。
+      <tanrei-button slot="actions" dismissive>停止分享</tanrei-button>
+      <tanrei-button slot="actions" confirming>复制链接</tanrei-button>
+    </tanrei-popover>
+
+    <!-- 输入框下方的表面：与输入框等宽，焦点留在输入框里。 -->
+    <tanrei-text-field id="city" label="城市"></tanrei-text-field>
+    <tanrei-popover anchor="city" label="建议" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
+
+    <script type="module">
+      import '@tanrei/web/components/popover';
+
+      const opener = document.querySelector('#share');
+      const panel = document.querySelector('#share-panel');
+      // 由打开它的控件来切换。在这个控件上按下从不算“在外部”，所以按一次不会先关闭再重新打开。
+      opener.addEventListener('click', () => (panel.open = !panel.open));
+      // Escape、在外部按下、焦点离开、关闭按钮、锚点离开视野。
+      panel.addEventListener('close', (e) => {
+        console.log(e.detail.reason);
+        panel.open = false;
+      });
+      // 操作不会关闭它：由处理函数在工作完成后关闭。
+      panel.querySelector('[confirming]').addEventListener('click', async () => {
+        await navigator.clipboard.writeText(location.href);
+        panel.open = false;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useState } from 'react';
+    import { Button, Popover } from '@tanrei/react';
+
+    const [open, setOpen] = useState(false);
+
+    <Button id="share" variant="outlined" onClick={() => setOpen(!open)}>分享</Button>
+    <Popover anchor="share" open={open} headline="分享此页面" closable closeLabel="关闭分享" onClose={() => setOpen(false)}>
+      知道链接的任何人都可以查看。
+      <Button slot="actions" dismissive onClick={stopSharing}>停止分享</Button>
+      <Button slot="actions" confirming onClick={copyLink}>复制链接</Button>
+    </Popover>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="位置、箭头，以及与锚点等宽的弹出框" plain>
+  <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">上方，居中</tanrei-button>
+  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="存储空间" placement="top" arrow onclose="this.open = false">回收站里的文件仍会占用存储空间。</tanrei-popover>
+  <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">侧面，末尾侧</tanrei-button>
+  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="存储空间" placement="end-top" onclose="this.open = false">回收站里的文件仍会占用存储空间。</tanrei-popover>
+  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">与这个按钮等宽</tanrei-button>
+  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="存储空间" width="anchor" onclose="this.open = false">回收站里的文件仍会占用存储空间。</tanrei-popover>
+</DemoFrame>
+
+### 位置
+
+`placement` 指明弹出框位于锚点的哪一侧，以及沿这一侧怎样对齐。它的十三个值就是工具提示的那十三个，含义也相同。
+
+| 值 | 位置 |
+| --- | --- |
+| `bottom-start`（默认）、`bottom`、`bottom-end` | 锚点下方：起始边对齐、居中，或末尾边对齐 |
+| `top-start`、`top`、`top-end` | 锚点上方，同样的三种对齐方式 |
+| `start`、`start-top`、`start-bottom` | 锚点的起始侧：居中、顶边对齐，或底边对齐 |
+| `end`、`end-top`、`end-bottom` | 锚点的末尾侧，同样的三种对齐方式 |
+| `auto` | 按下方、上方、末尾侧、起始侧的顺序，取第一个有空间的 |
+
+起始和末尾随布局方向而变。`offset` 是到锚点的距离，以平台的布局单位计；不设置时采用 `comp.popover.offset`。`crossOffset` 让弹出框沿它所在的一侧移动，但绝不会移出锚点的这一侧。
+
+弹出框与窗口边缘保持 `comp.popover.window-margin` 的距离，为此依次采取以下步骤：
+
+1. 首选的一侧没有空间时，它翻转到相对的一侧，并保持原来的对齐方式。
+2. 两侧都没有空间时，它取空间较大的一侧，并且尺寸以这块空间为限。这时它的内容可以滚动。
+3. 它沿所在的一侧平移，直到满足边距的要求。
+4. 窗口比它的最小尺寸还小时，它宁可盖住锚点，也不超出窗口。
+
+锚点移动时，它跟随锚点；只要所在的一侧还有空间，它就留在这一侧。锚点完全看不见时，它触发 `close`，原因是 `anchor-hidden`。
+
+### 尺寸
+
+弹出框与它的内容一样宽，介于 `comp.popover.container.min-width`（160）和 `container.max-width`（400）之间。设置 `width="anchor"` 后，它与锚点一样宽，适合从输入框下方展开的表面。它绝不会比窗口减去边距后的宽度更宽。
+
+它与各个部件加起来一样高，上限是 `container.max-height`（480）和所在一侧的可用空间。超过这个高度时，内容在页眉和操作之间滚动，页眉和操作留在原位。内容被滚动之后，页眉下方会出现一道分隔线；下面还有更多内容时，操作上方也会出现一道。
+
+对于自带内边距或一直延伸到边缘的内容，例如列表，请把 `inset` 设为 false（在 Web 上是 `no-inset`）。
+
+### 部件
+
+| 部件 | 它是什么 |
+| --- | --- |
+| 页眉 | 标题，以及 `closable` 为 true 时的关闭按钮。内容滚动时它留在原位 |
+| 内容 | 默认插槽。可以是任何东西，包括链接、输入框和其他控件 |
+| 操作 | `actions` 插槽里的 Tanrei 按钮；属于确认或取消性质的，各自标为 `confirming` 或 `dismissive`。它们按按钮组的方式摆放，标签放不下时叠成一列 |
+| 箭头 | 一个可选的三角形，指向锚点。`arrow` 为单个弹出框打开它；`comp.popover.arrow.visible` 为整个设计系统打开它 |
+
+没有 `variant` 的操作采用 `comp.popover.actions.variant`（在默认系统中是 tonal）。关闭按钮是一个纯图标的 small 按钮，变体取自 `comp.popover.close-button.variant`。
+
+### 动效
+
+弹出框淡入，同时从朝向锚点的那条边变大；关闭时淡出。被打断的动效会从当前位置掉头。在减弱动态效果时，它立即出现和消失。
+
+<ComponentSpecs name="popover" />
+
+### Web 上绘制方式的不同之处
+
+- 弹出框是顶层（top layer）中的 `popover="manual"` 元素。位于模态 `<dialog>` 之内时，它必须是这个对话框的后代，才能在那里操作。
+- 在外部按下会关闭弹出框，这次按下也会传到它下方的元素。
+- Web 没有自己的返回手势，所以 `close` 绝不会带有原因 `back`。
+- `anchorElement` 和 `openerElement` 是属性（property），用于 id 够不着的元素，例如位于另一个 shadow root 里的元素。
+- `arrow` 可以是未设置、true 或 false：这个属性（attribute）可以不写、写成 `arrow`，或写成 `arrow="false"`。
+- 用 `autofocus` 标记打开时取得焦点的元素。
+- 在强制颜色模式下，容器和它的箭头带有一道文本颜色的边线。
+
+## 指南
+
+### 工具提示、弹出框、菜单还是对话框
+
+| 方面 | 工具提示 | 弹出框 | 菜单 | 对话框 |
+| --- | --- | --- | --- | --- |
+| 怎样打开 | 悬停、键盘聚焦、长按 | 按下打开它的控件 | 按下它的锚点 | 由产品打开 |
+| 里面是什么 | 对锚点的描述 | 供用户操作的内容 | 只有菜单项 | 一项决定 |
+| 是否取得焦点 | 从不 | 是，并且交还 | 是，并且交还 | 是，并且留住 |
+| 是否阻挡页面 | 否 | 否 | 否 | 是 |
+
+1. 如果它只是说明控件是什么，里面没有任何可以按下的东西，它就是工具提示。
+2. 如果它是一列命令或选项，它就是菜单。
+3. 如果用户不作出回应就无法继续，它就是对话框。
+4. 否则它就是弹出框。
+
+### 推荐
+
+- 通过按下某个控件来打开它，再次按下这个控件时关闭它。
+- 内容要短。只做一件事，最多几个输入框。
+- 如果弹出框大到会盖住用户原本要在外部按下的地方，就加上 `closable`；在没有 Escape 的触摸设备上也要加。
+- 位于用户正在输入的输入框下方的表面，使用 `width="anchor"` 和 `initialFocus="anchor"`。
+- 操作的标签要短。比弹出框还宽的标签不会换行。
+
+### 避免
+
+- 不要在悬停或聚焦时打开弹出框。触摸无法这样打开它；而仅仅因为指针经过就取得焦点的表面，是一个陷阱。
+- 不要把在外部误按一下就会丢失的内容放进弹出框。长表单应该放在对话框或面板里。
+- 不要在弹出框里嵌套一层以上的弹出框。每多一层，就要多按一次 Escape。
+- 用户必须先作出回应才能继续的内容，不要用弹出框。那是对话框。
+
+## 无障碍
+
+<ComponentAccessibility name="popover" />
+
+### 组件负责的部分
+
+- 容器是一个非模态的对话框，以 `headline` 或 `label` 命名。它之外的任何东西都不会被隐藏，也不会变为惰性（inert）。
+- 打开它的控件会暴露两点：它会打开一个对话框，以及这个对话框当前是否打开。控件自己的名称和角色不变。
+- 打开时，焦点移到你标记的元素上，否则移到容器，这样弹出框的名称会最先被读到。只有从键盘打开弹出框时，容器上才显示焦点指示。
+- 无论弹出框在文档中的什么位置，它在 Tab 顺序中都紧跟在打开它的控件之后。在它的最后一个元素上按 Tab，焦点会移到这个控件之后的内容上，弹出框随之关闭。焦点从不被留在里面。
+- Escape 只关闭最上面的浮层，并且不再向外传递：包含弹出框的对话框保持打开。
+- 关闭时，如果焦点原本在弹出框之内，就把焦点交还给打开它的控件。如果用户已经把焦点移到了别处，焦点就留在那里。
+- 从弹出框内部打开的浮层，例如菜单或工具提示，属于这个弹出框：在其中按下或聚焦不会关闭弹出框。
+- 文本放大到 200% 时，弹出框里的文本换行，弹出框增大到上限，然后滚动。在宽 320 的窗口里，它的宽度是窗口宽度减去边距。
+
+### 需要你做的事
+
+- 给弹出框一个 `headline` 或 `label`；设置了 `closable` 时，再给一个 `closeLabel`。
+- 在打开它的控件被按下时设置 `open`，并在 `close` 时把它设为 false。
+- 在 Web 上，请尽量把弹出框元素放在文档中紧跟在打开它的控件之后的位置，让屏幕阅读器的阅读顺序与 Tab 顺序一致。
+- 简短表单的第一个输入框，请标记为初始焦点。只有文本的弹出框不要加标记。

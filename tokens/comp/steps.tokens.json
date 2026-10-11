@@ -1,0 +1,190 @@
+{
+  "tanrei": {
+    "comp": {
+      "steps": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product tells people how to do something in an order that matters — install, configure, build, check — and wants that procedure told apart from a list that merely happens to be numbered: each step's number easy to find again after looking away at a terminal, each step's extent plain when it holds several blocks, and the steps read as one sequence. It writes a short one in a panel at the interface's text size and a long one on a page at the reading size.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "medium",
+                "large"
+              ],
+              "members": [
+                "marker.height",
+                "marker.label.typescale",
+                "title.typescale",
+                "body.typescale"
+              ]
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a set of steps reads: per size, the marker's minimum height, the text style of its number, of a step's title and of a step's body; the marker's inline padding, corners and edge; the space between the marker and the step's content; the connector's color, thickness and its distance from the markers it joins; the space between two steps, between a title and its body, and between the blocks of one body.",
+            "rules": [
+              "Steps are a procedure to read: things done in order, each step a number, an optional title and a body. They are an ordered list and nothing else: no step is current, done or failed, and nothing in them is pressed.",
+              "Progress through a flow the person is in (a checkout, a setup wizard: a current step, completed steps, a step with an error, steps that are pressed to go back) is not this component. Do not mark a step as done or current by restyling a marker.",
+              "A list that is numbered only so its items can be referred to, or whose items are a phrase each, is an ordered list of prose. Use steps where the order is the point and a reader will work through them.",
+              "A step's body is the product's content, laid out as prose: paragraphs, a code block, a table, tabs. Sub-steps are an ordered list inside the body; do not nest steps in steps.",
+              "Steps bring no text color and no fill: the number, the title and the body take the content color of the surface they sit on. The ring and the connector are the system's one hairline.",
+              "Use start to continue a procedure that a note or a heading interrupts; never write numbers into the titles.",
+              "Use size large on a page whose purpose is reading, with the prose around it; medium among controls.",
+              "marker.height is a minimum: a marker grows with enlarged text and widens for a long number.",
+              "Restyle through these tokens in a layer; never draw a numbered circle or a guide line by hand."
+            ]
+          }
+        },
+        "marker": {
+          "height": {
+            "$type": "dimension",
+            "$description": "The marker's minimum height, and its minimum width, per size: two more than one line of the body's text at that size (22 and 26 in the default system), so the ring stands a little outside the line it is centred on and one-line steps never touch. A minimum: the marker grows with its number's text.",
+            "medium": {
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 7
+                }
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "The least room between the marker's edge and its number at the start and the end. With it a number of one or two digits keeps the marker a circle in the default system; a longer one (a procedure continued at 100) widens it into a pill.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product numbers a short procedure 1 to 5 and continues a long one past 9 and past 99; the marker has to hold each without its number touching the ring.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The marker's corners: a circle in the default system, and a pill where the number widens it. Never larger than half the marker's height."
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline-variant}",
+              "$description": "The ring: the system's one hairline. Decorative — the number inside it is what is read — so it is not held to a contrast."
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.hairline}",
+              "$description": "The ring's width, drawn inside the marker's size."
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$description": "The text style of the number, per size: a label style, a step under the body's size at medium and at the body's size at large, so the number is a mark beside the text and never louder than it.",
+              "medium": {
+                "$value": "{tanrei.sys.typescale.label-small}"
+              },
+              "large": {
+                "$value": "{tanrei.sys.typescale.label}"
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space150}",
+            "$description": "The space between the marker's column and the step's content. Every step's content begins at the same edge: the widest marker's width and this gap from the steps' start edge."
+          }
+        },
+        "connector": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product shows that its steps are one sequence, and where a step with several blocks ends, by a line from each marker to the next; a product with a plainer manner draws none, which is a thickness of zero.",
+              "since": "0.1.0"
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}",
+            "$description": "The line that joins a marker to the next: the system's one hairline, the ring's color. Decorative."
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The connector's thickness. Zero draws no connector."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "The space the connector keeps from the marker above it and from the marker below it, so the line and the rings are read as separate marks."
+          }
+        },
+        "step": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "The space between the end of one step and the beginning of the next: the space prose puts between two blocks in the default system, so a step is a block of the text it sits in, and twice the space between the blocks inside one step."
+          }
+        },
+        "title": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product names the steps of a long procedure (\"Install\", \"Configure\") so that a reader finds the step they stopped at, and leaves the three lines of a short one unnamed.",
+              "since": "0.1.0"
+            }
+          },
+          "typescale": {
+            "$type": "typography",
+            "$description": "The text style of a step's title, per size: the heading role whose size is the body's at that size, so a title is told from the body by its weight and not by being larger.",
+            "medium": {
+              "$value": "{tanrei.sys.typescale.heading-6}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.heading-5}"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "The space between a step's title and its body."
+          }
+        },
+        "body": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The text style a step's body takes where nothing inside it sets another, per size: the running text of prose at the same size.",
+            "medium": {
+              "$value": "{tanrei.sys.typescale.body}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.body-large}"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "The space between two blocks of one step's body (a paragraph and the code block it introduces): what prose puts between the blocks nested in a list item in the default system, and half the space between two steps, so what belongs to one step is closer together than two steps are."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,417 @@
+---
+title: "搜索"
+description: "一个搜索栏，或者代替它的紧凑触发器，在用户输入时提供建议和结果，视图可以停靠在搜索栏下方、以对话框打开或覆盖整个屏幕。"
+translationOf: components/search.mdx
+sourceHash: 16c14a0a1b37985bcc782ea5ca22d118c87dd619
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="search" />
+
+:::note[规格已修订，尚未覆盖所有平台]
+本页描述的是规格当前所定的搜索，它也能用作站内搜索：代替搜索栏的触发器、对话框视图、作为链接的结果、状态行和快捷键。Web 组件已经实现了这一切，页面上的演示也是如此。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版，即带输入框的搜索栏、停靠视图和全屏视图，以及建议；它们的示例展示的也是上一版。
+:::
+
+<DemoFrame label="空的、有查询词的，以及带图标按钮的" column>
+  <tanrei-search label="搜索邮件" placeholder="搜索邮件" style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search label="搜索邮件" placeholder="搜索邮件" value="发票" clear-label="清除搜索内容" style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search label="搜索邮件" placeholder="搜索邮件" style="inline-size: 20.5rem">
+    <tanrei-button variant="text" slot="leading" label="菜单"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="trailing" label="语音搜索"><span slot="icon">mic</span></tanrei-button>
+    <tanrei-button variant="text" slot="trailing" label="账户"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-search>
+</DemoFrame>
+
+<DemoFrame label="站内搜索：带快捷键的按钮触发器、图标触发器，以及显示快捷键的搜索栏。按下触发器即可打开它的视图" plain column>
+  <tanrei-search bar="button" presentation="dialog" label="搜索文档" placeholder="搜索" shortcut="mod+k" value="标签页" status-text="“标签页”共 3 条结果" clear-label="清除搜索内容" back-label="返回" style="inline-size: 20.5rem">
+    <tanrei-search-result-group value="tabs" headline="标签页" href="/zh-cn/components/tabs/" leading-icon="article" excerpt='["用一行带标签的", "标签页", "在同一主题的各个视图之间切换。"]'>
+      <tanrei-search-result value="tabs-sharing" headline="共享选择" href="/zh-cn/components/tabs/#共享同一个选择" leading-icon="tag" excerpt='["指明同一个组的各行", "标签页", "显示相同的选择。"]'></tanrei-search-result>
+    </tanrei-search-result-group>
+    <tanrei-search-result value="tab-view" headline="标签页视图" href="/zh-cn/components/tab-view/" leading-icon="article" excerpt='["在自己的一行标签下方显示所选", "标签页", "的视图。"]'></tanrei-search-result>
+  </tanrei-search>
+  <tanrei-search bar="icon" presentation="full-screen" label="搜索文档" placeholder="搜索" value="标签页" status-text="“标签页”共 3 条结果" clear-label="清除搜索内容" back-label="返回">
+    <tanrei-search-result-group value="tabs" headline="标签页" href="/zh-cn/components/tabs/" leading-icon="article" excerpt='["用一行带标签的", "标签页", "在同一主题的各个视图之间切换。"]'>
+      <tanrei-search-result value="tabs-sharing" headline="共享选择" href="/zh-cn/components/tabs/#共享同一个选择" leading-icon="tag" excerpt='["指明同一个组的各行", "标签页", "显示相同的选择。"]'></tanrei-search-result>
+    </tanrei-search-result-group>
+    <tanrei-search-result value="tab-view" headline="标签页视图" href="/zh-cn/components/tab-view/" leading-icon="article" excerpt='["在自己的一行标签下方显示所选", "标签页", "的视图。"]'></tanrei-search-result>
+  </tanrei-search>
+  <tanrei-search label="搜索邮件" placeholder="搜索邮件" shortcut="/" clear-label="清除搜索内容" style="inline-size: 20.5rem"></tanrei-search>
+</DemoFrame>
+
+### 用法
+
+搜索由一个搜索栏和一个视图组成。搜索栏里有搜索图标、输入框、有查询词时出现的清除按钮，末尾还可以放最多两个你自己的图标按钮，例如语音输入或账户。你自己的菜单按钮或返回按钮可以放进 `leading` 插槽，取代搜索图标。视图在用户搜索时打开，从上到下依次是建议、状态行、结果，然后是你自己的任何内容。
+
+**搜索栏还是触发器。** `bar` 决定放置搜索的位置上显示什么：
+
+- `field`（默认）：带输入框的搜索栏。
+- `button`：外形与搜索栏相同的触发器，其中没有输入框，只有搜索图标、占位符和快捷键提示。用于有空间的页眉。
+- `icon`：纯图标按钮，显示搜索图标。用于没有空间的页眉。
+
+触发器打开的是模态视图，即对话框或全屏视图，输入框位于该视图的页眉中。同一个产品可以在宽窗口上使用 `button`，在窄窗口上使用 `icon`。
+
+**三种呈现方式。** `presentation` 决定视图在哪里打开：
+
+- `docked`（默认）：紧贴搜索栏下方、与它等宽的一个表面，位于平台的浮层中，就像菜单在锚点下方打开一样。焦点留在搜索栏的输入框中，所以建议变化时用户可以继续输入。下方空间不够时，视图在搜索栏上方打开。
+- `dialog`：靠近窗口顶部的一个模态表面，位于遮罩之上，页眉中有返回按钮、输入框和清除按钮。它适用于大窗口，由触发器打开。在遮罩上按下会关闭它。
+- `full-screen`：覆盖整个窗口的模态视图，页眉相同。它取得焦点并留住焦点，关闭时把焦点交还给搜索栏或触发器。
+
+大窗口上使用停靠视图或对话框，小窗口上使用全屏视图。搜索不会替你做选择：请根据你自己的断点来设置 `presentation`。触发器配 `docked` 时打开的是对话框，因为停靠视图没有自己的输入框，这种情况会在调试构建中报告。
+
+**建议**是一种项。每条建议有 `value` 和 `headline`，还可以有 `supportingText` 和 `leadingIcon`，例如用历史图标表示过去的查询词，用文件夹图标表示一个结果。当前查询词对应的建议由你提供；搜索只负责绘制，不做筛选。选择一条建议会触发带有其值的 `select`。搜索自己从不更改查询词，所以选择意味着什么由你决定：把它填入查询词并搜索，或者打开那个结果。
+
+**结果**是第二种项，表示搜索找到的东西：一个页面、一个章节、一条消息。结果有 `value`、`headline`、`excerpt`，还可以有 `leadingIcon`，并且它通往某个地方：有 `href` 时，它的行是真正的链接，平台像打开任何链接那样打开它，例如按住修饰键在新标签页中打开，并带有链接自己的上下文菜单。没有 `href` 时，行是一个按钮，`select` 是唯一的信号。**结果组**把若干结果放在同一个标题之下：可以是“消息”这样低调的标题，也可以给组自己一个 `href`，让标题成为这些结果（各个章节）所属的页面。摘录是一段文字，由你在其中标出匹配的部分；搜索不会在文本中查找查询词。在 Web 上，摘录是元素自身的内容，匹配的部分用 `<mark>` 包起来；也可以用 `excerpt` 传入若干文本片段，其中每隔一个是匹配的部分。
+
+**状态。** 搜索从不执行查询、等待或筛选：每次更改它都触发 `input`，并绘制你给它的内容。请用 `status`（`idle`、`loading` 或 `error`）和 `statusText` 告诉它你的搜索正在做什么：结果数量（“‘令牌’共 12 条结果”）、没有找到任何内容，或者失败的情况。状态行显示这段文本，并在文本变化时朗读它；加载期间，它会在短暂延迟后显示加载指示器。
+
+**快捷键。** `shortcut` 指定打开搜索的按键，使用[键盘快捷键](/zh-cn/components/keyboard-shortcut/)的键名（`mod+k`、`/`）。搜索把它们写成一条提示，也就是一行与用户键盘相符的文本：显示在按钮触发器的末尾，以及搜索栏为空且没有焦点的时候。搜索还把它们作为触发器或输入框的键盘快捷键暴露出来。只有在你绑定了这些按键，或设置了 `bindShortcut` 时，按键才会生效：设置之后，只要搜索处于显示且启用的状态，它就在整个窗口中监听，按下这些键时打开，再按一次时关闭。
+
+**打开和关闭。** 在搜索栏上按下、输入字符，或在输入框中按下方向键，都会打开视图。仅仅获得焦点绝不会打开它：用 Tab 移到搜索栏上，或焦点从全屏视图返回时，视图都保持关闭。搜索用 `toggle` 请求打开或关闭，其中带有新的状态，关闭时还带有原因：`escape`、`back`、`select`、`submit`、`outside`、`tab`、`focus-out` 或 `shortcut`。视图关闭时，查询词保持原样。在输入框中按 Enter 会触发 `submit`；这时如果视图正在显示结果或状态，它会保持打开，让用户可以继续前往这些内容。在 Web 上，元素自己设置 `expanded`；在 SwiftUI 和 Flutter 上，改变的是绑定或控制器。在 Compose 和 React Native 上，与菜单一样，由你在回调中设置 `expanded`。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-search name="q" label="搜索邮件" placeholder="搜索邮件" clear-label="清除搜索内容">
+      <tanrei-button variant="text" slot="trailing" label="语音搜索"><span slot="icon">mic</span></tanrei-button>
+      <tanrei-search-suggestion value="invoices" headline="发票" leading-icon="history"></tanrei-search-suggestion>
+      <tanrei-search-suggestion value="folder:invoices" headline="发票"
+        supporting-text="文件夹 · 24 条消息" leading-icon="folder"></tanrei-search-suggestion>
+      <!-- 其他子元素是你自己放在视图中的内容，位于建议之后。 -->
+    </tanrei-search>
+
+    <!-- 在小窗口上：视图覆盖整个窗口，并带有返回按钮。 -->
+    <tanrei-search presentation="full-screen" label="搜索邮件" placeholder="搜索邮件"
+      clear-label="清除搜索内容" back-label="返回"></tanrei-search>
+
+    <!-- 站内搜索：带快捷键的触发器、对话框视图，以及作为链接的结果。 -->
+    <tanrei-search id="docs-search" bar="button" presentation="dialog" label="搜索文档" placeholder="搜索"
+      shortcut="mod+k" bind-shortcut clear-label="清除搜索内容" back-label="返回">
+      <!-- 带 href 的组就是页面；它的结果是在这个页面中找到的章节。 -->
+      <tanrei-search-result-group value="/tokens/" headline="设计令牌" href="/tokens/" leading-icon="article">
+        颜色、尺寸和动效都是<mark>令牌</mark>，分为三层。
+        <tanrei-search-result value="/tokens/#layers" headline="层" href="/tokens/#layers" leading-icon="tag">
+          层可以更改<mark>令牌</mark>的值，也可以添加自己的令牌。
+        </tanrei-search-result>
+      </tanrei-search-result-group>
+      <!-- 其他子元素是你自己的内容，位于结果之后。 -->
+      <tanrei-button variant="text">加载更多结果</tanrei-button>
+    </tanrei-search>
+
+    <script type="module">
+      import '@tanrei/web/components/search';
+      import '@tanrei/web/components/button';
+      const search = document.querySelector('[name="q"]');
+      search.addEventListener('input', () => showSuggestionsFor(search.value));
+      search.addEventListener('submit', () => runSearch(search.value)); // 可取消；在表单内，它随后会提交表单
+      search.addEventListener('select', (e) => openSuggestion(e.detail.value));
+      // 元素先设置自己的 expanded，再触发 toggle。
+      search.addEventListener('toggle', (e) => log(e.detail.expanded, e.detail.reason));
+
+      // 搜索从不查询、等待或防抖：这些都由你来做。
+      const docs = document.querySelector('#docs-search');
+      let asked = 0;
+      docs.addEventListener('input', async () => {
+        const mine = ++asked;
+        docs.status = 'loading';
+        docs.statusText = '正在搜索';
+        const found = await query(docs.value);
+        if (mine !== asked) return; // 已经提出了更新的问题：丢弃这个答案
+        show(found); // 替换 <tanrei-search-result> 子元素
+        docs.status = 'idle';
+        docs.statusText = `“${docs.value}”共 ${found.length} 条结果`; // 每个答案只设置一次：它会被朗读
+      });
+      // 某个结果被就地激活。取消这个事件，就把链接交给你的路由。
+      docs.addEventListener('select', (e) => { /* e.preventDefault(); router.push(e.detail.value); */ });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Search, SearchResult, SearchResultGroup, SearchSuggestion } from '@tanrei/react';
+
+    <Search
+      label="搜索邮件"
+      placeholder="搜索邮件"
+      clearLabel="清除搜索内容"
+      value={query}
+      onInput={(e) => setQuery(e.currentTarget.value)}
+      onSubmit={() => runSearch(query)}
+      onSelect={(e) => openSuggestion(e.detail.value)}
+    >
+      <Button variant="text" slot="trailing" label="语音搜索" onClick={dictate}><span slot="icon">mic</span></Button>
+      {suggestions.map((s) => (
+        <SearchSuggestion key={s.value} value={s.value} headline={s.headline} supportingText={s.detail} leadingIcon={s.icon} />
+      ))}
+    </Search>
+
+    // 站内搜索：带快捷键的触发器、对话框视图，以及作为链接的结果。
+    // excerpt 是若干文本片段：每隔一个是匹配的部分。
+    <Search
+      bar="button"
+      presentation="dialog"
+      label="搜索文档"
+      placeholder="搜索"
+      shortcut={['mod+k']}
+      bindShortcut
+      clearLabel="清除搜索内容"
+      backLabel="返回"
+      status={status}
+      statusText={statusText}
+      onInput={(e) => runQuery(e.currentTarget.value)}
+      onSelect={(e) => { e.preventDefault(); router.push(e.detail.value); }}
+    >
+      {pages.map((page) => (
+        <SearchResultGroup key={page.url} value={page.url} headline={page.title} href={page.url} leadingIcon="article" excerpt={page.excerpt}>
+          {page.sections.map((s) => (
+            <SearchResult key={s.url} value={s.url} headline={s.title} href={s.url} leadingIcon="tag" excerpt={s.excerpt} />
+          ))}
+        </SearchResultGroup>
+      ))}
+    </Search>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 每次编辑都会写入 text；打开和关闭会写入 isExpanded。
+    TanreiSearch("搜索邮件", text: $query, isExpanded: $isSearching,
+                 prompt: Text("搜索邮件"), clearLabel: "清除搜索内容",
+                 onSubmit: { value in runSearch(value) },
+                 onSelect: { value in openSuggestion(value) }) {
+        TanreiSearchSuggestion("发票", leadingIcon: "history", value: "invoices")
+        TanreiSearchSuggestion("发票", supportingText: "文件夹 · 24 条消息", leadingIcon: "folder", value: "folder:invoices")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSearch
+    import io.github.chnotchy.tanrei.components.TanreiSearchSuggestion
+
+    // 状态提升：value 和 expanded 由你保存，并在回调中更新。
+    TanreiSearch(
+        value = query,
+        onValueChange = { query = it },
+        expanded = expanded,
+        onExpandedChange = { open, _ -> expanded = open }, // 第二个参数是原因
+        label = "搜索邮件",
+        placeholder = "搜索邮件",
+        clearLabel = "清除搜索内容",
+        onSearch = { runSearch(query) },
+        onSelect = { openSuggestion(it) },
+    ) {
+        TanreiSearchSuggestion(value = "invoices", headline = "发票", leadingIcon = "history")
+        TanreiSearchSuggestion(value = "folder:invoices", headline = "发票", supportingText = "文件夹 · 24 条消息", leadingIcon = "folder")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // TanreiSearchController 是一个同时保存 isExpanded 的 TextEditingController。
+    final TanreiSearchController search = TanreiSearchController();
+
+    TanreiSearch(
+      controller: search,
+      semanticLabel: '搜索邮件',
+      hintText: '搜索邮件',
+      clearLabel: '清除搜索内容',
+      onChanged: showSuggestionsFor,
+      onSubmitted: runSearch,
+      onSelected: openSuggestion,
+      suggestions: const <TanreiSearchSuggestion>[
+        TanreiSearchSuggestion(value: 'invoices', headline: '发票', leadingIcon: 'history'),
+        TanreiSearchSuggestion(value: 'folder:invoices', headline: '发票', supportingText: '文件夹 · 24 条消息', leadingIcon: 'folder'),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Search } from '@tanrei/react-native';
+
+    // 受控：由你在 onChangeText 和 onExpandedChange 中更新 value 和 expanded。
+    <Search
+      value={query}
+      onChangeText={setQuery}
+      expanded={expanded}
+      onExpandedChange={(next) => setExpanded(next)}
+      accessibilityLabel="搜索邮件"
+      placeholder="搜索邮件"
+      clearLabel="清除搜索内容"
+      onSubmitEditing={() => runSearch(query)}
+      onSelect={openSuggestion}
+      suggestions={[
+        { value: 'invoices', headline: '发票', leadingIcon: 'history' },
+        { value: 'folder:invoices', headline: '发票', supportingText: '文件夹 · 24 条消息', leadingIcon: 'folder' },
+      ]}
+    />
+
+    // 在小窗口上：presentation="full-screen" 和 backLabel="返回"。Android 的返回按钮会关闭视图。
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="停靠视图，其中有一条建议、状态行和分组的结果，就地绘制" plain column>
+  <tanrei-search inline expanded label="搜索邮件" placeholder="搜索邮件" value="发票" status-text="2 条消息" clear-label="清除搜索内容" style="inline-size: 20.5rem">
+    <tanrei-search-suggestion value="发票" headline="发票" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-result-group headline="消息">
+      <tanrei-search-result value="m-1" headline="你的 10 月发票" leading-icon="mail" excerpt='["10 月的", "发票", "见附件。"]'></tanrei-search-result>
+      <tanrei-search-result value="m-2" headline="回复：付款" leading-icon="mail" excerpt='["请把", "发票", "再发一次。"]'></tanrei-search-result>
+    </tanrei-search-result-group>
+  </tanrei-search>
+</DemoFrame>
+
+<DemoFrame label="禁用的，以及打开的停靠视图" plain column>
+  <tanrei-search label="搜索邮件" placeholder="搜索邮件" disabled style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search inline expanded label="搜索邮件" placeholder="搜索邮件" value="发票" clear-label="清除搜索内容" style="inline-size: 20.5rem">
+    <tanrei-search-suggestion value="发票" headline="发票" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-suggestion value="发票模板" headline="发票模板" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-suggestion value="folder:invoices" headline="发票" supporting-text="文件夹 · 24 条消息" leading-icon="folder"></tanrei-search-suggestion>
+  </tanrei-search>
+</DemoFrame>
+
+<ComponentSpecs name="search" />
+
+## 指南
+
+### 何时使用
+
+当搜索是进入产品内容（例如邮件、文件、联系人或设置）的主要途径之一，并且建议能帮助用户更快到达时，使用搜索。把它放在屏幕的顶部，或放在它所搜索的页面的顶部。
+
+它也可以用作站内搜索：页眉中的一个触发器打开对话框，找到的页面和章节以链接的形式列出。
+
+如果只是筛选屏幕上已有的一个短列表，或者在表单中输入一个搜索词，用 `type` 为 search 的[文本字段](/zh-cn/components/text-field/)就够了。从固定列表中选择一个值，是[菜单](/zh-cn/components/menu/)或列表的工作，而不是搜索的工作。
+
+### 搜索栏还是触发器
+
+| `bar` | 页面上显示什么 | 打开 | 用途 |
+| --- | --- | --- | --- |
+| `field`（默认） | 带输入框的搜索栏 | 任何呈现方式 | 搜索是主要进入途径、并且搜索栏有自己位置的产品 |
+| `button` | 外形与搜索栏相同的触发器：搜索图标、占位符和快捷键提示 | 模态视图：对话框或全屏 | 有空间的页眉，搜索只是其中几样东西之一 |
+| `icon` | 纯图标按钮，显示搜索图标 | 模态视图：对话框或全屏 | 没有空间的页眉，例如窄窗口 |
+
+触发器以 `label` 命名，按钮触发器显示占位符，没有占位符时显示标签。它的视图关闭时，焦点交还给触发器。
+
+### 停靠、对话框还是全屏
+
+| 呈现方式 | 视图在哪里打开 | 焦点 | 用途 |
+| --- | --- | --- | --- |
+| 停靠（默认） | 在搜索栏下方，与它等宽，位于内容之上 | 留在搜索栏的输入框中。其他内容都不会变为惰性（inert），也没有遮罩 | 大窗口，视图打开时不必遮住整个屏幕 |
+| 对话框 | 靠近窗口顶部，居中，不超过最大宽度，位于遮罩之上。内容变化时，它的顶部位置保持不动 | 移到页眉的输入框，留在视图之内，关闭时交还给触发器或搜索栏 | 大窗口，由触发器打开：站内搜索 |
+| 全屏 | 覆盖整个窗口，有自己的页眉、返回按钮和分隔线 | 移到页眉的输入框，留在视图之内，关闭时交还给搜索栏或触发器 | 小窗口，建议和屏幕键盘已经让其他内容无处可放 |
+
+三种方式下查询词是同一个。在断点处切换 `presentation` 不会改变它。
+
+### 清除按钮和返回按钮
+
+两者都是内置的，因为它们的行为属于搜索：清除按钮清空查询词，并让视图和焦点留在原处；返回按钮关闭全屏视图。它们的名称必须使用你的产品语言，所以由你提供：`clearLabel`（“清除搜索内容”），以及用于对话框和全屏视图的 `backLabel`（“返回”）。在 iOS 上，返回按钮是离开全屏视图的唯一途径。对话框的页眉里也有返回按钮，这样既没有 Escape 键也没有指针的用户也能离开它。
+
+### 建议、结果和你的内容
+
+- **建议是供选择的东西；结果是可以前往的地方。** 建议帮助用户补全查询词，或直接跳到一个已知的事物；方向键让某条建议成为活动建议，而焦点留在输入框中。结果是你的搜索找到的东西：它是一个自己取得焦点的链接。
+- 用前置图标区分种类：过去的查询词用历史图标，此外还有文件夹、页面、章节。
+- 标题保持简短，细节放进辅助文本或摘录：先是“发票”，再是“文件夹 · 24 条消息”。它们会换行，而不是被截断。
+- 在摘录中标出匹配的部分。这个标记由系统提供，是一种颜色加上更粗的字重，所以匹配的部分在各处看起来都一样。
+- 结果彼此相关时就分组：章节归在所属页面之下，消息归在“消息”之下。组本身是一个可以前往的地方时，组的标题就是链接。
+- 结果只要有地址，就给它 `href`。这样用户可以在新标签页中打开它、复制它的地址，并看到它通往哪里。只有由你的产品自己打开的结果，才使用不带 `href` 的 `select`。
+- 视图中的顺序是固定的：建议、状态行、结果，然后是你自己的内容，例如“加载更多结果”按钮，或通往完整结果页面的链接。
+- 没有内容可显示的停靠视图什么也不画，而搜索保持打开，所以一有内容它就会再次出现。
+
+### 状态
+
+- 每个答案只设置一次 `statusText`：“‘令牌’共 12 条结果”“没有找到‘令排’的结果”。它在变化时会被朗读，所以每次按键都更改它只会成为噪音。
+- 查询进行期间，把 `status` 设为 `loading`。加载指示器只在短暂延迟之后出现，所以答案来得快时不会显示它。
+- 把 `status` 设为 `error`，并附上说明发生了什么的文本。它会以错误的样式绘制，并立即朗读。
+- 丢弃乱序到达的答案。搜索绘制的是你最后设置的内容。
+
+### 快捷键
+
+- 使用用户在你这类产品中已经熟悉的搜索快捷键，并用 `mod` 来写，这样它在每种键盘上都是对的。
+- 一个屏幕上只在一个搜索上设置 `bindShortcut`。两个搜索绑定同样的按键时，先显示的那个保有这些按键，另一个会在调试构建中报告。
+- 不带修饰键的快捷键（例如 `/`），在焦点位于可以输入文本的控件中时会被忽略，这样用户可以输入这个字符。
+- 没有 `bindShortcut` 时，提示只是显示这些按键：请自己绑定它们，或者让 `shortcut` 留空。
+
+### 推荐
+
+- 占位符要说明可以搜索什么：“搜索邮件”。同时也要设置 `label`：占位符永远不是名称。
+- 查询词变化时更新建议，并在用户逐条浏览建议时保持它们的顺序稳定。
+- 收到 `select` 时，做建议所承诺的事：打开一个结果，或者把一个查询词放进搜索栏并执行搜索。
+- 后置插槽中最多放两个图标按钮。
+- 给 `target` 为 `new` 的结果一个 `targetLabel`（“在新标签页中打开”）。
+
+### 避免
+
+- 不要在搜索栏仅仅获得焦点时打开视图。搜索本身已经避免了这一点；不要自己再把它加回来。
+- 不要在停靠视图中放需要自己焦点的控件，例如文本字段。在停靠视图上按下时，焦点仍留在输入框中。
+- 不要在某条建议成为活动建议时更改查询词。只有选择（`select`）或用户的输入才会更改它。
+- 不要用搜索在表单中选择一个值。
+- 不要只把结果的地址放在 `select` 里。没有 `href` 的行是按钮，用户无法在新标签页中打开它。
+- 不要自己只用颜色来标出匹配的部分，也不要把来源不明的标记放进摘录。在 Web 上，摘录的内容是你的：你放进去什么，就原样显示什么。
+
+## 无障碍
+
+<ComponentAccessibility name="search" />
+
+### 组件负责的部分
+
+- 输入框是一个以 `label` 命名的搜索框，绝不以占位符命名；平台有搜索角色时，它带有该角色。
+- 在 Web 上，停靠视图遵循 WAI-ARIA 的 combobox 模式。显示建议时，输入框是一个 combobox，带有 `aria-autocomplete="list"`、`aria-expanded`、指向列表的 `aria-controls`，以及指向活动建议的 `aria-activedescendant`。建议是一个以 `label` 命名的 listbox，每个选项以它的标题命名，以它的辅助文本作为描述。
+- 在停靠视图中，焦点留在输入框中。活动建议随上、下方向键移动，所以用户可以继续修改查询词。活动建议有一部分在可见范围之外时，视图会把它滚动进来。
+- 全屏视图和对话框视图是以 `label` 命名的模态对话框。焦点移到页眉的输入框，插入点位于查询词末尾；焦点留在视图之内，视图之外的一切都变为惰性并被隐藏。视图关闭时，焦点交还给搜索栏的输入框或触发器，视图不会再次打开。
+- 触发器是一个以 `label` 命名的按钮，它表明自己会打开一个对话框，以及它的视图是否打开。它显示键盘焦点的方式与搜索栏相同。
+- 在对话框的遮罩上按下会关闭对话框，并且不会传到它下方的任何内容。对话框的页眉以返回按钮开头，用 Tab 可以到达它。
+- 结果是一个以 `label` 命名的列表，组以它的标题命名。带 `href` 的结果是链接，绝不是选项；只有视图显示建议时，输入框才是 combobox。结果以它的标题命名，以它的摘录作为描述；它在新的上下文中打开时，其后还有 `targetLabel`。
+- 在输入框中按下方向键，如果已经没有可以前往的建议，焦点就移到第一个结果，并继续在各个结果之间移动，跨越各个组；上方向键往回移动，从第一个结果回到输入框。焦点在某个结果上时输入、删除或粘贴，焦点会移到输入框，按键随后在那里起作用。在模态视图中，Tab 像经过任何链接一样依次经过各个结果。
+- 状态行是一个实时区域（live region）。`statusText` 在变化时被朗读；`status` 为 `error` 时，它作为警报立即朗读。加载期间，结果被标记为忙碌，加载指示器以 `statusText` 命名。
+- 快捷键作为触发器或输入框的键盘快捷键暴露。它的提示不接受按下，也不接受焦点。
+- 焦点到达输入框绝不会打开视图，无论是通过 Tab 还是从全屏视图返回。
+- Escape、平台的返回操作和返回按钮会关闭视图。停靠视图还会在按下 Tab、Shift+Tab、在外部按下或焦点离开搜索时关闭。
+- 清除按钮和返回按钮是 Tanrei 的图标按钮，以 `clearLabel` 和 `backLabel` 命名。清除之后，焦点回到输入框。
+- 你放在 `leading` 和 `trailing` 插槽中的图标按钮保留自己的名称、角色和焦点停靠点，并按阅读顺序排列。它们不显示在全屏视图的页眉中。
+- 输入、输入法组合、听写和从右到左的文本，都与文本字段中的表现相同。搜索键盘上的操作键会提交。
+- 搜索栏用自己的边线显示焦点，无论焦点来自键盘还是指针，与输入框一样。建议行在处于活动状态时，在行内显示焦点环。每一行和搜索栏都达到最小目标。
+- 搜索图标、前置图标和分隔线对辅助技术隐藏。
+- 文本变大时，搜索栏和页眉随之增高，查询词保持在一行之内，建议行会换行。
+- 调试构建会报告：缺少 `label`、`clearLabel` 或 `backLabel`，建议的值为空或重复，标题为空，未知的 presentation、bar 或 status，触发器配停靠的呈现方式，第二个绑定了相同按键的搜索，以及超过两个的后置按钮。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 还没有触发器、对话框视图、结果、状态行和快捷键。在这些平台上，请在视图自己的内容中显示结果，并自己朗读结果的数量。
+- Web：已绑定的快捷键按照其提示所采用的约定来解读 `mod`，也就是某个祖先元素设置的约定，没有设置时才是平台的约定，而规格只指定了平台的约定。
+- SwiftUI、Compose、Flutter 和 React Native 没有 combobox 或 listbox 角色。它们的输入框是一个搜索框，每条建议是一个带有其在列表中位置的按钮，屏幕阅读器通过轻扫到达它。在这些平台上，活动建议不会作为输入框的活动后代被朗读。Flutter 的建议也没有在列表中的位置，SwiftUI 和 React Native 则用英文说明位置（“2 of 3”；React Native 的 `positionText` 可以更改它）。
+- Flutter 把输入框作为搜索输入类型暴露，而不是 search box 角色，因为 Flutter 3.32（它支持的最旧版本）不接受这个角色。
+- 在停靠视图之外按下会关闭它。在 Web、SwiftUI、Compose 和 Flutter 上，这次按下还会传到它下方的内容；在 React Native 上不会，与菜单一样。
+- Web：全屏视图页眉的输入框也是 combobox，所以活动建议在那里同样会被朗读。规格只为停靠视图指定了 combobox。
+- Web：停靠视图不会因平台的关闭请求（例如 Android 的返回手势）而关闭。它由脚本定位，而不是像规格中关于 Web 的说明所写的那样用 CSS 锚点定位。
+- 禁用会波及插槽中的图标按钮，而规格让它们保持自己的状态：SwiftUI 的 `.disabled(true)` 会把它们一并禁用，在 Web 上，小于 1 的禁用不透明度会让它们变淡。每个内置系统的禁用不透明度都是 1。
+- SwiftUI 把停靠视图画在搜索所在容器中排在搜索之后的内容之上，而不是画在窗口中所有视图之上。请让搜索在容器中靠后放置，或者用 `zIndex` 把它抬高。在 macOS 上不读取窗口的高度，所以视图总是以自然高度在下方打开，全屏视图则是一个与窗口同样大的 sheet。
+- SwiftUI：选区的高亮颜色跟随插入点的着色，而不是文本字段的选区颜色。在没有焦点的输入框上第一次轻点，会把插入点放在查询词的末尾，而不是轻点的位置。按键只在 macOS 上测试过，没有在 iOS 上用硬件键盘测试。
+- Compose 无法区分精确指针和触摸，所以它的建议行高度始终是 48，而 Web 上使用鼠标时是 44。它的测试覆盖不到在停靠视图之外的按下。
+- Flutter：输入框没有焦点时，产品用 `expand()` 打开的停靠视图不会因在外部按下而关闭。全屏视图需要一个 `Navigator`；没有它时，视图是停靠的。
+- React Native：停靠视图在打开时以及窗口或键盘变化时定位，但搜索栏滚动时它不会跟随。Escape、方向键和 Tab 只在 `TextInput` 传递它们的地方才能收到，浮层以及全屏视图的焦点移动还没有在设备上检查过。
+- 在 `cupertino` 下，搜索栏不画焦点边线，因为 iOS 的搜索框只用插入点和键盘来显示焦点。
+- 在 `m3-like` 下，搜索按默认系统的值绘制：Material 的搜索取值要等保真度参考覆盖到它。Material 的停靠视图是从搜索栏延伸出来、与它连成一个表面的，这里则画成搜索栏下方的一个独立表面（模仿差距 `search-docked-view-joins-bar`）。
+
+### 需要你做的事
+
+- 给搜索一个 `label`，并提供 `clearLabel`，以及用于对话框和全屏视图的 `backLabel`，都使用你的产品语言。
+- 为当前查询词提供建议，建议的标题要在单独朗读时也能让人明白。
+- 在 `statusText` 中用你的产品语言说明你的搜索找到了什么，每个答案一次。搜索会朗读它；搜索自己不统计结果数量。
+- 查询由你自己执行，并丢弃乱序到达的答案。
+- 给每个有地址的结果一个 `href`，它在新的上下文中打开时再给一个 `targetLabel`。
+- 绑定快捷键的按键，或者设置 `bindShortcut`。提示的按键如果什么也不做，就会误导用户。
+- 决定 `select` 做什么；如果选择应当填入查询词，就自己设置查询词。
+- 在 Compose 和 React Native 上，在回调中设置 `expanded`，否则视图不会打开或关闭。
+- 在 Web 上，给搜索一个 `name`，以便随表单提交它的查询词。

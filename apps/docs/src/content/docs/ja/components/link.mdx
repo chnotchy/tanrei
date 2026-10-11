@@ -1,0 +1,240 @@
+---
+title: リンク
+description: 行き先のあるテキストです。文の中の語句、単独の 1 行、グリフだけの 3 つの形があります。置かれた場所のテキストスタイルで描き、下線はデザインシステムの選択に従い、サイトの外へ出るリンクにはその印を付けます。
+translationOf: components/link.mdx
+sourceHash: f0fa00fc6cf51c83e20f611d66798ad0f25346c1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="link" />
+
+<DemoFrame label="文の中、単独、グリフだけ" column>
+  <p style="margin: 0; max-inline-size: 32rem">
+    トークンはすべてのプラットフォーム向けに生成されます。
+    <a class="tanrei-link" href="../../foundations/design-tokens/">トークンの導出のしくみ</a>を読むか、
+    <a class="tanrei-link" href="https://example.com/tanrei" target="_blank" aria-description="新しいタブで開きます">ソースコード</a>を見てください。
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="../button/">次へ：ボタン<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+  </p>
+  <p style="margin: 0">
+    <a class="tanrei-link" href="#概要" aria-label="「概要」へのリンク"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+  </p>
+</DemoFrame>
+
+表を引かなくても使える規則が 1 つあります。**アドレスがあればリンク、なければボタンです。** ページ上で何かを実行し、どこにも移動しないコントロールは[ボタン](../button/)で、テキストのように控えめに見せたいときは `text` バリアントを使います。ボタンのように見せたい行き先は、`href` を持つボタンです。
+
+### 使い方
+
+Web では、リンクは要素ではなく、プロダクト側の `<a>` に付けるクラスです。`<a>` は文書の中にあるので、スクリプトが動く前からリンクとして働き、クローラー、検索インデックス、ページ内の `<a>` を扱うルーターのどれからも見つけられます。ルーターのリンクコンポーネントにもこのクラスを付けられます。`.tanrei-prose` の中の `<a>` はクラスがなくても同じように描かれるので、Markdown から生成した HTML には何も足す必要がありません。
+
+SwiftUI、Compose、Flutter、React Native は計画中です。このページの冒頭で各プラットフォームに添えた名前は仕様が定めたもので、まだ提供していません。React にもまだ `Link` コンポーネントはないので、クラスを付けた `<a>` を使ってください。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/link.css" />
+
+    <!-- 文の中。 -->
+    <p>まず<a class="tanrei-link" href="/guides/accessibility/">アクセシビリティガイド</a>をお読みください。</p>
+
+    <!-- 単独：ヒット領域が最小ターゲットまで広がります。 -->
+    <a class="tanrei-link" data-standalone href="/getting-started/">はじめに</a>
+
+    <!-- 新しいタブ：印は自動で描かれます。言葉でも伝えます。 -->
+    <a class="tanrei-link" href="https://example.com/" target="_blank" aria-description="新しいタブで開きます">ソースコード</a>
+
+    <!-- 別のサイトへ、いまいる場所で開くリンク：ラベルの後ろに矢印が描かれます。言葉でも伝えます。 -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="外部リンク">規格書</a>
+
+    <!-- そのサイトのアイコンを付ける場合：自分のサイトが配信する画像を、<a> の最初の子として書きます。 -->
+    <a class="tanrei-link" href="https://example.com/" data-external="true" aria-description="外部リンク"><img
+      class="tanrei-link-site-icon" src="/icons/example-com.png" alt="" width="32" height="32"
+      loading="lazy" decoding="async" referrerpolicy="no-referrer">規格書</a>
+
+    <!-- デザインシステムの下線の選択から 1 つのリンクだけを外す：always、hover、never。 -->
+    <a class="tanrei-link" data-standalone data-underline="hover" href="/about/">このサイトについて</a>
+
+    <!-- 領域ごとの選択：中のリンクはすべてこれに従います。 -->
+    <footer style="--tanrei-comp-link-underline-visibility: never">…</footer>
+
+    <!-- グリフ。テキストとの間に空白を入れずに書きます。 -->
+    <a class="tanrei-link" data-standalone href="/tokens.zip"><span class="tanrei-icon" aria-hidden="true">download</span>トークンをダウンロード</a>
+    <a class="tanrei-link" data-standalone data-icon-position="trailing" href="/tokens/">次へ：トークン<span class="tanrei-icon" aria-hidden="true">arrow_forward</span></a>
+
+    <!-- グリフだけ。aria-label で名前を付けます。 -->
+    <a class="tanrei-link" href="#installation" aria-label="「インストール」へのリンク"><span class="tanrei-icon" aria-hidden="true">link</span></a>
+
+    <!-- 現在のページ、いまは移動できないリンク、反転したサーフェスの上のリンク。 -->
+    <a class="tanrei-link" data-standalone href="/components/" aria-current="page">コンポーネント</a>
+    <a class="tanrei-link" data-standalone role="link" aria-disabled="true">前のページ</a>
+    <a class="tanrei-link" data-variant="inverse" href="/changes/">変更点を見る</a>
+
+    <script type="module">
+      // 任意：リップルと dim の押下への応え方、noopener、拒否、デバッグ時の報告。`@tanrei/web` を読み込んでも入ります。
+      // ページを作るときに印が付けられていない場合は、サイトの外へ出るリンクにここで印を付けます。
+      import { setSiteOrigins, setExternalLabel } from '@tanrei/web/link';
+      setSiteOrigins(['https://docs.example.com']); // 自分のサイトに含まれるオリジン
+      setExternalLabel('外部リンク');                // 文言。ページに 1 回、プロダクトの言語で
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/link.css';
+    import '@tanrei/web/link';
+    import { Link as RouterLink } from 'react-router-dom';
+
+    <a className="tanrei-link" href="/guides/accessibility/">アクセシビリティガイド</a>
+
+    {/* ルーターのリンクは自分の <a> を描きます。それにクラスを付けます。 */}
+    <RouterLink className="tanrei-link" data-standalone to="/getting-started/">はじめに</RouterLink>
+    ```
+  </TabItem>
+</Tabs>
+
+| プロパティ | Web での書き方 |
+| --- | --- |
+| `href` | `href` |
+| `target: new` | `target="_blank"` |
+| `targetLabel` | `aria-description` |
+| `variant: inverse` | `data-variant="inverse"` |
+| `standalone` | `data-standalone` |
+| `iconPosition: trailing` | `data-icon-position="trailing"` |
+| `current` | `aria-current="page"`（またはほかの値） |
+| `disabled` | `role="link" aria-disabled="true"`、`href` なし |
+| `label` | `aria-label` |
+| `underline` | `data-underline="always"`、`"hover"`、`"never"`。なければデザインシステムの選択 |
+| `external: on`、`off` | `data-external="true"`、`data-external="false"`。なければアドレスで決まります |
+| `externalLabel` | `aria-description` |
+| `siteIcon` | 自分で書く `<img class="tanrei-link-site-icon" alt="">`。`<a>` の最初の子にします |
+
+## 仕様
+
+<DemoFrame label="折り返し：下線、ステートレイヤー、フォーカスリングは行ごとに描かれます" plain>
+  <p style="margin: 0; max-inline-size: 22rem">
+    <a class="tanrei-link" href="../../foundations/accessibility/">アクセシビリティガイド。各コンポーネントの名前の付け方、キーボードでの到達と操作の方法、状態が変わったときに各プラットフォームが読み上げる内容を説明します</a>
+  </p>
+</DemoFrame>
+
+<DemoFrame label="グリフと、新しいタブの印" plain column>
+  <a class="tanrei-link" data-standalone href="../../foundations/design-tokens/"><span class="tanrei-icon" aria-hidden="true">download</span>トークンをダウンロード</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="新しいタブで開きます">ソースを見る</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" target="_blank" aria-description="新しいタブで開きます"><span class="tanrei-icon" aria-hidden="true">code</span>ソースを見る</a>
+  <a class="tanrei-link" data-standalone data-icon-position="trailing" href="https://example.com/tanrei" target="_blank" aria-description="新しいタブで開きます">ソースを見る<span class="tanrei-icon" aria-hidden="true">code</span></a>
+</DemoFrame>
+
+<DemoFrame label="現在の項目と無効" plain>
+  <a class="tanrei-link" data-standalone href="../">概要</a>
+  <a class="tanrei-link" data-standalone href="./" aria-current="page">コンポーネント</a>
+  <a class="tanrei-link" data-standalone role="link" aria-disabled="true">前のページ</a>
+</DemoFrame>
+
+<DemoFrame label="下線：常に、ホバー時、なし" plain>
+  <a class="tanrei-link" data-standalone data-underline="always" href="../button/">常に</a>
+  <a class="tanrei-link" data-standalone data-underline="hover" href="../button/">ホバー時</a>
+  <a class="tanrei-link" data-standalone data-underline="never" href="../button/">なし</a>
+</DemoFrame>
+
+<DemoFrame label="サイトの外へ出るリンク" plain column>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="外部リンク">仕様書</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" aria-description="外部リンク"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />仕様書</a>
+  <a class="tanrei-link" data-standalone href="https://example.com/tanrei" data-external="true" target="_blank" aria-description="新しいタブで開きます"><img class="tanrei-link-site-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAnElEQVR42sXXwQmAQAxE0S1EsETbsyeLUBAUBd3NJDNJIOf3j0lrPzMv287chgwbhyJUuClCjXcjsvB9nc4txV8RVfgdUYmnBPRwecAIlwZYcFmAFZcEIDg9AMWpAR6cFuDFKQERPBwQxUMBDNwdwMJdAUwcDmDjUIACNweocFOAEh8GqPHuXZiGf13G6fgzogy/phRXR0AfchZ+AFwHsdKn/rQFAAAAAElFTkSuQmCC" alt="" width="32" height="32" loading="lazy" decoding="async" referrerpolicy="no-referrer" />仕様書</a>
+</DemoFrame>
+
+<DemoFrame label="反転したサーフェスの上" plain>
+  <div style="padding: var(--tanrei-sys-space-space200); border-radius: var(--tanrei-sys-shape-corner-small); background: var(--tanrei-sys-color-inverse-surface); color: var(--tanrei-sys-color-inverse-on-surface)">
+    ページを保存しました。
+    <a class="tanrei-link" data-variant="inverse" href="../snackbar/">変更点を見る</a>
+  </div>
+</DemoFrame>
+
+リンクは自分のテキストスタイルを持ちません。段落、見出し、キャプション、表のセルのどこでも、置かれたテキストの書体、サイズ、太さ、行の高さをそのまま使います。ホバー、フォーカス、押下は、リンクが通る各行のテキストの背後に描かれ、場所を取らないので、リンクの周りは動きません。グリフ、サイトのアイコン、印はテキストと同じ大きさで、隣の語と同じ行にとどまります。
+
+**下線をいつ描くかは選択です。** 値は 3 つあります。`always` は、何もしていないときも、どの状態でも下線を描きます。`hover` は、リンクにホバーしている間、キーボードでフォーカスしている間、押している間に描きます。`never` は描きません。その場合も、ホバー、フォーカス、押下はステートレイヤー、ラベルの色、フォーカスリングで示されます。この選択は 3 つのレベルで設定します。デザインシステムのすべてのテキストリンクには `sys.behavior.link-underline`、リンクだけには `comp.link.underline.visibility`、1 つのリンクには `underline` プロパティです。既定のシステムの選択は `always` です。Web ではコンポーネントトークンがカスタムプロパティなので、フッターのような領域に独自の値を持たせられます。現在の項目のリンクとグリフだけのリンクには、どの選択でも下線がありません。強制カラーモードでは、どの選択でも下線を描きます。
+
+**サイトの外へ出るリンクは、そのことを伝えます。** 外部リンクは、ラベルの後ろに `arrow_outward` のグリフを描き、アイコンを渡した場合はラベルの前にそのサイトのアイコンを描きます。`external` の値は `auto`、`on`、`off` です。`auto` では、ページとは別のオリジンの `http` または `https` のアドレスが外部になります。パス、フラグメント、メールアドレス、電話番号、ダウンロードは外部になりません。自分のサイトに含まれるほかのオリジンを 1 回宣言しておけば、それらも外部になりません。`comp.link.external.marks` は、プロダクト全体でアイコンを消す（`arrow`）か、両方の印を消します（`none`）。
+
+サイトの外へ出ることと、新しいタブで開くことは、別々の事実です。ラベルの後ろの場所に入るグリフは 1 つです。`target="_blank"` のリンクには、外部かどうかにかかわらず `open_in_new` が入り、それ以外の外部リンクには `arrow_outward` が入ります。末尾側に自分でグリフを置いた場合はそれが代わりになり、グリフだけのリンクにはどちらもありません。
+
+**リンクがアイコンを取りに行くことはありません。** `siteIcon` は利用者側で渡す画像です。自分のサイトが配信する画像を、サイトをビルドするときに用意します。コンポーネントが行き先のサイトやアイコンのサービスにそれを問い合わせると、読者がどのページを見ているかをその相手に知らせることになります。アイコンを渡さない場合、リンクは矢印だけを描きます。読み込めなかったアイコンは、場所を保ったまま何も描きません。
+
+<ComponentSpecs name="link" />
+
+### Web での描き方の違い
+
+- テキストの背後のコンテナは、行の高さ全体ではなく、テキスト自体の箱（フォントの高さ）です。
+- グリフや印のあるリンクが折り返すと、行の端で切られた 1 つの箱として描かれます。どちらもないリンクは、すべての行で 4 つの角が丸くなります。
+- グリフ、印、外部リンクの印のいずれかがある単独のリンクは、ラベルを、ラベル自身の最初の文字の方向ではなく、レイアウトの方向で配置します。
+- スタイルシートはアドレスについて何も計算しません。`data-external` に対して印を描くだけです。この属性をページを作るときに書いておけば（Markdown から生成した HTML には、`@tanrei/web/links` のビルドステップ `markExternalLinks()` が書きます）、印は最初の描画に含まれます。
+- パッケージのスクリプトがあれば、`data-external` のない `<a>` のうち、アドレスがサイトの外へ出るものにブラウザーで印が付きます。この印は最初の描画の後に現れ、1 つごとに、同じ行の後ろにあるものをテキストのサイズと間隔の分だけ動かします。属性もスクリプトもないページには、外部リンクの印は出ません。
+- スタイルコンテナクエリのないブラウザーでは、スクリプトが 2 つの選択をページ全体について読み取ります。領域ごとの値は反映されません。スクリプトもなければ、どちらの選択も最初の値（`always` と、両方の印）になります。
+- 押下への応え方がリップルのデザインシステムでも、複数行にわたるリンクはオーバーレイで応えます。
+- パッケージのスクリプトがなくても、スタイルシートだけですべての状態を描きます。このとき、押下への応え方はオーバーレイです。
+
+## ガイドライン
+
+### リンクかボタンか
+
+| 種類 | 何であるか | 使う場面 |
+| --- | --- | --- |
+| **リンク** | 行き先のあるテキスト。周りのテキストスタイルで描き、下線はデザインシステムの選択に従います | 文の中の語句、行き先である 1 行のテキスト、見出しの横のグリフ |
+| **行き先のあるボタン** | ボタンとして描くリンク | 行き先が画面のアクションの 1 つであるとき。「はじめる」「ソースを見る」など |
+| **テキストボタン** | ボタン | 何かを実行し、どこにも移動しないとき。どれほどテキストのように見せたくても同じです |
+
+### 文の中か、単独か
+
+`data-standalone` を付けても見た目は変わりません。リンクがテキストの行の一部ではないことを伝えるもので、上下の行に向けた押下を奪うことなく、ヒット領域を最小ターゲットまで広げられます。段落の下のリンク、表のセルの中のリンク、リンクの並びに使います。文の中では付けません。
+
+`hover` と `never` は、単独で置かれるリンクのためのものです。ナビゲーションのリスト、フッター、関連ページの並びなどです。リストの中の位置が、それがリンクであることを伝えます。そうしたリンクに `data-underline` を付けるか、その領域にコンポーネントトークンの独自の値を持たせ、文の中のリンクには下線を残します。
+
+### 推奨
+
+- 周りの文がなくても行き先が分かるラベルにします。「こちら」ではなく「インストールガイド」と書きます。
+- `data-variant="inverse"` は `sys.color.inverse-surface` の上だけで使います。控えめなコンテナ（ステータスのコンテナや `secondary-container`）の上では標準のリンクが適切です。
+- ナビゲーションのまとまりの中で現在の項目にするリンクは 1 つまでとし、どれにするかはそのまとまりが決めます。
+- 単独のリンクを 2 つ並べるときは `sys.target.spacing` を空けるか、行の高さをターゲットの高さにします。
+- サイトのアイコンは、自分のサイトが配信するファイルとして渡します。`@tanrei/web/links` の `resolveSiteIcons()` がサイトのビルド時に用意するので、読者のブラウザーがほかの相手に問い合わせることはありません。
+- 外部リンクの文言は、プロダクトの言語で 1 回だけ設定します（`setExternalLabel()`、またはビルドステップの `externalLabel`）。この文言は、[プロダクトの言葉](/ja/foundations/words/)のキー `externalLabel` です。`setWords({ externalLabel: '…' })` でも同じ文言を渡せ、`{ lang }` を付ければ言語ごとに渡せます。
+
+### 非推奨
+
+- リンクの色が本文の色と同じレイヤで、何もしていないときの下線を外さない。既定のシステムではリンクの色は本文の色そのもので、6 つのスキームすべてで本文に対して 1.00:1 です。リンクであることを伝えているのは下線だけです。選択が `hover` か `never` で、リンクの色と本文の色の差が 3:1 に満たない場合、ビルドは既定のシステムではエラーにし、プロダクトのレイヤでは警告します。
+- タッチスクリーンで `hover` がリンクを見分けさせてくれると考えない。タッチスクリーンにホバーはないので、`hover` には `never` と同じ規則が適用されます。
+- サイトのアイコンを、ブラウザーからそのサイトやアイコンのサービスに取りに行かない。読者がどのページを見ているかを、読者全員のブラウザーがその相手に知らせることになります。
+- 行き先の代わりにクリックハンドラーを付けない。アドレスのない `<a>` はただのテキストとして描かれ、デバッグビルドで報告されます。
+- 全体を押すコントロール（リンクカード、行き先のあるリストの項目）の中にリンクを置かない。リンクの中にコントロールを置くこともしません。
+- 訪問済みのリンクに別のスタイルを付けない。「開いたことがある」ことを示したいプロダクトは、自分のデータをもとにタグやグリフで示します。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="link" />
+
+### コンポーネントが担うこと
+
+- ブラウザー自身のリンクです。リンクのロール、Enter での移動、コンテキストメニュー、新しいタブで開く操作がそのまま働き、スクリプトがなくてもリンクとして動きます。
+- 既定のシステムでは、周りのテキストとの違いを、色に頼らず下線で示します。どのスキームでも同じです。強制カラーモードでは、どの選択でも下線を描きます。
+- 外部リンクの説明は 1 つで、名前の後に読み上げられます。新しいタブで開くリンクでは `aria-description`、それ以外では外部リンクの文言です。矢印とサイトのアイコンは支援技術から隠されます。
+- キーボードフォーカスのフォーカスリングは、各行のリンクの部分を囲んで描かれます。
+- 単独のリンクとグリフだけのリンクは、ヒット領域を最小ターゲットまで広げます。文の中のリンクは自分のテキストの範囲にとどまります。
+- 印と、ラベルの横のグリフは、支援技術から隠されます。
+- パッケージのスクリプトがあれば、新しいタブで開くリンクに `noopener` が付き、デバッグビルドでは、名前のないリンク、説明のないリンク、行き先でないアドレスが報告されます。あわせて、文の中にあって何もしていないときに下線がなく、本文との差が 3:1 に満たないリンク、文言のない外部リンク（ページに 1 回）、別のオリジンから読み込まれるサイトのアイコンも報告されます。
+
+### 利用者側で行うこと
+
+- グリフだけのリンクには `aria-label` で名前を付け、すべてのグリフに `aria-hidden="true"` を付けます。
+- 新しいタブで開くことは、プロダクトの言語で `aria-description` に書きます。Tanrei は文言を持ちません。
+- 無効なリンクは、`href` のない `<a>` に `role="link"` と `aria-disabled="true"` を付けて書きます。フォーカス順から外れるので、移動できない理由は横のテキストで伝えます。
+- いまいるページやセクションを指すリンクに `aria-current` を付けます。
+- 文の中で `hover` と `never` を使うのは、リンクの色が本文の色から 3:1 以上離れ、かつサーフェスに対して 4.5:1 を保つ場合だけにします。白に近いサーフェスに黒に近い本文を置く場合、これを満たすのは中間のトーンの狭い範囲です。
+- サイトの外へ出ることは言葉で伝えます。リンクに `aria-description` を書くか、すべての外部リンクに向けて 1 回設定した文言を使います。Tanrei は文言を持ちません。外部で、かつ新しいタブで開くリンクでは、1 つの説明に両方の事実を書きます。
+- サイトのアイコンは `alt=""` で書きます。これは装飾です。リンクの名前はラベルが伝え、印は矢印が担います。

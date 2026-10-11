@@ -1,0 +1,365 @@
+---
+title: "消息条（Snackbar）"
+description: "在屏幕底边简短地告诉用户应用刚刚做了什么，最多带一个操作，不夺取焦点，也不打断用户的工作。"
+translationOf: components/snackbar.mdx
+sourceHash: f61661ae48c71d10693c9c317c171876ce5a19d1
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="snackbar" />
+
+:::note[规格已修订，尚未覆盖所有平台]
+本页描述的是规格当前所定的消息条（Snackbar）：一个绘制在当前配色方案的表面上或以反色绘制的条，一个低调的 tonal 操作，用淡色呈现的状态形态，一个标题，以及可以展开的文本。Web 把这些全都画了出来。在它的反色状态形态通过评审、基准图记录完成之前，它在上表中仍标记为“待跟进”。SwiftUI、Compose、Flutter 和 React Native 提供的是较早的一版：操作是 text 样式，没有状态形态，没有标题，不能展开，也没有 `inverse`；在这些平台跟上之前，它们的示例展示的都是那一版。演示是目前发布的 Web 组件。
+:::
+
+<DemoFrame label="就地绘制：一条带操作的消息，和一条带关闭按钮的消息" column>
+  <tanrei-snackbar message="会话已归档" action="撤销"></tanrei-snackbar>
+  <tanrei-snackbar message="已连接到办公室的打印机" closable close-label="关闭"></tanrei-snackbar>
+</DemoFrame>
+
+### 用法
+
+消息条不由你来摆放。你请求宿主显示一条消息条，宿主负责让它排队，把它放在自己区域的底部，为它计时并朗读它。那条消息条关闭后，`show` 才给出结果：如果它的操作被激活，结果是 `action`；否则是 `dismiss` 和原因。所以“撤销”的代码可以从上到下顺着读。
+
+| 平台 | 宿主 | 显示消息条 |
+| --- | --- | --- |
+| Web | `<tanrei-snackbar-host>`，作为页面的最后一个元素 | `host.show(options)`，返回 promise |
+| SwiftUI | `TanreiSnackbarHost`，用 `.tanreiSnackbarHost(_:)` 附着 | `await host.show(message:…)` |
+| Compose | `TanreiSnackbarHost(hostState)`，与内容同处一个 `Box` 并排在最后 | `hostState.showSnackbar(message, …)`，一个挂起调用 |
+| Flutter | `TanreiSnackbarMessenger`，包在它所报告的页面外面 | `TanreiSnackbarMessenger.of(context).show(TanreiSnackbar(…))`，返回一个控制器，它的 `closed` 是一个 future |
+| React Native | 由 `TanreiProvider` 在它的浮层中渲染 | `useSnackbar().show(options)`，返回 promise |
+
+每个宿主还可以关闭正在显示的消息条（`dismissCurrent`），也可以连同等待中的消息条一并丢弃（`clear`），两者的原因都是 `host`。绘制在宿主之外的消息条元素会就地绘制，并像宿主那样在给定的宽度内居中：没有超时、队列、入场动效和朗读。这种形式用于文档页面和测试，例如上面的演示。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 放在页面最后：宿主在焦点顺序中的位置，就是消息条的控件所在的位置。 -->
+    <tanrei-snackbar-host></tanrei-snackbar-host>
+
+    <script type="module">
+      import '@tanrei/web/components/snackbar';
+      const snackbars = document.querySelector('tanrei-snackbar-host');
+
+      async function archive() {
+        await archiveConversation();
+        // 关闭后才给出结果：{ result: 'action' } 或 { result: 'dismiss', reason }。
+        const { result } = await snackbars.show({ message: '会话已归档', action: '撤销' });
+        if (result === 'action') await restoreConversation();
+      }
+
+      // 状态形态：有图标，并用文字向辅助技术说明状态。
+      snackbars.show({
+        status: 'error',
+        statusLabel: '错误',
+        title: '消息未发送',
+        message: '你处于离线状态。消息会留在发件箱中。',
+        action: '重试',
+        expandLabel: '显示完整消息',
+      });
+
+      // 以反色绘制，不论设计系统如何选择。省略 `inverse` 则采用系统的选择。
+      snackbars.show({ message: '链接已复制', inverse: true });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useRef } from 'react';
+    import { SnackbarHost } from '@tanrei/react';
+    import type { TanreiSnackbarHost } from '@tanrei/web';
+
+    // ref 就是元素本身：show() 是它的方法。
+    const snackbars = useRef<TanreiSnackbarHost>(null);
+
+    async function archive() {
+      await archiveConversation();
+      const { result } = await snackbars.current!.show({ message: '会话已归档', action: '撤销' });
+      if (result === 'action') await restoreConversation();
+    }
+
+    // 状态形态，消息上方带有标题。
+    snackbars.current?.show({ status: 'error', statusLabel: '错误', title: '消息未发送', message: '你处于离线状态。', action: '重试' });
+
+    // 以反色绘制，不论设计系统如何选择。
+    snackbars.current?.show({ message: '链接已复制', inverse: true });
+
+    // 放在页面最后，位于内容之后。
+    <SnackbarHost ref={snackbars} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    @State private var snackbars = TanreiSnackbarHost()
+
+    // 把宿主附着在要使用其底边的视图上。它绘制在一个浮层中，而不是 sheet 中。
+    ContentView()
+        .tanreiSnackbarHost(snackbars)
+
+    // 消息条关闭后才返回：.action 或 .dismissed(reason)。
+    // 如果宿主的视图不在屏幕上，对它的请求会等到视图出现为止。
+    let result = await snackbars.show(message: "会话已归档", actionLabel: "撤销")
+    if case .action = result { restoreConversation() }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarHost
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarHostState
+    import io.github.chnotchy.tanrei.components.TanreiSnackbarResult
+
+    // 与 Material 的 SnackbarHostState 相同：showSnackbar 会挂起，直到消息条关闭。
+    val snackbars = remember { TanreiSnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    Box(Modifier.fillMaxSize()) {
+        Content(onArchive = {
+            scope.launch {
+                when (snackbars.showSnackbar("会话已归档", actionLabel = "撤销")) {
+                    TanreiSnackbarResult.ActionPerformed -> unarchive()
+                    is TanreiSnackbarResult.Dismissed -> Unit
+                }
+            }
+        })
+        // 放在 Box 的最后：绘制在内容之上，在焦点顺序中排在最后。
+        TanreiSnackbarHost(snackbars, Modifier.fillMaxSize())
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 与 ScaffoldMessenger 相同。把它包在页面外面、放在页面的路由之内，这样在上方打开的对话框会盖住它。
+    TanreiSnackbarMessenger(child: page);
+
+    Future<void> archive(BuildContext context) async {
+      await archiveConversation();
+      final TanreiSnackbarController snackbar = TanreiSnackbarMessenger.of(context).show(
+        const TanreiSnackbar(message: '会话已归档', actionLabel: '撤销'),
+      );
+      // 以 action、close、escape、timeout 或 host 完成。
+      if (await snackbar.closed == TanreiSnackbarClosedReason.action) {
+        await restoreConversation();
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useSnackbar } from '@tanrei/react-native';
+
+    // 宿主位于 TanreiProvider 的浮层中：请把 provider 放在应用的根部。
+    const snackbar = useSnackbar();
+
+    async function archive() {
+      await archiveConversation();
+      const { result } = await snackbar.show({ message: '会话已归档', actionLabel: '撤销' });
+      if (result === 'action') await restoreConversation();
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="一条换行的消息，和一个独占一行的操作" plain column>
+  <tanrei-snackbar message="你的更改已保存，但由于你当时处于离线状态，共享副本未能更新。" action="重试"></tanrei-snackbar>
+  <tanrei-snackbar message="有三个文件未能上传，因为它们超过了此文件夹的大小上限。" action="查看失败的文件"></tanrei-snackbar>
+</DemoFrame>
+
+<ComponentSpecs name="snackbar" />
+
+## 指南
+
+### 何时使用
+
+当用户刚做的事已经完成、又没有属于它自己的屏幕时，用消息条来确认：“会话已归档”“链接已复制”“照片已保存”。最多提供一个操作，用来撤销这件事或接着做下一步。
+
+消息条只报告，不提问。在两个操作之间做选择、阻碍用户工作的错误，或任何必须由用户确认知悉的事，都应放在对话框里，或放在与它相关的东西旁边。错误形态用于用户可以回头再处理的失败，例如带“重试”的“消息未发送”。
+
+### 消息条还是对话框
+
+两者都出现在页面之上，但做的事正好相反。
+
+| 方面 | 消息条 | [对话框](/zh-cn/components/dialog/) |
+| --- | --- | --- |
+| 它做什么 | 报告已经发生的事。 | 在工作继续之前，请用户做出决定，或确认知悉某件事。 |
+| 焦点 | 从不移动。用户继续工作。 | 移入对话框。它背后的页面无法使用。 |
+| 停留多久 | 几秒钟，或直到它的操作或关闭按钮被使用。 | 直到用户作答。 |
+| 操作 | 最多一个，而且没有它消息也是完整的。 | 对它所提问题的回答。 |
+
+如果用户忽略这条消息也不会出什么问题，它就是消息条。如果应用没有回答就无法继续，它就是对话框。属于屏幕某一部分、并且必须保持可见的消息（例如某个输入框出了什么问题），应放在那个位置，例如作为该输入框的辅助文本。
+
+### 部件
+
+| 部件 | 设置方式 | 说明 |
+| --- | --- | --- |
+| 条 | `inverse` | 默认是当前配色方案中一个抬升的表面，也可以采用相反配色方案的颜色；见[在表面上，还是反色](#在表面上还是反色)。 |
+| 状态图标 | `status` 和 `statusLabel` | 可选。状态形态会在文本之前绘制它的图标；见[状态形态](#状态形态)。 |
+| 标题 | `title`（在 Web 上是 `headline`） | 可选。消息上方的简短标题，字号与消息相同，样式更重。没有它时，消息独自成立。 |
+| 消息 | `message` | 必填。纯文本，一两个短句，朗读时总是完整的。有标题时，它是描述，画得比标题略淡一些。 |
+| 操作 | `action`（标签） | 可选：“撤销”“查看”“重试”。绘制为 tonal 按钮：一个胶囊形，与它所在的条只差低调的一级，标签采用条的文本颜色。消息条用自己的令牌来绘制它，而不是把它作为 Button。当旁边的文本需要超过两行（标题和消息的行数合计）时，或它的标签需要换行时，它会移到单独的一行。 |
+| 展开按钮 | `expandLabel`、`expanded` | 只在标题或消息超过三行时绘制。`expandLabel` 是它的无障碍名称，例如“显示完整消息”。 |
+| 关闭按钮 | `closable` 和 `closeLabel` | 可选。用于一直停留到被关闭的消息，或用户可能想让它早点消失的消息。`closeLabel` 是它的无障碍名称，使用你的产品的语言。 |
+
+操作、展开按钮和关闭按钮位于文本第一行的旁边。展开按钮和关闭按钮是纯图标按钮，使用图标集的 `expand_more`、`expand_less` 和 `close` 图标，悬停或按下时呈圆形。
+
+### 操作
+
+操作是一个坐落在条上的 tonal 按钮。它的容器是条自身的颜色，上面覆盖一层淡淡的标签颜色，所以在每种形态下，它与条之间都只差同样低调的一级：在表面上或反色，带状态或不带状态。标签是条的文本颜色。
+
+它之所以是 tonal，是因为它通常是“撤销”，刚刚犯了错的用户必须一眼就看出那里有一个按钮。光秃秃的文本标签在条上很容易被忽略。
+
+**绝不要把它做成 filled 按钮。** 如果一个操作重要到似乎需要 filled 按钮，它就不属于消息条：消息条会消失，而且在焦点顺序中排在最后。请把它放到屏幕的主操作之后，放进[底部面板](/zh-cn/components/bottom-sheet/)里。
+
+产品可以让这个操作换一种外观。这要在产品的设计系统层里为所有消息条设置一次，方法是给操作的颜色令牌和它的色调层的不透明度赋予别的值；不存在针对单条消息条的变体。Material 和 Cupertino 预设正是这样做的，以保留它们的原版所用的 text 操作。
+
+### 状态形态
+
+| `status` | 图标 | 朗读方式 | 用于 |
+| --- | --- | --- | --- |
+| `default` | 无 | 以礼貌（polite）的方式 | 大多数消息：应用刚刚做了什么。 |
+| `info` | `info` | 以礼貌的方式 | 值得知道、但不是用户操作结果的事。 |
+| `success` | `check_circle` | 以礼貌的方式 | 顺利完成的任务，而且用户正在等它。 |
+| `warning` | `warning` | 以立即打断（assertive）的方式 | 用户不采取行动就可能出问题的事。 |
+| `error` | `error` | 以立即打断的方式 | 用户可以回头再处理的失败，带有一个重试或解释的操作。 |
+
+<DemoFrame label="状态形态：info、success、warning 和 error" column>
+  <tanrei-snackbar status="info" status-label="信息" message="新版本已可安装。" action="重新启动"></tanrei-snackbar>
+  <tanrei-snackbar status="success" status-label="成功" message="备份已完成" closable close-label="关闭"></tanrei-snackbar>
+  <tanrei-snackbar status="warning" status-label="警告" headline="存储空间即将用尽" message="最后 200 MB 用完后，上传将停止。" action="管理"></tanrei-snackbar>
+  <tanrei-snackbar status="error" status-label="错误" headline="消息未发送" message="你处于离线状态。消息会留在发件箱中。" action="重试"></tanrei-snackbar>
+</DemoFrame>
+
+状态形态把条画成该状态的一种淡色，周围有一圈用该状态颜色的细线画出的边线，文本之前是同样颜色的状态图标。这圈边线不占空间。默认形态没有自己的边线，只有它的层级所绘制的那一圈。状态形态从不只靠颜色来区分：图标的形状把各种形态区分开，`statusLabel` 则用文字给出状态，使用你的产品的语言（“错误”）。这个标签在标题和消息之前朗读。警告和错误会打断正在朗读的内容；其他形态会等它读完。
+
+### 在表面上，还是反色
+
+默认情况下，消息条绘制在当前配色方案中一个抬升的表面上：也就是对话框所用的那个明亮表面，由它的层级抬起，配以该方案的文本颜色。以反色绘制时，它采用相反配色方案的颜色，在浅色方案中是一个深色的条，这样无论落在什么之上，它都能与之区分开。
+
+<DemoFrame label="以反色绘制：默认形态和四种状态形态" plain column>
+  <tanrei-snackbar inverse message="会话已归档" action="撤销"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="info" status-label="信息" message="新版本已可安装。" action="重新启动"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="success" status-label="成功" message="备份已完成" closable close-label="关闭"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="warning" status-label="警告" headline="存储空间即将用尽" message="最后 200 MB 用完后，上传将停止。" action="管理"></tanrei-snackbar>
+  <tanrei-snackbar inverse status="error" status-label="错误" headline="消息未发送" message="你处于离线状态。消息会留在发件箱中。" action="重试"></tanrei-snackbar>
+</DemoFrame>
+
+| `inverse` | 绘制方式 |
+| --- | --- |
+| 未设置（`null`，默认） | 由设计系统选择。默认系统选择表面；`m3-like` 预设选择反色。 |
+| `true` | 反色。 |
+| `false` | 在表面上，即使系统的选择是反色。 |
+
+在 Web 上，由这个属性（attribute）表明是三者中的哪一个：省略表示未设置，`inverse` 表示 true，`inverse="false"` 表示 false。`show()` 把 `inverse` 作为一个选项接收。
+
+以反色绘制的状态形态，就是另一个主题中该状态的形态，每个部件一一对应。在浅色主题中，反色的 info 条就是深色主题所绘制的 info 条，带有那个主题的文本、图标、边线和操作；在深色主题中，它则是浅色主题的那一个。每个对比度级别下都是如此。因此，反色的状态形态不会用到产品在别处没有绘制过的颜色，它的图标和边线也与在表面上时一样鲜明。
+
+以反色绘制只改变颜色，别的都不变：尺寸、圆角、层级、布局、图标、动效、计时、朗读和按键都保持原样。它是一种外观，而不是一种含义。不要用它来表示某条消息很重要；表达这一点的是状态形态和 `statusLabel`。最好在产品的设计系统层里为整个产品决定一次，让每条消息条看起来都是同一类消息。
+
+### 长文本
+
+收起时，标题和消息各自最多显示三行，被截断的地方以省略号结尾。此时，操作和关闭按钮之间会出现一个展开按钮。激活它会显示全部文本，触发带有新的 `expanded` 值的 `toggle`（在 Web 上是 `expandedchange`），焦点留在按钮上，消息条不会关闭。条从它的底边向上变高；在减弱动态效果时，立即变高。它的内容向顶部对齐，所以在条变高或变矮时，图标、第一行以及旁边的控件与顶边的距离保持不变，独占一行的操作与底边的距离也保持不变。你的代码也可以设置 `expanded`，这不会触发任何事件。
+
+如果展开后的文本仍然比宿主拥有的空间更高，条就占满那个高度，文本在条内滚动，图标和控件留在原位。无论文本是否被截断，辅助技术得到的始终是全部文本。
+
+### 时长
+
+| `duration` | 它自己停留多久 |
+| --- | --- |
+| `auto`（默认） | 没有操作时等同于 `short`。有操作时它永不超时，所以没有人会因为超时而错过操作（WCAG 2.2.1）。 |
+| `short` | 在短超时之后关闭（默认系统中是 4 秒）。 |
+| `long` | 在长超时之后关闭（默认系统中是 10 秒）。 |
+| `indefinite` | 一直停留，直到用户或你的代码把它关闭。 |
+
+计时的消息条在以下情况下会暂停：指针位于它上方时、焦点在它里面时、它处于展开状态时、应用被隐藏或处于后台时，以及被 Tanrei 的模态对话框盖住时。之后它从完整的时长重新开始计时。如果 Android 的无障碍超时更长，时长就延长到那个值；屏幕阅读器运行期间，带操作的消息条永不超时。如果你让带操作的消息条超时，请在别处也提供这个操作，例如菜单里的“撤销”。调试构建会提醒你。
+
+### 显示、焦点与关闭
+
+消息条是供阅读的浮层。用户只是读取它的消息，所以显示它从不移动焦点。
+
+- **一次一条。** 宿主按请求的顺序显示消息条。下一条要等上一条淡出之后才显示。在 Tanrei 的模态对话框打开期间请求的消息条，要等对话框关闭之后才显示。
+- **位置。** 底部居中，与底边和两侧各留一段边距，位于安全区域之内、屏幕键盘之上。它绘制在所在区域的内容之上，位于模态对话框及其遮罩之下。
+- **朗读。** 它出现时，辅助技术会把状态标签、标题和消息朗读一次，接着是操作的标签：以礼貌（polite）的方式朗读，也就是等正在朗读的内容读完；对于警告和错误，则以立即打断（assertive）的方式朗读。没有任何东西夺取键盘焦点或屏幕阅读器焦点。
+- **焦点。** 操作、展开按钮和关闭按钮通过 Tab 到达，位置就是宿主在焦点顺序中的位置，这正是宿主要放在最后的原因。条本身不是 Tab 停靠点；只有当展开的条需要滚动文本时，它的文本才是。
+- **关闭。** 消息条在它的操作被激活时关闭（`action`），或在没有激活操作的情况下因以下原因之一关闭（`dismiss`）：
+
+| 原因 | 何时 |
+| --- | --- |
+| `close` | 关闭按钮被激活。 |
+| `escape` | 焦点在消息条内时按下了 Escape。 |
+| `timeout` | `short` 或 `long` 的消息条时间用完了。 |
+| `host` | 你的代码关闭了它，或清空了队列。 |
+
+- **焦点交还。** 如果消息条关闭时焦点在它里面，焦点就交还给焦点进入消息条之前所在的那个元素。
+- **动效。** 它从底边之下上升到位，同时淡入；淡出时留在原位。在减弱动态效果时，它只淡入淡出，不移动；Android 的这项设置会移除所有动画，所以在那里它立即出现、立即消失。
+
+### 推荐
+
+- 用已经完成的口吻说明发生了什么：“消息已发送”“已移动 3 个文件”。
+- 给操作一个简短的动词，也就是用户看到消息后会期待的那个：“撤销”“查看”“重试”。
+- 选择与所发生的事相符的状态，并为每个状态形态提供 `statusLabel`。
+- 为整个产品决定一次：消息条是绘制在表面上，还是以反色绘制。
+- 让文本足够短，使它很少需要展开按钮。
+- 没有理由就保留默认的 `auto` 时长。它从不让任何人因超时而错过操作。
+- 把宿主放在页面或布局的最后，让它的控件在焦点顺序中排在最后。
+
+### 避免
+
+- 不要用消息条来显示阻碍任务的错误，也不要用它提问。请使用对话框。
+- 不要在消息条里放两个操作。它只容得下一个。
+- 不要把操作做成 filled 按钮，也不要把看起来需要 filled 按钮的操作放进消息条。请使用从主操作打开的底部面板。
+- 不要把警告或错误形态用于日常的确认。它们会打断屏幕阅读器。
+- 不要为了标明重要性而以反色绘制消息条。反色只改变颜色；说明消息属于哪一类的是状态。
+- 不要为屏幕上已经清楚显示的事再显示消息条。
+- 不要把焦点移到消息条或它的操作上。它不能把用户从工作中带走。
+
+## 无障碍
+
+<ComponentAccessibility name="snackbar" />
+
+### 组件负责的部分
+
+- 消息条通过实时区域（live region）朗读：默认、info 和 success 形态使用礼貌的实时区域（在 Web 上是 status 角色），warning 和 error 使用立即打断的实时区域（alert 角色）。它出现时，状态标签、标题和消息，然后是操作的标签，会被朗读一次，而且总是完整的，即使文本被截断也是如此。在 SwiftUI、Compose、Flutter 和 React Native 上使用平台自己的朗读机制，对 warning 和 error 采用高优先级；它们都不夺取焦点。
+- 状态形态从不只靠颜色来区分：它绘制状态的图标，并把 `statusLabel` 作为标题之前的文本提供给辅助技术。图标本身对辅助技术隐藏，展开和关闭的图标也是如此。
+- 操作以它的标签命名，展开按钮以 `expandLabel` 命名，关闭按钮以 `closeLabel` 命名。它们都通过 Tab 到达，位置是宿主在焦点顺序中的位置，并用 Enter 或 Space 激活。
+- 展开按钮会表明文本是否处于展开状态，并在两种状态下保持相同的名称。如果展开的条需要滚动文本，文本就成为一个焦点停靠点，以标题命名，用方向键以及 Page Up 和 Page Down 滚动。
+- 焦点在消息条内时，Escape 会关闭它。如果它关闭时焦点在里面，焦点就交还到原先所在的位置。
+- 带操作的消息条默认不会超时。计时的消息条在悬停、聚焦或展开时暂停，会延长到 Android 的无障碍超时；如果带有操作，在屏幕阅读器运行期间永不超时。
+- 操作和关闭按钮在两个方向上都满足最小目标，而绘制出来的尺寸不变。它们的焦点环只在键盘聚焦时显示，颜色取自消息条所处的形态，所以在每一种条上都看得见：表面、状态的淡色和反色的条。
+- 画得较淡的部件，在默认系统的每个配色方案中都保持相对于条的对比度：状态图标至少 3:1，标题之下的消息至少 4.5:1，在高对比度方案中则是 7:1。变淡只是颜色上的事；辅助技术朗读的内容不变，消息条以反色绘制时也不变。
+- 文本变大时，不会有文本被永久隐藏：收起的标题或消息在三行处以省略号结尾，其余部分由展开按钮显示；操作移到单独的一行；展开后比窗口还高的条可以滚动。
+- 在图标字体加载完成之前，任何图标的名称都不会被画成文本：图标的位置保持空白，直到字体能够把它画出来。
+- 调试构建会报告空的消息、没有 `closeLabel` 的关闭按钮、没有 `statusLabel` 的状态形态、没有 `expandLabel` 的展开按钮，以及带有操作的计时消息条。
+
+已知的平台差距：
+
+- Web：浏览器不会告知是否有屏幕阅读器在运行，也没有无障碍超时，所以两者都不会延长计时的消息条。让操作始终够得着的，是默认的 `auto` 时长。
+- Web：避让屏幕键盘这一点，尚未在带有屏幕键盘的设备上检查过。
+- SwiftUI 无法把焦点交还给原先持有它的元素：消息条关闭时如果焦点在里面，焦点会落在 SwiftUI 为被移除的视图安排的位置。如果宿主所在的视图由你托管在场景之外（例如你自己的 `NSHostingView`），它的超时永远不会运行。
+- Compose 无法指出焦点进入消息条之前所在的元素。消息条在持有焦点的情况下关闭时，焦点沿着进来的路退出去：如果是按 Tab 进来的，就回到宿主之前的那个元素。如果是你的代码在焦点位于里面时把它关闭，焦点不会移动。
+- Compose：延长到 Android 的无障碍超时，以及窗口隐藏时暂停，尚未被测试覆盖。
+- Compose：礼貌的朗读、窗口没有焦点时的暂停以及无障碍超时，都只在 Robolectric 上测试过，尚未在设备上测试。
+- Flutter 还不会把计时的消息条延长到 Android 的无障碍超时，因为 Flutter 没有暴露这个值。
+- React Native 无法得知先前是哪个元素持有焦点。消息条关闭时如果焦点在它里面，焦点会落在平台安排的位置。
+- React Native 没有自己的安全区域 API。只有当你把窗口的边衬区传给 `TanreiProvider` 时，消息条才会保持在安全区域之内；没有传入时，在带有主屏幕指示条的手机上，它可能有一部分盖在指示条上。
+- React Native 根据排好的文本行来决定操作是否移到单独的一行，所以这次移动发生在第一轮布局之后。
+- React Native：礼貌的朗读、保持在键盘上方，以及因进入后台和指针悬停而暂停，都尚未在设备上检查过。
+
+### 需要你做的事
+
+- 把消息写成纯文本，让它在被单独朗读出来时也说得通。
+- 为关闭按钮提供 `closeLabel`，为状态形态提供 `statusLabel`，为文本可能较长的消息条提供 `expandLabel`，全都使用你的产品的语言。
+- 把宿主放在页面的最后；在 Compose 上，放在布局的最后。
+- 在 React Native 上，把窗口的 `insets` 传给 `TanreiProvider`，让消息条避开系统栏。
+- 如果你为带操作的消息条选择了 `short` 或 `long`，请在某个不会超时的地方提供同样的操作。
+- 凡是用户必须处理的事，都放进对话框，而不是消息条。

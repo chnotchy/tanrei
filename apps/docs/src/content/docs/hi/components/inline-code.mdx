@@ -1,0 +1,155 @@
+---
+title: इनलाइन कोड
+description: वाक्य के भीतर कोड का एक टुकड़ा, कोड के टाइपफ़ेस में और अपने आसपास के टेक्स्ट के साइज़ पर, बहुत हल्के फ़िल पर या सादा। यह टेक्स्ट है, कभी कंट्रोल नहीं।
+translationOf: components/inline-code.mdx
+sourceHash: a781f6f71d206aae52e9b17504a2139e3ab309d7
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="inline-code" />
+
+<DemoFrame label="वाक्य के भीतर, हेडिंग में, और plain" column>
+  <div class="tanrei-not-prose" style="max-inline-size: 32rem">
+    <p style="margin: 0">
+      जिस फ़ोल्डर में <code class="tanrei-code" translate="no" spellcheck="false">package.json</code> है, उसमें
+      <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> चलाएँ, फिर
+      <code class="tanrei-code" translate="no" spellcheck="false">{'npm run dev -- --port 4000'}</code> से सर्वर शुरू करें।
+    </p>
+    <p style="margin: 0.75rem 0 0; font: var(--tanrei-sys-typescale-heading-2-font)">
+      ग्रुप पर <code class="tanrei-code" translate="no" spellcheck="false">size</code> सेट करना
+    </p>
+    <p style="margin: 0.75rem 0 0">
+      Plain: <code class="tanrei-code" data-variant="plain" translate="no" spellcheck="false">comp.button.container.shape</code>
+    </p>
+  </div>
+</DemoFrame>
+
+इनलाइन कोड वाक्य के भीतर कोड की किसी चीज़ का नाम लेता है: कोई कमांड, प्रॉपर्टी, फ़ाइल या मान। पढ़ने और कॉपी करने के लिए कोड की पंक्तियाँ [कोड ब्लॉक](/hi/components/code-block/) हैं। दबाई जाने वाली कुंजियाँ [कीबोर्ड शॉर्टकट](/hi/components/keyboard-shortcut/) हैं, जो मॉडिफ़ायर के नाम पढ़कर सुनाता है।
+
+### इस्तेमाल
+
+वेब पर इनलाइन कोड कोई एलिमेंट नहीं, आपके अपने `code` एलिमेंट पर लगी एक क्लास है। टेक्स्ट दस्तावेज़ में ही है, इसलिए खोज, पेज में खोजना और कॉपी किसी स्क्रिप्ट के चलने से पहले ही काम करते हैं। `.tanrei-prose` के भीतर का हर वह `code` जो किसी `pre` में नहीं है, बिना क्लास के उसी तरह बनता है, इसलिए रेंडर किए गए Markdown को कुछ नहीं चाहिए।
+
+SwiftUI, Compose, Flutter और React Native नियोजित हैं: इस पेज के शुरू में हर प्लैटफ़ॉर्म के साथ दिए गए नाम वे हैं जो स्पेक उन्हें देता है, और वहाँ अभी कुछ उपलब्ध नहीं है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <!-- Tonal: डिफ़ॉल्ट। -->
+    <p>पहले <code class="tanrei-code" translate="no" spellcheck="false">npm install</code> चलाएँ।</p>
+
+    <!-- Plain: सिर्फ़ टाइपफ़ेस, अपने आसपास के टेक्स्ट के रंग में। -->
+    <code class="tanrei-code" data-variant="plain">comp.button.container.shape</code>
+
+    <!-- पूर्वज एलिमेंट अपने भीतर के हर टुकड़े के लिए चुनता है। -->
+    <table data-tanrei-code="plain">
+      <tr><td><code class="tanrei-code">variant</code></td><td><code class="tanrei-code">filled</code></td></tr>
+    </table>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/code.css';
+
+    <p>पहले <code className="tanrei-code" translate="no" spellCheck={false}>npm install</code> चलाएँ।</p>
+    ```
+  </TabItem>
+</Tabs>
+
+| प्रॉपर्टी | वेब पर |
+| --- | --- |
+| `text` | एलिमेंट का अपना कॉन्टेंट |
+| `variant: tonal` | `data-variant="tonal"` |
+| `variant: plain` | `data-variant="plain"` |
+| `variant: auto` (डिफ़ॉल्ट) | कोई ऐट्रिब्यूट नहीं। `data-tanrei-code="plain"` या `"tonal"` वाला सबसे नज़दीकी पूर्वज चुनता है, और जहाँ कोई नहीं चुनता वहाँ tonal |
+
+## स्पेक
+
+<DemoFrame label="यह रैप होता है, और हर टुकड़ा अपना फ़िल रखता है" plain>
+  <div class="tanrei-not-prose" style="max-inline-size: 22rem">
+    <p style="margin: 0">
+      टोकन <code class="tanrei-code" translate="no" spellcheck="false">tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color</code> इस पंक्ति से लंबा है। यह वहाँ टूटता है जहाँ पंक्ति ख़त्म होती है, और कभी काटा नहीं जाता।
+    </p>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="लिंक में, strong टेक्स्ट में, और कोड का एक कॉलम" plain column>
+  <div class="tanrei-not-prose">
+    <p style="margin: 0">
+      <a class="tanrei-link" href="../button/"><code class="tanrei-code">Button</code> का रेफ़रेंस</a> देखें। <strong>निकलने के अकेले रास्ते पर कभी <code class="tanrei-code">disabled</code> सेट न करें।</strong>
+    </p>
+    <div data-tanrei-code="plain" style="display: grid; grid-template-columns: auto auto; gap: 0.25rem 1.5rem; justify-content: start; margin-block-start: 0.75rem">
+      <span>प्रॉपर्टी</span><span>डिफ़ॉल्ट</span>
+      <code class="tanrei-code">variant</code><code class="tanrei-code">filled</code>
+      <code class="tanrei-code">size</code><code class="tanrei-code">medium</code>
+    </div>
+  </div>
+</DemoFrame>
+
+इनलाइन कोड का अपना कोई साइज़ नहीं है। उसका फ़ॉन्ट साइज़ उस टेक्स्ट का साइज़ है जिसमें वह रखा है, एक अनुपात (`comp.inline-code.label.scale`) से गुणा किया हुआ, जो कोड के टाइपफ़ेस और टेक्स्ट के टाइपफ़ेस को बराबर दिखाता है। बॉडी टेक्स्ट में यह 14 के बग़ल में 13 है। हेडिंग में यह हेडिंग का अपना साइज़ है।
+
+यह अपनी पंक्ति को कभी ऊँचा नहीं करता। फ़िल उतना ही ऊँचा है जितना कोड के टाइपफ़ेस का अपना टेक्स्ट बॉक्स, और उसके ऊपर या नीचे कोई पैडिंग नहीं है।
+
+टुकड़ा अपनी पंक्ति के साथ रैप होता है। वह पहले अपने स्पेस पर टूटता है। बिना स्पेस का जो हिस्सा पंक्ति से लंबा है, वह अक्षरों के बीच टूटता है, और कोई हाइफ़न नहीं जोड़ा जाता, क्योंकि हाइफ़न कोड को बदल देता। वह कभी काटा नहीं जाता और कभी स्क्रॉल नहीं होता।
+
+लिंक के भीतर वह लिंक का रंग लेता है और लिंक की अंडरलाइन उसके नीचे से चलती है। strong टेक्स्ट के भीतर वह वेट के एक स्टेप जितना भारी होता है। वह कभी तिरछा नहीं होता।
+
+वह हमेशा बाएँ से दाएँ रखा जाता है, अपने अलग टुकड़े के रूप में, दाएँ से बाएँ वाले वाक्य में भी।
+
+<ComponentSpecs name="inline-code" />
+
+### वेब क्या अलग ढंग से बनाता है
+
+- `translate="no"` और `spellcheck="false"` आपके ऐट्रिब्यूट हैं, या आपके Markdown रेंडरर के। स्टाइलशीट इन्हें सेट नहीं कर सकती।
+- कोड का हाइफ़न वह जगह है जहाँ पंक्ति ख़त्म हो सकती है, इससे पहले कि टुकड़ा अक्षरों के बीच टूटे।
+- WebKit रैप होने वाले टुकड़े के हर हिस्से का फ़िल और कोने बनाता है, पर हर सिरे की जगह नहीं: पहले के बाद के हिस्से फ़िल के किनारे से शुरू होते हैं।
+- टुकड़े के भीतर का लाइन ब्रेक सिर्फ़ उन ब्राउज़र में एक स्पेस के रूप में बनता है जो `white-space-collapse: preserve-spaces` सपोर्ट करते हैं। टुकड़े को एक ही पंक्ति में लिखें।
+- अनजान `data-variant` `auto` के रूप में बनता है, और डीबग बिल्ड में कुछ रिपोर्ट नहीं किया जाता।
+
+## दिशानिर्देश
+
+### Tonal या plain
+
+| वेरिएंट | क्या बनाता है | कब इस्तेमाल करें |
+| --- | --- | --- |
+| **Tonal** | बहुत हल्के फ़िल पर कोड का टाइपफ़ेस | चलते टेक्स्ट के भीतर कोई नाम |
+| **Plain** | सिर्फ़ कोड का टाइपफ़ेस, अपने आसपास के टेक्स्ट के रंग में | वह कॉलम या लिस्ट जिसकी हर एंट्री कोड है, और रंगीन कंटेनर पर का टेक्स्ट |
+
+### करें
+
+- वाक्य ऐसे लिखें कि कोड को शब्दों की तरह बोले जाने पर भी वह पढ़ा जा सके। स्क्रीन रीडर डिफ़ॉल्ट रूप से कोड का रोल पढ़कर नहीं सुनाते।
+- रंगीन कंटेनर पर, जैसे स्थिति का कंटेनर या इनवर्स सरफ़ेस, plain इस्तेमाल करें। tonal फ़िल एक सरफ़ेस रोल है और सिर्फ़ सरफ़ेस के साथ जोड़ा जाता है।
+- नामों की टेबल या लिस्ट के लिए रूप को एक बार पूर्वज पर सेट करें (`data-tanrei-code="plain"`)।
+
+### न करें
+
+- एम्फ़ेसिस के लिए इनलाइन कोड इस्तेमाल न करें। वह कहता है "यह कोड है"।
+- दबाई जाने वाली कुंजियाँ इनलाइन कोड में न रखें। कीबोर्ड शॉर्टकट इस्तेमाल करें।
+- इसमें एक पंक्ति से ज़्यादा न रखें। कोड ब्लॉक इस्तेमाल करें।
+
+## सुलभता
+
+<ComponentAccessibility name="inline-code" />
+
+### कंपोनेंट क्या सँभालता है
+
+- यह `code` एलिमेंट है, इसलिए इसका रोल code है, और इसका टेक्स्ट वहीं पढ़ा जाता है जहाँ वह वाक्य में है।
+- यह अपने आसपास के शब्दों से अपने टाइपफ़ेस से अलग पहचाना जाता है, रंग से नहीं। फ़ोर्स्ड कलर्स में फ़िल चला जाता है और कुछ नहीं खोता।
+- यह न फ़ोकस लेता है, न इनपुट। लिंक या बटन के भीतर, इसके ऊपर किया गया दबाना उसी एलिमेंट तक पहुँचता है।
+- लंबा नाम पेज को स्क्रॉल कराने की जगह टूटता है, टेक्स्ट के किसी भी साइज़ पर।
+- वाक्य को चुनकर कॉपी करने पर कोड के अक्षर ठीक वैसे ही कॉपी होते हैं।
+
+### आपको क्या करना है
+
+- जहाँ नाम की स्पेलिंग मायने रखती है, वहाँ उसे वाक्य में पूरा लिखें, क्योंकि चिह्न वैसे पढ़े जाते हैं जैसा व्यक्ति की सेटिंग कहती हैं।
+- टुकड़े पर `translate="no"` लगाएँ, ताकि ब्राउज़र का अनुवाद उसे न छुए।

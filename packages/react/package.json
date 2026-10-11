@@ -1,0 +1,21 @@
+{
+  "name": "@tanrei/react",
+  "version": "0.0.0",
+  "description": "Tanrei design system — React bindings for the Web Components (generated from the custom elements manifest).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": { "type": "git", "url": "https://github.com/chnotchy/tanrei.git", "directory": "packages/react" },
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "generate": "node scripts/generate.js",
+    "build": "tsc -p tsconfig.json",
+    "test": "tsc -p test/tsconfig.json && node --test \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "@lit/react": "^1.0.8",
+    "@tanrei/web": "workspace:*"
+  },
+  "peerDependencies": { "react": ">=18" },
+  "devDependencies": { "@types/react": "^19.0.0", "react": "^19.0.0", "typescript": "^7.0.2" }
+}

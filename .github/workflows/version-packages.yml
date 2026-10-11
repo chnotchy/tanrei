@@ -1,0 +1,56 @@
+# Keeps the "Version Packages" pull request up to date. While changesets wait on main, the changesets action runs
+# `pnpm version-packages` (the versions and changelogs of every package, in lockstep, and the Swift, Gradle and pub
+# manifests) on the branch changeset-release/main and opens or updates one pull request with the result. Merging it is
+# how a version is chosen. Nothing here publishes or tags: a maintainer dispatches release.yml from main for that.
+#
+# A pull request opened with GITHUB_TOKEN starts no pull_request run, so after the action pushes, this job dispatches
+# CI on the branch (a workflow_dispatch run's checks attach to the branch's head commit and show on the pull request).
+# The repository setting "Allow GitHub Actions to create and approve pull requests" must be on for the action to open
+# the pull request.
+name: Version Packages
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: version-packages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22" # keep equal to ci.yml
+
+jobs:
+  version:
+    name: Version Packages pull request
+    if: ${{ !github.event.repository.fork }} # a fork's main versions nothing
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write # the changeset-release/main branch
+      pull-requests: write # the pull request
+      actions: write # dispatch CI on the branch
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - id: changesets
+        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+        with:
+          version-script: pnpm version-packages
+          commit-message: "chore(release): version packages"
+          pr-title: "chore(release): version packages"
+      - name: CI on the Version Packages branch
+        if: steps.changesets.outputs.pr-number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref changeset-release/main

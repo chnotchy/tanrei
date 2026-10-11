@@ -1,0 +1,743 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "segmented-button",
+  "title": "Segmented button",
+  "summary": "Lets people choose one option, or several, from two to five related options drawn side by side as the joined segments of one control.",
+  "category": "actions",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "set",
+      "description": "The row that holds the segments: its fill, its outline and its outer corners. It gives the segments equal widths, draws the dividers between them and moves keyboard focus among them."
+    },
+    {
+      "id": "container",
+      "description": "One segment: the area that carries hover, focus and press, its selected fill, and its hit area."
+    },
+    {
+      "id": "check",
+      "description": "The check a selected segment shows before its label, in place of its icon when it has one: the glyph check of the system's icon set, drawn with the icon set's family, fill, weight and optical size. The segmented button draws no mark of its own. Not drawn in an icon-only segment, nor where the system's check size is 0.",
+      "optional": true
+    },
+    {
+      "id": "icon",
+      "description": "A glyph before the label, or alone in an icon-only segment.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The segment's text and its accessible name. It may be hidden for an icon-only segment (labelHidden) and still name it."
+    },
+    {
+      "id": "divider",
+      "description": "The line between two neighbouring segments."
+    },
+    {
+      "id": "outline",
+      "description": "The border around the whole set, drawn inside its edge."
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus, drawn inside the focused segment."
+    }
+  ],
+  "props": [
+    {
+      "name": "selection",
+      "type": "enum",
+      "values": [
+        "single",
+        "multiple"
+      ],
+      "default": "single",
+      "description": "single lets people choose one option at a time, as a radio group does; multiple lets them switch each option on and off."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": null,
+      "description": "The value of the selected segment while selection is single; null selects none. The segmented button sets it when a segment is activated and emits change; the product may also set it."
+    },
+    {
+      "name": "values",
+      "type": "strings",
+      "default": [],
+      "description": "The values of the selected segments while selection is multiple: a list of strings (the platforms take a set). An empty list selects none."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "axis": "tanrei.comp.segmented-button.size",
+      "default": "medium",
+      "description": "Visual height (32 / 36 / 40), matching Button's heights so that the set can share a row with buttons. The hit area always meets the minimum target. A design system may add values."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the set: the question its options answer (\"Range\", \"Text alignment\"). Required."
+    }
+  ],
+  "items": [
+    {
+      "name": "segment",
+      "summary": "One option of the set: a label, an optional icon, and the value that selects it.",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Identifies the segment: the set's value or values name it by this, and change carries it. Unique within the set; required."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The segment's text and its accessible name. Required, even when labelHidden is true."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of an icon (a glyph of the system's icon set). Give every segment of a set an icon, or none."
+        },
+        {
+          "name": "labelHidden",
+          "type": "boolean",
+          "default": false,
+          "description": "Draws the icon alone and keeps label as the accessible name (an icon-only segment)."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents choosing or clearing the segment; the arrow keys skip it."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The user changed the selection; carries value (single) or values (multiple) after the change, which the set now holds."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "selected"
+  ],
+  "behavior": [
+    {
+      "id": "SEG-1",
+      "text": "WHEN the user activates an enabled segment by pointer, touch, Enter or Space WHILE selection is single and value is not that segment's value THE segmented button SHALL set value to the segment's value, so that the segment that was selected becomes unselected, and emit change exactly once with it; WHEN the segment is already selected THE segmented button SHALL change nothing and emit nothing, because a single choice is never cleared by its own segment."
+    },
+    {
+      "id": "SEG-2",
+      "text": "WHEN the user activates an enabled segment by pointer, touch, Enter or Space WHILE selection is multiple THE segmented button SHALL add the segment's value to values, or remove it when values holds it, and emit change exactly once with the new values; values may become empty."
+    },
+    {
+      "id": "SEG-3",
+      "text": "WHILE a segment's disabled is true THE segmented button SHALL NOT select or clear it or emit change for it, SHALL skip it with the arrow keys, SHALL NOT make it the Tab stop and SHALL expose the disabled state to assistive technology."
+    },
+    {
+      "id": "SEG-4",
+      "text": "WHILE a segment is hovered, keyboard-focused or pressed THE segmented button SHALL render its container, label, icon, check, elevation and opacity from the component tokens of its condition (selected or unselected) in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. A part the interaction states recolor changes over the component's state motion; only a change of condition uses the selection motion (SEG-16).",
+      "verify": "Test under the `acme` fixture system, which values hovered, focused and pressed differently."
+    },
+    {
+      "id": "SEG-5",
+      "text": "WHEN a segment receives keyboard focus THE segmented button SHALL show the focus ring inside the segment's container, where the set's outline and the neighbouring segments cannot cover or clip it, without animation; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "SEG-6",
+      "text": "WHERE the set is shorter than the minimum target THE segmented button SHALL extend each segment's hit area above and below the set to sys.target.touch for touch input and sys.target.pointer for fine pointers without changing its visual size, and SHALL make each segment at least as wide as that target, because neighbouring segments cannot extend a hit area over each other; a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "SEG-7",
+      "text": "WHILE a segment's disabled is true THE segmented button SHALL render its container, label, icon, check, elevation and opacity from the disabled component tokens of its condition; the set's outline and the dividers SHALL keep their colors, so that the set keeps a visible boundary."
+    },
+    {
+      "id": "SEG-8",
+      "text": "WHEN size names a value that the active design system does not have THE segmented button SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "SEG-9",
+      "text": "WHEN the segment is pressed by pointer, touch, Enter or Space THE segment SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "SEG-10",
+      "text": "WHILE pressed THE segment SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, icon, check, elevation, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.segmented-button.motion.feedback-duration with comp.segmented-button.motion.state-easing, fades over comp.segmented-button.motion.state-duration with comp.segmented-button.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay."
+    },
+    {
+      "id": "SEG-11",
+      "text": "THE segment SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow. The default set has 6 corners, so the smoothing shows on the end segments."
+    },
+    {
+      "id": "SEG-12",
+      "text": "THE segmented button SHALL render a segment from the selected condition (comp.segmented-button.selected.container.color and the other selected parts) WHILE selection is single and value equals the segment's value, or selection is multiple and values holds it, and every other segment from the unselected condition (comp.segmented-button.unselected.container.color and so on); WHEN value or values names no segment THE segmented button SHALL select nothing for that name, and WHEN a segment's value is empty or repeats another segment's THE segmented button SHALL still render it and treat the first segment with a value as the one that value selects; in debug builds it SHALL report each of these."
+    },
+    {
+      "id": "SEG-13",
+      "text": "THE segmented button SHALL lay its segments out in one row, in order, in a set at least the container height of its size tall (comp.segmented-button.container.height.medium for medium, and so on), filled with comp.segmented-button.set.color, with outer corners of comp.segmented-button.set.shape, an outline of comp.segmented-button.outline.width in comp.segmented-button.outline.color inside its edge, and its segments inset from that edge by comp.segmented-button.set.padding; the outer corners of the first and last segment SHALL be the set's corners less set.padding, so that the two curves stay concentric, and every other corner of a segment SHALL be comp.segmented-button.container.shape; each segment SHALL clip its fill, state layer and ripple to its own shape, and the set SHALL NOT clip a segment's elevation."
+    },
+    {
+      "id": "SEG-14",
+      "text": "THE segmented button SHALL give every segment the same width: the widest segment's content plus the padding of its size on each side (comp.segmented-button.container.padding-inline.medium for medium, and so on), a segment's content being its leading glyph (its icon, or the check where one would be drawn), the gap of its size (comp.segmented-button.container.gap.medium, and so on) and its label, measured as if the segment were selected, so that selecting a segment never changes a width; WHERE the layout gives the set more width THE segmented button SHALL divide it equally among the segments, and WHERE less, it SHALL divide what it has equally and let labels wrap onto more lines rather than truncate, growing every segment to the tallest, with at least the padding-block of its size (comp.segmented-button.container.padding-block.medium, and so on) above and below.",
+      "verify": "Fixtures: each renders the set at its natural width, start-aligned and vertically centred on a 400 × 96 stage, holding the fixture's segments in order; selection, value, values, size and label apply to the set and each segment's props to that segment. Every fixture fits in one row at 14–16 px text."
+    },
+    {
+      "id": "SEG-15",
+      "text": "THE segmented button SHALL centre a segment's content in it, the leading glyph first; SHALL set the label in the label style of its size (comp.segmented-button.label.typescale.medium, and so on) and the label color of its condition and state; and SHALL draw the icon in the icon color of its condition and state at the icon size of its size (comp.segmented-button.icon.size.medium, and so on) through the icon helper, with the family and fill of the segment's condition (selected for a selected segment, otherwise unselected), sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max."
+    },
+    {
+      "id": "SEG-16",
+      "text": "WHILE a segment is selected and its label is drawn THE segmented button SHALL draw the glyph check of the system's icon set in the leading position, in place of the segment's icon when it has one, as the filter chip draws its check (CHP-13, CHP-14), at the check size of its size (comp.segmented-button.check.size.medium, and so on) in the icon color of the selected condition, with sys.icon.family.selected, sys.icon.fill.selected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, and SHALL NOT mirror it when the layout direction is right-to-left; THE segmented button SHALL draw no mark of its own (no path, shape or character of its own for the check). An icon-only segment SHALL keep its icon when selected and draw no check; WHILE the check size of the segment's size is 0 THE segmented button SHALL draw no check, reserve no room for it, and keep the icon. WHEN a segment becomes selected or unselected THE segmented button SHALL fade the check in or out (a glyph is not drawn along a path), cross-fading it with the icon where the segment has one, and change the segment's colors and elevation over comp.segmented-button.motion.selection-duration with comp.segmented-button.motion.selection-easing, re-centring the content as the check comes and goes, and SHALL show the new condition at once where motion is reduced.",
+      "verify": "Under the `acme` fixture system, whose icon set is static (a family per selection state), the check is drawn in its selected family; the fixtures single, multiple, icons, small, large and selected-disabled show it, and under cupertino (check size 0) none is drawn."
+    },
+    {
+      "id": "SEG-17",
+      "text": "THE segmented button SHALL draw a line of comp.segmented-button.divider.width in comp.segmented-button.divider.color between each two neighbouring segments, taking that width between them and running from the set's top padding to its bottom padding; the line SHALL keep its color and full opacity whatever the state or condition of either segment, and SHALL be hidden from assistive technology."
+    },
+    {
+      "id": "SEG-18",
+      "text": "WHILE selection is single THE segmented button SHALL be one Tab stop — the selected segment, or the first enabled segment while none is selected; WHILE a segment has keyboard focus Right Arrow and Down Arrow SHALL move focus to the next enabled segment and Left Arrow and Up Arrow to the previous one, wrapping at the ends, and Home and End to the first and last enabled segment, and each move SHALL also select the segment it reaches and emit change, as a radio group does; in a right-to-left layout Left Arrow SHALL move to the next segment and Right Arrow to the previous."
+    },
+    {
+      "id": "SEG-19",
+      "text": "WHILE selection is multiple THE segmented button SHALL be one Tab stop — the segment that had focus last, or else the first selected segment, or else the first enabled segment; WHILE a segment has keyboard focus Right Arrow and Down Arrow SHALL move focus to the next enabled segment and Left Arrow and Up Arrow to the previous one, wrapping at the ends, and Home and End to the first and last enabled segment, without changing the selection, and Space or Enter SHALL switch the focused segment (SEG-2); in a right-to-left layout Left Arrow SHALL move to the next segment and Right Arrow to the previous."
+    },
+    {
+      "id": "SEG-20",
+      "text": "WHILE selection is single THE segmented button SHALL expose the set as a radio group named by label and each segment as a radio with its checked state; WHILE selection is multiple THE segmented button SHALL expose the set as a group named by label and each segment as a toggle button with its pressed state, as a toggle Button is; in both, each segment SHALL be named by its own label whether or not it is drawn and expose its position and the number of segments, and the icons, the check, the dividers and the outline SHALL be hidden."
+    },
+    {
+      "id": "SEG-21",
+      "text": "WHEN the layout direction is right-to-left THE segmented button SHALL order the segments from the right, mirror each segment's content (the glyph to the right of the label) and apply its paddings by logical start and end, and SHALL grow a ripple from the point of contact as in left-to-right."
+    },
+    {
+      "id": "SEG-22",
+      "text": "WHILE a segment's label is empty THE segmented button SHALL still render the segment, and in debug builds report that it has no accessible name; WHILE a segment's labelHidden is true and its icon is empty THE segmented button SHALL draw the label anyway and in debug builds report the segment; WHILE the set's label is empty, or the set holds fewer than two or more than five segments, THE segmented button SHALL still render and in debug builds report it."
+    },
+    {
+      "id": "SEG-23",
+      "text": "WHEN the colors or the elevation of a segment change between interaction states THE segmented button SHALL animate them over comp.segmented-button.motion.state-duration with comp.segmented-button.motion.state-easing, and SHALL change them at once where motion is reduced."
+    },
+    {
+      "id": "SEG-24",
+      "text": "WHILE a segment is selected THE segmented button SHALL cast the elevation of its condition and state (comp.segmented-button.selected.container.elevation at rest, and so on) outside the segment and above its neighbours; THE segmented button SHALL NOT position itself or draw anything outside the set but that elevation.",
+      "verify": "The default system raises no segment (level0); `cupertino` raises the selected one, so its elevation is seen under that system."
+    },
+    {
+      "id": "SEG-25",
+      "text": "IF the icon set cannot draw the check yet (its font is still loading or failed to load) THE segmented button SHALL draw nothing in the check's place, never the glyph's name as text, SHALL keep the room SEG-14 measures for it so that no width changes, SHALL still expose the segment's selected state, and SHALL show the check once the icon set can draw it, without the selection motion of SEG-16."
+    },
+    {
+      "id": "SEG-26",
+      "text": "THE segmented button SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the segmented button is shown THE segmented button SHALL draw itself for the new direction at once, without a motion of its own, keeping its selection and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "SEG-27",
+      "text": "WHERE the layout direction is right-to-left THE segmented button SHALL draw a segment's icon mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order SEG-21 gives. THE segmented button SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The check of a selected segment is never mirrored (SEG-16).",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "SEG-28",
+      "text": "THE segmented button SHALL lay out a segment's label as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE segmented button SHALL still place each label and align its lines by the layout direction, not by the text's own."
+    }
+  ],
+  "accessibility": {
+    "role": "radiogroup",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus into the set (to the selected segment, the last focused one, or the first enabled one) and out of it."
+      },
+      {
+        "keys": "Right Arrow / Down Arrow",
+        "action": "Moves focus to the next enabled segment, wrapping; with single selection it also selects it (Left Arrow in right-to-left layouts)."
+      },
+      {
+        "keys": "Left Arrow / Up Arrow",
+        "action": "Moves focus to the previous enabled segment, wrapping; with single selection it also selects it (Right Arrow in right-to-left layouts)."
+      },
+      {
+        "keys": "Home / End",
+        "action": "Moves focus to the first or last enabled segment; with single selection it also selects it."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Selects the focused segment (single) or switches it on or off (multiple)."
+      }
+    ],
+    "labeling": "The set is named by label: the question its options answer. Each segment is named by its own label, drawn or not (labelHidden). Icons, the check, the dividers and the outline are decorative: a segment's state is announced from its checked or pressed state, never from the check.",
+    "minimumTarget": true,
+    "notes": [
+      "Single selection is a radio group: arrow keys move and select at once, as the radio button and tabs do, because a segment shows its effect without a noticeable delay. Multiple selection is a group of toggle buttons with one Tab stop: arrow keys only move focus, and Space or Enter switches.",
+      "Selection is the set's: value or values holds the selected segments' values, and change carries the new ones. A segment's disabled is its own.",
+      "iOS has no radio role: a segment of a single-choice set is a button with the selected trait and its position (\"2 of 3\") in its accessibility value, as the radio button is. Compose has no radio group role; the set is a selectable group and each segment `Role.RadioButton` (single) or a toggleable `Role.Button` (multiple), as the filter chip is.",
+      "A segmented button chooses among options of one setting. Actions belong to a button group; switching views of one subject belongs to tabs.",
+      "Text size does not clip a segment: labels wrap and every segment grows to the tallest. The icon is not text and keeps its size.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.segmented-button",
+  "fixtures": [
+    {
+      "id": "single",
+      "props": {
+        "selection": "single",
+        "value": "week",
+        "label": "Range"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "day",
+            "label": "Day"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "week",
+            "label": "Week"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "month",
+            "label": "Month"
+          }
+        }
+      ]
+    },
+    {
+      "id": "single-none",
+      "props": {
+        "selection": "single",
+        "label": "Range"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "day",
+            "label": "Day"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "week",
+            "label": "Week"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "month",
+            "label": "Month"
+          }
+        }
+      ]
+    },
+    {
+      "id": "multiple",
+      "props": {
+        "selection": "multiple",
+        "values": [
+          "mon",
+          "tue",
+          "thu"
+        ],
+        "label": "Days"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "mon",
+            "label": "Mon"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "tue",
+            "label": "Tue"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "wed",
+            "label": "Wed"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "thu",
+            "label": "Thu"
+          }
+        }
+      ]
+    },
+    {
+      "id": "icons",
+      "props": {
+        "selection": "single",
+        "value": "grid",
+        "label": "View"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "list",
+            "label": "List",
+            "icon": "view_list"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "grid",
+            "label": "Grid",
+            "icon": "grid_view"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "map",
+            "label": "Map",
+            "icon": "map"
+          }
+        }
+      ]
+    },
+    {
+      "id": "icon-only",
+      "props": {
+        "selection": "single",
+        "value": "center",
+        "label": "Text alignment"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "start",
+            "label": "Align left",
+            "icon": "format_align_left",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "center",
+            "label": "Center",
+            "icon": "format_align_center",
+            "labelHidden": true
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "end",
+            "label": "Align right",
+            "icon": "format_align_right",
+            "labelHidden": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "small",
+      "props": {
+        "selection": "single",
+        "value": "week",
+        "size": "small",
+        "label": "Range"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "day",
+            "label": "Day"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "week",
+            "label": "Week"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "month",
+            "label": "Month"
+          }
+        }
+      ]
+    },
+    {
+      "id": "large",
+      "props": {
+        "selection": "single",
+        "value": "week",
+        "size": "large",
+        "label": "Range"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "day",
+            "label": "Day"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "week",
+            "label": "Week"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "month",
+            "label": "Month"
+          }
+        }
+      ]
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "selection": "single",
+        "value": "day",
+        "label": "Range"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "day",
+            "label": "Day"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "week",
+            "label": "Week"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "month",
+            "label": "Month",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "selected-disabled",
+      "props": {
+        "selection": "single",
+        "value": "month",
+        "label": "Range"
+      },
+      "items": [
+        {
+          "kind": "segment",
+          "props": {
+            "value": "day",
+            "label": "Day"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "week",
+            "label": "Week"
+          }
+        },
+        {
+          "kind": "segment",
+          "props": {
+            "value": "month",
+            "label": "Month",
+            "disabled": true
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-segmented-button",
+      "props": {
+        "selection": "selection",
+        "value": "value",
+        "values": "values",
+        "size": "size",
+        "label": "label"
+      },
+      "events": {
+        "change": "change"
+      },
+      "items": {
+        "segment": {
+          "name": "tanrei-segment",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "disabled"
+          },
+          "notes": "A child element: `<tanrei-segment value=\"week\" label=\"Week\" icon=\"…\">`, with `label-hidden` and `disabled` attributes, as `<option>` in a `<select>`."
+        }
+      },
+      "notes": "`tanrei-segmented-button` (selection, value, values, size, label) holds `tanrei-segment` children. `value` is an attribute and a property; `values` is a property (an array); the `values` attribute is also read, as JSON or as space-separated words, because the fixture harness writes attributes. It sets its own `value` or `values` before firing `change`, as a native control does. It puts role radiogroup (single) or group (multiple) and `aria-label` on its own element, and on each segment's inner `<button>` role radio with `aria-checked`, `aria-posinset` and `aria-setsize` (single), or `aria-pressed` (multiple), with a roving tabindex. A toggle button may not carry `aria-posinset`, so in a multiple set the row is a `role=\"list\"` and each segment a `role=\"listitem\"` that carries the position; ElementInternals is not used for the roles, because axe cannot see it. It is not form-associated. The check is the icon helper's `check` glyph in the `check` part (SEG-16)."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiSegmentedButton",
+      "props": {
+        "selection": "selection",
+        "value": "selection",
+        "values": "selection",
+        "size": "size",
+        "label": "label"
+      },
+      "events": {
+        "change": "selection"
+      },
+      "items": {
+        "segment": {
+          "name": "TanreiSegment",
+          "props": {
+            "value": "tag",
+            "label": "title",
+            "icon": "icon",
+            "labelHidden": "labelStyle",
+            "disabled": "disabled"
+          },
+          "notes": "`TanreiSegment(_ title:, icon:).tag(value)` in the view builder, as a `Picker`'s tagged options; `.labelStyle(.iconOnly)` is labelHidden; `disabled` follows `.disabled(_:)`."
+        }
+      },
+      "notes": "`TanreiSegmentedButton(_ label:, selection: Binding<V?>, size:) { TanreiSegment … }` for single selection and `TanreiSegmentedButton(_ label:, selection: Binding<Set<V>>, size:) { … }` for multiple: the binding's type is selection, and writing it is change. SwiftUI's `Picker` with `.pickerStyle(.segmented)` is not used: its segments cannot be tokenised. A single-choice segment is a button with the `.isSelected` trait and its position as its accessibility value; a multiple-choice segment adds the `.isToggle` trait (iOS 17). Lagging behind SEG-16 and SEG-25: without an installed icon font it strokes the check as a vector of its own (`TanreiChipGlyph`, on the checkbox's mark geometry) instead of drawing nothing."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiSegmentedButton",
+      "props": {
+        "selection": "selectionMode",
+        "value": "selectedValue",
+        "values": "selectedValues",
+        "size": "size",
+        "label": "contentDescription"
+      },
+      "events": {
+        "change": "onSelectionChange"
+      },
+      "items": {
+        "segment": {
+          "name": "TanreiSegment",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiSegment(value, label, icon, labelHidden, enabled)` called in the `TanreiSegmentedButton { }` content lambda. `enabled` is the inverse flag."
+        }
+      },
+      "notes": "One composable for both selections (Material's `SingleChoiceSegmentedButtonRow` and `MultiChoiceSegmentedButtonRow` in one): `TanreiSegmentedButton(selectionMode, selectedValue, selectedValues, onSelectionChange, size, contentDescription) { TanreiSegment(…) }`. State hoisting: the caller keeps `selectedValue` or `selectedValues` and moves it from `onSelectionChange`. The row is a `selectableGroup()`; a single-choice segment is `selectable(role = Role.RadioButton)` and a multiple-choice one `toggleable(role = Role.Button)`, as the filter chip is. Compose has no radio group role. `onSelectionChange` is `(Set<String>) -> Unit` for both selections: a single choice passes a set of one (as the list does). Lagging behind SEG-16 and SEG-25: without an installed icon font it strokes the check as a vector of its own (`TanreiDrawnGlyph`, `tanreiCheckPath`) instead of drawing nothing."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiSegmentedButton",
+      "props": {
+        "selection": "multiSelectionEnabled",
+        "value": "selected",
+        "values": "selected",
+        "size": "size",
+        "label": "semanticLabel"
+      },
+      "events": {
+        "change": "onSelectionChanged"
+      },
+      "items": {
+        "segment": {
+          "name": "TanreiSegment",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiSegment<T>(value:, label:, icon:, labelHidden:, enabled:)` in the `segments:` list. `enabled` is the inverse flag."
+        }
+      },
+      "notes": "Shaped like Flutter's `SegmentedButton<T>` but built with the widgets library, without Material: `TanreiSegmentedButton<T>(segments:, selected: Set<T>, onSelectionChanged:, multiSelectionEnabled:, size:, semanticLabel:)`. `selected` holds zero or one value while `multiSelectionEnabled` is false; the caller moves it from `onSelectionChanged`. A single-choice segment is `Semantics(inMutuallyExclusiveGroup: true, checked:)` and a multiple-choice one `Semantics(button: true, toggled:)`, inside a `Semantics(container: true, label:)` for the set. A single-choice set is exposed with `SemanticsRole.radioGroup`, named by `semanticLabel` (SEG-20). Lagging behind SEG-25: it writes the check as the Material Symbols code point U+E5CA (`tanreiCheckGlyph`), and without the icon font it draws whatever the fallback face has for that code point instead of nothing."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "SegmentedButton",
+      "props": {
+        "selection": "selectionMode",
+        "value": "value",
+        "values": "values",
+        "size": "size",
+        "label": "accessibilityLabel"
+      },
+      "events": {
+        "change": "onSelectionChange"
+      },
+      "items": {
+        "segment": {
+          "name": "Segment",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "icon": "icon",
+            "labelHidden": "labelHidden",
+            "disabled": "disabled"
+          },
+          "notes": "The element type of the set's `items` array: `{ value, label, icon?, labelHidden?, disabled? }`, where `icon` is the glyph's name."
+        }
+      },
+      "notes": "`<SegmentedButton items={Segment[]} selectionMode value | values onSelectionChange size accessibilityLabel>`; controlled, the caller moves `value` or `values` from `onSelectionChange`. The set has the `radiogroup` role (single) or the `group` role (multiple); each segment the `radio` role with `accessibilityState.checked`, or the `button` role with `accessibilityState.selected`, as a toggle Button is. The arrow keys work where a hardware keyboard is attached. Lagging behind SEG-25: it writes the ligature `check` into the glyph box, and without the icon font it prints the word instead of drawing nothing."
+    }
+  }
+}

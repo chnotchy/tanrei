@@ -1,0 +1,218 @@
+---
+title: خانة الاختيار
+description: تتيح للأشخاص تفعيل اختيار مستقل واحد أو إيقافه، وإظهار اختيار أبٍ مفعَّل جزئيًّا فقط، وتعليم اختيار مطلوب تُرك من دون تحديد.
+translationOf: components/checkbox.mdx
+sourceHash: ca7b2e0456302b1067eb231313b74e6591fc6fad
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="checkbox" />
+
+<DemoFrame label="غير محدَّدة ومحدَّدة وفي حالة غير محسومة">
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox indeterminate label="كل الإشعارات"></tanrei-checkbox>
+    <tanrei-checkbox checked label="الرسائل"></tanrei-checkbox>
+    <tanrei-checkbox label="الإشارات"></tanrei-checkbox>
+    <tanrei-checkbox checked label="التذكيرات"></tanrei-checkbox>
+  </div>
+</DemoFrame>
+
+### الاستخدام
+
+المراجعة التي أعطت خانة الاختيار مقاسات Material 3 ورسوم مجموعة الأيقونات لم تغيّر إلا مظهرها وحركتها، فكل العيّنات أدناه سارية. يرسمها الويب ويحرّكها كما تقول المواصفة. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: تأخذ المقاسات الجديدة منذ الآن، لكنها ما زالت ترسم علامة الصح والشَّرطة بعلامات خاصة بها وتحرّكها بطريقتها إلى أن تلحق. وهناك تحسينان لاحقان موجودان على الويب وحده حتى الآن: لعلامة الصح والشَّرطة وزن خاص بهما أثقل، وحدّ المربع وتعبئته يُرسمان شكلًا واحدًا.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-checkbox label="أرسلوا لي التحديثات بالبريد"></tanrei-checkbox>
+    <tanrei-checkbox checked label="أرسلوا لي التحديثات بالبريد"></tanrei-checkbox>
+
+    <!-- أبٌ أبناؤه مختلطون. تفعيله يحدّده ويمسح indeterminate. -->
+    <tanrei-checkbox indeterminate label="تحديد الكل"></tanrei-checkbox>
+
+    <!-- داخل نموذج يرسل value (الافتراضي "on") تحت name ما دام محدَّدًا، ويراعي required. -->
+    <form>
+      <tanrei-checkbox name="terms" required label="أوافق على الشروط"></tanrei-checkbox>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/checkbox';
+      // يبدّل العنصر قيمة checked بنفسه قبل أن يُصدر change.
+      document.querySelector('tanrei-checkbox').addEventListener('change', (e) => save(e.detail.checked));
+      const terms = document.querySelector('[name="terms"]');
+      terms.error = submitted && !terms.checked;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox } from '@tanrei/react';
+
+    <Checkbox checked={updates} label="أرسلوا لي التحديثات بالبريد" onChange={(e) => setUpdates(e.detail.checked)} />
+    <Checkbox checked={all} indeterminate={some && !all} label="تحديد الكل" onChange={(e) => selectAll(e.detail.checked)} />
+    <Checkbox checked={terms} error={submitted && !terms} label="أوافق على الشروط" onChange={(e) => setTerms(e.detail.checked)} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiCheckbox("أرسلوا لي التحديثات بالبريد", isOn: $updates)
+
+    // تأتي isIndeterminate من بياناتك. تفعيله يجعل isOn تساوي true؛ ثم تمسحها بياناتك.
+    TanreiCheckbox("تحديد الكل", isOn: $allSelected, isIndeterminate: someSelected)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.ui.state.ToggleableState
+    import io.github.chnotchy.tanrei.components.TanreiCheckbox
+
+    TanreiCheckbox(checked = updates, onCheckedChange = { updates = it }, label = "أرسلوا لي التحديثات بالبريد")
+
+    // الأب الذي قد يكون مفعَّلًا جزئيًّا يأخذ ToggleableState. والمستدعي يحسب الحالة التالية:
+    // تفعيل خانة اختيار في حالة غير محسومة يجعلها On.
+    TanreiCheckbox(
+        state = allState,
+        onClick = { selectAll(allState != ToggleableState.On) },
+        label = "تحديد الكل",
+    )
+
+    TanreiCheckbox(
+        checked = terms,
+        onCheckedChange = { terms = it },
+        label = "أوافق على الشروط",
+        isError = submitted && !terms,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiCheckbox(
+      value: updates,
+      onChanged: (bool value) => setState(() => updates = value), // القيمة null تعطّلها
+      label: 'أرسلوا لي التحديثات بالبريد',
+    );
+
+    // مع tristate، القيمة null حالة غير محسومة. تفعيلها يستدعي onChanged(true).
+    TanreiCheckbox(
+      value: allSelected, // bool?: القيمة null ما دام بعضها فقط محدَّدًا
+      tristate: true,
+      onChanged: (bool value) => setState(() => selectAll(value)),
+      label: 'تحديد الكل',
+    );
+
+    TanreiCheckbox(
+      value: terms,
+      onChanged: (bool value) => setState(() => terms = value),
+      isError: submitted && !terms,
+      label: 'أوافق على الشروط',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Checkbox } from '@tanrei/react-native';
+
+    <Checkbox value={updates} onValueChange={setUpdates} label="أرسلوا لي التحديثات بالبريد" />
+    <Checkbox value={all} indeterminate={some && !all} onValueChange={selectAll} label="تحديد الكل" />
+    <Checkbox value={terms} onValueChange={setTerms} error={submitted && !terms} label="أوافق على الشروط" />
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="الأوضاع والخطأ والتعطيل" plain>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox label="غير محدَّدة"></tanrei-checkbox>
+    <tanrei-checkbox checked label="محدَّدة"></tanrei-checkbox>
+    <tanrei-checkbox indeterminate label="غير محسومة"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox error label="خطأ، غير محدَّدة"></tanrei-checkbox>
+    <tanrei-checkbox error checked label="خطأ، محدَّدة"></tanrei-checkbox>
+    <tanrei-checkbox error indeterminate label="خطأ، غير محسومة"></tanrei-checkbox>
+  </div>
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-checkbox disabled label="معطَّلة، غير محدَّدة"></tanrei-checkbox>
+    <tanrei-checkbox disabled checked label="معطَّلة، محدَّدة"></tanrei-checkbox>
+    <tanrei-checkbox disabled indeterminate label="معطَّلة، غير محسومة"></tanrei-checkbox>
+  </div>
+  <tanrei-checkbox checked label-hidden label="تحديد الصف"></tanrei-checkbox>
+</DemoFrame>
+
+في النظام الافتراضي تأخذ خانة الاختيار مقاسات Material 3: مربع بمقاس 18 بحدّ عرضه 2 وزاوية 2، على طبقة حالة دائرية بمقاس 40، مع هدف بمقاس 48. ومع التسمية يكون ارتفاعها 40. علامة الصح والشَّرطة هما الرسمان `check` و `remove` من مجموعة أيقونات النظام، مرسومان بمقاس 20 فوق المربع. ولهما وزن خاص بهما أثقل من سائر أيقونات النظام: 500 في النظام الافتراضي حيث الأيقونات 300. عند هذا المقاس يكون الخط بوزن الأيقونات بعرض بكسل واحد تقريبًا وتصعب رؤيته، ولذلك كانت العلامة أثقل مع بقاء مقاسها كما هو. والإعداد الجاهز يحتفظ بوزن أيقوناته. لا ترسم خانة الاختيار علامة خاصة بها، فنظام التصميم الذي يغيّر مجموعة أيقوناته يغيّر هذين الرسمين مع سائر الرسوم. وحدّ المربع وتعبئته شكل واحد: لا يظهر بينهما شيء مما خلف المربع عند أي تكبير أو أي كثافة عرض، والمربع المحدَّد لون واحد متساوٍ من حافته إلى علامته. وتحت `cupertino` تحتفظ خانة الاختيار بمربعها الأصغر وبرسم بمقاس 16.
+
+حين تتغير خانة الاختيار يتغير لون المربع والحدّ والرسم، والرسم الذي يظهر يتدرّج في الظهور وهو يكبر من نصف مقاسه، ثم يستقر بتجاوز طفيف. والرسم الذي يزول يتدرّج في الاختفاء ويصغر بالطريقة نفسها، وبين الحالة المحدَّدة وغير المحسومة تزول علامة الصح فيما تأتي الشَّرطة. الرسم وحده يتحرك: المربع لا يغيّر حجمه ولا موضعه أبدًا. وخانة الاختيار المرسومة أول مرة تُظهر وضعها فورًا، فالصفحة التي تُحمَّل بخانات محدَّدة لا تحرّكها. وحيث تكون الحركة مقلَّلة يُرسم الوضع الجديد كاملًا في الإطار التالي.
+
+<ComponentSpecs name="checkbox" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم خانة الاختيار لاختيار قائم بذاته: قائمة يجوز للأشخاص أن ينتقوا منها أي عدد من الخيارات، ومنه لا شيء، أو سؤال واحد جوابه نعم أو لا كالموافقة على الشروط. ويسري الاختيار حين يؤكد الشخص، بإرسال النموذج أو بالحفظ مثلًا. وخانة الاختيار تحدّد كذلك صفوفًا في جدول أو عناصر في قائمة.
+
+الحالة غير المحسومة تخص خانة اختيار أبًا أبناؤها محدَّدون جزئيًّا، مثل «تحديد الكل» فوق قائمة. وليست جوابًا ثالثًا يستطيع الشخص أن يختاره.
+
+### خانة اختيار أم زر اختيار أم مفتاح تبديل
+
+| عنصر التحكم | الخيارات | متى يسري | يُستخدم لـ |
+| --- | --- | --- | --- |
+| خانة الاختيار | أي عدد من الاختيارات المستقلة، ومنه لا شيء | حين يؤكد الشخص | خيارات في نموذج، الموافقة على الشروط، تحديد الصفوف |
+| [زر الاختيار](/ar/components/radio-button/) | واحد بالضبط من مجموعة صغيرة كلها معروضة | حين يؤكد الشخص، في الغالب | جواب واحد عن سؤال واحد |
+| [مفتاح التبديل](/ar/components/switch/) | إعداد واحد، مفعَّل أو موقوف | فورًا | الإعدادات التي تُطبَّق فور تغيّرها |
+
+### افعل
+
+- اكتب التسمية على أنها الاختيار نفسه، بصيغة الإثبات: «أرسلوا لي التحديثات بالبريد»، لا «لا ترسلوا لي بريدًا».
+- رُصَّ قائمة خانات الاختيار عموديًّا، واحدة في كل سطر، لتبدأ كل تسمية من الموضع نفسه.
+- اشتقّ الحالة غير المحسومة من الأبناء. وحين يُفعَّل الأب حدِّد كل ابن.
+- حين تُترك خانة اختيار مطلوبة غير محدَّدة، عيِّن `error` وقل السبب في رسالة النموذج.
+
+### لا تفعل
+
+- لا تستخدم خانة اختيار لتغيير يُطبَّق فورًا. استخدم مفتاح تبديل.
+- لا تستخدم خانات الاختيار لخيارات يستبعد بعضها بعضًا. استخدم أزرار الاختيار.
+- لا تضع روابط ولا عناصر تحكم أخرى داخل التسمية. النقر على التسمية يبدّل خانة الاختيار.
+- لا تُخفِ التسمية إلا إذا كان الصف المحيط بخانة الاختيار يقول أصلًا ما الذي تحدّده.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="checkbox" />
+
+### ما يتكفل به المكوّن
+
+- يعرض دور خانة الاختيار (checkbox) مع حالتها (محدَّدة، أو غير محدَّدة، أو مختلطة ما دامت غير محسومة)، وحالة التعطيل، وحالة عدم الصلاحية (invalid) ما دامت `error` معيَّنة. ليس في React Native حالة عدم صلاحية، فالخطأ هناك يُرسم ولا يُعلَن.
+- التسمية هي الاسم المتاح للتقنيات المساعدة، سواء رُسمت أم أُخفيت بالخاصية `labelHidden`. والنص المرسوم مخفيّ عن التقنيات المساعدة، فيُقرأ الاسم مرة واحدة.
+- النقر أو اللمس على التسمية يبدّل خانة الاختيار. التسمية جزء من مساحة اللمس، ومساحة اللمس تستوفي الحد الأدنى للهدف.
+- المفتاح Space يبدّلها. والمفتاح Enter لا يبدّلها إلا حيث تفعّل المنصة أي عنصر تحكم عليه التركيز بالمفتاح Enter (Android و tvOS)؛ أما على الويب فالمفتاح Enter يرسل النموذج.
+- يعرض مؤشر التركيز حول المربع، لتركيز لوحة المفاتيح فقط.
+- علامة الصح والشَّرطة مخفيّتان عن التقنيات المساعدة. والحالتان المحدَّدة والمختلطة تُعلَنان من الحالة، لا من اسم الرسم أبدًا.
+- حيث تكون الحركة مقلَّلة يُرسم الوضع الجديد كاملًا في أول إطار بعد التغيّر، ولا يُؤخَّر ولا يُرسم نصفه أبدًا. والتغيّر الذي يقع في أثناء تغيّر آخر يكمل مما هو مرسوم في تلك اللحظة.
+- ما دام خط الأيقونات لا يستطيع عرض الرسم بعد، لا ترسم خانة الاختيار شيئًا مكانه، ولا ترسم الكلمة «check» أبدًا، وتظل ترسم مربعها المعبَّأ وتعرض حالتها. ويظهر الرسم فور تحميل الخط.
+- على الويب تشارك في النموذج كخانة اختيار أصلية: `name` و `value` و `required` وإعادة التعيين.
+- التسمية الناقصة يُبلَّغ عنها في بنيات التنقيح (debug).
+
+فجوات معروفة في المنصات:
+
+- ما زالت SwiftUI و Compose و Flutter و React Native ترسم علامة الصح والشَّرطة بعلامات خاصة بها وتحرّكها بطريقتها، من دون الوزن الخاص بالعلامة ومن دون المربع ذي الشكل الواحد.
+- تحت `m3-like` علامة الصح هي رسم مجموعة الأيقونات وتتدرّج في الظهور وتكبر، حيث يرسم Material علامته الخاصة ضربة ضربة ويثنيها إلى الشَّرطة (فجوة المحاكاة `checkbox-mark-drawn-on`).
+
+### ما عليك فعله
+
+- حمِّل خط الأيقونات. إلى أن يُحمَّل تبدو خانة الاختيار المحدَّدة وغير المحسومة سواء: كلتاهما مربع معبَّأ بلا رسم. وتظل حالتاهما تُعلَنان.
+- إن عيَّن نظام تصميمك وزنًا أخف للعلامة (`comp.checkbox.mark.weight`) فانظر إلى الشَّرطة: هي خط واحد، وهي كل ما يميّز بالنظر الحالة غير المحسومة من المحدَّدة.
+- اكتب تسمية تسمّي الاختيار، وأبقِها كما هي سواء كانت خانة الاختيار محدَّدة أم لا. المنصة تُعلِن الحالة.
+- حين تكون `error` معيَّنة، اعرض السبب نصًّا بجانب خانة الاختيار أو في ملخّص النموذج، واربطه بخانة الاختيار. خانة الاختيار تقول إنها غير صالحة، لا لماذا. وعلى React Native الرسالة هي الطريقة الوحيدة لسماع الخطأ.
+- أعطِ مجموعة خانات الاختيار التي تجيب عن سؤال واحد اسمًا: على الويب، `<fieldset>` مع `<legend>`.

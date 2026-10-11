@@ -1,0 +1,301 @@
+---
+title: App bar
+description: Names the current screen at its top edge and holds the way back and a few of the screen's actions. It lies flat while the content is at its top and sets itself apart once content scrolls under it.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="app-bar" />
+
+The Web and React samples show the current spec, in which the bar's items are icon-only [Buttons](/components/button/). SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision, with an icon button component of its own, and their samples show that revision until they catch up.
+
+<DemoFrame label="A small app bar with a back button and two actions">
+  <tanrei-app-bar headline="Inbox" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="Back"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="Search"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="More options"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+### Usage
+
+An app bar is a layout region, not an overlay. It takes its height at the top of the screen, the content starts below it, and the bar itself never takes focus.
+
+It holds two kinds of item: one `navigation` item at the start (back, menu or close) and up to three `action` items at the end. Both are your own icon-only [Buttons](/components/button/), each with its own label and its own click or, where it leads somewhere, its own `href`. The bar lays them out and never restyles them. Each platform takes them in its own slots: children with `slot="navigation"` and `slot="actions"` on the web, the `navigation` and `actions` view builders on SwiftUI, the `navigationIcon` and `actions` lambdas on Compose, `leading` and `actions:` on Flutter, and the `navigation` and `actions` nodes on React Native.
+
+The title is the screen's name and its heading. On the web it is `headline`, because HTML's global `title` attribute would put a tooltip on the whole bar.
+
+**Scrolled.** While content lies under the bar, the bar takes its scrolled look. Connect the screen's scrolling view and the bar sets `scrolled` itself: `scroll-target` on the web (the document by default), `.tanreiAppBarScrollSource()` on SwiftUI (applied after the `.safeAreaInset` that holds the bar), a `scrollBehavior` connected with `Modifier.nestedScroll` on Compose, the page's scroll notifications on Flutter, and `useAppBarScroll()` on React Native. Without a connection, set `scrolled` yourself.
+
+**System bars.** The bar's color reaches under the status bar, the camera cutout or the window caption above it. Its content stays below them and inside the side insets. The web reads `env(safe-area-inset-*)`, Compose takes `windowInsets` (the status bars and the horizontal display cutout by default), Flutter reads `MediaQuery` padding, and SwiftUI places the bar with `.safeAreaInset(edge: .top)`. React Native has no safe-area API, and Tanrei takes no safe-area dependency, so the insets come from props only. Give `TanreiProvider` the window's `insets` (if you use `react-native-safe-area-context`, pass its `useSafeAreaInsets()` through). A bar's own `insets` prop replaces the sides it names, so a bar that is not at the top of the window passes `{ top: 0 }`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- The title is headline: HTML's title attribute would show a tooltip over the bar. -->
+    <tanrei-app-bar headline="Inbox">
+      <tanrei-button variant="text" slot="navigation" label="Back"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="Search"><span slot="icon">search</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="More options"><span slot="icon">more_vert</span></tanrei-button>
+    </tanrei-app-bar>
+
+    <!-- A large title that collapses as #inbox scrolls. The title is an h1 unless heading-level says otherwise. -->
+    <div style="display: flex; flex-direction: column; block-size: 100dvh">
+      <tanrei-app-bar size="large" headline="Inbox" scroll-target="inbox">
+        <tanrei-button variant="text" slot="navigation" label="Menu"><span slot="icon">menu</span></tanrei-button>
+      </tanrei-app-bar>
+      <main id="inbox" style="flex: 1; overflow: auto">…</main>
+    </div>
+
+    <!-- A button that leads to a page is a link: give it an href. A search can be an action: its icon trigger. -->
+    <tanrei-app-bar headline="Tabs">
+      <tanrei-button variant="text" slot="navigation" href="/components/" label="All components"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-search slot="actions" bar="icon" presentation="dialog" label="Search the docs" placeholder="Search"
+        clear-label="Clear search" back-label="Back"></tanrei-search>
+    </tanrei-app-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/app-bar';
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/search';
+      // The buttons are yours: the bar adds no events of its own.
+      document.querySelector('[label="Back"]').addEventListener('click', () => history.back());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { AppBar, Button, Search } from '@tanrei/react';
+
+    <AppBar headline="Inbox">
+      <Button variant="text" slot="navigation" label="Back" onClick={goBack}><span slot="icon">arrow_back</span></Button>
+      <Button variant="text" slot="actions" label="Search" onClick={search}><span slot="icon">search</span></Button>
+      <Button variant="text" slot="actions" label="More options" onClick={openMore}><span slot="icon">more_vert</span></Button>
+    </AppBar>
+
+    // A button that leads to a page is a link: give it an href. A search can be an action: its icon trigger.
+    <AppBar headline="Tabs">
+      <Button variant="text" slot="navigation" href="/components/" label="All components"><span slot="icon">arrow_back</span></Button>
+      <Search slot="actions" bar="icon" presentation="dialog" label="Search the docs" placeholder="Search" clearLabel="Clear search" backLabel="Back" />
+    </AppBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // The bar sits in the top safe-area inset of a NavigationStack whose system bar is hidden.
+    // isScrolled left nil follows the scroll view marked .tanreiAppBarScrollSource().
+    NavigationStack {
+        ScrollView { InboxRows() }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                TanreiAppBar("Inbox", size: .large) {
+                    TanreiIconButton("Menu", action: openMenu) { Image(systemName: "line.3.horizontal") }
+                } actions: {
+                    TanreiIconButton("Search", action: search) { Image(systemName: "magnifyingglass") }
+                }
+            }
+            // After the inset that holds the bar: a modifier applied inside it cannot reach the bar.
+            .tanreiAppBarScrollSource()
+            .toolbar(.hidden, for: .navigationBar)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiAppBar
+    import io.github.chnotchy.tanrei.components.TanreiAppBarDefaults
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiAppBarSize
+
+    // A small bar. Without a scrollBehavior it stays flat.
+    TanreiAppBar(
+        title = "Inbox",
+        navigationIcon = { TanreiIconButton(onClick = onBack, contentDescription = "Back") { TanreiText("arrow_back") } },
+        actions = {
+            TanreiIconButton(onClick = onSearch, contentDescription = "Search") { TanreiText("search") }
+            TanreiIconButton(onClick = onMore, contentDescription = "More options") { TanreiText("more_vert") }
+        },
+    )
+
+    // A large bar that collapses as the list scrolls: connect the behavior on a parent of the scrolling view.
+    // pinnedScrollBehavior() is a small bar's: it never collapses, and turns scrolled while content is under it.
+    val scrollBehavior = TanreiAppBarDefaults.collapseScrollBehavior()
+    Column(Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)) {
+        TanreiAppBar(title = "Inbox", size = TanreiAppBarSize.Large, scrollBehavior = scrollBehavior)
+        LazyColumn { /* the screen's content */ }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // A small bar, in a scaffold's app bar slot or first in a Column.
+    // scrolledUnder left null follows the nearest ScrollNotificationObserver, as AppBar does.
+    TanreiAppBar(
+      leading: TanreiIconButton(onPressed: () => Navigator.of(context).maybePop(), icon: const Icon(AppSymbols.arrowBack), semanticLabel: 'Back'),
+      title: 'Inbox',
+      actions: <Widget>[
+        TanreiIconButton(onPressed: search, icon: const Icon(AppSymbols.search), semanticLabel: 'Search'),
+        TanreiIconButton(onPressed: openMore, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'More options'),
+      ],
+    ),
+
+    // A large bar that collapses with its content is a sliver, pinned at the top of its CustomScrollView.
+    CustomScrollView(
+      slivers: <Widget>[
+        TanreiSliverAppBar(title: 'Inbox', size: TanreiAppBarSize.large, leading: menuButton),
+        SliverList.list(children: messages),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { ScrollView, View } from 'react-native';
+    import { AppBar, IconButton, useAppBarScroll } from '@tanrei/react-native';
+
+    // The insets come from TanreiProvider's insets prop, or from the bar's own.
+    <AppBar
+      title="Inbox"
+      navigation={<IconButton accessibilityLabel="Back" onPress={goBack}>arrow_back</IconButton>}
+      actions={
+        <>
+          <IconButton accessibilityLabel="Search" onPress={search}>search</IconButton>
+          <IconButton accessibilityLabel="More options" onPress={openMore}>more_vert</IconButton>
+        </>
+      }
+    />
+
+    // A large bar that collapses: connect the scroll view, lay the bar over it, and pad the content by the bar's height.
+    const scroll = useAppBarScroll();
+    const [barHeight, setBarHeight] = useState(0);
+    <View style={{ flex: 1 }}>
+      <ScrollView onScroll={scroll.onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: barHeight }}>
+        {messages}
+      </ScrollView>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }} onLayout={(e) => setBarHeight((h) => Math.max(h, e.nativeEvent.layout.height))}>
+        <AppBar size="large" title="Inbox" scrollState={scroll.state} navigation={menuButton} />
+      </View>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="A large bar with a subtitle, and a centered title" plain column>
+  <tanrei-app-bar size="large" headline="Inbox" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="Menu"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="Search"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="Account"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-app-bar>
+  <tanrei-app-bar headline="Inbox" title-alignment="center" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="Back"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="Search"><span slot="icon">search</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<DemoFrame label="A navigation button that is a link, and a search trigger among the actions" plain>
+  <tanrei-app-bar headline="Tabs" subtitle="Components" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" href="/components/" label="All components"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-search slot="actions" bar="icon" presentation="dialog" label="Search the docs" placeholder="Search" clear-label="Clear search" back-label="Back"></tanrei-search>
+    <tanrei-button variant="text" slot="actions" label="More options"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<ComponentSpecs name="app-bar" />
+
+## Guidelines
+
+### When to use
+
+Use an app bar at the top of a screen to say where the person is, to take them back or open the menu, and to reach the few actions that belong to the whole screen: search, share, the account. One screen has one app bar.
+
+Use a navigation bar or drawer to move between the top-level destinations of an app. The app bar's menu button can open a [modal navigation drawer](/components/navigation-drawer/). Tanrei has no bottom app bar: actions at the bottom of a compact screen are the [toolbar](/components/toolbar/)'s job.
+
+### Choosing a size and a title position
+
+| Choice | What it does | Use for |
+| --- | --- | --- |
+| Small (default) | One row: the navigation button, the title and the actions. | Most screens, and every screen a person reaches from another one. |
+| Large | A larger title in a row of its own under the top row. As the content scrolls, it collapses into the top row, one for one with the scroll, and the top row's title fades in. It expands again when the content returns to its top. | The top-level screens of a product, where the title is also the screen's landmark. |
+| `titleAlignment` start (default) | The title follows the navigation button. | Most bars. |
+| `titleAlignment` center | The title is centered on the whole bar and narrowed equally on both sides, so it never runs under the buttons. | Products that follow iOS's centered titles. An expanded large title always starts at the start. |
+
+A design system may add sizes. On SwiftUI, Compose, Flutter and React Native, a size taller than small gets a title row of its own, as large does. On the web, every size the design system adds gets one. The `m3-like` preset does not have Material's medium size yet.
+
+### Scrolling
+
+- **Flat and scrolled.** While the content is at its top, the bar lies flat. Once content lies under it, the bar takes its scrolled look: in the default system a hairline bottom edge, in `m3-like` a tinted container. The change eases over the bar's condition motion and happens at once where motion is reduced.
+- **A large bar is scrolled only once it has fully collapsed.** Until then, the collapse itself shows that the content has moved.
+- **The bar stays put.** It does not hide while the content scrolls down. That is a screen's scroll behaviour, not the bar's.
+
+### Items
+
+- Give the bar one navigation button at most: back on a screen a person reached from another, menu on a top-level screen, close on a full-screen task.
+- Keep to three actions. Put the rest in an overflow menu: a "More options" icon button that opens a Tanrei menu. Debug builds report a fourth action and a second navigation button, and still draw them.
+- The buttons look as they do anywhere else. The bar lays them out and never recolors them.
+- A button that goes somewhere is a link: give it an `href`. A back button that leads to the parent page, or a help action that opens a page, is then a real link, drawn as the same button. A back button that returns through history stays a button.
+- On the web, a [search](/components/search/) can be one of the actions as its icon trigger (`bar` set to `icon`): an icon-only button that opens the search's dialog or full-screen view.
+
+### Do
+
+- Write the title as the screen's name, such as "Inbox" or "Quarterly report". Keep it short: it stays on one line and is cut with an ellipsis.
+- Use the subtitle for context that helps someone tell two similar screens apart: an account, a status, when it was edited.
+- Choose one size for all top-level screens and one for everything else.
+
+### Don't
+
+- Don't put anything but icon buttons in the slots: no text field, no search field, no tabs, no segmented control. A row of tabs goes below the bar, and a [tab view](/components/tab-view/) further down can be linked to it.
+- Don't put a primary action such as "Create" in the bar. Use a main action button.
+- Don't give the title a second line or make it a link.
+
+## Accessibility
+
+<ComponentAccessibility name="app-bar" />
+
+### What the component handles
+
+- The bar has no role of its own and is never focusable. Tab goes from the navigation button through the actions, in reading order. Each button keeps its own role, name and minimum target, and a button with an `href` is exposed as a link.
+- The title is exposed as the screen's heading, a level 1 heading on the web unless `heading-level` says otherwise. The subtitle is read after it. An empty title draws nothing and exposes no heading.
+- A large bar draws two titles while it collapses, but exposes only one: the expanded title while any of it is visible, the top row's once the bar has collapsed. The heading is never read twice.
+- The bar is not a landmark. Only you know whether it is the page's banner.
+- Larger text grows the bar's rows, which are minimum heights. The title and subtitle stay on one line and are truncated rather than wrapped, even at 200%, so the bar never pushes the content away. The full title stays available to assistive technology. The icon buttons are not scaled.
+- The bar takes its direction from where it is used. In a right-to-left layout it mirrors: the navigation button is at the right and the actions are at the left. A glyph that the icon set marks as mirrored, such as a back arrow, is mirrored by its own button, not by the bar.
+- The title and the subtitle are laid out as text of their own direction, isolated from the text around them. A left-to-right name in a right-to-left layout keeps its order, and is cut at its own end, never at its beginning.
+- Debug builds report more than three actions, more than one navigation button, and a size the design system does not have.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native: the right-to-left rules (a glyph mirrored where the icon set marks it, a title laid out in its own direction) wait for those platforms to catch up, as does a button with an `href`.
+- Web: every size follows `rem`, so a larger browser text size grows the icon buttons with the text. Enlarging Tanrei's type alone does not.
+- Web: a large bar that follows the document's own scroll and sits `position: sticky` in the document's flow moves the content by its collapse as well as by the scroll, so the content moves twice as fast while the bar collapses. Put a bar that collapses above a scrolling element (`scroll-target`) or in a fixed header.
+- Web: each icon button sits in a cell of the minimum target of the pointer in use, 44 for a mouse, so two actions are 52 apart from center to center where Compose and Flutter, measuring the 48 touch target, draw them 56 apart.
+- SwiftUI: the bar follows its scroll view only from iOS 18 and macOS 15. Before that nothing is connected, and the bar draws what `isScrolled` says.
+- SwiftUI: `isScrolled: true` on a connected large bar draws it collapsed but keeps its expanded height in the layout, so a gap shows above the content while it is at its top.
+- SwiftUI: with the system bar hidden, the bar keeps the edge swipe back working by replacing the navigation controller's pop-gesture delegate. This has been checked on iOS 26.5 only. That a large bar exposes one title at a time has not yet been checked with VoiceOver.
+- Flutter: a large `TanreiAppBar` does not collapse with its content, because a box widget cannot shrink with the scroll view below it. It ignores the scroll notifications, stays expanded and is drawn collapsed only while `scrolledUnder` is true. Use `TanreiSliverAppBar` for a bar that collapses.
+- Flutter: `preferredSize` reports an unbounded height, because it cannot read the theme. A scaffold lets the bar size itself, but your own layout cannot use the number.
+- Compose: the collapse stops wherever the scroll stops, so a large bar can rest half collapsed. It does not snap open or shut after a fling as Material's does. The spec does not ask for a snap.
+- React Native: for a large bar to collapse one for one with its content, you lay the bar over the scroll view and pad the content by the bar's height, as the example above does. The collapse, the insets and what screen readers announce have not yet been checked on a device.
+- Every platform: under `cupertino`, the 44-point top row grows to 48 when it holds icon buttons, because their touch target is 48 and the minimum target wins. On the web it grows only under a coarse pointer, since a mouse's target is 44. A large bar's expanded row is also 1 point taller than cupertino's container height.
+- Every platform: with a subtitle, the expanded title is covered before the bar has fully collapsed. The spec does not yet say which title is exposed in between. Every platform moves the heading to the top row as soon as the expanded title is covered.
+
+### What you need to do
+
+- Give every bar a title. It is the screen's heading.
+- Give every icon button a label, such as "Back" or "Search".
+- On the web, set `heading-level` when the page already has a level 1 heading, and wrap the bar in a `<header>` when it is the page's banner.
+- Connect the screen's scrolling view, or set `scrolled` yourself, so the bar shows when content is under it.
+- On React Native, pass the window's insets to `TanreiProvider`. On React Native and Compose, a bar that is not at the top of the window takes different insets (`insets={{ top: 0 }}`, or your own `windowInsets`).
+- Keep titles short. A title cut with an ellipsis is still read in full, but sighted people see only its start.

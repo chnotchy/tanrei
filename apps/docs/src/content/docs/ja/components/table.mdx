@@ -1,0 +1,568 @@
+---
+title: テーブル
+description: 行と列のあるデータを示します。列の見出し、行見出し、キャプション、フッター行を持てます。収まらないときは自身の枠の中でスクロールします。列の見出しは、その列の順に行を並べるよう求めることができ、行は選択できます。テーブル自身は並べ替えません。
+translationOf: components/table.mdx
+sourceHash: ad48baa8f17b9aee7128ff50a80331d6af74aaaa
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import SortedByThePage from '../../../../components/SortedByThePage.astro';
+import CountedByThePage from '../../../../components/CountedByThePage.astro';
+
+## 概要
+
+<ComponentAvailability name="table" />
+
+<DemoFrame label="行見出し、末尾にそろえた数値、フッター行">
+  <tanrei-table class="tanrei-not-prose" row-headers>
+    <table>
+      <caption>ステータスとプラットフォーム別のコンポーネント数</caption>
+      <thead>
+        <tr><th scope="col">ステータス</th><th scope="col" data-align="end" data-wrap="false">Web</th><th scope="col" data-align="end" data-wrap="false">SwiftUI</th><th scope="col" data-align="end" data-wrap="false">Compose</th><th scope="col" data-align="end" data-wrap="false">Flutter</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Planned</th><td data-align="end">2</td><td data-align="end">6</td><td data-align="end">6</td><td data-align="end">6</td></tr>
+        <tr><th scope="row">Alpha</th><td data-align="end">31</td><td data-align="end">30</td><td data-align="end">30</td><td data-align="end">29</td></tr>
+        <tr><th scope="row">Beta</th><td data-align="end">4</td><td data-align="end">1</td><td data-align="end">1</td><td data-align="end">2</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><th scope="row">合計</th><td data-align="end">37</td><td data-align="end">37</td><td data-align="end">37</td><td data-align="end">37</td></tr>
+      </tfoot>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+テーブルは、2 つの次元を持つデータのためのものです。価格表、プランの比較、型と既定値を添えた設定の一覧、複数のプラットフォームにまたがる状況、人が扱うレコードなどに使います。列の見出しは、その列の順に行を並べるよう求めることができます。行のないテーブルは、プロダクトの空の状態を示します。行の下のステータス行には、プロダクトの文とページネーションを置けます。行は、行ごとのチェックボックスで選択できます。行を待っているテーブルは、ビジーであることを伝えます。テーブル自身は、並べ替え、絞り込み、取得、ページ送りのいずれも行いません。渡された行を、渡された順に描きます。列幅の変更は行いません。
+
+Web では、ネイティブの `<table>` を `<tanrei-table>` で囲みます。この要素はシャドウルートを持たず、テーブルの `display` を変えることもありません。そのため、クローラー、表計算ソフトへのコピーと貼り付け、スクリーンリーダーの表ナビゲーションのいずれにとっても、ふつうの HTML の表のままです。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/table.css" />
+
+    <tanrei-table row-headers>
+      <table>
+        <caption>地域別の訪問数</caption>
+        <thead>
+          <tr>
+            <th scope="col">地域</th>
+            <th scope="col" data-align="end" data-wrap="false">1 月</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">島しょ部</th><td data-align="end">212</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><th scope="row">すべての地域</th><td data-align="end">6,846</td></tr>
+        </tfoot>
+      </table>
+    </tanrei-table>
+
+    <script type="module">
+      import '@tanrei/web/components/table';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Table } from '@tanrei/react';
+    import '@tanrei/web/table.css';
+
+    <Table density="compact" striped label="テーブルのトークン">
+      <table>
+        <thead>
+          <tr><th scope="col">トークン</th><th scope="col">型</th></tr>
+        </thead>
+        <tbody>
+          {tokens.map((token) => (
+            <tr key={token.name}><td data-wrap="false">{token.name}</td><td>{token.type}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </Table>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/table.css` は、スクリプトが動く前にテーブル全体を描きます。要素自身も同じスタイルシートをページに加えるので、スクリプトだけを読み込んだページでも、少し遅れてテーブルが描かれます。
+
+### 書くもの
+
+| 部分 | Web での書き方 |
+| --- | --- |
+| 列 | `<thead>` の 1 行に置く `<th scope="col">`。そのテキストが見出しです。 |
+| 列の揃え | 見出しセルの `data-align="start"`、`"center"`、`"end"`。`end` は比べる数値のためのものです。 |
+| 折り返さない列 | 見出しセルの `data-wrap="false"`。識別子、日付、数値に使います。 |
+| 行 | `<tbody>` の `<tr>`。フッター行は `<tfoot>` の `<tr>` です。 |
+| セル | `<td>`。テキスト、コンポーネント、または何も入れません。 |
+| 行見出し | 行の最初のセルを `<th scope="row">` にし、要素に `row-headers` を付けます。 |
+| 名前 | `<caption>`。すぐ上の見出しがすでにテーブルの名前になっている場合は、要素の `label`。 |
+| 並べ替えられる列 | 見出しセルの `aria-sort="none"`、`"ascending"`、`"descending"` と、そのテキストを囲む `<button type="button">`。セルの `data-value` は、`sort` イベントが運ぶ名前です。 |
+| 行がないとき | `<tbody>` に置く、`<td colspan>` 1 つの `<tr data-part="empty">`。中に空の状態を入れます。 |
+| ステータス行 | テーブルの後ろに置く `<div data-part="status">`。`<p role="status">` とページネーションを入れます。段落を書かない場合は、要素の `status` が段落を書きます。 |
+| 選択できる行 | 要素の `selection="multiple"` と、すべての行の最初に置くセル `<td data-part="selection">`。 |
+| 選択できる 1 行 | `<tr>` の `data-value` と、その選択セルに入れる `<tanrei-checkbox label-hidden>`。`<tr>` の `data-selected` が、選択されていることを示します。 |
+| すべての行のチェックボックス | 見出し行の選択セルに入れる `<tanrei-checkbox label-hidden>`。要素の `select-all-label` が名前になります。 |
+| 読み込み中のテーブル | 要素の `loading`。 |
+| まだ届いていない行の代わりに置く、プレースホルダーの行 | `<tr data-placeholder aria-hidden="true">`。セルは空にするか、スケルトンのプレースホルダーを入れます。 |
+
+要素は、列の揃えと折り返しを、見出しセルからその列のすべてのセルに伝えます。スクリプトが動く前からそのとおりに描くには、このページのデモのように、各セルにも `data-align` と `data-wrap` を書きます。
+
+### 並べ替え
+
+<SortedByThePage />
+
+<DemoFrame label="見出しを押すと、テーブルが求め、このページが行を並べます" plain>
+  <tanrei-table class="tanrei-not-prose" data-docs-sorts>
+    <table>
+      <caption>商品</caption>
+      <thead>
+        <tr><th scope="col" aria-sort="ascending" data-value="name"><button type="button">名前</button></th><th scope="col" aria-sort="none" data-value="stock" data-align="end" data-wrap="false"><button type="button">在庫</button></th><th scope="col" aria-sort="none" data-value="price" data-align="end" data-wrap="false"><button type="button">価格</button></th><th scope="col">メモ</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>ケトル</td><td data-align="end" data-wrap="false">15</td><td data-align="end" data-wrap="false">3,800</td><td>IH とガスに対応</td></tr>
+        <tr><td>スケール</td><td data-align="end" data-wrap="false">0</td><td data-align="end" data-wrap="false">2,950</td><td></td></tr>
+        <tr><td>ハンドグラインダー</td><td data-align="end" data-wrap="false">8</td><td data-align="end" data-wrap="false">6,400</td><td></td></tr>
+        <tr><td>フィルターペーパー</td><td data-align="end" data-wrap="false">120</td><td data-align="end" data-wrap="false">450</td><td>100 枚入り</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+並べ替えられる列は、行がいまどの順に並んでいるかを見出しセルに書き、そのテキストをプロダクト自身のボタンで囲みます。
+
+```html
+<th scope="col" aria-sort="ascending" data-value="name"><button type="button">名前</button></th>
+<th scope="col" aria-sort="none" data-value="price" data-align="end"><button type="button">価格</button></th>
+```
+
+スタイルシートは、見出しセル全体をボタンにし、`aria-sort` に応じた印を描きます。行がその列の順でない間は上下の矢印、昇順の間は上向きの矢印、降順の間は下向きの矢印です。アイコンを書く必要はありません。印はアイコンセットのグリフなので、`@tanrei/web/icons.css` とアイコンフォントも読み込んでください。
+
+テーブルは並べ替えません。押すと `sort` を発行するだけで、画面は何も変わりません。行を並べ、新しい `aria-sort` を書くのはプロダクトです。
+
+```js
+table.addEventListener('sort', (event) => {
+  const { column, index, direction } = event.detail; // 'price', 2, 'ascending' | 'descending'
+  showRows(sortedBy(column, direction));              // プロダクトのデータ、比較、またはサーバー
+  for (const th of headerCells) th.setAttribute('aria-sort', th.dataset.value === column ? direction : 'none');
+});
+```
+
+`direction` は、利用者が求めた順です。`ascending` か、すでにその列の昇順に並んでいるときは `descending` です。順をなくす 3 回目の押下はありません。求められた順で返す必要はありません。行を別の順に並べても、どの順にも並べなくてもかまいません。
+
+サーバーが並べるテーブルでは、ボタンの代わりにリンクを置きます。`<a href="?sort=price&order=asc">価格</a>` のように、同じテーブルの逆の順を指すリンクです。スクリプトがなくても動きます。この場合、`sort` はブラウザーがリンクをたどる前に発行され、`event.preventDefault()` でページにとどまれます。
+
+### 行がないとき
+
+<DemoFrame label="行がないとき：見出し行の下に空の状態" plain>
+  <tanrei-table class="tanrei-not-prose">
+    <table>
+      <caption>条件に合う商品</caption>
+      <thead>
+        <tr><th scope="col">名前</th><th scope="col" data-align="end" data-wrap="false">在庫</th><th scope="col" data-align="end" data-wrap="false">価格</th></tr>
+      </thead>
+      <tbody>
+        <tr data-part="empty"><td colspan="3"><tanrei-empty-state headline="条件に合う商品はありません"><span slot="media">search_off</span>フィルターを外すか、短い言葉で検索してください。</tanrei-empty-state></td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+すべての列にまたがるセル 1 つの行を書き、その中に空の状態を置きます。
+
+```html
+<tbody>
+  <tr data-part="empty">
+    <td colspan="3"><tanrei-empty-state headline="条件に合う商品はありません">…</tanrei-empty-state></td>
+  </tr>
+</tbody>
+```
+
+テーブルは、その上下に余白を取り、枠の幅を与え、列を横にスクロールしている間も見える位置に保ちます。テーブル自身の言葉は加えません。この行がなければ、行のないテーブルは見出し行だけになります。
+
+### ステータス行
+
+<DemoFrame label="行の下に、プロダクトの文とページネーション" plain>
+  <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 20rem">
+    <table>
+      <caption>リリース（新しい順）</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">バージョン</th><th scope="col" data-wrap="false">リリース日</th><th scope="col">変更点</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">2.4.0</td><td data-wrap="false">5 月 12 日</td><td>テーブルの見出し行を固定できます。</td></tr>
+        <tr><td data-wrap="false">2.3.2</td><td data-wrap="false">4 月 28 日</td><td>2 桁の年で入力した日付の修正。</td></tr>
+        <tr><td data-wrap="false">2.3.1</td><td data-wrap="false">4 月 20 日</td><td>画面の外に開くメニューの修正。</td></tr>
+        <tr><td data-wrap="false">2.3.0</td><td data-wrap="false">4 月 2 日</td><td>サイドシートと、控えめなフォーカスリング。</td></tr>
+        <tr><td data-wrap="false">2.2.1</td><td data-wrap="false">3 月 18 日</td><td>開いたままになるツールチップの修正。</td></tr>
+        <tr><td data-wrap="false">2.2.0</td><td data-wrap="false">3 月 4 日</td><td>右から左のレイアウト。</td></tr>
+      </tbody>
+    </table>
+    <div data-part="status">
+      <p role="status">42 件中 1〜6 件</p>
+      <nav class="tanrei-pagination" aria-label="リリースのページ">
+        <a class="tanrei-pagination-item" data-direction="next" rel="next" href="#ステータス行">
+          <span class="tanrei-pagination-label">次へ</span>
+          <span class="tanrei-pagination-title">7〜12 件目</span>
+        </a>
+      </nav>
+    </div>
+  </tanrei-table>
+</DemoFrame>
+
+テーブルの後ろ、要素の中に、ステータス行を書きます。ステータスである段落にプロダクトの文を入れ、その後にページネーションを置きます。
+
+```html
+<tanrei-table>
+  <table>…</table>
+  <div data-part="status">
+    <p role="status">132 件中 1〜20 件</p>
+    <nav class="tanrei-pagination" aria-label="商品のページ">…</nav>
+  </div>
+</tanrei-table>
+```
+
+文は開始側の端に、ページネーションは終了側の端に置かれます。2 つが横に並んで収まらないときは、ページネーションが文の下に来ます。ステータス行は列と一緒に横にスクロールせず、行が自身の枠の中でスクロールするテーブルでは、枠の下端にとどまります。テーブルは何も数えず、言葉も書きません。「132 件中 1〜20 件」は、プロダクトがプロダクトの言語で書く文です。段落のテキストを変えると、支援技術に控えめに伝わります。マークアップに段落がない場合は、要素の `status` 属性がこの段落を代わりに書きます。自分で書いた段落があれば、読まれるのはその段落で、属性は何も変えません。
+
+### 行の選択
+
+<CountedByThePage />
+
+<DemoFrame label="行を選択する: テーブルが選択を保持し、このページが数える" plain>
+  <tanrei-table class="tanrei-not-prose" selection="multiple" row-headers select-all-label="すべての商品を選択" data-docs-counts="4 件中 {count} 件を選択">
+    <table>
+      <caption>再発注する商品</caption>
+      <thead>
+        <tr><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="col">商品名</th><th scope="col" data-align="end" data-wrap="false">在庫</th><th scope="col" data-align="end" data-wrap="false">価格</th></tr>
+      </thead>
+      <tbody>
+        <tr data-value="paper"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="row">ペーパーフィルター</th><td data-align="end" data-wrap="false">120</td><td data-align="end" data-wrap="false">450</td></tr>
+        <tr data-value="grinder" data-selected><td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope="row">ハンドグラインダー</th><td data-align="end" data-wrap="false">8</td><td data-align="end" data-wrap="false">6,400</td></tr>
+        <tr data-value="kettle"><td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td><th scope="row">ケトル</th><td data-align="end" data-wrap="false">15</td><td data-align="end" data-wrap="false">3,800</td></tr>
+        <tr data-value="scale" data-selected><td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td><th scope="row">スケール</th><td data-align="end" data-wrap="false">0</td><td data-align="end" data-wrap="false">2,950</td></tr>
+      </tbody>
+    </table>
+    <div data-part="status"><p role="status">4 件中 2 件を選択</p></div>
+  </tanrei-table>
+</DemoFrame>
+
+要素に `selection="multiple"` を指定し、すべての行を選択セルで始めます。見出し行の選択セルには、すべての行のチェックボックスを入れます。本体の行の選択セルにはその行のチェックボックスを入れ、行の `data-value` に、プロダクトがそのレコードを呼ぶ名前を書きます。
+
+```html
+<tanrei-table selection="multiple" row-headers select-all-label="すべての商品を選択">
+  <table>
+    <caption>再発注する商品</caption>
+    <thead>
+      <tr>
+        <td data-part="selection"><tanrei-checkbox label-hidden></tanrei-checkbox></td>
+        <th scope="col">商品名</th>
+        <th scope="col" data-align="end">価格</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-value="grinder" data-selected>
+        <td data-part="selection"><tanrei-checkbox label-hidden checked></tanrei-checkbox></td>
+        <th scope="row">ハンドグラインダー</th>
+        <td data-align="end">6,400</td>
+      </tr>
+    </tbody>
+  </table>
+  <div data-part="status"><p role="status">4 件中 1 件を選択</p></div>
+</tanrei-table>
+```
+
+選択はテーブルが保持します。利用者がチェックボックスを切り替えると、要素はその行に `data-selected` を書き、見出し行のチェックボックスを合わせ、`selectionchange` を 1 回発行します。イベントは、選択されているすべての行の値を、行の順に運びます。
+
+```js
+table.addEventListener('selectionchange', (event) => {
+  if (!(event instanceof CustomEvent)) return;       // 下の注記を参照
+  const { values } = event.detail;                   // ['grinder', 'scale']
+  // プロダクトの文を、プロダクトの言語で、自分で書いた段落に入れる
+  table.querySelector('[role="status"]').textContent = `${total} 件中 ${values.length} 件を選択`;
+});
+```
+
+- プロダクトの側から行を選択するには、その `<tr>` に `data-selected` を書きます。選択を解くには、この属性を外します。要素は行のチェックボックスを合わせ、イベントは発行しません。
+- 行が選択されているかどうかは、その行自身（`data-selected`）に書かれます。別の順で渡し直した行は、選択されたまま、または選択されていないままです。テーブルに初めて渡す行は、その行自身がそう示している場合にだけ選択されます。
+- `data-value` のない行は選択できません。フッター行と同じように、選択セルを空にします。
+- 見出し行のチェックボックスは、すべての行が選択されている間はチェック、一部が選択されている間は中間状態、選択できる行がない間は無効になります。これが表すのは、テーブルに渡された行です。ほかのページの行は表しません。
+- 選択の列は、データの列ではありません。`row-headers` と `sticky-first-column` は、その次の列を指します。`sort` イベントの `index` も、選択の列を数えません。
+- 選択セルの外で行を押しても、何も選択されません。
+
+ブラウザーにも、テキストの選択範囲が変わったときの `selectionchange` という同じ名前のイベントがあり、セルの中のテキストフィールドは、これをテーブル越しに送ります。テーブルのイベントは `detail.values` を運ぶ `CustomEvent` で、ブラウザーのイベントはそうではありません。上の例のように、これで見分けます。
+
+スクリプトなしで動く必要があるページでは、ネイティブのチェックボックスを使います。チェックボックスが `checked` である行は、スタイルシートだけで選択された行として描かれ、チェックボックスはフォームと一緒に送信されます。
+
+```html
+<tr data-value="grinder">
+  <td data-part="selection"><input type="checkbox" name="product" value="grinder" checked aria-label="ハンドグラインダーを選択" /></td>
+  <th scope="row">ハンドグラインダー</th>
+</tr>
+```
+
+### 読み込み中
+
+<DemoFrame label="読み込み中: プレースホルダーの行と、それを伝えるステータス行" plain>
+  <tanrei-table class="tanrei-not-prose" loading>
+    <table>
+      <caption>今週の注文</caption>
+      <thead>
+        <tr><th scope="col">顧客</th><th scope="col" data-wrap="false">注文日</th><th scope="col" data-align="end" data-wrap="false">合計</th></tr>
+      </thead>
+      <tbody>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 9rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 12rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+        <tr data-placeholder aria-hidden="true"><td><span class="tanrei-skeleton-placeholder" style="inline-size: 7rem"></span></td><td><span class="tanrei-skeleton-placeholder" style="inline-size: 5rem"></span></td><td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td></tr>
+      </tbody>
+    </table>
+    <div data-part="status"><p role="status">読み込み中</p></div>
+  </tanrei-table>
+</DemoFrame>
+
+行を取得している間、`loading` を指定します。テーブルはビジーとして公開され、その間に渡されたものを描きます。テーブルは何も取得せず、何も待ちません。プロダクトがそう指定している間だけ、読み込み中です。
+
+```html
+<tanrei-table loading>
+  <table>
+    <thead>…</thead>
+    <tbody>
+      <tr data-placeholder aria-hidden="true">
+        <td><span class="tanrei-skeleton-placeholder"></span></td>
+        <td data-align="end"><span class="tanrei-skeleton-placeholder" style="inline-size: 3rem; margin-inline-start: auto"></span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div data-part="status"><p role="status">読み込み中</p></div>
+</tanrei-table>
+```
+
+- 最初の読み込みでは、プレースホルダーの行 `<tr data-placeholder aria-hidden="true">` を渡します。プレースホルダーの行は、テキスト 1 行分以上の高さを持ち、チェックボックスを持たず、支援技術から隠されます。
+- プレースホルダーの行のセルは、空のままにするか、それぞれにスケルトンのプレースホルダー（`@tanrei/web/skeleton.css` の `class="tanrei-skeleton-placeholder"`）を入れます。プレースホルダーはセルのテキスト 1 行分なので、行の高さは、置き換わる行と同じになります。ここではクラスだけで足ります。ビジーであることは、テーブルがすでに伝えているからです。
+- 別のページや別の順を読み込むときは、テーブルにあった行を残したまま `loading` を指定します。利用者が読んでいた行は、読めるままです。
+- 何も薄くせず、何も無効にしません。読み込み中も、見出しとチェックボックスは動きます。
+- `loading` を指定している間、ほかに行がなくても、空の状態の行は描きません。
+
+### Markdown
+
+Markdown のレンダラーは、素の `<table>` を出力します。ビルド時に囲んでください。Tanrei は、実行時にコンテンツを動かしません。rehype なら小さなステップ 1 つです。
+
+```js
+import { visit, SKIP } from 'unist-util-visit';
+
+/** 文書中のすべての表を <tanrei-table> で囲みます。 */
+export function rehypeTanreiTable() {
+  return (tree) =>
+    visit(tree, 'element', (node, index, parent) => {
+      if (node.tagName !== 'table' || parent?.tagName === 'tanrei-table') return;
+      parent.children[index] = { type: 'element', tagName: 'tanrei-table', properties: {}, children: [node] };
+      return SKIP;
+    });
+}
+```
+
+レンダラーがセルに付ける `align="right"` は `end`、`align="left"` は `start` として読みます。「数値は右に」という指定は、右から左のページでは「数値は末尾に」になります。
+
+## 仕様
+
+<DemoFrame label="コンパクトと縞模様：見渡すための表" plain>
+  <tanrei-table class="tanrei-not-prose" density="compact" striped label="テーブルのトークン">
+    <table>
+      <thead>
+        <tr><th scope="col" data-wrap="false">トークン</th><th scope="col" data-wrap="false">参照先</th><th scope="col" data-wrap="false">型</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">comp.table.separation</td><td data-wrap="false">sys.behavior.separation</td><td data-wrap="false">number</td></tr>
+        <tr><td data-wrap="false">comp.table.divider.color</td><td data-wrap="false">sys.color.outline-variant</td><td data-wrap="false">color</td></tr>
+        <tr><td data-wrap="false">comp.table.divider.thickness</td><td data-wrap="false">sys.border.hairline</td><td data-wrap="false">dimension</td></tr>
+        <tr><td data-wrap="false">comp.table.row.gap</td><td data-wrap="false">sys.space.space50</td><td data-wrap="false">dimension</td></tr>
+        <tr><td data-wrap="false">comp.table.stripe.container.color</td><td data-wrap="false">sys.color.surface-container-low</td><td data-wrap="false">color</td></tr>
+        <tr><td data-wrap="false">comp.table.caption.gap</td><td data-wrap="false">sys.space.space100</td><td data-wrap="false">dimension</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<DemoFrame label="枠より広い表：枠の中でスクロールし、最初の列は残ります" plain>
+  <tanrei-table class="tanrei-not-prose" row-headers sticky-first-column style="max-inline-size: 30rem">
+    <table>
+      <caption>地域別の訪問数</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">地域</th><th scope="col" data-align="end" data-wrap="false">1 月</th><th scope="col" data-align="end" data-wrap="false">2 月</th><th scope="col" data-align="end" data-wrap="false">3 月</th><th scope="col" data-align="end" data-wrap="false">4 月</th><th scope="col" data-align="end" data-wrap="false">5 月</th><th scope="col" data-align="end" data-wrap="false">6 月</th><th scope="col" data-align="end" data-wrap="false">7 月</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row" data-wrap="false">北部</th><td data-align="end">1,204</td><td data-align="end">1,310</td><td data-align="end">1,288</td><td data-align="end">1,402</td><td data-align="end">1,396</td><td data-align="end">1,450</td><td data-align="end">1,512</td></tr>
+        <tr><th scope="row" data-wrap="false">中部</th><td data-align="end">3,020</td><td data-align="end">2,985</td><td data-align="end">3,110</td><td data-align="end">3,204</td><td data-align="end">3,190</td><td data-align="end">3,275</td><td data-align="end">3,301</td></tr>
+        <tr><th scope="row" data-wrap="false">南部</th><td data-align="end">870</td><td data-align="end">902</td><td data-align="end">915</td><td data-align="end">899</td><td data-align="end">940</td><td data-align="end">968</td><td data-align="end">1,002</td></tr>
+        <tr><th scope="row" data-wrap="false">島しょ部</th><td data-align="end">212</td><td data-align="end">220</td><td data-align="end">198</td><td data-align="end">240</td><td data-align="end">251</td><td data-align="end">263</td><td data-align="end">270</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<DemoFrame label="レイアウトが高さを決める表：行がスクロールし、見出し行は残ります" plain>
+  <tanrei-table class="tanrei-not-prose" sticky-header style="max-block-size: 14rem">
+    <table>
+      <caption>リリース</caption>
+      <thead>
+        <tr><th scope="col" data-wrap="false">バージョン</th><th scope="col" data-wrap="false">リリース日</th><th scope="col">変更点</th></tr>
+      </thead>
+      <tbody>
+        <tr><td data-wrap="false">2.4.0</td><td data-wrap="false">5 月 12 日</td><td>テーブルの見出し行が、スクロール中も表示されたままになりました。</td></tr>
+        <tr><td data-wrap="false">2.3.2</td><td data-wrap="false">4 月 28 日</td><td>年を 2 桁で入力した日付の問題を修正しました。</td></tr>
+        <tr><td data-wrap="false">2.3.1</td><td data-wrap="false">4 月 20 日</td><td>メニューが画面の外に開く問題を修正しました。</td></tr>
+        <tr><td data-wrap="false">2.3.0</td><td data-wrap="false">4 月 2 日</td><td>サイドシートを追加し、フォーカスリングを控えめにしました。</td></tr>
+        <tr><td data-wrap="false">2.2.1</td><td data-wrap="false">3 月 18 日</td><td>ツールチップが開いたままになる問題を修正しました。</td></tr>
+        <tr><td data-wrap="false">2.2.0</td><td data-wrap="false">3 月 4 日</td><td>右から左のレイアウトに対応しました。</td></tr>
+        <tr><td data-wrap="false">2.1.0</td><td data-wrap="false">2 月 11 日</td><td>日付と時刻のピッカーを追加しました。</td></tr>
+      </tbody>
+    </table>
+  </tanrei-table>
+</DemoFrame>
+
+<ComponentSpecs name="table" />
+
+## ガイドライン
+
+### それは表か
+
+テーブルは、行と列のあるデータに使います。ものを横に並べるために使ってはいけません。支援技術はセルごとに行、列、見出しを読み上げるので、表でない内容にとっては雑音になります。並べるにはレイアウトを使います。
+
+2 つ目の次元を持たないキーと値の一覧は、テーブルよりも説明リストに近いものです。
+
+### 密度
+
+| `density` | テキストが 1 行のときの行の高さ | 用途 |
+| --- | --- | --- |
+| `regular`（既定） | 46 | 読むための表。数行で、セルが折り返します。 |
+| `compact` | 32 | 見渡すための表。数百行の識別子と値。 |
+
+行は自身の高さを持ちません。最も高いセルと同じ高さになります。
+
+### 行の区切り
+
+| `separation` | 描くもの |
+| --- | --- |
+| `auto`（既定） | デザインシステムが選んだもの。既定のシステムでは細い線です。 |
+| `divider` | 行と行の間、見出し行の下、フッター行の上に、細い線を 1 本。 |
+| `gap` | 余白。線は引きません。 |
+
+`striped` は、本体の行を 1 行おきに淡い色で塗ります。似た行が多く並ぶ幅の広い表で、目が行を見失いやすいときに使います。どちらの区切りとも組み合わせられます。
+
+### 列
+
+- 列の幅は内容から決まります。列は、折り返せない内容より狭くなることはなく、長いテキストの列が、短い列の残した幅を取ります。
+- テキストは折り返し、切り捨てません。識別子は途中で折り返さず、列を広げます。
+- 数値の列は末尾にそろえ、桁を並べます。テキストは先頭のままにします。中央にそろえるのは、どの行でも同じ種類の答えになる印や一語だけです。
+- 列の幅を自分で指定するのは、必要なときだけにします（見出しセルに `style="width: …"`）。指定した幅が、内容から決まる幅に置き換わります。
+
+### 収まらないとき
+
+- テーブルは自身の枠の中でスクロールし、ページをスクロールさせません。枠の端に沿った細い線が、その先に列があることを伝えます。
+- `sticky-first-column` は、ほかの列がスクロールする間、最初の列を表示したままにします。その列が枠の半分を超える場合は自動で固定を解くので、スマートフォンの画面が固定した列で埋まることはありません。
+- `sticky-header` は、行がスクロールする間、見出し行を表示したままにします。レイアウトがテーブルの高さを制限している場合（要素の `max-block-size`）に働きます。ページのスクロールには追従しません。
+- ページ以外のサーフェス（カード、ダイアログ）に置くテーブルで、見出し行や最初の列を固定する場合、またはステータス行がある場合は、`--tanrei-comp-table-sticky-container-color` にそのサーフェスの色を設定します。これらのパーツはこの色で塗られるので、下を通る行や列が透けて見えません。
+
+### 並べ替えの指針
+
+- 利用者がその列で行を探す場合に、列を並べ替えられるようにします。名前、日付、金額、カテゴリーなどです。メモの列は当てはまりません。
+- 印は、並べ替えられるすべての列に、操作していないときも描きます。タッチ画面でも、どの見出しを押せるかが分かります。
+- 並べ替えられている列は、一度に 1 つです。2 つ目の並べ替えキーは、プロダクト自身のコントロールで扱います。
+- 新しい順を読み上げたい場合は、ステータス行に書きます（「価格の高い順に並べ替えました」など）。テーブル自身は何も通知しません。
+- 並べ替えられる列のあるテーブルの見出し行は、標準の密度で 44 以上、タッチではどちらの密度でも 48 の高さになります。
+
+### 行の選択の指針
+
+- 削除、書き出し、移動のように、複数のレコードをまとめて扱う場合に、行を選択できるようにします。1 件だけを扱うアクションは、その行の中に置きます。
+- 選択している行の数は、ステータス行に書きます（「132 件中 3 件を選択」など）。テーブルは何も数えません。
+- 選択した行に対して働くボタンは、テーブルの上に置きます。ボタンはプロダクトのものです。テーブルは、何が選択されているかを伝えます。
+- 「132 件すべて」は、プロダクト自身のコントロールで提供します。見出し行のチェックボックスが選択するのは、テーブルに渡された行です。ほかのページの行は選択しません。
+- チェックボックスは、それぞれがフォーカスの止まる位置になります。1 ページの行は、Tab キーでたどれる数にとどめ、残りはページに分けます。
+- チェックボックスのある行は、標準の密度で 44 以上、タッチではどちらの密度でも 48 の高さになります。コンパクトな行は、ポインターではコンパクトなままです。
+- [タグ](/ja/components/tag/)と[インラインコード](/ja/components/inline-code/)は、別のバリアントを選ばなければ Tonal です。既定のデザインシステムでは、Tonal の塗りが選択された行の塗りとほぼ同じ色になるため、選択された行の上ではその形が見えなくなります。テキストは読めるままです。行を選択できるテーブルでは、Outlined のタグを使います。
+
+### 読み込み中の指針
+
+- 最初の読み込みには、プレースホルダーの行を使います。数は、見込まれる行の数に近づけます。
+- 順やページを変えるときは、行を残します。利用者が読んでいる行を、プレースホルダーの行や[ローディングインジケーター](/ja/components/loading-indicator/)に置き換えないでください。
+- ステータス行に「読み込み中」と書き、終わったら届いたものを書きます（「132 件中 1〜20 件」など）。
+- `loading` を外すときは、プレースホルダーの行も取り除きます。残した行はそのまま描かれ、デバッグビルドで報告されます。
+
+### 行がないときとステータス行
+
+- 行のないテーブルには空の状態を使い、行がない理由と次にできることを伝えます。検索や絞り込みの結果として出す空の状態は `live` にして、結果が伝わるようにします。
+- ステータス行には、テーブルがいま示しているものを書きます。行の総数と、そのうち表示している範囲です。行に対して働くボタンは、テーブルの上に置きます。
+
+### 推奨
+
+- すべてのテーブルに名前を付けます。誰にでも見えるキャプションか、すぐ上の見出しがすでに内容を伝えている場合は `label` を使います。
+- 最初の列が各行の内容を示すなら、行見出しとして書きます（`<th scope="row">` と `row-headers`）。
+- 伝えることがないセルは空のままにします。ないこと自体が情報である場合（「利用不可」など）は、それを書きます。
+
+### 非推奨
+
+- 画面のレイアウトにテーブルを使わない。
+- 縞模様や色に意味を持たせない。セルの中のステータスは、言葉か、ラベルがそれを伝えるタグで示します。
+- 空のセルを埋めるためにダッシュを入れない。
+- 行を押せるようにしない。見出しに、独自の並べ替えの印や順を書かない。見出しが押せるようになるのは、上のマークアップによるときだけです。行はそのチェックボックスで選択し、開く行はテーブルの範囲にありません。
+- 読み込み中のテーブルを薄くしたり、無効にしたりしない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="table" />
+
+### コンポーネントが担うこと
+
+- ネイティブの表は表のままです。行、列見出し、行見出し、セルはブラウザーのものであり、縞模様の有無、密度、スクロール中、列や見出し行の固定中のいずれでも変わりません。
+- キャプションがテーブルの名前になります。キャプションがなければ、`label` がテーブルの `aria-label` になり、描画はしません。両方あるときは、キャプションが名前です。
+- テーブルが自身の枠の中でスクロールする間、その枠は、フォーカスが止まる位置の 1 つになります。セルの中のものより前に来て、テーブルの名前を持つリージョンになります。矢印キー、Page Up、Page Down、Home、End でスクロールします。スクロールしないテーブルは、止まる位置を増やしません。
+- フォーカスリングは枠の端の内側に描くので、何にも切り取られません。
+- 行の最初のセルが素の `<td>`（Markdown の出力）で `row-headers` を指定している場合、要素がそれらに行見出しのロールを与えます。
+- 右から左のレイアウトでは、列は右から並び、スクロールは右端から始まり、固定した最初の列は右に来ます。各セルのテキストは自身の方向を保ち、数値が逆になることはありません。
+- 文字サイズが 200% のときは、列の幅を決め直し、収まらなければ自身の枠の中でスクロールします。
+- 強制カラーモードでは、すべての線が文字色になります。このモードは塗りを消すので、縞模様のテーブルは、区切りの指定にかかわらず行の線を引きます。
+- 並べ替えられる列の見出しセルは、順（`aria-sort`）を持つ列見出しです。その中のボタンは、見出しのテキストを名前にします。印は支援技術から隠します。
+- 並べ替えボタンは、フォーカスが止まる位置の 1 つです。Enter と Space で押します。リンクの場合は Enter だけです。押した後も、フォーカスはそのボタンにあります。行と一緒に見出し行も置き換えた場合は、同じ列の新しいボタンにフォーカスが移ります。
+- 並べ替えボタンのフォーカスインジケーターは、見出しセルの内側に描きます。キーボードでフォーカスしたボタンが、固定した最初の列やステータス行の下にある場合は、その外に出るようにスクロールします。
+- 空の状態の行は、セル 1 つの行 1 つです。テーブルは、ロールも言葉も加えません。
+- ステータス行の段落はステータスです。そのテキストが変わると、フォーカスを動かさずに控えめに伝えます。最初に描いたときは何も伝えません。
+- 強制カラーモードでは、並べ替えボタンのラベルと印がボタンの文字色になります。並べ替えられている列は、矢印だけで区別できます。
+- スクリプトがなくても、並べ替えボタン、その印、空の状態の行、ステータス行は同じように描かれ、並べ替えのリンクも動きます。`sort` イベントにはスクリプトが必要です。
+- 行を選択できるテーブルも、表のままです。グリッドのロールは付かず、行に選択の状態は付かず、セルからセルへフォーカスを動かすキーもありません。行が選択されていることは、その行のチェックボックスのチェックの状態が伝えます。
+- 見出し行のチェックボックスは、チェック、未チェック、中間状態の間は mixed のいずれかを伝え、選択できる行がない間は無効になります。
+- チェックボックスは、それぞれがフォーカスの止まる位置です。見出し行のチェックボックスと並べ替えボタンが先で、その後に各行のチェックボックスが続きます。Space でチェックを入れたり外したりします。
+- 自身の名前を持たない行のチェックボックスは、その行の見出しセルを名前にします。
+- 選択セルのどこを押しても、チェックボックスを押したことになります。チェックボックスにフォーカスがある間に行を置き換えたり並べ直したりすると、フォーカスは、同じ `data-value` の行のチェックボックスに移ります。
+- 強制カラーモードでは、選択された行の塗りは消えますが、行が選択されていることはチェックボックスが伝えます。
+- `loading` を指定している間、テーブルはビジーとして公開されます（`aria-busy`）。プレースホルダーの行は支援技術から隠すので、利用者に伝わるのは、テーブルがビジーであることであり、中身のない行ではありません。読み込みの開始と終了を、テーブル自身は通知しません。
+- スクリプトがなくても、選択の列、選択された行（`data-selected`、またはチェックの入ったネイティブのチェックボックス）、プレースホルダーの行は同じように描かれ、ネイティブのチェックボックスはフォームの中で動きます。見出し行のチェックボックスを合わせることと、`selectionchange` イベントには、スクリプトが必要です。
+- 名前のないテーブル、未知の密度、区切り、選択の指定、本体より前に書かれたフッター行、列の数より多い、または少ないセルを持つ行、見出しのない並べ替えられる列、同時に並べ替えられている 2 つの列、名前のない行のチェックボックス、読み込み中でないテーブルのプレースホルダーの行は、デバッグビルドで報告します。
+
+### 利用者側で行うこと
+
+- テーブルに名前を付けます。名前のないスクロールするテーブルは、フォーカスが止まっても、ほかの位置と区別がつきません。
+- すべての列に見出しセルを置き、行見出しは行見出しとして書きます。見出しは構造であり、見た目ではありません。
+- 2 段の列見出しや結合セルが必要な表は、できるだけ単純にします。HTML としては動きますが、このコンポーネントはそれらを前提に設計していません。表を分けるほうが、たいてい分かりやすくなります。
+- セルの中の押せるもの（リンク、ボタン）は、自身の名前、フォーカス、ターゲットサイズを保ちます。余白を取ってください。
+- 行を並べたら、見出しセルに新しい `aria-sort` を書きます。1 つに `ascending` か `descending`、ほかの並べ替えられる列に `none` です。ボタンのない見出しには、この属性を残さないでください。
+- ステータス行の段落は、テキストがない間もページに残します。次に入れるテキストが伝わるようにするためです。
+- 見出し行のチェックボックスには `select-all-label` で名前を付けます。行見出しのないテーブルでは、各行のチェックボックスにも `label` で名前を付けます。
+- 読み込みが始まったときと終わったときに、ステータス行にそれを書きます。この変化が伝わる場所は、ここだけです。
+
+### 言葉
+
+Tanrei は言葉を同梱しません。テーブルが求める言葉は 1 つ、見出し行のチェックボックスの名前です。要素の `select-all-label` か、`setWords()` の `selectAllLabel` で渡します。残りの 2 つは、プロダクトが自分のマークアップに書きます。
+
+| 言葉 | 渡す場所 |
+| --- | --- |
+| 見出し行のチェックボックスの名前（「すべての商品を選択」） | 要素の `select-all-label`。`setWords({ selectAllLabel: 'すべての行を選択' })` で、すべてのテーブルに一度だけ渡すこともできます。 |
+| 行のチェックボックスの名前（「ハンドグラインダーを選択」） | その行の `<tanrei-checkbox>` の `label`、またはネイティブのチェックボックスの `aria-label`。行見出しがあれば省けます。行の見出しがチェックボックスの名前になります。 |
+| ステータス行の文（「4 件中 2 件を選択」「読み込み中」） | ステータス行の段落。段落を書かない場合は、要素の `status`。 |
+
+見出し行のチェックボックスに名前がなくても、チェックボックスは描かれて動きます。ただしアクセシブルな名前がなく、デバッグビルドは、言葉が足りないことを報告します。

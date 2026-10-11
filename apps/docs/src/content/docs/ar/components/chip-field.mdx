@@ -1,0 +1,234 @@
+---
+title: حقل الرقاقات
+description: يجمع قائمة من النصوص القصيرة، كعناوين البريد الإلكتروني وأرقام الهاتف والكلمات المفتاحية، تُكتب واحدًا بعد الآخر في حقل واحد. كل نص يقبله فحصك يصير رقاقة يمكن إزالتها، أو إعادتها إلى جزء الكتابة لتغييرها، والقائمة هي القيمة الواحدة للحقل.
+translationOf: components/chip-field.mdx
+sourceHash: 8a2a4fc47c38f0ca955bd6a42eb7db404d9675df
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="chip-field" />
+
+<DemoFrame label="حقل رقاقات فيه عنوانان، وآخر رُفض عنوانه الثالث" column>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" type="email" separators='[",",";"," "]' remove-label="إزالة {entry}" added-text="تمت إضافة {entry}" removed-text="تمت إزالة {entry}" supporting-text="افصل بين العناوين بفاصلة." value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" type="email" separators='[",",";"," "]' remove-label="إزالة {entry}" added-text="تمت إضافة {entry}" removed-text="تمت إزالة {entry}" supporting-text="افصل بين العناوين بفاصلة." error error-text="أدخِل عنوانًا كاملًا، مثل name@example.com." value='["ada@example.com","grace.hopper@example.org"]' input-value="alan@"></tanrei-chip-field>
+</DemoFrame>
+
+استخدم حقل الرقاقات (chip field) حيث يُدخل الشخص عدة نصوص قصيرة من نوع واحد: مستلمو رسالة، أو الأشخاص الذين يُشارَك معهم مستند، أو الأرقام التي يُرسل إليها تنبيه، أو الكلمات المفتاحية لمقالة. يُفحص كل نص وحده، فالعنوان الواحد المكتوب خطأً بين اثني عشر عنوانًا لا يُضيع البقية، ويمكن إزالة كل مُدخلة أو تغييرها وحدها.
+
+**يُبنى من** [حقل](/ar/components/field/) و[حقل إدخال النص](/ar/components/text-input/) و[رقاقات](/ar/components/chip/). الحقل هو الإطار: التسمية، وعلامة المطلوب أو الاختياري، والمساعدة، والخطأ. وحقل إدخال النص هو الصندوق والمكان الذي تُكتب فيه المُدخلة التالية. وكل مُدخلة رقاقة إدخال صغيرة تقف في الصندوق، قبل النص المكتوب. وحقل الرقاقات لا يرسم شيئًا من عنده وليس له أي رمز تصميم (token)، فيبدو كحقول النص التي بجانبه في كل نظام تصميم.
+
+عرضه عرض المكان الذي يوضع فيه. والمُدخلات والنص المكتوب تقف في أسطر تلتفّ، ويكبر الصندوق بأسطر كاملة. وكل مُدخلة تُعرض: لا تُخفى واحدة منها، ولا تُطوى في عدد مثل «`+3`»، ولا تُمرَّر خارج مجال الرؤية.
+
+على الويب هو `<tanrei-chip-field>`. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+الخاصية `value` هي قائمة المُدخلات، مصفوفة من النصوص. والخاصية `inputValue` هي النص المكتوب الذي لم يصر مُدخلة بعد.
+
+تُصنع المُدخلة من النص المكتوب:
+
+- بالمفتاح Enter؛
+- بفاصل تدرجه في `separators`. وليس هناك فاصل افتراضيًّا، لأن الفاصلة تنهي عنوان بريد إلكتروني وهي جزء من «Lovelace, Ada»؛
+- حين يغادر التركيز الحقل؛
+- من نص ملصوق فيه فاصل أو فاصل سطر: تُعرض كل قطعة على الفحص، بالترتيب.
+
+لا يعرف Tanrei ما عنوان البريد الإلكتروني ولا ما رقم الهاتف. الخاصية `type` تختار لوحة المفاتيح ولا تفحص شيئًا. وكل نص مرشَّح يُعرض عليك بالحدث `check`: ارفضه، فيبقى في الصندوق نصًّا مكتوبًا والحقل يعرض خطأه. والنص نفسه مرتين، والنص الذي يتجاوز `maxEntries`، يُرفضان من غير أن تُسأل.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-chip-field name="to" label="المستلمون" type="email"
+        supporting-text="افصل بين العناوين بفاصلة."
+        invalid-text="أدخِل عنوانًا كاملًا، مثل name@example.com."
+        duplicate-text="هذا العنوان موجود في القائمة سلفًا."
+        remove-label="إزالة {entry}"
+        added-text="تمت إضافة {entry}" added-count-text="عدد ما أُضيف: {count}" removed-text="تمت إزالة {entry}"></tanrei-chip-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/chip-field';
+
+      const to = document.querySelector('tanrei-chip-field');
+      to.separators = [',', ';', ' '];
+      // فحصك لمُدخلة واحدة، في سطر واحد. أجب قبل أن يعود الحدث.
+      to.addEventListener('check', (e) => {
+        if (!/^\S+@\S+\.\S+$/.test(e.detail.text)) e.preventDefault();
+      });
+      // غيّر الشخص القائمة. و `value` هي الآن القائمة الجديدة.
+      to.addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ChipField } from '@tanrei/react';
+
+    <ChipField name="to" label="المستلمون" type="email" separators={[',', ';', ' ']}
+      supportingText="افصل بين العناوين بفاصلة."
+      invalidText="أدخِل عنوانًا كاملًا، مثل name@example.com."
+      removeLabel="إزالة {entry}" addedText="تمت إضافة {entry}" removedText="تمت إزالة {entry}"
+      value={recipients}
+      onCheck={(event) => { if (!isAddress(event.detail.text)) event.preventDefault(); }}
+      onChange={(event) => setRecipients(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+لتقول سبب رفض واحد بكلماتك، عيِّن `event.detail.reason` في مستمع الحدث `check`. وإلا عرض الحقل `invalidText` أو `duplicateText` أو `limitText` بحسب السبب، و `errorText` حيث يكون ذلك فارغًا. والحدث `reject` يخبرك بكل نص مرفوض وبالسبب وبالكلمات المعروضة.
+
+المُدخلة التي تجدها خاطئة فيما بعد، كعنوان يبلّغ خادم بأنه غير معروف، عليك أنت أن تبلّغ عنها: عيِّن `error` و `errorText`، وسمِّ المُدخلة في الكلمات. والشخص يزيلها، أو يعيدها إلى الكتابة ليغيّرها.
+
+### تغيير مُدخلة
+
+| الغاية | ما تفعله |
+| --- | --- |
+| الوصول إلى المُدخلات من جزء الكتابة | المفتاح Backspace، أو مفتاح السهم الذي يشير إلى بداية السطر، ومؤشر الكتابة في بداية النص |
+| التنقل بين المُدخلات | مفتاحا السهم لليسار والسهم لليمين، والمفتاحان Home و End |
+| إزالة مُدخلة | المفتاح Backspace أو Delete عليها، أو إجراء الإزالة فيها |
+| تغيير مُدخلة | المفتاح Enter أو Space عليها، أو ضغطة على الرقاقة: يعود نصها إلى جزء الكتابة |
+| العودة إلى جزء الكتابة | المفتاح Escape أو Tab، أو كتابة حرف |
+
+الضغطة الأولى على Backspace تصل إلى المُدخلة الأخيرة لا غير. والضغطة الثانية تزيلها، والمفتاح الذي يبقى مضغوطًا يُستجاب له مرة واحدة، فمحو النص المكتوب لا يمتد أبدًا إلى القائمة.
+
+### مستوى واحد إلى الأسفل
+
+الحقل نفسه مكتوبًا باليد من أعضائه هو الصورة نفسها:
+
+```html
+<tanrei-field label="المستلمون" supporting-text="افصل بين العناوين بفاصلة.">
+  <tanrei-text-input type="email">
+    <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com"
+      remove-label="إزالة ada@example.com"></tanrei-chip>
+    <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org"
+      remove-label="إزالة grace.hopper@example.org"></tanrei-chip>
+  </tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل، وحقل إدخال النص، ورقاقتان في المنفذ entries" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" supporting-text="افصل بين العناوين بفاصلة.">
+    <tanrei-text-input type="email">
+      <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com" remove-label="إزالة ada@example.com"></tanrei-chip>
+      <tanrei-chip slot="entries" kind="input" size="small" label="grace.hopper@example.org" remove-label="إزالة grace.hopper@example.org"></tanrei-chip>
+    </tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+ما لا تفعله الأعضاء المكتوبة باليد هو ما يضيفه حقل الرقاقات:
+
+| ما يضيفه حقل الرقاقات | باليد |
+| --- | --- |
+| صنع المُدخلة: المفتاح Enter، والفواصل، والمغادرة، والقوائم الملصوقة | تستمع إلى حقل إدخال النص وتقطّع النص |
+| الفحوص وخطأ الإدخال | تعيّن `error` و `errorText` على الحقل |
+| موضع توقف واحد للمفتاح Tab، والمفاتيح بين المُدخلات | كل رقاقة وكل إجراء إزالة موضع توقف مستقل؛ وأنت تزيل الرقاقة وتنقل التركيز |
+| عرض المُدخلات للتقنيات المساعدة قائمةً واحدة، والإعلانات الثلاثة | تكتب إعلاناتك بنفسك |
+| القائمة قيمةً واحدة في النموذج | حقول إدخال مخفيّة، أو إرسال من عندك |
+
+انزل إلى هذا المستوى لترتيب لا يقدّمه حقل الرقاقات، كمُدخلات ليست رقاقات، أو أيقونة في الصندوق.
+
+## المواصفات
+
+<DemoFrame label="مطلوب، وللقراءة فقط، ومعطَّل، وكلمات مفتاحية لا تُصنع إلا بالمفتاح Enter" plain column>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" type="email" requirement="required" required-text="مطلوب" remove-label="إزالة {entry}" value='["ada@example.com"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" type="email" readonly remove-label="إزالة {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المستلمون" type="email" disabled remove-label="إزالة {entry}" value='["ada@example.com","grace.hopper@example.org"]'></tanrei-chip-field>
+  <tanrei-chip-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="المؤلفون" remove-label="إزالة {entry}" supporting-text="اضغط Enter بعد كل اسم." value='["Lovelace, Ada","Hopper, Grace"]'></tanrei-chip-field>
+</DemoFrame>
+
+### ما يعطيه كل عضو
+
+| الجانب | من الحقل | من حقل إدخال النص | ما لحقل الرقاقات نفسه |
+| --- | --- | --- | --- |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText` | `variant`، `size`، `type`، `placeholder`، `readOnly`، `autocomplete`، ثم `inputValue` (وهي `value` في حقل إدخال النص) | `value`، `separators`، `maxEntries`، `invalidText`، `duplicateText`، `limitText`، `removeLabel`، `addedText`، `addedCountText`، `removedText` |
+| الأحداث | — | `input`، `action` | `change`، `check`، `reject` |
+| المنافذ (slots) | `label-icon` | — | — |
+| رموز التصميم | `comp.field.*` | `comp.input-box.*` للصندوق؛ و `comp.text-input.*` لمكان المُدخلات | لا شيء؛ والمُدخلات تقرأ `comp.chip.*` |
+
+- **المُدخلات رقاقات صغيرة** في حجمي الصندوق كليهما. والمُدخلة الطويلة تأخذ سطرًا لها وحدها وتقصّها الرقاقة؛ ونصها الكامل يبقى اسمها وقيمتها.
+- **النص النائب** لا يُعرض إلا ما دامت القائمة فارغة.
+- **للقراءة فقط**: يمكن الوصول إلى المُدخلات وقراءتها، وهي تُرسل. ولا يمكن صنع مُدخلة ولا إزالتها ولا إعادتها إلى الكتابة، وكل رقاقة تُرسم بلا إجراء الإزالة.
+- **معطَّل**: الحقل والصندوق وكل رقاقة معطَّلة، ولا يُرسل شيء.
+- **الخاصية `maxEntries`** ترفض المُدخلة الزائدة، بنص `limitText`. ولا يُعطَّل شيء ولا يُعلَّم شيء مسبقًا: قل الحد في `supportingText`.
+- **الخاصية `type`** قيمتها `text` أو `email` أو `tel` أو `url`. وأي نوع آخر يتصرف تصرف `text`.
+
+### تخصيص حقل واحد دون غيره
+
+ليس لحقل الرقاقات رمز تصميم خاص به. ولتغيير مثيل واحد، عيِّن رمز تصميم أحد الأعضاء عليه:
+
+```html
+<tanrei-chip-field label="المستلمون"
+  style="--tanrei-comp-text-input-entries-row-gap: 12px"></tanrei-chip-field>
+```
+
+<ComponentSpecs name="chip-field" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` بداخله عنصر `<tanrei-text-input>`، وعنصر `<tanrei-chip>` لكل مُدخلة في المنفذ `entries` من حقل إدخال النص. واستيراد العنصر يعرّف الثلاثة.
+- الخاصية `value` مصفوفة: أسنِد مصفوفة جديدة لتغيّرها. وخاصية HTML (attribute) `value` تُقرأ مرة واحدة، مصفوفة JSON من السلاسل النصية، وهي ما تعود إليه إعادة ضبط النموذج. والخاصية `separators` مصفوفة أيضًا؛ وخاصية HTML المقابلة لها مصفوفة JSON.
+- العنصر مرتبط بالنماذج (form-associated). يرسل قيمة لكل مُدخلة تحت `name`، بالترتيب، ولا يرسل شيئًا ما دامت القائمة فارغة أو الحقل معطَّلًا. والنص المكتوب لا يُرسل أبدًا. ويتبع عنصر `<fieldset>` المعطَّل، ويُستعاد عند التنقل، ويبلّغ بأن القيمة ناقصة ما دامت `requirement` بالقيمة `required` والقائمة فارغة.
+- الأحداث `change` و `check` و `reject` من النوع CustomEvent ويرسلها العنصر: وفي `detail` لها، على الترتيب، `{ value, added, removed }` و `{ text, values }` و `{ text, reason, message }`. والحدث `check` قابل للإلغاء ويُقرأ حين يعود: فالجواب الذي يُعطى بعد ذلك لا يُقرأ.
+- الحدثان `input` و `action` هما حدثا حقل إدخال النص نفسه. والحدث `action` لا يصدر إلا بالمفتاح Enter وجزء الكتابة فارغ، ويطلب عندئذ إرسال النموذج. والمفتاح Enter على نص يصنع مُدخلة: يُوقَف المفتاح قبل أن يسمعه حقل إدخال النص، فمستمع `keydown` في طور التصاعد (bubbling) لا يسمع تلك الضغطة.
+- الأجزاء: `field` و `text-input` و `chip` هي الأعضاء. وأجزاء الحقل وحقل إدخال النص تحتفظ بأسمائها (`label`، `supporting-text`، `container`، `input`، `entries`، وهكذا). وأجزاء الرقاقة هي `entry-container` و `entry-label` و `entry-remove`.
+- العنصر نفسه غير قابل للتركيز وليس له دور: فالدالة `focus()` تذهب إلى جزء الكتابة. سمِّه بالخاصية `label`، ولا تسمِّه أبدًا بالخاصية `aria-label`.
+- يُقرأ النص بحثًا عن الفواصل حين يتغيّر، لا من المفتاح الذي ضُغط أبدًا، فلوحة مفاتيح اللمس والإملاء ينهيان المُدخلة أيضًا. وما دام أسلوب الإدخال يركّب نصًّا لا يُصنع شيء: المفتاح الذي يعتمد التركيب يعتمده، وعندئذ فقط يُقرأ النص.
+- خصائص HTML مكتوبة بصيغة kebab-case، مثل `input-value` و `max-entries` و `remove-label` و `added-count-text`. أما `readonly` و `autocomplete` فتحتفظان باسميهما في HTML.
+- قبل أن يُعرَّف العنصر لا يكون له حجم ولا يعرض شيئًا. احجز ارتفاع الصندوق. والصفحة التي يجب أن تأخذ قائمة بلا سكربت تستخدم عنصر `<input>` أو `<textarea>` عاديًّا وتقطّع النص على خادمها.
+
+## الإرشادات
+
+### حقل الرقاقات، أم مربع التحرير والسرد، أم مجموعة الوسوم
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| قائمة من نصوص يكتبها الشخص، ويُفحص كلٌّ منها وحده | حقل الرقاقات |
+| اختيار من خيارات عند المنتج | [مربع التحرير والسرد](/ar/components/combobox/). فليس لحقل الرقاقات قائمة اقتراحات |
+| مجموعة من الوسوم أو الرقاقات قائمة بذاتها، بلا كتابة ولا قيمة في نموذج | [مجموعة الوسوم](/ar/components/tag-group/) |
+| بضع مُدخلات طويلة تحتاج كلٌّ منها إلى تسمية | [مجموعة حقول](/ar/components/field-group/) من حقول النص |
+| نص واحد، مهما طال | [حقل النص](/ar/components/text-field/) |
+
+### افعل
+
+- قل في `supportingText` ما المُدخلة وكيف تُصنع: «افصل بين العناوين بفاصلة.»
+- لا تدرج في `separators` إلا ما لا يمكن أبدًا أن يكون جزءًا من مُدخلة. ولأسماء مثل «Lovelace, Ada» لا تدرج شيئًا.
+- اكتب `removeLabel` وفيها الموضع `{entry}`، فلا يشترك إجراءا إزالة في اسم واحد أبدًا.
+- أعطِ `invalidText` بكلمات تقول كيف تبدو المُدخلة الصحيحة.
+- قل الحد في `supportingText`، وما يحدث عنده في `limitText`.
+
+### لا تفعل
+
+- لا تضع حقل رقاقات داخل حقل. فهو حقل أصلًا.
+- لا تعتمد على `type="email"` لفحص عنوان. فهي تختار لوحة المفاتيح ولا شيء غير ذلك.
+- لا تجب عن الحدث `check` فيما بعد. والمُدخلة التي يرفضها خادم يُبلَّغ عنها بالخاصيتين `error` و `errorText`.
+- لا تقرأ النص المكتوب جزءًا من القيمة. فهو يصير مُدخلة حين يغادر التركيز؛ والمنتج الذي يرسل بسكربت والتركيز على الحقل يقرأ `inputValue`.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="chip-field" />
+
+### ما يتكفل به المكوّن
+
+- تلقى التقنيات المساعدة قائمة تسمّيها التسمية، فيها عنصر لكل مُدخلة: زر يسمّيه نص المُدخلة كاملًا، وإجراء الإزالة فيها، وهو زر تسمّيه `removeLabel` وفيها المُدخلة. وبعد القائمة يأتي جزء الكتابة، وهو مربع نص (text box) تسمّيه التسمية وتصفه المساعدة أو الخطأ.
+- الحقل موضع توقف واحد للمفتاح Tab، أيًّا كان عدد المُدخلات التي يحملها. ويوصل إلى المُدخلات بمفاتيح الأسهم أو بالمفتاح Backspace، وبالمؤشر واللمس وبتنقل قارئ الشاشة نفسه.
+- المُدخلة المرفوضة تبقى نصًّا في جزء الكتابة، حيث مؤشر الكتابة (caret)، والسبب مكتوب بالكلمات في خطأ الحقل، وهو يُعلَن مرة واحدة. واللون لا يفرّق أبدًا بين مُدخلة مرفوضة ومُدخلة مقبولة.
+- المُدخلة التي تُصنع، وعدة مُدخلات تُصنع دفعة واحدة، والمُدخلة التي تُزال، تُقال كلٌّ منها في منطقة حيّة (live region) بتهذيب، بجُملك أنت.
+- الإزالة مقصودة: المفتاح Backspace يحتاج إلى ضغطتين، والمفتاح الذي يبقى مضغوطًا يُستجاب له مرة واحدة.
+- الاتجاه يتبع المكان الذي يُستخدم فيه الحقل. ففي تخطيط من اليمين إلى اليسار تبدأ الأسطر من اليمين، ومفاتيح الأسهم تظل تتحرك في الاتجاه الذي تشير إليه. والعنوان الذي في الداخل يحتفظ باتجاهه.
+- عند تكبير النص إلى 200% في مكان ضيق تبقى كل مُدخلة معروضة، ويأخذ جزء الكتابة سطرًا خاصًّا به حيث يترك له السطر الأخير أقل مما يكفي.
+
+فجوات معروفة على الويب: ما تقوله قارئات الشاشة قُرئ من أشجار إمكانية الوصول في المتصفحات، ولم يُسمع بقارئ شاشة.
+
+### ما عليك فعله
+
+- أعطِ `label` دائمًا.
+- أعطِ `removeLabel` و `addedText` و `removedText`، على العنصر أو مرة واحدة ضمن كلمات المنتج. فمن دونها لا يكون لإجراءات الإزالة اسم ولا يُعلَن شيء.
+- قل في `supportingText` كيف تُصنع المُدخلة. وحيث يحتاج الناس إلى أن يعرفوا أن المفتاح Enter على مُدخلة يغيّرها، قل ذلك أيضًا.
+- قل لماذا رُفضت المُدخلة بكلمات تقول كيف تُصلَح.

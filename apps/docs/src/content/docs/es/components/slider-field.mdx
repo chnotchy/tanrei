@@ -1,0 +1,222 @@
+---
+title: Campo de control deslizante
+description: Permite elegir un valor, o un intervalo de valores, en una escala como un campo completo. La pista bajo una etiqueta, con el valor dicho con palabras al final de la fila de la etiqueta, una línea de ayuda y el motivo por el que se rechazó un valor.
+translationOf: components/slider-field.mdx
+sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="slider-field" />
+
+<DemoFrame label="Un campo de control deslizante, uno por pasos y un intervalo" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Tamaño del texto" min="50" max="200" step="10" value="120"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Precio" supporting-text="Por noche, sin impuestos." range min="0" max="500" step="10" start-value="100" value="300" start-label="Precio mínimo" end-label="Precio máximo"></tanrei-slider-field>
+</DemoFrame>
+
+Usa un campo de control deslizante para un valor que se elige a ojo y que se lee después con palabras: un tamaño de texto del 120 %, una distancia de 5 km, un precio de $100 a $300. Un control deslizante sin nada más no tiene ninguna etiqueta que se dibuje, y su pista no dice en qué valor está. El campo de control deslizante es el caso corriente, listo para usarse: una etiqueta, el valor con palabras, la pista, una línea de ayuda y un error.
+
+**Se compone de** un [campo](/es/components/field/) y un [control deslizante](/es/components/slider/). El campo es el marco: la etiqueta, la marca de obligatorio o de opcional, el texto del valor al final de la fila de la etiqueta, la ayuda y el error. El control deslizante es el control: la pista, los tiradores y todo lo que la persona hace con ellos. El campo de control deslizante no dibuja nada propio y no tiene ningún token: todas sus propiedades son propiedades de uno de los dos, que recibe sin cambios, excepto `valueHidden`, que es propia.
+
+Es tan ancho como el lugar en el que se pone, y su pista lo llena.
+
+En la web es `<tanrei-slider-field>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+`value` es el valor del tirador, y el del tirador de fin de un intervalo; `startValue` es el del tirador de inicio del intervalo. Los dos eventos son los del propio control deslizante: `input` con cada cambio mientras la persona arrastra, y `change` una vez cuando el cambio ha terminado. Cuando se oye cualquiera de los dos, el `value` y el `startValue` del campo ya son los nuevos.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-slider-field name="text-size" label="Tamaño del texto"
+        supporting-text="Se aplica a todas las páginas."
+        min="50" max="200" step="10" value="120"></tanrei-slider-field>
+
+      <!-- Un intervalo envía start-value y después value, con el mismo nombre. Da nombre a cada tirador. -->
+      <tanrei-slider-field name="price" label="Precio" range
+        min="0" max="500" step="10" start-value="100" value="300"
+        start-label="Precio mínimo" end-label="Precio máximo"></tanrei-slider-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/slider-field';
+
+      // Las palabras para un valor, dadas una sola vez: una propiedad, nunca un atributo.
+      const percent = new Intl.NumberFormat(document.documentElement.lang, { style: 'percent' });
+      const size = document.querySelector('[name="text-size"]');
+      size.formatValue = (value) => percent.format(value / 100);
+      size.addEventListener('input', () => applyTextSize(size.value));
+
+      const dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+      document.querySelector('[name="price"]').formatValue = (value) => dollars.format(value);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SliderField } from '@tanrei/react';
+
+    <SliderField name="text-size" label="Tamaño del texto" supportingText="Se aplica a todas las páginas."
+      min={50} max={200} step={10} value={size}
+      formatValue={(value) => percent.format(value / 100)}
+      onInput={(event) => setSize(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### El valor con palabras
+
+El valor se dibuja al final de la fila de la etiqueta, con las palabras que el control deslizante da a su tirador: las mismas que oye un lector de pantalla y que muestra el indicador de valor. Son, en este orden:
+
+| Las palabras | Cuándo |
+| --- | --- |
+| `valueText`, y `startValueText` para el tirador de inicio de un intervalo | Escribes tú las palabras, y las vuelves a escribir en cada `input`. |
+| Lo que escribe `formatValue` | Das una sola vez una función que va de un valor a sus palabras. El control deslizante se la pide para cada tirador en cada cambio. |
+| El número en la configuración regional de la página | No se da ninguna de las dos cosas. |
+
+Los dos valores de un intervalo se unen con una raya corta, en el orden de lectura: en un diseño de derecha a izquierda, las palabras del inicio quedan a la derecha, donde está el tirador de inicio. El campo de control deslizante no escribe por sí mismo ningún número, unidad ni palabra.
+
+<DemoFrame label="Un texto del valor que comparte la línea de la etiqueta, otro que ocupa una línea propia y un campo que lo oculta" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" value="40" value-indicator="active"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ingresos anuales antes de impuestos" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="Ingresos anuales mínimos" end-label="Ingresos anuales máximos"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Brillo" value="70" value-hidden></tanrei-slider-field>
+</DemoFrame>
+
+El texto del valor se apoya en la línea de base de la primera línea de la etiqueta, y la etiqueta salta de línea en el sitio que queda. Donde eso dejaría a la etiqueta menos de la mitad de la fila, el texto del valor ocupa una línea propia después de la etiqueta, y salta de línea ahí si hace falta. `valueHidden` lo omite, para un control deslizante cuyo número no significa nada para la persona: un volumen, un brillo. El tirador sigue diciendo su valor a la tecnología de apoyo.
+
+### Un nivel más abajo
+
+El mismo campo, escrito a mano con sus dos miembros, es la misma imagen y el mismo control deslizante para la tecnología de apoyo:
+
+```html
+<tanrei-field label="Tamaño del texto" supporting-text="Se aplica a todas las páginas." value-text="120 %">
+  <tanrei-slider name="text-size" min="50" max="200" step="10" value="120"></tanrei-slider>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const slider = field.querySelector('tanrei-slider');
+  slider.formatValue = (value) => percent.format(value / 100);
+  // Lo que el campo de control deslizante hace por sí mismo: el texto del valor del campo es el del control deslizante, en cada cambio.
+  slider.addEventListener('input', () => (field.valueText = slider.shownValueText));
+</script>
+```
+
+<DemoFrame label="El mismo campo escrito a mano: un campo con un control deslizante dentro, que recibe el texto del valor una sola vez; sin el listener de arriba no se mantiene sincronizado" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Tamaño del texto" supporting-text="Se aplica a todas las páginas." value-text="120">
+    <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
+  </tanrei-field>
+</DemoFrame>
+
+Baja a ese nivel cuando necesites una organización que el campo de control deslizante no ofrezca:
+
+| Necesitas | Usa |
+| --- | --- |
+| Una etiqueta, el valor con palabras, la pista, ayuda y un error | El campo de control deslizante |
+| Un texto del valor que el control deslizante no dice (una frase, «Cualquier precio»), o algo tuyo dentro del marco | Un [campo](/es/components/field/) con un [control deslizante](/es/components/slider/) dentro, y tu propio `value-text` |
+| La pista sola, con el nombre de algo que se dibuja en otro lugar: la columna de una tabla, el glifo de una barra de herramientas, el control de volumen de un reproductor | El [control deslizante](/es/components/slider/) sin nada más, con su propio `label` como nombre |
+| Un control deslizante vertical | El [control deslizante](/es/components/slider/) sin nada más: el campo de control deslizante no tiene orientación |
+| Un valor que se conoce y se escribe | Un [campo numérico](/es/components/number-field/), solo o junto a un control deslizante |
+
+Lo que cambia un nivel más abajo es dónde se dicen las cosas. `name`, `value` y `startValue` están en el control deslizante, que es entonces el control que encuentra el formulario, y sus eventos se oyen en él. `label` y `disabled` se quedan en el campo, que los pasa al control deslizante. El tirador de fin de un intervalo recibe su nombre del `label` del propio control deslizante, que el campo de control deslizante llama `endLabel`.
+
+## Especificaciones
+
+<DemoFrame label="Obligatorio con la palabra del producto, opcional, en error y deshabilitado" plain column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="required" required-text="Obligatorio" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" requirement="optional" optional-text="Opcional" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." error error-text="Elige un nivel superior a 0." value="0"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Volumen" supporting-text="Se aplica a las alertas y al contenido multimedia." disabled value="40"></tanrei-slider-field>
+</DemoFrame>
+
+### Qué aporta cada miembro
+
+| Aspecto | Del campo | Del control deslizante |
+| --- | --- | --- |
+| Propiedades | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `startValue`, `range`, `min`, `max`, `step`, `origin`, `stops`, `size`, `valueIndicator`, `valueText`, `startValueText`, `startLabel` y `endLabel`, que es el `label` del control deslizante |
+| Eventos | — | `input`, `change` |
+| Slots | `label-icon` | — |
+| Tokens | `comp.field.*` | `comp.slider.*` |
+
+Una propiedad es propia del campo de control deslizante: `valueHidden`. Y una propiedad del campo la rellena el propio campo de control deslizante, y no te corresponde definirla: el `valueText` del campo, a partir de las palabras del control deslizante.
+
+El control deslizante tiene un `disabled` y un `orientation` propios. Ninguno de los dos es una propiedad del campo de control deslizante: el `disabled` del campo deshabilita el control deslizante, para que la etiqueta y el texto del valor lo sigan, y la pista siempre va en la dirección en línea: un campo de control deslizante no tiene orientación vertical.
+
+Un control deslizante siempre tiene un valor, así que `requirement` no significa aquí «no vacío». Un formulario que marca cada control como obligatorio u opcional marca también este; lo que rechaza (un nivel de 0, un intervalo demasiado estrecho) te corresponde decirlo a ti con `error` y `errorText`. Un error no cambia nada de la pista: lo transmiten las palabras y el estado no válido.
+
+Lo que hacen los tiradores (el arrastre, las teclas, los pasos, el indicador de valor) está en la [página del control deslizante](/es/components/slider/). Lo que hace el marco (la marca de obligatorio, el texto del valor, la ayuda, el error y cómo se anuncia) está en la [página del campo](/es/components/field/).
+
+### Diferenciar un solo campo
+
+El campo de control deslizante no tiene ningún token propio. Su marco lee los tokens del campo y su pista lee los del control deslizante, se definan donde se definan. Para cambiar una sola instancia, define en ella el token del miembro:
+
+```html
+<tanrei-slider-field label="Volumen" value="40"
+  style="--tanrei-comp-field-standard-value-text-color: var(--tanrei-sys-color-on-surface)"></tanrei-slider-field>
+```
+
+<ComponentSpecs name="slider-field" />
+
+### Qué dibuja la web de otra manera
+
+- El shadow root del elemento contiene un `<tanrei-field>` con un `<tanrei-slider>` dentro, y nada más. Importar el elemento define los dos.
+- El elemento está asociado a formularios. Recibe `name` y `form`, envía el valor (un intervalo envía el valor de inicio y después el valor, con el mismo nombre; nada mientras está deshabilitado), se restablece a los valores de los atributos `value` y `start-value`, y sigue a un `<fieldset>` deshabilitado. Sus dos miembros no añaden ninguna entrada al formulario.
+- `input` y `change` son los CustomEvents del control deslizante, con `detail.value` (y `detail.startValue` en un intervalo). El destino de los dos es el elemento, y `event.target.value` es el valor nuevo en todos los listeners.
+- `formatValue` es una propiedad y nunca un atributo: `(value: number) => string`, o `null`.
+- Los dos textos del valor de un intervalo se escriben en el único texto del `value-text` del campo, con una raya corta entre ellos. Cada uno es un tramo con su propia dirección (envuelto en un aislamiento de primer carácter fuerte, U+2068 y U+2069), a menos que sea un número sencillo como «$100» o «3,400,000», que ya es un solo tramo de izquierda a derecha en cualquiera de las dos direcciones y se escribe tal cual.
+- Partes: `field` y `slider` son los dos miembros. Sus propias partes tienen aquí los mismos nombres que un nivel más abajo: `label`, `label-icon`, `requirement-label`, `value-text`, `supporting-text`; `track`, `active-track`, `stop-indicator`, `container`, `handle`, `value-indicator`.
+- El elemento no puede recibir el foco por sí mismo: `focus()` va al tirador, o al tirador de inicio de un intervalo, y un `<label for>` propio de la página lleva el foco allí.
+- El elemento no tiene rol. Dale nombre con `label` —con `label-hidden` donde la etiqueta se dibuja en otro lugar— y nunca con `aria-label`, que aquí no nombra nada.
+- Los atributos son los de los propios miembros: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `start-value`, `value-indicator`, `value-text`, `start-value-text`, `start-label`; y `end-label`, `value-hidden`.
+- Antes de que el elemento esté definido no tiene tamaño y solo muestra un hijo `label-icon`. Una página que deba funcionar sin script usa un `<label>` alrededor de un `<input type="range">` sencillo.
+
+## Pautas
+
+### Recomendado
+
+- Da las palabras para un valor con `formatValue` cuando el número solo no quedaría claro: un porcentaje, una moneda, una unidad.
+- Da nombre a los dos tiradores de un intervalo, con `startLabel` y `endLabel`, con palabras que contengan las de `label`: «Precio mínimo», «Precio máximo» bajo «Precio».
+- Di en `supportingText` qué cambia el valor, donde la etiqueta no lo diga.
+- Di con palabras qué se rechaza, con `error` y `errorText`.
+- Usa `valueHidden` para un valor que se define a ojo y cuyo número no le dice nada a la persona.
+
+### Evita
+
+- No escribas `valueText` una sola vez en el marcado para un control deslizante que la persona puede mover: las palabras serían falsas después del primer arrastre. Da `formatValue`, o vuelve a escribir `valueText` en cada `input`.
+- No pongas un campo de control deslizante dentro de un campo. Ya es un campo; una compilación de depuración lo dice.
+- No le des nombre con `aria-label`. Donde no deba dibujarse ninguna etiqueta, da `label` y `labelHidden`.
+- No uses `valueIndicator="always"` para mostrar el valor: eso lo hace el texto del valor, y el indicador quedaría encima de la fila de la etiqueta.
+- No uses un campo de control deslizante para un valor que debe ser exacto. Usa un [campo numérico](/es/components/number-field/), solo o junto a él.
+
+## Accesibilidad
+
+<ComponentAccessibility name="slider-field" />
+
+### De qué se encarga el componente
+
+- Cada tirador es un control deslizante. Un solo tirador recibe su nombre de `label`, se dibuje o no; los dos de un intervalo, de `startLabel` y de `endLabel`, y de `label` donde falta alguno, lo que una compilación de depuración notifica.
+- Cada tirador tiene como descripción el texto de apoyo o de error que se muestra, con el texto de opcional mientras el campo es opcional, y se expone como no válido mientras `error` es true y como deshabilitado mientras `disabled` es true. El rol de control deslizante de la web no tiene estado obligatorio, así que un campo de control deslizante obligatorio dice `requiredText` en la descripción.
+- Cada tirador dice su valor con palabras. Las mismas palabras se dibujan al final de la fila de la etiqueta, donde quedan ocultas para la tecnología de apoyo, de modo que un valor se lee una sola vez.
+- La etiqueta dibujada, la marca de obligatoriedad y el texto del valor no se exponen una segunda vez, y un cambio del texto del valor no se anuncia: el tirador dice su propio valor.
+- Sus paradas del foco son los tiradores del control deslizante (uno, o los dos de un intervalo), y todas las teclas son las del control deslizante. Una pulsación en la fila de la etiqueta lleva el foco al tirador y no cambia nada; una pulsación en la ayuda no hace nada.
+- Mientras está deshabilitado, el texto del valor se sigue dibujando: el valor en que está un control deshabilitado se sigue leyendo.
+- La dirección, el texto ampliado y los colores forzados los resuelve cada miembro por su cuenta: en un diseño de derecha a izquierda, el marco y la pista se reflejan juntos y las palabras de un valor conservan su propio orden; con el texto al 200%, nada se corta y nada se desplaza hacia los lados.
+- No tiene textos propios. `requiredText` y `optionalText`, si se dejan vacíos, los lee el campo de los textos del producto.
+
+Carencias conocidas en la web: antes de que el elemento esté definido no se dibuja nada, y los dos tiradores de un intervalo no se exponen como un solo grupo que reciba su nombre de `label`.
+
+### Qué debes hacer tú
+
+- Da `label`, siempre, y también `startLabel` y `endLabel` en un intervalo.
+- Da las palabras del valor cuando un número solo no se entendería, y mantenlas ciertas mientras el valor cambia.
+- Di qué se rechaza con `errorText`. El color nunca es la única señal.
+- Ofrece un campo numérico junto al control deslizante donde la persona deba introducir un valor exacto: arrastrar nunca es la única forma de mover un tirador, pero sigue sin ser una forma de escribir un valor.

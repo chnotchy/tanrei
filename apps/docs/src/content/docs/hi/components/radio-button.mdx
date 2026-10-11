@@ -1,0 +1,205 @@
+---
+title: रेडियो बटन
+description: लोगों को एक साथ दिखाए गए छोटे ग्रुप में से ठीक एक विकल्प चुनने देता है।
+translationOf: components/radio-button.mdx
+sourceHash: daa79188285bc262a23e0fbc7f5abe067c3f98c3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="radio-button" />
+
+<DemoFrame label="एक ग्रुप">
+  <div role="radiogroup" aria-label="कितनी बार" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="overview-frequency" value="daily" label="रोज़"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="weekly" checked label="हर हफ़्ते"></tanrei-radio-button>
+    <tanrei-radio-button name="overview-frequency" value="monthly" label="हर महीने"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+### इस्तेमाल
+
+जिस संशोधन ने रेडियो बटन को Material 3 के साइज़ और मोटी होकर फ़िल बन जाने वाली रिंग दी, उसने सिर्फ़ यह बदला कि वह कैसा दिखता और कैसे चलता है, इसलिए नीचे का हर उदाहरण मौजूदा है। वेब इसे वैसे ही बनाता है जैसा स्पेक कहता है। SwiftUI, Compose, Flutter और React Native पीछे हैं: जब तक वे बराबरी पर नहीं आते, वे पिछला रेडियो बटन ही बनाते हैं, यानी 28 की स्टेट लेयर में बारीक स्ट्रोक वाली 16 की रिंग और 8 का बिंदु, और लेआउट में 48 की टार्गेट ऊँचाई के लिए जगह नहीं रखते। उसके बाद का एक सुधार अभी सिर्फ़ वेब पर है: रिंग और फ़िल एक ही शेप के रूप में बनते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- एक ही name वाले विकल्प एक ग्रुप बनाते हैं। ग्रुप का नाम उन्हें घेरने वाले एलिमेंट से आता है। -->
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">कितनी बार</span>
+      <tanrei-radio-button name="frequency" value="daily" label="रोज़"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="weekly" checked label="हर हफ़्ते"></tanrei-radio-button>
+      <tanrei-radio-button name="frequency" value="monthly" label="हर महीने"></tanrei-radio-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/radio-button';
+      // change सिर्फ़ वही विकल्प फ़ायर करता है जो चयनित हुआ; जिसकी जगह उसने ली, वह नहीं।
+      document.querySelector('[role="radiogroup"]').addEventListener('change', (e) => save(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { RadioButton } from '@tanrei/react';
+
+    <div role="radiogroup" aria-labelledby="frequency-label">
+      <span id="frequency-label">कितनी बार</span>
+      {options.map(({ value, label }) => (
+        <RadioButton
+          key={value}
+          name="frequency"
+          value={value}
+          label={label}
+          checked={frequency === value}
+          onChange={(e) => setFrequency(e.detail.value)}
+        />
+      ))}
+    </div>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // selection एक Binding<Frequency?> है: विकल्प तब तक चयनित है जब तक वह उसके value के बराबर है।
+    TanreiRadioGroup("कितनी बार") {
+      TanreiRadioButton("रोज़", value: Frequency.daily, selection: $frequency)
+      TanreiRadioButton("हर हफ़्ते", value: Frequency.weekly, selection: $frequency)
+      TanreiRadioButton("हर महीने", value: Frequency.monthly, selection: $frequency)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.selection.selectableGroup
+    import io.github.chnotchy.tanrei.components.TanreiRadioButton
+
+    // पैरेंट ग्रुप बनाता है; हर विकल्प का onClick अपना मान कैप्चर करता है।
+    Column(Modifier.selectableGroup()) {
+        for ((value, label) in listOf("daily" to "रोज़", "weekly" to "हर हफ़्ते", "monthly" to "हर महीने")) {
+            TanreiRadioButton(selected = frequency == value, onClick = { frequency = value }, label = label)
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiRadioGroup<Frequency>(
+      groupValue: frequency,
+      onChanged: (Frequency value) => setState(() => frequency = value),
+      semanticLabel: 'कितनी बार',
+      child: Column(
+        children: <Widget>[
+          for (final Frequency option in Frequency.values)
+            TanreiRadioButton<Frequency>(value: option, label: option.label),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { RadioButton, RadioGroup } from '@tanrei/react-native';
+
+    <RadioGroup accessibilityLabel="कितनी बार">
+      {options.map(({ value, label }) => (
+        <RadioButton key={value} value={value} label={label} selected={frequency === value} onSelect={setFrequency} />
+      ))}
+    </RadioGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="चयनित, अचयनित और अक्षम" plain>
+  <div role="radiogroup" aria-label="सक्षम" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-enabled" value="unselected" label="अचयनित"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-enabled" value="selected" checked label="चयनित"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="अक्षम" style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--tanrei-sys-space-space100)">
+    <tanrei-radio-button name="specs-disabled" value="unselected" disabled label="अक्षम, अचयनित"></tanrei-radio-button>
+    <tanrei-radio-button name="specs-disabled" value="selected" disabled checked label="अक्षम, चयनित"></tanrei-radio-button>
+  </div>
+  <div role="radiogroup" aria-label="छिपा हुआ लेबल">
+    <tanrei-radio-button name="specs-hidden" value="weekly" checked label-hidden label="हर हफ़्ते"></tanrei-radio-button>
+  </div>
+</DemoFrame>
+
+डिफ़ॉल्ट सिस्टम में रेडियो बटन Material 3 की नाप लेता है: 2 के स्ट्रोक वाली 20 की रिंग, 40 की गोल स्टेट लेयर पर। चयनित विकल्प कोई बिंदु नहीं बनाता। उसकी रिंग भीतर की ओर आधे रेडियस तक मोटी हो जाती है, और भीतर बची डिस्क रिंग के रंग से आधी ओपैसिटी पर भरी जाती है। रिंग दोनों अवस्थाओं में अपना बाहरी साइज़ बनाए रखती है। रिंग और फ़िल एक ही शेप हैं: किसी भी ज़ूम या डिस्प्ले डेंसिटी पर, या बदलाव के किसी भी फ़्रेम में, रेडियो बटन के पीछे की कोई चीज़ उनके बीच से नहीं झाँकती। जब चयन बदलता है, तो स्ट्रोक मोटा या पतला होता है, जबकि रिंग का रंग बदलता है और फ़िल फ़ेड होकर आता या जाता है; फ़िल कभी केंद्र से नहीं बढ़ता। जो बदलाव मोशन ख़त्म होने से पहले आता है, वह जहाँ है वहीं से वापस मुड़ता है, और जहाँ मोशन कम किया गया है, वहाँ नई अवस्था तुरंत और पूरी दिखती है।
+
+हर विकल्प लेआउट में कम से कम 48 की ऊँचाई लेता है, जो टार्गेट का साइज़ है, और स्टेट लेयर उसमें बीच में रहती है। इसलिए बिना गैप के ऊपर-नीचे रखे विकल्प कभी टार्गेट एरिया साझा नहीं करते। जो प्रॉडक्ट अपने विकल्पों को ज़्यादा कसकर रखता है, वह अपनी लेयर में `option.min-height` घटाता है और यह स्वीकार करता है कि टार्गेट एक-दूसरे पर चढ़ेंगे।
+
+`m3-like` में चयनित विकल्प Material की रिंग, गैप और बिंदु बनाए रखता है, पर बिंदु केंद्र से स्केल होकर आने के बजाय फ़ेड होकर आता है। `cupertino` में रेडियो बटन अपना छोटा साइज़ बनाए रखता है और Apple वाला रूप बनाता है: पतली रिंग में एक हल्की डिस्क, और चयनित होने पर हल्के केंद्र के चारों ओर एक टिंट वाली पट्टी।
+
+<ComponentSpecs name="radio-button" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+रेडियो बटन तब इस्तेमाल करें जब किसी सवाल का ठीक एक जवाब हो और थोड़े-से विकल्प हों जिनकी लोगों को साथ-साथ तुलना करनी चाहिए, जैसे डिलीवरी की रफ़्तार या सारांश कितनी बार भेजना है। हर विकल्प एक साथ दिखता है, इसलिए ग्रुप जगह लेता है। जब विकल्प बहुत हों, या जगह कम हो, तो ऐसी लिस्ट या मेन्यू इस्तेमाल करें जो सिर्फ़ चुना हुआ विकल्प दिखाए।
+
+जब कोई विकल्प सुरक्षित और संभावित जवाब हो, तो ग्रुप उस विकल्प को चयनित रखकर शुरू हो सकता है। जब आपको व्यक्ति से सोच-समझकर जवाब चाहिए, तो हर विकल्प को अचयनित छोड़ें। एक बार कोई विकल्प चयनित हो जाए, तो व्यक्ति ग्रुप को बिना चयन की अवस्था में वापस नहीं ला सकता, क्योंकि रेडियो बटन अपने ही सक्रिय किए जाने से कभी अचयनित नहीं होता। अगर "कोई नहीं" एक मान्य जवाब है, तो उसे एक विकल्प के रूप में जोड़ें।
+
+### चेकबॉक्स, रेडियो बटन या स्विच
+
+| कंट्रोल | चुनाव | कब लागू होता है | किसके लिए |
+| --- | --- | --- | --- |
+| [चेकबॉक्स](/hi/components/checkbox/) | कितने भी स्वतंत्र चुनाव, चाहें तो एक भी नहीं | जब व्यक्ति पुष्टि करता है | फ़ॉर्म के विकल्प, शर्तों से सहमति, पंक्तियाँ चुनना |
+| रेडियो बटन | एक छोटे ग्रुप में से ठीक एक, जिसमें सभी विकल्प दिखते हैं | आम तौर पर जब व्यक्ति पुष्टि करता है | एक सवाल का एक जवाब |
+| [स्विच](/hi/components/switch/) | एक सेटिंग, चालू या बंद | तुरंत | वे सेटिंग जो बदलते ही लागू हो जाती हैं |
+
+### करें
+
+- हर ग्रुप को एक नाम दें: वह सवाल जिसका जवाब उसके विकल्प देते हैं, ग्रुप से पहले दिखने वाले टेक्स्ट के रूप में।
+- विकल्पों को ऊपर-नीचे रखें और ऐसे क्रम में जो सवाल के लिए मायने रखता हो, जैसे सबसे छोटे से सबसे बड़े तक। हर विकल्प पहले से अपने टार्गेट की ऊँचाई के लिए जगह रखता है, इसलिए ऊपर-नीचे रखे विकल्पों को अलग से गैप नहीं चाहिए।
+- लेबल छोटे और एक जैसे रूप में रखें, ताकि उनकी तुलना आसान हो।
+- एक ग्रुप के विकल्पों को एक ही कंटेनर में साथ रखें।
+
+### न करें
+
+- अकेला एक रेडियो बटन इस्तेमाल न करें। एक हाँ-या-ना वाले चुनाव के लिए चेकबॉक्स या स्विच इस्तेमाल करें।
+- जिन चुनावों में से कई एक साथ चुने जा सकते हैं, उनके लिए रेडियो बटन इस्तेमाल न करें। चेकबॉक्स इस्तेमाल करें।
+- विकल्प चयनित होते ही कोई भारी क्रिया शुरू न करें, जैसे पेज से कहीं और नेविगेट करना। ऐरो कुंजियाँ जिस भी विकल्प से गुज़रती हैं उसे चुन लेती हैं, इसलिए कीबोर्ड इस्तेमाल करने वाला व्यक्ति अपने मनचाहे विकल्प तक पहुँचते-पहुँचते उसे ट्रिगर कर देगा।
+- एक ग्रुप को स्क्रीन के अलग-अलग हिस्सों में न बाँटें।
+
+## सुलभता
+
+<ComponentAccessibility name="radio-button" />
+
+### कंपोनेंट क्या सँभालता है
+
+- हर विकल्प रेडियो का रोल, यह कि वह चयनित है या नहीं, अपना अक्षम स्टेट, और ग्रुप के साइज़ के साथ ग्रुप में अपनी जगह ("3 में से 2") देता है। Apple के प्लैटफ़ॉर्म में रेडियो का रोल नहीं है, इसलिए वहाँ विकल्प selected ट्रेट वाला एक बटन है और उसकी जगह उसकी एक्सेसिबिलिटी वैल्यू है। Flutter के सिमैंटिक्स अभी जगह नहीं बता सकते।
+- लेबल ही एक्सेसिबल नाम है, चाहे वह दिखाया गया हो या `labelHidden` से छिपाया गया हो। दिखने वाला टेक्स्ट सहायक तकनीक से छिपा रहता है, इसलिए नाम एक ही बार पढ़ा जाता है।
+- ग्रुप का एक ही Tab स्टॉप होता है: चयनित विकल्प, या जब कोई चयनित न हो तो पहला सक्षम विकल्प। ऐरो कुंजियाँ अगले या पिछले सक्षम विकल्प पर जाती हैं और उसे चुन लेती हैं, और सिरों पर घूमकर दूसरे सिरे पर पहुँचती हैं; दाएँ से बाएँ वाले लेआउट में Left और Right आपस में बदल जाती हैं।
+- Space फ़ोकस वाले विकल्प को चुनती है। Enter उसे सिर्फ़ वहाँ चुनती है जहाँ प्लैटफ़ॉर्म फ़ोकस वाले किसी भी कंट्रोल को Enter से सक्रिय करता है (Android, tvOS); वेब पर Enter फ़ॉर्म सबमिट करती है।
+- किसी विकल्प को चुनने से बाक़ी अचयनित हो जाते हैं। बदलाव की सूचना सिर्फ़ वही विकल्प देता है जो चयनित हुआ, और चयनित विकल्प को सक्रिय करने से कुछ नहीं होता।
+- लेबल पर क्लिक या टैप विकल्प को चुनता है। लेबल हिट एरिया का हिस्सा है, और हिट एरिया न्यूनतम टार्गेट पूरा करता है। हर विकल्प लेआउट में टार्गेट की ऊँचाई के लिए जगह रखता है, इसलिए ऊपर-नीचे रखे विकल्पों के टार्गेट पूरे और अलग-अलग रहते हैं।
+- चयन सिर्फ़ रिंग से दिखता है: डिफ़ॉल्ट सिस्टम में चयनित रिंग हर सरफ़ेस के मुक़ाबले 3:1 बनाए रखती है, और वह अचयनित रिंग से ढाई गुना मोटी है। आधा पारदर्शी फ़िल सजावट है और गिना नहीं जाता।
+- यह फ़ोकस इंडिकेटर सिर्फ़ कीबोर्ड फ़ोकस के लिए दिखाता है।
+- जहाँ मोशन कम किया गया है, वहाँ नई अवस्था तुरंत और पूरी दिखती है।
+- लेबल का न होना डीबग बिल्ड में रिपोर्ट किया जाता है।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- SwiftUI, Compose, Flutter और React Native अब भी पिछला रेडियो बटन बनाते हैं, बिंदु के साथ और पिछले साइज़ पर, अभी रिंग और फ़िल को एक शेप के रूप में नहीं बनाते, और लेआउट में टार्गेट की ऊँचाई के लिए जगह नहीं रखते, इसलिए बिना गैप के ऊपर-नीचे रखे विकल्प टार्गेट एरिया साझा करते हैं।
+- `m3-like` में चयनित बिंदु अपने पूरे साइज़ पर फ़ेड होकर आता है, जबकि Material उसे केंद्र से स्केल करके लाता है (मिमिक्री गैप `radio-dot-scale-in`)।
+
+### आपको क्या करना है
+
+- ग्रुप को उस सवाल से नाम दें जिसका वह जवाब देता है। वेब पर विकल्पों को `role="radiogroup"` और `aria-labelledby` वाले एलिमेंट में, या `<legend>` वाले `<fieldset>` में लपेटें। Flutter में `TanreiRadioGroup` पर `semanticLabel` सेट करें; React Native में `RadioGroup` पर `accessibilityLabel` सेट करें।
+- ग्रुप को प्लैटफ़ॉर्म के तरीक़े से बनाएँ, ताकि कुंजियाँ और जगह काम करें: वेब पर एक ही `name`, Compose में पैरेंट पर `Modifier.selectableGroup()`, Flutter में `TanreiRadioGroup` और React Native में `RadioGroup`।
+- अगर सवाल ज़रूरी है और उसका जवाब नहीं दिया गया, तो संदेश ग्रुप पर दिखाएँ: त्रुटि वाला [रेडियो ग्रुप](/hi/components/radio-group/) अपना त्रुटि टेक्स्ट दिखाता है और हर रेडियो बटन को उसके त्रुटि वाले रूप में रखता है। जो विकल्प रेडियो ग्रुप के बिना ग्रुप किए गए हैं, उनमें हर रेडियो बटन पर `error` सेट करें: रिंग और बिंदु त्रुटि का रंग लेते हैं, जैसे चेकबॉक्स का बॉक्स लेता है। अक्षम विकल्प त्रुटि का रंग नहीं दिखाता।
+- त्रुटि वाला रेडियो बटन सहायक तकनीक को अमान्य के रूप में नहीं दिया जाता, क्योंकि उसके रोल में ऐसा कोई स्टेट नहीं है। यह बात ग्रुप कहता है: रेडियो ग्रुप अमान्य होता है और उसका त्रुटि टेक्स्ट उसका विवरण होता है। जहाँ आप विकल्पों को ख़ुद ग्रुप करते हैं, वहाँ त्रुटि उनके बग़ल में शब्दों में कहें।
+- अगर आप अपनी लेयर में रिंग और फ़िल की स्टाइल बदलते हैं, तो रिंग को इतना मज़बूत रखें कि वह अकेले चयन दिखा सके। बिल्ड इसकी जाँच नहीं करता।
+- React Native में, जब प्रॉडक्ट अंग्रेज़ी में न हो, तो `RadioGroup` को `positionText` दें। डिफ़ॉल्ट रूप से जगह "2 of 3" के रूप में पढ़कर सुनाई जाती है।

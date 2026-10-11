@@ -1,0 +1,58 @@
+---
+// A card of the docs, drawn by Tanrei's own card with the authoring shape of Starlight's:
+//
+//   <Card title="Two sources of truth" icon="description">…</Card>
+//
+// A heading, then the content, which stays the page's running text. The card is plain HTML: before `tanrei-card` is
+// defined — or where no script runs — it is the same heading and text in a box of the card's own tokens.
+interface Props {
+  /** The card's heading. */
+  title: string;
+  /** The name of a glyph of the icon set, drawn before the heading. */
+  icon?: string;
+}
+const { title, icon } = Astro.props;
+---
+
+<tanrei-card class="docs-card">
+  <div class="docs-card-head not-content">
+    {icon && <span class="tanrei-icon" aria-hidden="true" data-pagefind-ignore>{icon}</span>}
+    <h3>{title}</h3>
+  </div>
+  <div class="docs-card-body"><slot /></div>
+</tanrei-card>
+
+<script>
+  // The card alone — not the whole package: most pages hold no other element.
+  import '../../lib/link-fallback';
+  import '@tanrei/web/components/card';
+</script>
+
+<style is:global>
+  /* Until the element is defined: the outlined card's box from the card's own tokens, so that nothing moves when it is
+     drawn. */
+  .docs-card:not(:defined) {
+    display: block;
+    padding: var(--tanrei-comp-card-container-padding);
+    border-radius: var(--tanrei-comp-card-container-shape);
+    background: var(--tanrei-comp-card-outlined-container-color);
+    color: var(--tanrei-comp-card-outlined-content-color);
+    box-shadow: inset 0 0 0 var(--tanrei-comp-card-outline-width) var(--tanrei-comp-card-outlined-outline-color);
+  }
+
+  .docs-card-head {
+    display: flex;
+    align-items: center;
+    gap: var(--tanrei-sys-space-space100);
+  }
+  .docs-card-head h3 {
+    margin: 0;
+    font: var(--tanrei-sys-typescale-heading-5-font);
+    letter-spacing: var(--tanrei-sys-typescale-heading-5-letter-spacing);
+    color: inherit;
+  }
+  .docs-card > .docs-card-body {
+    margin-block-start: var(--tanrei-sys-space-space100);
+    color: var(--tanrei-sys-color-on-surface-variant);
+  }
+</style>

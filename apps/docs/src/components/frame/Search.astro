@@ -1,0 +1,384 @@
+---
+// The site's search, drawn by Tanrei's Search (specs/search.spec.json) as an action of the app bar
+// (Header.astro), in place of the framework's own component and of the search index's default interface.
+//
+// The component searches nothing (SRC-51: a component draws what it is given). The script below is
+// the product's search: on the first use it loads the index the framework's build already writes among the site's own
+// files (`/pagefind/`, one index for each language, chosen by the page's `lang`), asks it through its script interface
+// while the reader types, and hands the element what was found (lib/search.mjs):
+//
+//   a page       a result group whose heading is a link to the page; a component's page says its level
+//                after its name, and that a list shows it only on request where that is so — every component is
+//                found, whatever the lists show, and one every list shows is drawn before one that is not;
+//   a section    a result under it, a link to that section of the page;
+//   an excerpt   runs of text with the matches marked — the index's string is read as text, never inserted as markup;
+//   the count    the status text, which is the view's one live region;
+//   nothing      Tanrei's Empty state in the view, with the query in its title and a button that clears the search —
+//                also where the index answered a word it does not have with the pages of a shorter beginning of it
+//                (lib/search.mjs, `answersAsTyped`): pages that hold no word that was typed are no result for it;
+//   more         a Button after the results, where the index found more pages than are drawn.
+//
+// The trigger and the view follow the shell's window class: a button with the shortcut's hint that opens a dialog, and
+// in a compact window an icon-only Button that opens the full-screen view. The element binds the shortcut itself
+// (`mod+k`: Command+K on Apple platforms, Control+K elsewhere), and the script answers the other of the two, which the
+// framework's search answered as well. Every word is the site's (lib/i18n.ts, `search`).
+//
+// Without script nothing can search: the trigger is not shown (the framework's own stayed in the bar, disabled).
+import { strings } from '../../lib/i18n';
+
+const words = strings(Astro.locals.starlightRoute.lang).search;
+const { searching, results, none, noneHint, noneAction, more, unavailable } = words;
+---
+
+<tanrei-search
+  slot="actions"
+  class="docs-search"
+  bar="button"
+  presentation="dialog"
+  label={words.label}
+  placeholder={words.placeholder}
+  clear-label={words.clear}
+  back-label={words.back}
+  shortcut="mod+k"
+  bind-shortcut
+  data-words={JSON.stringify({ searching, results, none, noneHint, noneAction, more, unavailable })}
+  data-base={import.meta.env.BASE_URL}></tanrei-search>
+
+<script>
+  import type { TanreiSearch, TanreiSearchResult, TanreiSearchResultGroup, TanreiSearchToggleDetail } from '@tanrei/web';
+  // How the framework's build was told to rank (its own defaults where the site says nothing): the index is asked as
+  // the framework's search asked it, so it finds what it found.
+  import { pagefindUserConfig } from 'virtual:starlight/pagefind-config';
+  import { answersAsTyped, countWords, exactQuestions, fillWords, pageGroup } from '../../lib/search.mjs';
+  import { listedFirst } from '../../lib/listing.mjs';
+
+  /** What the script uses of the index's own interface (`/pagefind/pagefind.js`). */
+  interface Found {
+    results: { id: string; data(): Promise<Parameters<typeof pageGroup>[0]> }[];
+  }
+  interface Index {
+    options(options: Record<string, unknown>): Promise<void>;
+    init(): Promise<void>;
+    debouncedSearch(query: string, options?: Record<string, unknown>, wait?: number): Promise<Found | null>;
+    search(query: string, options?: Record<string, unknown>): Promise<Found>;
+  }
+  interface Words {
+    searching: string;
+    results: Record<string, string>;
+    none: string;
+    noneHint: string;
+    noneAction: string;
+    more: string;
+    unavailable: string;
+  }
+
+  /** How many pages are drawn for an answer, and how many more each press of "more" adds. */
+  const PAGES = 6;
+  /** How long the index is left alone after a key before it is asked: its pieces are files of the site, fetched as needed. */
+  const WAIT = 120;
+
+  const search = document.querySelector<TanreiSearch>('tanrei-search.docs-search');
+  if (search) {
+    const shell = search.closest('tanrei-app-shell');
+    // The trigger and its view by the shell's window class (the stylesheet says it before any element is defined, and
+    // draws the trigger's place by it: styles below). Set before the element is defined, so that it is drawn once.
+    const follow = (windowClass: string) => {
+      const compact = windowClass.trim() === 'compact';
+      search.setAttribute('bar', compact ? 'icon' : 'button');
+      search.setAttribute('presentation', compact ? 'full-screen' : 'dialog');
+    };
+    follow(shell?.getAttribute('data-window-class') ?? getComputedStyle(search).getPropertyValue('--tanrei-app-shell-window-class'));
+    // A window that changes its class while the view is open keeps the view it has until it is closed.
+    let pending: string | null = null;
+    shell?.addEventListener('windowclasschange', (event) => {
+      const next = (event as CustomEvent<{ windowClass: string }>).detail.windowClass;
+      if (search.expanded) pending = next;
+      else follow(next);
+    });
+
+    const words = JSON.parse(search.dataset.words ?? '{}') as Words;
+    const lang = document.documentElement.lang || 'en';
+
+    // The index, loaded on the first use and never before: its script, then the piece for this page's language.
+    let index: Promise<Index> | undefined;
+    const load = () =>
+      (index ??= (async () => {
+        const base = search.dataset.base ?? '/';
+        const loaded = (await import(/* @vite-ignore */ `${base.replace(/\/$/, '')}/pagefind/pagefind.js`)) as Index;
+        await loaded.options({ ...pagefindUserConfig, baseUrl: base });
+        await loaded.init();
+        return loaded;
+      })().catch((error) => {
+        // Asked again at the next use: a site read offline may be back.
+        index = undefined;
+        throw error;
+      }));
+
+    // What the view holds besides the results: the empty state and the button for more, each made when first needed.
+    let empty: HTMLElement | undefined;
+    let moreButton: HTMLElement | undefined;
+    const rows = () => [...search.children].filter((child) => child.localName === 'tanrei-search-result-group');
+
+    const group = (page: Parameters<typeof pageGroup>[0]) => {
+      const given = pageGroup(page);
+      const element = document.createElement('tanrei-search-result-group') as TanreiSearchResultGroup;
+      Object.assign(element, { value: given.value, headline: given.headline, href: given.href, excerpt: given.excerpt, leadingIcon: 'article' });
+      for (const part of given.results) {
+        const result = document.createElement('tanrei-search-result') as TanreiSearchResult;
+        Object.assign(result, { value: part.value, headline: part.headline, href: part.href, excerpt: part.excerpt, leadingIcon: 'tag' });
+        element.append(result);
+      }
+      return element;
+    };
+
+    /** Nothing was found: the empty state, with the query in its title. The status text says the same to assistive technology, once (it is the live region), and is not drawn beside it. */
+    const showNone = async (query: string) => {
+      await import('@tanrei/web/components/empty-state');
+      if (!empty) {
+        empty = document.createElement('tanrei-empty-state');
+        const glyph = Object.assign(document.createElement('span'), { slot: 'media', textContent: 'search_off' });
+        const clear = Object.assign(document.createElement('tanrei-button'), { slot: 'actions', variant: 'outlined', textContent: words.noneAction });
+        clear.addEventListener('click', () => {
+          search.value = '';
+          void ask();
+          // The button goes with the empty state: focus returns to the field, as after the search's own clear button
+          // (`focus()` on the element goes to the open view's input).
+          search.focus();
+        });
+        empty.append(glyph, words.noneHint, clear);
+      }
+      (empty as HTMLElement & { headline: string }).headline = fillWords(words.none, { query });
+      if (!empty.isConnected) search.append(empty);
+    };
+
+    /** The state between answers: no results, no empty state, no button for more. */
+    const clearView = () => {
+      for (const row of rows()) row.remove();
+      empty?.remove();
+      moreButton?.remove();
+      search.toggleAttribute('data-none', false);
+    };
+
+    let asked = 0;
+    let left: Found['results'] = [];
+    /** Draws the next pages of the answer after the ones drawn, and the button for more while pages are left. */
+    const draw = async (mine: number, first: boolean) => {
+      const next = left.slice(0, PAGES);
+      // Among the components of what is drawn now, one every list shows comes before one shown on request.
+      const pages = listedFirst(await Promise.all(next.map((result) => result.data())));
+      if (mine !== asked) return;
+      left = left.slice(next.length);
+      if (first) clearView();
+      const drawn = pages.map(group);
+      search.append(...drawn);
+      // The reader who asked for more goes on from the first row that came — before the button they pressed goes.
+      if (!first && drawn[0]) {
+        await drawn[0].updateComplete;
+        if (mine !== asked) return;
+        drawn[0].focus();
+      }
+      if (!left.length) moreButton?.remove();
+      else {
+        if (!moreButton) {
+          moreButton = Object.assign(document.createElement('tanrei-button'), { className: 'docs-search-more', variant: 'text', textContent: words.more });
+          moreButton.addEventListener('click', () => {
+            search.status = 'loading';
+            void draw(asked, false).then(() => (search.status = 'idle'));
+          });
+        }
+        if (!moreButton.isConnected) search.append(moreButton);
+      }
+    };
+
+    /** The product's search: asks the index for the value as it is now, and gives the element the answer unless a newer question was asked meanwhile. */
+    const ask = async () => {
+      const query = search.value.trim();
+      const mine = ++asked;
+      if (!query) {
+        clearView();
+        left = [];
+        search.status = 'idle';
+        search.statusText = '';
+        return;
+      }
+      // What is drawn stays drawn and usable while the index is asked (SRC-47); the loading indicator waits its own delay.
+      search.status = 'loading';
+      search.statusText = words.searching;
+      try {
+        const loaded = await load();
+        const found = await loaded.debouncedSearch(query, {}, WAIT);
+        // The index drops a question that a newer one followed.
+        if (found === null || mine !== asked) return;
+        left = found.results;
+        // A word the index does not have is answered with the pages of a shorter beginning of it, and nothing in the
+        // answer says so. The matches it marked do: where none of them begins with a word that was typed, the index
+        // is asked for each word alone, and an answer that holds none of them is nothing found.
+        if (left.length > 0) {
+          const first = await Promise.all(left.slice(0, PAGES).map((result) => result.data()));
+          if (mine !== asked) return;
+          if (!answersAsTyped(query, first, lang)) {
+            const exact = await Promise.all(exactQuestions(query, lang).map((question) => loaded.search(question)));
+            if (mine !== asked) return;
+            if (exact.every((answer) => answer.results.length === 0)) left = [];
+          }
+        }
+        if (left.length === 0) {
+          clearView();
+          await showNone(query);
+          if (mine !== asked) return;
+          search.toggleAttribute('data-none', true);
+          search.statusText = fillWords(words.none, { query });
+        } else {
+          const count = left.length;
+          await draw(mine, true);
+          if (mine !== asked) return;
+          search.statusText = countWords(words.results, count, query, lang);
+        }
+        search.status = 'idle';
+      } catch {
+        if (mine !== asked) return;
+        clearView();
+        left = [];
+        search.status = 'error';
+        search.statusText = words.unavailable;
+      }
+    };
+
+    search.addEventListener('input', () => void ask());
+    /** The view opened or closed. */
+    const toggled = (expanded: boolean) => {
+      if (expanded) {
+        // The first use: the index is loaded while the reader begins to type, and the view says that it is.
+        if (!index) {
+          search.status = 'loading';
+          search.statusText = words.searching;
+          load().then(
+            () => void ask(),
+            () => void ask(),
+          );
+        }
+      } else if (pending) {
+        follow(pending);
+        pending = null;
+      }
+    };
+    search.addEventListener('toggle', (event: Event) => toggled((event as CustomEvent<TanreiSearchToggleDetail>).detail.expanded));
+
+    // Defined only now: the element is drawn once, in the form its window asks for.
+    void import('@tanrei/web/components/search')
+      .then(() => search.updateComplete)
+      .then(() => {
+        // The element answers `mod+k`: Command+K on an Apple keyboard, Control+K on any other. The framework's search
+        // answered both on every keyboard, so the one the element leaves alone is answered here — after the element,
+        // which has then taken its own (a press something has taken is left alone, as SRC-38 leaves it).
+        window.addEventListener('keydown', (event) => {
+          if (event.defaultPrevented || event.repeat || event.isComposing || event.altKey || event.shiftKey) return;
+          if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k' || search.disabled) return;
+          event.preventDefault();
+          // Set from outside, `expanded` opens or closes the view and fires no `toggle`.
+          search.expanded = !search.expanded;
+          toggled(search.expanded);
+        });
+      });
+  }
+</script>
+
+<style is:global>
+  /* Unlayered, as tanrei-theme.css is: these say where the element stands in the bar and what stands there until it
+     is defined, over the frame's own rules for the bar's items (styles/frame.css, in `docs.frame`). */
+
+  /* The button trigger is as wide as its layout gives it (SRC-35): the bar gives it this; the icon trigger its own. */
+  tanrei-search.docs-search {
+    inline-size: 14rem;
+  }
+  tanrei-search.docs-search[bar='icon'] {
+    inline-size: auto;
+  }
+  /* The button for more results, after the list. */
+  tanrei-search.docs-search > .docs-search-more {
+    margin-block: var(--tanrei-sys-space-space100);
+  }
+  /* Nothing found: the empty state says it in the view, so the status row's same words are only for assistive
+     technology — still the view's one live region. */
+  tanrei-search.docs-search[data-none]::part(status) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    padding: 0;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Until the element is defined: the trigger's box, fill, glyph and text where the trigger will be — the button in a
+     wider window and the icon in a compact one, by the shell's window class — so that nothing moves when it is. */
+  tanrei-search.docs-search:not(:defined) {
+    position: relative;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  tanrei-search.docs-search:not(:defined)::before {
+    content: attr(placeholder);
+    flex: 1 1 auto;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    block-size: var(--tanrei-comp-search-trigger-container-height);
+    overflow: hidden;
+    padding-inline: calc(var(--tanrei-comp-search-trigger-container-padding-inline) + var(--tanrei-comp-search-trigger-leading-icon-size) + var(--tanrei-comp-search-trigger-container-gap))
+      var(--tanrei-comp-search-trigger-container-padding-inline);
+    border-radius: var(--tanrei-comp-search-container-shape);
+    background: var(--tanrei-comp-search-standard-container-color);
+    box-shadow: var(--tanrei-comp-search-standard-container-elevation);
+    color: var(--tanrei-comp-search-standard-placeholder-color);
+    font: var(--tanrei-comp-search-trigger-label-typescale-font);
+    letter-spacing: var(--tanrei-comp-search-trigger-label-typescale-letter-spacing);
+    line-height: var(--tanrei-comp-search-trigger-container-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  tanrei-search.docs-search:not(:defined)::after {
+    content: 'search';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: var(--tanrei-comp-search-trigger-container-padding-inline);
+    inline-size: var(--tanrei-comp-search-trigger-leading-icon-size);
+    block-size: var(--tanrei-comp-search-trigger-leading-icon-size);
+    overflow: hidden;
+    translate: 0 -50%;
+    color: var(--tanrei-comp-search-standard-leading-icon-color);
+    font-family: var(--tanrei-sys-icon-family-unselected);
+    font-size: var(--tanrei-comp-search-trigger-leading-icon-size);
+    font-variation-settings:
+      'FILL' var(--tanrei-sys-icon-fill-unselected),
+      'wght' var(--tanrei-sys-icon-weight),
+      'GRAD' 0;
+    font-feature-settings: 'liga';
+    line-height: 1;
+    white-space: nowrap;
+  }
+  @container style(--tanrei-app-shell-window-class: compact) {
+    tanrei-search.docs-search:not(:defined) {
+      inline-size: auto;
+    }
+    tanrei-search.docs-search:not(:defined)::before {
+      content: none;
+    }
+    tanrei-search.docs-search:not(:defined)::after {
+      position: static;
+      inline-size: var(--tanrei-sys-icon-medium);
+      block-size: var(--tanrei-sys-icon-medium);
+      translate: none;
+      color: var(--tanrei-sys-color-on-surface-variant);
+      font-size: var(--tanrei-sys-icon-medium);
+    }
+  }
+  /* Where no script runs nothing can search, and a trigger that opens nothing is not shown. */
+  @media (scripting: none) {
+    tanrei-search.docs-search,
+    tanrei-search.docs-search:not(:defined) {
+      display: none;
+    }
+  }
+</style>

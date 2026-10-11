@@ -1,0 +1,315 @@
+---
+title: "分段按钮"
+description: "让用户从两到五个相关的选项中选择一个或多个；这些选项并排绘制，是同一个控件中彼此相连的分段。"
+translationOf: components/segmented-button.mdx
+sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="segmented-button" />
+
+:::note[Tanrei 系统中没有]
+默认的 Tanrei 系统不提供分段按钮；Material 和 cupertino 预设提供它。在 Tanrei 中，多选一的选择如果会改变下方的内容，就用[标签页](/zh-cn/components/tabs/)，如果是设置一个值，就用[单选按钮](/zh-cn/components/radio-button/)；各自独立切换的按钮则是[按钮组](/zh-cn/components/button-group/)。这个组件在每个系统下仍然可以工作，只是在不提供它的系统下，开发时会有一条警告。本页的演示是在提供它的 `m3-like` 预设下绘制的。
+:::
+
+<DemoFrame label="单选、带图标、纯图标" system="m3-like">
+  <tanrei-segmented-button label="范围" value="week">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="周"></tanrei-segment>
+    <tanrei-segment value="month" label="月"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="视图" value="grid">
+    <tanrei-segment value="list" label="列表" icon="view_list"></tanrei-segment>
+    <tanrei-segment value="grid" label="网格" icon="grid_view"></tanrei-segment>
+    <tanrei-segment value="map" label="地图" icon="map"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="文本对齐" value="center">
+    <tanrei-segment value="start" label="左对齐" icon="format_align_left" label-hidden></tanrei-segment>
+    <tanrei-segment value="center" label="居中" icon="format_align_center" label-hidden></tanrei-segment>
+    <tanrei-segment value="end" label="右对齐" icon="format_align_right" label-hidden></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+### 用法
+
+分段按钮容纳分段的方式，与各平台容纳重复子项的方式相同：在 Web 上是子元素，在 SwiftUI 上是视图构建器中的视图，在 Compose 上是内容 lambda 中的调用，在 Flutter 上是 `segments` 列表，在 React Native 上是 `items` 数组。选择属于整组，以值表示。`selection` 说明它是一个值还是多个值。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-segmented-button label="范围" value="week">
+      <tanrei-segment value="day" label="日"></tanrei-segment>
+      <tanrei-segment value="week" label="周"></tanrei-segment>
+      <tanrei-segment value="month" label="月"></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <!-- 同时选中多个。values 是一个属性（property，数组）；对应的 attribute 接受 JSON 数组或以空格分隔的值。 -->
+    <tanrei-segmented-button id="days" selection="multiple" size="small" label="天" values="mon tue">
+      <tanrei-segment value="mon" label="周一"></tanrei-segment>
+      <tanrei-segment value="tue" label="周二"></tanrei-segment>
+      <tanrei-segment value="wed" label="周三" disabled></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <script type="module">
+      import '@tanrei/web/components/segmented-button';
+      // 元素先更新自己的 value 或 values，然后触发 change。
+      document.querySelector('[label="范围"]').addEventListener('change', (e) => showRange(e.detail.value));
+      document.querySelector('#days').addEventListener('change', (e) => setDays(e.detail.values));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Segment, SegmentedButton } from '@tanrei/react';
+
+    // 单选时 detail 是 { value }，多选时是 { values }。
+    <SegmentedButton label="范围" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>
+      <Segment value="day" label="日" />
+      <Segment value="week" label="周" />
+      <Segment value="month" label="月" />
+    </SegmentedButton>
+
+    <SegmentedButton selection="multiple" label="天" values={days} onChange={(e) => 'values' in e.detail && setDays(e.detail.values)}>
+      <Segment value="mon" label="周一" />
+      <Segment value="tue" label="周二" />
+      <Segment value="wed" label="周三" disabled />
+    </SegmentedButton>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 绑定的类型决定选择方式：可选值表示选一个，Set 表示选多个。
+    // 把 .tag 和 .labelStyle 直接加在 TanreiSegment 上，先于其他任何修饰符。
+    TanreiSegmentedButton("范围", selection: $range) {
+        TanreiSegment("日").tag("day")
+        TanreiSegment("周").tag("week")
+        TanreiSegment("月").tag("month")
+    }
+
+    // .labelStyle(.iconOnly) 就是 labelHidden：标题仍然为分段命名。
+    TanreiSegmentedButton("文本对齐", selection: $alignment) {
+        TanreiSegment("左对齐", icon: "format_align_left").tag("start").labelStyle(.iconOnly)
+        TanreiSegment("居中", icon: "format_align_center").tag("center").labelStyle(.iconOnly)
+        TanreiSegment("右对齐", icon: "format_align_right").tag("end").labelStyle(.iconOnly)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSegment
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButton
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButtonSelectionMode
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSegmentedButtonSize
+
+    // 两种选择方式共用一个回调。单选的一组传入只含一个元素的 Set。
+    TanreiSegmentedButton(
+        onSelectionChange = { range = it.single() },
+        contentDescription = "范围",
+        selectedValue = range,
+    ) {
+        TanreiSegment(value = "day", label = "日")
+        TanreiSegment(value = "week", label = "周")
+        TanreiSegment(value = "month", label = "月")
+    }
+
+    TanreiSegmentedButton(
+        onSelectionChange = { days = it },
+        contentDescription = "天",
+        selectionMode = TanreiSegmentedButtonSelectionMode.Multiple,
+        selectedValues = days,
+        size = TanreiSegmentedButtonSize.Small,
+    ) {
+        TanreiSegment(value = "mon", label = "周一")
+        TanreiSegment(value = "tue", label = "周二")
+        // Compose 使用含义相反的标志。
+        TanreiSegment(value = "wed", label = "周三", enabled = false)
+    }
+
+    // labelHidden 只画图标。标签仍然为分段命名。
+    TanreiSegment(value = "start", label = "左对齐", labelHidden = true, icon = { TanreiText("format_align_left") })
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 形式与 SegmentedButton 相同：用一个 Set 保存选择，单选时最多只有一个元素。
+    TanreiSegmentedButton<String>(
+      semanticLabel: '范围',
+      selected: <String>{range},
+      onSelectionChanged: (Set<String> value) => setState(() => range = value.single),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'day', label: '日'),
+        TanreiSegment<String>(value: 'week', label: '周'),
+        TanreiSegment<String>(value: 'month', label: '月'),
+      ],
+    );
+
+    TanreiSegmentedButton<String>(
+      semanticLabel: '天',
+      multiSelectionEnabled: true,
+      size: TanreiSegmentedButtonSize.small,
+      selected: days,
+      onSelectionChanged: (Set<String> value) => setState(() => days = value),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'mon', label: '周一'),
+        TanreiSegment<String>(value: 'tue', label: '周二'),
+        TanreiSegment<String>(value: 'wed', label: '周三', enabled: false),
+      ],
+    );
+
+    // labelHidden 只画图标。标签仍然为分段命名。
+    const TanreiSegment<String>(value: 'start', label: '左对齐', icon: Icon(AppSymbols.formatAlignLeft), labelHidden: true);
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SegmentedButton } from '@tanrei/react-native';
+
+    // 受控：onSelectionChange 收到一个值（单选）或多个值（多选）。
+    <SegmentedButton
+      accessibilityLabel="范围"
+      value={range}
+      onSelectionChange={setRange}
+      items={[
+        { value: 'day', label: '日' },
+        { value: 'week', label: '周' },
+        { value: 'month', label: '月' },
+      ]}
+    />
+
+    <SegmentedButton
+      selectionMode="multiple"
+      accessibilityLabel="天"
+      size="small"
+      values={days}
+      onSelectionChange={setDays}
+      items={[
+        { value: 'mon', label: '周一' },
+        { value: 'tue', label: '周二' },
+        { value: 'wed', label: '周三', disabled: true },
+      ]}
+    />
+
+    // 纯图标的分段：{ value: 'start', label: '左对齐', icon: 'format_align_left', labelHidden: true }
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="尺寸与禁用的分段" system="m3-like" plain>
+  <tanrei-segmented-button label="范围" value="week" size="small">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="周"></tanrei-segment>
+    <tanrei-segment value="month" label="月"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="范围" value="week" size="large">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="周"></tanrei-segment>
+    <tanrei-segment value="month" label="月"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="范围" value="day">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="周"></tanrei-segment>
+    <tanrei-segment value="month" label="月" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="范围" value="month">
+    <tanrei-segment value="day" label="日"></tanrei-segment>
+    <tanrei-segment value="week" label="周"></tanrei-segment>
+    <tanrei-segment value="month" label="月" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+<ComponentSpecs name="segmented-button" />
+
+## 指南
+
+### 何时使用
+
+当一个小问题只有几个固定的答案，并且用户应当一眼看到全部答案时，使用分段按钮：图表的范围、列表的布局、段落的对齐方式、提醒在哪几天重复。选择的效果应当立即显现，因为单选时方向键在移动的同时就选中了。
+
+适合两到五个选项。超过五个，请使用菜单或列表。当这项选择是表单的主要任务时，用单选按钮更清楚。当答案会改变填满屏幕的内容时，请使用[标签页](/zh-cn/components/tabs/)。
+
+### 分段按钮、按钮组、纸片（Chip）还是标签页
+
+这四种组件都把几个相关的东西排成一行，所以容易混淆。它们的区别在于按下之后发生什么，以及键盘如何在其中移动。
+
+| 组件 | 它是什么 | 选择 | 键盘 | 用于 |
+| --- | --- | --- | --- | --- |
+| [分段按钮](/zh-cn/components/segmented-button/) | 一个控件：两到五个连在一起的选项，回答同一个问题。 | 由它自己保存，以值表示：一个选项，或多个。 | 一个 Tab 停靠点。方向键在选项之间移动，单选时移动的同时也选中。 | 只有几个固定答案、立即生效的设置：日、周、月；左对齐、居中、右对齐。 |
+| [按钮组](/zh-cn/components/button-group/) | 由各自独立的按钮排成的一行或一列，彼此隔开或连接成一个形状。 | 没有。组里的切换按钮各自保存自己的开关状态。 | 每个按钮都是一个单独的 Tab 停靠点。 | 相关的操作：取消、保存草稿、发布；作为相互独立的切换按钮的粗体、斜体和下划线。 |
+| [纸片](/zh-cn/components/chip/) | 排成一行的、各自独立的小控件，这一行可以换行或滚动。 | 每个筛选纸片各自开或关。 | 每个纸片都是一个单独的 Tab 停靠点。 | 列表上方的筛选条件、建议的回复、用户输入的条目。 |
+| [标签页](/zh-cn/components/tabs/) | 同一主题的几个视图，每个视图有自己的面板。 | 一个标签页：屏幕上显示的那个视图。 | 一个 Tab 停靠点。方向键移动并选中。 | 切换显示哪些内容：概览、动态、设置。 |
+
+一个快速的判断方法：如果按下它会执行某件事，那是按钮组。如果它设置一个值，那是分段按钮；选项很多或相互独立时，则是纸片。如果它替换下方的内容，那是标签页。
+
+### 选一个还是选多个
+
+- **单选**（`selection="single"`，默认）是一个单选组。选中一个分段会取消之前选中的那一个。再次按下已选中的分段不起任何作用，所以单选的选择无法通过它自己的分段来清除。这一组可以在开始时什么都不选（`value` 为空），用于必须表明“尚未选择”的表单。
+- **多选**是一组切换按钮。每个分段各自打开和关闭，整组最后可以一个都不选。如果你的产品要求至少选一个，就不要应用会让整组变空的更改。
+
+整组没有自己的 `disabled`。请逐个禁用分段。禁用的分段保留自己的位置和轮廓，方向键会跳过它。
+
+### 标签、图标与对勾
+
+- 选中的分段在标签之前显示一个对勾；如果它有图标，对勾取代图标。因此，选择状态绝不会只靠填充来表达。纯图标的分段保留自己的图标，并把它画成填充样式。设计系统可以把对勾的尺寸设为 0：这时它不画对勾，而用填充和层级来显示选择状态。
+- 每个分段都与最宽的那个等宽，宽度按它被选中时的样子来测量，所以对勾出现时绝不会挤动相邻的分段。空间不够时，标签会换成多行，每个分段都增高到与最高的那个等高。标签绝不截断。
+- `labelHidden` 只画图标。标签仍然是必填的，因为它始终是分段的无障碍名称。
+- 尺寸决定整组的高度。这些尺寸并不是每一级都等于 Button 的高度（在 `m3-like` 预设中，small 和 medium 与 Button 的相同，large 则更矮），所以让一组分段与旁边的按钮相配时，要按高度，而不是按尺寸的名称。
+
+### 推荐
+
+- 给整组一个标签，提出它的选项所回答的那个问题：“范围”“文本对齐”。
+- 标签保持在一到两个词，并且形式一致：日、周、月。
+- 一组里的分段要么都带图标，要么都不带。
+- 有合理的默认值时，选定一个初始值，这样控件看起来绝不会像没有作答。
+
+### 避免
+
+- 不要把分段按钮用于操作。分段是一个选项，不触发 click。请使用按钮组。
+- 不要用它在各自填满屏幕的视图之间切换。请使用标签页。
+- 不要在一组里放五个以上的分段，也不要使用长短悬殊的标签。每个分段都取最宽那个的宽度。
+- 不要让分段的标签随状态改变。选择状态是单独朗读的。
+
+## 无障碍
+
+<ComponentAccessibility name="segmented-button" />
+
+### 组件负责的部分
+
+- 单选时，整组是一个以其标签命名的单选组，每个分段是一个带有选中状态的单选按钮。多选时，整组是一个以其标签命名的组，每个分段是一个带有“已按下”状态的切换按钮。
+- 每个分段都以自己的标签命名，无论标签是否画出来，并暴露自己的位置和分段的总数。图标、对勾、分隔线和轮廓都被隐藏。状态绝不是由对勾来朗读的。
+- 整组是一个 Tab 停靠点：停在选中的分段上；多选时停在最后获得焦点的分段上；否则停在第一个可用的分段上。方向键移到下一个或上一个可用的分段并循环，Home 和 End 到达两端。单选时，每次移动同时也选中。多选时，Space 和 Enter 切换获得焦点的分段。在从右到左的布局中，左方向键移到下一个分段。
+- 禁用的分段会被方向键跳过，绝不会成为 Tab 停靠点，并暴露为禁用。
+- 每个分段的点击区域向整组的上方和下方延伸到最小目标，并且每个分段的宽度至少等于一个目标，因为相邻的分段无法把点击区域伸到彼此之上。
+- 焦点指示画在获得焦点的分段内部，轮廓和相邻的分段都遮不住它。它只在键盘聚焦时显示。
+- 文本放大时，标签换行，每个分段都增高到与最高的那个等高。图标保持自己的尺寸。
+- 调试构建会报告以下情况：缺少整组或分段的标签，隐藏了标签却没有图标，value 或 values 所指的分段不存在，分段的值为空或重复，以及一组少于两个或多于五个分段。
+
+已知的平台差距：
+
+- 在 Web 上，多选的一组通过包在分段外面的一个列表来给出每个分段的位置，因为切换按钮自己无法携带位置。
+- SwiftUI 没有单选组角色。整组是一个以其标签命名的容器。单选组里的分段是一个带有选中特征的按钮，以自己的位置（“2 of 3”）作为值，目前仅有英文。多选组里的分段是一个 toggle，不说明位置，因为它如果有自己的值，就会取代 toggle 的开或关。
+- SwiftUI：整组占用提供给它的宽度，与 SwiftUI 的分段选择器（segmented picker）一样。`.fixedSize(horizontal: true, vertical: false)` 让它保持自然宽度。分段的阴影和焦点环在每个角上都使用它最大的那个圆角。作为图标传入的 SF Symbol 在选中时不会切换为填充样式：请自己传入 `.fill` 的符号。方向键是作为规则来测试的，没有在模拟器上用键盘测试。
+- Compose 没有单选组角色。整组是一个可选择的组，每个分段是一个单选按钮（单选）或一个可切换的按钮（多选），与筛选纸片相同。
+- Flutter 既不暴露分段的位置，也不暴露分段的总数；多选的一组是一个以其标签命名的容器，而不是一个组，因为 Flutter 的语义中没有这两种属性。
+- React Native：等宽是在第一次布局之后测量每个标签得到的，所以如果一组分段的父容器在第一帧时比它窄，它得到的宽度可能比它最宽的标签还窄。硬件键盘上的方向键，以及 Android 上抬升的选中分段投在相邻分段上的阴影，都还没有在真机上检查过。
+- 在 `cupertino` 系统下，small 和 medium 的分段按钮高度是 30 和 34，而不是 28 和 32，两端分段的内侧圆角比外侧圆角更圆。这两点都在等待令牌或规格方面的决定。
+
+### 需要你做的事
+
+- 给整组一个标签，也给每个分段一个标签，包括纯图标的分段。
+- 让选择的效果立即在控件附近显现。单选时，键盘用户靠移动来选择，效果一慢，方向键就会显得卡住。如果确实需要时间，请在结果将要出现的地方显示进度。
+- 当分段为什么不能选并不明显时，在附近给出禁用的原因。
+- 在 Web 上，分段按钮不是表单控件。要随表单提交它的值，请在 `change` 中把值复制到一个隐藏的 input 里。

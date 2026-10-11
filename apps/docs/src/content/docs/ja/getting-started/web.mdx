@@ -1,0 +1,159 @@
+---
+title: Web
+description: Tanrei の CSS トークンと Web Components を、どの Web プロジェクトでも使えます。
+translationOf: getting-started/web.mdx
+sourceHash: f90530af900eada26b7ea7f446e046888fcdf091
+---
+
+import Steps from '../../../../components/Steps.astro';
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+`@tanrei/web` には 2 つのものが入っています。デザイントークンを CSS カスタムプロパティとして収めたスタイルシートと、Lit で作った標準準拠のカスタム要素です。特定のフレームワークは必要ありません。
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/web" />
+
+## インストール
+
+### ソースから
+
+Git、Node 22.12 以降、pnpm 12 が必要です（`corepack enable` で、リポジトリが固定しているバージョンが使えます）。リポジトリのクローンでパッケージをビルドしてパックし、パックしたファイルをプロジェクトにインストールします。
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/web build
+pnpm --filter @tanrei/web pack --pack-destination ../tanrei-packages
+```
+
+```sh
+# プロジェクトで：パッケージを書き出したフォルダーへのパス
+npm install path/to/tanrei-packages/tanrei-web-*.tgz
+```
+
+パックしたファイルには、リリースで公開するものがそのまま入っているので、以下の手順はすべて同じように動きます。ソースの新しい状態を取り込むには、pull してからビルドとパックをやり直し、新しいファイルをインストールします。
+
+### 最初のリリース後
+
+```sh
+npm install @tanrei/web
+```
+
+## 使い方
+
+<Steps>
+
+1. トークンを一度だけ、できるだけ早い段階で読み込みます。トークンはカスケードレイヤー（`tanrei.tokens`）に包まれているので、自分のスタイルが常に優先されます。
+
+   ```js
+   import '@tanrei/web/tokens.css';
+   ```
+
+2. コンポーネントを登録します。すべてをインポートすることも、使う要素だけをインポートすることもできます。
+
+   ```js
+   import '@tanrei/web';
+   // または、要素を 1 つずつ:
+   import '@tanrei/web/components/button';
+   ```
+
+   `@tanrei/web/…` という指定子はパッケージのエクスポートで、バンドラー（Vite、webpack、esbuild）が解決します。バンドラーがない場合、ブラウザーは `<link>` や `<script src>` の中の裸の指定子を解決できません。そのときはパッケージの `dist/` を配信して、ファイルを直接指定します。スタイルシートはそのまま、スクリプトは Lit とすべての要素を含む `tanrei.bundle.js` を使います。
+
+   ```html
+   <link rel="stylesheet" href="/node_modules/@tanrei/web/dist/tokens.css" />
+   <script type="module" src="/node_modules/@tanrei/web/dist/tanrei.bundle.js"></script>
+   ```
+
+3. 要素を、ほかの HTML と同じように使います。
+
+   ```html
+   <tanrei-button variant="filled">デプロイ</tanrei-button>
+   <tanrei-button variant="outlined" size="small" disabled>キャンセル</tanrei-button>
+   ```
+
+4. プロダクトの言葉を渡します。Tanrei は言葉を同梱しません。必須・任意のタグのテキストや閉じるボタンの名前などは、プロダクトのものです。言語ごとに一度だけ渡すか、要素ごとに書きます。
+
+   ```js
+   import { setWords } from '@tanrei/web';
+
+   setWords({ requiredText: '必須', optionalText: '任意', closeLabel: '閉じる' });
+   ```
+
+   言葉がなくてもコンポーネントは動作し、どの言葉が足りないかをコンソールで知らせます。[言葉](/ja/foundations/words/)を参照してください。
+
+</Steps>
+
+<DemoFrame>
+  <tanrei-button variant="filled">デプロイ</tanrei-button>
+  <tanrei-button variant="outlined" size="small" disabled>キャンセル</tanrei-button>
+</DemoFrame>
+
+## テーマとコントラスト
+
+トークンの値は `light-dark()` を使っているので、使われている要素の `color-scheme` に従います。何も設定しなければ OS の設定に従い、`prefers-contrast: more` のときは高コントラストのスキームに切り替わります。
+
+自分で決めたいときは、属性を設定します。
+
+```html
+<!-- ページ全体、または任意のサブツリーのテーマを固定する -->
+<html data-tanrei-theme="dark">
+
+<!-- ページのコントラストレベルを固定する："medium" または "high" -->
+<html data-tanrei-contrast="high">
+```
+
+<Callout>
+  どちらの属性も、`<html>` にも任意のサブツリーにも使えます。生成されるスタイルシートは、トークン一式を `:root, [data-tanrei-contrast]` に宣言しています。そのため、入れ子の要素に `data-tanrei-contrast` を付けると、システムの色だけでなく、その中のコンポーネントトークンも、そのコントラストレベルで解決し直されます。
+</Callout>
+
+## 自分の CSS でトークンを使う
+
+すべてのトークンは、パスにちなんだ名前のカスタムプロパティです。`tanrei.sys.color.primary` は `--tanrei-sys-color-primary` になります。
+
+```css
+.panel {
+  background: var(--tanrei-sys-color-surface-container-low);
+  border-radius: var(--tanrei-sys-shape-corner-medium);
+  box-shadow: var(--tanrei-sys-elevation-level1);
+  font: var(--tanrei-sys-typescale-body-font);
+}
+```
+
+## テキストスタイル
+
+テキストスタイルは階層で名付けられています（`heading-2` は `h2`、`body` は `p`、`label` はコントロール上のテキスト）。それぞれが、ひとまとまりのカスタムプロパティです。ショートハンドの `--tanrei-sys-typescale-<role>-font` に加えて、`-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing`、`-font-weight-emphasized` があります。次の 2 つの任意のスタイルシートを使うと、これらを要素に適用できます。
+
+```js
+import '@tanrei/web/text.css';   // .tanrei-text-<role>、.tanrei-text-emphasized
+import '@tanrei/web/prose.css';  // .tanrei-prose の中の h1–h6、p、small、code、pre
+```
+
+```html
+<h2 class="tanrei-text-heading-2">セクション</h2>
+<p class="tanrei-text-body">本文の中の<strong class="tanrei-text-emphasized">強調</strong>。</p>
+<article class="tanrei-prose"><!-- レンダリングされた Markdown --></article>
+```
+
+`.tanrei-text-emphasized` は、置かれているロールを、その太さにファミリーの強調のステップを足した太さで描きます。これは太さであって、別のロールではありません。16 のロールと要素との対応は、[タイポグラフィ](/ja/foundations/typography/)にあります。
+
+## フォント
+
+タイプスケールは、Inter、Noto Sans JP、Noto Sans、Roboto Mono を指定します（`tokens.css` の `--tanrei-ref-typeface-{brand,plain,mono}`。`tanrei build` は、どのシステムについてもこの一覧を出力します）。アイコンには Material Symbols Rounded を指定し、いずれもシステムフォントにフォールバックします。Tanrei はフォントファイルを同梱しません。ちょうどこれらのファミリー名で、自分で読み込んでください。Google Fonts から読み込むか、`@fontsource-variable/*` パッケージを使います（これらのパッケージは `Inter Variable` のような名前で登録するので、このサイトと同じように、素の名前でそのファイルを指す `@font-face` を自分で宣言します）。
+
+## アイコン
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>追加</tanrei-button>
+```
+
+`.tanrei-icon` は、[Material Symbols](https://fonts.google.com/icons) の名前を、システムのアイコンの太さで描き、サイズは置かれた場所から取ります。アウトラインか塗りかを自分で選ぶことはありません。[アイコン](/ja/foundations/icons/)を参照してください。
+
+## ブラウザーの対応
+
+トークンは `light-dark()` とカスケードレイヤーに依存しています。どちらも、Chrome、Edge、Firefox、Safari の現行バージョンで使えます。

@@ -1,0 +1,248 @@
+---
+title: Color field
+description: Lets people set one color as a field of a form — a text value they can read, type and paste, a sample of it beside the text, and a button that asks for a picker — that looks and measures like a text field.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="color-field" />
+
+<DemoFrame label="A color field with a picker button, and one whose color the product refuses" column>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" value="#0f766e" supporting-text="Six hexadecimal digits, like #0f766e." invalid-text="Enter six hexadecimal digits, like #0f766e." picker picker-label="Choose color"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" value="#fde047" error error-text="Too light for white text. Choose a darker color."></tanrei-color-field>
+</DemoFrame>
+
+Use a color field where people set a color as a value: a brand color in a theme, the color of a label or a category. They read it, type it or paste it from another tool, and see a sample of it beside the text. The field is drawn and measured as the text field of the same variant and size.
+
+**Built from** a [field](/components/field/) and a [color input](/components/color-input/). The field is the frame: the label, the required or optional mark, the help and the error. The color input is the control: the box, the swatch, the value as text and the picker button. The color field draws nothing of its own and has no token: every property it has is a property of one of the two, given to it unchanged.
+
+It is a block as wide as the place it is put in, and its box fills it. It has no width of its own: for a narrower field, give it a narrower place. It is a field already, so it is never placed inside a [field](/components/field/).
+
+It draws no picker of its own. With `picker`, a button at the end asks for one: the browser's, or a surface the product presents.
+
+On the web it is `<tanrei-color-field>`. The other platforms have not implemented it yet.
+
+### Usage
+
+`value` is a number sign and six hexadecimal digits in lowercase (`#0f766e`), or an empty string for no color. It is never a half-typed text: while the input holds something that is not a color, `value` is empty.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-color-field name="brand" label="Brand color" value="#0f766e"
+        requirement="required" required-text="Required"
+        supporting-text="Six hexadecimal digits, like #0f766e."
+        invalid-text="Enter six hexadecimal digits, like #0f766e."
+        picker picker-label="Choose color"></tanrei-color-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/color-field';
+
+      const brand = document.querySelector('tanrei-color-field');
+      // The value changed: a color, or an empty string. It is already the new one.
+      brand.addEventListener('input', () => preview(brand.value));
+      // The person committed a changed value: focus left, Enter, or the picker closed.
+      brand.addEventListener('change', () => save(brand.value));
+      // A text that is not a color was committed. The field keeps it and shows invalidText,
+      // which is also what detail.message carries.
+      brand.addEventListener('entryerror', (e) => console.log(e.detail.text, e.detail.message));
+      // To present a picker of your own: cancel the request, open it, and set value to what was picked.
+      brand.addEventListener('pickerrequest', (e) => {
+        e.preventDefault();
+        openMyPicker(e.detail.value).then((color) => (brand.value = color));
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ColorField } from '@tanrei/react';
+
+    <ColorField label="Brand color" value={brand} picker pickerLabel="Choose color"
+      invalidText="Enter six hexadecimal digits, like #0f766e."
+      onChange={(event) => setBrand(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### One level down
+
+The same field, written by hand from its two members, is the same picture, and to assistive technology the same text box with the same name, description and states:
+
+```html
+<tanrei-field label="Brand color" requirement="required" required-text="Required"
+  supporting-text="Six hexadecimal digits, like #0f766e.">
+  <tanrei-color-input name="brand" value="#0f766e"
+    invalid-text="Enter six hexadecimal digits, like #0f766e."
+    picker picker-label="Choose color"></tanrei-color-input>
+</tanrei-field>
+```
+
+<DemoFrame label="The same field written by hand: a field with a color input in it" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" requirement="required" required-text="Required" supporting-text="Six hexadecimal digits, like #0f766e.">
+    <tanrei-color-input value="#0f766e" invalid-text="Enter six hexadecimal digits, like #0f766e." picker picker-label="Choose color"></tanrei-color-input>
+  </tanrei-field>
+</DemoFrame>
+
+Go one level down when you need an arrangement the color field does not offer:
+
+| You need | Use |
+| --- | --- |
+| A label, the box, help and an error | The color field |
+| Something of your own inside the frame, beside or below the box | A [field](/components/field/) with a [color input](/components/color-input/) and your own element in it |
+| The box alone, in a row or a column that already names the color: the tones of a palette, a cell of a table | The [color input](/components/color-input/) alone, named by its own `label` |
+
+What changes one level down is where things are said. `name` and `value` are on the color input, which is then the control the form meets, and its events are heard on it. `label`, `error`, `disabled` and the requirement stay on the field, which passes them to the control: do not set the input's own. The color field does nothing that the field and the color input written by hand do not do.
+
+## Specs
+
+<DemoFrame label="An empty color field, white, black, a large one, a disabled one — and the box alone, a color input, in a row that names its color" plain column>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Accent color" requirement="optional" optional-text="Optional"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Page background" value="#ffffff"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Text" value="#000000"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" value="#0f766e" size="large" picker picker-label="Choose color"></tanrei-color-field>
+  <tanrei-color-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Brand color" value="#0f766e" disabled picker picker-label="Choose color"></tanrei-color-field>
+  <tanrei-color-input class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Primary, tone 40" value="#0f766e"></tanrei-color-input>
+</DemoFrame>
+
+### The field
+
+| Part | What it is |
+| --- | --- |
+| Label | Above the container (`stacked`), where the field draws it, or floating inside it (`filled`, `outlined`), where the color input draws it. It is the accessible name, drawn or hidden with `labelHidden` |
+| Requirement mark | After the label: the requirement tag in its required form, an asterisk or nothing for `requirement="required"`; the requirement tag in its optional form for `optional` |
+| Swatch | A sample of the value at the start of the container: a small square filled with exactly the value's color, inside a hairline. Empty, it is the hairline alone. It is not a control |
+| Input | The value as text. One line, which scrolls |
+| Picker button | With `picker`: an icon-only text Button at the end, named by `pickerLabel` |
+| Supporting text | A line of help, starting where the value's text starts, after the swatch. It stays while the field is in error: the error text is drawn below it — `errorText` while `error` is true, and `invalidText` while the committed text is not a color, or `errorText` where `invalidText` is empty |
+
+The three variants and the two sizes, `medium` (48) and `large` (56), are the text field's. The default system ships `stacked` only. The swatch stands where a text field's leading icon stands, at that icon's size, so a color field under a text field with a leading icon shares its start edges.
+
+Nothing is mixed into the swatch: no hover, no error tint, no shadow. A sample that changes under the pointer is a wrong sample. Disabled, its fill is drawn fainter and its edge is kept.
+
+### The value and the text
+
+| When | What happens |
+| --- | --- |
+| The person types, pastes or dictates | Nothing is refused or rewritten. The whole text is read: if it is a color, `value` is that color, otherwise empty. `input` fires when `value` changed |
+| Focus leaves, or Enter | The text is committed. A color is rewritten in the value's own form. `change` fires if the value differs from the last committed one |
+| The committed text is not a color | The text stays. The field is in error and shows `invalidText`, and `entryerror` fires. The error ends at the next edit |
+| The text is empty | `value` is empty. That is never an error of the field's |
+| The product sets `value` | The color is shown, whatever was typed. No event fires |
+
+A text reads as a color when, with the spaces around it left out, it is exactly six hexadecimal digits, in either case, with or without the number sign: `0F766E`, `#0f766e` and <code> #0F766E </code> are all `#0f766e`.
+
+Everything else is no color: three digits (`#0f7`), eight (`#0f766e80`), a name (`teal`), a functional notation (`rgb(15, 118, 110)`). Three digits are not read because the text passes through them on the way to six. There is no alpha and no wide-gamut color.
+
+Nothing is reported while a person is still typing. An entry error is raised only when they commit.
+
+### The picker
+
+With `picker`, the field shows a button at its end. Activating it fires `pickerrequest`, which carries the value.
+
+| The product | What happens |
+| --- | --- |
+| Does nothing | The field presents the browser's own color picker. Each pick is an edit by the person: the text, the swatch, `input`. When the picker closes, `change` fires and focus is on the picker button |
+| Cancels the request | The field presents nothing. The product opens its own surface, anchored to the field, and sets `value` to what was picked. That surface returns focus to the picker button when it closes |
+
+A press on the swatch does not open the picker. It focuses the input, as a press anywhere else on the field does.
+
+### What each member gives
+
+- **From the field**: the properties `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText` and `optionalText`; the slot `label-icon`; the tokens `comp.field.*`.
+- **From the color input**: the properties `variant`, `size`, `value`, `invalidText`, `picker` and `pickerLabel`; the events `input`, `change`, `pickerRequest` and `entryError`; the tokens `comp.input-box.*` for the box, which every input box reads, and `comp.color-input.*` for the swatch.
+
+The color input has a `label`, a `labelHidden`, an `error` and a `disabled` of its own. They are not what the color field sets: its `label` is the field's, which names the input and, in a filled or an outlined field, is what floats in the box.
+
+### Tokens
+
+The color field has no token of its own. Its box reads the [color input's tokens](/components/color-input/#specs) and its rows — the label, the mark, the help and the error — read the [field's tokens](/components/field/#specs), wherever they are set. The table below lists the field's. To change one instance, set a member's token on it:
+
+```html
+<tanrei-color-field label="Brand color"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-color-field>
+```
+
+<ComponentSpecs name="color-field" />
+
+### What the web draws differently
+
+- The element's shadow root holds a `<tanrei-field>` with a `<tanrei-color-input>` in it, and nothing else. Importing the element defines both.
+- The color field is a form-associated element. It takes `name` and submits `value`: the color, or an empty string. It resets to the `value` attribute, and reports a missing value while `requirement="required"` and `value` is empty, and a bad input while an entry error lasts. Its two members add no entry to the form.
+- `value` is always the color input's: a value set as `0F766E` is read back as `#0f766e`, and one that is not a color as an empty string.
+- `input` and `change` are plain events: read `value` from the element. `pickerrequest` and `entryerror` are CustomEvents with `detail.value` and with `detail.text` and `detail.message`. They are the color input's own events, with the element as their target. `detail.message` is `invalidText`, and empty where you gave none — also while the field shows `errorText` in its place.
+- Parts: `field` and `color-input` are the two members. Their own parts have the same names here as one level down: `label-icon`, `supporting-text`; `container`, `outline`, `active-indicator`, `swatch`, `input`, `picker-button`. `label` and `requirement-label` are the drawn ones, whichever member draws them; `field-label`, `color-input-label`, `field-requirement-label` and `color-input-requirement-label` name one member's.
+- The element is not focusable itself and has no role: `focus()` goes to the input, never to the picker button. A press on the label row, on the box, on the swatch or on a floating label focuses the input. A press on the help or the error text does nothing.
+- The label and the help take their focused colors while focus is anywhere in the field, the picker button included. The box takes its own only while its input has focus.
+- Name it with `label` — with `label-hidden` where the label is not to be drawn — and never with `aria-label`, which names nothing here.
+- The element has no words of its own. `requiredText` and `optionalText` are empty until you give them. A required field without `requiredText` shows the asterisk where the tag would stand.
+- The browser's picker differs by browser: a popup of the page in Chromium, the system's color window in Firefox and Safari. Its look, placement and keys are the browser's.
+- A text in full-width characters (`＃０ｆ７６６ｅ`) is not read as a color.
+- Before the element is defined it has no size. Reserve the height.
+
+## Guidelines
+
+### Color field or text field
+
+| Aspect | Color field | Text field |
+| --- | --- | --- |
+| Holds | One color, as `#` and six digits | Any text |
+| Shows | A sample of the color beside the text | The text |
+| Checks | That the text is a color | Nothing |
+
+For a color that is shown and not edited, draw a sample with its value or its name in text beside it. A color field is for a color people set.
+
+### Do
+
+- Write a label that says what the color is for, and keep it visible in a form.
+- Say the form of the value in `supportingText`. It stays while the field is in error, so `invalidText` need not repeat it.
+- Name the color in words in `supportingText` where that matters ("Teal"). A hexadecimal value says little about how a color looks.
+- Give `pickerLabel` whenever `picker` is set.
+- Validate what the color means yourself — its contrast against a background, a color already taken — and say it with `error` and `errorText`.
+- Use a [color input](/components/color-input/) in a row that already names each color, such as the tones of a palette: it is the box alone, named by its own `label`.
+
+### Don't
+
+- Don't tell a color by the swatch alone. The value is text; a person who cannot tell two samples apart reads two different values.
+- Don't treat an empty `value` as an error by itself. `requirement` never validates.
+- Don't set `aria-invalid` or `error` while a person is typing. Wait for `change` or `entryerror`.
+- Don't put a color field inside a field. It is a field already; the control a field frames is the [color input](/components/color-input/).
+
+## Accessibility
+
+<ComponentAccessibility name="color-field" />
+
+### What the component handles
+
+- The input is a text field. Its name is `label`, drawn or hidden, and its value is the text it shows.
+- The shown supporting or error text is its description, with `optionalText` while the field is optional.
+- It is exposed as invalid while `error` is true or an entry error lasts, and as required while `requirement` is `required`.
+- An error that appears while the field has focus is announced once, politely. It never takes focus away.
+- The swatch is decorative and hidden from assistive technology: the value's text says the color.
+- The picker button is a separate button, named by `pickerLabel`, that is exposed as opening a dialog. It is a focus stop after the input. Focus given to the field itself always goes to the input.
+- Nothing is announced when the value changes, and the field adds no name of the color.
+- While an input method is composing, the field reads nothing and handles no key.
+- The field's hit area meets the minimum target, and the picker button is a full target.
+- At 200% text the label and the help wrap. The value stays on one line, and scrolls; the swatch keeps its size.
+- In forced colors the field gains an edge and takes the person's colors. The swatch alone keeps the value's color, because showing that color is what it is for; its edge is the text color.
+- In a right-to-left layout the field is mirrored: the swatch at the right, the picker button at the left. The value itself stays left to right.
+
+Known gaps on the web:
+
+- The browser's picker is not Tanrei's: its accessibility is the browser's own.
+- Before the element is defined, nothing is drawn.
+
+### What you need to do
+
+- Give every color field a `label`.
+- Write `invalidText` and `pickerLabel` on the field, in the language of the page. Give `requiredText` and `optionalText` on the field, or once for the whole product with `setWords({ requiredText, optionalText })`. See [The product's words](/foundations/words/).
+- Validate the color yourself, set `error`, and write `errorText` so that it says how to put the color right.
+- If you present your own picker, open it from the picker button, give it a name, and return focus to the button when it closes.

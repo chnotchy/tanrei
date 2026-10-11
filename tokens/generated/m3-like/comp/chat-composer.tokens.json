@@ -1,0 +1,309 @@
+{
+  "tanrei": {
+    "comp": {
+      "chat-composer": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets people write to one another, or to the product itself — a conversation, a thread under a piece of work, a request for help — and gives them one place to do it, drawn as one capsule: where the text is written, what is attached to it, the product's own actions for it, and the button that sends. It decides once how that capsule is filled and edged, how round it is, how it shows that it is being written in, that something is wrong with the message and that a dragged file will be taken, how far its parts stand from one another and from its edge, how narrow it may be before its actions move below the text, how the count against a limit is written, and how much its send button stands out.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "standard",
+              "error"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "container.elevation": "shadow",
+              "outline.color": "color",
+              "state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "outline.width": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "What a chat composer draws itself and how it arranges what it holds: the capsule (its least height, its corners, its paddings, its fill, its lift and its edge in its two conditions — standard and error — at rest, hovered, focused and disabled, and while files are dragged over it); the gaps between the typing area, the actions and the strip of attachments; the width under which the actions move below the typing area; the text style and the two colors of the counter; the variant of the send button it brings; and the timing of its own changes. The typing itself, every File item and every Button are drawn from their own tokens.",
+            "rules": [
+              "A chat composer never sends. It reports the text and the attachments when the person sends (send); the product does the sending and says what became of the message.",
+              "The capsule is the composer's own and its one container: it answers focus with its edge while the typing area has focus, drawn instead of a focus ring, and its fill stays at rest under focus. It answers hover as every box that is typed in does, through its state layer, and it answers no press: a press on it only gives the typing area focus.",
+              "container.shape is a largest radius, never more than half the height of a capsule of one line: a capsule of one line is fully rounded, and one that has grown keeps those corners. Do not give a grown capsule another radius.",
+              "Do not restyle the typing, the File items or the Buttons through the composer: there is no token here for them. Style the member, for every place it is used, or set one composer apart with the member's own token on that element.",
+              "Put a product's own actions in the leading and the trailing slot as Buttons; an icon-only Button of the text variant is the quiet form. Replace the send or the attach button only with a Button.",
+              "Enter sends and Shift+Enter begins a new line unless sendKey is modifier. Never send on an Enter that an input method uses to commit a composition.",
+              "A chat composer is not fixed to the bottom of a screen by itself: the product places it, and keeps it above an on-screen keyboard by the platform's own means.",
+              "Every word is the product's: label, placeholder, sendLabel, stopLabel, attachLabel, the File items' texts, announcement.",
+              "standard.state-layer.color and error.state-layer.color are the color of what is typed: hover mixes it into the fill. There are no pressed tokens."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "standard",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 56,
+              "unit": "px"
+            },
+            "$description": "The capsule's least height: the height it has with one line of text, no attachment and the actions on the text's line. The Button's large and the search bar's, so a composer shares a row with them; with container.padding-block it leaves room for a medium Button. Half of it is the capsule's radius at every height (container.shape).",
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The largest radius of the capsule's corners. The capsule never draws more than half the height it has with one line (CCM-41), so the full step gives a capsule that is fully rounded while it holds one line and keeps exactly those corners as it grows; a smaller step gives a rounded box at every height."
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "From the capsule's top and bottom edges to what it holds: the row of actions, the typing area, the strip."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space200}",
+            "$description": "From the capsule's start or end edge to the typing area where the typing area is the outermost part on that side, and to the strip of attachments: text and pictures stand clear of the rounded corner."
+          },
+          "padding-inline-with-button": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "From the capsule's start or end edge to a Button that is the outermost part on that side. With container.padding-block of the same value a round Button sits concentric in the capsule's end, and has its whole target on that side: half of sys.target.touch minus half of the Button's width, or more."
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "In the inline layout, the space between the typing area and the group of actions before it, and between the typing area and the group after it."
+          },
+          "row-gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "In the stacked layout, the space between the line that holds the typing area and the send button and the row of actions below it, in addition to the typing area's own input.padding-block."
+          }
+        },
+        "input": {
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "Above the first line and below the last line of the typing area. With one line of the typing's text style it makes the typing area as tall as a medium Button, so the line and the Buttons beside it share a centre; as lines are added the last line keeps that place."
+          }
+        },
+        "actions": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "The space between two neighbours of one group of actions — the attach button and the leading actions; the counter, the trailing actions and the send button — and between two lines of actions that wrapped. With a medium Button it sets neighbours sys.target.touch apart from centre to centre, so each keeps its whole target."
+          }
+        },
+        "strip": {
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space100}",
+            "$description": "The space between two File items of the strip, along a line and between two lines of it."
+          },
+          "padding-block-start": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Above the strip, in addition to container.padding-block: it keeps the corner of the first tile inside the capsule's rounded corner."
+          },
+          "offset": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Between the strip and what stands below it in the capsule: the typing area, or the row that holds it."
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}",
+            "$description": "The capsule's edge at rest; its focused width is a state token."
+          }
+        },
+        "layout": {
+          "inline-min-width": {
+            "$type": "dimension",
+            "$value": {
+              "value": 360,
+              "unit": "px"
+            },
+            "$description": "The capsule's own inline size under which the inline layout is drawn stacked: every action but the send button moves to a row below the typing area, which shares its line with the send button alone. A width of the composer, not of the window, and not a size of anything drawn. It grows with enlarged text, so a composer whose text has doubled stacks sooner.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product places the same composer in a wide page, in a side panel and on a phone, and decides once how narrow the line being written may become before the actions beside it move below it.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 90
+              }
+            }
+          }
+        },
+        "counter": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label-small}",
+            "$description": "The count of characters and the limit: the text style a field's own count is written in."
+          },
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.on-surface-variant}",
+            "$description": "The count while the text is within the limit, or there is none: secondary content."
+          },
+          "error": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}",
+              "$description": "The count while the text is longer than the limit: the error role, used for errors and nothing else. The two numbers say the same without the color."
+            }
+          }
+        },
+        "receiving": {
+          "$description": "The capsule while files it can take are dragged over it. Not state tokens: nothing is hovered, pressed or disabled during a drag.",
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "$description": "The capsule's fill while it will take what is dragged over it: the quiet selection, because the composer is the place now chosen. The fill the file picker's drop area has in the same condition."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "The capsule's edge in that condition: the content color of the quiet selection."
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.thick}",
+              "$description": "The width of that edge: the thick border, so that the condition is told by more than a change of fill."
+            }
+          }
+        },
+        "send-button": {
+          "variant": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "The Button variant of the send button the composer brings, an icon-only medium Button (CCM-6), and of the stop button in its place (CCM-17). The value is an index into dev.tanrei.enum.values, the core Button variants; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once how much its composers' send button stands out: the one filled button of the place, which says where the message goes from, or a quieter one where the composer stands beside a screen's own main action."
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "filled",
+                  "tonal",
+                  "elevated",
+                  "outlined",
+                  "text"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A choice of kind; no dial scales it."
+              }
+            }
+          }
+        },
+        "standard": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-highest}",
+              "$description": "The capsule's fill: the fill of the search bar and of a text input's box, so that every place a person types into is one surface."
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}",
+              "$description": "The capsule's lift: none in Tanrei. A composer that floats over the end of a conversation is raised."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$description": "The capsule's edge at rest: none. The capsule is marked by its fill; its edge appears as its focus indicator.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The capsule is marked by its fill at rest; its edge appears only as its focus indicator."
+                }
+              }
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "The color hover mixes into the capsule: the color of what is typed in it, as the search bar's and a text input's. Focus mixes nothing: the edge answers it."
+            }
+          }
+        },
+        "error": {
+          "$description": "The capsule while the message is in error: the product's error, a Field's, or text over the limit.",
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-highest}",
+              "$description": "The capsule's fill in error: unchanged. The error is said by the edge."
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}",
+              "$description": "The capsule's lift in error: as standard."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.error}",
+              "$description": "The capsule's edge in error, at rest and focused: the error role, used for errors and nothing else, so that the capsule itself is marked and not only a text beside it."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$description": "As standard.state-layer.color."
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long the capsule's edge and fill take to change between rest, hover, focus, error and the receiving condition, and the counter to change color."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}",
+            "$description": "The curve of those changes."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,231 @@
+---
+title: حقل إدخال النص
+description: الصندوق الذي يكتب فيه الأشخاص، وكل ما يُكتب فيه، سطرًا واحدًا أو عدة أسطر، تاريخًا أو وقتًا أو شيفرة، بلا صف تسمية ولا مساعدة ولا نص خطأ من عنده. لموضع تقف تسميته في مكان آخر، أو داخل حقل يركّبه المنتج بنفسه.
+translationOf: components/text-input.mdx
+sourceHash: f696d67893933cf6b88d1d28aeb4216876f1ec36
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="text-input" />
+
+<DemoFrame label="مجرَّدًا: عامل تصفية فوق قائمة، وصف تقف تسميته بجانب حقل إدخاله" column>
+  <tanrei-text-input class="not-content" type="search" label="تصفية الرموز" placeholder="تصفية الرموز">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-input>
+  <div class="not-content" style="display: grid; grid-template-columns: auto 12rem; align-items: center; gap: 0.75rem; font: var(--tanrei-sys-typescale-body-font); color: var(--tanrei-sys-color-on-surface)">
+    <span>الاسم المعروض</span>
+    <tanrei-text-input label="الاسم المعروض" value="Ada Lovelace"></tanrei-text-input>
+  </div>
+</DemoFrame>
+
+حقل إدخال النص (text input) هو صندوق [حقل النص](/ar/components/text-field/) وحده: الحاوية، والنص، والأيقونات، والبادئة واللاحقة، ومقاطع التاريخ، وزر المنتقي، ومقبض تغيير الحجم. ليس فوقه صف تسمية، وليس تحته مساعدة ولا نص خطأ، ولا يرسم عددًا.
+
+استخدمه مجرَّدًا حيث تقف التسمية التي يقرؤها الشخص في مكان آخر:
+
+| أين | التسمية التي يقرؤها الشخص | الخاصية `label` في حقل الإدخال |
+| --- | --- | --- |
+| عامل تصفية في شريط أدوات أو فوق قائمة | النص النائب ورسم الأيقونة (glyph) يقولان ما يفعله | ما يصفّيه: «تصفية الرموز» |
+| خلية في جدول | ترويسة العمود | العمود والصف: «الكمية، مكتب من خشب البلوط» |
+| صف تقف تسميته بجانب حقل الإدخال | النص الذي بجانبه | الكلمات نفسها |
+
+حقل الإدخال المجرَّد يحتاج إلى `label` خاصة به. وهي الاسم المتاح للتقنيات المساعدة. حقل الإدخال من الطراز stacked لا يرسمها أبدًا؛ ومن الطراز filled أو outlined يرسمها تسميةً تعوم في الصندوق.
+
+هو مكوّن **متقدم**: عنصر التحكم مجرَّدًا، لمنتج يركّب حقله بنفسه. ومعظم النماذج تريد [حقل النص](/ar/components/text-field/)، وهو حقل الإدخال هذا داخل حقل، جاهزًا للاستخدام.
+
+**يُستخدم في** [حقل النص](/ar/components/text-field/) و[حقل الرقاقات](/ar/components/chip-field/). ولتؤطّره بنفسك ضعه داخل [حقل](/ar/components/field/)، فهو الذي يسمّيه ويصفه ويعلّمه مطلوبًا ويضعه في حالة الخطأ.
+
+هو كتلة بعرض المكان الذي يوضع فيه، مجرَّدًا كان أو مؤطَّرًا. وليس له عرض من عنده: لصندوق أضيق، أعطِه مكانًا أضيق.
+
+على الويب هو `<tanrei-text-input>`. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- عامل تصفية في شريط أدوات: شريط الأدوات يعطيه عرضه. -->
+    <tanrei-text-input name="q" type="search" label="تصفية الرموز" placeholder="تصفية الرموز"
+      style="inline-size: 16rem">
+      <span slot="leading-icon">search</span>
+    </tanrei-text-input>
+
+    <!-- خلية في جدول: ترويسة العمود هي التسمية المرئية. -->
+    <td><tanrei-text-input name="quantity-oak-desk" type="number" label="الكمية، مكتب من خشب البلوط" value="2"></tanrei-text-input></td>
+
+    <!-- صف تقف تسميته بجانب حقل الإدخال. -->
+    <div class="row">
+      <span>الاسم المعروض</span>
+      <tanrei-text-input name="display-name" label="الاسم المعروض" autocomplete="nickname"></tanrei-text-input>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/text-input';
+
+      const filter = document.querySelector('[name="q"]');
+      filter.addEventListener('input', () => show(filter.value)); // كل تعديل
+      filter.addEventListener('change', () => remember(filter.value)); // غادر التركيز أو ضُغط Enter، والقيمة تغيّرت
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TextInput } from '@tanrei/react';
+
+    <TextInput name="q" type="search" label="تصفية الرموز" placeholder="تصفية الرموز"
+      value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### داخل حقل، باليد
+
+الحقل الذي يحيط بحقل إدخال النص هو حقل نص مكتوب بالتفصيل. اترك `label` الخاصة بحقل الإدخال فارغة: فالحقل هو الذي يسمّيه. تُقال `label` و `error` و `disabled` والمطلوب أو الاختياري على الحقل؛ وتُقال `name` و `value` وكل ما يخص الكتابة على حقل الإدخال.
+
+```html
+<tanrei-field label="البريد الإلكتروني" requirement="required" required-text="مطلوب"
+  supporting-text="نستخدمه لتسجيل دخولك فقط.">
+  <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="حقل فيه حقل إدخال النص: الصورة نفسها التي لحقل النص" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" requirement="required" required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
+    <tanrei-text-input type="email"></tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+حقل الإدخال يخبر حقله بما لا يعرفه غيره. فالمساعدة تبدأ حيث يبدأ النص، بعد الحشو وأيقونة البداية. وحقل الإدخال من الطراز filled أو outlined يرسم تسمية الحقل بنفسه، عائمةً في الصندوق، فلا يرسم الحقل صف تسمية. والتاريخ أو الوقت الذي يُترك نصف مملوء يضع الحقل في حالة الخطأ بنص `invalidText` أو `unavailableText` الذي لحقل الإدخال.
+
+شيء واحد يبقى عليك باليد: العدد. مع `counter` يحتفظ حقل الإدخال بالعدد، والحقل يرسم ما يُعطاه في `count-text`. أعطِه إياه عند كل تغيير:
+
+```html
+<tanrei-field label="الاسم المعروض">
+  <tanrei-text-input name="display-name" maxlength="40" counter></tanrei-text-input>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const input = field.querySelector('tanrei-text-input');
+  field.countText = input.countText;
+  input.addEventListener('input', () => (field.countText = input.countText));
+</script>
+```
+
+حقل النص يفعل ذلك بنفسه. وهو الشيء الوحيد الذي يفعله حقل النص ولا يفعله حقل وحقل إدخال نص مكتوبان باليد.
+
+## المواصفات
+
+<DemoFrame label="حقول إدخال مجرَّدة: في حالة الخطأ، ومعطَّل، وللقراءة فقط، وببادئة ولاحقة، وبالحجم large" plain column>
+  <tanrei-text-input class="not-content" label="البريد الإلكتروني" value="ada@" error></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="البريد الإلكتروني" value="ada@example.com" disabled></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="البريد الإلكتروني" value="ada@example.com" readonly></tanrei-text-input>
+  <tanrei-text-input class="not-content" label="المبلغ" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-input>
+  <tanrei-text-input class="not-content" size="large" label="البريد الإلكتروني" value="ada@example.com"></tanrei-text-input>
+</DemoFrame>
+
+<DemoFrame label="الطرازان filled و outlined مجرَّدين: تسمية حقل الإدخال نفسه تعوم في الصندوق" system="m3-like" plain column>
+  <tanrei-text-input class="not-content" variant="filled" label="البريد الإلكتروني" type="email" value="ada@example.com"></tanrei-text-input>
+  <tanrei-text-input class="not-content" variant="outlined" label="البريد الإلكتروني" type="email"></tanrei-text-input>
+</DemoFrame>
+
+### ما هو لحقل الإدخال، وما هو للحقل
+
+| الجانب | حقل إدخال النص | الحقل المحيط به |
+| --- | --- | --- |
+| يرسم | الصندوق، والنص، والنص النائب، والبادئة واللاحقة، والأيقونات، ومقاطع التاريخ أو الوقت، وزر المنتقي، ومقبض تغيير الحجم، والتسمية التي تعوم في صندوق من الطراز filled أو outlined | صف التسمية فوق حقل إدخال من الطراز stacked، وعلامة المطلوب أو الاختياري، والمساعدة، ونص الخطأ، والعدد |
+| يحمل | القيمة، ومكانها في النموذج، والأحداث | لا شيء |
+| يقول للتقنيات المساعدة | وصفه هو: البادئة واللاحقة، والعدد | الاسم، والمساعدة أو نص الخطأ، وأنه مطلوب، وغير صالح، ومعطَّل |
+
+ما يحدث في الصندوق واحد، مجرَّدًا كان حقل الإدخال أو مؤطَّرًا أو داخل حقل نص، وهو موصوف مرة واحدة، في صفحة حقل النص: [أنواع الإدخال](/ar/components/text-field/#أنواع-الإدخال)، و[عدة أسطر](/ar/components/text-field/#عدة-أسطر) مع مقبض تغيير الحجم، و[الشيفرة](/ar/components/text-field/#الشيفرة)، و[التواريخ والأوقات](/ar/components/text-field/#التواريخ-والأوقات) مع زر المنتقي.
+
+### مجرَّدًا، بلا حقل
+
+- **الاسم** هو `label`. والخاصية `labelHidden` تمنع حقل الإدخال من الطراز filled أو outlined من رسمها.
+- **الخطأ** هو `error`، وأنت تعيّنها: يُرسم الصندوق في حالة الخطأ ويُعرَض للتقنيات المساعدة على أنه غير صالح. وليس لحقل الإدخال نص خطأ. قل ما الخطأ بكلمات بجانبه، أو أطِّره.
+- **التاريخ أو الوقت الذي يُترك نصف مملوء**، أو بقيمة غير متاحة، يرسم الصندوق في حالة الخطأ ويصدر `entryError`. ويُضاف نص `invalidText` أو `unavailableText` إلى وصف حقل الإدخال؛ ولا شيء يرسمه.
+- **العدد** يُحفظ ويوصف ويُعلَن، ولا يُرسم. والخاصية `countText` هي العدد نصًّا («12/40»)، لترسمه أنت.
+- **المطلوب** يقوله الحقل. وليس لحقل الإدخال المجرَّد إعداد للمطلوب أو الاختياري: حيث يحتاج النموذج إلى جواب، تحقق منه بنفسك.
+
+### ما أُدخل سلفًا
+
+المنفذ `entries` مكان داخل الصندوق، قبل النص المكتوب، لما أدخله الشخص سلفًا: رقاقات قائمة من العناوين مثلًا. يرتّب حقل الإدخال محتوى المنفذ وجزء الكتابة في أسطر تلتفّ، ويكبر الصندوق بأسطر كاملة. وما دام في المنفذ محتوى تبقى التسمية العائمة عائمة ولا يُعرض النص النائب.
+
+```html
+<tanrei-text-input label="المستلمون" type="email">
+  <tanrei-chip slot="entries" kind="input" size="small" label="ada@example.com"
+    remove-label="إزالة ada@example.com"></tanrei-chip>
+</tanrei-text-input>
+```
+
+لا يعطي حقل الإدخال هذه العناصر دورًا ولا مكانًا في ترتيب التركيز ولا مفتاحًا: فهي لك. والضغطة في الصندوق خارج كل عنصر تنقل التركيز إلى جزء الكتابة. ولقائمة من المُدخلات بمفاتيحها وفحوصها وقيمتها في النموذج استخدم [حقل الرقاقات](/ar/components/chip-field/)، وهو مبني على هذا المكان.
+
+<ComponentSpecs name="text-input" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- العنصر مرتبط بالنماذج (form-associated). مع `name` يرسل `value`، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويُستعاد عند التنقل، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دام حقله يقول إنه مطلوب. ويُبلَّغ أيضًا عن التاريخ أو الوقت الذي فيه خطأ إدخال.
+- يُحرَّر النص في عنصر `<input>` أصلي في جذر الظل (shadow root)، أو في عنصر `<textarea>` ما دامت `multiline` بالقيمة true. والتاريخ أو الوقت مجموعة من الأزرار الدوّارة (spin buttons).
+- العنصر كتلة. والدالة `focus()` تذهب إلى العنصر الأصلي، والضغطة في أي مكان من الصندوق خارج زر تنقل التركيز إليه.
+- الحدثان `input` و `change` يعبران حدود جذر الظل (composed). والحدث `action` من النوع CustomEvent وقابل للإلغاء: ألغِه لتمنع المفتاح Enter من إرسال النموذج. والحدثان `pickerrequest` و `entryerror` من النوع CustomEvent، وفي `detail` لهما، على الترتيب، `{ value, type, min, max }` و `{ reason, text }`. وأنواعها `TanreiTextInputActionDetail` و `TanreiTextInputPickerRequestDetail` و `TanreiTextInputEntryErrorDetail`.
+- الخاصية `countText` للقراءة فقط، وتتجدد بعد كل تغيير في القيمة. وليست لها خاصية HTML.
+- خصائص HTML مكتوبة بصيغة kebab-case، مثل `label-hidden` و `min-rows` و `prefix-text` و `no-wrap`، والأخيرة هي `wrap` بالقيمة false. أما `readonly` و `maxlength` و `autocomplete` و `min` و `max` فتحتفظ بأسمائها في HTML.
+- الأجزاء: `container`، `outline`، `active-indicator`، `label`، `requirement-label`، `input`، `entries`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-grip`.
+- المنافذ: `leading-icon` و `trailing-icon` و `entries`. وأيقونة النهاية قد تكون زرًّا بأيقونة فقط من عندك. والجزء `entries` ليس له صندوق من عنده: عناصره تقف في أسطر الصندوق نفسه.
+- الخاصيتان `resize-label` و `segment-empty-text` تُقرآن من كلمات المنتج (`setWords()`) حين تُتركان فارغتين.
+- قبل أن يُعرَّف العنصر لا يكون له حجم. احجز ارتفاع الصندوق.
+
+## الإرشادات
+
+### حقل إدخال النص، أم حقل النص، أم حقل باليد
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| تسمية، والصندوق، ومساعدة، وخطأ، وعدد | [حقل النص](/ar/components/text-field/) |
+| الصندوق وحده، وتسميته تقف في مكان آخر: عامل تصفية في شريط أدوات، خلية في جدول، صف تسميته بجانبه | حقل إدخال النص، يسمّيه `label` الخاصة به |
+| شيء من عندك داخل الإطار، بجانب الصندوق أو تحته | [حقل](/ar/components/field/) فيه حقل إدخال النص وعنصرك |
+| بحث له اقتراحات أو نتائج تُفتح منه | [البحث](/ar/components/search/) |
+| عدد يتغيّر بالتدرّج ويبقى ضمن حدود | [حقل العدد](/ar/components/number-field/) |
+
+### افعل
+
+- أعطِ حقل الإدخال المجرَّد `label` بكلمات التسمية المرئية، أو بكلمات تقول ما تقوله التسمية المرئية وموضعها معًا: «الكمية، مكتب من خشب البلوط».
+- أعطِ حقل الإدخال المجرَّد عرضه من مكانه: عمود في شبكة، خلية، عنصر له عرض في شريط أدوات.
+- أبقِ التسمية المرئية قريبة بما يكفي ليقرأ من يرى الصفحة الاثنين شيئًا واحدًا.
+- استخدم حقل النص حيث يكون ما تحتاج إليه تسمية فوق الصندوق ومساعدة وخطأ.
+
+### لا تفعل
+
+- لا تستخدم حقل إدخال مجرَّدًا في نموذج لتوفّر مكان التسمية. فباستثناء عامل تصفية أو بحث يعلّمه رسم أيقونته، حقل الإدخال الذي لا تسمية مرئية له في أي مكان تخمين لكل من يراه.
+- لا تستخدم النص النائب تسميةً. فهو يختفي ما إن يكتب أحد، وليس هو الاسم أبدًا.
+- لا تعيّن `label` أو `error` أو `disabled` على حقل إدخال داخل حقل. قلها على الحقل، لتتبعها التسمية والمساعدة.
+- لا تضع حقل نص داخل حقل. فهو حقل أصلًا؛ وعنصر التحكم الذي يؤطّره الحقل هو حقل إدخال النص.
+- لا ترسم العدد أو المساعدة أو خطأً داخل الصندوق بنمط من عندك. فهي صفوف الحقل.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="text-input" />
+
+### ما يتكفل به المكوّن
+
+- هو مربع نص (text box) واحد، ومتعدد الأسطر مع `multiline`؛ ومربع بحث (search box) حين تكون `type` بالقيمة search وحيث يكون للمنصة هذا الدور؛ ومجموعة من الأزرار الدوّارة لتاريخ أو وقت.
+- اسمه `label` الخاصة به، أو تسمية الحقل المحيط به حيث لا تكون له. والنص النائب ليس الاسم أبدًا.
+- وصفه البادئة واللاحقة ما دامتا معروضتين، ثم العدد، ثم ما يعطيه حقله: المساعدة أو نص الخطأ.
+- يُعرَض للتقنيات المساعدة على أنه غير صالح ما دام في حالة الخطأ، وعلى أنه مطلوب ما دام حقله يقول ذلك، وعلى أنه للقراءة فقط وعلى أنه معطَّل.
+- العدد يُعلَن كما هو («12/40») حين تتوقف الكتابة ثانية واحدة، لا عند كل ضغطة مفتاح أبدًا، سواء رسمه شيء أو لم يرسمه.
+- يُعرض التركيز بحافة الصندوق نفسها، سواء جاء من لوحة المفاتيح أو من مؤشر. ومساحة اللمس تستوفي الحد الأدنى للهدف.
+- النجمة التي بعد التسمية العائمة مخفيّة عن التقنيات المساعدة: فحالة المطلوب تقول ذلك سلفًا.
+- غياب الاسم يُبلَّغ عنه في بنيات التنقيح (debug).
+
+### ما عليك فعله
+
+- سمِّ كل حقل إدخال مجرَّد بالخاصية `label`. فالنص المرئي الذي بجانبه لا يسمّيه.
+- حيث يمكن أن يكون حقل الإدخال المجرَّد خاطئًا، قل ما الخطأ بكلمات تصل إلى التقنيات المساعدة: رسالة من عندك مرتبطة بالصفحة، أو حقل يحيط بحقل الإدخال.
+- لتاريخ أو وقت، أعطِ `segmentEmptyText`، واكتب `invalidText` و `unavailableText` حتى حيث لا يعرضهما حقل: فهما يُقرآن مع حقل الإدخال.
+- سمِّ مقبض تغيير الحجم بالخاصية `resizeLabel` وزر المنتقي بالخاصية `pickerLabel`.

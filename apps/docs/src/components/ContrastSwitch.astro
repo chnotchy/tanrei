@@ -1,0 +1,123 @@
+---
+// The page's contrast, chosen in a live example's header: Tanrei's Tabs — three tabs, the word «Contrast» before the
+// row. The row is the quiet one: the tonal variant, without its track — the header is already a bar — small, as the
+// header's other controls are, and with no transition: the choice is drawn in one frame, as what it changes is.
+// A choice changes how everything under the header is drawn, the examples first; the row has no panel of its own,
+// because what it switches is the whole page.
+//
+// What the choice reaches is said by Tanrei's Tooltip around the row, to a pointer that rests on it, to keyboard focus
+// and to a long press. A row of tabs takes no description of its own, and a tooltip describes one control, not a row
+// of them: the tooltip is told not to describe (`no-describe`), and each tab
+// carries the sentence as its description, so that assistive technology hears it on whichever tab it arrives.
+//
+// It sets `data-tanrei-contrast` on <html>. It has to be the root element: component tokens are resolved at :root, so
+// forcing contrast on a subtree would not reach them.
+//
+// The rows of a page are one group (`group`), so each shows the choice made on another, and the choice is kept under
+// the key the head's script reads before the first paint (`remember-as`; astro.config.mjs). The group is the page's
+// own: the color tokens page's `contrast` tab set shows the roles at each contrast in its panels and sets nothing.
+import { contentLang, strings } from '../lib/i18n';
+const t = strings(contentLang(Astro));
+const options = [
+  { value: 'standard', label: t.contrastStandard },
+  { value: 'medium', label: t.contrastMedium },
+  { value: 'high', label: t.contrastHigh },
+];
+---
+
+<tanrei-tooltip class="docs-contrast not-content" text={t.contrastHelp} no-describe>
+  <span class="docs-contrast-set">
+    <span class="docs-contrast-word" aria-hidden="true">{t.contrast}</span>
+    <tanrei-tabs class="docs-contrast-tabs" variant="tonal" track="false" transition="none" size="small" label={t.contrast} group="page-contrast" remember-as="tanrei-docs-contrast" value="standard" data-docs-contrast>
+      {options.map((o) => <tanrei-tab value={o.value} label={o.label} aria-description={t.contrastHelp} />)}
+    </tanrei-tabs>
+  </span>
+</tanrei-tooltip>
+
+<script>
+  import '../lib/register-web';
+
+  const ATTR = 'data-tanrei-contrast';
+  type Row = HTMLElement & { value: string | null };
+
+  // One listener for every row of the page: the row a person chose on says the value. The other rows follow it by
+  // themselves, as members of its group, and the row keeps the choice under its key.
+  document.addEventListener('change', (event) => {
+    const row = event.target as Row;
+    if (!(row instanceof HTMLElement) || !row.matches('[data-docs-contrast]')) return;
+    const value = row.value;
+    if (value === 'medium' || value === 'high') document.documentElement.setAttribute(ATTR, value);
+    else document.documentElement.removeAttribute(ATTR);
+  });
+</script>
+
+<style is:global>
+  /* The site's own arrangement: the word, then the row, on one line. Where a line cannot hold both (large text in a
+     narrow window) the row goes under the word, and a row wider than the line scrolls its tabs inside its track, as
+     Tabs do: nothing here is cut and the page never scrolls sideways for it. */
+  .docs-contrast {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+  .docs-contrast-set {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--tanrei-comp-figure-header-gap);
+    max-inline-size: 100%;
+  }
+  .docs-contrast-word {
+    font: var(--tanrei-comp-tabs-label-typescale-font);
+    letter-spacing: var(--tanrei-comp-tabs-label-typescale-letter-spacing);
+    color: var(--tanrei-sys-color-on-surface-variant);
+    white-space: nowrap;
+  }
+  .docs-contrast-tabs {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+  /* Until the elements are defined: the room the control will take, from the tabs' own tokens of the small size — the
+     track's inset (kept by a row without its track), then each tab as wide as its label and its padding and never
+     narrower than the minimum target, the row as tall as a small tab (the minimum target is met by its hit area, not
+     in layout: TAB-5) — so that nothing in a live example's header moves when the control is drawn. The words are
+     the elements' own attributes. */
+  .docs-contrast:not(:defined) {
+    display: inline-block;
+    vertical-align: middle;
+    visibility: hidden;
+  }
+  /* The tooltip may be defined some frames before the row is: the word waits for the row, and the row's words, which
+     only hold its room, are never drawn. */
+  .docs-contrast-set:has(> .docs-contrast-tabs:not(:defined)) {
+    visibility: hidden;
+  }
+  .docs-contrast-tabs:not(:defined) {
+    box-sizing: border-box;
+    display: flex;
+    padding-inline: var(--tanrei-comp-tabs-track-padding);
+    min-block-size: var(--tanrei-comp-tabs-container-height-small);
+  }
+  .docs-contrast-tabs:not(:defined) > tanrei-tab {
+    box-sizing: border-box;
+    flex: none;
+    min-inline-size: var(--tanrei-sys-target-pointer);
+    padding-inline: var(--tanrei-comp-tabs-container-padding-inline-small);
+    font: var(--tanrei-comp-tabs-label-typescale-font);
+    letter-spacing: var(--tanrei-comp-tabs-label-typescale-letter-spacing);
+    white-space: nowrap;
+  }
+  .docs-contrast-tabs:not(:defined) > tanrei-tab::before {
+    content: attr(label);
+  }
+  @media (pointer: coarse) {
+    .docs-contrast-tabs:not(:defined) > tanrei-tab {
+      min-inline-size: var(--tanrei-sys-target-touch);
+    }
+  }
+  /* Where no script runs nothing can set the page's contrast: the control is not drawn, and takes no room. */
+  @media (scripting: none) {
+    .docs-contrast:not(:defined) {
+      display: none;
+    }
+  }
+</style>

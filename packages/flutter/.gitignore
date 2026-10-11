@@ -1,0 +1,6 @@
+# A library package does not commit its lockfile.
+pubspec.lock
+.dart_tool/
+build/
+# Written by flutter_test when a golden comparison fails.
+test/**/failures/

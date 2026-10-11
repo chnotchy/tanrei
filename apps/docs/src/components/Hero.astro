@@ -1,0 +1,220 @@
+---
+// Replaces Starlight's Hero on splash pages. Copy comes from the page's `hero` frontmatter
+// (so each locale translates it); the platform list and figures come from repository data.
+//
+// The copy is Tanrei's page header at its large size — the eyebrow, the page's own `h1`, the tagline as the
+// description, the actions below the text — and the specimen is Tanrei's Figure: its title names the element and the
+// token namespace shown, its stage holds the Buttons, and the strip of color roles is the block joined under the stage.
+// Both are drawn by their stylesheets before their elements are defined.
+import { config, platforms, statusComponents, specs } from '../lib/repo';
+import { contextIds } from '../lib/tokens';
+import { contentLang, strings } from '../lib/i18n';
+import { destination, linkAttribute } from '../lib/link';
+import { figureId } from '../lib/figure-id';
+import { specimenFixtures } from '../lib/fixtures';
+
+const { data } = Astro.locals.starlightRoute.entry;
+const { title = data.title, tagline = undefined, actions = [] } = data.hero ?? {};
+const lang = contentLang(Astro);
+const t = strings(lang);
+
+const figures = [
+  { value: platforms.length, label: t.heroPlatforms },
+  { value: statusComponents.length, label: t.heroPlanned },
+  { value: Object.keys(specs).length, label: t.heroSpecified },
+  { value: contextIds.length, label: t.heroContexts },
+];
+// The specimen's Buttons, as the Specs tab draws a fixture (lib/fixtures.ts): the element's own attributes and its
+// slots, so an icon button has its icon; no link, no toggle state, one width.
+const demoFixtures = specs.button ? specimenFixtures(specs.button) : [];
+const tag = specs.button?.platforms.web?.name;
+
+// The actions are Tanrei Buttons with a destination — links, not buttons — in the hierarchy the page's
+// frontmatter names: the primary action filled, the secondary outlined, a minimal one text.
+const VARIANTS: Record<string, string> = { primary: 'filled', secondary: 'outlined', minimal: 'text' };
+const fallback = { [linkAttribute]: '' };
+const specimenTitle = `${figureId(Astro)}-title`;
+---
+
+<div class="hero not-content">
+  <tanrei-page-header class="copy" size="large" actions-placement="below">
+    <p data-part="eyebrow">{t.heroEyebrow} · v{config.version}</p>
+    <h1 id="_top" set:html={title} />
+    {tagline && <p set:html={tagline} />}
+    {actions.length > 0 && (
+      <div data-part="actions">
+        {actions.map(({ link, text, variant }) => {
+          const { props } = destination(link, t.opensInNewTab);
+          // The plain anchor is the link until the Button is defined, and for a reader without script (lib/link-fallback.ts).
+          return (
+            <>
+              <tanrei-button class="action" variant={VARIANTS[variant] ?? 'outlined'} size="large" {...props}>
+                <a href={link} {...fallback}>{text}</a>
+              </tanrei-button>{' '}
+            </>
+          );
+        })}
+      </div>
+    )}
+  </tanrei-page-header>
+
+  <tanrei-figure class="specimen" aria-hidden={tag ? undefined : 'true'}>
+    <figure aria-labelledby={specimenTitle}>
+      <div data-part="frame">
+        <header>
+          <p data-part="title" id={specimenTitle} class="specimen-title">
+            <span>{tag ? `<${tag}>` : ''}</span>{' '}
+            <span>{config.namespace}.comp.button</span>
+          </p>
+        </header>
+        <div data-part="stage" class="specimen-stage" data-pagefind-ignore>
+          {tag && <Fragment set:html={demoFixtures.join('')} />}
+        </div>
+        <div data-part="attachment" class="swatches">
+          {['primary', 'surface-container-high', 'outline', 'accent', 'error'].map((role) => (
+            <span title={`${config.web.cssPrefix}-sys-color-${role}`} style={`background: var(${config.web.cssPrefix}-sys-color-${role})`} />
+          ))}
+        </div>
+      </div>
+    </figure>
+  </tanrei-figure>
+
+  <ul class="platforms" aria-label={t.platformsLabel}>
+    {platforms.map((p) => <li>{t.platform[p] ?? p}</li>)}
+  </ul>
+
+  <tanrei-description-list class="figures" layout="stat" columns="4" separation="gap">
+    <dl>
+      {figures.map((f) => (
+        <div>
+          <dt>{f.label}</dt>
+          <dd>{f.value}</dd>
+        </div>
+      ))}
+    </dl>
+  </tanrei-description-list>
+</div>
+
+<script>
+  import '../lib/register-web';
+  import '@tanrei/web/components/page-header';
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+    padding-block: clamp(2rem, 6vw, 5rem) 1rem;
+  }
+  @media (min-width: 60rem) {
+    .hero {
+      /* The copy's share leaves the three actions one line: a text Button keeps the padding of its size. */
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      align-items: center;
+      column-gap: 4rem;
+    }
+    .platforms,
+    .figures {
+      grid-column: 1 / -1;
+    }
+  }
+  /* The copy — the eyebrow, the title, the tagline and the row of actions with their spaces — is the page header's
+     (`@tanrei/web/page-header.css`): nothing of it is styled here. */
+  /* Until the Button is defined: its room, from its own tokens, around the plain link — so that nothing moves when it
+     is drawn. */
+  .action:not(:defined) {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--tanrei-comp-button-container-height-large);
+    padding-inline: var(--tanrei-comp-button-container-padding-inline-start-large) var(--tanrei-comp-button-container-padding-inline-end-large);
+    font: var(--tanrei-comp-button-label-typescale-large-font);
+    letter-spacing: var(--tanrei-comp-button-label-typescale-large-letter-spacing);
+  }
+  .action > a {
+    color: var(--tanrei-sys-color-on-surface);
+  }
+
+  /* The specimen's frame, header, stage box and the line above the swatches are the Figure's
+     (`@tanrei/web/figure.css`). The site's own: the larger corner and the shadow that lift it off the landing page,
+     the two names at either end of its title, the row of Buttons on the grid, and the strip of roles. */
+  .specimen {
+    --tanrei-comp-figure-container-shape: var(--tanrei-sys-shape-corner-large);
+  }
+  .specimen :global([data-part='frame']) {
+    box-shadow: var(--tanrei-sys-elevation-level2);
+  }
+  .specimen-title {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 var(--tanrei-comp-figure-header-gap);
+  }
+  .specimen-stage {
+    position: relative;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    min-block-size: 9rem;
+  }
+  .specimen-stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--tanrei-sys-color-outline-variant) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--tanrei-sys-color-outline-variant) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: center;
+    mask-image: radial-gradient(ellipse at center, transparent 35%, #000 100%);
+  }
+  .specimen-stage > :global(*) {
+    position: relative;
+  }
+  .specimen-stage :global(:not(:defined)) {
+    visibility: hidden;
+  }
+  .swatches {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    block-size: 0.5rem;
+  }
+
+  .platforms {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-block: var(--docs-hairline-dashed);
+  }
+  .platforms li {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 0.875rem 1rem;
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-xs);
+    text-align: center;
+    color: var(--tanrei-sys-color-on-surface-variant);
+    border-inline-start: var(--docs-hairline-dashed);
+  }
+  .platforms li:first-child {
+    border-inline-start: 0;
+  }
+  @media (max-width: 40rem) {
+    .platforms li {
+      flex-basis: 50%;
+      box-sizing: border-box;
+      text-align: start;
+      border-inline-start: 0;
+    }
+  }
+
+  /* Decoration must not get louder when contrast is raised. */
+  :global(:root[data-tanrei-contrast]) .specimen-stage::before {
+    opacity: 0.3;
+  }
+</style>

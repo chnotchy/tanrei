@@ -1,0 +1,197 @@
+---
+title: "嵌入式文本输入框"
+description: "只有键入的部分，用于由别的东西来绘制的方框。文本、占位符、插入点和选区，排成一行，或者排成带着动效增减的若干行。它不绘制容器、边缘、标签和焦点指示。方框由容纳它的东西来绘制，焦点也由那个东西来显示。"
+translationOf: components/embedded-text-input.mdx
+sourceHash: d4617a2417ef3e2af9c2ed1dcbc0776ac44b4e8a
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+
+## 概览
+
+<ComponentAvailability name="embedded-text-input" />
+
+<DemoFrame label="页面自己绘制的方框里的一个嵌入式文本输入框。键入几行试试：方框的高度会跟着变化。焦点由方框的边缘来显示。" column>
+  <div class="not-content docs-embedded-holder" style="box-sizing: border-box; inline-size: 22.5rem; max-inline-size: 100%; background: var(--tanrei-sys-color-surface-container); border-radius: var(--tanrei-sys-shape-corner-large); padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); cursor: text">
+    <tanrei-embedded-text-input label="消息" placeholder="输入消息" multiline max-rows="6"></tanrei-embedded-text-input>
+  </div>
+</DemoFrame>
+
+<style>{`
+  .docs-embedded-holder { outline: var(--tanrei-sys-border-thick) solid transparent; outline-offset: calc(-1 * var(--tanrei-sys-border-thick)); }
+  .docs-embedded-holder:focus-within { outline-color: var(--tanrei-sys-color-focus-ring); }
+  @media (forced-colors: active) {
+    .docs-embedded-holder { outline-color: CanvasText; }
+    .docs-embedded-holder:focus-within { outline-color: Highlight; }
+  }
+`}</style>
+
+嵌入式文本输入框只是半个控件。它是用户键入的地方，周围什么都没有：没有填充，没有边缘，没有内边距，没有标签，没有消息。另一半是**宿主**：围在键入部分外面的那个方框。Tanrei 的组件可以充当宿主，[聊天输入栏](/zh-cn/components/chat-composer/)就是这样。你自己的标记也可以充当宿主。
+
+大多数产品从不直接放置它。方框里除了文本还有别的东西时才用它：旁边带有操作的消息、搜索栏、就地编辑的标题。
+
+以下情况请改用别的组件：
+
+- 方框就是文本字段的方框。那是[文本输入框](/zh-cn/components/text-input/)，或者带有标签和各种消息的[文本字段](/zh-cn/components/text-field/)。
+- 用户写一条消息并把它发出去。那是[聊天输入栏](/zh-cn/components/chat-composer/)，它就是用这个组件搭建的。
+- 值是一个只回填一次的简短验证码。那是[一次性验证码输入框](/zh-cn/components/one-time-code-input/)。
+
+<Callout type="caution" title="宿主必须显示焦点">
+无论设计系统的焦点样式是什么，嵌入式文本输入框都不绘制焦点指示。它的插入点不算焦点指示：那只是一条细线，选中文本时不绘制，也说明不了正在哪个方框里键入。宿主如果不在自己的方框上显示焦点，就不符合 WCAG 2.4.7。在 Web 上，一条针对 `:focus-within` 的规则就够了。
+</Callout>
+
+在 Web 上它是 `<tanrei-embedded-text-input>`。其他平台尚未实现。
+
+### 用法
+
+方框、它的内边距和它的焦点指示都由你负责。三条声明就能把它们写全。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="capsule">
+      <tanrei-embedded-text-input label="消息" placeholder="输入消息"
+                                  multiline max-rows="6"></tanrei-embedded-text-input>
+    </div>
+    ```
+
+    ```css
+    .capsule {
+      background: var(--tanrei-sys-color-surface-container);
+      border-radius: var(--tanrei-sys-shape-corner-large);
+      padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200);
+      outline: var(--tanrei-sys-border-thick) solid transparent;
+      outline-offset: calc(-1 * var(--tanrei-sys-border-thick));
+      cursor: text;
+    }
+    .capsule:focus-within { outline-color: var(--tanrei-sys-color-focus-ring); }
+    @media (forced-colors: active) {
+      .capsule { outline-color: CanvasText; }
+      .capsule:focus-within { outline-color: Highlight; }
+    }
+    ```
+
+    ```js
+    // 按在内边距上，就等于按在文本上。
+    capsule.addEventListener('mousedown', (event) => {
+      if (event.target !== capsule) return;
+      event.preventDefault();
+      input.focusAt(event.clientX, event.clientY);
+    });
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { EmbeddedTextInput } from '@tanrei/react';
+
+    <div className="capsule">
+      <EmbeddedTextInput label="消息" placeholder="输入消息" multiline maxRows={6}
+                         onAction={(event) => send(event.detail.value)} />
+    </div>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+### 宿主要负责的事
+
+| 事项 | 宿主提供 | 输入框提供给宿主 |
+| --- | --- | --- |
+| 方框 | 一个可见的方框，或者一个看起来像方框的位置 | 文本后面什么都没有：宿主的填充会透出来 |
+| 焦点 | 画在方框上的焦点指示，只要输入框有焦点就一直显示，无论它是怎样获得焦点的 | `focusin` 和 `focusout`，以及元素上的 `:focus-within` |
+| 状态 | 错误的标记，以及方框禁用时的外观 | `error` 暴露无效状态，但什么都不绘制。`disabled` 把文本画成禁用的内容 |
+| 内边距 | 文本周围的内边距，并把按在内边距上的操作转交过来 | 没有自己的内边距，点击区域达到最小目标，以及 `focusAt(x, y)` |
+| 名称 | 名称，以及它的各种消息所说的内容 | `label`（必须给出）和 `description`，两者都是文本 |
+| 操作 | 操作是什么：发送、添加、搜索、保存 | `action` 事件，它本身不对这个事件做任何处理 |
+| 强制颜色模式 | 方框的边线，以及用系统颜色画出的焦点指示 | 它自己的文本、占位符、选区和插入点采用系统的颜色 |
+
+### 高度
+
+设置 `multiline` 后，输入框的高度正好等于它的各行，介于 `minRows`（默认为 1）和 `maxRows`（默认为 0，即不限）之间。超过 `maxRows` 后，文本在它里面滚动。
+
+- 因值而引起的行数变化，在 `comp.embedded-text-input.motion.resize-duration` 的时长内完成。无论一次多出多少行，都只是一段动效。
+- 在每一帧里，输入框在布局中占的高度就是动效进行到那一刻的高度。按内容确定自身尺寸的宿主不需要任何代码就能跟上。
+- 以下情况下变化会立即完成：输入框第一次绘制时、它的宽度或文字大小发生变化时、指针在文本里按住不放时，以及减弱了动态效果的地方。
+- `rowschange` 在动效开始之前说明输入框将要显示多少行。`rows` 随时可以读取这个数目。
+
+### Enter
+
+| 输入框 | Enter | Shift+Enter | Ctrl+Enter、Command+Enter |
+| --- | --- | --- | --- |
+| 单行 | `action` | — | `action` |
+| 多行，`enterKey="line-break"`（默认） | 换行 | 换行 | `action` |
+| 多行，`enterKey="action"` | `action` | 换行 | `action` |
+
+输入法的 Enter 用来选择候选或确认文本。它绝不触发 `action`。在多行输入框里，屏幕键盘的换行键总是另起一行。
+
+`action` 带有值，输入框除此之外什么都不做。它保留自己的值、选区和焦点。
+
+<ComponentSpecs name="embedded-text-input" />
+
+### Web 上绘制方式的不同之处
+
+- 屏幕键盘和实体键盘无法区分。在主指针是粗略指针、并且不能悬停的地方，Enter 被当作屏幕键盘的换行键，另起一行。因此，接了键盘的平板电脑要用 Ctrl+Enter 或 Command+Enter 来执行操作。
+- 在浏览器说得出某个点上是哪个字符的地方，`focusAt(x, y)` 把插入点放到最近的字符处。浏览器说不出时，这个点在文本上方或之前，插入点就放到文本开头；否则放到文本末尾。
+- 在它自己的表单里，它是表单的控件之一：它在 `name` 之下提交自己的值。在作为 Tanrei 组件的宿主里，它没有表单，值由宿主来携带。
+- 没有脚本时，你写成它的子元素的 `<textarea>` 或 `<input>` 就是控件。元素完成定义时，它取走那个子元素的文本，并把子元素隐藏起来。
+
+## 指南
+
+### 嵌入式文本输入框还是文本输入框
+
+| 方面 | 嵌入式文本输入框 | 文本输入框 |
+| --- | --- | --- |
+| 方框 | 宿主自己的方框，别处都不绘制 | 文本字段的方框，具备设计系统的每一种外观和尺寸 |
+| 焦点 | 由宿主显示 | 由输入框自己显示 |
+| 标签和消息 | 由宿主以文本的形式传进来 | 它自己的，或者所在字段的 |
+| 类型 | 文本、搜索、电子邮件、URL、电话 | 这些之外，还有密码、数字、日期、时间和代码 |
+
+### 推荐
+
+- 给它一个 `label`。没有别的东西为它命名。
+- 把帮助文本、错误文本或计数所说的内容，以文本的形式放进 `description`。
+- 把错误标记在方框上。同时把 `error` 传给输入框，让它暴露为无效。
+- 宿主位于小屏幕底部时，设置 `maxRows`。
+- 让文字保持在 16 px 或更大。触摸设备的浏览器会放大更小的文字。
+
+### 避免
+
+- 不要在需要文本字段的方框的地方使用它。请使用文本输入框。
+- 不要在输入框上再画一个焦点环。焦点由方框显示一次。
+- 不要自己给宿主的高度做动效。它会跟随输入框的高度。
+- 不要把占位符当作名称。
+- 不要在输入法用到的 Enter 上发送。请监听 `action`，它已经把这些按键排除在外。
+
+## 无障碍
+
+<ComponentAccessibility name="embedded-text-input" />
+
+### 组件负责的部分
+
+- 它是一个文本框，`multiline` 为 true 时是多行文本框。它的名称是 `label`，它的描述是 `description`。
+- 它根据同名的属性暴露为无效、必填、只读和禁用。
+- 占位符绝不是名称。
+- 对 Tab 键来说，它只是一个停靠点。Tab 绝不插入字符，Escape 留给宿主。
+- 输入法的 Enter 绝不触发 `action`。
+- 点击区域在各行的上方和下方都达到最小目标，并且不改变它的尺寸。
+- 文本放大到 200% 时，多行输入框会换行，并显示每一个字符。没有任何内容横向滚动。
+- 在强制颜色模式下，它的文本、占位符、选区和插入点采用系统的颜色。
+- 在任何语言里，它都没有自己的文字。
+
+Web 上的已知差距：
+
+- 输入法在 Chromium 中实际操作过，在 Firefox 和 Safari 中则只是用它们的事件模拟的。
+- 是否有屏幕键盘，是根据主指针是粗略指针并且不能悬停推测出来的。对接了键盘的平板电脑来说，这个推测是错的。
+
+### 需要你做的事
+
+- 画一个方框，并且只要输入框有焦点，就在方框上显示焦点。焦点指示与它所在的背景之间，对比度要保持在 3:1 或以上。
+- 给输入框一个 `label`，用的是用户自己称呼这个方框时会说的词。
+- 在方框旁边用文字说明错误，并把这些文字放进 `description` 传进去。
+- 在强制颜色模式下，给方框一道采用系统文本颜色的边线，并让它的焦点指示采用高亮颜色。

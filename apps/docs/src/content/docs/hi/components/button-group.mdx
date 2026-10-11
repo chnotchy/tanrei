@@ -1,0 +1,378 @@
+---
+title: बटन ग्रुप
+description: कुछ संबंधित बटनों को एक पंक्ति या एक कॉलम में रखता है, अलग-अलग दूरी पर या एक ही शेप में जोड़कर, काम पूरा करने वाली और पीछे हटने वाली क्रियाओं को वहाँ रखता है जहाँ लोग उनकी उम्मीद करते हैं, और बटनों को एक ग्रुप के रूप में नाम देता है।
+translationOf: components/button-group.mdx
+sourceHash: c06ddd9b183514fe5cde84fd2dfb883e35f2c0ec
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="button-group" />
+
+<DemoFrame label="Standard और connected">
+  <tanrei-button-group>
+    <tanrei-button variant="outlined">रद्द करें</tanrei-button>
+    <tanrei-button variant="tonal">ड्राफ़्ट सेव करें</tanrei-button>
+    <tanrei-button variant="filled">प्रकाशित करें</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="टेक्स्ट स्टाइल">
+    <tanrei-button variant="tonal" toggle selected label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="tonal" toggle label="अंडरलाइन"><span slot="icon">format_underlined</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+### इस्तेमाल
+
+आइटम वही [बटन](/hi/components/button/) हैं जो आप पहले से इस्तेमाल करते हैं, लेबल वाले या सिर्फ़ आइकन वाले, अपनी प्रॉपर्टी और इवेंट के साथ। ग्रुप सिर्फ़ उन्हें जगह पर रखता है, connected होने पर उन्हें जोड़ता है, और लेबल होने पर उन्हें नाम देता है।
+
+Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं। SwiftUI, Compose, Flutter और React Native पीछे हैं: वे अभी बटन ग्रुप का पिछला संशोधन देते हैं, जो एक अकेली पंक्ति है, जिसमें `orientation`, `fullWidth`, `separation` या क्रम वाले फ़्लैग नहीं हैं, जिसके connected आइटम हमेशा एक सँकरे गैप की दूरी पर रहते हैं, और जिसके सिर्फ़ आइकन वाले आइटम एक अलग आइकन बटन हैं। जब तक वे बराबरी पर नहीं आते, उनके उदाहरण वही संशोधन दिखाते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- dismissive पंक्ति के शुरू में जाता है, confirming उसके अंत में; कॉलम में दोनों जगह बदल लेते हैं। -->
+    <tanrei-button-group>
+      <tanrei-button variant="outlined" dismissive>रद्द करें</tanrei-button>
+      <tanrei-button variant="tonal">ड्राफ़्ट सेव करें</tanrei-button>
+      <tanrei-button variant="filled" confirming>प्रकाशित करें</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- अपने कंटेनर जितना चौड़ा कॉलम: "अनुमति दें" "अभी नहीं" के ऊपर बनता है। -->
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>अभी नहीं</tanrei-button>
+      <tanrei-button variant="tonal" confirming>अनुमति दें</tanrei-button>
+    </tanrei-button-group>
+
+    <!-- लेबल ग्रुप को नाम देता है। हर टॉगल अपना selected ख़ुद रखता है। -->
+    <tanrei-button-group variant="connected" label="टेक्स्ट स्टाइल">
+      <tanrei-button variant="tonal" toggle label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
+      <tanrei-button variant="tonal" toggle label="अंडरलाइन"><span slot="icon">format_underlined</span></tanrei-button>
+    </tanrei-button-group>
+
+    <script type="module">
+      import '@tanrei/web/components/button-group';
+      import '@tanrei/web/components/button';
+      // ग्रुप अपना कोई इवेंट फ़ायर नहीं करता: हर जगह की तरह, बटनों पर सुनें।
+      document.querySelector('[label="बोल्ड"]').addEventListener('change', (e) => setBold(e.detail.selected));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, ButtonGroup } from '@tanrei/react';
+
+    // confirming और dismissive वे ऐट्रिब्यूट हैं जिन्हें ग्रुप अपने चाइल्ड से पढ़ता है।
+    <ButtonGroup>
+      <Button variant="outlined" dismissive onClick={cancel}>रद्द करें</Button>
+      <Button variant="tonal" onClick={saveDraft}>ड्राफ़्ट सेव करें</Button>
+      <Button variant="filled" confirming onClick={publish}>प्रकाशित करें</Button>
+    </ButtonGroup>
+
+    <ButtonGroup orientation="vertical" fullWidth>
+      <Button variant="tonal" dismissive onClick={notNow}>अभी नहीं</Button>
+      <Button variant="tonal" confirming onClick={allow}>अनुमति दें</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" label="टेक्स्ट स्टाइल">
+      <Button variant="tonal" toggle selected={bold} label="बोल्ड" onChange={(e) => setBold(e.detail.selected)}><span slot="icon">format_bold</span></Button>
+      <Button variant="tonal" toggle selected={italic} label="इटैलिक" onChange={(e) => setItalic(e.detail.selected)}><span slot="icon">format_italic</span></Button>
+    </ButtonGroup>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButtonGroup {
+        TanreiButton("रद्द करें", variant: .outlined) { cancel() }
+        TanreiButton("ड्राफ़्ट सेव करें", variant: .tonal) { saveDraft() }
+        TanreiButton("प्रकाशित करें") { publish() }
+    }
+
+    TanreiButtonGroup(variant: .connected, label: "टेक्स्ट स्टाइल") {
+        TanreiIconButton("बोल्ड", isSelected: $bold, variant: .tonal) { Image(systemName: "bold") }
+        TanreiIconButton("इटैलिक", isSelected: $italic, variant: .tonal) { Image(systemName: "italic") }
+        TanreiIconButton("अंडरलाइन", isSelected: $underline, variant: .tonal) { Image(systemName: "underline") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiButton
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroup
+    import io.github.chnotchy.tanrei.components.TanreiButtonGroupVariant
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiIconButtonVariant
+
+    TanreiButtonGroup {
+        TanreiButton(text = "रद्द करें", onClick = ::cancel, variant = TanreiButtonVariant.Outlined)
+        TanreiButton(text = "ड्राफ़्ट सेव करें", onClick = ::saveDraft, variant = TanreiButtonVariant.Tonal)
+        TanreiButton(text = "प्रकाशित करें", onClick = ::publish)
+    }
+
+    // contentDescription ग्रुप को नाम देता है। Compose में ग्रुप का कोई रोल नहीं है: यह एक ट्रैवर्सल ग्रुप है।
+    TanreiButtonGroup(variant = TanreiButtonGroupVariant.Connected, contentDescription = "टेक्स्ट स्टाइल") {
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "बोल्ड",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = bold,
+            onCheckedChange = { bold = it },
+        ) { TanreiText("format_bold") }
+        TanreiIconButton(
+            onClick = {},
+            contentDescription = "इटैलिक",
+            variant = TanreiIconButtonVariant.Tonal,
+            checked = italic,
+            onCheckedChange = { italic = it },
+        ) { TanreiText("format_italic") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButtonGroup(
+      children: <Widget>[
+        TanreiButton(variant: TanreiButtonVariant.outlined, onPressed: cancel, child: const Text('रद्द करें')),
+        TanreiButton(variant: TanreiButtonVariant.tonal, onPressed: saveDraft, child: const Text('ड्राफ़्ट सेव करें')),
+        TanreiButton(onPressed: publish, child: const Text('प्रकाशित करें')),
+      ],
+    );
+
+    TanreiButtonGroup(
+      variant: TanreiButtonGroupVariant.connected,
+      semanticLabel: 'टेक्स्ट स्टाइल',
+      children: <Widget>[
+        TanreiIconButton(
+          isSelected: bold,
+          onPressed: () => setState(() => bold = !bold),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: 'बोल्ड',
+          icon: const Icon(AppSymbols.formatBold),
+        ),
+        TanreiIconButton(
+          isSelected: italic,
+          onPressed: () => setState(() => italic = !italic),
+          variant: TanreiIconButtonVariant.tonal,
+          semanticLabel: 'इटैलिक',
+          icon: const Icon(AppSymbols.formatItalic),
+        ),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button, ButtonGroup, IconButton } from '@tanrei/react-native';
+
+    <ButtonGroup>
+      <Button variant="outlined" onPress={cancel}>रद्द करें</Button>
+      <Button variant="tonal" onPress={saveDraft}>ड्राफ़्ट सेव करें</Button>
+      <Button onPress={publish}>प्रकाशित करें</Button>
+    </ButtonGroup>
+
+    <ButtonGroup variant="connected" accessibilityLabel="टेक्स्ट स्टाइल">
+      <IconButton variant="tonal" accessibilityLabel="बोल्ड" toggle selected={bold} onSelectedChange={setBold}>
+        format_bold
+      </IconButton>
+      <IconButton variant="tonal" accessibilityLabel="इटैलिक" toggle selected={italic} onSelectedChange={setItalic}>
+        format_italic
+      </IconButton>
+    </ButtonGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+### पंक्ति या कॉलम, और क्रियाओं का क्रम
+
+`orientation` बटनों को एक पंक्ति में रखता है (`horizontal`, डिफ़ॉल्ट) या उन्हें एक कॉलम में ऊपर-नीचे रखता है (`vertical`), जहाँ हर बटन कॉलम जितना चौड़ा होता है। `fullWidth` से ग्रुप अपने कंटेनर को भर देता है: पंक्ति के बटन चौड़ाई को बराबर बाँट लेते हैं, और कॉलम का हर बटन उतना ही चौड़ा होता है। किसी शीट या सँकरे पैनल के निचले हिस्से की क्रियाओं के लिए यही रूप है।
+
+बटन पर लगे दो फ़्लैग ग्रुप को बताते हैं कि उसकी जगह कहाँ है, ताकि दोनों ओरिएंटेशन आपस में मेल खाते रहें:
+
+| फ़्लैग | बटन | पंक्ति में | कॉलम में |
+| --- | --- | --- | --- |
+| `confirming` | काम को पूरा करता है: ठीक है, सेव करें, आगे, हटाएँ | अंत में | सबसे ऊपर |
+| `dismissive` | उससे पीछे हटता है: रद्द करें, पीछे, अभी नहीं | शुरू में | सबसे नीचे |
+| दोनों में से कोई नहीं | बाक़ी सब कुछ | इन दोनों के बीच, दिए गए क्रम में | इन दोनों के बीच, दिए गए क्रम में |
+
+<DemoFrame label="वही तीन बटन, एक पंक्ति में और एक कॉलम में" plain>
+  <tanrei-button-group>
+    <tanrei-button variant="outlined" dismissive>रद्द करें</tanrei-button>
+    <tanrei-button variant="tonal">ड्राफ़्ट सेव करें</tanrei-button>
+    <tanrei-button variant="filled" confirming>प्रकाशित करें</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group orientation="vertical">
+    <tanrei-button variant="outlined" dismissive>रद्द करें</tanrei-button>
+    <tanrei-button variant="tonal">ड्राफ़्ट सेव करें</tanrei-button>
+    <tanrei-button variant="filled" confirming>प्रकाशित करें</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<DemoFrame label="पूरी चौड़ाई: चौड़ाई बाँटने वाली पंक्ति, और एक कॉलम" plain column>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group full-width>
+      <tanrei-button variant="tonal" dismissive>अभी नहीं</tanrei-button>
+      <tanrei-button variant="tonal" confirming>अनुमति दें</tanrei-button>
+    </tanrei-button-group>
+  </div>
+  <div style="inline-size: 20rem">
+    <tanrei-button-group orientation="vertical" full-width>
+      <tanrei-button variant="tonal" dismissive>अभी नहीं</tanrei-button>
+      <tanrei-button variant="tonal" confirming>अनुमति दें</tanrei-button>
+    </tanrei-button-group>
+  </div>
+</DemoFrame>
+
+कीबोर्ड फ़ोकस और स्क्रीन रीडर उसी क्रम में चलते हैं जिसमें बटन रखे गए हैं, इसलिए हर किसी को क्रियाएँ उसी क्रम में मिलती हैं जिसमें वे बनी हैं। फ़्लैग काम का वर्णन करते हैं, लहजे का नहीं: "रद्द करें · हटाएँ" में "हटाएँ" confirming वाला है। विनाशकारी क्रिया अपने रूप और लेबल से पहचानी जाती है, अपनी जगह से नहीं। [डायलॉग](/hi/components/dialog/) और [साइड शीट](/hi/components/side-sheet/) अपनी क्रियाओं को इन्हीं दो फ़्लैग से जगह देते हैं।
+
+### डिवाइडर से जुड़े या गैप से
+
+connected ग्रुप अपने बटनों को दो में से एक तरीक़े से जोड़ता है। **डिवाइडर** के साथ बटन एक-दूसरे को छूते हैं, जहाँ वे मिलते हैं वहाँ उनके कोने चौकोर होते हैं, और हर जोड़ पर एक रेखा होती है। **गैप** के साथ वे एक सँकरे गैप की दूरी पर रहते हैं, और जहाँ वे आमने-सामने होते हैं वहाँ उनके कोने ज़्यादा कसे हुए होते हैं। डिज़ाइन सिस्टम यह चुनाव एक बार उन सभी कंपोनेंट के लिए करता है जो भागों को जोड़ते हैं (डिफ़ॉल्ट सिस्टम डिवाइडर बनाता है), कोई डिज़ाइन सिस्टम बटन ग्रुप के लिए अलग चुनाव कर सकता है, और `separation` (`auto`, `divider`, `gap`) किसी एक ग्रुप के लिए इसे तय करता है। standard ग्रुप इसे अनदेखा करता है।
+
+<DemoFrame label="डिवाइडर से और गैप से जुड़े हुए, पंक्ति में और कॉलम में" plain>
+  <tanrei-button-group variant="connected" separation="divider" label="क्लिपबोर्ड">
+    <tanrei-button variant="outlined">काटें</tanrei-button>
+    <tanrei-button variant="outlined">कॉपी करें</tanrei-button>
+    <tanrei-button variant="outlined">पेस्ट करें</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" separation="gap" label="क्लिपबोर्ड">
+    <tanrei-button variant="outlined">काटें</tanrei-button>
+    <tanrei-button variant="outlined">कॉपी करें</tanrei-button>
+    <tanrei-button variant="outlined">पेस्ट करें</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="divider" label="ज़ूम">
+    <tanrei-button variant="tonal" label="ज़ूम इन करें"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="ज़ूम आउट करें"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" orientation="vertical" separation="gap" label="ज़ूम">
+    <tanrei-button variant="tonal" label="ज़ूम इन करें"><span slot="icon">add</span></tanrei-button>
+    <tanrei-button variant="tonal" label="ज़ूम आउट करें"><span slot="icon">remove</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+डिवाइडर के साथ, जोड़ पर रेखा सिर्फ़ वहाँ होती है जहाँ दोनों बटन एक ही फ़िल पर टिके हों। चयनित और अचयनित टॉगल के बीच, या filled और outlined बटन के बीच, फ़िल का किनारा ही जोड़ को दिखा देता है, इसलिए वहाँ कोई रेखा नहीं बनती।
+
+<DemoFrame label="डिवाइडर से जुड़े टॉगल: चयनित टॉगल के बग़ल में कोई रेखा नहीं" plain>
+  <tanrei-button-group variant="connected" label="टेक्स्ट स्टाइल">
+    <tanrei-button variant="outlined" toggle label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle selected label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="अंडरलाइन"><span slot="icon">format_underlined</span></tanrei-button>
+    <tanrei-button variant="outlined" toggle label="स्ट्राइकथ्रू"><span slot="icon">format_strikethrough</span></tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+## स्पेक
+
+<DemoFrame label="Connected: outlined, large और एक अक्षम आइटम के साथ" plain>
+  <tanrei-button-group variant="connected" label="क्लिपबोर्ड">
+    <tanrei-button variant="outlined">काटें</tanrei-button>
+    <tanrei-button variant="outlined">कॉपी करें</tanrei-button>
+    <tanrei-button variant="outlined">पेस्ट करें</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="तारीख़">
+    <tanrei-button variant="tonal" size="large">पिछला</tanrei-button>
+    <tanrei-button variant="tonal" size="large">आज</tanrei-button>
+    <tanrei-button variant="tonal" size="large">अगला</tanrei-button>
+  </tanrei-button-group>
+  <tanrei-button-group variant="connected" label="क्लिपबोर्ड">
+    <tanrei-button variant="outlined">काटें</tanrei-button>
+    <tanrei-button variant="outlined" disabled>कॉपी करें</tanrei-button>
+    <tanrei-button variant="outlined">पेस्ट करें</tanrei-button>
+  </tanrei-button-group>
+</DemoFrame>
+
+<ComponentSpecs name="button-group" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+बटन ग्रुप तब इस्तेमाल करें जब कुछ बटन एक साथ के हों: फ़ॉर्म का अंत ("रद्द करें", "ड्राफ़्ट सेव करें", "प्रकाशित करें"), एडिटर की फ़ॉर्मैटिंग ("बोल्ड", "इटैलिक", "अंडरलाइन"), कैलेंडर के "पिछला", "आज" और "अगला"। ग्रुप उनकी स्पेसिंग तय करता है, जब वे एक सेट हों तो उन्हें जोड़ता है, और जहाँ इससे मदद मिले वहाँ उन्हें नाम देता है। हर बटन एक बटन ही रहता है।
+
+मौजूदा स्क्रीन या चयन के लिए क्रियाओं की वह पंक्ति, जिस तक एक ही Tab स्टॉप से पहुँचा जाता है और जिसमें ऐरो कुंजियाँ एक से दूसरी क्रिया पर ले जाती हैं, एक [टूलबार](/hi/components/toolbar/) है। अपने ही अलग-अलग रूपों के मेन्यू से जुड़ी मुख्य क्रिया एक [मेन्यू वाला बटन](/hi/components/button-with-menu/) है: वह दो बटनों के connected ग्रुप जैसा दिखता है, पर उसका दूसरा आधा हिस्सा हमेशा एक मेन्यू खोलता है।
+
+### सेगमेंटेड बटन, बटन ग्रुप, चिप या टैब
+
+ये चारों कुछ संबंधित चीज़ों को एक पंक्ति में रखते हैं, इसलिए इनमें आसानी से भ्रम हो जाता है। फ़र्क़ इसमें है कि दबाने पर क्या होता है और कीबोर्ड इनके भीतर कैसे चलता है।
+
+| कंपोनेंट | यह क्या है | चयन | कीबोर्ड | किसके लिए इस्तेमाल करें |
+| --- | --- | --- | --- | --- |
+| [सेगमेंटेड बटन](/hi/components/segmented-button/) (Material और cupertino प्रीसेट; Tanrei सिस्टम में नहीं) | एक कंट्रोल: आपस में जुड़े दो से पाँच विकल्प, जो एक ही सवाल का जवाब देते हैं। | इसका अपना, मान के आधार पर: एक विकल्प, या कई। | एक Tab स्टॉप। ऐरो कुंजियाँ विकल्पों के बीच ले जाती हैं, और एकल चयन में वे चुनती भी हैं। | कुछ तय जवाबों वाली सेटिंग, जो तुरंत लागू होती है: दिन, हफ़्ता, महीना; बाएँ, बीच में, दाएँ। |
+| [बटन ग्रुप](/hi/components/button-group/) | अलग-अलग बटनों की एक पंक्ति या एक कॉलम, अलग-अलग दूरी पर या एक ही शेप में जुड़े हुए। | कोई नहीं। ग्रुप का टॉगल बटन अपना चालू या बंद स्टेट ख़ुद रखता है। | हर बटन अपना अलग Tab स्टॉप है। | संबंधित क्रियाएँ: रद्द करें, ड्राफ़्ट सेव करें, प्रकाशित करें; एक-दूसरे से स्वतंत्र टॉगल के रूप में बोल्ड, इटैलिक और अंडरलाइन। |
+| [चिप](/hi/components/chip/) | एक पंक्ति में अलग-अलग छोटे कंट्रोल, जो अगली पंक्ति में जाती है या स्क्रॉल होती है। | हर फ़िल्टर चिप अपने आप में चालू या बंद होता है। | हर चिप अपना अलग Tab स्टॉप है। | लिस्ट के ऊपर के फ़िल्टर, सुझाए गए जवाब, व्यक्ति के डाले हुए आइटम। |
+| [टैब](/hi/components/tabs/) | एक ही विषय के व्यू, हर एक अपने पैनल के साथ। | एक टैब: वह व्यू जो स्क्रीन पर है। | एक Tab स्टॉप। ऐरो कुंजियाँ ले जाती हैं और चुनती हैं। | यह बदलना कि कौन-सा कॉन्टेंट दिखे: अवलोकन, गतिविधि, सेटिंग। |
+
+एक झटपट कसौटी: अगर उसे दबाने से कुछ होता है, तो वह बटन ग्रुप है। अगर वह नीचे का कॉन्टेंट बदलता है, तो वह टैब है। अगर वह एक मान सेट करता है, तो वह रेडियो बटन है, या जहाँ सिस्टम सेगमेंटेड बटन देता है वहाँ सेगमेंटेड बटन। जो विकल्प बहुत सारे हों या एक-दूसरे से स्वतंत्र हों, वे चिप हैं।
+
+### वेरिएंट चुनना
+
+| वेरिएंट | यह क्या करता है | किसके लिए |
+| --- | --- | --- |
+| Standard (डिफ़ॉल्ट) | बटनों को एक-दूसरे से दूरी पर रखता है, इतनी कि हर बटन अपने पड़ोसियों के बीच अपना पूरा टच टार्गेट बनाए रखे। हर बटन अपने कोने ख़ुद रखता है। | वे क्रियाएँ जो साथ बैठती हैं पर अपने आप में अलग हैं, जैसे फ़ॉर्म के "रद्द करें" और "सेव करें"। |
+| Connected | बटनों को गोल बाहरी सिरों वाले एक शेप में जोड़ता है, डिवाइडर से या सँकरे गैप से ([डिवाइडर से जुड़े या गैप से](#डिवाइडर-से-जुड़े-या-गैप-से) देखें)। हर बटन कम से कम एक टार्गेट जितना चौड़ा होता है और सबसे ऊँचे बटन जितना खिंचता है। | आपस में गहराई से जुड़ा सेट, जो एक ही कंट्रोल जैसा दिखता है: बोल्ड, इटैलिक, अंडरलाइन; पिछला, आज, अगला। |
+
+connected ग्रुप में सिर्फ़ वे कोने बदलते हैं जो किसी पड़ोसी की ओर हैं: डिवाइडर के साथ चौकोर, गैप के साथ ज़्यादा कसे हुए। फ़िल, आउटलाइन, स्टेट लेयर, रिपल और फ़ोकस रिंग जुड़े हुए शेप के अनुसार चलते हैं, और जुड़ी हुई पंक्ति के गोल बाहरी सिरों को थोड़ी ज़्यादा पैडिंग मिलती है, ताकि सिरों के बटनों का कॉन्टेंट बराबर बैठा हुआ दिखे। सिर्फ़ आइकन वाला small बटन अपने बीच में रखे आइकन के इर्द-गिर्द टार्गेट की चौड़ाई तक चौड़ा हो जाता है, क्योंकि जुड़े हुए बटन एक-दूसरे के ऊपर तक नहीं पहुँच सकते।
+
+### पंक्ति या कॉलम
+
+डिफ़ॉल्ट रूप से पंक्ति इस्तेमाल करें। कॉलम वहाँ इस्तेमाल करें जहाँ बटन अपने पूरे लेबल के साथ अगल-बग़ल न समाएँ, जैसे किसी सँकरी शीट या फ़ोन जितने चौड़े पैनल की क्रियाएँ, या ऊपर से नीचे चलने वाले कॉन्टेंट के बग़ल में, जैसे नक़्शे के ज़ूम कंट्रोल। काम पूरा करने वाले बटनों और उससे पीछे हटने वाले बटनों को चिह्नित करें, ताकि लेआउट के पंक्ति और कॉलम के बीच बदलने पर भी क्रम वही रहे जिसकी लोग उम्मीद करते हैं।
+
+### करें
+
+- ग्रुप के हर बटन को एक ही साइज़ दें।
+- एम्फ़ेसिस वैसे ही ख़र्च करें जैसे कहीं भी करते हैं: ज़्यादा से ज़्यादा एक filled बटन, आम तौर पर अंत में।
+- ग्रुप को लेबल तब दें जब उसके बटन सिर्फ़ साथ में ही समझ आते हों, जैसे "टेक्स्ट स्टाइल"। क्रियाओं की उस पंक्ति के लिए इसे छोड़ दें जिसकी हर क्रिया ख़ुद बताती है कि वह क्या करती है।
+- connected ग्रुप के बटनों के लिए एक ही वेरिएंट इस्तेमाल करें, ताकि जुड़ा हुआ शेप एक ही चीज़ जैसा दिखे।
+- काम पूरा करने वाले बटन को `confirming` और उससे पीछे हटने वाले बटन को `dismissive` चिह्नित करें, और उन्हें जगह देने का काम ग्रुप पर छोड़ दें। उन्हें किसी भी क्रम में लिखें; ग्रुप आपके मार्कअप में उन्हें नहीं खिसकाता।
+- `separation` को `auto` पर ही रहने दें, जब तक कि किसी एक ग्रुप को अलग न होना हो, ताकि प्रॉडक्ट का हर जुड़ा हुआ कंट्रोल एक ही तरीक़े से अलग पहचाना जाए।
+
+### न करें
+
+- एक-दूसरे को बाहर करने वाले चुनावों के लिए, जैसे बाएँ, बीच में और दाएँ अलाइनमेंट, ग्रुप में टॉगल बटन इस्तेमाल न करें। ग्रुप यह पक्का नहीं करता कि उसके टॉगल में से एक ही चालू रहे। जहाँ चुनाव नीचे का कॉन्टेंट बदलता है वहाँ टैब, जहाँ वह एक मान सेट करता है वहाँ रेडियो बटन, या जहाँ सिस्टम सेगमेंटेड बटन देता है वहाँ सेगमेंटेड बटन इस्तेमाल करें।
+- ग्रुप में Tanrei के Button के सिवा, लेबल वाले या सिर्फ़ आइकन वाले, कुछ और न रखें: न फ़ील्ड, न चिप, न मेन्यू। डीबग बिल्ड दूसरे कॉन्टेंट की रिपोर्ट करते हैं।
+- फ़्लैग का इस्तेमाल लहजे के लिए न करें। काम पूरा करने वाला विनाशकारी "हटाएँ" `confirming` है; दोनों फ़्लैग वाला बटन ऐसे रखा जाता है मानो उस पर कोई फ़्लैग न हो, और उसकी रिपोर्ट की जाती है।
+- यह उम्मीद न करें कि पंक्ति टूटकर दूसरी पंक्ति में जाएगी। जो पंक्ति नहीं समाती, वह अपने Button को सँकरा करती है और उनके लेबल को अगली पंक्ति में ले जाती है। वह कभी दूसरी पंक्ति में नहीं जाती और न स्क्रॉल होती है।
+- एक ग्रुप में अलग-अलग साइज़ न मिलाएँ। ग्रुप अपने बटनों का साइज़ नहीं बदलता।
+
+## सुलभता
+
+<ComponentAccessibility name="button-group" />
+
+### कंपोनेंट क्या सँभालता है
+
+- हर बटन अपना रोल, नाम, स्टेट और Tab स्टॉप ख़ुद रखता है। Tab उनमें उसी क्रम में चलती है जिसमें वे रखे गए हैं: पंक्ति में शुरू से अंत तक, कॉलम में ऊपर से नीचे तक। ग्रुप न फ़ोकस लेता है, न ऐरो कुंजियाँ सँभालता है, न कोई चयन रखता है।
+- `confirming` और `dismissive` पढ़कर नहीं सुनाए जाते। वे तय करते हैं कि बटन कहाँ है, और फ़ोकस और पढ़ने का क्रम उसी जगह के अनुसार चलते हैं।
+- डिवाइडर सजावट है: वह सहायक तकनीक से छिपा रहता है और दबाना नहीं लेता। जुड़े हुए दो बटनों को जो चीज़ अलग पहचान देती है, वह यह है कि हर एक अपने नाम वाला अपना अलग बटन है।
+- लेबल के साथ, ग्रुप सहायक तकनीक को उसी नाम वाले एक ग्रुप के रूप में मिलता है, जिसके भीतर उसके बटन हैं। लेबल के बिना वह एक्सेसिबिलिटी ट्री में कुछ नहीं जोड़ता।
+- connected ग्रुप में हर बटन कम से कम एक टार्गेट जितना चौड़ा होता है, और उसका हिट एरिया पंक्ति के ऊपर और नीचे न्यूनतम टार्गेट तक पहुँचता है। standard ग्रुप में, बटन की दिखने वाली सीमा के भीतर दबाना हमेशा उसी बटन को जाता है, और गैप में दबाना नज़दीक वाले बटन को।
+- फ़ोकस इंडिकेटर हर बटन के शेप के अनुसार चलता है, जुड़े हुए कोनों समेत।
+- बड़े टेक्स्ट साइज़ पर बटन वैसे ही बढ़ते हैं जैसे कहीं और। connected पंक्ति हर बटन को सबसे ऊँचे बटन जितना खींचती है, और कॉलम हर बटन को सबसे चौड़े बटन जितना चौड़ा बनाता है, ताकि जुड़ा हुआ शेप एक-सा रहे।
+- डिफ़ॉल्ट सिस्टम में outlined ग्रुप की आउटलाइन और उसके डिवाइडर बारीक रेखा हैं, जो जान-बूझकर हल्की रखी गई है: हर बटन की पहचान उसके लेबल या उसके आइकन से होती है, उसके किनारे से नहीं।
+- डीबग बिल्ड इन बातों की रिपोर्ट करते हैं: दो से कम आइटम वाला ग्रुप, ऐसा कॉन्टेंट जो Tanrei का Button नहीं है, दोनों फ़्लैग वाला बटन, अनजान वेरिएंट, ओरिएंटेशन या separation, पूरी चौड़ाई वाली वह पंक्ति जिसके बटन चौड़ाई को बराबर नहीं बाँट सकते, और वह पंक्ति जो अपने Button के सँकरे हो जाने के बाद भी नहीं समाती।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- Web: connected आइकन बटन बारीक पॉइंटर (जैसे माउस) के साथ पॉइंटर टार्गेट जितना चौड़ा होता है, और मोटे पॉइंटर के साथ टच टार्गेट जितना। जहाँ आइटम का अपना शेप पिल है, वहाँ पड़ोसी की ओर के उसके कोने कॉर्नर स्मूदिंग से नरम किए हुए नहीं, बल्कि गोलाकार होते हैं। ग्रुप के भीतर Button का लेबल अगली पंक्ति में जा सकता है; ग्रुप के बाहर वह एक ही पंक्ति में रहता है। जो पंक्ति फिर भी नहीं समाती, उसकी रिपोर्ट तब जाँची जाती है जब ग्रुप का साइज़ बदलता है या उसके चाइल्ड बदलते हैं, तब नहीं जब किसी आइटम का लेबल बदलता है।
+- SwiftUI में ग्रुप का कोई रोल नहीं है। लेबल वाला ग्रुप अपने लेबल के नाम वाला एक कंटेनर है, जिसमें उसके बटन रहते हैं। जिस Button का शीर्षक `LocalizedStringKey` है, जैसा कि स्ट्रिंग लिटरल होता है, वह अपने सबसे लंबे शब्द से भी ज़्यादा सँकरा किया जा सकता है, और तब वह शब्द बीच से टूट जाता है। जो पंक्ति फिर भी नहीं समाती, उसकी रिपोर्ट डीबग बिल्ड में एक असर्शन फ़ेल्यर है, इसलिए जो लेआउट पल भर के लिए बहुत सँकरा हो जाता है, जैसे वह कंटेनर जिसकी चौड़ाई ऐनिमेट होती है, वह डीबग ऐप को रोक देता है।
+- Compose में ग्रुप का कोई रोल नहीं है। लेबल वाला ग्रुप एक ट्रैवर्सल ग्रुप है जिसका कॉन्टेंट डिस्क्रिप्शन वही लेबल है, और हर बटन अपना रोल ख़ुद रखता है।
+- React Native: iOS और Android दो बटनों के बीच के गैप में दबाने को कैसे बाँटते हैं, बड़े टेक्स्ट साइज़ पर connected ग्रुप के खिंचे हुए बटन कैसे दिखते हैं, और फ़ोकस के ग्रुप में आने पर VoiceOver और TalkBack उसका नाम पढ़कर सुनाते हैं या नहीं, यह किसी डिवाइस पर जाँचा नहीं गया है।
+- React Native: सँकरा किया गया Button अपने सबसे लंबे शब्द से भी छोटा हो सकता है, और तब उस शब्द के अक्षर कई पंक्तियों में टूट जाते हैं, क्योंकि React Native के लेआउट में टेक्स्ट के लिए कॉन्टेंट की कोई न्यूनतम चौड़ाई नहीं है।
+- standard ग्रुप में हिट एरिया गैप के बीचोबीच मिलते हैं। डिफ़ॉल्ट सिस्टम का गैप (16) इतना चौड़ा है कि हर आइकन बटन, small समेत, अपने पड़ोसियों के बीच अपना पूरा 48 का टच टार्गेट बनाए रखता है। सँकरे गैप वाला डिज़ाइन सिस्टम बटनों के बीच के टार्गेट को सँकरा कर देता है।
+
+### आपको क्या करना है
+
+- हर आइकन बटन को नाम दें। ग्रुप का लेबल उसके भीतर के बटनों को नाम नहीं देता।
+- ग्रुप को पढ़ने के क्रम में वहाँ रखें जहाँ उसके बटनों की जगह है। सहायक तकनीक उन तक एक-एक करके पहुँचती है, उसी क्रम में जिसमें वे आते हैं।
+- अगर टॉगल के किसी सेट में एक समय में एक ही चालू रहना ज़रूरी है, तो एकल चयन वाला कंट्रोल इस्तेमाल करें: जहाँ चुनाव नीचे का कॉन्टेंट बदलता है वहाँ टैब, जहाँ वह एक मान सेट करता है वहाँ रेडियो बटन, या जहाँ सिस्टम सेगमेंटेड बटन देता है वहाँ सेगमेंटेड बटन। इनमें से हर एक को एक चुनाव के रूप में पढ़कर सुनाया जाता है; टॉगल बटनों की पंक्ति को नहीं।

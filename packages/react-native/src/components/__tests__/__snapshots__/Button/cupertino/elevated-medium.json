@@ -1,0 +1,65 @@
+{
+  "type": "View",
+  "props": {
+    "accessibilityLabel": "Deploy",
+    "accessibilityRole": "button",
+    "accessibilityState": {
+      "disabled": false
+    },
+    "accessibilityValue": {},
+    "accessible": true,
+    "collapsable": false,
+    "focusable": true,
+    "hitSlop": {
+      "bottom": 7,
+      "left": 7,
+      "right": 7,
+      "top": 7
+    },
+    "style": {
+      "alignItems": "center",
+      "alignSelf": "flex-start",
+      "backgroundColor": "rgb(255, 255, 255)",
+      "borderCurve": "continuous",
+      "borderRadius": 10,
+      "boxShadow": [
+        {
+          "blurRadius": 8,
+          "color": "rgba(0, 0, 0, 0.12)",
+          "offsetX": 0,
+          "offsetY": 2,
+          "spreadDistance": 0
+        }
+      ],
+      "flexDirection": "row",
+      "gap": 8,
+      "justifyContent": "center",
+      "minHeight": 34,
+      "opacity": 1,
+      "paddingEnd": 12,
+      "paddingStart": 12,
+      "paddingVertical": 6
+    }
+  },
+  "children": [
+    {
+      "type": "Text",
+      "props": {
+        "allowFontScaling": true,
+        "collapsable": false,
+        "style": {
+          "color": "rgb(8, 122, 255)",
+          "flexShrink": 1,
+          "fontSize": 17,
+          "fontWeight": "400",
+          "letterSpacing": 0,
+          "lineHeight": 22,
+          "textAlign": "center"
+        }
+      },
+      "children": [
+        "Deploy"
+      ]
+    }
+  ]
+}

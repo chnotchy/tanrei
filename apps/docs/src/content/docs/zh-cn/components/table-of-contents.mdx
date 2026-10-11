@@ -1,0 +1,236 @@
+---
+title: "目录"
+description: "把正在阅读的页面的各个标题列成指向它们的链接，并标出读者正在阅读的那一节。正文旁边没有空间时，改由一行显示当前章节的名称，按下它可以打开同一份列表。"
+translationOf: components/table-of-contents.mdx
+sourceHash: f5bfc3fe238e62fc88573224164e01b2942039f2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="table-of-contents" />
+
+<DemoFrame label="本页的各个章节：滚动页面，标记会跟着移动" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="本页内容" style="inline-size: 15rem; max-inline-size: 100%">
+    <ul>
+      <li>
+        <a href="#概览">概览</a>
+        <ul>
+          <li><a href="#用法">用法</a></li>
+          <li><a href="#你要写的内容">你要写的内容</a></li>
+        </ul>
+      </li>
+      <li><a href="#规格">规格</a></li>
+      <li>
+        <a href="#指南">指南</a>
+        <ul>
+          <li><a href="#哪一项是当前项">哪一项是当前项</a></li>
+          <li><a href="#紧凑形式">紧凑形式</a></li>
+        </ul>
+      </li>
+      <li><a href="#无障碍">无障碍</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+目录显示一个长页面里有什么，以及读者正读到哪里。每一项都是指向一个标题的链接；子标题缩进排在所属标题之下。当前项在轨道上有一个标记，标签的字重也更粗。它不是产品在页面之间的导航：那是导航抽屉。
+
+在 Web 上，它是包在你自己的嵌套锚点列表外面的 `<tanrei-table-of-contents>`。这些锚点留在文档里，所以在任何脚本运行之前，页面里就有一个能用的普通链接列表。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/table-of-contents.css" />
+
+    <tanrei-table-of-contents label="本页内容">
+      <ul>
+        <li><a href="#top">概览</a></li>
+        <li>
+          <a href="#install">安装</a>
+          <ul>
+            <li><a href="#npm">npm</a></li>
+          </ul>
+        </li>
+        <li><a href="#configure">配置</a></li>
+      </ul>
+    </tanrei-table-of-contents>
+
+    <script type="module">
+      import '@tanrei/web/components/table-of-contents';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TableOfContents } from '@tanrei/react';
+    import '@tanrei/web/table-of-contents.css';
+
+    <TableOfContents label="本页内容" density="compact">
+      <ul>
+        {headings.map((heading) => (
+          <li key={heading.id}>
+            <a href={`#${heading.id}`}>{heading.text}</a>
+          </li>
+        ))}
+      </ul>
+    </TableOfContents>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/table-of-contents.css` 在任何脚本运行之前就画出标题和列表，脚本加载时列表不会发生位移。元素自己也会把同一份样式表加进页面。紧凑形式的 V 形箭头是图标集的字形，需要图标字体。
+
+### 你要写的内容
+
+| 部件 | 在 Web 上 |
+| --- | --- |
+| 目录的标题 | `label` 属性，使用你的产品的语言。它同时为导航地标命名。 |
+| 项 | 一个 `<li>`，它的第一个子元素是这一项的 `<a href>`。标签是锚点的文本，按纯文本处理。 |
+| 项自己的子项 | 写在锚点之后、同一个 `<li>` 之内的一个 `<ul>`。 |
+| 代表页面顶部的项 | `href` 为 `#top` 或 `#` 的项。在到达第一个标题之前，它是当前项。 |
+| 作为标题元素的目录标题 | 一个带 `slot="title"` 的子元素，例如 `<h2 slot="title">本页内容</h2>`。地标仍然由 `label` 命名。 |
+| 哪一项是当前项 | 什么都不用写：由元素决定。设置 `tracking="manual"` 时，由你把 `current` 设为某一项的 `href`。 |
+
+各项是由你给出的，而不是组件找出来的。由站点生成器或框架构建的页面，在构建时就知道自己有哪些标题，所以列表从一开始就在页面里，爬虫也能读到它。
+
+| 事件 | 何时触发 | `detail` |
+| --- | --- | --- |
+| `currentchange` | `tracking` 为 `auto` 时，当前项发生了变化。 | `href`：新的当前项的 `href`，或空字符串 |
+| `select` | 某一项被激活，这时浏览器还没有跟随链接。取消这个事件，就可以自己移动视图。 | `href` |
+| `toggle` | 用户显示或隐藏了紧凑形式的列表。 | `open` |
+
+## 规格
+
+<DemoFrame label="紧凑密度，三级，第三项是当前项" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="本页内容" density="compact" tracking="manual" current="#roles-demo" style="inline-size: 15rem; max-inline-size: 100%">
+    <ul>
+      <li>
+        <a href="#tokens-demo">令牌</a>
+        <ul>
+          <li>
+            <a href="#color-demo">颜色</a>
+            <ul>
+              <li><a href="#roles-demo">角色</a></li>
+              <li><a href="#schemes-demo">配色方案</a></li>
+            </ul>
+          </li>
+          <li><a href="#space-demo">间距</a></li>
+        </ul>
+      </li>
+      <li><a href="#components-demo">组件</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+<DemoFrame label="紧凑形式：按下这一行" plain>
+  <tanrei-table-of-contents class="not-content tanrei-not-prose" label="本页内容" presentation="compact" tracking="manual" current="#configure-demo" style="inline-size: 20rem; max-inline-size: 100%">
+    <ul>
+      <li><a href="#install-demo">安装</a></li>
+      <li><a href="#configure-demo">配置</a></li>
+      <li><a href="#build-demo">构建</a></li>
+    </ul>
+  </tanrei-table-of-contents>
+</DemoFrame>
+
+<ComponentSpecs name="table-of-contents" />
+
+## 指南
+
+### 它是不是目录
+
+目录用于比一屏更长、并且由标题划分成几部分的页面。没有标题的页面不需要目录：没有任何项时，组件什么都不画，也不留下空的地标。在页面之间移动请用导航抽屉；一项任务的各个步骤请用步骤。
+
+### 由布局决定的事
+
+组件占满得到的宽度，对自己放在哪里不作任何决定。这些事由容纳它的布局来决定：
+
+- 它位于哪里，以及让它在页面滚动时留在视野内（例如一个粘性定位的栏）；
+- 窗口采用哪一种呈现形式：正文旁边没有空间时，设置 `presentation="compact"`；
+- 在很长的列表外面放一个可滚动的栏。这时组件会让当前的那一行在这个栏里保持可见。
+
+### 密度
+
+| `density` | 单行文字的行 | 用于 |
+| --- | --- | --- |
+| `regular`（默认） | 44，即指针目标 | 大多数页面。 |
+| `compact` | 32 | 用指针操作的产品里，正文旁边的一长列标题。 |
+
+compact 的行比指针目标矮。这是可以接受的，因为它要由你指名选用，而且从不是默认值。在触摸设备上，两种密度下的行都与触摸目标一样高。两种密度的文本样式和缩进相同。
+
+### 哪一项是当前项
+
+浏览器跳转到某个标题时，会让这个标题停在一个固定的位置。按页面中的顺序，对应标题已经到达这个位置的最后一项，就是当前项。组件从你的 CSS 中读取这个位置：
+
+```css
+html { scroll-padding-top: 4rem; }     /* 你固定在顶部的内容所占的高度 */
+h2, h3 { scroll-margin-top: 1.5rem; }  /* 标题在自己上方保留的空间 */
+```
+
+| 情况 | 当前项是 |
+| --- | --- |
+| 在第一个标题之前 | 没有；如果你给出了代表页面顶部的项，就是那一项。 |
+| 在页面末尾 | 最后一项。最后一节如果比窗口还矮，就永远到不了那条线。 |
+| 选择了某一项 | 立即变为那一项，直到读者下一次手动滚动。 |
+| 地址指明了某个标题 | 那一项，并以同样的方式保持。 |
+| 标题上方的内容加载完成或被折叠 | 重新判定。 |
+
+组件从不滚动页面，也从不改写地址。页面是平滑地滑到标题还是直接跳过去，取决于你的 `scroll-behavior`。
+
+如果各个章节不是同一个滚动视图里的不同位置，例如一次只显示一步的步骤，请设置 `tracking="manual"`，并自己设置 `current`。
+
+### 紧凑形式
+
+`presentation="compact"` 是一个带填充的块，里面有一行：目录的标题、当前章节的名称和一个 V 形箭头。这一行是一个按钮，按下后在它下方显示同一份列表。
+
+- 选择某一项会关闭列表，并跟随链接。
+- Escape 关闭列表，并把焦点交还给这一行。
+- 请给元素设置 `max-block-size`：这样列表在内部滚动，这一行留在原位。
+- 它不是浮层。它不绘制遮罩，在外部按下时也不会关闭。如果布局让它盖在正文之上，并且希望它这样关闭，就自己把 `open` 设为 `false`。
+
+脚本加载完成之前，紧凑形式会显示完整的列表。如果布局连这一瞬间也不能显示它，就把 `tanrei-table-of-contents[presentation="compact"]:not(:defined)` 隐藏起来。
+
+### 推荐
+
+- 用你的产品的语言写 `label`。有两个目录的页面，要给每个目录各起一个名称。
+- 只给出你希望显示的标题：通常是第二级和第三级。
+- 第一个标题之前的文字很长时，给出一个代表页面顶部的项。
+
+### 避免
+
+- 不要在项里放控件、Tag 或图标。标签就是标题的文本。
+- 嵌套不要超过三级：窄栏里的标签会没有地方放。
+- 不要把它当作产品的导航。它的当前状态说的是“本页的这一部分”，而不是“这个页面”。
+
+## 无障碍
+
+<ComponentAccessibility name="table-of-contents" />
+
+### 组件负责的部分
+
+- 它是一个以 `label` 命名的导航地标，里面是嵌套的链接列表。
+- 当前项带有 `aria-current="location"`。它的变化不会被朗读，所以滚动时不会有连续的播报。
+- 每一项都是焦点顺序中的一个链接，各占一个停靠点。Enter 跟随链接。没有需要另外学习的方向键操作。
+- 轨道、标记和箭头对辅助技术隐藏。
+- 目录的标题只暴露一次，作为地标的名称。只有当你在 `title` 插槽里给出标题元素时，它才是标题元素。
+- 紧凑形式的那一行是一个按钮，以 `label` 命名，以当前章节的名称作为描述，并带有展开状态。
+- 选择某一项之后，焦点跟随页面：下一次按 Tab 会从所选的标题处继续。
+- 焦点环画在行的内部，所以可滚动的栏不会把它裁掉。
+- 当前项不只靠颜色来表示：标记是一道描边，标签的字重也更粗。
+- 当前项变化时，列表不会发生位移。
+- 文本放大到 200% 时，标签换行，行增高。只有紧凑形式那一行里的当前章节名称才会被截断。
+- 在强制颜色模式下，各项是链接颜色，当前项的标签、轨道和标记是文本颜色。
+- 空的 `label`、没有标签的项、`href` 相同的两项、不指向任何地方的 `href`、未知的值，以及超过三级的嵌套，会在调试构建中报告。
+
+### 需要你做的事
+
+- 给列出的每个标题一个 `id`，并在对应项的 `href` 里写上相同的片段。
+- 用 `scroll-padding-top` 声明你固定在顶部的内容，这样链接把页面带到某个标题时，标题不会被它遮住。
+- 读者要求减弱动态效果时，关闭平滑滚动。
+- 很长的目录，请在阅读顺序中放在内容之后，或者在它前面提供一个跳过链接。

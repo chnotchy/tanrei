@@ -1,0 +1,263 @@
+---
+title: "树视图"
+description: "由可以展开和折叠的项组成的层级结构。每深一级，行就多缩进一些；凡是包含其他项的行，开头都有一个 V 形箭头。它可以只供阅读和展开，也可以在其中选择一项或多项；它在焦点顺序中只占一个停靠点。"
+translationOf: components/tree-view.mdx
+sourceHash: c1e2abc869592d34f3b6d9e017aefafd026c21e3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="tree-view" />
+
+<DemoFrame label="文件树：按文件夹所在的行，或用方向键来展开它" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="令牌存放在哪里" density="compact" guides style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li data-open>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>tokens/<small data-supporting-text>唯一可信来源，手工编辑</small></bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>ref/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>sys/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>comp/</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>tanrei.resolver.json</bdi></span></li>
+        </ul>
+      </li>
+      <li>
+        <span><span class="tanrei-icon" aria-hidden="true">folder</span><bdi>packages/</bdi></span>
+        <ul>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>web/src/generated/tokens.css</bdi></span></li>
+          <li><span><span class="tanrei-icon" aria-hidden="true">draft</span><bdi>react-native/src/generated/tokens.ts</bdi></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+树视图显示一个供用户浏览或在其中做选择的结构：项目的文件、设计系统的令牌、产品的文件夹。包含其他项的行带有 V 形箭头，可以展开和折叠。设置 `selection` 后，可以选择一项或多项，树会告诉你选中的是哪些。
+
+它不是导航。产品的各个去处是导航抽屉，页面的各个标题是目录，折叠起来的内容是折叠面板。那些组件保留链接和按钮，每一个都是焦点顺序中独立的停靠点。树只占一个停靠点，在其中用方向键移动，因为它可能有成千上万行。
+
+在 Web 上，它是包在你自己的嵌套列表外面的 `<tanrei-tree-view>`。列表留在文档里，所以在没有脚本运行的地方，页面会把整个层级结构显示为嵌套列表。其他平台尚未实现。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/tree-view.css" />
+
+    <tanrei-tree-view label="项目文件" selection="single" value="src/index.ts">
+      <ul>
+        <li data-value="src" data-open>
+          <span>
+            <span class="tanrei-icon" aria-hidden="true">folder</span>
+            <bdi>src<small data-supporting-text>发布的内容</small></bdi>
+            <span data-trailing-text>12 个文件</span>
+          </span>
+          <ul>
+            <li data-value="src/index.ts"><span><bdi>index.ts</bdi></span></li>
+          </ul>
+        </li>
+        <li data-value="node_modules" data-expandable><span><bdi>node_modules</bdi></span></li>
+      </ul>
+    </tanrei-tree-view>
+
+    <script type="module">
+      import '@tanrei/web/components/tree-view';
+
+      const tree = document.querySelector('tanrei-tree-view');
+      tree.addEventListener('change', (event) => showFile(event.detail.value));
+      tree.addEventListener('toggle', (event) => {
+        if (event.detail.open && event.target.dataset.expandable !== undefined) loadItemsInto(event.target);
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TreeView } from '@tanrei/react';
+    import '@tanrei/web/tree-view.css';
+
+    <TreeView label="项目文件" selection="single" value={path} onChange={(event) => setPath(event.detail.value)}>
+      <ul>
+        {folders.map((folder) => (
+          <li key={folder.path} data-value={folder.path} data-open={folder.open ? '' : undefined}>
+            <span><bdi>{folder.name}</bdi></span>
+            <ul>
+              {folder.files.map((file) => (
+                <li key={file.path} data-value={file.path}><span><bdi>{file.name}</bdi></span></li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </TreeView>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/tree-view.css` 在任何脚本运行之前就画出这棵树，脚本加载时不会有任何东西发生位移。V 形箭头是图标集的字形，需要图标字体。
+
+### 你要写的内容
+
+| 部件 | 在 Web 上 |
+| --- | --- |
+| 树的名称 | `label` 属性，使用你的产品的语言。 |
+| 一个项 | 一个 `<li>`。它的第一个子元素就是它的行：一个 `<span>` 或一个 `<div>`。 |
+| 标签 | 行的文本，放在一个元素里：`<bdi>`。它可以包含行内内容，例如一段行内代码。 |
+| 辅助文本 | 带 `data-supporting-text` 的元素，位于标签的元素之内、标签之后。 |
+| 图标 | 行里的一个 `.tanrei-icon`，里面是字形的名称。树自己没有代表文件夹或文件的字形。 |
+| 后置内容 | 行里带 `data-trailing` 的元素：一个标签（Tag）、一个色块。树只安放它，不给它加样式。 |
+| 后置文本 | 行里带 `data-trailing-text` 的元素：一个数量、一个大小、一个值。只占一行。 |
+| 项自己的子项 | 行之后、同一个 `<li>` 之内的一个 `<ul>`。 |
+
+行也可以把标签直接写成纯文本，外面不包 `<bdi>`。行有辅助文本时，以及名称的方向可能与页面不同时（例如阿拉伯语页面上的文件名），请使用 `<bdi>`。
+
+| 写在 `<li>` 上 | 含义 |
+| --- | --- |
+| `data-value` | 用来标识这个项。没有它，这个项就无法被选择。在树内必须唯一。 |
+| `data-open` | 父项显示它的子项。用户展开或折叠父项时，树会设置或移除它。 |
+| `data-expandable` | 这个项将会包含你尚未给出的子项。它会得到一个 V 形箭头；`toggle` 表明它已展开时，再给出它的子项。 |
+| `data-loading` | 你正在获取它的子项。它展开期间，下方会画出一个加载行，带有树的 `loading-label`。 |
+| `data-disabled` | 用户无法选择、展开或折叠它。方向键仍然可以到达它。 |
+
+| 事件 | 何时 | `detail` |
+| --- | --- | --- |
+| `change` | 用户更改了选择。在树上触发。 | 更改之后的 `value`（单选）或 `values`（多选） |
+| `toggle` | 用户或浏览器的页面内查找展开或折叠了一个父项。在 `<li>` 上触发，并且冒泡。 | `open` |
+
+你自己做出的更改，不会触发这两个事件中的任何一个。
+
+## 规格
+
+<DemoFrame label="选中一项：按行是选择，按 V 形箭头是展开" plain>
+  <tanrei-tree-view class="not-content tanrei-not-prose" label="全部令牌" selection="single" value="sys.color.primary" density="compact" style="inline-size: 23rem; max-inline-size: 100%">
+    <ul>
+      <li><span><bdi>参考</bdi><span data-trailing-text>212</span></span><ul><li data-value="ref.palette.neutral"><span><bdi>palette.neutral</bdi></span></li></ul></li>
+      <li data-open>
+        <span><bdi>系统</bdi><span data-trailing-text>388</span></span>
+        <ul>
+          <li data-open>
+            <span><bdi>color</bdi><span data-trailing-text>64</span></span>
+            <ul>
+              <li data-value="sys.color.primary"><span><bdi>primary</bdi><span data-trailing-text>#1f1f1f</span></span></li>
+              <li data-value="sys.color.on-primary"><span><bdi>on-primary</bdi><span data-trailing-text>#ffffff</span></span></li>
+              <li data-value="sys.color.outline-variant"><span><bdi>outline-variant</bdi><span data-trailing-text>#d4d4d4</span></span></li>
+            </ul>
+          </li>
+          <li data-expandable><span><bdi>space</bdi><span data-trailing-text>19</span></span></li>
+        </ul>
+      </li>
+    </ul>
+  </tanrei-tree-view>
+</DemoFrame>
+
+<ComponentSpecs name="tree-view" />
+
+## 指南
+
+### 它是不是树视图
+
+| 你手上的是 | 使用 |
+| --- | --- |
+| 供人浏览或在其中做选择的结构 | 树视图 |
+| 产品的各个去处，以链接的形式 | 导航抽屉 |
+| 一个页面的各个标题 | 目录 |
+| 折叠在几个标题行之下的内容 | 折叠面板 |
+| 只有一级的项 | 列表 |
+
+### 按下时发生什么
+
+| 项 | 按它的行 | 按它的 V 形箭头 |
+| --- | --- | --- |
+| 可以选择，是父项 | 选择它 | 展开或折叠它 |
+| 可以选择，是叶子项 | 选择它 | — |
+| 不能选择，是父项 | 展开或折叠它 | 展开或折叠它 |
+| 不能选择，是叶子项 | 什么也不发生 | — |
+
+一次按下绝不会做两件事。用户选择一个文件夹时，不会因为它同时折叠了而找不到自己原来的位置。
+
+当 `selection` 为 `single` 或 `multiple`、项有 `data-value` 并且没有被禁用时，这个项可以被选择。单选时，再次按下已选中的项不会改变任何东西。多选时，每个项都是单独选择的：选择父项并不会选择它包含的项。
+
+选择之后做什么由你决定。响应 `change`，在树旁边的窗格里显示选中的文件，或选中令牌的编辑器。行里不放任何控件：请把操作放在树的旁边。
+
+### 选择与折叠着的父项
+
+树把选中填充画在项自己的行上。它不会因为父项下面有选中的项而标记父项，也不会为了显示选择而展开折叠着的父项。如果选中的项应当在视野之内，请在它上面的各级父项上设置 `data-open`：路径是你知道的。
+
+### 密度
+
+| `density` | 单行文字的行 | 用于 |
+| --- | --- | --- |
+| `regular`（默认） | 48 | 既用触摸、也用指针操作的产品。 |
+| `compact` | 32 | 用指针浏览的工具，以及文字页面里的一棵小树。 |
+
+compact 的行比指针目标还矮。这是可以接受的，因为它是按名称明确要求的，从来不是默认值。对触摸而言，两种密度下行的高度都达到触摸目标。
+
+### 引导线
+
+`guides` 从每个展开的父项向下画一道细线，位于它所包含的各行旁边。在很深的树里使用它，因为那里单靠缩进已经看不出哪些行是一组的。它不占空间。
+
+### 大型的树
+
+树给它什么就显示什么，它不滚动，也不会只绘制视野之内的行。请把它放进你自己的滚动框里。
+
+- 大的父项在展开时再给出它的子项：给它标上 `data-expandable`，并在 `toggle` 表明它已展开时加上它的 `<ul>`。获取期间设置 `data-loading`。
+- 只有显示出来的行才有开销。折叠着的父项的子项在它展开之前不会被加样式、排版或朗读。
+- 无论树有多大，一行的改动只会重新计算这一行的样式。
+
+筛选同样由你来做。把符合条件的项交给树，在包含它们的父项上设置 `data-open`，并在你自己的状态文本里说明有多少项符合。
+
+### 很深的树与很窄的窗口
+
+每一级都比上一级多缩进一个单位。如果某一级的缩进会占去树宽度的一半以上，它的行就从放得下的最深一级开始的位置开始，所以名称始终保有一半的宽度。辅助技术得到的仍然是真实的级别。
+
+### 在服务器上渲染
+
+除了选中填充之外，一切都在脚本加载之前画好；选中填充在元素定义时才出现。要让它出现在第一帧里，请自己在选中项的行上写 `aria-selected="true"`。
+
+### 推荐
+
+- 用你的产品的语言写 `label`；只要有项可能处于加载中，也要写 `loading-label`。`loading-label` 也可以用 `setWords({ loadingLabel })` 为整个产品只给一次。
+- 字形由你自己指定：文件夹和文件是你的产品里的种类，不是树的。
+- 让名称保持完整。标签会换行，绝不会被截断。
+
+### 避免
+
+- 不要在行里放链接、按钮或输入框。树的任何按键都到不了它。
+- 不要把树用于网站的页面。链接是通过浏览器和屏幕阅读器列出链接的那些方式被找到的。
+- 不要靠移动焦点来选择。方向键负责移动；Enter 和 Space 负责选择。
+
+## 无障碍
+
+<ComponentAccessibility name="tree-view" />
+
+### 组件负责的部分
+
+- 元素是一个以 `label` 命名的 `tree`。每一行是一个 `treeitem`，每个嵌套列表是一个 `group`，所以级别来自嵌套关系。
+- 父项的行带有 `aria-expanded`。可以选择的行带有 `aria-selected`，值为 true 或 false。禁用的行带有 `aria-disabled`，正在加载的父项带有 `aria-busy`。
+- 标签是行的名称。辅助文本、后置内容的文本和后置文本依次构成它的描述。
+- 树只占一个停靠点。Tab 进入时，落在上一次获得焦点的行上；没有的话，落在第一个显示出来的选中行上；再没有，就落在第一行上。
+- 下方向键和上方向键在显示出来的行之间移动。右方向键展开父项，再按则进入其中。左方向键折叠它，再按则退到外面。在从右到左的布局中，左右方向键互换。
+- Home 和 End 前往第一行和最后一行。键入字母会移到标签以这些字母开头的下一行。`*` 展开与获得焦点的行同级的所有折叠着的父项。
+- Enter 和 Space 做的事与按下这一行相同。选择从不跟随焦点。
+- 展开、折叠和选择都由行自己的状态来表明。不会朗读任何内容，焦点也不移动。
+- 父项折叠时如果获得焦点的行在它里面，焦点就交给这个父项。获得焦点的行被移除时，焦点交给它后面的那一行。
+- 焦点环画在行的内部，所以滚动框不会把它裁掉。
+- V 形箭头、图标和引导线对辅助技术隐藏。加载行也是隐藏的：由父项说明它正忙。
+- 文本为 200% 时，标签会换行，行会增高。只有后置文本才会被截断。
+- 在强制颜色模式下，选中的行采用系统的选中颜色，并加上一道边线。
+- 调试构建会报告：空的 `label`、没有标签的项、行里的控件、不对应任何项的值、两个值相同的项，以及未知的 `density` 或 `selection`。
+
+### 需要你做的事
+
+- 给每个可以选择的项一个在树内唯一的 `data-value`。
+- 获取失败时，由你自己说明：写在树的旁边，或者作为一个用标签说明这一点的项。子项到达时，树不会朗读任何内容。
+- 多选时，如果每个选中的项必须靠填充以外的东西来区分，请在后置内容里放一个你自己的标记。
+- 把很长的树放进带有名称或标题的滚动框里，让用户知道框里是什么。

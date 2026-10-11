@@ -1,0 +1,172 @@
+---
+title: Tag
+description: Nombra una categoría o un estado con un rótulo estático y breve, de forma discreta, con contorno o con relleno, en los colores de un estado cuando lo tiene. Es texto, nunca un control.
+translationOf: components/tag.mdx
+sourceHash: fe967cfb476e3d4571ebf0fdbe8939c0c7803905
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="tag" />
+
+<DemoFrame label="Tres aspectos, con estado y sin él">
+  <tanrei-tag label="Borrador"></tanrei-tag>
+  <tanrei-tag variant="outlined" label="Borrador"></tanrei-tag>
+  <tanrei-tag variant="filled" label="Predeterminado"></tanrei-tag>
+  <tanrei-tag status="success" label="Superado"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="Por caducar"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="Fallido"></tanrei-tag>
+</DemoFrame>
+
+Un tag es una palabra o una frase corta que dice qué es una cosa o en qué estado está: la categoría de un artículo, el resultado de una compilación, la fase de una versión, el valor predeterminado entre varios. Ocupa su lugar en el diseño, en línea con el texto que tiene al lado, y nunca responde a un puntero, a una tecla ni al foco.
+
+En la web es `<tanrei-tag>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-tag label="Beta"></tanrei-tag>
+    <tanrei-tag variant="outlined" label="Diseño"><span slot="icon">sell</span></tanrei-tag>
+
+    <!-- La etiqueta dice el estado. -->
+    <tanrei-tag status="error" label="Fallido"></tanrei-tag>
+
+    <!-- La etiqueta no lo dice: status-label se lee antes de ella («Error, 3 compilaciones») y no se dibuja. -->
+    <tanrei-tag status="error" status-label="Error" label="3 compilaciones"></tanrei-tag>
+
+    <script type="module">
+      import '@tanrei/web/components/tag';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tag } from '@tanrei/react';
+
+    <Tag label="Beta" />
+    <Tag variant="outlined" label="Diseño"><span slot="icon">sell</span></Tag>
+    <Tag status="error" statusLabel="Error" label={`${failed} compilaciones`} />
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Cada aspecto en cada estado" plain>
+  <tanrei-tag status="info" label="En revisión"></tanrei-tag>
+  <tanrei-tag status="warning" label="Por caducar"></tanrei-tag>
+  <tanrei-tag status="error" label="Fallido"></tanrei-tag>
+  <tanrei-tag status="success" label="Superado"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="info" label="En revisión"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="warning" label="Por caducar"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="error" label="Fallido"></tanrei-tag>
+  <tanrei-tag variant="outlined" status="success" label="Superado"></tanrei-tag>
+  <tanrei-tag variant="filled" status="info" label="En revisión"></tanrei-tag>
+  <tanrei-tag variant="filled" status="warning" label="Por caducar"></tanrei-tag>
+  <tanrei-tag variant="filled" status="error" label="Fallido"></tanrei-tag>
+  <tanrei-tag variant="filled" status="success" label="Superado"></tanrei-tag>
+</DemoFrame>
+
+<DemoFrame label="Dos tamaños, un glifo, un punto" plain>
+  <tanrei-tag size="small" label="Opcional"></tanrei-tag>
+  <tanrei-tag size="small" variant="filled" label="Obligatorio"></tanrei-tag>
+  <tanrei-tag label="Diseño"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag size="small" label="Diseño"><span slot="icon">sell</span></tanrei-tag>
+  <tanrei-tag dot label="Archivado"></tanrei-tag>
+  <tanrei-tag dot status="success" label="En línea"></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="Degradado"></tanrei-tag>
+</DemoFrame>
+
+<ComponentSpecs name="tag" />
+
+## Pautas
+
+### Insignia, chip o tag
+
+Los tres se distinguen de una vez por todas por lo que hacen:
+
+| Tipo | Qué es | Dónde se sitúa | Recibe entrada |
+| --- | --- | --- | --- |
+| [Insignia](/es/components/badge/) | Un punto o un recuento unido a otro elemento. | En la esquina de su ancla, fuera del diseño. | No. La entrada llega al ancla. |
+| [Chip](/es/components/chip/) | Un control. | En el diseño. | Sí: se pulsa, se conmuta o se quita, y tiene foco y estados. |
+| Tag | Un rótulo estático. | En el diseño, en línea. | Nunca. |
+
+1. Si se pulsa, se selecciona o se quita, es un chip. Si lleva a algún sitio, es un enlace.
+2. Si es un número o un punto encima de otra cosa, es una insignia.
+3. Si es una palabra que solo dice qué es una cosa o en qué estado está, es un tag.
+
+Un tag nunca se convierte en un control por recibir un controlador de eventos. Dentro de un enlace, un botón, un elemento de lista o una fila que se pulsa entera, sigue siendo texto de ese elemento: la entrada que recibe llega al elemento, y es el elemento el que dibuja sus propios estados al pasar el cursor, de foco y de pulsación.
+
+### Cómo elegir un aspecto
+
+| `variant` | Qué dibuja | Úsalo para |
+| --- | --- | --- |
+| `tonal` (predeterminado) | Un relleno discreto. | La mayoría de los tags. |
+| `outlined` | Sin relleno y con una línea fina. | Muchos tags juntos: una columna de una tabla, una lista de categorías. |
+| `filled` | Un relleno completo. | El elegido entre sus vecinos: el predeterminado entre varios valores, el obligatorio entre varios campos. También el único estado que no se debe pasar por alto. |
+
+### Estados
+
+`status` es `default`, `info`, `warning`, `error` o `success`. Solo cambia los colores. Un tag outlined conserva el color de texto de la superficie y su línea fina en todos los estados, así que siempre dibuja un punto (o tu glifo) en el color del estado: esa marca es el único lugar donde se ve el estado.
+
+El tag no dibuja por sí solo ningún glifo de estado. Indica uno donde ayude, como hace este sitio con los seis estados de sus propias tablas de estado:
+
+<DemoFrame label="Los seis estados de este sitio" plain>
+  <tanrei-tag size="small" variant="outlined" label="Planificado"><span slot="icon">radio_button_unchecked</span></tanrei-tag>
+  <tanrei-tag size="small" variant="outlined" status="warning" label="Rezagado"><span slot="icon">schedule</span></tanrei-tag>
+  <tanrei-tag size="small" label="Alpha"><span slot="icon">clock_loader_40</span></tanrei-tag>
+  <tanrei-tag size="small" label="Beta"><span slot="icon">clock_loader_80</span></tanrei-tag>
+  <tanrei-tag size="small" status="success" label="Stable"><span slot="icon">check_circle</span></tanrei-tag>
+  <tanrei-tag size="small" status="error" label="Obsoleto"><span slot="icon">block</span></tanrei-tag>
+</DemoFrame>
+
+### Tamaños
+
+| `size` | Altura | Texto | Úsalo para |
+| --- | --- | --- | --- |
+| `small` | 20 | 12 | Junto a la etiqueta de un campo, en una celda de tabla, en una línea de texto de cuerpo. No hace más alta la línea. |
+| `medium` (predeterminado) | 24 | 14 | Junto a un encabezado, o por sí solo. |
+
+Los tags de obligatorio y de opcional de un [campo](/es/components/field/) y de un [grupo de campos](/es/components/field-group/) son este componente en su tamaño pequeño: con relleno para lo obligatorio y tonal para lo opcional. Leen los tokens del tag y no tienen ninguno propio, así que un sistema de diseño que cambia el estilo de sus tags pequeños cambia también el de estos.
+
+### Recomendado
+
+- Di el estado con palabras. «Fallido» no necesita nada más; un tag que dice «3 compilaciones» en los colores de error necesita `statusLabel`.
+- Deja a un tag espacio para su etiqueta. Una etiqueta que no cabe se corta con puntos suspensivos, y el tag no tiene estado al pasar el cursor ni de foco con el que mostrar el resto.
+- Pon un conjunto de tags en una lista (`<ul>` y `<li>` en la web) y da nombre a la lista cuando formen un solo conjunto, como las categorías de un artículo.
+
+### Evita
+
+- No hagas que un tag se pueda pulsar. Un rótulo que se pulsa, se conmuta o se quita es un chip; uno que lleva a algún sitio es un enlace.
+- No uses un tag sin etiqueta. Un punto o un glifo solos no son un tag, y no se dibuja nada.
+- No dependas del color para transmitir el estado. Con colores forzados, todos los tags se ven iguales: un borde y una etiqueta en el color del texto.
+- No uses un tag para un recuento sobre un icono. Eso es una insignia.
+
+## Accesibilidad
+
+<ComponentAccessibility name="tag" />
+
+### De qué se encarga el componente
+
+- No tiene rol ni nombre: su etiqueta se lee donde está el tag, como texto. Dentro de un enlace, un botón o una celda de tabla, forma parte del contenido de ese elemento.
+- `statusLabel` se lee antes de la etiqueta como una segunda frase («Error, 3 compilaciones») y nunca se dibuja. Se ignora mientras `status` es `default`.
+- El glifo y el punto quedan ocultos para la tecnología de apoyo.
+- No recibe entrada ni foco, así que no añade ninguna parada al orden del foco ni ningún objetivo a una fila.
+- Una etiqueta cortada se sigue leyendo completa.
+- Con colores forzados, todos los aspectos ganan un borde en el color del texto, y la etiqueta, el glifo y el punto toman ese color.
+- En un diseño de derecha a izquierda, el glifo o el punto pasan a la derecha de la etiqueta, un glifo que el conjunto de iconos marca para ello se refleja, y una etiqueta escrita de izquierda a derecha conserva su propio orden y se corta por su propio final.
+- Las compilaciones de depuración notifican una variante, un tamaño o un estado desconocidos, una etiqueta vacía y un `statusLabel` sin estado.
+
+### Qué debes hacer tú
+
+- Comprueba que las palabras de cada tag digan su estado. El componente no puede saber si «3 compilaciones» es una buena o una mala noticia.
+- Escribe `statusLabel` en el idioma de la página.
+- Si un cambio debe anunciarse en el momento en que ocurre (una compilación que termina mientras la persona mira), pon el tag en una región activa (live region) o informa del cambio con un snackbar. El tag no anuncia nada.

@@ -1,0 +1,377 @@
+---
+title: Botón
+description: Permite realizar una acción, activar y desactivar algo o ir a un destino con un solo toque o clic.
+translationOf: components/button.mdx
+sourceHash: d3c82e9e9c52acaafaa279ddf1b5083da7264b09
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="button" />
+
+<DemoFrame label="Variantes">
+  <tanrei-button variant="filled">Filled</tanrei-button>
+  <tanrei-button variant="tonal">Tonal</tanrei-button>
+  <tanrei-button variant="elevated">Elevated</tanrei-button>
+  <tanrei-button variant="outlined">Outlined</tanrei-button>
+  <tanrei-button variant="text">Text</tanrei-button>
+</DemoFrame>
+
+### Uso
+
+Los ejemplos de Web y React muestran la especificación actual. SwiftUI, Compose, Flutter y React Native van rezagados: todavía ofrecen la revisión anterior del botón, en la que la forma de solo icono y el conmutador son un botón de icono aparte, y que no tiene anchos de solo icono ni forma de enlace. Sus ejemplos muestran esa revisión hasta que se pongan al día.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="filled">Desplegar</tanrei-button>
+    <tanrei-button variant="outlined" size="small">Cancelar</tanrei-button>
+    <tanrei-button disabled>Desplegando…</tanrei-button>
+
+    <!-- Con href es un enlace, dibujado como el mismo botón. -->
+    <tanrei-button variant="tonal" href="/pricing/">Ver precios</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      document.querySelector('tanrei-button').addEventListener('click', deploy);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button variant="filled" onClick={deploy}>Desplegar</Button>
+    <Button variant="outlined" size="small" onClick={cancel}>Cancelar</Button>
+    <Button disabled>Desplegando…</Button>
+
+    // Con href es un enlace, dibujado como el mismo botón.
+    <Button variant="tonal" href="/pricing/">Ver precios</Button>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiButton("Desplegar", variant: .filled) { deploy() }
+    TanreiButton("Cancelar", variant: .outlined, size: .small) { cancel() }
+
+    // El estado deshabilitado sigue el entorno de SwiftUI.
+    TanreiButton("Desplegando…") {}
+      .disabled(true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.*
+
+    TanreiButton(text = "Desplegar", onClick = ::deploy, variant = TanreiButtonVariant.Filled)
+    TanreiButton(text = "Cancelar", onClick = ::cancel, variant = TanreiButtonVariant.Outlined, size = TanreiButtonSize.Small)
+
+    // Compose usa el indicador inverso.
+    TanreiButton(text = "Desplegando…", onClick = {}, enabled = false)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiButton(variant: TanreiButtonVariant.filled, onPressed: deploy, child: const Text('Desplegar'));
+    TanreiButton(variant: TanreiButtonVariant.outlined, size: TanreiButtonSize.small, onPressed: cancel, child: const Text('Cancelar'));
+
+    // Un onPressed nulo deshabilita el botón.
+    TanreiButton(onPressed: null, child: const Text('Desplegando…'));
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Button } from '@tanrei/react-native';
+
+    <Button variant="filled" onPress={deploy}>Desplegar</Button>
+    <Button variant="outlined" size="small" onPress={cancel}>Cancelar</Button>
+    <Button disabled>Desplegando…</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+### Un icono, un icono solo y conmutadores
+
+Un botón puede llevar un icono junto a su etiqueta, al inicio o, con `iconPosition` en `trailing`, al final. El margen interior del lado del icono es un paso más ajustado que el del lado de la etiqueta, de modo que ambos se ven equilibrados. Sin etiqueta es de solo icono: un círculo tan ancho como alto es el botón, que recibe su nombre de `label`, que entonces es obligatorio. Con `toggle` activado, cambia su propio `selected` en cada pulsación, muestra el estado con sus colores y con el relleno del glifo, y lo anuncia como un estado pulsado.
+
+<DemoFrame label="Botones de solo icono y un conmutador">
+  <tanrei-button variant="text" label="Buscar"><span slot="icon">search</span></tanrei-button>
+  <tanrei-button variant="tonal" label="Editar"><span slot="icon">edit</span></tanrei-button>
+  <tanrei-button variant="outlined" toggle selected label="Favorito"><span slot="icon">favorite</span></tanrei-button>
+  <tanrei-button variant="filled" icon-position="trailing">Siguiente<span slot="icon">arrow_forward</span></tanrei-button>
+</DemoFrame>
+
+En Tanrei, el botón de icono no es un componente aparte. Si conoces los nombres de Material, aquí es donde fueron a parar:
+
+| Material | Tanrei |
+| --- | --- |
+| Icon button | Button con un icono y sin etiqueta |
+| Standard icon button | la variante `text` |
+| Icon buttons filled, tonal y outlined | las variantes `filled`, `tonal` y `outlined` |
+| Icon toggle button | `toggle` y `selected` |
+
+Dale un icono a un conmutador de texto. Sin contenedor, un conmutador de texto que solo tiene etiqueta muestra su estado únicamente con un cambio en el color del texto; el relleno del glifo hace visible el estado.
+
+### Anchos de un botón de solo icono
+
+Un botón de solo icono tiene tres anchos. Su altura nunca cambia con ellos, y un botón con etiqueta ignora `width`.
+
+| `width` | En el sistema predeterminado (small / medium / large) | Úsalo para |
+| --- | --- | --- |
+| `default` | Tan ancho como alto: 32 / 40 / 56, un círculo | La mayoría de las acciones de icono. |
+| `narrow` | El glifo y un pequeño margen interior a cada lado: 28 / 32 / 32, una cápsula | Una fila apretada de acciones de icono, como las herramientas al final de un campo o una fila de tabla densa. |
+| `wide` | 40 / 52 / 72, una cápsula | La única acción de una fila que debe pesar más que sus vecinas. |
+
+<DemoFrame label="Anchos de solo icono: default, narrow y wide" plain>
+  <tanrei-button variant="tonal" label="Añadir"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="narrow" label="Añadir"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="tonal" width="wide" label="Añadir"><span slot="icon">add</span></tanrei-button>
+  <tanrei-button variant="outlined" size="small" width="narrow" label="Más opciones"><span slot="icon">more_vert</span></tanrei-button>
+  <tanrei-button variant="filled" size="large" width="wide" label="Reproducir"><span slot="icon">play_arrow</span></tanrei-button>
+</DemoFrame>
+
+Un botón estrecho mide exactamente su glifo más el margen interior de cada lado, así que el glifo nunca toca el borde de la cápsula, y el botón sigue al glifo cuando un sistema de diseño le cambia el tamaño. Se dibuja más estrecho que el objetivo mínimo, pero su área de pulsación no lo es: el objetivo se extiende más allá de sus bordes visibles. Déjale espacio junto al botón, o coloca los botones estrechos en una [barra de herramientas](/es/components/toolbar/) o en un [grupo de botones](/es/components/button-group/), que espacian sus elementos.
+
+### Un botón con destino es un enlace
+
+Dale un `href` a un botón y será un enlace, no un botón: el mismo control, dibujado con los mismos tokens en todos los estados, pero con el rol de enlace y todo lo que la plataforma da a un enlace. En la web es un ancla real, de modo que las personas pueden abrirlo en una pestaña nueva, copiar su dirección y ver adónde lleva antes de seguirlo. Usa esta forma siempre que activar el control solo lleve a la persona a otro lugar. No navegues desde el controlador de clic de un botón normal.
+
+<DemoFrame label="Enlaces: mismo lugar, pestaña nueva, solo icono y deshabilitado" plain>
+  <tanrei-button href="/es/components/button-group/">Grupo de botones</tanrei-button>
+  <tanrei-button variant="outlined" href="/es/components/toolbar/" target="new" target-label="se abre en una pestaña nueva">Barra de herramientas</tanrei-button>
+  <tanrei-button variant="text" href="/es/components/" label="Todos los componentes"><span slot="icon">apps</span></tanrei-button>
+  <tanrei-button variant="tonal" href="/es/components/button-group/" disabled>Grupo de botones</tanrei-button>
+</DemoFrame>
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button href="/getting-started/">Empezar</tanrei-button>
+
+    <!-- Una pestaña nueva: la marca que sigue a la etiqueta se dibuja sola; target-label es lo que oye un lector de pantalla. -->
+    <tanrei-button variant="outlined" href="https://example.com/source" target="new" target-label="se abre en una pestaña nueva">
+      Ver código fuente
+    </tanrei-button>
+
+    <!-- Solo en la web: rel y download pasan al ancla. -->
+    <tanrei-button variant="tonal" href="/report.pdf" download="report.pdf"><span slot="icon">download</span>Descargar informe</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      // click se emite primero. Un enrutador del lado del cliente lo cancela y se encarga de la navegación.
+      document.querySelector('[href="/getting-started/"]').addEventListener('click', (event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button } from '@tanrei/react';
+
+    <Button href="/getting-started/">Empezar</Button>
+
+    <Button variant="outlined" href="https://example.com/source" target="new" targetLabel="se abre en una pestaña nueva">
+      Ver código fuente
+    </Button>
+
+    // click se emite primero. Un enrutador del lado del cliente lo cancela y se encarga de la navegación.
+    <Button
+      href="/getting-started/"
+      onClick={(event) => {
+        event.preventDefault();
+        router.navigate('/getting-started/');
+      }}
+    >
+      Empezar
+    </Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **Teclas.** Enter sigue el enlace. Espacio hace lo mismo que en cualquier enlace (en la web, desplaza la página), no lo que hace en un botón.
+- **`target`.** `same` (el valor predeterminado) abre el destino donde está la persona. `new` abre una pestaña o ventana nueva. Un botón con etiqueta muestra entonces el glifo `open_in_new` después de la etiqueta, salvo que ahí esté tu propio icono final, y `targetLabel` es obligatorio: Tanrei no incluye textos propios, así que eres tú quien dice «se abre en una pestaña nueva» en el idioma de tu producto.
+- **Deshabilitado.** Un botón de enlace deshabilitado no se puede seguir, copiar ni arrastrar, y se expone como un enlace deshabilitado.
+- **Conmutadores.** Un conmutador guarda un estado, así que no admite destino: `href` se ignora mientras `toggle` esté activado.
+- **Solo en la web**, `rel` y `download` pasan al ancla. `target` en `new` siempre añade `noopener` a `rel`.
+- No hay aspecto de enlace visitado. El color de un botón de enlace expresa su énfasis y su estado, como el de cualquier botón.
+
+### En un formulario
+
+En la web, un botón es uno de los controles de su formulario, y `type` dice qué le hace una pulsación al formulario. Las demás plataformas no tienen un elemento de formulario: ahí llamas a una misma función desde la pulsación del botón y desde el `action` de un campo.
+
+| `type` | Una pulsación |
+| --- | --- |
+| `button` (el valor predeterminado) | No le hace nada al formulario. Un botón dentro de un formulario puede abrir un selector o añadir una fila sin enviar nada. |
+| `submit` | Pide al formulario que se envíe, como hace el botón de envío propio del navegador: primero `click`, después la validación del formulario y después su evento `submit`. |
+| `reset` | Devuelve todos los controles del formulario a su valor inicial, después de `click` y del evento `reset` del formulario. |
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form id="profile">
+      <tanrei-text-field label="Nombre" name="name" requirement="required"></tanrei-text-field>
+      <tanrei-button type="reset" variant="text">Borrar</tanrei-button>
+      <tanrei-button type="submit" variant="outlined" name="intent" value="draft">Guardar borrador</tanrei-button>
+      <tanrei-button type="submit" name="intent" value="publish">Publicar</tanrei-button>
+    </form>
+
+    <!-- Fuera del formulario: el atributo form lo nombra por su id. -->
+    <tanrei-button type="submit" form="profile" name="intent" value="publish">Publicar</tanrei-button>
+
+    <script type="module">
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/text-field';
+      document.querySelector('#profile').addEventListener('submit', (event) => {
+        event.preventDefault();
+        // El name y el value del botón pulsado están en los datos: "draft" o "publish".
+        const data = new FormData(event.target, event.submitter);
+        save(data.get('name'), data.get('intent'));
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, TextField } from '@tanrei/react';
+
+    <form
+      id="profile"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget, (event.nativeEvent as SubmitEvent).submitter);
+        save(data.get('name'), data.get('intent'));
+      }}
+    >
+      <TextField label="Nombre" name="name" requirement="required" />
+      <Button type="reset" variant="text">Borrar</Button>
+      <Button type="submit" variant="outlined" name="intent" value="draft">Guardar borrador</Button>
+      <Button type="submit" name="intent" value="publish">Publicar</Button>
+    </form>
+
+    // Fuera del formulario: form es el id del formulario.
+    <Button type="submit" form="profile" name="intent" value="publish">Publicar</Button>
+    ```
+  </TabItem>
+</Tabs>
+
+- **Qué formulario.** El formulario que rodea al botón, o el que el atributo `form` nombra por su id: así es como un botón situado en las acciones de un diálogo o en una cabecera de página envía un formulario dentro del cual no está. La propiedad `form` del elemento devuelve ese formulario y no se puede definir.
+- **Enter en un campo.** El primer botón de envío de un formulario es su botón predeterminado, sea un botón de Tanrei o el propio del navegador. Enter en un campo del formulario lo pulsa: en un campo de texto, un campo numérico, un campo de color, un cuadro combinado, una entrada de código de un solo uso o una búsqueda de Tanrei, sobre una casilla de verificación, un botón de opción o un interruptor de Tanrei, y en los campos de entrada de una sola línea propios del navegador. El botón emite `click` como con cualquier pulsación, y cancelar ese `click` cancela el envío.
+- **Deshabilitado.** Un botón de envío deshabilitado no envía nada y, mientras es el botón predeterminado del formulario, también detiene Enter, de modo que un formulario que no está listo no se envía a espaldas de su botón. Un botón dentro de un `<fieldset disabled>` queda deshabilitado con él, sea cual sea su `type`. Un botón de enlace, no.
+- **Qué botón se pulsó.** `name` y `value` se envían solo cuando fue ese botón el que envió el formulario. Léelos en tu listener de `submit`, en `event.submitter.value` o con `new FormData(form, event.submitter)`. `event.submitter` no es el elemento de Tanrei. Es un `<button>` nativo que el elemento pone en su propio lugar mientras se despacha el evento `submit`, así que no compares `event.submitter` con el elemento.
+- **Cómo se envía el formulario** es cosa solo del formulario. `formaction`, `formmethod`, `formenctype`, `formtarget` y `formnovalidate` no se leen. Para guardar un borrador sin validación, define el `noValidate` del formulario en el listener de `click` de ese botón, que se ejecuta antes de la validación.
+- **Enviar dos veces.** El botón no protege contra una segunda pulsación. Deshabilítalo mientras tu petición está en curso, o ignora el segundo `submit`.
+- **Un conmutador y un enlace** ignoran `type`: una pulsación que cambia un estado o que lleva a algún sitio no envía un formulario. Un `type` que no es ninguno de los tres se comporta como `button`.
+
+### Un nombre más largo que la etiqueta
+
+Cuando la misma palabra se dibuja en varios botones, como «Quitar» en cada fila de una lista, la palabra por sí sola no le dice a quien usa un lector de pantalla a qué fila pertenece un botón. Da a cada botón un `label`: pasa a ser el nombre accesible completo del botón, en lugar del texto dibujado, y el botón se dibuja exactamente igual que antes.
+
+<DemoFrame label="La misma palabra en cada fila, y cada botón con el nombre de su fila" plain>
+  <tanrei-button variant="text" size="small" label="Quitar: Inter">Quitar</tanrei-button>
+  <tanrei-button variant="text" size="small" label="Quitar: Noto Sans JP">Quitar</tanrei-button>
+  <tanrei-button variant="text" size="small" label="Quitar: Roboto Mono">Quitar</tanrei-button>
+</DemoFrame>
+
+| `label` | Etiqueta dibujada | Nombre accesible |
+| --- | --- | --- |
+| Indicado | Ninguna (solo icono) | `label` |
+| Vacío | Dibujada | El texto dibujado |
+| Indicado | Dibujada | `label`, entero y solo |
+
+- **El nombre debe contener el texto dibujado.** Quien usa la entrada por voz dice la palabra que ve en el botón. Empieza el nombre por esa palabra donde tu idioma lo permita: «Quitar: Inter» para un botón en el que se dibuja «Quitar». Las mayúsculas y minúsculas y los espacios de más no importan.
+- **Las compilaciones de depuración notifican** un `label` que no contiene el texto dibujado. El botón sigue usando el nombre que le diste. Nunca recurre al texto dibujado ni une los dos, porque el orden de una frase pertenece a tu idioma.
+- **Una descripción no es un nombre.** Lo que distingue un botón de sus vecinos es su nombre. Lo que ocurre cuando se pulsa, como «se abre en una pestaña nueva», es una descripción, que se lee después del nombre y del rol.
+
+## Especificaciones
+
+<DemoFrame label="Tamaños y estado deshabilitado" plain>
+  <tanrei-button size="small">Small</tanrei-button>
+  <tanrei-button size="medium">Medium</tanrei-button>
+  <tanrei-button size="large">Large</tanrei-button>
+  <tanrei-button disabled>Disabled</tanrei-button>
+  <tanrei-button variant="outlined" disabled>Disabled</tanrei-button>
+</DemoFrame>
+
+<ComponentSpecs name="button" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un botón para una acción que ocurre donde está la persona: enviar un formulario, guardar, iniciar un proceso, confirmar un diálogo. En la web, un botón que envía su formulario lo dice con `type` (consulta [En un formulario](#en-un-formulario)).
+
+Si activarlo solo lleva a la persona a otro lugar, es un enlace. Cuando ese destino merece el énfasis de un botón, como «Empezar» en una página de inicio o «Ver todo» al final de una lista, conserva el botón y dale `href`: entonces es un enlace, con el rol, las teclas y el comportamiento en el navegador de un enlace (consulta [Un botón con destino es un enlace](#un-botón-con-destino-es-un-enlace)). Un destino dentro de una frase sigue siendo un enlace de texto corriente.
+
+### Cómo elegir una variante
+
+Las variantes expresan énfasis, y el énfasis es un presupuesto. Gástalo una vez por vista.
+
+| Variante | Énfasis | Úsala para |
+| --- | --- | --- |
+| Filled | El más alto | La acción más importante de una vista o de un diálogo, y solo una. |
+| Tonal | Alto | Una acción importante que no debe competir con un botón filled, o la acción principal de una región secundaria. |
+| Elevated | Medio | Una acción que debe separarse de un fondo recargado o con motivos. |
+| Outlined | Medio | Acciones del mismo peso junto a un botón filled, como Cancelar. |
+| Text | Bajo | Las acciones menos urgentes y las acciones en línea de tarjetas, diálogos y barras de herramientas. |
+
+Un botón sin `variant` es filled, con una excepción: colocado como acción de un [diálogo](/es/components/dialog/) o de una [hoja lateral](/es/components/side-sheet/), toma la variante de ese anfitrión, tonal en el sistema predeterminado, de modo que solo defines una variante en la acción que debe verse distinta. El botón de cierre de una hoja lateral toma del mismo modo la variante de botón de cierre de la hoja.
+
+### Recomendado
+
+- Escribe las etiquetas como un verbo, o un verbo y un sustantivo, que digan qué va a ocurrir: **Desplegar**, **Guardar borrador**, **Añadir miembro**.
+- Mantén un solo botón filled por vista. Si dos acciones parecen igual de principales, es probable que la vista esté haciendo dos trabajos.
+- Coloca la acción principal donde la esperan quienes usan la plataforma y mantén ese orden en todo el producto.
+- Usa `small` (32) en barras de herramientas y tablas densas, `medium` (40) de forma predeterminada y `large` (56) para ubicaciones pensadas para el tacto o muy destacadas. El área de pulsación es segura en todos los tamaños.
+- Usa el slot de icono para reforzar una etiqueta. Omite la etiqueta solo cuando el glifo se entienda de forma generalizada (buscar, cerrar, más) y da nombre al botón con `label`.
+
+### Evita
+
+- No navegues desde el controlador de clic de un botón. Un control con destino es un enlace: define `href` para que se pueda abrir en una pestaña nueva, copiar y anunciar como enlace.
+- No des `href` a algo que actúa sobre la página, como Guardar o Eliminar, y no abras una pestaña nueva sin decirlo en `targetLabel`.
+- No pongas un botón filled en cada fila de una lista. Es preferible usar botones de texto, o una sola acción en la parte superior que se aplique a la selección.
+- No deshabilites un botón como única forma de comunicar un problema de validación. Mantenlo habilitado y explica qué falta cuando se pulse.
+- No trunques las etiquetas. Deja que el botón crezca o escribe una etiqueta más corta.
+- No dejes un botón de solo icono sin `label`: el glifo no es un nombre.
+- No juntes a mano botones estrechos de solo icono borde con borde. Sus objetivos se extienden más allá de sus bordes y se solaparían.
+
+### Contenido
+
+Las etiquetas no llevan puntuación final. Procura que tengan una o dos palabras. Escríbelas como cada idioma de tu producto escribe una etiqueta: en inglés, con mayúscula solo en la primera palabra; en japonés, con una forma nominal o de sustantivo verbal, como 保存 o デプロイ, en lugar de una terminación de frase de cortesía.
+
+## Accesibilidad
+
+<ComponentAccessibility name="button" />
+
+### De qué se encarga el componente
+
+- Expone el rol de botón y su estado deshabilitado a la tecnología de apoyo en todas las plataformas. Con `href` expone en su lugar el rol de enlace, y solo Enter lo activa.
+- Un conmutador es un botón con un estado pulsado, no una casilla de verificación ni un interruptor, y su nombre no cambia con su estado.
+- Un enlace que abre un contexto nuevo lo dice dos veces: con la marca `open_in_new` para quienes la ven, y con `targetLabel` como descripción del enlace para quienes no. La marca en sí queda oculta para la tecnología de apoyo.
+- Con `label` junto a una etiqueta dibujada expone un solo nombre, el `label`, en un solo control. El texto dibujado no se lee una segunda vez.
+- En la web, Enter en un campo pulsa el botón predeterminado del formulario, un botón predeterminado deshabilitado detiene esa tecla, y un botón dentro de un fieldset deshabilitado queda deshabilitado con él.
+- Su área de pulsación cumple el objetivo mínimo incluso en el tamaño pequeño y en el ancho estrecho, sin que el botón se dibuje más grande.
+- Muestra el indicador de foco de separación y anillo para el foco del teclado, sin animación.
+- Sus colores proceden de pares de roles cuyo contraste se verifica en todos los niveles de contraste. El contorno de un botón outlined es la línea fina del sistema predeterminado, que es discreta a propósito: lo que identifica el control son la etiqueta y el icono, no su borde. Un producto que necesite un borde más marcado define `comp.button.outlined.outline.color` como `sys.color.outline` en una capa.
+- Con tamaños de texto mayores, el contenedor crece y la etiqueta nunca se trunca.
+
+### Qué debes hacer tú
+
+- Escribe una etiqueta que tenga sentido fuera de contexto. «Eliminar proyecto» es mejor que «Eliminar» junto al nombre de un proyecto, porque quien usa un lector de pantalla puede oír el botón por sí solo.
+- Si una acción inicia un proceso largo, mueve el foco o anuncia el progreso. Deshabilitar el botón, por sí solo, no le dice nada a quien usa un lector de pantalla.
+- No dependas del color de la variante para transmitir un significado, como la intención destructiva. Dilo en la etiqueta.
+- Da nombre a un botón de enlace según adónde lleva: «Ver factura», no «Haz clic aquí». Cuando `target` sea `new`, escribe `targetLabel`.
+- Donde varios botones dibujen la misma palabra, da a cada uno un `label` que contenga la palabra y diga sobre qué actúa el botón (consulta [Un nombre más largo que la etiqueta](#un-nombre-más-largo-que-la-etiqueta)).
+- Cuando el botón de envío de un formulario esté deshabilitado, di en la página qué falta todavía. El botón deshabilitado también detiene Enter y, por sí solo, no explica nada.
+- Da nombre a todos los botones de solo icono con `label`. Un [tooltip](/es/components/tooltip/) puede mostrar el mismo texto a quienes usan un puntero, pero nunca sustituye a `label`.

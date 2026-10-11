@@ -1,0 +1,185 @@
+---
+title: "加载指示器"
+description: "表示一段时长未知的短暂等待正在进行，可以内嵌在内容里，也可以浮在内容之上。"
+translationOf: components/loading-indicator.mdx
+sourceHash: 9ce360324a5fe7d64d8c45600b454acdad42f463
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="loading-indicator" />
+
+:::note[规格已修订，尚未覆盖所有平台]
+本页描述的是规格当前所定的加载指示器：它先等待一段时间再显示，然后以入场效果出现。Web 组件已经如此，本页的演示也是这样，它们会在延迟之后出现。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们一插入就绘制指示器并把它提供给辅助技术，也不接受三个新属性，所以下面这些平台的示例只展示它们实际提供的内容。
+:::
+
+<DemoFrame label="内嵌和带容器">
+  <tanrei-loading-indicator label="正在加载消息"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="正在加载图库"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained label="正在刷新"></tanrei-loading-indicator>
+</DemoFrame>
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <section aria-busy="true">
+      <tanrei-loading-indicator label="正在加载消息"></tanrei-loading-indicator>
+    </section>
+
+    <!-- 带容器：画在它自己的抬升的圆形上，浮在内容之上。 -->
+    <tanrei-loading-indicator contained size="large" label="正在刷新"></tanrei-loading-indicator>
+
+    <!-- 忙碌的按钮要立即回应按下：没有延迟。 -->
+    <tanrei-loading-indicator size="small" show-delay="0" label="正在保存"></tanrei-loading-indicator>
+
+    <!-- 给某一个指示器另一种节奏：等得更久，然后放大入场。 -->
+    <tanrei-loading-indicator show-delay="600" entrance="grow" label="正在加载报告"></tanrei-loading-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/loading-indicator';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react';
+
+    <section aria-busy={loading}>
+      {loading ? <LoadingIndicator label="正在加载消息" /> : <MessageList />}
+    </section>
+    <LoadingIndicator contained size="large" label="正在刷新" />
+    <LoadingIndicator size="small" showDelay={0} label="正在保存" />
+    <LoadingIndicator showDelay={600} entrance="grow" label="正在加载报告" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiLoadingIndicator("正在加载消息")
+
+    // 浮在内容之上，带它自己的抬升容器。
+    TanreiLoadingIndicator("正在刷新", size: .large, contained: true)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiContainedLoadingIndicator
+    import io.github.chnotchy.tanrei.components.TanreiLoadingIndicator
+    import io.github.chnotchy.tanrei.tokens.TanreiLoadingIndicatorSize
+
+    TanreiLoadingIndicator(contentDescription = "正在加载消息")
+
+    // 带容器的形式是另一个可组合函数，参数相同。
+    TanreiContainedLoadingIndicator(contentDescription = "正在刷新", size = TanreiLoadingIndicatorSize.Large)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    const TanreiLoadingIndicator(semanticsLabel: '正在加载消息');
+    const TanreiLoadingIndicator(
+      semanticsLabel: '正在刷新',
+      size: TanreiLoadingIndicatorSize.large,
+      contained: true,
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { LoadingIndicator } from '@tanrei/react-native';
+
+    <LoadingIndicator accessibilityLabel="正在加载消息" />
+    <LoadingIndicator accessibilityLabel="正在刷新" size="large" contained />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="各种尺寸，内嵌和带容器" plain>
+  <tanrei-loading-indicator size="small" label="Small"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="medium" label="Medium"></tanrei-loading-indicator>
+  <tanrei-loading-indicator size="large" label="Large"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="small" label="Small，带容器"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="medium" label="Medium，带容器"></tanrei-loading-indicator>
+  <tanrei-loading-indicator contained size="large" label="Large，带容器"></tanrei-loading-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="loading-indicator" />
+
+## 指南
+
+### 何时使用
+
+加载指示器用于你无法判断时长的短暂等待：列表正在获取下一页、控件正在保存、预览正在渲染。它说明有事情正在进行，但不说明要花多久。
+
+如果等待可能持续几秒以上，或者你能够测量它已经进行到哪里，请改用[进度指示器](/zh-cn/components/progress-indicator/)。一个数值，哪怕是粗略的，也会让漫长的等待更容易忍受。
+
+### 如何选择尺寸
+
+| 尺寸 | 默认系统中的指示器 / 容器 | 用途 |
+| --- | --- | --- |
+| Small | 16 / 24 | 在控件里代替图标，例如正在保存的按钮。 |
+| Medium | 24 / 32 | 放在一行文本旁边。这是默认尺寸。 |
+| Large | 40 / 48 | 等待内容的空白区域或整个视图。 |
+
+### 带容器
+
+带容器的形式把指示器画在它自己的抬升的圆形上。指示器浮在内容之上时使用它，例如下拉刷新时，或者位于图片或列表之上时，这样无论背后是什么，它都看得见。指示器位于素净的表面上时，保持内嵌即可。
+
+### 显示延迟和入场
+
+转眼就结束的等待不应该显示任何东西。所以指示器先等待再显示：在默认系统中是 300 毫秒，从它被插入的那一刻算起。然后它淡入。比这段延迟更短的等待，永远不会显示一个一闪而过的标记。在延迟期间，指示器已经占据它的完整尺寸，所以它出现时，旁边的任何东西都不会移动。
+
+在等待开始时插入指示器，在等待结束时移除它。延迟从插入时算起：只是被隐藏后再次显示、没有被移除的指示器不会再等一次；重新插入的指示器会再等完整的一段延迟。
+
+延迟和入场效果由系统为所有指示器统一决定。只有在某一个指示器需要不同的节奏时，才在它上面单独设置：
+
+- `showDelay` 是以毫秒为单位的等待时间。`0` 表示指示器一插入就显示，适合应当立即回应按下的忙碌按钮。
+- `entrance` 是 `fade` 或 `grow`。grow 让指示器在淡入的同时从中心放大。默认值 `auto` 采用系统的选择。
+- `enterDuration` 是以毫秒为单位的入场时长。`0` 表示指示器立即完整显示。
+
+你设置的值会原样使用：动效调节量不会缩放它。不设置某个属性，就采用系统的值。
+
+### 推荐
+
+- 给它一个说明正在加载什么的标签：写“正在加载消息”，不写“正在加载”。如果它旁边显示了说明文字，请使用同样的措辞。
+- 把它放在内容将要出现的位置，这样内容到达时，用户看的正是那个地方。
+- 用它代替控件里的图标时，保持控件的尺寸不变，这样周围的任何东西都不会移动。
+- 除非某个指示器需要另一种节奏，否则把延迟交给系统决定。
+
+### 避免
+
+- 不要把它用于可以测量的等待，或可能持续很久的等待。请使用进度指示器。
+- 不要为同一次等待显示多个指示器。每个正在加载的区域一个就够了。
+- 屏幕上只有一部分在加载时，不要让它盖住整个屏幕。让其余部分保持可用。
+- 不要用给它着色的方式表示出了问题。应当停止指示器，并显示一条消息。
+- 不要把指示器一直留在原处，只在两次等待之间把它隐藏。要移除它，这样下一次等待才会开始新的延迟。
+
+## 无障碍
+
+<ComponentAccessibility name="loading-indicator" />
+
+### 组件负责的部分
+
+- 显示之后，它以平台的“忙碌”状态提供进度条角色，以标签作为名称，没有数值。Flutter 目前还没有进度条角色和忙碌状态，所以在那里它只提供标签。
+- 在显示延迟期间，它完全不在无障碍树之内：没有角色，没有名称，没有忙碌状态。短到看不见的等待，同样也听不到。
+- 它从不可聚焦，出现或消失时也不会自行朗读。
+- 用户要求减弱动态效果时，圆弧停止转动，改为一个完整的圆环轻缓地改变不透明度，每秒至多一次；容器保持静止。grow 入场变为淡入。显示延迟保持不变：它是等待，不是动效。
+- 在看不见它的时候，它的动画会停止——在所有平台上，应用处于后台时都是如此；在平台能够判断的情况下，它被滚出视野或位于隐藏的屏幕上时也是如此——看得见时再恢复。
+- 空的标签会在调试构建中报告。
+
+### 需要你做的事
+
+- 在加载期间把正在加载的区域标记为忙碌（在 Web 上是 `aria-busy`），从等待开始时就标记，不要等指示器的延迟结束；并在内容到达时告知用户：在实时区域（live region）里放一条消息，或者在内容是用户主动请求的情况下，把焦点移到新内容上。
+- 如果你更改了颜色，请让指示器的颜色相对于它背后的表面至少保持 3:1 的对比度，带容器的指示器的颜色相对于它的容器也是如此。这个运动的标记是表明有事情正在进行的唯一信号。

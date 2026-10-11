@@ -1,0 +1,65 @@
+---
+title: Theme Studio
+description: Move a few controls, watch real components follow, and export a valid design-system layer you can build for every platform.
+tableOfContents: false
+---
+
+import ThemeStudio from '../../../components/ThemeStudio.astro';
+
+A design system should feel right by default and follow you when you change one thing. The Studio is that idea, made touchable: pick a base, turn a dial, choose a color, change one token, add one of your own — and export the small [layer file](/foundations/design-systems/#a-design-system-is-a-layer) that says exactly what you changed, nothing else.
+
+Nothing here is a mock-up. The preview is a real system scope with real components and icons — a button with a leading icon, a toggle whose icon fills when it is selected, and the same icons drawn unselected and selected, so the icon set, `sys.icon.weight` and `sys.icon.fill.*` are as visible as a color. Text is set in the font stacks you choose, with the fonts this browser really has: when the family a stack puts first is not installed here, the Studio says so next to the control — the preview then shows the fallback, and your product must load that font. Nothing is ever fetched from a font host. The preview applies the very stylesheet `tanrei build` would write for your layer — computed in your browser by the same engine, emitter and accessibility checks. Repository tests build Studio layers with the CLI pipeline and require the whole sheet, every token value in all six schemes and every warning to match.
+
+<ThemeStudio />
+
+## Four levels, one file
+
+Customization is fractal: a few sliders are enough, and total control is never far. Every level edits the **same** `<id>.system.json`; a level is a view of the file, never a mode of it, so switching loses nothing.
+
+| Level | For | What you see |
+|---|---|---|
+| **Essentials** | a quick setup | a base, a brand color and four sliders — text size, spacing, roundness, heading contrast |
+| **Groups** | going through things area by area | all seven dials with reasons, every palette (a seed, or hue + chroma, and a table of the tones it fixes to exact colors), the three typefaces, the icon set, the shape (a corner-smoothing slider, 0–1, where 0.6 is the iOS corner), the behaviour choices, each component's sizes and variants with the common edits — per size, for the size you pick — and what your layer adds |
+| **Every token** | touching things one by one | a searchable tree of every token — resolved value (per scheme for colors), kind, which layer set it, its description and usage guidance, what follows it — and an editor that offers only the operations that are legal for that token |
+| **Source** | people who prefer the file | the JSON, validated as you type by the schema and by the token engine, whose message is shown word for word |
+
+Text at **Source** that does not parse yet is a draft: it is kept exactly as typed while you visit the other levels (the level switch says *Source has invalid edits*) and across a reload, it is never saved to your file, and the preview and the other levels stay at the last text that parsed until the draft does.
+
+In Essentials, **Spacing** takes the size unit with it in proportion: a control's height must hold its padding, and the build checks exactly that. Set `dial.size.unit` on its own in Groups and Essentials leaves it alone from then on.
+
+## What the controls write
+
+| You do | The layer gets |
+|---|---|
+| Pick a base system | `"extends"` |
+| Move a dial | `"$value"` on `dial.*`, with a `reason` |
+| Choose a seed or hue + chroma, declare or drop a palette | an entry in `"palettes"` — `null` drops an inherited one |
+| Fix a tone of a palette to an exact color | `source.tones` of that palette — `{ "40": "#e60012" }`; a new row starts as the generated color |
+| Order the families of **Brand**, **Plain** or **Mono**, choose the generic fallback, put the platform's font first | `{ "$value": ["IBM Plex Sans", "system-ui", "sans-serif"], "reason": "…" }` on `ref.typeface.*` |
+| Choose the icon set — one variable family, or a family per selection state — its weight and fills | `$value` pins on `ref.typeface.icon` or `sys.icon.family.*`, `sys.icon.weight`, `sys.icon.fill.*` |
+| Move the corner-smoothing slider | `{ "$value": 0.6, "reason": "…" }` on `sys.shape.corner-smoothing` — an amount 0–1 with Figma's meaning ([Shape](/foundations/shape/#corner-smoothing)) |
+| Choose how a press is answered, how focus looks | `{ "$value": 1, "reason": "…" }` on `sys.behavior.*` — you pick a **name** (`ripple`, `glow`); the file stores its position |
+| Scale a token | `{ "scale": n }` — a ratio of what it inherits, still driven by its dial |
+| Re-point a token | `{ "$value": "{another.token}" }` |
+| Pin a token | `{ "$value": …, "reason": "…" }` — exempt from every dial; not written until it has a reason |
+| Replace a rule | `{ "derive": … }` — a coefficient on a dial, a tone table for a color role, `mix` or `alpha` for a state |
+| Edit pattern rules | `"rules"` — how hovered, focused, pressed and disabled look, for every component at once |
+| Add… a size or a variant, a step in a series, a token of your own | a declaration under `"vocabulary"`, with a mandatory `rationale` |
+
+Typefaces, Icons, Shape and Behaviour write pins, and a pin needs a reason: each of the four asks for it once, prefilled (“Brand typeface.”), and every pin it writes carries your wording. In **Every token** a choice of kind is picked by name, never typed as a number, and a font stack is the same ordered list as in Groups. The buttons in the preview are real, so `ripple`, `dim`, the eased corners and the focus glow are what `<tanrei-button>` really does with those tokens in this browser. The type ramp draws a heading of each face, running text, a label and code — and every text style your layer adds — and the **Emphasized** toggle on the preview bar redraws them at their role's weight plus the family's `sys.typescale.emphasis.*` step, live from the sheet. When a choice would draw nothing — `dim` while every pressed opacity is 1, as under the default system — the build's own warning is shown under the control, word for word, and the token it names is a link to its editor.
+
+A control left at its base value writes nothing, so an untouched Studio exports `{ "id", "extends" }` and builds to the base system exactly. Anything a valid layer can contain is editable here — importing a layer keeps nothing on the side.
+
+## Adding to the vocabulary
+
+**Add…** (in Groups and Every token) declares something new. A size is one line — `{ "from": "large", "scale": 1.5 }` — and the Studio shows every token that line creates, as it would resolve, before you add it; afterwards each member can be overridden on its own, and the build's height warning is shown live because the default scale is rarely right for padding. A variant is cloned from another one and the system's pattern rules value its interaction states. A token of your own lives in your layer's namespace (`acme.comp.rating.star.size`) and appears under *Your tokens* in the preview; renaming the layer renames that namespace with it. Added sizes and variants are drawn by the real `<tanrei-button>` straight away.
+
+## On your own file
+
+`tanrei studio` serves this Studio locally and points it at your product's layer file: edits are saved to the file as you make them, **Build** runs `tanrei build`, and when the file changes underneath — an editor, a `git checkout` — the Studio offers to reload or to keep what is open. It never overwrites silently. A save is written only when the schema, the rules for a chain of layers and the token engine all accept the layer — the server asks the engine itself and answers with its message — so the file on disk is always one `tanrei build` builds, whichever program sent it. The app also serves the typefaces and icon fonts that the systems shipped with Tanrei name (Inter, Noto Sans JP, Roboto Mono, Roboto, Material Symbols Rounded and Outlined) from its own address, so a preset is drawn in its own faces.
+
+A product may stack its own layers — `acme-app.system.json` extending `acme.system.json` next to it. `tanrei studio` hands the layers next to your file to the Studio, read-only, and the Studio resolves the whole chain in the browser exactly as it does for the shipped systems; when a parent changes on disk, everything is computed again.
+
+## What it cannot do
+
+On this page there is no file behind the Studio, so a layer that extends a layer of your own cannot be imported here — open it with `tanrei studio`, which knows the files next to it. The Studio never fetches a font from anywhere but the site that serves it: a family that site does not provide and your browser does not have is named, and the preview honestly shows the fallback. Its "preview equals build" tests compare the web sheet, the token bundle and the warnings; the native outputs are generated from the same model by `tanrei build`.

@@ -1,0 +1,684 @@
+{
+  "tanrei": {
+    "comp": {
+      "search": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product lets people search it from a bar that offers suggestions while they type, or from a compact trigger in its app bar that opens a view of results: under the bar on a large screen, in a dialog, or over the whole screen on a small one, enabled and disabled.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "standard"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "container.elevation": "shadow",
+              "outline.color": "color",
+              "leading-icon.color": "color",
+              "input.color": "color",
+              "placeholder.color": "color",
+              "caret.color": "color",
+              "state-layer.color": "color",
+              "suggestion.container.color": "color",
+              "suggestion.leading-icon.color": "color",
+              "suggestion.headline.color": "color",
+              "suggestion.supporting-text.color": "color",
+              "suggestion.state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "outline.width": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a search reads: the bar's height, corners, paddings, gap, the gap between its action buttons, glyph size and text style; the view's surface (color, elevation, corners, padding, offset from the bar, margin from the viewport) and the full-screen header's height, padding and divider; the suggestion rows' geometry and text styles; the motion; and for its one condition (standard) the colors of the bar's parts and of a suggestion's parts, the bar's elevation and its edge's width, in each state. Also: the trigger's height, padding, gap, glyph size and text style; the shortcut hint's text style and color; the dialog view's width, its distance from the window's top and its scrim; a result group's title, gap and indent; the status row's text style and its two colors; and how a match in an excerpt is marked (color, added weight, fill).",
+            "rules": [
+              "The bar answers focus with its edge: the focused outline, drawn instead of the focus ring; its container stays at rest under focus.",
+              "The placeholder is never the accessible name: label is.",
+              "Selected text in the input is highlighted in comp.input-box.selection.color, the product's one selection color for text entry.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "standard.state-layer.color aliases the input color and standard.suggestion.state-layer.color the headline color.",
+              "A result's row reads the suggestion tokens: suggestions and results are rows of one list. Only what a result adds has tokens of its own (the mark, the group, the status).",
+              "A match is marked by weight and by the stronger text color, not by a hue; result.mark.container.color is transparent in the default system.",
+              "The trigger takes the bar's colors, elevation, shape and state tokens; only its geometry and text style are its own."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "standard",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "height": {
+            "$type": "dimension",
+            "$description": "The bar's minimum height: Button's large and the large text field's, so a search bar shares a row with them.",
+            "$value": {
+              "value": 36,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 9
+              }
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.medium}",
+            "$extensions": {}
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "From the bar's start edge to the search glyph, and from its end edge to the input or the clear button.",
+            "$value": "{tanrei.sys.space.space100}",
+            "$extensions": {}
+          },
+          "padding-inline-with-button": {
+            "$type": "dimension",
+            "$description": "From the bar's edge to an icon button in the leading or trailing slot, or to the clear button at the end. Where an icon button's hit area stops at the bar's edge, this is what gives it its whole target on that side: at least half of sys.target.touch minus the button's width. The default system's 8 is half of 48 minus the narrowest button there (the small clear button, 32).",
+            "$value": "{tanrei.sys.space.space50}",
+            "$extensions": {}
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Between the bar's elements (glyph or leading button, input, the first action button) and the full-screen header's (back button, input, clear button). Neighbouring hit areas meet at the middle of it (SRC-25), so it is what keeps an icon button's target whole on the side where it meets the input: at sys.target.touch minus a button's width or more, the button keeps its full target there. The default system's 16 is 48 minus the narrowest button there (the bar's small clear button, 32). The action buttons stand button-gap from one another instead.",
+            "$value": "{tanrei.sys.space.space100}",
+            "$extensions": {}
+          },
+          "button-gap": {
+            "$type": "dimension",
+            "$description": "Between two neighbouring action buttons of the bar: the clear button and the icon-only Buttons of the trailing slot. 0 in the default system: the buttons stand as close as their targets allow, each keeping sys.target.touch along the row (SRC-34), so two medium buttons (40) stand 8 apart and two that are 48 or wider touch.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product sets the actions at the end of its search bar as one tight cluster while the input keeps its distance from them: the space between two actions and the space between the text and an action are two decisions, and a system that draws its bar's icons evenly spaced gives both the same value.",
+                "since": "0.1.0"
+              }
+            },
+            "$value": "{tanrei.comp.search.container.gap}"
+          }
+        },
+        "leading-icon": {
+          "size": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.icon.small}",
+            "$extensions": {}
+          }
+        },
+        "input": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The value and the placeholder, in the bar and in the full-screen header. 16 px, so iOS Safari does not zoom into it.",
+            "$value": "{tanrei.sys.typescale.body-large}"
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$description": "The bar's edge at rest; its focused width is a state token.",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "view": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$description": "The view's surface, docked under the bar or over the whole window.",
+              "$value": "{tanrei.sys.color.surface-bright}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$description": "The docked view's lift. A full-screen view covers the window, so no edge of it shows.",
+              "$value": "{tanrei.sys.elevation.level2}"
+            },
+            "shape": {
+              "$type": "dimension",
+              "$description": "The docked view's corners. A full-screen view fills the window with none.",
+              "$value": "{tanrei.sys.shape.corner.medium}"
+            }
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}"
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}"
+          },
+          "offset": {
+            "$type": "dimension",
+            "$description": "Between the bar and the docked view.",
+            "$value": "{tanrei.sys.space.space50}"
+          },
+          "viewport-margin": {
+            "$type": "dimension",
+            "$description": "How close the docked view may come to the viewport's edge or the on-screen keyboard.",
+            "$value": "{tanrei.sys.space.space100}"
+          },
+          "dialog": {
+            "max-width": {
+              "$type": "dimension",
+              "$description": "The widest the dialog view draws; a narrower window gets a narrower view (SRC-40). Wide enough for an excerpt line of about 80 characters.",
+              "$value": {
+                "value": 640,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product decides how wide its search results read on a large screen: a narrow column of titles, or a wide one with long excerpts.",
+                  "since": "0.1.0"
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 160
+                }
+              }
+            },
+            "offset": {
+              "$type": "dimension",
+              "$description": "From the top of the window's safe area to the dialog view. The view hangs from the top instead of being centered, so that the input stays where it is while the results under it come and go.",
+              "$value": "{tanrei.sys.space.space800}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product decides how far below its app bar the search opens: over it, just under it, or lower.",
+                  "since": "0.1.0"
+                }
+              }
+            }
+          },
+          "scrim": {
+            "color": {
+              "$type": "color",
+              "$description": "The dim over everything behind the dialog view, alpha included, as the dialog's.",
+              "$value": "{tanrei.sys.color.scrim}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product may dim the page less behind its search than behind a question it must answer, so that the place the person searches from stays readable.",
+                  "since": "0.1.0"
+                }
+              }
+            }
+          }
+        },
+        "header": {
+          "height": {
+            "$type": "dimension",
+            "$description": "The full-screen view's top row (back button, input, clear button): the small app bar's height.",
+            "$value": {
+              "value": 56,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 14
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "From the window's edges to the back button and the header's last element: the app bar's inset.",
+            "$value": "{tanrei.sys.space.space100}"
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$description": "The line under the full-screen header.",
+            "$value": "{tanrei.sys.color.outline-variant}"
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "suggestion": {
+          "container": {
+            "height": {
+              "$type": "dimension",
+              "$description": "A suggestion row's minimum height: the menu item's.",
+              "$value": {
+                "value": 44,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 11
+                }
+              }
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {}
+            },
+            "padding-block": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "gap": {
+              "$type": "dimension",
+              "$description": "Between a suggestion's leading icon and its text.",
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {}
+            },
+            "shape": {
+              "$type": "dimension",
+              "$description": "The corners of a suggestion's highlight, inset in the view by its padding.",
+              "$value": "{tanrei.sys.shape.corner.small}"
+            }
+          },
+          "leading-icon": {
+            "size": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.icon.small}",
+              "$extensions": {}
+            }
+          },
+          "headline": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body}"
+            }
+          },
+          "supporting-text": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.body-small}"
+            }
+          }
+        },
+        "standard": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$description": "The bar's fill: the filled text field's.",
+              "$value": "{tanrei.sys.color.surface-container-high}",
+              "$extensions": {}
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$description": "The bar's lift: none in Tanrei; a bar that floats over a map or an image is raised.",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "The bar is marked by its fill and its glyph at rest; its edge appears only as its focus indicator."
+                }
+              }
+            }
+          },
+          "leading-icon": {
+            "color": {
+              "$type": "color",
+              "$description": "The search glyph at the bar's start.",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "input": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface}"
+            }
+          },
+          "placeholder": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "caret": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$description": "The color hover and press mix into the bar: its input color, as the filled text field's.",
+              "$value": "{tanrei.comp.search.standard.input.color}"
+            }
+          },
+          "suggestion": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A suggestion row has no fill at rest; the view's surface shows through."
+                  }
+                }
+              }
+            },
+            "leading-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "headline": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}"
+              }
+            },
+            "supporting-text": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$description": "The color hover, the active highlight and press mix into a suggestion row: its headline color.",
+                "$value": "{tanrei.comp.search.standard.suggestion.headline.color}"
+              }
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the ripple takes to spread when sys.behavior.pressed-feedback is ripple."
+          },
+          "open-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short4}"
+          },
+          "open-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-decelerate}"
+          },
+          "close-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short2}"
+          },
+          "close-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.emphasized-accelerate}"
+          }
+        },
+        "trigger": {
+          "container": {
+            "height": {
+              "$type": "dimension",
+              "$description": "The button trigger's minimum height: Button's medium, so that it shares an app bar's row with the icon-only Buttons beside it. Its hit area is extended to the minimum target (SRC-36).",
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product has a search field on its search page and a smaller trigger in the app bar of every other page: the field is as tall as its text fields, the trigger as tall as its buttons.",
+                  "since": "0.1.0"
+                },
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$description": "From the trigger's start edge to the search glyph, and from its end edge to the shortcut hint or the text.",
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "The same product insets the content of the smaller trigger less than that of the taller field, as it does for a medium and a large button.",
+                  "since": "0.1.0"
+                }
+              }
+            },
+            "gap": {
+              "$type": "dimension",
+              "$description": "Between the trigger's glyph, text and shortcut hint. Nothing in the trigger is a button of its own, so no target depends on it, unlike the bar's gap.",
+              "$value": "{tanrei.sys.space.space100}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "The bar's gap is as wide as it is to keep its buttons' targets whole; a trigger holds no button, and the product sets its gap by eye, as a button's.",
+                  "since": "0.1.0"
+                }
+              }
+            }
+          },
+          "leading-icon": {
+            "size": {
+              "$type": "dimension",
+              "$description": "The search glyph in the button trigger: a medium Button's glyph.",
+              "$value": "{tanrei.sys.icon.small}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "A smaller trigger carries a smaller glyph than the field, as a smaller button does.",
+                  "since": "0.1.0"
+                }
+              }
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$description": "The trigger's text (the placeholder, or the label). Not an input: the 16 px floor that keeps iOS Safari from zooming does not apply.",
+              "$value": "{tanrei.sys.typescale.body}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "The trigger's text is a button's, not a typed value: one product sets it in its interface text size while its fields keep the larger input size.",
+                  "since": "0.1.0"
+                }
+              }
+            }
+          }
+        },
+        "shortcut": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The legends of the shortcut hint, in the trigger and in the bar (SRC-37). The caps are the keyboard shortcut's own.",
+            "$value": "{tanrei.sys.typescale.label-small}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product writes the keys of its search hint smaller than the text beside them, and tunes that apart from its menus' shortcuts.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$description": "The legends' color: as quiet as the placeholder they stand beside.",
+            "$value": "{tanrei.sys.color.on-surface-variant}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product may want the hint quieter or stronger than the placeholder: the keys are a second thing to notice, and how loudly is its choice.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
+        "group": {
+          "gap": {
+            "$type": "dimension",
+            "$description": "Above and below a result group, between it and its neighbours in the view.",
+            "$value": "{tanrei.sys.space.space100}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product sets how far apart the pages of its results stand: close, as one list, or apart, as blocks.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "indent": {
+            "$type": "dimension",
+            "$description": "How far the results of a group with a linked heading are inset at the start, so that they read as its parts.",
+            "$value": "{tanrei.sys.space.space300}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product shows the sections found inside a page as belonging to it, and decides how deep that step is; a product that wants them flush sets 0.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
+        "group-title": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The heading of a group without a destination (\"Pages\").",
+            "$value": "{tanrei.sys.typescale.label-small}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product titles the kinds of its results and sets that title apart from the results' own headlines.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$description": "A group title is quieter than the results under it.",
+            "$value": "{tanrei.sys.color.on-surface-variant}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "The same product decides how quiet that title is.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
+        "status": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The status row's text: the count, or that nothing was found.",
+            "$value": "{tanrei.sys.typescale.body-small}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product writes the count of its results smaller than the results, or as large as them where the count is the answer.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "color": {
+            "$type": "color",
+            "$description": "The status row's text while nothing is wrong.",
+            "$value": "{tanrei.sys.color.on-surface-variant}",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "A count is secondary to the results; how secondary is the product's choice.",
+                "since": "0.1.0"
+              }
+            }
+          },
+          "error": {
+            "color": {
+              "$type": "color",
+              "$description": "The status row's text while status is error. The words say what failed; the color says that something did.",
+              "$value": "{tanrei.sys.color.error}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product shows that its search failed in its error color, and another keeps the message neutral and lets the words carry it.",
+                  "since": "0.1.0"
+                }
+              }
+            }
+          }
+        },
+        "result": {
+          "mark": {
+            "color": {
+              "$type": "color",
+              "$description": "The text of a match inside an excerpt: the stronger of the two text colors, against the excerpt's on-surface-variant. No hue: a match is not a selection, a choice or a link.",
+              "$value": "{tanrei.sys.color.on-surface}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product decides how the words that matched stand out from the passage around them; that they do is the point of showing the passage.",
+                  "since": "0.1.0"
+                }
+              }
+            },
+            "emphasis": {
+              "$type": "number",
+              "$description": "How much weight a match gains over the excerpt's text, added to the excerpt typescale's weight.",
+              "$value": "{tanrei.sys.typescale.emphasis.body}",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "The same product marks by weight as well as by color, so that the match does not depend on color alone, and decides how heavy.",
+                  "since": "0.1.0"
+                }
+              }
+            },
+            "container": {
+              "color": {
+                "$type": "color",
+                "$description": "The fill behind a match. None in Tanrei, which marks by weight and color; a system that highlights its matches sets it, and then answers for the contrast of result.mark.color on it.",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.vocabulary": {
+                    "rationale": "One product marks its matches with a highlighter's band instead of, or as well as, heavier text.",
+                    "since": "0.1.0"
+                  },
+                  "dev.tanrei.derive": {
+                    "fixed": "A match has no fill in the default system: it is marked by its weight and its color."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

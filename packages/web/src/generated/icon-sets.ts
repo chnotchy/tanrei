@@ -1,0 +1,25 @@
+// GENERATED FILE — DO NOT EDIT.
+// Source: tokens/ (DTCG 2025.10). Regenerate with `pnpm generate`.
+// The icon-set data of tokens/icon-sets/*.icon-set.json.
+
+/** One icon set: the font families it describes and the glyph names mirrored in a right-to-left layout. */
+export interface IconSet {
+  readonly families: readonly string[];
+  readonly mirrored: ReadonlySet<string>;
+}
+
+/** Every icon set that has a data file, by id. */
+export const iconSets: Readonly<Record<string, IconSet>> = {
+  "material-symbols": {
+    families: ["Material Symbols Rounded","Material Symbols Outlined","Material Symbols Sharp"],
+    mirrored: new Set(["360","add_to_home_screen","airplane_ticket","airport_shuttle","align_horizontal_left","align_horizontal_right","alt_route","arrow_back","arrow_back_ios","arrow_back_ios_new","arrow_circle_left","arrow_circle_right","arrow_forward","arrow_forward_ios","arrow_left","arrow_left_alt","arrow_menu_close","arrow_menu_open","arrow_outward","arrow_right","arrow_right_alt","arrow_split","article","assignment","assignment_return","assist_walker","assistant_direction","backspace","battery_unknown","bike_lane","brand_awareness","branding_watermark","bubble","call_made","call_merge","call_missed","call_missed_outgoing","call_received","call_split","chat","chat_add_on","chat_display","chat_info","chat_paste_go","chat_paste_go_2","checkbook","chevron_backward","chevron_forward","chevron_left","chevron_right","chrome_reader_mode","clarify","comment","compare_arrows","contact_support","content_copy","contextual_token","contextual_token_add","contrast","desktop_landscape","desktop_landscape_add","desktop_portrait","devices_other","diagonal_line","directions","directions_alt","directions_bike","directions_run","directions_walk","docs","double_arrow","draft","drive_export","drive_file_move","dvr","electric_bike","electric_moped","electric_rickshaw","electric_scooter","emoji_flags","event_note","event_upcoming","exit_to_app","expand_circle_right","featured_play_list","featured_video","feed","filter_arrow_right","fire_truck","flag","flight_land","flight_takeoff","flights_and_hotels","flightsmode","float_landscape_2","float_portrait_2","follow_the_signs","format_align_left","format_align_right","format_indent_decrease","format_indent_increase","format_list_bulleted","format_list_bulleted_add","forward","forward_to_inbox","funicular","gondola_lift","grading","handheld_controller","help","help_center","highlight_mouse_cursor","horizontal_align_left","horizontal_align_right","hotel","hotel_class","import_spark","ink_highlighter_move","input","keyboard_arrow_left","keyboard_arrow_right","keyboard_backspace","keyboard_double_arrow_left","keyboard_double_arrow_right","keyboard_return","keyboard_tab","keyboard_tab_rtl","label","label_important","last_page","library_books","light_group","line_curve","list","list_alt","lists","live_help","local_shipping","local_shipping_spark","login","logout","manage_search","menu_book","menu_open","merge_type","missed_video_call","mobile_arrow_right","mobile_arrow_up_right","mobile_camera_front","mobile_camera_rear","mobile_screen_share","mobile_share","monitoring","moped","more","move_item","move_location","moving","moving_ministry","multiline_chart","navigate_before","navigate_next","news","newsmode","next_plan","next_week","no_sound","not_listed_location","note_add","notes","offline_share","open_in_new","open_in_phone","outbox_alt","pedal_bike","phone_callback","phone_forwarded","phone_missed","picture_in_picture","picture_in_picture_alt","picture_in_picture_large","picture_in_picture_medium","picture_in_picture_mobile","picture_in_picture_small","plane_contrails","position_top_right","prompt_suggestion","queue_music","read_more","receipt_long","redo","replace_audio","replace_image","replace_video","reply","reply_all","rotate_left","rotate_right","rtt","run_circle","schedule_send","scooter","screen_share","segment","send","send_and_archive","send_money","send_to_mobile","settings_backup_restore","shield_question","short_text","show_chart","side_navigation","single_arrow","snowmobile","sort","speaker_notes","stairs_2","star_half","sticky_note","sticky_note_2","stop_screen_share","subject","subway_walk","swipe_left_2","swipe_right_2","switch_access_2","switch_access_3","text_ad","text_compare","text_snippet","text_to_speech","thermostat","toc","tooltip_2","transition_push","transition_slide","trending_down","trending_flat","trending_up","tv_next","two_wheeler","undo","video_camera_back_add","videocam","view_list","view_quilt","view_sidebar","volume_down","volume_down_alt","volume_mute","volume_off","volume_up","walk_bike","watch_arrow","wrap_text","wysiwyg"]),
+  },
+};
+
+/** The icon set of each shipped design system, by system id; null where the system's icon family has no data file (nothing mirrors by itself). */
+export const systemIconSets: Readonly<Record<string, string | null>> = {
+  "tanrei": "material-symbols",
+  "cupertino": "material-symbols",
+  "m3-expressive-like": "material-symbols",
+  "m3-like": "material-symbols",
+};

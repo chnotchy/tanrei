@@ -1,0 +1,408 @@
+---
+title: メニュー付きボタン
+description: 主なアクションを 1 回の押下で実行し、関連するアクションは、隣につながったもう 1 つのボタンから開くメニューで示します。
+translationOf: components/button-with-menu.mdx
+sourceHash: da09049dfc3d610609f88d3630ba5407eb6f36c2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="button-with-menu" />
+
+:::note[スプリットボタンの移り先]
+このコンポーネントの名前はスプリットボタン（split button）ではありません。「スプリットボタン」は 2 つに分かれたボタンという見た目を表す名前で、つなげた[ボタングループ](/ja/components/button-group/)にも当てはまります。このコンポーネントの決定的な特徴は、2 つ目のボタンがメニューを開くことです。振る舞いの ID には、その名前に由来する `SPB` が付いています。
+
+| 以前 | 現在 |
+| --- | --- |
+| スプリットボタン（`split-button`） | メニュー付きボタン（`button-with-menu`） |
+| `comp.split-button.*`、`--tanrei-comp-split-button-*` | `comp.button-with-menu.*`、`--tanrei-comp-button-with-menu-*` |
+| `<tanrei-split-button>`、`TanreiSplitButton`（Web のクラス） | `<tanrei-button-with-menu>`、`TanreiButtonWithMenu` |
+| `SplitButton`（React、React Native） | `ButtonWithMenu` |
+| `TanreiSplitButton`（SwiftUI、Compose、Flutter） | `TanreiButtonWithMenu` |
+
+Material 3 では、対応するコンポーネントを split button と呼びます。m3-like のプリセットでは、メニュー付きボタンがそれにあたります。
+:::
+
+:::caution[ネイティブの各プラットフォームの名前はまだ変わっていません]
+仕様、トークン、Web の要素（`<tanrei-button-with-menu>`）と React のラッパー（`ButtonWithMenu`）はメニュー付きボタンという名前で、Web はこの改訂を描きます。SwiftUI、Compose、Flutter、React Native は、以前の版をスプリットボタンという名前で提供しているため、このページのそれらのコードは `TanreiSplitButton` と `SplitButton` のままです。各プラットフォームが名前を変えたときに書き換えます。
+
+この改訂では次の点が加わります。いまのところ描くのは Web だけです。
+
+- 2 つの半分は、区切り線（divider）か隙間（gap）でつながります。デザインシステムがすべてのコンポーネントについて 1 度だけ選び、このコンポーネントだけを別にすることも、`separation`（`auto`、`divider`、`gap`）で 1 つのインスタンスだけを変えることもできます。既定のシステムは区切り線です。
+- 先頭側の半分は、アイコンのある側のパディングが 1 段狭くなります。丸い両端にはパディングが少し加わります。
+- メニューが開いている間も、末尾側の半分は形を変えません。開いた状態はシェブロンだけで示します。
+- `trailingWidth`（`default`、`narrow`）で、末尾側の半分を細く描けます。同じサイズの narrow のアイコンだけの[ボタン](/ja/components/button/)と同じ幅で、シェブロンの両側に小さな余白があるだけです。
+:::
+
+<DemoFrame label="バリアント">
+  <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+</DemoFrame>
+
+<DemoFrame label="メニュー付き：メニュー側の半分を押してください" plain>
+  <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    <span slot="icon">save</span>
+    <tanrei-menu-item slot="menu" label="名前を付けて保存…"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="コピーを保存"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="テンプレートとして保存"></tanrei-menu-item>
+  </tanrei-button-with-menu>
+</DemoFrame>
+
+### 使い方
+
+メニュー付きボタンは、2 つのボタンをつなげて 1 つの形にしたものです。先頭側の半分（主アクション側）が主なアクションを実行し、シェブロンのある末尾側の半分（メニュー側）が、関連するアクションの[メニュー](/ja/components/menu/)を開きます。メニューの中身はメニュー自身の項目の種類（アクション、チェックボックス項目、ラジオ項目、グループ）で、各プラットフォームでメニューの項目を渡すときと同じやり方で渡します。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション">
+      <span slot="icon">save</span>
+      <tanrei-menu-item slot="menu" label="名前を付けて保存…"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="コピーを保存"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/button-with-menu';
+      import '@tanrei/web/components/menu';
+      const split = document.querySelector('tanrei-button-with-menu');
+      // 要素に届く click は、主アクション側のものだけです。
+      split.addEventListener('click', save);
+      // メニュー側は開閉を求めるだけです。open を設定するのは利用者側です。
+      split.addEventListener('toggle', (e) => (split.open = e.detail.open));
+      // close にはメニューが閉じる理由（escape、outside、tab、focus-out、item）が付きます。Web に back はありません。
+      split.addEventListener('close', () => (split.open = false));
+      // 項目の click はメニュー付きボタンで止まります。項目そのものに登録します。
+      split.querySelector('[label="名前を付けて保存…"]').addEventListener('click', saveAs);
+    </script>
+
+    <!-- このインスタンスだけ隙間でつなぎ、メニュー側の半分を細くします。separation を省くとデザインシステムに従います。 -->
+    <tanrei-button-with-menu variant="tonal" separation="gap" trailing-width="narrow" label="マージ" menu-label="マージのその他のオプション">
+      <tanrei-menu-item slot="menu" label="スカッシュしてマージ"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="リベースしてマージ"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <!-- 押したときに加えて、400 ms のホバーでも開きます。閉じたときと開いたときのグリフを指定しています。 -->
+    <tanrei-button-with-menu label="共有" menu-label="共有のその他のオプション" hover-open hover-delay="400">
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <tanrei-menu-item slot="menu" label="リンクをコピー"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="メールで送信"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ButtonWithMenu, MenuItem } from '@tanrei/react';
+
+    // onClick は主アクション側のものです。MenuItem の onClick は項目の要素に直接登録されるので、
+    // ButtonWithMenu の中でも呼ばれます。受け取るのはネイティブの MouseEvent です。
+    <ButtonWithMenu
+      label="保存"
+      menuLabel="保存のその他のオプション"
+      open={open}
+      onClick={save}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <MenuItem slot="menu" label="名前を付けて保存…" onClick={saveAs} />
+      <MenuItem slot="menu" label="コピーを保存" onClick={saveCopy} />
+    </ButtonWithMenu>
+
+    // このインスタンスだけ隙間でつなぎ、メニュー側の半分を細くします。
+    <ButtonWithMenu variant="tonal" separation="gap" trailingWidth="narrow" label="マージ" menuLabel="マージのその他のオプション"
+      open={mergeOpen} onClick={merge} onToggle={(e) => setMergeOpen(e.detail.open)} onClose={() => setMergeOpen(false)}>
+      <MenuItem slot="menu" label="スカッシュしてマージ" onClick={squash} />
+      <MenuItem slot="menu" label="リベースしてマージ" onClick={rebase} />
+    </ButtonWithMenu>
+
+    // ホバーでも開きます。hoverDelay が null ならシステムの待ち時間です。
+    <ButtonWithMenu label="共有" menuLabel="共有のその他のオプション" hoverOpen hoverDelay={400} open={shareOpen}
+      onToggle={(e) => setShareOpen(e.detail.open)} onClose={() => setShareOpen(false)}>
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <MenuItem slot="menu" label="リンクをコピー" onClick={copyLink} />
+    </ButtonWithMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Button と同じくタイトルが先です。バインディングには、メニュー側とメニューの両方が書き込みます。
+    TanreiSplitButton("保存", menuLabel: "保存のその他のオプション", isMenuPresented: $showsSaveOptions, action: save) {
+        TanreiMenuItem("名前を付けて保存…", action: saveAs)
+        TanreiMenuItem("コピーを保存", action: saveCopy)
+    }
+
+    // ホバーでも開きます（macOS と、ポインターを使う iPadOS）。hoverDelay が nil ならシステムの待ち時間です。
+    // chevron: と openChevron: には、chevron と chevron-open のスロットのグリフを返すビルダーを渡します。
+    TanreiSplitButton("共有", menuLabel: "共有のその他のオプション", isMenuPresented: $showsShareOptions,
+                      opensOnHover: true, hoverDelay: .milliseconds(400), action: share) {
+        TanreiMenuItem("リンクをコピー", action: copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiSplitButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSplitButtonVariant
+
+    // メニューと同じく状態ホイスティングです。menuExpanded は呼び出し側で持ちます。
+    TanreiSplitButton(
+        text = "保存",
+        onClick = ::save,
+        menuContentDescription = "保存のその他のオプション",
+        menuExpanded = expanded,
+        onMenuExpandedChange = { expanded = it },
+        onMenuDismissRequest = { expanded = false }, // TanreiMenuCloseReason を受け取ります
+        variant = TanreiSplitButtonVariant.Tonal,
+        icon = { TanreiText("save") },
+    ) {
+        TanreiMenuItem(text = "名前を付けて保存…", onClick = ::saveAs)
+        TanreiMenuItem(text = "コピーを保存", onClick = ::saveCopy)
+    }
+
+    // マウスとスタイラスのホバーでも開きます。hoverDelayMillis が null ならシステムの待ち時間です。
+    TanreiSplitButton(
+        text = "共有",
+        onClick = ::share,
+        menuContentDescription = "共有のその他のオプション",
+        menuExpanded = shareExpanded,
+        onMenuExpandedChange = { shareExpanded = it }, // 押下、キー、ホバーのどれでも
+        onMenuDismissRequest = { shareExpanded = false },
+        chevron = { TanreiText("more_vert") },
+        openChevron = { TanreiText("close") },
+        openOnHover = true,
+        hoverDelayMillis = 400,
+    ) {
+        TanreiMenuItem(text = "リンクをコピー", onClick = ::copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // メニュー付きボタンがコントローラーを通じて自分でメニューを開閉し、onMenuToggle と onMenuClose で知らせます。
+    TanreiSplitButton(
+      label: '保存',
+      menuSemanticLabel: '保存のその他のオプション',
+      onPressed: save, // null にすると両方の半分が無効になります
+      menuController: saveOptions,
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: saveAs, child: const Text('名前を付けて保存…')),
+        TanreiMenuItem(onPressed: saveCopy, child: const Text('コピーを保存')),
+      ],
+    );
+
+    // ホバーでも開きます（タッチでは開きません）。chevron と openChevron にはグリフのウィジェットを渡します。
+    TanreiSplitButton(
+      label: '共有',
+      menuSemanticLabel: '共有のその他のオプション',
+      onPressed: share,
+      openOnHover: true,
+      hoverDelay: const Duration(milliseconds: 400), // null ならシステムの待ち時間
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: copyLink, child: const Text('リンクをコピー')),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SplitButton } from '@tanrei/react-native';
+
+    // 制御コンポーネントです。onMenuToggle で menuVisible を設定し、理由を受け取る onMenuDismiss で false に戻します。
+    <SplitButton
+      label="保存"
+      icon="save"
+      menuAccessibilityLabel="保存のその他のオプション"
+      menuVisible={open}
+      onPress={save}
+      onMenuToggle={setOpen}
+      onMenuDismiss={() => setOpen(false)}
+      menuItems={[
+        { label: '名前を付けて保存…', onPress: saveAs },
+        { label: 'コピーを保存', onPress: saveCopy },
+      ]}
+    />
+
+    // ポインターのホバーでも開きます。chevron と openChevron はグリフの名前です。
+    <SplitButton
+      label="共有"
+      menuAccessibilityLabel="共有のその他のオプション"
+      chevron="more_vert"
+      openChevron="close"
+      hoverOpen
+      hoverDelay={400}
+      menuVisible={shareOpen}
+      onPress={share}
+      onMenuToggle={setShareOpen}
+      onMenuDismiss={() => setShareOpen(false)}
+      menuItems={[{ label: 'リンクをコピー', onPress: copyLink }]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+### 区切り線でつなぐか、隙間でつなぐか
+
+2 つの半分をつなぐ方法は 2 つあります。**区切り線**（divider）では、2 つが接し、接する側の角は直角になり、継ぎ目に線が引かれます。**隙間**（gap）では、2 つが狭い隙間を空けて並び、向かい合う側の角が小さくなります。どちらにするかは、パーツをつなぐすべてのコンポーネントについてデザインシステムが 1 度だけ決めます（既定のシステムは区切り線です）。デザインシステムはこのコンポーネントだけを別にでき、`separation`（`auto`、`divider`、`gap`）は 1 つのインスタンスだけを変えます。2 つの半分はいつも横に並びます。縦の形はありません。
+
+<DemoFrame label="区切り線と隙間" plain>
+  <tanrei-button-with-menu separation="divider" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="divider" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="gap" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="divider" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+</DemoFrame>
+
+### 細いメニュー側の半分
+
+既定では、メニュー側の半分は、ボタンの高さと同じ 1 辺の正方形にシェブロンを収め、丸い外側の端にパディングが少し加わります。`trailingWidth` を `narrow` にすると、主アクションに添えた細い取っ手になります。同じサイズの narrow のアイコンだけの[ボタン](/ja/components/button/)とちょうど同じ幅（既定のシステムでは 28 / 32 / 32）で、シェブロンを中央に置き、両側に小さな余白があるだけで、外側のパディングは加わりません。主アクション側の半分は、どちらの幅でも同じです。
+
+<DemoFrame label="メニュー側の幅：default と narrow（各サイズ）" plain>
+  <tanrei-button-with-menu size="small" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="small" trailing-width="narrow" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu trailing-width="narrow" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" trailing-width="narrow" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+</DemoFrame>
+
+細いメニュー側の半分は、見た目は最小ターゲットより狭くなりますが、ヒット領域は狭くなりません。ターゲットは外側へ、末尾側の端を越えて届きます。narrow のアイコンだけのボタンの横と同じように、そこに余裕を取ってください。
+
+## 仕様
+
+<DemoFrame label="サイズ、アイコン、開いた状態、無効状態" plain>
+  <tanrei-button-with-menu size="small" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="保存" menu-label="保存のその他のオプション"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu disabled label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" disabled label="保存" menu-label="保存のその他のオプション"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="共有" menu-label="共有のその他のオプション"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="共有" menu-label="共有のその他のオプション"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+</DemoFrame>
+
+<ComponentSpecs name="button-with-menu" />
+
+## ガイドライン
+
+### 使う場面
+
+いつもの形と、いくつかの変化形があるアクションに使います。「保存」と「名前を付けて保存…」、「マージ」と「スカッシュしてマージ」、「送信」と「送信日時を指定」などです。いつもの形は 1 回押すだけで実行でき、変化形もあと 1 回押せば届きます。
+
+どれが「いつもの形」なのかがはっきりしないなら、メニューを開くボタンかアイコンボタンを使います。変化形がないなら、ふつうの[ボタン](/ja/components/button/)で足ります。独立したアクションを横に並べたいなら、[ボタングループ](/ja/components/button-group/)を使います。
+
+### バリアントの選び方
+
+バリアントの強調の度合いはボタンと同じで、強調に限りがあるのも同じです。強いアクションは 1 つの画面に 1 つにします。
+
+| バリアント | 強調 | 用途 |
+| --- | --- | --- |
+| Filled（既定） | 最も強い | 画面の主アクション。 |
+| Tonal | 強い | 重要だが、Filled ボタンと競合させたくないアクション。 |
+| Elevated | 中 | 込み入った背景や模様のある背景の上に置くメニュー付きボタン。 |
+| Outlined | 中 | Filled ボタンの隣に置く副次的なアクション。 |
+
+Text バリアントはありません。塗りも枠線もないと 2 つの半分の境目が見えず、分かれていることが伝わらなくなるからです。
+
+サイズはボタンと同じ高さなので、同じサイズのボタンと 1 行に並べられます。既定のシステムでは、外側の端は完全に丸くなります。2 つの半分が接するところは、区切り方によって変わります。区切り線のときは、直角の角で接して継ぎ目に線が引かれ、どちらの半分も継ぎ目に沿っては輪郭を描きません。そのため、Outlined のメニュー付きボタンの輪郭は、ぐるりと 1 本の線になります。隙間のときは、輪郭と、エレベーションのあるサーフェスが持つリングを、それぞれの半分が自分の端の内側に描くので、2 つの半分が触れ合うことはありません。
+
+### シェブロン
+
+メニュー側の半分は、アイコンセットの `expand_more` を描き、メニューが開いている間は半回転させます。既定のシステムでは、メニュー側の半分は開いている間も形を変えないので、開いた状態を示すのはシェブロンだけです。デザインシステムは、開いた半分の内側の角を別に決められます。m3-like のプリセットでは、開いている間は円になります。
+
+2 つのスロットでグリフを変えられます。どちらにも、アイコンセットのグリフを 1 つだけ入れます。
+
+| 入れたスロット | 閉じているとき | 開いているとき |
+| --- | --- | --- |
+| なし | `expand_more` | `expand_more` を回転 |
+| `chevron` だけ | 指定したグリフ | 指定したグリフを回転 |
+| `chevron-open`（`chevron` はあってもなくても可） | `chevron` のグリフか `expand_more` | `chevron-open` のグリフ。回転せず、2 つがクロスフェードします |
+
+`more_vert` のように向きのないグリフは、回転させないようにします。`chevron-open` のグリフと組み合わせるか、両方のスロットに同じグリフを入れます。
+
+### ホバーで開く
+
+`hoverOpen` を指定すると、マウス、トラックパッド、ホバーできるペンがメニュー側に `hoverDelay` ミリ秒とどまったときにもメニューが開きます。`hoverDelay` を設定しなければシステムの待ち時間になり、既定のシステムでは 300 ms です。押下とキーボードではこれまでどおり開きます。タッチでは、ホバーで開くことはありません。
+
+- ホバーで開いたメニューはフォーカスを受け取りません。フォーカスは、たとえばテキストフィールドのように、利用者がいた場所に残ります。項目はホバーを表示し、クリックすれば実行されます。
+- ポインターがメニュー側とメニューの両方から離れて少し経つと閉じます。この猶予があるので、ポインターはメニューへ移ったり、端から少しはみ出して戻ったりできます。ほかの方法で開いたメニューは、ポインターが離れても閉じません。
+- ホバーで開いたメニューが出ている間にメニュー側を押すかキーを押すと、メニューは開いたままフォーカスが中に移ります。以降は押して開いたメニューと同じで、次に押すと閉じます。
+- ホバーで開いたメニューは、フォーカスがどこにあっても Escape で閉じます。
+- ホバーも押下と同じトグルのイベントで開くよう求めるので、`open` を設定するコードを変える必要はありません。
+
+ホバーで開くのは、ポインターを使うことが多く、メニューがひとりでに現れても邪魔にならない場所（デスクトップのエディターのツールバーなど）に向いています。押して開く操作の代わりにはなりません。
+
+### メニュー
+
+- メニューは Tanrei のメニューそのもので、メニューの機能をすべて備えています。開くとフォーカスが中に移り、矢印キーと先頭文字で項目の間を移動でき、画面からはみ出さないように反対側へ回ったりずれたりします。開く位置はメニュー付きボタン全体の下で、末尾側の端をそろえます。
+- メニューが開いている間は、シェブロンが開いたときの形になります（[シェブロン](#シェブロン)を参照）。
+- メニューが閉じたとき、フォーカスがメニューの中にあれば、メニューを開いたボタンであるメニュー側の半分へ戻ります。
+- メニューが開いているときにメニュー側を押すのは、外側の押下ではなくトグルです。`toggle` で閉じるよう求め、`close` は出しません。アクション項目でメニューが閉じるときは、先に項目のクリックが届き、その後に理由 `item` の付いた `close` が届きます。
+- 誰がメニューを閉じるかはプラットフォームの流儀に従います。Web、Compose、React Native では、トグルのイベントを受けて `open`（`menuExpanded`、`menuVisible`）を設定し、閉じるイベントを受けて false に戻します。SwiftUI と Flutter では、メニュー付きボタンがバインディングかコントローラーを通じて自分で開閉します。
+
+### 推奨
+
+- 主アクション側には、いつもの形のアクションを動詞で書きます。「保存」「マージ」「送信」などです。
+- メニュー側には、メニューに何があるかが分かるラベルを付けます。「その他」や「メニュー」ではなく「保存のその他のオプション」です。
+- メニューには、主アクションの変化形を入れます。主アクションそのものを繰り返す必要はありません。
+- メニューは短く保ちます。数個の項目がちょうどよく、項目が長く並ぶなら、それは 1 つのアクションの変化形ではないのかもしれません。
+- `separation` は、1 つのインスタンスだけを変える必要がない限り `auto` のままにします。プロダクトの中の、つなげたコントロールの区切り方がそろいます。
+- 表の行や密度の高いヘッダーのように、メニューが副次的で幅に余裕がないところでは、細いメニュー側の半分を使います。
+
+### 非推奨
+
+- 「設定」や「ヘルプ」のような関係のないアクションをメニューに入れない。それらには、専用のメニューを持つアイコンボタンを使います。
+- メニューの項目が 1 つしかないメニュー付きボタンを使わない。両方のアクションをボタンとして並べます。
+- 片方の半分だけを無効にしようとしない。`disabled` は両方に効きます。変化形が使えないなら、そのメニュー項目を無効にします。
+- メニュー側の半分に、メニューを開く以外の役割を持たせない。メニュー側は常に「メニューを開くボタン」として伝わります。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="button-with-menu" />
+
+### コンポーネントが担うこと
+
+- メニュー付きボタンは、読み上げの順に並んだ 2 つのボタンで、それぞれに Tab で止まります。主アクション側はラベルを、メニュー側はメニューラベルを名前とします。メニュー側は、プラットフォームにそのプロパティがあれば、メニューを開くことと、メニューが開いているかどうかも伝えます。2 つを包む要素はないので、スクリーンリーダーの利用者に聞こえるのは 2 つのボタンだけです。
+- アイコンとシェブロンは、`chevron` や `chevron-open` のスロットに入れたグリフも含めて、支援技術から隠します。メニュー側は、押下、キー、ホバーのどれで開いたかにかかわらず、メニューが開いているかどうかを伝えます。
+- 主アクション側では、Enter と Space で主アクションを実行します。メニュー側では、Enter、Space、下矢印でメニューを開き、最初の有効な項目へフォーカスを移します。その後はメニューがふだんどおりに動き、Escape で閉じてメニュー側へフォーカスを戻します。
+- ホバーで開いたメニューはフォーカスを元の場所に残し、フォーカスがどこにあっても、ポインターを動かさずに Escape で閉じられます。ホバーで現れたものは、いつでも消せます（WCAG 1.4.13）。この Escape はほかへは届かず、次の Escape はふだんどおりページに届きます。
+- ホバー、押下、フォーカスには、それぞれの半分が自分で応えます。もう一方の半分が、自分のものでない状態を表示することはありません。
+- それぞれの半分のヒット領域は、外側と上下に最小ターゲットまで広がります。もう一方の半分に向かっては、継ぎ目まで、または隙間の中央までで止まるので、2 つが重なることはありません。細いメニュー側の半分は、主アクション側に向かって届かない分を外側へ伸ばすので、大きく描かれなくてもターゲット全体を持ちます。
+- 区切り線は装飾です。支援技術からは隠され、押しても何も起こりません。間にあるのが線でも隙間でも、2 つの半分は 2 つのボタンです。
+- 既定のシステムでは、Outlined の輪郭と、Outlined・Tonal・Elevated の区切り線は細い線で、あえて控えめにしてあります。主アクション側はラベルで、メニュー側はシェブロンで見分けられます。Filled の区切り線はもっと強い線です。その塗りの上では細い線が見えないからです。
+- ラベルが途中で切れることはありません。文字サイズを大きくすると折り返し、両方の半分がそろって縦に伸びます。
+- 無効なメニュー付きボタンは、両方の半分を無効として伝え、フォーカスの順序から外し、メニューを表示しません。`open` がどうであっても、閉じた形を描きます。
+- ラベルやメニューラベルがない場合と、メニューに項目がない場合は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- Web：メニュー付きボタンに登録したリスナーに届く click は、主アクション側のものだけです。メニュー項目の click はメニュー付きボタンで止まるので、祖先に登録したリスナーには届きません。項目そのものに登録してください。React のメニュー項目のラッパーが `onClick` を要素に直接登録しているのは、このためです。
+- SwiftUI には、ボタンがメニューを開くことを伝えるプロパティも、開いているかどうかの状態もありません。メニューのポップオーバーはメニュー側に付けています。2 つの半分は同じ高さで、メニュー側が行の末尾にあるので、その下端はメニュー付きボタン全体の下端と一致します。バインディングがトグルと閉じる要求の両方を兼ねるので、閉じた理由は受け取れません。メニューのスロットが一瞬でも空になると（後から読み込む項目の `ForEach` など）、デバッグビルドではアサーションの失敗になり、デバッグ中のアプリが止まります。2 つの半分での Enter、Space、下矢印、メニュー側へのフォーカスの戻り、macOS でメニューが開いているときのメニュー側のクリックは、エンドツーエンドではテストしていません。
+- Flutter には、ボタンがメニューを開くことを伝えるプロパティがありません。メニュー側はメニューが開いているかどうかは伝えますが、メニューを開くボタンであることは伝えません。
+- Compose には、ボタンがメニューを開くことを伝えるプロパティがありません。メニュー側は、開閉の状態を展開・折りたたみのアクションとして持つボタンになります。メニュー自体には、[メニュー](/ja/components/menu/)のページに挙げた Compose の制約がそのまま当てはまります。
+- React Native にも、ボタンがメニューを開くことを伝えるプロパティがありません。メニュー側はメニューが開いているかどうかは伝えますが、メニューを開くボタンであることは伝えません。
+- React Native：メニューが開いているときのメニュー側の押下、メニュー側へのフォーカスの戻り、シェブロンの回転は、実機なしのテストでしか確かめていません。
+
+### 利用者側で行うこと
+
+- 両方のラベルを書きます。シェブロンだけでは名前になりませんし、「保存」の隣の「その他」ではメニューに何があるか分かりません。
+- Web、Compose、React Native では、トグルのイベントを受けて `open` を設定し、閉じるイベントを受けて false に戻します。メニュー付きボタンは求めるだけです。`hoverOpen` のときは、ホバーも同じトグルのイベントで求めます。
+- メニューが閉じたとき、自分でフォーカスを動かさないでください。メニュー付きボタンがメニュー側へ戻します。
+- アイコンを表示する項目も含めて、すべてのメニュー項目にラベルを付けます。
+- 細いメニュー側の半分の、末尾側の端の先に余裕を取り、ターゲットが隣のコントロールと重ならないようにします。

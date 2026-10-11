@@ -1,0 +1,313 @@
+---
+title: Segmented button
+description: Lets people choose one option, or several, from two to five related options drawn side by side as the joined segments of one control.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="segmented-button" />
+
+:::note[Not in the Tanrei system]
+The default Tanrei system does not ship the segmented button; the Material and cupertino presets do. In Tanrei, one choice among several is [Tabs](/components/tabs/) where it changes the content below, and [radio buttons](/components/radio-button/) where it sets a value; buttons that each toggle on their own are a [Button group](/components/button-group/). The component still works under every system, with a warning in development where the system leaves it out. The demos on this page are drawn under the `m3-like` preset, a system that ships it.
+:::
+
+<DemoFrame label="Single selection, with icons, icon only" system="m3-like">
+  <tanrei-segmented-button label="Range" value="week">
+    <tanrei-segment value="day" label="Day"></tanrei-segment>
+    <tanrei-segment value="week" label="Week"></tanrei-segment>
+    <tanrei-segment value="month" label="Month"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="View" value="grid">
+    <tanrei-segment value="list" label="List" icon="view_list"></tanrei-segment>
+    <tanrei-segment value="grid" label="Grid" icon="grid_view"></tanrei-segment>
+    <tanrei-segment value="map" label="Map" icon="map"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="Text alignment" value="center">
+    <tanrei-segment value="start" label="Align left" icon="format_align_left" label-hidden></tanrei-segment>
+    <tanrei-segment value="center" label="Center" icon="format_align_center" label-hidden></tanrei-segment>
+    <tanrei-segment value="end" label="Align right" icon="format_align_right" label-hidden></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+### Usage
+
+A segmented button holds its segments the way each platform holds repeated children: child elements on the web, views in a view builder on SwiftUI, calls in a content lambda on Compose, a `segments` list on Flutter and an `items` array on React Native. The selection belongs to the set, by value. `selection` says whether it is one value or several.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-segmented-button label="Range" value="week">
+      <tanrei-segment value="day" label="Day"></tanrei-segment>
+      <tanrei-segment value="week" label="Week"></tanrei-segment>
+      <tanrei-segment value="month" label="Month"></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <!-- Several at once. values is a property (an array); the attribute takes a JSON array or space-separated values. -->
+    <tanrei-segmented-button id="days" selection="multiple" size="small" label="Days" values="mon tue">
+      <tanrei-segment value="mon" label="Mon"></tanrei-segment>
+      <tanrei-segment value="tue" label="Tue"></tanrei-segment>
+      <tanrei-segment value="wed" label="Wed" disabled></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <script type="module">
+      import '@tanrei/web/components/segmented-button';
+      // The element updates its own value or values, then fires change.
+      document.querySelector('[label="Range"]').addEventListener('change', (e) => showRange(e.detail.value));
+      document.querySelector('#days').addEventListener('change', (e) => setDays(e.detail.values));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Segment, SegmentedButton } from '@tanrei/react';
+
+    // detail is { value } for a single choice and { values } for several.
+    <SegmentedButton label="Range" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>
+      <Segment value="day" label="Day" />
+      <Segment value="week" label="Week" />
+      <Segment value="month" label="Month" />
+    </SegmentedButton>
+
+    <SegmentedButton selection="multiple" label="Days" values={days} onChange={(e) => 'values' in e.detail && setDays(e.detail.values)}>
+      <Segment value="mon" label="Mon" />
+      <Segment value="tue" label="Tue" />
+      <Segment value="wed" label="Wed" disabled />
+    </SegmentedButton>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // The binding's type is the selection: an optional value for one, a Set for several.
+    // Apply .tag and .labelStyle to the TanreiSegment itself, before any other modifier.
+    TanreiSegmentedButton("Range", selection: $range) {
+        TanreiSegment("Day").tag("day")
+        TanreiSegment("Week").tag("week")
+        TanreiSegment("Month").tag("month")
+    }
+
+    // .labelStyle(.iconOnly) is labelHidden: the title still names the segment.
+    TanreiSegmentedButton("Text alignment", selection: $alignment) {
+        TanreiSegment("Align left", icon: "format_align_left").tag("start").labelStyle(.iconOnly)
+        TanreiSegment("Center", icon: "format_align_center").tag("center").labelStyle(.iconOnly)
+        TanreiSegment("Align right", icon: "format_align_right").tag("end").labelStyle(.iconOnly)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSegment
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButton
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButtonSelectionMode
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSegmentedButtonSize
+
+    // One callback for both selections. A single-choice set passes a set of one.
+    TanreiSegmentedButton(
+        onSelectionChange = { range = it.single() },
+        contentDescription = "Range",
+        selectedValue = range,
+    ) {
+        TanreiSegment(value = "day", label = "Day")
+        TanreiSegment(value = "week", label = "Week")
+        TanreiSegment(value = "month", label = "Month")
+    }
+
+    TanreiSegmentedButton(
+        onSelectionChange = { days = it },
+        contentDescription = "Days",
+        selectionMode = TanreiSegmentedButtonSelectionMode.Multiple,
+        selectedValues = days,
+        size = TanreiSegmentedButtonSize.Small,
+    ) {
+        TanreiSegment(value = "mon", label = "Mon")
+        TanreiSegment(value = "tue", label = "Tue")
+        // Compose uses the inverse flag.
+        TanreiSegment(value = "wed", label = "Wed", enabled = false)
+    }
+
+    // labelHidden draws the icon alone. The label still names the segment.
+    TanreiSegment(value = "start", label = "Align left", labelHidden = true, icon = { TanreiText("format_align_left") })
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Shaped like SegmentedButton: one Set holds the selection, at most one member while single.
+    TanreiSegmentedButton<String>(
+      semanticLabel: 'Range',
+      selected: <String>{range},
+      onSelectionChanged: (Set<String> value) => setState(() => range = value.single),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'day', label: 'Day'),
+        TanreiSegment<String>(value: 'week', label: 'Week'),
+        TanreiSegment<String>(value: 'month', label: 'Month'),
+      ],
+    );
+
+    TanreiSegmentedButton<String>(
+      semanticLabel: 'Days',
+      multiSelectionEnabled: true,
+      size: TanreiSegmentedButtonSize.small,
+      selected: days,
+      onSelectionChanged: (Set<String> value) => setState(() => days = value),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'mon', label: 'Mon'),
+        TanreiSegment<String>(value: 'tue', label: 'Tue'),
+        TanreiSegment<String>(value: 'wed', label: 'Wed', enabled: false),
+      ],
+    );
+
+    // labelHidden draws the icon alone. The label still names the segment.
+    const TanreiSegment<String>(value: 'start', label: 'Align left', icon: Icon(AppSymbols.formatAlignLeft), labelHidden: true);
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SegmentedButton } from '@tanrei/react-native';
+
+    // Controlled: onSelectionChange receives the value (single) or the values (multiple).
+    <SegmentedButton
+      accessibilityLabel="Range"
+      value={range}
+      onSelectionChange={setRange}
+      items={[
+        { value: 'day', label: 'Day' },
+        { value: 'week', label: 'Week' },
+        { value: 'month', label: 'Month' },
+      ]}
+    />
+
+    <SegmentedButton
+      selectionMode="multiple"
+      accessibilityLabel="Days"
+      size="small"
+      values={days}
+      onSelectionChange={setDays}
+      items={[
+        { value: 'mon', label: 'Mon' },
+        { value: 'tue', label: 'Tue' },
+        { value: 'wed', label: 'Wed', disabled: true },
+      ]}
+    />
+
+    // An icon-only segment: { value: 'start', label: 'Align left', icon: 'format_align_left', labelHidden: true }
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Sizes and disabled segments" system="m3-like" plain>
+  <tanrei-segmented-button label="Range" value="week" size="small">
+    <tanrei-segment value="day" label="Day"></tanrei-segment>
+    <tanrei-segment value="week" label="Week"></tanrei-segment>
+    <tanrei-segment value="month" label="Month"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="Range" value="week" size="large">
+    <tanrei-segment value="day" label="Day"></tanrei-segment>
+    <tanrei-segment value="week" label="Week"></tanrei-segment>
+    <tanrei-segment value="month" label="Month"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="Range" value="day">
+    <tanrei-segment value="day" label="Day"></tanrei-segment>
+    <tanrei-segment value="week" label="Week"></tanrei-segment>
+    <tanrei-segment value="month" label="Month" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="Range" value="month">
+    <tanrei-segment value="day" label="Day"></tanrei-segment>
+    <tanrei-segment value="week" label="Week"></tanrei-segment>
+    <tanrei-segment value="month" label="Month" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+<ComponentSpecs name="segmented-button" />
+
+## Guidelines
+
+### When to use
+
+Use a segmented button when one small question has a few fixed answers and people should see them all at once: a chart's range, a list's layout, a paragraph's alignment, the days a reminder repeats on. The effect should show right away, because with single selection the arrow keys choose as they move.
+
+Two to five options fit. Past five, use a menu or a list. When the choice is the main task of a form, radio buttons read better. When the answer changes which content fills the screen, use [tabs](/components/tabs/).
+
+### Segmented button, button group, chips or tabs
+
+These four all put a few related things in a row, so they are easy to confuse. They differ in what a press does and in how the keyboard moves through them.
+
+| Component | What it is | Selection | Keyboard | Use it for |
+| --- | --- | --- | --- | --- |
+| [Segmented button](/components/segmented-button/) | One control: two to five joined options that answer one question. | Its own, by value: one option, or several. | One Tab stop. The arrow keys move between options, and with single selection they also choose. | A setting with a few fixed answers that applies at once: Day, Week, Month; left, center, right. |
+| [Button group](/components/button-group/) | A row or a column of separate buttons, spaced apart or joined into one shape. | None. A toggle button in the group keeps its own on or off state. | Every button is its own Tab stop. | Related actions: Cancel, Save draft, Publish; Bold, Italic and Underline as independent toggles. |
+| [Chips](/components/chip/) | Separate small controls in a row that wraps or scrolls. | Each filter chip is on or off by itself. | Every chip is its own Tab stop. | Filters above a list, suggested replies, items the user entered. |
+| [Tabs](/components/tabs/) | Views of one subject, each with its own panel. | One tab: the view on screen. | One Tab stop. The arrow keys move and select. | Switching which content is shown: Overview, Activity, Settings. |
+
+A quick test: if pressing it does something, it is a button group. If it sets a value, it is a segmented button, or chips when the options are many or independent. If it swaps the content below, it is tabs.
+
+### One choice or several
+
+- **Single** (`selection="single"`, the default) is a radio group. Choosing a segment clears the one before it. Pressing the chosen segment again does nothing, so a single choice cannot be cleared by its own segment. The set may start with nothing chosen (`value` empty), for a form that must show that nothing has been picked yet.
+- **Multiple** is a group of toggle buttons. Each segment switches on and off, and the set may end up with none. If your product needs at least one, don't apply a change that would leave the set empty.
+
+The set has no `disabled` of its own. Disable segments one by one. A disabled segment keeps its place and its outline, and the arrow keys skip it.
+
+### Labels, icons and the check
+
+- A selected segment shows a check before its label, in place of its icon when it has one, so the selection is never told by the fill alone. An icon-only segment keeps its icon and draws it filled. A design system may set the check's size to 0: then it draws no check, and shows the selection with the fill and the elevation.
+- Every segment is as wide as the widest one, measured as if it were selected, so the check appearing never moves a neighbour. Given less room, labels wrap onto more lines and every segment grows to the tallest. They never truncate.
+- `labelHidden` draws the icon alone. The label is still required, because it stays the segment's accessible name.
+- The size sets the set's height. The sizes are not Button's heights at every step (in the `m3-like` preset small and medium match Button's and large is lower), so match a set to the buttons beside it by height, not by the name of the size.
+
+### Do
+
+- Give the set a label that asks the question its options answer: "Range", "Text alignment".
+- Keep labels to one or two words, and parallel in form: Day, Week, Month.
+- Give every segment of a set an icon, or none.
+- Choose a starting value when there is a sensible default, so the control never looks unanswered.
+
+### Don't
+
+- Don't use a segmented button for actions. A segment is a choice, and emits no click. Use a button group.
+- Don't use it to switch between views that each fill the screen. Use tabs.
+- Don't put more than five segments in a set, or labels of very different lengths. Every segment takes the widest one's width.
+- Don't change a segment's label with its state. The selection is announced separately.
+
+## Accessibility
+
+<ComponentAccessibility name="segmented-button" />
+
+### What the component handles
+
+- With single selection the set is a radio group named by its label, and each segment a radio with its checked state. With multiple selection the set is a group named by its label, and each segment a toggle button with its pressed state.
+- Each segment is named by its own label, drawn or not, and exposes its position and the number of segments. The icons, the check, the dividers and the outline are hidden. The state is never announced from the check.
+- The set is one Tab stop: the selected segment, or the one focused last with multiple selection, or else the first enabled one. The arrow keys move to the next or previous enabled segment and wrap, and Home and End reach the ends. With single selection each move also selects. With multiple selection Space and Enter switch the focused segment. In a right-to-left layout Left Arrow moves to the next segment.
+- Disabled segments are skipped by the arrow keys, are never the Tab stop, and are exposed as disabled.
+- Each segment's hit area reaches above and below the set to the minimum target, and each segment is at least a target wide, because neighbours cannot reach over each other.
+- The focus indicator is drawn inside the focused segment, where the outline and the neighbours cannot cover it. It shows for keyboard focus only.
+- At larger text sizes labels wrap and every segment grows to the tallest. The icon keeps its size.
+- Debug builds report a missing set or segment label, a hidden label without an icon, a value or values that name no segment, an empty or repeated segment value, and a set of fewer than two or more than five segments.
+
+Known platform gaps:
+
+- On the web, a multiple-choice set gives each segment its position through a list around the segments, because a toggle button cannot carry a position of its own.
+- SwiftUI has no radio group role. The set is a container named by its label. A segment of a single-choice set is a button with the selected trait and its position ("2 of 3") as its value, in English only for now. A segment of a multiple-choice set is a toggle and states no position, because a value of its own would replace the toggle's on or off.
+- SwiftUI: the set takes the width it is offered, as SwiftUI's segmented picker does. `.fixedSize(horizontal: true, vertical: false)` keeps its natural width. A segment's shadow and focus ring use its largest corner on every corner. An SF Symbol given as an icon does not switch to its filled form when selected: pass the `.fill` symbol yourself. The arrow keys are tested as rules, not with a keyboard on the simulator.
+- Compose has no radio group role. The set is a selectable group, and each segment is a radio button (single) or a toggleable button (multiple), as the filter chip is.
+- Flutter exposes neither a segment's position nor the number of segments, and a multiple-choice set is a container named by its label rather than a group, because Flutter's semantics have neither property.
+- React Native: the equal widths come from measuring each label after the first layout, so a set whose parent is narrower than it on the first frame can take a width narrower than its widest label. The arrow keys on a hardware keyboard, and the raised selection's shadow over its neighbours on Android, have not been checked on a device.
+- Under the `cupertino` system, the small and medium sets are 30 and 34 tall rather than 28 and 32, and the inner corners of the end segments are rounder than their outer ones. Both wait for a token or spec decision.
+
+### What you need to do
+
+- Give the set a label, and every segment a label, including icon-only segments.
+- Make the effect of a choice show at once, near the control. With single selection, a keyboard user chooses by moving, so a slow effect makes the arrow keys feel stuck. If it must take time, show progress where the result will appear.
+- Give disabled segments a reason nearby when it is not obvious why they cannot be chosen.
+- On the web the segmented button is not a form control. To post its value with a form, copy it into a hidden input from `change`.

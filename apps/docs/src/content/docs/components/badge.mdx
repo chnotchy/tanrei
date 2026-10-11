@@ -1,0 +1,214 @@
+---
+title: Badge
+description: Marks an icon, a navigation item or an avatar with a dot or a small count to show that something is waiting.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="badge" />
+
+<DemoFrame label="A dot and a count">
+  <tanrei-badge label="New messages">
+    <tanrei-button variant="text" label="Chat"><span slot="icon">chat</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="3" label="3 unread">
+    <tanrei-button variant="text" label="Inbox"><span slot="icon">inbox</span></tanrei-button>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 notifications">
+    <tanrei-button variant="text" label="Notifications"><span slot="icon">notifications</span></tanrei-button>
+  </tanrei-badge>
+</DemoFrame>
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- No count: the dot. A dot needs a label. -->
+    <tanrei-badge label="New messages">
+      <tanrei-button variant="text" label="Chat"><span slot="icon">chat</span></tanrei-button>
+    </tanrei-badge>
+
+    <!-- 0 draws nothing; a count above max (999) shows as 999+. -->
+    <tanrei-badge count="3" label="3 unread">
+      <tanrei-button variant="text" label="Inbox"><span slot="icon">inbox</span></tanrei-button>
+    </tanrei-badge>
+
+    <script type="module">
+      import '@tanrei/web/components/badge';
+      import '@tanrei/web/components/button';
+      const badge = document.querySelector('tanrei-badge[count]');
+      badge.count = unread;
+      badge.label = `${unread} unread`;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Badge, Button } from '@tanrei/react';
+
+    <Badge label="New messages">
+      <Button variant="text" label="Chat" onClick={openChat}><span slot="icon">chat</span></Button>
+    </Badge>
+    <Badge count={unread} label={`${unread} unread`}>
+      <Button variant="text" label="Inbox" onClick={openInbox}><span slot="icon">inbox</span></Button>
+    </Badge>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // nil is the dot.
+    TanreiBadge(count: nil, label: "New messages") {
+      TanreiIconButton("Chat", action: openChat) { Image(systemName: "bubble.left") }
+    }
+    TanreiBadge(count: unread, label: "\(unread) unread") {
+      TanreiIconButton("Inbox", action: openInbox) { Image(systemName: "tray") }
+    }
+
+    // The same as a modifier on any view.
+    Image(systemName: "bell").accessibilityLabel("Notifications").tanreiBadge(1200, label: "More than 999 unread")
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiBadge
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // null is the dot.
+    TanreiBadge(count = null, contentDescription = "New messages") {
+        TanreiIconButton(onClick = ::openChat, contentDescription = "Chat") { TanreiText("chat") }
+    }
+    TanreiBadge(count = unread, contentDescription = "$unread unread") {
+        TanreiIconButton(onClick = ::openInbox, contentDescription = "Inbox") { TanreiText("inbox") }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // No count: the dot.
+    TanreiBadge(
+      semanticLabel: 'New messages',
+      child: TanreiIconButton(onPressed: openChat, semanticLabel: 'Chat', icon: const Icon(AppSymbols.chat)),
+    );
+    TanreiBadge(
+      count: unread,
+      semanticLabel: '$unread unread',
+      child: TanreiIconButton(onPressed: openInbox, semanticLabel: 'Inbox', icon: const Icon(AppSymbols.inbox)),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Badge, IconButton } from '@tanrei/react-native';
+
+    <Badge label="New messages">
+      <IconButton accessibilityLabel="Chat" onPress={openChat}>chat</IconButton>
+    </Badge>
+    <Badge count={unread} label={`${unread} unread`}>
+      <IconButton accessibilityLabel="Inbox" onPress={openInbox}>inbox</IconButton>
+    </Badge>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Counts and the cap" plain>
+  <tanrei-badge count="3" label="3 unread">
+    <span class="tanrei-icon" role="img" aria-label="Notifications">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="42" label="42 unread">
+    <span class="tanrei-icon" role="img" aria-label="Notifications">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="1200" label="More than 999 unread">
+    <span class="tanrei-icon" role="img" aria-label="Notifications">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="120" max="99" label="More than 99 unread">
+    <span class="tanrei-icon" role="img" aria-label="Notifications">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge label="New messages">
+    <span class="tanrei-icon" role="img" aria-label="Notifications">notifications</span>
+  </tanrei-badge>
+  <tanrei-badge count="0" label="No unread messages">
+    <span class="tanrei-icon" role="img" aria-label="Notifications">notifications</span>
+  </tanrei-badge>
+</DemoFrame>
+
+<ComponentSpecs name="badge" />
+
+## Guidelines
+
+### When to use
+
+Use a badge to show that something is waiting behind an icon, a navigation item or an avatar: unread messages, new activity, updates to install. It draws the eye to where the person can act on it. A badge has no word and no place of its own in the layout, so it is not a status label. For a word that names a status or a category, such as "New", "Beta" or "Pro", use a [tag](/components/tag/).
+
+### Badge, chip or tag
+
+The three are told apart by what they do:
+
+| Kind | What it is | Where it stands | Takes input |
+| --- | --- | --- | --- |
+| Badge | A dot or a count attached to another element. | On its anchor's corner, outside the layout. | No. Input reaches the anchor. |
+| [Chip](/components/chip/) | A control. | In the layout. | Yes: it is pressed, switched or removed, and has focus and states. |
+| [Tag](/components/tag/) | A static label. | In the layout, inline. | Never. |
+
+1. If it is a number or a dot on top of something else, it is a badge.
+2. If it is pressed, selected or removed, it is a chip. If it leads somewhere, it is a link.
+3. If it is a word that only says what a thing is or what state it is in, it is a tag.
+
+A count that stands by itself in a row, such as the number of results beside a heading, is not a badge either: a badge always has an anchor. Write it as text, or as a tag where it names a state.
+
+### Choosing a form
+
+The form follows `count`, so there is no variant to choose.
+
+| Form | `count` | Use for |
+| --- | --- | --- |
+| Dot | none (null) | Something is new, and the number is unknown or does not matter. |
+| Count | above 0 | The number helps the person decide whether to look now: unread messages, pending requests. |
+| Nothing | 0 | Nothing is waiting. Bind the badge to the count directly; you do not need a condition around it. |
+
+A count above `max` shows as `max+` (999+ by default), so the badge never grows past four characters. Lower `max` (to 99, for example) where the anchor is small or the exact number stops mattering sooner.
+
+### Do
+
+- Give every badge a label that reads well after the anchor's name: "3 unread" after "Inbox". A dot needs one most of all, because without it the dot says nothing to a screen reader.
+- Leave room around the anchor. The badge sits on its top-end corner and may extend past its bounds; it never moves or resizes the anchor.
+- Clear the badge when the person has seen what it points to, so it keeps meaning something.
+
+### Don't
+
+- Don't badge every item. When everything is marked, nothing stands out.
+- Don't put a badge on a button's label or in running text. It belongs on an icon, a navigation item or an avatar. A word beside a label or in a line of text is a tag.
+- Don't use the badge's color to say what kind of thing is waiting, or how urgent it is. Say it in the label, or in the content it points to.
+- Don't make the badge interactive. Taps and clicks on it reach the anchor, which is where the action is.
+
+## Accessibility
+
+<ComponentAccessibility name="badge" />
+
+### What the component handles
+
+- The drawn dot and number are hidden from assistive technology, so the count is never read twice.
+- The label (or, without one, the displayed count such as "999+") becomes part of the anchor, so the anchor is announced once with both: "Inbox, button, 3 unread". Each platform uses its own idiom: an `aria-description` on the anchor on the web, the accessibility value on Apple platforms, Flutter and React Native, and a state description on Compose.
+- A count of 0 adds nothing: the anchor is announced as it would be without a badge.
+- A change of count or label updates what the anchor says, without an announcement that would interrupt the person.
+- It takes no input and no space, so the anchor's hit area stays whole.
+- A dot without a label, a negative count and a `max` below 1 are reported in debug builds.
+
+### What you need to do
+
+- Write a label that completes the anchor's name rather than repeating it: "3 unread", not "Inbox has 3 unread messages".
+- Make the anchor one element with a name of its own, such as an icon button with a label. On Compose, a plain icon that is not inside an element that merges its descendants needs one around it for the name and the label to be read together.
+- If a change must be announced as it happens, as in a live chat, announce it from your product with a live region. The badge does not announce.

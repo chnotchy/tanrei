@@ -1,0 +1,198 @@
+# Contributing to Tanrei
+
+Thank you for helping. Tanrei is one design system on five platforms, so the rules are about keeping those five honest with each other. [`AGENTS.md`](AGENTS.md) is the short version and applies to people as much as to AI agents; this page is the long one. How the pieces fit: [`docs/architecture/overview.md`](docs/architecture/overview.md). Who decides what: [`docs/governance/GOVERNANCE.md`](docs/governance/GOVERNANCE.md).
+
+## Issues and pull requests
+
+- **Issues are welcome**: a bug, a question, a proposal for a component or a token. [Open one](https://github.com/chnotchy/tanrei/issues) and say what you saw or what it is for.
+- **Pull requests are not accepted for now.** The maintainers make the changes, by the process on this page; when that changes, this page will say so.
+- **Security problems** go privately, as [`SECURITY.md`](SECURITY.md) describes, never into an issue.
+
+The rest of this page is how a change is made in this repository, whoever makes it.
+
+## Setup
+
+- Node ≥ 22.12 and **pnpm 12** (`packageManager` is pinned; use Corepack or a recent pnpm, which switches automatically).
+- Per platform, only what you work on: Xcode/Swift 6 · JDK 17 + Android SDK · Flutter ≥ 3.32 · nothing extra for Web/React Native.
+- Optional but recommended: [`lefthook`](https://github.com/evilmartians/lefthook) (`lefthook install`) and [`gitleaks`](https://github.com/gitleaks/gitleaks).
+
+```
+pnpm install
+pnpm check      # validate → generate → drift → build → test
+```
+
+### What `pnpm check` runs on a fresh clone
+
+`pnpm check` checks what CI checks, and needs only Node and pnpm plus the browsers Playwright runs (`pnpm --filter @tanrei/web exec playwright install`): validate, generate (the tree stays clean), drift, the format check, then `pnpm build` and `pnpm test` over the token engine, the pipeline, the tools, the CLI, the MCP server, Theme Studio, the docs site, and the web and React packages. The platforms listed in [`packages/tools/paused-platforms.json`](packages/tools/paused-platforms.json) are left out of `pnpm build` and `pnpm test`, as CI leaves them out ([Native CI is paused](#native-ci-is-paused)); run one on its own with `pnpm --filter @tanrei/<platform> test`. Each native platform needs its own toolchain:
+
+| Platform | Toolchain |
+|---|---|
+| SwiftUI | macOS with Xcode 26.6 (Swift 6); the gallery's UI tests and Dynamic Type need an iOS simulator |
+| Compose | JDK 17 and the Android SDK; the accessibility and keyboard tests need an emulator (API 34) |
+| Flutter | Flutter 3.32.8 (the goldens are recorded with it); run `flutter pub get` in `packages/flutter` before `dart format` |
+| React Native | nothing beyond Node (Jest renders the trees) |
+
+## How a change flows
+
+The same steps apply to people and to AI agents. The checks named here are the ones CI runs.
+
+### 1. Start from the source of truth
+
+- Visual value changes → `tokens/` (colors: the palette declarations and role rules in `tokens/systems/<id>.system.json`).
+- Anything about a component's surface or behaviour → `specs/<name>.spec.json`.
+- A new component, or a breaking change to an existing one, is the maintainers' decision: open an issue that says what it is for before you write it. A non-breaking addition to an existing spec needs no issue first.
+
+Write behaviour as EARS sentences with stable ids (`BTN-7`). Tests cite those ids, so the requirement and its proof stay linked.
+
+### 2. Validate and generate
+
+```
+pnpm validate     # spec schema + cross-references, token parsing, contrast invariants
+pnpm generate     # token outputs, custom elements manifest, React wrappers, status matrix
+```
+
+A failing invariant is a design bug. Fix the token or the tone table; never the threshold.
+
+### 3. Implement per platform
+
+Use the platform's `AGENTS.md`. Bind every value to a generated token. Cite behaviour ids in tests. Record a baseline for every fixture. You do not have to implement all five platforms: a platform you cannot finish stays `planned` in the spec, and the status matrix shows it.
+
+### 4. Prove it
+
+```
+pnpm drift        # parity + generated files up to date
+                  # (rewrites what was stale; `pnpm drift --check` only reports — use it in a shared checkout)
+pnpm build && pnpm test
+```
+
+`pnpm test` runs every package's `test` script after its build. The web package has two suites: `test` is Playwright, and `test:node` is Node's own runner for what has no page to run in (the links build helper, the manifest against the built elements); `pnpm test` runs `test:node` before it (`turbo.json`). The docs app has two as well: its `test` builds the site, and first runs `test:node` — Node's own runner over the Markdown passes and over every spec fixture's live markup — neither of which needs the site built.
+
+Baselines change only when the visual change is the intended outcome of a spec/token change. Say why in the changeset.
+
+### 5. Record it
+
+`pnpm changeset` — one version for all platforms. Commit with Conventional Commits (`feat(web): …`, `fix(tokens): …`, `docs: …`). In the pull request, say what you noticed and did not fix, with what was seen and what would fix it.
+
+## Adding a component
+
+The shared conventions every component follows are in [`docs/architecture/overview.md`](docs/architecture/overview.md#component-conventions). The `add-component` skill in `.claude/skills/` walks an agent through the same steps.
+
+1. **Inventory.** The name must exist in `specs/inventory.json`. Changing the inventory, like adding a component, starts with an issue.
+2. **Tokens.** Write `tokens/comp/<name>.tokens.json` (aliases only; container heights may be literals) and add it to the `comp` set in `tokens/tanrei.resolver.json`. Conditions that recolor every state (selected, error, …) are `dev.tanrei.states.variants`. A part whose disabled or pressed look differs from the fallback rules gets its own rule in every shipped system (`tokens/systems/*.system.json`).
+3. **Spec.** `specs/<name>.spec.json`, every platform `planned`. Behaviour in EARS form with a stable id prefix (`CHK-1`…); a pressable component copies BTN-8, BTN-9 and BTN-10 for its own name. Fixtures cover each variant, each size and each non-default condition. Every prop and event is mapped for every platform in its idiom.
+   - **Repeated items** (tabs, list and menu items, destinations) are item kinds under `items`, each with its own `props` (no `axis`), `slots` and `events`; a group kind that holds items says `"container": true`. Fixtures list their items in order (`items: [{ "kind", "props", "content" }]`, never a text grammar in `content`), selection stays the component's prop (by the item's `value`, else by index), and every platform maps every kind under `platforms.<p>.items.<kind>` (`name`, `props`, `events`) — the parity check looks for those names in the implementation file.
+4. `pnpm validate && pnpm generate`. Fix invariant failures in the tokens, never in the thresholds.
+5. **Each platform**, at the paths in `packages/tools/src/conventions.js`: the implementation (built on the platform's shared primitives — focus ring, press and ripple, target, elevation, corner shape, icon), tests citing every behaviour id, accessibility checks, one baseline per fixture in the default system and one representative fixture per shipped preset, one registration line in the platform's gallery (the galleries read every spec's fixtures), and the README section. Then that platform's status becomes `alpha`.
+6. **Docs.** `apps/docs/src/content/docs/components/<name>.mdx` and the translations (Overview, Specs, Guidelines, Accessibility; tables come from the spec). The sidebar lists every component that has a page by itself.
+7. **Figma.** A page named after the component; a component set with every axis value × state, every paint and size bound to `tanrei/comp` and `tanrei/comp.color` variables, text to text styles, icons as instance swaps (`design/figma/README.md`).
+8. `pnpm check`, and a changeset.
+
+Status meanings: `alpha` implemented + tested, API may change · `beta` API frozen pending feedback · `stable` covered by semver · `deprecated` scheduled for removal · `lagging` an implementation exists but has not caught up with the current spec · `planned` nothing shippable yet.
+
+## CI
+
+### What runs when
+
+On a pull request and on a push to `main`, CI (`.github/workflows/ci.yml`) runs only the jobs the changed paths can affect; its `changes` job decides, with `dorny/paths-filter` over `git diff` against the pull request's base, or against the commit `main` was at before the push (if that commit cannot be read, the push runs every job). A dispatched run (`workflow_dispatch`, which the Record baselines workflow sends) and a release (`workflow_call`) run every job that is not paused (see [Native CI is paused](#native-ci-is-paused)). The full run before anything is published is the release's.
+
+**The web runs what a change can affect** (`packages/tools/src/affected.js`). The changes job traces the changed paths to components — a component's directory, spec, comp tokens or baselines, a component drawn by a stylesheet — and widens them to the components built from or using them (`builtFrom`, `uses`) and to every module and test of `packages/web/src` and `packages/web/test` that imports what changed. A change to a component's own tests or baselines alone selects that component and nothing more. The web job then runs those tests: **on a pull request in Chromium alone, on a push to `main` in all three engines**, in as many shards as the selection needs. A change it cannot trace — the Playwright config, a generator, a token below comp, the lockfile — runs every test (on a pull request every Chromium test). A change to `ci.yml` alone runs one component's tests, to show the jobs still start. Firefox and WebKit therefore first see a change on `main`; dispatch CI on a branch (`gh workflow run ci.yml --ref <branch>`) to run everything before a merge that warrants it. `node packages/tools/src/affected.js <base>` prints what a branch selects.
+
+**Shared inputs** feed every platform, so a change to any of them runs everything: `tokens/`, `specs/`, `tanrei.config.json`, `packages/token-engine/`, `packages/tokens-build/`, `packages/tools/`, `scripts/`, `patches/`, `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `turbo.json`, `.github/workflows/ci.yml`.
+
+| Job | Runs on a pull request when these change (besides the shared inputs) |
+|---|---|
+| Validate · generate · drift | always |
+| Changeset: a change to a released package (outside its tests and baselines) adds or edits a `.changeset/*.md` (`pnpm changeset`, or `pnpm changeset --empty` when nothing is released) | always, on a pull request only |
+| Core tests · token engine and repo tools, · pipeline | only the shared inputs |
+| Core tests · CLI | `packages/cli/`, `packages/studio/`, `packages/web/`, `packages/react/` |
+| Core tests · MCP server | `packages/mcp/` |
+| Core tests · Theme Studio | `packages/studio/`, `packages/web/`, `packages/react/` |
+| Web (in shards: the selection above) and the merged Playwright report; its first Chromium shard also runs the web package's Node tests (`test:node`) and the React bindings' tests | `packages/web/`, `packages/react/` |
+| Docs · build, the built site's check, then the docs app's Node tests (and the Deploy docs preview) | the web paths, `apps/docs/`, `packages/studio/`, `design/`, `docs/status/` |
+| SwiftUI (build, Dynamic Type, gallery shards) — macOS | `packages/swiftui/`, `Package.swift`, `Package.resolved` |
+| Flutter | `packages/flutter/` |
+| Compose, and Compose on an emulator | `packages/compose/` |
+| React Native | `packages/react-native/` |
+
+**CI result** is the one check to require: it fails unless every job that should have run succeeded; a job may be skipped only when its paths did not change.
+
+Runner images are pinned (`ubuntu-24.04`, `macos-26` with `XCODE_VERSION`), and the web runs in the Playwright image pinned to the lockfile: a baseline depends on the renderer, so a runner image or toolchain moves only on purpose — bump it in ci.yml and record-baselines.yml together, then re-record.
+
+### Native CI is paused
+
+The jobs of the four native platforms are **paused** until each platform catches up with the web: SwiftUI (`swiftui`, `swiftui-dynamic-type`, `swiftui-gallery`), Compose (`compose`, `compose-instrumented`), Flutter (`flutter`) and React Native (`react-native`). They are skipped in every kind of run — a pull request, `main`, a dispatched run, a release — and **CI result** passes without them. Validate (drift and parity included), the core suites (the pipeline's emitters of native token code among them), the web, the docs and the tools are not paused, and nothing else ever is.
+
+- **The switch** is one file, [`packages/tools/paused-platforms.json`](packages/tools/paused-platforms.json): the names of the paused platforms. CI's changes job reads it, and so do the root `pnpm build`, `pnpm test` and `pnpm check` (`scripts/run-unpaused.mjs`), so a fresh clone checks what CI checks. Every run that pauses something says so in a notice.
+- **A green run says nothing about a paused platform.** Whoever changes a native's code runs that platform's suite on their own machine and says what it showed.
+- **A paused platform's status is not raised and nothing of it is published** (`release.yml` refuses).
+- **It ends per platform**, in the commit that brings the platform up to the current specs: that commit takes the platform's name out of `paused-platforms.json`.
+
+### A draft is held
+
+A pull request that is a **draft** runs nothing: the CI run is skipped whole and costs no minutes. While a draft is held:
+
+- the pull request shows **no check at all**, so nothing unverified reads as green — and nothing reads as verified;
+- what Validate would have run is run on the machine that pushes: the pre-push hook runs the drift and parity checks, and `pnpm validate` is run before a commit of sources of truth;
+- marking the pull request **ready for review** starts the full run at once, without a push;
+- the label **`ci:run`** on the draft runs it as if it were ready, from the next push (with `ci:web-only` beside it, the web, docs and core suites only). Take the label off again when the run has told you what you wanted.
+
+Run the suites on your own machine while the draft is held (`pnpm test`, or one package's); the hold moves the cost, it does not waive the proof.
+
+### Web-only iteration
+
+To iterate on a web component against the docs preview without paying for the other platforms on every push, put the label **`ci:web-only`** on the pull request. While it is set:
+
+- the pull request runs `validate`, the web and docs jobs (and the core suites its changes affect); Flutter, Compose, React Native and SwiftUI are skipped, whatever changed;
+- the docs preview deploys as usual;
+- **CI result fails on purpose**, so the pull request cannot merge with platforms nobody checked.
+
+The label is read when a run starts; adding or removing it does not start a run by itself — push, or **Re-run all jobs**. It never applies to `main`, a dispatched run or a release. A change to `specs/` or `tokens/` still fails `validate` (spec ↔ implementation parity) until every platform that claims a status implements it — the label does not bypass that.
+
+### Recording baselines
+
+A baseline is verified on the machine it was recorded on, and CI is that machine:
+
+| Platform | Recorded and verified on | Baselines |
+|---|---|---|
+| web (Chromium) | Linux, in `mcr.microsoft.com/playwright:v<the lockfile's Playwright>-noble` | `packages/web/snapshots/` |
+| Flutter | Linux (`ubuntu-24.04`), Flutter 3.32.8 | `packages/flutter/test/components/goldens/` |
+| Compose | Linux (`ubuntu-24.04`), JDK 17, Robolectric native graphics | `packages/compose/tanrei/src/test/snapshots/` |
+| React Native | anywhere (render trees, JSON) | `packages/react-native/src/components/__tests__/__snapshots__/` |
+| SwiftUI | macOS (`macos-26`, Xcode 26.6 — `XCODE_VERSION` in ci.yml) | `packages/swiftui/Tests/TanreiTests/__Snapshots__/` |
+
+An image recorded on a developer's Mac does not match what Linux CI renders (web, Flutter, Compose). Record with the **Record baselines** workflow (`.github/workflows/record-baselines.yml`), dispatched on the branch that needs them:
+
+```sh
+gh workflow run record-baselines.yml --ref <branch> \
+  -f platforms=web \
+  -f reason="<what changed and why>" \
+  -f filter=button-group,toolbar     # optional: spec names; empty records every baseline
+```
+
+It runs each platform's record command on CI's own runner with `TANREI_SNAPSHOT_REASON` set to the reason, and commits only the changed files under the baseline directories above to the branch — one commit per platform, `test(<platform>): record baselines — <reason>`. It refuses the default branch. While native CI is paused its default is the web alone. Then:
+
+1. **CI starts by itself** on the branch (a `workflow_dispatch` run whose checks attach to the branch's new head commit). The pull request's own runs queued by the bot's push wait for approval; do not approve them, they would run the same CI a second time.
+2. **Look at every image** in the commits (the pull request's file view shows them) — a baseline is evidence.
+3. Repeat the reason in the changeset.
+
+To record locally the same way, in a separate clone (the container installs Linux `node_modules`): web — `docker run --rm -it --ipc=host -v "$PWD":/work -w /work mcr.microsoft.com/playwright:v<version>-noble`, then inside `corepack enable pnpm && pnpm install && pnpm --filter @tanrei/web build` and the record command in `packages/web/README.md`; Flutter and Compose — a Linux machine or VM with the versions above.
+
+## What blocks you, by design
+
+| You tried to… | Blocked by |
+|---|---|
+| edit a generated file | Claude Code hook, drift check |
+| mark a platform `alpha` without tests/baselines/docs | parity check |
+| add an implementation but leave the spec `planned` | parity check |
+| commit with `--no-verify`, publish, or change a repository's visibility | Claude Code hook (and these are maintainers' decisions) |
+| update baselines silently | hook requires `TANREI_SNAPSHOT_REASON` |
+| lower contrast below the floor in any of six schemes | token invariants |
+
+## Ground rules
+
+- No hardcoded design values in components; no hand-edits to generated files.
+- Accessibility thresholds are floors. If a check fails, the design changes, not the threshold.
+- All prose is original. Write your own text, and copy no text or assets from anywhere.
+- Conventional Commits; one changeset per user-visible change.
+
+By contributing you agree that your contribution is licensed under Apache-2.0.

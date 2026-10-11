@@ -1,0 +1,536 @@
+---
+title: "文本字段"
+description: "让用户输入和编辑文本——单行，或者随文本增高、可手动调整大小的多行——也可以按区域设置的格式逐个单位地输入日期或时间，或者输入代码并按写下的样子原样保存；它带有可以说明必填或选填的标签，以及可选的图标、前缀和后缀、辅助文本、字符计数和选择器按钮。"
+translationOf: components/text-field.mdx
+sourceHash: c0d7d41a28bea90a5bfaa91ba43e5749d3b5a27b
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="text-field" />
+
+:::note[规格已修订，但尚未在所有平台上实现]
+本页描述的是规格当前所定的文本字段：`stacked` 变体，它是默认变体，标签位于文本字段上方；`filled` 和 `outlined` 只为 Material 和 cupertino 预设保留；高度为 48 和 56；带选择器按钮的日期和时间类型；随文本增高、或用调整手柄调整大小的多行文本字段（`resize`）；按分段逐个单位输入的日期或时间；以及 `requirement`，它把文本字段标记为必填或选填，并取代 `required` 标志。Web 组件已经全部做到，演示也是如此。文本字段还可以保存代码（`type="code"`，以及决定代码行是否换行的 `wrap`）：Web 已经实现，其他平台都还没有。文本字段是包住一个文本输入框的字段，也就是本页描述的样子：Web 也已经实现，并且在 Web 上 `required` 属性（attribute）已经不存在了。SwiftUI、Compose、Flutter 和 React Native 在上方标记为“待跟进”：在跟上之前，它们提供的是上一版——默认为 outlined，高度为 36 和 40，`required` 标志不绘制任何标记，没有 `stacked` 变体，没有日期或时间类型，没有选择器按钮，也没有调整大小的模式——它们的示例展示的也是那一版。
+:::
+
+<DemoFrame label="默认的 Stacked：一个必填的文本字段，以及带选择器按钮的日期" column>
+  <tanrei-text-field label="邮箱" type="email" requirement="required" required-text="必填" supporting-text="仅用于登录。"></tanrei-text-field>
+  <tanrei-text-field label="开始日期" type="date" locale="zh-CN" value="2026-09-27" picker picker-label="选择开始日期" segment-empty-text="未填写"></tanrei-text-field>
+</DemoFrame>
+
+表单里凡是要填文本的地方，都使用文本字段：它是最普通的情形，拿来就能用，带有标签、方框、一行帮助文本、值有误时的文字，以及计数。
+
+**组成部分**是一个[字段](/zh-cn/components/field/)和一个[文本输入框](/zh-cn/components/text-input/)。字段是框架：标签、必填或选填标记、帮助文本、错误和计数。文本输入框是控件：方框，以及在方框里键入的一切。文本字段自己什么都不绘制，也没有令牌：它的每个属性都是这两者之一的属性，原样交给它们。
+
+它是一个块，放在哪里就和那里一样宽，它的方框会把它填满。它没有自己的宽度：想要窄一些的字段，就把它放进窄一些的地方。
+
+### 用法
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-text-field name="email" label="邮箱" type="email" autocomplete="email" requirement="required" required-text="必填"
+        supporting-text="仅用于登录。"></tanrei-text-field>
+      <tanrei-text-field name="company" label="公司" requirement="optional" optional-text="选填"></tanrei-text-field>
+      <!-- 随文本从 3 行增高到 8 行，之后滚动。 -->
+      <tanrei-text-field name="message" label="消息" multiline min-rows="3" max-rows="8"></tanrei-text-field>
+      <!-- 用调整手柄手动调整大小。 -->
+      <tanrei-text-field name="notes" label="备注" multiline resize="manual" resize-label="调整备注的大小"></tanrei-text-field>
+    </form>
+
+    <!-- 只要方框，放在工具栏里：一个文本输入框，由它自己的 label 命名。导入文本字段时，它也随之完成定义。 -->
+    <tanrei-text-input label="搜索" type="search" placeholder="搜索组件">
+      <span slot="leading-icon">search</span>
+    </tanrei-text-input>
+
+    <!-- 代码：无论页面是什么方向，都从左到右、用代码字体显示，绝不自动更正，也不做拼写检查。 -->
+    <tanrei-text-field label="匹配模式" type="code" value="tanrei.comp.button.*.container.color"></tanrei-text-field>
+    <tanrei-text-field label="Webhook 请求体" type="code" multiline min-rows="4" supporting-text="JSON"></tanrei-text-field>
+    <!-- 不换行：代码的每一行都保持在一行里，长的行在文本字段内部滚动。 -->
+    <tanrei-text-field label="数据行" type="code" multiline no-wrap></tanrei-text-field>
+
+    <!-- 按区域设置的顺序逐个单位输入的日期，以 2026-09-27 的形式保存，带选择器按钮。 -->
+    <tanrei-text-field id="start" label="开始日期" type="date" min="2026-01-01" disabled-dates="2026-05-01 2026-12-25"
+      invalid-text="请把日期填写完整。" unavailable-text="请选择 2026 年及以后的工作日。"
+      picker picker-label="选择开始日期" segment-empty-text="未填写"></tanrei-text-field>
+    <tanrei-date-time-picker id="start-picker" presentation="docked" anchor="start" label="开始日期"></tanrei-date-time-picker>
+
+    <script type="module">
+      import '@tanrei/web/components/text-field';
+      const email = document.querySelector('[name="email"]');
+      email.addEventListener('input', () => draft(email.value)); // 每次编辑
+      email.addEventListener('change', () => save(email.value)); // 值已改变，并且焦点离开或按下 Enter
+      // 校验由你负责：文本字段绝不会自己设置 error。
+      email.error = submitted && !isValid(email.value);
+      email.errorText = '请输入完整的邮箱地址。';
+
+      // 文本字段只发出请求；由产品呈现选择器，并把值写回来。
+      const start = document.querySelector('#start');
+      const picker = document.querySelector('#start-picker');
+      start.addEventListener('pickerrequest', (e) => {
+        Object.assign(picker, { value: e.detail.value, min: e.detail.min, max: e.detail.max, disabledDates: start.disabledDates, open: true });
+      });
+      picker.addEventListener('change', () => (start.value = picker.value));
+      picker.addEventListener('close', () => (picker.open = false));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TextField } from '@tanrei/react';
+
+    <TextField
+      label="邮箱"
+      type="email"
+      autocomplete="email"
+      value={email}
+      onInput={(e) => setEmail(e.currentTarget.value)}
+      onChange={() => save(email)}
+      requirement="required"
+      requiredText="必填"
+      error={submitted && !isValid(email)}
+      errorText="请输入完整的邮箱地址。"
+    />
+
+    <TextField label="消息" multiline minRows={3} maxRows={8} value={message}
+      onInput={(e) => setMessage(e.currentTarget.value)} />
+
+    // 日期：值为 ISO 8601 格式；只要有分段为空，值就为空。
+    <TextField
+      label="开始日期"
+      type="date"
+      min="2026-01-01"
+      value={start}
+      invalidText="请把日期填写完整。"
+      unavailableText="请选择 2026 年及以后的日期。"
+      segmentEmptyText="未填写"
+      picker
+      pickerLabel="选择开始日期"
+      onChange={(e) => setStart(e.currentTarget.value)}
+      onEntryerror={(e) => report(e.detail.reason)}
+      onPickerrequest={() => setPickerOpen(true)}
+    />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiTextField("邮箱", text: $email, type: .email,
+                    supportingText: "仅用于登录。",
+                    errorText: "请输入完整的邮箱地址。",
+                    error: submitted && !isValid(email),
+                    textContentType: "email", // HTML 的自动填充名称
+                    onCommit: save,
+                    // 把操作传到这里：外层的 .onSubmit 会先于 onCommit 运行。
+                    onSubmit: signIn)
+
+    // 多行用纵向的 axis 加上行数限制的范围来表示。
+    TanreiTextField("消息", text: $message, axis: .vertical, lineLimit: 3...8)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.text.KeyboardActions
+    import io.github.chnotchy.tanrei.components.TanreiTextField
+    import io.github.chnotchy.tanrei.components.TanreiTextFieldType
+
+    var email by remember { mutableStateOf("") }
+    TanreiTextField(
+        value = email,
+        onValueChange = { email = it },
+        label = "邮箱",
+        type = TanreiTextFieldType.Email,
+        contentType = "email", // HTML 的自动填充名称
+        supportingText = "仅用于登录。",
+        isError = submitted && !isValid(email),
+        errorText = "请输入完整的邮箱地址。",
+        onCommit = { save(it) },
+        keyboardActions = KeyboardActions(onDone = { signIn() }),
+    )
+
+    // singleLine 与规格里的 multiline 相反。
+    TanreiTextField(value = message, onValueChange = { message = it }, label = "消息", singleLine = false, minLines = 3)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiTextField(
+      controller: email, // 或者 initialValue: '…'
+      labelText: '邮箱',
+      type: TanreiTextFieldType.email,
+      autofillHints: TanreiTextField.autofillHintsFromHtml('email'),
+      helperText: '仅用于登录。',
+      isError: submitted && !isValid(email.text),
+      errorText: '请输入完整的邮箱地址。',
+      onCommit: save,
+      onSubmitted: (String value) => signIn(),
+    );
+
+    TanreiTextField(labelText: '消息', multiline: true, minLines: 3);
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { TextField } from '@tanrei/react-native';
+
+    <TextField
+      label="邮箱"
+      type="email"
+      autoComplete="email"
+      value={email}
+      onChangeText={setEmail}
+      supportingText="仅用于登录。"
+      error={submitted && !isValid(email)}
+      errorText="请输入完整的邮箱地址。"
+      onEndEditing={save}
+      onSubmitEditing={signIn}
+    />
+    <TextField label="消息" multiline minRows={3} value={message} onChangeText={setMessage} />
+    ```
+  </TabItem>
+</Tabs>
+
+### 下一层
+
+用它的两个成员手写出来的同一个字段，画面是一样的，对辅助技术来说也是同一个文本框，名称、描述和状态都相同：
+
+```html
+<tanrei-field label="邮箱" requirement="required" required-text="必填"
+  supporting-text="仅用于登录。">
+  <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="手写出来的同一个字段：里面放着一个文本输入框的字段" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="邮箱" requirement="required" required-text="必填" supporting-text="仅用于登录。">
+    <tanrei-text-input type="email"></tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+需要文本字段没有提供的排布方式时，就往下走一层：
+
+| 你需要 | 使用 |
+| --- | --- |
+| 标签、方框、帮助文本、错误和计数 | 文本字段 |
+| 在框架里面、方框的旁边或下方放你自己的东西 | 一个[字段](/zh-cn/components/field/)，里面放一个[文本输入框](/zh-cn/components/text-input/)和你自己的元素 |
+| 只要方框，放在位于别处的标签之下：工具栏里的筛选框、表格的单元格、标签在旁边的一行 | 单独的[文本输入框](/zh-cn/components/text-input/)，由它自己的 `label` 命名 |
+
+到了下一层，变的是各样东西写在哪里。`name` 和 `value` 写在文本输入框上，这时它就是表单遇到的那个控件，它的事件也在它上面监听。`label`、`error`、`disabled` 和必填与否仍然写在字段上，由字段传给控件：不要设置输入框自己的那几个。
+
+有一件事是文本字段做、而手写的字段和文本输入框不做的：让计数保持同步。手写时，设置了 `counter` 的话，每次变化都要把输入框的计数交给字段：
+
+```js
+field.countText = input.countText;
+input.addEventListener('input', () => (field.countText = input.countText));
+```
+
+## 规格
+
+<DemoFrame label="错误、禁用、只读、前后缀和计数器" plain column>
+  <tanrei-text-field label="邮箱" value="ada@" error error-text="请输入完整的邮箱地址。"></tanrei-text-field>
+  <tanrei-text-field label="邮箱" value="ada@example.com" disabled></tanrei-text-field>
+  <tanrei-text-field label="邮箱" value="ada@example.com" readonly></tanrei-text-field>
+  <tanrei-text-field label="金额" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-field>
+  <tanrei-text-field label="显示名称" value="李华" maxlength="40" counter></tanrei-text-field>
+  <tanrei-text-field size="large" label="邮箱" value="ada@example.com"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="类型：密码、搜索、数字、电话和 URL" plain column>
+  <tanrei-text-field label="密码" type="password" value="correct horse" autocomplete="current-password"></tanrei-text-field>
+  <tanrei-text-field label="搜索" label-hidden type="search" placeholder="搜索组件">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-field>
+  <tanrei-text-field label="数量" type="number" value="12"></tanrei-text-field>
+  <tanrei-text-field label="电话" type="tel" autocomplete="tel" placeholder="138 0000 0000"></tanrei-text-field>
+  <tanrei-text-field label="网站" type="url" placeholder="https://example.com"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="必填和选填：小标签，以及星号" plain column>
+  <tanrei-text-field label="邮箱" type="email" requirement="required" required-text="必填"></tanrei-text-field>
+  <tanrei-text-field label="公司" requirement="optional" optional-text="选填"></tanrei-text-field>
+  <tanrei-text-field label="邮箱" type="email" requirement="required" required-mark="asterisk"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="多行：随文本增高、用调整手柄调整大小（向下，以及双向）、固定" plain column>
+  <tanrei-text-field label="消息" multiline min-rows="2" max-rows="5" placeholder="输入几行试试：文本字段会增高到 5 行，之后滚动"></tanrei-text-field>
+  <tanrei-text-field label="备注" multiline resize="manual" max-rows="10" resize-label="调整备注的大小"></tanrei-text-field>
+  <tanrei-text-field label="描述" multiline resize="manual" resize-axis="both" resize-label="调整描述的大小"></tanrei-text-field>
+  <tanrei-text-field label="地址" multiline resize="fixed" min-rows="3"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="代码：单行的匹配模式、多行的 JSON，以及不换行的代码行" plain column>
+  <tanrei-text-field type="code" label="匹配模式" value="tanrei.comp.button.*.container.color" supporting-text="令牌 id，* 代表任意一段。"></tanrei-text-field>
+  <tanrei-text-field type="code" multiline min-rows="4" label="层" value="{&#10;  &quot;id&quot;: &quot;acme&quot;,&#10;  &quot;extends&quot;: &quot;tanrei&quot;&#10;}"></tanrei-text-field>
+  <tanrei-text-field type="code" multiline no-wrap min-rows="3" label="规则" value="{ &quot;match&quot;: &quot;tanrei.comp.button.*.hovered.container.color&quot;, &quot;$value&quot;: &quot;{tanrei.sys.color.primary}&quot; }&#10;{ &quot;match&quot;: &quot;*&quot; }"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="从右到左的页面里的代码：标签和帮助文本跟随页面，代码从左侧开始" plain column>
+  <div dir="rtl" lang="ar" style="display: grid; gap: 1rem;">
+    <tanrei-text-field type="code" label="النمط" value="tanrei.comp.*.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
+    <tanrei-text-field type="code" multiline min-rows="3" label="المصادر" value="[&quot;مرحبا&quot;, &quot;acme&quot;]&#10;// تعليق: comment"></tanrei-text-field>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="分段输入的日期、时间，以及日期和时间。用 Tab、方向键和数字填写" plain column>
+  <tanrei-text-field label="开始日期" type="date" locale="zh-CN" picker picker-label="选择开始日期" invalid-text="请把日期填写完整。" segment-empty-text="未填写"></tanrei-text-field>
+  <tanrei-text-field label="开始时间" type="time" locale="zh-CN" value="14:30" segment-empty-text="未填写"></tanrei-text-field>
+  <tanrei-text-field label="出发时间" type="date-time" locale="zh-CN" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="请选择 2026 年 9 月及以后的时间。" segment-empty-text="未填写"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="Filled 和 Outlined：Material 预设的变体" system="m3-like" plain column>
+  <tanrei-text-field variant="filled" label="邮箱" type="email" value="ada@example.com"></tanrei-text-field>
+  <tanrei-text-field variant="outlined" label="邮箱" type="email" supporting-text="仅用于登录。"></tanrei-text-field>
+</DemoFrame>
+
+### 各个成员提供什么
+
+| 方面 | 来自字段 | 来自文本输入框 |
+| --- | --- | --- |
+| 属性 | `label`、`labelHidden`、`supportingText`、`errorText`、`error`、`disabled`、`requirement`、`requiredMark`、`requiredText`、`optionalText` | 其余的每一个：`variant`、`size`、`type`、`value`、`placeholder`、`readOnly`、行数和调整大小、`wrap`、`maxLength`、`counter`、前缀和后缀、`autocomplete`，以及日期或时间的一切 |
+| 事件 | — | `input`、`change`、`action`、`pickerRequest`、`entryError` |
+| 插槽 | `label-icon` | `leading-icon`、`trailing-icon` |
+| 令牌 | `comp.field.*` | 方框用 `comp.input-box.*`，每一种输入方框都读取它；只有文本输入框才绘制的部分用 `comp.text-input.*` |
+
+文本输入框有自己的 `label`、`labelHidden`、`error` 和 `disabled`。文本字段设置的不是它们：文本字段的 `label` 是字段的 `label`，它为输入框命名，在 filled 或 outlined 的字段里，浮在方框中的也是它。
+
+### 令牌
+
+文本字段没有自己的令牌。它的方框读取[文本输入框的令牌](/zh-cn/components/text-input/#规格)，它的各行——标签、标记、帮助文本、错误和计数——读取[字段的令牌](/zh-cn/components/field/#规格)，无论这些令牌设置在哪里。下面的表格列出的是字段的令牌。要改动某一个实例，就在它上面设置成员的令牌：
+
+```html
+<tanrei-text-field label="邮箱"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-text-field>
+```
+
+<ComponentSpecs name="text-field" />
+
+### Web 上绘制方式的不同之处
+
+- 这个元素的 shadow root 里有一个 `<tanrei-field>`，其中放着一个 `<tanrei-text-input>`，此外什么都没有。导入这个元素，两个成员也随之完成定义。
+- 这个元素是一个块，会填满所在的地方，而不是一个和浏览器自己的文本输入框一样宽的行内方框。
+- 这个元素是与表单关联的元素。它接受 `name` 和 `form`，提交它的值——禁用时什么都不提交——重置为 `value` 属性（attribute）的值，在导航时恢复，跟随被禁用的 `<fieldset>`；`requirement` 为 `required` 而它为空时，报告缺少值。它的两个成员不向表单添加任何条目。在单行的字段里按 Enter 会按下元素所在表单的默认按钮；取消 `action` 可以阻止这一点。
+- `input`、`change`、`action`、`pickerrequest` 和 `entryerror` 是文本输入框自己的事件。它们的目标是这个元素，在每个监听器里 `event.target.value` 都是新的值。detail 的类型是输入框的：`TanreiTextInputActionDetail`、`TanreiTextInputPickerRequestDetail` 和 `TanreiTextInputEntryErrorDetail`。
+- 部件：`field` 和 `text-input` 是两个成员。成员自己的部件在这里的名称与下一层相同：`label-icon`、`supporting-text`、`counter`；`container`、`outline`、`active-indicator`、`input`、`segment`、`prefix`、`suffix`、`leading-icon`、`trailing-icon`、`picker-button`、`resize-grip`。`label` 和 `requirement-label` 是画出来的那一个，无论由哪个成员绘制；`field-label`、`text-input-label`、`field-requirement-label` 和 `text-input-requirement-label` 指的是某一个成员的。
+- 这个元素自己不能获得焦点，也没有角色：`focus()` 会把焦点交给输入框。按标签行、方框或浮动标签，都会让输入框获得焦点。按帮助文本、错误文本、计数，或者某一行与方框之间的空隙，什么都不会发生。
+- 用 `label` 为它命名——不该绘制标签的地方再加上 `label-hidden`——绝不要用 `aria-label`，它在这里不为任何东西命名。
+- 属性（attribute）就是成员自己的那些：用 kebab-case 书写，例如 `supporting-text`、`error-text`、`min-rows` 和 `no-wrap`，只有 `readonly`、`maxlength`、`autocomplete`、`min` 和 `max` 例外。没有 `required` 属性（attribute）：请写 `requirement="required"`。
+- 在元素定义之前，它没有尺寸。请预留高度。
+
+## 指南
+
+### 何时使用
+
+当用户要键入一个值时，使用文本字段：姓名、电子邮件地址、搜索词、消息。当用户是从一组已知的值里挑选时，请使用专为选择而设计的控件。标签在别处、因而只要方框的地方——工具栏里的筛选框、表格的单元格——请使用[文本输入框](/zh-cn/components/text-input/)。
+
+### 如何选择变体和尺寸
+
+一个表单从头到尾使用同一种变体。
+
+| 变体 | 特征 | 用在哪里 |
+| --- | --- | --- |
+| Stacked（默认） | 标签位于一个没有边线的着色方框上方。聚焦时在方框边缘以内画一条线，不会挪动任何东西；出错时，静止状态下画一条细线。 | 所有系统。它是 Tanrei 系统提供的唯一变体。 |
+| Filled | 一个着色的方框和一条底线，标签浮在里面 | Material 和 cupertino 预设 |
+| Outlined | 一圈聚焦时变粗的边框，标签浮到边框上 | Material 和 cupertino 预设 |
+
+在所有系统里，包括各个预设，默认都是 stacked。想要 Material 式浮动标签的 Material 产品，可以把文本字段的 `variant` 设为 `outlined` 或 `filled`。在 Tanrei 系统下，`filled` 和 `outlined` 仍然可用，但开发时会给出警告。
+
+`medium`（48）是 Material 的紧凑文本字段，`large`（56）是 Material 的标准文本字段。筛选条件和密集的设置界面使用 `medium`，登录和结账表单使用 `large`。在默认系统中，两种尺寸的输入文本都是 16。高度是最小值：文本放大时，文本字段会随之增高。
+
+### 标签和占位符
+
+- 每个文本字段都需要 `label`。在 stacked 文本字段中，它位于方框上方，从起始边开始，绝不移动，也不改变大小；标签太长时会换行，而不是被截断。`label-icon` 插槽可以在它前面放一个图标。在 filled 或 outlined 文本字段中，文本字段为空时标签停在文本字段里，聚焦或已有内容时则浮起。
+- `labelHidden` 不再绘制标签，但它仍然是无障碍名称，帮助文本和错误也仍然位于方框下方。只要方框的地方——工具栏里的筛选框、单元格、标签在旁边的一行——请改用带有自己 `label` 的[文本输入框](/zh-cn/components/text-input/)。
+- 占位符是一条提示，例如一个示例值。它在文本字段为空、并且标签不在输入行里时显示：在 stacked 文本字段中始终如此，在其他变体中则只在标签浮起或隐藏时如此。它绝不是名称。
+
+### 必填和选填
+
+`requirement` 说明表单对一个文本字段的要求：`none`（默认）、`required` 或 `optional`。它是一项有三个值的设置，因为一个文本字段不可能既必填又选填。
+
+- **必填**会把文本字段暴露为必填，并在标签旁边绘制必填标记。
+- **选填**会绘制选填小标签，并把它的文字加入文本字段的描述。
+- **标记**默认是 stacked 标签后面的一个小标签：必填用 filled 样式，选填用 tonal 样式。它的文字是 `requiredText` 和 `optionalText`，它们是你的：写在文本字段上，或者用 `setWords()` 为整个产品只给一次。Tanrei 不自带任何文字：没有 `requiredText` 时，小标签的位置上是一个星号；没有 `optionalText` 时，不绘制小标签。它不会让标签所在的行变高；标签没有给它留出空间时，它会换到单独的一行。
+- **改用星号。** 必填的文本字段绘制哪种标记，是设计系统为所有表单做的一项选择，即 `sys.behavior.requirement-mark`：默认系统中是小标签，Material 预设中是星号，cupertino 中什么都不画。`requiredMark` 可以为单个文本字段覆盖它（`tag`、`asterisk` 或 `none`；`none` 保留语义，但什么都不画）。filled 或 outlined 文本字段在要求绘制小标签的地方绘制星号。
+- **它不做任何校验。** 文本字段绝不会因为缺少值而设置 `error`。这要由你用 `error` 和 `errorText` 来做。
+
+在一个表单里，标记两者中较少的那一种：大多数文本字段必填时，标记选填的；反之亦然。如果使用星号，请在表单靠近顶部的地方说明一次它的含义。
+
+`requirement` 取代了上一版的 `required` 标志。在 Web 上，`required` 属性无论是 attribute 还是 property 都已经不存在：请写 `requirement="required"`。原来必填的文本字段现在还会显示一个标记：不想要标记的地方，把 `requiredMark` 设为 `none`。
+
+### 帮助文本和错误文本
+
+- `supportingText` 是文本字段下方的一行帮助文本。它也会作为文本字段的描述被朗读。
+- 校验由你负责。值有误时，设置 `error` 并编写 `errorText`：它绘制在辅助文本的下方，辅助文本仍然保留，所以文本字段处于错误状态时会高出一行。不要在错误文本里把帮助文本再说一遍。
+- 要说明如何改正这个值，而不只是说它错了：写“请输入完整的邮箱地址。”，而不是“无效”。
+- 在用户离开文本字段或提交表单之后才显示错误，不要在用户还在输入时显示。
+
+### 计数器
+
+- `maxLength` 限制用户可以输入的内容。它按用户看到的字符来计数，所以一个表情符号或一个带重音的字母只算一个。粘贴的内容会被截短到刚好放得下。你自己设置的值绝不会被截短。
+- `counter` 在辅助文本那一行的末尾显示计数；设置了 `maxLength` 时，后面还跟着上限（“12/40”）。
+- 只有当上限对用户有意义时才显示计数器，例如显示名称或简短的个人简介。
+
+### 输入类型
+
+`type` 决定键盘、自动更正和是否遮蔽输入。无论哪种类型，值都是字符串。
+
+| 类型 | 键盘和行为 |
+| --- | --- |
+| `text` | 通用键盘。 |
+| `email` | 电子邮件键盘，不自动大写，也不自动更正。 |
+| `password` | 遮蔽的安全输入，不自动更正。始终为单行。 |
+| `number` | 带小数分隔符的数字键盘。值不会被解析、取整或校验。 |
+| `search` | 通用键盘，操作键显示为搜索。 |
+| `tel` | 电话拨号键盘。 |
+| `url` | URL 键盘，不自动大写，也不自动更正。 |
+| `code` | 通用键盘，并且不对文本做任何处理：不自动更正，不自动大写，不做拼写检查，也不替换字符。单行，或者在设置 `multiline` 时为多行。参见[代码](#代码)。 |
+| `date`、`time`、`date-time` | 日期、时间，或两者兼有，按区域设置的数字格式逐个单位输入。始终为单行。参见[日期和时间](#日期和时间)。 |
+
+加上 `autocomplete`，并给它一个 HTML 自动填充名称（`email`、`current-password`、`one-time-code` 等），平台就能填写这个文本字段。每个平台会把它映射为自己的内容类型。长度已知、按格子绘制的简短验证码，应使用[一次性验证码输入框](/zh-cn/components/one-time-code-input/)。
+
+### 多行
+
+`multiline` 接受换行，并显示多行。`resize` 说明文本字段的高度从何而来：
+
+| `resize` | 高度 | 调整手柄 | `minRows` 和 `maxRows` |
+| --- | --- | --- | --- |
+| `auto`（默认） | 跟随行数，带一段短促的动效 | 无 | 最少和最多的行数。超过最多行数后滚动；0 表示没有限制 |
+| `manual` | 由用户决定。初始为 `minRows` | 位于末尾边的底角 | 能调到的最小和最大高度 |
+| `fixed` | `minRows` 行 | 无 | `maxRows` 被忽略 |
+
+- **Auto** 适合大多数文本字段：评论、消息、描述。长文本不应把表单的其余部分挤开时，设置 `maxRows`。
+- **Manual** 适合用户会回头阅读和整理的文本：备注、长描述、代码。`resizeAxis` 默认为 `vertical`；设为 `both` 时，用户还可以在布局允许的范围内改变文本字段的宽度。调整后的大小会保持下来，文本在其中换行和滚动。
+- **Fixed** 适合布局不能变动的表单，例如地址块。
+- **调整手柄不靠拖动也能用。** 它是一个焦点停靠点，由 `resizeLabel` 命名。方向键每次调整一行，Home 和 End 调到最小和最大高度；点击、Enter 或 Space 让高度贴合文本，如果已经贴合，则回到 `minRows`。它的目标是最小目标，尽管它的图标很小。禁用的文本字段不绘制调整手柄；只读的文本字段保留它，因为阅读时可能需要更多空间。
+- **文本上方的东西都不会动。** 多行文本字段的第一行就在单行文本字段绘制其文本行的位置，它的图标、前缀和后缀都以这一行为准居中。其余各行都排在下面，所以高度变化时，标签和第一行保持原位。
+
+产品目前还无法得知用户把文本字段调成了多大：调整大小不触发任何事件。
+
+### 代码
+
+`type="code"` 用于写给机器、而不是写给读者的文本：匹配模式、标识符、密钥、查询语句、一小段 JSON 或 YAML。它还是同一个文本字段——标签、帮助文本、错误、计数器、尺寸和在表单中的行为都一样——只是输入行会按代码写下的样子原样保存它。
+
+- **在任何语言里都从左到右。** 值、它的插入点、占位符、前缀和后缀排成从左到右的一行，从左侧开始；在从右到左的页面里也是如此，也不管代码的第一个字母是什么：空的文本字段、只有一个 `{` 的文本字段，以及第一个字符串是阿拉伯文的文本字段，布局都一样。其余的一切跟随页面：标签、图标、帮助文本或错误文本、计数器和调整手柄。用从右到左的文字写的字符串或注释，只在它所在的行内排布，不会打乱周围任何东西的顺序。
+- **代码字体，字号与输入文本相同。** 字体族是代码角色的；字号和行高仍然是输入文本的，所以代码字段和旁边的文本字段一样高。每个空格都会保留，制表符会对齐到下一个制表位，任何两个字符都不会合成连字。不会按含义给任何内容着色。
+- **不做改动。** 文本字段会要求平台不要更正、大写、检查拼写、翻译或补全这个值，也不要把直引号换成弯引号。粘贴进来的是纯文本，一个字符都不变。值绝不会被去掉首尾空白、解析或校验：它的格式是否正确，要由你用 `error` 和 `errorText` 来说明。
+- **单行或多行。** 单行适合匹配模式或密钥。设置 `multiline` 后，默认情况下，放不下的代码行会接着排到后面的行上；值里只有代码本身的换行。
+- **不换行的代码行。** `wrap` 为 false（在 Web 上是 `no-wrap`）时，代码的每一行都保持在字段的一行里，适合数值表、日志，或者换行本身有含义的文件。长的行在文本字段内部横向滚动，不会把任何东西撑宽。只有多行的代码字段才读取 `wrap`：普通文本始终换行，单行则始终在自己的行内滚动。
+- **Tab 移动焦点。** 没有任何按键改变含义：Tab 绝不缩进，Enter 不添加缩进，也不会替你补上右括号。制表符只能通过粘贴或由你的产品写入，并且会保留下来。
+- **它不是编辑器。** 没有语法着色，没有行号，没有折叠，也没有逐行的错误标记。只展示、不键入的代码，请使用[代码块](/zh-cn/components/code-block/)；需要编辑器时，请嵌入你的产品选定的那一个。
+- **占位符是一段代码示例**，按代码绘制。用文字写的提示应放在 `supportingText` 里，文本字段也在那里说明它期望什么（“JSON”）。
+
+在从右到左的文本字段里，代码值从左侧开始，而 `email`、`url`、`tel`、`number` 或 `password` 的值虽然从左到右书写，却位于文本字段的起始边，也就是右侧。其他平台还没有实现代码类型。
+
+### 日期和时间
+
+`date`、`time` 或 `date-time` 文本字段是输入行里的一排分段，每个单位一个：月、日和年，时、分，以及 12 小时制下的上午/下午。它们按区域设置的顺序排列，并使用该区域设置的分隔符。文本字段以 ISO 8601 格式保存值，不带时区。
+
+| 类型 | 值 | en-US 中的一行 | ja-JP 中的一行 |
+| --- | --- | --- | --- |
+| `date` | `2026-09-27` | 09/27/2026 | 2026/09/27 |
+| `time` | `14:30` | 2:30 PM | 14:30 |
+| `date-time` | `2026-09-27T14:30` | 09/27/2026, 2:30 PM | 2026/09/27 14:30 |
+
+- **区域设置。** `locale`（未设置时为平台的区域设置）决定顺序、分隔符、时制和数字。空的分段显示它自己的占位符（“mm”“dd”“yyyy”），所以这一行始终显示出它的格式。这些类型会忽略 `placeholder`、`prefixText`、`suffixText`、`maxLength` 和 `multiline`。
+- **移动。** Tab 依次经过每个分段，然后是选择器按钮。无论布局方向如何，左方向键和右方向键都移到相应一侧的分段：这一行是从左到右书写的，就像用数字写的日期一样。按下某个分段会让它获得焦点。获得焦点的分段画成选中的文本，没有插入点。
+- **步进。** 上方向键和下方向键把分段的值加一或减一，到头后循环；在空的分段上，它们从今天的日期或当前时间开始。Page Up 和 Page Down 的步幅更大，Home 和 End 移到范围的两端。
+- **键入。** 数字填入分段；当再输入任何数字都无法延续它，或者键入了分隔符时，焦点移到下一个分段。Backspace 删除一位数字，在空的分段上则退回上一个分段。年份需要四位数字。不存在的日期无法输入：新选的月份没有那么多天时，日会变成该月的最后一天。
+- **粘贴。** 把完整的日期或时间粘贴到任意一个分段上，都会填满整行。它按区域设置的顺序被读作三组数字，而第一组如果是四位数字，就读作年份，所以粘贴 ISO 格式的日期在任何地方都有效。复制和剪切针对的是整行。
+- **值**在每个分段都填好、并且结果可用之前一直为空。值发生变化时触发 `input`——最后一个分段填好了、已填满的一行被编辑了，或者被清空了——而让值保持为空的分段变化不触发。当焦点离开文本字段的分段和选择器按钮，或者按下操作键，并且值已改变时，触发 `change`。在分段之间移动不提交任何东西。
+- **输入错误。** 只填了一半就离开的文本字段显示 `invalidText`。离开时值早于 `min`、晚于 `max` 或列在 `disabledDates` 中的文本字段显示 `unavailableText`。两者都画成错误，并触发带有原因（`invalid` 或 `unavailable`）的 `entryError`；下一次编辑会结束它。这是文本字段唯一会自己设置的错误，它不会动你的 `error` 属性。
+- **你设置的值**会原样显示，绝不校验，也不触发任何事件。
+
+文本字段的时制就是它的区域设置的时制：它不像日期时间选择器那样有 12 或 24 小时制的设置，也没有分钟步长。
+
+**选择器按钮。** 设置 `picker` 后，文本字段在末尾绘制一个纯图标的 Button，日期用 `calendar_month`，时间用 `schedule`，由 `pickerLabel` 命名。激活它会触发 `pickerRequest`，其中带有值、类型、`min` 和 `max`；只填了一半的一行会发送空值，并且不引发输入错误，因为选择器马上就会给出一个完整的值。文本字段自己不呈现任何东西：由你的产品以对应的模式打开 [DateTimePicker](/zh-cn/components/date-time-picker/)（停靠式的要锚定到文本字段上），并根据选择器的 `change` 设置文本字段的 `value`。给选择器设置与文本字段相同的 `min`、`max` 和 `disabledDates`。选择器关闭时，焦点回到这个按钮。文本字段禁用时按钮也禁用，文本字段只读时则不绘制按钮。
+
+### 推荐
+
+- 把不属于值的固定文本放进 `prefixText` 和 `suffixText`：货币符号、单位。
+- 清除或显示密码之类的操作，以你自己的纯图标的 Button 放进后置插槽，并给它自己的名称。选择器按钮是文本字段唯一内建的操作，它排在你的按钮之后。
+- 可能写到好几行的文本使用 `multiline`。默认情况下，它从 `minRows` 增高到 `maxRows`，之后滚动。
+- 在表单要求填写的文本字段上设置 `requirement`，并且在提交表单时，仍然要在 `errorText` 中说明缺了什么。
+- 由机器读取的值——匹配模式、密钥、一小段配置——使用 `type="code"`，并在标签和 `supportingText` 里说明它必须是什么。
+
+### 避免
+
+- 不要把占位符当作标签。用户一开始输入，它就消失了。
+- 不要把 `number` 用于不是数量的值，例如卡号或邮政编码。请使用 `text` 并配上合适的 `autocomplete`。
+- 不要在一个表单里混用不同的变体。
+- 不要把文本字段放进字段。它已经是一个字段；调试构建会报告这一点。字段框住的控件是文本输入框。
+- 不要用 `text` 文本字段加上自己的解析来处理日期。请使用 `date`，这样区域设置的顺序、分段的按键和输入错误都是现成的。
+- 不要在设置 `requirement` 的同时，还在标签里写“（必填）”。标记已经说明了这一点，屏幕阅读器会读两遍。
+- 不要让手动调整大小的文本字段成为看到长文本的唯一途径。给它足够的 `minRows`，让它一出现就好用。
+- 不要仅仅为了显示一个不能更改的值而禁用文本字段。请使用 `readOnly`，这样用户仍然可以聚焦、选择并复制它。
+- 不要用 `::part(input)` 或你自己的样式从外部给文本字段设置代码字体，也不要给这个元素加上 `dir` 或 `spellcheck`。请使用 `type="code"`：只换字体的话，文本字段看起来没问题，却仍然会更正键入的内容。
+- 不要把代码字段当作编辑器，也不要用禁用的代码字段来展示长代码：禁用的文本字段没有可以用来滚动的插入点。请使用 `readOnly`，或者代码块。
+
+## 无障碍
+
+<ComponentAccessibility name="text-field" />
+
+### 组件负责的部分
+
+- 文本是在平台自己的文本元素里编辑的，所以输入法、听写、自动填充、选择和剪贴板都和在平台其他地方一样工作。日期或时间是明确的例外：那一排分段是文本字段自己实现的。
+- 日期或时间文本字段是一个由标签命名的组。每个分段是一个微调按钮（spin button），由它的单位和标签命名（“月，开始日期”），带有它的范围和值；空的分段读作 `segmentEmptyText`。
+- 必填的文本字段暴露为必填。标记本身对辅助技术隐藏，所以不会读两遍；选填的文字随文本字段的描述一起朗读。
+- 调整手柄是一个由 `resizeLabel` 命名的焦点停靠点，暴露为一个分隔条（separator），它的值是行数。方向键、Home 和 End 都能调整大小，所以没有任何操作依赖拖动；它的点击区域满足最小目标。
+- 标签就是无障碍名称，无论它是画出来的还是隐藏的。占位符绝不是。
+- 显示出来的辅助文本或错误文本，以及计数，是文本字段的描述。前缀和后缀在显示时也是，所以单位或货币会和值一起朗读。
+- 它暴露禁用状态，并在平台具备的地方暴露无效、必填和只读状态。日期或时间文本字段里的输入错误，暴露的方式与 `error` 完全相同。
+- 选择器按钮是一个由 `pickerLabel` 命名的 Button，暴露为会打开对话框，并且是最后一个分段之后的一个 Tab 停靠点。
+- 文本字段获得焦点期间出现或变化的错误，会以礼貌（polite）的方式朗读一次。计数在输入停顿一秒之后按显示的样子（“12/40”）朗读，绝不在每次按键时朗读。
+- 在平台具备搜索框角色的地方，搜索文本字段暴露为搜索框。
+- 代码字段和其他各种类型一样，是同一种文本框，设置 `multiline` 时为多行：没有任何角色、角色描述或文字说明它保存的是代码，它的值也没有任何部分被标记为拼写错误。Tab 始终会离开它。代码行不换行时，插入点会带着它滚动，而焦点显示在容器上，容器不滚动。
+- 焦点由文本字段自己的边线来显示，无论它来自键盘还是指针：stacked 文本字段是方框里面的一条线，filled 或 outlined 文本字段则是变粗并着色的边线。点击区域满足最小目标。
+- 按标签或方框会把焦点移到输入框上，但不操作任何东西。按帮助文本、错误文本或计数，什么都不会发生。
+- 名称、描述和状态的关联方式，与字段把它们关联到它框住的任何控件时完全一样。在下一层手写的字段，是同一个文本框。
+- 缺少标签会在调试构建中报告。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 保留 `required` 标志，而它不绘制任何标记；它们没有调整大小的模式和调整手柄，也没有分段。
+- Web：月或分填入第一位数字时，那一排分段会偏移几个像素；区域设置的最后一个分段是两位数字时，`input` 可能触发两次；在 Android 的屏幕键盘上，空分段上的 Backspace 无法退回上一个分段；比狭窄的文本字段更宽的一行会溢出，而不是滚动。
+- 产品无法通过把 `value` 设为它本来就有的空字符串，来清空只填了一半的日期行。
+- Web：在光晕（glow）焦点样式下，filled 文本字段的光晕在底部两角是圆的，而这两个角本身是直角。
+- Web：输入法的组合输入和自动填充后的标签只在 Chromium 中测试过。
+- Web：代码行不换行的只读代码字段，用键盘滚动的方式与浏览器滚动任何不可编辑的文本相同——在 Firefox 中用插入点，在 Chrome 中用方向键，在 Safari 中用 Option 加方向键。页面的方向改变时，Firefox 会让这样的文本字段回到它的左边缘。
+- SwiftUI、Compose、Flutter 和 React Native 还没有实现代码类型：在这些平台上，`type` 没有 `code`，文本字段也没有 `wrap`。
+- SwiftUI 没有无效、必填和只读状态。它们会被画出来或强制执行，但不会被朗读。错误只能通过描述里的文本听到。
+- SwiftUI 看不到输入法的组合输入，所以 `maxLength` 也会作用于仍在组合中的文本，你在组合期间设置的值也不会被暂缓。
+- SwiftUI：选中的文本以插入点的着色高亮，而不是文本字段的选区颜色。
+- SwiftUI 把只读文本字段的值画成可选择的文本，而不是文本字段。
+- SwiftUI 从 iOS 18 和 macOS 15 起才读取 `.labelsHidden()`。在更早的版本上，标签仍然会画出来。
+- React Native 看不到输入法的组合输入。你在组合期间更改的值，以及 `maxLength` 限制，都会立即应用，并可能结束这次组合。
+- React Native 没有无效、必填和只读状态。错误只能通过描述里的文本听到；必填和只读不会被朗读。
+- React Native：朗读、自动填充和各类型的键盘都只用模拟对象测试过，还没有在真机上测试。
+- iOS 上的 React Native 对插入点和选区高亮只有一种着色。文本字段保留插入点的颜色，所以高亮是这种颜色的一种淡色，而不是文本字段的选区颜色。
+- React Native：filled 文本字段的光晕只贴合它顶部的两个角；占位符和插入点的颜色是立即切换的，而不是按状态动效渐变。
+- Flutter 把搜索文本字段暴露为搜索输入类型，而不是搜索框角色。
+- 在 Android 和其他触摸屏上，Flutter 不绘制选区手柄和选区工具栏。长按和键盘快捷键仍然可以选择和复制；iOS 显示它的系统菜单。
+- Flutter：前置插槽里的可交互元素在焦点顺序中排在输入之前，而不是之后。
+- Compose 没有必填状态：文本字段改为把“Required”作为状态描述来朗读。
+- Compose：`maxLength` 和计数器按用户看到的字符计数，但表情符号序列和旗帜没有测试过。测试是在 JVM 上的 Robolectric 下运行的，它的字符规则不认识它们。
+- Compose：TalkBack 对错误和计数的朗读、真实的输入法以及真实的自动填充服务，都还没有在真机上测试过。
+
+### 需要你做的事
+
+- 写一个说明这个值是什么的标签，即使把它隐藏起来，也要保留它。
+- 编写说明如何改正这个值的错误文本，并自己设置 `error`。在 SwiftUI 和 React Native 上，这段文本是用户听到错误的唯一途径。对于日期或时间文本字段，还要编写 `invalidText` 和 `unavailableText`，并给出 `segmentEmptyText`：没有它，空的分段朗读时不带任何值。
+- 用你的产品所用的语言给选择器按钮设置 `pickerLabel`，并在 `pickerRequest` 时打开选择器。
+- 设置 `requirement`，并给出 `requiredText` 和 `optionalText`：写在文本字段上，或者用 `setWords({ requiredText, optionalText })` 为整个产品只给一次；`resizeLabel` 和 `segmentEmptyText` 也可以这样给。在 Web 上，Tanrei 不自带任何文字；缺少的文字会在开发时报告。参见[产品的文字](/zh-cn/foundations/words/)。在 SwiftUI、Compose、Flutter 和 React Native 跟上之前，它们的文本字段不绘制任何标记，SwiftUI 和 React Native 也不朗读必填状态：在这些平台上，请在标签里写明“必填”。
+- 用 `resizeLabel` 为调整手柄命名。没有它，调整手柄仍然会绘制，也能使用，但没有名称。
+- 把单位或货币放进 `prefixText` 或 `suffixText`，而不是放进值里，这样它会和值一起朗读，而不需要用户输入。
+- 对于代码字段，在 `label` 和 `supportingText` 里说明代码必须是什么（“Webhook 请求体”“JSON”），并在 `errorText` 里说明它错在哪里：文本字段并不认识这种语言。
+- 用你的产品所用的语言，给后置的图标按钮一个它自己的名称。
+- 在 Compose 上，“Invalid”和“Required”这两个词来自库的字符串资源（`tanrei_invalid`、`tanrei_required`）。在你的资源里覆盖它们，就可以翻译它们。
+- 在 Web 上，iOS Safari 会放大文本小于 16 px 的输入框。默认系统的文本字段在两种尺寸下都使用 16 px 的文本；把它改小的层会让这种放大重新出现。

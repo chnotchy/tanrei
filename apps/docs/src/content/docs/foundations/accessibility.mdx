@@ -1,0 +1,70 @@
+---
+title: Accessibility
+description: The accessibility requirements Tanrei builds into tokens and component specs, and the checks that enforce them.
+---
+
+import Callout from '../../../components/Callout.astro';
+import DimensionScale from '../../../components/tokens/DimensionScale.astro';
+
+Accessibility in Tanrei is a set of constraints on the system itself. The token build refuses to produce a scheme that fails contrast, and a component spec is not valid without its role, keyboard table and target guarantee.
+
+## Contrast
+
+| Content | Minimum contrast |
+| --- | --- |
+| Text and icons that convey meaning | 4.5:1 |
+| Large text (about 24px regular, or 19px bold, and up) | 3:1 |
+| Boundaries and graphics needed to identify or operate a control | 3:1 |
+| The focus ring against adjacent surfaces | 3:1 |
+
+Disabled elements and pure decoration, including `outline-variant` hairlines, are exempt. That exemption is why a border which is the only sign of a control must use `outline`, not `outline-variant`.
+
+### Enforced invariants
+
+These hold for every theme at every contrast level, six permutations in all, and the build fails otherwise:
+
+- each `(X, on-X)` role pair is at least 4.5:1;
+- `outline` is at least 3:1 against every surface role;
+- `focus-ring` is at least 3:1 against surfaces.
+
+Project rules forbid loosening a threshold to make a check pass.
+
+## Target size
+
+<DimensionScale group="target" source="tokens/sys/measure.tokens.json" />
+
+**Visual size is not hit area.** A small Tanrei button is 32 units tall, which suits a dense toolbar, but it still responds across at least 48 units for touch and 44 for a pointer. Components extend their hit area invisibly and keep at least 8 units between neighbouring targets. Every spec declares this guarantee, and every platform tests it.
+
+## Focus
+
+Every interactive component shows the gap-then-ring focus indicator for keyboard and assistive-technology focus, immediately and without animation. Focus order follows reading order. Disabled components leave the focus order.
+
+## Keyboard
+
+Each component spec contains a table of keys and actions, shown on its documentation page under **Accessibility**. Platforms with hardware keyboard support implement the table exactly.
+
+## Text scaling
+
+Interfaces must remain usable with text at **200%**. Containers grow with their text, labels wrap before they truncate, and nothing relies on a fixed height to fit a line of text. Native implementations use each platform's scalable text mechanism.
+
+## Reduced motion
+
+When the system asks for reduced motion, spatial animation is removed or replaced by a brief fade and nothing loops. See [Motion](/foundations/motion/).
+
+## Semantics
+
+A spec names the component's WAI-ARIA role and how its accessible name is formed. Each platform maps the role to its native equivalent: accessibility traits in SwiftUI, semantics properties in Compose and Flutter, `accessibilityRole` in React Native. On the web, Tanrei prefers native elements inside the shadow root, so that browsers and testing tools see real semantics.
+
+## How it is tested
+
+| Platform | Automated check |
+| --- | --- |
+| Web | axe-core in Playwright |
+| SwiftUI | XCTest accessibility audit |
+| Compose | Accessibility Test Framework checks |
+| Flutter | `meetsGuideline` matchers |
+| React Native | role and label assertions, plus native audits through the gallery app |
+
+<Callout>
+  Automated checks catch a minority of real problems. They are a floor. Use a screen reader and a keyboard on anything you build with these components.
+</Callout>

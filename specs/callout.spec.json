@@ -1,0 +1,789 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "callout",
+  "title": "Callout",
+  "summary": "A notice that is part of the content and stays there: a note, a caution, the reason for something or a summary of what is wrong, in the flow of the page, as a quiet fill or an outline, in the colors and with the glyph of a status where it has one, with an optional title, actions and a close button; announced only when it appears in answer to something.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The block that holds the notice, as wide as its place in the layout and as tall as its content, flat on the surface it sits on. Filled in the tonal look (a quiet neutral, or a status's quiet container) and edged in the outlined look. It carries no state: nothing about it answers a pointer, a press or focus."
+    },
+    {
+      "id": "outline",
+      "description": "The outlined look's edge: one hairline inside the container, the same in every status.",
+      "optional": true
+    },
+    {
+      "id": "icon",
+      "description": "The glyph at the start, on the first line of the text: the status's glyph from the system's icon set (info, warning, error or check_circle, the ones a snackbar draws), or the glyph the product names. In the status's own color, a little softer than the text. Decorative: the status is given in words.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "A few words that name the notice, above the body. Plain text unless the product gives a heading; it wraps and is never cut.",
+      "optional": true
+    },
+    {
+      "id": "body",
+      "description": "The notice itself: the product's content, from one sentence to several paragraphs with lists, links, code and tables. Long-form blocks in it are prose."
+    },
+    {
+      "id": "actions",
+      "description": "One or two of the product's own Buttons or links that follow up on the notice, in a row below the text.",
+      "optional": true
+    },
+    {
+      "id": "close",
+      "description": "An icon-only button with the icon set's close glyph at the end of the first row, drawn with the callout's own tokens. The only part of the callout that has states.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator shown for keyboard focus of the close button, in the color its form gives it so that it shows on that form's fill.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "title",
+      "type": "string",
+      "default": "",
+      "description": "A few words above the body that name the notice (\"Not published yet\"). Plain text, never a heading. Empty draws the body alone. The title slot takes its place where the product needs a heading of its own level or inline content."
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "values": [
+        "default",
+        "info",
+        "warning",
+        "error",
+        "success"
+      ],
+      "default": "default",
+      "description": "What the notice is, in the names the snackbar and the tag use. default: a neutral aside, with no glyph unless the product gives one. info, warning, error and success draw the look in that status's color roles with that status's glyph; a live callout is announced assertively for warning and error. Use them for what they mean everywhere in the system: advice is not a success."
+    },
+    {
+      "name": "statusLabel",
+      "type": "string",
+      "default": "",
+      "description": "The status in words, in the product's language (\"Warning\"), read by assistive technology before the title and the body and not drawn, so that the status never rests on color and glyph alone. For a callout whose title does not itself say the status; needed when it has a status and no title. Ignored while status is default."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "tonal",
+        "outlined"
+      ],
+      "default": "tonal",
+      "description": "How much the callout weighs. tonal: a quiet fill, the default. outlined: no fill and one hairline, for a callout on a tinted surface or inside a filled card, where a fill would vanish, and for many callouts close together. A design system may add values.",
+      "axis": "tanrei.comp.callout.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "The size of the text, in prose's two sizes. medium sets the body in the interface's own text style, for a callout among controls: a form, a panel, a dialog. large sets it in the style for long reading, for a callout in a page whose purpose is the text. Paddings, the glyph and the close button are the same at both. A design system may add values.",
+      "axis": "tanrei.comp.callout.size"
+    },
+    {
+      "name": "live",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the callout is announced. False, the default, is for a callout that is part of what was written: it is a note, read where it stands. True is for one that appears or changes in answer to something (a summary of a form's errors after a submit, a notice that the file changed underneath the person): it is a live region, announced once when it is shown and when its content changes, politely or, for warning and error, assertively. It changes nothing that is drawn."
+    },
+    {
+      "name": "closable",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws a close button, for a notice the person may put away (an announcement, a hint they have read). A caution that qualifies the content beside it should not be closable."
+    },
+    {
+      "name": "closeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The close button's accessible name, in the product's language (\"Close\"). Required while closable is true.",
+      "words": "closeLabel"
+    },
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the callout is shown. The close button sets it to false; the product sets it to show a callout again or to show one in answer to something. A callout that is not open draws nothing and takes no space."
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The body: text, or the product's own blocks (paragraphs, lists, a table, a code block, any component). Long-form blocks are laid out as prose of the callout's size."
+    },
+    {
+      "name": "icon",
+      "description": "A glyph of the system's icon set, by name, drawn in place of the status glyph, or as the glyph of a callout without a status (a tip's lightbulb).",
+      "fixture": "glyph"
+    },
+    {
+      "name": "title",
+      "description": "The product's own title content in place of the title prop: text with inline content, or a heading of the level the page's outline needs. The callout draws it in the title's style and changes neither its role nor its level.",
+      "fixture": "text"
+    },
+    {
+      "name": "actions",
+      "description": "The actions: the product's own Buttons or links, one or two. The callout lays them out below the text and does nothing else to them.",
+      "fixture": "button"
+    }
+  ],
+  "events": [
+    {
+      "name": "dismiss",
+      "description": "The person closed the callout with its close button. Emitted exactly once, after open became false; never emitted when the product sets open."
+    }
+  ],
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "CLO-1",
+      "text": "THE callout SHALL draw a container as wide as the layout it is placed in gives it (CLO-22) and as tall as its content, with corners comp.callout.container.shape eased by sys.shape.corner-smoothing and no elevation, padded by comp.callout.container.padding-block above its first line and below its last block, by comp.callout.container.padding-inline at the start, and at the end by comp.callout.container.padding-inline where the text meets it or by comp.callout.container.padding-inline-end-with-close after the close button. Inside it SHALL lay out, from the start: the glyph, where it has one (CLO-5, CLO-6); comp.callout.icon.gap after it a column that takes the remaining width and holds the title (CLO-7), the body (CLO-8) and the actions (CLO-9), in that order; and comp.callout.container.gap after that column the close button, where it has one (CLO-10). THE callout SHALL centre the glyph and the close button on the first line of the text (the title's, or the body's without a title) and keep them there however tall the text grows, and any height the container has beyond its content SHALL lie below the content.",
+      "verify": "Under the default system a medium callout with one line of body text is 46 high (12 + 22 + 12) with the text 16 from the start edge; with a status the glyph is 16 from the start edge, 20 wide, and the text 12 after it."
+    },
+    {
+      "id": "CLO-2",
+      "text": "WHILE status is default THE callout SHALL fill its container with the container color of its variant and draw its title, its body and a glyph the product gave in that variant's title, body and icon colors: comp.callout.container.color.tonal, comp.callout.title.color.tonal, comp.callout.body.color.tonal and comp.callout.icon.color.tonal for tonal, and outlined's tokens of the same names (comp.callout.container.color.outlined, comp.callout.body.color.outlined, and so on)."
+    },
+    {
+      "id": "CLO-3",
+      "text": "WHILE status is info, warning, error or success THE callout SHALL draw its container, its title, its body and its glyph from the parts of its variant prefixed with the status: for a tonal info callout comp.callout.info.container.color.tonal, comp.callout.info.title.color.tonal, comp.callout.info.body.color.tonal and comp.callout.info.icon.color.tonal; for outlined, and for warning, error and success, their own tokens of the same names (comp.callout.error.icon.color.outlined, comp.callout.success.container.color.tonal, and so on). A status SHALL change these colors, the glyph (CLO-5), the close button's colors (CLO-10) and how a live callout is announced (CLO-21), and nothing else: the callout's size, shape, layout and edge stay those of its variant and size."
+    },
+    {
+      "id": "CLO-4",
+      "text": "WHILE variant is outlined THE callout SHALL draw an edge comp.callout.outline.width wide in comp.callout.outline.color inside its container's size, following its corners, in every status, without changing the callout's size or the place of its content; WHILE variant is tonal it SHALL draw no edge. A status SHALL NOT color the edge: it is the system's one hairline."
+    },
+    {
+      "id": "CLO-5",
+      "text": "WHILE status is info, warning, error or success and the icon slot is empty THE callout SHALL draw that status's glyph from the system's icon set (info for info, warning for warning, error for error, check_circle for success), the glyphs a snackbar draws, in a box of comp.callout.icon.size, in its form's icon color (CLO-3) drawn at comp.callout.icon.opacity (an opacity of the glyph alone, which fades nothing else), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max. The glyph so drawn SHALL keep 3:1 against its container in every scheme of the default system, and against every surface role in the outlined look. THE callout SHALL keep the glyph from assistive technology, which is given the status in words (CLO-20). WHILE status is default and the icon slot is empty THE callout SHALL draw no glyph and no room for one: the text starts at the start padding.",
+      "verify": "The fixtures tonal-info, tonal-warning, tonal-error and tonal-success draw info, warning, error and check_circle; the fixture tonal draws no glyph and its text is 16 from the start edge."
+    },
+    {
+      "id": "CLO-6",
+      "text": "WHERE the icon slot holds a glyph THE callout SHALL draw it in the place, the box, the color and the opacity CLO-5 gives the status glyph (the icon color of its form, CLO-2 and CLO-3), in every status and without one, SHALL draw no status glyph beside it, and SHALL keep it from assistive technology: the product's glyph says what kind of notice this is (advice, an experiment, something new), and the words say it to everyone."
+    },
+    {
+      "id": "CLO-7",
+      "text": "WHILE title is not empty THE callout SHALL draw it above the body in the text style of its size (comp.callout.title.typescale.medium for medium, comp.callout.title.typescale.large for large) and the title color of its form (CLO-2, CLO-3), with comp.callout.title.gap between it and the body; the title SHALL wrap and SHALL never be cut. WHERE the title slot holds content THE callout SHALL draw that content in the title's place, style and color instead of the title prop, and SHALL change neither its role nor its level: a title given as text is plain text and never a heading, and a title the product gives as a heading stays a heading of the level the product gave it, drawn as every other title is. WHILE both are empty THE callout SHALL draw the body alone, on the first line.",
+      "verify": "Test a title slot holding a heading of level 2 and one of level 4: both are drawn in comp.callout.title.typescale.medium, and the accessibility tree keeps levels 2 and 4."
+    },
+    {
+      "id": "CLO-8",
+      "text": "THE callout SHALL draw the content of its default slot as its body, below the title, and SHALL give it the text style of its size (comp.callout.body.typescale.medium for medium, comp.callout.body.typescale.large for large) and the body color of its form (CLO-2, CLO-3) as the style and color its text takes where nothing inside sets another. The body SHALL wrap and SHALL never be cut or limited to a number of lines. WHERE the body holds long-form blocks (paragraphs, lists, a quote, a table, a code block) they SHALL be laid out as prose of the callout's size (PRS-1, PRS-5), without a measure of their own, so that the first block has no space before it and the last none after it and the body is exactly as tall as its content; the callout SHALL add no style to anything inside a component placed in its body, and a link in the body SHALL be underlined at rest (PRS-17).",
+      "verify": "Test a body of two paragraphs, a list and a line of inline code: the first paragraph's first line is on the glyph's centre, the blocks are comp.prose.block.gap apart, and the container's bottom padding follows the last block directly."
+    },
+    {
+      "id": "CLO-9",
+      "text": "WHERE the actions slot holds content THE callout SHALL lay it out as a row below the text (the body, or the title where there is no body), comp.callout.actions.gap below it, starting at the text's start edge, with comp.callout.actions.item-gap between two actions along the row and between rows where they wrap; an action's label SHALL NOT be cut to make the row fit. The actions are the product's own Buttons and links: THE callout SHALL NOT restyle them, SHALL NOT answer their presses and SHALL NOT close when one is activated. They SHALL follow the body in reading order and in the focus order, before the close button."
+    },
+    {
+      "id": "CLO-10",
+      "text": "WHILE closable is true THE callout SHALL draw a close button at the end of its first row: an icon-only button, a square of comp.callout.controls.height with comp.callout.controls.shape corners holding the icon set's close glyph at comp.callout.controls.icon.size, with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, named closeLabel. At rest it SHALL draw comp.callout.close.container.color and its glyph in comp.callout.close.content.color in the tonal look without a status; the tokens prefixed with the status in a tonal status form (comp.callout.close.info.container.color and comp.callout.close.info.content.color for info, and warning's, error's and success's of the same names); and comp.callout.close.outlined.container.color and comp.callout.close.outlined.content.color in the outlined look, in every status. WHILE closable is false THE callout SHALL draw no close button and keep no room for one."
+    },
+    {
+      "id": "CLO-11",
+      "text": "WHEN the user activates the close button by pointer, touch, Enter or Space THE callout SHALL set open to false, emit dismiss exactly once and close (CLO-13). THE callout SHALL NOT close by itself after a time, and SHALL NOT answer Escape: it is part of the content, and Escape belongs to whatever overlay or field the person is in."
+    },
+    {
+      "id": "CLO-12",
+      "text": "WHEN a callout closes while focus is inside it THE callout SHALL move focus to the element that had it before focus entered the callout or, where that element no longer exists or cannot take focus, leave focus to the platform's default, so that the next Tab reaches what followed the callout; WHEN it closes while focus is elsewhere it SHALL NOT move focus.",
+      "verify": "Test: Tab from a link before the callout to its close button, press Enter; focus is on that link, and Tab then reaches the first focusable element after where the callout was."
+    },
+    {
+      "id": "CLO-13",
+      "text": "WHILE open is false THE callout SHALL draw nothing, take no space and expose nothing to assistive technology, and its content SHALL NOT be reachable by focus; WHEN open changes THE callout SHALL appear or disappear at once, without a motion of its own, and SHALL emit dismiss only for a close the person made (CLO-11), never when the product sets open."
+    },
+    {
+      "id": "CLO-14",
+      "text": "WHILE the close button is hovered, keyboard-focused or pressed THE callout SHALL render its container, content color and opacity from the component tokens of the highest-precedence active state, in the callout's form (the tokens CLO-10 names, under that state, with or without the form's prefix), with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. THE callout's container, its text and its glyph SHALL NOT change under a pointer, a press or focus: the callout itself has no states."
+    },
+    {
+      "id": "CLO-15",
+      "text": "WHEN the close button receives keyboard focus THE callout SHALL show the focus ring around it without animation; focus gained by pointer or touch SHALL NOT show it. THE callout SHALL draw the outer stroke of that indicator in its form's focus-ring color: comp.callout.focus-ring.color.tonal or comp.callout.focus-ring.color.outlined without a status, and the token of that name under the status in a status form (comp.callout.info.focus-ring.color.tonal, comp.callout.error.focus-ring.color.outlined, and so on). The widths and the offset SHALL stay the system's (sys.focus.outer-width, sys.focus.inner-width, sys.focus.offset), as SHALL the color of an inner stroke where the system draws one."
+    },
+    {
+      "id": "CLO-16",
+      "text": "WHERE the visual size of the close button is below the minimum target THE callout SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "CLO-17",
+      "text": "WHEN the close button is pressed by pointer, touch, Enter or Space THE callout SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "CLO-18",
+      "text": "WHILE the close button is pressed THE callout SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container of the button at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; content color, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.callout.motion.feedback-duration with comp.callout.motion.state-easing, fades over comp.callout.motion.state-duration with comp.callout.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced."
+    },
+    {
+      "id": "CLO-19",
+      "text": "THE callout SHALL ease its container corners and its close button's corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show the close button's keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "CLO-20",
+      "text": "WHILE live is false THE callout SHALL be exposed to assistive technology as a note: a part of the content that qualifies what is around it, read where it stands in reading order, named by its title where it has one and otherwise by statusLabel where status is not default and the product gave one. WHILE status is not default and statusLabel is not empty THE callout SHALL expose statusLabel as text before the title and the body, set apart so that it is read as a phrase of its own (\"Warning, …\"), and SHALL NOT draw it; WHILE status is default it SHALL ignore statusLabel. A callout that is not live SHALL NOT be announced when it is shown or when its content changes, SHALL NOT move focus, and SHALL NOT be a stop in the focus order: static content is not an alert.",
+      "verify": "On the web: the fixture docs-caution has the note role and no live region; the fixture status-label reads \"Warning\" before its body and draws no such word."
+    },
+    {
+      "id": "CLO-21",
+      "text": "WHILE live is true THE callout SHALL be a live region in place of a note. WHEN it is shown after its page or view was first presented (open becomes true, or the product adds it), and WHEN its title, its body or its status changes while it is shown, THE callout SHALL have assistive technology announce it once: statusLabel first when status is not default, then the title when it has one, then the whole body. It SHALL announce politely (after what is being read) when status is default, info or success, and assertively (interrupting what is being read) when status is warning or error, as a snackbar does, and SHALL NOT move keyboard or screen-reader focus. A live callout that is drawn with the first presentation of its page or view SHALL NOT announce itself then. live SHALL change nothing that is drawn."
+    },
+    {
+      "id": "CLO-22",
+      "text": "THE callout SHALL lay itself out as a block in the flow of its container: it SHALL take the whole inline size the container gives it, in a page, in a list item, in a tab's panel, in a card or in another callout's body alike, with its start edge on the start edge of the text around it; it SHALL bring no outer space of its own (PRS-15: the space between it and its neighbours is its container's), SHALL never be wider than its container, SHALL have no minimum width, no maximum width and no measure of its own, and SHALL NOT scroll: content that cannot shrink (a table, a line of code) scrolls inside its own box. THE callout SHALL NOT float over the content, stick to an edge while the content scrolls or raise itself above it: where it stands is the product's layout.",
+      "verify": "Test a callout inside the second item of an ordered list inside a prose 320 wide: its start edge is the item's text's start edge, its end edge the item's, nothing overflows the list and the page does not scroll sideways."
+    },
+    {
+      "id": "CLO-23",
+      "text": "WHILE the text size is enlarged THE callout SHALL grow its title and its body with it, keep its paddings and gaps, wrap, and grow in height; it SHALL keep the glyph's box at comp.callout.icon.size and the close button at comp.callout.controls.height, both still centred on the first line (CLO-1), SHALL cut nothing and set no fixed height, SHALL lose no content when the reader raises line height, paragraph spacing, letter spacing or word spacing, and SHALL need no horizontal scrolling at a width of 320 points with text at 200 %.",
+      "verify": "Test the fixtures actions and closable-title-actions at 200 % text in a stage 320 wide: every word and both actions are visible, the actions wrap onto rows of their own, and nothing overlaps the close button."
+    },
+    {
+      "id": "CLO-24",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE callout SHALL draw an edge comp.callout.outline.width wide in the platform's text color inside its container in every variant and status, its title, body and glyph in that text color with the glyph whole (no opacity), links in the platform's link color and still underlined, and the close button's glyph and focus indicator in the platform's own colors for a button and for focus, so that a look whose fill the mode removes is still a bounded block; the status SHALL then rest on the glyph's shape, the title's words and statusLabel.",
+      "verify": "On the web, with forced colors emulated: every fixture has a visible edge in CanvasText; none relies on a background color; the four status fixtures are told apart by their glyphs."
+    },
+    {
+      "id": "CLO-25",
+      "text": "WHERE the layout direction is right-to-left THE callout SHALL mirror the order of its content and apply its paddings by logical start and end: the glyph at the right, the text after it, the actions starting at the text's right edge and the close button at the left. A ripple SHALL still grow from the point of contact."
+    },
+    {
+      "id": "CLO-26",
+      "text": "THE callout SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the callout is shown THE callout SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "CLO-27",
+      "text": "WHERE the layout direction is right-to-left THE callout SHALL draw the glyph of its icon slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and opacity nor the order CLO-25 gives. THE callout SHALL NOT mirror a glyph itself, SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name, and its own glyphs (the four status glyphs and close) are drawn through the same helper, which mirrors none of them under the default icon set.",
+      "verify": "arrow_forward is marked by the default icon set; lightbulb is not. The fixture icon-rtl draws arrow_forward mirrored; tonal-info-rtl draws info unmirrored."
+    },
+    {
+      "id": "CLO-28",
+      "text": "THE callout SHALL lay out a title given as text as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name, a number with its unit and a version keep their own order in a right-to-left layout and reorder nothing beside them; THE callout SHALL still place the title and align its lines by the layout direction, not by the text's own. The body's blocks are laid out as prose lays out a block (PRS-25): each by its own first strong character unless the content states a direction, with its lines aligned to the start edge of the layout.",
+      "verify": "The fixture ltr-title-rtl draws a left-to-right title in a right-to-left stage: the glyph is at the right, the title begins at the right edge of the text column and reads left to right."
+    },
+    {
+      "id": "CLO-29",
+      "text": "WHILE the system's icon set cannot yet draw a glyph of the callout (its font is still loading) THE callout SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box, and SHALL draw the glyph once the set can; statusLabel and closeLabel SHALL still reach assistive technology."
+    },
+    {
+      "id": "CLO-30",
+      "text": "WHEN variant or size names a value that the active design system does not have, or status names a value this spec does not have, THE callout SHALL render with the default value (the default variant's or size's tokens, status default), and in debug builds report the unknown value."
+    },
+    {
+      "id": "CLO-31",
+      "text": "IF the title, the title slot and the body are all empty THE callout SHALL draw nothing, take no space and expose nothing, and in debug builds report that a callout has no content: a glyph, actions or a close button alone are not a notice. WHILE status is not default and both the title and statusLabel are empty THE callout SHALL still render and in debug builds report that the status is not given in words; WHILE closable is true and closeLabel is empty it SHALL still render the close button and in debug builds report that the button has no accessible name; IF statusLabel is not empty while status is default THE callout SHALL ignore it and in debug builds report it."
+    }
+  ],
+  "accessibility": {
+    "role": "note",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Reaches, at the callout's place in the page, the links and controls of the body, then the actions, then the close button. The callout itself is not a stop, and showing one never moves focus."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activates the focused close button: the callout closes and focus returns to where it was before it entered the callout (CLO-12)."
+      }
+    ],
+    "labeling": "A callout that is not live is a note (the note role on the web), read where it stands, named by its title or, without one, by statusLabel. A live callout is a live region instead: polite in the default, info and success forms (the status role on the web) and assertive in the warning and error forms (the alert role on the web), announced once when it is shown after its page was presented and when its content changes. In both, statusLabel is exposed as text before the title and the body; the glyph is hidden. A title given as text is plain text; a heading in the title slot keeps its level. The close button's name is closeLabel. Actions are the product's own controls with their own names.",
+    "minimumTarget": true,
+    "notes": [
+      "Static content is not an alert. A callout written into a page (a note in documentation, a caution above a procedure) must not interrupt a screen reader when the page loads or be repeated as a status message: it is read in order, as the paragraph before it is. live is for what appears or changes in answer to something, and even then a callout that the page is first presented with is not announced (CLO-21).",
+      "A summary of a form's errors is a live callout with the error status, shown after the submit. Whether focus also moves to it is the product's decision, by its own means (the callout takes no focus by itself): moving focus to the summary suits a long form whose first error may be off screen; announcing it and moving focus to the first field in error suits a short one. Do not do both.",
+      "A notice for a whole page or screen (a banner: the connection is lost, the file changed on disk, a trial ends) is a callout placed by the product above that region's content, live, usually with an action or a close button. Put it where it comes first in reading order for the region it concerns.",
+      "WCAG 1.4.1 (use of color): a status is never told by color alone. A status form draws the status's glyph, a shape of the icon set, and the status is in the title's words or in statusLabel (CLO-20). The component cannot tell whether a title says its status, so that is the product's to check: \"Accessibility\" on a warning needs statusLabel \"Warning\"; \"Warning: not published yet\" does not.",
+      "WCAG 1.3.1 (info and relationships): the callout does not decide whether its title is a heading. Most titles are labels of a note and should stay text, or the page's outline fills with entries such as \"Note\". Where a callout does open a part of the page that people navigate to, the product gives a heading of the right level in the title slot.",
+      "WCAG 1.4.3 and 1.4.11 (contrast) in the default system: the title and the body are a role on its paired role (on-secondary-container on secondary-container, on-info-container on info-container, on-surface on a surface), each held to 4.5:1 by the token invariants. The glyph is drawn at an opacity of its color, so its contrast is that of the color as drawn: at least 3.5:1 on its own status container and on every surface, in every scheme. A link in the body is the system's link color, underlined: at least 4.6:1 on every tonal container (7.2:1 in the high-contrast schemes). The outlined look's edge is decorative.",
+      "Actions are the product's Buttons. A filled or a tonal Button brings its own fill and keeps its own contrast; the label of an outlined or a text Button sits on the callout's fill, where the default system's primary keeps at least 13:1 on every tonal container. A tonal Button has the fill of the tonal callout without a status and cannot be seen as a button there: use outlined or text. The focus indicator of a product's control in the body or the actions is the system's focus color, at least 4.6:1 on every tonal container of the default system.",
+      "A closable callout that returns on every visit is noise: when the person closes one, the product should remember it. The callout only reports the close (dismiss).",
+      "Do not nest callouts, and do not stack several at the top of a page: two notices of the same weight side by side cancel each other. One callout may hold a list of points.",
+      "Forced colors (CLO-24): a tonal callout loses its fill, so every look gains an edge in the text color. Statuses then differ by glyph and words alone.",
+      "Web: the body, the title slot and the actions are light-DOM children of `<tanrei-callout>`, so they stay in the document: they are found by search in the page, translated, selected and read without script, and before the element is defined they show as plain blocks in the page's own text styles, without the fill, the glyph and the close button. A title given by the `headline` attribute is not shown until the element is defined; content pages should use the title slot.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.callout",
+  "fixtures": [
+    {
+      "id": "tonal",
+      "props": {},
+      "content": "Sizes are minimums: a control grows with enlarged text."
+    },
+    {
+      "id": "outlined",
+      "props": {
+        "variant": "outlined"
+      },
+      "content": "Sizes are minimums: a control grows with enlarged text."
+    },
+    {
+      "id": "tonal-info",
+      "props": {
+        "variant": "tonal",
+        "status": "info",
+        "statusLabel": "Information"
+      },
+      "content": "The web draws this revision; the other platforms follow."
+    },
+    {
+      "id": "tonal-warning",
+      "props": {
+        "variant": "tonal",
+        "status": "warning",
+        "statusLabel": "Warning"
+      },
+      "content": "A border that is the only cue a control exists must keep 3:1 against its surface."
+    },
+    {
+      "id": "tonal-error",
+      "props": {
+        "variant": "tonal",
+        "status": "error",
+        "statusLabel": "Error"
+      },
+      "content": "The file could not be read. Nothing was changed."
+    },
+    {
+      "id": "tonal-success",
+      "props": {
+        "variant": "tonal",
+        "status": "success",
+        "statusLabel": "Success"
+      },
+      "content": "Every contrast check passes in all six schemes."
+    },
+    {
+      "id": "outlined-info",
+      "props": {
+        "variant": "outlined",
+        "status": "info",
+        "statusLabel": "Information"
+      },
+      "content": "The web draws this revision; the other platforms follow."
+    },
+    {
+      "id": "outlined-warning",
+      "props": {
+        "variant": "outlined",
+        "status": "warning",
+        "statusLabel": "Warning"
+      },
+      "content": "A border that is the only cue a control exists must keep 3:1 against its surface."
+    },
+    {
+      "id": "outlined-error",
+      "props": {
+        "variant": "outlined",
+        "status": "error",
+        "statusLabel": "Error"
+      },
+      "content": "The file could not be read. Nothing was changed."
+    },
+    {
+      "id": "outlined-success",
+      "props": {
+        "variant": "outlined",
+        "status": "success",
+        "statusLabel": "Success"
+      },
+      "content": "Every contrast check passes in all six schemes."
+    },
+    {
+      "id": "title",
+      "props": {
+        "title": "Sizes are minimums"
+      },
+      "content": "A control grows with enlarged text, so a height is never a fixed value."
+    },
+    {
+      "id": "title-info",
+      "props": {
+        "status": "info",
+        "title": "A revised spec, not yet on every platform"
+      },
+      "content": "The web draws this revision. SwiftUI, Compose, Flutter and React Native still draw the previous one."
+    },
+    {
+      "id": "title-outlined-warning",
+      "props": {
+        "variant": "outlined",
+        "status": "warning",
+        "statusLabel": "Warning",
+        "title": "Accessibility"
+      },
+      "content": "A preset is held to its original, not to these contrast thresholds."
+    },
+    {
+      "id": "title-only",
+      "props": {
+        "status": "success",
+        "title": "All checks passed"
+      }
+    },
+    {
+      "id": "large",
+      "props": {
+        "size": "large"
+      },
+      "content": "Sizes are minimums: a control grows with enlarged text."
+    },
+    {
+      "id": "large-title-info",
+      "props": {
+        "size": "large",
+        "status": "info",
+        "title": "A revised spec, not yet on every platform"
+      },
+      "content": "The web draws this revision. SwiftUI, Compose, Flutter and React Native still draw the previous one."
+    },
+    {
+      "id": "large-outlined-error",
+      "props": {
+        "size": "large",
+        "variant": "outlined",
+        "status": "error",
+        "statusLabel": "Error"
+      },
+      "content": "The file could not be read. Nothing was changed."
+    },
+    {
+      "id": "icon",
+      "props": {
+        "title": "Tip"
+      },
+      "content": "Keep an action enabled and explain what is missing when it is used.",
+      "slots": {
+        "icon": "lightbulb"
+      }
+    },
+    {
+      "id": "icon-outlined",
+      "props": {
+        "variant": "outlined",
+        "title": "Tip"
+      },
+      "content": "Keep an action enabled and explain what is missing when it is used.",
+      "slots": {
+        "icon": "lightbulb"
+      }
+    },
+    {
+      "id": "icon-info",
+      "props": {
+        "status": "info",
+        "title": "Experimental"
+      },
+      "content": "This behaviour may change before the first release.",
+      "slots": {
+        "icon": "science"
+      }
+    },
+    {
+      "id": "title-slot",
+      "props": {
+        "status": "info"
+      },
+      "content": "The title is the product's own content, drawn in the title's style.",
+      "slots": {
+        "title": "Where the split button went"
+      }
+    },
+    {
+      "id": "actions",
+      "props": {
+        "status": "warning",
+        "title": "The file changed on disk"
+      },
+      "content": "You have edits here that are not in it. Nothing is overwritten until you choose.",
+      "slots": {
+        "actions": [
+          "Reload from disk",
+          "Keep mine"
+        ]
+      }
+    },
+    {
+      "id": "actions-outlined",
+      "props": {
+        "variant": "outlined"
+      },
+      "content": "A newer version of this page is available.",
+      "slots": {
+        "actions": "Reload"
+      }
+    },
+    {
+      "id": "closable",
+      "props": {
+        "closable": true,
+        "closeLabel": "Close"
+      },
+      "content": "Search now covers the release notes."
+    },
+    {
+      "id": "closable-outlined-info",
+      "props": {
+        "variant": "outlined",
+        "status": "info",
+        "statusLabel": "Information",
+        "closable": true,
+        "closeLabel": "Close"
+      },
+      "content": "Search now covers the release notes."
+    },
+    {
+      "id": "closable-title-actions",
+      "props": {
+        "status": "error",
+        "title": "Three fields need attention",
+        "closable": true,
+        "closeLabel": "Close",
+        "live": true
+      },
+      "content": "Enter a name, choose a start date, and give an address that can receive mail.",
+      "slots": {
+        "actions": [
+          "Go to the first field"
+        ]
+      }
+    },
+    {
+      "id": "status-label",
+      "props": {
+        "status": "warning",
+        "statusLabel": "Warning"
+      },
+      "content": "Deleting a layer also deletes every token it declares."
+    },
+    {
+      "id": "live-success",
+      "props": {
+        "status": "success",
+        "statusLabel": "Success",
+        "live": true
+      },
+      "content": "Your changes are saved."
+    },
+    {
+      "id": "long-body",
+      "props": {
+        "status": "info",
+        "title": "A revised spec, not yet on every platform"
+      },
+      "content": "The specification, the tokens and the web element carry the new name, and the web draws this revision. SwiftUI, Compose, Flutter and React Native still ship the previous revision under the old name, so their code on this page uses the old names; it changes when each platform renames the component. Until then the status matrix shows them as lagging, and the roadmap lists what each of them owes."
+    },
+    {
+      "id": "long-title",
+      "props": {
+        "status": "warning",
+        "title": "The native platforms have not renamed this component yet, and their examples on this page still use the name it had before the proposal that renamed it",
+        "closable": true,
+        "closeLabel": "Close"
+      },
+      "content": "It changes when each platform renames the component."
+    },
+    {
+      "id": "tonal-info-rtl",
+      "props": {
+        "status": "info",
+        "title": "ملاحظة"
+      },
+      "content": "يرسم الويب هذه المراجعة؛ المنصات الأخرى تتبعها لاحقًا.",
+      "direction": "rtl"
+    },
+    {
+      "id": "closable-actions-rtl",
+      "props": {
+        "status": "warning",
+        "title": "تغيّر الملف على القرص",
+        "closable": true,
+        "closeLabel": "إغلاق"
+      },
+      "content": "لن يُستبدل شيء حتى تختار.",
+      "slots": {
+        "actions": [
+          "إعادة التحميل",
+          "الاحتفاظ بنسختي"
+        ]
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "icon-rtl",
+      "props": {
+        "title": "التالي"
+      },
+      "content": "تابع إلى الصفحة التالية لإعداد النظام.",
+      "slots": {
+        "icon": "arrow_forward"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-title-rtl",
+      "props": {
+        "variant": "outlined",
+        "status": "success",
+        "title": "v2.1 beta"
+      },
+      "content": "تم نشر هذا الإصدار.",
+      "direction": "rtl"
+    },
+    {
+      "id": "docs-note",
+      "props": {
+        "size": "large",
+        "status": "info",
+        "title": "Note"
+      },
+      "content": "Text styles are named by level, never by size."
+    },
+    {
+      "id": "docs-tip",
+      "props": {
+        "size": "large",
+        "title": "Tip"
+      },
+      "content": "Prefer keeping an action enabled and explaining what is missing when it is used.",
+      "slots": {
+        "icon": "lightbulb"
+      }
+    },
+    {
+      "id": "docs-caution",
+      "props": {
+        "size": "large",
+        "status": "warning",
+        "title": "Pre-release: not published yet"
+      },
+      "content": "The package is not available on the registry yet. The install steps below show how it will work after the first release."
+    },
+    {
+      "id": "docs-danger",
+      "props": {
+        "size": "large",
+        "status": "error",
+        "title": "Danger"
+      },
+      "content": "This command deletes every generated file and cannot be undone."
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-callout",
+      "props": {
+        "title": "headline",
+        "status": "status",
+        "statusLabel": "statusLabel",
+        "variant": "variant",
+        "size": "size",
+        "live": "live",
+        "closable": "closable",
+        "closeLabel": "closeLabel",
+        "open": "open"
+      },
+      "events": {
+        "dismiss": "dismiss"
+      },
+      "notes": "`<tanrei-callout>` with the body as light-DOM children, the glyph in the `icon` slot, the title in the `title` slot (`<p slot=\"title\">`, or `<h3 slot=\"title\">` where it is a heading) or the `headline` attribute (HTML's global `title` attribute would show a tooltip over the whole block, as the snackbar's and the app bar's), and Buttons or links in the `actions` slot. `statusLabel` and `closeLabel` are the `status-label` and `close-label` attributes. `open` is a boolean property that defaults to true; the `open` attribute spells it, and `open=\"false\"` is how markup starts a callout closed. The host is `display: block` with no margin, `role=\"note\"` and `aria-labelledby` naming the title, set through ElementInternals where axe can see it and as attributes otherwise; with `live` the host's role is `status` or `alert` by status, and the announcement is made through a visually hidden live region in the shadow root that exists from the element's first render, so that a callout opened later is announced (CLO-21). `statusLabel` is drawn as visually hidden text before the title in the shadow root, followed by a comma and a space; the glyph is `aria-hidden`. The body takes the form's content color and the size's text style through inherited `color` and `font`, so text placed directly in the element is styled, and a body that is rendered Markdown is wrapped by the product in `<div class=\"tanrei-prose\" data-measure=\"false\">` with the callout's `data-size` (prose re-enters inside a Tanrei element). The glyph's opacity is applied to its color (a mix with transparent), never as an element's `opacity`. The focus indicator's color is the form's `focus-ring-color` custom property, handed to the shared focus primitive (CLO-15). Under `forced-colors: active` the container takes a `CanvasText` border of the outline width (CLO-24). The stylesheet of `@tanrei/web` gives `tanrei-callout:not(:defined)` `display: block`, so the content keeps its place before the element is defined. `dismiss` is a CustomEvent."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiCallout",
+      "props": {
+        "title": "title",
+        "status": "status",
+        "statusLabel": "statusLabel",
+        "variant": "variant",
+        "size": "size",
+        "live": "isLive",
+        "closable": "isClosable",
+        "closeLabel": "closeLabel",
+        "open": "isPresented"
+      },
+      "events": {
+        "dismiss": "onDismiss"
+      },
+      "notes": "`TanreiCallout(_ title: String? = nil, status:, statusLabel:, variant:, size:, isLive:, isClosable:, closeLabel:, isPresented:, icon:, onDismiss:) { body } actions: { … }`, the body and the actions as `@ViewBuilder`s, the glyph by name through `icon:`, and a second initializer whose title is a `@ViewBuilder` (the title slot; `.accessibilityAddTraits(.isHeader)` is the product's). `isPresented` is a `Binding<Bool>` that defaults to a constant true. The container is an accessibility container labelled by the title or `statusLabel`; a live callout posts `AccessibilityNotification.Announcement` at default priority, or high for warning and error."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiCallout",
+      "props": {
+        "title": "title",
+        "status": "status",
+        "statusLabel": "statusDescription",
+        "variant": "variant",
+        "size": "size",
+        "live": "live",
+        "closable": "closable",
+        "closeLabel": "closeDescription",
+        "open": "visible"
+      },
+      "events": {
+        "dismiss": "onDismiss"
+      },
+      "notes": "`TanreiCallout(title, status, statusDescription, variant, size, live, closable, closeDescription, visible, icon, onDismiss, titleContent, actions) { body }`, the body, `titleContent` and `actions` as composable lambdas, the glyph by name through `icon`. `visible` is hoisted state: the close button calls `onDismiss` and the product sets it. The container merges no descendants and carries `paneTitle`-free semantics: a content description of the status description on a leading invisible node, and for a live callout `liveRegion` polite or assertive by status."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiCallout",
+      "props": {
+        "title": "title",
+        "status": "status",
+        "statusLabel": "statusSemanticLabel",
+        "variant": "variant",
+        "size": "size",
+        "live": "live",
+        "closable": "closable",
+        "closeLabel": "closeSemanticLabel",
+        "open": "visible"
+      },
+      "events": {
+        "dismiss": "onDismiss"
+      },
+      "notes": "`TanreiCallout(title: …, status:, statusSemanticLabel:, variant:, size:, live:, closable:, closeSemanticLabel:, visible:, icon:, titleWidget:, actions:, onDismiss:, child:)`, the body as `child`, the title slot as `titleWidget`, the actions as a list of widgets, the glyph by name through `icon`. `visible` is the product's state; the close button calls `onDismiss`. A `Semantics(container: true, label:)` over the block, with `liveRegion: true` for a live callout and `SemanticsService.announce` with its assertiveness for warning and error."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Callout",
+      "props": {
+        "title": "title",
+        "status": "status",
+        "statusLabel": "statusAccessibilityLabel",
+        "variant": "variant",
+        "size": "size",
+        "live": "live",
+        "closable": "closable",
+        "closeLabel": "closeAccessibilityLabel",
+        "open": "open"
+      },
+      "events": {
+        "dismiss": "onDismiss"
+      },
+      "notes": "`<Callout title=\"…\" status=\"warning\">…</Callout>`; the body is `children`, the title slot is the `titleContent` prop, the actions are the `actions` prop (elements), and the glyph is the `icon` prop (a glyph name). `open` is controlled when given, with `onDismiss`. A live callout sets `accessibilityLiveRegion` (polite or assertive) on Android and calls `AccessibilityInfo.announceForAccessibility` on iOS. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

@@ -1,0 +1,136 @@
+---
+// The sixteen text styles by level with live specimens, styled by the generated CSS custom properties.
+// Emphasis is a weight step, not a role: each row also shows the weight `emphasized` text takes — the role's weight
+// plus its family's `sys.typescale.emphasis.*` — and the specimen can be flipped to it.
+import { tokensIn, dimension, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import SourceNote from '../SourceNote.astro';
+import Table from '../Table.astro';
+
+const lang = contentLang(Astro);
+const t = strings(lang);
+const all = tokensIn(`${ns}.sys.typescale`);
+// Levels first, in the order of the source file (display, headings, body, labels, code, eyebrow), not by size: the point is the level.
+const tokens = all.filter((tk) => tk.type === 'typography');
+const steps = Object.fromEntries(all.filter((tk) => tk.path.at(-2) === 'emphasis').map((tk) => [tk.path.at(-1)!, tk.value as number]));
+/** A role's family is its first name segment; `caption`, `code*` and `eyebrow` take the label step — the emitters' rule. */
+const familyOf = (role: string) => (['display', 'heading', 'body'].includes(role.split('-')[0]) ? role.split('-')[0] : 'label');
+const emphasized = (tk: (typeof tokens)[number]) => tk.value.fontWeight + (steps[familyOf(tk.path.at(-1)!)] ?? 0);
+// `code` keeps its monospace sample; `eyebrow` is the plain face, small and tracked, and the UPPERCASE is this component's (text-transform), never the token's.
+const sample = (name: string) => (name.startsWith('code') ? 'const tanrei = 端麗;' : name === 'eyebrow' ? 'Design tokens' : t.typeSample);
+const em = (tk: (typeof tokens)[number]) => Math.round((tk.value.letterSpacing.value / tk.value.fontSize.value) * 1000) / 1000;
+---
+
+<div class="not-content scale" data-typescale data-tanrei-code="plain">
+  <tanrei-switch class="flip" label={t.emphasizedToggle} data-typescale-emphasized />
+  {tokens.map((tk) => {
+    const role = tk.path.at(-1)!;
+    return (
+      <div class="row" data-role={role}>
+        <div class="meta">
+          <code class="role">{role}</code>{' '}
+          <span class="docs-mono docs-muted">
+            {dimension(tk.value.fontSize)} / {Math.round(tk.value.fontSize.value * tk.value.lineHeight)}px · {tk.value.fontWeight} <span class="docs-muted">({t.emphasizedShort} {emphasized(tk)})</span> · {em(tk) === 0 ? '0' : `${em(tk) > 0 ? '+' : ''}${em(tk)}em`}
+          </span>
+        </div>
+        <p
+          class="specimen"
+          style={`font: var(${tk.cssVar}-font); letter-spacing: var(${tk.cssVar}-letter-spacing); --specimen-emphasized: var(${tk.cssVar}-font-weight-emphasized, ${emphasized(tk)});${role === 'eyebrow' ? 'text-transform: uppercase;' : ''}`}
+        >
+          {sample(role)}
+        </p>
+      </div>
+    );
+  })}
+</div>
+<Table label={`${ns}.sys.typescale`} stickyFirstColumn><table>
+  <thead>
+    <tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">{t.family}</th><th scope="col" data-wrap="false">{t.size}</th><th scope="col" data-wrap="false">{t.lineHeight}</th><th scope="col" data-wrap="false">{t.weight}</th><th scope="col" data-wrap="false">{t.emphasizedWeight}</th><th scope="col" data-wrap="false">{t.tracking}</th></tr>
+  </thead>
+  <tbody>
+    {tokens.map((tk) => (
+      <tr>
+        <td data-wrap="false"><code>{tk.cssVar}</code></td>
+        <td data-wrap="false">{Array.isArray(tk.value.fontFamily) ? tk.value.fontFamily[0] : tk.value.fontFamily}</td>
+        <td data-wrap="false" class="docs-mono">{dimension(tk.value.fontSize)}</td>
+        <td data-wrap="false" class="docs-mono">{tk.value.lineHeight}</td>
+        <td data-wrap="false" class="docs-mono">{tk.value.fontWeight}</td>
+        <td data-wrap="false" class="docs-mono">{emphasized(tk)}</td>
+        <td data-wrap="false" class="docs-mono">{dimension(tk.value.letterSpacing)}</td>
+      </tr>
+    ))}
+  </tbody>
+</table></Table>
+<SourceNote files={[`design/tokens/${ns}.light.tokens.json`, 'tokens/sys/typescale.tokens.json']} />
+
+<script>
+  // The switch alone — not the whole package: the page holds no other element of a live example.
+  import '@tanrei/web/components/switch';
+
+  // The flip re-draws every specimen at its emphasized weight: the sheet's `<role>-font-weight-emphasized`, which is
+  // the role's weight plus its family's step, so the specimens follow the active system. The style ATTRIBUTE is
+  // rewritten whole: setting one longhand through `el.style` expands the `font: var(…)` shorthand and loses it.
+  for (const scale of document.querySelectorAll<HTMLElement>('[data-typescale]')) {
+    const toggle = scale.querySelector<HTMLElement & { selected: boolean }>('[data-typescale-emphasized]')!;
+    const specimens = [...scale.querySelectorAll<HTMLElement>('.specimen')].map((el) => [el, el.getAttribute('style') ?? ''] as const);
+    toggle.addEventListener('change', () => {
+      for (const [el, base] of specimens) el.setAttribute('style', toggle.selected ? `${base} font-weight: var(--specimen-emphasized);` : base);
+    });
+  }
+</script>
+
+<style>
+  .scale {
+    margin-top: 1.5rem;
+    border-top: var(--docs-hairline);
+  }
+  .row {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem 0;
+    border-bottom: var(--docs-hairline);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    font-size: var(--sl-text-sm);
+  }
+  .role {
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-xs);
+  }
+  /* The flip is Tanrei's Switch, and its look is the switch's. Until the element is defined: its room, from the
+     switch's own tokens — the track, the gap, then the label, which is the element's own attribute — so that no row
+     under it moves when it is drawn. */
+  .flip {
+    margin-block: var(--tanrei-sys-space-space150);
+  }
+  .flip:not(:defined) {
+    box-sizing: border-box;
+    display: inline-flex;
+    max-inline-size: 100%;
+    padding-block: max(0px, calc((var(--tanrei-comp-switch-track-height) - 1lh) / 2));
+    padding-inline-start: calc(var(--tanrei-comp-switch-track-width) + var(--tanrei-comp-switch-label-gap));
+    font: var(--tanrei-comp-switch-label-typescale-font);
+    letter-spacing: var(--tanrei-comp-switch-label-typescale-letter-spacing);
+    visibility: hidden;
+  }
+  .flip:not(:defined)::before {
+    content: attr(label);
+  }
+  /* Where no script runs nothing can re-draw the specimens: the switch is not drawn, and takes no room. */
+  @media (scripting: none) {
+    .flip:not(:defined) {
+      display: none;
+    }
+  }
+  .specimen {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--tanrei-sys-color-on-surface);
+  }
+</style>

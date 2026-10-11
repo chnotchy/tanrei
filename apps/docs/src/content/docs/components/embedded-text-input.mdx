@@ -1,0 +1,195 @@
+---
+title: Embedded text input
+description: The typing alone, for a box that something else draws. Text, a placeholder, the caret and the selection, on one line or on lines that grow and shrink with a motion. It draws no container, edge, label or focus indication. Whatever holds it draws the box and shows the focus.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import Callout from '../../../components/Callout.astro';
+
+## Overview
+
+<ComponentAvailability name="embedded-text-input" />
+
+<DemoFrame label="An embedded text input inside a box the page draws. Type several lines: the box follows the height. The edge of the box shows the focus." column>
+  <div class="not-content docs-embedded-holder" style="box-sizing: border-box; inline-size: 22.5rem; max-inline-size: 100%; background: var(--tanrei-sys-color-surface-container); border-radius: var(--tanrei-sys-shape-corner-large); padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200); cursor: text">
+    <tanrei-embedded-text-input label="Message" placeholder="Write a message" multiline max-rows="6"></tanrei-embedded-text-input>
+  </div>
+</DemoFrame>
+
+<style>{`
+  .docs-embedded-holder { outline: var(--tanrei-sys-border-thick) solid transparent; outline-offset: calc(-1 * var(--tanrei-sys-border-thick)); }
+  .docs-embedded-holder:focus-within { outline-color: var(--tanrei-sys-color-focus-ring); }
+  @media (forced-colors: active) {
+    .docs-embedded-holder { outline-color: CanvasText; }
+    .docs-embedded-holder:focus-within { outline-color: Highlight; }
+  }
+`}</style>
+
+An embedded text input is half of a control. It is the place where people type, and nothing around it: no fill, no edge, no padding, no label, no message. The other half is the **holder**: the box that stands around the typing. A Tanrei component can be the holder, as the [chat composer](/components/chat-composer/) is. Your own markup can be the holder too.
+
+Most products never place it directly. Use it when the box holds more than the text: a message beside its actions, a search bar, a title edited where it stands.
+
+Use something else when:
+
+- The box is a text field's box. That is a [text input](/components/text-input/), or a [text field](/components/text-field/) with its label and its messages.
+- People write a message and send it. That is a [chat composer](/components/chat-composer/), which is built from this component.
+- The value is a short code typed back once. That is a [one-time-code input](/components/one-time-code-input/).
+
+<Callout type="caution" title="The holder must show the focus">
+The embedded text input draws no focus indication, whatever the design system's focus style is. Its caret is not one: it is a thin line, it is not drawn while text is selected, and it does not say which box is being typed in. A holder that shows no focus on its box fails WCAG 2.4.7. On the web, one rule on `:focus-within` is enough.
+</Callout>
+
+On the web it is `<tanrei-embedded-text-input>`. The other platforms have not implemented it yet.
+
+### Usage
+
+The box, its padding and its focus indication are yours. Three declarations cover them.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <div class="capsule">
+      <tanrei-embedded-text-input label="Message" placeholder="Write a message"
+                                  multiline max-rows="6"></tanrei-embedded-text-input>
+    </div>
+    ```
+
+    ```css
+    .capsule {
+      background: var(--tanrei-sys-color-surface-container);
+      border-radius: var(--tanrei-sys-shape-corner-large);
+      padding: var(--tanrei-sys-space-space150) var(--tanrei-sys-space-space200);
+      outline: var(--tanrei-sys-border-thick) solid transparent;
+      outline-offset: calc(-1 * var(--tanrei-sys-border-thick));
+      cursor: text;
+    }
+    .capsule:focus-within { outline-color: var(--tanrei-sys-color-focus-ring); }
+    @media (forced-colors: active) {
+      .capsule { outline-color: CanvasText; }
+      .capsule:focus-within { outline-color: Highlight; }
+    }
+    ```
+
+    ```js
+    // A press on the padding is a press on the text.
+    capsule.addEventListener('mousedown', (event) => {
+      if (event.target !== capsule) return;
+      event.preventDefault();
+      input.focusAt(event.clientX, event.clientY);
+    });
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { EmbeddedTextInput } from '@tanrei/react';
+
+    <div className="capsule">
+      <EmbeddedTextInput label="Message" placeholder="Write a message" multiline maxRows={6}
+                         onAction={(event) => send(event.detail.value)} />
+    </div>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+### What the holder owes
+
+| What | The holder gives | The input gives the holder |
+| --- | --- | --- |
+| The box | A visible box, or a place that reads as one | Nothing behind the text: the holder's fill shows through |
+| Focus | The focus indication on the box, for as long as the input has focus, however it was focused | `focusin` and `focusout`, and `:focus-within` on the element |
+| States | The mark of an error and the look of a disabled box | `error` exposes the invalid state and draws nothing. `disabled` draws the text as disabled content |
+| Padding | Padding around the text, and a press on that padding passed on | No padding of its own, a hit area of the minimum target, and `focusAt(x, y)` |
+| Name | The name, and what its messages say | `label` (required) and `description`, both as text |
+| Action | What the action is: send, add, search, save | The `action` event, and nothing done with it |
+| Forced colors | An edge for the box and the focus indication in the system's colors | Its own text, placeholder, selection and caret in the system's colors |
+
+### The height
+
+With `multiline` the input is exactly as tall as its lines, between `minRows` (1 by default) and `maxRows` (0, no limit, by default). Beyond `maxRows` the text scrolls inside it.
+
+- A change of the number of lines that comes from the value moves over `comp.embedded-text-input.motion.resize-duration`. It is one motion however many lines arrive at once.
+- The height the input takes in the layout is the animated one at every frame. A holder that sizes itself to its content follows with no code.
+- The change is made at once when the input is first drawn, when its width or its text size changed, while a pointer is held down in the text, and where motion is reduced.
+- `rowschange` says how many lines the input is going to show, before the motion begins. `rows` reads the number at any time.
+
+### Enter
+
+| Input | Enter | Shift+Enter | Ctrl+Enter, Command+Enter |
+| --- | --- | --- | --- |
+| One line | `action` | — | `action` |
+| Several lines, `enterKey="line-break"` (the default) | New line | New line | `action` |
+| Several lines, `enterKey="action"` | `action` | New line | `action` |
+
+An input method's Enter chooses a candidate or commits the text. It never emits `action`. The return key of an on-screen keyboard always begins a new line in a multi-line input.
+
+`action` carries the value and the input does nothing more. It keeps its value, its selection and its focus.
+
+<ComponentSpecs name="embedded-text-input" />
+
+### What the web draws differently
+
+- An on-screen keyboard cannot be told from a hardware one. Where the primary pointer is coarse and cannot hover, Enter is read as the return key and begins a new line. A tablet with a keyboard attached therefore acts with Ctrl+Enter or Command+Enter.
+- `focusAt(x, y)` places the caret at the nearest character where the browser can say which character stands at a point. Where it cannot, the caret goes to the start of the text for a point above or before it, and to its end otherwise.
+- In a form of its own it is one of the form's controls: it submits its value under `name`. Inside a holder that is a Tanrei component it has no form, and the holder carries the value.
+- Without script, a `<textarea>` or an `<input>` you write as its child is the control. When the element is defined it takes that child's text and hides the child.
+
+## Guidelines
+
+### Embedded text input or text input
+
+| Aspect | Embedded text input | Text input |
+| --- | --- | --- |
+| The box | The holder's own, drawn nowhere else | A text field's box, in every look and size of the design system |
+| Focus | Shown by the holder | Shown by the input itself |
+| Label and messages | Passed in as text by the holder | Its own, or its field's |
+| Types | Text, search, email, URL, telephone | Those, and password, number, date, time and code |
+
+### Do
+
+- Give it a `label`. Nothing else names it.
+- Put what a help line, an error text or a count says into `description`, as text.
+- Mark an error on the box. Pass `error` to the input as well, so that it is exposed as invalid.
+- Set `maxRows` for a holder at the bottom of a small screen.
+- Keep the text at 16 px or more. A touch browser zooms into smaller text.
+
+### Don't
+
+- Don't use it where a text field's box is wanted. Use a text input.
+- Don't draw a second focus ring on the input. The box shows the focus once.
+- Don't animate the holder's height yourself. It follows the input's.
+- Don't use the placeholder as the name.
+- Don't send on an Enter that an input method uses. Listen for `action`, which leaves those out.
+
+## Accessibility
+
+<ComponentAccessibility name="embedded-text-input" />
+
+### What the component handles
+
+- It is a text box, a multi-line one while `multiline` is true. Its name is `label` and its description is `description`.
+- It is exposed as invalid, required, read-only and disabled from the props of those names.
+- The placeholder is never the name.
+- It is one stop for the Tab key. Tab never inserts a character, and Escape is left to the holder.
+- An input method's Enter never emits `action`.
+- The hit area meets the minimum target above and below its lines, without changing its size.
+- At 200% text a multi-line input wraps and shows every character. Nothing scrolls sideways.
+- In forced colors its text, placeholder, selection and caret take the system's colors.
+- It has no words of its own, in any language.
+
+Known gaps on the web:
+
+- Input methods have been driven in Chromium and, in Firefox and Safari, by their events alone.
+- An on-screen keyboard is guessed from a primary pointer that is coarse and cannot hover. That guess is wrong for a tablet with a keyboard attached.
+
+### What you need to do
+
+- Draw a box, and show the focus on it for as long as the input has focus. Keep the indication's contrast at 3:1 or more against what it is drawn on.
+- Give the input a `label` in the words a person would use for the box.
+- Say an error in words beside the box, and pass the words in `description`.
+- In forced colors, give the box an edge in the system's text color and its focus indication in the highlight color.

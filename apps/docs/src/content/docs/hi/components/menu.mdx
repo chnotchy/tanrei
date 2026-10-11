@@ -1,0 +1,494 @@
+---
+title: मेन्यू
+description: क्रियाओं या विकल्पों का एक छोटा सेट, जो एक अस्थायी सरफ़ेस पर उस एलिमेंट से खुलता है जिसने उसे माँगा।
+translationOf: components/menu.mdx
+sourceHash: 740ced78f44526a9b305909b0ad3023504f4cc05
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="menu" />
+
+<DemoFrame label="क्रियाएँ, एक चेकबॉक्स आइटम, एक रेडियो ग्रुप और एक विनाशकारी क्रिया">
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="कॉपी करें" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+    <tanrei-menu-item label="पेस्ट करें" leading-icon="content_paste" shortcut="mod+v"></tanrei-menu-item>
+    <tanrei-menu-group label="व्यू">
+      <tanrei-menu-checkbox-item label="ग्रिड दिखाएँ" checked></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="क्रमबद्ध करें" value="name">
+      <tanrei-menu-radio-item label="नाम" value="name"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="बदलाव की तारीख़" value="date"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+    <tanrei-menu-item label="हटाएँ" leading-icon="delete" destructive></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="सबमेन्यू: वह आइटम जो अपने बग़ल में एक और स्तर खोलता है" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="नई फ़ाइल" leading-icon="add" shortcut="mod+n"></tanrei-menu-item>
+    <tanrei-submenu label="हाल की फ़ाइल खोलें" leading-icon="history" open>
+      <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+      <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      <tanrei-menu-item label="Budget.xlsx"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-submenu label="शेयर करें" leading-icon="share">
+      <tanrei-menu-item label="लिंक कॉपी करें" leading-icon="link"></tanrei-menu-item>
+      <tanrei-menu-item label="मेल से भेजें" leading-icon="mail"></tanrei-menu-item>
+    </tanrei-submenu>
+    <tanrei-menu-item label="प्रिंट करें" leading-icon="print" shortcut="mod+p"></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="लिंक का मेन्यू: हर पंक्ति कहीं ले जाती है, और उनमें से एक नया टैब खोलती है" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="बटन" href="/hi/components/button/"></tanrei-menu-item>
+    <tanrei-menu-item label="लिस्ट" href="/hi/components/list/"></tanrei-menu-item>
+    <tanrei-menu-item label="उदाहरण साइट" href="https://example.com/" target="new" target-label="नए टैब में खुलता है"></tanrei-menu-item>
+    <tanrei-menu-item label="आर्काइव" href="/archive/" disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+### इस्तेमाल
+
+ऐंकर आपका अपना बटन, आइकन बटन या फ़ील्ड है। मेन्यू उसे नहीं बनाता: वह ऐंकर की जगह पढ़ता है, अपनी सरफ़ेस को उससे सटाकर रखता है और फ़ोकस को उसी पर लौटाता है। मेन्यू को आप ऐंकर से खोलते हैं, और जब मेन्यू कहता है तब उसे बंद करते हैं।
+
+मेन्यू में आइटम के पाँच प्रकार हैं: `item` (एक क्रिया), `checkbox-item`, `radio-item`, `submenu` (वह आइटम जो अपने बग़ल में मेन्यू का एक और स्तर खोलता है) और `group`, जिसमें बाक़ी प्रकारों के आइटम रहते हैं। हर प्लैटफ़ॉर्म इन्हें उसी तरह लेता है जैसे वह दोहराए जाने वाले किसी भी चाइल्ड को लेता है: वेब पर चाइल्ड एलिमेंट, SwiftUI पर व्यू बिल्डर के व्यू, Compose पर कॉन्टेंट लैम्ब्डा के कॉल, Flutter पर `menuChildren` के विजेट, और React Native पर सादे ऑब्जेक्ट का एक `items` ऐरे, जिसमें `kind` से प्रकार पहचाना जाता है। चेकबॉक्स आइटम का `checked` उसका अपना है। कौन-सा रेडियो आइटम चेक किया हुआ है, यह उसके ग्रुप का होता है, मान के आधार पर।
+
+आइटम का कीबोर्ड शॉर्टकट उसकी `shortcut` प्रॉपर्टी है, जो [कीबोर्ड शॉर्टकट](/hi/components/keyboard-shortcut/) के तटस्थ कुंजी-नामों में लिखी जाती है (`mod+c`)। मेन्यू उसे कीबोर्ड शॉर्टकट कंपोनेंट से पंक्ति के अंत में बनाता है, Apple के कीबोर्ड पर ⌘C और बाक़ी जगह Ctrl+C के रूप में, और उसे आइटम के कीबोर्ड शॉर्टकट के रूप में देता है। वह कुंजियों को काम करने लायक़ नहीं बनाता: उन्हें आपका प्रॉडक्ट बाँधता है। `trailingText` हर उस चीज़ के लिए है जो शॉर्टकट नहीं है, जैसे कोई गिनती या "बीटा"। वेब यह सब बनाता है, और मौजूदा रूप भी। SwiftUI, Compose, Flutter और React Native पीछे हैं: जब तक वे बराबरी पर नहीं आते, उनमें `shortcut` प्रॉपर्टी नहीं है और वे शॉर्टकट को `trailingText` में लिखते हैं, जैसा नीचे उनके उदाहरण करते हैं। उनमें न सबमेन्यू हैं, न `separation`, न `markIcon`, और वे अब भी चेक को 16 के बॉक्स में अपने ही निशान के रूप में बनाते हैं, चेक की हुई किसी पंक्ति को नहीं भरते, और ग्रुप का शीर्षक वहाँ से शुरू करते हैं जहाँ से लेबल शुरू होते हैं।
+
+`href` वाला आइटम एक लिंक आइटम है: प्लैटफ़ॉर्म का अपना लिंक, जो ठीक किसी क्रिया की तरह बनता है और जिस तक उन्हीं कुंजियों से पहुँचा जाता है। सादे ढंग से सक्रिय करने पर आइटम का `click` एमिट होता है, मेन्यू बंद होता है और फिर गंतव्य खुलता है। `target` और `targetLabel` [Button](/hi/components/button/) वाले ही हैं। लिंक आइटम वेब पर बने हैं; SwiftUI, Compose, Flutter और React Native में वे अभी नहीं हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button variant="text" id="more" label="और"><span slot="icon">more_vert</span></tanrei-button>
+
+    <!-- anchor उस एलिमेंट का id है जिससे मेन्यू खुलता है। -->
+    <tanrei-menu anchor="more">
+      <!-- shortcut तटस्थ कुंजी-नामों में है: व्यक्ति के कीबोर्ड के अनुसार ⌘C या Ctrl+C बनता है। -->
+      <tanrei-menu-item label="कॉपी करें" leading-icon="content_copy" shortcut="mod+c"></tanrei-menu-item>
+      <!-- ग्रुप का शीर्षक उसका label ऐट्रिब्यूट है, जैसे <optgroup label>। -->
+      <tanrei-menu-group label="व्यू">
+        <tanrei-menu-checkbox-item label="ग्रिड दिखाएँ" checked></tanrei-menu-checkbox-item>
+      </tanrei-menu-group>
+      <!-- ग्रुप पर, या किसी एक आइटम पर, mark-icon="check" चेक किए हुए आइटम पर सादा चेक का निशान लगाता है। -->
+      <tanrei-menu-group label="क्रमबद्ध करें" value="name" mark-icon="check">
+        <tanrei-menu-radio-item label="नाम" value="name"></tanrei-menu-radio-item>
+        <tanrei-menu-radio-item label="बदलाव की तारीख़" value="date"></tanrei-menu-radio-item>
+      </tanrei-menu-group>
+      <!-- सबमेन्यू: इसके चाइल्ड अगला स्तर हैं। यह toggle फ़ायर करता है, close कभी नहीं। -->
+      <tanrei-submenu label="हाल की फ़ाइल खोलें" leading-icon="history">
+        <tanrei-menu-item label="Report.pdf"></tanrei-menu-item>
+        <tanrei-menu-item label="Notes.txt"></tanrei-menu-item>
+      </tanrei-submenu>
+      <tanrei-menu-item label="हटाएँ" leading-icon="delete" destructive></tanrei-menu-item>
+      <!-- href के साथ आइटम एक लिंक है: पहले उसका click, फिर close, फिर ब्राउज़र उसे खोलता है। -->
+      <tanrei-menu-item label="कीबोर्ड शॉर्टकट" href="/help/shortcuts/"></tanrei-menu-item>
+      <tanrei-menu-item label="सोर्स" href="https://example.com/tanrei" target="new" target-label="नए टैब में खुलता है"></tanrei-menu-item>
+    </tanrei-menu>
+
+    <!-- separation="gap" इस मेन्यू और इसके सबमेन्यू में ग्रुप को ख़ाली जगह से अलग करता है, डिज़ाइन सिस्टम ने चाहे जो चुना हो। -->
+    <tanrei-menu anchor="more" separation="gap">…</tanrei-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/menu';
+      const menu = document.querySelector('tanrei-menu');
+      // ऐंकर पर दबाना ऐंकर का अपना है: वह मेन्यू को बंद नहीं करता, इसलिए उसे यहाँ टॉगल करें।
+      document.querySelector('#more').addEventListener('click', () => (menu.open = !menu.open));
+      // close के साथ उसका कारण आता है: escape, outside, tab, focus-out या item।
+      menu.addEventListener('close', () => (menu.open = false));
+      // click, change और toggle आइटम या ग्रुप पर फ़ायर होकर बबल होते हैं, इसलिए मेन्यू पर लगा एक लिसनर इन सबको ले सकता है।
+      menu.querySelector('[label="कॉपी करें"]').addEventListener('click', copy);
+      menu.querySelector('[label="ग्रिड दिखाएँ"]').addEventListener('change', (e) => setGrid(e.detail.checked));
+      menu.querySelector('[label="क्रमबद्ध करें"]').addEventListener('change', (e) => sortBy(e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Menu, MenuCheckboxItem, MenuGroup, MenuItem, MenuRadioItem, Submenu } from '@tanrei/react';
+
+    <Button variant="text" id="more" label="और" onClick={() => setOpen(!open)}><span slot="icon">more_vert</span></Button>
+    <Menu anchor="more" open={open} onClose={() => setOpen(false)}>
+      <MenuItem label="कॉपी करें" leadingIcon="content_copy" shortcut={['mod+c']} onClick={copy} />
+      <MenuGroup label="व्यू">
+        <MenuCheckboxItem label="ग्रिड दिखाएँ" checked={grid} onChange={(e) => setGrid(e.detail.checked)} />
+      </MenuGroup>
+      <MenuGroup label="क्रमबद्ध करें" value={sort} onChange={(e) => setSort(e.detail.value)}>
+        <MenuRadioItem label="नाम" value="name" />
+        <MenuRadioItem label="बदलाव की तारीख़" value="date" />
+      </MenuGroup>
+      <Submenu label="हाल की फ़ाइल खोलें" leadingIcon="history">
+        <MenuItem label="Report.pdf" onClick={() => openFile('Report.pdf')} />
+        <MenuItem label="Notes.txt" onClick={() => openFile('Notes.txt')} />
+      </Submenu>
+      <MenuItem label="हटाएँ" leadingIcon="delete" destructive onClick={remove} />
+      {/* एक लिंक आइटम। राउटर click रद्द करता है और ख़ुद वहाँ जाता है; मेन्यू फिर भी बंद होता है। */}
+      <MenuItem label="कीबोर्ड शॉर्टकट" href="/help/shortcuts/" onClick={(e) => { e.preventDefault(); navigate('/help/shortcuts/'); }} />
+    </Menu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // ऐंकर पर एक मॉडिफ़ायर, .popover की तरह। बंद होने पर isPresented में false लिखा जाता है।
+    TanreiIconButton("और", action: { showMenu = true }) { Image(systemName: "ellipsis") }
+        .tanreiMenu(isPresented: $showMenu, placement: .bottomStart) {
+            TanreiMenuItem("कॉपी करें", action: copy)
+            TanreiMenuSection("व्यू") {
+                TanreiMenuToggle("ग्रिड दिखाएँ", isOn: $showGrid)
+            }
+            TanreiMenuSection("क्रमबद्ध करें", selection: $sort) {
+                // .tag(_:) को ख़ुद TanreiMenuOption पर लगाएँ।
+                TanreiMenuOption("नाम").tag("name")
+                TanreiMenuOption("बदलाव की तारीख़").tag("date")
+            }
+            TanreiMenuItem("हटाएँ", role: .destructive, action: delete)
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiCheckboxMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiMenu
+    import io.github.chnotchy.tanrei.components.TanreiMenuGroup
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiRadioMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // DropdownMenu की तरह: मेन्यू को ऐंकर के Box के भीतर कॉल करें। बंद आप करते हैं: onDismissRequest के साथ कारण आता है।
+    Box {
+        TanreiIconButton(onClick = { expanded = true }, contentDescription = "और") { TanreiText("more_vert") }
+        TanreiMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            TanreiMenuItem(text = "कॉपी करें", onClick = ::copy, trailingText = "⌘C", leadingIcon = { TanreiText("content_copy") })
+            TanreiMenuGroup(title = "व्यू") {
+                TanreiCheckboxMenuItem(text = "ग्रिड दिखाएँ", checked = showGrid, onCheckedChange = { showGrid = it })
+            }
+            TanreiMenuGroup(title = "क्रमबद्ध करें", selectedValue = sort, onSelectedValueChange = { sort = it }) {
+                TanreiRadioMenuItem(text = "नाम", value = "name")
+                TanreiRadioMenuItem(text = "बदलाव की तारीख़", value = "date")
+            }
+            TanreiMenuItem(text = "हटाएँ", onClick = ::delete, destructive = true, leadingIcon = { TanreiText("delete") })
+        }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // MenuAnchor की तरह: इसे एक कंट्रोलर खोलता है। जब मेन्यू बंद होने को कहता है, तो वह कारण के साथ onClose को कॉल करता है और ख़ुद बंद हो जाता है।
+    final TanreiMenuController menu = TanreiMenuController();
+
+    TanreiMenuAnchor(
+      controller: menu,
+      onClose: (TanreiMenuCloseReason reason) {},
+      menuChildren: <Widget>[
+        TanreiMenuItem(
+          onPressed: copy,
+          leadingIcon: const Icon(AppSymbols.contentCopy),
+          trailingText: '⌘C',
+          child: const Text('कॉपी करें'),
+        ),
+        TanreiMenuGroup<String>(
+          title: 'व्यू',
+          children: <Widget>[
+            TanreiCheckboxMenuItem(
+              value: showGrid,
+              onChanged: (bool value) => setState(() => showGrid = value),
+              child: const Text('ग्रिड दिखाएँ'),
+            ),
+          ],
+        ),
+        TanreiMenuGroup<String>(
+          title: 'क्रमबद्ध करें',
+          groupValue: sort,
+          onChanged: (String value) => setState(() => sort = value),
+          children: const <Widget>[
+            TanreiRadioMenuItem<String>(value: 'name', child: Text('नाम')),
+            TanreiRadioMenuItem<String>(value: 'date', child: Text('बदलाव की तारीख़')),
+          ],
+        ),
+        // onPressed का null होना आइटम को अक्षम कर देता है।
+        TanreiMenuItem(onPressed: delete, destructive: true, child: const Text('हटाएँ')),
+      ],
+      builder: (BuildContext context, TanreiMenuController controller, Widget? child) =>
+          TanreiIconButton(onPressed: controller.open, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'और'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useRef, useState } from 'react';
+    import type { View } from 'react-native';
+    import { IconButton, Menu } from '@tanrei/react-native';
+
+    const more = useRef<View>(null);
+    const [open, setOpen] = useState(false);
+
+    // सहायक तकनीक को बताएँ कि ऐंकर का मेन्यू खुला है या नहीं: मेन्यू इसे यहाँ सेट नहीं कर सकता।
+    <IconButton ref={more} accessibilityLabel="और" accessibilityState={{ expanded: open }} onPress={() => setOpen(true)}>
+      more_vert
+    </IconButton>
+    // कंट्रोल्ड: visible को onDismiss से false करें, जिसे कारण मिलता है।
+    <Menu
+      visible={open}
+      anchorRef={more}
+      accessibilityLabel="और"
+      onDismiss={() => setOpen(false)}
+      items={[
+        { label: 'कॉपी करें', leadingIcon: 'content_copy', trailingText: '⌘C', onPress: copy },
+        { kind: 'group', title: 'व्यू', items: [{ kind: 'checkbox-item', label: 'ग्रिड दिखाएँ', checked: grid, onCheckedChange: setGrid }] },
+        { kind: 'group', title: 'क्रमबद्ध करें', value: sort, onValueChange: setSort, items: [
+          { kind: 'radio-item', label: 'नाम', value: 'name' },
+          { kind: 'radio-item', label: 'बदलाव की तारीख़', value: 'date' },
+        ] },
+        { label: 'हटाएँ', leadingIcon: 'delete', destructive: true, onPress: remove },
+      ]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="सहायक टेक्स्ट, अंतिम आइकन और अक्षम आइटम" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-item label="शेयर करें" supporting-text="इस फ़ाइल का लिंक भेजें" leading-icon="share"></tanrei-menu-item>
+    <tanrei-menu-item label="ऑफ़लाइन उपलब्ध" leading-icon="download" trailing-icon="cloud_done"></tanrei-menu-item>
+    <tanrei-menu-item label="नाम बदलें" leading-icon="edit" disabled></tanrei-menu-item>
+    <tanrei-menu-item label="हटाएँ" leading-icon="delete" destructive disabled></tanrei-menu-item>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="चेक और आइकन के कॉलम के ऊपर ग्रुप के शीर्षक" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="टेक्स्ट स्टाइल">
+      <tanrei-menu-checkbox-item label="बोल्ड" leading-icon="format_bold" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="इटैलिक" leading-icon="format_italic"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="अलाइन करें" value="start">
+      <tanrei-menu-radio-item label="शुरू में" value="start" leading-icon="format_align_left"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="बीच में" value="center" leading-icon="format_align_center"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="निशान: डिफ़ॉल्ट सिस्टम का बॉक्स और रिंग, और mark-icon से नामित सादा चेक" plain>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="दिखाएँ">
+      <tanrei-menu-checkbox-item label="रूलर" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="गाइड"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="ज़ूम" value="fit">
+      <tanrei-menu-radio-item label="विंडो में फ़िट करें" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="असली साइज़" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open>
+    <tanrei-menu-group label="दिखाएँ" mark-icon="check">
+      <tanrei-menu-checkbox-item label="रूलर" checked></tanrei-menu-checkbox-item>
+      <tanrei-menu-checkbox-item label="गाइड"></tanrei-menu-checkbox-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="ज़ूम" value="fit" mark-icon="check">
+      <tanrei-menu-radio-item label="विंडो में फ़िट करें" value="fit"></tanrei-menu-radio-item>
+      <tanrei-menu-radio-item label="असली साइज़" value="actual"></tanrei-menu-radio-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+<DemoFrame label="अलगाव: ग्रुप के बीच डिवाइडर, और गैप" plain>
+  <tanrei-menu inline open separation="divider">
+    <tanrei-menu-item label="पहले जैसा करें" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="फिर से करें" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="काटें" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="कॉपी करें" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="खोजें">
+      <tanrei-menu-item label="पेज में खोजें" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+  <tanrei-menu inline open separation="gap">
+    <tanrei-menu-item label="पहले जैसा करें" shortcut="mod+z"></tanrei-menu-item>
+    <tanrei-menu-item label="फिर से करें" shortcut="mod+shift+z"></tanrei-menu-item>
+    <tanrei-menu-group>
+      <tanrei-menu-item label="काटें" shortcut="mod+x"></tanrei-menu-item>
+      <tanrei-menu-item label="कॉपी करें" shortcut="mod+c"></tanrei-menu-item>
+    </tanrei-menu-group>
+    <tanrei-menu-group label="खोजें">
+      <tanrei-menu-item label="पेज में खोजें" shortcut="mod+f"></tanrei-menu-item>
+    </tanrei-menu-group>
+  </tanrei-menu>
+</DemoFrame>
+
+डिफ़ॉल्ट सिस्टम में चेकबॉक्स आइटम पर चेकबॉक्स का और रेडियो आइटम पर रेडियो बटन का निशान होता है, जो आइटम के चेक किए होने या न होने, दोनों हालत में बनता है: ख़ाली बॉक्स और चेक वाला भरा हुआ बॉक्स, पतली रिंग और अपने फ़िल वाली मोटी रिंग। इससे बंद विकल्प भी एक विकल्प के रूप में दिखता रहता है। ये निशान वाले कॉलम के चित्र हैं, कंट्रोल नहीं: दबाने और फ़ोकस करने की अकेली चीज़ पंक्ति है। बॉक्स के भीतर का चेक किसी कंट्रोल के अपने निशान वाले भारी वेट पर बनता है, जैसे [चेकबॉक्स](/hi/components/checkbox/) का बनता है।
+
+`markIcon`, किसी एक आइटम पर या ग्रुप पर उसके सभी आइटम के लिए, आइकन सेट के उस ग्लिफ़ का नाम देता है जिससे इसकी जगह चेक किए हुए आइटम पर निशान लगाया जाए। `check` अपने बग़ल के शुरुआती आइकन के साइज़ पर (डिफ़ॉल्ट सिस्टम में 24) सादा चेक बनाता है, और जब तक आइटम चेक नहीं किया हुआ है तब तक कुछ नहीं बनाता। डिज़ाइन सिस्टम अपने निशान ख़ुद चुनता है: `m3-like` और `cupertino` सादा चेक इस्तेमाल करते हैं। दाएँ से बाएँ वाले लेआउट में चेक मिरर नहीं होता। जब मेन्यू खुला रहते किसी आइटम का चेक वाला स्टेट बदलता है, तो निशान अपनी जगह से हिले बिना बदलता है, और जहाँ मोशन कम किया गया है वहाँ तुरंत।
+
+चेक की हुई पंक्ति भरी भी जाती है। डिफ़ॉल्ट सिस्टम में यह फ़िल मेन्यू की सरफ़ेस के ऊपर पंक्ति के अपने कॉन्टेंट के रंग की एक लेयर है, जो लाइट थीम में भी और डार्क थीम में भी होवर की हुई पंक्ति से एक स्टेप ज़्यादा गहरी होती है, ताकि उठी हुई सरफ़ेस पर चेक की हुई पंक्ति, होवर की हुई पंक्ति और सामान्य अवस्था की पंक्ति अलग-अलग पहचानी जाएँ। जिस आइटम का सबमेन्यू खुला है, वह सबमेन्यू खुला रहने तक होवर वाला फ़िल बनाए रखता है, जो इस्तेमाल हो रहे स्तर तक का रास्ता दिखाता है, और वह कभी चेक की हुई पंक्ति जैसा नहीं दिखता।
+
+ग्रुप का शीर्षक वहाँ से शुरू होता है जहाँ से पंक्तियों का कॉन्टेंट शुरू होता है: जब मेन्यू चेक या शुरुआती आइकन के कॉलम बनाता है तो उनके ऊपर, और जब दोनों में से कोई नहीं बनाता तो लेबल के ऊपर। वह दूसरे किनारे से उतनी ही दूरी पर ख़त्म होता है, अगली पंक्ति में जाता है, बड़े टेक्स्ट के साथ बढ़ता है और दाएँ से बाएँ वाले लेआउट में मिरर होता है।
+
+<ComponentSpecs name="menu" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+मेन्यू उन गौण क्रियाओं और सेटिंग के लिए इस्तेमाल करें जिन्हें स्क्रीन पर अपनी जगह की ज़रूरत नहीं है: किसी पंक्ति का "और", टूलबार का ओवरफ़्लो, क्रम का चुनाव, किसी व्यू के विकल्प। लोग इसे खोलते हैं, एक चीज़ चुनते हैं और अपने काम पर लौट जाते हैं।
+
+स्क्रीन की मुख्य क्रियाओं के लिए बटन इस्तेमाल करें, क्योंकि मेन्यू उन्हें छिपा देता है। जब चुनाव ही स्क्रीन का मुख्य काम हो, तो लिस्ट, रेडियो बटन या सिलेक्ट इस्तेमाल करें। जब लोगों को आगे बढ़ने से पहले जवाब देना ज़रूरी हो, तो डायलॉग इस्तेमाल करें। मेन्यू में सिर्फ़ उसके आइटम रहते हैं: कोई फ़ील्ड, स्लाइडर या स्विच नहीं, क्योंकि वे उन कुंजियों को ले लेते जिनकी मेन्यू को ज़रूरत है।
+
+जो पंक्ति कहीं ले जाती है, वह एक लिंक आइटम है: आइटम को `href` दें। इसे जगहों के ऐसे छोटे सेट के लिए इस्तेमाल करें जो माँगे जाने तक रास्ते से हटा रहता है, जैसे ब्रेडक्रंब के ट्रेल के सिमटे हुए स्तर, भाषा का चुनाव या "और"। किसी साइट के मुख्य पेज, जो हमेशा नज़र में रहते हैं, नेविगेशन हैं: उन्हें [नेविगेशन बार](/hi/components/navigation-bar/), [नेविगेशन ड्रॉअर](/hi/components/navigation-drawer/) या लिंक की [लिस्ट](/hi/components/list/) में रखें।
+
+### आइटम का प्रकार चुनना
+
+| प्रकार | यह क्या है | सक्रिय किए जाने के बाद | किसके लिए |
+| --- | --- | --- | --- |
+| आइटम | एक क्रिया, या `href` के साथ एक लिंक | अपना click एमिट करता है, फिर मेन्यू बंद हो जाता है। लिंक आइटम का गंतव्य उसके बाद खुलता है। | "कॉपी करें", "नाम बदलें", "शेयर करें"। "हटाएँ" या "छोड़ें" के लिए `destructive` सेट करें: वह त्रुटि के रंग में बनता है। जाने की किसी जगह के लिए उसे `href` दें। |
+| चेकबॉक्स आइटम | वह विकल्प जो अपने आप में चालू या बंद है | अपना `checked` बदलता है और अपना change एमिट करता है। | "ग्रिड दिखाएँ", "रूलर दिखाएँ": वे सेटिंग जो एक-दूसरे पर असर नहीं डालतीं। |
+| रेडियो आइटम | अपने ग्रुप के कई विकल्पों में से एक चुनाव | अपने ग्रुप का `value` सेट करता है और ग्रुप अपना change एमिट करता है। चेक किया हुआ रेडियो आइटम कुछ एमिट नहीं करता। | "नाम के अनुसार क्रमबद्ध करें", "तारीख़ के अनुसार क्रमबद्ध करें": एक सवाल का एक जवाब। |
+| सबमेन्यू | वह आइटम जो अपने बग़ल में एक और स्तर खोलता है | अपना सबमेन्यू खोलता है और अपना toggle एमिट करता है। मेन्यू खुला रहता है। | "हाल की फ़ाइल खोलें", "शेयर करें", "यहाँ ले जाएँ": आइटम का वह दूसरा सेट जो मेन्यू को बहुत लंबा कर देता। |
+| ग्रुप | संबंधित आइटम का एक सिलसिला, चाहें तो शीर्षक के साथ | कुछ नहीं: वह फ़ोकस नहीं लेता। | संबंधित आइटम को अलग करना, और एक सवाल के रेडियो आइटम को साथ रखना। |
+
+टैप, क्लिक या Enter से सक्रिय किया गया चेकबॉक्स या रेडियो आइटम मेन्यू को बंद कर देता है, किसी क्रिया की तरह। Space से सक्रिय किए जाने पर वह मेन्यू को खुला छोड़ता है, ताकि कीबोर्ड इस्तेमाल करने वाला व्यक्ति एक ही बार में कई सेटिंग बदल सके।
+
+### ग्रुप, शीर्षक और अलगाव
+
+- मेन्यू किसी ग्रुप को उसके बग़ल की चीज़ से अलग करता है, ऊपर या नीचे के सिरे पर कभी नहीं: डिवाइडर से, या ख़ाली जगह के गैप से। डिवाइडर आप ख़ुद नहीं रखते।
+- दोनों में से कौन-सा इस्तेमाल हो, यह डिज़ाइन सिस्टम चुनता है, और यह चुनाव हर उस कंपोनेंट के लिए एक ही है जो अपने भागों को अलग करता है: डिफ़ॉल्ट सिस्टम में डिवाइडर। `separation` एक मेन्यू और उसके सबमेन्यू के लिए तय करता है: `auto` (डिफ़ॉल्ट) डिज़ाइन सिस्टम के अनुसार चलता है, और `divider` या `gap` उनमें से एक का नाम लेता है, सिस्टम ने चाहे जो चुना हो। गैप के साथ कोई सेपरेटर नहीं दिया जाता, और ग्रुप फिर भी ग्रुप के रूप में दिए जाते हैं।
+- `title` वाला ग्रुप उसे अपने आइटम के ऊपर एक हल्की हेडिंग के रूप में बनाता है, जो वहाँ से शुरू होती है जहाँ से पंक्तियों का कॉन्टेंट शुरू होता है, और ग्रुप का नाम उसी से आता है। रेडियो आइटम के ग्रुप को ऐसा शीर्षक दें जो सवाल पूछे, जैसे "क्रमबद्ध करें"।
+- रेडियो आइटम ग्रुप में ही रहते हैं। ग्रुप के बाहर का रेडियो आइटम कभी चेक नहीं होता, और डीबग बिल्ड उसकी रिपोर्ट करते हैं।
+- ग्रुप के भीतर दूसरा ग्रुप नहीं हो सकता। भीतरी ग्रुप के आइटम बाहरी ग्रुप के आइटम के रूप में बनते हैं।
+
+### लिंक
+
+लिंक आइटम प्लैटफ़ॉर्म का अपना लिंक है, इसलिए ब्राउज़र का कॉन्टेक्स्ट मेन्यू, नए टैब में खोलना और होवर पर दिखने वाला पता, सब काम करते हैं। उसका अपना कोई रूप नहीं है: वह हर स्टेट में अगली पंक्ति की क्रिया की तरह बनता है।
+
+- **सक्रिय करना।** क्लिक, टैप, Enter या Space आइटम का `click` एमिट करती है, फिर मेन्यू बंद होता है, फिर गंतव्य खुलता है। Space लिंक आइटम को सक्रिय करती है, जैसे वह मेन्यू की हर दूसरी पंक्ति को सक्रिय करती है। बाक़ी जगह Space किसी लिंक को सक्रिय नहीं करती।
+- **राउटर।** नेविगेशन अपने हाथ में लेने के लिए आइटम का `click` रद्द करें। मेन्यू फिर भी बंद होता है, और कुछ और नहीं खुलता।
+- **दूसरे टैब।** मॉडिफ़ायर कुंजी के साथ क्लिक या Enter, और मिडिल क्लिक, ब्राउज़र के हैं। मेन्यू कोई `close` एमिट नहीं करता और खुला रहता है, ताकि उसके कई लिंक एक के बाद एक खोले जा सकें।
+- **नया संदर्भ।** `target: new` एक नया टैब या विंडो खोलता है। आइटम अंतिम आइकन के कॉलम में आइकन सेट के `open_in_new` पर ख़त्म होता है, बशर्ते `trailingIcon` आपके अपने किसी ग्लिफ़ का नाम न ले, और `targetLabel` यह बात सहायक तकनीक को बताता है। शॉर्टकट या अंतिम टेक्स्ट निशान से पहले अपना कॉलम बनाए रखता है।
+- **अक्षम।** अक्षम लिंक आइटम किसी भी तरीक़े से खोला नहीं जा सकता। ऐरो कुंजियों से उस तक फिर भी पहुँचा जा सकता है, जैसे किसी भी अक्षम आइटम तक।
+- **सिर्फ़ आइटम वाला प्रकार।** चेकबॉक्स आइटम, रेडियो आइटम और सबमेन्यू आइटम कोई गंतव्य नहीं लेते: वे कोई स्टेट रखते हैं या एक और स्तर खोलते हैं।
+
+### सबमेन्यू
+
+सबमेन्यू आइटम वह पंक्ति है जो आइकन सेट के `chevron_right` पर ख़त्म होती है, और उसके चाइल्ड अगला स्तर हैं: किसी भी प्रकार के आइटम, ग्रुप समेत। वह कोई क्रिया नहीं है और उसका कोई शॉर्टकट नहीं होता।
+
+- **खुलना।** दबाना, टैप, Enter, Space या पंक्ति के अंत की ओर वाली ऐरो कुंजी सबमेन्यू को तुरंत खोलती है और फ़ोकस को उसके पहले सक्षम आइटम पर ले जाती है। आइटम पर टिका हुआ पॉइंटर उसे थोड़ी देरी के बाद खोलता है और फ़ोकस को आइटम पर ही छोड़ता है।
+- **उस तक जाते हुए।** जब पॉइंटर आइटम से उसके खुले सबमेन्यू की ओर बढ़ता है, तो रास्ते में पड़ने वाले आइटम न होवर होते हैं, न फ़ोकस लेते हैं, इसलिए तिरछा रास्ता सबमेन्यू को बंद नहीं करता।
+- **एक स्तर बंद करना।** पंक्ति के शुरू की ओर वाली ऐरो कुंजी, या Escape, उस स्तर को बंद करती है जिसमें फ़ोकस है और फ़ोकस को उसके आइटम पर लौटाती है। Escape पूरे मेन्यू को तभी बंद करती है जब कोई सबमेन्यू खुला न हो। पैरेंट के किसी दूसरे आइटम पर जाना भी सबमेन्यू को बंद करता है। एक सरफ़ेस में ज़्यादा से ज़्यादा एक सबमेन्यू खुला रहता है।
+- **सब कुछ बंद करना।** किसी भी स्तर की कोई क्रिया, Tab, हर सरफ़ेस के बाहर दबाना, और फ़ोकस का इन सबसे बाहर चले जाना, पूरे मेन्यू को एक ही `close` के साथ बंद करते हैं।
+- **यह कहाँ खुलता है।** उस सरफ़ेस के बग़ल में जिसमें इसका आइटम है, अंत की ओर, और इसकी पहली पंक्ति आइटम की पंक्ति की सीध में; जहाँ उस ओर जगह नहीं है, वहाँ दूसरी ओर। जो विंडो दोनों के लिए बहुत सँकरी है, उसमें यह अपने पैरेंट के ऊपर रखा जाता है और पैरेंट की एक पट्टी खुली छोड़ता है: उस पट्टी पर दबाने से सबमेन्यू बंद हो जाता है। मेन्यू कभी अपने कॉन्टेंट की जगह सबमेन्यू का कॉन्टेंट नहीं रखता।
+- **`open` और `toggle`।** सबमेन्यू आइटम का `open` उसका अपना है। जब व्यक्ति सबमेन्यू को खोलता या बंद करता है, तो मेन्यू उसे सेट करता है और आइटम `toggle` एमिट करता है। `open` में आपका अपना बदलाव, और पूरे मेन्यू का बंद होना, कोई `toggle` एमिट नहीं करते।
+- **गहराई।** मेन्यू के नीचे सबमेन्यू के दो स्तरों तक ही रहें। तीसरा फिर भी दिखता है, और डीबग बिल्ड उसकी रिपोर्ट करते हैं, जैसे वे बिना आइटम वाले सबमेन्यू की रिपोर्ट करते हैं।
+- ग्रुप का `value` सिर्फ़ अपनी ही सरफ़ेस के रेडियो आइटम तक पहुँचता है, और हर सरफ़ेस निशान और आइकन के अपने कॉलम बनाती है।
+
+### खुलना, फ़ोकस और बंद होना
+
+मेन्यू एक ऑपरेट किया जाने वाला ओवरले है, जो मोडल नहीं है। लोग इसके भीतर काम करते हैं, इसलिए यह फ़ोकस लेता है और उसे लौटाता है। स्क्रीन पर और कुछ भी रोका नहीं जाता।
+
+- **खुलना।** ऐंकर के सक्रिय होने पर आप `open` सेट करते हैं। सरफ़ेस प्लैटफ़ॉर्म की ओवरले लेयर में प्रकट होती है, और ऐंकर से सटाकर वैसे रखी जाती है जैसा `placement` कहता है: डिफ़ॉल्ट रूप से उसके नीचे, शुरुआती किनारों की सीध मिलाकर। जब उस ओर जगह नहीं होती तो वह दूसरी ओर पलट जाती है, स्क्रीन के भीतर रहने के लिए खिसकती है, बहुत ऊँची होने पर स्क्रॉल होती है, और ऐंकर के हिलने पर उसके साथ चलती है।
+- **फ़ोकस का भीतर जाना।** फ़ोकस पहले सक्षम आइटम पर जाता है। इसके बाद ऐरो कुंजियाँ, Home, End और टाइपअहेड फ़ोकस को एक आइटम से दूसरे पर ले जाते हैं: सिरे पर पहुँचकर फ़ोकस दूसरे सिरे पर आ जाता है, और ग्रुप उसे नहीं रोकते। किसी आइटम पर आता हुआ पॉइंटर भी फ़ोकस को वहीं ले जाता है, इसलिए कुंजियाँ वहीं से आगे बढ़ती हैं जहाँ पॉइंटर था।
+- **मोडल नहीं।** मेन्यू फ़ोकस को भीतर बाँधकर नहीं रखता, बाक़ी स्क्रीन को निष्क्रिय नहीं करता और कोई स्क्रिम नहीं बनाता। Tab मेन्यू से बाहर जाती है और उसे बंद कर देती है।
+- **बंद होना।** मेन्यू बंद किए जाने को कहता है और बताता है कि क्यों। कारणों के नाम हर प्लैटफ़ॉर्म पर वही हैं, प्लैटफ़ॉर्म की अपनी केसिंग में:
+
+| कारण | कब |
+| --- | --- |
+| `escape` | Escape दबाई गई। |
+| `back` | प्लैटफ़ॉर्म का बैक, जैसे Android का बैक बटन या जेस्चर। |
+| `outside` | सरफ़ेस और ऐंकर के बाहर दबाया गया। |
+| `tab` | Tab या Shift+Tab दबाई गई। इसके बाद फ़ोकस ऐंकर से आगे बढ़ता है, जैसे वह ऐंकर से बढ़ता। |
+| `focus-out` | फ़ोकस किसी और तरीक़े से मेन्यू से बाहर गया। |
+| `item` | कोई आइटम सक्रिय किया गया। |
+
+- **फ़ोकस का लौटना।** जब मेन्यू बंद होता है और फ़ोकस उसके भीतर था, तो फ़ोकस ऐंकर पर लौटता है।
+
+मेन्यू को कौन बंद करता है, यह प्लैटफ़ॉर्म के अनुसार है। वेब और React Native पर आप close इवेंट से `open` (`visible`) को वापस false करते हैं। Compose पर आप `onDismissRequest` से `expanded` को false करते हैं, जिसके साथ एक `TanreiMenuCloseReason` आता है। Flutter पर मेन्यू कारण के साथ `onClose` को कॉल करता है और अपने कंट्रोलर के ज़रिए ख़ुद बंद हो जाता है। SwiftUI पर मेन्यू `isPresented` में `false` लिखता है, इसलिए कारण आगे नहीं दिया जाता।
+
+बाहर दबाने का असर नीचे की चीज़ तक भी पहुँचता है या नहीं, यह भी प्लैटफ़ॉर्म के अनुसार है। वेब और Flutter पर वह पहुँचता है। SwiftUI, Compose और React Native पर बाहर दबाना सिर्फ़ मेन्यू को बंद करता है।
+
+### करें
+
+- लेबल छोटे रखें, और क्रियाओं के लेबल क्रिया-शब्द के साथ लिखें: "लिंक कॉपी करें", "फ़ाइल हटाएँ"।
+- क्रिया का कीबोर्ड शॉर्टकट `shortcut` में दें, तटस्थ कुंजी-नामों में (`mod+c`), और कुंजियों को अपने प्रॉडक्ट में बाँधें। `trailingText` को बाक़ी हर चीज़ के लिए रखें: अंतिम टेक्स्ट कभी शॉर्टकट के रूप में नहीं दिया जाता।
+- विनाशकारी क्रिया को सबसे अंत में रखें, अपने अलग ग्रुप में या किसी ग्रुप के बाद, ताकि वह अलग रहे।
+- जो आइटम कभी-कभी उपलब्ध होता है, उसे अक्षम होने पर भी अपनी जगह रहने दें, ताकि मेन्यू का आकार न बदले। लोग ऐरो कुंजियों से उस तक फिर भी पहुँच सकते हैं।
+
+### न करें
+
+- स्क्रीन की मुख्य क्रिया को मेन्यू में न रखें।
+- एक-दूसरे को बाहर करने वाले विकल्पों के लिए चेकबॉक्स आइटम इस्तेमाल न करें। ग्रुप में रेडियो आइटम इस्तेमाल करें।
+- एक ही आइटम का मेन्यू न बनाएँ। उस क्रिया को बटन के रूप में दिखाएँ।
+- जिस क्रिया को लोग अक्सर इस्तेमाल करते हैं, उसे सबमेन्यू में न रखें, और सबमेन्यू के दो स्तरों से गहरे न जाएँ।
+- किसी क्रिया पर अंतिम `chevron_right` इस्तेमाल न करें। वह सबमेन्यू आइटम का निशान है।
+- किसी साइट का मुख्य नेविगेशन लिंक के मेन्यू के रूप में न बनाएँ। मेन्यू माँगे जाने पर आता है और चला जाता है।
+
+## सुलभता
+
+<ComponentAccessibility name="menu" />
+
+### कंपोनेंट क्या सँभालता है
+
+- सरफ़ेस एक मेन्यू के रूप में दी जाती है। क्रियाएँ मेन्यू आइटम हैं, चेकबॉक्स आइटम मेन्यू आइटम चेकबॉक्स हैं और रेडियो आइटम मेन्यू आइटम रेडियो हैं, हर एक अपने चेक वाले स्टेट, अपनी जगह और मेन्यू के साइज़ के साथ।
+- हर आइटम का नाम उसके लेबल से आता है और उसका विवरण उसके सहायक टेक्स्ट से। आइटम का `shortcut` उसके कीबोर्ड शॉर्टकट के रूप में दिया जाता है, जहाँ प्लैटफ़ॉर्म में वह प्रॉपर्टी है (वेब पर `aria-keyshortcuts`), और नहीं तो उसकी कुंजियों के पूरे लिखे नाम उसके विवरण का हिस्सा होते हैं। अंतिम टेक्स्ट हमेशा सिर्फ़ विवरण का हिस्सा होता है। आइकन और निशान छिपे रहते हैं: बॉक्स, रिंग और चेक चित्र हैं, और चेक वाला स्टेट आइटम का अपना है।
+- लिंक आइटम एक मेन्यू आइटम के रूप में दिया जाता है, लिंक के रूप में नहीं: मेन्यू अपने आइटम, उनकी गिनती और ऐरो कुंजियों से पढ़ा जाता है, और यह तभी तक सच है जब तक हर पंक्ति एक मेन्यू आइटम है। भीतर से वह तब भी प्लैटफ़ॉर्म का लिंक है। जब वह नया संदर्भ खोलता है, तो उसका `targetLabel` उसके विवरण के अंत में आता है, और उसका निशान छिपा रहता है।
+- ग्रुप अपने शीर्षक के नाम वाले ग्रुप के रूप में दिया जाता है। डिवाइडर ऐसे सेपरेटर हैं जो फ़ोकस नहीं लेते; जहाँ ग्रुप गैप से अलग किए जाते हैं, वहाँ कोई सेपरेटर नहीं होता। शीर्षक फ़ोकस नहीं लेते और आइटम के रूप में नहीं पढ़े जाते।
+- सबमेन्यू आइटम ऐसे आइटम के रूप में दिया जाता है जो एक मेन्यू खोलता है, अपने expanded स्टेट के साथ, अक्षम रहते हुए भी। उसकी सरफ़ेस अपने आप में एक मेन्यू है, जिसका नाम आइटम के लेबल से आता है, और हर सरफ़ेस अपनी जगहें ख़ुद गिनती है।
+- ऐंकर को बताया जाता है कि वह एक मेन्यू खोलता है और मेन्यू खुला है या नहीं, जहाँ प्लैटफ़ॉर्म में वह प्रॉपर्टी है (वेब पर `aria-haspopup`, `aria-controls` और `aria-expanded`)।
+- खुलने पर फ़ोकस पहले सक्षम आइटम पर जाता है। बंद होने पर फ़ोकस ऐंकर पर लौटता है, अगर वह मेन्यू के भीतर था। Up Arrow और Down Arrow सिरों पर घूमकर दूसरे सिरे पर पहुँचती हैं, Home और End सिरों पर ले जाती हैं, और टाइप करने पर फ़ोकस उस अगले आइटम पर जाता है जिसका लेबल टाइप किए गए अक्षरों से शुरू होता है। Enter सक्रिय करती है और बंद करती है। चेकबॉक्स या रेडियो आइटम पर Space मेन्यू को खुला छोड़ती है। Escape बंद करती है और फ़ोकस लौटाती है। Tab बंद करती है और ऐंकर से आगे बढ़ती है। सबमेन्यू में पंक्ति के शुरू की ओर वाली ऐरो कुंजी और Escape सिर्फ़ उसी स्तर को बंद करती हैं और फ़ोकस को उसके आइटम पर लौटाती हैं; पंक्ति की दिशा वाली जो ऐरो कुंजियाँ कुछ नहीं करतीं, वे मेन्यू के पीछे के पेज तक कभी नहीं पहुँचतीं।
+- अक्षम आइटम तक ऐरो कुंजियों से फिर भी पहुँचा जा सकता है, पर वे सक्रिय नहीं होते।
+- फ़ोकस रिंग आइटम के भीतर बनती है, इसलिए सरफ़ेस उसे काट नहीं सकती। वह सिर्फ़ कीबोर्ड फ़ोकस के लिए दिखती है। किसी आइटम पर आता हुआ पॉइंटर उसे होवर किया हुआ दिखाता है, फ़ोकस किया हुआ नहीं।
+- हर आइटम कम से कम न्यूनतम टार्गेट जितना ऊँचा है, और पूरी पंक्ति उसका हिट एरिया है।
+- आइटम बड़े टेक्स्ट के साथ बढ़ते हैं, और जब सरफ़ेस स्क्रीन में नहीं समाती तो वह स्क्रॉल होती है।
+- जब तक आइकन फ़ॉन्ट किसी ग्लिफ़ वाले निशान को, जैसे चेक को, बना नहीं सकता, तब तक मेन्यू उसकी जगह कुछ नहीं बनाता, "check" शब्द तो कभी नहीं। वह कॉलम की चौड़ाई बनाए रखता है और चेक वाला स्टेट फिर भी देता है, और फ़ॉन्ट के लोड होते ही निशान दिखाता है।
+- डीबग बिल्ड इन बातों की रिपोर्ट करते हैं: बिना लेबल का आइटम, ग्रुप के बाहर का रेडियो आइटम, ग्रुप का ऐसा मान जो उसके किसी रेडियो आइटम का नाम नहीं लेता, एक ही मान वाले दो रेडियो आइटम, ग्रुप के भीतर ग्रुप, ऐसा आइटम जिसमें शॉर्टकट और अंतिम टेक्स्ट दोनों हों, ऐसा `separation` जिसे मेन्यू परिभाषित नहीं करता, सबमेन्यू का तीसरा स्तर और बिना आइटम वाला सबमेन्यू। वे इनकी भी रिपोर्ट करते हैं: ऐसा लिंक आइटम जो `targetLabel` के बिना नया संदर्भ खोलता है, चेकबॉक्स आइटम, रेडियो आइटम या सबमेन्यू आइटम पर `href`, ऐसा `href` जो किसी स्क्रिप्ट का नाम लेता है या पढ़ा नहीं जा सकता, और ऐसा `target` जिसे मेन्यू परिभाषित नहीं करता।
+
+प्लैटफ़ॉर्म की ज्ञात कमियाँ:
+
+- SwiftUI, Compose, Flutter और React Native में लिंक आइटम नहीं हैं: वहाँ आइटम अभी `href` नहीं लेता।
+- SwiftUI, Compose, Flutter और React Native में न सबमेन्यू हैं, न `separation`, न `markIcon`, और न चेक की हुई पंक्ति का फ़िल। वे अब भी चेक को 16 के बॉक्स में अपने ही निशान के रूप में बनाते हैं, और ग्रुप का शीर्षक वहाँ से शुरू करते हैं जहाँ से लेबल शुरू होते हैं।
+- `m3-like` और `cupertino` में शीर्षक कहाँ से शुरू होता है, यह Tanrei के नियम के अनुसार है और मूल सिस्टम से मिलाकर नापा नहीं गया है।
+- Web: मेन्यू प्लैटफ़ॉर्म के बंद करने के अनुरोध को, जैसे Android का बैक जेस्चर, नहीं सुनता, इसलिए `back` कभी एमिट नहीं होता।
+- Web: `aria-haspopup` और `aria-expanded` ऐंकर पर सेट किए जाते हैं। कस्टम एलिमेंट वाले ऐंकर पर, जैसे सिर्फ़ आइकन वाला `<tanrei-button>`, वे उसके शैडो रूट के भीतर के बटन पर जाते हैं। `aria-controls` और मेन्यू का नाम, जो ऐंकर से आता है, शैडो रूट को पार नहीं कर सकते।
+- Web: सरफ़ेस स्क्रिप्ट से रखी जाती है, CSS anchor positioning से नहीं।
+- Web: सबमेन्यू आइटम `aria-controls` से अपनी सरफ़ेस की ओर इशारा नहीं कर सकता, क्योंकि वह शैडो रूट के भीतर नहीं पहुँच सकता। इसकी जगह सरफ़ेस एक्सेसिबिलिटी ट्री में आइटम की वंशज है।
+- Web, macOS पर WebKit: खुले सबमेन्यू का आइटम दबाए जाने पर दबाए हुए स्टेट का रंग लेने की जगह अपना होवर वाला रंग बनाए रखता है।
+- SwiftUI में मेन्यू, मेन्यू आइटम या सेपरेटर का कोई रोल नहीं है, शॉर्टकट की कोई प्रॉपर्टी नहीं है, और यह कहने का कोई तरीक़ा नहीं है कि ऐंकर एक मेन्यू खोलता है या मेन्यू खुला है। हर आइटम एक बटन है जिसका मान उसकी जगह है ("2 of 3", सिर्फ़ अंग्रेज़ी में), चेकबॉक्स आइटम एक टॉगल है, और रेडियो आइटम चेक किया हुआ रहने तक चयनित रहता है।
+- SwiftUI अक्षम बटन को कभी कीबोर्ड फ़ोकस नहीं देता, इसलिए ऐरो कुंजियाँ अक्षम आइटम तक पहुँचने की जगह उसे लाँघ जाती हैं।
+- SwiftUI मेन्यू को एक पॉपओवर के रूप में पेश करता है, जो अपनी जगह ख़ुद तय करता है। टोकन सिर्फ़ ओर चुनते हैं: पॉपओवर ऐंकर से और विंडो के किनारों से अपनी ही दूरी रखता है, अपनी सीध ख़ुद मिलाता है, और अपने ही मोशन के साथ बंद होता है। iOS 26 पर वह सरफ़ेस को अपने बड़े कोनों तक काट देता है और अपनी शैडो बनाता है। यह किसी डिवाइस पर कैसा दिखता है, यह अभी जाँचा नहीं गया है।
+- SwiftUI: Tab मेन्यू को बंद करती है और फ़ोकस को ऐंकर पर लौटाती है, पर फ़ोकस उसी कीस्ट्रोक में उससे आगे नहीं बढ़ सकता।
+- SwiftUI रेडियो आइटम का मान सिर्फ़ उस `.tag(_:)` से पढ़ता है जो ख़ुद `TanreiMenuOption` पर लगाया गया हो।
+- SwiftUI: ऐरो कुंजियाँ, Home, End, टाइपअहेड, Escape और Tab नियमों के रूप में टेस्ट किए गए हैं, असली कीबोर्ड के साथ अभी नहीं।
+- React Native मेन्यू को `TanreiProvider` की ओवरले लेयर में बनाता है, इसलिए उसके ऊपर एक `TanreiProvider` होना ज़रूरी है। Tab मेन्यू को बंद करती है और फ़ोकस को ऐंकर पर लौटाती है, पर उसी कीस्ट्रोक में उससे आगे नहीं बढ़ सकती। अगली Tab आगे बढ़ती है।
+- React Native: खुले मेन्यू के पीछे के एलिमेंट के साथ स्क्रीन रीडर क्या करता है, और फ़ोकस का मेन्यू से बाहर जाना, अभी किसी डिवाइस पर जाँचे नहीं गए हैं।
+- React Native में मेन्यू आइटम चेकबॉक्स या मेन्यू आइटम रेडियो का कोई रोल नहीं है और शॉर्टकट की कोई प्रॉपर्टी नहीं है। हर आइटम एक मेन्यू आइटम है, चेकबॉक्स और रेडियो आइटम चेक वाला स्टेट रखते हैं, और अंतिम टेक्स्ट विवरण के हिस्से के रूप में पढ़ा जाता है।
+- React Native आपके ऐंकर पर प्रॉपर्टी सेट नहीं कर सकता। उसे `accessibilityState={{ expanded: open }}` ख़ुद दें।
+- React Native उस ऐंकर के साथ नहीं चलता जो मेन्यू खुला रहते हिलता है। वह ऐंकर को तब नापता है जब मेन्यू खुलता है और जब विंडो का साइज़ बदलता है।
+- React Native: ऐरो कुंजियाँ, टाइपअहेड, Escape, Tab, और Enter के मुक़ाबले Space, अभी हार्डवेयर कीबोर्ड वाले किसी डिवाइस पर जाँचे नहीं गए हैं।
+- Compose में मेन्यू, मेन्यू आइटम या सेपरेटर का कोई रोल नहीं है और शॉर्टकट की कोई प्रॉपर्टी नहीं है। सरफ़ेस एक कलेक्शन है, क्रिया का कोई रोल नहीं है, चेकबॉक्स आइटम एक चेकबॉक्स है और रेडियो आइटम एक रेडियो बटन, और अंतिम टेक्स्ट विवरण के हिस्से के रूप में पढ़ा जाता है। मेन्यू ऐंकर का expanded स्टेट सेट नहीं कर सकता।
+- Compose: मेन्यू खुला रहते ऐंकर पर दबाना बाहर दबाना गिना जाता है। वह मेन्यू को `outside` के साथ बंद करता है और ऐंकर तक नहीं पहुँचता।
+- Compose: पॉपअप का विंडो फ़ोकस, बाहर असल में दबाना, बैक बटन, फ़ोकस का ऐंकर पर लौटना, Tab का उससे आगे बढ़ना, और मेन्यू पर TalkBack सिर्फ़ Robolectric में टेस्ट किए गए हैं, किसी डिवाइस पर अभी नहीं।
+- Flutter में ग्रुप या सेपरेटर का कोई रोल नहीं है, वह मेन्यू को उसके ऐंकर से नाम नहीं दे सकता और न यह कह सकता है कि ऐंकर एक मेन्यू खोलता है, और वह आइटम को न जगह देता है, न सेट का साइज़। ग्रुप अपने शीर्षक के नाम वाला एक कंटेनर है। ऐंकर को expanded स्टेट ज़रूर मिलता है।
+- Flutter: TalkBack, VoiceOver और वेब का स्क्रीन रीडर मेन्यू के लिए क्या पढ़कर सुनाते हैं, और खुले मेन्यू पर Android का बैक जेस्चर, अभी किसी डिवाइस पर जाँचे नहीं गए हैं।
+
+### आपको क्या करना है
+
+- मेन्यू को उसके ऐंकर से नाम दें। आइकन बटन वाले ऐंकर को "और" या "क्रमबद्ध करें" जैसा लेबल दें। React Native पर वही नाम मेन्यू के `accessibilityLabel` के रूप में दें।
+- Compose और React Native पर ऐंकर पर यह बताएँ कि मेन्यू खुला है या नहीं। मेन्यू इसे वहाँ सेट नहीं कर सकता।
+- जब मेन्यू कहे तब उसे बंद करें, और उसके बंद होने पर फ़ोकस को ख़ुद न हिलाएँ। मेन्यू फ़ोकस को ऐंकर पर लौटाता है।
+- हर आइटम को लेबल दें, उन आइटम को भी जो आइकन दिखाते हैं। लेबल ही नाम है, और टाइपअहेड उसी से मिलान करता है।
+- रेडियो आइटम के ग्रुप को ऐसा शीर्षक दें जो बताए कि चुनाव किस बारे में है।
+- हर सबमेन्यू आइटम को लेबल दें: वह आइटम को और उसके खोले जाने वाले सबमेन्यू को नाम देता है।
+- नया टैब खोलने वाले लिंक आइटम को अपने प्रॉडक्ट की भाषा में `targetLabel` दें, जैसे "नए टैब में खुलता है"। Tanrei अपना कोई शब्द साथ नहीं देता।

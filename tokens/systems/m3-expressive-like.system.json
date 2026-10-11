@@ -1,0 +1,83 @@
+{
+  "$schema": "../schema/system.schema.json",
+  "id": "m3-expressive-like",
+  "name": "M3 Expressive-like (Material 3 Expressive-inspired)",
+  "extends": "m3-like",
+  "description": "m3-like with the five button sizes of Material 3 Expressive — extra small to extra large, each with its own paddings, icon size, icon-to-label gap and outline width. Colors, type, shape and states are m3-like's.",
+  "attribution": {
+    "inspiredBy": "Material Design 3 Expressive",
+    "sources": [
+      {
+        "name": "androidx.compose.material3 tokens",
+        "license": "Apache-2.0",
+        "url": "https://github.com/androidx/androidx/tree/androidx-main/compose/material3/material3/src/commonMain/kotlin/androidx/compose/material3/tokens"
+      }
+    ],
+    "disclaimer": "Tanrei is not affiliated with, endorsed by, or sponsored by Google. \"Material Design\" is Google's; this preset is an independent reproduction of published, Apache-2.0 licensed token values."
+  },
+  "vocabulary": {
+    "tanrei.comp.button.size.xsmall": {
+      "from": "small",
+      "rationale": "Material 3 Expressive has five button sizes; this is its smallest (32dp)."
+    },
+    "tanrei.comp.button.size.xlarge": {
+      "from": "large",
+      "rationale": "Material 3 Expressive has five button sizes; this is its largest (136dp)."
+    }
+  },
+  "tokens": {
+    "tanrei.comp.button.container.height.xsmall": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 8.0}},
+    "tanrei.comp.button.container.padding-inline-start.xsmall": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 2.0}},
+    "tanrei.comp.button.container.padding-inline-start-with-icon.xsmall": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 2.0}},
+    "tanrei.comp.button.container.padding-inline-end-with-icon.xsmall": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 2.0}},
+    "tanrei.comp.button.container.padding-inline-end.xsmall": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 2.0}},
+    "tanrei.comp.button.container.gap.xsmall": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 1.0}},
+    "tanrei.comp.button.icon.size.xsmall": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 5.0}},
+    "tanrei.comp.button.icon.size-without-label.xsmall": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 5.0}},
+    "tanrei.comp.button.outline.width.xsmall": {"derive": {"fn": "mul", "of": "{tanrei.dial.stroke.unit}", "by": 1.0}},
+    "tanrei.comp.button.container.height.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 10.0}},
+    "tanrei.comp.button.container.padding-inline-start.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 2.0}},
+    "tanrei.comp.button.container.padding-inline-start-with-icon.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 2.0}},
+    "tanrei.comp.button.container.padding-inline-end-with-icon.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 2.0}},
+    "tanrei.comp.button.container.padding-inline-end.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 2.0}},
+    "tanrei.comp.button.container.gap.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 1.0}},
+    "tanrei.comp.button.icon.size.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 5.0}},
+    "tanrei.comp.button.icon.size-without-label.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 6.0}},
+    "tanrei.comp.button.outline.width.small": {"derive": {"fn": "mul", "of": "{tanrei.dial.stroke.unit}", "by": 1.0}},
+    "tanrei.comp.button.container.height.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 14.0}},
+    "tanrei.comp.button.container.padding-inline-start.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 3.0}},
+    "tanrei.comp.button.container.padding-inline-start-with-icon.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 3.0}},
+    "tanrei.comp.button.container.padding-inline-end-with-icon.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 3.0}},
+    "tanrei.comp.button.container.padding-inline-end.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 3.0}},
+    "tanrei.comp.button.container.gap.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 1.0}},
+    "tanrei.comp.button.icon.size.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 6.0}},
+    "tanrei.comp.button.icon.size-without-label.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 6.0}},
+    "tanrei.comp.button.outline.width.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.stroke.unit}", "by": 1.0}},
+    "tanrei.comp.button.container.height.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 24.0}},
+    "tanrei.comp.button.container.padding-inline-start.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 6.0}},
+    "tanrei.comp.button.container.padding-inline-start-with-icon.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 6.0}},
+    "tanrei.comp.button.container.padding-inline-end-with-icon.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 6.0}},
+    "tanrei.comp.button.container.padding-inline-end.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 6.0}},
+    "tanrei.comp.button.container.gap.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 1.5}},
+    "tanrei.comp.button.icon.size.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 8.0}},
+    "tanrei.comp.button.icon.size-without-label.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 8.0}},
+    "tanrei.comp.button.outline.width.large": {"derive": {"fn": "mul", "of": "{tanrei.dial.stroke.unit}", "by": 2.0}},
+    "tanrei.comp.button.container.height.xlarge": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 34.0}},
+    "tanrei.comp.button.container.padding-inline-start.xlarge": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 8.0}},
+    "tanrei.comp.button.container.padding-inline-start-with-icon.xlarge": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 8.0}},
+    "tanrei.comp.button.container.padding-inline-end-with-icon.xlarge": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 8.0}},
+    "tanrei.comp.button.container.padding-inline-end.xlarge": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 8.0}},
+    "tanrei.comp.button.container.gap.xlarge": {"derive": {"fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 2.0}},
+    "tanrei.comp.button.icon.size.xlarge": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 10.0}},
+    "tanrei.comp.button.icon.size-without-label.xlarge": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 10.0}},
+    "tanrei.comp.button.outline.width.xlarge": {"derive": {"fn": "mul", "of": "{tanrei.dial.stroke.unit}", "by": 3.0}},
+    "tanrei.comp.loading-indicator.indicator.size.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 9.5}},
+    "tanrei.comp.loading-indicator.container.size.medium": {"derive": {"fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 12}},
+    "tanrei.comp.loading-indicator.contained.container.color": {"$value": "{tanrei.sys.color.primary-container}"},
+    "tanrei.comp.loading-indicator.contained.container.elevation": {"$value": "{tanrei.sys.elevation.level0}"},
+    "tanrei.comp.loading-indicator.contained.indicator.color": {"$value": "{tanrei.sys.color.on-primary-container}"},
+    "tanrei.comp.button.container.padding-inline-narrow.small": {"$value": "{tanrei.sys.space.space25}", "reason": "This preset's own narrow width, where the default system's narrow icon-only button is its glyph and an inset of 4 on each side; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.button.container.padding-inline-narrow.large": {"$value": "{tanrei.sys.space.space100}", "reason": "This preset's own narrow width, where the default system's narrow icon-only button is its glyph and an inset of 4 on each side; moving it is a fidelity decision for this preset."},
+    "tanrei.comp.button.container.padding-inline-narrow.xlarge": {"$value": "{tanrei.sys.space.space50}", "reason": "This preset's own narrow width, where the default system's narrow icon-only button is its glyph and an inset of 4 on each side; moving it is a fidelity decision for this preset."}
+  }
+}

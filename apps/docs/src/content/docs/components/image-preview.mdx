@@ -1,0 +1,246 @@
+---
+title: Image preview
+description: Shows one picture of a set over the whole window when a person presses its thumbnail, to be looked at closely — enlarged and back, moved about while enlarged, and moved on to the next picture or back — until it is closed.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import landscape from '../../../../../../packages/web/test/fixtures/image-preview-landscape.png?url';
+import landscapeSmall from '../../../../../../packages/web/test/fixtures/image-preview-landscape-thumbnail.png?url';
+import portrait from '../../../../../../packages/web/test/fixtures/image-preview-portrait.png?url';
+import square from '../../../../../../packages/web/test/fixtures/image-preview-square.png?url';
+
+## Overview
+
+<ComponentAvailability name="image-preview" />
+
+<DemoFrame label="Three pictures on a page: press one to look at it closely">
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="Enlarge: a drawing 1600 wide and 1000 high" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 0, open: true })"><img src={landscapeSmall} alt="" width="160" height="100" style="display: block" /></tanrei-card>
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="Enlarge: a drawing 1000 wide and 1500 high" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 1, open: true })"><img src={portrait} alt="" width="67" height="100" style="display: block" /></tanrei-card>
+  <tanrei-card class="not-content" interactive flush variant="outlined" label="Enlarge: a drawing 1200 wide and 1200 high" style="inline-size: max-content" onclick="Object.assign(document.getElementById('image-preview-demo'), { index: 2, open: true })"><img src={square} alt="" width="100" height="100" style="display: block" /></tanrei-card>
+  <tanrei-image-preview id="image-preview-demo" label="Three drawings" close-label="Close" zoom-in-label="Zoom in" zoom-out-label="Zoom out" previous-label="Previous image" next-label="Next image" count-text="{position} of {count}" loading-label="Loading image" error-text="This image could not be loaded" onclose="this.open = false">
+    <tanrei-image-preview-item src={landscape} thumbnail-src={landscapeSmall} width="1600" height="1000" alt="A drawing 1600 wide and 1000 high: a frame, two diagonals and a ring" caption="Each drawing has its own size written on it, an edge and a mark in every corner, so that you can see it is whole."></tanrei-image-preview-item>
+    <tanrei-image-preview-item src={portrait} width="1000" height="1500" alt="A drawing 1000 wide and 1500 high: a frame, two diagonals and a ring"></tanrei-image-preview-item>
+    <tanrei-image-preview-item src={square} width="1200" height="1200" alt="A drawing 1200 wide and 1200 high: a frame, two diagonals and a ring"></tanrei-image-preview-item>
+  </tanrei-image-preview>
+</DemoFrame>
+
+Use an image preview where a page shows a picture small because the page is about something else, and a person needs it large for a moment: a photograph in an article, the pictures of a product for sale, an attachment in a conversation, a screenshot in a guide. The person presses the thumbnail, looks, and is back where they were.
+
+It shows still pictures and nothing else. It asks nothing of the person, so it is not a [dialog](/components/dialog/); its pictures are looked at and not pressed, so it is not a [carousel](/components/carousel/) — though a carousel's item, or a picture in a [figure](/components/figure/), is a natural thing to open it from.
+
+**Built with** [buttons](/components/button/) — zoom out, zoom in, close, previous and next — and a [skeleton](/components/skeleton/) that stands in for a picture on its way. They are the real components, reading their own tokens. The stage that enlarges and moves a picture, and the turning from one picture to the next, are the image preview's own and exist nowhere else.
+
+On the web it is `<tanrei-image-preview>` with `<tanrei-image-preview-item>` children. The other platforms have not implemented it yet.
+
+### Usage
+
+The opener is yours. It is a button around your own picture — alone, in a figure, in a grid — that says it opens a dialog and is named for what it does and for which picture: "Enlarge: a bedroom with a window onto a garden". The picture's `alt` alone names the picture and not the action. Your handler for its press sets `index` to that picture and `open` to true. The thumbnails in the demo above are interactive [cards](/components/card/) named by `label`; a native button around the picture, as in the sample below, is the plain form and can say that it opens a dialog.
+
+The preview never closes itself. It fires `close` with the reason — `button`, `escape`, `back` or `swipe` — and you set `open` to false. Focus then returns to the opener.
+
+Each image has a `src`, the picture as the preview shows it, which is usually a larger file than the thumbnail, and an `alt`, which is required. Give `thumbnailSrc` — the small picture your page has already loaded — and the preview draws it enlarged until `src` arrives, so that opening is never blank. Give `width` and `height` where you know them, and the picture's place is held before it loads. Only the picture shown and the one before and after it are asked for, however many there are.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <button type="button" class="thumbnail" aria-haspopup="dialog"
+            aria-label="Enlarge: a bedroom with a window onto a garden" data-index="0">
+      <img src="room-small.jpg" alt="" width="320" height="200" />
+    </button>
+    <button type="button" class="thumbnail" aria-haspopup="dialog"
+            aria-label="Enlarge: the desk beside the window" data-index="1">
+      <img src="desk-small.jpg" alt="" width="320" height="200" />
+    </button>
+
+    <tanrei-image-preview label="Photos of the room"
+      close-label="Close" zoom-in-label="Zoom in" zoom-out-label="Zoom out"
+      previous-label="Previous image" next-label="Next image"
+      count-text="{position} of {count}"
+      loading-label="Loading image" error-text="This image could not be loaded">
+      <tanrei-image-preview-item src="room-large.jpg" thumbnail-src="room-small.jpg"
+        width="1600" height="1000" alt="A bedroom with a window onto a garden"
+        caption="The east bedroom in the morning."></tanrei-image-preview-item>
+      <tanrei-image-preview-item src="desk-large.jpg" thumbnail-src="desk-small.jpg"
+        width="1600" height="1000" alt="The desk beside the window"></tanrei-image-preview-item>
+    </tanrei-image-preview>
+
+    <script type="module">
+      import '@tanrei/web/components/image-preview';
+
+      const preview = document.querySelector('tanrei-image-preview');
+      for (const thumbnail of document.querySelectorAll('.thumbnail')) {
+        thumbnail.addEventListener('click', () => {
+          preview.index = Number(thumbnail.dataset.index);
+          preview.open = true;
+        });
+      }
+      // The person asked to close it: the close control, Escape, back or a downward drag.
+      preview.addEventListener('close', () => (preview.open = false));
+      // The person moved to another picture. preview.index is already the new one.
+      preview.addEventListener('indexchange', (e) => markAsSeen(e.detail.index));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ImagePreview, ImagePreviewItem } from '@tanrei/react';
+
+    const [shown, setShown] = useState<number | null>(null);
+
+    {photos.map((photo, at) => (
+      <button key={photo.id} type="button" aria-haspopup="dialog"
+              aria-label={`Enlarge: ${photo.alt}`} onClick={() => setShown(at)}>
+        <img src={photo.small} alt="" width={320} height={200} />
+      </button>
+    ))}
+
+    <ImagePreview label="Photos of the room" open={shown !== null} index={shown ?? 0}
+      closeLabel="Close" zoomInLabel="Zoom in" zoomOutLabel="Zoom out"
+      previousLabel="Previous image" nextLabel="Next image" countText="{position} of {count}"
+      loadingLabel="Loading image" errorText="This image could not be loaded"
+      onIndexchange={(event) => setShown(event.detail.index)}
+      onClose={() => setShown(null)}>
+      {photos.map((photo) => (
+        <ImagePreviewItem key={photo.id} src={photo.large} thumbnailSrc={photo.small}
+          width={photo.width} height={photo.height} alt={photo.alt} caption={photo.caption} />
+      ))}
+    </ImagePreview>
+    ```
+  </TabItem>
+</Tabs>
+
+The words are yours: the five controls' names, the sentence of the count, what is said while a picture loads and when it fails. Give them on each element, or give them one time for all previews with the product's words (`setWords()`). The count is a whole sentence in your language with two marked places, `{position}` and `{count}`, so that the order of the words is your language's. In Japanese, for example: `{count}枚中{position}枚目`.
+
+### Every operation, three ways
+
+Nothing is done by a gesture alone. Each operation has a control a single press reaches, and a key.
+
+| To | By a gesture | By a control | By a key |
+| --- | --- | --- | --- |
+| Enlarge, and return to fit | Two taps or two clicks on a point; a pinch; a trackpad pinch; Ctrl or Command with the wheel | Zoom in, zoom out | `+` or `=`, `−`, `0` |
+| Move about an enlarged picture | A drag; the wheel | — | The arrow keys |
+| Go to the next or the previous picture | A sideways drag | Next, previous | Left and Right Arrow at fit; Page Up and Page Down; Home and End for the first and the last picture |
+| Close | A downward drag by touch, at fit | Close | Escape |
+| Hide and show the controls | One tap or click on the picture | — | Any key shows them |
+
+- **Zoom** is a number: 1 is the picture whole in the free area of the window, never above its own size. The steps are 1, 2 and 4 for an ordinary picture. A very wide or very tall picture, small at fit, fills the free area on its first step.
+- **A drag moves between pictures only at fit**, or when it begins with an enlarged picture already at its edge on that side. A drag that reaches the edge under way stops there: a person moving about a picture never leaves it by accident. A finger or a pen turns to the next picture by a drag past half the stage or by a flick; a mouse turns to it only by a drag past half the stage, never by a flick, however fast it moves.
+- **Changing the picture returns the zoom to 1.** The zoom belongs to a picture, not to the set.
+- **The controls never hide by themselves.** A person hides them with one tap on the picture. Hidden, they stay in the focus order and are still told to assistive technology.
+- `index`, `zoom` and `controlsHidden` are yours to set, and the preview writes them itself when the person changes them, before `indexchange`, `zoomchange` or `controlshiddenchange`.
+
+### A larger source on demand
+
+Change the `src` of the picture shown and the preview keeps drawing the earlier picture, at its zoom and its place, until the new one has loaded. So you can answer `zoomchange` with a file large enough for that zoom, and the person sees only more detail.
+
+```js
+preview.addEventListener('zoomchange', (e) => {
+  if (e.detail.zoom > 2) preview.children[preview.index].src = largest(preview.index);
+});
+```
+
+A picture that does not arrive is drawn as a mark with your `errorText`, and `loaderror` tells you which. Change its `src` and the preview asks again.
+
+### One level down
+
+The image preview is not built from other components, so you cannot write the same thing from its members. One level down is the platform's own modal presentation, Tanrei buttons, a skeleton, and your own handling of the picture:
+
+```html
+<dialog class="viewer" aria-label="Photos of the room">
+  <tanrei-button variant="text" label="Zoom out"><span slot="icon">zoom_out</span></tanrei-button>
+  <tanrei-button variant="text" label="Zoom in"><span slot="icon">zoom_in</span></tanrei-button>
+  <tanrei-button variant="text" label="Close"><span slot="icon">close</span></tanrei-button>
+  <tanrei-button variant="tonal" label="Previous image"><span slot="icon">chevron_left</span></tanrei-button>
+  <img alt="A bedroom with a window onto a garden" src="room-large.jpg" tabindex="0">
+  <tanrei-button variant="tonal" label="Next image"><span slot="icon">chevron_right</span></tanrei-button>
+  <p>The east bedroom in the morning.</p>
+</dialog>
+```
+
+**This is not a near equivalent.** What you can take separately is the five buttons and the skeleton: the same elements, with the same tokens. What you cannot take is everything the image preview is: the zoom and its steps, the moving of an enlarged picture and its edges, the turning between pictures, the rule that decides whether a drag moves the enlarged picture or turns to another picture, the hiding of the controls, the loading of the neighbours only, and what assistive technology is told. A product that drops a level writes all of that, including the control and the key for every gesture.
+
+| You need | Use |
+| --- | --- |
+| One picture of a set, large, to be examined and left | The image preview |
+| A row of items on the page to browse and press | A [carousel](/components/carousel/), whose items may open an image preview |
+| One picture on the page with a caption | A [figure](/components/figure/), whose picture may open an image preview |
+| A question that must be answered | A [dialog](/components/dialog/) |
+| Video, a document, a map, tools to rotate or crop | Your own viewer on the platform's modal presentation |
+
+## Specs
+
+### Setting one preview apart
+
+The surface is the theme's own in light and in dark, and there is no scrim: the preview leaves nothing of the window uncovered. A product whose pictures want a dark stage in both themes re-points the fills and the content colors in its layer. One instance is set apart on the element:
+
+```html
+<tanrei-image-preview label="Plans"
+  style="--tanrei-comp-image-preview-layout-page-gap: 32px"></tanrei-image-preview>
+```
+
+The two variants of its buttons are tokens too: `comp.image-preview.bar.button.variant` (text) and `comp.image-preview.navigation.button.variant` (tonal). The buttons and the skeleton read their own tokens, `comp.button.*` and `comp.skeleton.*`.
+
+<ComponentSpecs name="image-preview" />
+
+### What the web draws differently
+
+- The element is a native `<dialog>` in a shadow root, opened modally: the page behind is inert and does not scroll. It writes no history entry; a product that wants the browser's Back to close it pushes its own entry on open and sets `open` to false when that entry is left.
+- `<tanrei-image-preview-item>` is data, not an `<img>`: the browser asks for no picture the preview has not asked for. An item without a `src` is asked for nothing and waits.
+- Its events are CustomEvents that bubble: `close` (`detail.reason`), `indexchange` (`detail.index`), `zoomchange` (`detail.zoom`), `controlshiddenchange` (`detail.hidden`), `loaderror` (`detail.index`). The buttons' own `click`s do not leave the element.
+- Parts: `container`, `bar`, `count`, `stage`, `image`, `placeholder`, `error`, `caption`; each button under its name — `zoom-out`, `zoom-in`, `close`, `previous`, `next` — and each button's own parts with that name before theirs: `close-container`, `next-icon`.
+- The attributes are the kebab-case of the properties: `max-zoom`, `controls-hidden`, `close-label`, `previous-label`, `next-label`, `zoom-in-label`, `zoom-out-label`, `count-text`, `loading-label`, `error-text`; on an item, `thumbnail-src`.
+- The stage takes pinch and scroll gestures for itself, so the browser's own pinch does not zoom the page while the preview is open. The browser's page zoom by the keyboard still works. A closed preview takes no wheel event and no touch from the page.
+- A trackpad pinch arrives as the wheel with Ctrl, or as the browser's own gesture event where it has one. Going to another picture by a sideways trackpad scroll is not offered.
+- The picture fades in and grows a little as the preview opens. Where a browser cannot hold a closed dialog while it fades, the preview is gone at once when it closes; focus and the page are given back at the same moment either way.
+- Android's back closes it with the reason `back`. A browser that does not tell back from Escape reports `escape`.
+
+## Guidelines
+
+### Do
+
+- Make the opener a button around the picture, say that it opens a dialog, and name it for the action and the picture.
+- Set `index` to the picture that was pressed before you set `open`.
+- Close it in answer to every `close`. To keep it open after a downward drag, leave `open` as it is: the picture comes back.
+- Give every image an `alt` that says what it shows. Use `caption` for what you say about it: a credit, a date, a sentence.
+- Give `thumbnailSrc`, `width` and `height` where you have them.
+- Report a failure in your own terms from `loaderror`; `errorText` is one sentence for every picture.
+
+### Don't
+
+- Don't use it for a question, a form or anything a person must answer. It has no actions, and no setting can remove the ways to close it.
+- Don't hide the controls on a timer, and don't open it with them hidden unless a single tap is plainly how your product shows them.
+- Don't put the only way to do something in a gesture of your own on top of it. Every operation here has a control and a key.
+- Don't write the address or a history entry while it is open unless you also close it when that entry is left.
+- Don't use an `<img>` as its child. The browser would load every picture of the set at once.
+
+## Accessibility
+
+<ComponentAccessibility name="image-preview" />
+
+### What the component handles
+
+- It is a modal dialog named by `label`. Everything outside it is hidden from assistive technology and cannot be focused or pressed while it is open.
+- Focus goes to the stage when it opens, stays inside — Tab goes through zoom out, zoom in, close, previous, the stage, next and a caption that scrolls, and after the last of them returns to the first — and returns to the element that had it when it closes.
+- The stage is one image: its name is the `alt` of the picture shown, and its description is the count's sentence and then the caption. No other picture of the set is exposed, and the zoom is told to no one.
+- A change of picture is told politely, once: the count's sentence, then the new picture's `alt`.
+- The five controls are buttons with your names. A control that has reached the end of its range is disabled, and focus that was on it moves to the stage.
+- Every gesture has a control and a key. The controls can be hidden by one tap and never by a timer; hidden, they stay focusable and exposed, and any key, focus on one of them or a moving mouse shows them.
+- While a picture loads, the skeleton says it is busy under `loadingLabel`. When one fails, `errorText` is drawn, told, and added to the stage's description.
+- A long caption takes at most a third of the window and scrolls in a region of its own, which is then a focus stop the keys scroll.
+- In a right-to-left layout the bar, the sides of previous and next, their glyphs, the side the next picture lies on and the Left and Right Arrow keys are mirrored. The picture, and the way an enlarged picture moves, are not.
+- With text at 200% in a window 320 wide, the count takes a line of its own and the bar grows, the caption grows to its third and scrolls, and the picture is fitted to what is left. In forced colors the fills and the text take the system's colors and the pictures are left as they are.
+- Where motion is reduced the preview opens and closes by fading, without growing, zoom steps and changes of picture happen at once, and a picture still follows the finger that moves it.
+
+Known gaps on the web: what screen readers say has been read from the browsers' accessibility trees and not heard with a screen reader, and the gestures have been driven by tests and not yet by hand on a phone and a trackpad.
+
+### What you need to do
+
+- Give `label`, and the names of the five controls, the count's sentence, `loadingLabel` and `errorText`, in your language — on the element or once in the product's words.
+- Give every image an `alt`. A picture a person chose to look at closely is never decoration.
+- Name the opener for what it does and for which picture, and mark it `aria-haspopup="dialog"`.
+- Where the person moved to another picture and your page shows its thumbnail, you may move focus to that thumbnail after `close`. The preview does not know your page.
+- On a touch screen without a keyboard, moving about an enlarged picture needs a one-finger drag. Keep the zoom-out control reachable: do not open the preview with the controls hidden for people who cannot drag.

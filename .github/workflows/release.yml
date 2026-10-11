@@ -1,0 +1,188 @@
+# Release is manual and human-only: publishing is the maintainers' decision.
+# Nothing here runs on push. Each registry job is bound to a protected GitHub
+# Environment, so a maintainer must approve it even after dispatching.
+#
+# A release is made from main and nothing else: the preflight fails on any other ref, and every registry job also
+# carries `github.ref == 'refs/heads/main'`. The same rule belongs in each Environment's deployment branch policy (main only),
+# which is a repository setting, not part of this file.
+#
+# Versions are chosen in the "Version Packages" pull request (version-packages.yml); a release publishes the versions
+# main holds. After the npm packages are published, the npm job tags each of them `<package>@<version>` (the tags
+# `changeset tag` writes). A bare semver tag (`1.2.0`) is never pushed from here: SwiftPM reads one as a release of
+# the Swift package.
+#
+# Toolchains are the ones CI tests: the same Node (NODE_VERSION), the same pinned Flutter, the same Gradle setup, the
+# same SHA-pinned actions as ci.yml — and every registry job waits for the whole CI workflow (`checks`, a
+# workflow_call of ci.yml on the dispatched ref), so a release never runs on a toolchain CI did not test.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      registry:
+        description: Which registry to publish to
+        required: true
+        type: choice
+        options: [npm, pub.dev, maven-central]
+      confirm:
+        description: Type the version being released (must equal tanrei.config.json)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# One release at a time; a second dispatch waits instead of publishing next to the first.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "22" # keep equal to ci.yml
+
+jobs:
+  preflight:
+    name: Preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15 # install, validate and drift: about 3 minutes
+    steps:
+      - name: Released from main only
+        run: |
+          [ "$GITHUB_REF" = refs/heads/main ] || { echo "::error::a release is dispatched on main, not on $GITHUB_REF"; exit 1; }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Inputs reach the shell through the environment, never spliced into the script.
+      - name: Version typed by the maintainer matches the repository
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: test "$(node -p "require('./tanrei.config.json').version")" = "$CONFIRM"
+      - name: Repository must be the public one
+        run: test "$GITHUB_REPOSITORY" = "$(node -p "require('./tanrei.config.json').repository.public")"
+      - run: node packages/tokens-build/src/cli.js validate
+      - run: node packages/tools/src/cli.js validate
+      - run: node packages/tools/src/cli.js drift
+
+  # The whole CI workflow on the ref being released: validate, generate, drift, every platform's build, tests and
+  # snapshots. `pull-requests: read` is what ci.yml's core job asks for (the secret scan).
+  # While native CI is paused (packages/tools/paused-platforms.json) that run skips the paused platforms, so it proves
+  # nothing about them: its output `native-paused` names them, and the registry jobs below publish none of them.
+  checks:
+    name: CI
+    needs: preflight
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+      pull-requests: read
+
+  npm:
+    if: inputs.registry == 'npm' && github.ref == 'refs/heads/main'
+    needs: [preflight, checks]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20 # install, build and publish the npm packages
+    environment: npm
+    permissions:
+      contents: write # the release tags
+      id-token: write # npm trusted publishing (OIDC): no token secret, provenance is automatic
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # the existing tags, so `changeset tag` writes only the new ones
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # CI's Node. `pnpm publish` (pnpm ≥ 11.0.7, see its release notes) does the OIDC exchange itself, so the npm
+          # bundled with Node is not what publishes here and its version does not matter.
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Every workspace package whose package.json is not `private`, so a package added later is published without an
+      # edit here — except a paused platform's (packages/tools/paused-platforms.json), which is left out and said so.
+      - name: The packages to publish
+        id: packages
+        env:
+          PAUSED: ${{ needs.checks.outputs.native-paused }}
+        run: |
+          scope=$(node -p "require('./tanrei.config.json').packages.npmScope")
+          names=()
+          for name in $(pnpm ls -r --depth -1 --json | jq -r '.[] | select(.private != true) | .name'); do
+            case " $PAUSED " in
+              *" ${name#"$scope/"} "*) echo "::warning::$name is not published: its platform is paused." ;;
+              *) names+=("$name") ;;
+            esac
+          done
+          [ "${#names[@]}" -gt 0 ] || { echo "::error::no package to publish"; exit 1; }
+          printf 'publishing %s\n' "${names[@]}"
+          echo "names=${names[*]}" >> "$GITHUB_OUTPUT"
+          echo "filters=$(printf -- '--filter %s ' "${names[@]}")" >> "$GITHUB_OUTPUT"
+      - run: pnpm ${{ steps.packages.outputs.filters }} build
+      # A version already on the registry is skipped, so a release that failed half-way can be dispatched again.
+      - run: pnpm ${{ steps.packages.outputs.filters }} publish --access public --no-git-checks
+      # One tag per published package, `<package>@<version>` (what `changeset tag` writes for every public package;
+      # only the published ones are pushed). Never a bare semver tag: SwiftPM would read it as a Swift release.
+      - name: Tag the published versions
+        env:
+          NAMES: ${{ steps.packages.outputs.names }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          pnpm changeset tag
+          for name in $NAMES; do
+            version=$(pnpm ls -r --depth -1 --json | jq -r --arg n "$name" '.[] | select(.name == $n) | .version')
+            git push origin "refs/tags/$name@$version"
+          done
+
+  pub:
+    if: inputs.registry == 'pub.dev' && github.ref == 'refs/heads/main'
+    needs: [preflight, checks]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30 # flutter test (about 8–12 minutes in CI), then the upload
+    environment: pub.dev
+    permissions:
+      contents: read
+      id-token: write # pub.dev automated publishing (OIDC)
+    steps:
+      - name: Not while this platform's CI is paused
+        env:
+          PAUSED: ${{ needs.checks.outputs.native-paused }}
+        run: |
+          case " $PAUSED " in *" flutter "*) echo "::error::Flutter is not published while its CI is paused (packages/tools/paused-platforms.json)."; exit 1 ;; esac
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: 3.32.8 # the version CI tests with and the goldens were recorded with (ci.yml)
+          channel: stable
+          cache: true
+      - working-directory: packages/flutter
+        run: flutter pub get && flutter test && dart pub publish --force
+
+  maven:
+    if: inputs.registry == 'maven-central' && github.ref == 'refs/heads/main'
+    needs: [preflight, checks]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40 # Gradle build, signing and the Central Portal upload
+    environment: maven-central # holds the only long-lived secrets: Central Portal token + GPG key
+    steps:
+      - name: Not while this platform's CI is paused
+        env:
+          PAUSED: ${{ needs.checks.outputs.native-paused }}
+        run: |
+          case " $PAUSED " in *" compose "*) echo "::error::Compose is not published while its CI is paused (packages/tools/paused-platforms.json)."; exit 1 ;; esac
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+      - working-directory: packages/compose
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: ./gradlew :tanrei:publishToMavenCentral --no-configuration-cache

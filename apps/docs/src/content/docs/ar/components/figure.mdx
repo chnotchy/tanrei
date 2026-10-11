@@ -1,0 +1,249 @@
+---
+title: الشكل التوضيحي
+description: يضع شيئًا واحدًا يُنظر إليه، صورة أو مخططًا بيانيًّا أو عيّنة أو مثالًا حيًّا، في منطقة عرض خاصة به، بإطار أو من دونه، مع شرح يقول ما يعرضه، ومعه اختياريًّا عنوان وعناصر تحكم من عندك في الأعلى وكتلة ملحقة في الأسفل.
+translationOf: components/figure.mdx
+sourceHash: 73569d4fce0f2d7484ec464c4bd25f4c23fa4f05
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="figure" />
+
+<DemoFrame label="الطُرُز outlined و filled و plain" column>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1.5rem; inline-size: 100%">
+    <tanrei-figure>
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">حفظ</tanrei-button></div></div>
+        <figcaption>الطراز outlined: السطح داخل خط رفيع واحد.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure variant="filled">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">حفظ</tanrei-button></div></div>
+        <figcaption>الطراز filled: درجة لون هادئة وبلا حافة.</figcaption>
+      </figure>
+    </tanrei-figure>
+    <tanrei-figure variant="plain">
+      <figure>
+        <div data-part="frame"><div data-part="stage"><tanrei-button variant="filled">حفظ</tanrei-button></div></div>
+        <figcaption>الطراز plain: المعروض هو إطار نفسه.</figcaption>
+      </figure>
+    </tanrei-figure>
+  </div>
+</DemoFrame>
+
+الشكل التوضيحي (figure) يعرض شيئًا واحدًا يُنظر إليه ولا يُقرأ: صورة في مقالة، أو مخططًا بيانيًّا في تقرير، أو معاينة لما سينتجه إعداد، أو عيّنة. يُفرده عما حوله ويقول ما هو. والإطارات التي حول الأمثلة الحيّة في هذا الموقع أشكال توضيحية.
+
+وليس بطاقة. البطاقة تجمع محتوى وإجراءات عن موضوع واحد، وقد تُضغط كلها. أما الشكل التوضيحي فيعرض شيئًا واحدًا، ولا يُضغط أبدًا، ويضع شرحه (caption) خارج إطاره.
+
+على الويب هو `<tanrei-figure>` حول عنصر `<figure>` أصلي. ليس للعنصر جذر ظل (shadow root)، فعنصر `<figure>` وعنصر `<figcaption>` الذي فيه هما من المستند نفسه: يُقرآن بلا سكربت، ويقرؤهما الزاحف ووضع القارئ في المتصفح، ويسمّيهما المتصفح. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/figure.css" />
+
+    <tanrei-figure>
+      <figure>
+        <div data-part="frame">
+          <header>
+            <p data-part="title">الإيرادات بحسب ربع السنة</p>
+            <div data-part="actions">
+              <tanrei-button variant="text" label="فتح في تبويب جديد"><span slot="icon">open_in_new</span></tanrei-button>
+            </div>
+          </header>
+          <div data-part="stage">
+            <img src="revenue.svg" alt="مخطط أعمدة: الإيرادات ترتفع في كل ربع." />
+          </div>
+        </div>
+        <figcaption>نمت كل المناطق، وكان الشمال أسرعها نموًّا.</figcaption>
+      </figure>
+    </tanrei-figure>
+
+    <script type="module">
+      import '@tanrei/web/components/figure';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Figure } from '@tanrei/react';
+    import '@tanrei/web/figure.css';
+
+    <Figure variant="plain">
+      <figure>
+        <img src={photo.src} alt={photo.alt} />
+        <figcaption>{photo.caption}</figcaption>
+      </figure>
+    </Figure>
+    ```
+  </TabItem>
+</Tabs>
+
+الملف `@tanrei/web/figure.css` يرسم الشكل التوضيحي كله قبل أن يعمل أي سكربت، فلا تتحرك صفحة فيها أشكال توضيحية حين يصل السكربت. والعنصر يضيف ورقة الأنماط نفسها إلى الصفحة من تلقاء نفسه.
+
+### ما تكتبه
+
+| الجزء | على الويب |
+| --- | --- |
+| الإطار | العنصر `<div data-part="frame">`، وهو أول ابن لعنصر `<figure>`. يحمل الترويسة ومنطقة العرض (stage) والمُلحق. |
+| العنوان | عنصر له `data-part="title"` في عنصر `<header>` من الإطار: عنصر `<p>`، أو عنوان القسم الذي يحتاج إليه مخطَّط عناوين صفحتك. |
+| الإجراءات | العنصر `<div data-part="actions">` في عنصر `<header>`، حول عناصر التحكم التي تكتبها أنت. |
+| منطقة العرض | العنصر `<div data-part="stage">`، حول ما يُعرض. |
+| المُلحق | أي عنصر له `data-part="attachment"` بعد منطقة العرض: كتلة شيفرة، أو جدول، أو قائمة وصف. |
+| الشرح | عنصر `<figcaption>`، بعد الإطار. |
+
+كل الأجزاء اختيارية إلا منطقة العرض. ويمكن أن يقوم عنصر `<img>` أو `<picture>` أو `<video>` أو `<svg>` أو `<canvas>` وحده مقام عنصر منطقة العرض. والشكل التوضيحي الذي ليس فيه عنصر إطار أصلًا، أي `<figure><img …><figcaption>…</figcaption></figure>` كما يكتبه محوِّل Markdown، يُرسم كذلك: الصورة عندئذ هي إطار نفسها.
+
+### شكل توضيحي يبنيه العنصر
+
+العنصر `<tanrei-figure>` الذي لا يحمل عنصر `<figure>` يُعطى واحدًا حين يُعرَّف العنصر. يصير أبناؤه منطقة العرض، إلا الذين يسمّون جزءًا بالخاصية `slot` (`title`، `actions`، `caption`، `attachment`). وخاصيتا HTML (attributes) `headline` و `caption` تُكتبان عنوانًا وشرحًا.
+
+```html
+<tanrei-figure headline="الطُرُز" caption="زر من الطراز filled.">
+  <tanrei-button variant="filled">حفظ</tanrei-button>
+</tanrei-figure>
+```
+
+هذه الهيئة أقصر، ولا تُرسم إلا بعد أن يعمل السكربت. اكتب الأجزاء بنفسك حيث يجب ألا تتحرك الصفحة، ومع إطار عمل يملك أبناء العنصر (React)، لأن العنصر ينقلهم.
+
+## المواصفات
+
+<DemoFrame label="عنوان، وعنصر تحكم، وكتلة ملحقة، وشرح" plain column>
+  <tanrei-figure style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <header>
+          <p data-part="title">الطُرُز</p>
+          <div data-part="actions">
+            <tanrei-button variant="text" label="فتح في تبويب جديد"><span slot="icon">open_in_new</span></tanrei-button>
+          </div>
+        </header>
+        <div data-part="stage">
+          <tanrei-button variant="filled">Filled</tanrei-button>
+        </div>
+        <tanrei-code-block data-part="attachment" label="الترميز"><pre><code>&lt;tanrei-button variant="filled"&gt;Filled&lt;/tanrei-button&gt;</code></pre></tanrei-code-block>
+      </div>
+      <figcaption>زر من الطراز filled وترميزه.</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="بلا حشو: المعروض يبلغ حواف الإطار" plain column>
+  <tanrei-figure flush style="inline-size: min(100%, 30rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="inline-size: 100%; block-size: 9rem; background: linear-gradient(135deg, var(--tanrei-sys-color-primary-container), var(--tanrei-sys-color-tertiary-container))"></div>
+        </div>
+      </div>
+      <figcaption>الإطار يقصّ ما يحمله عند زواياه.</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<DemoFrame label="أعرض من منطقة عرضه: يُمرَّر هناك، ومنطقة العرض موضع توقف للتركيز" plain column>
+  <tanrei-figure style="inline-size: min(100%, 24rem)">
+    <figure>
+      <div data-part="frame">
+        <div data-part="stage">
+          <div style="display: flex; flex: none; gap: 0.75rem">
+            <tanrei-button variant="filled">Filled</tanrei-button>
+            <tanrei-button variant="tonal">Tonal</tanrei-button>
+            <tanrei-button variant="elevated">Elevated</tanrei-button>
+            <tanrei-button variant="outlined">Outlined</tanrei-button>
+            <tanrei-button variant="text">Text</tanrei-button>
+          </div>
+        </div>
+      </div>
+      <figcaption>خمسة أزرار في صف لا يلتفّ.</figcaption>
+    </figure>
+  </tanrei-figure>
+</DemoFrame>
+
+<ComponentSpecs name="figure" />
+
+## الإرشادات
+
+### ثلاثة مظاهر
+
+| `variant` | ما يرسمه | يُستخدم لـ |
+| --- | --- | --- |
+| `outlined` (الافتراضي) | السطح داخل خط رفيع واحد. | عيّنة، أو مثال حيّ، أو مخطط توضيحي. |
+| `filled` | درجة لون هادئة وبلا حافة. | صفحة فيها أصلًا خطوط كثيرة؛ وأرضية لأشياء لها ظلال. |
+| `plain` | بلا تعبئة ولا حافة ولا حشو ولا خط. | صورة هي إطار نفسها؛ وعيّنة في شبكة. |
+
+الطراز outlined معبَّأ بلون السطح، وليس متروكًا فارغًا. فتحتفظ مكوّناتك بالتباين الذي أُلزمت به رموزها (tokens)، أيًّا كانت اللوحة التي يوضع فيها الشكل التوضيحي.
+
+### العنوان في الأعلى والشرح في الأسفل
+
+- الخاصية `title` (خاصية HTML `headline` على الويب) سطر قصير في ترويسة داخل الإطار. يسمّي ما يُعرض.
+- الخاصية `caption` تحت الإطار، عند حافة البداية، بنص ثانوي. يلتفّ الشرح ولا يُقصّ أبدًا.
+- لا إعداد للموضع. النص الذي فوق منطقة العرض هو العنوان. وللشرح موضع واحد.
+- العنوان نص عادي، وليس عنوان قسم. وحيث يحتاج مخطَّط عناوين صفحتك إلى عنوان قسم هناك، اكتب واحدًا له `data-part="title"`: يرسمه الشكل التوضيحي بنمط العنوان ويُبقي له دوره ومستواه.
+
+### عناصر التحكم والكتلة الملحقة
+
+- الإجراءات هي عناصر التحكم التي تكتبها أنت في نهاية الترويسة: أي طراز، وأي سمة، وفتحه في مكان آخر. يرتّبها الشكل التوضيحي في صف ولا يفعل شيئًا آخر. وتنتقل إلى تحت العنوان حين يضيق الصف عنها.
+- المُلحق هو كتلتك أنت تحت منطقة العرض، داخل الإطار: الشيفرة التي صُنع منها مثال، أو بيانات مخطط بياني.
+
+| `separation` | ما يرسمه |
+| --- | --- |
+| `auto` (الافتراضي) | ما اختاره نظام التصميم: خطوط في النظام الافتراضي. |
+| `divider` | خط تحت الترويسة وخط فوق المُلحق، والمُلحق ملاصق لحواف الإطار. |
+| `gap` | بلا خط. يقف المُلحق داخل الإطار، مُزاحًا إلى الداخل بمقدار 8، وله شكله الخاص به. |
+
+### منطقة العرض
+
+- الخاصية `inset` (وقيمتها الافتراضية true) تعطي منطقة العرض حشوًا مقداره 32 في الأعلى والأسفل و 24 في الجانبين. والخاصية `flush` على الويب تزيل الحشو، فتبلغ الصورة أو المخطط البياني أو الخريطة حواف الإطار وتقصّها زواياه.
+- الصورة تصغر مع الحفاظ على نسبها، ولا تكبر أبدًا.
+- المحتوى الذي لا يستطيع أن يتقلص يُمرَّر جانبيًّا داخل منطقة العرض. والشكل التوضيحي لا يكون أعرض من حاويته أبدًا.
+- المحتوى الأضيق من منطقة عرض لها إطار يوسَّط. وفي الطراز plain يبدأ عند حافة النص.
+- ارتفاع منطقة العرض ارتفاع محتواها. وترتيب عدة أمثلة فيها من شأن تخطيطك.
+
+### في الصفحة
+
+- الشكل التوضيحي يملأ العرض المعطى له ولا يأتي بفراغ خارجي. وفي النص المتصل (prose) يُباعَد كأي كتلة ويأخذ عرض النص المتصل كله، أما شرحه فيُلزَم حدّ طول السطر (measure) كأي كتلة نص.
+- عدة أشكال توضيحية جنبًا إلى جنب هي شبكة من عندك. والشكل التوضيحي يملأ خليته.
+
+### افعل
+
+- اكتب شرحًا يقول ما الغاية من الشكل التوضيحي: «نمت الإيرادات في كل المناطق»، لا «مخطط بياني».
+- أعطِ الصورة بديلها النصي الخاص بها. الشرح لا يقوم مقامه.
+- علِّم المثال الذي يُحتذى أو الذي يُتجنَّب بوسم صغير في بداية الشرح، مع كلمته: «افعل»، «لا تفعل».
+
+### لا تفعل
+
+- لا تستخدم شكلًا توضيحيًّا لجمع محتوى وإجراءات مترابطة. تلك [بطاقة](/ar/components/card/).
+- لا تجعل الشكل التوضيحي قابلًا للضغط. الصورة التي تفتح شيئًا رابط حول الصورة.
+- لا تلوّن الإطار لتقول إن مثالًا صحيح أو خاطئ. ليس للشكل التوضيحي حالة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="figure" />
+
+### ما يتكفل به المكوّن
+
+- عنصر `<figure>` الأصلي يبقى شكلًا توضيحيًّا. يسمّيه عنوانه، أو شرحه حيث لا عنوان له. ومع الاثنين يكون العنوان هو الاسم والشرح هو الوصف، ويبقى الشرح يُقرأ في موضعه.
+- الخاصية `label` تسمّي شكلًا توضيحيًّا لا يرسم عنوانًا ولا شرحًا. لا تُرسم أبدًا، وتُتجاهل حيث يُعطى عنوان أو شرح.
+- ما دامت منطقة العرض تُمرَّر جانبيًّا فهي موضع توقف واحد في ترتيب التركيز، قبل أي شيء داخلها، ومجموعة (group) باسم الشكل التوضيحي. تمرّرها مفاتيح الأسهم، والمفتاحان Home و End يأخذانها إلى أحد طرفيها. ومنطقة العرض التي لا تُمرَّر لا تضيف موضع توقف.
+- حلقة التركيز تُرسم داخل حافة منطقة العرض، فلا يقصّها شيء.
+- كل ما في الترويسة ومنطقة العرض والمُلحق والشرح يبقى قابلًا للتشغيل ويحتفظ بترتيب تركيزه.
+- عند تكبير النص إلى 200% يكبر العنوان والشرح ويلتفّان، وتنتقل الإجراءات إلى تحت العنوان.
+- في التخطيط من اليمين إلى اليسار تُعكس الترويسة ويبدأ الشرح من اليمين. أما ما يُعرض في منطقة العرض فلا يُعكس أبدًا.
+- في الألوان المفروضة (forced colors) يكون للطرازين outlined و filled حافة بلون النص. والطراز plain لا حافة له.
+- يُبلَّغ في بنيات التنقيح عن شكل توضيحي بلا اسم، وعن شكل توضيحي منطقة عرضه فارغة، وعن طراز أو طريقة فصل غير معروفة.
+
+### ما عليك فعله
+
+- أعطِ كل شكل توضيحي عنوانًا أو شرحًا أو `label`.
+- أعطِ الصورة التي في منطقة العرض قيمة `alt` خاصة بها. وحيث يقول الشرح أصلًا كل ما تقوله الصورة، علِّم الصورة بأنها زخرفية (`alt=""`).
+- أبقِ المثال الحيّ قابلًا للتشغيل. الشكل التوضيحي لا يخفي محتواه ولا يحوّله إلى صورة.

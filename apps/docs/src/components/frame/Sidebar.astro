@@ -1,0 +1,90 @@
+---
+// The site's sidebar, drawn by Tanrei's navigation drawer as a site's sidebar (specs/navigation-drawer.spec.json,
+// NVD-57 to NVD-64) in place of the framework's: this component replaces Starlight's `Sidebar`, and with
+// it its sublist, its persister and its restore point; the framework's menu toggle and its full-window menu are not
+// drawn (PageFrame.astro does not ask for them). It is the shell's navigation region.
+//
+// - `responsive collapsible`: beside the content in an expanded window, a column of the groups' glyphs in a medium one,
+//   and a modal drawer the header's menu button opens in a compact one (NVD-53; APS-4).
+// - Every destination is a link with the page's own address; the drawer's `value` is the address of the page
+//   being read, so that page is the one marked `aria-current="page"`, its group is open and it is in view (NVD-57, 58).
+// - The sidebar's groups are the drawer's groups, all open as they are today; the reader's closed groups and the place
+//   the list was scrolled to are kept for the session by the script below (NVD-61, 62: the drawer stores nothing).
+//
+// The Components group is drawn from the specs (lib/listing.mjs, `sidebarTree`): each component in a group of its
+// category, and one a spec marks to be shown on request (`listing`) marked — with the word at the end
+// of its row — and drawn only to a reader who asked for everything with the switch in the drawer's header
+// (ListingSwitch.astro), or whose page it is. Without script every row is drawn.
+//
+// A destination's anchor is in its element's shadow root, so the page as built would hold no link. Each destination therefore holds a plain `<a href>` of its own: until the elements
+// are defined, and where no script runs, those anchors are the sidebar (styles/frame.css draws them as the drawer's
+// rows); once the destination is defined its content is not drawn — it has no slot for it — and the anchor in the
+// shadow root is the link.
+import { currentHref, frameWords, groupIcon, type Entry } from './frame';
+import { localeBase, strings } from '../../lib/i18n';
+import { ON_REQUEST_ATTR, sidebarTree } from '../../lib/listing.mjs';
+import { listings, statusComponents } from '../../lib/repo';
+import ListingSwitch from '../ListingSwitch.astro';
+
+const route = Astro.locals.starlightRoute as unknown as { sidebar: Entry[]; lang: string };
+const { sidebar } = route;
+const words = frameWords(Astro);
+const t = strings(route.lang);
+const base = localeBase(Astro);
+// What is drawn: the framework's sidebar with the components grouped by category and marked by their listing. The
+// drawer's `value` and the page's trail still read the framework's own (`sidebar`).
+const drawn = sidebarTree(sidebar, statusComponents, listings, base, (category) => t.category[category] ?? category) as Entry[];
+
+const escape = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+const cells = (entries: Entry[], top: boolean): string =>
+  entries
+    .map((entry) =>
+      entry.type === 'link'
+        ? `<tanrei-navigation-drawer-item label="${escape(entry.label)}" href="${escape(entry.href)}"${top ? ' icon="article"' : ''}${entry.onRequest ? ` ${ON_REQUEST_ATTR} trailing-text="${escape(t.listing.advanced)}"` : entry.badge ? ` trailing-text="${escape(entry.badge.text)}"` : ''}><a href="${escape(entry.href)}"${entry.isCurrent ? ' aria-current="page"' : ''}>${escape(entry.label)}${entry.onRequest ? ` <span class="docs-sidebar-mark">${escape(t.listing.advanced)}</span>` : ''}</a></tanrei-navigation-drawer-item>`
+        : `<tanrei-navigation-drawer-group label="${escape(entry.label)}"${top ? ` icon="${groupIcon(entry, base)}"` : ''}${entry.collapsed ? '' : ' open'}>${cells(entry.entries, false)}</tanrei-navigation-drawer-group>`,
+    )
+    .join('');
+---
+
+<tanrei-navigation-drawer slot="navigation" class="docs-sidebar print:hidden" responsive collapsible reveal-selected label={words.siteNavigation} value={currentHref(sidebar)}>
+  <tanrei-button slot="header-button" variant="text" label={words.menu}><span slot="icon">menu</span></tanrei-button>
+  <ListingSwitch lang={route.lang} into="header" />
+  <Fragment set:html={cells(drawn, true)} />
+</tanrei-navigation-drawer>
+{/* Kept for the session: which groups are open and how far the list is scrolled. Inline, so that it runs before the
+    first frame whether the elements are upgraded by then or not (properties are taken as the element's own). */}
+<script is:inline>
+  {
+    const drawer = document.currentScript.previousElementSibling;
+    const groups = [...drawer.querySelectorAll('tanrei-navigation-drawer-group')];
+    const key = 'tanrei-docs-sidebar:' + groups.map((group) => group.getAttribute('label')).join('|');
+    let kept = {};
+    try {
+      kept = JSON.parse(sessionStorage.getItem(key) ?? '{}');
+    } catch {}
+    // The group that holds the page being read is never given back closed: the drawer is asked to open it
+    // (`reveal-selected`), but a group whose `open` was set to false before it was upgraded stays closed.
+    const value = drawer.getAttribute('value');
+    groups.forEach((group, index) => {
+      if (kept.open?.[index] === undefined) return;
+      if (!kept.open[index] && [...group.querySelectorAll('tanrei-navigation-drawer-item')].some((item) => item.getAttribute('href') === value)) return;
+      group.open = kept.open[index];
+    });
+    if (kept.offset) drawer.scrollOffset = kept.offset;
+    const keep = () => {
+      // Until the groups are upgraded they have no `open` to read: a page left before its script arrived keeps what
+      // was kept before, not five closed groups.
+      if (!groups.every((group) => typeof group.open === 'boolean')) return;
+      try {
+        sessionStorage.setItem(key, JSON.stringify({ open: groups.map((group) => !!group.open), offset: drawer.scrollOffset ?? 0 }));
+      } catch {}
+    };
+    drawer.addEventListener('toggle', keep);
+    addEventListener('pagehide', keep);
+  }
+</script>
+
+<script>
+  import '@tanrei/web/components/button';
+  import '@tanrei/web/components/navigation-drawer';
+</script>

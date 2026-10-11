@@ -1,0 +1,407 @@
+---
+title: Tooltip
+description: Describes an element in a few words when a person points at it, focuses it with the keyboard or long-presses it, without taking focus or blocking anything.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="tooltip" />
+
+<DemoFrame label="Point at or focus a button: a plain and a rich tooltip">
+  <tanrei-tooltip text="Move to trash" no-describe>
+    <tanrei-button variant="text" label="Move to trash"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="Storage" text="Files in the trash still count toward your storage until they are deleted." placement="bottom">
+    <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+### Usage
+
+The anchor is your own element: an icon button, a truncated label, a chart mark. The tooltip adds a description to it and changes nothing else about it. It wraps the anchor on the web, Compose, Flutter and React Native, and is a modifier on the anchor on SwiftUI.
+
+The tooltip opens and closes itself, on hover, keyboard focus and long-press, and reports that through `toggle`. You set `open` only to show it on your own, such as a first-run hint. Setting it emits nothing, and the tooltip keeps opening and closing itself afterwards.
+
+`describes` (true by default) makes the text the anchor's accessible description. Set it to false when the text repeats the anchor's own name, as it does for an icon button whose tooltip shows its label, so that screen readers do not read the words twice.
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they still ship the previous revision of the tooltip, which has four centred placements and no per-tooltip delays, offsets, arrow, second look or shortcut, and fades without growing. Their samples show that revision until they catch up.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- The tooltip wraps its anchor. no-describe is describes set to false: the text repeats the label. -->
+    <tanrei-tooltip text="Move to trash" no-describe>
+      <tanrei-button variant="text" label="Move to trash"><span slot="icon">delete</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- A dense toolbar that wants its names sooner. Delays are in milliseconds. -->
+    <tanrei-tooltip text="Bold" show-delay="150" no-describe>
+      <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- The command's keys after its name. The anchor carries them for assistive technology. -->
+    <tanrei-tooltip text="Bold" shortcut="mod+b" no-describe>
+      <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <!-- Below the control, lined up with its start edge, with an arrow, on a surface instead of inverse. -->
+    <tanrei-tooltip text="Filter by date or by owner" placement="bottom-start" arrow inverse="false">
+      <tanrei-button variant="text" label="Filter"><span slot="icon">filter_list</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <tanrei-tooltip id="storage" variant="rich" title="Storage" placement="bottom"
+                    text="Files in the trash still count toward your storage until they are deleted.">
+      <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
+    </tanrei-tooltip>
+
+    <script type="module">
+      import '@tanrei/web/components/tooltip';
+      const storage = document.querySelector('#storage');
+      // A first-run hint. Setting open emits nothing.
+      storage.open = true;
+      // toggle reports what the tooltip did by itself: hover, focus, long-press, Escape, the timeout, another tooltip.
+      storage.addEventListener('toggle', (e) => console.log(e.detail.open));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Tooltip } from '@tanrei/react';
+
+    <Tooltip text="Move to trash" describes={false}>
+      <Button variant="text" label="Move to trash" onClick={trash}><span slot="icon">delete</span></Button>
+    </Tooltip>
+    {/* The command's keys after its name: one chord per string. */}
+    <Tooltip text="Bold" shortcut={['mod+b']} describes={false}>
+      <Button variant="text" label="Bold" onClick={bold}><span slot="icon">format_bold</span></Button>
+    </Tooltip>
+    {/* Below the control, lined up with its start edge, with an arrow, on a surface instead of inverse. */}
+    <Tooltip text="Filter by date or by owner" placement="bottom-start" arrow inverse={false}>
+      <Button variant="text" label="Filter" onClick={filter}><span slot="icon">filter_list</span></Button>
+    </Tooltip>
+    <Tooltip
+      variant="rich"
+      title="Storage"
+      text="Files in the trash still count toward your storage until they are deleted."
+      placement="bottom"
+      touchTimeout={4000} // a few sentences need longer to read after a long-press
+      onToggle={(e) => log(e.detail.open)}
+    >
+      <Button variant="text" label="About storage"><span slot="icon">info</span></Button>
+    </Tooltip>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // A modifier on the anchor. .tanreiTheme(_:) above it hosts the layer the tooltip is drawn in.
+    // The description becomes the anchor's accessibilityHint.
+    TanreiIconButton("Move to trash", action: trash) { Image(systemName: "trash") }
+        .tanreiTooltip("Move to trash", describes: false)
+
+    // isPresented is open; the tooltip writes it when it opens or closes by itself.
+    TanreiIconButton("About storage", action: {}) { Image(systemName: "info.circle") }
+        .tanreiTooltip("Files in the trash still count toward your storage until they are deleted.",
+                       title: "Storage", variant: .rich, placement: .bottom, isPresented: $showHint)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.components.TanreiTooltip
+    import io.github.chnotchy.tanrei.components.TanreiTooltipPlacement
+    import io.github.chnotchy.tanrei.components.TanreiTooltipVariant
+    import io.github.chnotchy.tanrei.components.rememberTanreiTooltipState
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // As Material's TooltipBox: the tooltip wraps its anchor.
+    TanreiTooltip(text = "Move to trash", describes = false) {
+        TanreiIconButton(onClick = ::trash, contentDescription = "Move to trash") { TanreiText("delete") }
+    }
+
+    // The state is open. onToggle hears what the tooltip does by itself; show() and dismiss() emit nothing.
+    val hint = rememberTanreiTooltipState(onToggle = { open -> log(open) })
+    TanreiTooltip(
+        text = "Files in the trash still count toward your storage until they are deleted.",
+        variant = TanreiTooltipVariant.Rich,
+        title = "Storage",
+        placement = TanreiTooltipPlacement.Bottom,
+        state = hint,
+    ) {
+        TanreiIconButton(onClick = {}, contentDescription = "About storage") { TanreiText("info") }
+    }
+    LaunchedEffect(Unit) { hint.show() } // a first-run hint
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // show() and hide() set open, and notify nobody. Listeners hear what the tooltip does by itself.
+    final TanreiTooltipController hint = TanreiTooltipController();
+    hint.addListener(() => log(hint.isOpen));
+
+    // As Flutter's Tooltip: message is the text, and excludeFromSemantics is describes, inverted.
+    TanreiTooltip(
+      message: 'Move to trash',
+      excludeFromSemantics: true, // the text repeats the button's own name
+      child: TanreiIconButton(onPressed: trash, icon: const Icon(AppSymbols.delete), semanticLabel: 'Move to trash'),
+    );
+    TanreiTooltip(
+      variant: TanreiTooltipVariant.rich,
+      title: 'Storage',
+      message: 'Files in the trash still count toward your storage until they are deleted.',
+      placement: TanreiTooltipPlacement.bottom,
+      controller: hint, // hint.show() for a first-run hint
+      child: TanreiIconButton(onPressed: info, icon: const Icon(AppSymbols.info), semanticLabel: 'About storage'),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { IconButton, Tooltip } from '@tanrei/react-native';
+
+    // The anchor is ONE child that takes a Pressable's props. The tooltip adds its handlers, calling the anchor's own first.
+    <Tooltip text="Move to trash" describes={false}>
+      <IconButton accessibilityLabel="Move to trash" onPress={trash}>delete</IconButton>
+    </Tooltip>
+
+    // open shows it from your code and emits nothing; onOpenChange hears what it does by itself.
+    <Tooltip
+      variant="rich"
+      title="Storage"
+      text="Files in the trash still count toward your storage until they are deleted."
+      placement="bottom"
+      open={showHint}
+      onOpenChange={setShowHint}
+    >
+      <IconButton accessibilityLabel="About storage">info</IconButton>
+    </Tooltip>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="A plain tooltip below its anchor, and a rich one without a title" plain>
+  <tanrei-tooltip text="Move to trash" placement="bottom" no-describe>
+    <tanrei-button variant="text" label="Move to trash"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" text="Files in the trash still count toward your storage until they are deleted.">
+    <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+<ComponentSpecs name="tooltip" />
+
+## Guidelines
+
+### When to use
+
+Use a tooltip to name an icon action for a person who does not recognise the glyph, or to explain a term, a limit or a setting on the spot. It is a description, read in passing.
+
+A tooltip is invisible to touch users until they long-press, and a screen reader hears it only as a description. Never put anything a person needs to finish a task only in a tooltip: show it as text on the screen. A note that needs a link or a button is not a tooltip. Use a dialog, or text beside what it explains.
+
+### Choosing a variant
+
+| Variant | What it is | Use for |
+| --- | --- | --- |
+| Plain | One short phrase, by default on the inverse surface. It ignores `title`, and can show a keyboard shortcut after its text. | Naming what an icon does: "Move to trash", "Share". |
+| Rich | An optional title above a few sentences, by default on a raised surface. It ignores `shortcut`. | Explaining a term or a setting: "Storage" and what counts toward it. |
+
+The variant is a structural choice, not a token axis. A design system restyles both forms, but cannot add a third by values.
+
+### Placement
+
+`placement` names the side of the anchor the tooltip prefers and how it lines up along that side. The default is `top`.
+
+<DemoFrame label="Point at or focus a button: the thirteen placements" plain>
+  <tanrei-tooltip text="Above, centred" placement="top"><tanrei-button variant="outlined" size="small">top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Above, start edges together" placement="top-start"><tanrei-button variant="outlined" size="small">top-start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Above, end edges together" placement="top-end"><tanrei-button variant="outlined" size="small">top-end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Below, centred" placement="bottom"><tanrei-button variant="outlined" size="small">bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Below, start edges together" placement="bottom-start"><tanrei-button variant="outlined" size="small">bottom-start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Below, end edges together" placement="bottom-end"><tanrei-button variant="outlined" size="small">bottom-end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Before, centred" placement="start"><tanrei-button variant="outlined" size="small">start</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Before, top edges together" placement="start-top"><tanrei-button variant="outlined" size="small">start-top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="Before, bottom edges together" placement="start-bottom"><tanrei-button variant="outlined" size="small">start-bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="After, centred" placement="end"><tanrei-button variant="outlined" size="small">end</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="After, top edges together" placement="end-top"><tanrei-button variant="outlined" size="small">end-top</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="After, bottom edges together" placement="end-bottom"><tanrei-button variant="outlined" size="small">end-bottom</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="The first side with room" placement="auto"><tanrei-button variant="outlined" size="small">auto</tanrei-button></tanrei-tooltip>
+</DemoFrame>
+
+| Side | Centred on the anchor | First edges together | Second edges together |
+| --- | --- | --- | --- |
+| Above | `top` | `top-start` | `top-end` |
+| Below | `bottom` | `bottom-start` | `bottom-end` |
+| Before the anchor | `start` | `start-top` | `start-bottom` |
+| After the anchor | `end` | `end-top` | `end-bottom` |
+
+- **Aligned means edge on edge.** `top-start` puts the tooltip's start edge on the anchor's start edge, and `end-bottom` puts its bottom edge on the anchor's bottom edge. Use an aligned placement for a wide tooltip on a small anchor near the edge of a panel, or to line a tooltip up with a row of text.
+- **Start and end follow the layout direction.** In a right-to-left layout `start` is the right side and `top-start` lines up the right edges. Top and bottom do not mirror.
+- **`auto`** tries top, bottom, end and start in that order and takes the first side with room, centred. Use it for an anchor whose surroundings you cannot know, such as a control in a panel that may be docked at any edge.
+- **When there is no room.** The tooltip flips to the opposite side and keeps its alignment, then shifts along the side to stay inside the window's safe area. In a window smaller than the tooltip it stays inside the window, over the anchor if it must. Once it has flipped it keeps that side for as long as the side has room, so a scrolling page does not throw it back and forth.
+- **`offset` and `crossOffset`.** `offset` is the distance from the anchor's edge, and 0 lets the two touch; left unset it is the system's distance. `crossOffset` moves the tooltip along its side, towards the end above or below the anchor and towards the bottom beside it, and never off the anchor's side. Both are in the platform's layout units. Set them only where the anchor's box is not what the eye takes for its edge, such as a control with a large invisible hit area or a mark in a chart.
+- **A change while showing.** A new `placement` or offset moves the tooltip at once, without motion.
+
+### An arrow
+
+<DemoFrame label="Point at or focus a button: with an arrow" plain>
+  <tanrei-tooltip text="Move to trash" arrow no-describe>
+    <tanrei-button variant="text" label="Move to trash"><span slot="icon">delete</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip text="Filter by date or by owner" placement="bottom-start" arrow>
+    <tanrei-button variant="text" label="Filter"><span slot="icon">filter_list</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="Storage" text="Files in the trash still count toward your storage until they are deleted." placement="end" arrow>
+    <tanrei-button variant="text" label="About storage"><span slot="icon">info</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+`arrow` draws a small triangle on the tooltip's edge that points at the anchor. It is off in the default system. Left unset, it takes the design system's choice; `true` and `false` decide it for one tooltip. On the web the attribute is `arrow` for true and `arrow="false"` for false.
+
+The arrow is one shape with the tooltip, in the same color. It points at the anchor, not at the tooltip's middle, also after the tooltip has flipped or shifted, and it keeps clear of the corners. The tooltip stands the arrow's height farther away, so the gap you see is the same with or without one.
+
+Use an arrow where the side alone does not say which control is meant: a hint you open yourself over a crowded toolbar, for example. Names shown on hover rarely need one.
+
+### Two looks
+
+<DemoFrame label="Point at or focus a button: each form inverse and on a surface" plain>
+  <tanrei-tooltip text="The opposite scheme's colors" inverse><tanrei-button variant="outlined" size="small">Plain, inverse</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip text="A raised surface of the scheme" inverse="false"><tanrei-button variant="outlined" size="small">Plain, surface</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="On a surface" text="A raised surface of the scheme, with its elevation." inverse="false"><tanrei-button variant="outlined" size="small">Rich, surface</tanrei-button></tanrei-tooltip>
+  <tanrei-tooltip variant="rich" title="Inverse" text="The opposite scheme's colors, with no shadow." inverse><tanrei-button variant="outlined" size="small">Rich, inverse</tanrei-button></tanrei-tooltip>
+</DemoFrame>
+
+Either form can be drawn inverse, in the opposite scheme's colors, or on a raised surface of the scheme.
+
+| `inverse` | Plain | Rich |
+| --- | --- | --- |
+| Not set (the default) | As the design system chooses for plain tooltips: inverse in the default system. | As the design system chooses for rich tooltips: a surface in the default system. |
+| `true` | Inverse. | Inverse. |
+| `false` | On a surface. | On a surface. |
+
+On the web the attribute is `inverse` for true and `inverse="false"` for false, as the [snackbar](/components/snackbar/)'s is.
+
+Only colors and elevation change. The shape, the sizes, the text styles, the arrow, the placement and the motion are the same in both looks, and neither look says that a tooltip is important. Set it for one tooltip that would otherwise have nothing to stand apart from: a dark label over a dark image viewer or on an inverse bar, or a longer note over a busy raised surface.
+
+### A keyboard shortcut
+
+<DemoFrame label="Point at or focus a button: a command's keys after its name" plain>
+  <tanrei-tooltip text="Bold" shortcut="mod+b" no-describe>
+    <tanrei-button variant="text" label="Bold"><span slot="icon">format_bold</span></tanrei-button>
+  </tanrei-tooltip>
+  <tanrei-tooltip text="Italic" shortcut="mod+i" no-describe>
+    <tanrei-button variant="text" label="Italic"><span slot="icon">format_italic</span></tanrei-button>
+  </tanrei-tooltip>
+</DemoFrame>
+
+`shortcut` shows the keys of the anchor's command after a plain tooltip's text, written for the keyboard the person uses. It takes the key names of the [keyboard shortcut](/components/keyboard-shortcut/) component, one chord per string; on the web the attribute holds the chords separated by spaces.
+
+The tooltip only shows the keys. It does not make them work: your product binds them. The keys stay whole on one line while a long text wraps beside them. A rich tooltip ignores `shortcut` and reports it in debug builds.
+
+### Opening, focus and closing
+
+A tooltip is a read overlay. People take information from it and never act inside it, so it never takes focus.
+
+| Input | Opens | Closes |
+| --- | --- | --- |
+| A pointer | After it rests on the anchor for the show delay. | After it has been off the anchor, the gap and the tooltip for the hide delay. The pointer can cross the gap onto the tooltip to read it. |
+| Keyboard focus | At once, when the anchor gets keyboard focus. Focus from a pointer or touch does not open it. | When focus leaves the anchor. |
+| A touch long-press | At once, without activating the anchor. | After the touch timeout once the finger lifts, or sooner at a touch anywhere else. |
+
+- **No time limit while in use.** While the pointer is over the anchor, the tooltip or the gap between them, or the anchor has keyboard focus, it stays open. The gap is not drawn and takes no press: it only counts as hover.
+- **Escape.** Escape closes it without moving focus, and goes no further, so an enclosing dialog stays open. It stays closed until the anchor is entered or focused again.
+- **Activation.** Activating the anchor (a click, a tap, Enter or Space) closes it, and the same hover does not open it again.
+- **One at a time.** When a tooltip opens, any other one in the window closes, and the new one opens without the delay, because the person is already reading tooltips.
+- **Moving between tooltips.** A tooltip that takes over from another, or opens a short time after one closed because the pointer or the focus left its anchor, appears whole at once: no delay and no motion. So a pointer that sweeps along a toolbar reads one name after the next. A tooltip closed by Escape, by activating its anchor or by a press on it does not start that time.
+- **Takes no focus, blocks nothing.** It holds nothing focusable or pressable, makes nothing inert and draws no scrim. A press on the tooltip closes it and does not reach what lies under it.
+- **Above everything.** It is drawn above every other layer of its window, including an open dialog and its scrim, so a tooltip inside a dialog is visible.
+- **Placement.** It stands where `placement` says; see [Placement](#placement). It follows the anchor as it moves, and closes when the anchor is removed, hidden, scrolled out of the window, or scrolled out of sight inside a scrolling area.
+- **Motion.** It comes out of the anchor's side: it fades in while it grows a little and travels a few pixels away from the anchor, and goes back the same way. A motion that is interrupted turns round from where it is. While it is closing, the tooltip takes no pointer, so it never stands in the way of what is under it. Where motion is reduced it only fades.
+- **Announcement.** Nothing is announced when the tooltip appears. While `describes` is true, its text, after the title for a rich tooltip, is the anchor's description whether the tooltip is open or not, and the drawn tooltip is kept from being read a second time.
+
+### Delays for one tooltip
+
+The design system sets the show delay, the hide delay and the touch timeout for every tooltip at once. One tooltip can set its own with `showDelay`, `hideDelay` and `touchTimeout`, in milliseconds. Left unset, each takes the system's value.
+
+- **When to set them.** Set a shorter show delay in a dense toolbar that wants its names sooner, and a longer one over a chart whose marks the pointer sweeps across, so that no tooltip flashes. Set a longer touch timeout on a rich tooltip of a few sentences, and a shorter one on a one-word name.
+- **0 means at once.** A show delay of 0 opens the tooltip as the pointer enters the anchor, and a hide delay of 0 closes it as the pointer leaves the anchor, the gap and the tooltip. The tooltip stays hoverable even then, because the gap counts as hover. A touch timeout of 0 closes it as the finger lifts, after it has shown for the whole long-press.
+- **Used as written.** A value you set is not scaled by the motion dial, and reduced motion keeps it: a delay is a wait, not an animation. A negative or non-numeric value takes the system's value and is reported in debug builds. On the web, an empty attribute is not a number either.
+- **Hover and touch only.** Keyboard focus still opens the tooltip at once, a tooltip opened while another is showing still skips its show delay, and setting `open` still shows or hides it at once. The long-press itself takes the platform's own duration.
+- **A change while waiting.** A wait that is already running finishes as it started. The new value applies the next time.
+
+Today only the web and React take these props. When the other platforms catch up, the spec names them in each platform's idiom: `showDelayMillis`, `hideDelayMillis` and `touchTimeoutMillis` on Compose, Flutter `Tooltip`'s `waitDuration`, `exitDuration` and `showDuration`, and the spec's own names on SwiftUI and React Native.
+
+Each platform uses a non-modal presentation: a `popover="manual"` element in the top layer on the web, an overlay above the window on SwiftUI (not `.popover`, which is modal at compact widths), a `Popup` that cannot take focus on Compose, an `OverlayPortal` on Flutter, and the overlay layer of `TanreiProvider` on React Native (not a `Modal`, which takes every touch).
+
+### Do
+
+- Keep plain tooltips to a few words, and rich tooltips to a few sentences.
+- Give the same kind of anchor the same placement across a screen, such as below every icon in a toolbar.
+- Leave `inverse` and `arrow` to the design system for most tooltips, and set them for the one that needs it.
+- Show a command's keys with `shortcut`, not by typing them into the text.
+- Give the tooltips of one group of anchors the same delays, so that they keep one pace.
+- Set `describes` to false when the tooltip shows the anchor's own label.
+
+### Don't
+
+- Don't use a tooltip as the name of an icon button. The button's `label` is its name.
+- Don't put a tooltip on a disabled anchor to explain why it is disabled. A disabled control cannot be focused and may receive no pointer events. Put the reason in visible text.
+- Don't put links, buttons or anything else interactive in a tooltip.
+- Don't repeat in a tooltip what the anchor already says in visible text.
+- Don't use the inverse look or an arrow to make a tooltip seem more important.
+
+## Accessibility
+
+<ComponentAccessibility name="tooltip" />
+
+### What the component handles
+
+- While `describes` is true, the text, after the title for a rich tooltip, is the anchor's accessible description, available whether or not the tooltip is showing. The anchor keeps its own name and role. While `describes` is false, the tooltip adds nothing to the anchor.
+- The drawn tooltip is kept from being read twice. It never takes focus and holds nothing focusable.
+- Keyboard focus on the anchor opens it at once, and moving focus away closes it. The tooltip itself is never a Tab stop.
+- Escape closes it without moving focus, and does not also close an enclosing dialog.
+- It meets WCAG 1.4.13 (content on hover or focus): it can be dismissed without moving the pointer or focus, it can be hovered at any hide delay, 0 included, because the gap between the anchor and the tooltip counts as hover, and it stays until hover or focus ends or it is dismissed.
+- It grows with larger text without clipping it, and its text is aligned to the start of the layout direction.
+- A shortcut is exposed as the anchor's keyboard shortcut (`aria-keyshortcuts` on the web, on the element that takes focus), and the drawn keys are hidden from assistive technology. Where the anchor already states a shortcut of its own, the tooltip's keys are spelled out at the end of the description instead, while `describes` is true.
+- The arrow is decoration and is hidden from assistive technology. Both looks use pairs of text and container colors whose contrast the build checks in every scheme.
+- Its motion is small: a fade, a slight growth and a few pixels of travel. Where motion is reduced it fades without growing or travelling, except on Android, whose setting removes every animation. The delays, the touch timeout and the time during which the next tooltip opens at once are waits, not motion, and are kept everywhere.
+- A tooltip whose text is empty never opens and adds nothing. Debug builds report it, and a plain tooltip's ignored title.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native do not take `showDelay`, `hideDelay` or `touchTimeout` yet, and do not count the gap as hover: every tooltip there takes the system's delays, and the pointer crosses the gap within the hide delay. They also have only the four centred placements (`top`, `bottom`, `start`, `end`), and no `offset`, `crossOffset`, `arrow`, `inverse` or `shortcut`; their tooltips fade without growing or travelling.
+- Web: a touch long-press opens a tooltip only where the browser reports it as a context menu. iOS Safari does not, so there a tooltip does not open by touch.
+- Web: `<tanrei-tooltip>` reads and removes its own `title` attribute, so that the browser does not draw its native tooltip over the anchor too. The `title` property keeps the value.
+- SwiftUI has no tooltip role. The description is the anchor's accessibility hint.
+- SwiftUI on iOS: Return or Space on a focused anchor does not close the tooltip, and Escape closes it only while the anchor has focus. An anchor that takes focus from a tap, such as a text field, opens its tooltip. An anchor that is made transparent or covered is not detected as hidden.
+- SwiftUI draws tooltips in a layer that `.tanreiTheme(_:)` and a Tanrei dialog provide. Content that SwiftUI presents apart, such as your own `.sheet` or `.popover`, needs `.tanreiTooltipLayer()` for its tooltips to show.
+- Compose has no description property. The text becomes the anchor's state description, read after its name and role. A Tanrei control puts it on its own node; any other anchor is described only when a merging ancestor picks it up. On a toggle anchor, such as a toggle icon button, it replaces the On or Off.
+- Compose: a tooltip that you show from code on an anchor behind an open dialog is drawn under the dialog's window.
+- Compose: while focus is elsewhere in the window and the anchor was only hovered, Escape reaches the tooltip only on Android 9 (API 28) and later.
+- Compose: hover from a real mouse, a touch outside, the Escape listener and TalkBack reading the anchor's state description have been tested on Robolectric only, not yet on a device.
+- Flutter: the drawn tooltip is always excluded from semantics, because Flutter's tooltip role cannot be used yet. The description on the anchor is unaffected.
+- Flutter: Escape is consumed only while focus is in the anchor, or by a Tanrei dialog. Another ancestor that handles Escape, such as a Material dialog route, still receives it while focus is elsewhere.
+- React Native: the description is the anchor's `accessibilityHint`, after the anchor's own hint.
+- React Native: a touch elsewhere does not close a long-pressed tooltip sooner. The touch timeout still closes it.
+- React Native: the tooltip does not follow an anchor that scrolls, and does not close when the anchor scrolls out of view. It keeps inside the safe area only when you pass the window's insets to `TanreiProvider`.
+- React Native: hover, moving the pointer onto the tooltip, long-press and Escape have not yet been checked on a device.
+
+### What you need to do
+
+- Give the anchor its own accessible name. The tooltip never replaces it.
+- Set `describes` to false when the text repeats that name.
+- Bind the keys you show with `shortcut` yourself, and show the same keys wherever else the command appears, such as in a menu.
+- Make the anchor focusable, so keyboard users can open the tooltip.
+- If you shorten the touch timeout, make sure the text can still be read in the time left. A timeout of 0 shows the tooltip only while the finger is down.
+- Keep everything a person needs outside the tooltip. Touch and screen-reader users may never see it.
+- On React Native, put `TanreiProvider` at the root of your app, with the window's `insets`: its overlay layer draws the tooltip inside the safe area. On SwiftUI, apply `.tanreiTheme(_:)` above the anchor, and `.tanreiTooltipLayer()` to the content of your own sheets and popovers. On Flutter, the tooltip needs an `Overlay` above it, which every `WidgetsApp` with a `Navigator` has.

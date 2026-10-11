@@ -1,0 +1,614 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "tag",
+  "title": "Tag",
+  "summary": "Names a category or a status with a short static label, quietly, outlined or filled, in the colors of a status where it has one; it is text, never a control.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The shape that holds the label: at least the height of its size, a pill in the default system, filled in the tonal and filled looks and edged in the outlined look. It carries no state: nothing about it answers a pointer, a press or focus."
+    },
+    {
+      "id": "label",
+      "description": "The word or short phrase the tag shows, on one line."
+    },
+    {
+      "id": "icon",
+      "description": "A leading glyph of the system's icon set that the product names (a category's mark, a status's mark). Decorative: the label says what the tag means.",
+      "optional": true
+    },
+    {
+      "id": "dot",
+      "description": "A small filled circle in the leading position, in the look's mark color: the lightest way to show a status beside its word. Drawn where the product asks for it and no glyph is given, and always on an outlined tag that has a status.",
+      "optional": true
+    },
+    {
+      "id": "outline",
+      "description": "The outlined look's edge: one hairline inside the container, the same in every status.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The tag's text: a word or a short phrase (\"Beta\", \"Out of stock\"). It is what the tag draws and what assistive technology reads."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "tonal",
+        "outlined",
+        "filled"
+      ],
+      "default": "tonal",
+      "description": "How much the tag weighs. tonal: a quiet fill, the default. outlined: no fill and one hairline, for many tags close together. filled: a full fill, for the chosen one among its neighbours (the default among values, the required among fields) and for the one status that must not be missed.",
+      "axis": "tanrei.comp.tag.variant"
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "values": [
+        "default",
+        "info",
+        "warning",
+        "error",
+        "success"
+      ],
+      "default": "default",
+      "description": "What the tag reports, in the names the snackbar uses. default: a category or a neutral state, in the look's own colors. info, warning, error and success draw the look in that status's color roles. It changes colors only; the words are the label's and statusLabel's."
+    },
+    {
+      "name": "statusLabel",
+      "type": "string",
+      "default": "",
+      "description": "The status in words, in the product's language (\"Error\"), read by assistive technology before the label and not drawn. For a tag whose label does not itself say the status (an error tag that reads \"3 builds\"); a label that says it (\"Failed\") needs none. Ignored while status is default."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium"
+      ],
+      "default": "medium",
+      "description": "Small (20 high, 12 text) follows a field's label, a table cell or a line of body text without making the line taller; medium (24 high, 14 text) stands beside a heading or by itself.",
+      "axis": "tanrei.comp.tag.size"
+    },
+    {
+      "name": "dot",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the dot before the label, in the look's mark color. A glyph in the icon slot takes its place. An outlined tag with a status draws the dot whatever this says, because nothing else in that look shows the status."
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "description": "The leading glyph: a glyph of the system's icon set, drawn through the platform's icon helper at the tag's glyph size.",
+      "fixture": "glyph"
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "TAG-1",
+      "text": "THE tag SHALL draw a container at least the height of its size (comp.tag.container.height.medium for medium, and so on) with corners comp.tag.container.shape, never larger than half the container's height (a pill where the value is sys.shape.corner.full, at any height the tag grows to) and eased by sys.shape.corner-smoothing, and lay out in one row its glyph or its dot, where it has one, and its label, comp.tag.container.gap apart; the start SHALL be padded by comp.tag.container.padding-inline-with-icon.medium where it holds the glyph or the dot and by comp.tag.container.padding-inline.medium where the label meets it, the end by comp.tag.container.padding-inline.medium, and the row's tallest item (the label's line or the glyph's box) SHALL be padded at the top and bottom by at least comp.tag.container.padding-block.medium (and so on for each size). THE tag SHALL be as wide as its content and its paddings, never wider than its layout gives it, and SHALL draw no elevation.",
+      "verify": "Under the default system a medium tag with a label alone is 24 high with 8 before and after the label; a small one is 20 high with 6. With a glyph the start padding is 6 (medium) and 4 (small) and the glyph is 4 from the label."
+    },
+    {
+      "id": "TAG-2",
+      "text": "WHILE status is default THE tag SHALL fill its container with the container color of its variant and draw its label, and its glyph or dot, in that variant's label and icon colors: comp.tag.tonal.container.color, comp.tag.tonal.label.color and comp.tag.tonal.icon.color for tonal, and outlined's and filled's tokens of the same names (comp.tag.outlined.container.color, comp.tag.filled.container.color, and so on)."
+    },
+    {
+      "id": "TAG-3",
+      "text": "WHILE status is info, warning, error or success THE tag SHALL draw its container, its label and its glyph or dot from the parts of its variant prefixed with the status: for a tonal info tag comp.tag.tonal.info.container.color, comp.tag.tonal.info.label.color and comp.tag.tonal.info.icon.color; for outlined and filled, and for warning, error and success, their own tokens of the same names (comp.tag.outlined.error.icon.color, comp.tag.filled.success.container.color, and so on). A status SHALL change these colors only: the tag's size, shape, layout and edge stay those of its variant and size, and the tag SHALL NOT draw a glyph the product did not give."
+    },
+    {
+      "id": "TAG-4",
+      "text": "WHILE variant is outlined THE tag SHALL draw an edge comp.tag.outline.width wide in comp.tag.outline.color inside its container's size, following its corners, in every status, without changing the tag's size or the place of its content; WHILE variant is tonal or filled it SHALL draw no edge. A status SHALL NOT color the edge: it is the system's one hairline."
+    },
+    {
+      "id": "TAG-5",
+      "text": "THE tag SHALL set its label on one line in the text style of its size (comp.tag.label.typescale.medium for medium, and so on) and the label color of its look (TAG-2, TAG-3), SHALL NOT wrap it, and SHALL cut it with an ellipsis only when the layout gives the tag less width than the label needs, keeping its paddings and its glyph or dot whole; the full label SHALL remain what assistive technology reads.",
+      "verify": "The fixture long-label holds a label wider than any harness's stage and is cut at the stage's width; a test also places a tag in a box 96 wide and reads the full label from the accessibility tree."
+    },
+    {
+      "id": "TAG-6",
+      "text": "WHERE the icon slot holds a glyph THE tag SHALL draw it before the label in a box of comp.tag.icon.size, centred on the label's line, in the icon color of its look (TAG-2, TAG-3), with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, SHALL keep it from assistive technology, and SHALL draw no mark of its own in its place."
+    },
+    {
+      "id": "TAG-7",
+      "text": "WHILE dot is true and the icon slot is empty THE tag SHALL draw before the label a filled circle of diameter comp.tag.dot.size in the icon color of its look (TAG-2, TAG-3), centred on the label's line, a circle whatever corners the container has, and SHALL keep it from assistive technology; WHERE the icon slot holds a glyph THE tag SHALL draw the glyph and no dot."
+    },
+    {
+      "id": "TAG-8",
+      "text": "WHILE variant is outlined and status is info, warning, error or success and the icon slot is empty THE tag SHALL draw the dot of TAG-7 whether dot is true or false, because an outlined tag keeps the surface's label color and the one hairline in every status, so its mark is the only place the status shows.",
+      "verify": "The fixtures outlined-info, outlined-warning, outlined-error and outlined-success leave dot false and draw the dot in the status's color."
+    },
+    {
+      "id": "TAG-9",
+      "text": "THE tag SHALL NOT take pointer, touch or keyboard input, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything it draws under a pointer, a press or focus: it has no hovered, focused, pressed, selected or disabled state, draws no state layer, no ripple and no focus indicator, and emits no event."
+    },
+    {
+      "id": "TAG-10",
+      "text": "WHERE the tag is placed inside an element that takes input (a link, a button, a list item, a table row, a card that is pressed as a whole) THE tag SHALL let input over it reach that element, SHALL stay as it is drawn while that element is hovered, focused or pressed (the state is drawn by that element, on its own container), and SHALL add its text (TAG-11) to that element's content in reading order; it SHALL NOT become a second target inside it."
+    },
+    {
+      "id": "TAG-11",
+      "text": "THE tag SHALL expose its label as plain text, read where the tag sits, with no role, name or state of its own; WHILE status is not default and statusLabel is not empty THE tag SHALL expose statusLabel before the label as part of that text, set apart so that the two are read as two phrases (\"Error, 3 builds\"), and SHALL NOT draw it; WHILE status is default THE tag SHALL ignore statusLabel. THE tag SHALL NOT expose its variant, its size or its status in any other way: a status is given in words or not at all."
+    },
+    {
+      "id": "TAG-12",
+      "text": "WHEN label, status or statusLabel changes THE tag SHALL draw and expose the new value at once, without a motion, and SHALL NOT announce the change by itself."
+    },
+    {
+      "id": "TAG-13",
+      "text": "THE tag SHALL lay itself out inline with the text or the row it is placed in, as one unbreakable box, with the baseline of its label on the baseline of the text beside it; WHILE the text size is enlarged THE tag SHALL grow its container with its label, keeping the height of its size as a minimum, its paddings, and its glyph box and its dot at comp.tag.icon.size and comp.tag.dot.size."
+    },
+    {
+      "id": "TAG-14",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE tag SHALL draw an edge comp.tag.outline.width wide in the platform's text color inside its container in every variant, and its label, glyph and dot in that text color, so that a look whose fill the mode removes is still a bounded label; the status SHALL then rest on the label's words and statusLabel alone.",
+      "verify": "On the web, with forced colors emulated: every fixture has a visible edge in CanvasText and its label in CanvasText; none relies on a background color."
+    },
+    {
+      "id": "TAG-15",
+      "text": "WHERE the layout direction is right-to-left THE tag SHALL mirror the order of its content and apply its paddings by logical start and end, so that the glyph or the dot sits at the right of the label."
+    },
+    {
+      "id": "TAG-16",
+      "text": "THE tag SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the tag is shown THE tag SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "TAG-17",
+      "text": "WHERE the layout direction is right-to-left THE tag SHALL draw the glyph of its icon slot mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order TAG-15 gives. THE tag SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The dot is never mirrored.",
+      "verify": "arrow_forward is marked by the default icon set; check_circle is not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there). The fixture icon-rtl draws arrow_forward mirrored."
+    },
+    {
+      "id": "TAG-18",
+      "text": "THE tag SHALL lay out its label as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a version and a date keep their own order in a right-to-left layout and reorder nothing beside them; THE tag SHALL still place the label by the layout direction, not by the text's own, and SHALL cut a label that does not fit (TAG-5) at the end of its own direction, so that a left-to-right label in a right-to-left layout loses its right end and never its beginning.",
+      "verify": "The fixture long-label-rtl draws a left-to-right label in a right-to-left stage: the dot is at the right, the label begins with its first word and the ellipsis is at the label's right end."
+    },
+    {
+      "id": "TAG-19",
+      "text": "WHEN variant or size names a value that the active design system does not have, or status names a value this spec does not have, THE tag SHALL render with the default value (the default variant's or size's tokens, status default), and in debug builds report the unknown value."
+    },
+    {
+      "id": "TAG-20",
+      "text": "IF label is empty THE tag SHALL draw nothing, take no space and expose nothing, and in debug builds report that a tag has no text: a glyph or a dot alone is not a tag. IF statusLabel is not empty while status is default THE tag SHALL ignore it and in debug builds report it."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [],
+    "labeling": "The tag has no role and no name of its own: it is text, read where it sits. What is read is label, preceded by statusLabel where the tag has a status and the product gave one (\"Error, 3 builds\"). The glyph and the dot are decorative and hidden. Inside a link, a button, a list item or a table cell the tag's text is part of that element's content.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the tag takes no input and no focus (TAG-9), so there is no target to size. minimumTarget holds trivially. A label that must be pressed, selected or removed is a chip; one that leads somewhere is a link.",
+      "A status never rests on color alone (WCAG 1.4.1): the label says it (\"Failed\", \"Stable\"), or statusLabel adds it in words. The component cannot tell whether a label says its status, so this is the product's to check; the docs page says so with examples.",
+      "Several tags in a row are the product's to group: where they are a set (an article's categories), the product lays them out in its platform's list semantics (ul and li on the web) and names the list. The tag does not group itself and has no list role.",
+      "A tag does not announce a change of its text or status (TAG-12). Where a change must be announced (a build that finishes while the person watches), the product puts the tag in a live region or reports the change with a snackbar.",
+      "A label cut by TAG-5 is still read in full by assistive technology, but a person who sees the ellipsis has no way to read the rest from the tag itself: it takes no hover and no focus. Give a tag room for its label, or let the element that holds it (a table cell, a list item) show the full text.",
+      "Contrast in the default system: every label is a role drawn on its paired role (on-secondary-container on secondary-container, on-error-container on error-container, on-primary on primary, on-error on error, on-surface on a surface), each held to 4.5:1 by the token invariants. The status color used for a glyph or a dot keeps 3:1 against its status container and against every surface (it is held to 4.5:1 as text on surfaces). The outlined look's edge is decorative.",
+      "Forced colors (TAG-14): a filled or tonal tag loses its fill, so every look gains an edge in the text color. Statuses then look alike, which is why the status must be in words."
+    ]
+  },
+  "tokens": "comp.tag",
+  "fixtures": [
+    {
+      "id": "tonal",
+      "props": {
+        "label": "Draft"
+      }
+    },
+    {
+      "id": "outlined",
+      "props": {
+        "variant": "outlined",
+        "label": "Draft"
+      }
+    },
+    {
+      "id": "filled",
+      "props": {
+        "variant": "filled",
+        "label": "Default"
+      }
+    },
+    {
+      "id": "tonal-info",
+      "props": {
+        "variant": "tonal",
+        "status": "info",
+        "label": "In review"
+      }
+    },
+    {
+      "id": "tonal-warning",
+      "props": {
+        "variant": "tonal",
+        "status": "warning",
+        "label": "Expiring"
+      }
+    },
+    {
+      "id": "tonal-error",
+      "props": {
+        "variant": "tonal",
+        "status": "error",
+        "label": "Failed"
+      }
+    },
+    {
+      "id": "tonal-success",
+      "props": {
+        "variant": "tonal",
+        "status": "success",
+        "label": "Passed"
+      }
+    },
+    {
+      "id": "outlined-info",
+      "props": {
+        "variant": "outlined",
+        "status": "info",
+        "label": "In review"
+      }
+    },
+    {
+      "id": "outlined-warning",
+      "props": {
+        "variant": "outlined",
+        "status": "warning",
+        "label": "Expiring"
+      }
+    },
+    {
+      "id": "outlined-error",
+      "props": {
+        "variant": "outlined",
+        "status": "error",
+        "label": "Failed"
+      }
+    },
+    {
+      "id": "outlined-success",
+      "props": {
+        "variant": "outlined",
+        "status": "success",
+        "label": "Passed"
+      }
+    },
+    {
+      "id": "filled-info",
+      "props": {
+        "variant": "filled",
+        "status": "info",
+        "label": "In review"
+      }
+    },
+    {
+      "id": "filled-warning",
+      "props": {
+        "variant": "filled",
+        "status": "warning",
+        "label": "Expiring"
+      }
+    },
+    {
+      "id": "filled-error",
+      "props": {
+        "variant": "filled",
+        "status": "error",
+        "label": "Failed"
+      }
+    },
+    {
+      "id": "filled-success",
+      "props": {
+        "variant": "filled",
+        "status": "success",
+        "label": "Passed"
+      }
+    },
+    {
+      "id": "small-tonal",
+      "props": {
+        "size": "small",
+        "label": "Optional"
+      }
+    },
+    {
+      "id": "small-outlined",
+      "props": {
+        "size": "small",
+        "variant": "outlined",
+        "label": "Optional"
+      }
+    },
+    {
+      "id": "small-filled",
+      "props": {
+        "size": "small",
+        "variant": "filled",
+        "label": "Required"
+      }
+    },
+    {
+      "id": "small-tonal-error",
+      "props": {
+        "size": "small",
+        "status": "error",
+        "label": "Failed"
+      }
+    },
+    {
+      "id": "icon",
+      "props": {
+        "label": "Design"
+      },
+      "slots": {
+        "icon": "sell"
+      }
+    },
+    {
+      "id": "icon-outlined",
+      "props": {
+        "variant": "outlined",
+        "label": "Design"
+      },
+      "slots": {
+        "icon": "sell"
+      }
+    },
+    {
+      "id": "icon-filled",
+      "props": {
+        "variant": "filled",
+        "label": "Default"
+      },
+      "slots": {
+        "icon": "check"
+      }
+    },
+    {
+      "id": "icon-success",
+      "props": {
+        "status": "success",
+        "label": "Passed"
+      },
+      "slots": {
+        "icon": "check_circle"
+      }
+    },
+    {
+      "id": "icon-outlined-error",
+      "props": {
+        "variant": "outlined",
+        "status": "error",
+        "label": "Failed"
+      },
+      "slots": {
+        "icon": "error"
+      }
+    },
+    {
+      "id": "icon-small",
+      "props": {
+        "size": "small",
+        "label": "Design"
+      },
+      "slots": {
+        "icon": "sell"
+      }
+    },
+    {
+      "id": "dot",
+      "props": {
+        "dot": true,
+        "label": "Archived"
+      }
+    },
+    {
+      "id": "dot-success",
+      "props": {
+        "dot": true,
+        "status": "success",
+        "label": "Online"
+      }
+    },
+    {
+      "id": "dot-small-outlined-warning",
+      "props": {
+        "size": "small",
+        "variant": "outlined",
+        "status": "warning",
+        "label": "Degraded"
+      }
+    },
+    {
+      "id": "status-label",
+      "props": {
+        "status": "error",
+        "statusLabel": "Error",
+        "label": "3 builds"
+      }
+    },
+    {
+      "id": "long-label",
+      "props": {
+        "status": "info",
+        "dot": true,
+        "label": "Awaiting a second review from the accessibility working group before the release candidate can be tagged, built for every platform and handed to the people who publish it"
+      }
+    },
+    {
+      "id": "long-label-rtl",
+      "props": {
+        "status": "info",
+        "dot": true,
+        "label": "Awaiting a second review from the accessibility working group before the release candidate can be tagged, built for every platform and handed to the people who publish it"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "icon-rtl",
+      "props": {
+        "label": "التالي"
+      },
+      "slots": {
+        "icon": "arrow_forward"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-label-rtl",
+      "props": {
+        "variant": "outlined",
+        "status": "success",
+        "label": "v2.1 beta"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "docs-status-planned",
+      "props": {
+        "size": "small",
+        "variant": "outlined",
+        "label": "Planned"
+      },
+      "slots": {
+        "icon": "radio_button_unchecked"
+      }
+    },
+    {
+      "id": "docs-status-lagging",
+      "props": {
+        "size": "small",
+        "variant": "outlined",
+        "status": "warning",
+        "label": "Lagging"
+      },
+      "slots": {
+        "icon": "schedule"
+      }
+    },
+    {
+      "id": "docs-status-alpha",
+      "props": {
+        "size": "small",
+        "label": "Alpha"
+      },
+      "slots": {
+        "icon": "clock_loader_40"
+      }
+    },
+    {
+      "id": "docs-status-beta",
+      "props": {
+        "size": "small",
+        "label": "Beta"
+      },
+      "slots": {
+        "icon": "clock_loader_80"
+      }
+    },
+    {
+      "id": "docs-status-stable",
+      "props": {
+        "size": "small",
+        "status": "success",
+        "label": "Stable"
+      },
+      "slots": {
+        "icon": "check_circle"
+      }
+    },
+    {
+      "id": "docs-status-deprecated",
+      "props": {
+        "size": "small",
+        "status": "error",
+        "label": "Deprecated"
+      },
+      "slots": {
+        "icon": "block"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-tag",
+      "props": {
+        "label": "label",
+        "variant": "variant",
+        "status": "status",
+        "statusLabel": "statusLabel",
+        "size": "size",
+        "dot": "dot"
+      },
+      "notes": "`<tanrei-tag>` with the label as the `label` attribute and the glyph in the `icon` slot. The host is `display: inline-flex` with `vertical-align: baseline` and no `role`, no `tabindex` and no listeners; `pointer-events` stay as they are, so a press over a tag inside a link or a button reaches that element (TAG-10). `statusLabel` is reflected as the `status-label` attribute and drawn as visually hidden text before the label in the shadow root, followed by a comma and a space (TAG-11); the glyph and the dot are `aria-hidden`. The label is one `dir=\"auto\"` run with `text-overflow: ellipsis` (TAG-18). Under `forced-colors: active` the container takes a `CanvasText` border of the outline width (TAG-14)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiTag",
+      "props": {
+        "label": "title",
+        "variant": "variant",
+        "status": "status",
+        "statusLabel": "statusLabel",
+        "size": "size",
+        "dot": "showsDot"
+      },
+      "notes": "`TanreiTag(_ title: String, variant:, status:, statusLabel:, size:, showsDot:, icon:)`, the glyph given by name through `icon:`. Not a `Button` and not focusable; `allowsHitTesting(false)` so a press reaches a row or a link that holds it. The view is one accessibility element whose label is `statusLabel` and the title joined by a comma, with the static text trait."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiTag",
+      "props": {
+        "label": "label",
+        "variant": "variant",
+        "status": "status",
+        "statusLabel": "statusDescription",
+        "size": "size",
+        "dot": "showDot"
+      },
+      "notes": "`TanreiTag(label, variant, status, statusDescription, size, showDot, icon)`, the glyph given by name through `icon`. No `clickable` and no `focusable` modifier. The label's text semantics are replaced by `statusDescription` and the label joined by a comma where a status label is given; the glyph and the dot are cleared from semantics."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiTag",
+      "props": {
+        "label": "label",
+        "variant": "variant",
+        "status": "status",
+        "statusLabel": "statusSemanticLabel",
+        "size": "size",
+        "dot": "showDot"
+      },
+      "notes": "`TanreiTag(label: …, variant:, status:, statusSemanticLabel:, size:, showDot:, icon:)`, the glyph given by name through `icon`. Wrapped in `IgnorePointer`, with no `Focus`. One `Semantics(label:)` over the drawn parts, which are excluded."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Tag",
+      "props": {
+        "label": "label",
+        "variant": "variant",
+        "status": "status",
+        "statusLabel": "statusAccessibilityLabel",
+        "size": "size",
+        "dot": "dot"
+      },
+      "notes": "`<Tag label=\"Beta\" />`; the glyph is the `icon` prop (a glyph name). `pointerEvents=\"none\"` and not `focusable`. One accessible element with `accessibilityRole=\"text\"` whose `accessibilityLabel` is the status label and the label joined by a comma. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

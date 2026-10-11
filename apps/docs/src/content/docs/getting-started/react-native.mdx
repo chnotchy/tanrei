@@ -1,0 +1,86 @@
+---
+title: React Native
+description: Add Tanrei to a React Native app.
+---
+
+import Callout from '../../../components/Callout.astro';
+import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+
+`@tanrei/react-native` is written in TypeScript with no native modules, so there is nothing to link and it works with Expo. It targets the New Architecture and requires React 19 and React Native 0.78 or later.
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+
+## Install
+
+### From source
+
+<Callout type="caution" title="Does not build today">
+  The React Native package has not caught up with the current specs and tokens: its sources were written against an earlier version of the generated token code, and its build stops with type errors against today's. Its CI is paused until it catches up, and the [status page](/status/) marks its components *lagging*. The steps below are how it is added to an app; they work once the package has caught up.
+</Callout>
+
+As for the [Web package](/getting-started/web/) (Git, Node 22.12 or later, pnpm 12): build the package in a clone of the repository and pack it,
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/react-native build
+pnpm --filter @tanrei/react-native pack --pack-destination ../tanrei-packages
+```
+
+then install the packed file in your app:
+
+```sh
+npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
+```
+
+### After the first release
+
+```sh
+npm install @tanrei/react-native
+```
+
+## Use
+
+```tsx
+import { Button, TanreiProvider } from '@tanrei/react-native';
+
+export function App() {
+  return (
+    <TanreiProvider>
+      <Button variant="filled" onPress={deploy}>
+        Deploy
+      </Button>
+      <Button variant="outlined" size="small" disabled>
+        Cancel
+      </Button>
+    </TanreiProvider>
+  );
+}
+```
+
+The component is named `Button`, without a prefix, because JavaScript modules already namespace it. Activation is reported through `onPress`, the React Native idiom for the spec's `click` event.
+
+## Theme and contrast
+
+`TanreiProvider` follows the system color scheme by default. Set `theme` to `"light"` or `"dark"` and `contrast` to `"standard"`, `"medium"` or `"high"` to fix them:
+
+```tsx
+<TanreiProvider theme="dark" contrast="high">
+  <App />
+</TanreiProvider>
+```
+
+Inside the tree, `useTanrei()` returns the resolved colors and text styles for your own views:
+
+```tsx
+const theme = useTanrei();
+<Text style={[theme.text('body'), { color: theme.color('onSurfaceVariant') }]}>Last deployed 2 minutes ago</Text>;
+<Text style={theme.text('heading2', { emphasized: true })}>Deployments</Text>;
+```
+
+Text styles and color roles are keyed in camelCase on this platform: `heading1` to `heading6` are `h1` to `h6`, `body` is a paragraph, `label` the text on a control; the token `sys.color.on-surface-variant` is `onSurfaceVariant`. `emphasized` adds the family's emphasis step to the weight; it is not a separate role.
+
+## Fonts
+
+Load Inter (and Noto Sans JP, Roboto Mono) with your usual font setup (for example `expo-font`). Because React Native selects a font file per weight, pass a `resolveFont` function to `TanreiProvider` to map a family and weight to the font names you registered.

@@ -1,0 +1,534 @@
+---
+title: Text field
+description: Lets people enter and edit text — one line, or several that follow the text or are resized by hand — or a date or a time entered unit by unit in the locale's form, or code held exactly as it is written, with a label that can say the field is required or optional, optional icons, prefix and suffix, supporting text, a character count and a picker button.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="text-field" />
+
+:::note[A revised spec, not yet on every platform]
+This page describes the text field as the spec has it now: a `stacked` variant, the default, with its label above the field; `filled` and `outlined` kept for the Material and cupertino presets only; heights of 48 and 56; date and time types, with a picker button; a multi-line field that follows its text or is resized with a grip (`resize`); a date or a time entered unit by unit, in segments; and `requirement`, which marks a field as required or optional and replaces the `required` flag. The web component already does all of this, and so do the demos. A field can also hold code (`type="code"`, and `wrap` for its lines): the web has built it, and no other platform has yet. The text field is a field around a text input, as this page describes it: the web has built that too, and there the `required` attribute is gone. SwiftUI, Compose, Flutter and React Native are marked lagging above: until they catch up they ship the previous revision, outlined by default at 36 and 40, with a `required` flag that draws no mark, and with no `stacked` variant, no date or time types, no picker button and no resize modes, and their samples show that revision.
+:::
+
+<DemoFrame label="Stacked, the default: a required field, and a date with its picker button" column>
+  <tanrei-text-field label="Email" type="email" requirement="required" required-text="Required" supporting-text="We only use it to sign you in."></tanrei-text-field>
+  <tanrei-text-field label="Start date" type="date" locale="en-US" value="2026-09-27" picker picker-label="Choose start date" segment-empty-text="Empty"></tanrei-text-field>
+</DemoFrame>
+
+Use a text field wherever a form asks for text: it is the ordinary case, ready to use, with a label, the box, a line of help, the words for a wrong value and a count.
+
+**Built from** a [field](/components/field/) and a [text input](/components/text-input/). The field is the frame: the label, the required or optional mark, the help, the error and the count. The text input is the control: the box and everything typed in it. The text field draws nothing of its own and has no token: every property it has is a property of one of the two, given to it unchanged.
+
+It is a block as wide as the place it is put in, and its box fills it. It has no width of its own: for a narrower field, give it a narrower place.
+
+### Usage
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-text-field name="email" label="Email" type="email" autocomplete="email" requirement="required" required-text="Required"
+        supporting-text="We only use it to sign you in."></tanrei-text-field>
+      <tanrei-text-field name="company" label="Company" requirement="optional" optional-text="Optional"></tanrei-text-field>
+      <!-- Follows its text from 3 lines to 8, then scrolls. -->
+      <tanrei-text-field name="message" label="Message" multiline min-rows="3" max-rows="8"></tanrei-text-field>
+      <!-- Resized by hand, with a grip. -->
+      <tanrei-text-field name="notes" label="Notes" multiline resize="manual" resize-label="Resize notes"></tanrei-text-field>
+    </form>
+
+    <!-- The box alone, in a toolbar: a text input, named by its own label. Importing the text field defines it. -->
+    <tanrei-text-input label="Search" type="search" placeholder="Search components">
+      <span slot="leading-icon">search</span>
+    </tanrei-text-input>
+
+    <!-- Code: left to right in the code face in every page direction, never corrected or spell-checked. -->
+    <tanrei-text-field label="Pattern" type="code" value="tanrei.comp.button.*.container.color"></tanrei-text-field>
+    <tanrei-text-field label="Webhook body" type="code" multiline min-rows="4" supporting-text="JSON"></tanrei-text-field>
+    <!-- No wrapping: each line of the code stays on one line, and a long line scrolls inside the field. -->
+    <tanrei-text-field label="Rows" type="code" multiline no-wrap></tanrei-text-field>
+
+    <!-- A date entered unit by unit in the locale's order, held as 2026-09-27, with a picker button. -->
+    <tanrei-text-field id="start" label="Start date" type="date" min="2026-01-01" disabled-dates="2026-05-01 2026-12-25"
+      invalid-text="Finish the date." unavailable-text="Choose a working day in 2026 or later."
+      picker picker-label="Choose start date" segment-empty-text="Empty"></tanrei-text-field>
+    <tanrei-date-time-picker id="start-picker" presentation="docked" anchor="start" label="Start date"></tanrei-date-time-picker>
+
+    <script type="module">
+      import '@tanrei/web/components/text-field';
+      const email = document.querySelector('[name="email"]');
+      email.addEventListener('input', () => draft(email.value)); // every edit
+      email.addEventListener('change', () => save(email.value)); // focus left or Enter, with a changed value
+      // Validation is yours: the field never sets error itself.
+      email.error = submitted && !isValid(email.value);
+      email.errorText = 'Enter a complete email address.';
+
+      // The field asks; the product presents the picker and writes the value back.
+      const start = document.querySelector('#start');
+      const picker = document.querySelector('#start-picker');
+      start.addEventListener('pickerrequest', (e) => {
+        Object.assign(picker, { value: e.detail.value, min: e.detail.min, max: e.detail.max, disabledDates: start.disabledDates, open: true });
+      });
+      picker.addEventListener('change', () => (start.value = picker.value));
+      picker.addEventListener('close', () => (picker.open = false));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TextField } from '@tanrei/react';
+
+    <TextField
+      label="Email"
+      type="email"
+      autocomplete="email"
+      value={email}
+      onInput={(e) => setEmail(e.currentTarget.value)}
+      onChange={() => save(email)}
+      requirement="required"
+      requiredText="Required"
+      error={submitted && !isValid(email)}
+      errorText="Enter a complete email address."
+    />
+
+    <TextField label="Message" multiline minRows={3} maxRows={8} value={message}
+      onInput={(e) => setMessage(e.currentTarget.value)} />
+
+    // A date: the value is ISO 8601, or empty while a segment is empty.
+    <TextField
+      label="Start date"
+      type="date"
+      min="2026-01-01"
+      value={start}
+      invalidText="Finish the date."
+      unavailableText="Choose a date in 2026 or later."
+      segmentEmptyText="Empty"
+      picker
+      pickerLabel="Choose start date"
+      onChange={(e) => setStart(e.currentTarget.value)}
+      onEntryerror={(e) => report(e.detail.reason)}
+      onPickerrequest={() => setPickerOpen(true)}
+    />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiTextField("Email", text: $email, type: .email,
+                    supportingText: "We only use it to sign you in.",
+                    errorText: "Enter a complete email address.",
+                    error: submitted && !isValid(email),
+                    textContentType: "email", // an HTML autofill name
+                    onCommit: save,
+                    // Pass the action here: an enclosing .onSubmit runs before onCommit.
+                    onSubmit: signIn)
+
+    // Multi-line is the vertical axis with a line limit range.
+    TanreiTextField("Message", text: $message, axis: .vertical, lineLimit: 3...8)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.text.KeyboardActions
+    import io.github.chnotchy.tanrei.components.TanreiTextField
+    import io.github.chnotchy.tanrei.components.TanreiTextFieldType
+
+    var email by remember { mutableStateOf("") }
+    TanreiTextField(
+        value = email,
+        onValueChange = { email = it },
+        label = "Email",
+        type = TanreiTextFieldType.Email,
+        contentType = "email", // an HTML autofill name
+        supportingText = "We only use it to sign you in.",
+        isError = submitted && !isValid(email),
+        errorText = "Enter a complete email address.",
+        onCommit = { save(it) },
+        keyboardActions = KeyboardActions(onDone = { signIn() }),
+    )
+
+    // singleLine is the inverse of the spec's multiline.
+    TanreiTextField(value = message, onValueChange = { message = it }, label = "Message", singleLine = false, minLines = 3)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiTextField(
+      controller: email, // or initialValue: '…'
+      labelText: 'Email',
+      type: TanreiTextFieldType.email,
+      autofillHints: TanreiTextField.autofillHintsFromHtml('email'),
+      helperText: 'We only use it to sign you in.',
+      isError: submitted && !isValid(email.text),
+      errorText: 'Enter a complete email address.',
+      onCommit: save,
+      onSubmitted: (String value) => signIn(),
+    );
+
+    TanreiTextField(labelText: 'Message', multiline: true, minLines: 3);
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { TextField } from '@tanrei/react-native';
+
+    <TextField
+      label="Email"
+      type="email"
+      autoComplete="email"
+      value={email}
+      onChangeText={setEmail}
+      supportingText="We only use it to sign you in."
+      error={submitted && !isValid(email)}
+      errorText="Enter a complete email address."
+      onEndEditing={save}
+      onSubmitEditing={signIn}
+    />
+    <TextField label="Message" multiline minRows={3} value={message} onChangeText={setMessage} />
+    ```
+  </TabItem>
+</Tabs>
+
+### One level down
+
+The same field, written by hand from its two members, is the same picture, and to assistive technology the same text box with the same name, description and states:
+
+```html
+<tanrei-field label="Email" requirement="required" required-text="Required"
+  supporting-text="We only use it to sign you in.">
+  <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="The same field written by hand: a field with a text input in it" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Email" requirement="required" required-text="Required" supporting-text="We only use it to sign you in.">
+    <tanrei-text-input type="email"></tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+Go one level down when you need an arrangement the text field does not offer:
+
+| You need | Use |
+| --- | --- |
+| A label, the box, help, an error and a count | The text field |
+| Something of your own inside the frame, beside or below the box | A [field](/components/field/) with a [text input](/components/text-input/) and your own element in it |
+| The box alone, under a label that stands elsewhere: a filter in a toolbar, a cell of a table, a row with its label beside it | The [text input](/components/text-input/) alone, named by its own `label` |
+
+What changes one level down is where things are said. `name` and `value` are on the text input, which is then the control the form meets, and its events are heard on it. `label`, `error`, `disabled` and the requirement stay on the field, which passes them to the control: do not set the input's own.
+
+One thing the text field does that the field and the text input written by hand do not do: it keeps the count in step. By hand, with `counter` set, give the field the input's count at every change:
+
+```js
+field.countText = input.countText;
+input.addEventListener('input', () => (field.countText = input.countText));
+```
+
+## Specs
+
+<DemoFrame label="Error, disabled, read-only, affixes and counter" plain column>
+  <tanrei-text-field label="Email" value="ada@" error error-text="Enter a complete email address."></tanrei-text-field>
+  <tanrei-text-field label="Email" value="ada@example.com" disabled></tanrei-text-field>
+  <tanrei-text-field label="Email" value="ada@example.com" readonly></tanrei-text-field>
+  <tanrei-text-field label="Amount" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-field>
+  <tanrei-text-field label="Display name" value="Ada Lovelace" maxlength="40" counter></tanrei-text-field>
+  <tanrei-text-field size="large" label="Email" value="ada@example.com"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="Types: password, search, number, telephone and URL" plain column>
+  <tanrei-text-field label="Password" type="password" value="correct horse" autocomplete="current-password"></tanrei-text-field>
+  <tanrei-text-field label="Search" label-hidden type="search" placeholder="Search components">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-field>
+  <tanrei-text-field label="Quantity" type="number" value="12"></tanrei-text-field>
+  <tanrei-text-field label="Phone" type="tel" autocomplete="tel" placeholder="+1 555 0100"></tanrei-text-field>
+  <tanrei-text-field label="Website" type="url" placeholder="https://example.com"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="Required and optional: the tags, and the asterisk" plain column>
+  <tanrei-text-field label="Email" type="email" requirement="required" required-text="Required"></tanrei-text-field>
+  <tanrei-text-field label="Company" requirement="optional" optional-text="Optional"></tanrei-text-field>
+  <tanrei-text-field label="Email" type="email" requirement="required" required-mark="asterisk"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="Several lines: following the text, resized by a grip (down, and both ways), and fixed" plain column>
+  <tanrei-text-field label="Message" multiline min-rows="2" max-rows="5" placeholder="Type a few lines: the field grows to five, then scrolls"></tanrei-text-field>
+  <tanrei-text-field label="Notes" multiline resize="manual" max-rows="10" resize-label="Resize notes"></tanrei-text-field>
+  <tanrei-text-field label="Description" multiline resize="manual" resize-axis="both" resize-label="Resize description"></tanrei-text-field>
+  <tanrei-text-field label="Address" multiline resize="fixed" min-rows="3"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="Code: a pattern on one line, JSON on several lines, and lines that do not wrap" plain column>
+  <tanrei-text-field type="code" label="Pattern" value="tanrei.comp.button.*.container.color" supporting-text="A token id, with * for any part."></tanrei-text-field>
+  <tanrei-text-field type="code" multiline min-rows="4" label="Layer" value="{&#10;  &quot;id&quot;: &quot;acme&quot;,&#10;  &quot;extends&quot;: &quot;tanrei&quot;&#10;}"></tanrei-text-field>
+  <tanrei-text-field type="code" multiline no-wrap min-rows="3" label="Rules" value="{ &quot;match&quot;: &quot;tanrei.comp.button.*.hovered.container.color&quot;, &quot;$value&quot;: &quot;{tanrei.sys.color.primary}&quot; }&#10;{ &quot;match&quot;: &quot;*&quot; }"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="Code in a right-to-left page: the label and the help follow the page, the code begins at the left" plain column>
+  <div dir="rtl" lang="ar" style="display: grid; gap: 1rem;">
+    <tanrei-text-field type="code" label="النمط" value="tanrei.comp.*.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
+    <tanrei-text-field type="code" multiline min-rows="3" label="المصادر" value="[&quot;مرحبا&quot;, &quot;acme&quot;]&#10;// تعليق: comment"></tanrei-text-field>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="A date, a time, and a date and time, in segments. Tab, the arrow keys and digits fill them" plain column>
+  <tanrei-text-field label="Start date" type="date" locale="en-US" picker picker-label="Choose start date" invalid-text="Finish the date." segment-empty-text="Empty"></tanrei-text-field>
+  <tanrei-text-field label="Start time" type="time" locale="en-US" value="14:30" segment-empty-text="Empty"></tanrei-text-field>
+  <tanrei-text-field label="Departure" type="date-time" locale="en-US" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="Choose a time from September 2026 on." segment-empty-text="Empty"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="Filled and outlined, the Material presets' variants" system="m3-like" plain column>
+  <tanrei-text-field variant="filled" label="Email" type="email" value="ada@example.com"></tanrei-text-field>
+  <tanrei-text-field variant="outlined" label="Email" type="email" supporting-text="We only use it to sign you in."></tanrei-text-field>
+</DemoFrame>
+
+### What each member gives
+
+| Aspect | From the field | From the text input |
+| --- | --- | --- |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | Every other one: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, the lines and the resize, `wrap`, `maxLength`, `counter`, the prefix and the suffix, `autocomplete`, and everything of a date or a time |
+| Events | — | `input`, `change`, `action`, `pickerRequest`, `entryError` |
+| Slots | `label-icon` | `leading-icon`, `trailing-icon` |
+| Tokens | `comp.field.*` | `comp.input-box.*` for the box, which every input box reads; `comp.text-input.*` for what a text input alone draws |
+
+The text input has a `label`, a `labelHidden`, an `error` and a `disabled` of its own. They are not what the text field sets: its `label` is the field's, which names the input and, in a filled or an outlined field, is what floats in the box.
+
+### Tokens
+
+The text field has no token of its own. Its box reads the [text input's tokens](/components/text-input/#specs) and its rows — the label, the mark, the help, the error and the count — read the [field's tokens](/components/field/#specs), wherever they are set. The table below lists the field's. To change one instance, set a member's token on it:
+
+```html
+<tanrei-text-field label="Email"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-text-field>
+```
+
+<ComponentSpecs name="text-field" />
+
+### What the web draws differently
+
+- The element's shadow root holds a `<tanrei-field>` with a `<tanrei-text-input>` in it, and nothing else. Importing the element defines both.
+- The element is a block that fills its place, not an inline box as wide as the browser's own text input.
+- The element is form-associated. It takes `name` and `form`, submits the value — nothing while disabled —, resets to the `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and it is empty. Its two members add no entry to the form. Enter in a single-line field presses the default button of the element's form; cancel `action` to prevent it.
+- `input`, `change`, `action`, `pickerrequest` and `entryerror` are the text input's own events. Their target is the element, and `event.target.value` is the new value in every listener. The detail types are the input's: `TanreiTextInputActionDetail`, `TanreiTextInputPickerRequestDetail` and `TanreiTextInputEntryErrorDetail`.
+- Parts: `field` and `text-input` are the two members. Their own parts have the same names here as one level down: `label-icon`, `supporting-text`, `counter`; `container`, `outline`, `active-indicator`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`. `label` and `requirement-label` are the drawn ones, whichever member draws them; `field-label`, `text-input-label`, `field-requirement-label` and `text-input-requirement-label` name one member's.
+- The element is not focusable itself and has no role: `focus()` goes to the input. A press on the label row, on the box or on a floating label focuses the input. A press on the help, the error text, the count or the gap between a row and the box does nothing.
+- Name it with `label` — with `label-hidden` where the label is not to be drawn — and never with `aria-label`, which names nothing here.
+- The attributes are the members' own: kebab-case, such as `supporting-text`, `error-text`, `min-rows` and `no-wrap`, except `readonly`, `maxlength`, `autocomplete`, `min` and `max`. There is no `required` attribute: say `requirement="required"`.
+- Before the element is defined it has no size. Reserve its height.
+
+## Guidelines
+
+### When to use
+
+Use a text field when people type a value: a name, an email address, a search, a message. When they pick from a known set of values, use a control made for choosing. Where only the box is wanted, because the label stands elsewhere — a filter in a toolbar, a cell of a table — use a [text input](/components/text-input/).
+
+### Choosing a variant and a size
+
+Use one variant throughout a form.
+
+| Variant | Marked by | Where |
+| --- | --- | --- |
+| Stacked (default) | The label above a tinted box with no edge. Focus draws a line inside the box's edge, which moves nothing; an error draws a thin line at rest. | Every system. It is the only variant the Tanrei system ships. |
+| Filled | A tinted box and a bottom line, with the label floating inside | The Material and cupertino presets |
+| Outlined | A border that thickens when focused, with the label floating into it | The Material and cupertino presets |
+
+The default is stacked in every system, including the presets. A Material product that wants Material's floating label sets `variant` to `outlined` or `filled` on its fields. Under the Tanrei system, `filled` and `outlined` still work, with a warning in development.
+
+`medium` (48) is Material's dense field and `large` (56) is Material's field. Use `medium` in filters and dense settings, and `large` in sign-in and checkout forms. The input text is 16 at both sizes in the default system. Heights are minimums: the field grows with larger text.
+
+### Labels and placeholders
+
+- Every field needs a `label`. In a stacked field it stands above the box, from its start edge, and never moves or resizes; a long label wraps rather than being cut. A `label-icon` slot can put a glyph before it. In a filled or outlined field the label rests in the field while it is empty, and floats when the field is focused or filled.
+- `labelHidden` stops drawing the label, but it stays the accessible name, and the help and the error stay below the box. Where the box alone is wanted — a filter in a toolbar, a cell, a row whose label stands beside it — use a [text input](/components/text-input/) with its own `label` instead.
+- The placeholder is a hint, such as an example value. It shows while the field is empty and the label is not in the input line: always in a stacked field, and only while the label is floated or hidden in the others. It is never the name.
+
+### Required and optional
+
+`requirement` says what the form asks of a field: `none` (the default), `required` or `optional`. It is one setting with three values, because a field is never both.
+
+- **Required** exposes the field as required and draws the required mark beside the label.
+- **Optional** draws the requirement tag in its optional form and adds its text to the field's description.
+- **The mark** is a small tag after a stacked label by default: filled for required, tonal for optional. Its words are `requiredText` and `optionalText`, and they are yours: on the field, or once for the whole product with `setWords()`. Tanrei ships none: without `requiredText` an asterisk stands in the tag's place, and without `optionalText` no tag is drawn. It does not make the label's row taller, and it wraps to a line of its own when the label leaves it no room.
+- **An asterisk instead.** Which mark a required field draws is one choice of the design system for every form, `sys.behavior.requirement-mark`: the tag in the default system, an asterisk in the Material presets, nothing in cupertino. `requiredMark` overrides it for one field (`tag`, `asterisk`, or `none`, which keeps the semantics and draws nothing). A filled or outlined field draws the asterisk where the tag is asked for.
+- **It validates nothing.** The field never sets `error` for a missing value. You do, with `error` and `errorText`.
+
+Mark the fewer of the two in a form: where most fields are required, mark the optional ones, and the other way round. If you use the asterisk, say once near the top of the form what it means.
+
+`requirement` replaces the `required` flag of the previous revision. On the web neither the `required` attribute nor the property exists any more: write `requirement="required"`. A field that was required now also shows a mark: set `requiredMark` to `none` where you do not want one.
+
+### Help and error text
+
+- `supportingText` is one line of help below the field. It is also read as the field's description.
+- Validation is yours. When a value is wrong, set `error` and write `errorText`: it is drawn below the supporting text, which stays, so the field is taller by a line while it is in error. Do not repeat the help in the error text.
+- Say how to fix the value, not only that it is wrong: "Enter a complete email address.", not "Invalid".
+- Show an error after the person leaves the field or submits the form, not while they are still typing.
+
+### The counter
+
+- `maxLength` limits what a person can type. It counts characters as people see them, so an emoji or an accented letter counts once. A paste is shortened to fit. A value you set is never shortened.
+- `counter` shows the count at the end of the supporting row, followed by the limit when `maxLength` is set ("12/40").
+- Show the counter only when the limit matters to the person, such as a display name or a short bio.
+
+### Input types
+
+`type` chooses the keyboard, autocorrection and obscured entry. The value is a string for every type.
+
+| Type | Keyboard and behaviour |
+| --- | --- |
+| `text` | A general keyboard. |
+| `email` | An email keyboard, no autocapitalization or autocorrection. |
+| `password` | Obscured, secure entry, no autocorrection. Always one line. |
+| `number` | A numeric keyboard with a decimal separator. The value is not parsed, rounded or validated. |
+| `search` | A general keyboard whose action key reads as search. |
+| `tel` | A phone keypad. |
+| `url` | A URL keyboard, no autocapitalization or autocorrection. |
+| `code` | A general keyboard, and nothing done to the text: no autocorrection, autocapitalization, spelling check or substituted characters. One line or, with `multiline`, several. See [Code](#code). |
+| `date`, `time`, `date-time` | A date, a time, or both, entered unit by unit in the locale's numeric form. Always one line. See [Dates and times](#dates-and-times). |
+
+Add `autocomplete` with an HTML autofill name (`email`, `current-password`, `one-time-code` …) so the platform can fill the field. Each platform maps it to its own content type. A short code of known length that is drawn in cells is a [one-time-code input](/components/one-time-code-input/).
+
+### Several lines
+
+`multiline` accepts line breaks and shows several lines. `resize` says how the field gets its height:
+
+| `resize` | Height | Grip | `minRows` and `maxRows` |
+| --- | --- | --- | --- |
+| `auto` (default) | Follows the number of lines, with a short motion | None | The fewest and the most lines. Past the most it scrolls; 0 is no limit |
+| `manual` | What the person gives it. It starts at `minRows` | In the bottom corner at the end edge | The smallest and the tallest it can be made |
+| `fixed` | `minRows` lines | None | `maxRows` is ignored |
+
+- **Auto** suits most fields: a comment, a message, a description. Set `maxRows` where a long text must not push the rest of the form away.
+- **Manual** suits text a person reads back and arranges: notes, a long description, code. `resizeAxis` is `vertical` by default; `both` also lets the person change the field's width, within what its layout allows. The size is kept, and the text wraps and scrolls inside it.
+- **Fixed** suits a form whose layout must not move, such as an address block.
+- **The grip works without a drag.** It is a focus stop named by `resizeLabel`. The arrow keys resize by a line, Home and End go to the smallest and the tallest, and a click, Enter or Space fits the height to the text, or returns it to `minRows` when it already fits. Its target is the minimum target, though its glyph is small. A disabled field draws no grip; a read-only one keeps it, because reading may need the room.
+- **Nothing above the text moves.** A multi-line field's first line stands where a single-line field draws its line, and its icons, prefix and suffix are centred on that line. Every further line lies below, so the label and the first line stay put while the height changes.
+
+A product cannot yet learn the size a person gave a field: resizing emits nothing.
+
+### Code
+
+`type="code"` is for text written for a machine rather than for a reader: a pattern, an identifier, a key, a query, a snippet of JSON or YAML. It is the same field — the same label, help, error, counter, sizes and form behaviour — with an input line that holds the code exactly as it is written.
+
+- **Left to right, in every language.** The value, its caret, the placeholder, the prefix and the suffix are one left-to-right row that begins at the left, also in a right-to-left page and whatever the code's first letter is: an empty field, one that holds `{` alone and one whose first string is Arabic are laid out alike. Everything else follows the page: the label, the icons, the help or error text, the counter and the resize grip. A string or a comment in a right-to-left script is laid out inside its line and reorders nothing around it.
+- **The code face, at the input's size.** The family is the code role's; the size and the line height stay the input's, so a code field is as tall as the text field beside it. Every space is kept, a tab character reaches the next tab stop, and no two characters are joined into a ligature. Nothing is colored by what it means.
+- **Left alone.** The platform is asked not to correct, capitalise, spell-check, translate or complete the value, and not to turn straight quotation marks into curved ones. A paste is plain text, character for character. The value is never trimmed, parsed or validated: whether it is well formed is yours to say, with `error` and `errorText`.
+- **One line or several.** One line suits a pattern or a key. With `multiline`, a line that does not fit continues on following rows by default; the value holds only the line breaks of the code.
+- **Lines that do not wrap.** `wrap` false — `no-wrap` on the web — keeps each line of the code on one line of the field, for a table of values, a log, or a file in which a line break means something. A long line scrolls sideways inside the field and widens nothing. Only a multi-line code field reads `wrap`: prose always wraps, and a single line always scrolls in its line.
+- **Tab moves focus.** No key changes meaning: Tab never indents, Enter adds no indent, and no bracket is closed for you. A tab character arrives by paste or from your product, and is kept.
+- **Not an editor.** There are no syntax colors, no line numbers, no folding and no error marks by line. For code that is shown and not typed, use a [Code block](/components/code-block/); for an editor, embed the one your product has chosen.
+- **A placeholder is an example of the code**, drawn as code. A hint in words belongs in `supportingText`, which is also where the field says what it expects ("JSON").
+
+In a right-to-left field a code value begins at the left, while an `email`, `url`, `tel`, `number` or `password` value is left to right at the field's start edge, the right. The other platforms have not built the code type yet.
+
+### Dates and times
+
+A `date`, `time` or `date-time` field is a row of segments in the input line, one for each unit: the month, the day and the year, the hour, the minute and, on a 12-hour clock, the day period. They stand in the locale's order with its separators. The field holds the value in ISO 8601, with no time zone.
+
+| Type | Value | Row in en-US | Row in ja-JP |
+| --- | --- | --- | --- |
+| `date` | `2026-09-27` | 09/27/2026 | 2026/09/27 |
+| `time` | `14:30` | 2:30 PM | 14:30 |
+| `date-time` | `2026-09-27T14:30` | 09/27/2026, 2:30 PM | 2026/09/27 14:30 |
+
+- **The locale.** `locale`, or the platform's, sets the order, the separators, the clock and the digits. An empty segment shows its own placeholder ("mm", "dd", "yyyy"), so the row always shows its form. `placeholder`, `prefixText`, `suffixText`, `maxLength` and `multiline` are ignored by these types.
+- **Moving.** Tab visits each segment, then the picker button. Left and Right Arrow move to the segment on that side, in every layout direction: the row is written left to right, as a date in digits is. A press on a segment focuses it. The focused segment is drawn as selected text, with no caret.
+- **Stepping.** Up and Down Arrow change a segment by one and wrap; on an empty segment they start from today's date or the current time. Page Up and Page Down step further, and Home and End go to the ends of the range.
+- **Typing.** A digit fills the segment, and focus moves on when no further digit could extend it, or when the separator is typed. Backspace removes a digit, and on an empty segment moves back. A year needs four digits. A date that does not exist cannot be entered: a day past the end of a newly chosen month becomes that month's last day.
+- **Pasting.** A whole date or time pasted onto any segment fills the row. It is read as three groups of digits in the locale's order, and a first group of four digits is read as the year, so a pasted ISO date works everywhere. Copy and cut take the whole row.
+- **The value** is empty until every segment is filled and the result is available. `input` is emitted when the value changes — the last segment is filled, a filled row is edited, or it is emptied — and not for a segment that leaves the value empty. `change` is emitted when focus leaves the field's segments and picker button, or the action key is pressed, with a changed value. Moving between segments commits nothing.
+- **The entry error.** A field left half-filled shows `invalidText`. One left with a value before `min`, after `max` or listed in `disabledDates` shows `unavailableText`. Either is drawn as an error and emits `entryError` with its reason (`invalid` or `unavailable`); the next edit ends it. It is the one error the field sets itself, and it leaves your `error` prop alone.
+- **What you set** is shown as it is, never validated, and emits nothing.
+
+A field's clock is its locale's: it has no setting for 12 or 24 hours and no minute step, as the DateTimePicker has.
+
+**The picker button.** With `picker`, the field draws an icon-only Button at its end, `calendar_month` for a date and `schedule` for a time, named by `pickerLabel`. Activating it emits `pickerRequest` with the value, type, `min` and `max`; a half-filled row sends an empty value and raises no entry error, because the picker is about to give a whole value. The field presents nothing itself: your product opens a [DateTimePicker](/components/date-time-picker/) in the matching mode, anchored to the field when it is docked, and sets the field's `value` from the picker's `change`. Give the picker the same `min`, `max` and `disabledDates` as the field. Focus returns to the button when the picker closes. The button is disabled with the field and not drawn while it is read-only.
+
+### Do
+
+- Put fixed text that is not part of the value in `prefixText` and `suffixText`: a currency sign, a unit.
+- Put a clear or reveal-password action in the trailing slot as your own icon-only Button, with its own name. The picker button is the only action the field builds in, and it comes after yours.
+- Use `multiline` for text that may run to several lines. By default it grows from `minRows` to `maxRows`, then scrolls.
+- Set `requirement` on the fields a form asks for, and still say what is missing in `errorText` when the form is submitted.
+- Use `type="code"` for a value a machine reads — a pattern, a key, a snippet of configuration — and say what it must be in the label and in `supportingText`.
+
+### Don't
+
+- Don't use the placeholder as the label. It disappears as soon as someone types.
+- Don't use `number` for values that are not quantities, such as a card number or a postal code. Use `text` with the right `autocomplete`.
+- Don't mix variants in one form.
+- Don't put a text field inside a field. It is a field already; a debug build says so. The control a field frames is the text input.
+- Don't use a `text` field and your own parsing for a date. Use `date`, so the locale's order, the segments' keys and the entry error come with it.
+- Don't write "(required)" in the label as well as setting `requirement`. The mark already says it, and a screen reader would hear it twice.
+- Don't let a manually resized field be the only way to see a long text. Give it enough `minRows` to be useful as it opens.
+- Don't disable a field only to show a value that cannot change. Use `readOnly`, so people can still focus, select and copy it.
+- Don't set a code face on a text field from outside, with `::part(input)` or a style of your own, and don't add `dir` or `spellcheck` to the element. Use `type="code"`: the face alone leaves a field that looks right and still corrects what is typed.
+- Don't use a code field as an editor, and don't use a disabled one to show long code: a disabled field has no caret to scroll it with. Use `readOnly`, or a Code block.
+
+## Accessibility
+
+<ComponentAccessibility name="text-field" />
+
+### What the component handles
+
+- Text is edited in the platform's own text element, so input methods, dictation, autofill, selection and the clipboard work as they do elsewhere on the platform. A date or a time is the stated exception: its row of segments is the field's own.
+- A date or time field is a group named by the label. Each segment is a spin button named by its unit and the label ("month, Start date"), with its range and its value; an empty one reads `segmentEmptyText`.
+- A required field is exposed as required. The mark itself is hidden from assistive technology, so it is not read twice; the optional text is read with the field's description.
+- The resize grip is a focus stop named by `resizeLabel`, exposed as a separator whose value is the number of lines. The arrow keys, Home and End resize, so nothing depends on a drag, and its hit area meets the minimum target.
+- The label is the accessible name, whether it is drawn or hidden. The placeholder never is.
+- The shown supporting or error text and the count are the field's description. So are the prefix and suffix while they are shown, so a unit or currency is read with the value.
+- It exposes the disabled state, and the invalid, required and read-only states where the platform has them. An entry error in a date or time field is exposed exactly as `error` is.
+- The picker button is a Button named by `pickerLabel`, exposed as opening a dialog, and a Tab stop after the last segment.
+- When an error appears or changes while the field has focus, it is announced once, politely. The count is announced as it is shown ("12/40") once typing pauses for a second, never on every keystroke.
+- A search field is exposed as a search box where the platform has that role.
+- A code field is the same text box as every other type, multi-line with `multiline`: no role, role description or word says that it holds code, and no part of its value is marked as misspelled. Tab always leaves it. Where its lines do not wrap, the caret scrolls it, and focus is shown on the container, which does not scroll.
+- Focus is shown by the field's own edge, whether it came from the keyboard or a pointer: a line inside a stacked field's box, and the thicker, colored edge of a filled or outlined field. The hit area meets the minimum target.
+- A press on the label or on the box moves focus to the input and operates nothing. A press on the help, the error text or the count does nothing.
+- The name, the description and the states are tied exactly as a field ties them to any control it frames. The field written by hand, one level down, is the same text box.
+- A missing label is reported in debug builds.
+
+Known platform gaps:
+
+- SwiftUI, Compose, Flutter and React Native keep the `required` flag, which draws no mark, and have no resize modes, no grip and no segments.
+- Web: the row of segments shifts by a few pixels when a month or a minute takes its first digit; `input` can fire twice where the locale's last segment has two digits; on an Android on-screen keyboard, Backspace on an empty segment cannot move back; and a row wider than a narrow field overflows instead of scrolling.
+- A product cannot empty a half-filled date row by setting `value` to the empty string it already has.
+- Web: under the glow focus style, a filled field's glow is rounded at the bottom corners, which are square.
+- Web: input-method composition and the autofilled label are tested in Chromium only.
+- Web: a read-only code field whose lines do not wrap is scrolled from the keyboard as the browser scrolls any text it does not edit — with the caret in Firefox, with the arrow keys in Chrome, with Option and the arrow keys in Safari. Firefox returns such a field to its left edge when the page's direction changes.
+- SwiftUI, Compose, Flutter and React Native have not built the code type: there `type` has no `code` and the field has no `wrap`.
+- SwiftUI has no invalid, required or read-only states. They are drawn or enforced, not announced. An error is heard only as its text in the description.
+- SwiftUI cannot see input-method composition, so `maxLength` also applies to text that is still being composed, and a value you set during a composition is not held back.
+- SwiftUI: selected text is highlighted in the caret's tint, not in the field's selection color.
+- SwiftUI draws a read-only field's value as selectable text, not as a text field.
+- SwiftUI reads `.labelsHidden()` only from iOS 18 and macOS 15. On earlier versions the label is still drawn.
+- React Native cannot see input-method composition. A value you change during a composition, and the `maxLength` limit, are applied at once and can end the composition.
+- React Native has no invalid, required or read-only states. An error is heard only as its text in the description; required and read-only are not announced.
+- React Native: announcements, autofill and the keyboard for each type are tested with mocks only, not yet on a device.
+- React Native on iOS has one tint for the caret and the selection highlight. The field keeps the caret color, so the highlight is a tint of it rather than the field's selection color.
+- React Native: a filled field's glow follows only its top corners, and the placeholder and caret colors switch at once instead of changing over the state motion.
+- Flutter exposes a search field as a search input type, not the search box role.
+- Flutter draws no selection handles or selection toolbar on Android and other touch screens. Long-press and keyboard shortcuts still select and copy; iOS shows its system menu.
+- Flutter: an interactive element in the leading slot comes before the input in focus order, not after it.
+- Compose has no required state: the field reads "Required" as its state description instead.
+- Compose: `maxLength` and the counter count characters as people see them, but emoji sequences and flags are not tested. The tests run on the JVM under Robolectric, whose character rules do not know them.
+- Compose: TalkBack's announcements of the error and the count, a real input method and a real autofill service have not been tested on a device.
+
+### What you need to do
+
+- Write a label that names the value, and keep it even when you hide it.
+- Write error text that says how to fix the value, and set `error` yourself. On SwiftUI and React Native, that text is the only way the error is heard. For a date or time field, also write `invalidText` and `unavailableText`, and give `segmentEmptyText`: without it an empty segment is read with no value.
+- Give the picker button its `pickerLabel` in your product's language, and open the picker from `pickerRequest`.
+- Set `requirement`, and give `requiredText` and `optionalText`: on the field, or once for the whole product with `setWords({ requiredText, optionalText })` — as `resizeLabel` and `segmentEmptyText` can be. Tanrei ships no words on the web; a missing one is reported in development. See [The product's words](/foundations/words/). Until SwiftUI, Compose, Flutter and React Native catch up, their fields draw no mark, and SwiftUI and React Native do not announce the required state: say "required" in the label there.
+- Name the resize grip with `resizeLabel`. Without it the grip is drawn and works, and has no name.
+- Put a unit or currency in `prefixText` or `suffixText`, not in the value, so that it is read with the value and not typed.
+- For a code field, say what the code must be in `label` and `supportingText` ("Webhook body", "JSON"), and say what is wrong with it in `errorText`: the field does not know the language.
+- Give a trailing icon button its own name in your product's language.
+- On Compose, the words "Invalid" and "Required" come from the library's string resources (`tanrei_invalid`, `tanrei_required`). Override them in your resources to translate them.
+- On the web, iOS Safari zooms into an input whose text is smaller than 16 px. The default system's fields use 16 px text at both sizes; a layer that makes it smaller brings the zoom back.

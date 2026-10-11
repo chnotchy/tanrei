@@ -1,0 +1,209 @@
+---
+title: Progress indicator
+description: Shows how far a task has come, or that it is under way when how far is unknown, as a bar or a ring.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="progress-indicator" />
+
+<DemoFrame label="Linear and circular">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator value="0.4" label="Uploading report.pdf"></tanrei-progress-indicator>
+    <tanrei-progress-indicator label="Preparing the export"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" value="0.4" label="Syncing photos"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" label="Syncing"></tanrei-progress-indicator>
+</DemoFrame>
+
+### Usage
+
+The Web and React samples show the current spec. SwiftUI, Compose, Flutter and React Native are lagging: they do not have `separation` yet, and their samples show what they ship.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-progress-indicator value="0.4" label="Uploading report.pdf"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="3 of 10 files" label="Uploading"></tanrei-progress-indicator>
+
+    <!-- No value: indeterminate, as a <progress> without one. -->
+    <tanrei-progress-indicator variant="circular" size="small" label="Syncing"></tanrei-progress-indicator>
+
+    <!-- A gap between the indicator and the rest of the track, whatever the design system chose. -->
+    <tanrei-progress-indicator separation="gap" value="0.4" label="Uploading report.pdf"></tanrei-progress-indicator>
+
+    <script type="module">
+      import '@tanrei/web/components/progress-indicator';
+      const bar = document.querySelector('tanrei-progress-indicator');
+      bar.value = sent / total;
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react';
+
+    <ProgressIndicator value={sent / total} label="Uploading report.pdf" />
+    <ProgressIndicator value={files} max={10} valueText={`${files} of 10 files`} label="Uploading" />
+    <ProgressIndicator variant="circular" size="small" value={null} label="Syncing" />
+    <ProgressIndicator separation="gap" value={sent / total} label="Uploading report.pdf" />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiProgressIndicator("Uploading report.pdf", value: sent / total)
+    TanreiProgressIndicator("Uploading", value: Double(files), in: 0...10, currentValueLabel: "\(files) of 10 files")
+
+    // No value (the default) is indeterminate.
+    TanreiProgressIndicator("Syncing", variant: .circular, size: .small)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicator
+    import io.github.chnotchy.tanrei.components.TanreiProgressIndicatorVariant
+    import io.github.chnotchy.tanrei.tokens.TanreiProgressIndicatorSize
+
+    // progress is a lambda: a new value redraws without recomposing.
+    TanreiProgressIndicator(progress = { sent / total }, contentDescription = "Uploading report.pdf")
+    TanreiProgressIndicator(
+        progress = { files.toFloat() },
+        contentDescription = "Uploading",
+        valueRange = 0f..10f,
+        stateDescription = "$files of 10 files",
+    )
+
+    // The overload without progress is indeterminate.
+    TanreiProgressIndicator(
+        contentDescription = "Syncing",
+        variant = TanreiProgressIndicatorVariant.Circular,
+        size = TanreiProgressIndicatorSize.Small,
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiProgressIndicator(value: sent / total, semanticsLabel: 'Uploading report.pdf');
+    TanreiProgressIndicator(
+      value: files.toDouble(),
+      max: 10,
+      semanticsValue: '$files of 10 files',
+      semanticsLabel: 'Uploading',
+    );
+
+    // value: null (the default) is indeterminate.
+    const TanreiProgressIndicator(
+      variant: TanreiProgressIndicatorVariant.circular,
+      size: TanreiProgressIndicatorSize.small,
+      semanticsLabel: 'Syncing',
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { ProgressIndicator } from '@tanrei/react-native';
+
+    <ProgressIndicator accessibilityLabel="Uploading report.pdf" value={sent / total} />
+    <ProgressIndicator accessibilityLabel="Uploading" value={files} max={10} valueText={`${files} of 10 files`} />
+    <ProgressIndicator accessibilityLabel="Syncing" variant="circular" size="small" />
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Sizes, ends of the range and a custom range" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+    <tanrei-progress-indicator size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="0" label="Not started"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="1" label="Done"></tanrei-progress-indicator>
+    <tanrei-progress-indicator value="3" max="10" value-text="3 of 10 files" label="Uploading"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="small" value="0.4" label="Small"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="medium" value="0.4" label="Medium"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" value="0.4" label="Large"></tanrei-progress-indicator>
+</DemoFrame>
+
+<DemoFrame label="Separation: divider (the default system's choice) and gap" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 20rem)">
+    <tanrei-progress-indicator separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+    <tanrei-progress-indicator separation="gap" size="large" value="0.4" label="Gap, large"></tanrei-progress-indicator>
+  </div>
+  <tanrei-progress-indicator variant="circular" size="large" separation="divider" value="0.4" label="Divider"></tanrei-progress-indicator>
+  <tanrei-progress-indicator variant="circular" size="large" separation="gap" value="0.4" label="Gap"></tanrei-progress-indicator>
+</DemoFrame>
+
+<ComponentSpecs name="progress-indicator" />
+
+## Guidelines
+
+### When to use
+
+Use a progress indicator for a task that takes long enough to notice: an upload, an import, a deploy, a long save. Show how far it has come when you can measure it, even roughly; people wait more patiently for a bar that moves. When you cannot measure it yet, show it indeterminate, and switch to a value as soon as you have one.
+
+For a short wait whose length you cannot measure, such as a list fetching its next page, use a [loading indicator](/components/loading-indicator/) instead. It has no track, because it never promises a value.
+
+### Choosing a variant
+
+| Variant | Use for |
+| --- | --- |
+| Linear | Tasks that belong to a page or a section: at the top of a page, inside a card, under a file in an upload list. The bar fills the width its layout gives it. |
+| Circular | Tight places and progress next to text: in a button, in a list row, in a small panel. The ring has a fixed size. |
+
+### Choosing a size
+
+| Size | Bar thickness / ring size in the default system | Use for |
+| --- | --- | --- |
+| Small | 2 / 16 | Dense rows, inside controls, next to small text. |
+| Medium | 4 / 24 | Most places. The default. |
+| Large | 8 / 40 | The one task a view is about, or an empty section waiting for its content. |
+
+### Divider or gap
+
+A determinate indicator is told from the rest of its track in one of two ways. Under `divider` it is drawn on the track with no space between them. Under `gap` a little empty space is left after it, on a ring at both ends of its arc, and a bar marks the end of its track with a dot. An indeterminate indicator looks the same under both.
+
+The design system chooses once for every component that has this choice, and the default system chooses divider. Leave `separation` at `auto` to follow that choice, so the indicator agrees with the button groups and menus around it. Set `divider` or `gap` on one indicator only when that one has a reason to differ.
+
+### Do
+
+- Give it a label that says what is in progress: "Uploading report.pdf", not "Progress". If a caption is shown next to it, use the same words.
+- Use a value text when a percentage is not the natural reading: "3 of 10 files", "Step 2 of 4".
+- Tell people when the task ends, in words: a message that it is done, or what went wrong and what to do next.
+
+### Don't
+
+- Don't use color to report a failure. A red bar says nothing to someone who cannot see the color; stop the indicator and show a message next to it.
+- Don't use it as a gauge of a level, such as storage used or password strength. That is a meter, which is a different component.
+- Don't let the value go backwards or jump to the end before the task is done. The bar is a promise about the remaining wait.
+- Don't show several indicators for one task. Show one for the whole, or one for each item the person cares about.
+
+## Accessibility
+
+<ComponentAccessibility name="progress-indicator" />
+
+### What the component handles
+
+- It exposes the progress bar role with the label as its name. Determinate, it exposes the range, the current value (clamped to the range) and the value text when there is one; indeterminate, it exposes no value and the platform's busy state. Flutter has no progress bar role or busy state yet, so there it exposes the label and the value.
+- It is never focusable, and it does not announce its changes. Assistive technology reads the current value when the person reaches it.
+- When reduced motion is requested, a value change shows at once, and the indeterminate form stops moving and gently pulses its opacity instead, at most once a second.
+- Its looping animation stops while it cannot be seen — in an app in the background everywhere, and scrolled out of view or on a hidden screen where the platform can tell — and resumes when it can.
+- An empty label, a value outside the range and an unknown `separation` are reported in debug builds.
+
+### What you need to do
+
+- Announce the end of the task yourself: a message in a live region, or focus moved to the result. The indicator will not say that the task is done or has failed.
+- Keep the indicator color at least 3:1 against the track and the surface behind it if you change them, with a divider and with a gap alike. The value is read from where the indicator meets the track.
+- If the task holds up a region of the page, mark that region busy while it runs (`aria-busy` on the web).

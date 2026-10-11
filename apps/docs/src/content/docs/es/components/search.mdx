@@ -1,0 +1,417 @@
+---
+title: Búsqueda
+description: Una barra de búsqueda, o un activador compacto que la sustituye, que ofrece sugerencias y resultados mientras se escribe, en una vista acoplada bajo la barra, en un diálogo o sobre toda la pantalla.
+translationOf: components/search.mdx
+sourceHash: 16c14a0a1b37985bcc782ea5ca22d118c87dd619
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="search" />
+
+:::note[Una especificación revisada que aún no está en todas las plataformas]
+Esta página describe la búsqueda tal como la define ahora la especificación, también como búsqueda de sitio: un activador en lugar de la barra, una vista de diálogo, resultados que son enlaces, una fila de estado y un atajo. El componente web hace todo esto, y las demostraciones también. SwiftUI, Compose, Flutter y React Native aparecen arriba como rezagados: hasta que se pongan al día ofrecen la revisión anterior (la barra con su campo de entrada, las vistas acoplada y a pantalla completa, y las sugerencias), y sus ejemplos muestran esa revisión.
+:::
+
+<DemoFrame label="Vacía, con una consulta y con botones de icono" column>
+  <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" value="factura" clear-label="Borrar búsqueda" style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" style="inline-size: 20.5rem">
+    <tanrei-button variant="text" slot="leading" label="Menú"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="trailing" label="Buscar por voz"><span slot="icon">mic</span></tanrei-button>
+    <tanrei-button variant="text" slot="trailing" label="Cuenta"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-search>
+</DemoFrame>
+
+<DemoFrame label="Una búsqueda de sitio: un activador de botón con su atajo, un activador de icono y una barra que muestra su atajo. Pulsa un activador para abrir su vista" plain column>
+  <tanrei-search bar="button" presentation="dialog" label="Buscar en la documentación" placeholder="Buscar" shortcut="mod+k" value="pestaña" status-text="3 resultados para pestaña" clear-label="Borrar búsqueda" back-label="Atrás" style="inline-size: 20.5rem">
+    <tanrei-search-result-group value="tabs" headline="Pestañas" href="/es/components/tabs/" leading-icon="article" excerpt='["Cambia entre vistas de un mismo tema con una fila de ", "pestañas", " con etiqueta."]'>
+      <tanrei-search-result value="tabs-sharing" headline="Compartir una elección" href="/es/components/tabs/#compartir-una-elección" leading-icon="tag" excerpt='["Las filas de ", "pestañas", " que nombran un mismo grupo muestran la misma elección."]'></tanrei-search-result>
+    </tanrei-search-result-group>
+    <tanrei-search-result value="tab-view" headline="Vista de pestañas" href="/es/components/tab-view/" leading-icon="article" excerpt='["Muestra la vista de la ", "pestaña", " seleccionada bajo su propia fila."]'></tanrei-search-result>
+  </tanrei-search>
+  <tanrei-search bar="icon" presentation="full-screen" label="Buscar en la documentación" placeholder="Buscar" value="pestaña" status-text="3 resultados para pestaña" clear-label="Borrar búsqueda" back-label="Atrás">
+    <tanrei-search-result-group value="tabs" headline="Pestañas" href="/es/components/tabs/" leading-icon="article" excerpt='["Cambia entre vistas de un mismo tema con una fila de ", "pestañas", " con etiqueta."]'>
+      <tanrei-search-result value="tabs-sharing" headline="Compartir una elección" href="/es/components/tabs/#compartir-una-elección" leading-icon="tag" excerpt='["Las filas de ", "pestañas", " que nombran un mismo grupo muestran la misma elección."]'></tanrei-search-result>
+    </tanrei-search-result-group>
+    <tanrei-search-result value="tab-view" headline="Vista de pestañas" href="/es/components/tab-view/" leading-icon="article" excerpt='["Muestra la vista de la ", "pestaña", " seleccionada bajo su propia fila."]'></tanrei-search-result>
+  </tanrei-search>
+  <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" shortcut="/" clear-label="Borrar búsqueda" style="inline-size: 20.5rem"></tanrei-search>
+</DemoFrame>
+
+### Uso
+
+La búsqueda es una barra y una vista. La barra contiene un glifo de búsqueda, el campo de entrada, un botón de borrar mientras hay una consulta y, al final, hasta dos botones de icono tuyos, como la entrada por voz o la cuenta. Tu propio botón de menú o de retroceso puede ocupar el lugar del glifo en el slot `leading`. La vista se abre mientras la persona busca y contiene, de arriba abajo, las sugerencias, una fila de estado, los resultados y, después, cualquier contenido tuyo.
+
+**Una barra o un activador.** `bar` dice qué aparece allí donde se coloca la búsqueda:
+
+- `field` (predeterminado): la barra con su campo de entrada.
+- `button`: un activador con la forma de la barra que no contiene campo de entrada, solo el glifo de búsqueda, el marcador de posición y la indicación del atajo. Úsalo en una cabecera que tenga espacio.
+- `icon`: un botón de solo icono que muestra el glifo de búsqueda. Úsalo en una cabecera que no lo tenga.
+
+Un activador abre una vista modal, un diálogo o la vista a pantalla completa, y el campo de entrada está en la cabecera de esa vista. Un mismo producto usa `button` en una ventana ancha e `icon` en una estrecha.
+
+**Tres presentaciones.** `presentation` dice dónde se abre la vista:
+
+- `docked` (predeterminada): una superficie justo debajo de la barra, tan ancha como ella, en la capa de superposición de la plataforma, igual que un menú se abre bajo su ancla. El foco se queda en el campo de entrada de la barra, de modo que la persona sigue escribiendo mientras las sugerencias cambian. Si no hay espacio suficiente debajo, la vista se abre encima de la barra.
+- `dialog`: una superficie modal cerca de la parte superior de la ventana, sobre un velo, con una cabecera que contiene un botón de retroceso, el campo de entrada y el botón de borrar. Es para una ventana grande y se abre desde un activador. Una pulsación en el velo la cierra.
+- `full-screen`: una vista modal sobre toda la ventana, con la misma cabecera. Toma el foco, lo mantiene y lo devuelve a la barra o al activador cuando se cierra.
+
+Usa la vista acoplada o el diálogo en ventanas grandes y la pantalla completa en las pequeñas. La búsqueda no elige por ti: define `presentation` a partir de tus propios puntos de ruptura. Un activador con `docked` abre el diálogo, porque una vista acoplada no tiene campo de entrada propio, y las compilaciones de depuración lo notifican.
+
+**Las sugerencias** son un tipo de elemento. Cada una tiene un `value`, un `headline` y, de forma opcional, `supportingText` y un `leadingIcon`, como el del historial para una consulta anterior o una carpeta para un resultado. Tú aportas las sugerencias para la consulta actual; la búsqueda las dibuja y no las filtra. Elegir una emite `select` con su valor. La búsqueda nunca cambia la consulta por sí misma, así que tú decides qué significa una elección: rellenar la consulta y buscar, o abrir el resultado.
+
+**Los resultados** son un segundo tipo de elemento, para lo que la búsqueda ha encontrado: una página, una sección, un mensaje. Un resultado tiene un `value`, un `headline`, un `excerpt` y, de forma opcional, un `leadingIcon`, y lleva a algún sitio: con `href`, su fila es un enlace real, que la plataforma abre como abre cualquier enlace: en una pestaña nueva con una tecla modificadora, con su propio menú contextual. Sin `href`, la fila es un botón, y `select` es la única señal. Un **grupo de resultados** reúne resultados bajo un mismo título: un título discreto como «Mensajes» o, con un `href` propio, la página de la que los resultados son secciones. El extracto es un pasaje en el que marcas lo que ha coincidido; la búsqueda no busca la consulta en el texto. En la web, el extracto es el contenido del propio elemento con `<mark>` alrededor de las coincidencias, o los tramos de `excerpt`, de los cuales uno de cada dos, empezando por el segundo, es una coincidencia.
+
+**El estado.** La búsqueda nunca ejecuta una consulta, espera ni filtra: emite `input` con cada cambio y dibuja lo que le das. Dile qué está haciendo tu búsqueda con `status` (`idle`, `loading` o `error`) y `statusText`: el recuento («12 resultados para tokens»), que no se ha encontrado nada o el fallo. La fila de estado muestra el texto y lo anuncia cuando cambia y, durante la carga, muestra un indicador de carga tras un breve retardo.
+
+**El atajo.** `shortcut` indica las teclas que abren la búsqueda, con los nombres de tecla del [atajo de teclado](/es/components/keyboard-shortcut/) (`mod+k`, `/`). La búsqueda las escribe como una indicación, una línea de texto adaptada al teclado de la persona: al final de un activador de botón, y en la barra mientras está vacía y sin foco. Las expone como el atajo de teclado del activador o del campo de entrada. Las teclas solo funcionan si las vinculas tú o si activas `bindShortcut`: en ese caso, la búsqueda escucha en toda la ventana mientras se muestra y está habilitada, se abre con esas teclas y se cierra con ellas de nuevo.
+
+**Apertura y cierre.** Una pulsación en la barra, escribir o Flecha abajo en el campo de entrada abren la vista. El foco, por sí solo, nunca la abre: llegar a la barra con Tab, o que el foco vuelva desde la vista a pantalla completa, la deja cerrada. La búsqueda pide abrirse o cerrarse con `toggle`, que lleva el nuevo estado y, al cerrar, el motivo: `escape`, `back`, `select`, `submit`, `outside`, `tab`, `focus-out` o `shortcut`. La consulta se queda como está cuando la vista se cierra. Enter en el campo de entrada emite `submit`; la vista permanece entonces abierta mientras muestre resultados o un estado, para que la persona pueda continuar hacia ellos. En la web, el elemento define su propio `expanded`, y en SwiftUI y Flutter cambia el binding o el controlador. En Compose y React Native defines `expanded` desde el callback, como en el menú.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-search name="q" label="Buscar en el correo" placeholder="Buscar en el correo" clear-label="Borrar búsqueda">
+      <tanrei-button variant="text" slot="trailing" label="Buscar por voz"><span slot="icon">mic</span></tanrei-button>
+      <tanrei-search-suggestion value="invoices" headline="facturas" leading-icon="history"></tanrei-search-suggestion>
+      <tanrei-search-suggestion value="folder:invoices" headline="Facturas"
+        supporting-text="Carpeta · 24 mensajes" leading-icon="folder"></tanrei-search-suggestion>
+      <!-- Los demás hijos son tu propio contenido en la vista, después de las sugerencias. -->
+    </tanrei-search>
+
+    <!-- En una ventana pequeña: la vista cubre la ventana y tiene un botón de retroceso. -->
+    <tanrei-search presentation="full-screen" label="Buscar en el correo" placeholder="Buscar en el correo"
+      clear-label="Borrar búsqueda" back-label="Atrás"></tanrei-search>
+
+    <!-- Una búsqueda de sitio: un activador con su atajo, una vista de diálogo y resultados que son enlaces. -->
+    <tanrei-search id="docs-search" bar="button" presentation="dialog" label="Buscar en la documentación" placeholder="Buscar"
+      shortcut="mod+k" bind-shortcut clear-label="Borrar búsqueda" back-label="Atrás">
+      <!-- Un grupo con href es la página; sus resultados son las secciones encontradas en ella. -->
+      <tanrei-search-result-group value="/tokens/" headline="Tokens de diseño" href="/tokens/" leading-icon="article">
+        Colores, tamaños y movimiento como <mark>tokens</mark>, en tres niveles.
+        <tanrei-search-result value="/tokens/#layers" headline="Capas" href="/tokens/#layers" leading-icon="tag">
+          Una capa cambia el valor de un <mark>token</mark> y puede añadir los suyos.
+        </tanrei-search-result>
+      </tanrei-search-result-group>
+      <!-- Los demás hijos son tu propio contenido, después de los resultados. -->
+      <tanrei-button variant="text">Cargar más resultados</tanrei-button>
+    </tanrei-search>
+
+    <script type="module">
+      import '@tanrei/web/components/search';
+      import '@tanrei/web/components/button';
+      const search = document.querySelector('[name="q"]');
+      search.addEventListener('input', () => showSuggestionsFor(search.value));
+      search.addEventListener('submit', () => runSearch(search.value)); // se puede cancelar; dentro de un formulario, envía después el formulario
+      search.addEventListener('select', (e) => openSuggestion(e.detail.value));
+      // El elemento define su propio expanded antes de emitir toggle.
+      search.addEventListener('toggle', (e) => log(e.detail.expanded, e.detail.reason));
+
+      // La búsqueda nunca consulta, espera ni espacia las peticiones (debounce): eso es cosa tuya.
+      const docs = document.querySelector('#docs-search');
+      let asked = 0;
+      docs.addEventListener('input', async () => {
+        const mine = ++asked;
+        docs.status = 'loading';
+        docs.statusText = 'Buscando';
+        const found = await query(docs.value);
+        if (mine !== asked) return; // se hizo una pregunta más reciente: descarta esta respuesta
+        show(found); // sustituye los hijos <tanrei-search-result>
+        docs.status = 'idle';
+        docs.statusText = `${found.length} resultados para ${docs.value}`; // se define una vez por respuesta: se anuncia
+      });
+      // Se activó un resultado en el mismo lugar. Cancela el evento para entregar el enlace a tu enrutador.
+      docs.addEventListener('select', (e) => { /* e.preventDefault(); router.push(e.detail.value); */ });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Search, SearchResult, SearchResultGroup, SearchSuggestion } from '@tanrei/react';
+
+    <Search
+      label="Buscar en el correo"
+      placeholder="Buscar en el correo"
+      clearLabel="Borrar búsqueda"
+      value={query}
+      onInput={(e) => setQuery(e.currentTarget.value)}
+      onSubmit={() => runSearch(query)}
+      onSelect={(e) => openSuggestion(e.detail.value)}
+    >
+      <Button variant="text" slot="trailing" label="Buscar por voz" onClick={dictate}><span slot="icon">mic</span></Button>
+      {suggestions.map((s) => (
+        <SearchSuggestion key={s.value} value={s.value} headline={s.headline} supportingText={s.detail} leadingIcon={s.icon} />
+      ))}
+    </Search>
+
+    // Una búsqueda de sitio: un activador con su atajo, una vista de diálogo y resultados que son enlaces.
+    // excerpt son tramos de texto: uno de cada dos, empezando por el segundo, es una coincidencia.
+    <Search
+      bar="button"
+      presentation="dialog"
+      label="Buscar en la documentación"
+      placeholder="Buscar"
+      shortcut={['mod+k']}
+      bindShortcut
+      clearLabel="Borrar búsqueda"
+      backLabel="Atrás"
+      status={status}
+      statusText={statusText}
+      onInput={(e) => runQuery(e.currentTarget.value)}
+      onSelect={(e) => { e.preventDefault(); router.push(e.detail.value); }}
+    >
+      {pages.map((page) => (
+        <SearchResultGroup key={page.url} value={page.url} headline={page.title} href={page.url} leadingIcon="article" excerpt={page.excerpt}>
+          {page.sections.map((s) => (
+            <SearchResult key={s.url} value={s.url} headline={s.title} href={s.url} leadingIcon="tag" excerpt={s.excerpt} />
+          ))}
+        </SearchResultGroup>
+      ))}
+    </Search>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // Cada edición escribe en text; abrir y cerrar escriben en isExpanded.
+    TanreiSearch("Buscar en el correo", text: $query, isExpanded: $isSearching,
+                 prompt: Text("Buscar en el correo"), clearLabel: "Borrar búsqueda",
+                 onSubmit: { value in runSearch(value) },
+                 onSelect: { value in openSuggestion(value) }) {
+        TanreiSearchSuggestion("facturas", leadingIcon: "history", value: "invoices")
+        TanreiSearchSuggestion("Facturas", supportingText: "Carpeta · 24 mensajes", leadingIcon: "folder", value: "folder:invoices")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSearch
+    import io.github.chnotchy.tanrei.components.TanreiSearchSuggestion
+
+    // Elevación de estado: tú guardas value y expanded, y los cambias desde los callbacks.
+    TanreiSearch(
+        value = query,
+        onValueChange = { query = it },
+        expanded = expanded,
+        onExpandedChange = { open, _ -> expanded = open }, // el segundo argumento es el motivo
+        label = "Buscar en el correo",
+        placeholder = "Buscar en el correo",
+        clearLabel = "Borrar búsqueda",
+        onSearch = { runSearch(query) },
+        onSelect = { openSuggestion(it) },
+    ) {
+        TanreiSearchSuggestion(value = "invoices", headline = "facturas", leadingIcon = "history")
+        TanreiSearchSuggestion(value = "folder:invoices", headline = "Facturas", supportingText = "Carpeta · 24 mensajes", leadingIcon = "folder")
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // TanreiSearchController es un TextEditingController que además guarda isExpanded.
+    final TanreiSearchController search = TanreiSearchController();
+
+    TanreiSearch(
+      controller: search,
+      semanticLabel: 'Buscar en el correo',
+      hintText: 'Buscar en el correo',
+      clearLabel: 'Borrar búsqueda',
+      onChanged: showSuggestionsFor,
+      onSubmitted: runSearch,
+      onSelected: openSuggestion,
+      suggestions: const <TanreiSearchSuggestion>[
+        TanreiSearchSuggestion(value: 'invoices', headline: 'facturas', leadingIcon: 'history'),
+        TanreiSearchSuggestion(value: 'folder:invoices', headline: 'Facturas', supportingText: 'Carpeta · 24 mensajes', leadingIcon: 'folder'),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Search } from '@tanrei/react-native';
+
+    // Controlado: tú cambias value y expanded desde onChangeText y onExpandedChange.
+    <Search
+      value={query}
+      onChangeText={setQuery}
+      expanded={expanded}
+      onExpandedChange={(next) => setExpanded(next)}
+      accessibilityLabel="Buscar en el correo"
+      placeholder="Buscar en el correo"
+      clearLabel="Borrar búsqueda"
+      onSubmitEditing={() => runSearch(query)}
+      onSelect={openSuggestion}
+      suggestions={[
+        { value: 'invoices', headline: 'facturas', leadingIcon: 'history' },
+        { value: 'folder:invoices', headline: 'Facturas', supportingText: 'Carpeta · 24 mensajes', leadingIcon: 'folder' },
+      ]}
+    />
+
+    // En una ventana pequeña: presentation="full-screen" y backLabel="Atrás". El botón Atrás de Android cierra la vista.
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="La vista acoplada con una sugerencia, la fila de estado y resultados agrupados, dibujada dentro de la página" plain column>
+  <tanrei-search inline expanded label="Buscar en el correo" placeholder="Buscar en el correo" value="fac" status-text="2 mensajes" clear-label="Borrar búsqueda" style="inline-size: 20.5rem">
+    <tanrei-search-suggestion value="invoices" headline="facturas" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-result-group headline="Mensajes">
+      <tanrei-search-result value="m-1" headline="Tu factura de octubre" leading-icon="mail" excerpt='["Se adjunta la ", "factura", " de octubre."]'></tanrei-search-result>
+      <tanrei-search-result value="m-2" headline="Re: pago" leading-icon="mail" excerpt='["Envía la ", "factura", " de nuevo, por favor."]'></tanrei-search-result>
+    </tanrei-search-result-group>
+  </tanrei-search>
+</DemoFrame>
+
+<DemoFrame label="Deshabilitada, y la vista acoplada abierta" plain column>
+  <tanrei-search label="Buscar en el correo" placeholder="Buscar en el correo" disabled style="inline-size: 20.5rem"></tanrei-search>
+  <tanrei-search inline expanded label="Buscar en el correo" placeholder="Buscar en el correo" value="fac" clear-label="Borrar búsqueda" style="inline-size: 20.5rem">
+    <tanrei-search-suggestion value="invoices" headline="facturas" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-suggestion value="invoice template" headline="plantilla de factura" leading-icon="history"></tanrei-search-suggestion>
+    <tanrei-search-suggestion value="folder:invoices" headline="Facturas" supporting-text="Carpeta · 24 mensajes" leading-icon="folder"></tanrei-search-suggestion>
+  </tanrei-search>
+</DemoFrame>
+
+<ComponentSpecs name="search" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa la búsqueda cuando buscar sea una de las vías principales de acceso al contenido del producto, como el correo, los archivos, los contactos o los ajustes, y las sugerencias ayuden a llegar antes. Ponla en la parte superior de la pantalla o de la página en la que busca.
+
+Úsala también como búsqueda de sitio: un activador en la cabecera que abre un diálogo, con las páginas y secciones encontradas en forma de enlaces.
+
+Para filtrar una lista corta que ya está en pantalla, o para introducir un término de búsqueda en un formulario, basta con un [campo de texto](/es/components/text-field/) con `type` search. Elegir un valor de una lista fija es tarea de un [menú](/es/components/menu/) o de una lista, no de una búsqueda.
+
+### La barra o un activador
+
+| `bar` | Qué aparece en la página | Qué abre | Úsalo para |
+| --- | --- | --- | --- |
+| `field` (predeterminado) | La barra con su campo de entrada | Cualquier presentación | Un producto en el que la búsqueda es una vía principal de acceso y la barra tiene un lugar propio |
+| `button` | Un activador con la forma de la barra: el glifo, el marcador de posición y la indicación del atajo | Una vista modal: el diálogo o la pantalla completa | Una cabecera con espacio, donde la búsqueda es una cosa entre varias |
+| `icon` | Un botón de solo icono con el glifo de búsqueda | Una vista modal: el diálogo o la pantalla completa | Una cabecera sin espacio, como en una ventana estrecha |
+
+Un activador recibe su nombre de `label`, y un activador de botón muestra el marcador de posición o, si no lo hay, la etiqueta. Cuando su vista se cierra, el foco vuelve al activador.
+
+### Acoplada, diálogo o pantalla completa
+
+| Presentación | Dónde se abre la vista | Foco | Úsala para |
+| --- | --- | --- | --- |
+| Acoplada (predeterminada) | Debajo de la barra, tan ancha como ella, sobre el contenido | Se queda en el campo de entrada de la barra. Nada más queda inerte, y no hay velo | Ventanas grandes, donde la vista puede abrirse sin tapar toda la pantalla |
+| Diálogo | Cerca de la parte superior de la ventana, centrada, hasta un ancho máximo, sobre un velo. Su parte superior no se mueve mientras su contenido cambia | Pasa al campo de entrada de la cabecera, se queda en la vista y vuelve al activador o a la barra cuando se cierra | Ventanas grandes, abierta desde un activador: una búsqueda de sitio |
+| Pantalla completa | Sobre toda la ventana, con su propia cabecera, botón de retroceso y divisor | Pasa al campo de entrada de la cabecera, se queda en la vista y vuelve a la barra o al activador cuando se cierra | Ventanas pequeñas, donde las sugerencias y el teclado en pantalla no dejan sitio para nada más |
+
+La consulta es la misma en las tres. Cambiar `presentation` en un punto de ruptura no la modifica.
+
+### Los botones de borrar y de retroceso
+
+Los dos vienen incluidos, porque su comportamiento pertenece a la búsqueda: el de borrar vacía la consulta y deja la vista y el foco donde están, y el de retroceso cierra la vista a pantalla completa. Sus nombres deben estar en el idioma de tu producto, así que los das tú: `clearLabel` («Borrar búsqueda») y, para el diálogo y la pantalla completa, `backLabel` («Atrás»). En iOS, el botón de retroceso es la única salida de la vista a pantalla completa. La cabecera del diálogo también tiene el botón de retroceso, para que pueda salir de él una persona que no dispone ni de Escape ni de un puntero.
+
+### Sugerencias, resultados y tu contenido
+
+- **Una sugerencia es algo que se elige; un resultado es un lugar al que ir.** Una sugerencia ayuda a terminar la consulta o salta a algo conocido, y las teclas de flecha la convierten en la activa mientras el foco se queda en el campo de entrada. Un resultado es algo que tu búsqueda ha encontrado: un enlace que recibe el foco él mismo.
+- Usa el icono inicial para distinguir los tipos: el del historial para una consulta anterior, una carpeta, una página, una sección.
+- Escribe titulares cortos y pon el detalle en el texto de apoyo o en el extracto: «Facturas» y, después, «Carpeta · 24 mensajes». Saltan de línea en lugar de cortarse.
+- Marca en el extracto lo que ha coincidido. La marca es la del sistema, un color y un peso mayor, de modo que las coincidencias se ven igual en todas partes.
+- Agrupa los resultados cuando vayan juntos: las secciones bajo su página, los mensajes bajo «Mensajes». El título de un grupo es un enlace cuando el propio grupo es un lugar.
+- Da un `href` a un resultado siempre que tenga una dirección. Así, una persona puede abrirlo en una pestaña nueva, copiar su dirección y ver adónde lleva. Usa `select` sin `href` solo para un resultado que tu producto abre por sí mismo.
+- El orden de la vista es fijo: las sugerencias, la fila de estado, los resultados y, después, tu propio contenido, como un botón «Cargar más resultados» o un enlace a una página con todos los resultados.
+- Una vista acoplada sin nada que mostrar no dibuja nada, y la búsqueda sigue abierta, así que vuelve a aparecer en cuanto hay algo.
+
+### El estado
+
+- Define `statusText` una vez por cada respuesta: «12 resultados para tokens», «Sin resultados para tokne». Se anuncia cuando cambia, así que cambiarlo con cada pulsación de tecla sería ruido.
+- Pon `status` en `loading` mientras se ejecuta una consulta. El indicador de carga aparece solo tras un breve retardo, de modo que una respuesta rápida no muestra ninguno.
+- Pon `status` en `error` con un texto que diga qué ha pasado. Se dibuja como un error y se anuncia de inmediato.
+- Descarta las respuestas que lleguen desordenadas. La búsqueda dibuja lo último que hayas definido.
+
+### El atajo
+
+- Usa un atajo que las personas ya conozcan para buscar en tu tipo de producto, y escríbelo con `mod` para que sea correcto en todos los teclados.
+- Activa `bindShortcut` en una sola búsqueda por pantalla. De dos búsquedas que vinculan las mismas teclas, la que se muestra primero se las queda, y las compilaciones de depuración notifican la otra.
+- Un atajo sin modificador, como `/`, se ignora mientras el foco está en un campo de entrada de texto, para que la persona pueda escribir el carácter.
+- Sin `bindShortcut`, la indicación solo muestra las teclas: vincúlalas tú, o deja `shortcut` vacío.
+
+### Recomendado
+
+- Escribe un marcador de posición que diga qué se puede buscar: «Buscar en el correo». Define también `label`: el marcador de posición nunca es el nombre.
+- Actualiza las sugerencias a medida que cambia la consulta, y mantenlas en un orden estable mientras la persona se mueve por ellas.
+- Con `select`, haz lo que la sugerencia promete: abrir un resultado, o poner una consulta en la barra y ejecutarla.
+- Limita el slot final a dos botones de icono como máximo.
+- Da `targetLabel` («se abre en una pestaña nueva») a un resultado cuyo `target` sea `new`.
+
+### Evita
+
+- No abras la vista cuando la barra simplemente recibe el foco. La búsqueda ya lo evita; no lo vuelvas a añadir tú.
+- No pongas en una vista acoplada controles que necesiten un foco propio, como un campo de texto. Una pulsación en la vista acoplada deja el foco en el campo de entrada.
+- No cambies la consulta cuando una sugerencia pasa a ser la activa. Solo la cambian una elección (`select`) o lo que la persona escribe.
+- No uses una búsqueda para elegir un valor en un formulario.
+- No pongas la dirección de un resultado solo en `select`. Una fila sin `href` es un botón, y una persona no puede abrirlo en una pestaña nueva.
+- No marques las coincidencias por tu cuenta solo con color, ni pongas en un extracto marcado de origen desconocido. En la web, el contenido del extracto es tuyo: lo que pongas ahí se muestra tal cual.
+
+## Accesibilidad
+
+<ComponentAccessibility name="search" />
+
+### De qué se encarga el componente
+
+- El campo de entrada es un campo de búsqueda que recibe su nombre de `label`, nunca del marcador de posición, con el rol de búsqueda de la plataforma donde lo tiene.
+- En la web, la vista acoplada sigue el patrón de cuadro combinado (combobox) de WAI-ARIA. Mientras se muestran sugerencias, el campo de entrada es un cuadro combinado con `aria-autocomplete="list"`, `aria-expanded`, `aria-controls` que señala la lista y `aria-activedescendant` que señala la sugerencia activa. Las sugerencias son una lista de opciones (listbox) que recibe su nombre de `label`, y cada opción recibe su nombre de su titular y su descripción de su texto de apoyo.
+- En la vista acoplada, el foco se queda en el campo de entrada. La sugerencia activa se mueve con Flecha abajo y Flecha arriba, para que la persona pueda seguir afinando la consulta. Cuando una sugerencia activa queda parcialmente fuera de la vista, la vista se desplaza hasta mostrarla.
+- La vista a pantalla completa y la vista de diálogo son diálogos modales que reciben su nombre de `label`. El foco pasa al campo de entrada de la cabecera con el cursor de texto al final de la consulta, se queda dentro de la vista, y todo lo de fuera queda inerte y oculto. Cuando la vista se cierra, el foco vuelve al campo de entrada de la barra o al activador, y la vista no se abre de nuevo.
+- Un activador es un botón que recibe su nombre de `label` y que dice que abre un diálogo y si su vista está abierta. Muestra el foco del teclado como lo hace la barra.
+- Una pulsación en el velo del diálogo lo cierra y no llega a nada de lo que hay debajo. Su cabecera empieza con el botón de retroceso, al que se llega con Tab.
+- Los resultados son una lista que recibe su nombre de `label`, y un grupo recibe su nombre de su titular. Un resultado con `href` es un enlace, nunca una opción; el campo de entrada es un cuadro combinado solo mientras la vista muestra sugerencias. Un resultado recibe su nombre de su titular y su descripción de su extracto y, después, de `targetLabel` cuando se abre en un contexto nuevo.
+- Flecha abajo en el campo de entrada, cuando no queda ninguna sugerencia a la que ir, lleva el foco al primer resultado y continúa por ellos, de un grupo a otro; Flecha arriba vuelve atrás, y desde el primero vuelve al campo de entrada. Escribir, borrar o pegar sobre un resultado lleva el foco al campo de entrada, donde la tecla actúa entonces. En una vista modal, Tab recorre los resultados como recorre cualquier enlace.
+- La fila de estado es una región activa (live region). `statusText` se anuncia cuando cambia, y de inmediato, como una alerta, mientras `status` es `error`. Durante la carga, los resultados se marcan como ocupados y el indicador de carga recibe su nombre de `statusText`.
+- El atajo se expone como el atajo de teclado del activador o del campo de entrada. Su indicación no recibe pulsaciones ni foco.
+- Que el foco llegue al campo de entrada nunca abre la vista, ya sea con Tab o al volver desde la vista a pantalla completa.
+- Escape, la acción de retroceso de la plataforma y el botón de retroceso cierran la vista. La vista acoplada se cierra además con Tab, con Mayús+Tab, con una pulsación fuera o cuando el foco sale de la búsqueda.
+- Los botones de borrar y de retroceso son botones de icono de Tanrei que reciben su nombre de `clearLabel` y `backLabel`. Después de borrar, el foco vuelve al campo de entrada.
+- Tus botones de icono de los slots `leading` y `trailing` conservan sus propios nombres, roles y paradas de foco, en el orden de lectura. No se muestran en la cabecera de la pantalla completa.
+- La escritura, la composición con un método de entrada, el dictado y el texto de derecha a izquierda funcionan como en el campo de texto. La tecla de acción del teclado de búsqueda envía la consulta.
+- La barra muestra el foco con su propio borde, tanto si el foco llegó desde el teclado como desde un puntero, como hace un campo. Las filas de sugerencia muestran el anillo de foco dentro de la fila mientras están activas. Cada fila y la barra cumplen el objetivo mínimo.
+- El glifo de búsqueda, los iconos iniciales y el divisor quedan ocultos para la tecnología de apoyo.
+- Con tamaños de texto mayores, la barra y la cabecera crecen, la consulta se mantiene en una línea y las filas de sugerencia saltan de línea.
+- Las compilaciones de depuración notifican la falta de `label`, `clearLabel` o `backLabel`, un valor de sugerencia vacío o repetido, un titular vacío, una presentación, una barra o un estado desconocidos, un activador con la presentación acoplada, una segunda búsqueda que vincula las mismas teclas y más de dos botones finales.
+
+Carencias conocidas por plataforma:
+
+- SwiftUI, Compose, Flutter y React Native todavía no tienen el activador, la vista de diálogo, los resultados, la fila de estado ni el atajo. En esas plataformas, muestra los resultados en el contenido propio de la vista y anuncia tú cuántos son.
+- Web: un atajo vinculado lee `mod` según la convención en la que está escrita su indicación, la que define un ancestro o, si no, la de la plataforma, mientras que la especificación solo nombra la de la plataforma.
+- SwiftUI, Compose, Flutter y React Native no tienen rol de cuadro combinado ni de lista de opciones. Su campo de entrada es un campo de búsqueda, y cada sugerencia es un botón con su posición en la lista, al que un lector de pantalla llega deslizando. Ahí, la sugerencia activa no se anuncia como el descendiente activo del campo de entrada. Las sugerencias de Flutter tampoco tienen posición en la lista, y SwiftUI y React Native indican la posición en inglés («2 of 3»; el `positionText` de React Native la cambia).
+- Flutter expone el campo de entrada como un tipo de entrada de búsqueda, no con el rol de cuadro de búsqueda, porque Flutter 3.32, la versión más antigua que admite, rechaza ese rol.
+- Una pulsación fuera de la vista acoplada la cierra. En la web, SwiftUI, Compose y Flutter, la pulsación llega además a lo que hay debajo; en React Native no, como ocurre con el menú.
+- Web: el campo de entrada de la cabecera de la pantalla completa también es un cuadro combinado, así que la sugerencia activa se anuncia igualmente ahí. La especificación solo nombra el cuadro combinado para la vista acoplada.
+- Web: la vista acoplada no se cierra con la petición de cierre de la plataforma, como el gesto de retroceso de Android. Se coloca mediante un script, no con el posicionamiento por anclas de CSS como dice la nota para la web de la especificación.
+- El estado deshabilitado alcanza a los botones de icono de los slots, que la especificación deja en su propio estado: el `.disabled(true)` de SwiftUI los deshabilita también, y en la web una opacidad de deshabilitado inferior a 1 los atenuaría. La opacidad de deshabilitado de todos los sistemas incluidos es 1.
+- SwiftUI dibuja la vista acoplada por encima de lo que el propio contenedor de la búsqueda contiene después de ella, no por encima de todas las vistas de la ventana. Coloca la búsqueda hacia el final de su contenedor, o súbela con `zIndex`. En macOS no se lee la altura de la ventana, así que la vista siempre se abre debajo con su altura natural, y la vista a pantalla completa es una hoja tan grande como la ventana.
+- SwiftUI: el resaltado de la selección sigue el tinte del cursor de texto, no el color de selección del campo de texto. El primer toque en un campo de entrada sin foco pone el cursor de texto al final de la consulta, no donde cayó el toque. Las teclas se prueban solo en macOS, no con un teclado físico en iOS.
+- Compose no puede distinguir un puntero fino de un toque, así que sus filas de sugerencia miden siempre 48 de alto, mientras que las de la web miden 44 con un ratón. Sus pruebas no alcanzan una pulsación fuera de la vista acoplada.
+- Flutter: una vista acoplada que el producto abre con `expand()` mientras el campo de entrada no tiene el foco no se cierra con una pulsación fuera. La vista a pantalla completa necesita un `Navigator`; sin él, la vista es acoplada.
+- React Native: la vista acoplada se coloca cuando se abre y cuando cambian la ventana o el teclado, pero no sigue a la barra mientras esta se desplaza. Escape, las teclas de flecha y Tab llegan solo donde `TextInput` las entrega, y la superposición y los movimientos del foco de la vista a pantalla completa aún no se han comprobado en un dispositivo.
+- Con `cupertino`, la barra no dibuja borde de foco, ya que un campo de búsqueda de iOS muestra el foco solo con su cursor de texto y con el teclado.
+- Con `m3-like`, la búsqueda dibuja los valores del sistema predeterminado: los valores de búsqueda de Material esperan a que la referencia de fidelidad la cubra. La vista acoplada de Material, que crece desde la barra como una sola superficie, se dibuja como una superficie aparte debajo de ella (laguna de imitación `search-docked-view-joins-bar`).
+
+### Qué debes hacer tú
+
+- Da a la búsqueda un `label`, y da `clearLabel` y, para el diálogo y la pantalla completa, `backLabel`, en el idioma de tu producto.
+- Aporta sugerencias para la consulta actual, con titulares que tengan sentido leídos por sí solos.
+- Di en `statusText` lo que ha encontrado tu búsqueda, en el idioma de tu producto, una vez por cada respuesta. La búsqueda lo anuncia; no cuenta los resultados por sí misma.
+- Ejecuta tú la consulta, y descarta las respuestas que lleguen desordenadas.
+- Da un `href` a todo resultado que tenga una dirección, y un `targetLabel` cuando se abra en un contexto nuevo.
+- Vincula las teclas del atajo, o activa `bindShortcut`. Una indicación de teclas que no hacen nada induce a error.
+- Decide qué hace `select`, y define tú la consulta si una elección debe rellenarla.
+- En Compose y React Native, define `expanded` desde el callback, o la vista no se abrirá ni se cerrará.
+- En la web, da a la búsqueda un `name` para enviar su consulta con un formulario.

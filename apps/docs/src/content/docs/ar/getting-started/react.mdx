@@ -1,0 +1,71 @@
+---
+title: React
+description: مكوّنات React محدَّدة الأنواع، مولَّدة من Web Components الخاصة بـ Tanrei.
+translationOf: getting-started/react.mdx
+sourceHash: d7fd2423cae67a6c9ed2677fa26c8c5d36f75867
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+تغلِّف الحزمة `@tanrei/react` كل عنصر مخصص من `@tanrei/web` بمكوّن React حقيقي له خصائص محدَّدة الأنواع ومعالجات أحداث. تُولَّد هذه الأغلفة من بيان العناصر المخصصة (custom elements manifest)، فتطابق دائمًا العناصر التي تغلِّفها.
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react" />
+
+## التثبيت
+
+يلزم React 18 أو أحدث.
+
+### من الشيفرة المصدرية
+
+كما في [حزمة الويب](/ar/getting-started/web/) (Git، و Node 22.12 أو أحدث، و pnpm 12): ابنِ الحزمتين كلتيهما في نسخة مستنسخة من المستودع واحزمهما،
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/web --filter @tanrei/react build
+pnpm --filter @tanrei/web --filter @tanrei/react pack --pack-destination ../tanrei-packages
+```
+
+ثم ثبِّت الملفين المحزومين كليهما في مشروعك بأمر واحد، حتى تجد حزمة React حزمة الويب بجانبها:
+
+```sh
+npm install path/to/tanrei-packages/tanrei-web-*.tgz path/to/tanrei-packages/tanrei-react-*.tgz
+```
+
+### بعد الإصدار الأول
+
+```sh
+npm install @tanrei/react @tanrei/web
+```
+
+## الاستخدام
+
+```tsx
+import '@tanrei/web/tokens.css';
+import { Button } from '@tanrei/react';
+
+export function Toolbar({ onDeploy }: { onDeploy: () => void }) {
+  return (
+    <>
+      <Button variant="filled" onClick={onDeploy}>
+        نشر
+      </Button>
+      <Button variant="text" size="small" disabled>
+        تراجع
+      </Button>
+    </>
+  );
+}
+```
+
+تحمل الخصائص أسماء خصائص HTML للعنصر نفسها (`variant` و `size` و `disabled`). والأحداث معالجات React عادية.
+
+## التصيير على الخادم
+
+تُخرج المكوّنات وسم العنصر المخصص على الخادم، ثم يُرقّى العنصر في المتصفح. في إطارات العمل التي تفصل بين الخادم والعميل، استورد `@tanrei/react` من مكوّن عميل حتى تُسجَّل تعريفات العناصر في المتصفح.
+
+<Callout>
+  السمة والتباين والرموز (tokens) والخطوط تعمل تمامًا كما في [دليل Web](/ar/getting-started/web/)؛ ولا تضيف حزمة React شيئًا من عندها فوق ذلك.
+</Callout>

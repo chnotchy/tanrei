@@ -1,0 +1,21 @@
+---
+title: 字阶令牌
+description: 按层级命名的每个文本样式，附实时样张、解析后的各项度量，以及强调时采用的字重。
+translationOf: tokens/typescale.mdx
+sourceHash: 04f324a84d7ee88a6b98405c30b1b79539c95a7d
+---
+
+import Typescale from '../../../../components/tokens/Typescale.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+样张使用生成的 CSS 自定义属性来排版，所以你看到的就是 `@tanrei/web` 实际提供的效果。每个角色把自己的各个部分作为单独的属性公开：`-font-family`、`-font-size`、`-line-height`、`-font-weight`、`-letter-spacing` 和 `-font-weight-emphasized`，另有一个 `-font` 简写。使用指引（`h2` 或 `p` 对应哪个角色，以及为什么强调是一种字重而不是一个角色）请阅读[字体排印](/zh-cn/foundations/typography/)。
+
+## 十六个角色
+
+<Typescale />
+
+## 强调级差
+
+强调文本就是该角色在自身字重上加上所属系列的级差。角色所属的系列是其名称的第一段；`caption`、`code`、`code-small` 和 `eyebrow` 采用 label 的级差。各内置系统的四个级差：
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />

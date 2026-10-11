@@ -1,0 +1,79 @@
+---
+title: "行为"
+description: "两个种类选择——按下如何得到反馈、键盘焦点长什么样——设计系统像设置其他令牌一样设置它们。"
+translationOf: foundations/behaviour.mdx
+sourceHash: 376f1e0da1eea1c76edf02d9d79d443ef4fe2688
+---
+
+import Callout from '../../../../components/Callout.astro';
+import BehaviorChoice from '../../../../components/tokens/BehaviorChoice.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+import SystemButtons from '../../../../components/SystemButtons.astro';
+
+一个设计系统与另一个设计系统的区别，几乎都是**量**上的：半径、色调、时长。量就是取值，由[层](/zh-cn/foundations/design-systems/)来改变。
+
+少数区别不是量。有的系统用涟漪回应按下，有的把控件变暗；有的在聚焦的控件外画一圈硬边的圆环，有的画一圈柔和的光晕。现有令牌上的任何数值，都没法把其中一种变成另一种。Tanrei 把这类区别称为**种类选择**，并把它们保存为 `sys.behavior` 下的两个令牌。每个令牌列出一份简短而封闭的行为方式清单，由设计系统从中选一个。
+
+<SystemValues tokens={['sys.behavior.pressed-feedback', 'sys.behavior.focus-style']} />
+
+组件读取这些令牌。它们从不查看当前启用的是哪个设计系统。
+
+## 按下反馈
+
+<BehaviorChoice choice="pressed-feedback" />
+
+| 取值 | 按下期间组件画什么 |
+|---|---|
+| `overlay` | 按下状态的令牌一次性应用到整个容器。 |
+| `ripple` | 按下状态层从接触点向外扩展（由键盘按下时从中心开始），并按容器的形状裁剪。 |
+| `dim` | 组件的按下不透明度应用到整个控件。不绘制状态层。 |
+| `none` | 什么也不画。悬停和聚焦仍然显示。 |
+
+这个选择只决定按下层**怎样**出现。它的颜色和不透明度仍然来自组件各状态的令牌，层照旧为这些令牌取值。
+
+无论选哪一种，按下状态都会立即出现，并至少保持 `sys.motion.duration.press-hold` 这么久（默认 100ms，随动效调节量变化）。一次轻点或一次按键在一帧之内就结束了；没有这个下限，反馈根本来不及被看见。Button 把它写成了需求 BTN-8 和 BTN-9。
+
+## 不属于种类选择的：圆角如何弯曲
+
+圆角怎样过渡到直边，看上去像一个种类选择——圆形或连续——但它其实是一个**量**：Figma 的 corner smoothing，取 0 到 1，其中 0.6 是 iOS 圆角。它和它所塑造的半径放在一起，名为 `sys.shape.corner-smoothing`，在[形状](/zh-cn/foundations/shape/#圆角平滑)页面上说明。
+
+## 焦点样式
+
+<BehaviorChoice choice="focus-style" />
+
+`glow` 使用与圆环相同的两种焦点颜色、偏移和宽度来绘制，所以[焦点对比度不变式](/zh-cn/foundations/accessibility/)原样适用于它。它改变的是指示的边缘，而不是有没有指示。
+
+## 内置系统
+
+同一个 Button 在每个系统下的样子，由已安装的 Web 构建绘制。先逐个按下，再用 <kbd>Tab</kbd> 聚焦到它们。
+
+<SystemButtons label="先按下，再按 Tab" tokens={['sys.behavior.pressed-feedback', 'sys.behavior.focus-style']} />
+
+## 在层中设置选择
+
+改变一个选择和改变任何取值一样：写在 `tokens` 下，并附上 `reason`。
+
+```json
+{
+  "id": "acme",
+  "extends": "tanrei",
+  "tokens": {
+    "tanrei.sys.behavior.pressed-feedback": { "$value": 1, "reason": "Acme 用涟漪回应按下。" },
+    "tanrei.sys.behavior.focus-style":      { "$value": 1, "reason": "Acme 用光晕显示键盘焦点。" }
+  }
+}
+```
+
+`$value` 是一个**数**：该名称在令牌清单中的位置，从 0 数起。`pressed-feedback` 的清单是 `overlay`、`ripple`、`dim`、`none`，所以 `1` 就是 `ripple`。Tanrei 的令牌文件所用的格式（DTCG 2025.10）没有字符串类型，因此文件里存的是索引。超出清单范围的索引会被构建拒绝。
+
+这个数只留在层文件里。生成的 CSS 带的是名称（`--tanrei-sys-behavior-pressed-feedback: ripple`），SwiftUI、Compose、Flutter 和 React Native 则在系统实例上拿到一个有类型的枚举。
+
+清单本身属于核心词汇。层在这些名称中挑选，不能新增。一种新的行为方式需要每个平台都画出来，所以它和其他词汇变更一样，要向核心提出提案。
+
+## 平台画不出某个选择时
+
+每份清单的第一个名称是默认值，同时也是回退值。画不出某个选择的平台改画第一个取值，并在自己软件包的 README 中说明。
+
+<Callout>
+  索引不便手写，所以 Theme Studio（Behaviour 分组）、`tanrei explain` 和 MCP 服务器显示并接受的都是名称。
+</Callout>

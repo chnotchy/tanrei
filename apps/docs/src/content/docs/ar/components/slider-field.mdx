@@ -1,0 +1,222 @@
+---
+title: حقل شريط التمرير
+description: يتيح للأشخاص اختيار قيمة، أو مدى من القيم، على سلّم، حقلًا كاملًا واحدًا، فيه المسار تحت تسمية، والقيمة بالكلمات في نهاية صف التسمية، وسطر مساعدة، وسبب رفض القيمة.
+translationOf: components/slider-field.mdx
+sourceHash: aca0aa027643e61ad36b67061cf3f29cb00b8569
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="slider-field" />
+
+<DemoFrame label="حقل شريط تمرير، وآخر مدرَّج، ومدى" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" supporting-text="ينطبق على التنبيهات والوسائط." value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="حجم النص" min="50" max="200" step="10" value="120"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="السعر" supporting-text="لليلة الواحدة، قبل الضرائب." range min="0" max="500" step="10" start-value="100" value="300" start-label="أدنى سعر" end-label="أعلى سعر"></tanrei-slider-field>
+</DemoFrame>
+
+استخدم حقل شريط التمرير (slider field) لقيمة تُختار بالإحساس وتُقرأ بعد ذلك بالكلمات: حجم نص مقداره 120%، أو مسافة مقدارها 5 كم، أو سعر من 100 دولار إلى 300 دولار. شريط التمرير وحده ليست له تسمية مرسومة، ومساره لا يقول القيمة التي ضُبط عليها. وحقل شريط التمرير هو الحالة المعتادة، جاهزًا للاستخدام: تسمية، والقيمة بالكلمات، والمسار، وسطر مساعدة، وخطأ.
+
+**يُبنى من** [حقل](/ar/components/field/) و[شريط تمرير](/ar/components/slider/). الحقل هو الإطار: التسمية، وعلامة المطلوب أو الاختياري، ونص القيمة في نهاية صف التسمية، والمساعدة، والخطأ. وشريط التمرير هو عنصر التحكم: المسار والمقابض وكل ما يفعله الشخص بها. وحقل شريط التمرير لا يرسم شيئًا من عنده وليس له أي رمز تصميم (token): فكل خاصية له هي خاصية لأحد الاثنين، تُعطى له كما هي، إلا `valueHidden` فهي خاصة به.
+
+عرضه عرض المكان الذي يوضع فيه، ومساره يملؤه.
+
+على الويب هو `<tanrei-slider-field>`. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+الخاصية `value` هي قيمة المقبض، وقيمة مقبض النهاية في المدى؛ والخاصية `startValue` هي مقبض البداية في المدى. والحدثان هما حدثا شريط التمرير نفسه: `input` عند كل تغيّر والشخص يسحب، و `change` مرة واحدة حين ينتهي التغيّر. وحين يُسمع أحدهما تكون `value` و `startValue` في الحقل قد أخذتا قيمتيهما الجديدتين.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-slider-field name="text-size" label="حجم النص"
+        supporting-text="ينطبق على كل صفحة."
+        min="50" max="200" step="10" value="120"></tanrei-slider-field>
+
+      <!-- المدى يرسل start-value ثم value، تحت الاسم الواحد. سمِّ كل مقبض. -->
+      <tanrei-slider-field name="price" label="السعر" range
+        min="0" max="500" step="10" start-value="100" value="300"
+        start-label="أدنى سعر" end-label="أعلى سعر"></tanrei-slider-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/slider-field';
+
+      // كلمات القيمة، تُعطى مرة واحدة: خاصية للعنصر، وليست خاصية HTML أبدًا.
+      const percent = new Intl.NumberFormat(document.documentElement.lang, { style: 'percent' });
+      const size = document.querySelector('[name="text-size"]');
+      size.formatValue = (value) => percent.format(value / 100);
+      size.addEventListener('input', () => applyTextSize(size.value));
+
+      const dollars = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+      document.querySelector('[name="price"]').formatValue = (value) => dollars.format(value);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { SliderField } from '@tanrei/react';
+
+    <SliderField name="text-size" label="حجم النص" supportingText="ينطبق على كل صفحة."
+      min={50} max={200} step={10} value={size}
+      formatValue={(value) => percent.format(value / 100)}
+      onInput={(event) => setSize(event.currentTarget.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### القيمة بالكلمات
+
+تُرسم القيمة في نهاية صف التسمية، بالكلمات التي يعطيها شريط التمرير لمقبضه، وهي الكلمات نفسها التي يسمعها قارئ الشاشة ويعرضها مؤشر القيمة. وهي، بهذا الترتيب:
+
+| الكلمات | متى |
+| --- | --- |
+| نص `valueText`، ونص `startValueText` لمقبض البداية في المدى | تكتب الكلمات بنفسك، وتكتبها من جديد عند كل حدث `input`. |
+| ما تكتبه الدالة `formatValue` | تعطي دالة واحدة تحوّل القيمة إلى كلماتها، مرة واحدة. ويسألها شريط التمرير عن كل مقبض عند كل تغيّر. |
+| العدد بالإعدادات المحلية للصفحة | لم يُعطَ أيٌّ منهما. |
+
+قيمتا المدى تصل بينهما شرطة متوسطة (en dash)، بترتيب القراءة: ففي تخطيط من اليمين إلى اليسار تقف كلمات البداية في اليمين، حيث مقبض البداية. وحقل شريط التمرير لا يكتب بنفسه عددًا ولا وحدة ولا كلمة.
+
+<DemoFrame label="نص قيمة يشارك التسمية سطرها، وآخر يأخذ سطرًا خاصًّا به، وحقل يخفيه" column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" value="40" value-indicator="active"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="الدخل السنوي قبل الضريبة" range min="0" max="20000000" step="100000" start-value="3400000" value="12500000" start-label="أدنى دخل سنوي" end-label="أعلى دخل سنوي"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="السطوع" value="70" value-hidden></tanrei-slider-field>
+</DemoFrame>
+
+يقف نص القيمة على خط الأساس للسطر الأول من التسمية، وتلتفّ التسمية في المكان المتبقي. وحيث كان ذلك سيترك للتسمية أقل من نصف الصف، يأخذ نص القيمة سطرًا خاصًّا به بعد التسمية، ويلتفّ هناك إن لزم. والخاصية `valueHidden` تحذفه، لشريط تمرير لا يعني عدده شيئًا للشخص: مستوى صوت، أو سطوع. والمقبض يظل يقول قيمته للتقنيات المساعدة.
+
+### مستوى واحد إلى الأسفل
+
+الحقل نفسه مكتوبًا باليد من عضويه هو الصورة نفسها، وشريط التمرير نفسه عند التقنيات المساعدة:
+
+```html
+<tanrei-field label="حجم النص" supporting-text="ينطبق على كل صفحة." value-text="120 %">
+  <tanrei-slider name="text-size" min="50" max="200" step="10" value="120"></tanrei-slider>
+</tanrei-field>
+
+<script type="module">
+  const field = document.querySelector('tanrei-field');
+  const slider = field.querySelector('tanrei-slider');
+  slider.formatValue = (value) => percent.format(value / 100);
+  // ما يفعله حقل شريط التمرير بنفسه: نص القيمة في الحقل هو نص شريط التمرير، عند كل تغيّر.
+  slider.addEventListener('input', () => (field.valueText = slider.shownValueText));
+</script>
+```
+
+<DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله شريط تمرير، أُعطي نص القيمة مرة واحدة، ومن دون المستمع المكتوب أعلاه لا يبقى متوافقًا مع القيمة" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="حجم النص" supporting-text="ينطبق على كل صفحة." value-text="120">
+    <tanrei-slider min="50" max="200" step="10" value="120"></tanrei-slider>
+  </tanrei-field>
+</DemoFrame>
+
+انزل إلى هذا المستوى حين تحتاج إلى ترتيب لا يقدّمه حقل شريط التمرير:
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| تسمية، والقيمة بالكلمات، والمسار، ومساعدة، وخطأ | حقل شريط التمرير |
+| نص قيمة لا يقوله شريط التمرير، كجملة مثل «أي سعر»، أو شيء من عندك داخل الإطار | [حقل](/ar/components/field/) بداخله [شريط تمرير](/ar/components/slider/)، ومعه `value-text` من عندك |
+| المسار وحده، يسمّيه شيء مرسوم في مكان آخر: عمود في جدول، رسم أيقونة في شريط أدوات، عنصر التحكم بمستوى الصوت في مشغِّل وسائط | [شريط التمرير](/ar/components/slider/) وحده، وتسمّيه `label` الخاصة به |
+| شريط تمرير عمودي | [شريط التمرير](/ar/components/slider/) وحده: فليس لحقل شريط التمرير اتجاه |
+| قيمة معروفة تُكتب | [حقل العدد](/ar/components/number-field/)، وحده أو بجانب شريط تمرير |
+
+ما يتغيّر في المستوى الأدنى هو الموضع الذي يُقال فيه كل شيء. الخصائص `name` و `value` و `startValue` تكون على شريط التمرير، وهو عندئذ عنصر التحكم الذي يلقاه النموذج، وأحداثه تُسمع عليه. أما `label` و `disabled` فتبقيان على الحقل، وهو يمرّرهما إلى شريط التمرير. ومقبض النهاية في المدى تسمّيه `label` الخاصة بشريط التمرير، وهي ما يسمّيه حقل شريط التمرير `endLabel`.
+
+## المواصفات
+
+<DemoFrame label="مطلوب بكلمة المنتج، واختياري، وفي حالة الخطأ، ومعطَّل" plain column>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" requirement="required" required-text="مطلوب" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" requirement="optional" optional-text="اختياري" value="40"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" supporting-text="ينطبق على التنبيهات والوسائط." error error-text="اختر مستوى أعلى من 0." value="0"></tanrei-slider-field>
+  <tanrei-slider-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="مستوى الصوت" supporting-text="ينطبق على التنبيهات والوسائط." disabled value="40"></tanrei-slider-field>
+</DemoFrame>
+
+### ما يعطيه كل عضو
+
+| الجانب | من الحقل | من شريط التمرير |
+| --- | --- | --- |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText` | `value`، `startValue`، `range`، `min`، `max`، `step`، `origin`، `stops`، `size`، `valueIndicator`، `valueText`، `startValueText`، `startLabel`، ثم `endLabel` وهي `label` الخاصة بشريط التمرير |
+| الأحداث | — | `input`، `change` |
+| المنافذ (slots) | `label-icon` | — |
+| رموز التصميم | `comp.field.*` | `comp.slider.*` |
+
+خاصية واحدة هي لحقل شريط التمرير نفسه: `valueHidden`. وخاصية واحدة من خصائص الحقل يملؤها حقل شريط التمرير بنفسه وليس لك أن تعيّنها: `valueText` في الحقل، من كلمات شريط التمرير.
+
+لشريط التمرير `disabled` و `orientation` خاصتان به. وليست أيٌّ منهما من خصائص حقل شريط التمرير: فالخاصية `disabled` في الحقل تعطّل شريط التمرير، لتتبعها التسمية ونص القيمة، والمسار يمتد دائمًا في اتجاه السطر: فليس لحقل شريط التمرير اتجاه عمودي.
+
+لشريط التمرير قيمة دائمًا، فالخاصية `requirement` لا تعني هنا «غير فارغ». والنموذج الذي يعلّم كل عنصر تحكم مطلوبًا أو اختياريًّا يعلّم هذا أيضًا؛ وما يرفضه، كمستوى مقداره 0 أو مدى أضيق مما ينبغي، عليك أن تقوله بالخاصيتين `error` و `errorText`. والخطأ لا يغيّر شيئًا في المسار: الكلمات وحالة عدم الصلاحية هما اللتان تحملانه.
+
+ما تفعله المقابض، أي السحب والمفاتيح والدرجات ومؤشر القيمة، في [صفحة شريط التمرير](/ar/components/slider/). وما يفعله الإطار، أي علامة المطلوب ونص القيمة والمساعدة والخطأ وكيف يُعلَن، في [صفحة الحقل](/ar/components/field/).
+
+### تخصيص حقل واحد دون غيره
+
+ليس لحقل شريط التمرير رمز تصميم خاص به. إطاره يقرأ رموز تصميم الحقل، ومساره يقرأ رموز تصميم شريط التمرير، أينما عُيِّنت. ولتغيير مثيل واحد، عيِّن رمز تصميم العضو عليه:
+
+```html
+<tanrei-slider-field label="مستوى الصوت" value="40"
+  style="--tanrei-comp-field-standard-value-text-color: var(--tanrei-sys-color-on-surface)"></tanrei-slider-field>
+```
+
+<ComponentSpecs name="slider-field" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` بداخله عنصر `<tanrei-slider>`، ولا شيء غيرهما. واستيراد العنصر يعرّف الاثنين.
+- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل القيمة، والمدى يرسل قيمة البداية ثم القيمة تحت الاسم الواحد، ولا يرسل شيئًا وهو معطَّل، ويعود عند إعادة الضبط إلى قيمتي خاصيتي HTML (attributes) `value` و `start-value`، ويتبع عنصر `<fieldset>` المعطَّل. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج.
+- الحدثان `input` و `change` هما حدثا شريط التمرير، من النوع CustomEvent ومعهما `detail.value` (و `detail.startValue` للمدى). وهدفهما هو العنصر، و `event.target.value` هي القيمة الجديدة في كل مستمع.
+- الخاصية `formatValue` خاصية للعنصر وليست خاصية HTML أبدًا: `(value: number) => string`، أو `null`.
+- نصّا القيمة في المدى يُكتبان في النص الواحد الذي للخاصية `value-text` في الحقل، وبينهما شرطة متوسطة. وكلٌّ منهما مقطع له اتجاهه، يُحاط بعزل يتبع أول حرف قوي (first-strong isolate)، أي U+2068 و U+2069، إلا إذا كان عددًا بسيطًا مثل «$100» أو «3,400,000»، فهو مقطع واحد من اليسار إلى اليمين في الاتجاهين سلفًا، ويُكتب كما هو.
+- الأجزاء: `field` و `slider` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label`، `label-icon`، `requirement-label`، `value-text`، `supporting-text`؛ `track`، `active-track`، `stop-indicator`، `container`، `handle`، `value-indicator`.
+- العنصر نفسه غير قابل للتركيز: فالدالة `focus()` تذهب إلى المقبض، وإلى مقبض البداية في المدى، وعنصر `<label for>` من عند الصفحة ينقل التركيز إليه.
+- ليس للعنصر دور. سمِّه بالخاصية `label`، ومعها `label-hidden` حيث تُرسم التسمية في مكان آخر، ولا تسمِّه أبدًا بالخاصية `aria-label`، فهي لا تسمّي شيئًا هنا.
+- خصائص HTML هي خصائص العضوين نفسها: `label-hidden`، `supporting-text`، `error-text`، `required-mark`، `required-text`، `optional-text`، `start-value`، `value-indicator`، `value-text`، `start-value-text`، `start-label`؛ ثم `end-label` و `value-hidden`.
+- قبل أن يُعرَّف العنصر لا يكون له حجم، ولا يعرض إلا عنصرًا فرعيًّا في `label-icon`. والصفحة التي يجب أن تعمل بلا سكربت تستخدم عنصر `<label>` حول عنصر `<input type="range">` عادي.
+
+## الإرشادات
+
+### افعل
+
+- أعطِ كلمات القيمة بالدالة `formatValue` حين يكون العدد المجرَّد غير واضح: نسبة مئوية، عملة، وحدة.
+- سمِّ مقبضي المدى كليهما، بالخاصيتين `startLabel` و `endLabel`، بكلمات تحمل كلمات `label`: «أدنى سعر» و«أعلى سعر» تحت «السعر».
+- قل في `supportingText` ما تغيّره القيمة، حيث لا تقوله التسمية.
+- قل ما يُرفض بالكلمات، بالخاصيتين `error` و `errorText`.
+- استخدم `valueHidden` لقيمة تُضبط بالإحساس ولا يقول عددها شيئًا للشخص.
+
+### لا تفعل
+
+- لا تكتب `valueText` مرة واحدة في الترميز لشريط تمرير يستطيع الشخص تحريكه: فالكلمات تصير خطأ بعد أول سحب. أعطِ `formatValue`، أو اكتب `valueText` من جديد عند كل حدث `input`.
+- لا تضع حقل شريط تمرير داخل حقل. فهو حقل أصلًا؛ وتبلّغ بنيات التنقيح (debug) عن ذلك.
+- لا تسمِّه بالخاصية `aria-label`. وحيث يجب ألا تُرسم تسمية، أعطِ `label` و `labelHidden`.
+- لا تستخدم `valueIndicator="always"` لعرض القيمة: فنص القيمة يفعل ذلك، والمؤشر كان سيقع فوق صف التسمية.
+- لا تستخدم حقل شريط التمرير لقيمة يجب أن تكون دقيقة. استخدم [حقل العدد](/ar/components/number-field/)، وحده أو بجانبه.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="slider-field" />
+
+### ما يتكفل به المكوّن
+
+- كل مقبض شريط تمرير (slider). المقبض الواحد تسمّيه `label`، مرسومةً كانت أو غير مرسومة؛ ومقبضا المدى تسمّيهما `startLabel` و `endLabel`، وتسمّيهما `label` حيث تغيب إحداهما، وتبلّغ بنيات التنقيح عن ذلك.
+- كل مقبض وصفه النص المساعد أو نص الخطأ المعروض، ومعه نص الاختياري ما دام الحقل اختياريًّا، ويُعرَض للتقنيات المساعدة على أنه غير صالح ما دامت `error` بالقيمة true، وعلى أنه معطَّل ما دامت `disabled` بالقيمة true. ودور شريط التمرير على الويب ليست له حالة للمطلوب، فحقل شريط التمرير المطلوب يقول `requiredText` في الوصف.
+- كل مقبض يقول قيمته بالكلمات. والكلمات نفسها تُرسم في نهاية صف التسمية، وهناك تُحجب عن التقنيات المساعدة، فتُقرأ القيمة مرة واحدة.
+- التسمية المرسومة، وعلامة المطلوب أو الاختياري، ونص القيمة لا تُعرَض للتقنيات المساعدة مرة ثانية، وتغيّر نص القيمة لا يُعلَن: فالمقبض يقول قيمته بنفسه.
+- مواضع توقف التركيز فيه هي مقابض شريط التمرير، واحد أو اثنان في المدى، وكل مفتاح هو مفتاح شريط التمرير. والضغط على صف التسمية ينقل التركيز إلى المقبض ولا يغيّر شيئًا؛ والضغط على المساعدة لا يفعل شيئًا.
+- وهو معطَّل، يبقى نص القيمة مرسومًا: فما ضُبط عليه عنصر تحكم معطَّل يظل يُقرأ.
+- الاتجاه والنص المكبَّر والألوان المفروضة (forced colors) يستجيب لكل منها كل عضو بطريقته: في تخطيط من اليمين إلى اليسار ينعكس الإطار والمسار معًا وتحتفظ كلمات القيمة بترتيبها؛ وعند تكبير النص إلى 200% لا يُقصّ شيء ولا يُمرَّر شيء جانبيًّا.
+- ليست له كلمات من عنده. والخاصيتان `requiredText` و `optionalText` إذا تُركتا فارغتين قرأهما الحقل من كلمات المنتج.
+
+فجوات معروفة على الويب: قبل أن يُعرَّف العنصر لا يُرسم شيء، ومقبضا المدى لا يُعرَضان للتقنيات المساعدة مجموعةً واحدة تسمّيها `label`.
+
+### ما عليك فعله
+
+- أعطِ `label` دائمًا، وأعطِ المدى `startLabel` و `endLabel` أيضًا.
+- أعطِ كلمات القيمة حين لا يُفهم العدد وحده، وأبقِها صحيحة والقيمة تتغيّر.
+- قل ما يُرفض بالخاصية `errorText`. واللون ليس الدليل الوحيد أبدًا.
+- قدِّم حقل عدد بجانب شريط التمرير حيث يجب أن يُدخل الشخص قيمة دقيقة: فالسحب ليس أبدًا الطريقة الوحيدة لتحريك مقبض، وهو مع ذلك ليس طريقة لكتابة قيمة.

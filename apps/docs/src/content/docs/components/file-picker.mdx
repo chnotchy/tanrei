@@ -1,0 +1,226 @@
+---
+title: File picker
+description: Lets people choose files through the platform's own picker — from a button and, where there is room, from a place files can also be dragged onto — says the limits in words before the choice, judges what was chosen, and hands your product the files it accepted and the files it refused. It keeps nothing, lists nothing and takes no part in a form.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+import Callout from '../../../components/Callout.astro';
+
+## Overview
+
+<ComponentAvailability name="file-picker" />
+
+<DemoFrame label="A file picker in each layout. Choosing a file changes nothing here: the page keeps none." column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Layer file" accept=".json" constraints-text="One JSON file" selection-text="No file chosen">
+    <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="Photos" accept="image/*" max-size="5000000" drop-text="Drag photos here, or choose them" constraints-text="Pictures, up to 5 MB each">
+    <tanrei-button slot="trigger" variant="outlined">Choose photos</tanrei-button>
+    <span slot="icon">image</span>
+  </tanrei-file-picker>
+</DemoFrame>
+
+A file picker is the way to choose files, and nothing more. Your own [button](/components/button/) opens the platform's file picker. Around it there can be a drop area, which also takes files dragged onto it. The limits stand beside it in your words. What was chosen is judged against the limits and handed to you: the accepted files with `select`, the refused ones with `reject`.
+
+It is an **advanced** component: the bare control, for a product that keeps the files itself. It keeps no file, draws no list and submits nothing with a form. Most products want the [file upload](/components/file-upload/), which is this picker with a list of [file items](/components/file-item/) below it, ready to use in a form.
+
+**Used in** the [file upload](/components/file-upload/). Use it by itself, without the file upload, when the files go to a place that is not the file upload's list:
+
+- One file is read immediately and not kept: importing a settings file, a spreadsheet of rows, a picture to crop.
+- The files are shown elsewhere: as attachments inside a message being written, on a canvas, in a table of your own.
+- An attach button with no area and no texts, in a toolbar.
+
+<Callout type="caution" title="It keeps nothing">
+After `select` the file picker has forgotten the files. A second choice is judged as if it were the first. If your product does not keep what `select` gives it, nothing does.
+</Callout>
+
+On the web it is `<tanrei-file-picker>`. The other platforms have not implemented it yet.
+
+### Usage
+
+Put one button in the `trigger` slot and listen to `select`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field label="Layer file" supporting-text="The layer replaces the one you are editing.">
+      <tanrei-file-picker id="layer" accept=".json" constraints-text="One JSON file"
+                          selection-text="No file chosen">
+        <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
+      </tanrei-file-picker>
+    </tanrei-field>
+
+    <script type="module">
+      import '@tanrei/web/components/field';
+      import '@tanrei/web/components/file-picker';
+      import '@tanrei/web/components/button';
+
+      const picker = document.querySelector('#layer');
+      picker.addEventListener('select', async ({ detail }) => {
+        const [file] = detail.files;
+        // The picker keeps nothing. Say what is chosen yourself, and do with the file what you mean to.
+        picker.selectionText = file.name;
+        importLayer(JSON.parse(await file.text()));
+      });
+      // A refused file has a reason that is a name, not a sentence. Say it in your own words.
+      picker.addEventListener('reject', ({ detail }) => {
+        const field = picker.closest('tanrei-field');
+        field.errorText = detail.files[0].reason === 'type' ? 'Choose a JSON file.' : 'Choose one file.';
+        field.error = true;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, Field, FilePicker } from '@tanrei/react';
+
+    <Field label="Layer file" error={!!problem} errorText={problem}>
+      <FilePicker accept={['.json']} constraintsText="One JSON file"
+        selectionText={chosen?.name ?? 'No file chosen'}
+        onSelect={(event) => importLayer(event.detail.files[0])}
+        onReject={(event) => explain(event.detail.files)}>
+        <Button slot="trigger" variant="outlined">Choose a file</Button>
+      </FilePicker>
+    </Field>
+    ```
+  </TabItem>
+</Tabs>
+
+Files that reach your product another way — pasted, dropped on another part of the page — are judged by the same rule with `judge()`. It answers and emits nothing:
+
+```js
+const { accepted, refused } = picker.judge(event.clipboardData.files);
+```
+
+In React, `judge()` is on the ref: `ref.current.judge(files)`.
+
+## Specs
+
+<DemoFrame label="The trigger alone; with what is chosen and the limits; a drop area in its error condition; disabled" plain column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Attach">
+    <tanrei-button slot="trigger" variant="outlined">Attach a file</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="Attachment" constraints-text="PDF, up to 10 MB" selection-text="brief.pdf">
+    <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple error label="Attachments" drop-text="Drag files here, or choose them" constraints-text="PDF or PNG, up to 10 MB each">
+    <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+  </tanrei-file-picker>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple disabled label="Attachments" drop-text="Drag files here, or choose them" constraints-text="PDF or PNG, up to 10 MB each">
+    <tanrei-button slot="trigger" variant="outlined">Choose files</tanrei-button>
+  </tanrei-file-picker>
+</DemoFrame>
+
+<ComponentSpecs name="file-picker" />
+
+## Guidelines
+
+### Two layouts
+
+| Layout | Use it for | What it draws |
+| --- | --- | --- |
+| `button` (the default) | A form that also holds other fields, a narrow place, a phone, a toolbar. | The trigger, the text beside it that says what is chosen, and the limits below. It takes no drop. |
+| `drop-area` | A screen whose main task is to hand over files, where a pointer is likely. | A bounded area around the same trigger, with a glyph and a prompt. It takes files dragged onto it, and a press anywhere on it opens the picker. |
+
+Both open the same picker from the same button. Dragging is an addition and never the only way: the trigger is how files are chosen by keyboard, by touch and with assistive technology.
+
+### The trigger
+
+The trigger is your own button, with your label, variant and size. Put exactly one in the `trigger` slot. The file picker gives it the behaviour and never restyles it.
+
+- A file picker without a trigger still takes drops in the drop-area layout, and a debug build reports it as a failure.
+- Anything else you put inside, besides the trigger and a glyph in the `icon` slot, is not drawn. A debug build reports it.
+- The `icon` slot replaces the upload glyph at the top of the drop area: a picture for photos, a table for a spreadsheet. It is decorative, and ignored in the button layout.
+
+### What is chosen
+
+`selectionText` is the text beside the trigger in the button layout: "No file chosen", then "brief.pdf", then "3 files". The file picker keeps no file, so it cannot write this text. Whoever keeps the files does: you, or the file upload, which fills it for you.
+
+Leave it empty and nothing is drawn there, which suits an attach button whose files appear elsewhere.
+
+### Say the limits
+
+`accept`, `maxSize`, `maxFiles` and `multiple` enforce the limits. `constraintsText` says them. Give both.
+
+| Prop | The limit | A file that breaks it |
+| --- | --- | --- |
+| `accept` | The kinds that are taken: file extensions with their dot (`.pdf`) and media types, a whole family as `image/*`. | Refused with the reason `type`. A folder is refused with `type` too. |
+| `maxSize` | The largest size of one file, in bytes. | Refused with the reason `size`. |
+| `multiple` | Whether one choice may bring more than one file. | Without it, several files that arrive together are all refused, with the reason `count`. The file picker does not pick one of them for the person. |
+| `maxFiles` | The most files one choice or one drop may bring, with `multiple`. | The files beyond it are refused with the reason `count`. Zero refuses every file. |
+
+- Write the limits as a person would read them: "PDF or PNG, up to 10 MB each". Tanrei builds no sentence from `accept` or from a number of bytes, because it ships no words.
+- The limits are drawn in the file picker and not in a field's help. A field's help gives way to its error text, which is exactly when a person needs to read the limits again.
+- `select` is emitted once per choice with the accepted files, then `reject` once with each refused file and its reason. The file picker draws and says nothing for a refusal. Say what happened in your own words: a field's error text, a row of your list, a message you announce.
+- The limits are of one choice. The file picker does not know what you kept before: set `maxFiles` to the number of files that still fit, or judge the total yourself. The file upload does this.
+- While something is dragged over the area, a browser tells kinds and a count, never names or sizes. A file that is too large is therefore refused at the drop, not while it is held.
+
+### In a field
+
+Put the file picker in a [field](/components/field/) when the form shows a label, help, an error or a required mark. The field draws them and gives them to the file picker, whose trigger is then named and described by them.
+
+```html
+<tanrei-field label="Attachment" requirement="required" required-text="Required"
+              error error-text="Choose a PDF of 10 MB or less.">
+  <tanrei-file-picker accept=".pdf" max-size="10000000"
+                      constraints-text="PDF, up to 10 MB" selection-text="No file chosen">
+    <tanrei-button slot="trigger" variant="outlined">Choose a file</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+```
+
+A file picker submits nothing. It has no `name` and no value, and `required` only tells assistive technology. Whether a file is missing is for the component that keeps the files to say: your code, or a [file upload](/components/file-upload/), which is a form control.
+
+### Right to left
+
+In a right-to-left layout the trigger stands at the right with the chosen text at its left, and the limits start from the right edge. The drop area's column stays centred. A file's name given as `selectionText` keeps its own order, with its dot and its extension. A glyph is mirrored only where the icon set marks it.
+
+### Do
+
+- Keep what `select` gives you, at once.
+- Say what is chosen: `selectionText`, or the place where your product shows the files.
+- Say every refusal in words, where the person is looking.
+- Use the [file upload](/components/file-upload/) when the files are listed below the picker and sent with a form.
+
+### Don't
+
+- Don't use the drop area as the only way to choose. It always holds the trigger.
+- Don't expect a form to submit what was chosen. The file picker takes no part in a form.
+- Don't restyle the trigger for this one place by reaching into it. It is your button: choose its variant and size.
+- Don't build a list of files inside it. Put [file items](/components/file-item/) below it, or use the file upload.
+
+## Accessibility
+
+<ComponentAccessibility name="file-picker" />
+
+### What the component handles
+
+- The trigger is your button. It is described by the limits and by the text that says what is chosen, and inside a field by the field's help or error.
+- With a `label`, or inside a field, the file picker is a group with that name. Without a name it exposes no group: an attach button in a toolbar is only a button.
+- The drop area is one large pointer target for that same button. It has no role, no name, no stop in the focus order and no key.
+- `error` exposes the trigger as invalid and draws the area's edge in the error color. `disabled` disables the trigger, and the area answers nothing.
+- The file picker announces nothing. It has no live region: what was chosen or refused is said by whoever keeps the files.
+- At 200% text every text wraps and nothing is cut. In forced colors the area keeps an edge, and an area that is receiving a drag has a thicker one.
+
+How it is built on the web: the picker is a real `<input type="file">` in the shadow root, kept from sight, from the focus order and from assistive technology. The trigger and the glyph stay in your DOM. `select` and `reject` bubble; `detail.files` is a `File[]`, and for `reject` a list of `{ file, reason }`.
+
+Known gaps on the web:
+
+- A button has no required state. Inside a field, the field's required text joins the trigger's description.
+- A browser delivers no drop to an area that refuses the drag. In that case `reject` is emitted only for a refusal that could not be known before the drop, such as a file that is too large.
+- In Safari a click gives a button no focus. After a file is chosen there by pointer, focus is where it was before.
+- A dashed edge cannot follow a smoothed corner. In a design system that sets corner smoothing, the edge is drawn solid where the browser draws that curve.
+- Without script, and until the element is defined, the trigger is a button that opens nothing. A page that must take files where script does not run writes a native `<input type="file">`.
+
+### What you need to do
+
+- Put one button in the `trigger` slot, with a label that says what it does.
+- Give the file picker a `label`, or put it in a field, wherever it is more than a lone button.
+- Give `constraintsText` whenever you set `accept`, `maxSize` or `maxFiles`.
+- Say what is chosen, and say every refusal, in words.
+- Announce what was added in a live region of your own when the files appear somewhere a person is not looking.

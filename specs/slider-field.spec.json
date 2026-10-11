@@ -1,0 +1,693 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "slider-field",
+  "title": "Slider field",
+  "summary": "Lets people choose a value, or a range of values, on a scale under a label that says what is set and what it is set to, with a line of help and the reason a value was refused: a Field and a Slider as one component.",
+  "category": "selection",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "field",
+    "slider"
+  ],
+  "fills": [
+    "field.valueText"
+  ],
+  "anatomy": [
+    {
+      "id": "field",
+      "description": "The Field itself: the label row with its label glyph, its requirement mark and, at its end, the value text; and the supporting row with the help and the error text. Drawn by the Field from the Field's tokens. A member: it frames the component."
+    },
+    {
+      "id": "slider",
+      "description": "The Slider itself, as the Field's one control: its track, active track, handles, stop dots, state layer, value indicator and focus ring, drawn by the Slider from the Slider's tokens. A member: it holds the component's value."
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "from": "field.label",
+      "note": "Drawn above the track and, for one handle, its accessible name. While range is true it is the visible name of the pair, and each handle is named by startLabel and endLabel (SLF-5)."
+    },
+    {
+      "name": "labelHidden",
+      "from": "field.labelHidden",
+      "note": "The label row takes the value text with it (FLD-29)."
+    },
+    {
+      "name": "supportingText",
+      "from": "field.supportingText"
+    },
+    {
+      "name": "errorText",
+      "from": "field.errorText"
+    },
+    {
+      "name": "error",
+      "from": "field.error",
+      "note": "A slider has no error condition of its own to draw (FLD-8): the track and the handles stay as they are, and each handle is exposed as invalid."
+    },
+    {
+      "name": "disabled",
+      "from": "field.disabled",
+      "note": "The one disabled of the slider field: the Field passes it to the Slider (FLD-14, SLD-20), whose own disabled is not a prop here, so that the label and the value text always follow."
+    },
+    {
+      "name": "requirement",
+      "from": "field.requirement"
+    },
+    {
+      "name": "requiredMark",
+      "from": "field.requiredMark"
+    },
+    {
+      "name": "requiredText",
+      "from": "field.requiredText"
+    },
+    {
+      "name": "optionalText",
+      "from": "field.optionalText"
+    },
+    {
+      "name": "value",
+      "from": "slider.value"
+    },
+    {
+      "name": "startValue",
+      "from": "slider.startValue"
+    },
+    {
+      "name": "range",
+      "from": "slider.range"
+    },
+    {
+      "name": "min",
+      "from": "slider.min"
+    },
+    {
+      "name": "max",
+      "from": "slider.max"
+    },
+    {
+      "name": "step",
+      "from": "slider.step"
+    },
+    {
+      "name": "origin",
+      "from": "slider.origin"
+    },
+    {
+      "name": "stops",
+      "from": "slider.stops"
+    },
+    {
+      "name": "size",
+      "from": "slider.size",
+      "note": "Changes nothing of the frame."
+    },
+    {
+      "name": "valueIndicator",
+      "from": "slider.valueIndicator"
+    },
+    {
+      "name": "valueText",
+      "from": "slider.valueText",
+      "note": "Also drawn at the end of the label row (SLF-3)."
+    },
+    {
+      "name": "startValueText",
+      "from": "slider.startValueText"
+    },
+    {
+      "name": "startLabel",
+      "from": "slider.startLabel"
+    },
+    {
+      "name": "endLabel",
+      "from": "slider.label",
+      "note": "The Slider's label under the name of the handle it names, because label is the visible name here. Read only while range is true, and required then (SLF-5)."
+    },
+    {
+      "name": "valueHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Does not draw the value at the end of the label row. For a slider set by feel, whose number means nothing to the person (a volume, a brightness). The handle still says its value to assistive technology, and valueIndicator still shows it."
+    }
+  ],
+  "slots": [
+    {
+      "name": "label-icon",
+      "from": "field.label-icon"
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "from": "slider.input"
+    },
+    {
+      "name": "change",
+      "from": "slider.change"
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "SLF-1",
+      "text": "THE slider field SHALL be a Field whose one control is a Slider — the two components themselves, each drawn from its own tokens in every state and behaving by its own sentences (FLD-1 to FLD-24, FLD-29 and FLD-30; SLD-1 to SLD-26) — and SHALL draw nothing of its own, have no token of its own, and give neither member a look, a state or a size that the member does not have where it stands alone."
+    },
+    {
+      "id": "SLF-2",
+      "text": "THE slider field SHALL give each member the value of every prop that is that member's, at once and whenever it changes, and SHALL hold none back: the Field takes label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText, optionalText and the glyph of the label-icon slot; the Slider takes value, startValue, range, min, max, step, origin, stops, size, valueIndicator, valueText, startValueText, startLabel and, as its own label, endLabel. THE slider field SHALL give the Slider no orientation, so that the track always runs along the line (SLD-21), and SHALL NOT set the Slider's own disabled: the Field disables its control (FLD-14)."
+    },
+    {
+      "id": "SLF-3",
+      "text": "WHILE valueHidden is false THE slider field SHALL give the Field, as its value text (FLD-29), the words the Slider gives its handle as that handle's value (SLD-18): WHILE range is false the only handle's; WHILE range is true the start handle's, an en dash with a space on each side, and the end handle's, each of the two an isolated run and the two in reading order, so that in a right-to-left layout the start's words stand at the right of the dash as the start handle stands at the right of the track. THE slider field SHALL NOT write a number, a unit or a word itself. WHILE valueHidden is true THE slider field SHALL give the Field no value text."
+    },
+    {
+      "id": "SLF-4",
+      "text": "WHEN a value changes — at every input of a drag, by a key, by assistive technology, because the product set value or startValue, or because min, max or step changed what the Slider draws (SLD-22) — or valueText, startValueText or the product's function for a value changes, THE slider field SHALL show the new value text in the same frame in which the handle is drawn at its new place, without a motion and without an announcement of its own: the handle says its value to assistive technology itself (SLD-19), and the Field keeps the drawn text from it (FLD-30).",
+      "verify": "Drag the handle and compare, frame by frame, the text at the end of the label row with the handle's aria-valuetext on the web (its accessibility value elsewhere): the two are never different."
+    },
+    {
+      "id": "SLF-5",
+      "text": "WHILE range is false THE slider field SHALL have its handle named by label, as the Field names its control (FLD-10). WHILE range is true THE slider field SHALL have the start handle named by startLabel and the end handle by endLabel (SLD-19), which should each hold the words of label so that what is seen is in what is heard, and WHILE either is empty SHALL have that handle named by label and in debug builds report that a handle of a range has no name of its own. THE slider field SHALL have every handle described by the text the supporting row shows, with optionalText while requirement is optional (FLD-11), and exposed as invalid while error is true (FLD-8); WHILE requirement is required it SHALL have every handle exposed as required where the platform's slider has such a state and, where it has none (the web's slider role), SHALL have requiredText added to the handle's description instead."
+    },
+    {
+      "id": "SLF-6",
+      "text": "THE slider field SHALL hold value and startValue as its own and report them as the Slider does: WHEN the Slider emits input or change THE slider field SHALL emit the same event exactly once, carrying value and, for a range, startValue (SLD-2 to SLD-4), with its own value and startValue already equal to what the event carries; WHEN the product sets value or startValue THE slider field SHALL emit nothing (SLD-16). WHERE the platform has forms THE slider field SHALL be the one control the form sees — it carries the name, submits what the Slider submits, is reset and restored as the Slider is, and submits nothing WHILE disabled is true — and neither member SHALL be a second one."
+    },
+    {
+      "id": "SLF-7",
+      "text": "THE slider field SHALL add no stop to the focus order and handle no key: its only focus stops are the Slider's handles, in the Slider's order (SLD-5), and every key is the Slider's (SLD-3). WHEN focus is given to the slider field itself, or the person presses the label row (FLD-12), THE slider field SHALL move focus to the only handle and, WHILE range is true, to the start handle, and SHALL change no value."
+    },
+    {
+      "id": "SLF-8",
+      "text": "WHILE disabled is true THE slider field SHALL be a disabled Field holding a disabled Slider (FLD-14, SLD-20): no handle takes focus or changes, no event is emitted, the value indicator is not shown, and the label, the requirement mark, the supporting row and the value text are drawn from the Field's disabled tokens; THE slider field SHALL keep the value text drawn, because what a disabled control is set to is still read."
+    },
+    {
+      "id": "SLF-9",
+      "text": "WHILE the text size is enlarged THE slider field SHALL grow as the Field grows (FLD-16) and SHALL leave the Slider's track, handles and hit area as they are (SLD-7); at 200% in a width of 320 no text SHALL be cut, lie over another part or need scrolling in two directions: the label wraps beside the value text, and a value text too wide to share the label's line moves whole to a line of its own (FLD-29).",
+      "verify": "Draw the fixtures long-label and long-value-text 320 wide at 200% text size."
+    },
+    {
+      "id": "SLF-10",
+      "text": "THE slider field SHALL take its layout direction from where it is used and have no direction setting of its own, and its two members SHALL take the same one (FLD-19, SLD-25). WHERE the layout direction is right-to-left the frame and the track mirror together — the label row starts at the right with the value text at its left end (FLD-18), the track runs from the right (min) to the left (max) and the arrow keys follow it (SLD-21) — and the words of a value SHALL NOT be mirrored: each is laid out as text of its own direction (FLD-21, SLD-26), so that a number keeps its digits, its sign and its unit in their own order."
+    },
+    {
+      "id": "SLF-11",
+      "text": "WHERE the platform draws with a person's own forced colors THE slider field SHALL add nothing and remove nothing: the Field draws its texts as FLD-17 says and the Slider its track and handles as it does standing alone, and the error SHALL still be carried by the words of errorText and by the invalid state of each handle (FLD-8), never by a color."
+    },
+    {
+      "id": "SLF-12",
+      "text": "THE slider field SHALL be, in what is drawn and in what assistive technology is told, exactly what a Field holding a Slider is when a product writes the two by hand with the same props and gives the Field the same value text, which is the one prop of a member the slider field fills itself: every fixture of the slider field and its twin among the Field's fixtures are the same picture, with the same names, descriptions, values and states, and a difference is a defect of the slider field.",
+      "verify": "Compare each fixture with the Field fixture that is its twin: the baselines are equal, and the accessibility trees are equal but for the host element."
+    },
+    {
+      "id": "SLF-13",
+      "text": "THE slider field SHALL be a block as wide as its place in the layout, with no width of its own, and its Slider SHALL fill it from the start edge to the end edge, as a Slider standing in a Field does (FLD-1); the label row and the supporting row are as wide as the track's box.",
+      "verify": "Unit: in a container 320 wide the host, the Field and the Slider are each 320 wide; in a flex row the host takes the room the row gives it and the track follows. Fixtures long-label and long-value-text at their fixture width."
+    }
+  ],
+  "accessibility": {
+    "role": "slider",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the handle — for a range to the start handle, then the end handle — and on from it: the stops are the Slider's, and the slider field adds none (SLF-7)."
+      },
+      {
+        "keys": "Every other key",
+        "action": "The Slider's own, as its spec's keyboard table says (SLD-3). The slider field handles no key."
+      }
+    ],
+    "labeling": "The slider field has no role of its own: assistive technology meets the Slider's handles, each a slider (SLD-19), What the slider field ties together (SLF-5): label is the accessible name of the only handle; a range's two handles are named by startLabel and endLabel; the supporting text with, in error, the error text after it is every handle's description, with optionalText while requirement is optional; every handle is invalid while error is true and required, or described by requiredText where the role has no required state, while requirement is required. Each handle's value is said in the words of SLD-18 — valueText, or what the product's function writes, or the platform's number — and the same words are drawn at the end of the label row, where they are kept from assistive technology so that a value is not read twice (FLD-30).",
+    "minimumTarget": true,
+    "notes": [
+      "Everything else is a member's and is said in its spec: the Field's rows, requirement marks, error announcement and press on the label (FLD-2 to FLD-12); the Slider's roles, value limits, target size and contrast (SLD-7, SLD-19 and its accessibility notes).",
+      "A value a person cannot read is a value only some people are told. The handle says its value to assistive technology, and a track does not say it to the eye; the value text at the end of the label row is drawn unless valueHidden says the number means nothing to the person.",
+      "A number with a unit is words, and the words are the product's: valueText for a value the product writes itself, or one function from a value to its words, given once, which the Slider asks at every change (SLD-18). The slider field writes none, and joins a range's two with an en dash, which is a mark.",
+      "A slider always has a value, so requirement does not mean \"not empty\" here: a product that marks every control of a form as required or optional marks this one too, and says with error and errorText what it refuses (a level of 0, a range too narrow).",
+      "Dragging is never the only way (WCAG 2.5.7): a press on the track moves the handle to it, and the keys step it (SLD-2, SLD-3). A value that must be entered exactly is a number field, alone or beside a slider.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.field",
+  "fixtures": [
+    {
+      "id": "default",
+      "twin": "field.slider-value-text",
+      "props": {
+        "label": "Volume",
+        "value": 40
+      }
+    },
+    {
+      "id": "supporting",
+      "twin": "field.slider-supporting",
+      "props": {
+        "label": "Volume",
+        "supportingText": "Applies to alerts and media.",
+        "value": 40
+      }
+    },
+    {
+      "id": "value-words",
+      "twin": "field.slider-value-words",
+      "props": {
+        "label": "Text size",
+        "min": 50,
+        "max": 200,
+        "step": 10,
+        "value": 120,
+        "valueText": "120 %"
+      }
+    },
+    {
+      "id": "value-hidden",
+      "twin": "field.slider",
+      "props": {
+        "label": "Volume",
+        "value": 40,
+        "valueHidden": true
+      }
+    },
+    {
+      "id": "value-indicator",
+      "twin": "field.slider-value-indicator",
+      "props": {
+        "label": "Volume",
+        "value": 40,
+        "valueIndicator": "always"
+      }
+    },
+    {
+      "id": "range",
+      "twin": "field.slider-range",
+      "props": {
+        "label": "Price",
+        "range": true,
+        "startValue": 20,
+        "value": 60,
+        "startLabel": "Minimum price",
+        "endLabel": "Maximum price"
+      }
+    },
+    {
+      "id": "range-words",
+      "twin": "field.slider-range-words",
+      "props": {
+        "label": "Price",
+        "supportingText": "Per night, before taxes.",
+        "range": true,
+        "min": 0,
+        "max": 500,
+        "startValue": 100,
+        "value": 300,
+        "startValueText": "$100",
+        "valueText": "$300",
+        "startLabel": "Minimum price",
+        "endLabel": "Maximum price"
+      }
+    },
+    {
+      "id": "required",
+      "twin": "field.slider-required",
+      "props": {
+        "label": "Volume",
+        "requirement": "required",
+        "requiredText": "Required",
+        "value": 40
+      }
+    },
+    {
+      "id": "optional",
+      "twin": "field.slider-optional",
+      "props": {
+        "label": "Volume",
+        "requirement": "optional",
+        "optionalText": "Optional",
+        "value": 40
+      }
+    },
+    {
+      "id": "required-asterisk",
+      "twin": "field.slider-required-asterisk",
+      "props": {
+        "label": "Volume",
+        "requirement": "required",
+        "requiredMark": "asterisk",
+        "value": 40
+      }
+    },
+    {
+      "id": "error",
+      "twin": "field.slider-error",
+      "props": {
+        "label": "Volume",
+        "supportingText": "Applies to alerts and media.",
+        "error": true,
+        "errorText": "Choose a level above 0.",
+        "value": 0
+      }
+    },
+    {
+      "id": "required-error",
+      "twin": "field.slider-required-error",
+      "props": {
+        "label": "Volume",
+        "requirement": "required",
+        "requiredText": "Required",
+        "error": true,
+        "errorText": "Choose a level above 0.",
+        "value": 0
+      }
+    },
+    {
+      "id": "error-without-text",
+      "twin": "field.slider-error-without-text",
+      "props": {
+        "label": "Volume",
+        "supportingText": "Applies to alerts and media.",
+        "error": true,
+        "value": 0
+      }
+    },
+    {
+      "id": "disabled",
+      "twin": "field.slider-disabled",
+      "props": {
+        "label": "Volume",
+        "supportingText": "Applies to alerts and media.",
+        "disabled": true,
+        "value": 40
+      }
+    },
+    {
+      "id": "label-hidden",
+      "twin": "field.slider-label-hidden",
+      "props": {
+        "label": "Volume",
+        "labelHidden": true,
+        "supportingText": "Applies to alerts and media.",
+        "value": 40
+      }
+    },
+    {
+      "id": "label-icon",
+      "twin": "field.slider-label-icon",
+      "props": {
+        "label": "Volume",
+        "value": 40
+      },
+      "slots": {
+        "label-icon": "volume_up"
+      }
+    },
+    {
+      "id": "long-label",
+      "twin": "field.long-label",
+      "props": {
+        "label": "How loud alerts, calls and media are played when this device is connected to a speaker, a car or a pair of headphones that reports its own level",
+        "requirement": "required",
+        "requiredText": "Required",
+        "supportingText": "A level the connected device cannot play is lowered to the nearest one it can, and the change is shown here the next time the device connects.",
+        "value": 40
+      }
+    },
+    {
+      "id": "long-value-text",
+      "twin": "field.slider-long-value-text",
+      "props": {
+        "label": "Yearly income before tax",
+        "range": true,
+        "min": 0,
+        "max": 20000000,
+        "step": 100000,
+        "startValue": 3400000,
+        "value": 12500000,
+        "startValueText": "3,400,000",
+        "valueText": "12,500,000",
+        "startLabel": "Lowest yearly income",
+        "endLabel": "Highest yearly income"
+      }
+    },
+    {
+      "id": "required-ja",
+      "twin": "field.slider-required-ja",
+      "props": {
+        "label": "音量",
+        "requirement": "required",
+        "requiredText": "必須",
+        "supportingText": "通知とメディアに適用されます。",
+        "value": 40
+      }
+    },
+    {
+      "id": "error-ja",
+      "twin": "field.slider-error-ja",
+      "props": {
+        "label": "音量",
+        "requirement": "required",
+        "requiredText": "必須",
+        "error": true,
+        "errorText": "0 より大きい値を選んでください。",
+        "value": 0
+      }
+    },
+    {
+      "id": "rtl",
+      "twin": "field.slider-rtl",
+      "props": {
+        "label": "مستوى الصوت",
+        "requirement": "required",
+        "requiredText": "مطلوب",
+        "supportingText": "ينطبق على التنبيهات والوسائط.",
+        "value": 40
+      },
+      "slots": {
+        "label-icon": "volume_up"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "error-rtl",
+      "twin": "field.slider-error-rtl",
+      "props": {
+        "label": "עוצמת קול",
+        "requirement": "optional",
+        "optionalText": "רשות",
+        "error": true,
+        "errorText": "יש לבחור רמה מעל 0.",
+        "value": 0
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "range-rtl",
+      "twin": "field.slider-range-rtl",
+      "props": {
+        "label": "السعر",
+        "range": true,
+        "min": 0,
+        "max": 500,
+        "startValue": 100,
+        "value": 300,
+        "startValueText": "$100",
+        "valueText": "$300",
+        "startLabel": "أدنى سعر",
+        "endLabel": "أعلى سعر"
+      },
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-slider-field",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "value",
+        "startValue": "startValue",
+        "range": "range",
+        "min": "min",
+        "max": "max",
+        "step": "step",
+        "origin": "origin",
+        "stops": "stops",
+        "size": "size",
+        "valueIndicator": "valueIndicator",
+        "valueText": "valueText",
+        "startValueText": "startValueText",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "valueHidden": "valueHidden"
+      },
+      "events": {
+        "input": "input",
+        "change": "change"
+      },
+      "notes": "Class `TanreiSliderField`; React `SliderField`. A custom element with a shadow root that holds its members' own elements, composed as every field element is: `<tanrei-field>` in the shadow root, and in its default slot one `<tanrei-slider>` with no `label` of its own while `range` is false; the host's `label-icon` slot is passed on to the Field's. The host is `display: block` and as wide as its place (SLF-13). What differs here: (1) `static formAssociated = true` on the host, which carries `name`, submits what the Slider submits (the value; for a range the start value and then the value under the same name), and resets and restores it — the inner Slider has no `name` and is outside the form; (2) the shadow root does not delegate focus, because a press on the help or the error text must do nothing (FLD-12): `focus()` is overridden to go to the first handle, and the Slider's own shadow root delegates as before; (3) `input` and `change` leave the shadow root once each with the host as their target, after the host's `value` and `startValue` are set; (4) `exportparts` gives the Slider's documented parts under their own names and the Field's under theirs, with the two members' hosts as the parts `field` and `slider`, and the host has no other part of its own; (5) the host writes the Field's `value-text` from the Slider's value text at every `input`, in the same task, and joins a range's two in two `<bdi>` runs with an en dash between; (6) `formatValue` is a property of the host, never an attribute, `((value: number) => string) | null`, null by default, handed to the Slider (`field.formatValue = (value) => percent.format(value / 100)`). Attributes are kebab-case and are the members': `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `start-value`, `value-indicator`, `value-text`, `start-value-text`, `start-label`, and `end-label`, `value-hidden`. No custom property of a member is written by the host: a token set on the host for one instance (`--tanrei-comp-field-…`, `--tanrei-comp-slider-…`) reaches the member by inheritance. Words: `required-text` and `optional-text` left empty read `setWords()`, as the Field's do. One level down, the same picture and the same tree: `<tanrei-field label=\"Volume\" value-text=\"40\"><tanrei-slider name=\"volume\" value=\"40\"></tanrei-slider></tanrei-field>`, with the product writing `value-text` at each `input`. With scripting off nothing of it is drawn and nothing is submitted, as for every control with a shadow root."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiSliderField",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "value",
+        "startValue": "value",
+        "range": "value",
+        "min": "bounds",
+        "max": "bounds",
+        "step": "step",
+        "origin": "origin",
+        "stops": "showsStops",
+        "size": "size",
+        "valueIndicator": "valueIndicator",
+        "valueText": "valueText",
+        "startValueText": "startValueText",
+        "startLabel": "startLabel",
+        "endLabel": "endLabel",
+        "valueHidden": "valueHidden"
+      },
+      "events": {
+        "input": "value",
+        "change": "onCommit"
+      },
+      "notes": "Planned. Not built on this platform yet, nor is this platform's Field: `TanreiSliderField(_ label:, value: Binding<Double>, in bounds: ClosedRange<Double> = 0...100, step:, supportingText:, errorText:, error:, requirement:, format: ((Double) -> String)? = nil)`, a view whose body is `TanreiField(label, valueText: …) { TanreiSlider(value: $value, in: bounds, …) }`; a range is the initializer whose `value` is a `Binding<ClosedRange<Double>>` and which takes `startLabel` and `endLabel`. `labelHidden` follows `.labelsHidden()` and `disabled` follows `.disabled(_:)`, as the Field's do. One field set apart: `.tanreiTheme(_:)` on the view."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiSliderField",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "value",
+        "startValue": "value",
+        "range": "value",
+        "min": "valueRange",
+        "max": "valueRange",
+        "step": "step",
+        "origin": "origin",
+        "stops": "showStops",
+        "size": "size",
+        "valueIndicator": "valueIndicator",
+        "valueText": "stateDescription",
+        "startValueText": "startStateDescription",
+        "startLabel": "startContentDescription",
+        "endLabel": "endContentDescription",
+        "valueHidden": "valueHidden"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onValueChangeFinished"
+      },
+      "notes": "Planned. Not built on this platform yet, nor is this platform's Field: `TanreiSliderField(label = \"Volume\", value = volume, onValueChange = { volume = it }, valueRange = 0f..100f, supportingText = …, isError = …, format: ((Float) -> String)? = null)`, a composable that calls `TanreiField(label, valueText = …) { TanreiSlider(…) }`; a range is the overload whose `value` is a `ClosedFloatingPointRange<Float>`. `enabled` is the inverse flag. The Slider's names are kept for what is its own (`stateDescription`), though the slider field also draws that text. One field set apart: `TanreiTheme(…) { }` around the call."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiSliderField",
+      "props": {
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "supportingText": "helperText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "value",
+        "startValue": "start",
+        "range": "range",
+        "min": "min",
+        "max": "max",
+        "step": "step",
+        "origin": "origin",
+        "stops": "showStops",
+        "size": "size",
+        "valueIndicator": "valueIndicator",
+        "valueText": "semanticValue",
+        "startValueText": "startSemanticValue",
+        "startLabel": "startSemanticLabel",
+        "endLabel": "endSemanticLabel",
+        "valueHidden": "valueHidden"
+      },
+      "events": {
+        "input": "onChanged",
+        "change": "onChangeEnd"
+      },
+      "notes": "Planned. Not built on this platform yet, nor is this platform's Field: `TanreiSliderField(labelText: 'Volume', value: volume, onChanged: (v) => …, helperText: …, errorText: …, isError: …, format: (double value) => …)`, a widget that builds `TanreiField(labelText:, valueText:, child: TanreiSlider(…))`; a range is the named constructor `TanreiSliderField.range(start:, end:, onChanged: (start, end) {…})`. `enabled` is the inverse flag; a null `onChanged` also disables it, as the Slider's does. One field set apart: a `TanreiTheme` widget around it."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "SliderField",
+      "props": {
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "value": "value",
+        "startValue": "startValue",
+        "range": "range",
+        "min": "minimumValue",
+        "max": "maximumValue",
+        "step": "step",
+        "origin": "origin",
+        "stops": "stops",
+        "size": "size",
+        "valueIndicator": "valueIndicator",
+        "valueText": "valueText",
+        "startValueText": "startValueText",
+        "startLabel": "startAccessibilityLabel",
+        "endLabel": "endAccessibilityLabel",
+        "valueHidden": "valueHidden"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onSlidingComplete"
+      },
+      "notes": "Planned. Not built on this platform yet, nor is this platform's Field: `<SliderField label=\"Volume\" value={volume} onValueChange={setVolume} supportingText=\"…\" formatValue={(value) => …} />`, a component that renders `<Field label valueText={…}><Slider … /></Field>`; a range adds `range` and `startValue`, and both callbacks receive `(value, startValue)`. One field set apart: a provider around it."
+    }
+  }
+}

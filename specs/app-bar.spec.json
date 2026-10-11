@@ -1,0 +1,619 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "app-bar",
+  "title": "App bar",
+  "summary": "Names the current screen at its top edge and holds the way back and the screen's most used actions, flat while the content is at its top and set apart once content scrolls under it.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The bar across the top of the screen. Its color reaches under the system inset above it (status bar, camera cutout, window caption)."
+    },
+    {
+      "id": "navigation",
+      "description": "The navigation item: one icon-only Button at the start (back, menu or close). The product's icon-only Button, not restyled by the bar.",
+      "optional": true
+    },
+    {
+      "id": "title",
+      "description": "The screen's name. In the top row for a small bar; under the top row for an expanded large bar, moving into the top row as it collapses."
+    },
+    {
+      "id": "subtitle",
+      "description": "One line under the title: context for it (an account, a status, when it was edited).",
+      "optional": true
+    },
+    {
+      "id": "actions",
+      "description": "The action items: up to three icon-only Buttons at the end. The product's icon-only Buttons, not restyled by the bar.",
+      "optional": true
+    },
+    {
+      "id": "outline",
+      "description": "The bar's bottom edge, which in the default system appears only once content has scrolled under the bar."
+    }
+  ],
+  "props": [
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "large"
+      ],
+      "default": "small",
+      "description": "Small puts the title in the one row the bar has; large gives the title a larger row of its own under the top row, which collapses into the top row as the content scrolls. One product uses small on most screens and large on its top-level ones. A design system may add values.",
+      "axis": "tanrei.comp.app-bar.size"
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "default": "",
+      "description": "The screen's name, and the heading of the screen for assistive technology."
+    },
+    {
+      "name": "subtitle",
+      "type": "string",
+      "default": "",
+      "description": "One line under the title. Empty draws none."
+    },
+    {
+      "name": "titleAlignment",
+      "type": "enum",
+      "values": [
+        "start",
+        "center"
+      ],
+      "default": "start",
+      "description": "Where the title sits in the top row: after the navigation button, or centered on the bar. An expanded large bar's own title row always starts at the start."
+    },
+    {
+      "name": "scrolled",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether content lies under the bar. A scrolling view connected to the bar sets it (see platforms); a product without one sets it itself. It selects the bar's scrolled condition, and a large bar is drawn collapsed while it is true."
+    }
+  ],
+  "items": [
+    {
+      "name": "navigation",
+      "summary": "The one icon-only Button at the start of the top row (back, menu or close): a Button of the text variant and the medium size with an icon and no label, unless the product sets otherwise, placed in the navigation slot, which the bar lays out and does not restyle.",
+      "component": "button",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its accessible name (\"Back\"), as the Button's label. Required."
+        }
+      ],
+      "slots": [
+        {
+          "name": "icon",
+          "description": "Its glyph, as the Button's icon slot. A fixture item's content is this glyph."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The button was activated, as the Button's click."
+        }
+      ]
+    },
+    {
+      "name": "action",
+      "summary": "An icon-only Button at the end of the top row, up to three in reading order: a Button of the text variant and the medium size with an icon and no label, unless the product sets otherwise, placed in the actions slot, which the bar lays out and does not restyle.",
+      "component": "button",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its accessible name (\"Search\"), as the Button's label. Required."
+        }
+      ],
+      "slots": [
+        {
+          "name": "icon",
+          "description": "Its glyph, as the Button's icon slot. A fixture item's content is this glyph."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The button was activated, as the Button's click."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "navigation",
+      "description": "Holds the navigation item: one icon-only Button at the start."
+    },
+    {
+      "name": "actions",
+      "description": "Holds the action items, up to three icon-only Buttons at the end, in reading order; more belong in an overflow menu the product provides."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "APB-1",
+      "text": "WHILE scrolled is false THE app bar SHALL fill its container with comp.app-bar.flat.container.color, raise it by comp.app-bar.flat.container.elevation and draw its bottom edge comp.app-bar.outline.width thick in comp.app-bar.flat.outline.color."
+    },
+    {
+      "id": "APB-2",
+      "text": "WHILE scrolled is true THE app bar SHALL fill its container with comp.app-bar.scrolled.container.color, raise it by comp.app-bar.scrolled.container.elevation and draw its bottom edge comp.app-bar.outline.width thick in comp.app-bar.scrolled.outline.color."
+    },
+    {
+      "id": "APB-3",
+      "text": "WHEN scrolled changes THE app bar SHALL change its container color, elevation and bottom edge over comp.app-bar.motion.condition-duration with comp.app-bar.motion.condition-easing, and at once where motion is reduced."
+    },
+    {
+      "id": "APB-4",
+      "text": "THE app bar SHALL span the full width of its parent and lay out a top row at least comp.app-bar.container.height.small high: the navigation item comp.app-bar.container.padding-inline from the start edge, the title block, and the action items comp.app-bar.container.padding-inline from the end edge, with comp.app-bar.container.gap between them and comp.app-bar.actions.gap between two actions, each vertically centered in the row; a navigation item SHALL go to the start and action items to the end wherever they stand among the items; WHILE there is no navigation item the title block SHALL start comp.app-bar.title.inset from the start edge, and WHILE there are no action items it SHALL end comp.app-bar.title.inset from the end edge. Right-to-left layouts SHALL mirror the order."
+    },
+    {
+      "id": "APB-5",
+      "text": "THE app bar SHALL draw a title in the top row on one line in comp.app-bar.title.typescale.small and comp.app-bar.title.color, and WHILE subtitle is not empty the subtitle on one line below it in comp.app-bar.subtitle.typescale.small and comp.app-bar.subtitle.color, the two vertically centered as a block; each SHALL be truncated at the end with an ellipsis when it does not fit."
+    },
+    {
+      "id": "APB-6",
+      "text": "WHILE titleAlignment is center THE app bar SHALL center the top row's title block on the bar's full width and narrow it equally on both sides, truncating its text, so that it never overlaps the navigation or actions slots, and SHALL center its text; WHILE titleAlignment is start THE app bar SHALL start the title block after the navigation slot (or at comp.app-bar.title.inset) with its text start-aligned."
+    },
+    {
+      "id": "APB-7",
+      "text": "WHILE size is large and the bar is expanded THE app bar SHALL be at least comp.app-bar.container.height.large high, SHALL draw no title in its top row, and SHALL draw below the top row the title in comp.app-bar.title.typescale.large and, WHILE subtitle is not empty, the subtitle in comp.app-bar.subtitle.typescale.large, both starting comp.app-bar.title.inset from the start edge, each on one line truncated at the end, the block ending comp.app-bar.container.padding-block-end above the bar's bottom edge."
+    },
+    {
+      "id": "APB-8",
+      "text": "WHILE size is large and a scrolling view is connected THE app bar SHALL shrink by the distance the content has scrolled from its top, one for one, from its expanded height to comp.app-bar.container.height.small, the expanded title block moving up with the bar's bottom edge and clipped under the top row; the top row's title SHALL be invisible while the expanded title is wholly visible, fully visible once the bar has collapsed, and in between fade in linearly with the part of the expanded title that is covered. WHEN the content scrolls back toward its top THE app bar SHALL expand the same way."
+    },
+    {
+      "id": "APB-9",
+      "text": "WHERE a scrolling view is connected THE app bar SHALL take scrolled from it: true while any content lies under the bar (for a large bar, only once it has fully collapsed) and false when the content is at its top. WHILE size is large and scrolled is true THE app bar SHALL be drawn fully collapsed; WHERE nothing is connected and scrolled is false a large app bar SHALL stay expanded."
+    },
+    {
+      "id": "APB-10",
+      "text": "THE app bar SHALL extend its container under the top system inset (status bar, camera cutout, window caption) and SHALL place its content below that inset and inside the left and right insets, so that its color reaches the screen's top edge while no content sits under a system bar or cutout."
+    },
+    {
+      "id": "APB-11",
+      "text": "THE app bar SHALL NOT restyle its navigation and action items: each SHALL render as the icon-only Button it is, from its own tokens, and keep its own semantics, and the app bar SHALL NOT be focusable itself, so that focus moves from the navigation item to the action items in reading order. A glyph of an item that the system's icon set marks as mirrored (a navigation item's arrow_back) SHALL be mirrored in a right-to-left layout by the item's own icon helper (BTN-19): that is the icon's own behaviour, not a restyling by the app bar."
+    },
+    {
+      "id": "APB-12",
+      "text": "THE app bar SHALL expose title as a heading and subtitle as text read after it, and SHALL expose the title only once WHILE size is large: the expanded title while any of it is visible, the top row's title once the bar has collapsed."
+    },
+    {
+      "id": "APB-13",
+      "text": "WHILE title is empty THE app bar SHALL draw no title block (an expanded large bar then has an empty title row) and SHALL expose no heading; IF the app bar holds more than three action items or more than one navigation item THE app bar SHALL still render them, and in debug builds report that the extra actions belong in an overflow menu or that a bar has one navigation button."
+    },
+    {
+      "id": "APB-14",
+      "text": "WHEN size names a value that the active design system does not have THE app bar SHALL render with the default value's tokens, and in debug builds report the unknown value."
+    },
+    {
+      "id": "APB-15",
+      "text": "WHILE the text size is enlarged THE app bar SHALL grow its rows to hold the title and subtitle lines (its heights are minimums), SHALL keep each on one line truncated at the end, and SHALL NOT scale the navigation and action items it holds."
+    },
+    {
+      "id": "APB-16",
+      "text": "THE app bar SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the app bar is shown THE app bar SHALL draw itself for the new direction at once, without a motion of its own, keeping its size and the scroll state it follows.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "APB-17",
+      "text": "THE app bar SHALL lay out its title and its subtitle as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE app bar SHALL still place each and align its lines by the layout direction, not by the text's own, and SHALL cut a title or a subtitle that does not fit (APB-5, APB-7) at the end of its own direction, so that a left-to-right label in a right-to-left layout loses its right end and never its beginning."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus to the navigation item, then through the action items; the bar itself is not a tab stop."
+      }
+    ],
+    "labeling": "The title is the screen's heading (a level 1 heading on the web unless the product sets another level). The subtitle is read after it. The navigation and action items are named by their own labels.",
+    "minimumTarget": true,
+    "notes": [
+      "The app bar has no role of its own and takes no input: its buttons are the product's icon-only Buttons, which meet the minimum target themselves (BTN-5). The bar is not a landmark, because only the product knows whether it is its page's banner; a product that wants one wraps the bar in its own header element.",
+      "The title is truncated rather than wrapped even at 200% text size: the bar's rows grow with the text, but a bar of several lines would push the screen's content away. The full title stays available to assistive technology.",
+      "Where both titles of a large bar are partly visible, only the expanded one is exposed, so the heading is never read twice."
+    ]
+  },
+  "tokens": "comp.app-bar",
+  "fixtures": [
+    {
+      "id": "small",
+      "props": {
+        "title": "Inbox"
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Back"
+          },
+          "content": "arrow_back"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Search"
+          },
+          "content": "search"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "More options"
+          },
+          "content": "more_vert"
+        }
+      ]
+    },
+    {
+      "id": "small-scrolled",
+      "props": {
+        "title": "Inbox",
+        "scrolled": true
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Back"
+          },
+          "content": "arrow_back"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Search"
+          },
+          "content": "search"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "More options"
+          },
+          "content": "more_vert"
+        }
+      ]
+    },
+    {
+      "id": "small-center",
+      "props": {
+        "title": "Inbox",
+        "titleAlignment": "center"
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Back"
+          },
+          "content": "arrow_back"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Search"
+          },
+          "content": "search"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "More options"
+          },
+          "content": "more_vert"
+        }
+      ]
+    },
+    {
+      "id": "small-subtitle",
+      "props": {
+        "title": "Quarterly report",
+        "subtitle": "Edited 5 minutes ago"
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Back"
+          },
+          "content": "arrow_back"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Share"
+          },
+          "content": "share"
+        }
+      ]
+    },
+    {
+      "id": "small-title-only",
+      "props": {
+        "title": "Settings"
+      }
+    },
+    {
+      "id": "large",
+      "props": {
+        "size": "large",
+        "title": "Inbox"
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Search"
+          },
+          "content": "search"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Account"
+          },
+          "content": "account_circle"
+        }
+      ]
+    },
+    {
+      "id": "large-subtitle",
+      "props": {
+        "size": "large",
+        "title": "Inbox",
+        "subtitle": "ada@example.com"
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Search"
+          },
+          "content": "search"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Account"
+          },
+          "content": "account_circle"
+        }
+      ]
+    },
+    {
+      "id": "large-scrolled",
+      "props": {
+        "size": "large",
+        "title": "Inbox",
+        "scrolled": true
+      },
+      "items": [
+        {
+          "kind": "navigation",
+          "props": {
+            "label": "Menu"
+          },
+          "content": "menu"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Search"
+          },
+          "content": "search"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "label": "Account"
+          },
+          "content": "account_circle"
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-app-bar",
+      "props": {
+        "size": "size",
+        "title": "headline",
+        "subtitle": "subtitle",
+        "titleAlignment": "titleAlignment",
+        "scrolled": "scrolled"
+      },
+      "notes": "`title` is the `headline` property and attribute, because HTML's global `title` attribute would show a tooltip over the whole bar. `titleAlignment` is the `title-alignment` attribute. The slots are `navigation` and `actions`. A web-only `scroll-target` attribute names the id of the scrolling element to connect (default: the document's scrolling element; `none` connects nothing), from which the bar sets `scrolled` itself. A web-only `heading-level` (default 1) sets the title's heading level. Insets are `env(safe-area-inset-top|left|right)`.",
+      "items": {
+        "navigation": {
+          "name": "tanrei-button",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "An icon-only `<tanrei-button>` child with `slot=\"navigation\"`; the glyph is its content."
+        },
+        "action": {
+          "name": "tanrei-button",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "An icon-only `<tanrei-button>` child with `slot=\"actions\"`; the glyph is its content."
+        }
+      }
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiAppBar",
+      "props": {
+        "size": "size",
+        "title": "title",
+        "subtitle": "subtitle",
+        "titleAlignment": "titleAlignment",
+        "scrolled": "isScrolled"
+      },
+      "notes": "`TanreiAppBar(_ title:, subtitle:, size:, titleAlignment:, isScrolled: Bool? = nil) { navigation } actions: { … }`, placed with `.safeAreaInset(edge: .top)` in a `NavigationStack` whose system bar is hidden; the system bar's heights, title font and edge cannot be set from the tokens. Hiding it must not lose the interactive back swipe: the implementation keeps it working. The connected scroll view is the one marked `.tanreiAppBarScrollSource()`, applied after the `.safeAreaInset` that holds the bar (the inset's content sees only the environment where the inset is applied); it connects on iOS 18 and macOS 15 and later. `isScrolled: nil` follows it, a value overrides it.",
+      "items": {
+        "navigation": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "An icon-only `TanreiButton` in the `navigation` view builder."
+        },
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "label"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "An icon-only `TanreiButton` in the `actions` view builder."
+        }
+      }
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiAppBar",
+      "props": {
+        "size": "size",
+        "title": "title",
+        "subtitle": "subtitle",
+        "titleAlignment": "titleAlignment",
+        "scrolled": "scrollBehavior"
+      },
+      "notes": "Compose idiom (as `TopAppBar`): `TanreiAppBar(title, navigationIcon = { … }, actions = { … }, subtitle, size, titleAlignment, scrollBehavior, windowInsets)`. `scrollBehavior` (`TanreiAppBarDefaults.pinnedScrollBehavior()` for small, `.collapseScrollBehavior()` for large) is connected with `Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)`, and its state carries scrolled and the collapse; without one the bar is flat and expanded, and a state created with a given offset draws the scrolled fixtures. `windowInsets` defaults to the status bars plus the horizontal display cutout.",
+      "items": {
+        "navigation": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "contentDescription"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "An icon-only `TanreiButton` in the `navigationIcon` lambda."
+        },
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "contentDescription"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "An icon-only `TanreiButton` in the `actions` lambda."
+        }
+      }
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiAppBar",
+      "props": {
+        "size": "size",
+        "title": "title",
+        "subtitle": "subtitle",
+        "titleAlignment": "centerTitle",
+        "scrolled": "scrolledUnder"
+      },
+      "notes": "Flutter idiom (as `AppBar` and `SliverAppBar.large`): `TanreiAppBar` is a `PreferredSizeWidget` for `Scaffold.appBar`, with `leading`, `actions`, `title` (a String), `subtitle`, `size` and `centerTitle` (true for center). `scrolledUnder: null` follows the `ScrollNotification`s of the scaffold's body, as `AppBar`'s scrolled-under state does; a bool overrides it. A large bar that collapses is `TanreiSliverAppBar` inside a `CustomScrollView`. Insets through `SafeArea`/`MediaQuery.padding`.",
+      "items": {
+        "navigation": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "semanticLabel"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "An icon-only `TanreiButton` given as `leading`."
+        },
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "label": "semanticLabel"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "An icon-only `TanreiButton` in the bar's `actions:` list."
+        }
+      }
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "AppBar",
+      "props": {
+        "size": "size",
+        "title": "title",
+        "subtitle": "subtitle",
+        "titleAlignment": "titleAlignment",
+        "scrolled": "scrolled"
+      },
+      "notes": "`navigation` and `actions` are React nodes (an icon-only `Button`, and a fragment of up to three). The scroll connection is a hook: `const scroll = useAppBarScroll()` gives `scroll.onScroll` for a `ScrollView` or `FlatList` and `scroll.state` for the bar's `scrollState` prop, which sets scrolled and the collapse; without it the bar draws what `scrolled` says. Insets come from the bar's own `insets` prop, side by side, falling back to `TanreiProvider`'s `insets`; the package takes no safe-area dependency, and a product that uses `react-native-safe-area-context` passes its `useSafeAreaInsets()` to either.",
+      "items": {
+        "navigation": {
+          "name": "Button",
+          "props": {
+            "label": "accessibilityLabel"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "An icon-only `Button` element passed as `navigation`."
+        },
+        "action": {
+          "name": "Button",
+          "props": {
+            "label": "accessibilityLabel"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "An icon-only `Button` element among the `actions` nodes."
+        }
+      }
+    }
+  }
+}

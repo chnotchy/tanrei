@@ -1,0 +1,405 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "keyboard-shortcut",
+  "title": "Keyboard shortcut",
+  "summary": "Shows the keys that perform a command, as keys or as text, in the modifier symbols and names of the keyboard the person is using, and gives assistive technology one text in their place.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "One key's cap, in the keycap form: a small rounded square that widens with its legend, with a faint fill and, in the default system, no edge. A layer that wants keys with an edge, or with a deeper edge at the bottom, gives the edge its widths. The plain form draws no cap."
+    },
+    {
+      "id": "label",
+      "description": "A key's legend: a modifier's symbol or name (⌘, Ctrl), a named key's symbol or name (↩, Enter), or a character (K). It is text, drawn in the component's text style."
+    },
+    {
+      "id": "separator",
+      "description": "The + between two keys of a chord where the keyboard's convention writes one (Ctrl+K). Apple platforms write none (⌘K).",
+      "optional": true
+    },
+    {
+      "id": "chord",
+      "description": "The keys pressed together: the modifiers, in the convention's order, then one other key."
+    },
+    {
+      "id": "sequence",
+      "description": "Chords pressed one after the other (Ctrl+K, then Ctrl+C), a wider gap apart. Most shortcuts are one chord.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "keys",
+      "type": "strings",
+      "default": [],
+      "description": "The shortcut: one chord per string, pressed in order. A chord is key names joined by + (\"mod+shift+k\"). Modifiers: mod (Command on Apple platforms, Control elsewhere), ctrl, alt, shift. Named keys: enter, escape, tab, backspace, delete, space, arrow-up, arrow-down, arrow-left, arrow-right, home, end, page-up, page-down, caps-lock, f1 to f24, plus. Any other single character is that character's key. Names ignore case."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "keycap",
+        "plain"
+      ],
+      "default": "keycap",
+      "description": "How the keys are drawn: keycap puts each key in its own cap; plain writes the shortcut as a line of text, as a menu or a tooltip writes it. A design system may add values.",
+      "axis": "tanrei.comp.keyboard-shortcut.variant"
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium"
+      ],
+      "default": "medium",
+      "description": "Small (20 caps, 12 text) sits in a line of body text or a menu row without making it taller; medium (24 caps, 14 text) sits beside larger text or on its own. A design system may add values.",
+      "axis": "tanrei.comp.keyboard-shortcut.size"
+    },
+    {
+      "name": "convention",
+      "type": "enum",
+      "values": [
+        "auto",
+        "apple",
+        "standard"
+      ],
+      "default": "auto",
+      "description": "Whose keyboard the keys are written for. apple: the symbols of macOS, iOS, iPadOS and visionOS (⌃ ⌥ ⇧ ⌘, no separator). standard: the names of Windows, Linux, ChromeOS and Android (Ctrl, Alt, Shift, joined by +). auto: the convention an ancestor sets, else the one of the platform the app runs on."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "What assistive technology reads in place of the drawn keys: the shortcut in the product's language (\"Shift Command K\", \"Befehl Umschalt K\"). The product's: Tanrei has no names for keys. Empty exposes the shortcut in the form of the platform's keyboard shortcut property (KBS-12), which is a standard's notation and not a sentence, and is reported (KBS-11)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Fades the legends, for the shortcut of a command that is unavailable. The keys still show; the shortcut takes no input either way."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled"
+  ],
+  "behavior": [
+    {
+      "id": "KBS-1",
+      "text": "THE keyboard shortcut SHALL read keys as a sequence of chords pressed one after the other, each chord being the key names of one string joined by + and compared without case: mod, ctrl, alt and shift as modifiers, the named keys enter, escape, tab, backspace, delete, space, arrow-up, arrow-down, arrow-left, arrow-right, home, end, page-up, page-down, caps-lock, f1 to f24 and plus, and any other single character as that character's key."
+    },
+    {
+      "id": "KBS-2",
+      "text": "WHILE convention is auto THE keyboard shortcut SHALL use the convention its nearest ancestor sets, and without one SHALL use apple on macOS, iOS, iPadOS and visionOS and standard on every other platform; it SHALL NOT choose the convention by the design system, because the keys follow the keyboard a person presses, not the look of the product."
+    },
+    {
+      "id": "KBS-3",
+      "text": "WHILE the convention is apple THE keyboard shortcut SHALL write mod as ⌘, ctrl as ⌃, alt as ⌥ and shift as ⇧, in the order ⌃ ⌥ ⇧ ⌘ whatever order keys gives, followed by the chord's other key, with no separator; and SHALL write enter as ↩, escape as ⎋, tab as ⇥, backspace as ⌫, delete as ⌦, space as Space, the arrows as ↑ ↓ ← →, home as ↖, end as ↘, page-up as ⇞, page-down as ⇟, caps-lock as ⇪, a function key as F1 to F24 and plus as +."
+    },
+    {
+      "id": "KBS-4",
+      "text": "WHILE the convention is standard THE keyboard shortcut SHALL write mod and ctrl as Ctrl, alt as Alt and shift as Shift, in the order Ctrl, Alt, Shift whatever order keys gives, followed by the chord's other key, each joined to the next by +; and SHALL write enter as Enter, escape as Esc, tab as Tab, backspace as Backspace, delete as Delete, space as Space, the arrows as ↑ ↓ ← →, home as Home, end as End, page-up as PgUp, page-down as PgDn, caps-lock as Caps Lock, a function key as F1 to F24 and plus as +."
+    },
+    {
+      "id": "KBS-5",
+      "text": "THE keyboard shortcut SHALL write a letter key as its capital letter in both conventions and any other character key as given, and SHALL NOT add shift for a capital letter: shift is drawn only where keys names it, so mod+k and mod+K both draw ⌘K and mod+shift+k draws ⇧⌘K."
+    },
+    {
+      "id": "KBS-6",
+      "text": "WHILE variant is keycap THE keyboard shortcut SHALL draw each key of a chord in its own cap: at least its size's container height tall and at least as wide as it is tall, its legend centered with its size's container padding on each side, corners of its size's container shape eased by sys.shape.corner-smoothing, filled with comp.keyboard-shortcut.container.color, and edged in comp.keyboard-shortcut.outline.color, comp.keyboard-shortcut.outline.width on its top and sides and comp.keyboard-shortcut.outline.bottom-width at its bottom, both inside the cap's size, a width of 0 (both, in the default system) drawing no edge on those sides, so that the cap is its fill alone; the legend SHALL be in its size's label typescale and comp.keyboard-shortcut.keycap.label.color, and two caps of one chord SHALL be its size's chord gap apart, or, where the convention has a separator, the separator in the legend's style and color with the chord gap on each side of it.",
+      "verify": "At the default medium size the cap is comp.keyboard-shortcut.container.height.medium tall with comp.keyboard-shortcut.container.padding-inline.medium, comp.keyboard-shortcut.container.shape.medium, comp.keyboard-shortcut.label.typescale.medium and comp.keyboard-shortcut.chord.gap.medium; the fixtures keycap-apple, keycap-standard, small-apple and small-standard show both sizes and both separators. Under the default system no pixel of a cap differs from comp.keyboard-shortcut.container.color except its legend's; under a fixture layer that sets comp.keyboard-shortcut.outline.width to 1 and comp.keyboard-shortcut.outline.bottom-width to 2 the cap has the same size and the edge is drawn inside it."
+    },
+    {
+      "id": "KBS-7",
+      "text": "WHILE variant is plain THE keyboard shortcut SHALL write each chord as one run of text in its size's label typescale and comp.keyboard-shortcut.plain.label.color, the Apple symbols with no separator (⌥⌘⎋) and the standard names joined by + with no spaces (Ctrl+Alt+Delete), and SHALL draw no cap, fill or edge."
+    },
+    {
+      "id": "KBS-8",
+      "text": "WHILE keys holds more than one chord THE keyboard shortcut SHALL draw the chords in order, its size's sequence gap apart, in both forms, and SHALL draw nothing else between them.",
+      "verify": "At the default medium size the gap is comp.keyboard-shortcut.sequence.gap.medium; the fixtures sequence-standard and sequence-plain-apple show it."
+    },
+    {
+      "id": "KBS-9",
+      "text": "WHILE disabled is true THE keyboard shortcut SHALL draw its legends and separators from the disabled component tokens of its variant, SHALL keep its caps' fill and edges at rest, and SHALL NOT expose a disabled state of its own: it is not a control, and the command it belongs to exposes whether it is available."
+    },
+    {
+      "id": "KBS-10",
+      "text": "THE keyboard shortcut SHALL hide its caps, legends and separators from assistive technology and SHALL expose in their place one text, read where the shortcut sits: label where it is not empty, which is the shortcut in the product's own words (\"Shift Command K\"), and otherwise the text KBS-11 gives. It SHALL NOT expose the symbols themselves, which a screen reader reads by the names of their characters."
+    },
+    {
+      "id": "KBS-11",
+      "text": "WHILE label is empty THE keyboard shortcut SHALL have no names for keys of its own and SHALL NOT spell its keys out in the words of any language: it SHALL expose as its text the shortcut in the form of the platform's keyboard shortcut property (KBS-12) — Meta+Shift+K; Control+K Control+C — which is a standard's notation for keys, the same in every language, and in debug builds SHALL report once that the shortcut has no words. The legends it draws (KBS-3 to KBS-5) are the engravings of the two keyboard conventions, what the keys themselves carry, and are not words of Tanrei's; a keyboard engraved otherwise is a convention of its own, and a proposal of its own.",
+      "verify": "Unit: keycap-apple without label exposes the text \"Meta+Shift+K\" and reports once; with label \"Shift Command K\" it exposes that and reports nothing. No name of a key in any language is found in the package."
+    },
+    {
+      "id": "KBS-12",
+      "text": "THE keyboard shortcut SHALL give a component that hosts it the shortcut in the form of the platform's keyboard shortcut property, which the web writes as aria-keyshortcuts does: each chord's modifiers then its key joined by +, with mod as Meta under apple and Control under standard, ctrl as Control, alt as Alt and shift as Shift, and the chords separated by spaces (Meta+Shift+K; Control+K Control+C)."
+    },
+    {
+      "id": "KBS-13",
+      "text": "WHERE a component draws the keyboard shortcut in one of its own parts THE keyboard shortcut SHALL draw its legends and separators in that part's text style and color from the host's tokens instead of its own label typescale and label color, SHALL keep its own caps, sizes and gaps, and SHALL expose nothing to assistive technology, because the host exposes the shortcut as its own (a menu item's keyboard shortcut).",
+      "verify": "The menu's fixture icons-shortcut draws small caps whose legends are in comp.menu.trailing-text.typescale, and its tests read the item's keyboard shortcut property, not the shortcut's own text."
+    },
+    {
+      "id": "KBS-14",
+      "text": "THE keyboard shortcut SHALL NOT listen for, register or perform the keys it shows, SHALL NOT take focus, and SHALL NOT take pointer, touch or keyboard input of its own: it shows the keys, and the product makes them work."
+    },
+    {
+      "id": "KBS-15",
+      "text": "THE keyboard shortcut SHALL lay itself out inline with the text around it, align the baseline of its legends with that text's baseline, never break a line inside a chord, and break a sequence only between chords; WHILE the text size is enlarged THE keyboard shortcut SHALL grow its caps with their legends, keeping container height as a minimum."
+    },
+    {
+      "id": "KBS-16",
+      "text": "WHERE the layout direction is right-to-left THE keyboard shortcut SHALL keep the keys of a chord and the chords of a sequence in left-to-right order, isolated from the surrounding direction, as keyboards and the platforms' own menus write them."
+    },
+    {
+      "id": "KBS-17",
+      "text": "WHERE the font of its text style has no glyph for a symbol it writes (⌘, ⌥, ⎋) THE keyboard shortcut SHALL draw that symbol from the platform's system font at the same size and baseline, and SHALL NOT draw a missing-glyph box."
+    },
+    {
+      "id": "KBS-18",
+      "text": "IF keys is empty THE keyboard shortcut SHALL draw nothing and expose nothing; IF a chord is empty, holds no key other than modifiers, holds more than one key other than modifiers, names a key twice once the convention has written it (ctrl+mod under standard), or names an unknown key of more than one character THE keyboard shortcut SHALL draw what it can (each key once, an unknown name as given, in order) and in debug builds SHALL report the chord."
+    },
+    {
+      "id": "KBS-19",
+      "text": "THE keyboard shortcut SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the keyboard shortcut is shown THE keyboard shortcut SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows and its state.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    }
+  ],
+  "accessibility": {
+    "role": "none",
+    "keyboard": [],
+    "labeling": "The keyboard shortcut has no role of its own: it is text, read where it sits. Its symbols are hidden; what is read is label, the shortcut in the product's words (\"Shift Command K\"), or, without one, the notation of KBS-12 (Meta+Shift+K), so a screen reader never says \"place of interest sign\" for ⌘. Hosted in another component (a menu item), it is hidden entirely, and the host exposes the shortcut as its keyboard shortcut property.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: it takes no focus and no input (KBS-14), so there is no target to size. minimumTarget holds trivially.",
+      "Showing a shortcut does not make it work, and does not tell assistive technology that it works. A control that really answers the keys exposes that itself (aria-keyshortcuts on the web, the platform's keyboard shortcut on the others); a host such as the menu does it with the form KBS-12 gives.",
+      "The keyboard shortcut has no names for keys in any language: a shortcut that should be read as words is given them in label. A table of key names a product sets once, and names taken from the platform, are not built.",
+      "Contrast: the legend's color on the cap's fill is text on a surface and is held to 4.5:1 in the default system (7:1 in its high-contrast schemes); there it is sys.color.on-surface-variant on sys.color.surface-container-highest, 7.52:1 light and 6.09:1 dark at standard contrast. The cap's fill is decorative and is not held to a ratio against what is behind it: the legend alone carries the meaning, and a cap that cannot be told from its background is still a readable legend."
+    ]
+  },
+  "tokens": "comp.keyboard-shortcut",
+  "fixtures": [
+    {
+      "id": "keycap-apple",
+      "props": {
+        "keys": [
+          "mod+shift+k"
+        ],
+        "convention": "apple",
+        "label": "Shift Command K"
+      }
+    },
+    {
+      "id": "keycap-standard",
+      "props": {
+        "keys": [
+          "mod+shift+k"
+        ],
+        "convention": "standard",
+        "label": "Control Shift K"
+      }
+    },
+    {
+      "id": "plain-apple",
+      "props": {
+        "keys": [
+          "mod+shift+k"
+        ],
+        "variant": "plain",
+        "convention": "apple",
+        "label": "Shift Command K"
+      }
+    },
+    {
+      "id": "plain-standard",
+      "props": {
+        "keys": [
+          "mod+shift+k"
+        ],
+        "variant": "plain",
+        "convention": "standard",
+        "label": "Control Shift K"
+      }
+    },
+    {
+      "id": "small-apple",
+      "props": {
+        "keys": [
+          "mod+c"
+        ],
+        "size": "small",
+        "convention": "apple",
+        "label": "Command C"
+      }
+    },
+    {
+      "id": "small-standard",
+      "props": {
+        "keys": [
+          "mod+c"
+        ],
+        "size": "small",
+        "convention": "standard",
+        "label": "Control C"
+      }
+    },
+    {
+      "id": "reordered-apple",
+      "props": {
+        "keys": [
+          "mod+alt+escape"
+        ],
+        "convention": "apple",
+        "label": "Option Command Escape"
+      }
+    },
+    {
+      "id": "named-keys-standard",
+      "props": {
+        "keys": [
+          "ctrl+alt+delete"
+        ],
+        "convention": "standard",
+        "label": "Control Alt Delete"
+      }
+    },
+    {
+      "id": "single-key",
+      "props": {
+        "keys": [
+          "f2"
+        ],
+        "convention": "standard",
+        "label": "F2"
+      }
+    },
+    {
+      "id": "sequence-standard",
+      "props": {
+        "keys": [
+          "mod+k",
+          "mod+c"
+        ],
+        "convention": "standard",
+        "label": "Control K, then Control C"
+      }
+    },
+    {
+      "id": "sequence-plain-apple",
+      "props": {
+        "keys": [
+          "mod+k",
+          "mod+c"
+        ],
+        "variant": "plain",
+        "convention": "apple",
+        "label": "Command K, then Command C"
+      }
+    },
+    {
+      "id": "plus-key-standard",
+      "props": {
+        "keys": [
+          "mod+plus"
+        ],
+        "convention": "standard",
+        "label": "Control Plus"
+      }
+    },
+    {
+      "id": "disabled-keycap",
+      "props": {
+        "keys": [
+          "mod+shift+k"
+        ],
+        "convention": "apple",
+        "disabled": true,
+        "label": "Shift Command K"
+      }
+    },
+    {
+      "id": "disabled-plain",
+      "props": {
+        "keys": [
+          "mod+shift+k"
+        ],
+        "variant": "plain",
+        "convention": "standard",
+        "disabled": true,
+        "label": "Control Shift K"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-keyboard-shortcut",
+      "props": {
+        "keys": "keys",
+        "variant": "variant",
+        "size": "size",
+        "convention": "convention",
+        "label": "label",
+        "disabled": "disabled"
+      },
+      "notes": "The `keys` attribute holds the chords separated by spaces (`keys=\"mod+k mod+c\"`); the property is an array. The shadow root draws a `<kbd>` per chord holding a `<kbd>` per key, as HTML nests keys that are pressed together, all `aria-hidden`, beside one visually hidden text (KBS-10). Under `auto` the convention is the nearest ancestor's `data-tanrei-keyboard-convention` attribute (`apple` or `standard`), read when the element connects and when that attribute changes, else `apple` where `navigator.userAgentData.platform` or `navigator.platform` names macOS, iOS or iPadOS. The read-only `ariaKeyShortcuts` property is KBS-12's form, which the menu sets on its item. The small caps line up with text through `vertical-align: baseline` on an `inline-flex` host (KBS-15). Words: the element has no names for keys; without `label` its text for assistive technology is `ariaKeyShortcuts`."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiKeyboardShortcut",
+      "props": {
+        "keys": "keys",
+        "variant": "variant",
+        "size": "size",
+        "convention": "convention",
+        "label": "label",
+        "disabled": "disabled"
+      },
+      "notes": "`TanreiKeyboardShortcut(_ keys: [String], …)`, with an initializer that takes SwiftUI's own `KeyboardShortcut` (its `key` and `modifiers`, `.command` as mod), so a product that already registers a shortcut shows the same one. `auto` reads the `\\.tanreiKeyboardConvention` environment value, else `apple`. `disabled` follows SwiftUI's `.disabled(_:)` environment. The shortcut's text is the view's `accessibilityLabel`, on an element that combines its children."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiKeyboardShortcut",
+      "props": {
+        "keys": "keys",
+        "variant": "variant",
+        "size": "size",
+        "convention": "convention",
+        "label": "contentDescription",
+        "disabled": "enabled"
+      },
+      "notes": "`TanreiKeyboardShortcut(keys: List<String>, …)`. Compose idiom is the inverse flag `enabled`. `auto` reads `LocalTanreiKeyboardConvention`, else `standard` (Android and ChromeOS write Ctrl). The shortcut's text is the `contentDescription` of semantics merged over the drawn keys, which are cleared."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiKeyboardShortcut",
+      "props": {
+        "keys": "keys",
+        "variant": "variant",
+        "size": "size",
+        "convention": "convention",
+        "label": "semanticLabel",
+        "disabled": "enabled"
+      },
+      "notes": "`TanreiKeyboardShortcut(keys: [...])`, with a `.fromActivator(SingleActivator)` constructor so a product that binds `Shortcuts` shows the same keys (`meta` on Apple targets and `control` elsewhere read as mod). A widget that takes no press has no `onPressed` to null, so the flag is the inverse `enabled`, as in Compose. `auto` reads the `TanreiKeyboardConvention` inherited widget, else `apple` where `defaultTargetPlatform` is macOS or iOS. The drawn keys are excluded from semantics under one `Semantics(label:)`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "KeyboardShortcut",
+      "props": {
+        "keys": "keys",
+        "variant": "variant",
+        "size": "size",
+        "convention": "convention",
+        "label": "accessibilityLabel",
+        "disabled": "disabled"
+      },
+      "notes": "`<KeyboardShortcut keys={['mod+k']} />`. `auto` reads the `KeyboardConventionProvider` context, else `apple` where `Platform.OS` is `ios` (and `macos` under React Native macOS). The drawn keys are one accessible element with `accessibilityRole=\"text\"` and the shortcut's `accessibilityLabel`."
+    }
+  }
+}

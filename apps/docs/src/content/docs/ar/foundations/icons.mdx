@@ -1,0 +1,92 @@
+---
+title: الأيقونات
+description: "مجموعة أيقونات واحدة لكل نظام تصميم، ووزن واحد، وقاعدة واحدة: محدَّدة الأطراف حين لا تكون محددة، ومعبَّأة حين تكون محددة."
+translationOf: foundations/icons.mdx
+sourceHash: 6905ea230fdb3955442d8050cf3af2f3fe852839
+---
+
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+الأيقونات الافتراضية في Tanrei هي [Material Symbols](https://fonts.google.com/icons) بالنمط **Rounded** و**الوزن 300**. وكما في خطوط النص، يُشار إلى الخط باسمه ولا يُضمَّن: المنتج هو الذي يحمّله.
+
+طريقة رسم الأيقونة مجموعة صغيرة من الرموز (tokens). يأتي صندوق الأيقونة بثلاثة أحجام، `sys.icon.small` و `medium` و `large` (16 و 20 و 24px افتراضيًّا)، ويتبع الحجمُ البصري للخط (optical size) الصندوقَ.
+
+<TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
+
+## قاعدة التعبئة
+
+**غير المحدد محدَّد الأطراف (outlined). والمحدد معبَّأ (filled). دائمًا.** عنصر تنقل، علامة تبويب، زر تبديل، رقاقة، مفضّلة: تبقى الأيقونة الرسم نفسه، وتعبئتها وحدها تتغير مع الحالة. لا تُخلط الأيقونات المعبَّأة والمحدَّدة الأطراف للزينة أبدًا، ولا تُختار باليد أبدًا؛ فعلى الويب تتبع التعبئة حالة عنصر التحكم الذي تقع فيه الأيقونة.
+
+<DemoFrame label="التعبئة تتبع التحديد">
+  <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> المفضّلة</button>
+  <span class="icon-demo" role="tablist">
+    <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> الرئيسية</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">search</span> بحث</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> الإعدادات</button>
+  </span>
+  <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>إضافة</tanrei-button>
+</DemoFrame>
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> المفضّلة</button>
+```
+
+يقرأ الصنف `.tanrei-icon` خصائص HTML `aria-pressed` و `aria-selected` و `aria-checked` و `aria-current` على أي عنصر سلف، أو `data-selected` على الأيقونة أو على سلف لها (والقيمة `data-selected="false"` تستثني أيقونة واحدة). أعطِ الأيقونة `aria-hidden="true"` حين يقول النص المجاور لها الشيء نفسه، وأعطِ عنصر التحكم اسمًا متاحًا للتقنيات المساعدة حين لا يقوله.
+
+على المنصات الأصلية تصل القيم نفسها مع نظام التصميم (`system.icon`)، ومعها دالة مساعدة صغيرة تحوّل حالة «محدد» والحجم إلى ما يحتاج إليه الخط. لا يوفّر Tanrei مكوّن أيقونة حتى الآن.
+
+## مجموعة أيقونات لكل نظام تصميم
+
+مجموعة الأيقونات تنتمي إلى نظام التصميم، ولذلك تستطيع [الطبقة](/ar/foundations/design-systems/) أن تغيّرها. ما تُحَلّ إليه الأنظمة المضمَّنة:
+
+<SystemValues tokens={['sys.icon.family.unselected', 'sys.icon.family.selected', 'sys.icon.weight', 'sys.icon.fill.unselected', 'sys.icon.fill.selected']} />
+
+يميّز خط الأيقونات الأيقونة المحددة من غير المحددة بإحدى طريقتين، والرموز تغطي الاثنتين. الأيقونة المحددة تأخذ دائمًا `family.selected` **و** `fill.selected`؛ وأيهما يغيّر فعلًا ما يُرسم أمر يتوقف على المجموعة.
+
+### عائلة متغيرة واحدة
+
+خط الأيقونات المتغير، مثل Material Symbols، عائلة واحدة لها المحور `FILL`. يشير رمزا العائلة كلاهما إلى `ref.typeface.icon` افتراضيًّا، فإعادة توجيه ذلك الرمز الواحد تغيّر المجموعة، ويفرّق `fill.unselected` و `fill.selected` بين الحالتين. وهذا كل ما يكتبه النظام `m3-like`:
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.icon": { "$value": ["Material Symbols Outlined"], "reason": "Material Design 3 draws Material Symbols in the Outlined style." },
+  "tanrei.sys.icon.weight":   { "$value": 400, "reason": "Material Symbols default weight in Material Design 3." }
+}
+```
+
+### عائلتان ثابتتان
+
+خط الأيقونات الثابت ليست له محاور. يأتي بالرسوم المحدَّدة الأطراف والمعبَّأة في عائلتين منفصلتين، فتسمّي الطبقة واحدة لكل حالة:
+
+```json
+"tokens": {
+  "tanrei.sys.icon.family.unselected": { "$value": ["Material Icons Outlined"], "reason": "Acme uses the static Material Icons set: outlined when unselected." },
+  "tanrei.sys.icon.family.selected":   { "$value": ["Material Icons"], "reason": "Acme uses the static Material Icons set: filled when selected." },
+  "tanrei.sys.icon.weight":            { "$value": 400, "reason": "A static icon font has one weight; 400 is what Material Icons is drawn at." }
+}
+```
+
+يبقى رمزا التعبئة والوزن كما هما. الخط الثابت يتجاهل المحاور، فلا ضرر منهما، ولا يحتاج المكوّن إلى معرفة نوع المجموعة الفعّالة. هذه الطبقة هي نموذج الاختبار (fixture) الخاص بالمستودع نفسه (`packages/tokens-build/test/fixtures/acme.system.json`).
+
+### أسماء الأيقونات شأن المنتج
+
+يقرر Tanrei كيف تُرسم الأيقونة، لا أي الأيقونات موجودة. تسمّي المجموعات رسومها بأسماء مختلفة، وقد تخلو مجموعة من رسم موجود في أخرى. المنتج الذي يغيّر مجموعة أيقوناته يراجع الأسماء التي يستخدمها. ومجموعة الرموز التي ليست خطًّا، مثل SF Symbols، لا يمكن أن يسمّيها رمز عائلة؛ وهذا مقيَّد في سجل فجوات المحاكاة (mimicry-gaps) بالمعرّف `platform-symbol-sets`.
+
+### React Native
+
+لا يستطيع المكوّن `<Text>` في React Native ضبط محاور تباين الخط (font-variation axes)، فمع خط أيقونات متغير لا يصل `FILL` إلى الرسم أبدًا وتبدو الأيقونة واحدة في الحالتين. للحفاظ على القاعدة هناك، استخدم عائلتين ثابتتين كما سبق، أو ارسم الأيقونات بصيغة SVG.
+
+تُنقل الآن الدوال المساعدة للأيقونات في الحزم الأصلية الأربع إلى نموذج «عائلة لكل حالة»؛ وإلى أن يصفه ملف README الخاص بحزمة ما، توقّع أن تقرأ تلك الحزمة عائلة واحدة.
+
+<style>{`
+  .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }
+  .icon-demo[role='tablist'] { gap: 1rem; cursor: default; }
+  .icon-demo [role='tab'] { display: inline-flex; align-items: center; gap: 0.35rem; font: inherit; color: var(--tanrei-sys-color-on-surface-variant); background: none; border: 0; padding: 0.25rem; }
+  .icon-demo [aria-selected='true'] { color: var(--tanrei-sys-color-on-surface); }
+`}</style>

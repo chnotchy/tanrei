@@ -1,0 +1,239 @@
+---
+title: "标签页视图"
+description: "在自己的一行标签页之下显示选中标签页的视图，也可以关联到放在别处的一行标签页；用户还可以在视图之间轻扫，标签页的指示器会跟随手指。"
+translationOf: components/tab-view.mdx
+sourceHash: 9e88a691605cc8a2ba05cfb5974f032f4a81ef01
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="tab-view" />
+
+标签页视图为每个标签页保存一个面板，并显示选中标签页的面板。选中一个标签页时，视图以一段短促的位移、淡入淡出和模糊完成切换；用户也可以横向轻扫视图，标签页的指示器会跟随手指，并停在视图最终落到的那个标签页上。在减弱动态效果时，切换是一段仍然跟随手指的交叉淡入淡出，没有位移，也没有模糊。
+
+<DemoFrame label="带有自己一行标签页的标签页视图：选一个标签页，或用触摸或触控笔轻扫面板">
+  <tanrei-tab-view label="项目" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="overview" label="概览"><p>三项未完成的任务，本周到期。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="activity" label="动态"><p>李华在 1 小时前评论了这份计划。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="settings" label="设置"><p>对工作区内的所有人可见。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+标签页视图有两种形态：
+
+- **自带一行标签页，这是默认形态。** 视图在自己的顶部绘制一行[标签页](/zh-cn/components/tabs/)，面板紧接在它的下方。每个面板带着对应标签页的 `label`、`icon`、`labelHidden` 和 `disabled`，所以一处声明就同时得到标签页和它的视图。视图的 `variant`、`size`、`track`、`fullWidth`、`label`、`group` 和 `rememberAs` 就是这一行的属性。这一行是真正的 Tabs：同样的轨道和指示器，同样的令牌、变体和行为，所以为标签页重新设定样式的层也会一并改变它。切换时，它从不移动、淡出或模糊。
+- **关联，用于放在别处的标签页。** `tabs` 把视图关联到应用栏或粘性页眉里的一行标签页。只要设置了它，视图就不绘制自己的那一行，即使被关联的那一行暂时不存在也是如此；视图上针对这一行的属性和面板上针对标签页的属性都不起作用。
+
+自带一行标签页时，每一次选择（无论来自标签页还是轻扫）都由视图触发 `change`，这一行自己的 `change` 不会传到你那里。关联时，由标签页选中则标签页触发 `change`，由轻扫选中则视图触发，所以每一次选择只通知一次。
+
+指定同一个 `group` 的标签页视图显示同一个选择，`rememberAs` 则把这个选择保存在用户的设备上。本站的内容标签页就是一个例子：每一组平台示例都是同属一个组的次要标签页视图，并以本站自己的键记住选择。
+
+### 用法
+
+在 Web 上它是 `<tanrei-tab-view>`，其中放 `<tanrei-tab-panel>` 子元素，也就是一行 Tabs 为自己的面板所用的同一个元素。选中的面板就是视图的 `value`，它与标签页的 `value` 保持相等：设置其中一个，另一个也随之设置，不触发事件。视图处于关联形态时，`tabs` 指定同一文档或同一 shadow root 中某个 `<tanrei-tabs>` 的 id。`swipeable` 写作它的反义 `no-swipe`，因为 HTML 的布尔属性默认为 false。
+
+SwiftUI、Compose、Flutter 和 React Native 尚未实现标签页视图。在实现之前，这些平台上由一行[标签页](/zh-cn/components/tabs/)来显示选中的面板，做法见它自己的页面，但没有轻扫。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 自带一行标签页（默认）：每个面板声明自己的标签页。 -->
+    <tanrei-tab-view label="项目">
+      <tanrei-tab-panel value="overview" label="概览" icon="dashboard">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity" label="动态" icon="history">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="billing" label="账单" icon="payments" disabled>…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <!-- 关联，用于放在别处（应用栏、粘性页眉）的标签页：视图不绘制那一行。 -->
+    <tanrei-tabs id="project-tabs" label="项目">
+      <tanrei-tab value="overview" label="概览"></tanrei-tab>
+      <tanrei-tab value="activity" label="动态"></tanrei-tab>
+    </tanrei-tabs>
+    <tanrei-tab-view tabs="project-tabs">
+      <tanrei-tab-panel value="overview">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity">…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <!-- 指定同一个 group 的各个视图显示同一个选择。remember-as 用你自己的键把它保存在设备上。 -->
+    <tanrei-tab-view variant="secondary" group="platform" remember-as="my-docs-platform" label="平台">
+      <tanrei-tab-panel value="web" label="Web">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="flutter" label="Flutter">…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <script type="module">
+      import '@tanrei/web/components/tab-view'; // 同时定义标签页和面板
+      // 每次选择只有一次 change。自带一行标签页：标签页和轻扫都由视图触发。
+      // 关联：标签页选中由标签页触发，轻扫由视图触发。在组里：只有用户操作的那个视图触发。
+      document.addEventListener('change', (e) => console.log(e.target.localName, e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tab, TabPanel, Tabs, TabView } from '@tanrei/react';
+
+    // 自带一行标签页：一个 onChange 就能收到每一次选择，无论来自标签页还是轻扫。
+    <TabView label="项目" value={view} onChange={(e) => setView(e.detail.value)}>
+      <TabPanel value="overview" label="概览" icon="dashboard"><Overview /></TabPanel>
+      <TabPanel value="activity" label="动态" icon="history"><Activity /></TabPanel>
+    </TabView>
+
+    // 关联：标签页选中由标签页通知，轻扫由视图通知。两者都要用来更新你的状态。
+    <Tabs id="project-tabs" label="项目" value={view} onChange={(e) => setView(e.detail.value)}>
+      <Tab value="overview" label="概览" />
+      <Tab value="activity" label="动态" />
+    </Tabs>
+    <TabView tabs="project-tabs" onChange={(e) => setView(e.detail.value)}>
+      <TabPanel value="overview"><Overview /></TabPanel>
+      <TabPanel value="activity"><Activity /></TabPanel>
+    </TabView>
+
+    // 共享并被记住的选择。noSwipe 是规格中 swipeable 的反义。
+    <TabView variant="secondary" group="platform" rememberAs="my-docs-platform" label="平台" noSwipe>
+      <TabPanel value="web" label="Web"><WebSample /></TabPanel>
+      <TabPanel value="flutter" label="Flutter"><FlutterSample /></TabPanel>
+    </TabView>
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="填满的一行次要标签页，带图标和一个禁用的标签页；以及关联到另放一处的一行标签页的视图" plain column>
+  <tanrei-tab-view variant="secondary" full-width label="部署" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="overview" label="概览" icon="dashboard"><p>三个服务，全部在运行。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="activity" label="动态" icon="history"><p>2 小时前已部署。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="billing" label="账单" icon="payments" disabled><p>尚未设置账单。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+  <tanrei-tabs id="tab-view-demo-linked-tabs" label="旅行">
+    <tanrei-tab value="plan" label="行程"></tanrei-tab>
+    <tanrei-tab value="map" label="地图"></tanrei-tab>
+    <tanrei-tab value="notes" label="笔记"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-divider style="inline-size: 22.5rem; max-inline-size: 100%"></tanrei-divider>
+  <tanrei-tab-view tabs="tab-view-demo-linked-tabs" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="plan"><p>第 1 天：抵达，然后逛老城区。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="map"><p>在车站附近保存了四个地点。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notes"><p>博物馆周一闭馆。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+<ComponentSpecs name="tab-view" />
+
+## 指南
+
+### 何时使用
+
+当每个标签页都是同一主题的并列视图，而且用户经常在它们之间切换时，使用标签页视图：项目的“概览”“动态”和“设置”，或者同一个示例在几个平台上的写法。它在一行标签页的基础上增加了三样东西：一处声明同时得到标签页和它的面板、轻扫，以及由指示器和面板共同完成的切换。
+
+如果面板只是普通内容，也没有人会去轻扫它们，那么一行带有自己面板的[标签页](/zh-cn/components/tabs/)就够了。标签页视图不是轮播，也不是翻页器：它为每个标签页显示一个面板，一次轻扫移动一个面板。供人浏览的一行内容项应该交给[轮播](/zh-cn/components/carousel/)。
+
+### 自带一行标签页，还是关联
+
+| 形态 | 你要写的内容 | `change` 来自哪里 | 用于 |
+| --- | --- | --- | --- |
+| 自带一行标签页（默认） | 只写面板。每个面板用 `label` 和 `icon` 为自己的标签页命名。 | 视图，标签页选中和轻扫都是。 | 大多数标签页视图：标签页紧挨在内容的上方。 |
+| 关联（`tabs`） | 在别处写一行 Tabs，再写一个指向它的、由面板组成的视图。 | 标签页选中来自标签页，轻扫来自视图。 | 与内容分开放置的标签页，例如放在粘性页眉里。 |
+
+- 被关联的那一行由它自己的属性决定外观、名称、组和键。关联形态的视图上的 `variant`、`size`、`track`、`fullWidth`、`label`、`group` 和 `rememberAs` 不起作用，设置了其中任何一个，调试构建都会报告。
+- 按阅读顺序，把关联形态的视图放在它的标签页之后，这样 Tab 键就能从选中的标签页移入面板。自带一行标签页的视图在结构上就保证了这一点。
+- 标签页没有徽标，所以面板也没有。要给标签页加徽标，请自己写那一行，再把视图关联过去。
+
+### 轻扫
+
+- **每次轻扫一个面板。** 用触摸或触控笔拖动时，如果横向的距离大于纵向的距离，面板就朝下一个或上一个可用的标签页移动，指示器跟随手指。松手时已过半程，或带有朝向该标签页的快速滑动，切换就会完成；否则退回原位。鼠标、触控板和滚轮不能轻扫：它们使用标签页。
+- **禁用的标签页会被跳过**，在第一个或最后一个标签页处，面板保持静止。
+- **本身要横向拖动的内容保留自己的拖动。** 横向滚动的区域、滑块、轮播、文本字段或选中的文本上的拖动，不会被当作轻扫。如果面板整体就要横向拖动，例如地图或绘图区域，请把 `swipeable` 设为 false，把切换交给标签页。
+- **在那一行标签页上拖动**是标签页自己的手势：它可以越过多个标签页，显示中的面板保持等待，松手时才切换到所选标签页的面板。
+- **切换的方式由设计系统决定。** 默认是一小段位移，加上淡入淡出和模糊；设计系统可以把它改成整幅宽度的翻页。在减弱动态效果时，只保留淡入淡出。
+
+### 过渡
+
+`transition` 指定显示中的面板以哪种形式让位给下一个面板。
+
+| 值 | 它做什么 |
+| --- | --- |
+| `slide` | 面板按设计系统规定的方式位移，并跟随轻扫。 |
+| `fade` | 两个面板在原位交叉淡入淡出。 |
+| `none` | 新面板在一帧之内完整显示。视图自己绘制的那一行标签页，也在同一帧把指示器放到新的标签页上。 |
+| `auto`（默认） | 采用设计系统的答案（`comp.tab-view.motion.transition`，默认系统中是 slide）。 |
+
+供人阅读而不是观看的面板（例如代码），请使用 `none`。在 `none` 之下，轻扫仍然有效：面板保持静止，指示器跟随手指，松手时立即显示新面板。要关掉轻扫，请把 `swipeable` 设为 false。在减弱动态效果时，`slide` 按 `fade` 绘制，`fade` 和 `none` 则不增加任何东西。视图所关联的那一行标签页保留它自己的 `transition`。
+
+### 共享同一个选择
+
+<DemoFrame label="同一个组的两个标签页视图：在任意一个里选一个标签页" plain column>
+  <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="包管理器" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="npm" label="npm"><p>用 npm 安装这个包。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="pnpm" label="pnpm"><p>用 pnpm 安装这个包。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="yarn" label="Yarn"><p>用 Yarn 安装这个包。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+  <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="包管理器" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="npm" label="npm"><p>用 npm 运行构建。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="pnpm" label="pnpm"><p>用 pnpm 运行构建。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+- 给回答同一个问题的每个视图指定同一个 `group`。组的成员是视图自己的那一行标签页，所以[标签页](/zh-cn/components/tabs/)页面关于组的所有说明都适用：选择按面板的 `value` 对应，从不按它的标签；没有这个值的面板的视图保持自己的选择。在这个演示中，Yarn 只存在于第一个视图。
+- 只有用户操作的那个视图会执行切换并触发 `change`。其他每个视图立即显示自己的面板，没有位移、淡入淡出和模糊，保留它所隐藏的面板的状态，也不夺取焦点。
+- 即使它上方的视图改变了高度，用户操作的那个视图在窗口中的位置也保持不变。
+- `rememberAs` 指定一个键，选择以这个键保存在用户的设备上，并在视图首次绘制之前恢复。没有键就什么都不保存，保存的也只有面板的值。在 Web 上，这个键是 `localStorage` 的一个键，原样使用。这个演示没有指定键。
+- 关联形态的视图不使用这两个属性：被关联的那一行指定自己的组和键。
+
+### 尺寸与面板
+
+- 视图与父元素同宽，高度等于它那一行标签页加上显示中的面板。面板高度不等是正常的，所以面板切换时，视图之后的内容会移动。
+- 如果不希望下方的任何内容移动，就给视图一个自己的高度。那一行标签页留在顶部，每个面板填满剩余的空间，并在其中滚动。
+- 隐藏的面板留在原处并保留状态：其中输入过的内容，以及滚动到的位置。视图没有懒加载模式：开销大的面板，请在它的标签页首次被选中时再渲染内容。
+
+### 推荐
+
+- 为每个面板提供 `label`，用 `labelHidden` 只显示图标时也要提供：它为标签页命名，并通过标签页为面板命名。
+- 面板要么都带图标，要么都不带。
+- 让每个面板的 `value` 在它所在的视图内唯一，并且在屏幕显示期间保持稳定。
+- 一个屏幕上有不止一行标签页时，用 `label` 为视图命名。
+
+### 避免
+
+- 不要在面板里嵌套同一变体的标签页视图。把次要标签页放在主要标签页的视图里。
+- 不要指望靠轻扫来表明还有更多视图。说明这一点的是标签页；轻扫只是捷径。
+- 不要修改视图为自己绘制的那一行标签页。改动面板，那一行会随之变化。
+- 不要用标签页视图在应用的各个目的地之间移动。那是导航栏或导航抽屉的职责。
+
+## 无障碍
+
+<ComponentAccessibility name="tab-view" />
+
+### 组件负责的部分
+
+- 视图自己的那一行是一个标签页列表，以视图的 `label` 命名；每个标签页以它的面板的 `label` 命名。视图本身没有角色。
+- 显示中的面板是一个标签页面板，以它的标签页命名并与之关联，无论那个标签页在视图自己的那一行里，还是在被关联的那一行里。其他每个面板都对辅助技术隐藏，也不能获得焦点，包括切换或轻扫过程中仍在绘制的面板。暴露给辅助技术的面板在选择改变时就更换，而不是等动效结束。
+- Tab 键从选中的标签页移入显示中的面板：移到面板里第一个可聚焦的元素；面板里没有这样的元素时，移到面板本身。这样的面板会在自己的边缘内侧显示焦点环，并且只在键盘聚焦时显示。
+- 如果切换隐藏了焦点所在的面板，焦点会移到选中的标签页上。
+- 视图不增加任何自己的按键。在标签页上按方向键、Home 和 End 会选中另一个标签页，视图随之切换。在面板内，方向键属于面板的内容。
+- 轻扫绝不是唯一的方式：每个面板都可以通过轻点它的标签页或使用方向键到达。屏幕阅读器运行时，单指轻扫属于屏幕阅读器，切换仍然要靠标签页。
+- 轻扫松手之前不朗读任何内容，被取消的轻扫不改变任何东西。
+- 跟随所在组的视图悄悄地变化：不朗读任何内容，焦点留在用户所在的位置。如果焦点原本在这次变化所隐藏的面板里，它会移到该视图选中的标签页上。
+- 在从右到左的布局中，轻扫和位移随阅读方向镜像。视图不会镜像面板的内容。
+- 调试构建会报告：不对应任何一行标签页的 `tabs`、没有面板的选中标签页、自带一行标签页却没有面板的视图、值为空或重复的面板、自己还带有面板的被关联行，以及在关联形态的视图上设置的行属性。
+
+已知的平台差距：
+
+- SwiftUI、Compose、Flutter 和 React Native 尚未实现标签页视图。
+- Web：每个面板都是一个滚动容器，所以紧贴面板边缘的控件的焦点环会被裁切。
+- Web：行为测试只在 Chromium 中运行，轻扫只用合成的指针事件测试。
+
+### 需要你做的事
+
+- 为每个面板提供 `label`；一个屏幕上有不止一行标签页时，也为视图提供 `label`。
+- 按阅读顺序，把关联形态的视图放在它的标签页之后。
+- 使用关联形态时，两个 `change` 事件都要用来更新你自己的状态：标签页的和视图的。
+- 面板本身要横向拖动时，把 `swipeable` 设为 false。
+- 同一个组里的各个视图，相同的值要用相同的标签；它们相距较远时，在第一个视图附近说明这个选择适用于整个页面。
+- `rememberAs` 的键由你自己选定；如果你的产品需要隐私声明，请在其中写明它。

@@ -1,0 +1,214 @@
+---
+title: Popover
+description: Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays with it, without dimming or blocking the rest of the page.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="popover" />
+
+<DemoFrame label="Press a button: a note with a link, and a short form with actions">
+  <tanrei-button id="popover-demo-note-opener" variant="outlined" onclick="document.getElementById('popover-demo-note').open = !document.getElementById('popover-demo-note').open">Storage</tanrei-button>
+  <tanrei-popover id="popover-demo-note" anchor="popover-demo-note-opener" headline="Storage" closable close-label="Close storage" arrow placement="bottom" onclose="this.open = false">
+    Files in the trash still count toward your storage until they are deleted. <a class="tanrei-link" href="#guidelines">How storage is counted</a>
+  </tanrei-popover>
+  <tanrei-button id="popover-demo-form-opener" variant="outlined" onclick="document.getElementById('popover-demo-form').open = !document.getElementById('popover-demo-form').open">Rename</tanrei-button>
+  <tanrei-popover id="popover-demo-form" anchor="popover-demo-form-opener" headline="Rename the folder" onclose="this.open = false">
+    <tanrei-text-field label="Name" value="Reports" autofocus></tanrei-text-field>
+    <tanrei-button slot="actions" dismissive onclick="this.closest('tanrei-popover').open = false">Cancel</tanrei-button>
+    <tanrei-button slot="actions" confirming onclick="this.closest('tanrei-popover').open = false">Rename</tanrei-button>
+  </tanrei-popover>
+</DemoFrame>
+
+Use a popover for content a person works with beside the control that opened it: a few settings, a short form, a share panel, a note that needs a link or a button. The rest of the page stays usable around it.
+
+### Usage
+
+The control is yours. On the web you name it with `anchor`, the id of the element the popover stands beside. That element is also the opener: the popover tells assistive technology that it opens a dialog and whether that dialog is open, and gives focus back to it. Where a field anchors the surface and a button inside the field opens it, name the button with `opener`.
+
+A popover is controlled, as a menu is. You set `open` when the opener is pressed and set it back to false when the popover emits `close`. It never opens by itself, on hover, on focus or after a time. `close` carries a reason: `escape`, `outside`, `focus-out`, `close` (its close button) or `anchor-hidden`. An action never closes the popover; your handler does.
+
+Give it a name: `headline` where it draws one, `label` where it does not.
+
+SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button id="share" variant="outlined">Share</tanrei-button>
+
+    <!-- anchor is the id of the control it stands beside. -->
+    <tanrei-popover id="share-panel" anchor="share" headline="Share this page" closable close-label="Close sharing">
+      Anyone with the link can read it.
+      <tanrei-button slot="actions" dismissive>Stop sharing</tanrei-button>
+      <tanrei-button slot="actions" confirming>Copy link</tanrei-button>
+    </tanrei-popover>
+
+    <!-- A surface under a field: as wide as the field, and focus stays in the field. -->
+    <tanrei-text-field id="city" label="City"></tanrei-text-field>
+    <tanrei-popover anchor="city" label="Suggestions" width="anchor" initial-focus="anchor" no-inset>…</tanrei-popover>
+
+    <script type="module">
+      import '@tanrei/web/components/popover';
+
+      const opener = document.querySelector('#share');
+      const panel = document.querySelector('#share-panel');
+      // The opener toggles it. A press on the opener is never "outside", so one press never closes and reopens it.
+      opener.addEventListener('click', () => (panel.open = !panel.open));
+      // Escape, a press outside, focus leaving, the close button, the anchor out of sight.
+      panel.addEventListener('close', (e) => {
+        console.log(e.detail.reason);
+        panel.open = false;
+      });
+      // An action does not close it: the handler does, when the work is done.
+      panel.querySelector('[confirming]').addEventListener('click', async () => {
+        await navigator.clipboard.writeText(location.href);
+        panel.open = false;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useState } from 'react';
+    import { Button, Popover } from '@tanrei/react';
+
+    const [open, setOpen] = useState(false);
+
+    <Button id="share" variant="outlined" onClick={() => setOpen(!open)}>Share</Button>
+    <Popover anchor="share" open={open} headline="Share this page" closable closeLabel="Close sharing" onClose={() => setOpen(false)}>
+      Anyone with the link can read it.
+      <Button slot="actions" dismissive onClick={stopSharing}>Stop sharing</Button>
+      <Button slot="actions" confirming onClick={copyLink}>Copy link</Button>
+    </Popover>
+    ```
+  </TabItem>
+</Tabs>
+
+## Specs
+
+<DemoFrame label="Placement, an arrow, and a popover as wide as its anchor" plain>
+  <tanrei-button id="popover-demo-top-opener" variant="outlined" onclick="document.getElementById('popover-demo-top').open = !document.getElementById('popover-demo-top').open">Above, centred</tanrei-button>
+  <tanrei-popover id="popover-demo-top" anchor="popover-demo-top-opener" label="Storage" placement="top" arrow onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
+  <tanrei-button id="popover-demo-end-opener" variant="outlined" onclick="document.getElementById('popover-demo-end').open = !document.getElementById('popover-demo-end').open">Beside, at the end</tanrei-button>
+  <tanrei-popover id="popover-demo-end" anchor="popover-demo-end-opener" label="Storage" placement="end-top" onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
+  <tanrei-button id="popover-demo-width-opener" variant="outlined" style="inline-size: 16rem" onclick="document.getElementById('popover-demo-width').open = !document.getElementById('popover-demo-width').open">As wide as this button</tanrei-button>
+  <tanrei-popover id="popover-demo-width" anchor="popover-demo-width-opener" label="Storage" width="anchor" onclose="this.open = false">Trash still counts toward storage.</tanrei-popover>
+</DemoFrame>
+
+### Where it stands
+
+`placement` names a side of the anchor and how the popover lines up along that side. The thirteen values are the tooltip's, read the same way.
+
+| Value | Where |
+| --- | --- |
+| `bottom-start` (the default), `bottom`, `bottom-end` | Below the anchor: start edges together, centred, or end edges together |
+| `top-start`, `top`, `top-end` | Above the anchor, the same three ways |
+| `start`, `start-top`, `start-bottom` | Beside the anchor at its start: centred, top edges together, or bottom edges together |
+| `end`, `end-top`, `end-bottom` | Beside the anchor at its end, the same three ways |
+| `auto` | The first of bottom, top, end, start that has room |
+
+Start and end follow the layout direction. `offset` is the distance to the anchor in the platform's layout units, and takes `comp.popover.offset` when you leave it out. `crossOffset` moves the popover along its side, and never off the anchor's side.
+
+The popover keeps `comp.popover.window-margin` inside the window by these steps, in this order:
+
+1. It flips to the opposite side when the preferred side has no room, keeping the alignment.
+2. Where neither side has room, it takes the one with more and is limited to that room. Its content then scrolls.
+3. It shifts along its side as far as the margin asks.
+4. In a window smaller than its least size, it covers the anchor rather than leave the window.
+
+It follows the anchor when the anchor moves, and keeps the side it is on for as long as that side has room. When no part of the anchor can be seen any more, it emits `close` with the reason `anchor-hidden`.
+
+### Size
+
+A popover is as wide as its content, between `comp.popover.container.min-width` (160) and `container.max-width` (400). With `width="anchor"` it is as wide as the anchor, for a surface that drops from a field. It is never wider than the window less the margins.
+
+It is as tall as its parts, up to `container.max-height` (480) and the room its side has. Beyond that the content scrolls between the header and the actions, which stay. A divider appears below the header once the content is scrolled, and above the actions while more content lies below.
+
+Set `inset` to false (`no-inset` on the web) for content that pads itself or reaches the edges, such as a list.
+
+### Parts
+
+| Part | What it is |
+| --- | --- |
+| Header | The headline, and the close button while `closable` is true. It stays in place while the content scrolls |
+| Content | The default slot. Anything, including links, fields and other controls |
+| Actions | Tanrei Buttons in the `actions` slot, each marked `confirming` or `dismissive` where it is one. They are placed as a Button group places them, and stack when a label no longer fits |
+| Arrow | An optional triangle that points at the anchor. `arrow` turns it on for one popover; `comp.popover.arrow.visible` turns it on for a whole design system |
+
+An action without a `variant` takes `comp.popover.actions.variant` (tonal in the default system). The close button is an icon-only small Button in `comp.popover.close-button.variant`.
+
+### Motion
+
+The popover fades in and grows from the edge that faces the anchor, and fades out. A motion that is interrupted turns round from where it is. Where motion is reduced it appears and disappears at once.
+
+<ComponentSpecs name="popover" />
+
+### What the web draws differently
+
+- The popover is a `popover="manual"` element in the top layer. Inside a modal `<dialog>` it must be a descendant of that dialog to be operable there.
+- A press outside closes the popover and also reaches the element under it.
+- The web has no back gesture of its own, so `close` never carries the reason `back`.
+- `anchorElement` and `openerElement` are properties for an element that an id cannot reach, such as one in another shadow root.
+- `arrow` is unset, true or false: the attribute is absent, `arrow`, or `arrow="false"`.
+- Mark the element that takes focus on opening with `autofocus`.
+- Under forced colors the container and its arrow take an outline in the text color.
+
+## Guidelines
+
+### Tooltip, popover, menu or dialog
+
+| Aspect | Tooltip | Popover | Menu | Dialog |
+| --- | --- | --- | --- | --- |
+| Opened by | Hover, keyboard focus, long-press | A press on its opener | A press on its anchor | The product |
+| Holds | A description of its anchor | Content a person operates | Items only | A decision |
+| Takes focus | Never | Yes, and returns it | Yes, and returns it | Yes, and keeps it |
+| Blocks the page | No | No | No | Yes |
+
+1. If it only says what the control is, and nothing in it can be pressed, it is a tooltip.
+2. If it is a list of commands or choices, it is a menu.
+3. If the person cannot go on without answering it, it is a dialog.
+4. Otherwise it is a popover.
+
+### Do
+
+- Open it from a press on a control, and close it when that control is pressed again.
+- Keep the content short. One task, a few fields at most.
+- Add `closable` when the popover is large enough to cover what a person would press outside it, and for touch, where there is no Escape.
+- Use `width="anchor"` and `initialFocus="anchor"` for a surface under a field the person is typing in.
+- Keep action labels short. A label wider than the popover does not wrap.
+
+### Don't
+
+- Don't open a popover on hover or on focus. It cannot be reached by touch, and a surface that takes focus because the pointer passed is a trap.
+- Don't put in a popover what a person would lose by one stray press outside it. A long form belongs in a dialog or a sheet.
+- Don't nest more than one popover inside a popover. Each level is one more press of Escape.
+- Don't use a popover for something the person must answer before going on. That is a dialog.
+
+## Accessibility
+
+<ComponentAccessibility name="popover" />
+
+### What the component handles
+
+- The container is a dialog that is not modal, named by `headline` or by `label`. Nothing outside it is hidden or made inert.
+- The opener exposes that it opens a dialog and whether that dialog is open. Its own name and role do not change.
+- Opening moves focus to the element you marked, or to the container, so that the popover's name is read first. The focus indicator shows on the container only when the popover was opened from the keyboard.
+- The popover comes directly after its opener in the Tab order, wherever it is in the document. Tab from its last element moves on to what follows the opener, which closes it. Focus is never kept in.
+- Escape closes only the topmost overlay, and goes no further: a dialog the popover stands in stays open.
+- Closing returns focus to the opener if focus was inside the popover. If the person moved focus elsewhere, it stays there.
+- An overlay opened from inside the popover, such as a menu or a tooltip, belongs to it: a press or focus in it does not close the popover.
+- At 200% text the popover wraps, grows to its limits and scrolls. In a window 320 wide it is the window's width less the margins.
+
+### What you need to do
+
+- Give the popover a `headline` or a `label`, and a `closeLabel` while it is `closable`.
+- Set `open` from the opener's press and set it to false on `close`.
+- On the web, place the popover element directly after its opener in the document where you can, so that a screen reader's reading order follows the Tab order.
+- Mark the first field of a short form for initial focus. Leave a popover of text without a mark.

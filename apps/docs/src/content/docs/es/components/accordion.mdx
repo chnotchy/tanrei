@@ -1,0 +1,227 @@
+---
+title: Acordeón
+description: Contenido que una fila muestra y oculta sin salir de su lugar. Un solo elemento es un único desplegable; varios forman un conjunto cuyos elementos se abren cada uno por su cuenta o de uno en uno.
+translationOf: components/accordion.mdx
+sourceHash: 010922231eaa1d94bf0862076fd838ff5349dd3f
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="accordion" />
+
+<DemoFrame label="Las preguntas de una página de ayuda: el aspecto outlined, con un elemento abierto" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined">
+    <details open>
+      <summary>¿Qué es un token de diseño?</summary>
+      Una decisión de diseño con nombre: un color, un tamaño, una duración. Los componentes leen tokens y nunca un valor literal.
+    </details>
+    <details>
+      <summary>¿Qué plataformas están cubiertas?</summary>
+      Web Components, SwiftUI, Jetpack Compose, Flutter y React Native, a partir de un único conjunto de tokens y especificaciones.
+    </details>
+    <details>
+      <summary>¿Cómo cambio el aspecto?</summary>
+      Con una capa: un archivo que ajusta los diales y, donde un producto lo necesita, tokens sueltos.
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+Un acordeón pliega partes de una página bajo filas que las muestran y las ocultan: las respuestas de una página de ayuda, las secciones de una pantalla de configuración, la parte avanzada de un formulario. Un elemento solo es un desplegable (disclosure), y es el mismo componente. Un grupo de destinos que se abre dentro de un panel de navegación es el grupo propio del panel; una elección entre vistas de un mismo lugar son pestañas.
+
+En la web es `<tanrei-accordion>` alrededor de tus propios elementos `<details>` nativos. El elemento personalizado no tiene shadow root, así que cada elemento del acordeón se abre y se cierra, recibe el foco, lleva su estado expandido y mantiene en la página su contenido cerrado antes de que se ejecute ningún script. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/accordion.css" />
+
+    <tanrei-accordion variant="outlined">
+      <details open>
+        <summary>
+          <span class="tanrei-icon" aria-hidden="true">palette</span>
+          Colores
+          <span data-supporting-text>Roles, paletas y los seis esquemas</span>
+          <span data-trailing-text>48 roles</span>
+        </summary>
+        <p>Todo color que lee un componente es un rol.</p>
+      </details>
+      <details>
+        <summary>Tipos de letra</summary>
+        <p>Una pila para el texto y otra para el código.</p>
+      </details>
+    </tanrei-accordion>
+
+    <script type="module">
+      import '@tanrei/web/components/accordion';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Accordion } from '@tanrei/react';
+    import '@tanrei/web/icons.css';
+    import '@tanrei/web/accordion.css';
+
+    <Accordion density="compact" exclusive>
+      {sections.map((section) => (
+        <details key={section.id} onToggle={(event) => track(section.id, event.currentTarget.open)}>
+          <summary>
+            {section.name}
+            <span data-trailing-text>{section.count}</span>
+          </summary>
+          {section.content}
+        </details>
+      ))}
+    </Accordion>
+    ```
+  </TabItem>
+</Tabs>
+
+`@tanrei/web/accordion.css` dibuja el aspecto entero y todos los estados antes de que se ejecute ningún script. El elemento personalizado añade por sí solo esa misma hoja de estilos a la página, de modo que una página que solo carga el script también obtiene un acordeón dibujado, un momento después. El chevron y el icono de un elemento son glifos del conjunto de iconos: necesitan `@tanrei/web/icons.css` y la fuente de iconos.
+
+### Qué escribes tú
+
+| Parte | En la web |
+| --- | --- |
+| Un elemento | Un `<details>`. `open` es su propio atributo y su propia propiedad. |
+| La cabecera | Su `<summary>`, lo primero dentro del elemento. Es un solo botón. |
+| La etiqueta | El texto del summary. |
+| Una etiqueta que es un encabezado, o que tiene contenido en línea | Un solo elemento en el lugar del texto: `<summary><h3>Facturación</h3></summary>`, o `<summary><span>Usa <code>tokens.css</code></span></summary>`. |
+| El texto de apoyo | Un elemento con `data-supporting-text` dentro del summary. |
+| El texto final | Un elemento con `data-trailing-text` dentro del summary. |
+| El icono | Un `<span class="tanrei-icon" aria-hidden="true">`, lo primero dentro del summary, que contiene el nombre del glifo. |
+| El contenido | Todo lo que viene después del summary: texto, tus propios bloques, cualquier componente, otro acordeón. |
+| Un elemento deshabilitado | `<summary aria-disabled="true" tabindex="-1">`. |
+| El evento de un elemento | El `toggle` del propio elemento. No se propaga hacia arriba; `event.newState` es `"open"` o `"closed"`. |
+
+El navegador envía `toggle` con cada cambio de `open`, incluidos los que hace tu propio código y el que hace él mismo con un `<details open>` que acaba de analizar. El código que define `open` por su cuenta reconoce sus propios cambios por el estado que definió.
+
+### Markdown
+
+Un renderizador de Markdown deja pasar `<details>` tal cual, como HTML. Envuelve uno o varios en `<tanrei-accordion>` en el propio texto fuente, o durante la compilación, como muestra la [página de la tabla](../table/#markdown) para las tablas.
+
+## Especificaciones
+
+<DemoFrame label="Compact, con una segunda línea y un valor al final: pliegues en un panel" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" density="compact">
+    <details open>
+      <summary>Texto<span data-supporting-text>Cuerpo, etiquetas y títulos</span><span data-trailing-text>Inter, Noto Sans JP</span></summary>
+      La pila de fuentes, en orden.
+    </details>
+    <details>
+      <summary>Código<span data-supporting-text>Bloques de código y código en línea</span><span data-trailing-text>Roboto Mono</span></summary>
+      La pila de fuentes, en orden.
+    </details>
+    <details>
+      <summary>Reglas heredadas<span data-trailing-text>12</span></summary>
+      Doce reglas vienen de las capas que hay debajo de esta.
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+<DemoFrame label="Uno abierto cada vez, y cada elemento dentro de su propio borde" plain>
+  <tanrei-accordion class="not-content tanrei-not-prose" variant="outlined" separation="gap" exclusive>
+    <details open>
+      <summary><span class="tanrei-icon" aria-hidden="true">palette</span>Colores</summary>
+      Roles, paletas y los seis esquemas.
+    </details>
+    <details>
+      <summary><span class="tanrei-icon" aria-hidden="true">notifications</span>Notificaciones</summary>
+      Correo electrónico, notificaciones push y el resumen semanal.
+    </details>
+    <details>
+      <summary aria-disabled="true" tabindex="-1"><span class="tanrei-icon" aria-hidden="true">person</span>Cuenta</summary>
+      Tu nombre, tu dirección y tu contraseña.
+    </details>
+  </tanrei-accordion>
+</DemoFrame>
+
+<ComponentSpecs name="accordion" />
+
+## Pautas
+
+### ¿Es un acordeón?
+
+Leer un contenido cerrado cuesta una pulsación, y no se puede ver de un vistazo. Pliega lo que solo necesitan algunas personas y deja abierto aquello que la mayoría ha venido a buscar. No ocultes en un elemento cerrado los campos obligatorios de un formulario ni sus errores.
+
+### Los dos aspectos
+
+| `variant` | Qué dibuja | Úsalo para |
+| --- | --- | --- |
+| `plain` (predeterminado) | Filas sobre la superficie, sin nada alrededor. | Contenido en el flujo de una página o de un panel. |
+| `outlined` | Una sola línea fina con esquinas redondeadas. | Un conjunto que debe leerse como un bloque entre otros. |
+
+Ninguno de los dos aspectos rellena nada en reposo, y una cabecera conserva sus colores mientras su elemento está abierto. Que está abierto lo muestra únicamente el chevron.
+
+### Densidad
+
+| `density` | Una cabecera de una línea | Etiqueta | Úsalo para |
+| --- | --- | --- | --- |
+| `regular` (predeterminado) | 56 | 16 sobre un interlineado de 24, medium | Una página que se lee: preguntas, las secciones de un formulario largo. |
+| `compact` | 48 | 14 sobre 20, medium | Un panel entre controles: ajustes, un inspector, una tarjeta. |
+
+Una cabecera crece con su texto. Una cabecera compact es la fila de un panel de navegación: la misma altura, el mismo estilo de texto y el mismo chevron.
+
+### Cómo distinguir los elementos
+
+| `separation` | `plain` | `outlined` |
+| --- | --- | --- |
+| `auto` (predeterminado) | Lo que eligió el sistema de diseño: una línea fina en el sistema predeterminado. | Lo mismo. |
+| `divider` | Una línea fina entre elementos, ninguna encima del primero ni debajo del último. | Un solo borde alrededor de todo el conjunto, y líneas finas entre elementos. |
+| `gap` | Espacio vacío y ninguna línea. | Cada elemento dentro de su propio borde. |
+
+### Uno abierto cada vez
+
+`exclusive` cierra el elemento abierto cuando se abre otro. Úsalo para elementos que se excluyen entre sí, como los pasos de una misma elección, y no para que una página quede corta: quien quiera tener dos respuestas a la vista a la vez no podrá. La cabecera que se pulsó se queda donde está en la vista mientras se cierra el elemento que tiene encima.
+
+En la web, `exclusive` es el atributo `name` de `<details>`, que el elemento personalizado escribe en los elementos del acordeón. Un marcado que deba ser exclusivo sin script escribe él mismo ese `name` en cada elemento.
+
+### Recomendado
+
+- Escribe la etiqueta como texto sin más. Donde el esquema de la página necesite que la fila sea un encabezado, da como etiqueta un encabezado del nivel adecuado.
+- Usa el texto de apoyo para decir qué contiene un elemento, de modo que una persona pueda decidir sin abrirlo.
+- Usa el texto final para un recuento o para el valor actual. Ocupa una sola línea y se corta antes que la etiqueta.
+- Pon en el contenido de un elemento la acción que le corresponde.
+
+### Evita
+
+- No pongas un enlace, un botón ni un interruptor en una cabecera. Una cabecera es un solo botón.
+- No uses el color ni el peso para mostrar qué elemento está abierto.
+- No anides acordeones a más de tres niveles.
+- No abras un elemento porque algo de lo que contiene no sea válido sin decírselo a quien lee: cuando se rechaza un formulario, abre el elemento que contiene el primer error y después lleva el foco al campo.
+
+## Accesibilidad
+
+<ComponentAccessibility name="accordion" />
+
+### De qué se encarga el componente
+
+- Cada cabecera es el summary de un elemento details: un solo botón con el estado expandido, con su propia parada en el orden del foco. Enter y Espacio abren y cierran su elemento. La flecha que apunta hacia el final de la línea abre un elemento cerrado y la que apunta hacia el inicio cierra uno abierto, siguiendo la dirección del diseño. Flecha arriba, Flecha abajo, Inicio y Fin siguen siendo de la página.
+- La cabecera recibe su nombre de su etiqueta. El elemento personalizado convierte en su descripción el texto de apoyo y, después, el texto final. Sin el script, los tres se leen como su nombre, en ese orden.
+- El icono y el chevron están ocultos para la tecnología de apoyo.
+- El contenido no es una región y no se anuncia nada: el cambio de estado del botón es todo lo que se le comunica a la tecnología de apoyo.
+- El contenido cerrado no se dibuja, no puede recibir el foco y no se expone, y sigue en el documento: un campo que esté dentro conserva su valor y se envía con su formulario.
+- Un enlace a un lugar situado dentro de un elemento cerrado abre el elemento, y también lo hace la búsqueda en la página del propio navegador, allí donde el navegador revela un elemento details para ella.
+- El foco nunca se mueve cuando se abre un elemento. Si un elemento se cierra con el foco dentro, el foco pasa a su cabecera.
+- El anillo de foco se dibuja dentro de la fila de la cabecera, así que nada lo recorta.
+- La altura cambia con el movimiento de despliegue, y se dibuja de inmediato donde el movimiento está reducido.
+- Las dos densidades tienen al menos la altura del objetivo táctil.
+- Con el texto al 200%, las etiquetas saltan de línea, las cabeceras crecen y el chevron se queda en la primera línea.
+- Con colores forzados, el borde y las líneas tienen el color del texto, y una cabecera deshabilitada tiene el color del texto deshabilitado.
+- Las compilaciones de depuración notifican una cabecera sin nombre, un control dentro de una etiqueta, un elemento sin contenido, un valor desconocido y más de tres niveles de anidamiento.
+
+### Qué debes hacer tú
+
+- Decide si una etiqueta es un encabezado. La mayoría de las etiquetas dan nombre a un pliegue de un panel y siguen siendo texto. Las preguntas de una página de ayuda que la gente recorre de encabezado en encabezado son encabezados.
+- Un encabezado dado como etiqueta queda dentro del botón. Parte de la tecnología de apoyo lee entonces el nombre del botón y no incluye el encabezado en su lista. Donde el esquema no deba depender de eso, pon el encabezado antes de un único elemento, en lugar de dentro de su etiqueta.
+- Da a un elemento deshabilitado tanto `aria-disabled="true"` como `tabindex="-1"`. El elemento personalizado añade el segundo donde falta, pero solo una vez que el script se ha ejecutado.
+- Donde una etiqueta, un texto de apoyo o un texto final puedan estar escritos en la dirección contraria a la de la página, envuelve la etiqueta en un `<span>`: así cada elemento marcado conserva su propia dirección. Una etiqueta que es texto suelto se compone en la dirección de la página.

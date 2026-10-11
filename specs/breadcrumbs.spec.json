@@ -1,0 +1,1090 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "breadcrumbs",
+  "title": "Breadcrumbs",
+  "summary": "Shows where a page sits in a hierarchy of pages and leads back up it: the levels above as links, in order from the top, with the page itself last.",
+  "category": "navigation",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "menu"
+  ],
+  "anatomy": [
+    {
+      "id": "root",
+      "description": "The navigation landmark and, in it, one ordered list of the levels, from the top of the hierarchy to the page. On one line by default."
+    },
+    {
+      "id": "container",
+      "description": "The shape behind a level that is a link, and behind the overflow button. It has no fill at rest and takes no room in the layout: it is where hover, focus and press are drawn."
+    },
+    {
+      "id": "label",
+      "description": "A level's text, in the trail's text style."
+    },
+    {
+      "id": "underline",
+      "description": "The line under the label of a level that is a link, in the label's color. When it is drawn is a choice (BRC-30): at rest in the default system, where it is what says that a level leads somewhere. The current page and a level without a destination have none."
+    },
+    {
+      "id": "icon",
+      "description": "A glyph of the system's icon set that the product names for a level (a house for the top), before the label or in its place. Decorative.",
+      "optional": true
+    },
+    {
+      "id": "separator",
+      "description": "The glyph chevron_right between two neighbouring levels, drawn by the trail. Decorative; mirrored in a right-to-left layout by the icon helper."
+    },
+    {
+      "id": "overflow-button",
+      "description": "An icon-only button showing more_horiz that stands where levels were taken out of a trail too long for its width, and opens a menu of them.",
+      "optional": true
+    },
+    {
+      "id": "menu",
+      "description": "The menu of the levels that were taken out, in the trail's order: a Tanrei menu, opened from the overflow button.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The indicator shown for keyboard focus, around a link's or the overflow button's container."
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the landmark (\"Breadcrumbs\"), in the product's language. Tanrei ships no words of its own. It tells this landmark from the page's other navigation, so it is required."
+    },
+    {
+      "name": "overflow",
+      "type": "enum",
+      "values": [
+        "collapse",
+        "wrap"
+      ],
+      "default": "collapse",
+      "description": "What a trail longer than its width does. collapse: it stays on one line and its middle levels go behind the overflow button, as many as the width asks for (BRC-9). wrap: every level stays in the trail, which runs over as many lines as it needs (BRC-15)."
+    },
+    {
+      "name": "overflowLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the overflow button (\"Show hidden levels\"), in the product's language. Required while overflow is collapse; ignored while it is wrap.",
+      "words": "breadcrumbsOverflowLabel"
+    },
+    {
+      "name": "underline",
+      "type": "enum",
+      "values": [
+        "auto",
+        "always",
+        "hover",
+        "never"
+      ],
+      "default": "auto",
+      "description": "When the levels that are links are underlined. always: at rest and in every state. hover: while a level is hovered, focused from the keyboard or pressed, and not at rest. never: in no state. Auto takes comp.breadcrumbs.underline.visibility, the design system's answer (always in the default system). It applies to every level of the trail."
+    }
+  ],
+  "items": [
+    {
+      "name": "item",
+      "summary": "One level of the hierarchy: a link to it, the page the person is on, or the name of a level that has no page.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The level's name: the title of its page, as short as the product has it. It is the item's accessible name, drawn or not."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The destination: an address as the platform's links take one. With one the level is a link; without one it is text — the current page, or a level that has no page of its own (BRC-3)."
+        },
+        {
+          "name": "current",
+          "type": "boolean",
+          "default": false,
+          "description": "The level is the page the person is on. Only the last item may be current. It is exposed as the current page and drawn heavier, without an underline; give it no href, so that it is text and not a link to where the person already is (BRC-4)."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "default": "",
+          "description": "The name of a glyph of the system's icon set, drawn before the label (\"home\" for the top of the hierarchy). Empty: no glyph."
+        },
+        {
+          "name": "iconOnly",
+          "type": "boolean",
+          "default": false,
+          "description": "Draws the glyph alone and keeps the label as the accessible name. Ignored while icon is empty."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "A level that is a link was activated by pointer, touch, Enter or assistive technology, in the trail or in the menu. It is emitted before the destination opens; a product that takes the navigation itself (a client-side router) cancels it (BRC-22)."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "BRC-1",
+      "text": "THE breadcrumbs SHALL be one navigation landmark named by label that holds one ordered list of its items, in the order the product gave them — from the top of the hierarchy to the page — each a list item with its position in the list, and nothing else that assistive technology reads but the overflow button; WHILE label is empty THE breadcrumbs SHALL still render, and in debug builds report that the landmark has no accessible name. WHILE it has no item THE breadcrumbs SHALL draw nothing, take no room and expose no landmark.",
+      "verify": "On the web: a navigation landmark with the accessible name of label, a list of three items for the fixture default, and no text or role for a separator."
+    },
+    {
+      "id": "BRC-2",
+      "text": "WHILE an item's href is a destination and its current is false THE breadcrumbs SHALL draw that level as the platform's own link to it (the web's anchor element in the document itself, not in a shadow root; SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), so that whatever the platform gives a link — on the web its context menu, opening in a new tab or window, copying and dragging its address, the address shown before it is followed, a crawler that reads it, and a link that works before any script has run — is the platform's, and not the trail's to draw or to take over; it SHALL expose the link role, named by the item's label, and SHALL draw the label in comp.breadcrumbs.label.typescale and comp.breadcrumbs.item.content.color and, WHILE its underline is shown (BRC-30), with an underline comp.breadcrumbs.underline.width thick, comp.breadcrumbs.underline.offset below the text's baseline, in the label's color of its state, under the text only and not under a glyph. In the default system the underline is shown at rest and in every state: there, in a trail as in a sentence, the underline and not the color says that a level leads somewhere.",
+      "verify": "On the web, with scripting turned off: an a element with the href for each level that has one. Convert a screenshot of the fixture text-level to greys: the linked level is still told from the unlinked one."
+    },
+    {
+      "id": "BRC-3",
+      "text": "WHILE an item has no destination and its current is false THE breadcrumbs SHALL draw that level as text — its label in comp.breadcrumbs.label.typescale and comp.breadcrumbs.label.color, with no underline and no container — which is not focusable, answers no hover, focus or press, has no role of its own and emits nothing: it names a level of the hierarchy that has no page. IF an item's href names a script to run rather than a place to go (the web's javascript: scheme) or cannot be read as an address by the platform THE breadcrumbs SHALL draw that level so too, and in debug builds report it.",
+      "verify": "The fixture text-level: the middle level is grey text, passed by Tab."
+    },
+    {
+      "id": "BRC-4",
+      "text": "WHILE the last item's current is true THE breadcrumbs SHALL expose that level as the current page (on the web aria-current with the value page; on a platform without that state, the selected state) and SHALL draw its label in comp.breadcrumbs.current.content.color, with no underline, at the emphasized weight of its text style — that style's weight plus sys.typescale.emphasis.body — so that it is told from the levels above it by more than its color. WHILE that item has no destination it SHALL be text as BRC-3 says: not focusable, without states and without an event. WHILE it has a destination it SHALL be a link as BRC-2 says that keeps this look and answers hover, focus and press with the tokens of the current part. IF current is true on an item that is not the last THE breadcrumbs SHALL draw that item as if current were false, and in debug builds report it.",
+      "verify": "The fixture default beside the fixture current-link: the same look; the first is passed by Tab, the second takes focus. On the web both carry aria-current=\"page\"."
+    },
+    {
+      "id": "BRC-5",
+      "text": "THE breadcrumbs SHALL open a destination in the context the person is in and in no other, SHALL draw no mark for a new context and SHALL draw no state for a destination already visited: the levels of one hierarchy replace the page the person is on, and a level's colors say what it is and what state it is in."
+    },
+    {
+      "id": "BRC-6",
+      "text": "THE breadcrumbs SHALL draw one separator between every two neighbouring entries of the trail — levels and the overflow button alike — and none before the first or after the last: the glyph chevron_right of the system's icon set in a box comp.breadcrumbs.separator.size large, in comp.breadcrumbs.separator.color, comp.breadcrumbs.separator.gap from the entry on either side, centred on the line of the label beside it, drawn through the platform's icon helper with sys.icon.family.unselected and sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max. A separator SHALL be hidden from assistive technology, SHALL be no part of a level's name, link or hit area, and SHALL keep its color in every state of the levels beside it.",
+      "verify": "Under the default system a separator is 16 large and 4 from the labels beside it. The accessible tree of the fixture default holds no separator."
+    },
+    {
+      "id": "BRC-7",
+      "text": "WHILE an item's icon names a glyph THE breadcrumbs SHALL draw it before the label in the reading direction, in a box comp.breadcrumbs.icon.size large, comp.breadcrumbs.container.gap from the label, centred on the label's line, in the color of the level's label and state, through the icon helper as BRC-6 draws a separator, hidden from assistive technology. WHILE iconOnly is also true THE breadcrumbs SHALL draw the glyph alone, with no label and no underline, its container a square one line of the trail's text high around it, and SHALL keep the item's label as its accessible name. WHILE an item's label is empty THE breadcrumbs SHALL still render it, and in debug builds report that the level has no name.",
+      "verify": "The fixtures home-icon and home-icon-only: a house before \"Home\", and a house alone that is named \"Home\"."
+    },
+    {
+      "id": "BRC-8",
+      "text": "WHILE overflow is collapse THE breadcrumbs SHALL set the trail on one line, each label on one line, as wide as its entries need and no wider than the layout gives it, aligned to the start, and SHALL NOT wrap or scroll it."
+    },
+    {
+      "id": "BRC-9",
+      "text": "WHILE overflow is collapse and the trail is wider than the width the layout gives it THE breadcrumbs SHALL take levels out of the trail and draw the overflow button once, in the place of the first level it took out: first the levels between the first and the last, beginning with the one next to the first and going on toward the last, each only if what is left still does not fit; then, if the first level, the button and the last level still do not fit, the first level as well, so that the button begins the trail. It SHALL NOT take out the last level, SHALL take out no more levels than the width asks for, and SHALL measure the trail with its separators and gaps, by the width it is given and not by the window's.",
+      "verify": "The fixture long-trail on a stage 480 wide: the first level, the button, and the last levels that fit. Narrow the stage until one level is left beside the button, then further until the button begins the trail."
+    },
+    {
+      "id": "BRC-10",
+      "text": "THE breadcrumbs SHALL draw the overflow button as the glyph more_horiz of the system's icon set in a box comp.breadcrumbs.icon.size large, in comp.breadcrumbs.overflow.content.color, drawn as BRC-6 draws a separator, in a container that is a square one line of the trail's text high with corners comp.breadcrumbs.container.shape; it SHALL be one list item of the trail holding one focusable element with the button role, named by overflowLabel, that says it opens a menu and whether that menu is open, and WHILE overflowLabel is empty SHALL still render and in debug builds report that the button has no accessible name. WHILE no level is taken out THE breadcrumbs SHALL draw no overflow button.",
+      "verify": "On the web the button has aria-haspopup=\"menu\" and aria-expanded. more_horiz is not marked as mirrored by the default icon set."
+    },
+    {
+      "id": "BRC-11",
+      "text": "WHEN the user activates the overflow button by pointer, touch, Enter or Space THE breadcrumbs SHALL open a menu anchored to it, below it with the start edges aligned, that lists the levels taken out in the trail's order, each named by its label and showing its glyph where it has one: a level with a destination as an item that is a link to it, a level without one as a disabled item. What the menu draws, how focus enters it and moves in it, and how it closes are the menu's own (its spec's behaviours), and WHEN it closes without a level having been followed THE breadcrumbs SHALL return focus to the overflow button.",
+      "verify": "Open the menu of the fixture long-trail by Enter: focus is on its first item; Escape closes it and focus is on the button again."
+    },
+    {
+      "id": "BRC-12",
+      "text": "WHEN the width the layout gives the trail, a label, the text size or the layout direction changes THE breadcrumbs SHALL decide again which levels are taken out, at once and without a motion of its own; a level that fits again SHALL return to its place in the trail. WHEN a level that holds keyboard focus is taken out THE breadcrumbs SHALL move focus to the overflow button, and WHEN the overflow button is removed while it holds focus or its menu is open THE breadcrumbs SHALL close the menu and move focus to the first level that returned."
+    },
+    {
+      "id": "BRC-13",
+      "text": "WHILE a level is taken out of the trail THE breadcrumbs SHALL keep it out of the list assistive technology reads and out of the focus order, reached through the menu alone; WHERE the platform's links are elements of a document (the web) THE breadcrumbs SHALL keep that level's link in the document, hidden, so that the whole trail is there for whatever reads the page as built and before any script has run.",
+      "verify": "On the web, in the collapsed fixture long-trail, document.links still lists every level that has a destination."
+    },
+    {
+      "id": "BRC-14",
+      "text": "WHILE overflow is collapse and the overflow button with the last level alone is still wider than the width the layout gives, or the trail has one level that is, THE breadcrumbs SHALL cut that level's label with an ellipsis at the end of its own direction (BRC-28), keeping the button, the separator and a glyph whole; the full label SHALL remain what assistive technology reads.",
+      "verify": "The fixture long-current on a stage 320 wide: the button, a separator and the beginning of the last label, with an ellipsis."
+    },
+    {
+      "id": "BRC-15",
+      "text": "WHILE overflow is wrap THE breadcrumbs SHALL keep every level in the trail and draw no overflow button: it SHALL break the trail onto as many lines as it needs, comp.breadcrumbs.row-gap apart and aligned to the start, only after a separator, so that a separator ends a line and never begins one; a label longer than a line SHALL wrap where its language allows a break and, for a run with no such place, inside the run, and SHALL NOT be cut.",
+      "verify": "The fixture long-trail-wrap: several lines, each beginning with a label."
+    },
+    {
+      "id": "BRC-16",
+      "text": "WHILE a level that is a link or the overflow button is hovered, keyboard-focused or pressed THE breadcrumbs SHALL render its container, its content — the label with its underline and glyph, or the button's glyph — and its opacity from the component tokens of its part (item, current, overflow) in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state. The container SHALL be the box of the content, with corners comp.breadcrumbs.container.shape, and SHALL take no room and move nothing beside it."
+    },
+    {
+      "id": "BRC-17",
+      "text": "WHEN a level that is a link or the overflow button receives keyboard focus THE breadcrumbs SHALL show the focus ring around its container without animation — the system's focus indicator, sys.focus.offset from the container, sys.focus.outer-width wide in the focus-ring color, with the inner stroke of sys.focus.inner-width where the system has one — and, for a label that runs over several lines of a wrapped trail, around its part of each line; focus gained by pointer or touch SHALL NOT show it."
+    },
+    {
+      "id": "BRC-18",
+      "text": "WHEN a level that is a link is pressed by pointer, touch or Enter, or the overflow button by pointer, touch, Enter or Space, THE breadcrumbs SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "BRC-19",
+      "text": "WHILE pressed THE breadcrumbs SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; content, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.breadcrumbs.motion.feedback-duration with motion.state-easing, fades over motion.state-duration with motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced.",
+      "verify": "Test under a system that sets each value; `m3-like` is ripple, `cupertino` is dim, the default is overlay. The control is the pressed level or the overflow button, never the trail."
+    },
+    {
+      "id": "BRC-20",
+      "text": "THE breadcrumbs SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README.",
+      "verify": "`cupertino` is continuous; the `acme` fixture system is glow."
+    },
+    {
+      "id": "BRC-21",
+      "text": "THE breadcrumbs SHALL change a level or the overflow button between its states over comp.breadcrumbs.motion.state-duration with comp.breadcrumbs.motion.state-easing, and at once where motion is reduced."
+    },
+    {
+      "id": "BRC-22",
+      "text": "WHEN the user activates a level that is a link in the trail by pointer, touch or Enter THE breadcrumbs SHALL emit that item's click exactly once and then open its href, unless the product cancelled that click, in which case it SHALL open nothing: the product's own router has taken the navigation. It SHALL NOT hold the navigation back for sys.motion.duration.press-hold. THE breadcrumbs SHALL NOT activate a link in the trail on Space, which on the web scrolls the page as it does on any link, and SHALL NOT show the pressed state for it; a level listed in the menu is the menu's link item, whose keys and activation are the menu's own (MNU-53, MNU-54: its click is emitted once and can be cancelled, the menu closes, then the destination opens, and Space activates it as it does every row of a menu); WHERE the platform gives its links other keys or gestures (on the web a modified or a middle click that opens a new tab, on Apple platforms a long press that previews) THE breadcrumbs SHALL leave them to the platform.",
+      "verify": "On the web, on a link in the trail: Enter follows the link and fires click once; Space fires no click; a click listener that calls preventDefault() keeps the page where it is. The menu's rows are tested by the menu (MNU-54)."
+    },
+    {
+      "id": "BRC-23",
+      "text": "WHERE the visual size of a level that is a link or of the overflow button is below the minimum target THE breadcrumbs SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size or the room it takes, and on the axis of the trail no further than halfway to the entry beside it, so that no two hit areas overlap; a platform that cannot tell the input type SHALL use sys.target.touch.",
+      "verify": "Under the default system a level is 22 high and takes presses 48 high. A press on a separator reaches the nearer of its two neighbours."
+    },
+    {
+      "id": "BRC-24",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE breadcrumbs SHALL draw a level that is a link, with its underline and glyph, in the platform's link color, the current page, a level without a destination and the separators in its text color, the overflow button's glyph in its button text color, and the focus ring in its highlight color, and SHALL draw the underline of a level that is a link at rest, whatever underline and the tokens it follows say: the colors are then the person's, and nothing holds a link's color apart from a text level's.",
+      "verify": "On the web, with forced colors emulated: LinkText for the links, CanvasText for the current page."
+    },
+    {
+      "id": "BRC-25",
+      "text": "WHILE the text size is enlarged THE breadcrumbs SHALL grow with its text — its labels, its containers and its hit areas — keeping comp.breadcrumbs.separator.gap, comp.breadcrumbs.container.gap, comp.breadcrumbs.underline.width, comp.breadcrumbs.underline.offset, comp.breadcrumbs.row-gap and its glyphs at comp.breadcrumbs.icon.size and comp.breadcrumbs.separator.size, and SHALL decide again what fits (BRC-12).",
+      "verify": "At 200 % text size the collapsed trail still fits its width and the page does not scroll sideways; under wrap every level is still shown."
+    },
+    {
+      "id": "BRC-26",
+      "text": "THE breadcrumbs SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the breadcrumbs is shown THE breadcrumbs SHALL draw itself for the new direction at once, without a motion of its own, keeping its focus and whether its menu is open.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "BRC-27",
+      "text": "WHERE the layout direction is right-to-left THE breadcrumbs SHALL lay the trail out from the right — the top of the hierarchy at the right and the page at the left, a level's glyph at the right of its label, the menu opening with its right edge on the button's — and SHALL draw each separator mirrored left to right, pointing to the left, the way the trail reads: the icon helper mirrors it inside its own box because the system's icon set marks chevron_right as mirrored. It SHALL draw a level's own glyph mirrored exactly when the icon set marks that glyph's name or the product forces mirroring for that use, and unmirrored when the product forbids it. THE breadcrumbs SHALL NOT mirror a glyph itself, and the reading and focus order SHALL stay from the top of the hierarchy to the page.",
+      "verify": "The fixture default-rtl: «الرئيسية» at the right, chevrons pointing left. home and more_horiz are not marked by the default icon set and are drawn as in left-to-right."
+    },
+    {
+      "id": "BRC-28",
+      "text": "THE breadcrumbs SHALL lay out each label as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right name, a number with its sign or unit and a version keep their own order in a right-to-left layout and reorder nothing beside them; THE breadcrumbs SHALL still place the label by the layout direction, not by the text's own, and SHALL cut a label that does not fit (BRC-14) at the end of its own direction, so that a left-to-right label in a right-to-left layout loses its right end and never its beginning.",
+      "verify": "The fixture ltr-label-rtl draws left-to-right names in a right-to-left stage: each reads in its own order, and the trail still runs from the right."
+    },
+    {
+      "id": "BRC-29",
+      "text": "WHEN overflow names a value the breadcrumbs does not have THE breadcrumbs SHALL behave as collapse, and in debug builds report the unknown value."
+    },
+    {
+      "id": "BRC-30",
+      "text": "THE breadcrumbs SHALL show the underline of every level that is a link as its underline prop names: WHILE underline is auto, as comp.breadcrumbs.underline.visibility names, which follows sys.behavior.link-underline unless a design system sets the trail apart; WHILE underline is always, hover or never, as that value names, whatever the tokens say. always draws the line at rest and in every state; hover draws none at rest and draws it WHILE the level is hovered, keyboard-focused or pressed, the line arriving and leaving with that state as BRC-16 renders it and moving no level; never draws none in any state, and hover, focus and press are still shown by the container, the label color and the focus ring. The links of the overflow menu are menu items and are never underlined. WHEN underline, or the token it follows, changes THE breadcrumbs SHALL draw the other form at once, keeping its focus and what it has collapsed; WHEN underline names a value the breadcrumbs does not define THE breadcrumbs SHALL treat it as auto and in debug builds report the unknown value. A platform that cannot draw a choice SHALL fall back to the first value, always, and state that in its README.",
+      "verify": "The fixtures underline-always, underline-hover and underline-never draw the same under every design system; the fixture default follows the system. Hover a level of underline-hover: its line appears and no level moves."
+    }
+  ],
+  "accessibility": {
+    "role": "navigation",
+    "keyboard": [
+      {
+        "keys": "Tab",
+        "action": "Moves focus through the levels that are links and the overflow button, in the trail's order: each is a tab stop, as the links of a navigation region are. Text levels and levels behind the button are passed."
+      },
+      {
+        "keys": "Enter",
+        "action": "Follows the focused link; on the overflow button, opens the menu. Space does what it does on any link (on the web it scrolls the page)."
+      },
+      {
+        "keys": "Space",
+        "action": "On the overflow button, opens the menu."
+      },
+      {
+        "keys": "Arrow keys, Home, End, Escape",
+        "action": "In the open menu, as the menu's spec says: move among the hidden levels; Escape closes it and returns focus to the button."
+      }
+    ],
+    "labeling": "The landmark is named by label, which is required. Each level is named by its label, drawn or not (iconOnly); its glyph is decorative. The current page carries the current state; nothing is added to its name. The overflow button is named by overflowLabel, which is required while overflow is collapse, and says that it opens a menu. Separators are hidden from assistive technology.",
+    "minimumTarget": true,
+    "notes": [
+      "The current page is text by default, not a link. A link to the page a person is on leads nowhere, and adds a tab stop to every page of a product; as text it is still read in its place in the list, with the current state. A product that needs it to be a link (a page whose views change under one address) gives the item a destination, and it is then a link with the same look (BRC-4). A product whose page heading stands right under the trail may leave the current page out: the trail then ends at the parent, and no item is current.",
+      "In the default system a level that is a link is underlined, and the current page and a level without a page are not. That difference, with the heavier weight of the current page, is what tells them apart; color is not asked to (WCAG 1.4.1). The link color there is the primary's, which no scheme holds apart from the text color, so it could not.",
+      "A design system or a product may choose hover or never for the trail (BRC-30). A level that is a link is then told from a level that is text by its color, so the build holds the link color 3:1 apart from comp.breadcrumbs.label.color in every scheme where the choice is not always (an error in the default system, a warning in a product's layer). A trail whose every level above the current page is a link has no text level to be confused with, and the current page stays heavier; the check holds all the same, because one level without a page is enough. Forced colors draw the underline whatever was chosen (BRC-24).",
+      "The trail is a list of links in a landmark, not a toolbar: every link is a tab stop, and the arrow keys do nothing outside the menu.",
+      "Collapsing hides nothing from a person: every level taken out is in the menu, one press away, and the button says that it opens a menu. A trail that should never hide a level sets overflow to wrap. On the web the hidden levels' anchors stay in the document (BRC-13).",
+      "The last label is cut only when the button and it alone do not fit (BRC-14). The current page is usually the heading right under the trail, so the cut text is on the page in full; a product where it is not uses wrap.",
+      "The target. A level is a link that stands by itself, so its hit area is extended to sys.target without changing what is drawn (BRC-23), bounded halfway to its neighbours. Short labels beside each other keep the spacing WCAG 2.5.8 asks: a separator with its two gaps is 24 wide under the default system.",
+      "Text must remain readable at 200% text size: the trail grows with its text and collapses or wraps by the width it has; nothing has a fixed height (BRC-25).",
+      "Contrast in the default system: sys.color.link, on-surface and on-surface-variant are each held to 4.5:1 (7:1 in the high-contrast schemes) on every surface by the token invariants; the overflow glyph and the separators are on-surface-variant. The focus ring is held to 3:1 against every surface.",
+      "How a state looks is a value decision of the active design system (a state-layer mix in Tanrei, a dim or no hover at all elsewhere). The trail reads the state's tokens and never computes the effect itself.",
+      "A trail shows where a page is in the hierarchy, not the way a person came. A product that publishes the same hierarchy as structured data for search engines writes that itself, from the same items."
+    ]
+  },
+  "tokens": "comp.breadcrumbs",
+  "fixtures": [
+    {
+      "id": "default",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Button",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "two-levels",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Button",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "single",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "current-link",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Button",
+            "current": true,
+            "href": "/components/button/"
+          }
+        }
+      ]
+    },
+    {
+      "id": "no-current",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        }
+      ]
+    },
+    {
+      "id": "text-level",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Button",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "home-icon",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/",
+            "icon": "home"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Button",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "home-icon-only",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/",
+            "icon": "home",
+            "iconOnly": true
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Button",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-trail",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Documentation",
+            "href": "/docs/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Foundations",
+            "href": "/docs/foundations/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Design tokens",
+            "href": "/docs/foundations/tokens/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Component tokens",
+            "href": "/docs/foundations/tokens/component/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "State tokens",
+            "href": "/docs/foundations/tokens/component/states/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Pattern rules of a design system",
+            "href": "/docs/foundations/tokens/component/states/rules/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How a disabled container is derived",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-trail-wrap",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels",
+        "overflow": "wrap"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Documentation",
+            "href": "/docs/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Foundations",
+            "href": "/docs/foundations/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Design tokens",
+            "href": "/docs/foundations/tokens/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Component tokens",
+            "href": "/docs/foundations/tokens/component/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "State tokens",
+            "href": "/docs/foundations/tokens/component/states/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Pattern rules of a design system",
+            "href": "/docs/foundations/tokens/component/states/rules/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "How a disabled container is derived",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-current",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Guides",
+            "href": "/guides/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Right-to-left layouts: where a component takes its direction from, which glyphs mirror, and which never do, with every case the icon set decides",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "default-rtl",
+      "props": {
+        "label": "مسار التنقل",
+        "overflowLabel": "إظهار المستويات المخفية"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "الرئيسية",
+            "href": "/ar/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "المكوّنات",
+            "href": "/ar/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "الزر",
+            "current": true
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "home-icon-only-rtl",
+      "props": {
+        "label": "مسار التنقل",
+        "overflowLabel": "إظهار المستويات المخفية"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "الرئيسية",
+            "href": "/ar/",
+            "icon": "home",
+            "iconOnly": true
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "المكوّنات",
+            "href": "/ar/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "الزر",
+            "current": true
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "long-trail-rtl",
+      "props": {
+        "label": "مسار التنقل",
+        "overflowLabel": "إظهار المستويات المخفية"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "الرئيسية",
+            "href": "/ar/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "التوثيق",
+            "href": "/ar/docs/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "الأسس",
+            "href": "/ar/docs/foundations/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "رموز التصميم",
+            "href": "/ar/docs/foundations/tokens/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "رموز المكوّنات",
+            "href": "/ar/docs/foundations/tokens/component/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "رموز الحالات",
+            "href": "/ar/docs/foundations/tokens/component/states/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "قواعد الأنماط في نظام التصميم",
+            "href": "/ar/docs/foundations/tokens/component/states/rules/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "كيف يُشتق لون الحاوية المعطّلة",
+            "current": true
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "ltr-label-rtl",
+      "props": {
+        "label": "مسار التنقل",
+        "overflowLabel": "إظهار المستويات المخفية"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "الرئيسية",
+            "href": "/ar/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Web Components",
+            "href": "/ar/platforms/web/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "tanrei-button 1.2",
+            "current": true
+          }
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "underline-always",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels",
+        "underline": "always"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Button",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "underline-hover",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels",
+        "underline": "hover"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Button",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "underline-never",
+      "props": {
+        "label": "Breadcrumbs",
+        "overflowLabel": "Show hidden levels",
+        "underline": "never"
+      },
+      "items": [
+        {
+          "kind": "item",
+          "props": {
+            "label": "Home",
+            "href": "/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Components",
+            "href": "/components/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Button",
+            "current": true
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-breadcrumbs",
+      "props": {
+        "label": "label",
+        "overflow": "overflow",
+        "overflowLabel": "overflowLabel",
+        "underline": "underline"
+      },
+      "items": {
+        "item": {
+          "name": "a",
+          "props": {
+            "label": "textContent",
+            "href": "href",
+            "current": "aria-current",
+            "icon": "data-icon",
+            "iconOnly": "data-icon-only"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "The product's own child of the element, in the document: an `<a href>` for a level with a destination, a `<span>` for one without. The label is its text; `aria-current=\"page\"` marks the current page; `data-icon=\"home\"` names a glyph and `data-icon-only` hides the text from sight, not from the name."
+        }
+      },
+      "notes": "An element around the product's own anchors, which stay in the document (BRC-2, BRC-13): `<tanrei-breadcrumbs label=\"Breadcrumbs\" overflow-label=\"Show hidden levels\"><a href=\"/\">Home</a><a href=\"/components/\">Components</a><span aria-current=\"page\">Button</span></tanrei-breadcrumbs>`. It is an element and not a class, as Link and pagination are, because collapsing by width has to measure, which a stylesheet cannot do. The shadow root holds the landmark (`<nav aria-label>`), the ordered list with one `<li>` and one slot for each child (assigned by the element), the separators, and the overflow `<li>` with its button and a `tanrei-menu` whose items are links to the hidden levels; a hidden level's `<li>` is not displayed, and its anchor is still in the document. Before the element is defined, and with scripting off, a rule of the package's stylesheet for `tanrei-breadcrumbs:not(:defined)` draws the children as the wrap form — every level, separators from the icon font, links underlined — so the trail is complete and usable without script, without the landmark. `overflow-label` is the attribute of `overflowLabel`. The levels in the trail take the Link stylesheet's rules for a standalone link with this component's tokens. The menu's items are the menu's link items (MNU-53 to MNU-57). React: `Breadcrumbs` renders the element and its children and takes a `render` prop for a router's link. `underline=\"always | hover | never\"` on the element; without it the trail follows `--tanrei-comp-breadcrumbs-underline-visibility`, read as the Link reads its own (a container style query, and `data-underline-system` on the document's root where the browser has none). The slotted anchors are styled by the element's `::slotted` rules, so the choice needs nothing on the anchors themselves."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiBreadcrumbs",
+      "props": {
+        "label": "label",
+        "overflow": "overflow",
+        "overflowLabel": "overflowLabel",
+        "underline": "underline"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiBreadcrumbsItem",
+          "props": {
+            "label": "label",
+            "href": "destination",
+            "current": "isCurrent",
+            "icon": "icon",
+            "iconOnly": "iconOnly"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "A value: `TanreiBreadcrumbsItem(\"Components\", destination: url, action:)`; `destination` is an optional `URL`. `action` runs before the address opens and returns whether the link should still open it."
+        }
+      },
+      "notes": "`TanreiBreadcrumbs(label:overflowLabel:overflow:items:)`. Levels are built on SwiftUI's `Link`; the trail measures itself in a custom `Layout` and collapses there; the menu is `TanreiMenu`. The container is an accessibility container named by `label`; the current page has the `isSelected` trait. Not built on this platform yet: `underline`, an optional value of the same enumeration the Link takes; absent is auto."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiBreadcrumbs",
+      "props": {
+        "label": "contentDescription",
+        "overflow": "overflow",
+        "overflowLabel": "overflowContentDescription",
+        "underline": "underline"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiBreadcrumbsItem",
+          "props": {
+            "label": "label",
+            "href": "href",
+            "current": "current",
+            "icon": "icon",
+            "iconOnly": "iconOnly"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "A data class; `href` is nullable. `onClick` returns false to keep the address closed; otherwise `LocalUriHandler.current` opens it."
+        }
+      },
+      "notes": "`TanreiBreadcrumbs(items, contentDescription, overflowContentDescription, overflow, modifier)`. A custom `Layout` (or `SubcomposeLayout`) measures and collapses; the menu is `TanreiMenu`. Compose has no navigation landmark and no link role for a clickable element: the row is a semantics group with `collectionInfo`, the current page is `selected`, and the README says what is not exposed. Not built on this platform yet: `underline`, an optional value of the same enumeration the Link takes; absent is auto."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiBreadcrumbs",
+      "props": {
+        "label": "semanticLabel",
+        "overflow": "overflow",
+        "overflowLabel": "overflowSemanticLabel",
+        "underline": "underline"
+      },
+      "items": {
+        "item": {
+          "name": "TanreiBreadcrumbsItem",
+          "props": {
+            "label": "label",
+            "href": "href",
+            "current": "isCurrent",
+            "icon": "icon",
+            "iconOnly": "iconOnly"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "A value class; `href` is nullable. `onPressed` returns false to keep the address closed; otherwise the opener the app provides opens it."
+        }
+      },
+      "notes": "`TanreiBreadcrumbs(items: …, semanticLabel: …, overflowSemanticLabel: …, overflow: …)`. A `MultiChildRenderObjectWidget` (or `CustomMultiChildLayout`) measures and collapses; the menu is `TanreiMenu`. `Semantics(container: true, label:)` around the row; each link `Semantics(link: true)`, the current page `selected`. Not built on this platform yet: `underline`, an optional value of the same enumeration the Link takes; absent is auto."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Breadcrumbs",
+      "props": {
+        "label": "accessibilityLabel",
+        "overflow": "overflow",
+        "overflowLabel": "overflowAccessibilityLabel",
+        "underline": "underline"
+      },
+      "items": {
+        "item": {
+          "name": "BreadcrumbsItem",
+          "props": {
+            "label": "label",
+            "href": "href",
+            "current": "current",
+            "icon": "icon",
+            "iconOnly": "iconOnly"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "An object of the `items` prop. `onPress` receives an event whose `preventDefault()` keeps the address closed; otherwise `Linking.openURL(href)`."
+        }
+      },
+      "notes": "`<Breadcrumbs accessibilityLabel=\"Breadcrumbs\" overflowAccessibilityLabel=\"Show hidden levels\" items={[…]} />`. Each link is a `Text` with `accessibilityRole=\"link\"`; the trail measures its levels with `onLayout` and collapses in a second pass; the menu is `Menu`. `accessibilityState` carries `selected` for the current page. Follows the app's direction where an ancestor's is not known. Not built on this platform yet: `underline`, an optional value of the same enumeration the Link takes; absent is auto."
+    }
+  }
+}

@@ -1,0 +1,970 @@
+{
+  "tanrei": {
+    "comp": {
+      "tabs": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product switches between views of the same content with a row of tabs — main sections with an icon above the label, sub-sections inside them, and a quiet row for a choice in a header — in rows whose tabs share the width or hug their content and scroll, some tabs disabled, on a track or straight on the surface the row stands on, at the height of the place the row stands in, the selected one marked by an indicator that slides to it and follows a finger, or is simply drawn on it, by a line under it, or by both.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "primary",
+              "secondary",
+              "tonal"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "track.color": "color",
+              "container.color": "color",
+              "label.color": "color",
+              "icon.color": "color",
+              "covered-label.color": "color",
+              "covered-icon.color": "color",
+              "active-indicator.color": "color",
+              "active-indicator.thickness": "dimension",
+              "active-indicator.shape": "dimension",
+              "underline.color": "color",
+              "underline.thickness": "dimension",
+              "underline.shape": "dimension",
+              "state-layer.color": "color",
+              "selected.container.color": "color",
+              "selected.label.color": "color",
+              "selected.icon.color": "color",
+              "selected.covered-label.color": "color",
+              "selected.covered-icon.color": "color",
+              "selected.active-indicator.color": "color",
+              "selected.underline.color": "color",
+              "selected.state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything tabs read: for each size (medium, small) a tab's height, its padding, the active indicator's margins around the content and the icon size; the height of a tab that stacks its icon, the gap, the corner of its state layer and the label style; the track behind the row (its inset and corner, whether it is drawn, and its color per variant); the divider under the row; the motion, and whether a new selection travels or is drawn at once; and for each variant (primary, secondary, tonal) the track's color, the active indicator's corner, the underline's thickness and corner, and the colors of a tab (plain = not selected, selected.) in each state — its label and icon, and the same where the active indicator covers them (covered-label, covered-icon).",
+            "rules": [
+              "Primary tabs switch the main views of a screen; secondary tabs switch within one of them; tonal tabs are the quiet row, for a choice that should not compete with the content it changes (a sample's language, a contrast, a unit, a period). The three differ in the weight of the active indicator alone: the filled color, the color one step quieter, and a tonal layer under a label that darkens. Never put two rows of primary tabs on one screen.",
+              "Tabs switch views of the same subject; to move between destinations use a navigation bar, rail or drawer.",
+              "Give every tab a label, even an icon-only one (labelHidden keeps it as the name).",
+              "The track is the constant background of the whole row: one color per variant, the same whichever tab is selected, with no outline. Whether it is drawn is one choice, track.visible, which a product sets for one row with the track prop; without it the row stands on the surface it is placed on, and nothing of its layout changes (the inset stays). Tabs are one choice among equals, so nothing but the active indicator marks the selection. A switch is the opposite: its track, outline and handle change between off and on.",
+              "The active indicator is the thumb on the track: as tall as the row less track.padding above and below, the same on every tab. In a row that hugs it is as wide as the selected tab's content plus padding, and a circle when that content is not wider than it is tall (an icon, one character); in a row that fills it is as wide as the tab. Never give it a height of its own.",
+              "The underline is the line on the row's bottom edge under the selected tab, and the divider the hairline under the whole row. The default system leaves both transparent; a layer that marks the selection with a line (Material's tabs) colors them, makes the active indicator and the track transparent and sets track.padding to nothing.",
+              "covered-label.color and covered-icon.color are what the label and icon become where the active indicator covers them; each must be readable on active-indicator.color, and label.color and icon.color on track.color and, because a row may be drawn without its track, on every surface a row may stand on. A layer whose indicator is transparent aliases the covered colors to label.color and icon.color.",
+              "A tap selects a tab; a drag across the row carries the indicator with the finger and selects the tab it is released on. Nothing is selected, and nothing announced, until the release. Where motion.transition is none (or the row's transition prop says so) the indicator does not travel by itself: a new selection is drawn whole in one frame, and a drag still carries the indicator, because the finger moves it.",
+              "Hug (the default) sizes each tab to its content and never truncates it; fullWidth shares the row's width and truncates a label that does not fit. Choose hug for long, translated or user-written labels.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "Each look's state-layer.color is the color hover, focus and press mix into a tab; it aliases that look's label color.",
+              "Hover, press and keyboard focus are drawn at the active indicator's size and place on the tab — a capsule or a circle in the default system — never on the tab's rectangle. The whole tab still answers the pointer. container.shape rounds that box; keep it equal to active-indicator.shape.",
+              "Size is the row's height and what must shrink with it (padding, the indicator's margins, the icon); the label's style, the track's inset, every color and every motion are the same at every size. Medium (48) is the row of a screen's views; small (32) stands in a header or a toolbar beside small buttons. A small row is still pressed over the minimum target: its hit area reaches above and below it.",
+              "Variant, track, size and transition are four independent decisions: every variant is drawn with and without its track, at every size, with and without the travel. Do not make a variant imply one of the others in a layer.",
+              "The tonal variant's active indicator is a layer, not a tone: in the default system the color of the selected label at 16%, laid over whatever is beneath it, so that it is seen by the same step on the track, on a page and on a filled card. selected.active-indicator.color names the tonal container, which a design system may draw as it is where its tonal container stands apart from its surfaces; do not pick a surface tone for it without measuring it against every surface a row may stand on, in both themes.",
+              "motion.transition and track.visible are choices of kind, not values to imitate: do not shorten indicator-duration to stop the travel, and do not make track.color transparent to hide the track of one row — set the choice, or the prop."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "variant": {
+              "default": "primary",
+              "from": "states"
+            },
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium"
+              ],
+              "members": [
+                "container.height",
+                "container.padding-inline",
+                "active-indicator.padding-inline",
+                "active-indicator.padding-block",
+                "icon.size"
+              ]
+            }
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The corners of a tab's state layer, each at most half its height. Hover, focus and press are drawn in the box the active indicator has on that tab (selected, or as it would be if it were), never on the tab's rectangle; the focus indicator surrounds it. With the default's full corner the state layer is the indicator's capsule or circle: a layer that changes active-indicator.shape changes this with it."
+          },
+          "height": {
+            "$type": "dimension",
+            "$description": "Minimum height of a tab, per size; the row, and with it the track, is as tall as its tabs. Medium is the row of a screen's views, as tall as the touch target. Small is the row in a header or a toolbar, as tall as a small Button, so that the two share a line; its hit area reaches above and below it to the minimum target.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product puts a row of tabs at the top of a screen's content, where it is as tall as a finger needs, and another in the header of a card, a figure or a toolbar beside a title and small buttons, where a row that tall would make the header taller than what it heads.",
+                "since": "0.1.0"
+              }
+            },
+            "small": {
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 48,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12
+                }
+              }
+            }
+          },
+          "height-with-icon": {
+            "$type": "dimension",
+            "$value": {
+              "value": 64,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 16
+              }
+            },
+            "$description": "Minimum height of a primary tab with its icon above its label. Only a medium row stacks: at small the icon stands before the label in every variant, and this is not read."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "Space between a tab's edges and its content, per size. A tab that hugs its content is its content plus this on each side; a tab that shares the row's width truncates its label inside it.",
+            "small": {
+              "$value": "{tanrei.sys.space.space150}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space200}"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "Space between a tab's icon and its label."
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$value": "{tanrei.sys.typescale.label}"
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The icon box, per size. A small row draws the small glyph, which leaves the active indicator its margin above and below.",
+            "small": {
+              "$value": "{tanrei.sys.icon.small}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.icon.medium}"
+            }
+          }
+        },
+        "track": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product seats its tabs on a track, the constant ground the indicator slides along, and decides how far the indicator stays inside it and how round it is: a roomy capsule for the main views, a tighter one in a toolbar, none at all where the tabs sit on a line.",
+              "since": "0.1.0"
+            }
+          },
+          "padding": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space50}",
+            "$description": "The space between the track's edge and what sits on it: above and below every tab's state layer and the active indicator, and between the track's ends and the first and last tab. The indicator is as tall as the row less this above and below."
+          },
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The radius of the track's corners, at most half its height: full makes it a capsule. Tabs that scroll are clipped to it."
+          },
+          "visible": {
+            "$type": "number",
+            "$value": 1,
+            "$description": "Whether a row whose track the product did not set draws its track (TAB-49). on: the track of the row's variant behind the whole row. off: no fill behind the row, which then stands on the surface it is placed on; the inset, the corners that clip a row that scrolls and every measure stay, so a row is the same size either way. A row whose track is set keeps what it was given. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product decides once whether its rows of tabs are seated on a track or stand straight on the page, and still draws a single row the other way: a row inside a header that is already a filled bar, a row on a card.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "off",
+                  "on"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A choice of kind; no dial scales it."
+              }
+            }
+          }
+        },
+        "active-indicator": {
+          "$extensions": {
+            "dev.tanrei.vocabulary": {
+              "rationale": "One product sizes the indicator apart from the tab it rests on: filling a tab that hugs its content, or held in from the tab's edges so that air shows between it and the neighbouring tabs, with its own margin around a stacked icon or enlarged text.",
+              "since": "0.1.0"
+            }
+          },
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 32,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 8
+              }
+            },
+            "$description": "Read by no behaviour of this revision: the active indicator is as tall as the row less track.padding above and below, so it has no height of its own. It stays so that the platforms still drawing the previous revision keep building; remove it in the commit that brings the last of them up to date."
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "How far the active indicator reaches past the selected tab's content on each side in a row that hugs, per size. It aliases the tab's own padding of that size, so the indicator fills the tab; a layer can make it smaller, leaving air between the indicator and the neighbouring tabs, without moving the tabs. A row that fills does not read it: there the indicator is as wide as the tab.",
+            "small": {
+              "$value": "{tanrei.comp.tabs.container.padding-inline.small}"
+            },
+            "medium": {
+              "$value": "{tanrei.comp.tabs.container.padding-inline.medium}"
+            }
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "The least space between the active indicator's top and bottom edges and the tallest content it holds, per size. The row grows to keep it (a stacked icon, enlarged text). Small's is the smaller step, so that one line of the label fits a small row's indicator without making the row taller.",
+            "small": {
+              "$value": "{tanrei.sys.space.space25}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space50}"
+            }
+          }
+        },
+        "divider": {
+          "color": {
+            "$type": "color",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "hex": "#000000"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "The default system draws no line under the row: the track is the row. A layer whose tabs sit on a line (Material's) gives this a color."
+              }
+            }
+          },
+          "thickness": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "primary": {
+          "track": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "$description": "The track behind the whole row in this variant: one color, the same whichever tab is selected and in every state of every tab. The tonal container's color, as a tonal Button's."
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A tab has no fill of its own; the track shows through."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "A tab's label on the track."
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}"
+            }
+          },
+          "covered-label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-primary}",
+              "$description": "The label of a tab that is not selected where the active indicator covers it, as the indicator slides across it to another tab."
+            }
+          },
+          "covered-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-primary}",
+              "$description": "The icon of a tab that is not selected where the active indicator covers it on its way across."
+            }
+          },
+          "active-indicator": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A tab that is not selected draws no indicator."
+                }
+              }
+            },
+            "thickness": {
+              "$type": "dimension",
+              "$value": {
+                "value": 3,
+                "unit": "px"
+              },
+              "$description": "Read by no behaviour of this revision: the line it measured is now the underline (underline.thickness). It stays so that the platforms still lagging behind the revision keep building and keep drawing their line; remove it in the commit that brings the last of them up to date.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 3
+                }
+              }
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "The radius of the active indicator's four corners, at most half its height: full makes it a capsule, and a circle where it is as wide as it is tall."
+            }
+          },
+          "underline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A tab that is not selected draws no underline."
+                }
+              }
+            },
+            "thickness": {
+              "$type": "dimension",
+              "$value": {
+                "value": 3,
+                "unit": "px"
+              },
+              "$description": "The underline's thickness in this variant. Primary's is heavier than secondary's, so that two rows of underlined tabs on one screen read as main views and sub-views even where their colors are the same.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.stroke.unit}",
+                  "by": 3
+                }
+              }
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.extra-small}",
+              "$description": "The radius of the underline's corners that face away from the divider. Primary's heavier line is rounded on top; secondary's stays square."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.tabs.primary.label.color}",
+              "$description": "The color hover, focus and press mix into a tab: its label's color."
+            }
+          },
+          "selected": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A selected tab has no fill of its own; the active indicator shows the selection."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}",
+                "$description": "The selected tab's label outside the active indicator, on the track: seen while the indicator is on its way or follows a finger, and wherever a layer's indicator does not cover the label."
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}"
+              }
+            },
+            "covered-label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-primary}",
+                "$description": "The selected tab's label where the active indicator covers it: all of it once the indicator has landed."
+              }
+            },
+            "covered-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-primary}"
+              }
+            },
+            "active-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.primary}",
+                "$description": "The active indicator of primary tabs: the filled color, the strongest mark on the track."
+              }
+            },
+            "underline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "The default system marks the selection with the active indicator alone and draws no line; a layer that wants the line gives this a color."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.tabs.primary.selected.label.color}",
+                "$description": "The color hover, focus and press mix into the selected tab."
+              }
+            }
+          }
+        },
+        "secondary": {
+          "track": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "$description": "The track behind the whole row in this variant: one color, the same whichever tab is selected and in every state of every tab. The tonal container's color, as a tonal Button's."
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A tab has no fill of its own; the track shows through."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "A tab's label on the track."
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}"
+            }
+          },
+          "covered-label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary}",
+              "$description": "The label of a tab that is not selected where the active indicator covers it, as the indicator slides across it to another tab."
+            }
+          },
+          "covered-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary}",
+              "$description": "The icon of a tab that is not selected where the active indicator covers it on its way across."
+            }
+          },
+          "active-indicator": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A tab that is not selected draws no indicator."
+                }
+              }
+            },
+            "thickness": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.thick}",
+              "$description": "Read by no behaviour of this revision: the line it measured is now the underline (underline.thickness). It stays so that the platforms still lagging behind the revision keep building and keep drawing their line; remove it in the commit that brings the last of them up to date."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "The radius of the active indicator's four corners, at most half its height: full makes it a capsule, and a circle where it is as wide as it is tall."
+            }
+          },
+          "underline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A tab that is not selected draws no underline."
+                }
+              }
+            },
+            "thickness": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.thick}",
+              "$description": "The underline's thickness in this variant."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.none}",
+              "$description": "The radius of the underline's corners that face away from the divider."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.tabs.secondary.label.color}",
+              "$description": "The color hover, focus and press mix into a tab: its label's color."
+            }
+          },
+          "selected": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A selected tab has no fill of its own; the active indicator shows the selection."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}",
+                "$description": "The selected tab's label outside the active indicator, on the track: seen while the indicator is on its way or follows a finger, and wherever a layer's indicator does not cover the label."
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}"
+              }
+            },
+            "covered-label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary}",
+                "$description": "The selected tab's label where the active indicator covers it: all of it once the indicator has landed."
+              }
+            },
+            "covered-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary}"
+              }
+            },
+            "active-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.secondary}",
+                "$description": "The active indicator of secondary tabs: one step quieter than primary's, so that a row of sub-views under a row of main views reads as the lesser of the two on the same track."
+              }
+            },
+            "underline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "The default system marks the selection with the active indicator alone and draws no line; a layer that wants the line gives this a color."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.tabs.secondary.selected.label.color}",
+                "$description": "The color hover, focus and press mix into the selected tab."
+              }
+            }
+          }
+        },
+        "tonal": {
+          "track": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.secondary-container}",
+              "$description": "The track behind the whole row in this variant: the tonal container's color, as primary's and secondary's, so that the three variants are told apart by the active indicator alone. Drawn while the row's track is on."
+            }
+          },
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A tab has no fill of its own; the track, or the surface the row stands on, shows through."
+                }
+              }
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "A tab's label: the color of secondary text, which is held on the track and on every surface a row without a track may stand on. It is quieter than the selected tab's label, so that the selection is told by the label as well as by the indicator's layer."
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}"
+            }
+          },
+          "covered-label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "The label of a tab that is not selected where the active indicator covers it, as the indicator slides across it to another tab or is dragged over it."
+            }
+          },
+          "covered-icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-secondary-container}",
+              "$description": "The icon of a tab that is not selected where the active indicator covers it on its way across."
+            }
+          },
+          "active-indicator": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A tab that is not selected draws no indicator."
+                }
+              }
+            },
+            "thickness": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.thick}",
+              "$description": "Read by no behaviour of this revision; it is here because the platforms still drawing the earlier revision read it for every variant. Remove it with primary's and secondary's."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "The radius of the active indicator's four corners, at most half its height: full makes it a capsule, and a circle where it is as wide as it is tall."
+            }
+          },
+          "underline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "A tab that is not selected draws no underline."
+                }
+              }
+            },
+            "thickness": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.border.thick}",
+              "$description": "The underline's thickness in this variant: secondary's."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.none}",
+              "$description": "The radius of the underline's corners that face away from the divider."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.tabs.tonal.label.color}",
+              "$description": "The color hover, focus and press mix into a tab: its label's color."
+            }
+          },
+          "selected": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "A selected tab has no fill of its own; the active indicator shows the selection."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$description": "The selected tab's label outside the active indicator: seen while the indicator is on its way or follows a finger. It stays the quiet color there, so that the darker label is always the one under the indicator."
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "covered-label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}",
+                "$description": "The selected tab's label where the active indicator covers it — all of it once the indicator has landed: the content color of the tonal container, darker than the labels around it."
+              }
+            },
+            "covered-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}"
+              }
+            },
+            "active-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.secondary-container}",
+                "$description": "The active indicator of tonal tabs: the quiet selection. The role named here is the tonal container's; the default system does not draw that tone — it values this token as a layer of the selected tab's own content color (selected.state-layer.color at 16%, twice the hover layer: tokens/systems/tanrei.system.json), so that the indicator is seen by the same step on the track and on whatever surface a row without a track stands on. A design system that sets this token draws what it sets."
+              }
+            },
+            "underline": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "The default system marks the selection with the active indicator alone and draws no line; a layer that wants the line gives this a color."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.tabs.tonal.selected.covered-label.color}",
+                "$description": "The color hover, focus and press mix into the selected tab: the color of its content, which is drawn on the indicator. The default system also makes the indicator itself from this color."
+              }
+            }
+          }
+        },
+        "motion": {
+          "transition": {
+            "$type": "number",
+            "$value": 0,
+            "$description": "How a row whose transition the product did not set draws a new selection (TAB-43). slide: the active indicator and the underline slide and resize to the newly selected tab over indicator-duration, the covered colors traveling with them, the two tabs' colors change over state-duration, and a tab scrolled out of view is brought in over indicator-duration. none: the new selection is drawn whole in the frame it is made — nothing travels and nothing fades. Under both a drag across the row and a Tab view's swipe still carry the indicator, because the finger moves it, and hover, focus and press are answered the same. Reduced motion draws none whatever this says. The value is an index into dev.tanrei.enum.values; platforms receive the name.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product lets the indicator of its tabs travel, because the travel says which way the views lie, and another draws every selection at once, because nothing in it moves; and the first still stops the travel on one row, where a thumb that slides beside the content a choice has just changed draws the eye from it. No duration says this: a row that does not travel still animates its hover and its press.",
+                "since": "0.1.0"
+              },
+              "dev.tanrei.enum": {
+                "values": [
+                  "slide",
+                  "none"
+                ]
+              },
+              "dev.tanrei.derive": {
+                "fixed": "A choice of kind; no dial scales it."
+              }
+            }
+          },
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long a tab's colors take to change between states, and how long the active indicator takes to reach the pointer when a drag is taken away from it."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "indicator-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.duration}",
+            "$description": "How long the active indicator and the underline take to slide and resize to the newly selected tab, and to settle on a tab, or return to the selected one, when a drag is released; the covered label and icon follow the indicator over the same time."
+          },
+          "indicator-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.default-spatial.easing}"
+          }
+        }
+      }
+    }
+  }
+}

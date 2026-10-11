@@ -1,0 +1,1491 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "search",
+  "title": "Search",
+  "summary": "Lets people search the product from a bar or a compact trigger, and offers suggestions and results while they type in a view under the bar, in a dialog or over the whole screen.",
+  "category": "navigation",
+  "level": "feature",
+  "listing": "default",
+  "uses": [
+    "button",
+    "keyboard-shortcut",
+    "loading-indicator"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The bar: a rounded field that holds the search glyph, the input and its buttons. It carries hover and press, and a press on it focuses the input and opens the view."
+    },
+    {
+      "id": "outline",
+      "description": "The bar's edge, drawn only as its focus indicator."
+    },
+    {
+      "id": "leading-icon",
+      "description": "The glyph search of the system's icon set at the bar's start, replaced by the product's icon-only Button when the leading slot is filled. The search draws no mark of its own for it, nor for the close and arrow_back glyphs of its built-in buttons."
+    },
+    {
+      "id": "input",
+      "description": "The platform's own text element, which holds the value, the selection and any input-method composition."
+    },
+    {
+      "id": "placeholder",
+      "description": "A hint shown in the empty input (\"Search mail\"); never the accessible name.",
+      "optional": true
+    },
+    {
+      "id": "caret",
+      "description": "The insertion point, drawn by the platform in the caret color."
+    },
+    {
+      "id": "clear-button",
+      "description": "A built-in icon-only Button that empties the value, shown while there is one.",
+      "optional": true
+    },
+    {
+      "id": "trailing",
+      "description": "Up to two of the product's icon-only Buttons at the bar's end (voice input, account).",
+      "optional": true
+    },
+    {
+      "id": "trigger",
+      "description": "What stands in the bar's place while bar is button or icon: one button that opens a modal view. As a button it has the bar's fill and shape at its own height and holds the search glyph, the placeholder as its text and the shortcut hint; as an icon it is an icon-only Button showing the search glyph.",
+      "optional": true
+    },
+    {
+      "id": "shortcut",
+      "description": "The keys that open the search, written as a line of text by the keyboard shortcut component at the end of a button trigger, or at the end of the bar's input while it is empty and without focus.",
+      "optional": true
+    },
+    {
+      "id": "view",
+      "description": "The surface that holds the suggestions, the status, the results and the product's own content while the search is expanded: under the bar (docked), in a modal dialog near the top of the window with a header (dialog), or over the whole window with a header (full-screen)."
+    },
+    {
+      "id": "header",
+      "description": "The top row of a modal view, with a divider under it: in the full-screen view and in the dialog view alike, a built-in back button, the input and the clear button.",
+      "optional": true
+    },
+    {
+      "id": "suggestion",
+      "description": "A row in the view that completes or replaces the query when the person chooses it: a leading icon, a headline and supporting text.",
+      "optional": true
+    },
+    {
+      "id": "scrim",
+      "description": "The dim over the window behind the dialog view; a press on it closes the view.",
+      "optional": true
+    },
+    {
+      "id": "status",
+      "description": "A row between the suggestions and the results that says what the product's search is doing or found: a count, that nothing was found, a loading indicator while it waits, or that it failed.",
+      "optional": true
+    },
+    {
+      "id": "result",
+      "description": "A row in the view that takes the person somewhere when chosen: a link with a leading icon, a headline and an excerpt of several lines.",
+      "optional": true
+    },
+    {
+      "id": "mark",
+      "description": "A run of a result's excerpt that matched the query, drawn stressed inside the excerpt's text.",
+      "optional": true
+    },
+    {
+      "id": "group-title",
+      "description": "The heading of a group of results that has no destination of its own (\"Pages\", \"Recently opened\"). A group with a destination is headed by a result's row instead.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "Gap-then-ring indicator inside the active suggestion's row and inside the focused result's row, and around the built-in buttons. The bar and the button trigger show focus by their outline instead."
+    }
+  ],
+  "props": [
+    {
+      "name": "presentation",
+      "type": "enum",
+      "values": [
+        "docked",
+        "dialog",
+        "full-screen"
+      ],
+      "default": "docked",
+      "description": "Where the view opens: docked under the bar, without taking focus from it; dialog, a modal surface near the top of the window with its own header (a large screen, opened from a trigger); or full-screen, over the whole window with its own header (a small screen). One product uses more than one and switches by window size."
+    },
+    {
+      "name": "bar",
+      "type": "enum",
+      "values": [
+        "field",
+        "button",
+        "icon"
+      ],
+      "default": "field",
+      "description": "What stands where the search is placed. field: the bar with its input, as before. button: a trigger shaped like the bar that holds no input — the search glyph, the placeholder and the shortcut hint — for an app bar with room. icon: an icon-only Button showing the search glyph, for an app bar without. A trigger opens a modal view (dialog or full-screen), where the input is. One product uses button on a wide window and icon on a narrow one."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": "",
+      "description": "The query."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the search field, the trigger, the view, the suggestions and the results for assistive technology (\"Search mail\"). Drawn only as a button trigger's text while placeholder is empty. Required."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "default": "",
+      "description": "A hint shown while the value is empty, and the text of a button trigger. Never a replacement for label."
+    },
+    {
+      "name": "expanded",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the view is open. The search asks to open and close it with toggle (SRC-5, SRC-6, SRC-36, SRC-38)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents focus, editing and opening the view."
+    },
+    {
+      "name": "clearLabel",
+      "type": "string",
+      "default": "",
+      "description": "The clear button's accessible name, in the product's language (\"Clear search\"). Required while the clear button can show.",
+      "words": "clearLabel"
+    },
+    {
+      "name": "backLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the back button in a modal view's header (\"Back\"). Required for full-screen and for dialog.",
+      "words": "backLabel"
+    },
+    {
+      "name": "shortcut",
+      "type": "strings",
+      "default": [],
+      "description": "The keyboard shortcut that opens the search, in the keyboard shortcut component's key names: one chord per string, pressed in order ([\"mod+k\"], [\"/\"]). The search writes it as a hint, a line of text with no keycaps (SRC-37), and exposes it as the keyboard shortcut of its trigger or input. It makes the keys work only while bindShortcut is true (SRC-38); otherwise the product binds them."
+    },
+    {
+      "name": "bindShortcut",
+      "type": "boolean",
+      "default": false,
+      "description": "Makes the search itself listen for shortcut, anywhere in the window, for as long as it is shown and enabled: the keys open it, and close it again while it is open (SRC-38). Off by default: a component listens outside itself only where the product asks it to."
+    },
+    {
+      "name": "status",
+      "type": "enum",
+      "values": [
+        "idle",
+        "loading",
+        "error"
+      ],
+      "default": "idle",
+      "description": "What the product's search is doing, which the product sets: idle (nothing is awaited: results, or none, are final), loading (a query is running: the status row shows a loading indicator after its delay) or error (the query failed: statusText is drawn as an error and announced at once). The search never runs a query itself (SRC-51)."
+    },
+    {
+      "name": "statusText",
+      "type": "string",
+      "default": "",
+      "description": "The status row's text, in the product's language, announced to assistive technology when it changes: the count (\"12 results for tokens\"), that nothing was found (\"No results for tokne\"), the failure (\"Search is unavailable\"); while loading, the loading indicator's name (\"Searching\"). Empty draws no status row unless status is loading."
+    }
+  ],
+  "items": [
+    {
+      "name": "suggestion",
+      "summary": "A choice that completes or replaces the query while the person types: a query they searched before, or a completion. Choosing it emits select and the product sets the value. A thing the product opens is a result.",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Identifies the suggestion; select carries it. Unique among the suggestions."
+        },
+        {
+          "name": "headline",
+          "type": "string",
+          "default": "",
+          "description": "The suggestion's text, and its accessible name."
+        },
+        {
+          "name": "supportingText",
+          "type": "string",
+          "default": "",
+          "description": "A second line under the headline (\"Folder · 24 messages\"), and its description."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of a glyph at the row's start (history for a past query, a folder for a result). Empty draws none."
+        }
+      ]
+    },
+    {
+      "name": "result",
+      "summary": "A thing the search found that the person can go to: a page, a section of a page, a message, a file. It is a link, not an option.",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Identifies the result; select carries it. Unique among the suggestions, results and result groups."
+        },
+        {
+          "name": "headline",
+          "type": "string",
+          "default": "",
+          "description": "The result's title, and its accessible name."
+        },
+        {
+          "name": "excerpt",
+          "type": "strings",
+          "default": [],
+          "description": "A passage of the thing found, as runs of text in order: the first, third, fifth… run is plain text and the second, fourth… is a match, drawn marked (SRC-43). [\"Tokens are \", \"design\", \" decisions\"] marks design; a passage that begins with a match begins with an empty run; one run alone is a passage without marks. The product's search decides what matched; the search component does not look for the query in the text."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "The name of a glyph at the row's start (article for a page, tag for a section). Empty draws none."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "Where the result goes: an address as the platform's links take one (a URL; on the web a path or a fragment as well), in the prop set every control with a destination takes. Not empty, it makes the row a link, opened by the platform as its own links are (SRC-45). Empty makes the row a button: select is then the only signal, and the product opens the thing."
+        },
+        {
+          "name": "target",
+          "type": "enum",
+          "values": [
+            "same",
+            "new"
+          ],
+          "default": "same",
+          "description": "Where the destination opens. same: where the person is. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which targetLabel says. Ignored without href."
+        },
+        {
+          "name": "targetLabel",
+          "type": "string",
+          "default": "",
+          "description": "What assistive technology reads after the result's name while target is new (\"opens in a new tab\"), in the product's language. Required while target is new; ignored otherwise.",
+          "words": "targetLabel"
+        }
+      ]
+    },
+    {
+      "name": "result-group",
+      "container": true,
+      "summary": "Results that belong together, under one heading: the sections found in one page, or the results of one kind. With an href its heading is itself a result (the page), and its results are drawn under it as its parts; without one its heading is a title.",
+      "props": [
+        {
+          "name": "headline",
+          "type": "string",
+          "default": "",
+          "description": "The group's heading: the page's title, or the name of the kind (\"Pages\"). It names the group for assistive technology."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "Identifies the heading as a result while href is not empty; select carries it."
+        },
+        {
+          "name": "excerpt",
+          "type": "strings",
+          "default": [],
+          "description": "While href is not empty, the heading's own excerpt, in the runs a result's excerpt has. Ignored without href."
+        },
+        {
+          "name": "leadingIcon",
+          "type": "string",
+          "default": "",
+          "description": "While href is not empty, the name of a glyph at the heading row's start. Ignored without href."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "Where the heading goes. With it the heading is a result's row and a link (SRC-44, SRC-45); empty makes it a title that takes no input."
+        },
+        {
+          "name": "target",
+          "type": "enum",
+          "values": [
+            "same",
+            "new"
+          ],
+          "default": "same",
+          "description": "Where the destination opens. same: where the person is. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which targetLabel says. Ignored without href."
+        },
+        {
+          "name": "targetLabel",
+          "type": "string",
+          "default": "",
+          "description": "What assistive technology reads after the result's name while target is new (\"opens in a new tab\"), in the product's language. Required while target is new; ignored otherwise.",
+          "words": "targetLabel"
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading",
+      "description": "An icon-only Button at the bar's start (a menu or back button), drawn in place of the search glyph.",
+      "fixture": "icon-only-button"
+    },
+    {
+      "name": "trailing",
+      "description": "Up to two icon-only Buttons at the bar's end, after the clear button (voice input, account).",
+      "fixture": "icon-only-button"
+    },
+    {
+      "name": "default",
+      "description": "The product's own content in the view, after the suggestions, the status row and the results: a button that loads more results, a link to the full results page, or richer content for an empty query."
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "description": "The person changed the value (typing, deleting, pasting, dictating, the clear button, Escape); carries the new value. Not emitted when the product sets value. It is the product's cue to run its query; the search does not delay or drop it (SRC-51)."
+    },
+    {
+      "name": "submit",
+      "description": "The person pressed the keyboard's action key (Enter, Search) with no suggestion active; carries the value."
+    },
+    {
+      "name": "select",
+      "description": "The person chose a suggestion, or activated a result in place (without a modifier key, in the same window); carries its value. For a result with an href it is emitted before the platform follows the link, and on the web cancelling it keeps the link from being followed, so that a router can take it."
+    },
+    {
+      "name": "toggle",
+      "description": "The search asks to open or close its view; carries the new expanded value and, when closing, the reason: escape, back, select, submit, outside, tab, focus-out or shortcut (in the platform's casing)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "SRC-1",
+      "text": "THE search SHALL draw its bar as wide as its layout gives it and at least comp.search.container.height high, filled with comp.search.standard.container.color, raised by comp.search.standard.container.elevation and rounded by comp.search.container.shape, and SHALL lay out in one row, each element vertically centered and comp.search.container.gap from the next, except that its action buttons — the clear button and the icon-only Buttons of the trailing slot — stand comp.search.container.button-gap from one another (SRC-34): the search glyph comp.search.container.padding-inline from the start edge (or, WHILE the leading slot is filled, the product's icon-only Button comp.search.container.padding-inline-with-button from it, in place of the glyph), the input taking the remaining width, the clear button WHILE it is shown (SRC-10), and the icon-only Buttons of the trailing slot; the last element SHALL end comp.search.container.padding-inline-with-button from the end edge when it is an icon-only Button, and comp.search.container.padding-inline when it is the input. Right-to-left layouts SHALL mirror the row.",
+      "verify": "Bar fixtures draw the bar 328 wide, centered in a 360 × 72 stage."
+    },
+    {
+      "id": "SRC-2",
+      "text": "THE search SHALL draw the glyph search of the system's icon set at comp.search.leading-icon.size in comp.search.standard.leading-icon.color with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, SHALL NOT mirror it when the layout direction is right-to-left, and SHALL hide it from assistive technology. THE search SHALL draw no mark of its own (no path, shape or character of its own) for this glyph or for the glyphs of its clear and back buttons (SRC-10, SRC-11)."
+    },
+    {
+      "id": "SRC-3",
+      "text": "THE search SHALL draw the value on one line in comp.search.input.typescale and comp.search.standard.input.color, scrolling it sideways inside the input when it is longer, and WHILE the value is empty the placeholder in the same text style in comp.search.standard.placeholder.color; it SHALL draw the caret in comp.search.standard.caret.color and highlight selected text in comp.input-box.selection.color, drawing it in comp.input-box.selection.content.color: the product's one selection pair for text entry."
+    },
+    {
+      "id": "SRC-4",
+      "text": "THE search SHALL edit its value in the platform's native text element and SHALL follow the text field's rules for it: TXI-1 (input once per change, and none when the product sets value), TXI-4 (input-method composition), TXI-20 for the search type (a general keyboard whose action key reads as search) and TXI-24 (the typed text's own direction); it SHALL hide a clear or cancel button that the platform draws inside its native element (the web's search cancel button), because it draws its own (SRC-10)."
+    },
+    {
+      "id": "SRC-5",
+      "text": "WHILE collapsed and bar is field, WHEN the person presses the bar outside its slot elements and the clear button, types into the input, or presses Down Arrow in it, THE search SHALL focus the input and emit toggle once with expanded true; focus that reaches the input by Tab, or returns to it when the view closes, SHALL NOT expand it. THE search SHALL become expanded through its binding or controller where expanded is one (SwiftUI, Flutter) and by setting its own property on the web, and by the product setting expanded to true on Compose and React Native. WHILE bar is button or icon the trigger's activation is what expands the search (SRC-36), and the product's shortcut where the search binds it (SRC-38)."
+    },
+    {
+      "id": "SRC-6",
+      "text": "WHILE expanded, WHEN the person presses Escape or the platform's back, activates the back button (SRC-11), chooses a suggestion (SRC-15), activates a result in place (SRC-45), submits where submitting closes (SRC-13) or presses the shortcut the search binds (SRC-38), or, WHILE presentation is dialog, presses the scrim, or, WHILE presentation is docked, presses outside the bar and the view, presses Tab or Shift+Tab, or moves focus out of the search, THE search SHALL emit toggle once with expanded false and that reason (escape, back, select, submit, shortcut, outside, tab or focus-out) and SHALL be collapsed as SRC-5 says it is expanded; the value SHALL stay as it is. Tab and Shift+Tab SHALL then move focus on from the input as they would have, and whether a press outside also reaches the element under it SHALL follow the platform and be stated in its README, as for the menu (MNU-5). Focus that moves between the bar's input and a result of the docked view (SRC-49) has not left the search."
+    },
+    {
+      "id": "SRC-7",
+      "text": "WHILE expanded, presentation is docked and bar is field and the view has content (a suggestion, a status row, a result, a result group, or content in the default slot), THE search SHALL present the view in the platform's overlay layer, the one the menu's surface uses (MNU-1), comp.search.view.offset below the bar, as wide as the bar and aligned with it; WHERE the room below, within comp.search.view.viewport-margin of the viewport's edge and of the on-screen keyboard, is less than the view needs and the room above is more, it SHALL place the view above the bar instead; it SHALL limit the view's height to the room left and scroll its content beyond it, and keep following the bar while it moves. It SHALL fill the view with comp.search.view.container.color, raise it by comp.search.view.container.elevation, round it by comp.search.view.container.shape, clip the content to that shape and inset it by comp.search.view.padding-block and comp.search.view.padding-inline. WHILE the view has no content THE search SHALL draw no view and stay expanded.",
+      "verify": "The docked fixture draws the bar 328 wide at the top of a 360 × 320 stage, 16 from its top and sides, and the open view in place below it, through each platform's test-only in-place drawing of an overlay (as the menu's `inline` on the web). The fixture docked-results draws it in a 360 × 480 stage."
+    },
+    {
+      "id": "SRC-8",
+      "text": "WHILE presentation is docked THE search SHALL keep focus in the bar's input while the view is open, because the view is an operated overlay whose focus is the input it belongs to: it SHALL NOT move focus into the view when it opens, trap focus, make anything inert or draw a scrim; a press on a suggestion, on the status row or on the view's surface SHALL NOT take focus from the input; a result is a link and takes focus when the person presses it or reaches it by Down Arrow (SRC-49), which is still focus inside the search; and the search SHALL leave focus where the person put it when the view closes."
+    },
+    {
+      "id": "SRC-9",
+      "text": "WHEN expanded becomes true WHILE presentation is full-screen THE search SHALL present the view over the whole window as a modal overlay, filled with comp.search.view.container.color to every edge of the window and under every system inset, with its content inside the safe area and above the on-screen keyboard: at its top a header at least comp.search.header.height high holding the back button (SRC-11) comp.search.header.padding-inline from the start edge, the input with the same value, and the clear button WHILE it is shown, the last of them comp.search.header.padding-inline from the end edge, comp.search.container.gap apart and vertically centered; under the header a line of comp.search.divider.thickness in comp.search.divider.color across the window; under that the view's content in the order SRC-46 gives, scrolling. It SHALL move focus to the header's input with the caret at the end of the value, keep focus inside the view, and make everything outside it inert and hidden from assistive technology; WHEN the view closes THE search SHALL return focus to the bar's input without expanding it again (SRC-5), or to the trigger WHILE bar is button or icon.",
+      "verify": "The full-screen fixture draws the open view in place in a 360 × 480 stage that stands for the window, as the dialog's harness does."
+    },
+    {
+      "id": "SRC-10",
+      "text": "WHILE value is not empty and disabled is false THE search SHALL show a clear button: an icon-only Tanrei Button of the text variant showing the glyph close of the system's icon set, not mirrored, named by clearLabel, of size small in the bar and medium in the full-screen header. WHEN it is activated THE search SHALL set value to empty, emit input once with the empty value and move focus to the input it belongs to, and SHALL NOT expand or collapse. WHILE clearLabel is empty THE search SHALL still show the button, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "SRC-11",
+      "text": "WHILE the full-screen view is open THE search SHALL draw a back button at the start of its header: an icon-only Tanrei Button of the text variant and the medium size showing the glyph arrow_back of the system's icon set, mirrored in right-to-left layouts by the icon helper, as the icon set marks it (SRC-32), named by backLabel; WHEN it is activated THE search SHALL collapse with the reason back (SRC-6). WHILE backLabel is empty THE search SHALL still draw it, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "SRC-12",
+      "text": "WHILE collapsed and the input has focus, WHEN the person presses Escape with a value that is not empty THE search SHALL set value to empty and emit input once, as a native search input does; with an empty value Escape SHALL do nothing and pass on to the enclosing element."
+    },
+    {
+      "id": "SRC-13",
+      "text": "WHEN the person presses the keyboard's action key (Enter, Search, Go) in the input while no suggestion is active THE search SHALL emit submit once with the value and then, WHILE expanded and the view shows no result, no result group and no status row, collapse with the reason submit (SRC-6), so that toggle follows submit; WHILE the view shows one of them it SHALL stay expanded, because what the person asked for is already in front of them, and the product closes the view where its submit goes elsewhere; on the web, inside a form, it SHALL then request the form's submission unless submit was cancelled, as a native input does. The submission SHALL be requested through the form's default button (BTN-30): WHILE the form has a submit button — the platform's own or a Button of type submit — the first of them in document order SHALL be pressed, so that its click is emitted and its name and value are sent, and WHILE that button is disabled nothing SHALL be submitted; only a form with no submit button is asked directly.",
+      "verify": "On the web, in a form whose first submit button is the platform's own with a name and a value: Enter in the field emits one click on that button and one submit whose data holds the pair; with the button disabled, no submit; in a form with no submit button, one submit as before."
+    },
+    {
+      "id": "SRC-14",
+      "text": "WHILE expanded and the view holds suggestions THE search SHALL make the next suggestion active with Down Arrow (the first while none is), staying on the last WHILE the view holds no result and going on to the first result WHILE it holds one (SRC-49), and the previous one with Up Arrow, leaving none active when Up Arrow is pressed on the first; focus SHALL stay in the input, so that typing goes on editing the value, and typing, deleting, moving the caret or a change of the suggestions SHALL leave none active; WHEN a suggestion becomes active while part of it is scrolled out of view THE search SHALL scroll it into view. Enter with an active suggestion SHALL choose it (SRC-15)."
+    },
+    {
+      "id": "SRC-15",
+      "text": "WHEN the person activates a suggestion (by pointer or touch, or by Enter while it is active) THE search SHALL emit select once with the suggestion's value and then collapse with the reason select (SRC-6), so that toggle follows select; it SHALL NOT change value itself: the product sets the value it wants (the suggestion's text for a query, or nothing for a result it opens)."
+    },
+    {
+      "id": "SRC-16",
+      "text": "THE search SHALL lay out each suggestion as one row, at least comp.search.suggestion.container.height tall and at least sys.target.touch tall for touch input and sys.target.pointer for fine pointers (rows that touch cannot extend a hit area over each other): comp.search.suggestion.container.padding-inline from each edge, the leading icon column WHILE any suggestion has a leading icon (kept in every row, so that headlines align), then the headline with the supporting text under it, comp.search.suggestion.container.gap after the icon column, padded by comp.search.suggestion.container.padding-block above and below. It SHALL draw the headline in comp.search.suggestion.headline.typescale and the supporting text in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut; the leading icon at comp.search.suggestion.leading-icon.size with the family and fill of an unselected icon, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max; and the row's highlight rounded by comp.search.suggestion.container.shape. Right-to-left layouts SHALL mirror the row, and the whole row SHALL be the suggestion's hit area."
+    },
+    {
+      "id": "SRC-17",
+      "text": "WHILE a suggestion is hovered, active or pressed THE search SHALL render its container, leading icon, headline, supporting text and opacity from the component tokens of its highest-precedence state, with precedence pressed over active over hovered and the active suggestion taking the focused tokens; WHEN a suggestion becomes active THE search SHALL show the focus ring inside its row without animation. A pointer over a suggestion SHALL NOT make it active."
+    },
+    {
+      "id": "SRC-18",
+      "text": "WHILE the bar is hovered, focused or pressed THE search SHALL render its container, outline, outline width, glyph, input, placeholder, caret and opacity from the component tokens of the highest-precedence active state, with precedence pressed over focused over hovered; unlike a button, focus gained by pointer or touch SHALL select the focused state, because a field shows where typing will go however it was focused. THE search SHALL show the bar's focus by its focused outline, drawn inside the bar's edge, and SHALL NOT draw the focus ring around the bar; WHERE sys.behavior.focus-style is glow it SHALL also draw the glow around the bar while it is focused. WHEN colors or widths change between states THE search SHALL animate them over comp.search.motion.state-duration with comp.search.motion.state-easing, and at once where motion is reduced.",
+      "verify": "Focused cannot be a snapshot fixture (the harnesses render without focus). Unit tests focus the input by pointer and by keyboard and read the resolved tokens: under the default system the focused outline is thicker and takes the focus-ring color while the container stays at rest."
+    },
+    {
+      "id": "SRC-19",
+      "text": "WHEN the bar is pressed by pointer or touch, or a suggestion by pointer, touch or Enter, THE search SHALL show that element's pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "SRC-20",
+      "text": "WHILE pressed THE search SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; outline, glyph, input, placeholder, caret, leading icon, headline, supporting text, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.search.motion.feedback-duration with comp.search.motion.state-easing, fades over comp.search.motion.state-duration with comp.search.motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced. The container is the bar for a press on the bar and the row for a press on a suggestion; the control a dim applies to is the bar or the row."
+    },
+    {
+      "id": "SRC-21",
+      "text": "THE search SHALL ease its bar, view and suggestion corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "SRC-22",
+      "text": "WHERE the bar is shorter than the minimum target THE search SHALL extend its hit area vertically to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch."
+    },
+    {
+      "id": "SRC-23",
+      "text": "WHEN the view opens THE search SHALL fade it in over comp.search.motion.open-duration with comp.search.motion.open-easing, a docked view also growing from its edge that faces the bar, and WHEN it closes SHALL fade it out over comp.search.motion.close-duration with comp.search.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once. Focus SHALL move (SRC-9) when the view opens or closes, not when the motion ends."
+    },
+    {
+      "id": "SRC-24",
+      "text": "THE search SHALL expose its input as a search field named by label and never by placeholder, with the platform's search role where it has one (a search box, the search-field trait, the search input type); WHILE the view shows suggestions, the web's input SHALL be a combobox with aria-autocomplete list, aria-expanded true, aria-controls naming the suggestions' listbox and aria-activedescendant naming the active suggestion. THE search SHALL expose the suggestions on the web as a listbox named by label whose options are named by their headline and described by their supporting text, and on the other platforms as buttons named and described the same way, with their position in the list; icons and the divider SHALL be hidden; WHILE the view shows no suggestion the web's input SHALL be a search box without the combobox role, whatever else the view holds; results SHALL never be options (SRC-50); the dialog and full-screen views SHALL each be exposed as a modal dialog named by label; the clear and back buttons SHALL be named by clearLabel and backLabel."
+    },
+    {
+      "id": "SRC-25",
+      "text": "THE search SHALL NOT restyle the icon-only Buttons in its leading and trailing slots: each SHALL render from its own tokens and keep its own semantics and its own focus stop in reading order (the leading one before the input, the trailing ones after the clear button), and the search SHALL draw neither slot in the full-screen header. The hit areas of two neighbouring elements of the bar or the full-screen header SHALL stop at the middle of comp.search.container.gap, those of two neighbouring action buttons where the lengths SRC-34 keeps for them meet, and an icon-only Button's at the bar's edge. The gap, the length of SRC-34 and comp.search.container.padding-inline-with-button are what keep each icon-only Button's target whole: under the default system every icon-only Button of the bar and the header, the small clear button included, keeps a target at least sys.target.touch wide; a layer that narrows the gap or the padding narrows those targets.",
+      "verify": "Under the default system comp.search.container.gap is 16, comp.search.container.button-gap 0 and comp.search.container.padding-inline-with-button 8, enough for the small clear button (32 + 8 + 8): in bar-slots, bar-value, bar-value-slots and full-screen every icon-only Button's hit area (leading, clear, trailing, back) is at least 48 wide, and Android's touch-target check (48 dp, an error for the default system) passes on each of them."
+    },
+    {
+      "id": "SRC-26",
+      "text": "WHILE disabled is true THE search SHALL NOT be focusable, editable or expandable, SHALL NOT emit input, submit, select or toggle, SHALL hide the clear button, SHALL expose the disabled state to assistive technology, and SHALL render the bar's container, outline, glyph, input, placeholder and opacity from the disabled component tokens; the slot icon-only Buttons keep their own state."
+    },
+    {
+      "id": "SRC-27",
+      "text": "WHILE label is empty THE search SHALL still render, and in debug builds report that it has no accessible name; WHEN presentation, bar or status names a value the component does not define THE search SHALL render as docked, field or idle and in debug builds report the value; WHEN a result's headline is empty, or a result's or linked group heading's value is empty or repeats that of another suggestion, result or group, or a result group holds anything but results, THE search SHALL still render what it can and in debug builds report it; WHEN a suggestion's value is empty or repeats another's, or its headline is empty, THE search SHALL still render it and in debug builds report it; IF the trailing slot holds more than two elements THE search SHALL still lay them out and in debug builds report it."
+    },
+    {
+      "id": "SRC-28",
+      "text": "WHILE the text size is enlarged THE search SHALL grow the bar and the full-screen header to hold one line of the input (their heights are minimums) and keep the value on one line, SHALL let suggestion rows grow and wrap, and SHALL NOT scale the icon-only Buttons it holds."
+    },
+    {
+      "id": "SRC-29",
+      "text": "THE search SHALL hand the default slot's content comp.search.standard.suggestion.headline.color as the platform's inherited foreground (the web's inherited color, SwiftUI's foreground style, Compose's content color, Flutter's default text and icon style, React Native's Tanrei text context), inset by comp.search.suggestion.container.padding-inline at the sides, and plain text given as that content, where the platform must style it, SHALL take sys.typescale.body."
+    },
+    {
+      "id": "SRC-30",
+      "text": "IF the icon set cannot draw a glyph of the search yet (search, close or arrow_back; its font is still loading or failed to load) THE search SHALL draw nothing in that glyph's place, never the glyph's name as text, SHALL keep the glyph's box so that the bar's layout does not change, SHALL keep the clear and back buttons operable and named by clearLabel and backLabel, and SHALL draw the glyph once the icon set can."
+    },
+    {
+      "id": "SRC-31",
+      "text": "THE search SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the search is shown THE search SHALL draw itself for the new direction at once, without a motion of its own, keeping its value, whether it is expanded, and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "SRC-32",
+      "text": "WHERE the layout direction is right-to-left THE search SHALL draw a suggestion's leading icon and the arrow_back of its back button (SRC-11) mirrored left to right exactly when the system's icon set marks that glyph's name as mirrored or the product forces mirroring for that use, and unmirrored when the product forbids it: the icon helper mirrors the glyph inside its own box, about the box's vertical centre line, changing neither its place, size, color and fill nor the order SRC-1 and SRC-16 gives. THE search SHALL NOT mirror a glyph itself, and SHALL NOT mirror content the product gives as an image or a view of its own rather than by a glyph's name. The search glyph and the clear button's close are not marked and are never mirrored (SRC-2, SRC-10); the icon-only Buttons of the leading and trailing slots mirror their own glyphs (BTN-19).",
+      "verify": "arrow_forward, chevron_right, reply and send are marked by the default icon set; check, close, search and play_arrow are not. Test one marked and one unmarked name in right-to-left, the marked one again with mirroring forbidden and the unmarked one with it forced, and the marked one in left-to-right (never mirrored there)."
+    },
+    {
+      "id": "SRC-33",
+      "text": "THE search SHALL lay out its placeholder and a suggestion's headline and supporting text as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE search SHALL still place each and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "SRC-34",
+      "text": "THE search SHALL lay out the bar's action buttons — the clear button WHILE it is shown (SRC-10) and the icon-only Buttons of the trailing slot — comp.search.container.button-gap from one another, measured between their visible bounds, and SHALL move two of them further apart only as far as each needs in order to keep, centred on itself, a length of sys.target.touch along the row that its neighbour's does not reach into, because buttons that stand this close cannot extend a hit area over each other (as BGR-3): where the token is 0, as in the default system, a button at least sys.target.touch wide touches its neighbour, and a narrower one stands half of what it lacks away from it. The first action button SHALL still stand comp.search.container.gap after the input and the last comp.search.container.padding-inline-with-button from the bar's end edge (SRC-1). THE search SHALL NOT widen, resize or restyle a button to do so (SRC-25), and SHALL space the buttons the same whatever the input type, so that the bar does not change with the pointer.",
+      "verify": "Fixture bar-value-slots under the default system: the small clear button (32) and the first trailing Button (40) stand 12 apart (8 + 4) and the two trailing Buttons 8 apart (4 + 4), where each pair stood 16 apart. Unit: with sys.target.touch set to 0 in a test layer the three buttons touch; with two large (56) Buttons in the trailing slot they touch under the default system."
+    },
+    {
+      "id": "SRC-35",
+      "text": "WHILE bar is button THE search SHALL draw a trigger in place of the bar of SRC-1: one button as wide as its layout gives it and at least comp.search.trigger.container.height high, filled, raised and rounded as the bar is (comp.search.standard.container.color, comp.search.standard.container.elevation, comp.search.container.shape), holding in one row, vertically centered and comp.search.trigger.container.gap apart, the glyph search drawn as SRC-2 says at comp.search.trigger.leading-icon.size, comp.search.trigger.container.padding-inline from the start edge; then the placeholder — or the label WHILE placeholder is empty — on one line in comp.search.trigger.label.typescale and comp.search.standard.placeholder.color, taking the remaining width and cut at its own end where it does not fit (SRC-33); then the shortcut hint WHILE shortcut is not empty (SRC-37); the last of them ending comp.search.trigger.container.padding-inline from the end edge. WHILE bar is icon THE search SHALL draw in the bar's place one icon-only Tanrei Button of the text variant and the medium size showing the glyph search of the system's icon set, rendered from the Button's own tokens, and no hint. In either form THE search SHALL draw no input, no clear button and neither slot in the trigger, and SHALL NOT show the value while collapsed. Right-to-left layouts SHALL mirror the row.",
+      "verify": "The fixture trigger draws the trigger 328 wide, centered in a 360 × 72 stage, and trigger-icon the icon-only Button centered in the same stage."
+    },
+    {
+      "id": "SRC-36",
+      "text": "WHILE bar is button or icon THE search SHALL treat its trigger as a button: WHEN it is activated by pointer, touch, Enter or Space THE search SHALL emit toggle once with expanded true and become expanded as SRC-5 says, presenting its view as a modal one — dialog WHILE presentation is dialog or docked, and full-screen WHILE it is full-screen — and in debug builds SHALL report presentation docked with a trigger, because a docked view has no input of its own. WHILE the button trigger is hovered, keyboard-focused or pressed THE search SHALL render its container, outline, outline width, glyph, text and opacity from the bar's component tokens of the highest-precedence state, with precedence pressed over focused over hovered, showing keyboard focus by the focused outline as the bar does (SRC-18); focus gained by pointer or touch SHALL NOT select the focused state, as for a Button; a press SHALL be answered as SRC-19 and SRC-20 say for the bar, and its hit area extended on both axes as SRC-22 says. THE search SHALL expose the trigger as a button named by label that opens a dialog, with whether its view is open (aria-haspopup with the value dialog and aria-expanded on the web), and with the search glyph hidden; WHILE disabled is true the trigger SHALL NOT be focusable or pressable, SHALL expose the disabled state and SHALL render from the disabled tokens (SRC-26)."
+    },
+    {
+      "id": "SRC-37",
+      "text": "WHILE shortcut is not empty THE search SHALL draw it with the keyboard shortcut component, hosted as KBS-13 says: in its plain form, at size small, with convention auto, disabled while the search is disabled, its legends and separators in comp.search.shortcut.typescale and comp.search.shortcut.color; it SHALL draw no cap, fill or edge (KBS-7), because the bar's fill may be the cap's own. It SHALL draw the hint at the end of a button trigger (SRC-35) and, WHILE bar is field, after the bar's input and comp.search.container.gap from it, only while the value is empty and the input does not have focus; it SHALL NOT draw it WHILE bar is icon, nor in a view's header. THE search SHALL expose the shortcut as the keyboard shortcut of its trigger, or of its input WHILE bar is field, in the platform's form (KBS-12: aria-keyshortcuts on the web), SHALL hide the drawn keys from assistive technology, and SHALL give the hint no press of its own: a press on it is a press on the trigger or the bar.",
+      "verify": "The fixtures trigger and bar-shortcut are drawn with the ambient convention apple, as the menu's icons-shortcut is: trigger ends with the text ⌘K, bar-shortcut with the text /, each as a line of text with no cap around it."
+    },
+    {
+      "id": "SRC-38",
+      "text": "WHILE bindShortcut is true, shortcut holds exactly one chord and disabled is false, WHEN the person presses that chord anywhere in the window (read as KBS-1 reads it: mod is Command on Apple platforms and Control elsewhere) THE search SHALL, WHILE collapsed, open as an activation of its trigger does (SRC-36) or, WHILE bar is field, focus its input and expand (SRC-5), and WHILE expanded SHALL collapse with the reason shortcut (SRC-6); and it SHALL keep that press from doing anything else. THE search SHALL NOT act on a press that something else has already taken (a cancelled key event on the web), on a key repeating while held, during an input-method composition, or — for a chord without mod, ctrl or alt — while focus is in an element that takes text, its own input included, so that such a key types there. THE search SHALL listen only while it is part of what is shown (connected to the document, in the view tree) and SHALL stop when it is removed, disabled, or bindShortcut becomes false.",
+      "verify": "Unit: with shortcut mod+k the chord opens and closes the search from anywhere, a text field included; with shortcut / the key opens it from the page body and types a slash in a text field and in the search's own input; a handler that cancels the key first keeps the search closed; after the element is removed the key does nothing."
+    },
+    {
+      "id": "SRC-39",
+      "text": "WHILE bindShortcut is false THE search SHALL NOT listen for any key outside itself: the hint and the exposed shortcut say what the product has bound, and the product opens the search by setting expanded. IF bindShortcut is true while shortcut is empty or holds more than one chord, or while another shown search binds the same chord, THE search SHALL bind nothing for itself — the search shown first keeps a chord two of them name — and in debug builds SHALL report it."
+    },
+    {
+      "id": "SRC-40",
+      "text": "WHEN expanded becomes true WHILE presentation is dialog THE search SHALL present the view as a modal overlay: a scrim of comp.search.view.scrim.color over the whole window, and above it a container centered between the window's side edges, its top comp.search.view.dialog.offset below the top of the safe area, as wide as the window allows up to comp.search.view.dialog.max-width while keeping comp.search.view.viewport-margin from each side edge, and as tall as its content up to the room left above comp.search.view.viewport-margin from the bottom of the safe area or from the on-screen keyboard; WHERE the window is too short to keep the offset and one row of content, it SHALL give up the offset down to comp.search.view.viewport-margin. It SHALL fill the container with comp.search.view.container.color, raise it by comp.search.view.container.elevation, round it by comp.search.view.container.shape and clip its content to that shape. At the container's top it SHALL draw a header at least comp.search.header.height high: the back button the full-screen view's header draws, drawn, mirrored, named by backLabel, reported and answered as SRC-11 says, comp.search.header.padding-inline from the start edge, where the full-screen header has it and in the search glyph's place, the input with the same value, and the clear button WHILE it is shown (SRC-10, at the medium size), comp.search.container.gap apart and vertically centered, the last ending comp.search.header.padding-inline from the end edge when it is the clear button and comp.search.container.padding-inline when it is the input; it SHALL draw no search glyph in the header. The back button SHALL be a stop of the view's focus order, so that a person can leave the view without Escape, a pointer or the scrim. WHILE the view has content under the header THE search SHALL draw a line of comp.search.divider.thickness in comp.search.divider.color across the container under it, then the content in the order SRC-46 gives, inset by comp.search.view.padding-block and comp.search.view.padding-inline and scrolling under the header when it is taller than the room. It SHALL move focus, keep it inside, make everything outside inert and hidden from assistive technology, and return focus when the view closes, all as SRC-9 says for the full-screen view; and it SHALL keep the container's top where it is while its content changes, so that the input does not move under the person's typing.",
+      "verify": "The dialog fixtures draw the open view in place in a 720 × 480 stage that stands for the window: the container 640 wide, its top 64 below the stage's top, its header starting with the back button. Test that the view can be left with Tab and Enter alone: Tab reaches the back button, Enter on it closes the view with the reason back, and focus returns to the trigger."
+    },
+    {
+      "id": "SRC-41",
+      "text": "WHEN the dialog view opens THE search SHALL fade its scrim and its container in over comp.search.motion.open-duration with comp.search.motion.open-easing, and WHEN it closes SHALL fade both out over comp.search.motion.close-duration with comp.search.motion.close-easing, as SRC-23 says of the other views; WHEN the container's height changes with its content THE search SHALL draw the new height at once, without a motion of its own."
+    },
+    {
+      "id": "SRC-42",
+      "text": "THE search SHALL lay out a result as a suggestion's row is laid out (SRC-16), from the same tokens: the leading icon column, then the headline in comp.search.suggestion.headline.typescale with the excerpt under it in comp.search.suggestion.supporting-text.typescale, both wrapping and growing the row rather than being cut, the row at least comp.search.suggestion.container.height tall and at least the minimum target, and the whole row the result's hit area. The leading icon column SHALL be kept in every row of the view WHILE any suggestion or result has a leading icon, so that suggestions and results align. WHILE a result is hovered, focused or pressed THE search SHALL render its row from the suggestion tokens of that state (comp.search.standard.suggestion.container.color and the leading icon, headline and supporting-text colors, the excerpt taking the supporting-text color) with the precedence, the focus ring inside the row and the press answer that SRC-17, SRC-19 and SRC-20 give a suggestion, focused standing where active stands there."
+    },
+    {
+      "id": "SRC-43",
+      "text": "THE search SHALL read an excerpt as runs of text in order, the second, fourth and every further even run being a match, SHALL draw the runs as one continuous text that wraps as one, and SHALL draw each match in comp.search.result.mark.color with its weight raised by comp.search.result.mark.emphasis, over a fill of comp.search.result.mark.container.color that covers the match's own line boxes, with square corners and no padding, so that the fill moves no text. THE search SHALL NOT look for the query in any text, mark a headline, or change, trim or shorten an excerpt: what matched and how long the passage is are the product's. It SHALL expose the excerpt to assistive technology as one text, the result's description, read without a pause or an announcement at a mark, and SHALL lay the whole excerpt out as text of its own direction (SRC-33).",
+      "verify": "Under the default system a match differs from the excerpt around it by color (on-surface against on-surface-variant) and by weight, and has no fill; a test layer that sets comp.search.result.mark.container.color shows the fill and that the text's line breaks do not change."
+    },
+    {
+      "id": "SRC-44",
+      "text": "THE search SHALL draw a result group as its heading followed by its results in order, comp.search.group.gap below whatever stands above it in the view and above whatever follows it. WHILE the group's href is empty its heading SHALL be the headline in comp.search.group-title.typescale and comp.search.group-title.color, wrapping, inset by comp.search.suggestion.container.padding-inline at the sides and padded by comp.search.suggestion.container.padding-block above and below, taking no input and no state. WHILE href is not empty the heading SHALL be a result's row (SRC-42, SRC-45) made of the group's headline, excerpt and leading icon, and the group's results SHALL be inset at the start by comp.search.group.indent, their hit areas and highlights with them, so that they read as parts of it. A group SHALL hold results only, and SHALL NOT hold a group. Right-to-left layouts SHALL mirror the inset."
+    },
+    {
+      "id": "SRC-45",
+      "text": "THE search SHALL make each result, and each group heading, whose href is not empty a link and not an option or a button: the platform's own link to href (the web's anchor element; elsewhere an element with the platform's link semantics whose address the platform's opener opens), so that whatever the platform gives a link — on the web following it by Enter or a press, opening it in a new tab by a modifier key or the middle button, its context menu, dragging and copying its address, the address shown before it is followed — is the platform's and not the search's to imitate; it SHALL activate a link by pointer, touch or Enter and not by Space, SHALL open it in a new context WHILE target is new (on the web one that is given no handle to the page that opened it) and expose targetLabel as its description after the excerpt, and SHALL draw no mark of its own for a new context. WHEN a result is activated in place (by Enter, touch or a primary press, without a modifier key, target being same) THE search SHALL emit select once with the result's value and then let the platform open href, unless the product cancelled that select, in which case it SHALL open nothing because the product's router has taken it; and SHALL then collapse with the reason select (SRC-6), so that toggle follows select. WHEN a result is opened any other way (a modifier key, the middle button, the context menu, target new) THE search SHALL emit nothing and stay expanded, so that a person can open several results from one search. WHILE a result's href is empty, or names a script rather than a place, it SHALL be a button, activated by pointer, touch, Enter or Space, for which select is all that happens."
+    },
+    {
+      "id": "SRC-46",
+      "text": "WHILE expanded THE search SHALL lay out the content of its view from top to bottom in this order: the suggestions, the status row (SRC-47), the results and result groups in the order the product gives them, and the default slot's content; a part that is absent takes no room."
+    },
+    {
+      "id": "SRC-47",
+      "text": "WHILE statusText is not empty or status is loading THE search SHALL draw a status row: inset by comp.search.suggestion.container.padding-inline at the sides and padded by comp.search.suggestion.container.padding-block above and below, taking no input and no state. WHILE status is idle it SHALL draw statusText, wrapping, in comp.search.status.typescale and comp.search.status.color; WHILE status is error it SHALL draw it in comp.search.status.error.color; WHILE status is loading it SHALL draw, in the text's place and at the row's start, one Tanrei loading indicator of size small named by statusText, which waits its own show delay and enters as the loading indicator does (LDG-11 to LDG-14), and no text, and the row SHALL keep the height of one line of text whether or not the indicator is shown yet. The results the product leaves in the view WHILE status is loading SHALL stay drawn and usable.",
+      "verify": "The fixture dialog-loading is drawn with the hosted indicator's show delay and enter duration at 0, as the loading indicator's own fixtures are."
+    },
+    {
+      "id": "SRC-48",
+      "text": "THE search SHALL expose the status row as a live region that is present from the moment the view opens: WHILE status is idle, WHEN statusText changes THE search SHALL have assistive technology read the new text politely, after what it is saying (the status role on the web); WHILE status is error it SHALL have it read at once (the alert role); WHILE status is loading it SHALL announce nothing — the loading indicator does not announce itself (LDG-6) — and SHALL mark the results as busy (aria-busy on the web) until status leaves loading. THE search SHALL NOT compose, count or translate the text: the number of results and the words around it are the product's."
+    },
+    {
+      "id": "SRC-49",
+      "text": "WHILE expanded and the view holds a result THE search SHALL move focus to the first result when the person presses Down Arrow in the input with no suggestion to go to (none in the view, or the last one active), and WHILE a result has focus SHALL move focus to the next result with Down Arrow, staying on the last, and to the previous one with Up Arrow — results in view order, across groups, a linked group heading counting as a result and a title not — and from the first result back to the input, making the last suggestion active where there is one; WHEN a result takes focus while part of it is scrolled out of view THE search SHALL scroll it into view, and SHALL show the focus ring inside its row (SRC-42). WHILE a result has focus, WHEN the person types a character, deletes or pastes THE search SHALL move focus to the input so that the key edits the value there, and Escape SHALL close the view as from the input (SRC-6). Tab and Shift+Tab SHALL move through the results as through any links WHILE the view is modal, and SHALL leave the search and close the view WHILE it is docked (SRC-6). A pointer over a result SHALL NOT move focus, and the arrows SHALL NOT reach the status row or the default slot's content.",
+      "verify": "Unit, on the web: after Down Arrow from the input document.activeElement is the first result's anchor; Enter on it is a native activation of the link (no script navigation); typing a letter returns focus to the input and the letter is in the value."
+    },
+    {
+      "id": "SRC-50",
+      "text": "THE search SHALL expose its results as links in a list, outside the suggestions' listbox: one list named by label holding the results in order, each result a link named by its headline and described by its excerpt, with its position in the list where the platform gives one; a result group as a group named by its headline holding its own list of its results, and a linked heading as a link before that list; a result without href as a button in the same place. A result SHALL never carry the option role or be an active descendant of the input: an option cannot be a link, and a result must be one. On the platforms without a link element THE search SHALL expose a result as a button with the link trait or role where the platform has one, named and described the same way. Leading icons SHALL be hidden, and the status row is exposed as SRC-48 says."
+    },
+    {
+      "id": "SRC-51",
+      "text": "THE search SHALL NOT run a query, fetch, wait, debounce, cache, sort or filter anything itself: it emits input once per change (SRC-4) and draws the suggestions, the results, the status and the statusText the product gives it, replacing them when the product does, at once and without a motion of its own. WHEN the result that has focus is removed or replaced THE search SHALL move focus to the input rather than let it fall out of the view; WHEN the product sets results or status while the view is collapsed THE search SHALL keep them for the next time it opens and SHALL NOT expand."
+    }
+  ],
+  "accessibility": {
+    "role": "searchbox",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the leading icon-only Button, the input, the clear button and the trailing icon-only Buttons in turn, or to the trigger. With the docked view open, leaves the search and closes the view. In a modal view (dialog, full-screen) focus stays inside it and Tab goes through the header's controls, the results and the product's own content."
+      },
+      {
+        "keys": "Enter / Space on the trigger",
+        "action": "Opens the modal view and moves focus to its input."
+      },
+      {
+        "keys": "The shortcut",
+        "action": "Where the search binds it (bindShortcut): opens the search from anywhere in the window, and closes it again while it is open."
+      },
+      {
+        "keys": "Typing",
+        "action": "Edits the value, and opens the view while it is closed. While a result has focus, returns focus to the input and edits there."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow",
+        "action": "Opens the view while it is closed; while it is open, makes the next or previous suggestion active with focus staying in the input, then moves focus on through the results, across groups. Up Arrow on the first returns to the input."
+      },
+      {
+        "keys": "Enter",
+        "action": "In the input: chooses the active suggestion (select); with none active, submits the value (submit), which closes the view unless it shows results or a status. On a result: follows the link, as the platform does, modifier keys included."
+      },
+      {
+        "keys": "Enter / Space on the back button",
+        "action": "Closes the modal view (dialog, full-screen) and returns focus to the bar's input or the trigger: the way out for a person who has neither Escape nor a pointer."
+      },
+      {
+        "keys": "Escape",
+        "action": "Closes the view and returns focus to the bar's input or the trigger; while the view is closed, clears the value."
+      }
+    ],
+    "labeling": "label names the search field, the trigger, the suggestions' list, the results' list and the modal views; it is never the placeholder. A suggestion is named by its headline and described by its supporting text; a result by its headline and its excerpt, read as one text with no mention of the marks; a result group by its headline. The status text is announced when it changes, and the loading indicator is named by it. The clear and back buttons are named by clearLabel and backLabel; the slots' icon-only Buttons by their own labels. The search glyph, the leading icons, the drawn shortcut keys, the scrim and the divider are decorative; the shortcut is exposed as the trigger's or the input's keyboard shortcut.",
+    "minimumTarget": true,
+    "notes": [
+      "Two patterns, by what a row is. Suggestions are the WAI-ARIA combobox pattern with a listbox popup on the web, in every view: focus stays in the input and the active suggestion is its active descendant. Results are links in a list, never options, in every view: an option cannot be a link, and a result has to be one (open in a new tab, copy the address, the visited color). So a result takes real focus, and the input is a combobox only while the view shows suggestions. The dialog and full-screen views are modal dialogs that hold the search field and those links, the pattern of a site search; the docked view with suggestions only is the combobox it was. SwiftUI, Compose, Flutter and React Native have no combobox role: their input is a search field, suggestions are buttons and results are buttons with the link trait or role, each with its position in its list.",
+      "Overlays: the docked view is an operated overlay that is not modal, and its focus is the input it belongs to until an arrow key takes it to a result; the dialog and full-screen views are modal overlays that take focus, keep it and return it to the bar's input or the trigger.",
+      "The search never runs a query (SRC-51). The product listens to input, waits as long as its index needs before asking (nothing for an index in memory; a few hundred milliseconds for one over the network), drops an answer that arrives after a newer question, sets status to loading only while it truly waits, and sets statusText once per answer, so that the count is announced once.",
+      "A shortcut is the product's unless bindShortcut is true. The keyboard shortcut component never listens (KBS-14); the search may, because the command the keys perform is its own: open me.",
+      "Who closes the view: the search emits toggle; where expanded is a binding or controller (SwiftUI, Flutter) or the element's own property (the web) the search closes it itself, and on Compose and React Native the product sets expanded from toggle, as for the menu.",
+      "The input edits text as the text field does (TXI-1, TXI-4, TXI-20, TXI-24), and its selection is the text field's pair: comp.input-box.selection.color behind the text, comp.input-box.selection.content.color for it.",
+      "Heights are minimums: at 200% text size the bar and the header grow, the value stays on one line, and suggestion rows wrap.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.search",
+  "fixtures": [
+    {
+      "id": "bar",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail"
+      }
+    },
+    {
+      "id": "bar-value",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "value": "invoice",
+        "clearLabel": "Clear search"
+      }
+    },
+    {
+      "id": "bar-slots",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail"
+      },
+      "slots": {
+        "leading": "menu",
+        "trailing": [
+          "mic",
+          "account_circle"
+        ]
+      }
+    },
+    {
+      "id": "bar-value-slots",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "value": "invoice",
+        "clearLabel": "Clear search"
+      },
+      "slots": {
+        "trailing": [
+          "mic",
+          "account_circle"
+        ]
+      }
+    },
+    {
+      "id": "bar-disabled",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "disabled": true
+      }
+    },
+    {
+      "id": "docked",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "value": "inv",
+        "expanded": true,
+        "clearLabel": "Clear search"
+      },
+      "items": [
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoices",
+            "headline": "invoices",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoice template",
+            "headline": "invoice template",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "folder:invoices",
+            "headline": "Invoices",
+            "supportingText": "Folder · 24 messages",
+            "leadingIcon": "folder"
+          }
+        }
+      ]
+    },
+    {
+      "id": "full-screen",
+      "props": {
+        "presentation": "full-screen",
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "value": "inv",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "backLabel": "Back"
+      },
+      "items": [
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoices",
+            "headline": "invoices",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoice template",
+            "headline": "invoice template",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "folder:invoices",
+            "headline": "Invoices",
+            "supportingText": "Folder · 24 messages",
+            "leadingIcon": "folder"
+          }
+        }
+      ]
+    },
+    {
+      "id": "trigger",
+      "props": {
+        "label": "Search the docs",
+        "placeholder": "Search",
+        "bar": "button",
+        "shortcut": [
+          "mod+k"
+        ]
+      }
+    },
+    {
+      "id": "trigger-disabled",
+      "props": {
+        "label": "Search the docs",
+        "placeholder": "Search",
+        "bar": "button",
+        "shortcut": [
+          "mod+k"
+        ],
+        "disabled": true
+      }
+    },
+    {
+      "id": "trigger-icon",
+      "props": {
+        "label": "Search the docs",
+        "bar": "icon",
+        "shortcut": [
+          "mod+k"
+        ]
+      }
+    },
+    {
+      "id": "bar-shortcut",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "shortcut": [
+          "/"
+        ]
+      }
+    },
+    {
+      "id": "dialog-results",
+      "props": {
+        "label": "Search the docs",
+        "placeholder": "Search",
+        "bar": "button",
+        "shortcut": [
+          "mod+k"
+        ],
+        "presentation": "dialog",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "backLabel": "Back",
+        "value": "token",
+        "statusText": "4 results for token"
+      },
+      "items": [
+        {
+          "kind": "result-group",
+          "props": {
+            "headline": "Design tokens",
+            "value": "/tokens/",
+            "href": "/tokens/",
+            "leadingIcon": "article",
+            "excerpt": [
+              "Colors, sizes and motion as ",
+              "tokens",
+              ", in three tiers."
+            ]
+          },
+          "items": [
+            {
+              "kind": "result",
+              "props": {
+                "value": "/tokens/#pipeline",
+                "headline": "The pipeline",
+                "href": "/tokens/#pipeline",
+                "leadingIcon": "tag",
+                "excerpt": [
+                  "The token ",
+                  "pipeline",
+                  " reads the sources and writes one file per platform."
+                ]
+              }
+            },
+            {
+              "kind": "result",
+              "props": {
+                "value": "/tokens/#layers",
+                "headline": "Layers",
+                "href": "/tokens/#layers",
+                "leadingIcon": "tag",
+                "excerpt": [
+                  "A layer changes the value of a ",
+                  "token",
+                  " and may add its own."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "result",
+          "props": {
+            "value": "/components/button/",
+            "headline": "Button",
+            "href": "/components/button/",
+            "leadingIcon": "article",
+            "excerpt": [
+              "",
+              "Tokens",
+              " of the button: its heights, corners and colors in each state."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "dialog-results-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "Search the docs",
+        "placeholder": "Search",
+        "bar": "button",
+        "shortcut": [
+          "mod+k"
+        ],
+        "presentation": "dialog",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "backLabel": "Back",
+        "value": "token",
+        "statusText": "4 results for token"
+      },
+      "items": [
+        {
+          "kind": "result-group",
+          "props": {
+            "headline": "Design tokens",
+            "value": "/tokens/",
+            "href": "/tokens/",
+            "leadingIcon": "article",
+            "excerpt": [
+              "Colors, sizes and motion as ",
+              "tokens",
+              ", in three tiers."
+            ]
+          },
+          "items": [
+            {
+              "kind": "result",
+              "props": {
+                "value": "/tokens/#pipeline",
+                "headline": "The pipeline",
+                "href": "/tokens/#pipeline",
+                "leadingIcon": "tag",
+                "excerpt": [
+                  "The token ",
+                  "pipeline",
+                  " reads the sources and writes one file per platform."
+                ]
+              }
+            },
+            {
+              "kind": "result",
+              "props": {
+                "value": "/tokens/#layers",
+                "headline": "Layers",
+                "href": "/tokens/#layers",
+                "leadingIcon": "tag",
+                "excerpt": [
+                  "A layer changes the value of a ",
+                  "token",
+                  " and may add its own."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "result",
+          "props": {
+            "value": "/components/button/",
+            "headline": "Button",
+            "href": "/components/button/",
+            "leadingIcon": "article",
+            "excerpt": [
+              "",
+              "Tokens",
+              " of the button: its heights, corners and colors in each state."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "dialog-loading",
+      "props": {
+        "label": "Search the docs",
+        "placeholder": "Search",
+        "bar": "button",
+        "shortcut": [
+          "mod+k"
+        ],
+        "presentation": "dialog",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "backLabel": "Back",
+        "value": "tok",
+        "status": "loading",
+        "statusText": "Searching"
+      }
+    },
+    {
+      "id": "dialog-none",
+      "props": {
+        "label": "Search the docs",
+        "placeholder": "Search",
+        "bar": "button",
+        "shortcut": [
+          "mod+k"
+        ],
+        "presentation": "dialog",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "backLabel": "Back",
+        "value": "tokne",
+        "statusText": "No results for tokne"
+      }
+    },
+    {
+      "id": "dialog-error",
+      "props": {
+        "label": "Search the docs",
+        "placeholder": "Search",
+        "bar": "button",
+        "shortcut": [
+          "mod+k"
+        ],
+        "presentation": "dialog",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "backLabel": "Back",
+        "value": "token",
+        "status": "error",
+        "statusText": "Search is unavailable. Try again in a moment."
+      }
+    },
+    {
+      "id": "docked-results",
+      "props": {
+        "label": "Search mail",
+        "placeholder": "Search mail",
+        "value": "inv",
+        "expanded": true,
+        "clearLabel": "Clear search",
+        "statusText": "2 messages"
+      },
+      "items": [
+        {
+          "kind": "suggestion",
+          "props": {
+            "value": "invoices",
+            "headline": "invoices",
+            "leadingIcon": "history"
+          }
+        },
+        {
+          "kind": "result-group",
+          "props": {
+            "headline": "Messages"
+          },
+          "items": [
+            {
+              "kind": "result",
+              "props": {
+                "value": "m-1",
+                "headline": "Your October invoice",
+                "href": "/mail/m-1",
+                "leadingIcon": "mail",
+                "excerpt": [
+                  "The ",
+                  "invoice",
+                  " for October is attached."
+                ]
+              }
+            },
+            {
+              "kind": "result",
+              "props": {
+                "value": "m-2",
+                "headline": "Re: payment",
+                "href": "/mail/m-2",
+                "leadingIcon": "mail",
+                "excerpt": [
+                  "Please send the ",
+                  "invoice",
+                  " again."
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "full-screen-results",
+      "props": {
+        "label": "Search the docs",
+        "placeholder": "Search",
+        "bar": "icon",
+        "shortcut": [
+          "mod+k"
+        ],
+        "presentation": "full-screen",
+        "expanded": true,
+        "value": "token",
+        "clearLabel": "Clear search",
+        "backLabel": "Back",
+        "statusText": "4 results for token"
+      },
+      "items": [
+        {
+          "kind": "result-group",
+          "props": {
+            "headline": "Design tokens",
+            "value": "/tokens/",
+            "href": "/tokens/",
+            "leadingIcon": "article",
+            "excerpt": [
+              "Colors, sizes and motion as ",
+              "tokens",
+              ", in three tiers."
+            ]
+          },
+          "items": [
+            {
+              "kind": "result",
+              "props": {
+                "value": "/tokens/#pipeline",
+                "headline": "The pipeline",
+                "href": "/tokens/#pipeline",
+                "leadingIcon": "tag",
+                "excerpt": [
+                  "The token ",
+                  "pipeline",
+                  " reads the sources and writes one file per platform."
+                ]
+              }
+            },
+            {
+              "kind": "result",
+              "props": {
+                "value": "/tokens/#layers",
+                "headline": "Layers",
+                "href": "/tokens/#layers",
+                "leadingIcon": "tag",
+                "excerpt": [
+                  "A layer changes the value of a ",
+                  "token",
+                  " and may add its own."
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "result",
+          "props": {
+            "value": "/components/button/",
+            "headline": "Button",
+            "href": "/components/button/",
+            "leadingIcon": "article",
+            "excerpt": [
+              "",
+              "Tokens",
+              " of the button: its heights, corners and colors in each state."
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-search",
+      "props": {
+        "presentation": "presentation",
+        "bar": "bar",
+        "value": "value",
+        "label": "label",
+        "placeholder": "placeholder",
+        "expanded": "expanded",
+        "disabled": "disabled",
+        "clearLabel": "clearLabel",
+        "backLabel": "backLabel",
+        "shortcut": "shortcut",
+        "bindShortcut": "bindShortcut",
+        "status": "status",
+        "statusText": "statusText"
+      },
+      "events": {
+        "input": "input",
+        "submit": "submit",
+        "select": "select",
+        "toggle": "toggle"
+      },
+      "notes": "A form-associated custom element, as the text field is: it takes `name` and submits its value. It renders an `<input type=\"search\" enterkeyhint=\"search\">` in its shadow root, with the web's own cancel button hidden. Attributes are kebab-case (`clear-label`, `back-label`). The suggestions are `<tanrei-search-suggestion>` children; the `leading` and `trailing` slots are named slots, and other children are the view's default content. The docked view is a manual popover in the top layer, placed with CSS anchor positioning and a script fallback, with the search's own light dismiss so that `toggle` carries a reason; a press outside also reaches the element under it. The full-screen view is a `<dialog>` opened with `showModal()`. The element sets its own `expanded` before firing `toggle`, which is a CustomEvent whose `detail` holds `expanded` and `reason`; `submit` is cancelable. The `inline` attribute, for tests, draws the open view in place. The leading glyph is the icon helper's `search`; the clear and back buttons show `close` and `arrow_back` (SRC-2, SRC-10, SRC-11). Not built yet: `bar=\"button\"` and `bar=\"icon\"` render a `<button>` (the icon form a `<tanrei-button icon-only>`) with `aria-haspopup=\"dialog\"`, `aria-expanded` and `aria-keyshortcuts`; the dialog view is a `<dialog>` opened with `showModal()`, its scrim the `::backdrop`, a press on which closes it with the reason `outside`; `shortcut` is an attribute of chords separated by spaces, as the keyboard shortcut's `keys`; `bind-shortcut` adds one `keydown` listener on the window while the element is connected. The status row is a `role=\"status\"` element that exists from the first render (`role=\"alert\"` while `status=\"error\"`). Results are `<tanrei-search-result>` and `<tanrei-search-result-group>` children; focus moves to their anchors with `focus()`, and `select` on a result is cancelable.",
+      "items": {
+        "suggestion": {
+          "name": "tanrei-search-suggestion",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon"
+          },
+          "notes": "A child element with `value`, `headline`, `supporting-text` and `leading-icon` attributes, as `<option>` in a `<datalist>`."
+        },
+        "result": {
+          "name": "tanrei-search-result",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "A child element that renders an `<a href>` in its shadow root (a `<button>` without `href`). The excerpt is its child content: text with `<mark>` elements for the matches, which is what search engines hand back, styled through `::slotted(mark)`; the `excerpt` property (an array of runs) is used while it has no child content. Inserting an engine's HTML is the product's act: the element never parses a string as markup. `rel` and `download` are forwarded to the anchor, as every link form forwards them; `target=\"new\"` is `target=\"_blank\"` with `noopener` in `rel`."
+        },
+        "result-group": {
+          "name": "tanrei-search-result-group",
+          "props": {
+            "headline": "headline",
+            "value": "value",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "A child element holding `<tanrei-search-result>` children; with `href` its own heading is an `<a>`, and its excerpt is the content of its `excerpt` slot, with `<mark>` as in a result."
+        }
+      }
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiSearch",
+      "props": {
+        "presentation": "presentation",
+        "bar": "bar",
+        "value": "text",
+        "label": "label",
+        "placeholder": "prompt",
+        "expanded": "isExpanded",
+        "disabled": "disabled",
+        "clearLabel": "clearLabel",
+        "backLabel": "backLabel",
+        "shortcut": "shortcut",
+        "bindShortcut": "bindsShortcut",
+        "status": "status",
+        "statusText": "statusText"
+      },
+      "events": {
+        "input": "text",
+        "submit": "onSubmit",
+        "select": "onSelect",
+        "toggle": "isExpanded"
+      },
+      "notes": "`TanreiSearch(_ label:, text: Binding<String>, isExpanded: Binding<Bool>, presentation:, prompt:, clearLabel:, backLabel:, onSubmit:, onSelect:) { suggestions } leading: { … } trailing: { … } content: { … }`. Every edit writes the text binding, which is the input event; opening and closing write `isExpanded`, which is toggle (the reason is passed to an optional `onToggle`). SwiftUI's `.searchable` is not used: its field and suggestions cannot take the tokens. The docked view is drawn in an overlay above the window's content, anchored to the bar, not with `.popover`, which is modal at compact widths and would take focus from the field (SRC-8). The full-screen view is presented with `.fullScreenCover`, with the system transition off, as the dialog is. The input has the search-field trait. `disabled` follows `.disabled(_:)`. Snapshot harness: renders the bar and the open view in place, as the menu and the dialog do. Without an installed icon font it strokes the search and back glyphs as shapes of its own (`TanreiSearchMagnifierShape`, `TanreiSearchBackArrowShape`) instead of drawing nothing (SRC-2, SRC-30). Not built on this platform yet: `bar`, the dialog presentation, `shortcut` (where `bindsShortcut` would be `.keyboardShortcut` on the trigger), `status`, `statusText` and the result kinds.",
+      "items": {
+        "suggestion": {
+          "name": "TanreiSearchSuggestion",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon"
+          },
+          "notes": "`TanreiSearchSuggestion(_ headline:, supportingText:, leadingIcon:, value:)` in the suggestions view builder."
+        },
+        "result": {
+          "name": "TanreiSearchResult",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "destination",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "Not built on this platform yet. `TanreiSearchResult(_ headline:, excerpt: [String], leadingIcon:, value:, destination: URL?)`; with a destination it opens through the environment's `openURL` and has the `.isLink` trait. `target` and `targetLabel` as the platform's link forms map them."
+        },
+        "result-group": {
+          "name": "TanreiSearchResultGroup",
+          "props": {
+            "headline": "headline",
+            "value": "value",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "destination",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "Not built on this platform yet. `TanreiSearchResultGroup(_ headline:, destination:, …) { results }`."
+        }
+      }
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiSearch",
+      "props": {
+        "presentation": "presentation",
+        "bar": "bar",
+        "value": "value",
+        "label": "label",
+        "placeholder": "placeholder",
+        "expanded": "expanded",
+        "disabled": "enabled",
+        "clearLabel": "clearLabel",
+        "backLabel": "backLabel",
+        "shortcut": "shortcut",
+        "bindShortcut": "bindShortcut",
+        "status": "status",
+        "statusText": "statusText"
+      },
+      "events": {
+        "input": "onValueChange",
+        "submit": "onSearch",
+        "select": "onSelect",
+        "toggle": "onExpandedChange"
+      },
+      "notes": "Compose idiom, as Material's `SearchBar` with its input field: `TanreiSearch(value, onValueChange, expanded, onExpandedChange, label, modifier, presentation, placeholder, enabled, clearLabel, backLabel, onSearch, onSelect, leading, trailing) { suggestions and content }`. State hoisting: the caller keeps `value` and `expanded` and moves them from `onValueChange` and `onExpandedChange`, which receives the new value and the reason. `enabled` is the inverse flag. Built on `BasicTextField` with the search IME action. The docked view is a `Popup` that does not take focus; the full-screen view is a `Dialog` window with `usePlatformDefaultWidth = false` and the window's own dim off, as the dialog's. Compose has no combobox or listbox role: the suggestions are buttons in a column with collection semantics. Snapshot harness: renders the bar and the open view in place. Without an installed icon font it strokes the clear button's close as a vector of its own (`TanreiDrawnGlyph`), and draws search and arrow_back as their names in the platform font, clipped to the box (`TanreiNamedGlyph`), instead of drawing nothing (SRC-2, SRC-30). Not built on this platform yet: `bar`, the dialog presentation, `shortcut`, `bindShortcut` (a key handler on the window's root, where a hardware keyboard exists), `status`, `statusText` and the result kinds.",
+      "items": {
+        "suggestion": {
+          "name": "TanreiSearchSuggestion",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon"
+          },
+          "notes": "`TanreiSearchSuggestion(value, headline, supportingText, leadingIcon)` called in the search's content lambda, before the product's own content."
+        },
+        "result": {
+          "name": "TanreiSearchResult",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "Not built on this platform yet. `TanreiSearchResult(value, headline, excerpt: List<String>, leadingIcon, href)`; with an href it opens through `LocalUriHandler`. `target` and `targetLabel` as the platform's link forms map them."
+        },
+        "result-group": {
+          "name": "TanreiSearchResultGroup",
+          "props": {
+            "headline": "headline",
+            "value": "value",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "Not built on this platform yet. `TanreiSearchResultGroup(headline, href, …) { results }`."
+        }
+      }
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiSearch",
+      "props": {
+        "presentation": "presentation",
+        "bar": "bar",
+        "value": "controller",
+        "label": "semanticLabel",
+        "placeholder": "hintText",
+        "expanded": "controller",
+        "disabled": "enabled",
+        "clearLabel": "clearLabel",
+        "backLabel": "backLabel",
+        "shortcut": "shortcut",
+        "bindShortcut": "bindShortcut",
+        "status": "status",
+        "statusText": "statusText"
+      },
+      "events": {
+        "input": "onChanged",
+        "submit": "onSubmitted",
+        "select": "onSelected",
+        "toggle": "onExpandedChanged"
+      },
+      "notes": "Flutter idiom, as Material's `SearchAnchor` and `SearchController` but without Material: `TanreiSearch(controller: TanreiSearchController, semanticLabel:, presentation:, hintText:, enabled:, clearLabel:, backLabel:, onChanged:, onSubmitted:, onSelected:, onExpandedChanged:, leading:, trailing: [...], suggestions: [...], child:)`. `TanreiSearchController` is a `TextEditingController` that also holds `isExpanded` with `expand()` and `collapse()`; the search updates it itself and calls `onExpandedChanged` with the value and the reason. The input is `EditableText` with `TextInputAction.search` and `SemanticsInputType.search` (Flutter 3.32, the oldest version supported, asserts on `SemanticsRole.searchBox`). The docked view is drawn through an `OverlayPortal`; the full-screen view is a modal route that scopes semantics, as the dialog's. Snapshot harness: a golden of the bar and the open view. Lagging behind SRC-30: it writes the built-in glyphs as Material Symbols code points (`tanreiSearchGlyph`, `tanreiCloseGlyph`, `tanreiArrowBackGlyph`), and without the icon font it draws whatever the fallback face has at those code points instead of nothing. Not built on this platform yet: `bar`, the dialog presentation, `shortcut`, `bindShortcut` (a `HardwareKeyboard` handler), `status`, `statusText` and the result kinds.",
+      "items": {
+        "suggestion": {
+          "name": "TanreiSearchSuggestion",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon"
+          },
+          "notes": "`TanreiSearchSuggestion(value:, headline:, supportingText:, leadingIcon:)` in the search's `suggestions:` list."
+        },
+        "result": {
+          "name": "TanreiSearchResult",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "Not built on this platform yet. `TanreiSearchResult(value:, headline:, excerpt: [...], leadingIcon:, href: Uri?, target:, targetSemanticLabel:)` in the search's `results:` list, with `Semantics(link: true)`."
+        },
+        "result-group": {
+          "name": "TanreiSearchResultGroup",
+          "props": {
+            "headline": "headline",
+            "value": "value",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "Not built on this platform yet. `TanreiSearchResultGroup(headline:, href:, results: [...])`."
+        }
+      }
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "Search",
+      "props": {
+        "presentation": "presentation",
+        "bar": "bar",
+        "value": "value",
+        "label": "accessibilityLabel",
+        "placeholder": "placeholder",
+        "expanded": "expanded",
+        "disabled": "disabled",
+        "clearLabel": "clearLabel",
+        "backLabel": "backLabel",
+        "shortcut": "shortcut",
+        "bindShortcut": "bindShortcut",
+        "status": "status",
+        "statusText": "statusText"
+      },
+      "events": {
+        "input": "onChangeText",
+        "submit": "onSubmitEditing",
+        "select": "onSelect",
+        "toggle": "onExpandedChange"
+      },
+      "notes": "Controlled, in `TextInput`'s idiom: `<Search value onChangeText expanded onExpandedChange accessibilityLabel placeholder presentation clearLabel backLabel onSubmitEditing onSelect suggestions={[…]} leading trailing insets>{content}</Search>`; the caller moves `value` and `expanded` from `onChangeText` and `onExpandedChange`, which receives the new value and the reason. The input is a `TextInput` with `returnKeyType=\"search\"` and `accessibilityRole=\"search\"`. The docked view is on the overlay layer that `TanreiProvider` renders, not a `Modal` (which would take focus from the field); the full-screen view is a transparent `Modal` with `statusBarTranslucent` and `navigationBarTranslucent`, its insets from the `insets` prop or `TanreiProvider`'s. Android's back button (`BackHandler`) closes the view. Snapshot harness: renders the bar and the open view in place. Lagging behind SRC-30: without the icon font the built-in glyphs print their ligature names. Not built on this platform yet: `bar`, the dialog presentation, `shortcut`, `status`, `statusText` and the result kinds; `bindShortcut` does nothing where there is no hardware keyboard event to listen to, and the README says so.",
+      "items": {
+        "suggestion": {
+          "name": "SearchSuggestion",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "supportingText": "supportingText",
+            "leadingIcon": "leadingIcon"
+          },
+          "notes": "The element type of the `suggestions` array: `{ value, headline, supportingText?, leadingIcon? }`."
+        },
+        "result": {
+          "name": "SearchResult",
+          "props": {
+            "value": "value",
+            "headline": "headline",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "Not built on this platform yet. An element type of the `results` array: `{ value, headline, excerpt?, leadingIcon?, href? }`, with `accessibilityRole=\"link\"`; an href opens through `Linking`. `target` and `targetLabel` as the platform's link forms map them."
+        },
+        "result-group": {
+          "name": "SearchResultGroup",
+          "props": {
+            "headline": "headline",
+            "value": "value",
+            "excerpt": "excerpt",
+            "leadingIcon": "leadingIcon",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel"
+          },
+          "notes": "Not built on this platform yet. The other element type of `results`: `{ headline, href?, …, results: [...] }`."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+---
+title: Flutter
+description: أضف Tanrei إلى تطبيق Flutter.
+translationOf: getting-started/flutter.mdx
+sourceHash: 6acea5bb31fd86ae29f31dcab38bc245008b152b
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+الحزمة `tanrei` مكتوبة بلغة Dart وحدها. توفّر عناصر واجهة (widgets) و `TanreiTheme` موروثًا وثوابت رموز (tokens) مولَّدة، ولا تعتمد على `MaterialApp` ولا على `CupertinoApp`؛ فهي تعمل داخل أيٍّ منهما، أو داخل `WidgetsApp` مجرّد.
+
+<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+
+## التثبيت
+
+### من الشيفرة المصدرية
+
+<Callout type="caution" title="لا تُبنى اليوم">
+  لم تلحق حزمة Flutter بعد بالمواصفات والرموز (tokens) الحالية: كُتبت مصادرها على إصدار سابق من شيفرة الرموز المولَّدة، ولا تُترجَم (compile) على شيفرة اليوم. والتكامل المستمر (CI) الخاص بها متوقف إلى أن تلحق، و[صفحة الحالة](/ar/status/) تَسِم مكوّناتها بأنها *متأخرة*. الخطوات أدناه هي طريقة إضافتها إلى تطبيق، وتعمل حين تلحق الحزمة.
+</Callout>
+
+استنسخ المستودع بجانب تطبيقك واعتمد على الحزمة بمسارها:
+
+```sh
+flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
+```
+
+والأمر `flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"` يتبع المستودع بدلًا من نسخة محلية مستنسخة.
+
+### بعد الإصدار الأول
+
+```sh
+flutter pub add tanrei
+```
+
+## الاستخدام
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:tanrei/tanrei.dart';
+
+class DeployButton extends StatelessWidget {
+  const DeployButton({super.key, required this.isDeploying, required this.onDeploy});
+
+  final bool isDeploying;
+  final VoidCallback onDeploy;
+
+  @override
+  Widget build(BuildContext context) {
+    return TanreiTheme(
+      data: TanreiThemeData.platform(context),
+      child: TanreiButton(
+        variant: TanreiButtonVariant.filled,
+        onPressed: isDeploying ? null : onDeploy,
+        child: const Text('نشر'),
+      ),
+    );
+  }
+}
+```
+
+لا توجد راية باسم `disabled`. وكما في أزرار Flutter نفسها، تمرير `null` إلى `onPressed` يعطّل الزر.
+
+## السمة والتباين
+
+يقرأ `TanreiThemeData.platform(context)` السطوع وراية التباين العالي من `MediaQuery`. لتثبيتهما، ابدأ من ثابت وانسخ منه:
+
+```dart
+TanreiTheme(
+  data: TanreiThemeData.dark.copyWith(contrast: TanreiContrast.high),
+  child: const App(),
+)
+```
+
+ضع `TanreiTheme` فوق المتنقِّل (navigator) حتى يراه كل مسار.
+
+## أنماط النص
+
+يحمل `TanreiTheme.of(context).system.typescale` أنماط النص الستة عشر بحسب المستوى (`heading2` لعنوان قسم، و `body` للنص المتصل، و `label` لعنصر تحكم) في صورة رموز من النوع `TanreiTextStyle`؛ ويحوّل `theme.textStyle(system.typescale.heading2)` (أو `token.toTextStyle()`) أحدها إلى `TextStyle` في Flutter. أما `theme.textStyle(token, emphasized: true)` (ويدويًّا: `token.emphasized(system.typescale.emphasis)`) فهو النمط نفسه بوزنه مضافًا إليه درجة التوكيد الخاصة بفئته (`typescale.emphasis`)؛ فالتوكيد وزن وليس دورًا آخر. انظر [الطباعة](/ar/foundations/typography/) للأدوار ومقابلتها بالعناصر.

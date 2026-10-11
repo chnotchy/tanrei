@@ -1,0 +1,23 @@
+{
+  "$comment": "Single source for naming. Every generated artifact derives names from here; never hardcode them elsewhere. Checked by `pnpm validate`.",
+  "name": "Tanrei",
+  "namespace": "tanrei",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "public": "chnotchy/tanrei"
+  },
+  "packages": {
+    "npmScope": "@tanrei",
+    "swiftPackage": "Tanrei",
+    "mavenGroup": "io.github.chnotchy",
+    "mavenArtifactPrefix": "tanrei",
+    "pubPackage": "tanrei"
+  },
+  "web": {
+    "cssPrefix": "--tanrei",
+    "tagPrefix": "tanrei"
+  },
+  "platforms": ["web", "swiftui", "compose", "flutter", "react-native"],
+  "statuses": ["planned", "lagging", "alpha", "beta", "stable", "deprecated"]
+}

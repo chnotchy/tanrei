@@ -1,0 +1,267 @@
+---
+title: FAB メニュー
+description: 縮めたメインアクションボタンとして描くトグルから、関連するアクションの短いリストを開きます。リストが出ている間、トグルはそのリストを閉じるボタンになります。
+translationOf: components/fab-menu.mdx
+sourceHash: 58f96ca923cd7e3ad7e31daa132c68b5a1f378d2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="fab-menu" />
+
+:::note[Tanrei システムでは提供しません]
+既定の Tanrei システムは FAB メニューを提供しません。Apple にはフローティングアクションボタンがないため、cupertino でも提供しません。Material のプリセットでは提供します。Tanrei では、アクションを並べた[ボトムシート](/ja/components/bottom-sheet/)を開く[メインアクションボタン](/ja/components/main-action-button/)を使います。コンポーネント自体はどのシステムでも動作しますが、提供しないシステムでは開発時に警告が出ます。このページのデモは、これを提供する `m3-like` プリセットで表示しています。
+:::
+
+<DemoFrame label="閉じた状態と開いた状態" system="m3-like">
+  {/* The open items are drawn in place above the toggle and move no layout (FBM-12, FBM-13): reserve their height — three items, the gaps between them and the offset from the toggle — so the frame holds them, and line both toggles up along the bottom. */}
+  <div style="display: flex; align-items: end; gap: var(--tanrei-sys-space-space300); padding-block-start: calc(3 * max(var(--tanrei-comp-fab-menu-item-height), var(--tanrei-sys-target-touch)) + 2 * var(--tanrei-comp-fab-menu-list-gap) + var(--tanrei-comp-fab-menu-list-offset))">
+    <tanrei-fab-menu label="作成">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="ドキュメント" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="フォルダー" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="アップロード" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+    <tanrei-fab-menu inline open label="作成">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="ドキュメント" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="フォルダー" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="アップロード" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+  </div>
+</DemoFrame>
+
+### 使い方
+
+開閉のボタン（トグル）は、ラベルとアイコンを持ち、縮めた[メインアクションボタン](/ja/components/main-action-button/)として描きます。項目はアイコンとラベルを持つアクションで、各プラットフォームが繰り返しの子要素を受け取るいつものやり方で渡します。メインアクションボタンと同じく、FAB メニューは自分では位置を決めません。トグルを置くのはレイアウトの役目で、ふつうは末尾側の下の角に置きます。項目はその上に、プラットフォームのオーバーレイ層に表示されます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-fab-menu class="primary-action" label="作成">
+      <span slot="icon">add</span>
+      <tanrei-fab-menu-item label="ドキュメント" icon="description"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="フォルダー" icon="create_new_folder"></tanrei-fab-menu-item>
+      <tanrei-fab-menu-item label="アップロード" icon="upload"></tanrei-fab-menu-item>
+    </tanrei-fab-menu>
+
+    <style>
+      /* 要素は自分の位置を決めません。トグルを末尾側の下の角に置くのはページの役目です。 */
+      tanrei-fab-menu.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/fab-menu';
+      const fabMenu = document.querySelector('tanrei-fab-menu');
+      // トグルは開閉を求めるだけです。open を設定するのは利用者側です。
+      fabMenu.addEventListener('toggle', (e) => (fabMenu.open = e.detail.open));
+      // close には閉じる理由（escape、outside、tab、focus-out、item）が付きます。Web では back は送られません。
+      fabMenu.addEventListener('close', () => (fabMenu.open = false));
+      // 項目の click はバブリングし、close より先に届きます。
+      fabMenu.querySelector('[label="アップロード"]').addEventListener('click', upload);
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FabMenu, FabMenuItem } from '@tanrei/react';
+
+    <FabMenu
+      className="primary-action"
+      label="作成"
+      open={open}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <span slot="icon">add</span>
+      <FabMenuItem label="ドキュメント" icon="description" onClick={newDocument} />
+      <FabMenuItem label="フォルダー" icon="create_new_folder" onClick={newFolder} />
+      <FabMenuItem label="アップロード" icon="upload" onClick={upload} />
+    </FabMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // FAB と同じように置きます。バインディングには、トグルと項目の両方が書き込みます。
+    DocumentList()
+        .overlay(alignment: .bottomTrailing) {
+            TanreiFabMenu("作成", icon: "add", isPresented: $showsCreate) {
+                TanreiFabMenuItem("ドキュメント", icon: "description", action: newDocument)
+                TanreiFabMenuItem("フォルダー", icon: "create_new_folder", action: newFolder)
+                TanreiFabMenuItem("アップロード", icon: "upload", action: upload)
+            }
+            .padding()
+        }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiFabMenu
+    import io.github.chnotchy.tanrei.components.TanreiFabMenuItem
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // 状態ホイスティングです。expanded は呼び出し側で持ちます。Scaffold の floatingActionButton スロットに渡すか、自分で配置します。
+    TanreiFabMenu(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        onDismissRequest = { expanded = false },
+        contentDescription = "作成",
+        icon = { TanreiText("add") },
+    ) {
+        TanreiFabMenuItem(text = "ドキュメント", icon = "description", onClick = ::newDocument)
+        TanreiFabMenuItem(text = "フォルダー", icon = "create_new_folder", onClick = ::newFolder)
+        TanreiFabMenuItem(text = "アップロード", icon = "upload", onClick = ::upload)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // FAB メニューがコントローラーを通じて自分で開閉し、onToggle と onClose で知らせます。
+    Scaffold(
+      body: const DocumentList(),
+      floatingActionButton: TanreiFabMenu(
+        controller: createMenu,
+        semanticLabel: '作成',
+        icon: const Icon(AppSymbols.add),
+        items: <TanreiFabMenuItem>[
+          TanreiFabMenuItem(label: 'ドキュメント', icon: const Icon(AppSymbols.description), onPressed: newDocument),
+          TanreiFabMenuItem(label: 'フォルダー', icon: const Icon(AppSymbols.createNewFolder), onPressed: newFolder),
+          TanreiFabMenuItem(label: 'アップロード', icon: const Icon(AppSymbols.upload), onPressed: upload),
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { View } from 'react-native';
+    import { FabMenu } from '@tanrei/react-native';
+
+    // 制御コンポーネントです。onToggle で visible を設定し、理由を受け取る onDismiss で false に戻します。
+    // トグルは自分の位置を決めません。style で配置します。
+    <View style={{ flex: 1 }}>
+      <DocumentList />
+      <FabMenu
+        icon="add"
+        accessibilityLabel="作成"
+        visible={open}
+        onToggle={setOpen}
+        onDismiss={() => setOpen(false)}
+        items={[
+          { label: 'ドキュメント', icon: 'description', onPress: newDocument },
+          { label: 'フォルダー', icon: 'create_new_folder', onPress: newFolder },
+          { label: 'アップロード', icon: 'upload', onPress: upload },
+        ]}
+        style={styles.primaryAction}
+      />
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="バリアント、サイズ、無効状態" system="m3-like" plain>
+  <tanrei-fab-menu variant="tonal" label="作成"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu variant="surface" label="作成"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="small" label="作成"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu size="large" label="作成"><span slot="icon">add</span></tanrei-fab-menu>
+  <tanrei-fab-menu disabled label="作成"><span slot="icon">add</span></tanrei-fab-menu>
+</DemoFrame>
+
+<ComponentSpecs name="fab-menu" />
+
+## ガイドライン
+
+### 使う場面
+
+画面の主なアクションに、関連するいくつかの形があるときに使います。新しいドキュメント、フォルダー、アップロード、あるいは写真とメモ、といった具合です。トグルが画面にただ 1 つのフローティングアクションをいつでも押せる場所に保ち、押すとそれぞれの形がラベル付きのアクションとして真上に現れます。
+
+アクションが 1 つだけなら[メインアクションボタン](/ja/components/main-action-button/)を使います。選択肢が多いときや説明が必要なときは、ボタンから開く[メニュー](/ja/components/menu/)かシートを使います。画面全体ではなく特定の項目に対するアクションなら、その項目の横にボタンを置きます。
+
+### バリアントの選び方
+
+| バリアント | 強調 | 用途 |
+| --- | --- | --- |
+| Filled（既定） | 最も強い | 画面の主なアクションを、最も目立つ形で示すとき。 |
+| Tonal | 強い | 主役はあくまでコンテンツ、という画面。 |
+| Surface | ニュートラル | 地図や写真など、すでに色のあるコンテンツの上に置く FAB メニュー。 |
+
+バリアントはトグルと項目の両方に色を付けます。開いている間、トグルはそのバリアントのもう一方の見た目に切り替わり、円形になって閉じるグリフを表示します。そのため、開いた状態と閉じた状態を見間違えることはありません。サイズが決めるのはトグルの大きさ（40、48、64）だけで、項目の大きさは 1 種類です。
+
+### 開く、閉じる
+
+FAB メニューは、メニューと同じく、操作するオーバーレイですが、モーダルではありません。人がその中で操作するので、フォーカスを受け取り、閉じるときに返します。一方で、画面のほかの部分はふさぎません。スクリムも、フォーカスの閉じ込めもありません。
+
+- **開く。** トグルは `toggle` で開くよう求めます。項目はトグルの上に、末尾側の端をそろえて、トグルに近いものから順に現れ、フォーカスはいちばん上の最初の項目へ移ります。上矢印で開いたときは、トグルのすぐ上にある最後の項目へ移ります。
+- **閉じる。** Escape、プラットフォームの「戻る」、項目とトグルの外側の押下、Tab、フォーカスが外へ出ることで、理由の付いた `close` で閉じるよう求めます。項目を実行すると、まずその項目のクリックが発火し、その後に理由 `item` の付いた `close` が発火します。開いているときにトグルを押すのは、外側の押下ではなくトグルです。
+- **フォーカスが戻る。** 項目が閉じたとき、フォーカスが項目の中にあれば、トグルへ戻ります。項目で Tab を押すと項目が閉じ、フォーカスはトグルから押したのと同じように次へ進みます。
+- **誰が閉じるか。** Web、Compose、React Native では、`toggle` を受けて `open`（`expanded`、`visible`）を設定し、`close` を受けて false に戻します。SwiftUI と Flutter では、FAB メニューがバインディングかコントローラーを通じて自分で開閉します。
+
+### 推奨
+
+- トグルには、アクションに共通することを表すラベルを付けます。「作成」などです。開いている間も名前は変わらず、展開状態によって、今はリストを閉じるボタンであることがスクリーンリーダーに伝わります。
+- どの項目にも、短いラベルとアイコンを付けます。人が読むのはラベルで、アイコンは見つけやすくするための補助です。
+- 項目は 2〜6 個にします。並び順は人が目で追う順にします。最初の項目がいちばん上に描かれ、最後の項目がトグルのすぐ上に来ます。
+- スクロールするコンテンツの末尾に余白を取り、トグルが最後の項目をずっと隠したままにならないようにします。
+
+### 非推奨
+
+- 項目を無効にしない。使えないアクションはリストから外します。無効な項目という仕組み自体がありません。
+- 開いている間にトグルのラベルを「閉じる」に変えたり、アイコンを自分で入れ替えたりしない。どちらもコンポーネントが行います。
+- 同じ画面に、同じサイズの FAB メニューとメインアクションボタンを置かない。フローティングアクションは 1 画面に 1 つです。
+- 重要度の低いアクション、破壊的なアクション、設定のためのアクションに FAB メニューを使わない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="fab-menu" />
+
+### コンポーネントが担うこと
+
+- トグルは、ラベルを名前とするボタンです。プラットフォームにそのプロパティがあれば、メニューを開くことと、メニューが開いているかどうかを伝えます。開いている間も名前は変わりません。
+- 開いている間、項目は同じラベルを名前とするメニューで、各項目は自分のラベルを名前とするメニュー項目です。位置と項目の数も伝えます。アイコンは隠します。
+- トグルで Enter、Space、下矢印を押すと、メニューを開いて最初の項目へフォーカスを移します。上矢印では開いて最後の項目へ移ります。項目の間は下矢印と上矢印で移動し、端では折り返します。Home と End で両端へ移ります。項目で Enter か Space を押すと、その項目を実行してメニューを閉じます。Escape でメニューを閉じ、トグルへフォーカスを戻します。
+- メニューはモーダルではありません。フォーカスを閉じ込めず、画面のほかの部分を操作不能にせず、スクリムも描きません。項目で Tab を押すと閉じます。
+- トグルのヒット領域は、どのサイズでも最小ターゲットまで広がります。各項目の高さは最小ターゲット以上で、コンテナ全体がヒット領域です。
+- アイコンは文字ではないので、文字サイズを大きくしてもトグルの大きさは変わりません。項目は大きくなり、ラベルを折り返します。
+- 動きを減らす設定では、トグルの変化も項目の出入りも瞬時に行います。
+- トグルのラベルがない場合、ラベルかアイコンのない項目がある場合、項目が 2 個未満か 7 個以上の場合は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- Web：`back` は送られません。Web では Escape が閉じる要求です。
+- Web：項目の位置は、仕様の Web 向けの注記にある CSS のアンカー配置ではなく、メニューと同じくトグルを基準にスクリプトで決めています。
+- 外側を押すと、どのプラットフォームでも項目は閉じます。Web と Flutter では、その押下は下にあるものにも届きます。SwiftUI、Compose、React Native では届きません。
+- SwiftUI には、メニューやメニュー項目のロールがなく、トグルがメニューを開くことや、メニューが開いていることを伝える手段もありません。項目はラベルを名前とするコンテナの中のボタンで、それぞれ位置（「2 of 3」、英語のみ）を値に持ちます。
+- SwiftUI は項目をポップオーバーで表示し、位置はポップオーバー自身が決めます。項目の背後に独自の吹き出しと矢印を描き、列をトグルの末尾側の端にそろえずにトグルの角を中心に置き、既定のシステムでは列を切り抜きます。トグルからの距離も `list.offset` では決まりません。このポップオーバーは、Tanrei のオーバーレイ層に置き換える予定です。
+- SwiftUI：Tab で項目は閉じてフォーカスはトグルへ戻りますが、同じキー操作でそこから次へは進めません。
+- SwiftUI：項目のアクセシビリティ上の枠が描画された影まで含むため、隣り合う項目の枠が数ポイント重なります。
+- SwiftUI：`folder.badge.plus` のように縦より横に長い SF Symbol は、項目のアイコンの枠からはみ出します。
+- SwiftUI：トグルと項目でのキー操作、フォーカスが項目へ移ってトグルへ戻る動きは、規則としてテストしているだけで、実際のキーボードではまだ確かめていません。
+- Compose には、メニューのロールも、ボタンがメニューを開くことを伝えるプロパティもありません。項目は、ラベルを名前とする走査グループの中のボタンで、位置はコレクション情報で伝えます。トグルが項目を開くのか閉じるのかは、展開と折りたたみのアクションで伝えます。
+- Flutter では、トグルがポップアップを開くことも、メニューの中での位置や項目の数も伝えられません。
+- React Native には、ボタンがメニューを開くことを伝えるプロパティがありません。トグルが伝えるのは、メニューが開いているかどうかだけです。
+- React Native は項目を `TanreiProvider` のオーバーレイ層に描くため、上位に `TanreiProvider` が必要です。Tab で項目は閉じてフォーカスはトグルへ戻り、次の Tab でそこから先へ進みます。
+- React Native：項目の配置、項目が順に現れる動き、フォーカスが移って戻る動き、外側の押下は、実機ではまだ確かめていません。
+
+### 利用者側で行うこと
+
+- トグルにも、すべての項目にもラベルを書きます。アイコンだけでは名前になりません。
+- FAB メニューは、要素ツリーの中でアクションにふさわしい位置に置きます。支援技術は、描画された場所ではなくツリーの順にトグルを読み上げます。
+- Web、Compose、React Native では、`toggle` を受けて `open` を設定し、`close` を受けて false に戻します。FAB メニューは求めるだけです。
+- 閉じたとき、自分でフォーカスを動かさないでください。FAB メニューがトグルへ戻します。
+- トグルはナビゲーションバーにかぶらないように置き、上には項目が出る余地を残します。

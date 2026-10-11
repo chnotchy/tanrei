@@ -1,0 +1,536 @@
+---
+title: حقل النص
+description: يتيح للأشخاص إدخال نص وتحريره، سطرًا واحدًا أو عدة أسطر تتبع النص أو يُغيَّر حجمها باليد، أو إدخال تاريخ أو وقت وحدةً وحدةً بصيغة الإعدادات المحلية، أو شيفرة تُحفظ كما كُتبت تمامًا، مع تسمية تستطيع أن تقول إن الحقل مطلوب أو اختياري، وأيقونات اختيارية، وبادئة ولاحقة، ونص مساعد، وعدّاد أحرف، وزر منتقٍ.
+translationOf: components/text-field.mdx
+sourceHash: c0d7d41a28bea90a5bfaa91ba43e5749d3b5a27b
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="text-field" />
+
+:::note[مواصفة معدَّلة، لم تصل بعد إلى كل منصة]
+تصف هذه الصفحة حقل النص كما هو في المواصفة الآن: طراز (variant) هو `stacked`، وهو الافتراضي، وتسميته فوق الحقل؛ والطرازان `filled` و `outlined` باقيان لإعدادات Material الجاهزة والإعداد الجاهز cupertino فقط؛ وارتفاعان هما 48 و 56؛ وأنواع للتاريخ والوقت، مع زر منتقٍ؛ وحقل متعدد الأسطر يتبع نصه أو يُغيَّر حجمه بمقبض (`resize`)؛ وتاريخ أو وقت يُدخل وحدةً وحدةً، في مقاطع؛ والخاصية `requirement` التي تعلّم الحقل بأنه مطلوب أو اختياري وتحلّ محل الراية `required`. مكوّن الويب يفعل ذلك كله منذ الآن، وكذلك العروض التوضيحية. ويمكن للحقل أيضًا أن يحمل شيفرة (`type="code"`، ومعه `wrap` لأسطرها): بناه الويب، ولم تبنِه أي منصة أخرى بعد. وحقل النص حقل حول حقل إدخال النص، كما تصفه هذه الصفحة: بنى الويب ذلك أيضًا، وزالت فيه خاصية HTML `required`. أما SwiftUI و Compose و Flutter و React Native فموسومة أعلاه بأنها متأخرة: إلى أن تلحق تقدّم المراجعة السابقة، وهي من الطراز outlined افتراضيًّا بارتفاعي 36 و 40، وفيها راية `required` لا ترسم علامة، وليس فيها الطراز `stacked` ولا أنواع التاريخ والوقت ولا زر المنتقي ولا أوضاع تغيير الحجم، وتعرض عيّناتها تلك المراجعة.
+:::
+
+<DemoFrame label="الطراز Stacked، وهو الافتراضي: حقل مطلوب، وتاريخ مع زر المنتقي" column>
+  <tanrei-text-field label="البريد الإلكتروني" type="email" requirement="required" supporting-text="نستخدمه لتسجيل دخولك فقط." required-text="مطلوب"></tanrei-text-field>
+  <tanrei-text-field label="تاريخ البدء" type="date" locale="ar-u-nu-latn" value="2026-09-27" picker picker-label="اختيار تاريخ البدء" segment-empty-text="فارغ"></tanrei-text-field>
+</DemoFrame>
+
+استخدم حقل النص حيثما يطلب النموذج نصًّا: فهو الحالة المعتادة، جاهزًا للاستخدام، بتسمية، وصندوق، وسطر مساعدة، والكلمات التي تقول إن القيمة خاطئة، وعدد.
+
+**يُبنى من** [حقل](/ar/components/field/) و [حقل إدخال النص](/ar/components/text-input/). الحقل هو الإطار: التسمية، وعلامة المطلوب أو الاختياري، والمساعدة، والخطأ، والعدد. وحقل إدخال النص هو عنصر التحكم: الصندوق وكل ما يُكتب فيه. وحقل النص لا يرسم شيئًا من عنده وليس له أي رمز تصميم (token): فكل خاصية له هي خاصية لأحد الاثنين، تُعطى له كما هي.
+
+هو كتلة بعرض المكان الذي يوضع فيه، وصندوقه يملؤه. وليس له عرض من عنده: فلحقل أضيق أعطِه مكانًا أضيق.
+
+### الاستخدام
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-text-field name="email" label="البريد الإلكتروني" type="email" autocomplete="email" requirement="required" required-text="مطلوب"
+        supporting-text="نستخدمه لتسجيل دخولك فقط."></tanrei-text-field>
+      <tanrei-text-field name="company" label="الشركة" requirement="optional" optional-text="اختياري"></tanrei-text-field>
+      <!-- يتبع نصه من 3 أسطر إلى 8، ثم يُمرَّر. -->
+      <tanrei-text-field name="message" label="الرسالة" multiline min-rows="3" max-rows="8"></tanrei-text-field>
+      <!-- يُغيَّر حجمه باليد، بمقبض. -->
+      <tanrei-text-field name="notes" label="الملاحظات" multiline resize="manual" resize-label="تغيير حجم الملاحظات"></tanrei-text-field>
+    </form>
+
+    <!-- الصندوق وحده، في شريط أدوات: حقل إدخال النص، وتسمّيه label الخاصة به. واستيراد حقل النص يعرّفه. -->
+    <tanrei-text-input label="بحث" type="search" placeholder="ابحث في المكوّنات">
+      <span slot="leading-icon">search</span>
+    </tanrei-text-input>
+
+    <!-- شيفرة: من اليسار إلى اليمين وبخط الشيفرة في كل اتجاه للصفحة، ولا تُصحَّح ولا تُدقَّق إملائيًّا أبدًا. -->
+    <tanrei-text-field label="النمط" type="code" value="tanrei.comp.button.*.container.color"></tanrei-text-field>
+    <tanrei-text-field label="محتوى طلب Webhook" type="code" multiline min-rows="4" supporting-text="JSON"></tanrei-text-field>
+    <!-- بلا التفاف: كل سطر من الشيفرة يبقى في سطر واحد، والسطر الطويل يُمرَّر داخل الحقل. -->
+    <tanrei-text-field label="الصفوف" type="code" multiline no-wrap></tanrei-text-field>
+
+    <!-- تاريخ يُدخل وحدةً وحدةً بترتيب الإعدادات المحلية، ويُحفظ في الصورة 2026-09-27، مع زر منتقٍ. -->
+    <tanrei-text-field id="start" label="تاريخ البدء" type="date" min="2026-01-01" disabled-dates="2026-05-01 2026-12-25"
+      invalid-text="أكمِل التاريخ." unavailable-text="اختر يوم عمل في 2026 أو بعدها."
+      picker picker-label="اختيار تاريخ البدء" segment-empty-text="فارغ"></tanrei-text-field>
+    <tanrei-date-time-picker id="start-picker" presentation="docked" anchor="start" label="تاريخ البدء"></tanrei-date-time-picker>
+
+    <script type="module">
+      import '@tanrei/web/components/text-field';
+      const email = document.querySelector('[name="email"]');
+      email.addEventListener('input', () => draft(email.value)); // كل تعديل
+      email.addEventListener('change', () => save(email.value)); // غادر التركيز أو ضُغط Enter، والقيمة تغيّرت
+      // التحقق من شأنك: الحقل لا يعيّن error بنفسه أبدًا.
+      email.error = submitted && !isValid(email.value);
+      email.errorText = 'أدخِل عنوان بريد إلكتروني كاملًا.';
+
+      // الحقل يطلب؛ والمنتج يعرض المنتقي ويكتب القيمة في الحقل.
+      const start = document.querySelector('#start');
+      const picker = document.querySelector('#start-picker');
+      start.addEventListener('pickerrequest', (e) => {
+        Object.assign(picker, { value: e.detail.value, min: e.detail.min, max: e.detail.max, disabledDates: start.disabledDates, open: true });
+      });
+      picker.addEventListener('change', () => (start.value = picker.value));
+      picker.addEventListener('close', () => (picker.open = false));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { TextField } from '@tanrei/react';
+
+    <TextField
+      label="البريد الإلكتروني"
+      type="email"
+      autocomplete="email"
+      value={email}
+      onInput={(e) => setEmail(e.currentTarget.value)}
+      onChange={() => save(email)}
+      requirement="required"
+      requiredText="مطلوب"
+      error={submitted && !isValid(email)}
+      errorText="أدخِل عنوان بريد إلكتروني كاملًا."
+    />
+
+    <TextField label="الرسالة" multiline minRows={3} maxRows={8} value={message}
+      onInput={(e) => setMessage(e.currentTarget.value)} />
+
+    // تاريخ: القيمة بصيغة ISO 8601، أو فارغة ما دام أحد المقاطع فارغًا.
+    <TextField
+      label="تاريخ البدء"
+      type="date"
+      min="2026-01-01"
+      value={start}
+      invalidText="أكمِل التاريخ."
+      unavailableText="اختر تاريخًا في 2026 أو بعدها."
+      segmentEmptyText="فارغ"
+      picker
+      pickerLabel="اختيار تاريخ البدء"
+      onChange={(e) => setStart(e.currentTarget.value)}
+      onEntryerror={(e) => report(e.detail.reason)}
+      onPickerrequest={() => setPickerOpen(true)}
+    />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    TanreiTextField("البريد الإلكتروني", text: $email, type: .email,
+                    supportingText: "نستخدمه لتسجيل دخولك فقط.",
+                    errorText: "أدخِل عنوان بريد إلكتروني كاملًا.",
+                    error: submitted && !isValid(email),
+                    textContentType: "email", // اسم تعبئة تلقائية من HTML
+                    onCommit: save,
+                    // مرِّر الإجراء هنا: المُعدِّل .onSubmit المحيط يعمل قبل onCommit.
+                    onSubmit: signIn)
+
+    // تعدد الأسطر هو المحور العمودي مع مدى لحد الأسطر.
+    TanreiTextField("الرسالة", text: $message, axis: .vertical, lineLimit: 3...8)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.text.KeyboardActions
+    import io.github.chnotchy.tanrei.components.TanreiTextField
+    import io.github.chnotchy.tanrei.components.TanreiTextFieldType
+
+    var email by remember { mutableStateOf("") }
+    TanreiTextField(
+        value = email,
+        onValueChange = { email = it },
+        label = "البريد الإلكتروني",
+        type = TanreiTextFieldType.Email,
+        contentType = "email", // اسم تعبئة تلقائية من HTML
+        supportingText = "نستخدمه لتسجيل دخولك فقط.",
+        isError = submitted && !isValid(email),
+        errorText = "أدخِل عنوان بريد إلكتروني كاملًا.",
+        onCommit = { save(it) },
+        keyboardActions = KeyboardActions(onDone = { signIn() }),
+    )
+
+    // singleLine هي عكس multiline التي في المواصفة.
+    TanreiTextField(value = message, onValueChange = { message = it }, label = "الرسالة", singleLine = false, minLines = 3)
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    TanreiTextField(
+      controller: email, // أو initialValue: '…'
+      labelText: 'البريد الإلكتروني',
+      type: TanreiTextFieldType.email,
+      autofillHints: TanreiTextField.autofillHintsFromHtml('email'),
+      helperText: 'نستخدمه لتسجيل دخولك فقط.',
+      isError: submitted && !isValid(email.text),
+      errorText: 'أدخِل عنوان بريد إلكتروني كاملًا.',
+      onCommit: save,
+      onSubmitted: (String value) => signIn(),
+    );
+
+    TanreiTextField(labelText: 'الرسالة', multiline: true, minLines: 3);
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { TextField } from '@tanrei/react-native';
+
+    <TextField
+      label="البريد الإلكتروني"
+      type="email"
+      autoComplete="email"
+      value={email}
+      onChangeText={setEmail}
+      supportingText="نستخدمه لتسجيل دخولك فقط."
+      error={submitted && !isValid(email)}
+      errorText="أدخِل عنوان بريد إلكتروني كاملًا."
+      onEndEditing={save}
+      onSubmitEditing={signIn}
+    />
+    <TextField label="الرسالة" multiline minRows={3} value={message} onChangeText={setMessage} />
+    ```
+  </TabItem>
+</Tabs>
+
+### مستوى واحد إلى الأسفل
+
+الحقل نفسه مكتوبًا باليد من عضويه هو الصورة نفسها، ومربع النص (text box) نفسه عند التقنيات المساعدة، بالاسم والوصف والحالات نفسها:
+
+```html
+<tanrei-field label="البريد الإلكتروني" requirement="required" required-text="مطلوب"
+  supporting-text="نستخدمه لتسجيل دخولك فقط.">
+  <tanrei-text-input name="email" type="email" autocomplete="email"></tanrei-text-input>
+</tanrei-field>
+```
+
+<DemoFrame label="الحقل نفسه مكتوبًا باليد: حقل بداخله حقل إدخال النص" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="البريد الإلكتروني" requirement="required" required-text="مطلوب" supporting-text="نستخدمه لتسجيل دخولك فقط.">
+    <tanrei-text-input type="email"></tanrei-text-input>
+  </tanrei-field>
+</DemoFrame>
+
+انزل مستوى واحدًا حين تحتاج إلى ترتيب لا يقدّمه حقل النص:
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| تسمية وصندوق ومساعدة وخطأ وعدد | حقل النص |
+| شيء من عندك داخل الإطار، بجانب الصندوق أو تحته | [حقل](/ar/components/field/) بداخله [حقل إدخال النص](/ar/components/text-input/) وعنصرك أنت |
+| الصندوق وحده، تحت تسمية تقف في مكان آخر: عامل تصفية في شريط أدوات، أو خلية في جدول، أو صف تسميته بجانبه | [حقل إدخال النص](/ar/components/text-input/) وحده، وتسمّيه `label` الخاصة به |
+
+ما يتغيّر في المستوى الأدنى هو الموضع الذي يُقال فيه كل شيء. الخاصيتان `name` و `value` تكونان على حقل إدخال النص، وهو عندئذ عنصر التحكم الذي يلقاه النموذج، وأحداثه تُسمع عليه. أما `label` و `error` و `disabled` والمطلوب أو الاختياري فتبقى على الحقل، وهو يمرّرها إلى عنصر التحكم: فلا تعيّن ما يخص حقل الإدخال منها.
+
+وشيء واحد يفعله حقل النص ولا يفعله الحقل وحقل إدخال النص المكتوبان باليد: يُبقي العدد مواكبًا. وباليد، مع تعيين `counter`، أعطِ الحقل عدد حقل الإدخال عند كل تغيّر:
+
+```js
+field.countText = input.countText;
+input.addEventListener('input', () => (field.countText = input.countText));
+```
+
+## المواصفات
+
+<DemoFrame label="الخطأ، والتعطيل، والقراءة فقط، والبادئة واللاحقة، والعدّاد" plain column>
+  <tanrei-text-field label="البريد الإلكتروني" value="ada@" error error-text="أدخِل عنوان بريد إلكتروني كاملًا."></tanrei-text-field>
+  <tanrei-text-field label="البريد الإلكتروني" value="ada@example.com" disabled></tanrei-text-field>
+  <tanrei-text-field label="البريد الإلكتروني" value="ada@example.com" readonly></tanrei-text-field>
+  <tanrei-text-field label="المبلغ" type="number" value="120" prefix-text="$" suffix-text="USD"></tanrei-text-field>
+  <tanrei-text-field label="الاسم المعروض" value="Ada Lovelace" maxlength="40" counter></tanrei-text-field>
+  <tanrei-text-field size="large" label="البريد الإلكتروني" value="ada@example.com"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="الأنواع: كلمة المرور، والبحث، والرقم، والهاتف، وعنوان URL" plain column>
+  <tanrei-text-field label="كلمة المرور" type="password" value="correct horse" autocomplete="current-password"></tanrei-text-field>
+  <tanrei-text-field label="بحث" label-hidden type="search" placeholder="ابحث في المكوّنات">
+    <span slot="leading-icon">search</span>
+  </tanrei-text-field>
+  <tanrei-text-field label="الكمية" type="number" value="12"></tanrei-text-field>
+  <tanrei-text-field label="الهاتف" type="tel" autocomplete="tel" placeholder="+1 555 0100"></tanrei-text-field>
+  <tanrei-text-field label="الموقع الإلكتروني" type="url" placeholder="https://example.com"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="مطلوب واختياري: الوسمان، والنجمة" plain column>
+  <tanrei-text-field label="البريد الإلكتروني" type="email" requirement="required" required-text="مطلوب"></tanrei-text-field>
+  <tanrei-text-field label="الشركة" requirement="optional" optional-text="اختياري"></tanrei-text-field>
+  <tanrei-text-field label="البريد الإلكتروني" type="email" requirement="required" required-mark="asterisk"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="عدة أسطر: يتبع النص، ويُغيَّر حجمه بمقبض (نزولًا، وفي الاتجاهين)، وثابت" plain column>
+  <tanrei-text-field label="الرسالة" multiline min-rows="2" max-rows="5" placeholder="اكتب بضعة أسطر: يكبر الحقل حتى خمسة ثم يُمرَّر"></tanrei-text-field>
+  <tanrei-text-field label="الملاحظات" multiline resize="manual" max-rows="10" resize-label="تغيير حجم الملاحظات"></tanrei-text-field>
+  <tanrei-text-field label="الوصف" multiline resize="manual" resize-axis="both" resize-label="تغيير حجم الوصف"></tanrei-text-field>
+  <tanrei-text-field label="العنوان" multiline resize="fixed" min-rows="3"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="شيفرة: نمط في سطر واحد، و JSON في عدة أسطر، وأسطر لا تلتفّ" plain column>
+  <tanrei-text-field type="code" label="النمط" value="tanrei.comp.button.*.container.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
+  <tanrei-text-field type="code" multiline min-rows="4" label="الطبقة" value="{&#10;  &quot;id&quot;: &quot;acme&quot;,&#10;  &quot;extends&quot;: &quot;tanrei&quot;&#10;}"></tanrei-text-field>
+  <tanrei-text-field type="code" multiline no-wrap min-rows="3" label="القواعد" value="{ &quot;match&quot;: &quot;tanrei.comp.button.*.hovered.container.color&quot;, &quot;$value&quot;: &quot;{tanrei.sys.color.primary}&quot; }&#10;{ &quot;match&quot;: &quot;*&quot; }"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="شيفرة في صفحة من اليمين إلى اليسار: التسمية والمساعدة تتبعان الصفحة، والشيفرة تبدأ من اليسار" plain column>
+  <div dir="rtl" lang="ar" style="display: grid; gap: 1rem;">
+    <tanrei-text-field type="code" label="النمط" value="tanrei.comp.*.color" supporting-text="معرّف رمز، مع * لأي جزء."></tanrei-text-field>
+    <tanrei-text-field type="code" multiline min-rows="3" label="المصادر" value="[&quot;مرحبا&quot;, &quot;acme&quot;]&#10;// تعليق: comment"></tanrei-text-field>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="تاريخ، ووقت، وتاريخ ووقت، في مقاطع. يملؤها المفتاح Tab ومفاتيح الأسهم والأرقام" plain column>
+  <tanrei-text-field label="تاريخ البدء" type="date" locale="ar-u-nu-latn" picker picker-label="اختيار تاريخ البدء" invalid-text="أكمِل التاريخ." segment-empty-text="فارغ"></tanrei-text-field>
+  <tanrei-text-field label="وقت البدء" type="time" locale="ar-u-nu-latn" value="14:30" segment-empty-text="فارغ"></tanrei-text-field>
+  <tanrei-text-field label="المغادرة" type="date-time" locale="ar-u-nu-latn" value="2026-09-27T14:30" min="2026-09-01T00:00" unavailable-text="اختر وقتًا من سبتمبر 2026 فصاعدًا." segment-empty-text="فارغ"></tanrei-text-field>
+</DemoFrame>
+
+<DemoFrame label="الطرازان Filled و outlined في إعدادات Material الجاهزة" system="m3-like" plain column>
+  <tanrei-text-field variant="filled" label="البريد الإلكتروني" type="email" value="ada@example.com"></tanrei-text-field>
+  <tanrei-text-field variant="outlined" label="البريد الإلكتروني" type="email" supporting-text="نستخدمه لتسجيل دخولك فقط."></tanrei-text-field>
+</DemoFrame>
+
+### ما يعطيه كل عضو
+
+| الجانب | من الحقل | من حقل إدخال النص |
+| --- | --- | --- |
+| الخصائص | `label`، `labelHidden`، `supportingText`، `errorText`، `error`، `disabled`، `requirement`، `requiredMark`، `requiredText`، `optionalText` | كل ما عداها: `variant`، `size`، `type`، `value`، `placeholder`، `readOnly`، والأسطر وتغيير الحجم، `wrap`، `maxLength`، `counter`، والبادئة واللاحقة، `autocomplete`، وكل ما يخص التاريخ أو الوقت |
+| الأحداث | — | `input`، `change`، `action`، `pickerRequest`، `entryError` |
+| المنافذ (slots) | `label-icon` | `leading-icon`، `trailing-icon` |
+| رموز التصميم | `comp.field.*` | `comp.input-box.*` للصندوق، وهي التي يقرؤها كل صندوق إدخال؛ و `comp.text-input.*` لما يرسمه حقل إدخال النص وحده |
+
+لحقل إدخال النص `label` و `labelHidden` و `error` و `disabled` خاصة به. وهي ليست ما يعيّنه حقل النص: فالخاصية `label` فيه هي تسمية الحقل، وهي تسمّي حقل الإدخال، وفي الحقل من الطراز filled أو outlined هي ما يعوم في الصندوق.
+
+### رموز التصميم
+
+ليس لحقل النص رمز تصميم خاص به. صندوقه يقرأ [رموز تصميم حقل إدخال النص](/ar/components/text-input/#المواصفات)، وصفوفه، أي التسمية والعلامة والمساعدة والخطأ والعدد، تقرأ [رموز تصميم الحقل](/ar/components/field/#المواصفات)، أينما عُيِّنت. والجدول أدناه يسرد رموز الحقل. ولتغيير مثيل واحد، عيِّن رمز تصميم العضو عليه:
+
+```html
+<tanrei-text-field label="البريد الإلكتروني"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-text-field>
+```
+
+<ComponentSpecs name="text-field" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-field>` بداخله عنصر `<tanrei-text-input>`، ولا شيء غيرهما. واستيراد العنصر يعرّف الاثنين.
+- العنصر كتلة تملأ مكانها، لا صندوق مضمَّن في السطر بعرض حقل الإدخال النصي الخاص بالمتصفح.
+- العنصر مرتبط بالنماذج (form-associated). يأخذ `name` و `form`، ويرسل القيمة، ولا يرسل شيئًا وهو معطَّل، ويعود عند إعادة الضبط إلى قيمة خاصية HTML (attribute) `value`، ويُستعاد عند التنقل، ويتبع عنصر `<fieldset>` المعطَّل، ويبلّغ بأن القيمة ناقصة ما دامت `requirement` بالقيمة `required` وهو فارغ. وعضواه لا يضيفان أي مُدخلة (entry) إلى النموذج. والمفتاح Enter في حقل من سطر واحد يضغط الزر الافتراضي في نموذج العنصر؛ ألغِ الحدث `action` لتمنع ذلك.
+- الأحداث `input` و `change` و `action` و `pickerrequest` و `entryerror` هي أحداث حقل إدخال النص نفسه. وهدفها هو العنصر، و `event.target.value` هي القيمة الجديدة في كل مستمع. وأنواع التفاصيل (detail) هي أنواع حقل الإدخال: `TanreiTextInputActionDetail` و `TanreiTextInputPickerRequestDetail` و `TanreiTextInputEntryErrorDetail`.
+- الأجزاء: `field` و `text-input` هما العضوان. وأجزاؤهما لها هنا الأسماء نفسها التي لها في المستوى الأدنى: `label-icon`، `supporting-text`، `counter`؛ `container`، `outline`، `active-indicator`، `input`، `segment`، `prefix`، `suffix`، `leading-icon`، `trailing-icon`، `picker-button`، `resize-grip`. والجزءان `label` و `requirement-label` هما المرسومان، أيًّا كان العضو الذي يرسمهما؛ أما `field-label` و `text-input-label` و `field-requirement-label` و `text-input-requirement-label` فتسمّي ما يخص عضوًا واحدًا.
+- العنصر نفسه غير قابل للتركيز وليس له دور: فالدالة `focus()` تذهب إلى حقل الإدخال. والضغط على صف التسمية أو على الصندوق أو على تسمية عائمة ينقل التركيز إلى حقل الإدخال. والضغط على المساعدة أو نص الخطأ أو العدد أو الفجوة بين صف والصندوق لا يفعل شيئًا.
+- سمِّه بالخاصية `label`، ومعها `label-hidden` حيث لا يُراد رسم التسمية، ولا تسمِّه أبدًا بالخاصية `aria-label`، فهي لا تسمّي شيئًا هنا.
+- خصائص HTML هي خصائص العضوين نفسها: بصيغة kebab-case، مثل `supporting-text` و `error-text` و `min-rows` و `no-wrap`، ما عدا `readonly` و `maxlength` و `autocomplete` و `min` و `max`. ولا توجد خاصية HTML اسمها `required`: اكتب `requirement="required"`.
+- قبل أن يُعرَّف العنصر لا يكون له حجم. احجز ارتفاعه.
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم حقل النص حين يكتب الأشخاص قيمة: اسمًا، عنوان بريد إلكتروني، بحثًا، رسالة. وحين ينتقون من مجموعة قيم معروفة، استخدم عنصر تحكم صُنع للاختيار. وحيث لا يُراد إلا الصندوق، لأن التسمية تقف في مكان آخر، كعامل تصفية في شريط أدوات أو خلية في جدول، استخدم [حقل إدخال النص](/ar/components/text-input/).
+
+### اختيار الطراز والحجم
+
+استخدم طرازًا واحدًا في النموذج كله.
+
+| الطراز | يميّزه | أين |
+| --- | --- | --- |
+| الطراز Stacked، وهو الافتراضي | التسمية فوق صندوق ملوَّن تلوينًا خفيفًا بلا حافة. التركيز يرسم خطًّا داخل حافة الصندوق، فلا يحرّك شيئًا؛ والخطأ يرسم خطًّا رفيعًا في حالة السكون. | كل نظام. وهو الطراز الوحيد الذي يقدّمه نظام Tanrei. |
+| الطراز Filled | صندوق ملوَّن تلوينًا خفيفًا وخط سفلي، والتسمية تعوم داخله | إعدادات Material الجاهزة والإعداد الجاهز cupertino |
+| الطراز Outlined | حدّ يثخن عند التركيز، والتسمية تعوم إليه | إعدادات Material الجاهزة والإعداد الجاهز cupertino |
+
+الافتراضي هو stacked في كل نظام، ومنها الإعدادات الجاهزة. والمنتج المبني على Material الذي يريد تسمية Material العائمة يعيّن `variant` في حقوله بالقيمة `outlined` أو `filled`. وتحت نظام Tanrei ما زال الطرازان `filled` و `outlined` يعملان، مع تحذير في أثناء التطوير.
+
+الحجم `medium` (48) هو حقل Material المكثَّف، والحجم `large` (56) هو حقل Material. استخدم `medium` في عوامل التصفية والإعدادات الكثيفة، و `large` في نماذج تسجيل الدخول وإتمام الشراء. ونص الإدخال 16 في الحجمين في النظام الافتراضي. والارتفاعات حدود دنيا: يكبر الحقل مع النص الأكبر.
+
+### التسميات والنصوص النائبة
+
+- كل حقل يحتاج إلى الخاصية `label`. في الحقل من الطراز stacked تقف فوق الصندوق، من حافة بدايته، ولا تتحرك ولا يتغيّر حجمها أبدًا؛ والتسمية الطويلة تلتفّ ولا تُقطع. ويستطيع المنفذ `label-icon` أن يضع رسم أيقونة (glyph) قبلها. وفي الحقل من الطراز filled أو outlined تستقر التسمية داخل الحقل ما دام فارغًا، وتعوم حين يكون عليه التركيز أو فيه قيمة.
+- الخاصية `labelHidden` توقف رسم التسمية، لكنها تبقى الاسم المتاح للتقنيات المساعدة، وتبقى المساعدة والخطأ تحت الصندوق. وحيث لا يُراد إلا الصندوق، كعامل تصفية في شريط أدوات، أو خلية، أو صف تقف تسميته بجانبه، استخدم بدلًا منها [حقل إدخال النص](/ar/components/text-input/) بالخاصية `label` الخاصة به.
+- النص النائب تلميح، كقيمة نموذجية. يظهر ما دام الحقل فارغًا والتسمية ليست في سطر الإدخال: دائمًا في الحقل من الطراز stacked، وفي الطرازين الآخرين فقط ما دامت التسمية عائمة أو مخفيّة. وليس هو الاسم أبدًا.
+
+### مطلوب واختياري
+
+الخاصية `requirement` تقول ما يطلبه النموذج من الحقل: `none` (الافتراضي) أو `required` أو `optional`. وهي إعداد واحد بثلاث قيم، لأن الحقل لا يكون الاثنين معًا أبدًا.
+
+- **المطلوب** يعرض الحقل على أنه مطلوب ويرسم علامة المطلوب بجانب التسمية.
+- **الاختياري** يرسم وسم الاختياري ويضيف نصه إلى وصف الحقل.
+- **العلامة** وسم صغير بعد التسمية في الطراز stacked افتراضيًّا: من الطراز filled للمطلوب، ومن الطراز tonal للاختياري. كلماتها هي `requiredText` و `optionalText`، وهي كلماتك: على الحقل، أو مرة واحدة للمنتج كله بالدالة `setWords()`. لا يتضمن Tanrei أي كلمة: من دون `requiredText` تقف نجمة في مكان الوسم، ومن دون `optionalText` لا يُرسم وسم. وهي لا تزيد صف التسمية ارتفاعًا، وتلتفّ إلى سطر خاص بها حين لا تترك لها التسمية مكانًا.
+- **نجمة بدلًا منها.** أيّ علامة يرسمها الحقل المطلوب اختيار واحد يختاره نظام التصميم لكل النماذج بالرمز `sys.behavior.requirement-mark`: الوسم في النظام الافتراضي، ونجمة في إعدادات Material الجاهزة، ولا شيء في cupertino. والخاصية `requiredMark` تتجاوزه لحقل واحد (`tag` أو `asterisk` أو `none`، والأخيرة تُبقي الدلالات ولا ترسم شيئًا). والحقل من الطراز filled أو outlined يرسم النجمة حيث يُطلب الوسم.
+- **لا تتحقق من شيء.** الحقل لا يعيّن `error` أبدًا لقيمة ناقصة. أنت تفعل ذلك، بالخاصيتين `error` و `errorText`.
+
+علِّم الأقل من النوعين في النموذج: حيث تكون أكثر الحقول مطلوبة علِّم الاختيارية، والعكس بالعكس. وإن استخدمت النجمة فقل مرة واحدة قرب أعلى النموذج ما معناها.
+
+الخاصية `requirement` تحلّ محل الراية `required` التي في المراجعة السابقة. على الويب لم تعد خاصية HTML `required` ولا خاصية العنصر موجودة: اكتب `requirement="required"`. والحقل الذي كان مطلوبًا يعرض الآن علامة أيضًا: عيِّن `requiredMark` بالقيمة `none` حيث لا تريدها.
+
+### نص المساعدة ونص الخطأ
+
+- الخاصية `supportingText` سطر واحد من المساعدة تحت الحقل. ويُقرأ أيضًا وصفًا للحقل.
+- التحقق من شأنك. حين تكون القيمة خاطئة عيِّن `error` واكتب `errorText`: فهو يُرسم تحت النص المساعد، والنص المساعد يبقى، فيزيد ارتفاع الحقل سطرًا ما دام في حالة الخطأ. ولا تكرّر المساعدة في نص الخطأ.
+- قل كيف تُصحَّح القيمة، لا أنها خاطئة فحسب: «أدخِل عنوان بريد إلكتروني كاملًا.»، لا «غير صالح».
+- اعرض الخطأ بعد أن يغادر الشخص الحقل أو يرسل النموذج، لا وهو ما زال يكتب.
+
+### العدّاد
+
+- الخاصية `maxLength` تحدّ ما يستطيع الشخص كتابته. وهي تعدّ الأحرف كما يراها الناس، فالإيموجي أو الحرف ذو العلامة يُعدّ مرة واحدة. واللصق يُقصَّر ليناسب الحد. أما القيمة التي تعيّنها أنت فلا تُقصَّر أبدًا.
+- الخاصية `counter` تعرض العدد في نهاية صف النص المساعد، يتبعه الحد حين تكون `maxLength` معيَّنة («12/40»).
+- اعرض العدّاد فقط حين يهمّ الحدُّ الشخصَ، كما في اسم معروض أو نبذة قصيرة.
+
+### أنواع الإدخال
+
+الخاصية `type` تختار لوحة المفاتيح والتصحيح التلقائي والإدخال المحجوب. والقيمة سلسلة نصية في كل الأنواع.
+
+| النوع | لوحة المفاتيح والسلوك |
+| --- | --- |
+| `text` | لوحة مفاتيح عامة. |
+| `email` | لوحة مفاتيح للبريد الإلكتروني، بلا تكبير تلقائي للأحرف ولا تصحيح تلقائي. |
+| `password` | إدخال محجوب وآمن، بلا تصحيح تلقائي. سطر واحد دائمًا. |
+| `number` | لوحة مفاتيح رقمية فيها فاصلة عشرية. القيمة لا تُحلَّل ولا تُقرَّب ولا يُتحقق منها. |
+| `search` | لوحة مفاتيح عامة يُقرأ مفتاح الإجراء فيها «بحث». |
+| `tel` | لوحة أرقام الهاتف. |
+| `url` | لوحة مفاتيح لعناوين URL، بلا تكبير تلقائي للأحرف ولا تصحيح تلقائي. |
+| `code` | لوحة مفاتيح عامة، ولا يُفعل بالنص شيء: بلا تصحيح تلقائي ولا تكبير تلقائي للأحرف ولا تدقيق إملائي ولا استبدال أحرف. سطر واحد، أو عدة أسطر مع `multiline`. انظر [الشيفرة](#الشيفرة). |
+| `date` و `time` و `date-time` | تاريخ أو وقت أو كلاهما، يُدخل وحدةً وحدةً بالصيغة الرقمية للإعدادات المحلية. سطر واحد دائمًا. انظر [التواريخ والأوقات](#التواريخ-والأوقات). |
+
+أضِف `autocomplete` باسم تعبئة تلقائية من HTML (`email` و `current-password` و `one-time-code` …) لتستطيع المنصة ملء الحقل. وكل منصة تقابله بنوع المحتوى الخاص بها. أما الرمز القصير المعروف الطول الذي يُرسم في خانات فله [حقل إدخال الرمز لمرة واحدة](/ar/components/one-time-code-input/).
+
+### عدة أسطر
+
+الخاصية `multiline` تقبل فواصل الأسطر وتعرض عدة أسطر. والخاصية `resize` تقول كيف يأخذ الحقل ارتفاعه:
+
+| `resize` | الارتفاع | المقبض | `minRows` و `maxRows` |
+| --- | --- | --- | --- |
+| `auto` (الافتراضي) | يتبع عدد الأسطر، بحركة قصيرة | لا شيء | أقل عدد من الأسطر وأكثره. وبعد الأكثر يُمرَّر؛ والقيمة 0 تعني بلا حد |
+| `manual` | ما يعطيه إياه الشخص. يبدأ عند `minRows` | في الزاوية السفلى عند حافة النهاية | أصغر ما يمكن أن يُجعل عليه وأطوله |
+| `fixed` | `minRows` من الأسطر | لا شيء | تُتجاهل `maxRows` |
+
+- **الوضع Auto** يناسب أكثر الحقول: تعليق، رسالة، وصف. عيِّن `maxRows` حيث يجب ألا يدفع نص طويل بقية النموذج بعيدًا.
+- **الوضع Manual** يناسب نصًّا يعيد الشخص قراءته ويرتّبه: ملاحظات، وصف طويل، شيفرة. الخاصية `resizeAxis` قيمتها `vertical` افتراضيًّا؛ والقيمة `both` تتيح للشخص أيضًا أن يغيّر عرض الحقل، ضمن ما يسمح به تخطيطه. ويُحفظ الحجم، والنص يلتفّ ويُمرَّر داخله.
+- **الوضع Fixed** يناسب نموذجًا يجب ألا يتحرك تخطيطه، ككتلة العنوان البريدي.
+- **المقبض يعمل بلا سحب.** هو موضع توقف للتركيز تسمّيه الخاصية `resizeLabel`. مفاتيح الأسهم تغيّر الحجم بسطر، والمفتاحان Home و End يذهبان إلى الأصغر والأطول، والنقرة أو المفتاح Enter أو Space تلائم الارتفاع مع النص، أو تعيده إلى `minRows` حين يكون ملائمًا سلفًا. وهدفه هو الحد الأدنى للهدف، مع أن رسمه صغير. والحقل المعطَّل لا يرسم مقبضًا؛ والحقل الذي للقراءة فقط يحتفظ به، لأن القراءة قد تحتاج إلى المساحة.
+- **لا شيء فوق النص يتحرك.** السطر الأول في الحقل المتعدد الأسطر يقف حيث يرسم الحقل ذو السطر الواحد سطره، وأيقوناته وبادئته ولاحقته موسَّطة على ذلك السطر. وكل سطر آخر يقع تحته، فتبقى التسمية والسطر الأول في مكانهما والارتفاع يتغيّر.
+
+لا يستطيع المنتج بعد أن يعرف الحجم الذي أعطاه الشخص للحقل: تغيير الحجم لا يصدر شيئًا.
+
+### الشيفرة
+
+الحقل من النوع `code` (`type="code"`) لنص كُتب لآلة لا لقارئ: نمط، أو معرّف، أو مفتاح، أو استعلام، أو مقتطف من JSON أو YAML. وهو الحقل نفسه، بالتسمية والمساعدة والخطأ والعدّاد والأحجام وسلوك النموذج نفسها، وسطر إدخاله يحفظ الشيفرة كما كُتبت تمامًا.
+
+- **من اليسار إلى اليمين، في كل لغة.** القيمة ومؤشر الكتابة فيها والنص النائب والبادئة واللاحقة صف واحد من اليسار إلى اليمين يبدأ من اليسار، حتى في صفحة من اليمين إلى اليسار، وأيًّا كان الحرف الأول في الشيفرة: فالحقل الفارغ، والحقل الذي ليس فيه إلا `{`، والحقل الذي أول سلسلة نصية فيه عربية، تُخطَّط كلها بالطريقة نفسها. وكل ما عدا ذلك يتبع الصفحة: التسمية والأيقونات ونص المساعدة أو نص الخطأ والعدّاد ومقبض تغيير الحجم. والسلسلة النصية أو التعليق المكتوب بنظام كتابة من اليمين إلى اليسار يُخطَّط داخل سطره، ولا يغيّر ترتيب شيء مما حوله.
+- **خط الشيفرة، بمقاس نص الإدخال.** عائلة الخط هي التي لدور الشيفرة؛ أما المقاس وارتفاع السطر فيبقيان ما لنص الإدخال، فيكون حقل الشيفرة بارتفاع حقل النص الذي بجانبه. وتُحفظ كل مسافة، وحرف الجدولة (tab) يصل إلى موضع الجدولة التالي، ولا يُدمج حرفان في حرف مركَّب (ligature). ولا يُلوَّن شيء بحسب معناه.
+- **تُترك كما هي.** يُطلب من المنصة ألا تصحّح القيمة ولا تكبّر أحرفها ولا تدقّقها إملائيًّا ولا تترجمها ولا تكملها، وألا تحوّل علامات الاقتباس المستقيمة إلى معقوفة. واللصق نص عادي، حرفًا بحرف. والقيمة لا تُحذف المسافات من طرفيها ولا تُحلَّل ولا يُتحقق منها أبدًا: فالقول بسلامة صياغتها من شأنك، بالخاصيتين `error` و `errorText`.
+- **سطر واحد أو عدة أسطر.** السطر الواحد يناسب نمطًا أو مفتاحًا. ومع `multiline` يكمل السطر الذي لا يتسع له العرض في الصفوف التالية افتراضيًّا؛ ولا تحمل القيمة من فواصل الأسطر إلا ما في الشيفرة.
+- **أسطر لا تلتفّ.** الخاصية `wrap` بالقيمة false، وهي `no-wrap` على الويب، تُبقي كل سطر من الشيفرة في سطر واحد من الحقل، لجدول قيم، أو سجل أحداث (log)، أو ملف لفاصل السطر فيه معنى. والسطر الطويل يُمرَّر جانبيًّا داخل الحقل ولا يوسّع شيئًا. ولا يقرأ `wrap` إلا حقل شيفرة متعدد الأسطر: فالنص المتصل يلتفّ دائمًا، والسطر الواحد يُمرَّر دائمًا في سطره.
+- **المفتاح Tab ينقل التركيز.** لا يتغيّر معنى أي مفتاح: المفتاح Tab لا يضيف مسافة بادئة أبدًا، والمفتاح Enter لا يضيف مسافة بادئة، ولا يُغلق قوس بالنيابة عنك. وحرف الجدولة يصل باللصق أو من منتجك، ويُحفظ.
+- **ليس محرّرًا.** لا ألوان للصيغة، ولا أرقام أسطر، ولا طيّ، ولا علامات خطأ بحسب السطر. للشيفرة التي تُعرض ولا تُكتب استخدم [كتلة الشيفرة](/ar/components/code-block/)؛ وللمحرّر ضمِّن المحرّر الذي اختاره منتجك.
+- **النص النائب مثال من الشيفرة**، يُرسم شيفرةً. أما التلميح بالكلمات فمكانه `supportingText`، وفيه أيضًا يقول الحقل ما ينتظره («JSON»).
+
+في حقل من اليمين إلى اليسار تبدأ قيمة الشيفرة من اليسار، أما قيمة النوع `email` أو `url` أو `tel` أو `number` أو `password` فتُكتب من اليسار إلى اليمين عند حافة البداية للحقل، أي اليمين. والمنصات الأخرى لم تبنِ النوع code بعد.
+
+### التواريخ والأوقات
+
+الحقل من النوع `date` أو `time` أو `date-time` صف من المقاطع في سطر الإدخال، مقطع لكل وحدة: الشهر واليوم والسنة، والساعة والدقيقة، وفي نظام 12 ساعة فترة اليوم. تقف بترتيب الإعدادات المحلية وبفواصلها. ويحفظ الحقل القيمة بصيغة ISO 8601، بلا منطقة زمنية.
+
+| النوع | القيمة | الصف في en-US | الصف في ja-JP |
+| --- | --- | --- | --- |
+| `date` | `2026-09-27` | `09/27/2026` | `2026/09/27` |
+| `time` | `14:30` | `2:30 PM` | `14:30` |
+| `date-time` | `2026-09-27T14:30` | `09/27/2026, 2:30 PM` | `2026/09/27 14:30` |
+
+- **الإعدادات المحلية.** الخاصية `locale`، أو إعدادات المنصة، تعيّن الترتيب والفواصل ونظام الساعة والأرقام. والمقطع الفارغ يعرض نصه النائب (`mm`، `dd`، `yyyy`)، فيعرض الصف صيغته دائمًا. وهذه الأنواع تتجاهل `placeholder` و `prefixText` و `suffixText` و `maxLength` و `multiline`.
+- **التنقل.** المفتاح Tab يزور كل مقطع، ثم زر المنتقي. ومفتاحا السهمين الأيسر والأيمن ينقلان إلى المقطع الذي في تلك الجهة، في كل اتجاه للتخطيط: فالصف مكتوب من اليسار إلى اليمين، كما يُكتب التاريخ بالأرقام. والضغط على مقطع ينقل التركيز إليه. والمقطع الذي عليه التركيز يُرسم نصًّا محدَّدًا، بلا مؤشر كتابة (caret).
+- **التدرّج.** مفتاحا السهمين العلوي والسفلي يغيّران المقطع بواحد ويدوران عند الطرفين؛ وعلى مقطع فارغ يبدآن من تاريخ اليوم أو الوقت الحالي. والمفتاحان Page Up و Page Down يخطوان أبعد، والمفتاحان Home و End يذهبان إلى طرفي المدى.
+- **الكتابة.** الرقم يملأ المقطع، وينتقل التركيز إلى التالي حين لا يمكن أن يمدّه رقم آخر، أو حين يُكتب الفاصل. والمفتاح Backspace يزيل رقمًا، وعلى مقطع فارغ يرجع إلى الوراء. والسنة تحتاج إلى أربعة أرقام. والتاريخ الذي لا وجود له لا يمكن إدخاله: اليوم الذي يتجاوز نهاية شهر اختير للتو يصير آخر يوم في ذلك الشهر.
+- **اللصق.** تاريخ كامل أو وقت كامل يُلصق على أي مقطع يملأ الصف. يُقرأ على أنه ثلاث مجموعات من الأرقام بترتيب الإعدادات المحلية، والمجموعة الأولى ذات الأرقام الأربعة تُقرأ على أنها السنة، فيعمل تاريخ ISO الملصوق في كل مكان. والنسخ والقص يأخذان الصف كله.
+- **القيمة** فارغة إلى أن يُملأ كل مقطع وتكون النتيجة متاحة. يصدر الحدث `input` حين تتغيّر القيمة، أي حين يُملأ المقطع الأخير أو يُعدَّل صف مملوء أو يُفرَّغ، ولا يصدر لمقطع يترك القيمة فارغة. ويصدر الحدث `change` حين يغادر التركيز مقاطع الحقل وزر المنتقي، أو حين يُضغط مفتاح الإجراء، والقيمة قد تغيّرت. والتنقل بين المقاطع لا يعتمد شيئًا.
+- **خطأ الإدخال.** الحقل الذي يُترك نصف مملوء يعرض `invalidText`. والحقل الذي يُترك بقيمة قبل `min` أو بعد `max` أو مدرجة في `disabledDates` يعرض `unavailableText`. وكلاهما يُرسم خطأً ويصدر `entryError` مع سببه (`invalid` أو `unavailable`)؛ والتعديل التالي ينهيه. وهو الخطأ الوحيد الذي يعيّنه الحقل بنفسه، ولا يمسّ الخاصية `error` التي لك.
+- **ما تعيّنه أنت** يُعرض كما هو، ولا يُتحقق منه أبدًا، ولا يصدر شيئًا.
+
+نظام الساعة في الحقل هو نظام إعداداته المحلية: ليس فيه إعداد لنظام 12 أو 24 ساعة ولا درجة للدقائق، كما في DateTimePicker.
+
+**زر المنتقي.** مع `picker` يرسم الحقل في نهايته زرًّا بأيقونة فقط، `calendar_month` للتاريخ و `schedule` للوقت، تسمّيه الخاصية `pickerLabel`. تفعيله يصدر `pickerRequest` مع القيمة والنوع و `min` و `max`؛ والصف النصف مملوء يرسل قيمة فارغة ولا يثير خطأ إدخال، لأن المنتقي يوشك أن يعطي قيمة كاملة. والحقل لا يعرض شيئًا بنفسه: منتجك يفتح [DateTimePicker](/ar/components/date-time-picker/) في الوضع المطابق، مرتكزًا على الحقل حين يكون مُرسى (docked)، ويعيّن الخاصية `value` في الحقل من الحدث `change` في المنتقي. أعطِ المنتقي قيم `min` و `max` و `disabledDates` نفسها التي للحقل. ويعود التركيز إلى الزر حين يُغلق المنتقي. والزر يتعطّل مع الحقل ولا يُرسم ما دام الحقل للقراءة فقط.
+
+### افعل
+
+- ضع النص الثابت الذي ليس جزءًا من القيمة في `prefixText` و `suffixText`: علامة عملة، وحدة.
+- ضع إجراء المسح أو إجراء إظهار كلمة المرور في منفذ النهاية زرًّا بأيقونة فقط من عندك، له اسمه. زر المنتقي هو الإجراء الوحيد المبني في الحقل، ويأتي بعد إجراءاتك.
+- استخدم `multiline` للنص الذي قد يمتد إلى عدة أسطر. وهو افتراضيًّا يكبر من `minRows` إلى `maxRows`، ثم يُمرَّر.
+- عيِّن `requirement` على الحقول التي يطلبها النموذج، وقل مع ذلك ما الناقص في `errorText` حين يُرسل النموذج.
+- استخدم `type="code"` لقيمة تقرؤها آلة، كنمط أو مفتاح أو مقتطف من إعدادات، وقل ما يجب أن تكون عليه في التسمية وفي `supportingText`.
+
+### لا تفعل
+
+- لا تستخدم النص النائب تسميةً. فهو يختفي ما إن يكتب أحد.
+- لا تستخدم `number` لقيم ليست كميات، كرقم بطاقة أو رمز بريدي. استخدم `text` مع قيمة `autocomplete` المناسبة.
+- لا تخلط الطُرُز في نموذج واحد.
+- لا تضع حقل نص داخل حقل. فهو حقل أصلًا؛ وبنية التنقيح (debug) تقول ذلك. وعنصر التحكم الذي يؤطّره الحقل هو حقل إدخال النص.
+- لا تستخدم حقلًا من النوع `text` وتحليلًا من عندك لتاريخ. استخدم `date`، ليأتي معه ترتيب الإعدادات المحلية ومفاتيح المقاطع وخطأ الإدخال.
+- لا تكتب «(مطلوب)» في التسمية وتعيّن `requirement` معًا. العلامة تقول ذلك سلفًا، وقارئ الشاشة سيسمعه مرتين.
+- لا تجعل الحقل الذي يُغيَّر حجمه باليد الطريقة الوحيدة لرؤية نص طويل. أعطِه من `minRows` ما يكفي ليكون نافعًا حين يُفتح.
+- لا تعطِّل حقلًا لمجرد عرض قيمة لا تتغيّر. استخدم `readOnly`، ليبقى في وسع الناس أن يركّزوا عليها ويحدّدوها وينسخوها.
+- لا تعيّن خط الشيفرة لحقل نص من الخارج، بالمحدِّد `::part(input)` أو بنمط من عندك، ولا تضف `dir` أو `spellcheck` إلى العنصر. استخدم `type="code"`: فالخط وحده يترك حقلًا يبدو صحيحًا وما زال يصحّح ما يُكتب.
+- لا تستخدم حقل الشيفرة محرّرًا، ولا تستخدم حقل شيفرة معطَّلًا لعرض شيفرة طويلة: فالحقل المعطَّل ليس فيه مؤشر كتابة يُمرَّر به. استخدم `readOnly`، أو كتلة الشيفرة.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="text-field" />
+
+### ما يتكفل به المكوّن
+
+- يُحرَّر النص في عنصر النص الخاص بالمنصة، فتعمل أساليب الإدخال والإملاء والتعبئة التلقائية والتحديد والحافظة كما تعمل في سائر المنصة. والتاريخ أو الوقت هو الاستثناء المصرَّح به: صف مقاطعه من صنع الحقل نفسه.
+- حقل التاريخ أو الوقت مجموعة تسمّيها التسمية. وكل مقطع زر دوّار (spin button) تسمّيه وحدته والتسمية («الشهر، تاريخ البدء»)، مع مداه وقيمته؛ والمقطع الفارغ يُقرأ نص `segmentEmptyText`.
+- الحقل المطلوب يُعرض على أنه مطلوب. والعلامة نفسها مخفيّة عن التقنيات المساعدة، فلا تُقرأ مرتين؛ والنص الاختياري يُقرأ مع وصف الحقل.
+- مقبض تغيير الحجم موضع توقف للتركيز تسمّيه الخاصية `resizeLabel`، ويُعرض فاصلًا (separator) قيمته عدد الأسطر. مفاتيح الأسهم والمفتاحان Home و End تغيّر الحجم، فلا شيء يتوقف على السحب، ومساحة لمسه تستوفي الحد الأدنى للهدف.
+- التسمية هي الاسم المتاح للتقنيات المساعدة، مرسومةً كانت أو مخفيّة. والنص النائب ليس كذلك أبدًا.
+- النص المساعد أو نص الخطأ المعروض والعدد هي وصف الحقل. وكذلك البادئة واللاحقة ما دامتا معروضتين، فتُقرأ الوحدة أو العملة مع القيمة.
+- يعرض حالة التعطيل، وحالات عدم الصلاحية والمطلوب والقراءة فقط حيث تكون للمنصة. وخطأ الإدخال في حقل تاريخ أو وقت يُعرض تمامًا كما تُعرض `error`.
+- زر المنتقي زر تسمّيه الخاصية `pickerLabel`، ويُعرض على أنه يفتح مربع حوار، وهو موضع توقف للمفتاح Tab بعد المقطع الأخير.
+- حين يظهر خطأ أو يتغيّر والتركيز على الحقل، يُعلَن مرة واحدة، بتهذيب. والعدد يُعلَن كما هو معروض («12/40») حين تتوقف الكتابة ثانية واحدة، لا عند كل ضغطة مفتاح أبدًا.
+- حقل البحث يُعرض مربع بحث (search box) حيث يكون للمنصة هذا الدور.
+- حقل الشيفرة هو مربع النص نفسه الذي لكل نوع آخر، ومتعدد الأسطر مع `multiline`: لا دور ولا وصف دور ولا كلمة تقول إنه يحمل شيفرة، ولا يُعلَّم أي جزء من قيمته خطأً إملائيًّا. والمفتاح Tab يغادره دائمًا. وحيث لا تلتفّ أسطره يمرّره مؤشر الكتابة، ويُعرض التركيز على الحاوية، وهي لا تُمرَّر.
+- يُعرض التركيز بحافة الحقل نفسها، سواء جاء من لوحة المفاتيح أو من مؤشر: خط داخل صندوق الحقل من الطراز stacked، والحافة الأثخن الملوَّنة للحقل من الطراز filled أو outlined. ومساحة اللمس تستوفي الحد الأدنى للهدف.
+- الضغط على التسمية أو على الصندوق ينقل التركيز إلى حقل الإدخال ولا يشغّل شيئًا. والضغط على المساعدة أو نص الخطأ أو العدد لا يفعل شيئًا.
+- الاسم والوصف والحالات مربوطة به تمامًا كما يربطها الحقل بأي عنصر تحكم يؤطّره. والحقل المكتوب باليد، في المستوى الأدنى، هو مربع النص نفسه.
+- غياب التسمية يُبلَّغ عنه في بنيات التنقيح (debug).
+
+فجوات معروفة في المنصات:
+
+- تحتفظ SwiftUI و Compose و Flutter و React Native بالراية `required` التي لا ترسم علامة، وليس فيها أوضاع تغيير الحجم ولا مقبض ولا مقاطع.
+- الويب: ينزاح صف المقاطع بضعة بكسلات حين يأخذ الشهر أو الدقيقة رقمه الأول؛ وقد يصدر `input` مرتين حيث يكون المقطع الأخير في الإعدادات المحلية من رقمين؛ وعلى لوحة مفاتيح Android التي على الشاشة لا يستطيع المفتاح Backspace على مقطع فارغ أن يرجع إلى الوراء؛ والصف الأعرض من حقل ضيق يفيض بدل أن يُمرَّر.
+- لا يستطيع المنتج أن يفرّغ صف تاريخ نصف مملوء بتعيين `value` بالسلسلة الفارغة التي هي فيه سلفًا.
+- الويب: تحت نمط التركيز بالتوهّج (glow)، توهّج الحقل من الطراز filled مدوَّر عند الزاويتين السفليين، وهما مربعتان.
+- الويب: التركيب في أسلوب الإدخال (input-method composition) والتسمية المعبَّأة تلقائيًّا مختبَران في Chromium فقط.
+- الويب: حقل الشيفرة الذي للقراءة فقط ولا تلتفّ أسطره يُمرَّر من لوحة المفاتيح كما يمرّر المتصفح أي نص لا يحرّره: بمؤشر الكتابة في Firefox، وبمفاتيح الأسهم في Chrome، وبالمفتاح Option مع مفاتيح الأسهم في Safari. ويعيد Firefox مثل هذا الحقل إلى حافته اليسرى حين يتغيّر اتجاه الصفحة.
+- لم يبنِ SwiftUI و Compose و Flutter و React Native النوع code: فليس في `type` هناك القيمة `code`، وليس في الحقل `wrap`.
+- ليس في SwiftUI حالات لعدم الصلاحية ولا للمطلوب ولا للقراءة فقط. فهي تُرسم أو تُفرض، ولا تُعلَن. والخطأ يُسمع فقط نصًّا في الوصف.
+- لا يستطيع SwiftUI رؤية التركيب في أسلوب الإدخال، فتنطبق `maxLength` أيضًا على نص ما زال يُركَّب، والقيمة التي تعيّنها في أثناء التركيب لا تؤجَّل.
+- في SwiftUI: النص المحدَّد يُظلَّل بصبغة مؤشر الكتابة، لا بلون التحديد الخاص بالحقل.
+- يرسم SwiftUI قيمة الحقل الذي للقراءة فقط نصًّا قابلًا للتحديد، لا حقل نص.
+- لا يقرأ SwiftUI المُعدِّل `.labelsHidden()` إلا من iOS 18 و macOS 15. وفي الإصدارات الأقدم ما زالت التسمية تُرسم.
+- لا يستطيع React Native رؤية التركيب في أسلوب الإدخال. القيمة التي تغيّرها في أثناء التركيب، وحد `maxLength`، يُطبَّقان فورًا وقد ينهيان التركيب.
+- ليس في React Native حالات لعدم الصلاحية ولا للمطلوب ولا للقراءة فقط. الخطأ يُسمع فقط نصًّا في الوصف؛ والمطلوب والقراءة فقط لا يُعلَنان.
+- في React Native: الإعلانات والتعبئة التلقائية ولوحة المفاتيح لكل نوع مختبَرة بكائنات وهمية (mocks) فقط، لا على جهاز بعد.
+- في React Native على iOS صبغة واحدة لمؤشر الكتابة ولتظليل التحديد. يحتفظ الحقل بلون مؤشر الكتابة، فيكون التظليل صبغة منه لا لون التحديد الخاص بالحقل.
+- في React Native: توهّج الحقل من الطراز filled يتبع زاويتيه العلويين فقط، ولونا النص النائب ومؤشر الكتابة ينقلبان فورًا بدل أن يتغيّرا على مدى حركة الحالة.
+- يعرض Flutter حقل البحث نوعَ إدخال للبحث، لا دور مربع البحث.
+- لا يرسم Flutter مقابض تحديد ولا شريط أدوات للتحديد على Android وغيره من شاشات اللمس. الضغط المطوَّل واختصارات لوحة المفاتيح ما زالت تحدّد وتنسخ؛ و iOS يعرض قائمة نظامه.
+- في Flutter: العنصر التفاعلي في منفذ البداية يأتي قبل حقل الإدخال في ترتيب التركيز، لا بعده.
+- ليس في Compose حالة للمطلوب: يقرأ الحقل «`Required`» وصفًا لحالته بدلًا منها.
+- في Compose: الخاصية `maxLength` والعدّاد يعدّان الأحرف كما يراها الناس، لكن تسلسلات الإيموجي والأعلام غير مختبَرة. تعمل الاختبارات على JVM تحت Robolectric، وقواعد الأحرف فيه لا تعرفها.
+- في Compose: إعلانات TalkBack عن الخطأ والعدد، وأسلوب إدخال حقيقي، وخدمة تعبئة تلقائية حقيقية لم تُختبر على جهاز.
+
+### ما عليك فعله
+
+- اكتب تسمية تسمّي القيمة، وأبقِها حتى حين تخفيها.
+- اكتب نص خطأ يقول كيف تُصحَّح القيمة، وعيِّن `error` بنفسك. على SwiftUI و React Native ذلك النص هو الطريقة الوحيدة التي يُسمع بها الخطأ. ولحقل تاريخ أو وقت اكتب أيضًا `invalidText` و `unavailableText`، وأعطِ `segmentEmptyText`: من دونه يُقرأ المقطع الفارغ بلا قيمة.
+- أعطِ زر المنتقي الخاصية `pickerLabel` بلغة منتجك، وافتح المنتقي من الحدث `pickerRequest`.
+- عيِّن `requirement`، وأعطِ `requiredText` و `optionalText`: على الحقل، أو مرة واحدة للمنتج كله بالاستدعاء `setWords({ requiredText, optionalText })`، كما يمكن أن تُعطى `resizeLabel` و `segmentEmptyText` بالطريقة نفسها. لا يتضمن Tanrei أي كلمة على الويب، والكلمة الناقصة يُبلَّغ عنها أثناء التطوير. انظر [كلمات المنتج](/ar/foundations/words/). وإلى أن يلحق SwiftUI و Compose و Flutter و React Native لا ترسم حقولها علامة، و SwiftUI و React Native لا يُعلِنان حالة المطلوب: قل «مطلوب» في التسمية هناك.
+- سمِّ مقبض تغيير الحجم بالخاصية `resizeLabel`. من دونها يُرسم المقبض ويعمل، ولا اسم له.
+- ضع الوحدة أو العملة في `prefixText` أو `suffixText`، لا في القيمة، لتُقرأ مع القيمة ولا تُكتب.
+- لحقل الشيفرة، قل ما يجب أن تكون عليه الشيفرة في `label` و `supportingText` («محتوى طلب Webhook» و«JSON»)، وقل ما الخطأ فيها في `errorText`: فالحقل لا يعرف اللغة.
+- أعطِ زر الأيقونة الذي في النهاية اسمه الخاص بلغة منتجك.
+- على Compose تأتي الكلمتان «`Invalid`» و«`Required`» من موارد السلاسل النصية في المكتبة (`tanrei_invalid` و `tanrei_required`). تجاوزهما في مواردك لتترجمهما.
+- على الويب يكبّر iOS Safari العرض على حقل إدخال نصه أصغر من 16 px. حقول النظام الافتراضي تستخدم نصًّا بمقاس 16 px في الحجمين؛ والطبقة التي تصغّره تعيد التكبير.

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tanrei.chnotchy.com/sitemap-index.xml

@@ -1,0 +1,339 @@
+---
+title: ファイル項目
+description: 1 つのファイルを見せます。形式を表すグリフか小さな画像、名前、そしてプロダクトがそのファイルについて伝えることを描き、取り除くアクションともう一度試すアクションが付きます。縦に並ぶファイルの行にも、画像の並びのタイルにもなります。押してファイルを開くこともできます。自身がファイルを読むことも、保持することも、送ることもありません。
+translationOf: components/file-item.mdx
+sourceHash: 7d87ffe88f4c926c993c8b2d399a647f70ab8368
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## 概要
+
+<ComponentAvailability name="file-item" />
+
+<DemoFrame label="行にした 1 つのファイルと、タイルにしたファイル" column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="取り除く"></tanrei-file-item>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="取り除く"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="取り除く"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+ファイル項目は、1 つのファイルを見せるものです。名前の前には、ファイルの形式を表すグリフか、そのファイルの小さな画像があります。名前の下の 1 行には、プロダクトがそのファイルについて伝えることが入ります。形式、サイズ、送信がどこまで進んだか、何が問題だったかです。末尾には、ファイルに対する 2 つのアクションがあります。取り除くことと、もう一度試すことです。
+
+形は 2 つあります。
+
+- `row`（既定）。置かれた場所の幅いっぱいに広がる 1 行です。縦に並ぶファイルに使います。
+- `tile`。利用者側が指定した幅と高さのボックスで、その下に名前があります。画像の並びに使います。
+
+<Callout type="caution" title="見せるだけで、ほかには何もしません">
+ファイル項目は、ファイルを 1 バイトも読まず、ファイルを保持せず、何も送りません。取り除くこともしません。取り除くアクションは、その人が求めたことを利用者側に伝えるだけで、項目を取り除くのは利用者側です。見せるものは、プロパティに指定されたとおりです。
+</Callout>
+
+**使われている場所**は、[ファイルアップロード](/ja/components/file-upload/)です。そこでは、選ばれたファイルの 1 つ 1 つがファイル項目です。単独では、プロダクトが持っているファイルを見せる場所ならどこでも使います。メッセージの添付ファイル、記録に付いた書類、すでに送信された申請のファイルなどです。
+
+次の場合は、ほかのものを使います。
+
+- ファイルを選んでもらい、それを一覧にする場合。それは[ファイルアップロード](/ja/components/file-upload/)です。ファイル項目を利用者側の代わりに持ちます。
+- ファイルを並べ替えてもらう場合。それは、行でファイルを見せる[リスト](/ja/components/list/)です。[並べ替えられるファイル](#並べ替えられるファイル)を見てください。
+- ファイルの中から選択してもらう場合。それは、選択のある[リスト](/ja/components/list/)です。ファイル項目に、選択の状態はありません。
+- 画像そのものがコンテンツで、見てもらうためのものである場合。ファイル項目の画像は、グリフがあるはずの場所に置かれるもので、代替テキストを持ちません。
+
+Web では `<tanrei-file-item>` です。ほかのプラットフォームはまだ実装していません。
+
+### 使い方
+
+`name` と、手元にあるテキストを指定します。`value` は、`click`、`remove`、`retry` が利用者側に返す値です。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <ul class="attachments" aria-label="添付ファイル">
+      <li>
+        <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 KB"
+                          href="/files/brief.pdf" remove-label="取り除く"></tanrei-file-item>
+      </li>
+      <li>
+        <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB"
+                          status="uploading" status-text="アップロード中" progress="0.4"
+                          remove-label="取り除く" retry-label="もう一度試す"></tanrei-file-item>
+      </li>
+    </ul>
+
+    <script type="module">
+      import '@tanrei/web/components/file-item';
+
+      const list = document.querySelector('.attachments');
+      // ファイル項目が自分で消えることはありません。利用者側が項目を取り除き、ファイルの送信を止め、フォーカスを移します。
+      list.addEventListener('remove', (event) => {
+        cancel(event.detail.value);
+        event.target.closest('li').remove();
+      });
+      list.addEventListener('retry', (event) => send(event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FileItem } from '@tanrei/react';
+
+    <ul aria-label="添付ファイル">
+      {files.map((file) => (
+        <li key={file.id}>
+          <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
+            status={file.status} statusText={file.statusText} progress={file.progress}
+            errorText={file.errorText} retryable={file.retryable}
+            removeLabel="取り除く" retryLabel="もう一度試す"
+            onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
+        </li>
+      ))}
+    </ul>
+    ```
+  </TabItem>
+</Tabs>
+
+`removeLabel` と `retryLabel` は、`setWords()` でプロダクト全体に一度だけ指定できます。それ以外のテキストは、すべてインスタンスのものです。
+
+## 仕様
+
+<DemoFrame label="状態ごとの行。待機中、40% まで送信、送信中、完了、失敗して再試行できる、失敗して再試行できない" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="待機中" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="アップロード中" progress="0.4" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="アップロード中" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="アップロード済み" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="接続が切れました。" retryable remove-label="取り除く" retry-label="もう一度試す"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="10 MB を超えています。" remove-label="取り除く"></tanrei-file-item>
+</DemoFrame>
+
+<ComponentSpecs name="file-item" />
+
+## ガイドライン
+
+### 2 つの形
+
+<DemoFrame label="同じ 3 つのファイルを、行とタイルで" plain column>
+  <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="取り除く"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="取り除く"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" preview remove-label="取り除く"></tanrei-file-item>
+  </div>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="取り除く"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="取り除く"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="取り除く"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| 観点 | `row`（既定） | `tile` |
+| --- | --- | --- |
+| 使う場面 | 種類を問わない、縦に並ぶファイル。 | 画像の並び。 |
+| 幅 | 置かれた場所の幅。 | ボックスの幅である `width`。置かれた場所より広くはなりません。 |
+| グリフまたは画像 | 名前の前。`preview` があれば、小さな正方形です。 | ボックス全体。`width` × `height` です。 |
+| 名前 | 折り返され、切り詰められません。 | ボックスの下の 1 行。末尾が残るように、中ほどで切り詰められます。 |
+| 2 行目 | 名前の下。 | ボックスの下。ボックスの幅の中で折り返されます。 |
+| バー | テキストの下。 | ボックスの下端に沿って。 |
+| アクション | 末尾。再試行、取り除くの順です。 | ボックスの中、上の末尾側の角。 |
+
+`width` と `height` は数値で、読まれるのはタイルの形のときだけです。`height` がなければ、ボックスの高さはトークン `comp.file-item.tile.media.height` のとおりです。`width` がなければ、正方形になります。手元にある画像の縦横比に合わせて選びます。スクリーンショットなら `width="160" height="90"`、人物の写真なら正方形です。ボックスが、2 つのアクションに必要な幅より狭くなることはありません。
+
+3 つ目の、小さくまとめた形はありません。1 行に収めたファイルは、2 行目に何もない行です。
+
+### 見せるもの
+
+それぞれのパーツは、利用者側が指定したときに見えます。見えるものを変えるのは、オンとオフを切り替える 2 つのプロパティ、`preview` と `nameHidden` です。見せるパーツの一覧を受け取るプロパティはありません。
+
+| パーツ | 見える条件 |
+| --- | --- |
+| グリフ | 画像が描かれない場所では、常に。 |
+| 画像 | `preview` が設定されていて、描く画像があるとき。 |
+| 名前 | 行では常に。タイルでは、`nameHidden` が設定されて画像が描かれているときを除いて。 |
+| 言葉で表した形式 | `formatText` を指定したとき。Tanrei は、形式を表す言葉を持ちません。 |
+| サイズ | 読む人の言語に合わせて整形した `sizeText` を指定したとき。 |
+| 言葉で表した状態 | `statusText` を指定したとき。 |
+| エラー | `status` が `error` で、`errorText` を指定したとき。どの形でも、状態の場所に置かれ、切り詰められません。 |
+| バー | `status` が `uploading` のとき。`progress` の値まで塗られます。`progress` が設定されていない間は不確定の表示です。 |
+
+完了したファイルと失敗したファイルには、状態の言葉の前に印があります。チェックと、エラーの印です。名前の前のグリフは、状態によって変わりません。利用者は、それぞれについて場所を 1 つ覚えるだけで済みます。名前の前はそのファイルが何であるか、状態の前はそれがどうなっているかです。
+
+`nameHidden` は、密に並んだ画像のためのものです。名前が隠れるのは、画像が描かれているときだけです。グリフを見せているタイルは、名前を保ちます。形式のグリフでは、同じ形式の 2 つのファイルを見分けられないためです。どの場合も、支援技術にとっての項目の名前は、その名前のままです。
+
+### グリフは形式を表す
+
+グリフの種類は 10 あります。種類ごとに、メディアタイプの一覧とファイルの拡張子の一覧があります。グリフは `mediaType` から選ばれます。メディアタイプが空であるか、`application/octet-stream` であるか、どの一覧にもない場合は、`name` の拡張子から選ばれます。種類は次の順に照合されます。一覧は固定で、どのプラットフォームでも同じです。そのため、1 つのファイルは、どこで見せても同じグリフになります。
+
+<DemoFrame label="10 の種類" plain column>
+  <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
+    <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
+    <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
+    <tanrei-file-item name="kickoff.pptx" readonly></tanrei-file-item>
+    <tanrei-file-item name="photos.zip" readonly></tanrei-file-item>
+    <tanrei-file-item name="tokens.json" readonly></tanrei-file-item>
+    <tanrei-file-item name="entrance.jpeg" readonly></tanrei-file-item>
+    <tanrei-file-item name="walkthrough.mp4" readonly></tanrei-file-item>
+    <tanrei-file-item name="interview.mp3" readonly></tanrei-file-item>
+    <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
+    <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| 種類 | グリフ | メディアタイプ | 末尾 |
+| --- | --- | --- | --- |
+| pdf | `picture_as_pdf` | `application/pdf` | pdf |
+| spreadsheet | `table` | `text/csv`, `text/tab-separated-values`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `application/vnd.oasis.opendocument.spreadsheet`, `application/vnd.apple.numbers`, `application/x-iwork-numbers-sffnumbers` | xls, xlsx, ods, numbers, csv, tsv |
+| presentation | `slideshow` | `application/vnd.ms-powerpoint`, `application/vnd.openxmlformats-officedocument.presentationml.presentation`, `application/vnd.oasis.opendocument.presentation`, `application/vnd.apple.keynote`, `application/x-iwork-keynote-sffkey` | ppt, pptx, odp, key |
+| archive | `folder_zip` | `application/zip`, `application/x-zip-compressed`, `application/x-tar`, `application/gzip`, `application/x-gzip`, `application/x-bzip2`, `application/x-xz`, `application/x-7z-compressed`, `application/vnd.rar`, `application/x-rar-compressed` | zip, tar, gz, tgz, bz2, xz, 7z, rar |
+| code | `code` | `text/html`, `text/css`, `text/javascript`, `application/javascript`, `application/x-javascript`, `text/typescript`, `application/typescript`, `text/jsx`, `text/tsx`, `application/json`, `application/xml`, `text/xml`, `text/yaml`, `text/x-yaml`, `application/yaml`, `application/x-yaml`, `application/x-sh`, `text/x-sh`, `text/x-shellscript`, `text/x-python`, `text/x-script.python`, `text/x-ruby`, `application/x-ruby`, `text/x-go`, `text/x-rust`, `text/x-java`, `text/x-java-source`, `text/x-kotlin`, `text/x-swift`, `text/x-c`, `text/x-chdr`, `text/x-csrc`, `text/x-c++`, `text/x-c++src`, `text/x-csharp`, `text/x-php`, `application/x-php`, `application/x-httpd-php`, `application/sql`, `text/x-sql` | html, css, js, mjs, ts, tsx, jsx, json, xml, yaml, yml, sh, py, rb, go, rs, java, kt, swift, c, h, cpp, cs, php, sql |
+| image | `image` | `image/` で始まるすべてのタイプ | png, jpg, jpeg, gif, webp, avif, svg, bmp, tif, tiff, heic, heif, ico |
+| video | `movie` | `video/` で始まるすべてのタイプ | mp4, mov, m4v, webm, mkv, avi |
+| audio | `music_note` | `audio/` で始まるすべてのタイプ | mp3, wav, m4a, aac, ogg, oga, flac, opus |
+| document | `description` | `text/` で始まるほかのすべてのタイプと、`application/rtf`, `application/msword`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `application/vnd.oasis.opendocument.text`, `application/vnd.apple.pages`, `application/x-iwork-pages-sffpages` | txt, md, rtf, doc, docx, odt, pages |
+| other | `draft` | — | それ以外のすべてと、ドットのない名前 |
+
+- メディアタイプが、名前の末尾より先に決めます。メディアタイプが一覧にあるファイルは、名前の末尾が何であっても、その種類です。
+- 形式を知るためにファイルを開くことはありません。
+- プロダクト独自の形式には、`glyph` でアイコンセットのグリフを指定するか、`icon` スロットに自分のグリフを入れます。
+- グリフはどれも同じ 1 色です。形式に固有の色はありません。色は、どこで使われても 1 つのことを意味します。そして形式は状態ではありません。
+- 形式が大事な場面では、`formatText` を使って言葉で伝えます。グリフは、支援技術から隠されています。
+
+### プレビューとそのコスト
+
+`preview` は、グリフの場所にファイルの画像を描きます。画像の出どころは 2 つあります。
+
+- `previewSrc`。サーバーが作った、そのファイルの小さな画像のアドレスです。どの形式のファイルにも描かれます。
+- ファイルそのもの。`previewSrc` が空で、ファイルが画像である場合です。Web では、`file` プロパティに `File` を設定します。
+
+`fit` は、画像がボックスをどう埋めるかを決めます。`cover`（既定）は、ボックスを埋め、収まらない部分を切り落とします。写真に使います。`contain` は、ボックスの地の上に画像の全体を見せます。スキャン、署名、図のように、端が大事なものに使います。
+
+<DemoFrame label="160 × 90 のボックス。cover、contain、名前を隠したもの" plain>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="取り除く"></tanrei-file-item>
+</DemoFrame>
+
+プレビューのコストは次のとおりです。
+
+| 画像の出どころ | かかるコスト |
+| --- | --- |
+| `preview` がオフのとき（既定） | ありません。100 個のファイル項目のコストは、そのテキストのコストだけです。 |
+| `previewSrc` があるとき | 項目ごとに画像のリクエストが 1 つ。プラットフォーム自身の画像の読み込みが行います。 |
+| ファイルそのものを使うとき | ファイルのアドレスが 1 つ。項目が、初めて表示範囲かその近くに入ったときに作ります。項目がページを離れたとき、別のファイルを渡すかファイルをなくしたとき、プレビューが求められなくなったときに解放します。ファイルを読んで描くのは、プラットフォームの画像デコーダーです。項目自身は何も読みません。 |
+
+- ファイルから描かれるのは、画像だけです。動画の 1 コマや書類の 1 ページを描くには、ファイルを開いて読む必要があり、Tanrei のコンポーネントはどれもそれをしません。そうしたファイルには `previewSrc` を指定します。
+- 画像を描けるようになるまでの間と、描けなかった場合は、形式のグリフが描かれます。スピナーも、壊れた画像の印もなく、`status` も変わりません。サムネイルを読み込めなかったことは、ファイルの失敗ではありません。
+- 画像に代替テキストはありません。画像はグリフがあった場所に置かれ、ファイルの名前は `name` が伝えます。
+
+### 押せる本体、リンク、読み取り専用
+
+既定では、ファイル項目の本体はフォーカスを受け取らず、何にも応えません。項目は、アクションを持つだけです。
+
+<DemoFrame label="ボタンである本体、新しいタブで開くリンク、読み取り専用のファイル" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#押せる本体リンク読み取り専用" target="new" target-label="新しいタブで開きます" remove-label="取り除く"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="12 月 4 日に送信" readonly></tanrei-file-item>
+</DemoFrame>
+
+| プロパティ | 本体 | 使う場面 |
+| --- | --- | --- |
+| `interactive` | ボタンです。`value` を持つ `click` を発火します。 | その人が今いる場所でファイルを開く場合。画像を自身のビューアーで、書類をパネルで開くときです。 |
+| `href` | ファイルへのリンクです。先に `click` を発火します。キャンセルすると、移動を利用者側で引き受けられます。 | サーバーがすでに持っているファイル。`target="new"` を指定するときは、`targetLabel` も指定します。 |
+| どちらもなし | 押せません。 | 一覧に並べるだけのファイル。 |
+
+本体は、グリフまたは画像と、テキストです。アクションは本体の横にあり、本体の中に入ることはありません。そのため、押せるファイル項目でも、フォーカスが止まる位置は多くて 3 つです。本体、再試行、取り除くです。
+
+`readOnly` は、どちらのアクションも描かず、その場所も空けません。読むだけの記録に付いたファイルに使います。本体は、このときも押せます。
+
+`disabled` は、アクションと本体を無効にします。項目が見せるものはそのまま残り、読めるままです。
+
+### 並べ替えられるファイル
+
+ファイル項目には、ハンドルも、移動ボタンも、順序もありません。並べ替えは[リスト](/ja/components/list/)のものです。それぞれのファイルを、並べ替えられるリストの行として見せます。名前を見出しに、サイズを補足テキストに、グリフまたは画像を先頭に、取り除くための利用者側のボタンを末尾に置きます。
+
+<ListReorderProduct />
+
+<DemoFrame label="並べ替えられるファイル。行でファイルを見せる、並べ替えられるリストです" plain>
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="上へ移動" move-down-label="下へ移動" moved-text="{headline}を{count}件中{position}番目に移動しました" style="inline-size: 26rem">
+    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="cover-letter.pdf を取り除く" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="resume.docx" supporting-text="文書 · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="resume.docx を取り除く" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="portfolio.zip" supporting-text="アーカイブ · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="portfolio.zip を取り除く" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+```html
+<tanrei-list reorder="buttons" move-up-label="上へ移動" move-down-label="下へ移動"
+             moved-text="{headline}を{count}件中{position}番目に移動しました">
+  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
+    <tanrei-button slot="trailing" variant="text" label="cover-letter.pdf を取り除く"><span slot="icon">close</span></tanrei-button>
+  </tanrei-list-item>
+  …
+</tanrei-list>
+```
+
+これが描くのはリストの行で、ファイル項目ではありません。グリフは利用者側が指定し、行にはバーも状態の印もありません。リストが行を動かし、移動のたびに読み上げ、フォーカスを保ちます。リストのページの[並べ替え](/ja/components/list/#並べ替え)を見てください。リストの行の内容としてのファイル項目と、並べ替えられるタイルの並びは、まだ作られていません。
+
+### 言葉
+
+ファイル項目は、自身の言葉を持ちません。2 つは `setWords()` でプロダクト全体に一度だけ指定でき、それ以外のテキストはすべてインスタンスのプロパティです。
+
+| プロパティ | プロダクトの言葉のキー | ない場合 |
+| --- | --- | --- |
+| `removeLabel` | `removeLabel` | 取り除くアクションは描かれますが、名前がありません。デバッグビルドが報告します。 |
+| `retryLabel` | `retryLabel` | 再試行のアクションは描かれますが、名前がありません。デバッグビルドが報告します。 |
+
+それぞれのアクションは、そのファイルの名前で説明されます。「取り除く」という 1 語があれば、すべてのファイルに足ります。利用者には「取り除く、ボタン、brief.pdf」と聞こえます。
+
+### 右から左
+
+右から左のレイアウトでは、グリフまたは画像が右に、アクションが左に並び、取り除くアクションがいちばん外側になります。バーは右から伸び、タイルのアクションは左上の角に置かれます。画像が反転することはありません。ラテン文字のファイル名は、ドットと拡張子を含めて、自身の並びを保ちます。形式の 10 のグリフのうち、反転するのは `other` のグリフだけです。アイコンセットがそう指定しているためです。
+
+### 推奨
+
+- 完了したファイルには `statusText` を、失敗したファイルには `errorText` を指定します。状態を、印や色だけで伝えることはありません。
+- `retryable` は、もう一度試せば直る可能性のある失敗にだけ指定します。大きすぎるファイルは、次も大きすぎます。
+- サイズは利用者側で整形します。1 メガバイトを 1000 キロバイトとするか 1024 キロバイトとするかは、プロダクトが決めます。
+- ひとまとまりのファイル項目は、名前を付けた `<ul>` のような利用者側のリストか、ファイルアップロードに入れます。
+- 項目を取り除いた後は、利用者側でフォーカスを移します。単独のファイル項目は、自分の隣に何があるかを知ることができません。
+
+### 非推奨
+
+- 項目が自分で消えたり、状態を変えたり、バーを動かしたりすることを期待しない。項目は、設定された内容を描きます。
+- 画像でないファイルに `nameHidden` を使わない。そのタイルは、どのみち名前を保ちます。
+- メニュー、チェックボックス、キャプションを中に入れない。スロットはグリフの 1 つだけです。ファイルに対するほかのアクションは、項目の横に置きます。
+- 選択したり並べ替えたりするリストの行として使わない。それはリストの行です。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="file-item" />
+
+### コンポーネントが担うこと
+
+- 単独のファイル項目は、ファイルの名前が付いたグループです。ファイルアップロードの中では、そのリストの項目です。
+- 押せる本体は、1 つのボタンまたは 1 つのリンクです。ファイルの名前が名前になり、2 行目が説明になります。フォーカス順では、アクションより前です。リンクは Enter で動作し、Space では動作しません。新しいタブで開くリンクは、名前の後に `targetLabel` を伝えます。
+- アクションはボタンです。`removeLabel` と `retryLabel` が名前になり、ファイルの名前が説明になります。再試行が、取り除くより前です。
+- バーは、そのファイルの名前が付いたプログレスバーです。エラーは 2 行目のテキストで、状態の場所で読まれます。
+- グリフ、画像、状態の印は、支援技術から隠されています。それらが示すことは、言葉が伝えます。
+- ファイル項目は、何も読み上げません。多くのファイル項目を持つ側が、全体のためのライブリージョンを 1 つ持ちます。ファイルアップロードがそうしています。
+- 名前の全体が、常に支援技術に届きます。タイルが名前を切り詰めているときも、`nameHidden` が隠しているときも同じです。
+- テキストが 200% のとき、行は折り返され、何も失われません。タイルのボックスは大きさを保ち、テキストがその下で大きくなります。
+- 強制カラーモードでは、ボックスと、タイルのアクションの円形の地が縁を保ち、バーも見えたままです。画像はそのままです。
+- 状態の間の色の変化は、短い時間をかけて動きます。動きを減らす設定では、すぐに変わります。
+
+Web での既知の不足は次のとおりです。
+
+- アニメーション GIF のような動く画像は、ブラウザーの画像要素が再生します。ファイル項目は、それを止めておくことができません。それが大事な場面では、`previewSrc` に静止画を指定します。
+- 要素が定義されるまでは、何も描かれません。名前が属性であって、文書の中のテキストではないからです。スクリプトが動かない場所でファイルを一覧にする必要があるページは、自身のリンクを書きます。
+
+### 利用者側で行うこと
+
+- `name` を必ず指定します。
+- `removeLabel` と `retryLabel` を、要素に、または `setWords()` で一度だけ指定します。
+- 状態と失敗は、必ず言葉で伝えます。`statusText` と `errorText` です。
+- `target="new"` を指定するときは、`targetLabel` も指定します。
+- ひとまとまりのファイル項目には、利用者側のリストと名前を与えます。追加されたもの、完了したもの、失敗したものは、利用者側の 1 つのライブリージョンで伝えます。ファイルアップロードは、この両方を代わりに行います。
+- 項目を取り除いた後は、フォーカスを次のファイルの取り除くアクションへ、またはファイルを追加したものへ移します。

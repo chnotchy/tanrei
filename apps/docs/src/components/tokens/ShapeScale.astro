@@ -1,0 +1,80 @@
+---
+import { tokensIn, dimension, sourceDescription, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import { figureId } from '../../lib/figure-id';
+import SourceNote from '../SourceNote.astro';
+import Table from '../Table.astro';
+const t = strings(contentLang(Astro));
+// Each specimen is named by its caption. The docs write that themselves: a browser's accessibility tree does not
+// always name a `figure` by its `figcaption`.
+const tokens = tokensIn(`${ns}.sys.shape.corner`)
+  .sort((a, b) => a.value.value - b.value.value)
+  .map((tk) => ({ ...tk, captionId: `${figureId(Astro)}-caption` }));
+---
+
+<div class="not-content grid" data-tanrei-code="plain">
+  {/* A space after a name and after each specimen (a block and a grid draw none): words to the search index, not one run. */}
+  {tokens.map((tk) => (
+    <>
+    <tanrei-figure variant="plain" class="specimen">
+      <figure aria-labelledby={tk.captionId}>
+        <div data-part="stage">
+          <div class="box" style={`border-start-start-radius: var(${tk.cssVar})`} />
+        </div>
+        <figcaption id={tk.captionId}>
+          <code>{tk.path.at(-1)}</code>{' '}
+          <span class="docs-mono docs-muted">{tk.value.value >= 9999 ? 'full' : dimension(tk.value)}</span>
+        </figcaption>
+      </figure>
+    </tanrei-figure>{' '}
+    </>
+  ))}
+</div>
+<Table label={`${ns}.sys.shape.corner`}><table>
+  <thead><tr><th scope="col" data-wrap="false">{t.token}</th><th scope="col" data-wrap="false">{t.value}</th><th scope="col">{t.notes}</th></tr></thead>
+  <tbody>
+    {tokens.map((tk) => (
+      <tr>
+        <td data-wrap="false"><code>{tk.cssVar}</code></td>
+        <td class="docs-mono" data-wrap="false">{dimension(tk.value)}</td>
+        <td>{tk.description ?? sourceDescription(tk.name) ?? ''}</td>
+      </tr>
+    ))}
+  </tbody>
+</table></Table>
+<SourceNote files={[`design/tokens/${ns}.light.tokens.json`, 'tokens/sys/shape.tokens.json']} />
+
+<script>
+  import '@tanrei/web/components/figure';
+</script>
+
+<style>
+  /* Each specimen is Tanrei's Figure in its plain look — what is shown is its own frame — named by its caption, which
+     the Figure draws. The site's own: the grid the specimens stand in, the corner each one shows, and the two lines
+     of its caption. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  /* A plain figure clips its stage to the figure's corner: here the corner is the thing shown, so the stage has none. */
+  .specimen {
+    --tanrei-comp-figure-container-shape: var(--tanrei-sys-shape-corner-none);
+  }
+  .box {
+    align-self: stretch;
+    block-size: 4.5rem;
+    border-block-start: 1.5px solid var(--tanrei-sys-color-on-surface);
+    border-inline-start: 1.5px solid var(--tanrei-sys-color-on-surface);
+    background: linear-gradient(135deg, var(--tanrei-sys-color-surface-container-high), transparent 70%);
+  }
+  /* The value on a line of its own under the name. (The name stays inline: inline code takes no line height of its
+     own, and as a block it would have none.) */
+  figcaption span {
+    display: block;
+  }
+  code {
+    font-family: var(--sl-font-mono);
+  }
+</style>

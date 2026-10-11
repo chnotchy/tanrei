@@ -1,0 +1,188 @@
+---
+title: Grupo de campos
+description: Da nombre a un conjunto de controles que responden a una misma pregunta (casillas de verificación, interruptores o campos que van juntos), con una etiqueta que puede decir si el conjunto es obligatorio u opcional, una descripción y un único error para el conjunto, y dispone los controles en una columna o en una fila.
+translationOf: components/field-group.mdx
+sourceHash: 0c05f716a744df37389e7c61de7327157afc78c5
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="field-group" />
+
+<DemoFrame label="Un conjunto de casillas de verificación con un nombre, una descripción y una marca de obligatoriedad" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio">
+    <tanrei-checkbox label="Correo electrónico" checked></tanrei-checkbox>
+    <tanrei-checkbox label="Mensaje de texto"></tanrei-checkbox>
+    <tanrei-checkbox label="Notificación push"></tanrei-checkbox>
+  </tanrei-field-group>
+</DemoFrame>
+
+Algunas preguntas se responden con varios controles: cuáles de estos, estos ajustes, una dirección en cinco campos. Un grupo de campos da al conjunto un nombre, una línea que dice cómo responder, una palabra que dice si hay que responderlo y un único motivo cuando la respuesta se rechaza. Es un [campo](/es/components/field/) cuyo control es un conjunto.
+
+El grupo enmarca el conjunto y lo dispone. No selecciona nada, no guarda ningún valor, no mueve el foco ni gestiona ninguna tecla: cada control conserva lo suyo.
+
+En la web es `<tanrei-field-group>`. Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-field-group label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio"
+                        error error-text="Elige al menos una forma de contacto.">
+      <tanrei-checkbox name="notify" value="email" label="Correo electrónico"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="text" label="Mensaje de texto"></tanrei-checkbox>
+      <tanrei-checkbox name="notify" value="push" label="Notificación push"></tanrei-checkbox>
+    </tanrei-field-group>
+
+    <!-- Campos que van juntos. -->
+    <tanrei-field-group label="Dirección de envío" spacing="fields">
+      <tanrei-text-field label="Calle" requirement="required" required-text="Obligatorio"></tanrei-text-field>
+      <tanrei-text-field label="Ciudad" requirement="required" required-text="Obligatorio"></tanrei-text-field>
+    </tanrei-field-group>
+
+    <script type="module">
+      import '@tanrei/web/components/field-group';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Checkbox, FieldGroup } from '@tanrei/react';
+
+    <FieldGroup label="Avísame por" supportingText="Elige todas las opciones que correspondan." error={none} errorText="Elige al menos una forma de contacto.">
+      <Checkbox label="Correo electrónico" checked={email} onChange={(event) => setEmail(event.detail.checked)} />
+      <Checkbox label="Mensaje de texto" checked={text} onChange={(event) => setText(event.detail.checked)} />
+    </FieldGroup>
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Un error para el conjunto, una fila, interruptores y campos que van juntos" plain column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" supporting-text="Elige todas las opciones que correspondan." requirement="required" required-text="Obligatorio" error error-text="Elige al menos una forma de contacto.">
+    <tanrei-checkbox label="Correo electrónico"></tanrei-checkbox>
+    <tanrei-checkbox label="Mensaje de texto"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Avísame por" orientation="horizontal">
+    <tanrei-checkbox label="Correo" checked></tanrei-checkbox>
+    <tanrei-checkbox label="SMS"></tanrei-checkbox>
+    <tanrei-checkbox label="Push"></tanrei-checkbox>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Privacidad" supporting-text="Solo se aplican a este dispositivo." requirement="optional" optional-text="Opcional">
+    <tanrei-switch label="Compartir datos de uso" selected></tanrei-switch>
+    <tanrei-switch label="Mostrar mi estado"></tanrei-switch>
+  </tanrei-field-group>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Ciudad y código postal" spacing="fields" orientation="horizontal">
+    <tanrei-text-field label="Ciudad" value="Kioto"></tanrei-text-field>
+    <tanrei-text-field label="Código postal" value="604-8571"></tanrei-text-field>
+  </tanrei-field-group>
+</DemoFrame>
+
+<ComponentSpecs name="field-group" />
+
+## Pautas
+
+### Para qué sirve un grupo de campos
+
+| El conjunto | Usa |
+| --- | --- |
+| Casillas de verificación que responden a una misma pregunta, o interruptores que forman un mismo conjunto de ajustes | Un grupo de campos. |
+| Campos que van juntos: una dirección, una fecha por partes | Un grupo de campos con `spacing="fields"`. |
+| Botones de opción | Un [grupo de botones de opción](/es/components/radio-group/), que es un grupo de campos alrededor de ellos que además guarda su único valor. Escrito a mano, un grupo de campos con `kind="radio-group"` (más abajo). |
+| Un solo control | Un [campo](/es/components/field/). |
+
+### Un conjunto de botones de opción: `kind`
+
+Un grupo no tiene estado obligatorio ni estado no válido, así que un grupo de campos dice la obligatoriedad con palabras y marca sus casillas de verificación como no válidas una a una. Un conjunto de botones de opción es distinto: es obligatorio y no válido como un todo. `kind="radio-group"` le dice al grupo de campos que su conjunto son los botones de opción de un mismo grupo, y entonces es su grupo de botones de opción para la tecnología de apoyo —obligatorio mientras `requirement` es `required`, no válido mientras `error` es true, y dice su orientación—, y `requiredText` deja de formar parte de su descripción, porque ya lo dice el estado.
+
+```html
+<tanrei-field-group kind="radio-group" label="Entrega" requirement="required" required-text="Obligatorio">
+  <tanrei-radio-button name="delivery" value="standard" label="Estándar, de 3 a 5 días" checked></tanrei-radio-button>
+  <tanrei-radio-button name="delivery" value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
+</tanrei-field-group>
+```
+
+<DemoFrame label="Un grupo de campos cuyo tipo es radio-group, alrededor de botones de opción con un mismo nombre" column>
+  <tanrei-field-group class="not-content" style="inline-size: 20rem; max-inline-size: 100%" kind="radio-group" label="Entrega" requirement="required" required-text="Obligatorio">
+    <tanrei-radio-button name="delivery-kind" value="standard" label="Estándar, de 3 a 5 días" checked></tanrei-radio-button>
+    <tanrei-radio-button name="delivery-kind" value="express" label="Exprés, al día siguiente"></tanrei-radio-button>
+  </tanrei-field-group>
+</DemoFrame>
+
+`kind` cambia lo que se expone y nada de lo que se dibuja, y el grupo de campos sigue sin guardar ningún valor, sin mover el foco y sin gestionar ninguna tecla: los botones de opción conservan su selección, sus teclas de flecha y su única parada gracias a su `name`. Esto es el [grupo de botones de opción](/es/components/radio-group/) un nivel más abajo. Usa el grupo de botones de opción salvo que necesites organizar el conjunto de una manera que él no ofrece: añade el valor único, un solo `change` y un lugar en un formulario como un solo control.
+
+En este tipo, el grupo contiene los botones de opción de un mismo grupo y nada más que se pueda manejar, y `spacing` se queda en `controls`. Una compilación de depuración notifica otro control, botones de opción con dos nombres y otro espaciado.
+
+### En qué se diferencia de un campo
+
+Un conjunto es alto y se lee desde arriba, así que dos cosas no están donde están en un campo:
+
+- La descripción va debajo de la etiqueta, antes de los controles, y se queda mientras el grupo está en error. «Elige todas las opciones que correspondan» debe leerse antes que las opciones, y es lo que la persona vuelve a necesitar cuando la respuesta se rechaza.
+- El texto de error es una fila propia, debajo del último control.
+
+La etiqueta, el tag de obligatoriedad y el asterisco son los del campo.
+
+### Disposición
+
+- `orientation="vertical"` (el valor predeterminado) apila los controles en una columna. Prefiérelo: todas las etiquetas empiezan en el mismo borde y se leen hacia abajo.
+- `orientation="horizontal"` los dispone en una fila que salta de línea. Resérvalo para dos o tres opciones cortas, o para campos que se leen como una sola línea, como una ciudad y su código postal. Una fila que ha saltado de línea oculta qué etiqueta corresponde a qué marca.
+- `spacing` dice qué contiene el conjunto. `controls` separa las casillas de verificación y los interruptores la distancia de un objetivo táctil; `fields` separa los campos la distancia que un formulario deja entre dos campos, y deja que cada uno ocupe todo el ancho. Un sistema de diseño puede añadir valores.
+
+La marca de una casilla de verificación o de un interruptor está dentro de su propio contenedor, así que empieza un poco más adentro que la etiqueta del grupo. El grupo no la saca de ahí: el contenedor es donde el control dibuja el paso del cursor y su anillo de foco.
+
+### Errores
+
+`error` pone el conjunto en estado de error: se dibuja el texto de error, cada casilla de verificación se dibuja en su propia forma de error y se expone como no válida, y cada botón de opción se dibuja en su forma de error. Un botón de opción no se expone como no válido: su rol no tiene ese estado, y lo dice el grupo de botones de opción. Un interruptor no tiene forma de error y se queda como está dibujado. Un campo del grupo conserva el error que tú le diste: cada campo dice el suyo con palabras, y el error del grupo es para el conjunto entero («Elige al menos una»).
+
+Un control de un grupo válido puede, aun así, estar en error por sí solo.
+
+### Recomendado
+
+- Da al conjunto como nombre la pregunta a la que responden sus controles: «Avísame por».
+- Da a cada control su propia etiqueta. La etiqueta del grupo no las sustituye.
+- Usa un grupo de campos para distinguir dos conjuntos con las mismas etiquetas: «Dirección de envío» y «Dirección de facturación».
+
+### Evita
+
+- No pongas botones de opción en un grupo de campos sin decirlo: usa un [grupo de botones de opción](/es/components/radio-group/) o define `kind="radio-group"`. En un grupo corriente no tienen estado obligatorio ni estado no válido, y una compilación de depuración lo notifica.
+- No uses un grupo de campos solo para la disposición. Si no hay un nombre común, dispón tú los campos, con el mismo token de espaciado (`comp.field-group.gap.fields`).
+- No anides grupos a más de un nivel de profundidad. Un grupo dentro de otro es un miembro más de este y se lee como un grupo dentro de un grupo.
+
+## Accesibilidad
+
+<ComponentAccessibility name="field-group" />
+
+### De qué se encarga el componente
+
+- En la web, el grupo es un `fieldset` con un `legend`: un grupo que contiene sus controles y recibe su nombre de `label`, tanto si se dibuja como si se oculta con `labelHidden`.
+- La descripción del grupo es `supportingText`, después `errorText` mientras `error` es true y después `requiredText` u `optionalText`. Un grupo no tiene estado obligatorio ni estado no válido, y por eso la obligatoriedad se dice con palabras.
+- Cada casilla de verificación que el grupo ha puesto en error se expone como no válida por sí misma, con el texto de error como descripción.
+- Con `kind="radio-group"`, el mismo elemento es un grupo de botones de opción: lleva él mismo el estado obligatorio, el estado no válido y su orientación, y `requiredText` queda fuera de su descripción. En la web es el mismo `fieldset`, con el rol del grupo de botones de opción.
+- `disabled` deshabilita todos los controles y expone el grupo como deshabilitado. Un grupo habilitado nunca habilita un control que hayas deshabilitado tú.
+- Un error que aparece, o cuyas palabras cambian, mientras el foco está dentro del grupo se anuncia una vez, de forma cortés. El foco nunca se mueve por un error.
+- El grupo no es una parada en el orden del foco, no recibe ninguna tecla y no responde a ninguna pulsación: Tab llega a cada control habilitado en el orden dado.
+- El tag de obligatoriedad y el asterisco quedan ocultos para la tecnología de apoyo.
+- Con el texto al 200%, todos los textos saltan de línea, una fila se convierte en una columna y nada se corta.
+- Con colores forzados, todos los textos toman el color de texto del sistema y el tag de obligatoriedad gana un borde.
+- En un diseño de derecha a izquierda, las filas empiezan por la derecha, una fila de controles avanza desde la derecha y cada texto conserva su propia dirección.
+- Las compilaciones de depuración notifican los botones de opción dentro de un grupo de campos cuyo `kind` es `group`, un grupo sin ningún control y un grupo sin etiqueta.
+
+Carencias conocidas en la web:
+
+- La descripción de una casilla de verificación se da con `aria-description`, que no se ha comprobado con todos los lectores de pantalla.
+- Antes de que el elemento esté definido, los controles están en la página sin la etiqueta, la descripción ni la disposición del grupo.
+
+### Qué debes hacer tú
+
+- Da un `label` al grupo.
+- Valida tú la respuesta, activa `error` y escribe `errorText` de modo que diga cómo corregir la respuesta.
+- Da los textos de la obligatoriedad: `required-text` y `optional-text` en el grupo, o una sola vez para todo el producto con `setWords({ requiredText, optionalText })`. Se leen como parte de la descripción del grupo, y un grupo no tiene estado obligatorio: sin `requiredText`, nada le dice a la tecnología de apoyo que hay que responder. Tanrei no incluye textos propios; si falta uno, se notifica en desarrollo. Consulta [Los textos del producto](/es/foundations/words/).
+- Después de un envío fallido, di además, encima del formulario, qué se rechazó y enlaza a cada control: un [callout](/es/components/callout/) activo con el estado de error.

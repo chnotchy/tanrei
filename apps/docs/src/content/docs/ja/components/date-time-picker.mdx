@@ -1,0 +1,303 @@
+---
+title: DateTimePicker
+description: 日付、時刻、日時、またはそれぞれの期間を、カレンダーと時刻のホイールや時計の文字盤から選べるようにします。ダイアログとして、またはフィールドの下に開くサーフェスとして表示します。
+translationOf: components/date-time-picker.mdx
+sourceHash: e11c3805d96885f8603d9d6672a2a6032c9a84c0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import ProductWords from '../../../../components/ProductWords.astro';
+
+export const words = {
+  confirmLabel: 'OK',
+  cancelLabel: 'キャンセル',
+  dateLabel: '日付',
+  startLabel: '開始',
+  endLabel: '終了',
+  rangeLabel: '期間',
+  nextDayLabel: '翌日',
+  rangeErrorText: '終了は開始より後にしてください。',
+  hourLabel: '時',
+  minuteLabel: '分',
+  periodLabel: '午前・午後',
+  wheelsLabel: 'ホイール',
+  dialLabel: '文字盤',
+  entryModeLabel: '時刻の入力方式',
+  previousMonthLabel: '前の月',
+  nextMonthLabel: '次の月',
+  yearViewLabel: '年を選ぶ',
+  todayLabel: '今日',
+};
+
+## 概要
+
+<ComponentAvailability name="date-time-picker" />
+
+DateTimePicker は、[カレンダー](/ja/components/calendar/)、時刻の部分、またはその両方を収めるサーフェスです。`mode` は `date`、`time`、`date-time` のいずれかで、`range` を付けるとどれでも開始と終了を選ぶ期間になります。スクリムの上のダイアログとして（`modal`）、または開いたフィールドやボタンの下のサーフェスとして（`docked`）表示します。値は `2026-09-17`、`19:30`、`2026-09-17T19:30` のような文字列で、秒もタイムゾーンも持ちません。
+
+:::note[現在は Web のみ、ほかは予定]
+Web コンポーネントは、このページの説明どおりにピッカーを実装しています。期間の両端はダッシュでつないだ 2 つのフィールドになり、午前・午後は時刻の控えめな一部になり、入力方式のタブはグリフで描かれ、ホイールには数字を打ち込めます。デモはそのコンポーネントです。SwiftUI、Compose、Flutter、React Native はまだ作っていません。これらのパッケージには廃止した日付ピッカーと時刻ピッカーのコードが残っていますが、このページでは説明しません。
+:::
+
+<DemoFrame label="ボタンで開く：ドック型の日付と、モーダルの時刻">
+  <tanrei-button id="dtp-demo-due" variant="outlined" onclick="document.getElementById('dtp-demo-due-picker').open = true">期限</tanrei-button>
+  <tanrei-date-time-picker id="dtp-demo-due-picker" presentation="docked" anchor="dtp-demo-due" label="期限" locale="ja-JP" today="2026-09-24" value="2026-09-28" onchange="document.getElementById('dtp-demo-due').textContent = '期限 ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
+  <tanrei-button id="dtp-demo-alarm" variant="outlined" onclick="document.getElementById('dtp-demo-alarm-picker').open = true">アラーム</tanrei-button>
+  <tanrei-date-time-picker id="dtp-demo-alarm-picker" mode="time" locale="ja-JP" value="07:30" minute-step="5" label="アラーム" onchange="document.getElementById('dtp-demo-alarm').textContent = 'アラーム ' + this.value" onclose="this.open = false"></tanrei-date-time-picker>
+</DemoFrame>
+
+### 使い方
+
+ピッカーは制御コンポーネントです。`open` を設定して開き、ピッカーは `close` で閉じるよう求めます。`change` を発火する前に、自分の `value`（または `start` と `end`）を設定します。開いた元のフィールドには何も書き込みません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 任意のボタンから開く、モーダルの時刻ピッカー。 -->
+    <tanrei-button id="alarm-button" variant="outlined">アラーム</tanrei-button>
+    <tanrei-date-time-picker id="alarm" mode="time" value="07:30" minute-step="5" label="アラーム"></tanrei-date-time-picker>
+
+    <!-- テキストフィールドの下に開くドック型のピッカー。フィールドのピッカーボタンから開きます。 -->
+    <tanrei-text-field id="due" label="期限" type="date" picker picker-label="日付を選ぶ"></tanrei-text-field>
+    <tanrei-date-time-picker id="due-picker" presentation="docked" anchor="due" label="期限"></tanrei-date-time-picker>
+
+    <!-- 営業時間：時刻の期間。終了が開始と同じかそれより前なら、翌日になります。 -->
+    <tanrei-date-time-picker id="hours" mode="time" range start="09:00" end="17:30" label="営業時間"></tanrei-date-time-picker>
+
+    <script type="module">
+      import '@tanrei/web/components/date-time-picker';
+      const alarm = document.querySelector('#alarm');
+      document.querySelector('#alarm-button').addEventListener('click', () => (alarm.open = true));
+      alarm.addEventListener('change', (e) => save(e.detail.value)); // "07:35"：alarm.value はすでに新しい値です
+      // ピッカーが自分で閉じることはありません。e.detail.reason は escape、back、outside、tab、focus-out、cancel、confirm、select のいずれかです。
+      alarm.addEventListener('close', () => (alarm.open = false));
+
+      // フィールドは依頼するだけです。ピッカーを開き、値を書き戻すのはプロダクト側です。
+      const field = document.querySelector('#due');
+      const due = document.querySelector('#due-picker');
+      field.addEventListener('pickerrequest', (e) => {
+        Object.assign(due, { value: e.detail.value, min: e.detail.min, max: e.detail.max, open: true });
+      });
+      due.addEventListener('change', (e) => (field.value = e.detail.value));
+      due.addEventListener('close', () => (due.open = false));
+
+      const hours = document.querySelector('#hours');
+      hours.addEventListener('change', (e) => saveHours(e.detail.start, e.detail.end));
+      hours.addEventListener('close', () => (hours.open = false));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { useState } from 'react';
+    import { DateTimePicker, TextField } from '@tanrei/react';
+
+    const [due, setDue] = useState('');
+    const [open, setOpen] = useState(false);
+
+    <TextField
+      id="due"
+      label="期限"
+      type="date"
+      value={due}
+      picker
+      pickerLabel="日付を選ぶ"
+      onChange={(e) => setDue(e.currentTarget.value)}
+      onPickerrequest={() => setOpen(true)}
+    />
+    <DateTimePicker
+      presentation="docked"
+      anchor="due"
+      open={open}
+      value={due}
+      onChange={(e) => setDue(e.detail.value)}
+      onClose={() => setOpen(false)}
+    />
+
+    // モーダルの日時。15 分刻みです。
+    <DateTimePicker
+      mode="date-time"
+      minuteStep={15}
+      label="会議の開始"
+      open={meetingOpen}
+      value={meeting}
+      onChange={(e) => setMeeting(e.detail.value)}
+      onClose={() => setMeetingOpen(false)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+SwiftUI、Compose、Flutter、React Native の例はありません。これらのプラットフォームは、まだピッカーを作っていないからです。各プラットフォームでの名前は、[仕様](#仕様)のプラットフォーム対応表にあります。
+
+### 日付ピッカーと時刻ピッカーの移り先
+
+| 以前 | 現在 |
+| --- | --- |
+| 日付ピッカー（モーダル、ドック） | `date` モードの DateTimePicker（`modal` または `docked`） |
+| 期間を選ぶ日付ピッカー | `mode` を `date` にして `range` を付ける |
+| 時刻ピッカー | `time` モードの DateTimePicker。文字盤は入力方式の 1 つで、もう 1 つのホイールが既定です |
+| 時刻ピッカーの AM・PM のセグメント | 午前・午後。時と分のホイールの横の短い 3 つ目のホイール、または文字盤モードで分の横に置くセレクターです |
+| ピッカーの中での日付や時刻の文字入力 | `type` を `date`、`time`、`date-time` にした[テキストフィールド](/ja/components/text-field/)。そのピッカーボタンが、このピッカーを開くようプロダクトに求めます |
+| ページに置く月のグリッド | [カレンダー](/ja/components/calendar/) |
+| 2 つのピッカーのトークン | サーフェス・ヘッダー・時刻の部分・アクションは `comp.date-time-picker.*`、グリッドは `comp.calendar.*` |
+
+このコンポーネントで新しくできるようになったのは、`date-time` モード、時刻の期間（終了が翌日になってもよい）、ホイール、`minuteStep` です。
+
+Web では、日付を選ぶ要素と時刻を選ぶ要素という以前の 2 つは、なくなりました。どちらも `<tanrei-date-time-picker>` で、`mode="date"` か `mode="time"` を付けます。ドック型のピッカーは、これまでどおり `anchor` と `opener`（下に置く要素と、開く要素の id）を受け取り、`open` で開いて `close` を受けて閉じます。文字盤は `entry-mode="dial"` です。
+
+### Material 3 と Apple の名前との対応
+
+- Material 3 のドック型とモーダルの date picker は `date` モードの DateTimePicker で、date range picker はそれに `range` を付けたものです。
+- Material 3 の time picker は `time` モードの DateTimePicker です。m3-like プリセットは文字盤だけを提供し、Material の大きめのセレクターと文字盤、末尾寄せのテキストのアクションで描きます。
+- Material の全画面の期間ピッカーと、文字入力に切り替える鉛筆やキーボードのボタンに相当するものはありません。文字入力はテキストフィールドの役目です。
+- Apple のホイール式の時刻ピッカーは、ホイールにあたります。cupertino プリセットはホイールだけを提供し、Apple の灰色の帯で描きます。
+- Flutter の `showDatePicker` と `showTimePicker` は `showTanreiDateTimePicker`、SwiftUI で表示するピッカーは `.tanreiDateTimePicker` モディファイアー、Compose のピッカーのダイアログは `TanreiDateTimePicker` にあたります。React Native では `DateTimePicker` ですが、同じ名前のコミュニティパッケージとは別物です。
+
+## 仕様
+
+以下のデモは、Web の `inline` 属性を使って、開いたサーフェスをその場に描いています。この属性はドキュメントとテストのためのものです。プロダクトのピッカーはページの上に開きます。
+
+<DemoFrame label="日付：ヘッダーとアクションのあるモーダルと、日を選ぶと確定するドック型" plain>
+  <tanrei-date-time-picker inline open locale="ja-JP" today="2026-09-24" value="2026-09-17" label="チェックイン"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open presentation="docked" locale="ja-JP" today="2026-09-24" value="2026-09-17" label="チェックイン"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="時刻：既定のホイールと、文字盤（12 時間制）" plain>
+  <tanrei-date-time-picker inline open mode="time" hour-cycle="h12" locale="ja-JP" value="19:30" label="アラーム"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open mode="time" entry-mode="dial" hour-cycle="h12" locale="ja-JP" value="19:30" label="アラーム"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="翌日に終わる時刻の期間と、15 分刻みの 24 時間制" plain>
+  <tanrei-date-time-picker inline open mode="time" range locale="ja-JP" start="22:00" end="06:00" label="おやすみ時間"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open mode="time" hour-cycle="h23" minute-step="15" locale="ja-JP" value="19:30" label="出発"></tanrei-date-time-picker>
+</DemoFrame>
+
+<DemoFrame label="日時と、日付の期間" plain>
+  <tanrei-date-time-picker inline open mode="date-time" locale="ja-JP" today="2026-09-24" value="2026-09-17T19:30" minute-step="5" label="会議の開始"></tanrei-date-time-picker>
+  <tanrei-date-time-picker inline open range locale="ja-JP" today="2026-09-24" start="2026-09-10" end="2026-09-16" label="宿泊"></tanrei-date-time-picker>
+</DemoFrame>
+
+<ComponentSpecs name="date-time-picker" />
+
+## ガイドライン
+
+### 使う場面
+
+日付や時刻を選ぶときに、カレンダーや時計が見えると助けになる場面で使います。何曜日か、どれくらい先か、何時台か、といった場面です。[テキストフィールド](/ja/components/text-field/)のピッカーボタンか、任意のボタンから開きます。テキストフィールドから開けば、値がわかっている人は入力もできます。日付を選ぶことがページの作業そのものなら、代わりに[カレンダー](/ja/components/calendar/)をページに置きます。
+
+### 形の選び方
+
+| 選ぶもの | 設定 |
+| --- | --- |
+| 日付 | `mode` を `date`（既定）にします。手早く選ぶならフィールドの下の `docked`、日付に画面を使う価値があるなら `modal` です |
+| 日付の期間 | `mode` を `date` にして `range` を付けます |
+| 時刻 | `mode` を `time` にします |
+| 営業時間、シフト、おやすみ時間 | `mode` を `time` にして `range` を付けます。終了が開始と同じかそれより前なら、翌日になります |
+| 予定の日時 | `mode` を `date-time` にします |
+| ある時点から別の時点までの予約 | `mode` を `date-time` にして `range` を付けます |
+
+`min`、`max`、`disabledDates`、`today`、`firstDayOfWeek`、`startView`、`showAdjacentDays` はカレンダーに渡され、意味は[カレンダー](/ja/components/calendar/)と同じです。制限するのは日付だけで、時刻は制限しません。
+
+### 開くことと確定すること
+
+ピッカーは制御コンポーネントです。テキストフィールドの `pickerRequest` やボタンのハンドラーから `open` を設定して開き、ピッカーは理由を付けて `close` を発火します。Web、Compose、React Native では、`open` を false に戻すのはプロダクト側です。SwiftUI と Flutter では、バインディングやルートが閉じます。
+
+- **モーダル、または時刻を含むもの。** ピッカーは選択を保留して持ち、OK で確定します。選択が変わっていれば `change` を発火し、続けて `confirm` の `close` を発火します。選択がそろうまで OK は無効です。キャンセル、Escape、戻る操作、スクリムを押すと、何も確定せずに閉じます。開いているあいだにプロダクト側から値を設定しても、保留中の選択は動きません。
+- **ドック型で日付だけのもの。** 選択がそろう日を選んだ時点で確定し、ピッカーを閉じます（`select`）。アクションはありません。期間の開始日を選んだだけでは閉じません。
+- **書き戻し。** ピッカーはフィールドに何も書き込みません。`change` からフィールドの `value` を設定します。閉じると、フォーカスは開く前の場所、多くはフィールドのピッカーボタンに戻ります。
+
+間にプロダクトが入るのは、2 つのフィールドから作る期間、分の刻み、日の述語のように、フィールドの知らないことからピッカーを設定することが多いからです。
+
+Web のドック型のピッカーは、下に置く要素の id を `anchor` で受け取り、別の要素が開く場合は `opener` も受け取ります。テキストフィールドをアンカーにすると、そのピッカーボタンを、ダイアログを開くコントロールとして伝えます。
+
+### 構成とレイアウト
+
+上から順に、ヘッダー、本体、アクションです。
+
+| 部分 | 説明 |
+| --- | --- |
+| ヘッダー | 先頭揃えのタイトル行です。何を選ぶのかを表す `label`（「チェックイン」など）と、時刻を設定するピッカーでは末尾に入力方式のタブを置きます。`label` に当たる言葉をピッカー自身は持ちません。なければ、この行は言葉を描きません。日付を含むモーダルのピッカーでは、その下に保留中の値（「9月17日(木)」「9月10日 – 9月16日」。まだ選んでいない日付は `dateLabel`）も表示し、ヘッダーの下に細い線を引きます。 |
+| カレンダー | `date` と `date-time` で表示します。ピッカーはプロパティをカレンダーに渡すだけで、見た目は変えません。 |
+| 時刻の部分 | `time` と `date-time` で表示します。上から、`range` のときは部分の幅いっぱいの期間の表示、文字盤モードでの時刻の表示、ホイールまたは文字盤です。午前・午後は、時と分の行に並びます。 |
+| アクション | キャンセルと OK です。[ダイアログ](/ja/components/dialog/)と同じく、役割に応じて置かれる全幅の Tonal ボタンの行です。 |
+
+`layout` が `vertical` ならカレンダーの下に時刻の部分を重ね、`horizontal` なら横に並べます。文字盤モードの時刻だけのピッカーでは、`horizontal` は時刻の表示を文字盤の横に置きます。既定の `auto` は、縦には短すぎて横には十分広いウィンドウでだけ横並びにします。パーツが収まらないときは、ヘッダーとアクションはその場に残り、本体がその間でスクロールします。
+
+### 時刻の設定
+
+- **ホイールか文字盤か。** 既定はホイールで、タブでも先に並びます。文字盤は時計の文字盤で、時と分のセレクターからなる時刻の表示が、その隣の行に来ます。`entryMode` で開いたときの方式を選び、利用者は入力方式のタブで切り替えられます。タブはタイトル行の末尾にあるアイコンだけの 2 つで、ホイールはキーボードのグリフ、文字盤は時計のグリフです。言葉（`wheelsLabel`、`dialLabel`）はアクセシブルネームになります。1 つの方式だけを提供するプロダクトは `comp.date-time-picker.time.entry-modes` を設定し、そのときタブは描かれません。
+- **数字を打ち込む。** ホイールの選択中の値を押すか、ホイールにフォーカスがあるときに数字を打つと、打ち込みが始まります。タッチ端末では数字のキーボードが出ます。2 桁打つか、次の桁が続かない 1 桁を打つと打ち込みは終わり、時が決まると分に進みます。そのため `7` `3` `0` で 7:30 になります。文字盤モードのセレクターも、キーボードの数字を同じように読みます。日付全体は、これまでどおりテキストフィールドで入力します。
+- **時計の方式。** `hourCycle` は既定でロケールに従い、`h12` か `h23` も指定できます。値はどの方式でも 24 時間制です。
+- **午前・午後。** 12 時間制では、午前・午後は時刻の一部であり、時刻の上に置く切り替えではありません。ホイールモードでは短い 3 つ目のホイール、文字盤モードでは押すともう一方に変わる幅の狭いセレクターです。分のあとに置かれ、日本語のように午前・午後を先に書くロケールでは時の前に置かれます。変えても時の数字はそのままで、午前か午後かが変わります。控えめに描かれ、設定中の単位を示す印が付くことはありません。
+- **分の刻み。** `minuteStep`（1、5、10、15、30）で、分のホイールの行と文字盤の数字が決まります。刻みに合わない時刻は、設定した値でも打ち込んだ値でも、刻みに切り捨てます。
+- **時刻が空のとき** は、現在の時刻から始まります。
+
+### 期間
+
+日付の期間は、カレンダーで開始日、終了日の順に選びます。
+
+時刻を含む期間は、両端をダッシュでつないだ 2 つの期間フィールドで表示します（「9:00 – 17:30」）。開始や終了という言葉は描かず、並び順とダッシュがそれを伝えます。設定中のフィールドには選択の印が付き、下のホイールや文字盤がその時刻を表示して設定します。もう一方のフィールドを押すと、そちらの端を設定するようになります。フォーカスだけでは切り替わらないので、Tab でフィールドを通り過ぎても、設定中の端は変わりません。日時の期間では、カレンダーで開始日を選ぶと開始のフィールドが、終了日を選ぶと終了のフィールドが選ばれます。
+
+- 時刻の期間で終了が開始と同じかそれより前なら、終了は翌日になり、終了のフィールドにそう表示します（`nextDayLabel`）。
+- 日時の期間で終了が開始より前なら、`rangeErrorText` を表示し、OK は無効のままです。
+
+### 言葉
+
+Tanrei は言葉を同梱しません。ピッカーが表示したり読み上げたりする言葉は、すべてプロダクトのものです。`label` は、そのピッカーが何を選ぶのかを表し、ピッカーごとに書きます。ほかの言葉は、ピッカーがどこに描かれても同じなので、このページがしているように、プロダクト全体に、言語ごとに一度だけ渡します。
+
+<ProductWords words={words} label="プロダクト全体に一度だけ渡す、ピッカーの言葉" />
+
+この呼び出しは、このページが実際に実行しているものです。上のサンプルには `label` だけを書いていて、これらの言葉は書いていません。ほかと違う言葉を使うピッカーは、自分の属性で渡します（`confirm-label="予約"`）。属性は常に優先されます。どれも渡さなくても、ピッカーは動作します。キャンセルと OK は、閉じるグリフとチェックのグリフだけのボタンになり、翌日にまたがる終了は `+1` と表示され、まだ選ばれていない日付は何も描かれません。デバッグビルドは、足りない言葉をそれぞれ報告します。時・分・午前午後の名前と今日を表す言葉は、渡さなければブラウザーのロケールデータから取ります。
+
+### 推奨
+
+- テキストフィールドのピッカーボタンから開き、値を入力することもできるようにします。
+- `label` には何を選ぶのか（「チェックイン」「会議の開始」など）をプロダクトの言語で書き、ピッカーが表示するほかの言葉も設定します。
+- 予約で 15 分ごとにしか選べないときのように、意味のある分が限られるなら `minuteStep` を使います。
+- ピッカーには、対応するフィールドと同じ `min`、`max`、`disabledDates` を渡し、両方が同じ日付を受け付けるようにします。
+
+### 非推奨
+
+- 生年月日のように利用者がすでに知っている日付を、DateTimePicker だけで入力させない。文字でも入力できるようにします。
+- 入力方式やアクションの見た目を、ピッカーごとに変えない。レイヤで決めるプロダクトの設定です。
+- `change` より前にフィールドへ値を書き込まない。ピッカーが確定するのは、OK を押したとき、またはドック型の日付ピッカーで日を選んだときだけです。
+- Web、Compose、React Native では、`close` のあとに `open` を true のままにしない。これらのプラットフォームでは、ピッカーが自分で閉じることはありません。
+- Web の `inline` 属性をプロダクトで使わない。オーバーレイとしての振る舞いなしにサーフェスを描くだけです。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="date-time-picker" />
+
+### コンポーネントが担うこと
+
+- サーフェスは `label` を名前とするダイアログです。モーダルのピッカーはフォーカスを内側に保ち、スクリムを描きます。ドック型のピッカーはフォーカスを受け取り、閉じるとアンカーに返しますが、Tab で外に出ると閉じます。開くと、フォーカスはカレンダーのアクティブな日か、時に移ります。
+- カレンダー、タブ、ボタンは、ピッカーが渡す言葉で自分の名前を付けます。入力方式のタブは本物のタブリストで、グリフだけを描いていても、名前と位置が読み上げられます（「ホイール、タブ、1 / 2」）。
+- 期間の両端は、`rangeLabel` を名前とするグループの中の 2 つのボタンです。それぞれ、名前、時刻、設定中かどうかが読み上げられます（「開始、9:00」）。`startLabel` と `endLabel` は描かれることがなく、どちらの端かを支援技術に伝えるためのものです。ダッシュは隠されます。
+- 時と分のホイールやセレクターはスピンボタンで、矢印キー、Page Up・Page Down、Home・End で操作でき、表示どおりに読み上げます（12 時間制では時に午前・午後が付きます）。数字を打ち込んでいるあいだもスピンボタンのままです。午前・午後は、値が 2 つの 3 つ目のスピンボタンで、名前は `periodLabel` です。文字盤は支援技術からは隠れていますが、文字盤でできることはすべてセレクターでもできます。
+- Escape は、打ち込みの途中ならまずそれを終わらせ、打ち込む前の値に戻します。そうでなければ、何も確定せずにピッカーを閉じ、フォーカスを元の場所に戻します。
+- 日時の期間で終了が開始より前になると、一度だけ控えめに読み上げ、終了の期間フィールドの説明として伝えます。
+- セレクター、期間フィールド、ホイールの行はどれも最小ターゲット以上で、ホイール、セレクター、午前・午後、文字盤の数字は、文字を大きくすると切れずに大きくなります。狭いウィンドウでも、ピッカーがウィンドウより広くなることはありません。カレンダーのマスと期間フィールドが狭まります。
+- 右から左のレイアウトでは、タイトル行、列、期間の表示、午前・午後を置く側、アクションが反転します。時、区切り、分の並び順は変わらず、文字盤は時計回りのままです。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native は、まだ DateTimePicker を作っていません。各プラットフォームは、追従するときにこの仕様から作ります。
+- Web：終了の期間フィールドはボタンで、ボタンには無効な値の状態がありません。そのため、期間のエラーが支援技術に伝わるのは、説明と読み上げによってだけです。
+- Web：ブラウザーは、端末全体の 12 時間制・24 時間制の設定を知らせません。そのため、`hourCycle` が `locale` のときはロケールだけに従います。
+- Web：ドック型のピッカーの外を押すと、ピッカーが閉じ、その押下は下にある要素にも届きます。メニューと同じです。
+- Web：ドック型のピッカーはスクリプトで配置しており、まだ CSS のアンカーポジショニングは使っていません。
+- Web：ホイール、文字盤、カレンダーのドラッグは、指での操作をまだ実機で確認していません。また、Firefox と WebKit で失敗するテストがあります。
+- ホイールは、文字盤の直径ともセレクターの幅とも合っていません。合わせるかどうかは未決定です。
+
+### 利用者側で行うこと
+
+- すべてのピッカーに、何を選ぶのかを表す `label` を与えます（「チェックイン」「会議の時刻」）。これはそのピッカーだけのものです。なければ、タイトルの行は言葉を描かず、ダイアログは名前を持ちません。
+- ピッカーが表示したり読み上げたりするほかの言葉もすべて渡します。ピッカーに書くか、このページがしているように、`setWords()` でプロダクト全体に一度だけ渡します。Tanrei は言葉を同梱しません。アクション（`confirmLabel`、`cancelLabel`）、`dateLabel`、`nextDayLabel`、`rangeErrorText`、カレンダーの 6 つの言葉のほか、読み上げだけに使う名前（`wheelsLabel`、`dialLabel`、`entryModeLabel`、`rangeLabel`、`startLabel`、`endLabel`）があります。これらがなければ、同じことを表せる印があるところではそれを代わりに描きます。閉じるアイコンとチェックのアイコンだけのボタン、翌日にまたがる終了のあとの `+1` です。足りない言葉は、それぞれ開発時に報告されます。時・分・午前午後の名前と今日を表す言葉は、渡されなければブラウザーのロケールデータから取ります。[プロダクトの言葉](/ja/foundations/words/)を参照してください。
+- テキストフィールドの、`pickerLabel`（「日付を選ぶ」など）を名前とするピッカーボタンのように、何を開くかがわかるコントロールから開きます。
+- `change` からフィールドの `value` を設定し、`open` が単なる値のプラットフォームでは、`close` を受けてピッカーを閉じます。
+- テキストフィールドでの入力もできるようにします。

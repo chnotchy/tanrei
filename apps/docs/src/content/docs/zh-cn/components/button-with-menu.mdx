@@ -1,0 +1,408 @@
+---
+title: "带菜单的按钮"
+description: "按一次即可执行主操作，并通过旁边与之相连的第二个按钮，在菜单中提供相关的操作。"
+translationOf: components/button-with-menu.mdx
+sourceHash: da09049dfc3d610609f88d3630ba5407eb6f36c2
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="button-with-menu" />
+
+:::note[拆分按钮的去向]
+这个组件不叫拆分按钮（split button）。“拆分按钮”说的是它的样子，即一个被切成两半的按钮，而连接式的[按钮组](/zh-cn/components/button-group/)也是这个样子；这个组件真正的不同之处，在于它的后半边会打开菜单。它的行为 ID 带有这个名称的 `SPB` 前缀。
+
+| 之前 | 现在 |
+| --- | --- |
+| 拆分按钮（`split-button`） | 带菜单的按钮（`button-with-menu`） |
+| `comp.split-button.*`、`--tanrei-comp-split-button-*` | `comp.button-with-menu.*`、`--tanrei-comp-button-with-menu-*` |
+| `<tanrei-split-button>`、`TanreiSplitButton`（Web 的类） | `<tanrei-button-with-menu>`、`TanreiButtonWithMenu` |
+| `SplitButton`（React、React Native） | `ButtonWithMenu` |
+| `TanreiSplitButton`（SwiftUI、Compose、Flutter） | `TanreiButtonWithMenu` |
+
+Material 3 把对应的组件称为 split button；在 m3-like 预设中，带菜单的按钮就是那个组件。
+:::
+
+:::caution[原生平台尚未改名]
+规格、令牌、Web 元素（`<tanrei-button-with-menu>`）和 React 包装组件（`ButtonWithMenu`）已经使用“带菜单的按钮”这个名称，Web 绘制的也是这一版。SwiftUI、Compose、Flutter 和 React Native 提供的仍是名为拆分按钮的上一版，所以本页中它们的代码使用 `TanreiSplitButton` 和 `SplitButton`；各平台为组件改名时，这些代码会随之更新。
+
+这一版带来了以下几点，目前只有 Web 这样绘制：
+
+- 两个半边以一条分隔线或一条间隙连接。设计系统为所有组件统一选择一次，设计系统也可以让这个组件单独不同，而 `separation`（`auto`、`divider`、`gap`）则设置某一个实例。默认系统画分隔线。
+- 前半边在图标一侧的内边距小一级，两个圆形的外端则各多一点内边距。
+- 菜单打开时，后半边保持自己的形状；只有箭头表明打开状态。
+- `trailingWidth`（`default`、`narrow`）画出更窄的后半边：与同尺寸的 narrow 纯图标[按钮](/zh-cn/components/button/)一样宽，即箭头加上两侧各一小段留白。
+:::
+
+<DemoFrame label="变体">
+  <tanrei-button-with-menu label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="elevated" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+</DemoFrame>
+
+<DemoFrame label="带有菜单：请按下后半边" plain>
+  <tanrei-button-with-menu label="保存" menu-label="更多保存选项" ontoggle="this.open = event.detail.open" onclose="this.open = false">
+    <span slot="icon">save</span>
+    <tanrei-menu-item slot="menu" label="另存为…"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="保存副本"></tanrei-menu-item>
+    <tanrei-menu-item slot="menu" label="另存为模板"></tanrei-menu-item>
+  </tanrei-button-with-menu>
+</DemoFrame>
+
+### 用法
+
+带菜单的按钮是连接成一个形状的两个按钮。前半边执行主操作。后半边带有箭头（chevron），打开一个列出相关操作的[菜单](/zh-cn/components/menu/)。菜单的内容就是菜单自己的各种项（操作、复选项、单选项和分组），传入的方式与各平台传入菜单项的方式相同。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-button-with-menu label="保存" menu-label="更多保存选项">
+      <span slot="icon">save</span>
+      <tanrei-menu-item slot="menu" label="另存为…"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="保存副本"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <script type="module">
+      import '@tanrei/web/components/button-with-menu';
+      import '@tanrei/web/components/menu';
+      const split = document.querySelector('tanrei-button-with-menu');
+      // 只有前半边的 click 会到达这个元素。
+      split.addEventListener('click', save);
+      // 后半边只是请求打开或关闭；open 由你来设置。
+      split.addEventListener('toggle', (e) => (split.open = e.detail.open));
+      // close 带有菜单关闭的原因：escape、outside、tab、focus-out 或 item（Web 没有 back）。
+      split.addEventListener('close', () => (split.open = false));
+      // 菜单项的 click 止于带菜单的按钮：请在菜单项本身上监听。
+      split.querySelector('[label="另存为…"]').addEventListener('click', saveAs);
+    </script>
+
+    <!-- 单独让这个实例以间隙连接，并使用窄的后半边。省略 separation 则遵循设计系统。 -->
+    <tanrei-button-with-menu variant="tonal" separation="gap" trailing-width="narrow" label="合并" menu-label="更多合并选项">
+      <tanrei-menu-item slot="menu" label="压缩并合并"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="变基并合并"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+
+    <!-- 除了按下，悬停 400 ms 后也会打开；并使用自己的图标，关闭时和打开时各一个。 -->
+    <tanrei-button-with-menu label="分享" menu-label="更多分享选项" hover-open hover-delay="400">
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <tanrei-menu-item slot="menu" label="复制链接"></tanrei-menu-item>
+      <tanrei-menu-item slot="menu" label="邮件"></tanrei-menu-item>
+    </tanrei-button-with-menu>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ButtonWithMenu, MenuItem } from '@tanrei/react';
+
+    // onClick 属于前半边。MenuItem 的 onClick 是注册在菜单项元素上的监听器，
+    // 所以在 ButtonWithMenu 内部也会触发；它收到的是原生的 MouseEvent。
+    <ButtonWithMenu
+      label="保存"
+      menuLabel="更多保存选项"
+      open={open}
+      onClick={save}
+      onToggle={(e) => setOpen(e.detail.open)}
+      onClose={() => setOpen(false)}
+    >
+      <MenuItem slot="menu" label="另存为…" onClick={saveAs} />
+      <MenuItem slot="menu" label="保存副本" onClick={saveCopy} />
+    </ButtonWithMenu>
+
+    // 单独让这个实例以间隙连接，并使用窄的后半边。
+    <ButtonWithMenu variant="tonal" separation="gap" trailingWidth="narrow" label="合并" menuLabel="更多合并选项"
+      open={mergeOpen} onClick={merge} onToggle={(e) => setMergeOpen(e.detail.open)} onClose={() => setMergeOpen(false)}>
+      <MenuItem slot="menu" label="压缩并合并" onClick={squash} />
+      <MenuItem slot="menu" label="变基并合并" onClick={rebase} />
+    </ButtonWithMenu>
+
+    // 悬停时也会打开；hoverDelay 为 null 时采用系统的延迟。
+    <ButtonWithMenu label="分享" menuLabel="更多分享选项" hoverOpen hoverDelay={400} open={shareOpen}
+      onToggle={(e) => setShareOpen(e.detail.open)} onClose={() => setShareOpen(false)}>
+      <span slot="chevron">more_vert</span>
+      <span slot="chevron-open">close</span>
+      <MenuItem slot="menu" label="复制链接" onClick={copyLink} />
+    </ButtonWithMenu>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 和 Button 一样，标题在前。后半边和菜单都会写入这个绑定。
+    TanreiSplitButton("保存", menuLabel: "更多保存选项", isMenuPresented: $showsSaveOptions, action: save) {
+        TanreiMenuItem("另存为…", action: saveAs)
+        TanreiMenuItem("保存副本", action: saveCopy)
+    }
+
+    // 悬停时也会打开（macOS，以及使用指针的 iPadOS）；hoverDelay 为 nil 时采用系统的延迟。
+    // chevron: 和 openChevron: 各接收一个图标构建器，分别对应 chevron 和 chevron-open 插槽。
+    TanreiSplitButton("分享", menuLabel: "更多分享选项", isMenuPresented: $showsShareOptions,
+                      opensOnHover: true, hoverDelay: .milliseconds(400), action: share) {
+        TanreiMenuItem("复制链接", action: copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiMenuItem
+    import io.github.chnotchy.tanrei.components.TanreiSplitButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSplitButtonVariant
+
+    // 和菜单一样采用状态提升：menuExpanded 由你保存。
+    TanreiSplitButton(
+        text = "保存",
+        onClick = ::save,
+        menuContentDescription = "更多保存选项",
+        menuExpanded = expanded,
+        onMenuExpandedChange = { expanded = it },
+        onMenuDismissRequest = { expanded = false }, // 收到一个 TanreiMenuCloseReason
+        variant = TanreiSplitButtonVariant.Tonal,
+        icon = { TanreiText("save") },
+    ) {
+        TanreiMenuItem(text = "另存为…", onClick = ::saveAs)
+        TanreiMenuItem(text = "保存副本", onClick = ::saveCopy)
+    }
+
+    // 鼠标或触控笔悬停时也会打开；hoverDelayMillis 为 null 时采用系统的延迟。
+    TanreiSplitButton(
+        text = "分享",
+        onClick = ::share,
+        menuContentDescription = "更多分享选项",
+        menuExpanded = shareExpanded,
+        onMenuExpandedChange = { shareExpanded = it }, // 按下、按键或悬停
+        onMenuDismissRequest = { shareExpanded = false },
+        chevron = { TanreiText("more_vert") },
+        openChevron = { TanreiText("close") },
+        openOnHover = true,
+        hoverDelayMillis = 400,
+    ) {
+        TanreiMenuItem(text = "复制链接", onClick = ::copyLink)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 带菜单的按钮通过控制器打开和关闭菜单；onMenuToggle 和 onMenuClose 报告这一变化。
+    TanreiSplitButton(
+      label: '保存',
+      menuSemanticLabel: '更多保存选项',
+      onPressed: save, // onPressed 为 null 时两个半边都被禁用
+      menuController: saveOptions,
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: saveAs, child: const Text('另存为…')),
+        TanreiMenuItem(onPressed: saveCopy, child: const Text('保存副本')),
+      ],
+    );
+
+    // 悬停时也会打开，触摸时绝不会；chevron 和 openChevron 各接收一个图标 widget。
+    TanreiSplitButton(
+      label: '分享',
+      menuSemanticLabel: '更多分享选项',
+      onPressed: share,
+      openOnHover: true,
+      hoverDelay: const Duration(milliseconds: 400), // 为 null 时采用系统的延迟
+      menuChildren: <Widget>[
+        TanreiMenuItem(onPressed: copyLink, child: const Text('复制链接')),
+      ],
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SplitButton } from '@tanrei/react-native';
+
+    // 受控：在 onMenuToggle 中设置 menuVisible，在 onMenuDismiss 中把它设回 false；后者会收到关闭的原因。
+    <SplitButton
+      label="保存"
+      icon="save"
+      menuAccessibilityLabel="更多保存选项"
+      menuVisible={open}
+      onPress={save}
+      onMenuToggle={setOpen}
+      onMenuDismiss={() => setOpen(false)}
+      menuItems={[
+        { label: '另存为…', onPress: saveAs },
+        { label: '保存副本', onPress: saveCopy },
+      ]}
+    />
+
+    // 悬停时也会打开，仅限指针；chevron 和 openChevron 是图标的名称。
+    <SplitButton
+      label="分享"
+      menuAccessibilityLabel="更多分享选项"
+      chevron="more_vert"
+      openChevron="close"
+      hoverOpen
+      hoverDelay={400}
+      menuVisible={shareOpen}
+      onPress={share}
+      onMenuToggle={setShareOpen}
+      onMenuDismiss={() => setShareOpen(false)}
+      menuItems={[{ label: '复制链接', onPress: copyLink }]}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+### 以分隔线或间隙连接
+
+两个半边用两种方式之一连接。用**分隔线**时，它们彼此相接，相接处的圆角是直角，接缝上有一条线。用**间隙**时，它们之间隔着一条窄间隙，彼此相对的圆角收得更小。设计系统为所有连接部件的组件统一选择一次（默认系统画分隔线），设计系统也可以让这个组件单独不同，而 `separation`（`auto`、`divider`、`gap`）则设置某一个实例。两个半边总是并排放置：没有纵向的形态。
+
+<DemoFrame label="以分隔线和以间隙连接" plain>
+  <tanrei-button-with-menu separation="divider" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu separation="gap" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="divider" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="tonal" separation="gap" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="divider" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+</DemoFrame>
+
+### 窄的后半边
+
+默认情况下，后半边把箭头放在一个边长等于按钮高度的正方形里，圆形的外端再多一点内边距。把 `trailingWidth` 设为 `narrow` 后，它就是附在主操作上的一个细长把手：宽度恰好等于同尺寸的 narrow 纯图标[按钮](/zh-cn/components/button/)（默认系统中为 28 / 32 / 32），箭头居中，两侧各有一小段留白，外端不再加内边距。无论取哪种宽度，前半边都一样。
+
+<DemoFrame label="后半边的宽度：default 和 narrow，各种尺寸" plain>
+  <tanrei-button-with-menu size="small" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="small" trailing-width="narrow" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu trailing-width="narrow" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" trailing-width="narrow" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" separation="gap" trailing-width="narrow" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+</DemoFrame>
+
+窄的后半边画出来比最小目标窄，但点击区域并不窄：目标向外延伸，越过末尾侧的边缘。请在那里为它留出空间，就像在 narrow 纯图标 Button 旁边一样。
+
+## 规格
+
+<DemoFrame label="尺寸、图标、打开和禁用" plain>
+  <tanrei-button-with-menu size="small" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu size="large" label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="保存" menu-label="更多保存选项"><span slot="icon">save</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu disabled label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu variant="outlined" disabled label="保存" menu-label="更多保存选项"></tanrei-button-with-menu>
+  <tanrei-button-with-menu label="分享" menu-label="更多分享选项"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+  <tanrei-button-with-menu open label="分享" menu-label="更多分享选项"><span slot="chevron">more_vert</span><span slot="chevron-open">close</span></tanrei-button-with-menu>
+</DemoFrame>
+
+<ComponentSpecs name="button-with-menu" />
+
+## 指南
+
+### 何时使用
+
+带菜单的按钮用于有一种常用形式、另有几种变化形式的操作：“保存”和“另存为…”，“合并”和“压缩并合并”，“发送”和“定时发送”。常用形式只需按一次，变化形式也只多按一次。
+
+如果没有哪个选项明显是常用的，就使用一个打开菜单的按钮或图标按钮。如果没有变化形式，就使用普通的[按钮](/zh-cn/components/button/)。如果是并排的一组各自独立的操作，就使用[按钮组](/zh-cn/components/button-group/)。
+
+### 如何选择变体
+
+这些变体的强调程度与 Button 的相同，预算也相同：每个视图只有一个强的操作。
+
+| 变体 | 强调程度 | 用于 |
+| --- | --- | --- |
+| Filled（默认） | 最高 | 视图的主操作。 |
+| Tonal | 高 | 重要但不应与 filled 按钮争抢注意力的操作。 |
+| Elevated | 中 | 位于杂乱或带图案的背景之上的带菜单的按钮。 |
+| Outlined | 中 | filled 按钮旁边的次要操作。 |
+
+没有 text 变体。没有填充也没有边框，就没有东西能显示两个半边在哪里相接，“分成两半”这一点也就看不出来了。
+
+各尺寸的高度与 Button 相同，所以带菜单的按钮可以与同尺寸的按钮排在同一行。在默认系统中，外端是完全的圆形。两个半边相接处的样子取决于分隔方式：用分隔线时，它们以直角相接，接缝上有一条线，两个半边都不沿接缝画轮廓，所以 outlined 的带菜单的按钮，轮廓是环绕一周的一条线；用间隙时，每个半边都在自己的边缘之内画出自己的轮廓，以及 elevated 表面所带的那圈圆环，所以两者永不相触。
+
+### 箭头
+
+后半边绘制图标集中的 `expand_more`，并在菜单打开期间把它旋转半圈。在默认系统中，后半边在打开时保持自己的形状，所以只有箭头表明打开状态。设计系统可以为打开的半边规定它自己的内侧圆角：m3-like 预设在打开时把它变成圆形。
+
+有两个插槽可以更换图标。每个插槽接收图标集中的一个图标：
+
+| 填入的插槽 | 关闭时 | 打开时 |
+| --- | --- | --- |
+| 都不填 | `expand_more` | 旋转后的 `expand_more` |
+| 只填 `chevron` | 你的图标 | 旋转后的你的图标 |
+| `chevron-open`（无论是否有 `chevron`） | `chevron` 的图标，或 `expand_more` | `chevron-open` 的图标；两者交叉淡化，而不是旋转 |
+
+没有方向的图标，例如 `more_vert`，不应当旋转：请给它配一个 `chevron-open` 图标，或者在两个插槽里放同一个图标。
+
+### 悬停时打开
+
+设置 `hoverOpen` 后，当鼠标、触控板或悬停的触控笔在后半边上停留 `hoverDelay` 毫秒时，菜单也会打开。不设置 `hoverDelay` 则采用系统的延迟，在默认系统中是 300 ms。按下和键盘仍然像以前一样打开菜单，触摸则绝不会以悬停的方式打开它。
+
+- 由悬停打开的菜单不接收焦点：焦点留在用户原来所在的地方，例如某个文本字段里。菜单项仍然显示悬停状态，点击其中一项仍然会激活它。
+- 指针离开后半边和菜单两者并经过一小段宽限时间后，菜单关闭；所以指针可以移到菜单上，也可以滑出边缘再回来。以其他方式打开的菜单，绝不会因为指针离开而关闭。
+- 由悬停打开的菜单显示期间，在后半边上按下或按键，菜单会保持打开，焦点移入其中。从这时起，它就是一个由按下打开的菜单：再按一次就关闭。
+- 无论焦点在哪里，Escape 都会关闭由悬停打开的菜单。
+- 悬停与按下一样，通过同一个 toggle 事件发出请求，所以设置 `open` 的代码不需要改动。
+
+在经常使用指针、并且菜单自动出现也受欢迎的地方使用悬停打开，例如桌面编辑器里的工具栏。它永远不能代替按下。
+
+### 菜单
+
+- 这个菜单就是 Tanrei 的 Menu，具备菜单提供的一切：焦点移入其中，方向键和键入查找可以在其中移动，它还会翻转和偏移以保持在屏幕之内。它在整个带菜单的按钮的下方打开，与其末尾侧的边缘对齐。
+- 菜单打开期间，箭头显示它的打开形态（参见[箭头](#箭头)）。
+- 菜单关闭时，如果焦点原本在菜单里，焦点会交还给后半边，也就是打开它的那个按钮。
+- 菜单打开时在后半边上按下，是切换，而不是在外部按下：它通过 `toggle` 请求关闭，不发送 `close`。某个操作项关闭菜单时，先到的是该项的 click，然后是原因为 `item` 的 `close`。
+- 由谁关闭菜单，取决于平台。在 Web、Compose 和 React Native 上，你根据 toggle 事件设置 `open`（`menuExpanded`、`menuVisible`），并根据 close 事件把它设回 false。在 SwiftUI 和 Flutter 上，带菜单的按钮通过它的绑定或控制器自己打开和关闭菜单。
+
+### 推荐
+
+- 前半边的标签写常用的那个操作，用动词：“保存”“合并”“发送”。
+- 给后半边一个说明菜单里有什么的标签：写“更多保存选项”，不要写“更多”或“菜单”。
+- 菜单里放主操作的变化形式。主操作本身不需要在那里重复。
+- 让菜单保持简短。几项正合适；列表一长，就说明这些选项并不是同一个操作的变化形式。
+- 除非某个实例必须不同，否则让 `separation` 保持 `auto`，这样产品中所有连接式控件的分隔方式都一致。
+- 在菜单是次要的、宽度又紧张的地方使用窄的后半边，例如表格的行或密集的页眉。
+
+### 避免
+
+- 不要把无关的操作放进菜单，例如“设置”或“帮助”。这些操作请使用带有自己菜单的图标按钮。
+- 不要使用菜单里只有一项的带菜单的按钮。把两个操作都显示为按钮。
+- 不要试图只禁用一个半边。`disabled` 对两个半边都生效。如果变化形式不可用，就禁用那些菜单项。
+- 不要在后半边要做打开菜单以外的事情时使用带菜单的按钮。它的语义总是说明它会打开一个菜单。
+
+## 无障碍
+
+<ComponentAccessibility name="button-with-menu" />
+
+### 组件负责的部分
+
+- 带菜单的按钮是按阅读顺序排列的两个按钮，各自是一个 Tab 停靠点。前半边以它的标签命名。后半边以菜单标签命名，并在平台有相应属性时，暴露“它会打开菜单”以及菜单是否已打开。没有任何元素把两者包在一起，所以屏幕阅读器读到的是两个按钮，仅此而已。
+- 图标和箭头，包括 `chevron` 或 `chevron-open` 插槽中的图标，都对辅助技术隐藏。无论菜单是通过按下、按键还是悬停打开的，后半边都会暴露菜单是否已打开。
+- 在前半边上按 Enter 和 Space 执行主操作。在后半边上按 Enter、Space 或向下方向键打开菜单，并把焦点移到第一个可用的项上。此后菜单的表现与在别处相同，Escape 关闭它并把焦点交还给后半边。
+- 由悬停打开的菜单让焦点留在原处；无论焦点在哪里，Escape 都能关闭它，不需要移动指针，所以悬停显示出来的内容总是可以关闭（WCAG 1.4.13）。这次 Escape 不会继续传递；下一次才照常到达页面。
+- 每个半边各自响应悬停、按下和聚焦。另一个半边绝不会显示不属于自己的状态。
+- 每个半边的点击区域向外侧以及上方和下方延伸到最小目标。朝向另一个半边时，它止于接缝或间隙的中点，所以两者永不重叠。窄的后半边朝前半边方向够不到的部分，改为向外侧延伸，所以它不必画得更宽也拥有完整的目标。
+- 分隔线是装饰：它对辅助技术隐藏，也不接收按下。无论中间是一条线还是一条间隙，两个半边都是两个按钮。
+- 在默认系统中，outlined 变体的轮廓，以及 outlined、tonal 和 elevated 变体的分隔线，都是细线，有意画得很淡：前半边靠它的标签来辨认，后半边靠它的箭头来辨认。filled 变体上的分隔线更醒目，因为在那种填充上看不见细线。
+- 标签绝不截断。文本放大时它会换行，两个半边一起增高。
+- 禁用的带菜单的按钮把两个半边都暴露为禁用，把它们移出焦点顺序，不呈现菜单，并且无论 `open` 是什么，都画成关闭的形态。
+- 缺少标签或菜单标签，以及菜单里没有任何项，都会在调试构建中报告。
+
+已知的平台差距：
+
+- Web：只有前半边的 click 会到达注册在带菜单的按钮上的监听器。菜单项的 click 止于带菜单的按钮，所以注册在祖先元素上的监听器永远收不到它：请在菜单项上监听。菜单项的 React 包装组件把 `onClick` 直接注册到元素上，正是出于这个原因。
+- SwiftUI 没有说明“按钮会打开菜单”的属性，也没有展开状态。菜单的弹出层附着在后半边上；由于两个半边高度相同，而后半边位于这一行的末尾，它的底部末端也就是整个带菜单的按钮的底部末端。绑定既是切换也是关闭，所以关闭的原因不会传递出来。菜单插槽哪怕只空了一瞬间，例如对稍后才加载的项使用 `ForEach`，在调试构建中就是断言失败，并让调试中的应用停止。两个半边上的 Enter、Space 和向下方向键，焦点交还给后半边，以及 macOS 上菜单打开时点击后半边，都没有做端到端的测试。
+- Flutter 没有说明“按钮会打开菜单”的属性。后半边暴露菜单是否已打开，但不暴露它会打开菜单。
+- Compose 没有说明“按钮会打开菜单”的属性。后半边是一个按钮，以展开和收起两个动作来表达它的状态。菜单本身带有[菜单](/zh-cn/components/menu/)页面上列出的 Compose 差距。
+- React Native 同样没有说明“按钮会打开菜单”的属性。后半边暴露菜单是否已打开，但不暴露它会打开菜单。
+- React Native：菜单打开时在后半边上按下、焦点交还给后半边，以及箭头的旋转，都只在没有真机的情况下测试过。
+
+### 需要你做的事
+
+- 两个标签都要写。单独一个箭头不是名称，“保存”旁边的“更多”也没有说明菜单里有什么。
+- 在 Web、Compose 和 React Native 上，根据 toggle 事件设置 `open`，并根据 close 事件把它设为 false。带菜单的按钮只是发出请求。设置了 `hoverOpen` 时，悬停也通过同一个 toggle 事件发出请求。
+- 菜单关闭时不要自己移动焦点。带菜单的按钮会把焦点交还给后半边。
+- 给每个菜单项一个标签，包括显示图标的项。
+- 在窄的后半边的末尾侧边缘之外留出空间，让它的目标不与下一个控件重叠。

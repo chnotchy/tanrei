@@ -1,0 +1,1138 @@
+{
+  "tanrei": {
+    "comp": {
+      "button": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product uses buttons at several emphasis levels and several sizes, enabled and disabled: with a label, with an icon beside the label, or with an icon alone (in toolbars, rows and cards), some of them switches that are on or off.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "filled",
+              "tonal",
+              "elevated",
+              "outlined",
+              "text"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "container.color": "color",
+              "label.color": "color",
+              "icon.color": "color",
+              "outline.color": "color",
+              "state-layer.color": "color",
+              "container.elevation": "shadow",
+              "unselected.container.color": "color",
+              "unselected.label.color": "color",
+              "unselected.icon.color": "color",
+              "unselected.outline.color": "color",
+              "unselected.state-layer.color": "color",
+              "selected.container.color": "color",
+              "selected.label.color": "color",
+              "selected.icon.color": "color",
+              "selected.outline.color": "color",
+              "selected.state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number",
+              "container.shape": "dimension"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a Button reads, and nothing else: size-dependent geometry (height, directional padding with and without an icon at either side, gap, and the narrow inset and the wide width of an icon-only button), its text style, its glyph sizes (beside a label, and alone), and for each variant (filled, tonal, elevated, outlined, text) the container / label / icon / outline colors and elevation of a plain button, of a toggle that is off (unselected.) and of a toggle that is on (selected.), in each state (resting, hovered, focused, pressed, disabled), plus per-state shape and opacity.",
+            "rules": [
+              "To restyle buttons in a product, change these tokens in a layer; never fork the component or add a variant.",
+              "State tokens are valued by the design system's pattern rules (tanrei.comp.*.*.hovered.container.color …). Override one token, or replace the rule to change every component at once.",
+              "A state that should look like rest aliases the resting token; a system that dims on press sets pressed.opacity.",
+              "Heights are minimums: a height must hold 2 × padding-block + one label line, and the build reports it when it does not.",
+              "label.color is the color of the label and of an icon beside it; icon.color is the color of the glyph of a button that has no label. Keep them equal unless an icon alone should be quieter or louder than a labelled action.",
+              "An icon-only button is as wide as it is high by default, so container.shape draws a circle at corner.full and a rounded square at a smaller corner; its width prop sets the glyph between container.padding-inline-narrow, or draws container.width-wide, instead, for a tight row or a wider target. There is no token for the default width (it is the height) and none for the narrow one (it is the glyph and the inset twice).",
+              "A toggle that is off must look quieter than one that is on; do not make unselected and selected the same.",
+              "Each look's state-layer.color is the color hover, focus and press mix into its container; it aliases that look's label color.",
+              "padding-inline-start-with-icon and padding-inline-end-with-icon are the padding on the side an icon sits at; keep them a step tighter than the plain paddings, because a glyph carries empty space inside its box that a label does not."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium",
+                "large"
+              ],
+              "members": [
+                "container.height",
+                "container.padding-inline-narrow",
+                "container.width-wide",
+                "container.padding-inline-start",
+                "container.padding-inline-end",
+                "container.padding-inline-start-with-icon",
+                "container.padding-inline-end-with-icon",
+                "container.padding-block",
+                "label.typescale",
+                "icon.size",
+                "icon.size-without-label",
+                "container.gap",
+                "outline.width"
+              ]
+            },
+            "variant": {
+              "default": "filled",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "shape": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.shape.corner.full}",
+            "$description": "The corners. Fully rounded in the default system: a button with a label is a pill, an icon-only button, which is as wide as it is high, a circle. A smaller corner draws a rounded rectangle and a rounded square.",
+            "$extensions": {}
+          },
+          "height": {
+            "$type": "dimension",
+            "$description": "The container's height, per size, and the width of an icon-only button at its default width.",
+            "small": {
+              "$value": {
+                "value": 28,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 7
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 34,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8.5
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 50,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 12.5
+                }
+              }
+            }
+          },
+          "padding-inline-narrow": {
+            "$type": "dimension",
+            "$description": "The inset on each side of the glyph of an icon-only button whose width is narrow, per size: the button is as wide as its glyph's box (icon.size-without-label) and this twice, and no wider (BTN-12). The default system holds it at 4 at every size, the least room that keeps a glyph clear of the capsule's edge; a narrow button is then 28, 32 and 32 wide. A system that wants its narrow buttons to differ more by size gives a size a larger value; it should not go below the default's. The hit area still meets the minimum target (BTN-5).",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product packs icon actions tightly in one place (a dense toolbar, a row of a table) and gives one of them weight in another (the play button among transport controls), at the same height; the height alone cannot say both. How tight the tight form is, is room beside a glyph: a product that changes its glyph's size keeps that room without restating a width.",
+                "since": "0.1.0"
+              }
+            },
+            "small": {
+              "$value": "{tanrei.sys.space.space75}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space75}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space200}",
+              "$extensions": {}
+            }
+          },
+          "width-wide": {
+            "$type": "dimension",
+            "$description": "The width of an icon-only button whose width is wide, per size: about one and a quarter to one and a third of the height, for the action of a row that should weigh more or be easier to hit.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product packs icon actions tightly in one place (a dense toolbar, a row of a table) and gives one of them weight in another (the play button among transport controls), at the same height; the height alone cannot say both.",
+                "since": "0.1.0"
+              }
+            },
+            "small": {
+              "$value": {
+                "value": 40,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 10
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 52,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 13
+                }
+              }
+            },
+            "large": {
+              "$value": {
+                "value": 72,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 18
+                }
+              }
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "Distance between the icon and the label, per size. The same at every size by default.",
+            "small": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space100}"
+            }
+          },
+          "padding-inline-start": {
+            "$type": "dimension",
+            "$description": "Leading padding (start side in the reading direction).",
+            "small": {
+              "$value": "{tanrei.sys.space.space125}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space250}",
+              "$extensions": {}
+            }
+          },
+          "padding-inline-end": {
+            "$type": "dimension",
+            "small": {
+              "$value": "{tanrei.sys.space.space125}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space250}",
+              "$extensions": {}
+            }
+          },
+          "padding-inline-start-with-icon": {
+            "$type": "dimension",
+            "$description": "Leading padding when the icon is at the leading side: a step tighter than padding-inline-start (4 less at small and medium, 8 less at large), as the main action button pads its icon's side, because a glyph carries empty space inside its box and the same padding as a label's reads as wider.",
+            "small": {
+              "$value": "{tanrei.sys.space.space125}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space250}",
+              "$extensions": {}
+            }
+          },
+          "padding-inline-end-with-icon": {
+            "$type": "dimension",
+            "$description": "Trailing padding when the icon is at the trailing side, the mirror of padding-inline-start-with-icon and tighter than padding-inline-end by the same step.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product puts the icon after the label on some buttons (Next →, an external link, a menu's chevron) and before it on others; a product that tightens the padding on the icon's side for a leading icon needs the same for a trailing one, or the two forms of one button are drawn out of balance.",
+                "since": "0.1.0"
+              }
+            },
+            "small": {
+              "$value": "{tanrei.sys.space.space125}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space150}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space250}",
+              "$extensions": {}
+            }
+          },
+          "padding-block": {
+            "$type": "dimension",
+            "$description": "Vertical padding. Heights are minimums, so this only shows when the label wraps or text is enlarged.",
+            "small": {
+              "$value": "{tanrei.sys.space.space50}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space75}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.space.space75}"
+            }
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The label's text style, per size: a small button may carry a smaller label. The same style at every size by default.",
+            "small": {
+              "$value": "{tanrei.sys.typescale.body-subhead}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.typescale.label}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.typescale.label}"
+            }
+          }
+        },
+        "icon": {
+          "size": {
+            "$type": "dimension",
+            "$description": "The icon box beside a label, per size. By default a small button draws a small glyph and a medium one the standard glyph; a large one keeps the standard glyph, because the next step would not leave room in its height.",
+            "small": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "$extensions": {}
+            }
+          },
+          "size-without-label": {
+            "$type": "dimension",
+            "$description": "The icon box of an icon-only button, per size. The same as the icon beside a label by default.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product draws a glyph that stands alone larger than one that sits beside a label: alone it carries the whole meaning of the action, beside text it only reinforces it. Material draws 18 beside a label and 24 alone in the same 40 height; an Apple-style product draws 16 and 20.",
+                "since": "0.1.0"
+              }
+            },
+            "small": {
+              "$value": "{tanrei.sys.icon.extra-small}",
+              "$extensions": {}
+            },
+            "medium": {
+              "$value": "{tanrei.sys.icon.small}",
+              "$extensions": {}
+            },
+            "large": {
+              "$value": "{tanrei.comp.button.icon.size.large}"
+            }
+          }
+        },
+        "outline": {
+          "width": {
+            "$type": "dimension",
+            "$description": "Width of the outline, per size: a much larger button may carry a heavier outline. The same at every size by default.",
+            "small": {
+              "$value": "{tanrei.sys.border.hairline}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.border.hairline}"
+            },
+            "large": {
+              "$value": "{tanrei.sys.border.hairline}"
+            }
+          }
+        },
+        "filled": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-primary}"
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.button.filled.label.color}",
+              "$description": "The glyph of an icon-only button; beside a label the icon takes label.color. The label's color by default."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.button.filled.label.color}",
+              "$description": "The color hover, focus and press mix into the container. Button's state layer is its label color."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no border."
+                }
+              }
+            }
+          },
+          "unselected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.sys.color.surface-container-highest}",
+                "$description": "A toggle that is off is quieter than a filled action: a neutral fill, not the primary one."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.unselected.label.color}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no outline."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.unselected.label.color}"
+              }
+            }
+          },
+          "selected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.sys.color.primary}"
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-primary}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.selected.label.color}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no outline."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.filled.selected.label.color}"
+              }
+            }
+          }
+        },
+        "tonal": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.secondary-container}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$extensions": {}
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.button.tonal.label.color}",
+              "$description": "The glyph of an icon-only button; beside a label the icon takes label.color. The label's color by default."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.button.tonal.label.color}",
+              "$description": "The color hover, focus and press mix into the container. Button's state layer is its label color."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no border."
+                }
+              }
+            }
+          },
+          "unselected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.sys.color.surface-container-highest}"
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.unselected.label.color}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no outline."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.unselected.label.color}"
+              }
+            }
+          },
+          "selected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.sys.color.secondary}",
+                "$description": "In the neutral default, secondary-container equals surface-container-highest (the unselected fill), so the selected fill is a different step."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-secondary}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.selected.label.color}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no outline."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.tonal.selected.label.color}"
+              }
+            }
+          }
+        },
+        "elevated": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.surface-container-lowest}"
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level2}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$extensions": {}
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.button.elevated.label.color}",
+              "$description": "The glyph of an icon-only button; beside a label the icon takes label.color. The label's color by default."
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.button.elevated.label.color}",
+              "$description": "The color hover, focus and press mix into the container. Button's state layer is its label color."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no border."
+                }
+              }
+            }
+          },
+          "unselected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.sys.color.surface-container-lowest}"
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.unselected.label.color}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no outline."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.unselected.label.color}"
+              }
+            }
+          },
+          "selected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.sys.color.primary}",
+                "$description": "A raised toggle that is on takes the primary fill, as a filled one does; it keeps its elevation."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-primary}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.selected.label.color}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no outline."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.elevated.selected.label.color}"
+              }
+            }
+          }
+        },
+        "outlined": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no fill; the surface behind shows through."
+                }
+              }
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$extensions": {}
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$description": "The glyph of an icon-only button; beside a label the icon takes label.color. A glyph alone in an unfilled button is a step quieter than a label, as the icon actions of a toolbar or a row are.",
+              "$extensions": {}
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.button.outlined.label.color}",
+              "$description": "The color hover, focus and press mix into the container. Button's state layer is its label color."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.outline}",
+              "$description": "The edge of an outlined button. In the default system it is the hairline role, the color the divider draws its line in: one quiet line across the product. It keeps its own token so that a system can draw the edge apart from its dividers.",
+              "$extensions": {}
+            }
+          },
+          "unselected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no fill; the surface behind shows through."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$extensions": {}
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$extensions": {}
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": "{tanrei.sys.color.outline}",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.outlined.unselected.label.color}"
+              }
+            }
+          },
+          "selected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": "{tanrei.sys.color.inverse-surface}",
+                "$description": "An outlined toggle that is on fills with the inverse surface and drops its border."
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.inverse-on-surface}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.comp.button.outlined.selected.label.color}"
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no outline."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.outlined.selected.label.color}"
+              }
+            }
+          }
+        },
+        "text": {
+          "container": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no fill; the surface behind shows through."
+                }
+              }
+            },
+            "elevation": {
+              "$type": "shadow",
+              "$value": "{tanrei.sys.elevation.level0}"
+            }
+          },
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$extensions": {}
+            }
+          },
+          "icon": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.primary}",
+              "$description": "The glyph of an icon-only button; beside a label the icon takes label.color. A glyph alone with no container is a step quieter than a label, as the icon actions of a toolbar or a row are.",
+              "$extensions": {}
+            }
+          },
+          "state-layer": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.comp.button.text.label.color}",
+              "$description": "The color hover, focus and press mix into the container. Button's state layer is its label color."
+            }
+          },
+          "outline": {
+            "color": {
+              "$type": "color",
+              "$value": {
+                "colorSpace": "srgb",
+                "components": [
+                  0,
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "hex": "#000000"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fixed": "This variant has no border."
+                }
+              }
+            }
+          },
+          "unselected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no fill; the surface behind shows through."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$extensions": {}
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-surface-variant}",
+                "$extensions": {}
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no outline."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.text.unselected.label.color}"
+              }
+            }
+          },
+          "selected": {
+            "$type": "color",
+            "container": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no fill; the surface behind shows through."
+                  }
+                }
+              }
+            },
+            "label": {
+              "color": {
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$description": "A text toggle that is on is told from one that is off by a stronger content color and a filled glyph; it grows no container."
+              }
+            },
+            "icon": {
+              "color": {
+                "$value": "{tanrei.sys.color.primary}",
+                "$extensions": {}
+              }
+            },
+            "outline": {
+              "color": {
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "This look has no outline."
+                  }
+                }
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$value": "{tanrei.comp.button.text.selected.label.color}"
+              }
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}"
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple: the pressed layer grows from the point of contact over this time, with state-easing. Unused by the other choices."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+---
+title: React Native
+description: Añade Tanrei a una aplicación de React Native.
+translationOf: getting-started/react-native.mdx
+sourceHash: 79720aca2100185d961719b9ede0569a4ec3ab34
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`@tanrei/react-native` está escrito en TypeScript, sin módulos nativos, así que no hay nada que enlazar y funciona con Expo. Está pensado para la New Architecture y requiere React 19 y React Native 0.78 o posterior.
+
+<PreReleaseNotice registry="npm" pkg="@tanrei/react-native" />
+
+## Instalación
+
+### Desde el código fuente
+
+<Callout type="caution" title="Hoy no se compila">
+  El paquete de React Native todavía no se ha puesto al día con las especificaciones y los tokens actuales: su código fuente se escribió para una versión anterior del código de tokens generado, y su compilación se detiene con errores de tipos frente al de hoy. Su CI está en pausa hasta que se ponga al día, y la [página de estado](/es/status/) marca sus componentes como *rezagados*. Los pasos siguientes muestran cómo se añade a una aplicación; funcionarán cuando el paquete se haya puesto al día.
+</Callout>
+
+Igual que con el [paquete Web](/es/getting-started/web/) (Git, Node 22.12 o posterior, pnpm 12): compila el paquete en un clon del repositorio y empaquétalo,
+
+```sh
+git clone https://github.com/chnotchy/tanrei.git
+cd tanrei
+pnpm install
+pnpm --filter @tanrei/react-native build
+pnpm --filter @tanrei/react-native pack --pack-destination ../tanrei-packages
+```
+
+y luego instala el archivo empaquetado en tu aplicación:
+
+```sh
+npm install path/to/tanrei-packages/tanrei-react-native-*.tgz
+```
+
+### Después del primer lanzamiento
+
+```sh
+npm install @tanrei/react-native
+```
+
+## Uso
+
+```tsx
+import { Button, TanreiProvider } from '@tanrei/react-native';
+
+export function App() {
+  return (
+    <TanreiProvider>
+      <Button variant="filled" onPress={deploy}>
+        Desplegar
+      </Button>
+      <Button variant="outlined" size="small" disabled>
+        Cancelar
+      </Button>
+    </TanreiProvider>
+  );
+}
+```
+
+El componente se llama `Button`, sin prefijo, porque los módulos de JavaScript ya le dan un espacio de nombres. La activación se comunica mediante `onPress`, que es la forma propia de React Native para el evento `click` de la especificación.
+
+## Tema y contraste
+
+De forma predeterminada, `TanreiProvider` sigue el esquema de color del sistema. Para fijarlos, asigna a `theme` el valor `"light"` o `"dark"` y a `contrast` el valor `"standard"`, `"medium"` o `"high"`:
+
+```tsx
+<TanreiProvider theme="dark" contrast="high">
+  <App />
+</TanreiProvider>
+```
+
+Dentro del árbol, `useTanrei()` devuelve los colores y los estilos de texto ya resueltos para tus propias vistas:
+
+```tsx
+const theme = useTanrei();
+<Text style={[theme.text('body'), { color: theme.color('onSurfaceVariant') }]}>Último despliegue hace 2 minutos</Text>;
+<Text style={theme.text('heading2', { emphasized: true })}>Despliegues</Text>;
+```
+
+En esta plataforma, los estilos de texto y los roles de color usan claves en camelCase: de `heading1` a `heading6` son de `h1` a `h6`, `body` es un párrafo y `label` el texto de un control; el token `sys.color.on-surface-variant` es `onSurfaceVariant`. `emphasized` suma al peso el paso de énfasis de la familia; no es un rol aparte.
+
+## Fuentes
+
+Carga Inter (y Noto Sans JP, Roboto Mono) con tu configuración de fuentes habitual (por ejemplo, `expo-font`). Como React Native selecciona un archivo de fuente por cada peso, pasa a `TanreiProvider` una función `resolveFont` que haga corresponder una familia y un peso con los nombres de fuente que hayas registrado.

@@ -1,0 +1,239 @@
+---
+title: タブビュー
+description: 自分のタブの並び、またはほかの場所に置いたタブの並びと連動して、選ばれたタブのビューを表示します。スワイプでビューを切り替えられ、タブのインジケーターが指に合わせて動きます。
+translationOf: components/tab-view.mdx
+sourceHash: 9e88a691605cc8a2ba05cfb5974f032f4a81ef01
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="tab-view" />
+
+タブビューは、タブごとに 1 つのパネルを持ち、選ばれたタブのパネルを表示します。タブを選ぶと、短いずれとフェードとぼかしでビューが切り替わります。ビューを横にスワイプしても切り替えられ、タブのインジケーターは指に合わせて動き、ビューが止まったタブに落ち着きます。動きを減らす設定では、ずれとぼかしのないクロスフェードになり、それも指に合わせて進みます。
+
+<DemoFrame label="自分のタブの並びを持つタブビュー：タブを選ぶか、タッチかペンでパネルをスワイプします">
+  <tanrei-tab-view label="プロジェクト" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="overview" label="概要"><p>今週が期限のタスクが 3 件あります。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="activity" label="アクティビティ"><p>1 時間前に山田さんが計画にコメントしました。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="settings" label="設定"><p>ワークスペースの全員に公開されています。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+タブビューには 2 つの形があります。
+
+- **自分のタブの並びを持つ形（既定）。** ビューは上端に[タブ](/ja/components/tabs/)の並びを描き、そのすぐ下にパネルを置きます。各パネルが自分のタブの `label`、`icon`、`labelHidden`、`disabled` を持つので、1 つの宣言でタブとビューの両方ができます。ビューの `variant`、`size`、`track`、`fullWidth`、`label`、`group`、`rememberAs` は、その並びのものです。並びはタブそのもので、トラックもインジケーターも、トークンもバリアントも振る舞いも同じなので、タブの見た目を変えるレイヤはこの並びの見た目も変えます。切り替えのときに、並びが動いたり、フェードしたり、ぼけたりすることはありません。
+- **ほかの場所のタブとつなぐ形。** `tabs` で、アプリバーや固定ヘッダーに置いたタブの並びとつなぎます。`tabs` を設定している間は、そのタブが見つからなくても、ビューは自分の並びを描かず、並びのプロパティとパネルのタブのプロパティは使いません。
+
+自分の並びを持つ形では、タブを選んでもスワイプしても、ビューが選択のたびに `change` を発火し、並び自身の `change` は利用者側に届きません。つなぐ形では、タブを選んだときはタブが、スワイプしたときはビューが `change` を発火します。どの選択も、知らされるのは 1 回です。
+
+同じ `group` を指定したタブビューは同じ選択を示し、`rememberAs` はその選択を端末に保存します。このサイトのコンテンツのタブがその例です。プラットフォーム別のサンプルはすべて、ひとつのグループに属するセカンダリーのタブビューで、選択はサイト自身のキーで記憶されます。
+
+### 使い方
+
+Web では `<tanrei-tab-view>` で、子に `<tanrei-tab-panel>` を持ちます。これは、タブの並びが自分のパネルに使うのと同じ要素です。選択中のパネルはビューの `value` で、タブの `value` と常に同じ値に保たれます。どちらかを設定すると、イベントなしでもう一方も同じ値になります。つなぐ形では、`tabs` に、同じドキュメントまたはシャドウルートにある `<tanrei-tabs>` の id を指定します。`swipeable` は、逆の意味の `no-swipe` と書きます。HTML の真偽値の属性は false が既定だからです。
+
+SwiftUI、Compose、Flutter、React Native は、タブビューをまだ実装していません。実装されるまで、これらのプラットフォームでは、[タブ](/ja/components/tabs/)のページにあるとおり、タブの並びが選択中のパネルを表示します。スワイプはありません。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- 自分の並びを持つ形（既定）：各パネルが自分のタブを宣言します。 -->
+    <tanrei-tab-view label="プロジェクト">
+      <tanrei-tab-panel value="overview" label="概要" icon="dashboard">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity" label="アクティビティ" icon="history">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="billing" label="請求" icon="payments" disabled>…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <!-- つなぐ形：タブをほかの場所（アプリバー、固定ヘッダー）に置きます。ビューは並びを描きません。 -->
+    <tanrei-tabs id="project-tabs" label="プロジェクト">
+      <tanrei-tab value="overview" label="概要"></tanrei-tab>
+      <tanrei-tab value="activity" label="アクティビティ"></tanrei-tab>
+    </tanrei-tabs>
+    <tanrei-tab-view tabs="project-tabs">
+      <tanrei-tab-panel value="overview">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="activity">…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <!-- 同じ group を指定したビューは 1 つの選択を示します。remember-as は、利用者側で決めたキーで選択を端末に保存します。 -->
+    <tanrei-tab-view variant="secondary" group="platform" remember-as="my-docs-platform" label="プラットフォーム">
+      <tanrei-tab-panel value="web" label="Web">…</tanrei-tab-panel>
+      <tanrei-tab-panel value="flutter" label="Flutter">…</tanrei-tab-panel>
+    </tanrei-tab-view>
+
+    <script type="module">
+      import '@tanrei/web/components/tab-view'; // タブとパネルも定義します
+      // change は選択ごとに 1 回です。自分の並びを持つ形：タブでもスワイプでも、ビューが発火します。
+      // つなぐ形：タブではタブが、スワイプではビューが発火します。グループ：操作されたビューだけが発火します。
+      document.addEventListener('change', (e) => console.log(e.target.localName, e.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Tab, TabPanel, Tabs, TabView } from '@tanrei/react';
+
+    // 自分の並びを持つ形：タブでもスワイプでも、すべての選択が 1 つの onChange に届きます。
+    <TabView label="プロジェクト" value={view} onChange={(e) => setView(e.detail.value)}>
+      <TabPanel value="overview" label="概要" icon="dashboard"><Overview /></TabPanel>
+      <TabPanel value="activity" label="アクティビティ" icon="history"><Activity /></TabPanel>
+    </TabView>
+
+    // つなぐ形：タブの選択はタブが、スワイプはビューが知らせます。両方から状態を更新します。
+    <Tabs id="project-tabs" label="プロジェクト" value={view} onChange={(e) => setView(e.detail.value)}>
+      <Tab value="overview" label="概要" />
+      <Tab value="activity" label="アクティビティ" />
+    </Tabs>
+    <TabView tabs="project-tabs" onChange={(e) => setView(e.detail.value)}>
+      <TabPanel value="overview"><Overview /></TabPanel>
+      <TabPanel value="activity"><Activity /></TabPanel>
+    </TabView>
+
+    // 共有し、記憶する選択。noSwipe は、仕様の swipeable の逆です。
+    <TabView variant="secondary" group="platform" rememberAs="my-docs-platform" label="プラットフォーム" noSwipe>
+      <TabPanel value="web" label="Web"><WebSample /></TabPanel>
+      <TabPanel value="flutter" label="Flutter"><FlutterSample /></TabPanel>
+    </TabView>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="アイコンと無効なタブのある、幅を等分するセカンダリーの並び。離れた場所に置いた並びとつないだビュー" plain column>
+  <tanrei-tab-view variant="secondary" full-width label="デプロイ" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="overview" label="概要" icon="dashboard"><p>3 つのサービスがすべて稼働中です。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="activity" label="アクティビティ" icon="history"><p>2 時間前にデプロイしました。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="billing" label="請求" icon="payments" disabled><p>請求は設定されていません。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+  <tanrei-tabs id="tab-view-demo-linked-tabs" label="旅行">
+    <tanrei-tab value="plan" label="予定"></tanrei-tab>
+    <tanrei-tab value="map" label="地図"></tanrei-tab>
+    <tanrei-tab value="notes" label="メモ"></tanrei-tab>
+  </tanrei-tabs>
+  <tanrei-divider style="inline-size: 22.5rem; max-inline-size: 100%"></tanrei-divider>
+  <tanrei-tab-view tabs="tab-view-demo-linked-tabs" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="plan"><p>1 日目：到着して、旧市街を歩きます。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="map"><p>駅の近くに 4 か所を保存しました。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="notes"><p>美術館は月曜日が休館です。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+<ComponentSpecs name="tab-view" />
+
+## ガイドライン
+
+### 使う場面
+
+各タブが 1 つの対象の対等なビューで、頻繁に行き来するときに使います。プロジェクトの「概要」「アクティビティ」「設定」や、複数のプラットフォーム向けの同じサンプルなどです。タブビューは、タブの並びに 3 つのことを加えます。タブとパネルを 1 つの宣言で書けること、スワイプ、そしてインジケーターとパネルが一緒に行う切り替えです。
+
+パネルがただの内容で、スワイプする必要がなければ、自分のパネルを持つ[タブ](/ja/components/tabs/)の並びで足ります。タブビューはカルーセルでもページャーでもありません。タブごとに 1 つのパネルを表示し、1 回のスワイプで動くパネルは 1 つです。見て回るための項目の並びには、[カルーセル](/ja/components/carousel/)を使います。
+
+### 自分の並びを持つか、つなぐか
+
+| 形 | 書くもの | `change` を発火するもの | 用途 |
+| --- | --- | --- | --- |
+| 自分の並びを持つ（既定） | パネルだけ。各パネルが `label` と `icon` で自分のタブを表します。 | タブでもスワイプでも、ビュー。 | ほとんどのタブビュー。タブが内容のすぐ上にあります。 |
+| つなぐ（`tabs`） | ほかの場所に置いたタブの並びと、その並びを指定したパネルのビュー。 | タブではタブ、スワイプではビュー。 | 固定ヘッダーの中など、内容から離れた場所にあるタブ。 |
+
+- つないだ並びの見た目、名前、グループ、キーは、その並び自身のプロパティで決まります。つないだビューの `variant`、`size`、`track`、`fullWidth`、`label`、`group`、`rememberAs` は使われず、設定されていればデバッグビルドで報告します。
+- つないだビューは、読み上げ順でタブの後ろに置きます。Tab が選択中のタブからパネルへ進むようにするためです。自分の並びを持つビューは、構造上そうなっています。
+- タブにバッジはないので、パネルにもありません。タブにバッジを付けたいときは、並びを自分で書いてつなぎます。
+
+### スワイプ
+
+- **1 回のスワイプでパネル 1 つ。** タッチかペンで、上下よりも横に大きく動かしたドラッグは、次または前の有効なタブへ向かい、インジケーターが指に付いてきます。半分を越えて離すか、そのタブへ向けてフリングすると確定し、そうでなければ元に戻ります。マウス、トラックパッド、ホイールではスワイプできません。タブを使います。
+- **無効なタブは飛ばします。** 最初または最後のタブでは、パネルは動きません。
+- **横にドラッグする内容は、そのドラッグを保ちます。** 横にスクロールする領域、スライダー、カルーセル、テキストフィールド、選択中のテキストから始まるドラッグを、スワイプが取ることはありません。地図や描画面のように、パネル全体を横にドラッグする場合は、`swipeable` を false にして、切り替えをタブに任せます。
+- **並びの上のドラッグ**は、タブ自身のジェスチャーです。複数のタブを通り過ぎることができ、表示中のパネルは待ち、指を離すと選ばれたタブのパネルへ切り替わります。
+- **切り替えの見た目はデザインシステムが決めます。** 既定では、フェードとぼかしを伴う短い移動です。システムによっては、幅いっぱいのページめくりにもできます。動きを減らす設定では、フェードだけが残ります。
+
+### トランジション
+
+`transition` は、表示中のパネルが次のパネルに替わるときの形を指定します。
+
+| 値 | 動作 |
+| --- | --- |
+| `slide` | パネルはデザインシステムが決めたとおりに移動し、スワイプにも付いてきます。 |
+| `fade` | 2 つのパネルが、その場でクロスフェードします。 |
+| `none` | 新しいパネルを 1 フレームで全体表示します。ビューが描くタブの並びも、同じフレームでインジケーターを新しいタブに置きます。 |
+| `auto`（既定） | デザインシステムの答えに従います（`comp.tab-view.motion.transition`。既定のシステムでは slide）。 |
+
+コードのように、眺めるのではなく読むパネルには `none` を使います。`none` でもスワイプはできます。パネルは動かず、インジケーターが指に付いてきて、指を離すと新しいパネルがすぐに表示されます。スワイプをやめるには、`swipeable` を false にします。動きを減らす設定では、`slide` は `fade` として描かれ、`fade` と `none` に動きが加わることはありません。つないだ並びは、自分の `transition` を保ちます。
+
+### 選択を共有する
+
+<DemoFrame label="同じグループの 2 つのタブビュー：どちらかでタブを選んでください" plain column>
+  <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="パッケージマネージャー" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="npm" label="npm"><p>npm でパッケージをインストールします。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="pnpm" label="pnpm"><p>pnpm でパッケージをインストールします。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="yarn" label="Yarn"><p>Yarn でパッケージをインストールします。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+  <tanrei-tab-view variant="secondary" group="tab-view-demo-package-manager" label="パッケージマネージャー" style="inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-tab-panel value="npm" label="npm"><p>npm でビルドを実行します。</p></tanrei-tab-panel>
+    <tanrei-tab-panel value="pnpm" label="pnpm"><p>pnpm でビルドを実行します。</p></tanrei-tab-panel>
+  </tanrei-tab-view>
+</DemoFrame>
+
+- 同じ問いに答えるビューには、すべて同じ `group` を指定します。グループに属するのはビュー自身の並びなので、[タブ](/ja/components/tabs/)のページがグループについて述べていることは、すべて当てはまります。選択はパネルの `value` で対応づけ、ラベルでは対応づけません。その値のパネルを持たないビューは、自分の選択を保ちます。このデモでは、Yarn は 1 つ目のビューにしかありません。
+- 切り替えの動きを行い、`change` を発火するのは、操作されたビューだけです。ほかのビューは、移動もフェードもぼかしもなく、ただちにパネルを表示し、隠したパネルの状態を保ち、フォーカスを取りません。
+- 上にあるビューの高さが変わっても、操作されたビューはウィンドウ内の同じ位置にとどまります。
+- `rememberAs` は、選択をその端末に保存し、ビューが最初に描かれる前に復元するためのキーです。キーがなければ何も保存せず、保存するのはパネルの値だけです。Web では、キーは `localStorage` のキーで、指定されたとおりに使われます。このデモはキーを指定していません。
+- つないだビューは、どちらのプロパティも使いません。グループとキーは、つないだ並びが自分で指定します。
+
+### 大きさとパネル
+
+- ビューは親と同じ幅で、高さは並びと表示中のパネルを合わせた高さです。パネルの高さがまちまちなのは普通のことなので、パネルが変わると、ビューの後ろに続くものが動きます。
+- 下に続くものを動かしたくないときは、ビューに高さを指定します。並びは上端にとどまり、各パネルが残りを埋めて、その中でスクロールします。
+- 隠れたパネルは、入力された内容やスクロール位置などの状態とともに、その場所に残ります。ビューに遅延表示のモードはありません。重いパネルの内容は、そのタブが最初に選ばれたときに描画してください。
+
+### 推奨
+
+- すべてのパネルに `label` を付けます。`labelHidden` でアイコンだけを表示するときも同じです。ラベルはタブの名前になり、タブを通じてパネルの名前にもなります。
+- すべてのパネルにアイコンを付けるか、どれにも付けないかのどちらかにします。
+- 各パネルの `value` はビューの中で重複させず、画面を表示している間は変えないでおきます。
+- 1 つの画面にタブの並びが複数あるときは、`label` でビューに名前を付けます。
+
+### 非推奨
+
+- 同じバリアントのタブビューをパネルの中に入れ子にしない。セカンダリーのタブは、プライマリーのタブのビューの中に置きます。
+- ほかにもビューがあることを、スワイプだけで伝えようとしない。それを伝えるのはタブで、スワイプは近道です。
+- ビューが自分で描いた並びを編集しない。パネルを変えれば、並びはそれに従います。
+- アプリの行き先の移動にタブビューを使わない。それはナビゲーションバーかドロワーの役割です。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="tab-view" />
+
+### コンポーネントが担うこと
+
+- ビュー自身の並びは、ビューの `label` を名前とするタブリストで、各タブはパネルの `label` を名前とします。ビュー自体はロールを持ちません。
+- 表示中のパネルはタブパネルとして伝え、自分の並びでもつないだ並びでも、タブを名前とし、タブと関連づけます。ほかのパネルは、切り替えやスワイプの途中でまだ描かれているものも含めて、支援技術からもフォーカスからも隠します。伝える対象は、動きが終わったときではなく、選択が変わったときに移ります。
+- Tab を押すと、選択中のタブから表示中のパネルへ進みます。パネルの中の最初のフォーカスできる要素へ、何もなければパネル自体へ移ります。そのようなパネルは、キーボードフォーカスのときだけ、端の内側にフォーカスリングを表示します。
+- フォーカスのあるパネルが切り替えで隠れると、フォーカスは選択中のタブへ移ります。
+- ビューが独自に加えるキーはありません。タブの上の矢印キー、Home、End で別のタブを選ぶと、ビューが切り替わります。パネルの中では、矢印キーはその内容のものです。
+- スワイプが唯一の手段になることはありません。どのパネルにも、タブのタップと矢印キーで届きます。スクリーンリーダーの動作中は、1 本指のスワイプはスクリーンリーダーのもので、切り替えにはタブを使います。
+- スワイプは、指を離すまで何も読み上げません。取り消されたスワイプは何も変えません。
+- グループに従うビューは静かに変わります。何も読み上げず、フォーカスは元の場所に残ります。変更で隠れるパネルにフォーカスがあった場合は、そのビューの選択中のタブへ移ります。
+- 右から左（RTL）のレイアウトでは、スワイプと移動の向きが読む方向に合わせて反転します。パネルの内容をビューが反転することはありません。
+- どの並びも指していない `tabs`、パネルのない選択中のタブ、自分の並びを持ちながらパネルのないビュー、値が空または重複したパネル、自分のパネルを持つつないだ並び、つないだビューに設定された並びのプロパティは、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native は、タブビューをまだ実装していません。
+- Web：すべてのパネルがスクロールコンテナなので、パネルの端ぎりぎりにあるコントロールのフォーカスリングが切られます。
+- Web：振る舞いのテストは Chromium でしか実行しておらず、スワイプは合成したポインターイベントでしか確かめていません。
+
+### 利用者側で行うこと
+
+- すべてのパネルに `label` を付けます。1 つの画面にタブの並びが複数あるときは、ビューにも `label` を付けます。
+- つないだビューは、読み上げ順でタブの後ろに置きます。
+- つなぐ形では、タブとビューの両方の `change` から自分の状態を更新します。
+- パネル自体を横にドラッグする場合は、`swipeable` を false にします。
+- 同じグループのビューでは、同じ値に同じラベルを付けます。ビューどうしが離れているときは、最初のビューの近くで、選択がページ全体に適用されることを伝えます。
+- `rememberAs` のキーは利用者側で決め、必要な場合はプライバシーに関する説明に記載します。

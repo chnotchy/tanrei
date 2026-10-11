@@ -1,0 +1,38 @@
+---
+// Token names with their `$description`, verbatim from the hand-written sources in tokens/. A token without its own
+// description shows its group's. Descriptions are English in every locale, like spec requirements.
+import { sourceDescription, ns } from '../../lib/tokens';
+import SourceNote from '../SourceNote.astro';
+
+interface Props {
+  /** Ids below the namespace, e.g. `sys.icon.family`. */
+  tokens: string[];
+  source: string[];
+}
+const { tokens, source } = Astro.props;
+const describe = (id: string) => {
+  const path = `${ns}.${id}`.split('.');
+  for (let end = path.length; end > 2; end--) {
+    const text = sourceDescription(path.slice(0, end).join('.'));
+    if (text) return text;
+  }
+  return undefined;
+};
+const notes = tokens.map((id) => ({ id, text: describe(id) })).filter((note) => note.text);
+---
+
+<tanrei-description-list layout="stacked">
+  <dl>
+    {notes.map((note) => (
+      <div>
+        <dt><code class="tanrei-code">{note.id}</code></dt>
+        <dd lang="en">{note.text}</dd>
+      </div>
+    ))}
+  </dl>
+</tanrei-description-list>
+<SourceNote files={source} />
+
+<script>
+  import '../../lib/register-web';
+</script>

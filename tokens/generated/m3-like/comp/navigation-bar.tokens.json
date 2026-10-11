@@ -1,0 +1,596 @@
+{
+  "tanrei": {
+    "comp": {
+      "navigation-bar": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product moves between three to five top-level destinations from the bottom of a compact screen, shows which one is current — with an indicator that fills the destination's share of the bar, tonal on a quiet screen or filled where the bar must stand out, or with a mark behind the glyph alone — marks one that has something new, and can make one unavailable.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "unselected",
+              "selected",
+              "filled-unselected",
+              "filled-selected"
+            ],
+            "states": [
+              "hovered",
+              "focused",
+              "pressed",
+              "disabled"
+            ],
+            "perVariant": {
+              "item.container.color": "color",
+              "item.icon-indicator.color": "color",
+              "item.icon.color": "color",
+              "item.label.color": "color",
+              "item.covered-icon.color": "color",
+              "item.covered-label.color": "color",
+              "item.state-layer.color": "color"
+            },
+            "perComponent": {
+              "opacity": "number"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a navigation bar reads: the bar's container, height, top edge and the inset that holds its destinations in from its edges; the item geometry (the item container, which is the destination's share of the bar less that inset, with its corners and the padding it keeps around the content; the icon indicator behind the glyph alone; the icon size, the label style and the gap between them); the selection motion; and for each condition (unselected and selected for the tonal variant, filled-unselected and filled-selected for the filled one) the colors of the item container, the icon indicator, the icon and label, and the same icon and label where the active indicator covers them (covered-icon, covered-label), in each state.",
+            "rules": [
+              "The selected destination is drawn from its variant's selected condition (selected, or filled-selected); every other destination from its variant's unselected condition (unselected, or filled-unselected). Never pick a look by hand.",
+              "Tonal (the default) fills the indicator with a soft container; filled fills it with the strong color and inverts the content on it. Use filled where the bar must stand out from a busy screen, tonal elsewhere; do not mix them in one product's bars.",
+              "The active indicator is the selected condition's item container: the destination's whole share of the bar, held in by container.padding, never a shape sized to the icon and label. It slides to the next destination and follows a finger dragged across the bar; the selection is made when the finger is released.",
+              "Every destination's item container is the same size. Do not size it to its content; container.padding is the only space between it and the bar's edges.",
+              "The icon indicator is a box behind the glyph alone; the default system leaves it transparent, and a layer may draw either or both, by color alone.",
+              "covered-icon.color and covered-label.color are what the icon and label become where the active indicator covers them; each must be readable on the selected condition's item.container.color. A layer whose item container is transparent aliases them to item.icon.color and item.label.color.",
+              "Selected must differ from unselected by more than the icon's fill: an active indicator, a stronger color, or both.",
+              "Hover, focus and press show on the item container, the box the active indicator has or would have on that destination, never on the whole cell and never on a shape around the content alone.",
+              "A look that draws no item container at rest draws none when disabled.",
+              "item.container.width and item.container.height are kept only for platforms that still draw a pill around the icon and label; nothing in the current spec reads them.",
+              "Restyle through these tokens in a layer; never fork the component.",
+              "Each condition's item.state-layer.color is the color hover, focus and press mix into its item container; it aliases the color of the content on that container."
+            ]
+          },
+          "dev.tanrei.axes": {
+            "condition": {
+              "default": "unselected",
+              "from": "states"
+            }
+          }
+        },
+        "container": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.surface-container}",
+            "$extensions": {}
+          },
+          "elevation": {
+            "$type": "shadow",
+            "$value": "{tanrei.sys.elevation.level0}"
+          },
+          "height": {
+            "$type": "dimension",
+            "$value": {
+              "value": 80,
+              "unit": "px"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fn": "mul",
+                "of": "{tanrei.dial.size.unit}",
+                "by": 20
+              }
+            },
+            "$description": "The bar's minimum height, not counting the system inset below it."
+          },
+          "padding": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "How far the destinations' item containers are held in from the bar's top, bottom, start and end edges. The cells share the bar's width less this at each end, and an item container is as tall as the bar less this above and below; it is also the room the focus indicator has around a destination.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product holds its bar's active indicator in from the bar's edges by its own amount: a clear margin on a roomy bar, a tight one on a low bar; and one whose bar draws no shape around a destination sets it to nothing so the cells keep the bar's whole width.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
+        "outline": {
+          "color": {
+            "$type": "color",
+            "$description": "The bar's top edge.",
+            "$value": {
+              "colorSpace": "srgb",
+              "components": [
+                0,
+                0,
+                0
+              ],
+              "alpha": 0,
+              "hex": "#000000"
+            },
+            "$extensions": {
+              "dev.tanrei.derive": {
+                "fixed": "Material's bar is set apart by tone, with no edge."
+              }
+            }
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.border.hairline}"
+          }
+        },
+        "item": {
+          "container": {
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 16
+                }
+              },
+              "$description": "Kept for the platforms that still draw a pill around the icon and label at least this wide; the current spec makes the item container as wide as the destination's cell and reads no width. Dropped once the last platform catches up."
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              },
+              "$description": "Kept for the platforms that still draw a pill at least this high; the current spec makes the item container as tall as the bar less container.padding above and below and reads no height. Dropped once the last platform catches up."
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "The radius of the item container's four corners, at most half its height: full makes the destination's share of the bar a capsule.",
+              "$extensions": {}
+            },
+            "padding-inline": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space0}",
+              "$description": "Inside the item container, on each side of the label: a label longer than the item container less this on each side is truncated.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product lets a label run close to the rounded ends of its indicator so that five long labels fit a narrow bar; another keeps it well clear of them, without moving the bar's cells.",
+                  "since": "0.1.0"
+                }
+              }
+            },
+            "padding-block": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.space.space0}",
+              "$description": "The least space between the item container's top edge and the icon indicator, and between the label (the icon indicator, when no label is drawn) and its bottom edge. The bar grows in height to keep it.",
+              "$extensions": {
+                "dev.tanrei.vocabulary": {
+                  "rationale": "One product holds the icon and label inside the indicator with a margin of its own, so that enlarged text grows the bar before it touches the indicator's edge; one whose item container is transparent sets it to nothing so the content keeps the bar's rhythm.",
+                  "since": "0.1.0"
+                }
+              }
+            }
+          },
+          "icon-indicator": {
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product marks the current destination with a compact box behind its glyph alone and leaves the label on the bar's surface — to keep a quiet bar, or to set the bar apart from its tabs' pills. A layer cannot add a part the component draws, so the part is core, and the default system leaves it transparent.",
+                "since": "0.1.0"
+              }
+            },
+            "width": {
+              "$type": "dimension",
+              "$value": {
+                "value": 64,
+                "unit": "px"
+              },
+              "$description": "The icon indicator's width. It is laid out in every system, transparent or not; in the default system it is the icon's own box.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 16
+                }
+              }
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": {
+                "value": 32,
+                "unit": "px"
+              },
+              "$description": "The icon indicator's height; the label sits item.gap below it.",
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 8
+                }
+              }
+            },
+            "shape": {
+              "$type": "dimension",
+              "$value": "{tanrei.sys.shape.corner.full}",
+              "$description": "The radius of the icon indicator's four corners, at most half its height."
+            }
+          },
+          "icon": {
+            "size": {
+              "$type": "dimension",
+              "$description": "The icon of every destination.",
+              "$value": "{tanrei.sys.icon.medium}"
+            }
+          },
+          "label": {
+            "typescale": {
+              "$type": "typography",
+              "$value": "{tanrei.sys.typescale.label-small}"
+            }
+          },
+          "gap": {
+            "$type": "dimension",
+            "$description": "From the icon indicator to the label below it, inside the item container.",
+            "$value": "{tanrei.sys.space.space50}"
+          }
+        },
+        "unselected": {
+          "item": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "An unselected destination draws no active indicator; hover, focus and press mix into it."
+                  }
+                }
+              }
+            },
+            "icon-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "An unselected destination draws no mark behind its glyph."
+                  }
+                }
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface-variant}"
+              }
+            },
+            "covered-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.unselected.item.icon.color}",
+                "$description": "The icon of a destination that is not selected where the active indicator covers it, as the indicator slides across it to another destination.",
+                "$extensions": {}
+              }
+            },
+            "covered-label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.unselected.item.label.color}",
+                "$description": "The label of a destination that is not selected where the active indicator covers it on its way across.",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Material 3 draws hover, focus and press on the indicator behind the icon, not around the whole destination (the rules below)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "selected": {
+          "item": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The tonal active indicator: the selected destination's share of the bar.",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Material 3 marks the current destination behind its icon, not around the whole destination."
+                  }
+                }
+              }
+            },
+            "icon-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.secondary-container}",
+                "$extensions": {}
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-secondary-container}",
+                "$description": "The selected icon outside the active indicator: seen while the indicator is still on its way, and wherever a layer's indicator does not cover it."
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-surface}",
+                "$description": "The selected label outside the active indicator: seen while the indicator is still on its way, and wherever a layer's indicator does not cover it."
+              }
+            },
+            "covered-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.selected.item.icon.color}",
+                "$description": "The selected icon where the active indicator covers it: all of it once the indicator has landed.",
+                "$extensions": {}
+              }
+            },
+            "covered-label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.selected.item.label.color}",
+                "$description": "The selected label where the active indicator covers it: all of it once the indicator has landed.",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Material 3 draws hover, focus and press on the indicator behind the icon, not around the whole destination (the rules below)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "filled-unselected": {
+          "item": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.unselected.item.container.color}",
+                "$description": "A destination of a filled bar that is not selected: as a tonal bar's."
+              }
+            },
+            "icon-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.unselected.item.icon-indicator.color}"
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.unselected.item.icon.color}"
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.unselected.item.label.color}"
+              }
+            },
+            "covered-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.filled-unselected.item.icon.color}",
+                "$description": "The icon of a destination that is not selected where the filled active indicator covers it on its way across.",
+                "$extensions": {}
+              }
+            },
+            "covered-label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.filled-unselected.item.label.color}",
+                "$description": "The label of a destination that is not selected where the filled active indicator covers it on its way across.",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Material 3 draws hover, focus and press on the indicator behind the icon, not around the whole destination (the rules below)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "filled-selected": {
+          "item": {
+            "container": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The filled active indicator: the selected destination's share of the bar, in the strong color.",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Material 3 has no filled bar (the variant is unavailable here); drawn, it keeps Material's shape."
+                  }
+                }
+              }
+            },
+            "icon-indicator": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.primary}",
+                "$extensions": {}
+              }
+            },
+            "icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.sys.color.on-primary}",
+                "$description": "The selected icon outside the filled active indicator, seen while it is on its way.",
+                "$extensions": {}
+              }
+            },
+            "label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.selected.item.label.color}",
+                "$description": "The selected label outside the filled active indicator, seen while it is on its way."
+              }
+            },
+            "covered-icon": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.filled-selected.item.icon.color}",
+                "$description": "The selected icon, inverted on the filled active indicator.",
+                "$extensions": {}
+              }
+            },
+            "covered-label": {
+              "color": {
+                "$type": "color",
+                "$value": "{tanrei.comp.navigation-bar.filled-selected.item.label.color}",
+                "$description": "The selected label, inverted on the filled active indicator.",
+                "$extensions": {}
+              }
+            },
+            "state-layer": {
+              "color": {
+                "$type": "color",
+                "$value": {
+                  "colorSpace": "srgb",
+                  "components": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "alpha": 0,
+                  "hex": "#000000"
+                },
+                "$description": "The color hover, focus and press mix into the filled indicator: the content drawn on it.",
+                "$extensions": {
+                  "dev.tanrei.derive": {
+                    "fixed": "Material 3 draws hover, focus and press on the indicator behind the icon, not around the whole destination (the rules below)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "motion": {
+          "state-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.short3}",
+            "$description": "How long a state change takes, and how long the active indicator takes to come to the pointer when a drag is taken away from where it rests."
+          },
+          "state-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.easing.standard}"
+          },
+          "feedback-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.duration.long1}",
+            "$description": "How long the answer to a press takes to spread when sys.behavior.pressed-feedback is ripple (as Button's)."
+          },
+          "selection-duration": {
+            "$type": "duration",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.duration}",
+            "$description": "How long the active indicator takes to slide to the newly selected destination, or to settle or return when a drag of it is released (the covered icon and label follow it over the same time), the icon indicator to grow in and the previous one to fade out, and labels to appear and disappear."
+          },
+          "selection-easing": {
+            "$type": "cubicBezier",
+            "$value": "{tanrei.sys.motion.spring.standard.fast-spatial.easing}"
+          }
+        }
+      }
+    }
+  }
+}

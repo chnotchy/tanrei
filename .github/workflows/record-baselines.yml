@@ -1,0 +1,367 @@
+# Records image baselines (and React Native's render trees) on the machines CI verifies them on, and commits them to
+# the dispatched branch — one commit per platform, `test(<platform>): record baselines — <reason>`.
+#
+# A baseline is evidence (AGENTS.md): record only when a visual change is the intended result of a spec or token
+# change, or when the machine CI verifies on changed (the move of web, Flutter and Compose from macOS to Linux). The
+# reason is required; it becomes TANREI_SNAPSHOT_REASON, which every suite's record mode requires too, and the commit
+# message. Look at every image in the commits before merging, and repeat the reason in the changeset.
+#
+#   web           Chromium in mcr.microsoft.com/playwright (the image and the version ci.yml runs), the `snapshot: …`
+#                 tests only, `--update-snapshots=changed`: a baseline within the comparison's tolerance is kept
+#   flutter       ubuntu-24.04, Flutter 3.32.8, `flutter test --update-goldens`
+#   compose       ubuntu-24.04, JDK 17, `./gradlew :tanrei:recordRoborazziDebug` (the snapshot test classes only)
+#   react-native  ubuntu-24.04, `TANREI_RECORD_SNAPSHOTS=1 jest` (render trees are platform independent)
+#   swiftui       macos-26 with XCODE_VERSION (the runner ci.yml's SwiftUI job verifies on), `TANREI_RECORD_SNAPSHOTS=1 swift test`
+#
+# Each platform job uploads only the files that changed under its baseline directories; the commit job adds only
+# those directories, so nothing else can reach the branch. A push made with GITHUB_TOKEN starts no push or
+# pull_request workflow, so after pushing, the commit job starts CI on the branch itself (`gh workflow run ci.yml`, a
+# workflow_dispatch run: its checks attach to the new head commit and show on the pull request). How-to:
+# CONTRIBUTING.md#recording-baselines.
+name: Record baselines
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: "Platforms to record, comma separated: web, flutter, compose, react-native, swiftui"
+        required: true
+        type: string
+        # The web alone while native CI is paused (packages/tools/paused-platforms.json): a native that does not build
+        # fails its record job, and one failed job stops the commit of every platform. A native is recorded by naming
+        # it, when it catches up. The default goes back to web,flutter,compose when the pause ends for those two.
+        default: web
+      reason:
+        description: "Why the baselines change (becomes TANREI_SNAPSHOT_REASON and the commit message)"
+        required: true
+        type: string
+      filter:
+        description: "Optional: components to record, comma separated spec names (e.g. button-group,toolbar). Empty: every baseline"
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: record-baselines-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "22" # keep equal to ci.yml
+  XCODE_VERSION: "26.6" # keep equal to ci.yml
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      web: ${{ steps.plan.outputs.web }}
+      flutter: ${{ steps.plan.outputs.flutter }}
+      compose: ${{ steps.plan.outputs.compose }}
+      react-native: ${{ steps.plan.outputs.react-native }}
+      swiftui: ${{ steps.plan.outputs.swiftui }}
+      components: ${{ steps.plan.outputs.components }}
+    steps:
+      - id: plan
+        env:
+          PLATFORMS: ${{ inputs.platforms }}
+          REASON: ${{ inputs.reason }}
+          FILTER: ${{ inputs.filter }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          [ "$REF_TYPE" = branch ] || { echo "::error::dispatch this workflow on a branch (it commits to it), not on a $REF_TYPE"; exit 1; }
+          [ "$REF_NAME" != "$DEFAULT_BRANCH" ] || { echo "::error::dispatch on a feature branch, not on $DEFAULT_BRANCH: baselines reach $DEFAULT_BRANCH through a reviewed pull request"; exit 1; }
+          [ -n "$(echo "$REASON" | tr -d '[:space:]')" ] || { echo "::error::a reason is required"; exit 1; }
+          selected=" "
+          for p in $(echo "$PLATFORMS" | tr ',' ' '); do
+            case "$p" in
+              web|flutter|compose|react-native|swiftui) selected="$selected$p " ;;
+              *) echo "::error::unknown platform '$p' (web, flutter, compose, react-native, swiftui)"; exit 1 ;;
+            esac
+          done
+          [ "$selected" != " " ] || { echo "::error::name at least one platform"; exit 1; }
+          for p in web flutter compose react-native swiftui; do
+            case "$selected" in *" $p "*) echo "$p=true" ;; *) echo "$p=false" ;; esac
+          done >> "$GITHUB_OUTPUT"
+          components=$(echo "$FILTER" | tr ',' ' ' | xargs)
+          for c in $components; do
+            [[ "$c" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || { echo "::error::'$c' is not a spec name (kebab-case, e.g. button-group)"; exit 1; }
+          done
+          echo "components=$components" >> "$GITHUB_OUTPUT"
+          echo "Recording:$selected— components: ${components:-every one}"
+
+  web:
+    name: Record · web (Chromium, Linux container)
+    needs: plan
+    if: needs.plan.outputs.web == 'true'
+    runs-on: ubuntu-24.04
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble # keep equal to ci.yml (scripts/ci/check-playwright-image.sh)
+      options: --user 1001 --ipc=host
+    # A container's default shell is sh; the steps are written for bash (arrays, pipefail).
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: bash scripts/ci/check-playwright-image.sh
+      - run: pnpm --filter @tanrei/web build
+      # Component baselines come from src/components/<name>/, preset baselines from src/systems.test.ts
+      # (`snapshot: <name>/<fixture>`); both are titled `snapshot: …` (playwright.config.ts).
+      - name: Record
+        working-directory: packages/web
+        env:
+          TANREI_SNAPSHOT_REASON: ${{ inputs.reason }}
+          COMPONENTS: ${{ needs.plan.outputs.components }}
+        run: |
+          record() { pnpm exec playwright test --project=chromium --update-snapshots=changed "$@"; }
+          if [ -z "$COMPONENTS" ]; then
+            record --grep 'snapshot: '
+          else
+            dirs=(); for c in $COMPONENTS; do dirs+=("src/components/$c/"); done
+            record --grep 'snapshot: ' "${dirs[@]}"
+            record --grep "snapshot: ($(echo "$COMPONENTS" | tr ' ' '|'))/" src/systems.test.ts
+          fi
+      - name: Collect the changed baselines
+        run: bash scripts/ci/collect-baselines.sh "$RUNNER_TEMP/baselines" packages/web/snapshots
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: baselines-web
+          path: ${{ runner.temp }}/baselines
+          if-no-files-found: ignore
+
+  flutter:
+    name: Record · Flutter goldens (Linux)
+    needs: plan
+    if: needs.plan.outputs.flutter == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: 3.32.8 # keep equal to ci.yml
+          channel: stable
+          cache: true
+      - name: Record
+        working-directory: packages/flutter
+        env:
+          TANREI_SNAPSHOT_REASON: ${{ inputs.reason }}
+          COMPONENTS: ${{ needs.plan.outputs.components }}
+        run: |
+          flutter pub get
+          files=()
+          for c in $COMPONENTS; do
+            snake=${c//-/_}
+            for f in "test/components/${snake}_test.dart" "test/components/${snake}_presets_test.dart"; do
+              [ -f "$f" ] && files+=("$f")
+            done
+          done
+          if [ -n "$COMPONENTS" ] && [ ${#files[@]} -eq 0 ]; then echo "::error::no Flutter test file for: $COMPONENTS"; exit 1; fi
+          flutter test --update-goldens "${files[@]}"
+      - name: Collect the changed baselines
+        run: bash scripts/ci/collect-baselines.sh "$RUNNER_TEMP/baselines" packages/flutter/test/components/goldens
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: baselines-flutter
+          path: ${{ runner.temp }}/baselines
+          if-no-files-found: ignore
+
+  compose:
+    name: Record · Compose Roborazzi (Linux)
+    needs: plan
+    if: needs.plan.outputs.compose == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+      # `recordRoborazziDebug` records every snapshot test it runs, so it runs only the snapshot test classes
+      # (Tanrei<Name>SnapshotTest, Tanrei<Name>PresetSnapshotTest) of the named components, or all of them.
+      - name: Record
+        working-directory: packages/compose
+        env:
+          TANREI_SNAPSHOT_REASON: ${{ inputs.reason }}
+          COMPONENTS: ${{ needs.plan.outputs.components }}
+        run: |
+          tests=()
+          if [ -z "$COMPONENTS" ]; then
+            tests=(--tests '*SnapshotTest')
+          else
+            for c in $COMPONENTS; do
+              pascal=$(echo "$c" | awk -F- '{ for (i = 1; i <= NF; i++) printf "%s", toupper(substr($i, 1, 1)) substr($i, 2) }')
+              tests+=(--tests "*.Tanrei${pascal}SnapshotTest" --tests "*.Tanrei${pascal}PresetSnapshotTest")
+            done
+          fi
+          ./gradlew :tanrei:recordRoborazziDebug "${tests[@]}"
+      - name: Collect the changed baselines
+        run: bash scripts/ci/collect-baselines.sh "$RUNNER_TEMP/baselines" packages/compose/tanrei/src/test/snapshots
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: baselines-compose
+          path: ${{ runner.temp }}/baselines
+          if-no-files-found: ignore
+
+  react-native:
+    name: Record · React Native render trees
+    needs: plan
+    if: needs.plan.outputs.react-native == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Record
+        env:
+          TANREI_SNAPSHOT_REASON: ${{ inputs.reason }}
+          TANREI_RECORD_SNAPSHOTS: "1"
+          COMPONENTS: ${{ needs.plan.outputs.components }}
+        run: |
+          patterns=()
+          if [ -n "$COMPONENTS" ]; then
+            names=$(for c in $COMPONENTS; do echo "$c" | awk -F- '{ for (i = 1; i <= NF; i++) printf "%s", toupper(substr($i, 1, 1)) substr($i, 2); print "" }'; done | paste -sd '|' -)
+            patterns=("__tests__/($names)\\.")
+          fi
+          pnpm --filter @tanrei/react-native test "${patterns[@]}"
+      - name: Collect the changed baselines
+        run: bash scripts/ci/collect-baselines.sh "$RUNNER_TEMP/baselines" packages/react-native/src/components/__tests__/__snapshots__
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: baselines-react-native
+          path: ${{ runner.temp }}/baselines
+          if-no-files-found: ignore
+
+  swiftui:
+    name: Record · SwiftUI snapshots (macOS)
+    needs: plan
+    if: needs.plan.outputs.swiftui == 'true'
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The Xcode the Apple baselines and timings were taken with (runner image macos-26-arm64, Xcode 26.6); a runner
+      # image update must not change the toolchain under the tests. Bump XCODE_VERSION on purpose, then re-record.
+      - name: Select Xcode ${{ env.XCODE_VERSION }}
+        run: |
+          app=$(ls -d "/Applications/Xcode_${XCODE_VERSION}.app" "/Applications/Xcode_${XCODE_VERSION}".*.app 2>/dev/null | head -n 1)
+          [ -n "$app" ] || { echo "::error::Xcode ${XCODE_VERSION} is not on this runner image:"; ls -d /Applications/Xcode*.app; exit 1; }
+          sudo xcode-select -s "$app/Contents/Developer"
+          xcodebuild -version
+      - run: xcodebuild -version && swift --version
+      - name: Record
+        env:
+          TANREI_SNAPSHOT_REASON: ${{ inputs.reason }}
+          TANREI_RECORD_SNAPSHOTS: "1"
+          TMPDIR: ${{ runner.temp }}/
+          COMPONENTS: ${{ needs.plan.outputs.components }}
+        run: |
+          filter=()
+          if [ -n "$COMPONENTS" ]; then
+            names=$(for c in $COMPONENTS; do echo "$c" | awk -F- '{ for (i = 1; i <= NF; i++) printf "%s", toupper(substr($i, 1, 1)) substr($i, 2); print "" }'; done | paste -sd '|' -)
+            # Every suite of the component: TanreiToolbarTests, TanreiToolbarSnapshotTests, TanreiToolbarLayoutTests …
+            filter=(--filter "^TanreiTests\\.Tanrei($names)[A-Za-z]*Tests/")
+          fi
+          swift test --no-parallel "${filter[@]}"
+      - name: Collect the changed baselines
+        run: bash scripts/ci/collect-baselines.sh "$RUNNER_TEMP/baselines" packages/swiftui/Tests/TanreiTests/__Snapshots__
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: baselines-swiftui
+          path: ${{ runner.temp }}/baselines
+          if-no-files-found: ignore
+
+  # Runs when every selected platform recorded (a platform not selected is skipped, which is fine; one that failed
+  # stops the commit, so a half-recorded set never lands).
+  commit:
+    name: Commit the baselines to ${{ github.ref_name }}
+    needs: [plan, web, flutter, compose, react-native, swiftui]
+    if: ${{ !cancelled() && needs.plan.result == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write # push the baseline commits
+      actions: write # start CI on the branch afterwards (workflow_dispatch)
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: baselines-*
+          # One tree: each artifact holds files at their repository paths, under its own platform's directory. (Without
+          # merge-multiple a lone artifact is extracted without its own folder, and a per-artifact layout breaks.)
+          merge-multiple: true
+          path: ${{ runner.temp }}/in
+      - name: Commit each platform's baselines, push, and start CI on the branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REASON: ${{ inputs.reason }}
+          BRANCH: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          subject_reason=$(echo "$REASON" | tr '\n' ' ' | sed -E 's/[[:space:]]+/ /g; s/ $//')
+          # The only directories a commit of this workflow may touch, per platform.
+          declare -A dirs=(
+            [web]=packages/web/snapshots
+            [flutter]=packages/flutter/test/components/goldens
+            [compose]=packages/compose/tanrei/src/test/snapshots
+            [react-native]=packages/react-native/src/components/__tests__/__snapshots__
+            [swiftui]=packages/swiftui/Tests/TanreiTests/__Snapshots__
+          )
+          src="$RUNNER_TEMP/in"
+          mkdir -p "$src"
+          # Only files under a platform's baseline directory are taken; anything else in the artifacts is refused.
+          exclude=(); for d in "${dirs[@]}"; do exclude+=(! -path "./$d/*"); done
+          outside=$(cd "$src" && find . -type f "${exclude[@]}" | head -n 5)
+          [ -z "$outside" ] || { echo "::error::the recorded artifacts hold files outside the baseline directories: $outside"; exit 1; }
+          echo "Downloaded: $(cd "$src" && find . -type f | wc -l) file(s)"
+          made=0
+          for platform in web flutter compose react-native swiftui; do
+            dir=${dirs[$platform]}
+            [ -d "$src/$dir" ] || continue
+            cp -R "$src/$dir/." "$GITHUB_WORKSPACE/$dir/"
+            git add -- "$dir"
+            if git diff --cached --quiet; then echo "$platform: no baseline changed"; continue; fi
+            git diff --cached --stat
+            git commit -q -F - <<EOF
+          test($platform): record baselines — $subject_reason
+
+          $REASON
+
+          Recorded by the record-baselines workflow: $RUN_URL
+          EOF
+            made=$((made + 1))
+          done
+          if [ "$made" = 0 ]; then echo "No baseline changed; nothing to commit."; exit 0; fi
+          git pull --rebase origin "$BRANCH"
+          git push origin "HEAD:$BRANCH"
+          # A push by GITHUB_TOKEN starts no push or pull_request workflow; a workflow_dispatch it sends does start one.
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH"
+          {
+            echo "### Baselines committed to \`$BRANCH\`"
+            git log -n "$made" --format='- %h %s'
+            echo
+            echo "CI was started on \`$BRANCH\` (a workflow_dispatch run of ci.yml; its checks show on the pull request). Look at every image in these commits."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,1637 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "text-field",
+  "title": "Text field",
+  "summary": "Lets people enter and edit text — one line, or several that follow the text or are resized by hand — or a date or a time entered unit by unit in the locale's form, or code held exactly as it is written, with a label that can say the field is required or optional, optional icons, prefix and suffix, supporting text, a character count and a picker button.",
+  "category": "text-inputs",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "field",
+    "text-input"
+  ],
+  "fills": [
+    "field.countText"
+  ],
+  "anatomy": [
+    {
+      "id": "field",
+      "description": "The Field: the label row with its glyph and its requirement mark, and the supporting row with the help, the error text and the count the text field gives it (TXF-67). In a look whose input floats the label it draws no label row."
+    },
+    {
+      "id": "text-input",
+      "description": "The text input, as the Field's one control: the box and everything typed in it, the icons, the prefix and the suffix, the segments of a date, the picker button, the resize grip, and the label that floats in the box in the looks that float one."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "from": "text-input.variant"
+    },
+    {
+      "name": "size",
+      "from": "text-input.size"
+    },
+    {
+      "name": "type",
+      "from": "text-input.type"
+    },
+    {
+      "name": "value",
+      "from": "text-input.value"
+    },
+    {
+      "name": "label",
+      "from": "field.label",
+      "note": "Names the text input. In a filled or outlined look the input draws it, floating in its box, and the Field draws no label row (FLD-25, TXI-13)."
+    },
+    {
+      "name": "labelHidden",
+      "from": "field.labelHidden",
+      "note": "Hides the label wherever it would be drawn: the Field's row, or the input's floating label (FLD-25)."
+    },
+    {
+      "name": "placeholder",
+      "from": "text-input.placeholder"
+    },
+    {
+      "name": "supportingText",
+      "from": "field.supportingText"
+    },
+    {
+      "name": "errorText",
+      "from": "field.errorText"
+    },
+    {
+      "name": "error",
+      "from": "field.error",
+      "note": "The Field puts its text input in the input's own error condition (FLD-8, TXI-11)."
+    },
+    {
+      "name": "disabled",
+      "from": "field.disabled",
+      "note": "The Field disables its text input (FLD-14, TXI-5); the text field is then left out of its form (TXF-63)."
+    },
+    {
+      "name": "readOnly",
+      "from": "text-input.readOnly"
+    },
+    {
+      "name": "requirement",
+      "from": "field.requirement",
+      "note": "The Field exposes its text input as required (FLD-10, TXI-23)."
+    },
+    {
+      "name": "requiredMark",
+      "from": "field.requiredMark"
+    },
+    {
+      "name": "requiredText",
+      "from": "field.requiredText"
+    },
+    {
+      "name": "optionalText",
+      "from": "field.optionalText"
+    },
+    {
+      "name": "multiline",
+      "from": "text-input.multiline"
+    },
+    {
+      "name": "minRows",
+      "from": "text-input.minRows"
+    },
+    {
+      "name": "maxRows",
+      "from": "text-input.maxRows"
+    },
+    {
+      "name": "resize",
+      "from": "text-input.resize"
+    },
+    {
+      "name": "resizeAxis",
+      "from": "text-input.resizeAxis"
+    },
+    {
+      "name": "resizeLabel",
+      "from": "text-input.resizeLabel"
+    },
+    {
+      "name": "wrap",
+      "from": "text-input.wrap"
+    },
+    {
+      "name": "maxLength",
+      "from": "text-input.maxLength"
+    },
+    {
+      "name": "counter",
+      "from": "text-input.counter",
+      "note": "The input keeps the count, the text field gives it to its Field, and the Field draws it (TXI-19, TXF-67, FLD-27)."
+    },
+    {
+      "name": "prefixText",
+      "from": "text-input.prefixText"
+    },
+    {
+      "name": "suffixText",
+      "from": "text-input.suffixText"
+    },
+    {
+      "name": "autocomplete",
+      "from": "text-input.autocomplete"
+    },
+    {
+      "name": "locale",
+      "from": "text-input.locale"
+    },
+    {
+      "name": "min",
+      "from": "text-input.min"
+    },
+    {
+      "name": "max",
+      "from": "text-input.max"
+    },
+    {
+      "name": "disabledDates",
+      "from": "text-input.disabledDates"
+    },
+    {
+      "name": "invalidText",
+      "from": "text-input.invalidText",
+      "note": "Shown by the Field, in its supporting row (FLD-28)."
+    },
+    {
+      "name": "unavailableText",
+      "from": "text-input.unavailableText",
+      "note": "Shown by the Field, in its supporting row (FLD-28)."
+    },
+    {
+      "name": "segmentEmptyText",
+      "from": "text-input.segmentEmptyText"
+    },
+    {
+      "name": "picker",
+      "from": "text-input.picker"
+    },
+    {
+      "name": "pickerLabel",
+      "from": "text-input.pickerLabel"
+    }
+  ],
+  "slots": [
+    {
+      "name": "leading-icon",
+      "from": "text-input.leading-icon"
+    },
+    {
+      "name": "trailing-icon",
+      "from": "text-input.trailing-icon"
+    },
+    {
+      "name": "label-icon",
+      "from": "field.label-icon"
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "from": "text-input.input"
+    },
+    {
+      "name": "change",
+      "from": "text-input.change"
+    },
+    {
+      "name": "action",
+      "from": "text-input.action"
+    },
+    {
+      "name": "pickerRequest",
+      "from": "text-input.pickerRequest"
+    },
+    {
+      "name": "entryError",
+      "from": "text-input.entryError"
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "TXF-62",
+      "text": "THE text field SHALL be a Field that frames one text input, and nothing else. It SHALL give label, labelHidden, supportingText, errorText, error, disabled, requirement, requiredMark, requiredText and optionalText to its Field and every other prop to its text input, each unchanged; SHALL hold the label-icon slot for its Field and the leading-icon and trailing-icon slots for its text input; and SHALL emit its text input's events as its own, each once. THE text field SHALL be as wide as the place it stands in, and its text input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (TXI-63). It SHALL draw no part of its own, have no token of its own and hold no state of its own but the count it carries from one member to the other (TXF-67): what it shows, how it behaves and what it exposes to assistive technology SHALL be exactly what that Field and that text input do when a product places the one in the other (FLD-1 to FLD-28; TXI-1 to TXI-63), with the Field given the input's count — the label row and its requirement mark (FLD-2 to FLD-6), or the label that floats in the box with the Field's row left out (FLD-25, TXI-13, TXI-50); the supporting row, the error and the count (FLD-7 to FLD-9, FLD-26, FLD-27, TXI-19, TXF-67); the name, the description and the states (FLD-10, FLD-11, FLD-14, TXI-23); and a date's entry error shown in the Field's row (FLD-28, TXI-30).",
+      "verify": "The twin test: every fixture of the text field has a twin, the Field's fixture text-<id>, a Field around a text input written by hand with the same values, and with the count text the text field fills (TXF-67) written by hand; on every platform that draws both, the two are the same picture and the same accessibility tree. A difference is a finding in a member or in the exchange between them (TXI-62), never a baseline to update."
+    },
+    {
+      "id": "TXF-63",
+      "text": "WHERE the platform has forms (the web) THE text field SHALL be the one control the form sees: it SHALL take name, submit its text input's value, reset to the value it was first given, restore it on navigation, report to the form's constraint validation exactly what its text input would report there (TXI-23, TXI-30), and be left out WHILE disabled is true or a disabled group of the form holds it; its text input and its Field SHALL take no part in the form themselves. WHEN the action key asks for the form's submission (TXI-3) the form asked SHALL be the text field's own.",
+      "verify": "Unit, on the web: a form with one text field submits one entry under the field's name; reset and restore reach the text input; requirement required with an empty value reports valueMissing on the text field and focuses its text input when the form reports it; Enter in the text input presses the form's default button (BTN-30)."
+    },
+    {
+      "id": "TXF-64",
+      "text": "WHEN the text field is given focus — by the product, by a press on any part of it that FLD-12 or TXI-8 gives to the input, or by a form that reports its validity — THE text field SHALL pass the focus to its text input (in a date, time or date-time field, to the segment TXI-43 names) and SHALL add no stop to the focus order: the stops inside it are its text input's, in that input's order (an interactive slot element, the picker button, the resize grip). WHILE focus is anywhere inside it THE text field SHALL count as focused for its Field (FLD-13)."
+    },
+    {
+      "id": "TXF-65",
+      "text": "IF the text field is placed in a Field THE text field SHALL in debug builds report that it is a field already and that the bare control is the text input, and both SHALL still render (FLD-15). WHILE it stands in a field group THE text field SHALL follow that group's disabled, through its own Field, and take nothing else from the group (FGR-20)."
+    },
+    {
+      "id": "TXF-66",
+      "text": "THE text field SHALL have no words of its own and SHALL read none: requiredText and optionalText are read by its Field (FLD-24), resizeLabel and segmentEmptyText by its text input (TXI-52), each from the instance's prop and then from the product's words."
+    },
+    {
+      "id": "TXF-67",
+      "text": "WHILE counter is true THE text field SHALL give its Field, as its count text (FLD-27), the count its text input keeps (TXI-19), as the input writes it, and SHALL give the new one in the same frame in which the value changes — by typing, by a paste, because the product set value or maxLength — without a motion and without an announcement of its own: the input describes and announces its count itself (TXI-19) and the Field keeps the drawn text from assistive technology (FLD-27). WHILE counter is false THE text field SHALL give its Field no count text. THE text field SHALL NOT count, format or write a digit itself.",
+      "verify": "Fixtures stacked-counter, outlined-counter, stacked-code-multiline-counter and stacked-code-multiline-rtl, each the same picture as its twin, whose Field is given the same count text by hand. Unit: type one character into a text field with counter: the Field's counter part shows the new count in the next frame; set counter to false: the part is gone."
+    }
+  ],
+  "accessibility": {
+    "role": "textbox",
+    "keyboard": [
+      {
+        "keys": "Every key",
+        "action": "The text input's (its accessibility block; TXI-3, TXI-41, TXI-43 to TXI-45, TXI-59). The text field handles no key and adds no focus stop (TXF-64)."
+      }
+    ],
+    "labeling": "The text field adds nothing to what its members expose, and the one thing it coordinates — the drawn count (TXF-67) — is kept from assistive technology, which hears the count from the input: the Field gives the text input its name, its description and its required, invalid and disabled states (FLD-8, FLD-10, FLD-11, FLD-14), and the text input carries them on its own element (TXI-23). Assistive technology meets one text box — or, for a date or a time, one group of spin buttons — named by label, exactly as it meets a Field around a text input written by hand.",
+    "minimumTarget": true,
+    "notes": [
+      "One level down is the same thing: a Field with a text input in it. Every fixture has that pair as its twin, and the accessibility tree of the two is the same (TXF-62). What the pair by hand does not do by itself is keep the Field's count text equal to the input's count as the person types (TXF-67): the product writes it at each input.",
+      "On the web the two members stand in the text field's own shadow root, so the form meets the text field and not the input (TXF-63); focus passes through to the input (TXF-64)."
+    ]
+  },
+  "tokens": "comp.field",
+  "fixtures": [
+    {
+      "id": "outlined-empty",
+      "props": {
+        "variant": "outlined",
+        "label": "Email"
+      },
+      "twin": "field.text-outlined-empty"
+    },
+    {
+      "id": "outlined-filled",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@example.com"
+      },
+      "twin": "field.text-outlined-filled"
+    },
+    {
+      "id": "filled-empty",
+      "props": {
+        "variant": "filled",
+        "label": "Email"
+      },
+      "twin": "field.text-filled-empty"
+    },
+    {
+      "id": "filled-filled",
+      "props": {
+        "variant": "filled",
+        "label": "Email",
+        "value": "ada@example.com"
+      },
+      "twin": "field.text-filled-filled"
+    },
+    {
+      "id": "outlined-large",
+      "props": {
+        "variant": "outlined",
+        "size": "large",
+        "label": "Email",
+        "value": "ada@example.com"
+      },
+      "twin": "field.text-outlined-large"
+    },
+    {
+      "id": "filled-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "Email",
+        "value": "ada@example.com"
+      },
+      "twin": "field.text-filled-large"
+    },
+    {
+      "id": "outlined-label-hidden",
+      "props": {
+        "variant": "outlined",
+        "type": "search",
+        "label": "Search",
+        "labelHidden": true,
+        "placeholder": "Search components"
+      },
+      "twin": "field.text-outlined-label-hidden"
+    },
+    {
+      "id": "outlined-supporting",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@example.com",
+        "supportingText": "We only use it to sign you in."
+      },
+      "twin": "field.text-outlined-supporting"
+    },
+    {
+      "id": "outlined-error",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@",
+        "error": true,
+        "errorText": "Enter a complete email address."
+      },
+      "twin": "field.text-outlined-error"
+    },
+    {
+      "id": "outlined-supporting-error",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@",
+        "supportingText": "We never share your address.",
+        "error": true,
+        "errorText": "Enter a complete email address."
+      },
+      "twin": "field.text-outlined-supporting-error"
+    },
+    {
+      "id": "filled-error",
+      "props": {
+        "variant": "filled",
+        "label": "Email",
+        "value": "ada@",
+        "error": true,
+        "errorText": "Enter a complete email address."
+      },
+      "twin": "field.text-filled-error"
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@example.com",
+        "disabled": true
+      },
+      "twin": "field.text-outlined-disabled"
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "label": "Email",
+        "value": "ada@example.com",
+        "disabled": true
+      },
+      "twin": "field.text-filled-disabled"
+    },
+    {
+      "id": "outlined-read-only",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "value": "ada@example.com",
+        "readOnly": true
+      },
+      "twin": "field.text-outlined-read-only"
+    },
+    {
+      "id": "outlined-icons",
+      "props": {
+        "variant": "outlined",
+        "label": "Search",
+        "value": "tanrei"
+      },
+      "content": "leading-icon=search trailing-icon=close",
+      "twin": "field.text-outlined-icons"
+    },
+    {
+      "id": "outlined-affixes",
+      "props": {
+        "variant": "outlined",
+        "type": "number",
+        "label": "Amount",
+        "value": "120",
+        "prefixText": "$",
+        "suffixText": "USD"
+      },
+      "twin": "field.text-outlined-affixes"
+    },
+    {
+      "id": "outlined-counter",
+      "props": {
+        "variant": "outlined",
+        "label": "Display name",
+        "value": "Ada Lovelace",
+        "maxLength": 40,
+        "counter": true
+      },
+      "twin": "field.text-outlined-counter"
+    },
+    {
+      "id": "outlined-multiline",
+      "props": {
+        "variant": "outlined",
+        "label": "Message",
+        "multiline": true,
+        "minRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in."
+      },
+      "twin": "field.text-outlined-multiline"
+    },
+    {
+      "id": "filled-multiline",
+      "props": {
+        "variant": "filled",
+        "label": "Message",
+        "multiline": true,
+        "minRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in."
+      },
+      "twin": "field.text-filled-multiline"
+    },
+    {
+      "id": "outlined-password",
+      "props": {
+        "variant": "outlined",
+        "type": "password",
+        "label": "Password",
+        "value": "correct horse"
+      },
+      "twin": "field.text-outlined-password"
+    },
+    {
+      "id": "stacked-empty",
+      "props": {
+        "variant": "stacked",
+        "label": "Email"
+      },
+      "twin": "field.text-stacked-empty"
+    },
+    {
+      "id": "stacked-filled",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "value": "ada@example.com"
+      },
+      "twin": "field.text-stacked-filled"
+    },
+    {
+      "id": "stacked-placeholder",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "placeholder": "name@example.com"
+      },
+      "twin": "field.text-stacked-placeholder"
+    },
+    {
+      "id": "stacked-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "label": "Email",
+        "value": "ada@example.com"
+      },
+      "twin": "field.text-stacked-large"
+    },
+    {
+      "id": "stacked-label-hidden",
+      "props": {
+        "variant": "stacked",
+        "label": "Search",
+        "labelHidden": true,
+        "placeholder": "Search"
+      },
+      "twin": "field.text-stacked-label-hidden"
+    },
+    {
+      "id": "stacked-supporting",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "value": "ada@example.com",
+        "supportingText": "We never share your address."
+      },
+      "twin": "field.text-stacked-supporting"
+    },
+    {
+      "id": "stacked-error",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "value": "ada@",
+        "error": true,
+        "errorText": "Enter a complete address."
+      },
+      "twin": "field.text-stacked-error"
+    },
+    {
+      "id": "stacked-supporting-error",
+      "props": {
+        "variant": "stacked",
+        "type": "password",
+        "label": "Password",
+        "value": "ada1",
+        "supportingText": "At least 8 characters, with one number.",
+        "error": true,
+        "errorText": "This password is too short."
+      },
+      "twin": "field.text-stacked-supporting-error"
+    },
+    {
+      "id": "stacked-supporting-error-long",
+      "props": {
+        "variant": "stacked",
+        "label": "Billing address",
+        "value": "12 Example Stret",
+        "supportingText": "Use the address your bank has on file, with the house number first and the apartment after it, so that the two records match.",
+        "error": true,
+        "errorText": "We could not find this address. Check the house number and the postal code, or enter the address as it is printed on a recent statement."
+      },
+      "twin": "field.text-stacked-supporting-error-long"
+    },
+    {
+      "id": "stacked-supporting-error-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "password",
+        "label": "סיסמה",
+        "value": "ada1",
+        "supportingText": "לפחות 8 תווים, כולל ספרה אחת.",
+        "error": true,
+        "errorText": "הסיסמה קצרה מדי."
+      },
+      "twin": "field.text-stacked-supporting-error-rtl"
+    },
+    {
+      "id": "stacked-disabled",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "value": "ada@example.com",
+        "disabled": true
+      },
+      "twin": "field.text-stacked-disabled"
+    },
+    {
+      "id": "stacked-read-only",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "value": "ada@example.com",
+        "readOnly": true
+      },
+      "twin": "field.text-stacked-read-only"
+    },
+    {
+      "id": "stacked-icons",
+      "props": {
+        "variant": "stacked",
+        "label": "Search",
+        "value": "tanrei"
+      },
+      "content": "leading-icon=search trailing-icon=close",
+      "twin": "field.text-stacked-icons"
+    },
+    {
+      "id": "stacked-label-icon",
+      "props": {
+        "variant": "stacked",
+        "label": "Display name",
+        "value": "Ada Lovelace"
+      },
+      "slots": {
+        "label-icon": "person"
+      },
+      "twin": "field.text-stacked-label-icon"
+    },
+    {
+      "id": "stacked-affixes",
+      "props": {
+        "variant": "stacked",
+        "type": "number",
+        "label": "Amount",
+        "value": "120",
+        "prefixText": "$",
+        "suffixText": "USD"
+      },
+      "twin": "field.text-stacked-affixes"
+    },
+    {
+      "id": "stacked-counter",
+      "props": {
+        "variant": "stacked",
+        "label": "Display name",
+        "value": "Ada Lovelace",
+        "maxLength": 40,
+        "counter": true
+      },
+      "twin": "field.text-stacked-counter"
+    },
+    {
+      "id": "stacked-supporting-error-counter",
+      "props": {
+        "variant": "stacked",
+        "label": "Display name",
+        "value": "Ada",
+        "maxLength": 40,
+        "counter": true,
+        "supportingText": "Shown beside your posts.",
+        "error": true,
+        "errorText": "This name is taken. Choose another."
+      },
+      "twin": "field.text-stacked-supporting-error-counter"
+    },
+    {
+      "id": "stacked-multiline",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "minRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in."
+      },
+      "twin": "field.text-stacked-multiline"
+    },
+    {
+      "id": "stacked-password",
+      "props": {
+        "variant": "stacked",
+        "type": "password",
+        "label": "Password",
+        "value": "correct horse"
+      },
+      "twin": "field.text-stacked-password"
+    },
+    {
+      "id": "stacked-date",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27"
+      },
+      "twin": "field.text-stacked-date"
+    },
+    {
+      "id": "stacked-date-empty",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "segmentEmptyText": "Empty"
+      },
+      "twin": "field.text-stacked-date-empty"
+    },
+    {
+      "id": "stacked-date-picker",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date"
+      },
+      "twin": "field.text-stacked-date-picker"
+    },
+    {
+      "id": "stacked-date-picker-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date"
+      },
+      "twin": "field.text-stacked-date-picker-large"
+    },
+    {
+      "id": "stacked-date-ja",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "ja-JP",
+        "label": "開始日",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "日付を選択"
+      },
+      "twin": "field.text-stacked-date-ja"
+    },
+    {
+      "id": "stacked-time-picker",
+      "props": {
+        "variant": "stacked",
+        "type": "time",
+        "locale": "en-US",
+        "label": "Start time",
+        "value": "14:30",
+        "picker": true,
+        "pickerLabel": "Choose time"
+      },
+      "twin": "field.text-stacked-time-picker"
+    },
+    {
+      "id": "stacked-date-time-picker",
+      "props": {
+        "variant": "stacked",
+        "type": "date-time",
+        "locale": "en-US",
+        "label": "Starts",
+        "value": "2026-09-27T14:30",
+        "picker": true,
+        "pickerLabel": "Choose date and time"
+      },
+      "twin": "field.text-stacked-date-time-picker"
+    },
+    {
+      "id": "stacked-date-error",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date",
+        "error": true,
+        "errorText": "Choose a date after today."
+      },
+      "twin": "field.text-stacked-date-error"
+    },
+    {
+      "id": "stacked-date-disabled",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date",
+        "disabled": true
+      },
+      "twin": "field.text-stacked-date-disabled"
+    },
+    {
+      "id": "outlined-date-picker",
+      "props": {
+        "variant": "outlined",
+        "type": "date",
+        "locale": "en-US",
+        "label": "Start date",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "Choose date"
+      },
+      "twin": "field.text-outlined-date-picker"
+    },
+    {
+      "id": "stacked-multiline-auto-grown",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "value": "Thanks for the review.\nThe new tokens are in.\nThe web is green.\nThe others follow.\nMore tomorrow."
+      },
+      "twin": "field.text-stacked-multiline-auto-grown"
+    },
+    {
+      "id": "stacked-multiline-auto-grown-icons",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "value": "Thanks for the review.\nThe new tokens are in.\nThe web is green.\nThe others follow.\nMore tomorrow."
+      },
+      "content": "leading-icon=search trailing-icon=close",
+      "twin": "field.text-stacked-multiline-auto-grown-icons"
+    },
+    {
+      "id": "stacked-multiline-auto-max",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "maxRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in.\nThe web is green.\nThe others follow.\nMore tomorrow."
+      },
+      "twin": "field.text-stacked-multiline-auto-max"
+    },
+    {
+      "id": "stacked-multiline-manual",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "resize": "manual",
+        "minRows": 3,
+        "resizeLabel": "Resize",
+        "value": "Thanks for the review.\nThe new tokens are in."
+      },
+      "twin": "field.text-stacked-multiline-manual"
+    },
+    {
+      "id": "stacked-multiline-manual-both",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "resize": "manual",
+        "resizeAxis": "both",
+        "minRows": 3,
+        "resizeLabel": "Resize",
+        "value": "Thanks for the review.\nThe new tokens are in."
+      },
+      "twin": "field.text-stacked-multiline-manual-both"
+    },
+    {
+      "id": "stacked-multiline-manual-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "הודעה",
+        "multiline": true,
+        "resize": "manual",
+        "resizeAxis": "both",
+        "minRows": 3,
+        "resizeLabel": "שינוי גודל",
+        "value": "תודה על הסקירה."
+      },
+      "twin": "field.text-stacked-multiline-manual-rtl"
+    },
+    {
+      "id": "stacked-multiline-fixed",
+      "props": {
+        "variant": "stacked",
+        "label": "Message",
+        "multiline": true,
+        "resize": "fixed",
+        "minRows": 3,
+        "value": "Thanks for the review.\nThe new tokens are in.\nThe web is green.\nThe others follow.\nMore tomorrow."
+      },
+      "twin": "field.text-stacked-multiline-fixed"
+    },
+    {
+      "id": "outlined-multiline-manual",
+      "props": {
+        "variant": "outlined",
+        "label": "Message",
+        "multiline": true,
+        "resize": "manual",
+        "minRows": 3,
+        "resizeLabel": "Resize",
+        "value": "Thanks for the review.\nThe new tokens are in."
+      },
+      "twin": "field.text-outlined-multiline-manual"
+    },
+    {
+      "id": "stacked-time-empty",
+      "props": {
+        "variant": "stacked",
+        "type": "time",
+        "locale": "en-US",
+        "label": "Start time",
+        "segmentEmptyText": "Empty"
+      },
+      "twin": "field.text-stacked-time-empty"
+    },
+    {
+      "id": "stacked-time-24h",
+      "props": {
+        "variant": "stacked",
+        "type": "time",
+        "locale": "ja-JP",
+        "label": "開始時刻",
+        "value": "14:30"
+      },
+      "twin": "field.text-stacked-time-24h"
+    },
+    {
+      "id": "stacked-date-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "date",
+        "locale": "he-IL",
+        "label": "תאריך התחלה",
+        "value": "2026-09-27",
+        "picker": true,
+        "pickerLabel": "בחירת תאריך"
+      },
+      "twin": "field.text-stacked-date-rtl"
+    },
+    {
+      "id": "stacked-required",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "requirement": "required",
+        "requiredText": "Required"
+      },
+      "twin": "field.text-stacked-required"
+    },
+    {
+      "id": "stacked-optional",
+      "props": {
+        "variant": "stacked",
+        "label": "Company",
+        "requirement": "optional",
+        "optionalText": "Optional"
+      },
+      "twin": "field.text-stacked-optional"
+    },
+    {
+      "id": "stacked-required-asterisk",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "requirement": "required",
+        "requiredMark": "asterisk"
+      },
+      "twin": "field.text-stacked-required-asterisk"
+    },
+    {
+      "id": "stacked-required-ja",
+      "props": {
+        "variant": "stacked",
+        "label": "氏名",
+        "requirement": "required",
+        "requiredText": "必須",
+        "value": "山田 太郎"
+      },
+      "twin": "field.text-stacked-required-ja"
+    },
+    {
+      "id": "stacked-optional-ja",
+      "props": {
+        "variant": "stacked",
+        "label": "会社名",
+        "requirement": "optional",
+        "optionalText": "任意"
+      },
+      "twin": "field.text-stacked-optional-ja"
+    },
+    {
+      "id": "stacked-required-label-icon",
+      "props": {
+        "variant": "stacked",
+        "label": "Display name",
+        "requirement": "required",
+        "value": "Ada Lovelace",
+        "requiredText": "Required"
+      },
+      "slots": {
+        "label-icon": "person"
+      },
+      "twin": "field.text-stacked-required-label-icon"
+    },
+    {
+      "id": "stacked-required-error",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "requirement": "required",
+        "error": true,
+        "errorText": "Enter your email address.",
+        "requiredText": "Required"
+      },
+      "twin": "field.text-stacked-required-error"
+    },
+    {
+      "id": "stacked-required-disabled",
+      "props": {
+        "variant": "stacked",
+        "label": "Email",
+        "requirement": "required",
+        "value": "ada@example.com",
+        "disabled": true,
+        "requiredText": "Required"
+      },
+      "twin": "field.text-stacked-required-disabled"
+    },
+    {
+      "id": "stacked-required-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "אימייל",
+        "requirement": "required",
+        "requiredText": "חובה"
+      },
+      "twin": "field.text-stacked-required-rtl"
+    },
+    {
+      "id": "outlined-required",
+      "props": {
+        "variant": "outlined",
+        "label": "Email",
+        "requirement": "required",
+        "requiredText": "Required"
+      },
+      "twin": "field.text-outlined-required"
+    },
+    {
+      "id": "stacked-code",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "Pattern",
+        "value": "tanrei.comp.button.*.container.color"
+      },
+      "twin": "field.text-stacked-code"
+    },
+    {
+      "id": "stacked-code-empty",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "Pattern",
+        "placeholder": "tanrei.comp.*.color"
+      },
+      "twin": "field.text-stacked-code-empty"
+    },
+    {
+      "id": "stacked-code-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "type": "code",
+        "label": "Pattern",
+        "value": "tanrei.comp.button.*.container.color"
+      },
+      "twin": "field.text-stacked-code-large"
+    },
+    {
+      "id": "stacked-code-affixes",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "Pattern",
+        "value": "^sys\\.color\\.",
+        "prefixText": "/",
+        "suffixText": "/u",
+        "supportingText": "A regular expression, matched against a token's id."
+      },
+      "twin": "field.text-stacked-code-affixes"
+    },
+    {
+      "id": "stacked-code-multiline",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      },
+      "twin": "field.text-stacked-code-multiline"
+    },
+    {
+      "id": "stacked-code-multiline-empty",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "placeholder": "{ \"id\": \"acme\", \"extends\": \"tanrei\" }"
+      },
+      "twin": "field.text-stacked-code-multiline-empty"
+    },
+    {
+      "id": "stacked-code-multiline-wrap",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "label": "Rule",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }"
+      },
+      "twin": "field.text-stacked-code-multiline-wrap"
+    },
+    {
+      "id": "stacked-code-multiline-nowrap",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "wrap": false,
+        "minRows": 3,
+        "label": "Rule",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }\n{ \"match\": \"*\" }"
+      },
+      "twin": "field.text-stacked-code-multiline-nowrap"
+    },
+    {
+      "id": "stacked-code-multiline-tabs",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "label": "Recipe",
+        "value": "build:\n\tpnpm generate\n\t\tpnpm check"
+      },
+      "twin": "field.text-stacked-code-multiline-tabs"
+    },
+    {
+      "id": "stacked-code-multiline-error",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n}",
+        "error": true,
+        "errorText": "Line 3: a name was expected before }."
+      },
+      "twin": "field.text-stacked-code-multiline-error"
+    },
+    {
+      "id": "stacked-code-multiline-counter",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}",
+        "maxLength": 200,
+        "counter": true
+      },
+      "twin": "field.text-stacked-code-multiline-counter"
+    },
+    {
+      "id": "stacked-code-multiline-manual",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "wrap": false,
+        "resize": "manual",
+        "resizeAxis": "both",
+        "minRows": 3,
+        "resizeLabel": "Resize",
+        "label": "Rule",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }\n{ \"match\": \"*\" }"
+      },
+      "twin": "field.text-stacked-code-multiline-manual"
+    },
+    {
+      "id": "stacked-code-multiline-read-only",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "wrap": false,
+        "readOnly": true,
+        "label": "Rule",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }"
+      },
+      "twin": "field.text-stacked-code-multiline-read-only"
+    },
+    {
+      "id": "stacked-code-multiline-disabled",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "disabled": true,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      },
+      "twin": "field.text-stacked-code-multiline-disabled"
+    },
+    {
+      "id": "outlined-code-multiline",
+      "props": {
+        "variant": "outlined",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      },
+      "twin": "field.text-outlined-code-multiline"
+    },
+    {
+      "id": "filled-code-multiline",
+      "props": {
+        "variant": "filled",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "Layer",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      },
+      "twin": "field.text-filled-code-multiline"
+    },
+    {
+      "id": "stacked-code-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "النمط",
+        "value": "tanrei.comp.button.*.container.color",
+        "supportingText": "معرّف رمز، مع * لأي جزء."
+      },
+      "twin": "field.text-stacked-code-rtl"
+    },
+    {
+      "id": "stacked-code-empty-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "النمط",
+        "placeholder": "tanrei.comp.*.color"
+      },
+      "twin": "field.text-stacked-code-empty-rtl"
+    },
+    {
+      "id": "stacked-code-affixes-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "label": "النمط",
+        "value": "^sys\\.color\\.",
+        "prefixText": "/",
+        "suffixText": "/u"
+      },
+      "content": "leading-icon=search trailing-icon=close",
+      "twin": "field.text-stacked-code-affixes-rtl"
+    },
+    {
+      "id": "stacked-code-multiline-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "الطبقة",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}",
+        "requirement": "required",
+        "requiredText": "مطلوب",
+        "supportingText": "الصق ملف الطبقة هنا.",
+        "maxLength": 200,
+        "counter": true
+      },
+      "twin": "field.text-stacked-code-multiline-rtl"
+    },
+    {
+      "id": "stacked-code-multiline-empty-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "الطبقة",
+        "placeholder": "{ \"id\": \"acme\", \"extends\": \"tanrei\" }"
+      },
+      "twin": "field.text-stacked-code-multiline-empty-rtl"
+    },
+    {
+      "id": "stacked-code-multiline-brace-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "الطبقة",
+        "value": "{"
+      },
+      "twin": "field.text-stacked-code-multiline-brace-rtl"
+    },
+    {
+      "id": "stacked-code-multiline-arabic-first-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "minRows": 3,
+        "label": "المصادر",
+        "value": "[\"مرحبا\", \"acme\"]\n// تعليق: comment"
+      },
+      "twin": "field.text-stacked-code-multiline-arabic-first-rtl"
+    },
+    {
+      "id": "stacked-code-multiline-nowrap-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "wrap": false,
+        "minRows": 3,
+        "label": "القاعدة",
+        "value": "{ \"match\": \"tanrei.comp.button.*.hovered.container.color\", \"$value\": \"{tanrei.sys.color.primary}\", \"reason\": \"One accent.\" }\n{ \"match\": \"*\" }",
+        "error": true,
+        "errorText": "السطر 2: القاعدة ينقصها سبب."
+      },
+      "twin": "field.text-stacked-code-multiline-nowrap-rtl"
+    },
+    {
+      "id": "stacked-code-multiline-manual-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "type": "code",
+        "multiline": true,
+        "resize": "manual",
+        "resizeAxis": "both",
+        "minRows": 3,
+        "resizeLabel": "تغيير الحجم",
+        "label": "الطبقة",
+        "value": "{\n  \"id\": \"acme\",\n  \"extends\": \"tanrei\"\n}"
+      },
+      "twin": "field.text-stacked-code-multiline-manual-rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-text-field",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "multiline": "multiline",
+        "minRows": "minRows",
+        "maxRows": "maxRows",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeLabel",
+        "wrap": "noWrap",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "prefixText": "prefixText",
+        "suffixText": "suffixText",
+        "autocomplete": "autocomplete",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "picker",
+        "pickerLabel": "pickerLabel"
+      },
+      "events": {
+        "input": "input",
+        "change": "change",
+        "action": "action",
+        "pickerRequest": "pickerrequest",
+        "entryError": "entryerror"
+      },
+      "notes": "The tag is `tanrei-text-field`, the class `TanreiTextField`, the React name `TextField`. Members: `<tanrei-field>` holding one `<tanrei-text-input>` in its default slot; the product places none. The host is `display: block`, as wide as its place, and the input fills it (TXF-62). Value member: `tanrei-text-input`. The host is the form's element — `name`, the value and its state, validity anchored on the input, reset to the `value` attribute, restore, `form`, a disabled fieldset — and the input inside has no `name`. Props, set as properties on the member each is from. On the Field: `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText`. On the text input: `variant`, `size`, `type`, `value`, `placeholder`, `readOnly`, `multiline`, `minRows`, `maxRows`, `resize`, `resizeAxis`, `resizeLabel`, `noWrap` (the inverse of `wrap`, attribute `no-wrap`), `maxLength`, `counter`, `prefixText`, `suffixText`, `autocomplete`, `locale`, `min`, `max`, `disabledDates`, `invalidText`, `unavailableText`, `segmentEmptyText`, `picker`, `pickerLabel`. Attributes are the members' own: kebab-case, except `readonly`, `maxlength`, `autocomplete`, `min` and `max`. Props of one name on both members — `label`, `labelHidden`, `error`, `disabled` — are the Field's; the input's are never set by the element and reach the input through the connection. Events: `input`, `change`, `action`, `pickerrequest`, `entryerror` are the text input's own composed events and leave by themselves, with the host as their target and `value` already new; `action` stays cancelable. None is stopped and none is copied. Slots: `label-icon` is passed to the Field, `leading-icon` and `trailing-icon` to the text input, each by a slot element of the same name rendered only while the host has a child for it; the product's own Button in `trailing-icon` stays the product's element. Parts: the member hosts are `field` and `text-input`. Exported from the Field: `label`, `label-icon`, `requirement-label`, `supporting-text`, `counter`. Exported from the text input: `container`, `outline`, `active-indicator`, `label`, `requirement-label`, `input`, `segment`, `prefix`, `suffix`, `leading-icon`, `trailing-icon`, `picker-button`, `resize-grip`. Two names collide, `label` and `requirement-label`. Each is exported with its member's name before it, always (`field-label`, `text-input-label`, `field-requirement-label`, `text-input-requirement-label`), and under the bare name from both members as well, because the two are one thing to a person and are never drawn at once: FLD-25 is the sentence that holds it — while its control draws the label itself the Field draws no label row and no requirement tag, and a stacked input draws neither (TXI-13, TXI-50). So `tanrei-text-field::part(label)` keeps meaning the drawn label. Focus: the shadow root does not delegate. `focus()` and `blur()` call the text input's; a press on the label row — the label, its glyph, the requirement mark — focuses the input by FLD-12, the Field's own sentence (the Field calls `focus()` on its control, which stands beside it in the same tree); a press on the box, and on a label that floats in it, by TXI-8; and a press on the supporting row — the help, the error text, the count — or on the gap between a row and the box does nothing (FLD-12). The connection is the Field's with its control, in both directions (FLD-25, FLD-26, FLD-28, TXI-62); the element takes no part in it. A member's prop it sets itself (`fills`): the Field's `countText`, from the text input's read-only `countText` after each of the input's updates, in the same task (TXF-67). Parts and tokens of its own: none. The element writes no custom property: `--tanrei-comp-field-*`, `--tanrei-comp-input-box-*` and `--tanrei-comp-text-input-*` reach the members by inheritance, and one text field is set apart by setting any of them on the element. What its twin cannot do that it does: keep the Field's count text equal to the input's count as the person types (TXF-67); nothing else. The twin: `<tanrei-field label=\"Email\" supporting-text=\"We never share your address.\" requirement=\"required\"><tanrei-text-input name=\"email\" type=\"email\" autocomplete=\"email\"></tanrei-text-input></tanrei-field>`. There is no `required` attribute, only `requirement=\"required\"`: a prop of the element's own would be the one thing it does not forward. Its Field draws the help and the error text together (FLD-7, FLD-31), and the five fixtures *-supporting-error* hold the pair to its twin."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiTextField",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "text",
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "placeholder": "prompt",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "multiline": "axis",
+        "minRows": "lineLimit",
+        "maxRows": "lineLimit",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeLabel",
+        "wrap": "wrap",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "prefixText": "prefix",
+        "suffixText": "suffix",
+        "autocomplete": "textContentType",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerLabel"
+      },
+      "events": {
+        "input": "text",
+        "change": "onCommit",
+        "action": "onSubmit",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: `text: Binding<String>` (as `TextField`); every edit writes the binding, which is the input event. `password` draws a `SecureField`; `multiline` is `TextField(axis: .vertical)` with `.lineLimit(minRows...maxRows)` — not `TextEditor`, which has no prompt and does not grow. `labelHidden` follows the `.labelsHidden()` environment; `disabled` follows `.disabled(_:)`; `action` is the `onSubmit:` parameter, called after the commit (TXI-3); an enclosing `.onSubmit` modifier still fires, but before the commit, because SwiftUI runs the outer handler first. `onCommit` is Tanrei's own parameter (SwiftUI deprecated its own), called when focus leaves with a changed value. `type` maps to `.keyboardType`, `.textInputAutocapitalization`, `.autocorrectionDisabled` and `.submitLabel`; `autocomplete` maps HTML names to `UITextContentType`. `locale` follows the `\\.locale` environment when not given. The picker button is shown when an `onPickerRequest:` closure is given (a nil closure is picker false); the product presents the picker and writes the binding. Not built on this platform yet: `requirement` in place of the required flag; the resize modes and the grip (TXI-37–TXI-41), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from the `\\.tanreiWords` environment value. Not built on this platform yet, for type code: `.autocorrectionDisabled()`, `.textInputAutocapitalization(.never)`, `.keyboardType(.asciiCapable)`, a monospaced design of the input's size, and `.environment(\\.layoutDirection, .leftToRight)` on the input row alone; smart quotes, smart dashes and smart insert and delete are traits of the UIKit and AppKit text view (`smartQuotesType`, `smartDashesType`, `smartInsertDeleteType`, `isAutomaticQuoteSubstitutionEnabled`), so a code field is drawn on that view where SwiftUI's `TextField` gives no access to them; `wrap: false` needs that view too (a text container that does not track the view's width, in a scroll view), because `TextField(axis: .vertical)` always wraps. Not built on this platform yet: the help stays while the field is in error and the error text is drawn below it (FLD-7, FLD-31); today the error text takes the help's place."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiTextField",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "multiline": "singleLine",
+        "minRows": "minLines",
+        "maxRows": "maxLines",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeContentDescription",
+        "wrap": "softWrap",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "prefixText": "prefix",
+        "suffixText": "suffix",
+        "autocomplete": "contentType",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerContentDescription"
+      },
+      "events": {
+        "input": "onValueChange",
+        "change": "onCommit",
+        "action": "keyboardActions",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: Compose idiom (as `TextField`): `value` / `onValueChange`, with a `TextFieldValue` overload for products that manage selection and composition themselves; `enabled` and `singleLine` are inverse flags; `isError`, `readOnly`, `minLines`, `maxLines`, `prefix` and `suffix` keep Compose's names. Built on `BasicTextField`. `type` maps to `KeyboardOptions` (keyboard type, capitalization, autocorrect, IME action) and, for password, `PasswordVisualTransformation`; `autocomplete` maps to `ContentType` semantics. `onCommit` is Tanrei's own callback, called when focus leaves with a changed value or the IME action commits. `locale` defaults to the current configuration's locale. The picker button is shown when `onPickerRequest` is not null (null is picker false); `pickerContentDescription` follows Compose's naming for an icon's accessible name. Not built on this platform yet: `requirement` in place of the required flag; the resize modes and the grip (TXI-37–TXI-41), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from `LocalTanreiWords`. Not built on this platform yet, for type code: `KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, keyboardType = KeyboardType.Ascii)`, `TextStyle(textDirection = TextDirection.Ltr, textAlign = TextAlign.Left, fontFamily = …, fontFeatureSettings = \"liga 0\")` on the input row inside `CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr)`; `softWrap = false` puts the `BasicTextField` in a `horizontalScroll` that follows the cursor's rectangle. Not built on this platform yet: the help stays while the field is in error and the error text is drawn below it (FLD-7, FLD-31); today the error text takes the help's place."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiTextField",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "controller",
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "placeholder": "hintText",
+        "supportingText": "helperText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "multiline": "multiline",
+        "minRows": "minLines",
+        "maxRows": "maxLines",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeSemanticLabel",
+        "wrap": "softWrap",
+        "maxLength": "maxLength",
+        "counter": "showCounter",
+        "prefixText": "prefixText",
+        "suffixText": "suffixText",
+        "autocomplete": "autofillHints",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerSemanticLabel"
+      },
+      "events": {
+        "input": "onChanged",
+        "change": "onCommit",
+        "action": "onSubmitted",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: Flutter idiom (as `TextField` and `InputDecoration`): the value lives in a `TextEditingController` (or an internal one with `initialValue`); `labelText`, `hintText`, `helperText`, `errorText`, `prefixText`, `suffixText`, `minLines`, `maxLines`, `maxLength`, `readOnly`, `enabled` and `autofillHints` keep Flutter's names, `enabled` being the inverse flag. `isRequired` and `showCounter` avoid Dart's `required` keyword and Flutter's own counter, which Tanrei replaces (it counts grapheme clusters with `characters`). `maxRows: 0` is `maxLines: null`. `type` maps to `keyboardType`, `obscureText`, `autocorrect`, `textCapitalization` and `textInputAction`. `onCommit` is Tanrei's own callback, called when focus leaves with a changed value. `locale` defaults to `Localizations.localeOf(context)`. The picker button is shown when `onPickerRequest` is not null (null is picker false). Not built on this platform yet: `requirement` in place of the required flag; the resize modes and the grip (TXI-37–TXI-41), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from the `TanreiWords` inherited widget, which the app fills from its own localizations. Not built on this platform yet, for type code: `autocorrect: false`, `enableSuggestions: false`, `textCapitalization: TextCapitalization.none`, `smartDashesType: SmartDashesType.disabled`, `smartQuotesType: SmartQuotesType.disabled`, `spellCheckConfiguration: const SpellCheckConfiguration.disabled()`, `textDirection: TextDirection.ltr`, `textAlign: TextAlign.left`, a `TextStyle` with the code family and `fontFeatures: [FontFeature.disable('liga')]`, the input row in a `Directionality(textDirection: TextDirection.ltr)`; `softWrap: false` is an `EditableText` of unbounded width in a horizontal `Scrollable` that keeps the caret in view, because a multi-line `TextField` always wraps. Not built on this platform yet: `helperText` stays while the field is in error and `errorText` is drawn below it (FLD-7, FLD-31), unlike `InputDecoration`; today the error text takes the help's place."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "TextField",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "multiline": "multiline",
+        "minRows": "minRows",
+        "maxRows": "maxRows",
+        "resize": "resize",
+        "resizeAxis": "resizeAxis",
+        "resizeLabel": "resizeAccessibilityLabel",
+        "wrap": "wrap",
+        "maxLength": "maxLength",
+        "counter": "counter",
+        "prefixText": "prefix",
+        "suffixText": "suffix",
+        "autocomplete": "autoComplete",
+        "locale": "locale",
+        "min": "min",
+        "max": "max",
+        "disabledDates": "disabledDates",
+        "invalidText": "invalidText",
+        "unavailableText": "unavailableText",
+        "segmentEmptyText": "segmentEmptyText",
+        "picker": "onPickerRequest",
+        "pickerLabel": "pickerAccessibilityLabel"
+      },
+      "events": {
+        "input": "onChangeText",
+        "change": "onEndEditing",
+        "action": "onSubmitEditing",
+        "pickerRequest": "onPickerRequest",
+        "entryError": "onEntryError"
+      },
+      "notes": "Lagging: this platform draws the text field as one view that draws its own frame, written against the token group `comp.text-field`, which the tokens do not have. It owes, first, its sources moved to the generated names of `comp.input-box`, `comp.text-input` and `comp.field`: they do not compile until then. Then the split: the text input as a view of its own, and the text field as the Field around it. Its names and its props stay. What it does today: React Native idiom (as `TextInput`): `value` / `onChangeText`, `onEndEditing` for a commit, `onSubmitEditing` for the action key; `multiline`, `readOnly`, `maxLength` and `autoComplete` keep `TextInput`'s names. `type` maps to `keyboardType`, `secureTextEntry`, `autoCapitalize`, `autoCorrect`, `inputMode` and `returnKeyType`. A controlled `value` echoed back during a composition must not reset it (TXI-4). React Native gives JavaScript no signal that a composition is in progress, so the component cannot defer a write the product makes mid-composition; echoing the value back is safe. For date, time and date-time, `onChangeText` receives the value (ISO 8601 or empty), not the text as typed (TXI-29). The picker button is shown when `onPickerRequest` is given (undefined is picker false). Locale data needs `Intl` with `formatToParts`, which Hermes has only in part. Not built on this platform yet: `requirement` in place of the required flag; the resize modes and the grip (TXI-37–TXI-41), the segmented date and time row (TXI-42–TXI-47) and the requirement label (FLD-4, FLD-5, TXI-50). The platform proposes its own idiom for the segments when it catches up — each unit focusable and adjustable on its own, with the same value and events. Not built on this platform yet: the words props have no defaults, and the product's words are read from the `TanreiWordsProvider` context. Not built on this platform yet, for type code: `autoCorrect={false}`, `autoCapitalize=\"none\"`, `spellCheck={false}`, `autoComplete=\"off\"`, `smartInsertDelete={false}`, `keyboardType=\"ascii-capable\"` on iOS and `\"visible-password\"` on Android only where suggestions cannot be turned off otherwise, `style={{ writingDirection: 'ltr', textAlign: 'left', fontFamily: … }}`, the input row with `direction: 'ltr'`. `TextInput` has no multi-line form that does not wrap: `wrap={false}` needs a native text view, and until one exists the field wraps and its README says so. Not built on this platform yet: the help stays while the field is in error and the error text is drawn below it (FLD-7, FLD-31); today the error text takes the help's place."
+    }
+  }
+}

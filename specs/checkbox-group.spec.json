@@ -1,0 +1,1191 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "checkbox-group",
+  "title": "Checkbox group",
+  "summary": "Asks one question that may have several answers among a few choices shown all at once: a set of checkboxes that holds the list of the checked values under one name, with a label that can say an answer is required or optional, a description and one error for the set, and, where wanted, one checkbox that checks them all.",
+  "category": "selection",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "field-group",
+    "checkbox"
+  ],
+  "fills": [
+    "checkbox.checked",
+    "checkbox.indeterminate"
+  ],
+  "anatomy": [
+    {
+      "id": "label",
+      "description": "The field group's label: names the set — the question — above the checkboxes. The requirement mark follows it."
+    },
+    {
+      "id": "requirement-label",
+      "description": "The field group's requirement mark: a small tag that is not a control, saying an answer is required or optional; or, for required, an asterisk after the label.",
+      "optional": true
+    },
+    {
+      "id": "supporting-text",
+      "description": "The field group's description: a line under the label, before the checkboxes, that says how to answer. It stays while the group is in error.",
+      "optional": true
+    },
+    {
+      "id": "select-all",
+      "description": "One more checkbox before the first, brought by the group where selectAllLabel is given: the Checkbox component, checked, unchecked or indeterminate from the checkboxes of the set, and checking or unchecking them all. It is no entry of the value.",
+      "optional": true
+    },
+    {
+      "id": "checkboxes",
+      "description": "The checkboxes of the set, in the order given, in a column or in a row that wraps. Each is the Checkbox component with its own label, drawn from its own tokens; which of them are checked is the group's value."
+    },
+    {
+      "id": "error-text",
+      "description": "The field group's error text: the reason the answer was refused or is missing, below the last checkbox.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "strings",
+      "default": [],
+      "description": "The values of the checked checkboxes: a list of strings, empty while none is checked (the platforms whose idiom it is take a set). The checkbox group sets it when a person switches a checkbox, and emits change; the product may also set it. It is the set's value: what a form submits under the group's one name."
+    },
+    {
+      "name": "label",
+      "from": "field-group.label"
+    },
+    {
+      "name": "labelHidden",
+      "from": "field-group.labelHidden"
+    },
+    {
+      "name": "supportingText",
+      "from": "field-group.supportingText"
+    },
+    {
+      "name": "errorText",
+      "from": "field-group.errorText",
+      "note": "On the web it is also what the form's own validation says of a required group left empty (CKG-8)."
+    },
+    {
+      "name": "error",
+      "from": "field-group.error",
+      "note": "Every checkbox of the set is drawn in its own error condition and exposed as invalid."
+    },
+    {
+      "name": "disabled",
+      "from": "field-group.disabled",
+      "note": "The value is kept, and on the web it is not submitted (CKG-6, CKG-8)."
+    },
+    {
+      "name": "requirement",
+      "from": "field-group.requirement",
+      "note": "required means at least one checkbox checked: on the web an empty list is reported to the form's own validation (CKG-8)."
+    },
+    {
+      "name": "requiredMark",
+      "from": "field-group.requiredMark"
+    },
+    {
+      "name": "requiredText",
+      "from": "field-group.requiredText"
+    },
+    {
+      "name": "optionalText",
+      "from": "field-group.optionalText"
+    },
+    {
+      "name": "orientation",
+      "from": "field-group.orientation"
+    },
+    {
+      "name": "selectAllLabel",
+      "type": "string",
+      "default": "",
+      "description": "Not empty: the group brings one more checkbox before the first, labelled by this text (\"All of these\", \"Every weekday\"), that checks or unchecks every enabled checkbox of the set at once and shows checked, unchecked or indeterminate from them (CKG-12, CKG-13). Empty, the default: there is none. The instance's own words: it names this set, so it is not read from the product's words."
+    }
+  ],
+  "items": [
+    {
+      "name": "checkbox",
+      "summary": "A choice of the set: the Checkbox component with its own label, checked by the group's value, placed, spaced, disabled and put in its error condition by the group's frame, otherwise drawn and pressed as it is anywhere.",
+      "component": "checkbox",
+      "props": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "",
+          "description": "What the choice stands for: an entry of the group's value while this checkbox is checked. Unique in the group and not empty. The group reads it from the item; it is not a prop of the Checkbox (on the web, the checkbox's own value attribute)."
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "Its own label, as the Checkbox's label."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Checkbox's disabled: one checkbox of an enabled group may be disabled by itself. The person cannot switch it, the select-all checkbox leaves it alone, and its entry stays in the value while the value holds it."
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The person switched a checkbox of the set, or activated the select-all checkbox; carries the new list, which the group already holds. Emitted once per action, by the group and not by its checkboxes. Not emitted when the product sets value."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "CKG-1",
+      "text": "THE checkbox group SHALL be a field group whose spacing is controls, around its checkboxes: the field group itself, with the field group's own tokens, measures and sentences, and no copy of it — its rows, their order and their gaps (FGR-1), the label (FGR-2), the requirement, its mark and its words (FGR-4, FGR-5, FGR-6, FGR-24), the description, which stays while the group is in error (FGR-7), the error text (FGR-8), the column and the row that wraps (FGR-3, FGR-13), the disabled frame (FGR-14) and what an unknown value of requirement, requiredMark or orientation does (FGR-22), each from the prop of the same name, which is the field group's. It SHALL have no look and no token of its own: it SHALL draw no container, edge, fill or elevation, SHALL add no padding around its rows and no distance between its checkboxes but the field group's, and SHALL leave each checkbox drawn from the checkbox's own tokens at the checkbox's own size (CHK-4, CHK-12, CHK-15).",
+      "verify": "Each fixture laid over its twin — the field group's fixture it names as its twin: the same label, requirement, description and error around checkboxes with the same labels, checked by hand — is the same picture, pixel for pixel; a difference is a finding. Under the default system: a one-line label (20), 4, one line of description (16), 8, the checkboxes with their containers 8 apart, 4, one line of error text (16)."
+    },
+    {
+      "id": "CKG-2",
+      "text": "THE checkbox group SHALL hold one value, a list of strings, and show as checked exactly those of its checkboxes whose value is in the list; WHILE the list is empty none SHALL be checked. WHEN the product sets value THE checkbox group SHALL check and uncheck its checkboxes to match, each over the checkbox's own selection motion (CHK-13), without emitting change and without moving focus. THE checkbox group SHALL keep in value an entry that is the value of none of its checkboxes, because the checkbox it belongs to may arrive later or be out of the set for now (a list of choices narrowed by a search), and SHALL give it back with the rest in change (CKG-4) and to a form (CKG-8). IF value holds one entry twice THEN THE checkbox group SHALL treat it as held once; IF two checkboxes carry one value THEN both SHALL be shown checked or unchecked together, and switching either SHALL switch the entry; IF a checkbox carries no value THEN it SHALL be drawn unchecked and a press on it SHALL change nothing and emit nothing, because the list has no entry to stand for it; and in debug builds THE checkbox group SHALL report each of the three.",
+      "verify": "Unit: set value from the product and count change (none); set a list with an entry no checkbox has, switch a checkbox, and find the entry still in the event's list; two checkboxes of one value move together; a checkbox without a value stays unchecked under a press and is reported."
+    },
+    {
+      "id": "CKG-3",
+      "text": "WHERE the platform lets the product mark one checkbox as checked by itself (on the web, checked on a child element) and the product has not set value, THE checkbox group SHALL take as its value the values of the checkboxes so marked, in the order given, so that markup that says checked on some of its checkboxes is a group with that value, and a checkbox that arrives so marked SHALL add its value to the list. WHEN the product has set value, value SHALL decide: a checkbox that is first drawn or arrives marked against it SHALL be shown as value says. WHEN the product sets or clears checked on a checkbox the checkbox group already holds THE checkbox group SHALL add that checkbox's value to the list or take it out, without emitting change, so that the two never disagree.",
+      "verify": "Web unit: three children, two with checked, and no value set — the group's value is those two, in the order of the children; the same markup with the value property set to another list shows that list; setting checked on a child afterwards adds its value and emits nothing."
+    },
+    {
+      "id": "CKG-4",
+      "text": "WHEN the person switches one of the group's checkboxes — by pointer, touch, Space, a click on its label or assistive technology, as CHK-1 says of the checkbox — THE checkbox group SHALL add that checkbox's value to the list where the checkbox became checked and take it out where it became unchecked, and SHALL emit change exactly once, carrying the new list, with value already set when the event is received. The list it then holds SHALL be the values of its checked checkboxes in the order the checkboxes are given, not the order in which they were checked, followed by the entries that belong to no checkbox, in the order they had. No other checkbox SHALL change, and nothing the checkbox emits SHALL reach a listener on the group as a second change (CHK-23). A person can empty the list: unchecking the last checked checkbox emits change with an empty list.",
+      "verify": "Unit: one listener on the group counts one change per switch, by a click, by Space and by a click on a label, and reads the same list from the event and from the group; checking the third and then the first gives the first before the third."
+    },
+    {
+      "id": "CKG-5",
+      "text": "THE checkbox group SHALL leave every enabled checkbox its own place in the focus order, in the order given, as the platform has it for checkboxes: Tab and Shift+Tab SHALL move from one checkbox to the next and out of the group at either end, and THE checkbox group SHALL handle no key — no arrow key moves focus or checks, and there is no single stop and no roving focus — because each checkbox is a choice of its own that a person may stop at and switch; Space is the checkbox's (CHK-1), and Enter is left to the form on the web. THE checkbox group SHALL NOT be a stop itself, and a press on its label, its requirement mark, its description or its error text SHALL check nothing and move no focus into the group (FGR-12). WHEN the product asks the group itself for focus, where the platform has such a call, THE checkbox group SHALL give focus to the first enabled checkbox it shows, the select-all checkbox where one is drawn.",
+      "verify": "Unit: with three enabled checkboxes Tab stops three times inside the group, four with a select-all checkbox, and a disabled one is passed; Down Arrow and Right Arrow on a focused checkbox move no focus and change no value."
+    },
+    {
+      "id": "CKG-6",
+      "text": "WHILE disabled is true THE checkbox group SHALL be a disabled field group (FGR-14): its frame drawn from the field group's disabled tokens and every checkbox it holds disabled as the checkbox's own disabled does (CHK-3, CHK-8), the checked ones still shown checked; it SHALL emit no change and SHALL keep value. WHILE disabled is false THE checkbox group SHALL NOT enable a checkbox the product disabled itself: that one keeps its entry in the list WHILE the list holds it, is shown checked or unchecked as value says, cannot be switched by the person, and is left as it is by the select-all checkbox (CKG-13). THE checkbox group SHALL have no read-only state, because a checkbox has none and a composed component adds no state its members have not."
+    },
+    {
+      "id": "CKG-7",
+      "text": "THE checkbox group SHALL take from requirement what the form asks of the set, as a field group does (FGR-4): required means that the list holds at least one entry. It SHALL NOT set the error condition itself because the list is empty or for any other reason, and SHALL know no least and no greatest number of choices: error and errorText are the product's to set from value. WHILE error is true THE checkbox group SHALL be a field group in error (FGR-8): errorText below the last checkbox, and every checkbox it holds, the select-all checkbox among them, in the checkbox's own error condition (CHK-4), exposed as invalid and described by errorText (FGR-10, FGR-11); the announcement of an error that appears under the person's focus is the field group's (FGR-9). WHILE error is false THE checkbox group SHALL leave to one checkbox the error condition the product gave that one alone (FGR-8), and SHALL have no message for one checkbox: the words are the set's. A change of value SHALL NOT clear error.",
+      "verify": "Fixtures required-error (no checkbox checked, every box in its error form) and error-selected (the checked box in its error form too, the description still there). Unit: checking a checkbox while error is true leaves error true."
+    },
+    {
+      "id": "CKG-8",
+      "text": "WHERE the platform has forms that submit named values (the web) THE checkbox group SHALL take part in its form as one control: WHILE it is not disabled it SHALL submit one entry under its own name for each entry of value, in the list's order, and nothing WHILE the list is empty — what checkboxes of one name submit by themselves, so that whatever receives the form reads the same list from either; SHALL return to the value it was first given WHEN the form is reset, without emitting change; SHALL be disabled WHILE the form disables the set it is in; SHALL report a missing value to the form's own validation WHILE requirement is required and the list is empty, in the product's words, because the platform has a message for one unchecked checkbox and none for a set; and its checkboxes, the select-all checkbox among them, SHALL submit nothing of their own, whatever name they carry (CHK-23), so that no entry is submitted twice. A checkbox the product disabled itself SHALL still have its entry submitted WHILE the list holds it, because the value is the group's and that checkbox's disabled says only that the person cannot switch it. WHERE the platform has no such forms value and change are the whole of it.",
+      "verify": "Web: FormData of a form holding a group named notify with two checked checkboxes has two entries under notify, in the order of the checkboxes, and none under a checkbox's own name; reset restores the first list; a required group with an empty list makes the form's checkValidity false, and the message is the group's errorText where it has one."
+    },
+    {
+      "id": "CKG-9",
+      "text": "THE checkbox group SHALL be exposed to assistive technology as the field group it is, and SHALL add nothing to it: one group that contains its checkboxes, named by label whether or not the label is drawn (FGR-10); described by supportingText, errorText WHILE error is true, requiredText WHILE requirement is required and optionalText WHILE it is optional (FGR-11); and disabled WHILE disabled is true (FGR-14). A group has neither a required nor an invalid state, so the requirement is said in the product's words and each checkbox says invalid for itself. Each checkbox SHALL expose its own role, its name and its checked state (CHK-14), and the select-all checkbox its mixed state WHILE it is indeterminate. THE checkbox group SHALL NOT expose a second group around the first, SHALL give its checkboxes no position in a set, and SHALL NOT say how many are checked: a product that wants the count said writes it in supportingText.",
+      "verify": "Unit: exactly one group in the accessibility tree, named by label with labelHidden false and true; requirement required and error true expose neither state on the group, the invalid state on each checkbox and requiredText in the group's description; no checkbox has a position or a set size."
+    },
+    {
+      "id": "CKG-10",
+      "text": "WHEN a checkbox is added to the group, removed from it or moved, or its value or its disabled changes, while the group is shown THE checkbox group SHALL be laid out again as a field group is (FGR-23); SHALL check by value again (CKG-2), so that a checkbox that arrives with a value the list holds is shown checked, and SHALL keep the entry of a checked checkbox that leaves; SHALL set the select-all checkbox again (CKG-12); SHALL emit no change; and SHALL leave focus on the checkbox that has it."
+    },
+    {
+      "id": "CKG-11",
+      "text": "THE checkbox group SHALL hold checkboxes and nothing else that can be operated. IF it holds no checkbox THEN THE checkbox group SHALL draw its rows without one and in debug builds report it (FGR-20); IF it holds another control, or a group of controls inside it, THEN in debug builds THE checkbox group SHALL report it and SHALL make no entry of its value from what that one holds. THE checkbox group SHALL NOT restyle a checkbox or change how it answers hover, focus or a press (CHK-5 to CHK-10), and SHALL NOT set indeterminate on a checkbox of the set: a checkbox of the set is in the list or it is not."
+    },
+    {
+      "id": "CKG-12",
+      "text": "WHILE selectAllLabel is not empty THE checkbox group SHALL bring one more checkbox, the select-all checkbox: the Checkbox component itself, labelled by selectAllLabel, placed before the first checkbox of the set as one more control of the field group — the same distance from the next, in a column or in a row, the set not indented under it — and so disabled and put in its error condition with the others (CKG-6, CKG-7). It SHALL stand for the checkboxes of the set that the product did not disable one by one: checked WHILE each of them is checked, indeterminate WHILE some are and some are not, unchecked WHILE none is (CHK-4), and disabled WHILE there is no such checkbox. It SHALL have no value, SHALL be no entry of the list, and SHALL follow every change of value and of the set at once, whoever made the change. WHILE selectAllLabel is empty THE checkbox group SHALL bring none.",
+      "verify": "Fixtures select-all-none, select-all-some, select-all-all and select-all-one-disabled (checked, though the disabled checkbox is not: it stands for the two a person can switch)."
+    },
+    {
+      "id": "CKG-13",
+      "text": "WHEN the person activates the select-all checkbox while it is unchecked or indeterminate THE checkbox group SHALL check every checkbox of the set that the product did not disable itself, as CHK-2 says of an indeterminate checkbox, and while it is checked SHALL uncheck every one of them; a checkbox the product disabled SHALL stay as it is, and an entry of value that belongs to no checkbox SHALL stay in the list. THE checkbox group SHALL emit change exactly once, carrying the list after the change (CKG-4), and nothing of the select-all checkbox's own SHALL reach a listener on the group.",
+      "verify": "Unit: from select-all-some one activation checks all three and a second unchecks all three, one change each; with one checkbox disabled and checked, both activations leave it checked and its entry in the list."
+    },
+    {
+      "id": "CKG-14",
+      "text": "THE checkbox group SHALL add nothing of its own to how its members answer the layout direction, enlarged text and forced colors. WHERE the layout direction is right-to-left it SHALL be mirrored as the field group is (FGR-18), SHALL take its direction from where it is used and follow a change of it at once (FGR-19), keeping its value and its focus, and SHALL lay out each of its texts by that text's own direction (FGR-21), each checkbox mirroring itself (CHK-15, CHK-20, CHK-21); it has no key to exchange (CKG-5). WHILE the text size is enlarged it SHALL grow as the field group does (FGR-16): every text wraps, a row becomes a column where one line no longer holds two checkboxes, and the boxes keep their size. WHERE the platform draws with a person's own forced colors it SHALL be drawn as the field group is there (FGR-17), the error carried by the words of errorText and by each checkbox's invalid state, never by a color of the group's.",
+      "verify": "Fixtures rtl, horizontal-rtl and ltr-label-rtl. At 200% text in a stage 320 wide, fixtures horizontal-many and long-label lose no text, lay nothing over another part and scroll in one direction only."
+    }
+  ],
+  "accessibility": {
+    "role": "group",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to each enabled checkbox of the set in the order given — the select-all checkbox first where there is one — and out of the group. Every checkbox is a stop; the group is not (CKG-5)."
+      },
+      {
+        "keys": "Space",
+        "action": "Switches the focused checkbox (CHK-1); on the select-all checkbox, checks every enabled checkbox of the set, or unchecks them all where all were checked (CKG-13)."
+      },
+      {
+        "keys": "Arrow keys",
+        "action": "Nothing: a set of checkboxes has no arrow keys on any platform, because moving among them must not change them and each is a stop already."
+      },
+      {
+        "keys": "Enter",
+        "action": "Nothing on the web, where it submits the form; switches the focused checkbox where the platform activates any focused control with Enter (Android, tvOS), as CHK-1 says."
+      }
+    ],
+    "labeling": "label names the group, drawn or not (labelHidden). Each checkbox keeps its own name, its own label beside it; the select-all checkbox is named by selectAllLabel. The group's description is the field group's: supportingText, then errorText while error is true, then requiredText while the group is required, then optionalText while it is optional (FGR-11). A group has no required and no invalid state: the requirement is said in the product's words, and each checkbox of a group in error is exposed as invalid and described by errorText. How many are checked is not said unless the product writes it in supportingText.",
+    "minimumTarget": true,
+    "notes": [
+      "Not a target itself: the group takes no press and is not a focus stop (CKG-5), so minimumTarget holds through its checkboxes, each of which keeps a whole touch target of its own at the distance the field group puts between them (CHK-7, FGR-3).",
+      "The checkbox group is a field group of checkboxes that owns their value (composed: the field group frames it, its checkboxes hold its value). What it adds to the two is what every product otherwise writes: the list of checked values and one change for it, one name in a form with reset and the form's own check that a required set is not empty, and the select-all checkbox's three states. It adds no look and has no tokens of its own.",
+      "One level down is always open: a field group around checkboxes, each checked by the product, is the same picture, the same group, the same names, descriptions and states. Take it where each checkbox must have a name of its own in the form, where the set holds something that is not a checkbox, or where the product wants its own rule for what \"all\" means.",
+      "Beside the radio group. A radio group has one answer, so it is one stop in the focus order, its arrow keys move and select, and its role has a required and an invalid state. A checkbox group has a list: every checkbox is a stop and Space switches it, there are no arrow keys, and its role is the plain group's — the requirement is said in words and each checkbox says invalid for itself. A radio group in error leaves its rings as they are; a checkbox group in error marks every box, because a checkbox has an error condition and a radio button has none.",
+      "required means \"at least one\". A least or a greatest number of choices (\"choose up to three\") is the product's rule: it reads the length of the list in change, sets error and writes errorText with the number in its own words, or disables what may no longer be chosen. The group knows no number, because it would have no words to say it with.",
+      "The select-all checkbox stands for the checkboxes the group holds and a person can switch, never for choices the product has not given it. It is one more stop before the set. It is not the place for a hierarchy: choices inside choices are a tree.",
+      "A disabled group is not submitted; a checkbox disabled by itself in an enabled group keeps its entry in the value and is submitted with it. A choice that is always on (\"Email, required for your account\") is therefore one disabled, checked checkbox, and needs no hidden field beside it.",
+      "When a checkbox group, and when something else. Several of a few choices that are all worth seeing at once, in a form or a setting: a checkbox group, of up to about seven. One of a few: a radio group. One thing on or off, on its own: a checkbox, or a switch where it takes effect at once. Several of many, or where there is little room: a list with multiple selection, or a select. Rows of a table chosen for an action: the table's own selection. Things on or off that are not one answer — each with a name of its own in the form — or a set of switches: a field group.",
+      "On the web the group's shadow root holds the field group's own element around a slot, and the checkboxes stay the product's children: the group is the field group's `fieldset` with its `legend`, exposed once.",
+      "Heights are the texts' and the checkboxes': at 200% text size every text wraps, a row becomes a column, and nothing is cut (WCAG 1.4.4, 1.4.10).",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.field-group",
+  "fixtures": [
+    {
+      "id": "default",
+      "props": {
+        "label": "Notify me by",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "supporting",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply.",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "label-hidden",
+      "props": {
+        "label": "Notify me by",
+        "labelHidden": true,
+        "supportingText": "Choose all that apply.",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "required",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply.",
+        "requirement": "required",
+        "requiredText": "Required",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "optional",
+      "props": {
+        "label": "Notify me by",
+        "requirement": "optional",
+        "optionalText": "Optional"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "required-asterisk",
+      "props": {
+        "label": "Notify me by",
+        "requirement": "required",
+        "requiredMark": "asterisk",
+        "requiredText": "Required",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "required-error",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply.",
+        "requirement": "required",
+        "error": true,
+        "errorText": "Choose at least one way to reach you.",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "horizontal",
+      "props": {
+        "label": "Notify me by",
+        "orientation": "horizontal",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push"
+          }
+        }
+      ]
+    },
+    {
+      "id": "horizontal-many",
+      "props": {
+        "label": "Days",
+        "supportingText": "The days the report is sent.",
+        "orientation": "horizontal",
+        "value": [
+          "mon",
+          "tue",
+          "wed",
+          "thu",
+          "fri"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "mon",
+            "label": "Monday"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "tue",
+            "label": "Tuesday"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "wed",
+            "label": "Wednesday"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "thu",
+            "label": "Thursday"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "fri",
+            "label": "Friday"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "sat",
+            "label": "Saturday"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "sun",
+            "label": "Sunday"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "holidays",
+            "label": "Public holidays"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "month-end",
+            "label": "The last working day of the month"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "release",
+            "label": "The first working day after a release"
+          }
+        }
+      ]
+    },
+    {
+      "id": "disabled",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply.",
+        "requirement": "required",
+        "disabled": true,
+        "requiredText": "Required",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "one-disabled",
+      "props": {
+        "label": "Notify me by",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-label",
+      "props": {
+        "label": "Which of these ways may we use to reach you when a delivery is late, damaged or returned to the depot before you have seen it",
+        "requirement": "required",
+        "supportingText": "Choose all that apply. We use the first one that answers, and we never use a way you have not chosen here, whatever the reason.",
+        "error": true,
+        "errorText": "Choose at least one way to reach you, or tell us below that you do not want to be reached about deliveries at all.",
+        "requiredText": "Required"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "An email to the address on the order, sent as soon as the carrier reports the delay"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "A text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "call",
+            "label": "A call from the depot during its opening hours"
+          }
+        }
+      ]
+    },
+    {
+      "id": "required-ja",
+      "props": {
+        "label": "連絡方法",
+        "supportingText": "当てはまるものをすべて選んでください。",
+        "requirement": "required",
+        "requiredText": "必須",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "メール"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "phone",
+            "label": "電話"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "post",
+            "label": "郵送"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "طرق الإشعار",
+        "supportingText": "اختر كل ما ينطبق.",
+        "requirement": "required",
+        "requiredText": "مطلوب",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "البريد الإلكتروني"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "رسالة نصية"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "إشعار فوري"
+          }
+        }
+      ]
+    },
+    {
+      "id": "horizontal-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "ימים",
+        "orientation": "horizontal",
+        "error": true,
+        "errorText": "יש לבחור יום אחד לפחות."
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "sun",
+            "label": "ראשון"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "mon",
+            "label": "שני"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "tue",
+            "label": "שלישי"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ltr-label-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "Wi-Fi 6E",
+        "supportingText": "2.4 GHz, 5 GHz, 6 GHz",
+        "value": [
+          "2.4",
+          "5"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "2.4",
+            "label": "2.4 GHz"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "5",
+            "label": "5 GHz"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "6",
+            "label": "6 GHz"
+          }
+        }
+      ]
+    },
+    {
+      "id": "error-selected",
+      "props": {
+        "label": "Notify me by",
+        "supportingText": "Choose all that apply.",
+        "requirement": "required",
+        "requiredText": "Required",
+        "value": [
+          "text"
+        ],
+        "error": true,
+        "errorText": "This number cannot receive text messages. Choose another way, or change the number."
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "select-all-none",
+      "props": {
+        "label": "Notify me by",
+        "selectAllLabel": "All of these"
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "select-all-some",
+      "props": {
+        "label": "Notify me by",
+        "selectAllLabel": "All of these",
+        "value": [
+          "email"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "select-all-all",
+      "props": {
+        "label": "Notify me by",
+        "selectAllLabel": "All of these",
+        "value": [
+          "email",
+          "text",
+          "push"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    },
+    {
+      "id": "select-all-one-disabled",
+      "props": {
+        "label": "Notify me by",
+        "selectAllLabel": "All of these",
+        "value": [
+          "email",
+          "push"
+        ]
+      },
+      "items": [
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "email",
+            "label": "Email"
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "text",
+            "label": "Text message",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "checkbox",
+          "props": {
+            "value": "push",
+            "label": "Push notification"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-checkbox-group",
+      "props": {
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "selectAllLabel": "selectAllLabel"
+      },
+      "events": {
+        "change": "change"
+      },
+      "items": {
+        "checkbox": {
+          "name": "tanrei-checkbox",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "disabled": "disabled"
+          },
+          "notes": "A `tanrei-checkbox` child: inside a `tanrei-checkbox-group` it takes its `checked` from the group's value and its own `value` attribute, submits nothing itself and fires no `input` or `change` of its own (CHK-23). A child with no `value` attribute has no value: the `on` a bare checkbox submits by default is not read inside a group."
+        }
+      },
+      "notes": "`<tanrei-checkbox-group label=\"Notify me by\" name=\"notify\"><tanrei-checkbox value=\"email\" label=\"Email\" checked></tanrei-checkbox>…</tanrei-checkbox-group>`; class `TanreiCheckboxGroup`; in `@tanrei/react`, `CheckboxGroup` with `value` and `onChange`. Composed as every composed element on the web is (a custom element whose shadow root holds its members' own elements); what differs here: the members that hold the value are the product's own children. The shadow root holds one `<tanrei-field-group spacing=\"controls\">` — the member's own element, not drawing code shared with it — around, in this order, the select-all `<tanrei-checkbox part=\"select-all\">` while `select-all-label` is given, and a `<slot>`; the product's checkboxes stay in its light DOM and are assigned through the group's slot into the field group's. The eleven props that are the field group's are set on that element as they are given, and its documented parts are exported under its own names (`exportparts`); the group writes none of its custom properties, so `--tanrei-comp-field-group-*` set on the host is inherited by the field group inside. Name, description and states are the field group's own `fieldset` and `legend`, once: the host has no role. The field group gives `disabled`, the error condition and the error text to each checkbox by the `tanrei-field-connect` event it already answers — a slotted checkbox's event passes the field group on its composed path before it reaches the host, so the group forwards nothing. `value` is a property only, an array that is copied in and out; there is no `value` attribute, because the first value is written where HTML writes it, as `checked` on the children (CKG-3), and that is also what a reset returns to where the property was never set. A checkbox finds its group with `closest('tanrei-checkbox-group')` when it connects; the group's checkboxes are those among its descendants whose nearest checkbox group it is, found again when its child list changes. A checkbox inside a group fires no `input` and no `change` at all — stopped at the group they would still pass a capture listener on an ancestor — it tells its group, which sets `value` and fires `input` and one `change`, a bubbling `CustomEvent` whose `detail.value` is a copy of the list; a listener set on a checkbox inside a group hears nothing. A form-associated custom element (`static formAssociated = true`): `name` is a web attribute, not a spec prop; it submits a `FormData` of one entry per value under `name` (`ElementInternals.setFormValue`), restores the list on navigation (`formStateRestoreCallback`), follows `<fieldset disabled>`, and reports `valueMissing` while `requirement=\"required\"` and the list is empty, anchored on its first enabled checkbox, with the message `errorText`, else the required text (the instance's or the product's), else `label` — never a browser's sentence for one unchecked box. The host is not focusable and does not delegate focus; `focus()` moves to the first enabled checkbox. Attributes are kebab-case: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `select-all-label`. The host is `display: block`. Without script the element is not defined and draws nothing of its own, as every Tanrei element with a shadow root; a page that must work without script writes a native `fieldset` of native checkboxes of one `name`, which submits the same entries. Words: the element has no words of its own; `required-text` and `optional-text` left empty read the product's words through the field group, and `select-all-label` is the instance's alone."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiCheckboxGroup",
+      "props": {
+        "value": "selection",
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "selectAllLabel": "selectAllLabel"
+      },
+      "events": {
+        "change": "selection"
+      },
+      "items": {
+        "checkbox": {
+          "name": "TanreiCheckbox",
+          "props": {
+            "value": "value",
+            "label": "title",
+            "disabled": "disabled"
+          }
+        }
+      },
+      "notes": "`TanreiCheckboxGroup(\"Notify me by\", selection: $channels, supportingText:, errorText:, error:, requirement:, orientation:, selectAllLabel:) { TanreiCheckbox(\"Email\", value: Channel.email) … }`, generic over a `Hashable` value: `selection` is a `Binding<Set<V>>`, and writing it is the change event; a set has no order to keep (CKG-4). The view is a `TanreiFieldGroup` around its content — the field group's own view, which reads `comp.field-group` from the environment, so one group is set apart with `.tanreiTheme(_:)` on it — and the checkboxes inside read and write the selection through the environment: `TanreiCheckbox(_:value:)` is the Checkbox with its `isOn` bound to membership. `labelHidden` follows `.labelsHidden()` and `disabled` follows `.disabled(_:)`. The select-all checkbox is a `TanreiCheckbox` with `isIndeterminate`. No forms: CKG-8 does not apply. The product's words are read from the `\\.tanreiWords` environment value."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiCheckboxGroup",
+      "props": {
+        "value": "values",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "selectAllLabel": "selectAllLabel"
+      },
+      "events": {
+        "change": "onValuesChange"
+      },
+      "items": {
+        "checkbox": {
+          "name": "TanreiCheckbox",
+          "props": {
+            "value": "value",
+            "label": "label",
+            "disabled": "enabled"
+          }
+        }
+      },
+      "notes": "`TanreiCheckboxGroup(label = \"Notify me by\", values = channels, onValuesChange = { channels = it }, supportingText = …, isError = …, requirement = …, orientation = …, selectAllLabel = …) { TanreiCheckbox(value = \"email\", label = \"Email\") … }`: controlled, as Compose is — `values` is a `Set<T>`, the group calls `onValuesChange` and the caller moves it. The composable is a `TanreiFieldGroup` around its content, which runs in a `TanreiCheckboxGroupScope` whose `TanreiCheckbox(value, label)` is the Checkbox with `checked` and its click taken from the group; one group is set apart with a `TanreiTheme` around it. `enabled` is the inverse flag. The select-all checkbox is the `TanreiCheckbox(state: ToggleableState, onClick)` overload. No forms: CKG-8 does not apply. The product's words are read from `LocalTanreiWords`."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiCheckboxGroup",
+      "props": {
+        "value": "values",
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "supportingText": "helperText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "selectAllLabel": "selectAllLabel"
+      },
+      "events": {
+        "change": "onChanged"
+      },
+      "items": {
+        "checkbox": {
+          "name": "TanreiCheckbox",
+          "props": {
+            "value": "entry",
+            "label": "label",
+            "disabled": "enabled"
+          },
+          "notes": "`TanreiCheckbox.value` is the checked state on this platform, so the entry a checkbox stands for has a name of its own: `TanreiCheckbox<T>.inGroup(entry:, label:, enabled:)` is the Checkbox itself, checked from the group and without `value` and `onChanged`."
+        }
+      },
+      "notes": "`TanreiCheckboxGroup<T>(values:, onChanged:, labelText: 'Notify me by', helperText: …, errorText: …, isError: …, requirement: …, orientation: …, selectAllLabel: …, children: [TanreiCheckbox<T>.inGroup(entry:, label:), …])`: `values` is a `Set<T>`. The widget builds a `TanreiFieldGroup` around its children and an inherited scope that gives each checkbox its checked state and takes its change; one group is set apart with a `TanreiTheme` around it. `enabled` is the inverse flag. The select-all checkbox is a `TanreiCheckbox` with `tristate`. `FormField` integration is the product's: CKG-8 does not apply. The product's words are read from the `TanreiWords` inherited widget."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "CheckboxGroup",
+      "props": {
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "orientation": "orientation",
+        "selectAllLabel": "selectAllLabel"
+      },
+      "events": {
+        "change": "onValueChange"
+      },
+      "items": {
+        "checkbox": {
+          "name": "Checkbox",
+          "props": {
+            "value": "entry",
+            "label": "label",
+            "disabled": "disabled"
+          },
+          "notes": "`Checkbox`'s `value` is the checked state on this platform, so the entry a checkbox stands for has a name of its own: `<Checkbox entry=\"email\" label=\"Email\" />` inside a `CheckboxGroup` is the Checkbox itself, checked from the group's context and without `value` and `onValueChange`."
+        }
+      },
+      "notes": "`<CheckboxGroup label=\"Notify me by\" value={channels} onValueChange={setChannels} supportingText=\"…\" selectAllLabel=\"…\"><Checkbox entry=\"email\" label=\"Email\" />…</CheckboxGroup>`: controlled; `value` is an array of strings in the order of the checkboxes. The component renders a `FieldGroup` around its children and a context that gives each checkbox its checked state; one group is set apart with a provider around it. The select-all checkbox is a `Checkbox` with `indeterminate`. Follows the app's direction where an ancestor's is not known. No forms: CKG-8 does not apply. The product's words are read from the `TanreiWordsProvider` context."
+    }
+  }
+}

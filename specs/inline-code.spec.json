@@ -1,0 +1,258 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "inline-code",
+  "title": "Inline code",
+  "summary": "A run of code inside a sentence — a command, a name, a value — in the code face at the size of the text around it, on a faint fill or plain; it is text, never a control, and never highlighted.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The fill behind the text in the tonal form: as tall as the code face's own text box, with small corners and a little room at each end of every piece of the run. Decorative; the plain form has none.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "The code: its characters exactly as given, in the code face."
+    },
+    {
+      "id": "outline",
+      "description": "An edge around the fill, where a design system gives it a width. The default system draws none.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "text",
+      "type": "string",
+      "default": "",
+      "description": "The code: the characters exactly as they are to be read and copied (\"npm install\", \"comp.button.container.shape\"). Spaces inside it are kept."
+    },
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "auto",
+        "tonal",
+        "plain"
+      ],
+      "default": "auto",
+      "description": "How the run is set apart. tonal: the code face on a faint fill. plain: the code face alone, in the color of the text around it, for a column or a list whose every entry is code and for text on a colored container. auto, the default, takes what the nearest ancestor chooses for the inline code inside it, and tonal where none does."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "ICD-1",
+      "text": "THE inline code SHALL set its text in the family, the weight and the letter spacing of comp.inline-code.label.typescale, at the font size of the text it sits in multiplied by comp.inline-code.label.scale — whatever that text is: a paragraph, a heading of any level, a lead paragraph, a caption, a label, a table cell — and SHALL NOT take the font size or the line height of the code role itself.",
+      "verify": "Under the default system inline code is 13 in body text (14), 14.86 in body-large text (16), and in a heading of level 2 that heading's font size × 0.9286; a test reads the computed size in each."
+    },
+    {
+      "id": "ICD-2",
+      "text": "THE inline code SHALL sit on the baseline of the text it is part of, as a part of that text's line, and SHALL NOT make that line taller or change the distance between lines (PRS-17); its fill, where it has one, SHALL be as tall as the code face's own text box (from its ascent to its descent at the drawn size) and SHALL NOT be padded above or below."
+    },
+    {
+      "id": "ICD-3",
+      "text": "WHILE the inline code is drawn tonal (ICD-5) THE inline code SHALL draw behind its text a fill of comp.inline-code.container.color with corners comp.inline-code.container.shape eased by sys.shape.corner-smoothing, extend that fill by comp.inline-code.container.padding-inline before the first and after the last character, draw its text in comp.inline-code.label.color, and, where comp.inline-code.outline.width is above 0, draw an edge of that width in comp.inline-code.outline.color inside the fill; it SHALL draw no elevation."
+    },
+    {
+      "id": "ICD-4",
+      "text": "WHILE the inline code is drawn plain (ICD-5) THE inline code SHALL draw no fill, no edge and no padding, and SHALL draw its text in the color of the text it sits in, so that it reads on any container that text reads on."
+    },
+    {
+      "id": "ICD-5",
+      "text": "WHILE variant is tonal or plain THE inline code SHALL be drawn in that form; WHILE variant is auto THE inline code SHALL be drawn in the form the nearest ancestor chooses for the inline code inside it (a table whose column is code, a callout, a list of names), and tonal where no ancestor chooses one; WHEN that choice changes while the inline code is shown THE inline code SHALL follow it at once.",
+      "verify": "Test a run with no ancestor choice (tonal), inside an ancestor that chooses plain (plain), and with variant tonal inside that ancestor (tonal)."
+    },
+    {
+      "id": "ICD-6",
+      "text": "THE inline code SHALL wrap with the line it sits in: it breaks first at the spaces inside it; a part with no space that is longer than the line SHALL break between any two characters rather than run past the edge of its container; and no hyphen or any other character SHALL be drawn at a break. Each piece of a run that breaks SHALL keep the fill, the corners and both paddings of ICD-3. THE inline code SHALL NOT cut its text and SHALL NOT scroll.",
+      "verify": "The fixture long holds one name wider than any harness's stage; a test places a 60-character name in a box 160 wide, reads no horizontal overflow, and copies the text back unchanged."
+    },
+    {
+      "id": "ICD-7",
+      "text": "THE inline code SHALL draw the characters of text as given: every space is kept, a run of spaces is not collapsed, a line break in text is drawn as one space, and the text is not hyphenated, not capitalised or otherwise transformed, not translated by the platform's translation, not spell-checked and not turned into a link by itself."
+    },
+    {
+      "id": "ICD-8",
+      "text": "THE inline code SHALL lay out its text as a left-to-right run of its own, isolated from the text around it, in every layout direction (PRS-26): a path, a call and an operator keep their order inside a right-to-left sentence and reorder nothing beside them; the run takes its place in the sentence by the sentence's own direction."
+    },
+    {
+      "id": "ICD-9",
+      "text": "THE inline code SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the inline code is shown THE inline code SHALL draw itself for the new direction at once, without a motion of its own, keeping what it shows.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "ICD-10",
+      "text": "WHERE the inline code sits inside a link THE inline code SHALL draw its text in the link's color in place of comp.inline-code.label.color and the link's underline SHALL run under it; WHERE it sits inside strong text it SHALL gain sys.typescale.emphasis.body of weight over the weight of comp.inline-code.label.typescale, as strong text does (PRS-2); WHERE it sits inside emphasised text it SHALL NOT be slanted."
+    },
+    {
+      "id": "ICD-11",
+      "text": "THE inline code SHALL NOT take pointer, touch or keyboard input of its own, SHALL NOT take focus or be a stop in the focus order, and SHALL NOT change anything it draws under a pointer, a press or focus: it has no hovered, focused, pressed, selected or disabled state, draws no state layer and no focus indicator, and emits no event. WHERE it is placed inside an element that takes input (a link, a button, a list item) input over it SHALL reach that element, which draws its own states."
+    },
+    {
+      "id": "ICD-12",
+      "text": "THE inline code SHALL expose its text as text, read where it sits in the sentence, with the role of code where the platform has one and no name of its own; it SHALL NOT be announced as anything else and SHALL NOT expose its form. Selecting it SHALL select its characters with the text around it, and copying that selection SHALL yield exactly text: no character stands for the padding of ICD-3."
+    },
+    {
+      "id": "ICD-13",
+      "text": "THE inline code SHALL draw all of its text in one color: it takes no syntax roles and SHALL NOT highlight, parse or otherwise interpret what it holds."
+    },
+    {
+      "id": "ICD-14",
+      "text": "WHERE the platform draws with a person's own forced colors THE inline code SHALL draw its text in the platform's text color (the link color inside a link) and no fill, and an edge only where comp.inline-code.outline.width is above 0, in that text color: the face tells code from words, so nothing rests on the fill.",
+      "verify": "On the web, with forced colors emulated: the fixtures tonal and plain differ from the text around them by the font family alone."
+    },
+    {
+      "id": "ICD-15",
+      "text": "WHILE the text size is enlarged THE inline code SHALL grow with the text it sits in, keeping the proportion of ICD-1, its padding and its corners; at twice the text size in a container 320 wide it SHALL wrap as ICD-6 says and SHALL NOT cause horizontal scrolling."
+    },
+    {
+      "id": "ICD-16",
+      "text": "IF text is empty THE inline code SHALL draw nothing, take no space and expose nothing. WHEN variant names a value this spec does not have THE inline code SHALL be drawn as variant auto, and in debug builds report the unknown value."
+    }
+  ],
+  "accessibility": {
+    "role": "code",
+    "keyboard": [],
+    "labeling": "Inline code has no name of its own: it is text, read in its sentence. Its role is code where the platform has one (the web's code element); elsewhere it is plain text. Nothing announces its form.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: inline code takes no input and no focus (ICD-11), so there is no target to size; minimumTarget holds trivially. Inside a link it is part of that link's text and target.",
+      "Told from the words around it by its face, not by color (WCAG 1.4.1): the fill is decorative, and the plain form and forced colors (ICD-14) draw none.",
+      "Contrast in the default system: the tonal form's text is on-surface on surface-container-highest, and a link's color on that fill is held at the same ratio — both by the token invariants that hold text roles at 4.5:1 on every surface (7:1 in the high-contrast schemes). The plain form has the contrast of the text it sits in.",
+      "The tonal form's fill is a surface role, so it is correct on a surface. On a colored container (a callout, an inverse tooltip, a filled button) the text color of ICD-3 is not paired with that container's content color: use plain there. A component that hosts text on such a container chooses plain for the inline code inside it (ICD-5).",
+      "Screen readers do not announce the code role by default, so a sentence must make sense when the code is read as words. Symbols are read as the person's settings say; write a name out in the sentence where its spelling matters.",
+      "It reflows (WCAG 1.4.10): a long name breaks rather than scroll the page (ICD-6, ICD-15). No hyphen is added, because a hyphen would change the code.",
+      "Keys to press are a keyboard shortcut, which reads modifier names aloud; inline code would read the characters."
+    ]
+  },
+  "tokens": "comp.inline-code",
+  "fixtures": [
+    {
+      "id": "tonal",
+      "props": {
+        "text": "npm install"
+      }
+    },
+    {
+      "id": "plain",
+      "props": {
+        "text": "npm install",
+        "variant": "plain"
+      }
+    },
+    {
+      "id": "spaces",
+      "props": {
+        "text": "git commit  -m \"fix: a typo\""
+      }
+    },
+    {
+      "id": "long",
+      "props": {
+        "text": "tanrei.comp.navigation-drawer.item.selected.hovered.state-layer.color/tanrei.comp.navigation-drawer.item.selected.focused.state-layer.color/tanrei.comp.navigation-drawer.item.selected.pressed.state-layer.color"
+      }
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "text": "src/app/main.ts"
+      },
+      "direction": "rtl"
+    },
+    {
+      "id": "in-paragraph",
+      "props": {},
+      "content": "paragraph"
+    },
+    {
+      "id": "in-heading",
+      "props": {},
+      "content": "heading"
+    },
+    {
+      "id": "in-large-text",
+      "props": {},
+      "content": "large-text"
+    },
+    {
+      "id": "in-link-and-strong",
+      "props": {},
+      "content": "link-and-strong"
+    },
+    {
+      "id": "wrapping",
+      "props": {},
+      "content": "wrapping"
+    },
+    {
+      "id": "plain-in-table",
+      "props": {
+        "variant": "plain"
+      },
+      "content": "table"
+    },
+    {
+      "id": "japanese",
+      "props": {},
+      "content": "japanese"
+    },
+    {
+      "id": "in-rtl-paragraph",
+      "props": {},
+      "content": "rtl",
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-code",
+      "props": {
+        "text": "textContent",
+        "variant": "data-variant"
+      },
+      "notes": "A class, not an element, as prose is: `<code class=\"tanrei-code\">npm install</code>` from the optional stylesheet `@tanrei/web/code.css`, and every `code` that is prose's own and not inside a `pre` when `prose.css` is loaded (the `code` rules of `prose.css` move here; PRS-16's islands apply). The text is the element's own content, so it is in the document for search engines, find-in-page and copy without script. `variant` is `data-variant=\"tonal | plain\"` on the `code`; an ancestor chooses with `data-tanrei-code=\"plain\"` (ICD-5), which rendered Markdown cannot set per run and a table or a callout can set once. ICD-1: `font-family`, `font-weight` and `letter-spacing` from the code role and `font-size: calc(1em * var(--tanrei-comp-inline-code-label-scale))`, so a heading's size is followed without a rule per level. ICD-2: `line-height: 0` on the run, as today, and no block padding. ICD-6: `overflow-wrap: anywhere`, `white-space: pre-wrap`, `hyphens: none`, `box-decoration-break: clone`. ICD-7: `translate=\"no\"` and `spellcheck=\"false\"` are the author's or the renderer's attributes; the README says so. ICD-8: `direction: ltr; unicode-bidi: isolate`. ICD-14: `forced-color-adjust` is left alone; the fill is a background, which the mode removes."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiInlineCode",
+      "props": {
+        "text": "text",
+        "variant": "variant"
+      },
+      "notes": "`TanreiInlineCode(_ text: String, variant:)` is a `Text` that concatenates with the `Text` around it (`Text(\"Run \") + TanreiInlineCode(\"npm install\")`), and `AttributedString.tanreiInlineCode(variant:)` styles a run of a renderer's attributed string. The ancestor's choice is an environment value. A `Text` run can carry a background color but neither corners nor padding: inside a sentence the tonal form is a square fill without ICD-3's padding, and the README says so; a run that stands alone is drawn whole."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiInlineCode",
+      "props": {
+        "text": "text",
+        "variant": "variant"
+      },
+      "notes": "`AnnotatedString.Builder.tanreiInlineCode(text, variant)` adds the run with its span style and an annotation, and `Modifier.tanreiInlineCode()` on the `Text` that holds it draws the fills behind the annotated ranges from the text layout (one rounded rectangle per line piece). `TanreiInlineCode(text, variant)` is a composable for a run that stands alone. The ancestor's choice is a composition local."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiInlineCode",
+      "props": {
+        "text": "text",
+        "variant": "variant"
+      },
+      "notes": "`TanreiInlineCode.span(text, variant:)` returns an `InlineSpan` for `Text.rich`; the fill is painted behind the run's boxes by `TanreiInlineCodeText`, which wraps the rich text. `TanreiInlineCode(text)` is a widget for a run that stands alone. The ancestor's choice is an inherited widget."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "InlineCode",
+      "props": {
+        "text": "children",
+        "variant": "variant"
+      },
+      "notes": "`<InlineCode>npm install</InlineCode>` nested in a `<Text>`. A nested `Text` takes a background color but, on iOS, neither corners nor padding: the tonal form inside a sentence is a square fill there, stated in the README. The ancestor's choice is a context. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

@@ -1,0 +1,592 @@
+{
+  "$comment": "Tanrei must be able to imitate any design system by changing VALUES. A trait that cannot be imitated is a defect in Tanrei and is filed here. Resolve in this order: (1) a value, (2) a new token TYPE, (3) a small enumerated behaviour token, (4) a component composition option. `status`: open | planned | resolved | wont-fix (with the reason). A shipped preset's accessibility measurements are not gaps: Tanrei's accessibility criteria do not apply to an imitation preset, so they are information in its a11y-report.json, not entries here.",
+  "gaps": [
+    {
+      "id": "ripple",
+      "systems": [
+        "Material 2",
+        "Material 3"
+      ],
+      "trait": "Pressed feedback is a ripple: an overlay that starts at the pointer position and expands over time.",
+      "kind": "behavior",
+      "status": "resolved",
+      "proposal": "Implemented: the choice of kind `sys.behavior.pressed-feedback` — overlay | ripple | dim | none — read by components on all five platforms (Button BTN-9). `m3-like` sets ripple: the pressed state layer grows from the point of contact over `comp.button.motion.feedback-duration`. `cupertino` sets dim. A system that chooses dim without a pressed opacity below 1 is reported."
+    },
+    {
+      "id": "continuous-corners",
+      "systems": [
+        "Apple HIG"
+      ],
+      "trait": "Corners are continuous (a superellipse), not circular arcs; at the same nominal radius they read differently.",
+      "kind": "mechanism",
+      "status": "resolved",
+      "proposal": "Implemented: `sys.shape.corner-smoothing`, an amount 0–1 with Figma's meaning (0.6 = iOS), at the same radius (Button BTN-10); `cupertino` sets 0.6. Compose and Flutter draw Figma's construction of the curve and the web the nearest superellipse; Apple's own corner is a different curve, about 5 px² apart on a 180×80 box at 0.6; SwiftUI and iOS React Native draw the OS curve for any amount above 0; React Native on Android stays circular for now."
+    },
+    {
+      "id": "materials-backdrop-blur",
+      "systems": [
+        "Apple HIG (materials, Liquid Glass)",
+        "Radix Themes (translucent panels)"
+      ],
+      "trait": "Surfaces blur and tint what is behind them; Liquid Glass also adapts luminosity to its backdrop.",
+      "kind": "mechanism",
+      "status": "open",
+      "proposal": "New token types for a surface: backdrop blur radius and surface opacity. Luminosity adaptation and edge lensing cannot be expressed and will be stated as out of reach."
+    },
+    {
+      "id": "dynamic-type-table",
+      "systems": [
+        "Apple HIG",
+        "Android 14+ non-linear font scale"
+      ],
+      "trait": "User text-size settings scale each text style by its own table, not by one multiplier (iOS Body grows ×3.1 from default to AX5, Large Title ×1.8, Caption 2 is flat across the five smallest sizes).",
+      "kind": "mechanism",
+      "status": "open",
+      "proposal": "Leave to the OS where the platform provides it (SwiftUI Dynamic Type, Android font scale). If products need it on the web, add a `content-size` context to the resolver; per-token coefficients already allow each style its own curve."
+    },
+    {
+      "id": "text-case",
+      "systems": [
+        "Material 2"
+      ],
+      "trait": "Button labels are uppercase as a matter of style. DTCG typography has no text-transform field.",
+      "kind": "vocabulary",
+      "status": "open",
+      "proposal": "Add `text-case` to typescale roles (one product may set eyebrows and buttons in caps). Tanrei's own `eyebrow` currently relies on the component to uppercase."
+    },
+    {
+      "id": "explicit-tone-per-state",
+      "systems": [
+        "Fluent 2",
+        "Radix Themes"
+      ],
+      "trait": "A state's color is an explicit step of a ramp (Fluent brand: rest 80, hover 70, pressed 40, selected 60 — not monotonic), not a function of the resting color.",
+      "kind": "mechanism",
+      "status": "resolved",
+      "proposal": "Implemented: per-state component tokens accept the `tone` rule — `{ \"fn\": \"tone\", \"palette\": \"brand\", \"tone\": 70 }`, or per theme and contrast level `{ \"light\": [70, 60, 50], \"dark\": [80] }` — in `tokens` and in pattern `rules`, next to `mix`, `alpha` and `contrast-pick`. The value is computed per scheme into the bundle (`generated/comp.states.<scheme>`). The IR delivers a color that differs between schemes as the paint `{ kind: 'scheme', by }`, and all five platform emitters draw it (tested from the fixture `packages/tokens-build/test/fixtures/tone-per-state.system.json`)."
+    },
+    {
+      "id": "remove-inherited-palette",
+      "systems": [
+        "any preset extending tanrei"
+      ],
+      "trait": "A preset inherits the `accent` palette declared by the default system even when the imitated system has no such thing.",
+      "kind": "mechanism",
+      "status": "resolved",
+      "proposal": "Implemented: a layer sets an inherited declared palette to null (`\"accent\": null`), which removes its four roles from that system's bundle. Core palettes cannot be dropped. Used by m3-like and cupertino."
+    },
+    {
+      "id": "elevation-ring-is-implicit",
+      "systems": [
+        "Material 3",
+        "Fluent 2"
+      ],
+      "trait": "Tanrei's elevation puts a 1px ring first in every level and native renderers draw that first layer as a border. Systems whose first layer is an ordinary shadow would be drawn wrongly.",
+      "kind": "vocabulary",
+      "status": "resolved",
+      "proposal": "Resolved without new vocabulary: a ring is defined by geometry, not position — a shadow layer with no offset, no blur and a positive spread (exactly what CSS box-shadow draws for it). Every native renderer detects it that way, m3-like and cupertino have levels with no ring at all, and each platform's preset baselines show `elevated` without a border."
+    },
+    {
+      "id": "shape-morph",
+      "systems": [
+        "Material 3 Expressive"
+      ],
+      "trait": "Shapes morph between arbitrary rounded polygons.",
+      "kind": "behavior",
+      "status": "wont-fix",
+      "proposal": "The per-state container shape token covers the tokenized part (M3's pressed/selected corner sizes). Polygon morphing is an animation system, not a design-token concern."
+    },
+    {
+      "id": "focus-engine",
+      "systems": [
+        "tvOS",
+        "visionOS"
+      ],
+      "trait": "Focus is shown by scale, parallax and lighting driven by the OS focus engine or gaze.",
+      "kind": "behavior",
+      "status": "wont-fix",
+      "proposal": "Input models owned by the platform. Tanrei's focus tokens describe a drawn indicator."
+    },
+    {
+      "id": "anatomy-text-field-label",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "Filled and outlined text fields animate the label into the container or notch it into the border; most other systems keep a static label above the field.",
+      "kind": "anatomy",
+      "status": "resolved",
+      "proposal": "Implemented: a text field variant, `stacked` (TXF-25–TXF-27), draws a static label above the field, start-aligned, and is the default variant. A system that keeps only the label above leaves `filled` and `outlined` out, as the default system does; the Material presets keep all three. A variant rather than a choice of kind, so one variant draws one layout in every system."
+    },
+    {
+      "id": "scrim-color-and-opacity",
+      "systems": [
+        "Material 3"
+      ],
+      "kind": "vocabulary",
+      "status": "resolved",
+      "trait": "The reference publishes `scrim` as an opaque color and lets each component apply its own opacity (32% for dialogs and sheets). Tanrei's `scrim` role is the overlay as drawn, alpha included.",
+      "proposal": "Decided with the dialog: one role, the overlay as drawn, alpha included. `comp.dialog.scrim.color` aliases it; m3-like values it black at 32%, which reproduces the rendered result, and the fidelity map keeps md.sys.color.scrim (opaque) unmapped."
+    },
+    {
+      "id": "button-shape-option",
+      "systems": [
+        "Material 3 Expressive"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "A button is either round (pill) or square (a corner per size), chosen per instance, and a toggle button swaps the two while selected.",
+      "proposal": "A composition option on Button (`shape: round | square`) valued per size, and a selected state once Button can toggle. Until then a system picks one shape for all buttons through `container.shape`."
+    },
+    {
+      "id": "per-size-state-shape",
+      "systems": [
+        "Material 3 Expressive"
+      ],
+      "kind": "vocabulary",
+      "status": "open",
+      "trait": "The pressed container shape differs per button size (small corners on small buttons, large corners on large ones).",
+      "proposal": "Let per-state component parts join an axis (`<state>.container.shape.<size>`). Today `pressed.container.shape` is one token for every size."
+    },
+    {
+      "id": "axis-default",
+      "systems": [
+        "Material 3 Expressive"
+      ],
+      "kind": "mechanism",
+      "status": "open",
+      "trait": "The reference's default button size is its `small` (40dp); Tanrei's `size` defaults to `medium` on every platform.",
+      "proposal": "Let a layer set the default value of a component axis, delivered to platforms with the system."
+    },
+    {
+      "id": "platform-symbol-sets",
+      "systems": [
+        "cupertino"
+      ],
+      "trait": "SF Symbols is not a font: symbols are addressed through a platform image API, exist only on Apple platforms, and their license forbids use elsewhere. Tanrei's icon style is a font family per selection state, so `cupertino` keeps the default icon font.",
+      "kind": "mechanism",
+      "status": "open",
+      "proposal": "Decide with the icon primitive (Button's icon-only form): an icon source that is either a font family or a platform symbol provider, chosen per platform, with a fallback family off-platform."
+    },
+    {
+      "id": "device-pixel-hairline",
+      "systems": [
+        "Apple HIG"
+      ],
+      "trait": "Separators are one device pixel thick, whatever the display density.",
+      "kind": "mechanism",
+      "status": "open",
+      "proposal": "A dimension token cannot say \"one device pixel\". The divider snaps its line to the pixel grid (DIV-8), so a 1 px line on a 3× display is three device pixels. A token type or a keyword for a device hairline would close it."
+    },
+    {
+      "id": "progress-indeterminate-track",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "The indeterminate circular indicator draws no track; the determinate one does.",
+      "kind": "behavior",
+      "status": "open",
+      "proposal": "The progress indicator draws the same track in both modes. A per-mode track color (transparent when indeterminate) would close it without a new mechanism."
+    },
+    {
+      "id": "progress-indeterminate-choreography",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "The indeterminate animations follow a specific choreography (a growing and shrinking arc; two bars for the linear form).",
+      "kind": "behavior",
+      "status": "open",
+      "proposal": "Tanrei's indeterminate forms are its own (PRG-). Matching Material's choreography needs the animation as values or a choice of kind; not planned until a product asks."
+    },
+    {
+      "id": "progress-wavy",
+      "systems": [
+        "Material 3 Expressive"
+      ],
+      "trait": "Progress indicators may be drawn as a wave.",
+      "kind": "anatomy",
+      "status": "open",
+      "proposal": "A choice of kind for the indicator's form (flat | wavy), like sys.behavior.*, would close it; m3-expressive-like draws the flat form until then."
+    },
+    {
+      "id": "radio-filled-disc",
+      "systems": [
+        "Apple HIG"
+      ],
+      "trait": "A selected radio button is a disc filled with the tint, with a light dot in it; an unselected one is a light disc.",
+      "kind": "anatomy",
+      "status": "resolved",
+      "proposal": "Resolved: the radio button has a fill in both conditions (`unselected.fill.color`, `selected.fill.color`, RAD-19). cupertino draws Apple's light disc in a hairline ring when unselected and a tinted band around a light center when selected; both values are estimates."
+    },
+    {
+      "id": "switch-handle-stretch",
+      "systems": [
+        "Apple HIG"
+      ],
+      "trait": "While a switch is pressed, its handle stretches wider along the track, then settles back to a circle.",
+      "kind": "anatomy",
+      "status": "open",
+      "proposal": "The switch's handle has a size per condition and state but no width of its own, so `cupertino` keeps it round. A per-state handle width (or aspect), drawn along the track, would close it."
+    },
+    {
+      "id": "text-field-corner-per-variant",
+      "systems": [
+        "Apple HIG"
+      ],
+      "trait": "The rounded fill field and the rounded-border field have different corner radii (cupertino's corner.medium, 10, and corner.extra-small, 4).",
+      "kind": "vocabulary",
+      "status": "open",
+      "proposal": "Text field's `container.shape` is one token for both variants, so `cupertino` rounds both by corner.medium, the fill field's radius, and its outlined field is 10 instead of 4. A per-variant `container.shape` (a per-variant part rather than a component token) would close it."
+    },
+    {
+      "id": "menu-icon-side",
+      "systems": [
+        "cupertino"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Apple's menus draw an item's icon at the trailing end of the row, after the label; Tanrei's menu item has a leading icon column (MNU-19) and a trailing icon that is a second glyph.",
+      "proposal": "A composition option on the menu (the side of the item's icon), valued by a system, if a product needs it. Until then cupertino draws menu icons at the leading edge."
+    },
+    {
+      "id": "tabs-scrollable-inset",
+      "systems": [
+        "Material 3"
+      ],
+      "kind": "vocabulary",
+      "status": "open",
+      "trait": "A scrollable row of Material 3 tabs starts 52dp from the row's leading edge; Tanrei's tabs have no token for an inset before the first tab.",
+      "proposal": "A comp.tabs token for the leading inset of a scrollable row, if one product needs it; until then m3-like starts the row at the edge and a product pads the row itself."
+    },
+    {
+      "id": "dialog-centred-headline",
+      "systems": [
+        "cupertino"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Tanrei's dialog aligns its headline to the start, except under `icon.placement` above with an icon.",
+      "proposal": "A composition option on the dialog (the alignment of its headline and supporting text), valued by a system, if one product needs it."
+    },
+    {
+      "id": "dialog-stacked-separated-actions",
+      "systems": [
+        "cupertino"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Tanrei's actions share the width (DLG-10) but are separate Buttons with a gap, stack only when they do not fit, and are inset by the padding. Apple's are edge-to-edge rows separated by hairlines, and stack from three.",
+      "proposal": "A composition option on the dialog for edge-to-edge, separated actions, with the divider tokens it would need, if one product needs it."
+    },
+    {
+      "id": "app-bar-title-alignment",
+      "systems": [
+        "cupertino"
+      ],
+      "kind": "mechanism",
+      "status": "open",
+      "trait": "Apple centres a compact navigation bar's title by default; Tanrei's app bar aligns it to the start unless the product sets titleAlignment, a prop a system cannot default.",
+      "proposal": "Let a system set the default of a structural prop (as axis-default asks for an axis), or a choice-of-kind token for the title's alignment. Until then a product imitating Apple sets titleAlignment: center."
+    },
+    {
+      "id": "navigation-rail-expanded",
+      "systems": [
+        "Material 3 Expressive"
+      ],
+      "kind": "anatomy",
+      "status": "resolved",
+      "trait": "Material 3 Expressive's navigation rail expands in place into a wide panel with labels beside the icons; Tanrei's rail had one form, and its wide panel was the navigation drawer, a separate component.",
+      "proposal": "Resolved: the rail is retired into the navigation drawer's collapsed form, and a collapsible drawer expands in place (`collapsible`, `expanded`, NVD-30 to NVD-40), every icon staying where it is."
+    },
+    {
+      "id": "segmented-selection-slides",
+      "systems": [
+        "cupertino"
+      ],
+      "kind": "behavior",
+      "status": "open",
+      "trait": "Apple's segmented control slides its raised selection from the old segment to the new one, hides the dividers on either side of the selection, and in dark draws the selection lighter than its track. Tanrei's segmented button changes colors and elevation in place (SEG-16), keeps every divider (SEG-17), and cupertino has no role lighter than surface-container-high in dark (its surface-bright selection is slightly darker than the track, 1.2:1).",
+      "proposal": "A composition option for a sliding selection with dividers that hide beside it, and a role (or a cupertino-declared one) for a selection lighter than its track in dark. Until then the selection is told apart by its fill and one soft shadow."
+    },
+    {
+      "id": "button-group-press-expand",
+      "systems": [
+        "m3-expressive-like"
+      ],
+      "kind": "behavior",
+      "status": "open",
+      "trait": "Material 3 Expressive's button groups answer a press by widening the pressed button and narrowing its neighbours, round a selected button of a connected group, and scale the connected inner corners and gaps with the button size. Tanrei's button group changes no width under a press (BGR-5), keeps no selection, and has one inner corner and one gap for every size. Its split button grows a pressed half's inner corners; Tanrei's split button keeps them (no per-state inner corner).",
+      "proposal": "A composition option for a press that redistributes width, and per-size inner corners if one product needs them (the group has no size axis today)."
+    },
+    {
+      "id": "toolbar-vibrant-color",
+      "systems": [
+        "m3-like"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Material 3 Expressive's vibrant toolbars fill the bar with primary-container and recolor the items on it; Tanrei's toolbar places Buttons, icon-only or labelled, that keep their own tokens (TBR-*), so a toolbar color cannot recolor its items.",
+      "proposal": "A composition option (a toolbar color scheme its items read), or item tokens scoped to a toolbar, if one product needs it."
+    },
+    {
+      "id": "slider-inset-icon",
+      "systems": [
+        "m3-expressive-like"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Material 3 Expressive draws a glyph inside the thick track of its larger sliders (a volume or brightness icon at the track's start); Tanrei's slider has no icon slot, and the product's glyph sits beside the slider.",
+      "proposal": "A composition option (an icon inside the track's start, with the icon size and color it would need) if one product needs it."
+    },
+    {
+      "id": "search-docked-view-joins-bar",
+      "systems": [
+        "m3-like"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Material's docked search view grows out of the search bar: the bar becomes the view's header and the two read as one surface. Tanrei's docked view is a separate surface placed view.offset below the bar (SRC-*), which keeps its own shape and elevation.",
+      "proposal": "A composition option for a docked view that takes the bar in as its header (the bar's bottom corners and the view's top corners joined), if one product needs it."
+    },
+    {
+      "id": "calendar-year-colors",
+      "systems": [
+        "m3-like"
+      ],
+      "kind": "vocabulary",
+      "status": "open",
+      "trait": "Material colors an unselected year on-surface-variant while unselected days are on-surface, and colors the month-and-year button apart from the days; Tanrei's Calendar draws days and years from the same conditions and the view toggle from the unselected colors.",
+      "proposal": "Year and view-toggle colors of their own, if one product needs them apart from the days'."
+    },
+    {
+      "id": "date-time-picker-full-screen-range",
+      "systems": [
+        "m3-like"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Material's modal range picker is a full-screen, vertically scrolling list of months; Tanrei's modal range DateTimePicker still pages one month at a time in the dialog-sized surface — with comp.calendar.navigation.axis vertical it scrolls, but one month at a time.",
+      "proposal": "A presentation option for a full-screen scrolling range picker, if one product needs it."
+    },
+    {
+      "id": "calendar-navigation-tint",
+      "systems": [
+        "cupertino"
+      ],
+      "kind": "vocabulary",
+      "status": "open",
+      "trait": "Apple draws the month title's chevron and the paging arrows in the tint; Tanrei's Calendar draws the view toggle in the unselected colors and the arrows as text-variant icon-only Buttons, which keep their own tokens.",
+      "proposal": "A tint for the calendar's navigation, if one product needs it apart from its icon-only Buttons."
+    },
+    {
+      "id": "date-time-picker-apple-no-modal-header",
+      "systems": [
+        "cupertino"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Apple's calendar picker has no header with the chosen date set large; Tanrei's modal DateTimePicker in a date mode always draws its header (title and value).",
+      "proposal": "A composition option to leave the modal header out, if one product needs it."
+    },
+    {
+      "id": "date-time-picker-period-segments",
+      "systems": [
+        "m3-like"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Material draws both names, AM and PM, stacked in one outlined container beside the selectors, the chosen half filled with a tertiary container. Tanrei draws the pending name alone, in a narrow cell on the unselected selector's ground that changes to the other name on a press (DTM-14): two names in the selectors' height would be two targets of 40, below the default system's minimum.",
+      "proposal": "A choice-of-kind token for the period's names (`period.names`: chosen | both) and a second form with its own semantics on five platforms would close it, for one preset; the one-product test allows that as a last resort for a gap, and it can be added later without breaking anything."
+    },
+    {
+      "id": "time-picker-wheels",
+      "systems": [
+        "cupertino"
+      ],
+      "kind": "anatomy",
+      "status": "resolved",
+      "trait": "Apple sets a time with wheels, not a dial, and marks the part being set by a tinted number; Tanrei's time picker is a dial with selectors, and cupertino keeps the number on-surface because the tint on its fill measures 3.1:1.",
+      "proposal": "Resolved: DateTimePicker sets a time on wheels, and cupertino values comp.date-time-picker.time.entry-modes wheels (1) with Apple's grey band (comp.date-time-picker.wheel.selection.container.color)."
+    },
+    {
+      "id": "date-time-picker-keyboard-entry",
+      "systems": [
+        "m3-like"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Material switches its date and time pickers to text entry with a pencil or keyboard icon; in Tanrei a date or time is typed in the Text field, so DateTimePicker has no text entry.",
+      "proposal": "None planned: typing is the Text field's, with one set of reading rules (the owner's decision). A time wheel takes its own number from a keyboard after a press on its chosen row, and the dial mode's selectors read digits from a hardware keyboard (DTM-22, DTM-43 to DTM-45); a whole date or time as text is still the Text field's, and m3-like, which offers the dial only, still has no text-entry mode to switch to."
+    },
+    {
+      "id": "date-time-picker-title-size",
+      "systems": [
+        "m3-like"
+      ],
+      "kind": "vocabulary",
+      "status": "open",
+      "trait": "Material's time picker title is 12 (label-medium) and its date picker title 14; one comp.date-time-picker.header.label.typescale sets both at 14.",
+      "proposal": "A title size per mode, if one product needs them apart."
+    },
+    {
+      "id": "chip-remove-glyph",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "The input chip removes with an outlined `close` glyph and no hover color of its own.",
+      "kind": "anatomy",
+      "status": "wont-fix",
+      "proposal": "Tanrei names the glyph in the spec: the remove action draws the icon set's filled `cancel` and, by default, turns to the error color under hover, focus and press (chip CHP-27, CHP-28). The Material presets keep the flag on; a product turns it off per chip with `destructiveRemove`."
+    },
+    {
+      "id": "checkbox-mark-drawn-on",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "The checkbox's check is the system's own drawing, not an icon glyph: it is drawn on stroke by stroke when the box is checked, and bends into the indeterminate dash and back.",
+      "kind": "behavior",
+      "status": "wont-fix",
+      "proposal": "Every mark a component draws is a glyph of the system's icon set, and a glyph from a font cannot be drawn on or bent. m3-like draws Material Symbols Outlined's check and remove at weight 400, close to Material's check at rest (about 1.7 against a 2 stroke, nearly the same extent in the 18 box), and fades and grows them over the fast-effects and fast-spatial springs (CHK-13)."
+    },
+    {
+      "id": "radio-dot-scale-in",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "A selected radio's dot scales in from the center.",
+      "kind": "behavior",
+      "status": "open",
+      "proposal": "The fill changes color only (RAD-15), so m3-like's dot fades in; a per-condition inset or a scale-in choice would close it."
+    },
+    {
+      "id": "tabs-fixed-label-truncates",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "A fixed tab lets its label wrap onto a second line.",
+      "kind": "behavior",
+      "status": "wont-fix",
+      "proposal": "The owner decided (2026-09-27) that a tab in a full-width row truncates its label with an ellipsis in every system, and a hugging tab grows to fit it (tabs TAB-14, TAB-25); the whole label stays the accessible name. m3-like truncates where Material wraps."
+    },
+    {
+      "id": "carousel-multi-browse",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "The multi-browse arrangement shows several large items, then a medium and a small one.",
+      "kind": "anatomy",
+      "status": "open",
+      "proposal": "Tanrei describes the carousel by its axes and retires multi-browse; m3-like draws one hero with peeking neighbours. Reproducing the arrangement would need a layer extension with evidence in the fidelity map."
+    },
+    {
+      "id": "navigation-bar-press-does-not-spread",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "Material's press ripple spreads from the point of contact inside the active indicator.",
+      "kind": "behavior",
+      "status": "open",
+      "proposal": "Tanrei makes the pill the item container; m3-like turns its state layer off and shows the pressed tone on the icon indicator at once. Tanrei does the same for the collapsed navigation drawer (Material's rail): its collapsed conditions' state layer is transparent and the icon indicator answers press at once. A ripple confined to the icon indicator would close the gap in both."
+    },
+    {
+      "id": "navigation-drawer-collapsed-tone",
+      "systems": [
+        "Material 3"
+      ],
+      "trait": "Material's navigation rail is on surface, and its navigation drawer on surface-container-low.",
+      "kind": "appearance",
+      "status": "open",
+      "proposal": "Tanrei makes the rail the navigation drawer's collapsed form, one surface that changes width, so m3-like's collapsed drawer keeps the drawer's surface-container-low. Per-form container colors (a collapsed container color token) would close the gap if one product needs the column and the panel in different tones."
+    },
+    {
+      "id": "navigation-drawer-expressive-widths",
+      "systems": [
+        "Material 3 Expressive"
+      ],
+      "trait": "Material 3 Expressive's navigation rail is 96 wide collapsed and 220 to 360 wide expanded, and its expanded active indicator hugs its content rather than filling the row.",
+      "kind": "appearance",
+      "status": "open",
+      "proposal": "m3-expressive-like inherits m3-like's Material 3 values for the navigation drawer (80 collapsed, 360 expanded, a full-width pill). Setting comp.navigation-drawer.collapsed.container.width to 96 and container.width to 220 in m3-expressive-like, once its fidelity map covers the rail, would close the widths; a hugging expanded indicator would need a token for the indicator's width in the expanded form."
+    },
+    {
+      "id": "side-sheet-action-emphasis",
+      "systems": [
+        "Material 3"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Material's side sheet gives its main and its secondary action different variants (filled and outlined). Tanrei gives every action without a variant the same one (SSH-17), and a flag never changes a look (BGR-19). The product sets the secondary action's variant.",
+      "proposal": "m3-like values comp.side-sheet.actions.variant filled, so the main action is faithful by default. A variant per flag would close the gap, but it would tie emphasis to placement, which the button group keeps apart on purpose (BGR-19)."
+    },
+    {
+      "id": "side-sheet-main-action-first",
+      "systems": [
+        "Material 3"
+      ],
+      "kind": "behavior",
+      "status": "open",
+      "trait": "Material's side sheet puts its main action first, at the start (Save · Cancel). Tanrei places a confirming action at the end of a row (BGR-13).",
+      "proposal": "A product that leaves its actions unflagged keeps the order it gives them, which reproduces Material's order. A per-system placement order for the button group would close it if one product needs the flags and Material's order together."
+    },
+    {
+      "id": "side-sheet-actions-in-header",
+      "systems": [
+        "cupertino"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Apple's panels (the iPad inspector, a sheet's navigation bar) put their actions (Done, Cancel) in the top bar, not in a footer. Tanrei's side sheet has a footer only.",
+      "proposal": "A composition option on the side sheet for actions in its header, if one product needs it. Apple has no side sheet, so the evidence is thin."
+    },
+    {
+      "id": "tabs-indicator-drag",
+      "systems": [
+        "Material 3"
+      ],
+      "kind": "behavior",
+      "status": "open",
+      "trait": "Material 3's tabs answer a tap only: a finger dragged across the row does not carry the indicator. Tanrei's tabs follow a drag in every system and select on release (TAB-28 to TAB-30), so m3-like's line and its label colors follow the finger too.",
+      "proposal": "The drag is the component's behaviour in every system, as the Tab view's swipe is; a sys.behavior choice (follow or none) would close it but fails the one-product test, since no product wants some of its tabs draggable and others not. A tap still selects, so nothing Material offers is lost."
+    },
+    {
+      "id": "tabs-state-layer-follows-indicator",
+      "systems": [
+        "Material 3"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "A Material 3 tab draws hover, focus and press on the whole tab, a rectangle. Tanrei's tabs draw them in the active indicator's box (TAB-18, TAB-4; decided by the owner on 2026-10-03). m3-like keeps the whole tab by value (comp.tabs.track.padding nothing, comp.tabs.container.shape square) wherever that box is the tab, but in a row that hugs, a tab whose content is not wider than it is tall (an icon alone, a short label under a stacked icon) gets a state layer and a focus ring as wide as the row is tall: 48 in a 56 tab for an icon alone.",
+      "proposal": "A token for the state layer's width (the tab, or the indicator) would close it, but only an imitation whose indicator is invisible would set it: it fails the one-product test, and the owner ruled the rectangle out for a system that draws the indicator. Until a product needs it, m3-like's state layer on such tabs is narrower than Material's."
+    },
+    {
+      "id": "navigation-bar-indicator-drag",
+      "systems": [
+        "Material 3",
+        "Apple HIG"
+      ],
+      "kind": "behavior",
+      "status": "open",
+      "trait": "Material 3's navigation bar and Apple's tab bar answer a tap only, and draw state and focus on or around the glyph. Tanrei's navigation bar follows a sideways drag in every system and chooses on release (NVB-27 to NVB-29), and draws its focus indicator around the destination's item container, which is the whole cell (NVB-5, NVB-12). m3-like and cupertino make that container transparent and pin the bar's inset to nothing, so nothing is seen moving while a finger drags, the release still chooses a destination, and the focus indicator surrounds the cell rather than the indicator behind the glyph.",
+      "proposal": "The drag is the component's behaviour in every system, as the tabs' is (gap tabs-indicator-drag); a sys.behavior choice (follow or none) would close it but fails the one-product test, since no product wants some of its bars draggable and others not. A \"hug\" sizing for the focus box reachable by a token would only ever be set by a system whose item container is invisible. A tap still selects, so nothing either original offers is lost."
+    },
+    {
+      "id": "navigation-drawer-collapsed-labels-default",
+      "systems": [
+        "Material 3"
+      ],
+      "kind": "vocabulary",
+      "status": "open",
+      "trait": "Material 3's collapsed navigation column draws a label under every icon. In Tanrei whether a collapsed cell has a label is the prop collapsedLabels, whose default is never. A system cannot default a prop, so a product on m3-like or m3-expressive-like must set collapsedLabels=\"always\" itself to get Material's column; the presets' representative collapsed fixture is collapsed-labels-always.",
+      "proposal": "A way for a system to default a prop (the text field's variant would need the same), or a choice of kind for this one prop — which fails the one-product test as a sys.behavior value, since it concerns one component, and component choices do not reach the native emitters as typed values yet. Until then the product sets the prop."
+    },
+    {
+      "id": "date-time-picker-period-place",
+      "systems": [
+        "m3-like"
+      ],
+      "kind": "anatomy",
+      "status": "open",
+      "trait": "Material draws AM and PM beside the time selectors in portrait and below them, as a row, in landscape. Tanrei's period is a part of the time and stands beside the selectors again — after the minute, or before the hour where the locale writes it first (DTM-14) — at Material's width and distance under m3-like (two pins). What remains: in Material's horizontal layout the period lies under the selectors as a row; in Tanrei it stays beside them in every layout.",
+      "proposal": "A choice-of-kind token for the period's place in the horizontal layout would close what remains, but one product has no use for it."
+    }
+  ]
+}

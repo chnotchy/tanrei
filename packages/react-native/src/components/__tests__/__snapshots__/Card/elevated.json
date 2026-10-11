@@ -1,0 +1,73 @@
+{
+  "type": "View",
+  "props": {
+    "collapsable": false,
+    "style": {
+      "backgroundColor": "rgb(255, 255, 255)",
+      "borderRadius": 8,
+      "boxShadow": [
+        {
+          "blurRadius": 2,
+          "color": "rgba(0, 0, 0, 0.04)",
+          "offsetX": 0,
+          "offsetY": 1,
+          "spreadDistance": 0
+        }
+      ],
+      "opacity": 1
+    }
+  },
+  "children": [
+    {
+      "type": "View",
+      "props": {
+        "accessible": false,
+        "importantForAccessibility": "no",
+        "style": {
+          "borderColor": "rgba(0, 0, 0, 0.08)",
+          "borderRadius": 9,
+          "borderWidth": 1,
+          "bottom": -1,
+          "left": -1,
+          "pointerEvents": "none",
+          "position": "absolute",
+          "right": -1,
+          "top": -1
+        }
+      },
+      "children": []
+    },
+    {
+      "type": "View",
+      "props": {
+        "style": {
+          "borderRadius": 8,
+          "overflow": "hidden",
+          "paddingEnd": 16,
+          "paddingStart": 16,
+          "paddingVertical": 16
+        }
+      },
+      "children": [
+        {
+          "type": "Text",
+          "props": {
+            "allowFontScaling": true,
+            "collapsable": false,
+            "style": {
+              "color": "rgb(27, 27, 27)",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "400",
+              "letterSpacing": 0,
+              "lineHeight": 22
+            }
+          },
+          "children": [
+            "Quarterly report. Revenue grew 12% over the previous quarter."
+          ]
+        }
+      ]
+    }
+  ]
+}

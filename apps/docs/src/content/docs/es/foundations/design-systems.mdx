@@ -1,0 +1,144 @@
+---
+title: Sistemas de diseño y personalización
+description: Un vocabulario, muchos sistemas de diseño. Cambia un dial, declara una paleta, reorienta un token, y todas las plataformas lo siguen en un solo commit.
+translationOf: foundations/design-systems.mdx
+sourceHash: 9108b285653d179e971cfa0d3452b18a2832f187
+---
+
+import Callout from '../../../../components/Callout.astro';
+import SystemGallery from '../../../../components/SystemGallery.astro';
+
+Tanrei está construido para poder reproducir cualquier sistema de diseño, con exactitud y no por aproximación, mientras su propio vocabulario se mantiene pequeño. Dos reglas lo hacen posible: **los sistemas de diseño se diferencian ante todo en los valores**, y **lo que un valor no puede expresar, lo añade una capa.**
+
+## Qué es un token del núcleo y qué no
+
+El vocabulario del núcleo de Tanrei es todo estado que *un sistema de diseño puede adoptar dentro de un producto*. De ahí sale una prueba para cada token que se propone, la **prueba del producto único**:
+
+- **Es un token** si un solo producto puede necesitar la distinción, por significado o por lugar. `focus-ring` está separado de `primary` porque un producto puede querer un color de marca saturado y un anillo de foco tranquilo. Que el sistema predeterminado les dé valores relacionados es una coincidencia, no un motivo para fusionarlos. Button tiene tamaños porque un mismo producto usa varios.
+- **No es un token** si solo lo tiene un sistema de diseño, o un producto poco común. El `tertiary` de Material Design 3 es una paleta declarada en el preajuste que lo reproduce, y sus roles `primary-fixed` son extensiones de ese preajuste, no huecos con los que cargan todos. Veinte tamaños de botón para un producto exótico tampoco son vocabulario del núcleo; ese producto los añade a su propia capa.
+
+Si aun así no se puede reproducir algún rasgo de un sistema de diseño (un material de fondo, una tabla de tamaños de texto propia), eso es un defecto de Tanrei, y se anota en el registro de lagunas de imitación (`docs/governance/mimicry-gaps.json` en el repositorio).
+
+## Diales: un cambio, en todas partes
+
+Un sistema de diseño debería resultar adecuado de entrada y seguirte cuando cambias una sola cosa. Bajo todo lo demás hay siete **diales** numéricos:
+
+| Dial | Valor predeterminado | Mueve |
+|---|---|---|
+| `dial.type.base` | 16px | todos los tamaños de texto |
+| `dial.type.contrast` | 1 | cuánto se separan los títulos del texto de cuerpo |
+| `dial.space.unit` | 8px | todas las distancias |
+| `dial.size.unit` | 4px | las alturas de los controles, los tamaños de los iconos, las áreas de pulsación |
+| `dial.shape.unit` | 2px | todas las esquinas |
+| `dial.stroke.unit` | 1px | los bordes, los anillos, el indicador de foco |
+| `dial.motion.unit` | 50ms | todas las duraciones |
+
+Cada token es de uno de tres tipos:
+
+- **derivado**: una regla pequeña, normalmente un coeficiente sobre un dial: `display` es `type.base × 3`, `space175` es `space.unit × 1.75`. Las escalas tipográficas reales no son geométricas, así que cada token tiene su *propio* coeficiente;
+- **fijo**: un literal con un motivo declarado, exento de los diales (`corner.full`, una curva de aceleración, un tamaño de nota al pie impuesto por ley);
+- **alias**: una referencia que se puede reorientar (`button.container.gap` → `space100`).
+
+En la web, los diales también funcionan en vivo: los tokens derivados se emiten como expresiones `calc()`, de modo que definir `--tanrei-dial-type-base` en cualquier elemento reescala todo lo que contiene. Una prueba evalúa cada token derivado en un navegador real con varios ajustes de los diales y exige que sea igual al resultado de la compilación.
+
+## Un sistema de diseño es una capa
+
+Un sistema de diseño es un pequeño archivo JSON que *extiende* otro. Sobre todo cambia valores; donde hace falta, [añade al vocabulario](#añadir-al-vocabulario).
+
+```json
+{
+  "id": "acme",
+  "extends": "tanrei",
+  "palettes": {
+    "brand":   { "description": "El rojo de Acme lo fijan las directrices de marca.", "source": { "seed": "#e60012" }, "roles": "intent" },
+    "correct": { "description": "Un cuestionario marca las respuestas correctas: ni éxito ni primario.", "source": { "seed": "#0f766e" }, "roles": "intent" }
+  },
+  "tokens": {
+    "tanrei.dial.type.base": { "$value": { "value": 17, "unit": "px" }, "reason": "Nuestro público lee a la distancia de un brazo." },
+    "tanrei.comp.button.container.padding-inline-start.medium": { "scale": 2 },
+    "tanrei.comp.button.container.gap.medium": { "$value": "{tanrei.sys.space.space50}" },
+    "tanrei.sys.typescale.label-small": { "$value": { "fontSize": { "value": 11, "unit": "px" } }, "reason": "El tamaño de la nota legal es contractual." }
+  }
+}
+```
+
+| Quieres | Escribes |
+|---|---|
+| Todo un poco más grande | ajusta un dial |
+| El margen interior de Button al doble del predeterminado, y que siga obedeciendo al dial de espaciado | `"scale": 2` |
+| Que este token use otro paso | reorienta el alias |
+| Que este valor concreto no se mueva hagan lo que hagan los diales | fija `$value` con un `reason` |
+| Un color de marca o de dominio con sus propios roles `on-` y `-container`, con el contraste comprobado | declara una paleta con `"roles": "intent"` |
+
+Como el código de todas las plataformas se genera a partir del mismo sistema resuelto, un solo pull request cambia a la vez la web, SwiftUI, Compose, Flutter y React Native.
+
+## Añadir al vocabulario
+
+Los valores no siempre bastan. Un sistema de referencia tiene tamaños de botón que el núcleo no tiene; tu producto tiene un componente de valoración propio. Por eso una capa también puede **extender** el vocabulario: bajo `vocabulary`, siempre con un `rationale`, y solo añadiendo:
+
+```json
+"vocabulary": {
+  "tanrei.sys.space.space1200":        { "$type": "dimension", "rationale": "Las secciones de cabecera necesitan un paso de ritmo de 96px.",
+                                          "derive": { "fn": "mul", "of": "{tanrei.dial.space.unit}", "by": 12 } },
+  "tanrei.comp.button.size.3x":        { "from": "large", "scale": 1.5, "rationale": "La llamada a la acción principal de la pantalla de inicio." },
+  "tanrei.comp.button.variant.danger": { "from": "filled", "rationale": "Aquí, la confirmación destructiva es un énfasis distinto." },
+  "acme.comp.rating.star.size":        { "$type": "dimension", "rationale": "La estrella del componente de valoración.",
+                                          "derive": { "fn": "mul", "of": "{tanrei.dial.size.unit}", "by": 5 } }
+}
+```
+
+| Añades | Qué ocurre |
+|---|---|
+| **Un paso en una serie**: un paso de espaciado, una esquina, un rol de texto, un rol de color con el rol que se dibuja sobre él (`onRole`) | Se sitúa junto a sus vecinos, sigue el mismo dial y su contraste se comprueba como el de un par del núcleo |
+| **Un valor en un eje de un componente**: un tamaño o una variante de Button | Basta una línea. Un tamaño clona de otro tamaño todos los miembros del eje (altura, márgenes interiores, estilo de la etiqueta, icono) y los escala, sin dejar de seguir los diales. Una variante clona sus colores en reposo; **las reglas de patrón del sistema dan valor por ti a sus tokens de los estados al pasar el cursor, con foco, pulsado y deshabilitado** |
+| **Tus propios tokens**, en el espacio de nombres de tu capa (`acme.…`) | Para tus propios componentes. Pueden hacer referencia a cualquier token `tanrei.*`, seguir los diales y los esquemas, y se convierten en `--acme-…` en la web y en un objeto con tipo en las demás plataformas |
+
+`vocabulary` dice que algo *existe*; `tokens` y `rules` le dan un *valor*, exactamente igual que a los tokens del núcleo, de modo que una capa hija cambia una extensión como cualquier otra cosa. Las extensiones se heredan, nunca eliminan ni cambian el tipo de nada del núcleo, y no pueden añadir estados de interacción (esos pertenecen a la plataforma). Cada paquete generado las enumera, con quién las declaró y por qué.
+
+Los componentes aceptan lo que añades. `<tanrei-button size="3x" variant="danger">` funciona en la web, y los paquetes nativos admiten las mismas claves; un valor que el sistema de diseño activo no tiene se representa como el predeterminado. **Un sistema que no añade nada no paga nada**: su código generado no menciona las extensiones en absoluto.
+
+Así se sostienen juntos dos ideales: el vocabulario propio de Tanrei se mantiene pequeño y con nombres llanos, *y* cualquier sistema de diseño se puede igualar con exactitud, porque no hay que añadir nada al núcleo por causa de otro.
+
+## El aspecto de un estado también es un valor
+
+Los componentes nunca calculan el aspecto al pasar el cursor ni el del estado pulsado. Cada estado tiene sus propios tokens (`button.filled.hovered.container.color`, …), y las **reglas de patrón** de un sistema les dan valor:
+
+```json
+{ "match": "tanrei.comp.*.*.hovered.container.color",
+  "derive": { "fn": "mix", "base": "{tanrei.comp.$1.$2.container.color}", "with": "{tanrei.comp.$1.$2.label.color}", "amount": "{tanrei.sys.state.hover-state-layer-opacity}" } }
+```
+
+Esa es la capa de estado de Tanrei. Un sistema con colores explícitos por estado escribe alias en su lugar; uno sin estado al pasar el cursor hace del estado un alias de su valor en reposo; uno que se atenúa al pulsar define `pressed.opacity`. El mismo vocabulario, valores distintos.
+
+## Elecciones de tipo
+
+Unas pocas diferencias no son cantidades en absoluto: una pulsación a la que se responde con una onda o atenuando el control, un foco del teclado que se muestra como un anillo o como un resplandor. Son dos tokens bajo `sys.behavior` (`pressed-feedback`, `focus-style`), cada uno con una lista corta y cerrada de nombres, y una capa elige uno como cualquier otro valor. Cómo se curva una esquina es una cantidad, no una elección: `sys.shape.corner-smoothing`, en [Forma](/es/foundations/shape/#suavizado-de-esquinas). [Comportamiento](/es/foundations/behaviour/) las describe. El conjunto de iconos y los tipos de letra también puede cambiarlos una capa: consulta [Iconos](/es/foundations/icons/#un-conjunto-de-iconos-por-sistema-de-diseño) y [Tipografía](/es/foundations/typography/#tipos-de-letra-por-sistema-de-diseño).
+
+## Los sistemas incluidos
+
+El mismo `<tanrei-button>`, el mismo marcado. `m3-like` y `cupertino` están ahí para probar el mecanismo frente a dos sistemas de caracteres opuestos, y como puntos de partida para tu propia capa.
+
+**La exactitud se mide, no se afirma.** `m3-like` lleva un mapa de fidelidad con los tokens publicados de material-web (Apache-2.0): cada rol de color, cada estilo de texto y cada token de Button de la referencia debe ser igual, estar cubierto por otro token o figurar con la laguna de imitación que lo explica. La cifra se muestra más abajo junto al preajuste: cuántos son iguales de entre los tokens que no están cubiertos por otro, leída de `tokens/generated/<id>/fidelity.json`. Se llama «-like» por motivos de marca registrada, no porque sea una aproximación.
+
+<SystemGallery />
+
+En la web, un preajuste es una hoja de estilos adicional, limitada a un atributo, así que los sistemas pueden incluso convivir uno al lado del otro:
+
+```js
+import '@tanrei/web/tokens.css';
+import '@tanrei/web/systems/cupertino.css';
+```
+
+```html
+<body data-tanrei-system="cupertino">
+```
+
+Lo que todavía no pueden expresar ni los valores ni las elecciones de tipo (los materiales de fondo, las etiquetas en mayúsculas como cuestión de estilo) figura como defecto de Tanrei en `docs/governance/mimicry-gaps.json`; no se oculta.
+
+## Compartir un sistema
+
+Compilar un sistema produce un **paquete DTCG 2025.10** autocontenido (archivos de tokens sencillos, con todos sus valores, y un resolver estándar), de modo que cualquier herramienta que lea tokens de diseño puede consumirlo sin Tanrei. Los archivos de capa que lo produjeron viajan dentro del paquete, para que Tanrei (o un agente de IA) pueda reconstruirlo o modificarlo.
+
+<Callout type="caution" title="Accesibilidad">
+  Los umbrales de contraste son constantes que nadie puede cambiar. En el sistema predeterminado, un incumplimiento hace fallar la compilación. En una capa de producto, un incumplimiento es una **advertencia**: se imprime al compilar y se escribe en los artefactos generados, nunca en silencio. A un preajuste que imita otro sistema se le exige, en cambio, fidelidad a ese sistema: los criterios de accesibilidad de Tanrei no se le aplican, ni en el contraste estándar ni en el medio ni en el alto, y las relaciones de contraste que la compilación mide en él quedan registradas como información, no como advertencias. Un fallo funcional (un control que no se puede manejar, un nombre o un estado que falta) es un defecto en cualquier sistema, también en un preajuste de imitación.
+</Callout>

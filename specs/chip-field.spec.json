@@ -1,0 +1,1167 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "chip-field",
+  "title": "Chip field",
+  "summary": "Collects a list of short texts — e-mail addresses, telephone numbers, keywords — typed one after another in one field: each text the product's check accepts becomes a chip that can be removed or taken back, and the list is the field's one value.",
+  "category": "text-inputs",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "field",
+    "text-input",
+    "chip"
+  ],
+  "fills": [
+    "chip.kind",
+    "chip.size",
+    "chip.label",
+    "chip.removeLabel",
+    "chip.disabled",
+    "chip.removable"
+  ],
+  "anatomy": [
+    {
+      "id": "field",
+      "description": "The Field: the label row with its glyph and its requirement mark, and the supporting row with the help and the error text. The Field's own, from the Field's tokens."
+    },
+    {
+      "id": "text-input",
+      "description": "The Text input the Field frames: the box, its states, the typing part, and the lines in which its entries and its typing part stand. The Text input's own, from the Text input's tokens."
+    },
+    {
+      "id": "chip",
+      "description": "One entry of the list: an input Chip at its small size, with its remove action, standing in the Text input's box before the typing part. The Chip's own, from the Chip's tokens.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "value",
+      "type": "strings",
+      "default": [],
+      "description": "The entries, in the order they were made: the one value the chip field holds. Each is a text; none is empty, and no two are the same text. The chip field writes it as the person makes, removes and takes back entries, and emits change; what the product sets is shown as given and is not checked (CHF-3)."
+    },
+    {
+      "name": "inputValue",
+      "from": "text-input.value",
+      "note": "The text being typed that is not an entry yet. The chip field empties it when the text becomes an entry and writes it when an entry is taken back to be changed (CHF-15). It is never part of value and is never submitted."
+    },
+    {
+      "name": "separators",
+      "type": "strings",
+      "default": [],
+      "description": "The texts that end an entry when they are typed or found in what is pasted, as the product names them for what its entries are: a comma, a semicolon and a space for e-mail addresses ([\",\", \";\", \" \"]); a comma for keywords that may hold a space. Empty, the default: Enter and a line break alone make an entry, because Tanrei knows no grammar of entries and a name such as \"Lovelace, Ada\" must not be cut in two by a default."
+    },
+    {
+      "name": "maxEntries",
+      "type": "number",
+      "default": 0,
+      "description": "The most entries the list may hold; 0 is no limit. An entry that would exceed it is refused with the reason limit (CHF-10); the typing part stays usable. It never cuts a list the product sets."
+    },
+    {
+      "name": "variant",
+      "from": "text-input.variant"
+    },
+    {
+      "name": "size",
+      "from": "text-input.size",
+      "note": "The least height of the box: it grows by whole lines as entries wrap (CHF-18). The entries are small chips at either size."
+    },
+    {
+      "name": "type",
+      "from": "text-input.type",
+      "note": "What one entry is: it chooses the keyboard of the typing part and checks nothing. Only a type the Text input draws as one line of plain text is an entry of a list (text, email, tel, url); any other behaves as text (CHF-26)."
+    },
+    {
+      "name": "placeholder",
+      "from": "text-input.placeholder",
+      "note": "Shown only while the list is empty and nothing is typed (CHF-17)."
+    },
+    {
+      "name": "readOnly",
+      "from": "text-input.readOnly",
+      "note": "Also of the entries: none can be made, removed or taken back, and each is drawn without its remove action (CHF-20)."
+    },
+    {
+      "name": "autocomplete",
+      "from": "text-input.autocomplete",
+      "note": "What the platform fills in is typed text: it becomes an entry as typed text does (CHF-8)."
+    },
+    {
+      "name": "label",
+      "from": "field.label",
+      "note": "Always given. It names the typing part and the list of entries (CHF-21)."
+    },
+    {
+      "name": "labelHidden",
+      "from": "field.labelHidden"
+    },
+    {
+      "name": "supportingText",
+      "from": "field.supportingText",
+      "note": "The place to say what an entry is and how one is made (\"Separate addresses with a comma.\"): the chip field has no words for it."
+    },
+    {
+      "name": "errorText",
+      "from": "field.errorText",
+      "note": "Also shown while an entry was refused and no text of its own reason is given (CHF-6)."
+    },
+    {
+      "name": "error",
+      "from": "field.error",
+      "note": "For a reason that is the product's: the list as a whole, or an entry found wrong after it was made. A refused entry needs no setting: the chip field shows that itself (CHF-6)."
+    },
+    {
+      "name": "disabled",
+      "from": "field.disabled",
+      "note": "Also disables every entry (CHF-19)."
+    },
+    {
+      "name": "requirement",
+      "from": "field.requirement",
+      "note": "required asks for at least one entry (CHF-25)."
+    },
+    {
+      "name": "requiredMark",
+      "from": "field.requiredMark"
+    },
+    {
+      "name": "requiredText",
+      "from": "field.requiredText"
+    },
+    {
+      "name": "optionalText",
+      "from": "field.optionalText"
+    },
+    {
+      "name": "invalidText",
+      "type": "string",
+      "default": "",
+      "description": "The error text shown while an entry was refused by the product's check and the check gave no reason of its own (\"Enter a full address, such as name@example.com.\"). The product's, for this field: what makes an entry right differs from field to field, so it reads no word key. Empty, errorText is shown."
+    },
+    {
+      "name": "duplicateText",
+      "type": "string",
+      "words": "duplicateEntryText",
+      "default": "",
+      "description": "The error text shown while an entry was refused because the list already holds the same text (\"That one is already in the list.\"). Empty reads the product's words; with neither, errorText is shown."
+    },
+    {
+      "name": "limitText",
+      "type": "string",
+      "words": "entryLimitText",
+      "default": "",
+      "description": "The error text shown while an entry was refused because the list holds maxEntries already (\"No more can be added.\"). Empty reads the product's words; with neither, errorText is shown."
+    },
+    {
+      "name": "removeLabel",
+      "type": "string",
+      "words": "entryRemoveLabel",
+      "default": "",
+      "description": "The accessible name of each entry's remove action. The product writes the whole name in its own language and marks one place in it, {entry}, which the chip field fills with that entry's text (\"Remove {entry}\", \"{entry}を削除\"), because the remove action is an element of its own and two of them must be told apart (CHP-18, CHP-28). Empty reads the product's words. Required: with neither, the action is exposed without a name and that is reported.",
+      "places": [
+        {
+          "name": "entry",
+          "kind": "text",
+          "description": "The text of the entry the action removes.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "addedText",
+      "type": "string",
+      "words": "entryAddedText",
+      "default": "",
+      "description": "The sentence assistive technology is told when one entry is made, with the place {entry} filled by its text (\"{entry} added\", \"{entry}を追加しました\"). Empty reads the product's words; with neither, nothing is said and that is reported (CHF-22).",
+      "places": [
+        {
+          "name": "entry",
+          "kind": "text",
+          "description": "The text of the entry that was made."
+        }
+      ]
+    },
+    {
+      "name": "addedCountText",
+      "type": "string",
+      "words": "entriesAddedText",
+      "default": "",
+      "description": "The sentence assistive technology is told when several entries are made at once, from pasted text, with the place {count} filled by how many (\"{count} added\"). Empty reads the product's words; with neither, addedText is said for the last of them.",
+      "places": [
+        {
+          "name": "count",
+          "kind": "number",
+          "description": "How many entries were made at once."
+        }
+      ]
+    },
+    {
+      "name": "removedText",
+      "type": "string",
+      "words": "entryRemovedText",
+      "default": "",
+      "description": "The sentence assistive technology is told when an entry is removed, with the place {entry} filled by its text (\"{entry} removed\"). Empty reads the product's words; with neither, nothing is said and that is reported (CHF-22).",
+      "places": [
+        {
+          "name": "entry",
+          "kind": "text",
+          "description": "The text of the entry that was removed."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "label-icon",
+      "from": "field.label-icon"
+    }
+  ],
+  "events": [
+    {
+      "name": "change",
+      "description": "The list changed by the person: an entry was made, several were made from pasted text, one was removed, or one was taken back to be changed. Carries the new value, and what was added and what was removed. Not emitted when the product sets value."
+    },
+    {
+      "name": "input",
+      "from": "text-input.input",
+      "note": "Of the text being typed, never of the list (CHF-16)."
+    },
+    {
+      "name": "check",
+      "description": "Asked of the product once for each candidate entry, before it is made: carries the candidate's text and the entries so far. The product refuses the candidate by answering no — cancelling the event on the web, returning its answer from the callback elsewhere — and may give the reason in its own words; left unanswered, the candidate is accepted. Answered at once, never later. Not asked for what the product sets, nor for a candidate already refused as a duplicate or over the limit."
+    },
+    {
+      "name": "reject",
+      "description": "A candidate entry was refused; carries its text, the reason (invalid: the product's check; duplicate: the list holds the same text; limit: the list holds maxEntries) and the words shown. Emitted once for each refused candidate."
+    },
+    {
+      "name": "action",
+      "from": "text-input.action",
+      "note": "Only while the typing part is empty: the action key pressed on text makes an entry and emits no action (CHF-4, CHF-16)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "CHF-1",
+      "text": "THE chip field SHALL be a Field that frames one Text input, with every entry of value drawn as a Chip in the place the Text input keeps inside its box for what was entered already, before the typing part. It SHALL draw nothing of its own: the label row, the requirement mark, the supporting row and the error are the Field's (FLD-1 to FLD-8), the box, its states, its typing part and the lines its entries stand in are the Text input's, and each entry is the Chip's (CHF-2). THE chip field SHALL give the Text input and the Chips no look they do not have anywhere else, and SHALL read no token of its own. THE chip field SHALL be as wide as the place it stands in, and its Text input SHALL fill it: it is a block with no width of its own, as its Field is (FLD-1), around a control that fills the width it is given (TXI-63); its entries wrap inside that width (CHF-18)."
+    },
+    {
+      "id": "CHF-2",
+      "text": "THE chip field SHALL draw each entry as a Chip of kind input, size small and the Chip's default variant, whose label is the entry's text and whose remove action is named by removeLabel with its place {entry} filled by that text (CHF-23), in the order of value, the first at the start of the first line. The Chip SHALL be drawn, measured, cut where it does not fit and answered as the Chip's own spec says (CHP-3, CHP-8 to CHP-10, CHP-16 to CHP-18, CHP-20, CHP-21, CHP-27, CHP-32); THE chip field SHALL give an entry no icon and no avatar."
+    },
+    {
+      "id": "CHF-3",
+      "text": "WHEN the product sets value THE chip field SHALL show exactly those entries in that order, SHALL NOT ask the product's check about them, apply maxEntries to them or refuse one that is there twice, because the chip field checks what the person enters and the product what it sets, SHALL end an entry error (CHF-6), and SHALL NOT emit change, check or reject nor announce anything; an entry that is empty or only white space SHALL be left out and in debug builds reported. WHEN the product sets inputValue THE chip field SHALL show that text in the typing part and make no entry of it until the person does (CHF-4). IF an entry that has focus is no longer in the list the product set THE chip field SHALL move focus to the typing part."
+    },
+    {
+      "id": "CHF-4",
+      "text": "WHILE the typing part holds text THE chip field SHALL offer that text, without the white space at its two ends, as a candidate entry (CHF-5) WHEN the person presses the keyboard's action key (Enter, Return, Done), WHEN a separator is entered (CHF-9), or WHEN focus leaves the chip field for another part of the product — not when focus moves between the typing part and an entry, and not when the window itself loses focus. A candidate that is empty after its ends are trimmed SHALL make no entry, SHALL empty the typing part and SHALL be refused to no one. The action key pressed on text SHALL NOT emit action and SHALL NOT submit a form: it has made an entry."
+    },
+    {
+      "id": "CHF-5",
+      "text": "WHEN a candidate entry is offered THE chip field SHALL decide in this order, and stop at the first that refuses: IF value already holds the same text, compared character for character, it SHALL refuse the candidate with the reason duplicate; IF maxEntries is greater than 0 and value holds that many entries it SHALL refuse it with the reason limit (CHF-10); otherwise it SHALL emit check with the candidate and the entries so far and, IF the product refuses it there, refuse it with the reason invalid and the words the product gave, if any. A check that no one answers accepts. THE chip field SHALL wait for no answer that comes later: the product answers check before the event returns. WHEN the candidate is accepted THE chip field SHALL add it at the end of value, empty the typing part of it, keep focus where it is, end an entry error (CHF-6), emit change once with the new list, and announce the entry (CHF-22)."
+    },
+    {
+      "id": "CHF-6",
+      "text": "WHEN a candidate entry is refused THE chip field SHALL leave its text in the typing part as the person wrote it, with the caret at its end WHILE focus is still there, SHALL NOT add it to value, and SHALL enter an entry error: WHILE it lasts THE chip field SHALL be in the Field's error condition whatever error is (FLD-8), showing as the Field's error text, below the help, which stays (FLD-28, FLD-31), the first of these that is not empty — the words the product's check gave; invalidText, duplicateText or limitText, by the reason; errorText — and SHALL emit reject once with the text, the reason (invalid, duplicate or limit) and the words shown. The Field announces those words as it announces any error under the person's focus (FLD-9), and the chip field SHALL announce nothing more for a refusal. WHERE none of those words is given THE chip field SHALL still mark the typing part invalid and in debug builds report that a refusal has no words. THE entry error SHALL end WHEN the person changes the text in the typing part, WHEN an entry is made, removed or taken back, or WHEN the product sets value or inputValue; it SHALL NOT end because focus leaves, SHALL NOT bring focus back to a field the person left, and SHALL NOT change error, which is the product's."
+    },
+    {
+      "id": "CHF-7",
+      "text": "WHILE an input method is composing text in the typing part (TXI-4) THE chip field SHALL make no entry: the action key that commits a composition SHALL commit the composition and nothing else, and a separator inside text that is still being composed SHALL be left to the input method. WHEN the composition is committed THE chip field SHALL read the committed text for separators as it reads any entered text (CHF-9)."
+    },
+    {
+      "id": "CHF-8",
+      "text": "WHEN text that holds a line break or a separator is pasted, dropped or dictated into the typing part, or filled in by the platform, THE chip field SHALL read it together with the text already there as a row of candidates — cut at every line break and at every separator — and offer each in order (CHF-5), dropping the empty ones without a word; the accepted ones SHALL become entries in that order, change SHALL be emitted once for all of them, and they SHALL be announced once (CHF-22). The refused ones SHALL stay in the typing part in their order, joined by the first of separators followed by a space, or by one space WHERE separators is empty, and THE chip field SHALL enter the entry error of the first that was refused and emit reject for each. A piece after the last line break or separator SHALL be offered with the others when the text was pasted, dropped or filled in, and SHALL stay as typed text when it was typed. Text that holds neither SHALL be the Text input's own to take: it stays typed text and makes no entry."
+    },
+    {
+      "id": "CHF-9",
+      "text": "THE chip field SHALL take as separators the texts separators lists, and always a line break. WHEN a separator comes to stand in the typing part by any means the person has — a key, a touch keyboard, a committed composition, dictation — THE chip field SHALL offer the text before it as a candidate (CHF-4), SHALL NOT keep the separator in the typing part or in the entry, and SHALL keep the text after it as typed text; a separator entered while nothing but white space stands before it SHALL be dropped and make no entry. It SHALL find a separator in the text and not by the key that was pressed, so that a keyboard that reports no key still ends an entry. An entry of separators that is empty SHALL be ignored and in debug builds reported; white space is a separator only where the product lists it."
+    },
+    {
+      "id": "CHF-10",
+      "text": "WHILE maxEntries is greater than 0 and value holds that many entries THE chip field SHALL keep its typing part focusable and editable, SHALL refuse every candidate with the reason limit (CHF-5, CHF-6), and SHALL NOT disable, hide or mark anything beforehand: that the list is full is said by the product in supportingText and by limitText when one more is tried. WHEN maxEntries is not a whole number of 0 or more THE chip field SHALL behave as 0 and in debug builds report it. THE chip field SHALL draw no count of its entries."
+    },
+    {
+      "id": "CHF-11",
+      "text": "THE chip field SHALL be one stop in the focus order: its typing part. WHILE it holds entries THE chip field SHALL take each Chip and each remove action out of the Tab order, in place of the stops CHP-23 gives a chip that stands alone, and SHALL keep each entry reachable from the keyboard by the keys of CHF-12 and CHF-13, by pointer and touch, and as an element of its own by assistive technology. WHILE an entry has focus Tab SHALL move focus to the typing part and Shift+Tab to what stands before the chip field. A press on the box outside every entry SHALL move focus to the typing part as the Text input says (TXI-8); a press on the label does what the Field says (FLD-12)."
+    },
+    {
+      "id": "CHF-12",
+      "text": "WHILE the typing part has focus, its caret stands at the start of its text and nothing in it is selected, WHEN the person presses the arrow key that points to where the line starts (Left Arrow; Right Arrow in a right-to-left layout) or Backspace THE chip field SHALL move focus to the last entry and remove nothing; WHILE value is empty it SHALL leave the key to the Text input. THE chip field SHALL NOT answer the repeats of a key that is held down: a Backspace held to erase the typed text SHALL stop at the start of the text and never reach an entry."
+    },
+    {
+      "id": "CHF-13",
+      "text": "WHILE an entry has focus THE chip field SHALL move focus, without activating or removing anything: on Left Arrow to the entry drawn before it on the left and on Right Arrow to the one drawn after it on the right — in a right-to-left layout the same two keys the other way, so that an arrow always moves the way it points — on Home to the first entry and on End to the last; the arrow that points past the last entry SHALL move focus to the typing part with the caret at the start of its text, the arrow that points before the first entry SHALL do nothing, and focus SHALL NOT wrap. Up Arrow and Down Arrow SHALL do nothing: the entries are one row in their order, however many lines it is drawn on. Escape SHALL move focus to the typing part. WHEN the person types a character while an entry has focus THE chip field SHALL move focus to the typing part and that character SHALL be typed there. Focus that arrives on an entry from the keyboard SHALL show the Chip's focus ring (CHP-4) and bring the entry into view."
+    },
+    {
+      "id": "CHF-14",
+      "text": "WHEN an entry's Chip emits remove — Backspace or Delete on the focused entry (CHP-19), or its remove action by pointer, touch or assistive technology (CHP-18) — THE chip field SHALL take that entry out of value, as CHP-22 leaves it to do, end an entry error (CHF-6), emit change once with the new list, and announce the removal (CHF-22). It SHALL then move focus: after Backspace to the entry that stood before the removed one, or to the one that followed WHERE it was the first; after Delete or the remove action to the entry that followed, always on the Chip and never on a remove action; and to the typing part WHERE no entry is left or none follows. THE chip field SHALL NOT answer the repeats of a held Backspace or Delete, so that one press removes one entry."
+    },
+    {
+      "id": "CHF-15",
+      "text": "WHEN the person activates an entry's Chip itself — by pointer, touch, Enter or Space (CHP-1), not its remove action — and readOnly is false THE chip field SHALL take the entry back to be changed: it SHALL first offer any text in the typing part as a candidate (CHF-4) and, IF that is refused, do nothing more than CHF-6 says; otherwise it SHALL take the entry out of value, write its text into the typing part with the caret at its end, move focus there, and emit change once with the new list. The text is then typed text like any other: it becomes an entry again, at the end of the list, as CHF-4 says, and is checked again. THE chip field SHALL announce nothing for it: the typing part, focused with its text, is what assistive technology reads."
+    },
+    {
+      "id": "CHF-16",
+      "text": "WHEN the person presses the action key while the typing part is empty THE chip field SHALL leave the key to the Text input, which emits action and, on the web, asks for the form's submission (TXI-3); WHEN the person changes the text in the typing part THE chip field SHALL emit input with the new text as the Text input does. THE chip field SHALL emit change only for a change of its list by the person (CHF-5, CHF-8, CHF-14, CHF-15), never for typed text, and never when focus leaves with nothing made."
+    },
+    {
+      "id": "CHF-17",
+      "text": "WHILE value holds an entry THE chip field SHALL give the Text input no placeholder, so that a hint for the first entry does not stand after the last; WHILE variant is filled or outlined and value holds an entry the Text input shows its label floated, as it does for a value that is not empty (TXI-13), and THE chip field SHALL hide the Field's label row in those two looks as the text field does."
+    },
+    {
+      "id": "CHF-18",
+      "text": "THE chip field SHALL show every entry it holds: it SHALL NOT hide an entry, stand a count in the place of some, scroll its lines or limit its height. The entries and the typing part stand in lines that wrap inside the box, which grows by whole lines from the height of its size, as the Text input says of its entries; an entry whose text is wider than a line SHALL have that line to itself and be cut by the Chip's own rule (CHP-17), its whole text staying its accessible name and its value. WHEN entries come, go or change the lines THE chip field SHALL keep focus where it is and add no motion of its own."
+    },
+    {
+      "id": "CHF-19",
+      "text": "WHILE disabled is true THE chip field SHALL disable the Field, and through it the Text input (FLD-14, TXI-5), and every entry's Chip (CHP-2, CHP-6): nothing in it SHALL take focus, no entry SHALL be made, removed or taken back, and it SHALL emit no event; its entries SHALL stay drawn and readable to assistive technology as disabled, and it SHALL be left out of form submission."
+    },
+    {
+      "id": "CHF-20",
+      "text": "WHILE readOnly is true and disabled is false THE chip field SHALL make no entry, remove none and take none back: the typing part is the Text input's read-only one (TXI-10), each entry SHALL be drawn as an input Chip without a remove action, a press or a key on an entry SHALL move focus and do nothing else (CHF-13), Backspace and Delete on an entry SHALL do nothing, and check, reject and change SHALL NOT be emitted. The entries SHALL stay reachable by the keys of CHF-12 and CHF-13 so that each can be read, and the list SHALL be submitted with its form."
+    },
+    {
+      "id": "CHF-21",
+      "text": "THE chip field SHALL expose to assistive technology, in this order: the entries as one list named by label, each entry an item that holds its Chip — a button named by the entry's whole text — and beside it its remove action, a button named by removeLabel (CHF-2); then the typing part, a text box named by label and described by what the supporting row shows, invalid WHILE the field is in error or in an entry error and required WHILE requirement is required, all given by the Field (FLD-8, FLD-10, FLD-11). WHILE value is empty it SHALL expose no list. It SHALL add no role, role description or word of its own for being a field of several entries: what an entry is and how one is made is the product's to say in supportingText."
+    },
+    {
+      "id": "CHF-22",
+      "text": "THE chip field SHALL hold one live region of its own, polite, empty at rest and not drawn. WHEN one entry is made (CHF-5) it SHALL put into it addedText with {entry} filled by the entry's text; WHEN several are made at once (CHF-8) addedCountText with {count} filled by how many, written as the platform writes a whole number in the language of the field, or addedText for the last of them WHERE addedCountText is not given; WHEN an entry is removed (CHF-14) removedText with {entry} filled by its text. An entry's text SHALL be put into the sentence as plain text of its own direction, isolated from it. A later sentence SHALL replace what the region holds and SHALL NOT queue behind it. THE chip field SHALL announce nothing when the product sets value, when an entry is taken back (CHF-15), or when one is refused (CHF-6: the Field says it)."
+    },
+    {
+      "id": "CHF-23",
+      "text": "THE chip field SHALL have no words of its own: it SHALL take requiredText and optionalText as the Field does (FLD-24), and duplicateText, limitText, removeLabel, addedText, addedCountText and removedText from the instance's prop and, WHILE that is empty, from the product's words under the key each names, and from nowhere else; invalidText is the instance's alone. It SHALL fill the places {entry} and {count} as a word with places is filled — wherever and however often the product's sentence has them, any other text between braces and a brace that opens or closes nothing left as it is written and in debug builds reported once per page or screen, naming the prop, and a brace written twice drawn as one brace — SHALL say or name with a sentence that has no place exactly as it is written, and in debug builds SHALL report a removeLabel without {entry}, because two remove actions would then have one name. IF neither gives removeLabel THE chip field SHALL still draw the remove action and keep it working, expose it without a name and in debug builds report it; IF neither gives addedText or removedText it SHALL say nothing for that and in debug builds report it."
+    },
+    {
+      "id": "CHF-24",
+      "text": "WHERE the platform has forms that collect named values (the web's form) THE chip field SHALL take part in one itself, under its name, as a control that holds several values does: it SHALL submit one value for each entry, in the order of value, each under that same name, and none WHILE the list is empty; SHALL NOT submit the text in the typing part, which is not an entry; SHALL return to the list it was first given WHEN the form is reset, with an empty typing part and no entry error; and SHALL have the platform restore its list where it restores a form's state. Its members stand outside the form and SHALL submit nothing themselves."
+    },
+    {
+      "id": "CHF-25",
+      "text": "WHILE requirement is required THE chip field SHALL expose its typing part as required (FLD-4, FLD-10) and, on the web, report an empty list to the form's constraint validation as a missing value — whatever text stands in the typing part, which is not an entry. THE chip field SHALL NOT validate otherwise because of requirement: it SHALL NOT set error or show an error text for an empty list, which is the product's to report."
+    },
+    {
+      "id": "CHF-26",
+      "text": "THE chip field SHALL take from type only what the Text input gives its typing part for it (TXI-20) and SHALL hold no rule of its own for what an address, a number or a link is: a text of any type becomes an entry unless it is the same as another, exceeds maxEntries or is refused by the product's check (CHF-5). WHEN type names a value other than text, email, tel and url — a type the Text input draws as something else than one line of plain text, or one it does not know — THE chip field SHALL behave as text and in debug builds report it; WHEN variant or size names a value the active design system does not have, the Text input says what is drawn."
+    },
+    {
+      "id": "CHF-27",
+      "text": "WHERE the layout direction is right-to-left THE chip field SHALL be mirrored as its members are (FLD-18, TXI-24, CHP-25): every line of entries starts at the right, the typing part follows the last entry to its left, and the order of value, of focus (CHF-13) and of reading (CHF-21) stays the order the entries were made in. THE chip field SHALL take its layout direction from where it is used and have no direction setting of its own (FLD-19); each entry's text keeps its own direction as the Chip says (CHP-31), so that an e-mail address or a telephone number reads left to right inside a right-to-left list."
+    },
+    {
+      "id": "CHF-28",
+      "text": "WHILE the text size is enlarged THE chip field SHALL grow with its members (FLD-16, CHP-17): at twice the text size in a place 320 wide every entry SHALL still be shown, each on a line of its own where two no longer fit, cut only by the Chip's own rule with its whole text as its name, the typing part SHALL stay wide enough to type in on a line of its own where the last line leaves it too little, and nothing SHALL lie over another part or need scrolling in two directions."
+    },
+    {
+      "id": "CHF-29",
+      "text": "WHERE the platform draws with a person's own forced colors THE chip field SHALL draw nothing of its own there either: the frame is drawn as the Field says (FLD-17) and the box and each entry as the Text input and the Chip are drawn there. It SHALL rely on no color to tell a refused entry from an accepted one: a refused entry is text in the typing part and an accepted one is a Chip, and the reason is in words (CHF-6)."
+    },
+    {
+      "id": "CHF-30",
+      "text": "WHILE disabled is false and readOnly is false THE chip field SHALL keep every entry's hit areas as the Chip gives them (CHP-5, CHP-21): the remove action's reaches sys.target.touch for touch input and sys.target.pointer for fine pointers, and WHERE the hit areas of neighbouring entries, on one line or on two, overlap THE chip field SHALL give a press on an entry's visible bounds to that entry and a press between two to the nearer one. A press that lands on no entry and no remove action SHALL be the typing part's (CHF-11)."
+    }
+  ],
+  "accessibility": {
+    "role": "textbox (the typing part), after a list of the entries",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the typing part, the chip field's one stop, and on from it. From an entry, Tab moves to the typing part and Shift+Tab leaves the chip field backwards."
+      },
+      {
+        "keys": "Enter",
+        "action": "In the typing part with text: offers the text as an entry. With no text: the Text input's action key (on the web, asks for the form's submission). On an entry: takes it back into the typing part to be changed."
+      },
+      {
+        "keys": "A separator the product lists",
+        "action": "Offers the text before it as an entry; the separator itself is not kept."
+      },
+      {
+        "keys": "Backspace",
+        "action": "In the typing part with the caret at the start and nothing selected: moves focus to the last entry and removes nothing. On an entry: removes it; focus goes to the entry before it. A held key is answered once."
+      },
+      {
+        "keys": "Delete",
+        "action": "On an entry: removes it; focus goes to the entry after it, or to the typing part."
+      },
+      {
+        "keys": "Left Arrow / Right Arrow",
+        "action": "From the start of the typing part, the arrow that points to where the line starts moves focus to the last entry. Among entries, each arrow moves the way it points, in either layout direction; past the last entry focus returns to the typing part."
+      },
+      {
+        "keys": "Home / End",
+        "action": "On an entry: moves focus to the first or the last entry. In the typing part they are the caret's."
+      },
+      {
+        "keys": "Space",
+        "action": "On an entry: takes it back to be changed, as Enter does. In the typing part: a character, or a separator where the product lists it."
+      },
+      {
+        "keys": "Escape",
+        "action": "On an entry: moves focus to the typing part."
+      },
+      {
+        "keys": "Any character",
+        "action": "On an entry: moves focus to the typing part and types the character there."
+      }
+    ],
+    "labeling": "label names the typing part (a text box) and the list of entries; the supporting text with, in error, the error text after it describes the typing part, with optionalText while requirement is optional — all through the Field (FLD-10, FLD-11). Each entry is a button named by its whole text, cut or not, and its remove action a button named by removeLabel with the entry in it. A refusal is said by the Field's error announcement; an entry made or removed by addedText, addedCountText and removedText in a polite live region. Every word is the product's.",
+    "minimumTarget": true,
+    "notes": [
+      "One stop, not one for every entry: a person who moves through a form with Tab lands in the typing part, where entries are made, and passes a list of thirty addresses in one press. The entries are reached from there with the arrow keys or Backspace, and by pointer, touch and a screen reader's own navigation as the separate elements they are. This replaces, inside the chip field only, the stops a Chip has when it stands alone (CHP-23), which that sentence leaves to whatever holds the chips.",
+      "A refused entry stays text. It is not drawn as a chip in an error state: the Chip has no such state, a refused chip would have to carry its reason somewhere a person who cannot see its color finds it, and the text is exactly what must be corrected — it is already under the caret. The error is the Field's: words in the supporting row, the invalid state on the typing part, announced once (WCAG 3.3.1, 3.3.3, 1.4.1).",
+      "An entry the product finds wrong after it was made (an address that turns out not to exist) is the product's to report with error and errorText, naming the entry in words; the person removes it or takes it back to change it.",
+      "Backspace takes two presses to remove the last entry — one to reach it, one to remove it — and a held key never reaches an entry, so that erasing typed text cannot run on into the list (WCAG 3.3.4 in spirit: a removal is deliberate).",
+      "Activating an entry takes it back into the typing part. Nothing in its name says so, because Tanrei has no words: a product whose people need it said writes it in supportingText (\"Press Enter on an address to change it\").",
+      "Targets: an entry is a small Chip, 24 high, whose own hit area and whose remove action's reach the minimum target (CHP-5, CHP-21); between two lines of entries those areas overlap and meet at the middle (CHF-30). Every pointer action has a key: Backspace and Delete remove, Enter takes back.",
+      "Enter never submits a form while there is text to make an entry of; with an empty typing part it is the Text input's action key. Text that is typed and not yet an entry is not part of the value: it becomes an entry when focus leaves, and a product that submits by script while the field has focus reads inputValue.",
+      "The text of an input method's composition is never cut into entries: the key that commits a composition commits it, and only then is the text read (CHF-7). A Japanese or Chinese ideographic comma is a separator only where the product lists it.",
+      "A long entry is cut by the Chip with an ellipsis and keeps its whole text as its name; there is no tooltip. Taking it back shows it whole in the typing part.",
+      "Forced colors: the chip field draws nothing of its own, so there is nothing of its own to lose.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves."
+    ]
+  },
+  "tokens": "comp.field",
+  "fixtures": [
+    {
+      "id": "email-empty",
+      "twin": "field.entries-email-empty",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "placeholder": "name@example.com",
+        "supportingText": "Separate addresses with a comma."
+      }
+    },
+    {
+      "id": "email-entries",
+      "twin": "field.entries-email-entries",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org"
+        ]
+      }
+    },
+    {
+      "id": "email-typing",
+      "twin": "field.entries-email-typing",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org"
+        ],
+        "inputValue": "alan@exam",
+        "supportingText": "Separate addresses with a comma."
+      }
+    },
+    {
+      "id": "email-refused",
+      "twin": "field.entries-email-refused",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org"
+        ],
+        "inputValue": "alan@",
+        "supportingText": "Separate addresses with a comma.",
+        "error": true,
+        "errorText": "Enter a full address, such as name@example.com."
+      }
+    },
+    {
+      "id": "email-error",
+      "twin": "field.entries-email-error",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@exmaple.org"
+        ],
+        "error": true,
+        "errorText": "grace.hopper@exmaple.org could not be reached. Check the address or remove it."
+      }
+    },
+    {
+      "id": "email-required",
+      "twin": "field.entries-email-required",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com"
+        ],
+        "requirement": "required",
+        "requiredText": "Required"
+      }
+    },
+    {
+      "id": "email-required-empty-error",
+      "twin": "field.entries-email-required-empty-error",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "requirement": "required",
+        "requiredText": "Required",
+        "error": true,
+        "errorText": "Add at least one address."
+      }
+    },
+    {
+      "id": "email-optional",
+      "twin": "field.entries-email-optional",
+      "props": {
+        "label": "Cc",
+        "type": "email",
+        "separators": [
+          ","
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "alan@example.net"
+        ],
+        "requirement": "optional",
+        "optionalText": "Optional"
+      }
+    },
+    {
+      "id": "email-limit",
+      "twin": "field.entries-email-limit",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org",
+          "alan@example.net"
+        ],
+        "maxEntries": 3,
+        "supportingText": "Up to 3 addresses."
+      }
+    },
+    {
+      "id": "email-many",
+      "twin": "field.entries-email-many",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org",
+          "alan@example.net",
+          "katherine.johnson@example.com",
+          "hedy@example.org",
+          "margaret.hamilton@example.com",
+          "tim@example.net",
+          "barbara.liskov@example.org",
+          "dennis@example.com",
+          "radia.perlman@example.net",
+          "linus@example.org",
+          "frances.allen@example.com"
+        ]
+      }
+    },
+    {
+      "id": "email-many-typing",
+      "twin": "field.entries-email-many-typing",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org",
+          "alan@example.net",
+          "katherine.johnson@example.com",
+          "hedy@example.org",
+          "margaret.hamilton@example.com",
+          "tim@example.net",
+          "barbara.liskov@example.org",
+          "dennis@example.com",
+          "radia.perlman@example.net",
+          "linus@example.org",
+          "frances.allen@example.com"
+        ],
+        "inputValue": "vint@example.com"
+      }
+    },
+    {
+      "id": "email-long-entry",
+      "twin": "field.entries-email-long-entry",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "the-team-that-keeps-the-design-system-and-its-five-platforms-in-step.with-a-very-long-local-part@subdomain.of.a.long.example.org",
+          "grace.hopper@example.org"
+        ]
+      }
+    },
+    {
+      "id": "email-large",
+      "twin": "field.entries-email-large",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "size": "large",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org"
+        ]
+      }
+    },
+    {
+      "id": "email-filled",
+      "twin": "field.entries-email-filled",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "variant": "filled",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org"
+        ]
+      }
+    },
+    {
+      "id": "email-filled-empty",
+      "twin": "field.entries-email-filled-empty",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "variant": "filled"
+      }
+    },
+    {
+      "id": "email-outlined",
+      "twin": "field.entries-email-outlined",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "variant": "outlined",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org"
+        ]
+      }
+    },
+    {
+      "id": "email-disabled",
+      "twin": "field.entries-email-disabled",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org"
+        ],
+        "disabled": true,
+        "supportingText": "Separate addresses with a comma."
+      }
+    },
+    {
+      "id": "email-disabled-empty",
+      "twin": "field.entries-email-disabled-empty",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "disabled": true
+      }
+    },
+    {
+      "id": "email-read-only",
+      "twin": "field.entries-email-read-only",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org"
+        ],
+        "readOnly": true
+      }
+    },
+    {
+      "id": "email-label-hidden",
+      "twin": "field.entries-email-label-hidden",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "labelHidden": true,
+        "value": [
+          "ada@example.com"
+        ],
+        "placeholder": "name@example.com"
+      }
+    },
+    {
+      "id": "email-label-icon",
+      "twin": "field.entries-email-label-icon",
+      "props": {
+        "label": "Recipients",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "ada@example.com"
+        ]
+      },
+      "slots": {
+        "label-icon": "mail"
+      }
+    },
+    {
+      "id": "keywords",
+      "twin": "field.entries-keywords",
+      "props": {
+        "label": "Keywords",
+        "separators": [
+          ","
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "design tokens",
+          "accessibility",
+          "right-to-left"
+        ],
+        "supportingText": "Press Enter or type a comma after each keyword."
+      }
+    },
+    {
+      "id": "keywords-enter-only",
+      "twin": "field.entries-keywords-enter-only",
+      "props": {
+        "label": "Authors",
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "Lovelace, Ada",
+          "Hopper, Grace"
+        ],
+        "supportingText": "Press Enter after each name."
+      }
+    },
+    {
+      "id": "telephone",
+      "twin": "field.entries-telephone",
+      "props": {
+        "label": "Numbers to notify",
+        "type": "tel",
+        "separators": [
+          ","
+        ],
+        "removeLabel": "Remove {entry}",
+        "value": [
+          "+81 3 1234 5678",
+          "+1 212 555 0100"
+        ]
+      }
+    },
+    {
+      "id": "keywords-ja",
+      "twin": "field.entries-keywords-ja",
+      "props": {
+        "label": "キーワード",
+        "separators": [
+          "、",
+          ","
+        ],
+        "removeLabel": "{entry}を削除",
+        "value": [
+          "デザイントークン",
+          "アクセシビリティ",
+          "多言語対応"
+        ],
+        "requirement": "required",
+        "requiredText": "必須",
+        "supportingText": "キーワードごとに Enter を押してください。"
+      }
+    },
+    {
+      "id": "keywords-rtl",
+      "twin": "field.entries-keywords-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "الكلمات المفتاحية",
+        "separators": [
+          "،",
+          ","
+        ],
+        "removeLabel": "إزالة {entry}",
+        "value": [
+          "رموز التصميم",
+          "إمكانية الوصول",
+          "من اليمين إلى اليسار",
+          "المكوّنات",
+          "الألوان",
+          "الطباعة",
+          "الحركة",
+          "التباعد"
+        ],
+        "supportingText": "اضغط Enter بعد كل كلمة."
+      }
+    },
+    {
+      "id": "email-rtl",
+      "twin": "field.entries-email-rtl",
+      "direction": "rtl",
+      "props": {
+        "label": "נמענים",
+        "type": "email",
+        "separators": [
+          ",",
+          ";",
+          " "
+        ],
+        "removeLabel": "הסרת {entry}",
+        "value": [
+          "ada@example.com",
+          "grace.hopper@example.org"
+        ],
+        "inputValue": "alan@",
+        "error": true,
+        "errorText": "יש להזין כתובת מלאה, למשל name@example.com."
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-chip-field",
+      "props": {
+        "value": "value",
+        "inputValue": "inputValue",
+        "separators": "separators",
+        "maxEntries": "maxEntries",
+        "variant": "variant",
+        "size": "size",
+        "type": "type",
+        "placeholder": "placeholder",
+        "readOnly": "readOnly",
+        "autocomplete": "autocomplete",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "invalidText": "invalidText",
+        "duplicateText": "duplicateText",
+        "limitText": "limitText",
+        "removeLabel": "removeLabel",
+        "addedText": "addedText",
+        "addedCountText": "addedCountText",
+        "removedText": "removedText"
+      },
+      "events": {
+        "change": "change",
+        "input": "input",
+        "check": "check",
+        "reject": "reject",
+        "action": "action"
+      },
+      "notes": "`<tanrei-chip-field name=\"to\" label=\"Recipients\" type=\"email\" remove-label=\"Remove {entry}\"></tanrei-chip-field>`. A composed element: a custom element with a shadow root, form-associated, that holds its members' own elements — `<tanrei-field><tanrei-text-input>…<tanrei-chip slot=\"entries\" kind=\"input\" size=\"small\">…</tanrei-text-input></tanrei-field>` — and nothing drawn of its own; the host is `display: block` and as wide as its place (CHF-1); it writes none of their custom properties, exports their documented parts (`exportparts`; the Chip's under the prefix `entry-`), passes `focus()` to the typing part and its `label-icon` child on to the Field, all as every composed element does (the web package's README, Composed elements). What differs from the one-time-code field: (1) the value is a list — `value` is an array property; the `value` attribute is read once, as a JSON array of strings, for markup and the fixture harness, and is not reflected; `setFormValue` receives a `FormData` with one entry per value under `name`, as a `<select multiple>` submits; `formResetCallback` and `formStateRestoreCallback` carry the list; `setValidity({ valueMissing })` carries CHF-25. (2) The chips are the element's own children of the Text input's `entries` slot, wrapped in one element with `role=\"list\"`, `aria-label` and `display: contents`, each chip in a `role=\"listitem\"`; the element sets `tabindex=\"-1\"` on every chip through the Chip's own way of being held in a set (CHF-11) and moves focus itself. (3) `check` is a cancelable, composed CustomEvent with `detail = { text, values }`: `event.preventDefault()` refuses the candidate and `event.detail.reason = \"…\"` gives the words; it is dispatched synchronously and an answer given later is not read. `reject` has `detail = { text, reason, message }`, `change` `detail = { value, added, removed }`. (4) Separators are found in `beforeinput` and `input` (`inputType`, `data`, `isComposing`), never in `keydown`, and a paste in `beforeinput` with `insertFromPaste`; `keydown` is read for Enter, Backspace, Delete, the arrows, Home, End and Escape only, with `event.repeat` ignored where CHF-12 and CHF-14 say. (5) The live region of CHF-22 is one visually hidden `aria-live=\"polite\"` element in the shadow root. Attributes are kebab-case (`input-value`, `max-entries`, `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `invalid-text`, `duplicate-text`, `limit-text`, `remove-label`, `added-text`, `added-count-text`, `removed-text`) except `readonly` and `autocomplete`, which keep HTML's names; `separators` is an array property whose attribute is read as JSON. The typing part is the Text input's `<input type=\"text\">` with the `inputmode` of `type`: the browser's own e-mail check is not used and shows no message of its own. Before the element is defined, and without script, it has no size and shows nothing: a page that must not jump gives the tag a block size in its own stylesheet, and a page that must take a list without script writes a plain `<input>` or `<textarea>` in its own form and cuts the text on its server, as it would without Tanrei. One level down, by hand: `<tanrei-field label=\"Recipients\"><tanrei-text-input type=\"email\"><tanrei-chip slot=\"entries\" kind=\"input\" size=\"small\" label=\"ada@example.com\" remove-label=\"Remove ada@example.com\"></tanrei-chip></tanrei-text-input></tanrei-field>` is the same picture with the same names; making entries, the keys among them, the one Tab stop, the announcements and the list as one form value are what the chip field adds."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiChipField",
+      "props": {
+        "value": "entries",
+        "inputValue": "text",
+        "separators": "separators",
+        "maxEntries": "maxEntries",
+        "variant": "variant",
+        "size": "size",
+        "type": "contentType",
+        "placeholder": "placeholder",
+        "readOnly": "isReadOnly",
+        "autocomplete": ".textContentType(_:)",
+        "label": "label",
+        "labelHidden": ".labelsHidden()",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": ".disabled(_:)",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "invalidText": "invalidText",
+        "duplicateText": "duplicateText",
+        "limitText": "limitText",
+        "removeLabel": "removeLabel",
+        "addedText": "addedText",
+        "addedCountText": "addedCountText",
+        "removedText": "removedText"
+      },
+      "events": {
+        "change": "entries (Binding)",
+        "input": "text (Binding)",
+        "check": "check:",
+        "reject": "onReject:",
+        "action": ".onSubmit"
+      },
+      "notes": "`TanreiChipField(\"Recipients\", entries: $recipients, text: $pending, separators: [\",\", \";\", \" \"], check: { text, entries in … })`: a view built from `TanreiField`, `TanreiTextInput` and `TanreiChip`. `entries` is a `Binding<[String]>` and `text` an optional `Binding<String>`; `check` is a closure that returns `.accept`, `.refuse` or `.refuse(\"…\")` at once. Separators are found in the bound text as it changes, not in key presses; marked text of an input method is left alone until it is committed. The entries are one accessibility container named by the label, each chip and its remove action its own element; arrow keys and Backspace move focus with `@FocusState` on a hardware keyboard, and VoiceOver reaches each element by its own navigation. Announcements are posted with `AccessibilityNotification.Announcement`. There is no form to take part in: the bound array is the value."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiChipField",
+      "props": {
+        "value": "entries",
+        "inputValue": "text",
+        "separators": "separators",
+        "maxEntries": "maxEntries",
+        "variant": "variant",
+        "size": "size",
+        "type": "keyboardType",
+        "placeholder": "placeholder",
+        "readOnly": "readOnly",
+        "autocomplete": "contentType",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "isError",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "invalidText": "invalidText",
+        "duplicateText": "duplicateText",
+        "limitText": "limitText",
+        "removeLabel": "removeLabel",
+        "addedText": "addedText",
+        "addedCountText": "addedCountText",
+        "removedText": "removedText"
+      },
+      "events": {
+        "change": "onEntriesChange",
+        "input": "onTextChange",
+        "check": "check",
+        "reject": "onReject",
+        "action": "onAction"
+      },
+      "notes": "`TanreiChipField(label = \"Recipients\", entries = recipients, onEntriesChange = { … }, separators = listOf(\",\", \";\", \" \"), check = { text, entries -> … })`: a composable built from `TanreiField`, `TanreiTextInput` and `TanreiChip`. `enabled` is the inverse flag. `check` returns `EntryCheck.Accept` or `EntryCheck.Refuse(reason)` at once. Separators are found in the text field value as it changes, with its composition range left alone until it is committed. The entries are a semantics collection named by the label; focus among them is moved with `FocusRequester`s on hardware keys, and TalkBack reaches each chip and its remove action as its own node. Announcements use a polite live region node. The value is the hoisted list; there is no form."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiChipField",
+      "props": {
+        "value": "entries",
+        "inputValue": "controller",
+        "separators": "separators",
+        "maxEntries": "maxEntries",
+        "variant": "variant",
+        "size": "size",
+        "type": "keyboardType",
+        "placeholder": "placeholder",
+        "readOnly": "readOnly",
+        "autocomplete": "autofillHints",
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "supportingText": "helperText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "enabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "invalidText": "invalidText",
+        "duplicateText": "duplicateText",
+        "limitText": "limitText",
+        "removeLabel": "removeLabel",
+        "addedText": "addedText",
+        "addedCountText": "addedCountText",
+        "removedText": "removedText"
+      },
+      "events": {
+        "change": "onChanged",
+        "input": "controller (listener)",
+        "check": "check",
+        "reject": "onRejected",
+        "action": "onSubmitted"
+      },
+      "notes": "`TanreiChipField(labelText: 'Recipients', entries: recipients, onChanged: (entries) { … }, separators: const [',', ';', ' '], check: (text, entries) => …)`: a widget built from `TanreiField`, `TanreiTextInput` and `TanreiChip`. `enabled` is the inverse flag; the names follow `InputDecoration`, as the text field's do. `check` returns `null` to accept or a `TanreiEntryRefusal` (with an optional message) at once. Separators are found in the controller's value outside its composing range. The entries are a `Semantics` container named by the label; focus among them is moved with `FocusNode`s and `Shortcuts`. Announcements use `SemanticsService.announce`. In a `Form` it is a `FormField<List<String>>`."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "ChipField",
+      "props": {
+        "value": "value",
+        "inputValue": "text",
+        "separators": "separators",
+        "maxEntries": "maxEntries",
+        "variant": "variant",
+        "size": "size",
+        "type": "inputMode",
+        "placeholder": "placeholder",
+        "readOnly": "readOnly",
+        "autocomplete": "autoComplete",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "supportingText": "supportingText",
+        "errorText": "errorText",
+        "error": "error",
+        "disabled": "disabled",
+        "requirement": "requirement",
+        "requiredMark": "requiredMark",
+        "requiredText": "requiredText",
+        "optionalText": "optionalText",
+        "invalidText": "invalidText",
+        "duplicateText": "duplicateText",
+        "limitText": "limitText",
+        "removeLabel": "removeLabel",
+        "addedText": "addedText",
+        "addedCountText": "addedCountText",
+        "removedText": "removedText"
+      },
+      "events": {
+        "change": "onChange",
+        "input": "onChangeText",
+        "check": "check",
+        "reject": "onReject",
+        "action": "onSubmitEditing"
+      },
+      "notes": "`<ChipField label=\"Recipients\" value={recipients} onChange={setRecipients} separators={[\",\", \";\", \" \"]} check={(text, entries) => …} />`: a component built from `Field`, `TextInput` (Tanrei's) and `Chip`. `check` returns `true`, `false` or a string, the reason, at once. Separators are found in `onChangeText`, because a touch keyboard reports no key; hardware arrow keys and Backspace among the entries are owed where the platform reports them (whether iOS and Android deliver them to a focused chip is not yet checked on a device), and a screen reader reaches each chip and its remove action as its own element. Announcements use `AccessibilityInfo.announceForAccessibility`. The value is the controlled list; there is no form."
+    }
+  }
+}

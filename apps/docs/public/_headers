@@ -1,0 +1,17 @@
+# Cloudflare Pages response headers. Files in public/ are copied to the root of dist/.
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  # Report-only until the pages have been checked against it: Starlight and the contrast bootstrap use inline
+  # scripts, and Theme Studio evaluates the build's emitter in the browser.
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; frame-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
+
+# File names carry a content hash.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

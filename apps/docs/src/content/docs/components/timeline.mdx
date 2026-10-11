@@ -1,0 +1,199 @@
+---
+title: Timeline
+description: Events set out in the order of time, each a marker, its time, a title and a body of your content, joined to the next by a hairline. Where the events have a state, the marker's shape and your words say which are done, which is under way and which are ahead. A list to read, never a control.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="timeline" />
+
+<DemoFrame label="A record of what happened" column>
+  <ol class="tanrei-timeline" role="list" aria-label="Release history" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="2026-09-22">22 September 2026</time><p class="tanrei-timeline-title">Text styles by level</p><p>The text styles are named by their level, and every corner can be eased.</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-21">21 September 2026</time><p class="tanrei-timeline-title">A vocabulary that can be extended</p><p>A design layer may add a step to a series or a value to an axis, with its reason.</p></li>
+    <li><time class="tanrei-timeline-time" datetime="2026-09-19">19 September 2026</time><p class="tanrei-timeline-title">Development begins</p><p>The token pipeline, the spec schema and the first spec exist.</p></li>
+  </ol>
+</DemoFrame>
+
+Three things are drawn as marks joined by a line. They differ in what the reader does with them:
+
+| Component | What it is | The marker | Says about state | Takes input |
+| --- | --- | --- | --- | --- |
+| **Steps** | A procedure to work through | A ring with the step's number | Nothing | Never |
+| **Timeline** | A record of what happened and what is to come | A dot or a glyph, never a number | Optionally, where each event stands | Never |
+| **A stepper** | Where a person is in a flow the product runs | A number or a check | The person's own place | Yes |
+
+A timeline never numbers, sorts or hides its events, and it does not read their times. The order is the one you give.
+
+### Usage
+
+On the web the timeline is a class on your own ordered list, not an element. The list is the document's list, with its `<time>` elements, before any script runs, and without the stylesheet it is the browser's numbered list of dated paragraphs.
+
+SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet. React has no `Timeline` component yet either, so use the list with the class.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/icons.css" />
+    <link rel="stylesheet" href="@tanrei/web/timeline.css" />
+
+    <!-- A log: events that simply happened. -->
+    <ol class="tanrei-timeline" role="list" aria-label="Release history">
+      <li>
+        <time class="tanrei-timeline-time" datetime="2026-09-19">19 September 2026</time>
+        <p class="tanrei-timeline-title">Development begins</p>
+        <p>The token pipeline, the spec schema and the first spec exist.</p>
+      </li>
+    </ol>
+
+    <!-- A plan: each event has a status, in a shape and in your words. -->
+    <ol class="tanrei-timeline" role="list" data-size="large" aria-label="Roadmap">
+      <li data-status="done" data-status-label="Done">
+        <!-- Not a moment: a paragraph, not a time element. -->
+        <p class="tanrei-timeline-time">Wave 1</p>
+        <!-- A title that is a heading of the page: it keeps its role and level. -->
+        <h3 id="wave-1">The controls of day one</h3>
+        <p>Buttons, fields, selection controls and the list.</p>
+      </li>
+      <li data-status="current" data-status-label="In progress">
+        <p class="tanrei-timeline-time">Wave 2</p>
+        <h3 id="wave-2">Navigation and overlays</h3>
+      </li>
+      <li data-status="upcoming" data-status-label="Not started">
+        <!-- Your own glyph in the marker. -->
+        <span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">flag</span>
+        <p class="tanrei-timeline-time">Wave 3</p>
+        <h3 id="wave-3">The specialised pieces</h3>
+      </li>
+    </ol>
+
+    <script type="module">
+      // Optional: marks the one event under way as the list's current item, and adds debug reports.
+      // `@tanrei/web` loads it too.
+      import '@tanrei/web/timeline';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/timeline.css';
+    import '@tanrei/web/timeline';
+
+    <ol className="tanrei-timeline" role="list" aria-label="Release history">
+      <li>
+        <time className="tanrei-timeline-time" dateTime="2026-09-19">19 September 2026</time>
+        <p className="tanrei-timeline-title">Development begins</p>
+        <p>The token pipeline, the spec schema and the first spec exist.</p>
+      </li>
+    </ol>
+    ```
+  </TabItem>
+</Tabs>
+
+| Prop | On the web |
+| --- | --- |
+| `label` | `aria-label` (or `aria-labelledby` naming the heading before the list) |
+| `size: large` | `data-size="large"` |
+| `density: compact` | `data-density="compact"` |
+| an event | `<li>` |
+| `time` with `datetime` | `<time class="tanrei-timeline-time" datetime="…">` holding the words you write |
+| `time` that is not a moment | `<p class="tanrei-timeline-time">` |
+| `title` | an element with `class="tanrei-timeline-title"` (a `<p>`) |
+| the title slot | a heading (`h2` to `h6`) that begins the event or follows its time |
+| `status` | `data-status="done"`, `"current"` or `"upcoming"` |
+| `statusLabel` | `data-status-label` |
+| `icon` | `<span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">` as the item's first child |
+
+Write `role="list"` on the list: one browser engine drops the list semantics of a list whose markers are removed.
+
+The time is yours. Write it in your reader's language, calendar and format, and put the same moment in `datetime` for machines. The timeline formats nothing: "2 hours ago" stays as written until you change it.
+
+## Specs
+
+<DemoFrame label="A plan: done, done, under way, ahead" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="Roadmap" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="Done"><p class="tanrei-timeline-time">Wave 0</p><p class="tanrei-timeline-title">Foundations</p><p>Tokens, theming, typography, icons, surfaces and the state primitives.</p></li>
+    <li data-status="done" data-status-label="Done"><p class="tanrei-timeline-time">Wave 1</p><p class="tanrei-timeline-title">The controls of day one</p><p>Buttons, fields, selection controls and the list.</p></li>
+    <li data-status="current" data-status-label="In progress"><p class="tanrei-timeline-time">Wave 2</p><p class="tanrei-timeline-title">Navigation and overlays</p><p>The drawer, tabs, dialogs, menus and sheets.</p></li>
+    <li data-status="upcoming" data-status-label="Not started"><p class="tanrei-timeline-time">Wave 3</p><p class="tanrei-timeline-title">The specialised pieces</p><p>Pickers, the carousel and what a documentation site needs.</p></li>
+  </ol>
+</DemoFrame>
+
+<DemoFrame label="Your own glyphs, and a compact log" plain column>
+  <ol class="tanrei-timeline" role="list" aria-label="Order 1042" style="inline-size: 100%; max-inline-size: 28rem">
+    <li data-status="done" data-status-label="Done"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">receipt_long</span><p class="tanrei-timeline-time">Monday, 09:41</p><p class="tanrei-timeline-title">Order placed</p></li>
+    <li data-status="current" data-status-label="In progress"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">local_shipping</span><p class="tanrei-timeline-time">Tuesday, 14:05</p><p class="tanrei-timeline-title">On its way</p></li>
+    <li data-status="upcoming" data-status-label="Not started"><span class="tanrei-timeline-marker tanrei-icon" aria-hidden="true">home</span><p class="tanrei-timeline-time">Expected Thursday</p><p class="tanrei-timeline-title">Delivered</p></li>
+  </ol>
+  <ol class="tanrei-timeline" role="list" data-density="compact" aria-label="Activity" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><time class="tanrei-timeline-time" datetime="10:12">10:12</time><p class="tanrei-timeline-title">Layer saved</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:09">10:09</time><p class="tanrei-timeline-title">Contrast checked in six schemes</p></li>
+    <li><time class="tanrei-timeline-time" datetime="10:02">10:02</time><p class="tanrei-timeline-title">Primary color changed</p></li>
+  </ol>
+</DemoFrame>
+
+- **The marker** stands in a box at the start edge, 24 across at medium and 28 at large, centred on the event's first line. With no status it is a small dot; with a glyph of yours it is a hairline ring holding the glyph.
+- **A status** changes the marker's shape and nothing else: a ring holding a check for done, a filled circle holding a dot for the event under way, an empty ring for one still ahead. The filled circle is the only color a timeline brings besides the time's.
+- **The connector** runs from each marker's box to the next and stops short of both. The last event has none, and it is the same line between events of any status.
+- **The time** is first in the event, in a quiet color. **The title** follows at the body's size in a heading weight. **The body** is your content: two blocks are 8 apart.
+- **Density**: regular puts 16 between two events, compact 8, for a long log of one-line events. It changes that space only.
+- **Sizes** are prose's two: medium among controls, large on a page whose purpose is the text. The marker and the connector match the steps', so the two read as one family on a page.
+
+<ComponentSpecs name="timeline" />
+
+### In prose
+
+Inside `.tanrei-prose` the timeline is not an island: the paragraphs, lists, links and inline code of each body are still the prose's. The timeline takes the prose's full width, so a code block in a body takes the column, and the paragraphs inside a body still stop at the measure. `@tanrei/web/prose.css` carries the timeline's rules, so a page of prose needs no second stylesheet.
+
+### What the web draws differently
+
+- Write an event's text in elements (`<p>`): text written directly in an item cannot be given the gap under a time or a title.
+- The check of a done event is the icon set's `check`, so it needs `icons.css` and the icon font. Without them the ring is empty.
+- Outside a prose a long-form body (lists, quotations) is laid out as it is anywhere on your page, not as prose.
+- A size or a density that a design system adds is drawn as the default until that system ships a rule for it.
+- Without the package's script no item is marked as the list's current item. The status is still read in words.
+
+## Guidelines
+
+### Do
+
+- Give the events in the order your reader expects, newest first for a changelog and oldest first for a plan. The timeline keeps it.
+- Give every event with a status its words in `data-status-label`, in your reader's language.
+- Where the status matters to every reader, show it in words too: a tag in the title or the body.
+- Give a relative time ("2 hours ago") its exact moment in `datetime`.
+- Use compact for a long log of one-line events, and put a Button after the list to show older ones.
+
+### Don't
+
+- Don't use a timeline for a procedure. Steps number what the reader has to do.
+- Don't use it to show a person's place in a flow they are in: that is a stepper, and a marker is not a control.
+- Don't make every title a heading. A changelog of forty events would fill the page's outline. Use a heading where each event is a section of the page.
+- Don't nest a timeline in an event. Events inside an event are a list in the body.
+- Don't rely on the marker alone to say that something failed. Say it in the event's words and with a tag.
+
+## Accessibility
+
+<ComponentAccessibility name="timeline" />
+
+### What the component handles
+
+- It stays the document's ordered list: a list of as many items as events, each read as its status in words, its time, its title and its body.
+- The status in words is read before the time and drawn nowhere. The markers and the connector are decorative and hidden.
+- The three statuses are three shapes, not three colors, and stay so in forced colors.
+- Where exactly one event is under way, the package's script marks it as the list's current item.
+- A time with `datetime` is the document's own time element.
+- Text grows with the reader's settings and wraps. Nothing is cut, collapsed or paged.
+
+### What you need to do
+
+- Write `role="list"` on the list, and name it with a heading before it or with `aria-label`.
+- Give `data-status-label` with every status, unless the event's own text already says it.
+- The words reach a screen reader through the stylesheet in the current versions of the three browser engines. For an older browser used without the package's script, write them yourself as `<span class="tanrei-timeline-status">Done, </span>` at the start of the item, in place of `data-status-label`.
+- Announce an event that is added while a person watches in a live region of your own: the timeline does not.

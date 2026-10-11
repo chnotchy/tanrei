@@ -1,0 +1,271 @@
+---
+title: "纸片（Chip）"
+description: "排成一行的带标签的小控件：用于建议的操作或通往某处的链接、可开可关的筛选条件，或者用户输入后可以移除的项。"
+translationOf: components/chip.mdx
+sourceHash: a3d58a12a8d3b292cac1c4863b58d2661736ea10
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概览
+
+<ComponentAvailability name="chip" />
+
+<DemoFrame label="种类">
+  <tanrei-chip label="添加到日历"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip label="听起来不错"></tanrei-chip>
+  <tanrei-chip kind="filter" selected label="素食"></tanrei-chip>
+  <tanrei-chip kind="filter" label="30 分钟以内"></tanrei-chip>
+  <tanrei-chip kind="input" label="李华" remove-label="移除李华"></tanrei-chip>
+</DemoFrame>
+
+### 用法
+
+Web 和 React 的示例展示的是当前的规格。SwiftUI、Compose、Flutter 和 React Native 待跟进：它们提供的仍是纸片（Chip）的上一版——圆角较小，图标较小，移除操作用 `close` 图标，没有 `destructiveRemove`，也没有链接形式（`href`）；在跟上之前，它们的示例展示的也是那一版。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-chip label="添加到日历"><span slot="icon">event</span></tanrei-chip>
+
+    <!-- 带 href 的操作纸片是链接。在新标签页中打开的链接会显示一个标记，并用你提供的文字说明这一点。 -->
+    <tanrei-chip label="营业时间" href="/visit/hours/"></tanrei-chip>
+    <tanrei-chip label="路线" href="https://example.com/map" target="new" target-label="在新标签页中打开"></tanrei-chip>
+
+    <!-- 筛选纸片会切换自己的 selected，并触发 change。 -->
+    <tanrei-chip kind="filter" label="素食"></tanrei-chip>
+
+    <!-- 输入纸片有第二个按钮，它的名称由 remove-label 给出。 -->
+    <tanrei-chip kind="input" label="李华" remove-label="移除李华">
+      <img slot="avatar" src="ada.jpg" alt="" />
+    </tanrei-chip>
+
+    <!-- 移除一个已应用的筛选条件不会丢失任何东西：关闭破坏性外观。 -->
+    <tanrei-chip kind="input" label="30 分钟以内" remove-label="移除“30 分钟以内”" no-destructive-remove></tanrei-chip>
+
+    <script type="module">
+      import '@tanrei/web/components/chip';
+      document.querySelector('[kind="filter"]').addEventListener('change', (e) => filter(e.detail.selected));
+      // 纸片会留在 DOM 中：由页面移除它，并把焦点移到相邻的纸片上。
+      document.querySelector('[kind="input"]').addEventListener('remove', (e) => removeRecipient(e.target));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Chip } from '@tanrei/react';
+
+    <Chip label="添加到日历" onClick={addToCalendar}><span slot="icon">event</span></Chip>
+    <Chip label="营业时间" href="/visit/hours/" />
+    <Chip label="路线" href="https://example.com/map" target="new" targetLabel="在新标签页中打开" />
+    <Chip kind="filter" selected={vegetarian} label="素食" onChange={(e) => setVegetarian(e.detail.selected)} />
+    <Chip kind="input" label="李华" removeLabel="移除李华" onRemove={() => removeRecipient(ada)} />
+    <Chip kind="input" label="30 分钟以内" removeLabel="移除“30 分钟以内”" destructiveRemove={false} onRemove={clearTimeFilter} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // 种类由所用的构造器决定。
+    TanreiChip("添加到日历", icon: "event", action: addToCalendar)
+    TanreiChip("素食", isSelected: $vegetarian)
+    TanreiChip("李华", removeLabel: "移除李华", action: openContact, onRemove: removeAda)
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiChip
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+
+    // 种类由所用的重载决定。只有 onClick 的是操作纸片。
+    TanreiChip(onClick = ::addToCalendar, label = "添加到日历", icon = { TanreiText("event") })
+
+    // selected 加上 onSelectedChange 是筛选纸片。
+    TanreiChip(selected = vegetarian, onSelectedChange = { vegetarian = it }, label = "素食")
+
+    // onClick 加上 onRemove 是输入纸片。由你把它从列表中移除，并自行移动焦点。
+    TanreiChip(
+        onClick = { openContact(ada) },
+        onRemove = { recipients -= ada },
+        label = "李华",
+        removeContentDescription = "移除李华",
+        avatar = { ContactPhoto(ada) },
+    )
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // 种类由所用的构造函数决定。
+    TanreiChip(label: '添加到日历', icon: const Icon(AppSymbols.event), onPressed: addToCalendar);
+
+    TanreiChip.filter(
+      label: '素食',
+      selected: vegetarian,
+      onSelected: (bool value) => setState(() => vegetarian = value),
+    );
+
+    TanreiChip.input(
+      label: '李华',
+      removeSemanticLabel: '移除李华',
+      avatar: Image.asset('ada.png', fit: BoxFit.cover),
+      onDeleted: () => setState(() => recipients.remove(ada)), // 并自行移动焦点
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Chip } from '@tanrei/react-native';
+
+    <Chip label="添加到日历" icon="event" onPress={addToCalendar} />
+    <Chip kind="filter" label="素食" selected={vegetarian} onSelectedChange={setVegetarian} />
+    <Chip
+      kind="input"
+      label="李华"
+      avatar={{ uri: ada.photo }}
+      removeAccessibilityLabel="移除李华"
+      onRemove={() => removeRecipient(ada)}
+    />
+    ```
+  </TabItem>
+</Tabs>
+
+## 规格
+
+<DemoFrame label="变体、尺寸和禁用" plain>
+  <tanrei-chip variant="elevated" label="添加到日历"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="filter" variant="elevated" selected label="素食"></tanrei-chip>
+  <tanrei-chip size="small" label="添加到日历"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="input" size="small" label="李华" remove-label="移除李华"></tanrei-chip>
+  <tanrei-chip disabled label="添加到日历"><span slot="icon">event</span></tanrei-chip>
+  <tanrei-chip kind="filter" selected disabled label="素食"></tanrei-chip>
+</DemoFrame>
+
+<DemoFrame label="移除操作：破坏性（默认）和普通；悬停或聚焦即可看出差别" plain>
+  <tanrei-chip kind="input" label="李华" remove-label="移除李华"></tanrei-chip>
+  <tanrei-chip kind="input" label="30 分钟以内" remove-label="移除“30 分钟以内”" no-destructive-remove></tanrei-chip>
+</DemoFrame>
+
+<DemoFrame label="链接纸片：在当前页打开、在新标签页中打开、禁用" plain>
+  <tanrei-chip label="标签（Tag）" href="/zh-cn/components/tag/"></tanrei-chip>
+  <tanrei-chip label="徽标" href="/zh-cn/components/badge/" target="new" target-label="在新标签页中打开"></tanrei-chip>
+  <tanrei-chip label="标签（Tag）" href="/zh-cn/components/tag/" disabled></tanrei-chip>
+</DemoFrame>
+
+在默认系统中，每个纸片都是胶囊形，文本放大使它变高时也仍然是胶囊形。它的图标大到高度所能容纳的程度：中号纸片上是 24，小号纸片上是 20。选中的筛选纸片上的对勾是系统图标集里的 `check` 图标，移除图标是 `cancel`，始终以填充样式绘制。纸片不绘制自己的标记，所以想要其他标记的设计系统，应当选择另一套图标集。outlined 纸片的边线是细线，也就是分隔线所画的那种不显眼的线。
+
+<ComponentSpecs name="chip" />
+
+## 指南
+
+### 何时使用
+
+纸片用于排成一行的、彼此相关的小选择：列表上方的筛选条件、消息下方的建议回复、电子邮件的收件人。一行十个的时候，按钮显得太重，复选框看起来像表单的一部分，而徽标或 Tag 又不能按。
+
+### 如何选择种类
+
+`kind` 决定纸片做什么，以及它的角色和部件。它不改变外观。
+
+| 种类 | 它是什么 | 用途 |
+| --- | --- | --- |
+| 操作（默认） | 一个按钮；带 `href` 时是一个链接 | 与内容相关的辅助操作，例如日期旁边的“添加到日历”；或者一条建议，例如回复“听起来不错”。有目的地时，是通往相关页面的快捷入口。 |
+| 筛选 | 一个可开可关的按钮 | 缩小列表的范围：“素食”“30 分钟以内”。打开时，它显示一个对勾和选中的颜色。 |
+| 输入 | 用户输入的一项，带有移除操作 | 收件人、标签、搜索词。它可以显示头像来代替图标。 |
+
+Material Design 3 有 4 个纸片家族。Tanrei 只算 3 个种类：它的辅助（assist）纸片和建议（suggestion）纸片都是带标签和可选图标的按钮，所以两者都属于 `action` 种类。想让建议看起来更低调的设计系统，可以为它们添加自己的变体。
+
+### 如何选择变体和尺寸
+
+| 变体 | 用途 |
+| --- | --- |
+| Outlined（默认） | 放在素净表面上的纸片。边线是细线：它不动声色地把纸片区分出来，含义则由标签承载。 |
+| Elevated | 放在照片、地图或杂乱背景之上的纸片，在那里只靠一条边线会被淹没。 |
+
+大多数纸片使用 `medium`（32）；在密集的地方使用 `small`（24），例如字段里已输入的项，或表格上方的筛选条件。表格行里的静态标签则是 [Tag](/zh-cn/components/tag/)。两种尺寸都满足最小目标。
+
+### 纸片、Tag 还是徽标
+
+纸片是控件：它可以被按下、切换或移除，能获得焦点，并且有状态。[标签（Tag）](/zh-cn/components/tag/)是某一项上的静态标签，例如状态或类别，从不响应指针。[徽标](/zh-cn/components/badge/)是附着在另一个元素角上的圆点或计数。
+
+- 如果它会被按下、选中或移除，使用纸片。
+- 如果它只是说明它所在的那一项，使用 Tag。
+- 如果它是叠在别的东西上面的数字或圆点，使用徽标。
+
+不要把什么都不做的纸片当作标签用，也不要为了把纸片变成标签而禁用它。
+
+### 有目的地的纸片是链接
+
+有目的地的控件就是链接。只负责把用户带到某处的操作纸片接收 `href`，这时它是真正的链接，而不是按钮：在 Web 上是一个锚元素，可以在新标签页中打开，地址也可以复制。它在每种状态下都和操作纸片一模一样，并且没有已访问状态。
+
+- Enter 会打开链接纸片。Space 不会：它的作用与在任何链接上一样。
+- 先触发 `click`，然后才打开目的地。取消这次点击，就可以像客户端路由那样自己接管导航。
+- `target` 设为 `new` 时，纸片在标签后面显示 `open_in_new` 图标，并且需要 `targetLabel`，也就是在名称之后朗读的文字，例如“在新标签页中打开”。Tanrei 不自带任何文字。
+- 禁用的链接纸片无法打开，并且退出焦点顺序。
+- 只有操作纸片可以是链接。筛选纸片持有状态，输入纸片带有第二个操作，所以两者都忽略 `href`，调试构建会报告这一点。
+
+### 移除操作
+
+输入纸片以移除操作结尾：填充样式的 `cancel` 图标，放在一个比它略大的圆形容器上；悬停、聚焦和按下时，这个容器显示为图标周围的一圈圆环。在默认系统中，这个圆形容器与纸片的圆形末端同心，到末端的距离与到顶部和底部的距离相等。它不占用自己的空间，所以不会让纸片变宽或变高。移除操作是一个独立的按钮，有自己的名称，自己的悬停、聚焦和按下状态，以及自己的点击区域；这个区域向外延伸，绝不盖住标签。按下它，或者在纸片获得焦点时按 Backspace 或 Delete，都是请求移除这个纸片。**纸片绝不会移除自己。** 由你的代码移除这一项并移动焦点：移到下一个纸片、上一个纸片，或者这些纸片所属的字段。
+
+默认情况下，移除操作呈现为破坏性操作（`destructiveRemove`，除非你把它关掉，否则是打开的）。静止时，它的样子和没有这个标志时一样。悬停、聚焦或按下时，它的图标和状态层采用错误颜色。对于不会丢失任何东西的移除，例如用户还能加回来的已应用筛选条件，请把它关掉。在 Web 上，这个属性是反过来的 `no-destructive-remove`，因为 HTML 的布尔属性不能默认为 true。这个标志只改变颜色，不改变别的，并且在其他种类上会被忽略。
+
+暂时不能移除的输入纸片，例如只读字段里的一个条目，不绘制移除操作：把 `removable` 设为 false。这样就不会有一个什么都不做的操作摆在那里，Backspace 和 Delete 不请求任何事情，纸片的内边距也与不带移除操作的纸片相同。在 Web 上，这个属性是反过来的 `not-removable`。它在其他种类上会被忽略。
+
+**使用它的组件**是[纸片字段](/zh-cn/components/chip-field/)，其中每个条目都是一个小号的输入纸片。在那里，字段给整组纸片一个 Tab 停靠点和它自己的按键，纸片请求移除时由它来移除，并移动焦点。在 Web 上，以这种方式容纳纸片的组件会在每个纸片上设置 `tabindex="-1"`，这样纸片及其移除操作都退出 Tab 顺序，但两者仍然可以获得焦点。
+
+### 推荐
+
+- 标签保持简短，一到三个词。纸片保持在一行之内，只有布局给它的宽度不够时，才以省略号截断标签。
+- 一行纸片只使用一种变体。
+- 在移除标签中说出这一项的名称：写“移除李华”，而不是“移除”。
+- 当移除会丢失用户输入的内容（例如收件人或标签）时，保留破坏性的移除外观。移除无关紧要时，把它关掉。
+- 在 Web 上，把一行纸片放进[标签组](/zh-cn/components/tag-group/)：它把纸片排成会换行的若干行，保持它们之间的距离，并把它们作为一个列表暴露出来。在其他平台上，以及需要滚动的一行纸片，布局由你自己来做。
+
+### 避免
+
+- 不要把筛选纸片用于立即生效且独立存在的设置。请使用开关。
+- 不要把纸片用于屏幕的主要操作。请使用按钮或主操作按钮。
+- 不要在操作纸片的点击处理函数里导航。要去往某处的纸片应当接收 `href`。
+- 不要在同一行里混用不同的种类，例如把筛选条件放在建议操作旁边。
+- 不要给筛选纸片一个随状态变化的标签。状态会另行朗读。
+
+## 无障碍
+
+<ComponentAccessibility name="chip" />
+
+### 组件负责的部分
+
+- 每个纸片都暴露按钮角色、作为名称的标签，以及它的禁用状态。图标、对勾和头像对辅助技术隐藏。
+- 带 `href` 的操作纸片改为暴露链接角色，名称相同。在新标签页中打开的链接上的标记对辅助技术隐藏；`targetLabel` 是这个链接的描述，在名称和角色之后朗读。
+- 筛选纸片还像切换按钮那样暴露它是否打开：在 Web 上是按下状态，在 Apple 的平台上是选中特征，在 Android 上是可切换状态。它的状态绝不根据对勾来朗读。
+- 输入纸片是两个元素：先是纸片，然后是它的移除操作——一个由移除标签命名的独立按钮。Tab 按这个顺序到达它们。在获得焦点的纸片上按 Backspace 或 Delete，同样是请求移除它。
+- Enter 和 Space 激活纸片；移除操作获得焦点时，激活的是移除操作。链接纸片只由 Enter 激活。它们各自显示自己的焦点指示，并且只在键盘聚焦时显示。
+- 纸片的点击区域在两种尺寸下都满足最小目标。移除操作有自己的点击区域，同样满足最小目标，并且不盖住标签。
+- 破坏性的移除外观绝不是唯一的线索。无论 `destructiveRemove` 是开还是关，移除操作都保持它的角色、名称、图标、大小和点击区域，也不会多朗读任何内容。它的名称“移除李华”说明了它做什么。
+- 即使标签被截断，完整的标签仍然是无障碍名称。文本放大时，纸片的高度增加，并且仍然是胶囊形。
+- 在默认系统中，outlined 纸片的边线是细线，它相对于表面的对比度低于 3:1。用来识别纸片的并不是边线：标签是对比度充足的文本，选中的筛选纸片显示填充和对勾，聚焦时显示焦点环。需要 3:1 边线的产品，可以在层里把 `comp.chip.outlined.outline.color` 设为 `sys.color.outline`。
+- 调试构建会报告：缺少标签；输入纸片缺少移除标签；在新标签页中打开的链接没有 `targetLabel`；筛选纸片或输入纸片上设置了目的地；以及未知的种类——它会按操作纸片来渲染和工作。
+
+已知的平台差距：
+
+- React Native：Backspace 和 Delete 是通过一个按键事件传递的，这个事件在 iOS 和 Android 上能否送达，还没有在真机上验证过。无论如何，移除操作都可以用 Tab 到达。
+- React Native：VoiceOver 和 TalkBack 是否按这个顺序把纸片和它的移除操作当作两个元素到达，以及移除操作的点击区域，都只在没有真机的情况下测试过。在 Android 上，点击区域无法超出父视图，所以请在一行输入纸片的周围留出空间。
+- Flutter：移除操作的点击区域超出纸片的末端，而 Flutter 通过加宽输入纸片的布局来为它腾出空间，所以一行输入纸片的间隔会略宽一些。
+- Compose：移除操作的点击区域超出纸片的末端，但不会加宽纸片，所以紧跟在后面的纸片会在两者重叠的地方接收按下。那里的触摸、经由平台按键处理的按键，以及 TalkBack，都只在 Robolectric 下测试过，还没有在真机上测试。
+- SwiftUI：纸片上的 Backspace 和 Delete，以及从纸片到移除操作的 Tab，都按各自的部分测试过，但还没有做端到端的驱动测试。在按下会使控件变暗的系统（cupertino）中，移除图标比纸片晚一帧变暗。
+- 文本放大时，SwiftUI 和 Compose 让图标、对勾、移除图标和头像保持各自的大小，而标签会变大。它们是否应该随标签一起变大，尚未决定。
+- Web 按规格给出的名称（CHP-13、CHP-18），把对勾和移除图标画成图标集里的 `check` 和 `cancel`。SwiftUI、Compose、Flutter 和 React Native 提供的是上一版，仍然用 `close` 绘制移除操作（Flutter 用的是 Material Symbols 的码位）；没有图标字体时，Compose 和 SwiftUI 把对勾和叉号画成各自的矢量图形。它们跟上之后，都会按名称绘制 `cancel` 和 `check`，不再使用自己的矢量图形。
+
+### 需要你做的事
+
+- 用户移除输入纸片时，移除它，并把焦点移到相邻的纸片或字段上。纸片发出请求之后就什么都不做了。
+- 给每个输入纸片一个说出其项目名称的移除标签。一行里好几个“移除”按钮是无法区分的。
+- 给在新标签页或新窗口中打开的链接纸片一个 `targetLabel`，使用你的产品所用的语言。
+- 给一行筛选纸片一个可见的标题或组名，说明它们筛选的是什么。
+- 如果需要一行纸片的键盘模型，例如用方向键在纸片之间移动，请自行提供。每个纸片只处理 Tab、Enter、Space，以及输入纸片上的 Backspace 和 Delete。

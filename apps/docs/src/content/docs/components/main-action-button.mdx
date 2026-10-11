@@ -1,0 +1,206 @@
+---
+title: Main action button
+description: Performs the single most important action of a screen on a raised container that floats above the content, with its name written out, or collapsed to its icon alone.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="main-action-button" />
+
+<DemoFrame label="Extended and collapsed">
+  <tanrei-main-action-button label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="Compose" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+The main action button is the one action a screen exists for: Compose in a mailbox, New event in a calendar, Add in a list. It sits on a raised container that floats above the content, so it stays in reach while the content scrolls beneath it.
+
+It is one button with two forms. **Extended** (the default) shows its icon and its label. **Collapsed** shows the icon alone, in a square as high as the extended form, a circle in the default system. The product moves it between the two, for example collapsing it while the content scrolls and extending it again at the top. It is an action, never a toggle: collapsing changes its shape, not its meaning, and the label stays its accessible name in both forms.
+
+On the web it is `<tanrei-main-action-button>`, and `MainActionButton` in React. SwiftUI, Compose, Flutter and React Native have not implemented it yet.
+
+### Usage
+
+The label is a prop, not content, because it is needed in both forms: drawn while extended, and the accessible name always. The icon is a glyph of the icon set. The button does not place itself: your layout puts it, normally in the inline-end bottom corner of the screen, clear of a [navigation bar](/components/navigation-bar/).
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-main-action-button class="primary-action" label="Compose">
+      <span slot="icon">edit</span>
+    </tanrei-main-action-button>
+
+    <!-- Collapsed: the attribute is the inverse of the extended property. -->
+    <tanrei-main-action-button label="Compose" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+
+    <!-- A glyph that points where the action goes sits after the label. -->
+    <tanrei-main-action-button label="Next" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+
+    <style>
+      /* The element places nothing: the page puts it in the inline-end bottom corner. */
+      tanrei-main-action-button.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/main-action-button';
+      const compose = document.querySelector('tanrei-main-action-button.primary-action');
+      compose.addEventListener('click', newMessage);
+      // extended is a property that defaults to true; collapse it from outside, for example while the page is scrolled.
+      addEventListener('scroll', () => (compose.extended = scrollY === 0), { passive: true });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { MainActionButton } from '@tanrei/react';
+
+    <MainActionButton className="primary-action" label="Compose" extended={atTop} onClick={newMessage}>
+      <span slot="icon">edit</span>
+    </MainActionButton>
+
+    <MainActionButton variant="tonal" label="Next" iconPosition="trailing" onClick={next}>
+      <span slot="icon">arrow_forward</span>
+    </MainActionButton>
+    ```
+  </TabItem>
+</Tabs>
+
+### Where the FAB and the extended FAB went
+
+The main action button replaces the floating action button and the extended FAB. What were two components that a product swapped between are now two forms of one.
+
+| Before | Now |
+| --- | --- |
+| Floating action button (`fab`) | A collapsed main action button: `extended` set to false |
+| Extended FAB (`extended-fab`) | An extended main action button (the default) |
+| The extended FAB's `expanded` | `extended` |
+| `comp.fab.*`, `comp.extended-fab.*` | `comp.main-action-button.*` |
+
+### Material 3's names
+
+- Material 3's FAB, small FAB and large FAB are a collapsed main action button at the medium, small and large sizes. Its extended FAB is the extended form.
+- Compose's `expanded` (on `ExtendedFloatingActionButton`) and Flutter's `isExtended` (on `FloatingActionButton.extended`) are `extended`.
+- Material 3's primary, secondary, tertiary and surface FAB colors map onto the `filled`, `tonal` and `surface` variants and the values a preset adds. The m3-like preset draws Material's rounded-square corners and 56 / 96 heights through this component's tokens.
+
+## Specs
+
+<DemoFrame label="Variants" plain>
+  <tanrei-main-action-button label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="tonal" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="surface" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="Sizes, extended and collapsed" plain>
+  <tanrei-main-action-button size="small" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="Compose"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="small" label="Compose" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="Compose" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="Compose" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="A trailing icon, no icon, and disabled" plain>
+  <tanrei-main-action-button label="Next" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="Start"></tanrei-main-action-button>
+  <tanrei-main-action-button label="Compose" disabled><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="Compose" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<ComponentSpecs name="main-action-button" />
+
+## Guidelines
+
+### When to use
+
+Use a main action button for the action that most people come to the screen to take, when it should stay in reach wherever they have scrolled: writing a message, adding an item, starting a recording. A screen has one, or none. Many screens need none: a settings page or a reading view has no single action that deserves to float over it.
+
+- For an action that belongs to a form, a dialog or one item in the content, use a [button](/components/button/) where that content is.
+- For several actions on the current screen or selection, use a [toolbar](/components/toolbar/).
+- When the main action comes in a few related forms (a new document, a folder or an upload), let the main action button open a [bottom sheet](/components/bottom-sheet/) that lists them. The [FAB menu](/components/fab-menu/) does that job in the presets that ship it; the default system does not.
+- It performs an action and takes no destination. A control that only takes people somewhere else is a link: a [button](/components/button/) with `href`.
+
+### Extended or collapsed
+
+Start extended. The written name is what tells people what the button does, and an icon alone is only safe once they have learned it.
+
+Collapse it when the label costs more than it gives: while the content scrolls and the button would cover it, or in a narrow window. Extend it again when there is room, such as back at the top of the list. The change is yours to make, by setting `extended`; pressing the button never changes its form.
+
+- The button keeps its height and its corners while it changes, and which edge stays in place is your layout's decision. Anchored at the inline end, it collapses toward that edge.
+- A button without an icon stays extended, because there would be nothing to collapse to. A button without a label draws the collapsed form and is reported in debug builds: it has no name.
+- Where motion is reduced, the form changes at once.
+
+### Choosing a variant
+
+| Variant | Emphasis | Use for |
+| --- | --- | --- |
+| Filled (default) | Highest | The screen's main action at full strength. |
+| Tonal | High | A main action on a screen whose content should lead. |
+| Surface | Neutral | A main action over content that already has color, such as a map or a photo, where a colored container would compete with it. |
+
+A design system may add variants of its own.
+
+### Choosing a size
+
+| Size | Height in the default system | Use for |
+| --- | --- | --- |
+| Small | 40 | A second, related action beside a medium one, or a dense layout. |
+| Medium (default) | 56 | The main action of most screens. |
+| Large | 96 | The action of a wide or nearly empty screen, where a medium button would be lost. |
+
+The height is also the side of the collapsed form, so one button keeps its height while it collapses and extends.
+
+### Placement
+
+The button draws no scrim and moves no content. Place it over the content, normally in the inline-end bottom corner, and keep it clear of a navigation bar, a docked toolbar and the system's insets. Leave room at the end of scrolling content, so that the button never permanently covers the last item. Its shadow is cast outside its container: give it room if the container that holds it clips.
+
+### Do
+
+- Label it with the action as a verb, or a verb and a noun: **Compose**, **New event**, **Add photo**.
+- Choose a glyph that people already connect with the action, such as `edit` for writing or `add` for creating.
+- Use `iconPosition` set to `trailing` for a glyph that points where the action goes, such as the arrow of Next.
+- Keep it in the same place on every screen that has one.
+- Hide it when its action is unavailable on a screen. That usually serves people better than a disabled button floating over the content.
+
+### Don't
+
+- Don't put two main action buttons of the same size on one screen. If two actions feel equally important, neither is the main one: use buttons in the content.
+- Don't use it for minor, destructive or navigation-only actions, such as Delete, Settings or Back.
+- Don't use it as a toggle, and don't change its label or icon to show a state.
+- Don't collapse it on a screen people are seeing for the first time, when nothing else says what the icon means.
+- Don't let it cover content that people need in order to decide whether to press it.
+
+### Content
+
+Labels use sentence case and have no trailing punctuation. Aim for one or two words. The label does not truncate: it stays on one line while it fits, and wraps when the layout gives it less width.
+
+## Accessibility
+
+<ComponentAccessibility name="main-action-button" />
+
+### What the component handles
+
+- It is a button named by `label` in both forms. The icon is hidden from assistive technology.
+- Collapsing and extending change what is drawn, not what is announced: the role, the name and the focus stay as they are, nothing is announced, and there is no pressed or expanded state.
+- Enter and Space activate it. Disabled, it emits nothing, leaves the focus order and is exposed as disabled.
+- Its hit area meets the minimum target at every size, the small one included.
+- It shows the focus indicator for keyboard focus only, without animation.
+- Extended, the container grows with the text size and the label never truncates. Collapsed, the icon is not text. On the web every Tanrei size follows the root font size, so the square and its icon grow together and stay square.
+- In a right-to-left layout the icon and the label change sides, and the paddings follow. The glyph itself is mirrored only when the icon set marks it as showing a direction.
+- Debug builds report a button without a label, and a collapsed button without an icon.
+
+### What you need to do
+
+- Always give it a `label`, in your product's language, even when it will only ever be collapsed.
+- Put it in the element tree where its action belongs: after the content it acts on, or first when it is the screen's reason to exist. Assistive technology and the Tab key reach it in tree order, not where it is drawn.
+- When it is collapsed, consider a [tooltip](/components/tooltip/) with the same text for people who use a pointer. The tooltip never replaces `label`.
+- Make sure it does not hide the content or the control that has keyboard focus. Leave space at the end of the content, or move the button out of the way.
+- Do not rely on the variant's color to carry meaning. Say it in the label.

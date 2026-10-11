@@ -1,0 +1,188 @@
+---
+title: One-time-code field
+description: Asks for a short code sent to the person as one complete field — the cells under a label, with a line of help and the words for a wrong code — tied together for assistive technology and taking part in a form as one control.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="one-time-code-field" />
+
+<DemoFrame label="A one-time-code field, and one whose code the product refused" column>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone." group-size="3" value="123"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone." error error-text="That code is not right. Check the message and try again." group-size="3" value="123456"></tanrei-one-time-code-field>
+</DemoFrame>
+
+Use a one-time-code field wherever a product asks back a short code it sent: to sign in, to confirm an address or a telephone number, to approve a payment. It is the ordinary case, ready to use: a label, the cells, a line that says where the code was sent, and the words for a wrong code.
+
+**Built from** a [field](/components/field/) and a [one-time-code input](/components/one-time-code-input/). The field is the frame: the label, the required or optional mark, the help and the error. The one-time-code input is the control: the cells and everything a person does in them. The one-time-code field draws nothing of its own and has no token: every property it has is a property of one of the two, given to it unchanged.
+
+It is as wide as the place it is put in, and the cells start at its start edge.
+
+On the web it is `<tanrei-one-time-code-field>`. The other platforms have not implemented it yet.
+
+### Usage
+
+`value` is the code entered so far, with no separator, whatever the groups drawn. The four events are the one-time-code input's own, and when any of them is heard the field's `value` is already the new one.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-one-time-code-field name="code" label="Verification code"
+        supporting-text="Enter the 6-digit code we sent to your phone."
+        error-text="That code is not right. Check the message and try again."
+        requirement="required" required-text="Required"
+        group-size="3"></tanrei-one-time-code-field>
+    </form>
+
+    <script type="module">
+      import '@tanrei/web/components/one-time-code-field';
+
+      const code = document.querySelector('tanrei-one-time-code-field');
+      // The person changed the value. It is already the new one.
+      code.addEventListener('input', () => (code.error = false));
+      // The last cell was filled, or a whole code was pasted or filled. Nothing else happens by itself.
+      code.addEventListener('complete', async (e) => {
+        code.readOnly = true;
+        const right = await verify(e.detail.value);
+        code.readOnly = false;
+        code.error = !right;
+      });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { OneTimeCodeField } from '@tanrei/react';
+
+    <OneTimeCodeField name="code" label="Verification code" error={wrong}
+      supportingText="Enter the 6-digit code we sent to your phone."
+      errorText="That code is not right. Check the message and try again."
+      groupSize={3} value={code}
+      onInput={(event) => setCode(event.currentTarget.value)}
+      onComplete={(event) => verify(event.detail.value)} />
+    ```
+  </TabItem>
+</Tabs>
+
+### One level down
+
+The same field, written by hand from its two members, is the same picture and the same text box to assistive technology:
+
+```html
+<tanrei-field label="Verification code"
+  supporting-text="Enter the 6-digit code we sent to your phone."
+  error-text="That code is not right. Check the message and try again.">
+  <tanrei-one-time-code-input name="code" group-size="3"></tanrei-one-time-code-input>
+</tanrei-field>
+```
+
+<DemoFrame label="The same field written by hand: a field with a one-time-code input in it" column>
+  <tanrei-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" supporting-text="Enter the 6-digit code we sent to your phone.">
+    <tanrei-one-time-code-input group-size="3" value="123"></tanrei-one-time-code-input>
+  </tanrei-field>
+</DemoFrame>
+
+Go one level down when you need an arrangement the one-time-code field does not offer:
+
+| You need | Use |
+| --- | --- |
+| A label, the cells, help and an error | The one-time-code field |
+| Something of your own inside the frame, beside the cells — a control to send the code again, a countdown | A [field](/components/field/) with a [one-time-code input](/components/one-time-code-input/) and your own element in it |
+| The cells alone, under a label that is drawn elsewhere — a dialog's headline, a step's title | The [one-time-code input](/components/one-time-code-input/) alone, named by its own `label` |
+| One box without cells, for a code whose length is not known | A [text field](/components/text-field/) with `autocomplete="one-time-code"` |
+
+What changes one level down is where things are said. `name` and `value` are on the one-time-code input, which is then the control the form meets, and its events are heard on it. `label`, `error` and `disabled` stay on the field, which passes them to the control: do not set the input's own.
+
+## Specs
+
+<DemoFrame label="Required with the product's word, optional, disabled, and a masked code of four" plain column>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" requirement="required" required-text="Required" supporting-text="Enter the 6-digit code we sent to your phone." group-size="3"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Backup code" requirement="optional" optional-text="Optional" type="alphanumeric" group-size="3" value="A7K"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="Verification code" disabled supporting-text="Enter the 6-digit code we sent to your phone." group-size="3" value="123456"></tanrei-one-time-code-field>
+  <tanrei-one-time-code-field class="not-content" style="inline-size: 20rem; max-inline-size: 100%" label="PIN from the letter" length="4" mask value="4821"></tanrei-one-time-code-field>
+</DemoFrame>
+
+### What each member gives
+
+| Aspect | From the field | From the one-time-code input |
+| --- | --- | --- |
+| Properties | `label`, `labelHidden`, `supportingText`, `errorText`, `error`, `disabled`, `requirement`, `requiredMark`, `requiredText`, `optionalText` | `value`, `length`, `type`, `groupSize`, `mask`, `readOnly` |
+| Events | — | `input`, `change`, `complete`, `action` |
+| Slots | `label-icon` | — |
+| Tokens | `comp.field.*` | `comp.one-time-code-input.*` |
+
+The one-time-code input has a `label`, an `error` and a `disabled` of its own. They are not properties of the one-time-code field: the field's `label` names the control, its `error` puts the cells in their error condition and its `disabled` disables them. So you set each of them once, on the one-time-code field, and its label changes with the control.
+
+What the cells do — typing, pasting, the arrow keys, the groups — is on the [one-time-code input's page](/components/one-time-code-input/). What the frame does — the required mark, the help, the error and how it is announced — is on the [field's page](/components/field/).
+
+### Setting one field apart
+
+The one-time-code field has no token of its own. Its frame reads the field's tokens and its cells the one-time-code input's, wherever they are set. To change one instance, set the member's token on it:
+
+```html
+<tanrei-one-time-code-field label="Verification code"
+  style="--tanrei-comp-field-label-gap: 12px"></tanrei-one-time-code-field>
+```
+
+<ComponentSpecs name="one-time-code-field" />
+
+### What the web draws differently
+
+- The element's shadow root holds a `<tanrei-field>` with a `<tanrei-one-time-code-input>` in it, and nothing else. Importing the element defines both.
+- The element is form-associated. It takes `name` and `form`, submits the code alone — nothing while disabled —, resets to the `value` attribute, follows a disabled `<fieldset>`, and reports a missing value while `requirement` is `required` and it is empty. Its two members add no entry to the form. Enter in the cells presses the default button of the element's form; cancel `action` to prevent it.
+- `input`, `change`, `complete` and `action` are the one-time-code input's CustomEvents with `detail.value`. Their target is the element, and `event.target.value` is the code in every listener.
+- Parts: `field` and `one-time-code-input` are the two members. Their own parts have the same names here as one level down: `label`, `label-icon`, `requirement-label`, `supporting-text`; `input`, `cell`, `character`, `caret`, `separator`.
+- The element is not focusable itself: `focus()` goes to the cells, and a page's own `<label for>` moves focus there. `autofocus` on the element focuses the cells when it is first drawn, unless something else has focus.
+- The element has no role. Name it with `label` — with `label-hidden` where the label is drawn elsewhere — and never with `aria-label`, which names nothing here.
+- The attributes are the members' own: `label-hidden`, `supporting-text`, `error-text`, `required-mark`, `required-text`, `optional-text`, `group-size`, `readonly`.
+- It has one slot, `label-icon`. A second control placed inside it is not drawn.
+- Before the element is defined it has no size and shows only a `label-icon` child. Hide that with `tanrei-one-time-code-field:not(:defined) > *` and reserve the height. A page that must work without script uses a `<label>` around a plain `<input autocomplete="one-time-code" inputmode="numeric">`, with its help beside it.
+
+## Guidelines
+
+### Do
+
+- Say in `supportingText` how many characters to expect and where the code was sent.
+- Draw the groups as the message writes them: `groupSize="3"` for a code sent as "123 456".
+- Say that a code is wrong in words, with `error` and `errorText`. Decide yourself whether a wrong code is cleared: often one digit is wrong.
+- Use `readOnly`, not `disabled`, while a complete code is being checked. A disabled field loses focus, and a person who must then correct the code loses their place.
+- Put the way to ask for a new code, and any time limit, beside the field. Where they belong inside the frame, write the field by hand, one level down.
+
+### Don't
+
+- Don't put a one-time-code field inside a field. It is a field already; a debug build says so.
+- Don't name it with `aria-label`. Where no label should be drawn, give `label` and `labelHidden`.
+- Don't block paste, masked or not, and don't move focus away or submit the form without telling the person first.
+- Don't use `mask` by habit. A code that is used once and expires rarely needs hiding, and hiding it makes a mistake harder to see.
+- Don't restyle the cells for this field alone by copying them. Set the member's token on the field.
+
+## Accessibility
+
+<ComponentAccessibility name="one-time-code-field" />
+
+### What the component handles
+
+- It is one text box, the one-time-code input's. Its name is `label`, drawn or not; its description is the shown supporting or error text, with the optional text while the field is optional.
+- It is exposed as invalid while `error` is true, as required while `requirement` is `required`, as disabled while `disabled` is true, as read-only while `readOnly` is true, and as a password field while `mask` is true.
+- The name, the description and the states are tied exactly as a field ties them to any control it frames. The field written by hand, one level down, is the same text box.
+- The drawn label, the requirement mark, the cells, the caret and the group marks are not exposed a second time.
+- It is one stop for the Tab key. A press on the label moves focus to the cells and operates nothing; a press on the help does nothing.
+- An error that appears while focus is in the one-time-code field is announced once, politely, by its field member.
+- Direction, enlarged text and forced colors are each member's own answer: in a right-to-left layout the frame is mirrored and the cells stay a left-to-right run at the start edge; at 200% text nothing is cut and nothing scrolls sideways.
+- It has no words of its own. `requiredText` and `optionalText` left empty are read from the product's words by the field.
+
+Known gaps on the web are its members': what screen readers say while a code is typed has been read from the browsers' accessibility trees, not heard with a screen reader, and before the element is defined nothing is drawn.
+
+### What you need to do
+
+- Give `label`, always, in the words a person would use for the code.
+- Say what is expected in words: how many characters, and where the code was sent. The cells show the length only to people who see them.
+- Say that a code is wrong, expired or required with `errorText`, `supportingText` and `requirement`. Color is never the only sign.
+- Where the time to enter a code is limited, say so, and let the person ask for more time or a new code.

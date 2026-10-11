@@ -1,0 +1,189 @@
+---
+title: キーボードショートカット
+description: コマンドを実行するキーを、キーの形か文字で表示します。使っているキーボードの修飾キーの記号と名前で描き、読み上げではキーの名前で伝えます。
+translationOf: components/keyboard-shortcut.mdx
+sourceHash: 63d76372e6eb95e569cb0e3333d01afaeaadceb0
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## 概要
+
+<ComponentAvailability name="keyboard-shortcut" />
+
+キーボードショートカットは、コマンドを実行するキーを表示します。キーキャップの形か、コマンド名の横に置く文字の形で、small と medium の 2 つのサイズがあります。キーは `mod`、`shift`、`k` のような中立の名前で書き、使っているキーボードの流儀で描きます。Apple の記号（⇧⌘K）か、標準の名前（Ctrl+Shift+K）です。流儀はプロダクトが領域ごとに決めることも、プラットフォームに任せることもできます。複数の組み合わせが続くショートカット（Ctrl+K Ctrl+C）は、1 つの並びとして扱います。
+
+<DemoFrame label="キーキャップ、2 つの組み合わせが続く並び、文字の形。お使いのキーボードに合わせて表示します">
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="コマンドまたはコントロール、シフト、K"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+k mod+c" label="コマンドまたはコントロールと K、続けてコマンドまたはコントロールと C"></tanrei-keyboard-shortcut>
+  <tanrei-keyboard-shortcut keys="mod+shift+k" label="コマンドまたはコントロール、シフト、K" variant="plain"></tanrei-keyboard-shortcut>
+</DemoFrame>
+
+キーの描画は見た目のためだけのものです。支援技術には、プロダクトが与えた `label`（プロダクト自身の言葉で書いたショートカット）を読ませます。`label` がなければ、`aria-keyshortcuts` の記法（`Meta+Shift+K`）を読ませます。Tanrei は、どの言語でもキーの名前を持ちません。このコンポーネントはキーを表示するだけです。フォーカスも入力も受け取らず、キーを効かせることもしません。キーの割り当てはプロダクト側で行います。
+
+3 つのコンポーネントが、自身の `shortcut` プロパティからこのコンポーネントでショートカットを描きます。[メニュー](/ja/components/menu/)は項目の末尾に、プレーンな[ツールチップ](/ja/components/tooltip/)はテキストの後ろに、[検索](/ja/components/search/)はバーやトリガーの中のヒントとして描きます。これらの中では、自分で要素を置かずに、そのプロパティを使ってください。ホストは自分のテキストスタイルでキーを描き、コントロールのキーボードショートカットとして伝えます。
+
+### 使い方
+
+`keys` には、押す順に、組み合わせを 1 つずつ文字列で指定します。組み合わせは、キーの名前を `+` でつないだものです。名前の大文字と小文字は区別しません。
+
+- **修飾キー：** `mod`（Apple のプラットフォームでは Command、それ以外では Control）、`ctrl`、`alt`、`shift`。
+- **名前のあるキー：** `enter`、`escape`、`tab`、`backspace`、`delete`、`space`、`arrow-up`、`arrow-down`、`arrow-left`、`arrow-right`、`home`、`end`、`page-up`、`page-down`、`caps-lock`、`f1`〜`f24`、そして + キーを表す `plus`。
+- **それ以外の 1 文字**は、その文字のキーです。`k`、`/`、`,` など。
+
+Web では、`keys` 属性に組み合わせを空白で区切って書きます（`keys="mod+k mod+c"`）。プロパティは配列です。SwiftUI、Compose、Flutter、React Native は、このコンポーネントをまだ実装していません。実装されるまで、これらのプラットフォームのメニューは、[メニュー](/ja/components/menu/)のページにあるとおり、ショートカットを項目の末尾のテキストに書きます。
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- small は、本文の行の高さを変えずに行の中に収まります。 -->
+    <p><tanrei-keyboard-shortcut keys="mod+k" label="コマンドまたはコントロールと K" size="small"></tanrei-keyboard-shortcut> で検索できます。</p>
+
+    <!-- 続けて押す 2 つの組み合わせ。 -->
+    <tanrei-keyboard-shortcut keys="mod+k mod+c" label="コマンドまたはコントロールと K、続けてコマンドまたはコントロールと C"></tanrei-keyboard-shortcut>
+
+    <!-- 文字の形。読み上げはプロダクトの言語で行います。 -->
+    <tanrei-keyboard-shortcut keys="mod+shift+k" variant="plain" label="コマンド シフト K"></tanrei-keyboard-shortcut>
+
+    <!-- 利用者のプラットフォームにかかわらず、1 つのキーボード向けに書く領域。 -->
+    <section data-tanrei-keyboard-convention="standard">
+      <tanrei-keyboard-shortcut keys="mod+s" label="コントロール S"></tanrei-keyboard-shortcut>
+    </section>
+
+    <script type="module">
+      import '@tanrei/web/components/keyboard-shortcut';
+      // 要素はキーを表示するだけです。キーは利用者側で割り当て、そのキーが属するコントロールで伝えます。
+      const shown = document.querySelector('tanrei-keyboard-shortcut');
+      searchButton.setAttribute('aria-keyshortcuts', shown.ariaKeyShortcuts); // "Meta+K" または "Control+K"
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { KeyboardShortcut } from '@tanrei/react';
+
+    <p><KeyboardShortcut keys={['mod+k']} label="コマンドまたはコントロールと K" size="small" /> で検索できます。</p>
+
+    <KeyboardShortcut keys={['mod+k', 'mod+c']} label="コマンドまたはコントロールと K、続けてコマンドまたはコントロールと C" />
+
+    <KeyboardShortcut keys={['mod+shift+k']} variant="plain" label="コマンド シフト K" />
+
+    // 利用者のプラットフォームにかかわらず、1 つのキーボード向けに書く領域。
+    <section data-tanrei-keyboard-convention="standard">
+      <KeyboardShortcut keys={['mod+s']} label="コントロール S" />
+    </section>
+    ```
+  </TabItem>
+</Tabs>
+
+## 仕様
+
+<DemoFrame label="同じキーを Apple のキーボード向けと標準のキーボード向けに。文中の small、名前のあるキー、無効" plain column>
+  <div data-tanrei-keyboard-convention="apple" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="シフト コマンド K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="シフト コマンド K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="シフト コマンド K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+mod+escape" label="オプション コマンド エスケープ" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <div data-tanrei-keyboard-convention="standard" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="コントロール シフト K"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="コントロール シフト K" size="small"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+shift+k" label="コントロール シフト K" variant="plain"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="ctrl+alt+delete" label="コントロール オルト デリート" variant="plain" size="small"></tanrei-keyboard-shortcut>
+  </div>
+  <p style="font: var(--tanrei-sys-typescale-body-font); margin: 0"><tanrei-keyboard-shortcut keys="mod+k" label="コマンドまたはコントロールと K" size="small"></tanrei-keyboard-shortcut> で検索します。ページのどこからでも <tanrei-keyboard-shortcut keys="/" label="スラッシュ" size="small"></tanrei-keyboard-shortcut> で検索を開けます。</p>
+  <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--tanrei-sys-space-space200)">
+    <tanrei-keyboard-shortcut keys="shift+enter" label="シフト エンター"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="alt+arrow-up" label="オプションまたはオルト、上矢印"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+plus" label="コマンドまたはコントロール、プラス"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="f2" label="F2"></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="コマンドまたはコントロール、Z" disabled></tanrei-keyboard-shortcut>
+    <tanrei-keyboard-shortcut keys="mod+z" label="コマンドまたはコントロール、Z" variant="plain" disabled></tanrei-keyboard-shortcut>
+  </div>
+</DemoFrame>
+
+<ComponentSpecs name="keyboard-shortcut" />
+
+## ガイドライン
+
+### 使う場面
+
+コマンドを実行するキーをプロダクトが伝える場所で使います。ヘルプの文中、ショートカットの一覧、空の状態の案内、コマンドパレットのコマンド名の横などです。
+
+メニューの項目、プレーンなツールチップ、検索の中では、代わりにそのコンポーネントの `shortcut` プロパティを指定します。コマンドやファイル名のような、入力する文字にキーキャップを使わないでください。キャップは「押すキー」を意味します。
+
+### キーキャップか文字か、small か medium か
+
+| 選択肢 | 描くもの | 用途 |
+| --- | --- | --- |
+| `keycap`（既定） | キーを 1 つずつキャップに入れます。標準の流儀では、キャップの間に + を置きます。 | キーそのものが主題になる、ヘルプやドキュメント。 |
+| `plain` | ショートカットをひと続きのテキストで書きます。⌥⌘⎋ や Ctrl+Alt+Delete です。キャップも塗りも縁もありません。 | コマンド名の横。キャップの列が名前と競合する場所で、メニューと同じ書き方をします。 |
+| `medium`（既定） | 24 のキャップと 14 の文字。 | 単独で置くとき、または大きめの文字の横。 |
+| `small` | 20 のキャップと 12 の文字。 | 本文の行や密な行の中。行の高さを変えません。 |
+
+既定のシステムでは、キャップは縁のない淡い塗りで、文字は控えめなテキストの色です。デザインシステムは、キャップに縁（下側だけ太い縁も）を付けることも、バリアントやサイズを追加することもできます。
+
+### キーの書き方
+
+- **主な修飾キーは `ctrl` ではなく `mod` と書きます。** Apple のキーボードでは Command、それ以外では Control になります。`ctrl` と書くのは、どのキーボードでも Control であるショートカットだけです。
+- **順番は自由です。** 修飾キーは、コンポーネントがキーボードの決まった順に書きます。Apple では ⌃ ⌥ ⇧ ⌘、標準の名前では Ctrl、Alt、Shift の順です。
+- **英字は大文字で描き、Shift は加えません。** `mod+k` も `mod+K` も ⌘K と描きます。Shift を描くのは、名前で指定したときだけです。
+- **1 つの組み合わせに、修飾キー以外のキーは 1 つです。** キーのない組み合わせや、キーが 2 つある組み合わせは、描ける範囲で描き、デバッグビルドで報告します。
+- **並びは、複数の組み合わせです。** `mod+k` に続けて `mod+c` のように書きます。間隔を空けて描き、間には何も描きません。
+- **名前のあるキーもキーボードに従います。** `enter` は Apple のキーボードでは ↩、標準では Enter です。`escape` は ⎋ か Esc、`backspace` は ⌫ か Backspace、`page-down` は ⇟ か PgDn です。矢印はどちらでも ↑ ↓ ← → です。
+
+### 流儀
+
+`convention` は、どのキーボード向けにキーを書くかを決めます。`auto` のままにしてください。コンポーネントは、祖先が決めた流儀を使い、なければプラットフォームの流儀を使います。macOS、iOS、iPadOS、visionOS では Apple の記号、それ以外では標準の名前です。
+
+プラットフォームよりもプロダクトのほうがよく知っているときは、領域ごとに流儀を決めます。利用者が選べる設定、2 つのキーボードを並べて示すドキュメント、別のシステムへのリモートセッションなどです。Web では、祖先のどれかに `data-tanrei-keyboard-convention` 属性（`apple` または `standard`）を付けます。その中にあるメニュー、ツールチップ、検索も従います。1 つのショートカットだけに `convention` を設定するのは、例外の場合だけにします。
+
+流儀がデザインシステムで決まることはありません。キーは、プロダクトの見た目ではなく、実際に押すキーボードに従います。
+
+### 推奨
+
+- 実際に効くショートカットを表示します。キーはプロダクト側で割り当て、表示と割り当てを一致させておきます。
+- 読み上げられるショートカットには、必ず `label` を与えます。プロダクトの言葉で書いたショートカットです（「シフト コマンド K」）。なければ、スクリーンリーダーは `Meta+Shift+K` という記法を読みます。
+- `convention="auto"` では、描かれるキーは利用者のキーボードに合わせて変わりますが、書いた `label` は変わりません。このページのサンプルのように、どちらのキーボードでも正しい言い方にするか（「コマンドまたはコントロール、シフト、K」）、キーボードが分かってから `label` を設定します。
+- 今は使えないコマンドのショートカットには、そのコマンドの横で `disabled` を使います。キーは薄くなりますが、表示されたままです。
+- ショートカットは 1 行に収めます。組み合わせの途中で改行されることはなく、並びは組み合わせの間でだけ折り返します。
+
+### 非推奨
+
+- 記号を自分で書かない（テキストの中の ⌘K など）。別のキーボードでは誤りになり、スクリーンリーダーが記号を文字の名前で読み上げることがあります。
+- ショートカットを、コマンドへの唯一の手段にしない。ショートカットは、ポインターやフォーカスでも届くものへの近道です。
+- メニューの項目やツールチップの中に、自分でキーボードショートカットの要素を置かない。ホストの `shortcut` プロパティを使います。
+- ブランドやテーマで流儀を決めない。
+
+## アクセシビリティ
+
+<ComponentAccessibility name="keyboard-shortcut" />
+
+### コンポーネントが担うこと
+
+- キャップ、文字、区切りは支援技術から隠します。その代わりに、ショートカットのある場所で 1 つのテキストを読ませます。`label` です。⇧⌘K は「シフト コマンド K」のように読まれ、記号の文字の名前で読まれることはありません。`label` がなければ、`aria-keyshortcuts` の記法で書いたショートカットを読ませます。`Meta+Shift+K`、並びなら `Control+K Control+C` です。これは標準の記法で、どの言語でも同じです。このとき、コンポーネントは開発時に一度だけ報告します。
+- コンポーネントはキーの名前を持ちません。修飾キーも、矢印キーも、句読点のキーも、どの言語の言葉にも直しません。スクリーンリーダーは、カンマのような単独の文字を読み飛ばすことがあります。これも `label` を書く理由の 1 つです。
+- ロールを持たず、フォーカスも入力も受け取らず、ターゲットでもありません。テキストです。
+- ホスト（メニューの項目、プレーンなツールチップ、検索）の中では、自分では何も伝えません。ホストが、そのコントロールのキーボードショートカットとして伝えます。Web では `aria-keyshortcuts` です。
+- `disabled` は文字を薄くするだけで、状態は伝えません。使えるかどうかは、ショートカットが属するコマンドが伝えます。
+- 右から左のレイアウトでも、キーは左から右の順のままで、周りのテキストの方向から切り離されます。キーボードや各プラットフォームのメニューの書き方と同じです。
+- 周りのテキストのベースラインにそろい、文字を大きくすると一緒に大きくなります。キャップの高さは最小値です。
+- プロダクトの書体にない記号（⌘、⎋）は、同じ大きさのシステムフォントで描き、欠けたグリフを示す箱は描きません。
+- 既定のシステムでは、キャップの上の文字はテキストのコントラストを満たします。キャップの塗りは装飾で、意味を伝えるのは文字だけです。
+- 空の組み合わせ、修飾キーだけの組み合わせ、キーが 2 つある組み合わせ、書き出すと同じキーが 2 回になる組み合わせ（標準の流儀での `ctrl+mod`）、知らないキーの名前、知らない流儀は、デバッグビルドで報告します。
+
+プラットフォームごとの既知の制約：
+
+- SwiftUI、Compose、Flutter、React Native は、キーボードショートカットをまだ実装していません。
+- Web：無効として伝わるコマンドの外に単独で置いた無効なショートカットは、コントラストの自動チェックで報告される見込みです。文字が薄くなり、要素自身は無効の状態を伝えないためです。
+
+### 利用者側で行うこと
+
+- キーを効かせます。コンポーネントは表示するだけです。
+- キーが属するコントロールで、そのキーをキーボードショートカットとして伝えます。Web では、要素の読み取り専用のプロパティ `ariaKeyShortcuts` が `aria-keyshortcuts` の書式で値を返すので、それを設定します。
+- ショートカットが読み上げられるところでは、`label` を渡します。プロダクトの言葉で書いたショートカットです。Tanrei は、言葉もキーの名前も同梱しません。
+- どのコマンドにも、ショートカットなしで届くようにしておきます。

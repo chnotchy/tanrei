@@ -1,0 +1,1145 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "number-input",
+  "title": "Number input",
+  "summary": "The box people enter a number in — typed in their locale's form or stepped by a key or by one of its two buttons, kept within limits, with its unit beside it — drawn as the text input beside it and, in the looks that float one, with its label inside the box. It has no label row and no message: a Field frames it, or the product names it.",
+  "category": "text-inputs",
+  "level": "base",
+  "listing": "advanced",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "container",
+      "description": "The input's box: it holds the prefix, the input, the suffix and the steppers on one line. It measures and is drawn as the text input's container of the same variant and size, carries the hover state layer and shows focus by its edge."
+    },
+    {
+      "id": "outline",
+      "description": "The border of an outlined number input, which opens a gap where the floated label crosses it; in a stacked one, the line drawn inside the container's edge while it is focused or in error, which takes no layout space.",
+      "optional": true
+    },
+    {
+      "id": "active-indicator",
+      "description": "The line along the bottom of a filled number input; its focused state is thicker and colored.",
+      "optional": true
+    },
+    {
+      "id": "label",
+      "description": "In a filled or outlined input, its name drawn inside the box: it rests in the input line while the input is empty and not focused, and floats otherwise. A stacked input draws none: the label above it is the row of the Field that frames it.",
+      "optional": true
+    },
+    {
+      "id": "required-asterisk",
+      "description": "After the floating label's text, an asterisk, where the Field that frames the input says the control is required and marks it (NMI-7). Kept from assistive technology.",
+      "optional": true
+    },
+    {
+      "id": "input",
+      "description": "The number as text, in the platform's native text element: what the person typed while they edit, the committed number in the locale's form otherwise. One line, drawn with tabular figures."
+    },
+    {
+      "id": "placeholder",
+      "description": "A hint shown while the input is empty; never a label and never a value.",
+      "optional": true
+    },
+    {
+      "id": "prefix",
+      "description": "Fixed text before the number that is part of the field and not of the value: a currency sign.",
+      "optional": true
+    },
+    {
+      "id": "suffix",
+      "description": "Fixed text after the number that is part of the field and not of the value: the unit (px, %, kg). It is read with the value.",
+      "optional": true
+    },
+    {
+      "id": "stepper",
+      "description": "One of two buttons at the end of the container that step the number down and up by step: icon-only Buttons of the text variant showing remove and add, drawn from Button's tokens. Not focus stops; the arrow keys do their work.",
+      "optional": true
+    },
+    {
+      "id": "caret",
+      "description": "The text cursor, colored by the caret part of the variant."
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "stacked",
+        "filled",
+        "outlined"
+      ],
+      "default": "stacked",
+      "axis": "tanrei.comp.input-box.variant",
+      "description": "The text input's three looks, so that a number input is drawn as the text inputs beside it: stacked is a filled box that shows focus and error with a line inside its edge and draws no label — the label of the Field that frames it stands above it; filled and outlined float the label inside the box. Use one style per form. A design system may leave some out (the Tanrei system ships stacked only) or add values."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "axis": "tanrei.comp.input-box.size",
+      "description": "Minimum height of the container (48 / 56): the text input's two sizes. The hit area always meets the minimum target. A design system may add values."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "default": null,
+      "description": "The committed number, or null (the platform's absent value) while the field holds none. It changes when the person commits — focus leaves, the action key, a step — not on every keystroke; input carries what is being typed."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the input for assistive technology where no Field frames it — a number under a column's head, in a toolbar, beside a slider under one row title; a filled or outlined input also draws it, as the label that floats in its box. Inside a Field leave it empty: the Field's label names the input, and is what floats."
+    },
+    {
+      "name": "labelHidden",
+      "type": "boolean",
+      "default": false,
+      "description": "Does not draw the floating label of a filled or outlined input, which stays the accessible name. Inside a Field, hide the label on the Field. A stacked input draws no label, so this changes nothing there."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "default": "",
+      "description": "A hint shown while the input is empty and the label is not in the input line. Never a replacement for a name."
+    },
+    {
+      "name": "error",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the input in its error condition and exposes it as invalid. A Field sets it from its own error; set it here only where no Field frames the input. What a value means is the product's to validate; the input never sets this itself. A number input also enters an error of its own while the text it was left with is not a number (NMI-21)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "description": "Prevents focus, editing, stepping and form submission. Inside a Field, disable the Field, so that its label follows."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "default": false,
+      "description": "The number can be focused, selected and copied, but not changed: no key steps it and no stepper is drawn."
+    },
+    {
+      "name": "min",
+      "type": "number",
+      "default": null,
+      "description": "The lowest number a commit keeps; a lower one is raised to it. Null for no limit. It is also where the steps are counted from."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": null,
+      "description": "The highest number a commit keeps; a higher one is lowered to it. Null for no limit."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "default": 1,
+      "description": "How far Up Arrow, Down Arrow and a stepper move the number; Page Up and Page Down move ten times as far. It does not limit what may be typed."
+    },
+    {
+      "name": "steppers",
+      "type": "boolean",
+      "default": true,
+      "description": "Draws the two stepper buttons at the end of the field. False for a field in a row too narrow for them, or beside a slider that does their work; the keys still step."
+    },
+    {
+      "name": "incrementLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the stepper that steps up, in the product's language (\"Increase\"). The product's: Tanrei has no word for it. Empty reads the product's words. Required while the steppers are shown.",
+      "words": "incrementLabel"
+    },
+    {
+      "name": "decrementLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the stepper that steps down, in the product's language (\"Decrease\"). The product's: Tanrei has no word for it. Empty reads the product's words. Required while the steppers are shown.",
+      "words": "decrementLabel"
+    },
+    {
+      "name": "prefixText",
+      "type": "string",
+      "default": "",
+      "description": "Fixed text before the number, not part of the value: a currency sign (\"$\", \"¥\")."
+    },
+    {
+      "name": "suffixText",
+      "type": "string",
+      "default": "",
+      "description": "Fixed text after the number, not part of the value: the unit (\"px\", \"ms\", \"%\", \"kg\"). Read to assistive technology with the number."
+    },
+    {
+      "name": "valueText",
+      "type": "string",
+      "default": "",
+      "description": "The value as words (\"12 pixels\", \"3 stars\"), given to assistive technology in place of the number with its prefix and suffix. The same text a Slider beside the field takes as its valueText."
+    },
+    {
+      "name": "align",
+      "type": "enum",
+      "values": [
+        "start",
+        "end"
+      ],
+      "default": "start",
+      "description": "Where the number stands in the input: at the start, as the text of every other field, or at the end, for a number in a column of numbers whose digits should line up."
+    },
+    {
+      "name": "minFractionDigits",
+      "type": "number",
+      "default": 0,
+      "description": "The fewest digits shown after the decimal separator; zeros fill them (2 for an amount of money: \"12.00\")."
+    },
+    {
+      "name": "maxFractionDigits",
+      "type": "number",
+      "default": 3,
+      "description": "The most digits kept after the decimal separator: a commit rounds to it. 0 makes the field hold whole numbers and asks for a keyboard without a separator."
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "default": "",
+      "description": "A BCP 47 language tag (\"en-US\", \"de-DE\", \"ar-EG\") for how the number is shown and read: its digits and its decimal separator. Empty uses the platform's current locale. The value itself is a number in every locale."
+    },
+    {
+      "name": "invalidText",
+      "type": "string",
+      "default": "",
+      "description": "The words for an input committed with a text that is not a number (\"Enter a number\"): given to the Field that frames it, which shows them as its error text and, while they are empty, shows its own errorText (NMI-21, FLD-28)."
+    }
+  ],
+  "events": [
+    {
+      "name": "input",
+      "description": "The person changed the text, or a step changed the value; carries the number the text reads as — not clamped, not rounded — or the empty value while it reads as none. Emitted for every change, not when the product sets value. What a Slider beside the field follows."
+    },
+    {
+      "name": "change",
+      "description": "A commit changed the value: focus left the field, the action key was pressed, a key or a stepper stepped it, or a held stepper was released; carries the value."
+    },
+    {
+      "name": "action",
+      "description": "The person pressed the keyboard's action key (Enter, Return, Done)."
+    },
+    {
+      "name": "entryError",
+      "description": "The person committed a text that is not a number; carries the reason (invalid) and invalidText, the words the input has for it. The entry error itself is shown by the Field that frames the input (NMI-21)."
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "error"
+  ],
+  "behavior": [
+    {
+      "id": "NMI-1",
+      "text": "THE number input SHALL draw its container at least comp.input-box.container.height.medium tall for size medium (and so on for each size), with a stacked or outlined number input's four corners and a filled one's top corners rounded by comp.input-box.container.shape, a filled one's bottom corners by comp.input-box.container.shape-bottom, all eased by sys.shape.corner-smoothing, and SHALL lay out in it one row, centred vertically: the input line — the prefix where there is one, the input taking the remaining width and the suffix where there is one (NMI-28), in the order and the direction NMI-39 gives — and at the container's end the two steppers WHILE they are shown (NMI-25), comp.input-box.container.gap.medium after the input line (and so on). Text SHALL be comp.input-box.container.padding-inline.medium from the container's edge and the input line SHALL have at least comp.input-box.container.padding-block.medium above and below it (and so on for each size)."
+    },
+    {
+      "id": "NMI-2",
+      "text": "THE number input SHALL measure as the text input of the same variant and size measures (TXI-16): the same container height, paddings and corners, and the same text style and start edge for its input text, so that a number input and a text input side by side share every horizontal line of their boxes and a number input below a text input shares its start edges. THE number input SHALL be drawn, in every state, plain and in error, with the colors the text input of the same variant has for the parts of the same name. The two are drawn from one set of tokens (NMI-47): what a layer changes of the box, it changes for both. The rows around the two boxes — the label, the help, the error — are alike for another reason: they are the one Field's (FLD-1), whichever control it frames.",
+      "verify": "The number input and the text input read one set of tokens for the box (NMI-47), so no test holds two sets equal. Under the default system the number field's fixture stacked-supporting and the text field's overlay line for line at one width."
+    },
+    {
+      "id": "NMI-7",
+      "text": "WHERE variant is filled or outlined, WHILE the floating label is drawn (NMI-8) and the Field that frames the input gives it an asterisk as its required mark (FLD-25) THE number input SHALL draw the character \"*\" after the label's text, comp.input-box.requirement.asterisk-gap from it, in the label's text style and at the label's place, resting and floated with it, colored by its required-asterisk part (comp.input-box.outlined.required-asterisk.color for an outlined input; its error. part WHILE the input is in error), and SHALL keep it from assistive technology, because the required state already says it (NMI-12). It SHALL draw no tag and no optional label, as the text input of that variant draws none (TXI-50): which mark a required control gets is the Field's to say (FLD-6), and a tag named there reaches a floating label as the asterisk. WHILE no Field frames it, or the Field gives no mark, or the label is not drawn, THE number input SHALL draw no mark.",
+      "verify": "The number field's fixture outlined-required (twin field.number-outlined-required): the asterisk follows the floating label. Unit, a Field around an outlined number input: requiredMark tag, asterisk and auto under a fixture system that names each mark draw the asterisk in the floating label; none draws nothing and keeps the required state; without a Field no mark is drawn."
+    },
+    {
+      "id": "NMI-8",
+      "text": "WHERE variant is filled or outlined and the label is drawn THE number input SHALL rest the label in the input line, in comp.input-box.label.typescale.medium for size medium (and so on), WHILE the input is empty and not focused, and otherwise float it as the text input of that variant floats its label (TXI-13): to the top of a filled container, above the input line, or onto an outlined container's top edge with a gap of comp.input-box.outline.notch-padding in the outline on each side of it, in comp.input-box.label.floated-typescale.medium for size medium (and so on); a filled number input that draws its label SHALL be at least twice comp.input-box.container.padding-block-with-label.medium plus one line of each of those two text styles tall (and so on for each size), so that it does not change height when the label floats. WHEN the label floats or rests THE number input SHALL move and resize it over comp.input-box.motion.label-duration with comp.input-box.motion.label-easing, and at once where motion is reduced. The label SHALL wrap rather than be cut and SHALL never be drawn over the input text. WHILE the input is empty THE number input SHALL show placeholder, in the placeholder color of its variant (comp.input-box.stacked.placeholder.color), only while the label is not in the input line — a stacked input, whose label is the row of its Field; floated; or not drawn — so that the two never overlap. The label it floats SHALL be its accessible name (NMI-12): the label of the Field that frames it, or its own label where none does. WHILE labelHidden is true — its own, or that Field's (FLD-25) — or it has no name THE number input SHALL draw no label. WHERE variant is stacked, or a variant laid out as stacked (NMI-43), THE number input SHALL draw no label at all: the label above it is the Field's row (FLD-2).",
+      "verify": "The filled and outlined variants are not shipped by the default system: the fixtures filled-value and outlined-value are drawn there from their tokens all the same, and the presets that have those looks ship them. Unit, a Field around an outlined number input: the Field draws no label row and the input floats the Field's label."
+    },
+    {
+      "id": "NMI-10",
+      "text": "WHILE error is true — set by the product, or by the Field that frames it (FLD-8) — or the entry error of NMI-21 lasts THE number input SHALL draw every part of its container, in every state, from the error parts of its variant (comp.input-box.stacked.error.outline.color and the other error. parts), so that the box itself is marked and not only a text below it: a stacked number input draws, at rest, a line of comp.input-box.outline.width in comp.input-box.stacked.error.outline.color inside its container's edge, following its corners and taking no layout space; and it SHALL expose itself as invalid to assistive technology. The steppers SHALL stay as they are drawn: they are not in error. THE number input SHALL never set error itself — what a value means is the product's to validate — and SHALL show no error text of its own: the words that say what is wrong are the errorText of the Field that frames it, which that Field draws and gives the input as its description (FLD-7, FLD-11).",
+      "verify": "Fixtures stacked-error, filled-error and outlined-error. Under the default system the inner line takes the error role. FLD-8 for the rows."
+    },
+    {
+      "id": "NMI-12",
+      "text": "THE number input SHALL take its name, its description and its required state from the Field that frames it, as every control a Field frames does (FLD-10, FLD-11): the Field's label is its accessible name, whether or not any label is drawn, and the Field's supporting text with, in error, the error text after it its description. WHILE label is not empty THE number input SHALL use it as the accessible name instead, for an input no Field frames or one whose visible label is elsewhere — the head of a table's column, a toolbar, the title of a row that also holds a slider. It SHALL never use placeholder as the name, and IF it has neither name it SHALL still render and work, and in debug builds SHALL report that it has no accessible name. WHILE its Field says it is required THE number input SHALL expose the required state to assistive technology (and, on the web, a missing value to the form's constraint validation, NMI-35), whichever mark is drawn and where none is; it has no requirement setting of its own and SHALL NOT validate because of one.",
+      "verify": "As TXI-23 has it for a text input. Unit: a Field labelled \"Quantity\" around a number input names the spin button \"Quantity\"; the input's own label wins over it; bare and unnamed, the input is reported."
+    },
+    {
+      "id": "NMI-14",
+      "text": "WHEN the user presses a floating label, the prefix, the suffix or the container's padding THE number input SHALL move focus to its input and do nothing else: it SHALL NOT change the number or select it, and SHALL draw no press answer, because a press on a field is not an action. A press on the label row of the Field that frames it focuses the input too, and a press on that Field's supporting row does nothing: both are the Field's (FLD-12). WHERE the container is shorter than the minimum target THE number input SHALL extend its hit area vertically to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. THE number input SHALL add one stop to the focus order, its input, and no other: the steppers are not focus stops (NMI-25).",
+      "verify": "TXI-8; FLD-12 for the rows."
+    },
+    {
+      "id": "NMI-15",
+      "text": "WHILE hovered or focused THE number input SHALL render its container, active indicator, outline, floating label and its asterisk, input, placeholder, prefix and suffix, caret and opacity, and the widths of its outline and active indicator, from the component tokens of the highest-precedence active state, with precedence focused over hovered (their error parts WHILE error is true); unlike a button, focus gained by pointer or touch SHALL select the focused state, because a field shows where typing will go however it was focused. THE number input SHALL show focus by its focused tokens and SHALL NOT draw the focus ring: the focused active indicator or outline is its focus indicator, and a stacked number input draws it as a line of its focused outline width, in the focused outline color of its variant, inside the container's edge, following its corners and taking no layout space, so that nothing in the container moves as the line appears, thickens or goes; WHERE sys.behavior.focus-style is glow it SHALL also draw the glow around the container while focused. A hovered stacked number input SHALL show the state layer on its container and draw no edge. Selected text in the input SHALL be highlighted in comp.input-box.selection.color and drawn in comp.input-box.selection.content.color in every variant and state. WHEN its state, error or disabled changes THE number input SHALL change its colors and widths over comp.input-box.motion.state-duration with comp.input-box.motion.state-easing, and at once WHERE motion is reduced.",
+      "verify": "TXI-6, TXI-7 and TXI-26; the rows' focused colors are FLD-13. Focused cannot be a snapshot fixture. Unit: focus the input by pointer and by keyboard and read the resolved tokens: under the default system the focused edge takes the focus-ring role at the thick width, as a focused text input's does. In a filled or an outlined input the floating label takes its focused color and, with error true, keeps its error color: test it with the m3-like preset, which ships those looks."
+    },
+    {
+      "id": "NMI-16",
+      "text": "THE number input SHALL hold as its value a number or nothing: value is a number, or empty (null, or the platform's own absent value) WHILE the field holds none. It SHALL edit that number as text in the platform's native text element, on one line, and WHILE the person is editing the text is theirs: THE number input SHALL NOT rewrite, reformat, clamp, round or refuse what is typed, pasted or dictated, SHALL NOT move the caret, and SHALL follow the text input's rule for an input method (TXI-4): it leaves a composition to the native element and reads the text only when the composition ends. It SHALL give the input a numeric keyboard: with a decimal separator WHILE maxFractionDigits is greater than 0, and with a minus sign WHILE min is empty or below 0, where the platform's keyboards can say so; without autocapitalization, autocorrection or suggestions.",
+      "verify": "Unit: type \"12a\" and read the input: the text is \"12a\" until the field is committed (NMI-20, NMI-21). With a Japanese input method, full-width digits are composed and committed without the field touching them."
+    },
+    {
+      "id": "NMI-17",
+      "text": "WHEN a value is committed (NMI-20) or the product sets value (NMI-31) THE number input SHALL write the number into its input in the form of locale — a BCP 47 language tag, or WHILE locale is empty the platform's current locale: that locale's digits and decimal separator, a minus sign before a negative number, at least minFractionDigits and at most maxFractionDigits digits after the separator with no other trailing zeros, no exponent and no grouping separators, so that what is shown is what can be typed back. An empty value SHALL be an empty input, which shows placeholder as NMI-8 says. THE number input SHALL draw the number on one line in comp.input-box.input.typescale.medium for size medium (and so on) and the input color of its variant (comp.input-box.stacked.input.color), scrolling it sideways inside the input when it is longer than the input, and SHALL NOT cut it with an ellipsis.",
+      "verify": "Fixtures stacked-locale-de (1.5 shown as \"1,5\") and stacked-locale-ar (Arabic-Indic digits). Unit: value 1234.5 shows \"1234.5\" in en-US, never \"1,234.5\"; with minFractionDigits 2, value 12 shows \"12.00\"."
+    },
+    {
+      "id": "NMI-18",
+      "text": "THE number input SHALL read a text as a number leniently, by the locale's form: ignoring spaces around it and inside it; taking a hyphen-minus or a minus sign before the digits, or a plus sign, as its sign; taking ASCII digits, the locale's own digits and full-width digits as digits; taking the locale's decimal separator, once, as the separator; ignoring the locale's grouping separator wherever it stands between two digits; and ignoring prefixText before the number and suffixText after it WHERE they were typed or pasted with it (\"12 px\", \"$5\"). An empty text, or one of spaces only, SHALL read as no value. Any other text — letters, an exponent, two separators, a sign alone — SHALL read as not a number. THE number input SHALL NOT guess between two locales' forms: a character that is another locale's decimal separator and this locale's grouping separator is this locale's.",
+      "verify": "Unit, locale en-US: \" 1,234.50 \" reads 1234.5; \"−3\" and \"-3\" read -3; \"１２\" reads 12; \"12 px\" with suffixText \"px\" reads 12; \"1e3\", \"1.2.3\", \"-\" and \"abc\" are not numbers. Locale de-DE: \"1,5\" reads 1.5 and \"1.500\" reads 1500."
+    },
+    {
+      "id": "NMI-19",
+      "text": "WHEN the person changes the text — by typing, deleting, pasting, cutting, dictating, autofill or an input method committing text — THE number input SHALL emit input once per change with the number the text now reads as (NMI-18), not clamped and not rounded, or with the empty value WHILE the text reads as no value or as not a number; WHEN a step changes the value (NMI-22) it SHALL emit input once with the new value. WHEN the product sets value THE number input SHALL NOT emit input or change. THE number input SHALL NOT change value itself while the person types: value is the committed number until the next commit.",
+      "verify": "Unit: with min 0 and max 10, typing \"25\" emits input with 25; value stays what it was until the field is committed, when change carries 10."
+    },
+    {
+      "id": "NMI-20",
+      "text": "WHEN the input loses focus, or the person presses the keyboard's action key (Enter, Return, Done), THE number input SHALL commit its text: WHILE the text reads as a number it SHALL take that number, raise it to min WHILE min is not empty and the number is below it, lower it to max WHILE max is not empty and the number is above it, round it to maxFractionDigits digits after the separator (a half away from zero), make it the value, and write it back into the input as NMI-17 says; WHILE the text reads as no value it SHALL make the value empty; WHILE the text reads as not a number it SHALL enter the entry error of NMI-21. It SHALL then emit change once with the value WHILE the value differs from the one last committed (the value when the input gained focus, or at the last change). THE number input SHALL clamp and round only when it commits, never while the person types, so that \"25\" can be typed on the way to \"2.5\" and \"1\" on the way to \"100\" above a minimum of 50; and it SHALL NOT move a committed number to a multiple of step: step says how far a stepper moves, not which numbers may be typed. WHEN the person presses the action key THE number input SHALL emit action after any change it causes, and on the web, inside a form, SHALL then request the form's submission as a native input does unless action was cancelled. The submission SHALL be requested through the form's default button (BTN-30): WHILE the form has a submit button — the platform's own or a Button of type submit — the first of them in document order SHALL be pressed, so that its click is emitted and its name and value are sent, and WHILE that button is disabled nothing SHALL be submitted; only a form with no submit button is asked directly.",
+      "verify": "Unit: min 0, max 100, text \"250\", blur: the input shows \"100\", value is 100, change fires once with 100. With step 5 a typed 12 commits as 12. On the web, in a form whose first submit button is the platform's own with a name and a value: Enter in the field emits one click on that button and one submit whose data holds the pair; with the button disabled, no submit; in a form with no submit button, one submit as before."
+    },
+    {
+      "id": "NMI-21",
+      "text": "WHEN the number input commits a text that reads as not a number (NMI-18, NMI-20) THE number input SHALL keep the text as the person left it, make the value empty, enter an entry error, and emit entryError once with the reason invalid and with invalidText, the words it has for the refusal. WHILE an entry error lasts THE number input SHALL be in the error condition as error puts it there (NMI-10) and SHALL report the refusal to the Field that frames it, with invalidText as its words, which that Field shows in its supporting row and announces (FLD-28: its errorText WHILE invalidText is empty; its help stays above either); WHILE no Field frames it invalidText SHALL be the input's description. THE number input SHALL end the entry error, without an event of its own, WHEN the person edits the text into a number or empties it, WHEN a step gives the field a value (NMI-22), or WHEN the product sets value, and SHALL then withdraw its report; the product's own error, and the error and the errorText of its Field, are untouched by it. THE number input SHALL NOT refuse characters as they are typed and SHALL NOT discard what it could not read, because a text that was put right is quicker than a text typed again.",
+      "verify": "The text input does the same for a date left half-filled (TXI-30). Unit: type \"12 apples\", blur: the text stays, value is empty, the field is exposed as invalid and invalidText is its description; delete \" apples\": the error ends and input carries 12. In a Field: the Field shows invalidText as its error text, below its help, and announces it (FLD-28), and takes it away when the error ends."
+    },
+    {
+      "id": "NMI-22",
+      "text": "WHEN the number input steps up or down by an amount (NMI-23, NMI-26) THE number input SHALL start from the number its text reads as, or from the value WHILE the text reads as not a number, and move to the next number in that direction that is min plus a whole multiple of the amount (zero plus a whole multiple WHILE min is empty), so that a number between two such numbers goes to the nearer one in the direction of the step and not past it; it SHALL then hold the result within min and max, compute it in decimal so that 0.1 stepped by 0.2 is 0.3, make it the value, write it into the input (NMI-17) with the caret at its end and all of it kept in view, and emit input and then change. WHILE the field holds no value a step in either direction SHALL give it the number nearest to zero that min and max allow and nothing more. A step that would not change the value — up at max, down at min — SHALL do nothing and emit nothing. WHILE step is 0 or less, or not a number, THE number input SHALL step by 1 and in debug builds report the step.",
+      "verify": "Unit: step 5, min 0: from 12 a step up gives 15 and a step down gives 10. Step 0.1 from 0.2 gives 0.3, shown as \"0.3\". Empty, min 10, max 20: the first step gives 10. Empty, min -5, max 5: the first step gives 0."
+    },
+    {
+      "id": "NMI-23",
+      "text": "WHILE the input has focus, readOnly is false and no input method is composing, WHEN the person presses Up Arrow THE number input SHALL step up by step and WHEN the person presses Down Arrow step down by step (NMI-22); WHEN the person presses Page Up it SHALL step up by ten times step and WHEN the person presses Page Down down by ten times step. A key the platform repeats while it is held SHALL step once for each repeat. THE number input SHALL leave Home, End, Left Arrow and Right Arrow, and every arrow or page key pressed with a modifier key, to the text: they move the caret and select, as in any text input, and SHALL NOT change the value. THE number input SHALL have no key of its own for min and max.",
+      "verify": "Home and End are the caret's in an editable text, so the two keys a spin button without a text gives to its limits are not taken here: a limit is typed, or reached by Page Up and Page Down."
+    },
+    {
+      "id": "NMI-24",
+      "text": "THE number input SHALL NOT change its value WHEN the person turns a mouse wheel, scrolls a trackpad or swipes over it, whether or not it has focus — the page or the nearest scrolling ancestor scrolls instead — and SHALL NOT change its value by a drag along the field, its label or its unit. Only typing, the keys of NMI-23 and the steppers change the number.",
+      "verify": "Unit: focus the field, turn the wheel over it: value and text are unchanged and the page scrolled."
+    },
+    {
+      "id": "NMI-25",
+      "text": "WHILE steppers is true and readOnly is false THE number input SHALL draw two steppers at the end of its container, after the input line: first, in reading order, the one that steps down, showing the glyph remove of the system's icon set, then the one that steps up, showing the glyph add; each an icon-only Tanrei Button of the text variant at Button's medium size and default width, drawn from Button's own tokens, the two comp.number-input.stepper.gap apart, measured so that each keeps at least sys.target.touch along the row (two buttons narrower than that stand apart by what is missing), and the one nearest the end comp.number-input.stepper.inset from the container's end edge, both centred vertically in the container. Each SHALL be a Button in its press, its target and its states (BTN-5, BTN-8, BTN-9, BTN-10), with two differences: it SHALL NOT be a focus stop, because Up Arrow and Down Arrow do its work from the input and two more stops in every number of a form would cost more than they give; and it SHALL be exposed to assistive technology as a button named by decrementLabel or incrementLabel, so that a person who explores by touch can find and press it. THE number input SHALL disable the stepper that steps down WHILE the value is at or below min and the one that steps up WHILE it is at or above max, and both WHILE disabled is true. WHILE steppers is false or readOnly is true it SHALL draw neither and keep no room for them. THE number input SHALL NOT draw smaller steppers to save room, and SHALL NOT stack them: a product whose row cannot hold them sets steppers to false. WHILE incrementLabel or decrementLabel is empty THE number input SHALL still draw the stepper and in debug builds report that it has no accessible name.",
+      "verify": "Under the default system a medium Button is 40 wide and high: the pair takes 88 of the container's width, 4 from its end, each stepper a 48 by 48 target (the field's hit area is 48 high, NMI-14). Fixtures stacked-value, stacked-at-min, stacked-at-max, stacked-no-steppers."
+    },
+    {
+      "id": "NMI-26",
+      "text": "WHEN the person presses a stepper by pointer or touch, or activates it through assistive technology, THE number input SHALL step once by step in that stepper's direction (NMI-22) when the press begins, and SHALL NOT move focus: a field that was not focused stays unfocused, so that a touch on a stepper does not raise the on-screen keyboard, and a focused input keeps its focus and its caret. A step from a stepper SHALL commit as every step does: it emits input and then change, and it ends an entry error."
+    },
+    {
+      "id": "NMI-27",
+      "text": "WHILE a stepper is held down by pointer or touch THE number input SHALL repeat its step: after comp.number-input.motion.repeat-delay it SHALL step again, then again once every comp.number-input.motion.repeat-interval, and after its tenth repeated step once every comp.number-input.motion.repeat-interval-fast, until the press ends, the pointer leaves the stepper, or the value reaches min or max. A hold SHALL change how often the field steps and never how far: every step is one step. THE number input SHALL emit input for each step of a hold and change once, when the hold ends. These are waiting times, not motion: they SHALL be kept WHERE motion is reduced.",
+      "verify": "Under the default system: 500 ms, then every 100 ms, then every 50 ms. Unit with a fake clock, from 0 with step 1: the press gives 1; the repeats at 500, 600, … and 1400 ms give 2 to 11; those at 1450 and 1500 ms give 12 and 13; releasing then emits one change, with 13."
+    },
+    {
+      "id": "NMI-28",
+      "text": "WHILE prefixText is not empty THE number input SHALL draw it before the number, comp.input-box.affix.gap from the input, and WHILE suffixText is not empty after the number, comp.input-box.affix.gap from the input — before and after along the direction of the number's run (NMI-39), not along the layout's — both on the input's line and in its text style, in the affix color of its variant (comp.input-box.stacked.affix.color; comp.input-box.stacked.error.affix.color WHILE error is true), exactly while the label is not in the input line (NMI-8). The prefix and the suffix are part of the field and never of the value: they cannot be edited or selected, a press on them focuses the input (NMI-14), and they SHALL NOT be cut — the input gives up its width first. THE number input SHALL read them to assistive technology with the number, as NMI-34 says, so that a unit or a currency is heard with the figure. THE number input SHALL have no control for choosing a unit: a unit the person can change is a select beside the field.",
+      "verify": "Fixtures stacked-unit (\"px\"), stacked-percent (\"%\") and stacked-prefix (\"$\" with \"USD\")."
+    },
+    {
+      "id": "NMI-29",
+      "text": "THE number input SHALL align the number in its input WHILE align is start to the field's start edge, as the text of every other field is — the right edge in a right-to-left layout, whatever the direction of the number's run (NMI-39) — and WHILE align is end to the end of the number's run, which is the edge of the input at which the suffix stands or would stand: for a number that stands against its unit and for a number in a column of numbers, because a number is written left to right and the digits of one place stand under each other only where the numbers end at one edge. The end of a left-to-right run is the right edge of the input in every layout direction, and the end of a right-to-left run the left edge: WHERE the run runs with the layout that is the field's end edge, and WHERE it runs against the layout — a number alone, or a number with a unit in Latin letters or signs, in a right-to-left layout — it is the field's start edge, so that there start and end are one edge. It SHALL draw the number, the placeholder, the prefix and the suffix with tabular figures where the typeface has them, so that the digits of two fields stand under each other and a number that is stepped does not move from side to side.",
+      "verify": "Fixture stacked-align-end."
+    },
+    {
+      "id": "NMI-30",
+      "text": "IF the product gives a min that is above max THE number input SHALL treat max as empty and in debug builds report it. IF the product sets a value below min or above max, or with more digits after the separator than maxFractionDigits, THE number input SHALL show that value as it is and SHALL NOT correct it: limits apply to what the person commits (NMI-20), and the product's own value is the product's to keep right. IF minFractionDigits is above maxFractionDigits THE number input SHALL use maxFractionDigits for both and in debug builds report it."
+    },
+    {
+      "id": "NMI-31",
+      "text": "WHEN the product sets value THE number input SHALL write it into its input as NMI-17 says, replacing the text whatever the person had typed, end any entry error (NMI-21), and SHALL NOT emit input, change or entryError; a value set during an input method's composition SHALL be applied when the composition ends (TXI-4). WHEN the product changes min, max, step, minFractionDigits, maxFractionDigits or locale THE number input SHALL show its value again in the new form, enable and disable its steppers by the new limits (NMI-25), and SHALL NOT change the value or emit anything."
+    },
+    {
+      "id": "NMI-32",
+      "text": "WHILE disabled is true — set by the product, or by the Field that frames it (FLD-14) — THE number input SHALL NOT be focusable or editable, SHALL NOT step by any input, SHALL NOT emit input, change, action or entryError, SHALL expose the disabled state to assistive technology, SHALL be left out of form submission on the web, SHALL disable both steppers, and SHALL render every part from the disabled component tokens of its variant (of its error parts WHILE error is true)."
+    },
+    {
+      "id": "NMI-33",
+      "text": "WHILE readOnly is true and disabled is false THE number input SHALL stay focusable, selectable and copyable, SHALL NOT let the person change the number by typing or by any key of NMI-23, SHALL draw no steppers (NMI-25), SHALL NOT emit input or change, SHALL expose the read-only state to assistive technology, SHALL be submitted with its form on the web, and SHALL render as an enabled field, including its hovered and focused states."
+    },
+    {
+      "id": "NMI-34",
+      "text": "THE number input SHALL expose its input as a spin button (the web's spinbutton role; the platform's adjustable or stepper trait elsewhere) named as NMI-12 says: its value the committed number, its minimum min and its maximum max WHILE each is not empty, and its value text valueText WHILE that is not empty and otherwise the number as shown with prefixText before it and suffixText after it, each parted from it by a space (\"$ 120 USD\", \"12 px\", \"40 %\"); WHILE the field holds no value it SHALL expose no value and no value text. WHERE the platform's assistive technology can increase and decrease an adjustable element (a swipe up or down, an increment and a decrement action) those actions SHALL step by step as NMI-23 does. THE number input SHALL expose its steppers as buttons named by decrementLabel and incrementLabel with their disabled state (NMI-25), and SHALL keep the prefix and the suffix from being read a second time as texts of their own.",
+      "verify": "Unit, on the web: role spinbutton with aria-valuenow 12, aria-valuemin 0, aria-valuemax 100 and aria-valuetext \"12 px\"; with valueText \"12 pixels\" the value text is that."
+    },
+    {
+      "id": "NMI-35",
+      "text": "WHERE the platform has forms (the web) THE number input SHALL take part in them as a native input does: it takes name, submits its value as a decimal number with ASCII digits and a period, whatever the locale shows, or an empty string WHILE it holds no value, restores it on navigation, resets to the value it was first given, and reports to the form's constraint validation a missing value WHILE its Field says it is required (NMI-12) and the input holds none, and a bad input WHILE an entry error lasts (NMI-21)."
+    },
+    {
+      "id": "NMI-36",
+      "text": "THE number input SHALL be block-level, framed and bare alike: exactly as wide as the place it stands in — the width its layout gives it, which inside a Field is the Field's whole width (FLD-1), so that the box fills its Field — with no width of its own and never the platform's default width for a text element, as the text input is (TXI-63). It SHALL never be narrower than its paddings, its prefix and suffix, its steppers WHILE they are shown, and room for three digits together need. A product that wants a narrower box gives it a narrower place."
+    },
+    {
+      "id": "NMI-37",
+      "text": "WHILE the text size is enlarged THE number input SHALL grow with its texts: a floating label wraps and never clips, and the container grows with the input's line, keeping the height of its size as a minimum; the number stays on one line and scrolls inside its input, the prefix and the suffix grow with it and are never cut, and the steppers keep Button's sizes. At 200% no text SHALL be lost, lie over another part or need scrolling in two directions. The rows of the Field that frames it grow as FLD-16 says.",
+      "verify": "Unit: at 200% the number is on one line, the unit is whole and each stepper keeps Button's size. FLD-16 for the rows."
+    },
+    {
+      "id": "NMI-38",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE number input SHALL draw its number, its placeholder, its prefix and its suffix, and its floating label with its asterisk, in the platform's text color, SHALL draw an edge comp.input-box.outline.width wide in the platform's control text color around its container in every variant, and that edge in the platform's highlight color at the focused width while focused, and SHALL rely on no color of its own to mark an error: the error is carried by the invalid state (NMI-10) and by the words its Field shows (FLD-17). The steppers are Buttons and are drawn as Buttons are there; a disabled field and a disabled stepper take the platform's disabled text color.",
+      "verify": "On the web, with forced colors emulated: every text of every fixture is CanvasText and the container has a visible edge. FLD-17 for the rows and the requirement tag."
+    },
+    {
+      "id": "NMI-39",
+      "text": "THE number input SHALL treat its prefix, its number and its suffix as one run of writing — the prefix written before the number and the suffix after it (NMI-28) — and SHALL lay the three out in that order along the run's own direction, in every layout direction: an affix is part of what is written and not a control, so THE number input SHALL NOT place it by the layout direction as it places a stepper. The run's direction SHALL be the direction of the first strong character of prefixText and, WHERE prefixText has none, of suffixText — a letter, or a direction mark the product wrote there — and left-to-right WHERE neither has one (no affix, or signs alone: \"$\", \"%\", \"×\", \"°\"), because a number is written left to right; it is the direction the bidirectional algorithm gives the one text of prefix, number and suffix as a paragraph of its own. So a unit or a currency written in Latin letters or in signs stands in a right-to-left layout exactly as in a left-to-right one — \"44 px\", \"$ 120 USD\", \"40 %\", \"1.5 ×\", the number before its unit from left to right — and a unit written in a right-to-left script stands at the number's left, with a prefix of that script at its right, in a left-to-right layout too. THE number input SHALL decide the run's direction from prefixText and suffixText alone — never from the text being typed, from value or from locale — so that nothing changes sides while the person types. WHERE the layout direction is right-to-left THE number input SHALL mirror everything that is not the run: a floating label standing from the right edge with its asterisk to its left, and the steppers, which are controls, at the container's left end with the one that steps down to the right of the one that steps up, so that down is still the first of the two in reading order; all paddings applied by logical start and end, and the input line standing between the container's start padding and the steppers whatever its run's direction. THE number input SHALL NOT mirror the number: its digits, its sign and its separator SHALL be laid out left to right, and the number SHALL be aligned in its input as NMI-29 says.",
+      "verify": "Fixtures stacked-unit-rtl, stacked-locale-ar and stacked-error-rtl. FLD-18 for the rows; TXI-24 for the number."
+    },
+    {
+      "id": "NMI-40",
+      "text": "THE number input SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the number input is shown THE number input SHALL draw itself for the new direction at once, without a motion of its own, keeping its value, its text, its caret and its focus.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "NMI-41",
+      "text": "WHERE the layout direction is right-to-left THE number input SHALL draw the glyphs of its steppers, remove and add, unmirrored: neither is marked as mirrored in the system's icon set, and the order NMI-39 gives the two steppers is the whole of their mirroring. THE number input SHALL NOT mirror a glyph itself, has no slot and draws no other glyph: the glyph before a label is the Field's, and the Field mirrors it (FLD-20)."
+    },
+    {
+      "id": "NMI-42",
+      "text": "THE number input SHALL lay out its floating label, its placeholder, its prefix and its suffix as text of its own direction, isolated from the text around it: each takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a unit and a currency code keep their own order in a right-to-left layout and reorder nothing beside them; THE number input SHALL still place its floating label and its placeholder, and align their lines, by the layout direction, not by the text's own; the prefix and the suffix it places by the direction of the number's run (NMI-39), which the same characters decide. The texts of the rows around it are laid out so by the Field that frames it (FLD-21).",
+      "verify": "Fixture stacked-unit-rtl. FLD-21 for the rows."
+    },
+    {
+      "id": "NMI-43",
+      "text": "WHEN variant or size names a value that the active design system does not have THE number input SHALL render with the default value's tokens, and in debug builds report the unknown value; WHEN variant names a value the active system has but the number input does not know by name (one a layer added) it SHALL draw no label of its own and draw its edge as a stacked number input does (NMI-15), with that value's own tokens; WHEN align names a value the number input does not know it SHALL behave as start and in debug builds report it. WHEN locale is not a language tag the platform knows THE number input SHALL use the platform's current locale and in debug builds report it."
+    },
+    {
+      "id": "NMI-44",
+      "text": "THE number input SHALL have no words of its own: it SHALL take incrementLabel and decrementLabel from the instance's prop and, WHILE that is empty, from the product's words of the same name — the words a product sets once for all its components — and from nowhere else. IF neither gives incrementLabel or decrementLabel WHILE the steppers are drawn THE number input SHALL still draw both steppers and keep them working for a pointer, SHALL keep the one without a name from assistive technology — the spin button's own increase and decrease actions (NMI-34) do its work there, and a button without a name is worse than none — and in debug builds SHALL report the missing words once. The digits, the separator and the minus sign it shows are the platform's locale data and not the number input's words (NMI-17); invalidText is the instance's alone; and the words of a requirement are the Field's (FLD-24).",
+      "verify": "Unit, with no product's words set: a number input without incrementLabel and decrementLabel draws both steppers, a press on each steps the value, neither is in the accessibility tree, the spin button still steps from the keyboard, and the report names both props. With the product's words set, an instance without the props draws them; an instance's own prop wins. No test finds an English word the test did not give."
+    },
+    {
+      "id": "NMI-45",
+      "text": "THE number input SHALL say to the Field that frames it what only the input knows, and SHALL say it again WHEN it changes: that it draws the label itself WHILE its variant floats one (NMI-8), so that the Field draws no label row (FLD-25); how far the line of its number stands from its own start edge and from its end edge — its inline padding at each (NMI-1), where the input line starts with whichever affix stands there (NMI-39), and, at the end, also WHILE the steppers are drawn, because a line of help is aligned with the text above it and not with a button — so that the Field's supporting row starts and ends there (FLD-26); and an entry error with its words (NMI-21, FLD-28). It keeps no count, so a number field fills its Field's count text with nothing (FLD-27). It SHALL take from that Field its name, its description and its required, invalid and disabled states (NMI-10, NMI-12, NMI-32), whether the label is hidden (NMI-8) and whether an asterisk follows it (NMI-7), so that a Field and a number input placed by hand are drawn, named, described and marked exactly as a number field is.",
+      "verify": "The twin test of the number field: each fixture number-<id> of the Field — a Field around a number input, written by hand — is the same picture and the same accessibility tree as the number field's fixture <id>. Unit: changing variant from stacked to outlined removes the Field's label row and floats the same text in the input; with and without steppers the Field's supporting row starts and ends at the same two places."
+    },
+    {
+      "id": "NMI-46",
+      "text": "THE number input SHALL draw no label row above itself, no requirement tag, no help and no error text: those are the rows of the Field that frames it (FLD-2 to FLD-7). WHILE no Field frames it THE number input SHALL be complete as a bare control — its box, the label that floats in it where its variant floats one, the number, its unit and its steppers, its states and its events — and exactly as tall as its container, for a number whose visible label is elsewhere: the head of a table's column, a toolbar, the title of a row with a slider beside the input.",
+      "verify": "Fixture beside-slider: a stacked input named by its own label, no steppers, the number at the end. Unit: a bare input has no row above or below its container in any variant."
+    },
+    {
+      "id": "NMI-47",
+      "text": "THE number input SHALL draw its box from the one set of tokens every input box is drawn from, the group comp.input-box (comp.input-box.container.shape, comp.input-box.container.height.medium, and so on): its container, its corners, its edges and their widths, the label that floats in it and the asterisk after it, the figure and the placeholder, the prefix and the suffix, the caret and the highlight of selected text, the paddings, the gaps and the least height of its size, and the colors of each of these in its look, at rest, hovered, focused and disabled, plain and in error. It SHALL have no token of its own for any of them: the tokens of its own group say only where its steppers stand and how a held stepper repeats (NMI-25). WHEN a design system or a product sets a token of the box THE number input SHALL follow it, as the text input, the select, the combobox and the color input do, which read the same tokens; no token is held equal to another for this. WHERE one number input is to differ from the other boxes of a product, the token is set for that instance — on its element or on a subtree that holds it, in each platform's way of setting a token for a subtree — and THE number input SHALL draw itself from the value it finds there.",
+      "verify": "Every value the box of a number input draws is the value of the comp.input-box token it reads, in every scheme of every shipped system. A build test fails if a token with the name of a token of the box stands in the number input's own group. Unit, web: with the custom property of comp.input-box.container.shape set on one number input's element, its corners change and those of a text input and a select beside it do not; set on an ancestor of the three, all three change."
+    }
+  ],
+  "accessibility": {
+    "role": "spinbutton",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus to the input, which is the field's one stop, and on from it. The steppers are not stops."
+      },
+      {
+        "keys": "Typing, Backspace, Delete, Left Arrow, Right Arrow, Home, End, selection and clipboard shortcuts",
+        "action": "Edit the text as the platform's own text element does. Nothing typed is refused, clamped or rounded until the field is committed."
+      },
+      {
+        "keys": "Up Arrow / Down Arrow",
+        "action": "Step the number up or down by step, to the next number on the step's grid, within min and max (NMI-22, NMI-23)."
+      },
+      {
+        "keys": "Page Up / Page Down",
+        "action": "Step by ten times step."
+      },
+      {
+        "keys": "Enter",
+        "action": "Commits the text — clamps, rounds, or reports a text that is not a number — emits action, and submits the enclosing form on the web."
+      }
+    ],
+    "labeling": "The accessible name is the label of the Field that frames the input, or its own label where no Field does; a filled or outlined input draws that name floating, and labelHidden only stops the drawing. The placeholder is never the name. The description is what the Field gives: its supporting text with, in error, the error text after it and its optional text; an unframed input in an entry error is described by invalidText. The input is exposed as invalid while error is true, its Field is in error or an entry error lasts; as required while its Field says so, whichever mark is drawn; and as read-only while readOnly is true. It is a spin button whose value is the committed number, whose limits are min and max, and whose value text is valueText or the number with its prefix and suffix. The steppers are buttons named by decrementLabel and incrementLabel; they are not in the focus order.",
+    "minimumTarget": true,
+    "notes": [
+      "A number input is for a number the product reads as a number: a quantity, a size, a percentage, an amount. Digits that are not a quantity — a postal code, a card number, a telephone number, a one-time code — are text: use a text input with the matching type, which never steps, clamps or reformats them.",
+      "Text entry happens in the platform's native text element: on the web an <input type=\"text\"> with an inputmode in the shadow root, carrying the spinbutton role and its value attributes — not the browser's number input, whose spinner cannot be drawn from tokens, whose value is emptied by a text it cannot read, whose parsing ignores the product's locale, and which in some browsers changes its value when the wheel turns over it.",
+      "The steppers are out of the focus order on purpose (NMI-25): the arrow keys step from the input, as in every spin button, and a form of twenty numbers stays twenty stops long. They stay in the accessibility tree, named, because a person exploring a touch screen with a screen reader has no arrow keys.",
+      "Two steppers side by side take 88 of the field's width under the default system, each a full target. That is the honest size: a pair stacked inside a 48 field would be two 24-high targets that cannot grow over each other. Where a row cannot afford 88, set steppers to false; the keys, the assistive-technology actions and a Slider beside the field still step.",
+      "The wheel never changes the number (NMI-24). A number that changes because the page was scrolled past it is a wrong number nobody typed.",
+      "Limits are applied when the field commits, never while a person types (NMI-20): a text on its way to a valid number must be allowed to pass through invalid ones.",
+      "Errors are words (WCAG 3.3.1, 1.4.1): a text that is not a number is kept, marked, and described by invalidText; nothing is silently thrown away or silently replaced by the last good number.",
+      "The unit is read with the value (NMI-34). Where a suffix would be read badly (\"×\", \"px\"), give valueText in words.",
+      "Web: a touch browser zooms the page into an input whose text is smaller than 16 px. Both sizes use 16 px text (comp.input-box.input.typescale.medium); a layer that sets a smaller style brings the zoom back.",
+      "Heights are minimums: at 200% text size the input grows, a floating label wraps rather than clips, and the number keeps its line.",
+      "The input has no label row and no message of its own: a Field frames it and draws them (FLD-2 to FLD-11, FLD-25, FLD-26, FLD-28), or the product names it with label where its visible label is elsewhere. Unframed and unnamed, it is reported (NMI-12). Beside a slider under one row title, the slider and the number input are each named in words, given the same limits and step, and each one's input is written to the other's value.",
+      "How a state looks is a value decision of the active design system; components read the state's tokens and never compute the effect themselves.",
+      "A number and its affixes are spoken in the order they are written — prefix, number, suffix (NMI-34) — whatever side each is drawn on: the run's direction (NMI-39) changes where the unit stands, never what is said or what a typed or pasted text is read as (NMI-18)."
+    ]
+  },
+  "tokens": "comp.number-input",
+  "fixtures": [
+    {
+      "id": "stacked-empty",
+      "props": {
+        "variant": "stacked",
+        "label": "Quantity",
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-value",
+      "props": {
+        "variant": "stacked",
+        "label": "Quantity",
+        "value": 12,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-placeholder",
+      "props": {
+        "variant": "stacked",
+        "label": "Quantity",
+        "placeholder": "1 to 99",
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-large",
+      "props": {
+        "variant": "stacked",
+        "size": "large",
+        "label": "Quantity",
+        "value": 12,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-error",
+      "props": {
+        "variant": "stacked",
+        "label": "Quantity",
+        "value": 0,
+        "error": true,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-disabled",
+      "props": {
+        "variant": "stacked",
+        "label": "Quantity",
+        "value": 12,
+        "disabled": true,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-read-only",
+      "props": {
+        "variant": "stacked",
+        "label": "Quantity",
+        "value": 12,
+        "readOnly": true
+      }
+    },
+    {
+      "id": "stacked-at-min",
+      "props": {
+        "variant": "stacked",
+        "label": "Quantity",
+        "value": 1,
+        "min": 1,
+        "max": 99,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-at-max",
+      "props": {
+        "variant": "stacked",
+        "label": "Quantity",
+        "value": 99,
+        "min": 1,
+        "max": 99,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-no-steppers",
+      "props": {
+        "variant": "stacked",
+        "label": "Quantity",
+        "value": 12,
+        "steppers": false
+      }
+    },
+    {
+      "id": "stacked-unit",
+      "props": {
+        "variant": "stacked",
+        "label": "Corner radius",
+        "value": 8,
+        "suffixText": "px",
+        "min": 0,
+        "step": 0.25,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-percent",
+      "props": {
+        "variant": "stacked",
+        "label": "Opacity",
+        "value": 40,
+        "suffixText": "%",
+        "min": 0,
+        "max": 100,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-prefix",
+      "props": {
+        "variant": "stacked",
+        "label": "Amount",
+        "value": 120,
+        "prefixText": "$",
+        "suffixText": "USD",
+        "minFractionDigits": 2,
+        "maxFractionDigits": 2,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-negative-decimal",
+      "props": {
+        "variant": "stacked",
+        "label": "Letter spacing",
+        "value": -0.25,
+        "suffixText": "px",
+        "step": 0.01,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-align-end",
+      "props": {
+        "variant": "stacked",
+        "label": "Tone",
+        "value": 40,
+        "min": 0,
+        "max": 100,
+        "align": "end",
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-long-number",
+      "props": {
+        "variant": "stacked",
+        "label": "Population",
+        "value": 8336817000,
+        "steppers": false
+      }
+    },
+    {
+      "id": "stacked-locale-de",
+      "props": {
+        "variant": "stacked",
+        "label": "Gewicht",
+        "value": 1.5,
+        "suffixText": "kg",
+        "step": 0.1,
+        "locale": "de-DE",
+        "incrementLabel": "Erhöhen",
+        "decrementLabel": "Verringern"
+      }
+    },
+    {
+      "id": "stacked-locale-ar",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "الكمية",
+        "value": 12,
+        "locale": "ar-EG",
+        "incrementLabel": "زيادة",
+        "decrementLabel": "إنقاص"
+      }
+    },
+    {
+      "id": "stacked-unit-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "רוחב",
+        "value": -12.5,
+        "suffixText": "px",
+        "incrementLabel": "הגדלה",
+        "decrementLabel": "הקטנה"
+      }
+    },
+    {
+      "id": "stacked-error-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "כמות",
+        "value": 0,
+        "error": true,
+        "incrementLabel": "הגדלה",
+        "decrementLabel": "הקטנה"
+      }
+    },
+    {
+      "id": "beside-slider",
+      "props": {
+        "variant": "stacked",
+        "label": "Scale",
+        "value": 1.5,
+        "min": 0.25,
+        "max": 4,
+        "step": 0.05,
+        "suffixText": "×",
+        "valueText": "1.5 times",
+        "align": "end",
+        "steppers": false
+      }
+    },
+    {
+      "id": "filled-empty",
+      "props": {
+        "variant": "filled",
+        "label": "Quantity",
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "filled-value",
+      "props": {
+        "variant": "filled",
+        "label": "Quantity",
+        "value": 12,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "filled-large",
+      "props": {
+        "variant": "filled",
+        "size": "large",
+        "label": "Quantity",
+        "value": 12,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "filled-error",
+      "props": {
+        "variant": "filled",
+        "label": "Quantity",
+        "value": 0,
+        "error": true,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "filled-disabled",
+      "props": {
+        "variant": "filled",
+        "label": "Quantity",
+        "value": 12,
+        "disabled": true,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "filled-unit",
+      "props": {
+        "variant": "filled",
+        "label": "Corner radius",
+        "value": 8,
+        "suffixText": "px",
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "outlined-empty",
+      "props": {
+        "variant": "outlined",
+        "label": "Quantity",
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "outlined-value",
+      "props": {
+        "variant": "outlined",
+        "label": "Quantity",
+        "value": 12,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "outlined-large",
+      "props": {
+        "variant": "outlined",
+        "size": "large",
+        "label": "Quantity",
+        "value": 12,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "outlined-error",
+      "props": {
+        "variant": "outlined",
+        "label": "Quantity",
+        "value": 0,
+        "error": true,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "outlined-disabled",
+      "props": {
+        "variant": "outlined",
+        "label": "Quantity",
+        "value": 12,
+        "disabled": true,
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    },
+    {
+      "id": "stacked-unit-own-script-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "الوزن",
+        "value": 12,
+        "suffixText": "كغم",
+        "min": 0,
+        "step": 0.5,
+        "incrementLabel": "زيادة",
+        "decrementLabel": "إنقاص"
+      }
+    },
+    {
+      "id": "stacked-prefix-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "المبلغ",
+        "value": 120,
+        "prefixText": "$",
+        "suffixText": "USD",
+        "minFractionDigits": 2,
+        "maxFractionDigits": 2,
+        "incrementLabel": "زيادة",
+        "decrementLabel": "إنقاص"
+      }
+    },
+    {
+      "id": "stacked-percent-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "العتامة",
+        "value": 40,
+        "suffixText": "%",
+        "min": 0,
+        "max": 100,
+        "incrementLabel": "زيادة",
+        "decrementLabel": "إنقاص"
+      }
+    },
+    {
+      "id": "stacked-align-end-unit-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "גודל",
+        "value": 44,
+        "suffixText": "px",
+        "align": "end",
+        "steppers": false
+      }
+    },
+    {
+      "id": "stacked-affixes-own-script-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "الوزن الأقصى",
+        "value": 20,
+        "prefixText": "حتى",
+        "suffixText": "كغم",
+        "incrementLabel": "زيادة",
+        "decrementLabel": "إنقاص"
+      }
+    },
+    {
+      "id": "stacked-align-end-own-script-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "משקל",
+        "value": 12,
+        "suffixText": "ק״ג",
+        "align": "end",
+        "incrementLabel": "הגדלה",
+        "decrementLabel": "הקטנה"
+      }
+    },
+    {
+      "id": "stacked-locale-ar-percent",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "الخصم",
+        "value": 40,
+        "suffixText": "٪؜",
+        "min": 0,
+        "max": 100,
+        "locale": "ar-EG",
+        "incrementLabel": "زيادة",
+        "decrementLabel": "إنقاص"
+      }
+    },
+    {
+      "id": "stacked-suffix-direction-mark-rtl",
+      "direction": "rtl",
+      "props": {
+        "variant": "stacked",
+        "label": "المبلغ",
+        "value": 120,
+        "suffixText": "‏USD",
+        "minFractionDigits": 2,
+        "maxFractionDigits": 2,
+        "incrementLabel": "زيادة",
+        "decrementLabel": "إنقاص"
+      }
+    },
+    {
+      "id": "stacked-unit-right-to-left-script",
+      "props": {
+        "variant": "stacked",
+        "label": "Weight",
+        "value": 12,
+        "suffixText": "ק״ג",
+        "incrementLabel": "Increase",
+        "decrementLabel": "Decrease"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-number-input",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "min": "min",
+        "max": "max",
+        "step": "step",
+        "steppers": "noSteppers",
+        "incrementLabel": "incrementLabel",
+        "decrementLabel": "decrementLabel",
+        "prefixText": "prefixText",
+        "suffixText": "suffixText",
+        "valueText": "valueText",
+        "align": "align",
+        "minFractionDigits": "minFractionDigits",
+        "maxFractionDigits": "maxFractionDigits",
+        "locale": "locale",
+        "invalidText": "invalidText"
+      },
+      "events": {
+        "input": "input",
+        "change": "change",
+        "action": "action",
+        "entryError": "entryerror"
+      },
+      "notes": "The number field's control without the frame: the class `TanreiNumberInput`, React `NumberInput`. A form-associated custom element (`static formAssociated = true`) with a shadow root that does not delegate focus: it takes `name`, submits the value as a plain decimal string (\"12.5\", never the locale's \"12,5\"), restores it on navigation, resets to the value it was first given, follows `<fieldset disabled>` and reports `valueMissing` while its Field says it is required and `badInput` while an entry error lasts (NMI-35). The host is block-level (`display: flex`): it is as wide as its place, which inside a Field is the Field's whole width (FLD-1), and has no width of its own: the inner input's default width is never the host's (NMI-36). Everything the number field's note says of its inner element holds here, `--tanrei-comp-input-box-*` for the box (NMI-47) and `--tanrei-comp-number-input-*` for the steppers' place and the timing of a hold: `<input type=\"text\" inputmode=\"decimal\">` (`numeric` while `maxFractionDigits` is 0; `text` on platforms whose decimal keypad has no minus sign while negative numbers are allowed) with `role=\"spinbutton\"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-valuetext`, `aria-invalid`, `aria-required` and `aria-readonly` set on that element — not through ElementInternals, which axe cannot see — and `autocomplete=\"off\"`, `autocorrect=\"off\"`, `spellcheck=\"false\"`; not `<input type=\"number\">` (the accessibility notes); `Intl.NumberFormat` with `useGrouping: false`, and without `locale` the nearest `lang` attribute, then `navigator.language`; `font-variant-numeric: tabular-nums`; no `wheel` listener. The steppers are two `<tanrei-button variant=\"text\">` kept out of the focus order, named by `label`; they listen to `pointerdown`, not `click`, so that a hold repeats and focus does not move. Parts: `container`, `outline`, `active-indicator`, `label` (the floating label), `requirement-label` (its asterisk), `input`, `prefix`, `suffix`, `stepper`. The connection with a Field is `tanrei-field-connect` (`src/primitives/field.ts`), in both directions (NMI-45): the input says `drawsLabel` while its look floats a label, `inset: { start, end }` — its inline padding at both edges, with and without steppers — and `refusal: { text }` while an entry error lasts. It keeps no count. It takes the name, the description, `invalid`, `required` and `disabled`, and `labelHidden` and `requiredMark` (`asterisk` or `none`), and writes the name, the description and the states on the inner element, its own `label` winning. The `value` property is `number | null`; the `value` attribute is the decimal string. Attributes are kebab-case (`label-hidden`, `increment-label`, `decrement-label`, `prefix-text`, `suffix-text`, `value-text`, `min-fraction-digits`, `max-fraction-digits`, `invalid-text`) except `readonly`, `min`, `max` and `step`, which keep HTML's names; a boolean attribute cannot default to true, so the web names the inverse: `no-steppers` (the `noSteppers` property). `input` is a composed, bubbling CustomEvent whose `detail.value` is the number the text reads as, or `null`; the native input's own `input` event is stopped at the shadow root. `change` and `action` are composed, bubbling events (the host's `value` is set before `change` fires; `action` is cancelable) and `entryerror` a CustomEvent whose `detail` holds `reason` and `text`, the input's `invalidText`. Before the element is defined it has no size and shows nothing. Under `forced-colors: active` the container has a `ButtonText` border and the texts are `CanvasText`. Words: `increment-label` and `decrement-label` left empty read the product's words, set once with `setWords()` from `@tanrei/web`; the element draws again when they change. The input line (`.body`) takes the direction of the number's run (NMI-39) as its own `dir` — computed from `prefixText` and `suffixText` by their first strong character (a letter of a right-to-left script, U+200F or U+061C: right-to-left; any other letter or U+200E, or no strong character: left-to-right) — so the three stand in written order along it and their gaps stay logical; the container, the steppers and the floating label keep the host's direction. The native input keeps `dir=\"ltr\"` and its `text-align` is physical, from align, the layout's direction and the run's (NMI-29)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiNumberInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelsHidden",
+        "placeholder": "prompt",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "min": "in",
+        "max": "in",
+        "step": "step",
+        "steppers": "steppers",
+        "incrementLabel": "incrementLabel",
+        "decrementLabel": "decrementLabel",
+        "prefixText": "prefix",
+        "suffixText": "suffix",
+        "valueText": "valueText",
+        "align": "align",
+        "minFractionDigits": "minFractionDigits",
+        "maxFractionDigits": "maxFractionDigits",
+        "locale": "locale",
+        "invalidText": "invalidText"
+      },
+      "events": {
+        "input": "onInput",
+        "change": "value",
+        "action": "onSubmit",
+        "entryError": "onEntryError"
+      },
+      "notes": "Not built on this platform yet: the number field's control as a view of its own, with the names the number field's spec gives these props. What that spec's note says of the text element, the keyboard, the formatter, the adjustable semantics and the steppers is this view's. The Field around it gives the name, the description and the states through the platform's own channel, and the input says what it draws back up (NMI-45). The prefix, the number and the suffix are one run whose direction is that of the affixes' first strong character, and left-to-right where they have none (NMI-39), so the row that holds the three takes that direction and not the layout's; align end is the end of that run (NMI-29); the steppers and the label follow the layout."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiNumberInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "min": "min",
+        "max": "max",
+        "step": "step",
+        "steppers": "steppers",
+        "incrementLabel": "incrementContentDescription",
+        "decrementLabel": "decrementContentDescription",
+        "prefixText": "prefix",
+        "suffixText": "suffix",
+        "valueText": "stateDescription",
+        "align": "align",
+        "minFractionDigits": "minFractionDigits",
+        "maxFractionDigits": "maxFractionDigits",
+        "locale": "locale",
+        "invalidText": "invalidText"
+      },
+      "events": {
+        "input": "onInput",
+        "change": "onValueChange",
+        "action": "keyboardActions",
+        "entryError": "onEntryError"
+      },
+      "notes": "Not built on this platform yet: the number field's control as a view of its own, with the names the number field's spec gives these props. What that spec's note says of the text element, the keyboard, the formatter, the adjustable semantics and the steppers is this view's. The Field around it gives the name, the description and the states through the platform's own channel, and the input says what it draws back up (NMI-45). The prefix, the number and the suffix are one run whose direction is that of the affixes' first strong character, and left-to-right where they have none (NMI-39), so the row that holds the three takes that direction and not the layout's; align end is the end of that run (NMI-29); the steppers and the label follow the layout."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiNumberInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "labelText",
+        "labelHidden": "labelHidden",
+        "placeholder": "hintText",
+        "error": "isError",
+        "disabled": "enabled",
+        "readOnly": "readOnly",
+        "min": "min",
+        "max": "max",
+        "step": "step",
+        "steppers": "steppers",
+        "incrementLabel": "incrementSemanticLabel",
+        "decrementLabel": "decrementSemanticLabel",
+        "prefixText": "prefixText",
+        "suffixText": "suffixText",
+        "valueText": "semanticValue",
+        "align": "align",
+        "minFractionDigits": "minFractionDigits",
+        "maxFractionDigits": "maxFractionDigits",
+        "locale": "locale",
+        "invalidText": "invalidText"
+      },
+      "events": {
+        "input": "onInput",
+        "change": "onChanged",
+        "action": "onSubmitted",
+        "entryError": "onEntryError"
+      },
+      "notes": "Not built on this platform yet: the number field's control as a view of its own, with the names the number field's spec gives these props. What that spec's note says of the text element, the keyboard, the formatter, the adjustable semantics and the steppers is this view's. The Field around it gives the name, the description and the states through the platform's own channel, and the input says what it draws back up (NMI-45). The prefix, the number and the suffix are one run whose direction is that of the affixes' first strong character, and left-to-right where they have none (NMI-39), so the row that holds the three takes that direction and not the layout's; align end is the end of that run (NMI-29); the steppers and the label follow the layout."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "NumberInput",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "value": "value",
+        "label": "label",
+        "labelHidden": "labelHidden",
+        "placeholder": "placeholder",
+        "error": "error",
+        "disabled": "disabled",
+        "readOnly": "readOnly",
+        "min": "min",
+        "max": "max",
+        "step": "step",
+        "steppers": "steppers",
+        "incrementLabel": "incrementAccessibilityLabel",
+        "decrementLabel": "decrementAccessibilityLabel",
+        "prefixText": "prefix",
+        "suffixText": "suffix",
+        "valueText": "valueText",
+        "align": "align",
+        "minFractionDigits": "minFractionDigits",
+        "maxFractionDigits": "maxFractionDigits",
+        "locale": "locale",
+        "invalidText": "invalidText"
+      },
+      "events": {
+        "input": "onInput",
+        "change": "onValueChange",
+        "action": "onSubmitEditing",
+        "entryError": "onEntryError"
+      },
+      "notes": "Not built on this platform yet: the number field's control as a view of its own, with the names the number field's spec gives these props. What that spec's note says of the text element, the keyboard, the formatter, the adjustable semantics and the steppers is this view's. The Field around it gives the name, the description and the states through the platform's own channel, and the input says what it draws back up (NMI-45). The prefix, the number and the suffix are one run whose direction is that of the affixes' first strong character, and left-to-right where they have none (NMI-39), so the row that holds the three takes that direction and not the layout's; align end is the end of that run (NMI-29); the steppers and the label follow the layout."
+    }
+  }
+}

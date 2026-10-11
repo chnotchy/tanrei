@@ -1,0 +1,303 @@
+---
+title: شريط التطبيق
+description: يسمّي الشاشة الحالية عند حافتها العليا ويحمل طريق الرجوع وبعض إجراءات الشاشة. يبقى مسطحًا ما دام المحتوى في أعلاه، ويتميّز عنه حين يمرّ المحتوى تحته.
+translationOf: components/app-bar.mdx
+sourceHash: 6673ce3102bb145461ac7483ffda05f1bee1ab9c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## نظرة عامة
+
+<ComponentAvailability name="app-bar" />
+
+تعرض عيّنتا Web و React المواصفة الحالية، وفيها عناصر الشريط [أزرار](/ar/components/button/) بأيقونة فقط. أما SwiftUI و Compose و Flutter و React Native فمتأخرة: ما زالت تقدّم المراجعة السابقة، وفيها مكوّن مستقل لزر الأيقونة. وتعرض عيّناتها تلك المراجعة إلى أن تلحق بالمواصفة.
+
+<DemoFrame label="شريط تطبيق صغير فيه زر رجوع وإجراءان">
+  <tanrei-app-bar headline="الوارد" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="رجوع"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="بحث"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="خيارات إضافية"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+### الاستخدام
+
+شريط التطبيق منطقة من التخطيط، لا تراكب. يأخذ ارتفاعه في أعلى الشاشة، ويبدأ المحتوى تحته، ولا يستقبل الشريط نفسه التركيز أبدًا.
+
+يحمل نوعين من العناصر: عنصرًا واحدًا من النوع `navigation` في البداية (رجوع أو قائمة أو إغلاق)، وما لا يزيد على ثلاثة عناصر من النوع `action` في النهاية. وكلاهما [أزرار](/ar/components/button/) بأيقونة فقط من عندك، لكل منها تسميته ونقرته، أو الخاصية `href` حيث يقود إلى مكان ما. يرتّبها الشريط ولا يغيّر مظهرها أبدًا. تأخذها كل منصة في منافذها: عناصر فرعية تحمل `slot="navigation"` و `slot="actions"` على الويب، وبانيا العرض `navigation` و `actions` على SwiftUI، والدالتان `navigationIcon` و `actions` على Compose، و `leading` و `actions:` على Flutter، والعقدتان `navigation` و `actions` على React Native.
+
+العنوان هو اسم الشاشة وعنوانها (heading). على الويب هو الخاصية `headline`، لأن السمة العامة `title` في HTML كانت ستضع تلميحًا على الشريط كله.
+
+**حالة التمرير.** ما دام تحت الشريط محتوى، يأخذ الشريط مظهر التمرير. اربط به عرض الشاشة القابل للتمرير فيضبط الشريط `scrolled` بنفسه: `scroll-target` على الويب (المستند افتراضيًّا)، و `.tanreiAppBarScrollSource()` على SwiftUI (يُطبَّق بعد `.safeAreaInset` الذي يحمل الشريط)، وقيمة `scrollBehavior` موصولة بواسطة `Modifier.nestedScroll` على Compose، وإشعارات تمرير الصفحة على Flutter، و `useAppBarScroll()` على React Native. وإن لم يكن ثمة ربط فاضبط `scrolled` بنفسك.
+
+**أشرطة النظام.** يمتد لون الشريط تحت شريط الحالة أو فتحة الكاميرا أو شريط عنوان النافذة فوقه. ويبقى محتواه تحتها وداخل الهوامش الجانبية (insets). يقرأ الويب `env(safe-area-inset-*)`، ويأخذ Compose القيمة `windowInsets` (أشرطة الحالة وفتحة الشاشة الأفقية افتراضيًّا)، ويقرأ Flutter حشو `MediaQuery`، ويضع SwiftUI الشريط بواسطة `.safeAreaInset(edge: .top)`. ليس في React Native واجهة للمنطقة الآمنة، ولا يعتمد Tanrei على أي حزمة للمنطقة الآمنة، فتأتي الهوامش من الخصائص وحدها. أعطِ `TanreiProvider` قيمة `insets` الخاصة بالنافذة (وإن كنت تستخدم `react-native-safe-area-context` فمرِّر إليه ناتج `useSafeAreaInsets()`). وخاصية `insets` على الشريط نفسه تستبدل الجوانب التي تسمّيها، فالشريط الذي ليس في أعلى النافذة يمرِّر `{ top: 0 }`.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <!-- العنوان هو headline: خاصية HTML المسمّاة title كانت ستُظهر تلميحًا فوق الشريط. -->
+    <tanrei-app-bar headline="الوارد">
+      <tanrei-button variant="text" slot="navigation" label="رجوع"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="بحث"><span slot="icon">search</span></tanrei-button>
+      <tanrei-button variant="text" slot="actions" label="خيارات إضافية"><span slot="icon">more_vert</span></tanrei-button>
+    </tanrei-app-bar>
+
+    <!-- عنوان كبير ينطوي مع تمرير #inbox. العنوان h1 ما لم تقل heading-level غير ذلك. -->
+    <div style="display: flex; flex-direction: column; block-size: 100dvh">
+      <tanrei-app-bar size="large" headline="الوارد" scroll-target="inbox">
+        <tanrei-button variant="text" slot="navigation" label="القائمة"><span slot="icon">menu</span></tanrei-button>
+      </tanrei-app-bar>
+      <main id="inbox" style="flex: 1; overflow: auto">…</main>
+    </div>
+
+    <!-- الزر الذي يقود إلى صفحة رابط: أعطه href. والبحث قد يكون إجراءً: زر الأيقونة الذي يفتحه. -->
+    <tanrei-app-bar headline="علامات التبويب">
+      <tanrei-button variant="text" slot="navigation" href="/components/" label="كل المكوّنات"><span slot="icon">arrow_back</span></tanrei-button>
+      <tanrei-search slot="actions" bar="icon" presentation="dialog" label="البحث في التوثيق" placeholder="بحث"
+        clear-label="مسح البحث" back-label="رجوع"></tanrei-search>
+    </tanrei-app-bar>
+
+    <script type="module">
+      import '@tanrei/web/components/app-bar';
+      import '@tanrei/web/components/button';
+      import '@tanrei/web/components/search';
+      // الأزرار أزرارك: الشريط لا يضيف أحداثًا من عنده.
+      document.querySelector('[label="رجوع"]').addEventListener('click', () => history.back());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { AppBar, Button, Search } from '@tanrei/react';
+
+    <AppBar headline="الوارد">
+      <Button variant="text" slot="navigation" label="رجوع" onClick={goBack}><span slot="icon">arrow_back</span></Button>
+      <Button variant="text" slot="actions" label="بحث" onClick={search}><span slot="icon">search</span></Button>
+      <Button variant="text" slot="actions" label="خيارات إضافية" onClick={openMore}><span slot="icon">more_vert</span></Button>
+    </AppBar>
+
+    // الزر الذي يقود إلى صفحة رابط: أعطه href. والبحث قد يكون إجراءً: زر الأيقونة الذي يفتحه.
+    <AppBar headline="علامات التبويب">
+      <Button variant="text" slot="navigation" href="/components/" label="كل المكوّنات"><span slot="icon">arrow_back</span></Button>
+      <Search slot="actions" bar="icon" presentation="dialog" label="البحث في التوثيق" placeholder="بحث" clearLabel="مسح البحث" backLabel="رجوع" />
+    </AppBar>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // يقع الشريط في الهامش الآمن العلوي لعرض NavigationStack أُخفي شريط النظام فيه.
+    // ترك isScrolled بالقيمة nil يجعله يتبع عرض التمرير المعلَّم بـ .tanreiAppBarScrollSource().
+    NavigationStack {
+        ScrollView { InboxRows() }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                TanreiAppBar("الوارد", size: .large) {
+                    TanreiIconButton("القائمة", action: openMenu) { Image(systemName: "line.3.horizontal") }
+                } actions: {
+                    TanreiIconButton("بحث", action: search) { Image(systemName: "magnifyingglass") }
+                }
+            }
+            // بعد الهامش الذي يحمل الشريط: المُعدِّل المطبَّق داخله لا يصل إلى الشريط.
+            .tanreiAppBarScrollSource()
+            .toolbar(.hidden, for: .navigationBar)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiAppBar
+    import io.github.chnotchy.tanrei.components.TanreiAppBarDefaults
+    import io.github.chnotchy.tanrei.components.TanreiIconButton
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiAppBarSize
+
+    // شريط صغير. من دون scrollBehavior يبقى مسطحًا.
+    TanreiAppBar(
+        title = "الوارد",
+        navigationIcon = { TanreiIconButton(onClick = onBack, contentDescription = "رجوع") { TanreiText("arrow_back") } },
+        actions = {
+            TanreiIconButton(onClick = onSearch, contentDescription = "بحث") { TanreiText("search") }
+            TanreiIconButton(onClick = onMore, contentDescription = "خيارات إضافية") { TanreiText("more_vert") }
+        },
+    )
+
+    // شريط كبير ينطوي مع تمرير القائمة: اربط السلوك على عنصر أب لعرض التمرير.
+    // pinnedScrollBehavior() للشريط الصغير: لا ينطوي أبدًا، ويصير scrolled ما دام تحته محتوى.
+    val scrollBehavior = TanreiAppBarDefaults.collapseScrollBehavior()
+    Column(Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)) {
+        TanreiAppBar(title = "الوارد", size = TanreiAppBarSize.Large, scrollBehavior = scrollBehavior)
+        LazyColumn { /* محتوى الشاشة */ }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // شريط صغير، في منفذ شريط التطبيق من scaffold أو أول عنصر في Column.
+    // ترك scrolledUnder بالقيمة null يجعله يتبع أقرب ScrollNotificationObserver، كما يفعل AppBar.
+    TanreiAppBar(
+      leading: TanreiIconButton(onPressed: () => Navigator.of(context).maybePop(), icon: const Icon(AppSymbols.arrowBack), semanticLabel: 'رجوع'),
+      title: 'الوارد',
+      actions: <Widget>[
+        TanreiIconButton(onPressed: search, icon: const Icon(AppSymbols.search), semanticLabel: 'بحث'),
+        TanreiIconButton(onPressed: openMore, icon: const Icon(AppSymbols.moreVert), semanticLabel: 'خيارات إضافية'),
+      ],
+    ),
+
+    // الشريط الكبير الذي ينطوي مع محتواه sliver مثبَّت في أعلى CustomScrollView الذي يحويه.
+    CustomScrollView(
+      slivers: <Widget>[
+        TanreiSliverAppBar(title: 'الوارد', size: TanreiAppBarSize.large, leading: menuButton),
+        SliverList.list(children: messages),
+      ],
+    ),
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { useState } from 'react';
+    import { ScrollView, View } from 'react-native';
+    import { AppBar, IconButton, useAppBarScroll } from '@tanrei/react-native';
+
+    // تأتي الهوامش من الخاصية insets على TanreiProvider، أو من خاصية الشريط نفسه.
+    <AppBar
+      title="الوارد"
+      navigation={<IconButton accessibilityLabel="رجوع" onPress={goBack}>arrow_back</IconButton>}
+      actions={
+        <>
+          <IconButton accessibilityLabel="بحث" onPress={search}>search</IconButton>
+          <IconButton accessibilityLabel="خيارات إضافية" onPress={openMore}>more_vert</IconButton>
+        </>
+      }
+    />
+
+    // شريط كبير ينطوي: اربط عرض التمرير، وضع الشريط فوقه، وأضف إلى المحتوى حشوًا بارتفاع الشريط.
+    const scroll = useAppBarScroll();
+    const [barHeight, setBarHeight] = useState(0);
+    <View style={{ flex: 1 }}>
+      <ScrollView onScroll={scroll.onScroll} scrollEventThrottle={16} contentContainerStyle={{ paddingTop: barHeight }}>
+        {messages}
+      </ScrollView>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }} onLayout={(e) => setBarHeight((h) => Math.max(h, e.nativeEvent.layout.height))}>
+        <AppBar size="large" title="الوارد" scrollState={scroll.state} navigation={menuButton} />
+      </View>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## المواصفات
+
+<DemoFrame label="شريط كبير له عنوان فرعي، وعنوان في الوسط" plain column>
+  <tanrei-app-bar size="large" headline="الوارد" subtitle="ada@example.com" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="القائمة"><span slot="icon">menu</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="بحث"><span slot="icon">search</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="الحساب"><span slot="icon">account_circle</span></tanrei-button>
+  </tanrei-app-bar>
+  <tanrei-app-bar headline="الوارد" title-alignment="center" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" label="رجوع"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-button variant="text" slot="actions" label="بحث"><span slot="icon">search</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<DemoFrame label="زر تنقل هو رابط، وزر يفتح البحث بين الإجراءات" plain>
+  <tanrei-app-bar headline="علامات التبويب" subtitle="المكوّنات" heading-level="3" scroll-target="none" style="inline-size: 22rem">
+    <tanrei-button variant="text" slot="navigation" href="/ar/components/" label="كل المكوّنات"><span slot="icon">arrow_back</span></tanrei-button>
+    <tanrei-search slot="actions" bar="icon" presentation="dialog" label="البحث في التوثيق" placeholder="بحث" clear-label="مسح البحث" back-label="رجوع"></tanrei-search>
+    <tanrei-button variant="text" slot="actions" label="خيارات إضافية"><span slot="icon">more_vert</span></tanrei-button>
+  </tanrei-app-bar>
+</DemoFrame>
+
+<ComponentSpecs name="app-bar" />
+
+## الإرشادات
+
+### متى يُستخدم
+
+استخدم شريط التطبيق في أعلى الشاشة ليقول أين يوجد الشخص، وليعيده إلى الخلف أو يفتح القائمة، وليصل إلى الإجراءات القليلة التي تخص الشاشة كلها: البحث، المشاركة، الحساب. للشاشة الواحدة شريط تطبيق واحد.
+
+استخدم شريط التنقل أو درج التنقل للانتقال بين الوجهات العليا في التطبيق. ويستطيع زر القائمة في شريط التطبيق أن يفتح [درج تنقل نمطيًّا (modal)](/ar/components/navigation-drawer/). ليس في Tanrei شريط تطبيق سفلي: الإجراءات في أسفل شاشة مضغوطة (Compact) من شأن [شريط الأدوات](/ar/components/toolbar/).
+
+### اختيار الحجم وموضع العنوان
+
+| الاختيار | ما يفعله | يُستخدم لـ |
+| --- | --- | --- |
+| صغير (الافتراضي) | صف واحد: زر التنقل والعنوان والإجراءات. | معظم الشاشات، وكل شاشة يصل إليها الشخص من شاشة أخرى. |
+| كبير | عنوان أكبر في صف خاص به تحت الصف العلوي. مع تمرير المحتوى ينطوي في الصف العلوي بمقدار التمرير نفسه، ويظهر عنوان الصف العلوي تدريجيًّا. ويتمدد من جديد حين يعود المحتوى إلى أعلاه. | الشاشات العليا في المنتج، حيث العنوان هو أيضًا علامة الشاشة المميِّزة. |
+| الخاصية `titleAlignment` بالقيمة start (الافتراضي) | يتبع العنوان زر التنقل. | معظم الأشرطة. |
+| الخاصية `titleAlignment` بالقيمة center | يتوسط العنوان الشريط كله ويُضيَّق من الجانبين بالقدر نفسه، فلا يمتد تحت الأزرار أبدًا. | المنتجات التي تتبع عناوين iOS الموسَّطة. والعنوان الكبير المتمدد يبدأ دائمًا من البداية. |
+
+يجوز لنظام التصميم أن يضيف أحجامًا. على SwiftUI و Compose و Flutter و React Native، يحصل الحجم الأطول من small على صف عنوان خاص به، كما يحصل large. وعلى الويب يحصل عليه كل حجم يضيفه نظام التصميم. وليس في الإعداد الجاهز `m3-like` حجم Material المتوسط (medium) بعد.
+
+### التمرير
+
+- **مسطح وممرَّر.** ما دام المحتوى في أعلاه يبقى الشريط مسطحًا. وحين يصير تحته محتوى يأخذ مظهر التمرير: في النظام الافتراضي حافة سفلية بخط رفيع، وفي `m3-like` حاوية ملوَّنة بصبغة. يجري التغيّر بسلاسة على حركة تغيّر الحال (condition) الخاصة بالشريط، ويحدث فورًا حيث تُقلَّل الحركة.
+- **الشريط الكبير لا يُعدّ ممرَّرًا إلا بعد أن ينطوي كليًّا.** وحتى ذلك الحين يبيّن الانطواء نفسه أن المحتوى تحرّك.
+- **الشريط يبقى في مكانه.** لا يختفي حين يُمرَّر المحتوى نحو الأسفل. ذاك سلوك تمرير يخص الشاشة، لا الشريط.
+
+### العناصر
+
+- أعطِ الشريط زر تنقل واحدًا على الأكثر: رجوع في شاشة وصل إليها الشخص من أخرى، وقائمة في شاشة عليا، وإغلاق في مهمة تملأ الشاشة.
+- التزم بثلاثة إجراءات. واجعل الباقي في قائمة خيارات إضافية (overflow): زر أيقونة «خيارات إضافية» يفتح قائمة خيارات من Tanrei. تبلّغ بنيات التنقيح (debug) عن الإجراء الرابع وعن زر التنقل الثاني، وترسمهما مع ذلك.
+- تبدو الأزرار كما تبدو في أي مكان آخر. يرتّبها الشريط ولا يغيّر ألوانها أبدًا.
+- الزر الذي يذهب إلى مكان ما رابط: أعطِه الخاصية `href`. فزر الرجوع الذي يقود إلى الصفحة الأم، أو إجراء المساعدة الذي يفتح صفحة، يصير عندئذ رابطًا حقيقيًّا يُرسم بهيئة الزر نفسه. أما زر الرجوع الذي يعود عبر سجل التصفح فيبقى زرًّا.
+- على الويب، يمكن أن يكون [البحث](/ar/components/search/) أحد الإجراءات في صورة زر الأيقونة الذي يفتحه (الخاصية `bar` بالقيمة `icon`): زر بأيقونة فقط يفتح مربع حوار البحث أو عرضه الذي يملأ الشاشة.
+
+### افعل
+
+- اكتب العنوان اسمًا للشاشة، مثل «الوارد» أو «التقرير الفصلي». واجعله قصيرًا: فهو يبقى في سطر واحد ويُقتطع بعلامة الحذف (…).
+- استخدم العنوان الفرعي لسياق يساعد على التفريق بين شاشتين متشابهتين: حساب، حالة، وقت آخر تعديل.
+- اختر حجمًا واحدًا لكل الشاشات العليا وحجمًا واحدًا لكل ما عداها.
+
+### لا تفعل
+
+- لا تضع في المنافذ شيئًا غير أزرار الأيقونات: لا حقل نص، ولا حقل بحث، ولا علامات تبويب، ولا زرًّا مقسَّمًا. صف علامات التبويب يوضع تحت الشريط، ويمكن أن يُربط به [عرض تبويبات](/ar/components/tab-view/) يقع أسفل منه.
+- لا تضع في الشريط إجراءً أساسيًّا مثل «إنشاء». استخدم زر الإجراء الرئيسي.
+- لا تجعل للعنوان سطرًا ثانيًا ولا تجعله رابطًا.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="app-bar" />
+
+### ما يتكفل به المكوّن
+
+- ليس للشريط دور خاص به ولا يقبل التركيز أبدًا. ينتقل المفتاح Tab من زر التنقل إلى الإجراءات واحدًا بعد آخر، بترتيب القراءة. يحتفظ كل زر بدوره واسمه والحد الأدنى لهدفه، والزر الذي له `href` يُعرَّف للتقنيات المساعدة رابطًا.
+- يُعرَّف العنوان للتقنيات المساعدة عنوانًا (heading) للشاشة، من المستوى 1 على الويب ما لم تقل `heading-level` غير ذلك. ويُقرأ العنوان الفرعي بعده. والعنوان الفارغ لا يرسم شيئًا ولا يعرِّف أي عنوان.
+- يرسم الشريط الكبير عنوانين وهو ينطوي، لكنه لا يعرِّف إلا واحدًا: العنوان المتمدد ما دام شيء منه ظاهرًا، وعنوان الصف العلوي بعد أن ينطوي الشريط. لا يُقرأ العنوان مرتين أبدًا.
+- الشريط ليس مَعلَمًا (landmark). أنت وحدك تعرف هل هو ترويسة الصفحة (banner).
+- النص الأكبر يزيد ارتفاع صفوف الشريط، وهي ارتفاعات دنيا. يبقى العنوان والعنوان الفرعي في سطر واحد ويُقتطعان بدل أن يلتفّا، حتى عند 200%، فلا يدفع الشريط المحتوى بعيدًا أبدًا. ويبقى العنوان كاملًا متاحًا للتقنيات المساعدة. أما أزرار الأيقونات فلا تُكبَّر.
+- يأخذ الشريط اتجاهه من موضع استخدامه. في تخطيط من اليمين إلى اليسار ينعكس: زر التنقل على اليمين والإجراءات على اليسار. والرسم الذي تعلّمه مجموعة الأيقونات على أنه يُعكس، كسهم الرجوع، يعكسه زره هو، لا الشريط.
+- يُرتَّب العنوان والعنوان الفرعي نصًّا له اتجاهه الخاص، معزولًا عن النص المحيط به. فالاسم المكتوب من اليسار إلى اليمين في تخطيط من اليمين إلى اليسار يحتفظ بترتيبه، ويُقتطع عند نهايته هو، لا عند بدايته أبدًا.
+- تبلّغ بنيات التنقيح عن أكثر من ثلاثة إجراءات، وأكثر من زر تنقل واحد، وحجم ليس في نظام التصميم.
+
+فجوات معروفة في المنصات:
+
+- على SwiftUI و Compose و Flutter و React Native: قواعد الاتجاه من اليمين إلى اليسار (رسم يُعكس حيث تعلّمه مجموعة الأيقونات، وعنوان يُرتَّب باتجاهه الخاص) تنتظر أن تلحق تلك المنصات، وكذلك الزر الذي له `href`.
+- على الويب: كل حجم يتبع `rem`، فتكبير حجم النص في المتصفح يكبّر أزرار الأيقونات مع النص. أما تكبير خطوط Tanrei وحدها فلا يفعل.
+- على الويب: الشريط الكبير الذي يتبع تمرير المستند نفسه ويوضع بالقيمة `position: sticky` في انسياب المستند يحرّك المحتوى بمقدار انطوائه فضلًا عن مقدار التمرير، فيتحرك المحتوى بضعف السرعة والشريط ينطوي. ضع الشريط الذي ينطوي فوق عنصر قابل للتمرير (`scroll-target`) أو في ترويسة ثابتة.
+- على الويب: يقع كل زر أيقونة في خلية بالحد الأدنى لهدف المؤشر المستخدَم، وهو 44 للفأرة، فيتباعد مركزا إجراءين 52، في حين يرسمهما Compose و Flutter، وهما يقيسان هدف اللمس 48، متباعدين 56.
+- على SwiftUI: لا يتبع الشريط عرض التمرير إلا ابتداءً من iOS 18 و macOS 15. قبل ذلك لا شيء مربوط، ويرسم الشريط ما تقوله `isScrolled`.
+- على SwiftUI: القيمة `isScrolled: true` على شريط كبير مربوط ترسمه منطويًا لكنها تُبقي ارتفاعه المتمدد في التخطيط، فتظهر فجوة فوق المحتوى ما دام في أعلاه.
+- على SwiftUI: حين يكون شريط النظام مخفيًّا، يُبقي الشريط سحبة الرجوع من الحافة عاملة باستبدال مفوَّض إيماءة الرجوع (pop-gesture delegate) في متحكم التنقل. وقد فُحص هذا على iOS 26.5 فقط. وكون الشريط الكبير يعرِّف عنوانًا واحدًا في كل مرة لم يُفحص بعد مع VoiceOver.
+- على Flutter: المكوّن `TanreiAppBar` بالحجم الكبير لا ينطوي مع محتواه، لأن عنصرًا صندوقيًّا (box widget) لا يستطيع أن ينكمش مع عرض التمرير الذي تحته. يتجاهل إشعارات التمرير، ويبقى متمددًا، ولا يُرسم منطويًا إلا ما دامت `scrolledUnder` بالقيمة true. استخدم `TanreiSliverAppBar` للشريط الذي ينطوي.
+- على Flutter: تبلّغ `preferredSize` عن ارتفاع غير محدود، لأنها لا تستطيع قراءة السمة. يترك scaffold الشريط يحدد حجمه بنفسه، لكن تخطيطك أنت لا يستطيع استخدام الرقم.
+- على Compose: يتوقف الانطواء حيث يتوقف التمرير، فقد يستقر الشريط الكبير نصف منطوٍ. لا ينجذب إلى الفتح أو الإغلاق بعد دفعة سريعة (fling) كما يفعل شريط Material. والمواصفة لا تطلب انجذابًا.
+- على React Native: لينطوي الشريط الكبير بمقدار تمرير محتواه نفسه، تضع الشريط فوق عرض التمرير وتضيف إلى المحتوى حشوًا بارتفاع الشريط، كما يفعل المثال أعلاه. ولم يُفحص بعد على جهاز الانطواءُ ولا الهوامشُ ولا ما تعلنه قارئات الشاشة.
+- على كل المنصات: تحت `cupertino`، يزيد الصف العلوي ذو 44 نقطة إلى 48 حين يحمل أزرار أيقونات، لأن هدف اللمس لها 48 والحد الأدنى للهدف يغلب. وعلى الويب لا يزيد إلا مع مؤشر غير دقيق (coarse)، لأن هدف الفأرة 44. والصف المتمدد في الشريط الكبير أطول كذلك بنقطة واحدة من ارتفاع الحاوية في cupertino.
+- على كل المنصات: مع وجود عنوان فرعي، يُغطّى العنوان المتمدد قبل أن ينطوي الشريط كليًّا. ولا تقول المواصفة بعد أي عنوان يُعرَّف في ما بين ذلك. تنقل كل المنصات العنوان إلى الصف العلوي حالما يُغطّى العنوان المتمدد.
+
+### ما عليك فعله
+
+- أعطِ كل شريط عنوانًا. فهو عنوان الشاشة (heading).
+- أعطِ كل زر أيقونة تسمية، مثل «رجوع» أو «بحث».
+- على الويب، اضبط `heading-level` حين يكون في الصفحة عنوان من المستوى 1، وضع الشريط داخل `<header>` حين يكون ترويسة الصفحة.
+- اربط عرض الشاشة القابل للتمرير، أو اضبط `scrolled` بنفسك، ليُظهر الشريط متى يكون تحته محتوى.
+- على React Native، مرِّر هوامش النافذة إلى `TanreiProvider`. وعلى React Native و Compose، يأخذ الشريط الذي ليس في أعلى النافذة هوامش مختلفة (`insets={{ top: 0 }}`، أو قيمة `windowInsets` من عندك).
+- اجعل العناوين قصيرة. العنوان المقتطع بعلامة الحذف يُقرأ كاملًا مع ذلك، لكن المبصرين لا يرون إلا أوله.

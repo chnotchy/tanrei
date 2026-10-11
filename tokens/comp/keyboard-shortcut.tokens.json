@@ -1,0 +1,192 @@
+{
+  "tanrei": {
+    "comp": {
+      "keyboard-shortcut": {
+        "$extensions": {
+          "dev.tanrei.vocabulary": {
+            "rationale": "One product tells people which keys do what: beside a command in a menu, in a tooltip, in help text and in a list of shortcuts. It shows the keys of the keyboard the person is using, drawn either as keys or as a line of text, and fades the ones whose command is unavailable.",
+            "since": "0.1.0"
+          },
+          "dev.tanrei.states": {
+            "variants": [
+              "keycap",
+              "plain"
+            ],
+            "states": [
+              "disabled"
+            ],
+            "perVariant": {
+              "label.color": "color"
+            }
+          },
+          "dev.tanrei.axes": {
+            "size": {
+              "default": "medium",
+              "values": [
+                "small",
+                "medium"
+              ],
+              "members": [
+                "container.height",
+                "container.padding-inline",
+                "container.shape",
+                "label.typescale",
+                "chord.gap",
+                "sequence.gap"
+              ]
+            },
+            "variant": {
+              "default": "keycap",
+              "from": "states"
+            }
+          },
+          "dev.tanrei.llm": {
+            "usage": "Everything a keyboard shortcut reads: for each size, a key cap's minimum height, its padding, its corners and its legend's text style, and the space between the keys of a chord and between the chords of a sequence; the cap's fill, and the edge and deeper bottom edge a layer may give it (the default system draws none); and for each form (keycap, plain) the legend's color, faded when the shortcut is disabled.",
+            "rules": [
+              "Write keys once, in the neutral names (mod+shift+k); the component draws them for the keyboard the person uses (⇧⌘K on Apple platforms, Ctrl+Shift+K elsewhere). Never write ⌘ or Ctrl yourself.",
+              "Use mod for the command modifier of a shortcut that exists on every platform; use ctrl only for a shortcut that really uses Control on Apple platforms too.",
+              "The keyboard shortcut only shows keys. The product still has to make them work.",
+              "Inside a menu, give the item its shortcut; the menu draws it. Do not place a keyboard shortcut in a menu item's trailing text.",
+              "container.height is a minimum: a cap grows with enlarged text and with a long legend (Caps Lock).",
+              "Restyle through these tokens in a layer; never draw keys by hand."
+            ]
+          }
+        },
+        "container": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.surface-container-highest}",
+            "$description": "A key cap's fill, in the keycap form (the plain form draws no cap): the faintest fill that still reads as a shape on the surfaces a shortcut sits on, since in the default system it is all there is of the cap. It stays at rest when the shortcut is disabled: the legend fades, the key does not."
+          },
+          "height": {
+            "$type": "dimension",
+            "$description": "A key cap's minimum height, per size; also its minimum width, so a single letter sits on a square key. Small sits in a line of body text or a menu row without making the line taller; medium sits with larger text and on its own.",
+            "small": {
+              "$value": {
+                "value": 20,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 5
+                }
+              }
+            },
+            "medium": {
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6
+                }
+              }
+            }
+          },
+          "padding-inline": {
+            "$type": "dimension",
+            "$description": "Space on each side of a legend inside its cap, per size. It shows on a legend wider than it is tall (Ctrl, Space, Caps Lock).",
+            "small": {
+              "$value": "{tanrei.sys.space.space50}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space75}"
+            }
+          },
+          "shape": {
+            "$type": "dimension",
+            "$description": "A key cap's corners, per size. A key is a small rounded square, not a pill: fully rounded caps would read as chips or buttons (controls are rounded, and a key cap is not one).",
+            "small": {
+              "$value": "{tanrei.sys.shape.corner.extra-small}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.shape.corner.small}"
+            }
+          }
+        },
+        "outline": {
+          "color": {
+            "$type": "color",
+            "$value": "{tanrei.sys.color.outline-variant}",
+            "$description": "A key cap's edge and its deeper bottom edge, in the keycap form, where a layer gives them a width; the default system's widths are 0, so it draws neither. Decorative: the legend carries the meaning, so the edge needs no contrast of its own. It stays at rest when the shortcut is disabled."
+          },
+          "width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "A key cap's edge on its top and sides, drawn inside the cap's size. Nothing in the default system: a cap is a faint fill and no line. A layer that wants outlined keys sets it (sys.border.hairline)."
+          },
+          "bottom-width": {
+            "$type": "dimension",
+            "$value": "{tanrei.sys.space.space0}",
+            "$description": "A key cap's bottom edge, drawn inside the cap's size. Nothing in the default system. Where a layer sets it thicker than outline.width it reads as the key's front face; a layer with flat outlined keys sets it to outline.width.",
+            "$extensions": {
+              "dev.tanrei.vocabulary": {
+                "rationale": "One product may draw its keys flat, as outlined boxes, or with depth, as the keys of the keyboard beside it; the bottom edge is the one measure that tells them apart.",
+                "since": "0.1.0"
+              }
+            }
+          }
+        },
+        "label": {
+          "typescale": {
+            "$type": "typography",
+            "$description": "The legends' and separators' text style, per size.",
+            "small": {
+              "$value": "{tanrei.sys.typescale.label-small}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.typescale.label}"
+            }
+          }
+        },
+        "chord": {
+          "gap": {
+            "$type": "dimension",
+            "$description": "Space between two keys pressed together, per size: between two caps, or on each side of the separator where the convention has one (Ctrl + K). The plain form draws a chord as one run of text and does not read it.",
+            "small": {
+              "$value": "{tanrei.sys.space.space25}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space50}"
+            }
+          }
+        },
+        "sequence": {
+          "gap": {
+            "$type": "dimension",
+            "$description": "Space between two chords pressed one after the other (Ctrl+K, then Ctrl+C), per size, in both forms. Wider than a chord's gap, so the sequence reads as two steps.",
+            "small": {
+              "$value": "{tanrei.sys.space.space100}"
+            },
+            "medium": {
+              "$value": "{tanrei.sys.space.space150}"
+            }
+          }
+        },
+        "keycap": {
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The legends on the caps, and the separators between them: one step quieter than body text, because a shortcut is a hint beside the command, and still text held to 4.5:1 on the cap's fill."
+            }
+          }
+        },
+        "plain": {
+          "label": {
+            "color": {
+              "$type": "color",
+              "$value": "{tanrei.sys.color.on-surface-variant}",
+              "$description": "The shortcut drawn as text: quieter than the text beside it, because it is a hint about that text, not part of it."
+            }
+          }
+        }
+      }
+    }
+  }
+}

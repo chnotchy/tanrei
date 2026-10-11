@@ -1,0 +1,98 @@
+---
+// "All components": the one control of the lists of components,
+// Tanrei's Switch. Off — a reader's first visit — the sidebar and the index show the components every list shows; on,
+// also the ones a spec marks to be shown on request (`listing`), each in its place and marked. Every switch of a page
+// says the same, and the choice is the reader's: kept in the origin's storage under the key the head's script reads
+// before the first paint (lib/listing.mjs, `listingBootstrap`).
+//
+// What is not shown is taken out of the document, not only out of sight: a list counts its items and moves focus
+// among them, and must count what the reader sees. Each row is held and put back in its place when everything is
+// asked for. The rule that hides a marked row before this script runs is the stylesheet's below.
+//
+// Without script nothing is hidden and nothing could be switched: the control is not drawn.
+import { strings } from '../lib/i18n';
+
+interface Props {
+  /** The page's language. */
+  lang: string | undefined;
+  /** The slot of the element the switch is a child of (the navigation drawer's `header`), where it has one. */
+  into?: string;
+}
+const t = strings(Astro.props.lang);
+---
+
+<tanrei-switch class="docs-listing" slot={Astro.props.into} label={t.listing.showAll} data-docs-listing-switch />
+
+<script>
+  import '@tanrei/web/components/switch';
+  import { LISTING_ATTR, LISTING_EVERYTHING, LISTING_KEY, ON_REQUEST_ATTR } from '../lib/listing.mjs';
+
+  type Switch = HTMLElement & { selected: boolean };
+  const root = document.documentElement;
+  /** The rows taken out of the document, each by the mark that keeps its place. */
+  const held = new Map<Comment, Element>();
+
+  const show = (everything: boolean) => {
+    if (everything) {
+      for (const [mark, row] of held) mark.replaceWith(row);
+      held.clear();
+      root.removeAttribute(LISTING_ATTR);
+    } else {
+      for (const row of document.querySelectorAll(`[${ON_REQUEST_ATTR}]`)) {
+        const mark = document.createComment('');
+        row.replaceWith(mark);
+        held.set(mark, row);
+      }
+      root.setAttribute(LISTING_ATTR, 'listed');
+    }
+    for (const control of document.querySelectorAll<Switch>('[data-docs-listing-switch]')) control.selected = everything;
+  };
+  // What the head's script found before the first paint.
+  show(root.getAttribute(LISTING_ATTR) !== 'listed');
+
+  document.addEventListener('change', (event) => {
+    const control = event.target as Switch;
+    if (!(control instanceof HTMLElement) || !control.matches('[data-docs-listing-switch]')) return;
+    const everything = !!control.selected;
+    try {
+      if (everything) localStorage.setItem(LISTING_KEY, LISTING_EVERYTHING);
+      else localStorage.removeItem(LISTING_KEY);
+    } catch {}
+    show(everything);
+  });
+</script>
+
+<style is:global>
+  /* Before the script above has run: a row shown on request is not drawn to a reader who has not asked for everything
+     (the attribute is the head's script's, so nothing is hidden where no script runs). */
+  :root[data-docs-listing='listed'] [data-docs-on-request] {
+    display: none;
+  }
+  /* The switch is Tanrei's Switch, and its look is the switch's. Until the element is defined: its room, from the
+     switch's own tokens — the track, the gap, then the label, which is the element's own attribute — so that nothing
+     beside it moves when it is drawn. */
+  .docs-listing:not(:defined) {
+    box-sizing: border-box;
+    display: inline-flex;
+    max-inline-size: 100%;
+    padding-block: max(0px, calc((var(--tanrei-comp-switch-track-height) - 1lh) / 2));
+    padding-inline-start: calc(var(--tanrei-comp-switch-track-width) + var(--tanrei-comp-switch-label-gap));
+    font: var(--tanrei-comp-switch-label-typescale-font);
+    letter-spacing: var(--tanrei-comp-switch-label-typescale-letter-spacing);
+    visibility: hidden;
+  }
+  .docs-listing:not(:defined)::before {
+    content: attr(label);
+  }
+  /* In the sidebar it stands in the drawer's header, in the row of the menu button, which keeps its height: it is
+     drawn with the drawer, and until the drawer is defined it has no box among the sidebar's plain links. */
+  .docs-sidebar:not(:defined) > .docs-listing:not(:defined) {
+    display: none;
+  }
+  /* Where no script runs nothing is hidden and nothing can be switched: the switch is not drawn, and takes no room. */
+  @media (scripting: none) {
+    .docs-listing:not(:defined) {
+      display: none;
+    }
+  }
+</style>

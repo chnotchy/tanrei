@@ -1,0 +1,417 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "progress-indicator",
+  "title": "Progress indicator",
+  "summary": "Shows how far a task has come, or that it is under way when how far is unknown, as a bar or a ring.",
+  "category": "communication",
+  "level": "base",
+  "listing": "default",
+  "anatomy": [
+    {
+      "id": "track",
+      "description": "The full length of the bar, or the full circle of the ring: the whole of the task."
+    },
+    {
+      "id": "indicator",
+      "description": "The part of the track drawn in the indicator color: the fraction done (determinate), or a moving segment or arc (indeterminate). It meets the rest of the track, or stands a gap from it (separation)."
+    },
+    {
+      "id": "stop-indicator",
+      "description": "A dot at the end of a determinate bar's track that marks where the task ends. Drawn under gap only, and not when its size is 0.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "variant",
+      "type": "enum",
+      "values": [
+        "linear",
+        "circular"
+      ],
+      "default": "linear",
+      "description": "Linear is a bar that fills the width its layout gives it, for content and pages; circular is a ring of a fixed size, for tight places and next to text. A structural choice drawn by code, not a token axis: a design system cannot add a form by values."
+    },
+    {
+      "name": "size",
+      "type": "enum",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ],
+      "default": "medium",
+      "description": "The bar's thickness (2 / 4 / 8) or the ring's box (16 / 24 / 40). A design system may add values.",
+      "axis": "tanrei.comp.progress-indicator.size"
+    },
+    {
+      "name": "separation",
+      "type": "enum",
+      "values": [
+        "auto",
+        "divider",
+        "gap"
+      ],
+      "default": "auto",
+      "description": "How a determinate indicator is told from the rest of its track. divider: it is drawn on the track with no space between them. gap: empty space is left between them, and a bar marks the track's end with a dot. Auto takes comp.progress-indicator.track.separation, the design system's answer (divider in the default system)."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "default": null,
+      "description": "How far the task has come, between min and max. Null makes the indicator indeterminate."
+    },
+    {
+      "name": "min",
+      "type": "number",
+      "default": 0,
+      "description": "The value at which nothing is done."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 1,
+      "description": "The value at which the task is done."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name: what is in progress (\"Uploading report.pdf\"). Required: a bar alone is not a name."
+    },
+    {
+      "name": "valueText",
+      "type": "string",
+      "default": "",
+      "description": "How assistive technology reads the value when a percentage is not the natural reading (\"3 of 10 files\"). Empty reads the platform's percentage."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "PRG-1",
+      "text": "WHILE value is a number THE progress indicator SHALL be determinate and draw the indicator over the fraction (value − min) / (max − min) of the track, from the track's start: the inline-start of a bar, the top of a ring, turning clockwise."
+    },
+    {
+      "id": "PRG-2",
+      "text": "WHILE value is null THE progress indicator SHALL be indeterminate: a bar SHALL move a segment of the indicator, two fifths of the track long, from beyond the track's start to beyond its end once per comp.progress-indicator.motion.cycle-duration with comp.progress-indicator.motion.cycle-easing; a ring SHALL turn an arc of the indicator a quarter of the circle long clockwise once per comp.progress-indicator.motion.cycle-duration at constant speed (sys.motion.easing.linear)."
+    },
+    {
+      "id": "PRG-3",
+      "text": "THE progress indicator SHALL draw a bar comp.progress-indicator.linear.thickness.medium high for medium (and so on for each size) across the full inline size its layout gives it, and a ring whose outer edge fills a comp.progress-indicator.circular.size.medium square with a stroke of comp.progress-indicator.circular.thickness.medium for medium (and so on for each size)."
+    },
+    {
+      "id": "PRG-4",
+      "text": "THE progress indicator SHALL draw the track in comp.progress-indicator.track.color and the indicator over it in comp.progress-indicator.indicator.color; the ends of a bar's track and indicator SHALL be rounded by comp.progress-indicator.track.shape, clamped to half the thickness, and a ring's arcs SHALL have round caps unless comp.progress-indicator.track.shape is sys.shape.corner.none."
+    },
+    {
+      "id": "PRG-5",
+      "text": "WHILE determinate, its separation is gap (PRG-17) and value lies strictly between min and max THE progress indicator SHALL leave comp.progress-indicator.track.gap of empty space, measured along the track, between the indicator and the rest of the track — on a bar between the indicator's end and the track, on a ring at both ends of the indicator's arc; WHILE a bar is determinate and its separation is gap it SHALL draw a dot of comp.progress-indicator.stop-indicator.size, and no larger than the bar is thick, in comp.progress-indicator.indicator.color centered in the thickness with its center half the thickness before the track's end (concentric with the track's rounded end), and a size of 0 SHALL draw none. WHILE its separation is divider THE progress indicator SHALL draw the indicator on the track with no empty space between them and no dot: the edge where the indicator's color ends is what divides them.",
+      "verify": "Under the default system: linear-determinate and circular-determinate (auto, so divider) are drawn as before this behaviour was revised, the indicator touching the track; linear-gap and circular-gap leave 4 between them, on the ring at both ends of the arc; linear-gap draws a dot of 4 at the track's end, linear-gap-large the same dot inside a bar of 8, and linear-gap-small a dot of 2, the bar's thickness."
+    },
+    {
+      "id": "PRG-6",
+      "text": "WHEN value changes while determinate THE progress indicator SHALL move the indicator's end to the new value over comp.progress-indicator.motion.value-duration with comp.progress-indicator.motion.value-easing; a switch between determinate and indeterminate SHALL take effect at once."
+    },
+    {
+      "id": "PRG-7",
+      "text": "WHERE reduced motion is requested THE progress indicator SHALL show a value change at once, and WHILE indeterminate SHALL NOT move: it SHALL draw the indicator over the whole track (the whole circle of a ring) and ease its opacity from 1 to 0 and back to 1 once per comp.progress-indicator.motion.cycle-duration with comp.progress-indicator.motion.cycle-easing, over a track that stays still.",
+      "verify": "Indeterminate fixtures are recorded with reduced motion requested, at the start of a cycle (opacity 1), so their baselines are deterministic on every platform; the moving form is tested by unit tests that read the segment's or the arc's position at fixed times."
+    },
+    {
+      "id": "PRG-8",
+      "text": "WHILE value is a number THE progress indicator SHALL expose the progressbar role to assistive technology with label as its name, min and max as its range, the clamped value as its current value, and valueText as the value's text when valueText is not empty."
+    },
+    {
+      "id": "PRG-9",
+      "text": "WHILE value is null THE progress indicator SHALL expose the progressbar role with label as its name, no current value, and the platform's busy or indeterminate state."
+    },
+    {
+      "id": "PRG-10",
+      "text": "THE progress indicator SHALL NOT be focusable and SHALL NOT announce value changes by itself; assistive technology SHALL read the current value when it reaches the indicator, and a platform that marks frequently updating elements SHALL mark it so."
+    },
+    {
+      "id": "PRG-11",
+      "text": "IF value is below min or above max THE progress indicator SHALL draw and expose it clamped to that range; IF max is not greater than min THE progress indicator SHALL draw the track with no indicator and expose a current value of 0 in a range of 0 to 1; in each case debug builds SHALL report the values."
+    },
+    {
+      "id": "PRG-12",
+      "text": "WHEN size names a value that the active design system does not have, or variant or separation a value the component does not define, THE progress indicator SHALL render with the default value's tokens (medium, linear, auto), and in debug builds report the unknown value."
+    },
+    {
+      "id": "PRG-13",
+      "text": "WHERE the layout direction is right-to-left THE progress indicator SHALL fill a bar and move its indeterminate segment from right to left; a ring SHALL NOT be mirrored: it starts at the top and turns clockwise in every direction, as a clock does."
+    },
+    {
+      "id": "PRG-14",
+      "text": "WHILE the progress indicator is not visible (scrolled out of view, in a hidden view, or in an app in the background) THE progress indicator SHALL NOT run its indeterminate animation, and SHALL resume it when it becomes visible."
+    },
+    {
+      "id": "PRG-15",
+      "text": "WHILE label is empty THE progress indicator SHALL still render, and in debug builds report that it has no accessible name."
+    },
+    {
+      "id": "PRG-16",
+      "text": "THE progress indicator SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the progress indicator is shown THE progress indicator SHALL draw itself for the new direction at once, without a motion of its own, keeping its value, and the place of an indeterminate segment in its cycle.",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render. On the web the test is owed with the other right-to-left tests."
+    },
+    {
+      "id": "PRG-17",
+      "text": "THE progress indicator SHALL tell a determinate indicator from the rest of its track as its separation names: WHILE separation is auto, as comp.progress-indicator.track.separation names, which follows sys.behavior.separation unless a design system sets it apart; WHILE separation is divider or gap, as that value names, whatever the tokens say; each as PRG-5 draws it. WHEN separation, or the token it follows, changes THE progress indicator SHALL draw the other form at once, without animation, keeping its value. WHILE indeterminate THE progress indicator SHALL be drawn the same under either (PRG-2, PRG-7). A platform that cannot draw a choice SHALL fall back to the first value, divider, and state that in its README.",
+      "verify": "Fixtures linear-gap, circular-gap and linear-divider set the prop, so they draw the same under every design system; the others leave it auto and draw divider under the default system and gap under m3-like. Test auto under a system that sets the component token apart from sys.behavior.separation."
+    }
+  ],
+  "accessibility": {
+    "role": "progressbar",
+    "keyboard": [],
+    "labeling": "label is the accessible name. valueText, when given, replaces the platform's percentage as the spoken value. A visible caption next to the indicator is the product's composition; when it exists, use the same words as label.",
+    "minimumTarget": true,
+    "notes": [
+      "Not interactive: the indicator takes no input and is never focusable (PRG-10), so the minimum target holds without extending anything.",
+      "The value is read from the boundary between indicator and track: comp.progress-indicator.indicator.color must stay at least 3:1 against comp.progress-indicator.track.color and against the surface behind it, under divider and under gap alike. A faint track may leave the track's end hard to see; under gap the stop indicator marks it.",
+      "Indeterminate is announced as busy with no value: on the web a progressbar without aria-valuenow (and aria-busy), on Apple platforms a progress element with no value, on Android the indeterminate range info, in Flutter a progress indicator with a null value.",
+      "Reduced motion replaces movement with an opacity pulse of at most one per second (PRG-7), below the three-per-second flash threshold."
+    ]
+  },
+  "tokens": "comp.progress-indicator",
+  "fixtures": [
+    {
+      "id": "linear-determinate",
+      "props": {
+        "variant": "linear",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-indeterminate",
+      "props": {
+        "variant": "linear",
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-small",
+      "props": {
+        "variant": "linear",
+        "size": "small",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-large",
+      "props": {
+        "variant": "linear",
+        "size": "large",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-empty",
+      "props": {
+        "variant": "linear",
+        "value": 0,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-full",
+      "props": {
+        "variant": "linear",
+        "value": 1,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-range",
+      "props": {
+        "variant": "linear",
+        "value": 3,
+        "min": 0,
+        "max": 10,
+        "label": "Uploading",
+        "valueText": "3 of 10 files"
+      }
+    },
+    {
+      "id": "linear-gap",
+      "props": {
+        "variant": "linear",
+        "separation": "gap",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-gap-small",
+      "props": {
+        "variant": "linear",
+        "size": "small",
+        "separation": "gap",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-gap-large",
+      "props": {
+        "variant": "linear",
+        "size": "large",
+        "separation": "gap",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-gap-full",
+      "props": {
+        "variant": "linear",
+        "separation": "gap",
+        "value": 1,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "linear-divider",
+      "props": {
+        "variant": "linear",
+        "separation": "divider",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "circular-determinate",
+      "props": {
+        "variant": "circular",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "circular-indeterminate",
+      "props": {
+        "variant": "circular",
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "circular-small",
+      "props": {
+        "variant": "circular",
+        "size": "small",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "circular-large",
+      "props": {
+        "variant": "circular",
+        "size": "large",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "circular-gap",
+      "props": {
+        "variant": "circular",
+        "separation": "gap",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    },
+    {
+      "id": "circular-gap-large",
+      "props": {
+        "variant": "circular",
+        "size": "large",
+        "separation": "gap",
+        "value": 0.4,
+        "label": "Uploading"
+      }
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-progress-indicator",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "value",
+        "min": "min",
+        "max": "max",
+        "label": "label",
+        "valueText": "valueText"
+      },
+      "notes": "As a native `<progress>`: no `value` attribute (or removing it) is indeterminate. `valueText` is the `value-text` attribute. The host carries `role=\"progressbar\"` and the aria-value attributes. `separation` is an attribute (`auto`, `divider`, `gap`); auto reads the name in `--tanrei-comp-progress-indicator-track-separation`."
+    },
+    "swiftui": {
+      "status": "lagging",
+      "name": "TanreiProgressIndicator",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "value",
+        "min": "bounds",
+        "max": "bounds",
+        "label": "label",
+        "valueText": "currentValueLabel"
+      },
+      "notes": "Initialisers follow `ProgressView`: `TanreiProgressIndicator(_ label:, value: Double?, in bounds: ClosedRange<Double> = 0...1, currentValueLabel:)`. `value: nil` is indeterminate; `bounds` carries min and max as `Slider`'s `in:` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet."
+    },
+    "compose": {
+      "status": "lagging",
+      "name": "TanreiProgressIndicator",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "progress",
+        "min": "valueRange",
+        "max": "valueRange",
+        "label": "contentDescription",
+        "valueText": "stateDescription"
+      },
+      "notes": "Two overloads, as Material's indicators have: with `progress: () -> Float` it is determinate (a lambda, so a changing value redraws without recomposing), read within `valueRange: ClosedFloatingPointRange<Float> = 0f..1f` (as `Slider` names it); without `progress` it is indeterminate. `stateDescription` is the semantics property of the same name. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet."
+    },
+    "flutter": {
+      "status": "lagging",
+      "name": "TanreiProgressIndicator",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "value",
+        "min": "min",
+        "max": "max",
+        "label": "semanticsLabel",
+        "valueText": "semanticsValue"
+      },
+      "notes": "As Flutter's `ProgressIndicator`: `value: null` is indeterminate, and `semanticsLabel` / `semanticsValue` are its names. Unlike Flutter's (a fraction from 0 to 1), `value` is read between `min` and `max`, as `Slider` does. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet."
+    },
+    "react-native": {
+      "status": "lagging",
+      "name": "ProgressIndicator",
+      "props": {
+        "variant": "variant",
+        "size": "size",
+        "separation": "separation",
+        "value": "value",
+        "min": "min",
+        "max": "max",
+        "label": "accessibilityLabel",
+        "valueText": "valueText"
+      },
+      "notes": "`value` undefined or null is indeterminate. min, max, value and valueText are passed together as `accessibilityValue` (`{ min, max, now, text }`); indeterminate sets `accessibilityState={{ busy: true }}` and no `now`. Not built on this platform yet: `separation` (auto, divider, gap), PRG-17 and the seven gap and divider fixtures; reading comp.progress-indicator.track.separation as a typed choice needs the token emitters to write a choice of kind as a typed enumeration, which they do not yet."
+    }
+  }
+}

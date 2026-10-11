@@ -1,0 +1,299 @@
+---
+title: Campo de cuadro combinado
+description: "Permite encontrar un valor escribiendo, como campo de un formulario: un cuadro combinado, con una lista de opciones que se reduce a medida que la persona escribe y de la que elige una o, donde el producto lo permite, un valor propio, bajo una etiqueta que puede decir si el campo es obligatorio u opcional, con una línea de ayuda y el motivo por el que se rechazó un valor."
+translationOf: components/combobox-field.mdx
+sourceHash: bbeaab2ab8acefab4401f11d94edd44c2a8dfcdf
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="combobox-field" />
+
+<DemoFrame label="Un campo de cuadro combinado que acepta una de sus opciones y otro que acepta además un valor propio de la persona" column>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" value="tokyo" clearable clear-label="Borrar ciudad" placeholder="Escribe para buscar una ciudad" supporting-text="Adónde se envía el pedido." empty-text="Sin coincidencias">
+    <tanrei-option value="kyoto">Kioto</tanrei-option>
+    <tanrei-option value="lisbon">Lisboa</tanrei-option>
+    <tanrei-option value="nairobi">Nairobi</tanrei-option>
+    <tanrei-option value="tokyo">Tokio</tanrei-option>
+    <tanrei-option value="toronto">Toronto</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Familia de fuentes" value="Recursive" allow-custom-value>
+    <tanrei-option value="Inter">Inter</tanrei-option>
+    <tanrei-option value="Noto Sans JP">Noto Sans JP</tanrei-option>
+    <tanrei-option value="Roboto Mono">Roboto Mono</tanrei-option>
+    <tanrei-option value="Source Serif 4">Source Serif 4</tanrei-option>
+  </tanrei-combobox-field>
+</DemoFrame>
+
+Usa un campo de cuadro combinado siempre que un formulario pida un valor que las personas prefieren escribir a buscar desplazándose: una ciudad entre cientos, una persona, un token. También sirve para un campo que sugiere valores y acepta uno propio de la persona, como una familia de fuentes. Es el caso corriente, listo para usarse: una etiqueta, la caja con su lista, una línea de ayuda y las palabras para un valor incorrecto. La caja se dibuja y se mide como la del campo de texto de la misma variante y el mismo tamaño, y la lista se dibuja como la de un select.
+
+**Se compone de** un [campo](/es/components/field/) y un [cuadro combinado](/es/components/combobox/). El campo es el marco: la etiqueta, la marca de obligatorio o de opcional, la ayuda y el error. El cuadro combinado es el control: la caja, el texto que se escribe en ella y la lista con sus opciones. El campo de cuadro combinado no dibuja nada propio y no tiene ningún token: cada propiedad que tiene es una propiedad de uno de los dos, que recibe sin cambios, y las opciones que le das son las de su cuadro combinado.
+
+Es un bloque tan ancho como el lugar en el que se pone, y su caja lo llena. No tiene ancho propio: para un campo más estrecho, dale un lugar más estrecho. Su ancho nunca depende de sus opciones ni de su valor, porque la persona escribe en él antes de que se conozca ninguna opción.
+
+En la web es `<tanrei-combobox-field>`, con elementos `<tanrei-option>` como hijos, los mismos que contiene un [select](/es/components/select/). Las demás plataformas todavía no lo han implementado.
+
+### Uso
+
+Un campo de cuadro combinado guarda lo que guarda su cuadro combinado, que son dos cosas. `value` es la elección confirmada: el valor de la opción elegida o un texto propio. `inputValue` es el texto del campo de entrada. El valor solo cambia cuando la persona elige una opción, confirma el texto (con Enter sin ninguna opción activa, o al salir del campo) o pulsa el botón de borrar; escribir y moverse por la lista nunca lo cambian.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form>
+      <tanrei-combobox-field name="city" label="Ciudad" value="tokyo" requirement="required" required-text="Obligatorio"
+        clearable clear-label="Borrar ciudad" empty-text="Sin coincidencias">
+        <tanrei-option value="kyoto">Kioto</tanrei-option>
+        <tanrei-option value="tokyo">Tokio</tanrei-option>
+      </tanrei-combobox-field>
+    </form>
+
+    <!-- La caja sola, donde una etiqueta está en otro lugar: un cuadro combinado, que recibe su nombre de su propio label. Importar el campo de cuadro combinado lo define. -->
+    <tanrei-combobox label="Token" placeholder="Buscar un token" no-chevron style="inline-size: 16rem">
+      <tanrei-option value="primary">primary</tanrei-option>
+    </tanrei-combobox>
+
+    <!-- Las opciones son sugerencias: un texto que no nombra ninguna pasa a ser el valor. -->
+    <tanrei-combobox-field label="Familia de fuentes" value="Recursive" allow-custom-value>
+      <tanrei-option value="Inter">Inter</tanrei-option>
+    </tanrei-combobox-field>
+
+    <!-- Filtras tú: en cada evento input, desde un servidor. La fila de estado dice qué está haciendo tu fuente de datos. -->
+    <tanrei-combobox-field id="assignee" label="Persona asignada" filter="none" no-chevron placeholder="Buscar una persona">
+      <span slot="leading-icon">person_search</span>
+    </tanrei-combobox-field>
+
+    <script type="module">
+      import '@tanrei/web/components/combobox-field';
+
+      const assignee = document.querySelector('#assignee');
+      // La persona cambió el texto. El cuadro combinado no retrasa ni descarta este evento: aplica tú el debounce.
+      assignee.addEventListener('input', async () => {
+        assignee.status = 'loading';
+        assignee.statusText = 'Cargando personas';
+        const people = await find(assignee.inputValue);
+        assignee.replaceChildren(...people.map(option));
+        assignee.status = 'idle';
+        assignee.statusText = `Se muestran ${people.length} de ${total} personas`;
+      });
+      // El valor confirmado cambió. El valor ya es el nuevo.
+      assignee.addEventListener('change', (e) => save(e.detail.value));
+      // La persona abrió o cerró la lista; un cierre dice por qué. No se propaga: escúchalo en el propio campo.
+      assignee.addEventListener('toggle', (e) => console.log(e.detail.open, e.detail.reason));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { ComboboxField, Option } from '@tanrei/react';
+
+    <ComboboxField label="Ciudad" value={city} clearable clearLabel="Borrar ciudad" emptyText="Sin coincidencias" onChange={(event) => setCity(event.detail.value)}>
+      <Option value="kyoto">Kioto</Option>
+      <Option value="tokyo">Tokio</Option>
+    </ComboboxField>
+    ```
+  </TabItem>
+</Tabs>
+
+### Un nivel más abajo
+
+Un campo de cuadro combinado es un [campo](/es/components/field/) con un [cuadro combinado](/es/components/combobox/) dentro. Escribe tú los dos donde necesites algo que el campo no ofrece: algo tuyo entre la etiqueta y la caja, o debajo de la ayuda. La imagen, el nombre, la descripción y los estados son los mismos.
+
+```html
+<!-- El campo de cuadro combinado -->
+<tanrei-combobox-field name="city" label="Ciudad" requirement="required" required-text="Obligatorio"
+  supporting-text="Adónde se envía el pedido." value="tokyo">
+  <tanrei-option value="kyoto">Kioto</tanrei-option>
+  <tanrei-option value="tokyo">Tokio</tanrei-option>
+</tanrei-combobox-field>
+
+<!-- Lo mismo, a mano: las propiedades del marco en el campo; todo lo demás, y las opciones, en el cuadro combinado -->
+<tanrei-field label="Ciudad" requirement="required" required-text="Obligatorio" supporting-text="Adónde se envía el pedido.">
+  <tanrei-combobox name="city" value="tokyo">
+    <tanrei-option value="kyoto">Kioto</tanrei-option>
+    <tanrei-option value="tokyo">Tokio</tanrei-option>
+  </tanrei-combobox>
+</tanrei-field>
+```
+
+<DemoFrame label="Un campo con un cuadro combinado dentro: la misma imagen que un campo de cuadro combinado" column>
+  <tanrei-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" requirement="required" required-text="Obligatorio" supporting-text="Adónde se envía el pedido.">
+    <tanrei-combobox value="tokyo" empty-text="Sin coincidencias">
+      <tanrei-option value="kyoto">Kioto</tanrei-option>
+      <tanrei-option value="tokyo">Tokio</tanrei-option>
+    </tanrei-combobox>
+  </tanrei-field>
+</DemoFrame>
+
+Lo que cambia es dónde está el control del formulario: a mano es el cuadro combinado, que recibe el `name`; en el campo de cuadro combinado es el campo.
+
+## Especificaciones
+
+<DemoFrame label="Grupos, texto de apoyo con una opción deshabilitada, un error, un campo de cuadro combinado de solo lectura y uno deshabilitado" plain column>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Zona horaria" value="Europe/Lisbon" empty-text="Sin coincidencias">
+    <tanrei-option-group label="Asia"><tanrei-option value="Asia/Tokyo">Tokio</tanrei-option><tanrei-option value="Asia/Seoul">Seúl</tanrei-option></tanrei-option-group>
+    <tanrei-option-group label="Europa"><tanrei-option value="Europe/Lisbon">Lisboa</tanrei-option><tanrei-option value="Europe/Berlin">Berlín</tanrei-option></tanrei-option-group>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Plan" value="team" empty-text="Sin coincidencias">
+    <tanrei-option value="free" supporting-text="Un proyecto, ayuda de la comunidad">Gratis</tanrei-option>
+    <tanrei-option value="team" supporting-text="Proyectos ilimitados, roles compartidos">Equipo</tanrei-option>
+    <tanrei-option value="enterprise" supporting-text="Inicio de sesión único y registro de auditoría" disabled>Empresa</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" value="nairobi" error error-text="Todavía no hacemos envíos a Nairobi. Elige otra ciudad." empty-text="Sin coincidencias">
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokio</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" value="tokyo" readonly>
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokio</tanrei-option>
+  </tanrei-combobox-field>
+  <tanrei-combobox-field class="not-content" style="inline-size: 17.5rem; max-inline-size: 100%" label="Ciudad" value="tokyo" disabled>
+    <tanrei-option value="nairobi">Nairobi</tanrei-option><tanrei-option value="tokyo">Tokio</tanrei-option>
+  </tanrei-combobox-field>
+</DemoFrame>
+
+### El campo
+
+| Parte | Qué es |
+| --- | --- |
+| Etiqueta | La fila del campo encima del contenedor (`stacked`), o la etiqueta propia del cuadro combinado flotando dentro de él (`filled`, `outlined`). Es el nombre accesible, tanto si se dibuja como si se oculta con `labelHidden` |
+| Marca de obligatoriedad | Después de la etiqueta: el tag de obligatoriedad en su forma de obligatorio, un asterisco o nada con `requirement="required"`; el tag de obligatoriedad en su forma de opcional con `optional`. Una etiqueta flotante lleva el asterisco |
+| Campo de entrada | El texto: lo que la persona escribe para encontrar una opción y, mientras no escribe, la etiqueta de la opción elegida o el valor propio. Una sola línea, que se desplaza |
+| Marcador de posición | Una indicación que se muestra mientras el campo de entrada está vacío. Nunca es una etiqueta ni un valor |
+| Icono inicial | El glifo del slot `leading-icon` o, si no lo hay, el de la opción elegida |
+| Botón de borrar | Con `clearable`, mientras el texto no está vacío: vacía el texto y el valor |
+| Chevron | Dice que el campo tiene una lista que se puede recorrer, y la abre y la cierra. No gira. Omítelo (`chevron` en false) donde solo hay sugerencias para lo que se ha escrito |
+| Texto de apoyo | La fila del campo: una línea de ayuda. Se queda mientras `error` es true, con `errorText` debajo. Las dos empiezan donde empieza el texto del campo de entrada |
+
+La fila de la etiqueta, la marca y la fila de apoyo son del [campo](/es/components/field/) y se dibujan con los tokens del campo; todo lo demás es del [cuadro combinado](/es/components/combobox/). Las tres variantes y los dos tamaños, `medium` (48) y `large` (56), son los del campo de texto. El sistema predeterminado solo incluye `stacked`.
+
+Mientras la lista está abierta, la etiqueta y la ayuda se dibujan con foco junto con la caja, tenga o no el foco el campo de entrada.
+
+### La lista
+
+La lista se abre a una distancia de `comp.combobox.list.offset` por debajo del contenedor, exactamente con su mismo ancho, y por encima de él donde no hay sitio debajo. Es tan alta como sus filas hasta `list.max-height` (320), y a partir de ahí se desplaza.
+
+| Parte | Qué es |
+| --- | --- |
+| Opción | Una fila con una etiqueta y, de forma opcional, una línea de apoyo y un glifo. La elegida tiene un relleno discreto y una marca de verificación |
+| Coincidencia | Con `filter="contains"`, la parte de cada etiqueta que coincide con el texto se dibuja con más peso |
+| Grupo | Una serie de opciones bajo un título opcional. Un grupo que el filtro deja vacío no se dibuja |
+| Fila de estado | Después de las opciones: `statusText`, un indicador de carga mientras `status` es `loading`, el fallo mientras es `error`, o `emptyText` donde no hay ninguna coincidencia |
+
+`filter="contains"` muestra las opciones cuya etiqueta contiene el texto, sin distinguir mayúsculas de minúsculas, el ancho de los caracteres ni los signos diacríticos de las letras. Con `filter="none"`, el cuadro combinado muestra todas las opciones que le das y filtras tú, con el evento `input`. El cuadro combinado nunca obtiene datos, espera, ordena ni clasifica.
+
+### Escribir, moverse y elegir
+
+| Entrada | Qué ocurre |
+| --- | --- |
+| Escribir | Edita el texto y abre la lista, filtrada. La primera coincidencia es la opción activa; con `allowCustomValue` no lo es ninguna |
+| Flecha abajo, Flecha arriba, con la lista cerrada; el chevron | Abre la lista con todas las opciones. La opción activa es la elegida o, si no hay ninguna, la primera habilitada |
+| Flecha abajo, Flecha arriba, con la lista abierta | La opción siguiente o la anterior, atravesando los grupos y deteniéndose en los extremos |
+| Av Pág, Re Pág | Diez opciones hacia abajo o hacia arriba |
+| Inicio, Fin, Flecha izquierda, Flecha derecha | Mueven el cursor de texto |
+| Enter, con una opción activa; una pulsación en una opción | La elige y cierra la lista. No envía el formulario |
+| Enter, sin ninguna opción activa | Confirma el texto, emite `action` y envía el formulario, salvo que `action` se cancele |
+| Escape | Cierra la lista abierta y conserva el texto. Pulsada otra vez, restablece el texto del valor confirmado. Nunca borra un valor |
+| Tab; una pulsación fuera | Sale del campo: el texto se resuelve y la lista se cierra. La opción activa no se elige |
+| Una pulsación en la etiqueta | Lleva el foco al campo de entrada y no abre nada. Mientras la lista está abierta, es una pulsación fuera del cuadro combinado: la lista se cierra y el foco se queda en el campo de entrada |
+
+Al salir del campo, el texto se resuelve: el cuadro combinado decide qué valor representa ese texto. Un texto vacío vacía el valor. La etiqueta completa de una opción elige esa opción. Cualquier otro texto pasa a ser el valor con `allowCustomValue`, y sin él se descarta.
+
+La lista no se abre al recibir el foco. Define tú `open` si quieres que lo haga.
+
+Mientras un método de entrada está componiendo, todas las teclas le pertenecen. El Enter que confirma una conversión no elige ni envía nada.
+
+`toggle` lleva el motivo de un cierre: `select`, `commit`, `escape`, `outside`, `press`, `tab`, `focus-out`, `anchor-hidden` o `empty`.
+
+<ComponentSpecs name="combobox-field" />
+
+### Qué dibuja la web de otra manera
+
+- `<tanrei-option>` y `<tanrei-option-group>` son datos: no dibujan nada. Son los elementos que contiene un select. Una opción cuyo valor es la cadena vacía se dibuja y no se puede elegir, porque el valor vacío significa que no hay nada elegido.
+- El shadow root del elemento contiene un `<tanrei-field>` alrededor de un `<tanrei-combobox>`. Tus hijos `<tanrei-option>` siguen siendo hijos suyos y llegan al cuadro combinado a través de un slot; nada se mueve ni se copia.
+- El campo de cuadro combinado es un elemento asociado a formularios: el único control que ve el formulario. Recibe `name`, envía `value` y nunca el texto de una edición que no se confirmó, se restablece al valor del atributo `value` y, mientras `requirement="required"` y `value` está vacío, notifica al formulario que falta un valor. Enter sin ninguna opción activa envía su formulario.
+- `value`, `inputValue` y `open` son en todo momento los del cuadro combinado: cada uno es ya el nuevo en todos los listeners.
+- `chevron` es el atributo inverso `no-chevron`, y `readOnly` es `readonly`.
+- `input` es el evento nativo del elemento de texto. `change` y `action` llevan `detail.value` y `detail.inputValue`. Los cuatro eventos son los propios del cuadro combinado, con el campo de cuadro combinado como destino; `toggle` no se propaga.
+- `focus()` va al campo de entrada. El elemento no puede recibir el foco por sí mismo y no tiene rol: dale nombre con `label`, nunca con `aria-label`.
+- Partes: `field` y `combobox` son los dos miembros; las partes de cada miembro se exportan con sus propios nombres, y `label` y `requirement-label` también como `field-label`, `combobox-label`, `field-requirement-label` y `combobox-requirement-label`.
+- Un solo campo se diferencia con una propiedad personalizada definida en él: `--tanrei-comp-field-*` para las filas, `--tanrei-comp-input-box-*` para la caja, `--tanrei-comp-combobox-*` para la lista.
+- La lista es un elemento `popover="manual"` en la capa superior. Una pulsación fuera la cierra y además llega al elemento que hay debajo.
+- La fila de estado queda debajo de las opciones y no se desplaza con ellas, de modo que un recuento o un fallo se mantienen a la vista.
+- Antes de que el elemento esté definido, sus opciones son texto corrido. Oculta `tanrei-combobox-field:not(:defined) > *` y reserva la altura.
+- La web no tiene un gesto de retroceso propio, así que `toggle` nunca lleva el motivo `back`.
+
+## Pautas
+
+### Campo de cuadro combinado, select, búsqueda o un campo de texto
+
+| Aspecto | Campo de cuadro combinado | Select | Búsqueda | Campo de texto |
+| --- | --- | --- | --- | --- |
+| Contiene | Un valor que se encuentra escribiendo | Un valor de una lista cerrada | Una consulta | Cualquier texto |
+| Muestra las opciones | A medida que la persona escribe | Tras una pulsación | Sugerencias y resultados | No |
+| Acepta un valor que no está en la lista | Con `allowCustomValue` | No | Sí | Sí |
+| Forma parte de un formulario | Sí | Sí | No | Sí |
+
+1. Con hasta unas cinco opciones cortas, muéstralas todas: botones de opción.
+2. Si la lista es lo bastante corta para recorrerla con la vista, y cerrada, es un select.
+3. Si las personas prefieren escribir a desplazarse, o si el campo acepta un valor que no está en la lista, es un campo de cuadro combinado.
+4. Si escribir lleva a lugares a los que ir y no a un valor, es una búsqueda.
+5. Varios valores son otro componente: un cuadro combinado guarda uno solo.
+6. Si la etiqueta está en otro lugar —un filtro en una barra de herramientas, una celda de una tabla—, es el [cuadro combinado](/es/components/combobox/) sin nada más, que recibe su nombre de su propio `label`.
+
+### Recomendado
+
+- Escribe una etiqueta que nombre lo que se elige, y mantenla visible en un formulario.
+- Usa `allowCustomValue` solo donde un valor que no está en la lista sea una respuesta real.
+- Da `clearable` a un campo de cuadro combinado cuyo valor pueda ser ninguno, y da nombre al botón con `clearLabel`.
+- Cuando cargues opciones, define `status` y `statusText` para que la lista diga que está esperando, cuántas muestra o que ha fallado.
+- Da `emptyText`, en el campo de cuadro combinado o una sola vez para todo el producto con `setWords({ emptyText })`. Tanrei no incluye textos propios: sin él, un texto que no coincide con nada no dibuja ninguna fila, y la lista no tiene nada que mostrar.
+
+### Evita
+
+- No uses el marcador de posición como etiqueta. Desaparece en cuanto la persona escribe.
+- No guardes, navegues ni envíes con `input`. Se emite con cada pulsación de tecla; `change` es el valor confirmado.
+- No trates un texto que no nombra ninguna opción como un error del campo. Se descarta cuando la persona sale. Si quieres decir «elige una opción de la lista», define tú `error` y `errorText`.
+- No pongas un campo de cuadro combinado dentro de un campo. Ya es un campo; el control que un campo enmarca es el [cuadro combinado](/es/components/combobox/).
+- No abras la lista al recibir el foco en un formulario de muchos campos: en cada parada tapa los campos de debajo.
+
+## Accesibilidad
+
+<ComponentAccessibility name="combobox-field" />
+
+### De qué se encarga el componente
+
+- El campo de entrada es un cuadro combinado editable con un cuadro de lista. Su nombre es `label`, tanto si se dibuja como si se oculta, y nunca el marcador de posición. El campo se lo da al cuadro combinado, que lo lleva en su propio campo de entrada.
+- El texto de apoyo o de error que se muestra es su descripción, junto con `optionalText` mientras el campo es opcional.
+- Un error que aparece mientras el foco está en el campo se anuncia una vez, de forma cortés.
+- Se expone como no válido mientras `error` es true, como obligatorio mientras `requirement` es `required`, como de solo lectura, y como expandido mientras su lista está abierta.
+- El foco permanece en el campo de entrada mientras la lista está abierta. La opción activa es su descendiente activo, de modo que escribir nunca deja de editar el texto.
+- La lista es un cuadro de lista que recibe su nombre de la etiqueta. Cada opción tiene su nombre, su descripción, si es la elegida, si está deshabilitada y su posición entre las opciones que se muestran. Un grupo recibe su nombre de su título.
+- Una coincidencia se marca con el peso, nunca solo con el color. La etiqueta se lee como un solo texto.
+- La fila de estado es una región activa (live region): su texto se lee de forma cortés cuando cambia, y de inmediato cuando la fuente de datos ha fallado. Durante la carga, la lista se marca como ocupada y no se anuncia nada.
+- Mientras un método de entrada está componiendo, el cuadro combinado no atiende ninguna tecla.
+- El chevron es un botón para el puntero y para la exploración táctil, fuera del orden del foco. El teclado abre la lista con Flecha abajo.
+- El botón de borrar es un botón que recibe su nombre de `clearLabel`, y es la siguiente parada del foco después del campo de entrada.
+- Escape cierra la lista y no va más allá, de modo que un diálogo que rodee al cuadro combinado permanece abierto.
+- El área de pulsación del campo cumple el objetivo mínimo, y las opciones son al menos tan altas como el objetivo mínimo.
+- Con el texto al 200%, la etiqueta, la ayuda, las opciones, los títulos y la fila de estado saltan de línea. Solo el texto del campo de entrada se queda en una línea, y se desplaza.
+- Con colores forzados, el campo y la lista ganan un borde, la opción activa toma los colores de resaltado y la opción elegida se muestra con su marca de verificación.
+- En un diseño de derecha a izquierda, el campo y cada fila se reflejan, y cada texto conserva su propia dirección. El chevron, el glifo del botón de borrar y la marca de verificación no se reflejan.
+
+Carencias conocidas en la web:
+
+- El divisor entre dos grupos no se expone como separador: un cuadro de lista solo contiene opciones y grupos.
+- El filtro iguala mayúsculas, ancho y signos diacríticos del mismo modo en todos los sistemas de escritura. No encuentra el hangul por su consonante inicial ni el kana por su lectura.
+- Antes de que el elemento esté definido, las opciones son texto en la página, sin ningún control.
+
+### Qué debes hacer tú
+
+- Da un `label` a cada campo de cuadro combinado, y a cada opción una etiqueta y un valor que no esté vacío.
+- Da un `clearLabel` a un campo de cuadro combinado que se pueda borrar.
+- Escribe `statusText` en el campo de cuadro combinado. Da `emptyText`, `requiredText`, `optionalText` y `clearLabel` en el campo de cuadro combinado, o una sola vez para todo el producto con `setWords()`. Tanrei no incluye textos propios; si falta uno, se notifica en desarrollo. Consulta [Los textos del producto](/es/foundations/words/).
+- Valida tú el valor, activa `error` y escribe `errorText` de modo que diga cómo corregir la respuesta.
+- Mantén únicos los valores de las opciones dentro de un campo de cuadro combinado.

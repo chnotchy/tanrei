@@ -1,0 +1,1637 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "menubar",
+  "title": "Menubar",
+  "summary": "Keeps an application's commands within reach in one persistent row of named menus (File, Edit, View…), each opening a menu below its title, with the arrow keys moving along the row and into each menu; beside the menus the row may hold a few entries that act by themselves — an action or a link.",
+  "category": "selection",
+  "level": "composed",
+  "listing": "default",
+  "builtFrom": [
+    "menu"
+  ],
+  "anatomy": [
+    {
+      "id": "bar",
+      "description": "The row itself: its fill (transparent in the default system, so the chrome it stands on shows through), its paddings and the gap between titles. It spans the inline size its parent gives it and is placed by the product."
+    },
+    {
+      "id": "container",
+      "description": "One entry's container — a menu's title or a bar item: the part that is pressed and that carries hover, focus and press, and the fill of the title whose menu is open."
+    },
+    {
+      "id": "label",
+      "description": "An entry's text and accessible name: a menu's label for its title, a bar item's own label, on one line, never cut."
+    },
+    {
+      "id": "menu",
+      "description": "The surface a title opens: a Tanrei Menu below the title, drawn from the menu's own tokens and holding the menu's own items — actions, link items, checkbox and radio items, groups, submenus and shortcuts.",
+      "optional": true
+    },
+    {
+      "id": "overflow-item",
+      "description": "The last title of a row that cannot hold every title: the glyph more_horiz of the system's icon set in a title's container. Its menu holds the menus that were folded out of the row, each as a submenu. Drawn only while something is folded.",
+      "optional": true
+    },
+    {
+      "id": "icon",
+      "description": "The overflow item's glyph, the one entry that is not a word.",
+      "optional": true
+    },
+    {
+      "id": "mark",
+      "description": "The glyph open_in_new of the system's icon set after the label of a link item that opens a new context (MBR-37). Hidden from assistive technology; the link item's targetLabel says what it shows.",
+      "optional": true
+    },
+    {
+      "id": "focus-ring",
+      "description": "The system's keyboard focus indicator around a title's container."
+    }
+  ],
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the bar for assistive technology (\"Application menu\"), in the product's language. Never drawn. Required. It is this bar's own name and is not read from the product's words."
+    },
+    {
+      "name": "overflowLabel",
+      "type": "string",
+      "default": "",
+      "description": "The accessible name of the overflow item (\"More menus\", or \"More\" where bar items may fold into it too), in the product's language. Never drawn. Needed whenever the bar may be narrower than its entries, which on the web is always.",
+      "words": "menubarOverflowLabel"
+    }
+  ],
+  "items": [
+    {
+      "name": "menu",
+      "summary": "One menu of the bar: its title in the row and the items that open below it. Its items are the menu component's own item kinds (item, checkbox-item, radio-item, submenu and group, as the menu spec defines them), which the bar presents in a Tanrei Menu; a fixture cannot fill them.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The title's text, and the name of the title and of the menu it opens (\"File\"). Required. One or two words."
+        },
+        {
+          "name": "open",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this menu is shown. It is the menu's own, as a submenu item's is: the bar sets it when the menu is opened or closed and emits toggle; the product may set it to open or close the menu itself. At most one menu of a bar is open."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents the menu from opening. The title stays in the row and reachable with the arrow keys."
+        }
+      ],
+      "events": [
+        {
+          "name": "toggle",
+          "description": "The menu was opened or closed by the person — from its title, by the arrow keys from a neighbouring menu, by a pointer moving along the bar, by Escape, Tab, a press outside or an item's activation, or as a submenu of the overflow item. Carries the new open value. Not emitted for a change the product made to open."
+        }
+      ]
+    },
+    {
+      "name": "item",
+      "summary": "A bar item: an entry of the bar that acts by itself instead of opening a menu. It is an action, run at once; with an href it is a link, which goes somewhere. It is the menu's own item kind brought up to the row, with a title's look and none of a row's columns.",
+      "props": [
+        {
+          "name": "label",
+          "type": "string",
+          "default": "",
+          "description": "The bar item's text and its accessible name (\"Run\", \"Documentation\"). Required. One or two words that say what it does at once — a verb for an action, the place for a link — because nothing in its look tells it from a title that opens a menu."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "Prevents activation. The bar item stays in the row and reachable with the arrow keys, as a disabled title does; a disabled link item cannot be followed (MBR-39)."
+        },
+        {
+          "name": "href",
+          "type": "string",
+          "default": "",
+          "description": "The destination: an address as the platform's links take one (a URL; on the web a path or a fragment as well). Not empty, it makes the bar item a link item (a control with a destination is a link): the platform's own link, exposed as a menu item, drawn exactly as an action is and reached with the same keys; a plain activation emits click and opens the destination (MBR-35, MBR-36). Empty, the bar item is an action and the product acts on click. As the menu item's href (MNU-53)."
+        },
+        {
+          "name": "target",
+          "type": "enum",
+          "values": [
+            "same",
+            "new"
+          ],
+          "default": "same",
+          "description": "Where the destination opens, as the Button's target. same: where the person is. new: a new context — a new tab or window on the web, outside the current screen elsewhere — which the bar item marks with the glyph open_in_new after its label and says through targetLabel (MBR-37). Ignored without href."
+        },
+        {
+          "name": "targetLabel",
+          "type": "string",
+          "default": "",
+          "description": "What assistive technology reads after the link item's name while target is new (\"opens in a new tab\"), as the Button's targetLabel: Tanrei ships no words of its own. Required while target is new; ignored otherwise.",
+          "words": "targetLabel"
+        },
+        {
+          "name": "current",
+          "type": "boolean",
+          "default": false,
+          "description": "The link item names the place the person is already at (the current page), as the Link's current. It is exposed as the current item, drawn at the emphasized weight and with no fill, and stays a link (MBR-38). The product sets it; the bar never does, and at most one bar item of a bar is current. Ignored without href."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The bar item was activated by pointer, touch, Enter, Space or assistive technology — in the row or, while it is folded, in the overflow item's menu. A link item emits it before its destination opens; a product that takes the navigation itself (a client-side router) cancels it (MBR-36)."
+        }
+      ]
+    }
+  ],
+  "states": [
+    "enabled",
+    "disabled",
+    "hovered",
+    "focused",
+    "pressed"
+  ],
+  "behavior": [
+    {
+      "id": "MBR-1",
+      "text": "THE menubar SHALL draw one row across the full inline size its parent gives it: comp.menubar.bar.color behind the whole row, and on it the titles of its menus, one for each menu in the order given, from the start edge, comp.menubar.bar.gap apart, inset by comp.menubar.bar.padding-inline from the row's start and end edges and by comp.menubar.bar.padding-block above and below. It SHALL NOT position itself, stick to an edge, raise itself or draw an edge of its own: the product places it, normally at the top of its window or in the chrome that is already there, and the bar stays in view because that chrome does."
+    },
+    {
+      "id": "MBR-2",
+      "text": "THE menubar SHALL draw each title as a container at least comp.menubar.container.height tall and as wide as its label with comp.menubar.container.padding-inline on each side, with corners comp.menubar.container.shape, each at most half the container's height, and its label centered in it on one line in comp.menubar.label.typescale; it SHALL NOT wrap, shrink or truncate a title's label: a title that the row has no room for is folded whole (MBR-21)."
+    },
+    {
+      "id": "MBR-3",
+      "text": "THE menubar SHALL draw a title from the condition it is in: expanded while its menu is open, otherwise unselected. WHILE a title is at rest its container SHALL take the container color of its condition (comp.menubar.unselected.container.color, comp.menubar.expanded.container.color) drawn over the bar, and its label the label color of its condition (comp.menubar.unselected.label.color, comp.menubar.expanded.label.color). Nothing in a menubar is selected: the expanded condition says which menu is shown now and ends when that menu closes."
+    },
+    {
+      "id": "MBR-4",
+      "text": "WHILE a title is hovered, keyboard-focused or pressed THE menubar SHALL render its container, label, the overflow item's glyph and opacity from the component tokens of its condition in the highest-precedence active state, with precedence pressed over focused over hovered; focus gained by pointer or touch SHALL NOT select the focused state."
+    },
+    {
+      "id": "MBR-5",
+      "text": "WHEN a title receives keyboard focus THE menubar SHALL show the focus ring around the title's container without animation; focus gained by pointer or touch SHALL NOT show it. The bar SHALL leave room for the ring: it SHALL NOT clip it at its own edges."
+    },
+    {
+      "id": "MBR-6",
+      "text": "WHEN the menubar title is pressed by pointer, touch, Enter or Space THE menubar title SHALL show the pressed state without delay and SHALL keep it visible for at least sys.motion.duration.press-hold, even when the press ends sooner."
+    },
+    {
+      "id": "MBR-7",
+      "text": "WHILE pressed THE menubar title SHALL answer as sys.behavior.pressed-feedback names: overlay applies the pressed tokens to the whole container at once; ripple grows the pressed state layer from the point of contact (from the center for keyboard activation); dim applies the pressed opacity to the whole control and draws no state layer; none draws no answer to the press. Under ripple and dim only the container color stays with the state under the press; label, icon, opacity and shape still come from the pressed tokens. Under none every part stays with the state under the press. The ripple grows over comp.menubar.motion.feedback-duration with motion.state-easing, fades over motion.state-duration with motion.state-easing once the press has ended and press-hold has passed, and appears whole where motion is reduced."
+    },
+    {
+      "id": "MBR-8",
+      "text": "THE menubar title SHALL ease its container corners by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0) and show its keyboard focus as sys.behavior.focus-style names (ring or glow); a platform that cannot draw a choice SHALL fall back to the first value and state that in its README."
+    },
+    {
+      "id": "MBR-9",
+      "text": "WHEN the user activates an enabled title whose menu is closed — by a press with a pointer, a tap, Enter, Space, Down Arrow or Up Arrow while the title has focus — THE menubar SHALL open that title's menu without delay, close any other open menu of the bar (MBR-10), set the menu's open to true and emit the menu's toggle once with true. The open menu SHALL be a Tanrei Menu anchored to the title, below it with the start edges aligned, comp.menu.surface.offset from it, flipping above and shifting along the title as MNU-2 says, drawn from the menu's own tokens and holding the menu's own item kinds (actions, link items, checkbox and radio items, groups, submenus, shortcuts), every one of which SHALL behave as the menu's spec says except where MBR-13 to MBR-15 say otherwise. Focus SHALL move into the menu as MNU-1 says — to its first enabled item, or to its last enabled item when the key was Up Arrow, and to its first or last item where none is enabled (MNU-43) — showing the focus ring only when the input was a key. WHILE its menu is open THE menubar SHALL draw the title in the expanded condition (MBR-3) in whatever interaction state it is in."
+    },
+    {
+      "id": "MBR-10",
+      "text": "THE menubar SHALL show at most one of its menus at a time. WHEN a menu opens while another menu of the bar is open THE menubar SHALL close the other first, every submenu of it with it, set its open to false and emit its toggle once with false. WHEN the user presses the title of the open menu with a pointer or taps it THE menubar SHALL close that menu, set its open to false, emit its toggle once with false and keep focus on the title. WHEN the product sets a menu's open THE menubar SHALL open or close that menu as an activation would, without emitting that menu's toggle for the product's own change; IF the product sets open on more than one menu THE menubar SHALL show the first of them in the order given, and in debug builds report it."
+    },
+    {
+      "id": "MBR-11",
+      "text": "WHILE a menu of the bar is open, WHEN a pointer that can hover moves onto another enabled title THE menubar SHALL open that title's menu at once, with no delay, and close the one that was open (MBR-10), moving focus into the new menu as MNU-1 says without showing a focus ring; a pointer on a disabled title, or on the bar between titles, SHALL leave the open menu open. WHILE no menu of the bar is open a pointer on a title SHALL only render it hovered and SHALL open nothing. Touch has no hover: a tap on another title opens its menu (MBR-9)."
+    },
+    {
+      "id": "MBR-12",
+      "text": "THE menubar SHALL be one Tab stop: the title that had keyboard focus last or whose menu was opened last, by any input, whichever came later, or else its first title. WHILE a title has keyboard focus and no menu is open, the arrow key that points to the inline end (Right Arrow in a left-to-right layout, Left Arrow in a right-to-left one) and the one that points to the inline start SHALL move focus to the next and the previous title, wrapping at the ends, Home and End SHALL move it to the first and the last title, and a printable character typed with no modifier but Shift SHALL move it to the next title after the focused one, wrapping, whose label begins with that character, compared without regard to letter case, and nowhere when no label does; none of these keys SHALL open a menu. A disabled title and the overflow item (MBR-21) SHALL be reached by these keys like any other title, so that a person hears every menu the bar has. Tab and Shift+Tab SHALL move focus out of the bar, to what follows and what precedes it. Beyond these keys and those of MBR-9 THE menubar SHALL handle no key while no menu is open, and SHALL NOT let a key it handles scroll or act on what is around the bar."
+    },
+    {
+      "id": "MBR-13",
+      "text": "WHILE a menu of the bar is open and focus is inside it, at any level, WHEN the user presses the arrow key that points to the inline end on an item that is not a submenu item THE menubar SHALL close that menu and every submenu of it, open the menu of the next enabled title, wrapping at the ends and passing over disabled titles, and move focus to that menu's first enabled item with the focus ring shown; WHEN the user presses the arrow key that points to the inline start while focus is in the menu's own surface, not in a submenu, THE menubar SHALL do the same towards the previous enabled title. These two keys replace what MNU-51 says for a menu that stands alone; on a submenu item the inline-end key still opens its submenu (MNU-43), and in a submenu the inline-start key still closes that submenu alone (MNU-48). WHERE the bar has one enabled title only, these keys SHALL do nothing and SHALL NOT let the key scroll or act on what is behind the menu. Each menu closed and opened this way SHALL have its open set and its toggle emitted once (MBR-9, MBR-10)."
+    },
+    {
+      "id": "MBR-14",
+      "text": "WHEN the user presses Escape or the platform's back while a menu of the bar is open and no submenu of it is open THE menubar SHALL close that menu, set its open to false, emit its toggle once with false and return focus to its title, showing the focus ring when the input was a key, so that the arrow keys go on along the bar. WHEN the user presses Tab or Shift+Tab while a menu of the bar is open, at any level, THE menubar SHALL close it the same way and SHALL let focus move on out of the bar, to what follows the bar for Tab and to what precedes it for Shift+Tab, never to another title. WHEN the user presses outside every surface of the open menu and outside the bar, or focus leaves the bar and the open menu, THE menubar SHALL close the menu the same way and SHALL NOT take focus back. WHILE no menu is open THE menubar SHALL NOT handle Escape."
+    },
+    {
+      "id": "MBR-15",
+      "text": "WHEN the user activates an item of an open menu that closes its menu (an action or a link item, at any level: MNU-6, MNU-54) THE menubar SHALL close the menu, every submenu with it, set its open to false, emit its toggle once with false after the item's own event, and return focus to the menu's title, unless the product moved focus elsewhere while handling the item's event, in which case THE menubar SHALL leave focus where the product put it. A checkbox or radio item activated with Space leaves its menu open, as MNU-6 says."
+    },
+    {
+      "id": "MBR-16",
+      "text": "THE menubar SHALL add no event to an item of its menus and take none away: an item's click, a checkbox item's change, a group's change and a submenu item's toggle are emitted as the menu's spec says, by the item or the group. THE menubar SHALL NOT listen for a keyboard shortcut that an item shows, nor run an item when its shortcut is pressed: the menu draws the shortcut and exposes it (MNU-31), and binding the keys is the product's. THE menubar SHALL define no access key of its own — no underlined letter in a title, no key that moves focus to the bar from elsewhere — and SHALL leave a product free to add one by moving focus to a title or setting a menu's open."
+    },
+    {
+      "id": "MBR-17",
+      "text": "WHERE a title's visual size is below the minimum target THE menubar SHALL extend its hit area on both axes to sys.target.touch for touch input and sys.target.pointer for fine pointers, without changing its visual size; a platform that cannot tell the input type SHALL use sys.target.touch. Between two neighbouring titles the hit areas SHALL meet at the middle of comp.menubar.bar.gap and SHALL never overlap; a title narrower than the target SHALL be given the room its target needs by moving its neighbours apart, not by overlapping them."
+    },
+    {
+      "id": "MBR-18",
+      "text": "WHILE a menu's disabled is true THE menubar SHALL render its title's container, label and opacity from the disabled component tokens of the unselected condition, SHALL NOT open its menu by any input or by the product's open, SHALL close it if it is open (MBR-10), SHALL NOT emit its toggle for an activation, SHALL keep the title reachable by the keys of MBR-12, and SHALL expose the title as a menu item that opens a menu, with the disabled state."
+    },
+    {
+      "id": "MBR-19",
+      "text": "THE menubar SHALL expose itself with the menubar role, named by label, with a horizontal orientation; each title as a menu item that opens a menu, named by its menu's label, with whether that menu is open, the disabled state where it has it, and its position among the bar's titles and their number; and each open menu as a menu named by its title, its items exposed as the menu's spec says (MNU-24). The overflow item SHALL be one such title, named by overflowLabel (MBR-22). WHERE a platform has no menubar role THE menubar SHALL expose a group named by label that holds, in order, one button for each title, each saying that it opens a menu and whether that menu is open, and SHALL say so in its README."
+    },
+    {
+      "id": "MBR-20",
+      "text": "WHILE label is empty THE menubar SHALL still render and work, and in debug builds report that it has no accessible name; WHILE a menu's label is empty THE menubar SHALL still draw its title, as an empty container of the title's height and paddings, keep it reachable and operable, and in debug builds report that the title has no name. IF the menubar holds neither a menu nor a bar item THE menubar SHALL draw the bar with nothing on it, take no focus, and in debug builds report it. IF a menu holds no item THE menubar SHALL still draw its title and open its surface, empty, on an activation, SHALL keep focus on the title while that menu is open, SHALL answer the inline arrow keys on that title as MBR-13 says for a menu's own surface and Escape and Tab as MBR-14 says, and in debug builds report it; WHILE such a menu is folded into the overflow item (MBR-22) it SHALL be a submenu item that draws its row, takes focus and opens nothing, as MNU-52 says of a submenu with no item. IF it holds something that is neither a menu nor a bar item (MBR-32) THE menubar SHALL give it no title, no key and no place in the row, and in debug builds report it: a field, a control of the product's own or an entry that holds a state would take the keys the bar moves focus with and would not be a menu item."
+    },
+    {
+      "id": "MBR-21",
+      "text": "IF the titles need more inline size than the row has THE menubar SHALL keep every title at its own size, SHALL NOT wrap the row onto a second line, scroll it, shrink it or cut a label, and SHALL fold menus out of the row from its end, as few as make the rest fit, into one overflow item drawn as the last title of the row: the glyph more_horiz of the system's icon set at comp.menubar.icon.size, in the icon color of its condition and state (comp.menubar.unselected.icon.color at rest, comp.menubar.expanded.icon.color while its menu is open), drawn through the icon helper with sys.icon.family.unselected, sys.icon.fill.unselected, sys.icon.weight and an optical size clamped between sys.icon.optical-size.min and sys.icon.optical-size.max, centered in a container at least comp.menubar.container.height wide and tall with the corners of MBR-2. IF the first title does not fit beside the overflow item THE menubar SHALL fold every menu, so that the row is the overflow item alone. WHILE every title fits THE menubar SHALL draw no overflow item. THE menubar SHALL decide again what fits, at once and without a motion, whenever its inline size, its menus, a label, the text size or the layout direction changes.",
+      "verify": "A stage narrower than the titles: the fixtures many, many-rtl and long-labels, or any fixture at 320 wide."
+    },
+    {
+      "id": "MBR-22",
+      "text": "THE menubar SHALL treat the overflow item as a title in every respect — its conditions, states, target, keys and hover (MBR-3 to MBR-17) — and SHALL open from it a Tanrei Menu that lists the folded menus in the order given, each as a submenu item named by that menu's label and holding that menu's items unchanged, a disabled menu as a disabled submenu item; these SHALL behave as MNU-42 to MNU-52 say, and the level the fold adds SHALL NOT count towards the depth MNU-52 reports. WHEN a folded menu's submenu opens or closes THE menubar SHALL set that menu's open and emit its toggle once, as it does for a menu opened from its own title, so that open and toggle mean the same wherever the menu is shown. WHEN a change of MBR-21 folds or unfolds the menu that is open THE menubar SHALL close it first (MBR-10) and, if focus was inside it, move focus to the title it is now reached from: its own, or the overflow item. WHILE overflowLabel is empty and the product's words do not give it THE menubar SHALL still draw the overflow item and let it work, SHALL expose it without a name, and in debug builds report the missing word once."
+    },
+    {
+      "id": "MBR-23",
+      "text": "THE menubar SHALL supply no word of its own: its name is label and each title is its menu's label, given on the instance; the overflow item's name is overflowLabel, read from the instance and, where that is empty, from the product's words under the key menubarOverflowLabel; the words of every item are the menu's own props. A word nobody gave SHALL NOT be replaced by one in any language."
+    },
+    {
+      "id": "MBR-24",
+      "text": "THE menubar SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the menubar is shown THE menubar SHALL draw itself for the new direction at once, without a motion of its own, keeping its focus, the title its Tab stop stands on and which menu is open, the open menu placed again by the new direction (MNU-2) and what fits decided again (MBR-21)."
+    },
+    {
+      "id": "MBR-25",
+      "text": "WHERE the layout direction is right-to-left THE menubar SHALL lay out its titles from the right edge in the order given, fold menus from the left end of the row and draw the overflow item at the left end, open each menu below its title with their right edges aligned, and move focus along the bar with Left Arrow to the next title and Right Arrow to the previous one (MBR-12, MBR-13); the order of focus and of reading SHALL stay the order given. The overflow item's glyph SHALL be mirrored exactly when the system's icon set marks its name as mirrored, by the icon helper and not by the bar."
+    },
+    {
+      "id": "MBR-26",
+      "text": "THE menubar SHALL lay out each title's label as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word keeps its own order in a right-to-left layout and reorders nothing beside it; THE menubar SHALL still place each title by the layout direction, not by the text's own."
+    },
+    {
+      "id": "MBR-27",
+      "text": "WHILE the text size is enlarged THE menubar SHALL grow each title with its label — the container's height is a minimum, and its width follows the label — and the row with its titles, keeping comp.menubar.bar.gap, comp.menubar.bar.padding-inline, comp.menubar.bar.padding-block and comp.menubar.container.padding-inline as they are, and SHALL decide again what fits (MBR-21), so that at twice the text size in a window 320 wide every menu is still reached, from its title or through the overflow item, with nothing cut and no scrolling sideways."
+    },
+    {
+      "id": "MBR-28",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE menubar SHALL draw each title's label and the overflow item's glyph in the platform's button text color, a disabled title in its disabled text color, the focus ring in its highlight color, and SHALL mark the title whose menu is open, and a hovered or pressed title, by the platform's highlight colors or by an outline of sys.border.hairline or more around the title's container, never by a fill the platform may remove; it SHALL draw no fill for the bar."
+    },
+    {
+      "id": "MBR-29",
+      "text": "WHEN the colors of a title change between states or conditions THE menubar SHALL animate them over comp.menubar.motion.state-duration with comp.menubar.motion.state-easing, and SHALL change them at once where motion is reduced. WHEN one menu of the bar takes the place of another (MBR-11, MBR-13) THE menubar SHALL remove the one and show the other at once, with neither the close nor the open motion of MNU-4, so that moving along the bar does not flicker; the menu that opens from a bar with no menu open, and the last one to close, SHALL move as MNU-4 says."
+    },
+    {
+      "id": "MBR-30",
+      "text": "WHEN a menu is added to the bar, removed from it, reordered or given another label or disabled value while the bar is shown THE menubar SHALL lay the row out again at once, without a motion; a menu that is removed while open SHALL be closed without emitting its toggle; WHEN the title that holds focus or the Tab stop is removed THE menubar SHALL move it to the title that followed, or to the one before where none follows, and SHALL NOT let focus fall out of the bar while a title remains."
+    },
+    {
+      "id": "MBR-31",
+      "text": "WHILE a menu of the bar is open THE menubar SHALL NOT trap focus, SHALL NOT make the rest of the screen inert and SHALL draw no scrim: its menus are operated overlays that are not modal (MNU-25), and the bar itself is part of the page, not an overlay. A press outside that closes a menu SHALL also reach what is under it where the menu's own platform form lets it (MNU-5)."
+    },
+    {
+      "id": "MBR-32",
+      "text": "THE menubar SHALL take two kinds of entry in its row, in the order given and mixed freely: a menu, whose title opens it (MBR-9), and a bar item, which acts by itself — an action that is run at once or, WHILE its href is not empty, a link that goes somewhere (MBR-35). THE menubar SHALL give a bar item its place in the row among the titles and SHALL treat it as a title in every respect but one, that it has no menu: it is drawn as MBR-2 draws a title, from its own label; it is always in the unselected condition and never in the expanded one (MBR-3); it takes a title's states, focus ring, press answer, corners and target (MBR-4 to MBR-8, MBR-17), its hit area meeting its neighbours' as theirs meet; it is counted with the titles wherever this spec orders, measures, folds or mirrors them or lays them out again (MBR-1, MBR-21, MBR-24 to MBR-27, MBR-30); and it is one of the stops of the bar's one Tab stop, reached by the inline arrow keys, Home, End and a typed character exactly as a title is, a disabled one included, and it is where the Tab stop stands when it had keyboard focus or was activated last (MBR-12). THE menubar SHALL draw nothing that tells a bar item from a title at rest: a person tells them apart by their words, as in any row of commands, and assistive technology by what MBR-42 says."
+    },
+    {
+      "id": "MBR-33",
+      "text": "WHEN the user activates an enabled bar item that is not a link item — by a press with a pointer, a tap, Enter or Space while it has focus, or the default action of assistive technology — THE menubar SHALL first close the menu of the bar that is open, if one is, as MBR-10 says, and SHALL then emit the bar item's click exactly once; it SHALL open nothing, and SHALL keep focus on the bar item, moved there without a focus ring when the input was a pointer or a touch, unless the product moved focus elsewhere while handling click, in which case it SHALL leave focus where the product put it. THE menubar SHALL activate a bar item for nothing else: not for focus arriving on it, not for a pointer over it, and not for the arrow keys, Home, End or a typed character that reach it, so that moving along the bar runs no command.",
+      "verify": "Test: Right Arrow from a title onto an action, then Home, End and a typed letter that lands on it — no click is emitted; Enter emits one click and document focus is still the bar item; with a menu open, a pointer press on the action emits that menu's toggle with false and then the click, in that order."
+    },
+    {
+      "id": "MBR-34",
+      "text": "WHILE a bar item has keyboard focus THE menubar SHALL do nothing for Down Arrow and Up Arrow, which open a menu from a title and have none to open here, and SHALL NOT let them scroll or act on what is around the bar, so that the same two keys never open a menu on one entry of the row and move the page on the next; it SHALL NOT handle Escape (MBR-14), and Tab and Shift+Tab SHALL leave the bar as MBR-12 says."
+    },
+    {
+      "id": "MBR-35",
+      "text": "WHILE a bar item's href is not empty THE menubar SHALL make it a link item, as MNU-53 makes an item of a menu one: the platform's own link to href (the web's anchor element; SwiftUI's Link; on Compose, Flutter and React Native an element with the platform's link semantics whose address is opened by the platform's opener), as BTN-22 says for a link button, so that whatever the platform gives a link is the platform's, and not the bar's to draw or to take over. WHERE the platform has a menubar role THE menubar SHALL expose a link item with the menu item role, on the link itself, and not with the link role, for the reason MNU-53 gives for a menu: the bar's role, an entry's position in it and its keys hold only while everything in the row is a menu item. THE menubar SHALL draw a link item exactly as it draws an action, from the same tokens in every state, with no look of its own for a link and none for a destination already visited, SHALL give the bar item's whole container and its hit area (MBR-17) to the link, and SHALL keep it one stop of the bar's Tab stop like any entry, never a Tab stop of its own.",
+      "verify": "Fixture mixed: Documentation is drawn exactly as Run beside it. On the web the bar item's anchor is the product's own, in the document, with the href and role menuitem; the accessibility tree shows a menubar of menu items and no link; Right Arrow and a typed character reach it as they reach a title, and Tab leaves the bar instead of moving to it."
+    },
+    {
+      "id": "MBR-36",
+      "text": "WHEN the user activates an enabled link item as an entry of the bar is activated — by a click with the primary button and no modifier key, a touch, Enter or Space with no modifier key, or the default action of assistive technology — THE menubar SHALL close the menu of the bar that is open, if one is (MBR-10), emit the bar item's click exactly once, and then open href where target names, unless the product cancelled that click, in which case it SHALL open nothing: the product's own router has taken the navigation, as MNU-54 says of a menu's link item. It SHALL show the pressed state as MBR-6 and MBR-7 say and SHALL NOT hold the navigation back for sys.motion.duration.press-hold. Space SHALL activate a link item exactly as Enter does and SHALL scroll nothing, as MNU-54 says and for its reasons: a link item is exposed and operated as a menu item, nothing in its look tells it from the action beside it, and Space activates every other entry of the row. For every other activation the platform gives a link — on the web a click or Enter with a modifier key, a middle click and the link's context menu, on Apple platforms a long press that previews — THE menubar SHALL leave the link to the platform, SHALL prevent, replace or imitate none of it, and SHALL close no menu for it.",
+      "verify": "On the web: Enter on a focused link item fires its click once and follows the link; Space does the same and the page does not scroll; a click listener that calls preventDefault() leaves the page where it is; a control-click, a command-click, a shift-click and a middle click open what the browser opens for a plain anchor, the bar has called preventDefault on none of them, and a menu that was open is still open."
+    },
+    {
+      "id": "MBR-37",
+      "text": "WHILE a bar item is a link item and its target is new THE menubar SHALL open href in a new context, as BTN-24 says for a link button (on the web a new tab or window that is given no handle to the page that opened it), and SHALL draw the glyph open_in_new of the system's icon set after the label, comp.menubar.container.gap from it and inside the container's paddings, at comp.menubar.icon.size, in the icon color of the bar item's state (comp.menubar.unselected.icon.color at rest), through the icon helper as MBR-21 draws the overflow item's glyph — the helper mirrors it in a right-to-left layout because the icon set marks its name — and hidden from assistive technology; the bar item SHALL then be as wide as its label, the gap and the glyph need. THE menubar SHALL expose targetLabel as the bar item's description — read from the bar item and, where that is empty, from the product's words under the key targetLabel — and WHILE neither gives it SHALL still render and in debug builds report that a link that opens a new context does not say so. WHILE target is same THE menubar SHALL draw no mark and SHALL ignore targetLabel.",
+      "verify": "Fixture link-new: Source ends in the mark, 24 large and 4 from the label under the default system, and is described as \"opens in a new tab\"; no other entry has one. Fixture mixed-rtl shows it at the label's left, mirrored."
+    },
+    {
+      "id": "MBR-38",
+      "text": "WHILE a link item's current is true THE menubar SHALL expose it as the current item of its set (on the web the current page; on a platform without that state, the selected state), SHALL keep it a link that takes focus and can be followed, and SHALL draw its label at the emphasized weight of its text style — the weight of comp.menubar.label.typescale plus sys.typescale.emphasis.label — in the colors of every other bar item and with no fill of its own, so that it is told from its neighbours by more than a color and is never mistaken for the title of an open menu: nothing in a menubar is selected (MBR-3), and the current page is a fact about where the person is, not a choice the bar holds. THE menubar SHALL decide again what fits (MBR-21) when current changes, since the heavier label is wider, and SHALL NOT set current itself on any activation: where the product is, is the product's to say (NVB-31). IF more than one bar item is current THE menubar SHALL draw and expose each as given and in debug builds report it; WHILE a bar item's href is empty THE menubar SHALL ignore its current and in debug builds report it.",
+      "verify": "Fixture link-current beside the fixture mixed: History is heavier, has no fill, and on the web its anchor carries aria-current=\"page\". A plain click on Preview emits click and leaves History current."
+    },
+    {
+      "id": "MBR-39",
+      "text": "WHILE a bar item's disabled is true THE menubar SHALL render its container, label, mark and opacity from the disabled component tokens of the unselected condition, SHALL NOT emit its click or act on any input, SHALL keep it reachable by the keys of MBR-12 as MBR-18 keeps a disabled title, and SHALL expose it with the disabled state; a disabled link item SHALL NOT be a link that can be followed, as MNU-56 says of a menu's: it SHALL keep the exposure MBR-35 gives it, with the disabled state and no destination, and SHALL open nothing by any means the platform gives a link (on the web the anchor carries no href, so there is no context menu entry, no drag and no new tab for it).",
+      "verify": "Fixture disabled-item: Run and Documentation are drawn disabled. Right Arrow still reaches each; Enter, Space, a click and a control-click do nothing."
+    },
+    {
+      "id": "MBR-40",
+      "text": "WHEN an inline arrow key of MBR-13 is pressed in an open menu and the next enabled entry in that direction — wrapping at the ends, and passing over disabled bar items as it passes over disabled titles — is a bar item THE menubar SHALL close the open menu and every submenu of it, set its open to false and emit its toggle once with false, and SHALL move focus to that bar item with the focus ring shown; it SHALL open nothing and SHALL NOT activate the bar item. No menu is then open, so the keys that follow are those of MBR-12 and MBR-34 and open nothing: THE menubar SHALL keep no memory that a menu was open, and moving on from the bar item SHALL NOT open the next title's menu — a menu follows focus along the bar only while a menu is shown (MBR-11, MBR-13). WHERE the open menu's title is the bar's only enabled entry these keys SHALL do nothing, as MBR-13 says.",
+      "verify": "Fixture mixed, with View's menu open and focus in it: Right Arrow closes it (one toggle with false) and puts the ring on Run; no click. Right Arrow again moves to Documentation and once more to File, and File's menu stays closed until Enter, Space or a block arrow key opens it."
+    },
+    {
+      "id": "MBR-41",
+      "text": "WHILE a menu of the bar is open, WHEN a pointer that can hover moves onto a bar item THE menubar SHALL render the bar item hovered and SHALL leave the open menu open and focus where it is, as MBR-11 says of a disabled title: a bar item has no menu to show in the other's place, and a menu that closed under a pointer on its way along the row would have to be opened again with a press at the next title. A press on the bar item then activates it (MBR-33, MBR-36), which closes the open menu first. WHILE no menu of the bar is open a pointer on a bar item SHALL only render it hovered.",
+      "verify": "Fixture mixed, File's menu open: move a mouse from File across Run to View — File's menu is still shown while the pointer is on Run, and View's replaces it when the pointer reaches View (MBR-11)."
+    },
+    {
+      "id": "MBR-42",
+      "text": "THE menubar SHALL expose each bar item as a menu item named by its label, which SHALL NOT say that it opens a menu and SHALL carry no expanded state (on the web neither aria-haspopup nor aria-expanded, in any value), with the disabled state where it has it and with its position among the bar's entries and their number, the titles, the bar items and the overflow item counted together in the order drawn; a link item as MBR-35 says, with its description where it opens a new context (MBR-37) and with whether it is current (MBR-38). WHERE a platform has no menubar role and exposes the group of MBR-19 instead THE menubar SHALL put in that group, in the order given among the titles' buttons, a button for an action and, for a link item, the platform's link with its link role or trait in place of the button's."
+    },
+    {
+      "id": "MBR-43",
+      "text": "WHEN MBR-21 folds entries out of the row THE menubar SHALL fold bar items as it folds menus — whole, from the end, in the order given, whatever their kind — and SHALL list a folded bar item in the overflow item's menu (MBR-22) at its place in that order among the folded menus' submenu items, not as a submenu but as an item of that menu: an action as the menu's own item (MNU-6) and a link item as the menu's own link item, with the same href, target and targetLabel (MNU-53 to MNU-56), each named by the bar item's label and disabled while the bar item is. WHEN the user activates a folded bar item THE menubar SHALL emit the bar item's own click exactly once — the same event of the same bar item, which a product cancels for a link item as MBR-36 says — so that click means the same wherever the bar item is shown, and SHALL then close the overflow item's menu and return focus to the overflow item as MBR-15 says, unless the product moved focus elsewhere while handling click, a link item opening its destination after that; the activations MNU-54 leaves to the platform SHALL leave the overflow item's menu open. The click comes before the closing here and after it in the row (MBR-33, MBR-36), and each is the order its place already has: in the row the menu that is open is another entry's, and an entry of the row that is pressed has the other's menu closed before it answers, as a pressed title does (MBR-10); in the fold the bar item is an item of the menu that is open, and an item's own event comes before its menu closes (MNU-6, MBR-15). In both places THE menubar SHALL emit click before it settles where focus rests, so that focus the product moved while handling click is left where the product put it. A folded link item whose target is new SHALL be marked and described as the menu marks and describes its own (MNU-55), and a folded link item that is current SHALL stay exposed as current and keep its label at the emphasized weight (MBR-38). THE menubar SHALL keep the overflow item a title that opens a menu, whatever is folded into it, so that it never acts by itself: WHERE everything folded is bar items its menu holds items and no submenu, and WHERE the row is the overflow item alone the bar is that one menu.",
+      "verify": "A stage narrower than the entries: the fixture mixed-many, or the fixture mixed at 320 wide. The overflow item's menu lists, in order, submenu items for the folded menus and plain items for the folded bar items; a click listener on the folded bar item's own element hears its activation once, while the overflow item's menu is still shown; after it the menu is closed and focus is on the overflow item, or where the listener put it."
+    },
+    {
+      "id": "MBR-44",
+      "text": "WHEN a bar item's target names a value the menubar does not define THE menubar SHALL treat it as same, and in debug builds report the unknown value. IF a bar item's href is only white space, or names a script to run rather than a place to go (the web's javascript: scheme), or cannot be read as an address by the platform, THE menubar SHALL make the bar item an action without a destination, and in the last two cases report it in debug builds, as BTN-26 says for a button. WHILE a bar item's href is empty THE menubar SHALL ignore its target and targetLabel. WHILE a bar item's label is empty THE menubar SHALL still draw it as an empty container of a title's height and paddings, keep it reachable and operable, and in debug builds report that it has no name, as MBR-20 says of a title. THE menubar SHALL give a destination to a bar item alone: WHERE a platform lets one be written on a menu THE menubar SHALL ignore it, keep the menu what it is, and in debug builds report it. THE menubar SHALL take no entry that holds a state: a checkbox or a radio entry directly in the row is refused as MBR-20 says, because a choice that is switched needs a mark a title has no place for, and it belongs in a menu of the bar, where the menu's checkbox and radio items mark it. IF the menubar holds bar items and no menu THE menubar SHALL still render and work, and in debug builds report it: a row of actions alone is a toolbar, and a row of links alone is navigation."
+    },
+    {
+      "id": "MBR-45",
+      "text": "WHERE the platform shows the product's own markup before the component runs (the web, before its elements are defined and where scripting is off) THE menubar SHALL leave every link item a link that works: its anchor is the product's own element in the document, shown in the bar's place in the order given and followed by the browser as any link is, with no menubar role, no menu item role and no roving focus on anything until the bar runs. WHEN the bar begins to run THE menubar SHALL take those anchors as its link items where they stand, SHALL add to them the role and the focus order MBR-35 and MBR-12 give, and SHALL NOT copy, move or replace them; a link item that is folded (MBR-43) SHALL keep its anchor in the document, not displayed. A menu and an action SHALL show nothing there: their words are the bar's to draw and their work is the product's script.",
+      "verify": "On the web, with scripting off: the fixture mixed shows Documentation as a link that navigates on a click and takes focus with Tab. After the elements are defined the same anchor node is the bar item (it was not replaced), and Tab reaches the bar once."
+    },
+    {
+      "id": "MBR-46",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE menubar SHALL draw an action and its states as MBR-28 draws a title, and a link item's label and mark in the platform's link color, a disabled one in its disabled text color: the colors are then the person's and not the design system's, and what they chose for a link holds for a link in a bar as it does anywhere. A current link item SHALL keep its emphasized weight, which no forced color removes.",
+      "verify": "On the web, with forced colors emulated: Run is ButtonText, Documentation LinkText, and a disabled bar item GrayText."
+    }
+  ],
+  "accessibility": {
+    "role": "menubar",
+    "keyboard": [
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Moves focus into the bar, to the entry focused last or else the first entry, and out of it: the bar is one Tab stop. With a menu open, closes it and moves focus on out of the bar."
+      },
+      {
+        "keys": "Right Arrow / Left Arrow on a title or a bar item (mirrored in a right-to-left layout)",
+        "action": "Moves focus to the next or previous entry of the row, wrapping at the ends. Disabled entries and the overflow item are reached too. Opens nothing and runs nothing."
+      },
+      {
+        "keys": "Home / End on a title or a bar item",
+        "action": "Moves focus to the first or last entry."
+      },
+      {
+        "keys": "Printable character on a title or a bar item",
+        "action": "Moves focus to the next entry whose label begins with it, whatever its letter case. Opens nothing and runs nothing."
+      },
+      {
+        "keys": "Enter, Space or Down Arrow on a title",
+        "action": "Opens its menu and moves focus to the menu's first enabled item."
+      },
+      {
+        "keys": "Up Arrow on a title",
+        "action": "Opens its menu and moves focus to the menu's last enabled item."
+      },
+      {
+        "keys": "Enter or Space on a bar item",
+        "action": "An action: runs it (click); focus stays on the bar item unless the product moved it. A link item: follows the link, Space as Enter does. With a modifier key, Enter on a link item is the platform's (another tab or window)."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow on a bar item",
+        "action": "Nothing: there is no menu to open. The keys are still taken, so the page does not scroll."
+      },
+      {
+        "keys": "Down Arrow / Up Arrow, Home / End, printable characters in a menu",
+        "action": "The menu's own keys, within the level that holds focus (MNU-7)."
+      },
+      {
+        "keys": "Right Arrow in a menu (Left Arrow in a right-to-left layout)",
+        "action": "On a submenu item, opens its submenu. On any other item, at any level, closes the menu and moves to the next enabled entry: a title's menu is opened, with focus on its first enabled item; a bar item takes focus, and nothing opens or runs (MBR-40)."
+      },
+      {
+        "keys": "Left Arrow in a menu (Right Arrow in a right-to-left layout)",
+        "action": "In a submenu, closes that submenu and returns focus to its item. In the menu's own surface, closes the menu and moves to the previous enabled entry: a title's menu is opened, with focus on its first enabled item; a bar item takes focus, and nothing opens or runs (MBR-40)."
+      },
+      {
+        "keys": "Enter / Space on an item of a menu",
+        "action": "Activates it as the menu says; an action or a link item closes the menu and focus returns to the title."
+      },
+      {
+        "keys": "Escape",
+        "action": "Closes the innermost open submenu; with none open, closes the menu and returns focus to its title. Does nothing while no menu is open."
+      }
+    ],
+    "labeling": "label names the bar; it is never drawn. Each title is a menu item named by its menu's label, which also names the menu it opens; it says that it opens a menu, whether that menu is open, whether it is disabled, and where it stands among the bar's titles. A bar item is a menu item named by its own label; it does not say that it opens a menu and has no expanded state, and says whether it is disabled and where it stands among the bar's entries, which are counted together. A link item is the platform's link exposed as a menu item (MBR-35); while its target is new its targetLabel is its description, and while it is current it says so. The overflow item is named by overflowLabel, and the menus folded into it keep their labels as its submenu items, the bar items folded into it as its items. Everything inside a menu is named as the menu's spec says. The overflow item's glyph is decorative.",
+    "minimumTarget": true,
+    "notes": [
+      "What it is for: the commands of an application — an editor, a spreadsheet, a drawing or planning tool — in a window wide enough to show several named menus. It is not a site's main navigation with drop-downs: a row of links to pages, always in view, is navigation and belongs in a navigation landmark of links (the menu's own note on link items says the same). A menubar tells assistive technology that the arrow keys, and not Tab, move through everything in it and that every entry is a command; a person who meets that on a set of page links is misled.",
+      "It follows the WAI-ARIA menubar pattern in full: one Tab stop, the horizontal arrow keys along the bar, the vertical ones into and inside a menu, the horizontal ones from inside a menu on to the neighbouring entry, Escape back to the title, type-ahead at both levels, and an entry of the bar that acts by itself — an action or a link. What it leaves out of that pattern: a checkbox or a radio entry directly in the bar. A choice that is switched needs a mark for its state, a title has no place for one, and the menus of the same bar already have it. Exploring the bar still runs nothing: focus arriving, the arrow keys, a typed character and a pointer over an entry never activate it; only a press, Enter or Space does (MBR-33).",
+      "A bar item is for the one or two commands or places that belong beside the menus and are wanted in one press (\"Run\", \"Share\", \"Documentation\"). Nothing in its look tells it from a title that opens a menu, so its label says what it does at once: a verb for an action, the name of the place for a link. A command that deletes something or cannot be undone does not belong on the bar: a bar item has no destructive look and asks nothing before it runs; put it in a menu. A row of bar items with no menu is not a menubar — actions alone are a toolbar, links alone are navigation — and is reported (MBR-44).",
+      "A link item is the platform's own link exposed as a menu item, exactly as the menu's own link item is and for the same reason (MNU-53): a menubar is read by its entries — how many, which one, the arrow keys — and that reading holds only while everything in the row is a menu item; so the role stays, and what makes the entry a link stays underneath it: its address, the browser's context menu and new-tab gestures, a crawler that follows it. Like the menu's, it is a link that Space activates. On the web it is the product's own anchor in the document, so it is a working link before the bar runs and where script does not (MBR-45). current marks the page the person is on among the bar's link items; the product sets it and the bar draws it by weight, never by a fill: nothing in a menubar is selected.",
+      "A link item that opens a new context is marked by the one rule every link form follows: the glyph open_in_new stands at the control's trailing glyph place, where the control lays out its own content and has such a place. A title's container has one — the overflow item's glyph stands in it — as a button's label has (BTN-24) and a menu's row has in its trailing icon column (MNU-55), which is where a folded link item's mark is drawn; the navigation bar draws none because its cell, an icon over a label, has no such place (NVB-32). Whether a mark is drawn or not, targetLabel says it (MBR-37).",
+      "A bar item's click and the closing of an open menu come in one of two orders, by where the bar item is activated (MBR-33, MBR-36, MBR-43). In the row, the menu that is open belongs to another entry and is closed first, as it is when another title is pressed (MBR-10): the product's handler runs with no menu shown. Folded, the bar item is an item of the overflow item's menu, and its click comes first and the menu closes after it, as for every item of a menu (MNU-6, MBR-15). What a product can rely on in both: one click, on the bar item's own element, before the bar decides where focus rests.",
+      "A bar's menu is to the bar what a submenu item is to a menu: a label, an open value of its own, a disabled value, and a toggle event. The surface it opens is a Tanrei Menu with the menu's own item kinds and tokens. The item kind menu of this spec has no items of its own in the schema because they are another spec's kinds; a fixture therefore draws an open menu empty, as a button with menu's fixtures do, and the tests fill it.",
+      "Focus: the bar is part of the page and a Tab stop like a toolbar. A menu it opens takes focus and returns it to its title when it closes by Escape or by an item; Tab leaves the bar altogether. A bar item opens nothing, so it takes no focus away: after it runs, focus is still on it (MBR-33). After a command the product may move focus to what the command acts on (the document, a dialog it opened) in its handler, and the bar does not take it back (MBR-15).",
+      "Disabled titles stay reachable along the bar with no menu open, so that a screen reader user hears that the menu exists and is unavailable; with a menu open, the horizontal arrow keys pass over them, because those keys then mean 'show me the next menu' and a disabled title has none to show (MBR-13). A disabled bar item is reached and passed over the same way. An enabled bar item is not passed over: the keys land on it, the open menu closes, and from there they go on along the bar without opening anything, because a menu follows focus only while one is shown (MBR-40).",
+      "Keyboard shortcuts shown in the menus are drawn and exposed by the menu through the keyboard shortcut component; the bar binds none (MBR-16). Access keys — an underlined letter per title, a key that jumps to the bar — are left out: they differ by platform, collide with the browser's own on the web, and a letter is chosen per language, which a component that ships no words cannot do. Type-ahead on the bar gives the first-letter jump once focus is there.",
+      "A compact window: the bar folds what does not fit into one overflow item at its end, whose menu holds the folded menus as submenus and the folded bar items as items (MBR-43); when nothing fits it is that one item alone (MBR-21, MBR-22). The keys, the roles and the order are the same at every width, and no command is lost. A product that would rather not show a menubar at all on a phone — commands in an app bar's actions and its 'more' menu are the touch idiom — does not render it there; that is the product's layout and needs nothing from the bar.",
+      "Where the platform has a menu bar of its own outside the window (a desktop system's global bar, a tablet's bar for a hardware keyboard), the product should give its commands to that bar with the platform's own API as well: people look for them there, and its keys are the platform's. Tanrei's menubar is drawn inside the product's window from Tanrei's tokens; it does not fill or replace the system's.",
+      "Contrast: a title's or a bar item's label keeps at least 4.5:1 on the bar in every state of both conditions. The open title's fill supports the open menu beneath it, which is what says a menu is open; the fill is not held to a contrast of its own. The focus ring is the system's and keeps 3:1 against what it is drawn on.",
+      "minimumTarget: a title is 40 high in a bar 48 high in the default system, so its touch target lies inside the bar; a short title ('Go') is narrower than the target and gets the room MBR-17 gives it."
+    ]
+  },
+  "tokens": "comp.menubar",
+  "fixtures": [
+    {
+      "id": "default",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More menus"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Insert"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Format"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Tools"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Help"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More menus"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File",
+            "open": true
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Insert"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Format"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Tools"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Help"
+          }
+        }
+      ]
+    },
+    {
+      "id": "open-middle",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More menus"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Insert",
+            "open": true
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Format"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Tools"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Help"
+          }
+        }
+      ]
+    },
+    {
+      "id": "disabled-menu",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More menus"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Insert"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Format",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Tools"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Help"
+          }
+        }
+      ]
+    },
+    {
+      "id": "two-menus",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More menus"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Help"
+          }
+        }
+      ]
+    },
+    {
+      "id": "single",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More menus"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        }
+      ]
+    },
+    {
+      "id": "short-titles",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More menus"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Go"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Do"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Run"
+          }
+        }
+      ]
+    },
+    {
+      "id": "many",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More menus"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Insert"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Format"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Slide"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Arrange"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Tools"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Extensions"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Window"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Account"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Help"
+          }
+        }
+      ]
+    },
+    {
+      "id": "long-labels",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More menus"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Document and page settings"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Selection and arrangement"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Review, comments and history"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Accessibility and language tools"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ja",
+      "props": {
+        "label": "アプリケーション",
+        "overflowLabel": "その他のメニュー"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "ファイル"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "編集"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "表示"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "挿入"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "書式"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "ツール"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "ヘルプ"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "label": "التطبيق",
+        "overflowLabel": "قوائم أخرى"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "ملف"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "تحرير"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "عرض"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "إدراج"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "تنسيق"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "أدوات"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "مساعدة"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rtl-open",
+      "props": {
+        "label": "التطبيق",
+        "overflowLabel": "قوائم أخرى"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "ملف",
+            "open": true
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "تحرير"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "عرض"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "إدراج"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "تنسيق"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "أدوات"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "مساعدة"
+          }
+        }
+      ]
+    },
+    {
+      "id": "many-rtl",
+      "props": {
+        "label": "التطبيق",
+        "overflowLabel": "قوائم أخرى"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "ملف"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "تحرير"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "عرض"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "إدراج"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "تنسيق"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "أدوات"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "مساعدة"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "نافذة"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "حساب"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "إضافات"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "ترتيب"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "شريحة"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ltr-titles-rtl",
+      "props": {
+        "label": "التطبيق",
+        "overflowLabel": "قوائم أخرى"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "تحرير"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Tanrei 2.0"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "مساعدة"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mixed",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Run"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Documentation",
+            "href": "/docs/"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mixed-open",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit",
+            "open": true
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Run"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Documentation",
+            "href": "/docs/"
+          }
+        }
+      ]
+    },
+    {
+      "id": "link-new",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Help"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Source",
+            "href": "https://example.com/tanrei",
+            "target": "new",
+            "targetLabel": "opens in a new tab"
+          }
+        }
+      ]
+    },
+    {
+      "id": "link-current",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Preview",
+            "href": "/preview/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "History",
+            "href": "/history/",
+            "current": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "disabled-item",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Run",
+            "disabled": true
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Share"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Documentation",
+            "href": "/docs/",
+            "disabled": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "mixed-many",
+      "props": {
+        "label": "Application",
+        "overflowLabel": "More"
+      },
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "File"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Edit"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "View"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Insert"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Format"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Run"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Tools"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Extensions"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Share"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Window"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Documentation",
+            "href": "/docs/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "Source",
+            "href": "https://example.com/tanrei",
+            "target": "new",
+            "targetLabel": "opens in a new tab"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "History",
+            "href": "/history/",
+            "current": true
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "Help"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mixed-rtl",
+      "props": {
+        "label": "التطبيق",
+        "overflowLabel": "المزيد"
+      },
+      "direction": "rtl",
+      "items": [
+        {
+          "kind": "menu",
+          "props": {
+            "label": "ملف"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "تحرير"
+          }
+        },
+        {
+          "kind": "menu",
+          "props": {
+            "label": "عرض"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "تشغيل"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "المستندات",
+            "href": "/docs/"
+          }
+        },
+        {
+          "kind": "item",
+          "props": {
+            "label": "المصدر",
+            "href": "https://example.com/tanrei",
+            "target": "new",
+            "targetLabel": "يفتح في علامة تبويب جديدة"
+          }
+        }
+      ]
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-menubar",
+      "props": {
+        "label": "label",
+        "overflowLabel": "overflowLabel"
+      },
+      "items": {
+        "menu": {
+          "name": "tanrei-menubar-menu",
+          "props": {
+            "label": "label",
+            "open": "open",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "toggle"
+          },
+          "notes": "`<tanrei-menubar-menu label=\"File\">` holds the menu's item elements as its children (`tanrei-menu-item`, `tanrei-menu-checkbox-item`, `tanrei-menu-radio-item`, `tanrei-submenu`, `tanrei-menu-group`), as `tanrei-menu` holds its own; it forwards them into a `tanrei-menu` in its shadow root, anchored to itself, and moves none of them. `open` reflects; `toggle` is a CustomEvent whose `detail.open` is the new value, fired on the element, and bubbles. The items' own `click`, `change` and `toggle` bubble through it, so one listener on the bar takes them all (a submenu's `toggle` and a bar menu's are told apart by their target)."
+        },
+        "item": {
+          "name": "tanrei-menubar-item",
+          "props": {
+            "label": "label",
+            "disabled": "disabled",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "current": "current"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "An action is `<tanrei-menubar-item label=\"Run\"></tanrei-menubar-item>`: the host is the entry — `role=\"menuitem\"` with neither `aria-haspopup` nor `aria-expanded`, `aria-disabled`, and the bar's roving `tabindex` — and draws its label in its shadow root as `tanrei-menubar-menu` does; `click` is the host's own click, which Enter and Space produce through `click()` and a disabled host swallows. A link item is the same element around the product's own anchor, which stays in the document (as the breadcrumbs' levels do): `<tanrei-menubar-item><a href=\"/docs/\">Documentation</a></tanrei-menubar-item>`. The anchor is the entry: the element writes `role=\"menuitem\"` and the roving `tabindex` on it and `role=\"none\"` on the host, slots it into the title's container so that the whole container is the link, and draws the state layer, the focus ring and the mark around it in its shadow root. A link item's props are the anchor's own, as the Link's are: its text is `label`; `href`; `target` in HTML's spelling (`_blank` is `new`, to which the element adds `noopener` in `rel`; anything else is `same`); `aria-current=\"page\"` is `current`; `rel` and `download` are the anchor's and web-only. The host's properties of the same names read the anchor and, when the product sets one, write it there, so that the address is held in one place; a `label` attribute on a host that holds an anchor is ignored. `targetLabel` is the host's `target-label` attribute, else the product's words; the element writes it as the anchor's `aria-description` unless the product wrote one there. `disabled` is the host's attribute in both forms, and for a link item it is the one statement that the entry is disabled: `<tanrei-menubar-item disabled><a>Documentation</a></tanrei-menubar-item>`. The product writes that anchor without `href`, as the Link's disabled anchor is written: only an anchor with no address is one the browser cannot follow by a modified click, its context menu or a drag, and the element never takes away or puts back an address the product wrote. On it the element writes `aria-disabled=\"true\"` beside `role=\"menuitem\"` and keeps it in the roving order, so that the arrow keys still reach it (MBR-39); before the bar runs it is plain text in the row, which is what a link that cannot be followed is. The two mismatches are defined and reported in debug builds. A disabled host whose anchor still has an `href` is drawn and exposed disabled, emits no `click` and has its plain activation prevented, but what the browser itself gives an address is still there, and the report says to take the `href` away. An anchor without `href` under a host that is not disabled is an entry without a destination — an action (MBR-44) whose entry is still the anchor and whose `click` is the anchor's — and the report says to write an action with `label`. `click` is the anchor's own click and bubbles through the host: cancelling it (`preventDefault()`) cancels the navigation, a router's own link component rendered as the child needs nothing more, a click with a modifier key or the middle button is the browser's, Enter with a modifier key is passed to the anchor, and Space calls the anchor's `click()`. An `href` attribute on a host that holds no anchor is ignored and reported: the destination is the anchor's, so that the link exists before the element is defined (MBR-45). An `href` on `tanrei-menubar-menu` is ignored and reported (MBR-44). React: `MenubarItem` renders the element around its children and adds nothing; a router's link is the child."
+        }
+      },
+      "notes": "The shadow-root form: the bar is a control whose parts the product does not write. `<tanrei-menubar label=\"Application menu\" overflow-label=\"More menus\">` holds `tanrei-menubar-menu` children in its default slot. The host has `role=\"menubar\"` and `aria-label`; each `tanrei-menubar-menu` host is its title — `role=\"menuitem\"`, `aria-haspopup=\"menu\"`, `aria-expanded`, `aria-disabled`, and the roving `tabindex` (0 on the Tab stop, -1 on the others), as the toolbar sets it on its items — and draws its label in its shadow root. The menu it opens is a `tanrei-menu` in that shadow root (a manual popover in the top layer, named by `aria-label` from the title's label, since `aria-controls` cannot cross a shadow root), opened with placement `bottom-start`; the bar tells it through an internal channel, not part of the public surface, to hand the inline arrow keys of MBR-13 back, to skip its open and close motion when it replaces a neighbour (MBR-29), and not to report the fold's level (MBR-22). The overflow item and its `tanrei-menu` are in the bar's shadow root. A folded `tanrei-menubar-menu` is assigned to a slot of that menu and draws itself there as a `tanrei-submenu` in its own shadow root, with its children forwarded into it one slot each: a slot of the bar's shadow root can hold only the bar's own children, so a submenu drawn there could show no divider and no gap between a folded menu's groups (MNU-23, MNU-36). The product's elements stay where the product wrote them, and `open` and `toggle` mean what they mean in the row. A folded menu with no item is a submenu item that opens nothing (MBR-20, MNU-52). What fits is measured with a `ResizeObserver` on the row, on a hidden copy of every title and of the overflow item drawn from the tokens, and on the gap, so that deciding it asks for no layout of its own (MBR-21). Hover switching listens for `pointerenter` with `pointerType` `mouse` or `pen`. In forced-colors mode the open title is drawn with `Highlight` and `HighlightText` (MBR-28). Without script, and before the elements are defined, a menu and an action draw nothing — their words are attributes and their work is the product's script — and a link item's anchor is a plain link that works (MBR-45): a rule of the package's stylesheet for `tanrei-menubar:not(:defined)` lays those anchors out as one row in a title's text style, color and paddings, with no underline; a product reserves the bar's block size (`tanrei-menubar:not(:defined) { display: block; min-block-size: … }`, from the tokens' custom properties) to keep the page from moving. The `inline` attribute, for tests, draws an open menu in place below its title, as the menu's does. The host is `display: block`. Bar items: `tanrei-menubar-item` children take their places in the default slot among the menus, in document order. The roving `tabindex` stands on whichever element is the entry — a menu's host, an action's host, or a link item's anchor — and the bar's keys, type-ahead and Tab stop read them as one list. The fold measures and folds a bar item as it does a menu, and shows a folded one as it shows a folded menu: the `tanrei-menubar-item` is assigned to a slot of the overflow `tanrei-menu`, at its place in document order among the folded menus, and draws itself there as a `tanrei-menu-item` in its own shadow root (with `href`, `target` and `target-label` for a link item, and through the internal channel the current state and weight of MBR-43). The product's anchor of a folded link item stays where it is in the document, a child of the host that nothing displays. A plain activation of that row becomes one `click` on the product's own element — the host for an action; for a link item the anchor, whose `click()` is called after the row's own navigation is prevented — and the row's own click does not reach the page as a second one: a listener on the product's element, or above it, hears the activation once, and cancelling it there cancels the navigation. It is heard while the overflow menu is still shown, which closes after it (MBR-43); in the row a menu that is open is closed, with its `toggle`, before the click is delivered (MBR-33, MBR-36). A click with a modifier key or the middle button on that row is the browser's, on the row's own anchor, which has the same address. Hover while a menu is open ignores `pointerenter` on a bar item (MBR-41). In forced-colors mode a link item's anchor keeps `LinkText` (MBR-46)."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "TanreiMenubar",
+      "props": {
+        "label": "label",
+        "overflowLabel": "overflowLabel"
+      },
+      "items": {
+        "menu": {
+          "name": "TanreiMenubarMenu",
+          "props": {
+            "label": "title",
+            "open": "isPresented",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "isPresented"
+          },
+          "notes": "`TanreiMenubarMenu(_ title:, isPresented:) { TanreiMenuItem(…) … }`: the content builder takes the menu's item views; the binding is optional, and writing it is toggle. `disabled` follows `.disabled(_:)`."
+        },
+        "item": {
+          "name": "TanreiMenubarItem",
+          "props": {
+            "label": "title",
+            "disabled": "disabled",
+            "href": "destination",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "current": "isCurrent"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "`TanreiMenubarItem(_ title:, action:)` is an action. `destination: URL? = nil` makes it a SwiftUI `Link` (the link trait in place of the button's), opened by the environment's `openURL` after `action`, which an app that routes addresses itself answers with its own `OpenURLAction`; `target: TanreiLinkTarget = .same` and `targetLabel` (the accessibility hint), as `TanreiMenuItem`'s. `isCurrent: Bool = false` adds the selected trait and the emphasized weight. `disabled` follows `.disabled(_:)`."
+        }
+      },
+      "notes": "`TanreiMenubar(_ label: String = \"\", overflowLabel: String = \"\") { TanreiMenubarMenu(\"File\") { … } … }`, drawn in the window: a custom `Layout` that measures the titles and folds from the end (MBR-21), each title presenting its items with `.tanreiMenu`. Focus along the bar uses `@FocusState` with `.onKeyPress` (and `.onMoveCommand` where key presses are not delivered); hover switching uses `.onContinuousHover`. SwiftUI has no menubar trait: the bar is `.accessibilityElement(children: .contain)` named by the label, and each title a button with the expanded state (MBR-19's fallback). An empty `overflowLabel` reads the product's words from the environment. It does not fill the system's own menu bar: on macOS and on iPadOS with a hardware keyboard the product also declares its commands with `.commands { CommandMenu … }`, and on an iPhone it normally shows no menubar at all. `TanreiMenubarItem` stands in the same builder among the menus and is laid out, focused and folded as a title is; a folded one is a `TanreiMenuItem` of the overflow menu. SwiftUI has no menubar trait, so in MBR-19's group an action is a button and a link item carries the link trait (MBR-42). Where the system has a bar of its own the product declares an action there too, as it does its menus' commands."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiMenubar",
+      "props": {
+        "label": "contentDescription",
+        "overflowLabel": "overflowContentDescription"
+      },
+      "items": {
+        "menu": {
+          "name": "TanreiMenubarMenu",
+          "props": {
+            "label": "text",
+            "open": "expanded",
+            "disabled": "enabled"
+          },
+          "events": {
+            "toggle": "onExpandedChange"
+          },
+          "notes": "`TanreiMenubarMenu(text, expanded, onExpandedChange, enabled) { TanreiMenuItem(…) … }` in the bar's content: the caller keeps `expanded` (state hoisting), and an overload without the pair keeps it itself. `enabled` is the inverse flag."
+        },
+        "item": {
+          "name": "TanreiMenubarItem",
+          "props": {
+            "label": "text",
+            "disabled": "enabled",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "current": "current"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "`TanreiMenubarItem(text, onClick, enabled = true, href: String? = null, target: TanreiLinkTarget = TanreiLinkTarget.Same, targetLabel: String = \"\", current: Boolean = false)`. With `href` it is a link: opened through `LocalUriHandler.current` after `onClick` (an app that routes addresses itself provides its own `UriHandler`); Compose has no link role for a clickable element, so the node drops `Role.Button` and carries none; `targetLabel` is appended to the state description, as `TanreiMenuItem`'s. `current` sets `selected` in the semantics and the emphasized weight. `enabled` is the inverse flag."
+        }
+      },
+      "notes": "`TanreiMenubar(contentDescription = \"Application menu\", overflowContentDescription = \"More menus\") { TanreiMenubarMenu(\"File\") { … } … }`: a `Layout` that measures the titles and folds from the end, each title showing its items in a `TanreiMenu`. One focus group (`Modifier.focusGroup()`), moved with `onPreviewKeyEvent` and `FocusRequester`s; hover switching uses `PointerEventType.Enter` for a mouse or stylus. Compose semantics have no menubar role: the bar is a traversal group named by `contentDescription`, each title `Role.Button` with `expand` / `collapse` actions and its state (MBR-19's fallback). An empty `overflowContentDescription` reads the product's words from the composition local. `TanreiMenubarItem` stands in the same content among the menus and is measured, focused and folded as a title is; a folded one is a `TanreiMenuItem` of the overflow menu. In MBR-19's group an action is `Role.Button` and a link item drops the role, as every Compose link form does (MBR-42)."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiMenubar",
+      "props": {
+        "label": "semanticLabel",
+        "overflowLabel": "overflowSemanticLabel"
+      },
+      "items": {
+        "menu": {
+          "name": "TanreiMenubarMenu",
+          "props": {
+            "label": "label",
+            "open": "controller",
+            "disabled": "enabled"
+          },
+          "events": {
+            "toggle": "onOpenChanged"
+          },
+          "notes": "`TanreiMenubarMenu(label:, menuChildren: […], controller:, onOpenChanged:, enabled: true)`, as a `SubmenuButton` in a `MenuBar`: the optional `MenuController` opens and closes it; `enabled` is the inverse flag."
+        },
+        "item": {
+          "name": "TanreiMenubarItem",
+          "props": {
+            "label": "label",
+            "disabled": "enabled",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetSemanticLabel",
+            "current": "isCurrent"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "`TanreiMenubarItem(label:, onPressed:, enabled: true, href: Uri? = null, target: TanreiLinkTarget.same, targetSemanticLabel:, isCurrent: false)`. With `href` it is a link (`Semantics(link: true)` with the address as its `linkUrl`), opened by the nearest `TanreiLinkOpener` after `onPressed`; `targetSemanticLabel` is the semantics hint, as `TanreiMenuItem`'s. `isCurrent` sets `selected` in the semantics and the emphasized weight. `enabled` is the inverse flag."
+        }
+      },
+      "notes": "`TanreiMenubar(semanticLabel:, overflowSemanticLabel:, entries: [TanreiMenubarMenu(…), TanreiMenubarItem(…)])`, built with the widgets library on `TanreiMenuAnchor`, not on Material's `MenuBar`: a `RenderBox` that measures the titles and folds from the end. Focus is a `FocusTraversalGroup` with `Shortcuts` and `Actions` for the keys; hover switching uses a `MouseRegion` and ignores touch. Semantics: `SemanticsRole.menuBar` and `menuItem` where the SDK has them, otherwise a container named by the label with buttons that expose their expanded state. An empty `overflowSemanticLabel` reads the product's words from the inherited widget. A desktop product also gives its commands to `PlatformMenuBar` where the system has a bar of its own. A `TanreiMenubarItem` in `entries` is measured, focused and folded as a title is; a folded one is a `TanreiMenuItem` of the overflow menu. Semantics: `SemanticsRole.menuItem` where the SDK has it, with `link: true` and the address for a link item; otherwise a button, or a link, in the named container (MBR-42)."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Menubar",
+      "props": {
+        "label": "accessibilityLabel",
+        "overflowLabel": "overflowAccessibilityLabel"
+      },
+      "items": {
+        "menu": {
+          "name": "MenubarMenu",
+          "props": {
+            "label": "label",
+            "open": "open",
+            "disabled": "disabled"
+          },
+          "events": {
+            "toggle": "onToggle"
+          },
+          "notes": "An entry of the bar's `menus` array: `{ label, items: […], open?, disabled?, onToggle? }`, where `items` is the menu's own array of entries, told apart by their `kind` field as in `<Menu>`."
+        },
+        "item": {
+          "name": "MenubarItem",
+          "props": {
+            "label": "label",
+            "disabled": "disabled",
+            "href": "href",
+            "target": "target",
+            "targetLabel": "targetLabel",
+            "current": "current"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "An entry of the bar's `menus` array whose `kind` is `'item'`: `{ kind: 'item', label, onPress?, href?, target?, targetLabel?, current?, disabled? }`. With `href` it is a link: `onPress` receives an event whose `preventDefault()` keeps the bar from calling `Linking.openURL(href)`; `target` is `\"same\" | \"new\"` and `targetLabel` the `accessibilityHint`, as `<Menu>`'s item. `current` sets `aria-current=\"page\"` where the platform has it and the selected state elsewhere."
+        }
+      },
+      "notes": "`<Menubar accessibilityLabel=\"Application menu\" overflowAccessibilityLabel=\"More menus\" menus={[{ label: 'File', items: […] }, …]} />`: `role=\"menubar\"` with `role=\"menuitem\"` titles that carry `aria-expanded`; titles are measured with `onLayout` and folded from the end; each menu is shown on the overlay layer that `TanreiProvider` renders, as `<Menu>` is. Keys reach it where the platform delivers them (a hardware keyboard on a tablet, react-native-web, desktop targets); hover switching uses `onHoverIn` where the platform has a pointer. An empty `overflowAccessibilityLabel` reads the product's words from the context. The app-wide direction is followed, as the README says for every component. The `menus` array also takes bar items — entries whose `kind` is `'item'`; an entry without a `kind` is a menu. A bar item is `role=\"menuitem\"` without `aria-expanded`, measured and folded as a title is; a folded one is an entry of the overflow `<Menu>`."
+    }
+  }
+}

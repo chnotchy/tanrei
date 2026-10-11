@@ -1,0 +1,172 @@
+---
+title: Steps
+description: A procedure set out as numbered steps, each a ring with its number, an optional title and a body of your content, joined to the next by a hairline. An ordered list to read, never a control and never a record of progress.
+---
+
+import { Tabs, TabItem } from '../../../components/tabs';
+import ComponentAvailability from '../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../components/DemoFrame.astro';
+
+## Overview
+
+<ComponentAvailability name="steps" />
+
+<DemoFrame label="Titles and bodies" column>
+  <ol class="tanrei-steps" role="list" aria-label="The workflow" style="inline-size: 100%; max-inline-size: 28rem">
+    <li><p class="tanrei-steps-title">Propose</p><p>Write or change the spec, and the tokens where the change needs them.</p></li>
+    <li><p class="tanrei-steps-title">Validate</p><p>Check the schemas, the token rules and the contrast of every scheme.</p></li>
+    <li><p class="tanrei-steps-title">Generate</p><p>Rebuild the token outputs, the scaffolds and the status matrix.</p></li>
+  </ol>
+</DemoFrame>
+
+Three things look alike and are not the same:
+
+| Kind | What it is | Has states | Says |
+| --- | --- | --- | --- |
+| **An ordered list** (prose) | Items in an order, a phrase or a sentence each | No | "These, in this order" |
+| **Steps** | A procedure to read and carry out somewhere else | No | "Do this, then this" |
+| **A stepper** | Where a person is in a flow the product runs | Yes | "You are here" |
+
+Steps have no current, completed or failed step, and a marker is not a control. A checkout or a set-up wizard needs a stepper, which Tanrei does not have yet.
+
+### Usage
+
+On the web the steps are a class on your own ordered list, not an element. The list is the document's list before any script runs, a Markdown renderer's `<ol>` needs one class and no wrapper, and without the stylesheet it is the browser's numbered list.
+
+SwiftUI, Compose, Flutter and React Native are planned: the names beside each platform at the top of this page are the ones the spec gives them, and nothing ships there yet. React has no `Steps` component yet either, so use the list with the class.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/steps.css" />
+
+    <!-- Among controls: a panel, a dialog, a card. -->
+    <ol class="tanrei-steps" role="list">
+      <li>Save the file in the folder that holds the project's settings.</li>
+      <li>Name the file in the settings.</li>
+      <li>Run the build and commit what it writes.</li>
+    </ol>
+
+    <!-- On a reading page, with titles, continuing an earlier set. -->
+    <ol class="tanrei-steps" role="list" data-size="large" start="4" aria-label="The workflow, continued">
+      <li>
+        <p class="tanrei-steps-title">Implement</p>
+        <p>Build the change on each platform the spec lists.</p>
+      </li>
+      <li>
+        <!-- A title that is a heading of the page: it keeps its role and level. -->
+        <h3 id="check">Check</h3>
+        <p>Run every check in order.</p>
+        <pre><code>pnpm check</code></pre>
+      </li>
+    </ol>
+
+    <script type="module">
+      // Optional: the column of a set with numbers of three digits, renumbering when `start` changes at run time,
+      // and debug reports. `@tanrei/web` loads it too.
+      import '@tanrei/web/steps';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import '@tanrei/web/steps.css';
+
+    <ol className="tanrei-steps" role="list" data-size="large">
+      <li>
+        <p className="tanrei-steps-title">Install</p>
+        <p>Add the package to the project.</p>
+      </li>
+    </ol>
+    ```
+  </TabItem>
+</Tabs>
+
+| Prop | On the web |
+| --- | --- |
+| `label` | `aria-label` (or `aria-labelledby` naming the heading before the list) |
+| `start` | the list's own `start` |
+| `size: large` | `data-size="large"` |
+| a step | `<li>` |
+| a step's `title` | the item's first child with `class="tanrei-steps-title"` (a `<p>`) |
+| the title slot | a heading (`h2` to `h6`) as the item's first child |
+
+Write `role="list"` on the list: one browser engine drops the list semantics of a list whose markers are removed.
+
+## Specs
+
+<DemoFrame label="One line each, and a continued set" plain column>
+  <ol class="tanrei-steps" role="list" aria-label="What to do next" style="inline-size: 100%; max-inline-size: 28rem">
+    <li>Save the file in the folder that holds the project's settings.</li>
+    <li>Name the file in the settings, under the key for the design layer.</li>
+    <li>Run the build and commit what it writes.</li>
+  </ol>
+  <ol class="tanrei-steps" role="list" start="9" aria-label="Continued" style="inline-size: 100%; max-inline-size: 28rem">
+    <li>Nine keeps a circle.</li>
+    <li>So does ten.</li>
+    <li>And eleven: all three begin at one edge.</li>
+  </ol>
+</DemoFrame>
+
+<DemoFrame label="Large, with a block in a body" plain column>
+  <ol class="tanrei-steps" role="list" data-size="large" aria-label="Use" style="inline-size: 100%; max-inline-size: 32rem">
+    <li><p>Add the package to the project.</p><tanrei-code-block label="Install command"><pre><code>npm install @tanrei/web</code></pre></tanrei-code-block></li>
+    <li><p>Load the stylesheet once, before any other style of the page.</p></li>
+  </ol>
+</DemoFrame>
+
+- **The marker** is a ring in the system's hairline with the step's number, 24 across at medium and 28 at large. One or two digits keep it a circle; a longer number widens it into a pill, and every step's content still begins at one edge.
+- **The connector** runs from each ring to the next and stops short of both. The last step has none.
+- **The title** is optional. It is text of its step and not a heading, unless you give a heading as the item's first child: then it is drawn as any title and keeps its role and level, so the step is in the page's outline.
+- **The body** is your content. Two blocks are 8 apart, two steps 16. A block that is not text (a code block, a table, tabs, a callout) takes the body's whole width.
+- **Sizes** are prose's two: medium among controls, large on a page whose purpose is the text. Steps inside a prose are given that prose's size.
+- **Colors**: the number, the title and the body take the content color of the surface the steps sit on. The ring and the connector are both drawn in the system's one hairline color. Nothing has a fill.
+
+<ComponentSpecs name="steps" />
+
+### In prose
+
+Inside `.tanrei-prose` the steps are not an island: the paragraphs, lists, links and inline code of each step are still the prose's. The steps take the prose's full width, so a code block in a step takes the column, and the paragraphs inside a step still stop at the measure. A list inside a step is marked with letters (an ordered one) or rings (an unordered one), so sub-steps never repeat the steps' numbers. `@tanrei/web/prose.css` carries the steps' rules, so a page of prose needs no second stylesheet.
+
+### What the web draws differently
+
+- With a title, write the body in elements (`<p>`): text written directly after a title cannot be given the gap under it.
+- In a prose that keeps a measure, a step that is text alone is kept to the measure. Text written directly in a step that also holds blocks is not: write it in a `<p>`.
+- A step that begins with a code block or a picture has its marker's top on that block's top. Text written directly before such a block (a tight Markdown item) is not seen by the stylesheet: write it in a `<p>`.
+- A number of three digits or more widens its marker into a pill. The marker column of the whole set follows only with the package's script, which measures it; without the script such a marker reaches into the gap beside it.
+- Without the package's script a change of `start` at run time is not redrawn in two browser engines.
+
+## Guidelines
+
+### Do
+
+- Say what the procedure is in a heading or a sentence before it. Where nothing does, give the list a `label`.
+- Keep a step to one action and what the reader needs to carry it out.
+- Use `start` to continue a procedure that a note or a choice between tabs interrupts.
+- Use an ordered list of prose, without the class, for items that are a phrase each and not a procedure.
+
+### Don't
+
+- Don't use steps to show progress through a flow. No step is current or done.
+- Don't nest steps in steps. Sub-steps are an ordered list in the body.
+- Don't make every title a heading: a page whose outline lists every step of every procedure is harder to move through.
+
+## Accessibility
+
+<ComponentAccessibility name="steps" />
+
+### What the component handles
+
+- It stays the document's ordered list: a list of as many items as steps, each read as its number, its title and its body.
+- The number a person hears is the number a person sees, also for a set that continues another with `start`.
+- The ring and the connector are decorative and hidden. Order is carried by the list, so nothing is lost in forced colors or without the stylesheet.
+- Text grows with the reader's settings and wraps. Only a block that scrolls in its own box, such as a code block, scrolls sideways.
+
+### What you need to do
+
+- Write `role="list"` on the list.
+- Name the procedure with a heading before it, or with `aria-label`.
+- Give a title as a heading only where the steps are sections of the page.

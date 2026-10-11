@@ -1,0 +1,92 @@
+---
+title: "图标"
+description: "每个设计系统一套图标集，一种字重，一条规则——未选中时用线框，选中时用填充。"
+translationOf: foundations/icons.mdx
+sourceHash: 6905ea230fdb3955442d8050cf3af2f3fe852839
+---
+
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Tanrei 的默认图标是 [Material Symbols](https://fonts.google.com/icons) 的 **Rounded** 样式，**字重 300**。和文本字体一样，这款字体只按名称引用，不随包分发：由产品自行加载。
+
+图标怎样绘制，由一小组令牌决定。图标框有三种尺寸：`sys.icon.small`、`medium` 和 `large`（默认为 16、20 和 24px），字体的光学尺寸跟随图标框。
+
+<TokenNotes tokens={['ref.typeface.icon', 'sys.icon.family', 'sys.icon.weight', 'sys.icon.fill']} source={['tokens/ref/typeface.tokens.json', 'tokens/sys/measure.tokens.json']} />
+
+## 填充规则
+
+**未选中用线框，选中用填充，没有例外。** 导航项、标签页、切换按钮、纸片、收藏：图标始终是同一个字形，只有填充随状态变化。填充图标和线框图标从不为了装饰而混用，也从不手动挑选——在 Web 上，填充跟随图标所在控件的状态。
+
+<DemoFrame label="填充跟随选中状态">
+  <button class="icon-demo" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')"><span class="tanrei-icon" data-size="large" aria-hidden="true">favorite</span> 收藏</button>
+  <span class="icon-demo" role="tablist">
+    <button role="tab" aria-selected="true"><span class="tanrei-icon" data-size="large" aria-hidden="true">home</span> 首页</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">search</span> 搜索</button>
+    <button role="tab" aria-selected="false"><span class="tanrei-icon" data-size="large" aria-hidden="true">settings</span> 设置</button>
+  </span>
+  <tanrei-button><span slot="icon" class="tanrei-icon" aria-hidden="true">add</span>添加</tanrei-button>
+</DemoFrame>
+
+```js
+import '@tanrei/web/icons.css';
+```
+
+```html
+<button aria-pressed="true"><span class="tanrei-icon" aria-hidden="true">favorite</span> 收藏</button>
+```
+
+`.tanrei-icon` 会读取任意祖先元素上的 `aria-pressed`、`aria-selected`、`aria-checked` 和 `aria-current`，或者图标自身及其祖先上的 `data-selected`（`data-selected="false"` 可以让单个图标不参与）。图标旁边的文本已经表达了同样的意思时，给图标加上 `aria-hidden="true"`；没有这样的文本时，给控件一个无障碍名称。
+
+在原生平台上，同样的取值随设计系统一起提供（`system.icon`），另有一个小的辅助函数，把“是否选中”和尺寸转换成字体所需的参数。Tanrei 目前还不提供图标组件。
+
+## 每个设计系统一套图标集
+
+图标集属于设计系统，所以[层](/zh-cn/foundations/design-systems/)可以更换它。各内置系统解析出的结果如下：
+
+<SystemValues tokens={['sys.icon.family.unselected', 'sys.icon.family.selected', 'sys.icon.weight', 'sys.icon.fill.unselected', 'sys.icon.fill.selected']} />
+
+图标字体区分选中与未选中的图标，有两种办法，这组令牌两种都能覆盖。选中的图标总是同时取 `family.selected` **和** `fill.selected`；两者之中究竟哪一个改变了画出来的结果，取决于图标集。
+
+### 一个可变字体族
+
+可变图标字体（例如 Material Symbols）是带有 `FILL` 轴的单个字体族。两个字体族令牌默认都指向 `ref.typeface.icon`，所以只要重新指向这一个令牌就能更换图标集，再由 `fill.unselected` / `fill.selected` 区分两种状态。`m3-like` 写的全部内容就是这些：
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.icon": { "$value": ["Material Symbols Outlined"], "reason": "Material Design 3 以 Outlined 样式绘制 Material Symbols。" },
+  "tanrei.sys.icon.weight":   { "$value": 400, "reason": "Material Symbols 在 Material Design 3 中的默认字重。" }
+}
+```
+
+### 两个静态字体族
+
+静态图标字体没有轴。它把线框和填充两种画法作为两个独立的字体族提供，所以层要为每种状态各指定一个：
+
+```json
+"tokens": {
+  "tanrei.sys.icon.family.unselected": { "$value": ["Material Icons Outlined"], "reason": "Acme 使用静态的 Material Icons 图标集：未选中时用线框。" },
+  "tanrei.sys.icon.family.selected":   { "$value": ["Material Icons"], "reason": "Acme 使用静态的 Material Icons 图标集：选中时用填充。" },
+  "tanrei.sys.icon.weight":            { "$value": 400, "reason": "静态图标字体只有一种字重；Material Icons 按 400 绘制。" }
+}
+```
+
+填充和字重令牌保持原样。静态字体会忽略这些轴，所以它们没有害处，组件也不需要知道当前启用的是哪一种图标集。这个层就是仓库自己的测试样例（`packages/tokens-build/test/fixtures/acme.system.json`）。
+
+### 图标名称由产品负责
+
+Tanrei 决定的是图标怎样绘制，而不是有哪些图标。各图标集对字形的命名不同，一套图标集也可能缺少另一套里有的字形。更换图标集的产品需要核对自己用到的名称。不是字体的符号集（例如 SF Symbols）无法用字体族令牌来指定；这一点已作为 `platform-symbol-sets` 记入模仿差距登记表。
+
+### React Native
+
+React Native 的 `<Text>` 无法设置字体变体轴，所以使用可变图标字体时，`FILL` 到不了字形，图标在两种状态下看起来一样。要在那里守住这条规则，可以像上面那样使用两个静态字体族，或者用 SVG 绘制图标。
+
+四个原生软件包的图标辅助函数正在迁移到“每种状态一个字体族”的模型；在某个软件包的 README 说明这一点之前，应当认为该软件包只读取单个字体族。
+
+<style>{`
+  .icon-demo { display: inline-flex; align-items: center; gap: 0.5rem; font: inherit; color: inherit; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer; }
+  .icon-demo[role='tablist'] { gap: 1rem; cursor: default; }
+  .icon-demo [role='tab'] { display: inline-flex; align-items: center; gap: 0.35rem; font: inherit; color: var(--tanrei-sys-color-on-surface-variant); background: none; border: 0; padding: 0.25rem; }
+  .icon-demo [aria-selected='true'] { color: var(--tanrei-sys-color-on-surface); }
+`}</style>

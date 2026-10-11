@@ -1,0 +1,11 @@
+# Sources of truth and the machinery that guards them get the strictest review.
+*                         @chnotchy
+/tokens/                  @chnotchy
+/specs/                   @chnotchy
+/packages/tokens-build/   @chnotchy
+/packages/tools/          @chnotchy
+/.claude/                 @chnotchy
+/.github/                 @chnotchy
+/docs/                    @chnotchy
+# Platform owners go here as they join:
+# /packages/swiftui/      @someone

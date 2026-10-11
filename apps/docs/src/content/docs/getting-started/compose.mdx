@@ -1,0 +1,84 @@
+---
+title: Jetpack Compose
+description: Add Tanrei to an Android app built with Jetpack Compose.
+---
+
+import Callout from '../../../components/Callout.astro';
+import PreReleaseNotice from '../../../components/PreReleaseNotice.astro';
+
+The Compose library provides composables, a `TanreiTheme` and generated token objects. It depends on Compose Foundation rather than on a Material component library, so it does not pull a second design system into your app.
+
+<PreReleaseNotice registry="Maven Central" pkg="io.github.chnotchy:tanrei" />
+
+## Install
+
+### From source
+
+<Callout type="caution" title="Does not build today">
+  The Compose library has not caught up with the current specs and tokens: its sources were written against an earlier version of the generated token code and do not compile against today's. Its CI is paused until it catches up, and the [status page](/status/) marks its components *lagging*. The steps below are how it is added to an app; they work once the library has caught up.
+</Callout>
+
+Clone the repository next to your app and include its Gradle build, which holds the library as the project `:tanrei`:
+
+```kotlin
+// settings.gradle.kts
+includeBuild("../tanrei/packages/compose") {
+  dependencySubstitution {
+    substitute(module("io.github.chnotchy:tanrei")).using(project(":tanrei"))
+  }
+}
+```
+
+```kotlin
+// build.gradle.kts
+dependencies {
+  implementation("io.github.chnotchy:tanrei")
+}
+```
+
+### After the first release
+
+```kotlin
+// build.gradle.kts
+dependencies {
+  implementation("io.github.chnotchy:tanrei:<version>")
+}
+```
+
+## Use
+
+Wrap your content in `TanreiTheme` once, near the root:
+
+```kotlin
+import io.github.chnotchy.tanrei.components.TanreiButton
+import io.github.chnotchy.tanrei.theme.TanreiTheme
+import io.github.chnotchy.tanrei.tokens.TanreiButtonVariant
+
+@Composable
+fun DeployScreen(isDeploying: Boolean, onDeploy: () -> Unit) {
+  TanreiTheme {
+    TanreiButton(
+      text = "Deploy",
+      onClick = onDeploy,
+      variant = TanreiButtonVariant.Filled,
+      enabled = !isDeploying,
+    )
+  }
+}
+```
+
+Compose convention is the positive flag `enabled`, so that is what Tanrei uses; the spec's `disabled` property maps to its inverse. A slot overload takes a `content` lambda when you need more than a text label.
+
+## Theme and contrast
+
+`TanreiTheme` follows the system dark theme and the system contrast setting by default. Both can be fixed:
+
+```kotlin
+TanreiTheme(theme = TanreiThemeMode.Dark, contrast = TanreiContrast.High) {
+  App()
+}
+```
+
+## Fonts
+
+By default the typescale resolves to the platform's default font family. Pass your own `TanreiFontFamilies` to `TanreiTheme` to use Inter (and Noto Sans JP, Roboto Mono) from your app's font resources. Text styles are named by level (`TanreiTheme.tokens.typescale.heading2`, `.body`, `.label`; `.toTextStyle()` turns one into a Compose `TextStyle`), and `TanreiTheme.tokens.typescale.heading1.emphasized()` is the same style at its weight plus the heading family's emphasis step (outside composition, `emphasized(system.typescale.emphasis)`).

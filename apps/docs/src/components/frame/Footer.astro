@@ -1,0 +1,25 @@
+---
+// The foot of every page: the framework's footer (its pagination is the docs' own, Pagination.astro), then a link to
+// the source repository, where the code is and where issues are opened. This component replaces Starlight's `Footer`
+// (astro.config.mjs). The address comes from tanrei.config.json (`repository.public`); the words are the page's
+// language's (lib/i18n.ts, `sourceLink`). The header has no room for the link: the app bar holds three actions. The
+// line is the same on every page, so the search index does not read it.
+import Default from '@astrojs/starlight/components/Footer.astro';
+import { config } from '../../lib/repo';
+import { strings } from '../../lib/i18n';
+
+const t = strings(Astro.locals.starlightRoute.lang);
+const href = `https://github.com/${config.repository.public}`;
+---
+
+<Default />
+<p class="docs-source-link print:hidden" data-pagefind-ignore>
+  <a class="tanrei-link" data-standalone href={href}>{t.sourceLink}</a>
+</p>
+
+<style>
+  .docs-source-link {
+    margin-block: var(--tanrei-sys-space-space400) 0;
+    font: var(--tanrei-sys-typescale-body-small-font);
+  }
+</style>

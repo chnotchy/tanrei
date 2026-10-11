@@ -1,0 +1,80 @@
+---
+title: Flutter
+description: Flutter アプリに Tanrei を追加します。
+translationOf: getting-started/flutter.mdx
+sourceHash: 6acea5bb31fd86ae29f31dcab38bc245008b152b
+---
+
+import Callout from '../../../../components/Callout.astro';
+import PreReleaseNotice from '../../../../components/PreReleaseNotice.astro';
+
+`tanrei` パッケージは、Dart だけで書かれています。ウィジェット、継承される `TanreiTheme`、生成されたトークンの定数を提供します。`MaterialApp` にも `CupertinoApp` にも依存せず、どちらの中でも、素の `WidgetsApp` の中でも動作します。
+
+<PreReleaseNotice registry="pub.dev" pkg="tanrei" />
+
+## インストール
+
+### ソースから
+
+<Callout type="caution" title="現在はビルドできません">
+  Flutter のパッケージは、現在の仕様とトークンに追従していません。ソースは以前の版の生成されたトークンコードに合わせて書かれていて、現在のコードではコンパイルできません。追従するまで CI は止めてあり、[ステータスページ](/ja/status/)ではそのコンポーネントを*追従待ち*としています。以下はアプリに追加する手順で、パッケージが追従すれば動きます。
+</Callout>
+
+リポジトリをアプリの隣にクローンし、パスでパッケージに依存します。
+
+```sh
+flutter pub add "tanrei:{path: ../tanrei/packages/flutter}"
+```
+
+ローカルのクローンではなくリポジトリを追うには、`flutter pub add "tanrei:{git: {url: https://github.com/chnotchy/tanrei, path: packages/flutter}}"` を使います。
+
+### 最初のリリース後
+
+```sh
+flutter pub add tanrei
+```
+
+## 使い方
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:tanrei/tanrei.dart';
+
+class DeployButton extends StatelessWidget {
+  const DeployButton({super.key, required this.isDeploying, required this.onDeploy});
+
+  final bool isDeploying;
+  final VoidCallback onDeploy;
+
+  @override
+  Widget build(BuildContext context) {
+    return TanreiTheme(
+      data: TanreiThemeData.platform(context),
+      child: TanreiButton(
+        variant: TanreiButtonVariant.filled,
+        onPressed: isDeploying ? null : onDeploy,
+        child: const Text('デプロイ'),
+      ),
+    );
+  }
+}
+```
+
+`disabled` というフラグはありません。Flutter 自身のボタンと同じく、`onPressed` に `null` を渡すとボタンが無効になります。
+
+## テーマとコントラスト
+
+`TanreiThemeData.platform(context)` は、明るさと高コントラストのフラグを `MediaQuery` から読み取ります。固定するには、定数から始めてコピーします。
+
+```dart
+TanreiTheme(
+  data: TanreiThemeData.dark.copyWith(contrast: TanreiContrast.high),
+  child: const App(),
+)
+```
+
+`TanreiTheme` はナビゲーターより上に置き、すべてのルートから見えるようにしてください。
+
+## テキストスタイル
+
+`TanreiTheme.of(context).system.typescale` は、階層で名付けた 16 のテキストスタイルを `TanreiTextStyle` のトークンとして持っています。セクションのタイトルには `heading2`、本文には `body`、コントロールには `label` です。`theme.textStyle(system.typescale.heading2)`（または `token.toTextStyle()`）で、Flutter の `TextStyle` に変換できます。`theme.textStyle(token, emphasized: true)` は、同じスタイルを、その太さにファミリーの強調のステップ（`typescale.emphasis`）を足した太さにしたものです。手で書くなら `token.emphasized(system.typescale.emphasis)` です。強調は太さであって、別のロールではありません。ロールと要素との対応は、[タイポグラフィ](/ja/foundations/typography/)を参照してください。

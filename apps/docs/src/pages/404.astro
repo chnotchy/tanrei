@@ -1,0 +1,17 @@
+---
+// The page a reader is given for an address that names no page: the page frame around Tanrei's Empty state
+// (components/NotFound.astro), in English — the language of the site's root. The framework's own not-found page is
+// off (`disable404Route` in astro.config.mjs). Each other language has the same page under its folder
+// (pages/[locale]/404.astro).
+//
+// It keeps the frame — the app shell, the header, the navigation — so that the reader can go on from here, and has no
+// "On this page", no previous and next page, and is neither indexed by the site's search nor offered to a crawler.
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import NotFound from '../components/NotFound.astro';
+import { source } from '../../i18n/locales.mjs';
+import { notFoundFrontmatter } from '../lib/page-head';
+---
+
+<StarlightPage frontmatter={notFoundFrontmatter(source.lang)}>
+  <NotFound />
+</StarlightPage>

@@ -1,0 +1,122 @@
+/*
+ * Code — the optional stylesheet `@tanrei/web/code.css`.
+ *
+ * INLINE CODE (specs/inline-code.spec.json, ICD-1 to ICD-16): a run of code inside a sentence — a command, a name, a
+ * value — in the code face at the size of the text around it, on a faint fill or plain. A class on the product's own
+ * element, not an element: the text is in the document, for search, find-in-page and copy, before any script runs.
+ *
+ *   Run <code class="tanrei-code">npm install</code> first.                 tonal: the code face on a faint fill
+ *   <code class="tanrei-code" data-variant="plain">comp.button</code>       plain: the face alone, in the text's color
+ *   <table data-tanrei-code="plain">…<code class="tanrei-code">size</code>…  the nearest ancestor chooses (auto)
+ *
+ * The spec's `text` is the element's own content (its `textContent`), and `variant` is `data-variant`: `tonal` or `plain`; anything else — and no attribute — is `auto`, which takes what the nearest
+ * ancestor with `data-tanrei-code="plain | tonal"` chooses, and tonal where none does (ICD-5, ICD-16). Write
+ * `translate="no"` and `spellcheck="false"` on the element yourself, or have your renderer write them (ICD-7): a
+ * stylesheet cannot.
+ *
+ * Every value is a `--tanrei-comp-inline-code-*` token. It is text: no state, no focus, no event (ICD-11), one color
+ * (ICD-13).
+ *
+ * THE CODE BLOCK (specs/code-block.spec.json): the build (scripts/build.js) writes the code block's rules after these
+ * — a `tanrei-code-block` that is not upgraded yet, drawn where the element will draw it so that nothing moves when
+ * it is defined (src/components/code-block/code-block.before.ts), then the lines and the runs' colors
+ * (code-block.light.ts, which the element adopts too).
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every rule of inline code is nested under ONE parent selector, `:where(.tanrei-code)`. The build writes the rules
+ *   between the two `code:rules` marks a second time into dist/prose.css, under every `code` that is prose's own and
+ *   not in a `pre` (PRS-16, PRS-17), so rendered Markdown needs no class; the rules between the `code:context` marks
+ *   go with them; and it writes the corner-smoothing rule (src/styles/shape.ts) in place of the `code:shape`
+ *   mark, so the curve has one source.
+ * - Every selector has no specificity (`:where()`), so one class of the product's wins, and so the ORDER of the rules
+ *   is what decides between two of them.
+ * - The form is ONE inherited switch, `--_code-plain`: not set (the guaranteed-invalid value) the run is tonal, and
+ *   every declaration below takes its tonal value from the fallback of `var(--_code-plain, …)`; set to an empty value
+ *   the declaration is empty, which is invalid where it is computed, and the property is then what it would be
+ *   without the rule — no fill, no padding, no edge, and the color of the text around it (ICD-4). An ancestor sets
+ *   the switch for the runs inside it and the nearest one wins, as inheritance does; the run's own `data-variant`
+ *   sets it last. No style query and no script.
+ * - Names that begin `--_code-` are private.
+ */
+@layer tanrei.components {
+  /* code:context */
+  /* ICD-5: what an ancestor chooses for the inline code inside it. */
+  :where([data-tanrei-code='plain']) {
+    --_code-plain: ;
+  }
+  :where([data-tanrei-code='tonal']) {
+    --_code-plain: initial;
+  }
+  /* code:context:end */
+
+  :where(.tanrei-code) {
+    /* code:rules */
+    /* ICD-1: the family, the weight and the letter spacing of the code role; the size of the text it sits in times
+       label.scale — a paragraph's, a heading's of any level, a caption's — never the code role's own size. */
+    font-family: var(--tanrei-comp-inline-code-label-typescale-font-family);
+    font-size: calc(1em * var(--tanrei-comp-inline-code-label-scale));
+    font-weight: var(--tanrei-comp-inline-code-label-typescale-font-weight);
+    letter-spacing: var(--tanrei-comp-inline-code-label-typescale-letter-spacing);
+    /* ICD-10: never slanted, whatever it sits in. */
+    font-style: normal;
+    /* ICD-2: on the baseline of its line, never making the line taller (PRS-17); the fill is the face's own text box,
+       with no padding above or below. */
+    line-height: 0;
+    vertical-align: baseline;
+    /* ICD-3: the tonal form — the fill, room at each end of every piece of the run (ICD-6), the text color, and an
+       edge inside the fill where outline.width is above 0. ICD-4: the plain form has none of them (see above). */
+    padding-inline: var(--_code-plain, var(--tanrei-comp-inline-code-container-padding-inline));
+    background-color: var(--_code-plain, var(--tanrei-comp-inline-code-container-color));
+    box-shadow: var(--_code-plain, inset 0 0 0 var(--tanrei-comp-inline-code-outline-width) var(--tanrei-comp-inline-code-outline-color));
+    color: var(--_code-plain, var(--tanrei-comp-inline-code-label-color));
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    /* ICD-6: it wraps with its line — at its spaces first, and anywhere where a part with no space is longer than the
+       line; no hyphen is drawn. ICD-7: every space is kept and nothing is transformed; a line break is one space where
+       the browser knows `preserve-spaces`. */
+    white-space: pre-wrap;
+    white-space-collapse: preserve-spaces;
+    overflow-wrap: anywhere;
+    hyphens: none;
+    text-transform: none;
+    /* ICD-8: a left-to-right run of its own, isolated from the text around it, in every layout direction. */
+    direction: ltr;
+    unicode-bidi: isolate;
+
+    /* ICD-5: the run's own form, over an ancestor's. Any other value is auto (ICD-16). */
+    &:where([data-variant='plain']) {
+      --_code-plain: ;
+    }
+    &:where([data-variant='tonal']) {
+      --_code-plain: initial;
+    }
+    /* ICD-10: inside a link it takes the link's color in every form (the underline runs under it by itself); inside
+       strong text it gains sys.typescale.emphasis.body of weight, as strong text does (PRS-2). */
+    :where(a, .tanrei-link) & {
+      color: inherit;
+    }
+    :where(strong, b) & {
+      font-weight: calc(var(--tanrei-comp-inline-code-label-typescale-font-weight) + var(--tanrei-sys-typescale-emphasis-body));
+    }
+    /* ICD-16: with no text it draws nothing and takes no space. */
+    &:where(:empty) {
+      display: none;
+    }
+    /* ICD-3: the corners, eased by sys.shape.corner-smoothing. */
+    /* code:shape */
+    & {
+      --tanrei-corner-radius: var(--tanrei-comp-inline-code-container-shape);
+      --tanrei-corner-pill: var(--tanrei-comp-inline-code-container-shape-pill, 0);
+    }
+    /* ICD-14: forced colors remove the fill and the shadow; the face tells code from words. An edge is drawn only
+       where outline.width is above 0, in the text color (the link color inside a link), inside the run's box. */
+    @media (forced-colors: active) {
+      & {
+        outline: var(--_code-plain, var(--tanrei-comp-inline-code-outline-width) solid currentColor);
+        outline-offset: calc(var(--tanrei-comp-inline-code-outline-width) * -1);
+      }
+    }
+    /* code:rules:end */
+  }
+}

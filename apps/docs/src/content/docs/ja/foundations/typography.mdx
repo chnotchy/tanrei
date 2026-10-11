@@ -1,0 +1,177 @@
+---
+title: タイポグラフィ
+description: 階層で名付けた 16 のテキストスタイル。display が 1 つ、見出しが 6 段階、本文が 3 サイズ、ラベル、コード、そしてアイブロウ。Inter で組み、強調はロールではなく太さのステップで表します。
+translationOf: foundations/typography.mdx
+sourceHash: 38d922451dfd9cd1a80258e6c8a1dde715285f89
+---
+
+import TokenNotes from '../../../../components/tokens/TokenNotes.astro';
+import SystemValues from '../../../../components/tokens/SystemValues.astro';
+
+Tanrei のテキストスタイルは、サイズの大小ではなく、その文字がページの中で持つ**階層**で名付けられています。ロールは 16 個です。`display` が 1 つ、`heading-1` から `heading-6`、本文が 3 サイズ、コントロールの中と周りの文字が 3 ロール、コードが 2 つ、そして `eyebrow`。`h2` は `heading-2`、段落は `body`、ボタンの文字は `label` です。14px のロールが 3 つあるうち、表の見出しにはどれを使うのだったか、と覚えておく必要はありません。
+
+ロールは完結した文字スタイルです。書体、サイズ、太さ、行の高さ、字間をひとまとめに持ちます。コンポーネントはロールに結び付き、生のサイズを直接使うことはありません。[レイヤ](/ja/foundations/design-systems/)は、ロールの名前を変えずに値だけを変えます。
+
+## 16 のロール
+
+| ロール | 既定値 | 用途 |
+| --- | --- | --- |
+| `display` | 48px · 450 · ブランド書体 | 唯一のヒーローサイズ。ランディング画面の一文、スプラッシュ。見出しの階層ではありません。 |
+| `heading-1` | 32px · 500 · ブランド書体 | `h1`。ページのタイトル。 |
+| `heading-2` | 24px · 500 · ブランド書体 | `h2`。セクション。 |
+| `heading-3` | 20px · 500 · ブランド書体 | `h3`。サブセクション。 |
+| `heading-4` | 18px · 500 | `h4`。セクション内のグループ。 |
+| `heading-5` | 16px · 500 | `h5`。カード、ダイアログ、リスト項目のタイトルにも。 |
+| `heading-6` | 14px · 500 | `h6`。表やフォームセクションの見出しにも。 |
+| `body-large` | 16px · 400 | リード文と長い読み物。 |
+| `body` | 14px · 400 | `p`。インターフェースの既定の文字。 |
+| `body-small` | 13px · 400 | `small`。一段小さい補助的な文字。 |
+| `label` | 14px · 500 | コントロールの中と周りの文字。ボタン、入力欄、ナビゲーション。 |
+| `label-small` | 12px · 500 | チップ、バッジ、密度の高いコントロール。 |
+| `caption` | 11px · 500 | ヘルパーテキスト、メタデータ、タイムスタンプ。 |
+| `code` | 13px · 400 · 等幅 | `code` と `pre`。 |
+| `code-small` | 12px · 400 · 等幅 | 密度の高い UI の中のコード。 |
+| `eyebrow` | 12px · 500 · 字間広め | 見出しの上に置くセクションの小見出し。大文字化はコンポーネントが行います。 |
+
+どの系統もサイズは単調です。ある見出しがひとつ下の見出しより小さくなることはなく、本文のロールも同様です。見出しと本文が同じサイズを共有するところ（`heading-6` と `body` はどちらも 14px、`heading-5` と `body-large` はどちらも 16px）の既定のシステムの決まりは一文で済みます。**見出しは 500、本文は 400。** プリセットは独自の太さを設定します（`m3-like` の `heading-1` は Material と同じ 400 です）。
+
+欲しいサイズではなく、その文字が持つ階層で選んでください。小さく見せたい `h2` も `heading-2` です。セクション見出しを小さくしたいプロダクトは、レイヤで `heading-2` の値を変えます。そうすればすべての `h2` が追従します。
+
+### HTML / Markdown の要素 → ロール
+
+| 要素 | ロール |
+| --- | --- |
+| `h1` … `h6` | `heading-1` … `heading-6` |
+| `p`、`li`、`td` | `body`（読むためのサイズのプローズでは `body-large`） |
+| リード段落 | `body-large` |
+| `small` | `body-small` |
+| `code`、`pre` | `code` |
+| `strong`、`b` | 置かれているロールのまま、強調の太さで |
+| `button`、`input`、`label` | `label` |
+| 見出しの上の小見出し | `eyebrow` |
+
+Web では、`@tanrei/web/text.css` が各ロールにユーティリティクラス `.tanrei-text-<role>` を用意し、ロールの 5 つのフィールドをすべて設定します。同じ要素か子孫に `.tanrei-text-emphasized` を付けると強調の太さに切り替わります。有効なシステムのカスタムプロパティを読むので、`data-tanrei-system`、ダイヤル、値を変えたロールのすべてに追従します。
+
+```html
+<h2 class="tanrei-text-heading-2">セクション</h2>
+<p class="tanrei-text-body">本文の中の<strong class="tanrei-text-emphasized">強調</strong>。</p>
+```
+
+### プローズ：自分で組んでいない文章
+
+ヘルプ記事、リリースノート、利用規約、Markdown で書かれたメッセージ、CMS から届くページ。こうした文章は、プロダクトが一つひとつ配置するものではありません。それでも、インターフェースのほかの部分と同じ調子で読めなければなりません。**プローズ**はそのための仕組みです。レンダラーが出力したものに上の表を当てはめ、縦のリズムをひとつに揃え、行の長さに上限を設けます。行うのは体裁と間隔を整えることだけで、解析はしません。Tanrei はどのプラットフォームにも Markdown パーサーを同梱しません。
+
+Web では `@tanrei/web/prose.css` のクラスです。このページもプローズで描かれています。
+
+```html
+<article class="tanrei-prose">…h1, p, ul, blockquote, hr…</article>
+<article class="tanrei-prose" data-size="large">…</article>
+```
+
+- **サイズは 2 つ。** `medium` は本文を `body` で組みます。パネル、ダイアログ、カードなど、コントロールに囲まれた文章のためのサイズです。`large` は `body-large` で組みます。読むこと自体が目的のページに使います。見出しはどちらでも同じです。
+- **隣り合う 2 つの間の余白はひとつだけ。** ブロックどうしは同じ間隔で並びます。見出しは後ろより前を広く取るので、続く内容のまとまりに見えます。見出しの直下に見出しが来るときは、上の見出しの余白を使います。余白が足し合わされることはなく、最初と最後のブロックの外側には余白がありません。
+- **行の長さ。** テキストのブロックは、本文の 36 文字分（36em）より広がりません。欧文ならおよそ 72〜80 文字です。表、コードブロック、図版、流れの中に置いたコンポーネントは幅いっぱいに広がります。コンテナがもともと狭いときは `data-measure="false"` で上限を外せます。
+- **文字色は持ちません。** プローズは置かれたサーフェスの文字色をそのまま使います。同じ文章が、ページでも、カードでも、コールアウトでも読めます。
+- **コンポーネントはそのまま。** Tanrei の要素の中と、`tanrei-not-prose` を付けた部分の中には手を入れません。間隔を整えるだけです。
+- **リンクには常に下線。** 色だけでリンクを見分けさせないためです。
+- **言語。** 日本語と中国語は、それぞれの禁則に従って改行します。日本語・中国語・韓国語には斜体がないので、強調は傾けずに強調の太さで描きます。これらの言語の見出しには、欧文見出しの詰めた字間を当てません。方向は置かれた場所に従います。右から左のレイアウトでは、リストの字下げ、引用の線、文章の揃う端が右に来ます。
+
+見出しにはアンカーを付けられます。その見出し自身へのリンクで、見出しの文字の直後に置かれます。見出しにポインターを重ねたとき、またはリンクにフォーカスが移ったときに現れ、ホバーのない端末では常に表示されます。
+
+```html
+<div class="tanrei-prose-heading">
+  <h2 id="install">インストール</h2>
+  <a class="tanrei-prose-anchor" href="#install" aria-label="「インストール」へのリンク">…</a>
+</div>
+```
+
+値はすべて `comp.prose.*` のトークンです。レイヤでトークンの参照先を変えれば、マージンに触れずにリズムを変えられます。挙動は `specs/prose.spec.json` に書かれています。最初に実装するのは Web で、ほかのプラットフォームが続きます。
+
+## 強調はロールではなく太さ
+
+階層を変えずに文字を目立たせたいとき（選択中のタブ、重要な数字、段落内の `strong`）、プラットフォームはそのロールの太さに、系統ごとの**ステップ**を足して描きます。4 つのステップはトークンです。
+
+<SystemValues tokens={['sys.typescale.emphasis.display', 'sys.typescale.emphasis.heading', 'sys.typescale.emphasis.body', 'sys.typescale.emphasis.label']} />
+
+Tanrei はどの系統にも 100 を足します。強調した `heading-1` は 600、強調した `body` は 500 です。系統ごとに強調の度合いが違うデザインシステムは、この 4 つの数字を設定します。`m3-like` は Material の emphasized なラベルスタイルにならってラベルに 200 を足し、`cupertino` は見出し・本文・ラベルに 200 を足します。ロールの系統は名前の最初の区切りで決まり、`caption`、`code`、`code-small`、`eyebrow` はラベルのステップを取ります。
+
+どのプラットフォームも同じ修飾子を持ちます。テキストスタイル API の `emphasized` です（SwiftUI は `.tanreiTextStyle(system.typescale.heading1, emphasized: true)`、Compose は `typescale.heading1.emphasized()`（コンポジションの外では `emphasized(system.typescale.emphasis)`）、Flutter は `theme.textStyle(system.typescale.heading1, emphasized: true)`、React Native は `useTanrei()` の `text('heading1', { emphasized: true })`、Web は `--tanrei-sys-typescale-<role>-font-weight-emphasized` と `.tanrei-text-emphasized`）。名付けるべき emphasized ロールはなく、歩調を合わせるべき第 2 のスケールもありません。
+
+## 書体
+
+既定の書体は、欧文が **Inter**、日本語が **Noto Sans JP**、コードが **Roboto Mono** です。いずれもオープンなライセンス（SIL OFL 1.1 と Apache-2.0）で提供されています。スタックはその後、他の文字体系のための Noto Sans、そしてシステムの UI フォントへと続くので、フォントが読み込まれていない環境でも文字は破綻せずに表示されます。ほかの文字体系も扱うプロダクトは、その体系の Noto ファミリー（Noto Sans KR、SC、TC、Arabic、Devanagari、Thai など）を自分のレイヤでスタックに足してください。中国語・日本語・韓国語ではページに `lang` も設定します。この 3 言語はコードポイントを共有しており、どの字形が出るかはフォントの順序で決まるためです。Tanrei はフォントファイルを同梱しません。[用意するのはプロダクトです](#名前で参照するだけで同梱はしない)。
+
+<TokenNotes tokens={['ref.typeface.brand', 'ref.typeface.plain', 'ref.typeface.mono']} source={['tokens/ref/typeface.tokens.json']} />
+
+## デザインシステムごとの書体
+
+書体はデザインシステムに属します。ロールは 3 つのスタックの上に組まれています。`display` と `heading-1` から `heading-3` のための `ref.typeface.brand`、それより小さな見出し・本文・ラベル・アイブロウのための `plain`、コードのための `mono` です。[レイヤ](/ja/foundations/design-systems/)でスタックに新しい値を与えれば、書体は全体で変わります。同梱システムでの解決値は次のとおりです。
+
+<SystemValues tokens={['ref.typeface.brand', 'ref.typeface.plain', 'ref.typeface.mono']} />
+
+`m3-like` は次のように書いて、文字を Roboto で組んでいます。
+
+```json
+"tokens": {
+  "tanrei.ref.typeface.brand": { "$value": ["Roboto", "system-ui", "sans-serif"], "reason": "Material Design 3's default typeface; Roboto is OFL-licensed." },
+  "tanrei.ref.typeface.plain": { "$value": ["Roboto", "system-ui", "sans-serif"], "reason": "Material Design 3's default typeface; Roboto is OFL-licensed." },
+  "tanrei.ref.typeface.mono":  { "$value": ["Roboto Mono", "ui-monospace", "monospace"], "reason": "The monospace companion of Roboto (OFL)." }
+}
+```
+
+コンポーネントには手を入れません。コンポーネントはロールに結び付いており、ロールがスタックを参照しているからです。
+
+### スタックの読み方
+
+スタックは CSS と同じ書き方で書きます。どのデザインツールでも通じる形だからです。ただし、書いたとおりに使えるのは Web だけです。そこでビルドが各スタックを一度だけ解釈し、すべてのプラットフォームに同じ 4 つの情報を渡します。
+
+| フィールド | 意味 |
+|---|---|
+| `stack` | 書かれたとおりのリスト |
+| `families` | **名前のある**ファミリーを順に並べたもの。プロダクトがインストール・登録できるのはこれです |
+| `generic` | フォールバック先のフォントの種類。`sans-serif`・`serif`・`monospace` のいずれか |
+| `system` | 名前のあるファミリーより先にプラットフォーム自身のフォントを求めているとき `true` |
+
+既定の `brand` スタック `Inter, Noto Sans JP, Noto Sans, system-ui, sans-serif` は、families が Inter・Noto Sans JP・Noto Sans、generic が `sans-serif`、`system` は false と読まれます。`system-ui` は名前のあるファミリーの後ろにあるので、フォールバックにすぎません。一方 `cupertino` のスタックは `-apple-system` で始まるので、`system` は true、名前のあるファミリーは Inter だけ、と読まれます。まずプラットフォーム自身のフォントを使い、そうした概念のないプラットフォームでは Inter を使う、という意味です。
+
+プラットフォームは、名前のあるファミリーを順に試し、次に `generic` の種類にあたる自前のフォントを使います。`system` が true なら自前のフォントが先です。`system-ui` や `ui-monospace`、総称キーワードを各プラットフォームが独自に解釈することはありません。
+
+### 名前で参照するだけで、同梱はしない
+
+Tanrei は、どのデザインシステムについてもフォントファイルを配布しません。スタックは名前のリストであり、使いたい名前に対応するフォントを用意するのはプロダクトです。用意されていないファミリーは飛ばされるので、文字は次のファミリーかプラットフォームのフォントで表示され、ロールのサイズ・太さ・行の高さ・字間はそのまま保たれます。
+
+| プラットフォーム | 名前のあるファミリーの用意のしかた |
+|---|---|
+| Web | そのファミリー名のとおりに読み込みます。自前の `@font-face`、Google Fonts、フォントのパッケージなど。 |
+| SwiftUI | フォントファイルをアプリに追加して登録します（`UIAppFonts` / `ATSApplicationFontsPath`、または `CTFontManagerRegisterFontsForURL`）。 |
+| Jetpack Compose | フォントをアプリのフォントリソースに置き、`TanreiFontFamilies` で名前と対応付けて `TanreiTheme` に渡します。 |
+| Flutter | アプリの `pubspec.yaml` に、同じファミリー名でフォントファイルを宣言します。 |
+| React Native | フォントファイルをリンクします（`npx react-native-asset`、または `expo-font`）。React Native にはフォールバックのリストがなく、太さごとにファイルを選ぶ仕組みなので、太さごとに別の名前で登録している場合は `TanreiProvider` に `resolveFont` を渡してください。 |
+
+詳しくは導入ガイドと各パッケージの README にあります。書体を配布する前に、そのライセンスを確認してください。既定の書体はオープンなライセンスです。`cupertino` は Apple のフォントをキーワードか名前で参照するだけです。Apple のフォントは同梱することも、Apple 以外のプラットフォームで使うこともできないためです。それ以外の環境では、オープンなライセンスの書体にフォールバックします。
+
+## プリセットはどう値を変え、どう拡張するか
+
+他のデザインシステムを模したプリセットは、16 の名前をそのまま使い、そのシステムの値を与えます。元のシステムにあって Tanrei のコアにない文字スタイルは、語彙の**拡張**として独自のロールを足します。名前は動かないので、`tanrei` の上に作ったプロダクトは、見出しを一つも書き換えずに `m3-like` へ移れます。
+
+- **`m3-like`** は Material Design 3 のタイプスケールからすべてのロールの値を取り直します。`heading-1` は Material の 「headline large」、`body` は 「body medium」、`label` は 「label large」 です。加えて `display-large`（57px）と `display-small`（36px）を足しています。Material には display が 3 サイズあり、1 つのプロダクトに必要なのは 1 つだからです。強調のステップも Material のものです。display・見出し・本文に 100、ラベルに 200。忠実度ハーネスは、Material が公開するすべてのテキストスタイル（emphasized を含む 30 個）を、カラーロールと Button と並べて測ります。計測した 288 トークンのうち 273 が一致、14 は別のトークンでカバーされ、1 つは登録済みの模倣ギャップのもとで未対応、異なるものは 0 です。[デザインシステムのページ](/ja/foundations/design-systems/)ではカバー分を除いて 273 / 274 と表示されます。数値は `tokens/generated/m3-like/fidelity.json` から読まれ、ビルドが書き直します。
+- **`cupertino`** は Apple の iOS の 11 のテキストスタイル（Large Title から Caption 2 まで）からすべてのロールの値を取り直し、コアに名前のない 3 つ、`body-callout`・`body-subhead`・`caption-small` を足しています。強調のステップは display に 100、それ以外に 200。Apple の regular と emphasized の距離です。
+
+プリセットが足したロールは、どのプラットフォームでも通常のトークンです。`m3-like` の `display-large` は Web では `--tanrei-sys-typescale-display-large-font`、ネイティブの各パッケージではタイプスケールの一員です。Theme Studio のプレビューは、16 のロールと並べてタイプランプに描きます。
+
+## 性格
+
+- **display と見出しは詰めて。** 大きな文字は字間をマイナスに組みます。`display` で −0.04em、`heading-1` で −0.03em、`heading-5` では −0.01em まで緩めます。大きな見出しが落ち着いて見え、太さ 450 の `display` は軽さを保ちます。
+- **小さなサイズは開き気味に。** `body-small`、`label-small`、`caption`、`eyebrow` にはわずかにプラスの字間を持たせ、11〜13px の文字でも読みやすさを保ちます。
+- **太さは数値。** Inter はバリアブルフォントなので、450 のような太さも有効で、バリアブル軸を扱えるプラットフォームではそのまま再現されます。強調のステップが数値なのも同じ理由です。450 + 100 は実在する太さです。
+- **等幅書体はコードのために。** `code` と `code-small` は Roboto Mono です。`eyebrow` はプレーンな書体で、小さく、字間を広く、大文字化はトークンではなくコンポーネントが行います。
+
+## 言語
+
+行の高さは、欧文と CJK が混ざっても文字が切れないように選んであり、日本語も同じロールをそのまま使います。マイナスの字間は欧文のための手法です。見出しがほぼ日本語のときは、このサイトがそうしているように、字間を 0 にすることをおすすめします。
+
+## 拡大縮小
+
+文字サイズは、Web では相対単位（`rem`）で表され、どのプラットフォームでも利用者の文字サイズ設定に追従します。レイアウトは 200% の文字に耐えなければなりません。コンテナは広がり、ラベルは切り詰める前に折り返します。すべてのサイズは `dial.type.base` への係数で、`dial.type.contrast` が指数です。一方のダイヤルでスケール全体が動き、もう一方で見出しと本文の差が開きます。
+
+すべてのロールの実物見本は[タイプスケールのリファレンス](/ja/tokens/typescale/)にあります。

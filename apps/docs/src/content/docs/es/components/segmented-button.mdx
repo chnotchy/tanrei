@@ -1,0 +1,315 @@
+---
+title: Botón segmentado
+description: Permite elegir una opción, o varias, entre dos y cinco opciones relacionadas que se dibujan una junto a otra como los segmentos unidos de un solo control.
+translationOf: components/segmented-button.mdx
+sourceHash: 064c374a356e8a7e012dab0484023992e0c8168c
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="segmented-button" />
+
+:::note[No forma parte del sistema Tanrei]
+El sistema Tanrei predeterminado no incluye el botón segmentado; los preajustes Material y cupertino sí. En Tanrei, una elección entre varias se hace con [pestañas](/es/components/tabs/) cuando cambia el contenido de debajo, y con [botones de opción](/es/components/radio-button/) cuando define un valor; los botones que se conmutan cada uno por su cuenta son un [grupo de botones](/es/components/button-group/). El componente sigue funcionando con cualquier sistema, con una advertencia durante el desarrollo cuando el sistema lo deja fuera. Las demostraciones de esta página se dibujan con el preajuste `m3-like`, un sistema que lo incluye.
+:::
+
+<DemoFrame label="Selección única, con iconos y de solo icono" system="m3-like">
+  <tanrei-segmented-button label="Intervalo" value="week">
+    <tanrei-segment value="day" label="Día"></tanrei-segment>
+    <tanrei-segment value="week" label="Semana"></tanrei-segment>
+    <tanrei-segment value="month" label="Mes"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="Vista" value="grid">
+    <tanrei-segment value="list" label="Lista" icon="view_list"></tanrei-segment>
+    <tanrei-segment value="grid" label="Cuadrícula" icon="grid_view"></tanrei-segment>
+    <tanrei-segment value="map" label="Mapa" icon="map"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="Alineación del texto" value="center">
+    <tanrei-segment value="start" label="Alinear a la izquierda" icon="format_align_left" label-hidden></tanrei-segment>
+    <tanrei-segment value="center" label="Centrar" icon="format_align_center" label-hidden></tanrei-segment>
+    <tanrei-segment value="end" label="Alinear a la derecha" icon="format_align_right" label-hidden></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+### Uso
+
+Un botón segmentado recibe sus segmentos como cada plataforma recibe los hijos repetidos: elementos hijos en la web, vistas en un view builder en SwiftUI, llamadas en una lambda de contenido en Compose, una lista `segments` en Flutter y un array `items` en React Native. La selección pertenece al conjunto, por valor. `selection` indica si es un valor o varios.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-segmented-button label="Intervalo" value="week">
+      <tanrei-segment value="day" label="Día"></tanrei-segment>
+      <tanrei-segment value="week" label="Semana"></tanrei-segment>
+      <tanrei-segment value="month" label="Mes"></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <!-- Varios a la vez. values es una propiedad (un array); el atributo admite un array JSON o valores separados por espacios. -->
+    <tanrei-segmented-button id="days" selection="multiple" size="small" label="Días" values="mon tue">
+      <tanrei-segment value="mon" label="Lun"></tanrei-segment>
+      <tanrei-segment value="tue" label="Mar"></tanrei-segment>
+      <tanrei-segment value="wed" label="Mié" disabled></tanrei-segment>
+    </tanrei-segmented-button>
+
+    <script type="module">
+      import '@tanrei/web/components/segmented-button';
+      // El elemento actualiza su propio value o values y después emite change.
+      document.querySelector('[label="Intervalo"]').addEventListener('change', (e) => showRange(e.detail.value));
+      document.querySelector('#days').addEventListener('change', (e) => setDays(e.detail.values));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Segment, SegmentedButton } from '@tanrei/react';
+
+    // detail es { value } para una sola elección y { values } para varias.
+    <SegmentedButton label="Intervalo" value={range} onChange={(e) => 'value' in e.detail && setRange(e.detail.value)}>
+      <Segment value="day" label="Día" />
+      <Segment value="week" label="Semana" />
+      <Segment value="month" label="Mes" />
+    </SegmentedButton>
+
+    <SegmentedButton selection="multiple" label="Días" values={days} onChange={(e) => 'values' in e.detail && setDays(e.detail.values)}>
+      <Segment value="mon" label="Lun" />
+      <Segment value="tue" label="Mar" />
+      <Segment value="wed" label="Mié" disabled />
+    </SegmentedButton>
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    // El tipo del binding es la selección: un valor opcional para una, un Set para varias.
+    // Aplica .tag y .labelStyle al propio TanreiSegment, antes que cualquier otro modificador.
+    TanreiSegmentedButton("Intervalo", selection: $range) {
+        TanreiSegment("Día").tag("day")
+        TanreiSegment("Semana").tag("week")
+        TanreiSegment("Mes").tag("month")
+    }
+
+    // .labelStyle(.iconOnly) equivale a labelHidden: el título sigue dando nombre al segmento.
+    TanreiSegmentedButton("Alineación del texto", selection: $alignment) {
+        TanreiSegment("Alinear a la izquierda", icon: "format_align_left").tag("start").labelStyle(.iconOnly)
+        TanreiSegment("Centrar", icon: "format_align_center").tag("center").labelStyle(.iconOnly)
+        TanreiSegment("Alinear a la derecha", icon: "format_align_right").tag("end").labelStyle(.iconOnly)
+    }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import io.github.chnotchy.tanrei.components.TanreiSegment
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButton
+    import io.github.chnotchy.tanrei.components.TanreiSegmentedButtonSelectionMode
+    import io.github.chnotchy.tanrei.primitives.TanreiText
+    import io.github.chnotchy.tanrei.tokens.TanreiSegmentedButtonSize
+
+    // Un solo callback para ambas selecciones. Un conjunto de elección única pasa un conjunto de un elemento.
+    TanreiSegmentedButton(
+        onSelectionChange = { range = it.single() },
+        contentDescription = "Intervalo",
+        selectedValue = range,
+    ) {
+        TanreiSegment(value = "day", label = "Día")
+        TanreiSegment(value = "week", label = "Semana")
+        TanreiSegment(value = "month", label = "Mes")
+    }
+
+    TanreiSegmentedButton(
+        onSelectionChange = { days = it },
+        contentDescription = "Días",
+        selectionMode = TanreiSegmentedButtonSelectionMode.Multiple,
+        selectedValues = days,
+        size = TanreiSegmentedButtonSize.Small,
+    ) {
+        TanreiSegment(value = "mon", label = "Lun")
+        TanreiSegment(value = "tue", label = "Mar")
+        // Compose usa el parámetro inverso.
+        TanreiSegment(value = "wed", label = "Mié", enabled = false)
+    }
+
+    // labelHidden dibuja solo el icono. La etiqueta sigue dando nombre al segmento.
+    TanreiSegment(value = "start", label = "Alinear a la izquierda", labelHidden = true, icon = { TanreiText("format_align_left") })
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    // Con la forma de SegmentedButton: un Set guarda la selección, con un miembro como máximo en la selección única.
+    TanreiSegmentedButton<String>(
+      semanticLabel: 'Intervalo',
+      selected: <String>{range},
+      onSelectionChanged: (Set<String> value) => setState(() => range = value.single),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'day', label: 'Día'),
+        TanreiSegment<String>(value: 'week', label: 'Semana'),
+        TanreiSegment<String>(value: 'month', label: 'Mes'),
+      ],
+    );
+
+    TanreiSegmentedButton<String>(
+      semanticLabel: 'Días',
+      multiSelectionEnabled: true,
+      size: TanreiSegmentedButtonSize.small,
+      selected: days,
+      onSelectionChanged: (Set<String> value) => setState(() => days = value),
+      segments: const <TanreiSegment<String>>[
+        TanreiSegment<String>(value: 'mon', label: 'Lun'),
+        TanreiSegment<String>(value: 'tue', label: 'Mar'),
+        TanreiSegment<String>(value: 'wed', label: 'Mié', enabled: false),
+      ],
+    );
+
+    // labelHidden dibuja solo el icono. La etiqueta sigue dando nombre al segmento.
+    const TanreiSegment<String>(value: 'start', label: 'Alinear a la izquierda', icon: Icon(AppSymbols.formatAlignLeft), labelHidden: true);
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { SegmentedButton } from '@tanrei/react-native';
+
+    // Controlado: onSelectionChange recibe el valor (single) o los valores (multiple).
+    <SegmentedButton
+      accessibilityLabel="Intervalo"
+      value={range}
+      onSelectionChange={setRange}
+      items={[
+        { value: 'day', label: 'Día' },
+        { value: 'week', label: 'Semana' },
+        { value: 'month', label: 'Mes' },
+      ]}
+    />
+
+    <SegmentedButton
+      selectionMode="multiple"
+      accessibilityLabel="Días"
+      size="small"
+      values={days}
+      onSelectionChange={setDays}
+      items={[
+        { value: 'mon', label: 'Lun' },
+        { value: 'tue', label: 'Mar' },
+        { value: 'wed', label: 'Mié', disabled: true },
+      ]}
+    />
+
+    // Un segmento de solo icono: { value: 'start', label: 'Alinear a la izquierda', icon: 'format_align_left', labelHidden: true }
+    ```
+  </TabItem>
+</Tabs>
+
+## Especificaciones
+
+<DemoFrame label="Tamaños y segmentos deshabilitados" system="m3-like" plain>
+  <tanrei-segmented-button label="Intervalo" value="week" size="small">
+    <tanrei-segment value="day" label="Día"></tanrei-segment>
+    <tanrei-segment value="week" label="Semana"></tanrei-segment>
+    <tanrei-segment value="month" label="Mes"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="Intervalo" value="week" size="large">
+    <tanrei-segment value="day" label="Día"></tanrei-segment>
+    <tanrei-segment value="week" label="Semana"></tanrei-segment>
+    <tanrei-segment value="month" label="Mes"></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="Intervalo" value="day">
+    <tanrei-segment value="day" label="Día"></tanrei-segment>
+    <tanrei-segment value="week" label="Semana"></tanrei-segment>
+    <tanrei-segment value="month" label="Mes" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+  <tanrei-segmented-button label="Intervalo" value="month">
+    <tanrei-segment value="day" label="Día"></tanrei-segment>
+    <tanrei-segment value="week" label="Semana"></tanrei-segment>
+    <tanrei-segment value="month" label="Mes" disabled></tanrei-segment>
+  </tanrei-segmented-button>
+</DemoFrame>
+
+<ComponentSpecs name="segmented-button" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un botón segmentado cuando una pregunta pequeña tiene unas pocas respuestas fijas y conviene que las personas las vean todas a la vez: el intervalo de un gráfico, la disposición de una lista, la alineación de un párrafo, los días en que se repite un recordatorio. El efecto debe verse de inmediato, porque con la selección única las teclas de flecha eligen a medida que se mueven.
+
+Caben de dos a cinco opciones. Con más de cinco, usa un menú o una lista. Cuando la elección es la tarea principal de un formulario, los botones de opción se leen mejor. Cuando la respuesta cambia qué contenido llena la pantalla, usa [pestañas](/es/components/tabs/).
+
+### Botón segmentado, grupo de botones, chips o pestañas
+
+Los cuatro colocan unas pocas cosas relacionadas en una fila, así que es fácil confundirlos. Se diferencian en lo que hace una pulsación y en cómo se recorren con el teclado.
+
+| Componente | Qué es | Selección | Teclado | Úsalo para |
+| --- | --- | --- | --- | --- |
+| [Botón segmentado](/es/components/segmented-button/) | Un solo control: de dos a cinco opciones unidas que responden a una pregunta. | Propia, por valor: una opción o varias. | Una sola parada de tabulación. Las teclas de flecha se mueven entre las opciones y, con la selección única, también eligen. | Un ajuste con unas pocas respuestas fijas que se aplica al instante: Día, Semana, Mes; izquierda, centro, derecha. |
+| [Grupo de botones](/es/components/button-group/) | Una fila o una columna de botones independientes, separados o unidos en una sola forma. | Ninguna. Un botón conmutador del grupo conserva su propio estado de activado o desactivado. | Cada botón es su propia parada de tabulación. | Acciones relacionadas: Cancelar, Guardar borrador, Publicar; Negrita, Cursiva y Subrayado como conmutadores independientes. |
+| [Chips](/es/components/chip/) | Controles pequeños e independientes en una fila que salta de línea o se desplaza. | Cada chip de filtro está activado o desactivado por sí mismo. | Cada chip es su propia parada de tabulación. | Filtros encima de una lista, respuestas sugeridas, elementos que la persona ha introducido. |
+| [Pestañas](/es/components/tabs/) | Vistas de un mismo tema, cada una con su propio panel. | Una pestaña: la vista en pantalla. | Una sola parada de tabulación. Las teclas de flecha mueven y seleccionan. | Cambiar qué contenido se muestra: Resumen, Actividad, Configuración. |
+
+Una prueba rápida: si al pulsarlo hace algo, es un grupo de botones. Si define un valor, es un botón segmentado, o chips cuando las opciones son muchas o independientes. Si cambia el contenido de debajo, son pestañas.
+
+### Una elección o varias
+
+- **Única** (`selection="single"`, el valor predeterminado) es un grupo de botones de opción. Elegir un segmento desmarca el anterior. Pulsar de nuevo el segmento elegido no hace nada, así que una elección única no se puede borrar desde su propio segmento. El conjunto puede empezar sin nada elegido (`value` vacío), para un formulario que debe mostrar que todavía no se ha elegido nada.
+- **Múltiple** es un grupo de botones conmutadores. Cada segmento se activa y se desactiva, y el conjunto puede quedarse sin ninguno. Si tu producto necesita al menos uno, no apliques un cambio que deje el conjunto vacío.
+
+El conjunto no tiene un `disabled` propio. Deshabilita los segmentos uno a uno. Un segmento deshabilitado conserva su lugar y su contorno, y las teclas de flecha lo saltan.
+
+### Etiquetas, iconos y la marca de verificación
+
+- Un segmento seleccionado muestra una marca de verificación antes de su etiqueta, en lugar de su icono cuando lo tiene, de modo que la selección nunca se comunica solo con el relleno. Un segmento de solo icono conserva su icono y lo dibuja relleno. Un sistema de diseño puede poner el tamaño de la marca en 0: entonces no dibuja ninguna marca y muestra la selección con el relleno y la elevación.
+- Todos los segmentos son tan anchos como el más ancho, medido como si estuviera seleccionado, así que la aparición de la marca nunca mueve a un vecino. Con menos espacio, las etiquetas saltan de línea y todos los segmentos crecen hasta la altura del más alto. Nunca se truncan.
+- `labelHidden` dibuja solo el icono. La etiqueta sigue siendo obligatoria, porque continúa siendo el nombre accesible del segmento.
+- El tamaño define la altura del conjunto. Los tamaños no coinciden con las alturas del botón en todos los pasos (en el preajuste `m3-like`, small y medium coinciden con los del botón y large es más bajo), así que empareja un conjunto con los botones que tiene al lado por la altura, no por el nombre del tamaño.
+
+### Recomendado
+
+- Da al conjunto una etiqueta que formule la pregunta a la que responden sus opciones: «Intervalo», «Alineación del texto».
+- Limita las etiquetas a una o dos palabras, con la misma forma gramatical: Día, Semana, Mes.
+- Da un icono a todos los segmentos de un conjunto, o a ninguno.
+- Elige un valor inicial cuando haya un valor predeterminado razonable, para que el control nunca parezca sin responder.
+
+### Evita
+
+- No uses un botón segmentado para acciones. Un segmento es una elección y no emite ningún clic. Usa un grupo de botones.
+- No lo uses para cambiar entre vistas que llenan cada una la pantalla. Usa pestañas.
+- No pongas más de cinco segmentos en un conjunto, ni etiquetas de longitudes muy distintas. Todos los segmentos toman el ancho del más ancho.
+- No cambies la etiqueta de un segmento según su estado. La selección se anuncia por separado.
+
+## Accesibilidad
+
+<ComponentAccessibility name="segmented-button" />
+
+### De qué se encarga el componente
+
+- Con la selección única, el conjunto es un grupo de botones de opción que recibe su nombre de su etiqueta, y cada segmento es un botón de opción con su estado marcado. Con la selección múltiple, el conjunto es un grupo que recibe su nombre de su etiqueta, y cada segmento es un botón conmutador con su estado pulsado.
+- Cada segmento recibe su nombre de su propia etiqueta, se dibuje o no, y expone su posición y el número de segmentos. Los iconos, la marca de verificación, los divisores y el contorno quedan ocultos. El estado nunca se anuncia a partir de la marca.
+- El conjunto es una sola parada de tabulación: el segmento seleccionado, o el último que tuvo el foco en la selección múltiple, o, si no, el primero habilitado. Las teclas de flecha pasan al segmento habilitado siguiente o anterior y dan la vuelta al llegar al final, e Inicio y Fin llevan a los extremos. Con la selección única, cada movimiento también selecciona. Con la selección múltiple, Espacio y Enter conmutan el segmento con foco. En un diseño de derecha a izquierda, Flecha izquierda pasa al segmento siguiente.
+- Las teclas de flecha saltan los segmentos deshabilitados, que nunca son la parada de tabulación y se exponen como deshabilitados.
+- El área de pulsación de cada segmento se extiende por encima y por debajo del conjunto hasta el objetivo mínimo, y cada segmento tiene al menos el ancho de un objetivo, porque los vecinos no pueden extenderse unos sobre otros.
+- El indicador de foco se dibuja dentro del segmento con foco, donde el contorno y los vecinos no pueden taparlo. Solo se muestra para el foco del teclado.
+- Con tamaños de texto mayores, las etiquetas saltan de línea y todos los segmentos crecen hasta la altura del más alto. El icono conserva su tamaño.
+- Las compilaciones de depuración notifican un conjunto o un segmento sin etiqueta, una etiqueta oculta sin icono, un valor o unos valores que no nombran ningún segmento, un valor de segmento vacío o repetido y un conjunto con menos de dos o más de cinco segmentos.
+
+Carencias conocidas por plataforma:
+
+- En la web, un conjunto de elección múltiple da a cada segmento su posición mediante una lista que envuelve los segmentos, porque un botón conmutador no puede llevar una posición propia.
+- SwiftUI no tiene un rol de grupo de botones de opción. El conjunto es un contenedor que recibe su nombre de su etiqueta. Un segmento de un conjunto de elección única es un botón con el rasgo de seleccionado y su posición («2 of 3») como valor, solo en inglés por ahora. Un segmento de un conjunto de elección múltiple es un conmutador y no indica ninguna posición, porque un valor propio sustituiría el activado o desactivado del conmutador.
+- SwiftUI: el conjunto ocupa el ancho que se le ofrece, como hace el selector segmentado de SwiftUI. `.fixedSize(horizontal: true, vertical: false)` mantiene su ancho natural. La sombra y el anillo de foco de un segmento usan su esquina más grande en todas las esquinas. Un SF Symbol dado como icono no cambia a su forma rellena al seleccionarse: pasa tú el símbolo `.fill`. Las teclas de flecha se prueban como reglas, no con un teclado en el simulador.
+- Compose no tiene un rol de grupo de botones de opción. El conjunto es un grupo seleccionable, y cada segmento es un botón de opción (single) o un botón conmutable (multiple), como el chip de filtro.
+- Flutter no expone ni la posición de un segmento ni el número de segmentos, y un conjunto de elección múltiple es un contenedor que recibe su nombre de su etiqueta en lugar de un grupo, porque la semántica de Flutter no tiene ninguna de las dos propiedades.
+- React Native: los anchos iguales salen de medir cada etiqueta después de la primera pasada de diseño, así que un conjunto cuyo padre sea más estrecho que él en el primer fotograma puede tomar un ancho menor que el de su etiqueta más ancha. Las teclas de flecha en un teclado físico, y la sombra de la selección elevada sobre sus vecinos en Android, no se han comprobado en un dispositivo.
+- Con el sistema `cupertino`, los conjuntos small y medium miden 30 y 34 de alto en lugar de 28 y 32, y las esquinas interiores de los segmentos de los extremos son más redondeadas que las exteriores. Ambas cosas esperan una decisión de token o de especificación.
+
+### Qué debes hacer tú
+
+- Da una etiqueta al conjunto y a cada segmento, incluidos los segmentos de solo icono.
+- Haz que el efecto de una elección se vea al instante, cerca del control. Con la selección única, quien usa el teclado elige al moverse, así que un efecto lento hace que las teclas de flecha parezcan atascadas. Si tiene que tardar, muestra el progreso donde aparecerá el resultado.
+- Indica cerca de los segmentos deshabilitados el motivo cuando no sea obvio por qué no se pueden elegir.
+- En la web, el botón segmentado no es un control de formulario. Para enviar su valor con un formulario, cópialo en un input oculto desde `change`.

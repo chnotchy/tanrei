@@ -1,0 +1,465 @@
+/*
+ * Table of contents (specs/table-of-contents.spec.json, TOC-1 to TOC-40): the headings
+ * of the page being read as links to them, sub-headings set in under their heading, the one being read marked.
+ *
+ * `<tanrei-table-of-contents>` is an element around the product's own nested list of anchors, which stay in the
+ * document: before any script runs and without it the page holds a plain list of links that work, which a crawler, a
+ * search index and the browser's own list of links read as they are.
+ *
+ *   <tanrei-table-of-contents label="On this page" density="compact">
+ *     <ul>
+ *       <li><a href="#install">Install</a>
+ *         <ul>
+ *           <li><a href="#npm">npm</a></li>
+ *         </ul>
+ *       </li>
+ *       <li><a href="#configure" aria-current="location">Configure</a></li>
+ *     </ul>
+ *   </tanrei-table-of-contents>
+ *
+ * An item is an `<li>` whose first child is its anchor; its own items are a list after the anchor, inside the same
+ * `<li>`. Level is the nesting of the lists. The current item is the anchor that carries `aria-current`.
+ *
+ * This stylesheet draws the list — the rows, the indent, the rail, the marker, every state — and, until the element
+ * is defined, the title from the `label` attribute, so that the list does not change place when the script loads. The
+ * element (src/components/table-of-contents/table-of-contents.ts) keeps a shadow root for what the product did not
+ * write (the navigation landmark, the title, the compact presentation's row and block) and writes here:
+ *
+ *   aria-current="location" (on an anchor)  the current item (TOC-7, TOC-8)
+ *   data-tanrei-label (on an li)            the label's text, drawn unseen at the current item's weight so that a row
+ *                                           is as high for its label at either weight (TOC-7)
+ *   dir="auto" (on an anchor without one)   a label with a letter: the anchor takes its text's direction, so that every
+ *                                           engine lays its lines out alike (TOC-37); a label without one has none
+ *   data-tanrei-neutral (on an li)          a label without a letter (a version, a number): the layout's direction
+ *   data-tanrei-empty (on an li)            an item whose label is only white space: not drawn (TOC-40)
+ *   data-empty (on the element)             no item is drawn: neither is the element (TOC-32)
+ *   data-pressed (on an anchor)             the answer to a press the system names: overlay, ripple, dim, none (TOC-21)
+ *   data-focus-style (on an anchor)         the focus style, where the browser has no style queries (TOC-22)
+ *   role="list" (on a list without a role)  a list without markers is still exposed as a list in every engine (TOC-31)
+ *
+ * Every value is a `--tanrei-comp-table-of-contents-*` token, or the system's focus, target and press-hold tokens.
+ *
+ * HOW IT IS WRITTEN
+ *
+ * - Every selector starts at the element's name and has no specificity (`:where()`; a rule on a pseudo-element has a
+ *   pseudo-element's), so one class of the product's wins, and the ORDER of the rules decides between two of them.
+ * - The inset of a level is passed down by two names that take turns, because a custom property cannot be computed
+ *   from itself: a list takes `--_toc-inset` from `--_toc-next`, and an item sets `--_toc-next` one indent further
+ *   for the lists inside it. Any depth is drawn (TOC-39).
+ * - Only the label is set in: every anchor runs from the rail to the list's end edge, so the state layer, the focus
+ *   ring and the marker of every level start at one edge (TOC-3).
+ * - The rail is the first list's `::before` and the marker an anchor's `::before`, both borders — which forced colors
+ *   keep — drawn over the rows' first pixels: they take no room.
+ * - An item is a grid of one column: its anchor and, in the same cell, its `::before` — the label once more at the
+ *   current item's weight, not seen — so the row is as high as the taller of the two; the item's own list is the
+ *   second row.
+ * - The state rules, the focus indicator and the ripple's layer say what `stateRules()`, `focusRing()` and
+ *   `rippleStyles()` (src/primitives) say for a shadow root; they are restated here for an element of the document.
+ *   The inner stroke of the focus ring is the anchor's `::after`.
+ * - Pressed: with the package's script it is `data-pressed` (the shared press primitive). Without it, `:active` is
+ *   the overlay, held for press-hold by a delayed step of two names (below).
+ * - The corner rule (src/styles/shape.ts) is written by the build in place of the `table-of-contents:shape`
+ *   mark.
+ * - Names that begin `--_toc-` are private.
+ */
+/* The hold of a press that no script answers. While a row is held down, and for press-hold after, the pressed container
+   is drawn as a layer of its own — an image of that one color — and the state's color under it is not drawn: the
+   pressed color stands in the state's place, as it does with the script, and is not laid over it. Both are said by two
+   names that only a press changes, `--_toc-held-image` and `--_toc-held-clip` (the second layer of the image is there for
+   its clip alone: a background's color is clipped as its last layer is, and `text` leaves it behind the glyphs). No one
+   registers them — a registered custom property makes every transition of the page dear: each is a custom property like any other, which may change
+   in steps (`transition-behavior: allow-discrete`, said wherever the transition is), and a step after press-hold is all
+   the hold is; the two properties that read them have no transition, so they follow the names frame by frame. The
+   background's COLOR takes no part in the hold: mixed with the pressed one by a held number, it started its own
+   transition when the press ended — toward the value it has without the hold, which a transition's start does not
+   count — faded there while the press was being held, and came back. Where the browser does not know a step, the press
+   ends when the pointer is lifted. */
+
+@layer tanrei.components {
+  /* ── The corners of a row (TOC-3, TOC-22) ───────────────────────────────────────────────────────────────────── */
+  :where(tanrei-table-of-contents) :where(li) > :where(a) {
+    /* table-of-contents:shape */
+  }
+
+  /* ── The whole (TOC-1): as wide as its layout; no fill, no edge, no padding, no place of its own ────────────── */
+  :where(tanrei-table-of-contents) {
+    /* TOC-3: the density's height and block padding (TOC-39: any other density is the default's). */
+    --_toc-row-height: var(--tanrei-comp-table-of-contents-row-height-regular);
+    --_toc-row-pad: var(--tanrei-comp-table-of-contents-row-padding-block-regular);
+    /* TOC-24: what a row is never lower than — the pointer target at the regular density, the touch target for touch. */
+    --_toc-row-floor: var(--tanrei-sys-target-pointer);
+    /* The first list's labels are not set in. */
+    --_toc-next: 0px;
+    /* TOC-35, TOC-37: start as a side, by the layout direction — not by a text's own. A label is text of its own
+       direction, and its anchor may carry that direction (`dir="auto"`), so nothing of a row is placed by the anchor's
+       logical sides: 1 for the side that is the layout's start, 0 for the other. */
+    --_toc-start: left;
+    --_toc-left: 1;
+    --_toc-right: 0;
+    display: block;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+  }
+  :where(tanrei-table-of-contents):dir(rtl) {
+    --_toc-start: right;
+    --_toc-left: 0;
+    --_toc-right: 1;
+  }
+  :where(tanrei-table-of-contents[density='compact']) {
+    --_toc-row-height: var(--tanrei-comp-table-of-contents-row-height-compact);
+    --_toc-row-pad: var(--tanrei-comp-table-of-contents-row-padding-block-compact);
+    /* The one place a row is lower than the pointer target: the density is asked for by name. */
+    --_toc-row-floor: 0px;
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-table-of-contents),
+    :where(tanrei-table-of-contents[density='compact']) {
+      --_toc-row-floor: var(--tanrei-sys-target-touch);
+    }
+  }
+  /* TOC-27: the compact presentation is a column whose list gives way — and scrolls — where the layout holds the
+     element to less than the list needs. (Said here and not by the shadow root: what the document says of an element
+     wins over what its own root says of it.) */
+  :where(tanrei-table-of-contents[presentation='compact']:defined) {
+    display: flex;
+    flex-direction: column;
+  }
+  /* TOC-32: no items — nothing is drawn, no space is taken. */
+  :where(tanrei-table-of-contents[hidden], tanrei-table-of-contents[data-empty], tanrei-table-of-contents:not(:has(li > a))) {
+    display: none;
+  }
+
+  /* ── The title, until the element is defined (TOC-2): the label's text, where the shadow root will draw it ──── */
+  :where(tanrei-table-of-contents[label]:not([label=''], [label-hidden], :defined, :has(> [slot='title'])))::before {
+    content: attr(label);
+    display: block;
+    margin-block-end: var(--tanrei-comp-table-of-contents-container-gap);
+    font: var(--tanrei-comp-table-of-contents-title-typescale-font);
+    letter-spacing: var(--tanrei-comp-table-of-contents-title-typescale-letter-spacing);
+    color: var(--tanrei-comp-table-of-contents-title-color);
+    text-align: var(--_toc-start);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+  /* The product's own title: drawn in the title's text style whatever its level (the shadow root says the same). */
+  :where(tanrei-table-of-contents) > :where([slot='title']) {
+    margin: 0;
+    padding: 0;
+    font: var(--tanrei-comp-table-of-contents-title-typescale-font);
+    letter-spacing: var(--tanrei-comp-table-of-contents-title-typescale-letter-spacing);
+    color: var(--tanrei-comp-table-of-contents-title-color);
+    text-align: var(--_toc-start);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+  :where(tanrei-table-of-contents:not(:defined)) > :where([slot='title']) {
+    margin-block-end: var(--tanrei-comp-table-of-contents-container-gap);
+  }
+  :where(tanrei-table-of-contents[label-hidden]:not(:defined)) > :where([slot='title']) {
+    display: none;
+  }
+
+  /* ── The lists (TOC-1, TOC-3): one column, rows that follow one another with no space between them ──────────── */
+  :where(tanrei-table-of-contents) :where(ul, ol) {
+    --_toc-inset: var(--_toc-next);
+    display: block;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  :where(tanrei-table-of-contents) :where(li) {
+    /* TOC-3: each level of nesting sets its label one indent further in. */
+    --_toc-next: calc(var(--_toc-inset) + var(--tanrei-comp-table-of-contents-row-indent));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    box-sizing: border-box;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+  }
+  :where(tanrei-table-of-contents) :where(li) > :where(ul, ol) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  /* TOC-40: an item without a label is not drawn, and neither are its items. */
+  :where(tanrei-table-of-contents) :where(li:has(> a:empty), li[data-tanrei-empty]) {
+    display: none;
+  }
+
+  /* ── The rail (TOC-5): one hairline along the first list's start edge, as long as the list ──────────────────── */
+  :where(tanrei-table-of-contents) > :where(ul, ol) {
+    position: relative;
+  }
+  :where(tanrei-table-of-contents) > :where(ul, ol)::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    border-inline-start: var(--tanrei-comp-table-of-contents-rail-width) solid var(--tanrei-comp-table-of-contents-rail-color);
+    pointer-events: none;
+  }
+
+  /* ── A row (TOC-3, TOC-4, TOC-6, TOC-24): the product's anchor, from the rail to the list's end edge ────────── */
+  :where(tanrei-table-of-contents) :where(li) > :where(a) {
+    /* The item part's colors in each state (TOC-18); the current item's are below. */
+    --_toc-container: var(--tanrei-comp-table-of-contents-item-container-color);
+    --_toc-label: var(--tanrei-comp-table-of-contents-item-label-color);
+    --_toc-hovered-container: var(--tanrei-comp-table-of-contents-item-hovered-container-color);
+    --_toc-hovered-label: var(--tanrei-comp-table-of-contents-item-hovered-label-color);
+    --_toc-focused-container: var(--tanrei-comp-table-of-contents-item-focused-container-color);
+    --_toc-focused-label: var(--tanrei-comp-table-of-contents-item-focused-label-color);
+    --_toc-pressed-container: var(--tanrei-comp-table-of-contents-item-pressed-container-color);
+    --_toc-pressed-label: var(--tanrei-comp-table-of-contents-item-pressed-label-color);
+    --_toc-now-container: var(--_toc-container);
+    --_toc-now-label: var(--_toc-label);
+    --tanrei-corner-radius: var(--tanrei-comp-table-of-contents-row-shape);
+    --tanrei-corner-pill: var(--tanrei-comp-table-of-contents-row-shape-pill, 0);
+    grid-column: 1;
+    grid-row: 1;
+    position: relative;
+    isolation: isolate;
+    display: block;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    min-block-size: max(var(--_toc-row-height), var(--_toc-row-floor));
+    margin: 0;
+    padding-block: var(--_toc-row-pad);
+    padding-left: calc(var(--tanrei-comp-table-of-contents-row-padding-inline) + var(--_toc-inset) * var(--_toc-left));
+    padding-right: calc(var(--tanrei-comp-table-of-contents-row-padding-inline) + var(--_toc-inset) * var(--_toc-right));
+    /* A row higher than its label (a system whose line is shorter, the touch target) shares the rest above and below. */
+    align-content: center;
+    font: var(--tanrei-comp-table-of-contents-label-typescale-font);
+    letter-spacing: var(--tanrei-comp-table-of-contents-label-typescale-letter-spacing);
+    color: var(--_toc-now-label);
+    /* TOC-6: a row of a list in a landmark is not told from text beside it — no underline, and no visited state. */
+    text-decoration: none;
+    /* TOC-4: a label wraps where its language allows and, for a run longer than the line, inside the run. */
+    overflow-wrap: anywhere;
+    /* TOC-37: text of its own direction, its lines aligned by the layout's. */
+    text-align: var(--_toc-start);
+    unicode-bidi: plaintext;
+    background-color: var(--_toc-now-container);
+    background-image: var(--_toc-held-image);
+    background-clip: var(--_toc-held-clip);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    /* (The hold stands first: its delay is where the script reads sys.motion.duration.press-hold as a time.) */
+    --_toc-held-image: none;
+    --_toc-held-clip: border-box;
+    transition:
+      --_toc-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+      --_toc-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold),
+      background-color var(--tanrei-comp-table-of-contents-motion-state-duration) var(--tanrei-comp-table-of-contents-motion-state-easing),
+      color var(--tanrei-comp-table-of-contents-motion-state-duration) var(--tanrei-comp-table-of-contents-motion-state-easing),
+      opacity var(--tanrei-comp-table-of-contents-motion-state-duration) var(--tanrei-comp-table-of-contents-motion-state-easing);
+    transition-behavior: allow-discrete;
+  }
+  /* TOC-7: the label once more at the current item's weight, in the anchor's own cell and not seen, so that the row
+     is as high as its label needs at either weight and no row changes height when the current item does. */
+  :where(tanrei-table-of-contents) :where(li[data-tanrei-label])::before {
+    content: attr(data-tanrei-label);
+    content: attr(data-tanrei-label) / '';
+    grid-column: 1;
+    grid-row: 1;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    padding-block: var(--_toc-row-pad);
+    padding-left: calc(var(--tanrei-comp-table-of-contents-row-padding-inline) + var(--_toc-inset) * var(--_toc-left));
+    padding-right: calc(var(--tanrei-comp-table-of-contents-row-padding-inline) + var(--_toc-inset) * var(--_toc-right));
+    font: var(--tanrei-comp-table-of-contents-label-typescale-font);
+    font-weight: var(--tanrei-comp-table-of-contents-label-typescale-font-weight-emphasized);
+    letter-spacing: var(--tanrei-comp-table-of-contents-label-typescale-letter-spacing);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  /* TOC-37: a label without a letter has no direction of its own, and is laid out in the layout's. (After the row's own rule: the order decides.) */
+  :where(tanrei-table-of-contents) :where(li[data-tanrei-neutral]) > :where(a),
+  :where(tanrei-table-of-contents) :where(li[data-tanrei-neutral])::before {
+    unicode-bidi: normal;
+  }
+
+  /* ── The marker (TOC-7): a heavier stroke on the rail beside the current row, as high as the row ────────────── */
+  :where(tanrei-table-of-contents) :where(li) > :where(a)::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    /* (At the layout's start, whatever direction the anchor's own text gave it: a stroke of no width at the other side.) */
+    left: 0;
+    right: 0;
+    border: 0 solid var(--tanrei-comp-table-of-contents-marker-color);
+    border-left-width: calc(var(--tanrei-comp-table-of-contents-marker-width) * var(--_toc-left));
+    border-right-width: calc(var(--tanrei-comp-table-of-contents-marker-width) * var(--_toc-right));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--tanrei-comp-table-of-contents-motion-state-duration) var(--tanrei-comp-table-of-contents-motion-state-easing);
+  }
+
+  /* ── The current item (TOC-7, TOC-8): the current part's tokens, the heavier label, the marker ──────────────── */
+  :where(tanrei-table-of-contents) :where(li) > :where(a[aria-current]:not([aria-current='false'])) {
+    --_toc-container: var(--tanrei-comp-table-of-contents-current-container-color);
+    --_toc-label: var(--tanrei-comp-table-of-contents-current-label-color);
+    --_toc-hovered-container: var(--tanrei-comp-table-of-contents-current-hovered-container-color);
+    --_toc-hovered-label: var(--tanrei-comp-table-of-contents-current-hovered-label-color);
+    --_toc-focused-container: var(--tanrei-comp-table-of-contents-current-focused-container-color);
+    --_toc-focused-label: var(--tanrei-comp-table-of-contents-current-focused-label-color);
+    --_toc-pressed-container: var(--tanrei-comp-table-of-contents-current-pressed-container-color);
+    --_toc-pressed-label: var(--tanrei-comp-table-of-contents-current-pressed-label-color);
+    font-weight: var(--tanrei-comp-table-of-contents-label-typescale-font-weight-emphasized);
+  }
+  :where(tanrei-table-of-contents) :where(li) > :where(a[aria-current]:not([aria-current='false']))::before {
+    opacity: 1;
+  }
+
+  /* ── States (TOC-18): pressed over focused over hovered, each from its own tokens ───────────────────────────── */
+  @media (hover: hover) {
+    :where(tanrei-table-of-contents) :where(li) > :where(a:hover) {
+      --_toc-now-container: var(--_toc-hovered-container);
+      --_toc-now-label: var(--_toc-hovered-label);
+      opacity: var(--tanrei-comp-table-of-contents-hovered-opacity);
+    }
+  }
+  /* TOC-19: the focus indicator, inside the row, so that neither a neighbouring row nor the edge of a scrolling
+     region cuts it; never animated, never for a pointer. The outer stroke on the row's edge, the inner stroke (where
+     the system has one) within it. */
+  :where(tanrei-table-of-contents) :where(li) > :where(a:focus-visible) {
+    --_toc-now-container: var(--_toc-focused-container);
+    --_toc-now-label: var(--_toc-focused-label);
+    opacity: var(--tanrei-comp-table-of-contents-focused-opacity);
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: calc(var(--tanrei-sys-focus-outer-width) * -1);
+  }
+  :where(tanrei-table-of-contents) :where(li) > :where(a:focus-visible)::after {
+    content: '';
+    position: absolute;
+    inset: var(--tanrei-sys-focus-outer-width);
+    border: var(--tanrei-sys-focus-inner-width) solid var(--tanrei-sys-color-focus-ring-inner);
+    border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--tanrei-sys-focus-outer-width)));
+    pointer-events: none;
+  }
+  /* TOC-22, focus-style: glow — the same two colors as a halo inside the row; read by a style query, and from
+     data-focus-style (written by the element when focus arrives) where there are none. */
+  @container style(--tanrei-sys-behavior-focus-style: glow) {
+    :where(tanrei-table-of-contents) :where(li) > :where(a:focus-visible) {
+      /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
+      outline-color: transparent;
+    }
+    :where(tanrei-table-of-contents) :where(li) > :where(a:focus-visible)::after {
+      --_toc-glow-inset: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
+      inset: var(--_toc-glow-inset);
+      border: 0;
+      border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--_toc-glow-inset)));
+      box-shadow:
+        0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+        0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+    }
+  }
+  :where(tanrei-table-of-contents) :where(li) > :where(a[data-focus-style='glow']:focus-visible) {
+    /* Transparent, not none: forced colors repaint it in a system color, where a box-shadow is dropped. */
+    outline-color: transparent;
+  }
+  :where(tanrei-table-of-contents) :where(li) > :where(a[data-focus-style='glow']:focus-visible)::after {
+    --_toc-glow-inset: calc((var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) * 2);
+    inset: var(--_toc-glow-inset);
+    border: 0;
+    border-radius: max(0px, calc(var(--tanrei-corner-radius) * var(--_corner-scale) - var(--_toc-glow-inset)));
+    box-shadow:
+      0 0 var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-focus-inner-width) var(--tanrei-sys-color-focus-ring-inner),
+      0 0 var(--tanrei-sys-focus-outer-width) calc(var(--tanrei-sys-focus-inner-width) + var(--tanrei-sys-focus-outer-width)) var(--tanrei-sys-color-focus-ring);
+  }
+  /* TOC-20, without script: the overlay at once, and the two names keep the container for press-hold after. */
+  :where(tanrei-table-of-contents) :where(li) > :where(a:active:not([data-pressed])) {
+    --_toc-held-image: linear-gradient(var(--_toc-pressed-container), var(--_toc-pressed-container)), none;
+    --_toc-held-clip: border-box, text;
+    --_toc-now-label: var(--_toc-pressed-label);
+    opacity: var(--tanrei-comp-table-of-contents-pressed-opacity);
+    transition-duration: 0s;
+    transition-delay: 0s;
+  }
+  /* TOC-20, TOC-21, with the script: `data-pressed` names the feedback. `none` changes nothing at all. */
+  :where(tanrei-table-of-contents) :where(li) > :where(a[data-pressed]:not([data-pressed='none'])) {
+    transition-duration: 0s;
+  }
+  :where(tanrei-table-of-contents) :where(li) > :where(a[data-pressed='overlay']) {
+    --_toc-now-container: var(--_toc-pressed-container);
+    --_toc-now-label: var(--_toc-pressed-label);
+    opacity: var(--tanrei-comp-table-of-contents-pressed-opacity);
+  }
+  /* ripple, dim: everything but the container color, which stays with the state under the press. */
+  :where(tanrei-table-of-contents) :where(li) > :where(a[data-pressed='ripple'], a[data-pressed='dim']) {
+    --_toc-now-label: var(--_toc-pressed-label);
+    opacity: var(--tanrei-comp-table-of-contents-pressed-opacity);
+  }
+  /* The ripple's layer (src/primitives/ripple.ts adds it and sets --_x, --_y, --_r): the pressed container color,
+     clipped to the row and to a circle around the point of contact, under the label and the marker. */
+  :where(tanrei-table-of-contents) :where(li) > :where(a) > :where(.ripple) {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    corner-shape: inherit;
+    background: var(--_toc-pressed-container);
+    pointer-events: none;
+    clip-path: circle(var(--_r) at var(--_x) var(--_y));
+    animation: tanrei-table-of-contents-ripple var(--tanrei-comp-table-of-contents-motion-feedback-duration) var(--tanrei-comp-table-of-contents-motion-state-easing) both;
+    transition: opacity var(--tanrei-comp-table-of-contents-motion-state-duration) var(--tanrei-comp-table-of-contents-motion-state-easing);
+  }
+  :where(tanrei-table-of-contents) :where(li) > :where(a) > :where(.ripple.leaving) {
+    opacity: 0;
+  }
+  @keyframes tanrei-table-of-contents-ripple {
+    from {
+      clip-path: circle(0 at var(--_x) var(--_y));
+    }
+  }
+
+  /* ── Where motion is reduced (TOC-7, TOC-23): every change at once; the hold stays ──────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    :where(tanrei-table-of-contents) :where(li) > :where(a) {
+      transition:
+        --_toc-held-image 0s linear var(--tanrei-sys-motion-duration-press-hold),
+        --_toc-held-clip 0s linear var(--tanrei-sys-motion-duration-press-hold);
+      transition-behavior: allow-discrete;
+    }
+    :where(tanrei-table-of-contents) :where(li) > :where(a)::before {
+      transition: none;
+    }
+    :where(tanrei-table-of-contents) :where(li) > :where(a) > :where(.ripple) {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  /* ── Forced colors (TOC-34): labels in the link color, the current label, the title, the rail and the marker in
+     the text color, focus in the highlight ───────────────────────────────────────────────────────────────────── */
+  @media (forced-colors: active) {
+    :where(tanrei-table-of-contents[label])::before,
+    :where(tanrei-table-of-contents) > :where([slot='title']) {
+      color: CanvasText;
+    }
+    :where(tanrei-table-of-contents) > :where(ul, ol)::before {
+      border-inline-start-color: CanvasText;
+    }
+    :where(tanrei-table-of-contents) :where(li) > :where(a) {
+      /* The container is the platform's, and so is a press: no layer of the row's own. */
+      background-image: none;
+      background-clip: border-box;
+      color: LinkText;
+    }
+    :where(tanrei-table-of-contents) :where(li) > :where(a[aria-current]:not([aria-current='false'])) {
+      color: CanvasText;
+    }
+    :where(tanrei-table-of-contents) :where(li) > :where(a)::before {
+      border-color: CanvasText;
+    }
+    :where(tanrei-table-of-contents) :where(li) > :where(a:focus-visible) {
+      outline-color: Highlight;
+    }
+  }
+}

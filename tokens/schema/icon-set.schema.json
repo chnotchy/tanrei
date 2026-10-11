@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tanrei.chnotchy.com/schemas/icon-set.schema.json",
+  "title": "Tanrei icon set",
+  "description": "Facts about one icon set that its font files do not carry. One file per icon set: tokens/icon-sets/<id>.icon-set.json. A design system uses the file whose `families` holds the first family of its sys.icon.family.unselected; a system whose icon set has no file mirrors no glyph by itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "families",
+    "mirrored"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "Must equal the file name: <id>.icon-set.json"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "families": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      },
+      "description": "The font family names this file describes, as a system writes them in ref.typeface.icon or sys.icon.family.*. A family belongs to one icon-set file only."
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "url",
+        "license",
+        "revision",
+        "obtained",
+        "method"
+      ],
+      "description": "Where the list came from, so that it can be regenerated and attributed. Required for a set Tanrei ships; a product's own set may omit it.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "obtained": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "method": {
+          "type": "string"
+        }
+      }
+    },
+    "mirrored": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "description": "The glyph names that are mirrored left to right in a right-to-left layout, sorted. Every other name of the set is drawn as it is in every layout direction."
+    }
+  }
+}

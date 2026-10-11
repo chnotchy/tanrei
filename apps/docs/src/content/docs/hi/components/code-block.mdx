@@ -1,0 +1,296 @@
+---
+title: कोड ब्लॉक
+description: पढ़ने, तुलना करने और कॉपी करने के लिए कोड की पंक्तियाँ, कोड के टाइपफ़ेस में, जो अपने भीतर स्क्रॉल होती हैं या रैप होती हैं, और जिनके साथ हेडर, पंक्ति संख्याएँ, चिह्नित पंक्तियाँ, प्रॉम्प्ट और कॉपी बटन वैकल्पिक हैं। कोड और उसकी भाषा मिलने पर यह कोड को ख़ुद हाइलाइट करता है।
+translationOf: components/code-block.mdx
+sourceHash: 3f2cb34d6a6385776faace656f870690072e864d
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+export const runs = (list) => list.map(([text, syntax]) => (syntax ? <span data-syntax={syntax}>{text}</span> : text));
+
+export const footer = `// फ़ॉर्म का फ़ुटर: एक मुख्य क्रिया, बाहर निकलने का एक रास्ता।
+import { Button } from '@tanrei/react';
+
+type FooterProps = { onSave: () => void; busy: boolean };
+
+export function Footer({ onSave, busy }: FooterProps) {
+  const retries = 3;
+  return (
+    <footer className="footer">
+      <Button variant="text">रद्द करें</Button>
+      <Button disabled={busy} onClick={onSave}>सेव करें</Button>
+    </footer>
+  );
+}`;
+
+export const given = [
+  ['{', 'punctuation'], ['\n  '], ['"name"', 'property'], [':', 'punctuation'], [' '], ['"acme"', 'string'], [',', 'punctuation'], ['\n  '],
+  ['"dials"', 'property'], [':', 'punctuation'], [' '], ['{', 'punctuation'], [' '], ['"size.unit"', 'property'], [':', 'punctuation'], [' '], ['4', 'constant'], [' '], ['},', 'punctuation'], ['\n  '],
+  ['"compact"', 'property'], [':', 'punctuation'], [' '], ['false', 'constant'], ['\n'],
+  ['}', 'punctuation'],
+];
+
+## अवलोकन
+
+<ComponentAvailability name="code-block" />
+
+<DemoFrame label="शीर्षक, भाषा का लेबल और कॉपी बटन; कोड अपनी भाषा के आधार पर हाइलाइट होता है" column>
+  <tanrei-code-block style="inline-size: 100%" title="Footer.tsx" language="tsx" language-label="TSX" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका">
+    <pre><code>{footer}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+कोड ब्लॉक वह कोड दिखाता है जिसे लोग पढ़ते, मिलाकर देखते और कॉपी करते हैं। वाक्य के भीतर का नाम या कमांड [इनलाइन कोड](/hi/components/inline-code/) है।
+
+**कोड ब्लॉक कोड को ख़ुद हाइलाइट करता है।** उसे कोड और उसकी `language` दें, और वह कोड को टोकन से रंग देता है: न कोई हाइलाइटर इंस्टॉल करना है, न कोई थीम या स्टाइलशीट लिखनी है। इस तरह कोड, पेज की बाक़ी हर चीज़ की तरह, स्कीम, कंट्रास्ट के स्तर और डिज़ाइन सिस्टम के साथ चलता है। हाइलाइटिंग सिर्फ़ रंग और वेट है, और कुछ नहीं: अक्षर, पंक्तियाँ, जो चुना जाता है, जो कॉपी होता है और जो स्क्रीन रीडर पढ़ता है, वे सब इसके साथ और इसके बिना एक जैसे हैं।
+
+### इस्तेमाल
+
+वेब पर कोड आपके दस्तावेज़ में ही रहता है, एक साधारण `<pre><code>` के रूप में। वह स्क्रिप्ट के बिना भी वहाँ है: उस पाठक के लिए जिसकी स्क्रिप्ट फ़ेल हो गई, सर्च इंजन के लिए, पेज में खोजने के लिए। एलिमेंट उसके चारों ओर फ़्रेम बनाता है। ब्लॉक को एलिमेंट के डिफ़ाइन होने से पहले उसका फ़िल, कोने, पैडिंग और टाइपफ़ेस देने के लिए `@tanrei/web/code.css` लोड करें।
+
+SwiftUI, Compose, Flutter और React Native नियोजित हैं: इस पेज के शुरू में हर प्लैटफ़ॉर्म के साथ दिए गए नाम वे हैं जो स्पेक उन्हें देता है, और वहाँ अभी कुछ उपलब्ध नहीं है।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <link rel="stylesheet" href="@tanrei/web/tokens.css" />
+    <link rel="stylesheet" href="@tanrei/web/code.css" />
+
+    <tanrei-code-block
+      title="sizes.js"
+      language="js"
+      language-label="JavaScript"
+      copy
+      copy-label="कॉपी करें"
+      copied-label="कॉपी हो गया"
+      copy-failed-label="कॉपी नहीं हो सका"
+    >
+      <pre><code>const sizes = ['small', 'medium', 'large'];</code></pre>
+    </tanrei-code-block>
+
+    <!-- संख्याएँ, चिह्नित पंक्तियाँ, प्रॉम्प्ट। -->
+    <tanrei-code-block label="उदाहरण" line-numbers start-line="96" highlighted-lines="98, 100-101" highlighted-label="हाइलाइट की गई">
+      <pre><code>…</code></pre>
+    </tanrei-code-block>
+
+    <tanrei-code-block label="इंस्टॉलेशन" prompt="$" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका">
+      <pre><code>npm install @tanrei/web</code></pre>
+    </tanrei-code-block>
+
+    <script type="module">
+      import '@tanrei/web';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { CodeBlock } from '@tanrei/react';
+    import '@tanrei/web/code.css';
+
+    {/* एलिमेंट कोड को पंक्तियों में रखता है, इसलिए कोड उसी के हाथ में रहने दें: टेक्स्ट पास करें। */}
+    <CodeBlock title="sizes.js" language="js" languageLabel="JavaScript" code={source} copy copyLabel="कॉपी करें" copiedLabel="कॉपी हो गया" copyFailedLabel="कॉपी नहीं हो सका" />
+    ```
+  </TabItem>
+</Tabs>
+
+`language` एक आइडेंटिफ़ायर है (`tsx`, `css`, `sh`): ब्लॉक इसी के आधार पर हाइलाइट करता है, और यह दिखाया नहीं जाता। हेडर के शब्द `language-label` हैं। स्क्रिप्ट से बनाया गया ब्लॉक `<pre><code>` रखने की जगह `code` प्रॉपर्टी सेट करता है, और एलिमेंट `<pre><code>` ख़ुद लिखता है।
+
+## स्पेक
+
+<DemoFrame label="Filled और outlined, medium और small" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" label="उदाहरण"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" variant="outlined" size="small" title="sizes.js" language="js" language-label="JavaScript" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="पंक्ति संख्याएँ, एक हाइलाइट की गई पंक्ति, और जोड़ी और हटाई गई पंक्तियाँ" plain column>
+  <tanrei-code-block style="inline-size: 100%" language="js" title="sizes.js" line-numbers highlighted-lines="1" highlighted-label="हाइलाइट की गई" removed-lines="4" added-lines="5" removed-label="हटाई गई" added-label="जोड़ी गई" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`const sizes = ['small', 'medium', 'large'];\n\nfor (const size of sizes) {\n  const button = document.createElement('button');\n  const button = document.createElement('tanrei-button');\n  button.setAttribute('size', size);\n  document.body.append(button);\n}`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="लंबी पंक्ति ब्लॉक के भीतर स्क्रॉल होती है, या रैप होती है" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="उदाहरण" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>रद्द करें</tanrei-button><tanrei-button variant="filled" @click=\${save}>बदलाव सेव करें</tanrei-button></footer>\`;\n\n// ऊपर की पंक्ति एक ही पंक्ति है: वह समाती नहीं, और कभी काटी नहीं जाती।`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" label="उदाहरण" wrap line-numbers><pre><code>{`export const footer = html\`<footer class="form-footer"><tanrei-button variant="text" @click=\${cancel}>रद्द करें</tanrei-button><tanrei-button variant="filled" @click=\${save}>बदलाव सेव करें</tanrei-button></footer>\`;\n\n// ऊपर की पंक्ति एक ही पंक्ति है: वह समाती नहीं, और कभी काटी नहीं जाती।`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+<DemoFrame label="प्रॉम्प्ट, और दिखाई जाने वाली पंक्तियों की सीमा" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="इंस्टॉलेशन" prompt="$" language="sh" language-label="Shell" copy copy-label="कॉपी करें" copied-label="कॉपी हो गया" copy-failed-label="कॉपी नहीं हो सका"><pre><code>{`npm install @tanrei/web\nnpx tanrei studio`}</code></pre></tanrei-code-block>
+  <tanrei-code-block style="inline-size: 100%" title="tide.log" max-lines="4" line-numbers><pre><code>{`01:00 tide high, gauge 1.55 m\n02:00 tide falling, gauge 1.90 m\n03:00 tide low, gauge 2.25 m\n04:00 tide rising, gauge 2.60 m\n05:00 tide high, gauge 1.20 m\n06:00 tide falling, gauge 1.55 m\n07:00 tide low, gauge 1.90 m\n08:00 tide rising, gauge 2.25 m`}</code></pre></tanrei-code-block>
+</DemoFrame>
+
+**दो रूप।** `filled` एक हल्का फ़िल है, पेज पर रखे कोड के लिए। `outlined` में एक बारीक रेखा के भीतर कोई फ़िल नहीं होता, उस कोड के लिए जो पहले से फ़िल वाले कार्ड या पैनल के भीतर है।
+
+**बॉडी।** डिफ़ॉल्ट रूप से कोई पंक्ति कभी नहीं तोड़ी जाती। जो पंक्ति नहीं समाती, वह ब्लॉक के भीतर स्क्रॉल होती है, और पेज कभी आड़ा स्क्रॉल नहीं होता। `wrap` इसकी जगह पंक्तियों को तोड़ता है, और जारी रहने वाली पंक्ति कोड के नीचे से शुरू होती है, संख्याओं के नीचे से नहीं। `max-lines` ऊँचाई को पंक्तियों की गिनती में सीमित करता है, और बाक़ी ब्लॉक के भीतर स्क्रॉल होता है।
+
+**कॉपी बटन** हमेशा दिखता है, सिर्फ़ होवर पर कभी नहीं। वह कभी ऐसे कोड को नहीं ढकता जिसे उसके नीचे से हटाया न जा सके: स्क्रॉल होने वाली बॉडी को उसके अंत में उतनी जगह मिलती है, और रैप हुई पंक्तियाँ उसके कॉलम से पहले रुक जाती हैं। वह कोड को सादे टेक्स्ट के रूप में कॉपी करता है, पंक्ति संख्याओं, प्रॉम्प्ट, चिह्नों और हटाई गई पंक्तियों के बिना। हाथ से किया गया चयन ठीक वही अक्षर कॉपी करता है जो चुने गए हैं।
+
+**चिह्नित पंक्तियाँ** कभी सिर्फ़ रंग से चिह्नित नहीं होतीं।
+
+| निशान | बाएँ किनारे पर पट्टी | बैंड | चिह्न | पंक्ति से पहले पढ़ा जाता है |
+| --- | --- | --- | --- | --- |
+| हाइलाइट की गई | हाँ | हाँ | | `highlighted-label` |
+| जोड़ी गई | हाँ | | + | `added-label` |
+| हटाई गई | हाँ | | − | `removed-label` |
+
+पंक्तियों की सूचियाँ कॉमा से अलग की गई संख्याएँ और रेंज हैं (`"3, 7-9"`)। वे उन्हीं संख्याओं में गिनी जाती हैं जो पाठक देखता है, `start-line` से।
+
+**दाएँ से बाएँ।** कोड हमेशा बाएँ से दाएँ होता है: पंक्तियाँ, संख्याएँ और स्क्रॉल की शुरुआत हर लेआउट में बाईं ओर हैं। सिर्फ़ फ़्रेम मिरर होता है, इसलिए शीर्षक दाईं ओर और कॉपी बटन बाईं ओर चला जाता है।
+
+<ComponentSpecs name="code-block" />
+
+### हाइलाइटिंग
+
+रंग तीन स्रोतों में से एक से आता है, इस क्रम में।
+
+1. **आपके दिए हुए टुकड़े।** वह कोड जो पेज बनाते समय हाइलाइट किया गया, या आपके चुने हाइलाइटर ने किया। वे जैसे दिए गए हैं वैसे ही बनते हैं, और ब्लॉक उस कोड को दोबारा कभी हाइलाइट नहीं करता, `language` और `highlight` चाहे जो कहें।
+2. **ब्लॉक का अपना हाइलाइटर**, जब `highlight` true हो, `language` किसी ऐसी भाषा का नाम हो जिसे वह जानता है, और कोड `comp.code-block.syntax.max-length` (50,000 अक्षर) से लंबा न हो।
+3. **सादा**, बाक़ी हर स्थिति में।
+
+कोड तुरंत बनता है, सादा। उसके रंग एक पल बाद आते हैं, एक ही फ़्रेम में, और कुछ भी नहीं खिसकाते। जो कोड बदलता है वह फिर से पढ़ा जाता है, और जो कोड अपने अंत में बढ़ता है वह अपने मौजूदा रंग बनाए रखता है।
+
+| `language` | क्या होता है |
+| --- | --- |
+| `html`, `xml`, `svg`, `css`, `javascript` (`js`, `mjs`, `cjs`, `jsx`), `typescript` (`ts`, `tsx`), `json` (`jsonc`), `shell` (`sh`, `bash`, `zsh`), `swift`, `kotlin` (`kt`), `dart` | हाइलाइट होता है। छोटे-बड़े अक्षरों से फ़र्क़ नहीं पड़ता। |
+| ख़ाली, `text`, `plain`, `plaintext` | सादा। कोई रिपोर्ट नहीं होती। |
+| और कुछ भी | सादा। डीबग बिल्ड अनजान भाषा की रिपोर्ट एक बार करता है। |
+
+ब्लॉक कभी भाषा का अंदाज़ा नहीं लगाता: न कोड से, न `title` से, न `language-label` से। छोटा कोड कई भाषाओं का हो सकता है, और ग़लत अंदाज़ा कोड को ग़लत रंग देता है।
+
+**इसे बंद करना।** `highlight="false"` किसी एक ब्लॉक के लिए ब्लॉक का अपना हाइलाइटर बंद करता है। आपके दिए हुए टुकड़े तब भी बनते हैं।
+
+**एक सीमा।** `comp.code-block.syntax.max-length` से लंबा कोड सादा बनता है, पूरा का पूरा, आधा हाइलाइट किया हुआ कभी नहीं। डिज़ाइन सिस्टम यह मान बदल सकता है।
+
+**जोड़ी और हटाई गई पंक्तियों के साथ** ब्लॉक कोड को उन दो टेक्स्ट के रूप में पढ़ता है जो उसमें हैं: बदलाव के बाद का कोड उन पंक्तियों को रंग देता है जो हटाई नहीं गईं, और बदलाव से पहले का कोड हटाई गई पंक्तियों को। जो हटाई गई पंक्ति कोई स्ट्रिंग खोलती है, वह अपने बाद के कोड का रंग नहीं बिगाड़ सकती।
+
+**विफलताएँ चुपचाप होती हैं।** जो हाइलाइटर लोड नहीं हो पाता, जो एरर थ्रो करता है, या जिसके टुकड़े जुड़कर ठीक वही कोड नहीं बनाते, वह कोड को सादा छोड़ देता है। हेडर, कॉपी बटन, पंक्तियाँ और निशान काम करते रहते हैं।
+
+ग्रामर जान-बूझकर छोटी रखी गई हैं। वे कोड दिखाने के लिए हैं, उसे संपादित करने के लिए नहीं। जहाँ कोई भाषा मुश्किल है, वहाँ वे किसी टुकड़े को ग़लत रंग दे सकती हैं, पर कोई अक्षर कभी नहीं छोड़तीं।
+
+### पेज बनाते समय हाइलाइट करना
+
+जो साइट अपने पेज बिल्ड करती है, वह बिल्ड में ही हाइलाइट कर सकती है। तब रंग पहले पेंट में ही होते हैं, और ब्राउज़र कोई हाइलाइटर लोड नहीं करता। `highlightToHtml` वही फ़ंक्शन है जो एलिमेंट इस्तेमाल करता है, और वह Node में चलता है।
+
+```js
+import { highlightToHtml } from '@tanrei/web/highlight';
+
+const html = await highlightToHtml(source, 'tsx');
+// <tanrei-code-block language="tsx"><pre><code data-syntax-of="tsx">${html}</code></pre></tanrei-code-block>
+```
+
+`<code>` पर `data-syntax-of` बताता है कि कोड हाइलाइट किया जा चुका है। एलिमेंट उसे जैसा दिया गया है वैसा ही बनाता है और कुछ इंपोर्ट नहीं करता।
+
+### आपका अपना हाइलाइटर
+
+`@tanrei/web/highlight` अपने आप में एक मॉड्यूल है, जिसकी कोई डिपेंडेंसी नहीं है। एलिमेंट उसे तब इंपोर्ट करता है जब किसी ब्लॉक को पहली बार उसकी ज़रूरत पड़ती है, और हर भाषा की ग्रामर तब, जब वह भाषा पहली बार माँगी जाती है।
+
+| एक्सपोर्ट | यह क्या करता है |
+| --- | --- |
+| `highlight(code, language)` | टुकड़े, या जिस भाषा को वह नहीं जानता उसके लिए `null`। किसी भाषा के पहले इस्तेमाल पर प्रॉमिस, उसके बाद मान। |
+| `highlightToHtml(code, language, { lines })` | `<code>` का भीतरी HTML। `lines` के साथ, हर पंक्ति के लिए एक `<span data-line>`। |
+| `registerLanguage(names, grammar)` | कोई भाषा जोड़ता है या किसी की जगह दूसरी रखता है। ग्रामर डेटा है: नाम वाले स्टेट, जिनमें से हर एक नियमों की सूची है, और हर नियम में एक पैटर्न, एक रोल और वह स्टेट है जिसमें जाना है या जिससे निकलना है। वह ग्रामर को इंपोर्ट करने वाला फ़ंक्शन भी हो सकती है। |
+| `loadLanguage(language)` | किसी भाषा के पहले कोड से पहले ही उसकी ग्रामर लोड करता है। |
+| `setHighlighter(fn)` | पूरे हाइलाइटर की जगह दूसरा रखता है। `null` पेज के लिए अपने आप होने वाली हाइलाइटिंग बंद करता है। |
+| `languages()` | हर वह नाम जिससे कोई भाषा पहचानी जाती है। |
+| `foldScope(scopes, text)` | डॉट वाले स्कोप नाम का रोल, नीचे की टेबल के हिसाब से। |
+| `tokenize(grammar, code)`, `checkGrammar(grammar)` | आपकी लिखी ग्रामर को टेस्ट करने के लिए। |
+
+जिस प्रॉडक्ट के पास पहले से ऐसा हाइलाइटर है जिस पर उसे भरोसा है, वह `TanreiCodeBlock.highlighter` को `(code, language, signal) => runs` फ़ंक्शन पर भी सेट कर सकता है। तब ब्लॉक उसी फ़ंक्शन से पूछता है, और Tanrei का मॉड्यूल कभी लोड नहीं होता।
+
+### सिंटैक्स रोल
+
+| रोल (`data-syntax`) | यह क्या है | डिफ़ॉल्ट सिस्टम में |
+| --- | --- | --- |
+| `comment` | कमेंट, डॉक्यूमेंटेशन कमेंट | कोड से ज़्यादा हल्का |
+| `keyword` | भाषा के अपने शब्दों में से एक: कीवर्ड, मॉडिफ़ायर, at-rule, ऐनोटेशन, शब्द के रूप में लिखा गया ऑपरेटर | बैंगनी, वेट का एक स्टेप भारी |
+| `string` | कोड में लिखा गया टेक्स्ट: स्ट्रिंग, कैरेक्टर, रेगुलर एक्सप्रेशन, मार्कअप के ऐट्रिब्यूट का मान | हरा |
+| `constant` | वह मान जो टेक्स्ट नहीं है: संख्या, boolean, null, नाम वाला कॉन्स्टेंट, इकाई, रंग का मान, एस्केप | नारंगी |
+| `function` | फ़ंक्शन या मेथड का नाम, चाहे वह घोषित किया गया हो या कॉल किया गया हो | नीला |
+| `type` | टाइप का नाम: क्लास, स्ट्रक्चर, इंटरफ़ेस, बिल्ट-इन टाइप, नेमस्पेस | नीला-हरा |
+| `tag` | वह जिसे मार्कअप और स्टाइलशीट संबोधित करते हैं: एलिमेंट का नाम, मार्कअप में कंपोनेंट का नाम, सिलेक्टर | लाल |
+| `property` | वह नाम जो किसी चीज़ का है: प्रॉपर्टी, कुंजी, मार्कअप का ऐट्रिब्यूट, स्टाइल की प्रॉपर्टी, कमांड का विकल्प | नीला, उस टोन में जो कोड के रंग के ज़्यादा क़रीब है |
+| `punctuation` | ब्रैकेट, सेपरेटर, मार्कअप के डिलिमिटर | कोड से ज़्यादा हल्का |
+| सादा (कोई span नहीं) | बाक़ी सब कुछ: वेरिएबल, पैरामीटर, चिह्न के रूप में लिखे गए ऑपरेटर, टैग के बीच का टेक्स्ट | कोड का रंग |
+
+हर रोल के दो टोकन हैं: एक रंग (`comp.code-block.syntax.color.*`) और वेट का एक स्टेप (`comp.code-block.syntax.emphasis.*`)। रोल टोकन का एक अक्ष हैं, इसलिए डिज़ाइन सिस्टम नया रोल जोड़ सकता है। डिफ़ॉल्ट सिस्टम के हरा और लाल सिंटैक्स के अपने पैलेट से आते हैं, और उनकी रंगत सफलता और त्रुटि के रंगों के क़रीब है। जोड़ी गई या हटाई गई पंक्ति अपनी पट्टी, अपने चिह्न और अपने लेबल से पहचानी जाती है, सिर्फ़ रंग से कभी नहीं। रोल सिर्फ़ रंग और वेट बदलता है, इसलिए हाइलाइट किए गए और सादे कोड की पंक्तियाँ और कॉलम एक जैसे रहते हैं।
+
+टुकड़ा `<code>` के भीतर एक `<span data-syntax="…">` है। span के बाहर का टेक्स्ट सादा है।
+
+<DemoFrame label="आपके दिए हुए टुकड़े जैसे दिए गए हैं वैसे ही बनते हैं" plain column>
+  <tanrei-code-block style="inline-size: 100%" label="उदाहरण">
+    <pre><code>{runs(given)}</code></pre>
+  </tanrei-code-block>
+</DemoFrame>
+
+### हाइलाइटर के स्कोप को रोल में समेटना
+
+कुछ हाइलाइटर जो पाते हैं उसे एक साझा शब्दावली के डॉट वाले स्कोप नामों से नाम देते हैं। `foldScope` उन्हें रोल में समेटता है, ताकि आपका हाइलाइटर और Tanrei का हाइलाइटर एक जैसे रंग दें। किसी टोकन के स्कोप सबसे विशिष्ट से शुरू करके बाहर की ओर आज़माए जाते हैं। एक स्कोप के भीतर पहली मेल खाने वाली पंक्ति जीतती है। जो स्कोप किसी पंक्ति से मेल नहीं खाता वह छोड़ दिया जाता है, और जो टोकन किसी से मेल नहीं खाता वह सादा है।
+
+| # | स्कोप इससे शुरू होता है | रोल |
+| --- | --- | --- |
+| 1 | `comment`, `punctuation.definition.comment` | `comment` |
+| 2 | `constant.character.escape`, `constant.numeric`, `constant.language`, `constant.other`, `keyword.other.unit`, `support.constant`, `variable.other.constant`, `variable.other.enummember` | `constant` |
+| 3 | `string`, `punctuation.definition.string`, `markup.inline.raw`, `markup.raw` | `string` |
+| 4 | `entity.name.tag`, `support.class.component`, `meta.selector`, और स्टाइलशीट में `entity.other.attribute-name` | `tag` |
+| 5 | `entity.other.attribute-name`, `support.type.property-name`, `meta.property-name`, `meta.object-literal.key`, `variable.other.property`, `variable.other.object.property`, `support.type.vendored.property-name`, `variable.parameter.option` | `property` |
+| 6 | `entity.name.function`, `support.function`, `variable.function`, `meta.function-call.generic` | `function` |
+| 7 | `entity.name.type`, `entity.name.class`, `entity.name.namespace`, `entity.other.inherited-class`, `support.type`, `support.class`, `storage.type.primitive`, `storage.type.built-in`, `keyword.type` | `type` |
+| 8 | वह `keyword.operator` जिसका टेक्स्ट अक्षरों से बना है (`new`, `typeof`, `in`) | `keyword` |
+| 9 | बाक़ी हर `keyword.operator` | सादा |
+| 10 | `keyword`, `storage`, `variable.language`, `meta.decorator`, `punctuation.decorator`, `entity.name.function.decorator`, `markup.heading` | `keyword` |
+| 11 | `punctuation`, `meta.brace`, `meta.delimiter` | `punctuation` |
+| 12 | `variable`, `meta`, `source`, `text`, `markup`, `invalid` | सादा |
+
+- स्ट्रिंग के कोट string का हिस्सा हैं। स्ट्रिंग के भीतर का एस्केप constant है।
+- JSON की कुंजियाँ property हैं, और उनके मान string और constant।
+- डेकोरेटर का नाम keyword है।
+- `invalid` सादा है। कोड दिखाने वाली चीज़ कोड को परखती नहीं।
+- जोड़ा गया और हटाया गया होना पंक्ति की प्रॉपर्टी हैं (`added-lines`, `removed-lines`), टुकड़े की नहीं।
+
+### वेब क्या अलग ढंग से बनाता है
+
+- एलिमेंट हर पंक्ति को `<span data-line>` में लपेटकर उसे एक बॉक्स देता है। वह आपके नोड को इधर-उधर करता है और टेक्स्ट और टुकड़ों को लाइन ब्रेक पर बाँटता है, और कोड में कोई अक्षर नहीं जोड़ता। जो फ़्रेमवर्क `<code>` के चाइल्ड अपने हाथ में रखता है, उसे इसकी जगह `code` पास करना चाहिए, या `[data-line]` ख़ुद रेंडर करना चाहिए।
+- चिह्नित पंक्ति का लेबल पंक्ति के कोड से पहले एक छिपा हुआ `<span>` है। वह `<code>` के `textContent` का हिस्सा है, और जो कॉपी होता है उसमें शामिल नहीं होता।
+- outlined रूप उसी पर बनता है जिस पर उसे रखा गया है। जहाँ वह सरफ़ेस का रंग नहीं है, वहाँ उसका नाम `--tanrei-code-block-ground` में दें, ताकि पंक्ति संख्याएँ और कॉपी बटन उस पर टिक सकें जब कोड उनके नीचे से स्क्रॉल होता है।
+- एलिमेंट के डिफ़ाइन होने से पहले `code.css` फ़िल, कोने, पैडिंग और टुकड़ों के रंग बनाती है। हेडर, कॉपी बटन, संख्याओं और निशानों के लिए एलिमेंट चाहिए।
+- `highlight` डिफ़ॉल्ट रूप से true है, इसलिए उसका ऐट्रिब्यूट उसे बंद करने के लिए लिखा जाता है: `highlight="false"`। प्रॉपर्टी boolean लेती है।
+- एलिमेंट अपने टुकड़े आपके `<code>` में span के रूप में लिखता है, एक बार में एक पंक्ति, और उन्हें अपने टुकड़ों के रूप में चिह्नित करता है। जो फ़्रेमवर्क `<code>` के चाइल्ड अपने हाथ में रखता है, उसे `code` पास करना चाहिए और उन्हें एलिमेंट को लिखने देना चाहिए।
+- सीमा कस्टम प्रॉपर्टी `--tanrei-comp-code-block-syntax-max-length` से पढ़ी जाती है, जैसी कैस्केड उसे ब्लॉक को देता है।
+- जो पेज सिंगल-फ़ाइल बंडल इस्तेमाल करता है, उसमें हाइलाइटर बंडल के भीतर ही है। जो पेज `@tanrei/web` को मॉड्यूल के रूप में इंपोर्ट करता है, वह उसे ज़रूरत पड़ने पर लोड करता है।
+
+## दिशानिर्देश
+
+### करें
+
+- जो ब्लॉक स्क्रॉल हो सकता है, उसे `title` या `label` दें। स्क्रॉल होने वाली बॉडी फ़ोकस का एक पड़ाव है और उसे नाम चाहिए।
+- कार्ड या पैनल के भीतर `outlined` इस्तेमाल करें, और पेज पर और रंगीन कंटेनर पर `filled`।
+- टाइप किए जाने वाले कमांड के ब्लॉक के लिए प्रॉम्प्ट इस्तेमाल करें। प्रॉम्प्ट कॉपी नहीं होता।
+- हर ब्लॉक को उसकी `language` दें। जिस टेक्स्ट का कोई सिंटैक्स नहीं है, उसके लिए `language="text"` इस्तेमाल करें।
+- कई फ़ाइलों या भाषाओं को [टैब](/hi/components/tabs/) में रखें, जिनमें से हर एक में एक कोड ब्लॉक हो।
+
+### न करें
+
+- वाक्य के भीतर के नाम के लिए कोड ब्लॉक इस्तेमाल न करें। इनलाइन कोड इस्तेमाल करें।
+- कुछ कहने के लिए सिंटैक्स के रंगों पर निर्भर न रहें। वही कोड सादा बनने पर भी वही बात कहे।
+- कमांड और उनके आउटपुट को एक ही प्रॉम्प्ट के नीचे न मिलाएँ। हर उस पंक्ति को प्रॉम्प्ट मिलता है जो ख़ाली नहीं है। दो ब्लॉक इस्तेमाल करें।
+
+## सुलभता
+
+<ComponentAccessibility name="code-block" />
+
+### कंपोनेंट क्या सँभालता है
+
+- कोड एक ग्रुप के भीतर का `code` एलिमेंट है, और ग्रुप का नाम `title` से आता है, या `label` से।
+- जो बॉडी स्क्रॉल हो सकती है, वह फ़ोकस के क्रम में एक पड़ाव है, कॉपी बटन के बाद, और ऐरो कुंजियों से स्क्रॉल होती है। जो बॉडी समा जाती है वह पड़ाव नहीं है, इसलिए छोटे उदाहरणों वाला पेज कोई पड़ाव नहीं जोड़ता।
+- पंक्ति संख्याएँ, चिह्न, पट्टियाँ और प्रॉम्प्ट सहायक तकनीक से छिपे रहते हैं। चिह्नित पंक्ति से पहले उसका लेबल शब्दों में आता है।
+- कोड ब्लॉक की वजह से पेज कभी आड़ा स्क्रॉल नहीं होता, 320 की चौड़ाई पर भी और टेक्स्ट के दोगुने साइज़ पर भी।
+- फ़ोर्स्ड कलर्स में हर रूप को एक किनारा मिलता है, सारा कोड टेक्स्ट के रंग का होता है, और पट्टियाँ और चिह्न बने रहते हैं।
+- हाइलाइटिंग सहायक तकनीक के लिए कुछ नहीं जोड़ती। कोई रोल नहीं दिया जाता, और रंगों का आना पढ़कर नहीं सुनाया जाता। चयन, फ़ोकस और स्क्रॉल की जगह बनी रहती है।
+- लाल और हरे में फ़र्क़ करने में कठिनाई वाली रंग दृष्टि में छह रंगतों में से कुछ एक-दूसरे के क़रीब दिखती हैं, सबसे पहले स्ट्रिंग का हरा और टैग के नाम का लाल। कीवर्ड वेट से भी पहचाने जाते हैं।
+
+### आपको क्या करना है
+
+- `copy` के साथ `copy-label`, `copied-label` और `copy-failed-label` दें, और जो भी निशान आप इस्तेमाल करते हैं उसका लेबल, अपने प्रॉडक्ट की भाषा में।
+- ब्लॉक के आसपास के टेक्स्ट में बताएँ कि हाइलाइट की गई पंक्ति क्या दिखाती है। लेबल सिर्फ़ यह कहता है कि वह हाइलाइट की गई है।

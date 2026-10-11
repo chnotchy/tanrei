@@ -1,0 +1,1003 @@
+{
+  "$schema": "./component.schema.json",
+  "name": "popover",
+  "title": "Popover",
+  "summary": "Shows content a person can read and operate on a small surface that opens beside the control they pressed and stays with it, without dimming or blocking the rest of the page.",
+  "category": "containment",
+  "level": "base",
+  "listing": "default",
+  "uses": [
+    "button"
+  ],
+  "anatomy": [
+    {
+      "id": "anchor",
+      "description": "The element the popover stands beside: the product's own control (a Button, an icon-only Button, a chip, a field). The popover reads its place, never draws or restyles it. It is also the opener — the element a person presses to open the popover, which carries the open state and takes focus back — unless the product names another element as the opener (a field that anchors the surface, with a button inside it that opens it)."
+    },
+    {
+      "id": "container",
+      "description": "The raised surface that holds everything else, placed on one side of the anchor and aligned along it. It answers no pointer and no press itself and has no states: what is operated is inside it."
+    },
+    {
+      "id": "arrow",
+      "description": "A triangle on the container's edge that faces the anchor, pointing at it; one shape with the container.",
+      "optional": true
+    },
+    {
+      "id": "header",
+      "description": "The row at the top that holds the headline and the close button. It stays in place while the content scrolls.",
+      "optional": true
+    },
+    {
+      "id": "headline",
+      "description": "What the popover is about (\"Filters\", \"Share this page\"). It is the popover's accessible name where it is given.",
+      "optional": true
+    },
+    {
+      "id": "close-button",
+      "description": "An icon-only Button of the small size showing the close glyph at the end of the header, in the variant comp.popover.close-button.variant names (text in the default system). The popover places it and chooses its variant; everything else it reads from Button's own tokens.",
+      "optional": true
+    },
+    {
+      "id": "content",
+      "description": "Whatever the product puts in the popover: text, links, fields, a list, a few settings. The popover insets it, hands it a content color and scrolls it between the header and the actions; it does not lay it out."
+    },
+    {
+      "id": "divider",
+      "description": "Hairlines across the container below the header and above the actions, drawn only while the content scrolls.",
+      "optional": true
+    },
+    {
+      "id": "actions",
+      "description": "Tanrei Buttons at the foot of the popover, each marked confirming or dismissive where it is one, laid out as a Button group. A Button whose variant the product did not set is tonal in the default system. Optional: a popover whose content acts at once (a setting, a link) needs none.",
+      "optional": true
+    }
+  ],
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the popover is shown. The product opens it when its opener is pressed, and never on hover or on focus. Where open is a plain value (web, Compose, React Native) the product closes the popover by setting it to false when the popover emits close; where it is a binding or a controller (SwiftUI, Flutter) the popover closes itself through it (POP-21)."
+    },
+    {
+      "name": "placement",
+      "type": "enum",
+      "values": [
+        "top",
+        "top-start",
+        "top-end",
+        "bottom",
+        "bottom-start",
+        "bottom-end",
+        "start",
+        "start-top",
+        "start-bottom",
+        "end",
+        "end-top",
+        "end-bottom",
+        "auto"
+      ],
+      "default": "bottom-start",
+      "description": "Where the popover prefers to stand: a side of the anchor, and how it lines up along that side (POP-2). The thirteen values are the tooltip's, read the same way; the menu's four are among them. top and bottom centre it above or below the anchor; with -start or -end its start or end edge meets the anchor's. start and end centre it beside the anchor; with -top or -bottom its top or bottom edge meets the anchor's. auto takes the first side with room (POP-3). Start and end follow the layout direction. The popover flips to the opposite side when the preferred one has no room, keeping the alignment (POP-5). The default is the menu's: below the anchor, start edges aligned."
+    },
+    {
+      "name": "offset",
+      "type": "number",
+      "default": null,
+      "description": "The distance between the anchor's edge and the popover, in the platform's layout units; 0 lets them touch. Null takes comp.popover.offset, the system's answer for every popover. Set it only where one anchor's box is not what the eye takes for its edge."
+    },
+    {
+      "name": "crossOffset",
+      "type": "number",
+      "default": 0,
+      "description": "How far the popover moves along the side it stands on, in the platform's layout units, from where placement puts it: positive towards the end for a popover above or below, towards the bottom for one beside. It never moves the popover off the anchor's side (POP-4)."
+    },
+    {
+      "name": "arrow",
+      "type": "boolean",
+      "default": null,
+      "description": "Whether the popover draws an arrow that points at the anchor. Null, the default, takes comp.popover.arrow.visible, the system's choice, which is off in the default system (POP-10)."
+    },
+    {
+      "name": "width",
+      "type": "enum",
+      "values": [
+        "content",
+        "anchor"
+      ],
+      "default": "content",
+      "description": "What decides the container's width. content: as wide as its content, between comp.popover.container.min-width and comp.popover.container.max-width. anchor: as wide as the anchor, for a surface that drops from a field and should read as its continuation (POP-7). A structural choice drawn by code, not a token axis."
+    },
+    {
+      "name": "inset",
+      "type": "boolean",
+      "default": true,
+      "description": "Insets the content by the container's paddings. Set it to false for content that pads itself or reaches the edges (a list whose rows carry their own padding, an image); the header and the actions keep their insets."
+    },
+    {
+      "name": "initialFocus",
+      "type": "enum",
+      "values": [
+        "popover",
+        "anchor"
+      ],
+      "default": "popover",
+      "description": "Where focus is when the popover has opened. popover: focus moves into it (POP-19), which is right whenever the opener is a button. anchor: focus stays where it is, for a popover that opens under a field the person is typing in, whose keys the field keeps; Tab then moves into the popover (POP-20)."
+    },
+    {
+      "name": "headline",
+      "type": "string",
+      "default": "",
+      "description": "What the popover is about, drawn in its header and used as its accessible name. Empty draws no headline; the popover is then named by label."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "",
+      "description": "Names the popover for assistive technology where it draws no headline (\"Text formatting\"). Never drawn. Required while headline is empty; ignored while headline is given."
+    },
+    {
+      "name": "closable",
+      "type": "boolean",
+      "default": false,
+      "description": "Draws the close button at the end of the header. Escape and a press outside already close a popover, so the button is for a popover large enough to cover what a person would press outside it, and for touch, where there is no Escape."
+    },
+    {
+      "name": "closeLabel",
+      "type": "string",
+      "default": "",
+      "description": "The close button's accessible name (\"Close filters\"). Required while closable is true.",
+      "words": "closeLabel"
+    }
+  ],
+  "items": [
+    {
+      "name": "action",
+      "summary": "One action at the foot of the popover: a Tanrei Button, placed by the popover as a Button group places its items and given the popover's variant unless the product set one.",
+      "component": "button",
+      "props": [
+        {
+          "name": "variant",
+          "type": "string",
+          "default": "",
+          "description": "The Button's variant (filled, tonal, elevated, outlined, text, or one a system added). Empty, the default: the popover gives it the variant comp.popover.actions.variant names, tonal in the default system (POP-16). Set it to give one action another look."
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": false,
+          "description": "As the Button's disabled. A disabled action keeps its place and its share of the width."
+        },
+        {
+          "name": "confirming",
+          "type": "boolean",
+          "default": false,
+          "description": "The action completes what the popover is for (Apply, Save, Share). Placed at the end of a row and at the top of a column (BGR-13, BGR-14). It decides the place only, never the look (BGR-19)."
+        },
+        {
+          "name": "dismissive",
+          "type": "boolean",
+          "default": false,
+          "description": "The action backs out (Cancel, Reset). Placed at the start of a row and at the bottom of a column (BGR-13, BGR-14). It decides the place only, never the look (BGR-19)."
+        }
+      ],
+      "slots": [
+        {
+          "name": "label",
+          "description": "The Button's label, as its default slot. A fixture item's content is this label."
+        }
+      ],
+      "events": [
+        {
+          "name": "click",
+          "description": "The action was activated, as the Button's click. The popover does not close by itself (POP-17)."
+        }
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "description": "The content, below the header. A fixture's content string is plain text, which takes sys.typescale.body in the content color (POP-14)."
+    },
+    {
+      "name": "actions",
+      "description": "The action items: Tanrei Buttons, each marked confirming or dismissive where it is one. The popover places them (POP-15) and gives those without a variant its own (POP-16). A fixture fills it through its items."
+    }
+  ],
+  "events": [
+    {
+      "name": "close",
+      "description": "The popover asks to be closed, every overlay opened from inside it with it: Escape or the platform's back, a press outside, focus leaving it, its close button, or its anchor going out of sight. Carries which of these it was, named escape, back, outside, focus-out, close or anchor-hidden (in the platform's casing). An action never causes it (POP-17)."
+    }
+  ],
+  "states": [
+    "enabled"
+  ],
+  "behavior": [
+    {
+      "id": "POP-1",
+      "text": "WHEN open becomes true THE popover SHALL present its container in the platform's overlay layer, the one the menu's surface uses (the web's top layer through the popover API, an overlay SwiftUI draws above its anchor, Compose's Popup, Flutter's Overlay, React Native's overlay layer that TanreiProvider renders), above the other content of its window at comp.popover.container.elevation; WHILE it is open THE popover SHALL NOT trap focus, SHALL NOT make any other part of the window inert, unscrollable or hidden from assistive technology and SHALL draw no scrim: it is an operated overlay that is not modal. WHEN open becomes false THE popover SHALL remove the container."
+    },
+    {
+      "id": "POP-2",
+      "text": "THE popover SHALL read placement as a side and an alignment along that side, as the tooltip reads the same thirteen values (TIP-22): top and bottom SHALL put the container above or below the anchor with its centre on the anchor's, top-start and bottom-start with its start edge on the anchor's start edge, and top-end and bottom-end with its end edge on the anchor's end edge; start and end SHALL put it beside the anchor, on the side the layout direction gives that name, with its centre on the anchor's, start-top and end-top with its top edge on the anchor's top edge, and start-bottom and end-bottom with its bottom edge on the anchor's bottom edge. WHEN placement changes while the popover is shown THE popover SHALL take its new place at once, without a motion, keeping its focus."
+    },
+    {
+      "id": "POP-3",
+      "text": "WHILE placement is auto THE popover SHALL try the sides in the order bottom, top, end, start and SHALL take the first that has room for the container within comp.popover.window-margin, or the one with the most room WHEN none has, with its start edge on the anchor's start edge for bottom and top and its top edge on the anchor's top edge for end and start, and SHALL then shift, hold and follow as POP-5 says, keeping the side it took for as long as that side has room."
+    },
+    {
+      "id": "POP-4",
+      "text": "THE popover SHALL take the distance between the anchor's edge and the nearest part of itself — the container's edge, or the arrow's tip while an arrow is drawn — from offset, a number of the platform's layout units used as given, so that 0 lets the two touch, and from comp.popover.offset WHILE offset is null; it SHALL then move the container along its side by crossOffset, before the shift of POP-5, and by no more than leaves comp.popover.arrow.width of the container beside the anchor, so that the popover still stands on the anchor's side and an arrow can still reach the anchor. IF offset is negative or not a finite number THE popover SHALL use comp.popover.offset in its place, IF crossOffset is not a finite number THE popover SHALL use 0, and in debug builds it SHALL report the value it ignored."
+    },
+    {
+      "id": "POP-5",
+      "text": "THE popover SHALL keep its container at least comp.popover.window-margin inside the window's safe area by these steps, in this order: WHEN the preferred side has no room for the container and the opposite side has, it SHALL flip to the opposite side, keeping the alignment; WHEN neither has room it SHALL use the one of the two with more room and limit the container to that room (POP-7 for its width, POP-8 for its height); it SHALL then shift along the side as far as the margin asks and no farther; and WHERE the container is still larger than the room on its side (a window smaller than the popover's least size) it SHALL move the container back into the margin over the anchor, its top and start edges first, rather than leave the window. It SHALL follow the anchor when the anchor moves (scrolling, resizing, layout), taking these steps again from the side it is on, which it SHALL keep for as long as that side has room, so that a page that scrolls does not throw the popover from side to side. WHEN the anchor is removed, hidden, scrolled out of the window, or scrolled out of sight inside a scrolling ancestor so that no part of it can be seen THE popover SHALL emit close once with the reason anchor-hidden and be closed as POP-21 says, because a surface with nothing beside it no longer says what it belongs to.",
+      "verify": "Test in a scrolling box: scroll until the anchor meets the box's edge (the popover follows and keeps its side), then until no part of the anchor is seen (close, reason anchor-hidden, exactly once)."
+    },
+    {
+      "id": "POP-6",
+      "text": "THE popover SHALL fill its container with comp.popover.container.color, raise it by comp.popover.container.elevation, round it by comp.popover.container.shape eased by sys.shape.corner-smoothing (0 is a quarter circle, 0.6 the iOS continuous corner; a platform with only the OS curve draws it for any amount above 0), and clip its header, content and actions to that shape. THE popover SHALL NOT change anything the container draws under a pointer, a press or focus: the container has no hovered, focused or pressed state and draws no state layer."
+    },
+    {
+      "id": "POP-7",
+      "text": "WHILE width is content THE popover SHALL make its container as wide as its widest part (its header, its content, or its actions in one row at their own widths) and its paddings, at least comp.popover.container.min-width and at most comp.popover.container.max-width, wrapping content that would be wider; WHILE width is anchor it SHALL make the container as wide as the anchor, and at least comp.popover.container.min-width where the anchor is narrower, comp.popover.container.max-width not applying, and SHALL follow the anchor's width as it changes. In either case the container SHALL never be wider than the window's safe area less comp.popover.window-margin on each side, narrowing below comp.popover.container.min-width where the window asks it to."
+    },
+    {
+      "id": "POP-8",
+      "text": "THE popover SHALL make its container as tall as its parts and its paddings, at most comp.popover.container.max-height and at most the room its side leaves within comp.popover.window-margin (POP-5). WHEN its parts do not fit in that height THE popover SHALL keep the header and the actions in place and scroll the content between them, SHALL let keyboard focus and assistive technology scroll it, and SHALL draw a divider of comp.popover.divider.width in comp.popover.divider.color across the container below the header WHILE the content is scrolled away from its top, and above the actions WHILE more of it lies below; WHILE everything fits, or there is no header or no action on that side of the content, THE popover SHALL draw no divider there. WHEN the header and the actions alone leave no room for the content (large text in a short window) THE popover SHALL scroll all of its parts together instead, so that nothing is cut off or unreachable. The dividers SHALL be hidden from assistive technology and SHALL show and hide at once, without motion.",
+      "verify": "The fixture scrolling holds more text than comp.popover.container.max-height allows: the header and the actions stay, the divider above the actions is drawn, and the one below the header appears once the content is scrolled."
+    },
+    {
+      "id": "POP-9",
+      "text": "THE popover SHALL lay out, top to bottom, inside comp.popover.container.padding-block at the top and bottom edges of its container: WHILE headline is not empty or closable is true, the header (POP-11); then the content, comp.popover.container.gap below the header where there is one; then, WHILE the popover has at least one action, the actions, comp.popover.actions.margin-block-start below the content, or below the header where there is no content. WHILE inset is true THE popover SHALL inset the content by comp.popover.container.padding-inline from the container's start and end edges; WHILE inset is false it SHALL let the content reach the container's start and end edges — and its top and bottom edges where no header or no action stands there, the block padding then not applying on that side — clipped by the container's shape, the header and the actions keeping their own insets."
+    },
+    {
+      "id": "POP-10",
+      "text": "THE popover SHALL draw an arrow WHILE arrow is true, and WHILE arrow is null and comp.popover.arrow.visible is on, and none otherwise. WHILE it draws one THE popover SHALL draw a triangle comp.popover.arrow.width wide at its base and comp.popover.arrow.height tall on the container's edge that faces the anchor, as one shape with the container — the container's color and elevation, with no seam and no shadow between the two — its tip pointing at the middle of the part of the anchor's edge that the container stands beside, and SHALL keep its base at least comp.popover.arrow.inset, and at least the corner's radius, from each end of that edge, standing at the edge's middle where the edge is too short for both; the container SHALL stand comp.popover.arrow.height farther from the anchor, so that the tip keeps the offset (POP-4). WHEN the container flips, shifts or follows the anchor (POP-5) the arrow SHALL move with it to the edge that now faces the anchor and point at the anchor again, and WHILE the container covers the anchor (POP-5) THE popover SHALL draw no arrow. The arrow SHALL take no press of its own and SHALL be hidden from assistive technology."
+    },
+    {
+      "id": "POP-11",
+      "text": "WHILE headline is not empty or closable is true THE popover SHALL draw the header as one row: the headline from comp.popover.container.padding-inline after the container's start edge, taking the width the close button leaves, and, WHILE closable is true, the close button (POP-13) at the row's end, comp.popover.header.gap after the headline and with its edge comp.popover.container.padding-inline before the container's end edge, both aligned to the row's first line; the header SHALL be as tall as the taller of the two and SHALL stay in place while the content scrolls (POP-8)."
+    },
+    {
+      "id": "POP-12",
+      "text": "WHILE headline is not empty THE popover SHALL draw it in comp.popover.headline.typescale and comp.popover.headline.color, wrapping onto more lines rather than truncating and growing the header with it, and SHALL expose it as a heading."
+    },
+    {
+      "id": "POP-13",
+      "text": "WHILE closable is true THE popover SHALL draw at the end of its header an icon-only Button of the small size showing the glyph close of the system's icon set and named by closeLabel, in the variant comp.popover.close-button.variant names, given through the channel a Button reads from the component that places it, and otherwise unrestyled: it reads Button's own tokens, answers hover, focus and press as any Button does and keeps its own minimum target (BTN-5); WHEN the user activates it THE popover SHALL emit close exactly once with the reason close. WHILE closable is true and closeLabel is empty it SHALL still draw the button, and in debug builds report that the button has no accessible name. THE popover SHALL draw no close mark of its own (no path, shape or character of its own)."
+    },
+    {
+      "id": "POP-14",
+      "text": "THE popover SHALL hand its content comp.popover.content.color as the platform's inherited foreground (the web's inherited color, SwiftUI's foreground style, Compose's content color, Flutter's default text and icon style, React Native's Tanrei text context); plain text given as content, where the platform must style it, SHALL take sys.typescale.body. THE popover SHALL NOT lay out, restyle or mirror the content itself, and SHALL let it hold any element that takes input — links, Buttons, fields, a list, a menu's or another popover's opener."
+    },
+    {
+      "id": "POP-15",
+      "text": "WHILE the popover has at least one action THE popover SHALL lay out its actions as a standard Button group lays out its items (BGR-12 to BGR-19), comp.popover.actions.gap apart and comp.popover.container.padding-inline from the container's start and end edges, in the order the group gives them — dismissive at the start and confirming at the end of a row, confirming on top and dismissive at the bottom of a column, unflagged actions between them in the order given — with focus and reading order following that order (BGR-15). WHILE comp.popover.actions.arrangement is fill it SHALL make them a full-width group across the container's inner width, the actions sharing a row equally (BGR-17) or each as wide as the column; WHILE it is end it SHALL keep them at their own widths, the row aligned to the end, and a column as wide as its widest action and aligned to the end. It SHALL place them in a row WHILE every action's label fits its share on one line (fill) or the row at its own widths fits the inner width (end), and otherwise in a column, re-deciding when the container's width or the text size changes."
+    },
+    {
+      "id": "POP-16",
+      "text": "WHILE an action's variant is empty THE popover SHALL give that Button the variant comp.popover.actions.variant names, through the channel a Button reads from the component that places it, so that the Button renders from that variant's tokens and states as it would with the variant set; WHILE an action's variant is set THE popover SHALL leave it as set. THE popover SHALL NOT change an action's size or tokens, and SHALL NOT change its look or emphasis for its confirming or dismissive (BGR-19)."
+    },
+    {
+      "id": "POP-17",
+      "text": "WHEN the user activates an action THE popover SHALL let the Button emit its own click and SHALL NOT close, emit close or otherwise answer it itself, whether the action is confirming, dismissive or neither; the product closes the popover from the action's handler by setting open to false, and focus then returns as POP-22 says."
+    },
+    {
+      "id": "POP-18",
+      "text": "THE popover SHALL be shown exactly while open is true: it SHALL NOT open or close itself when a pointer enters or leaves its anchor or its container, when focus arrives at its anchor, on a long-press or after a time, and SHALL have no show or hide delay; the product sets open when the opener is activated by pointer, touch, Enter or Space, and sets it to false when the opener is activated again. THE popover SHALL expose on its opener that it opens a dialog, whether that dialog is open and which element it is, where the platform has those properties (aria-haspopup with the value dialog, aria-expanded and aria-controls on the web), and SHALL NOT change the opener's accessible name, role or look. The opener is the anchor unless the product names another element as the opener, in which case the container is placed against the anchor (POP-2 to POP-5) and everything this spec says of the opener holds for that element.",
+      "verify": "Hover the anchor, focus it and long-press it: open stays false and nothing is emitted. Read aria-expanded on the opener before and after the product sets open."
+    },
+    {
+      "id": "POP-19",
+      "text": "WHEN open becomes true WHILE initialFocus is popover THE popover SHALL move focus to the element in it that the product marked for initial focus (the platform's own mark, named in the platform notes) or, without one, to its container, so that assistive technology reads its name first and the next Tab reaches its first focusable element; it SHALL show a focus indicator on the container only when the popover was opened from the keyboard, as sys.behavior.focus-style names. WHEN open becomes true WHILE initialFocus is anchor THE popover SHALL leave focus where it is and SHALL take no key from the element that has it except Escape (POP-23). Focus SHALL move when the popover opens, not when its motion ends; a popover mounted with open true SHALL NOT move focus."
+    },
+    {
+      "id": "POP-20",
+      "text": "WHILE the popover is open THE popover SHALL stand in the focus order and in the reading order of assistive technology directly after its opener, wherever the platform draws it: Tab from the opener SHALL move to the popover's first focusable element, Shift+Tab from that element SHALL move back to the opener, Tab and Shift+Tab inside the popover SHALL move through its close button, its content's focusable elements and its actions in the order they are placed, and Tab from its last focusable element SHALL move to the element that follows the opener in the page's order, which closes the popover as focus leaving it does (POP-21). Focus on the opener SHALL count as focus that has not left the popover, so that Shift+Tab to the opener leaves the popover open. THE popover SHALL NOT wrap focus from its last element to its first.",
+      "verify": "With a link before the opener, a link after it and two fields in the popover: Tab from the opener reaches the first field, Tab twice more reaches the link after the opener and close is emitted once with focus-out; Shift+Tab from the first field reaches the opener and nothing is emitted."
+    },
+    {
+      "id": "POP-21",
+      "text": "WHEN the user presses Escape or the platform's back (Android's back gesture or button, the iOS accessibility escape gesture), presses outside the container, its arrow, its anchor, its opener and every overlay opened from inside it (POP-24), moves focus to an element outside all of those, or activates the close button (POP-13), or WHEN the anchor goes out of sight (POP-5) THE popover SHALL emit close once with that reason (escape, back, outside, focus-out, close or anchor-hidden) and SHALL be closed: through its binding or controller where open is one (SwiftUI, Flutter), and by the product setting open to false where open is a plain value (web, Compose, React Native). A press on the opener or the anchor is never a press outside: the product's own handler closes the popover from it (POP-18), so that one press never closes and opens it again. Focus leaving the window (another window or application taking it) SHALL NOT count as focus leaving the popover, and neither SHALL a move of an assistive technology's reading cursor that moves no input focus. Whether a press outside also reaches the element under it SHALL follow the platform and be stated in its README, as for the menu (MNU-5)."
+    },
+    {
+      "id": "POP-22",
+      "text": "WHEN the popover closes THE popover SHALL return focus to its opener IF focus was inside the popover or an overlay opened from inside it, or was lost with it (a press outside that landed on nothing focusable), and SHALL leave focus where the person put it IF the close came from focus moving to, or a press landing on, another focusable element; WHERE the opener no longer exists or cannot take focus it SHALL fall to the platform's default for a closed overlay. It SHALL show the opener's focus indicator only when the close came from the keyboard. Focus SHALL move when the popover closes, not when its motion ends."
+    },
+    {
+      "id": "POP-23",
+      "text": "WHILE the popover is open, WHEN the user presses Escape or the platform's back and neither an overlay opened from inside it nor an element inside it has taken the key for itself (an open menu, a tooltip, a field composing text or clearing its value) THE popover SHALL take the key and close as POP-21 says, and SHALL let it go no further, so that it does not also close a dialog or a sheet the popover stands in; WHILE several overlays are open Escape SHALL close only the topmost."
+    },
+    {
+      "id": "POP-24",
+      "text": "WHEN an overlay opens from an element inside the popover's container — a menu, a tooltip, a docked picker or a select's surface, another popover, a dialog or a modal sheet — THE popover SHALL treat it as its own: a press inside it SHALL NOT count as a press outside, focus moving into it SHALL NOT count as focus leaving, and the popover SHALL stay open under it, inert with the rest of the window WHILE that overlay is modal. WHEN that overlay closes THE popover SHALL receive back the focus it returns. WHEN the popover is closed, for a reason POP-21 names or because the product sets open to false, THE popover SHALL close every overlay opened from inside it that is not modal with it at once, their own close events carrying no reason of the person's, and SHALL return focus to its own opener as POP-22 says, not to an opener inside it. WHEN a popover is opened from inside a popover that was itself opened from inside a popover THE popover SHALL still work, and in debug builds SHALL report the depth."
+    },
+    {
+      "id": "POP-25",
+      "text": "WHERE the popover's anchor is inside a modal overlay (a dialog, a modal sheet) THE popover SHALL be presented above that overlay and belong to it: operable while the rest of the window is inert, and in that overlay's focus loop directly after its opener (POP-20). WHEN a popover opens while another popover that it was not opened from is open THE popover SHALL be drawn above it; THE popover SHALL NOT close another popover by opening — the press or the focus that opened it closes the other as POP-21 says — so that the product that sets two open at once has two."
+    },
+    {
+      "id": "POP-26",
+      "text": "WHEN the popover opens THE popover SHALL fade its container in and grow it from the edge that faces the anchor, as the menu's surface does (MNU-4), over comp.popover.motion.open-duration with comp.popover.motion.open-easing, the growth fixed at the point where an arrow points or would point (POP-10), and WHEN it closes fade it out over comp.popover.motion.close-duration with comp.popover.motion.close-easing; WHERE motion is reduced it SHALL appear and disappear at once. The motion SHALL be drawn only: the place POP-5 gives and the room the popover is measured for are those of the popover at rest."
+    },
+    {
+      "id": "POP-27",
+      "text": "WHEN the popover is told to close while it is still opening, or to open while it is still closing THE popover SHALL turn round from the opacity and the size it has reached, without first jumping to the start or the end of either motion, and SHALL take no longer over the rest than the whole duration of the motion it turns to. WHILE the popover is closed or closing THE popover SHALL take no pointer input and no focus — a press reaches what lies under it — and WHILE it is closed it SHALL take no room in the layout, draw nothing and expose nothing to assistive technology."
+    },
+    {
+      "id": "POP-28",
+      "text": "THE popover SHALL expose its container as a dialog that is not modal, named by headline or, WHILE headline is empty, by label, and SHALL NOT mark it modal or hide anything outside it from assistive technology; the close button SHALL be named by closeLabel, each action by its own label, and the arrow and the dividers SHALL be hidden. THE popover SHALL NOT expose its text as its anchor's description: what describes an anchor is a tooltip."
+    },
+    {
+      "id": "POP-29",
+      "text": "IF headline and label are both empty THE popover SHALL still open, and in debug builds SHALL report that it has no accessible name. IF the popover opens with no content, no headline and no action THE popover SHALL draw nothing, take no focus and expose nothing, and in debug builds SHALL report an empty popover. IF no anchor can be found when open becomes true THE popover SHALL stay closed, emit nothing, and in debug builds report the missing anchor."
+    },
+    {
+      "id": "POP-30",
+      "text": "WHILE the text size is enlarged THE popover SHALL keep its width limits (POP-7), wrap its headline and let its content wrap, grow its container's height with them up to the limits of POP-8 and scroll beyond them, stack its actions once a label no longer fits its share (POP-15), and SHALL NOT scale the close button, the arrow, the offset or the window margin beyond what the platform's layout units do. Nothing in the header or the actions SHALL be clipped or truncated."
+    },
+    {
+      "id": "POP-31",
+      "text": "THE popover SHALL stay an anchored, non-modal popover at every window size: WHERE the window is narrower or shorter than the container wants THE popover SHALL narrow and shorten the container as POP-7 and POP-8 say, cover its anchor as POP-5 says where it must, and scroll, and SHALL NOT turn into a sheet or a dialog, draw a scrim or trap focus, so that its role, its keys and its reading order are the same at every size. A product that wants its content in a bottom sheet on a compact window presents a bottom sheet there itself.",
+      "verify": "In a window 320 wide the fixture actions is 304 wide (the window less the margin on each side) and every part of it can be reached by scrolling."
+    },
+    {
+      "id": "POP-32",
+      "text": "WHERE the platform draws with a person's own forced colors (the web's forced-colors mode, and a platform's equivalent where it has one) THE popover SHALL draw an edge sys.border.hairline wide in the platform's text color round its container and its arrow, as one outline, because the mode removes the shadow and may give the container the page's color; its headline and plain text SHALL take the platform's text color.",
+      "verify": "On the web, with forced colors emulated: every fixture's container has a visible edge in CanvasText that runs round the arrow where one is drawn."
+    },
+    {
+      "id": "POP-33",
+      "text": "THE popover SHALL take its layout direction from where it is used — the direction of the nearest ancestor that sets one, and the platform's own where none does — and SHALL have no direction setting of its own; WHEN that direction changes while the popover is shown THE popover SHALL draw itself for the new direction at once, without a motion of its own, keeping its open state and its focus, the container placed again by the new direction (POP-34).",
+      "verify": "Test with the direction set on an ancestor inside the page or the view tree, not on the root, and again changed after the first render."
+    },
+    {
+      "id": "POP-34",
+      "text": "WHEN the layout direction is right-to-left THE popover SHALL take the side start as the anchor's right side and the side end as its left, SHALL take the alignments -start and -end of a popover above or below as the right and the left edges, and a positive crossOffset of such a popover as a move towards the left, flipping and shifting from there as POP-5 says; it SHALL leave the sides top and bottom, the alignments -top and -bottom, a crossOffset beside the anchor and the centring on the anchor as they are, and SHALL keep auto's order of sides by their names (POP-3). It SHALL mirror its header — the headline at the right, the close button at the left — apply its paddings by logical start and end, and place its actions as a Button group places them right to left (BGR-8); it SHALL NOT mirror the glyph close, the arrow's shape, or its content, which follows the layout direction itself."
+    },
+    {
+      "id": "POP-35",
+      "text": "THE popover SHALL lay out its headline as text of its own direction, isolated from the text around it: it takes the base direction of its first strong character, or the layout direction where it has none, so that a left-to-right word, a number with its sign or unit, a telephone number and an address keep their own order in a right-to-left layout and reorder nothing beside them; THE popover SHALL still place the headline and align its lines by the layout direction, not by the text's own."
+    },
+    {
+      "id": "POP-36",
+      "text": "WHILE the on-screen keyboard is shown THE popover SHALL take the keyboard's top edge as an edge of the window's safe area (POP-5): it SHALL flip, shift or shorten so that no part of it is under the keyboard, and SHALL scroll the focused element into the room left; WHEN the keyboard hides it SHALL take its place again by POP-5. It SHALL move as the platform moves content for its keyboard, and at once where motion is reduced."
+    },
+    {
+      "id": "POP-37",
+      "text": "WHEN placement, width or initialFocus names a value the popover does not define THE popover SHALL render with the default value, and in debug builds report the unknown value."
+    }
+  ],
+  "accessibility": {
+    "role": "dialog",
+    "keyboard": [
+      {
+        "keys": "Enter or Space on the opener",
+        "action": "The product opens the popover; focus moves into it (to the element the product marked, otherwise to the container). Pressed again while it is open, the product closes it."
+      },
+      {
+        "keys": "Tab / Shift+Tab",
+        "action": "Move through the popover's close button, its content and its actions; the popover comes directly after its opener in the order. Shift+Tab from its first element returns to the opener and leaves it open; Tab from its last element moves on to what follows the opener and closes it. Focus is never kept in."
+      },
+      {
+        "keys": "Escape",
+        "action": "Closes the popover and returns focus to its opener; with overlays opened from inside it, only the topmost. It goes no further: a dialog the popover stands in stays open."
+      },
+      {
+        "keys": "Enter or Space",
+        "action": "Activate the focused close button (close, reason close) or action (its click; the popover does not close by itself, POP-17). The popover adds no default action to Enter."
+      }
+    ],
+    "labeling": "The popover is a dialog that is not modal, named by its headline, or by label where it draws none. The headline is also exposed as a heading. The opener keeps its own name and role and exposes that it opens a dialog and whether it is open. The close button is named by closeLabel and each action by its own label; confirming and dismissive are not announced, and the actions are read in the order they are placed (BGR-15). The arrow and the dividers are decorative. The popover is not its anchor's description.",
+    "minimumTarget": true,
+    "notes": [
+      "The popover has no target of its own; its close button and its actions are Tanrei Buttons, which meet the minimum target themselves (BTN-5). comp.popover.actions.gap keeps each action's whole target in a column in the default system. The opener is the product's control and keeps its own target.",
+      "Tooltip, popover, menu, dialog — which one. A tooltip describes its anchor, opens on hover and focus, never takes focus and holds nothing a person can operate (TIP-13). A popover is opened by a press, takes focus and holds content a person operates. A menu is a list of commands or choices, moved through with the arrow keys; it holds only its items. A dialog stops the task until it is answered. A note that needs a link or a button is a popover, never a tooltip.",
+      "Never open a popover on hover or on focus (POP-18): what appears that way must be dismissible, hoverable and persistent (WCAG 1.4.13) and cannot be reached by touch, and a surface that takes focus because the pointer passed is a trap. Open it from a press.",
+      "Focus: the popover is an operated overlay that is not modal. It moves focus in when it opens and returns it to the opener when it closes, but does not keep it: Tab leaves it, which closes it. An open surface nobody is in would cover content the keyboard user has moved on to, and a pointer user closes it by pressing elsewhere; focus leaving is the keyboard's form of the same thing. This is the menu's rule, the docked picker's and the docked search view's.",
+      "Initial focus goes to the container unless the product marks an element (POP-19), as for the dialog: assistive technology reads the popover's name first, and a field that takes focus by itself would raise the on-screen keyboard over a popover the person has not read. Mark the first field of a short form.",
+      "initialFocus anchor is for a surface under a field the person is typing in (suggestions, a format hint with a link). Focus stays in the field, so the field's own keys keep working; the popover is still next in the Tab order, and still closes when focus leaves both.",
+      "Reading order: the popover follows its opener for a screen reader as it does for Tab (POP-20). On the web, place the element directly after its anchor in the document where the layout allows; where it cannot be, the opener's aria-controls and the focus that moves in carry a person there.",
+      "A press outside closes the popover. Do not put in a popover what a person would lose by one stray press: a long form belongs in a dialog or a sheet. Where open is a plain value the product may also answer close with the reason outside by leaving the popover open; do that only with a visible way to close it (closable, or a dismissive action).",
+      "Keep nesting shallow: an overlay opened from a popover works at any depth (POP-24), but each level is one more thing Escape must be pressed for. One popover inside a popover is the most a product should need; a debug build reports a third.",
+      "Not modal means the rest of the page can still be read and scrolled, and a screen reader's cursor can leave the popover without closing it (POP-21). Nothing a person must answer before going on belongs in a popover.",
+      "Text size and small windows: at 200% text the popover wraps, grows to its limits and scrolls; at a window 320 wide it is the window's width less the margins (POP-31). It never needs scrolling in two directions.",
+      "Forced colors (POP-32): the container gains an edge in the text color, because its shadow is removed. Contrast in the default system: on-surface on surface-bright is held to 4.5:1 by the token invariants; the container is told from the page by its elevation's ring and shadow, which are not held to a contrast of their own, as for the menu."
+    ]
+  },
+  "tokens": "comp.popover",
+  "fixtures": [
+    {
+      "id": "basic",
+      "props": {
+        "open": true,
+        "label": "Storage"
+      },
+      "content": "Files in the trash still count toward your storage until they are deleted."
+    },
+    {
+      "id": "headline",
+      "props": {
+        "open": true,
+        "headline": "Storage"
+      },
+      "content": "Files in the trash still count toward your storage until they are deleted."
+    },
+    {
+      "id": "closable",
+      "props": {
+        "open": true,
+        "headline": "Storage",
+        "closable": true,
+        "closeLabel": "Close storage"
+      },
+      "content": "Files in the trash still count toward your storage until they are deleted."
+    },
+    {
+      "id": "closable-untitled",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "closable": true,
+        "closeLabel": "Close storage"
+      },
+      "content": "Files in the trash still count toward your storage until they are deleted."
+    },
+    {
+      "id": "actions",
+      "props": {
+        "open": true,
+        "headline": "Empty the trash?",
+        "closable": true,
+        "closeLabel": "Close"
+      },
+      "content": "The 12 files in it will be deleted from every device.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Empty"
+        }
+      ]
+    },
+    {
+      "id": "single-action",
+      "props": {
+        "open": true,
+        "headline": "Storage"
+      },
+      "content": "Files in the trash still count toward your storage until they are deleted.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Manage storage"
+        }
+      ]
+    },
+    {
+      "id": "actions-stacked",
+      "props": {
+        "open": true,
+        "headline": "Share this page"
+      },
+      "content": "Anyone with the link can read it.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Stop sharing with everyone"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Copy the link to the clipboard"
+        }
+      ]
+    },
+    {
+      "id": "action-variants",
+      "props": {
+        "open": true,
+        "headline": "Empty the trash?"
+      },
+      "content": "The 12 files in it will be deleted from every device.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "variant": "text",
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "variant": "filled",
+            "confirming": true
+          },
+          "content": "Empty"
+        }
+      ]
+    },
+    {
+      "id": "scrolling",
+      "props": {
+        "open": true,
+        "headline": "What changed",
+        "closable": true,
+        "closeLabel": "Close what changed"
+      },
+      "content": "Files in the trash still count toward your storage until they are deleted. Shared folders count toward the storage of the person who owns them, not of the people they are shared with. Earlier versions of a file are kept for 30 days and count while they are kept. Photos saved in their original size count in full; photos saved in the reduced size count for a tenth. Mail and its attachments count, including what is in the spam folder. Backups of a device count from the day after the backup is made, and the backup before it stops counting once it is replaced. When storage is full, nothing new is saved, mail is returned to its sender, and what is already stored stays as it is. Files in the trash still count toward your storage until they are deleted. Shared folders count toward the storage of the person who owns them, not of the people they are shared with. Earlier versions of a file are kept for 30 days and count while they are kept. Photos saved in their original size count in full; photos saved in the reduced size count for a tenth. Mail and its attachments count, including what is in the spam folder. Backups of a device count from the day after the backup is made, and the backup before it stops counting once it is replaced. When storage is full, nothing new is saved, mail is returned to its sender, and what is already stored stays as it is.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Manage storage"
+        }
+      ]
+    },
+    {
+      "id": "inset-off",
+      "props": {
+        "open": true,
+        "headline": "Storage",
+        "inset": false
+      },
+      "content": "Files in the trash still count toward your storage until they are deleted."
+    },
+    {
+      "id": "width-anchor",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "width": "anchor"
+      },
+      "content": "Trash counts."
+    },
+    {
+      "id": "placement-bottom",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "bottom"
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "placement-bottom-end",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "bottom-end"
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "placement-top",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "top"
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "placement-top-start",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "top-start"
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "placement-top-end",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "top-end"
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "placement-start",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "start"
+      },
+      "content": "Trash counts."
+    },
+    {
+      "id": "placement-start-top",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "start-top"
+      },
+      "content": "Trash counts."
+    },
+    {
+      "id": "placement-start-bottom",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "start-bottom"
+      },
+      "content": "Trash counts."
+    },
+    {
+      "id": "placement-end",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "end"
+      },
+      "content": "Trash counts."
+    },
+    {
+      "id": "placement-end-top",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "end-top"
+      },
+      "content": "Trash counts."
+    },
+    {
+      "id": "placement-end-bottom",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "end-bottom"
+      },
+      "content": "Trash counts."
+    },
+    {
+      "id": "placement-auto",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "auto"
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "arrow",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "arrow": true
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "arrow-bottom",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "bottom",
+        "arrow": true
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "arrow-top-end",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "top-end",
+        "arrow": true
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "arrow-end",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "placement": "end",
+        "arrow": true
+      },
+      "content": "Trash counts."
+    },
+    {
+      "id": "arrow-actions",
+      "props": {
+        "open": true,
+        "headline": "Empty the trash?",
+        "closable": true,
+        "closeLabel": "Close",
+        "placement": "bottom",
+        "arrow": true
+      },
+      "content": "The 12 files in it will be deleted from every device.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "Cancel"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "Empty"
+        }
+      ]
+    },
+    {
+      "id": "offset",
+      "props": {
+        "open": true,
+        "label": "Storage",
+        "offset": 16,
+        "crossOffset": 24
+      },
+      "content": "Trash still counts toward storage."
+    },
+    {
+      "id": "rtl",
+      "props": {
+        "open": true,
+        "headline": "إفراغ سلة المهملات؟",
+        "closable": true,
+        "closeLabel": "إغلاق"
+      },
+      "content": "سيتم حذف الملفات الموجودة فيها من كل الأجهزة.",
+      "items": [
+        {
+          "kind": "action",
+          "props": {
+            "dismissive": true
+          },
+          "content": "إلغاء"
+        },
+        {
+          "kind": "action",
+          "props": {
+            "confirming": true
+          },
+          "content": "إفراغ"
+        }
+      ],
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-arrow-end-top",
+      "props": {
+        "open": true,
+        "label": "التخزين",
+        "placement": "end-top",
+        "arrow": true
+      },
+      "content": "سلة المهملات محسوبة.",
+      "direction": "rtl"
+    },
+    {
+      "id": "rtl-ltr-headline",
+      "props": {
+        "open": true,
+        "headline": "v2.1 beta",
+        "closable": true,
+        "closeLabel": "إغلاق",
+        "placement": "bottom-end"
+      },
+      "content": "سلة المهملات محسوبة.",
+      "direction": "rtl"
+    }
+  ],
+  "platforms": {
+    "web": {
+      "status": "lagging",
+      "name": "tanrei-popover",
+      "props": {
+        "open": "open",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "width": "width",
+        "inset": "inset",
+        "initialFocus": "initialFocus",
+        "headline": "headline",
+        "label": "label",
+        "closable": "closable",
+        "closeLabel": "closeLabel"
+      },
+      "events": {
+        "close": "close"
+      },
+      "items": {
+        "action": {
+          "name": "tanrei-button",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled",
+            "confirming": "confirming",
+            "dismissive": "dismissive"
+          },
+          "events": {
+            "click": "click"
+          },
+          "notes": "A `tanrei-button` child with `slot=\"actions\"`: its label is its content. `confirming` and `dismissive` are boolean attributes that the popover reads, as the button group does. A Button without a `variant` attribute takes the popover's variant through the internal controller the group already gives its items (POP-16); the attribute, once written, wins."
+        }
+      },
+      "notes": "`<tanrei-popover anchor=\"…\">` names its anchor as the menu does: `anchor` is the id of the anchor element in the popover's own tree, and `anchorElement` a property for an element that an id cannot reach (another shadow root); `opener` and `openerElement` name a separate opener, as the docked picker's do (POP-18). The popover sets `aria-haspopup=\"dialog\"`, `aria-controls` and `aria-expanded` on the opener and removes them when it is disconnected. Attributes are kebab-case (`cross-offset`, `initial-focus`, `close-label`); `offset` and `crossOffset` are number properties in CSS pixels parsed as the tooltip's are, so an empty attribute is not a number; `arrow` is true, false or null — absent for null, present for true and `=\"false\"` for false; `inset` is a boolean property that defaults to true, whose attribute is the inverse `no-inset`. `close` is a CustomEvent whose `detail.reason` is `escape`, `back`, `outside`, `focus-out`, `close` or `anchor-hidden`; the product sets `open` to false from it. Slots: default and `actions`. The container is a `popover=\"manual\"` element with `role=\"dialog\"` and no `aria-modal` in the shadow root, so it is in the top layer (above an open modal `<dialog>` when the element is a descendant of that dialog, which it must be to be operable there, POP-25); `manual` and not `auto`, because the popover implements its own light dismiss so that `close` carries a reason and so that an overlay opened from inside it is not closed by the browser's own rule. It is placed with CSS anchor positioning where the browser has it and by measuring otherwise, and follows its anchor with the shared `FollowController`. The container and the arrow are one painted shape, so the elevation's ring and shadows run round both. Focus order (POP-20): the top layer does not change the tab order, so where the element does not directly follow its opener in the document the popover moves focus itself — Tab on the opener while open goes to the first tabbable element of the popover, Shift+Tab from that element to the opener, and Tab from the last to the element after the opener. The `autofocus` attribute on a slotted element marks initial focus; the container has `tabindex=\"-1\"`. A press outside also reaches the element under it. Under `forced-colors: active` the painted shape takes a `CanvasText` outline (POP-32). The `inline` attribute, for tests, draws the open container in place. Snapshot harness: a stage of 480 × 480 with a medium outlined `tanrei-button` labelled \"Storage\" at its centre and the popover open against it; `width-anchor` gives the button a width of 240; the screenshot is the stage."
+    },
+    "swiftui": {
+      "status": "planned",
+      "name": "tanreiPopover",
+      "props": {
+        "open": "isPresented",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "width": "width",
+        "inset": "inset",
+        "initialFocus": "initialFocus",
+        "headline": "headline",
+        "label": "accessibilityLabel",
+        "closable": "closable",
+        "closeLabel": "closeLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled",
+            "confirming": "tanreiGroupPlacement(.confirming)",
+            "dismissive": "tanreiGroupPlacement(.dismissive)"
+          },
+          "events": {
+            "click": "action"
+          },
+          "notes": "A `TanreiButton` in the `actions:` builder. The flags are the button group's `.tanreiGroupPlacement(_:)` modifier (one enum: both cannot be set). A Button created with `variant: nil` reads the popover's variant from an environment value the popover sets (internal to the package)."
+        }
+      },
+      "notes": "A modifier on the anchor: `.tanreiPopover(isPresented: Binding<Bool>, headline:, accessibilityLabel:, placement:, offset: CGFloat? = nil, crossOffset:, arrow: Bool? = nil, width:, inset:, initialFocus:, closable:, closeLabel:, onClose:, actions:, content:)`; a separate opener is named with `.tanreiPopoverOpener(_:)` on that view. Dismissal writes false to the binding and then calls `onClose` with the reason. Drawn in an overlay above the window's content, anchored with anchor preferences, as the tooltip is, not with `.popover`: the system's is modal at compact widths and its arrow, placement and motion cannot be given by tokens. Initial focus is `.defaultFocus` or an `@AccessibilityFocusState` the product passes; the container is an accessibility container with the header trait on the headline, placed after the opener with `accessibilitySortPriority`; the iOS escape gesture is `.accessibilityAction(.escape)`. A press outside does not reach what is under it. Snapshot harness: the anchor and the open popover in a fixed 480 × 480 frame."
+    },
+    "compose": {
+      "status": "planned",
+      "name": "TanreiPopover",
+      "props": {
+        "open": "visible",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "width": "width",
+        "inset": "inset",
+        "initialFocus": "initialFocus",
+        "headline": "headline",
+        "label": "contentDescription",
+        "closable": "closable",
+        "closeLabel": "closeLabel"
+      },
+      "events": {
+        "close": "onDismissRequest"
+      },
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "enabled",
+            "confirming": "Modifier.confirming()",
+            "dismissive": "Modifier.dismissive()"
+          },
+          "events": {
+            "click": "onClick"
+          },
+          "notes": "A `TanreiButton` in the `actions` lambda, whose receiver is the button group's scope, so the flags are its `Modifier.confirming()` and `Modifier.dismissive()`. `enabled` is disabled's inverse. `variant: TanreiButtonVariant? = null` takes the popover's from a `CompositionLocal` (internal to the library)."
+        }
+      },
+      "notes": "Compose idiom, as the menu: `TanreiPopover(visible, onDismissRequest, headline, contentDescription, placement, offset: Dp? = null, crossOffset, arrow: Boolean? = null, width, inset, initialFocus: TanreiPopoverInitialFocus, initialFocusRequester: FocusRequester? = null, closable, closeLabel, actions, content)` inside the anchor's `Box`, shown in a `Popup` with a `PopupPositionProvider` of its own. `visible` rather than calling it only while open, so that the close motion can run. The caller closes it, so close is `onDismissRequest` and it carries the reason. The `Popup` is focusable while initialFocus is popover, so back reaches it; because a focusable popup is a window of its own, the popover moves focus itself at its ends (POP-20): Tab from its last element clears the popup's focus, asks the anchor's `FocusManager` to move next and reports focus-out. `paneTitle` is the headline or `contentDescription`. A press outside does not reach what is under it. Snapshot harness: the anchor and `TanreiPopoverContent` in place in a 480 × 480 dp box; the popup itself is covered by instrumented tests."
+    },
+    "flutter": {
+      "status": "planned",
+      "name": "TanreiPopover",
+      "props": {
+        "open": "controller",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "width": "width",
+        "inset": "inset",
+        "initialFocus": "initialFocus",
+        "headline": "headline",
+        "label": "semanticLabel",
+        "closable": "showCloseButton",
+        "closeLabel": "closeButtonSemanticLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "items": {
+        "action": {
+          "name": "TanreiButton",
+          "props": {
+            "variant": "variant",
+            "disabled": "onPressed",
+            "confirming": "TanreiButtonGroupItem.placement",
+            "dismissive": "TanreiButtonGroupItem.placement"
+          },
+          "events": {
+            "click": "onPressed"
+          },
+          "notes": "A `TanreiButton` in `actions:`; a null `onPressed` disables it. The flags are the button group's `TanreiButtonGroupItem(placement:, child:)` (one enum: both cannot be set). A Button with `variant: null` takes the popover's from an `InheritedWidget` (internal to the package)."
+        }
+      },
+      "notes": "Flutter idiom, as `TanreiMenuAnchor`: `TanreiPopover(controller:, placement:, offset:, crossOffset:, arrow:, width:, inset:, initialFocus:, headline:, semanticLabel:, showCloseButton:, closeButtonSemanticLabel:, onClose:, actions: […], content:, builder:)` wraps the anchor that `builder` returns; `TanreiPopoverController.open()` and `.close()` are open, and `onClose` carries the reason. Shown with an `OverlayPortal` and a `CompositedTransformFollower`: the portal's child stays where it is declared in the widget, focus and semantics trees, so the popover follows its anchor in traversal and reading order without more (POP-20). Outside presses are a `TapRegion` whose group the overlays opened from inside it join (POP-24); a press outside also reaches what is under it. `autofocus: true` on a descendant marks initial focus; `Semantics(scopesRoute: false, namesRoute: true, label:)` names the container. Snapshot harness: the anchor and the open popover in a 480 × 480 box."
+    },
+    "react-native": {
+      "status": "planned",
+      "name": "Popover",
+      "props": {
+        "open": "visible",
+        "placement": "placement",
+        "offset": "offset",
+        "crossOffset": "crossOffset",
+        "arrow": "arrow",
+        "width": "width",
+        "inset": "inset",
+        "initialFocus": "initialFocus",
+        "headline": "headline",
+        "label": "accessibilityLabel",
+        "closable": "closable",
+        "closeLabel": "closeLabel"
+      },
+      "events": {
+        "close": "onClose"
+      },
+      "items": {
+        "action": {
+          "name": "Button",
+          "props": {
+            "variant": "variant",
+            "disabled": "disabled",
+            "confirming": "confirming",
+            "dismissive": "dismissive"
+          },
+          "events": {
+            "click": "onPress"
+          },
+          "notes": "A `Button` in the `actions` prop. `confirming` and `dismissive` are props the popover reads from its actions, as the button group reads them. A Button with no `variant` takes the popover's from a React context (internal to the package)."
+        }
+      },
+      "notes": "`<Popover visible anchorRef openerRef? onClose headline …>{content}</Popover>`, presented on the overlay layer that `TanreiProvider` renders (not a `Modal`, which would make the rest of the screen unreachable) and placed by measuring the anchor (`measureInWindow`), again on layout, scroll and keyboard events; Android's back button (`BackHandler`) is close with the reason back, and the iOS escape gesture is `onAccessibilityEscape`. Controlled: the caller sets `visible` to false from `onClose`. `accessibilityViewIsModal` stays false; the container is given accessibility focus when it opens and the opener when it closes. A hardware keyboard's Tab order follows the native view order, which the overlay layer puts last: the README states that the popover is reached from its opener by the focus it takes on opening, and returns to the opener on leaving. A press outside closes the popover and does not reach what is under it. Follows the app's direction where an ancestor's is not known."
+    }
+  }
+}

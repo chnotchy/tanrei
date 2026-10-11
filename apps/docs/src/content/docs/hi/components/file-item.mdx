@@ -1,0 +1,339 @@
+---
+title: फ़ाइल आइटम
+description: एक फ़ाइल दिखाता है, यानी उसका फ़ॉर्मैट बताने वाला ग्लिफ़ या उसकी छोटी तस्वीर, उसका नाम, और वह बात जो प्रॉडक्ट उसके बारे में कहता है। साथ में उसे हटाने और फिर कोशिश करने की क्रियाएँ होती हैं। वह फ़ाइलों के कॉलम की एक पंक्ति हो सकता है या तस्वीरों की क़तार की एक टाइल। फ़ाइल खोलने के लिए उसे दबाया जा सकता है। वह ख़ुद फ़ाइल को कभी नहीं पढ़ता, नहीं रखता और नहीं भेजता।
+translationOf: components/file-item.mdx
+sourceHash: 7d87ffe88f4c926c993c8b2d399a647f70ab8368
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import ListReorderProduct from '../../../../components/ListReorderProduct.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## अवलोकन
+
+<ComponentAvailability name="file-item" />
+
+<DemoFrame label="एक फ़ाइल पंक्ति के रूप में, और फ़ाइलें टाइल के रूप में" column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" format-text="PDF" size-text="820 KB" remove-label="हटाएँ"></tanrei-file-item>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" preview preview-src={demoPicture} value="b" name="floor-plan.png" remove-label="हटाएँ"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey-2026.xlsx" remove-label="हटाएँ"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+फ़ाइल आइटम एक फ़ाइल को दिखाता है, बस इतना ही। नाम से पहले एक ग्लिफ़ होता है, जो फ़ाइल का फ़ॉर्मैट बताता है, या फ़ाइल की एक छोटी तस्वीर। नाम के नीचे एक लाइन होती है, जिसमें वह बात रहती है जो आपका प्रॉडक्ट उसके बारे में कहता है: उसका फ़ॉर्मैट, उसका साइज़, उसका भेजा जाना कहाँ तक पहुँचा, या क्या ग़लत हुआ। अंत में वे दो क्रियाएँ होती हैं जो किसी फ़ाइल की होती हैं: उसे हटाना, और फिर कोशिश करना।
+
+इसके दो रूप हैं:
+
+- `row`, जो डिफ़ॉल्ट है: एक लाइन, उतनी चौड़ी जितनी उसकी जगह देती है। फ़ाइलों के कॉलम के लिए।
+- `tile`: आपकी दी हुई चौड़ाई और ऊँचाई का एक बॉक्स, जिसके नीचे नाम होता है। तस्वीरों की क़तार के लिए।
+
+<Callout type="caution" title="यह दिखाता है, और कुछ नहीं करता">
+फ़ाइल आइटम किसी फ़ाइल का एक बाइट भी नहीं पढ़ता, कोई फ़ाइल नहीं रखता और कुछ नहीं भेजता। वह कुछ हटाता भी नहीं: उसकी हटाने की क्रिया आपको बताती है कि व्यक्ति ने ऐसा कहा है, और आइटम को आप निकालते हैं। वह वही दिखाता है जो उसकी प्रॉपर्टी कहती हैं।
+</Callout>
+
+**कहाँ इस्तेमाल होता है:** [फ़ाइल अपलोड](/hi/components/file-upload/) में, जहाँ हर चुनी गई फ़ाइल एक फ़ाइल आइटम है। जहाँ भी आपका प्रॉडक्ट अपने पास रखी फ़ाइलें दिखाता है, वहाँ इसे अकेले इस्तेमाल करें: किसी संदेश के अटैचमेंट, किसी रिकॉर्ड के दस्तावेज़, पहले ही भेजे जा चुके किसी अनुरोध की फ़ाइलें।
+
+इन स्थितियों में कुछ और इस्तेमाल करें:
+
+- लोग फ़ाइलें चुनते हैं और आप उन्हें लिस्ट में दिखाते हैं। वह [फ़ाइल अपलोड](/hi/components/file-upload/) है, जो फ़ाइल आइटम आपके लिए सँभालता है।
+- लोग फ़ाइलों को किसी क्रम में रखते हैं। वह ऐसी [लिस्ट](/hi/components/list/) है जिसकी पंक्तियाँ फ़ाइलें दिखाती हैं; देखें [वे फ़ाइलें जिनका क्रम लोग बदलते हैं](#वे-फ़ाइलें-जिनका-क्रम-लोग-बदलते-हैं)।
+- लोग फ़ाइलों में से चुनते हैं। वह चयन वाली [लिस्ट](/hi/components/list/) है। फ़ाइल आइटम में चयनित स्टेट नहीं होता।
+- तस्वीर ही कॉन्टेंट है, जिसे देखा जाना है। फ़ाइल आइटम की तस्वीर ग्लिफ़ की जगह पर रहती है और उसका कोई वैकल्पिक टेक्स्ट नहीं होता।
+
+वेब पर यह `<tanrei-file-item>` है। बाक़ी प्लैटफ़ॉर्म ने इसे अभी इम्प्लीमेंट नहीं किया है।
+
+### इस्तेमाल
+
+`name` दें, और वे टेक्स्ट जो आपके पास हैं। `value` वह है जो `click`, `remove` और `retry` आपको वापस देते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <ul class="attachments" aria-label="अटैचमेंट">
+      <li>
+        <tanrei-file-item value="a" name="brief.pdf" format-text="PDF" size-text="820 KB"
+                          href="/files/brief.pdf" remove-label="हटाएँ"></tanrei-file-item>
+      </li>
+      <li>
+        <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB"
+                          status="uploading" status-text="अपलोड हो रही है" progress="0.4"
+                          remove-label="हटाएँ" retry-label="फिर कोशिश करें"></tanrei-file-item>
+      </li>
+    </ul>
+
+    <script type="module">
+      import '@tanrei/web/components/file-item';
+
+      const list = document.querySelector('.attachments');
+      // फ़ाइल आइटम ख़ुद को कभी नहीं हटाता। आप उसे निकालते हैं, फ़ाइल भेजना रोकते हैं, और फ़ोकस आगे ले जाते हैं।
+      list.addEventListener('remove', (event) => {
+        cancel(event.detail.value);
+        event.target.closest('li').remove();
+      });
+      list.addEventListener('retry', (event) => send(event.detail.value));
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { FileItem } from '@tanrei/react';
+
+    <ul aria-label="अटैचमेंट">
+      {files.map((file) => (
+        <li key={file.id}>
+          <FileItem value={file.id} name={file.name} sizeText={file.sizeText}
+            status={file.status} statusText={file.statusText} progress={file.progress}
+            errorText={file.errorText} retryable={file.retryable}
+            removeLabel="हटाएँ" retryLabel="फिर कोशिश करें"
+            onRemove={() => remove(file.id)} onRetry={() => retry(file.id)} />
+        </li>
+      ))}
+    </ul>
+    ```
+  </TabItem>
+</Tabs>
+
+`removeLabel` और `retryLabel` को `setWords()` से पूरे प्रॉडक्ट के लिए एक बार दिया जा सकता है। बाक़ी हर टेक्स्ट इंस्टेंस का अपना है।
+
+## स्पेक
+
+<DemoFrame label="हर स्थिति की एक पंक्ति: इंतज़ार में, 40% तक भेजी गई, भेजी जा रही, पूरी हुई, विफल और फिर कोशिश करने लायक़, हमेशा के लिए विफल" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="brief.pdf" size-text="820 KB" status-text="इंतज़ार में" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="floor-plan.png" size-text="3.4 MB" status="uploading" status-text="अपलोड हो रही है" progress="0.4" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="survey.pdf" size-text="1.1 MB" status="uploading" status-text="अपलोड हो रही है" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="d" name="contract.pdf" size-text="2.0 MB" status="done" status-text="अपलोड हो गई" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="e" name="site-photo.png" size-text="6.8 MB" status="error" error-text="कनेक्शन टूट गया।" retryable remove-label="हटाएँ" retry-label="फिर कोशिश करें"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="f" name="scan-archive.zip" size-text="48 MB" status="error" error-text="10 MB से बड़ी है।" remove-label="हटाएँ"></tanrei-file-item>
+</DemoFrame>
+
+<ComponentSpecs name="file-item" />
+
+## दिशानिर्देश
+
+### दो रूप
+
+<DemoFrame label="वही तीन फ़ाइलें, पंक्तियों के रूप में और टाइल के रूप में" plain column>
+  <div class="not-content" style="display: grid; gap: 0.5rem; inline-size: 22.5rem; max-inline-size: 100%">
+    <tanrei-file-item value="a" name="entrance.jpeg" size-text="2.1 MB" preview preview-src={demoPicture} remove-label="हटाएँ"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 MB" preview preview-src={demoPicture} remove-label="हटाएँ"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 MB" preview remove-label="हटाएँ"></tanrei-file-item>
+  </div>
+  <div class="not-content" style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+    <tanrei-file-item form="tile" value="a" name="entrance.jpeg" preview preview-src={demoPicture} remove-label="हटाएँ"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="b" name="floor-plan.png" preview preview-src={demoPicture} remove-label="हटाएँ"></tanrei-file-item>
+    <tanrei-file-item form="tile" value="c" name="survey.pdf" preview remove-label="हटाएँ"></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| पहलू | `row` (डिफ़ॉल्ट) | `tile` |
+| --- | --- | --- |
+| किसके लिए | किसी भी प्रकार की फ़ाइलों का कॉलम। | तस्वीरों की क़तार। |
+| चौड़ाई | जितनी उसकी जगह देती है। | बॉक्स की: `width`, जो उसकी जगह से ज़्यादा चौड़ा कभी नहीं होता। |
+| ग्लिफ़ या तस्वीर | नाम से पहले। `preview` के साथ, एक छोटा वर्ग। | पूरा बॉक्स, `width` गुणा `height`। |
+| नाम | रैप होता है, और कभी नहीं कटता। | बॉक्स के नीचे एक लाइन, जो बीच से काटी जाती है ताकि उसका अंत बना रहे। |
+| दूसरी लाइन | नाम के नीचे। | बॉक्स के नीचे, उसकी चौड़ाई के भीतर रैप होती हुई। |
+| पट्टी | टेक्स्ट के नीचे। | बॉक्स के निचले किनारे के साथ-साथ। |
+| क्रियाएँ | अंत में: फिर कोशिश करना, फिर हटाना। | बॉक्स के भीतर, उसके ऊपरी कोने में, अंत की ओर। |
+
+`width` और `height` संख्याएँ हैं, और सिर्फ़ टाइल वाले रूप में पढ़ी जाती हैं। `height` के बिना बॉक्स उतना ऊँचा होता है जितना टोकन `comp.file-item.tile.media.height` कहता है; `width` के बिना वह वर्गाकार होता है। अनुपात अपनी तस्वीरों के हिसाब से चुनें: स्क्रीनशॉट के लिए `width="160" height="90"`, लोगों के पोर्ट्रेट के लिए वर्ग। बॉक्स कभी उससे सँकरा नहीं होता जितनी जगह उसकी दो क्रियाओं को चाहिए।
+
+कोई तीसरा, कॉम्पैक्ट रूप नहीं है। एक लाइन वाली फ़ाइल वह पंक्ति है जिसकी दूसरी लाइन में कुछ नहीं है।
+
+### क्या दिखता है
+
+हर भाग तब दिखता है जब आप उसे देते हैं। चालू या बंद होने वाले दो प्रॉप, `preview` और `nameHidden`, बदलते हैं कि क्या दिखता है। ऐसा कोई प्रॉप नहीं है जो दिखाए जाने वाले भागों की लिस्ट लेता हो।
+
+| भाग | कब दिखता है |
+| --- | --- |
+| ग्लिफ़ | हमेशा, जहाँ कोई तस्वीर नहीं बनाई जाती। |
+| तस्वीर | `preview` सेट है, और बनाने के लिए कोई तस्वीर है। |
+| नाम | पंक्ति में हमेशा। टाइल में भी, सिवाय तब जब `nameHidden` सेट हो और तस्वीर बनाई गई हो। |
+| शब्दों में फ़ॉर्मैट | आप `formatText` देते हैं। Tanrei के पास किसी फ़ॉर्मैट के लिए कोई शब्द नहीं है। |
+| साइज़ | आप `sizeText` देते हैं, पढ़ने वाले की भाषा के हिसाब से फ़ॉर्मैट किया हुआ। |
+| शब्दों में स्थिति | आप `statusText` देते हैं। |
+| त्रुटि | `status` का मान `error` है और आप `errorText` देते हैं। वह हर रूप में स्थिति की जगह पर आती है, और कभी नहीं कटती। |
+| पट्टी | `status` का मान `uploading` है। वह `progress` तक भरी होती है, या जब तक `progress` सेट नहीं है तब तक अनिश्चित रहती है। |
+
+पूरी हुई फ़ाइल और विफल फ़ाइल में, स्थिति के शब्दों से पहले एक निशान होता है: चेक, और त्रुटि का निशान। नाम से पहले वाला ग्लिफ़ स्थिति के साथ नहीं बदलता। इस तरह व्यक्ति हर बात के लिए एक जगह सीखता है: नाम से पहले, फ़ाइल क्या है; स्थिति से पहले, उसका हाल क्या है।
+
+`nameHidden` तस्वीरों की घनी क़तार के लिए है। वह नाम को सिर्फ़ तब छिपाता है जब तस्वीर बनाई गई हो। ग्लिफ़ दिखाने वाली टाइल अपना नाम रखती है, क्योंकि फ़ॉर्मैट का ग्लिफ़ एक ही फ़ॉर्मैट की दो फ़ाइलों में फ़र्क़ नहीं बताता। सहायक तकनीक के लिए नाम हर हाल में आइटम का नाम बना रहता है।
+
+### ग्लिफ़ फ़ॉर्मैट बताता है
+
+ग्लिफ़ के दस प्रकार हैं। हर प्रकार की मीडिया टाइप की एक लिस्ट और फ़ाइल एक्सटेंशन की एक लिस्ट होती है। ग्लिफ़ `mediaType` से चुना जाता है। जहाँ मीडिया टाइप ख़ाली है, `application/octet-stream` है या इनमें से किसी लिस्ट में नहीं है, वहाँ वह `name` के एक्सटेंशन से चुना जाता है। प्रकारों से मिलान इसी क्रम में किया जाता है। ये लिस्ट तय हैं और हर प्लैटफ़ॉर्म पर एक जैसी हैं, इसलिए कोई फ़ाइल जहाँ भी दिखे, उसका ग्लिफ़ एक ही रहता है।
+
+<DemoFrame label="दस प्रकार" plain column>
+  <div class="not-content" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; inline-size: 100%">
+    <tanrei-file-item name="handbook.pdf" readonly></tanrei-file-item>
+    <tanrei-file-item name="budget.xlsx" readonly></tanrei-file-item>
+    <tanrei-file-item name="kickoff.pptx" readonly></tanrei-file-item>
+    <tanrei-file-item name="photos.zip" readonly></tanrei-file-item>
+    <tanrei-file-item name="tokens.json" readonly></tanrei-file-item>
+    <tanrei-file-item name="entrance.jpeg" readonly></tanrei-file-item>
+    <tanrei-file-item name="walkthrough.mp4" readonly></tanrei-file-item>
+    <tanrei-file-item name="interview.mp3" readonly></tanrei-file-item>
+    <tanrei-file-item name="notes.docx" readonly></tanrei-file-item>
+    <tanrei-file-item name="model.glb" readonly></tanrei-file-item>
+  </div>
+</DemoFrame>
+
+| प्रकार | ग्लिफ़ | मीडिया टाइप | नाम के अंत |
+| --- | --- | --- | --- |
+| pdf | `picture_as_pdf` | `application/pdf` | pdf |
+| spreadsheet | `table` | `text/csv`, `text/tab-separated-values`, `application/vnd.ms-excel`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`, `application/vnd.oasis.opendocument.spreadsheet`, `application/vnd.apple.numbers`, `application/x-iwork-numbers-sffnumbers` | xls, xlsx, ods, numbers, csv, tsv |
+| presentation | `slideshow` | `application/vnd.ms-powerpoint`, `application/vnd.openxmlformats-officedocument.presentationml.presentation`, `application/vnd.oasis.opendocument.presentation`, `application/vnd.apple.keynote`, `application/x-iwork-keynote-sffkey` | ppt, pptx, odp, key |
+| archive | `folder_zip` | `application/zip`, `application/x-zip-compressed`, `application/x-tar`, `application/gzip`, `application/x-gzip`, `application/x-bzip2`, `application/x-xz`, `application/x-7z-compressed`, `application/vnd.rar`, `application/x-rar-compressed` | zip, tar, gz, tgz, bz2, xz, 7z, rar |
+| code | `code` | `text/html`, `text/css`, `text/javascript`, `application/javascript`, `application/x-javascript`, `text/typescript`, `application/typescript`, `text/jsx`, `text/tsx`, `application/json`, `application/xml`, `text/xml`, `text/yaml`, `text/x-yaml`, `application/yaml`, `application/x-yaml`, `application/x-sh`, `text/x-sh`, `text/x-shellscript`, `text/x-python`, `text/x-script.python`, `text/x-ruby`, `application/x-ruby`, `text/x-go`, `text/x-rust`, `text/x-java`, `text/x-java-source`, `text/x-kotlin`, `text/x-swift`, `text/x-c`, `text/x-chdr`, `text/x-csrc`, `text/x-c++`, `text/x-c++src`, `text/x-csharp`, `text/x-php`, `application/x-php`, `application/x-httpd-php`, `application/sql`, `text/x-sql` | html, css, js, mjs, ts, tsx, jsx, json, xml, yaml, yml, sh, py, rb, go, rs, java, kt, swift, c, h, cpp, cs, php, sql |
+| image | `image` | `image/` से शुरू होने वाला हर टाइप | png, jpg, jpeg, gif, webp, avif, svg, bmp, tif, tiff, heic, heif, ico |
+| video | `movie` | `video/` से शुरू होने वाला हर टाइप | mp4, mov, m4v, webm, mkv, avi |
+| audio | `music_note` | `audio/` से शुरू होने वाला हर टाइप | mp3, wav, m4a, aac, ogg, oga, flac, opus |
+| document | `description` | `text/` से शुरू होने वाला बाक़ी हर टाइप, और `application/rtf`, `application/msword`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `application/vnd.oasis.opendocument.text`, `application/vnd.apple.pages`, `application/x-iwork-pages-sffpages` | txt, md, rtf, doc, docx, odt, pages |
+| other | `draft` | — | बाक़ी सब कुछ, और बिना बिंदु वाला नाम |
+
+- फ़ैसला पहले मीडिया टाइप से होता है, नाम के अंत से उसके बाद। जिस फ़ाइल का मीडिया टाइप किसी लिस्ट में है, वह उसी प्रकार की है, उसके नाम का अंत चाहे जो हो।
+- फ़ॉर्मैट जानने के लिए फ़ाइल कभी नहीं खोली जाती।
+- अपने किसी फ़ॉर्मैट के लिए, `glyph` से आइकन सेट के किसी ग्लिफ़ का नाम दें, या अपना ग्लिफ़ `icon` स्लॉट में रखें।
+- हर ग्लिफ़ का एक ही रंग होता है। फ़ॉर्मैट का अपना कोई रंग नहीं होता: रंग जहाँ भी इस्तेमाल हो, एक ही बात बताता है, और फ़ॉर्मैट कोई स्थिति नहीं है।
+- जहाँ फ़ॉर्मैट मायने रखता है, वहाँ उसे `formatText` से शब्दों में बताएँ। ग्लिफ़ सहायक तकनीक से छिपा रहता है।
+
+### प्रीव्यू, और उसकी क़ीमत
+
+`preview` ग्लिफ़ की जगह पर फ़ाइल की एक तस्वीर बनाता है। उसके दो स्रोत हैं:
+
+- `previewSrc`: आपका दिया हुआ पता, उस छोटी इमेज का जो आपके सर्वर ने फ़ाइल से बनाई है। वह किसी भी फ़ॉर्मैट की फ़ाइल के लिए दिखाई जाती है।
+- ख़ुद फ़ाइल, जहाँ `previewSrc` ख़ाली है और फ़ाइल एक इमेज है। वेब पर आप `file` प्रॉपर्टी में `File` सेट करते हैं।
+
+`fit` बताता है कि तस्वीर अपने बॉक्स को कैसे भरती है। `cover`, जो डिफ़ॉल्ट है, बॉक्स को भर देता है और जो नहीं समाता उसे काट देता है; इसे फ़ोटो के लिए इस्तेमाल करें। `contain` पूरी तस्वीर को बॉक्स के बैकग्राउंड पर दिखाता है; इसे स्कैन, हस्ताक्षर और डायग्राम के लिए इस्तेमाल करें, जहाँ किनारे मायने रखते हैं।
+
+<DemoFrame label="160 गुणा 90 का बॉक्स: cover, contain, और छिपा हुआ नाम" plain>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} value="a" name="entrance.jpeg" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} fit="contain" value="b" name="signature.png" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" form="tile" width="160" height="90" preview preview-src={demoPicture} name-hidden value="c" name="floor-plan.png" remove-label="हटाएँ"></tanrei-file-item>
+</DemoFrame>
+
+प्रीव्यू की क़ीमत:
+
+| तस्वीर कहाँ से आती है | क़ीमत |
+| --- | --- |
+| `preview` बंद होने पर, जो डिफ़ॉल्ट है | कुछ नहीं। सौ फ़ाइल आइटम की क़ीमत उतनी ही है जितनी उनके टेक्स्ट की। |
+| `previewSrc` के साथ | हर आइटम के लिए इमेज का एक अनुरोध, जिसे प्लैटफ़ॉर्म की अपनी इमेज लोडिंग करती है। |
+| ख़ुद फ़ाइल के साथ | फ़ाइल के लिए एक पता, जिसे आइटम तब बनाता है जब वह पहली बार दिखने वाले हिस्से में या उसके पास आता है, और तब छोड़ता है जब आइटम पेज से हटता है, जब आप उसे दूसरी फ़ाइल देते हैं या कोई फ़ाइल नहीं देते, और जब प्रीव्यू की ज़रूरत नहीं रहती। तस्वीर बनाने के लिए फ़ाइल को प्लैटफ़ॉर्म का इमेज डिकोडर पढ़ता है। आइटम ख़ुद कुछ नहीं पढ़ता। |
+
+- ख़ुद फ़ाइल से तस्वीर सिर्फ़ इमेज की बनाई जाती है। वीडियो का फ़्रेम या दस्तावेज़ का पेज दिखाने के लिए फ़ाइल को खोलना और पढ़ना पड़ता, जो Tanrei का कोई कंपोनेंट नहीं करता। उनके लिए `previewSrc` दें।
+- जब तक तस्वीर बनाई नहीं जा सकती, और अगर वह बन ही नहीं सकती, तब फ़ॉर्मैट का ग्लिफ़ बनाया जाता है। न कोई स्पिनर होता है, न टूटी तस्वीर का निशान, और `status` को छुआ नहीं जाता: जो थंबनेल लोड नहीं हुआ, वह फ़ाइल की विफलता नहीं है।
+- तस्वीर का कोई वैकल्पिक टेक्स्ट नहीं होता। वह वहीं रहती है जहाँ ग्लिफ़ था, और फ़ाइल का नाम `name` से आता है।
+
+### दबाने लायक़, लिंक, या सिर्फ़ पढ़ने के लिए
+
+डिफ़ॉल्ट रूप से फ़ाइल आइटम की बॉडी न फ़ोकस लेती है, न किसी बात का जवाब देती है। आइटम में सिर्फ़ उसकी क्रियाएँ रहती हैं।
+
+<DemoFrame label="बटन वाली बॉडी, नए टैब में खुलने वाला लिंक, और सिर्फ़ पढ़ने वाली फ़ाइल" plain column>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="a" name="floor-plan.png" size-text="3.4 MB" interactive remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="b" name="contract.pdf" size-text="2.0 MB" href="#दबाने-लायक़-लिंक-या-सिर्फ़-पढ़ने-के-लिए" target="new" target-label="नए टैब में खुलता है" remove-label="हटाएँ"></tanrei-file-item>
+  <tanrei-file-item class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" value="c" name="invoice-0412.pdf" size-text="96 KB" status="done" status-text="4 दिसंबर को भेजी गई" readonly></tanrei-file-item>
+</DemoFrame>
+
+| प्रॉपर्टी | बॉडी क्या है | किसके लिए |
+| --- | --- | --- |
+| `interactive` | एक बटन। वह `value` के साथ `click` एमिट करता है। | फ़ाइल को वहीं खोलना जहाँ व्यक्ति है: आपके अपने व्यूअर में कोई तस्वीर, किसी पैनल में कोई दस्तावेज़। |
+| `href` | फ़ाइल का लिंक। वह पहले `click` एमिट करता है; नेविगेशन ख़ुद सँभालने के लिए उसे रद्द करें। | वह फ़ाइल जो आपके सर्वर के पास पहले से है। `target="new"` के साथ `targetLabel` दें। |
+| दोनों में से कोई नहीं | दबाने लायक़ नहीं। | वह फ़ाइल जो सिर्फ़ लिस्ट में दिखाई गई है। |
+
+बॉडी में ग्लिफ़ या तस्वीर, और टेक्स्ट आते हैं। क्रियाएँ उसके बग़ल में रहती हैं और कभी उसके भीतर नहीं, इसलिए दबाने लायक़ फ़ाइल आइटम में ज़्यादा से ज़्यादा तीन पड़ाव होते हैं: बॉडी, फिर कोशिश करना, हटाना।
+
+`readOnly` दोनों में से कोई क्रिया नहीं बनाता और उनके लिए जगह भी नहीं रखता। इसे ऐसे रिकॉर्ड की फ़ाइलों के लिए इस्तेमाल करें जो सिर्फ़ पढ़ा जाता है। बॉडी तब भी दबाई जा सकती है।
+
+`disabled` क्रियाओं और बॉडी को अक्षम कर देता है। आइटम जो दिखाता है वह जैसा है वैसा रहता है, और पढ़ा जा सकता है।
+
+### वे फ़ाइलें जिनका क्रम लोग बदलते हैं
+
+फ़ाइल आइटम में न हैंडल होता है, न ऊपर-नीचे ले जाने वाले बटन, न कोई क्रम। क्रम बदलना [लिस्ट](/hi/components/list/) का काम है। हर फ़ाइल को क्रम बदलने वाली लिस्ट की एक पंक्ति के रूप में दिखाएँ: नाम हेडलाइन के रूप में, साइज़ सहायक टेक्स्ट के रूप में, शुरुआती जगह पर ग्लिफ़ या तस्वीर, और अंतिम जगह पर उसे हटाने के लिए आपका अपना बटन।
+
+<ListReorderProduct />
+
+<DemoFrame label="वे फ़ाइलें जिनका क्रम लोग बदलते हैं: क्रम बदलने वाली लिस्ट, जिसकी पंक्तियाँ फ़ाइलें दिखाती हैं" plain>
+  <tanrei-list reorder="buttons" data-demo-product move-up-label="ऊपर ले जाएँ" move-down-label="नीचे ले जाएँ" moved-text="{headline} अब {count} में से {position} नंबर पर है" style="inline-size: 26rem">
+    <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf"><tanrei-button slot="trailing" variant="text" label="हटाएँ: cover-letter.pdf" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="resume.docx" supporting-text="दस्तावेज़ · 88 KB" leading-icon="description"><tanrei-button slot="trailing" variant="text" label="हटाएँ: resume.docx" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+    <tanrei-list-item headline="portfolio.zip" supporting-text="आर्काइव · 14 MB" leading-icon="folder_zip"><tanrei-button slot="trailing" variant="text" label="हटाएँ: portfolio.zip" data-demo-remove><span slot="icon">close</span></tanrei-button></tanrei-list-item>
+  </tanrei-list>
+</DemoFrame>
+
+```html
+<tanrei-list reorder="buttons" move-up-label="ऊपर ले जाएँ" move-down-label="नीचे ले जाएँ"
+             moved-text="{headline} अब {count} में से {position} नंबर पर है">
+  <tanrei-list-item headline="cover-letter.pdf" supporting-text="PDF · 120 KB" leading-icon="picture_as_pdf">
+    <tanrei-button slot="trailing" variant="text" label="हटाएँ: cover-letter.pdf"><span slot="icon">close</span></tanrei-button>
+  </tanrei-list-item>
+  …
+</tanrei-list>
+```
+
+इससे लिस्ट की पंक्ति बनती है, फ़ाइल आइटम नहीं: ग्लिफ़ का नाम आप ख़ुद देते हैं, और पंक्ति में न पट्टी होती है, न स्थिति का निशान। लिस्ट पंक्तियों को खिसकाती है, हर बदलाव पढ़कर सुनाती है और फ़ोकस बनाए रखती है; लिस्ट के पेज पर [क्रम बदलना](/hi/components/list/#क्रम-बदलना) देखें। लिस्ट की पंक्ति के कॉन्टेंट के रूप में फ़ाइल आइटम, और टाइल की ऐसी क़तार जिसका क्रम लोग बदलते हैं, अभी नहीं बने हैं।
+
+### शब्द
+
+फ़ाइल आइटम के अपने कोई शब्द नहीं हैं। दो शब्द `setWords()` से पूरे प्रॉडक्ट के लिए एक बार दिए जा सकते हैं; बाक़ी हर टेक्स्ट इंस्टेंस की प्रॉपर्टी है।
+
+| प्रॉपर्टी | प्रॉडक्ट के शब्दों की कुंजी | इसके बिना |
+| --- | --- | --- |
+| `removeLabel` | `removeLabel` | हटाने की क्रिया दिखती है और उसका कोई नाम नहीं होता। डीबग बिल्ड इसकी रिपोर्ट करता है। |
+| `retryLabel` | `retryLabel` | फिर कोशिश करने की क्रिया दिखती है और उसका कोई नाम नहीं होता। डीबग बिल्ड इसकी रिपोर्ट करता है। |
+
+हर क्रिया का विवरण उसकी फ़ाइल का नाम है। एक शब्द, "हटाएँ", हर फ़ाइल के लिए काफ़ी है: व्यक्ति "हटाएँ, बटन, brief.pdf" सुनता है।
+
+### दाएँ से बाएँ
+
+दाएँ से बाएँ वाले लेआउट में ग्लिफ़ या तस्वीर दाईं ओर रहती है और क्रियाएँ बाईं ओर, जिनमें हटाने की क्रिया सबसे बाहर होती है; पट्टी दाईं ओर से भरती है, और टाइल की क्रियाएँ उसके ऊपरी बाएँ कोने में होती हैं। तस्वीर कभी मिरर नहीं होती। लैटिन अक्षरों वाला फ़ाइल का नाम अपना क्रम बनाए रखता है, अपने बिंदु और अपने एक्सटेंशन के साथ। फ़ॉर्मैट के दस ग्लिफ़ में से सिर्फ़ `other` वाला मिरर होता है, क्योंकि आइकन सेट उसे ऐसा चिह्नित करता है।
+
+### करें
+
+- पूरी हुई फ़ाइल को `statusText` दें और विफल फ़ाइल को `errorText`। स्थिति कभी सिर्फ़ निशान या रंग से नहीं बताई जाती।
+- `retryable` सिर्फ़ उस विफलता के लिए सेट करें जो दोबारा कोशिश करने से ठीक हो सकती है। जो फ़ाइल बहुत बड़ी है, वह दोबारा भी बहुत बड़ी ही होगी।
+- साइज़ ख़ुद फ़ॉर्मैट करें। एक मेगाबाइट 1000 किलोबाइट है या 1024, यह आपके प्रॉडक्ट का फ़ैसला है।
+- जो फ़ाइल आइटम साथ के हैं, उन्हें अपनी किसी लिस्ट में रखें, यानी नाम वाले `<ul>` में, या किसी फ़ाइल अपलोड में।
+- आइटम हटाने के बाद फ़ोकस ख़ुद आगे ले जाएँ। अकेला फ़ाइल आइटम नहीं जान सकता कि उसके बग़ल में क्या है।
+
+### न करें
+
+- यह उम्मीद न करें कि आइटम ख़ुद को हटाएगा, अपनी स्थिति बदलेगा या अपनी पट्टी आगे बढ़ाएगा। वह वही बनाता है जो आप सेट करते हैं।
+- जो फ़ाइलें तस्वीरें नहीं हैं, उनके लिए `nameHidden` इस्तेमाल न करें। उनकी टाइल नाम वैसे भी रखती हैं।
+- उसके भीतर मेन्यू, चेकबॉक्स या कैप्शन न रखें। उसका एक ही स्लॉट है, ग्लिफ़ का। फ़ाइल की बाक़ी क्रियाएँ आइटम के बग़ल में रहती हैं।
+- इसे उस लिस्ट की पंक्ति के रूप में इस्तेमाल न करें जिसमें से लोग चुनते हैं या जिसका क्रम बदलते हैं। वह लिस्ट की अपनी पंक्ति है।
+
+## सुलभता
+
+<ComponentAccessibility name="file-item" />
+
+### कंपोनेंट क्या सँभालता है
+
+- अकेला फ़ाइल आइटम एक ग्रुप है, जिसका नाम फ़ाइल का नाम है। फ़ाइल अपलोड में वह अपलोड की लिस्ट का एक आइटम है।
+- दबाने लायक़ बॉडी एक बटन या एक लिंक है, जिसका नाम फ़ाइल का नाम है और जिसका विवरण दूसरी लाइन है। फ़ोकस के क्रम में वह क्रियाओं से पहले आती है। लिंक Enter से सक्रिय होता है, Space से नहीं, और नए टैब में खुलने वाला लिंक अपने नाम के बाद `targetLabel` बोलता है।
+- क्रियाएँ बटन हैं, जिनके नाम `removeLabel` और `retryLabel` से आते हैं और जिनका विवरण फ़ाइल का नाम है। फिर कोशिश करना, हटाने से पहले आता है।
+- पट्टी एक प्रोग्रेस बार है, जिसका नाम फ़ाइल से आता है। त्रुटि दूसरी लाइन का टेक्स्ट है, जो स्थिति की जगह पर पढ़ा जाता है।
+- ग्लिफ़, तस्वीर और स्थिति का निशान सहायक तकनीक से छिपे रहते हैं। वे जो दिखाते हैं, वह शब्द बताते हैं।
+- फ़ाइल आइटम कुछ पढ़कर नहीं सुनाता। जिसके पास कई आइटम हैं, उसके पास उन सबके लिए एक लाइव रीजन होता है, जैसा फ़ाइल अपलोड के पास है।
+- पूरा नाम सहायक तकनीक तक हमेशा पहुँचता है, वहाँ भी जहाँ टाइल उसे काट देती है और जहाँ `nameHidden` उसे छिपा देता है।
+- 200% टेक्स्ट पर पंक्ति रैप होती है और कुछ नहीं खोती। टाइल का बॉक्स अपना साइज़ रखता है और उसके टेक्स्ट उसके नीचे बढ़ते हैं।
+- फ़ोर्स्ड कलर्स में बॉक्स का और टाइल की क्रियाओं की डिस्क का किनारा बना रहता है, और पट्टी दिखती रहती है। तस्वीर जैसी है वैसी छोड़ी जाती है।
+- स्टेट के बीच रंग के बदलाव थोड़े समय में ऐनिमेट होते हैं, और जहाँ मोशन कम किया गया है वहाँ तुरंत हो जाते हैं।
+
+वेब पर ज्ञात कमियाँ:
+
+- जो तस्वीर चलती है, जैसे ऐनिमेटेड GIF, उसे ब्राउज़र का इमेज एलिमेंट चलाता है। फ़ाइल आइटम उसे रोककर नहीं रख सकता। जहाँ यह मायने रखता है, वहाँ `previewSrc` में एक स्थिर इमेज दें।
+- एलिमेंट के डिफ़ाइन होने से पहले कुछ नहीं बनाया जाता, क्योंकि नाम एक ऐट्रिब्यूट है, दस्तावेज़ का टेक्स्ट नहीं। जिस पेज को वहाँ भी फ़ाइलें लिस्ट में दिखानी हैं जहाँ स्क्रिप्ट नहीं चलती, वह अपने लिंक ख़ुद लिखता है।
+
+### आपको क्या करना है
+
+- `name` हमेशा दें।
+- `removeLabel` और `retryLabel` दें, एलिमेंट पर या `setWords()` से एक बार।
+- हर स्थिति और हर विफलता शब्दों में बताएँ: `statusText` और `errorText`।
+- `target="new"` के साथ `targetLabel` दें।
+- फ़ाइल आइटम के ग्रुप को अपनी एक लिस्ट और अपना एक नाम दें, और जो जोड़ा गया, पूरा हुआ या विफल हुआ, उसे अपने एक लाइव रीजन में पढ़कर सुनाएँ। फ़ाइल अपलोड ये दोनों काम आपके लिए करता है।
+- आइटम हटाने के बाद फ़ोकस को अगली फ़ाइल की हटाने की क्रिया पर ले जाएँ, या उस चीज़ पर जिसने फ़ाइलें जोड़ी थीं।

@@ -1,0 +1,45 @@
+---
+// What every shipped design system resolves the given tokens to: one row per system in tokens/systems/, one column
+// per token. Choices of kind are shown by name. Nothing here is typed by hand.
+import { shippedSystems, systemValue, ns } from '../../lib/tokens';
+import { contentLang, strings } from '../../lib/i18n';
+import SourceNote from '../SourceNote.astro';
+import Table from '../Table.astro';
+
+interface Props {
+  /** Ids below the namespace, e.g. `sys.behavior.pressed-feedback` or `sys.shape.corner-smoothing`. */
+  tokens: string[];
+  /** How many leading path segments to drop from the column headers (`sys.behavior.` → 2). */
+  trim?: number;
+}
+const { tokens, trim = 2 } = Astro.props;
+const t = strings(contentLang(Astro));
+const label = (id: string) => id.split('.').slice(trim).join('.');
+---
+
+<Table label={tokens.map(label).join(', ')} rowHeaders stickyFirstColumn>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col" data-wrap="false">{t.designSystem}</th>
+        {/* Not `data-wrap="false"`: a header cell's word is its whole column's (TBL-3), and a value can be a font stack. */}
+        {tokens.map((id) => <th scope="col"><code>{label(id)}</code></th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {shippedSystems.map((system) => (
+        <tr>
+          <th scope="row" data-wrap="false"><code>{system.id}</code></th>
+          {tokens.map((id) => <td>{systemValue(system, `${ns}.${id}`)}</td>)}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</Table>
+<SourceNote files={['tokens/systems/*.system.json', `design/tokens/<system>/${ns}.light.tokens.json`]} />
+
+<style>
+  td {
+    min-inline-size: 7rem;
+  }
+</style>

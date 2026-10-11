@@ -1,0 +1,464 @@
+---
+title: رفع الملفات
+description: يتيح للأشخاص اختيار ملفات بمنتقي ملفات، ويعرض ما اختير عناصر ملفات، في عمود من الصفوف أو في سلسلة من البلاطات. إذا وُضع في نموذج احتفظ بالملفات المختارة وأرسلها بلا شيفرة؛ والمنتج الذي يرسل الملفات بنفسه يعطي عناصر الملفات. وهو لا يرفع شيئًا بنفسه أبدًا.
+translationOf: components/file-upload.mdx
+sourceHash: 92200944376e4e306774065dde5f3c738369a9a3
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+import Callout from '../../../../components/Callout.astro';
+import { demoPicture } from '../../../../lib/demo-picture';
+
+## نظرة عامة
+
+<ComponentAvailability name="file-upload" />
+
+<DemoFrame label="رفع الملفات بكل تخطيط. اختر ملفًا: يُسرد، ويمكن أن يُزال. ولا يُرسل شيء." column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="المرفق" accept=".pdf" constraints-text="ملف PDF، حتى 10 ميغابايت" max-size="10000000" empty-text="لم يُختر أي ملف" remove-label="إزالة" type-error-text="يمكن إضافة ملفات PDF فقط." size-error-text="الحجم أكبر من 10 ميغابايت.">
+    <tanrei-button slot="trigger" variant="outlined">اختيار ملف</tanrei-button>
+  </tanrei-file-upload>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" layout="drop-area" multiple label="المرفقات" accept=".pdf,image/png" max-size="10000000" drop-text="اسحب الملفات إلى هنا، أو اخترها" constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف" remove-label="إزالة" type-error-text="يمكن إضافة ملفات PDF و PNG فقط." size-error-text="الحجم أكبر من 10 ميغابايت.">
+    <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
+  </tanrei-file-upload>
+</DemoFrame>
+
+مكوّن رفع الملفات (file upload) شيئان في مكان واحد: طريقة اختيار الملفات، وقائمة ما اختير. وهو الحالة المعتادة، جاهزًا للاستخدام في نموذج.
+
+**يُبنى من** [منتقي ملفات](/ar/components/file-picker/) و [عناصر ملفات](/ar/components/file-item/). منتقي الملفات هو طريقة الاختيار: [زر](/ar/components/button/) من عندك يفتح منتقي الملفات الخاص بالمنصة، ومنطقة الإفلات (drop area) المحيطة به، والقيود بالكلمات، والحكم على ما اختير. وعنصر الملف ملف واحد مختار: رسمه أو صورته، واسمه، وحجمه، وحالته، وإجراءا إزالته وإعادة محاولته. ومكوّن رفع الملفات لا يرسم هذا ولا ذاك. بل يضيف ما يربط بينهما: أيّ الملفات يُحتفظ بها، وكم ملفًا آخر ما زال له مكان، والهيئة نفسها (صف أو بلاطة) لكل الملفات، ورسالة واحدة لتغييرات كثيرة، وأين يذهب التركيز بعد الإزالة، وقيمة النموذج.
+
+الخاصية `rows` تقول من يحتفظ بالصفوف:
+
+- القيمة `own`، وهي الافتراضية. يحتفظ مكوّن رفع الملفات بالملفات المختارة ويرسم صفوفها بنفسه. ضعه في نموذج فيعمل: يختار الأشخاص، ويرون القائمة، ويزيلون، ويرسلون. ولا تكتب أنت أي شيفرة.
+- القيمة `given`. منتجك يعطي الصفوف. استخدمها حين ترسل كل ملف فور اختياره وتريد أن يعرض كل صف حالته وتقدّمه وإجراء لإعادة المحاولة.
+
+<Callout type="caution" title="لا يرفع شيئًا">
+مكوّن رفع الملفات لا يفتح أي اتصال ولا يقرأ بايتًا واحدًا من ملف. مع `rows="own"` يحتفظ بمرجع المتصفح إلى كل ملف مختار، والنموذج يرسل الملفات حين يُرسَل. ومع `rows="given"` لا يحتفظ بشيء. أما إلى أين تذهب الملفات، وبأي بيانات اعتماد، وعلى أي أجزاء، وبكم إعادة محاولة، فذلك شيفرة نموذجك أو منتجك. والعيّنات في هذه الصفحة لا ترسل شيئًا.
+</Callout>
+
+استخدم شيئًا آخر حين:
+
+- تكون الملفات مخزَّنة سلفًا، والأشخاص يفتحونها أو يحدّدونها. فتلك [قائمة](/ar/components/list/).
+- يُدخل الأشخاص قيمًا، كالمستلمين أو التصنيفات. فتلك رقاقات إدخال في [مجموعة وسوم](/ar/components/tag-group/).
+- تعرض فقط إلى أين وصلت مهمة واحدة. فذلك [مؤشر تقدم](/ar/components/progress-indicator/).
+- تذهب الملفات إلى مكان ليس قائمة تحت المنتقي: داخل رسالة تُكتب، أو إلى لوحة رسم، أو تُقرأ في الحال ولا يُحتفظ بها. فذلك [منتقي ملفات](/ar/components/file-picker/) وحده، ومعه [عناصر ملفات](/ar/components/file-item/) حيثما تعرضها؛ انظر [مستوى واحد إلى الأسفل](#مستوى-واحد-إلى-الأسفل).
+- يجب أن تقبل الصفحة الملفات حيث لا يعمل السكربت. اكتب عنصر `<input type="file">` أصليًّا في نموذجك. فالعنصر المخصص (custom element) لا يستطيع أن يفتح المنتقي ولا أن يحمل ملفًا بلا سكربت.
+
+على الويب هو `<tanrei-file-upload>`. والمنصات الأخرى لم تنفّذه بعد.
+
+### الاستخدام
+
+ضع العنصر في نموذجك وأعطِه `name` ومشغِّلًا (trigger). هذا كل شيء. تُسرد الملفات المختارة، ولكل صف إجراء إزالة، والنموذج يرسل الملفات المحتفَظ بها.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <form method="post" enctype="multipart/form-data" action="/requests">
+      <tanrei-file-upload name="attachments" multiple
+                          accept=".pdf,image/png" max-size="10000000"
+                          label="المرفقات"
+                          constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف"
+                          remove-label="إزالة"
+                          type-error-text="يمكن إضافة ملفات PDF و PNG فقط."
+                          size-error-text="الحجم أكبر من 10 ميغابايت.">
+        <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
+      </tanrei-file-upload>
+      <button type="submit">إرسال</button>
+    </form>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload } from '@tanrei/react';
+
+    <form method="post" encType="multipart/form-data" action="/requests">
+      <FileUpload
+        name="attachments"
+        multiple
+        accept={['.pdf', 'image/png']}
+        maxSize={10_000_000}
+        label="المرفقات"
+        constraintsText="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف"
+        removeLabel="إزالة"
+        typeErrorText="يمكن إضافة ملفات PDF و PNG فقط."
+        sizeErrorText="الحجم أكبر من 10 ميغابايت."
+      >
+        <Button slot="trigger" variant="outlined">اختيار ملفات</Button>
+      </FileUpload>
+      <button type="submit">إرسال</button>
+    </form>
+    ```
+  </TabItem>
+</Tabs>
+
+ما يحدث من دون أن تكتب شيئًا:
+
+- مع `multiple` يُضاف الاختيار الثاني إلى الأول. والخاصية `maxFiles` تعدّ كل ملف محتفَظ به. ومن دون `multiple` يأخذ الملف الجديد مكان الملف المحتفَظ به.
+- الملف نفسه إذا اختير مرتين يُحتفظ به مرة واحدة.
+- الملف الذي يخالف قيدًا لا يُحتفظ به. يُرسم صفًّا فاشلًا مع جملتك التي تقول السبب، ويزول حين يزيله الشخص أو يختار من جديد.
+- إجراء الإزالة يزيل الصف. وينتقل التركيز إلى الصف التالي.
+- يرسل النموذج الملفات المحتفَظ بها تحت الاسم `name`. وإعادة الضبط تفرّغ القائمة.
+
+ثلاثة أسطر اختيارية من الشيفرة تضيف ما لا يستطيع الترميز قوله:
+
+```js
+const upload = document.querySelector('tanrei-file-upload');
+
+// حجم الملف، بكلمات منتجك. من دونها لا يُرسم حجم.
+const megabytes = new Intl.NumberFormat('ar-u-nu-latn', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+upload.formatSize = (bytes) => megabytes.format(bytes / 1e6);
+
+// تغيّرت الملفات المحتفَظ بها بفعل الشخص.
+upload.addEventListener('change', ({ detail }) => console.log(detail.files));
+
+// من شيفرتك: اقرأ الملفات المحتفَظ بها، وسلِّم ملفات، وامسح.
+upload.files;          // مصفوفة File[] جديدة عند كل قراءة
+upload.add(files);     // يُحكم عليها كما يُحكم على اختيار؛ ويعيد الملفات المرفوضة مع أسبابها
+upload.clear();
+```
+
+في React تأتي هذه الثلاثة عبر مرجع (ref): `ref.current.files` و `ref.current.add(files)` و `ref.current.clear()`، مع `formatSize` و `onChange` خاصيتين.
+
+### إرسال الملفات بنفسك
+
+اكتب `rows="given"` حين يرسل منتجك كل ملف بنفسه ويخبر عن حاله. عند الحدث `select` تضيف [عنصر ملف](/ar/components/file-item/) لكل ملف تحتفظ به. وعند الحدث `remove` في عنصر ملف تُخرجه. وعندئذ لا يضيف المكوّن شيئًا ولا يزيل شيئًا بنفسه، ولا يحتفظ بأي ملف.
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-file-upload id="attachments" rows="given" layout="drop-area" multiple
+                        accept=".pdf,image/png" max-size="10000000"
+                        label="المرفقات"
+                        drop-text="اسحب الملفات إلى هنا، أو اخترها"
+                        constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف"
+                        remove-label="إزالة" retry-label="إعادة المحاولة">
+      <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
+    </tanrei-file-upload>
+
+    <script type="module">
+      import '@tanrei/web/components/file-upload';
+      import '@tanrei/web/components/button';
+
+      const upload = document.querySelector('#attachments');
+      const size = new Intl.NumberFormat('ar-u-nu-latn', { style: 'unit', unit: 'megabyte', maximumFractionDigits: 1 });
+
+      upload.addEventListener('select', ({ detail }) => {
+        for (const file of detail.files) {
+          const row = document.createElement('tanrei-file-item');
+          Object.assign(row, { value: crypto.randomUUID(), name: file.name, sizeText: size.format(file.size / 1e6), status: 'uploading', statusText: 'جارٍ الرفع', progress: 0 });
+          upload.append(row);
+          // شيفرتك ترسل الملف وتخبر بما جرى. والمكوّن يرسم ما تعيّنه فقط.
+          send(file, {
+            onProgress: (share) => (row.progress = share),
+            onDone: () => Object.assign(row, { status: 'done', statusText: 'تم الرفع' }),
+            onError: () => Object.assign(row, { status: 'error', errorText: 'انقطع الاتصال.', retryable: true }),
+          });
+        }
+      });
+
+      // للملف المرفوض سبب هو اسم لا جملة. قله بكلماتك.
+      upload.addEventListener('reject', ({ detail }) => {
+        const tooLarge = detail.files.filter((refused) => refused.reason === 'size').length;
+        if (tooLarge) upload.announcement = `عدد الملفات التي يتجاوز حجمها 10 ميغابايت: ${tooLarge}.`;
+      });
+
+      // الصف لا يزيل نفسه أبدًا. أنت تُخرجه، والتركيز ينتقل إلى الصف التالي.
+      upload.addEventListener('remove', (event) => event.target.remove());
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Button, FileUpload, FileItem } from '@tanrei/react';
+
+    <FileUpload
+      rows="given"
+      layout="drop-area"
+      multiple
+      accept={['.pdf', 'image/png']}
+      maxSize={10_000_000}
+      label="المرفقات"
+      dropText="اسحب الملفات إلى هنا، أو اخترها"
+      constraintsText="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف"
+      removeLabel="إزالة"
+      retryLabel="إعادة المحاولة"
+      onSelect={(event) => start(event.detail.files)}
+      onReject={(event) => explain(event.detail.files)}
+    >
+      <Button slot="trigger" variant="outlined">اختيار ملفات</Button>
+      {rows.map((row) => (
+        <FileItem key={row.id} value={row.id} name={row.name} sizeText={row.sizeText} status={row.status} statusText={row.statusText} progress={row.progress} errorText={row.errorText} retryable={row.retryable} onRemove={() => remove(row.id)} onRetry={() => retry(row.id)} />
+      ))}
+    </FileUpload>
+    ```
+  </TabItem>
+</Tabs>
+
+<Callout type="caution" title="الصفوف لا تُرسم إلا حين تُعطى">
+العنصر `<tanrei-file-item>` الذي تكتبه داخل مكوّن رفع الملفات لا يُرسم إلا مع `rows="given"`. ومن دون خاصية HTML (attribute) هذه يحتفظ مكوّن رفع الملفات بملفاته هو، ولا تُرسم صفوفك، وتبلّغ بنيات التنقيح (debug) عن ذلك.
+</Callout>
+
+### مستوى واحد إلى الأسفل
+
+الشيء نفسه مكتوبًا باليد من عضويه هو الصورة نفسها، بالأسماء والأوصاف والحالات نفسها:
+
+```html
+<!-- مكوّن رفع الملفات -->
+<tanrei-field label="المرفقات">
+  <tanrei-file-upload multiple accept=".pdf" max-files="5" rows="given"
+      constraints-text="ملفات PDF، 5 ملفات على الأكثر" empty-text="لم يُختر أي ملف" remove-label="إزالة" retry-label="إعادة المحاولة">
+    <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" status-text="جارٍ الرفع" progress="0.4"></tanrei-file-item>
+  </tanrei-file-upload>
+</tanrei-field>
+
+<!-- مستوى واحد إلى الأسفل: العضوان، يرتّبهما المنتج -->
+<tanrei-field label="المرفقات">
+  <tanrei-file-picker multiple accept=".pdf" max-files="5"
+      constraints-text="ملفات PDF، 5 ملفات على الأكثر" selection-text="لم يُختر أي ملف">
+    <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
+  </tanrei-file-picker>
+</tanrei-field>
+<ul class="my-files" aria-label="المرفقات">
+  <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" status-text="جارٍ الرفع" progress="0.4"
+        remove-label="إزالة" retry-label="إعادة المحاولة"></tanrei-file-item></li>
+</ul>
+```
+
+<DemoFrame label="الشيء نفسه مكتوبًا باليد: منتقي ملفات، وقائمة من عند الصفحة فيها عنصر ملف واحد" column>
+  <tanrei-file-picker class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" label="المرفقات" multiple accept=".pdf" max-files="5" constraints-text="ملفات PDF، 5 ملفات على الأكثر">
+    <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
+  </tanrei-file-picker>
+  <ul class="not-content" aria-label="المرفقات" style="list-style: none; margin: 0; padding: 0; inline-size: 22.5rem; max-inline-size: 100%">
+    <li><tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status="uploading" status-text="جارٍ الرفع" progress="0.4" remove-label="إزالة" retry-label="إعادة المحاولة"></tanrei-file-item></li>
+  </ul>
+</DemoFrame>
+
+صف الملف هو العنصر نفسه وحده وداخل مكوّن رفع الملفات. وما لا تحصل عليه النسخة المصنوعة باليد هو الحالة التي يحتفظ بها مكوّن رفع الملفات:
+
+- رسالة واحدة مهذَّبة لتغييرات كثيرة.
+- التركيز الذي ينتقل إلى الملف التالي بعد الإزالة.
+- قيمة النموذج، وإعادة ضبطه، والتحقق منه.
+- تجاوز الملف الذي اختير مرتين، والحكم في كم ملفًا آخر ما زال له مكان.
+- لكل الملفات الهيئة نفسها (صف أو بلاطة)، والملاءمة نفسها (`cover` أو `contain`)، والاسمان نفساهما للإجراءين.
+- القائمة المحيطة بالعناصر، والمجموعة المحيطة بالكل.
+
+انزل إلى هذا المستوى حين تحتاج إلى ترتيب لا يقدّمه مكوّن رفع الملفات:
+
+| تحتاج إلى | استخدم |
+| --- | --- |
+| طريقة للاختيار، وقائمة تحتها، وقيمة نموذج | مكوّن رفع الملفات |
+| الملفات المختارة في مكان غير ما تحت المنتقي: داخل رسالة، أو بجانب معاينة، أو في جدول | [منتقي ملفات](/ar/components/file-picker/)، و [عناصر ملفات](/ar/components/file-item/) حيث تعرضها |
+| ملف واحد يُقرأ في الحال ولا يُحتفظ به | [منتقي ملفات](/ar/components/file-picker/) وحده |
+| ملفات موجودة سلفًا عند منتجك، ولا شيء يُختار | [عناصر ملفات](/ar/components/file-item/) وحدها |
+| ملفات بترتيب يغيّره الأشخاص | [قائمة](/ar/components/list/) تعرض صفوفها الملفات؛ انظر [صفحة عنصر الملف](/ar/components/file-item/#ملفات-بترتيب-يغيّره-الأشخاص) |
+
+## المواصفات
+
+<DemoFrame label="صفوف يعطيها المنتج، صف لكل حالة: في الانتظار، وأُرسل منه 40%، وجارٍ إرساله، ومكتمل، وفشل ويمكن إعادة محاولته، وفشل نهائيًّا" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple label="المرفقات" constraints-text="ملفات PDF أو PNG، حتى 10 ميغابايت لكل ملف" remove-label="إزالة" retry-label="إعادة المحاولة">
+    <tanrei-button slot="trigger" variant="outlined">اختيار ملفات</tanrei-button>
+    <tanrei-file-item value="a" name="brief.pdf" size-text="820 كيلوبايت" status-text="في الانتظار"></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" size-text="3.4 ميغابايت" status="uploading" status-text="جارٍ الرفع" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf" size-text="1.1 ميغابايت" status="uploading" status-text="جارٍ الرفع"></tanrei-file-item>
+    <tanrei-file-item value="d" name="contract.pdf" size-text="2.0 ميغابايت" status="done" status-text="تم الرفع"></tanrei-file-item>
+    <tanrei-file-item value="e" name="site-photo.png" size-text="6.8 ميغابايت" status="error" error-text="انقطع الاتصال." retryable></tanrei-file-item>
+    <tanrei-file-item value="f" name="scan-archive.pdf" size-text="48 ميغابايت" status="error" error-text="الحجم أكبر من 10 ميغابايت."></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+<DemoFrame label="مكوّن رفع الملفات نفسه ببلاطات: كل ملف صندوق فيه صورته، والاسم تحته" plain column>
+  <tanrei-file-upload class="not-content" style="inline-size: 22.5rem; max-inline-size: 100%" rows="given" multiple item-form="tile" item-preview label="الصور" constraints-text="صور، حتى 5 ميغابايت لكل صورة" remove-label="إزالة" retry-label="إعادة المحاولة">
+    <tanrei-button slot="trigger" variant="outlined">اختيار صور</tanrei-button>
+    <tanrei-file-item value="a" name="entrance.jpeg" preview-src={demoPicture}></tanrei-file-item>
+    <tanrei-file-item value="b" name="floor-plan.png" preview-src={demoPicture} status="uploading" progress="0.4"></tanrei-file-item>
+    <tanrei-file-item value="c" name="survey.pdf"></tanrei-file-item>
+  </tanrei-file-upload>
+</DemoFrame>
+
+### ما يعطيه كل عضو
+
+| الجانب | من منتقي الملفات | من عنصر الملف | لمكوّن رفع الملفات نفسه |
+| --- | --- | --- | --- |
+| الخصائص | `layout`، `multiple`، `accept`، `maxSize`، `constraintsText`، `dropText`، `disabled`، `error`، `required` | `itemForm`، `itemPreview`، `itemFit`، `itemNameHidden`، `itemWidth`، `itemHeight` (وهي في العنصر `form`، `preview`، `fit`، `nameHidden`، `width`، `height`)، `removeLabel`، `retryLabel` | `rows`، `maxFiles`، `label`، `emptyText`، `typeErrorText`، `sizeErrorText`، `countErrorText`، `announcement` |
+| الأحداث | — | الأحداث `click`، `remove`، `retry` في عناصر الملفات التي تعطيها | `select`، `reject`، `change` |
+| المنافذ | `trigger`، `icon` | — | المنفذ الافتراضي: عناصر ملفاتك، مع `rows="given"` |
+| الرموز | `comp.file-picker.*` | `comp.file-item.*` | `comp.file-upload.list.gap`، `comp.file-upload.list.item-gap` |
+
+لمنتقي الملفات `label` و `maxFiles` و `selectionText` خاصة به. وهي لا تُمرَّر إليه: فالخاصية `label` في مكوّن رفع الملفات تسمّي المنتقي والقائمة معًا، و `maxFiles` فيه تعدّ كل ملفات القائمة، وهو يكتب `selectionText` في المنتقي من `emptyText` ما دامت القائمة فارغة.
+
+الخصائص الثماني الآتية من عنصر الملف تُعطى لكل عنصر ملف في مكوّن رفع الملفات، ليُرسم كل ملف بالطريقة نفسها. وعنصر الملف من عندك إذا قال إحداها بغير ذلك غُلِّبت عليه قيمة المكوّن، وتبلّغ عنه بنيات التنقيح. والخاصية `disabled` تُعطى لكل عنصر ملف أيضًا.
+
+ما يفعله الاختيار، أي المشغِّل ومنطقة الإفلات و `accept` والقيود، في [صفحة منتقي الملفات](/ar/components/file-picker/). وما يعرضه صف الملف أو بلاطته، أي الرسم بحسب الصيغة، والصورة، والحالات، والجسم القابل للضغط، في [صفحة عنصر الملف](/ar/components/file-item/).
+
+### تخصيص مكوّن رفع ملفات واحد دون غيره
+
+لمكوّن رفع الملفات رمزان خاصان به، هما مسافتا قائمته. وكل ما عدا ذلك مما يرسمه يقرأ رموز منتقي الملفات ورموز عنصر الملف، أينما عُيِّنت. ولتغيير مثيل واحد، عيِّن رمز العضو عليه:
+
+```html
+<tanrei-file-upload label="المرفقات" style="--tanrei-comp-file-item-row-container-gap: 16px">…</tanrei-file-upload>
+```
+
+<ComponentSpecs name="file-upload" />
+
+### ما يرسمه الويب بطريقة مختلفة
+
+- جذر الظل (shadow root) في العنصر فيه عنصر `<tanrei-file-picker>` واحد، والقائمة، ومنطقة حيّة (live region) واحدة. مع `rows="own"` تكون في القائمة عناصر `<tanrei-file-item>` التي ينشئها مكوّن رفع الملفات؛ ومع `rows="given"` تبقى عناصر ملفاتك في شجرة DOM الخاصة بك، في المنفذ الافتراضي. واستيراد العنصر يعرّف العضوين كليهما.
+- المشغِّل والرسم اللذان تضعهما في المنفذين يُمرَّران إلى منتقي الملفات ويبقيان في شجرة DOM الخاصة بك. والمشغِّل يظل زرك أنت، قابلًا للتركيز حيث يقف.
+- العنصر عنصر مرتبط بالنماذج (form-associated)، وعضواه ليسا كذلك: فهما لا يضيفان أي مُدخلة (entry) إلى النموذج.
+- الأحداث `select` و `reject` و `change` أحداث من النوع CustomEvent خاصة بمكوّن رفع الملفات. أما `select` و `reject` الصادران عن منتقي الملفات فلا يغادرانه. والأحداث `click` و `remove` و `retry` في عناصر الملفات التي تعطيها تنتقل صعودًا إلى مستمعيك؛ أما أحداث العناصر التي ينشئها مكوّن رفع الملفات فيُستجاب لها في الداخل.
+- الأجزاء: `file-picker`، `list`، ثم `file-item` لكل عنصر ينشئه مكوّن رفع الملفات؛ وأجزاء منتقي الملفات `container`، `icon`، `label`، `supporting-text`، `selection-text` بأسمائها هي؛ وأجزاء العنصر الذي ينشئه مكوّن رفع الملفات تحت البادئة `item-`: `item-container`، `item-media`، `item-icon`، `item-preview`، `item-headline`، `item-supporting-text`، `item-status-icon`، `item-progress`، `item-action`. أما عنصر الملف الذي تعطيه فيُنسَّق بصفته هو: `tanrei-file-item::part(icon)`.
+- مع `item-preview` و `rows="own"` ينشئ كل عنصر ملف عنوان صورته ويحرّره. ومكوّن رفع الملفات لا ينشئ أي عنوان.
+- العنصر نفسه غير قابل للتركيز: فكل موضع توقف هو مشغِّلك أو داخل عنصر ملف.
+
+## الإرشادات
+
+### الاختيار والقيود
+
+طريقة الاختيار هي طريقة [منتقي الملفات](/ar/components/file-picker/): التخطيطان `button` و `drop-area`، وزر من عندك في المنفذ `trigger`، ورسم في المنفذ `icon`، والقيود `accept` و `maxSize` و `multiple` ومعها `constraintsText` لتقولها. وصفحته تشرحها كاملة. وهي في مكوّن رفع الملفات خصائص بالأسماء نفسها.
+
+ما يضيفه مكوّن رفع الملفات إلى القيود:
+
+- الخاصية `maxFiles` هي أكثر ما تحويه القائمة كلها من ملفات، لا اختيار واحد. مع `rows="own"` تعدّ الملفات المحتفَظ بها؛ ومع `rows="given"` تعدّ عناصر الملفات التي أعطيتها. والاختيار يُحكم عليه بحسب عدد الملفات التي ما زال لها مكان.
+- الملف نفسه إذا اختير مرتين يُحتفظ به مرة واحدة، مع `rows="own"`.
+- مع `rows="own"` يُرسم كل ملف مرفوض صفًّا فاشلًا مع جملتك التي تقول سببه: `typeErrorText` أو `sizeErrorText` أو `countErrorText`. أعطِها على العنصر، أو مرة واحدة للمنتج كله بالدالة `setWords()`.
+- مع `rows="given"` لا يُرسم شيء عند الرفض. والحدث `reject` يعطيك كل ملف مرفوض مع سبب: `type` أو `size` أو `count`. قل ما حدث بكلماتك: بنص الخطأ في الحقل، أو بصف فاشل، أو بالخاصية `announcement`.
+- الخاصية `emptyText` هي ما يقف بجانب المشغِّل، في تخطيط الزر، ما دام لم يُختر أي ملف.
+
+### من يحتفظ بالصفوف
+
+| الجانب | `rows="own"` (الافتراضي) | `rows="given"` |
+| --- | --- | --- |
+| يُستخدم لـ | نموذج يُرسل دفعة واحدة. | منتج يرسل كل ملف بنفسه. |
+| الصفوف | عناصر ملفات ينشئها مكوّن رفع الملفات، عنصر لكل ملف محتفَظ به ولكل ملف مرفوض. | عناصر فرعية `<tanrei-file-item>` تضيفها وتزيلها أنت. |
+| الاختيار الثاني | يُضاف مع `multiple`؛ ويحلّ محل الأول من دونها. والملف نفسه يُحتفظ به مرة واحدة. | القرار لك. |
+| الملف المرفوض | صف فاشل مع جملتك. | الحدث `reject` فقط. |
+| ما يعرضه الصف | الاسم والحجم والإزالة. بلا حالة ولا تقدّم: فلا شيء يُرسل. | الاسم والحجم والحالة والتقدّم والخطأ وإعادة المحاولة والإزالة. |
+| الإزالة | تزيل الصف ويصدر الحدث `change`. | يصدر الحدث `remove` في الصف. وأنت تزيله. |
+| قيمة النموذج | الملفات المحتفَظ بها. | الخاصية `file` في كل صف أعطيته ملفًا. |
+| إعادة ضبط النموذج | تفرّغ القائمة. | لا تغيّر شيئًا. |
+
+لا يخمّن مكوّن رفع الملفات الوضع من عناصره الفرعية أبدًا. فالمنتج الذي يملك صفوفه لا صف له قبل الاختيار الأول، ولذلك يكتب `rows="given"`.
+
+تغيير `rows` والمكوّن معروض يجعله يتخلى عن كل ملف محتفَظ به بلا حدث. اقرأ `files` أولًا إن كنت تحتاج إليها.
+
+### صفوف أم بلاطات
+
+الخاصية `itemForm` تختار هيئة كل الملفات: القيمة `row`، وهي الافتراضية، عمود من الصفوف؛ أو القيمة `tile`، سلسلة من الصناديق تلتفّ. وكل ملفات مكوّن رفع الملفات الواحد تُرسم بالهيئة نفسها.
+
+| الخاصية | في كل عنصر ملف | ما تفعله |
+| --- | --- | --- |
+| `itemForm` | `form` | القيمة `row` أو `tile`. |
+| `itemPreview` | `preview` | ترسم صورة في مكان الرسم: الصورة التي عند عنوان `previewSrc` في العنصر، أو الملف نفسه حيث يكون صورة. |
+| `itemFit` | `fit` | القيمة `cover` أو `contain`. |
+| `itemNameHidden` | `nameHidden` | في البلاطة التي ترسم صورة لا يُرسم الاسم. |
+| `itemWidth`، `itemHeight` | `width`، `height` | صندوق البلاطة. |
+
+مع `rows="own"` و `itemPreview` يعرض الملف المحتفَظ به صورته هو إذا كان صورة. ولكل صورة كلفة، هي كلفة عنصر الملف، ومذكورة في [صفحته](/ar/components/file-item/#المعاينة-وكلفتها). ومن دون `itemPreview`، وهو الوضع الافتراضي، تكلّف مئة ملف محتفَظ به مئة مرجع ولا شيء أكثر.
+
+ملفات مكوّن رفع الملفات ليس لها ترتيب يستطيع الشخص تغييره. ولهذه الحاجة انظر [ملفات بترتيب يغيّره الأشخاص](/ar/components/file-item/#ملفات-بترتيب-يغيّره-الأشخاص).
+
+### الصفوف التي تعطيها
+
+مع `rows="given"` كل صف [عنصر ملف](/ar/components/file-item/) تكتبه، بخصائصه هو: `value` و `name` و `mediaType` و `formatText` و `sizeText` و `status` و `statusText` و `progress` و `errorText` و `retryable` و `previewSrc` و `interactive` و `href` و `readOnly`. وصفحته تقول ما ترسمه كل واحدة. أما الصف الذي ينشئه مكوّن رفع الملفات بنفسه فعنصر ملف بالحالة `pending` لملف محتفَظ به، وعنصر بالحالة `error` بلا إعادة محاولة لملف مرفوض.
+
+| `status` | قبل الاسم | السطر الثاني | الشريط | الإجراءات |
+| --- | --- | --- | --- | --- |
+| `pending` | رسم الصيغة | الحجم، ثم `statusText` | لا شيء | الإزالة |
+| `uploading` | رسم الصيغة | الحجم، ثم `statusText` | يمتلئ حتى `progress`، أو يكون غير محدَّد المقدار ما دامت `progress` غير معيَّنة | الإزالة |
+| `done` | رسم الصيغة | الحجم، ثم علامة صح و `statusText` | لا شيء | الإزالة |
+| `error` | رسم الصيغة | الحجم، ثم علامة خطأ و `errorText` | لا شيء | إعادة المحاولة حيث تكون `retryable`، ثم الإزالة |
+
+- نسِّق الحجم بنفسك وأعطِه في `sizeText`، أو بالدالة `formatSize` مع `rows="own"`. أما كون الميغابايت 1000 كيلوبايت أو 1024 فقرار منتجك.
+- الخاصية `progress` هي ما تخبر به أنت عن إرسالك. والمكوّن لا يحرّك الشريط بنفسه أبدًا.
+- لا تعيّن على صف ما يعطيه مكوّن رفع الملفات لكل الصفوف: هيئته، ومعاينته، واسمَي الإجراءين، والخاصية `disabled`.
+
+### داخل حقل
+
+ضع مكوّن رفع الملفات داخل [حقل](/ar/components/field/) حين يعرض النموذج تسمية أو مساعدة أو خطأ أو علامة المطلوب. فالحقل يرسمها ويعطيها للمكوّن.
+
+```html
+<tanrei-field label="المرفق" requirement="required" required-text="مطلوب"
+              error error-text="اختر ملف PDF لا يتجاوز حجمه 10 ميغابايت.">
+  <tanrei-file-upload name="attachment" accept=".pdf" max-size="10000000"
+                      constraints-text="ملف PDF، حتى 10 ميغابايت" remove-label="إزالة">
+    <tanrei-button slot="trigger" variant="outlined">اختيار ملف</tanrei-button>
+  </tanrei-file-upload>
+</tanrei-field>
+```
+
+- مع `name` يرسل المكوّن كل ملف محتفَظ به، بالترتيب. والملف المرفوض لا يُرسل أبدًا. وما دام لا يحتفظ بأي ملف لا يرسل أي مُدخلة (entry) على الإطلاق؛ أما حقل الملفات الأصلي فيرسل مُدخلة واحدة فارغة، فالخادم الذي يقرأ الحقل يتحقق من الحالتين.
+- الخاصية `required` تبلّغ النموذج بأن القيمة ناقصة ما دام لا يُحتفظ بأي ملف. والرسالة رسالة المتصفح نفسه. أما الجملة التي يقرؤها الشخص فهي `errorText` في الحقل. وليس للزر حالة «مطلوب»، فضع مكوّن رفع الملفات المطلوب داخل حقل: فالحقل يقول ذلك قبل أن يُرسل النموذج.
+- إعادة ضبط النموذج تفرّغ القائمة. وبعد الإرسال تبقى الملفات والصفوف؛ أعِد ضبط النموذج أو استدعِ `clear()`.
+- لا يُستعاد شيء حين تعود الصفحة عبر سجل التصفح. يبدأ المكوّن فارغًا.
+- من دون `name` لا يرسل المكوّن شيئًا، ويظل يحتفظ بملفاته ويسردها. اقرأ `files` في معالج الإرسال الخاص بك لترسلها بنفسك.
+- مع `rows="given"` القيمة هي الخاصية `file` في كل صف له ملف: `row.file = file`. وإعادة الضبط لا تغيّر شيئًا هناك، لأن الصفوف صفوفك.
+- لا يعيّن المكوّن `error` بنفسه أبدًا. أنت تعيّنها، على الحقل، مع الكلمات التي تقول ما الخطأ.
+
+### الكلمات
+
+ليست لمكوّن رفع الملفات كلمات من عنده. ست منها يمكن أن تُعطى مرة واحدة للمنتج كله بالدالة `setWords()`؛ وكل ما عداها خاصية للمثيل.
+
+| الخاصية | المفتاح في كلمات المنتج | من دونها |
+| --- | --- | --- |
+| `emptyText` | `noFileText` | لا يُرسم شيء بجانب المشغِّل. |
+| `removeLabel` | `removeLabel` | يُرسم إجراء الإزالة ولا اسم له. وتبلّغ عنه بنيات التنقيح. |
+| `retryLabel` | `retryLabel` | يُرسم إجراء إعادة المحاولة ولا اسم له. وتبلّغ عنه بنيات التنقيح. ولا يكون إلا في الصفوف التي تعطيها. |
+| `typeErrorText` | `fileTypeErrorText` | الملف المرفوض لصنفه يُرسم صفًّا فاشلًا بلا جملة. وتبلّغ عنه بنيات التنقيح. |
+| `sizeErrorText` | `fileSizeErrorText` | الشيء نفسه، للملف الأكبر من الحد. |
+| `countErrorText` | `fileCountErrorText` | الشيء نفسه، للملف الذي لم يبقَ له مكان. |
+
+الجمل الثلاث لا تُقرأ إلا مع `rows="own"`، ولا تُقرأ الواحدة منها إلا بعد أن يُرفض ملف لسببها. وحجم الملف ليس مفتاحًا من مفاتيح الكلمات: هو الدالة `formatSize`، وهي خاصية للمثيل.
+
+كل إجراء يصفه اسم ملفه. فكلمة واحدة، «إزالة»، تكفي لكل الصفوف: يسمع الشخص «إزالة، زر، brief.pdf».
+
+### من اليمين إلى اليسار
+
+في تخطيط من اليمين إلى اليسار يقف المشغِّل ورسوم الصفوف عند اليمين، وإجراءات الصفوف عند اليسار والإزالة في أقصى الطرف، والشريط يمتلئ من اليمين؛ وسلسلة البلاطات تبدأ من اليمين. واسم الملف المكتوب بأحرف لاتينية يحتفظ بترتيبه، بنقطته وامتداده. والرسم لا يُعكس إلا حيث تعلّمه مجموعة الأيقونات بذلك، والصورة لا تُعكس أبدًا.
+
+### افعل
+
+- ضع مكوّن رفع الملفات في النموذج ودعه يحتفظ بالملفات، إلا إذا كان منتجك يرسل كل ملف بنفسه.
+- أبقِ قائمة الصفوف قصيرة، وبالترتيب الذي اختار به الأشخاص الملفات.
+- قل الرفض حيث ينظر الشخص: في نص الخطأ في الحقل، أو في صف فاشل.
+- لخِّص التغييرات الكثيرة في جملة واحدة بالخاصية `announcement`: «أُضيف 40 ملفًا».
+
+### لا تفعل
+
+- لا تجعل منطقة الإفلات الطريقة الوحيدة للاختيار. ففيها المشغِّل دائمًا.
+- لا تضع داخله شيئًا غير المشغِّل وأيقونة وعناصر ملفات. فالمحتوى الآخر لا يُرسم، وتبلّغ عنه بنيات التنقيح.
+- لا تكتب صفوفًا من دون `rows="given"`. فهي لا تُرسم.
+- لا تستخدم `rows="own"` لعرض تقدّم الرفع. فصف الملف المحتفَظ به لا حالة له، لأن المكوّن لا يرسل شيئًا.
+- لا تعرض داخله عددًا ولا حجمًا إجماليًّا ولا شريطًا عامًّا. ارسم ذلك بجانبه، بكلماتك.
+
+## إمكانية الوصول
+
+<ComponentAccessibility name="file-upload" />
+
+### ما يتكفل به المكوّن
+
+- الكل مجموعة تسمّيها الخاصية `label`، أو الحقل المحيط بها. والمشغِّل زرك. تصفه القيود، والنص الذي يقول إنه لم يُختر شيء، ومساعدة الحقل أو خطؤه.
+- منطقة الإفلات هدف مؤشر واحد كبير لذلك الزر نفسه. ليس لها دور ولا اسم ولا موضع توقف في ترتيب التركيز ولا مفتاح.
+- الصفوف قائمة، وكل عنصر ملف عنصر منها. وكل عنصر يُقرأ منه الاسم والصيغة والحجم والحالة أو الخطأ. والملف الذي يُرسل له شريط تقدم (progress bar) يسمّيه ملفه.
+- المفتاح Tab يصل إلى المشغِّل، ثم إلى كل ملف بالترتيب: جسمه حيث جعلته قابلًا للضغط، ثم إعادة المحاولة، ثم الإزالة.
+- منطقة حيّة واحدة تقول بتهذيب الصف الذي أُضيف والصف الذي اكتمل والصف الذي فشل، بكلماتك. والتغييرات التي تصل معًا رسالة واحدة. والتقدّم لا يُعلَن أبدًا.
+- مع `rows="own"` كل اختيار رسالة واحدة: اسم كل ملف احتُفظ به، ثم اسم كل ملف مرفوض مع جملتك. والمكوّن لا يضيف كلمة ولا عددًا. عيِّن `announcement` في مستمع الحدث `change` لتقول بدلًا من ذلك جملة واحدة من عندك.
+- الإزالة لا تُعلَن. بعد أن يُزال صف، يذهب التركيز إلى إجراء الإزالة في الصف التالي، أو في الصف السابق حيث لا صف بعده، أو إلى المشغِّل حين لا يبقى صف. ومع `rows="own"` يفعل المكوّن ذلك بنفسه.
+- عند تكبير النص إلى 200% يلتفّ كل نص ولا يُقصّ شيء. وفي الألوان المفروضة (forced colors) تحتفظ المنطقة بحافة، وللمنطقة التي تستقبل سحبًا حافة أثخن، ويبقى شريط الصف مرئيًّا.
+
+كيف بُني على الويب: منتقي الملفات عضو في مكوّن رفع الملفات، في جذر ظله، والمنتقي الذي بداخله عنصر `<input type="file">` حقيقي، محجوب عن النظر وعن ترتيب التركيز وعن التقنيات المساعدة. والمشغِّل يبقى في شجرة DOM الخاصة بك، وكذلك عناصر الملفات التي تعطيها. أما المجموعة والقائمة والمنطقة الحيّة وعناصر الملفات التي ينشئها المكوّن بنفسه فهي في جذر الظل.
+
+الفجوات المعروفة على الويب هي فجوات عضويه: ليس للزر حالة «مطلوب»، والمتصفح لا يسلّم أي إفلات إلى منطقة ترفض السحب، ومتصفح Safari لا يعطي الزر المنقور تركيزًا، والحافة المتقطعة لا تستطيع أن تتبع الزوايا المنعَّمة ([صفحة منتقي الملفات](/ar/components/file-picker/#إمكانية-الوصول))؛ والصورة المتحركة يشغّلها المتصفح ([صفحة عنصر الملف](/ar/components/file-item/#إمكانية-الوصول)). ومع `required` وحدها وبلا حقل حول مكوّن رفع الملفات، لا يقول إن ملفًا ناقص إلا تحقق النموذج.
+
+### ما عليك فعله
+
+- ضع زرًّا واحدًا في المنفذ `trigger`، بتسمية تقول ما يفعله.
+- أعطِ المجموعة `label`، أو ضع مكوّن رفع الملفات داخل حقل.
+- أعطِ `constraintsText` كلما عيّنت `accept` أو `maxSize` أو `maxFiles`.
+- أعطِ `removeLabel`، على العنصر أو مرة واحدة بالدالة `setWords()`. وأعطِ `retryLabel` أيضًا حين تعطي صفوفًا يمكن إعادة محاولتها.
+- مع `rows="own"` أعطِ الجمل الثلاث للملف المرفوض: `typeErrorText` و `sizeErrorText` و `countErrorText`، للقيود التي عيّنتها.
+- قل كل رفض وكل فشل بالكلمات.
+- عيِّن `announcement` حين تتغيّر صفوف كثيرة دفعة واحدة، وحين تزيل صفوفًا بطريقة يجب أن يسمعها الشخص.

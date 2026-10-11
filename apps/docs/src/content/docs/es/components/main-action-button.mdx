@@ -1,0 +1,208 @@
+---
+title: Botón de acción principal
+description: Realiza la acción más importante de una pantalla desde un contenedor elevado que flota sobre el contenido, con su nombre escrito o contraído hasta dejar solo su icono.
+translationOf: components/main-action-button.mdx
+sourceHash: ff82dd77880b90c7becab88915c0e91b8fea6fda
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## Descripción general
+
+<ComponentAvailability name="main-action-button" />
+
+<DemoFrame label="Extendido y contraído">
+  <tanrei-main-action-button label="Redactar"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="Redactar" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+El botón de acción principal es la acción para la que existe una pantalla: Redactar en un buzón de correo, Nuevo evento en un calendario, Añadir en una lista. Se apoya en un contenedor elevado que flota sobre el contenido, de modo que sigue al alcance mientras el contenido se desplaza por debajo.
+
+Es un solo botón con dos formas. **Extendido** (la forma predeterminada) muestra su icono y su etiqueta. **Contraído** muestra solo el icono, en un cuadrado tan alto como la forma extendida, que en el sistema predeterminado es un círculo. Es el producto el que lo pasa de una forma a la otra: por ejemplo, lo contrae mientras el contenido se desplaza y lo extiende de nuevo al volver arriba. Es una acción, nunca un conmutador: contraerlo cambia su forma, no su significado, y la etiqueta sigue siendo su nombre accesible en ambas formas.
+
+En la web es `<tanrei-main-action-button>`, y en React, `MainActionButton`. SwiftUI, Compose, Flutter y React Native aún no lo han implementado.
+
+### Uso
+
+La etiqueta es una propiedad, no contenido, porque hace falta en ambas formas: se dibuja mientras el botón está extendido y es siempre el nombre accesible. El icono es un glifo del conjunto de iconos. El botón no se coloca a sí mismo: lo sitúa tu diseño, normalmente en la esquina inferior del lado de fin de la pantalla, sin tapar una [barra de navegación](/es/components/navigation-bar/).
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-main-action-button class="primary-action" label="Redactar">
+      <span slot="icon">edit</span>
+    </tanrei-main-action-button>
+
+    <!-- Contraído: el atributo es el inverso de la propiedad extended. -->
+    <tanrei-main-action-button label="Redactar" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+
+    <!-- Un glifo que apunta hacia donde lleva la acción va después de la etiqueta. -->
+    <tanrei-main-action-button label="Siguiente" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+
+    <style>
+      /* El elemento no coloca nada: la página lo sitúa en la esquina inferior del lado de fin. */
+      tanrei-main-action-button.primary-action {
+        position: fixed;
+        inset-inline-end: var(--tanrei-sys-space-space400);
+        inset-block-end: var(--tanrei-sys-space-space400);
+      }
+    </style>
+
+    <script type="module">
+      import '@tanrei/web/components/main-action-button';
+      const compose = document.querySelector('tanrei-main-action-button.primary-action');
+      compose.addEventListener('click', newMessage);
+      // extended es una propiedad cuyo valor predeterminado es true; contráelo desde fuera, por ejemplo mientras la página está desplazada.
+      addEventListener('scroll', () => (compose.extended = scrollY === 0), { passive: true });
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { MainActionButton } from '@tanrei/react';
+
+    <MainActionButton className="primary-action" label="Redactar" extended={atTop} onClick={newMessage}>
+      <span slot="icon">edit</span>
+    </MainActionButton>
+
+    <MainActionButton variant="tonal" label="Siguiente" iconPosition="trailing" onClick={next}>
+      <span slot="icon">arrow_forward</span>
+    </MainActionButton>
+    ```
+  </TabItem>
+</Tabs>
+
+### Adónde fueron a parar el FAB y el FAB extendido
+
+El botón de acción principal sustituye al botón de acción flotante y al FAB extendido. Lo que eran dos componentes que un producto intercambiaba son ahora dos formas de uno solo.
+
+| Antes | Ahora |
+| --- | --- |
+| Botón de acción flotante (`fab`) | Un botón de acción principal contraído: `extended` en false |
+| FAB extendido (`extended-fab`) | Un botón de acción principal extendido (la forma predeterminada) |
+| El `expanded` del FAB extendido | `extended` |
+| `comp.fab.*`, `comp.extended-fab.*` | `comp.main-action-button.*` |
+
+### Los nombres de Material 3
+
+- El FAB, el FAB pequeño y el FAB grande de Material 3 son un botón de acción principal contraído en los tamaños medium, small y large. Su FAB extendido es la forma extendida.
+- El `expanded` de Compose (en `ExtendedFloatingActionButton`) y el `isExtended` de Flutter (en `FloatingActionButton.extended`) son `extended`.
+- Los colores primary, secondary, tertiary y surface del FAB de Material 3 se corresponden con las variantes `filled`, `tonal` y `surface` y con los valores que añade un preajuste. El preajuste m3-like dibuja las esquinas de cuadrado redondeado y las alturas 56 / 96 de Material mediante los tokens de este componente.
+
+## Especificaciones
+
+<DemoFrame label="Variantes" plain>
+  <tanrei-main-action-button label="Redactar"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="tonal" label="Redactar"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button variant="surface" label="Redactar"><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="Tamaños, extendido y contraído" plain>
+  <tanrei-main-action-button size="small" label="Redactar"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="Redactar"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="Redactar"><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="small" label="Redactar" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="medium" label="Redactar" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button size="large" label="Redactar" collapsed><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<DemoFrame label="Un icono final, sin icono y deshabilitado" plain>
+  <tanrei-main-action-button label="Siguiente" icon-position="trailing"><span slot="icon">arrow_forward</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="Empezar"></tanrei-main-action-button>
+  <tanrei-main-action-button label="Redactar" disabled><span slot="icon">edit</span></tanrei-main-action-button>
+  <tanrei-main-action-button label="Redactar" collapsed disabled><span slot="icon">edit</span></tanrei-main-action-button>
+</DemoFrame>
+
+<ComponentSpecs name="main-action-button" />
+
+## Pautas
+
+### Cuándo usarlo
+
+Usa un botón de acción principal para la acción por la que la mayoría de las personas llega a la pantalla, cuando deba seguir al alcance sea cual sea el punto al que se hayan desplazado: escribir un mensaje, añadir un elemento, iniciar una grabación. Una pantalla tiene uno o ninguno. Muchas pantallas no necesitan ninguno: una página de ajustes o una vista de lectura no tienen una acción única que merezca flotar sobre ellas.
+
+- Para una acción que pertenece a un formulario, a un diálogo o a un elemento del contenido, usa un [botón](/es/components/button/) donde esté ese contenido.
+- Para varias acciones sobre la pantalla o la selección actual, usa una [barra de herramientas](/es/components/toolbar/).
+- Cuando la acción principal tiene unas pocas formas relacionadas (un documento nuevo, una carpeta o una subida), haz que el botón de acción principal abra una [hoja inferior](/es/components/bottom-sheet/) que las enumere. El [menú FAB](/es/components/fab-menu/) cumple esa función en los preajustes que lo incluyen; el sistema predeterminado no lo incluye.
+- Realiza una acción y no admite destino. Un control que solo lleva a las personas a otro lugar es un enlace: un [botón](/es/components/button/) con `href`.
+
+### Extendido o contraído
+
+Empieza con el botón extendido. El nombre escrito es lo que dice a las personas qué hace el botón, y un icono solo no es seguro hasta que lo han aprendido.
+
+Contráelo cuando la etiqueta cueste más de lo que aporta: mientras el contenido se desplaza y el botón lo taparía, o en una ventana estrecha. Extiéndelo de nuevo cuando haya espacio, por ejemplo al volver al principio de la lista. El cambio lo haces tú, definiendo `extended`; pulsar el botón nunca cambia su forma.
+
+- El botón conserva su altura y sus esquinas mientras cambia, y qué borde se queda en su sitio lo decide tu diseño. Anclado en el lado de fin, se contrae hacia ese borde.
+- Un botón sin icono permanece extendido, porque no habría nada a lo que contraerlo. Un botón sin etiqueta dibuja la forma contraída y las compilaciones de depuración lo notifican: no tiene nombre.
+- Donde el movimiento está reducido, la forma cambia de inmediato.
+
+### Cómo elegir una variante
+
+| Variante | Énfasis | Úsala para |
+| --- | --- | --- |
+| Filled (predeterminada) | El más alto | La acción principal de la pantalla con toda su fuerza. |
+| Tonal | Alto | Una acción principal en una pantalla cuyo contenido debe tener el protagonismo. |
+| Surface | Neutro | Una acción principal sobre un contenido que ya tiene color, como un mapa o una foto, donde un contenedor de color competiría con él. |
+
+Un sistema de diseño puede añadir variantes propias.
+
+### Cómo elegir un tamaño
+
+| Tamaño | Altura en el sistema predeterminado | Úsalo para |
+| --- | --- | --- |
+| Small | 40 | Una segunda acción relacionada, junto a una de tamaño medium, o un diseño denso. |
+| Medium (predeterminado) | 56 | La acción principal de la mayoría de las pantallas. |
+| Large | 96 | La acción de una pantalla ancha o casi vacía, donde un botón de tamaño medium se perdería. |
+
+La altura es también el lado de la forma contraída, de modo que un mismo botón conserva su altura mientras se contrae y se extiende.
+
+### Colocación
+
+El botón no dibuja ningún velo ni mueve ningún contenido. Colócalo sobre el contenido, normalmente en la esquina inferior del lado de fin, y mantenlo apartado de una barra de navegación, de una barra de herramientas acoplada y de los márgenes interiores del sistema. Deja espacio al final del contenido que se desplaza, para que el botón nunca tape de forma permanente el último elemento. Su sombra se proyecta fuera de su contenedor: déjale espacio si el contenedor que lo aloja recorta su contenido.
+
+### Recomendado
+
+- Usa como etiqueta la acción, escrita como un verbo o como un verbo y un sustantivo: **Redactar**, **Nuevo evento**, **Añadir foto**.
+- Elige un glifo que las personas ya asocien con la acción, como `edit` para escribir o `add` para crear.
+- Usa `iconPosition` en `trailing` para un glifo que apunta hacia donde lleva la acción, como la flecha de Siguiente.
+- Mantenlo en el mismo lugar en todas las pantallas que tengan uno.
+- Ocúltalo cuando su acción no esté disponible en una pantalla. Suele ser mejor para las personas que un botón deshabilitado flotando sobre el contenido.
+
+### Evita
+
+- No pongas dos botones de acción principal del mismo tamaño en una pantalla. Si dos acciones parecen igual de importantes, ninguna es la principal: usa botones en el contenido.
+- No lo uses para acciones menores, destructivas o que solo navegan, como Eliminar, Configuración o Atrás.
+- No lo uses como conmutador, y no cambies su etiqueta ni su icono para mostrar un estado.
+- No lo contraigas en una pantalla que las personas ven por primera vez, cuando nada más dice qué significa el icono.
+- No dejes que tape el contenido que las personas necesitan para decidir si lo pulsan.
+
+### Contenido
+
+Las etiquetas se escriben con mayúscula solo en la primera palabra y sin puntuación final. Procura que tengan una o dos palabras. La etiqueta no se trunca: se queda en una línea mientras cabe y salta de línea cuando el diseño le da menos ancho.
+
+## Accesibilidad
+
+<ComponentAccessibility name="main-action-button" />
+
+### De qué se encarga el componente
+
+- Es un botón que recibe su nombre de `label` en ambas formas. El icono queda oculto para la tecnología de apoyo.
+- Contraerlo y extenderlo cambian lo que se dibuja, no lo que se anuncia: el rol, el nombre y el foco siguen como están, no se anuncia nada y no hay estado pulsado ni expandido.
+- Enter y Espacio lo activan. Deshabilitado, no emite nada, sale del orden del foco y se expone como deshabilitado.
+- Su área de pulsación cumple el objetivo mínimo en todos los tamaños, incluido el pequeño.
+- Muestra el indicador de foco solo para el foco del teclado, sin animación.
+- Extendido, el contenedor crece con el tamaño del texto y la etiqueta nunca se trunca. Contraído, el icono no es texto. En la web, todos los tamaños de Tanrei siguen el tamaño de fuente raíz, así que el cuadrado y su icono crecen juntos y el cuadrado sigue siendo un cuadrado.
+- En un diseño de derecha a izquierda, el icono y la etiqueta cambian de lado, y los márgenes interiores cambian con ellos. El glifo en sí solo se refleja cuando el conjunto de iconos lo marca como indicador de una dirección.
+- Las compilaciones de depuración notifican un botón sin etiqueta y un botón contraído sin icono.
+
+### Qué debes hacer tú
+
+- Dale siempre un `label`, en el idioma de tu producto, incluso cuando solo vaya a estar contraído.
+- Ponlo en el árbol de elementos donde corresponde a su acción: después del contenido sobre el que actúa, o en primer lugar cuando es la razón de ser de la pantalla. La tecnología de apoyo y la tecla Tab llegan a él en el orden del árbol, no donde está dibujado.
+- Cuando esté contraído, plantéate añadir un [tooltip](/es/components/tooltip/) con el mismo texto para quienes usan un puntero. El tooltip nunca sustituye a `label`.
+- Asegúrate de que no oculta el contenido ni el control que tiene el foco del teclado. Deja espacio al final del contenido o aparta el botón.
+- No dependas del color de la variante para transmitir un significado. Dilo en la etiqueta.

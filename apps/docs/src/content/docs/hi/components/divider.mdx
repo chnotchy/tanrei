@@ -1,0 +1,275 @@
+---
+title: डिवाइडर
+description: लिस्ट, लेआउट या टूलबार में कॉन्टेंट के ग्रुप को एक पतली रेखा से अलग करता है।
+translationOf: components/divider.mdx
+sourceHash: a900ff2d8bf8a75bc9b74c35a5e534d81fd620fb
+---
+
+import { Tabs, TabItem } from '../../../../components/tabs';
+import ComponentAvailability from '../../../../components/ComponentAvailability.astro';
+import ComponentSpecs from '../../../../components/ComponentSpecs.astro';
+import ComponentAccessibility from '../../../../components/ComponentAccessibility.astro';
+import DemoFrame from '../../../../components/DemoFrame.astro';
+
+## अवलोकन
+
+<ComponentAvailability name="divider" />
+
+<DemoFrame label="लिस्ट में और टूलबार में">
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space150); inline-size: min(100%, 20rem)">
+    <span>इनबॉक्स</span>
+    <tanrei-divider></tanrei-divider>
+    <span>आर्काइव</span>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <span>ट्रैश</span>
+  </div>
+  <div role="toolbar" aria-label="फ़ॉर्मैटिंग" style="display: flex; align-items: stretch; gap: var(--tanrei-sys-space-space50)">
+    <tanrei-button variant="text" label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
+    <tanrei-button variant="text" label="इटैलिक"><span slot="icon">format_italic</span></tanrei-button>
+    <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+    <tanrei-button variant="text" label="लिंक डालें"><span slot="icon">link</span></tanrei-button>
+  </div>
+</DemoFrame>
+
+### इस्तेमाल
+
+Web और React के उदाहरण मौजूदा स्पेक दिखाते हैं। SwiftUI, Compose, Flutter और React Native पीछे हैं: वे अभी डिवाइडर का पिछला संशोधन देते हैं, जो सिर्फ़ ठोस रेखाएँ बनाता है और किसी एक डिवाइडर के लिए लंबाइयाँ या मोटाई नहीं लेता, और जब तक वे बराबरी पर नहीं आते, उनके उदाहरण वही संशोधन दिखाते हैं।
+
+<Tabs syncKey="platform">
+  <TabItem label="Web">
+    ```html
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+
+    <!-- उस लिस्ट की सीध में, जिसका टेक्स्ट 72 px भीतर से शुरू होता है। -->
+    <tanrei-divider inset="start" inset-length="72"></tanrei-divider>
+
+    <!-- कूपन के ऊपर फाड़ने की रेखा, और एक हल्का सेक्शन ब्रेक। -->
+    <tanrei-divider line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+
+    <!-- सिर्फ़ इस डिवाइडर के लिए मोटी रेखा: इसके बिंदु, डैश और लहर अपना अनुपात बनाए रखते हैं। -->
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider line-style="dotted" line-cap="round" thickness="4"></tanrei-divider>
+
+    <!-- टूलबार के ग्रुप का कोई अर्थ है: डिवाइडर को सेपरेटर के रूप में सहायक तकनीक को दें। -->
+    <div role="toolbar" aria-label="फ़ॉर्मैटिंग" style="display: flex">
+      <tanrei-button variant="text" label="बोल्ड"><span slot="icon">format_bold</span></tanrei-button>
+      <tanrei-divider orientation="vertical" decorative="false"></tanrei-divider>
+      <tanrei-button variant="text" label="लिंक डालें"><span slot="icon">link</span></tanrei-button>
+    </div>
+
+    <script type="module">
+      import '@tanrei/web/components/divider';
+    </script>
+    ```
+  </TabItem>
+  <TabItem label="React">
+    ```tsx
+    import { Divider } from '@tanrei/react';
+
+    <Divider />
+    <Divider inset="start" insetLength={72} />
+    <Divider lineStyle="dashed" lineCap="round" />
+    <Divider lineStyle="wavy" amplitude={4} wavelength={24} />
+    <Divider lineStyle="dotted" lineCap="round" thickness={4} />
+    <Divider orientation="vertical" decorative={false} />
+    ```
+  </TabItem>
+  <TabItem label="SwiftUI">
+    ```swift
+    import Tanrei
+
+    VStack(spacing: 0) {
+      inboxRow
+      TanreiDivider(inset: .start)
+      archiveRow
+    }
+
+    // अक्ष बताया जाता है, घेरने वाले स्टैक से नहीं लिया जाता।
+    HStack { formattingButtons; TanreiDivider(axis: .vertical, isDecorative: false); insertLinkButton }
+    ```
+  </TabItem>
+  <TabItem label="Compose">
+    ```kotlin
+    import androidx.compose.foundation.gestures.Orientation
+    import io.github.chnotchy.tanrei.components.TanreiDivider
+    import io.github.chnotchy.tanrei.components.TanreiDividerInset
+
+    Column {
+        InboxRow()
+        TanreiDivider(inset = TanreiDividerInset.Start)
+        ArchiveRow()
+    }
+
+    // खड़ा डिवाइडर पंक्ति की ऊँचाई भरता है, इसलिए पंक्ति को ऊँचाई दें।
+    Row(Modifier.height(IntrinsicSize.Min)) {
+        FormattingButtons()
+        TanreiDivider(orientation = Orientation.Vertical, decorative = false)
+        InsertLinkButton()
+    }
+    ```
+  </TabItem>
+  <TabItem label="Flutter">
+    ```dart
+    import 'package:tanrei/tanrei.dart';
+
+    Column(
+      children: <Widget>[
+        inboxRow,
+        const TanreiDivider(inset: TanreiDividerInset.start),
+        archiveRow,
+      ],
+    );
+
+    // IntrinsicHeight खड़े डिवाइडर को पंक्ति की ऊँचाई देता है।
+    IntrinsicHeight(
+      child: Row(
+        children: <Widget>[
+          ...formattingButtons,
+          const TanreiDivider(axis: Axis.vertical, excludeFromSemantics: false),
+          insertLinkButton,
+        ],
+      ),
+    );
+    ```
+  </TabItem>
+  <TabItem label="React Native">
+    ```tsx
+    import { Divider, IconButton } from '@tanrei/react-native';
+
+    <Divider />
+    <Divider inset="start" />
+
+    <View style={{ flexDirection: 'row' }}>
+      <IconButton accessibilityLabel="बोल्ड" onPress={toggleBold}>format_bold</IconButton>
+      <Divider orientation="vertical" decorative={false} />
+      <IconButton accessibilityLabel="लिंक डालें" onPress={insertLink}>link</IconButton>
+    </View>
+    ```
+  </TabItem>
+</Tabs>
+
+## स्पेक
+
+<DemoFrame label="ओरिएंटेशन और इनसेट" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider inset="start"></tanrei-divider>
+    <tanrei-divider inset="both"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="start"></tanrei-divider>
+    <tanrei-divider orientation="vertical" inset="both"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="रेखा की शैलियाँ" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider></tanrei-divider>
+    <tanrei-divider line-style="dotted"></tanrei-divider>
+    <tanrei-divider line-style="dashed"></tanrei-divider>
+    <tanrei-divider line-style="dashed" dash-length="12" gap="6"></tanrei-divider>
+    <tanrei-divider line-style="wavy"></tanrei-divider>
+    <tanrei-divider line-style="wavy" amplitude="4" wavelength="24"></tanrei-divider>
+  </div>
+  <div style="display: flex; gap: var(--tanrei-sys-space-space300); block-size: 6rem">
+    <tanrei-divider orientation="vertical" line-style="dotted"></tanrei-divider>
+    <tanrei-divider orientation="vertical" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+<DemoFrame label="मोटाई: किसी एक डिवाइडर की अपनी, मोटे पैटर्न पर गोल कैप के साथ" plain>
+  <div style="display: flex; flex-direction: column; gap: var(--tanrei-sys-space-space300); inline-size: min(100%, 16rem)">
+    <tanrei-divider thickness="2"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dotted" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="4" line-style="dashed" line-cap="round"></tanrei-divider>
+    <tanrei-divider thickness="2" line-style="wavy"></tanrei-divider>
+  </div>
+</DemoFrame>
+
+बिंदुदार या डैश वाली रेखा के दोनों सिरों पर हमेशा एक पूरा बिंदु या डैश होता है: डिवाइडर उतने बनाता है जितने उनके बीच कम से कम गैप रखते हुए समा सकें, और हर गैप को बराबर मात्रा में बढ़ा देता है। वह दोनों सिरों पर, दोनों दिशाओं में और किसी भी लंबाई पर एक जैसी दिखती है। लहर गोलाकार चापों से बनती है, और पूरी संख्या में लहरों तक खींची जाती है, ताकि वह मध्य रेखा पर शुरू और ख़त्म हो। लहरदार डिवाइडर बाक़ी से ऊँचा होता है: ऐम्प्लिट्यूड का दुगना जमा रेखा की मोटाई, यानी डिफ़ॉल्ट रूप से 1 की जगह 5।
+
+बिंदुओं, डैश और लहर की लंबाइयाँ रेखा की मोटाई से व्युत्पन्न टोकन हैं, इसलिए जो डिज़ाइन सिस्टम मोटे डिवाइडर बनाता है, उसे उसी रूप वाला बड़ा पैटर्न मिलता है। `thickness` यही काम एक डिवाइडर के लिए करता है: जहाँ भी मोटाई पढ़ी जाती है, वहाँ वह टोकन की जगह लेता है, और बिंदु, डैश और लहर उसके साथ अपना अनुपात बनाए रखते हैं। इनसेट स्केल नहीं होता। किसी एक डिवाइडर की प्रॉपर्टी (`insetLength`, `thickness`, `dashLength`, `gap`, `amplitude`, `wavelength`) जैसी दी गई हैं वैसी ही, प्लैटफ़ॉर्म की इकाई में, इस्तेमाल होती हैं, और कोई डायल उन्हें स्केल नहीं करता। ऋणात्मक या नॉन-फ़ाइनाइट मान, या 0 का `thickness`, `dashLength` या `wavelength`, टोकन पर लौट जाता है और डीबग बिल्ड में रिपोर्ट किया जाता है। मौजूदा शैली जिस प्रॉपर्टी का इस्तेमाल नहीं करती, उसे अनदेखा किया जाता है।
+
+<ComponentSpecs name="divider" />
+
+## दिशानिर्देश
+
+### कब इस्तेमाल करें
+
+डिवाइडर वहाँ इस्तेमाल करें जहाँ अकेली जगह से सीमा साफ़ नहीं होती: घनी लिस्ट की पंक्तियों के बीच, सेटिंग पेज के सेक्शन के बीच, टूलबार में क्रियाओं के ग्रुप के बीच। जहाँ दो ग्रुप के बीच का गैप, या सरफ़ेस का बदलना, पहले से दिखाता हो कि एक कहाँ ख़त्म होता है, वहाँ रेखा छोड़ दें। कम रेखाओं वाला लेआउट सरसरी नज़र से देखना आसान होता है।
+
+### एक ही बारीक रेखा
+
+डिवाइडर की रेखा डिज़ाइन सिस्टम की बारीक रेखा है: `sys.color.outline-variant`, बारीक रेखा की चौड़ाई पर। डिफ़ॉल्ट सिस्टम में व्यक्ति को दिखने वाली बाक़ी पतली रेखाएँ भी उसी रंग की हैं: outlined बटन का किनारा, चिप की आउटलाइन, मेन्यू के ग्रुप के बीच की रेखा, नेविगेशन बार या नेविगेशन ड्रॉअर का किनारा, लिस्ट की पंक्ति के नीचे की रेखा। वे अपने-अपने टोकन रखती हैं, और डिफ़ॉल्ट सिस्टम उन्हें एक ही मान देता है, ताकि स्क्रीन पर एक ही तरह की रेखा हो। आप जो डिवाइडर रखते हैं, उसे उनसे मेल खाने के लिए अपने किसी रंग की ज़रूरत नहीं है।
+
+### जहाँ कंपोनेंट अपने भाग ख़ुद अलग करता है
+
+कुछ कंपोनेंट अपने भागों को ख़ुद अलग करते हैं, और वहाँ आप डिवाइडर नहीं जोड़ते:
+
+- [मेन्यू](/hi/components/menu/) किसी ग्रुप को उसके बग़ल की चीज़ से अलग करता है।
+- कनेक्टेड [बटन ग्रुप](/hi/components/button-group/) और [मेन्यू वाला बटन](/hi/components/button-with-menu/) अपने दोनों हिस्सों को अलग करते हैं।
+- [नेविगेशन ड्रॉअर](/hi/components/navigation-drawer/) उस सेक्शन से पहले डिवाइडर बनाता है जो उसे माँगता है (`divider`)।
+- [लिस्ट](/hi/components/list/) की पंक्ति अपने नीचे की रेखा ख़ुद बनाती है (`divider`), वहाँ से शुरू करके जहाँ उसका टेक्स्ट शुरू होता है।
+
+एक कंपोनेंट के भीतर के भाग कैसे अलग पहचाने जाएँ, यह पूरे डिज़ाइन सिस्टम के लिए एक ही चुनाव है: जहाँ वे छूते हैं वहाँ एक रेखा से, जो डिफ़ॉल्ट है, या ख़ाली जगह के गैप से। कंपोनेंट अपने टोकन के ज़रिए सिस्टम के चुनाव से हट सकता है, और कोई एक इंस्टेंस अपनी `separation` प्रॉपर्टी के ज़रिए: मेन्यू, बटन ग्रुप, मेन्यू वाले बटन और प्रोग्रेस इंडिकेटर के पास यह प्रॉपर्टी है। गैप में वे कंपोनेंट कोई रेखा नहीं बनाते, इसलिए आपने हाथ से जो डिवाइडर जोड़ा होगा, वही अकेली बची रेखा होगी, और अब मेल नहीं खाएगी।
+
+डिवाइडर कंपोनेंट ख़ुद उस चुनाव का हिस्सा नहीं है। अपने कॉन्टेंट के बीच आप जो `<tanrei-divider>` रखते हैं, वह हमेशा एक रेखा होता है।
+
+### इनसेट चुनना
+
+| इनसेट | किसके लिए |
+| --- | --- |
+| कोई नहीं | पूरे कंटेनर के आर-पार की सीमा: सेक्शन के बीच, हेडर के नीचे। |
+| Start | उस लिस्ट की पंक्तियों के बीच, जिसकी पंक्तियाँ आइकन या अवतार से शुरू होती हैं। रेखा वहीं से शुरू होती है जहाँ से टेक्स्ट, इसलिए शुरुआती कॉलम एक ही कॉलम जैसा दिखता है। |
+| Both | ग्रुप के भीतर का ऐसा ब्रेक जो कंटेनर की सीमा जैसा नहीं दिखना चाहिए: बीच का डिवाइडर। |
+
+`insetLength` सिर्फ़ उस डिवाइडर पर सेट करें जिसे ऐसे कॉन्टेंट की सीध में आना है जिसका इनसेट प्रॉडक्ट की बाक़ी लिस्ट से अलग है। यह वहीं लागू होता है जहाँ `inset` इनसेट लगाता है, और जब तक `inset` none है, कुछ नहीं करता।
+
+### रेखा की शैली चुनना
+
+| रेखा की शैली | किसके लिए |
+| --- | --- |
+| Solid | लगभग हर डिवाइडर। यही डिफ़ॉल्ट है। |
+| Dashed | उसी प्रॉडक्ट में अलग तरह की सीमा: कूपन के ऊपर फाड़ने की रेखा, किसी अस्थायी चीज़ का किनारा। |
+| Dotted | ठोस रेखा से हल्का ब्रेक। यह अपनी लंबाई का लगभग एक तिहाई ढकती है, इसलिए उसी रंग में ज़्यादा हल्की दिखती है। |
+| Wavy | ऐसा सेक्शन ब्रेक जो अपने आसपास की ठोस रेखाओं से अलग तरह की सीमा जैसा दिखना चाहिए। यह अपने अक्ष के आर-पार बाक़ी से ज़्यादा जगह लेती है। |
+
+गोल कैप (`lineCap="round"`) हर बिंदु को एक डिस्क और हर डैश को गोल सिरों वाली पट्टी बना देते हैं, और ठोस या लहरदार रेखा के सिरों को गोल कर देते हैं। गोल सिरे रेखा की लंबाई के भीतर रहते हैं, इसलिए इनसेट सटीक रहता है। डिफ़ॉल्ट बारीक रेखा पर गोल कैप दिखता ही नहीं: वह अपने `thickness` वाले डिवाइडर के लिए है, और उन डिज़ाइन सिस्टम के लिए जो मोटी रेखाएँ बनाते हैं।
+
+### करें
+
+- डिवाइडर के आसपास की जगह लेआउट में रखें: स्टैक की स्पेसिंग, लिस्ट का गैप। डिवाइडर अपनी ओर से कोई जगह नहीं जोड़ता, इसलिए वह कभी गैप को दुगना नहीं करता।
+- लिस्ट और कार्ड में इसे सजावटी (डिफ़ॉल्ट) रहने दें। पंक्तियाँ पहले से बताती हैं कि वे कहाँ शुरू और ख़त्म होती हैं।
+- `decorative` को false सिर्फ़ वहाँ करें जहाँ ग्रुप बनाने का व्यक्ति के लिए कोई अर्थ हो, जैसे टूलबार या मेन्यू के ग्रुप।
+- पूरे प्रॉडक्ट में एक तरह की सीमा के लिए एक ही रेखा शैली रखें, ताकि डैश वाली रेखा का मतलब हमेशा वही हो।
+
+### न करें
+
+- हर दो एलिमेंट के बीच रेखा न खींचें। पहले स्पेसिंग इस्तेमाल करें, और डिवाइडर वहाँ जहाँ स्पेसिंग काफ़ी न हो।
+- डिवाइडर को किसी कंटेनर के बॉर्डर या आउटलाइन के रूप में इस्तेमाल न करें। उसका न कोई कंटेनर है, न कोई शेप।
+- उसे कोई अर्थ देने के लिए मोटा या रंगीन न बनाएँ। `thickness` उस पैटर्न के लिए है जिसे दिखने के लिए जगह चाहिए, या उस रेखा के लिए जो अपने आसपास की मोटी रेखाओं से मेल खाए। डिवाइडर के रंग पर कोई कंट्रास्ट अनुपात लागू नहीं होता, क्योंकि जिस कॉन्टेंट को वह अलग करता है, वह उसके बिना भी समझ आना चाहिए।
+- जो कंपोनेंट अपने भाग ख़ुद अलग करता है, उसके भीतर डिवाइडर न जोड़ें, जैसे मेन्यू के ग्रुप के बीच या लिस्ट की पंक्तियों के बीच। कंपोनेंट की अपनी प्रॉपर्टी इस्तेमाल करें।
+- रेखा की शैली को अकेले कोई अर्थ न ढोने दें। अगर डैश वाली रेखा का मतलब "यहाँ से काटें" है, तो यह टेक्स्ट में भी कहें।
+- हेडिंग के लिए इस पर निर्भर न रहें। दो फ़ॉर्म के बीच "— या —" दो डिवाइडर और एक लेबल है, और अर्थ लेबल बताता है।
+
+## सुलभता
+
+<ComponentAccessibility name="divider" />
+
+### कंपोनेंट क्या सँभालता है
+
+- सजावटी (डिफ़ॉल्ट) होने पर यह हर प्लैटफ़ॉर्म पर सहायक तकनीक से छिपा रहता है।
+- सजावटी न होने पर वेब पर यह सहायक तकनीक को अपने ओरिएंटेशन के साथ सेपरेटर के रूप में मिलता है। Apple के प्लैटफ़ॉर्म, Android और Flutter में सेपरेटर का रोल नहीं है: वहाँ यह बिना नाम के एक्सेसिबिलिटी ट्री में रखा जाता है, और उतना बताता है जितना हर प्लैटफ़ॉर्म बता सकता है।
+- इस पर कभी फ़ोकस नहीं जा सकता और यह कोई इनपुट नहीं लेता, इसलिए यह अपने दोनों ओर के कंट्रोल के रास्ते में कभी नहीं आता।
+- इसकी रेखा कम से कम एक डिवाइस पिक्सल मोटी होती है। ठोस, बिंदुदार या डैश वाली रेखा अपने अक्ष के आर-पार पिक्सल ग्रिड की सीध में रखी जाती है, इसलिए वह कभी धुँधली नहीं होती; लहर ऐंटीएलियास करके बनाई जाती है।
+- रेखा की शैली सहायक तकनीक को कुछ नहीं बताती: जो बिंदुदार, डैश वाला या लहरदार डिवाइडर सजावटी नहीं है, वह वैसा ही सेपरेटर है जैसा ठोस।
+- वेब पर फ़ोर्स्ड कलर्स मोड हर रेखा शैली को सिस्टम के टेक्स्ट रंग में दोबारा बनाता है।
+
+### आपको क्या करना है
+
+- रेखा की शैली को आप जो भी अर्थ देते हैं, जैसे फाड़ने की रेखा, उसे टेक्स्ट में बताएँ। सहायक तकनीक शैली नहीं बताती, और बिंदुदार या डैश वाली रेखा ठोस रेखा से हल्की दिखती है।
+- जब ग्रुप बनाना मायने रखता हो, तो हर ग्रुप को उसका अपना नाम दें। सेपरेटर का कोई नाम नहीं होता, इसलिए वह नहीं बता सकता कि ग्रुप क्या हैं।
+- पेज की संरचना बताने के लिए डिवाइडर का इस्तेमाल न करें। यह काम हेडिंग और लैंडमार्क करते हैं; रेखा सिर्फ़ दिखती है।
